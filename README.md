@@ -6,11 +6,14 @@
 
 ## 開發與執行環境
 
-| | 本地開發 | TWCC 執行 |
+| | 本地開發 | 雲端執行 |
 |---|---|---|
-| 硬體 | CPU（Windows 11 Home，16 GB RAM） | Tesla V100-SXM2-32GB |
+| 硬體 | CPU（Windows 11 Home，16 GB RAM） | Lightning AI H100 80GB／TWCC V100 32GB |
 | 模型 | `hf-internal-testing/tiny-stable-diffusion-pipe` | SD V1.4 / V2.0 |
-| 用途 | 開發與正確性驗證 | 正式實驗 |
+| 用途 | 開發與正確性驗證 | 方向可行性驗證／正式實驗 |
+
+**在雲端（Lightning AI H100）跑通全流程**：見 **`RUN_CLOUD.md`**（clone、環境、
+模型授權、可行性規模與逐步指令、GitHub 推送步驟）。
 
 同一份程式碼兩地通用：裝置經 `src/utils/device.py` 抽象（全專案禁用
 `.cuda()`），模型名稱由 `configs/*.yaml` 提供，不硬編碼。不依賴 xformers。

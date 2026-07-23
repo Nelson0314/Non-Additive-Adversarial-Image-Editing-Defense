@@ -72,6 +72,9 @@ def main():
     parser.add_argument("--edit-methods", default=None, help="如 sdedit,inpaint")
     parser.add_argument("--max-images", type=int, default=None)
     parser.add_argument("--n-seeds", type=int, default=None)
+    parser.add_argument("--sdedit-strength", type=float, default=None,
+                        help="覆寫 edit.sdedit_strength（SPEC §2.8 待確認；"
+                             "viability 執行填 0.8＝diffusers 預設）；存入 config_snapshot 供 stage2 沿用")
     parser.add_argument("--smoke", action="store_true")
     parser.add_argument("--no-fid", action="store_true")
     parser.add_argument("--with-clip", action="store_true",
@@ -86,6 +89,8 @@ def main():
     if args.smoke:
         apply_smoke(cfgs, sd_protect)
     base = cfgs["base"]
+    if args.sdedit_strength is not None:
+        base["edit"]["sdedit_strength"] = args.sdedit_strength
     set_seed(base["runtime"]["seed"])
 
     methods = args.methods.split(",")

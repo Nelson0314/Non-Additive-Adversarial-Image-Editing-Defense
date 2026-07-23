@@ -86,6 +86,66 @@ diffusion attack（`notebooks/demo_complex_attack_inpainting.ipynb`）：
 - 官方 `__main__` 有小 bug（`args.pure_model` 應為 `args.pure_model_dir`），不影響本專案
   （我們自行實作，不呼叫其腳本）
 
+### APA（deep-kaixun/APA）— 2026-07-23 確認
+
+檔案：`attack_alignment.py`（Stage 2 入口）、`visual_alignment.py`（Stage 1 LoRA 訓練）、
+`pipe_ours.py`（核心 pipeline）、`utils.py`（增強變換）。
+
+**與 SPEC §4.4 一致**：µ(alpha)=0.04、ε_a(eps)=0.4、N(niters)=10、T_a=10
+（`index_cond=40` 於 50 步排程 = 最後 10 步）、SD v1.5、prompt = class 名稱、
+式 (9)(10) 中間步淨化逐字一致（`fac=√(1−ᾱ)`，z_in = fac·z_ori + (1−fac)·ẑ0，
+z_ori 為原圖 latent）、式 (8) `noise_pred − √β·sign(m)`（m 為 ℓ1 正規化梯度動量、
+每輪軌跡重置）、式 (7) 軌跡動量跨輪累積 + µ·sign + ℓ∞ clamp、
+guidance_scale=1（inversion 與攻擊均無 CFG）。
+
+**解決 SPEC §8 第 4 項——LoRA 設定（visual_alignment.py）**：
+- **rank = 8**、lora_alpha = 8、target_modules = `["to_k","to_q","to_v","to_out.0"]`、
+  init="gaussian"、以 **peft**（`unet.add_adapter(LoraConfig(...))`）實作
+- AdamW lr=1e-4、weight_decay=1e-2、grad clip 1.0、constant scheduler、**200 步**
+  （SPEC config 誤植 100）、noise_offset=0.1、單圖、caption=class、latent 用 `.sample()`
+- Stage 1 = 標準 diffusion loss 最小化（與本專案實作方向一致）
+
+**與 SPEC 不一致（以官方為準待修）**：
+1. **APA-SG 之「skip gradient」語意**：軌跡梯度**不反傳穿過採樣鏈**——
+   在最終 latent（z̄_0）上算 grad、乘常數 **14.58**（來源不明，經驗值）、
+   直接套用到 z_T。SPEC 式 (7) 寫 ∇_{z_T} 未說明此近似。
+2. **APA-GC 之 T=10 語意**：inversion 只做「部分」——50 步格點只走前 10 步
+   （反推至 t≈0.2T），採樣只跑最後 11 步、`torch.utils.checkpoint` 反傳至 z_T；
+   非「全噪聲範圍 10 步粗格點」（本專案目前實作為後者，須修正）。
+   GC 的 reward 另有 **−10·MSE(z_ori, z_final)** latent 貼近正規化（SG 無）。
+3. **式 (12) 之 z̄_0 = 最終生成 latent**（增強影像 = (D(x̂0_t) + 最終生成影像)/2），
+   非原圖 latent（本專案目前與原圖 z0 平均，須修正）；la_list 之 x̂0 為 detached，
+   梯度僅經最終影像那一半流動。
+4. **ϱ（式 12 前處理）**= `ori_trans`：random resize（90–100%）+ random 零 padding
+   回原尺寸 + interpolate；brightness 在 code 中被註解停用。reward 為對整批
+   增強影像之 CE（等價於 1/T·Σ）。
+5. 排程用模型預設 scheduler（PNDM/PLMS）50 步之 `scheduler.step`，非純手動 DDIM。
+
+### AdvDiff（EricDai0/advdiff）— 2026-07-23 確認
+
+檔案：`advdiff.py`（driver）、`ldm/models/diffusion/ddim_adv.py`（核心，位置與先前查閱一致）。
+情境：class-conditional LDM（cin256-v2）、DDIM 200 步、eta=0、CFG scale 3.0、
+由隨機噪聲生成（非保護任務）。
+
+**與 SPEC §4.3 一致**：guidance 區間 `0 < index ≤ 0.2·total_steps`（DDIM 步 index 計，
+最後 20% 步）、a=0.5、K(=N)=5、200 步、x_T 無投影（SPEC 之投影確為本專案自加）。
+
+**與 SPEC 不一致（以官方為準待修）**：
+1. **每步注入形式**：LDM+DDIM 下官方仍用「**後置加法**」——`p_sample_ddim` 完成後
+   `img = img + s·gradient`（直接加在 x_{t-1} 上），**非** Alg.2 之改 epsilon；
+   且所有係數（σ²_t / √(1−ᾱ)·×10）皆被註解掉，實際**無係數**。
+   SPEC 採 Alg.2 改-epsilon 形式與官方不符。
+2. **起始噪聲注入為 skip-gradient**：gradient 於**最終 latent** 上計算
+   （= 論文式 11 之 ∇_{x_0}），直接 `pri_img += a·gradient` 套用到 x_T，
+   **不反傳穿過採樣鏈**。SPEC 偽碼 `grad(R_final, z_T)`（全鏈反傳）與官方不符；
+   官方作法無需保留採樣計算圖，記憶體大幅較低。
+3. s：driver 預設 1.0、函式簽名預設 0.75（論文 §4 寫 0.7）——不一致，屬官方自身版本差。
+
+**code 有而 SPEC 未提**：targeted 用動態「第二名標籤」（`get_target_label`：
+分類正確時取 top-2，否則取 top-1）；攻擊成功即 early exit；只回傳成功樣本；
+gradient clamp（±0.3）被註解停用。以上屬分類器情境，本專案 untargeted reward
+不直接適用，但記錄供追溯。
+
 ### SDEdit — 2026-07-23
 
 原始 repo（ermongroup/SDEdit，DDPM-based）僅作參考；本專案實際採 diffusers 之

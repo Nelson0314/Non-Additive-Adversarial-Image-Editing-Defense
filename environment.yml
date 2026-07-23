@@ -1,0 +1,19 @@
+# 本地開發環境（conda env `wacv`）。實測版本見 NOTES.md「套件版本」。
+# 不釘版本：TWCC 端 torch/CUDA 版本本就不同，程式碼不綁定特定版本。
+# TWCC 建env 踩坑（conda tos accept、PIP_USER=0、PYTHONNOUSERSITE=1）見 TWCC_CHECKLIST.md。
+name: wacv
+channels:
+  - defaults
+dependencies:
+  - python=3.11
+  - pip
+  - pip:
+      - torch          # 本地裝 CPU 版；TWCC 用容器預裝或 CUDA 版
+      - torchvision
+      - diffusers
+      - transformers
+      - accelerate
+      - piq            # 指標，SPEC §2.6 指定，不可替換
+      - opencv-contrib-python   # cv2.ximgproc.guidedFilter 所需
+      - pytest
+      - pyyaml

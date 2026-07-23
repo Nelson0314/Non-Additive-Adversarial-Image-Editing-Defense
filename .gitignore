@@ -1,0 +1,11 @@
+# STRUCTURE.md §6
+data/dayn_testset/
+experiments/
+external/
+*.ckpt
+*.safetensors
+__pycache__/
+
+# 其他
+.pytest_cache/
+.ipynb_checkpoints/

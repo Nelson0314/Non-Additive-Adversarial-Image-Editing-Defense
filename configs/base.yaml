@@ -1,0 +1,38 @@
+# 模型、資料、編輯、指標（STRUCTURE.md §3）
+# 本地開發時 protect_model / eval_models 可暫換為
+# "hf-internal-testing/tiny-stable-diffusion-pipe"（CPU 可跑），
+# TWCC 上換回真實模型即可，程式碼不得有硬編碼模型假設。
+
+model:
+  protect_model: "CompVis/stable-diffusion-v1-4"   # 生成保護時攻擊之模型
+  eval_models:                                      # 評測模型
+    - "CompVis/stable-diffusion-v1-4"
+    - "stabilityai/stable-diffusion-2-base"
+
+generation:            # SPEC §2.2，取自 PhotoGuard Table 8
+  height: 512
+  width: 512
+  guidance_scale: 7.5
+  num_inference_steps: 100
+  eta: 1
+
+edit:
+  methods: ["sdedit", "inpaint"]
+  sdedit_strength: null      # SPEC §2.8 待確認，向作者索取
+  n_seeds: 20                # SPEC §2.4
+
+data:
+  root: "data/dayn_testset"
+  source: "向 DAYN 作者索取"
+  is_placeholder: true       # 取得原始資料集後改為 false
+  n_images: 150              # SPEC §2.4
+  n_object_classes: 3
+  prompts_per_class: 2
+
+metrics:
+  backend: "piq"             # SPEC §2.6，不可換
+  compute: ["psnr", "ssim", "vifp", "fsim", "lpips", "fid", "clip"]
+
+runtime:
+  batch_size: 1              # SPEC §1.4，記憶體上限 V100 32GB
+  seed: 42

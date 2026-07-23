@@ -1,0 +1,38 @@
+# SPEC §5。DiffPure 已移出獨立條件，其機制存在於 GrIDPure 內部
+jpeg:
+  quality: [90, 80, 65, 50]    # 65 為社群標準設定
+
+blur:
+  sigma: [0.5, 1.0, 1.5]
+
+crop_resize:
+  ratio: [0.1, 0.2, 0.3]       # 0.2 為標準設定
+
+adverse_cleaner:               # 即 BF+GF，兩變體
+  variants: ["bf_only", "bf_gf"]
+  bf_iterations: 3
+  bf_d: 5
+  bf_sigma_color: 8
+  bf_sigma_space: 8
+  gf_radius: 4
+  gf_eps: 16
+
+gridpure:                      # SPEC §5.3；timestep 尺度 = 1000 步 DDPM 之原始步數（L1.3 確認）
+  grid_size: 256
+  stride: 128
+  n_grids: 10                  # 九個 + 四角落組成的第十個
+  gamma: 0.1
+  # 兩組設定性質不同，階段二皆須測（v2.1 補丁）：
+  # - iterative：多次淺淨化，GrIDPure 核心設計（官方 README 建議值）
+  # - single_deep：單次深淨化，行為上退化為 DiffPure（官方腳本預設值）
+  # 兩者對照可檢驗 GrIDPure 的迭代設計是否確實優於單次深淨化
+  settings:
+    - name: "iterative"
+      pure_steps: 10
+      iterations: 20
+    - name: "single_deep"
+      pure_steps: 100
+      iterations: 1
+  pure_steps_scan: [5, 10, 15] # iterative 模式之淨化強度掃描（繪製曲線用）
+  # 成本警告：單張 512x512 在 V100 上約 2 分鐘
+  # 需 pixel-space 無條件 guided diffusion checkpoint（約 2GB，見 TWCC_CHECKLIST.md）

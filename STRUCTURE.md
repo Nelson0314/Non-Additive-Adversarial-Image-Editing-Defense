@@ -289,31 +289,76 @@ common:
   similarity_metric: "lpips"
   similarity_budget: null     # 由 stage0_calibrate.py 填入
 
-advdiff:                       # SPEC §4.3
-  sampler: "ddim"              # LDM 上採 DDIM 形式
+advdiff:                       # SPEC §4.3（v4：依官方 ddim_adv.py 修正）
   T: 10
-  N: 5                         # 原文 ImageNet 設定
-  s: 0.7                       # 每步注入強度
+  N: 5                         # 官方 K=5
   a: 0.5                       # 起始噪聲注入強度
   guidance_range: [0.0, 0.2]   # 附錄 E：僅在反向過程末段施加
+  eta: 0.0
   reward: "attention"          # SPEC §4.2 方案一
 
-apa:                           # SPEC §4.4
-  variant: "gc"                # "sg" (T=50) | "gc" (T=10)
-  T: 10
-  T_a: 10
+  # v4 修正：官方在 LDM+DDIM 下仍用後置加法，且無係數
+  injection_form: "post_hoc"   # 非 "modify_epsilon"
+  injection_coeff: none        # 官方將 σ²_t、√(1−ᾱ) 等係數全部註解停用
+
+  # v4 修正：起始噪聲注入採 skip-gradient，不反傳穿鏈
+  # 梯度於最終 latent 計算後直接套用至 z_T
+  ztT_update: "skip_gradient"
+
+  # s 值官方自身不一致：論文 0.7 / driver 1.0 / 函式簽名 0.75
+  # 採論文值為起點；本專案 reward 定義不同，預期需重調
+  s: 0.7
+
+apa:                           # SPEC §4.4（v4：依官方 repo 修正）
+  variant: "gc"                # "sg" | "gc"
+  T_a: 10                      # 50 步排程中 index_cond=40，即最後 10 步
   N: 10
   eps_a: 0.4
   mu: 0.04
-  lora_rank: null              # SPEC 待確認，主文未給
-  lora_lr: 1.0e-4
-  lora_steps: 100
+  guidance_scale: 1.0          # inversion 與攻擊均無 CFG
   reward: "attention"
+
+  # --- Stage 1（v4：官方值，LoRA rank 待確認項已解決）---
+  lora_impl: "peft"            # 官方使用 peft
+  lora_rank: 8                 # 官方值（v1 誤植為 4，該值實為 AntiPure 設定）
+  lora_alpha: 8
+  lora_target_modules: ["to_k", "to_q", "to_v", "to_out.0"]
+  lora_init: "gaussian"
+  lora_lr: 1.0e-4
+  lora_weight_decay: 1.0e-2
+  lora_grad_clip: 1.0
+  lora_steps: 200              # v3 誤設 100
+  noise_offset: 0.1
+
+  # --- SG 與 GC 的實質差異（v4 重大修正）---
+  sg:
+    # 軌跡梯度不反傳穿鏈，於最終 latent 計算後乘常數直接套用
+    trajectory_grad: "skip"
+    scale_constant: 14.58      # 官方經驗常數，未說明來源；本專案預期需重調
+    inversion: "full"          # 完整 inversion（50 步）
+
+  gc:
+    # 「T=10」非全程 10 步，而是部分 inversion 至 t≈0.2T
+    trajectory_grad: "checkpoint"   # torch.utils.checkpoint
+    inversion: "partial"
+    inversion_steps: 10        # 於 50 步格點上只走前 10 步
+    sampling_steps: 11         # 只跑最後 11 步
+    mse_reg_weight: 10.0       # GC 版 reward 含 −10·MSE(z_ori, z_final)，SG 版無
+
+  # --- 式 (12) diffusion augmentation（v4 修正）---
+  aug:
+    # 官方：增強影像 = (D(x̂_0^t) + 最終生成影像)/2，x̂_0^t 為 detached
+    # v3 誤實作為與原圖 latent 平均
+    base: "final_generated"    # 非 "original"
+    resize_range: [0.9, 1.0]   # random resize 後零 padding 回原尺寸
+    brightness: false          # 官方 code 中註解停用
 
 hybrid:                        # SPEC §4.5，本專案設計
   base: "apa"
   injection: "advdiff"
 ```
+
+**v4 註**：AdvDiff 與 APA-SG 均採 skip-gradient，不需保留採樣計算圖，V100 32GB 記憶體壓力較 v3 評估顯著降低（見 SPEC §4.2）。
 
 ### configs/purify.yaml
 

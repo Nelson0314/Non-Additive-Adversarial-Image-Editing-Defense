@@ -15,5 +15,7 @@ dependencies:
       - accelerate
       - piq            # 指標，SPEC §2.6 指定，不可替換
       - opencv-contrib-python   # cv2.ximgproc.guidedFilter 所需
+      - peft           # APA Stage 1 LoRA（官方實作使用，SPEC §4.4.2）
       - pytest
       - pyyaml
+      - psutil         # 記憶體量測（開發輔助）

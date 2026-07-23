@@ -1,8 +1,9 @@
-"""非加性方法單元測試（CPU、tiny SD）— 指令 D 之小規模驗證。
+"""非加性方法單元測試（CPU、tiny SD）— v4 對齊版。
 
-驗證：reward 梯度可算且方向正確（沿梯度上升 R 增加）、DDIM inversion 決定性、
-AdvDiff/APA/Hybrid 三方法可跑通且輸出合法、LoRA 注入零初始化不改變輸出且
-可精確還原。超參數為縮減值，非正式設定。
+驗證：reward 梯度可算且方向正確、DDIM inversion 決定性、AdvDiff（後置加法 +
+skip-gradient）、APA-SG（完整 inversion + skip）、APA-GC（部分 inversion +
+checkpoint）、Hybrid 可跑通且輸出合法、peft LoRA 於 protect 後精確還原。
+超參數為縮減值，非正式設定。
 """
 
 import pytest
@@ -10,7 +11,7 @@ import torch
 
 from src.models.sd_wrapper import SDWrapper
 from src.protect.advdiff_based import AdvDiffProtection
-from src.protect.apa_based import APAProtection, inject_lora
+from src.protect.apa_based import APAProtection
 from src.protect.hybrid import HybridProtection
 from src.protect.rewards import attention_reward_latent
 
@@ -18,26 +19,46 @@ TINY_MODEL = "hf-internal-testing/tiny-stable-diffusion-pipe"
 
 APA_CFG = {
     "variant": "gc",
-    "T": 3,
-    "T_a": 2,
+    "grid_steps": 10,            # 測試縮減（官方 50）
+    "T_a": 3,
     "N": 2,
     "eps_a": 0.4,
     "mu": 0.04,
-    "lora_rank": 2,
-    "lora_lr": 1.0e-4,
-    "lora_steps": 3,
+    "guidance_scale": 1.0,
     "reward": "attention",
+    "lora_impl": "peft",
+    "lora_rank": 2,
+    "lora_alpha": 2,
+    "lora_target_modules": ["to_k", "to_q", "to_v", "to_out.0"],
+    "lora_init": "gaussian",
+    "lora_lr": 1.0e-4,
+    "lora_weight_decay": 1.0e-2,
+    "lora_grad_clip": 1.0,
+    "lora_steps": 3,             # 測試縮減（官方 200）
+    "noise_offset": 0.1,
+    "sg": {"trajectory_grad": "skip", "scale_constant": 14.58, "inversion": "full"},
+    "gc": {
+        "trajectory_grad": "checkpoint",
+        "inversion": "partial",
+        "inversion_steps": 3,    # 測試縮減（官方 10）
+        "sampling_steps": 4,
+        "mse_reg_weight": 10.0,
+    },
+    "aug": {"base": "final_generated", "resize_range": [0.9, 1.0], "brightness": False},
 }
 
 ADVDIFF_CFG = {
-    "sampler": "ddim",
     "T": 5,
     "N": 2,
-    "s": 0.7,
     "a": 0.5,
     "guidance_range": [0.0, 0.5],  # 縮小 T 後放寬區間，確保涵蓋 guided 步
-    "eps_latent": 0.2,
+    "eta": 0.0,
     "reward": "attention",
+    "injection_form": "post_hoc",
+    "injection_coeff": None,
+    "ztT_update": "skip_gradient",
+    "s": 0.7,
+    "eps_latent": 0.2,
 }
 
 
@@ -92,21 +113,6 @@ def test_ddim_inversion_deterministic(sd):
     assert a.shape == z0.shape and torch.isfinite(a).all()
 
 
-def test_lora_inject_restore(sd):
-    z, emb = _latent(sd), sd.encode_text("dog")
-    with torch.no_grad():
-        y_ref = sd.unet(z, 1, encoder_hidden_states=emb).sample
-    params, restore = inject_lora(sd.unet, rank=2)
-    assert len(params) > 0
-    with torch.no_grad():
-        y_injected = sd.unet(z, 1, encoder_hidden_states=emb).sample
-    assert torch.allclose(y_ref, y_injected, atol=1e-6)  # up 零初始化
-    restore()
-    with torch.no_grad():
-        y_restored = sd.unet(z, 1, encoder_hidden_states=emb).sample
-    assert torch.equal(y_ref, y_restored)
-
-
 def _assert_valid_output(out, x):
     assert out.shape == x.shape
     assert 0.0 <= out.min() and out.max() <= 1.0
@@ -120,21 +126,26 @@ def test_advdiff_protect(sd):
     _assert_valid_output(out, x)
 
 
-def test_apa_protect_and_unet_restored(sd):
+@pytest.mark.parametrize("variant", ["sg", "gc"])
+def test_apa_protect_and_unet_restored(sd, variant):
     x = _image(sd)
     z, emb = _latent(sd), sd.encode_text("dog")
     with torch.no_grad():
         y_before = sd.unet(z, 1, encoder_hidden_states=emb).sample
-    out = APAProtection(sd, APA_CFG).protect(x, "dog")
+    cfg = {**APA_CFG, "variant": variant}
+    method = APAProtection(sd, cfg)
+    assert method.name == f"apa_{variant}"
+    out = method.protect(x, "dog")
     _assert_valid_output(out, x)
     with torch.no_grad():
         y_after = sd.unet(z, 1, encoder_hidden_states=emb).sample
-    assert torch.equal(y_before, y_after)  # LoRA 已移除，unet 復原
+    assert torch.equal(y_before, y_after)  # peft adapter 已刪除，unet 復原
 
 
 def test_hybrid_protect(sd):
     x = _image(sd)
-    cfg = {**APA_CFG, "s": 0.7, "a": 0.5}
-    out = HybridProtection(sd, cfg).protect(x, "dog")
+    cfg = {**APA_CFG, "variant": "sg", "s": 0.7, "a": 0.5}
+    method = HybridProtection(sd, cfg)
+    out = method.protect(x, "dog")
     _assert_valid_output(out, x)
-    assert HybridProtection(sd, cfg).name == "hybrid"
+    assert method.name == "hybrid"

@@ -277,22 +277,51 @@ AdvDiff 附錄 H 的 untargeted 版本為 `−∇_{x_{t-1}} log p_f(y|x_{t-1})`�
 
 **方案二**：`R = ‖edit(x', prompt) − edit(x, prompt)‖`。更直接但計算圖深，須配 gradient checkpointing 並縮減步數。
 
-**已知風險**：editing pipeline 為 training-free 推論、參數凍結、計算圖較分類器深（AntiPure ICCV'25 §4 已分析此類困難）。實作順序**必須**為：先以單張影像、極少步數驗證梯度可算且方向正確，再逐步放大。
+**已知風險與 v4 更新**：editing pipeline 為 training-free 推論、參數凍結，AntiPure（ICCV'25 §4）已分析此類攻擊的結構性困難。
 
-### 4.3 AdvDiff-based `[原文確認：AdvDiff 式 9、11、Algorithm 1/2、附錄 E]`
+**惟 v4 官方程式碼核對後，記憶體風險大幅下修**：AdvDiff 與 APA-SG 均採 **skip-gradient**——梯度於最終 latent 計算後直接套用，**不反傳穿過採樣鏈**（見 §4.3.2、§4.4.3）。故不需保留完整採樣計算圖，V100 32GB 的壓力顯著緩解，方案二（編輯結果劣化 reward）之可行性亦隨之提高。
 
-**兩個注入點，DDPM 與 DDIM 形式不同**：
+實作順序仍**必須**為：先以單張影像、極少步數驗證梯度可算且方向正確，再逐步放大。
 
-| | DDPM `[Alg.1 line 8, 12]` | DDIM `[Alg.2 line 6, 11]` |
-|---|---|---|
-| 每步注入 | `x*_{t-1} = x_{t-1} + σ²_t·s·∇ log p_f(y_a\|x_{t-1})`（後置加法） | `ε̂_t = ε̃_t − √(1−ᾱ_t)·∇ log p_f(y_a\|x_t)`（改 epsilon） |
-| 起始噪聲注入 | `x_T = x_T + σ̄²_T·a·∇_{x_0} log p_f(y_a\|x_0)` | `x_T = x_T + a·∇_{x_0} log p_f(y_a\|x_0)`（**無係數**） |
+### 4.3 AdvDiff-based `[原文確認：AdvDiff 式 9、11、Alg.1/2、附錄 E；官方程式碼核對 v4]`
 
-**本專案在 LDM 上實作，採 DDIM 形式。** 註：Alg.2 第 6 行原文未帶 `s`，附錄式 25 說明可將常數 C 替換為 guidance scale，故實作時 `s` 為可調參數。
+**v4 重大修正**：官方實作（`ldm/models/diffusion/ddim_adv.py`）與 v3 SPEC 有兩處形式差異，均以官方為準。
 
-**guidance 施加區間** `[原文確認：AdvDiff 附錄 E]`：原文 §4.5 消融指出反向過程早期（高 t）影像仍為噪聲、目標模型無法判斷，guidance 無效。ImageNet 設定為僅在 **(0, 0.2]** 區間施加（MNIST 為 (0, 0.5]）。
+#### 4.3.1 每步注入：後置加法，無係數
 
-**原文參數**（ImageNet / LDM+DDIM）：`N=5, s=0.7, a=0.5`，採樣 200 步。原文自承對 s、a 敏感（s=10 產生噪聲紋理、a=10 產生噪聲影像）。
+v3 SPEC 依論文 Alg.2 記為「DDIM 形式改 epsilon」。**官方在 LDM+DDIM 下仍採後置加法**：於 `p_sample_ddim` 完成後直接對輸出加上梯度：
+
+```
+img = img + s · gradient          # 加在 x_{t-1} 上，非修改 epsilon
+```
+
+且官方將 `σ²_t`、`√(1−ᾱ_t)×10` 等係數**全部註解停用**，實際無任何係數。
+
+#### 4.3.2 起始噪聲注入：skip-gradient，不穿鏈
+
+v3 偽碼寫為 `grad(R_final, z_T)`（全鏈反傳）。**官方採 skip-gradient**：梯度於最終 latent 計算（即論文式 11 的 `∇_{x_0}`），直接套用至 `x_T`，不反傳穿過採樣鏈：
+
+```
+x_T = x_T + a · g          # g 於最終 latent 計算，非對 z_T 求導
+```
+
+**此發現對本專案意義重大**：不需保留採樣過程的計算圖，V100 32GB 的記憶體風險大幅緩解（見 §4.2 之風險評估更新）。
+
+#### 4.3.3 已確認一致之處
+
+兩 guidance 位置確於 `ddim_adv.py`；guidance 區間為 `0 < index ≤ 0.2·total_steps`（以 DDIM 步 index 計，均勻離散下等價於 SPEC 之 (0, 0.2]）；`a=0.5`、`K=5`、採樣 200 步、`eta=0`；`x_T` 無投影約束（SPEC 將投影標記為 `[本專案設計]` 正確）。
+
+#### 4.3.4 s 值 `[官方自身不一致]`
+
+論文 0.7、driver 預設 1.0、函式簽名預設 0.75。config 預設採**論文值 0.7** 並註記此不一致。
+
+註：本專案任務與原論文不同（editing 防禦 vs 分類器攻擊），s 為 reward 尺度相依參數，預期需重新調整，論文值僅為起點。
+
+#### 4.3.5 官方有而 SPEC 未提（分類器情境專屬，本專案不直接適用）
+
+targeted 攻擊使用動態第二名標籤（分類正確取 top-2，否則 top-1）；攻擊成功即 early exit 且只回傳成功樣本；gradient clamp（±0.3）於 code 中註解停用。本專案採 untargeted reward，上述不適用，記錄供追溯。
+
+#### 4.3.6 修正後偽碼
 
 ```python
 def advdiff_based_protect(x, sd, concept, config):
@@ -303,21 +332,25 @@ def advdiff_based_protect(x, sd, concept, config):
 
     for _ in range(config.N):
         z = z_T.clone()
-        for t in descending_timesteps(config.T):
-            eps = sd.unet(z, t, prompt_emb)
 
+        for t in descending_timesteps(config.T):
+            # 標準 DDIM 一步（不修改 epsilon）
+            z = ddim_step(z, sd.unet(z, t, prompt_emb), t)
+
+            # v4：後置加法，無係數（官方 ddim_adv.py）
             if in_guidance_range(t, config.t_range):       # 附錄 E：(0, 0.2]
                 z_g = z.detach().requires_grad_(True)
                 R = protect_reward(z_g, t, sd, concept)    # §4.2 方案一
                 g = torch.autograd.grad(R, z_g)[0]
-                eps = eps - config.s * sqrt(1 - alpha_bar(t)) * g   # Alg.2 line 6
-
-            z = ddim_step(z, eps, t)
+                z = z + config.s * g                       # 加在 x_{t-1} 上
 
         x_prot = sd.vae.decode(z)
-        R_final = protect_reward_on_image(x_prot, sd, concept)
-        g_T = torch.autograd.grad(R_final, z_T)[0]
-        z_T = z_T + config.a * g_T                          # Alg.2 line 11，無係數
+
+        # v4：skip-gradient，梯度於最終 latent 計算，不穿鏈
+        z_final = z.detach().requires_grad_(True)
+        R_final = protect_reward_on_latent(z_final, sd, concept)
+        g = torch.autograd.grad(R_final, z_final)[0]
+        z_T = z_T + config.a * g                           # 直接套用，非對 z_T 求導
 
         # [本專案設計]：原文對 x_T 無投影約束；保護任務須貼近原圖故加入
         z_T = project_to_ball(z_T, z_T_orig, config.eps_latent)
@@ -325,22 +358,78 @@ def advdiff_based_protect(x, sd, concept, config):
     return clamp01(x_prot)
 ```
 
-### 4.4 APA-based `[原文確認：APA 式 5–12、§4.1]`
+### 4.4 APA-based `[原文確認：APA 式 5–12、§4.1；官方程式碼核對 v4]`
 
-**Stage 1（式 6）**：`R_s(∆θ) = E_{t,ε}[ −‖ε − ε_{θ+∆θ}(z_t,t,c)‖² ]`，更新 `∆θ = ∆θ + α∇_{∆θ}R_s`。
+#### 4.4.1 論文公式（已確認與官方一致）
+
+**Stage 1（式 6）**：`R_s(∆θ) = E_{t,ε}[ −‖ε − ε_{θ+∆θ}(z_t,t,c)‖² ]`，更新 `∆θ = ∆θ + α∇_{∆θ}R_s`。即標準 diffusion loss 最小化。
 
 **Stage 2**：
 
-- 式 (7) trajectory-level：`g_tr = ∇_{z_T}R_a`；`m^i = m^{i-1} + g_tr/‖g_tr‖₁`；`z_T = Π_{z⁰_T+ε_a}(z_T + µ·sgn(m^i))`
-- 式 (8) step-level：`ε = ε − √(1−ᾱ_t)·∇_{z_t}R_a`，**原文無 s 係數**；且式 (11) 之後明確以 **`sgn(m^t_st)`** 取代該梯度項
-- 式 (9)：`z^t_0 = (z_t − √(1−ᾱ_t)ε)/√ᾱ_t`
-- 式 (10)：`z^t_in = √(1−ᾱ_t)·z_0 + (1−√(1−ᾱ_t))·z^t_0`
-- 式 (11)：`g_st = ∇_{z_t}R_a(f(x^t_in))`；`m^t_st = m^{t+1}_st + g_st/‖g_st‖₁`
-- 式 (12)：`x^t_0 = ϱ((D(z^t_0) + D(z̄_0))/2)`；`g_tr = ∇_{z_T}(1/T)Σ_t R_a(f(x^t_0))`
+- 式 (8) step-level：`ε = ε − √(1−ᾱ_t)·sgn(m^t_st)`，**無 s 係數**；ℓ1 動量，**每輪重置**
+- 式 (9)：`z^t_0 = (z_t − √(1−ᾱ_t)ε)/√ᾱ_t` — 逐字一致
+- 式 (10)：`z^t_in = √(1−ᾱ_t)·z_0 + (1−√(1−ᾱ_t))·z^t_0` — 逐字一致
+- 式 (11)：`m^t_st = m^{t+1}_st + g_st/‖g_st‖₁`
+- 式 (7) trajectory 動量：**跨輪累積** + ℓ∞ clamp
 
-**參數** `[原文確認：APA §4.1]`：`T_a=10, N=10, ε_a=0.4, µ=0.04`；**APA-SG 用 T=50（完整 inversion），APA-GC 用 T=10**。基於 SD V1.5。attack guidance 僅在最後 T_a 步施加。
+**參數**（官方核對確認）：`T_a=10`（於 50 步排程中 `index_cond=40`，即最後 10 步）、`N=10`、`ε_a=0.4`、`µ=0.04`、SD v1.5、prompt 為 class 名稱、inversion 與攻擊均 `guidance_scale=1`（無 CFG）。
 
-`[待確認]` LoRA rank，主文未給（在附錄）。v1 誤植為 4，該值實為 AntiPure 之設定。
+#### 4.4.2 Stage 1 完整設定 `[待確認項已解決]`
+
+v3 標記為待確認的 LoRA rank，官方 `visual_alignment.py` 已解答：
+
+| 項目 | 官方值 |
+|---|---|
+| LoRA rank | **8**（v1 誤植為 4，該值實為 AntiPure 設定） |
+| lora_alpha | 8 |
+| target_modules | `["to_k", "to_q", "to_v", "to_out.0"]` |
+| 初始化 | gaussian |
+| 實作 | **peft** |
+| optimizer | AdamW, lr=1e-4, weight_decay=1e-2 |
+| grad clip | 1.0 |
+| 訓練步數 | **200**（v3 config 誤設 100，須改） |
+| noise_offset | 0.1 |
+| 資料 | 單圖、caption 為 class 名稱、latent 取 `.sample()` |
+
+**實作建議**：官方使用 peft。若要對齊官方（含 `to_out.0`、初始化方式、weight decay、grad clip），採用 peft 較手刻 LoRA 穩妥。
+
+#### 4.4.3 SG 與 GC 的實質差異（v4 重大修正）
+
+v3 SPEC 僅記「SG 用 T=50、GC 用 T=10」，此描述不足且其中一項為誤解。
+
+**APA-SG（skip gradient）**：
+
+軌跡梯度**不反傳穿鏈**。於最終 latent 上計算梯度，**乘以常數 14.58**，直接套用至 `z_T`。此即 "skip gradient" 之真義。v3 偽碼寫的 `g_tr = ∇_{z_T}R_a`（全鏈反傳）與官方不符。
+
+註：14.58 為經驗性縮放常數，官方未說明來源。實作時列為 config 參數，本專案因 reward 定義不同，此值預期需重新調整。
+
+**APA-GC（gradient checkpointing）**：
+
+「T=10」**並非全程 10 步**，而是**部分 inversion**：於 50 步格點上只走前 10 步（反推至 `t ≈ 0.2T`），採樣則只跑最後 11 步，以 `torch.utils.checkpoint` 反傳。
+
+**此為概念性差異，非參數差異**。保護影像係由「輕度加噪的原圖」生成，本質接近 SDEdit 而非完整 inversion。對本專案的意涵：視覺一致性較易維持，但生成過程受高度約束，保護強度可能因此受限——實驗時須留意此取捨。
+
+**GC 版額外正規化**：reward 含 `−10·MSE(z_ori, z_final)` 項（SG 版無）。納入 config。
+
+#### 4.4.4 式 (12) diffusion augmentation（v4 修正）
+
+v3 SPEC 未明示 `z̄_0` 為何，本專案先前實作為原圖 latent。**官方實際為最終生成 latent**：
+
+```
+增強影像 = (D(x̂_0^t) + 最終生成影像) / 2
+```
+
+其中 `x̂_0^t` 為 **detached**，梯度僅經最終影像半邊流動。
+
+**ϱ 的實際內容**：random resize（90–100%）+ random 零 padding 回原尺寸 + interpolate。brightness 於 code 中**註解停用**（論文有提及）。
+
+**reward 形式**：整批增強影像的 CE，等價於 `1/T·Σ`。
+
+#### 4.4.5 待確認：scheduler 一致性
+
+官方採模型預設（**PNDM**）50 步的 `scheduler.step`，非手動 DDIM。
+
+**此處存疑**：DDIM inversion 成立的前提為採樣器具確定性（DDIM）。若 inversion 用 DDIM 而採樣用 PNDM，「inversion 後去噪可重建原圖」之性質不保證成立。須確認官方 inversion 與採樣分別使用何種 scheduler，並記錄其對「錨定原圖」的實際影響。
 
 ### 4.5 Hybrid `[本專案設計]`
 
@@ -500,8 +589,9 @@ AntiPure 使用 t^p=10、γ=0.1、2 輪×20 迭代，屬多次淺淨化一類。
 
 ### 其他
 
-6. APA 的 LoRA rank（在其附錄）
-7. 非加性之相似性約束改用 LPIPS 是否為可接受之假設
+6. ~~APA 的 LoRA rank~~ — **已由官方程式碼解決：rank=8**（見 §4.4.2）
+7. **APA 官方的 scheduler 一致性**：inversion 與採樣是否混用 DDIM 與 PNDM，若混用則「inversion 後可重建原圖」之性質存疑（見 §4.4.5）
+8. 非加性之相似性約束改用 LPIPS 是否為可接受之假設
 
 不需要 DAYN 的官方程式碼（不實作），但測試集與編輯設定為對齊的前提。
 
@@ -511,8 +601,10 @@ AntiPure 使用 t^p=10、γ=0.1、2 輪×20 迭代，屬多次淺淨化一類。
 
 在環境偵查與骨架建立之後、實作演算法之前，先完成：
 
-1. `git clone https://github.com/MadryLab/photoguard` 並讀 `notebooks/` 內之 PGD 實作，確認投影方式（解決待確認第 3 項）。**PhotoGuard 為本專案的校準錨點，其實作正確性決定整個比較的有效性，此項優先於其他 clone 任務。**
-2. `git clone https://github.com/ZhengyueZhao/GrIDPure` 讀其預設參數與 grid 切分實作
-3. `git clone https://github.com/ermongroup/SDEdit` 作為 SDEdit 參考（實際使用 diffusers 之 img2img）
-4. 安裝 `piq` 與 `opencv-contrib-python`，確認 VIFp、FSIM、`cv2.ximgproc.guidedFilter` 可用
-5. **TWCC 階段須另行下載**：GrIDPure 所需之 pixel-space 無條件 guided diffusion checkpoint，約 **2GB**。記入 TWCC_CHECKLIST.md
+1. `git clone https://github.com/MadryLab/photoguard` 並讀 `notebooks/` 內之 PGD 實作，確認投影方式、loss 目標、值域尺度、範數類型。**PhotoGuard 為本專案的校準錨點，其實作正確性決定整個比較的有效性，此項優先於其他 clone 任務。**
+2. `git clone https://github.com/deep-kaixun/APA` 讀其 LoRA rank（解決 §4.4 待確認項）、Stage 1/2 訓練設定、dual-path guidance 的實際組合方式、diffusion augmentation 的變換內容、SG 與 GC 兩版本的實作差異
+3. `git clone https://github.com/EricDai0/advdiff` 讀其兩個 guidance 的實作（位於 `ldm/models/diffusion/ddim_adv.py`），確認實際採用 DDPM 或 DDIM 形式、guidance 的 timestep 區間如何實作、s 與 a 兩個 scale 的位置
+4. `git clone https://github.com/ZhengyueZhao/GrIDPure` 讀其預設參數與 grid 切分實作
+5. `git clone https://github.com/ermongroup/SDEdit` 作為 SDEdit 參考（實際使用 diffusers 之 img2img）
+6. 安裝 `piq` 與 `opencv-contrib-python`，確認 VIFp、FSIM、`cv2.ximgproc.guidedFilter` 可用
+7. **TWCC 階段須另行下載**：GrIDPure 所需之 pixel-space 無條件 guided diffusion checkpoint，約 **2GB**。記入 TWCC_CHECKLIST.md

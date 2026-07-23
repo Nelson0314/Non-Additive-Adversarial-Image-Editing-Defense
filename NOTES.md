@@ -196,6 +196,42 @@ img2img pipeline（SPEC §2.8 已確認其對應關係），不使用此 repo �
     trajectory-level +a·g），投影維持 APA 骨架之 ℓ∞ ball。
   - 記憶體風險（SPEC §4.2 已知風險）：trajectory 梯度須保留 T 步 UNet 計算圖，
     tiny 模型無虞；真實 SD 於 V100 若不足，後續以 gradient checkpointing 處理。
+    （此條為 v3 時之評估，v4 已因 skip-gradient 發現而下修，見下）
+- 2026-07-23（v4 補丁，依 APA/AdvDiff 官方 repo 全面修正非加性實作）：
+  - **AdvDiff**（advdiff_based.py）：每步注入改為「後置加法」`z ← z + s·g`
+    （標準 DDIM 一步後加在 x_{t-1} 上，無任何係數——官方將 σ²_t、√(1−ᾱ)×10
+    全部註解停用）；z_T 更新改 **skip-gradient**（梯度於最終 latent 計算後直接
+    套用，不反傳穿鏈）。s 採論文值 0.7（官方 driver 1.0／簽名 0.75 不一致）。
+    z_T 相對 L2 ball 投影保留（本專案設計；STRUCTURE v4 範本漏列 eps_latent，
+    SPEC §4.3.6 偽碼仍用，config 保留並註記）。
+  - **APA**（apa_based.py）：LoRA 改用 **peft**（rank=8、alpha=8、
+    to_k/q/v/to_out.0、gaussian、AdamW+wd 1e-2+clip 1.0、200 步、noise_offset
+    0.1、latent .sample()，均官方值）；protect 後 `delete_adapters` 還原，
+    torch.equal 驗證通過。SG＝完整 inversion（50 步格點）＋軌跡梯度 skip
+    （最終 latent 上計算 ×14.58）；GC＝**部分 inversion**（格點前
+    inversion_steps 步，t≈0.2T）＋checkpoint 反傳＋`−10·MSE(z_ori,z_final)`
+    正規化。式 (12) 增強改為與**最終生成 latent** 平均（v3 誤用原圖）；
+    ϱ = random resize(90–100%)+random 零 padding（brightness 不啟用）；
+    ϱ 與混合於 latent 上進行（reward 為注意力定義之既有決定）。
+    GC 之 sampling_steps=11 與 inversion_steps=10：官方迭代計數含邊界，
+    本實作以 10 個格點區間上下對稱走訪，語意相同。
+  - **Hybrid**：注入形式同步更新為 AdvDiff v4（步後加法 s·g、軌跡 a·g 無動量
+    無 14.58），骨架（inversion、LoRA、ℓ∞ 投影）維持 APA。
+  - **scheduler 疑點（SPEC §8 第 7 項）調查結果**：官方 APA 之 inversion 為
+    手動 DDIM 數學式（格點取自 `scheduler.set_timesteps(50)`）、採樣為
+    `scheduler.step` = **v1.5 預設 PNDMScheduler**（skip_prk_steps → PLMS），
+    全 repo 無 scheduler 覆寫、無補償措施；repo 無成對 demo 輸出可觀察。
+    本地 tiny 模型量化實驗**無效**：tiny 為隨機權重、eps 預測無意義，
+    DDIM 匹配與 PNDM 兩者重建皆完全失敗（latent MSE 3–10 vs 訊號功率 0.003），
+    無從比較。結論：重建品質差異須於 TWCC 真實 SD 上量測（建議 T2 附帶小實驗）。
+    本專案現行實作為 inversion 與採樣**同用手動 DDIM（匹配）**，
+    「錨定原圖」性質自洽，暫不改動，官方混用組合列為 TWCC 消融選項。
+  - **記憶體量測**（tiny/CPU，process peak working set，baseline=僅載入模型
+    361 MB，各值為單方法單張 protect 之峰值）：pg_enc 391、pg_diff 711、
+    advdiff 429、apa_sg 640、apa_gc 662、hybrid 638 MB。
+    pg_diff（EOT×10＋T=10 保留計算圖）最重；advdiff 因 skip-gradient 最輕，
+    支持 v4 之風險下修。CUDA 上另有 peak_memory_mb()（torch.cuda 統計）。
+  - 新增套件：peft（APA 官方依賴）、psutil（記憶體量測，開發輔助）。
 
 - 2026-07-23：專案根目錄採 `C:\WACV`（SPEC.md 所在處），不另建子目錄。
 - 2026-07-23：configs/*.yaml 直接填入 STRUCTURE.md §3 範本內容（文件已完整給定）。

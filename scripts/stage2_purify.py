@@ -28,7 +28,7 @@ from common import (  # noqa: E402
     REPO_ROOT, IncrementalCsv, load_yaml, model_tag, sample_mask,
 )
 
-from src.edit import edit_image
+from src.edit import edit_image_batch
 from src.metrics.quality import compute_all
 from src.models.sd_wrapper import SDWrapper
 from src.purify import purify
@@ -68,7 +68,7 @@ def build_ops(purify_cfg: dict, only: list[str] = None):
     ops.append(("advclean_bf", "advclean_bf", None, None))
     ops.append(("advclean_bfgf", "advclean_bfgf", None, None))
     gp = purify_cfg["gridpure"]
-    iter_n = next(s["iterations"] for s in gp["settings"] if s["name"] == "iterative")
+    iter_n = next(s["iterations"] for s in gp["settings"] if s["name"] == "paper")
     for st in gp["settings"]:
         ops.append(("gridpure", f"gridpure_{st['name']}",
                     {"pure_steps": st["pure_steps"], "iterations": st["iterations"]},
@@ -180,11 +180,12 @@ def main():
                                     for seed in seeds
                                 }
                             purified = load_image(run_dir / "purified" / mkey / label / f"{sid}.png")
-                            per_seed = []
-                            for seed in seeds:
-                                ep = edit_image(purified, prompt, seed, edit_m,
-                                                mask=mask, config=base, sd=sd_eval)
-                                per_seed.append(compute_all(ep, edited_origs[seed]))
+                            eps_list = edit_image_batch(
+                                [purified] * len(seeds), [prompt] * len(seeds), list(seeds),
+                                edit_m, masks=[mask] * len(seeds) if mask is not None else None,
+                                config=base, sd=sd_eval)
+                            per_seed = [compute_all(ep, edited_origs[seed])
+                                        for seed, ep in zip(seeds, eps_list)]
                             mean = {k: sum(d[k] for d in per_seed) / len(per_seed)
                                     for k in per_seed[0]}
                             ckey = (mkey, model_name, edit_m, sample["image_id"], str(pi))

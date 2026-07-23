@@ -30,7 +30,7 @@ from common import (  # noqa: E402
 )
 
 from src.data.dataset import load_dataset
-from src.edit import edit_image
+from src.edit import edit_image_batch
 from src.edit.seed_protocol import search_valid_seeds
 from src.metrics.quality import ClipScorer, compute_all, compute_fid
 from src.models.sd_wrapper import SDWrapper
@@ -156,23 +156,31 @@ def main():
                     if not pending:
                         continue
                     seeds = seeds_map[f"{sample['image_id']}|p{pi}"]
-                    edited_origs = {}
+                    edited_origs, missing = {}, []
                     for seed in seeds:
                         eo_path = (run_dir / "edited_orig" / tag / edit_m /
                                    f"{sid}_p{pi}_s{seed}.png")
                         if eo_path.exists():
                             edited_origs[seed] = load_image(eo_path)
                         else:
-                            eo = edit_image(sample["image"], prompt, seed, edit_m,
-                                            mask=mask, config=base, sd=sd_eval)
+                            missing.append((seed, eo_path))
+                    if missing:
+                        eouts = edit_image_batch(
+                            [sample["image"]] * len(missing), [prompt] * len(missing),
+                            [s for s, _ in missing], edit_m,
+                            masks=[mask] * len(missing) if mask is not None else None,
+                            config=base, sd=sd_eval)
+                        for (seed, eo_path), eo in zip(missing, eouts):
                             edited_origs[seed] = eo
                             save_image(eo_path, eo)
                     for mkey in pending:
                         protected = load_image(run_dir / prot_info[mkey][sample["image_id"]]["path"])
+                        eps_list = edit_image_batch(
+                            [protected] * len(seeds), [prompt] * len(seeds), list(seeds),
+                            edit_m, masks=[mask] * len(seeds) if mask is not None else None,
+                            config=base, sd=sd_eval)
                         per_seed = []
-                        for seed in seeds:
-                            ep = edit_image(protected, prompt, seed, edit_m,
-                                            mask=mask, config=base, sd=sd_eval)
+                        for seed, ep in zip(seeds, eps_list):
                             per_seed.append(compute_all(ep, edited_origs[seed], prompt, clip_scorer))
                             if not args.no_fid:
                                 key = (mkey, tag, edit_m)
@@ -237,14 +245,28 @@ def _summary(run_dir, rows, args, base, data, edit_methods):
         lines.append(f"- **placeholder 遮罩**（{base['edit'].get('inpaint_mask')}）："
                      "遮罩幾何實質影響保護難度，inpaint 結果與真實資料集結果不可直接比較，"
                      "真實資料到手後須重跑。")
-    lines += [
-        "",
-        "| method | model | edit | " + " | ".join(metric_keys) + " |",
-        "|---" * (3 + len(metric_keys)) + "|",
-    ]
-    for (m, mo, e), g in groups.items():
-        means = [f"{sum(float(r[k]) for r in g) / len(g):.4f}" for k in metric_keys]
-        lines.append(f"| {m} | {mo} | {e} | " + " | ".join(means) + " |")
+
+    def table(rows_pred):
+        out = ["| method | model | edit | " + " | ".join(metric_keys) + " |",
+               "|---" * (3 + len(metric_keys)) + "|"]
+        for (m, mo, e), g in groups.items():
+            if not rows_pred(e):
+                continue
+            means = [f"{sum(float(r[k]) for r in g) / len(g):.4f}" for k in metric_keys]
+            out.append(f"| {m} | {mo} | {e} | " + " | ".join(means) + " |")
+        return out if len(out) > 2 else []
+
+    # v5（SPEC §2.7）：img2img 有 DAYN 錨點（主要條件）；inpainting 無錨點（補充條件）
+    anchored = table(lambda e: e == "sdedit")
+    if anchored:
+        lines += ["", "## 有 DAYN 錨點之條件：sdedit（img2img，主要條件）", "",
+                  "校準比對限本表之 pg_enc / pg_diff 列。"] + [""] + anchored
+    unanchored = table(lambda e: e != "sdedit")
+    if unanchored:
+        lines += ["", "## 無 DAYN 錨點之條件：inpaint（補充條件）", "",
+                  "DAYN 對 inpainting 僅質性比較，無數值錨點；本表僅能以本專案"
+                  "自行實作之 PhotoGuard（pg_enc / pg_diff 列）為對照，"
+                  "不可與 DAYN Table 1 比對。"] + [""] + unanchored
     save_summary(run_dir, "\n".join(lines) + "\n")
 
 

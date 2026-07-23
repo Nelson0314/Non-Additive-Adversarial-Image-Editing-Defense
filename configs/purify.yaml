@@ -24,18 +24,23 @@ gridpure:                      # SPEC §5.3；timestep 尺度 = 1000 步 DDPM �
   stride: 128
   n_grids: 10                  # 九個 + 四角落組成的第十個
   gamma: 0.1
-  # 兩組設定性質不同，階段二皆須測（v2.1 補丁）：
-  # - iterative：多次淺淨化，GrIDPure 核心設計（官方 README 範例 10×20；
-  #   論文 §B.5 預設為 10×10——preflight 論文核驗補充，iterations 掃描涵蓋）
-  # - single_deep：單次深淨化，行為上退化為 DiffPure（官方腳本預設值）
-  # 兩者對照可檢驗 GrIDPure 的迭代設計是否確實優於單次深淨化
+  # v5（SPEC §5.3）：三個來源給出三組預設，以論文的 10×10 為主要設定，
+  # 另兩組作為強度掃描端點：
+  # - paper：論文預設 10×10（多次淺淨化，主要設定）
+  # - readme：官方 README 10×20（多次淺淨化、迭代較多之端點）
+  # - single_deep：官方腳本 100×1（單次深淨化，行為上退化為 DiffPure）
+  # paper/readme vs single_deep 之對照可檢驗迭代設計是否確實優於單次深淨化
   settings:
-    - name: "iterative"
+    - name: "paper"
+      pure_steps: 10
+      iterations: 10
+    - name: "readme"
       pure_steps: 10
       iterations: 20
     - name: "single_deep"
       pure_steps: 100
       iterations: 1
-  pure_steps_scan: [5, 10, 15] # iterative 模式之淨化強度掃描（繪製曲線用）
+  pure_steps_scan: [5, 15]     # paper 模式（iterations=10）之淨化強度掃描；
+                               # 與 paper 之 pure_steps=10 合組 5/10/15 曲線
   # 成本警告：單張 512x512 在 V100 上約 2 分鐘
   # 需 pixel-space 無條件 guided diffusion checkpoint（約 2GB，見 TWCC_CHECKLIST.md）

@@ -247,7 +247,16 @@ metrics:
   compute: ["psnr", "ssim", "vifp", "fsim", "lpips", "fid", "clip"]
 
 runtime:
-  batch_size: 1              # SPEC §1.4，記憶體上限 V100 32GB
+  # SPEC §1.4 之 batch_size=1 係為「保護生成」而設（有梯度、計算圖深）
+  protect_batch_size: 1
+
+  # v5：編輯為純推論、無梯度，可批次化。此為最大加速槓桿（stage2 佔約 93% 成本）
+  # 前提：批次中每個樣本須使用各自的 generator 並各自 seed，
+  #       否則 diffusers 在 batch>1 時的噪聲取樣與 batch=1 不同，
+  #       將破壞 PhotoGuard seed 協定（SPEC §2.3）
+  # 驗證要求：4 張影像分別以 batch=1 與 batch=4 執行，輸出須逐位元相同
+  edit_batch_size: 4
+
   seed: 42
 ```
 
@@ -275,7 +284,8 @@ photoguard:
   random_init: true         # v3：官方有隨機初始化
   n_iter: 100               # DAYN 用 100；PhotoGuard 原文為 200
   diffusion_T: 10           # diffusion attack 反傳步數
-  diffusion_eot: 10         # v3：官方 diffusion attack 梯度取 10 次平均(EOT)
+  grad_reps: 10             # v3：官方 diffusion attack 梯度取 10 次平均(EOT)
+                            # v5 命名修正：v4 範本誤寫為 diffusion_eot，與實作不符
                             # 此為 diffusion attack 成本約 10 倍於 encoder 之主因
   projection: "from_original"   # 見 SPEC §3.2 註
 ```
@@ -375,7 +385,9 @@ crop_resize:
 
 adverse_cleaner:               # 即 BF+GF，兩變體
   variants: ["bf_only", "bf_gf"]
-  bf_iterations: 3
+  # v5 修正：官方 clean.py 為 64×BF + 4×GF，v4 記為 3+1 低估約二十倍
+  bf_iterations: 64
+  gf_iterations: 4
   bf_d: 5
   bf_sigma_color: 8
   bf_sigma_space: 8
@@ -391,7 +403,10 @@ gridpure:                      # SPEC §5.3
   # v3：參數尺度為 1000 步 DDPM 的原始 timestep
   # 官方提供兩組性質不同的設定，階段二應兩組都測
   presets:
-    shallow_iterative:         # README 建議值：多次淺淨化（GrIDPure 核心設計）
+    paper_default:             # v5：論文預設，以此為主要設定
+      pure_steps: 10
+      iterations: 10
+    shallow_iterative:         # README 建議值：迭代較多
       pure_steps: 10
       iterations: 20
     deep_single:               # 腳本預設值：單次深淨化（退化為 DiffPure 行為）
@@ -464,9 +479,11 @@ stage0 → stage1 → stage2
   4. 20 seed 取平均
 
 輸出：experiments/stage1/results.csv
-欄位：method, model, edit_method, image_id,
+欄位：method, model, edit_method, image_id, prompt_idx,
       psnr, ssim, vifp, fsim, lpips, fid, clip,
       peak_memory_mb, elapsed_sec
+
+註：prompt_idx 為 v5 新增（每類物件 2 個 prompt 須逐一評測）。
 
 比較對象：SPEC §2.7 的 DAYN Table 1（引用值，不重現）
 校準檢查：PhotoGuard 數值 vs 該表 Encoder / Diffusion 欄

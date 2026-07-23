@@ -53,9 +53,9 @@ def apply_smoke(cfgs: dict, sd) -> None:
     # gridpure 之 grid 尺寸依影像縮放（正式 256/128 針對 512×512）
     cfgs["purify"]["gridpure"].update({"grid_size": n // 2, "stride": n // 4})
     for s in cfgs["purify"]["gridpure"]["settings"]:
-        s.update({"pure_steps": 2, "iterations": 2} if s["name"] == "iterative"
-                 else {"pure_steps": 4, "iterations": 1})
-    cfgs["purify"]["gridpure"]["pure_steps_scan"] = [1, 2]
+        s.update({"pure_steps": 4, "iterations": 1} if s["name"] == "single_deep"
+                 else {"pure_steps": 2, "iterations": 2})
+    cfgs["purify"]["gridpure"]["pure_steps_scan"] = [1]
     cfgs["purify"]["jpeg"]["quality"] = [80, 50]
     cfgs["purify"]["blur"]["sigma"] = [1.0]
     cfgs["purify"]["crop_resize"]["ratio"] = [0.2]

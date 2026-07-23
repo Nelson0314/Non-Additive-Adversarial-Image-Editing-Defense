@@ -38,7 +38,7 @@ def config(sd):
         },
         "edit": {"sdedit_strength": 0.5, "n_seeds": 2, "seed_clip_threshold": None},
         "data": {"is_placeholder": True, "n_images": 3},
-        "runtime": {"batch_size": 1, "seed": 42},
+        "runtime": {"protect_batch_size": 1, "edit_batch_size": 4, "seed": 42},
     }
 
 

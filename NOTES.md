@@ -291,6 +291,34 @@ img2img pipeline（SPEC §2.8 已確認其對應關係），不使用此 repo �
   - 產出：PREFLIGHT.md（preflight_report.py 自動生成，全項 PASS＋1 WARN）、
     PAPER_VERIFICATION.md、TWCC_CHECKLIST 新增 9 項首次執行驗證。
   - 新增開發依賴：pypdf（論文 PDF 文字抽取，非執行期依賴，不入 environment.yml）。
+- 2026-07-24（v5 決策落地：SPEC/STRUCTURE 更新至 v5 後之實作調整）：
+  - **批次化編輯（最重要之技術裁定）**：編輯純推論無梯度，已實作批次版
+    （`edit_image_batch`，src/edit）。批次中每樣本各自 `torch.Generator`＋seed，
+    diffusers 對 generator list 逐樣本取樣——**噪聲協定與 batch=1 位元級一致**
+    （test_noise_protocol），故 seed 協定（SPEC §2.3）未被破壞。但 v5 啟用判準
+    「batch=1 vs batch=4 逐位元相同」**實測未通過**：批次矩陣運算之歸約順序隨
+    batch 尺寸而異，float32 差 ~5e-6（8-bit 存檔後 ~0.02% 像素 ±1 LSB），
+    位元級等價原理上不可達。依判準 `edit_batch_size` **維持 1**（批次化不啟用）。
+    tests/test_edit_batching.py 之位元級測試設為「啟用閘門」（=1 時 skip、>1 時
+    執行且依實測失敗，阻止未經裁定之啟用）；容差測試（≤1e-4）驗證非協定破壞。
+    **待指導者裁定**：若放寬判準為「噪聲協定位元級一致＋輸出容差 ≤1e-4」則可
+    啟用，編輯時數 ÷4-6。TWCC 上須以真實模型重跑該測試。
+  - **GrIDPure 預設（v5）**：purify.yaml settings 改為 paper 10×10（主設定）＋
+    readme 10×20＋single_deep 100×1（三來源，後兩者為強度掃描端點）；
+    pure_steps_scan 改 [5,15]（與 paper 之 10 合成 5/10/15 曲線）。
+  - **stage1 summary（v5）**：依有無 DAYN 錨點分兩表——sdedit（img2img，主要
+    條件，校準比對限此表 pg_* 列）與 inpaint（無錨點，僅以自實作 PhotoGuard
+    為對照，不可比 DAYN Table 1）。
+  - **T2 校準（v5，入 TWCC_CHECKLIST）**：norm 固定 linf（DAYN Alg.1 為
+    sign+clip=ℓ∞），strength 候選 {0.8,0.7,0.5,0.3}（0.8 為 diffusers 預設，
+    最可能值）；分階段搜尋（固定 0.8 掃 epsilon_scale 2 次 → 掃 strength 3 次 →
+    對角確認 1 次，共 7 次，皆 encoder attack），格點由 4 組降為 2 組。
+  - **閘門式規模方案（preflight [5] 重算）**：保真度花在有錨點條件（V1.4×img2img
+    跑滿 20 seed），縮減集中在 stage2（其結論為 drop 相對差異，不需絕對精度）。
+    完整 A ~14,200h fp32/~7,600h fp16（記帳基準）；**建議 G 閘門式 ~229h fp16
+    單卡（4 卡 ~57h、8 卡 ~29h）**；首日 C ~43h。批次化封鎖後編輯加速僅剩 fp16
+    （÷2）與多卡平行；成本模型改為 block 結構（stage1 各條件可不同 seed 數）。
+  - 全測試 44 pass + 1 skip（新增 test_edit_batching.py 6 項）。
 - 2026-07-23：專案根目錄採 `C:\WACV`（SPEC.md 所在處），不另建子目錄。
 - 2026-07-23：configs/*.yaml 直接填入 STRUCTURE.md §3 範本內容（文件已完整給定）。
 

@@ -127,11 +127,23 @@ DAYN 未公開資料集。已知構造：**150 張影像、3 類物件、每類 
 
 **校準判準**：取得原始資料集後，本專案的 PhotoGuard 數值應與表中 Encoder、Diffusion 兩欄接近。若差距顯著，代表編輯設定（尤其 SDEdit strength）或實作有誤，須先解決再進行後續比較。
 
+`[v5 重要限制]` **本表僅涵蓋 img2img（SDEdit）情境**。原文 §4.3 為 image editing、20 seeds；inpainting 在 DAYN 中僅有質性比較（Figure 3），無數值表格。
+
+兩項後果：
+1. **校準比對僅限 sdedit 列**，不可與 inpaint 結果混用
+2. **inpainting 情境無 DAYN 錨點**，僅能以本專案自行實作的 PhotoGuard 為對照。實驗設計上，img2img 為主要條件（有錨點、跑滿規格），inpainting 降規格作為補充
+
 ### 2.8 編輯方法
 
 **SDEdit（img2img）** `[原文確認：Meng et al., ICLR 2022, arXiv 2108.01073]`：對輸入加噪至 t₀ 後依 prompt 去噪。Stable Diffusion 的 img2img 即 SDEdit 之實作，官方 repo 明確列出此對應。核心參數為加噪程度 t₀，在 diffusers 中即 `strength`。
 
 `[待確認]` **DAYN 未指明 strength 值**。此參數直接決定編輯強度並影響 Table 1 全部數字，須向作者索取。
+
+`[v5 掃描策略]` 若無法取得，於 T2 以掃描決定。候選值按可能性排序：**{0.8, 0.7, 0.5, 0.3}**。
+
+以 0.8 為首選之理由：diffusers 之 `StableDiffusionImg2ImgPipeline` 預設 `strength=0.8`，論文未指明參數時，最可能情況為直接採用預設值。
+
+**分階段搜尋**（避免 2×4 全格點）：固定 strength=0.8 掃 epsilon_scale（2 組）→ 取最佳後掃 strength（4 組）→ 於選定組合之對角做一次確認，檢查有無交互作用。共 7 次，較全格點省。
 
 **Inpainting**：給定 mask，僅重繪 mask 區域。
 
@@ -212,7 +224,11 @@ def photoguard_encoder(x, vae, eps, n_iter=100, step=None,
 
 三方不一致：v2 SPEC 假設 ℓ∞；官方 demo 預設 **L2（eps=16）**，ℓ∞ 版僅以註解提供；DAYN §4.1 稱 ℓ1/ℓ2/ℓ∞ 皆可但未指明實驗所用。
 
-**處理方式**：新增 config 參數 `norm: "linf" | "l2"`，同樣於 T2 校準階段以實驗決定。
+**處理方式**：新增 config 參數 `norm: "linf" | "l2"`。
+
+`[v5 更新：先驗大幅提高]` 官方 DAYN Algorithm 1 使用 **sign + clip(−κ, κ)**，此即 ℓ∞ 的標準形式。故 `norm="linf"` 的可能性顯著高於 L2。
+
+T2 校準策略調整：**先固定 `norm="linf"`**，僅在 epsilon_scale 兩個選項皆無法對上 Table 1 時，才回頭試 L2。此舉將校準格點由 4 組降為 2 組。
 
 ### 3.3 PhotoGuard — diffusion attack `[原文確認：PG 式 5、Algorithm 2]`
 
@@ -448,12 +464,18 @@ v3 SPEC 未明示 `z̄_0` 為何，本專案先前實作為原圖 latent。**官
 由 **cv2 bilateral filter + guided filter** 兩步組成，作者 lllyasviel（Zhang, 2023），原 repo `lllyasviel/AdverseCleaner`（現僅見 fork）。全長 16 行、不需 GPU、1024px 約 3 秒 CPU。需 `opencv-contrib-python`（`cv2.ximgproc.guidedFilter`）。
 
 ```python
-def adverse_cleaner(x, n_bf_iter=3):
+def adverse_cleaner(x, n_bf_iter=64, n_gf_iter=4):
+    """v5 修正：官方 clean.py 為 64×bilateral + 4×guided filter。
+    v4 SPEC 記為 3×BF + 1×GF，將淨化強度系統性低估約二十倍。"""
     y = x
     for _ in range(n_bf_iter):
         y = cv2.bilateralFilter(y, d, sigma_color, sigma_space)
-    return cv2.ximgproc.guidedFilter(guide=x, src=y, radius=r, eps=eps)
+    for _ in range(n_gf_iter):
+        y = cv2.ximgproc.guidedFilter(guide=x, src=y, radius=r, eps=eps)
+    return y
 ```
+
+**此修正對階段二的意涵**：AdverseCleaner 的實際強度遠高於 v4 假設。非加性保護若能在此強度下存活，說服力較原先設想更強；若無法存活，亦不能歸因於「淨化強度不足」。無論結果方向為何，階段二的結論因此更為紮實。
 
 **作者自述之疑慮**：以受保護影像本身作 guidance 並不安全，guidance 中已含對抗噪聲，guided filter 可能把噪聲帶回。故**實作兩個變體**：僅 bilateral filter、以及完整 BF+GF，以觀察 guided filter 是否削弱淨化效果。
 
@@ -480,10 +502,13 @@ def crop_resize(x, ratio=0.2):        # 中心裁切 20% 後放大回原尺寸
 
 **參數（v3 依官方 repo 核對補充）**：參數尺度為**1000 步 DDPM 的原始 timestep**。官方提供兩組性質不同的設定：
 
-| 設定 | pure_steps | iterations | 性質 |
-|---|---|---|---|
-| README 建議 | 10 | 20 | **多次淺淨化**，GrIDPure 的核心設計 |
-| 腳本預設 | 100 | 1 | **單次深淨化**，行為上退化為 DiffPure |
+| 設定 | pure_steps | iterations | 來源 | 性質 |
+|---|---|---|---|---|
+| **論文預設** | **10** | **10** | CVPR'24 原文 | **多次淺淨化**，以此為主 |
+| README 建議 | 10 | 20 | 官方 README | 多次淺淨化，迭代較多 |
+| 腳本預設 | 100 | 1 | 官方腳本 | **單次深淨化**，退化為 DiffPure |
+
+`[v5 修正]` 三個來源給出三組不同預設。**以論文的 10×10 為主要設定**，另兩組作為強度掃描的端點。
 
 v2 SPEC 將「0.1T」與「t=10、20 迭代」並列，實為上述兩種不同設定。configs 以原始 timestep 為準即可。
 
@@ -493,7 +518,9 @@ AntiPure 使用 t^p=10、γ=0.1、2 輪×20 迭代，屬多次淺淨化一類。
 
 **成本警告** `[原文確認：§5.3]`：**單張 512×512 影像在單張 V100 上約需 2 分鐘**。以 150 張 × 5 方法估算即約 25 小時。原文指出流程可平行加速，實作時須納入考量並先估算總時數。
 
-**負面結果**：以 LDM 跑 SDEdit 作為淨化器無效（對抗保護在不同 LDM 間遷移性佳），淨化必須用 pixel-space 無條件 diffusion model。
+**負面結果** `[出處修正 v5]`：以 LDM 跑 SDEdit 作為淨化器無效（對抗保護在不同 LDM 間遷移性佳），淨化必須用 pixel-space 無條件 diffusion model。
+
+此結論出自 **Pixel is a Barrier（arXiv 2404.13320）§6.3**，非 GrIDPure 論文。v4 SPEC 誤置出處。
 
 **checkpoint**：所需之 pixel-space 無條件 guided diffusion checkpoint 約 **2GB**，TWCC 階段須另行下載（見 §9）。
 

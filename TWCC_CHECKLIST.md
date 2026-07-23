@@ -20,10 +20,23 @@
 - [ ] 執行 `python -m src.utils.device` 確認 CUDA 偵測正常並記錄裝置資訊至 NOTES.md
 - [ ] 將 configs 中模型名稱由 tiny 測試模型換回真實 SD（僅改 config，不改程式碼）
 
-## T2 校準（PhotoGuard vs DAYN Table 1）
+## T2 校準（PhotoGuard vs DAYN Table 1）— v5 分階段搜尋，共 7 次，皆用 encoder attack
 
-- [ ] 依 SPEC §8 第 6–8 項掃描參數組合（epsilon_scale × target_latent，必要時加 norm=l2），
-      找出與 DAYN Table 1 Encoder/Diffusion 欄對齊之設定
+前提（v5）：**norm 固定 `linf`**（DAYN Alg. 1 為 sign + clip(−κ,κ)，即 ℓ∞ 標準形式），
+僅在 epsilon_scale 兩選項皆對不上 Table 1 時才回頭試 l2；target_latent 固定 "zeros"（官方預設）。
+strength 候選按可能性排序 **{0.8, 0.7, 0.5, 0.3}**（0.8 為 diffusers img2img 預設，
+論文未指明參數時最可能直接採用預設值）。比對僅限 **sdedit（img2img）** 列。
+
+- [ ] 第 1 階段：固定 strength=0.8、norm=linf，掃 `epsilon_scale` ∈ {pm1, 01}（2 次）
+- [ ] 第 2 階段：取最佳 epsilon_scale，掃 strength ∈ {0.8, 0.7, 0.5, 0.3}（0.8 重用第 1 階段，
+      新增 3 次）
+- [ ] 第 3 階段：於選定組合之**對角**做一次確認（另一 epsilon_scale × 選定 strength），
+      檢查 epsilon_scale 與 strength 有無交互作用（1 次；選定 strength=0.8 時可省略）
+- [ ] 通過判準：pg_enc 之五項指標與 Table 1 Encoder 欄接近（粗差如 epsilon 尺度差兩倍、
+      範數選錯應可辨識）；兩 epsilon_scale × 全部 strength 皆對不上 → 停，
+      依 PREFLIGHT.md 決策樹診斷（scheduler/eta 為第一排查項），必要時試 norm=l2
+- [ ] T2 對齊後，以選定設定跑一次 pg_diff 小樣本（5 張）比對 Diffusion 欄，
+      確認 diffusion attack 同步對齊
 
 ## 首次執行驗證（preflight 產出，詳見 PREFLIGHT.md 第 [3] 節）
 
@@ -47,6 +60,10 @@
       對照本地 CPU 相對量（pg_diff 最重）；OOM → 見 PREFLIGHT.md 決策樹降級路徑
 - [ ] **fp16 可用性**：編輯（無梯度）以 fp16 跑一張並與 fp32 比對指標差異（<1% 可用）；
       保護（含梯度）維持 fp32，除非記憶體不足才試 fp16 並檢查梯度 NaN
+- [ ] **批次化編輯等價性（若獲准啟用）**：批次化預設關閉（edit_batch_size=1；
+      位元級判準實測未通過，見 NOTES.md）。若指導者放寬判準後啟用，須先於 TWCC
+      以真實模型執行 `pytest tests/test_edit_batching.py`，並另量測 GPU 上
+      batch=1 vs batch=4 之 float 差異幅度與 8-bit 差異像素比例，記入 NOTES.md
 - [ ] **編輯 pipeline 之 eta=1**：SPEC §2.2 eta=1 僅對 DDIM 類 scheduler 有意義；
       diffusers img2img 預設 PNDM 會忽略 eta。確認評測編輯所用 scheduler，
       若 T2 校準對不上 DAYN，改 DDIMScheduler（eta=1）為第一個排查項

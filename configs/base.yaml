@@ -41,5 +41,15 @@ metrics:
   clip_model: "openai/clip-vit-base-patch32"  # CLIP score 用（SPEC 未指定，標準選擇）
 
 runtime:
-  batch_size: 1              # SPEC §1.4，記憶體上限 V100 32GB
+  # SPEC §1.4 之 batch_size=1 係為「保護生成」而設（有梯度、計算圖深，V100 32GB 上限）
+  protect_batch_size: 1
+  # v5：編輯為純推論、無梯度，可批次化（stage2 佔約 93% 成本，此為最大加速槓桿）。
+  # 前提：批次中每個樣本各自 generator、各自 seed（已實作並驗證：噪聲協定與
+  # batch=1 位元級一致，seed 協定 SPEC §2.3 未被破壞）。
+  # 啟用判準（v5）：batch=1 vs batch=4 輸出逐位元相同——實測**未通過**：
+  # 批次 kernel 之 float32 數值差 ~5e-6（8-bit 存檔後 ~0.02% 像素差 ±1 LSB），
+  # 原理上不可達位元級等價（批次矩陣運算之歸約順序隨 batch 尺寸而異）。
+  # 故預設 1（批次化不啟用）；判準是否放寬（噪聲協定位元級一致＋輸出容差
+  # ≤1e-4）待指導者裁定後方可改 >1。詳 tests/test_edit_batching.py 與 NOTES.md。
+  edit_batch_size: 1
   seed: 42

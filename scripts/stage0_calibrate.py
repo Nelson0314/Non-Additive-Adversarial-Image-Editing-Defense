@@ -1,15 +1,18 @@
 """stage0：相似性約束校準 — SPEC.md §6.1、STRUCTURE.md §4.2。
 
-1. 對 PhotoGuard encoder（κ=0.06）計算 LPIPS(protected, original) 平均，得基準 L_ref
-2. 對非加性方法掃描各自的相似性控制參數（advdiff: eps_latent；apa/hybrid: eps_a），
-   記錄各設定之 LPIPS 平均
-3. 選出使 LPIPS 最接近 L_ref 之設定：
+1. 對 PhotoGuard encoder 與 diffusion（κ=0.06）各計算 LPIPS(protected, original)
+   平均。L_ref 採 encoder 值（preflight 假設 1 裁定），兩者皆列於輸出；
+   若兩者差距 >10%，警告並須重新決定基準（TWCC_CHECKLIST 驗證項）。
+2. 對非加性方法掃描各自的相似性控制參數（configs/nonadditive.yaml 之
+   stage0_scan；SG 與 GC 獨立範圍，假設 2 裁定），記錄各設定之 LPIPS 平均。
+3. 選出使 LPIPS 最接近 L_ref 之設定；**若選中值落在掃描區間端點，
+   警告「須擴展範圍重掃」**（首輪範圍為推測值）。
    - L_ref 寫入 configs/nonadditive.yaml 之 common.similarity_budget（僅改該行，保留註解）
-   - 各方法選定值寫入 configs/nonadditive_calibrated.yaml（stage1 自動合併），
-     避免以 yaml 重寫整份 nonadditive.yaml 而破壞註解
+   - 各方法選定值寫入 configs/nonadditive_calibrated.yaml（stage1 自動合併）
 4. 輸出 calibration.csv 與 calibration_curve.png 至 experiments/stage0/<timestamp>/
 
 用法：python scripts/stage0_calibrate.py [--smoke] [--model M] [--max-images N]
+      [--skip-pg-diff]（省略 diffusion 基準，僅限快速驗證）
 """
 
 import argparse
@@ -27,12 +30,9 @@ from src.utils.io import (
 )
 from src.utils.seed import set_seed
 
-# 掃描之相似性控制參數（由嚴至寬）。正式值域為初始猜測，依 TWCC 實測調整。
-SCAN = {
-    "advdiff": ("eps_latent", [0.05, 0.1, 0.2, 0.4]),
-    "apa": ("eps_a", [0.1, 0.2, 0.4, 0.8]),
-    "hybrid": ("eps_a", [0.1, 0.2, 0.4, 0.8]),
-}
+# 掃描鈕之 config 位置：方法鍵 → (區塊, 參數名)。hybrid 之 eps_a 寫入 hybrid
+# 區塊（build_protection 合併時覆蓋 apa 之值）
+KNOB_SECTION = {"advdiff": "advdiff", "apa_sg": "apa", "apa_gc": "apa", "hybrid": "hybrid"}
 
 
 def mean_protect_lpips(method, data) -> float:
@@ -54,11 +54,19 @@ def write_similarity_budget(l_ref: float) -> None:
     path.write_text(new_text, encoding="utf-8")
 
 
+def set_knob(cfgs: dict, method_key: str, knob: str, value) -> None:
+    section = KNOB_SECTION[method_key]
+    cfgs["nonadditive"].setdefault(section, {})[knob] = value
+
+
 def main():
     parser = argparse.ArgumentParser(description="stage0 相似性約束校準")
     parser.add_argument("--model", default=None, help="覆蓋 protect_model（本地測試用）")
     parser.add_argument("--max-images", type=int, default=None)
     parser.add_argument("--smoke", action="store_true", help="本地 tiny 模型流程驗證（縮減參數）")
+    parser.add_argument("--skip-pg-diff", action="store_true", help="省略 diffusion 基準")
+    parser.add_argument("--pg-diff-images", type=int, default=5,
+                        help="diffusion 基準之影像數（假設 1 裁定：5 張；成本約為 encoder 50 倍）")
     parser.add_argument("--no-write-config", action="store_true", help="不回寫 configs/")
     args = parser.parse_args()
 
@@ -69,34 +77,65 @@ def main():
         apply_smoke(cfgs, sd)
     set_seed(cfgs["base"]["runtime"]["seed"])
 
-    scan = {m: (k, vals[:2]) for m, (k, vals) in SCAN.items()} if args.smoke else SCAN
+    scan_cfg = cfgs["nonadditive"]["stage0_scan"]
+    scan = {m: (c["knob"], c["values"][:2] if args.smoke else c["values"])
+            for m, c in scan_cfg.items()}
     data = load_dataset(cfgs["base"], max_images=args.max_images or (2 if args.smoke else None))
     run_dir = make_run_dir("stage0")
     print(f"stage0: model={model_name}, images={len(data)}, run_dir={run_dir}")
 
-    # 1. 基準 L_ref（PhotoGuard encoder，κ 依 additive.yaml）
+    # 1. 基準：encoder 與 diffusion 兩者皆算（假設 1 裁定：encoder 為採用值，
+    #    diffusion 併列供 10% 差距檢核）
+    rows, warnings = [], []
     t0 = time.time()
-    pg = build_protection("pg_enc", sd, cfgs["additive"], cfgs["nonadditive"])
-    l_ref = mean_protect_lpips(pg, data)
-    print(f"L_ref (PhotoGuard encoder) = {l_ref:.4f}  [{time.time() - t0:.0f}s]")
+    l_enc = mean_protect_lpips(
+        build_protection("pg_enc", sd, cfgs["additive"], cfgs["nonadditive"]), data)
+    rows.append({"method": "pg_enc", "knob": "epsilon",
+                 "value": cfgs["additive"]["photoguard"]["epsilon"], "lpips": l_enc,
+                 "adopted": True, "at_boundary": ""})
+    print(f"L_ref(encoder) = {l_enc:.4f}  [{time.time() - t0:.0f}s]")
+    l_diff = None
+    if not args.skip_pg_diff:
+        t0 = time.time()
+        l_diff = mean_protect_lpips(
+            build_protection("pg_diff", sd, cfgs["additive"], cfgs["nonadditive"]),
+            data[: args.pg_diff_images])
+        rows.append({"method": "pg_diff", "knob": "epsilon",
+                     "value": cfgs["additive"]["photoguard"]["epsilon"], "lpips": l_diff,
+                     "adopted": False, "at_boundary": ""})
+        gap = abs(l_diff - l_enc) / max(l_enc, 1e-8)
+        print(f"L(diffusion)   = {l_diff:.4f}（與 encoder 差 {gap:.1%}）")
+        if gap > 0.10:
+            warnings.append(
+                f"encoder 與 diffusion 之 LPIPS 差距 {gap:.1%} > 10%："
+                "L_ref 採 encoder 之決定須重新檢視（假設 1 之驗證條件）")
+    l_ref = l_enc
 
-    # 2. 非加性掃描
-    rows = [{"method": "pg_enc", "knob": "epsilon",
-             "value": cfgs["additive"]["photoguard"]["epsilon"], "lpips": l_ref}]
+    # 2. 非加性掃描（範圍取自 config stage0_scan；SG/GC 獨立）
     chosen = {}
     for method_key, (knob, values) in scan.items():
         curve = []
         for v in values:
-            section = "advdiff" if method_key == "advdiff" else "apa"
-            cfgs["nonadditive"][section][knob] = v
+            set_knob(cfgs, method_key, knob, v)
             method = build_protection(method_key, sd, cfgs["additive"], cfgs["nonadditive"])
             t0 = time.time()
             lp = mean_protect_lpips(method, data)
             curve.append((v, lp))
-            rows.append({"method": method_key, "knob": knob, "value": v, "lpips": lp})
+            rows.append({"method": method_key, "knob": knob, "value": v, "lpips": lp,
+                         "adopted": False, "at_boundary": ""})
             print(f"{method_key} {knob}={v}: LPIPS={lp:.4f}  [{time.time() - t0:.0f}s]")
         best_v, best_lp = min(curve, key=lambda p: abs(p[1] - l_ref))
-        chosen[method_key] = {"knob": knob, "value": best_v, "lpips": best_lp}
+        at_boundary = best_v in (min(values), max(values))
+        chosen[method_key] = {"knob": knob, "value": best_v, "lpips": best_lp,
+                              "at_boundary": at_boundary}
+        for r in rows:
+            if r["method"] == method_key and r["value"] == best_v:
+                r["adopted"] = True
+                r["at_boundary"] = at_boundary
+        if at_boundary:
+            warnings.append(
+                f"{method_key} 選中值 {knob}={best_v} 位於掃描區間端點"
+                f"（範圍 {values}）：首輪範圍為推測值，須擴展範圍重掃")
 
     # 3. 輸出與回寫
     save_csv(run_dir / "calibration.csv", rows)
@@ -106,27 +145,39 @@ def main():
 
     if not args.no_write_config:
         write_similarity_budget(l_ref)
-        overlay_lines = ["# stage0_calibrate.py 產出：各非加性方法之相似性校準值（stage1 自動合併）"]
+        variant = cfgs["nonadditive"]["apa"].get("variant", "gc")
+        apa_chosen = chosen.get(f"apa_{variant}")
+        overlay = ["# stage0_calibrate.py 產出：各非加性方法之相似性校準值（stage1 自動合併）",
+                   f"# L_ref = {l_ref:.4f}（encoder）"
+                   + (f"；diffusion = {l_diff:.4f}" if l_diff is not None else "")]
         if "advdiff" in chosen:
-            overlay_lines += ["advdiff:", f"  eps_latent: {chosen['advdiff']['value']}"]
-        if "apa" in chosen:
-            overlay_lines += ["apa:", f"  eps_a: {chosen['apa']['value']}"]
+            overlay += ["advdiff:", f"  eps_latent: {chosen['advdiff']['value']}"]
+        if apa_chosen:
+            overlay += [f"apa:  # variant={variant}", f"  eps_a: {apa_chosen['value']}"]
+        if "hybrid" in chosen:
+            overlay += ["hybrid:", f"  eps_a: {chosen['hybrid']['value']}"]
         (REPO_ROOT / "configs" / "nonadditive_calibrated.yaml").write_text(
-            "\n".join(overlay_lines) + "\n", encoding="utf-8"
-        )
+            "\n".join(overlay) + "\n", encoding="utf-8")
 
     lines = [
         "# stage0 校準摘要", "",
-        f"- 模型：{model_name}（smoke={args.smoke}）",
-        f"- 影像數：{len(data)}",
-        f"- **L_ref = {l_ref:.4f}**（實測值：PhotoGuard encoder，"
-        f"κ={cfgs['additive']['photoguard']['epsilon']}）", "",
-        "| 方法 | 參數 | 選定值 | LPIPS |", "|---|---|---|---|",
+        f"- 模型：{model_name}（smoke={args.smoke}；smoke 數值僅驗流程）",
+        f"- 影像數：{len(data)}"
+        + ("（placeholder 資料，與真實資料集結果不可直接比較）"
+           if cfgs["base"]["data"].get("is_placeholder") else ""),
+        f"- **L_ref = {l_ref:.4f}**（實測值：PhotoGuard encoder，採用值）",
+        (f"- L(diffusion) = {l_diff:.4f}（實測值，併列供假設 1 之 10% 檢核）"
+         if l_diff is not None else "- L(diffusion)：本次省略（--skip-pg-diff）"), "",
+        "| 方法 | 參數 | 選定值 | LPIPS | 端點警告 |", "|---|---|---|---|---|",
     ]
     for m, c in chosen.items():
-        lines.append(f"| {m} | {c['knob']} | {c['value']} | {c['lpips']:.4f} |")
-    lines += ["", "全部為實測值；hybrid 與 apa 共用 eps_a，選定值以 apa 之結果寫入 overlay。"]
+        lines.append(f"| {m} | {c['knob']} | {c['value']} | {c['lpips']:.4f} |"
+                     f" {'是——須擴展重掃' if c['at_boundary'] else '否'} |")
+    if warnings:
+        lines += ["", "## 警告", ""] + [f"- {w}" for w in warnings]
     save_summary(run_dir, "\n".join(lines) + "\n")
+    for w in warnings:
+        print(f"[警告] {w}")
     print(f"完成。chosen={chosen}")
 
 
@@ -136,14 +187,13 @@ def _plot(rows, l_ref, run_dir):
     import matplotlib.pyplot as plt
 
     fig, ax = plt.subplots(figsize=(6, 4))
-    for method_key in {r["method"] for r in rows} - {"pg_enc"}:
-        pts = [(r["value"], r["lpips"]) for r in rows if r["method"] == method_key]
-        pts.sort()
+    for method_key in sorted({r["method"] for r in rows} - {"pg_enc", "pg_diff"}):
+        pts = sorted((r["value"], r["lpips"]) for r in rows if r["method"] == method_key)
         ax.plot([p[0] for p in pts], [p[1] for p in pts], marker="o", label=method_key)
     ax.axhline(l_ref, linestyle="--", color="gray", label=f"L_ref={l_ref:.3f}")
     ax.set_xlabel("similarity knob value")
     ax.set_ylabel("LPIPS(protected, original)")
-    ax.legend()
+    ax.legend(fontsize=8)
     fig.tight_layout()
     fig.savefig(run_dir / "calibration_curve.png", dpi=150)
     plt.close(fig)

@@ -5,8 +5,9 @@ cv2 bilateral filter（多次迭代）+ cv2.ximgproc.guidedFilter，
 對抗噪聲，guided filter 可能把噪聲帶回），故實作兩變體：
 - "bf_only"：僅 bilateral filter
 - "bf_gf"：完整 BF+GF
-參數尺度依官方（0–255 像素域）：d=5、sigma_color=8、sigma_space=8、
-gf_radius=4、gf_eps=16（configs/purify.yaml）。
+參數依官方 clean.py 原始碼逐字核對（preflight 論文核驗修正：SPEC v4 前誤記為
+3×BF＋1×GF，官方實為 **64×BF＋4×GF**）：0–255 像素域、
+bilateralFilter(y,5,8,8)×64 → guidedFilter(img,y,4,16)×4。
 """
 
 import numpy as np
@@ -15,10 +16,11 @@ import torch
 import cv2
 
 DEFAULTS = {
-    "bf_iterations": 3,
+    "bf_iterations": 64,
     "bf_d": 5,
     "bf_sigma_color": 8,
     "bf_sigma_space": 8,
+    "gf_iterations": 4,
     "gf_radius": 4,
     "gf_eps": 16,
 }
@@ -36,7 +38,8 @@ def adverse_clean(x: torch.Tensor, variant: str = "bf_gf", config: dict = None) 
     for _ in range(cfg["bf_iterations"]):
         y = cv2.bilateralFilter(y, cfg["bf_d"], cfg["bf_sigma_color"], cfg["bf_sigma_space"])
     if variant == "bf_gf":
-        y = cv2.ximgproc.guidedFilter(guide=img, src=y, radius=cfg["gf_radius"], eps=cfg["gf_eps"])
+        for _ in range(cfg["gf_iterations"]):
+            y = cv2.ximgproc.guidedFilter(guide=img, src=y, radius=cfg["gf_radius"], eps=cfg["gf_eps"])
 
     out = torch.from_numpy(np.clip(y, 0, 255) / 255.0).permute(2, 0, 1).unsqueeze(0)
     return out.to(device=x.device, dtype=x.dtype)

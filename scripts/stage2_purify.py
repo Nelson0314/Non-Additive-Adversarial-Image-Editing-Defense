@@ -4,22 +4,29 @@
   1. purified = purify(protected, method, strength)
   2. edited_pur = edit(purified, prompt, seed)   # 與 stage1 同 seed
   3. m_purified = compute_all(edited_pur, edited_orig)   # edited_orig 重用 stage1 輸出
-  4. drop = (m_clean − m_purified) / m_clean（逐指標；方向見 METRIC_HIGHER_IS_BETTER）
+  4. drop = (m_clean − m_purified) / m_clean（逐指標；方向見 METRIC_HIGHER_IS_BETTER；
+     |m_clean| ≤ 1e-6 時不計算（除零），m_clean < 0 時照算但於欄位 drop_valid 標記
+     供解讀——負基準下比值方向易誤讀）
 
 輸出 experiments/stage2/<timestamp>/：results.csv、purify_strength_curve.png、summary.md。
 generation/edit 設定一律取 stage1 之 config_snapshot.yaml，確保條件一致。
 GrIDPure 需 pixel-space checkpoint（--gridpure-model）；--gridpure-fake 以
-Gaussian blur 代替淨化器，僅供本地流程驗證。執行前先印出成本估算（--dry-run 只估算）。
+Gaussian blur 代替淨化器，僅供本地流程驗證。執行前先印成本估算（--dry-run 只估算）。
+
+穩健性：results.csv 逐筆寫入；`--resume DIR` 續跑——已存在之淨化影像與結果列跳過。
 
 用法：python scripts/stage2_purify.py --stage1-dir experiments/stage1/<ts> [--dry-run]
       [--purify-methods jpeg,blur] [--gridpure-model path/256x256_diffusion_uncond.pt]
+      [--resume experiments/stage2/<ts>]
 """
 
 import argparse
 import time
 from pathlib import Path
 
-from common import REPO_ROOT, load_yaml, model_tag, sample_mask  # noqa: E402
+from common import (  # noqa: E402
+    REPO_ROOT, IncrementalCsv, load_yaml, model_tag, sample_mask,
+)
 
 from src.edit import edit_image
 from src.metrics.quality import compute_all
@@ -28,11 +35,12 @@ from src.purify import purify
 from src.purify.lightweight import gaussian_blur
 from src.utils.io import (
     load_csv, load_image, load_json, make_run_dir, save_config_snapshot,
-    save_csv, save_env_json, save_image, save_json, save_summary,
+    save_env_json, save_image, save_json, save_summary,
 )
 from src.utils.seed import set_seed
 
 METRIC_KEYS = ["psnr", "ssim", "vifp", "fsim", "lpips", "clip"]
+KEY_FIELDS = ["purify", "method", "model", "edit_method", "image_id", "prompt_idx"]
 
 
 class FakePurifier:
@@ -81,6 +89,7 @@ def main():
     parser.add_argument("--gridpure-fake", action="store_true", help="本地流程驗證用假淨化器")
     parser.add_argument("--max-images", type=int, default=None)
     parser.add_argument("--dry-run", action="store_true", help="僅列印成本估算")
+    parser.add_argument("--resume", default=None, help="續跑既有 run 目錄")
     args = parser.parse_args()
 
     s1 = Path(args.stage1_dir)
@@ -121,24 +130,31 @@ def main():
     if args.dry_run:
         return
 
-    run_dir = make_run_dir("stage2")
-    print(f"run_dir={run_dir}")
+    run_dir = Path(args.resume) if args.resume else make_run_dir("stage2")
+    results = IncrementalCsv(run_dir / "results.csv", KEY_FIELDS)
+    print(f"run_dir={run_dir}"
+          + (f"（續跑，已有 {len(results.rows)} 列）" if args.resume else ""))
 
-    # --- 淨化階段（與模型/編輯無關，逐 (方法, 影像, op) 一次）---
+    # --- 淨化階段（與模型/編輯無關；續跑時已存在之檔案跳過）---
     for mkey in methods:
         for sample in samples:
             sid = sample["image_id"].replace("/", "__")
-            protected = load_image(s1 / manifest["protected"][mkey][sample["image_id"]]["path"])
+            protected = None
             for family, label, strength, _ in ops:
+                out_path = run_dir / "purified" / mkey / label / f"{sid}.png"
+                if out_path.exists():
+                    continue
+                if protected is None:
+                    protected = load_image(
+                        s1 / manifest["protected"][mkey][sample["image_id"]]["path"])
                 t0 = time.time()
                 out = purify(protected, family, strength,
                              config=cfgs["purify"], purifier=purifier)
-                save_image(run_dir / "purified" / mkey / label / f"{sid}.png", out)
+                save_image(out_path, out)
                 if family == "gridpure":
                     print(f"purify {mkey} {sid} {label}: {time.time() - t0:.0f}s")
 
-    # --- 編輯與指標 ---
-    rows = []
+    # --- 編輯與指標（逐筆寫入）---
     for model_name in manifest["eval_models"]:
         sd_eval = SDWrapper(model_name)
         tag = model_tag(model_name)
@@ -148,13 +164,21 @@ def main():
                 mask = sample_mask(sample, base) if edit_m == "inpaint" else None
                 for pi, prompt in enumerate(sample["edit_prompts"]):
                     seeds = manifest["seeds"][f"{sample['image_id']}|p{pi}"]
-                    edited_origs = {
-                        seed: load_image(s1 / "edited_orig" / tag / edit_m /
-                                         f"{sid}_p{pi}_s{seed}.png")
-                        for seed in seeds
-                    }
+                    edited_origs = None
                     for mkey in methods:
                         for family, label, strength, num_strength in ops:
+                            if results.done({
+                                "purify": label, "method": mkey, "model": model_name,
+                                "edit_method": edit_m, "image_id": sample["image_id"],
+                                "prompt_idx": pi,
+                            }):
+                                continue
+                            if edited_origs is None:
+                                edited_origs = {
+                                    seed: load_image(s1 / "edited_orig" / tag / edit_m /
+                                                     f"{sid}_p{pi}_s{seed}.png")
+                                    for seed in seeds
+                                }
                             purified = load_image(run_dir / "purified" / mkey / label / f"{sid}.png")
                             per_seed = []
                             for seed in seeds:
@@ -168,21 +192,32 @@ def main():
                                    "strength": num_strength, "method": mkey,
                                    "model": model_name, "edit_method": edit_m,
                                    "image_id": sample["image_id"], "prompt_idx": pi, **mean}
+                            drop_valid = True
                             for k, v in mean.items():
                                 c = clean.get(ckey, {}).get(k)
-                                if c:
-                                    row[f"drop_{k}"] = (c - v) / c
-                            rows.append(row)
+                                if c is None or abs(c) <= 1e-6:
+                                    continue  # 基準缺失或近零：不計算（除零）
+                                row[f"drop_{k}"] = (c - v) / c
+                                if c < 0:
+                                    drop_valid = False  # 負基準：比值方向易誤讀
+                            row["drop_valid"] = drop_valid
+                            results.append(row)
                     print(f"eval {tag} {edit_m} {sample['image_id']} p{pi}: done")
         del sd_eval
 
-    save_csv(run_dir / "results.csv", rows)
-    _plot(rows, run_dir)
+    _plot(results.rows, run_dir)
     save_config_snapshot(run_dir, cfgs)
     save_env_json(run_dir)
     save_json(run_dir / "source.json", {"stage1_dir": str(s1)})
-    _summary(run_dir, rows, args)
-    print(f"stage2 完成：{len(rows)} 列 → {run_dir}")
+    _summary(run_dir, results.rows, manifest)
+    print(f"stage2 完成：{len(results.rows)} 列 → {run_dir}")
+
+
+def _num(v):
+    try:
+        return float(v)
+    except (TypeError, ValueError):
+        return None
 
 
 def _plot(rows, run_dir):
@@ -197,12 +232,13 @@ def _plot(rows, run_dir):
         return
     fig, axes = plt.subplots(1, len(families), figsize=(4 * len(families), 4), squeeze=False)
     for ax, family in zip(axes[0], families):
-        frows = [r for r in rows if r["purify_family"] == family and r["strength"] is not None]
+        frows = [r for r in rows
+                 if r["purify_family"] == family and _num(r["strength"]) is not None]
         for mkey in sorted({r["method"] for r in frows}):
             pts = {}
             for r in frows:
                 if r["method"] == mkey:
-                    pts.setdefault(r["strength"], []).append(r["lpips"])
+                    pts.setdefault(_num(r["strength"]), []).append(float(r["lpips"]))
             xs = sorted(pts)
             ax.plot(xs, [sum(pts[x]) / len(pts[x]) for x in xs], marker="o", label=mkey)
         ax.set_title(family)
@@ -214,21 +250,27 @@ def _plot(rows, run_dir):
     plt.close(fig)
 
 
-def _summary(run_dir, rows, args):
+def _summary(run_dir, rows, manifest):
     additive = {"pg_enc", "pg_diff"}
     lines = [
         "# stage2 摘要（實測值）", "",
         "- drop = (clean − purified) / clean，逐指標；lpips 之 drop 越大代表淨化越有效"
-        "（防禦被移除越多）。方向定義見 METRIC_HIGHER_IS_BETTER。",
+        "（防禦被移除越多）。方向定義見 METRIC_HIGHER_IS_BETTER；"
+        "drop_valid=False 之列基準為負值，比值方向須個別解讀。",
         "- 核心比較：加性（pg_*）vs 非加性（advdiff/apa/hybrid）之 drop。"
-        "待驗證假設（非預設結論）：非加性之 drop 較小。", "",
-        "| purify | 加性 mean drop_lpips | 非加性 mean drop_lpips |", "|---|---|---|",
+        "待驗證假設（非預設結論）：非加性之 drop 較小。",
     ]
+    if manifest.get("smoke"):
+        lines.append("- smoke 執行：數值僅驗流程。")
+    if manifest.get("placeholder_mask"):
+        lines.append(f"- **placeholder 遮罩**（{manifest.get('mask_spec')}）：inpaint 結果"
+                     "與真實資料集結果不可直接比較，真實資料到手後須重跑。")
+    lines += ["", "| purify | 加性 mean drop_lpips | 非加性 mean drop_lpips |", "|---|---|---|"]
     labels = list(dict.fromkeys(r["purify"] for r in rows))
     for label in labels:
         def _mean(pred):
-            vals = [r["drop_lpips"] for r in rows
-                    if r["purify"] == label and pred(r["method"]) and "drop_lpips" in r]
+            vals = [float(r["drop_lpips"]) for r in rows
+                    if r["purify"] == label and pred(r["method"]) and r.get("drop_lpips") not in (None, "")]
             return f"{sum(vals) / len(vals):.4f}" if vals else "-"
         lines.append(f"| {label} | {_mean(lambda m: m in additive)} |"
                      f" {_mean(lambda m: m not in additive)} |")

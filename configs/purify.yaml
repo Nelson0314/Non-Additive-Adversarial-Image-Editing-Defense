@@ -10,10 +10,12 @@ crop_resize:
 
 adverse_cleaner:               # 即 BF+GF，兩變體
   variants: ["bf_only", "bf_gf"]
-  bf_iterations: 3
+  # preflight 論文核驗修正：官方 clean.py 為 64×BF + 4×GF（SPEC 原記 3×BF+1×GF 有誤）
+  bf_iterations: 64
   bf_d: 5
   bf_sigma_color: 8
   bf_sigma_space: 8
+  gf_iterations: 4
   gf_radius: 4
   gf_eps: 16
 
@@ -23,7 +25,8 @@ gridpure:                      # SPEC §5.3；timestep 尺度 = 1000 步 DDPM �
   n_grids: 10                  # 九個 + 四角落組成的第十個
   gamma: 0.1
   # 兩組設定性質不同，階段二皆須測（v2.1 補丁）：
-  # - iterative：多次淺淨化，GrIDPure 核心設計（官方 README 建議值）
+  # - iterative：多次淺淨化，GrIDPure 核心設計（官方 README 範例 10×20；
+  #   論文 §B.5 預設為 10×10——preflight 論文核驗補充，iterations 掃描涵蓋）
   # - single_deep：單次深淨化，行為上退化為 DiffPure（官方腳本預設值）
   # 兩者對照可檢驗 GrIDPure 的迭代設計是否確實優於單次深淨化
   settings:

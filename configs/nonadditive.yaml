@@ -2,6 +2,26 @@ common:
   similarity_metric: "lpips"
   similarity_budget: null     # 由 stage0_calibrate.py 填入
 
+# stage0 相似性掃描範圍（preflight 假設 2 裁定：SG 與 GC 不可共用——
+# GC 為部分 inversion（t≈0.2T），z_T 噪聲程度遠低於 SG 完整 inversion，
+# 同一 eps_a 之有效擾動幅度不同，故各自獨立掃描。
+# hybrid 掃 eps_a：其相似性約束為 APA 骨架之 ℓ∞ ball（z⁰_T ± eps_a），
+# AdvDiff 形式之注入（s、a）僅在該 ball 內作用，eps_a 為實際約束鈕。
+# 首輪掃描範圍為推測值；若選中值落在區間端點，stage0 會警告並要求擴展重掃。
+stage0_scan:
+  advdiff:
+    knob: "eps_latent"
+    values: [0.05, 0.1, 0.2, 0.4]
+  apa_sg:
+    knob: "eps_a"
+    values: [0.1, 0.2, 0.4, 0.8]
+  apa_gc:
+    knob: "eps_a"                # 部分 inversion 之 z_T 較接近 z_0，容許較小範圍
+    values: [0.02, 0.05, 0.1, 0.2]
+  hybrid:
+    knob: "eps_a"
+    values: [0.1, 0.2, 0.4, 0.8]
+
 advdiff:                       # SPEC §4.3（v4：依官方 ddim_adv.py 修正）
   T: 10
   N: 5                         # 官方 K=5

@@ -126,6 +126,40 @@ def test_advdiff_protect(sd):
     _assert_valid_output(out, x)
 
 
+def test_advdiff_guidance_interval(sd):
+    """注入僅於 guidance_range 內作用：區間空集 ⇔ s=0，兩者輸出須位元級一致；
+    區間非空且 s>0 時輸出須不同（preflight §2.4，L4 缺口補測）。"""
+    x = _image(sd)
+    base = {**ADVDIFF_CFG, "N": 1, "a": 0.0}
+    out_empty = AdvDiffProtection(sd, {**base, "guidance_range": [0.0, 0.0]}).protect(x, "dog")
+    out_s0 = AdvDiffProtection(sd, {**base, "s": 0.0}).protect(x, "dog")
+    out_on = AdvDiffProtection(sd, base).protect(x, "dog")
+    assert torch.equal(out_empty, out_s0)
+    assert not torch.equal(out_on, out_empty)
+
+
+def test_advdiff_projection_effective(sd):
+    """相似性投影生效：eps_latent=0 時 z_T 每輪被投影回原點，a 再大輸出亦
+    與 a=0 一致；eps_latent 放寬後 a 之效果方可顯現。"""
+    x = _image(sd)
+    base = {**ADVDIFF_CFG, "N": 2, "s": 0.0}
+    out_locked = AdvDiffProtection(sd, {**base, "a": 5.0, "eps_latent": 0.0}).protect(x, "dog")
+    out_a0 = AdvDiffProtection(sd, {**base, "a": 0.0, "eps_latent": 0.0}).protect(x, "dog")
+    out_free = AdvDiffProtection(sd, {**base, "a": 5.0, "eps_latent": 10.0}).protect(x, "dog")
+    assert torch.equal(out_locked, out_a0)
+    assert not torch.equal(out_free, out_locked)
+
+
+def test_apa_linf_clamp():
+    """式 (7) 之 ℓ∞ clamp：更新後 z_T 必在 z⁰_T ± eps_a 內。"""
+    method = APAProtection(None, {"mu": 10.0, "eps_a": 0.1})
+    z_T0 = torch.zeros(1, 4, 8, 8)
+    z_T = torch.randn(1, 4, 8, 8) * 5.0
+    g = torch.randn_like(z_T)
+    out = method._traj_zT_update(z_T, g, z_T0, {})
+    assert (out - z_T0).abs().max() <= 0.1 + 1e-6
+
+
 @pytest.mark.parametrize("variant", ["sg", "gc"])
 def test_apa_protect_and_unet_restored(sd, variant):
     x = _image(sd)

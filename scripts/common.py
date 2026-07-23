@@ -44,7 +44,7 @@ def apply_smoke(cfgs: dict, sd) -> None:
     cfgs["base"]["generation"].update({"height": n, "width": n, "num_inference_steps": 4})
     cfgs["base"]["edit"].update({"n_seeds": 2, "sdedit_strength": 0.5})
     cfgs["base"]["data"]["n_images"] = 2
-    cfgs["additive"]["photoguard"].update({"n_iter": 3, "diffusion_T": 3, "diffusion_eot": 2})
+    cfgs["additive"]["photoguard"].update({"n_iter": 3, "diffusion_T": 3, "grad_reps": 2})
     cfgs["nonadditive"]["advdiff"].update({"T": 5, "N": 2, "guidance_range": [0.0, 0.5]})
     cfgs["nonadditive"]["apa"].update(
         {"grid_steps": 10, "T_a": 3, "N": 2, "lora_steps": 3, "lora_rank": 2, "lora_alpha": 2}
@@ -61,21 +61,77 @@ def apply_smoke(cfgs: dict, sd) -> None:
     cfgs["purify"]["crop_resize"]["ratio"] = [0.2]
 
 
-def center_mask(h: int, w: int) -> torch.Tensor:
-    """inpaint 用預設遮罩：中央 1/2×1/2 方形（1=重繪）。
-    DAYN 測試集之遮罩待資料取得後由 dataset 提供（sample["mask"]），此為 placeholder。"""
+def center_mask(h: int, w: int, fraction: float = 0.5) -> torch.Tensor:
+    """placeholder 遮罩：中央方形（1=重繪），邊長 = fraction × 影像邊長。
+    規格由 config edit.inpaint_mask 提供並記錄於輸出；遮罩幾何實質影響保護
+    難度，placeholder 之結果與真實資料集結果不可直接比較（preflight 假設 3）。"""
     mask = torch.zeros(1, 1, h, w)
-    mask[..., h // 4 : h - h // 4, w // 4 : w - w // 4] = 1.0
+    mh, mw = round(h * fraction), round(w * fraction)
+    top, left = (h - mh) // 2, (w - mw) // 2
+    mask[..., top : top + mh, left : left + mw] = 1.0
     return mask
 
 
 def sample_mask(sample: dict, config: dict) -> torch.Tensor:
+    """真實遮罩（sample["mask"]，DAYN 資料到手後由 dataset 提供）優先；
+    否則依 config edit.inpaint_mask 產生 placeholder。"""
     if "mask" in sample:
         return sample["mask"]
+    spec = config["edit"].get("inpaint_mask") or {"type": "center_square", "fraction": 0.5}
+    if spec["type"] != "center_square":
+        raise ValueError(f"未知 placeholder 遮罩類型: {spec['type']}")
     h, w = config["generation"]["height"], config["generation"]["width"]
-    return center_mask(h, w)
+    return center_mask(h, w, spec.get("fraction", 0.5))
+
+
+def used_placeholder_mask(samples: list[dict], edit_methods: list[str]) -> bool:
+    return "inpaint" in edit_methods and any("mask" not in s for s in samples)
 
 
 def model_tag(name: str) -> str:
     """模型名稱 → 檔名安全標籤。"""
     return name.replace("/", "__")
+
+
+class IncrementalCsv:
+    """逐筆寫入之 results.csv（斷點續跑用）。
+
+    每列 append 後立即 flush；欄位以首列之鍵為準（後續列缺鍵留空、多鍵報錯）。
+    既有檔案（--resume）讀回已完成列，done() 供跳過判斷。
+    """
+
+    def __init__(self, path, key_fields: list[str]):
+        import csv
+
+        self._csv = csv
+        self.path = Path(path)
+        self.key_fields = key_fields
+        self.fieldnames = None
+        self._done = set()
+        self.rows = []
+        if self.path.exists():
+            with open(self.path, newline="", encoding="utf-8") as f:
+                reader = csv.DictReader(f)
+                self.fieldnames = reader.fieldnames
+                for row in reader:
+                    self.rows.append(row)
+                    self._done.add(self._key(row))
+
+    def _key(self, row: dict) -> tuple:
+        return tuple(str(row[k]) for k in self.key_fields)
+
+    def done(self, row_key: dict) -> bool:
+        return self._key(row_key) in self._done
+
+    def append(self, row: dict) -> None:
+        new_file = self.fieldnames is None
+        if new_file:
+            self.fieldnames = list(row)
+        with open(self.path, "a", newline="", encoding="utf-8") as f:
+            writer = self._csv.DictWriter(f, fieldnames=self.fieldnames)
+            if new_file:
+                writer.writeheader()
+            writer.writerow(row)
+            f.flush()
+        self.rows.append(row)
+        self._done.add(self._key(row))

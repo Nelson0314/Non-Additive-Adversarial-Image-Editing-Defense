@@ -266,6 +266,31 @@ img2img pipeline（SPEC §2.8 已確認其對應關係），不使用此 repo �
     成功（stage1 40 列、stage2 400 列＝40 組合×10 淨化設定，drop 欄位與
     曲線圖正常產出）。config 回寫 regex 於副本驗證（註解保留、yaml 可解析）。
   - 新增套件：matplotlib（曲線繪製）。
+- 2026-07-23（preflight 部署前檢查）：
+  - **四項假設依裁定調整**：stage0 雙基準（encoder 採用＋diffusion 5 張併列、
+    >10% 差距警告）；掃描範圍移入 config `stage0_scan`（apa_sg/apa_gc 獨立值域、
+    hybrid 掃 eps_a——其約束為 APA 骨架 ℓ∞ ball）＋選中值落端點自動警告；
+    遮罩規格入 config（edit.inpaint_mask）＋summary/manifest 標記；prompt_idx 維持。
+  - **穩健性**：stage1/2 改逐筆寫入（IncrementalCsv，每列 flush）＋ `--resume`
+    斷點續跑（保護影像/edited_orig/結果列皆可跳過，煙霧實測 8–9 秒空跑無重複）；
+    drop 除零與負基準防護（drop_valid 欄）；config 回寫維持單行 regex＋overlay
+    （評估後不引入 ruamel.yaml，理由記於 PREFLIGHT [2.5]）。
+  - **稽核發現並修正之 bug**：`apply_smoke` 之 EOT 縮減用錯鍵名
+    （diffusion_eot→grad_reps，STRUCTURE 範本與實作鍵名不一致所致）。
+  - **論文原文核驗**（PAPER_VERIFICATION.md）：高等級 0、中等級 2 均處置——
+    (1) AdverseCleaner 官方為 **64×BF＋4×GF**（SPEC 記 3×BF+1×GF），已修正
+    adverse_cleaner.py 與 purify.yaml；(2) DAYN Table 1 僅為 img2img 情境，
+    校準比對限 sdedit 列（stage1 summary 已改）。另：DAYN 測試集為 SD 生成影像
+    （自生成備援可行）、DAYN Alg.1 為 sign+clip（ℓ∞ 先驗提高）、「LDM 淨化無效」
+    出處實為 Pixel is a Barrier §6.3 非 GrIDPure、GrIDPure 論文預設 10×10。
+  - **新增測試 5 項**（39/39）：guidance 區間位元級等價、eps_latent 投影生效、
+    APA ℓ∞ clamp、指標方向極端案例（piq 五項＋FID）。
+  - **成本估算**（preflight_report.py，V100 單位假設待實測校正）：完整 SPEC 方案
+    約 14,000h（fp32）——瓶頸為 stage2 編輯 204 萬次之乘數效應，單卡不可行；
+    建議路徑 C（~43h 首日）→ B（~213h，批次化後 ~70–90h）。
+  - 產出：PREFLIGHT.md（preflight_report.py 自動生成，全項 PASS＋1 WARN）、
+    PAPER_VERIFICATION.md、TWCC_CHECKLIST 新增 9 項首次執行驗證。
+  - 新增開發依賴：pypdf（論文 PDF 文字抽取，非執行期依賴，不入 environment.yml）。
 - 2026-07-23：專案根目錄採 `C:\WACV`（SPEC.md 所在處），不另建子目錄。
 - 2026-07-23：configs/*.yaml 直接填入 STRUCTURE.md §3 範本內容（文件已完整給定）。
 

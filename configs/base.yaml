@@ -20,6 +20,7 @@ edit:
   methods: ["sdedit", "inpaint"]
   sdedit_strength: null      # SPEC §2.8 待確認，向作者索取
   n_seeds: 20                # SPEC §2.4
+  seed_clip_threshold: null  # seed 判準（CLIP score 門檻）；null = 不篩選。判準待與指導者確認
 
 data:
   root: "data/dayn_testset"

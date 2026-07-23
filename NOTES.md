@@ -101,6 +101,22 @@ img2img pipeline（SPEC §2.8 已確認其對應關係），不使用此 repo �
   官方實作與 SPEC 偽碼之完整差異清單見上方「L1.3 官方 repo 關鍵發現」。
 - 2026-07-23：GrIDPure 兩組設定（iterative 多次淺淨化 / single_deep 單次深淨化）皆列入
   configs/purify.yaml，階段二兩者都測，兼作「迭代設計是否優於單次深淨化」之檢驗。
+- 2026-07-23（指令 B）：
+  - `img2img_differentiable` 以手動 DDIM（eta=0）實作而非 diffusers scheduler：
+    確保計算圖完整可反傳、步數可精確控制（T=10 對齊 DAYN）；此實作亦為
+    §4.1 DDIM inversion 之基礎。prompt 為空字串時略過 CFG（uncond 與 cond
+    相同，數學上等價、省一半記憶體；官方 attack_forward 對空 prompt 仍做 CFG，屬冗餘）。
+  - `edit_image()` 較 STRUCTURE §2.2 介面多一個 `sd` 參數（SDWrapper）：
+    原介面未含模型握把，為必要補充。
+  - inpaint 用與編輯相同之基礎模型（4-channel UNet，diffusers 逐步 latent 混合），
+    不用 runwayml inpainting 專用權重（SPEC §2.1 統一 v1.4；tiny 模型驗證可跑通）。
+  - cross-attention 擷取以自訂 AttnProcessor 實作（context manager，僅掛 attn2），
+    跨層聚合（DAYN 式 3）留給保護方法（指令 D）。
+  - seed 協定：`seed_clip_threshold: null` 時不篩選、回傳連續 seed（判準待與
+    指導者確認）；同 seed 編輯之位元級可重現性已由測試驗證。
+  - placeholder 資料集為決定性合成影像（seeded 低頻雜訊上採樣），3 類 × 2 prompt，
+    config `is_placeholder: true` 標記，取得 DAYN 資料集後切換 `_folder_dataset`。
+  - FID 為資料集層級指標，不入 `compute_all`（per-pair 無意義），另供 `compute_fid()`。
 
 - 2026-07-23：專案根目錄採 `C:\WACV`（SPEC.md 所在處），不另建子目錄。
 - 2026-07-23：configs/*.yaml 直接填入 STRUCTURE.md §3 範本內容（文件已完整給定）。

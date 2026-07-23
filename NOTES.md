@@ -117,6 +117,25 @@ img2img pipeline（SPEC §2.8 已確認其對應關係），不使用此 repo �
   - placeholder 資料集為決定性合成影像（seeded 低頻雜訊上採樣），3 類 × 2 prompt，
     config `is_placeholder: true` 標記，取得 DAYN 資料集後切換 `_folder_dataset`。
   - FID 為資料集層級指標，不入 `compute_all`（per-pair 無意義），另供 `compute_fid()`。
+- 2026-07-23（指令 D，非加性三方法）：
+  - reward（SPEC §4.2 方案一）抽出為共用模組 `src/protect/rewards.py`
+    （STRUCTURE §1 未列此檔，為避免三方法重複而新增）。
+    `R = −‖A_concept‖₁`；聚合依 DAYN 式 (3)（head 平均、bicubic 上採樣、逐層相加）。
+    方向正確性經測試驗證（沿 ∇R 上升一步 R 確實增加）。
+  - AdvDiff：z_T 投影採「相對 L2 ball」（半徑 = eps_latent × ‖z_T‖），
+    eps_latent=0.2 為暫定值，stage0 以 LPIPS 校準。
+  - APA 實作簡化：式 (11)/(12) 之 f(·) 原為作用於解碼影像之分類器；本專案 reward
+    以 UNet 注意力定義，直接於 latent（z^t_in、(z^t_0+z̄_0)/2）評估、不經 VAE
+    解碼—編碼往返，語意等價且大幅降低內迴圈記憶體。「最後 T_a 步」實作為
+    去噪末段（低噪聲端），與 AdvDiff 附錄 E 高 t 無效之發現一致。
+  - LoRA 手刻（LoRALinear：to_q/to_k/to_v，up 零初始化），不引入 peft；
+    注入當下不改變輸出、protect 結束後精確還原（皆經測試，torch.equal）。
+    lora_rank 暫用 4（SPEC §8 第 4 項待確認，屬假設）。
+  - Stage 1 之 LoRA 訓練即最小化單圖 diffusion loss（式 6 之 maximize R_s 等價形式）。
+  - Hybrid 以子類別覆寫 APA 兩個注入 hook（step-level 原始梯度×s、
+    trajectory-level +a·g），投影維持 APA 骨架之 ℓ∞ ball。
+  - 記憶體風險（SPEC §4.2 已知風險）：trajectory 梯度須保留 T 步 UNet 計算圖，
+    tiny 模型無虞；真實 SD 於 V100 若不足，後續以 gradient checkpointing 處理。
 
 - 2026-07-23：專案根目錄採 `C:\WACV`（SPEC.md 所在處），不另建子目錄。
 - 2026-07-23：configs/*.yaml 直接填入 STRUCTURE.md §3 範本內容（文件已完整給定）。

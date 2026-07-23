@@ -38,5 +38,16 @@ class ProtectionMethod(ABC):
     def name(self) -> str: ...
 
     def peak_memory_mb(self) -> float:
-        """回傳上次 protect() 的峰值記憶體，供資源比較用。"""
-        raise NotImplementedError
+        """回傳上次 protect() 的峰值記憶體（MB），供資源比較用。CPU 無對應統計，回傳 nan。"""
+        return getattr(self, "_peak_mb", float("nan"))
+
+    def _reset_peak_memory(self) -> None:
+        if torch.cuda.is_available():
+            torch.cuda.reset_peak_memory_stats()
+
+    def _capture_peak_memory(self) -> None:
+        self._peak_mb = (
+            torch.cuda.max_memory_allocated() / 1e6
+            if torch.cuda.is_available()
+            else float("nan")
+        )

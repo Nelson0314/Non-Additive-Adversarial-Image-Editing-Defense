@@ -150,6 +150,36 @@ class SDWrapper:
 
         return self.decode_latents(z)
 
+    # ---- DDIM 時間格點與 inversion ----
+
+    def ddim_timesteps(self, num_steps: int, t_max: int = None) -> torch.Tensor:
+        """0 → t_max 均分之 num_steps+1 個 timestep（升冪）。
+
+        inversion 依升冪走訪；sampling 依降冪走訪同一格點。
+        """
+        abar = self.scheduler.alphas_cumprod
+        t_max = t_max if t_max is not None else len(abar) - 1
+        return torch.linspace(0, t_max, num_steps + 1).round().long()
+
+    def ddim_inversion(
+        self, z0: torch.Tensor, prompt_emb: torch.Tensor, num_steps: int
+    ) -> torch.Tensor:
+        """確定性 DDIM inversion（SPEC §4.1、APA 式 4）：z_0 → z_T。
+
+        z_t = √ᾱ_t·(z_{t-1} − √(1−ᾱ_{t-1})·ε_θ)/√ᾱ_{t-1} + √(1−ᾱ_t)·ε_θ
+        ε_θ 於當前狀態之 timestep（t-1）評估。保存原圖資訊、去噪可近似重建；
+        與 DiffPure 的隨機加噪（遺忘原圖）方向相反。
+        """
+        abar = self.scheduler.alphas_cumprod.to(self.device)
+        ts = self.ddim_timesteps(num_steps)
+        z = z0
+        for i in range(num_steps):
+            t_prev, t = ts[i], ts[i + 1]
+            eps = self.unet(z, t_prev, encoder_hidden_states=prompt_emb).sample
+            pred_x0 = (z - (1 - abar[t_prev]).sqrt() * eps) / abar[t_prev].sqrt()
+            z = abar[t].sqrt() * pred_x0 + (1 - abar[t]).sqrt() * eps
+        return z
+
     # ---- cross-attention 擷取 ----
 
     @contextmanager

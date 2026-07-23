@@ -9,6 +9,7 @@ advdiff:                       # SPEC §4.3
   s: 0.7                       # 每步注入強度
   a: 0.5                       # 起始噪聲注入強度
   guidance_range: [0.0, 0.2]   # 附錄 E：僅在反向過程末段施加
+  eps_latent: 0.2              # [本專案設計] z_T 相對 L2 ball 半徑（‖z_T‖ 之比例），stage0 校準
   reward: "attention"          # SPEC §4.2 方案一
 
 apa:                           # SPEC §4.4
@@ -18,7 +19,7 @@ apa:                           # SPEC §4.4
   N: 10
   eps_a: 0.4
   mu: 0.04
-  lora_rank: null              # SPEC 待確認，主文未給
+  lora_rank: 4                 # SPEC §8 第 4 項待確認（主文未給，在附錄）；暫用 4，屬假設
   lora_lr: 1.0e-4
   lora_steps: 100
   reward: "attention"

@@ -19,3 +19,4 @@ dependencies:
       - pytest
       - pyyaml
       - psutil         # 記憶體量測（開發輔助）
+      - matplotlib     # stage 腳本之校準與淨化強度曲線

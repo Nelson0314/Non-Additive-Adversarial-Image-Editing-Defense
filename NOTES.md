@@ -233,6 +233,39 @@ img2img pipeline（SPEC §2.8 已確認其對應關係），不使用此 repo �
     支持 v4 之風險下修。CUDA 上另有 peak_memory_mb()（torch.cuda 統計）。
   - 新增套件：peft（APA 官方依賴）、psutil（記憶體量測，開發輔助）。
 
+- 2026-07-23（指令 E，淨化模組＋三支 stage 腳本）：
+  - **淨化模組**：`purify()` 統一入口較 STRUCTURE §2.4 介面多 `config`（濾波參數）
+    與 `purifier`（GrIDPure 淨化器握把）兩個關鍵字參數，為必要補充（同 edit_image
+    之 sd）。AdverseCleaner 於 0–255 像素域運作（官方 guided filter eps=16 為該
+    尺度）；GrIDPure grid 機制忠實移植官方 gridpure.py（切分／四角落拼合第十
+    grid／重疊平均／γ 混合），淨化器以 callable 注入使 grid 機制可於 CPU 獨立
+    驗證（恆等淨化器 → 輸出=輸入，經測試）；正式淨化器
+    `load_guided_diffusion_purifier()` 沿用官方 guided_diffusion 套件與
+    imagenet.yml 設定（use_fp16 依裝置：cuda 開、cpu 關）。
+  - **stage0**：L_ref 以 PhotoGuard **encoder**（κ=0.06）為基準（假設：DAYN 之
+    κ=0.06 加性基準；diffusion attack 同 κ，成本約 10 倍，不影響 LPIPS 基準）。
+    掃描參數＝各方法相似性控制鈕（advdiff: eps_latent；apa/hybrid: eps_a），
+    掃描值域為初始猜測、TWCC 實測後調整。回寫策略：similarity_budget 以逐行
+    regex 改值（保留 yaml 註解）；各方法選定值寫入
+    `configs/nonadditive_calibrated.yaml` overlay（stage1 自動合併），
+    避免 yaml.dump 重寫整份 nonadditive.yaml 破壞註解。
+  - **stage1**：保護一律以 protect_model 生成、一次完成後存 png，再逐 eval model
+    編輯評測（保護與評測解耦，跨模型遷移即 SD V2.0 欄位）。protected 與
+    edited_orig 均存檔供 stage2 重用（png 8-bit 無失真，量化屬保護輸出之
+    現實情境）。每列含 prompt_idx（每類 2 prompt，STRUCTURE 欄位之必要補充）。
+    FID 逐 (method, model, edit) 群組以 piq InceptionV3 特徵計算，
+    `--no-fid` 可略（本地 smoke 樣本數過少、FID 無意義）。
+  - **stage2**：generation/edit 設定一律讀 stage1 之 config_snapshot.yaml 確保
+    條件一致；淨化與模型/編輯無關、逐 (方法,影像,op) 執行一次後存檔。
+    drop 逐指標計算，方向解讀依 METRIC_HIGHER_IS_BETTER；曲線以 lpips 為
+    主效果軸。`--dry-run` 先印成本估算（STRUCTURE §4.4 要求）；
+    `--gridpure-fake`（Gaussian blur 假淨化器）僅供本地流程驗證。
+  - `--smoke` 模式（三腳本共通）：tiny 模型縮減參數之流程驗證，
+    解析度依模型原生尺寸推得，數值不具比較意義。
+  - 本地驗證：測試 34/34（新增 test_purify.py 13 項）；stage0→1→2 煙霧串跑
+    成功（stage1 40 列、stage2 400 列＝40 組合×10 淨化設定，drop 欄位與
+    曲線圖正常產出）。config 回寫 regex 於副本驗證（註解保留、yaml 可解析）。
+  - 新增套件：matplotlib（曲線繪製）。
 - 2026-07-23：專案根目錄採 `C:\WACV`（SPEC.md 所在處），不另建子目錄。
 - 2026-07-23：configs/*.yaml 直接填入 STRUCTURE.md §3 範本內容（文件已完整給定）。
 

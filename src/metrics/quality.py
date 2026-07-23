@@ -55,6 +55,11 @@ def compute_all(
     return out
 
 
+def lpips_distance(x: torch.Tensor, y: torch.Tensor) -> float:
+    """LPIPS(x, y)，兩張 (1,3,H,W) [0,1]。stage0 相似性校準用。"""
+    return _get_lpips()(x.detach().float().clamp(0, 1), y.detach().float().clamp(0, 1)).item()
+
+
 def compute_fid(feats_x: torch.Tensor, feats_y: torch.Tensor) -> float:
     """FID（資料集層級）。feats 為兩組影像之特徵（N, D），由呼叫端以
     InceptionV3 等抽取後傳入（piq.FID 之標準用法）。"""

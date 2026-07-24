@@ -1,0 +1,9 @@
+=== run_experiment: label=v2a_fair @ 20260724_185357 ===
+model=CompVis/stable-diffusion-v1-4 methods=pg_enc,advdiff,apa,hybrid max-images=8 n-seeds=3 strength=0.8
+purify=jpeg,blur,crop_resize,advclean_bf,advclean_bfgf run_stage0=0 with_fid=0
+commit=b65f912
+NVIDIA H100 80GB HBM3, 81559 MiB
+
+=== STAGE0 @ 18:53:57 ===
+Fetching 14 files:   0%|          | 0/14 [00:00<?, ?it/s]Fetching 14 files:   7%|▋         | 1/14 [00:00<00:02,  5.28it/s]Fetching 14 files:  43%|████▎     | 6/14 [00:04<00:06,  1.23it/s]
+=== FINISHED exit=130 @ 2026-07-24 18:54:18 ===

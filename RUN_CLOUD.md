@@ -194,6 +194,42 @@ python scripts/stage2_purify.py \
 
 ---
 
+## 8. 自動化執行 + 結果自動回推（機器會自動關機時用）
+
+`scripts/run_experiment.sh` 把 stage1→stage2 串成一鍵執行：全程 stdout 存到
+`lab/<時間戳>_<label>/run.log`，並在**結束時（含崩潰、被關機）自動 commit 並
+push** 關鍵產出到 GitHub，機器關機後可在 `lab/` 回頭查看（見 `lab/README.md`）。
+
+**一次性：讓雲端可 headless push**（無 TTY 不能輸入密碼，故把 PAT 併入 remote URL）：
+
+```bash
+git remote set-url origin https://<你的PAT>@github.com/Nelson0314/Non-Additive-Adversarial-Image-Editing-Defense.git
+```
+
+> PAT 會存在雲端 `.git/config`；Lightning Studio 為個人可拋式環境，可接受。
+> 之後所有 `git push` 免密碼。
+
+**執行（單行，跑完自動把結果推上來）**：
+
+```bash
+git pull && bash scripts/run_experiment.sh quick
+```
+
+可用環境變數覆寫（單行示例）：
+
+```bash
+MAXIMG=3 METHODS=pg_enc,advdiff,apa,hybrid bash scripts/run_experiment.sh quick3
+```
+
+```bash
+RUN_STAGE0=1 MAXIMG=6 METHODS=pg_enc,pg_diff,advdiff,apa,hybrid bash scripts/run_experiment.sh full
+```
+
+跑完（或關機後）在本機 `git pull`，看 `lab/<時間戳>_quick/run.log` 末行
+`exit=0` 與 `lab/.../stage2__*/summary.md`。
+
+---
+
 ## 附錄 A：把本專案推上 GitHub
 
 本機 repo 尚未設定 remote。在 github.com 建一個**空的** repo（不要勾 README/

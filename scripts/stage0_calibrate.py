@@ -17,7 +17,10 @@
 
 import argparse
 import re
+import statistics
 import time
+
+import piq
 
 from common import REPO_ROOT, apply_smoke, load_configs  # noqa: E402（先設定 sys.path）
 
@@ -25,6 +28,7 @@ from src.data.dataset import load_dataset
 from src.metrics.quality import lpips_distance
 from src.models.sd_wrapper import SDWrapper
 from src.protect import build_protection
+from src.utils.device import get_device
 from src.utils.io import (
     make_run_dir, save_config_snapshot, save_csv, save_env_json, save_summary,
 )
@@ -35,12 +39,28 @@ from src.utils.seed import set_seed
 KNOB_SECTION = {"advdiff": "advdiff", "apa_sg": "apa", "apa_gc": "apa", "hybrid": "hybrid"}
 
 
-def mean_protect_lpips(method, data) -> float:
-    vals = []
+def protect_metrics(method, data) -> list:
+    """逐影像 {image_id, lpips, psnr, linf}（protected vs original）。
+    lpips 驅動校準；psnr/linf 供公平性檢核（L∞ 對加性方法為約束上界，
+    對非加性方法僅供參考）。"""
+    dev = get_device()
+    out = []
     for sample in data:
-        protected = method.protect(sample["image"], sample["concept"])
-        vals.append(lpips_distance(protected, sample["image"]))
-    return sum(vals) / len(vals)
+        orig = sample["image"]
+        protected = method.protect(orig, sample["concept"])
+        x = protected.detach().float().clamp(0, 1).to(dev)
+        y = orig.detach().float().clamp(0, 1).to(dev)
+        out.append({
+            "image_id": sample["image_id"],
+            "lpips": lpips_distance(protected, orig),
+            "psnr": piq.psnr(x, y, data_range=1.0).item(),
+            "linf": (x - y).abs().max().item(),
+        })
+    return out
+
+
+def mean_lpips(metrics) -> float:
+    return sum(m["lpips"] for m in metrics) / len(metrics)
 
 
 def write_similarity_budget(l_ref: float) -> None:
@@ -87,9 +107,13 @@ def main():
     # 1. 基準：encoder 與 diffusion 兩者皆算（假設 1 裁定：encoder 為採用值，
     #    diffusion 併列供 10% 差距檢核）
     rows, warnings = [], []
+    fairness_metrics = {}  # 顯示方法名 → 逐影像 metric list（採用/校準後設定）
+    scan_metrics = {}      # (method_key, value) → 逐影像 metric list
     t0 = time.time()
-    l_enc = mean_protect_lpips(
+    enc_metrics = protect_metrics(
         build_protection("pg_enc", sd, cfgs["additive"], cfgs["nonadditive"]), data)
+    l_enc = mean_lpips(enc_metrics)
+    fairness_metrics["pg_enc"] = enc_metrics
     rows.append({"method": "pg_enc", "knob": "epsilon",
                  "value": cfgs["additive"]["photoguard"]["epsilon"], "lpips": l_enc,
                  "adopted": True, "at_boundary": ""})
@@ -97,9 +121,11 @@ def main():
     l_diff = None
     if not args.skip_pg_diff:
         t0 = time.time()
-        l_diff = mean_protect_lpips(
+        diff_metrics = protect_metrics(
             build_protection("pg_diff", sd, cfgs["additive"], cfgs["nonadditive"]),
             data[: args.pg_diff_images])
+        l_diff = mean_lpips(diff_metrics)
+        fairness_metrics["pg_diff"] = diff_metrics
         rows.append({"method": "pg_diff", "knob": "epsilon",
                      "value": cfgs["additive"]["photoguard"]["epsilon"], "lpips": l_diff,
                      "adopted": False, "at_boundary": ""})
@@ -119,7 +145,9 @@ def main():
             set_knob(cfgs, method_key, knob, v)
             method = build_protection(method_key, sd, cfgs["additive"], cfgs["nonadditive"])
             t0 = time.time()
-            lp = mean_protect_lpips(method, data)
+            mets = protect_metrics(method, data)
+            lp = mean_lpips(mets)
+            scan_metrics[(method_key, v)] = mets
             curve.append((v, lp))
             rows.append({"method": method_key, "knob": knob, "value": v, "lpips": lp,
                          "adopted": False, "at_boundary": ""})
@@ -136,6 +164,19 @@ def main():
             warnings.append(
                 f"{method_key} 選中值 {knob}={best_v} 位於掃描區間端點"
                 f"（範圍 {values}）：首輪範圍為推測值，須擴展範圍重掃")
+
+    # 公平性：採用/校準後設定之逐影像 LPIPS/PSNR/L∞（非加性取各自選定 knob）
+    variant = cfgs["nonadditive"]["apa"].get("variant", "gc")
+    for mkey, disp in {"advdiff": "advdiff", f"apa_{variant}": "apa", "hybrid": "hybrid"}.items():
+        c = chosen.get(mkey)
+        if c is not None and (mkey, c["value"]) in scan_metrics:
+            fairness_metrics[disp] = scan_metrics[(mkey, c["value"])]
+    CLS = {"pg_enc": "加性", "pg_diff": "加性",
+           "advdiff": "非加性", "apa": "非加性", "hybrid": "非加性"}
+    fair_rows = [{"method": disp, "type": CLS.get(disp, ""), "image_id": m["image_id"],
+                  "lpips": m["lpips"], "psnr": m["psnr"], "linf": m["linf"]}
+                 for disp, mets in fairness_metrics.items() for m in mets]
+    save_csv(run_dir / "fairness.csv", fair_rows)
 
     # 3. 輸出與回寫
     save_csv(run_dir / "calibration.csv", rows)
@@ -173,6 +214,27 @@ def main():
     for m, c in chosen.items():
         lines.append(f"| {m} | {c['knob']} | {c['value']} | {c['lpips']:.4f} |"
                      f" {'是——須擴展重掃' if c['at_boundary'] else '否'} |")
+
+    # 公平性表（表 1）：非加性 LPIPS(prot,orig) 不應顯著高於加性，否則耐淨化
+    # 優勢可能來自「改動更多」而非機制。此表是整份 v2 結果的前提。
+    def _ms(vals):
+        m = statistics.mean(vals)
+        s = statistics.stdev(vals) if len(vals) >= 2 else 0.0
+        return m, s
+    lines += ["", "## 公平性檢核（表 1；非加性 LPIPS 不應顯著高於加性）", "",
+              "| 方法 | 類型 | LPIPS(prot,orig)↓ | PSNR(prot,orig)↑ | L∞ 差異 | n |",
+              "|---|---|---|---|---|---|"]
+    for disp in ("pg_enc", "pg_diff", "advdiff", "apa", "hybrid"):
+        mets = fairness_metrics.get(disp)
+        if not mets:
+            continue
+        lm, ls = _ms([m["lpips"] for m in mets])
+        pm, ps = _ms([m["psnr"] for m in mets])
+        xm, xs = _ms([m["linf"] for m in mets])
+        linf_s = f"{xm:.4f}" + ("（參考）" if disp in ("advdiff", "apa", "hybrid") else "")
+        lines.append(f"| {disp} | {CLS.get(disp, '')} | {lm:.4f} ± {ls:.4f} |"
+                     f" {pm:.2f} ± {ps:.2f} | {linf_s} | {len(mets)} |")
+
     if warnings:
         lines += ["", "## 警告", ""] + [f"- {w}" for w in warnings]
     save_summary(run_dir, "\n".join(lines) + "\n")

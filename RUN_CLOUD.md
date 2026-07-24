@@ -228,6 +228,35 @@ RUN_STAGE0=1 MAXIMG=6 METHODS=pg_enc,pg_diff,advdiff,apa,hybrid bash scripts/run
 跑完（或關機後）在本機 `git pull`，看 `lab/<時間戳>_quick/run.log` 末行
 `exit=0` 與 `lab/.../stage2__*/summary.md`。
 
+### 8b. v2 對稱檔（含 pg_diff、逐方法 ± std、RESULTS_v2.md）
+
+v2 補齊三缺口：公平性（stage0 輸出逐方法 LPIPS/PSNR/L∞ ± std）、對稱比較
+（納入 pg_diff）、逐方法呈現（不出現「非加性平均」）。分兩階段：
+
+**Phase A — 只跑 stage0 公平性閘門**（跑完 push stage0 fairness 與校準後的
+`configs/`，然後停）：
+
+```bash
+git pull && MAXIMG=20 STAGE0_ONLY=1 bash scripts/run_experiment.sh v2a_fair
+```
+
+回本機 `git pull`，看 `lab/*_v2a_fair/stage0__*/fairness.csv` 與 `summary.md`
+的公平性表。**非加性 LPIPS(prot,orig) 不得顯著高於加性**（判準 1）；若不公平，
+先擴展 `configs/nonadditive.yaml` 的 `stage0_scan` 範圍重跑 Phase A，勿逕行 Phase B。
+
+**Phase B — 公平通過後跑 stage1+stage2+report_v2**（自動合併 Phase A 校準值，
+跑完產出 `RESULTS_v2.md` 並 push）：
+
+```bash
+git pull && MAXIMG=20 NSEEDS=5 METHODS=pg_enc,pg_diff,advdiff,apa,hybrid bash scripts/run_experiment.sh v2b_main
+```
+
+回本機 `git pull`，看 `lab/*_v2b_main/RESULTS_v2.md`（表 1~5 + 交叉分析 +
+三判準檢核）與 `stage2__*/report_v2_tables.csv`、`cross_lpips_vs_strength.png`。
+
+> 成本提醒：pg_diff 因 EOT（grad_reps）約為 pg_enc 十倍；apa/hybrid protect 於
+> H100 約 60s/張。20 圖 × 5 方法，protect 階段約 1.5~2 小時，另加編輯與 stage2。
+
 ---
 
 ## 附錄 A：把本專案推上 GitHub

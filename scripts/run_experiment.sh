@@ -23,6 +23,8 @@ NSEEDS="${NSEEDS:-3}"
 STRENGTH="${STRENGTH:-0.8}"
 PURIFY="${PURIFY:-jpeg,blur,crop_resize,advclean_bf,advclean_bfgf}"
 RUN_STAGE0="${RUN_STAGE0:-0}"      # 1=先跑 stage0 校準
+STAGE0_ONLY="${STAGE0_ONLY:-0}"    # 1=只跑 stage0（Phase A 公平性閘門），跑完 push 即停
+STAGE0_SKIP_PGDIFF="${STAGE0_SKIP_PGDIFF:-0}"  # 1=stage0 省略 pg_diff 基準（公平性表會缺 pg_diff）
 WITH_FID="${WITH_FID:-0}"          # 1=stage1 計 FID（n 小時 FID 意義有限，預設關）
 
 TS="$(date +%Y%m%d_%H%M%S)"
@@ -43,10 +45,15 @@ finish() {
     [ -d "$d" ] || continue
     local sub="$LAB/$(basename "$(dirname "$d")")__$(basename "$d")"
     mkdir -p "$sub"
-    cp "$d"/summary.md "$d"/results.csv "$d"/calibration.csv \
-       "$d"/*.png "$d"/config_snapshot.yaml "$d"/env.json "$sub"/ 2>/dev/null
+    cp "$d"/summary.md "$d"/results.csv "$d"/calibration.csv "$d"/fairness.csv \
+       "$d"/report_v2_tables.csv "$d"/RESULTS_v2.md "$d"/*.png \
+       "$d"/config_snapshot.yaml "$d"/env.json "$sub"/ 2>/dev/null
   done < "$RUNDIRS"
   git add -A "$LAB" 2>/dev/null
+  # stage0 會改寫 configs（校準值）；一併提交，確保機器關機後 Phase B 仍取得
+  if [ "$RUN_STAGE0" = "1" ] || [ "$STAGE0_ONLY" = "1" ]; then
+    git add configs/nonadditive.yaml configs/nonadditive_calibrated.yaml 2>/dev/null
+  fi
   git -c user.email=exp@local -c user.name=exp-runner \
       commit -m "exp($LABEL) $TS exit=$code" >/dev/null 2>&1 || true
   git push origin main >/dev/null 2>&1 || true
@@ -64,26 +71,43 @@ latest() { ls -dt experiments/"$1"/*/ 2>/dev/null | head -1 | sed 's:/*$::'; }
   nvidia-smi --query-gpu=name,memory.total --format=csv,noheader 2>/dev/null || echo "no nvidia-smi"
   echo ""
 
-  if [ "$RUN_STAGE0" = "1" ]; then
+  if [ "$RUN_STAGE0" = "1" ] || [ "$STAGE0_ONLY" = "1" ]; then
     echo "=== STAGE0 @ $(date +%H:%M:%S) ==="
-    python -u scripts/stage0_calibrate.py --model "$MODEL" --max-images "$MAXIMG" --skip-pg-diff
+    S0_FLAGS=""; [ "$STAGE0_SKIP_PGDIFF" = "1" ] && S0_FLAGS="--skip-pg-diff"
+    python -u scripts/stage0_calibrate.py --model "$MODEL" --max-images "$MAXIMG" $S0_FLAGS
     latest stage0 >> "$RUNDIRS"
   fi
 
-  echo "=== STAGE1 @ $(date +%H:%M:%S) ==="
-  FID_FLAG="--no-fid"; [ "$WITH_FID" = "1" ] && FID_FLAG=""
-  python -u scripts/stage1_clean.py \
-      --protect-model "$MODEL" --model "$MODEL" \
-      --methods "$METHODS" --edit-methods sdedit \
-      --max-images "$MAXIMG" --n-seeds "$NSEEDS" --sdedit-strength "$STRENGTH" \
-      --with-clip $FID_FLAG
-  S1="$(latest stage1)"
-  echo "$S1" >> "$RUNDIRS"
+  if [ "$STAGE0_ONLY" = "1" ]; then
+    echo "=== STAGE0-ONLY (Phase A 公平性閘門) DONE @ $(date +%H:%M:%S) ==="
+    echo "檢視 lab 內 stage0 fairness.csv／summary.md 之公平性表；若公平再跑 Phase B。"
+  else
+    echo "=== STAGE1 @ $(date +%H:%M:%S) ==="
+    FID_FLAG="--no-fid"; [ "$WITH_FID" = "1" ] && FID_FLAG=""
+    python -u scripts/stage1_clean.py \
+        --protect-model "$MODEL" --model "$MODEL" \
+        --methods "$METHODS" --edit-methods sdedit \
+        --max-images "$MAXIMG" --n-seeds "$NSEEDS" --sdedit-strength "$STRENGTH" \
+        --with-clip $FID_FLAG
+    S1="$(latest stage1)"
+    echo "$S1" >> "$RUNDIRS"
 
-  echo "=== STAGE2 @ $(date +%H:%M:%S) ==="
-  python -u scripts/stage2_purify.py \
-      --stage1-dir "$S1" --purify-methods "$PURIFY"
-  latest stage2 >> "$RUNDIRS"
+    echo "=== STAGE2 @ $(date +%H:%M:%S) ==="
+    python -u scripts/stage2_purify.py \
+        --stage1-dir "$S1" --purify-methods "$PURIFY"
+    S2="$(latest stage2)"
+    echo "$S2" >> "$RUNDIRS"
 
-  echo "=== ALL STAGES DONE @ $(date +%H:%M:%S) ==="
+    echo "=== REPORT_V2 @ $(date +%H:%M:%S) ==="
+    S0="$(latest stage0)"
+    if [ -n "$S0" ]; then
+      python -u scripts/report_v2.py --stage1-dir "$S1" --stage2-dir "$S2" \
+          --stage0-dir "$S0" --out "$LAB/RESULTS_v2.md"
+    else
+      python -u scripts/report_v2.py --stage1-dir "$S1" --stage2-dir "$S2" \
+          --out "$LAB/RESULTS_v2.md"
+    fi
+
+    echo "=== ALL STAGES DONE @ $(date +%H:%M:%S) ==="
+  fi
 } 2>&1 | tee -a "$LOG"

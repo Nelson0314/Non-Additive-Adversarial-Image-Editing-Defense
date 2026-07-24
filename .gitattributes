@@ -1,0 +1,2 @@
+# Shell scripts must stay LF or bash on Linux (cloud) fails on \r.
+*.sh text eol=lf

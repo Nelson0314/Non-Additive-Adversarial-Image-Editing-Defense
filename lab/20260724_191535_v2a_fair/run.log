@@ -1,0 +1,40 @@
+=== run_experiment: label=v2a_fair @ 20260724_191535 ===
+model=CompVis/stable-diffusion-v1-4 methods=pg_enc,advdiff,apa,hybrid max-images=6 n-seeds=3 strength=0.8
+purify=jpeg,blur,crop_resize,advclean_bf,advclean_bfgf run_stage0=0 with_fid=0
+commit=2ce8518
+NVIDIA H100 80GB HBM3, 81559 MiB
+
+=== STAGE0 @ 19:15:35 ===
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 12220.48it/s]
+Loading pipeline components...:  50%|█████     | 3/6 [00:00<00:00, 18.29it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 26.08it/s]
+stage0: model=CompVis/stable-diffusion-v1-4, images=6, run_dir=experiments/stage0/20260724_191542
+/home/zeus/miniconda3/envs/cloudspace/lib/python3.12/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/home/zeus/miniconda3/envs/cloudspace/lib/python3.12/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+L_ref(encoder) = 0.6171  [21s]
+advdiff eps_latent=0.05: LPIPS=0.7059  [19s]
+advdiff eps_latent=0.1: LPIPS=0.7183  [18s]
+advdiff eps_latent=0.2: LPIPS=0.7230  [18s]
+advdiff eps_latent=0.4: LPIPS=0.6506  [18s]
+apa_sg eps_a=0.1: LPIPS=0.1862  [403s]
+apa_sg eps_a=0.2: LPIPS=0.3980  [403s]
+apa_sg eps_a=0.4: LPIPS=0.6572  [401s]
+apa_sg eps_a=0.8: LPIPS=0.6290  [401s]
+apa_gc eps_a=0.02: LPIPS=0.0676  [381s]
+apa_gc eps_a=0.05: LPIPS=0.0776  [381s]
+apa_gc eps_a=0.1: LPIPS=0.0957  [381s]
+apa_gc eps_a=0.2: LPIPS=0.1436  [381s]
+hybrid eps_a=0.1: LPIPS=0.3132  [349s]
+hybrid eps_a=0.2: LPIPS=0.4191  [350s]
+hybrid eps_a=0.4: LPIPS=0.4302  [349s]
+hybrid eps_a=0.8: LPIPS=0.4238  [349s]
+[警告] advdiff 選中值 eps_latent=0.4 位於掃描區間端點（範圍 [0.05, 0.1, 0.2, 0.4]）：首輪範圍為推測值，須擴展範圍重掃
+[警告] apa_sg 選中值 eps_a=0.8 位於掃描區間端點（範圍 [0.1, 0.2, 0.4, 0.8]）：首輪範圍為推測值，須擴展範圍重掃
+[警告] apa_gc 選中值 eps_a=0.2 位於掃描區間端點（範圍 [0.02, 0.05, 0.1, 0.2]）：首輪範圍為推測值，須擴展範圍重掃
+完成。chosen={'advdiff': {'knob': 'eps_latent', 'value': 0.4, 'lpips': 0.6505510608355204, 'at_boundary': True}, 'apa_sg': {'knob': 'eps_a', 'value': 0.8, 'lpips': 0.628964771827062, 'at_boundary': True}, 'apa_gc': {'knob': 'eps_a', 'value': 0.2, 'lpips': 0.14358987659215927, 'at_boundary': True}, 'hybrid': {'knob': 'eps_a', 'value': 0.4, 'lpips': 0.43016182879606885, 'at_boundary': False}}
+=== STAGE0-ONLY (Phase A 公平性閘門) DONE @ 20:32:47 ===
+檢視 lab 內 stage0 fairness.csv／summary.md 之公平性表；若公平再跑 Phase B。
+
+=== FINISHED exit=0 @ 2026-07-24 20:32:47 ===

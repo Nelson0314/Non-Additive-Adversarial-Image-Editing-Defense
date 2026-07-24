@@ -35,6 +35,7 @@ from src.edit.seed_protocol import search_valid_seeds
 from src.metrics.quality import ClipScorer, compute_all, compute_fid
 from src.models.sd_wrapper import SDWrapper
 from src.protect import METHOD_KEYS, build_protection
+from src.utils.device import get_device
 from src.utils.io import (
     load_image, load_json, make_run_dir, save_config_snapshot, save_csv,
     save_env_json, save_image, save_json, save_summary,
@@ -57,10 +58,10 @@ def inception_feats(image01: torch.Tensor) -> torch.Tensor:
     from piq.feature_extractors import InceptionV3
 
     if _inception is None:
-        _inception = InceptionV3()
+        _inception = InceptionV3().to(get_device())
         _inception.eval()
     with torch.no_grad():
-        feats = _inception(image01.float().clamp(0, 1))
+        feats = _inception(image01.float().clamp(0, 1).to(get_device()))
     return feats[0].squeeze(-1).squeeze(-1).squeeze(0)
 
 

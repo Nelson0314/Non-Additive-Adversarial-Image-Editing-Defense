@@ -2,6 +2,37 @@
 
 記錄硬體資訊、套件版本、L1.3 官方 repo 關鍵發現、每個決定的理由。
 
+## 2026-07-24 首次 GPU（H100）落地：裝置一致性與環境相依修正
+
+在 Lightning AI H100 上首次以 `get_device()=cuda` 實跑，暴露先前只在 CPU
+開發時未觸發的問題。逐一以 debugging-discipline 定位（先取完整 traceback 再改）：
+
+1. **環境相依（非本專案 code）**：`pip install` 依賴把 numpy 升到 2.x，Lightning
+   基礎環境預裝的 scipy 1.11.4 / scikit-learn 1.3.2 / pandas 為 numpy-1 編譯，
+   `import diffusers` 沿 `transformers→scipy/sklearn` 鏈報 `cannot import name 'Inf'`
+   與 `numpy.dtype size changed`。修法：升級此三套件至 numpy-2 相容版（保留 numpy 2，
+   opencv 5 需要），非改 code。已寫入 RUN_CLOUD.md 步驟 2。
+
+2. **裝置一致性（本專案 source bug，兩處）**：先前所有測試與 stage 腳本只在
+   `get_device()=cpu` 跑過，跨元件裝置一致性從未被觸發。GPU 上：
+   - `load_dataset` 產出 CPU 影像，而 `protect()`/edit 輸出為 device 張量，兩者
+     相減（如 stage1 之比較、metrics）→ device 不符。修法：`dataset.py` 於載入時
+     `.to(get_device())`（placeholder 與 folder 兩路徑）。
+   - `quality._get_lpips()` 之 `piq.LPIPS()` VGG 權重留在 CPU，`compute_all`/
+     `lpips_distance` 收到 cuda 影像即崩。修法：LPIPS `.to(get_device())`，並於
+     兩函式內把輸入 `.to(device)`（涵蓋 stage0 校準）。
+   驗證：CPU 端 44 passed/1 skipped 不變（改動於 cpu 為 no-op）；GPU 端待雲端 pytest。
+
+3. **測試 fixture（非 pipeline，僅測試）**：test_photoguard/sd_wrapper/nonadditive
+   自建的輸入張量與 mock 模型（含 tiny vae、mock conv）留在 CPU，與 device 模型
+   混用。修法：各 fixture/helper `.to(get_device())`。真實 pipeline 用 SDWrapper
+   （已 `.to(device)`）故不受影響。
+
+4. **批次化容差裝置相依**：`test_edit_batching` 之 batch vs batch=1 差異在 CPU
+   ~5e-6、CUDA ~2.7e-3（矩陣歸約順序 + TF32/演算法隨 batch 選擇）。噪聲協定位元級
+   一致（`test_noise_protocol_bitwise_equal` 過）不受影響。`FLOAT_TOL` 改為裝置相依
+   （cuda 1e-2 / cpu 1e-4），仍與協定破壞量級 O(0.1–1) 相差兩個數量級。
+
 ## 環境
 
 - 本地開發機：Windows 11 Home（win32），無 GPU，以 CPU 開發。

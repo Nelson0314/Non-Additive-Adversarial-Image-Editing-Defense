@@ -10,6 +10,7 @@ import pytest
 import torch
 
 from src.protect.photoguard import PhotoGuardDiffusion, PhotoGuardEncoder
+from src.utils.device import get_device
 
 TINY_MODEL = "hf-internal-testing/tiny-stable-diffusion-pipe"
 
@@ -33,13 +34,13 @@ BASE_CFG = {
 def tiny_vae():
     from diffusers import AutoencoderKL
 
-    return AutoencoderKL.from_pretrained(TINY_MODEL, subfolder="vae")
+    return AutoencoderKL.from_pretrained(TINY_MODEL, subfolder="vae").to(get_device())
 
 
 @pytest.fixture()
 def x():
     torch.manual_seed(0)
-    return torch.rand(1, 3, 64, 64)
+    return torch.rand(1, 3, 64, 64).to(get_device())
 
 
 def _encoder(vae, **overrides):
@@ -84,7 +85,7 @@ def test_encoder_target_gray(tiny_vae, x):
 
 def test_diffusion_attack_mock(x):
     """以 mock 可微分編輯器驗證 PGD/EOT 迴圈：可反傳、約束成立、輸出趨近目標。"""
-    conv = torch.nn.Conv2d(3, 3, 3, padding=1)
+    conv = torch.nn.Conv2d(3, 3, 3, padding=1).to(get_device())
     torch.manual_seed(0)
 
     def img2img_differentiable(x_in, prompt, num_steps):

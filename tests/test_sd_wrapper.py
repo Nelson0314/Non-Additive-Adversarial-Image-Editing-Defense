@@ -8,6 +8,7 @@ import pytest
 import torch
 
 from src.models.sd_wrapper import SDWrapper
+from src.utils.device import get_device
 
 TINY_MODEL = "hf-internal-testing/tiny-stable-diffusion-pipe"
 
@@ -24,7 +25,7 @@ def _image_size(sd):
 
 def test_encode_decode_shapes(sd):
     n = _image_size(sd)
-    x = torch.rand(1, 3, n, n) * 2 - 1
+    x = (torch.rand(1, 3, n, n) * 2 - 1).to(get_device())
     z = sd.encode_image(x)
     x_rec = sd.decode_latents(z)
     assert x_rec.shape == x.shape
@@ -33,7 +34,7 @@ def test_encode_decode_shapes(sd):
 def test_img2img_differentiable_grad_flows(sd):
     n = _image_size(sd)
     torch.manual_seed(0)
-    x = (torch.rand(1, 3, n, n) * 2 - 1).requires_grad_(True)
+    x = (torch.rand(1, 3, n, n) * 2 - 1).to(get_device()).requires_grad_(True)
     out = sd.img2img_differentiable(x, prompt="", num_steps=2, strength=0.5)
     assert out.shape == x.shape
     loss = out.norm()
@@ -49,7 +50,7 @@ def test_photoguard_diffusion_with_wrapper(sd):
 
     n = _image_size(sd)
     torch.manual_seed(0)
-    x = torch.rand(1, 3, n, n)
+    x = torch.rand(1, 3, n, n).to(get_device())
     cfg = {
         "norm": "linf",
         "epsilon": 0.06,
@@ -68,7 +69,7 @@ def test_photoguard_diffusion_with_wrapper(sd):
 def test_capture_cross_attention(sd):
     torch.manual_seed(0)
     s = sd.unet.config.sample_size
-    z = torch.randn(1, sd.unet.config.in_channels, s, s)
+    z = torch.randn(1, sd.unet.config.in_channels, s, s).to(get_device())
     emb = sd.encode_text("a dog")
     with sd.capture_cross_attention() as maps:
         sd.unet(z, 1, encoder_hidden_states=emb)

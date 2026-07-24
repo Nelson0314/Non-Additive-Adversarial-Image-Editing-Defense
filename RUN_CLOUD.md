@@ -43,6 +43,17 @@ python -c "import torch; print('torch', torch.__version__, 'cuda', torch.cuda.is
 pip install diffusers transformers accelerate piq opencv-contrib-python peft pyyaml matplotlib pytest psutil
 ```
 
+> **numpy 2 相依坑（Lightning cloudspace 環境必做）**：上面的安裝會把 numpy 升到
+> 2.x，但 Lightning 基礎環境預裝的 `scipy`/`scikit-learn`/`pandas` 是針對 numpy 1.x
+> 編譯的，於是 `import diffusers` 會沿 `transformers → scipy/sklearn` 鏈報
+> `cannot import name 'Inf' from 'numpy'` 或 `numpy.dtype size changed`。把這三個
+> 套件升級到 numpy-2 相容版本即可（保留 numpy 2，勿降版——opencv 5 需要 numpy 2）：
+>
+> ```bash
+> pip install -U "scipy>=1.13" scikit-learn pandas
+> python -c "from diffusers.pipelines.stable_diffusion import pipeline_stable_diffusion; print('IMPORT OK')"
+> ```
+
 驗證裝置與單元測試（首次會下載 tiny 測試模型，約數十 MB）：
 
 ```bash
@@ -51,6 +62,8 @@ python -m pytest tests/ -q        # 預期 44 passed, 1 skipped
 ```
 
 `test_edit_batching.py` 的位元級啟用閘門在 `edit_batch_size=1` 時會 skip（正常）。
+批次化容差測試（`test_*_within_tolerance`）在 GPU 上以 1e-2 判定（kernel/TF32 隨
+batch 之數值差較 CPU 大，屬正常）。
 
 ---
 

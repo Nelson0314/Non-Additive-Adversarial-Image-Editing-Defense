@@ -11,6 +11,8 @@ compute_fid() 提供。
 import piq
 import torch
 
+from src.utils.device import get_device
+
 # 方向定義：True 表示「數值越高、防禦越成功」
 # 採 DAYN 慣例（SPEC §2.6）。PhotoGuard 用相反慣例，勿混淆。
 METRIC_HIGHER_IS_BETTER = {
@@ -30,7 +32,7 @@ def _get_lpips():
     """LPIPS 模型延遲載入（首次呼叫下載 VGG16 權重）。"""
     global _lpips
     if _lpips is None:
-        _lpips = piq.LPIPS()
+        _lpips = piq.LPIPS().to(get_device())
     return _lpips
 
 
@@ -41,8 +43,9 @@ def compute_all(
     clip_scorer=None,        # ClipScorer；與 prompt 同時提供才計算 clip
 ) -> dict[str, float]:
     """計算指標。回傳 {"psnr": ..., "ssim": ..., "vifp": ..., "fsim": ..., "lpips": ...[, "clip": ...]}"""
-    x = edited_protected.detach().float().clamp(0, 1)
-    y = edited_original.detach().float().clamp(0, 1)
+    device = get_device()
+    x = edited_protected.detach().float().clamp(0, 1).to(device)
+    y = edited_original.detach().float().clamp(0, 1).to(device)
     out = {
         "psnr": piq.psnr(x, y, data_range=1.0).item(),
         "ssim": piq.ssim(x, y, data_range=1.0).item(),
@@ -57,7 +60,11 @@ def compute_all(
 
 def lpips_distance(x: torch.Tensor, y: torch.Tensor) -> float:
     """LPIPS(x, y)，兩張 (1,3,H,W) [0,1]。stage0 相似性校準用。"""
-    return _get_lpips()(x.detach().float().clamp(0, 1), y.detach().float().clamp(0, 1)).item()
+    device = get_device()
+    return _get_lpips()(
+        x.detach().float().clamp(0, 1).to(device),
+        y.detach().float().clamp(0, 1).to(device),
+    ).item()
 
 
 def compute_fid(feats_x: torch.Tensor, feats_y: torch.Tensor) -> float:

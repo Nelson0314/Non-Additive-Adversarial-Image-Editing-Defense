@@ -7,9 +7,10 @@ v5 啟用判準：4 張影像分別以 batch=1 與 batch=4 執行，輸出逐位
 1. 噪聲協定**位元級一致**——批次中每樣本各自 generator+seed，diffusers 對
    generator list 逐樣本取樣，與 batch=1 完全相同（test_noise_protocol）。
    seed 協定（SPEC §2.3）未被破壞。
-2. 網路前傳輸出存在 ~5e-6 之 float32 差異——批次矩陣運算之歸約順序隨 batch
-   尺寸而異，屬 kernel 數值性質，**位元級等價原理上不可達**；8-bit 量化
-  （存檔格式）後仍有 ~0.02% 像素差 ±1 LSB。
+2. 網路前傳輸出存在裝置相依之 float32 差異——批次矩陣運算之歸約順序隨 batch
+   尺寸而異，屬 kernel 數值性質，**位元級等價原理上不可達**。CPU 約 ~5e-6；
+   CUDA 約 ~2.7e-3（另受 TF32/演算法選擇影響）。8-bit 量化（存檔格式）後 CPU
+   仍有 ~0.02% 像素差 ±1 LSB，CUDA 差異更大但仍遠小於協定破壞之量級。
 3. 故位元級判準之測試設計為「啟用閘門」：edit_batch_size==1（未啟用）時跳過；
    一旦設 >1，此測試將執行且（依實測）失敗，阻止未經裁定的啟用。
    判準若經指導者放寬（噪聲協定位元級一致＋輸出容差 ≤1e-4），修改本檔閘門
@@ -25,7 +26,10 @@ from src.edit import edit_image, edit_image_batch
 from src.models.sd_wrapper import SDWrapper
 
 TINY_MODEL = "hf-internal-testing/tiny-stable-diffusion-pipe"
-FLOAT_TOL = 1e-4   # 實測 kernel 數值差 ~5e-6，容差取 20 倍餘裕
+# kernel 數值差隨裝置而異：CPU 實測 ~5e-6（容差 1e-4，20 倍餘裕）；
+# CUDA 實測 ~2.7e-3（矩陣歸約順序 + TF32/演算法隨 batch 選擇不同），容差 1e-2
+# 仍與「協定破壞」之量級（O(0.1–1)）相差兩個數量級，足以區辨。
+FLOAT_TOL = 1e-2 if torch.cuda.is_available() else 1e-4
 
 PROMPTS = ["a photo of a dog", "a photo of a cat", "an oil painting of a tree",
            "a photo of a dog"]

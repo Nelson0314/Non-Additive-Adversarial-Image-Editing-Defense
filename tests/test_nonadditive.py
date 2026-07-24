@@ -14,6 +14,7 @@ from src.protect.advdiff_based import AdvDiffProtection
 from src.protect.apa_based import APAProtection
 from src.protect.hybrid import HybridProtection
 from src.protect.rewards import attention_reward_latent
+from src.utils.device import get_device
 
 TINY_MODEL = "hf-internal-testing/tiny-stable-diffusion-pipe"
 
@@ -71,13 +72,13 @@ def _image(sd):
     scale = 2 ** (len(sd.vae.config.block_out_channels) - 1)
     n = sd.unet.config.sample_size * scale
     torch.manual_seed(0)
-    return torch.rand(1, 3, n, n)
+    return torch.rand(1, 3, n, n).to(get_device())
 
 
 def _latent(sd):
     torch.manual_seed(0)
     s = sd.unet.config.sample_size
-    return torch.randn(1, sd.unet.config.in_channels, s, s)
+    return torch.randn(1, sd.unet.config.in_channels, s, s).to(get_device())
 
 
 def test_reward_grad_computable(sd):

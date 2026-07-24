@@ -15,6 +15,8 @@ import torch
 import torch.nn.functional as F
 import yaml
 
+from src.utils.device import get_device
+
 # placeholder 之三類物件與每類兩個編輯 prompt（對應 SPEC §2.4 兩種惡意情境：
 # 改變特定內容、保留特定內容而改動其他區域）。DAYN 實際內容待確認（§8 第 2 項）。
 PLACEHOLDER_PROMPTS = {
@@ -50,7 +52,7 @@ def _placeholder_dataset(config: dict, max_images: int = None) -> list[dict]:
             {
                 "image_id": f"placeholder_{i:03d}",
                 "concept": concept,
-                "image": image.clamp(0, 1),
+                "image": image.clamp(0, 1).to(get_device()),
                 "edit_prompts": PLACEHOLDER_PROMPTS[concept],
             }
         )
@@ -73,7 +75,7 @@ def _folder_dataset(config: dict, max_images: int = None) -> list[dict]:
         for p in sorted((root / cls).glob("*")):
             if p.suffix.lower() not in {".png", ".jpg", ".jpeg"}:
                 continue
-            image = tf(Image.open(p).convert("RGB")).unsqueeze(0)
+            image = tf(Image.open(p).convert("RGB")).unsqueeze(0).to(get_device())
             samples.append(
                 {
                     "image_id": f"{cls}/{p.stem}",

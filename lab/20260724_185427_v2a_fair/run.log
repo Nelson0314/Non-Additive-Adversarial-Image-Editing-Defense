@@ -1,0 +1,20 @@
+=== run_experiment: label=v2a_fair @ 20260724_185427 ===
+model=CompVis/stable-diffusion-v1-4 methods=pg_enc,advdiff,apa,hybrid max-images=8 n-seeds=3 strength=0.8
+purify=jpeg,blur,crop_resize,advclean_bf,advclean_bfgf run_stage0=0 with_fid=0
+commit=97330f1
+NVIDIA H100 80GB HBM3, 81559 MiB
+
+=== STAGE0 @ 18:54:27 ===
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  50%|█████     | 3/6 [00:00<00:00, 28.79it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 11542.71it/s]
+Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 22.43it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 23.19it/s]
+stage0: model=CompVis/stable-diffusion-v1-4, images=8, run_dir=experiments/stage0/20260724_185434
+Downloading: "https://github.com/photosynthesis-team/photosynthesis.metrics/releases/download/v0.4.0/lpips_weights.pt" to /home/zeus/.cache/torch/hub/checkpoints/lpips_weights.pt
+/home/zeus/miniconda3/envs/cloudspace/lib/python3.12/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/home/zeus/miniconda3/envs/cloudspace/lib/python3.12/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+Downloading: "https://download.pytorch.org/models/vgg16-397923af.pth" to /home/zeus/.cache/torch/hub/checkpoints/vgg16-397923af.pth
+L_ref(encoder) = 0.6147  [29s]
+
+=== FINISHED exit=0 @ 2026-07-24 19:14:45 ===

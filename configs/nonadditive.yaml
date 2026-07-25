@@ -1,6 +1,6 @@
 common:
   similarity_metric: "lpips"
-  similarity_budget: 0.6171     # 由 stage0_calibrate.py 填入
+  similarity_budget: 0.4629     # 由 stage0_calibrate.py 填入
 
 # stage0 相似性掃描範圍（preflight 假設 2 裁定：SG 與 GC 不可共用——
 # GC 為部分 inversion（t≈0.2T），z_T 噪聲程度遠低於 SG 完整 inversion，

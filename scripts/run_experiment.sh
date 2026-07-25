@@ -19,6 +19,7 @@ LABEL="${1:-run}"
 MODEL="${MODEL:-CompVis/stable-diffusion-v1-4}"
 METHODS="${METHODS:-pg_enc,advdiff,apa,hybrid}"
 MAXIMG="${MAXIMG:-6}"
+STAGE0_MAXIMG="${STAGE0_MAXIMG:-$MAXIMG}"  # stage0 校準用圖數（可少於評測 MAXIMG，縮短無 resume 窗口）
 NSEEDS="${NSEEDS:-3}"
 STRENGTH="${STRENGTH:-0.8}"
 PURIFY="${PURIFY:-jpeg,blur,crop_resize,advclean_bf,advclean_bfgf}"
@@ -65,7 +66,7 @@ latest() { ls -dt experiments/"$1"/*/ 2>/dev/null | head -1 | sed 's:/*$::'; }
 
 {
   echo "=== run_experiment: label=$LABEL @ $TS ==="
-  echo "model=$MODEL methods=$METHODS max-images=$MAXIMG n-seeds=$NSEEDS strength=$STRENGTH"
+  echo "model=$MODEL methods=$METHODS max-images=$MAXIMG (stage0=$STAGE0_MAXIMG) n-seeds=$NSEEDS strength=$STRENGTH"
   echo "purify=$PURIFY run_stage0=$RUN_STAGE0 with_fid=$WITH_FID"
   echo "commit=$(git rev-parse --short HEAD)"
   nvidia-smi --query-gpu=name,memory.total --format=csv,noheader 2>/dev/null || echo "no nvidia-smi"
@@ -74,7 +75,7 @@ latest() { ls -dt experiments/"$1"/*/ 2>/dev/null | head -1 | sed 's:/*$::'; }
   if [ "$RUN_STAGE0" = "1" ] || [ "$STAGE0_ONLY" = "1" ]; then
     echo "=== STAGE0 @ $(date +%H:%M:%S) ==="
     S0_FLAGS=""; [ "$STAGE0_SKIP_PGDIFF" = "1" ] && S0_FLAGS="--skip-pg-diff"
-    python -u scripts/stage0_calibrate.py --model "$MODEL" --max-images "$MAXIMG" $S0_FLAGS
+    python -u scripts/stage0_calibrate.py --model "$MODEL" --max-images "$STAGE0_MAXIMG" $S0_FLAGS
     latest stage0 >> "$RUNDIRS"
   fi
 

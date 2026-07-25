@@ -30,7 +30,7 @@ edit:
 data:
   root: "data/dayn_testset"
   source: "向 DAYN 作者索取"
-  is_placeholder: true       # 取得原始資料集後改為 false
+  is_placeholder: false      # 已改用真實照片（data/dayn_testset，Wikimedia Commons）
   n_images: 150              # SPEC §2.4
   n_object_classes: 3
   prompts_per_class: 2

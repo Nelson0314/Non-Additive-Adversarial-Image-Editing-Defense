@@ -113,9 +113,17 @@ def evaluate(sd, suite, x01, x_def, cfg, prompt, out_dir, save_images=True):
         save_image(y_orig, out_dir / "edit_orig.png")
         save_image(y_orig_tr, out_dir / "edit_orig_trainnoise.png")
 
-    def measure(xp, nz, y_ref, kind, strength, split):
+    def measure(xp, nz, y_ref, kind, strength, split, x_ctrl=None):
+        """`x_ctrl` 為**未防禦**的對照輸入（同一淨化施加於原圖）。
+
+        必要性：spec §5.1 的 `d(E(P(x_def)), E(x))` 把淨化本身造成的偏移
+        也算成防禦效果。`P(x) ≠ x`，故即使 φ=0，模糊或 JPEG 也會讓編輯結果
+        偏離 `E(x)`。實測 site P r=1 在 identity 下 shift=0.095、在 blur 下
+        0.347，高的那個是淨化自己造成的，不是防禦變強。不減掉對照就會讓
+        E3 的每個數字被系統性高估。
+        """
         y_def = sd.sdedit(xp, emb, nz, cfg.n_edit, strength=cfg.strength)
-        return y_def, {
+        row = {
             "purify": kind,
             "strength": strength,
             "noise_split": split,
@@ -123,16 +131,28 @@ def evaluate(sd, suite, x01, x_def, cfg, prompt, out_dir, save_images=True):
             **{f"edit_{k}": v for k, v in suite.full(y_ref, y_def, prompt=prompt).items()},
             **{f"defimg_{k}": v for k, v in suite.pairwise(x01, xp).items()},
         }
+        if x_ctrl is not None:
+            y_ctrl = sd.sdedit(x_ctrl, emb, nz, cfg.n_edit, strength=cfg.strength)
+            m = suite.pairwise(y_ref, y_ctrl)
+            row["ctrl_lpips"] = m["lpips"]
+            row["ctrl_psnr"] = m["psnr"]
+            # 防禦淨額：扣掉淨化本身造成的偏移後，還剩多少歸因於防禦
+            row["net_lpips"] = row["edit_lpips"] - m["lpips"]
+        return y_def, row
 
     rows = []
     # 過擬合幅度：同一張防禦圖、無淨化，只換噪聲種子
-    _, row_tr = measure(x_def, noise_tr, y_orig_tr, "identity", 0.0, "train")
+    _, row_tr = measure(x_def, noise_tr, y_orig_tr, "identity", 0.0, "train", x01)
     rows.append(row_tr)
 
     for kind, plist in eval_sweep().items():
         for pur in plist:
             xp = pur.evaluate(x_def)
-            y_def, row = measure(xp, noise, y_orig, kind, pur.strength, "heldout")
+            # 對照輸入：同一個淨化算子施加於**原圖**，φ 完全沒有參與
+            y_def, row = measure(
+                xp, noise, y_orig, kind, pur.strength, "heldout",
+                x_ctrl=pur.evaluate(x01),
+            )
             if not pur.differentiable:
                 row["proxy_gap"] = pur.proxy_gap(x_def)
             rows.append(row)

@@ -124,7 +124,8 @@ def plot_purify(results, out_dir: Path):
                 sel = [r for r in sub if r["site"] == site and int(r["rank"]) == rk]
                 by_s = defaultdict(list)
                 for r in sel:
-                    by_s[fnum(r, "strength")].append(fnum(r, "edit_lpips"))
+                    # net = 防禦造成的偏移 − 淨化自己造成的偏移
+                    by_s[fnum(r, "strength")].append(fnum(r, "net_lpips"))
                 xs = sorted(by_s)
                 ys = [mean(by_s[s]) for s in xs]
                 color, marker, ls = SITE_STYLE.get(site, ("gray", "x", ":"))
@@ -133,10 +134,13 @@ def plot_purify(results, out_dir: Path):
                         label=f"{site} r={rk}")
         ax.set_title(f"purify: {kind}")
         ax.set_xlabel("strength")
-        ax.set_ylabel("edit shift (LPIPS)")
+        ax.set_ylabel("net edit shift  (defended - undefended control)")
         ax.grid(alpha=0.3); ax.legend(fontsize=7)
 
-    fig.suptitle("E3 purification sweep (higher = defense survives better)", fontsize=11)
+    fig.suptitle(
+        "E3 purification sweep - net of undefended control "
+        "(higher = defense survives better)", fontsize=11,
+    )
     fig.tight_layout()
     fig.savefig(out_dir / "purify_sweep.png", dpi=140)
     plt.close(fig)

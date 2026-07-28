@@ -48,7 +48,14 @@ class LossConfig:
     beta_linf: float = 100.0
     gamma_psnr: float = 1.0
     tau_linf: float = 0.06     # ≈ 15/255，對抗擾動文獻的常見上限量級
-    psnr_floor: float = 30.0   # dB
+
+    # psnr_floor 由 E0c 實測決定，不是憑經驗填的。site L 在 φ=0 時的
+    # x_def 已是 inversion + VAE 來回的重建，其 PSNR 有一個 φ 無法消除的
+    # 地板：t_max=500、k_inv=20 下實測平均 26.56 dB（VAE 單獨來回的
+    # 不可約地板為 27.51 dB，n=6）。若把 psnr_floor 設在地板之上（原值
+    # 30 dB），PSNR hinge 對 site L 將永遠處於啟動狀態，保真項變成一個
+    # 恆定且無法改善的懲罰並壓過防禦項。故取 26.0，略低於實測地板。
+    psnr_floor: float = 26.0   # dB，見 runs/e0c_tmax/recon_floor.csv
 
 
 class DefenseObjective:

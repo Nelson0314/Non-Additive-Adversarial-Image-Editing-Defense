@@ -31,13 +31,13 @@ from src.residual.site_latent import LatentResidual
 from src.utils.device import get_device, peak_memory_mb, reset_peak_memory
 
 
-def measure(sd, x01, k_inv, n_edit, use_ckpt, strength, seed, warmup_done):
+def measure(sd, x01, k_inv, n_edit, use_ckpt, strength, seed, warmup_done, vae_ckpt=False):
     """跑一次完整的 forward + backward，回傳量測結果 dict。"""
     device = get_device()
     lat = sd.latent_shape(x01.shape[-2], x01.shape[-1])
 
     module = LatentResidual(
-        steps=k_inv, channels=lat[1], size=lat[-1], max_rank=32, const_rank=8
+        steps=k_inv, channels=lat[1], size=lat[-1], max_rank=32, const_rank=8, seed=seed
     ).to(device)
     gen = DefenseGenerator(sd, module, k_inv=k_inv)
 
@@ -54,8 +54,11 @@ def measure(sd, x01, k_inv, n_edit, use_ckpt, strength, seed, warmup_done):
     t0 = time.perf_counter()
 
     ctx = gen.prepare(x01, prompt_def="")
-    x_def = gen.generate(x01, ctx, use_ckpt=use_ckpt)
-    y_def = sd.sdedit(x_def, emb_edit, noise, n_edit, strength=strength, use_ckpt=use_ckpt)
+    x_def = gen.generate(x01, ctx, use_ckpt=use_ckpt, vae_ckpt=vae_ckpt)
+    y_def = sd.sdedit(
+        x_def, emb_edit, noise, n_edit,
+        strength=strength, use_ckpt=use_ckpt, vae_ckpt=vae_ckpt,
+    )
 
     # E0 只需要一個能撐起完整計算圖的目標，非最終 loss
     loss = -(y_def - y_orig).pow(2).mean()
@@ -77,7 +80,8 @@ def measure(sd, x01, k_inv, n_edit, use_ckpt, strength, seed, warmup_done):
     return {
         "k_inv": k_inv,
         "n_edit": n_edit,
-        "checkpoint": int(use_ckpt),
+        "unet_ckpt": int(use_ckpt),
+        "vae_ckpt": int(vae_ckpt),
         "peak_mb": round(peak, 1),
         "seconds": round(dt, 3),
         "grad_reaches_phi": int(grad_ok),
@@ -94,6 +98,10 @@ def main():
     ap.add_argument("--strength", type=float, default=0.5)
     ap.add_argument("--seed", type=int, default=20260728)
     ap.add_argument("--grid", default="5,10,20", help="k_inv 與 n_edit 的掃描值")
+    ap.add_argument(
+        "--combos", default="u1v1,u1v0",
+        help="checkpoint 組合，uXvY 表示 UNet=X、VAE=Y。E0 已證實 u0 於 512 必 OOM",
+    )
     ap.add_argument("--image", default=None, help="留空則用隨機影像（成本與內容無關）")
     args = ap.parse_args()
 
@@ -119,16 +127,25 @@ def main():
         g = torch.Generator().manual_seed(args.seed)
         x01 = torch.rand(1, 3, args.size, args.size, generator=g).to(device)
 
+    combos = [
+        (bool(int(c[1])), bool(int(c[3])))
+        for c in (v.strip() for v in args.combos.split(","))
+    ]
+
     rows = []
     warmup_done = False
-    for use_ckpt in (False, True):
+    for use_ckpt, vae_ckpt in combos:
         for k_inv in grid:
             for n_edit in grid:
-                tag = f"k_inv={k_inv:>2} n_edit={n_edit:>2} ckpt={int(use_ckpt)}"
+                tag = (
+                    f"k_inv={k_inv:>2} n_edit={n_edit:>2} "
+                    f"u={int(use_ckpt)} v={int(vae_ckpt)}"
+                )
                 try:
                     row = measure(
                         sd, x01, k_inv, n_edit, use_ckpt,
                         args.strength, args.seed, warmup_done,
+                        vae_ckpt=vae_ckpt,
                     )
                     warmup_done = True
                     print(
@@ -138,7 +155,8 @@ def main():
                 except torch.cuda.OutOfMemoryError:
                     torch.cuda.empty_cache()
                     row = {
-                        "k_inv": k_inv, "n_edit": n_edit, "checkpoint": int(use_ckpt),
+                        "k_inv": k_inv, "n_edit": n_edit,
+                        "unet_ckpt": int(use_ckpt), "vae_ckpt": int(vae_ckpt),
                         "peak_mb": -1, "seconds": -1, "grad_reaches_phi": 0,
                         "oom": 1, "warmup": 0,
                     }
@@ -173,7 +191,7 @@ def main():
         best = max(ok, key=lambda r: (r["k_inv"] + r["n_edit"], -r["peak_mb"]))
         print(
             f"[E0] 最大可行組合 k_inv={best['k_inv']} n_edit={best['n_edit']} "
-            f"ckpt={best['checkpoint']} peak={best['peak_mb']} MB "
+            f"u={best['unet_ckpt']} v={best['vae_ckpt']} peak={best['peak_mb']} MB "
             f"{best['seconds']} s/iter"
         )
 

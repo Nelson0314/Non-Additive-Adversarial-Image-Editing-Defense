@@ -41,6 +41,8 @@ class OptimConfig:
     vae_ckpt: bool = True       # E0b：三次 VAE 呼叫的激活由總和降為最大值
     log_every: int = 10
     grad_clip: float = 1.0
+    # 由 hinge 內減去未防禦對照 d(E(P(x)), E(x))。見 objective.defense_term。
+    net_defense: bool = True
 
 
 @dataclass
@@ -101,6 +103,27 @@ def optimize(
             if was_enabled:
                 module.enable()
 
+    # 未防禦對照：每個淨化算子自己造成的編輯偏移，對 φ 為常數，故與
+    # y_orig 一樣只算一次。順序與優化迴圈的取樣順序對應（見下方索引）。
+    d_ctrl = None
+    if cfg.net_defense:
+        with torch.no_grad():
+            d_ctrl = {}
+            for pi, p in enumerate(purifiers):
+                xp = p.evaluate(x01)
+                for ni, n in enumerate(noises):
+                    y_ctrl = sd.sdedit(
+                        xp, emb_edit, n, cfg.n_edit, strength=cfg.strength
+                    )
+                    d_ctrl[(pi, ni)] = float(obj.distance(y_ctrl, y_origs[ni]))
+        print(
+            f"  未防禦對照 d(E(P(x)), E(x))："
+            + "  ".join(
+                f"{p.kind}={d_ctrl[(pi, 0)]:.4f}" for pi, p in enumerate(purifiers)
+            ),
+            flush=True,
+        )
+
     result = OptimResult()
     t0 = time.perf_counter()
 
@@ -113,10 +136,13 @@ def optimize(
             collect_x0=(step == cfg.steps - 1),
         )
 
-        y_defs, y_refs = [], []
+        y_defs, y_refs, d_ctrls = [], [], ([] if d_ctrl is not None else None)
         for i in range(cfg.n_eot):
             # 淨化算子輪替取樣，即 spec §5.1 對 𝒫 的期望值估計
-            p = purifiers[(step * cfg.n_eot + i) % len(purifiers)]
+            pi = (step * cfg.n_eot + i) % len(purifiers)
+            p = purifiers[pi]
+            if d_ctrls is not None:
+                d_ctrls.append(d_ctrl[(pi, i)])
             y_defs.append(
                 sd.sdedit(
                     p.forward(x_def), emb_edit, noises[i], cfg.n_edit,
@@ -126,7 +152,9 @@ def optimize(
             )
             y_refs.append(y_origs[i])
 
-        total, log = obj(x_def, x01, y_defs, y_refs, x_base=x_base)
+        total, log = obj(
+            x_def, x01, y_defs, y_refs, x_base=x_base, d_ctrl_list=d_ctrls
+        )
         total.backward()
 
         if cfg.grad_clip > 0:

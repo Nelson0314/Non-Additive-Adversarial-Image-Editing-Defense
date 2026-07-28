@@ -107,22 +107,46 @@ class DefenseObjective:
     # ---- 防禦項 ----
 
     def defense_term(
-        self, y_def_list: List[torch.Tensor], y_orig_list: List[torch.Tensor]
+        self,
+        y_def_list: List[torch.Tensor],
+        y_orig_list: List[torch.Tensor],
+        d_ctrl_list: Optional[List[float]] = None,
     ) -> torch.Tensor:
         """對 (淨化算子, 噪聲) 的取樣求平均，即 spec §5.1 的期望值估計。
 
         兩條分支的噪聲必須逐元素相同，否則量到的偏移主要來自噪聲差異。
         此不變量由呼叫端以共用 `noise` 保證（見 SDWrapper.sdedit 的介面）。
+
+        `d_ctrl_list` 為各取樣對應的**未防禦對照**距離 `d(E(P(x)), E(x))`，
+        即 φ 完全沒有參與時該淨化算子自己造成的編輯偏移。提供時 hinge 內
+        改用淨額：
+
+            max(0, m − [ d(E(P(x_def)), E(x)) − d(E(P(x)), E(x)) ])
+
+        **為何必要**：原式以未淨化的 `E(x)` 為基準，但 `P(x) ≠ x`，故即使
+        φ=0，模糊或 JPEG 本身就會讓編輯結果偏離 `E(x)`。實測 site P、r=1：
+        blur 下 shift 0.347、jpeg 下 0.141、identity 下 0.098 —— 不淨化時
+        反而最小。這使 hinge 在 φ=0 時對 blur 與 jpeg 已部分被滿足，梯度
+        壓力偏低，防禦在這兩個算子下訓練不足。
+
+        `d_ctrl` 不依賴 φ，可與 `y_orig` 一樣在優化開始前對每個淨化算子
+        各算一次並快取，故此修正的額外成本僅為每個算子一條無梯度的編輯鏈。
         """
         if len(y_def_list) != len(y_orig_list):
             raise ValueError(
                 f"兩側取樣數不符：{len(y_def_list)} vs {len(y_orig_list)}，"
                 "每個防禦分支必須對上使用相同噪聲的原圖分支"
             )
-        terms = [
-            torch.clamp(self.cfg.margin - self.distance(yd, yo), min=0.0)
-            for yd, yo in zip(y_def_list, y_orig_list)
-        ]
+        if d_ctrl_list is not None and len(d_ctrl_list) != len(y_def_list):
+            raise ValueError(
+                f"對照數 {len(d_ctrl_list)} 與取樣數 {len(y_def_list)} 不符"
+            )
+        terms = []
+        for i, (yd, yo) in enumerate(zip(y_def_list, y_orig_list)):
+            d = self.distance(yd, yo)
+            if d_ctrl_list is not None:
+                d = d - d_ctrl_list[i]
+            terms.append(torch.clamp(self.cfg.margin - d, min=0.0))
         return torch.stack(terms).mean()
 
     # ---- 保真項 ----
@@ -200,9 +224,10 @@ class DefenseObjective:
         y_def_list: List[torch.Tensor],
         y_orig_list: List[torch.Tensor],
         x_base: Optional[torch.Tensor] = None,
+        d_ctrl_list: Optional[List[float]] = None,
     ) -> tuple[torch.Tensor, Dict[str, float]]:
         c = self.cfg
-        l_def = self.defense_term(y_def_list, y_orig_list)
+        l_def = self.defense_term(y_def_list, y_orig_list, d_ctrl_list)
         l_fid, parts = self.fidelity_term(x_def, x, x_base=x_base)
         total = c.lam_def * l_def + c.lam_fid * l_fid
 
@@ -215,6 +240,9 @@ class DefenseObjective:
 
         log = {
             "loss": float(total),
+            "d_ctrl": (
+                sum(d_ctrl_list) / len(d_ctrl_list) if d_ctrl_list else 0.0
+            ),
             "L_def": float(l_def),
             "L_fid": float(l_fid),
             "edit_shift": float(shift),

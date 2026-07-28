@@ -9,18 +9,17 @@ common:
 # AdvDiff 形式之注入（s、a）僅在該 ball 內作用，eps_a 為實際約束鈕。
 # 首輪掃描範圍為推測值；若選中值落在區間端點，stage0 會警告並要求擴展重掃。
 stage0_scan:
+  # v2_full（V100）：範圍依前次實測擴展以解端點警告；移除 apa_sg（採用 variant=gc，
+  # apa_sg 非採用值、不進結果，省去 stage0 無-resume 窗口內的多餘校準）。
   advdiff:
     knob: "eps_latent"
-    values: [0.05, 0.1, 0.2, 0.4]
-  apa_sg:
-    knob: "eps_a"
-    values: [0.1, 0.2, 0.4, 0.8]
+    values: [0.05, 0.1, 0.2, 0.4]   # 保留：advdiff 有感知下限(~0.65)，結構上無法對齊 L_ref，存證用
   apa_gc:
-    knob: "eps_a"                # 部分 inversion 之 z_T 較接近 z_0，容許較小範圍
-    values: [0.02, 0.05, 0.1, 0.2]
+    knob: "eps_a"                # 部分 inversion 之 z_T 較接近 z_0；前次 0.2→LPIPS 0.357<L_ref，往上延伸
+    values: [0.1, 0.2, 0.3, 0.4, 0.6]
   hybrid:
-    knob: "eps_a"
-    values: [0.1, 0.2, 0.4, 0.8]
+    knob: "eps_a"               # 前次 0.1→LPIPS 0.50>L_ref，往下延伸
+    values: [0.02, 0.05, 0.1, 0.2, 0.4]
 
 advdiff:                       # SPEC §4.3（v4：依官方 ddim_adv.py 修正）
   T: 10

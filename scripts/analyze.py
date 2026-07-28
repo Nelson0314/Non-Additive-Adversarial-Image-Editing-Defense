@@ -61,9 +61,12 @@ def plot_frontier(summary, out_dir: Path):
     故長條只作離散程度的提示，不足以支撐顯著性宣稱。
     """
     fig, axes = plt.subplots(1, 3, figsize=(15, 4.2))
-    fid_keys = [("final_psnr", "PSNR(x_def, x) dB", True),
+    # 橫軸取相對**原圖**的絕對保真度：讀者關心的是 x_def 像不像 x。
+    # final_psnr / final_linf 是相對 x_base 的量，屬於損失函數的內部
+    # 尺度，不適合當作前緣的保真軸。
+    fid_keys = [("final_psnr_total", "PSNR(x_def, x) dB", True),
                 ("final_ssim", "SSIM(x_def, x)", True),
-                ("final_linf", r"$\|\Delta\|_\infty$", False)]
+                ("final_lpips", "LPIPS(x_def, x)", False)]
 
     for ax, (key, label, higher_better) in zip(axes, fid_keys):
         for site in sorted({r["site"] for r in summary}):

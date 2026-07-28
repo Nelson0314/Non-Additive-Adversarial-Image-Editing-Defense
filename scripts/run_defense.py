@@ -211,6 +211,11 @@ def main():
                 # ---- spec §8.3 產出留存 ----
                 save_image(x01, cell / "orig.png")
                 save_image(res.x_def, cell / "defended.png")
+                # x_base = G(x; φ=0)：該 site 未施加防禦時就已產生的圖。
+                # 留存它，讀者才分得清哪些失真來自防禦、哪些來自重建。
+                if res.x_base is not None:
+                    save_image(res.x_base, cell / "baseline_phi0.png")
+                    save_residual(res.x_def - res.x_base, cell / "residual_phi.png")
                 delta = res.x_def - x01
                 gain = save_residual(delta, cell / "residual.png")
                 spec_an = analyze(delta)
@@ -257,8 +262,13 @@ def main():
                     "clamped_fraction": clamp_frac if clamp_frac is not None else "",
                     "final_loss": last["loss"], "final_L_def": last["L_def"],
                     "final_L_fid": last["L_fid"], "final_shift": last["edit_shift"],
+                    # final_* 為相對 x_base（防禦造成的改變），
+                    # final_*_total 為相對原圖的絕對值。前緣圖用後者。
                     "final_psnr": last["fid_psnr"], "final_linf": last["fid_linf"],
+                    "final_psnr_total": last["fid_psnr_total"],
+                    "final_linf_total": last["fid_linf_total"],
                     "final_ssim": last["fid_ssim"],
+                    "final_lpips": last["fid_lpips"],
                 }
                 summary.append(base)
                 print(

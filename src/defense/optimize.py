@@ -101,6 +101,12 @@ def optimize(
             if was_enabled:
                 module.enable()
 
+    # site LA 需要同一個 G(x; φ=0) 作為錨點。設入後 x_base 隨之變為 x01：
+    # 錨定使 φ=0 時輸出即為原圖，保真地板消失（見 site_latent_anchored）。
+    if hasattr(module, "set_baseline"):
+        module.set_baseline(x_base)
+        x_base = x01
+
     result = OptimResult()
     t0 = time.perf_counter()
 

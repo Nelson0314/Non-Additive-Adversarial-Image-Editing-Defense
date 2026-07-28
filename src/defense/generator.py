@@ -94,4 +94,10 @@ class DefenseGenerator:
             collect_x0=collect_x0,
         )
         ctx.x0_trace = x0_list
-        return self.sd.decode_latent(z, use_ckpt=vae_ckpt)
+        x_gen = self.sd.decode_latent(z, use_ckpt=vae_ckpt)
+
+        # site LA：把生成結果錨定回原圖，使 φ=0 時 x_def = x 逐元素相等。
+        # 以能力查詢而非 site 字串判斷，維持 §4.4 的介面判準。
+        if hasattr(self.module, "anchor") and getattr(self.module, "has_baseline", False):
+            return self.module.anchor(x01, x_gen)
+        return x_gen

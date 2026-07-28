@@ -1,0 +1,10 @@
+case,peak_mb,seconds
+weights,4093.0,0.0
+vae_encode,7153.9,0.296
+vae_decode,9934.5,0.301
+vae_decode_ckpt,9934.4,0.427
+unet_step_ckpt,5655.0,0.449
+full_u1_v1,9950.7,7.873
+full_u1_v0,18665.4,7.536
+full_u0_v1,-1,-1
+full_u0_v0,-1,-1

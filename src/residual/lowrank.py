@@ -83,6 +83,10 @@ class LowRankResidual(nn.Module):
 
     初始化採 U ~ N(0, init_std)、V = 0，故初始 Δ = 0（即 x_def = x），
     同時 ∂L/∂V ≠ 0 使梯度可流動。此慣例沿用 LoRA 的 A 高斯／B 零初始化。
+
+    `seed` 必須指定才能重現：U 是唯一的隨機來源，不給 seed 就會取用全域
+    RNG，同一組設定的兩次建構會得到不同的 φ 起點。跨組比較（例如秩掃描、
+    checkpoint 開關）若未固定此處，觀察到的差異會混入初始化差異。
     """
 
     def __init__(
@@ -93,6 +97,7 @@ class LowRankResidual(nn.Module):
         width: int,
         max_rank: int,
         init_std: float = 0.02,
+        seed: int = None,
     ):
         super().__init__()
         if max_rank < 1:
@@ -108,7 +113,14 @@ class LowRankResidual(nn.Module):
         self.width = width
         self.max_rank = max_rank
 
-        self.U = nn.Parameter(torch.randn(steps, channels, max_rank, height) * init_std)
+        self.init_std = init_std
+        self.seed = seed
+
+        # generator 固定在 CPU：模塊建構後才 .to(device)，在 CPU 生成可讓
+        # 同一 seed 在 CPU 與 GPU 上得到完全相同的初始 U
+        gen = None if seed is None else torch.Generator("cpu").manual_seed(seed)
+        u0 = torch.randn(steps, channels, max_rank, height, generator=gen) * init_std
+        self.U = nn.Parameter(u0)
         self.V = nn.Parameter(torch.zeros(steps, channels, max_rank, width))
 
     def forward(self, step: int = 0, rank: int = None) -> torch.Tensor:

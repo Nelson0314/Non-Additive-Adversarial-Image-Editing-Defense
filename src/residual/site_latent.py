@@ -34,6 +34,7 @@ class LatentResidual(ResidualModule):
         poly_p: int = 3,
         scale: float = 1.0,
         init_std: float = 0.02,
+        seed: int = None,
     ):
         super().__init__()
         self.tensor = LowRankResidual(
@@ -43,6 +44,7 @@ class LatentResidual(ResidualModule):
             width=size,
             max_rank=max_rank,
             init_std=init_std,
+            seed=seed,
         )
         self.steps = steps
         self.schedule = schedule

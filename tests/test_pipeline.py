@@ -300,6 +300,61 @@ def test_秩排程沿去噪步序的方向(sd):
     assert li[0] == 4, f"LI 在 t=t_max 應為 max_rank：{li}"
 
 
+def test_checkpoint不改變數值結果(sd, x01):
+    """UNet 與 VAE 的 gradient checkpointing 只影響記憶體，不得影響數值。
+
+    checkpoint 在反向時重算前向，若前向含有非決定性成分（dropout、
+    非決定性 kernel），重算結果會與原本不同而導致梯度錯誤。此測試同時
+    檢查前向數值與 φ 的梯度，兩者都必須一致。
+
+    **四組必須共用同一個模塊實例。** 每組各自 `LatentResidual(...)` 會讓
+    U 取到不同的亂數（U 是唯一的隨機來源），量到的差異其實來自初始化而非
+    checkpoint。此陷阱曾使本測試誤報：單一 UNet 步與單次 VAE decode 的
+    checkpoint 前向差為 0.0，完整路徑卻差 5e-4，正是由此而來。
+    """
+    k, n = 2, 2
+    lat = _latent(sd)
+    emb = sd.encode_text("a photo").detach()
+    noise = _noise(sd, lat)
+
+    mod = LatentResidual(
+        steps=k, channels=lat[1], size=lat[-1], max_rank=4, const_rank=4, seed=SEED
+    ).to(DEV)
+    with torch.no_grad():
+        mod.tensor.V.normal_(0, 0.1, generator=torch.Generator(DEV).manual_seed(SEED))
+    gen = DefenseGenerator(sd, mod, k_inv=k)
+
+    grads, outs = [], []
+    for unet_ck, vae_ck in [(False, False), (True, False), (False, True), (True, True)]:
+        mod.zero_grad(set_to_none=True)
+        ctx = gen.prepare(x01)
+        x_def = gen.generate(x01, ctx, use_ckpt=unet_ck, vae_ckpt=vae_ck)
+        y_def = sd.sdedit(x_def, emb, noise, n, use_ckpt=unet_ck, vae_ckpt=vae_ck)
+        y_def.pow(2).mean().backward()
+
+        outs.append(y_def.detach().clone())
+        grads.append(mod.tensor.V.grad.clone())
+
+    for i in range(1, 4):
+        assert torch.equal(outs[0], outs[i]), f"組合 {i} 的前向數值不同"
+        assert torch.allclose(grads[0], grads[i], rtol=1e-5, atol=1e-8), (
+            f"組合 {i} 的梯度不同，"
+            f"相對差 {(grads[0] - grads[i]).norm() / grads[0].norm():.3e}"
+        )
+
+
+def test_相同seed的模塊初始化完全相同(sd):
+    """U 是唯一的隨機來源，未固定 seed 會讓跨組比較混入初始化差異。"""
+    lat = _latent(sd)
+    kw = dict(steps=2, channels=lat[1], size=lat[-1], max_rank=4, const_rank=4)
+
+    a = LatentResidual(seed=SEED, **kw)
+    b = LatentResidual(seed=SEED, **kw)
+    c = LatentResidual(seed=SEED + 1, **kw)
+    assert torch.equal(a.tensor.U, b.tensor.U), "同 seed 必須得到相同的 U"
+    assert not torch.equal(a.tensor.U, c.tensor.U), "不同 seed 必須得到不同的 U"
+
+
 def test_const排程每步相同(sd):
     lat = _latent(sd)
     ts = sd.timesteps(4)

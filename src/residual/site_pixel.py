@@ -30,6 +30,7 @@ class PixelResidual(ResidualModule):
         const_rank: int = 8,
         scale: float = 1.0,
         init_std: float = 0.02,
+        seed: int = None,
     ):
         super().__init__()
         self.tensor = LowRankResidual(
@@ -39,6 +40,7 @@ class PixelResidual(ResidualModule):
             width=size,
             max_rank=max_rank,
             init_std=init_std,
+            seed=seed,
         )
         self.const_rank = const_rank
         self.scale = scale

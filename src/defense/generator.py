@@ -62,6 +62,7 @@ class DefenseGenerator:
         x01: torch.Tensor,
         ctx: DefenseContext,
         use_ckpt: bool = False,
+        vae_ckpt: bool = False,
         collect_x0: bool = False,
     ) -> torch.Tensor:
         """回傳 x_def，計算圖保留至 φ。"""
@@ -83,4 +84,4 @@ class DefenseGenerator:
             collect_x0=collect_x0,
         )
         ctx.x0_trace = x0_list
-        return self.sd.decode_latent(z)
+        return self.sd.decode_latent(z, use_ckpt=vae_ckpt)

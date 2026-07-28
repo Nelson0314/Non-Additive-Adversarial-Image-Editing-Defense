@@ -81,14 +81,39 @@ class SDWrapper:
 
     # ---- 編解碼 ----
 
-    def encode_image(self, x01: torch.Tensor) -> torch.Tensor:
-        """(1,3,H,W) [0,1] → latent。取 mean 以保持決定性。"""
+    def encode_image(self, x01: torch.Tensor, use_ckpt: bool = False) -> torch.Tensor:
+        """(1,3,H,W) [0,1] → latent。取 mean 以保持決定性。
+
+        `use_ckpt` 把整個 encode 當作一個 checkpoint 區塊。理由見
+        `decode_latent`。diffusers 的 `enable_gradient_checkpointing()`
+        只在 module.training 為真時生效，而本封裝的 VAE 固定為 eval，
+        故不能沿用，必須自行包。
+        """
         x = (x01.to(self.device) * 2.0 - 1.0).to(self.vae.dtype)
+        if use_ckpt:
+            return ckpt.checkpoint(
+                lambda a: self.vae.encode(a).latent_dist.mean * self.scaling_factor,
+                x,
+                use_reentrant=False,
+            )
         return self.vae.encode(x).latent_dist.mean * self.scaling_factor
 
-    def decode_latent(self, z: torch.Tensor) -> torch.Tensor:
-        """latent → (1,3,H,W) [0,1]，保留計算圖。"""
-        x = self.vae.decode(z / self.scaling_factor).sample
+    def decode_latent(self, z: torch.Tensor, use_ckpt: bool = False) -> torch.Tensor:
+        """latent → (1,3,H,W) [0,1]，保留計算圖。
+
+        `use_ckpt` 的效果來自「同一張計算圖上有多次 VAE 呼叫」：不做
+        checkpoint 時，每次呼叫的中間激活都必須同時留存到反向傳播，peak
+        是各次的**總和**；做了 checkpoint 之後，反向時一次只重算一個區塊，
+        peak 降為各次的**最大值**。單獨一次呼叫並不會因此變省。
+        """
+        if use_ckpt:
+            x = ckpt.checkpoint(
+                lambda a: self.vae.decode(a / self.scaling_factor).sample,
+                z,
+                use_reentrant=False,
+            )
+        else:
+            x = self.vae.decode(z / self.scaling_factor).sample
         return ((x + 1.0) / 2.0).clamp(0.0, 1.0)
 
     def encode_text(self, prompt: str) -> torch.Tensor:
@@ -192,6 +217,7 @@ class SDWrapper:
         num_steps: int,
         strength: float = 0.5,
         use_ckpt: bool = False,
+        vae_ckpt: bool = False,
     ) -> torch.Tensor:
         """可微分 SDEdit。
 
@@ -199,12 +225,15 @@ class SDWrapper:
         不在此處抽樣，是為了讓「兩分支共用同一個 ε」成為介面上的硬性要求，
         而非仰賴呼叫端自律。
 
+        `use_ckpt` 控制 UNet、`vae_ckpt` 控制 VAE，兩者分開是為了讓 E0 能
+        分別歸因記憶體，不是為了提供選項。
+
         回傳 (1,3,H,W) [0,1]，計算圖保留。
         """
         abar = self.alphas_cumprod(x01.device)
         t0 = min(int(self.num_train_timesteps * strength), self.num_train_timesteps - 1)
 
-        z = self.encode_image(x01)
+        z = self.encode_image(x01, use_ckpt=vae_ckpt)
         z = abar[t0].sqrt() * z + (1 - abar[t0]).sqrt() * noise
 
         ts = torch.linspace(t0, 0, num_steps + 1).round().long()
@@ -214,7 +243,7 @@ class SDWrapper:
             pred_x0 = (z - (1 - abar[t]).sqrt() * eps) / abar[t].sqrt()
             z = abar[t_prev].sqrt() * pred_x0 + (1 - abar[t_prev]).sqrt() * eps
 
-        return self.decode_latent(z)
+        return self.decode_latent(z, use_ckpt=vae_ckpt)
 
     def sample_edit_noise(self, z_like: torch.Tensor, seed: int) -> torch.Tensor:
         """以固定 seed 產生編輯噪聲，供兩條分支共用。"""

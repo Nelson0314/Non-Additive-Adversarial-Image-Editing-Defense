@@ -274,6 +274,8 @@ def section_e2(root: Path, run_name: str):
             )
             parts.append(_md_table_to_html(ot.read_text(encoding="utf-8")))
 
+        parts.append(_gallery(run, run_name))
+
         rt = run / "rank_table.md"
         if rt.exists():
             parts.append("<h3>注入秩 vs 實測像素秩</h3>")
@@ -285,6 +287,42 @@ def section_e2(root: Path, run_name: str):
             )
             parts.append(_md_table_to_html(rt.read_text(encoding="utf-8")))
     return "\n".join(parts)
+
+
+GALLERY = [
+    ("orig.png", "原圖 x"),
+    ("baseline_phi0.png", "φ=0 基準 G(x;0)"),
+    ("defended.png", "防禦圖 x_def"),
+    ("residual.png", "殘差 x_def − x（含放大倍率）"),
+    ("edit_orig.png", "edit(x)"),
+    ("edit_def_blur_0.0.png", "edit(x_def)，無淨化"),
+    ("edit_def_blur_3.0.png", "edit(x_def)，blur σ=3"),
+    ("spectrum.png", "殘差奇異值譜"),
+    ("history.png", "優化曲線"),
+]
+
+
+def _gallery(run: Path, run_name: str) -> str:
+    """spec §8.3 要求留存的影像。只放代表性的兩格，其餘留在 TWCC。"""
+    cells = [d.name for d in sorted(run.iterdir()) if d.is_dir()]
+    cells = [c for c in cells if (run / c / "defended.png").exists()]
+    if not cells:
+        return ""
+    out = ["<h3>產出影像（spec §8.3）</h3>",
+           "<p class='src'>代表性兩格。<code>φ=0 基準</code>是該 site 未施加"
+           "防禦時就已產生的圖：site P 與原圖逐元素相等，site L 則已帶有"
+           "重建誤差，兩者的差異在此直接可見。</p>"]
+    for c in cells:
+        out.append(f"<h4>{html.escape(c)}</h4><div class='gal'>")
+        for fn, cap in GALLERY:
+            if (run / c / fn).exists():
+                out.append(
+                    f'<figure><img src="../runs/{run_name}/{c}/{fn}" '
+                    f'alt="{html.escape(cap)}" loading="lazy">'
+                    f"<figcaption>{html.escape(cap)}</figcaption></figure>"
+                )
+        out.append("</div>")
+    return "\n".join(out)
 
 
 def _md_table_to_html(md: str) -> str:
@@ -314,6 +352,10 @@ td:first-child,th:first-child{text-align:left}
 tbody tr:nth-child(even){background:#fafafa}
 code{background:#f2f2f2;padding:.1rem .3rem;border-radius:3px;font-size:.9em}
 img{max-width:100%;border:1px solid #ddd;border-radius:4px}
+.gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:.9rem;margin:1rem 0}
+.gal figure{margin:0}
+.gal figcaption{font-size:.78rem;color:#555;margin-top:.25rem;line-height:1.35}
+@media(prefers-color-scheme:dark){.gal figcaption{color:#aaa}}
 .src{color:#666;font-size:.86rem}
 .warn{background:#fff8e6;border-left:4px solid #d69e2e;padding:.7rem 1rem;margin:1rem 0}
 @media(prefers-color-scheme:dark){

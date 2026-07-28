@@ -11,6 +11,10 @@ td:first-child,th:first-child{text-align:left}
 tbody tr:nth-child(even){background:#fafafa}
 code{background:#f2f2f2;padding:.1rem .3rem;border-radius:3px;font-size:.9em}
 img{max-width:100%;border:1px solid #ddd;border-radius:4px}
+.gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:.9rem;margin:1rem 0}
+.gal figure{margin:0}
+.gal figcaption{font-size:.78rem;color:#555;margin-top:.25rem;line-height:1.35}
+@media(prefers-color-scheme:dark){.gal figcaption{color:#aaa}}
 .src{color:#666;font-size:.86rem}
 .warn{background:#fff8e6;border-left:4px solid #d69e2e;padding:.7rem 1rem;margin:1rem 0}
 @media(prefers-color-scheme:dark){
@@ -50,6 +54,30 @@ h2{color:#7fb2e5}}
 <p class='src'>來源：<code>runs/e2/overfit_table.md</code>。</p>
 <p>φ 是針對訓練用的那一組 ε 優化出來的（<code>n_eot = 1</code>）。評測一律改用未見過的種子；此表併列訓練種子的結果，兩者之差即為過擬合幅度。比值遠大於 1 表示防禦主要是對該組噪聲有效，泛化到其他噪聲的能力有限。</p>
 <table><thead><tr><th>site</th><th>r</th><th>訓練種子偏移</th><th>未見種子偏移</th><th>差</th><th>比值</th></tr></thead><tbody><tr><td>L</td><td>1</td><td>0.0729</td><td>0.0679</td><td>+0.0050</td><td>1.07x</td></tr><tr><td>L</td><td>4</td><td>0.0775</td><td>0.0671</td><td>+0.0104</td><td>1.16x</td></tr><tr><td>L</td><td>16</td><td>0.0791</td><td>0.0664</td><td>+0.0127</td><td>1.19x</td></tr><tr><td>P</td><td>1</td><td>0.0900</td><td>0.0272</td><td>+0.0628</td><td>3.31x</td></tr><tr><td>P</td><td>4</td><td>0.2145</td><td>0.0602</td><td>+0.1543</td><td>3.56x</td></tr><tr><td>P</td><td>16</td><td>0.3735</td><td>0.1133</td><td>+0.2601</td><td>3.30x</td></tr></tbody></table>
+<h3>產出影像（spec §8.3）</h3>
+<p class='src'>代表性兩格。<code>φ=0 基準</code>是該 site 未施加防禦時就已產生的圖：site P 與原圖逐元素相等，site L 則已帶有重建誤差，兩者的差異在此直接可見。</p>
+<h4>car_00__L__r16</h4><div class='gal'>
+<figure><img src="../runs/e2/car_00__L__r16/orig.png" alt="原圖 x" loading="lazy"><figcaption>原圖 x</figcaption></figure>
+<figure><img src="../runs/e2/car_00__L__r16/baseline_phi0.png" alt="φ=0 基準 G(x;0)" loading="lazy"><figcaption>φ=0 基準 G(x;0)</figcaption></figure>
+<figure><img src="../runs/e2/car_00__L__r16/defended.png" alt="防禦圖 x_def" loading="lazy"><figcaption>防禦圖 x_def</figcaption></figure>
+<figure><img src="../runs/e2/car_00__L__r16/residual.png" alt="殘差 x_def − x（含放大倍率）" loading="lazy"><figcaption>殘差 x_def − x（含放大倍率）</figcaption></figure>
+<figure><img src="../runs/e2/car_00__L__r16/edit_orig.png" alt="edit(x)" loading="lazy"><figcaption>edit(x)</figcaption></figure>
+<figure><img src="../runs/e2/car_00__L__r16/edit_def_blur_0.0.png" alt="edit(x_def)，無淨化" loading="lazy"><figcaption>edit(x_def)，無淨化</figcaption></figure>
+<figure><img src="../runs/e2/car_00__L__r16/edit_def_blur_3.0.png" alt="edit(x_def)，blur σ=3" loading="lazy"><figcaption>edit(x_def)，blur σ=3</figcaption></figure>
+<figure><img src="../runs/e2/car_00__L__r16/spectrum.png" alt="殘差奇異值譜" loading="lazy"><figcaption>殘差奇異值譜</figcaption></figure>
+<figure><img src="../runs/e2/car_00__L__r16/history.png" alt="優化曲線" loading="lazy"><figcaption>優化曲線</figcaption></figure>
+</div>
+<h4>car_00__P__r16</h4><div class='gal'>
+<figure><img src="../runs/e2/car_00__P__r16/orig.png" alt="原圖 x" loading="lazy"><figcaption>原圖 x</figcaption></figure>
+<figure><img src="../runs/e2/car_00__P__r16/baseline_phi0.png" alt="φ=0 基準 G(x;0)" loading="lazy"><figcaption>φ=0 基準 G(x;0)</figcaption></figure>
+<figure><img src="../runs/e2/car_00__P__r16/defended.png" alt="防禦圖 x_def" loading="lazy"><figcaption>防禦圖 x_def</figcaption></figure>
+<figure><img src="../runs/e2/car_00__P__r16/residual.png" alt="殘差 x_def − x（含放大倍率）" loading="lazy"><figcaption>殘差 x_def − x（含放大倍率）</figcaption></figure>
+<figure><img src="../runs/e2/car_00__P__r16/edit_orig.png" alt="edit(x)" loading="lazy"><figcaption>edit(x)</figcaption></figure>
+<figure><img src="../runs/e2/car_00__P__r16/edit_def_blur_0.0.png" alt="edit(x_def)，無淨化" loading="lazy"><figcaption>edit(x_def)，無淨化</figcaption></figure>
+<figure><img src="../runs/e2/car_00__P__r16/edit_def_blur_3.0.png" alt="edit(x_def)，blur σ=3" loading="lazy"><figcaption>edit(x_def)，blur σ=3</figcaption></figure>
+<figure><img src="../runs/e2/car_00__P__r16/spectrum.png" alt="殘差奇異值譜" loading="lazy"><figcaption>殘差奇異值譜</figcaption></figure>
+<figure><img src="../runs/e2/car_00__P__r16/history.png" alt="優化曲線" loading="lazy"><figcaption>優化曲線</figcaption></figure>
+</div>
 <h3>注入秩 vs 實測像素秩</h3>
 <p>site P 的 <code>eff_rank</code> 遠高於注入秩而 <code>energy99</code> 等於注入秩，即 spec §7.2 修訂紀錄所述的 clamp 效應：低秩結構在能量意義下成立、在精確秩意義下不成立。site L 的像素秩為湧現量，沒有理論保證，此處為實測值。</p>
 <table><thead><tr><th>site</th><th>注入 r</th><th>eff_rank(x_def−x)</th><th>energy99(x_def−x)</th><th>eff_rank(Δ)</th><th>energy99(Δ)</th><th>clamp 比例</th></tr></thead><tbody><tr><td>L</td><td>1</td><td>512.0</td><td>321.6</td><td>—</td><td>—</td><td>—</td></tr><tr><td>L</td><td>4</td><td>512.0</td><td>321.8</td><td>—</td><td>—</td><td>—</td></tr><tr><td>L</td><td>16</td><td>512.0</td><td>321.7</td><td>—</td><td>—</td><td>—</td></tr><tr><td>P</td><td>1</td><td>147.2</td><td>1.1</td><td>1.0</td><td>1.0</td><td>0.35%</td></tr><tr><td>P</td><td>4</td><td>173.6</td><td>4.1</td><td>4.0</td><td>4.0</td><td>0.44%</td></tr><tr><td>P</td><td>16</td><td>215.8</td><td>16.2</td><td>16.0</td><td>15.8</td><td>0.59%</td></tr></tbody></table></body></html>

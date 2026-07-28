@@ -1,8 +1,0 @@
-# stage0_calibrate.py 產出：各非加性方法之相似性校準值（stage1 自動合併）
-# L_ref = 0.4629（encoder）
-advdiff:
-  eps_latent: 0.4
-apa:  # variant=gc
-  eps_a: 0.2
-hybrid:
-  eps_a: 0.1

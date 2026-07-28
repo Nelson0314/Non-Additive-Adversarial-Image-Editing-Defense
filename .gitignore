@@ -1,11 +1,14 @@
-# STRUCTURE.md §6
-data/dayn_testset/
-experiments/
-external/
+# 第三方論文 PDF（本機參考用，不入庫）
+refs/
+
+# 模型權重
 *.ckpt
 *.safetensors
-__pycache__/
 
-# 其他
+# 實驗輸出
+runs/
+
+# Python
+__pycache__/
 .pytest_cache/
 .ipynb_checkpoints/

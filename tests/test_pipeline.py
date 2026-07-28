@@ -17,10 +17,15 @@ from src.defense.generator import DefenseGenerator
 from src.models.sd import SDWrapper
 from src.residual.site_latent import LatentResidual
 from src.residual.site_pixel import PixelResidual
+from src.utils.device import get_device
 
 TINY = "hf-internal-testing/tiny-stable-diffusion-pipe"
 SIZE = 64
 SEED = 20260728
+
+# SDWrapper 把模型放到 get_device()，測試自造的張量必須放到同一裝置。
+# 本機 CPU-only 時兩者都是 cpu，裝置不符不會顯現；此檔在 GPU 上跑才會抓到。
+DEV = get_device()
 
 
 @pytest.fixture(scope="module")
@@ -30,12 +35,17 @@ def sd():
 
 @pytest.fixture(scope="module")
 def x01():
+    # generator 綁定 CPU，故先在 CPU 生成再搬移，保證跨裝置取到同一組亂數
     g = torch.Generator().manual_seed(SEED)
-    return torch.rand(1, 3, SIZE, SIZE, generator=g)
+    return torch.rand(1, 3, SIZE, SIZE, generator=g).to(DEV)
 
 
 def _latent(sd):
     return sd.latent_shape(SIZE, SIZE)
+
+
+def _noise(sd, lat, seed=SEED):
+    return sd.sample_edit_noise(torch.empty(lat, device=DEV), seed=seed)
 
 
 # ------------------------------------------------------------------ T1-P
@@ -44,7 +54,7 @@ def _latent(sd):
 def test_T1_P_殘差為零時防禦圖與原圖恆等(sd, x01):
     """site P：Δ=0 ⟹ x_def = x 逐元素相等，無任何重建誤差。"""
     lat = _latent(sd)
-    mod = PixelResidual(size=SIZE, max_rank=8, const_rank=8)
+    mod = PixelResidual(size=SIZE, max_rank=8, const_rank=8).to(DEV)
     gen = DefenseGenerator(sd, mod, k_inv=2)
     ctx = gen.prepare(x01)
     x_def = gen.generate(x01, ctx)
@@ -55,9 +65,9 @@ def test_T1_P_殘差為零時防禦圖與原圖恆等(sd, x01):
 def test_T1_P_編輯結果在殘差為零時完全相同(sd, x01):
     lat = _latent(sd)
     emb = sd.encode_text("a photo").detach()
-    noise = sd.sample_edit_noise(torch.empty(lat), seed=SEED)
+    noise = _noise(sd, lat)
 
-    mod = PixelResidual(size=SIZE, max_rank=8, const_rank=8)
+    mod = PixelResidual(size=SIZE, max_rank=8, const_rank=8).to(DEV)
     gen = DefenseGenerator(sd, mod, k_inv=2)
     x_def = gen.generate(x01, gen.prepare(x01))
 
@@ -82,7 +92,7 @@ def test_T1_L_停用模塊不改變去噪結果(sd, x01):
         z_inv = sd.ddim_inversion(z0, emb, ts, k)
         baseline, _ = sd.denoise(z_inv, emb, ts, k, eps_hook=None)
 
-    mod = LatentResidual(steps=k, channels=lat[1], size=lat[-1], max_rank=4, const_rank=4)
+    mod = LatentResidual(steps=k, channels=lat[1], size=lat[-1], max_rank=4, const_rank=4).to(DEV)
     mod.disable()
     with torch.no_grad():
         withmod, _ = sd.denoise(z_inv, emb, ts, k, eps_hook=mod.eps_hook(ts, k))
@@ -101,7 +111,7 @@ def test_T1_L_初始參數下殘差為零且不改變結果(sd, x01):
         z_inv = sd.ddim_inversion(sd.encode_image(x01), emb, ts, k)
         baseline, _ = sd.denoise(z_inv, emb, ts, k, eps_hook=None)
 
-    mod = LatentResidual(steps=k, channels=lat[1], size=lat[-1], max_rank=4, const_rank=4)
+    mod = LatentResidual(steps=k, channels=lat[1], size=lat[-1], max_rank=4, const_rank=4).to(DEV)
     assert mod.enabled
     with torch.no_grad():
         out, _ = sd.denoise(z_inv, emb, ts, k, eps_hook=mod.eps_hook(ts, k))
@@ -120,7 +130,7 @@ def test_T1_L_參數非零時結果必須改變(sd, x01):
         z_inv = sd.ddim_inversion(sd.encode_image(x01), emb, ts, k)
         baseline, _ = sd.denoise(z_inv, emb, ts, k, eps_hook=None)
 
-    mod = LatentResidual(steps=k, channels=lat[1], size=lat[-1], max_rank=4, const_rank=4)
+    mod = LatentResidual(steps=k, channels=lat[1], size=lat[-1], max_rank=4, const_rank=4).to(DEV)
     with torch.no_grad():
         mod.tensor.V.normal_(0, 0.5)
         out, _ = sd.denoise(z_inv, emb, ts, k, eps_hook=mod.eps_hook(ts, k))
@@ -136,7 +146,7 @@ def test_T2_注入的latent殘差秩精確等於設定值(sd, r):
     """秩約束精確作用於注入的 latent 殘差（spec §4.3）。"""
     lat = _latent(sd)
     n = lat[-1]
-    mod = LatentResidual(steps=3, channels=lat[1], size=n, max_rank=4, const_rank=r)
+    mod = LatentResidual(steps=3, channels=lat[1], size=n, max_rank=4, const_rank=r).to(DEV)
     with torch.no_grad():
         mod.tensor.V.normal_(0, 0.02)
 
@@ -155,7 +165,7 @@ def test_T2_像素殘差的秩是湧現的須實測不可假設(sd, x01):
     """
     k = 2
     lat = _latent(sd)
-    mod = LatentResidual(steps=k, channels=lat[1], size=lat[-1], max_rank=4, const_rank=2)
+    mod = LatentResidual(steps=k, channels=lat[1], size=lat[-1], max_rank=4, const_rank=2).to(DEV)
     with torch.no_grad():
         mod.tensor.V.normal_(0, 0.3)
 
@@ -179,18 +189,18 @@ def test_T2_像素殘差的秩是湧現的須實測不可假設(sd, x01):
 
 def test_T3_兩分支噪聲逐元素相同(sd):
     lat = _latent(sd)
-    a = sd.sample_edit_noise(torch.empty(lat), seed=SEED)
-    b = sd.sample_edit_noise(torch.empty(lat), seed=SEED)
+    a = _noise(sd, lat)
+    b = _noise(sd, lat)
     assert torch.equal(a, b)
 
-    c = sd.sample_edit_noise(torch.empty(lat), seed=SEED + 1)
+    c = _noise(sd, lat, SEED + 1)
     assert not torch.equal(a, c), "不同 seed 必須給出不同噪聲"
 
 
 def test_T3_相同噪聲下編輯管線為決定性(sd, x01):
     lat = _latent(sd)
     emb = sd.encode_text("a photo").detach()
-    noise = sd.sample_edit_noise(torch.empty(lat), seed=SEED)
+    noise = _noise(sd, lat)
     with torch.no_grad():
         y1 = sd.sdedit(x01, emb, noise, num_steps=3)
         y2 = sd.sdedit(x01, emb, noise, num_steps=3)
@@ -201,8 +211,8 @@ def test_T3_不同噪聲下編輯結果不同(sd, x01):
     """確認噪聲確實影響輸出——否則 T3 的共用檢查沒有意義。"""
     lat = _latent(sd)
     emb = sd.encode_text("a photo").detach()
-    n1 = sd.sample_edit_noise(torch.empty(lat), seed=SEED)
-    n2 = sd.sample_edit_noise(torch.empty(lat), seed=SEED + 99)
+    n1 = _noise(sd, lat)
+    n2 = _noise(sd, lat, SEED + 99)
     with torch.no_grad():
         y1 = sd.sdedit(x01, emb, n1, num_steps=3)
         y2 = sd.sdedit(x01, emb, n2, num_steps=3)
@@ -216,10 +226,10 @@ def test_梯度抵達phi且SD保持凍結(sd, x01):
     """spec §5.3：φ 是唯一可訓練參數，凍結參數不阻斷梯度。"""
     k, n = 2, 2
     lat = _latent(sd)
-    mod = LatentResidual(steps=k, channels=lat[1], size=lat[-1], max_rank=4, const_rank=4)
+    mod = LatentResidual(steps=k, channels=lat[1], size=lat[-1], max_rank=4, const_rank=4).to(DEV)
     gen = DefenseGenerator(sd, mod, k_inv=k)
     emb = sd.encode_text("a photo").detach()
-    noise = sd.sample_edit_noise(torch.empty(lat), seed=SEED)
+    noise = _noise(sd, lat)
 
     with torch.no_grad():
         y_orig = sd.sdedit(x01, emb, noise, n)
@@ -239,7 +249,7 @@ def test_inversion快取不依賴phi(sd, x01):
     """spec §4.3 效率設計的前提：z_inv 與 φ 無關，改變 φ 不應改變 z_inv。"""
     k = 2
     lat = _latent(sd)
-    mod = LatentResidual(steps=k, channels=lat[1], size=lat[-1], max_rank=4, const_rank=4)
+    mod = LatentResidual(steps=k, channels=lat[1], size=lat[-1], max_rank=4, const_rank=4).to(DEV)
     gen = DefenseGenerator(sd, mod, k_inv=k)
 
     ctx_a = gen.prepare(x01)
@@ -255,7 +265,7 @@ def test_中間圖可留存(sd, x01):
     """spec §8.3：去噪每步的 x̂₀ 估計必須可取得。"""
     k = 3
     lat = _latent(sd)
-    mod = LatentResidual(steps=k, channels=lat[1], size=lat[-1], max_rank=4, const_rank=2)
+    mod = LatentResidual(steps=k, channels=lat[1], size=lat[-1], max_rank=4, const_rank=2).to(DEV)
     gen = DefenseGenerator(sd, mod, k_inv=k)
     with torch.no_grad():
         ctx = gen.prepare(x01)
@@ -275,10 +285,10 @@ def test_秩排程沿去噪步序的方向(sd):
 
     ld = LatentResidual(
         steps=4, channels=lat[1], size=lat[-1], max_rank=4, schedule="LD"
-    ).rank_trace(ts, 4)
+    ).to(DEV).rank_trace(ts, 4)
     li = LatentResidual(
         steps=4, channels=lat[1], size=lat[-1], max_rank=4, schedule="LI"
-    ).rank_trace(ts, 4)
+    ).to(DEV).rank_trace(ts, 4)
 
     assert len(ld) == len(li) == 4
     assert ld == sorted(ld), f"LD 沿去噪步序應遞增：{ld}"
@@ -296,5 +306,5 @@ def test_const排程每步相同(sd):
     trace = LatentResidual(
         steps=4, channels=lat[1], size=lat[-1], max_rank=4,
         schedule="const", const_rank=3,
-    ).rank_trace(ts, 4)
+    ).to(DEV).rank_trace(ts, 4)
     assert trace == [3, 3, 3, 3]

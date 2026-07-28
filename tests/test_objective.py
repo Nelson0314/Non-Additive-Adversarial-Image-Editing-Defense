@@ -73,6 +73,38 @@ def test_Linf地板在超過tau時才施力(obj):
     assert pb["fid_pen_linf"] > 0.0
 
 
+def test_兩道hinge以x_base為對象而非原圖(obj):
+    """spec §5.2 修訂：hinge 量的是「防禦加了多少」，不是「與原圖差多少」。
+
+    這是必要的：E0c 實測各影像的重建地板由 19.61 dB 到 31.01 dB，相差
+    11.4 dB，任何全域固定的絕對門檻對部分影像不可達、對另一部分不施力。
+    構造一個「x_base 已遠離 x、但 x_def 等於 x_base」的情形——防禦什麼都
+    沒加，兩道 hinge 都必須為零，即使 x_def 與 x 差很多。
+    """
+    x = _img(20)
+    x_base = (x + 0.25 * torch.randn_like(x)).clamp(0, 1)  # 模擬重建誤差
+    _, p = obj.fidelity_term(x_base, x, x_base=x_base)
+
+    assert p["fid_linf"] == 0.0, "x_def 等於 x_base 時，防禦造成的 L∞ 必為 0"
+    assert p["fid_pen_linf"] == 0.0
+    assert p["fid_pen_psnr"] == 0.0, "防禦沒有讓 PSNR 下降，不得施力"
+    # 對原圖的絕對值仍須照實記錄，不因改了優化對象就不報
+    assert p["fid_linf_total"] > 0.0
+    assert p["fid_psnr_total"] < obj.cfg.psnr_floor
+
+
+def test_防禦造成的下降仍會觸發hinge(obj):
+    """反向檢查：確認上一個測試不是把 hinge 整個關掉了。"""
+    x = _img(21)
+    x_base = (x + 0.1 * torch.randn_like(x)).clamp(0, 1)
+    x_def = (x_base + 0.2 * torch.randn_like(x)).clamp(0, 1)
+    _, p = obj.fidelity_term(x_def, x, x_base=x_base)
+
+    assert p["fid_linf"] > obj.cfg.tau_linf
+    assert p["fid_pen_linf"] > 0.0
+    assert p["fid_pen_psnr"] > 0.0
+
+
 def test_保真項對x_def可微(obj):
     """φ 的梯度必須能穿過保真項，否則兩道地板形同虛設。"""
     x = _img(4)

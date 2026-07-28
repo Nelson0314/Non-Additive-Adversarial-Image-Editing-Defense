@@ -155,8 +155,14 @@ def section_e0d(root: Path):
     return (
         "<h2>E0d — 學習率校準</h2>"
         "<p class='src'>來源：<code>runs/e0d/lr_sweep.csv</code>，單張影像、rank=4。</p>"
-        "<p>判準是<strong>總損失是否單調下降</strong>，不是最終偏移大小：偏移大"
+        "<p>判準是<strong>總損失是否收斂</strong>，不是最終偏移大小：偏移大"
         "但損失發散的設定不可用，那代表結果由隨機遊走決定而非優化。</p>"
+        "<div class='warn'><strong>判準的已知混淆</strong>：優化每步輪替使用不同"
+        "淨化算子（identity / blur / jpeg），這是 spec §5.1 對 𝒫 求期望值的取樣"
+        "方式，因此相鄰步的損失量的是不同條件下的值，本來就會震盪。"
+        "<code>單調下降比例</code>即使收斂良好也只在 1/3 附近，四個 lr 全落在"
+        " 17%~33%，沒有鑑別力。主要判準取 <code>終/最低</code>：發散時為 39.6"
+        "與 138，收斂時為 2~3。</div>"
         + table(
             ["site", "lr", "loss 起", "loss 終", "loss 最低", "終/最低",
              "單調下降比例", "偏移", "PSNR"],
@@ -199,16 +205,138 @@ def section_e2(root: Path, run_name: str):
     parts.append(
         '<p><img src="../runs/%s/frontier.png" alt="E2 前緣"></p>' % run_name
     )
+    parts.append(
+        "<div class='warn'><strong>兩個 site 的起點不同，讀圖時必須納入</strong>："
+        "site P 在 φ=0 時 <code>x_def = x</code> 逐元素相等；site L 在 φ=0 時"
+        "已帶有 inversion + VAE 來回的重建誤差（E0c 實測 19.61–31.01 dB，逐張"
+        "差異達 11.4 dB）。前緣圖的橫軸是相對原圖的<strong>絕對</strong>保真度，"
+        "故此差異在圖上直接可見，未以損失函數的設計掩蓋。</div>"
+    )
+
     if results:
+        parts.append("<h3>E3 淨化強度掃描</h3>")
         parts.append(
             '<p><img src="../runs/%s/purify_sweep.png" alt="E3 淨化掃描"></p>' % run_name
         )
         parts.append(
+            "<p>縱軸為<strong>淨額</strong>偏移 <code>net = edit − ctrl</code>，"
+            "其中 <code>ctrl</code> 是同一淨化算子施加於<strong>原圖</strong>後"
+            "編輯所產生的偏移（φ 完全沒有參與）。必須扣除：<code>P(x) ≠ x</code>，"
+            "故即使 φ=0，模糊或 JPEG 本身就會讓編輯偏離 <code>E(x)</code>。"
+            "實測 site P、r=1 在 blur 下 shift 0.347、identity 下 0.098——"
+            "高的那個是淨化自己造成的。不扣除則 E3 的每個數字都被系統性高估，"
+            "且高估幅度隨淨化強度上升，而那正是 §7.4 因果判斷所讀的軸。</p>"
+        )
+        parts.append(
             "<p>spec §7.4 的因果判斷讀這張圖：P 為低秩<strong>加性</strong>、"
             "L 為低秩<strong>非加性</strong>。P 亦耐淨化則機制是秩結構；"
-            "P 不耐而 L 耐則機制是非加性。</p>"
+            "P 不耐而 L 耐則機制是非加性；兩者皆耐則兩機制不可分辨。"
+            "三種結果都是可發表的發現。</p>"
         )
+
+        # E3 淨額數值表。曲線看得出趨勢，但 §7.4 的因果判斷要引用數字。
+        ho = [r for r in results if r.get("noise_split") == "heldout"]
+        if ho:
+            for kind in sorted({r["purify"] for r in ho}):
+                sub = [r for r in ho if r["purify"] == kind]
+                strengths = sorted({fnum(r, "strength") for r in sub})
+                sites = sorted({r["site"] for r in sub})
+                rks = sorted({int(r["rank"]) for r in sub})
+                body = []
+                for site in sites:
+                    for rk in rks:
+                        row = [f"{site} r={rk}"]
+                        for st in strengths:
+                            sel = [
+                                r for r in sub
+                                if r["site"] == site and int(r["rank"]) == rk
+                                and fnum(r, "strength") == st
+                            ]
+                            row.append(mean([fnum(r, "net_lpips") for r in sel]))
+                        body.append(row)
+                parts.append(f"<h4>net shift — {html.escape(kind)}</h4>")
+                parts.append(
+                    table(["site / r"] + [f"{s:g}" for s in strengths], body)
+                )
+
+        ot = run / "overfit_table.md"
+        if ot.exists():
+            parts.append("<h3>對特定噪聲的過擬合幅度</h3>")
+            parts.append(
+                "<p class='src'>來源：<code>runs/%s/overfit_table.md</code>。</p>"
+                % run_name
+            )
+            parts.append(
+                "<p>φ 是針對訓練用的那一組 ε 優化出來的（<code>n_eot = 1</code>）。"
+                "評測一律改用未見過的種子；此表併列訓練種子的結果，兩者之差即為"
+                "過擬合幅度。比值遠大於 1 表示防禦主要是對該組噪聲有效，"
+                "泛化到其他噪聲的能力有限。</p>"
+            )
+            parts.append(_md_table_to_html(ot.read_text(encoding="utf-8")))
+
+        parts.append(_gallery(run, run_name))
+
+        rt = run / "rank_table.md"
+        if rt.exists():
+            parts.append("<h3>注入秩 vs 實測像素秩</h3>")
+            parts.append(
+                "<p>site P 的 <code>eff_rank</code> 遠高於注入秩而 "
+                "<code>energy99</code> 等於注入秩，即 spec §7.2 修訂紀錄所述的"
+                " clamp 效應：低秩結構在能量意義下成立、在精確秩意義下不成立。"
+                "site L 的像素秩為湧現量，沒有理論保證，此處為實測值。</p>"
+            )
+            parts.append(_md_table_to_html(rt.read_text(encoding="utf-8")))
     return "\n".join(parts)
+
+
+GALLERY = [
+    ("orig.png", "原圖 x"),
+    ("baseline_phi0.png", "φ=0 基準 G(x;0)"),
+    ("defended.png", "防禦圖 x_def"),
+    ("residual.png", "殘差 x_def − x（含放大倍率）"),
+    ("edit_orig.png", "edit(x)"),
+    ("edit_def_blur_0.0.png", "edit(x_def)，無淨化"),
+    ("edit_def_blur_3.0.png", "edit(x_def)，blur σ=3"),
+    ("spectrum.png", "殘差奇異值譜"),
+    ("history.png", "優化曲線"),
+]
+
+
+def _gallery(run: Path, run_name: str) -> str:
+    """spec §8.3 要求留存的影像。只放代表性的兩格，其餘留在 TWCC。"""
+    cells = [d.name for d in sorted(run.iterdir()) if d.is_dir()]
+    cells = [c for c in cells if (run / c / "defended.png").exists()]
+    if not cells:
+        return ""
+    out = ["<h3>產出影像（spec §8.3）</h3>",
+           "<p class='src'>代表性兩格。<code>φ=0 基準</code>是該 site 未施加"
+           "防禦時就已產生的圖：site P 與原圖逐元素相等，site L 則已帶有"
+           "重建誤差，兩者的差異在此直接可見。</p>"]
+    for c in cells:
+        out.append(f"<h4>{html.escape(c)}</h4><div class='gal'>")
+        for fn, cap in GALLERY:
+            if (run / c / fn).exists():
+                out.append(
+                    f'<figure><img src="../runs/{run_name}/{c}/{fn}" '
+                    f'alt="{html.escape(cap)}" loading="lazy">'
+                    f"<figcaption>{html.escape(cap)}</figcaption></figure>"
+                )
+        out.append("</div>")
+    return "\n".join(out)
+
+
+def _md_table_to_html(md: str) -> str:
+    rows = [r.strip() for r in md.strip().splitlines() if r.strip().startswith("|")]
+    if len(rows) < 2:
+        return ""
+    def cells(r):
+        return [c.strip() for c in r.strip("|").split("|")]
+    head = "".join(f"<th>{html.escape(c)}</th>" for c in cells(rows[0]))
+    body = "".join(
+        "<tr>" + "".join(f"<td>{html.escape(c)}</td>" for c in cells(r)) + "</tr>"
+        for r in rows[2:]
+    )
+    return f"<table><thead><tr>{head}</tr></thead><tbody>{body}</tbody></table>"
 
 
 CSS = """
@@ -224,6 +352,10 @@ td:first-child,th:first-child{text-align:left}
 tbody tr:nth-child(even){background:#fafafa}
 code{background:#f2f2f2;padding:.1rem .3rem;border-radius:3px;font-size:.9em}
 img{max-width:100%;border:1px solid #ddd;border-radius:4px}
+.gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:.9rem;margin:1rem 0}
+.gal figure{margin:0}
+.gal figcaption{font-size:.78rem;color:#555;margin-top:.25rem;line-height:1.35}
+@media(prefers-color-scheme:dark){.gal figcaption{color:#aaa}}
 .src{color:#666;font-size:.86rem}
 .warn{background:#fff8e6;border-left:4px solid #d69e2e;padding:.7rem 1rem;margin:1rem 0}
 @media(prefers-color-scheme:dark){

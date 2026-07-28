@@ -5,8 +5,16 @@ refs/
 *.ckpt
 *.safetensors
 
-# 實驗輸出
-runs/
+# 實驗輸出：預設不追蹤，但**結果本身要進版控**。
+# 追蹤原始數據（CSV/JSON）、分析說明與各 run 頂層的分析圖，
+# 排除逐格的大量影像傾印；代表性影像以 `git add -f` 明確加入。
+runs/*
+!runs/*/
+runs/*/**
+!runs/**/*.csv
+!runs/**/*.json
+!runs/**/*.md
+!runs/*/*.png
 
 # Python
 __pycache__/

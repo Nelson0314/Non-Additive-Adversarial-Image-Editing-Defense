@@ -31,6 +31,7 @@ import matplotlib.pyplot as plt
 from src.metrics.suite import HIGHER_IS_BETTER
 
 SITE_STYLE = {"P": ("tab:blue", "o", "-"), "L": ("tab:red", "s", "--")}
+NL = chr(10)
 
 
 def read_csv(path: Path):
@@ -60,9 +61,12 @@ def plot_frontier(summary, out_dir: Path):
     故長條只作離散程度的提示，不足以支撐顯著性宣稱。
     """
     fig, axes = plt.subplots(1, 3, figsize=(15, 4.2))
-    fid_keys = [("final_psnr", "PSNR(x_def, x) dB", True),
+    # 橫軸取相對**原圖**的絕對保真度：讀者關心的是 x_def 像不像 x。
+    # final_psnr / final_linf 是相對 x_base 的量，屬於損失函數的內部
+    # 尺度，不適合當作前緣的保真軸。
+    fid_keys = [("final_psnr_total", "PSNR(x_def, x) dB", True),
                 ("final_ssim", "SSIM(x_def, x)", True),
-                ("final_linf", r"$\|\Delta\|_\infty$", False)]
+                ("final_lpips", "LPIPS(x_def, x)", False)]
 
     for ax, (key, label, higher_better) in zip(axes, fid_keys):
         for site in sorted({r["site"] for r in summary}):
@@ -82,11 +86,12 @@ def plot_frontier(summary, out_dir: Path):
             for rk, x, y in zip(ranks, xs, ys):
                 ax.annotate(f"r={rk}", (x, y), fontsize=7,
                             textcoords="offset points", xytext=(4, 4))
-        ax.set_xlabel(label + ("  (→ 保真較佳)" if higher_better else "  (← 保真較佳)"))
+        ax.set_xlabel(label + ("  (higher = better fidelity)" if higher_better
+                               else "  (lower = better fidelity)"))
         ax.set_ylabel("edit shift  LPIPS(edit(x), edit(x_def))")
         ax.grid(alpha=0.3); ax.legend(fontsize=8)
 
-    fig.suptitle("E2 防禦—保真前緣（點上標註注入秩 r）", fontsize=11)
+    fig.suptitle("E2 defense-fidelity frontier (labels = injected rank r)", fontsize=11)
     fig.tight_layout()
     fig.savefig(out_dir / "frontier.png", dpi=140)
     plt.close(fig)
@@ -101,7 +106,12 @@ def _std(vals):
 
 
 def plot_purify(results, out_dir: Path):
-    """E3 淨化強度掃描。每種淨化一張子圖，P 與 L 疊在一起直接對比。"""
+    """E3 淨化強度掃描。每種淨化一張子圖，P 與 L 疊在一起直接對比。
+
+    只取 noise_split == "heldout" 的列。訓練用種子的那一列量的是訓練集
+    表現，混進曲線會把過擬合誤記為防禦效果。
+    """
+    results = [r for r in results if r.get("noise_split", "heldout") == "heldout"]
     kinds = sorted({r["purify"] for r in results})
     if not kinds:
         return
@@ -114,7 +124,8 @@ def plot_purify(results, out_dir: Path):
                 sel = [r for r in sub if r["site"] == site and int(r["rank"]) == rk]
                 by_s = defaultdict(list)
                 for r in sel:
-                    by_s[fnum(r, "strength")].append(fnum(r, "edit_lpips"))
+                    # net = 防禦造成的偏移 − 淨化自己造成的偏移
+                    by_s[fnum(r, "strength")].append(fnum(r, "net_lpips"))
                 xs = sorted(by_s)
                 ys = [mean(by_s[s]) for s in xs]
                 color, marker, ls = SITE_STYLE.get(site, ("gray", "x", ":"))
@@ -123,13 +134,46 @@ def plot_purify(results, out_dir: Path):
                         label=f"{site} r={rk}")
         ax.set_title(f"purify: {kind}")
         ax.set_xlabel("strength")
-        ax.set_ylabel("edit shift (LPIPS)")
+        ax.set_ylabel("net edit shift  (defended - undefended control)")
         ax.grid(alpha=0.3); ax.legend(fontsize=7)
 
-    fig.suptitle("E3 淨化強度掃描（縱軸越高代表防禦在該淨化下越持久）", fontsize=11)
+    fig.suptitle(
+        "E3 purification sweep - net of undefended control "
+        "(higher = defense survives better)", fontsize=11,
+    )
     fig.tight_layout()
     fig.savefig(out_dir / "purify_sweep.png", dpi=140)
     plt.close(fig)
+
+
+def overfit_table(results, out_dir: Path):
+    """訓練種子 vs 未見種子的偏移差，即對特定噪聲的過擬合幅度。"""
+    tr = [r for r in results if r.get("noise_split") == "train"]
+    ho = [
+        r for r in results
+        if r.get("noise_split") == "heldout"
+        and r["purify"] == "blur" and fnum(r, "strength") == 0.0
+    ]
+    if not tr or not ho:
+        return
+    lines = [
+        "| site | r | 訓練種子偏移 | 未見種子偏移 | 差 | 比值 |",
+        "|---|---|---|---|---|---|",
+    ]
+    for site in sorted({r["site"] for r in tr}):
+        for rk in sorted({int(r["rank"]) for r in tr if r["site"] == site}):
+            a = mean([fnum(r, "edit_lpips") for r in tr
+                      if r["site"] == site and int(r["rank"]) == rk])
+            b = mean([fnum(r, "edit_lpips") for r in ho
+                      if r["site"] == site and int(r["rank"]) == rk])
+            ratio = a / b if b and b == b and b > 0 else float("nan")
+            lines.append(
+                f"| {site} | {rk} | {a:.4f} | {b:.4f} | {a - b:+.4f} "
+                f"| {'—' if ratio != ratio else f'{ratio:.2f}x'} |"
+            )
+    (out_dir / "overfit_table.md").write_text(NL.join(lines), encoding="utf-8")
+    print(NL + "[過擬合幅度：訓練種子 vs 未見種子，identity/無淨化]")
+    print(NL.join(lines))
 
 
 def rank_table(summary, out_dir: Path):
@@ -170,6 +214,7 @@ def main():
     plot_frontier(summary, run)
     if results:
         plot_purify(results, run)
+        overfit_table(results, run)
     rank_table(summary, run)
     print(f"[analyze] 圖表寫入 {run}")
     return 0

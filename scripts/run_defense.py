@@ -82,38 +82,79 @@ def build_module(site: str, rank: int, cfg: OptimConfig, sd, size: int, seed: in
     raise ValueError(f"未實作的 site {site!r}（site W 見 spec §4.3，尚未實作）")
 
 
+# 評測用的噪聲種子必須與訓練不同。φ 是針對訓練用的那一組 ε 優化出來的
+# （n_eot=1 時尤其如此），若評測沿用同一組 ε，量到的是訓練集表現而非防禦
+# 效果。偏移量會被系統性高估，且高估的幅度未知。
+EVAL_SEED_OFFSET = 10_000
+
+
 @torch.no_grad()
 def evaluate(sd, suite, x01, x_def, cfg, prompt, out_dir, save_images=True):
     """E3 淨化強度掃描 + spec §8.1 全指標。
 
     兩條分支共用同一個 ε（spec §5.1）：否則量到的偏移主要來自噪聲差異。
     評測階段一律使用淨化的**真實實作**，不用訓練時的可微代理。
+
+    **噪聲以未見過的種子取樣**（見 EVAL_SEED_OFFSET）。另外在 identity
+    淨化下額外量一次訓練用的種子，兩者之差即為對特定噪聲的過擬合幅度，
+    以 `noise_split` 欄位區分，報告中必須併列。
     """
     device = x01.device
     lat = sd.latent_shape(x01.shape[-2], x01.shape[-1])
     emb = sd.encode_text(prompt)
-    noise = sd.sample_edit_noise(torch.empty(lat, device=device), seed=cfg.seed)
 
-    y_orig = sd.sdedit(x01, emb, noise, cfg.n_edit, strength=cfg.strength)
+    def branch(seed):
+        n = sd.sample_edit_noise(torch.empty(lat, device=device), seed=seed)
+        return n, sd.sdedit(x01, emb, n, cfg.n_edit, strength=cfg.strength)
+
+    noise, y_orig = branch(cfg.seed + EVAL_SEED_OFFSET)
+    noise_tr, y_orig_tr = branch(cfg.seed)
     if save_images:
         save_image(y_orig, out_dir / "edit_orig.png")
+        save_image(y_orig_tr, out_dir / "edit_orig_trainnoise.png")
+
+    def measure(xp, nz, y_ref, kind, strength, split, x_ctrl=None):
+        """`x_ctrl` 為**未防禦**的對照輸入（同一淨化施加於原圖）。
+
+        必要性：spec §5.1 的 `d(E(P(x_def)), E(x))` 把淨化本身造成的偏移
+        也算成防禦效果。`P(x) ≠ x`，故即使 φ=0，模糊或 JPEG 也會讓編輯結果
+        偏離 `E(x)`。實測 site P r=1 在 identity 下 shift=0.095、在 blur 下
+        0.347，高的那個是淨化自己造成的，不是防禦變強。不減掉對照就會讓
+        E3 的每個數字被系統性高估。
+        """
+        y_def = sd.sdedit(xp, emb, nz, cfg.n_edit, strength=cfg.strength)
+        row = {
+            "purify": kind,
+            "strength": strength,
+            "noise_split": split,
+            "proxy_gap": 0.0,
+            **{f"edit_{k}": v for k, v in suite.full(y_ref, y_def, prompt=prompt).items()},
+            **{f"defimg_{k}": v for k, v in suite.pairwise(x01, xp).items()},
+        }
+        if x_ctrl is not None:
+            y_ctrl = sd.sdedit(x_ctrl, emb, nz, cfg.n_edit, strength=cfg.strength)
+            m = suite.pairwise(y_ref, y_ctrl)
+            row["ctrl_lpips"] = m["lpips"]
+            row["ctrl_psnr"] = m["psnr"]
+            # 防禦淨額：扣掉淨化本身造成的偏移後，還剩多少歸因於防禦
+            row["net_lpips"] = row["edit_lpips"] - m["lpips"]
+        return y_def, row
 
     rows = []
-    sweeps = eval_sweep()
-    for kind, plist in sweeps.items():
+    # 過擬合幅度：同一張防禦圖、無淨化，只換噪聲種子
+    _, row_tr = measure(x_def, noise_tr, y_orig_tr, "identity", 0.0, "train", x01)
+    rows.append(row_tr)
+
+    for kind, plist in eval_sweep().items():
         for pur in plist:
             xp = pur.evaluate(x_def)
-            y_def = sd.sdedit(xp, emb, noise, cfg.n_edit, strength=cfg.strength)
-
-            m_edit = suite.full(y_orig, y_def, prompt=prompt)
-            m_def = suite.pairwise(x01, xp)
-            row = {
-                "purify": kind,
-                "strength": pur.strength,
-                "proxy_gap": pur.proxy_gap(x_def) if not pur.differentiable else 0.0,
-                **{f"edit_{k}": v for k, v in m_edit.items()},
-                **{f"defimg_{k}": v for k, v in m_def.items()},
-            }
+            # 對照輸入：同一個淨化算子施加於**原圖**，φ 完全沒有參與
+            y_def, row = measure(
+                xp, noise, y_orig, kind, pur.strength, "heldout",
+                x_ctrl=pur.evaluate(x01),
+            )
+            if not pur.differentiable:
+                row["proxy_gap"] = pur.proxy_gap(x_def)
             rows.append(row)
 
             if save_images and pur.strength in (plist[0].strength, plist[-1].strength):
@@ -190,6 +231,11 @@ def main():
                 # ---- spec §8.3 產出留存 ----
                 save_image(x01, cell / "orig.png")
                 save_image(res.x_def, cell / "defended.png")
+                # x_base = G(x; φ=0)：該 site 未施加防禦時就已產生的圖。
+                # 留存它，讀者才分得清哪些失真來自防禦、哪些來自重建。
+                if res.x_base is not None:
+                    save_image(res.x_base, cell / "baseline_phi0.png")
+                    save_residual(res.x_def - res.x_base, cell / "residual_phi.png")
                 delta = res.x_def - x01
                 gain = save_residual(delta, cell / "residual.png")
                 spec_an = analyze(delta)
@@ -236,8 +282,13 @@ def main():
                     "clamped_fraction": clamp_frac if clamp_frac is not None else "",
                     "final_loss": last["loss"], "final_L_def": last["L_def"],
                     "final_L_fid": last["L_fid"], "final_shift": last["edit_shift"],
+                    # final_* 為相對 x_base（防禦造成的改變），
+                    # final_*_total 為相對原圖的絕對值。前緣圖用後者。
                     "final_psnr": last["fid_psnr"], "final_linf": last["fid_linf"],
+                    "final_psnr_total": last["fid_psnr_total"],
+                    "final_linf_total": last["fid_linf_total"],
                     "final_ssim": last["fid_ssim"],
+                    "final_lpips": last["fid_lpips"],
                 }
                 summary.append(base)
                 print(

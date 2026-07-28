@@ -205,16 +205,75 @@ def section_e2(root: Path, run_name: str):
     parts.append(
         '<p><img src="../runs/%s/frontier.png" alt="E2 前緣"></p>' % run_name
     )
+    parts.append(
+        "<div class='warn'><strong>兩個 site 的起點不同，讀圖時必須納入</strong>："
+        "site P 在 φ=0 時 <code>x_def = x</code> 逐元素相等；site L 在 φ=0 時"
+        "已帶有 inversion + VAE 來回的重建誤差（E0c 實測 19.61–31.01 dB，逐張"
+        "差異達 11.4 dB）。前緣圖的橫軸是相對原圖的<strong>絕對</strong>保真度，"
+        "故此差異在圖上直接可見，未以損失函數的設計掩蓋。</div>"
+    )
+
     if results:
+        parts.append("<h3>E3 淨化強度掃描</h3>")
         parts.append(
             '<p><img src="../runs/%s/purify_sweep.png" alt="E3 淨化掃描"></p>' % run_name
         )
         parts.append(
+            "<p>縱軸為<strong>淨額</strong>偏移 <code>net = edit − ctrl</code>，"
+            "其中 <code>ctrl</code> 是同一淨化算子施加於<strong>原圖</strong>後"
+            "編輯所產生的偏移（φ 完全沒有參與）。必須扣除：<code>P(x) ≠ x</code>，"
+            "故即使 φ=0，模糊或 JPEG 本身就會讓編輯偏離 <code>E(x)</code>。"
+            "實測 site P、r=1 在 blur 下 shift 0.347、identity 下 0.098——"
+            "高的那個是淨化自己造成的。不扣除則 E3 的每個數字都被系統性高估，"
+            "且高估幅度隨淨化強度上升，而那正是 §7.4 因果判斷所讀的軸。</p>"
+        )
+        parts.append(
             "<p>spec §7.4 的因果判斷讀這張圖：P 為低秩<strong>加性</strong>、"
             "L 為低秩<strong>非加性</strong>。P 亦耐淨化則機制是秩結構；"
-            "P 不耐而 L 耐則機制是非加性。</p>"
+            "P 不耐而 L 耐則機制是非加性；兩者皆耐則兩機制不可分辨。"
+            "三種結果都是可發表的發現。</p>"
         )
+
+        ot = run / "overfit_table.md"
+        if ot.exists():
+            parts.append("<h3>對特定噪聲的過擬合幅度</h3>")
+            parts.append(
+                "<p class='src'>來源：<code>runs/%s/overfit_table.md</code>。</p>"
+                % run_name
+            )
+            parts.append(
+                "<p>φ 是針對訓練用的那一組 ε 優化出來的（<code>n_eot = 1</code>）。"
+                "評測一律改用未見過的種子；此表併列訓練種子的結果，兩者之差即為"
+                "過擬合幅度。比值遠大於 1 表示防禦主要是對該組噪聲有效，"
+                "泛化到其他噪聲的能力有限。</p>"
+            )
+            parts.append(_md_table_to_html(ot.read_text(encoding="utf-8")))
+
+        rt = run / "rank_table.md"
+        if rt.exists():
+            parts.append("<h3>注入秩 vs 實測像素秩</h3>")
+            parts.append(
+                "<p>site P 的 <code>eff_rank</code> 遠高於注入秩而 "
+                "<code>energy99</code> 等於注入秩，即 spec §7.2 修訂紀錄所述的"
+                " clamp 效應：低秩結構在能量意義下成立、在精確秩意義下不成立。"
+                "site L 的像素秩為湧現量，沒有理論保證，此處為實測值。</p>"
+            )
+            parts.append(_md_table_to_html(rt.read_text(encoding="utf-8")))
     return "\n".join(parts)
+
+
+def _md_table_to_html(md: str) -> str:
+    rows = [r.strip() for r in md.strip().splitlines() if r.strip().startswith("|")]
+    if len(rows) < 2:
+        return ""
+    def cells(r):
+        return [c.strip() for c in r.strip("|").split("|")]
+    head = "".join(f"<th>{html.escape(c)}</th>" for c in cells(rows[0]))
+    body = "".join(
+        "<tr>" + "".join(f"<td>{html.escape(c)}</td>" for c in cells(r)) + "</tr>"
+        for r in rows[2:]
+    )
+    return f"<table><thead><tr>{head}</tr></thead><tbody>{body}</tbody></table>"
 
 
 CSS = """

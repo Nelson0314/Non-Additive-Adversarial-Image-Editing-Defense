@@ -330,6 +330,38 @@ EOT 取樣數（§5.1 的 `𝒫` 與 `ε` 期望值）由此結果決定，不�
 
 **對應實作**：`ResidualModule.raw_residual()`（`src/residual/base.py`）提供 clamp 前的殘差，`PixelResidual.clamped_fraction()` 提供被截斷的元素比例；`scripts/run_defense.py` 對兩者分別做譜分析並各自入表。
 
+#### 修訂紀錄：L∞ hinge 的對象與 `psnr_floor` 改由實測決定（2026-07-29，實作階段）
+
+**原文（v1 §5.2）**：
+
+```
+L_fid = LPIPS(x_def, x) + α·(1 − SSIM(x_def, x))
+      + β·max(0, ‖Δ‖_∞ − τ) + γ·max(0, PSNR_floor − PSNR(x_def, x))
+```
+其中 `Δ = x_def − x`，`τ = 0.06`、`PSNR_floor = 30 dB`。
+
+**問題**：兩道地板都設在 site L **不可能達到**的位置。site L 的 `x_def` 在 `φ = 0` 時已是「VAE 編碼 → DDIM inversion → 去噪 → VAE 解碼」的重建，該重建誤差與防禦強度無關且 `φ` 無法消除。
+
+E0c 實測（n = 6，`t_max = 500`、`k_inv = 20`）：
+
+| 量 | VAE 單獨來回 | 完整來回 | 原設定門檻 |
+|---|---|---|---|
+| PSNR | 27.51 dB | 26.56 dB | `PSNR_floor = 30` ← 不可達 |
+| L∞ | 0.707 | — | `τ = 0.06` ← 不可達 |
+
+pilot 實測 `φ = 0` 時 site L 的 `L∞ = 1.0000`，代入原式得 `β·(1.0 − 0.06) = 94`。防禦項的上限僅 `margin = 0.5`，故 `L_fid` 完全主導總損失，且該主導項是一個 `φ` 改善不了的常數，防禦無法發展。
+
+**更正後**：
+
+1. **L∞ hinge 的對象改為 `x_def − x_base`**，其中 `x_base = G(x; φ=0)`。site P 的 `x_base = x`（故此改動對 site P 無影響）；site L 的 `x_base` 為其重建。兩個 site 量到的都是「防禦本身加了多少」，彼此可比。
+2. **`PSNR_floor` 由 30 dB 改為 26 dB**，略低於實測地板 26.56 dB，使 hinge 可以釋放。
+
+**未更動**：LPIPS、SSIM、PSNR 三項的對象仍為 `(x_def, x)`，總體保真度仍受把關。`L∞` 對原圖的總值以 `fid_linf_total` 逐步記錄並在報告中列出，不因改了優化對象就不報。
+
+**限制（須在論文中載明）**：site L 的保真上限受其重建誤差限制，與 site P 的起點（逐元素相等）本質不同。E2 前緣圖的橫軸為實測保真度，兩個 site 的起點差異在圖上直接可見，不以損失函數的設計掩蓋。
+
+**對應實作**：`DefenseObjective.fidelity_term(x_def, x, x_base)`、`optimize()` 中停用模塊取得 `x_base` 並快取（對 `φ` 為常數，只算一次）。
+
 ### 7.3 E2 — 主實驗：site × rank
 
 | 軸 | 值 |

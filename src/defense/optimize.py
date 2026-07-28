@@ -47,6 +47,7 @@ class OptimConfig:
 class OptimResult:
     history: List[Dict] = field(default_factory=list)
     x_def: Optional[torch.Tensor] = None
+    x_base: Optional[torch.Tensor] = None   # G(x; φ=0)，該 site 的保真地板
     x0_trace: List[torch.Tensor] = field(default_factory=list)
     seconds: float = 0.0
     steps_done: int = 0
@@ -87,6 +88,19 @@ def optimize(
             for n in noises
         ]
 
+        # x_base = G(x; φ=0)，即該 site 未施加防禦時就已產生的圖。site P 為
+        # x 本身；site L 為 inversion + VAE 來回的重建。用於把 L∞ hinge 的
+        # 對象限定在「φ 造成的改變」（見 objective.fidelity_term）。停用模塊
+        # 即可取得，之後還原原本的啟用狀態。
+        was_enabled = module.enabled
+        module.disable()
+        try:
+            ctx0 = gen.prepare(x01, prompt_def=cfg.prompt_def)
+            x_base = gen.generate(x01, ctx0).detach()
+        finally:
+            if was_enabled:
+                module.enable()
+
     result = OptimResult()
     t0 = time.perf_counter()
 
@@ -112,7 +126,7 @@ def optimize(
             )
             y_refs.append(y_origs[i])
 
-        total, log = obj(x_def, x01, y_defs, y_refs)
+        total, log = obj(x_def, x01, y_defs, y_refs, x_base=x_base)
         total.backward()
 
         if cfg.grad_clip > 0:
@@ -144,6 +158,7 @@ def optimize(
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
 
+    result.x_base = x_base
     result.seconds = time.perf_counter() - t0
     result.steps_done = cfg.steps
     return result

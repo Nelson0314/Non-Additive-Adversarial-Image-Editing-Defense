@@ -16,12 +16,21 @@ hinge 形式是必要設計，不是調參選擇：無界的最大化會發散�
 
     L_fid = LPIPS(x_def, x)
           + α · (1 − SSIM(x_def, x))
-          + β · max(0, ‖Δ‖_∞ − τ)
+          + β · max(0, ‖x_def − x_base‖_∞ − τ)   ← 見下方修訂
           + γ · max(0, PSNR_floor − PSNR(x_def, x))
 
 後兩項是硬地板，其存在理由是 v2 的實測結果：apa 的 LPIPS 與 pg_enc 幾乎
 相同，PSNR 卻差 12.7 dB、L∞ 差 28 倍。保真項若只用 LPIPS，優化會利用
 LPIPS 的量測盲區，產生 LPIPS 數值良好但人眼可見的失真。兩道地板封閉此路徑。
+
+**相對 spec §5.2 的修訂（2026-07-29）**：L∞ hinge 的對象由 `Δ = x_def − x`
+改為 `x_def − x_base`，其中 `x_base = G(x; φ=0)`。原式對 site L 不可用：
+E0c 實測 VAE 單獨來回的 L∞ 平均為 0.707，φ=0 時實測 1.0000，遠高於
+τ = 0.06，hinge 恆為啟動且 φ 無法改善，L_fid 被一個約 94 的常數主導，
+而防禦項的上限僅 margin = 0.5，防禦完全無法發展。改為相對 `x_base` 後，
+兩個 site 量的都是「防禦本身加了多少」，彼此可比；`x_def` 與原圖的總體
+保真仍由 LPIPS、SSIM、PSNR 三項把關，且 `fid_linf_total` 仍逐步記錄，
+報告中兩者都會列出。
 """
 
 from dataclasses import dataclass, field
@@ -107,18 +116,35 @@ class DefenseObjective:
     # ---- 保真項 ----
 
     def fidelity_term(
-        self, x_def: torch.Tensor, x: torch.Tensor
+        self,
+        x_def: torch.Tensor,
+        x: torch.Tensor,
+        x_base: Optional[torch.Tensor] = None,
     ) -> tuple[torch.Tensor, Dict[str, float]]:
-        """回傳 (L_fid, 各分項的純量值)。分項一併回傳供逐步診斷。"""
+        """回傳 (L_fid, 各分項的純量值)。分項一併回傳供逐步診斷。
+
+        `x_base` 是 φ=0 時的輸出，即該 site 在**未施加任何防禦**時就已經
+        產生的圖。site P 為 `x` 本身；site L 為 inversion + VAE 來回的重建。
+        L∞ hinge 以 `x_def − x_base` 為對象，其餘三項仍以 `x_def − x` 為
+        對象。理由見下方 spec 修訂說明。
+        """
         import piq
 
         c = self.cfg
         xd = x_def.clamp(0, 1)
         xr = x.clamp(0, 1)
+        xb = xr if x_base is None else x_base.clamp(0, 1)
 
         lpips = self._lpips(xd, xr)
         ssim = piq.ssim(xd, xr, data_range=1.0)
-        linf = (xd - xr).abs().max()
+        # L∞ 取「φ 造成的改變」而非「與原圖的總差距」。E0c 實測 VAE 單獨
+        # 來回的 L∞ 平均已達 0.707：單一個飽和像素就能讓 L∞ 飽和，該值
+        # 幾乎完全由重建誤差決定，與防禦強度無關。若以總差距為對象，
+        # τ=0.06 對 site L 不可達，hinge 恆為啟動，L_fid 被一個 φ 無法
+        # 改善的常數（實測約 94）主導，防禦項（上限 margin=0.5）完全失效。
+        # 改以 x_def − x_base 為對象後，兩個 site 量的都是「防禦加了多少」，
+        # 彼此可比；總保真度仍由 LPIPS/SSIM/PSNR 三項對 x 把關。
+        linf = (xd - xb).abs().max()
         # 手寫 PSNR 而非用 piq.psnr：需要對 x_def 可微，且要能處理 mse=0
         mse = torch.nn.functional.mse_loss(xd, xr)
         psnr = 10.0 * torch.log10(1.0 / mse.clamp_min(1e-12))
@@ -133,6 +159,7 @@ class DefenseObjective:
             + c.gamma_psnr * pen_psnr
         )
         parts = {
+            "fid_linf_total": float((xd - xr).abs().max()),
             "fid_lpips": float(lpips),
             "fid_ssim": float(ssim),
             "fid_linf": float(linf),
@@ -150,10 +177,11 @@ class DefenseObjective:
         x: torch.Tensor,
         y_def_list: List[torch.Tensor],
         y_orig_list: List[torch.Tensor],
+        x_base: Optional[torch.Tensor] = None,
     ) -> tuple[torch.Tensor, Dict[str, float]]:
         c = self.cfg
         l_def = self.defense_term(y_def_list, y_orig_list)
-        l_fid, parts = self.fidelity_term(x_def, x)
+        l_fid, parts = self.fidelity_term(x_def, x, x_base=x_base)
         total = c.lam_def * l_def + c.lam_fid * l_fid
 
         # 平均編輯偏移是最直接的進展指標，與 hinge 後的 L_def 分開記錄：

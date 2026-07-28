@@ -17,20 +17,33 @@ hinge 形式是必要設計，不是調參選擇：無界的最大化會發散�
     L_fid = LPIPS(x_def, x)
           + α · (1 − SSIM(x_def, x))
           + β · max(0, ‖x_def − x_base‖_∞ − τ)   ← 見下方修訂
-          + γ · max(0, PSNR_floor − PSNR(x_def, x))
+          + γ · max(0, PSNR_floor − PSNR(x_def, x_base))   ← 見下方修訂
 
 後兩項是硬地板，其存在理由是 v2 的實測結果：apa 的 LPIPS 與 pg_enc 幾乎
 相同，PSNR 卻差 12.7 dB、L∞ 差 28 倍。保真項若只用 LPIPS，優化會利用
 LPIPS 的量測盲區，產生 LPIPS 數值良好但人眼可見的失真。兩道地板封閉此路徑。
 
-**相對 spec §5.2 的修訂（2026-07-29）**：L∞ hinge 的對象由 `Δ = x_def − x`
-改為 `x_def − x_base`，其中 `x_base = G(x; φ=0)`。原式對 site L 不可用：
+**相對 spec §5.2 的修訂（2026-07-29）**：**兩道 hinge 的對象**由對原圖
+`x` 改為對 `x_base = G(x; φ=0)`，即該 site 在未施加防禦時就已產生的圖。原式對 site L 不可用：
 E0c 實測 VAE 單獨來回的 L∞ 平均為 0.707，φ=0 時實測 1.0000，遠高於
 τ = 0.06，hinge 恆為啟動且 φ 無法改善，L_fid 被一個約 94 的常數主導，
 而防禦項的上限僅 margin = 0.5，防禦完全無法發展。改為相對 `x_base` 後，
 兩個 site 量的都是「防禦本身加了多少」，彼此可比；`x_def` 與原圖的總體
 保真仍由 LPIPS、SSIM、PSNR 三項把關，且 `fid_linf_total` 仍逐步記錄，
 報告中兩者都會列出。
+
+PSNR hinge 同樣改為相對，理由更強：E0c 實測六張影像的重建地板由
+19.61 dB（car_00）到 31.01 dB（person_00），相差 11.4 dB。任何**全域
+固定**的絕對門檻都不可能同時適用 —— 原值 30 dB 對六張全部不可達，
+改成 26 dB 後對 car_00（19.61）與 car_01（22.28）仍不可達，對
+person_00（31.01）又完全不施力。改以 `PSNR(x_def, x_base)` 為對象後，
+門檻自動隨每張影像與每個 site 的地板調整，兩個 site 量到的都是「防禦
+讓 PSNR 掉了多少」。對原圖的絕對值以 `fid_psnr_total` 逐步記錄。
+
+值得一併記下的觀察：同一組量測中 LPIPS 的地板僅由 0.157 到 0.210，
+遠比 PSNR 穩定。這與 v2 的發現方向相反但不矛盾——v2 說的是 LPIPS 會
+**低估**非加性失真，此處說的是 LPIPS 對重建誤差的**跨影像變異**較小。
+兩者都支持「不得只報單一指標」。
 """
 
 from dataclasses import dataclass, field
@@ -58,13 +71,12 @@ class LossConfig:
     gamma_psnr: float = 1.0
     tau_linf: float = 0.06     # ≈ 15/255，對抗擾動文獻的常見上限量級
 
-    # psnr_floor 由 E0c 實測決定，不是憑經驗填的。site L 在 φ=0 時的
-    # x_def 已是 inversion + VAE 來回的重建，其 PSNR 有一個 φ 無法消除的
-    # 地板：t_max=500、k_inv=20 下實測平均 26.56 dB（VAE 單獨來回的
-    # 不可約地板為 27.51 dB，n=6）。若把 psnr_floor 設在地板之上（原值
-    # 30 dB），PSNR hinge 對 site L 將永遠處於啟動狀態，保真項變成一個
-    # 恆定且無法改善的懲罰並壓過防禦項。故取 26.0，略低於實測地板。
-    psnr_floor: float = 26.0   # dB，見 runs/e0c_tmax/recon_floor.csv
+    # psnr_floor 的對象是 PSNR(x_def, x_base)，即「防禦讓 PSNR 掉了多少」，
+    # 不是對原圖的絕對 PSNR。E0c 實測各影像的重建地板由 19.61 dB 到
+    # 31.01 dB，相差 11.4 dB，任何全域固定的絕對門檻都不可能同時適用。
+    # 取 34 dB：相對地板而言這是一個嚴格的要求（防禦造成的 MSE 需低於
+    # 4e-4），與 tau_linf 的量級一致，且對兩個 site 意義相同。
+    psnr_floor: float = 34.0   # dB，相對 x_base；見 runs/e0c_tmax/
 
 
 class DefenseObjective:
@@ -145,9 +157,18 @@ class DefenseObjective:
         # 改以 x_def − x_base 為對象後，兩個 site 量的都是「防禦加了多少」，
         # 彼此可比；總保真度仍由 LPIPS/SSIM/PSNR 三項對 x 把關。
         linf = (xd - xb).abs().max()
-        # 手寫 PSNR 而非用 piq.psnr：需要對 x_def 可微，且要能處理 mse=0
-        mse = torch.nn.functional.mse_loss(xd, xr)
+
+        # PSNR hinge 同樣以 x_base 為對象，理由與 L∞ 相同且更強：E0c 實測
+        # 各影像的重建地板由 19.61 dB（car_00）到 31.01 dB（person_00），
+        # 相差 11.4 dB。任何**全域固定**的 psnr_floor 都不可能同時適用：
+        # 取 26 時對 car_00 與 car_01 不可達（hinge 恆啟動），對 person_00
+        # 又完全不施力。改以 PSNR(x_def, x_base) 為對象後，門檻自動隨每張
+        # 影像與每個 site 的地板調整，量的一律是「防禦讓 PSNR 掉了多少」。
+        # 對原圖的絕對 PSNR 仍以 fid_psnr_total 記錄並在報告中列出。
+        mse = torch.nn.functional.mse_loss(xd, xb)
         psnr = 10.0 * torch.log10(1.0 / mse.clamp_min(1e-12))
+        mse_total = torch.nn.functional.mse_loss(xd, xr)
+        psnr_total = 10.0 * torch.log10(1.0 / mse_total.clamp_min(1e-12))
 
         pen_linf = torch.clamp(linf - c.tau_linf, min=0.0)
         pen_psnr = torch.clamp(c.psnr_floor - psnr, min=0.0)
@@ -160,6 +181,7 @@ class DefenseObjective:
         )
         parts = {
             "fid_linf_total": float((xd - xr).abs().max()),
+            "fid_psnr_total": float(psnr_total),
             "fid_lpips": float(lpips),
             "fid_ssim": float(ssim),
             "fid_linf": float(linf),

@@ -82,11 +82,12 @@ def plot_frontier(summary, out_dir: Path):
             for rk, x, y in zip(ranks, xs, ys):
                 ax.annotate(f"r={rk}", (x, y), fontsize=7,
                             textcoords="offset points", xytext=(4, 4))
-        ax.set_xlabel(label + ("  (→ 保真較佳)" if higher_better else "  (← 保真較佳)"))
+        ax.set_xlabel(label + ("  (higher = better fidelity)" if higher_better
+                               else "  (lower = better fidelity)"))
         ax.set_ylabel("edit shift  LPIPS(edit(x), edit(x_def))")
         ax.grid(alpha=0.3); ax.legend(fontsize=8)
 
-    fig.suptitle("E2 防禦—保真前緣（點上標註注入秩 r）", fontsize=11)
+    fig.suptitle("E2 defense-fidelity frontier (labels = injected rank r)", fontsize=11)
     fig.tight_layout()
     fig.savefig(out_dir / "frontier.png", dpi=140)
     plt.close(fig)
@@ -126,7 +127,7 @@ def plot_purify(results, out_dir: Path):
         ax.set_ylabel("edit shift (LPIPS)")
         ax.grid(alpha=0.3); ax.legend(fontsize=7)
 
-    fig.suptitle("E3 淨化強度掃描（縱軸越高代表防禦在該淨化下越持久）", fontsize=11)
+    fig.suptitle("E3 purification sweep (higher = defense survives better)", fontsize=11)
     fig.tight_layout()
     fig.savefig(out_dir / "purify_sweep.png", dpi=140)
     plt.close(fig)

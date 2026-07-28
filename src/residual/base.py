@@ -47,6 +47,19 @@ class ResidualModule(nn.Module):
 
     # ---- 診斷 ----
 
+    def raw_residual(self) -> Optional[torch.Tensor]:
+        """注入前、未經任何非線性變換的殘差，其秩等於設定值。
+
+        存在理由是把「架構保證的秩」與「實際觀察到的像素秩」分開量測。
+        site P 的 `x_def − x` 已經過 clamp，其數值秩**不等於**設定值：
+        實測 r=2、128² 真實影像上為 84~87，但 99% 能量仍落在秩 2~3，
+        因為只有 0.46% 的元素被 clamp 改動。沒有這個介面就無法區分
+        「秩約束失效」與「clamp 造成的稀疏擾動」。
+
+        回傳 None 表示該 site 沒有對應的像素空間量（如 site L）。
+        """
+        return None
+
     def rank_trace(self, ts: torch.Tensor, steps: int) -> list:
         """回傳每步實際使用的秩，供報告與診斷圖使用。"""
         return []

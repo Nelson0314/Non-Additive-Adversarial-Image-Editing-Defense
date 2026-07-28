@@ -2,8 +2,18 @@
 
     x_def = clamp(x + Δ, 0, 1)
 
-此 site 為**加性**方法，且像素空間殘差的秩**精確等於** r（無任何後續非線性
-變換）。它與 site L 的對比構成 spec §7.4 的因果切割：
+此 site 為**加性**方法。注入的殘差 Δ 其秩精確等於 r，但**實際的像素殘差
+`x_def − x` 的秩不等於 r**：`clamp` 是非線性變換，會在原圖的飽和像素處
+產生稀疏擾動。實測（r=2、128² 真實影像、0.97% 飽和像素）：
+
+    clamp 前 Δ          effective_rank = [2, 2, 2]    energy_rank99 = [2, 2, 2]
+    clamp 後 x_def − x  effective_rank = [84, 87, 83] energy_rank99 = [3, 2, 2]
+
+被 clamp 改動者僅 225/49152 個元素（0.46%），能量可忽略，故低秩結構在
+**能量意義**下成立、在**精確秩**意義下不成立。報告須以 energy_rank 為主要
+量度並同時列出 effective_rank，不得宣稱像素秩精確等於 r。
+
+它與 site L 的對比構成 spec §7.4 的因果切割：
 
 - P 亦耐淨化 ⟹ 機制是秩結構
 - P 不耐而 L 耐 ⟹ 機制是非加性
@@ -54,6 +64,16 @@ class PixelResidual(ResidualModule):
         if not self.enabled:
             return x01
         return (x01 + self.delta().to(x01.dtype)).clamp(0.0, 1.0)
+
+    def raw_residual(self) -> torch.Tensor:
+        """clamp 前的 Δ，秩精確等於 const_rank。與 x_def−x 的差異見 base。"""
+        return self.delta().detach()
+
+    def clamped_fraction(self, x01: torch.Tensor) -> float:
+        """被 clamp 改動的元素比例。此值決定像素秩偏離設定值的程度。"""
+        with torch.no_grad():
+            raw = x01 + self.delta().to(x01.dtype)
+            return float((raw != raw.clamp(0.0, 1.0)).float().mean())
 
     def rank_trace(self, ts=None, steps=None) -> list:
         return [self.const_rank]

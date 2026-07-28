@@ -1,0 +1,272 @@
+"""損失、淨化、譜診斷的正確性測試。
+
+這些是純函數層，不需 SD 模型，故可在本機快速執行。
+"""
+
+import pytest
+import torch
+
+from src.defense.objective import DefenseObjective, LossConfig
+from src.metrics.spectrum import analyze, effective_rank, energy_rank
+from src.purify.ops import (
+    Purifier,
+    gaussian_blur,
+    jpeg_proxy,
+    jpeg_real,
+    quantize_proxy,
+    quantize_real,
+    default_train_set,
+)
+from src.residual.lowrank import LowRankResidual
+
+DEV = torch.device("cpu")
+SEED = 20260728
+
+
+@pytest.fixture(scope="module")
+def obj():
+    return DefenseObjective(LossConfig(), DEV)
+
+
+def _img(seed=0, size=64):
+    g = torch.Generator().manual_seed(seed)
+    return torch.rand(1, 3, size, size, generator=g)
+
+
+# ------------------------------------------------------------------ 保真項
+
+
+def test_保真項在完全相同時為零(obj):
+    """x_def = x 時 LPIPS=0、SSIM=1、兩道地板都不觸發，總和必須為 0。"""
+    x = _img(1)
+    total, parts = obj.fidelity_term(x, x)
+    assert parts["fid_linf"] == 0.0
+    assert parts["fid_pen_linf"] == 0.0
+    assert parts["fid_pen_psnr"] == 0.0, "完全相同時 PSNR 地板不應觸發"
+    assert abs(float(total)) < 1e-4
+
+
+def test_PSNR地板在低於門檻時才施力(obj):
+    """hinge 的定義：超過門檻不施力，低於才施力。兩側都要驗。"""
+    x = _img(2)
+    good = (x + 0.001 * torch.randn_like(x)).clamp(0, 1)   # 高 PSNR
+    bad = (x + 0.2 * torch.randn_like(x)).clamp(0, 1)      # 低 PSNR
+
+    _, pg = obj.fidelity_term(good, x)
+    _, pb = obj.fidelity_term(bad, x)
+    assert pg["fid_psnr"] > obj.cfg.psnr_floor
+    assert pg["fid_pen_psnr"] == 0.0, "PSNR 高於地板時不得施力"
+    assert pb["fid_psnr"] < obj.cfg.psnr_floor
+    assert pb["fid_pen_psnr"] > 0.0, "PSNR 低於地板時必須施力"
+
+
+def test_Linf地板在超過tau時才施力(obj):
+    x = _img(3)
+    small = (x + 0.5 * obj.cfg.tau_linf).clamp(0, 1)
+    _, ps = obj.fidelity_term(x, x)
+    assert ps["fid_pen_linf"] == 0.0
+
+    big = x.clone()
+    big[0, 0, 0, 0] = (x[0, 0, 0, 0] + 3 * obj.cfg.tau_linf).clamp(0, 1)
+    _, pb = obj.fidelity_term(big, x)
+    assert pb["fid_linf"] > obj.cfg.tau_linf
+    assert pb["fid_pen_linf"] > 0.0
+
+
+def test_保真項對x_def可微(obj):
+    """φ 的梯度必須能穿過保真項，否則兩道地板形同虛設。"""
+    x = _img(4)
+    xd = (x + 0.05 * torch.randn_like(x)).clamp(0, 1).requires_grad_(True)
+    total, _ = obj.fidelity_term(xd, x)
+    total.backward()
+    assert xd.grad is not None and xd.grad.abs().sum() > 0
+
+
+# ------------------------------------------------------------------ 防禦項
+
+
+def test_hinge在偏移超過margin後不再施力(obj):
+    """無界最大化會發散，hinge 是必要設計（spec §5.1）。
+
+    margin 由實測距離推出，不預設「兩張無關的圖 LPIPS 必大於 0.5」——
+    實測兩張獨立均勻雜訊圖的 LPIPS 僅約 0.33，該預設會誤判。
+    """
+    a = _img(5)
+    far = _img(6)
+    d_far = float(obj.distance(far, a))
+    assert d_far > 0, "測試前提：兩張獨立影像的距離須為正"
+
+    below = DefenseObjective(LossConfig(margin=d_far * 0.5), DEV)
+    above = DefenseObjective(LossConfig(margin=d_far * 2.0), DEV)
+
+    assert float(below.defense_term([far], [a])) == 0.0, (
+        "距離已超過 margin，hinge 必須歸零"
+    )
+    saturated = float(above.defense_term([far], [a]))
+    assert saturated == pytest.approx(d_far * 2.0 - d_far, abs=1e-5), (
+        "距離未達 margin 時應為 m − d"
+    )
+
+
+def test_hinge在距離為零時施力最大(obj):
+    a = _img(5)
+    assert float(obj.defense_term([a], [a])) == pytest.approx(obj.cfg.margin, abs=1e-5)
+
+
+def test_防禦項取樣數不符時報錯(obj):
+    a = _img(7)
+    with pytest.raises(ValueError, match="取樣數不符"):
+        obj.defense_term([a, a], [a])
+
+
+def test_edit_shift與L_def分開記錄(obj):
+    """hinge 飽和後 L_def 恆為 0，只看 L_def 會誤判優化停滯。
+
+    故意把 margin 設在實測距離之下，製造出飽和情形，再確認 edit_shift
+    仍記錄得到真實偏移。
+    """
+    x = _img(8)
+    xd = (x + 0.02 * torch.randn_like(x)).clamp(0, 1)
+    far = _img(9)
+    d = float(obj.distance(far, x))
+
+    sat = DefenseObjective(LossConfig(margin=d * 0.5), DEV)
+    _, log = sat(xd, x, [far], [x])
+    assert log["L_def"] == 0.0, "margin 低於實測距離時 hinge 應飽和"
+    assert log["edit_shift"] == pytest.approx(d, abs=1e-5), (
+        "偏移量必須獨立於 hinge 之外被記錄"
+    )
+
+
+# ------------------------------------------------------------------ 淨化
+
+
+def test_淨化必須包含恆等算子():
+    """spec §5.1 明訂 𝒫 含恆等算子，否則訓練目標不含「不淨化」的情形。"""
+    kinds = [p.kind for p in default_train_set()]
+    assert "identity" in kinds
+
+
+def test_恆等算子逐元素不變():
+    x = _img(10)
+    assert torch.equal(Purifier("identity").forward(x), x)
+    assert torch.equal(Purifier("identity").evaluate(x), x)
+
+
+def test_直通估計前向與真實實作完全相同():
+    """代理的設計是「前向真實、反向恆等」，故前向差必須精確為 0。"""
+    x = _img(11)
+    assert torch.equal(quantize_proxy(x, 16), quantize_real(x, 16))
+    assert torch.equal(jpeg_proxy(x, 75), jpeg_real(x, 75))
+    assert Purifier("jpeg", 75).proxy_gap(x) == 0.0
+    assert Purifier("quantize", 16).proxy_gap(x) == 0.0
+
+
+def test_直通估計的梯度為恆等():
+    x = _img(12).requires_grad_(True)
+    quantize_proxy(x, 16).sum().backward()
+    assert torch.allclose(x.grad, torch.ones_like(x)), "直通估計的梯度應為恆等"
+
+
+def test_不可微算子被正確標記():
+    """報告須明列哪些淨化在訓練時用的是代理梯度。"""
+    assert Purifier("blur", 1.0).differentiable
+    assert Purifier("identity").differentiable
+    assert not Purifier("jpeg", 75).differentiable
+    assert not Purifier("quantize", 16).differentiable
+
+
+def test_模糊為可微且強度為零時不變():
+    x = _img(13)
+    assert torch.equal(gaussian_blur(x, 0.0), x)
+    xv = x.clone().requires_grad_(True)
+    gaussian_blur(xv, 1.0).sum().backward()
+    assert xv.grad.abs().sum() > 0
+
+
+def test_模糊保持亮度():
+    """高斯核已正規化，reflect padding 下平坦區的均值不應改變。"""
+    x = torch.full((1, 3, 32, 32), 0.4)
+    assert torch.allclose(gaussian_blur(x, 1.5), x, atol=1e-5)
+
+
+# ------------------------------------------------------------------ 譜診斷
+
+
+@pytest.mark.parametrize("r", [1, 3, 8])
+def test_外積殘差的實測秩等於設定值(r):
+    """site P 的秩有理論保證，此測試是為了抓實作錯誤而非驗證數學。"""
+    t = LowRankResidual(steps=1, channels=3, height=64, width=64, max_rank=8, seed=SEED)
+    with torch.no_grad():
+        t.V.normal_(0, 0.02, generator=torch.Generator().manual_seed(SEED))
+    delta = t(step=0, rank=r)
+    for c in range(delta.shape[0]):
+        assert effective_rank(delta[c]) == r
+
+
+def test_秩判準必須是相對而非絕對():
+    """einsum 的 float32 捨入誤差正比於 σ₁，絕對閾值會隨尺度誤判。
+
+    把殘差整體縮小 1e-6 倍後，秩必須不變；若判準是絕對閾值就會變成 0。
+    """
+    t = LowRankResidual(steps=1, channels=1, height=32, width=32, max_rank=4, seed=SEED)
+    with torch.no_grad():
+        t.V.normal_(0, 0.02, generator=torch.Generator().manual_seed(SEED))
+    d = t(step=0, rank=4)[0]
+    assert effective_rank(d) == 4
+    assert effective_rank(d * 1e-6) == 4, "縮放後秩改變，代表判準用了絕對閾值"
+
+
+def test_能量秩不高於有效秩():
+    """涵蓋 99% 能量所需的秩，必然不超過非零奇異值的個數。"""
+    t = LowRankResidual(steps=1, channels=1, height=32, width=32, max_rank=8, seed=SEED)
+    with torch.no_grad():
+        t.V.normal_(0, 0.02, generator=torch.Generator().manual_seed(SEED))
+    d = t(step=0, rank=8)[0]
+    assert energy_rank(d, 0.99) <= effective_rank(d)
+    assert energy_rank(d, 0.90) <= energy_rank(d, 0.99)
+
+
+def test_clamp破壞site_P的精確秩但保留能量低秩():
+    """spec §7.2 修訂紀錄：x_def−x 的秩不等於 r，clamp 是非線性變換。
+
+    此測試鎖住的是一個曾寫錯的規格敘述，不是一個實作細節。用飽和像素
+    構造出必然觸發 clamp 的情形，確認：精確秩被破壞、能量秩仍為 r。
+    """
+    from src.residual.site_pixel import PixelResidual
+
+    r, n = 2, 64
+    x = torch.rand(1, 3, n, n)
+    x[0, :, :, :8] = 1.0   # 人為製造飽和區，保證 clamp 會作用
+
+    mod = PixelResidual(size=n, channels=3, max_rank=r, const_rank=r, seed=SEED)
+    with torch.no_grad():
+        mod.tensor.V.normal_(0, 0.05, generator=torch.Generator().manual_seed(SEED))
+
+    raw = mod.raw_residual()[0]
+    eff = (mod.pixel_residual(x) - x).detach()[0]
+
+    assert mod.clamped_fraction(x) > 0, "測試前提：必須真的有元素被 clamp"
+    for c in range(3):
+        assert effective_rank(raw[c]) == r, "clamp 前的 Δ 秩必須精確等於 r"
+    assert max(effective_rank(eff[c]) for c in range(3)) > r, (
+        "clamp 後精確秩應被破壞；若此斷言失敗，代表 clamp 未觸發或秩判準有誤"
+    )
+    assert max(energy_rank(eff[c], 0.99) for c in range(3)) <= r + 2, (
+        "clamp 造成的擾動能量極小，99% 能量秩應仍在 r 附近"
+    )
+
+
+def test_零殘差的秩為零():
+    assert effective_rank(torch.zeros(16, 16)) == 0
+    assert energy_rank(torch.zeros(16, 16)) == 0
+
+
+def test_譜分析逐通道且欄位齊全():
+    d = torch.randn(3, 16, 16)
+    a = analyze(d)
+    assert len(a["per_channel"]) == 3
+    assert len(a["effective_rank"]) == 3
+    for spec in a["per_channel"]:
+        assert len(spec["singular_values"]) == 16
+        assert spec["cumulative_energy"][-1] == pytest.approx(1.0, abs=1e-9)

@@ -31,6 +31,7 @@ import matplotlib.pyplot as plt
 from src.metrics.suite import HIGHER_IS_BETTER
 
 SITE_STYLE = {"P": ("tab:blue", "o", "-"), "L": ("tab:red", "s", "--")}
+NL = chr(10)
 
 
 def read_csv(path: Path):
@@ -102,7 +103,12 @@ def _std(vals):
 
 
 def plot_purify(results, out_dir: Path):
-    """E3 淨化強度掃描。每種淨化一張子圖，P 與 L 疊在一起直接對比。"""
+    """E3 淨化強度掃描。每種淨化一張子圖，P 與 L 疊在一起直接對比。
+
+    只取 noise_split == "heldout" 的列。訓練用種子的那一列量的是訓練集
+    表現，混進曲線會把過擬合誤記為防禦效果。
+    """
+    results = [r for r in results if r.get("noise_split", "heldout") == "heldout"]
     kinds = sorted({r["purify"] for r in results})
     if not kinds:
         return
@@ -131,6 +137,36 @@ def plot_purify(results, out_dir: Path):
     fig.tight_layout()
     fig.savefig(out_dir / "purify_sweep.png", dpi=140)
     plt.close(fig)
+
+
+def overfit_table(results, out_dir: Path):
+    """訓練種子 vs 未見種子的偏移差，即對特定噪聲的過擬合幅度。"""
+    tr = [r for r in results if r.get("noise_split") == "train"]
+    ho = [
+        r for r in results
+        if r.get("noise_split") == "heldout"
+        and r["purify"] == "blur" and fnum(r, "strength") == 0.0
+    ]
+    if not tr or not ho:
+        return
+    lines = [
+        "| site | r | 訓練種子偏移 | 未見種子偏移 | 差 | 比值 |",
+        "|---|---|---|---|---|---|",
+    ]
+    for site in sorted({r["site"] for r in tr}):
+        for rk in sorted({int(r["rank"]) for r in tr if r["site"] == site}):
+            a = mean([fnum(r, "edit_lpips") for r in tr
+                      if r["site"] == site and int(r["rank"]) == rk])
+            b = mean([fnum(r, "edit_lpips") for r in ho
+                      if r["site"] == site and int(r["rank"]) == rk])
+            ratio = a / b if b and b == b and b > 0 else float("nan")
+            lines.append(
+                f"| {site} | {rk} | {a:.4f} | {b:.4f} | {a - b:+.4f} "
+                f"| {'—' if ratio != ratio else f'{ratio:.2f}x'} |"
+            )
+    (out_dir / "overfit_table.md").write_text(NL.join(lines), encoding="utf-8")
+    print(NL + "[過擬合幅度：訓練種子 vs 未見種子，identity/無淨化]")
+    print(NL.join(lines))
 
 
 def rank_table(summary, out_dir: Path):
@@ -171,6 +207,7 @@ def main():
     plot_frontier(summary, run)
     if results:
         plot_purify(results, run)
+        overfit_table(results, run)
     rank_table(summary, run)
     print(f"[analyze] 圖表寫入 {run}")
     return 0

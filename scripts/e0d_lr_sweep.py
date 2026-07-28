@@ -13,6 +13,14 @@
 - `monotone_frac`：相鄰步中損失下降的比例
 - `shift_final`：達成的編輯偏移
 
+**`monotone_frac` 有一個已知混淆，判讀時不可單獨採信。** 優化迴圈每步輪替
+使用不同的淨化算子（identity / blur / jpeg，見 `default_train_set`），這是
+spec §5.1 對 𝒫 求期望值的取樣方式。因此相鄰兩步的損失量的是不同淨化條件下
+的值，本來就會震盪，`monotone_frac` 即使在收斂良好時也只在 1/3 附近。實測
+四個 lr 的該值都是 17%~33%，沒有鑑別力。**主要判準應為
+`ratio_final_min`**：發散時該值達 39.6（lr=0.02）與 138（lr=0.05），收斂時
+落在 2~3，區隔明確。
+
 執行：source env.sh && python scripts/e0d_lr_sweep.py --site P --out runs/e0d
 """
 

@@ -155,8 +155,14 @@ def section_e0d(root: Path):
     return (
         "<h2>E0d — 學習率校準</h2>"
         "<p class='src'>來源：<code>runs/e0d/lr_sweep.csv</code>，單張影像、rank=4。</p>"
-        "<p>判準是<strong>總損失是否單調下降</strong>，不是最終偏移大小：偏移大"
+        "<p>判準是<strong>總損失是否收斂</strong>，不是最終偏移大小：偏移大"
         "但損失發散的設定不可用，那代表結果由隨機遊走決定而非優化。</p>"
+        "<div class='warn'><strong>判準的已知混淆</strong>：優化每步輪替使用不同"
+        "淨化算子（identity / blur / jpeg），這是 spec §5.1 對 𝒫 求期望值的取樣"
+        "方式，因此相鄰步的損失量的是不同條件下的值，本來就會震盪。"
+        "<code>單調下降比例</code>即使收斂良好也只在 1/3 附近，四個 lr 全落在"
+        " 17%~33%，沒有鑑別力。主要判準取 <code>終/最低</code>：發散時為 39.6"
+        "與 138，收斂時為 2~3。</div>"
         + table(
             ["site", "lr", "loss 起", "loss 終", "loss 最低", "終/最低",
              "單調下降比例", "偏移", "PSNR"],

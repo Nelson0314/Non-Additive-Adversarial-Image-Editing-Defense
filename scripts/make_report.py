@@ -234,6 +234,31 @@ def section_e2(root: Path, run_name: str):
             "三種結果都是可發表的發現。</p>"
         )
 
+        # E3 淨額數值表。曲線看得出趨勢，但 §7.4 的因果判斷要引用數字。
+        ho = [r for r in results if r.get("noise_split") == "heldout"]
+        if ho:
+            for kind in sorted({r["purify"] for r in ho}):
+                sub = [r for r in ho if r["purify"] == kind]
+                strengths = sorted({fnum(r, "strength") for r in sub})
+                sites = sorted({r["site"] for r in sub})
+                rks = sorted({int(r["rank"]) for r in sub})
+                body = []
+                for site in sites:
+                    for rk in rks:
+                        row = [f"{site} r={rk}"]
+                        for st in strengths:
+                            sel = [
+                                r for r in sub
+                                if r["site"] == site and int(r["rank"]) == rk
+                                and fnum(r, "strength") == st
+                            ]
+                            row.append(mean([fnum(r, "net_lpips") for r in sel]))
+                        body.append(row)
+                parts.append(f"<h4>net shift — {html.escape(kind)}</h4>")
+                parts.append(
+                    table(["site / r"] + [f"{s:g}" for s in strengths], body)
+                )
+
         ot = run / "overfit_table.md"
         if ot.exists():
             parts.append("<h3>對特定噪聲的過擬合幅度</h3>")

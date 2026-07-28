@@ -30,7 +30,11 @@ import matplotlib.pyplot as plt
 
 from src.metrics.suite import HIGHER_IS_BETTER
 
-SITE_STYLE = {"P": ("tab:blue", "o", "-"), "L": ("tab:red", "s", "--")}
+SITE_STYLE = {
+    "P": ("tab:blue", "o", "-"),
+    "L": ("tab:red", "s", "--"),
+    "LA": ("tab:green", "^", "-."),
+}
 NL = chr(10)
 
 

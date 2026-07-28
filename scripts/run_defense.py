@@ -33,6 +33,7 @@ from src.metrics.suite import MetricSuite
 from src.models.sd import SDWrapper
 from src.purify.ops import Purifier, default_train_set, eval_sweep
 from src.residual.site_latent import LatentResidual
+from src.residual.site_latent_anchored import AnchoredLatentResidual
 from src.residual.site_pixel import PixelResidual
 from src.utils.artifacts import (
     save_history_plot,
@@ -73,9 +74,10 @@ def build_module(site: str, rank: int, cfg: OptimConfig, sd, size: int, seed: in
         return PixelResidual(
             size=size, channels=3, max_rank=rank, const_rank=rank, seed=seed
         )
-    if site == "L":
+    if site in ("L", "LA"):
         lat = sd.latent_shape(size, size)
-        return LatentResidual(
+        cls = LatentResidual if site == "L" else AnchoredLatentResidual
+        return cls(
             steps=cfg.k_inv, channels=lat[1], size=lat[-1],
             max_rank=rank, const_rank=rank, seed=seed,
         )

@@ -39,6 +39,10 @@ def main():
     ap.add_argument("--out", default="runs/e0c")
     ap.add_argument("--size", type=int, default=512)
     ap.add_argument("--k_list", default="0,2,5,10,20,30,50")
+    ap.add_argument(
+        "--t_max_list", default="999",
+        help="inversion 的 timestep 上限。999 為全域，較小者為部分 inversion",
+    )
     ap.add_argument("--prompt_def", default="")
     args = ap.parse_args()
 
@@ -46,6 +50,7 @@ def main():
     out.mkdir(parents=True, exist_ok=True)
     device = get_device()
     ks = [int(v) for v in args.k_list.split(",")]
+    t_maxes = [int(v) for v in args.t_max_list.split(",")]
 
     sd = SDWrapper(args.model)
     suite = MetricSuite(device=device)
@@ -54,7 +59,7 @@ def main():
     import torchvision.transforms as T
 
     paths = sorted(Path(args.data).rglob("*.png"))
-    print(f"[E0c] {len(paths)} 張影像，k_inv ∈ {ks}")
+    print(f"[E0c] {len(paths)} 張影像，k_inv ∈ {ks}，t_max ∈ {t_maxes}")
 
     rows = []
     for p in paths:
@@ -62,28 +67,33 @@ def main():
         x = T.ToTensor()(img).unsqueeze(0).to(device)
         emb = sd.encode_text(args.prompt_def).detach()
 
-        for k in ks:
+        # (t_max, k_inv) 的量測清單。k=0 只走 VAE 來回，與 t_max 無關，
+        # 故只量一次並標記 t_max=0，避免在每個 t_max 底下重複同一個數字。
+        combos = [(0, 0)] if 0 in ks else []
+        combos += [(tm, k) for tm in t_maxes for k in ks if k > 0]
+
+        for tm, k in combos:
             with torch.no_grad():
                 z0 = sd.encode_image(x)
                 if k == 0:
-                    # k=0 只走 VAE 來回，用以分離 VAE 誤差與 inversion 誤差
                     xr = sd.decode_latent(z0)
                 else:
-                    ts = sd.timesteps(k)
+                    ts = sd.timesteps(k, t_max=tm)
                     z_inv = sd.ddim_inversion(z0, emb, ts, k)
                     z_back, _ = sd.denoise(z_inv, emb, ts, k, eps_hook=None)
                     xr = sd.decode_latent(z_back)
 
             m = suite.pairwise(x, xr)
             m["niqe_recon"] = suite.niqe(xr)
-            rows.append({"image": p.stem, "k_inv": k, **m})
+            rows.append({"image": p.stem, "k_inv": k, "t_max": tm, **m})
             print(
-                f"[E0c] {p.stem:<12s} k={k:>2d}  psnr={m['psnr']:>6.2f}  "
-                f"lpips={m['lpips']:.4f}  ssim={m['ssim']:.4f}  linf={m['linf']:.4f}",
+                f"[E0c] {p.stem:<12s} t_max={tm:>4d} k={k:>2d}  "
+                f"psnr={m['psnr']:>6.2f}  lpips={m['lpips']:.4f}  "
+                f"ssim={m['ssim']:.4f}  linf={m['linf']:.4f}",
                 flush=True,
             )
             if p.stem == paths[0].stem:
-                save_image(xr, out / f"recon_k{k:02d}.png")
+                save_image(xr, out / f"recon_t{tm:04d}_k{k:02d}.png")
 
         if p.stem == paths[0].stem:
             save_image(x, out / "orig.png")
@@ -93,13 +103,18 @@ def main():
         w.writeheader()
         w.writerows(rows)
 
-    print("\n[E0c] 各 k_inv 的平均（n = %d 張）" % len(paths))
-    print(f"{'k_inv':>6} {'PSNR':>8} {'LPIPS':>8} {'SSIM':>8} {'Linf':>8}")
-    for k in ks:
-        sel = [r for r in rows if r["k_inv"] == k]
+    print(f"\n[E0c] 各 (t_max, k_inv) 的平均（n = {len(paths)} 張）")
+    print(f"{'t_max':>6} {'k_inv':>6} {'PSNR':>8} {'LPIPS':>8} {'SSIM':>8} {'Linf':>8}")
+    seen = []
+    for r in rows:
+        key = (r["t_max"], r["k_inv"])
+        if key not in seen:
+            seen.append(key)
+    for tm, k in seen:
+        sel = [r for r in rows if r["t_max"] == tm and r["k_inv"] == k]
         n = len(sel)
         print(
-            f"{k:>6} {sum(r['psnr'] for r in sel) / n:>8.2f} "
+            f"{tm:>6} {k:>6} {sum(r['psnr'] for r in sel) / n:>8.2f} "
             f"{sum(r['lpips'] for r in sel) / n:>8.4f} "
             f"{sum(r['ssim'] for r in sel) / n:>8.4f} "
             f"{sum(r['linf'] for r in sel) / n:>8.4f}"

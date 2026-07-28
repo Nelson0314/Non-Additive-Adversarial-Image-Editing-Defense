@@ -134,6 +134,10 @@ def main():
     ap.add_argument("--steps", type=int, default=60)
     ap.add_argument("--lr", type=float, default=0.05)
     ap.add_argument("--k_inv", type=int, default=10)
+    ap.add_argument(
+        "--t_max", type=int, default=None,
+        help="inversion timestep 上限。依 E0c 的重建地板量測結果指定",
+    )
     ap.add_argument("--n_edit", type=int, default=10)
     ap.add_argument("--n_eot", type=int, default=1)
     ap.add_argument("--strength", type=float, default=0.5)
@@ -173,6 +177,7 @@ def main():
 
                 cfg = OptimConfig(
                     steps=args.steps, lr=args.lr, k_inv=args.k_inv,
+                    t_max=args.t_max,
                     n_edit=args.n_edit, n_eot=args.n_eot, strength=args.strength,
                     prompt_def=args.prompt_def, prompt_edit=prompt, seed=args.seed,
                 )
@@ -259,6 +264,7 @@ def main():
     env = {
         "model": args.model, "size": args.size, "sites": sites, "ranks": ranks,
         "steps": args.steps, "lr": args.lr, "k_inv": args.k_inv,
+        "t_max": args.t_max,
         "n_edit": args.n_edit, "n_eot": args.n_eot, "strength": args.strength,
         "seed": args.seed, "prompt_def": args.prompt_def,
         "n_images": len(images), "torch": torch.__version__,

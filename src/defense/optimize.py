@@ -30,6 +30,7 @@ class OptimConfig:
     steps: int = 100
     lr: float = 0.05
     k_inv: int = 10
+    t_max: Optional[int] = None   # inversion 的 timestep 上限，見 E0c
     n_edit: int = 10
     n_eot: int = 1              # 每步的 (淨化, 噪聲) 取樣數
     strength: float = 0.5
@@ -65,7 +66,7 @@ def optimize(
     這省下每步一條 n_edit 長度的無梯度 UNet 鏈。
     """
     device = x01.device
-    gen = DefenseGenerator(sd, module, k_inv=cfg.k_inv)
+    gen = DefenseGenerator(sd, module, k_inv=cfg.k_inv, t_max=cfg.t_max)
     obj = DefenseObjective(loss_cfg, device)
     opt = torch.optim.Adam(module.parameters(), lr=cfg.lr)
 

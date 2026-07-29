@@ -68,18 +68,27 @@ def load_images(root: Path, size: int, device, limit=None):
     return out[:limit] if limit else out
 
 
-def build_module(site: str, rank: int, cfg: OptimConfig, sd, size: int, seed: int):
-    """依 site 建立殘差模塊。max_rank 直接取 rank：每格獨立訓練，不共用參數。"""
+def build_module(
+    site: str, rank: int, cfg: OptimConfig, sd, size: int, seed: int,
+    scale: float = 1.0,
+):
+    """依 site 建立殘差模塊。max_rank 直接取 rank：每格獨立訓練，不共用參數。
+
+    `scale` 是注入殘差的固定倍率，不參與優化。site L/LA 的殘差加在 ε̂ 上，
+    而 ε̂ 的量級約為 1；實測 scale=1 時 φ 造成的像素改變比重建誤差小
+    20~36 倍（RMS），完全量不到。此參數即為 §3.7 建議 0 要掃的旋鈕。
+    """
     if site == "P":
         return PixelResidual(
-            size=size, channels=3, max_rank=rank, const_rank=rank, seed=seed
+            size=size, channels=3, max_rank=rank, const_rank=rank,
+            seed=seed, scale=scale,
         )
     if site in ("L", "LA"):
         lat = sd.latent_shape(size, size)
         cls = LatentResidual if site == "L" else AnchoredLatentResidual
         return cls(
             steps=cfg.k_inv, channels=lat[1], size=lat[-1],
-            max_rank=rank, const_rank=rank, seed=seed,
+            max_rank=rank, const_rank=rank, seed=seed, scale=scale,
         )
     raise ValueError(f"未實作的 site {site!r}（site W 見 spec §4.3，尚未實作）")
 
@@ -183,6 +192,11 @@ def main():
     )
     ap.add_argument("--n_edit", type=int, default=10)
     ap.add_argument("--n_eot", type=int, default=1)
+    ap.add_argument(
+        "--scales", default="1.0",
+        help="殘差注入倍率，逗號分隔可掃描。site L/LA 於 scale=1 時 φ 的"
+             "效果比重建誤差小 20~36 倍（見 NIGHT_RUN §3.7）",
+    )
     ap.add_argument("--strength", type=float, default=0.5)
     ap.add_argument("--seed", type=int, default=20260728)
     ap.add_argument("--limit", type=int, default=None, help="只跑前 N 張影像")
@@ -195,6 +209,7 @@ def main():
     device = get_device()
     sites = [s.strip() for s in args.sites.split(",")]
     ranks = [int(r) for r in args.ranks.split(",")]
+    scales = [float(v) for v in args.scales.split(",")]
 
     print(f"[run] device={device} sites={sites} ranks={ranks} steps={args.steps}")
     sd = SDWrapper(args.model)
@@ -212,8 +227,11 @@ def main():
 
     for name, x01, prompt in images:
         for site in sites:
+          for scale in scales:
             for rank in ranks:
                 tag = f"{name}__{site}__r{rank}"
+                if len(scales) > 1:
+                    tag += f"__s{scale:g}"
                 cell = out / tag
                 cell.mkdir(parents=True, exist_ok=True)
                 print(f"\n[run] {tag}  prompt={prompt!r}", flush=True)
@@ -224,7 +242,9 @@ def main():
                     n_edit=args.n_edit, n_eot=args.n_eot, strength=args.strength,
                     prompt_def=args.prompt_def, prompt_edit=prompt, seed=args.seed,
                 )
-                module = build_module(site, rank, cfg, sd, args.size, args.seed).to(device)
+                module = build_module(
+                    site, rank, cfg, sd, args.size, args.seed, scale=scale
+                ).to(device)
 
                 reset_peak_memory()
                 res = optimize(sd, module, x01, cfg, loss_cfg, purifiers)
@@ -270,7 +290,8 @@ def main():
 
                 last = res.history[-1]
                 base = {
-                    "image": name, "site": site, "rank": rank, "prompt": prompt,
+                    "image": name, "site": site, "rank": rank, "scale": scale,
+                    "prompt": prompt,
                     "steps": cfg.steps, "k_inv": cfg.k_inv, "n_edit": cfg.n_edit,
                     "n_eot": cfg.n_eot, "seconds": round(res.seconds, 1),
                     "peak_mb": round(peak, 1), "residual_gain": round(gain, 2),
@@ -317,6 +338,7 @@ def main():
     env = {
         "model": args.model, "size": args.size, "sites": sites, "ranks": ranks,
         "steps": args.steps, "lr": args.lr, "k_inv": args.k_inv,
+        "scales": scales,
         "t_max": args.t_max,
         "n_edit": args.n_edit, "n_eot": args.n_eot, "strength": args.strength,
         "seed": args.seed, "prompt_def": args.prompt_def,

@@ -187,6 +187,12 @@ def main():
         help="rotate=每步一個淨化算子輪替（原始行為）；"
              "all=每步對全部算子求梯度後平均，成本乘以算子數",
     )
+    ap.add_argument(
+        "--align_steps", type=int, default=0,
+        help="階段一（保真對齊）的步數。先訓練 φ 使 G(x;φ) 逼近 x，"
+             "再以該 φ 熱啟動防禦訓練。0 表示不執行（既有行為）",
+    )
+    ap.add_argument("--align_lr", type=float, default=0.008)
     ap.add_argument("--strength", type=float, default=0.5)
     ap.add_argument("--seed", type=int, default=20260728)
     ap.add_argument("--limit", type=int, default=None, help="只跑前 N 張影像")
@@ -227,6 +233,7 @@ def main():
                     t_max=args.t_max,
                     n_edit=args.n_edit, n_eot=args.n_eot, strength=args.strength,
                     purify_mode=args.purify_mode,
+                    align_steps=args.align_steps, align_lr=args.align_lr,
                     prompt_def=args.prompt_def, prompt_edit=prompt, seed=args.seed,
                 )
                 module = build_module(site, rank, cfg, sd, args.size, args.seed).to(device)
@@ -238,10 +245,14 @@ def main():
                 # ---- spec §8.3 產出留存 ----
                 save_image(x01, cell / "orig.png")
                 save_image(res.x_def, cell / "defended.png")
-                # x_base = G(x; φ=0)：該 site 未施加防禦時就已產生的圖。
-                # 留存它，讀者才分得清哪些失真來自防禦、哪些來自重建。
+                # baseline_phi0.png 恆為 G(x; φ=0)，即該位置未施加任何防禦時
+                # 就已產生的圖；留存它，讀者才分得清哪些失真來自防禦、哪些來自
+                # 重建。跑過階段一後 res.x_base 是 G(x; φ_align)，與 φ=0 是
+                # 兩張不同的圖，故分開存，檔名各自對應其實際內容。
+                if res.x_base0 is not None:
+                    save_image(res.x_base0, cell / "baseline_phi0.png")
                 if res.x_base is not None:
-                    save_image(res.x_base, cell / "baseline_phi0.png")
+                    # 防禦本身造成的殘差：相對於防禦訓練時實際採用的保真基準
                     save_residual(res.x_def - res.x_base, cell / "residual_phi.png")
                 delta = res.x_def - x01
                 gain = save_residual(delta, cell / "residual.png")
@@ -280,11 +291,26 @@ def main():
                 if res.x0_trace:
                     save_x0_trace(res.x0_trace, sd, cell / "x0_trace")
 
+                # 階段一的產物與逐步記錄。x_base 在執行階段一後是
+                # G(x; φ_align)，與 x_base0 = G(x; φ=0) 是兩張不同的圖，
+                # 兩者都留存，否則無法判斷階段一到底吸收掉多少重建誤差。
+                if res.align_history:
+                    save_json(res.align_history, cell / "align_history.json")
+                    save_image(res.x_base, cell / "aligned_phi.png")
+
+                a_last = res.align_history[-1] if res.align_history else None
                 last = res.history[-1]
                 base = {
                     "image": name, "site": site, "rank": rank, "prompt": prompt,
                     "steps": cfg.steps, "k_inv": cfg.k_inv, "n_edit": cfg.n_edit,
                     "n_eot": cfg.n_eot, "seconds": round(res.seconds, 1),
+                    "purify_mode": cfg.purify_mode,
+                    "align_steps": cfg.align_steps,
+                    "align_seconds": round(res.align_seconds, 1),
+                    # 階段一結束時 G(x; φ_align) 相對原圖的重建品質。這兩個
+                    # 數字就是「低秩注入有沒有足夠容量吸收重建誤差」的答案。
+                    "align_lpips": a_last["fid_lpips"] if a_last else "",
+                    "align_psnr": a_last["fid_psnr_total"] if a_last else "",
                     "peak_mb": round(peak, 1), "residual_gain": round(gain, 2),
                     "eff_rank_mean": _mean(spec_an["effective_rank"]),
                     "energy_rank_99_mean": _mean(spec_an["energy_rank_99"]),

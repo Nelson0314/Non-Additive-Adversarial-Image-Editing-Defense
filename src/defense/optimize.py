@@ -42,6 +42,23 @@ class OptimConfig:
     # 三個互相衝突的梯度訊號輪流覆寫，而非求其共同下降方向；25 步分給三個
     # 算子，每個只有約 8 次更新。成本為每步時間乘以算子數。
     purify_mode: str = "rotate"
+
+    # ---- 階段一：保真對齊 ----
+    # 先訓練 φ 使 G(x; φ) 逼近 x，再以該 φ 熱啟動防禦訓練。
+    #
+    # 借鑑 APA（arXiv 2506.01511）「先立保真、再訓攻擊」的順序，其餘不同：
+    # APA 在 UNet 另掛一組 LoRA、以噪聲空間的 ‖ε − ε̂‖² 訓練、階段二凍結它；
+    # 此處不加任何新模組，就用同一組 φ，損失直接是影像空間的 L_fid(G(x;φ), x)。
+    # 我們的 G 是固定長度的可微 DDIM 鏈，能端對端反傳到輸出影像本身，不需要
+    # 噪聲空間的代理量。兩階段之間只重置 Adam 狀態，不換參數集。
+    #
+    # 動機是實測結果：latent 注入的 φ=0 對照與訓練 25 步的結果在每個淨化條件
+    # 下都相同到小數點後三位，而該位置的重建誤差比 φ 的效果大 20–36 倍。
+    # 若階段一能把重建誤差吸收掉，階段二的注入才有可能不被淹沒。
+    #
+    # align_steps = 0 表示不執行階段一（既有行為，保留可比性）。
+    align_steps: int = 0
+    align_lr: float = 0.008
     strength: float = 0.5
     prompt_def: str = ""        # 防禦生成的 prompt，spec §1.1 要求也測空 prompt
     prompt_edit: str = "a photo"
@@ -70,10 +87,69 @@ def eot_pairs(mode: str, step: int, n_eot: int, n_purifiers: int) -> List[tuple]
 class OptimResult:
     history: List[Dict] = field(default_factory=list)
     x_def: Optional[torch.Tensor] = None
-    x_base: Optional[torch.Tensor] = None   # G(x; φ=0)，該 site 的保真地板
+    # 防禦訓練所用的保真基準。未執行階段一時為 G(x; φ=0)；執行後為
+    # G(x; φ_align)，即階段一結束時該位置實際能做到的重建。
+    x_base: Optional[torch.Tensor] = None
+    x_base0: Optional[torch.Tensor] = None  # 恆為 G(x; φ=0)，作為對照保留
     x0_trace: List[torch.Tensor] = field(default_factory=list)
+    align_history: List[Dict] = field(default_factory=list)
+    align_seconds: float = 0.0
     seconds: float = 0.0
     steps_done: int = 0
+
+
+def align(
+    sd: SDWrapper,
+    module: ResidualModule,
+    x01: torch.Tensor,
+    cfg: OptimConfig,
+    loss_cfg: LossConfig,
+    gen: DefenseGenerator,
+) -> tuple[torch.Tensor, List[Dict]]:
+    """階段一：訓練 φ 使 G(x; φ) 逼近 x。回傳 (x_align, history)。
+
+    損失直接沿用 `fidelity_term(G(x;φ), x, x_base=None)`，即對原圖的絕對
+    保真度。刻意與階段二共用同一個保真度定義：若兩階段用不同的保真概念，
+    階段一達成的「像原圖」到了階段二可能不算數。
+
+    `x_base=None` 使兩道 hinge 的對象為原圖本身。hinge 在容差內不施力是
+    此處要的行為——對齊到 τ 以內即停止，不必把重建誤差壓到零。
+
+    **這個階段可能失敗**，而失敗本身是結果：低秩 ε 注入未必有足夠容量吸收
+    VAE 與 DDIM 的重建誤差。回傳的 history 記錄逐步的 LPIPS 與 PSNR，
+    呼叫端據此判斷容量是否足夠，不得假設對齊必然成功。
+    """
+    obj = DefenseObjective(loss_cfg, x01.device)
+    opt = torch.optim.Adam(module.parameters(), lr=cfg.align_lr)
+    history: List[Dict] = []
+
+    for step in range(cfg.align_steps):
+        opt.zero_grad(set_to_none=True)
+        ctx = gen.prepare(x01, prompt_def=cfg.prompt_def)
+        x_gen = gen.generate(x01, ctx, use_ckpt=cfg.unet_ckpt,
+                             vae_ckpt=cfg.vae_ckpt)
+        loss, parts = obj.fidelity_term(x_gen, x01, x_base=None)
+        loss.backward()
+        if cfg.grad_clip > 0:
+            torch.nn.utils.clip_grad_norm_(module.parameters(), cfg.grad_clip)
+        opt.step()
+
+        parts["step"] = step
+        parts["align_loss"] = float(loss)
+        history.append(parts)
+        if step % cfg.log_every == 0 or step == cfg.align_steps - 1:
+            print(f"  [align] step {step:>4d}  loss={float(loss):.4f}  "
+                  f"lpips={parts['fid_lpips']:.4f}  "
+                  f"psnr={parts['fid_psnr_total']:.2f}", flush=True)
+
+        del x_gen, loss
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+
+    with torch.no_grad():
+        ctx = gen.prepare(x01, prompt_def=cfg.prompt_def)
+        x_align = gen.generate(x01, ctx).detach()
+    return x_align, history
 
 
 def optimize(
@@ -119,12 +195,31 @@ def optimize(
         module.disable()
         try:
             ctx0 = gen.prepare(x01, prompt_def=cfg.prompt_def)
-            x_base = gen.generate(x01, ctx0).detach()
+            x_base0 = gen.generate(x01, ctx0).detach()
         finally:
             if was_enabled:
                 module.enable()
 
-    result = OptimResult()
+    result = OptimResult(x_base0=x_base0)
+    x_base = x_base0
+
+    # ---- 階段一：保真對齊 ----
+    if cfg.align_steps > 0:
+        if torch.equal(x_base0, x01):
+            # G(x; φ=0) 已逐元素等於原圖，沒有重建誤差可吸收。以數值判定而非
+            # 依 site 名稱分支：判準是「這個位置有沒有重建誤差」，不是「這是
+            # 哪個 site」，將來新增位置不必改這裡。
+            print("  [align] G(x; φ=0) 已逐元素等於 x，略過階段一", flush=True)
+        else:
+            ta = time.perf_counter()
+            x_base, result.align_history = align(
+                sd, module, x01, cfg, loss_cfg, gen)
+            result.align_seconds = time.perf_counter() - ta
+            # 保真基準改為階段一實際達成的重建。階段一若成功，x_base ≈ x，
+            # 相對 hinge 與絕對 hinge 自然合流；若失敗，x_base 仍是誠實的
+            # 基準，不會把階段一沒解決的重建誤差算到防禦頭上。
+            opt = torch.optim.Adam(module.parameters(), lr=cfg.lr)
+
     t0 = time.perf_counter()
 
     for step in range(cfg.steps):

@@ -14,7 +14,10 @@ import pytest
 import torch
 
 from src.defense.generator import DefenseGenerator
+from src.defense.objective import LossConfig
+from src.defense.optimize import OptimConfig, align, optimize
 from src.models.sd import SDWrapper
+from src.purify.ops import default_train_set
 from src.residual.site_latent import LatentResidual
 from src.residual.site_pixel import PixelResidual
 from src.utils.device import get_device
@@ -363,3 +366,74 @@ def test_const排程每步相同(sd):
         schedule="const", const_rank=3,
     ).to(DEV).rank_trace(ts, 4)
     assert trace == [3, 3, 3, 3]
+
+
+# ------------------------------------------------------- 階段一：保真對齊
+
+
+def _cfg(**kw):
+    base = dict(steps=1, k_inv=2, n_edit=2, n_eot=1, lr=0.01,
+                align_steps=2, align_lr=0.05, log_every=100, seed=SEED)
+    base.update(kw)
+    return OptimConfig(**base)
+
+
+def _latent_module(sd, steps):
+    lat = _latent(sd)
+    return LatentResidual(
+        steps=steps, channels=lat[1], size=lat[-1], max_rank=4,
+        const_rank=4, seed=SEED,
+    ).to(DEV)
+
+
+def test_階段一會改變phi且記錄每一步(sd, x01):
+    """階段一是一段真的優化，不是佔位。
+
+    只驗結構性質——步數、φ 有動、每步都有記錄。不驗「重建誤差一定下降」：
+    tiny-SD 是隨機初始化的測試模型，其上的收斂行為不能代表真實 SD，
+    在這裡斷言收斂會得到一個看起來會過但沒有意義的測試。
+    """
+    cfg = _cfg()
+    mod = _latent_module(sd, cfg.k_inv)
+    gen = DefenseGenerator(sd, mod, k_inv=cfg.k_inv)
+    before = mod.tensor.V.detach().clone()
+
+    x_align, hist = align(sd, mod, x01, cfg, LossConfig(), gen)
+
+    assert len(hist) == cfg.align_steps, "每一步都必須留下記錄"
+    assert all("fid_lpips" in h and "fid_psnr_total" in h for h in hist), \
+        "必須記錄重建品質，呼叫端據此判斷容量是否足夠"
+    assert not torch.equal(mod.tensor.V, before), "φ 必須真的被更新"
+    assert x_align.shape == x01.shape
+    assert torch.isfinite(x_align).all()
+
+
+def test_階段一後保真基準改為對齊結果(sd, x01):
+    """x_base 必須是 G(x; φ_align) 而非 G(x; φ=0)。
+
+    若仍用 φ=0 的重建當基準，階段一好不容易吸收掉的重建誤差會被當成
+    「防禦可以自由使用的預算」，保真度約束等於被放寬了。
+    """
+    cfg = _cfg()
+    mod = _latent_module(sd, cfg.k_inv)
+    res = optimize(sd, mod, x01, cfg, LossConfig(), default_train_set())
+
+    assert res.x_base0 is not None and res.x_base is not None
+    assert len(res.align_history) == cfg.align_steps
+    assert not torch.equal(res.x_base, res.x_base0), \
+        "階段一改動了 φ，保真基準必須跟著改為對齊後的重建"
+
+
+def test_無重建誤差時略過階段一(sd, x01):
+    """site P 的 G(x; φ=0) 逐元素等於 x，沒有東西可對齊。
+
+    判準是數值上「這個位置有沒有重建誤差」，不是 site 名稱，故以
+    x_base0 與 x 是否相等來決定，將來新增注入位置不需改動這段邏輯。
+    """
+    cfg = _cfg()
+    mod = PixelResidual(size=SIZE, max_rank=4, const_rank=4, seed=SEED).to(DEV)
+    res = optimize(sd, mod, x01, cfg, LossConfig(), default_train_set())
+
+    assert torch.equal(res.x_base0, x01), "site P 的 φ=0 輸出必須等於原圖"
+    assert res.align_history == [], "沒有重建誤差時階段一必須被略過"
+    assert res.align_seconds == 0.0

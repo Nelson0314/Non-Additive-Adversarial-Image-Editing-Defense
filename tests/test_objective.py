@@ -105,6 +105,65 @@ def test_防禦造成的下降仍會觸發hinge(obj):
     assert p["fid_pen_psnr"] > 0.0
 
 
+def test_LPIPS地板在超過tau時才施力(obj):
+    """綁定約束改為感知指標後的 hinge 定義。
+
+    不預設「某個擾動幅度會落在 τ 的哪一側」——先前有測試因為假設兩張隨機
+    影像的 LPIPS 會大於 0.5（實測 0.33）而誤報失敗。此處改為先量測再驗
+    hinge 與量測值的一致性，最後檢查兩側都真的被涵蓋到，否則測試是空的。
+    """
+    x = _img(30)
+    seen_below = seen_above = False
+    for scale in (0.0, 0.005, 0.05, 0.3):
+        xd = (x + scale * torch.randn_like(x)).clamp(0, 1)
+        _, p = obj.fidelity_term(xd, x)
+        if p["fid_lpips_rel"] <= obj.cfg.tau_lpips:
+            assert p["fid_pen_lpips"] == 0.0, "低於 τ 時不得施力"
+            seen_below = True
+        else:
+            assert p["fid_pen_lpips"] == pytest.approx(
+                p["fid_lpips_rel"] - obj.cfg.tau_lpips, abs=1e-6
+            ), "超過 τ 時施力量必須等於超出量"
+            seen_above = True
+    assert seen_below and seen_above, "掃描未涵蓋 τ 兩側，測試沒有鑑別力"
+
+
+def test_LPIPS地板同樣以x_base為對象(obj):
+    """與 L∞、PSNR 兩道 hinge 一致：量的是防禦加了多少，不是與原圖差多少。
+
+    若這道 hinge 誤用原圖為對象，site L 那種 x_base 本身就遠離 x 的情形會
+    讓 hinge 恆為啟動、φ 無法改善，重演 spec §5.2 修訂前的失敗。
+    """
+    x = _img(31)
+    x_base = (x + 0.25 * torch.randn_like(x)).clamp(0, 1)   # 模擬重建誤差
+    _, p = obj.fidelity_term(x_base, x, x_base=x_base)
+
+    assert p["fid_lpips_rel"] == 0.0, "x_def 等於 x_base 時防禦造成的感知差異必為 0"
+    assert p["fid_pen_lpips"] == 0.0
+    # 對原圖的絕對感知距離仍須照實記錄
+    assert p["fid_lpips"] > obj.cfg.tau_lpips
+
+
+def test_PSNR地板預設不參與梯度但仍記錄(obj):
+    """修訂之二把 gamma_psnr 設為 0：保留量測與記錄，不影響優化方向。
+
+    同時驗證係數可一行復原——這是保留該項而非刪除的唯一理由。
+    """
+    x = _img(32)
+    xd = (x + 0.2 * torch.randn_like(x)).clamp(0, 1)
+
+    total_off, p = obj.fidelity_term(xd, x)
+    assert p["fid_pen_psnr"] > 0.0, "PSNR 低於地板，量測值必須照實記錄"
+    assert obj.cfg.gamma_psnr == 0.0, "預設不參與梯度"
+
+    revived = DefenseObjective(LossConfig(gamma_psnr=1.0), DEV)
+    total_on, _ = revived.fidelity_term(xd, x)
+    assert float(total_on) > float(total_off), "改回 1.0 後該項必須重新生效"
+    assert float(total_on) - float(total_off) == pytest.approx(
+        p["fid_pen_psnr"], abs=1e-3
+    )
+
+
 def test_保真項對x_def可微(obj):
     """φ 的梯度必須能穿過保真項，否則兩道地板形同虛設。"""
     x = _img(4)

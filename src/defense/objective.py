@@ -44,6 +44,33 @@ person_00（31.01）又完全不施力。改以 `PSNR(x_def, x_base)` 為對象�
 遠比 PSNR 穩定。這與 v2 的發現方向相反但不矛盾——v2 說的是 LPIPS 會
 **低估**非加性失真，此處說的是 LPIPS 對重建誤差的**跨影像變異**較小。
 兩者都支持「不得只報單一指標」。
+
+**相對 spec §5.2 的修訂之二（2026-07-29，改用感知指標作為綁定約束）**：
+
+    修訂前（本檔 line 173-180）
+        pen_psnr = max(0, psnr_floor − PSNR(x_def, x_base))    psnr_floor = 34 dB
+        total    = lpips + α(1−ssim) + β·pen_linf + γ·pen_psnr  γ = 1.0
+
+    修訂後
+        pen_lpips = max(0, LPIPS(x_def, x_base) − τ_lpips)      τ_lpips = 0.05
+        total     = lpips + α(1−ssim) + β·pen_linf + γ_l·pen_lpips + γ·pen_psnr
+                                                                γ_l = 100.0, γ = 0.0
+
+理由：PSNR 是逐像素平方誤差，與人眼可辨性的關聯薄弱，作為「防禦不得
+被看出來」的綁定約束並不適當。上一段記錄的量測正是直接證據——同一組
+影像的 PSNR 重建地板跨影像相差 11.4 dB，LPIPS 地板卻只由 0.157 到
+0.210。改以 LPIPS(x_def, x_base) 為綁定 hinge，量的是「防禦本身造成
+多少感知可辨的改變」。
+
+**L∞ hinge 不移除**：v2 的實測（本檔 line 22-24）顯示 LPIPS 會低估
+非加性失真，單以 LPIPS 為約束會留下與當初導入硬地板時相同的漏洞。
+L∞ 抓得到 LPIPS 平均掉的局部爆點，兩者並用。
+
+PSNR hinge 改為 γ = 0.0，即**保留計算與記錄但不參與梯度**。刪掉會失去
+與既有 36 格結果的對照基準；留著係數則可一行復原。
+
+γ_l = 100.0 與 β_linf 同量級：兩者的對象都在 [0,1] 尺度，而防禦項的
+上限僅 margin = 0.5，故超出 τ 後的懲罰必須足以壓過防禦項才構成地板。
 """
 
 from dataclasses import dataclass, field
@@ -68,14 +95,18 @@ class LossConfig:
     # 保真項
     alpha_ssim: float = 1.0
     beta_linf: float = 100.0
-    gamma_psnr: float = 1.0
     tau_linf: float = 0.06     # ≈ 15/255，對抗擾動文獻的常見上限量級
 
-    # psnr_floor 的對象是 PSNR(x_def, x_base)，即「防禦讓 PSNR 掉了多少」，
-    # 不是對原圖的絕對 PSNR。E0c 實測各影像的重建地板由 19.61 dB 到
-    # 31.01 dB，相差 11.4 dB，任何全域固定的絕對門檻都不可能同時適用。
-    # 取 34 dB：相對地板而言這是一個嚴格的要求（防禦造成的 MSE 需低於
-    # 4e-4），與 tau_linf 的量級一致，且對兩個 site 意義相同。
+    # 綁定的保真度約束：LPIPS(x_def, x_base)，即「防禦本身造成多少感知
+    # 可辨的改變」。取代原本的 PSNR 地板，理由見模組 docstring 的修訂之二。
+    # τ 預設 0.05：主網格的像素注入 r=16 實測落在 LPIPS 0.0626，故此值
+    # 比現況略緊；正式實驗以 {0.02, 0.05, 0.10} 掃描，得到曲線而非單點。
+    gamma_lpips: float = 100.0
+    tau_lpips: float = 0.05
+
+    # PSNR 地板保留計算與記錄，但預設不參與梯度（gamma_psnr = 0）。
+    # 保留係數是為了能一行復原，並維持與既有 36 格結果的對照基準。
+    gamma_psnr: float = 0.0
     psnr_floor: float = 34.0   # dB，相對 x_base；見 runs/e0c_tmax/
 
 
@@ -170,23 +201,33 @@ class DefenseObjective:
         mse_total = torch.nn.functional.mse_loss(xd, xr)
         psnr_total = 10.0 * torch.log10(1.0 / mse_total.clamp_min(1e-12))
 
+        # 綁定的感知約束，對象與 L∞/PSNR 一致為 x_base：量的是「防禦加了
+        # 多少」而非「與原圖的總差距」。site P 的 x_base 即 x，此時本項與
+        # 上方的 lpips 相同，多算一次是為了讓兩個 site 的 hinge 定義一致，
+        # 不因 site 而分支。
+        lpips_rel = lpips if x_base is None else self._lpips(xd, xb)
+
         pen_linf = torch.clamp(linf - c.tau_linf, min=0.0)
+        pen_lpips = torch.clamp(lpips_rel - c.tau_lpips, min=0.0)
         pen_psnr = torch.clamp(c.psnr_floor - psnr, min=0.0)
 
         total = (
             lpips
             + c.alpha_ssim * (1.0 - ssim)
             + c.beta_linf * pen_linf
+            + c.gamma_lpips * pen_lpips
             + c.gamma_psnr * pen_psnr
         )
         parts = {
             "fid_linf_total": float((xd - xr).abs().max()),
             "fid_psnr_total": float(psnr_total),
             "fid_lpips": float(lpips),
+            "fid_lpips_rel": float(lpips_rel),
             "fid_ssim": float(ssim),
             "fid_linf": float(linf),
             "fid_psnr": float(psnr),
             "fid_pen_linf": float(pen_linf),
+            "fid_pen_lpips": float(pen_lpips),
             "fid_pen_psnr": float(pen_psnr),
         }
         return total, parts

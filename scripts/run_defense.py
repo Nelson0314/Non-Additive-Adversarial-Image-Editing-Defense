@@ -256,6 +256,11 @@ def main():
              "再以該 φ 熱啟動防禦訓練。0 表示不執行（既有行為）",
     )
     ap.add_argument("--align_lr", type=float, default=0.008)
+    ap.add_argument(
+        "--tau_lpips", type=float, default=LossConfig.tau_lpips,
+        help="保真度綁定約束：LPIPS(x_def, x_base) 的上限。"
+             "全秩與低秩的比較以此為匹配軸，須掃描而非取單一值",
+    )
     ap.add_argument("--strength", type=float, default=0.5)
     ap.add_argument("--seed", type=int, default=20260728)
     ap.add_argument("--limit", type=int, default=None, help="只跑前 N 張影像")
@@ -281,7 +286,10 @@ def main():
     images = load_images(Path(args.data), args.size, device, args.limit)
     print(f"[run] 影像 {len(images)} 張：{[n for n, _, _ in images]}")
 
-    loss_cfg = LossConfig()
+    # tau_lpips 是全秩與低秩比較的匹配軸：兩個 arm 在同一組 τ 下各跑一次，
+    # 比較的是兩條曲線而非單點，結論不受匹配點的選擇左右。故它必須是 CLI
+    # 參數，不能寫死在 LossConfig 的預設值裡。
+    loss_cfg = LossConfig(tau_lpips=args.tau_lpips)
     purifiers = default_train_set()
     print(f"[run] 訓練期淨化集 {[p.kind for p in purifiers]}")
 

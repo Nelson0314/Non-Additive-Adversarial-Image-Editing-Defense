@@ -3,7 +3,8 @@
     "allow": [
       "Bash(git add *)",
       "Bash(git commit -q -m ' *)",
-      "Bash(C:/Users/nelso/miniconda3/envs/wacv/python.exe -m pytest tests/ -q)"
+      "Bash(C:/Users/nelso/miniconda3/envs/wacv/python.exe -m pytest tests/ -q)",
+      "Bash(git reset *)"
     ]
   }
 }

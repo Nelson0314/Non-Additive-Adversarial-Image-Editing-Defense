@@ -33,6 +33,7 @@ from src.metrics.spectrum import analyze
 from src.metrics.suite import MetricSuite
 from src.models.sd import SDWrapper
 from src.purify.ops import Purifier, default_train_set, eval_sweep
+from src.residual.site_embedding import EmbeddingResidual
 from src.residual.site_latent import LatentResidual
 from src.residual.site_pixel import PixelResidual
 from src.residual.site_pixel_full import FullRankPixelResidual
@@ -79,6 +80,14 @@ def build_module(site: str, rank: int, cfg: OptimConfig, sd, size: int, seed: in
         # 全秩對照。rank 引數在此無意義（架構上不設限），仍照收以維持
         # 呼叫端介面一致；掃描時以 --ranks 0 表示「不適用」較不易誤讀。
         return FullRankPixelResidual(size=size, channels=3, seed=seed)
+    if site == "E":
+        # 形狀由 text encoder 的實際輸出決定，不寫死 77×768：tiny-SD 的
+        # 維度與 SD v1.4 不同，寫死會讓本機煙霧測試跑不起來。
+        emb = sd.encode_text(cfg.prompt_def)
+        return EmbeddingResidual(
+            tokens=emb.shape[-2], dim=emb.shape[-1],
+            max_rank=rank, const_rank=rank, seed=seed,
+        )
     if site == "L":
         lat = sd.latent_shape(size, size)
         return LatentResidual(

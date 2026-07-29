@@ -18,6 +18,7 @@ from src.defense.objective import LossConfig
 from src.defense.optimize import OptimConfig, align, optimize
 from src.models.sd import SDWrapper
 from src.purify.ops import default_train_set
+from src.residual.site_embedding import EmbeddingResidual
 from src.residual.site_latent import LatentResidual
 from src.residual.base import ResidualModule
 from src.residual.site_pixel import PixelResidual
@@ -479,3 +480,76 @@ def test_兩種能力都不提供時明確報錯(sd, x01):
     ctx = gen.prepare(x01)
     with pytest.raises(ValueError, match="無法進入計算圖"):
         gen.generate(x01, ctx)
+
+
+# ------------------------------------------------------------------ site E
+
+
+def _emb_module(sd, r=4, prompt=""):
+    emb = sd.encode_text(prompt)
+    return EmbeddingResidual(
+        tokens=emb.shape[-2], dim=emb.shape[-1],
+        max_rank=r, const_rank=r, seed=SEED,
+    ).to(DEV), emb
+
+
+def test_site_E_初始殘差為零且不改變去噪結果(sd, x01):
+    """φ=0 對照必須從第一天就成立。site L 白跑了 36 格才發現 φ 貢獻為零。"""
+    mod, emb = _emb_module(sd)
+    assert torch.equal(mod.delta(), torch.zeros_like(mod.delta())), "V=0 ⟹ Δ=0"
+
+    gen = DefenseGenerator(sd, mod, k_inv=2)
+    ctx = gen.prepare(x01)
+    with torch.no_grad():
+        out_zero = gen.generate(x01, ctx)
+        mod.disable()
+        out_off = gen.generate(x01, gen.prepare(x01))
+    assert torch.equal(out_zero, out_off), "φ=0 與停用必須給出完全相同的結果"
+
+
+def test_site_E_參數非零時結果必須改變(sd, x01):
+    """反向檢查：確認上一個測試不是把注入整個關掉了。"""
+    mod, _ = _emb_module(sd)
+    gen = DefenseGenerator(sd, mod, k_inv=2)
+    ctx = gen.prepare(x01)
+    with torch.no_grad():
+        before = gen.generate(x01, ctx)
+        mod.tensor.V.normal_(0, 0.5)
+        after = gen.generate(x01, gen.prepare(x01))
+    assert not torch.allclose(before, after, atol=1e-6), "嵌入擾動未生效"
+
+
+def test_site_E_梯度抵達phi(sd, x01):
+    mod, _ = _emb_module(sd)
+    with torch.no_grad():
+        mod.tensor.V.normal_(0, 0.1)
+    gen = DefenseGenerator(sd, mod, k_inv=2)
+    gen.generate(x01, gen.prepare(x01)).pow(2).sum().backward()
+    assert mod.tensor.V.grad is not None
+    assert float(mod.tensor.V.grad.abs().max()) > 0.0
+
+
+def test_site_E_inversion快取不依賴phi(sd, x01):
+    """快取不變量：DDIM inversion 必須用未擾動的嵌入。
+
+    若 inversion 也吃了擾動，z_inv 會依賴 φ，prepare() 的快取失效——那個
+    快取每個 iteration 省下一條 k_inv 步的 UNet 前向，是本迴圈最大的節省。
+    """
+    mod, _ = _emb_module(sd)
+    gen = DefenseGenerator(sd, mod, k_inv=2)
+    z_before = gen.prepare(x01).z_inv.clone()
+
+    with torch.no_grad():
+        mod.tensor.V.normal_(0, 0.5)
+    z_after = gen.prepare(x01).z_inv
+
+    assert torch.equal(z_before, z_after), "z_inv 不得依賴 φ"
+
+
+def test_site_E_嵌入形狀不符時報錯(sd):
+    """靜默廣播會讓「模塊建錯了」延後到數值階段才顯現。"""
+    mod = EmbeddingResidual(tokens=8, dim=16, max_rank=2, const_rank=2).to(DEV)
+    with torch.no_grad():
+        mod.tensor.V.normal_(0, 0.1)
+    with pytest.raises(ValueError, match="不符"):
+        mod.emb_residual(torch.zeros(1, 77, 768, device=DEV))

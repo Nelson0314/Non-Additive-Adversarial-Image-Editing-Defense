@@ -45,6 +45,15 @@ class ResidualModule(nn.Module):
         """去噪側：回傳 eps_hook(eps, step_idx, t)，或 None 表示不提供。"""
         return None
 
+    def emb_residual(self, emb: torch.Tensor) -> Optional[torch.Tensor]:
+        """條件側：回傳要加到文字嵌入上的殘差，或 None 表示不提供。
+
+        只作用於 `generate()` 的去噪段。DDIM inversion 必須使用未擾動的
+        嵌入，否則 z_inv 依賴 φ、`prepare()` 的快取失效——那個快取每個
+        iteration 省下一條 k_inv 步的 UNet 前向，是本迴圈最大的一項節省。
+        """
+        return None
+
     # ---- 診斷 ----
 
     def raw_residual(self) -> Optional[torch.Tensor]:

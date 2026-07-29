@@ -49,7 +49,12 @@ from src.utils.device import get_device, peak_memory_mb, reset_peak_memory
 
 
 def load_images(root: Path, size: int, device, limit=None):
-    """回傳 [(名稱, 張量, 編輯 prompt)]。prompt 取 prompts.yaml 的第一個。"""
+    """回傳 [(名稱, 張量, prompt 清單)]。
+
+    回傳整個清單而非只有第一個：prompts.yaml 每類已有兩個惡意編輯 prompt，
+    訓練只用第 [0] 個，第 [1] 個是現成的 held-out。φ 是針對特定 prompt
+    優化出來的，只在訓練用的那個上評測量到的是訓練集表現。
+    """
     from PIL import Image
     import torchvision.transforms as T
 
@@ -65,8 +70,8 @@ def load_images(root: Path, size: int, device, limit=None):
         cls = p.parent.name
         img = Image.open(p).convert("RGB").resize((size, size), Image.LANCZOS)
         x = T.ToTensor()(img).unsqueeze(0).to(device)
-        plist = prompts.get(cls) or ["a photo"]
-        out.append((p.stem, x, plist[0]))
+        plist = list(prompts.get(cls) or ["a photo"])
+        out.append((p.stem, x, plist))
     return out[:limit] if limit else out
 
 
@@ -179,6 +184,50 @@ def evaluate(sd, suite, x01, x_def, cfg, prompt, out_dir, save_images=True):
     return rows
 
 
+@torch.no_grad()
+def evaluate_generalization(sd, suite, x01, x_def, cfg, prompts, strengths):
+    """φ 對「訓練時沒見過的攻擊設定」還剩多少效果。
+
+    訓練時固定了三件事：一個編輯 prompt、強度 0.5、10 步編輯。三者都是
+    攻擊者可以自由更換的，任何一項換掉就失效的防禦沒有意義。此處量前兩項
+    （prompt 與強度），第三項（編輯步數）由 cfg.n_edit 控制、另行掃描。
+
+    **只在無淨化下量。** 完整的 (prompt × 強度 × 23 個淨化設定) 是 138 條
+    編輯鏈，成本不成比例；泛化性與耐淨化性是兩個獨立的問題，先分開回答。
+
+    每個組合仍然扣掉未防禦對照：換 prompt 或強度本身就會改變編輯結果，
+    不減掉的話量到的是「換設定造成的差異」而非防禦效果。
+    """
+    device = x01.device
+    lat = sd.latent_shape(x01.shape[-2], x01.shape[-1])
+    rows = []
+
+    for pi, prompt in enumerate(prompts):
+        emb = sd.encode_text(prompt)
+        for s in strengths:
+            n = sd.sample_edit_noise(
+                torch.empty(lat, device=device), seed=cfg.seed + EVAL_SEED_OFFSET
+            )
+            y_orig = sd.sdedit(x01, emb, n, cfg.n_edit, strength=s)
+            y_def = sd.sdedit(x_def, emb, n, cfg.n_edit, strength=s)
+            m_def = suite.pairwise(y_orig, y_def)
+            rows.append({
+                "prompt_idx": pi,
+                # pi == 0 是訓練時用的那一個，其餘為 held-out
+                "prompt_split": "train" if pi == 0 else "heldout",
+                "eval_prompt": prompt,
+                "eval_strength": s,
+                "strength_split": "train" if s == cfg.strength else "heldout",
+                "edit_lpips": m_def["lpips"],
+                "edit_psnr": m_def["psnr"],
+                # 未防禦對照在無淨化下恆為 0（x_ctrl = x01，兩條鏈完全相同），
+                # 故 net 等於 edit。仍明寫出來，避免與有淨化的表格混淆時誤讀。
+                "ctrl_lpips": 0.0,
+                "net_lpips": m_def["lpips"],
+            })
+    return rows
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--model", default="CompVis/stable-diffusion-v1-4")
@@ -212,6 +261,12 @@ def main():
     ap.add_argument("--limit", type=int, default=None, help="只跑前 N 張影像")
     ap.add_argument("--prompt_def", default="", help="防禦生成 prompt，預設空字串")
     ap.add_argument("--no_eval", action="store_true", help="只優化，跳過淨化掃描")
+    ap.add_argument(
+        "--eval_strengths", default="",
+        help="泛化性評測的 SDEdit 強度清單，逗號分隔（例：0.3,0.5,0.7）。"
+             "會與 prompts.yaml 的全部 prompt 交叉，在無淨化下量測，"
+             "結果寫入 generalization.csv。留空表示不跑",
+    )
     args = ap.parse_args()
 
     out = Path(args.out)
@@ -234,7 +289,10 @@ def main():
     summary = []
     t_start = time.perf_counter()
 
-    for name, x01, prompt in images:
+    gen_rows = []
+
+    for name, x01, plist in images:
+        prompt = plist[0]        # 訓練一律用第 [0] 個，其餘保留為 held-out
         for site in sites:
             for rank in ranks:
                 tag = f"{name}__{site}__r{rank}"
@@ -357,6 +415,13 @@ def main():
                     for r in rows:
                         all_rows.append({**base, **r})
 
+                if args.eval_strengths:
+                    for r in evaluate_generalization(
+                        sd, suite, x01, res.x_def, cfg, plist,
+                        [float(s) for s in args.eval_strengths.split(",")],
+                    ):
+                        gen_rows.append({**base, **r})
+
                 del module, res
                 if torch.cuda.is_available():
                     torch.cuda.empty_cache()
@@ -365,6 +430,8 @@ def main():
                 _write_csv(out / "summary.csv", summary)
                 if all_rows:
                     _write_csv(out / "results.csv", all_rows)
+                if gen_rows:
+                    _write_csv(out / "generalization.csv", gen_rows)
 
     env = {
         "model": args.model, "size": args.size, "sites": sites, "ranks": ranks,

@@ -302,3 +302,54 @@ def test_譜分析逐通道且欄位齊全():
     for spec in a["per_channel"]:
         assert len(spec["singular_values"]) == 16
         assert spec["cumulative_energy"][-1] == pytest.approx(1.0, abs=1e-9)
+
+
+# ------------------------------------------------------------ 空間頻率診斷
+
+
+def test_低頻訊號的能量集中在低頻環():
+    """以已知頻率的正弦波驗證徑向功率譜的分箱正確。"""
+    from src.metrics.spectrum import low_freq_fraction, radial_power
+
+    n = 64
+    xs = torch.arange(n, dtype=torch.float32)
+    # 每張圖 2 個週期 → 正規化頻率約 2/(n/2) = 0.0625，遠低於 cutoff 0.25
+    low = torch.sin(2 * torch.pi * 2 * xs / n).view(1, -1).expand(n, n)
+    d = low.unsqueeze(0).repeat(3, 1, 1)
+    assert low_freq_fraction(d) > 0.9, "低頻正弦波的能量應幾乎全在低頻環"
+
+    rp = radial_power(d)
+    assert len(rp["power"]) == len(rp["freq"]) == 32
+    assert rp["cumulative"][-1] == pytest.approx(1.0, abs=1e-9)
+
+
+def test_高頻訊號的能量集中在高頻環():
+    from src.metrics.spectrum import low_freq_fraction
+
+    n = 64
+    xs = torch.arange(n, dtype=torch.float32)
+    # 接近 Nyquist：每 2 像素一個週期
+    high = torch.sin(torch.pi * xs).view(1, -1).expand(n, n)
+    high = torch.cos(torch.pi * xs).view(1, -1).expand(n, n)
+    d = high.unsqueeze(0).repeat(3, 1, 1)
+    assert low_freq_fraction(d) < 0.1, "Nyquist 附近的訊號不應被判為低頻"
+
+
+def test_白噪聲的低頻比例接近環面積比():
+    """白噪聲在各頻率上功率相同，故低頻比例應接近環數比而非能量集中。
+
+    這是分箱是否有偏的檢查：power 已對環內樣本數正規化，所以白噪聲的
+    每環平均功率相同，低於 cutoff 的環佔 32 環中的 8 環，比例應約 0.25。
+    """
+    from src.metrics.spectrum import low_freq_fraction
+
+    g = torch.Generator().manual_seed(0)
+    d = torch.randn(3, 128, 128, generator=g)
+    frac = low_freq_fraction(d, cutoff=0.25)
+    assert 0.15 < frac < 0.35, f"白噪聲的低頻比例應接近 0.25，實得 {frac:.3f}"
+
+
+def test_零殘差不除以零():
+    from src.metrics.spectrum import low_freq_fraction
+
+    assert low_freq_fraction(torch.zeros(3, 32, 32)) == 0.0

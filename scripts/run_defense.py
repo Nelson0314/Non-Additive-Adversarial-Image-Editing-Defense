@@ -28,7 +28,7 @@ import torch
 
 from src.defense.objective import LossConfig
 from src.defense.optimize import OptimConfig, optimize
-from src.metrics.spectrum import analyze
+from src.metrics.spectrum import analyze, low_freq_fraction
 from src.metrics.suite import MetricSuite
 from src.models.sd import SDWrapper
 from src.purify.ops import Purifier, default_train_set, eval_sweep
@@ -298,6 +298,9 @@ def main():
                     "eff_rank_mean": _mean(spec_an["effective_rank"]),
                     "energy_rank_99_mean": _mean(spec_an["energy_rank_99"]),
                     "energy_rank_90_mean": _mean(spec_an["energy_rank_90"]),
+                    # 低頻能量比例：攻擊者的 SDEdit 先加噪到 t0，抹除高頻，
+                    # 故只有低頻/結構性的擾動可能存活（見 docs/E4_SCALE_SWEEP.md）
+                    "low_freq_frac": low_freq_fraction(delta),
                     "raw_eff_rank_mean": _mean(raw_an["effective_rank"]) if raw_an else "",
                     "raw_energy_rank_99_mean": (
                         _mean(raw_an["energy_rank_99"]) if raw_an else ""

@@ -23,6 +23,7 @@ from src.residual.site_latent import LatentResidual
 from src.residual.base import ResidualModule
 from src.residual.site_pixel import PixelResidual
 from src.residual.site_pixel_full import FullRankPixelResidual
+from src.residual.site_weight import WeightResidual
 from src.utils.device import get_device
 
 TINY = "hf-internal-testing/tiny-stable-diffusion-pipe"
@@ -553,3 +554,128 @@ def test_site_E_嵌入形狀不符時報錯(sd):
         mod.tensor.V.normal_(0, 0.1)
     with pytest.raises(ValueError, match="不符"):
         mod.emb_residual(torch.zeros(1, 77, 768, device=DEV))
+
+
+# ------------------------------------------------------------------ site W
+
+
+def test_site_W_初始B為零時完全不改變模型行為(sd, x01):
+    """W' = W + (α/r)·B·A，B 初始為零 ⟹ W' 逐元素等於 W。
+
+    這是「模塊停用時其存在不改變任何計算結果」在權重空間的形式。site W
+    是唯一直接改動模型的位置，這個不變量若不成立，之後所有結果都無法歸因。
+    """
+    k = 2
+    lat = _latent(sd)
+    emb = sd.encode_text("").detach()
+    ts = sd.timesteps(k)
+    with torch.no_grad():
+        z_inv = sd.ddim_inversion(sd.encode_image(x01), emb, ts, k)
+        baseline, _ = sd.denoise(z_inv, emb, ts, k, eps_hook=None)
+
+    mod = WeightResidual(sd.unet, rank=4, seed=SEED).to(DEV)
+    try:
+        assert mod.n_layers > 0
+        with torch.no_grad():
+            out, _ = sd.denoise(z_inv, emb, ts, k, eps_hook=None)
+        assert torch.equal(baseline, out), "B=0 時去噪結果必須逐元素相同"
+
+        mod.disable()
+        with torch.no_grad():
+            off, _ = sd.denoise(z_inv, emb, ts, k, eps_hook=None)
+        assert torch.equal(baseline, off), "停用時亦須逐元素相同"
+    finally:
+        mod.remove()
+
+
+def test_site_W_B非零時結果必須改變且梯度抵達phi(sd, x01):
+    """反向檢查：確認上一個測試不是把整個注入關掉了。"""
+    k = 2
+    lat = _latent(sd)
+    emb = sd.encode_text("").detach()
+    ts = sd.timesteps(k)
+    with torch.no_grad():
+        z_inv = sd.ddim_inversion(sd.encode_image(x01), emb, ts, k)
+        baseline, _ = sd.denoise(z_inv, emb, ts, k, eps_hook=None)
+
+    mod = WeightResidual(sd.unet, rank=4, seed=SEED).to(DEV)
+    try:
+        with torch.no_grad():
+            for h in mod.hooks.values():
+                h.B.normal_(0, 0.5)
+            out, _ = sd.denoise(z_inv, emb, ts, k, eps_hook=None)
+        assert not torch.allclose(baseline, out, atol=1e-6), "LoRA 未生效"
+
+        z, _ = sd.denoise(z_inv, emb, ts, k, eps_hook=None)
+        z.pow(2).sum().backward()
+        grads = [h.B.grad for h in mod.hooks.values() if h.B.grad is not None]
+        assert grads, "梯度未抵達任何一層的 B"
+        assert max(float(g.abs().max()) for g in grads) > 0.0
+    finally:
+        mod.remove()
+
+
+def test_site_W_remove後模型完全還原(sd, x01):
+    """hook 註冊在 SD 的模組上，模塊被回收不會移除它們。
+
+    殘留的 hook 會污染同一個 SDWrapper 的後續實驗，而且症狀是「另一個
+    site 的結果莫名其妙被改動」，極難追。
+    """
+    k = 2
+    emb = sd.encode_text("").detach()
+    ts = sd.timesteps(k)
+    with torch.no_grad():
+        z_inv = sd.ddim_inversion(sd.encode_image(x01), emb, ts, k)
+        baseline, _ = sd.denoise(z_inv, emb, ts, k, eps_hook=None)
+
+    mod = WeightResidual(sd.unet, rank=4, seed=SEED).to(DEV)
+    with torch.no_grad():
+        for h in mod.hooks.values():
+            h.B.normal_(0, 0.5)
+        changed, _ = sd.denoise(z_inv, emb, ts, k, eps_hook=None)
+    assert not torch.allclose(baseline, changed, atol=1e-6)
+
+    mod.remove()
+    with torch.no_grad():
+        restored, _ = sd.denoise(z_inv, emb, ts, k, eps_hook=None)
+    assert torch.equal(baseline, restored), "remove() 後必須逐元素還原"
+
+
+@pytest.mark.parametrize("r", [2, 4])
+def test_site_W_參數量等於逐層r乘以進出維度之和(sd, r):
+    """site W 的存在理由是容量，故參數量必須符合設計而非碰巧。
+
+    **不在 tiny-SD 上斷言「比低秩 eps 注入多」**：那是模型規模的性質而非
+    設計的性質。tiny-SD 的 cross-attention 只有 32–64 維、6 個 block，
+    算出來反而比 latent 少；真實 SD v1.4 的 16 個 block、768 維 context
+    在 r=16 時是 1,591,296，為低秩 eps 注入（163,840）的 9.7 倍。
+    此處驗的是逐層公式，該公式在兩個規模上都成立。
+    """
+    mod = WeightResidual(sd.unet, rank=r, seed=SEED).to(DEV)
+    try:
+        expected = sum(h.A.numel() + h.B.numel() for h in mod.hooks.values())
+        assert mod.num_trainable() == expected, "不得有 A、B 以外的可訓練參數"
+        for h in mod.hooks.values():
+            assert h.A.shape[0] == r and h.B.shape[1] == r, "秩必須等於設定值"
+            assert h.A.numel() + h.B.numel() == r * (h.A.shape[1] + h.B.shape[0])
+    finally:
+        mod.remove()
+
+
+def test_site_W_generator不誤判phi進不了計算圖(sd, x01):
+    """site W 不提供三種殘差能力中的任何一種，靠 patches_model() 表明。"""
+    mod = WeightResidual(sd.unet, rank=4, seed=SEED).to(DEV)
+    try:
+        assert mod.patches_model() is True
+        assert mod.pixel_residual(x01) is None
+        assert mod.eps_hook(sd.timesteps(2), 2) is None
+        assert mod.emb_residual(sd.encode_text("")) is None
+
+        gen = DefenseGenerator(sd, mod, k_inv=2)
+        with torch.no_grad():
+            for h in mod.hooks.values():
+                h.B.normal_(0, 0.3)
+            x_def = gen.generate(x01, gen.prepare(x01))   # 不得拋出
+        assert x_def.shape == x01.shape
+    finally:
+        mod.remove()

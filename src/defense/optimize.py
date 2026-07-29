@@ -13,7 +13,7 @@
 """
 
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import Dict, List, Optional
 
 import torch
@@ -59,6 +59,9 @@ class OptimConfig:
     # align_steps = 0 表示不執行階段一（既有行為，保留可比性）。
     align_steps: int = 0
     align_lr: float = 0.008
+    # 階段一專用的 PSNR 係數，覆蓋 LossConfig.gamma_psnr（防禦階段為 0.0）。
+    # 理由見 align() 的 docstring：重建對齊是逐像素準確度確實重要的場合。
+    align_gamma_psnr: float = 1.0
     strength: float = 0.5
     prompt_def: str = ""        # 防禦生成的 prompt，spec §1.1 要求也測空 prompt
     prompt_edit: str = "a photo"
@@ -108,18 +111,29 @@ def align(
 ) -> tuple[torch.Tensor, List[Dict]]:
     """階段一：訓練 φ 使 G(x; φ) 逼近 x。回傳 (x_align, history)。
 
-    損失直接沿用 `fidelity_term(G(x;φ), x, x_base=None)`，即對原圖的絕對
-    保真度。刻意與階段二共用同一個保真度定義：若兩階段用不同的保真概念，
-    階段一達成的「像原圖」到了階段二可能不算數。
+    損失以 `fidelity_term(G(x;φ), x, x_base=None)` 為基礎，即對原圖的絕對
+    保真度。`x_base=None` 使兩道 hinge 的對象為原圖本身；hinge 在容差內
+    不施力是此處要的行為——對齊到 τ 以內即停止，不必把重建誤差壓到零。
 
-    `x_base=None` 使兩道 hinge 的對象為原圖本身。hinge 在容差內不施力是
-    此處要的行為——對齊到 τ 以內即停止，不必把重建誤差壓到零。
+    **但係數與階段二不同：`gamma_psnr` 由 `cfg.align_gamma_psnr` 覆蓋。**
+    防禦階段把 PSNR 移出梯度是對的（逐像素平方誤差與人眼可辨性關聯薄弱，
+    見 objective 的修訂之二），但**重建對齊正是逐像素準確度確實重要的場合**，
+    同一組係數不該同時適用兩者。
+
+    這是 E9 直接量到的問題：200 步對齊後 car_00 的 LPIPS 由 0.2032 降到
+    0.0950，PSNR 卻只由 19.62 動到 20.54；car_01 的 PSNR 甚至掉了 1.84 dB
+    （22.28 → 20.44）。PSNR 當時完全不在損失裡，那些數字反映的是自由漂移，
+    不是容量限制，因此無法用來判斷任何事。
 
     **這個階段可能失敗**，而失敗本身是結果：低秩 ε 注入未必有足夠容量吸收
-    VAE 與 DDIM 的重建誤差。回傳的 history 記錄逐步的 LPIPS 與 PSNR，
-    呼叫端據此判斷容量是否足夠，不得假設對齊必然成功。
+    VAE 與 DDIM 的重建誤差。E9 實測 car_01 在第 50 步即停在 LPIPS 0.166，
+    其後 150 步無改善——那是容量天花板，不是步數不足。回傳的 history 記錄
+    逐步的 LPIPS 與 PSNR，呼叫端據此判斷，不得假設對齊必然成功。
     """
-    obj = DefenseObjective(loss_cfg, x01.device)
+    # 只覆蓋 gamma_psnr，其餘係數與階段二一致：保真度的「定義」不變，
+    # 變的是逐像素項在這個階段要不要參與梯度。
+    align_cfg = replace(loss_cfg, gamma_psnr=cfg.align_gamma_psnr)
+    obj = DefenseObjective(align_cfg, x01.device)
     opt = torch.optim.Adam(module.parameters(), lr=cfg.align_lr)
     history: List[Dict] = []
 

@@ -54,6 +54,15 @@ class ResidualModule(nn.Module):
         """
         return None
 
+    def patches_model(self) -> bool:
+        """φ 是否直接改動模型本身，而非走任何顯式的殘差路徑。
+
+        site W（權重空間 LoRA）為 True：它以 forward hook 修改 UNet 的
+        cross-attention 輸出，不提供上面三種能力中的任何一種。generator
+        需要知道這件事，否則會誤判「φ 進不了計算圖」而報錯。
+        """
+        return False
+
     # ---- 診斷 ----
 
     def raw_residual(self) -> Optional[torch.Tensor]:

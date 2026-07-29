@@ -99,18 +99,22 @@ class DefenseGenerator:
             emb = emb + d_emb
 
         hook = self.module.eps_hook(ctx.ts, ctx.steps)
-        if hook is None and d_emb is None and self.module.enabled:
-            # 啟用中卻兩種能力都沒有，代表 φ 不會進入計算圖。在此明講，否則
+        if (hook is None and d_emb is None
+                and not self.module.patches_model() and self.module.enabled):
+            # 啟用中卻沒有任何一種能力，代表 φ 不會進入計算圖。在此明講，否則
             # 症狀會延後到 backward 才以 "does not require grad" 的形式出現，
             # 看不出真正原因。
             #
-            # 停用時不在此列：停用的定義就是「行為與模塊不存在完全一致」，
+            # site W 不在此列：它以 forward hook 直接改動 UNet，φ 經由模型
+            # 本身進入計算圖，不走上面三種殘差路徑，故以 patches_model() 表明。
+            #
+            # 停用時亦不在此列：停用的定義就是「行為與模塊不存在完全一致」，
             # eps_hook 回傳 None 是正確行為，且 x_base = G(x; φ=0) 正是靠這條
             # 路徑取得的。把停用也算成錯誤會讓保真基準無法計算。
             raise ValueError(
                 f"模塊 {type(self.module).__name__}（site {self.module.site}）"
-                "啟用中卻未提供 pixel_residual、eps_hook、emb_residual 之任一，"
-                "φ 無法進入計算圖"
+                "啟用中卻未提供 pixel_residual、eps_hook、emb_residual、"
+                "patches_model 之任一，φ 無法進入計算圖"
             )
         z, x0_list = self.sd.denoise(
             ctx.z_inv,

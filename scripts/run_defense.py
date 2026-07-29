@@ -37,6 +37,7 @@ from src.residual.site_embedding import EmbeddingResidual
 from src.residual.site_latent import LatentResidual
 from src.residual.site_pixel import PixelResidual
 from src.residual.site_pixel_full import FullRankPixelResidual
+from src.residual.site_weight import WeightResidual
 from src.utils.artifacts import (
     save_history_plot,
     save_image,
@@ -85,6 +86,10 @@ def build_module(site: str, rank: int, cfg: OptimConfig, sd, size: int, seed: in
         # 全秩對照。rank 引數在此無意義（架構上不設限），仍照收以維持
         # 呼叫端介面一致；掃描時以 --ranks 0 表示「不適用」較不易誤讀。
         return FullRankPixelResidual(size=size, channels=3, seed=seed)
+    if site == "W":
+        # 掛在 SD 的 UNet 上，故呼叫端**必須**在該格結束後呼叫 module.remove()，
+        # 否則 hook 會累積到下一格，症狀是「另一個 site 的結果莫名被改動」。
+        return WeightResidual(sd.unet, rank=rank, seed=seed)
     if site == "E":
         # 形狀由 text encoder 的實際輸出決定，不寫死 77×768：tiny-SD 的
         # 維度與 SD v1.4 不同，寫死會讓本機煙霧測試跑不起來。
@@ -99,7 +104,11 @@ def build_module(site: str, rank: int, cfg: OptimConfig, sd, size: int, seed: in
             steps=cfg.k_inv, channels=lat[1], size=lat[-1],
             max_rank=rank, const_rank=rank, seed=seed,
         )
-    raise ValueError(f"未實作的 site {site!r}（site W 見 spec §4.3，尚未實作）")
+    raise ValueError(
+        f"未知的 site {site!r}；目前支援 "
+        "P（像素低秩）、PF（像素全秩對照）、L（latent ε 注入）、"
+        "E（文字嵌入）、W（權重空間 LoRA）"
+    )
 
 
 # 評測用的噪聲種子必須與訓練不同。φ 是針對訓練用的那一組 ε 優化出來的
@@ -257,6 +266,11 @@ def main():
     )
     ap.add_argument("--align_lr", type=float, default=0.008)
     ap.add_argument(
+        "--align_gamma_psnr", type=float, default=1.0,
+        help="階段一專用的 PSNR 係數，覆蓋防禦階段的 0.0。"
+             "重建對齊是逐像素準確度確實重要的場合（見 E9）",
+    )
+    ap.add_argument(
         "--tau_lpips", type=float, default=LossConfig.tau_lpips,
         help="保真度綁定約束：LPIPS(x_def, x_base) 的上限。"
              "全秩與低秩的比較以此為匹配軸，須掃描而非取單一值",
@@ -314,6 +328,7 @@ def main():
                     n_edit=args.n_edit, n_eot=args.n_eot, strength=args.strength,
                     purify_mode=args.purify_mode,
                     align_steps=args.align_steps, align_lr=args.align_lr,
+                    align_gamma_psnr=args.align_gamma_psnr,
                     prompt_def=args.prompt_def, prompt_edit=prompt, seed=args.seed,
                 )
                 module = build_module(site, rank, cfg, sd, args.size, args.seed).to(device)
@@ -430,6 +445,11 @@ def main():
                     ):
                         gen_rows.append({**base, **r})
 
+                # site W 把 forward hook 註冊在 SD 的模組上；模塊被垃圾回收
+                # 不會移除它們。不卸除的話 hook 會累積到後續每一格，而症狀是
+                # 「別的 site 的結果莫名被改動」，極難追。
+                if hasattr(module, "remove"):
+                    module.remove()
                 del module, res
                 if torch.cuda.is_available():
                     torch.cuda.empty_cache()

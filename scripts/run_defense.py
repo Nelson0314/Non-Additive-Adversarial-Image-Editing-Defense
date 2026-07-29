@@ -24,6 +24,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
+import numpy as np
 import torch
 
 from src.defense.objective import LossConfig
@@ -181,6 +182,11 @@ def main():
     )
     ap.add_argument("--n_edit", type=int, default=10)
     ap.add_argument("--n_eot", type=int, default=1)
+    ap.add_argument(
+        "--purify_mode", default="rotate", choices=["rotate", "all"],
+        help="rotate=每步一個淨化算子輪替（原始行為）；"
+             "all=每步對全部算子求梯度後平均，成本乘以算子數",
+    )
     ap.add_argument("--strength", type=float, default=0.5)
     ap.add_argument("--seed", type=int, default=20260728)
     ap.add_argument("--limit", type=int, default=None, help="只跑前 N 張影像")
@@ -220,6 +226,7 @@ def main():
                     steps=args.steps, lr=args.lr, k_inv=args.k_inv,
                     t_max=args.t_max,
                     n_edit=args.n_edit, n_eot=args.n_eot, strength=args.strength,
+                    purify_mode=args.purify_mode,
                     prompt_def=args.prompt_def, prompt_edit=prompt, seed=args.seed,
                 )
                 module = build_module(site, rank, cfg, sd, args.size, args.seed).to(device)
@@ -238,6 +245,13 @@ def main():
                     save_residual(res.x_def - res.x_base, cell / "residual_phi.png")
                 delta = res.x_def - x01
                 gain = save_residual(delta, cell / "residual.png")
+                # 殘差另存 float32 陣列。residual.png 是 8-bit 且經過正規化
+                # 放大，只能看不能算：像素注入 r=16 的殘差 RMS 約 2.6/255
+                # （PSNR 39.8 dB），量化後細分徑向頻譜拿不到可用訊號。
+                # .npy 不進 git（.gitignore 只收 csv/json/md/png），留在
+                # 持久儲存供後續分析。
+                np.save(cell / "residual.npy",
+                        delta.detach().float().cpu().numpy())
                 spec_an = analyze(delta)
                 save_spectrum_plot(spec_an, cell / "spectrum.png", title=tag)
 

@@ -7,6 +7,7 @@ import pytest
 import torch
 
 from src.defense.objective import DefenseObjective, LossConfig
+from src.defense.optimize import eot_pairs
 from src.metrics.spectrum import analyze, effective_rank, energy_rank
 from src.purify.ops import (
     Purifier,
@@ -103,6 +104,41 @@ def test_防禦造成的下降仍會觸發hinge(obj):
     assert p["fid_linf"] > obj.cfg.tau_linf
     assert p["fid_pen_linf"] > 0.0
     assert p["fid_pen_psnr"] > 0.0
+
+
+# --------------------------------------------------------- EOT 的算子取樣
+
+
+def test_all模式每步涵蓋全部淨化算子():
+    """spec §5.1 的期望值以完整列舉估計，而非以輪替近似。
+
+    輪替模式下某一步的梯度只朝一個算子下降；主網格中模糊 σ=1.0 就在訓練
+    集裡，測試時卻只保留 4.4%，懷疑即為三個算子的梯度互相覆寫所致。
+    """
+    for step in (0, 1, 7):
+        pairs = eot_pairs("all", step=step, n_eot=1, n_purifiers=3)
+        assert sorted(p for p, _ in pairs) == [0, 1, 2], "每步都必須涵蓋全部算子"
+        assert len(pairs) == 3
+    # 與 step 無關：全列舉不應隨步數改變
+    assert eot_pairs("all", 0, 2, 3) == eot_pairs("all", 99, 2, 3)
+    assert len(eot_pairs("all", 0, 2, 3)) == 6, "算子數 × 噪聲取樣數"
+
+
+def test_rotate模式維持原有行為():
+    """新增模式不得改動既有路徑，否則 36 格結果失去可比性。"""
+    assert eot_pairs("rotate", 0, 1, 3) == [(0, 0)]
+    assert eot_pairs("rotate", 1, 1, 3) == [(1, 0)]
+    assert eot_pairs("rotate", 3, 1, 3) == [(0, 0)], "應循環回第一個算子"
+    assert eot_pairs("rotate", 2, 2, 3) == [(1, 0), (2, 1)]
+
+
+def test_未知的purify_mode必須報錯():
+    """靜默退回某個預設會讓實驗跑完才發現設定沒生效。"""
+    with pytest.raises(ValueError, match="purify_mode"):
+        eot_pairs("average", 0, 1, 3)
+
+
+# ------------------------------------------------------------------ 保真項續
 
 
 def test_LPIPS地板在超過tau時才施力(obj):

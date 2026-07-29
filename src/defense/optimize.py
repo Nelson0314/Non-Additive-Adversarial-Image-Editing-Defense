@@ -32,7 +32,16 @@ class OptimConfig:
     k_inv: int = 10
     t_max: Optional[int] = None   # inversion 的 timestep 上限，見 E0c
     n_edit: int = 10
-    n_eot: int = 1              # 每步的 (淨化, 噪聲) 取樣數
+    n_eot: int = 1              # 每步的噪聲取樣數
+    # 淨化算子的取樣方式：
+    #   "rotate" — 每步只用一個算子，逐步輪替（原始行為）
+    #   "all"    — 每步對全部算子求梯度後平均，即 spec §5.1 對 𝒫 的期望值
+    #              以完整列舉估計，而非以輪替近似
+    # 改用 "all" 的理由：主網格中模糊 σ=1.0 就在訓練集裡，測試時防禦在該
+    # 條件下卻只保留 4.4%。輪替下 Adam 的動量在三個目標之間來回拉扯，等於
+    # 三個互相衝突的梯度訊號輪流覆寫，而非求其共同下降方向；25 步分給三個
+    # 算子，每個只有約 8 次更新。成本為每步時間乘以算子數。
+    purify_mode: str = "rotate"
     strength: float = 0.5
     prompt_def: str = ""        # 防禦生成的 prompt，spec §1.1 要求也測空 prompt
     prompt_edit: str = "a photo"
@@ -41,6 +50,20 @@ class OptimConfig:
     vae_ckpt: bool = True       # E0b：三次 VAE 呼叫的激活由總和降為最大值
     log_every: int = 10
     grad_clip: float = 1.0
+
+
+def eot_pairs(mode: str, step: int, n_eot: int, n_purifiers: int) -> List[tuple]:
+    """該步要評估的 (淨化算子索引, 噪聲索引) 清單。
+
+    抽成純函數是為了能在沒有 SD 模型的情況下驗證取樣邏輯——這段決定了
+    梯度訊號的構成，是 spec §5.1 期望值估計的實作，不該只能靠跑完整實驗
+    才看得出對錯。
+    """
+    if mode == "all":
+        return [(pi, i) for pi in range(n_purifiers) for i in range(n_eot)]
+    if mode == "rotate":
+        return [((step * n_eot + i) % n_purifiers, i) for i in range(n_eot)]
+    raise ValueError(f"未知的 purify_mode: {mode!r}，只接受 'rotate' 或 'all'")
 
 
 @dataclass
@@ -113,10 +136,14 @@ def optimize(
             collect_x0=(step == cfg.steps - 1),
         )
 
+        # (淨化算子索引, 噪聲索引) 的取樣清單。defense_term 對清單取平均，
+        # 故 "all" 模式下一次 backward 得到的就是全算子的平均梯度，而不是
+        # 輪替下「這一步只朝某一個算子下降」的訊號。
+        pairs = eot_pairs(cfg.purify_mode, step, cfg.n_eot, len(purifiers))
+
         y_defs, y_refs = [], []
-        for i in range(cfg.n_eot):
-            # 淨化算子輪替取樣，即 spec §5.1 對 𝒫 的期望值估計
-            p = purifiers[(step * cfg.n_eot + i) % len(purifiers)]
+        for pi, i in pairs:
+            p = purifiers[pi]
             y_defs.append(
                 sd.sdedit(
                     p.forward(x_def), emb_edit, noises[i], cfg.n_edit,

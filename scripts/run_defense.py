@@ -35,6 +35,7 @@ from src.models.sd import SDWrapper
 from src.purify.ops import Purifier, default_train_set, eval_sweep
 from src.residual.site_latent import LatentResidual
 from src.residual.site_pixel import PixelResidual
+from src.residual.site_pixel_full import FullRankPixelResidual
 from src.utils.artifacts import (
     save_history_plot,
     save_image,
@@ -74,6 +75,10 @@ def build_module(site: str, rank: int, cfg: OptimConfig, sd, size: int, seed: in
         return PixelResidual(
             size=size, channels=3, max_rank=rank, const_rank=rank, seed=seed
         )
+    if site == "PF":
+        # 全秩對照。rank 引數在此無意義（架構上不設限），仍照收以維持
+        # 呼叫端介面一致；掃描時以 --ranks 0 表示「不適用」較不易誤讀。
+        return FullRankPixelResidual(size=size, channels=3, seed=seed)
     if site == "L":
         lat = sd.latent_shape(size, size)
         return LatentResidual(

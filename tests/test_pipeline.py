@@ -19,7 +19,9 @@ from src.defense.optimize import OptimConfig, align, optimize
 from src.models.sd import SDWrapper
 from src.purify.ops import default_train_set
 from src.residual.site_latent import LatentResidual
+from src.residual.base import ResidualModule
 from src.residual.site_pixel import PixelResidual
+from src.residual.site_pixel_full import FullRankPixelResidual
 from src.utils.device import get_device
 
 TINY = "hf-internal-testing/tiny-stable-diffusion-pipe"
@@ -437,3 +439,43 @@ def test_無重建誤差時略過階段一(sd, x01):
     assert torch.equal(res.x_base0, x01), "site P 的 φ=0 輸出必須等於原圖"
     assert res.align_history == [], "沒有重建誤差時階段一必須被略過"
     assert res.align_seconds == 0.0
+
+
+# ------------------------------------------- generator 依能力而非 site 分派
+
+
+def test_像素側模塊不因site名稱而走錯路徑(sd, x01):
+    """generator 必須依「提供哪種能力」分派，不得比對 site 名稱。
+
+    原本的條件是 `pixel is not None and self.module.site == "P"`。新增全秩
+    對照（site "PF"）時該條件失效：模塊確實提供 pixel_residual，卻因名稱
+    不是 "P" 而被送進 inversion + 去噪路徑，取到的 eps_hook 為 None，φ 完全
+    沒有進入計算圖。症狀只在 backward 出現，訊息是 "does not require grad"，
+    完全看不出真正原因。
+    """
+    mod = FullRankPixelResidual(size=SIZE).to(DEV)
+    gen = DefenseGenerator(sd, mod, k_inv=2)
+
+    ctx = gen.prepare(x01)
+    assert ctx.z_inv is None, "像素側模塊不需要 inversion 快取"
+
+    with torch.no_grad():
+        mod.delta_param.copy_(torch.full_like(mod.delta_param, 0.01))
+    x_def = gen.generate(x01, ctx)
+
+    assert x_def.requires_grad, "φ 必須在計算圖上"
+    assert not torch.equal(x_def, x01), "φ 非零時防禦圖必須改變"
+    x_def.pow(2).sum().backward()
+    assert mod.delta_param.grad is not None
+    assert float(mod.delta_param.grad.abs().max()) > 0.0
+
+
+def test_兩種能力都不提供時明確報錯(sd, x01):
+    """φ 進不了計算圖要當場講，不能拖到 backward 才以無關的訊息出現。"""
+    class _Empty(ResidualModule):
+        site = "X"
+
+    gen = DefenseGenerator(sd, _Empty().to(DEV), k_inv=2)
+    ctx = gen.prepare(x01)
+    with pytest.raises(ValueError, match="無法進入計算圖"):
+        gen.generate(x01, ctx)

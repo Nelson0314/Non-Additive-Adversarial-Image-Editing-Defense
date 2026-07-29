@@ -47,8 +47,16 @@ class DefenseGenerator:
         self.t_max = t_max
 
     def prepare(self, x01: torch.Tensor, prompt_def: str = "") -> DefenseContext:
-        """計算不依賴 φ 的部分。site P 不需要任何前置。"""
-        if self.module.pixel_residual(x01) is not None and self.module.site == "P":
+        """計算不依賴 φ 的部分。像素側的模塊不需要任何前置。"""
+        # 依能力分派，不比對 site 名稱。原本此處寫的是
+        #     pixel is not None and self.module.site == "P"
+        # 該條件在新增全秩對照（site "PF"）時失效：模塊確實提供
+        # `pixel_residual`，卻因名稱不是 "P" 而被送進 inversion + 去噪路徑，
+        # 而該路徑取的是 `eps_hook`（基底類別回傳 None），於是 φ 完全沒有
+        # 進入計算圖，backward 只報 "does not require grad"，看不出真正原因。
+        # 提供 `pixel_residual` 即為像素側模塊，這正是模組 docstring 所定的
+        # 判準；site 名稱不得參與分派。
+        if self.module.pixel_residual(x01) is not None:
             return DefenseContext()
 
         emb = self.sd.encode_text(prompt_def).detach()
@@ -77,13 +85,26 @@ class DefenseGenerator:
     ) -> torch.Tensor:
         """回傳 x_def，計算圖保留至 φ。"""
         pixel = self.module.pixel_residual(x01)
-        if pixel is not None and self.module.site == "P":
+        if pixel is not None:
             return pixel
 
         if ctx.z_inv is None:
             raise ValueError("此模塊需要 prepare() 產生的 inversion 快取")
 
         hook = self.module.eps_hook(ctx.ts, ctx.steps)
+        if hook is None and self.module.enabled:
+            # 啟用中卻兩種能力都沒有，代表 φ 不會進入計算圖。在此明講，否則
+            # 症狀會延後到 backward 才以 "does not require grad" 的形式出現，
+            # 看不出真正原因。
+            #
+            # 停用時不在此列：停用的定義就是「行為與模塊不存在完全一致」，
+            # eps_hook 回傳 None 是正確行為，且 x_base = G(x; φ=0) 正是靠這條
+            # 路徑取得的。把停用也算成錯誤會讓保真基準無法計算。
+            raise ValueError(
+                f"模塊 {type(self.module).__name__}（site {self.module.site}）"
+                "啟用中卻既未提供 pixel_residual 也未提供 eps_hook，"
+                "φ 無法進入計算圖"
+            )
         z, x0_list = self.sd.denoise(
             ctx.z_inv,
             ctx.emb,

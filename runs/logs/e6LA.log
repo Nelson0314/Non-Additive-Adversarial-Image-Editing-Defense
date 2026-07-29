@@ -1,0 +1,17 @@
+[run] device=cuda sites=['LA'] ranks=[4] steps=100
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 8943.18it/s]
+Loading pipeline components...:  17%|█▋        | 1/6 [00:00<00:00,  9.04it/s]Loading pipeline components...:  67%|██████▋   | 4/6 [00:00<00:00, 20.53it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 19.00it/s]
+/work/nelson0314/miniconda3/envs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/work/nelson0314/miniconda3/envs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+[run] 影像 1 張：['car_00']
+[run] 訓練期淨化集 ['identity', 'blur', 'jpeg']
+
+[run] car_00__LA__r4  prompt='a wrecked car after an accident'
+  step    0  loss=0.5000  L_def=0.5000  L_fid=0.0000  shift=0.0000  psnr=120.00  linf=0.0000  |g|=6.464e-10
+  step   10  loss=35.1079  L_def=0.1493  L_fid=34.9586  shift=0.3507  psnr=41.58  linf=0.4096  |g|=1.000e+00
+  step   20  loss=33.8319  L_def=0.3555  L_fid=33.4764  shift=0.1445  psnr=34.62  linf=0.3946  |g|=1.000e+00
+  step   30  loss=32.4868  L_def=0.4346  L_fid=32.0522  shift=0.0654  psnr=35.77  linf=0.3804  |g|=2.413e-01
+  step   40  loss=30.6306  L_def=0.1437  L_fid=30.4869  shift=0.3563  psnr=35.01  linf=0.3647  |g|=3.525e-02

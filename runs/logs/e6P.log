@@ -1,0 +1,36 @@
+[run] device=cuda sites=['P'] ranks=[16] steps=150
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00, 19.73it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 7466.02it/s]
+Loading pipeline components...:  83%|████████▎ | 5/6 [00:00<00:00, 16.65it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 19.73it/s]
+/work/nelson0314/miniconda3/envs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/work/nelson0314/miniconda3/envs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+[run] 影像 1 張：['car_00']
+[run] 訓練期淨化集 ['identity', 'blur', 'jpeg']
+
+[run] car_00__P__r16  prompt='a wrecked car after an accident'
+  step    0  loss=0.5000  L_def=0.5000  L_fid=0.0000  shift=0.0000  psnr=120.00  linf=0.0000  |g|=9.823e-10
+  step   10  loss=0.1395  L_def=0.1330  L_fid=0.0065  shift=0.3670  psnr=47.82  linf=0.0298  |g|=4.189e-02
+  step   20  loss=1.1764  L_def=0.2296  L_fid=0.9469  shift=0.2704  psnr=39.60  linf=0.0691  |g|=1.000e+00
+  step   30  loss=3.5123  L_def=0.1874  L_fid=3.3248  shift=0.3126  psnr=36.59  linf=0.0926  |g|=1.000e+00
+  step   40  loss=3.5136  L_def=0.0769  L_fid=3.4367  shift=0.4231  psnr=35.58  linf=0.0936  |g|=1.000e+00
+  step   50  loss=3.8466  L_def=0.1725  L_fid=3.6741  shift=0.3275  psnr=35.33  linf=0.0959  |g|=1.000e+00
+  step   60  loss=3.5003  L_def=0.1487  L_fid=3.3516  shift=0.3513  psnr=35.36  linf=0.0927  |g|=1.000e+00
+  step   70  loss=3.1257  L_def=0.0695  L_fid=3.0562  shift=0.4305  psnr=35.50  linf=0.0898  |g|=1.000e+00
+  step   80  loss=2.8840  L_def=0.1493  L_fid=2.7348  shift=0.3507  psnr=35.67  linf=0.0867  |g|=1.000e+00
+  step   90  loss=2.7219  L_def=0.1367  L_fid=2.5852  shift=0.3633  psnr=35.84  linf=0.0852  |g|=1.000e+00
+  step  100  loss=2.4320  L_def=0.0660  L_fid=2.3659  shift=0.4340  psnr=35.99  linf=0.0830  |g|=1.000e+00
+  step  110  loss=3.3819  L_def=0.1322  L_fid=3.2497  shift=0.3678  psnr=35.75  linf=0.0919  |g|=1.000e+00
+  step  120  loss=4.9780  L_def=0.1206  L_fid=4.8574  shift=0.3794  psnr=35.20  linf=0.1079  |g|=1.000e+00
+  step  130  loss=4.6885  L_def=0.0637  L_fid=4.6247  shift=0.4363  psnr=35.03  linf=0.1055  |g|=1.000e+00
+  step  140  loss=4.4402  L_def=0.1156  L_fid=4.3246  shift=0.3844  psnr=35.04  linf=0.1025  |g|=1.000e+00
+  step  149  loss=4.0867  L_def=0.1160  L_fid=3.9707  shift=0.3840  psnr=35.12  linf=0.0990  |g|=1.000e+00
+[run] car_00__P__r16 完成 579s peak=10132MB shift=0.3840 psnr=35.12 eff_rank=391.0
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 26786.47it/s]
+[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
+[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
+Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 8301.56it/s]
+
+[run] 全部完成，共 1 格，647s

@@ -1,0 +1,65 @@
+[run] device=cuda sites=['L', 'LA'] ranks=[4] steps=15
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  67%|██████▋   | 4/6 [00:00<00:00, 29.51it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 7757.99it/s]
+Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 19.74it/s]
+/work/nelson0314/miniconda3/envs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/work/nelson0314/miniconda3/envs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+[run] 影像 1 張：['car_00']
+[run] 訓練期淨化集 ['identity', 'blur', 'jpeg']
+
+[run] car_00__L__r4__s1  prompt='a wrecked car after an accident'
+  step    0  loss=0.8473  L_def=0.3990  L_fid=0.4482  shift=0.1010  psnr=120.00  linf=0.0000  |g|=2.470e-03
+  step   10  loss=5.0460  L_def=0.1452  L_fid=4.9008  shift=0.3548  psnr=62.13  linf=0.1045  |g|=1.000e+00
+  step   14  loss=0.7937  L_def=0.3460  L_fid=0.4477  shift=0.1540  psnr=61.38  linf=0.0430  |g|=5.067e-03
+[run] car_00__L__r4__s1 完成 178s peak=10135MB shift=0.1540 psnr=61.38 eff_rank=512.0
+
+[run] car_00__L__r4__s10  prompt='a wrecked car after an accident'
+/work/nelson0314/miniconda3/envs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/work/nelson0314/miniconda3/envs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+  step    0  loss=0.8473  L_def=0.3990  L_fid=0.4482  shift=0.1010  psnr=120.00  linf=0.0000  |g|=2.470e-02
+  step   10  loss=25.0546  L_def=0.1365  L_fid=24.9181  shift=0.3635  psnr=36.90  linf=0.3046  |g|=1.000e+00
+  step   14  loss=55.9315  L_def=0.3400  L_fid=55.5916  shift=0.1600  psnr=33.59  linf=0.6073  |g|=1.000e+00
+[run] car_00__L__r4__s10 完成 178s peak=10139MB shift=0.1600 psnr=33.59 eff_rank=511.7
+
+[run] car_00__L__r4__s50  prompt='a wrecked car after an accident'
+  step    0  loss=0.8473  L_def=0.3990  L_fid=0.4482  shift=0.1010  psnr=120.00  linf=0.0000  |g|=1.235e-01
+  step   10  loss=65.8420  L_def=0.1401  L_fid=65.7018  shift=0.3599  psnr=29.20  linf=0.6647  |g|=1.000e+00
+  step   14  loss=58.0692  L_def=0.3286  L_fid=57.7406  shift=0.1714  psnr=28.04  linf=0.5734  |g|=1.000e+00
+[run] car_00__L__r4__s50 完成 178s peak=10139MB shift=0.1714 psnr=28.04 eff_rank=512.0
+
+[run] car_00__L__r4__s200  prompt='a wrecked car after an accident'
+  step    0  loss=0.8473  L_def=0.3990  L_fid=0.4482  shift=0.1010  psnr=120.00  linf=0.0000  |g|=4.940e-01
+  step   10  loss=82.2936  L_def=0.1068  L_fid=82.1868  shift=0.3932  psnr=23.38  linf=0.7703  |g|=1.000e+00
+  step   14  loss=75.4375  L_def=0.2212  L_fid=75.2163  shift=0.2788  psnr=21.91  linf=0.6851  |g|=1.000e+00
+[run] car_00__L__r4__s200 完成 179s peak=10139MB shift=0.2788 psnr=21.91 eff_rank=512.0
+
+[run] car_00__LA__r4__s1  prompt='a wrecked car after an accident'
+  step    0  loss=0.5000  L_def=0.5000  L_fid=0.0000  shift=0.0000  psnr=120.00  linf=0.0000  |g|=6.464e-11
+  step   10  loss=8.5458  L_def=0.1625  L_fid=8.3833  shift=0.3375  psnr=57.99  linf=0.1438  |g|=1.000e+00
+  step   14  loss=5.0542  L_def=0.3746  L_fid=4.6796  shift=0.1254  psnr=61.32  linf=0.1068  |g|=1.000e+00
+[run] car_00__LA__r4__s1 完成 179s peak=10142MB shift=0.1254 psnr=61.32 eff_rank=512.0
+
+[run] car_00__LA__r4__s10  prompt='a wrecked car after an accident'
+  step    0  loss=0.5000  L_def=0.5000  L_fid=0.0000  shift=0.0000  psnr=120.00  linf=0.0000  |g|=6.464e-10
+  step   10  loss=33.9677  L_def=0.1502  L_fid=33.8175  shift=0.3498  psnr=41.53  linf=0.3981  |g|=1.000e+00
+  step   14  loss=28.8409  L_def=0.3598  L_fid=28.4811  shift=0.1402  psnr=37.46  linf=0.3447  |g|=1.000e+00
+[run] car_00__LA__r4__s10 完成 179s peak=10143MB shift=0.1402 psnr=37.46 eff_rank=512.0
+
+[run] car_00__LA__r4__s50  prompt='a wrecked car after an accident'
+  step    0  loss=0.5000  L_def=0.5000  L_fid=0.0000  shift=0.0000  psnr=120.00  linf=0.0000  |g|=3.232e-09
+  step   10  loss=61.1492  L_def=0.1612  L_fid=60.9881  shift=0.3388  psnr=30.24  linf=0.6320  |g|=1.000e+00
+  step   14  loss=57.7724  L_def=0.3570  L_fid=57.4154  shift=0.1430  psnr=30.24  linf=0.5962  |g|=1.000e+00
+[run] car_00__LA__r4__s50 完成 179s peak=10143MB shift=0.1430 psnr=30.24 eff_rank=512.0
+
+[run] car_00__LA__r4__s200  prompt='a wrecked car after an accident'
+  step    0  loss=0.5000  L_def=0.5000  L_fid=0.0000  shift=0.0000  psnr=120.00  linf=0.0000  |g|=1.293e-08
+  step   10  loss=78.8849  L_def=0.1592  L_fid=78.7257  shift=0.3408  psnr=27.77  linf=0.7843  |g|=1.000e+00
+  step   14  loss=79.2687  L_def=0.3647  L_fid=78.9040  shift=0.1353  psnr=28.53  linf=0.7937  |g|=1.000e+00
+[run] car_00__LA__r4__s200 完成 179s peak=10142MB shift=0.1353 psnr=28.53 eff_rank=512.0
+
+[run] 全部完成，共 8 格，1519s

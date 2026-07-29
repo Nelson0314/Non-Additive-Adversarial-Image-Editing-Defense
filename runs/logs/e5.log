@@ -1,0 +1,51 @@
+[run] device=cuda sites=['LA'] ranks=[4] steps=20
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 8625.46it/s]
+Loading pipeline components...:  50%|█████     | 3/6 [00:00<00:00, 14.39it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 19.66it/s]
+/work/nelson0314/miniconda3/envs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/work/nelson0314/miniconda3/envs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+[run] 影像 5 張：['car_00', 'car_01', 'dog_00', 'dog_01', 'person_00']
+[run] 訓練期淨化集 ['identity', 'blur', 'jpeg']
+
+[run] car_00__LA__r4  prompt='a wrecked car after an accident'
+  step    0  loss=0.5000  L_def=0.5000  L_fid=0.0000  shift=0.0000  psnr=120.00  linf=0.0000  |g|=6.464e-10
+  step   10  loss=43.3727  L_def=0.1512  L_fid=43.2216  shift=0.3488  psnr=41.01  linf=0.4922  |g|=1.000e+00
+  step   19  loss=30.6309  L_def=0.1525  L_fid=30.4784  shift=0.3475  psnr=37.58  linf=0.3647  |g|=2.701e-02
+[run] car_00__LA__r4 完成 238s peak=10153MB shift=0.3475 psnr=37.58 eff_rank=512.0
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 33408.71it/s]
+[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
+[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
+Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 8725.12it/s]
+
+[run] car_01__LA__r4  prompt='a wrecked car after an accident'
+/work/nelson0314/miniconda3/envs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/work/nelson0314/miniconda3/envs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+  step    0  loss=0.5000  L_def=0.5000  L_fid=0.0000  shift=0.0000  psnr=120.00  linf=0.0000  |g|=4.320e-10
+  step   10  loss=6.9306  L_def=0.1751  L_fid=6.7555  shift=0.3249  psnr=52.26  linf=0.1275  |g|=1.000e+00
+  step   19  loss=7.4809  L_def=0.1733  L_fid=7.3076  shift=0.3267  psnr=48.08  linf=0.1331  |g|=1.000e+00
+[run] car_01__LA__r4 完成 238s peak=11512MB shift=0.3267 psnr=48.08 eff_rank=512.0
+
+[run] dog_00__LA__r4  prompt='a cat sitting on the grass'
+  step    0  loss=0.5000  L_def=0.5000  L_fid=0.0000  shift=0.0000  psnr=120.00  linf=0.0000  |g|=4.398e-10
+  step   10  loss=1.1786  L_def=0.1981  L_fid=0.9805  shift=0.3019  psnr=51.73  linf=0.0698  |g|=1.000e+00
+  step   19  loss=0.2033  L_def=0.1976  L_fid=0.0057  shift=0.3024  psnr=49.50  linf=0.0558  |g|=9.965e-03
+[run] dog_00__LA__r4 完成 238s peak=11512MB shift=0.3024 psnr=49.50 eff_rank=512.0
+
+[run] dog_01__LA__r4  prompt='a cat sitting on the grass'
+  step    0  loss=0.5000  L_def=0.5000  L_fid=0.0000  shift=0.0000  psnr=120.00  linf=0.0000  |g|=7.678e-10
+  step   10  loss=3.0368  L_def=0.1793  L_fid=2.8574  shift=0.3207  psnr=52.63  linf=0.0885  |g|=1.000e+00
+  step   19  loss=4.9108  L_def=0.1773  L_fid=4.7335  shift=0.3227  psnr=49.43  linf=0.1073  |g|=1.000e+00
+[run] dog_01__LA__r4 完成 238s peak=11512MB shift=0.3227 psnr=49.43 eff_rank=512.0
+
+[run] person_00__LA__r4  prompt='an elderly person with gray hair'
+  step    0  loss=0.5000  L_def=0.5000  L_fid=0.0000  shift=0.0000  psnr=120.00  linf=0.0000  |g|=4.222e-10
+  step   10  loss=0.6307  L_def=0.2429  L_fid=0.3878  shift=0.2571  psnr=54.19  linf=0.0639  |g|=1.000e+00
+  step   19  loss=3.6014  L_def=0.2316  L_fid=3.3699  shift=0.2684  psnr=49.41  linf=0.0936  |g|=1.000e+00
+[run] person_00__LA__r4 完成 238s peak=11512MB shift=0.2684 psnr=49.41 eff_rank=512.0
+
+[run] 全部完成，共 5 格，1526s

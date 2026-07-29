@@ -173,8 +173,12 @@ def optimize(
     cfg: OptimConfig,
     loss_cfg: LossConfig,
     purifiers: List[Purifier],
+    y_target: Optional[torch.Tensor] = None,
 ) -> OptimResult:
     """優化 φ 使編輯偏移最大化，同時維持 x_def 與 x 的保真。
+
+    `y_target` 僅在 `loss_cfg.defense_mode == "targeted"` 時使用，為編輯
+    結果要被推向的固定目標影像。無目標模式下傳入會被忽略。
 
     `y_orig` 對 φ 為常數（spec §5.1），故對每個噪聲取樣預先算好並快取；
     這省下每步一條 n_edit 長度的無梯度 UNet 鏈。
@@ -262,7 +266,8 @@ def optimize(
             )
             y_refs.append(y_origs[i])
 
-        total, log = obj(x_def, x01, y_defs, y_refs, x_base=x_base)
+        total, log = obj(x_def, x01, y_defs, y_refs,
+                         x_base=x_base, y_target=y_target)
         total.backward()
 
         if cfg.grad_clip > 0:
@@ -295,6 +300,100 @@ def optimize(
             torch.cuda.empty_cache()
 
     result.x_base = x_base
+    result.seconds = time.perf_counter() - t0
+    result.steps_done = cfg.steps
+    return result
+
+
+def optimize_encoder(
+    sd: SDWrapper,
+    module: ResidualModule,
+    x01: torch.Tensor,
+    cfg: OptimConfig,
+    loss_cfg: LossConfig,
+    purifiers: List[Purifier],
+    z_target: Optional[torch.Tensor] = None,
+) -> OptimResult:
+    """VAE 編碼器目標（PhotoGuard 的 encoder attack 形式）。
+
+        min_φ  ‖E_vae(P(x_def)) − z_target‖²  +  λ_fid · L_fid(x_def, x)
+
+    **與 optimize() 是不同的方法，不是它的一個選項**，故獨立成一個函式：
+    這裡完全沒有 SDEdit、沒有 y_orig、沒有編輯 prompt，共用同一個迴圈只會
+    讓兩者的差異被埋在條件分支裡。
+
+    成本差距來自 E0 的成本模型 `秒 ≈ 1.05 + 0.384·k_inv + 0.304·n_edit`：
+    此處 `n_edit` 與 `k_inv` 兩項都不存在，每步只剩一次 VAE 編碼。1000 步
+    的成本仍低於 optimize() 的 25 步。
+
+    同時消除本專案最大的兩個過擬合來源——目標不依賴任何特定的編輯 prompt
+    或噪聲取樣（實測噪聲過擬合 3.3 倍，prompt 過擬合從未量過）。代價是它
+    不再針對「這個編輯」最佳化，是泛化性換特異性的取捨，須實測而非假設。
+
+    `z_target` 預設為零張量。零是 latent 空間的一個退化點，把 x_def 推向
+    它等同要求 VAE 把防禦圖看成「沒有內容」，這是 PhotoGuard encoder attack
+    的常見選擇；呼叫端可傳入其他目標。
+    """
+    device = x01.device
+    gen = DefenseGenerator(sd, module, k_inv=cfg.k_inv, t_max=cfg.t_max)
+    obj = DefenseObjective(loss_cfg, device)
+    opt = torch.optim.Adam(module.parameters(), lr=cfg.lr)
+
+    with torch.no_grad():
+        was_enabled = module.enabled
+        module.disable()
+        try:
+            x_base0 = gen.generate(x01, gen.prepare(x01, prompt_def=cfg.prompt_def))
+            x_base0 = x_base0.detach()
+        finally:
+            if was_enabled:
+                module.enable()
+        if z_target is None:
+            z_target = torch.zeros_like(sd.encode_image(x01))
+
+    result = OptimResult(x_base0=x_base0, x_base=x_base0)
+    t0 = time.perf_counter()
+
+    for step in range(cfg.steps):
+        opt.zero_grad(set_to_none=True)
+        ctx = gen.prepare(x01, prompt_def=cfg.prompt_def)
+        x_def = gen.generate(x01, ctx, use_ckpt=cfg.unet_ckpt,
+                             vae_ckpt=cfg.vae_ckpt)
+
+        # 淨化仍以 EOT 取樣：編碼器目標不會自動帶來耐淨化性，那是兩件事
+        pairs = eot_pairs(cfg.purify_mode, step, 1, len(purifiers))
+        z_defs = [sd.encode_image(purifiers[pi].forward(x_def),
+                                  use_ckpt=cfg.vae_ckpt)
+                  for pi, _ in pairs]
+        l_def = torch.stack([obj.encoder_term(z, z_target) for z in z_defs]).mean()
+        l_fid, parts = obj.fidelity_term(x_def, x01, x_base=x_base0)
+        total = loss_cfg.lam_def * l_def + loss_cfg.lam_fid * l_fid
+        total.backward()
+
+        if cfg.grad_clip > 0:
+            torch.nn.utils.clip_grad_norm_(module.parameters(), cfg.grad_clip)
+        opt.step()
+
+        log = {"step": step, "loss": float(total), "L_def": float(l_def),
+               "L_fid": float(l_fid), "edit_shift": float("nan"),
+               "defense_mode": "encoder", **parts}
+        log["grad_norm"] = float(torch.stack(
+            [p.grad.norm() for p in module.parameters() if p.grad is not None]
+        ).norm())
+        result.history.append(log)
+
+        if step % cfg.log_every == 0 or step == cfg.steps - 1:
+            print(f"  [enc] step {step:>4d}  loss={float(total):.4f}  "
+                  f"L_def={float(l_def):.4f}  psnr={parts['fid_psnr_total']:.2f}  "
+                  f"|g|={log['grad_norm']:.3e}", flush=True)
+
+        if step == cfg.steps - 1:
+            result.x_def = x_def.detach().clone()
+
+        del x_def, z_defs, total
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+
     result.seconds = time.perf_counter() - t0
     result.steps_done = cfg.steps
     return result

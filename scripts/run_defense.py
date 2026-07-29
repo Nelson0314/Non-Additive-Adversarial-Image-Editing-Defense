@@ -28,7 +28,7 @@ import numpy as np
 import torch
 
 from src.defense.objective import LossConfig
-from src.defense.optimize import OptimConfig, optimize
+from src.defense.optimize import OptimConfig, optimize, optimize_encoder
 from src.metrics.spectrum import analyze
 from src.metrics.suite import MetricSuite
 from src.models.sd import SDWrapper
@@ -275,6 +275,17 @@ def main():
         help="保真度綁定約束：LPIPS(x_def, x_base) 的上限。"
              "全秩與低秩的比較以此為匹配軸，須掃描而非取單一值",
     )
+    ap.add_argument(
+        "--defense_mode", default="untargeted",
+        choices=["untargeted", "targeted", "encoder"],
+        help="untargeted=把編輯結果推離原編輯（既有行為）；"
+             "targeted=推向 --target_image；"
+             "encoder=改攻擊 VAE 編碼器，完全不走去噪鏈，每步成本降一個數量級",
+    )
+    ap.add_argument(
+        "--target_image", default="",
+        help="defense_mode=targeted 時的目標影像路徑",
+    )
     ap.add_argument("--strength", type=float, default=0.5)
     ap.add_argument("--seed", type=int, default=20260728)
     ap.add_argument("--limit", type=int, default=None, help="只跑前 N 張影像")
@@ -303,7 +314,16 @@ def main():
     # tau_lpips 是全秩與低秩比較的匹配軸：兩個 arm 在同一組 τ 下各跑一次，
     # 比較的是兩條曲線而非單點，結論不受匹配點的選擇左右。故它必須是 CLI
     # 參數，不能寫死在 LossConfig 的預設值裡。
-    loss_cfg = LossConfig(tau_lpips=args.tau_lpips)
+    loss_cfg = LossConfig(tau_lpips=args.tau_lpips,
+                          defense_mode=args.defense_mode)
+    # 有目標模式的目標影像。載入時機在迴圈外：它對 φ 與影像都是常數。
+    y_target = None
+    if args.target_image:
+        from PIL import Image
+        import torchvision.transforms as T
+        _t = Image.open(args.target_image).convert('RGB').resize(
+            (args.size, args.size), Image.LANCZOS)
+        y_target = T.ToTensor()(_t).unsqueeze(0).to(device)
     purifiers = default_train_set()
     print(f"[run] 訓練期淨化集 {[p.kind for p in purifiers]}")
 
@@ -334,7 +354,14 @@ def main():
                 module = build_module(site, rank, cfg, sd, args.size, args.seed).to(device)
 
                 reset_peak_memory()
-                res = optimize(sd, module, x01, cfg, loss_cfg, purifiers)
+                # encoder 模式是不同的方法而非 optimize 的選項：完全沒有
+                # SDEdit、沒有 y_orig、沒有編輯 prompt，故走獨立的迴圈。
+                if args.defense_mode == "encoder":
+                    res = optimize_encoder(
+                        sd, module, x01, cfg, loss_cfg, purifiers)
+                else:
+                    res = optimize(sd, module, x01, cfg, loss_cfg,
+                                   purifiers, y_target=y_target)
                 peak = peak_memory_mb()
 
                 # ---- spec §8.3 產出留存 ----

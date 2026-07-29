@@ -15,7 +15,9 @@ import torch
 
 from src.defense.generator import DefenseGenerator
 from src.defense.objective import LossConfig
-from src.defense.optimize import OptimConfig, align, optimize
+from src.defense.optimize import (
+    OptimConfig, align, optimize, optimize_encoder,
+)
 from src.models.sd import SDWrapper
 from src.purify.ops import default_train_set
 from src.residual.site_embedding import EmbeddingResidual
@@ -679,3 +681,61 @@ def test_site_W_generator不誤判phi進不了計算圖(sd, x01):
         assert x_def.shape == x01.shape
     finally:
         mod.remove()
+
+
+# ------------------------------------------------- 編碼器目標與有目標模式
+
+
+def test_編碼器目標不走去噪鏈且梯度抵達phi(sd, x01):
+    """optimize_encoder 完全不呼叫 sdedit：這正是它比 optimize 便宜的原因。
+
+    以計數器包住 sd.sdedit 驗證呼叫次數為零，而不是只看它跑得完——後者
+    在 sdedit 被誤加回去時仍然會過。
+    """
+    calls = {"n": 0}
+    orig = sd.sdedit
+
+    def counting(*a, **k):
+        calls["n"] += 1
+        return orig(*a, **k)
+
+    sd.sdedit = counting
+    try:
+        mod = PixelResidual(size=SIZE, max_rank=4, const_rank=4, seed=SEED).to(DEV)
+        cfg = OptimConfig(steps=2, k_inv=2, n_edit=2, lr=0.05, log_every=100)
+        res = optimize_encoder(sd, mod, x01, cfg, LossConfig(), default_train_set())
+    finally:
+        sd.sdedit = orig
+
+    assert calls["n"] == 0, f"編碼器目標不得呼叫 sdedit（實際 {calls['n']} 次）"
+    assert len(res.history) == 2
+    assert res.x_def is not None
+    assert not torch.equal(res.x_def, x01), "φ 必須真的被更新"
+
+
+def test_編碼器目標的損失朝目標下降(sd, x01):
+    """z_target 預設為零：把 x_def 推向「VAE 看不到內容」的退化點。
+
+    兩個設計上的必要條件，缺一則這個測試沒有鑑別力：
+
+    1. `purify_mode="all"`——預設的 rotate 每步輪替不同算子，相鄰步量到的
+       是**不同條件**下的損失，本來就會震盪。E0d 的學習率判準踩過同一個坑。
+    2. `lam_fid=0`——保真項的作用正是把 x_def 拉回 x，與編碼器目標直接對抗。
+       兩者並存時「損失有沒有下降」量到的是兩股力的淨結果，不是編碼器目標
+       本身可不可優化。
+    """
+    mod = PixelResidual(size=SIZE, max_rank=4, const_rank=4, seed=SEED).to(DEV)
+    cfg = OptimConfig(steps=4, k_inv=2, lr=0.1, log_every=100, purify_mode="all")
+    res = optimize_encoder(sd, mod, x01, cfg, LossConfig(lam_fid=0.0),
+                           default_train_set())
+    l = [h["L_def"] for h in res.history]
+    assert l[-1] < l[0], f"編碼器損失未下降：{l[0]:.5f} -> {l[-1]:.5f}"
+
+
+def test_有目標模式需要y_target(sd, x01):
+    """缺少目標時必須在此報錯，不得靜默退回無目標。"""
+    mod = PixelResidual(size=SIZE, max_rank=4, const_rank=4, seed=SEED).to(DEV)
+    cfg = OptimConfig(steps=1, k_inv=2, n_edit=2, log_every=100)
+    with pytest.raises(ValueError, match="y_target"):
+        optimize(sd, mod, x01, cfg, LossConfig(defense_mode="targeted"),
+                 default_train_set())

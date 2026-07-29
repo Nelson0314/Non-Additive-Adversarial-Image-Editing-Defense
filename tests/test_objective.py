@@ -451,3 +451,58 @@ def test_全秩殘差的實測秩遠高於低秩(r):
     low_rank_ = analyze(low_delta)["effective_rank"]
     assert max(low_rank_) <= r, f"低秩側的實測秩不得超過 {r}"
     assert min(full_rank) > r, "全秩側必須明顯高於低秩側，否則對照無效"
+
+
+# ----------------------------------------------- 有目標與 VAE 編碼器目標
+
+
+def test_有目標模式最小化與目標的距離(obj):
+    """無目標是「離原編輯遠」，有目標是「往固定目標去」，方向不同。
+
+    構造兩個候選：一個接近目標、一個遠離目標。有目標模式下前者的損失
+    必須較小——這正是無目標模式做不到的區分（兩者離 y_orig 可能一樣遠）。
+    """
+    tgt = _img(50)
+    near = (tgt + 0.02 * torch.randn_like(tgt)).clamp(0, 1)
+    far = _img(51)
+    y_orig = _img(52)
+
+    o = DefenseObjective(LossConfig(defense_mode="targeted"), DEV)
+    l_near = float(o.defense_term([near], [y_orig], y_target=tgt))
+    l_far = float(o.defense_term([far], [y_orig], y_target=tgt))
+    assert l_near < l_far, "接近目標者的損失必須較小"
+    assert l_near >= 0.0
+
+
+def test_有目標模式缺少目標時報錯():
+    """靜默退回無目標會讓實驗跑完才發現量的是另一個目標函數。"""
+    o = DefenseObjective(LossConfig(defense_mode="targeted"), DEV)
+    with pytest.raises(ValueError, match="y_target"):
+        o.defense_term([_img(53)], [_img(54)])
+
+
+def test_未知的defense_mode必須報錯():
+    o = DefenseObjective(LossConfig(defense_mode="minimax"), DEV)
+    with pytest.raises(ValueError, match="defense_mode"):
+        o.defense_term([_img(55)], [_img(56)])
+
+
+def test_無目標模式行為不變(obj):
+    """新增模式不得改動既有路徑，否則既有結果失去可比性。"""
+    a, b = _img(57), _img(58)
+    d = float(obj.distance(a, b))
+    expected = max(0.0, obj.cfg.margin - d)
+    assert obj.cfg.defense_mode == "untargeted", "預設必須維持無目標"
+    assert float(obj.defense_term([a], [b])) == pytest.approx(expected, abs=1e-6)
+
+
+def test_編碼器目標在相同時為零且可微(obj):
+    """PhotoGuard 的 encoder attack 形式：不經 UNet，故可跑遠多於 25 步。"""
+    z = torch.randn(1, 4, 8, 8, requires_grad=True)
+    assert float(obj.encoder_term(z, z.detach())) == pytest.approx(0.0, abs=1e-9)
+
+    zt = torch.randn(1, 4, 8, 8)
+    loss = obj.encoder_term(z, zt)
+    assert float(loss) > 0.0
+    loss.backward()
+    assert z.grad is not None and float(z.grad.abs().max()) > 0.0

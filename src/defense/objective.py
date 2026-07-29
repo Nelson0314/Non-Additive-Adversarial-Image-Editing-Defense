@@ -92,6 +92,17 @@ class LossConfig:
     # 防禦項：margin 以 d 的尺度為準，d 預設為 LPIPS
     margin: float = 0.5
 
+    # 防禦項的形式：
+    #   "untargeted" — max(0, m − d(E(P(x_def)), E(x)))，把編輯結果推離原編輯，
+    #                  方向不限（既有行為）
+    #   "targeted"   — d(E(P(x_def)), y_target)，把編輯結果推向一個固定目標
+    #
+    # 無目標最大化在文獻上一貫比有目標脆弱：損失地形沒有盆地，只有一個
+    # 「往外走」的方向，而該方向高度依賴當下的噪聲與 prompt。本專案實測的
+    # 過擬合倍率 3.3x（訓練種子 0.3735 對未見種子 0.1133，site P r=16）正是
+    # 這個現象。有目標則有明確的收斂點。
+    defense_mode: str = "untargeted"
+
     # 保真項
     alpha_ssim: float = 1.0
     beta_linf: float = 100.0
@@ -138,23 +149,64 @@ class DefenseObjective:
     # ---- 防禦項 ----
 
     def defense_term(
-        self, y_def_list: List[torch.Tensor], y_orig_list: List[torch.Tensor]
+        self,
+        y_def_list: List[torch.Tensor],
+        y_orig_list: List[torch.Tensor],
+        y_target: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         """對 (淨化算子, 噪聲) 的取樣求平均，即 spec §5.1 的期望值估計。
 
         兩條分支的噪聲必須逐元素相同，否則量到的偏移主要來自噪聲差異。
         此不變量由呼叫端以共用 `noise` 保證（見 SDWrapper.sdedit 的介面）。
+
+        `defense_mode="targeted"` 時改為最小化與 `y_target` 的距離。此時
+        `y_orig_list` 只用於長度檢查與 `edit_shift` 的記錄，不進入梯度——
+        有目標的定義就是「往哪裡去」，而不是「離哪裡遠」。
         """
         if len(y_def_list) != len(y_orig_list):
             raise ValueError(
                 f"兩側取樣數不符：{len(y_def_list)} vs {len(y_orig_list)}，"
                 "每個防禦分支必須對上使用相同噪聲的原圖分支"
             )
-        terms = [
-            torch.clamp(self.cfg.margin - self.distance(yd, yo), min=0.0)
-            for yd, yo in zip(y_def_list, y_orig_list)
-        ]
+        mode = self.cfg.defense_mode
+        if mode == "targeted":
+            if y_target is None:
+                raise ValueError(
+                    "defense_mode='targeted' 需要 y_target；"
+                    "缺少時不可退回無目標，兩者是不同的目標函數"
+                )
+            terms = [self.distance(yd, y_target) for yd in y_def_list]
+        elif mode == "untargeted":
+            terms = [
+                torch.clamp(self.cfg.margin - self.distance(yd, yo), min=0.0)
+                for yd, yo in zip(y_def_list, y_orig_list)
+            ]
+        else:
+            raise ValueError(
+                f"未知的 defense_mode: {mode!r}，只接受 'untargeted' 或 'targeted'"
+            )
         return torch.stack(terms).mean()
+
+    # ---- VAE 編碼器目標（PhotoGuard 的 encoder attack 形式）----
+
+    def encoder_term(
+        self, z_def: torch.Tensor, z_target: torch.Tensor
+    ) -> torch.Tensor:
+        """‖E_vae(x_def) − z_target‖²，不經過 UNet。
+
+        存在理由是成本與過擬合兩件事同時解決：
+
+        1. **成本**：完全不走去噪鏈。E0 的成本模型是
+           `秒 ≈ 1.05 + 0.384·k_inv + 0.304·n_edit`，此式的兩個係數項在此
+           都消失，每步只剩一次 VAE 編碼。可以跑 1000 步而非 25 步。
+        2. **過擬合**：目標不依賴任何特定的編輯 prompt 或噪聲取樣，直接
+           消除本專案最大的兩個過擬合來源（實測噪聲過擬合 3.3 倍，
+           prompt 過擬合從未量過）。
+
+        代價是它不再針對「這個編輯」最佳化，泛化性換特異性。這是一個
+        需要實測的取捨，不是必然更好。
+        """
+        return torch.nn.functional.mse_loss(z_def, z_target)
 
     # ---- 保真項 ----
 
@@ -241,9 +293,10 @@ class DefenseObjective:
         y_def_list: List[torch.Tensor],
         y_orig_list: List[torch.Tensor],
         x_base: Optional[torch.Tensor] = None,
+        y_target: Optional[torch.Tensor] = None,
     ) -> tuple[torch.Tensor, Dict[str, float]]:
         c = self.cfg
-        l_def = self.defense_term(y_def_list, y_orig_list)
+        l_def = self.defense_term(y_def_list, y_orig_list, y_target=y_target)
         l_fid, parts = self.fidelity_term(x_def, x, x_base=x_base)
         total = c.lam_def * l_def + c.lam_fid * l_fid
 
@@ -258,7 +311,10 @@ class DefenseObjective:
             "loss": float(total),
             "L_def": float(l_def),
             "L_fid": float(l_fid),
+            # 有目標模式下 edit_shift 仍以「離原編輯多遠」記錄，與無目標
+            # 模式可直接比較。它不是該模式的優化目標，但仍是我們評測的量。
             "edit_shift": float(shift),
+            "defense_mode": c.defense_mode,
             **parts,
         }
         return total, log

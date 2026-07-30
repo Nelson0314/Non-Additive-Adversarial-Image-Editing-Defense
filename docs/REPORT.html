@@ -1,0 +1,665 @@
+<meta charset="utf-8">
+<title>低秩殘差防禦 — 實驗報告</title>
+<style>
+:root{
+  --bg:#fbfbfa; --fg:#1a1a1a; --mut:#5f6b7a; --line:#dfe3e8; --card:#fff;
+  --P:#2b6cb0; --PF:#c53030; --L:#2f855a; --W:#6b46c1; --E:#b83280; --LA:#975a16;
+  --ok:#2f855a; --bad:#c53030; --warn:#b7791f;
+}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#16181d; --fg:#e6e8eb; --mut:#9aa5b1; --line:#2b3038; --card:#1d2027;
+        --P:#63a4e0; --PF:#f08a8a; --L:#68b98d; --W:#a68bea; --E:#e07ab8; --LA:#d4a94a;
+        --ok:#68b98d; --bad:#f08a8a; --warn:#d4a94a;}
+}
+:root[data-theme=dark]{--bg:#16181d; --fg:#e6e8eb; --mut:#9aa5b1; --line:#2b3038;
+  --card:#1d2027; --P:#63a4e0; --PF:#f08a8a; --L:#68b98d; --W:#a68bea; --E:#e07ab8;
+  --LA:#d4a94a; --ok:#68b98d; --bad:#f08a8a; --warn:#d4a94a;}
+:root[data-theme=light]{--bg:#fbfbfa; --fg:#1a1a1a; --mut:#5f6b7a; --line:#dfe3e8;
+  --card:#fff; --P:#2b6cb0; --PF:#c53030; --L:#2f855a; --W:#6b46c1; --E:#b83280;
+  --LA:#975a16; --ok:#2f855a; --bad:#c53030; --warn:#b7791f;}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);
+  font:15px/1.65 -apple-system,"Segoe UI","Noto Sans TC","Microsoft JhengHei",sans-serif}
+.wrap{max-width:1180px;margin:0 auto;padding:36px 22px 90px}
+h1{font-size:1.85rem;margin:0 0 .2em;letter-spacing:-.01em}
+h2{font-size:1.3rem;margin:2.4em 0 .7em;padding-bottom:.32em;
+  border-bottom:2px solid var(--line)}
+h3{font-size:1.05rem;margin:1.7em 0 .5em}
+.sub{color:var(--mut);margin:0 0 2em;font-size:.94rem}
+code,.mono{font-family:ui-monospace,"Cascadia Mono",Consolas,monospace;font-size:.9em}
+.card{background:var(--card);border:1px solid var(--line);border-radius:9px;
+  padding:16px 18px;margin:1.1em 0}
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:1em 0}
+table{border-collapse:collapse;width:100%;min-width:520px;font-size:.88rem}
+th,td{padding:6px 10px;text-align:right;border-bottom:1px solid var(--line);
+  white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+thead th{background:color-mix(in srgb,var(--card) 82%,var(--fg) 6%);font-weight:600}
+tbody tr:hover{background:color-mix(in srgb,var(--card) 88%,var(--fg) 5%)}
+figure{margin:1.4em 0}
+figure img{width:100%;height:auto;border:1px solid var(--line);border-radius:7px;
+  background:#fff}
+figcaption{color:var(--mut);font-size:.86rem;margin-top:.5em}
+svg{max-width:100%;height:auto;display:block}
+.good{color:var(--ok);font-weight:600}
+.bad{color:var(--bad);font-weight:600}
+.warn{color:var(--warn);font-weight:600}
+.pill{display:inline-block;padding:1px 8px;border-radius:11px;font-size:.76rem;
+  font-weight:600;border:1px solid currentColor}
+ul,ol{padding-left:1.35em}
+li{margin:.3em 0}
+blockquote{margin:1.1em 0;padding:.6em 1em;border-left:3px solid var(--warn);
+  background:color-mix(in srgb,var(--card) 85%,var(--warn) 8%);border-radius:0 6px 6px 0}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:2px 14px;font-size:.9rem}
+.kv dt{color:var(--mut)}
+.kv dd{margin:0}
+.tag{font-family:ui-monospace,monospace;font-size:.82rem;padding:1px 6px;
+  border-radius:4px;background:color-mix(in srgb,var(--card) 70%,var(--fg) 10%)}
+</style>
+
+<div class="wrap">
+
+<h1>低秩殘差防禦 — 實驗報告</h1>
+<p class="sub">單一 Stable Diffusion v1.4 外掛可開關殘差模組，對抗 SDEdit 惡意編輯 ·
+資料截至 2026-07-30 · 25 個 run、289 個資料檔 · 全部數據在 <span class="tag">runs/</span></p>
+
+<div class="card">
+<h3 style="margin-top:0">目前為止最重要的三句話</h3>
+<ol>
+<li><b>只有像素空間的加性低秩擾動在運作</b>，淨額編輯偏移 0.1133（LPIPS），
+保真度 PSNR 39.79 dB。</li>
+<li><b>它在中等淨化下失效</b>：高斯模糊 σ=1.0 之後只剩 4.4%。修好 EOT 之後升到 7.5%，
+所以那不是優化沒做好，是真的被移除掉了。</li>
+<li><b>「低秩」與「非加性」這兩個賣點目前都還沒有數據支撐。</b>低秩的對照組尚未收斂，
+非加性的三個載體都卡在重建誤差上。</li>
+</ol>
+</div>
+
+<h2>一、整體架構</h2>
+
+<p>四條路徑。<b>第四條（未防禦對照）是必要的</b>：沒有它，淨化本身造成的偏移會被算成防禦效果。</p>
+
+<svg viewBox="0 0 980 380" role="img" aria-label="四條路徑的資料流">
+<defs>
+  <marker id="a" markerWidth="9" markerHeight="7" refX="8.5" refY="3.5" orient="auto">
+    <polygon points="0 0, 9 3.5, 0 7" fill="currentColor"/></marker>
+  <style>
+    .bx{fill:var(--card);stroke:var(--line);stroke-width:1.5;rx:7}
+    .lb{font:12px ui-monospace,monospace;fill:var(--fg)}
+    .sm{font:10.5px -apple-system,sans-serif;fill:var(--mut)}
+    .ttl{font:bold 12px -apple-system,sans-serif}
+    .ln{stroke:var(--mut);stroke-width:1.6;fill:none;color:var(--mut)}
+  </style>
+</defs>
+
+<!-- row labels -->
+<text class="ttl" x="8" y="46" fill="var(--P)">防禦端</text>
+<text class="ttl" x="8" y="132" fill="var(--fg)">攻擊端</text>
+<text class="ttl" x="8" y="222" fill="var(--mut)">參照</text>
+<text class="ttl" x="8" y="308" fill="var(--warn)">未防禦對照</text>
+
+<!-- defender -->
+<rect class="bx" x="78" y="24" width="66" height="34"/>
+<text class="lb" x="111" y="46" text-anchor="middle">x</text>
+<line class="ln" x1="144" y1="41" x2="196" y2="41" marker-end="url(#a)"/>
+<rect class="bx" x="198" y="20" width="120" height="42" style="stroke:var(--P);stroke-width:2"/>
+<text class="lb" x="258" y="38" text-anchor="middle">G(x; φ)</text>
+<text class="sm" x="258" y="53" text-anchor="middle">殘差模組</text>
+<line class="ln" x1="318" y1="41" x2="372" y2="41" marker-end="url(#a)"/>
+<rect class="bx" x="374" y="24" width="78" height="34"/>
+<text class="lb" x="413" y="46" text-anchor="middle">x_def</text>
+
+<!-- defender -> attacker -->
+<path class="ln" d="M413 58 L413 96" marker-end="url(#a)"/>
+<text class="sm" x="422" y="82">公開發布</text>
+
+<!-- attacker -->
+<rect class="bx" x="374" y="98" width="78" height="34"/>
+<text class="lb" x="413" y="120" text-anchor="middle">x_def</text>
+<line class="ln" x1="452" y1="115" x2="500" y2="115" marker-end="url(#a)"/>
+<rect class="bx" x="502" y="94" width="96" height="42"/>
+<text class="lb" x="550" y="112" text-anchor="middle">P(·)</text>
+<text class="sm" x="550" y="127" text-anchor="middle">淨化</text>
+<line class="ln" x1="598" y1="115" x2="646" y2="115" marker-end="url(#a)"/>
+<rect class="bx" x="648" y="94" width="150" height="42"/>
+<text class="lb" x="723" y="111" text-anchor="middle">SDEdit</text>
+<text class="sm" x="723" y="126" text-anchor="middle">t₀=500，10 步，prompt</text>
+<line class="ln" x1="798" y1="115" x2="846" y2="115" marker-end="url(#a)"/>
+<rect class="bx" x="848" y="98" width="72" height="34"/>
+<text class="lb" x="884" y="120" text-anchor="middle">y_def</text>
+
+<!-- reference -->
+<rect class="bx" x="78" y="188" width="66" height="34"/>
+<text class="lb" x="111" y="210" text-anchor="middle">x</text>
+<line class="ln" x1="144" y1="205" x2="646" y2="205" marker-end="url(#a)"/>
+<rect class="bx" x="648" y="184" width="150" height="42"/>
+<text class="lb" x="723" y="201" text-anchor="middle">SDEdit</text>
+<text class="sm" x="723" y="216" text-anchor="middle">同一組噪聲 ε</text>
+<line class="ln" x1="798" y1="205" x2="846" y2="205" marker-end="url(#a)"/>
+<rect class="bx" x="848" y="188" width="72" height="34"/>
+<text class="lb" x="884" y="210" text-anchor="middle">y_orig</text>
+
+<!-- control -->
+<rect class="bx" x="78" y="274" width="66" height="34"/>
+<text class="lb" x="111" y="296" text-anchor="middle">x</text>
+<line class="ln" x1="144" y1="291" x2="500" y2="291" marker-end="url(#a)"/>
+<rect class="bx" x="502" y="270" width="96" height="42" style="stroke:var(--warn);stroke-width:2"/>
+<text class="lb" x="550" y="288" text-anchor="middle">P(·)</text>
+<text class="sm" x="550" y="303" text-anchor="middle">同一個算子</text>
+<line class="ln" x1="598" y1="291" x2="646" y2="291" marker-end="url(#a)"/>
+<rect class="bx" x="648" y="270" width="150" height="42"/>
+<text class="lb" x="723" y="296" text-anchor="middle">SDEdit</text>
+<line class="ln" x1="798" y1="291" x2="846" y2="291" marker-end="url(#a)"/>
+<rect class="bx" x="848" y="274" width="72" height="34"/>
+<text class="lb" x="884" y="296" text-anchor="middle">y_ctrl</text>
+
+<!-- metric -->
+<rect class="bx" x="626" y="336" width="300" height="34"
+      style="stroke:var(--warn);stroke-width:2"/>
+<text class="lb" x="776" y="358" text-anchor="middle">net = d(y_def, y_orig) − d(y_ctrl, y_orig)</text>
+</svg>
+
+<div class="card">
+<b>為什麼第四條不能省。</b>實測 site P r=1：在模糊下量到偏移 0.347、在不淨化下只有
+0.098。高的那個是<b>淨化自己</b>造成的，不是防禦變強。不減掉對照，每一個數字都會被
+系統性高估。
+</div>
+
+<h2>二、五個注入位置</h2>
+
+<p>φ 可以住在管線的五個不同位置。<b>關鍵的分類軸不是「φ 住在哪」，而是
+「x_def 是生成出來的、還是被擾動出來的」</b> —— 因為淨化的定義就是把影像投影回自然
+影像流形，而加性擾動正是被它針對的東西。</p>
+
+<svg viewBox="0 0 980 300" role="img" aria-label="五個注入位置在管線上的位置">
+<defs><style>
+  .b2{fill:var(--card);stroke:var(--line);stroke-width:1.4;rx:6}
+  .l2{font:11.5px ui-monospace,monospace;fill:var(--fg)}
+  .s2{font:10px -apple-system,sans-serif;fill:var(--mut)}
+  .h2t{font:bold 11.5px -apple-system,sans-serif}
+</style></defs>
+
+<!-- generation chain -->
+<text class="h2t" x="8" y="20" fill="var(--mut)">生成路徑 G(x; φ)</text>
+<rect class="b2" x="70" y="34" width="60" height="32"/>
+<text class="l2" x="100" y="54" text-anchor="middle">x</text>
+<line class="ln" x1="130" y1="50" x2="176" y2="50" marker-end="url(#a)"/>
+<rect class="b2" x="178" y="34" width="86" height="32"/>
+<text class="l2" x="221" y="54" text-anchor="middle">VAE enc</text>
+<line class="ln" x1="264" y1="50" x2="310" y2="50" marker-end="url(#a)"/>
+<rect class="b2" x="312" y="34" width="112" height="32"/>
+<text class="l2" x="368" y="47" text-anchor="middle">DDIM inv</text>
+<text class="s2" x="368" y="60" text-anchor="middle">20 步，t≤500</text>
+<line class="ln" x1="424" y1="50" x2="470" y2="50" marker-end="url(#a)"/>
+<rect class="b2" x="472" y="30" width="150" height="40" style="stroke:var(--L);stroke-width:2"/>
+<text class="l2" x="547" y="46" text-anchor="middle">UNet 去噪 ×20</text>
+<text class="s2" x="547" y="60" text-anchor="middle">cross-attention 吃文字條件</text>
+<line class="ln" x1="622" y1="50" x2="668" y2="50" marker-end="url(#a)"/>
+<rect class="b2" x="670" y="34" width="86" height="32"/>
+<text class="l2" x="713" y="54" text-anchor="middle">VAE dec</text>
+<line class="ln" x1="756" y1="50" x2="800" y2="50" marker-end="url(#a)"/>
+<rect class="b2" x="802" y="34" width="76" height="32"/>
+<text class="l2" x="840" y="54" text-anchor="middle">x_def</text>
+
+<!-- injection markers -->
+<!-- L -->
+<path class="ln" d="M547 96 L547 74" marker-end="url(#a)" style="stroke:var(--L)"/>
+<rect class="b2" x="470" y="98" width="154" height="46" style="stroke:var(--L);stroke-width:2"/>
+<text class="l2" x="547" y="115" text-anchor="middle" fill="var(--L)">L — latent</text>
+<text class="s2" x="547" y="130" text-anchor="middle">ε̂ ← ε̂ + scale·Δⱼ</text>
+<text class="s2" x="547" y="141" text-anchor="middle">163,840 參數</text>
+<!-- W -->
+<path class="ln" d="M600 168 L600 146" marker-end="url(#a)" style="stroke:var(--W)"/>
+<rect class="b2" x="516" y="170" width="168" height="46" style="stroke:var(--W);stroke-width:2"/>
+<text class="l2" x="600" y="187" text-anchor="middle" fill="var(--W)">W — 權重（LoRA）</text>
+<text class="s2" x="600" y="202" text-anchor="middle">W' = W + (α/r)·B·A</text>
+<text class="s2" x="600" y="213" text-anchor="middle">1,591,296 參數 (r=16)</text>
+<!-- E -->
+<path class="ln" d="M480 168 L510 146" marker-end="url(#a)" style="stroke:var(--E)"/>
+<rect class="b2" x="336" y="170" width="168" height="46" style="stroke:var(--E);stroke-width:2"/>
+<text class="l2" x="420" y="187" text-anchor="middle" fill="var(--E)">E — 文字嵌入</text>
+<text class="s2" x="420" y="202" text-anchor="middle">c ← c + Δ_emb (77×768)</text>
+<text class="s2" x="420" y="213" text-anchor="middle">13,520 參數 (r=16)</text>
+
+<!-- pixel path -->
+<text class="h2t" x="8" y="252" fill="var(--mut)">加性路徑</text>
+<rect class="b2" x="70" y="238" width="60" height="32"/>
+<text class="l2" x="100" y="258" text-anchor="middle">x</text>
+<line class="ln" x1="130" y1="254" x2="176" y2="254" marker-end="url(#a)"/>
+<rect class="b2" x="178" y="234" width="196" height="40" style="stroke:var(--P);stroke-width:2"/>
+<text class="l2" x="276" y="250" text-anchor="middle" fill="var(--P)">P / PF — clamp(x + Δ)</text>
+<text class="s2" x="276" y="264" text-anchor="middle">低秩 Δ=ΣU⊗V（49,152）／全秩 Δ（786,432）</text>
+<line class="ln" x1="374" y1="254" x2="802" y2="254" marker-end="url(#a)"/>
+<rect class="b2" x="804" y="238" width="74" height="32"/>
+<text class="l2" x="841" y="258" text-anchor="middle">x_def</text>
+<text class="s2" x="590" y="248" text-anchor="middle">不經 UNet、不經 VAE</text>
+</svg>
+
+<div class="scroll">
+<table>
+<thead><tr><th>位置</th><th>x_def 的構造</th><th>參數量</th>
+<th>在流形上？</th><th>blur σ=1.0 存活</th><th>狀態</th></tr></thead>
+<tbody>
+<tr><td><span style="color:var(--P)">P 像素低秩</span></td>
+  <td class="mono">clamp(x + ΣU⊗V)</td><td>49,152</td><td>否</td>
+  <td>5.1%</td><td>唯一在運作</td></tr>
+<tr><td><span style="color:var(--PF)">PF 像素全秩</span></td>
+  <td class="mono">clamp(x + Δ)</td><td>786,432</td><td>否</td>
+  <td>4.1%</td><td class="warn">未收斂，對照無效</td></tr>
+<tr><td><span style="color:var(--L)">L latent</span></td>
+  <td class="mono">VAE(去噪(ε̂+Δ))</td><td>163,840</td><td>是</td>
+  <td>—</td><td class="bad">φ 貢獻為零</td></tr>
+<tr><td><span style="color:var(--LA)">LA latent 錨定</span></td>
+  <td class="mono">clamp(x + [G(x;φ)−G(x;0)])</td><td>163,840</td><td class="bad">否</td>
+  <td class="bad">負值</td><td class="bad">已停止</td></tr>
+<tr><td><span style="color:var(--E)">E 文字嵌入</span></td>
+  <td class="mono">VAE(去噪(c+Δ))</td><td>13,520</td><td>是</td>
+  <td>—</td><td>已實作，未跑</td></tr>
+<tr><td><span style="color:var(--W)">W 權重 LoRA</span></td>
+  <td class="mono">VAE(去噪 with W+BA)</td><td>1,591,296</td><td>是</td>
+  <td>—</td><td class="warn">容量測試被發散主導</td></tr>
+</tbody>
+</table>
+</div>
+
+<blockquote>
+<b>我做過的一個設計錯誤。</b>site LA 是我為了繞開保真度地板而發明的錨定寫法。方括號裡
+確實是非線性生成的，但外面那個 <span class="mono">x +</span> <b>把它變回加性了</b> ——
+我親手把唯一能檢驗核心假設的那條 arm，變成了又一條加性 arm。它在模糊下是負值，
+不是「非加性沒用」的證據，只是再一次證明加性擾動沒用。
+</blockquote>
+
+<h2>三、兩階段訓練</h2>
+
+<p>生成路徑（L / E / W）的輸出必須經過 VAE 解碼，因此在 φ=0 時就已經帶重建誤差
+（LPIPS 0.194 / PSNR 26.56 dB）。實測 φ 的效果比這個誤差<b>小 20–36 倍</b>，
+完全被淹沒。</p>
+
+<p>解法借鑑 APA（<span class="mono">arXiv 2506.01511</span>）「先立保真、再訓攻擊」的
+順序，其餘實作不同。</p>
+
+<svg viewBox="0 0 980 250" role="img" aria-label="兩階段訓練">
+<defs><style>
+  .b3{fill:var(--card);stroke:var(--line);stroke-width:1.5;rx:7}
+  .l3{font:12px -apple-system,sans-serif;fill:var(--fg)}
+  .m3{font:11px ui-monospace,monospace;fill:var(--fg)}
+  .s3{font:10px -apple-system,sans-serif;fill:var(--mut)}
+</style></defs>
+
+<rect class="b3" x="34" y="30" width="380" height="118" style="stroke:var(--L);stroke-width:2"/>
+<text class="l3" x="52" y="54" font-weight="bold">階段一：保真對齊</text>
+<text class="m3" x="52" y="78">min_φ  L_fid( G(x; φ), x )</text>
+<text class="s3" x="52" y="98">目標是讓生成的圖逼近原圖，把重建誤差吸收進 φ</text>
+<text class="s3" x="52" y="114">gamma_psnr = 1.0（逐像素準確度在此確實重要）</text>
+<text class="s3" x="52" y="130">保留軌跡最佳的 φ，不取最後一步</text>
+
+<line class="ln" x1="414" y1="89" x2="470" y2="89" marker-end="url(#a)"/>
+<text class="s3" x="442" y="80" text-anchor="middle">熱啟動</text>
+<text class="s3" x="442" y="104" text-anchor="middle">同一組 φ</text>
+<text class="s3" x="442" y="118" text-anchor="middle">Adam 重置</text>
+
+<rect class="b3" x="472" y="30" width="474" height="118" style="stroke:var(--P);stroke-width:2"/>
+<text class="l3" x="490" y="54" font-weight="bold">階段二：防禦訓練</text>
+<text class="m3" x="490" y="78">min_φ  λ_def·L_def + λ_fid·L_fid</text>
+<text class="s3" x="490" y="98">保真基準改為 x_base = G(x; φ_align)，而非 G(x; 0)</text>
+<text class="s3" x="490" y="114">否則階段一吸收掉的重建誤差會變成「防禦可自由花用的預算」</text>
+<text class="s3" x="490" y="130">gamma_psnr = 0.0，綁定約束改為 LPIPS ≤ τ</text>
+
+<rect class="b3" x="34" y="170" width="912" height="60"
+      style="stroke:var(--warn);stroke-width:2"/>
+<text class="l3" x="52" y="192" font-weight="bold">與 APA 的差異（只借順序）</text>
+<text class="s3" x="52" y="212">APA：UNet 另掛一組 LoRA、以噪聲空間 ‖ε−ε̂‖² 訓練、階段二凍結它，第二階段動 z_T 或 prompt embedding</text>
+<text class="s3" x="52" y="226">我們：不加新模組，同一組 φ 兩段排程；損失直接是影像空間的 L_fid——G 是固定長度的可微 DDIM 鏈，不需要噪聲空間的代理量</text>
+</svg>
+
+<h2>四、主要數據</h2>
+
+<h3>4.1 主網格（6 張 × 2 位置 × 3 秩，25 步，未見噪聲種子）</h3>
+<div class="scroll">
+<table>
+<thead><tr><th>位置</th><th>r</th><th>淨額偏移</th><th>PSNR</th><th>LPIPS</th>
+<th>SSIM</th><th>有效秩</th><th>99% 能量秩</th><th>過擬合</th></tr></thead>
+<tbody>
+<tr><td>P</td><td>1</td><td>0.0272</td><td>48.33</td><td>0.0118</td><td>0.9978</td>
+  <td>147.2</td><td class="good">1.1</td><td class="bad">3.31×</td></tr>
+<tr><td>P</td><td>4</td><td>0.0602</td><td>44.04</td><td>0.0282</td><td>0.9944</td>
+  <td>173.6</td><td class="good">4.1</td><td class="bad">3.56×</td></tr>
+<tr><td>P</td><td>16</td><td class="good">0.1133</td><td>39.79</td><td>0.0626</td>
+  <td>0.9851</td><td>215.8</td><td class="good">16.2</td><td class="bad">3.30×</td></tr>
+<tr><td>L</td><td>1</td><td>0.0679</td><td>26.61</td><td>0.1906</td><td>0.8677</td>
+  <td>512.0</td><td class="bad">321.6</td><td>1.07×</td></tr>
+<tr><td>L</td><td>4</td><td>0.0671</td><td>26.62</td><td>0.1889</td><td>0.8681</td>
+  <td>512.0</td><td class="bad">321.8</td><td>1.16×</td></tr>
+<tr><td>L</td><td>16</td><td>0.0664</td><td>26.63</td><td>0.1876</td><td>0.8678</td>
+  <td>512.0</td><td class="bad">321.7</td><td>1.19×</td></tr>
+</tbody>
+</table>
+</div>
+<p><b>兩件事一眼可見。</b>P 的 99% 能量秩<b>精確等於注入秩</b>（有效秩偏高完全是
+<span class="mono">clamp</span> 造成，僅 0.35–0.59% 元素被截斷）。L 的偏移與秩完全無關，
+且殘差恆為滿秩 —— 因為那個殘差不是 φ 產生的。</p>
+
+<h3>4.2 latent 位置的 φ 貢獻為零</h3>
+<div class="scroll">
+<table>
+<thead><tr><th>淨化</th><th>L r=16 訓練 25 步</th><th>L 完全不訓練（φ=0）</th></tr></thead>
+<tbody>
+<tr><td>無</td><td>0.0664</td><td>0.0683</td></tr>
+<tr><td>模糊 0.5</td><td>0.0299</td><td>0.0286</td></tr>
+<tr><td>模糊 1.0</td><td>0.0272</td><td>0.0275</td></tr>
+<tr><td>模糊 3.0</td><td>0.0124</td><td>0.0128</td></tr>
+<tr><td>噪聲 0.02</td><td>0.0414</td><td>0.0411</td></tr>
+<tr><td>噪聲 0.08</td><td>0.0275</td><td>0.0274</td></tr>
+</tbody>
+</table>
+</div>
+<p class="bad">逐項三位小數內相同。訓練 25 步與完全不訓練沒有差別。φ 的效果在振幅上
+比重建誤差小 20–36 倍（r=1 為 36.2×、r=4 為 24.0×、r=16 為 19.8×）。</p>
+
+<h3>4.3 淨化強度掃描</h3>
+<figure>
+<img src="figures/fig1_purify_survival.png" alt="四類淨化算子下的淨額偏移曲線">
+<figcaption>四類淨化算子。虛線的 latent 位置其數值全部來自重建誤差，不是防禦。
+JPEG 與量化的橫軸已反轉，一律左弱右強。</figcaption>
+</figure>
+
+<div class="scroll">
+<table>
+<thead><tr><th>淨化設定</th><th>P r=16 淨額偏移</th><th>保留率</th></tr></thead>
+<tbody>
+<tr><td>無</td><td>0.1133</td><td>100%</td></tr>
+<tr><td>量化 64 階</td><td>0.0946</td><td>83.5%</td></tr>
+<tr><td>JPEG 95</td><td>0.0686</td><td>60.6%</td></tr>
+<tr><td>模糊 σ=0.5</td><td>0.0621</td><td>54.8%</td></tr>
+<tr><td>JPEG 75</td><td>0.0248</td><td>21.9%</td></tr>
+<tr><td>量化 16 階</td><td>0.0126</td><td>11.1%</td></tr>
+<tr><td class="bad">模糊 σ=1.0</td><td class="bad">0.0050</td><td class="bad">4.4%</td></tr>
+<tr><td>噪聲 σ=0.08</td><td>0.0041</td><td>3.6%</td></tr>
+<tr><td>模糊 σ=3.0</td><td>0.0030</td><td>2.7%</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3>4.4 秩與步數都只是能量預算</h3>
+<figure>
+<img src="figures/fig2_rank_is_a_budget.png" alt="秩掃描：偏移與失真同步上升">
+<figcaption>提高秩會買到偏移，代價是保真度；單位失真換到的偏移量幾乎不變。
+步數也一樣：P 由 20 步到 100 步偏移 0.1011→0.1283（+27%），PSNR 41.54→37.21（−4.3 dB）。</figcaption>
+</figure>
+
+<h3>4.5 EOT 是真的有缺陷，但不是模糊失效的原因</h3>
+<figure>
+<img src="figures/fig5_eot_and_overfit.png" alt="EOT 改梯度平均的效果與過擬合幅度">
+<figcaption>左：兩者皆 τ=0.05、site P r=16。訓練集內的兩個算子（模糊 1.0、JPEG 75）
+在改為梯度平均後大幅改善，訓練集外的高斯噪聲沒有 —— 這正是正常運作的 EOT 該有的特徵。
+右：對單一訓練噪聲的過擬合，像素位置達 3.3 倍。</figcaption>
+</figure>
+<div class="scroll">
+<table>
+<thead><tr><th>條件</th><th>輪替（原始）</th><th>全算子梯度平均</th><th>變化</th></tr></thead>
+<tbody>
+<tr><td>達成 LPIPS</td><td>0.0378</td><td>0.0405</td><td>—</td></tr>
+<tr><td>無淨化</td><td>0.0843</td><td>0.0880</td><td>+4%</td></tr>
+<tr><td>模糊 1.0 <span class="tag">訓練集內</span></td><td>0.0045</td>
+  <td class="good">0.0066</td><td class="good">+47%</td></tr>
+<tr><td>JPEG 75 <span class="tag">訓練集內</span></td><td>0.0098</td>
+  <td class="good">0.0194</td><td class="good">+98%</td></tr>
+<tr><td>噪聲 0.02 <span class="tag">訓練集外</span></td><td>0.0331</td>
+  <td>0.0305</td><td>−8%</td></tr>
+</tbody>
+</table>
+</div>
+<p>模糊下的存活率由 5.3% 升到 7.5%。<b>先前「多訓練不改善模糊下存活」的結論是在一個
+確實有瑕疵的 EOT 上量的，但修好之後結論不變</b> —— 模糊 σ=1.0 是真的把防禦移除掉了。</p>
+
+<h3>4.6 全秩對照：這一輪不算數</h3>
+<figure>
+<img src="figures/fig3_fullrank_unconstrained.png" alt="全秩那組未被 tau 拘束住">
+<figcaption>τ 變動 5 倍，全秩達成的 LPIPS 只從 0.1162 動到 0.1333，而低秩緊貼 τ 走。
+右圖的 L∞ 幾乎水平（0.109–0.118）是關鍵證據：786,432 個自由參數在 Adam 下
+25 步 × lr 0.008 的位移上限是 0.2，它整段訓練都在以接近最大速度往外走，
+<b>停在步數用完的地方而非約束的地方</b>。</figcaption>
+</figure>
+<p>兩個 arm 的 LPIPS 區間<b>完全不重疊</b>（低秩最高 0.0670，全秩最低 0.1162），
+所以做不出任何匹配比較。固定步數對參數量差 16 倍的兩個 arm 本來就不是正確的控制。</p>
+<p class="warn">未匹配條件下的初步訊號值得警覺：相對存活率上全秩在噪聲下 50.5%、
+低秩只有 30.3%，方向與「低秩＝空間相干＝更耐淨化」的假設相反。</p>
+
+<h3>4.7 階段一容量測試：被發散主導</h3>
+<figure>
+<img src="figures/fig4_align_capacity.png" alt="對齊軌跡與劣化幅度對參數量">
+<figcaption>左：每一條曲線都在後段變差，空心圓是軌跡最佳點。紅色虛線是像素位置實際
+運作的 0.063，沒有任何載體達到。右：最佳點之後的劣化幅度<b>隨參數量單調遞增</b>，
+這是優化穩定性的特徵，不是容量限制。</figcaption>
+</figure>
+<div class="scroll">
+<table>
+<thead><tr><th>載體</th><th>參數量</th><th>學習率</th><th>car_00 最終</th>
+<th>軌跡最佳</th><th>最佳@步</th><th>最佳後劣化</th></tr></thead>
+<tbody>
+<tr><td>未對齊基準</td><td>—</td><td>—</td><td>0.2032</td><td>—</td><td>—</td><td>—</td></tr>
+<tr><td>L（無 PSNR 項）</td><td>163,840</td><td>0.008</td><td>0.0950</td>
+  <td class="good">0.0950</td><td>199</td><td>+0.0000</td></tr>
+<tr><td>L（修好的損失）</td><td>163,840</td><td>0.008</td><td>0.1351</td>
+  <td>0.1035</td><td>138</td><td>+0.0316</td></tr>
+<tr><td>W r=4</td><td>397,824</td><td class="warn">0.001</td><td>0.1618</td>
+  <td>0.1214</td><td>168</td><td>+0.0404</td></tr>
+<tr><td>W r=16</td><td>1,591,296</td><td class="warn">0.001</td><td>0.1963</td>
+  <td>0.1437</td><td>72</td><td class="bad">+0.0526</td></tr>
+</tbody>
+</table>
+</div>
+<blockquote>
+<b>混淆項，是我的設計錯誤。</b>site L 用 lr=0.008、site W 用 lr=0.001，因為我交代
+agent「W 用探測選出的 lr、L 用 0.008」。兩個載體用不同學習率，<b>L 對 W 的比較不成立</b>。
+應該匹配，或兩邊各自探測。<br>
+（lr 探測本身是對的：lr=0.008 在 site W 上 30 步就發散到 0.5593，起點才 0.2039。）
+</blockquote>
+<p>因此<b>容量假設既未被支持也未被乾淨檢驗</b>。已修的兩件事是任何重測的前提：
+保留軌跡最佳的 φ、<span class="mono">env.json</span> 補記 align 參數。</p>
+
+<h3>4.8 前置量測</h3>
+<div class="grid2">
+<div class="card">
+<h3 style="margin-top:0">記憶體歸因</h3>
+<dl class="kv">
+<dt>只 checkpoint UNet</dt><dd>18,665 MB（18 格中 17 格 OOM）</dd>
+<dt>UNet + VAE 皆 checkpoint</dt><dd class="good">9,951 MB</dd>
+<dt>省下</dt><dd class="good">8.7 GB（47%）</dd>
+</dl>
+<p class="sub" style="margin:.6em 0 0">計算圖上有<b>三次</b> VAE 呼叫（防禦圖解碼、
+SDEdit 編碼、SDEdit 解碼）。未 checkpoint 時峰值是三者總和，checkpoint 後是最大值。
+單次解碼的峰值不變（9934.5→9934.4 MB）符合此解釋 —— 這是先寫下預測再驗證的。</p>
+</div>
+<div class="card">
+<h3 style="margin-top:0">成本模型</h3>
+<p class="mono" style="margin:.3em 0">秒 ≈ 1.05 + 0.384·k_inv + 0.304·n_edit·n_eot</p>
+<p class="sub" style="margin:.4em 0 0">在 (50, 50) 處誤差 0.8%。記憶體與步數無關，
+時間線性相關 —— 所以 n_eot 是最貴的旋鈕。</p>
+</div>
+<div class="card">
+<h3 style="margin-top:0">latent 位置的重建地板</h3>
+<dl class="kv">
+<dt>只走 VAE 一來一回</dt><dd>27.51 dB / LPIPS 0.143</dd>
+<dt>t_max=500, 20 步</dt><dd>26.56 dB / 0.194 <span class="tag">採用</span></dd>
+<dt>t_max=999, 10 步</dt><dd class="bad">16.87 dB / 0.697</dd>
+</dl>
+<p class="sub" style="margin:.6em 0 0">原設定的重建 LPIPS 0.697 —— 不是「接近原圖」，
+是另一張圖。逐張 PSNR 地板相差 <b>11.4 dB</b>（car_00 19.96 到 person_00 33.34），
+LPIPS 地板只在 0.157–0.210 之間。</p>
+</div>
+<div class="card">
+<h3 style="margin-top:0">學習率</h3>
+<dl class="kv">
+<dt>0.05</dt><dd class="bad">最終/最低 = 138（發散）</dd>
+<dt>0.02</dt><dd>39.6</dd>
+<dt>0.008</dt><dd class="good">2.43 <span class="tag">採用</span></dd>
+<dt>0.003</dt><dd>2.92</dd>
+</dl>
+<p class="sub" style="margin:.6em 0 0">Adam 每座標更新量約等於 lr、與梯度無關，而參數
+初始尺度僅 0.02 —— lr=0.05 等於每步改動 2.5 倍於參數自身。</p>
+</div>
+</div>
+
+<h2>五、範例圖：一張影像走完整條管線</h2>
+
+<figure>
+<img src="figures/fig6_pipeline_e2.png" alt="像素位置與 latent 位置的完整管線對照">
+<figcaption><b>latent 那一列是整個專案最重要的一張圖。</b>
+<span class="mono">G(x;0)</span> 與 <span class="mono">x_def</span> 的 PSNR 都是 19.6 dB，
+肉眼看不出差別 —— Google maps 的字樣在兩張裡同樣糊掉、車身顏色同樣偏移。φ 訓練了
+25 步，什麼都沒加上去。對照像素那一列，<span class="mono">G(x;0)</span> 與原圖逐位元
+相同，失真全部來自防禦。</figcaption>
+</figure>
+
+<figure>
+<img src="figures/fig7_pipeline_fullrank.png" alt="全秩與低秩的殘差外觀對照">
+<figcaption>全秩（上）與低秩（下）的殘差外觀差異明顯：全秩是高頻雜訊狀、有效秩 512、
+99% 能量秩 363；低秩平滑且結構化、99% 能量秩 17.3。但兩者的失真不匹配
+（LPIPS 0.0977 對 0.0338），所以偏移的差異（0.2729 對 0.1301）不能歸因於秩。</figcaption>
+</figure>
+
+<h2>六、已推翻與撤回的結論</h2>
+
+<div class="card">
+<h3 style="margin-top:0">1. 「機制是非加性」— 已撤回</h3>
+<p>我曾寫下「P 不耐淨化而 L 耐 ⟹ 機制是非加性」。兩個對照組推翻了它：φ=0 的 site L
+與訓練 25 步的結果<b>逐項三位小數內相同</b>。latent 位置的偏移與耐淨化性全部來自
+重建誤差。<b>spec §7.4 的因果切割在本輪無法執行</b> —— 需要兩個都在運作的位置，
+實際只有 P 在運作。</p>
+</div>
+
+<div class="card">
+<h3 style="margin-top:0">2. 「殘差的頻率分布是 P 與 L 的區別」— 我自己否證的</h3>
+<p>實測低頻能量佔比：P 0.813、L 0.768、白噪聲對照 0.252。兩者都強烈低頻且幾乎一樣。<br>
+<b>而且那個診斷本身選錯了。</b>我用的低頻定義是 f &lt; 0.25 cycles/pixel，而高斯模糊
+σ=1.0 在 f=0.25 處已衰減到 <span class="mono">exp(−2π²·0.0625) ≈ 0.29</span>，
+也就是衰減 71%。cutoff 選得比淨化算子的截止頻率寬太多，該診斷沒有鑑別力。
+要重做需要細分徑向能譜並疊上淨化算子的轉移函數。</p>
+</div>
+
+<div class="card">
+<h3 style="margin-top:0">3. 「latent 產生的殘差在高斯噪聲下隨步數改善」— 已撤回</h3>
+<p>那個結論建立在 <span class="mono">car_00</span> 單張上，而 car_00 正是 site LA 的
+離群值（無淨化 0.0508/0.0726，其餘五張只有 0.0054–0.0355）。n=6 重測，逐張方向根本
+不一致，且 site P 的平均由 0.0021 升到 0.0045，<b>與 n=1 時的 0.0131→0.0100 方向相反</b>。
+兩個位置的噪聲 0.08 平均值都小於其逐張標準差，該條件下與零不可區分。</p>
+</div>
+
+<div class="card">
+<h3 style="margin-top:0">4. 「27.51 dB 是階段一的上限」— 我說錯了</h3>
+<p>那是 <span class="mono">decode(encode(x))</span> 的往返值。階段一是在挑一個
+<b>不同的 z</b>，其解碼結果可能比 <span class="mono">encode(x)</span> 的解碼更接近原圖。
+真正的限制是「rank-r 的 ε 擾動跨 20 步能把 z 移動多遠」。量到超過 27.51 dB 是可能的。</p>
+</div>
+
+<h2>七、規格層級的更正</h2>
+<div class="scroll">
+<table>
+<thead><tr><th>#</th><th>原文</th><th>問題</th><th>更正</th><th>狀態</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>φ=0 ⟹ d(y_def,y_orig)≈0</td><td>只對 P 成立，L 有重建誤差</td>
+  <td>改為「模塊停用時不改變任何計算結果」</td><td class="good">已進規格</td></tr>
+<tr><td>2</td><td>像素殘差秩精確等於 r，無任何後續非線性變換</td>
+  <td><span class="mono">clamp</span> 就是非線性變換（實測有效秩 2→84）</td>
+  <td>低秩在能量意義成立、精確秩不成立</td><td class="good">已進規格</td></tr>
+<tr><td>3</td><td>τ=0.06、PSNR_floor=30 dB，對象為 x_def−x</td>
+  <td>對 L 不可達（L∞ 地板 0.707、PSNR 地板逐張差 11.4 dB）</td>
+  <td>兩道 hinge 改為相對 x_base</td><td class="good">已進規格</td></tr>
+<tr><td>4</td><td>L_def 以未淨化的 E(x) 為基準</td>
+  <td>淨化本身造成的偏移被算成防禦</td>
+  <td>評測端已扣對照；訓練端在分支上</td><td class="warn">評測已改，訓練未改</td></tr>
+<tr><td>5</td><td>保真度綁定約束用 PSNR</td>
+  <td>逐像素平方誤差與人眼可辨性關聯薄弱；跨影像變異是 LPIPS 的數倍</td>
+  <td>改為 LPIPS(x_def, x_base) ≤ τ，L∞ 守門保留</td><td class="good">已實作</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2>八、待完成實驗</h2>
+
+<div class="scroll">
+<table>
+<thead><tr><th>優先</th><th>實驗</th><th>時間</th><th>決定什麼</th><th>阻塞於</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><b>L 對 W 在匹配 lr 下重測</b>（兩邊 lr=0.001，2 張，200 步，
+  保留最佳 φ）</td><td>~2.6 h</td>
+  <td>生成式 x_def 拿不拿得到可用保真度 —— 流形假設能不能測</td><td>GPU</td></tr>
+<tr><td>2</td><td><b>全秩對照重跑</b>（100 步，τ ∈ {0.05, 0.10}，6 張，
+  須先確認收斂於 τ 才可解讀偏移）</td><td>~3.7 h</td>
+  <td>低秩賣點成立與否 —— 論文前提</td><td>GPU</td></tr>
+<tr><td>3</td><td><b>diffusion-based purification 納入評測</b>（DiffPure / GrIDPure）</td>
+  <td>未估</td><td>沒有它，「流形投影」的說法沒有對應的量測</td><td>成本未估</td></tr>
+<tr><td>4</td><td>site E（嵌入）與 site W 的防禦效果</td><td>~2 h 起</td>
+  <td>新機制是否有效</td><td class="warn">卡在第 1 項</td></tr>
+<tr><td>5</td><td>有目標／VAE 編碼器目標函數</td><td>~1 h</td>
+  <td>是否該換目標函數；編碼器版可跑 1000 步</td><td>GPU</td></tr>
+<tr><td>6</td><td>細分徑向能譜 + 淨化轉移函數疊圖</td><td>0（僅分析）</td>
+  <td>取代已知選錯 cutoff 的頻率診斷</td><td>需新 run 的 .npy</td></tr>
+<tr><td>7</td><td>跨 sampler、攻擊者用 50 步編輯</td><td>~1 h</td>
+  <td>審稿人一定會問</td><td>GPU</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="card">
+<h3 style="margin-top:0">程式面已全部就緒</h3>
+<p>五個注入位置（P / PF / L / E / W）、三種目標函數（無目標 / 有目標 / 編碼器）、
+兩種 EOT 模式（輪替 / 全算子平均）、兩階段訓練、跨 prompt 與跨強度泛化評測都已實作，
+<b>114 個測試通過</b>。剩下的全部只差 GPU 時間。</p>
+</div>
+
+<h2>九、能說與不能說</h2>
+<div class="grid2">
+<div class="card">
+<h3 style="margin-top:0" class="good">能說</h3>
+<ol>
+<li>latent 位置的防禦不存在，數字全來自重建誤差（φ=0 對照三位小數內相同）</li>
+<li>在預測噪聲上注入有與量級無關的偏移上限（擾動能量 ×1900 只換到 +14%）</li>
+<li>秩與步數都只是能量預算，不是新機制</li>
+<li>模糊 σ≥1.0 下防禦真的被移除；EOT 修好後只從 5.3% 升到 7.5%</li>
+<li>EOT 用輪替取樣確實有缺陷：改梯度平均後訓練集內算子改善 47–98%，訓練集外沒有</li>
+<li>殘差頻率分布不是 P 與 L 的區別，且原診斷的 cutoff 選錯</li>
+<li>八項指標在本環境全數可用；三次 VAE 呼叫的 checkpoint 省下 47% 記憶體</li>
+</ol>
+</div>
+<div class="card">
+<h3 style="margin-top:0" class="bad">不能說</h3>
+<ol>
+<li><b>「非加性沒有幫助」</b> —— 三個生成式載體都卡在重建誤差，假設從未被檢驗</li>
+<li><b>「低秩有／沒有價值」</b> —— 全秩對照從未收斂，兩個 arm 的失真區間不重疊</li>
+<li><b>「權重空間容量不足」</b> —— 該實驗被發散主導，且 lr 未匹配</li>
+<li>統計顯著性 —— n=2~6、單一種子、每步單一噪聲取樣</li>
+<li>對 diffusion-based purification 的任何主張 —— 從未量測</li>
+<li>跨 sampler、跨編輯步數的任何主張 —— 從未量測</li>
+</ol>
+</div>
+</div>
+
+<h2>十、產出位置</h2>
+<div class="scroll">
+<table>
+<thead><tr><th>路徑</th><th>內容</th></tr></thead>
+<tbody>
+<tr><td class="mono">runs/</td><td>25 個 run、289 個 csv/json/md/log，含逐格訓練軌跡與譜診斷</td></tr>
+<tr><td class="mono">docs/REPORT.html</td><td>本報告</td></tr>
+<tr><td class="mono">docs/figures/</td><td>7 張分析圖與範例圖</td></tr>
+<tr><td class="mono">docs/NIGHT_RUN_2026-07-29.md</td><td>夜間執行紀錄，含撤回說明</td></tr>
+<tr><td class="mono">docs/specs/</td><td>規格與五處更正紀錄</td></tr>
+<tr><td class="mono">scripts/make_report_figures.py</td><td>本報告所有分析圖的產生腳本</td></tr>
+<tr><td class="mono">scripts/figure_pipeline.py</td><td>管線範例圖的產生腳本</td></tr>
+<tr><td class="mono">branch claude/anchored-site-l</td><td>site LA 的程式與 E4–E7 文件（未合併）</td></tr>
+<tr><td class="mono">branch claude/net-defense-objective</td><td>訓練端扣對照的修正（未合併、未執行）</td></tr>
+</tbody>
+</table>
+</div>
+
+<p class="sub" style="margin-top:2.6em">
+GPU 累計約 14 小時（V100-SXM2 32GB）。主網格 2 小時 35 分為最大單項。<br>
+本報告的每一個數字都來自 <span class="mono">runs/</span> 下的 CSV，
+由 <span class="mono">scripts/make_report_figures.py</span> 重新計算，未經手抄。
+</p>
+
+</div>

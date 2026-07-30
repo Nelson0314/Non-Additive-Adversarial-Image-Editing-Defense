@@ -14,7 +14,7 @@ import pytest
 import torch
 
 from src.defense.generator import DefenseGenerator
-from src.defense.objective import LossConfig
+from src.defense.objective import DefenseObjective, LossConfig
 from src.defense.optimize import (
     OptimConfig, align, optimize, optimize_encoder,
 )
@@ -739,3 +739,36 @@ def test_有目標模式需要y_target(sd, x01):
     with pytest.raises(ValueError, match="y_target"):
         optimize(sd, mod, x01, cfg, LossConfig(defense_mode="targeted"),
                  default_train_set())
+
+
+def test_階段一還原軌跡最佳的phi而非最後一步(sd, x01):
+    """E12 實測 8 個組合中 7 個的最後一步比自己的最佳值差，且劣化幅度隨
+    參數量遞增（163,840 參數 +0.0316；1,591,296 參數 +0.0526）。拿最後一步
+    會系統性低報每個載體的能力，且低報程度與參數量相關——那正好讓「容量」
+    與「優化穩定性」兩個變因無法分離。
+
+    以刻意過大的學習率製造後段發散，再驗證回傳的 φ 對應的是最佳步而非
+    最後一步。若模型恰好沒有發散（最佳步就是最後一步），則跳過斷言而非
+    誤判失敗。
+    """
+    cfg = _cfg(align_steps=8, align_lr=5.0)   # 刻意過大，逼出發散
+    mod = _latent_module(sd, cfg.k_inv)
+    gen = DefenseGenerator(sd, mod, k_inv=cfg.k_inv)
+    _, hist = align(sd, mod, x01, cfg, LossConfig(), gen)
+
+    losses = [h["align_loss"] for h in hist]
+    best_step = hist[0]["align_best_step"]
+    assert best_step == losses.index(min(losses)), "記錄的最佳步必須是損失最小者"
+
+    if best_step == len(losses) - 1:
+        pytest.skip("此設定下未發生後段發散，本測試沒有可驗證的還原行為")
+
+    # 還原後重新前向，其損失必須等於最佳步的損失而非最後一步的
+    obj = DefenseObjective(LossConfig(gamma_psnr=cfg.align_gamma_psnr), DEV)
+    with torch.no_grad():
+        x_gen = gen.generate(x01, gen.prepare(x01))
+        again, _ = obj.fidelity_term(x_gen, x01, x_base=None)
+    assert float(again) == pytest.approx(min(losses), rel=1e-4), (
+        f"還原後的損失 {float(again):.4f} 應等於最佳步 {min(losses):.4f}，"
+        f"而非最後一步 {losses[-1]:.4f}"
+    )

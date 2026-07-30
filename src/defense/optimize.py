@@ -136,6 +136,7 @@ def align(
     obj = DefenseObjective(align_cfg, x01.device)
     opt = torch.optim.Adam(module.parameters(), lr=cfg.align_lr)
     history: List[Dict] = []
+    best_loss, best_step, best_state = float("inf"), -1, None
 
     for step in range(cfg.align_steps):
         opt.zero_grad(set_to_none=True)
@@ -148,6 +149,21 @@ def align(
             torch.nn.utils.clip_grad_norm_(module.parameters(), cfg.grad_clip)
         opt.step()
 
+        # 保留軌跡最佳的 φ，最後還原它，而不是拿最後一步的。
+        #
+        # E12 實測 8 個 (載體 × 影像) 組合中有 7 個的最後一步**比自己的最佳
+        # 值差**，且劣化幅度隨參數量遞增：site L（163,840 參數）+0.0316、
+        # site W r=4（397,824）+0.0404、site W r=16（1,591,296）+0.0526。
+        # 拿最後一步等於系統性低報每個載體的能力，而且低報的程度與參數量
+        # 相關——那會讓「容量」與「優化穩定性」兩個變因無法分離。
+        #
+        # 選擇判準用總損失而非單一 LPIPS：損失才是這個階段在最小化的量，
+        # 挑 LPIPS 最低的一步可能挑到 PSNR 被犧牲掉的那一步。
+        if float(loss) < best_loss:
+            best_loss, best_step = float(loss), step
+            best_state = {k: v.detach().clone()
+                          for k, v in module.state_dict().items()}
+
         parts["step"] = step
         parts["align_loss"] = float(loss)
         history.append(parts)
@@ -159,6 +175,13 @@ def align(
         del x_gen, loss
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
+
+    if best_state is not None and best_step != cfg.align_steps - 1:
+        module.load_state_dict(best_state)
+        print(f"  [align] 還原第 {best_step} 步的 φ（loss={best_loss:.4f}）；"
+              f"最後一步為 {history[-1]['align_loss']:.4f}", flush=True)
+    for h in history:
+        h["align_best_step"] = best_step
 
     with torch.no_grad():
         ctx = gen.prepare(x01, prompt_def=cfg.prompt_def)

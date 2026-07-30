@@ -494,6 +494,15 @@ def main():
         "t_max": args.t_max,
         "n_edit": args.n_edit, "n_eot": args.n_eot, "strength": args.strength,
         "seed": args.seed, "prompt_def": args.prompt_def,
+        # 這五項原本沒有記錄，導致 E11/E12 跑完後無法從 env.json 判斷實際
+        # 用了哪個 align_lr、階段一的 PSNR 項有沒有生效——`loss` 子物件記的
+        # 是防禦階段的 gamma_psnr（0.0），階段一是另一組係數。當時只能靠
+        # 曲線與獨立探測結果反推，那不是可接受的可重現性。
+        "purify_mode": args.purify_mode,
+        "defense_mode": args.defense_mode,
+        "target_image": args.target_image,
+        "align_steps": args.align_steps, "align_lr": args.align_lr,
+        "align_gamma_psnr": args.align_gamma_psnr,
         "n_images": len(images), "torch": torch.__version__,
         "gpu": torch.cuda.get_device_name(0) if torch.cuda.is_available() else None,
         "train_purifiers": [

@@ -37,6 +37,7 @@ from src.residual.site_embedding import EmbeddingResidual
 from src.residual.site_latent import LatentResidual
 from src.residual.site_pixel import PixelResidual
 from src.residual.site_pixel_full import FullRankPixelResidual
+from src.residual.site_warp import WarpResidual
 from src.residual.site_weight import WeightResidual
 from src.utils.artifacts import (
     save_history_plot,
@@ -104,10 +105,18 @@ def build_module(site: str, rank: int, cfg: OptimConfig, sd, size: int, seed: in
             steps=cfg.k_inv, channels=lat[1], size=lat[-1],
             max_rank=rank, const_rank=rank, seed=seed,
         )
+    if site == "S":
+        # 空間變形。此處 rank 引數被重新解釋為**位移場的控制網格邊長**：
+        # 掃描介面沿用 --ranks 不另開旗標，但報告中必須寫成 grid_size，
+        # 因為本位置沒有低秩結構，寫成「秩」會誤導。
+        return WarpResidual(
+            size=size, grid_size=(rank if rank > 0 else None),
+            max_disp=cfg.warp_max_disp, seed=seed,
+        )
     raise ValueError(
         f"未知的 site {site!r}；目前支援 "
         "P（像素低秩）、PF（像素全秩對照）、L（latent ε 注入）、"
-        "E（文字嵌入）、W（權重空間 LoRA）"
+        "E（文字嵌入）、W（權重空間 LoRA）、S（空間變形）"
     )
 
 
@@ -286,6 +295,11 @@ def main():
         "--target_image", default="",
         help="defense_mode=targeted 時的目標影像路徑",
     )
+    ap.add_argument(
+        "--warp_max_disp", type=float, default=OptimConfig.warp_max_disp,
+        help="site S 的位移場硬上界，單位為像素。空間變形的失真預算是位移量"
+             "而非 L∞，故此值與 --tau_lpips 同等重要，兩者都會寫入 env.json",
+    )
     ap.add_argument("--strength", type=float, default=0.5)
     ap.add_argument("--seed", type=int, default=20260728)
     ap.add_argument("--limit", type=int, default=None, help="只跑前 N 張影像")
@@ -349,6 +363,7 @@ def main():
                     purify_mode=args.purify_mode,
                     align_steps=args.align_steps, align_lr=args.align_lr,
                     align_gamma_psnr=args.align_gamma_psnr,
+                    warp_max_disp=args.warp_max_disp,
                     prompt_def=args.prompt_def, prompt_edit=prompt, seed=args.seed,
                 )
                 module = build_module(site, rank, cfg, sd, args.size, args.seed).to(device)
@@ -452,6 +467,10 @@ def main():
                     "final_ssim": last["fid_ssim"],
                     "final_lpips": last["fid_lpips"],
                 }
+                # site S 的位移統計。空間變形的失真預算是位移量而非像素差值，
+                # 少了這幾欄，「該格實際用掉多少預算」在 csv 裡完全看不出來。
+                if hasattr(module, "disp_stats"):
+                    base.update(module.disp_stats())
                 summary.append(base)
                 print(
                     f"[run] {tag} 完成 {res.seconds:.0f}s peak={peak:.0f}MB "
@@ -503,6 +522,7 @@ def main():
         "target_image": args.target_image,
         "align_steps": args.align_steps, "align_lr": args.align_lr,
         "align_gamma_psnr": args.align_gamma_psnr,
+        "warp_max_disp": args.warp_max_disp,
         "n_images": len(images), "torch": torch.__version__,
         "gpu": torch.cuda.get_device_name(0) if torch.cuda.is_available() else None,
         "train_purifiers": [

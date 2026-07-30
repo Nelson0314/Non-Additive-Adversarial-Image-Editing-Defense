@@ -63,6 +63,10 @@ class OptimConfig:
     # 理由見 align() 的 docstring：重建對齊是逐像素準確度確實重要的場合。
     align_gamma_psnr: float = 1.0
     strength: float = 0.5
+    # site S 專用：位移場的硬上界，單位為**像素**。空間變形的保真度預算是
+    # 位移量而非 L∞（把一條邊緣移動一像素，L∞ 可接近 1.0 卻幾乎看不出來），
+    # 故此值必須與 tau_lpips 併列記錄，才能說清楚該格的失真預算是什麼。
+    warp_max_disp: float = 1.5
     prompt_def: str = ""        # 防禦生成的 prompt，spec §1.1 要求也測空 prompt
     prompt_edit: str = "a photo"
     seed: int = 20260728

@@ -25,6 +25,7 @@ from src.residual.site_latent import LatentResidual
 from src.residual.base import ResidualModule
 from src.residual.site_pixel import PixelResidual
 from src.residual.site_pixel_full import FullRankPixelResidual
+from src.residual.site_warp import WarpResidual
 from src.residual.site_weight import WeightResidual
 from src.utils.device import get_device
 
@@ -772,3 +773,144 @@ def test_階段一還原軌跡最佳的phi而非最後一步(sd, x01):
         f"還原後的損失 {float(again):.4f} 應等於最佳步 {min(losses):.4f}，"
         f"而非最後一步 {losses[-1]:.4f}"
     )
+
+
+# ------------------------------------------------------------ site S（空間變形）
+
+
+def test_site_S_零位移時防禦圖與原圖逐位元相等(sd, x01):
+    """本位置存在的全部理由就是這條：φ=0 時**沒有**重建誤差。
+
+    site L / E / W 都經過 VAE 解碼，φ=0 時已與原圖相差 LPIPS 0.194，保真度
+    預算在 φ 起作用前就用光。空間變形停在像素空間，此不變量必須是逐位元的，
+    否則本位置相對那三個就沒有優勢可言。
+
+    在 `torch.no_grad()` 下檢查：這正是短路生效的條件，也正是所有評測、
+    留存影像與 x_base0 = G(x;0) 的計算條件。建圖時另有下一條測試。
+    """
+    mod = WarpResidual(size=SIZE, grid_size=8, init_std=0.0).to(DEV)
+    gen = DefenseGenerator(sd, mod, k_inv=2)
+    with torch.no_grad():
+        x_def = gen.generate(x01, gen.prepare(x01))
+    assert torch.equal(x_def, x01), "位移為零時 x_def 必須與 x 完全相同"
+
+
+def test_site_S_零位移下梯度仍抵達phi(sd, x01):
+    """回歸測試：零位移短路曾切斷計算圖，訓練第一步即以
+    `element 0 of tensors does not require grad` 失敗（tiny-SD 端對端實測）。
+
+    位移在初始化時恰為零，若此時 φ 進不了計算圖，本位置永遠無法開始訓練。
+    """
+    mod = WarpResidual(size=SIZE, grid_size=8, init_std=0.0).to(DEV)
+    out = mod.pixel_residual(x01)
+    assert out.requires_grad, "建圖模式下輸出必須連著 φ"
+    out.pow(2).sum().backward()
+    assert mod.flow.grad is not None and mod.flow.grad.abs().sum() > 0
+    # 建圖模式下多承受的偏差就是重取樣的數值底線，量級須維持在可忽略範圍
+    assert (out - x01).abs().max().item() < 1e-4
+
+
+def test_site_S_停用模塊不改變結果(sd, x01):
+    mod = WarpResidual(size=SIZE, grid_size=8, init_std=0.3, seed=SEED).to(DEV)
+    mod.disable()
+    gen = DefenseGenerator(sd, mod, k_inv=2)
+    assert torch.equal(gen.generate(x01, gen.prepare(x01)), x01)
+
+
+def test_site_S_恆等網格經grid_sample的數值誤差有界(sd, x01):
+    """量測（不是假設）零位移短路所迴避的那個數值底線。
+
+    實測 512²、float32 下最大差 5.78e-05。根因是 align_corners=True 的座標
+    −1 + 2i/(N−1) 在 float32 無法精確表示（偏離整數像素位置最多 3.05e-05），
+    雙線性插值再依比例混入鄰居。此測試把該量級釘住：若某次 torch 升級後
+    它變大一個數量級，`force_resample` 對照組的解讀就得跟著改。
+    """
+    mod = WarpResidual(size=SIZE, grid_size=8, init_std=0.0,
+                       force_resample=True).to(DEV)
+    out = mod.pixel_residual(x01)
+    err = (out - x01).abs().max().item()
+    assert not torch.equal(out, x01), "force_resample 必須真的跑一次重取樣"
+    assert err < 1e-4, f"重取樣數值誤差 {err:.3e} 超出預期量級"
+
+
+def test_site_S_位移非零時結果必須改變且梯度抵達phi(sd, x01):
+    mod = WarpResidual(size=SIZE, grid_size=8, init_std=0.5, seed=SEED).to(DEV)
+    x_def = mod.pixel_residual(x01)
+    assert not torch.equal(x_def, x01), "位移非零時必須改變影像"
+
+    x_def.pow(2).sum().backward()
+    assert mod.flow.grad is not None and mod.flow.grad.abs().sum() > 0, (
+        "梯度必須抵達位移場本身"
+    )
+
+
+def test_site_S_位移上界確實不被超過(sd):
+    """max_disp 是硬上界而非懲罰項：本位置的保真度預算就是位移量，
+    量到超界表示預算宣告與實際不符，整張比較表都會失效。"""
+    mod = WarpResidual(size=SIZE, grid_size=8, init_std=5.0,
+                       max_disp=1.5, seed=SEED).to(DEV)
+    d = mod.displacement(SIZE, SIZE)
+    assert d.abs().max().item() <= 1.5 + 1e-6
+    st = mod.disp_stats()
+    # 逐像素位移長度是兩個分量的平方和開根號，故上界是 sqrt(2)·max_disp
+    assert st["disp_max_px"] <= 1.5 * (2 ** 0.5) + 1e-5
+    assert st["grid_size"] == 8
+
+
+def test_site_S_粗網格上採樣後仍是平滑場(sd):
+    """平滑性由構造（粗網格 + 雙線性上採樣）保證，不靠懲罰項。
+
+    以相鄰像素的位移差為度量：上採樣後的逐像素變化量，不得超過控制點之間
+    的變化量除以放大倍率的合理範圍。這裡直接比較粗網格與細網格兩種設定，
+    前者必須明顯更平滑。
+    """
+    coarse = WarpResidual(size=SIZE, grid_size=4, init_std=0.5, seed=SEED).to(DEV)
+    fine = WarpResidual(size=SIZE, grid_size=None, init_std=0.5, seed=SEED).to(DEV)
+
+    def step(m):
+        d = m.displacement(SIZE, SIZE)
+        return (d[..., 1:, :] - d[..., :-1, :]).abs().mean().item()
+
+    assert step(coarse) < step(fine) / 5, (
+        "粗網格上採樣的位移場必須遠比逐像素自由位移平滑"
+    )
+
+
+def test_site_S_是非加性的(sd, x01):
+    """與 site P 的區別必須是可量測的，不能只寫在文件裡。
+
+    加性方法滿足 f(x) − x 與 x 無關：同一組 φ 施加在不同影像上，得到的
+    像素差值完全相同。空間變形不滿足——差值由影像本身的梯度決定。
+    """
+    mod = WarpResidual(size=SIZE, grid_size=8, init_std=0.5, seed=SEED).to(DEV)
+    g = torch.Generator().manual_seed(SEED + 1)
+    x2 = torch.rand(1, 3, SIZE, SIZE, generator=g).to(DEV)
+
+    with torch.no_grad():
+        d1 = mod.pixel_residual(x01) - x01
+        d2 = mod.pixel_residual(x2) - x2
+    rel = (d1 - d2).abs().mean() / d1.abs().mean().clamp_min(1e-12)
+    assert float(rel) > 0.5, (
+        f"同一 φ 在兩張影像上的像素差值相對差 {float(rel):.3f} 太小，"
+        "行為接近加性——那樣本位置就失去存在意義"
+    )
+
+
+def test_site_S_輸出恆在有效像素範圍內(sd, x01):
+    """重新取樣是原像素的凸組合，故不需要 clamp 就必定落在 [0,1]。
+
+    這是空間變形相對加性注入的一個結構性差異：site P 需要 clamp（因而
+    殘差的數值秩不等於設定值），本位置不需要。若某天實測不成立，表示
+    padding_mode 或插值模式被改過，須立即察覺。
+    """
+    mod = WarpResidual(size=SIZE, grid_size=8, init_std=1.0,
+                       max_disp=3.0, seed=SEED).to(DEV)
+    out = mod.pixel_residual(x01)
+    assert float(out.min()) >= float(x01.min()) - 1e-6
+    assert float(out.max()) <= float(x01.max()) + 1e-6
+
+
+def test_site_S_不回報像素殘差以免被誤讀為加性(sd):
+    mod = WarpResidual(size=SIZE, grid_size=8, init_std=0.5, seed=SEED).to(DEV)
+    assert mod.raw_residual() is None
+    assert mod.rank_trace() == [8]

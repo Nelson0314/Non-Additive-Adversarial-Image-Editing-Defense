@@ -1090,3 +1090,114 @@ def test_注意力擷取與checkpoint不相容須以錯誤呈現(sd, x01):
         sd._eps(z, torch.tensor(200), emb, use_ckpt=True)
     with pytest.raises(RuntimeError):
         rec.maps[0].sum().backward()
+
+
+# ------------------------------------------------------- BDIA 精確反演
+
+
+@pytest.mark.parametrize("k,tmax", [(4, 500), (10, 500), (20, 999)])
+def test_BDIA來回誤差遠小於DDIM(sd, x01, k, tmax):
+    """本方法唯一的賣點就是這條：反演與去噪互為精確反解。
+
+    tiny-SD 實測（latent 空間最大絕對誤差）：
+        k= 4 t_max=500  DDIM 2.53e+00  BDIA 8.06e-06
+        k=10 t_max=500  DDIM 1.52e+00  BDIA 1.06e-04
+        k=20 t_max=999  DDIM 2.25e+01  BDIA 3.36e-03
+    差距為 3~5 個數量級。此處以「BDIA 至少小 100 倍」為門檻，留下模型與
+    torch 版本差異的餘裕，同時仍能抓到實作寫錯。
+    """
+    emb = sd.encode_text("").detach()
+    ts = sd.timesteps(k, t_max=tmax)
+    with torch.no_grad():
+        z0 = sd.encode_image(x01)
+        z_ddim, _ = sd.denoise(sd.ddim_inversion(z0, emb, ts, k), emb, ts, k)
+        z_bdia, _ = sd.bdia_denoise(sd.bdia_inversion(z0, emb, ts, k),
+                                    emb, ts, k)
+    e_ddim = (z_ddim - z0).abs().max().item()
+    e_bdia = (z_bdia - z0).abs().max().item()
+    print(f"\n[BDIA] k={k} t_max={tmax}  DDIM={e_ddim:.3e}  BDIA={e_bdia:.3e}")
+    assert e_bdia * 100 < e_ddim
+
+
+def test_BDIA的gamma為零時明確報錯(sd, x01):
+    """γ=0 使上行遞迴退化成無法反解的形式。安靜接受會得到一條看似正常
+    但根本不是精確反演的路徑，數字全錯而沒有任何跡象。"""
+    emb = sd.encode_text("").detach()
+    ts = sd.timesteps(4)
+    with torch.no_grad():
+        z0 = sd.encode_image(x01)
+        with pytest.raises(ValueError):
+            sd.bdia_inversion(z0, emb, ts, 4, gamma=0.0)
+        pair = sd.bdia_inversion(z0, emb, ts, 4)
+        with pytest.raises(ValueError):
+            sd.bdia_denoise(pair, emb, ts, 4, gamma=0.0)
+
+
+def test_generator以exact_inversion切換路徑(sd, x01):
+    """開關必須真的改變計算結果，且 context 帶回第二個狀態。"""
+    k = 4
+    mod = _latent_module(sd, k)
+    mod.disable()
+
+    g_ddim = DefenseGenerator(sd, mod, k_inv=k, t_max=500)
+    g_bdia = DefenseGenerator(sd, mod, k_inv=k, t_max=500, exact_inversion=True)
+    with torch.no_grad():
+        c1 = g_ddim.prepare(x01)
+        c2 = g_bdia.prepare(x01)
+        x1 = g_ddim.generate(x01, c1)
+        x2 = g_bdia.generate(x01, c2)
+
+    assert c1.z_prev is None, "DDIM 路徑不應帶回第二個狀態"
+    assert c2.z_prev is not None, "BDIA 路徑必須帶回 z_{K-1}"
+    assert not torch.equal(x1, x2), "切換反演方式卻得到相同結果"
+
+
+def test_BDIA下零殘差的重建等於VAE的來回(sd, x01):
+    """精確反演的正確結論不是「G(x;0) 更接近原圖」，而是**擴散那一段的誤差
+    被消掉，只剩 VAE 的來回**，即 G(x;0) ≈ decode(encode(x))。
+
+    起初寫的是「BDIA 的 G(x;0) 比 DDIM 的更接近原圖」，實測在 tiny-SD 上
+    不成立（DDIM 0.2728 vs BDIA 0.2744）。原因是 tiny-SD 的 VAE 為隨機
+    權重，其來回誤差 0.27 完全蓋過 latent 的差異，兩者離原圖的距離都由
+    VAE 決定，孰近孰遠是雜訊。那個斷言的前提本身就是錯的，故改成這一條：
+    它由構造成立，在任何模型上都可驗證。
+
+    真實 SD 上這條的意義是：重建地板由 LPIPS 0.194 降到 VAE 來回的 0.143，
+    **不是降到零**。像素側加性位置實際運作在 0.063，故此路徑仍未解封。
+    """
+    k = 4
+    mod = _latent_module(sd, k)
+    mod.disable()
+    with torch.no_grad():
+        vae_only = sd.decode_latent(sd.encode_image(x01))
+        g1 = DefenseGenerator(sd, mod, k_inv=k, t_max=500)
+        g2 = DefenseGenerator(sd, mod, k_inv=k, t_max=500, exact_inversion=True)
+        x_ddim = g1.generate(x01, g1.prepare(x01))
+        x_bdia = g2.generate(x01, g2.prepare(x01))
+    e1 = (x_ddim - vae_only).abs().max().item()
+    e2 = (x_bdia - vae_only).abs().max().item()
+    # ASCII 輸出：Windows 主控台為 cp950，U+2212 之類的字元會讓 print 本身
+    # 丟 UnicodeEncodeError，測試因此失敗而與被測邏輯無關
+    print(f"\n[BDIA] max |G(x;0)-VAE roundtrip|: DDIM={e1:.4e}  BDIA={e2:.4e}")
+    assert e2 * 100 < e1, "BDIA 的 G(x;0) 應與純 VAE 來回幾乎相同"
+
+
+def test_BDIA下site_L的注入仍生效且梯度抵達phi(sd, x01):
+    """精確反演不得讓注入失效。BDIA 的去噪比 DDIM 少一個注入點
+    （K−1 vs K），若索引寫錯，症狀會是「有些步的 φ 從未被用到」。"""
+    k = 4
+    mod = _latent_module(sd, k)
+    gen = DefenseGenerator(sd, mod, k_inv=k, t_max=500, exact_inversion=True)
+    ctx = gen.prepare(x01)
+
+    with torch.no_grad():
+        mod.disable()
+        base = gen.generate(x01, ctx)
+        mod.enable()
+        mod.tensor.V.normal_(0, 0.5)
+        out = gen.generate(x01, ctx)
+    assert not torch.allclose(base, out, atol=1e-6), "注入未生效"
+
+    x_def = gen.generate(x01, ctx)
+    x_def.pow(2).sum().backward()
+    assert mod.tensor.V.grad is not None and mod.tensor.V.grad.abs().sum() > 0

@@ -24,6 +24,10 @@ class DefenseContext:
     """對 φ 為常數的前置計算結果，每張影像算一次。"""
 
     z_inv: Optional[torch.Tensor] = None  # inversion 終點，site P 為 None
+    # BDIA 的遞迴狀態是相鄰兩點，故精確反演時額外帶回 z_{K−1}。DDIM 路徑
+    # 為 None，`generate()` 以它是否存在決定走哪一條去噪，不另設旗標：
+    # 有沒有第二個狀態本身就是「用的是哪種反演」的充分資訊。
+    z_prev: Optional[torch.Tensor] = None
     emb: Optional[torch.Tensor] = None
     ts: Optional[torch.Tensor] = None
     steps: int = 0
@@ -37,10 +41,16 @@ class DefenseGenerator:
         module: ResidualModule,
         k_inv: int = 10,
         t_max: Optional[int] = None,
+        exact_inversion: bool = False,
     ):
         self.sd = sd
         self.module = module
         self.k_inv = k_inv
+        # True 改用 BDIA（arXiv 2307.10829）。latent 空間來回誤差由 DDIM 的
+        # 1.4（k=20, t_max=500，tiny-SD 實測最大絕對值）降到 1.4e-04。
+        # 但影像空間的地板不會歸零：VAE 的編解碼來回誤差（實測 27.51 dB /
+        # LPIPS 0.143）不在 BDIA 的作用範圍內。
+        self.exact_inversion = exact_inversion
         # t_max=None 表示走滿 [0, 999]。E0c 實測該設定下 k_inv=10 的重建
         # 已達 LPIPS 0.70，即 phi=0 時 x_def 與 x 已是兩張不同的圖，故
         # 此參數必須由呼叫端依 E0c 的量測結果指定，不可沿用預設值。
@@ -68,12 +78,17 @@ class DefenseGenerator:
         try:
             with torch.no_grad():
                 z0 = self.sd.encode_image(x01)
-                z_inv = self.sd.ddim_inversion(z0, emb, ts, self.k_inv)
+                if self.exact_inversion:
+                    z_inv, z_prev = self.sd.bdia_inversion(z0, emb, ts, self.k_inv)
+                else:
+                    z_inv = self.sd.ddim_inversion(z0, emb, ts, self.k_inv)
+                    z_prev = None
         finally:
             if was_enabled:
                 self.module.enable()
 
-        return DefenseContext(z_inv=z_inv, emb=emb, ts=ts, steps=self.k_inv)
+        return DefenseContext(z_inv=z_inv, z_prev=z_prev, emb=emb, ts=ts,
+                              steps=self.k_inv)
 
     def generate(
         self,
@@ -116,14 +131,25 @@ class DefenseGenerator:
                 "啟用中卻未提供 pixel_residual、eps_hook、emb_residual、"
                 "patches_model 之任一，φ 無法進入計算圖"
             )
-        z, x0_list = self.sd.denoise(
-            ctx.z_inv,
-            emb,
-            ctx.ts,
-            ctx.steps,
-            eps_hook=hook,
-            use_ckpt=use_ckpt,
-            collect_x0=collect_x0,
-        )
+        if ctx.z_prev is not None:
+            z, x0_list = self.sd.bdia_denoise(
+                (ctx.z_inv, ctx.z_prev),
+                emb,
+                ctx.ts,
+                ctx.steps,
+                eps_hook=hook,
+                use_ckpt=use_ckpt,
+                collect_x0=collect_x0,
+            )
+        else:
+            z, x0_list = self.sd.denoise(
+                ctx.z_inv,
+                emb,
+                ctx.ts,
+                ctx.steps,
+                eps_hook=hook,
+                use_ckpt=use_ckpt,
+                collect_x0=collect_x0,
+            )
         ctx.x0_trace = x0_list
         return self.sd.decode_latent(z, use_ckpt=vae_ckpt)

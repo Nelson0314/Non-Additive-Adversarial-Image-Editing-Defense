@@ -309,6 +309,11 @@ def main():
         help="defense_mode=targeted 時的目標影像路徑",
     )
     ap.add_argument(
+        "--exact_inversion", action="store_true",
+        help="以 BDIA（arXiv 2307.10829）取代 DDIM inversion。只影響 site "
+             "L/E/W 這類走生成路徑的位置；site P/PF/S 不經反演，不受影響",
+    )
+    ap.add_argument(
         "--warp_max_disp", type=float, default=OptimConfig.warp_max_disp,
         help="site S 的位移場硬上界，單位為像素。空間變形的失真預算是位移量"
              "而非 L∞，故此值與 --tau_lpips 同等重要，兩者都會寫入 env.json",
@@ -377,6 +382,7 @@ def main():
                     align_steps=args.align_steps, align_lr=args.align_lr,
                     align_gamma_psnr=args.align_gamma_psnr,
                     warp_max_disp=args.warp_max_disp,
+                    exact_inversion=args.exact_inversion,
                     attn_mode=args.attn_mode,
                     attn_timesteps=args.attn_timesteps,
                     prompt_def=args.prompt_def, prompt_edit=prompt, seed=args.seed,
@@ -542,6 +548,7 @@ def main():
         "align_gamma_psnr": args.align_gamma_psnr,
         "warp_max_disp": args.warp_max_disp,
         "attn_mode": args.attn_mode, "attn_timesteps": args.attn_timesteps,
+        "exact_inversion": args.exact_inversion,
         "n_images": len(images), "torch": torch.__version__,
         "gpu": torch.cuda.get_device_name(0) if torch.cuda.is_available() else None,
         "train_purifiers": [

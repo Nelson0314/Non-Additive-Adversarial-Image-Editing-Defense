@@ -169,6 +169,104 @@ class SDWrapper:
             z = abar[t_next].sqrt() * pred_x0 + (1 - abar[t_next]).sqrt() * eps
         return z
 
+    # ---- 1b. BDIA 精確反演 ----
+
+    def _ddim_step(self, z, eps, t_a, t_b, abar) -> torch.Tensor:
+        """由 t_a 的狀態 z 與其 ε 預測，走一步 DDIM 到 t_b。t_b 可大於或小於 t_a。"""
+        pred_x0 = (z - (1 - abar[t_a]).sqrt() * eps) / abar[t_a].sqrt()
+        return abar[t_b].sqrt() * pred_x0 + (1 - abar[t_b]).sqrt() * eps
+
+    @torch.no_grad()
+    def bdia_inversion(
+        self, z0: torch.Tensor, emb: torch.Tensor, ts: torch.Tensor,
+        steps: int, gamma: float = 1.0,
+    ) -> tuple:
+        """BDIA 反演：z₀ → (z_K, z_{K−1})。回傳**一對**狀態，不是單一張量。
+
+        BDIA（Zhang et al., "Exact Diffusion Inversion via Bi-directional
+        Integration Approximation", arXiv 2307.10829, ECCV 2024）把 DDIM 的
+        單步遞迴改成跨兩步的遞迴：
+
+            z_{i+1} = γ·z_{i−1} − γ·DDIM(z_i, t_i→t_{i−1}) + DDIM(z_i, t_i→t_{i+1})
+
+        兩個 DDIM 步都只用到在 z_i 處的同一次 ε 預測，故給定 (z_{i−1}, z_i)
+        可解出 z_{i+1}，給定 (z_i, z_{i+1}) 也可解出 z_{i−1}——**兩個方向都是
+        代數上的精確反解，不是近似**。γ=1 為標準選擇。
+
+        既有的 `ddim_inversion` 不是精確的：反演時 ε 在 z_i 評估、去噪時在
+        z_{i+1} 評估，兩者不同，誤差逐步累積。實測 t_max=500、k_inv=20 下
+        `G(x; φ=0)` 與原圖相差 LPIPS 0.194 / PSNR 26.56 dB。
+
+        **必須回傳一對狀態。** 遞迴的狀態是相鄰兩點；只交出 z_K，去噪端就得
+        自己補一個近似的起手步，精確性當場失去。第 0 步（z₀→z₁）沒有前一點
+        可用，以普通 DDIM 走，去噪端也不需要反解它——去噪只跑 i=K−1…1，
+        正好是反演用到 BDIA 遞迴的那些步反過來，故整條來回是精確的。
+
+        **精確的只有擴散這一段。** `G(x;0)` 仍要經過 VAE 的編碼與解碼，其
+        來回誤差實測為 PSNR 27.51 dB / LPIPS 0.143，BDIA 不改變這一項。
+        故本方法把重建地板由 LPIPS 0.194 降到 0.143 為止，仍高於像素側加性
+        位置實際運作的 0.063。採用與否應以此為準，不應期待地板歸零。
+        """
+        if gamma == 0:
+            raise ValueError("gamma=0 使 BDIA 退化為不可反解的 DDIM，無意義")
+        abar = self.alphas_cumprod(z0.device)
+        z_prev = z0                                        # z_{i−1}
+        eps0 = self._eps(z0, ts[0], emb)
+        z_cur = self._ddim_step(z0, eps0, ts[0], ts[1], abar)   # z_1，普通 DDIM
+
+        for i in range(1, steps):
+            eps = self._eps(z_cur, ts[i], emb)
+            a_minus = self._ddim_step(z_cur, eps, ts[i], ts[i - 1], abar)
+            a_plus = self._ddim_step(z_cur, eps, ts[i], ts[i + 1], abar)
+            z_next = gamma * z_prev - gamma * a_minus + a_plus
+            z_prev, z_cur = z_cur, z_next
+
+        return z_cur, z_prev            # (z_K, z_{K−1})
+
+    def bdia_denoise(
+        self,
+        z_pair: tuple,
+        emb: torch.Tensor,
+        ts: torch.Tensor,
+        steps: int,
+        eps_hook: Optional[EpsHook] = None,
+        gamma: float = 1.0,
+        use_ckpt: bool = False,
+        collect_x0: bool = False,
+    ):
+        """BDIA 去噪：(z_K, z_{K−1}) → z₀，為 `bdia_inversion` 的精確反解。
+
+        由上式解出下行遞迴：
+
+            z_{i−1} = (1/γ)·(z_{i+1} − DDIM(z_i, t_i→t_{i+1})) + DDIM(z_i, t_i→t_{i−1})
+
+        **注入點比 DDIM 少一個。** 迴圈跑 i=K−1…1 共 K−1 步，而 `denoise`
+        跑 K 步，因為 BDIA 不需要反解反演的第 0 步。故 `eps_hook` 收到的
+        `step_idx` 為 0…K−2，site L 那類以 steps 為第一維的模塊會有一格
+        用不到。留著那一格而非改動模塊的形狀：模塊的參數量因此在兩種反演
+        之間保持一致，比較才不會多一個變因。
+        """
+        if gamma == 0:
+            raise ValueError("gamma=0 使 BDIA 退化為不可反解的 DDIM，無意義")
+        abar = self.alphas_cumprod(z_pair[0].device)
+        z_next, z_cur = z_pair          # z_{i+1}, z_i，起始 i=K−1
+        x0_list = []
+
+        for step_idx, i in enumerate(range(steps - 1, 0, -1)):
+            eps = self._eps(z_cur, ts[i], emb, use_ckpt=use_ckpt)
+            if eps_hook is not None:
+                eps = eps_hook(eps, step_idx, ts[i])
+            a_plus = self._ddim_step(z_cur, eps, ts[i], ts[i + 1], abar)
+            a_minus = self._ddim_step(z_cur, eps, ts[i], ts[i - 1], abar)
+            if collect_x0:
+                x0_list.append(
+                    (z_cur - (1 - abar[ts[i]]).sqrt() * eps) / abar[ts[i]].sqrt()
+                )
+            z_prev = (z_next - a_plus) / gamma + a_minus
+            z_next, z_cur = z_cur, z_prev
+
+        return z_cur, x0_list
+
     # ---- 2. 去噪（可注入殘差，殘差開啟）----
 
     def denoise(

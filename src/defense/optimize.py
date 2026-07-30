@@ -31,6 +31,13 @@ class OptimConfig:
     lr: float = 0.05
     k_inv: int = 10
     t_max: Optional[int] = None   # inversion 的 timestep 上限，見 E0c
+    # True 改用 BDIA 精確反演（arXiv 2307.10829）取代 DDIM。tiny-SD 實測
+    # latent 空間來回誤差由 1.41 降到 1.37e-04（k=20, t_max=500）。
+    # **影像空間的地板不會歸零**：VAE 編解碼來回誤差（真實 SD 實測
+    # 27.51 dB / LPIPS 0.143）與反演無關，BDIA 不觸及該項。預期效果是把
+    # 重建地板由 LPIPS 0.194 降到 0.143，仍高於像素側加性位置實際運作的
+    # 0.063，故此旗標是量測反演佔地板多少的工具，不是解除封鎖的萬靈丹。
+    exact_inversion: bool = False
     n_edit: int = 10
     n_eot: int = 1              # 每步的噪聲取樣數
     # 淨化算子的取樣方式：
@@ -221,7 +228,8 @@ def optimize(
     這省下每步一條 n_edit 長度的無梯度 UNet 鏈。
     """
     device = x01.device
-    gen = DefenseGenerator(sd, module, k_inv=cfg.k_inv, t_max=cfg.t_max)
+    gen = DefenseGenerator(sd, module, k_inv=cfg.k_inv, t_max=cfg.t_max,
+                          exact_inversion=cfg.exact_inversion)
     obj = DefenseObjective(loss_cfg, device)
     opt = torch.optim.Adam(module.parameters(), lr=cfg.lr)
 
@@ -372,7 +380,8 @@ def optimize_encoder(
     的常見選擇；呼叫端可傳入其他目標。
     """
     device = x01.device
-    gen = DefenseGenerator(sd, module, k_inv=cfg.k_inv, t_max=cfg.t_max)
+    gen = DefenseGenerator(sd, module, k_inv=cfg.k_inv, t_max=cfg.t_max,
+                          exact_inversion=cfg.exact_inversion)
     obj = DefenseObjective(loss_cfg, device)
     opt = torch.optim.Adam(module.parameters(), lr=cfg.lr)
 
@@ -479,7 +488,8 @@ def optimize_crossattn(
     )
 
     device = x01.device
-    gen = DefenseGenerator(sd, module, k_inv=cfg.k_inv, t_max=cfg.t_max)
+    gen = DefenseGenerator(sd, module, k_inv=cfg.k_inv, t_max=cfg.t_max,
+                          exact_inversion=cfg.exact_inversion)
     obj = DefenseObjective(loss_cfg, device)
     opt = torch.optim.Adam(module.parameters(), lr=cfg.lr)
     rec = CrossAttentionRecorder(sd.unet)

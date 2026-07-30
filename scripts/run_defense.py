@@ -287,6 +287,18 @@ def main():
              "全秩與低秩的比較以此為匹配軸，須掃描而非取單一值",
     )
     ap.add_argument(
+        "--beta_linf", type=float, default=LossConfig.beta_linf,
+        help="L∞ hinge 的係數。設 0 可讓 LPIPS 成為唯一綁定的保真度約束。"
+             "E13 實測 site S 在 lr=0.1 下 LPIPS 0.033（τ=0.05 內、罰則為 0）"
+             "但 L∞ 0.472（τ=0.06，罰則 41.2），即該位置完全由 L∞ 節流；"
+             "空間變形把邊緣移動兩像素即可使 L∞ 接近 1 而人眼幾乎無感，"
+             "故以 L∞ 比較加性與非加性並不對等，須能關掉",
+    )
+    ap.add_argument(
+        "--tau_linf", type=float, default=LossConfig.tau_linf,
+        help="L∞ hinge 的容差，預設 0.06（≈15/255）",
+    )
+    ap.add_argument(
         "--defense_mode", default="untargeted",
         choices=["untargeted", "targeted", "encoder", "crossattn"],
         help="untargeted=把編輯結果推離原編輯（既有行為）；"
@@ -347,6 +359,7 @@ def main():
     # 比較的是兩條曲線而非單點，結論不受匹配點的選擇左右。故它必須是 CLI
     # 參數，不能寫死在 LossConfig 的預設值裡。
     loss_cfg = LossConfig(tau_lpips=args.tau_lpips,
+                          beta_linf=args.beta_linf, tau_linf=args.tau_linf,
                           defense_mode=args.defense_mode)
     # 有目標模式的目標影像。載入時機在迴圈外：它對 φ 與影像都是常數。
     y_target = None

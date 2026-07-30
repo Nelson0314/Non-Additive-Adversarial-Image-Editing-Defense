@@ -67,6 +67,16 @@ class OptimConfig:
     # 位移量而非 L∞（把一條邊緣移動一像素，L∞ 可接近 1.0 卻幾乎看不出來），
     # 故此值必須與 tau_lpips 併列記錄，才能說清楚該格的失真預算是什麼。
     warp_max_disp: float = 1.5
+    # ---- cross-attention 目標專用 ----
+    # "divergence" — 把防禦圖的注意力分佈推離原圖的（改變綁定的指向）
+    # "entropy"    — 直接把分佈推向均勻（瓦解綁定本身，不需要參考分佈）
+    attn_mode: str = "divergence"
+    # 每步取樣幾個 timestep。cross-attention 的綁定強度隨 t 變化，只在單一
+    # t 上施力等於只防住編輯鏈的其中一步。取樣點均分於 [0, t_edit]，
+    # t_edit 為 SDEdit 在該 strength 下的起始 timestep。
+    attn_timesteps: int = 4
+    # 只作用在 prompt 的內容 token 上（排除 BOS/EOS/padding），見 token_span
+    attn_content_only: bool = True
     prompt_def: str = ""        # 防禦生成的 prompt，spec §1.1 要求也測空 prompt
     prompt_edit: str = "a photo"
     seed: int = 20260728
@@ -418,6 +428,161 @@ def optimize_encoder(
             result.x_def = x_def.detach().clone()
 
         del x_def, z_defs, total
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+
+    result.seconds = time.perf_counter() - t0
+    result.steps_done = cfg.steps
+    return result
+
+
+def optimize_crossattn(
+    sd: SDWrapper,
+    module: ResidualModule,
+    x01: torch.Tensor,
+    cfg: OptimConfig,
+    loss_cfg: LossConfig,
+    purifiers: List[Purifier],
+) -> OptimResult:
+    """cross-attention 目標：破壞 prompt token 與影像位置之間的綁定。
+
+        max_φ  E_t[ D( A(P(x_def), c, t), A(x, c, t) ) ]  −  λ_fid · L_fid
+
+    **著力點與 optimize() 不同。** optimize() 在輸出端量測「編輯結果被推開
+    多少」；此處直接作用在使文字編輯得以定位的機制上——UNet 的 cross-attention
+    把每個 token 綁到影像的特定區域，綁定被破壞則編輯無從落點。
+    （Xu et al., arXiv 2509.10359, ACM MM 2025 採取相同的著力點。）
+
+    **只做單步 UNet 前向，不走完整的 SDEdit 鏈。** 綁定是逐 timestep 的性質，
+    在取樣到的 t 上把它破壞掉即可，不需要把整條 n_edit 步的鏈跑完。成本因此
+    由 `0.304·n_edit`（10 步）降為 `attn_timesteps` 次單步前向。
+
+    **這條前向不能開 UNet checkpoint。** 實測（tiny-SD）：開了之後 backward
+    以 RuntimeError 中止，訊息為
+
+        A different number of tensors was saved during the original forward
+        and recomputation. Number of tensors saved during forward: 477
+        Number of tensors saved during recomputation: 459.
+
+    原因是 hook 在原前向時是掛著的，它額外算的 to_q / to_k / QKᵀ 進了
+    checkpoint 區塊的圖；而 backward 觸發重算時 context manager 早已離開、
+    hook 已卸除，重算的圖少了那一段，兩次存檔的張量數對不上。此處以
+    `sd._eps(...)` 不傳 use_ckpt（預設 False）迴避，單步前向不開 checkpoint
+    的記憶體是可負擔的——真正需要 checkpoint 的是 n_edit 步串接的那條鏈。
+
+    參考分佈 A(x, c, t) 不依賴 φ，故對每個取樣到的 t 只算一次並快取。
+    兩條分支共用同一組加噪 ε（spec §5.1），否則量到的差異主要來自噪聲不同。
+    """
+    from src.models.attention import (
+        CrossAttentionRecorder, attention_divergence, attention_entropy,
+        token_span,
+    )
+
+    device = x01.device
+    gen = DefenseGenerator(sd, module, k_inv=cfg.k_inv, t_max=cfg.t_max)
+    obj = DefenseObjective(loss_cfg, device)
+    opt = torch.optim.Adam(module.parameters(), lr=cfg.lr)
+    rec = CrossAttentionRecorder(sd.unet)
+
+    emb_edit = sd.encode_text(cfg.prompt_edit).detach()
+    span = token_span(sd.tokenizer, cfg.prompt_edit) if cfg.attn_content_only else None
+    if span is not None and span[1] <= span[0]:
+        # 空 prompt 沒有內容 token；對空區間取平均會得到 nan，須明確落回全域
+        print("  [attn] prompt 無內容 token，改用全部 77 格", flush=True)
+        span = None
+
+    # 取樣 timestep：均分於 [0, t_edit]，即 SDEdit 在該 strength 下實際走過
+    # 的區間。超出該區間的 t 對攻擊者的編輯不起作用，在那裡施力是浪費預算。
+    t_edit = min(int(sd.num_train_timesteps * cfg.strength),
+                 sd.num_train_timesteps - 1)
+    t_list = torch.linspace(0, t_edit, cfg.attn_timesteps + 1)[1:].round().long()
+    abar = sd.alphas_cumprod(device)
+
+    lat = sd.latent_shape(x01.shape[-2], x01.shape[-1])
+    noises = [
+        sd.sample_edit_noise(torch.empty(lat, device=device), seed=cfg.seed + i)
+        for i in range(len(t_list))
+    ]
+
+    with torch.no_grad():
+        was_enabled = module.enabled
+        module.disable()
+        try:
+            x_base0 = gen.generate(
+                x01, gen.prepare(x01, prompt_def=cfg.prompt_def)).detach()
+        finally:
+            if was_enabled:
+                module.enable()
+
+        # 參考分佈：原圖在同一組 (t, ε) 下的注意力
+        z_orig = sd.encode_image(x01)
+        ref_maps = []
+        for t, n in zip(t_list, noises):
+            zt = abar[t].sqrt() * z_orig + (1 - abar[t]).sqrt() * n
+            with rec:
+                sd._eps(zt, t, emb_edit)
+            ref_maps.append([m.detach() for m in rec.maps])
+
+    result = OptimResult(x_base0=x_base0, x_base=x_base0)
+    t0 = time.perf_counter()
+
+    for step in range(cfg.steps):
+        opt.zero_grad(set_to_none=True)
+        ctx = gen.prepare(x01, prompt_def=cfg.prompt_def)
+        x_def = gen.generate(x01, ctx, use_ckpt=cfg.unet_ckpt,
+                             vae_ckpt=cfg.vae_ckpt)
+
+        pairs = eot_pairs(cfg.purify_mode, step, len(t_list), len(purifiers))
+        divs = []
+        for pi, ti in pairs:
+            z_def = sd.encode_image(purifiers[pi].forward(x_def),
+                                    use_ckpt=cfg.vae_ckpt)
+            t, n = t_list[ti], noises[ti]
+            zt = abar[t].sqrt() * z_def + (1 - abar[t]).sqrt() * n
+            with rec:
+                sd._eps(zt, t, emb_edit)      # 見 docstring：此處不開 checkpoint
+            if cfg.attn_mode == "entropy":
+                divs.append(attention_entropy(rec.maps, span))
+            elif cfg.attn_mode == "divergence":
+                divs.append(attention_divergence(rec.maps, ref_maps[ti], span))
+            else:
+                raise ValueError(
+                    f"未知的 attn_mode: {cfg.attn_mode!r}，"
+                    "只接受 'divergence' 或 'entropy'"
+                )
+            rec.clear()
+
+        # 目標是把散度/熵推大，故取負號後最小化，與 defense_term 的符號一致
+        l_def = -torch.stack(divs).mean()
+        l_fid, parts = obj.fidelity_term(x_def, x01, x_base=x_base0)
+        total = loss_cfg.lam_def * l_def + loss_cfg.lam_fid * l_fid
+        total.backward()
+
+        if cfg.grad_clip > 0:
+            torch.nn.utils.clip_grad_norm_(module.parameters(), cfg.grad_clip)
+        opt.step()
+
+        log = {"step": step, "loss": float(total), "L_def": float(l_def),
+               "L_fid": float(l_fid), "edit_shift": float("nan"),
+               "attn_div": float(-l_def), "defense_mode": "crossattn",
+               "attn_mode": cfg.attn_mode, **parts}
+        log["grad_norm"] = float(torch.stack(
+            [p.grad.norm() for p in module.parameters() if p.grad is not None]
+        ).norm())
+        result.history.append(log)
+
+        if step % cfg.log_every == 0 or step == cfg.steps - 1:
+            # div 以科學記號輸出：實測其量級跨越數個數量級，定點格式在
+            # 小的那一端全部印成 0.0000，等於沒有記錄
+            print(f"  [attn] step {step:>4d}  loss={float(total):.4f}  "
+                  f"div={-float(l_def):.4e}  lpips={parts['fid_lpips']:.4f}  "
+                  f"psnr={parts['fid_psnr_total']:.2f}  "
+                  f"|g|={log['grad_norm']:.3e}", flush=True)
+
+        if step == cfg.steps - 1:
+            result.x_def = x_def.detach().clone()
+
+        del x_def, divs, total
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
 

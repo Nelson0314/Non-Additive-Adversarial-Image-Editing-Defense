@@ -914,3 +914,179 @@ def test_site_S_不回報像素殘差以免被誤讀為加性(sd):
     mod = WarpResidual(size=SIZE, grid_size=8, init_std=0.5, seed=SEED).to(DEV)
     assert mod.raw_residual() is None
     assert mod.rank_trace() == [8]
+
+
+# ------------------------------------------------- cross-attention 目標
+
+
+def test_注意力擷取不改變UNet的前向結果(sd, x01):
+    """hook 只讀取輸入、另算一次注意力，UNet 自己的計算路徑不得受影響。
+
+    若改用替換 attention processor 的做法，SDPA 融合核心會換成展開的 QKᵀ，
+    數值與記憶體行為都會變，「有沒有開這個目標」就不再是單一變因。
+    """
+    from src.models.attention import CrossAttentionRecorder
+
+    emb = sd.encode_text("a photo").detach()
+    z = sd.encode_image(x01).detach()
+    t = torch.tensor(200)
+
+    with torch.no_grad():
+        base = sd._eps(z, t, emb)
+        rec = CrossAttentionRecorder(sd.unet)
+        with rec:
+            withhook = sd._eps(z, t, emb)
+
+    assert torch.equal(base, withhook), "hook 改變了 UNet 的前向結果"
+    assert len(rec.maps) > 0, "沒有記錄到任何 cross-attention 層"
+
+
+def test_注意力分佈是合法機率分佈(sd, x01):
+    from src.models.attention import CrossAttentionRecorder
+
+    emb = sd.encode_text("a photo").detach()
+    z = sd.encode_image(x01).detach()
+    rec = CrossAttentionRecorder(sd.unet)
+    with torch.no_grad(), rec:
+        sd._eps(z, torch.tensor(200), emb)
+
+    for m in rec.maps:
+        assert m.min() >= 0
+        s = m.sum(dim=-1)
+        assert torch.allclose(s, torch.ones_like(s), atol=1e-3)
+        assert m.shape[-1] == sd.tokenizer.model_max_length
+
+
+def test_hook移除後不再累積(sd, x01):
+    """context manager 離開後仍留著 hook 的話，後續每一次前向都會偷偷
+    多算一次注意力並累積張量——症狀是記憶體緩慢上升且與本目標無關的
+    實驗被拖慢，極難追。"""
+    from src.models.attention import CrossAttentionRecorder
+
+    emb = sd.encode_text("a photo").detach()
+    z = sd.encode_image(x01).detach()
+    rec = CrossAttentionRecorder(sd.unet)
+    with torch.no_grad():
+        with rec:
+            sd._eps(z, torch.tensor(200), emb)
+        n = len(rec.maps)
+        sd._eps(z, torch.tensor(200), emb)
+    assert len(rec.maps) == n, "離開 context 後 hook 仍在記錄"
+
+
+def test_內容token區間排除BOS與EOS(sd):
+    from src.models.attention import token_span
+
+    s, e = token_span(sd.tokenizer, "a wrecked car")
+    assert s == 1, "起點必須跳過 BOS"
+    assert e > s
+    ids = sd.tokenizer("a wrecked car", padding=False).input_ids
+    assert e == len(ids) - 1, "終點必須排除 EOS"
+    # 空 prompt 沒有內容 token，須回傳空區間讓呼叫端明確處理
+    s0, e0 = token_span(sd.tokenizer, "")
+    assert e0 <= s0
+
+
+def test_散度對相同分佈為零對不同分佈為正(sd, x01):
+    from src.models.attention import CrossAttentionRecorder, attention_divergence
+
+    emb = sd.encode_text("a photo").detach()
+    rec = CrossAttentionRecorder(sd.unet)
+
+    def maps_of(z):
+        with torch.no_grad(), rec:
+            sd._eps(z, torch.tensor(200), emb)
+        out = [m.clone() for m in rec.maps]
+        rec.clear()
+        return out
+
+    z = sd.encode_image(x01).detach()
+    a = maps_of(z)
+    b = maps_of(z)
+    assert float(attention_divergence(a, b)) < 1e-6, "同一組分佈的散度必須為零"
+
+    c = maps_of(z + torch.randn_like(z) * 0.5)
+    assert float(attention_divergence(a, c)) > 1e-4, "不同分佈的散度必須為正"
+
+
+def test_層數不同時報錯而非安靜取前幾層(sd, x01):
+    from src.models.attention import CrossAttentionRecorder, attention_divergence
+
+    emb = sd.encode_text("a photo").detach()
+    rec = CrossAttentionRecorder(sd.unet)
+    with torch.no_grad(), rec:
+        sd._eps(sd.encode_image(x01).detach(), torch.tensor(200), emb)
+    with pytest.raises(ValueError):
+        attention_divergence(rec.maps, rec.maps[:-1])
+
+
+def test_均勻分佈的熵最大(sd):
+    from src.models.attention import attention_entropy
+
+    n = 16
+    uniform = [torch.full((1, 4, n), 1.0 / n)]
+    peaked = [torch.zeros(1, 4, n)]
+    peaked[0][..., 0] = 1.0
+    assert float(attention_entropy(uniform)) == pytest.approx(
+        float(torch.tensor(float(n)).log()), rel=1e-4)
+    assert float(attention_entropy(peaked)) < float(attention_entropy(uniform))
+
+
+def test_cross_attention目標的梯度抵達phi(sd, x01):
+    """本目標的整條路徑（G → 淨化 → VAE 編碼 → 加噪 → UNet → 注意力）
+    都必須可微。特別是 hook 記錄的張量若來自 checkpoint 區塊內部，梯度會
+    安靜地斷掉而非報錯，故此測試必須存在。"""
+    from src.defense.optimize import optimize_crossattn
+
+    cfg = _cfg(steps=2, attn_timesteps=2)
+    cfg.unet_ckpt = False
+    mod = PixelResidual(size=SIZE, max_rank=4, const_rank=4).to(DEV)
+    res = optimize_crossattn(sd, mod, x01, cfg, LossConfig(),
+                             default_train_set()[:1])
+
+    assert len(res.history) == 2
+    assert res.history[-1]["grad_norm"] > 0, "梯度未抵達 φ"
+    assert res.x_def is not None
+
+
+def test_cross_attention目標下phi確實被改動(sd, x01):
+    from src.defense.optimize import optimize_crossattn
+
+    cfg = _cfg(steps=2, attn_timesteps=2)
+    cfg.unet_ckpt = False
+    mod = PixelResidual(size=SIZE, max_rank=4, const_rank=4).to(DEV)
+    before = mod.tensor.V.detach().clone()
+    optimize_crossattn(sd, mod, x01, cfg, LossConfig(), default_train_set()[:1])
+    assert not torch.equal(before, mod.tensor.V), "φ 未被更新"
+
+
+def test_未知的attn_mode明確報錯(sd, x01):
+    from src.defense.optimize import optimize_crossattn
+
+    cfg = _cfg(steps=1, attn_timesteps=1)
+    cfg.unet_ckpt = False
+    cfg.attn_mode = "nonsense"
+    mod = PixelResidual(size=SIZE, max_rank=4, const_rank=4).to(DEV)
+    with pytest.raises(ValueError):
+        optimize_crossattn(sd, mod, x01, cfg, LossConfig(),
+                           default_train_set()[:1])
+
+
+def test_注意力擷取與checkpoint不相容須以錯誤呈現(sd, x01):
+    """釘住實測到的失敗模式，避免有人「順手」把 use_ckpt 加回這條前向。
+
+    tiny-SD 實測：開 checkpoint 後 backward 以 RuntimeError 中止，因為 hook
+    在原前向時掛著、其額外的 to_q/to_k/QKᵀ 進了 checkpoint 區塊的圖，而
+    backward 觸發重算時 hook 已卸除，兩次存檔的張量數對不上（477 vs 459）。
+    這是硬錯誤而非安靜斷梯度——但仍必須有測試，因為錯誤發生在 backward，
+    離肇因很遠。
+    """
+    from src.models.attention import CrossAttentionRecorder
+
+    emb = sd.encode_text("a photo").detach()
+    z = sd.encode_image(x01).detach().requires_grad_(True)
+    rec = CrossAttentionRecorder(sd.unet)
+    with rec:
+        sd._eps(z, torch.tensor(200), emb, use_ckpt=True)
+    with pytest.raises(RuntimeError):
+        rec.maps[0].sum().backward()

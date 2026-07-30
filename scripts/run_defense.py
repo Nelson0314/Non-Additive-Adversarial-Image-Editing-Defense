@@ -28,7 +28,9 @@ import numpy as np
 import torch
 
 from src.defense.objective import LossConfig
-from src.defense.optimize import OptimConfig, optimize, optimize_encoder
+from src.defense.optimize import (
+    OptimConfig, optimize, optimize_crossattn, optimize_encoder,
+)
 from src.metrics.spectrum import analyze
 from src.metrics.suite import MetricSuite
 from src.models.sd import SDWrapper
@@ -286,10 +288,21 @@ def main():
     )
     ap.add_argument(
         "--defense_mode", default="untargeted",
-        choices=["untargeted", "targeted", "encoder"],
+        choices=["untargeted", "targeted", "encoder", "crossattn"],
         help="untargeted=把編輯結果推離原編輯（既有行為）；"
              "targeted=推向 --target_image；"
-             "encoder=改攻擊 VAE 編碼器，完全不走去噪鏈，每步成本降一個數量級",
+             "encoder=改攻擊 VAE 編碼器，完全不走去噪鏈，每步成本降一個數量級；"
+             "crossattn=破壞 prompt token 與影像位置的 cross-attention 綁定，"
+             "每步只做 --attn_timesteps 次單步 UNet 前向",
+    )
+    ap.add_argument(
+        "--attn_mode", default=OptimConfig.attn_mode,
+        choices=["divergence", "entropy"],
+        help="divergence=把注意力分佈推離原圖的；entropy=把它推向均勻",
+    )
+    ap.add_argument(
+        "--attn_timesteps", type=int, default=OptimConfig.attn_timesteps,
+        help="cross-attention 目標每步取樣的 timestep 數，均分於 [0, t_edit]",
     )
     ap.add_argument(
         "--target_image", default="",
@@ -364,6 +377,8 @@ def main():
                     align_steps=args.align_steps, align_lr=args.align_lr,
                     align_gamma_psnr=args.align_gamma_psnr,
                     warp_max_disp=args.warp_max_disp,
+                    attn_mode=args.attn_mode,
+                    attn_timesteps=args.attn_timesteps,
                     prompt_def=args.prompt_def, prompt_edit=prompt, seed=args.seed,
                 )
                 module = build_module(site, rank, cfg, sd, args.size, args.seed).to(device)
@@ -373,6 +388,9 @@ def main():
                 # SDEdit、沒有 y_orig、沒有編輯 prompt，故走獨立的迴圈。
                 if args.defense_mode == "encoder":
                     res = optimize_encoder(
+                        sd, module, x01, cfg, loss_cfg, purifiers)
+                elif args.defense_mode == "crossattn":
+                    res = optimize_crossattn(
                         sd, module, x01, cfg, loss_cfg, purifiers)
                 else:
                     res = optimize(sd, module, x01, cfg, loss_cfg,
@@ -523,6 +541,7 @@ def main():
         "align_steps": args.align_steps, "align_lr": args.align_lr,
         "align_gamma_psnr": args.align_gamma_psnr,
         "warp_max_disp": args.warp_max_disp,
+        "attn_mode": args.attn_mode, "attn_timesteps": args.attn_timesteps,
         "n_images": len(images), "torch": torch.__version__,
         "gpu": torch.cuda.get_device_name(0) if torch.cuda.is_available() else None,
         "train_purifiers": [

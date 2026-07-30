@@ -1,0 +1,21 @@
+[
+  {
+    "loss": 0.6577222943305969,
+    "L_def": 0.20213592052459717,
+    "L_fid": 0.45558637380599976,
+    "edit_shift": 0.29786407947540283,
+    "defense_mode": "untargeted",
+    "fid_linf_total": 0.6006283760070801,
+    "fid_psnr_total": 19.72640609741211,
+    "fid_lpips": 0.1934768557548523,
+    "fid_lpips_rel": 0.0,
+    "fid_ssim": 0.7378904819488525,
+    "fid_linf": 0.0,
+    "fid_psnr": 120.0,
+    "fid_pen_linf": 0.0,
+    "fid_pen_lpips": 0.0,
+    "fid_pen_psnr": 0.0,
+    "step": 0,
+    "grad_norm": 0.8562667965888977
+  }
+]

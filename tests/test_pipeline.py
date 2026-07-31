@@ -50,6 +50,15 @@ def x01():
     return torch.rand(1, 3, SIZE, SIZE, generator=g).to(DEV)
 
 
+def x01_plain():
+    """與 `x01` fixture 同一張圖，但不需要 `sd`。
+
+    site S 不經生成路徑，其單元測試不該為了拿一張圖而載入 tiny-SD。
+    """
+    g = torch.Generator().manual_seed(SEED)
+    return torch.rand(1, 3, SIZE, SIZE, generator=g).to(DEV)
+
+
 def _latent(sd):
     return sd.latent_shape(SIZE, SIZE)
 
@@ -808,6 +817,64 @@ def test_site_S_零位移下梯度仍抵達phi(sd, x01):
     assert mod.flow.grad is not None and mod.flow.grad.abs().sum() > 0
     # 建圖模式下多承受的偏差就是重取樣的數值底線，量級須維持在可忽略範圍
     assert (out - x01).abs().max().item() < 1e-4
+
+
+def test_site_S_未知的resample模式必須報錯():
+    """靜默退回 bilinear 會讓整批實驗跑完才發現設定沒生效。"""
+    with pytest.raises(ValueError, match="resample"):
+        WarpResidual(size=SIZE, grid_size=8, resample="lanczos")
+
+
+def test_site_S_預設維持bilinear():
+    """E13–E19 的既有數字全部是 bilinear 產生的。改預設會讓它們無法重現，
+    故 bicubic 只能是明確選項，不能是新預設。"""
+    assert WarpResidual(size=SIZE, grid_size=8).resample == "bilinear"
+
+
+@pytest.mark.parametrize("mode", ["bilinear", "bicubic"])
+def test_site_S_兩種重取樣都可微且零位移為恆等(mode):
+    mod = WarpResidual(size=SIZE, grid_size=8, init_std=0.0, resample=mode).to(DEV)
+    out = mod.pixel_residual(x01_plain())
+    assert out.requires_grad
+    out.pow(2).sum().backward()
+    assert mod.flow.grad is not None and mod.flow.grad.abs().sum() > 0
+    assert (out - x01_plain()).abs().max().item() < 1e-3
+
+
+def test_site_S_bicubic保留較多高頻():
+    """本專案改用 bicubic 的**唯一**理由，必須有測試釘住。
+
+    E20 §5.2 在 512² 真實影像上量到：同一 LPIPS 下 bilinear 保留 85.0%、
+    bicubic 99.9%。此處在小尺寸合成圖上驗同一方向——絕對值不會相同，
+    要釘的是「bicubic 的銳利度損失明顯較小」這個順序。
+    """
+    from src.metrics.acutance import acutance
+
+    x = x01_plain()
+    ratios = {}
+    for mode in ("bilinear", "bicubic"):
+        mod = WarpResidual(size=SIZE, grid_size=8, init_std=0.0,
+                           max_disp=50.0, resample=mode).to(DEV)
+        # 同一個位移場，只換重取樣，否則比較的不是重取樣本身
+        g = torch.Generator().manual_seed(SEED)
+        mod.flow.data = torch.randn(mod.flow.shape, generator=g) * 0.5
+        with torch.no_grad():
+            ratios[mode] = acutance(x, mod.pixel_residual(x))["acutance_ratio"]
+
+    assert abs(ratios["bicubic"] - 1.0) < abs(ratios["bilinear"] - 1.0), (
+        f"bicubic 應比 bilinear 更接近原銳利度，實得 {ratios}")
+
+
+def test_site_S_bicubic輸出仍在值域內():
+    """bicubic 會過衝到 [0,1] 之外（bilinear 是凸組合故不會）。不夾回的話
+    後續的 LPIPS 與銳利度都在量一張不存在的影像。"""
+    mod = WarpResidual(size=SIZE, grid_size=8, init_std=0.0,
+                       max_disp=50.0, resample="bicubic").to(DEV)
+    g = torch.Generator().manual_seed(SEED)
+    mod.flow.data = torch.randn(mod.flow.shape, generator=g) * 0.8
+    with torch.no_grad():
+        out = mod.pixel_residual(x01_plain())
+    assert float(out.min()) >= 0.0 and float(out.max()) <= 1.0
 
 
 def test_site_S_停用模塊不改變結果(sd, x01):

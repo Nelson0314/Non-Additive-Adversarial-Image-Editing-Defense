@@ -114,6 +114,7 @@ def build_module(site: str, rank: int, cfg: OptimConfig, sd, size: int, seed: in
         return WarpResidual(
             size=size, grid_size=(rank if rank > 0 else None),
             max_disp=cfg.warp_max_disp, seed=seed,
+            resample=cfg.warp_resample,
         )
     raise ValueError(
         f"未知的 site {site!r}；目前支援 "
@@ -330,6 +331,14 @@ def main():
         help="site S 的位移場硬上界，單位為像素。空間變形的失真預算是位移量"
              "而非 L∞，故此值與 --tau_lpips 同等重要，兩者都會寫入 env.json",
     )
+    ap.add_argument(
+        "--warp_resample", choices=["bilinear", "bicubic"],
+        default=OptimConfig.warp_resample,
+        help="site S 的 grid_sample 插值模式。E20 §5.2 實測在同一 LPIPS 上 "
+             "bilinear 只保留 85.0% 銳利度、bicubic 為 99.9%；E19 量到的真實 "
+             "site S 為 85.2%，即其鈍化幾乎全部來自重取樣。預設維持 bilinear "
+             "以保持 E13–E19 的可重現性",
+    )
     ap.add_argument("--strength", type=float, default=0.5)
     ap.add_argument("--seed", type=int, default=20260728)
     ap.add_argument("--limit", type=int, default=None, help="只跑前 N 張影像")
@@ -395,6 +404,7 @@ def main():
                     align_steps=args.align_steps, align_lr=args.align_lr,
                     align_gamma_psnr=args.align_gamma_psnr,
                     warp_max_disp=args.warp_max_disp,
+                    warp_resample=args.warp_resample,
                     exact_inversion=args.exact_inversion,
                     attn_mode=args.attn_mode,
                     attn_timesteps=args.attn_timesteps,
@@ -560,6 +570,7 @@ def main():
         "align_steps": args.align_steps, "align_lr": args.align_lr,
         "align_gamma_psnr": args.align_gamma_psnr,
         "warp_max_disp": args.warp_max_disp,
+        "warp_resample": args.warp_resample,
         "attn_mode": args.attn_mode, "attn_timesteps": args.attn_timesteps,
         "exact_inversion": args.exact_inversion,
         "n_images": len(images), "torch": torch.__version__,

@@ -65,6 +65,12 @@ def identity_grid(h: int, w: int, device, dtype) -> torch.Tensor:
 class WarpResidual(ResidualModule):
     site = "S"
 
+    # 重取樣模式。E20 實測：在同一個 LPIPS 上，雙線性重取樣的銳利度保留率
+    # 只有 85.0%，雙三次為 99.9%（見 docs/RESULTS_E20_fidelity.md §5.2）。
+    # E19 量到的真實 site S 為 85.2%，與雙線性臂幾乎相同——**site S 的鈍化
+    # 幾乎全部來自重取樣本身，不是最佳化學到的低通**。
+    RESAMPLE_MODES = ("bilinear", "bicubic")
+
     def __init__(
         self,
         size: int = 512,
@@ -73,8 +79,13 @@ class WarpResidual(ResidualModule):
         init_std: float = 0.0,
         seed: int = None,
         force_resample: bool = False,
+        resample: str = "bilinear",
     ):
         """`max_disp` 的單位是**像素**；`grid_size=None` 表示逐像素自由位移。
+
+        `resample` 選 `grid_sample` 的插值模式。預設維持 `"bilinear"`，使
+        E13–E19 的既有結果可重現；`"bicubic"` 是 E20 之後的建議值，理由見
+        `RESAMPLE_MODES` 的說明。**改這個值會改變所有既有數字，故不改預設。**
 
         `init_std=0` 使初始位移場恆為零，即 x_def = x。位移場是自由參數，
         在零點的梯度不為零（∂x_def/∂f 由影像梯度決定，一般非零），故不需要
@@ -85,6 +96,11 @@ class WarpResidual(ResidualModule):
         造成多少編輯偏移，不是正常訓練該用的設定。
         """
         super().__init__()
+        if resample not in self.RESAMPLE_MODES:
+            raise ValueError(
+                f"未知的 resample: {resample!r}，只接受 {self.RESAMPLE_MODES}。"
+                "靜默退回預設會讓實驗跑完才發現設定沒生效"
+            )
         g = size if grid_size is None else grid_size
         gen = torch.Generator().manual_seed(seed) if seed is not None else None
         if init_std > 0:
@@ -96,6 +112,7 @@ class WarpResidual(ResidualModule):
         self.grid_size = g
         self.max_disp = float(max_disp)
         self.force_resample = bool(force_resample)
+        self.resample = resample
 
     # ---- 位移場 ----
 
@@ -154,10 +171,14 @@ class WarpResidual(ResidualModule):
         off = torch.stack((disp[:, 0] * sx, disp[:, 1] * sy), dim=-1)
 
         grid = identity_grid(h, w, x01.device, x01.dtype) + off
-        return F.grid_sample(
-            x01, grid.expand(b, -1, -1, -1), mode="bilinear",
+        out = F.grid_sample(
+            x01, grid.expand(b, -1, -1, -1), mode=self.resample,
             padding_mode="border", align_corners=True,
         )
+        # 雙三次會過衝到 [0,1] 之外（雙線性是凸組合故不會）。夾回是「可顯示
+        # 影像」的定義，不是為了讓數字好看：不夾的話後續的 LPIPS 與銳利度
+        # 都在量一張不存在的影像。夾回可微，梯度在飽和處為零。
+        return out.clamp(0, 1) if self.resample == "bicubic" else out
 
     # ---- 診斷 ----
 

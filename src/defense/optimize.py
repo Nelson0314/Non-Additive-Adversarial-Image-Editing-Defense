@@ -74,6 +74,9 @@ class OptimConfig:
     # 位移量而非 L∞（把一條邊緣移動一像素，L∞ 可接近 1.0 卻幾乎看不出來），
     # 故此值必須與 tau_lpips 併列記錄，才能說清楚該格的失真預算是什麼。
     warp_max_disp: float = 1.5
+    # site S 的 grid_sample 插值模式。預設維持 bilinear 使 E13–E19 可重現；
+    # E20 §5.2 量出 bicubic 可把銳利度保留率由 85.0% 拉到 99.9%。
+    warp_resample: str = "bilinear"
     # ---- cross-attention 目標專用 ----
     # "divergence" — 把防禦圖的注意力分佈推離原圖的（改變綁定的指向）
     # "entropy"    — 直接把分佈推向均勻（瓦解綁定本身，不需要參考分佈）

@@ -1,0 +1,110 @@
+[
+  {
+    "image": "car_00",
+    "arm": "roundtrip",
+    "lpips": 0.1608956754207611,
+    "psnr": 19.958763122558594,
+    "ssim": 0.7998451590538025,
+    "linf": 1.0,
+    "under_target": false
+  },
+  {
+    "image": "car_00",
+    "arm": "latent_opt",
+    "lpips": 0.08566682040691376,
+    "psnr": 22.853899002075195,
+    "ssim": 0.8619900941848755,
+    "linf": 0.8750680685043335,
+    "under_target": false
+  },
+  {
+    "image": "car_01",
+    "arm": "roundtrip",
+    "lpips": 0.17444175481796265,
+    "psnr": 22.74714469909668,
+    "ssim": 0.8533085584640503,
+    "linf": 0.9380241632461548,
+    "under_target": false
+  },
+  {
+    "image": "car_01",
+    "arm": "latent_opt",
+    "lpips": 0.0993872806429863,
+    "psnr": 25.068561553955078,
+    "ssim": 0.8917713165283203,
+    "linf": 0.8765831589698792,
+    "under_target": false
+  },
+  {
+    "image": "dog_00",
+    "arm": "roundtrip",
+    "lpips": 0.14396317303180695,
+    "psnr": 30.692340850830078,
+    "ssim": 0.9317154884338379,
+    "linf": 0.4225003719329834,
+    "under_target": false
+  },
+  {
+    "image": "dog_00",
+    "arm": "latent_opt",
+    "lpips": 0.08175816386938095,
+    "psnr": 31.859865188598633,
+    "ssim": 0.9447354078292847,
+    "linf": 0.4021119773387909,
+    "under_target": false
+  },
+  {
+    "image": "dog_01",
+    "arm": "roundtrip",
+    "lpips": 0.15628838539123535,
+    "psnr": 28.476064682006836,
+    "ssim": 0.9089176058769226,
+    "linf": 0.788881242275238,
+    "under_target": false
+  },
+  {
+    "image": "dog_01",
+    "arm": "latent_opt",
+    "lpips": 0.0784190371632576,
+    "psnr": 30.01910400390625,
+    "ssim": 0.9298316836357117,
+    "linf": 0.6321312785148621,
+    "under_target": false
+  },
+  {
+    "image": "person_00",
+    "arm": "roundtrip",
+    "lpips": 0.09836575388908386,
+    "psnr": 33.34183883666992,
+    "ssim": 0.9584211111068726,
+    "linf": 0.39149972796440125,
+    "under_target": false
+  },
+  {
+    "image": "person_00",
+    "arm": "latent_opt",
+    "lpips": 0.04592824727296829,
+    "psnr": 34.81739044189453,
+    "ssim": 0.9665557146072388,
+    "linf": 0.378536581993103,
+    "under_target": true
+  },
+  {
+    "image": "person_01",
+    "arm": "roundtrip",
+    "lpips": 0.12644647061824799,
+    "psnr": 29.858097076416016,
+    "ssim": 0.9255501627922058,
+    "linf": 0.7019079327583313,
+    "under_target": false
+  },
+  {
+    "image": "person_01",
+    "arm": "latent_opt",
+    "lpips": 0.06408845633268356,
+    "psnr": 31.38805389404297,
+    "ssim": 0.9394818544387817,
+    "linf": 0.6748690605163574,
+    "under_target": false
+  }
+]

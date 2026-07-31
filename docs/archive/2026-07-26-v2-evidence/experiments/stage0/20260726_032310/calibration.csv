@@ -1,0 +1,17 @@
+method,knob,value,lpips,adopted,at_boundary
+pg_enc,epsilon,0.06,0.4640037218729655,True,
+pg_diff,epsilon,0.06,0.4134613424539566,False,
+advdiff,eps_latent,0.05,0.6700516740481058,False,
+advdiff,eps_latent,0.1,0.651656985282898,False,
+advdiff,eps_latent,0.2,0.6571281353632609,False,
+advdiff,eps_latent,0.4,0.6367564996083578,True,True
+apa_gc,eps_a,0.1,0.28592343131701153,False,
+apa_gc,eps_a,0.2,0.35287074247996014,False,
+apa_gc,eps_a,0.3,0.41628916064898175,False,
+apa_gc,eps_a,0.4,0.4238814910252889,False,
+apa_gc,eps_a,0.6,0.43911786874135333,True,True
+hybrid,eps_a,0.02,0.4889640311400096,True,True
+hybrid,eps_a,0.05,0.4981512228647868,False,
+hybrid,eps_a,0.1,0.5149596532185873,False,
+hybrid,eps_a,0.2,0.5531114538510641,False,
+hybrid,eps_a,0.4,0.5793463389078776,False,

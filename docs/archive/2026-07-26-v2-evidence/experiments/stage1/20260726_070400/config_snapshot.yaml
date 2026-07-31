@@ -1,0 +1,189 @@
+base:
+  model:
+    protect_model: CompVis/stable-diffusion-v1-4
+    eval_models:
+    - CompVis/stable-diffusion-v1-4
+    - stabilityai/stable-diffusion-2-base
+  generation:
+    height: 512
+    width: 512
+    guidance_scale: 7.5
+    num_inference_steps: 100
+    eta: 1
+  edit:
+    methods:
+    - sdedit
+    - inpaint
+    sdedit_strength: 0.8
+    n_seeds: 20
+    seed_clip_threshold: null
+    inpaint_mask:
+      type: center_square
+      fraction: 0.5
+  data:
+    root: data/dayn_testset
+    source: 向 DAYN 作者索取
+    is_placeholder: false
+    n_images: 150
+    n_object_classes: 3
+    prompts_per_class: 2
+  metrics:
+    backend: piq
+    compute:
+    - psnr
+    - ssim
+    - vifp
+    - fsim
+    - lpips
+    - fid
+    - clip
+    clip_model: openai/clip-vit-base-patch32
+  runtime:
+    protect_batch_size: 1
+    edit_batch_size: 1
+    seed: 42
+additive:
+  photoguard:
+    norm: linf
+    epsilon: 0.06
+    epsilon_scale: pm1
+    step_size: 0.006
+    n_iter: 100
+    random_init: true
+    step_decay: true
+    target_latent: zeros
+    diffusion_T: 10
+    diffusion_target: gray
+    grad_reps: 10
+    projection: from_original
+nonadditive:
+  common:
+    similarity_metric: lpips
+    similarity_budget: 0.464
+  stage0_scan:
+    advdiff:
+      knob: eps_latent
+      values:
+      - 0.05
+      - 0.1
+      - 0.2
+      - 0.4
+    apa_gc:
+      knob: eps_a
+      values:
+      - 0.1
+      - 0.2
+      - 0.3
+      - 0.4
+      - 0.6
+    hybrid:
+      knob: eps_a
+      values:
+      - 0.02
+      - 0.05
+      - 0.1
+      - 0.2
+      - 0.4
+  advdiff:
+    T: 10
+    N: 5
+    a: 0.5
+    guidance_range:
+    - 0.0
+    - 0.2
+    eta: 0.0
+    reward: attention
+    injection_form: post_hoc
+    injection_coeff: none
+    ztT_update: skip_gradient
+    s: 0.7
+    eps_latent: 0.4
+  apa:
+    variant: gc
+    grid_steps: 50
+    T_a: 10
+    N: 10
+    eps_a: 0.6
+    mu: 0.04
+    guidance_scale: 1.0
+    reward: attention
+    lora_impl: peft
+    lora_rank: 8
+    lora_alpha: 8
+    lora_target_modules:
+    - to_k
+    - to_q
+    - to_v
+    - to_out.0
+    lora_init: gaussian
+    lora_lr: 0.0001
+    lora_weight_decay: 0.01
+    lora_grad_clip: 1.0
+    lora_steps: 200
+    noise_offset: 0.1
+    sg:
+      trajectory_grad: skip
+      scale_constant: 14.58
+      inversion: full
+    gc:
+      trajectory_grad: checkpoint
+      inversion: partial
+      inversion_steps: 10
+      sampling_steps: 11
+      mse_reg_weight: 10.0
+    aug:
+      base: final_generated
+      resize_range:
+      - 0.9
+      - 1.0
+      brightness: false
+  hybrid:
+    base: apa
+    injection: advdiff
+    eps_a: 0.02
+purify:
+  jpeg:
+    quality:
+    - 90
+    - 80
+    - 65
+    - 50
+  blur:
+    sigma:
+    - 0.5
+    - 1.0
+    - 1.5
+  crop_resize:
+    ratio:
+    - 0.1
+    - 0.2
+    - 0.3
+  adverse_cleaner:
+    variants:
+    - bf_only
+    - bf_gf
+    bf_iterations: 64
+    bf_d: 5
+    bf_sigma_color: 8
+    bf_sigma_space: 8
+    gf_iterations: 4
+    gf_radius: 4
+    gf_eps: 16
+  gridpure:
+    grid_size: 256
+    stride: 128
+    n_grids: 10
+    gamma: 0.1
+    settings:
+    - name: paper
+      pure_steps: 10
+      iterations: 10
+    - name: readme
+      pure_steps: 10
+      iterations: 20
+    - name: single_deep
+      pure_steps: 100
+      iterations: 1
+    pure_steps_scan:
+    - 5
+    - 15

@@ -1,0 +1,162 @@
+{
+  "pg_enc": {
+    "dog/dog_00": {
+      "path": "protected/pg_enc/dog__dog_00.png",
+      "elapsed_sec": 14.92,
+      "peak_memory_mb": 8117.305856
+    },
+    "dog/dog_01": {
+      "path": "protected/pg_enc/dog__dog_01.png",
+      "elapsed_sec": 14.69,
+      "peak_memory_mb": 8120.451584
+    },
+    "car/car_00": {
+      "path": "protected/pg_enc/car__car_00.png",
+      "elapsed_sec": 14.7,
+      "peak_memory_mb": 8120.451584
+    },
+    "car/car_01": {
+      "path": "protected/pg_enc/car__car_01.png",
+      "elapsed_sec": 14.71,
+      "peak_memory_mb": 8120.451584
+    },
+    "person/person_00": {
+      "path": "protected/pg_enc/person__person_00.png",
+      "elapsed_sec": 14.7,
+      "peak_memory_mb": 8120.451584
+    },
+    "person/person_01": {
+      "path": "protected/pg_enc/person__person_01.png",
+      "elapsed_sec": 14.71,
+      "peak_memory_mb": 8120.451584
+    }
+  },
+  "pg_diff": {
+    "dog/dog_00": {
+      "path": "protected/pg_diff/dog__dog_00.png",
+      "elapsed_sec": 2696.64,
+      "peak_memory_mb": 32952.005632
+    },
+    "dog/dog_01": {
+      "path": "protected/pg_diff/dog__dog_01.png",
+      "elapsed_sec": 2698.79,
+      "peak_memory_mb": 32952.005632
+    },
+    "car/car_00": {
+      "path": "protected/pg_diff/car__car_00.png",
+      "elapsed_sec": 2700.57,
+      "peak_memory_mb": 32952.005632
+    },
+    "car/car_01": {
+      "path": "protected/pg_diff/car__car_01.png",
+      "elapsed_sec": 2695.2,
+      "peak_memory_mb": 32952.005632
+    },
+    "person/person_00": {
+      "path": "protected/pg_diff/person__person_00.png",
+      "elapsed_sec": 2691.62,
+      "peak_memory_mb": 32952.005632
+    },
+    "person/person_01": {
+      "path": "protected/pg_diff/person__person_01.png",
+      "elapsed_sec": 2694.22,
+      "peak_memory_mb": 32952.005632
+    }
+  },
+  "advdiff": {
+    "dog/dog_00": {
+      "path": "protected/advdiff/dog__dog_00.png",
+      "elapsed_sec": 9.0,
+      "peak_memory_mb": 6864.201728
+    },
+    "dog/dog_01": {
+      "path": "protected/advdiff/dog__dog_01.png",
+      "elapsed_sec": 8.94,
+      "peak_memory_mb": 6864.201728
+    },
+    "car/car_00": {
+      "path": "protected/advdiff/car__car_00.png",
+      "elapsed_sec": 8.94,
+      "peak_memory_mb": 6864.201728
+    },
+    "car/car_01": {
+      "path": "protected/advdiff/car__car_01.png",
+      "elapsed_sec": 8.93,
+      "peak_memory_mb": 6864.201728
+    },
+    "person/person_00": {
+      "path": "protected/advdiff/person__person_00.png",
+      "elapsed_sec": 8.94,
+      "peak_memory_mb": 6864.201728
+    },
+    "person/person_01": {
+      "path": "protected/advdiff/person__person_01.png",
+      "elapsed_sec": 8.93,
+      "peak_memory_mb": 6864.201728
+    }
+  },
+  "apa": {
+    "dog/dog_00": {
+      "path": "protected/apa/dog__dog_00.png",
+      "elapsed_sec": 168.33,
+      "peak_memory_mb": 21215.152128
+    },
+    "dog/dog_01": {
+      "path": "protected/apa/dog__dog_01.png",
+      "elapsed_sec": 167.91,
+      "peak_memory_mb": 21215.152128
+    },
+    "car/car_00": {
+      "path": "protected/apa/car__car_00.png",
+      "elapsed_sec": 168.58,
+      "peak_memory_mb": 21215.152128
+    },
+    "car/car_01": {
+      "path": "protected/apa/car__car_01.png",
+      "elapsed_sec": 168.47,
+      "peak_memory_mb": 21215.152128
+    },
+    "person/person_00": {
+      "path": "protected/apa/person__person_00.png",
+      "elapsed_sec": 167.68,
+      "peak_memory_mb": 21215.152128
+    },
+    "person/person_01": {
+      "path": "protected/apa/person__person_01.png",
+      "elapsed_sec": 168.74,
+      "peak_memory_mb": 21215.152128
+    }
+  },
+  "hybrid": {
+    "dog/dog_00": {
+      "path": "protected/hybrid/dog__dog_00.png",
+      "elapsed_sec": 155.97,
+      "peak_memory_mb": 21212.936192
+    },
+    "dog/dog_01": {
+      "path": "protected/hybrid/dog__dog_01.png",
+      "elapsed_sec": 155.63,
+      "peak_memory_mb": 21212.936192
+    },
+    "car/car_00": {
+      "path": "protected/hybrid/car__car_00.png",
+      "elapsed_sec": 155.84,
+      "peak_memory_mb": 21212.936192
+    },
+    "car/car_01": {
+      "path": "protected/hybrid/car__car_01.png",
+      "elapsed_sec": 155.76,
+      "peak_memory_mb": 21212.936192
+    },
+    "person/person_00": {
+      "path": "protected/hybrid/person__person_00.png",
+      "elapsed_sec": 155.92,
+      "peak_memory_mb": 21212.936192
+    },
+    "person/person_01": {
+      "path": "protected/hybrid/person__person_01.png",
+      "elapsed_sec": 155.41,
+      "peak_memory_mb": 21212.936192
+    }
+  }
+}

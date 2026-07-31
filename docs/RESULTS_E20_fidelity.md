@@ -1,10 +1,17 @@
 # E20 — 保真約束的方法調查
 
-- 起於 2026-07-31，承接 `docs/RESULTS_E18-E19.md` §4 的待決事項。
-- 本階段全部在本機 CPU 執行，不需 GPU：所需影像（`runs/e15_{S,P}_tau*/` 的
+- 2026-07-31 至 08-01。承接 `docs/RESULTS_E18-E19.md` §4 的待決事項。
+- 本階段全部在本機 CPU 執行，不需 GPU：所需影像（`runs/e15_{S,P}_tau0.05/` 的
   `orig.png` 與 `defended.png`）已入庫。
-- 重跑：`python scripts/p1_iso_lpips_probe.py`、`python scripts/p1_compare_page.py`、
-  `python scripts/p2_e15_battery.py`
+- 重跑順序：`p1_iso_lpips_probe.py` → `p1b_warp_arm.py` → `p1_summary.py`
+  → `p2_e15_battery.py` → `p3_local_acutance.py` → `p1_compare_page.py`
+  → `p4_constraint_check.py`（全部在 `scripts/`）。
+
+**結論摘要。** 保真約束由「LPIPS 單軸」改為「LPIPS ∩ 鈍化」的交集式雙 hinge，
+並關掉會補貼模糊的 SSIM 項。判別各候選指標的方法是四臂等 LPIPS 探針，其中
+兩個空間變形臂（雙線性 vs 雙三次）是關鍵——沒有它們會選錯指標。新約束下
+E15 的 site S 運作點 0/6 可行、site P 6/6 可行，**「site S 領先 1.15×」正式
+撤回**。附帶發現 cross-attention 的預設 divergence 模式從 φ=0 無法起步。
 
 ---
 
@@ -366,31 +373,121 @@ NLPD/VIF 的分辨力主要來自位移，把它們加進約束會因為「site 
 
 ---
 
-## 7. 待決事項
+## 7. 人眼判讀（2026-08-01）
 
-**尚未動 `src/defense/objective.py`。** 兩件事需要先確認：
+把 `runs/p1_iso_lpips_probe/compare.html` 的四臂交給使用者判讀，回報：
 
-**(1) 需要人眼確認的一點。** `runs/p1_iso_lpips_probe/compare.html` 已把四臂
-做成可原地切換的比對頁。要確認的是：**0.4–0.6 px 的純位移本身是否可見？**
-若不可見，則「位移主導」那群指標對變形收的高費就是與人眼脫節的，本文的
-判別法成立；若可見，則位移本身也算失真，約束設計需要重新考慮。
+> 高模糊看起來比雜訊、位移要來得糟糕，雜訊以及位移帶來的影響不明顯。
 
-**(2) 約束的指標集合與先前提議不同。** 交集式多重 hinge 的形式已定，但
-原先提議的集合是 {LPIPS, GMSD, NLPD, L∞}。§5.3 的資料顯示 GMSD 與 NLPD
-是位移主導的，放進去等於因為 site S 是變形而懲罰它。依資料應改為
+這定調了兩件事：
 
-    {LPIPS, local_acutance_dev, L∞}
-
-外加 stLPIPS 或 MUSIQ 作為第二道鈍化把關（兩者都通過四臂判別，但分辨力
-弱於 `local_acutance_dev`）。此更動需確認後才動手。
-
-**(3) 已量化但未驗證的機會**：site S 的 `grid_sample` 改雙三次可把銳利度
-從 85.0% 拉到 99.9%，代價是同 LPIPS 下位移大 54%。防禦效果是否維持需要 GPU
-重跑 E15。
+1. **等 LPIPS 的模糊確實明顯比雜訊糟** → LPIPS 作為「匹配人眼可辨失真」的
+   尺確實失準，E18/E19 的前提由人眼確認成立。
+2. **0.4–0.6 px 的位移不明顯** → §5.3 的「位移主導」那群指標（GMSD、NLPD、
+   HaarPSI、VIF、SSIM、DISTS、PSNR）重收的是人眼看不見的量。判別法成立，
+   這群指標確定不可作為保真約束。
 
 ---
 
-## 8. 附帶更正
+## 8. 修訂 `src/defense/objective.py`
+
+依上述結果改動，兩項。完整的 before/after 記於該檔 docstring 的
+「修訂之三」，此處只記結果與驗證。
+
+### 8.1 加入鈍化 hinge
+
+    pen_acut = max(0, local_acutance_dev(x_def, x_base) − τ_acut)
+    gamma_acut = 100.0,  tau_acut = 0.04
+
+與 LPIPS hinge 取**交集**而非加權和：加權和永遠可以用便宜的軸換貴的軸，
+交集式的可行域不允許這種交換。
+
+τ_acut = 0.04 的來源：site P 實測 0.0089 ± 0.0030、雙三次變形 0.0296 須通過；
+雙線性變形 0.1497、純模糊 0.2356 須被擋下。0.04 同時滿足這四項。
+
+### 8.2 SSIM 由 α=1.0 改為 0.0
+
+同一組探針量到 SSIM 把雜訊判得比等 LPIPS 的模糊**貴約 2 倍**（0.0083 vs
+0.0052）。先前的保真項不只對模糊盲目，而是**主動補貼模糊**。處置與 PSNR
+地板相同：保留計算與逐步記錄，係數歸零，可一行復原。
+
+### 8.3 驗證：既有運作點在新可行域裡站不站得住
+
+`scripts/p4_constraint_check.py`，用 E15 τ=0.05 的既有影像，不需 GPU：
+
+| | LPIPS 通過 | 鈍化通過 | 可行 |
+|---|---|---|---|
+| site S | 6/6 | **0/6** | **0/6** |
+| site P | 6/6 | 6/6 | **6/6** |
+
+site S 的六張全部通過 LPIPS 卻全部被鈍化 hinge 擋下（0.097–0.214，門檻
+0.04），site P 完全不受影響（0.0057–0.0121）。
+
+**這回答了 `docs/NEXT_SESSION.md` §3.3 的判準**：加入新約束後，site S
+不能再靠模糊換取防禦效果。**E15 的「1.15× 領先」在新可行域裡不存在**，
+該宣稱正式撤回，須在新約束下重跑才知道 site S 還剩多少。
+
+---
+
+## 9. 附帶發現：cross-attention 的 divergence 模式無法起步
+
+改動 `alpha_ssim` 後 `tests/test_pipeline.py` 有兩項失敗。追查後發現它們
+先前是靠浮點殘渣通過的，**掩蓋了一個真實缺陷**。
+
+實測（tiny-SD，2 步）：
+
+| `attn_mode` | `alpha_ssim` | `grad_norm` | `L_def` |
+|---|---|---|---|
+| divergence | 1.0 | 1.22e-10 | −0.000e+00 |
+| divergence | **0.0** | **0.000e+00** | −0.000e+00 |
+| entropy | 1.0 | 1.07e-07 | −1.386 |
+| entropy | 0.0 | 1.07e-07 | −1.386 |
+
+`divergence` 量的是當前注意力圖與**未防禦參照**的 KL 散度。φ=0 時兩者逐
+元素相同，KL = 0；而 0 是 KL 的最小值，其梯度也精確為 0。**最佳化從 φ=0
+出發永遠離不開起點。** 先前測試通過靠的是 `alpha_ssim=1.0` 時 SSIM 在恆等
+點的 1.22e-10 浮點殘渣，那不是「梯度抵達 φ」的證據。
+
+這件事的份量在於：`divergence` 是**預設**模式，而該目標至今一次都沒在 GPU
+上跑過（`docs/NEXT_SESSION.md` §5）。直接拿去跑會安靜地什麼都不做。
+
+**處置**：兩個既有測試改用 `entropy` 模式（那是真正在測「整條路徑可微」
+的性質），另新增 `test_divergence模式在phi等於零時無梯度` 把缺陷本身釘住。
+**缺陷本身未修**——如何在 φ=0 打破對稱是另一個設計決定，不屬本階段範圍。
+修好之後該測試會失敗，屆時應改成斷言梯度非零，而不是刪掉它。
+
+---
+
+## 10. 待決事項
+
+全部需要 GPU，本機做不了：
+
+**(1) E15 主網格在新約束下重跑。** 這是本階段的直接後果。site S 的既有運作
+點已不可行，必須重新校準到新可行域內，才知道它對 site P 還剩多少領先。
+在此之前，**1.15× 這個數字不應出現在任何地方**。
+
+**(2) site S 的 `grid_sample` 改雙三次。** §5.2 已量化：銳利度由 85.0% 升到
+99.9%，代價是同 LPIPS 下位移大 54%。這是讓 site S 重新進入可行域最直接的
+手段——它的鈍化幾乎全部來自重取樣，而非最佳化學到的低通。防禦效果是否
+維持未知。改動點是 `src/residual/site_warp.py` line 158 的 `mode="bilinear"`。
+
+**(3) τ_acut 應掃描而非取單點。** 目前的 0.04 由四個實測值夾出，與 τ_lpips
+一樣應該得到曲線。
+
+**(4) cross-attention 的 divergence 缺陷（§9）** 若要用該目標就必須先修。
+entropy 模式可用，未受影響。
+
+### 未採用的候選
+
+- **GMSD、NLPD、HaarPSI、VIF、SSIM、MS-SSIM、PSNR、DISTS**：位移主導，
+  §5.3 與 §7 兩重理由。
+- **stLPIPS、MUSIQ**：通過四臂判別，但分辨力弱於 `local_acutance_dev`
+  （P2 實測兩者在真實 S/P 上都重疊）。留作第二道把關的備選，未加入。
+- **E-LPIPS、R-LPIPS、LipSim**：§1.1，解的是另一種失效。
+
+---
+
+## 11. 附帶更正
 
 `docs/INDEX.md` 與 `docs/NEXT_SESSION.md` §3.2 把 `src/metrics/spectrum.py`
 列為「頻域約束」的既有程式。該檔實際做的是**奇異值譜（秩診斷）**，與頻域

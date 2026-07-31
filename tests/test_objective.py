@@ -48,6 +48,88 @@ def test_保真項在完全相同時為零(obj):
     assert abs(float(total)) < 1e-4
 
 
+# ------------------------------------------------- 鈍化約束（E20 修訂之三）
+
+
+def _blur(x, k=9, sigma=2.0):
+    import torch.nn.functional as F
+
+    c = torch.arange(k, dtype=torch.float32) - (k - 1) / 2
+    w = torch.exp(-c.pow(2) / (2 * sigma**2))
+    w = (w / w.sum()).view(1, 1, 1, k)
+    n = x.shape[1]
+    x = F.pad(x, (k // 2, k // 2, 0, 0), mode="replicate")
+    x = F.conv2d(x, w.expand(n, 1, 1, k), groups=n)
+    x = F.pad(x, (0, 0, k // 2, k // 2), mode="replicate")
+    return F.conv2d(x, w.transpose(2, 3).expand(n, 1, k, 1), groups=n)
+
+
+def _structured(seed=20260801, size=128):
+    """有結構的中間調圖樣。
+
+    鈍化約束的測試不能用本檔的 `_img()`：那是純白噪聲，底圖沒有任何結構，
+    加性擾動會讓局部梯度能量變動 4.4%（實測），超過為真實照片校準的
+    τ_acut = 0.04。那是該測試圖的性質而非指標的性質——真實影像的紋理區塊
+    梯度能量高得多，同樣的擾動只造成 2.2%。
+    """
+    g = torch.Generator().manual_seed(seed)
+    yy, xx = torch.meshgrid(torch.arange(size), torch.arange(size), indexing="ij")
+    x = torch.zeros(1, 3, size, size)
+    x[0, 0] = torch.where((xx + yy) % 16 < 8, 0.30, 0.70)
+    x[0, 1] = torch.where((xx // 8) % 2 == 0, 0.35, 0.65)
+    x[0, 2] = 0.35 + 0.30 * torch.rand(size, size, generator=g)
+    return x
+
+
+def test_SSIM預設不參與梯度():
+    """E20 實測 SSIM 在等 LPIPS 下把雜訊判得比模糊貴約 2 倍，留在梯度裡
+    等於補貼模糊。係數保留但預設為 0，可一行復原。"""
+    assert LossConfig().alpha_ssim == 0.0
+
+
+def test_鈍化hinge對模糊施力對雜訊不施力(obj):
+    """這是本約束存在的全部理由：它必須只對鈍化收費，不對加性擾動收費。"""
+    x = _structured()
+    blurred = _blur(x)
+    g = torch.Generator().manual_seed(11)
+    noised = (x + 0.02 * torch.randn(x.shape, generator=g)).clamp(0, 1)
+
+    _, pb = obj.fidelity_term(blurred, x)
+    _, pn = obj.fidelity_term(noised, x)
+    assert pb["fid_pen_acut"] > 0.0, "模糊必須觸發鈍化 hinge"
+    assert pn["fid_pen_acut"] == 0.0, "同量級的加性雜訊不得觸發鈍化 hinge"
+    assert pb["fid_acut"] > pn["fid_acut"]
+
+
+def test_鈍化hinge在完全相同時不施力(obj):
+    x = _structured()
+    _, parts = obj.fidelity_term(x, x)
+    assert parts["fid_acut"] == pytest.approx(0.0, abs=1e-6)
+    assert parts["fid_pen_acut"] == 0.0
+
+
+def test_鈍化項可微且梯度非零(obj):
+    """約束若不可微就進不了訓練，這條必須實測而非假設。"""
+    x = _structured()
+    xd = _blur(x).clone().requires_grad_(True)
+    total, _ = obj.fidelity_term(xd, x)
+    total.backward()
+    assert xd.grad is not None
+    assert float(xd.grad.abs().sum()) > 0.0
+
+
+def test_鈍化以x_base為對象(obj):
+    """與 L∞／LPIPS 兩道 hinge 一致：量的是「防禦本身加了多少」。
+
+    x_def 等於 x_base 時不得施力，即使兩者都遠離原圖 x。
+    """
+    x = _structured()
+    base = _blur(x)
+    _, parts = obj.fidelity_term(base, x, x_base=base)
+    assert parts["fid_pen_acut"] == 0.0
+    assert parts["fid_acut"] == pytest.approx(0.0, abs=1e-6)
+
+
 def test_PSNR地板在低於門檻時才施力(obj):
     """hinge 的定義：超過門檻不施力，低於才施力。兩側都要驗。"""
     x = _img(2)

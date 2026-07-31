@@ -73,24 +73,56 @@ def patch_energy(x: torch.Tensor, patch: int = PATCH) -> torch.Tensor:
     return F.avg_pool2d(g, patch).squeeze(1) * (patch * patch)
 
 
-@torch.no_grad()
-def local_acutance(
-    orig: torch.Tensor, rec: torch.Tensor, patch: int = PATCH
-) -> Dict[str, float]:
-    """rec 相對 orig 的局部銳利度偏差。orig 全平坦時回傳 NaN 而非除以零。"""
+def _weights_and_ratio(orig: torch.Tensor, rec: torch.Tensor, patch: int):
+    """回傳 (權重, 逐區塊能量比)。兩者都保留計算圖。
+
+    `orig` 對 φ 為常數，故權重也是常數；梯度只經由 `rec` 的區塊能量流回。
+    """
     eo = patch_energy(orig, patch)
     er = patch_energy(rec, patch)
-
     total = eo.flatten(1).sum(1)
-    if bool((total <= 0).any()):
-        nan = float("nan")
-        return {"local_acutance_dev": nan, "local_acutance_signed": nan,
-                "local_acutance_worst": nan}
-
     w = eo / total.view(-1, 1, 1)
     # 能量為零的區塊其權重亦為零，故此處的除法只影響權重為零的項；
     # clamp_min 只是避免產生 inf 後與 0 相乘得到 NaN。
     r = er / eo.clamp_min(1e-12)
+    return w, r, total
+
+
+def local_acutance_dev(
+    orig: torch.Tensor, rec: torch.Tensor, patch: int = PATCH
+) -> torch.Tensor:
+    """**可微**的局部銳利度偏差，供 `src/defense/objective.py` 當約束使用。
+
+    回傳整批的平均純量張量。`local_acutance` 是同一個量的報告版本（不建圖、
+    回傳 float 並附兩個診斷欄位）；訓練與評測共用同一個定義，兩者不得分歧。
+
+    原圖全平坦時分母為零。此處不回傳 NaN——那會讓損失變成 NaN 並靜默毀掉
+    整次訓練——而是直接拋出：一張沒有任何梯度的原圖不是合法輸入。
+    """
+    w, r, total = _weights_and_ratio(orig, rec, patch)
+    if bool((total <= 0).any()):
+        raise ValueError(
+            "原圖的梯度能量為零，局部銳利度偏差無定義。"
+            "全平坦的影像不是合法輸入，此處不以 NaN 帶過"
+        )
+    return (w * (r - 1.0).abs()).flatten(1).sum(1).mean()
+
+
+@torch.no_grad()
+def local_acutance(
+    orig: torch.Tensor, rec: torch.Tensor, patch: int = PATCH
+) -> Dict[str, float]:
+    """rec 相對 orig 的局部銳利度偏差（報告版）。
+
+    orig 全平坦時回傳 NaN 而非拋出：報告端掃過整批影像，讓一張退化影像
+    中斷整份報告是把限制升級成故障（同 `suite.py` 的 NIQE）。訓練端的
+    `local_acutance_dev` 則相反，必須拋出。
+    """
+    w, r, total = _weights_and_ratio(orig, rec, patch)
+    if bool((total <= 0).any()):
+        nan = float("nan")
+        return {"local_acutance_dev": nan, "local_acutance_signed": nan,
+                "local_acutance_worst": nan}
 
     dev = (w * (r - 1.0).abs()).flatten(1).sum(1)
     signed = (w * (r - 1.0)).flatten(1).sum(1)

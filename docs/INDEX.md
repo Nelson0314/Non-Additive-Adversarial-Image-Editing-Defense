@@ -64,6 +64,7 @@
 | `p1_iso_lpips_probe` | E20 | 四臂等 LPIPS 探針（模糊／雜訊／變形-雙線性／變形-雙三次）。含 `compare.html` 人眼比對頁 |
 | `p2_e15_battery` | E20 | 13 項候選指標重判 E15 τ=0.05 的 site S vs P |
 | `p3_local_acutance` | E20 | 局部銳利度偏差在四臂與 E15 上的評分 |
+| `p4_constraint_check` | E20 | 新約束的可行域檢查。site S 0/6、site P 6/6 |
 | `logs` | — | 各 run 的 driver 與 stdout 紀錄 |
 
 ### 涉及已作廢方向的資料
@@ -103,6 +104,7 @@ python scripts/p1b_warp_arm.py    # E20 加上兩個空間變形臂（CPU 約 20
 python scripts/p1_compare_page.py # E20 人眼比對頁
 python scripts/p2_e15_battery.py  # E20 候選指標重判 E15（CPU 約 6 分）
 python scripts/p3_local_acutance.py   # E20 局部銳利度偏差（秒級）
+python scripts/p4_constraint_check.py # E20 新約束的可行域檢查（約 1 分）
 python scripts/make_report_figures.py   # docs/figures/*.png（E2/E8/E9/E10/E12）
 python scripts/make_report.py     # docs/archive/2026-07-29-RESULTS_lowrank.html（E0–E3）
 ```

@@ -1035,11 +1035,21 @@ def test_均勻分佈的熵最大(sd):
 def test_cross_attention目標的梯度抵達phi(sd, x01):
     """本目標的整條路徑（G → 淨化 → VAE 編碼 → 加噪 → UNet → 注意力）
     都必須可微。特別是 hook 記錄的張量若來自 checkpoint 區塊內部，梯度會
-    安靜地斷掉而非報錯，故此測試必須存在。"""
+    安靜地斷掉而非報錯，故此測試必須存在。
+
+    **2026-08-01 改用 entropy 模式。** before：不指定 `attn_mode`，即使用
+    預設的 `divergence`。after：明確指定 `attn_mode="entropy"`。原因是
+    divergence 模式在 φ=0 時 L_def 恆等於 0 且梯度**精確為零**（見下一個
+    測試），此測試先前通過靠的是 `alpha_ssim=1.0` 時 SSIM 在恆等點的浮點
+    殘渣 1.22e-10——那不是「梯度抵達 φ」的證據。E20 把 alpha_ssim 改為 0
+    之後殘渣消失，測試才暴露出來。要驗的是整條路徑可微，故改用一個
+    在 φ=0 有真實梯度的模式。
+    """
     from src.defense.optimize import optimize_crossattn
 
     cfg = _cfg(steps=2, attn_timesteps=2)
     cfg.unet_ckpt = False
+    cfg.attn_mode = "entropy"
     mod = PixelResidual(size=SIZE, max_rank=4, const_rank=4).to(DEV)
     res = optimize_crossattn(sd, mod, x01, cfg, LossConfig(),
                              default_train_set()[:1])
@@ -1049,11 +1059,41 @@ def test_cross_attention目標的梯度抵達phi(sd, x01):
     assert res.x_def is not None
 
 
-def test_cross_attention目標下phi確實被改動(sd, x01):
+def test_divergence模式在phi等於零時無梯度(sd, x01):
+    """**釘住一個已知缺陷，不是釘住正確行為。**
+
+    `attn_mode="divergence"` 量的是當前注意力圖與**未防禦參照**的 KL 散度。
+    φ=0 時兩者逐元素相同，KL = 0；而 0 是 KL 的最小值，故其梯度也精確為 0。
+    最佳化從 φ=0 出發永遠離不開起點——實測兩步的 grad_norm 皆為 0.000e+00，
+    L_def 皆為 −0.000e+00。
+
+    這是 `divergence` 的**預設**模式，且該目標至今一次都沒在 GPU 上跑過
+    （見 docs/NEXT_SESSION.md §5）。若直接拿去跑，它會安靜地什麼都不做。
+
+    此測試存在的目的是讓該缺陷有一個具名的位置：修好之後這個測試會失敗，
+    屆時應改成斷言梯度非零，而不是刪掉它。
+    """
     from src.defense.optimize import optimize_crossattn
 
     cfg = _cfg(steps=2, attn_timesteps=2)
     cfg.unet_ckpt = False
+    cfg.attn_mode = "divergence"
+    mod = PixelResidual(size=SIZE, max_rank=4, const_rank=4).to(DEV)
+    res = optimize_crossattn(sd, mod, x01, cfg, LossConfig(),
+                             default_train_set()[:1])
+
+    assert res.history[0]["L_def"] == 0.0, "φ=0 時與參照的散度必為 0"
+    assert res.history[0]["grad_norm"] == 0.0, (
+        "散度在最小值處的梯度為零，這是 divergence 模式無法從 φ=0 起步的原因")
+
+
+def test_cross_attention目標下phi確實被改動(sd, x01):
+    """同上，改用 entropy 模式：divergence 在 φ=0 沒有梯度，φ 不會被更新。"""
+    from src.defense.optimize import optimize_crossattn
+
+    cfg = _cfg(steps=2, attn_timesteps=2)
+    cfg.unet_ckpt = False
+    cfg.attn_mode = "entropy"
     mod = PixelResidual(size=SIZE, max_rank=4, const_rank=4).to(DEV)
     before = mod.tensor.V.detach().clone()
     optimize_crossattn(sd, mod, x01, cfg, LossConfig(), default_train_set()[:1])

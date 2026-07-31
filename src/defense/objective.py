@@ -71,12 +71,59 @@ PSNR hinge 改為 γ = 0.0，即**保留計算與記錄但不參與梯度**。�
 
 γ_l = 100.0 與 β_linf 同量級：兩者的對象都在 [0,1] 尺度，而防禦項的
 上限僅 margin = 0.5，故超出 τ 後的懲罰必須足以壓過防禦項才構成地板。
+
+**相對 spec §5.2 的修訂之三（2026-08-01，E20：加入鈍化約束、關掉 SSIM）**：
+
+    修訂前（本檔 line 108、266-272）
+        alpha_ssim: float = 1.0
+        total = lpips + α(1−ssim) + β·pen_linf + γ_l·pen_lpips + γ·pen_psnr
+
+    修訂後
+        alpha_ssim: float = 0.0          ← 保留計算與記錄，不參與梯度
+        gamma_acut: float = 100.0
+        tau_acut:   float = 0.04
+        pen_acut = max(0, local_acutance_dev(x_def, x_base) − τ_acut)
+        total = lpips + α(1−ssim) + β·pen_linf + γ_l·pen_lpips
+                      + γ_a·pen_acut + γ·pen_psnr
+
+理由分兩件事，兩件都由 E20 的四臂等 LPIPS 探針實測（見
+`docs/RESULTS_E20_fidelity.md` §5、§6，資料在 `runs/p1_iso_lpips_probe/`）。
+
+**(1) 加入鈍化約束。** E18/E19 顯示最佳化會去買 LPIPS 不收費的模糊。E20 把
+四種失真（模糊／雜訊／變形-雙線性／變形-雙三次）全部校準到相同的 LPIPS，
+用以判別各指標實際在收什麼費。判別法是：雙三次變形比雙線性銳利 15 個
+百分點（99.9% vs 85.0%），故真的在量鈍化的指標必須對雙三次收費**較低**。
+結果 GMSD、NLPD、HaarPSI、VIF、SSIM、DISTS、PSNR 全部對雙三次收費**更高**
+——它們量的是幾何位移。使用者對比對頁的判讀是「0.4–0.6 px 的位移不明顯，
+模糊明顯較糟」，故這群指標重收的是人眼看不見的量，不可作為保真約束
+（會因為「site S 是一個變形」而懲罰它，是循環論證）。
+
+通過判別的是 `local_acutance_dev`（`src/metrics/local_acutance.py`）：逐
+32×32 區塊的梯度能量比，以原圖能量加權取絕對偏差。它對位移不敏感（位移把
+梯度在區塊內搬動、不搬出區塊），且因為先取絕對值再加權平均，無法像全域
+`acutance` 那樣被「一處變鈍、他處變銳」抵銷。四臂實測 0.2356 / 0.1497 /
+0.0296 / 0.0098，順序與實測銳利度完全一致。
+
+τ_acut = 0.04 的來源：site P（加性基準）在 τ_lpips=0.05 實測 0.0089 ± 0.0030，
+雙三次變形為 0.0296，兩者都須通過；雙線性變形 0.1497 與純模糊 0.2356 須被
+擋下。0.04 同時滿足這四項。與 τ_lpips 一樣，正式實驗應掃描而非取單點。
+
+**(2) SSIM 由 α=1.0 改為 0.0。** 同一組探針量到 SSIM 把雜訊判得比等 LPIPS
+的模糊**貴約 2 倍**（失真量 0.0083 vs 0.0052，gap −0.454）。也就是說先前的
+保真項不只是對模糊盲目，而是**主動補貼模糊**：選模糊比選等量的加性擾動更
+便宜。這與 E18/E19 觀察到的行為方向一致。SSIM 同時也是位移主導的（對雙三次
+變形收費 0.0363，是雙線性 0.0174 的 2.1 倍），兩個理由都指向移出梯度。
+
+處置與 PSNR 地板相同：**保留計算與記錄但係數歸零**。刪掉會失去與既有 36 格
+結果的對照基準，留著係數則可一行復原。
 """
 
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional
 
 import torch
+
+from src.metrics.local_acutance import local_acutance_dev
 
 
 @dataclass
@@ -104,7 +151,11 @@ class LossConfig:
     defense_mode: str = "untargeted"
 
     # 保真項
-    alpha_ssim: float = 1.0
+    #
+    # alpha_ssim 由 1.0 改為 0.0（E20，見模組 docstring 的修訂之三）：SSIM 在
+    # 等 LPIPS 下把雜訊判得比模糊貴約 2 倍，留在梯度裡等於補貼模糊。保留
+    # 係數與逐步記錄，可一行復原。
+    alpha_ssim: float = 0.0
     beta_linf: float = 100.0
     tau_linf: float = 0.06     # ≈ 15/255，對抗擾動文獻的常見上限量級
 
@@ -114,6 +165,13 @@ class LossConfig:
     # 比現況略緊；正式實驗以 {0.02, 0.05, 0.10} 掃描，得到曲線而非單點。
     gamma_lpips: float = 100.0
     tau_lpips: float = 0.05
+
+    # 第二道綁定約束：鈍化。與 LPIPS hinge 取**交集**而非加權和——加權和
+    # 永遠可以用便宜的軸換貴的軸，那正是 E18/E19 觀察到的行為；兩道各自的
+    # hinge 使可行域是兩者的交集，不允許這種交換。
+    # τ_acut = 0.04 的來源見模組 docstring 的修訂之三；應與 τ_lpips 一樣掃描。
+    gamma_acut: float = 100.0
+    tau_acut: float = 0.04
 
     # PSNR 地板保留計算與記錄，但預設不參與梯度（gamma_psnr = 0）。
     # 保留係數是為了能一行復原，並維持與既有 36 格結果的對照基準。
@@ -259,8 +317,13 @@ class DefenseObjective:
         # 不因 site 而分支。
         lpips_rel = lpips if x_base is None else self._lpips(xd, xb)
 
+        # 鈍化：對象同為 x_base，量的是「防禦本身讓影像鈍化了多少」。site P
+        # 的 x_base 即 x。此量對位移不敏感，故空間變形只要不模糊就不被罰。
+        acut = local_acutance_dev(xb, xd)
+
         pen_linf = torch.clamp(linf - c.tau_linf, min=0.0)
         pen_lpips = torch.clamp(lpips_rel - c.tau_lpips, min=0.0)
+        pen_acut = torch.clamp(acut - c.tau_acut, min=0.0)
         pen_psnr = torch.clamp(c.psnr_floor - psnr, min=0.0)
 
         total = (
@@ -268,9 +331,14 @@ class DefenseObjective:
             + c.alpha_ssim * (1.0 - ssim)
             + c.beta_linf * pen_linf
             + c.gamma_lpips * pen_lpips
+            + c.gamma_acut * pen_acut
             + c.gamma_psnr * pen_psnr
         )
         parts = {
+            # acut 直接參與梯度，故轉純量前顯式 detach；其餘各項由 piq 回傳
+            # 時已不帶圖。這是記錄用的轉換，不影響 total 的計算圖。
+            "fid_acut": float(acut.detach()),
+            "fid_pen_acut": float(pen_acut.detach()),
             "fid_linf_total": float((xd - xr).abs().max()),
             "fid_psnr_total": float(psnr_total),
             "fid_lpips": float(lpips),

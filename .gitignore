@@ -20,6 +20,11 @@ runs/**
 !runs/**/*.md
 !runs/**/*.log
 !runs/**/*.png
+# 2026-07-31 追加 *.html 與 *.txt：E20 的人眼比對頁
+# （runs/p1_iso_lpips_probe/compare.html）是使用者判定的依據，各腳本的
+# summary.txt / report.txt 是判定結果的可讀形式，兩者都是證據而非中間產物。
+!runs/**/*.html
+!runs/**/*.txt
 
 # Python
 __pycache__/

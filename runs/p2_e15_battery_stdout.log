@@ -1,0 +1,37 @@
+C:\Users\nelso\miniconda3\envs\wacv\Lib\site-packages\torchvision\models\_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+C:\Users\nelso\miniconda3\envs\wacv\Lib\site-packages\torchvision\models\_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+Loading pretrained model STLPIPS from C:\Users\nelso\.cache\torch\hub\pyiqa\alex_shift_tolerant.pth
+Loading pretrained model MUSIQ from C:\Users\nelso\.cache\torch\hub\pyiqa\musiq_koniq_ckpt-e95806b9.pth
+tau=0.05 site=S     car_00  lpips=0.0355 gmsd=0.0579 nlpd=0.1874 acut=0.786
+tau=0.05 site=S     car_01  lpips=0.0489 gmsd=0.0599 nlpd=0.1889 acut=0.816
+tau=0.05 site=S     dog_00  lpips=0.0425 gmsd=0.0378 nlpd=0.1023 acut=0.894
+tau=0.05 site=S     dog_01  lpips=0.0386 gmsd=0.0331 nlpd=0.1267 acut=0.868
+tau=0.05 site=S  person_00  lpips=0.0377 gmsd=0.0367 nlpd=0.1251 acut=0.912
+tau=0.05 site=S  person_01  lpips=0.0376 gmsd=0.0258 nlpd=0.1043 acut=0.839
+tau=0.05 site=P     car_00  lpips=0.0318 gmsd=0.0107 nlpd=0.0617 acut=1.002
+tau=0.05 site=P     car_01  lpips=0.0402 gmsd=0.0098 nlpd=0.0664 acut=1.004
+tau=0.05 site=P     dog_00  lpips=0.0328 gmsd=0.0040 nlpd=0.0454 acut=1.009
+tau=0.05 site=P     dog_01  lpips=0.0332 gmsd=0.0019 nlpd=0.0319 acut=1.004
+tau=0.05 site=P  person_00  lpips=0.0327 gmsd=0.0035 nlpd=0.0428 acut=1.011
+tau=0.05 site=P  person_01  lpips=0.0440 gmsd=0.0043 nlpd=0.0456 acut=1.010
+
+=== τ = 0.05 ===
+              指標             site S             site P  判定
+--------------------------------------------------------------------
+            psnr    32.7628±3.7643     41.6797±2.4927   揭穿：S 明顯較差
+            ssim     0.9827±0.0072      0.9912±0.0027   S 較差但重疊
+         ms_ssim     0.9907±0.0035      0.9955±0.0013   S 較差但重疊
+           lpips     0.0401±0.0045      0.0358±0.0046   S 較差但重疊
+           dists     0.0158±0.0025      0.0148±0.0108   S 較差但重疊
+            gmsd     0.0419±0.0127      0.0057±0.0033   揭穿：S 明顯較差
+         haarpsi     0.9255±0.0246      0.9833±0.0086   揭穿：S 明顯較差
+           vif_p     0.6947±0.0863      0.8758±0.0301   揭穿：S 明顯較差
+            nlpd     0.1391±0.0359      0.0490±0.0117   揭穿：S 明顯較差
+         stlpips     0.0134±0.0067      0.0062±0.0021   S 較差但重疊
+  acutance_ratio     0.8524±0.0436      1.0066±0.0034   揭穿：S 明顯較差
+            niqe     3.5868±1.1240      3.6526±1.1258   P 較差
+           musiq    69.4366±5.3766     70.8112±4.9105   S 較差但重疊
+
+「揭穿」= S 的均值較差且兩組在 n=6 下不重疊（差距 > 標準差之和）。

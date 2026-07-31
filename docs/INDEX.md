@@ -16,7 +16,8 @@
 | `docs/REPORT.html` | 主報告，涵蓋 E0–E12。含推翻與撤回的結論、規格層級更正 | 現行。表頭的「25 個 run、289 個資料檔」為 07-30 的數字，現為 48 個 run |
 | `docs/RESULTS_E13-E17.md` | 承接 E13–E17：warp vs additive 主網格、VAE 地板拆解 | 現行 |
 | `docs/RESULTS_E18-E19.md` | 承接 E18–E19：步數/lr/λ/decoder 掃描，以及銳利度這項新指標 | 現行 |
-| `docs/NEXT_SESSION.md` | 下一階段任務界定：保真約束的方法調查 | 現行 |
+| `docs/RESULTS_E20_fidelity.md` | 承接 E20：保真約束的 paper survey、四臂等 LPIPS 探針、局部銳利度偏差 | 現行 |
+| `docs/NEXT_SESSION.md` | 上一階段寫下的任務界定。§3.2 誤把 `src/metrics/spectrum.py` 當成頻域程式（實為奇異值譜），已由 E20 §8 更正 | 已由 E20 承接 |
 | `docs/specs/2026-07-28-lowrank-residual-defense.md` | 設計規格 v1 | 現行的**設計依據**，但其後的推翻不回頭改寫本文，須與上兩份對讀 |
 | `docs/NIGHT_RUN_2026-07-29.md` | 2026-07-29 夜間自主執行的完整紀錄 | 歷史紀錄，非報告。記錄了 site L 防禦不存在這個否定結果的推導過程 |
 | `docs/architecture.html` | 方法解說：威脅模型、低秩外積參數化、loss 與梯度路徑 | **內容過時**：寫的是「三個注入位置」，現已有六個（P/PF/L/E/W/S）。概念部分仍可讀 |
@@ -60,6 +61,9 @@
 | `e17_vae_floor` | E17 | VAE 重建地板拆解。四分支：roundtrip / latent_opt / asym_free / asym_leak |
 | `e18_lopt_lr0.005`, `e18_lopt_lr0.02` | E18 | latent 最佳化的 lr 與步數。結論：兩者都不是瓶頸 |
 | `e19_lam0.1`, `e19_lam1`, `e19_lam10` | E19 | λ × decoder 完全交叉。最佳配置 λ=10 + asym decoder |
+| `p1_iso_lpips_probe` | E20 | 四臂等 LPIPS 探針（模糊／雜訊／變形-雙線性／變形-雙三次）。含 `compare.html` 人眼比對頁 |
+| `p2_e15_battery` | E20 | 13 項候選指標重判 E15 τ=0.05 的 site S vs P |
+| `p3_local_acutance` | E20 | 局部銳利度偏差在四臂與 E15 上的評分 |
 | `logs` | — | 各 run 的 driver 與 stdout 紀錄 |
 
 ### 涉及已作廢方向的資料
@@ -93,6 +97,12 @@ python scripts/e16_report.py      # E16 位移上界
 python scripts/e18_report.py      # E18/E19 步數、lr、λ 與三指標把關
 python scripts/e19_acutance.py    # E19 各臂的銳利度保留率
 python scripts/e15_acutance.py    # E15 site S vs site P 的銳利度重判
+python scripts/p1_iso_lpips_probe.py  # E20 等 LPIPS 的模糊 vs 雜訊探針（CPU 約 50 分）
+python scripts/p1_summary.py      # E20 P1 的判定（只讀 CSV，秒級）
+python scripts/p1b_warp_arm.py    # E20 加上兩個空間變形臂（CPU 約 20 分）
+python scripts/p1_compare_page.py # E20 人眼比對頁
+python scripts/p2_e15_battery.py  # E20 候選指標重判 E15（CPU 約 6 分）
+python scripts/p3_local_acutance.py   # E20 局部銳利度偏差（秒級）
 python scripts/make_report_figures.py   # docs/figures/*.png（E2/E8/E9/E10/E12）
 python scripts/make_report.py     # docs/archive/2026-07-29-RESULTS_lowrank.html（E0–E3）
 ```

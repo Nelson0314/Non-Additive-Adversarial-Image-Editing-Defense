@@ -24,6 +24,7 @@
 | 檔案 | 為何封存 |
 |---|---|
 | `2026-07-26-RESULTS_v2.html` | 前一代研究框架的結果（pg_enc / pg_diff / advdiff / apa / hybrid，以 LPIPS=0.464 為錨）。該路線已整批作廢，改為單一外掛殘差模組。程式碼可由 commit `02cf175` 取回 |
+| `2026-07-26-v2-evidence/` | 上一列那份報告的**原始數值來源**（stage0/1/2 的 calibration、fairness、results.csv、manifest 與各階段 config/env 快照，18 檔 0.33 MB）。原本只存在於 TWCC 持久儲存、從未入庫。另有約 152 MB 的逐圖 PNG 留在 `/work`，理由見該目錄的 README |
 | `2026-07-29-RESULTS_lowrank.html` | 由 `scripts/make_report.py` 生成，只涵蓋 E0–E3，被 `docs/REPORT.html` 取代。保留是因為 E0 成本表與 E0c 地板表只有這份有 |
 
 ---

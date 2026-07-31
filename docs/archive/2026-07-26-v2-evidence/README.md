@@ -22,6 +22,7 @@ v2 的程式碼可由 git 歷史 commit `02cf175` 取回。
 | `experiments/stage1/20260726_070400/` | 未淨化下的防禦強度。`results.csv`、`manifest.json`、`protect_info.json` |
 | `experiments/stage2/20260726_122219/` | 淨化後的殘存。`results.csv`（204 KB，主表）、`report_v2_tables.csv`、`summary.md` |
 | `figures_untracked_backup/comp_run.log` | 比較圖產生過程的執行紀錄 |
+| `figures/` | 兩張 v2 比較圖網格（dog_00、dog_01）。原本放在 repo 根目錄的 `figures/comparison_main/`，由 commit `02cf175` 加入，現行程式碼與文件皆未引用，2026-07-31 移來此處 |
 
 每個 stage 都附 `config_snapshot.yaml` 與 `env.json`，可還原當時的參數與環境。
 

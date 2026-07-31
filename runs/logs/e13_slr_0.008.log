@@ -1,0 +1,21 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+[run] device=cuda sites=['S'] ranks=[32] steps=30
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][A
+Loading weights:  23%|██▎       | 46/196 [00:00<00:00, 438.35it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 1138.45it/s]
+Loading pipeline components...:  17%|█▋        | 1/6 [00:00<00:01,  3.38it/s]Loading pipeline components...:  50%|█████     | 3/6 [00:00<00:00,  7.80it/s]Loading pipeline components...:  67%|██████▋   | 4/6 [00:00<00:00,  6.90it/s]Loading pipeline components...:  83%|████████▎ | 5/6 [00:01<00:00,  3.06it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:01<00:00,  4.58it/s]
+/work/nelson0314/miniconda3/envs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/work/nelson0314/miniconda3/envs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+[run] 影像 1 張：['car_00']
+[run] 訓練期淨化集 ['identity', 'blur', 'jpeg']
+
+[run] car_00__S__r32  prompt='a wrecked car after an accident'
+  step    0  loss=0.5000  L_def=0.5000  L_fid=0.0000  shift=0.0000  psnr=116.81  linf=0.0000  |g|=7.544e-05
+  step   10  loss=0.7371  L_def=0.1532  L_fid=0.5838  shift=0.3468  psnr=47.35  linf=0.0658  |g|=1.000e+00
+  step   20  loss=1.4944  L_def=0.3521  L_fid=1.1424  shift=0.1479  psnr=43.69  linf=0.0714  |g|=1.000e+00
+  step   29  loss=1.7623  L_def=0.3495  L_fid=1.4128  shift=0.1505  psnr=42.95  linf=0.0741  |g|=1.000e+00
+[run] car_00__S__r32 完成 118s peak=10131MB shift=0.1505 psnr=42.95 eff_rank=512.0
+
+[run] 全部完成，共 1 格，124s

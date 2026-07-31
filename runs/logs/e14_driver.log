@@ -1,0 +1,8 @@
+done S lr=0.03
+done S lr=0.1
+done S lr=0.3
+done S lr=1.0
+done P lr=0.008
+done P lr=0.03
+done P lr=0.1
+E14 ALL DONE

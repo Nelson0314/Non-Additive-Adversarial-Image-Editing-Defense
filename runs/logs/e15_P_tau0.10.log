@@ -1,0 +1,64 @@
+[run] device=cuda sites=['P'] ranks=[16] steps=25
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  17%|█▋        | 1/6 [00:00<00:03,  1.39it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][A
+Loading weights:  29%|██▊       | 56/196 [00:00<00:00, 550.52it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 1174.58it/s]
+Loading pipeline components...:  67%|██████▋   | 4/6 [00:01<00:00,  4.23it/s]Loading pipeline components...:  83%|████████▎ | 5/6 [00:01<00:00,  4.58it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:01<00:00,  4.74it/s]
+/work/nelson0314/miniconda3/envs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/work/nelson0314/miniconda3/envs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+[run] 影像 6 張：['car_00', 'car_01', 'dog_00', 'dog_01', 'person_00', 'person_01']
+[run] 訓練期淨化集 ['identity', 'blur', 'jpeg']
+
+[run] car_00__P__r16  prompt='a wrecked car after an accident'
+  step    0  loss=0.5000  L_def=0.5000  L_fid=0.0000  shift=0.0000  psnr=120.00  linf=0.0000  |g|=9.823e-10
+  step   10  loss=0.1381  L_def=0.1319  L_fid=0.0062  shift=0.3681  psnr=47.94  linf=0.0303  |g|=4.538e-02
+  step   20  loss=0.2641  L_def=0.2335  L_fid=0.0306  shift=0.2665  psnr=40.02  linf=0.0849  |g|=1.011e-01
+  step   24  loss=0.2390  L_def=0.1983  L_fid=0.0407  shift=0.3017  psnr=38.35  linf=0.0995  |g|=8.311e-02
+[run] car_00__P__r16 完成 99s peak=10146MB shift=0.3017 psnr=38.35 eff_rank=358.3
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 30837.05it/s]
+[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
+[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
+Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights:  16%|█▌        | 64/408 [00:00<00:00, 635.63it/s]Loading weights:  31%|███▏      | 128/408 [00:00<00:00, 440.55it/s]Loading weights:  66%|██████▌   | 270/408 [00:00<00:00, 799.36it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 1067.90it/s]
+
+[run] car_01__P__r16  prompt='a wrecked car after an accident'
+/work/nelson0314/miniconda3/envs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/work/nelson0314/miniconda3/envs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+  step    0  loss=0.5000  L_def=0.5000  L_fid=0.0000  shift=0.0000  psnr=120.00  linf=0.0000  |g|=1.025e-09
+  step   10  loss=0.1573  L_def=0.1488  L_fid=0.0085  shift=0.3512  psnr=47.65  linf=0.0274  |g|=2.797e-02
+  step   20  loss=0.1902  L_def=0.1496  L_fid=0.0406  shift=0.3504  psnr=39.81  linf=0.1189  |g|=8.206e-02
+  step   24  loss=0.1876  L_def=0.1392  L_fid=0.0484  shift=0.3608  psnr=38.45  linf=0.1469  |g|=6.841e-02
+[run] car_01__P__r16 完成 98s peak=11507MB shift=0.3608 psnr=38.45 eff_rank=234.3
+
+[run] dog_00__P__r16  prompt='a cat sitting on the grass'
+  step    0  loss=0.5000  L_def=0.5000  L_fid=0.0000  shift=0.0000  psnr=120.00  linf=0.0000  |g|=1.389e-09
+  step   10  loss=0.1840  L_def=0.1714  L_fid=0.0126  shift=0.3286  psnr=48.69  linf=0.0237  |g|=7.905e-02
+  step   20  loss=0.2226  L_def=0.1593  L_fid=0.0633  shift=0.3407  psnr=41.06  linf=0.0567  |g|=3.277e-01
+  step   24  loss=0.1879  L_def=0.1042  L_fid=0.0837  shift=0.3958  psnr=39.37  linf=0.0715  |g|=1.119e-01
+[run] dog_00__P__r16 完成 98s peak=11508MB shift=0.3958 psnr=39.37 eff_rank=109.7
+
+[run] dog_01__P__r16  prompt='a cat sitting on the grass'
+  step    0  loss=0.5000  L_def=0.5000  L_fid=0.0000  shift=0.0000  psnr=120.00  linf=0.0000  |g|=1.186e-09
+  step   10  loss=0.1568  L_def=0.1292  L_fid=0.0276  shift=0.3708  psnr=49.14  linf=0.0245  |g|=6.288e-02
+  step   20  loss=0.2082  L_def=0.1272  L_fid=0.0809  shift=0.3728  psnr=43.05  linf=0.0565  |g|=1.498e-01
+  step   24  loss=0.1730  L_def=0.0851  L_fid=0.0879  shift=0.4149  psnr=41.92  linf=0.0616  |g|=9.571e-02
+[run] dog_01__P__r16 完成 98s peak=11507MB shift=0.4149 psnr=41.92 eff_rank=146.7
+
+[run] person_00__P__r16  prompt='an elderly person with gray hair'
+  step    0  loss=0.5000  L_def=0.5000  L_fid=0.0000  shift=0.0000  psnr=120.00  linf=0.0000  |g|=9.996e-10
+  step   10  loss=0.2141  L_def=0.1897  L_fid=0.0244  shift=0.3103  psnr=47.65  linf=0.0252  |g|=3.835e-02
+  step   20  loss=0.2062  L_def=0.1329  L_fid=0.0733  shift=0.3671  psnr=41.04  linf=0.0616  |g|=2.492e-01
+  step   24  loss=0.1611  L_def=0.0773  L_fid=0.0838  shift=0.4227  psnr=39.95  linf=0.0797  |g|=1.520e-01
+[run] person_00__P__r16 完成 98s peak=11508MB shift=0.4227 psnr=39.95 eff_rank=165.3
+
+[run] person_01__P__r16  prompt='an elderly person with gray hair'
+  step    0  loss=0.5000  L_def=0.5000  L_fid=0.0000  shift=0.0000  psnr=120.00  linf=0.0000  |g|=1.629e-09
+  step   10  loss=0.1455  L_def=0.1226  L_fid=0.0229  shift=0.3774  psnr=48.98  linf=0.0217  |g|=1.446e-01
+  step   20  loss=0.1734  L_def=0.0933  L_fid=0.0801  shift=0.4067  psnr=42.13  linf=0.0606  |g|=2.953e-01
+  step   24  loss=0.1209  L_def=0.0263  L_fid=0.0946  shift=0.4737  psnr=40.87  linf=0.0743  |g|=2.119e-01
+[run] person_01__P__r16 完成 98s peak=11507MB shift=0.4737 psnr=40.87 eff_rank=263.3
+
+[run] 全部完成，共 6 格，956s

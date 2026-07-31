@@ -6,15 +6,20 @@ refs/
 *.safetensors
 
 # 實驗輸出：預設不追蹤，但**結果本身要進版控**。
-# 追蹤原始數據（CSV/JSON）、分析說明與各 run 頂層的分析圖，
-# 排除逐格的大量影像傾印；代表性影像以 `git add -f` 明確加入。
-runs/*
-!runs/*/
-runs/*/**
+# TWCC 容器會被刪除，runs/ 的數據與圖是唯一的證據來源，一律入庫。
+#
+# 2026-07-31 修正：原規則第三行為 `runs/*/**`，它會排除逐圖子目錄本身
+# （例如 runs/e15_S_tau0.05/car_00__S__r32/）。git 一旦排除某目錄就不再
+# 遞迴進入，後面的 `!runs/**/*.json` 因此永遠不會生效，導致 143 個
+# history.json / spectrum_rank.json 被靜默漏掉。改法是先用 `!runs/**/`
+# 把「所有層級的目錄」重新納入，讓 git 得以遞迴，再由副檔名決定檔案。
+runs/**
+!runs/**/
 !runs/**/*.csv
 !runs/**/*.json
 !runs/**/*.md
-!runs/*/*.png
+!runs/**/*.log
+!runs/**/*.png
 
 # Python
 __pycache__/

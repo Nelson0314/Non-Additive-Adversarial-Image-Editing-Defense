@@ -36,8 +36,11 @@ A 族（latent ε、文字嵌入、權重 LoRA）全部經過 `decode(...encode(
 
 import argparse
 import json
+import sys
 import time
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 import torch
 

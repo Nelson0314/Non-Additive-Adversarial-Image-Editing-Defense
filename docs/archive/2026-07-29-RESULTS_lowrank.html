@@ -36,10 +36,10 @@ h2{color:#7fb2e5}}
 <h2>E2 / E3 — site × rank 與淨化掃描</h2>
 <p class='src'>來源：<code>runs/e2/summary.csv</code>（36 格）、<code>results.csv</code>（828 列）。</p>
 <table class=""><thead><tr><th>site</th><th>注入 r</th><th>n</th><th>編輯偏移</th><th>PSNR</th><th>SSIM</th><th>L∞(φ 造成)</th><th>eff_rank</th><th>energy_rank99</th></tr></thead><tbody><tr><td>L</td><td>1</td><td>6</td><td>0.073</td><td>57.778</td><td>0.868</td><td>0.049</td><td>512.000</td><td>321.611</td></tr><tr><td>L</td><td>4</td><td>6</td><td>0.078</td><td>54.232</td><td>0.868</td><td>0.062</td><td>512.000</td><td>321.778</td></tr><tr><td>L</td><td>16</td><td>6</td><td>0.079</td><td>52.538</td><td>0.868</td><td>0.085</td><td>512.000</td><td>321.667</td></tr><tr><td>P</td><td>1</td><td>6</td><td>0.090</td><td>48.334</td><td>0.998</td><td>0.027</td><td>147.167</td><td>1.056</td></tr><tr><td>P</td><td>4</td><td>6</td><td>0.214</td><td>44.043</td><td>0.994</td><td>0.051</td><td>173.556</td><td>4.111</td></tr><tr><td>P</td><td>16</td><td>6</td><td>0.373</td><td>39.785</td><td>0.985</td><td>0.069</td><td>215.833</td><td>16.167</td></tr></tbody></table>
-<p><img src="../runs/e2/frontier.png" alt="E2 前緣"></p>
+<p><img src="../../runs/e2/frontier.png" alt="E2 前緣"></p>
 <div class='warn'><strong>兩個 site 的起點不同，讀圖時必須納入</strong>：site P 在 φ=0 時 <code>x_def = x</code> 逐元素相等；site L 在 φ=0 時已帶有 inversion + VAE 來回的重建誤差（E0c 實測 19.61–31.01 dB，逐張差異達 11.4 dB）。前緣圖的橫軸是相對原圖的<strong>絕對</strong>保真度，故此差異在圖上直接可見，未以損失函數的設計掩蓋。</div>
 <h3>E3 淨化強度掃描</h3>
-<p><img src="../runs/e2/purify_sweep.png" alt="E3 淨化掃描"></p>
+<p><img src="../../runs/e2/purify_sweep.png" alt="E3 淨化掃描"></p>
 <p>縱軸為<strong>淨額</strong>偏移 <code>net = edit − ctrl</code>，其中 <code>ctrl</code> 是同一淨化算子施加於<strong>原圖</strong>後編輯所產生的偏移（φ 完全沒有參與）。必須扣除：<code>P(x) ≠ x</code>，故即使 φ=0，模糊或 JPEG 本身就會讓編輯偏離 <code>E(x)</code>。實測 site P、r=1 在 blur 下 shift 0.347、identity 下 0.098——高的那個是淨化自己造成的。不扣除則 E3 的每個數字都被系統性高估，且高估幅度隨淨化強度上升，而那正是 §7.4 因果判斷所讀的軸。</p>
 <p>spec §7.4 的因果判斷讀這張圖：P 為低秩<strong>加性</strong>、L 為低秩<strong>非加性</strong>。P 亦耐淨化則機制是秩結構；P 不耐而 L 耐則機制是非加性；兩者皆耐則兩機制不可分辨。三種結果都是可發表的發現。</p>
 <h4>net shift — blur</h4>
@@ -57,26 +57,26 @@ h2{color:#7fb2e5}}
 <h3>產出影像（spec §8.3）</h3>
 <p class='src'>代表性兩格。<code>φ=0 基準</code>是該 site 未施加防禦時就已產生的圖：site P 與原圖逐元素相等，site L 則已帶有重建誤差，兩者的差異在此直接可見。</p>
 <h4>car_00__L__r16</h4><div class='gal'>
-<figure><img src="../runs/e2/car_00__L__r16/orig.png" alt="原圖 x" loading="lazy"><figcaption>原圖 x</figcaption></figure>
-<figure><img src="../runs/e2/car_00__L__r16/baseline_phi0.png" alt="φ=0 基準 G(x;0)" loading="lazy"><figcaption>φ=0 基準 G(x;0)</figcaption></figure>
-<figure><img src="../runs/e2/car_00__L__r16/defended.png" alt="防禦圖 x_def" loading="lazy"><figcaption>防禦圖 x_def</figcaption></figure>
-<figure><img src="../runs/e2/car_00__L__r16/residual.png" alt="殘差 x_def − x（含放大倍率）" loading="lazy"><figcaption>殘差 x_def − x（含放大倍率）</figcaption></figure>
-<figure><img src="../runs/e2/car_00__L__r16/edit_orig.png" alt="edit(x)" loading="lazy"><figcaption>edit(x)</figcaption></figure>
-<figure><img src="../runs/e2/car_00__L__r16/edit_def_blur_0.0.png" alt="edit(x_def)，無淨化" loading="lazy"><figcaption>edit(x_def)，無淨化</figcaption></figure>
-<figure><img src="../runs/e2/car_00__L__r16/edit_def_blur_3.0.png" alt="edit(x_def)，blur σ=3" loading="lazy"><figcaption>edit(x_def)，blur σ=3</figcaption></figure>
-<figure><img src="../runs/e2/car_00__L__r16/spectrum.png" alt="殘差奇異值譜" loading="lazy"><figcaption>殘差奇異值譜</figcaption></figure>
-<figure><img src="../runs/e2/car_00__L__r16/history.png" alt="優化曲線" loading="lazy"><figcaption>優化曲線</figcaption></figure>
+<figure><img src="../../runs/e2/car_00__L__r16/orig.png" alt="原圖 x" loading="lazy"><figcaption>原圖 x</figcaption></figure>
+<figure><img src="../../runs/e2/car_00__L__r16/baseline_phi0.png" alt="φ=0 基準 G(x;0)" loading="lazy"><figcaption>φ=0 基準 G(x;0)</figcaption></figure>
+<figure><img src="../../runs/e2/car_00__L__r16/defended.png" alt="防禦圖 x_def" loading="lazy"><figcaption>防禦圖 x_def</figcaption></figure>
+<figure><img src="../../runs/e2/car_00__L__r16/residual.png" alt="殘差 x_def − x（含放大倍率）" loading="lazy"><figcaption>殘差 x_def − x（含放大倍率）</figcaption></figure>
+<figure><img src="../../runs/e2/car_00__L__r16/edit_orig.png" alt="edit(x)" loading="lazy"><figcaption>edit(x)</figcaption></figure>
+<figure><img src="../../runs/e2/car_00__L__r16/edit_def_blur_0.0.png" alt="edit(x_def)，無淨化" loading="lazy"><figcaption>edit(x_def)，無淨化</figcaption></figure>
+<figure><img src="../../runs/e2/car_00__L__r16/edit_def_blur_3.0.png" alt="edit(x_def)，blur σ=3" loading="lazy"><figcaption>edit(x_def)，blur σ=3</figcaption></figure>
+<figure><img src="../../runs/e2/car_00__L__r16/spectrum.png" alt="殘差奇異值譜" loading="lazy"><figcaption>殘差奇異值譜</figcaption></figure>
+<figure><img src="../../runs/e2/car_00__L__r16/history.png" alt="優化曲線" loading="lazy"><figcaption>優化曲線</figcaption></figure>
 </div>
 <h4>car_00__P__r16</h4><div class='gal'>
-<figure><img src="../runs/e2/car_00__P__r16/orig.png" alt="原圖 x" loading="lazy"><figcaption>原圖 x</figcaption></figure>
-<figure><img src="../runs/e2/car_00__P__r16/baseline_phi0.png" alt="φ=0 基準 G(x;0)" loading="lazy"><figcaption>φ=0 基準 G(x;0)</figcaption></figure>
-<figure><img src="../runs/e2/car_00__P__r16/defended.png" alt="防禦圖 x_def" loading="lazy"><figcaption>防禦圖 x_def</figcaption></figure>
-<figure><img src="../runs/e2/car_00__P__r16/residual.png" alt="殘差 x_def − x（含放大倍率）" loading="lazy"><figcaption>殘差 x_def − x（含放大倍率）</figcaption></figure>
-<figure><img src="../runs/e2/car_00__P__r16/edit_orig.png" alt="edit(x)" loading="lazy"><figcaption>edit(x)</figcaption></figure>
-<figure><img src="../runs/e2/car_00__P__r16/edit_def_blur_0.0.png" alt="edit(x_def)，無淨化" loading="lazy"><figcaption>edit(x_def)，無淨化</figcaption></figure>
-<figure><img src="../runs/e2/car_00__P__r16/edit_def_blur_3.0.png" alt="edit(x_def)，blur σ=3" loading="lazy"><figcaption>edit(x_def)，blur σ=3</figcaption></figure>
-<figure><img src="../runs/e2/car_00__P__r16/spectrum.png" alt="殘差奇異值譜" loading="lazy"><figcaption>殘差奇異值譜</figcaption></figure>
-<figure><img src="../runs/e2/car_00__P__r16/history.png" alt="優化曲線" loading="lazy"><figcaption>優化曲線</figcaption></figure>
+<figure><img src="../../runs/e2/car_00__P__r16/orig.png" alt="原圖 x" loading="lazy"><figcaption>原圖 x</figcaption></figure>
+<figure><img src="../../runs/e2/car_00__P__r16/baseline_phi0.png" alt="φ=0 基準 G(x;0)" loading="lazy"><figcaption>φ=0 基準 G(x;0)</figcaption></figure>
+<figure><img src="../../runs/e2/car_00__P__r16/defended.png" alt="防禦圖 x_def" loading="lazy"><figcaption>防禦圖 x_def</figcaption></figure>
+<figure><img src="../../runs/e2/car_00__P__r16/residual.png" alt="殘差 x_def − x（含放大倍率）" loading="lazy"><figcaption>殘差 x_def − x（含放大倍率）</figcaption></figure>
+<figure><img src="../../runs/e2/car_00__P__r16/edit_orig.png" alt="edit(x)" loading="lazy"><figcaption>edit(x)</figcaption></figure>
+<figure><img src="../../runs/e2/car_00__P__r16/edit_def_blur_0.0.png" alt="edit(x_def)，無淨化" loading="lazy"><figcaption>edit(x_def)，無淨化</figcaption></figure>
+<figure><img src="../../runs/e2/car_00__P__r16/edit_def_blur_3.0.png" alt="edit(x_def)，blur σ=3" loading="lazy"><figcaption>edit(x_def)，blur σ=3</figcaption></figure>
+<figure><img src="../../runs/e2/car_00__P__r16/spectrum.png" alt="殘差奇異值譜" loading="lazy"><figcaption>殘差奇異值譜</figcaption></figure>
+<figure><img src="../../runs/e2/car_00__P__r16/history.png" alt="優化曲線" loading="lazy"><figcaption>優化曲線</figcaption></figure>
 </div>
 <h3>注入秩 vs 實測像素秩</h3>
 <p>site P 的 <code>eff_rank</code> 遠高於注入秩而 <code>energy99</code> 等於注入秩，即 spec §7.2 修訂紀錄所述的 clamp 效應：低秩結構在能量意義下成立、在精確秩意義下不成立。site L 的像素秩為湧現量，沒有理論保證，此處為實測值。</p>

@@ -13,6 +13,7 @@ CSV 的路徑與量測條件，避免報告與原始資料脫節。
 import argparse
 import csv
 import html
+import os
 import sys
 from collections import defaultdict
 from pathlib import Path
@@ -175,7 +176,7 @@ def section_e0d(root: Path):
     )
 
 
-def section_e2(root: Path, run_name: str):
+def section_e2(root: Path, run_name: str, rel: str):
     run = root / run_name
     summary = read_csv(run / "summary.csv")
     results = read_csv(run / "results.csv")
@@ -207,7 +208,7 @@ def section_e2(root: Path, run_name: str):
         )
     )
     parts.append(
-        '<p><img src="../runs/%s/frontier.png" alt="E2 前緣"></p>' % run_name
+        f'<p><img src="{rel}/{run_name}/frontier.png" alt="E2 前緣"></p>'
     )
     parts.append(
         "<div class='warn'><strong>兩個 site 的起點不同，讀圖時必須納入</strong>："
@@ -220,7 +221,7 @@ def section_e2(root: Path, run_name: str):
     if results:
         parts.append("<h3>E3 淨化強度掃描</h3>")
         parts.append(
-            '<p><img src="../runs/%s/purify_sweep.png" alt="E3 淨化掃描"></p>' % run_name
+            f'<p><img src="{rel}/{run_name}/purify_sweep.png" alt="E3 淨化掃描"></p>'
         )
         parts.append(
             "<p>縱軸為<strong>淨額</strong>偏移 <code>net = edit − ctrl</code>，"
@@ -278,7 +279,7 @@ def section_e2(root: Path, run_name: str):
             )
             parts.append(_md_table_to_html(ot.read_text(encoding="utf-8")))
 
-        parts.append(_gallery(run, run_name))
+        parts.append(_gallery(run, run_name, rel))
 
         rt = run / "rank_table.md"
         if rt.exists():
@@ -306,7 +307,7 @@ GALLERY = [
 ]
 
 
-def _gallery(run: Path, run_name: str) -> str:
+def _gallery(run: Path, run_name: str, rel: str) -> str:
     """spec §8.3 要求留存的影像。只放代表性的兩格，其餘留在 TWCC。"""
     cells = [d.name for d in sorted(run.iterdir()) if d.is_dir()]
     cells = [c for c in cells if (run / c / "defended.png").exists()]
@@ -321,7 +322,7 @@ def _gallery(run: Path, run_name: str) -> str:
         for fn, cap in GALLERY:
             if (run / c / fn).exists():
                 out.append(
-                    f'<figure><img src="../runs/{run_name}/{c}/{fn}" '
+                    f'<figure><img src="{rel}/{run_name}/{c}/{fn}" '
                     f'alt="{html.escape(cap)}" loading="lazy">'
                     f"<figcaption>{html.escape(cap)}</figcaption></figure>"
                 )
@@ -379,11 +380,16 @@ def main():
     args = ap.parse_args()
 
     root = Path(args.runs)
+    # 圖片以相對路徑寫入 HTML，故 runs/ 的相對位置取決於輸出檔放在哪一層。
+    # 原本硬寫 "../runs"，只在輸出位於 docs/ 時正確；報告移到 docs/archive/
+    # 之後就全部斷掉。改為從輸出檔所在目錄實算。
+    rel = os.path.relpath(root.resolve(),
+                          Path(args.out).resolve().parent).replace(os.sep, "/")
     sections = [
         section_e0(root),
         section_e0c(root),
         section_e0d(root),
-        section_e2(root, args.run_name),
+        section_e2(root, args.run_name, rel),
     ]
     doc = (
         "<!doctype html><html lang='zh-Hant'><head><meta charset='utf-8'>"

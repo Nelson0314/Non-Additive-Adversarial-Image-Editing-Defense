@@ -95,8 +95,39 @@ def main():
             tag = ""
 
     print()
+    print("=" * 78)
+    print("是哪一項擋下來的（逐影像通過數，n/總數）")
+    print("=" * 78)
+    hdr2 = ("run".ljust(24) + "arm".ljust(17)
+            + "lpips<門檻".rjust(12) + "psnr 不退".rjust(11)
+            + "dists 不退".rjust(12))
+    print(hdr2)
+    print("-" * len(hdr2))
+    for r in runs:
+        p = r / "results.json"
+        if not p.exists():
+            continue
+        rows = json.load(open(p))
+        if not rows or "dists_ok" not in rows[0]:
+            continue  # 舊格式（E17/E18 首格）沒有逐項旗標
+        tag = r.name
+        for arm in ["roundtrip", "latent_opt", "asym_free", "asym_leak",
+                    "latent_opt_asym"]:
+            v = [x for x in rows if x["arm"] == arm]
+            if not v:
+                continue
+            n = len(v)
+            print(tag.ljust(24) + arm.ljust(17)
+                  + f"{sum(x['lpips_ok'] for x in v)}/{n}".rjust(12)
+                  + f"{sum(x['psnr_ok'] for x in v)}/{n}".rjust(11)
+                  + f"{sum(x['dists_ok'] for x in v)}/{n}".rjust(12))
+            tag = ""
+
+    print()
     print("參照：E17 現況地板 roundtrip 0.1434 / 27.51 dB；"
           f"site P 實際運作於 LPIPS {TARGET}")
+    print("註：roundtrip 是自身的參照點，其 psnr/dists 必然「不退」，"
+          "該列的這兩欄恆為滿分，不具資訊。")
 
 
 if __name__ == "__main__":

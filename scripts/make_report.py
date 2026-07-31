@@ -3,7 +3,11 @@
 報告的組織原則：**每個數字都要能追到產生它的執行**。每個區塊都標明來源
 CSV 的路徑與量測條件，避免報告與原始資料脫節。
 
-執行：python scripts/make_report.py --out docs/RESULTS_lowrank.html
+此腳本只涵蓋 E0–E3，其輸出已被 docs/REPORT.html（由 make_report_figures.py
+產生，涵蓋到 E12）取代。舊輸出封存於 docs/archive/2026-07-29-RESULTS_lowrank.html。
+保留本腳本是因為 E0/E0c 的成本與地板表格只有它會生成。
+
+執行：python scripts/make_report.py --out docs/archive/2026-07-29-RESULTS_lowrank.html
 """
 
 import argparse
@@ -371,7 +375,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--runs", default="runs")
     ap.add_argument("--run_name", default="e2")
-    ap.add_argument("--out", default="docs/RESULTS_lowrank.html")
+    ap.add_argument("--out", default="docs/archive/2026-07-29-RESULTS_lowrank.html")
     args = ap.parse_args()
 
     root = Path(args.runs)

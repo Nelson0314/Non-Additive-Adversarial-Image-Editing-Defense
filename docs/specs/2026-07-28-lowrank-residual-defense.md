@@ -1,8 +1,10 @@
 # 低秩殘差防禦（Low-Rank Residual Defense）— 設計規格
 
 - 版本：v1（2026-07-28）
-- 狀態：待使用者審閱，未開始實作
-- 前置：v2 實驗已封存於 `RESULTS_v2.html`；v2 程式碼已自工作區移除，可由 git 歷史 commit `02cf175` 取回
+- 狀態：已實作並執行至 E17。本規格為當時的設計依據，後續的推翻與修正
+  記於 `docs/REPORT.html` §六、§七與 `docs/RESULTS_E13-E17.md`，本文不再回頭改寫。
+- 前置：v2 實驗已封存於 `docs/archive/2026-07-26-RESULTS_v2.html`；v2 程式碼已自工作區移除，
+  可由 git 歷史 commit `02cf175` 取回
 
 ---
 

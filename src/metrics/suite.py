@@ -12,9 +12,18 @@ LPIPS 與 pg_enc 幾乎相同，PSNR 卻相差 12.7 dB、L∞ 相差 28 倍。�
 | SSIM   | 結構   | 高者佳 | piq.ssim |
 | LPIPS  | 感知   | 低者佳 | piq.LPIPS (AlexNet) |
 | DISTS  | 感知   | 低者佳 | piq.DISTS |
+| 銳利度 | 頻域   | 趨近 1 | src.metrics.acutance |
 | NIQE   | 無參考 | 低者佳 | pyiqa |
 | CLIP   | 語意   | 高者佳 | openai/clip-vit-base-patch32 |
 | SigLIP | 語意   | 高者佳 | google/siglip-base-patch16-224 |
+
+**2026-07-31 新增銳利度保留率（第 9 項）。** before：`pairwise` 回傳
+psnr/linf/ssim/lpips/dists 五項。after：加上 `acutance_ratio`。原因是 E18 的
+人眼比對發現一個兩個感知指標都沒抓到的現象——latent 最佳化後的影像「不差，
+但比較鈍」。實測銳利度由地板的 95.7% 掉到 84.3%，而 LPIPS 六張全判改善、
+DISTS 只對其中三張報退步且與鈍化程度不對應（dog_01 鈍化到 81.9% 仍判改善）。
+上面那條「不得只報單一指標」的主張，這次是被自己的指標組打臉：八項裡沒有
+一項直接量高頻能量流失。
 
 CLIP 與 SigLIP 兩個語意指標都納入，是為了避免單一視覺語言模型的偏誤主導
 語意層面的結論。兩者的分數尺度不同（CLIP 為餘弦相似度、SigLIP 為 sigmoid
@@ -34,6 +43,8 @@ SIGLIP_REPO = "google/siglip-base-patch16-224"
 HIGHER_IS_BETTER = {
     "psnr": True, "linf": False, "ssim": True, "lpips": False,
     "dists": False, "niqe": False, "clip": True, "siglip": True,
+    # 銳利度保留率的最佳值是 1（與原圖相同），不是越高越好也不是越低越好：
+    # < 1 為鈍化、> 1 為過銳。故不列於此表，報告端須依「趨近 1」處理。
 }
 
 
@@ -75,8 +86,14 @@ class MetricSuite:
 
     @torch.no_grad()
     def pairwise(self, a: torch.Tensor, b: torch.Tensor) -> Dict[str, float]:
-        """a 與 b 的六項成對指標。順序無關者對稱，NIQE 另計。"""
+        """a 與 b 的成對指標。NIQE 另計。
+
+        **銳利度不對稱**：`acutance_ratio` 是 b 相對 a 的比值，故 a 必須是
+        參照（原圖）、b 是待評影像。其餘各項對調不變，此項會變成倒數。
+        """
         import piq
+
+        from src.metrics.acutance import acutance
 
         a = a.to(self.device).clamp(0, 1)
         b = b.to(self.device).clamp(0, 1)
@@ -86,6 +103,7 @@ class MetricSuite:
             "ssim": float(piq.ssim(a, b, data_range=1.0)),
             "lpips": float(self._lpips(a, b)),
             "dists": float(self._dists(a, b)),
+            "acutance_ratio": acutance(a, b)["acutance_ratio"],
         }
 
     # NIQE 把影像切成 96×96 區塊統計，短邊小於此值時沒有任何完整區塊，

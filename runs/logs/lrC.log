@@ -1,0 +1,124 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+[run] device=cuda sites=['C'] ranks=[32] steps=60
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 11653.98it/s]
+Loading pipeline components...:  67%|██████▋   | 4/6 [00:00<00:00, 21.68it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 25.09it/s]
+/home/zeus/miniconda3/envs/cloudspace/lib/python3.12/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/home/zeus/miniconda3/envs/cloudspace/lib/python3.12/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+Downloading: "https://github.com/photosynthesis-team/photosynthesis.metrics/releases/download/v0.4.0/lpips_weights.pt" to /teamspace/studios/this_studio/.cache/torch/hub/checkpoints/lpips_weights.pt
+Downloading: "https://download.pytorch.org/models/vgg16-397923af.pth" to /teamspace/studios/this_studio/.cache/torch/hub/checkpoints/vgg16-397923af.pth
+Downloading: "https://github.com/photosynthesis-team/piq/releases/download/v0.4.1/dists_weights.pt" to /teamspace/studios/this_studio/.cache/torch/hub/checkpoints/dists_weights.pt
+[run] 影像 2 張：['car_00', 'car_01']
+[run] 訓練期淨化集 ['identity', 'blur', 'jpeg']
+
+[run] car_00__C__r32  prompt='a wrecked car after an accident'
+/teamspace/studios/this_studio/WACV/src/defense/objective.py:342: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:835.)
+  "fid_linf_total": float((xd - xr).abs().max()),
+  step    0  loss=0.5000  L_def=0.5000  L_fid=0.0000  shift=0.0000  psnr=120.00  linf=0.0000  |g|=1.805e-06
+  step   10  loss=0.0996  L_def=0.0914  L_fid=0.0082  shift=0.4086  psnr=36.96  linf=0.1658  |g|=2.843e-02
+  step   20  loss=0.2500  L_def=0.2369  L_fid=0.0132  shift=0.2631  psnr=34.77  linf=0.1674  |g|=5.225e-02
+  step   30  loss=0.2555  L_def=0.2416  L_fid=0.0139  shift=0.2584  psnr=34.33  linf=0.1691  |g|=2.180e-02
+  step   40  loss=0.0792  L_def=0.0654  L_fid=0.0138  shift=0.4346  psnr=34.22  linf=0.1673  |g|=1.148e-02
+  step   50  loss=0.2093  L_def=0.1957  L_fid=0.0135  shift=0.3043  psnr=34.16  linf=0.1665  |g|=2.115e-02
+  step   59  loss=0.2091  L_def=0.1958  L_fid=0.0133  shift=0.3042  psnr=34.13  linf=0.1715  |g|=4.382e-02
+[run] car_00__C__r32 完成 147s peak=10320MB shift=0.3042 psnr=34.13 eff_rank=511.7
+
+[run] car_01__C__r32  prompt='a wrecked car after an accident'
+/home/zeus/miniconda3/envs/cloudspace/lib/python3.12/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/home/zeus/miniconda3/envs/cloudspace/lib/python3.12/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+  step    0  loss=0.5000  L_def=0.5000  L_fid=0.0000  shift=0.0000  psnr=120.00  linf=0.0000  |g|=2.138e-06
+  step   10  loss=0.1328  L_def=0.1271  L_fid=0.0057  shift=0.3729  psnr=45.21  linf=0.0315  |g|=1.963e-02
+  step   20  loss=0.2487  L_def=0.2397  L_fid=0.0090  shift=0.2603  psnr=43.16  linf=0.0315  |g|=2.324e-02
+  step   30  loss=0.1826  L_def=0.1721  L_fid=0.0105  shift=0.3279  psnr=42.37  linf=0.0313  |g|=3.078e-02
+  step   40  loss=0.0955  L_def=0.0845  L_fid=0.0109  shift=0.4155  psnr=42.02  linf=0.0313  |g|=1.073e-02
+  step   50  loss=0.1900  L_def=0.1786  L_fid=0.0114  shift=0.3214  psnr=41.80  linf=0.0319  |g|=1.534e-02
+  step   59  loss=0.1806  L_def=0.1687  L_fid=0.0119  shift=0.3313  psnr=41.69  linf=0.0319  |g|=1.386e-02
+[run] car_01__C__r32 完成 147s peak=10323MB shift=0.3313 psnr=41.69 eff_rank=512.0
+
+[run] 全部完成，共 2 格，302s
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+[run] device=cuda sites=['C'] ranks=[32] steps=60
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  67%|██████▋   | 4/6 [00:00<00:00, 28.84it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 13346.60it/s]
+Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 25.52it/s]
+/home/zeus/miniconda3/envs/cloudspace/lib/python3.12/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/home/zeus/miniconda3/envs/cloudspace/lib/python3.12/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+[run] 影像 2 張：['car_00', 'car_01']
+[run] 訓練期淨化集 ['identity', 'blur', 'jpeg']
+
+[run] car_00__C__r32  prompt='a wrecked car after an accident'
+/teamspace/studios/this_studio/WACV/src/defense/objective.py:342: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:835.)
+  "fid_linf_total": float((xd - xr).abs().max()),
+  step    0  loss=0.5000  L_def=0.5000  L_fid=0.0000  shift=0.0000  psnr=120.00  linf=0.0000  |g|=1.805e-06
+  step   10  loss=0.1113  L_def=0.0917  L_fid=0.0196  shift=0.4083  psnr=33.18  linf=0.2051  |g|=1.053e-02
+  step   20  loss=0.2310  L_def=0.2117  L_fid=0.0192  shift=0.2883  psnr=32.88  linf=0.2051  |g|=2.885e-02
+  step   30  loss=0.2417  L_def=0.2227  L_fid=0.0190  shift=0.2773  psnr=32.81  linf=0.2051  |g|=9.335e-03
+  step   40  loss=0.0937  L_def=0.0749  L_fid=0.0187  shift=0.4251  psnr=32.84  linf=0.2051  |g|=6.517e-03
+  step   50  loss=0.2101  L_def=0.1912  L_fid=0.0189  shift=0.3088  psnr=32.79  linf=0.2051  |g|=1.837e-02
+  step   59  loss=0.2050  L_def=0.1863  L_fid=0.0187  shift=0.3137  psnr=32.78  linf=0.2051  |g|=8.817e-03
+[run] car_00__C__r32 完成 147s peak=10320MB shift=0.3137 psnr=32.78 eff_rank=512.0
+
+[run] car_01__C__r32  prompt='a wrecked car after an accident'
+/home/zeus/miniconda3/envs/cloudspace/lib/python3.12/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/home/zeus/miniconda3/envs/cloudspace/lib/python3.12/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+  step    0  loss=0.5000  L_def=0.5000  L_fid=0.0000  shift=0.0000  psnr=120.00  linf=0.0000  |g|=2.138e-06
+  step   10  loss=0.1000  L_def=0.0837  L_fid=0.0163  shift=0.4163  psnr=41.49  linf=0.0318  |g|=7.439e-03
+  step   20  loss=0.2194  L_def=0.2029  L_fid=0.0165  shift=0.2971  psnr=41.09  linf=0.0319  |g|=2.888e-02
+  step   30  loss=0.1880  L_def=0.1722  L_fid=0.0158  shift=0.3278  psnr=41.05  linf=0.0319  |g|=7.286e-03
+  step   40  loss=0.0761  L_def=0.0611  L_fid=0.0150  shift=0.4389  psnr=41.09  linf=0.0319  |g|=4.467e-03
+  step   50  loss=0.2088  L_def=0.1938  L_fid=0.0150  shift=0.3062  psnr=41.09  linf=0.0319  |g|=2.364e-02
+  step   59  loss=0.2073  L_def=0.1924  L_fid=0.0149  shift=0.3076  psnr=41.10  linf=0.0319  |g|=9.809e-03
+[run] car_01__C__r32 完成 147s peak=10323MB shift=0.3076 psnr=41.10 eff_rank=512.0
+
+[run] 全部完成，共 2 格，301s
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+[run] device=cuda sites=['C'] ranks=[32] steps=60
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  50%|█████     | 3/6 [00:00<00:00, 25.15it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 12289.35it/s]
+Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 25.57it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 25.49it/s]
+/home/zeus/miniconda3/envs/cloudspace/lib/python3.12/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/home/zeus/miniconda3/envs/cloudspace/lib/python3.12/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+[run] 影像 2 張：['car_00', 'car_01']
+[run] 訓練期淨化集 ['identity', 'blur', 'jpeg']
+
+[run] car_00__C__r32  prompt='a wrecked car after an accident'
+/teamspace/studios/this_studio/WACV/src/defense/objective.py:342: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:835.)
+  "fid_linf_total": float((xd - xr).abs().max()),
+  step    0  loss=0.5000  L_def=0.5000  L_fid=0.0000  shift=0.0000  psnr=120.00  linf=0.0000  |g|=1.805e-06
+  step   10  loss=0.1008  L_def=0.0811  L_fid=0.0198  shift=0.4189  psnr=32.80  linf=0.2051  |g|=1.459e-02
+  step   20  loss=0.2336  L_def=0.2147  L_fid=0.0189  shift=0.2853  psnr=32.75  linf=0.2051  |g|=8.206e-03
+  step   30  loss=0.2458  L_def=0.2270  L_fid=0.0188  shift=0.2730  psnr=32.76  linf=0.2051  |g|=3.454e-03
+  step   40  loss=0.0904  L_def=0.0721  L_fid=0.0183  shift=0.4279  psnr=32.76  linf=0.2051  |g|=2.915e-03
+  step   50  loss=0.2188  L_def=0.2007  L_fid=0.0181  shift=0.2993  psnr=32.77  linf=0.2051  |g|=2.141e-02
+  step   59  loss=0.2195  L_def=0.2015  L_fid=0.0180  shift=0.2985  psnr=32.78  linf=0.2051  |g|=1.016e-02
+[run] car_00__C__r32 完成 147s peak=10320MB shift=0.2985 psnr=32.78 eff_rank=511.3
+
+[run] car_01__C__r32  prompt='a wrecked car after an accident'
+/home/zeus/miniconda3/envs/cloudspace/lib/python3.12/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/home/zeus/miniconda3/envs/cloudspace/lib/python3.12/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+  step    0  loss=0.5000  L_def=0.5000  L_fid=0.0000  shift=0.0000  psnr=120.00  linf=0.0000  |g|=2.138e-06
+  step   10  loss=0.0949  L_def=0.0747  L_fid=0.0202  shift=0.4253  psnr=40.83  linf=0.0319  |g|=5.032e-03
+  step   20  loss=0.2260  L_def=0.2072  L_fid=0.0188  shift=0.2928  psnr=40.87  linf=0.0319  |g|=1.161e-02
+  step   30  loss=0.2258  L_def=0.2079  L_fid=0.0179  shift=0.2921  psnr=40.90  linf=0.0319  |g|=3.488e-03
+  step   40  loss=0.0853  L_def=0.0679  L_fid=0.0173  shift=0.4321  psnr=40.92  linf=0.0318  |g|=1.612e-03
+  step   50  loss=0.2151  L_def=0.1982  L_fid=0.0169  shift=0.3018  psnr=40.93  linf=0.0318  |g|=2.699e-03
+  step   59  loss=0.2140  L_def=0.1977  L_fid=0.0162  shift=0.3023  psnr=40.94  linf=0.0319  |g|=3.360e-03
+[run] car_01__C__r32 完成 147s peak=10323MB shift=0.3023 psnr=40.94 eff_rank=512.0
+
+[run] 全部完成，共 2 格，301s
+LRC_DONE

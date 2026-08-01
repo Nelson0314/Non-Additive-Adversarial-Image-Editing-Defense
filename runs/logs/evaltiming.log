@@ -1,0 +1,25 @@
+[run] device=cuda sites=['P'] ranks=[16] steps=10
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 12207.77it/s]
+Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00, 12.75it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 25.61it/s]
+/home/zeus/miniconda3/envs/cloudspace/lib/python3.12/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/home/zeus/miniconda3/envs/cloudspace/lib/python3.12/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+[run] 影像 1 張：['car_00']
+[run] 訓練期淨化集 ['identity', 'blur', 'jpeg']
+
+[run] car_00__P__r16  prompt='a wrecked car after an accident'
+/teamspace/studios/this_studio/WACV/src/defense/objective.py:342: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:835.)
+  "fid_linf_total": float((xd - xr).abs().max()),
+  step    0  loss=0.5000  L_def=0.5000  L_fid=0.0000  shift=0.0000  psnr=120.00  linf=0.0000  |g|=0.000e+00
+  step    9  loss=0.2836  L_def=0.2801  L_fid=0.0035  shift=0.2199  psnr=50.03  linf=0.0246  |g|=1.347e-01
+[run] car_00__P__r16 完成 25s peak=10309MB shift=0.2199 psnr=50.03 eff_rank=315.3
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 33563.88it/s]
+[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
+[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
+Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 12065.09it/s]
+
+[run] 全部完成，共 1 格，66s

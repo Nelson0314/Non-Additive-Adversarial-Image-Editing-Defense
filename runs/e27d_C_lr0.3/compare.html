@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>E27 校準：把失真預算用滿之後長什麼樣</title>
+<style>
+:root { color-scheme: light dark; }
+body { font-family: system-ui, "Noto Sans TC", sans-serif; margin: 0; padding: 24px;
+       line-height: 1.6; }
+h1 { font-size: 1.4rem; margin: 0 0 4px; }
+.note { opacity: .75; font-size: .9rem; max-width: 62ch; margin: 0 0 24px; }
+.panel { margin: 0 0 40px; border-top: 1px solid rgba(128,128,128,.35); padding-top: 16px; }
+.hdr { display: flex; gap: 16px; align-items: baseline; flex-wrap: wrap;
+       margin-bottom: 10px; }
+.hdr b { font-size: 1.05rem; }
+.hdr span { opacity: .7; font-size: .85rem; }
+.btns { display: flex; gap: 6px; margin-bottom: 10px; }
+button { font: inherit; padding: 4px 14px; border: 1px solid rgba(128,128,128,.5);
+         background: transparent; color: inherit; border-radius: 4px; cursor: pointer; }
+button[aria-pressed="true"] { background: rgba(128,128,128,.35); font-weight: 600; }
+/* 環境底色固定為同一階中性灰，不隨明暗主題變動：環境亮度會改變感知對比 */
+.stage { display: flex; gap: 12px; flex-wrap: wrap; background: #808080;
+         padding: 12px; border-radius: 6px; width: max-content; max-width: 100%; }
+.stage img { display: block; max-width: 100%; height: auto; image-rendering: pixelated; }
+.frame { position: relative; }
+.frame img { position: absolute; inset: 0; opacity: 0; }
+.frame img.on { position: static; opacity: 1; }
+details { margin-top: 12px; }
+summary { cursor: pointer; font-size: .9rem; opacity: .8; }
+table { border-collapse: collapse; font-size: .85rem; margin-top: 8px; }
+th, td { border: 1px solid rgba(128,128,128,.35); padding: 3px 10px; text-align: right; }
+th:first-child, td:first-child { text-align: left; }
+</style></head><body>
+<h1>把失真預算用滿之後，防禦圖長什麼樣</h1>
+<p class="note">E27 把 <code>alpha_lpips</code> 設為 0，於是 τ 以內的失真對
+最佳化完全免費，它會把預算用滿。<b>要判斷的只有一件事：這張防禦圖，你能接受
+它跟原圖是「同一張照片」嗎。</b>請按<b>數字鍵</b>（或點按鈕）原地切換。
+<br><br>
+需要特別注意<b>色偏</b>：鈍化約束只看亮度，對色度變化在構造上就是盲的；
+若 LPIPS 也對它盲目，那就是重蹈 site S 用 LPIPS 買模糊的覆轍，只是換成用
+色度買。實測有格子在三道 hinge 全部未啟動（L_fid = 0）的同時
+PSNR 只有 24.75 dB、L∞ 達 0.62。
+右側為 4× 最近鄰放大，位置取原圖梯度能量最高處，兩版本同一座標。</p>
+
+<div class="panel">
+  <div class="hdr"><b>car_00</b>
+    <span>e27d_C_lr0.3　·　lr=0.3　·　α_lpips=0.0</span>
+    <span>site C</span>
+  </div>
+  <div class="btns"><button data-v="orig" aria-pressed="true">原圖</button><button data-v="defended" aria-pressed="false">防禦圖</button></div>
+  <div class="stage">
+    <div class="frame"><img data-v="orig" class="on" src="e27d_C_lr0.3__car_00__C__r32__orig.png" width="512" alt="原圖"><img data-v="defended" class="" src="e27d_C_lr0.3__car_00__C__r32__defended.png" width="512" alt="防禦圖"></div>
+    <div class="frame"><img data-v="orig" class="on" src="zoom__e27d_C_lr0.3__car_00__C__r32__orig.png" width="512" alt="原圖 放大"><img data-v="defended" class="" src="zoom__e27d_C_lr0.3__car_00__C__r32__defended.png" width="512" alt="防禦圖 放大"></div>
+  </div>
+  <details><summary>展開數值（先看圖）</summary><table><tr><th>量</th><th>實測</th><th>門檻／上限</th></tr><tr><td>LPIPS（受 τ 約束）</td><td>0.0409</td><td>0.05</td></tr><tr><td>鈍化偏差（受 τ_acut 約束）</td><td>0.9330</td><td>0.04</td></tr><tr><td>PSNR (dB)（不在梯度裡）</td><td>24.5191</td><td></td></tr><tr><td>L∞（beta_linf=0，不在梯度裡）</td><td>0.9949</td><td></td></tr><tr><td>編輯偏移 edit_shift</td><td>0.3744</td><td>1.0</td></tr><tr><td>實際步數</td><td>60.0000</td><td>60</td></tr></table></details>
+</div>
+<div class="panel">
+  <div class="hdr"><b>car_01</b>
+    <span>e27d_C_lr0.3　·　lr=0.3　·　α_lpips=0.0</span>
+    <span>site C</span>
+  </div>
+  <div class="btns"><button data-v="orig" aria-pressed="true">原圖</button><button data-v="defended" aria-pressed="false">防禦圖</button></div>
+  <div class="stage">
+    <div class="frame"><img data-v="orig" class="on" src="e27d_C_lr0.3__car_01__C__r32__orig.png" width="512" alt="原圖"><img data-v="defended" class="" src="e27d_C_lr0.3__car_01__C__r32__defended.png" width="512" alt="防禦圖"></div>
+    <div class="frame"><img data-v="orig" class="on" src="zoom__e27d_C_lr0.3__car_01__C__r32__orig.png" width="512" alt="原圖 放大"><img data-v="defended" class="" src="zoom__e27d_C_lr0.3__car_01__C__r32__defended.png" width="512" alt="防禦圖 放大"></div>
+  </div>
+  <details><summary>展開數值（先看圖）</summary><table><tr><th>量</th><th>實測</th><th>門檻／上限</th></tr><tr><td>LPIPS（受 τ 約束）</td><td>0.0529</td><td>0.05</td></tr><tr><td>鈍化偏差（受 τ_acut 約束）</td><td>0.9923</td><td>0.04</td></tr><tr><td>PSNR (dB)（不在梯度裡）</td><td>33.5342</td><td></td></tr><tr><td>L∞（beta_linf=0，不在梯度裡）</td><td>0.1821</td><td></td></tr><tr><td>編輯偏移 edit_shift</td><td>0.3438</td><td>1.0</td></tr><tr><td>實際步數</td><td>60.0000</td><td>60</td></tr></table></details>
+</div>
+<div class="panel">
+  <div class="hdr"><b>car_00</b>
+    <span>e27d_P_lr0.03　·　lr=0.03　·　α_lpips=0.0</span>
+    <span>site P</span>
+  </div>
+  <div class="btns"><button data-v="orig" aria-pressed="true">原圖</button><button data-v="defended" aria-pressed="false">防禦圖</button></div>
+  <div class="stage">
+    <div class="frame"><img data-v="orig" class="on" src="e27d_P_lr0.03__car_00__P__r16__orig.png" width="512" alt="原圖"><img data-v="defended" class="" src="e27d_P_lr0.03__car_00__P__r16__defended.png" width="512" alt="防禦圖"></div>
+    <div class="frame"><img data-v="orig" class="on" src="zoom__e27d_P_lr0.03__car_00__P__r16__orig.png" width="512" alt="原圖 放大"><img data-v="defended" class="" src="zoom__e27d_P_lr0.03__car_00__P__r16__defended.png" width="512" alt="防禦圖 放大"></div>
+  </div>
+  <details><summary>展開數值（先看圖）</summary><table><tr><th>量</th><th>實測</th><th>門檻／上限</th></tr><tr><td>LPIPS（受 τ 約束）</td><td>0.0406</td><td>0.05</td></tr><tr><td>鈍化偏差（受 τ_acut 約束）</td><td>0.9757</td><td>0.04</td></tr><tr><td>PSNR (dB)（不在梯度裡）</td><td>34.0140</td><td></td></tr><tr><td>L∞（beta_linf=0，不在梯度裡）</td><td>0.2247</td><td></td></tr><tr><td>編輯偏移 edit_shift</td><td>0.3485</td><td>1.0</td></tr><tr><td>實際步數</td><td>60.0000</td><td>60</td></tr></table></details>
+</div>
+<div class="panel">
+  <div class="hdr"><b>car_01</b>
+    <span>e27d_P_lr0.03　·　lr=0.03　·　α_lpips=0.0</span>
+    <span>site P</span>
+  </div>
+  <div class="btns"><button data-v="orig" aria-pressed="true">原圖</button><button data-v="defended" aria-pressed="false">防禦圖</button></div>
+  <div class="stage">
+    <div class="frame"><img data-v="orig" class="on" src="e27d_P_lr0.03__car_01__P__r16__orig.png" width="512" alt="原圖"><img data-v="defended" class="" src="e27d_P_lr0.03__car_01__P__r16__defended.png" width="512" alt="防禦圖"></div>
+    <div class="frame"><img data-v="orig" class="on" src="zoom__e27d_P_lr0.03__car_01__P__r16__orig.png" width="512" alt="原圖 放大"><img data-v="defended" class="" src="zoom__e27d_P_lr0.03__car_01__P__r16__defended.png" width="512" alt="防禦圖 放大"></div>
+  </div>
+  <details><summary>展開數值（先看圖）</summary><table><tr><th>量</th><th>實測</th><th>門檻／上限</th></tr><tr><td>LPIPS（受 τ 約束）</td><td>0.0475</td><td>0.05</td></tr><tr><td>鈍化偏差（受 τ_acut 約束）</td><td>0.9878</td><td>0.04</td></tr><tr><td>PSNR (dB)（不在梯度裡）</td><td>34.9744</td><td></td></tr><tr><td>L∞（beta_linf=0，不在梯度裡）</td><td>0.3293</td><td></td></tr><tr><td>編輯偏移 edit_shift</td><td>0.3965</td><td>1.0</td></tr><tr><td>實際步數</td><td>60.0000</td><td>60</td></tr></table></details>
+</div>
+<div class="panel">
+  <div class="hdr"><b>car_00</b>
+    <span>e27d_C_lr0.1　·　lr=0.1　·　α_lpips=0.0</span>
+    <span>site C</span>
+  </div>
+  <div class="btns"><button data-v="orig" aria-pressed="true">原圖</button><button data-v="defended" aria-pressed="false">防禦圖</button></div>
+  <div class="stage">
+    <div class="frame"><img data-v="orig" class="on" src="e27d_C_lr0.1__car_00__C__r32__orig.png" width="512" alt="原圖"><img data-v="defended" class="" src="e27d_C_lr0.1__car_00__C__r32__defended.png" width="512" alt="防禦圖"></div>
+    <div class="frame"><img data-v="orig" class="on" src="zoom__e27d_C_lr0.1__car_00__C__r32__orig.png" width="512" alt="原圖 放大"><img data-v="defended" class="" src="zoom__e27d_C_lr0.1__car_00__C__r32__defended.png" width="512" alt="防禦圖 放大"></div>
+  </div>
+  <details><summary>展開數值（先看圖）</summary><table><tr><th>量</th><th>實測</th><th>門檻／上限</th></tr><tr><td>LPIPS（受 τ 約束）</td><td>0.0286</td><td>0.05</td></tr><tr><td>鈍化偏差（受 τ_acut 約束）</td><td>0.9616</td><td>0.04</td></tr><tr><td>PSNR (dB)（不在梯度裡）</td><td>27.9215</td><td></td></tr><tr><td>L∞（beta_linf=0，不在梯度裡）</td><td>0.8753</td><td></td></tr><tr><td>編輯偏移 edit_shift</td><td>0.4076</td><td>1.0</td></tr><tr><td>實際步數</td><td>60.0000</td><td>60</td></tr></table></details>
+</div>
+<div class="panel">
+  <div class="hdr"><b>car_01</b>
+    <span>e27d_C_lr0.1　·　lr=0.1　·　α_lpips=0.0</span>
+    <span>site C</span>
+  </div>
+  <div class="btns"><button data-v="orig" aria-pressed="true">原圖</button><button data-v="defended" aria-pressed="false">防禦圖</button></div>
+  <div class="stage">
+    <div class="frame"><img data-v="orig" class="on" src="e27d_C_lr0.1__car_01__C__r32__orig.png" width="512" alt="原圖"><img data-v="defended" class="" src="e27d_C_lr0.1__car_01__C__r32__defended.png" width="512" alt="防禦圖"></div>
+    <div class="frame"><img data-v="orig" class="on" src="zoom__e27d_C_lr0.1__car_01__C__r32__orig.png" width="512" alt="原圖 放大"><img data-v="defended" class="" src="zoom__e27d_C_lr0.1__car_01__C__r32__defended.png" width="512" alt="防禦圖 放大"></div>
+  </div>
+  <details><summary>展開數值（先看圖）</summary><table><tr><th>量</th><th>實測</th><th>門檻／上限</th></tr><tr><td>LPIPS（受 τ 約束）</td><td>0.0253</td><td>0.05</td></tr><tr><td>鈍化偏差（受 τ_acut 約束）</td><td>0.9951</td><td>0.04</td></tr><tr><td>PSNR (dB)（不在梯度裡）</td><td>36.4115</td><td></td></tr><tr><td>L∞（beta_linf=0，不在梯度裡）</td><td>0.1521</td><td></td></tr><tr><td>編輯偏移 edit_shift</td><td>0.3832</td><td>1.0</td></tr><tr><td>實際步數</td><td>60.0000</td><td>60</td></tr></table></details>
+</div>
+<script>
+document.querySelectorAll('.panel').forEach(p => {
+  const show = v => {
+    p.querySelectorAll('.frame img').forEach(i =>
+      i.classList.toggle('on', i.dataset.v === v));
+    p.querySelectorAll('button').forEach(b =>
+      b.setAttribute('aria-pressed', b.dataset.v === v));
+  };
+  p.querySelectorAll('button').forEach(b =>
+    b.addEventListener('click', () => show(b.dataset.v)));
+  p.addEventListener('mouseenter', () => p.dataset.hot = '1');
+  p.addEventListener('mouseleave', () => delete p.dataset.hot);
+});
+// 數字鍵切換滑鼠所在面板的第 n 個版本：切換要快，移到按鈕上再點會打斷比對
+document.addEventListener('keydown', e => {
+  const i = parseInt(e.key, 10);
+  if (!(i >= 1 && i <= 9)) return;
+  const p = document.querySelector('.panel[data-hot="1"]');
+  if (!p) return;
+  const b = p.querySelectorAll('button')[i - 1];
+  if (b) b.click();
+});
+</script></body></html>

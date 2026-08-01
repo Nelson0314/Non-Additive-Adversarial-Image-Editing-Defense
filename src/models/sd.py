@@ -138,6 +138,49 @@ class SDWrapper:
 
     # ---- UNet 前向 ----
 
+    def _eps_cfg(
+        self,
+        z,
+        t,
+        emb,
+        guidance_scale: float,
+        emb_uncond: Optional[torch.Tensor] = None,
+        use_ckpt: bool = False,
+    ) -> torch.Tensor:
+        """帶 classifier-free guidance 的 ε 預測。
+
+            ε = ε(z, t, ∅) + w · [ ε(z, t, c) − ε(z, t, ∅) ]
+
+        **這個函式是 2026-08-01（E26）新增的，補的是一個使整個威脅模型失效的
+        缺漏。** 修訂前全專案沒有任何 CFG：`_eps` 只以條件嵌入呼叫一次 UNet，
+        等同 w = 1。Stable Diffusion v1.x 是**在 CFG 下訓練也在 CFG 下使用**
+        的，w = 1 時 prompt 對輸出的影響極弱，SDEdit 退化成「加噪再去噪」。
+        實測後果見 `docs/RESULTS_E26_guidance.md`：CLIP(原圖) 0.2030 →
+        CLIP(所謂的編輯結果) 0.2132，只升 0.0101 而標準差 0.0169，即編輯
+        根本沒有發生；使用者對 `runs/p5_semantic_axis/compare.html` 的判讀是
+        「連原始圖片被文字編輯都沒有成功」。
+
+        也就是說 E2–E23 全部是在防禦一個**不存在的攻擊**，量到的 `net_lpips`
+        是兩次隨機去噪之間的漂移。
+
+        **w = 1.0 時不走這條路徑**，直接回到單次前向：`_eps` 的行為必須逐位元
+        不變，否則既有 53 個 run 的可重現性會斷掉。
+
+        兩次前向**分開做而非合批**：合批把激活加倍，而 E0 已量出 512² 下記憶體
+        才是綁定的資源（開 checkpoint 是必要條件）。代價是時間乘二。
+        """
+        if guidance_scale == 1.0:
+            return self._eps(z, t, emb, use_ckpt=use_ckpt)
+        if emb_uncond is None:
+            raise ValueError(
+                "guidance_scale != 1.0 需要無條件嵌入 emb_uncond。"
+                "缺少時不可退回單分支：那會靜默把 w 變回 1，"
+                "而那正是 E26 找到的缺陷"
+            )
+        eps_u = self._eps(z, t, emb_uncond, use_ckpt=use_ckpt)
+        eps_c = self._eps(z, t, emb, use_ckpt=use_ckpt)
+        return eps_u + guidance_scale * (eps_c - eps_u)
+
     def _eps(self, z, t, emb, use_ckpt: bool = False) -> torch.Tensor:
         if use_ckpt:
             return ckpt.checkpoint(
@@ -316,6 +359,8 @@ class SDWrapper:
         strength: float = 0.5,
         use_ckpt: bool = False,
         vae_ckpt: bool = False,
+        guidance_scale: float = 1.0,
+        emb_uncond: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         """可微分 SDEdit。
 
@@ -325,6 +370,11 @@ class SDWrapper:
 
         `use_ckpt` 控制 UNet、`vae_ckpt` 控制 VAE，兩者分開是為了讓 E0 能
         分別歸因記憶體，不是為了提供選項。
+
+        `guidance_scale` 為 classifier-free guidance 的權重 w，見 `_eps_cfg`。
+        **預設維持 1.0（即無 CFG）**，這樣既有 53 個 run 的數值可重現；但
+        1.0 正是 E26 找到的缺陷所在——攻擊方實際上會用 7.5 左右，w=1 時
+        prompt 幾乎不起作用，SDEdit 退化成加噪再去噪。新的實驗必須明確指定。
 
         回傳 (1,3,H,W) [0,1]，計算圖保留。
         """
@@ -337,7 +387,8 @@ class SDWrapper:
         ts = torch.linspace(t0, 0, num_steps + 1).round().long()
         for i in range(num_steps):
             t, t_prev = ts[i], ts[i + 1]
-            eps = self._eps(z, t, emb, use_ckpt=use_ckpt)
+            eps = self._eps_cfg(z, t, emb, guidance_scale, emb_uncond,
+                                use_ckpt=use_ckpt)
             pred_x0 = (z - (1 - abar[t]).sqrt() * eps) / abar[t].sqrt()
             z = abar[t_prev].sqrt() * pred_x0 + (1 - abar[t_prev]).sqrt() * eps
 

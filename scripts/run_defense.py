@@ -151,10 +151,14 @@ def evaluate(sd, suite, x01, x_def, cfg, prompt, out_dir, save_images=True):
     device = x01.device
     lat = sd.latent_shape(x01.shape[-2], x01.shape[-1])
     emb = sd.encode_text(prompt)
+    emb_u = sd.encode_text("")
+    # 評測用的 guidance 必須與訓練用的相同，否則量到的是「防禦對另一個攻擊
+    # 有沒有效」。E26 之前兩邊都是隱含的 w=1，改動後由同一個 cfg 欄位供給。
+    gs = dict(guidance_scale=cfg.guidance_scale, emb_uncond=emb_u)
 
     def branch(seed):
         n = sd.sample_edit_noise(torch.empty(lat, device=device), seed=seed)
-        return n, sd.sdedit(x01, emb, n, cfg.n_edit, strength=cfg.strength)
+        return n, sd.sdedit(x01, emb, n, cfg.n_edit, strength=cfg.strength, **gs)
 
     noise, y_orig = branch(cfg.seed + EVAL_SEED_OFFSET)
     noise_tr, y_orig_tr = branch(cfg.seed)
@@ -171,7 +175,7 @@ def evaluate(sd, suite, x01, x_def, cfg, prompt, out_dir, save_images=True):
         0.347，高的那個是淨化自己造成的，不是防禦變強。不減掉對照就會讓
         E3 的每個數字被系統性高估。
         """
-        y_def = sd.sdedit(xp, emb, nz, cfg.n_edit, strength=cfg.strength)
+        y_def = sd.sdedit(xp, emb, nz, cfg.n_edit, strength=cfg.strength, **gs)
         row = {
             "purify": kind,
             "strength": strength,
@@ -181,7 +185,8 @@ def evaluate(sd, suite, x01, x_def, cfg, prompt, out_dir, save_images=True):
             **{f"defimg_{k}": v for k, v in suite.pairwise(x01, xp).items()},
         }
         if x_ctrl is not None:
-            y_ctrl = sd.sdedit(x_ctrl, emb, nz, cfg.n_edit, strength=cfg.strength)
+            y_ctrl = sd.sdedit(x_ctrl, emb, nz, cfg.n_edit,
+                               strength=cfg.strength, **gs)
             m = suite.pairwise(y_ref, y_ctrl)
             row["ctrl_lpips"] = m["lpips"]
             row["ctrl_psnr"] = m["psnr"]
@@ -229,6 +234,7 @@ def evaluate_generalization(sd, suite, x01, x_def, cfg, prompts, strengths):
     """
     device = x01.device
     lat = sd.latent_shape(x01.shape[-2], x01.shape[-1])
+    emb_u = sd.encode_text("")
     rows = []
 
     for pi, prompt in enumerate(prompts):
@@ -237,8 +243,12 @@ def evaluate_generalization(sd, suite, x01, x_def, cfg, prompts, strengths):
             n = sd.sample_edit_noise(
                 torch.empty(lat, device=device), seed=cfg.seed + EVAL_SEED_OFFSET
             )
-            y_orig = sd.sdedit(x01, emb, n, cfg.n_edit, strength=s)
-            y_def = sd.sdedit(x_def, emb, n, cfg.n_edit, strength=s)
+            y_orig = sd.sdedit(x01, emb, n, cfg.n_edit, strength=s,
+                               guidance_scale=cfg.guidance_scale,
+                               emb_uncond=emb_u)
+            y_def = sd.sdedit(x_def, emb, n, cfg.n_edit, strength=s,
+                              guidance_scale=cfg.guidance_scale,
+                              emb_uncond=emb_u)
             m_def = suite.pairwise(y_orig, y_def)
             rows.append({
                 "prompt_idx": pi,
@@ -343,6 +353,13 @@ def main():
              "而非 L∞，故此值與 --tau_lpips 同等重要，兩者都會寫入 env.json",
     )
     ap.add_argument(
+        "--guidance_scale", type=float, default=OptimConfig.guidance_scale,
+        help="攻擊方的 classifier-free guidance 權重。**預設 1.0 只為了讓 "
+             "E2–E23 可重現，它不是正確的威脅模型**：E26 實測 w=1 時 SD v1.4 "
+             "幾乎不服從 prompt，該設定下的『編輯』與『什麼都沒做』在指標上 "
+             "分不出來。新實驗一律指定 7.5。見 docs/RESULTS_E25-E26.md §3",
+    )
+    ap.add_argument(
         "--color_max_dev", type=float, default=OptimConfig.color_max_dev,
         help="site C 的色度矩陣場偏離單位陣的硬上界。色度變換的失真預算是"
              "矩陣偏離量而非 L∞，故此值與 --tau_lpips 同等重要，"
@@ -423,6 +440,7 @@ def main():
                     warp_max_disp=args.warp_max_disp,
                     warp_resample=args.warp_resample,
                     color_max_dev=args.color_max_dev,
+                    guidance_scale=args.guidance_scale,
                     exact_inversion=args.exact_inversion,
                     attn_mode=args.attn_mode,
                     attn_timesteps=args.attn_timesteps,
@@ -590,6 +608,7 @@ def main():
         "warp_max_disp": args.warp_max_disp,
         "warp_resample": args.warp_resample,
         "color_max_dev": args.color_max_dev,
+        "guidance_scale": args.guidance_scale,
         "attn_mode": args.attn_mode, "attn_timesteps": args.attn_timesteps,
         "exact_inversion": args.exact_inversion,
         "n_images": len(images), "torch": torch.__version__,

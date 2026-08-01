@@ -80,6 +80,12 @@ class OptimConfig:
     # site C 專用：色度矩陣場偏離單位陣的硬上界。與 warp_max_disp 同一角色
     # ——本位置的保真度預算是矩陣偏離量而非 L∞，故必須與 tau_lpips 併列記錄。
     color_max_dev: float = 0.15
+    # 攻擊方的 classifier-free guidance 權重。**預設 1.0 只為了讓 E2–E23 的
+    # 數字可重現，它不是正確的威脅模型**：E26 實測 w=1 時 SD v1.4 幾乎不服從
+    # prompt，該設定下的「編輯」與「什麼都沒做」在指標上分不出來（Δclip
+    # +0.0116，而對照的噪聲範圍是 ±0.0169）。新實驗一律指定 7.5。
+    # 見 docs/RESULTS_E25-E26.md §3。
+    guidance_scale: float = 1.0
     # ---- cross-attention 目標專用 ----
     # "divergence" — 把防禦圖的注意力分佈推離原圖的（改變綁定的指向）
     # "entropy"    — 直接把分佈推向均勻（瓦解綁定本身，不需要參考分佈）
@@ -248,6 +254,10 @@ def optimize(
 
     lat = sd.latent_shape(x01.shape[-2], x01.shape[-1])
     emb_edit = sd.encode_text(cfg.prompt_edit).detach()
+    # 無條件嵌入即空字串的 CLIP 編碼，與 diffusers 一致。w=1 時不會被用到，
+    # 但仍無條件算出來：讓「有沒有開 CFG」只由 guidance_scale 決定，
+    # 不再多一個「emb_uncond 在不在」的隱藏分支。
+    emb_uncond = sd.encode_text("").detach()
 
     # 每個 EOT 取樣配一組固定噪聲。噪聲跨 step 固定而非每步重抽：目標是
     # 對「這組噪聲下的編輯」造成偏移，每步換噪聲會讓梯度訊號被取樣噪音淹沒。
@@ -259,7 +269,8 @@ def optimize(
     # y_orig 不依賴 φ，整個優化過程只算一次
     with torch.no_grad():
         y_origs = [
-            sd.sdedit(x01, emb_edit, n, cfg.n_edit, strength=cfg.strength)
+            sd.sdedit(x01, emb_edit, n, cfg.n_edit, strength=cfg.strength,
+                      guidance_scale=cfg.guidance_scale, emb_uncond=emb_uncond)
             for n in noises
         ]
 
@@ -320,6 +331,7 @@ def optimize(
                     p.forward(x_def), emb_edit, noises[i], cfg.n_edit,
                     strength=cfg.strength,
                     use_ckpt=cfg.unet_ckpt, vae_ckpt=cfg.vae_ckpt,
+                    guidance_scale=cfg.guidance_scale, emb_uncond=emb_uncond,
                 )
             )
             y_refs.append(y_origs[i])

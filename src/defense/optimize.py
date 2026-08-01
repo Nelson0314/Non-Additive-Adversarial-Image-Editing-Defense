@@ -140,6 +140,7 @@ def active_constraint_keys(loss_cfg: LossConfig) -> tuple:
     pairs = (
         (loss_cfg.gamma_lpips, "fid_pen_lpips"),
         (loss_cfg.gamma_acut, "fid_pen_acut"),
+        (loss_cfg.gamma_chroma, "fid_pen_chroma"),
         (loss_cfg.beta_linf, "fid_pen_linf"),
         (loss_cfg.gamma_psnr, "fid_pen_psnr"),
     )

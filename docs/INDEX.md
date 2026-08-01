@@ -20,6 +20,7 @@
 | `docs/RESULTS_E20_fidelity.md` | 承接 E20：保真約束的 paper survey、四臂等 LPIPS 探針、局部銳利度偏差 | 現行 |
 | `docs/RESULTS_E25-E26.md` | 承接 E25–E26：語意軸重判（726 格語意失敗 0 格）、淨化保留率、**攻擊端缺少 classifier-free guidance 這個根因**、cross-attention 與 targeted 兩個目標、site C（色度矩陣場） | **現行，且是最重要的一份**。它使 E2–E23 的每一個 `net_lpips` 失效 |
 | `docs/RESULTS_E27_calibration.md` | 承接 E27：H100 的成本基準、四個假的綁定者、兩臂的學習率重新校準、**匹配失真第三次被證明是假的（site C 買色調偏移）** | 現行。主網格**未開跑**，開跑前的待辦列在 §5 |
+| `docs/RESULTS_E28_chroma.md` | 承接 E28：色度偏壓約束（第三道）、ΔE 全族不合格的判別、τ=0.8 的人眼定錨、TF32 跨機器精度陷阱 | 現行。主網格的設定就緒，列在 §5 |
 | `docs/NEXT_SESSION.md` | **2026-08-01 改寫**：主軸的否定結果、已知死路、三條可能的路 | 現行，但其 §1–§3 建立在 `net_lpips` 上，須與 `RESULTS_E25-E26.md` §3 對讀 |
 | `docs/specs/2026-07-28-lowrank-residual-defense.md` | 設計規格 v1 | 現行的**設計依據**，但其後的推翻不回頭改寫本文，須與上兩份對讀 |
 | `docs/NIGHT_RUN_2026-07-29.md` | 2026-07-29 夜間自主執行的完整紀錄 | 歷史紀錄，非報告。記錄了 site L 防禦不存在這個否定結果的推導過程 |
@@ -80,6 +81,8 @@
 | `e27c_*` | E27 | 第三輪：放寬 margin。仍未綁住，暴露出原始 `lpips` 項 |
 | `e27d_*` | E27 | 第四輪：`alpha_lpips=0`。**τ 終於綁得住**，並定出兩臂的 lr。含 `compare.html` |
 | `e27_evaltiming` | E27 | 單格完整評測的成本量測 |
+| `p9_chroma_probe` | E28 | 五臂等 LPIPS 判別：ΔE 全族不合格，`local_chroma_bias` 通過 |
+| `p10_chroma_ladder` | E28 | 色度偏壓階梯，含 `compare.html`。τ=0.8 由此定錨 |
 | `p8_site_c_capacity` | E26 | site C 的 `max_dev` 掃描，確認它進得了 τ∈[0.02,0.10] 的運作點 |
 | `logs` | — | 各 run 的 driver 與 stdout 紀錄 |
 
@@ -133,6 +136,8 @@ python scripts/p8_site_c_capacity.py  # E26 site C 容量檢查（CPU，約 1 �
 python scripts/e27_binding_check.py runs/e27d_*   # E27 逐格判定哪道約束綁住（秒級）
 python scripts/e27_compare_page.py runs/e27d_C_lr0.3 runs/e27d_P_lr0.03  # E27 防禦圖比對頁
 python scripts/e27_report.py          # E27 主網格彙整（網格跑完後才有資料）
+python scripts/p9_chroma_probe.py     # E28 色度約束的候選判別（GPU 約 2 分／CPU 約 25 分）
+python scripts/p10_chroma_ladder.py   # E28 色度偏壓階梯 + 人眼比對頁（約 1 分）
 python scripts/make_report_figures.py   # docs/figures/*.png（E2/E8/E9/E10/E12）
 python scripts/make_report.py     # docs/archive/2026-07-29-RESULTS_lowrank.html（E0–E3）
 ```

@@ -355,6 +355,17 @@ def main():
              "而非 L∞，故此值與 --tau_lpips 同等重要，兩者都會寫入 env.json",
     )
     ap.add_argument(
+        "--tau_chroma", type=float, default=LossConfig.tau_chroma,
+        help="色度偏壓 hinge 的門檻。0.8 由人眼定錨（runs/p10_chroma_ladder）："
+             "0.3 與 0.6 看不出來、1.0 要很仔細看才看得出來。取 0.8 而非 1.0，"
+             "是因為 1.0 屬於已確認看得見的一級",
+    )
+    ap.add_argument(
+        "--gamma_chroma", type=float, default=LossConfig.gamma_chroma,
+        help="色度偏壓 hinge 的係數。設 0 可關掉該道約束（僅供對照，"
+             "關掉會讓 site C 重新能用色調偏移買防禦效果）",
+    )
+    ap.add_argument(
         "--alpha_lpips", type=float, default=LossConfig.alpha_lpips,
         help="L_fid 裡那個係數為 1 的原始 lpips 項（不是 hinge）。**設 0 才能"
              "讓 τ 真正成為綁定的約束**：E27 實測留著它會讓最佳化停在 τ 之下"
@@ -430,6 +441,8 @@ def main():
     loss_cfg = LossConfig(tau_lpips=args.tau_lpips,
                           beta_linf=args.beta_linf, tau_linf=args.tau_linf,
                           margin=args.margin, alpha_lpips=args.alpha_lpips,
+                          tau_chroma=args.tau_chroma,
+                          gamma_chroma=args.gamma_chroma,
                           defense_mode=args.defense_mode)
     # 有目標模式的目標影像。載入時機在迴圈外：它對 φ 與影像都是常數。
     y_target = None

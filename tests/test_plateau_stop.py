@@ -120,12 +120,13 @@ def test_只認係數非零的hinge():
     assert plateau_stop(hist, PAT, TOL, MIN,
                         constraint_keys=("fid_pen_linf",))[0] is True
 
-    # 預設的 LossConfig：LPIPS、鈍化、L∞ 三道係數非零，PSNR 為 0
+    # 預設的 LossConfig：LPIPS、鈍化、色度、L∞ 四道係數非零，PSNR 為 0
     keys = active_constraint_keys(LossConfig())
-    assert keys == ("fid_pen_lpips", "fid_pen_acut", "fid_pen_linf")
+    assert keys == ("fid_pen_lpips", "fid_pen_acut", "fid_pen_chroma",
+                    "fid_pen_linf")
     # E15 之後主網格用 beta_linf=0，此時 L∞ 不再是約束
     assert active_constraint_keys(LossConfig(beta_linf=0.0)) == (
-        "fid_pen_lpips", "fid_pen_acut")
+        "fid_pen_lpips", "fid_pen_acut", "fid_pen_chroma")
 
 
 def test_全部係數為零時拒絕():
@@ -135,4 +136,5 @@ def test_全部係數為零時拒絕():
 
     with pytest.raises(ValueError, match="係數都是零"):
         active_constraint_keys(LossConfig(
-            gamma_lpips=0.0, gamma_acut=0.0, beta_linf=0.0, gamma_psnr=0.0))
+            gamma_lpips=0.0, gamma_acut=0.0, gamma_chroma=0.0,
+            beta_linf=0.0, gamma_psnr=0.0))

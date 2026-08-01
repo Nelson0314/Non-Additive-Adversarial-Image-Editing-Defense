@@ -9,7 +9,8 @@
       "Bash(timeout 300 scp -q -o BatchMode=yes -r s_01kyydjawekndv15xe5b8jyp34@ssh.lightning.ai:/teamspace/studios/this_studio/WACV/runs/e27b_lrC_* C:/Users/nelso/AppData/Local/Temp/claude/C--WACV/bb6134a5-401e-42a7-82e9-73dc4aab8bef/scratchpad/lrC2/)",
       "Bash(mkdir -p C:/Users/nelso/AppData/Local/Temp/claude/C--WACV/bb6134a5-401e-42a7-82e9-73dc4aab8bef/scratchpad/probe)",
       "Bash(timeout 400 scp -q -o BatchMode=yes -r s_01kyydjawekndv15xe5b8jyp34@ssh.lightning.ai:/teamspace/studios/this_studio/WACV/runs/e27c_* C:/Users/nelso/AppData/Local/Temp/claude/C--WACV/bb6134a5-401e-42a7-82e9-73dc4aab8bef/scratchpad/probe/)",
-      "Bash(PYTHONIOENCODING=utf-8 C:/Users/nelso/miniconda3/envs/wacv/python.exe -m pytest -q)"
+      "Bash(PYTHONIOENCODING=utf-8 C:/Users/nelso/miniconda3/envs/wacv/python.exe -m pytest -q)",
+      "Bash(python -)"
     ]
   }
 }

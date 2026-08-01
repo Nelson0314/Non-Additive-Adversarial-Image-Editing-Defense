@@ -147,6 +147,54 @@ PSNR hinge 改為 γ = 0.0，即**保留計算與記錄但不參與梯度**。�
 
 `alpha_lpips = 0` 之後 LPIPS 在 τ 以內完全免費，最佳化會把預算用滿，τ 才真正
 成為匹配軸。預設維持 1.0 使 E2–E27 的既有數字可重現；正式重跑一律用 0。
+
+**相對 spec §5.2 的修訂之五（2026-08-01，E28：加入色度偏壓約束）**：
+
+    修訂前
+        total = α_l·lpips + α·(1−ssim) + β·pen_linf + γ_l·pen_lpips
+                          + γ_a·pen_acut + γ·pen_psnr
+
+    修訂後
+        gamma_chroma: float = 100.0      ← **預設開啟**
+        tau_chroma:   float = 0.6
+        pen_chroma = max(0, local_chroma_bias(x_def, x_base) − τ_chroma)
+        total = α_l·lpips + α·(1−ssim) + β·pen_linf + γ_l·pen_lpips
+                          + γ_a·pen_acut + γ_c·pen_chroma + γ·pen_psnr
+
+**為什麼需要第三道。** E27 在同一個 LPIPS 下量到 site C 的防禦圖有人眼可見的
+色調偏移、site P 沒有（car_00：PSNR 24.52 對 34.01、L∞ 0.995 對 0.225；使用者
+判讀 `runs/e27d_C_lr0.3/compare.html` 回報「P 的那兩張防禦圖人眼看起來跟原圖
+幾乎一樣，其他則有色調偏移一點點」）。既有的兩道都擋不住，而且是構造上擋不住
+——`local_acutance_dev` 只看 Rec.601 亮度，純色度變化使它恆為 0。
+
+這是同一個失效的第三次：E15 的 site S 買模糊、E27 的 site C 買色調偏移。
+
+**為什麼是 `local_chroma_bias` 而不是 ΔE。** P9 以 E20 的等 LPIPS 判別法測了
+五臂（模糊／雜訊／變形-雙線性／變形-雙三次／色度偏移）：
+
+| 指標 | 色度/max(雜訊,兩個變形) | 真實解 C/P |
+|---|---|---|
+| `de76` | 1.08 | 1.74 |
+| `de00` | 0.89 | 1.22 |
+| `dchroma` | 1.14 | 1.80 |
+| `local_dchroma_dev` | 1.14 | 1.80 |
+| **`local_chroma_bias`** | **13.99** | **15.87** |
+
+ΔE 那一族量的是**色度誤差的量值**，而加性高斯雜訊在該量上與明顯色偏一樣高
+（等 LPIPS 下 2.44 對 2.79），因為雜訊也在每個像素上擾動 (a*, b*)。人眼在意的
+是**空間上連貫**的色偏。`local_chroma_bias` 先在 32×32 區塊內對有號的
+(Δa*, Δb*) 取平均、再取量值，隨機雜訊因此相消而連貫的偏壓不會。
+
+τ_chroma = 0.8 由人眼定錨：使用者在 `runs/p10_chroma_ladder/` 的階梯上判讀
+「0.3 還有 0.6 都看不出來，1.0 以上才開始有一些細微色調變化」，補充「1.0 要很
+仔細看才看得出來，可以直接取 0.8 或 1.0」。取 0.8 而非 1.0 的理由是 1.0 屬於
+**已確認看得見**的一級（即使需要仔細看），把門檻設在該處等於允許約束放行一個
+可見的失真。
+
+**這道約束不是只針對 site C。** 實測 `e23_P_s100`（100 步的加性基準）在 car_01
+上達 1.01，即加性擾動訓練久了也會產生連貫色偏，該格在新約束下同樣被擋。約束
+對兩臂一視同仁，這正是匹配失真所要求的；若它只擋非加性那一臂，就是 E20 §5.3
+批評過的循環論證。site P 的校準運作點為 0.30–0.33，通過且有 2.4 倍餘裕。
 """
 
 from dataclasses import dataclass, field
@@ -154,6 +202,7 @@ from typing import Dict, List, Optional
 
 import torch
 
+from src.metrics.chroma import local_chroma_bias
 from src.metrics.local_acutance import local_acutance_dev
 
 
@@ -217,6 +266,23 @@ class LossConfig:
     # τ_acut = 0.04 的來源見模組 docstring 的修訂之三；應與 τ_lpips 一樣掃描。
     gamma_acut: float = 100.0
     tau_acut: float = 0.04
+
+    # 第三道綁定約束：色度偏壓。與前兩道同樣取**交集**。
+    #
+    # **預設開啟**（與 gamma_acut 於 E20 導入時的處置相同，而非 alpha_lpips
+    # 那種預設關閉）。理由是忘記開會安靜地重演 E27 的失效——site C 會再次
+    # 用色調偏移買防禦效果，而報告裡沒有任何一欄看得出來。E2–E27 的既有數字
+    # 本來就已因 E26 的 guidance 缺陷而失效，不再需要為它們保留預設值。
+    #
+    # τ = 0.8 由人眼定錨（2026-08-01）：使用者在 `runs/p10_chroma_ladder/`
+    # 的階梯上判讀「0.3 還有 0.6 都看不出來，1.0 以上才開始有一些細微色調
+    # 變化⋯⋯1.0 要很仔細看才看得出來，可以直接取 0.8 或 1.0」。
+    #
+    # 取 0.8 而非 1.0：1.0 是**已確認看得見**的那一級（即使需要仔細看），
+    # 把門檻設在該處等於允許約束放行一個可見的失真，約束就失去意義。0.8 落在
+    # 0.6（確認看不見）與 1.0 之間，偏向安全側。
+    gamma_chroma: float = 100.0
+    tau_chroma: float = 0.8
 
     # PSNR 地板保留計算與記錄，但預設不參與梯度（gamma_psnr = 0）。
     # 保留係數是為了能一行復原，並維持與既有 36 格結果的對照基準。
@@ -366,9 +432,16 @@ class DefenseObjective:
         # 的 x_base 即 x。此量對位移不敏感，故空間變形只要不模糊就不被罰。
         acut = local_acutance_dev(xb, xd)
 
+        # 色度偏壓：對象同為 x_base。量的是**空間上連貫**的色偏，而非色度
+        # 誤差的量值——P9 實測 ΔE 那一族分不出加性雜訊與可見色偏（等 LPIPS
+        # 下 2.44 對 2.79），而人眼分得出來。此量對隨機擾動不敏感（區塊內
+        # 相消），故加性位置只要不整片偏色就不被罰。
+        chroma = local_chroma_bias(xb, xd)
+
         pen_linf = torch.clamp(linf - c.tau_linf, min=0.0)
         pen_lpips = torch.clamp(lpips_rel - c.tau_lpips, min=0.0)
         pen_acut = torch.clamp(acut - c.tau_acut, min=0.0)
+        pen_chroma = torch.clamp(chroma - c.tau_chroma, min=0.0)
         pen_psnr = torch.clamp(c.psnr_floor - psnr, min=0.0)
 
         total = (
@@ -377,6 +450,7 @@ class DefenseObjective:
             + c.beta_linf * pen_linf
             + c.gamma_lpips * pen_lpips
             + c.gamma_acut * pen_acut
+            + c.gamma_chroma * pen_chroma
             + c.gamma_psnr * pen_psnr
         )
         parts = {
@@ -384,6 +458,8 @@ class DefenseObjective:
             # 時已不帶圖。這是記錄用的轉換，不影響 total 的計算圖。
             "fid_acut": float(acut.detach()),
             "fid_pen_acut": float(pen_acut.detach()),
+            "fid_chroma": float(chroma.detach()),
+            "fid_pen_chroma": float(pen_chroma.detach()),
             "fid_linf_total": float((xd - xr).abs().max()),
             "fid_psnr_total": float(psnr_total),
             "fid_lpips": float(lpips),

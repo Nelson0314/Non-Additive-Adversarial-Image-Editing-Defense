@@ -624,3 +624,58 @@ def test_alpha_lpips預設維持一():
     from src.defense.objective import LossConfig
 
     assert LossConfig().alpha_lpips == 1.0
+
+
+def test_色度偏壓約束預設開啟且門檻為零點六():
+    """**預設開啟是刻意的**（與 gamma_acut 於 E20 導入時相同，而非 alpha_lpips
+    那種預設關閉）。忘記開會安靜地重演 E27 的失效——site C 用色調偏移買防禦
+    效果，而報告裡沒有任何一欄看得出來。
+
+    0.6 由人眼定錨：使用者在 runs/p10_chroma_ladder 的階梯上判讀
+    「0.3 還有 0.6 都看不出來，1.0 以上才開始有一些細微色調變化」。
+    """
+    from src.defense.objective import LossConfig
+
+    c = LossConfig()
+    assert c.gamma_chroma == 100.0
+    assert c.tau_chroma == 0.8
+
+
+def test_連貫色偏被色度hinge擋下而隨機擾動不被擋():
+    """**這道約束存在的全部理由，且它必須對兩臂一視同仁。**
+
+    ΔE 那一族分不出這兩者（P9 實測等 LPIPS 下 2.44 對 2.79），若拿它當約束，
+    加性基準會與非加性一起被擋，比較就不成立。
+    """
+    import torch
+
+    from src.defense.objective import DefenseObjective, LossConfig
+
+    g = torch.Generator().manual_seed(20260728)
+    # 底圖要有亮度結構：`local_acutance_dev` 對全平坦影像會明確拒絕（梯度能量
+    # 為零時該比值無定義），而 fidelity_term 一定會算它。條紋加在三個通道上，
+    # 故底圖仍是無彩的，不影響色度的比較。
+    xs = torch.linspace(0, 12 * torch.pi, 64)
+    base = (0.5 + 0.15 * xs.sin().view(1, 1, 1, -1)).expand(1, 3, 64, 64).contiguous()
+    # 兩臂的逐像素色度誤差量值相近（實測 12.86 對 12.65），差別只在空間結構；
+    # 偏壓則差 18 倍（0.69 對 12.64）。見 test_chroma.py 的同一構造。
+    noisy = (base + 0.06 * torch.randn(base.shape, generator=g)).clamp(0, 1)
+    shifted = base.clone()
+    shifted[:, 0] += 0.12
+    shifted = shifted.clamp(0, 1)
+
+    # **τ 在此顯式給定，不用生產預設值。** 這兩臂的實測偏壓是 0.67 與 12.6，
+    # 而生產的 τ_chroma=0.8 恰好落在 0.67 之上——若沿用預設，這個測試會通過，
+    # 但通過的原因會與「τ 選在哪裡」糾纏在一起。測試要驗的是**構造**能分開
+    # 兩者，不是某個特定門檻剛好夾得住；把 τ 設在兩者之間才驗得到那件事。
+    cfg = LossConfig(alpha_lpips=0.0, tau_lpips=0.9, tau_acut=0.9,
+                     beta_linf=0.0, gamma_psnr=0.0, alpha_ssim=0.0,
+                     tau_chroma=2.0)
+    obj = DefenseObjective(cfg, DEV)
+    _, pn = obj.fidelity_term(noisy.to(DEV), base.to(DEV))
+    _, ps = obj.fidelity_term(shifted.to(DEV), base.to(DEV))
+
+    assert pn["fid_pen_chroma"] == 0.0, (
+        f"隨機擾動不該被色度 hinge 擋下，實得偏壓 {pn['fid_chroma']:.3f}")
+    assert ps["fid_pen_chroma"] > 0.0, (
+        f"連貫色偏必須被擋下，實得偏壓 {ps['fid_chroma']:.3f}")

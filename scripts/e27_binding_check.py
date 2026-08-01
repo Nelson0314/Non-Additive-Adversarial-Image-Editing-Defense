@@ -31,9 +31,17 @@ ROOT = Path(__file__).resolve().parent.parent
 # 於是 `gamma_psnr=0`（保留計算與記錄但不參與梯度）的 PSNR 罰則被當成綁定者
 # ——實測把 site C 判成「PSNR hinge 56/60 步啟動」，而 PSNR 根本不在梯度裡。
 # 判定「誰綁住這一格」的前提就是只看真的進了梯度的那幾道。
+#
+# 2026-08-02 補上色度那一道。原本只有下列四項，缺 `fid_pen_chroma`；該 hinge
+# 由 E28 導入且 `gamma_chroma` 預設 100（`objective.py:284`），是會真的進梯度
+# 的約束，`optimize.py:143` 的 `active_constraint_keys` 也已納入。診斷工具漏掉
+# 它的後果是：色度綁住的格子會被誤判成 LPIPS hinge 或「沒有任何約束啟動」，
+# 而 `NEXT_SESSION.md` §5 的校準判準正是「必須是 LPIPS hinge，不是色度
+# hinge」——工具查不到的東西無法構成判準。
 HINGES = [
     ("fid_pen_lpips", "LPIPS", "gamma_lpips"),
     ("fid_pen_acut", "鈍化", "gamma_acut"),
+    ("fid_pen_chroma", "色度", "gamma_chroma"),
     ("fid_pen_linf", "L∞", "beta_linf"),
     ("fid_pen_psnr", "PSNR", "gamma_psnr"),
 ]
@@ -65,8 +73,21 @@ def analyse(run_dir: Path) -> list:
 
         engaged = {}
         for key, label, coef_field in HINGES:
-            if coef_field is not None and loss.get(coef_field) == 0:
+            coef = loss.get(coef_field)
+            if coef == 0:
                 continue          # 係數為零的 hinge 不構成約束
+            if coef is None:
+                # 係數欄位不存在，代表跑這個 run 的那一版程式還沒有這道
+                # hinge（例如 E27 以前的 run 沒有 `gamma_chroma`）。此時
+                # history 裡也不該有對應的懲罰記錄；若有，就是 env.json 與
+                # history 不一致，必須查清楚而不是當成零。
+                if not any(key in x for x in h):
+                    continue
+                raise SystemExit(
+                    f"{run_dir.name}/{cell}：history 有 {key} 的記錄，但 "
+                    f"env.json 的 loss 區塊沒有 {coef_field}。無法判定這道 "
+                    f"hinge 是否進了梯度"
+                )
             engaged[label] = sum(1 for x in h if x.get(key, 0.0) > 0.0)
 
         # 防禦 hinge 是否飽和：偏移達到 margin 之後防禦項不再施力
@@ -91,13 +112,19 @@ def analyse(run_dir: Path) -> list:
         elif max(engaged.values(), default=0) == 0:
             verdict = "沒有任何約束啟動過 —— 步數不足或 lr 太小"
         else:
-            top = max(engaged, key=engaged.get)
-            verdict = f"{top} hinge（{engaged[top]}/{n} 步啟動）"
+            # 並列時全部列出，不用 HINGES 的順序偷偷選一道。兩道同時綁住與
+            # 只有一道綁住是不同的狀態：跨 site 比較要求兩臂被同一組約束
+            # 綁住，若一臂是 LPIPS、另一臂是 LPIPS＋色度，該對就不可並列。
+            best = max(engaged.values())
+            tops = [k for k, v in engaged.items() if v == best]
+            verdict = f"{'＋'.join(tops)} hinge（{best}/{n} 步啟動）"
 
         out.append({
             "run": run_dir.name, "image": image, "steps": n,
             "tau_lpips": tau, "final_lpips": h[-1]["fid_lpips"],
             "final_acut": h[-1].get("fid_acut"),
+            "final_chroma": h[-1].get("fid_chroma"),
+            "engaged": engaged,
             "best_shift": max(shift), "final_shift": shift[-1],
             "margin": margin, "saturated": f"{sat}/{n}",
             **{f"啟動_{k}": f"{v}/{n}" for k, v in engaged.items()},
@@ -126,12 +153,20 @@ def main() -> None:
         raise SystemExit("沒有可分析的 run")
 
     print(f"{'run':22s}{'圖':>10s}{'步':>4s}{'τ':>6s}{'末lpips':>9s}"
-          f"{'最佳shift':>10s}{'飽和':>8s}  判定")
+          f"{'末色度':>8s}{'最佳shift':>10s}{'飽和':>8s}  判定")
     for r in rows:
+        chroma = "—" if r["final_chroma"] is None else f"{r['final_chroma']:.3f}"
         print(f"{r['run']:22s}{r['image']:>10s}{r['steps']:>4d}"
               f"{r['tau_lpips'] if r['tau_lpips'] is not None else '?':>6}"
-              f"{r['final_lpips']:>9.4f}"
+              f"{r['final_lpips']:>9.4f}{chroma:>8s}"
               f"{r['best_shift']:>10.4f}{r['saturated']:>8s}  {r['verdict']}")
+
+    # 判定只報最高的那一道，但「第二道差多少步就追上」同樣是要看的：一道
+    # hinge 從 0/60 變成 40/60 就是即將易主，那會使該格與別格不再可比。
+    print("\n=== 各 hinge 的啟動步數（只列係數非零者）===")
+    for r in rows:
+        detail = "  ".join(f"{k} {v}/{r['steps']}" for k, v in r["engaged"].items())
+        print(f"  {r['run']:22s}{r['image']:>10s}  {detail}")
 
     print("\n判定的優先序：硬上界 > 防禦 margin > 保真 hinge。前兩者一旦綁住，"
           "\nτ 對該格就完全不起作用，該格不可與其他 τ 的格子並列比較。")

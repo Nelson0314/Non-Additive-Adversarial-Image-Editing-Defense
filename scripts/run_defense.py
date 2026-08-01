@@ -570,10 +570,19 @@ def main():
                     "final_ssim": last["fid_ssim"],
                     "final_lpips": last["fid_lpips"],
                 }
-                # site S 的位移統計。空間變形的失真預算是位移量而非像素差值，
-                # 少了這幾欄，「該格實際用掉多少預算」在 csv 裡完全看不出來。
-                if hasattr(module, "disp_stats"):
-                    base.update(module.disp_stats())
+                # 非加性位置的預算統計。site S 的失真預算是位移量、site C 是
+                # 矩陣偏離量，都不是像素差值；少了這幾欄，「該格實際用掉多少
+                # 預算」在 csv 裡完全看不出來。
+                #
+                # **這不是可有可無的診斷欄位。** E27 的 site C 學習率校準中，
+                # 三個 lr 全部出現「LPIPS hinge 0/60 步啟動」——真正綁住的是
+                # max_dev 硬上界而非保真約束，於是 τ 這條軸對該位置完全不起
+                # 作用。當時 color_stats 還沒接進來，這件事在 results.csv 裡
+                # 看不見，只能靠回頭讀 history 才發現。同 E22 的教訓：硬上界
+                # 悄悄變成綁定約束，而報告裡沒有任何一欄能看出來。
+                for name in ("disp_stats", "color_stats"):
+                    if hasattr(module, name):
+                        base.update(getattr(module, name)())
                 summary.append(base)
                 print(
                     f"[run] {tag} 完成 {res.seconds:.0f}s peak={peak:.0f}MB "

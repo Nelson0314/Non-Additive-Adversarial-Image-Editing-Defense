@@ -16,6 +16,7 @@
 | `docs/REPORT.html` | 主報告，涵蓋 E0–E12。含推翻與撤回的結論、規格層級更正 | 現行。表頭的「25 個 run、289 個資料檔」為 07-30 的數字，現為 48 個 run |
 | `docs/RESULTS_E13-E17.md` | 承接 E13–E17：warp vs additive 主網格、VAE 地板拆解 | 現行 |
 | `docs/RESULTS_E18-E19.md` | 承接 E18–E19：步數/lr/λ/decoder 掃描，以及銳利度這項新指標 | 現行 |
+| `docs/RESULTS_E21-E22.md` | 承接 E21–E22：新約束下的三臂重跑、位移上界的混淆因子 | 現行 |
 | `docs/RESULTS_E20_fidelity.md` | 承接 E20：保真約束的 paper survey、四臂等 LPIPS 探針、局部銳利度偏差 | 現行 |
 | `docs/NEXT_SESSION.md` | 上一階段寫下的任務界定。§3.2 誤把 `src/metrics/spectrum.py` 當成頻域程式（實為奇異值譜），已由 E20 §8 更正 | 已由 E20 承接 |
 | `docs/specs/2026-07-28-lowrank-residual-defense.md` | 設計規格 v1 | 現行的**設計依據**，但其後的推翻不回頭改寫本文，須與上兩份對讀 |
@@ -65,6 +66,9 @@
 | `p2_e15_battery` | E20 | 13 項候選指標重判 E15 τ=0.05 的 site S vs P |
 | `p3_local_acutance` | E20 | 局部銳利度偏差在四臂與 E15 上的評分 |
 | `p4_constraint_check` | E20 | 新約束的可行域檢查。site S 0/6、site P 6/6 |
+| `e21_{Sbic,Sbil,P}_tau*` | E21 | 新約束下的三臂主網格，9 格 6 圖。site S 的 net 較 E15 掉 67.3% |
+| `e21_report` | E21 | 上列的彙整表 |
+| `e22_Sbic_d6_tau*` | E22 | bicubic 臂放寬 max_disp 到 6.0 的重跑 |
 | `logs` | — | 各 run 的 driver 與 stdout 紀錄 |
 
 ### 涉及已作廢方向的資料
@@ -105,6 +109,8 @@ python scripts/p1_compare_page.py # E20 人眼比對頁
 python scripts/p2_e15_battery.py  # E20 候選指標重判 E15（CPU 約 6 分）
 python scripts/p3_local_acutance.py   # E20 局部銳利度偏差（秒級）
 python scripts/p4_constraint_check.py # E20 新約束的可行域檢查（約 1 分）
+python scripts/e21_report.py          # E21 三臂比較 + 與 E15 對照
+python scripts/e21_disp_saturation.py # E21/E22 位移飽和度診斷（秒級）
 python scripts/make_report_figures.py   # docs/figures/*.png（E2/E8/E9/E10/E12）
 python scripts/make_report.py     # docs/archive/2026-07-29-RESULTS_lowrank.html（E0–E3）
 ```

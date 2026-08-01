@@ -6,7 +6,7 @@ spec §5.1 要求淨化寫進訓練目標而非事後量測，這需要淨化在
 - `forward`      訓練用，可微（真實實作或其可微代理）
 - `evaluate`     評測用，真實實作，不要求可微
 
-**代理與真實實作的差距必須在報告中明列，不得省略**（spec §5.1 末段）。
+代理與真實實作的差距必須在報告中明列，不得省略（spec §5.1 末段）。
 `Purifier.proxy_gap` 提供直接量測此差距的方法，使該聲明有數字支撐而非
 只是免責聲明。
 
@@ -86,7 +86,7 @@ def straight_through(x: torch.Tensor, hard: torch.Tensor) -> torch.Tensor:
 def quantize_proxy(x: torch.Tensor, levels: int) -> torch.Tensor:
     """量化的直通估計：前向為真實量化，反向視為恆等。
 
-    這是代理與真實實作**唯一**的差異來源：前向數值位元等同，只有梯度不同。
+    這是代理與真實實作唯一的差異來源：前向數值位元等同，只有梯度不同。
     故此代理不引入前向誤差，`proxy_gap` 對 quantize 必為 0。
     """
     return straight_through(x, quantize_real(x, levels))
@@ -113,7 +113,7 @@ def jpeg_real(x: torch.Tensor, quality: int) -> torch.Tensor:
 def jpeg_proxy(x: torch.Tensor, quality: int) -> torch.Tensor:
     """JPEG 的直通估計：前向呼叫真實編解碼，反向視為恆等。
 
-    **此代理的梯度是錯的**，而非近似的：真實 JPEG 的區塊 DCT 量化在梯度
+    此代理的梯度是錯的，而非近似的：真實 JPEG 的區塊 DCT 量化在梯度
     上與恆等映射毫無關係。採用它的理由是前向數值完全正確，優化過程看到的
     是真實的 JPEG 輸出；代價是梯度方向只反映「淨化後的圖長什麼樣」而非
     「淨化本身如何反應擾動」。此限制須在報告中明列。
@@ -169,7 +169,7 @@ class Purifier:
 
 
 def default_train_set() -> List[Purifier]:
-    """訓練期的 𝒫。**必須包含恆等算子**（spec §5.1）。
+    """訓練期的 𝒫。必須包含恆等算子（spec §5.1）。
 
     強度取各算子的中等值：訓練目標是耐受一般淨化，不是耐受某個極端設定。
     強度掃描留給 E3 的評測階段。

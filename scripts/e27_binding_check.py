@@ -1,6 +1,6 @@
 """逐格判定「到底是哪一道約束綁住了這一格」。
 
-**為什麼需要一個常設工具。** 匹配失真的比較只有在兩臂都被**同一道**約束
+為什麼需要一個常設工具。匹配失真的比較只有在兩臂都被同一道約束
 綁住、且都已在該約束下停下來時才成立。本專案已經連續踩到四個不同的綁定者，
 每一次都是事後翻 `history.json` 才發現：
 
@@ -27,7 +27,7 @@ ROOT = Path(__file__).resolve().parent.parent
 
 # 懲罰值鍵 → (人類可讀名稱, `loss` 區塊中對應的係數欄位)
 #
-# **每一道都必須填上自己的係數欄位。** 初版只給 L∞ 填了，其餘三道留 None，
+# 每一道都必須填上自己的係數欄位。初版只給 L∞ 填了，其餘三道留 None，
 # 於是 `gamma_psnr=0`（保留計算與記錄但不參與梯度）的 PSNR 罰則被當成綁定者
 # ——實測把 site C 判成「PSNR hinge 56/60 步啟動」，而 PSNR 根本不在梯度裡。
 # 判定「誰綁住這一格」的前提就是只看真的進了梯度的那幾道。
@@ -89,7 +89,7 @@ def analyse(run_dir: Path) -> list:
         elif sat > n * 0.5:
             verdict = f"防禦 margin={margin}（{sat}/{n} 步飽和）"
         elif max(engaged.values(), default=0) == 0:
-            verdict = "**沒有任何約束啟動過** —— 步數不足或 lr 太小"
+            verdict = "沒有任何約束啟動過 —— 步數不足或 lr 太小"
         else:
             top = max(engaged, key=engaged.get)
             verdict = f"{top} hinge（{engaged[top]}/{n} 步啟動）"

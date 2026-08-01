@@ -2,30 +2,30 @@
 
     x_def = Warp(x; f_φ) = grid_sample(x, identity_grid + f_φ)
 
-φ 是一個位移場（flow field），每個像素被移動一小段距離；輸出是**重新取樣**
+φ 是一個位移場（flow field），每個像素被移動一小段距離；輸出是重新取樣
 的結果，不是 `x + Δ`。構造出自 stAdv（spatially transformed adversarial
 examples, Xiao et al., ICLR 2018）與「Generalizing Universal Adversarial
 Attacks Beyond Additive Perturbations」的非加性分支。
 
-**為什麼需要這個位置**
+為什麼需要這個位置
 
-先前實作的三個非加性位置（latent 注入、文字嵌入、權重 LoRA）**全部經過
-VAE 解碼**，因此全部繼承同一個重建誤差地板：φ=0 時 `G(x;0)` 與原圖已相差
+先前實作的三個非加性位置（latent 注入、文字嵌入、權重 LoRA）全部經過
+VAE 解碼，因此全部繼承同一個重建誤差地板：φ=0 時 `G(x;0)` 與原圖已相差
 LPIPS 0.194 / PSNR 26.56 dB，保真度預算在 φ 起作用之前就用光了。E9 與 E12
 花了 5 GPU 小時嘗試用更大的容量吸收該誤差，最好也只到 LPIPS 0.095，
 仍遠不及加性位置實際運作的 0.063。
 
-**非加性不需要生成。** 空間變形是非加性的，卻停在像素空間：
+非加性不需要生成。空間變形是非加性的，卻停在像素空間：
 
-| 性質 | latent / 嵌入 / 權重 | **空間變形** |
+| 性質 | latent / 嵌入 / 權重 | 空間變形 |
 |---|---|---|
-| 非加性 | 是 | **是** |
-| 經過 VAE 解碼 | 是 | **否** |
-| φ=0 時等於原圖 | 否（LPIPS 0.194） | **是（構造保證）** |
-| 每步成本（k_inv=20） | 約 11.8 秒 | **約 4.1 秒** |
-| 需要階段一保真對齊 | 是 | **不需要** |
+| 非加性 | 是 | 是 |
+| 經過 VAE 解碼 | 是 | 否 |
+| φ=0 時等於原圖 | 否（LPIPS 0.194） | 是（構造保證） |
+| 每步成本（k_inv=20） | 約 11.8 秒 | 約 4.1 秒 |
+| 需要階段一保真對齊 | 是 | 不需要 |
 
-**保真度的自然預算是位移量，不是像素差值。**
+保真度的自然預算是位移量，不是像素差值。
 
 這一點必須在報告中講清楚：把一條邊緣移動一個像素，其 L∞ 可以接近 1.0，
 但人眼幾乎看不出來。加性擾動用 L∞ 當上界是合理的（像素值改了多少就是
@@ -33,8 +33,8 @@ LPIPS 0.194 / PSNR 26.56 dB，保真度預算在 φ 起作用之前就用光了�
 以 `max_disp`（單位：像素）為硬上界，並回報位移的平均與最大值供報告使用。
 既有的 L∞ hinge 對本位置可能過嚴，該係數須另行檢視。
 
-**平滑度**：不平滑的位移場會產生撕裂狀的可見瑕疵。此處以**粗網格 + 雙線性
-上採樣**取得平滑性（`grid_size < size` 時），而非事後加懲罰項——由構造保證
+平滑度：不平滑的位移場會產生撕裂狀的可見瑕疵。此處以粗網格 + 雙線性
+上採樣取得平滑性（`grid_size < size` 時），而非事後加懲罰項——由構造保證
 比由懲罰項近似更可靠，且 `grid_size` 直接就是一個乾淨的容量旋鈕。
 `grid_size=None` 表示逐像素自由位移（等同 stAdv 的原始設定），此時平滑度
 只能靠 `tv()` 診斷觀察。
@@ -54,7 +54,7 @@ def identity_grid(h: int, w: int, device, dtype) -> torch.Tensor:
 
     以 `align_corners=True` 的約定建構：座標 −1 與 +1 分別對應第一個與最後
     一個像素的中心。此約定下恆等網格落在像素中心上，`grid_sample` 的雙線性
-    插值權重為 (1, 0)，理論上應回傳原值。**該性質由測試實測，不假設。**
+    插值權重為 (1, 0)，理論上應回傳原值。該性質由測試實測，不假設。
     """
     ys = torch.linspace(-1.0, 1.0, h, device=device, dtype=dtype)
     xs = torch.linspace(-1.0, 1.0, w, device=device, dtype=dtype)
@@ -81,11 +81,11 @@ class WarpResidual(ResidualModule):
         force_resample: bool = False,
         resample: str = "bilinear",
     ):
-        """`max_disp` 的單位是**像素**；`grid_size=None` 表示逐像素自由位移。
+        """`max_disp` 的單位是像素；`grid_size=None` 表示逐像素自由位移。
 
         `resample` 選 `grid_sample` 的插值模式。預設維持 `"bilinear"`，使
         E13–E19 的既有結果可重現；`"bicubic"` 是 E20 之後的建議值，理由見
-        `RESAMPLE_MODES` 的說明。**改這個值會改變所有既有數字，故不改預設。**
+        `RESAMPLE_MODES` 的說明。改這個值會改變所有既有數字，故不改預設。
 
         `init_std=0` 使初始位移場恆為零，即 x_def = x。位移場是自由參數，
         在零點的梯度不為零（∂x_def/∂f 由影像梯度決定，一般非零），故不需要
@@ -117,7 +117,7 @@ class WarpResidual(ResidualModule):
     # ---- 位移場 ----
 
     def displacement(self, h: int, w: int) -> torch.Tensor:
-        """回傳 (1, 2, H, W) 的位移場，單位為**像素**，已套用 max_disp 上界。
+        """回傳 (1, 2, H, W) 的位移場，單位為像素，已套用 max_disp 上界。
 
         粗網格以雙線性上採樣到全解析度，藉此取得平滑性；`align_corners=True`
         與 `identity_grid` 的約定一致，否則兩者的座標系統會錯開半個像素。
@@ -152,7 +152,7 @@ class WarpResidual(ResidualModule):
         # 必須實測一次**（見 force_resample）——site L 的教訓正是一個
         # 「看起來很小」的 φ 無關效應最後主導了全部數字。
         #
-        # **只在不建計算圖時短路。** 直接回傳 x01 會切斷 φ 與輸出的連結，
+        # 只在不建計算圖時短路。直接回傳 x01 會切斷 φ 與輸出的連結，
         # 訓練第一步（此時位移恰為零）會以
         # `element 0 of tensors does not require grad` 失敗——實測如此。
         # 短路要保證的是「回報與評測的數值在 φ=0 時精確」，而評測、
@@ -185,7 +185,7 @@ class WarpResidual(ResidualModule):
     def raw_residual(self) -> None:
         """空間變形沒有「注入前的像素殘差」這個量：φ 是位移而非像素值。
 
-        回傳 None 而非 `x_def − x`：後者是變形造成的**結果**，把它當成
+        回傳 None 而非 `x_def − x`：後者是變形造成的結果，把它當成
         殘差會讓報告誤以為這是一個加性方法。位移場本身以 disp_stats() 回報。
         """
         return None

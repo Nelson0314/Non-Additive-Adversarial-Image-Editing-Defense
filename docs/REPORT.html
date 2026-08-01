@@ -61,9 +61,14 @@ blockquote{margin:1.1em 0;padding:.6em 1em;border-left:3px solid var(--warn);
 
 <div class="wrap">
 
+<div style="border:2px solid #c0392b;border-radius:8px;padding:14px 18px;margin:0 0 24px;background:color-mix(in srgb,#c0392b 8%,transparent)">
+<b>本報告的防禦效果數字已失效</b>
+<p style="margin:8px 0 0">本報告涵蓋 E0–E12，寫於 2026-07-30。其後的實驗推翻了它所依據的兩個前提，報告中的每一個防禦效果數字都因此不可引用：（1）攻擊端沒有 classifier-free guidance，等同 w=1，該設定下 SD v1.4 幾乎不服從 prompt，實測「編輯」與「什麼都沒做」在指標上分不出來，見 <code>docs/RESULTS_E25-E26.md</code> §3；（2）判準 <code>net_lpips</code> 量的是輸出移動了多少，不是編輯有沒有失敗，同份文件 §1。方法層面的結論（成本模型、記憶體歸因、重建地板）不受影響。</p>
+</div>
+
 <h1>低秩殘差防禦 — 實驗報告</h1>
 <p class="sub">單一 Stable Diffusion v1.4 外掛可開關殘差模組，對抗 SDEdit 惡意編輯 ·
-資料截至 2026-07-30 · 25 個 run、289 個資料檔 · 全部數據在 <span class="tag">runs/</span></p>
+資料截至 2026-07-30 · 25 個 run、289 個資料檔（當時的數字；現為 95 個 run） · 全部數據在 <span class="tag">runs/</span></p>
 
 <div class="card">
 <h3 style="margin-top:0">目前為止最重要的三句話</h3>
@@ -643,7 +648,7 @@ LPIPS 地板只在 0.157–0.210 之間。</p>
 <table>
 <thead><tr><th>路徑</th><th>內容</th></tr></thead>
 <tbody>
-<tr><td class="mono">runs/</td><td>25 個 run、289 個 csv/json/md/log，含逐格訓練軌跡與譜診斷</td></tr>
+<tr><td class="mono">runs/</td><td>逐圖訓練軌跡與診斷圖。本報告寫成時為 25 個 run、289 個 csv/json/md/log，現為 95 個 run</td></tr>
 <tr><td class="mono">docs/REPORT.html</td><td>本報告</td></tr>
 <tr><td class="mono">docs/figures/</td><td>7 張分析圖與範例圖</td></tr>
 <tr><td class="mono">docs/NIGHT_RUN_2026-07-29.md</td><td>夜間執行紀錄，含撤回說明</td></tr>

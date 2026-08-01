@@ -15,6 +15,8 @@
 | `stage1L.sh` | E12 site L 對齊重跑 |
 | `stage2W.sh` | E12 site W 對齊 |
 
+| `e27_calibration.sh` | E27 校準四輪（Lightning AI H100） |
+
 腳本內的路徑是容器上的絕對路徑（`cd /work/nelson0314/WACV`、`source env.sh`），
 **未改寫**——改了就不是當初實際執行的那份了。要重跑請對照
 `scripts/twcc_env.sh`（即當時的 `env.sh`）自行調整路徑。

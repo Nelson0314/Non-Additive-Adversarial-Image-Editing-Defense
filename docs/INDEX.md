@@ -13,7 +13,7 @@
 
 | 檔案 | 內容 | 狀態 |
 |---|---|---|
-| `docs/REPORT.html` | 主報告，涵蓋 E0–E12。含推翻與撤回的結論、規格層級更正 | 現行。表頭的「25 個 run、289 個資料檔」為 07-30 的數字，現為 48 個 run |
+| `docs/REPORT.html` | 涵蓋 E0–E12 的報告 | **防禦效果的數字已失效**（E26 的 guidance 缺陷與 E25 的判準問題）。檔案開頭已加註。方法層面的結論仍有效 |
 | `docs/RESULTS_E13-E17.md` | 承接 E13–E17：warp vs additive 主網格、VAE 地板拆解 | 現行 |
 | `docs/RESULTS_E18-E19.md` | 承接 E18–E19：步數/lr/λ/decoder 掃描，以及銳利度這項新指標 | 現行 |
 | `docs/RESULTS_E21-E22.md` | 承接 E21–E23：新約束下的三臂重跑、位移上界假設被推翻、步數受限的方法問題 | 現行 |
@@ -23,8 +23,9 @@
 | `docs/RESULTS_E28_chroma.md` | 承接 E28：色度偏壓約束（第三道）、ΔE 全族不合格的判別、τ=0.8 的人眼定錨、TF32 跨機器精度陷阱 | 現行。主網格的設定就緒，列在 §5 |
 | `docs/NEXT_SESSION.md` | **2026-08-01 改寫**：主軸的否定結果、已知死路、三條可能的路 | 現行，但其 §1–§3 建立在 `net_lpips` 上，須與 `RESULTS_E25-E26.md` §3 對讀 |
 | `docs/specs/2026-07-28-lowrank-residual-defense.md` | 設計規格 v1 | 現行的**設計依據**，但其後的推翻不回頭改寫本文，須與上兩份對讀 |
+| `docs/archive/2026-08-01-HANDOFF_PROMPT.md` | 2026-08-01 上一次交接時給新 session 的 prompt | 已封存。其描述的狀態早於 E25–E28 |
 | `docs/NIGHT_RUN_2026-07-29.md` | 2026-07-29 夜間自主執行的完整紀錄 | 歷史紀錄，非報告。記錄了 site L 防禦不存在這個否定結果的推導過程 |
-| `docs/architecture.html` | 方法解說：威脅模型、低秩外積參數化、loss 與梯度路徑 | **內容過時**：寫的是「三個注入位置」，現已有六個（P/PF/L/E/W/S）。概念部分仍可讀 |
+| `docs/architecture.html` | 方法解說：威脅模型、低秩外積參數化、loss 與梯度路徑 | 內容部分過時（注入位置、保真約束、攻擊端的 guidance）。檔案開頭已加註說明，概念部分仍可讀 |
 
 ### 已封存（`docs/archive/`）
 
@@ -38,7 +39,7 @@
 
 ## 2. 實驗資料（`runs/`）
 
-53 個 run 目錄。所有 CSV / JSON / log / PNG 自 commit `1942e38` 起全部入版控
+93 個 run 目錄。所有 CSV / JSON / log / PNG 自 commit `1942e38` 起全部入版控
 （在那之前 `.gitignore` 有一條規則讓 273 個檔案靜默漏掉，詳見該 commit）。
 
 | run 目錄 | 實驗 | 說明 |

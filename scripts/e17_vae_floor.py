@@ -1,18 +1,18 @@
 """E17 重建地板的拆解 —— A 族還有沒有機會。
 
-**背景**
+背景
 
 A 族（latent ε、文字嵌入、權重 LoRA）全部經過 `decode(...encode(x))`，因此
 全部繼承同一個重建地板。實測：DDIM 路徑 φ=0 時 LPIPS 0.194；BDIA 精確反演
 把「反演」那一半消掉後（latent 來回誤差降 5 個數量級，見 tests），剩下的
-是純 VAE 來回的 0.143。加性像素位置實際運作在 **0.063**，故 A 族在 φ 還沒
+是純 VAE 來回的 0.143。加性像素位置實際運作在 0.063，故 A 族在 φ 還沒
 作用前就已用掉 2.3 倍的失真預算。
 
-**這個地板不是威脅模型逼出來的。** 威脅模型只規定攻擊方用 stable diffusion；
+這個地板不是威脅模型逼出來的。威脅模型只規定攻擊方用 stable diffusion；
 防禦方的 G 要用什麼機器產生 x_def 沒有限制。故「換掉 G 裡的 decode」完全
 合法，攻擊方仍是拿 stock SD 編輯 x_def。
 
-**本實驗要回答的**
+本實驗要回答的
 
 0.143 之中，encoder 側（選了一個 decoder 重建不好的 z）與 decoder 側
 （容量本身不足）各佔多少？拆開才知道該往哪個方向投資。
@@ -21,28 +21,28 @@ A 族（latent ε、文字嵌入、權重 LoRA）全部經過 `decode(...encode(
 
 - `roundtrip`  : decode(encode(x))，現況地板
 - `latent_opt` : z 由 encode(x) 起步，直接對 z 做 Adam 最小化重建損失。
-                 這消掉的是 **encoder 側**誤差——若它就能把地板砍一半，
+                 這消掉的是 encoder 側誤差——若它就能把地板砍一半，
                  換 decoder 的必要性大減，且不需要任何新模型。
 - `asym_free`  : Asymmetric VQGAN（arXiv 2306.04632）的 decoder，
-                 **mask 全為 1**（整張都算「要生成的區域」），條件分支拿不到
+                 mask 全為 1（整張都算「要生成的區域」），條件分支拿不到
                  任何原圖資訊。這是唯一誠實的比較點：純粹「更重的 decoder」。
-- `asym_leak`  : 同上但 **mask 全為 0**，條件分支可以完整看到原圖。
+- `asym_leak`  : 同上但 mask 全為 0，條件分支可以完整看到原圖。
                  這是退化對照，用來顯示條件分支能把重建做到多好——但那個
-                 好是「把原圖抄回來」，φ 的效果會被一併洗掉。**這一列不可
-                 當成可用結果**，列出來是為了讓洩漏的幅度是可見的。
+                 好是「把原圖抄回來」，φ 的效果會被一併洗掉。這一列不可
+                 當成可用結果，列出來是為了讓洩漏的幅度是可見的。
 
 判準：任何 arm 把 LPIPS 壓到 0.063 以下，A 族才重新有討論空間。
 
 ---
 
-**2026-07-31 修改（E18/E19），before/after 紀錄**
+2026-07-31 修改（E18/E19），before/after 紀錄
 
 E18（lr × 步數掃描）測得步數不是瓶頸：lr=0.005 下 400→1600 步（4 倍算力）
 LPIPS 只再降 3.3%（0.0886 → 0.0857），軌跡已平坦。故改動兩處旋鈕：
 
 1. `latent_opt` 的損失權重
    - before：`loss = mse + 0.1 * lp`，0.1 寫死於函式內（原第 72 行）
-   - after ：`loss = mse + lam * lp`，`lam` 由 `--lam` 給，**預設 0.1**，
+   - after：`loss = mse + lam * lp`，`lam` 由 `--lam` 給，預設 0.1，
      即不帶旗標時與 E17 完全相同，E17 的數據仍可重現
    - 原因：把關指標是 LPIPS，但優化的量以 MSE 為主，等於沒有對準要優化
      的目標。`lam` 成為可掃描的軸。
@@ -50,14 +50,14 @@ LPIPS 只再降 3.3%（0.0886 → 0.0857），軌跡已平坦。故改動兩處�
 2. 新增 arm `latent_opt_asym`（`--stack_asym`）
    - before：`latent_opt` 只走 SD 原廠 decoder；asym decoder 只有不做
      最佳化的 `asym_free` 一臂
-   - after ：`latent_opt` 接受 `decode` 參數，可改走任何 decoder；
+   - after：`latent_opt` 接受 `decode` 參數，可改走任何 decoder；
      `--stack_asym` 時把兩者疊起來
    - 原因：E17 中 latent_opt 降 47%、asym_free 降 10%，兩者作用在不同
      環節（encoder 側選點 vs decoder 容量），疊加是尚未測過的組合。
 
 3. 把關由單一 LPIPS 改為多指標
    - before：`under_target = m["lpips"] < 0.063`
-   - after ：`passes` 要求 LPIPS < 0.063 **且** PSNR 不低於 `roundtrip`、
+   - after：`passes` 要求 LPIPS < 0.063 且 PSNR 不低於 `roundtrip`、
      DISTS 不高於 `roundtrip`；`dists` 一併寫入結果
    - 原因：直接對 LPIPS 做梯度下降有對抗性風險——可能只是攻擊了 LPIPS
      網路，分數降了但人眼品質沒變好。E15 已經踩過「LPIPS 判為相等、實際
@@ -100,7 +100,7 @@ def latent_opt(sd, x01, lpips_fn, steps, lr, lam=0.1, decode=None):
     `lam` 為 LPIPS 項的權重（見模組 docstring 的 E18/E19 修改紀錄）。
 
     `decode` 為 None 時走 SD 原廠 decoder；傳入 callable 則改用它。
-    **latent 空間不變**——site L 注入的 ε 活在那個空間裡，換 decoder 合法，
+    latent 空間不變——site L 注入的 ε 活在那個空間裡，換 decoder 合法，
     換 encoder 等於換掉注入機制。
 
     MSE 用未 clamp 的 `rec`：clamp 會讓落在 [0,1] 之外的像素梯度歸零，
@@ -144,7 +144,7 @@ def asym_decoder(vae, sd, x01):
 
 
 def asym(vae, sd, x01, leak: bool):
-    """Asymmetric VQGAN 的 decoder。latent 由 **SD 原廠 encoder** 產生。
+    """Asymmetric VQGAN 的 decoder。latent 由 SD 原廠 encoder 產生。
 
     刻意不用 asym 自己的 encoder：論文本身就是「只重訓 decoder，vanilla
     encoder 與 StableDiffusion 不變」，而我們要的正是 latent 空間不動——

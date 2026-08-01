@@ -7,7 +7,7 @@
 選擇修改 ε̂ 而非直接修改 z：ε̂ 同時進入 pred_x0 與下一步的 z，其影響會
 沿軌跡傳播。此與 APA 的 step-level 注入位置一致。
 
-**秩約束精確作用於注入的 latent 殘差 Δⱼ，而非最終像素殘差。**
+秩約束精確作用於注入的 latent 殘差 Δⱼ，而非最終像素殘差。
 x_def − x 還要經過 DDIM 更新與 VAE 解碼兩道非線性變換，其秩是湧現的，
 必須由奇異值譜診斷實測（spec §4.3、§8.2）。此處不做任何像素秩的假設。
 """
@@ -85,12 +85,12 @@ class LatentResidual(ResidualModule):
     def rank_trace(self, ts: torch.Tensor, steps: int) -> list:
         """每步實際使用的秩，順序與 denoise 的 step_idx 一致（降冪走訪 t）。
 
-        **方向陷阱**：排程名稱的「遞增／遞減」是對 LRDM 的 timestep t 而言，
+        方向陷阱：排程名稱的「遞增／遞減」是對 LRDM 的 timestep t 而言，
         t=0 為乾淨端、t=T 為高噪端。但去噪是由高噪走向乾淨，即 t 遞減，
         故沿著 step_idx：
 
-            LD（對 t 遞減）→ 沿去噪步序**遞增**
-            LI（對 t 遞增）→ 沿去噪步序**遞減**
+            LD（對 t 遞減）→ 沿去噪步序遞增
+            LI（對 t 遞增）→ 沿去噪步序遞減
 
         兩者在此處恰好反向。比對排程行為時務必指明是對 t 還是對 step_idx。
         """

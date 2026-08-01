@@ -3,7 +3,7 @@
 沿用 `scripts/p1_compare_page.py` 的設計要求（原地切換、4× 最近鄰放大裁切、
 環境底色固定中性灰、指標預設收起）。
 
-切換的問題只有一個：**在哪一個 guidance 下，prompt 描述的東西真的出現了。**
+切換的問題只有一個：在哪一個 guidance 下，prompt 描述的東西真的出現了。
 w = 1.0 是本專案 E2–E23 全部實驗所用的設定；w = 7.5 是攻擊方實際會用的值。
 
 輸出 `runs/p7_attack_sanity/compare.html`。

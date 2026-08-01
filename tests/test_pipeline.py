@@ -3,7 +3,7 @@
 設計為模型無關，本機以 tiny-SD 在 CPU 執行；TWCC 上換真實 SD 跑同一組
 測試，一旦數字不對可立即分辨是邏輯錯誤還是規模問題。
 
-**T1 的敘述已相對 spec v1 修正。** 原文為「φ=0 ⟹ d(y_def, y_orig) ≈ 0」，
+T1 的敘述已相對 spec v1 修正。原文為「φ=0 ⟹ d(y_def, y_orig) ≈ 0」，
 該敘述僅對 site P 成立（Δ=0 使 x_def = x 恆等）。site L 即使殘差為零，
 x_def 仍是 DDIM inversion + 去噪 + VAE 來回的重建，本身即帶誤差，
 y_def 不可能等於 y_orig。正確的不變量是「模塊停用時其存在不改變任何
@@ -297,7 +297,7 @@ def test_秩排程沿去噪步序的方向(sd):
     """排程名稱的遞增／遞減是對 timestep t 而言，去噪走訪 t 遞減，故方向相反。
 
     LD = ceil((1 − t/T)·R_m)：t=0（乾淨）秩最高、t=T（高噪）秩最低。
-    去噪由高噪走向乾淨 ⟹ 沿 step_idx **遞增**。LI 則相反。
+    去噪由高噪走向乾淨 ⟹ 沿 step_idx 遞增。LI 則相反。
     """
     lat = _latent(sd)
     ts = sd.timesteps(4)
@@ -312,7 +312,7 @@ def test_秩排程沿去噪步序的方向(sd):
     assert len(ld) == len(li) == 4
     assert ld == sorted(ld), f"LD 沿去噪步序應遞增：{ld}"
     assert li == sorted(li, reverse=True), f"LI 沿去噪步序應遞減：{li}"
-    # 去噪走訪的是 ts[steps..1]，**t=0 那一格永遠不會被評估**（最後一步以
+    # 去噪走訪的是 ts[steps..1]，t=0 那一格永遠不會被評估（最後一步以
     # ts[1] 的 ε 更新至 ts[0]）。故排程只碰得到 t=t_max 這一端的端點值，
     # 碰不到 t=0 端。斷言只能對 t=t_max 端下。
     assert ld[0] == 0, f"LD 在 t=t_max 應為 0：{ld}"
@@ -326,7 +326,7 @@ def test_checkpoint不改變數值結果(sd, x01):
     非決定性 kernel），重算結果會與原本不同而導致梯度錯誤。此測試同時
     檢查前向數值與 φ 的梯度，兩者都必須一致。
 
-    **四組必須共用同一個模塊實例。** 每組各自 `LatentResidual(...)` 會讓
+    四組必須共用同一個模塊實例。每組各自 `LatentResidual(...)` 會讓
     U 取到不同的亂數（U 是唯一的隨機來源），量到的差異其實來自初始化而非
     checkpoint。此陷阱曾使本測試誤報：單一 UNet 步與單次 VAE decode 的
     checkpoint 前向差為 0.0，完整路徑卻差 5e-4，正是由此而來。
@@ -657,7 +657,7 @@ def test_site_W_remove後模型完全還原(sd, x01):
 def test_site_W_參數量等於逐層r乘以進出維度之和(sd, r):
     """site W 的存在理由是容量，故參數量必須符合設計而非碰巧。
 
-    **不在 tiny-SD 上斷言「比低秩 eps 注入多」**：那是模型規模的性質而非
+    不在 tiny-SD 上斷言「比低秩 eps 注入多」：那是模型規模的性質而非
     設計的性質。tiny-SD 的 cross-attention 只有 32–64 維、6 個 block，
     算出來反而比 latent 少；真實 SD v1.4 的 16 個 block、768 維 context
     在 r=16 時是 1,591,296，為低秩 eps 注入（163,840）的 9.7 倍。
@@ -729,7 +729,7 @@ def test_編碼器目標的損失朝目標下降(sd, x01):
     兩個設計上的必要條件，缺一則這個測試沒有鑑別力：
 
     1. `purify_mode="all"`——預設的 rotate 每步輪替不同算子，相鄰步量到的
-       是**不同條件**下的損失，本來就會震盪。E0d 的學習率判準踩過同一個坑。
+       是不同條件下的損失，本來就會震盪。E0d 的學習率判準踩過同一個坑。
     2. `lam_fid=0`——保真項的作用正是把 x_def 拉回 x，與編碼器目標直接對抗。
        兩者並存時「損失有沒有下降」量到的是兩股力的淨結果，不是編碼器目標
        本身可不可優化。
@@ -752,7 +752,7 @@ def test_有目標模式需要y_target(sd, x01):
 
 
 def test_CFG_權重為一時與單分支逐位元相同(sd, x01):
-    """**既有 53 個 run 的可重現性靠這條。**
+    """既有 53 個 run 的可重現性靠這條。
 
     E26 為 `sdedit` 加上 classifier-free guidance。w = 1.0 必須精確等於原本的
     單次前向，否則所有既有數字都不再可重現，連「舊結果錯在哪裡」都無從對照。
@@ -805,7 +805,7 @@ def test_CFG_經sdedit後仍可微(sd, x01):
 
 
 def test_有目標模式端到端可訓練(sd, x01):
-    """**這條路徑至今從未被跑過。** `runs/` 全部 4882 列 `results.csv` 的
+    """這條路徑至今從未被跑過。`runs/` 全部 4882 列 `results.csv` 的
     `defense_mode` 都是 `untargeted`（E25 清點）。而 `objective.py` 自己的
     註解就寫了「無目標最大化在文獻上一貫比有目標脆弱」，並引用本專案實測的
     3.3 倍噪聲過擬合。既然要用它，就必須先有一條釘住「它真的會動」的測試，
@@ -867,7 +867,7 @@ def test_階段一還原軌跡最佳的phi而非最後一步(sd, x01):
 
 
 def test_site_S_零位移時防禦圖與原圖逐位元相等(sd, x01):
-    """本位置存在的全部理由就是這條：φ=0 時**沒有**重建誤差。
+    """本位置存在的理由就是這條：φ=0 時沒有重建誤差。
 
     site L / E / W 都經過 VAE 解碼，φ=0 時已與原圖相差 LPIPS 0.194，保真度
     預算在 φ 起作用前就用光。空間變形停在像素空間，此不變量必須是逐位元的，
@@ -923,7 +923,7 @@ def test_site_S_兩種重取樣都可微且零位移為恆等(mode):
 
 
 def test_site_S_bicubic保留較多高頻():
-    """本專案改用 bicubic 的**唯一**理由，必須有測試釘住。
+    """本專案改用 bicubic 的唯一理由，必須有測試釘住。
 
     E20 §5.2 在 512² 真實影像上量到：同一 LPIPS 下 bilinear 保留 85.0%、
     bicubic 99.9%。此處在小尺寸合成圖上驗同一方向——絕對值不會相同，
@@ -1211,7 +1211,7 @@ def test_內容質量抑制缺少span時拒絕(sd):
 
 
 def test_suppress模式在phi等於零時梯度非零(sd, x01):
-    """**這是 `test_divergence模式在phi等於零時無梯度` 的對照。**
+    """這是 `test_divergence模式在phi等於零時無梯度` 的對照。
 
     divergence 從 φ=0 起不了步，原因是 KL 在 φ=0 恰為最小值。suppress 換成一個
     最佳點不在 φ=0 的量（內容 token 的注意力質量），故起步梯度一般非零。
@@ -1249,11 +1249,11 @@ def test_suppress模式在空prompt時提前拒絕(sd, x01):
 def test_cross_attention目標的梯度抵達phi(sd, x01):
     """本目標的整條路徑（G → 淨化 → VAE 編碼 → 加噪 → UNet → 注意力）
     都必須可微。特別是 hook 記錄的張量若來自 checkpoint 區塊內部，梯度會
-    安靜地斷掉而非報錯，故此測試必須存在。
+    斷掉而非報錯，故此測試必須存在。
 
-    **2026-08-01 改用 entropy 模式。** before：不指定 `attn_mode`，即使用
+    2026-08-01 改用 entropy 模式。before：不指定 `attn_mode`，即使用
     預設的 `divergence`。after：明確指定 `attn_mode="entropy"`。原因是
-    divergence 模式在 φ=0 時 L_def 恆等於 0 且梯度**精確為零**（見下一個
+    divergence 模式在 φ=0 時 L_def 恆等於 0 且梯度精確為零（見下一個
     測試），此測試先前通過靠的是 `alpha_ssim=1.0` 時 SSIM 在恆等點的浮點
     殘渣 1.22e-10——那不是「梯度抵達 φ」的證據。E20 把 alpha_ssim 改為 0
     之後殘渣消失，測試才暴露出來。要驗的是整條路徑可微，故改用一個
@@ -1274,15 +1274,15 @@ def test_cross_attention目標的梯度抵達phi(sd, x01):
 
 
 def test_divergence模式在phi等於零時無梯度(sd, x01):
-    """**釘住一個已知缺陷，不是釘住正確行為。**
+    """釘住一個已知缺陷，不是釘住正確行為。
 
-    `attn_mode="divergence"` 量的是當前注意力圖與**未防禦參照**的 KL 散度。
+    `attn_mode="divergence"` 量的是當前注意力圖與未防禦參照的 KL 散度。
     φ=0 時兩者逐元素相同，KL = 0；而 0 是 KL 的最小值，故其梯度也精確為 0。
     最佳化從 φ=0 出發永遠離不開起點——實測兩步的 grad_norm 皆為 0.000e+00，
     L_def 皆為 −0.000e+00。
 
-    這是 `divergence` 的**預設**模式，且該目標至今一次都沒在 GPU 上跑過
-    （見 docs/NEXT_SESSION.md §5）。若直接拿去跑，它會安靜地什麼都不做。
+    這是 `divergence` 的預設模式，且該目標至今一次都沒在 GPU 上跑過
+    （見 docs/NEXT_SESSION.md §5）。若直接拿去跑，它會不會產生任何更新。
 
     此測試存在的目的是讓該缺陷有一個具名的位置：修好之後這個測試會失敗，
     屆時應改成斷言梯度非零，而不是刪掉它。
@@ -1407,8 +1407,8 @@ def test_generator以exact_inversion切換路徑(sd, x01):
 
 
 def test_BDIA下零殘差的重建等於VAE的來回(sd, x01):
-    """精確反演的正確結論不是「G(x;0) 更接近原圖」，而是**擴散那一段的誤差
-    被消掉，只剩 VAE 的來回**，即 G(x;0) ≈ decode(encode(x))。
+    """精確反演的正確結論不是「G(x;0) 更接近原圖」，而是擴散那一段的誤差
+    被消掉，只剩 VAE 的來回，即 G(x;0) ≈ decode(encode(x))。
 
     起初寫的是「BDIA 的 G(x;0) 比 DDIM 的更接近原圖」，實測在 tiny-SD 上
     不成立（DDIM 0.2728 vs BDIA 0.2744）。原因是 tiny-SD 的 VAE 為隨機
@@ -1417,7 +1417,7 @@ def test_BDIA下零殘差的重建等於VAE的來回(sd, x01):
     它由構造成立，在任何模型上都可驗證。
 
     真實 SD 上這條的意義是：重建地板由 LPIPS 0.194 降到 VAE 來回的 0.143，
-    **不是降到零**。像素側加性位置實際運作在 0.063，故此路徑仍未解封。
+    不是降到零。像素側加性位置實際運作在 0.063，故此路徑仍未解封。
     """
     k = 4
     mod = _latent_module(sd, k)

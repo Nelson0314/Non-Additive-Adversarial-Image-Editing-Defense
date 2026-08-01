@@ -10,7 +10,7 @@ E15 的宣稱是「匹配 LPIPS 後 site S 領先 site P 約 1.15×」。E20 證
 - `P`：加性基準。E20 實測它在新約束下 6/6 可行，故其結果應與 E15 幾乎相同；
   若不同，代表管線被改壞了，這是本報告的完整性檢查。
 
-**淨額（net）的定義沿用 E15**：`edit_lpips − ctrl_lpips`，即扣掉淨化本身
+淨額（net）的定義沿用 E15：`edit_lpips − ctrl_lpips`，即扣掉淨化本身
 造成的偏移後歸因於防禦的部分。取未見種子（heldout）。
 """
 
@@ -74,7 +74,7 @@ def net_of(run: Path) -> dict:
     return out
 
 
-# `max_disp` 逐分量夾在 ±1.5，故位移**量值**的上界是 1.5√2。E15 實測數張
+# `max_disp` 逐分量夾在 ±1.5，故位移量值的上界是 1.5√2。E15 實測數張
 # 影像的 disp_max_px 正好等於此值，即該處兩個分量都飽和。bicubic 要達到
 # 同一 LPIPS 需要更大的位移（E20 §5.1：+54%），上界可能綁得更緊，那會使
 # 兩臂不對等。故本報告必須列出貼頂比例，不能只報平均。
@@ -164,7 +164,7 @@ def main() -> None:
         o, nw = net_of(old), net_of(new)
         of, nf = fidelity_of(old), fidelity_of(new)
         s = (f"site {site}: net {np.mean(o['net']):.4f} → {np.mean(nw['net']):.4f} "
-             f"({100*(np.mean(nw['net'])/np.mean(o['net'])-1):+.1f}%)， "
+             f"({100*(np.mean(nw['net'])/np.mean(o['net'])-1):+.1f}%)，"
              f"銳利度 {np.mean(of['acutance']):.3f} → {np.mean(nf['acutance']):.3f}")
         print(s)
         lines.append(s)
@@ -188,7 +188,7 @@ def main() -> None:
 
     (OUT / "report.txt").write_text("\n".join(lines), encoding="utf-8")
     print()
-    print("比值只有在該臂**全部影像可行**時才可解讀；不可行的臂其 net 是靠")
+    print("比值只有在該臂全部影像可行時才可解讀；不可行的臂其 net 是靠")
     print("鈍化換來的，與 E15 的 1.15× 屬於同一類無效比較。")
     print(f"「貼頂」= disp_max_px 觸及 max_disp 的量值上界 {DISP_CAP:.3f}（逐分量夾 ±1.5）。")
     print("若 bicubic 臂貼頂張數明顯較多，代表它被位移上界綁住而非被保真約束綁住，")

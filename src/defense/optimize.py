@@ -3,7 +3,7 @@
 每張影像獨立優化一組 φ。防禦者擁有原圖與完整權重（spec §2 威脅模型），
 故逐圖優化符合威脅模型，不需泛化到未見影像。
 
-**成本模型（E0 實測，V100 32GB, SD v1-4, 512², fp32, UNet+VAE checkpoint）**：
+成本模型（E0 實測，V100 32GB, SD v1-4, 512², fp32, UNet+VAE checkpoint）：
 
     seconds ≈ 1.05 + 0.384·k_inv + 0.304·n_edit·n_eot
     peak    ≈ 9.95 GB，於 k_inv、n_edit ∈ [5,50] 幾乎不變
@@ -33,7 +33,7 @@ class OptimConfig:
     t_max: Optional[int] = None   # inversion 的 timestep 上限，見 E0c
     # True 改用 BDIA 精確反演（arXiv 2307.10829）取代 DDIM。tiny-SD 實測
     # latent 空間來回誤差由 1.41 降到 1.37e-04（k=20, t_max=500）。
-    # **影像空間的地板不會歸零**：VAE 編解碼來回誤差（真實 SD 實測
+    # 影像空間的地板不會歸零：VAE 編解碼來回誤差（真實 SD 實測
     # 27.51 dB / LPIPS 0.143）與反演無關，BDIA 不觸及該項。預期效果是把
     # 重建地板由 LPIPS 0.194 降到 0.143，仍高於像素側加性位置實際運作的
     # 0.063，故此旗標是量測反演佔地板多少的工具，不是解除封鎖的萬靈丹。
@@ -70,7 +70,7 @@ class OptimConfig:
     # 理由見 align() 的 docstring：重建對齊是逐像素準確度確實重要的場合。
     align_gamma_psnr: float = 1.0
     strength: float = 0.5
-    # site S 專用：位移場的硬上界，單位為**像素**。空間變形的保真度預算是
+    # site S 專用：位移場的硬上界，單位為像素。空間變形的保真度預算是
     # 位移量而非 L∞（把一條邊緣移動一像素，L∞ 可接近 1.0 卻幾乎看不出來），
     # 故此值必須與 tau_lpips 併列記錄，才能說清楚該格的失真預算是什麼。
     warp_max_disp: float = 1.5
@@ -80,20 +80,20 @@ class OptimConfig:
     # site C 專用：色度矩陣場偏離單位陣的硬上界。與 warp_max_disp 同一角色
     # ——本位置的保真度預算是矩陣偏離量而非 L∞，故必須與 tau_lpips 併列記錄。
     color_max_dev: float = 0.15
-    # 攻擊方的 classifier-free guidance 權重。**預設 1.0 只為了讓 E2–E23 的
-    # 數字可重現，它不是正確的威脅模型**：E26 實測 w=1 時 SD v1.4 幾乎不服從
+    # 攻擊方的 classifier-free guidance 權重。預設 1.0 只為了讓 E2–E23 的
+    # 數字可重現，它不是正確的威脅模型：E26 實測 w=1 時 SD v1.4 幾乎不服從
     # prompt，該設定下的「編輯」與「什麼都沒做」在指標上分不出來（Δclip
     # +0.0116，而對照的噪聲範圍是 ±0.0169）。新實驗一律指定 7.5。
     # 見 docs/RESULTS_E25-E26.md §3。
     guidance_scale: float = 1.0
 
     # ---- 停止準則 ----
-    # **預設 False 使 `steps` 維持既有語意（跑滿），既有 53 個 run 可重現。**
+    # 預設 False 使 `steps` 維持既有語意（跑滿），既有 53 個 run 可重現。
     # 開啟後 `steps` 變成上限，實際步數由 `plateau_stop` 決定，見該函式的
     # docstring 與 docs/RESULTS_E21-E22.md §5.4。正式重跑必須開啟。
     stop_on_plateau: bool = False
     stop_patience: int = 20     # 觀察窗長度，切成前後兩半比較改善量
-    # `edit_shift` 每步的**絕對**改善量門檻，低於此值視為進展已停。
+    # `edit_shift` 每步的絕對改善量門檻，低於此值視為進展已停。
     # 1e-4 的來源：E23 實測 site P 在 25→100 步之間平均每步改善 5.4e-4 且
     # 末端仍在上升，該格必須被判為未收斂；1e-4 比它低一個量級。
     # 用絕對量而非相對率的理由見 `plateau_stop` 的 docstring。
@@ -104,9 +104,9 @@ class OptimConfig:
     # "entropy"    — 直接把分佈推向均勻（瓦解綁定本身，不需要參考分佈）
     # "suppress"   — 降低內容 token 分到的注意力質量（需要 attn_content_only）
     #
-    # **預設由 "divergence" 改為 "suppress"（2026-08-01，E25）。** divergence
+    # 預設由 "divergence" 改為 "suppress"（2026-08-01，E25）。divergence
     # 在 φ=0 的梯度精確為零（KL 在最小值處），最佳化永遠離不開起點，拿它去
-    # 跑會安靜地什麼都不做（E20 §9 實測 grad_norm = 0.000e+00）。留著它是為了
+    # 跑會不會產生任何更新（E20 §9 實測 grad_norm = 0.000e+00）。留著它是為了
     # 讓該缺陷有具名的位置與釘住它的測試，但它不該是預設。suppress 的最佳點
     # 不在 φ=0，故起步梯度非零，見 src/models/attention.py 的同名函式。
     attn_mode: str = "suppress"
@@ -128,7 +128,7 @@ class OptimConfig:
 def active_constraint_keys(loss_cfg: LossConfig) -> tuple:
     """回傳「係數非零、因而真的會綁住優化」的 hinge 對應的記錄鍵。
 
-    **不能寫死成 LPIPS 與鈍化那兩道。** `fidelity_term` 一律計算並記錄全部
+    不能寫死成 LPIPS 與鈍化那兩道。`fidelity_term` 一律計算並記錄全部
     四道 hinge 的懲罰值，但係數為零的那幾道不進梯度、不構成約束。反過來，
     係數非零的任何一道都可能是實際綁住這一格的那道——tiny-SD 的端到端測試
     即出現 `pen_lpips = pen_acut = 0` 而 `pen_linf = 0.098`（×100 = 9.8，
@@ -164,28 +164,28 @@ def plateau_stop(
 ) -> tuple:
     """該不該停？回傳 (要不要停, 原因)。
 
-    **固定步數是錯的協議。** E21–E23 §5.4 量出的問題：兩個 site 的 φ 量綱不同
+    固定步數是錯的協議。E21–E23 §5.4 量出的問題：兩個 site 的 φ 量綱不同
     （site S 是位移像素、site P 是像素值），學習率也不同，故「同樣跑 N 步」
     對兩者從來不是同一件事。實測後果是每一格被不同的東西綁住——τ=0.10 沒有
     任何一格碰到失真預算、末端 6/6 仍在上升，那一格量到的是「25 步走到哪裡」
     而不是「該方法在此預算下的能力」；而 τ=0.05 由 25 步改到 100 步後，
     site S 對 site P 的比值由 1.14× 反轉為 0.85×。
 
-    匹配失真的比較要求每一格都**被同一道約束綁住**且**已在該約束下收斂**。
+    匹配失真的比較要求每一格都被同一道約束綁住且已在該約束下收斂。
     故停止準則有兩個條件，缺一不可：
 
-    1. **約束確實啟動過**（觀察窗內某一步的 LPIPS 或鈍化懲罰大於零）。沒有
+    1. 約束確實啟動過（觀察窗內某一步的 LPIPS 或鈍化懲罰大於零）。沒有
        這一條，一格可能因為還沒碰到預算就「收斂」，那是步數不足不是收斂。
-    2. **進展已停**（觀察窗後半的 `edit_shift` 相對前半的改善低於 `tol`）。
+    2. 進展已停（觀察窗後半的 `edit_shift` 相對前半的改善低於 `tol`）。
 
     監看 `edit_shift` 而非 `L_def`：後者是 hinge 過的，飽和後恆為 0，看不出
     偏移還在不在增加（見 `objective.py` 的 `__call__`）。
 
-    **`tol` 是每步的絕對改善量，不是相對改善率。** 初版寫的是相對量
+    `tol` 是每步的絕對改善量，不是相對改善率。初版寫的是相對量
     `(b − a) / max(|a|, 1e-8)`，在 `edit_shift` 接近零時分母趨近零、判定被
     噪聲主導——tiny-SD 的端到端煙霧測試中 shift 在 1e-4 量級來回抖動，
     相對改善動輒 ±0.16，40 步跑滿都不會停。改用絕對量的理由不只是數值穩定：
-    `edit_shift` 是 LPIPS 距離，其尺度**跨 site 相同**（那正是選它當監看量的
+    `edit_shift` 是 LPIPS 距離，其尺度跨 site 相同（那正是選它當監看量的
     原因），故絕對門檻在兩個 site 上意義一致，而相對門檻會讓 shift=0.02 與
     shift=0.2 的「收斂」定義不同。
 
@@ -250,7 +250,7 @@ class OptimResult:
     seconds: float = 0.0
     steps_done: int = 0
     # 停止的原因。空字串表示跑滿 `steps`（即上限用盡而非收斂），該格
-    # **不可用於跨 site 比較**——那正是 E21–E23 §5.4 的問題。
+    # 不可用於跨 site 比較——那正是 E21–E23 §5.4 的問題。
     stop_reason: str = ""
 
 
@@ -268,9 +268,9 @@ def align(
     保真度。`x_base=None` 使兩道 hinge 的對象為原圖本身；hinge 在容差內
     不施力是此處要的行為——對齊到 τ 以內即停止，不必把重建誤差壓到零。
 
-    **但係數與階段二不同：`gamma_psnr` 由 `cfg.align_gamma_psnr` 覆蓋。**
+    但係數與階段二不同：`gamma_psnr` 由 `cfg.align_gamma_psnr` 覆蓋。
     防禦階段把 PSNR 移出梯度是對的（逐像素平方誤差與人眼可辨性關聯薄弱，
-    見 objective 的修訂之二），但**重建對齊正是逐像素準確度確實重要的場合**，
+    見 objective 的修訂之二），但重建對齊正是逐像素準確度確實重要的場合，
     同一組係數不該同時適用兩者。
 
     這是 E9 直接量到的問題：200 步對齊後 car_00 的 LPIPS 由 0.2032 降到
@@ -278,7 +278,7 @@ def align(
     （22.28 → 20.44）。PSNR 當時完全不在損失裡，那些數字反映的是自由漂移，
     不是容量限制，因此無法用來判斷任何事。
 
-    **這個階段可能失敗**，而失敗本身是結果：低秩 ε 注入未必有足夠容量吸收
+    這個階段可能失敗，而失敗本身是結果：低秩 ε 注入未必有足夠容量吸收
     VAE 與 DDIM 的重建誤差。E9 實測 car_01 在第 50 步即停在 LPIPS 0.166，
     其後 150 步無改善——那是容量天花板，不是步數不足。回傳的 history 記錄
     逐步的 LPIPS 與 PSNR，呼叫端據此判斷，不得假設對齊必然成功。
@@ -304,8 +304,8 @@ def align(
 
         # 保留軌跡最佳的 φ，最後還原它，而不是拿最後一步的。
         #
-        # E12 實測 8 個 (載體 × 影像) 組合中有 7 個的最後一步**比自己的最佳
-        # 值差**，且劣化幅度隨參數量遞增：site L（163,840 參數）+0.0316、
+        # E12 實測 8 個 (載體 × 影像) 組合中有 7 個的最後一步比自己的最佳
+        # 值差，且劣化幅度隨參數量遞增：site L（163,840 參數）+0.0316、
         # site W r=4（397,824）+0.0404、site W r=16（1,591,296）+0.0526。
         # 拿最後一步等於系統性低報每個載體的能力，而且低報的程度與參數量
         # 相關——那會讓「容量」與「優化穩定性」兩個變因無法分離。
@@ -508,7 +508,7 @@ def optimize(
     result.steps_done = len(result.history)
     if cfg.stop_on_plateau:
         if not result.stop_reason:
-            # 跑滿上限而非收斂。**這一格不可用於跨 site 比較**，理由與
+            # 跑滿上限而非收斂。這一格不可用於跨 site 比較，理由與
             # E21–E23 §5.4 相同：量到的是「走到哪裡」不是「能力」。
             result.stop_reason = ""
             print(f"  [stop] 用盡上限 {cfg.steps} 步仍未達停止準則，"
@@ -536,7 +536,7 @@ def optimize_encoder(
 
         min_φ  ‖E_vae(P(x_def)) − z_target‖²  +  λ_fid · L_fid(x_def, x)
 
-    **與 optimize() 是不同的方法，不是它的一個選項**，故獨立成一個函式：
+    與 optimize() 是不同的方法，不是它的一個選項，故獨立成一個函式：
     這裡完全沒有 SDEdit、沒有 y_orig、沒有編輯 prompt，共用同一個迴圈只會
     讓兩者的差異被埋在條件分支裡。
 
@@ -630,16 +630,16 @@ def optimize_crossattn(
 
         max_φ  E_t[ D( A(P(x_def), c, t), A(x, c, t) ) ]  −  λ_fid · L_fid
 
-    **著力點與 optimize() 不同。** optimize() 在輸出端量測「編輯結果被推開
+    著力點與 optimize() 不同。optimize() 在輸出端量測「編輯結果被推開
     多少」；此處直接作用在使文字編輯得以定位的機制上——UNet 的 cross-attention
     把每個 token 綁到影像的特定區域，綁定被破壞則編輯無從落點。
     （Xu et al., arXiv 2509.10359, ACM MM 2025 採取相同的著力點。）
 
-    **只做單步 UNet 前向，不走完整的 SDEdit 鏈。** 綁定是逐 timestep 的性質，
+    只做單步 UNet 前向，不走完整的 SDEdit 鏈。綁定是逐 timestep 的性質，
     在取樣到的 t 上把它破壞掉即可，不需要把整條 n_edit 步的鏈跑完。成本因此
     由 `0.304·n_edit`（10 步）降為 `attn_timesteps` 次單步前向。
 
-    **這條前向不能開 UNet checkpoint。** 實測（tiny-SD）：開了之後 backward
+    這條前向不能開 UNet checkpoint。實測（tiny-SD）：開了之後 backward
     以 RuntimeError 中止，訊息為
 
         A different number of tensors was saved during the original forward

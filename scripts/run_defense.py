@@ -3,8 +3,8 @@
 對 (影像 × site × 秩) 的每一格優化一組 φ，然後在 E3 的淨化強度掃描下以
 spec §8.1 的全部八項指標評測，並依 §8.3 留存全部影像產出。
 
-**兩軸因子設計的用途**（spec §6.4）：site P 是低秩**加性**、site L 是低秩
-**非加性**。兩者的對比切割「秩」與「非加性」這兩個對耐淨化性的競爭解釋：
+兩軸因子設計的用途（spec §6.4）：site P 是低秩加性、site L 是低秩
+非加性。兩者的對比切割「秩」與「非加性」這兩個對耐淨化性的競爭解釋：
 
 - P 亦耐淨化 ⟹ 機制是秩結構
 - P 不耐而 L 耐 ⟹ 機制是非加性
@@ -93,7 +93,7 @@ def build_module(site: str, rank: int, cfg: OptimConfig, sd, size: int, seed: in
         # 呼叫端介面一致；掃描時以 --ranks 0 表示「不適用」較不易誤讀。
         return FullRankPixelResidual(size=size, channels=3, seed=seed)
     if site == "W":
-        # 掛在 SD 的 UNet 上，故呼叫端**必須**在該格結束後呼叫 module.remove()，
+        # 掛在 SD 的 UNet 上，故呼叫端必須在該格結束後呼叫 module.remove()，
         # 否則 hook 會累積到下一格，症狀是「另一個 site 的結果莫名被改動」。
         return WeightResidual(sd.unet, rank=rank, seed=seed)
     if site == "E":
@@ -111,7 +111,7 @@ def build_module(site: str, rank: int, cfg: OptimConfig, sd, size: int, seed: in
             max_rank=rank, const_rank=rank, seed=seed,
         )
     if site == "S":
-        # 空間變形。此處 rank 引數被重新解釋為**位移場的控制網格邊長**：
+        # 空間變形。此處 rank 引數被重新解釋為位移場的控制網格邊長：
         # 掃描介面沿用 --ranks 不另開旗標，但報告中必須寫成 grid_size，
         # 因為本位置沒有低秩結構，寫成「秩」會誤導。
         return WarpResidual(
@@ -120,7 +120,7 @@ def build_module(site: str, rank: int, cfg: OptimConfig, sd, size: int, seed: in
             resample=cfg.warp_resample,
         )
     if site == "C":
-        # 色度矩陣場。與 site S 同，rank 引數在此被重新解釋為**控制網格邊長**；
+        # 色度矩陣場。與 site S 同，rank 引數在此被重新解釋為控制網格邊長；
         # 報告中必須寫成 grid_size，本位置沒有低秩結構。
         return ColorResidual(
             size=size, grid_size=(rank if rank > 0 else None),
@@ -144,9 +144,9 @@ def evaluate(sd, suite, x01, x_def, cfg, prompt, out_dir, save_images=True):
     """E3 淨化強度掃描 + spec §8.1 全指標。
 
     兩條分支共用同一個 ε（spec §5.1）：否則量到的偏移主要來自噪聲差異。
-    評測階段一律使用淨化的**真實實作**，不用訓練時的可微代理。
+    評測階段一律使用淨化的真實實作，不用訓練時的可微代理。
 
-    **噪聲以未見過的種子取樣**（見 EVAL_SEED_OFFSET）。另外在 identity
+    噪聲以未見過的種子取樣（見 EVAL_SEED_OFFSET）。另外在 identity
     淨化下額外量一次訓練用的種子，兩者之差即為對特定噪聲的過擬合幅度，
     以 `noise_split` 欄位區分，報告中必須併列。
     """
@@ -169,7 +169,7 @@ def evaluate(sd, suite, x01, x_def, cfg, prompt, out_dir, save_images=True):
         save_image(y_orig_tr, out_dir / "edit_orig_trainnoise.png")
 
     def measure(xp, nz, y_ref, kind, strength, split, x_ctrl=None):
-        """`x_ctrl` 為**未防禦**的對照輸入（同一淨化施加於原圖）。
+        """`x_ctrl` 為未防禦的對照輸入（同一淨化施加於原圖）。
 
         必要性：spec §5.1 的 `d(E(P(x_def)), E(x))` 把淨化本身造成的偏移
         也算成防禦效果。`P(x) ≠ x`，故即使 φ=0，模糊或 JPEG 也會讓編輯結果
@@ -204,7 +204,7 @@ def evaluate(sd, suite, x01, x_def, cfg, prompt, out_dir, save_images=True):
     for kind, plist in eval_sweep().items():
         for pur in plist:
             xp = pur.evaluate(x_def)
-            # 對照輸入：同一個淨化算子施加於**原圖**，φ 完全沒有參與
+            # 對照輸入：同一個淨化算子施加於原圖，φ 完全沒有參與
             y_def, row = measure(
                 xp, noise, y_orig, kind, pur.strength, "heldout",
                 x_ctrl=pur.evaluate(x01),
@@ -228,7 +228,7 @@ def evaluate_generalization(sd, suite, x01, x_def, cfg, prompts, strengths):
     攻擊者可以自由更換的，任何一項換掉就失效的防禦沒有意義。此處量前兩項
     （prompt 與強度），第三項（編輯步數）由 cfg.n_edit 控制、另行掃描。
 
-    **只在無淨化下量。** 完整的 (prompt × 強度 × 23 個淨化設定) 是 138 條
+    只在無淨化下量。完整的 (prompt × 強度 × 23 個淨化設定) 是 138 條
     編輯鏈，成本不成比例；泛化性與耐淨化性是兩個獨立的問題，先分開回答。
 
     每個組合仍然扣掉未防禦對照：換 prompt 或強度本身就會改變編輯結果，
@@ -333,7 +333,7 @@ def main():
         choices=["divergence", "entropy", "suppress"],
         help="suppress=降低內容 token 分到的注意力質量（預設）；"
              "entropy=把分佈推向均勻；"
-             "divergence=把分佈推離原圖的（**φ=0 時梯度恆為零，跑了不會動**，"
+             "divergence=把分佈推離原圖的（φ=0 時梯度恆為零，跑了不會動，"
              "見 docs/RESULTS_E20_fidelity.md §9）",
     )
     ap.add_argument(
@@ -375,7 +375,7 @@ def main():
     ap.add_argument(
         "--margin", type=float, default=LossConfig.margin,
         help="防禦 hinge 的 margin。偏移超過它之後防禦項不再施力，優化轉去"
-             "改善保真項。**它必須大到不成為綁定者**：E27 實測 w=7.5 下 "
+             "改善保真項。它必須大到不成為綁定者：E27 實測 w=7.5 下 "
              "site C 的 edit_shift 已達 0.44–0.49，逼近預設的 0.5，於是 LPIPS "
              "hinge 只啟動 1–8/60 步，兩臂會停在各自不同的失真上而非匹配失真",
     )
@@ -604,7 +604,7 @@ def main():
                 # 矩陣偏離量，都不是像素差值；少了這幾欄，「該格實際用掉多少
                 # 預算」在 csv 裡完全看不出來。
                 #
-                # **這不是可有可無的診斷欄位。** E27 的 site C 學習率校準中，
+                # 這不是可有可無的診斷欄位。E27 的 site C 學習率校準中，
                 # 三個 lr 全部出現「LPIPS hinge 0/60 步啟動」——真正綁住的是
                 # max_dev 硬上界而非保真約束，於是 τ 這條軸對該位置完全不起
                 # 作用。當時 color_stats 還沒接進來，這件事在 results.csv 裡

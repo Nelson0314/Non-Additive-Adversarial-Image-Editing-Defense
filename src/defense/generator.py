@@ -5,7 +5,7 @@
 - 提供 `pixel_residual` → 直接取得防禦圖（site P）
 - 提供 `eps_hook`      → 走 inversion + 去噪路徑（site L、site W）
 
-**效率設計**：inversion 段殘差模塊關閉，故 z_{k_inv} 不依賴 φ，可在優化
+效率設計：inversion 段殘差模塊關閉，故 z_{k_inv} 不依賴 φ，可在優化
 開始前計算一次並快取，省去每個 iteration 一條 k_inv 步的 UNet 前向。
 快取由 `prepare()` 產生、`generate()` 接收。
 """

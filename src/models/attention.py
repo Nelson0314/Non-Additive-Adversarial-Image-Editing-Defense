@@ -1,26 +1,26 @@
 """擷取 UNet 的 cross-attention 分佈 — 供「破壞文字與影像的綁定」目標使用。
 
-**這個目標在攻擊什麼**
+這個目標在攻擊什麼
 
 文字引導編輯之所以能改動指定的內容，是因為 UNet 的 cross-attention 把
 prompt 的每個 token 綁定到影像的特定區域：query 來自影像 latent 的空間
 位置，key/value 來自文字嵌入，softmax 後的分佈 A[q, τ] 決定「第 q 個位置
-要聽第 τ 個 token 的」。既有的目標函數把**編輯結果**推離原編輯，是在輸出
+要聽第 τ 個 token 的」。既有的目標函數把編輯結果推離原編輯，是在輸出
 端量測；此處改為在該綁定本身上施力（Xu et al., "Immunizing Images from
 Text to Image Editing via Adversarial Cross-Attention", arXiv 2509.10359，
 ACM MM 2025 採取相同的著力點）。
 
-**擷取方式：forward pre-hook，不換 attention processor**
+擷取方式：forward pre-hook，不換 attention processor
 
 換掉 processor 會連帶改變 UNet 自己的注意力計算路徑（SDPA 融合核心改為
 展開的 QKᵀ），數值與記憶體行為都會變，於是「有沒有開這個目標」就不再是
-單一變因。此處改用 forward pre-hook 只**讀取**該層的輸入，再以該層自己的
+單一變因。此處改用 forward pre-hook 只讀取該層的輸入，再以該層自己的
 `to_q` / `to_k` / `get_attention_scores` 另算一次注意力分佈。UNet 的前向
 完全不受影響，代價是每層多一次 q、k 投影與一次 QKᵀ。
 
 SD v1.4 的 attn2 其 `group_norm` 與 `norm_cross` 均為 None（實測），但此處
 仍照 diffusers `AttnProcessor.__call__` 的順序處理該兩者，否則換模型時會
-安靜地算出不同的東西。
+算出不同的東西。
 """
 
 from typing import List, Optional
@@ -169,24 +169,24 @@ def attention_content_suppression(
 ) -> torch.Tensor:
     """1 − 內容 token 分到的注意力質量，逐層算完再平均。越大代表綁定越弱。
 
-    **這個模式存在的理由是 `divergence` 從 φ=0 起不了步。** KL(A_φ ‖ A_ref) 在
-    φ=0 時兩個分佈逐元素相同，KL = 0，而 0 是 KL 的**最小值**，故梯度在該點
+    這個模式存在的理由是 `divergence` 從 φ=0 起不了步。KL(A_φ ‖ A_ref) 在
+    φ=0 時兩個分佈逐元素相同，KL = 0，而 0 是 KL 的最小值，故梯度在該點
     精確為零（實測 grad_norm = 0.000e+00，見 `docs/RESULTS_E20_fidelity.md` §9
     與 `tests/test_pipeline.py::test_divergence模式在phi等於零時無梯度`）。
     任何「與未防禦參照的散度」形式的目標都有這個性質，換一種散度並不能解決。
 
-    解法是換一個**最佳點不在 φ=0** 的量。此處取內容 token 分到的注意力質量：
+    解法是換一個最佳點不在 φ=0 的量。此處取內容 token 分到的注意力質量：
     它在 φ=0 時是一個由影像與 prompt 決定的中間值，不是極值，故梯度一般非零。
     這也正是 cross-attention 免疫那條線的著力點（Xu et al., arXiv:2509.10359；
     *Dual Attention Guided Defense*, arXiv:2512.14333）——降低 prompt 內容與
     影像區域之間的注意力質量，而不是把分佈推離某個參照。
 
-    質量取 softmax 後**未重新正規化**的和，故值域為 [0, 1]，本量亦然。有界
+    質量取 softmax 後未重新正規化的和，故值域為 [0, 1]，本量亦然。有界
     使它不需要 hinge：無界的最大化才會發散（見 `objective.py` 的 L_def）。
 
     `span` 為必要參數而非可選。沒有內容 token 時本目標沒有定義，靜默落回
     「全部 77 格」會得到恆等於 0 的常數（全部 token 的質量和恆為 1），
-    最佳化會安靜地什麼都不做——那正是本模式要修掉的失效。
+    最佳化會不會產生任何更新——那正是本模式要修掉的失效。
     """
     if span is None:
         raise ValueError(

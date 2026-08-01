@@ -1,20 +1,20 @@
 """E26 —— 攻擊端本身有沒有在做文字引導編輯？
 
-**這個腳本存在的理由。** 使用者判讀 `runs/p5_semantic_axis/compare.html` 後
+這個腳本存在的理由。使用者判讀 `runs/p5_semantic_axis/compare.html` 後
 回報：「連原始圖片被文字編輯都沒有成功，然後有無防禦的圖編輯後長的都差不多，
 一樣都很爛。」若成立，則 E2–E23 全部是在防禦一個不存在的攻擊。
 
-程式碼層面的根因是明確的：`src/models/sd.py` 的 `_eps` 只以**條件嵌入**呼叫
+程式碼層面的根因是明確的：`src/models/sd.py` 的 `_eps` 只以條件嵌入呼叫
 一次 UNet，全專案 `grep guidance|uncond|cfg_scale|do_classifier` 沒有任何命中。
 Stable Diffusion v1.x 是在 classifier-free guidance 下訓練也在其下使用的，
 w = 1 時 prompt 對輸出的影響極弱。
 
-本腳本以**本機快取的真實 SD v1.4**（4.27 GB，CPU）直接量出 w 的影響：
+本腳本以本機快取的真實 SD v1.4（4.27 GB，CPU）直接量出 w 的影響：
 
 - 對每張影像跑 SDEdit，掃 `guidance_scale ∈ {1.0, 3.0, 7.5}`（strength 0.5）
   以及 `strength ∈ {0.5, 0.7}`（w=7.5），其餘設定與 E15/E21/E23 相同。
 - 量三件事：對 prompt 的 CLIP / SigLIP 對齊、對原圖的 LPIPS、以及影像本身。
-- 判準與 E25-1 相同：**編輯成功**要求對齊度相對原圖顯著上升。
+- 判準與 E25-1 相同：編輯成功要求對齊度相對原圖顯著上升。
 
 輸出 `runs/p7_attack_sanity/{probe.csv, *.png, compare.html}`。
 

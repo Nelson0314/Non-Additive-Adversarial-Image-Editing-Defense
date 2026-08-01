@@ -1,6 +1,6 @@
 """spec §8.1 的八項指標。
 
-**設計主張**：任何 `edit(orig)` vs `edit(defend)` 或 `x_def` vs `x` 的比較都
+設計主張：任何 `edit(orig)` vs `edit(defend)` 或 `x_def` vs `x` 的比較都
 必須同時報出全部八項，不得只報單一指標。此要求來自 v2 的實測：apa 方法的
 LPIPS 與 pg_enc 幾乎相同，PSNR 卻相差 12.7 dB、L∞ 相差 28 倍。單一 LPIPS
 會低估非加性方法造成的失真，據以下結論會有系統性偏差。
@@ -17,7 +17,7 @@ LPIPS 與 pg_enc 幾乎相同，PSNR 卻相差 12.7 dB、L∞ 相差 28 倍。�
 | CLIP   | 語意   | 高者佳 | openai/clip-vit-base-patch32 |
 | SigLIP | 語意   | 高者佳 | google/siglip-base-patch16-224 |
 
-**2026-07-31 新增銳利度保留率（第 9 項）。** before：`pairwise` 回傳
+2026-07-31 新增銳利度保留率（第 9 項）。before：`pairwise` 回傳
 psnr/linf/ssim/lpips/dists 五項。after：加上 `acutance_ratio`。原因是 E18 的
 人眼比對發現一個兩個感知指標都沒抓到的現象——latent 最佳化後的影像「不差，
 但比較鈍」。實測銳利度由地板的 95.7% 掉到 84.3%，而 LPIPS 六張全判改善、
@@ -27,7 +27,7 @@ DISTS 只對其中三張報退步且與鈍化程度不對應（dog_01 鈍化到 
 
 CLIP 與 SigLIP 兩個語意指標都納入，是為了避免單一視覺語言模型的偏誤主導
 語意層面的結論。兩者的分數尺度不同（CLIP 為餘弦相似度、SigLIP 為 sigmoid
-校準過的 logit），**不可互相比較絕對值**，只能各自比較組間差異。
+校準過的 logit），不可互相比較絕對值，只能各自比較組間差異。
 
 模型權重載入一次後常駐，`MetricSuite` 應在整個實驗中共用同一個實例。
 """
@@ -88,7 +88,7 @@ class MetricSuite:
     def pairwise(self, a: torch.Tensor, b: torch.Tensor) -> Dict[str, float]:
         """a 與 b 的成對指標。NIQE 另計。
 
-        **銳利度不對稱**：`acutance_ratio` 是 b 相對 a 的比值，故 a 必須是
+        銳利度不對稱：`acutance_ratio` 是 b 相對 a 的比值，故 a 必須是
         參照（原圖）、b 是待評影像。其餘各項對調不變，此項會變成倒數。
         """
         import piq

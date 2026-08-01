@@ -116,6 +116,37 @@ PSNR hinge 改為 γ = 0.0，即**保留計算與記錄但不參與梯度**。�
 
 處置與 PSNR 地板相同：**保留計算與記錄但係數歸零**。刪掉會失去與既有 36 格
 結果的對照基準，留著係數則可一行復原。
+
+**相對 spec §5.2 的修訂之四（2026-08-01，E27：原始 LPIPS 項可關閉）**：
+
+    修訂前（本檔 line 329-336）
+        total = lpips + α·(1−ssim) + β·pen_linf + γ_l·pen_lpips
+                      + γ_a·pen_acut + γ·pen_psnr
+
+    修訂後
+        alpha_lpips: float = 1.0          ← 新增係數，預設維持既有行為
+        total = α_l·lpips + α·(1−ssim) + β·pen_linf + γ_l·pen_lpips
+                          + γ_a·pen_acut + γ·pen_psnr
+
+修訂之三導入交集式 hinge 的理由是「加權和永遠可以用便宜的軸換貴的軸，交集式
+的可行域不允許這種交換」，但當時只加了 hinge，**沒有拿掉那個係數為 1 的原始
+`lpips` 項**，於是保真項仍有一半是加權和。
+
+後果由 E27 在 H100 上實測到（`runs/e27c_*`，w=7.5、margin=1.0、
+`color_max_dev=2.0`、`beta_linf=0`，即所有其他候選綁定者都已排除）：
+
+| 臂 | 末端 LPIPS | τ | LPIPS hinge 啟動 |
+|---|---|---|---|
+| site C lr=0.1 | 0.0323–0.0361 | 0.05 | 1–2/60 |
+| site C lr=0.3 | 0.0307–0.0447 | 0.05 | 8/60 |
+| site P lr=0.008 | 0.0398–0.0402 | 0.05 | 0/60 |
+
+原始項是一個持續把失真往零拉的力，最佳化停在「邊際防禦收益 = 邊際 LPIPS
+成本」的平衡點，而該點在 τ 之下。**τ 因此不是綁定的那道約束**，兩臂各自停在
+不同的失真上，「在匹配失真下比較」不成立。
+
+`alpha_lpips = 0` 之後 LPIPS 在 τ 以內完全免費，最佳化會把預算用滿，τ 才真正
+成為匹配軸。預設維持 1.0 使 E2–E27 的既有數字可重現；正式重跑一律用 0。
 """
 
 from dataclasses import dataclass, field
@@ -156,6 +187,20 @@ class LossConfig:
     # 等 LPIPS 下把雜訊判得比模糊貴約 2 倍，留在梯度裡等於補貼模糊。保留
     # 係數與逐步記錄，可一行復原。
     alpha_ssim: float = 0.0
+    # 原始 LPIPS 項的係數（不是 hinge，是 L_fid 裡那個直接相加的 lpips）。
+    #
+    # **預設 1.0 只為了讓 E2–E27 的既有數字可重現，它與 E20 的設計意圖相衝突。**
+    # E20 導入交集式 hinge 的理由是「加權和永遠可以用便宜的軸換貴的軸，交集式
+    # 的可行域不允許這種交換」，但當時只加了 hinge，沒有拿掉這個原始項，於是
+    # 保真項仍有一半是加權和。後果由 E27 實測：該項是一個持續把失真往零拉的
+    # 力，最佳化停在「邊際防禦收益 = 邊際 LPIPS 成本」的平衡點，而該點在 τ
+    # 之下——site C 末端 LPIPS 0.031–0.045、site P 0.040，τ=0.05 的 hinge 在
+    # 60 步中只啟動 0–8 步。τ 因此不是綁定的那道約束，兩臂停在各自不同的失真
+    # 上，「匹配失真的比較」不成立。
+    #
+    # 設為 0 之後，LPIPS 在 τ 以內完全免費，最佳化會把預算用滿，τ 才真正成為
+    # 匹配軸。正式重跑一律用 0。
+    alpha_lpips: float = 1.0
     beta_linf: float = 100.0
     tau_linf: float = 0.06     # ≈ 15/255，對抗擾動文獻的常見上限量級
 
@@ -327,7 +372,7 @@ class DefenseObjective:
         pen_psnr = torch.clamp(c.psnr_floor - psnr, min=0.0)
 
         total = (
-            lpips
+            c.alpha_lpips * lpips
             + c.alpha_ssim * (1.0 - ssim)
             + c.beta_linf * pen_linf
             + c.gamma_lpips * pen_lpips

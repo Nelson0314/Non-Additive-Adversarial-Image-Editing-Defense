@@ -353,6 +353,13 @@ def main():
              "而非 L∞，故此值與 --tau_lpips 同等重要，兩者都會寫入 env.json",
     )
     ap.add_argument(
+        "--alpha_lpips", type=float, default=LossConfig.alpha_lpips,
+        help="L_fid 裡那個係數為 1 的原始 lpips 項（不是 hinge）。**設 0 才能"
+             "讓 τ 真正成為綁定的約束**：E27 實測留著它會讓最佳化停在 τ 之下"
+             "（末端 LPIPS 0.031–0.045、hinge 0–8/60 步啟動），兩臂各自停在"
+             "不同的失真上，匹配失真的比較不成立。預設 1.0 只為了可重現既有結果",
+    )
+    ap.add_argument(
         "--margin", type=float, default=LossConfig.margin,
         help="防禦 hinge 的 margin。偏移超過它之後防禦項不再施力，優化轉去"
              "改善保真項。**它必須大到不成為綁定者**：E27 實測 w=7.5 下 "
@@ -420,7 +427,7 @@ def main():
     # 參數，不能寫死在 LossConfig 的預設值裡。
     loss_cfg = LossConfig(tau_lpips=args.tau_lpips,
                           beta_linf=args.beta_linf, tau_linf=args.tau_linf,
-                          margin=args.margin,
+                          margin=args.margin, alpha_lpips=args.alpha_lpips,
                           defense_mode=args.defense_mode)
     # 有目標模式的目標影像。載入時機在迴圈外：它對 φ 與影像都是常數。
     y_target = None

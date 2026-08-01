@@ -25,20 +25,27 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 
-# 懲罰值鍵 → (人類可讀名稱, env.json 中對應的係數欄位)
+# 懲罰值鍵 → (人類可讀名稱, `loss` 區塊中對應的係數欄位)
+#
+# **每一道都必須填上自己的係數欄位。** 初版只給 L∞ 填了，其餘三道留 None，
+# 於是 `gamma_psnr=0`（保留計算與記錄但不參與梯度）的 PSNR 罰則被當成綁定者
+# ——實測把 site C 判成「PSNR hinge 56/60 步啟動」，而 PSNR 根本不在梯度裡。
+# 判定「誰綁住這一格」的前提就是只看真的進了梯度的那幾道。
 HINGES = [
-    ("fid_pen_lpips", "LPIPS", None),
-    ("fid_pen_acut", "鈍化", None),
+    ("fid_pen_lpips", "LPIPS", "gamma_lpips"),
+    ("fid_pen_acut", "鈍化", "gamma_acut"),
     ("fid_pen_linf", "L∞", "beta_linf"),
-    ("fid_pen_psnr", "PSNR", None),
+    ("fid_pen_psnr", "PSNR", "gamma_psnr"),
 ]
 
 
 def analyse(run_dir: Path) -> list:
     env = json.loads((run_dir / "env.json").read_text(encoding="utf-8"))
-    margin = env.get("margin", 0.5)
-    tau = env.get("tau_lpips")
-    beta_linf = env.get("beta_linf")
+    # 損失的係數與門檻在 `loss` 區塊裡（LossConfig 的完整傾印），不在頂層。
+    # 頂層只有驅動腳本自己的參數。
+    loss = env.get("loss", {})
+    margin = loss.get("margin", env.get("margin", 0.5))
+    tau = loss.get("tau_lpips")
     max_dev = env.get("color_max_dev")
     max_disp = env.get("warp_max_disp")
 
@@ -58,7 +65,7 @@ def analyse(run_dir: Path) -> list:
 
         engaged = {}
         for key, label, coef_field in HINGES:
-            if coef_field is not None and env.get(coef_field) == 0:
+            if coef_field is not None and loss.get(coef_field) == 0:
                 continue          # 係數為零的 hinge 不構成約束
             engaged[label] = sum(1 for x in h if x.get(key, 0.0) > 0.0)
 
@@ -122,7 +129,8 @@ def main() -> None:
           f"{'最佳shift':>10s}{'飽和':>8s}  判定")
     for r in rows:
         print(f"{r['run']:22s}{r['image']:>10s}{r['steps']:>4d}"
-              f"{r['tau_lpips']:>6}{r['final_lpips']:>9.4f}"
+              f"{r['tau_lpips'] if r['tau_lpips'] is not None else '?':>6}"
+              f"{r['final_lpips']:>9.4f}"
               f"{r['best_shift']:>10.4f}{r['saturated']:>8s}  {r['verdict']}")
 
     print("\n判定的優先序：硬上界 > 防禦 margin > 保真 hinge。前兩者一旦綁住，"

@@ -588,3 +588,39 @@ def test_編碼器目標在相同時為零且可微(obj):
     assert float(loss) > 0.0
     loss.backward()
     assert z.grad is not None and float(z.grad.abs().max()) > 0.0
+
+
+def test_alpha_lpips為零時原始項不進梯度():
+    """**E27 的修訂之四。** 交集式 hinge 的可行域不允許「用便宜的軸換貴的軸」，
+    但 L_fid 裡那個係數為 1 的原始 lpips 項仍是加權和的一半：它是一個持續把
+    失真往零拉的力，使最佳化停在 τ 之下，τ 因而不是綁定的約束。
+
+    實測（H100、w=7.5、其他候選綁定者全部排除）：site C 末端 LPIPS
+    0.031–0.045、site P 0.040，而 τ=0.05 的 hinge 在 60 步中只啟動 0–8 步。
+    """
+    import torch
+
+    from src.defense.objective import DefenseObjective, LossConfig
+
+    x = torch.rand(1, 3, 64, 64, device=DEV)
+    xd = (x + 0.02 * torch.randn_like(x)).clamp(0, 1)
+
+    # τ 遠大於實際失真，故兩道 hinge 都不啟動；此時總損失應只剩原始 lpips 項
+    cfg_on = LossConfig(alpha_lpips=1.0, tau_lpips=0.9, tau_acut=0.9,
+                        beta_linf=0.0, gamma_psnr=0.0, alpha_ssim=0.0)
+    cfg_off = LossConfig(alpha_lpips=0.0, tau_lpips=0.9, tau_acut=0.9,
+                         beta_linf=0.0, gamma_psnr=0.0, alpha_ssim=0.0)
+    on, parts = DefenseObjective(cfg_on, DEV).fidelity_term(xd, x)
+    off, _ = DefenseObjective(cfg_off, DEV).fidelity_term(xd, x)
+
+    assert float(on) == pytest.approx(parts["fid_lpips"], rel=1e-5)
+    assert float(off) == pytest.approx(0.0, abs=1e-6), (
+        "係數為 0 時，τ 以內的失真必須完全免費，否則最佳化不會把預算用滿")
+    assert float(on) > float(off)
+
+
+def test_alpha_lpips預設維持一():
+    """預設不得改動：E2–E27 的既有數字全部是在 alpha_lpips=1.0 下產生的。"""
+    from src.defense.objective import LossConfig
+
+    assert LossConfig().alpha_lpips == 1.0

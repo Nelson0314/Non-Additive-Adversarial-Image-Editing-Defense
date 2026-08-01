@@ -751,6 +751,85 @@ def test_有目標模式需要y_target(sd, x01):
                  default_train_set())
 
 
+def test_CFG_權重為一時與單分支逐位元相同(sd, x01):
+    """**既有 53 個 run 的可重現性靠這條。**
+
+    E26 為 `sdedit` 加上 classifier-free guidance。w = 1.0 必須精確等於原本的
+    單次前向，否則所有既有數字都不再可重現，連「舊結果錯在哪裡」都無從對照。
+    此處驗的是逐位元相同，不是近似相同：`_eps_cfg` 在 w == 1.0 時直接
+    `return self._eps(...)`，不走 eps_u + 1.0 * (eps_c − eps_u) 的算式——
+    後者在 float32 上不保證還原成 eps_c。
+    """
+    z = sd.encode_image(x01)
+    emb = sd.encode_text("a photo")
+    t = torch.tensor(200)
+    a = sd._eps(z, t, emb)
+    b = sd._eps_cfg(z, t, emb, 1.0)
+    assert torch.equal(a, b), "w=1.0 必須逐位元等於單分支前向"
+
+
+def test_CFG_缺少無條件嵌入時拒絕(sd, x01):
+    """靜默退回單分支等於把 w 悄悄變回 1，而那正是 E26 找到的缺陷。"""
+    z = sd.encode_image(x01)
+    emb = sd.encode_text("a photo")
+    with pytest.raises(ValueError, match="emb_uncond"):
+        sd._eps_cfg(z, torch.tensor(200), emb, 7.5)
+
+
+def test_CFG_算式正確且改變輸出(sd, x01):
+    """ε = ε(∅) + w·[ε(c) − ε(∅)]。以逐項重算驗證，不只驗「有變」。"""
+    z = sd.encode_image(x01)
+    emb = sd.encode_text("a wrecked car")
+    emb_u = sd.encode_text("")
+    t = torch.tensor(200)
+    w = 7.5
+
+    got = sd._eps_cfg(z, t, emb, w, emb_u)
+    eu, ec = sd._eps(z, t, emb_u), sd._eps(z, t, emb)
+    assert torch.allclose(got, eu + w * (ec - eu), atol=1e-6)
+    assert not torch.allclose(got, ec, atol=1e-4), "w=7.5 必須與單分支不同"
+
+
+def test_CFG_經sdedit後仍可微(sd, x01):
+    """CFG 走兩次 UNet 前向，梯度必須從兩條都回得來——防禦訓練要用它。"""
+    lat = sd.latent_shape(SIZE, SIZE)
+    noise = sd.sample_edit_noise(torch.empty(lat, device=DEV), seed=SEED)
+    emb = sd.encode_text("a wrecked car")
+    emb_u = sd.encode_text("")
+    x = x01.clone().requires_grad_(True)
+
+    y = sd.sdedit(x, emb, noise, 2, strength=0.5,
+                  guidance_scale=7.5, emb_uncond=emb_u)
+    y.pow(2).sum().backward()
+    assert x.grad is not None and x.grad.abs().sum() > 0
+
+
+def test_有目標模式端到端可訓練(sd, x01):
+    """**這條路徑至今從未被跑過。** `runs/` 全部 4882 列 `results.csv` 的
+    `defense_mode` 都是 `untargeted`（E25 清點）。而 `objective.py` 自己的
+    註解就寫了「無目標最大化在文獻上一貫比有目標脆弱」，並引用本專案實測的
+    3.3 倍噪聲過擬合。既然要用它，就必須先有一條釘住「它真的會動」的測試，
+    否則第一次在 GPU 上跑才發現不動，代價是整批機時。
+
+    斷言取結構性質而非收斂：tiny-SD 是隨機初始化的，四步之內的收斂行為不能
+    代表真實 SD（同 `test_低秩注入使編輯偏移增加` 的理由）。
+    """
+    mod = PixelResidual(size=SIZE, max_rank=4, const_rank=4, seed=SEED).to(DEV)
+    before = mod.tensor.V.detach().clone()
+    cfg = OptimConfig(steps=3, k_inv=2, n_edit=2, lr=0.1, log_every=100)
+    y_target = torch.rand(1, 3, SIZE, SIZE, device=DEV)
+
+    res = optimize(sd, mod, x01, cfg, LossConfig(defense_mode="targeted"),
+                   default_train_set()[:1], y_target=y_target)
+
+    assert res.history[0]["defense_mode"] == "targeted"
+    # 有目標的 L_def 是一個距離而非 hinge，故不會在起點就是 0——那正是它
+    # 比無目標穩的原因：損失地形有盆地，不是只有一個「往外走」的方向。
+    assert res.history[0]["L_def"] > 0.0
+    assert res.history[-1]["grad_norm"] > 0.0, "梯度未抵達 φ"
+    assert not torch.equal(before, mod.tensor.V), "φ 未被更新"
+
+
 def test_階段一還原軌跡最佳的phi而非最後一步(sd, x01):
     """E12 實測 8 個組合中 7 個的最後一步比自己的最佳值差，且劣化幅度隨
     參數量遞增（163,840 參數 +0.0316；1,591,296 參數 +0.0526）。拿最後一步
@@ -1097,6 +1176,72 @@ def test_均勻分佈的熵最大(sd):
     assert float(attention_entropy(uniform)) == pytest.approx(
         float(torch.tensor(float(n)).log()), rel=1e-4)
     assert float(attention_entropy(peaked)) < float(attention_entropy(uniform))
+
+
+def test_內容質量抑制的值域與方向(sd):
+    """suppress 量的是 1 − 內容 token 的注意力質量，故值域 [0,1]、越大綁定越弱。"""
+    from src.models.attention import attention_content_suppression
+
+    n, span = 16, (2, 6)          # 4 個內容 token，共 16 格
+    uniform = [torch.full((1, 4, n), 1.0 / n)]
+    on_content = [torch.zeros(1, 4, n)]
+    on_content[0][..., span[0]:span[1]] = 1.0 / (span[1] - span[0])
+    off_content = [torch.zeros(1, 4, n)]
+    off_content[0][..., 0] = 1.0
+
+    assert float(attention_content_suppression(uniform, span)) == pytest.approx(
+        1.0 - (span[1] - span[0]) / n, rel=1e-5)
+    assert float(attention_content_suppression(on_content, span)) == pytest.approx(
+        0.0, abs=1e-6), "質量全在內容 token 上時抑制為 0"
+    assert float(attention_content_suppression(off_content, span)) == pytest.approx(
+        1.0, abs=1e-6), "質量完全不在內容 token 上時抑制為 1"
+
+
+def test_內容質量抑制缺少span時拒絕(sd):
+    """落回全域不是「比較粗糙」而是「恆等於 0」，故必須拒絕而非靜默退回。"""
+    from src.models.attention import attention_content_suppression
+
+    maps = [torch.full((1, 4, 16), 1.0 / 16)]
+    with pytest.raises(ValueError):
+        attention_content_suppression(maps, None)
+    with pytest.raises(ValueError):
+        attention_content_suppression(maps, (3, 3))
+
+
+def test_suppress模式在phi等於零時梯度非零(sd, x01):
+    """**這是 `test_divergence模式在phi等於零時無梯度` 的對照。**
+
+    divergence 從 φ=0 起不了步，原因是 KL 在 φ=0 恰為最小值。suppress 換成一個
+    最佳點不在 φ=0 的量（內容 token 的注意力質量），故起步梯度一般非零。
+    兩個測試必須並存：一個釘住缺陷、一個釘住修法確實有效。
+    """
+    from src.defense.optimize import optimize_crossattn
+
+    cfg = _cfg(steps=2, attn_timesteps=2)
+    cfg.unet_ckpt = False
+    cfg.attn_mode = "suppress"
+    mod = PixelResidual(size=SIZE, max_rank=4, const_rank=4).to(DEV)
+    before = mod.tensor.V.detach().clone()
+    res = optimize_crossattn(sd, mod, x01, cfg, LossConfig(),
+                             default_train_set()[:1])
+
+    assert res.history[0]["grad_norm"] > 0, "suppress 在 φ=0 必須有梯度"
+    assert 0.0 <= res.history[0]["L_def"] * -1.0 <= 1.0, "抑制量的值域為 [0,1]"
+    assert not torch.equal(before, mod.tensor.V), "φ 未被更新"
+
+
+def test_suppress模式在空prompt時提前拒絕(sd, x01):
+    """span 為空時 suppress 會退化成常數，必須在跑之前就拒絕。"""
+    from src.defense.optimize import optimize_crossattn
+
+    cfg = _cfg(steps=1, attn_timesteps=1)
+    cfg.unet_ckpt = False
+    cfg.attn_mode = "suppress"
+    cfg.prompt_edit = ""
+    mod = PixelResidual(size=SIZE, max_rank=4, const_rank=4).to(DEV)
+    with pytest.raises(ValueError, match="suppress"):
+        optimize_crossattn(sd, mod, x01, cfg, LossConfig(),
+                           default_train_set()[:1])
 
 
 def test_cross_attention目標的梯度抵達phi(sd, x01):

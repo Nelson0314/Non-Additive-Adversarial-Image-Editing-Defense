@@ -77,10 +77,20 @@ class OptimConfig:
     # site S 的 grid_sample 插值模式。預設維持 bilinear 使 E13–E19 可重現；
     # E20 §5.2 量出 bicubic 可把銳利度保留率由 85.0% 拉到 99.9%。
     warp_resample: str = "bilinear"
+    # site C 專用：色度矩陣場偏離單位陣的硬上界。與 warp_max_disp 同一角色
+    # ——本位置的保真度預算是矩陣偏離量而非 L∞，故必須與 tau_lpips 併列記錄。
+    color_max_dev: float = 0.15
     # ---- cross-attention 目標專用 ----
     # "divergence" — 把防禦圖的注意力分佈推離原圖的（改變綁定的指向）
     # "entropy"    — 直接把分佈推向均勻（瓦解綁定本身，不需要參考分佈）
-    attn_mode: str = "divergence"
+    # "suppress"   — 降低內容 token 分到的注意力質量（需要 attn_content_only）
+    #
+    # **預設由 "divergence" 改為 "suppress"（2026-08-01，E25）。** divergence
+    # 在 φ=0 的梯度精確為零（KL 在最小值處），最佳化永遠離不開起點，拿它去
+    # 跑會安靜地什麼都不做（E20 §9 實測 grad_norm = 0.000e+00）。留著它是為了
+    # 讓該缺陷有具名的位置與釘住它的測試，但它不該是預設。suppress 的最佳點
+    # 不在 φ=0，故起步梯度非零，見 src/models/attention.py 的同名函式。
+    attn_mode: str = "suppress"
     # 每步取樣幾個 timestep。cross-attention 的綁定強度隨 t 變化，只在單一
     # t 上施力等於只防住編輯鏈的其中一步。取樣點均分於 [0, t_edit]，
     # t_edit 為 SDEdit 在該 strength 下的起始 timestep。
@@ -486,8 +496,8 @@ def optimize_crossattn(
     兩條分支共用同一組加噪 ε（spec §5.1），否則量到的差異主要來自噪聲不同。
     """
     from src.models.attention import (
-        CrossAttentionRecorder, attention_divergence, attention_entropy,
-        token_span,
+        CrossAttentionRecorder, attention_content_suppression,
+        attention_divergence, attention_entropy, token_span,
     )
 
     device = x01.device
@@ -503,6 +513,15 @@ def optimize_crossattn(
         # 空 prompt 沒有內容 token；對空區間取平均會得到 nan，須明確落回全域
         print("  [attn] prompt 無內容 token，改用全部 77 格", flush=True)
         span = None
+    if cfg.attn_mode == "suppress" and span is None:
+        # 落回全域對 suppress 不是「比較粗糙」而是「恆等於常數 0」：全部 77 格
+        # 的注意力質量和恆為 1。此處提前拒絕，而不是讓它跑完才發現什麼都沒動。
+        raise ValueError(
+            "attn_mode='suppress' 需要非空的內容 token 區間，"
+            f"但 attn_content_only={cfg.attn_content_only}、"
+            f"prompt_edit={cfg.prompt_edit!r} 得到的 span 為空。"
+            "全部 token 的注意力質量和恆為 1，該目標會退化成常數"
+        )
 
     # 取樣 timestep：均分於 [0, t_edit]，即 SDEdit 在該 strength 下實際走過
     # 的區間。超出該區間的 t 對攻擊者的編輯不起作用，在那裡施力是浪費預算。
@@ -558,10 +577,12 @@ def optimize_crossattn(
                 divs.append(attention_entropy(rec.maps, span))
             elif cfg.attn_mode == "divergence":
                 divs.append(attention_divergence(rec.maps, ref_maps[ti], span))
+            elif cfg.attn_mode == "suppress":
+                divs.append(attention_content_suppression(rec.maps, span))
             else:
                 raise ValueError(
                     f"未知的 attn_mode: {cfg.attn_mode!r}，"
-                    "只接受 'divergence' 或 'entropy'"
+                    "只接受 'divergence'、'entropy' 或 'suppress'"
                 )
             rec.clear()
 

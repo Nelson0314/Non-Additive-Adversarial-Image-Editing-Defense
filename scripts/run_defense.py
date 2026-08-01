@@ -39,6 +39,7 @@ from src.residual.site_embedding import EmbeddingResidual
 from src.residual.site_latent import LatentResidual
 from src.residual.site_pixel import PixelResidual
 from src.residual.site_pixel_full import FullRankPixelResidual
+from src.residual.site_color import ColorResidual
 from src.residual.site_warp import WarpResidual
 from src.residual.site_weight import WeightResidual
 from src.utils.artifacts import (
@@ -116,10 +117,17 @@ def build_module(site: str, rank: int, cfg: OptimConfig, sd, size: int, seed: in
             max_disp=cfg.warp_max_disp, seed=seed,
             resample=cfg.warp_resample,
         )
+    if site == "C":
+        # 色度矩陣場。與 site S 同，rank 引數在此被重新解釋為**控制網格邊長**；
+        # 報告中必須寫成 grid_size，本位置沒有低秩結構。
+        return ColorResidual(
+            size=size, grid_size=(rank if rank > 0 else None),
+            max_dev=cfg.color_max_dev, seed=seed,
+        )
     raise ValueError(
         f"未知的 site {site!r}；目前支援 "
         "P（像素低秩）、PF（像素全秩對照）、L（latent ε 注入）、"
-        "E（文字嵌入）、W（權重空間 LoRA）、S（空間變形）"
+        "E（文字嵌入）、W（權重空間 LoRA）、S（空間變形）、C（色度矩陣場）"
     )
 
 
@@ -310,8 +318,11 @@ def main():
     )
     ap.add_argument(
         "--attn_mode", default=OptimConfig.attn_mode,
-        choices=["divergence", "entropy"],
-        help="divergence=把注意力分佈推離原圖的；entropy=把它推向均勻",
+        choices=["divergence", "entropy", "suppress"],
+        help="suppress=降低內容 token 分到的注意力質量（預設）；"
+             "entropy=把分佈推向均勻；"
+             "divergence=把分佈推離原圖的（**φ=0 時梯度恆為零，跑了不會動**，"
+             "見 docs/RESULTS_E20_fidelity.md §9）",
     )
     ap.add_argument(
         "--attn_timesteps", type=int, default=OptimConfig.attn_timesteps,
@@ -330,6 +341,12 @@ def main():
         "--warp_max_disp", type=float, default=OptimConfig.warp_max_disp,
         help="site S 的位移場硬上界，單位為像素。空間變形的失真預算是位移量"
              "而非 L∞，故此值與 --tau_lpips 同等重要，兩者都會寫入 env.json",
+    )
+    ap.add_argument(
+        "--color_max_dev", type=float, default=OptimConfig.color_max_dev,
+        help="site C 的色度矩陣場偏離單位陣的硬上界。色度變換的失真預算是"
+             "矩陣偏離量而非 L∞，故此值與 --tau_lpips 同等重要，"
+             "兩者都會寫入 env.json",
     )
     ap.add_argument(
         "--warp_resample", choices=["bilinear", "bicubic"],
@@ -405,6 +422,7 @@ def main():
                     align_gamma_psnr=args.align_gamma_psnr,
                     warp_max_disp=args.warp_max_disp,
                     warp_resample=args.warp_resample,
+                    color_max_dev=args.color_max_dev,
                     exact_inversion=args.exact_inversion,
                     attn_mode=args.attn_mode,
                     attn_timesteps=args.attn_timesteps,
@@ -571,6 +589,7 @@ def main():
         "align_gamma_psnr": args.align_gamma_psnr,
         "warp_max_disp": args.warp_max_disp,
         "warp_resample": args.warp_resample,
+        "color_max_dev": args.color_max_dev,
         "attn_mode": args.attn_mode, "attn_timesteps": args.attn_timesteps,
         "exact_inversion": args.exact_inversion,
         "n_images": len(images), "torch": torch.__version__,

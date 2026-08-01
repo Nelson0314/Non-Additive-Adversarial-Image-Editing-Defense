@@ -164,6 +164,47 @@ def attention_divergence(
     return torch.stack(terms).mean()
 
 
+def attention_content_suppression(
+    maps: List[torch.Tensor], span: tuple
+) -> torch.Tensor:
+    """1 − 內容 token 分到的注意力質量，逐層算完再平均。越大代表綁定越弱。
+
+    **這個模式存在的理由是 `divergence` 從 φ=0 起不了步。** KL(A_φ ‖ A_ref) 在
+    φ=0 時兩個分佈逐元素相同，KL = 0，而 0 是 KL 的**最小值**，故梯度在該點
+    精確為零（實測 grad_norm = 0.000e+00，見 `docs/RESULTS_E20_fidelity.md` §9
+    與 `tests/test_pipeline.py::test_divergence模式在phi等於零時無梯度`）。
+    任何「與未防禦參照的散度」形式的目標都有這個性質，換一種散度並不能解決。
+
+    解法是換一個**最佳點不在 φ=0** 的量。此處取內容 token 分到的注意力質量：
+    它在 φ=0 時是一個由影像與 prompt 決定的中間值，不是極值，故梯度一般非零。
+    這也正是 cross-attention 免疫那條線的著力點（Xu et al., arXiv:2509.10359；
+    *Dual Attention Guided Defense*, arXiv:2512.14333）——降低 prompt 內容與
+    影像區域之間的注意力質量，而不是把分佈推離某個參照。
+
+    質量取 softmax 後**未重新正規化**的和，故值域為 [0, 1]，本量亦然。有界
+    使它不需要 hinge：無界的最大化才會發散（見 `objective.py` 的 L_def）。
+
+    `span` 為必要參數而非可選。沒有內容 token 時本目標沒有定義，靜默落回
+    「全部 77 格」會得到恆等於 0 的常數（全部 token 的質量和恆為 1），
+    最佳化會安靜地什麼都不做——那正是本模式要修掉的失效。
+    """
+    if span is None:
+        raise ValueError(
+            "attention_content_suppression 需要內容 token 的區間 span。"
+            "prompt 沒有內容 token 時本目標無定義，不可落回全域："
+            "全部 token 的注意力質量和恆為 1，該目標會變成常數 0"
+        )
+    if span[1] <= span[0]:
+        raise ValueError(
+            f"內容 token 區間為空：{span}。空 prompt 不適用本模式"
+        )
+    terms = []
+    for a in maps:
+        mass = a[..., span[0]:span[1]].sum(dim=-1)
+        terms.append((1.0 - mass).mean())
+    return torch.stack(terms).mean()
+
+
 def attention_entropy(
     maps: List[torch.Tensor], span: Optional[tuple] = None
 ) -> torch.Tensor:

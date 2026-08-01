@@ -1,10 +1,9 @@
 """色度度量的性質。
 
-**這些是由定義直接推導的性質，不是與第三方實作的交叉驗證。** 本機沒有
-`skimage` / `colour`，Sharma 等人的 34 組 CIEDE2000 參考值也不在手邊，故
-`de00` 的**絕對尺度未經第三方驗證**（見 `src/metrics/chroma.py` 的模組
-docstring）。本專案的 τ 一律由探針的實測值夾出，不依賴 ΔE 的文獻常數，
-故此限制不影響用途；但若日後要引用「JND ≈ 1–2 ΔE 單位」就必須先補驗證。
+多數測試釘的是由定義直接推導的性質（白點、灰階、對稱性、零點）。CIEDE2000
+另有一項對 `scikit-image` 的**交叉驗證**，因為它的絕對尺度不是由簡單性質
+就能確認的——公式含分項加權與藍區旋轉項，寫錯其中一項仍可能通過所有性質
+測試。該測試在缺 `scikit-image` 的環境自動跳過（遠端容器就沒有）。
 """
 
 import pytest
@@ -132,3 +131,91 @@ def test_極端值不產生NaN(fn):
     out = fn(z, torch.full((1, 3, 8, 8), 0.5))
     out.mean().backward()
     assert torch.isfinite(z.grad).all(), f"{fn.__name__} 的梯度在純黑處非有限"
+
+
+# ---- local_chroma_bias：P9 之後唯一合格的候選 ----
+
+def test_逐像素取量值再池化等於沒有池化():
+    """**釘住一個已證明無效的構造。** `local_dchroma_dev` 先逐像素取量值、
+    再做區塊平均與全域平均，兩者合起來就是全域平均——區塊結構完全沒有作用。
+    P9 的實測顯示它與 `dchroma` 在每一臂上數值完全相同。
+
+    保留這個測試是為了讓「順序反了」這件事有一個具名的位置：修法不是調參數，
+    而是改成先在區塊內取有號平均、再取量值（`local_chroma_bias`）。
+    """
+    from src.metrics.chroma import dchroma_map, local_dchroma_dev
+
+    a, b = _pair()
+    assert float(local_dchroma_dev(a, b)) == pytest.approx(
+        float(dchroma_map(a, b).mean()), rel=1e-5)
+
+
+def test_隨機色度雜訊在區塊內相消而連貫色偏不會():
+    """**`local_chroma_bias` 存在的全部理由。**
+
+    兩種失真的逐像素色度誤差量值相同，但一個是隨機的、一個是連貫的。
+    ΔE 那一族分不出來（P9 實測等 LPIPS 下雜訊 2.44 對色偏 2.79），
+    而人眼分得出來。
+    """
+    from src.metrics.chroma import dchroma_map, local_chroma_bias
+
+    g = torch.Generator().manual_seed(20260728)
+    base = _const([0.5, 0.5, 0.5])
+
+    # 兩臂的振幅是量出來的，不是猜的：雜訊 0.06 與 R+0.12 使逐像素色度誤差
+    # 幾乎相等（12.82 vs 12.58），此時兩者的差別**只剩空間結構**。
+    noisy = (base + 0.06 * torch.randn(base.shape, generator=g)).clamp(0, 1)
+    shifted = base.clone()
+    shifted[:, 0] += 0.12                      # 整張連貫偏紅
+    shifted = shifted.clamp(0, 1)
+
+    dn = float(dchroma_map(base, noisy).mean())
+    ds = float(dchroma_map(base, shifted).mean())
+    bn = float(local_chroma_bias(base, noisy))
+    bs = float(local_chroma_bias(base, shifted))
+
+    # 兩者的逐像素量值刻意取到相近；若構造漂掉，下面的比較就沒有意義
+    assert 0.5 < dn / ds < 2.0, (
+        f"兩臂的逐像素色度誤差應相近才有比較意義，實得 {dn:.3f} vs {ds:.3f}")
+    assert bs / max(bn, 1e-9) > 5.0, (
+        f"連貫色偏的偏壓應遠高於隨機雜訊，實得 {bs:.3f} vs {bn:.3f}")
+
+
+def test_local_chroma_bias可微():
+    from src.metrics.chroma import local_chroma_bias
+
+    a, b = _pair()
+    b = b.requires_grad_(True)
+    local_chroma_bias(a, b).backward()
+    assert b.grad is not None and float(b.grad.abs().sum()) > 0
+
+
+def test_de00與skimage一致():
+    """**對第三方實作的交叉驗證。** CIEDE2000 的公式含亮度／彩度／色相的
+    分項加權與藍區的旋轉項；寫錯其中任一項仍可能通過上面所有的性質測試
+    （零點、對稱性、中性區與 ΔE76 相近都不觸及那些項）。故絕對尺度必須另外
+    對照，否則「τ 由實測值夾出」夾的可能是一把刻度錯的尺。
+
+    實測差距屬 float32 對 float64 的精度層級：CIELAB 最大絕對差 0.0048、
+    ΔE00 最大絕對差 0.0071（相對 0.016%）。
+    """
+    skimage_color = pytest.importorskip("skimage.color")
+    import numpy as np
+
+    from src.metrics.chroma import de2000_map, rgb_to_lab
+
+    g = np.random.default_rng(0)
+    a = g.random((64, 64, 3)).astype(np.float32)
+    b = g.random((64, 64, 3)).astype(np.float32)
+    ta = torch.from_numpy(a).permute(2, 0, 1)[None]
+    tb = torch.from_numpy(b).permute(2, 0, 1)[None]
+
+    lab_mine = rgb_to_lab(ta)[0].permute(1, 2, 0).numpy()
+    lab_ref = skimage_color.rgb2lab(a)
+    assert np.abs(lab_mine - lab_ref).max() < 0.05
+
+    mine = de2000_map(ta, tb)[0, 0].numpy()
+    ref = skimage_color.deltaE_ciede2000(skimage_color.rgb2lab(a),
+                                         skimage_color.rgb2lab(b))
+    assert np.abs(mine - ref).max() < 0.05
+    assert mine.mean() == pytest.approx(float(ref.mean()), rel=1e-4)

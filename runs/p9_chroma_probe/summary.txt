@@ -1,0 +1,26 @@
+=== 合成臂（全部校準到 LPIPS = 0.05，n=6）===
+                  指標            blur           noise   warp_bilinear    warp_bicubic          chroma
+                de76          1.0739          2.5940          1.4212          2.0824          2.8023
+                de00          0.8409          2.4597          1.1245          1.6549          2.1905
+             dchroma          0.3297          2.4431          0.4952          0.7298          2.7887
+   local_dchroma_dev          0.3297          2.4431          0.4952          0.7298          2.7887
+   local_chroma_bias          0.0371          0.0843          0.0797          0.1089          1.5236
+  local_acutance_dev          0.2358          0.0098          0.1492          0.0291          0.0012
+
+=== 判準一：對色度收費是否明顯高於位移與雜訊 ===
+                  de76  色度/max(雜訊,兩個變形) =   1.08  不通過
+                  de00  色度/max(雜訊,兩個變形) =   0.89  不通過
+               dchroma  色度/max(雜訊,兩個變形) =   1.14  不通過
+     local_dchroma_dev  色度/max(雜訊,兩個變形) =   1.14  不通過
+     local_chroma_bias  色度/max(雜訊,兩個變形) =  13.99  通過
+    local_acutance_dev  色度/max(雜訊,兩個變形) =   0.01  不通過
+
+=== 判準二：真實解上 site C 是否明顯高於 site P ===
+（人眼已定調：site P 看不出來、site C 有色調偏移）
+                  指標      site C      site P      倍率  判定
+                de76      6.9641      4.0126    1.74  分不出
+                de00      4.2435      3.4714    1.22  分不出
+             dchroma      6.8699      3.8165    1.80  分不出
+   local_dchroma_dev      6.8699      3.8165    1.80  分不出
+   local_chroma_bias      4.9719      0.3133   15.87  揭穿
+  local_acutance_dev      0.0090      0.0083    1.08  分不出

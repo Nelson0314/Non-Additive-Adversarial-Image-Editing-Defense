@@ -108,4 +108,6 @@ def test_asym_decoder_回傳可微且形狀正確的函式(sd, x01):
     assert torch.equal(vae.seen_mask, torch.ones_like(x01[:, :1])), \
         "asym_decoder 必須用 mask 全 1，條件分支才拿不到原圖"
     # -1 經 (out+1)/2 應為 0
-    assert out.abs().max() == pytest.approx(0.0, abs=1e-6)
+    # 顯式轉 float：`pytest.approx` 會試著把張量轉成 numpy，而 CUDA 張量
+    # 不能直接轉。先前 DEV 恰為 CPU 故沒發作。
+    assert float(out.abs().max()) == pytest.approx(0.0, abs=1e-6)

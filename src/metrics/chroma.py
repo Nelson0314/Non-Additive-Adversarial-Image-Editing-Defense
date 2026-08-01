@@ -26,16 +26,27 @@ E20 §3.3(2) 的 NLPD 與 VIF 就是被文獻聲譽誤導的前例。
 | `de76` | CIELAB 中的歐氏距離 | 最簡單且無歧義，作為基準。已知弱點在高飽和的藍綠區 |
 | `de00` | CIEDE2000 | 色差的現行標準，含亮度／彩度／色相的分項加權與藍區旋轉項 |
 | `dchroma` | 只取 (a*, b*) 的位移量，丟掉 ΔL* | 直接對應「色調偏移」，不受亮度變化干擾 |
-| `local_dchroma_dev` | 逐區塊 `dchroma` 的能量加權平均 | 與 `local_acutance_dev` 同一構造，防止「一處偏紅、他處偏綠」互相抵銷 |
+| `local_dchroma_dev` | 逐區塊 `dchroma` 的平均 | **已證明無效**，保留為陰性對照：先取量值再池化等於沒有池化 |
+| `local_chroma_bias` | 逐區塊**有號**色度位移的平均，再取量值 | 唯一能區分「連貫色偏」與「隨機色度雜訊」的構造 |
 
-四項全部可微，供 `objective.py` 當約束使用。
+全部可微。**P9 的實測結論：前四項都不合格，只有 `local_chroma_bias` 通過。**
 
-**未以 Sharma 等人的 34 組參考值驗證 CIEDE2000。** 本機沒有 `skimage` /
-`colour` 可比對，該表也不在手邊；`tests/test_chroma.py` 改以可由定義直接
-推導的性質把關（白點、灰階、對稱性、零點、與 ΔE76 在中性區的一致性）。
-**故 `de00` 的絕對尺度未經第三方交叉驗證**，若要引用「JND ≈ 1–2 ΔE 單位」
-這類文獻常數必須先補驗證；本專案的 τ 一律由探針的實測值夾出（同 τ_acut
-的 0.04 由四個實測值決定），不依賴該常數。
+ΔE 那一族逐像素取量值，量到的是「色度誤差有多大」。P9 在等 LPIPS 下量到加性
+高斯雜訊在該量上與明顯的色偏幾乎一樣高（`dchroma` 2.44 vs 2.79、`de76`
+2.59 vs 2.80），因為雜訊也在每個像素上擾動 (a*, b*)。但人眼對兩者的反應差很多
+——使用者判讀 E27 的比對頁時看得出 site C 的色調偏移、看不出 site P 的加性擾動。
+
+**人眼在意的是空間上連貫的色偏，不是色度誤差的量值。** 這與 E20 的型態相同：
+當時 LPIPS 對模糊不收費，也是因為它量的軸與人眼在意的軸不是同一條。
+
+**CIEDE2000 已對 `scikit-image` 交叉驗證**（`tests/test_chroma.py::
+test_de00與skimage一致`）：CIELAB 最大絕對差 0.0048、ΔE00 最大絕對差 0.0071
+（相對 0.016%），差距屬 float32 對 float64 的精度層級。故 `de00` 的絕對尺度
+可信。
+
+即便如此，本專案的 τ 仍一律由探針的實測值夾出（同 τ_acut 的 0.04 由四個實測
+值決定），不引用「JND ≈ 1–2 ΔE 單位」這類文獻常數——E20 §3.3(2) 的 NLPD 與
+VIF 就是憑文獻聲譽選指標而被實測推翻的前例。
 """
 
 from typing import Dict
@@ -160,22 +171,55 @@ def de2000_map(a: torch.Tensor, b: torch.Tensor,
 
 def local_dchroma_dev(orig: torch.Tensor, rec: torch.Tensor,
                       patch: int = PATCH) -> torch.Tensor:
-    """**可微**的逐區塊色度偏移，供 `objective.py` 當約束使用。
+    """**已證明無效，保留為陰性對照，不要拿來當約束。**
 
-    構造與 `local_acutance_dev` 相同，理由也相同：先在區塊內取平均、再對
-    區塊取**無權**平均。取區塊平均而非全域平均，是為了讓「一處偏紅、他處
-    偏綠」無法互相抵銷——色度位移是有號的二維向量，全域平均可以正負相消，
-    而區塊內的平均量再取絕對值就不行。
+    原意是「先在區塊內取平均、再對區塊取平均」以防止互相抵銷。但 `dchroma_map`
+    已經**逐像素取過量值**，之後再做區塊平均與全域平均，兩者合起來就等於
+    全域平均——區塊結構完全沒有作用。P9 的實測直接顯示這一點：本項與
+    `dchroma` 的數值**在每一臂上都完全相同**（見 `runs/p9_chroma_probe/`）。
 
-    與 `local_acutance_dev` 的一個關鍵差異：**此處不以原圖能量加權**。
-    銳利度比值在平坦區由極小的分母決定故需要加權；色度位移是絕對量，
-    平坦區的位移一樣看得見（大片天空偏色其實更明顯），加權反而會把它壓掉。
+    順序反了。要區分「連貫的色偏」與「隨機的色度雜訊」，必須**先在區塊內對
+    有號的 (Δa*, Δb*) 取平均、再取量值**——那才是 `local_chroma_bias`。
+
+    保留而不刪除，是因為它與 `dchroma` 的數值相同這件事本身就是「先取量值
+    再池化等於沒有池化」的證據，刪掉會讓下一個人再推導一次。
     """
     d = dchroma_map(orig, rec)
     h = (d.shape[-2] // patch) * patch
     w = (d.shape[-1] // patch) * patch
     blocks = F.avg_pool2d(d[..., :h, :w], patch)
     return blocks.flatten(1).mean(1).mean()
+
+
+def local_chroma_bias(orig: torch.Tensor, rec: torch.Tensor,
+                      patch: int = PATCH) -> torch.Tensor:
+    """**可微**的逐區塊色度偏壓，供 `objective.py` 當約束使用。
+
+        bias = mean_p ‖ mean_{i∈p} (Δa*_i, Δb*_i) ‖
+
+    **與 `dchroma` 的差別只在取量值與取平均的順序，而那正是全部的重點。**
+    ΔE 那一族逐像素取量值，量到的是「色度誤差有多大」；P9 實測顯示加性高斯
+    雜訊在這個量上與明顯的色偏一樣高（等 LPIPS 下 2.44 vs 2.79），因為雜訊
+    也在每個像素上擾動 (a*, b*)。但人眼對兩者的反應差很多——使用者判讀
+    E27 的比對頁時，看得出 site C 的色調偏移、看不出 site P 的加性擾動。
+
+    人眼在意的是**空間上連貫**的色偏。先在區塊內對**有號**的色度位移取平均，
+    隨機雜訊會相消而連貫的偏壓不會；之後才取量值，使「一處偏紅、他處偏綠」
+    在區塊之間仍無法互相抵銷。
+
+    區塊邊長取 32 與 `local_acutance_dev` 一致，兩者的空間尺度才可對讀。
+
+    **不以原圖能量加權**（與 `local_acutance_dev` 不同）：銳利度比值在平坦區
+    由極小的分母決定故需要加權；色度偏壓是絕對量，平坦區的偏色一樣看得見
+    ——大片天空偏色其實更明顯——加權反而會把它壓掉。
+    """
+    la, lb = _lab_pair(orig, rec)
+    d = lb[:, 1:] - la[:, 1:]                       # (N,2,H,W) 有號色度位移
+    h = (d.shape[-2] // patch) * patch
+    w = (d.shape[-1] // patch) * patch
+    blocks = F.avg_pool2d(d[..., :h, :w], patch)    # 先在區塊內取有號平均
+    mag = blocks.pow(2).sum(dim=1).clamp_min(1e-12).sqrt()   # 再取量值
+    return mag.flatten(1).mean(1).mean()
 
 
 @torch.no_grad()
@@ -187,4 +231,5 @@ def chroma_battery(orig: torch.Tensor, rec: torch.Tensor,
         "de00": float(de2000_map(orig, rec).mean()),
         "dchroma": float(dchroma_map(orig, rec).mean()),
         "local_dchroma_dev": float(local_dchroma_dev(orig, rec, patch)),
+        "local_chroma_bias": float(local_chroma_bias(orig, rec, patch)),
     }

@@ -912,12 +912,14 @@ def test_site_S_預設維持bilinear():
 
 @pytest.mark.parametrize("mode", ["bilinear", "bicubic"])
 def test_site_S_兩種重取樣都可微且零位移為恆等(mode):
+    # 影像必須與模組同裝置。先前 DEV 恰為 CPU 故沒發作；本機裝上 CUDA build
+    # 之後 DEV 變成 cuda，grid_sample 立刻以「兩個裝置」報錯。
     mod = WarpResidual(size=SIZE, grid_size=8, init_std=0.0, resample=mode).to(DEV)
-    out = mod.pixel_residual(x01_plain())
+    out = mod.pixel_residual(x01_plain().to(DEV))
     assert out.requires_grad
     out.pow(2).sum().backward()
     assert mod.flow.grad is not None and mod.flow.grad.abs().sum() > 0
-    assert (out - x01_plain()).abs().max().item() < 1e-3
+    assert (out - x01_plain().to(DEV)).abs().max().item() < 1e-3
 
 
 def test_site_S_bicubic保留較多高頻():
@@ -929,14 +931,14 @@ def test_site_S_bicubic保留較多高頻():
     """
     from src.metrics.acutance import acutance
 
-    x = x01_plain()
+    x = x01_plain().to(DEV)
     ratios = {}
     for mode in ("bilinear", "bicubic"):
         mod = WarpResidual(size=SIZE, grid_size=8, init_std=0.0,
                            max_disp=50.0, resample=mode).to(DEV)
         # 同一個位移場，只換重取樣，否則比較的不是重取樣本身
         g = torch.Generator().manual_seed(SEED)
-        mod.flow.data = torch.randn(mod.flow.shape, generator=g) * 0.5
+        mod.flow.data = torch.randn(mod.flow.shape, generator=g).to(DEV) * 0.5
         with torch.no_grad():
             ratios[mode] = acutance(x, mod.pixel_residual(x))["acutance_ratio"]
 
@@ -950,9 +952,9 @@ def test_site_S_bicubic輸出仍在值域內():
     mod = WarpResidual(size=SIZE, grid_size=8, init_std=0.0,
                        max_disp=50.0, resample="bicubic").to(DEV)
     g = torch.Generator().manual_seed(SEED)
-    mod.flow.data = torch.randn(mod.flow.shape, generator=g) * 0.8
+    mod.flow.data = torch.randn(mod.flow.shape, generator=g).to(DEV) * 0.8
     with torch.no_grad():
-        out = mod.pixel_residual(x01_plain())
+        out = mod.pixel_residual(x01_plain().to(DEV))
     assert float(out.min()) >= 0.0 and float(out.max()) <= 1.0
 
 

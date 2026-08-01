@@ -50,7 +50,9 @@ from src.utils.artifacts import (
     save_spectrum_plot,
     save_x0_trace,
 )
-from src.utils.device import get_device, peak_memory_mb, reset_peak_memory
+from src.utils.device import (
+    get_device, peak_memory_mb, reset_peak_memory, tf32_enabled,
+)
 
 
 def load_images(root: Path, size: int, device, limit=None):
@@ -654,6 +656,9 @@ def main():
         "color_max_dev": args.color_max_dev,
         "guidance_scale": args.guidance_scale,
         "margin": args.margin,
+        # 精度必須逐批記錄：V100 沒有 TF32、Ampere 以上預設有，同一份程式在
+        # 兩台機器上會給出不同精度的數字（見 src/utils/device.py）。
+        "tf32": tf32_enabled(),
         "stop_on_plateau": args.stop_on_plateau,
         "stop_patience": args.stop_patience,
         "stop_tol": args.stop_tol,

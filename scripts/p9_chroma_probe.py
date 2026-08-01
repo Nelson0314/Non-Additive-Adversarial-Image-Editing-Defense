@@ -184,7 +184,8 @@ def main() -> None:
 
     # ---- 判定 ----
     lines = []
-    keys = ["de76", "de00", "dchroma", "local_dchroma_dev", "local_acutance_dev"]
+    keys = ["de76", "de00", "dchroma", "local_dchroma_dev",
+            "local_chroma_bias", "local_acutance_dev"]
     lines.append(f"=== 合成臂（全部校準到 LPIPS = {TARGET_LPIPS}，n={len(imgs)}）===")
     lines.append(f"{'指標':>20s}" + "".join(f"{k:>16s}" for k, _, _ in ARMS))
     for k in keys:

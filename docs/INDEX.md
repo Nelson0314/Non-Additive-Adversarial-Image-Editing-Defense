@@ -1,6 +1,6 @@
 # 文件與實驗資料索引
 
-最後整理：2026-07-31。
+最後整理：2026-08-01。
 
 本檔的用途是讓接手者在不讀 git log 的情況下，知道**哪一份文件是現行的、
 哪一份已被取代、每一個 run 目錄屬於哪個實驗**。
@@ -16,9 +16,9 @@
 | `docs/REPORT.html` | 主報告，涵蓋 E0–E12。含推翻與撤回的結論、規格層級更正 | 現行。表頭的「25 個 run、289 個資料檔」為 07-30 的數字，現為 48 個 run |
 | `docs/RESULTS_E13-E17.md` | 承接 E13–E17：warp vs additive 主網格、VAE 地板拆解 | 現行 |
 | `docs/RESULTS_E18-E19.md` | 承接 E18–E19：步數/lr/λ/decoder 掃描，以及銳利度這項新指標 | 現行 |
-| `docs/RESULTS_E21-E22.md` | 承接 E21–E22：新約束下的三臂重跑、位移上界的混淆因子 | 現行 |
+| `docs/RESULTS_E21-E22.md` | 承接 E21–E23：新約束下的三臂重跑、位移上界假設被推翻、步數受限的方法問題 | 現行 |
 | `docs/RESULTS_E20_fidelity.md` | 承接 E20：保真約束的 paper survey、四臂等 LPIPS 探針、局部銳利度偏差 | 現行 |
-| `docs/NEXT_SESSION.md` | 上一階段寫下的任務界定。§3.2 誤把 `src/metrics/spectrum.py` 當成頻域程式（實為奇異值譜），已由 E20 §8 更正 | 已由 E20 承接 |
+| `docs/NEXT_SESSION.md` | **2026-08-01 改寫**：主軸的否定結果、已知死路、三條可能的路 | 現行，接手先讀這份 |
 | `docs/specs/2026-07-28-lowrank-residual-defense.md` | 設計規格 v1 | 現行的**設計依據**，但其後的推翻不回頭改寫本文，須與上兩份對讀 |
 | `docs/NIGHT_RUN_2026-07-29.md` | 2026-07-29 夜間自主執行的完整紀錄 | 歷史紀錄，非報告。記錄了 site L 防禦不存在這個否定結果的推導過程 |
 | `docs/architecture.html` | 方法解說：威脅模型、低秩外積參數化、loss 與梯度路徑 | **內容過時**：寫的是「三個注入位置」，現已有六個（P/PF/L/E/W/S）。概念部分仍可讀 |
@@ -68,7 +68,9 @@
 | `p4_constraint_check` | E20 | 新約束的可行域檢查。site S 0/6、site P 6/6 |
 | `e21_{Sbic,Sbil,P}_tau*` | E21 | 新約束下的三臂主網格，9 格 6 圖。site S 的 net 較 E15 掉 67.3% |
 | `e21_report` | E21 | 上列的彙整表 |
-| `e22_Sbic_d6_tau*` | E22 | bicubic 臂放寬 max_disp 到 6.0 的重跑 |
+| `e22_Sbic_d6_tau*` | E22 | bicubic 臂放寬 max_disp 到 6.0 的重跑。**推翻了「被上界綁住」的假設**：解幾乎沒變 |
+| `e23_{Sbic,P}_s100_tau0.05` | E23 | 100 步重跑。比值由 1.14× 反轉為 0.85× |
+| `e23_Sbic_s100_tau0.10` | E23 | **只完成 3/6 圖**（實驗中止），不可用於比較 |
 | `logs` | — | 各 run 的 driver 與 stdout 紀錄 |
 
 ### 涉及已作廢方向的資料
@@ -111,6 +113,7 @@ python scripts/p3_local_acutance.py   # E20 局部銳利度偏差（秒級）
 python scripts/p4_constraint_check.py # E20 新約束的可行域檢查（約 1 分）
 python scripts/e21_report.py          # E21 三臂比較 + 與 E15 對照
 python scripts/e21_disp_saturation.py # E21/E22 位移飽和度診斷（秒級）
+python scripts/e22_binding_check.py   # E15/E21/E22 逐格檢查哪道 hinge 真的啟動過（秒級）
 python scripts/make_report_figures.py   # docs/figures/*.png（E2/E8/E9/E10/E12）
 python scripts/make_report.py     # docs/archive/2026-07-29-RESULTS_lowrank.html（E0–E3）
 ```

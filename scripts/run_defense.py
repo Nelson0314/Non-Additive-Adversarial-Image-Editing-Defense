@@ -353,6 +353,16 @@ def main():
              "而非 L∞，故此值與 --tau_lpips 同等重要，兩者都會寫入 env.json",
     )
     ap.add_argument(
+        "--stop_on_plateau", action="store_true",
+        help="以「約束啟動並穩定」取代固定步數，此時 --steps 變成上限。"
+             "固定步數讓不同格子被不同的東西綁住，是 E21–E23 §5.4 記錄的"
+             "方法問題；正式重跑必須開啟",
+    )
+    ap.add_argument("--stop_patience", type=int, default=OptimConfig.stop_patience)
+    ap.add_argument("--stop_tol", type=float, default=OptimConfig.stop_tol)
+    ap.add_argument("--stop_min_steps", type=int,
+                    default=OptimConfig.stop_min_steps)
+    ap.add_argument(
         "--guidance_scale", type=float, default=OptimConfig.guidance_scale,
         help="攻擊方的 classifier-free guidance 權重。**預設 1.0 只為了讓 "
              "E2–E23 可重現，它不是正確的威脅模型**：E26 實測 w=1 時 SD v1.4 "
@@ -441,6 +451,10 @@ def main():
                     warp_resample=args.warp_resample,
                     color_max_dev=args.color_max_dev,
                     guidance_scale=args.guidance_scale,
+                    stop_on_plateau=args.stop_on_plateau,
+                    stop_patience=args.stop_patience,
+                    stop_tol=args.stop_tol,
+                    stop_min_steps=args.stop_min_steps,
                     exact_inversion=args.exact_inversion,
                     attn_mode=args.attn_mode,
                     attn_timesteps=args.attn_timesteps,
@@ -522,7 +536,13 @@ def main():
                 last = res.history[-1]
                 base = {
                     "image": name, "site": site, "rank": rank, "prompt": prompt,
-                    "steps": cfg.steps, "k_inv": cfg.k_inv, "n_edit": cfg.n_edit,
+                    # steps 是設定的上限，steps_done 是實際跑的步數。開啟
+                    # 停止準則後兩者不同，且**跨 site 比較必須看 stop_reason
+                    # 非空**——空的代表用盡上限而非收斂，那一格量到的是
+                    # 「走到哪裡」不是能力（E21–E23 §5.4）。
+                    "steps": cfg.steps, "steps_done": res.steps_done,
+                    "stop_reason": res.stop_reason,
+                    "k_inv": cfg.k_inv, "n_edit": cfg.n_edit,
                     "n_eot": cfg.n_eot, "seconds": round(res.seconds, 1),
                     "purify_mode": cfg.purify_mode,
                     "align_steps": cfg.align_steps,
@@ -609,6 +629,10 @@ def main():
         "warp_resample": args.warp_resample,
         "color_max_dev": args.color_max_dev,
         "guidance_scale": args.guidance_scale,
+        "stop_on_plateau": args.stop_on_plateau,
+        "stop_patience": args.stop_patience,
+        "stop_tol": args.stop_tol,
+        "stop_min_steps": args.stop_min_steps,
         "attn_mode": args.attn_mode, "attn_timesteps": args.attn_timesteps,
         "exact_inversion": args.exact_inversion,
         "n_images": len(images), "torch": torch.__version__,

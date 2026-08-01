@@ -86,6 +86,19 @@ class OptimConfig:
     # +0.0116，而對照的噪聲範圍是 ±0.0169）。新實驗一律指定 7.5。
     # 見 docs/RESULTS_E25-E26.md §3。
     guidance_scale: float = 1.0
+
+    # ---- 停止準則 ----
+    # **預設 False 使 `steps` 維持既有語意（跑滿），既有 53 個 run 可重現。**
+    # 開啟後 `steps` 變成上限，實際步數由 `plateau_stop` 決定，見該函式的
+    # docstring 與 docs/RESULTS_E21-E22.md §5.4。正式重跑必須開啟。
+    stop_on_plateau: bool = False
+    stop_patience: int = 20     # 觀察窗長度，切成前後兩半比較改善量
+    # `edit_shift` 每步的**絕對**改善量門檻，低於此值視為進展已停。
+    # 1e-4 的來源：E23 實測 site P 在 25→100 步之間平均每步改善 5.4e-4 且
+    # 末端仍在上升，該格必須被判為未收斂；1e-4 比它低一個量級。
+    # 用絕對量而非相對率的理由見 `plateau_stop` 的 docstring。
+    stop_tol: float = 1e-4
+    stop_min_steps: int = 25    # 下限，讓約束有機會啟動；與 E15–E23 的步數一致
     # ---- cross-attention 目標專用 ----
     # "divergence" — 把防禦圖的注意力分佈推離原圖的（改變綁定的指向）
     # "entropy"    — 直接把分佈推向均勻（瓦解綁定本身，不需要參考分佈）
@@ -110,6 +123,102 @@ class OptimConfig:
     vae_ckpt: bool = True       # E0b：三次 VAE 呼叫的激活由總和降為最大值
     log_every: int = 10
     grad_clip: float = 1.0
+
+
+def active_constraint_keys(loss_cfg: LossConfig) -> tuple:
+    """回傳「係數非零、因而真的會綁住優化」的 hinge 對應的記錄鍵。
+
+    **不能寫死成 LPIPS 與鈍化那兩道。** `fidelity_term` 一律計算並記錄全部
+    四道 hinge 的懲罰值，但係數為零的那幾道不進梯度、不構成約束。反過來，
+    係數非零的任何一道都可能是實際綁住這一格的那道——tiny-SD 的端到端測試
+    即出現 `pen_lpips = pen_acut = 0` 而 `pen_linf = 0.098`（×100 = 9.8，
+    佔 L_fid 的全部）的情形，與 E13 量到的「L∞ hinge 把 site S 完全節流」
+    同一回事，site C 也有（色度變換的 L∞ 大而人眼感知小）。
+
+    若只認那兩道，被 L∞ 綁住的格子會永遠判不到「約束已啟動」而跑滿上限。
+    """
+    pairs = (
+        (loss_cfg.gamma_lpips, "fid_pen_lpips"),
+        (loss_cfg.gamma_acut, "fid_pen_acut"),
+        (loss_cfg.beta_linf, "fid_pen_linf"),
+        (loss_cfg.gamma_psnr, "fid_pen_psnr"),
+    )
+    keys = tuple(k for coef, k in pairs if coef != 0.0)
+    if not keys:
+        raise ValueError(
+            "所有保真 hinge 的係數都是零，沒有任何約束會綁住優化。"
+            "此時「約束啟動並穩定」的停止準則沒有定義，"
+            "請至少開啟一道 hinge，或關閉 stop_on_plateau"
+        )
+    return keys
+
+
+def plateau_stop(
+    history: List[Dict],
+    patience: int,
+    tol: float,
+    min_steps: int,
+    require_constraint: bool = True,
+    constraint_keys: tuple = ("fid_pen_lpips", "fid_pen_acut"),
+) -> tuple:
+    """該不該停？回傳 (要不要停, 原因)。
+
+    **固定步數是錯的協議。** E21–E23 §5.4 量出的問題：兩個 site 的 φ 量綱不同
+    （site S 是位移像素、site P 是像素值），學習率也不同，故「同樣跑 N 步」
+    對兩者從來不是同一件事。實測後果是每一格被不同的東西綁住——τ=0.10 沒有
+    任何一格碰到失真預算、末端 6/6 仍在上升，那一格量到的是「25 步走到哪裡」
+    而不是「該方法在此預算下的能力」；而 τ=0.05 由 25 步改到 100 步後，
+    site S 對 site P 的比值由 1.14× 反轉為 0.85×。
+
+    匹配失真的比較要求每一格都**被同一道約束綁住**且**已在該約束下收斂**。
+    故停止準則有兩個條件，缺一不可：
+
+    1. **約束確實啟動過**（觀察窗內某一步的 LPIPS 或鈍化懲罰大於零）。沒有
+       這一條，一格可能因為還沒碰到預算就「收斂」，那是步數不足不是收斂。
+    2. **進展已停**（觀察窗後半的 `edit_shift` 相對前半的改善低於 `tol`）。
+
+    監看 `edit_shift` 而非 `L_def`：後者是 hinge 過的，飽和後恆為 0，看不出
+    偏移還在不在增加（見 `objective.py` 的 `__call__`）。
+
+    **`tol` 是每步的絕對改善量，不是相對改善率。** 初版寫的是相對量
+    `(b − a) / max(|a|, 1e-8)`，在 `edit_shift` 接近零時分母趨近零、判定被
+    噪聲主導——tiny-SD 的端到端煙霧測試中 shift 在 1e-4 量級來回抖動，
+    相對改善動輒 ±0.16，40 步跑滿都不會停。改用絕對量的理由不只是數值穩定：
+    `edit_shift` 是 LPIPS 距離，其尺度**跨 site 相同**（那正是選它當監看量的
+    原因），故絕對門檻在兩個 site 上意義一致，而相對門檻會讓 shift=0.02 與
+    shift=0.2 的「收斂」定義不同。
+
+    預設 `tol = 1e-4` 由 E23 的實測定出：site P 由 25 步的 net 0.0784 走到
+    100 步的 0.1186，平均每步 5.4e-4，且末端 6/6 仍在上升——該格必須被判為
+    「還在上升」。1e-4 比它低一個量級，留有餘裕。
+
+    抽成純函數是為了能在沒有 SD 的情況下驗證取樣邏輯——這段決定了每一格
+    跑多久，是本協議的核心，不該只能靠跑完整實驗才看得出對錯。
+    """
+    if patience < 2:
+        raise ValueError(
+            f"patience={patience} 無法切成前後兩半來比較改善量；至少要 2"
+        )
+    if len(history) < max(min_steps, patience):
+        return (False, "")
+
+    window = history[-patience:]
+    if require_constraint:
+        engaged = any(
+            any(h.get(k, 0.0) > 0.0 for k in constraint_keys) for h in window
+        )
+        if not engaged:
+            return (False, "")
+
+    half = patience // 2
+    a = sum(h["edit_shift"] for h in window[:half]) / half
+    b = sum(h["edit_shift"] for h in window[half:]) / (patience - half)
+    # 兩半的中心相距 patience/2 步，故每步改善量為總差除以該距離
+    per_step = (b - a) / (patience / 2.0)
+    if per_step < tol:
+        return (True, f"約束已啟動且 edit_shift 在最近 {patience} 步的每步改善 "
+                      f"{per_step:+.2e} 低於 {tol:.1e}")
+    return (False, "")
 
 
 def eot_pairs(mode: str, step: int, n_eot: int, n_purifiers: int) -> List[tuple]:
@@ -139,6 +248,9 @@ class OptimResult:
     align_seconds: float = 0.0
     seconds: float = 0.0
     steps_done: int = 0
+    # 停止的原因。空字串表示跑滿 `steps`（即上限用盡而非收斂），該格
+    # **不可用於跨 site 比較**——那正是 E21–E23 §5.4 的問題。
+    stop_reason: str = ""
 
 
 def align(
@@ -308,14 +420,23 @@ def optimize(
             opt = torch.optim.Adam(module.parameters(), lr=cfg.lr)
 
     t0 = time.perf_counter()
+    # 哪些 hinge 真的會綁住這次優化，由係數決定而非寫死。見 active_constraint_keys。
+    constraint_keys = (
+        active_constraint_keys(loss_cfg) if cfg.stop_on_plateau else ()
+    )
+    if cfg.stop_on_plateau:
+        print(f"  [stop] 監看的約束：{', '.join(constraint_keys)}", flush=True)
 
     for step in range(cfg.steps):
         opt.zero_grad(set_to_none=True)
 
         ctx = gen.prepare(x01, prompt_def=cfg.prompt_def)
+        # 開啟停止準則時無法預先知道哪一步是最後一步，故訓練期一律不收集
+        # x0 軌跡，改在迴圈結束後以最終的 φ 在 no_grad 下重算一次。該軌跡
+        # 是診斷量，重算與原地收集的數值相同。關閉時維持原路徑不變。
         x_def = gen.generate(
             x01, ctx, use_ckpt=cfg.unet_ckpt, vae_ckpt=cfg.vae_ckpt,
-            collect_x0=(step == cfg.steps - 1),
+            collect_x0=(not cfg.stop_on_plateau and step == cfg.steps - 1),
         )
 
         # (淨化算子索引, 噪聲索引) 的取樣清單。defense_term 對清單取平均，
@@ -361,7 +482,11 @@ def optimize(
                 flush=True,
             )
 
-        if step == cfg.steps - 1:
+        if cfg.stop_on_plateau:
+            # 每步覆寫，因為任何一步都可能是最後一步。一張 512² 的 clone
+            # 約 3 MB，相對 E0 量到的 9.95 GB 峰值可忽略。
+            result.x_def = x_def.detach().clone()
+        elif step == cfg.steps - 1:
             result.x_def = x_def.detach().clone()
             result.x0_trace = [t.detach().clone() for t in ctx.x0_trace]
 
@@ -369,9 +494,31 @@ def optimize(
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
 
+        if cfg.stop_on_plateau:
+            stop, reason = plateau_stop(
+                result.history, cfg.stop_patience, cfg.stop_tol,
+                cfg.stop_min_steps, constraint_keys=constraint_keys,
+            )
+            if stop:
+                result.stop_reason = reason
+                print(f"  [stop] 第 {step} 步停止：{reason}", flush=True)
+                break
+
+    result.steps_done = len(result.history)
+    if cfg.stop_on_plateau:
+        if not result.stop_reason:
+            # 跑滿上限而非收斂。**這一格不可用於跨 site 比較**，理由與
+            # E21–E23 §5.4 相同：量到的是「走到哪裡」不是「能力」。
+            result.stop_reason = ""
+            print(f"  [stop] 用盡上限 {cfg.steps} 步仍未達停止準則，"
+                  f"該格不可用於跨 site 比較", flush=True)
+        with torch.no_grad():
+            ctx = gen.prepare(x01, prompt_def=cfg.prompt_def)
+            gen.generate(x01, ctx, collect_x0=True)
+            result.x0_trace = [t.detach().clone() for t in ctx.x0_trace]
+
     result.x_base = x_base
     result.seconds = time.perf_counter() - t0
-    result.steps_done = cfg.steps
     return result
 
 

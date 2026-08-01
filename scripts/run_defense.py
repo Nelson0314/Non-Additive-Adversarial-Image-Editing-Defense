@@ -353,6 +353,13 @@ def main():
              "而非 L∞，故此值與 --tau_lpips 同等重要，兩者都會寫入 env.json",
     )
     ap.add_argument(
+        "--margin", type=float, default=LossConfig.margin,
+        help="防禦 hinge 的 margin。偏移超過它之後防禦項不再施力，優化轉去"
+             "改善保真項。**它必須大到不成為綁定者**：E27 實測 w=7.5 下 "
+             "site C 的 edit_shift 已達 0.44–0.49，逼近預設的 0.5，於是 LPIPS "
+             "hinge 只啟動 1–8/60 步，兩臂會停在各自不同的失真上而非匹配失真",
+    )
+    ap.add_argument(
         "--stop_on_plateau", action="store_true",
         help="以「約束啟動並穩定」取代固定步數，此時 --steps 變成上限。"
              "固定步數讓不同格子被不同的東西綁住，是 E21–E23 §5.4 記錄的"
@@ -413,6 +420,7 @@ def main():
     # 參數，不能寫死在 LossConfig 的預設值裡。
     loss_cfg = LossConfig(tau_lpips=args.tau_lpips,
                           beta_linf=args.beta_linf, tau_linf=args.tau_linf,
+                          margin=args.margin,
                           defense_mode=args.defense_mode)
     # 有目標模式的目標影像。載入時機在迴圈外：它對 φ 與影像都是常數。
     y_target = None
@@ -638,6 +646,7 @@ def main():
         "warp_resample": args.warp_resample,
         "color_max_dev": args.color_max_dev,
         "guidance_scale": args.guidance_scale,
+        "margin": args.margin,
         "stop_on_plateau": args.stop_on_plateau,
         "stop_patience": args.stop_patience,
         "stop_tol": args.stop_tol,

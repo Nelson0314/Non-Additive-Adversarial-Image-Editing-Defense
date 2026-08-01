@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>色度偏壓的階梯：τ 要定在哪裡</title>
+<style>
+:root { color-scheme: light dark; }
+body { font-family: system-ui, "Noto Sans TC", sans-serif; margin: 0; padding: 24px;
+       line-height: 1.6; }
+h1 { font-size: 1.4rem; margin: 0 0 4px; }
+.note { opacity: .75; font-size: .9rem; max-width: 62ch; margin: 0 0 24px; }
+.panel { margin: 0 0 40px; border-top: 1px solid rgba(128,128,128,.35); padding-top: 16px; }
+.hdr { display: flex; gap: 16px; align-items: baseline; flex-wrap: wrap;
+       margin-bottom: 10px; }
+.hdr b { font-size: 1.05rem; }
+.hdr span { opacity: .7; font-size: .85rem; }
+.btns { display: flex; gap: 6px; margin-bottom: 10px; }
+button { font: inherit; padding: 4px 14px; border: 1px solid rgba(128,128,128,.5);
+         background: transparent; color: inherit; border-radius: 4px; cursor: pointer; }
+button[aria-pressed="true"] { background: rgba(128,128,128,.35); font-weight: 600; }
+/* 環境底色固定為同一階中性灰，不隨明暗主題變動：環境亮度會改變感知對比 */
+.stage { display: flex; gap: 12px; flex-wrap: wrap; background: #808080;
+         padding: 12px; border-radius: 6px; width: max-content; max-width: 100%; }
+.stage img { display: block; max-width: 100%; height: auto; image-rendering: pixelated; }
+.frame { position: relative; }
+.frame img { position: absolute; inset: 0; opacity: 0; }
+.frame img.on { position: static; opacity: 1; }
+details { margin-top: 12px; }
+summary { cursor: pointer; font-size: .9rem; opacity: .8; }
+table { border-collapse: collapse; font-size: .85rem; margin-top: 8px; }
+th, td { border: 1px solid rgba(128,128,128,.35); padding: 3px 10px; text-align: right; }
+th:first-child, td:first-child { text-align: left; }
+</style></head><body>
+<h1>色度偏壓從哪一級開始看得出來</h1>
+<p class="note">每一級<b>只有色度偏壓在變</b>，亮度與結構完全不動，用的是
+site C 自己的參數化。請按<b>數字鍵</b>（或點按鈕）與<b>原圖</b>來回切換，
+指出<b>從哪一級開始你看得出差別</b>。
+<br><br>
+兩個已知的錨點：site P 的防禦圖在偏壓 <b>0.30–0.33</b>（你判讀為看不出來），
+site C 的在 <b>3.94–6.00</b>（你判讀為有色調偏移）。中間這幾級沒有人看過。
+另外量到 100 步的加性基準在一張圖上達 <b>1.01</b>，所以門檻若定得比 1.0 低，
+會連加性基準都擋掉、比較就不成立——這一級請特別看。
+右側為 4× 最近鄰放大，位置取原圖梯度能量最高處，各級同一座標。</p>
+
+<div class="panel">
+  <div class="hdr"><b>car_00</b>
+    <span>只有色度偏壓在變，亮度與結構不動</span>
+  </div>
+  <div class="btns"><button data-v="orig" aria-pressed="true">原圖</button><button data-v="b0p3" aria-pressed="false">偏壓 0.3</button><button data-v="b0p6" aria-pressed="false">偏壓 0.6</button><button data-v="b1p0" aria-pressed="false">偏壓 1.0</button><button data-v="b1p5" aria-pressed="false">偏壓 1.5</button><button data-v="b2p5" aria-pressed="false">偏壓 2.5</button><button data-v="b4p0" aria-pressed="false">偏壓 4.0</button></div>
+  <div class="stage">
+    <div class="frame"><img data-v="orig" class="on" src="car_00__orig.png" width="512" alt="原圖"><img data-v="b0p3" class="" src="car_00__b0p3.png" width="512" alt="偏壓 0.3"><img data-v="b0p6" class="" src="car_00__b0p6.png" width="512" alt="偏壓 0.6"><img data-v="b1p0" class="" src="car_00__b1p0.png" width="512" alt="偏壓 1.0"><img data-v="b1p5" class="" src="car_00__b1p5.png" width="512" alt="偏壓 1.5"><img data-v="b2p5" class="" src="car_00__b2p5.png" width="512" alt="偏壓 2.5"><img data-v="b4p0" class="" src="car_00__b4p0.png" width="512" alt="偏壓 4.0"></div>
+    <div class="frame"><img data-v="orig" class="on" src="zoom__car_00__orig.png" width="512" alt="原圖"><img data-v="b0p3" class="" src="zoom__car_00__b0p3.png" width="512" alt="偏壓 0.3"><img data-v="b0p6" class="" src="zoom__car_00__b0p6.png" width="512" alt="偏壓 0.6"><img data-v="b1p0" class="" src="zoom__car_00__b1p0.png" width="512" alt="偏壓 1.0"><img data-v="b1p5" class="" src="zoom__car_00__b1p5.png" width="512" alt="偏壓 1.5"><img data-v="b2p5" class="" src="zoom__car_00__b2p5.png" width="512" alt="偏壓 2.5"><img data-v="b4p0" class="" src="zoom__car_00__b4p0.png" width="512" alt="偏壓 4.0"></div>
+  </div>
+  <details><summary>展開數值（先看圖）</summary><table><tr><th>級</th><th>實得偏壓</th><th>LPIPS</th></tr><tr><td>0.3</td><td>0.300</td><td>0.0008</td></tr><tr><td>0.6</td><td>0.600</td><td>0.0030</td></tr><tr><td>1.0</td><td>1.000</td><td>0.0078</td></tr><tr><td>1.5</td><td>1.500</td><td>0.0164</td></tr><tr><td>2.5</td><td>2.500</td><td>0.0399</td></tr><tr><td>4.0</td><td>4.000</td><td>0.0846</td></tr></table></details>
+</div>
+<div class="panel">
+  <div class="hdr"><b>dog_00</b>
+    <span>只有色度偏壓在變，亮度與結構不動</span>
+  </div>
+  <div class="btns"><button data-v="orig" aria-pressed="true">原圖</button><button data-v="b0p3" aria-pressed="false">偏壓 0.3</button><button data-v="b0p6" aria-pressed="false">偏壓 0.6</button><button data-v="b1p0" aria-pressed="false">偏壓 1.0</button><button data-v="b1p5" aria-pressed="false">偏壓 1.5</button><button data-v="b2p5" aria-pressed="false">偏壓 2.5</button><button data-v="b4p0" aria-pressed="false">偏壓 4.0</button></div>
+  <div class="stage">
+    <div class="frame"><img data-v="orig" class="on" src="dog_00__orig.png" width="512" alt="原圖"><img data-v="b0p3" class="" src="dog_00__b0p3.png" width="512" alt="偏壓 0.3"><img data-v="b0p6" class="" src="dog_00__b0p6.png" width="512" alt="偏壓 0.6"><img data-v="b1p0" class="" src="dog_00__b1p0.png" width="512" alt="偏壓 1.0"><img data-v="b1p5" class="" src="dog_00__b1p5.png" width="512" alt="偏壓 1.5"><img data-v="b2p5" class="" src="dog_00__b2p5.png" width="512" alt="偏壓 2.5"><img data-v="b4p0" class="" src="dog_00__b4p0.png" width="512" alt="偏壓 4.0"></div>
+    <div class="frame"><img data-v="orig" class="on" src="zoom__dog_00__orig.png" width="512" alt="原圖"><img data-v="b0p3" class="" src="zoom__dog_00__b0p3.png" width="512" alt="偏壓 0.3"><img data-v="b0p6" class="" src="zoom__dog_00__b0p6.png" width="512" alt="偏壓 0.6"><img data-v="b1p0" class="" src="zoom__dog_00__b1p0.png" width="512" alt="偏壓 1.0"><img data-v="b1p5" class="" src="zoom__dog_00__b1p5.png" width="512" alt="偏壓 1.5"><img data-v="b2p5" class="" src="zoom__dog_00__b2p5.png" width="512" alt="偏壓 2.5"><img data-v="b4p0" class="" src="zoom__dog_00__b4p0.png" width="512" alt="偏壓 4.0"></div>
+  </div>
+  <details><summary>展開數值（先看圖）</summary><table><tr><th>級</th><th>實得偏壓</th><th>LPIPS</th></tr><tr><td>0.3</td><td>0.300</td><td>0.0035</td></tr><tr><td>0.6</td><td>0.600</td><td>0.0142</td></tr><tr><td>1.0</td><td>1.000</td><td>0.0367</td></tr><tr><td>1.5</td><td>1.500</td><td>0.0704</td></tr><tr><td>2.5</td><td>2.500</td><td>0.1335</td></tr><tr><td>4.0</td><td>4.000</td><td>0.2109</td></tr></table></details>
+</div>
+<div class="panel">
+  <div class="hdr"><b>person_01</b>
+    <span>只有色度偏壓在變，亮度與結構不動</span>
+  </div>
+  <div class="btns"><button data-v="orig" aria-pressed="true">原圖</button><button data-v="b0p3" aria-pressed="false">偏壓 0.3</button><button data-v="b0p6" aria-pressed="false">偏壓 0.6</button><button data-v="b1p0" aria-pressed="false">偏壓 1.0</button><button data-v="b1p5" aria-pressed="false">偏壓 1.5</button><button data-v="b2p5" aria-pressed="false">偏壓 2.5</button><button data-v="b4p0" aria-pressed="false">偏壓 4.0</button></div>
+  <div class="stage">
+    <div class="frame"><img data-v="orig" class="on" src="person_01__orig.png" width="512" alt="原圖"><img data-v="b0p3" class="" src="person_01__b0p3.png" width="512" alt="偏壓 0.3"><img data-v="b0p6" class="" src="person_01__b0p6.png" width="512" alt="偏壓 0.6"><img data-v="b1p0" class="" src="person_01__b1p0.png" width="512" alt="偏壓 1.0"><img data-v="b1p5" class="" src="person_01__b1p5.png" width="512" alt="偏壓 1.5"><img data-v="b2p5" class="" src="person_01__b2p5.png" width="512" alt="偏壓 2.5"><img data-v="b4p0" class="" src="person_01__b4p0.png" width="512" alt="偏壓 4.0"></div>
+    <div class="frame"><img data-v="orig" class="on" src="zoom__person_01__orig.png" width="512" alt="原圖"><img data-v="b0p3" class="" src="zoom__person_01__b0p3.png" width="512" alt="偏壓 0.3"><img data-v="b0p6" class="" src="zoom__person_01__b0p6.png" width="512" alt="偏壓 0.6"><img data-v="b1p0" class="" src="zoom__person_01__b1p0.png" width="512" alt="偏壓 1.0"><img data-v="b1p5" class="" src="zoom__person_01__b1p5.png" width="512" alt="偏壓 1.5"><img data-v="b2p5" class="" src="zoom__person_01__b2p5.png" width="512" alt="偏壓 2.5"><img data-v="b4p0" class="" src="zoom__person_01__b4p0.png" width="512" alt="偏壓 4.0"></div>
+  </div>
+  <details><summary>展開數值（先看圖）</summary><table><tr><th>級</th><th>實得偏壓</th><th>LPIPS</th></tr><tr><td>0.3</td><td>0.300</td><td>0.0041</td></tr><tr><td>0.6</td><td>0.600</td><td>0.0155</td></tr><tr><td>1.0</td><td>1.000</td><td>0.0370</td></tr><tr><td>1.5</td><td>1.500</td><td>0.0674</td></tr><tr><td>2.5</td><td>2.500</td><td>0.1285</td></tr><tr><td>4.0</td><td>4.000</td><td>0.2103</td></tr></table></details>
+</div>
+<script>
+document.querySelectorAll('.panel').forEach(p => {
+  const show = v => {
+    p.querySelectorAll('.frame img').forEach(i =>
+      i.classList.toggle('on', i.dataset.v === v));
+    p.querySelectorAll('button').forEach(b =>
+      b.setAttribute('aria-pressed', b.dataset.v === v));
+  };
+  p.querySelectorAll('button').forEach(b =>
+    b.addEventListener('click', () => show(b.dataset.v)));
+  p.addEventListener('mouseenter', () => p.dataset.hot = '1');
+  p.addEventListener('mouseleave', () => delete p.dataset.hot);
+});
+// 數字鍵切換滑鼠所在面板的第 n 個版本：切換要快，移到按鈕上再點會打斷比對
+document.addEventListener('keydown', e => {
+  const i = parseInt(e.key, 10);
+  if (!(i >= 1 && i <= 9)) return;
+  const p = document.querySelector('.panel[data-hot="1"]');
+  if (!p) return;
+  const b = p.querySelectorAll('button')[i - 1];
+  if (b) b.click();
+});
+</script></body></html>

@@ -11,9 +11,14 @@
    並在計算比值時排除它們。
 3. site S 不在網格內（使用者 2026-08-01 決定）。非加性一側是 site C。
 
-執行：`python scripts/e27_report.py`
+執行：`python scripts/e27_report.py --prefix e30`
+
+run 目錄的前綴是參數而非寫死的字串。校準與主網格會落在不同前綴（E29 校準、
+E30 主網格），改字串常數等於每跑一輪就要改一次腳本，而改過的腳本無法再重現
+前一輪的表。
 """
 
+import argparse
 import csv
 import sys
 from pathlib import Path
@@ -58,10 +63,15 @@ def cell_summary(rows):
 
 
 def main() -> None:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--prefix", default="e30",
+                    help="run 目錄的前綴，目錄名為 <prefix>_<site>_tau<τ>")
+    args = ap.parse_args()
+
     table, missing = {}, []
     for tau in TAUS:
         for site, _ in ARMS:
-            run = f"e27_{site}_tau{tau}"
+            run = f"{args.prefix}_{site}_tau{tau}"
             rows = load(run)
             if rows is None:
                 missing.append(run)
@@ -69,9 +79,9 @@ def main() -> None:
             table[(tau, site)] = cell_summary(rows)
 
     if missing:
-        print(f"[e27] 尚未產生的 run：{', '.join(missing)}\n")
+        print(f"[{args.prefix}] 尚未產生的 run：{', '.join(missing)}\n")
     if not table:
-        raise SystemExit("沒有任何 E27 的資料，無法彙整")
+        raise SystemExit(f"沒有任何 {args.prefix}_* 的資料，無法彙整")
 
     print("=== 主表（無淨化、未見種子）===")
     print(f"{'τ':>6s}{'臂':>4s}{'n':>3s}{'收斂':>6s}{'步數':>7s}"

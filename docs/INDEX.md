@@ -135,9 +135,9 @@ python scripts/p5_compare_page.py     # E25 人眼比對頁：編輯有沒有被
 python scripts/p7_attack_sanity.py    # E26 guidance 掃描（真實 SD v1.4，CPU 約 25 分）
 python scripts/p7_compare_page.py     # E26 人眼比對頁：w=1 vs w=7.5
 python scripts/p8_site_c_capacity.py  # E26 site C 容量檢查（CPU，約 1 分）
-python scripts/e27_binding_check.py runs/e27d_*   # E27 逐格判定哪道約束綁住（秒級）
+python scripts/e27_binding_check.py runs/e27d_*   # 逐格判定哪道約束綁住（秒級）
 python scripts/e27_compare_page.py runs/e27d_C_lr0.3 runs/e27d_P_lr0.03  # E27 防禦圖比對頁
-python scripts/e27_report.py          # E27 主網格彙整（網格跑完後才有資料）
+python scripts/e27_report.py --prefix e30   # 主網格彙整（網格跑完後才有資料）
 python scripts/p9_chroma_probe.py     # E28 色度約束的候選判別（GPU 約 2 分／CPU 約 25 分）
 python scripts/p10_chroma_ladder.py   # E28 色度偏壓階梯 + 人眼比對頁（約 1 分）
 python scripts/make_report_figures.py   # docs/figures/*.png（E2/E8/E9/E10/E12）
@@ -145,3 +145,16 @@ python scripts/make_report.py     # docs/archive/2026-07-29-RESULTS_lowrank.html
 ```
 
 `scripts/e17_vae_floor.py` 需要 GPU 與 SD 權重，不能在本機重跑。
+
+---
+
+## 5. 待執行的實驗（需雲端 GPU）
+
+驅動腳本在 `scripts/drivers/`，說明見該目錄的 README，設定的出處見
+`docs/NEXT_SESSION.md` §4–§6。順序固定，E29 沒通過綁定者判準就不要開 E30。
+
+| 腳本 | 產生的 run | 成本 |
+|---|---|---|
+| `drivers/remote_setup.sh` | 無（環境準備） | 約 5 分鐘 |
+| `drivers/e29_calibration.sh` | `e29_{C,P}_lr*`（8 格） | 約 20 分鐘 |
+| `drivers/e30_grid.sh` | `e30_{C,P}_tau*`（36 格） | 2–4.2 小時 |

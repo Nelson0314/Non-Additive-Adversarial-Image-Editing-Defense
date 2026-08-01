@@ -87,23 +87,43 @@ classifier-free guidance，等同 w=1，該設定下 SD v1.4 幾乎不服從 pro
 指令（8 格、60 步、約 20 分鐘）：
 
 ```bash
-for LR in 0.1 0.3; do
-  python scripts/run_defense.py --sites C --ranks 32 --lr $LR \
-    --size 512 --steps 60 --k_inv 10 --n_edit 10 --limit 2 --no_eval \
-    --guidance_scale 7.5 --beta_linf 0 --tau_lpips 0.05 --margin 1.0 \
-    --alpha_lpips 0 --color_max_dev 2.0 --out runs/e29_C_lr$LR
-done
-for LR in 0.03 0.1; do
-  python scripts/run_defense.py --sites P --ranks 16 --lr $LR \
-    --size 512 --steps 60 --k_inv 10 --n_edit 10 --limit 2 --no_eval \
-    --guidance_scale 7.5 --beta_linf 0 --tau_lpips 0.05 --margin 1.0 \
-    --alpha_lpips 0 --out runs/e29_P_lr$LR
-done
-python scripts/e27_binding_check.py runs/e29_*
+bash scripts/drivers/remote_setup.sh       # 環境、GPU、預抓權重，約 5 分鐘
+bash scripts/drivers/e29_calibration.sh    # 校準 + 綁定者診斷
 ```
+
+驅動已寫成腳本檔而非逐行指令：多層引號的 `for` 迴圈在 ssh 裡會壞掉，且
+`e29_calibration.sh` 內含 `tee` 到 `runs/logs/`，避免 stdout 只存在於終端。
+展開後的實際指令與本節先前的版本逐字相同（2026-08-02 以 `PY=echo` 驗證）。
 
 判準：`e27_binding_check.py` 對每一格的判定必須是「LPIPS hinge」，不是硬上界、
 不是 margin、不是色度 hinge。
+
+**該工具在 2026-08-02 之前查不出色度那一道**（`HINGES` 漏了 `fid_pen_chroma`，
+見 `scripts/e27_binding_check.py:34` 的註記）。誤判的方向是最壞的一種：色度
+綁死 60/60 步的格子會被判成「沒有任何約束啟動過 —— 步數不足或 lr 太小」，
+照著這個判定去加步數或調大 lr，只會讓色度罰則更深。已補上並由
+`tests/test_binding_check.py` 覆蓋。
+
+### 本機煙霧測試給出的預期（2026-08-02）
+
+`bash scripts/drivers/smoke_local.sh` 用 tiny-SD 把整條鏈走一遍，兩個 site
+各一格、64²、8 步，其餘參數與 `e29_calibration.sh` 相同。判定是：
+
+| 格 | 末 LPIPS | 末色度 | LPIPS 啟動 | 色度啟動 | 判定 |
+|---|---|---|---|---|---|
+| site C lr=0.3 | 0.0304 | 4.197 | 0/8 | 6/8 | 色度 hinge |
+| site P lr=0.03 | 0.0955 | 0.601 | 1/8 | 0/8 | LPIPS hinge |
+
+**tiny-SD 是隨機初始化的模型，其收斂行為不代表真實 SD**，這裡只能讀出結構
+性質：色度 hinge 對 site C 會先於 LPIPS hinge 綁住，對 site P 不綁。末色度
+4.197 與 E27 在 H100 上量到的 4.97（舊約束、真實 SD）量級一致，兩者互為佐證。
+
+因此 E29 的可能結果不只是「lr 要調」。若降 lr 之後色度仍是綁定者，那代表
+色度偏壓是 site C 這個參數化的固有代價——色度矩陣場改的就是色度——而不是
+學習率的問題。屆時 §5 原本設想的「重新定 lr」不成立，要走的是換一個非加性
+參數化。這一步的判斷依據是：降 lr 後 `末色度` 是否降到 0.8 以下，且 LPIPS
+hinge 是否接手成為綁定者；若 `末色度` 只是隨 shift 一起塌掉（防禦能力歸零
+換來合規），那不是可用的運作點。
 
 ---
 
@@ -112,19 +132,15 @@ python scripts/e27_binding_check.py runs/e29_*
 校準通過後：
 
 ```bash
-for TAU in 0.05 0.02 0.10; do
-  python scripts/run_defense.py --sites C --ranks 32 --lr <校準值> \
-    --tau_lpips $TAU --size 512 --steps 150 --k_inv 10 --n_edit 10 \
-    --guidance_scale 7.5 --beta_linf 0 --margin 1.0 --alpha_lpips 0 \
-    --color_max_dev 2.0 --stop_on_plateau --out runs/e30_C_tau$TAU
-  python scripts/run_defense.py --sites P --ranks 16 --lr <校準值> \
-    --tau_lpips $TAU --size 512 --steps 150 --k_inv 10 --n_edit 10 \
-    --guidance_scale 7.5 --beta_linf 0 --margin 1.0 --alpha_lpips 0 \
-    --stop_on_plateau --out runs/e30_P_tau$TAU
-done
-python scripts/e27_report.py       # 需把 RUNS 內的名稱改為 e30_*
-python scripts/e27_binding_check.py runs/e30_*
+LR_C=<E29 定出的值> LR_P=<E29 定出的值> bash scripts/drivers/e30_grid.sh
 ```
+
+腳本跑完 36 格後自動接 `e27_report.py --prefix e30` 與綁定者診斷。學習率沒有
+預設值，未傳入就直接中止——沿用 E27 的 0.3 / 0.03 等於假設色度約束不影響解，
+而 §5 存在的理由正是那個假設未經檢驗。
+
+（`e27_report.py` 的 run 前綴已改為 `--prefix` 參數，不再寫死 `e27_`。改常數
+的話每跑一輪就要改一次腳本，而改過的腳本無法再重現前一輪的表。）
 
 τ 的順序取 0.05 先跑：那是與 E21/E23 對應的格子，若機時不足至少有關鍵比較。
 
@@ -164,7 +180,8 @@ python scripts/e27_binding_check.py runs/e30_*
 
 ## 9. 環境
 
-- 測試基準 **247 passed / 1 skipped**。
+- 測試基準 **253 passed / 1 skipped**（2026-08-02 起；新增
+  `tests/test_binding_check.py` 6 項）。
 - 本機：`C:/Users/nelso/miniconda3/envs/wacv/python.exe`，torch 2.13.0+cu126，
   RTX 2050 4 GB。**跑得動分析、跑不動主網格**——SD v1.4 光是 fp32 權重就
   4.26 GB，實測 512² 訓練 OOM；256² 可跑但每步 183 s（溢位到系統記憶體），

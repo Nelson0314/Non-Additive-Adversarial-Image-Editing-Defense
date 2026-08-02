@@ -14,6 +14,20 @@ dependencies:
       - transformers
       - accelerate
       - piq            # 指標，SPEC §2.6 指定，不可替換
+      # NIQE 由 pyiqa 提供，而 MetricSuite.full() 對每張圖各算一次 NIQE，
+      # 所以這是 run_defense.py 評測路徑（未加 --no_eval 時）的執行期相依，
+      # 不只是 tests/test_battery.py 用得到。2026-08-02 之前本檔漏列它：
+      # 本機與 TWCC 都是臨時裝的（docs/NIGHT_RUN_2026-07-29.md），
+      # 而 scripts/drivers/*_setup.sh 的清單抄自本檔，於是一起漏掉。
+      #
+      # 雲端機器請以 `--no-deps` 安裝（見 scripts/drivers/colab_setup.sh）：
+      # pyiqa 的完整相依樹含 torch、torchvision、datasets、bitsandbytes、
+      # facexlib、tensorboard 等三十餘項，會覆蓋掉映像檔既有的 torch。
+      # 實測本專案用到的指標（niqe/gmsd/nlpd/lpips/dists/stlpips/ms_ssim/
+      # ssim/musiq）只載入 numpy、scipy、opencv、pillow、PyYAML、requests、
+      # tqdm、rich、huggingface_hub 與 torch，全部另有來源。
+      - pyiqa          # NIQE（src/metrics/suite.py、src/metrics/battery.py）
+      - scipy          # pyiqa 以 --no-deps 安裝時要自行補上
       - opencv-contrib-python   # cv2.ximgproc.guidedFilter 所需
       - peft           # APA Stage 1 LoRA（官方實作使用，SPEC §4.4.2）
       - pytest

@@ -30,7 +30,15 @@ echo "HF_HOME=$HF_HOME"
 echo "=== 套件 ==="
 "$PY" -m pip install --quiet --upgrade pip
 "$PY" -m pip install --quiet torch torchvision diffusers transformers accelerate \
-  piq opencv-contrib-python peft pytest pyyaml psutil matplotlib
+  piq opencv-contrib-python peft pytest pyyaml psutil matplotlib scipy
+
+# pyiqa 提供 NIQE，而 MetricSuite.full() 對每張圖各算一次，故這是
+# run_defense.py 評測路徑的執行期相依，不只是測試用得到。--no-deps 的理由
+# 與 colab_setup.sh 相同（相依樹三十餘項，含會覆蓋 torch 的項目），
+# 也與 docs/NIGHT_RUN_2026-07-29.md 在 TWCC 上的作法一致：完整相依會拉進
+# 非 headless 的 opencv，觸發容器缺 libGL.so.1 的問題。
+"$PY" -m pip install --quiet --no-deps pyiqa
+"$PY" -c "import torch, pyiqa; print('pyiqa', pyiqa.__version__, 'NIQE =', float(pyiqa.create_metric('niqe', device='cpu')(torch.rand(1,3,256,256))))"
 
 echo "=== GPU ==="
 "$PY" - <<'PYEOF'

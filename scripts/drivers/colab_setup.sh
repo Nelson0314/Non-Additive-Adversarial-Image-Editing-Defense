@@ -45,7 +45,30 @@ echo "=== 套件（torch／torchvision 以 constraint 釘住）==="
 # 版本太舊時 diffusers 會在 import 期就失敗，交給 pip 判斷是否需要動。
 "$PY" -m pip install --quiet -c "$CONSTRAINTS" \
   diffusers transformers accelerate \
-  piq opencv-contrib-python peft pytest pyyaml psutil
+  piq opencv-contrib-python peft pytest pyyaml psutil scipy
+
+# pyiqa 單獨以 --no-deps 安裝。它提供 NIQE，而 MetricSuite.full() 對每張圖
+# 各算一次 NIQE，所以這是 run_defense.py 評測路徑的執行期相依——E29 帶
+# --no_eval 碰不到，E30 會在第一格評測時才當掉。
+#
+# 為什麼 --no-deps：pyiqa 宣告的相依有三十餘項，含 torch、torchvision、
+# datasets、bitsandbytes、facexlib、tensorboard、pre-commit、ruff。上面的
+# constraint 檔擋得住 torch 被換版，擋不住其餘二十幾個無關套件被裝進來，
+# 而它們有各自的版本要求，可能連帶動到 Colab 既有的 numpy 或 transformers。
+# 實測本專案用到的指標（niqe / gmsd / nlpd / lpips / dists / stlpips /
+# ms_ssim / ssim / musiq）在執行期只載入 numpy、scipy、opencv、pillow、
+# PyYAML、requests、tqdm、rich、huggingface_hub 與 torch —— 全部已由上一行
+# 或 Colab 映像檔提供。haarpsi 與 vif_p 出自 piq 而非 pyiqa。
+"$PY" -m pip install --quiet --no-deps pyiqa
+
+echo "=== 核對 pyiqa 在 --no-deps 下匯入無誤 ==="
+"$PY" - <<'PYEOF'
+import torch, pyiqa
+# 只建 NIQE：它是評測路徑真正會用到的那一個，且參數內建、不需下載權重。
+# 匯入成功但建構失敗的話，缺的是相依而非套件本身，要在這裡就知道。
+m = pyiqa.create_metric("niqe", device="cpu")
+print("pyiqa", pyiqa.__version__, "NIQE =", float(m(torch.rand(1, 3, 256, 256))))
+PYEOF
 
 echo "=== 核對 torch 未被換掉 ==="
 "$PY" - <<PYEOF

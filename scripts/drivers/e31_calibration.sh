@@ -17,9 +17,14 @@
 # crossattn 那一格的每步成本未量過，本腳本一併量——它以 attn_timesteps=4 次
 # 單步前向取代 n_edit=10 步的鏈，預期較低，但那是推測不是量測。
 #
+# 兩道次要門檻逐預算而定（規格 §12）：沿用 E20／E28 的絕對值 0.04 與 0.8 會把
+# 可達的 LPIPS 封在 0.15–0.20（p13 實測連 i.i.d. 白高斯雜訊在 0.20 的 acut 都
+# 已達 0.0414），gate 會因與防禦無關的理由失敗。τ=0.28 對應的值由
+# scripts/p14_budget_thresholds.py 定出，執行前必須傳入。
+#
 # 用法：
-#   bash scripts/drivers/e31_calibration.sh
-#   PY=/path/to/python bash scripts/drivers/e31_calibration.sh   # 覆寫直譯器
+#   TA_028=... TC_028=... bash scripts/drivers/e31_calibration.sh
+#   PY=/path/to/python TA_028=... TC_028=... bash scripts/drivers/e31_calibration.sh
 set -euo pipefail
 
 # 背景腳本不是 login shell，`python3` 會取到系統直譯器（缺 numpy），
@@ -28,9 +33,20 @@ PY="${PY:-/home/zeus/miniconda3/envs/cloudspace/bin/python3}"
 cd "$(dirname "$0")/../.."
 mkdir -p runs/logs
 
+TA_028="${TA_028:-0.0}" ; TC_028="${TC_028:-0.0}"
+for V in "$TA_028" "$TC_028"; do
+  if [ "$V" = "0.0" ]; then
+    echo "錯誤：次要門檻仍是佔位值 0.0。請由 runs/p14_budget_thresholds/" \
+         "thresholds.csv 取 budget=0.28 那一列的 tau_acut / tau_chroma。" \
+         "門檻設為 0 會讓兩道 hinge 從第一步就飽和，校準結果作廢。" >&2
+    exit 1
+  fi
+done
+
 BASE="--sites P --ranks 16 --size 512 --steps 60 --k_inv 10 --n_edit 10 \
   --limit 2 --no_eval --guidance_scale 7.5 --beta_linf 0 --margin 1.0 \
-  --alpha_lpips 0 --tau_lpips 0.28 --strength 0.5"
+  --alpha_lpips 0 --tau_lpips 0.28 --strength 0.5 \
+  --tau_acut $TA_028 --tau_chroma $TC_028"
 
 {
   echo "=== E31 R1 校準開始 $(date -Is) ==="

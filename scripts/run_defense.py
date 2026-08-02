@@ -355,6 +355,14 @@ def main():
              "而非 L∞，故此值與 --tau_lpips 同等重要，兩者都會寫入 env.json",
     )
     ap.add_argument(
+        "--tau_acut", type=float, default=LossConfig.tau_acut,
+        help="鈍化 hinge 的門檻。E20 定的 0.04 是**絕對值**且是在 "
+             "τ_lpips=0.05 的量級上定的；p13 實測連 i.i.d. 白雜訊在 "
+             "LPIPS 0.20 的 acut 都已達 0.0414，故在文獻預算下該值會把可達"
+             "的 LPIPS 封在 0.15–0.20，與最佳化找到什麼解無關。逐預算的值"
+             "見 runs/p14_budget_thresholds/thresholds.csv",
+    )
+    ap.add_argument(
         "--tau_chroma", type=float, default=LossConfig.tau_chroma,
         help="色度偏壓 hinge 的門檻。0.8 由人眼定錨（runs/p10_chroma_ladder）："
              "0.3 與 0.6 看不出來、1.0 要很仔細看才看得出來。取 0.8 而非 1.0，"
@@ -406,8 +414,8 @@ def main():
         "--warp_resample", choices=["bilinear", "bicubic"],
         default=OptimConfig.warp_resample,
         help="site S 的 grid_sample 插值模式。E20 §5.2 實測在同一 LPIPS 上 "
-             "bilinear 只保留 85.0% 銳利度、bicubic 為 99.9%；E19 量到的真實 "
-             "site S 為 85.2%，即其鈍化幾乎全部來自重取樣。預設維持 bilinear "
+             "bilinear 只保留 85.0%% 銳利度、bicubic 為 99.9%%；E19 量到的真實 "
+             "site S 為 85.2%%，即其鈍化幾乎全部來自重取樣。預設維持 bilinear "
              "以保持 E13–E19 的可重現性",
     )
     ap.add_argument("--strength", type=float, default=0.5)
@@ -441,6 +449,7 @@ def main():
     loss_cfg = LossConfig(tau_lpips=args.tau_lpips,
                           beta_linf=args.beta_linf, tau_linf=args.tau_linf,
                           margin=args.margin, alpha_lpips=args.alpha_lpips,
+                          tau_acut=args.tau_acut,
                           tau_chroma=args.tau_chroma,
                           gamma_chroma=args.gamma_chroma,
                           defense_mode=args.defense_mode)

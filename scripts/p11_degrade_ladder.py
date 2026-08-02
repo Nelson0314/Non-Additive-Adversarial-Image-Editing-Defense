@@ -67,23 +67,42 @@ def apply_arm(x, kind, strength):
 
 
 def load_sources(root: Path, size: int, device):
-    """來源取既有 run 的**未防禦編輯輸出**，不是原圖。
+    """來源取**未防禦的編輯輸出**，不是原圖。
 
     理由：判準作用的對象是編輯輸出。編輯輸出本身已經是擴散生成的，其無參考
-    品質基線與自然照片不同（實測 runs/e29c_P 的 edit_orig NIQE 為 3.10，
+    品質基線與自然照片不同（實測 runs/e29c_P 的 edit_orig NIQE 為 3.00，
     而自然照片一般更低），用原圖定錨會定在錯的基線上。
+
+    兩處來源：既有 run 的 `edit_orig.png`，以及 `scripts/e31_make_edits.py`
+    在本機補產生的。補產生的理由是既有 run 中以正確攻擊設定（w=7.5）跑出來
+    的未防禦編輯只有 car_00 一張——`runs/e29c_C_*` 與 `runs/e29c_P_*` 的
+    `edit_orig.png` 經雜湊比對是同一個檔（SDEdit 在相同影像／prompt／種子／
+    strength 下是決定性的），用一張圖定錨門檻太薄。
+
+    逐檔以位元組雜湊去重，否則同一張圖會在比對頁上出現兩次，看起來像兩個
+    獨立樣本。
     """
-    paths = sorted(root.glob("runs/e29c_*_tau0.10/*/edit_orig.png"))
+    import hashlib
+
+    paths = (sorted(root.glob("runs/e29c_*_tau0.10/*/edit_orig.png"))
+             + sorted(root.glob("runs/e31_sources/*__edit_orig.png")))
     if not paths:
         raise FileNotFoundError(
-            "找不到任何 edit_orig.png。本階梯必須以既有的未防禦編輯輸出為"
-            "來源，請先確認 runs/e29c_*_tau0.10/ 已入版控"
+            "找不到任何未防禦的編輯輸出。請先確認 runs/e29c_*_tau0.10/ 已入"
+            "版控，或跑 scripts/e31_make_edits.py 產生 runs/e31_sources/"
         )
-    out = []
+    out, seen = [], set()
     for p in paths:
+        digest = hashlib.md5(p.read_bytes()).hexdigest()
+        if digest in seen:
+            print(f"  [跳過重複] {p.parent.name}/{p.name}", flush=True)
+            continue
+        seen.add(digest)
+        name = (p.stem.replace("__edit_orig", "")
+                if p.parent.name == "e31_sources"
+                else f"{p.parent.parent.name}/{p.parent.name}")
         img = Image.open(p).convert("RGB").resize((size, size), Image.LANCZOS)
-        out.append((f"{p.parent.parent.name}/{p.parent.name}",
-                    T.ToTensor()(img).unsqueeze(0).to(device)))
+        out.append((name, T.ToTensor()(img).unsqueeze(0).to(device)))
     return out
 
 

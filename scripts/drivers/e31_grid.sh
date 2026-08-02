@@ -27,12 +27,21 @@
 # 成本：12 格 × 2 圖。全鏈格約 100 步 × 2.36 s + 33.7 s 評測 ≈ 4.5 分／圖，
 # crossattn 格較低。合計約 1.5–2 小時（H100、TF32 開）。
 #
-# 前置：e31_calibration.sh 的綁定者判定全部是 LPIPS hinge。LR_028 由該輪
-# 定出，執行前必須以環境變數傳入實際值——預設只是佔位。
+# 兩道次要門檻逐預算而定（規格 §12）。τ_acut=0.04 與 τ_chroma=0.8 都是絕對值，
+# 且都在 τ_lpips=0.05 的量級上定的；p13 實測連 i.i.d. 白高斯雜訊在 LPIPS 0.20
+# 的 acut 都已達 0.0414、0.28 時是 0.0875 與 chroma 1.1284，兩道都被跨過。
+# 沿用那組絕對值會把可達的 LPIPS 封在 0.15–0.20，與最佳化找到什麼解無關，
+# 於是「文獻預算下防禦會不會成立」這個問題問不出來。
+# 逐預算的值由 scripts/p14_budget_thresholds.py 定出，寫在
+# runs/p14_budget_thresholds/thresholds.csv，執行前必須以環境變數傳入。
+#
+# 前置：
+#   1. e31_calibration.sh 的綁定者判定全部是 LPIPS hinge。
+#   2. LR_028、TA_*、TC_* 四組值由該輪與 p14 定出——預設只是佔位。
 #
 # 用法：
-#   LR_028=0.1 bash scripts/drivers/e31_grid.sh
-#   PY=/path/to/python LR_028=0.1 bash scripts/drivers/e31_grid.sh
+#   LR_028=0.1 TA_010=... TC_010=... TA_028=... TC_028=... \
+#     bash scripts/drivers/e31_grid.sh
 set -euo pipefail
 
 PY="${PY:-/home/zeus/miniconda3/envs/cloudspace/bin/python3}"
@@ -42,6 +51,19 @@ mkdir -p runs/logs
 # τ=0.10 的 lr 沿用 E29 定出的 0.03；τ=0.28 的由 R1 定出。
 LR_010="${LR_010:-0.03}"
 LR_028="${LR_028:-0.03}"
+# 逐預算的次要門檻。預設值取自 p14 在 car_00 上的初測，正式執行必須以
+# runs/p14_budget_thresholds/thresholds.csv 的實際值覆寫。
+TA_010="${TA_010:-0.0}" ; TC_010="${TC_010:-0.0}"
+TA_028="${TA_028:-0.0}" ; TC_028="${TC_028:-0.0}"
+
+for V in "$TA_010" "$TC_010" "$TA_028" "$TC_028"; do
+  if [ "$V" = "0.0" ]; then
+    echo "錯誤：次要門檻仍是佔位值 0.0。請由 runs/p14_budget_thresholds/" \
+         "thresholds.csv 取對應預算的 tau_acut / tau_chroma 並以 TA_*／TC_*" \
+         "傳入。門檻設為 0 會讓兩道 hinge 從第一步就飽和，整批網格作廢。" >&2
+    exit 1
+  fi
+done
 
 BASE="--sites P --ranks 16 --size 512 --steps 150 --k_inv 10 --n_edit 10 \
   --limit 2 --guidance_scale 7.5 --beta_linf 0 --margin 1.0 --alpha_lpips 0 \
@@ -50,24 +72,31 @@ BASE="--sites P --ranks 16 --size 512 --steps 150 --k_inv 10 --n_edit 10 \
 {
   echo "=== E31 R2 主網格開始 $(date -Is) ==="
   echo "LR_010=$LR_010  LR_028=$LR_028"
+  echo "τ=0.10：tau_acut=$TA_010 tau_chroma=$TC_010"
+  echo "τ=0.28：tau_acut=$TA_028 tau_chroma=$TC_028"
   "$PY" -c "import torch; print('torch', torch.__version__, 'cuda', torch.cuda.is_available())"
 
   for TAU in 0.10 0.28; do
-    if [ "$TAU" = "0.10" ]; then LR="$LR_010"; else LR="$LR_028"; fi
+    if [ "$TAU" = "0.10" ]; then
+      LR="$LR_010"; TA="$TA_010"; TC="$TC_010"
+    else
+      LR="$LR_028"; TA="$TA_028"; TC="$TC_028"
+    fi
+    SEC="--tau_acut $TA --tau_chroma $TC"
     for S in 0.5 0.3; do
-      "$PY" scripts/run_defense.py $BASE --tau_lpips "$TAU" --lr "$LR" \
+      "$PY" scripts/run_defense.py $BASE $SEC --tau_lpips "$TAU" --lr "$LR" \
         --strength "$S" --defense_mode untargeted \
         --out "runs/e31_untargeted_tau${TAU}_s${S}"
 
       # targeted 的 L_def = LPIPS(y_def, y_target) 是最小化，本來就有界，
       # 故 margin 對這一格完全不起作用。報告中須寫明，否則 margin 欄位會
       # 被誤讀成「設得太小所以沒發展起來」。
-      "$PY" scripts/run_defense.py $BASE --tau_lpips "$TAU" --lr "$LR" \
+      "$PY" scripts/run_defense.py $BASE $SEC --tau_lpips "$TAU" --lr "$LR" \
         --strength "$S" --defense_mode targeted \
         --target_image data/targets/gray.png \
         --out "runs/e31_targeted_tau${TAU}_s${S}"
 
-      "$PY" scripts/run_defense.py $BASE --tau_lpips "$TAU" --lr "$LR" \
+      "$PY" scripts/run_defense.py $BASE $SEC --tau_lpips "$TAU" --lr "$LR" \
         --strength "$S" --defense_mode crossattn --attn_mode suppress \
         --attn_timesteps 4 --out "runs/e31_attn_tau${TAU}_s${S}"
     done

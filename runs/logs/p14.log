@@ -68,3 +68,24 @@ C:\Users\nelso\miniconda3\envs\wacv\Lib\site-packages\torchvision\models\_utils.
   person_00 τ=0.15 warp_bicubic   amt=2.2757 lpips=0.1500 acut=0.1014 chroma=0.3461
   person_00 τ=0.15 chroma         amt=0.6701 lpips=0.1500 acut=0.0018 chroma=2.9010
   person_00 τ=0.2 blur           amt=1.2073 lpips=0.2000 acut=0.4149 chroma=0.0289
+  person_00 τ=0.2 noise          amt=0.0208 lpips=0.2000 acut=0.0786 chroma=0.1817
+  person_00 τ=0.2 warp_bilinear  amt=2.7485 lpips=0.2000 acut=0.1346 chroma=0.4157
+  person_00 τ=0.2 warp_bicubic   amt=2.8666 lpips=0.2000 acut=0.1241 chroma=0.4337
+  person_00 τ=0.2 chroma         amt=0.8887 lpips=0.2000 acut=0.0031 chroma=3.7794
+  person_00 τ=0.28 blur           amt=1.8753 lpips=0.2800 acut=0.5765 chroma=0.0588
+  person_00 τ=0.28 noise          amt=0.0301 lpips=0.2800 acut=0.1616 chroma=0.3020
+  person_00 τ=0.28 warp_bilinear  amt=3.7916 lpips=0.2800 acut=0.1650 chroma=0.5704
+  person_00 τ=0.28 warp_bicubic   amt=3.8397 lpips=0.2800 acut=0.1649 chroma=0.5785
+  person_00 τ=0.28 chroma         amt=1.3323 lpips=0.2800 acut=0.0066 chroma=5.4797
+
+[定錨] τ_acut=0.04 位於 pos=0.147；τ_chroma=0.8 位於 pos=0.685（0.5 即幾何中點）
+
+預算   τ_acut   (通過≤ / 擋下≥)        τ_chroma  (通過≤ / 擋下≥)
+0.05   0.04     (0.0322 / 0.1419)      0.8       (0.1387 / 1.7907)
+0.1    0.0594   (0.0499 / 0.1637)      1.2861    (0.2285 / 2.8472)
+0.15   0.0749   (0.0650 / 0.1700)      1.7725    (0.3141 / 3.9283)
+0.2    0.09     (0.0802 / 0.1763)      2.2962    (0.4013 / 5.1218)
+0.28   0.1648   (0.1608 / 0.1896)      3.4009    (0.6292 / 7.3897)
+
+[p14] 寫出 C:\WACV\runs\p14_budget_thresholds\arms.csv 與 C:\WACV\runs\p14_budget_thresholds\thresholds.csv
+[p14] 兩側都有間隔（`pick_threshold` 未拋出）即代表門檻在每一個預算上都成立。E31 網格的每一格須以對應預算的這兩個值傳入 --tau_acut / --tau_chroma。

@@ -1,0 +1,78 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+[run] device=cuda sites=['C'] ranks=[32] steps=150
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 6249.54it/s]
+Loading pipeline components...:  17%|█▋        | 1/6 [00:00<00:00,  6.55it/s]Loading pipeline components...:  50%|█████     | 3/6 [00:00<00:00, 11.29it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 19.25it/s]
+/home/zeus/miniconda3/envs/cloudspace/lib/python3.12/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/home/zeus/miniconda3/envs/cloudspace/lib/python3.12/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+[run] 影像 1 張：['car_00']
+[run] 訓練期淨化集 ['identity', 'blur', 'jpeg']
+
+[run] car_00__C__r32  prompt='a wrecked car after an accident'
+  [stop] 監看的約束：fid_pen_lpips, fid_pen_acut, fid_pen_chroma
+/teamspace/studios/this_studio/WACV/src/defense/objective.py:463: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:835.)
+  "fid_linf_total": float((xd - xr).abs().max()),
+  step    0  loss=1.0000  L_def=1.0000  L_fid=0.0000  shift=0.0000  psnr=120.00  linf=0.0000  |g|=0.000e+00
+  step   10  loss=80.0558  L_def=0.5813  L_fid=79.4745  shift=0.4187  psnr=31.70  linf=0.3769  |g|=1.000e+00
+  step   20  loss=38.7818  L_def=0.7800  L_fid=38.0017  shift=0.2200  psnr=30.28  linf=0.4627  |g|=1.000e+00
+  [stop] 第 26 步停止：約束已啟動且 edit_shift 在最近 20 步的每步改善 -1.00e-03 低於 1.0e-04
+[run] car_00__C__r32 完成 64s peak=10321MB shift=0.2361 psnr=29.44 eff_rank=512.0
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 14434.10it/s]
+[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
+[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
+Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 4143.99it/s]
+
+[run] 全部完成，共 1 格，101s
+[run] device=cuda sites=['P'] ranks=[16] steps=150
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 8352.73it/s]
+Loading pipeline components...:  17%|█▋        | 1/6 [00:00<00:00,  5.52it/s]Loading pipeline components...:  83%|████████▎ | 5/6 [00:00<00:00, 17.12it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 18.19it/s]
+/home/zeus/miniconda3/envs/cloudspace/lib/python3.12/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/home/zeus/miniconda3/envs/cloudspace/lib/python3.12/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+[run] 影像 1 張：['car_00']
+[run] 訓練期淨化集 ['identity', 'blur', 'jpeg']
+
+[run] car_00__P__r16  prompt='a wrecked car after an accident'
+  [stop] 監看的約束：fid_pen_lpips, fid_pen_acut, fid_pen_chroma
+/teamspace/studios/this_studio/WACV/src/defense/objective.py:463: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:835.)
+  "fid_linf_total": float((xd - xr).abs().max()),
+  step    0  loss=1.0000  L_def=1.0000  L_fid=0.0000  shift=0.0000  psnr=120.00  linf=0.0000  |g|=0.000e+00
+  step   10  loss=0.5801  L_def=0.5801  L_fid=0.0000  shift=0.4199  psnr=31.51  linf=0.1704  |g|=1.178e-01
+  step   20  loss=0.6375  L_def=0.6375  L_fid=0.0000  shift=0.3625  psnr=30.18  linf=0.3195  |g|=2.108e-01
+  step   30  loss=0.5855  L_def=0.5855  L_fid=0.0000  shift=0.4145  psnr=29.55  linf=0.3912  |g|=9.780e-02
+  step   40  loss=0.5597  L_def=0.5597  L_fid=0.0000  shift=0.4403  psnr=29.25  linf=0.3885  |g|=1.834e-01
+  step   50  loss=0.5740  L_def=0.5740  L_fid=0.0000  shift=0.4260  psnr=29.63  linf=0.4487  |g|=1.749e-01
+  step   60  loss=0.5261  L_def=0.5261  L_fid=0.0000  shift=0.4739  psnr=29.80  linf=0.4418  |g|=6.087e-02
+  [stop] 第 68 步停止：約束已啟動且 edit_shift 在最近 20 步的每步改善 +3.05e-05 低於 1.0e-04
+[run] car_00__P__r16 完成 163s peak=10312MB shift=0.4450 psnr=29.94 eff_rank=438.7
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 48553.94it/s]
+[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
+[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
+Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 5770.89it/s]
+
+[run] 全部完成，共 1 格，201s
+run                            圖   步     τ   末lpips     末色度   最佳shift      飽和  判定
+e29c_C_tau0.10            car_00  27   0.1   0.0386   1.060    0.4249    0/27  色度 hinge（25/27 步啟動）
+e29c_P_tau0.10            car_00  69   0.1   0.0856   0.648    0.4742    0/69  LPIPS hinge（8/69 步啟動）
+
+=== 各 hinge 的啟動步數（只列係數非零者）===
+  e29c_C_tau0.10            car_00  LPIPS 0/27  鈍化 0/27  色度 25/27
+  e29c_P_tau0.10            car_00  LPIPS 8/69  鈍化 0/69  色度 0/69
+
+判定的優先序：硬上界 > 防禦 margin > 保真 hinge。前兩者一旦綁住，
+τ 對該格就完全不起作用，該格不可與其他 τ 的格子並列比較。
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+[edit] device=cuda tf32=True w=7.5
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3472.90it/s]
+Loading pipeline components...:  50%|█████     | 3/6 [00:00<00:00, 17.45it/s]Loading pipeline components...:  83%|████████▎ | 5/6 [00:00<00:00, 18.05it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 18.17it/s]
+  car_00  e29c_C_tau0.10  完成
+  car_00  e29c_P_tau0.10  完成
+[edit] 輸出於 /teamspace/studios/this_studio/WACV/runs/e29c_edit_page

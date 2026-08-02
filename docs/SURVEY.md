@@ -300,6 +300,26 @@ AI](https://arxiv.org/pdf/2406.12027) 指出 Glaze v2.0 在強健模仿下沒有
 | C | **改成 inpainting 威脅模型** | 文獻的成功案例集中在這裡。需新寫攻擊路徑（遮罩式）並改變威脅模型定義 | 新的攻擊實作 + 完整重跑，數天 | SDA 的動機是「全域擾動在遮罩式編輯上失效」，即本專案既有的參數化在該設定下可能更差。這不是換個容易的題目，是換一個題目 |
 | D | **寫成方法學／否定結果的論文** | 見下 | 0 GPU | 審稿人問「有沒有在文獻的預算與設定上量過」——E31 跑完就有答案 |
 
+### D 的發表先例
+
+「保護無效」與「判準錯了」這一類論文在這個領域是進得了場的：
+
+| 論文 | 主張 | 場次 |
+|---|---|---|
+| [Rethinking the Invisible Protection against Unauthorized Image Usage in Stable Diffusion](https://www.usenix.org/system/files/usenixsecurity24-an.pdf) | 隱形擾動保護有結構性弱點 | **USENIX Security 2024** |
+| [DiffHammer: Rethinking the Robustness of Diffusion-Based Purification](https://proceedings.neurips.cc/paper_files/paper/2024/file/a2fac827e992d55dcfdd4263e98528f4-Paper-Conference.pdf) | 單次評測低估風險，應改為 N 次評測 | **NeurIPS 2024** |
+| [Is Perturbation-Based Image Protection Disruptive to Image Editing?](https://arxiv.org/abs/2506.04394) | 保護不阻止編輯，反而提高 prompt 對齊度 | **ICIP 2025** |
+| [Rethinking and Defending Protective Perturbation in Personalized Diffusion Models](https://arxiv.org/html/2406.18944v4) | 三階段淨化即可破解 | ICLR 2025 |
+
+**DiffHammer 的論點值得單獨記。** 它主張擴散過程的隨機性使**單次評測**系統性
+低估風險，應改為 N 次評測。這與本專案 E25 定下的 n ≥ 2 規則是同一個方向，
+但更進一步——本專案的 n 是**影像數**，每格只用一個評測噪聲種子（另加一個
+訓練種子的對照）。DiffHammer 說的是**同一張影像要換多個種子**。
+
+對 E31 的意涵：目前每格 2 張影像 × 1 個 held-out 種子。若某一格出現正例，
+在下結論之前應該先換幾個種子確認它不是抽樣運氣。成本是線性的，且評測那一半
+可以在本機跑（`runs/logs/e31_local_probe.log`）。
+
 ### D 的資產盤點
 
 若要走這條，手上已有的東西是：

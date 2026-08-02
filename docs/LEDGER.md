@@ -150,5 +150,6 @@
 | 9.6 | inpainting 威脅模型是否著力點更大？ | 未做。需新寫攻擊路徑並改變威脅模型定義。注意 SDA 的動機是**全域擾動在遮罩式編輯上失效**，兩種設定的失效機制不同，不可互相引用（SURVEY §5） |
 | 9.7 | 「只攻第一個去噪步」這一族在全域 SDEdit 上有效嗎？ | 未做。DiffusionGuard（噪聲範數）與 SDA（self-attention query）兩個成員都只測 inpainting。成本結構與 `crossattn` 相同（SURVEY §3） |
 | 9.8 | 本專案的 `crossattn` 有沒有把力氣攤太平？ | `optimize.py` 的 `t_list` 均分於整個 `[0, t_edit]`，而文獻的成功案例集中在最高的那個 t。這是一行改動即可檢驗的假設（SURVEY §3） |
+| 9.11 | 正例出現時，換幾個評測噪聲種子還站得住嗎？ | 未做。目前每格 2 張影像 × 1 個 held-out 種子。DiffHammer（NeurIPS 2024）主張單次評測系統性低估風險，應改 N 次評測。評測那一半可在本機跑，成本線性（SURVEY §9） |
 | 9.10 | w=7.5 下三族判準的相關性？ | 既有資料只有 3 格，太少。E31 的網格會補上 12 格（`runs/p16_criterion_correlation/`） |
 | 9.9 | 無參考品質指標能不能代替 MLLM 判準？ | SIFM 量過 MLLM 與人類的一致率 74%（人類彼此 76%），但沒人量過 NIQE 這類指標的。`runs/p11_degrade_ladder/` 是為此準備的材料 |

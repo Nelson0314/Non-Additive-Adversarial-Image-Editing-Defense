@@ -88,8 +88,12 @@ classifier-free guidance，等同 w=1，該設定下 SD v1.4 幾乎不服從 pro
 
 ```bash
 bash scripts/drivers/remote_setup.sh       # 環境、GPU、預抓權重，約 5 分鐘
+python scripts/colab_probe.py              # 實測每步成本，推算 E29／E30 時間
 bash scripts/drivers/e29_calibration.sh    # 校準 + 綁定者診斷
 ```
+
+（Colab 用 `colab_setup.sh` 取代 `remote_setup.sh`，整條流程另有 notebook：
+`notebooks/colab_e29_e30.ipynb`。見 §9。）
 
 驅動已寫成腳本檔而非逐行指令：多層引號的 `for` 迴圈在 ssh 裡會壞掉，且
 `e29_calibration.sh` 內含 `tee` 到 `runs/logs/`，避免 stdout 只存在於終端。
@@ -144,12 +148,16 @@ LR_C=<E29 定出的值> LR_P=<E29 定出的值> bash scripts/drivers/e30_grid.sh
 
 τ 的順序取 0.05 先跑：那是與 E21/E23 對應的格子，若機時不足至少有關鍵比較。
 
-**成本**（H100 實測 2.5 s/step、40 s/格評測、GPU 使用率 82–92% 故並行無益）：
+**成本**（H100 實測 2.47 s/step、41.4 s/格評測、GPU 使用率 82–92% 故並行無益）：
 
 | 情境 | 平均步數 | 合計 |
 |---|---|---|
 | 預期 | 60 | 約 2 小時 |
 | 上限 150 用滿 | 150 | 約 4.2 小時 |
+
+**換機器就重跑 `scripts/colab_probe.py`**，不要沿用上表。另外，
+`run_defense.py` 沒有續跑旗標：連線在一次呼叫（6 圖）中途斷掉，該次呼叫要
+整個重跑，所以續跑的最小單位是「一次 run 呼叫」，每跑完一次就推上 origin。
 
 ---
 
@@ -189,9 +197,23 @@ LR_C=<E29 定出的值> LR_P=<E29 定出的值> bash scripts/drivers/e30_grid.sh
 - fp16 目前不受支援（`mat1 and mat2 must have the same dtype`），要用得先把
   整條管線的 dtype 統一並處理數值穩定性。
 - **TF32 預設關閉**（`src/utils/device.py`）。`WACV_ALLOW_TF32=1` 可換速度。
+  診斷腳本要問 TF32 狀態時必須先 `import src.utils.device`：只 `import torch`
+  讀到的是 PyTorch 自己的預設 `cudnn.allow_tf32 = True`，與實際跑實驗時相反。
 - 遠端 Lightning AI Studio：conda env `cloudspace`，背景腳本**不是 login
   shell**，必須用絕對路徑 `/home/zeus/miniconda3/envs/cloudspace/bin/python3`。
   環境重建約 5 分鐘，見 `scripts/drivers/e27_calibration.sh`。
+- **Google Colab**：流程寫成 `notebooks/colab_e29_e30.ipynb`，環境準備用
+  `scripts/drivers/colab_setup.sh`。與其他機器的差別是**不可安裝
+  torch／torchvision**——Colab 的映像檔已裝好與其驅動相符的版本，pip 在解
+  diffusers／peft／piq 的相依時可能自行升級它，結果是
+  `torch.cuda.is_available()` 變成 False。該腳本以 pip constraint 擋住並在
+  裝完後核對。token 放 Colab Secrets（名稱 `GH_TOKEN`），不要貼進儲存格：
+  notebook 會把儲存格內容一起存檔。
+- **換機器就要重測時間**。上面的「2 小時／4.2 小時」是 H100 實測外推的
+  （每步 2.47 s、每格評測 41.4 s、峰值 10.3 GB，見 `runs/e27_evaltiming/` 與
+  `runs/e27d_C_lr0.3/summary.csv`）。Colab 配到 T4／L4／A100 不由使用者決定，
+  三者的 fp32 吞吐相差數倍。`scripts/colab_probe.py` 實測每步與每格評測成本後
+  推算，約 3–12 分鐘。峰值 10.3 GB 這個數字同時決定了 16 GB 的 T4 放得下。
 - TWCC 容器已無法登入（金鑰被拒），帳號到期，需由使用者從網頁刪除。
 
 ---

@@ -59,6 +59,14 @@ site C 買色調偏移（鈍化約束只看亮度，構造上對色度全盲）�
   為 1 的原始 lpips 項），每一個都會讓整批網格變成無效資料。
 - **停止準則要開**（`--stop_on_plateau`）。固定步數讓不同格子被不同的東西
   綁住；`stop_reason` 為空代表用盡上限而非收斂，那一格不可用於跨 site 比較。
+- **換機器就要重測時間**。「2 小時／4.2 小時」是 H100 實測外推的（每步
+  2.47 s、每格評測 41.4 s、峰值 10.3 GB）。先跑 `scripts/colab_probe.py`
+  實測，約 3–12 分鐘，它同時給出記憶體與連線上限的判定。
+- **Colab**：流程在 `notebooks/colab_e29_e30.ipynb`，環境用
+  `scripts/drivers/colab_setup.sh`。關鍵差別是**不可安裝 torch／torchvision**
+  ——Colab 已裝好與其驅動相符的版本，pip 解 diffusers／peft／piq 的相依時
+  可能自行升級它而讓 CUDA 失效。token 放 Colab Secrets（`GH_TOKEN`），
+  不要貼進儲存格。
 - **Lightning AI 的背景腳本不是 login shell**，必須用絕對路徑
   `/home/zeus/miniconda3/envs/cloudspace/bin/python3`，否則取到系統 python
   而缺 numpy。多層引號的 `for` 迴圈在 ssh 裡會壞掉，寫成腳本檔傳過去。

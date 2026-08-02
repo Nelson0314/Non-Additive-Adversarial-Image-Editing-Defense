@@ -39,10 +39,14 @@ print("torch", torch.__version__, "cuda", torch.cuda.is_available())
 if torch.cuda.is_available():
     p = torch.cuda.get_device_properties(0)
     print(f"{p.name}  {p.total_memory/2**30:.0f} GiB  sm_{p.major}{p.minor}")
-# TF32 預設關閉（src/utils/device.py）。開著會讓同一份程式在不同機器上精度
-# 不同：BDIA 精確反演由「好 5 個數量級」退化成「好 37 倍」（E28 §4）。
-print("tf32 matmul", torch.backends.cuda.matmul.allow_tf32,
-      " cudnn", torch.backends.cudnn.allow_tf32)
+# TF32 的狀態要在匯入 src.utils.device 之後才問。該模組在模組層級把兩個
+# allow_tf32 設成 False（E28 §4：開著會讓 BDIA 精確反演由「好 5 個數量級」
+# 退化成「好 37 倍」），只 import torch 讀到的是 PyTorch 自己的預設值
+# `cudnn.allow_tf32 = True`——與實際跑實驗時的設定相反，看了會誤判。
+from src.utils.device import tf32_enabled
+print("TF32", "開啟（WACV_ALLOW_TF32=1）" if tf32_enabled() else "關閉",
+      f"  matmul={torch.backends.cuda.matmul.allow_tf32}"
+      f" cudnn={torch.backends.cudnn.allow_tf32}")
 PYEOF
 
 echo "=== 測試（基準 253 passed / 1 skipped）==="

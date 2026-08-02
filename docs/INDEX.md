@@ -142,9 +142,13 @@ python scripts/p9_chroma_probe.py     # E28 色度約束的候選判別（GPU �
 python scripts/p10_chroma_ladder.py   # E28 色度偏壓階梯 + 人眼比對頁（約 1 分）
 python scripts/make_report_figures.py   # docs/figures/*.png（E2/E8/E9/E10/E12）
 python scripts/make_report.py     # docs/archive/2026-07-29-RESULTS_lowrank.html（E0–E3）
+python scripts/colab_probe.py     # 實測本機器每步／每格評測成本，推算 E29/E30 時間
 ```
 
 `scripts/e17_vae_floor.py` 需要 GPU 與 SD 權重，不能在本機重跑。
+
+待執行的實驗驅動在 `scripts/drivers/`（見該目錄的 `README.md`）。Colab 的
+完整流程另有 notebook：`notebooks/colab_e29_e30.ipynb`。
 
 ---
 

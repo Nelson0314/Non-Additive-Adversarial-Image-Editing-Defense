@@ -18,7 +18,7 @@
 |---|---|---|
 | 擾動式保護真的擋得住編輯嗎？ | **多半擋不住**，且受保護影像常**更**服從 prompt | E29 的否定結果是已知現象的白盒複現，不是實作瑕疵 |
 | 領域用什麼判準？ | 尚未收斂。2026 年的 TPAMI 論文仍用「與未防禦編輯的距離」 | 本專案的判準方法學領先，是可發表的材料 |
-| 目標函數有幾族？ | 至少四族，本專案只跑過其中一族 | `targeted`、`suppress` 待跑；**早期步噪聲範數**這一族從未考慮過 |
+| 目標函數有幾族？ | 至少四族，本專案只跑過其中一族 | `targeted`、`suppress` 待跑；**「只攻第一個去噪步」**這一族（兩個成員）從未考慮過 |
 | 標準失真預算？ | ε∞ = 16/255；LPIPS 0.267–0.362 | 本專案的 LPIPS 低一個量級，但 L∞ 高六倍 |
 | 標準攻擊設定？ | 多數是**遮罩式 inpainting**；img2img 用 strength 0.2–0.3 | 本專案用全域 SDEdit strength 0.5，是文獻中最難的設定 |
 | 保護撐得住淨化嗎？ | 撐不住。現成的 img2img 模型即可清除 | 抗淨化是附帶目標，但這條線的天花板很低 |
@@ -64,6 +64,16 @@
 | 影像—文字對齊 | ICIP 2025 用 CLIP-S／PAC-S++ | 輸出服不服從 prompt | 可用，但 **CLIP 未通過本專案的 edit_effect 對照**（E25 §1.1），SigLIP 通過 |
 | 聯集式 | SIFM 的 ISR（MLLM 判定）；Attention Attack 的 Caption Similarity + semantic IoU | 語意不符 **或** 感知劣化 | 本專案 E31 採用，但用 NR 品質指標取代 MLLM |
 
+**MLLM 判準的可靠度已被量過。** SIFM 報告 ISR 的
+**人類—MLLM 一致率為 74%，而人類彼此的一致率是 76%**——即 MLLM 判準與人類
+判準的差距，小於人類之間本來就有的分歧。另一份編輯基準（HYPE-EDIT-1）報
+VLM judge 與人類多數決的一致率約 80%，但傾向過嚴，在人類仍可接受的細微改動
+上會判失敗。
+
+對本專案的意涵：E31 用無參考品質指標（NIQE 等）取代 MLLM 是成本考量下的
+折衷，而**折衷的代價現在有數字可引用**。若 E31 的感知劣化那一半成為結論的
+關鍵，值得補一次 MLLM 判定作為交叉驗證。
+
 三點值得記下：
 
 1. **2026 年的 TPAMI 論文仍在用第一族。** [TDAE](https://arxiv.org/html/2512.14341v2)
@@ -86,13 +96,33 @@
 | **C. 表示層／注意力** | 壓低內容 token 的注意力質量，或推離參考注意力圖 | [Attention Attack](https://arxiv.org/abs/2509.10359)（ACM MM 2025）、[DANP](https://arxiv.org/abs/2512.14333)、SIFM（中間層特徵） | `suppress` 已實作，**從未在真實 SD 上跑過**。E31 待跑 |
 | **D. 早期步的噪聲預測範數** | max ‖ε_θ(z_t, t=T, c)‖₂，只在**第一個**去噪步施力 | [DiffusionGuard](https://arxiv.org/pdf/2410.05694) | **本專案從未考慮過**。見下方 |
 
-**D 族值得單獨記一筆。** DiffusionGuard 的主張是不必對整條去噪鏈最佳化，只要
-把**初始去噪步**的預測噪聲範數推大即可，理由是初期步決定了整體佈局。實測
-效果是 inpainting 上的 SOTA，且最佳化成本約 11 秒對 PhotoGuard 的 90 秒。
+**D 族值得單獨記一筆，而且它其實有兩個成員。**
 
-對本專案的意涵：它與 `crossattn` 一樣不需要跑完 `n_edit` 步的鏈，成本結構相同
-（E0 的成本模型中 `0.304·n_edit` 那一項消失），但著力點完全不同。若 E31 的
-`suppress` 失敗，D 族是下一個成本可負擔的候選。
+| 方法 | 在第一個去噪步上攻擊什麼 |
+|---|---|
+| [DiffusionGuard](https://arxiv.org/pdf/2410.05694)（ICLR 2025） | 預測噪聲的 L2 範數 `max ‖ε_θ(z_T, T, c)‖₂` |
+| [Structure Disruption / SDA](https://arxiv.org/abs/2505.19425)（2025-05） | **self-attention 的 query**，理由是輪廓在初期步成形 |
+
+兩者獨立提出、著力點不同（噪聲預測 vs 自注意力），但共用同一個假設：
+**初期去噪步決定整體佈局，破壞它就夠了，不必對整條鏈最佳化。**
+DiffusionGuard 的成本是約 11 秒對 PhotoGuard 的 90 秒。
+
+對本專案有兩層意涵：
+
+1. **成本結構與 `crossattn` 相同。** 兩者都不需要跑完 `n_edit` 步的鏈，
+   E0 成本模型中的 `0.304·n_edit` 那一項消失。若 E31 的 `suppress` 失敗，
+   D 族是下一個成本可負擔的候選，而且是**兩個**候選不是一個。
+2. **本專案的 `crossattn` 可能把力氣攤太平。** `optimize.py` 的取樣是
+   `t_list = linspace(0, t_edit, attn_timesteps+1)[1:]`，即均分於整個
+   `[0, t_edit]` 區間，`attn_timesteps` 預設 4。文獻的兩個成功案例都集中在
+   **最高的那個 t**（第一個去噪步）。若 `suppress` 在 E31 失敗，先檢查的
+   應該是「有沒有把權重放在該放的 t 上」，而不是換目標函數。這是一個
+   已寫在程式裡、可用一行改動檢驗的假設。
+
+**注意力那一族內部也分兩種。** cross-attention（文字—影像綁定，Attention
+Attack、DANP、本專案的 `suppress`）與 self-attention（影像內部的結構，SDA）
+是不同的東西。前者攻擊「哪個位置聽哪個 token」，後者攻擊「輪廓怎麼長出來」。
+本專案只實作了前者。
 
 **另一個設計細節。** Attention Attack 用**原圖的自動生成 caption 當作編輯
 prompt 的代理**，因為防禦方不知道攻擊方會用什麼 prompt。本專案是白盒設定、
@@ -134,6 +164,15 @@ DiffusionGuard 另報 6/255 下仍有效。SIFM 用 ε = 0.03、100 步。
 
 **inpainting 對防禦方有結構性優勢**：遮罩外的區域保留原像素，擾動整片留在
 條件裡；遮罩內的內容雖然重生成，但要與遮罩外縫合，故受條件影響很大。
+
+這一點在文獻裡是被明講的。[SDA](https://arxiv.org/abs/2505.19425) 的動機
+就是「global perturbation-based methods fail in mask-guided editing tasks
+due to spatial constraints」——注意方向相反：**全域擾動在遮罩式編輯上失效**，
+因為擾動大部分落在被重新生成的區域之外。於是該線的方法轉為攻擊遮罩內的
+結構生成（self-attention query）。
+
+本專案的處境是另一邊：全域 SDEdit 下沒有遮罩，擾動全部參與，但也全部被
+strength 決定的噪聲稀釋。兩種設定的失效機制不同，**不可互相引用結論**。
 
 **全域 SDEdit 在 strength = 0.5 下相反**：整張圖被加到一半的噪聲再重新去噪，
 擾動的高頻成分大部分被噪聲淹沒，而 prompt 有很大的自由度重新生成內容。
@@ -202,8 +241,12 @@ E31 把 strength 0.3 納入網格正是為了量出這一項的貢獻，而不�
    SSIM 會補貼模糊。
 3. **判準的三族之間如何換算？** 沒有人報過同一批資料在三族判準下的結果。
    本專案的 `runs/p12_isr_rejudge/` 有這個材料。
-4. **早期步噪聲範數（D 族）在全域 SDEdit 上有效嗎？** DiffusionGuard 只測
-   inpainting。
+4. **早期步的攻擊（D 族）在全域 SDEdit 上有效嗎？** DiffusionGuard 與 SDA
+   都只測 inpainting，而 SDA 的動機恰恰是「全域擾動在遮罩式編輯上失效」——
+   反過來會不會成立（早期步攻擊在全域編輯上失效）沒有人測過。
+5. **無參考品質指標能不能代替 MLLM 判準？** SIFM 量過 MLLM 與人類的一致率
+   （74%，對照人類彼此的 76%），但沒有人量過 NIQE 這類指標與人類的一致率。
+   E31 的 `runs/p11_degrade_ladder/` 是為此準備的材料。
 
 ---
 
@@ -225,5 +268,7 @@ E31 把 strength 0.3 納入網格正是為了量出這一項的貢獻，而不�
 | Real-world | Do Protective Perturbations Really Protect Portrait Privacy under Real-world Image Transformations? | [arXiv:2604.23688](https://arxiv.org/pdf/2604.23688) |
 | Structured | Interpreting Structured Perturbations in Image Protection Methods for Diffusion Models | [arXiv:2512.08329](https://arxiv.org/abs/2512.08329) |
 | NAPPure | Adversarial Purification for Robust Image Classification under Non-Additive Perturbations | [arXiv:2510.14025](https://arxiv.org/html/2510.14025) |
+| SDA | Structure Disruption: Subverting Malicious Diffusion-Based Inpainting via Self-Attention Query Perturbation | [arXiv:2505.19425](https://arxiv.org/abs/2505.19425) |
+| HYPE-EDIT-1 | Benchmark for Measuring Reliability in Frontier Image Editing Models | [arXiv:2602.00105](https://arxiv.org/pdf/2602.00105) |
 | BlurGuard | A Simple Approach for Robustifying Image Protection Against AI-Powered Editing | [arXiv:2511.00143](https://arxiv.org/html/2511.00143v1) |
 | STP-Diff | Synergistic fusion of spatial transformation perturbations and diffusion models for robust face privacy protection | Information Fusion 2025 |

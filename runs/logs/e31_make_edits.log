@@ -1,0 +1,8 @@
+[edits] device=cuda 影像 ['car_00', 'car_01', 'dog_00', 'dog_01', 'person_00', 'person_01']
+  car_00 'a wrecked car after an accident'  258.4s
+  car_01 'a wrecked car after an accident'  372.9s
+  dog_00 'a cat sitting on the grass'  1019.5s
+  dog_01 'a cat sitting on the grass'  477.5s
+  person_00 'an elderly person with gray hair'  460.4s
+  person_01 'an elderly person with gray hair'  263.0s
+[edits] 寫出 C:\WACV\runs\e31_sources

@@ -1,0 +1,3 @@
+budget,tau_acut,acut_pass_max,acut_block_min,tau_chroma,chroma_pass_max,chroma_block_min,acut_blur,acut_noise,acut_warp_bilinear,acut_warp_bicubic,acut_chroma,chroma_blur,chroma_noise,chroma_warp_bilinear,chroma_warp_bicubic,chroma_chroma
+0.05,0.0844,0.0314,0.227,0.802,0.2248,2.8615,0.3799,0.0063,0.227,0.0314,0.0047,0.1502,0.1199,0.2037,0.2248,2.8615
+0.1,0.1009,0.0401,0.2541,1.2734,0.3611,4.4906,0.5012,0.0131,0.2541,0.0401,0.0089,0.1986,0.2298,0.3419,0.3611,4.4906

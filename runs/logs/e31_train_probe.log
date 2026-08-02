@@ -1,0 +1,15 @@
+[probe] NVIDIA GeForce RTX 2050 4.0 GB torch 2.13.0+cu126
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3474.59it/s]
+Loading pipeline components...:  17%|█▋        | 1/6 [00:00<00:00,  6.99it/s]Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00,  4.20it/s]Loading pipeline components...:  83%|████████▎ | 5/6 [00:00<00:00,  9.93it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 10.22it/s]
+C:\Users\nelso\miniconda3\envs\wacv\Lib\site-packages\torchvision\models\_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+C:\Users\nelso\miniconda3\envs\wacv\Lib\site-packages\torchvision\models\_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+C:\WACV\src\defense\objective.py:463: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at C:\actions-runner\_work\pytorch\pytorch\torch\csrc\autograd\generated\python_variable_methods.cpp:823.)
+  "fid_linf_total": float((xd - xr).abs().max()),
+  step    0  loss=1.0000  L_def=1.0000  L_fid=0.0000  shift=0.0000  psnr=120.00  linf=0.0000  |g|=0.000e+00
+  step    1  loss=1.0000  L_def=1.0000  L_fid=0.0000  shift=0.0000  psnr=120.00  linf=0.0000  |g|=0.000e+00
+  step    2  loss=1.0000  L_def=1.0000  L_fid=0.0000  shift=0.0000  psnr=120.00  linf=0.0000  |g|=0.000e+00
+[probe] size=256  3 步 534.1s （178.04 s/step）  peak=5628 MB shift=0.0000

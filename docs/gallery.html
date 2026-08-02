@@ -70,8 +70,21 @@
 <tr>
   <td><a href="../runs/p11_degrade_ladder/compare.html">劣化階梯</a></td>
   <td>E31 / P11</td>
-  <td class="pending">待判讀。四個算子各四級施加在未防禦的編輯輸出上，
+  <td class="pending">待判讀。四個算子各四級施加在<b>七個</b>未防禦的編輯輸出上
+      （六張由本機補產生，見 <code>runs/e31_sources/</code>），
       要決定哪一級開始「這張圖已經不能用」，用以定出 ISR 感知劣化那一半的門檻。</td>
+</tr>
+</table>
+
+<h2>攻擊設定</h2>
+<table>
+<tr><th>頁面</th><th>實驗</th><th>決定了什麼</th></tr>
+<tr>
+  <td><a href="../runs/e31_strength_sweep/compare.html">攻擊強度掃描</a></td>
+  <td>E31</td>
+  <td class="decided">既有防禦圖在 SDEdit strength 0.2–0.5 下被編輯，三臂共用同一個 ε。
+      <b>這是遷移不是匹配設定</b>——防禦圖在 0.5 下訓練——故為下界。
+      用來量出「E29 的否定結果有多少是 strength 造成的」。</td>
 </tr>
 </table>
 

@@ -47,7 +47,7 @@
 ## 執行
 
 ```bash
-# 測試（基準 276 passed / 1 skipped / 0 failed）
+# 測試（基準 284 passed / 1 skipped / 0 failed）
 python -m pytest -q
 
 # 本機的分析與評測工作，串起來跑（不要並行，見下）

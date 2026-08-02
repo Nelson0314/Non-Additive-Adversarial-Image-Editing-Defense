@@ -31,7 +31,7 @@ E29 在修好量測與校準之後做了第一次實測，**在試過的每一�
 |---|---|---|
 | 目標函數 | `untargeted` / `targeted`（灰圖）/ `crossattn:suppress` | `untargeted` 最大化的正是已被判定不對應防禦成功的 `edit_shift`（LEDGER 5.1）。後兩者從未在真實 SD 上產生過資料（LEDGER 5.2） |
 | τ_lpips | 0.10 / 0.28 | 現有資料無法分辨「方法無效」與「預算太小」，因為從未在文獻的預算區間量過 |
-| strength | 0.5 / 0.3 | 0.5 的全域編輯下輸出主要由 prompt 重新生成，「語意不符」在原理上幾乎不可達成。這很可能是 E29 為負的最大單一原因 |
+| strength | 0.5 / 0.3 | 0.5 的全域編輯下輸出主要由 prompt 重新生成，「語意不符」在原理上幾乎不可達成。規格原本把這列為 E29 為負的最大單一原因，**但本機的強度掃描與該推論相反**，見下方「跑之前先知道」 |
 
 判準改為 ISR 式的聯集：**語意不符 prompt 或明顯的感知劣化**。E25 之後只取了
 前半（LEDGER 1.5）。
@@ -51,7 +51,7 @@ E29 在修好量測與校準之後做了第一次實測，**在試過的每一�
 | 本機補產生的編輯來源 | `runs/e31_sources/` | 六張未防禦編輯（既有 run 只有 car_00 一張） |
 | 程式改動 | `src/defense/optimize.py`、`src/metrics/suite.py`、`scripts/run_defense.py` | 三個 `defense_mode` 都可跑；擾動 RMS 與尖峰比例進 CSV；`--tau_acut` 可由命令列指定 |
 
-測試：276 passed / 1 skipped、0 failed（基準 253 + 新增 23）。
+測試：284 passed / 1 skipped、0 failed（基準 253 + 新增 31）。
 
 ### 待辦
 
@@ -59,18 +59,18 @@ E29 在修好量測與校準之後做了第一次實測，**在試過的每一�
 2. **R1**（雲端，約 20 分）。指令可直接複製：
 
    ```bash
-   TA_028=0.1648 TC_028=3.4009 bash scripts/drivers/e31_calibration.sh
+   TA_028=0.1460 TC_028=3.6653 bash scripts/drivers/e31_calibration.sh
    ```
 
    數值出自 `runs/p14_budget_thresholds/thresholds.csv` 的 budget=0.28 那一列。
-   R2 需要的另一組是 budget=0.10 那一列：`TA_010=0.0594 TC_010=1.2861`。
+   R2 需要的另一組是 budget=0.10 那一列：`TA_010=0.0598 TC_010=1.2965`。
 3. **Gate**：R1 的綁定者判定必須全部是 LPIPS hinge，否則不開 R2
    （處置見規格 §8，**不得以放寬約束草率繞過**）。
 4. **R2**（雲端，約 1.5–2 小時）：
 
    ```bash
-   LR_028=<R1 定出的值> TA_010=0.0594 TC_010=1.2861 \
-     TA_028=0.1648 TC_028=3.4009 bash scripts/drivers/e31_grid.sh
+   LR_028=<R1 定出的值> TA_010=0.0598 TC_010=1.2965 \
+     TA_028=0.1460 TC_028=3.6653 bash scripts/drivers/e31_grid.sh
    ```
 
 5. **判定與報告**（本機）：`scripts/e31_report.py --degrade_tau <第 1 項定出的值>`、
@@ -89,14 +89,14 @@ E31 規格 §5 把 strength 納入網格的理由是「0.5 的全域編輯下語
 
 ### 一個尚未決定的事項
 
-acut 軸的分離度隨預算塌掉：0.05 時擋下側是通過側的 4.41 倍，0.28 時只剩
-**1.18 倍**（`runs/p14_budget_thresholds/separation.csv`）。原因是 τ=0.28 時
-`noise`、`warp_bilinear`、`warp_bicubic` 三者的 acut 全部收斂到約 0.16，
-只有真正的高斯模糊（0.61）還分得開——位移大到那個量級時插值核心已不重要。
+acut 軸的分離度隨預算收窄：0.05 時擋下側是通過側的 5.12 倍，0.28 時只剩
+**1.39 倍**（`runs/p14_budget_thresholds/separation.csv`）。機制是加性雜訊的
+acut 隨振幅陡升（0.05→0.28 之間漲 14 倍）而幾何變形飽和（只漲 1.28 倍），
+於是高預算下雜訊本身在局部梯度能量上就和模糊型失真一樣「異常」。
 
 處置的兩個選項與取捨寫在規格 §12.4，**須與使用者討論後再改**。在那之前
 driver 用的是現行歸屬的值（較保守的一組），gate 仍然過得了（site P 的解在
-τ=0.28 是 acut 0.1302 < 0.1648、chroma 2.8275 < 3.4009）。
+τ=0.28 是 acut 0.1302 < 0.1460、chroma 2.8275 < 3.6653）。
 
 ---
 

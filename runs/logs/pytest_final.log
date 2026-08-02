@@ -1,0 +1,31 @@
+........................................................................ [ 25%]
+........................................................................ [ 50%]
+..........................................................s............. [ 75%]
+.....................................................................    [100%]
+============================== warnings summary ===============================
+tests/test_battery.py: 1 warning
+tests/test_objective.py: 9 warnings
+tests/test_pipeline.py: 15 warnings
+tests/test_suite_pairwise.py: 2 warnings
+  C:\Users\nelso\miniconda3\envs\wacv\Lib\site-packages\torchvision\models\_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+    warnings.warn(
+
+tests/test_battery.py: 1 warning
+tests/test_objective.py: 9 warnings
+tests/test_pipeline.py: 15 warnings
+tests/test_suite_pairwise.py: 2 warnings
+  C:\Users\nelso\miniconda3\envs\wacv\Lib\site-packages\torchvision\models\_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+    warnings.warn(msg)
+
+tests/test_e17_latent_opt.py::test_lam_0_使損失退化為純_mse
+tests/test_pipeline.py::test_T1_P_殘差為零時防禦圖與原圖恆等
+  C:\Users\nelso\miniconda3\envs\wacv\Lib\site-packages\transformers\models\clip\tokenization_clip.py:79: DeprecationWarning: Deprecated in 0.9.0: BPE.__init__ will not create from files anymore, try `BPE.from_file` instead
+    BPE(
+
+tests/test_e17_latent_opt.py::test_lam_0_使損失退化為純_mse
+  C:\WACV\scripts\e17_vae_floor.py:123: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+  Consider using tensor.detach() first. (Triggered internally at C:\actions-runner\_work\pytorch\pytorch\torch\csrc\autograd\generated\python_variable_methods.cpp:823.)
+    hist.append({"step": i, "loss": float(loss),
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+284 passed, 1 skipped, 57 warnings in 128.97s (0:02:08)

@@ -60,7 +60,7 @@ E31 因此不再比較兩臂——兩個零之間的比較沒有內容——改�
 | 本機能力 | `runs/logs/e31_*_probe.log` | 無梯度 512² SDEdit 可跑（4873 MB、222.5 s）；**含梯度訓練不可跑**（256² 即 178 s/step） |
 | 程式改動 | `optimize.py`、`suite.py`、`run_defense.py` | 三個 `defense_mode` 都可跑；RMS 與尖峰比例進 CSV；`--tau_acut` 可指定 |
 
-測試基準：**276 passed / 1 skipped / 0 failed**。
+測試基準：**284 passed / 1 skipped / 0 failed**。
 
 ## 待辦（照順序）
 

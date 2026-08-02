@@ -16,6 +16,14 @@
 同一張影像的所有分支共用同一個 ε（`sdedit` 要求呼叫端提供 noise，正是為了
 讓這件事成為介面上的硬性要求），否則看到的差異可能只是抽樣不同。
 
+**預設用的是訓練時見過的那個 ε。** `--seed` 預設 20260728 等於 `OptimConfig.seed`，
+而 `optimize.py:377` 的訓練雜訊是 `sample_edit_noise(seed=cfg.seed + i)`，i=0
+那一個與此處逐位元相同（兩邊都是 `torch.Generator(cpu).manual_seed(s)` 加
+`torch.randn`）。這是**對防禦最有利**的條件：防禦正是針對這個 ε 優化的。
+若此條件下都擋不住，換未見過的 ε 只會更差，故不必另跑。要看未見過的 ε 時
+傳 `--seed 20270728`（`run_defense.py` 的 `EVAL_SEED_OFFSET` 是 10000，
+但那是加在 latent 取樣上，此處只需任一個訓練未用到的值）。
+
 執行：
     python scripts/e29_edit_page.py runs/e29_C_lr0.1 runs/e29_C_lr0.3 runs/e29_P_lr0.03
 """

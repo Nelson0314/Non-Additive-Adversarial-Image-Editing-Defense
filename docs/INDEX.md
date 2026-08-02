@@ -1,6 +1,6 @@
 # 文件與實驗資料索引
 
-最後整理：2026-08-01。
+最後整理：2026-08-02（E29 之後）。
 
 本檔的用途是讓接手者在不讀 git log 的情況下，知道**哪一份文件是現行的、
 哪一份已被取代、每一個 run 目錄屬於哪個實驗**。
@@ -19,10 +19,11 @@
 | `docs/RESULTS_E21-E22.md` | 承接 E21–E23：新約束下的三臂重跑、位移上界假設被推翻、步數受限的方法問題 | 現行 |
 | `docs/RESULTS_E20_fidelity.md` | 承接 E20：保真約束的 paper survey、四臂等 LPIPS 探針、局部銳利度偏差 | 現行 |
 | `docs/RESULTS_E25-E26.md` | 承接 E25–E26：語意軸重判（726 格語意失敗 0 格）、淨化保留率、**攻擊端缺少 classifier-free guidance 這個根因**、cross-attention 與 targeted 兩個目標、site C（色度矩陣場） | **現行，且是最重要的一份**。它使 E2–E23 的每一個 `net_lpips` 失效 |
-| `docs/RESULTS_E27_calibration.md` | 承接 E27：H100 的成本基準、四個假的綁定者、兩臂的學習率重新校準、**匹配失真第三次被證明是假的（site C 買色調偏移）** | 現行。主網格**未開跑**，開跑前的待辦列在 §5 |
-| `docs/RESULTS_E28_chroma.md` | 承接 E28：色度偏壓約束（第三道）、ΔE 全族不合格的判別、τ=0.8 的人眼定錨、TF32 跨機器精度陷阱 | 現行。主網格的設定就緒，列在 §5 |
-| `docs/HANDOFF_PROMPT.md` | 可直接貼進新 session 的交接 prompt | 現行 |
-| `docs/NEXT_SESSION.md` | 2026-08-01 改寫（E28 之後）：失效的與存活的結論、主網格的完整設定與指令、死路清單 | 現行，接手先讀這份 |
+| `docs/RESULTS_E27_calibration.md` | 承接 E27：H100 的成本基準、四個假的綁定者、兩臂的學習率重新校準、**匹配失真第三次被證明是假的（site C 買色調偏移）** | 現行。其中的成本基準（2.47 s/step）已由 E29 §2 確認是在 TF32 開啟下量的 |
+| `docs/RESULTS_E28_chroma.md` | 承接 E28：色度偏壓約束（第三道）、ΔE 全族不合格的判別、τ=0.8 的人眼定錨、TF32 跨機器精度陷阱 | 現行。§5 描述的主網格計畫已由 E29 中止 |
+| `docs/RESULTS_E29_negative.md` | 承接 E29：修好協議後的第一次實測、**防禦擋不住編輯**（影像與 SigLIP 一致）、site C 的綁定者是參數化的固有性質、TF32 指紋比對、**實驗設計與研究歷史的邏輯稽核** | **現行，且是本階段的起點**。E30 主網格未跑，理由在 §5 |
+| `docs/HANDOFF_PROMPT.md` | 可直接貼進新 session 的交接 prompt。2026-08-02 改寫為**重新決定方向**用，不再是執行既有計畫 | 現行 |
+| `docs/NEXT_SESSION.md` | 2026-08-02 改寫（E29 之後）：否定結果、兩個結構性問題、存活的結論、死路清單、環境與成本 | 現行，接手先讀 `RESULTS_E29_negative.md` 再讀這份 |
 | `docs/specs/2026-07-28-lowrank-residual-defense.md` | 設計規格 v1 | 現行的**設計依據**，但其後的推翻不回頭改寫本文，須與上兩份對讀 |
 | `docs/archive/2026-08-01-HANDOFF_PROMPT.md` | 2026-08-01 上一次交接時給新 session 的 prompt | 已封存。其描述的狀態早於 E25–E28 |
 | `docs/NIGHT_RUN_2026-07-29.md` | 2026-07-29 夜間自主執行的完整紀錄 | 歷史紀錄，非報告。記錄了 site L 防禦不存在這個否定結果的推導過程 |
@@ -40,7 +41,7 @@
 
 ## 2. 實驗資料（`runs/`）
 
-93 個 run 目錄。所有 CSV / JSON / log / PNG 自 commit `1942e38` 起全部入版控
+104 個 run 目錄。所有 CSV / JSON / log / PNG 自 commit `1942e38` 起全部入版控
 （在那之前 `.gitignore` 有一條規則讓 273 個檔案靜默漏掉，詳見該 commit）。
 
 | run 目錄 | 實驗 | 說明 |
@@ -86,7 +87,11 @@
 | `p9_chroma_probe` | E28 | 五臂等 LPIPS 判別：ΔE 全族不合格，`local_chroma_bias` 通過 |
 | `p10_chroma_ladder` | E28 | 色度偏壓階梯，含 `compare.html`。τ=0.8 由此定錨 |
 | `p8_site_c_capacity` | E26 | site C 的 `max_dev` 掃描，確認它進得了 τ∈[0.02,0.10] 的運作點 |
-| `logs` | — | 各 run 的 driver 與 stdout 紀錄 |
+| `e29_C_lr0.1/0.3`、`e29_P_lr0.03/0.1` | E29 | 三道約束下的學習率重新校準，τ=0.05、60 步、`--no_eval`。**site C 全部由色度 hinge 綁住** |
+| `e29b_C_lr0.15/0.2` | E29 | 補兩個中間學習率。四個值跨 3 倍範圍，綁定者不變 |
+| `e29c_C_tau0.10`、`e29c_P_tau0.10` | E29 | 網格會用到的最寬鬆運作點：τ=0.10、上限 150 步、平台停止、含評測。**含 SigLIP 語意軸，即正式判準** |
+| `e29_edit_page`、`e29c_edit_page` | E29 | 把防禦圖真的拿去被編輯一次的人眼比對頁。**否定結果的主要證據** |
+| `logs` | — | 各 run 的 driver 與 stdout 紀錄。含 E29 的 `tf32_probe.log`（TF32 開／關的成本實測） |
 
 ### 涉及已作廢方向的資料
 
@@ -142,13 +147,17 @@ python scripts/p9_chroma_probe.py     # E28 色度約束的候選判別（GPU �
 python scripts/p10_chroma_ladder.py   # E28 色度偏壓階梯 + 人眼比對頁（約 1 分）
 python scripts/make_report_figures.py   # docs/figures/*.png（E2/E8/E9/E10/E12）
 python scripts/make_report.py     # docs/archive/2026-07-29-RESULTS_lowrank.html（E0–E3）
-python scripts/colab_probe.py     # 實測本機器每步／每格評測成本，推算 E29/E30 時間
+python scripts/colab_probe.py     # 實測本機器每步／每格評測成本，推算時間
+python scripts/e29_edit_page.py runs/<run> --montage_only  # 只重畫比對圖，不需 GPU
 ```
 
 `scripts/e17_vae_floor.py` 需要 GPU 與 SD 權重，不能在本機重跑。
+`scripts/e29_edit_page.py` 不加 `--montage_only` 時需要 GPU 與 SD 權重。
 
-待執行的實驗驅動在 `scripts/drivers/`（見該目錄的 `README.md`）。Colab 的
-完整流程另有 notebook：`notebooks/colab_e29_e30.ipynb`。
+實驗驅動在 `scripts/drivers/`（見該目錄的 `README.md`）。其中
+`e30_grid.sh` 對應的主網格計畫已由 E29 中止，檔案保留但頂端已加註。
+Colab 的完整流程另有 notebook：`notebooks/colab_e29_e30.ipynb`，
+其環境與推送的部分仍可用，第 5–7 節對應的計畫同樣已中止。
 
 ---
 

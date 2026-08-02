@@ -1,0 +1,20 @@
+C:\Users\nelso\miniconda3\envs\wacv\Lib\site-packages\torchvision\models\_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+C:\Users\nelso\miniconda3\envs\wacv\Lib\site-packages\torchvision\models\_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+  car_00 τ=0.05 blur           amt=0.5656 lpips=0.0500 acut=0.3799 chroma=0.1502
+  car_00 τ=0.05 noise          amt=0.0151 lpips=0.0500 acut=0.0063 chroma=0.1199
+  car_00 τ=0.05 warp_bilinear  amt=0.4868 lpips=0.0500 acut=0.2270 chroma=0.2037
+  car_00 τ=0.05 warp_bicubic   amt=0.6028 lpips=0.0500 acut=0.0314 chroma=0.2248
+  car_00 τ=0.05 chroma         amt=0.4344 lpips=0.0500 acut=0.0047 chroma=2.8615
+  car_00 τ=0.1 blur           amt=0.6882 lpips=0.1000 acut=0.5012 chroma=0.1986
+  car_00 τ=0.1 noise          amt=0.0252 lpips=0.1000 acut=0.0131 chroma=0.2298
+  car_00 τ=0.1 warp_bilinear  amt=0.8916 lpips=0.1000 acut=0.2541 chroma=0.3419
+  car_00 τ=0.1 warp_bicubic   amt=1.0028 lpips=0.1000 acut=0.0401 chroma=0.3611
+  car_00 τ=0.1 chroma         amt=0.6975 lpips=0.1000 acut=0.0089 chroma=4.4906
+  car_00 τ=0.15 blur           amt=0.8198 lpips=0.1500 acut=0.5932 chroma=0.2411
+  car_00 τ=0.15 noise          amt=0.0363 lpips=0.1500 acut=0.0240 chroma=0.3846
+  car_00 τ=0.15 warp_bilinear  amt=1.3113 lpips=0.1500 acut=0.2561 chroma=0.4820
+  car_00 τ=0.15 warp_bicubic   amt=1.3952 lpips=0.1500 acut=0.0480 chroma=0.4994
+  car_00 τ=0.15 chroma         amt=0.9723 lpips=0.1500 acut=0.0142 chroma=6.0941
+  car_00 τ=0.2 blur           amt=0.9677 lpips=0.2000 acut=0.6711 chroma=0.2844

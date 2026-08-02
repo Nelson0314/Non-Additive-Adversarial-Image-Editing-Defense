@@ -3,12 +3,25 @@
 分兩類：**工具性的**（下一節）與**歷史留存的**（其後）。兩者的寫法不同——
 歷史腳本保留當初的絕對路徑不改寫，工具腳本以相對定位並允許覆寫直譯器。
 
-## 現況（2026-08-02）
+## 現況（2026-08-03）
 
-`e29_calibration.sh` 已執行，判準未通過；`e30_grid.sh` 因此**沒有執行**，
-且在 `RESULTS_E29_negative.md` §5 的兩個結構性問題處理之前不該執行。
-兩支檔案的頂端都已加註。`colab_setup.sh`、`smoke_local.sh` 與
-`scripts/colab_probe.py` 不受影響，仍是換機器時的標準流程。
+E29／E30 那一輪已結束：`e29_calibration.sh` 執行後判準未通過（site C 六個
+學習率全部由色度 hinge 綁住），`e30_grid.sh` 因此沒有執行。兩支檔案的頂端
+都已加註，保留為該計畫的紀錄。
+
+**現行的雲端腳本是 `e31_calibration.sh` 與 `e31_grid.sh`**，設計見
+`docs/specs/2026-08-02-e31-positive-control.md`。兩支都要求以環境變數傳入
+逐預算的次要門檻（`TA_*`／`TC_*`），沒傳會直接拒絕執行——門檻設為 0 會讓兩道
+hinge 從第一步就飽和，整批資料作廢。門檻的來源是
+`runs/p14_budget_thresholds/thresholds.csv`。
+
+**本機的序列是 `local_night.sh`**：把三支 GPU 工作串起來跑。本機是 RTX 2050
+4 GB，兩個 GPU 工作並行必然互搶；CPU 密集工作與 GPU 工作並行時，CPU 那側會把
+GPU 工作的 Python 執行緒餓住（實測單張耗時由 222 s 拉長到 30 分鐘以上）。
+
+`colab_setup.sh`、`smoke_local.sh` 與 `scripts/colab_probe.py` 不受影響，
+仍是換機器時的標準流程。**不要用 `remote_setup.sh`**——它會 `pip install
+torch` 而有換版風險。
 
 ## 腳本
 

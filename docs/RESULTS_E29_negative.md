@@ -1,5 +1,17 @@
 # E29：修好協議之後，防禦擋不住編輯
 
+<!-- STATUS-BLOCK -->
+| | |
+|---|---|
+| **狀態** | 現行，E31 的起點——修好協議後的第一次實測，結果是否定的 |
+| **日期** | 2026-08-02 |
+| **硬體** | Lightning AI H100 80GB、SD v1-4、512²、TF32 開 |
+| **承接** | docs/RESULTS_E27_calibration.md、docs/RESULTS_E28_chroma.md |
+| **後續** | docs/specs/2026-08-02-e31-positive-control.md |
+| **資料** | `runs/e29_*、runs/e29b_*、runs/e29c_*、runs/e29_edit_page、runs/e29c_edit_page` |
+
+> 主張的索引見 [`docs/LEDGER.md`](LEDGER.md)；檔案的索引見 [`docs/INDEX.md`](INDEX.md)。
+
 寫於 2026-08-02。承接 `docs/RESULTS_E27_calibration.md` 與
 `docs/RESULTS_E28_chroma.md`。
 

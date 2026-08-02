@@ -1,142 +1,112 @@
-# 下一階段：方向需要重新決定
+# 下一階段：E31 正對照搜尋
 
-寫於 2026-08-02（E29 之後），取代 2026-08-01 的版本（該版寫的是「協議已就緒、
-主網格待跑」，那個計畫已因 E29 的否定結果中止）。
+<!-- STATUS-BLOCK -->
+| | |
+|---|---|
+| **狀態** | 現行。2026-08-03 改寫，取代 2026-08-02 的「方向需要重新決定」版——方向已定 |
+| **設計依據** | `docs/specs/2026-08-02-e31-positive-control.md` |
+| **逐步作法** | `docs/plans/2026-08-02-e31.md` |
+| **前一輪** | `docs/RESULTS_E29_negative.md` |
 
-完整過程見 `docs/RESULTS_E29_negative.md`，其前身為 `RESULTS_E25-E26.md`、
-`RESULTS_E27_calibration.md`、`RESULTS_E28_chroma.md`。
+> 三份索引：主張查 [`docs/LEDGER.md`](LEDGER.md)、檔案查 [`docs/INDEX.md`](INDEX.md)、
+> 比對頁查 [`docs/gallery.html`](gallery.html)。本檔只講**現在要做什麼**，
+> 不重複那三份的內容。
 
 ---
 
 ## 1. 一句話交代現況
 
-E25–E28 把量測與校準修好之後，E29 做了第一次實測：**在試過的每一個運作點上，
-防禦都沒有阻止文字編輯達成 prompt**，加性與非加性皆然。主網格 E30 因此沒有跑。
-
-否定的是「現行目標函數在現行失真預算下」，不是「非加性抗編輯這個構想」。
-這兩者的差別就是下一階段要處理的事。
-
----
-
-## 2. 證據強度
-
-否定結果不是靠單一指標得出的：
-
-| 證據 | 內容 |
-|---|---|
-| 影像 | `runs/e29_edit_page/`、`runs/e29c_edit_page/` 的比對頁，每一張防禦後的編輯都長出了 prompt 要求的內容 |
-| 語意軸（正式判準） | SigLIP：site C 0.1068、site P 0.1277，對照未防禦的 0.1202。site P 反而**上升** |
-| 雜訊條件 | 用的是防禦訓練時見過的那個 ε，即對防禦**最有利**的情況 |
-| 運作點涵蓋 | τ=0.05 固定 60 步，以及 τ=0.10、上限 150 步、開平台停止（網格會用到的最寬鬆點） |
-| 學習率涵蓋 | site C 四個學習率跨 3 倍範圍，結論一致 |
+E29 在修好量測與校準之後做了第一次實測，**在試過的每一個運作點上防禦都沒有
+阻止文字編輯達成 prompt**，加性與非加性皆然。E31 因此不再比較兩臂——兩個零
+之間的比較沒有內容——改為在加性基準上尋找**任何一個擋得下編輯的運作點**，
+為本專案從未驗證過的量測裝置建立正對照。
 
 ---
 
-## 3. 兩個結構性問題（下一階段的核心）
+## 2. E31 在做什麼
 
-兩項都寫在 `RESULTS_E25-E26.md` §6 的待決清單上，而 E27／E28／E29 處理的都是
-清單上的**其他**項目。詳細推導見 `RESULTS_E29_negative.md` §5。
+沿三個文獻指認的軸掃描 site P（加性）單臂，12 格 × 2 圖：
 
-### 3.1 目標函數最大化的量，已被判定不對應防禦成功
+| 軸 | 值 | 為什麼是這一軸 |
+|---|---|---|
+| 目標函數 | `untargeted` / `targeted`（灰圖）/ `crossattn:suppress` | `untargeted` 最大化的正是已被判定不對應防禦成功的 `edit_shift`（LEDGER 5.1）。後兩者從未在真實 SD 上產生過資料（LEDGER 5.2） |
+| τ_lpips | 0.10 / 0.28 | 現有資料無法分辨「方法無效」與「預算太小」，因為從未在文獻的預算區間量過 |
+| strength | 0.5 / 0.3 | 0.5 的全域編輯下輸出主要由 prompt 重新生成，「語意不符」在原理上幾乎不可達成。這很可能是 E29 為負的最大單一原因 |
 
-`objective.py:348-352`：
-
-```
-L_def = mean_i max(0, margin − LPIPS(y_def_i, y_orig_i))
-```
-
-這是 `edit_shift`。E25 §1.2 已證實它與編輯是否失敗不對應（726 格語意失敗
-0 格）。E25 之後判準改成語意軸，**目標函數沒有跟著改**。兩張都服從 prompt 的
-擴散輸出，彼此的 LPIPS 距離本來就可以很大；把它推到 0.42–0.47 不需要讓任何
-一張停止服從 prompt。
-
-### 3.2 失真預算比文獻低 5–8 倍
-
-本專案運作點 `defimg_lpips` = 0.036–0.086；DCT-Shield（ICCV 2025）自報 0.267，
-PhotoGuard／MIST／AdvDM／SDS／DiffusionGuard 為 0.284–0.362。τ 的三個值
-0.02／0.05／0.10 全部落在文獻的十分之一到三分之一。
-
-**現有資料無法分辨**「這個方法無效」與「任何方法在這個預算下都無效」，
-因為從未在文獻的預算區間量過。
+判準改為 ISR 式的聯集：**語意不符 prompt 或明顯的感知劣化**。E25 之後只取了
+前半（LEDGER 1.5）。
 
 ---
 
-## 4. 已經實作但從未在真實 SD 上跑過的兩個目標
+## 3. 進度
 
-`runs/` 的 59 個有記錄的 `env.json` **全部**是 `defense_mode=untargeted`。
-另外兩個模式都有測試覆蓋、都在 tiny-SD 上跑通過，資料是零：
+### 已完成（全部在本機，零雲端成本）
 
-| 模式 | 位置 | 形式 | 備註 |
-|---|---|---|---|
-| `targeted` | `objective.py:341-347` | 最小化與指定目標影像的距離 | `objective.py` 自己的註解寫了「無目標最大化在文獻上一貫比有目標脆弱」 |
-| `crossattn`（`attn_mode="suppress"`） | `attention.py`、`optimize.py` 的 `optimize_crossattn` | 最小化內容 token 分到的注意力質量 | 三者中唯一直接對著「讓編輯不服從 prompt」 |
+| 項 | 產出 | 結果 |
+|---|---|---|
+| ISR 重判既有 run | `runs/p12_isr_rejudge/` | 828 格語意失敗 0 格。`edit_niqe_*` 自 E2 起就在 CSV 裡而從未被讀過 |
+| 預算探針 | `runs/p13_budget_probe/` | **τ=0.28 在原約束集下不可達**，且與防禦方法無關 |
+| 逐預算門檻 | `runs/p14_budget_thresholds/` | 兩道次要門檻改為隨預算而定（規格 §12） |
+| 劣化階梯 | `runs/p11_degrade_ladder/` | 待使用者判讀 `compare.html` 定出門檻 |
+| 本機補產生的編輯來源 | `runs/e31_sources/` | 六張未防禦編輯（既有 run 只有 car_00 一張） |
+| 程式改動 | `src/defense/optimize.py`、`src/metrics/suite.py`、`scripts/run_defense.py` | 三個 `defense_mode` 都可跑；擾動 RMS 與尖峰比例進 CSV；`--tau_acut` 可由命令列指定 |
 
-`suppress` 是 E25 §4.1 新增的，因為原本的 `divergence` 在 φ=0 梯度精確為零。
-預設已改為 `suppress`，但預設值只在走 `crossattn` 這條路時才生效。
+測試：276 passed / 1 skipped、0 failed（基準 253 + 新增 23）。
 
----
+### 待辦
 
-## 5. 存活的結論（不受 E29 影響）
-
-全部與量測方法有關，不經過防禦目標：
-
-| 結論 | 出處 |
-|---|---|
-| 用單一純量定義「匹配失真」，在失真種類不同的兩族之間不成立 | E20 §0 |
-| 等 LPIPS 多臂探針：判別一個指標實際在收什麼費 | E20 §5.3、E28 §1 |
-| `local_acutance_dev` 對位移不敏感且不可抵銷 | E20 §6 |
-| `local_chroma_bias` 分得出連貫色偏與隨機色度雜訊；τ=0.8 的人眼定錨準確 | E28 §1、E29 §4.1 |
-| ΔE 那一族量的是色度誤差量值，不是人眼在意的軸 | E28 §1.1 |
-| `edit_shift`／`net_lpips` 不是防禦成功的判準 | E25 §1.2、E29 §4.3 |
-| 攻擊端必須有 CFG；w=1 下 SD v1.4 幾乎不服從 prompt | E26 §3 |
-| A 族（site L/E/W）的 VAE 重建地板高於加性運作點 | E17–E19 |
-| 三道約束彼此不循環，各擋一種失效 | E28 §3 |
-| site C 的綁定者恆為色度 hinge，與學習率無關（跨 3 倍範圍） | E29 §3 |
-| TF32 使同一份程式在不同機器上精度與速度都不同；E27 是在 TF32 開啟下跑的 | E28 §4、E29 §2 |
+1. **使用者判讀** `runs/p11_degrade_ladder/compare.html`，定出感知劣化的門檻。
+2. **R1**（雲端，約 20 分）：`scripts/drivers/e31_calibration.sh`，τ=0.28 的
+   學習率校準。須以 `TA_028`／`TC_028` 傳入 p14 定出的門檻。
+3. **Gate**：R1 的綁定者判定必須全部是 LPIPS hinge，否則不開 R2
+   （處置見規格 §8，**不得以放寬約束草率繞過**）。
+4. **R2**（雲端，約 1.5–2 小時）：`scripts/drivers/e31_grid.sh`，12 格主網格。
+5. **判定與報告**（本機）：`scripts/e31_report.py`、`docs/RESULTS_E31.md`。
 
 ---
 
-## 6. 不要重走的死路
+## 4. 本機與雲端的分工
 
-- `net_lpips`／`edit_shift` 當防禦成功的判準（E25、E29）
-- 對抗性強健的感知度量（E-LPIPS / R-LPIPS / LipSim）——解的是相反的失效
-- NLPD、VIF、GMSD、HaarPSI 當保真約束——量的是位移不是鈍化（E20）
-- ΔE76 / ΔE00 / `dchroma` 當色度約束——量的是量值不是空間連貫性（E28 §1）
-- low rank（使用者 2026-07-30 排除）
-- site L / E / W（A 族）——VAE 重建地板高於加性運作點
-- site S（使用者 2026-08-01 決定不放進重跑）
-- 固定步數的網格
-- **再調 site C 的學習率**——六個值已涵蓋 3 倍範圍，綁定者不變（E29 §3）
-- **在 τ ≤ 0.10 下用 `untargeted` 目標再跑一次網格**——E29 已在最寬鬆的那個
-  點上量過，36 格版本只會是同一個結論的複本
+**線上 GPU 時間只用於必須用它的部分。** 本機是 i5-12500H + RTX 2050 4 GB
+（sm 86、torch 2.13.0+cu126），SD v1.4／SigLIP／tiny-SD 權重都在本機 HF 快取。
+
+| 工作 | 在哪跑 | 實測成本 |
+|---|---|---|
+| 含梯度的 512² 訓練 | **只能雲端** | H100 每步 2.36 s、峰值 10.3 GB（TF32 開） |
+| 無梯度的 512² SDEdit | 本機可 | 峰值 4873 MB（靠 Windows 共享記憶體外溢）、單次 222.5 s |
+| 指標、判定、報表、比對頁 | 本機 | 秒級到數分鐘 |
+| 多臂等 LPIPS 探針 | 本機 GPU | CPU 上約一小時，GPU 上數分鐘 |
+
+`scripts/drivers/local_night.sh` 把本機的 GPU 工作串起來跑。**不要並行**：
+兩個 GPU 工作必然互搶 4 GB；CPU 工作與 GPU 工作並行時，CPU 那側的 LPIPS 會把
+GPU 工作的 Python 執行緒餓住（實測單張耗時由 222 s 拉長到 30 分鐘以上）。
 
 ---
 
-## 7. 環境與成本（已實測，可直接引用）
+## 5. 雲端環境
 
-- 遠端 Lightning AI Studio，H100 80GB，torch 2.8.0+cu128，conda env
-  `cloudspace`。repo 在 `/teamspace/studios/this_studio/WACV`。
-  背景腳本**不是 login shell**，`PY` 用絕對路徑
+- Lightning AI Studio，H100 80GB，torch 2.8.0+cu128，conda env `cloudspace`，
+  repo 在 `/teamspace/studios/this_studio/WACV`。
+- 背景腳本**不是 login shell**，`PY` 用絕對路徑
   `/home/zeus/miniconda3/envs/cloudspace/bin/python3`。
-- **環境準備用 `scripts/drivers/colab_setup.sh` 而非 `remote_setup.sh`**：
-  Lightning 的映像檔已有相符的 torch，`remote_setup.sh` 會 `pip install torch`
-  而有換版風險。前者以 pip constraint 釘住並在裝完核對。
-- 該環境的三個坑，都已在 E29 修掉並記錄：
-  1. `pip install` 會把 numpy 拉到 2.x，而預裝的 `pandas` / `matplotlib` /
-     `scikit-learn` 是對 numpy 1 編的 → 升級這三個。
-  2. `pyiqa` 未列在 `environment.yml`（已補），且必須 `--no-deps`。
-  3. `sentencepiece` 未列，缺它 SigLIP 的 tokenizer 起不來，而 SigLIP 是判準。
-- 成本（H100，TF32 開）：每步 2.36 s、每格評測 33.7 s、峰值 10.3 GB。
-  TF32 關則為 7.19 s、147.6 s、25.1 GB。換機器先跑 `scripts/colab_probe.py`。
-- 本機 `C:/Users/nelso/miniconda3/envs/wacv/python.exe`，RTX 2050 4 GB，
-  **跑得動分析、跑不動 512² 訓練**。測試基準 253 passed / 1 skipped
-  （遠端 torch 2.8 下 `test_極端值不產生NaN[de2000_map]` 失敗，
-  該函式在 `src/` 與 `scripts/` 無任何使用者，屬 E28 判定的死路）。
-- Colab 的完整流程在 `notebooks/colab_e29_e30.ipynb`。其第 5–7 節（E29 校準、
-  判定、E30 網格）對應的計畫已中止，環境與推送的部分仍可用。
+- 環境準備用 `scripts/drivers/colab_setup.sh`，**不是** `remote_setup.sh`
+  （後者會 `pip install torch` 而有換版風險）。
+- 該環境的三個坑已在 E29 修掉並寫進 `colab_setup.sh`：numpy 2 與預裝
+  pandas／matplotlib／scikit-learn 的 ABI 衝突、`pyiqa` 要 `--no-deps`、
+  缺 `sentencepiece` 會讓 SigLIP 起不來（而 SigLIP 是判準）。
+- 換機器先跑 `scripts/colab_probe.py`。TF32 開／關的成本差三倍，且會改變
+  數值（LEDGER 6.5）。
+- 遠端 `git pull` 常因 `runs/` 未追蹤檔衝突而 abort。先把它們 `mv` 到備份
+  目錄再 pull。
+- 連線資訊與 token 由使用者提供，**不得寫入任何入庫檔案**。
+
+本機環境於 2026-08-03 補裝：`clip-anytorch`、`ftfy`、`wcwidth`、`facexlib`
+（`pyiqa` 的 `clipiqa` 與 `topiq_nr` 需要），並把 `setuptools` 由 83 降到 80
+以取回 `pkg_resources.packaging`。
 
 ---
 
-## 8. 分支
+## 6. 分支
 
-`claude/e20-fidelity-constraint`，**未併入 main**，已推上 origin。
+`claude/e20-fidelity-constraint`，**未併入 main**。
+未經明確授權不得併入（`CLAUDE.md`）。

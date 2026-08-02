@@ -1,5 +1,17 @@
 # E27 — 協議校準：四個假的綁定者，以及第三次「匹配失真是假的」
 
+<!-- STATUS-BLOCK -->
+| | |
+|---|---|
+| **狀態** | 現行——其成本基準已由 E29 §2 確認是在 TF32 開啟下量的 |
+| **日期** | 2026-08-01 |
+| **硬體** | Lightning AI H100 80GB、SD v1-4、512²、fp32 |
+| **承接** | docs/RESULTS_E25-E26.md §6 |
+| **後續** | docs/RESULTS_E28_chroma.md |
+| **資料** | `runs/e27_*、runs/e27b_*、runs/e27c_*、runs/e27d_*、runs/e27_evaltiming` |
+
+> 主張的索引見 [`docs/LEDGER.md`](LEDGER.md)；檔案的索引見 [`docs/INDEX.md`](INDEX.md)。
+
 - 2026-08-01。Lightning AI，NVIDIA H100 80GB HBM3，SD v1-4，512²，fp32。
 - 資料：`runs/e27_*`（四輪校準）、`runs/e27b_*`、`runs/e27c_*`、`runs/e27d_*`。
 - 重跑：`python scripts/e27_binding_check.py runs/e27d_*`、

@@ -1,5 +1,17 @@
 # E28 — 色度偏壓約束：第三道，以及它為什麼不是 ΔE
 
+<!-- STATUS-BLOCK -->
+| | |
+|---|---|
+| **狀態** | 現行——§5 描述的主網格計畫已由 E29 中止，其餘現行 |
+| **日期** | 2026-08-01 |
+| **硬體** | 本機 i5-12500H + RTX 2050 4 GB |
+| **承接** | docs/RESULTS_E27_calibration.md |
+| **後續** | docs/RESULTS_E29_negative.md |
+| **資料** | `runs/p9_chroma_probe、runs/p10_chroma_ladder` |
+
+> 主張的索引見 [`docs/LEDGER.md`](LEDGER.md)；檔案的索引見 [`docs/INDEX.md`](INDEX.md)。
+
 - 2026-08-01。全部在本機執行（i5-12500H + RTX 2050 4 GB），不需要 GPU 機時。
 - 資料：`runs/p9_chroma_probe/`、`runs/p10_chroma_ladder/`。
 - 重跑：`python scripts/p9_chroma_probe.py`、`python scripts/p10_chroma_ladder.py`

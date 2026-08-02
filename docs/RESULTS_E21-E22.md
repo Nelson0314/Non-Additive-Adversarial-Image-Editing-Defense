@@ -1,5 +1,17 @@
 # E21–E23 實驗結果
 
+<!-- STATUS-BLOCK -->
+| | |
+|---|---|
+| **狀態** | 部分失效——防禦效果數字受 E26 的 guidance 缺陷影響；§5.4 的協議結論仍現行 |
+| **日期** | 2026-08-01 |
+| **硬體** | TWCC V100、SD v1-4、512² |
+| **承接** | docs/RESULTS_E20_fidelity.md §10 |
+| **後續** | docs/RESULTS_E25-E26.md |
+| **資料** | `runs/e21_*、runs/e22_*、runs/e23_*` |
+
+> 主張的索引見 [`docs/LEDGER.md`](LEDGER.md)；檔案的索引見 [`docs/INDEX.md`](INDEX.md)。
+
 - 資料日期：2026-08-01（TWCC V100，SD v1-4，512²）
 - 承接 `docs/RESULTS_E20_fidelity.md` §10 的待決事項第 (1)、(2) 項。
 - 重跑：`python scripts/e21_report.py`、`python scripts/e21_disp_saturation.py`、

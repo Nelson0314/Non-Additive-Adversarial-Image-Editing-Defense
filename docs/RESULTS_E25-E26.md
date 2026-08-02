@@ -1,5 +1,17 @@
 # E25–E26 — 兩個軸都被重新檢驗，以及攻擊端的根因
 
+<!-- STATUS-BLOCK -->
+| | |
+|---|---|
+| **狀態** | 現行，且是最重要的一份——它使 E2–E23 的每一個 net_lpips 失效 |
+| **日期** | 2026-08-01 |
+| **硬體** | 本機 CPU（含真實 SD v1.4） |
+| **承接** | docs/RESULTS_E21-E22.md |
+| **後續** | docs/RESULTS_E27_calibration.md |
+| **資料** | `runs/p5_semantic_axis、runs/p6_purify_retention、runs/p7_attack_sanity、runs/p8_site_c_capacity` |
+
+> 主張的索引見 [`docs/LEDGER.md`](LEDGER.md)；檔案的索引見 [`docs/INDEX.md`](INDEX.md)。
+
 - 2026-08-01。E25 全部在本機 CPU 執行，只讀既有的 `runs/`，不需 GPU。
   E26 用本機快取的真實 SD v1.4（4.27 GB）在 CPU 上跑。
 - 重跑順序：`p5_semantic_axis.py` → `p6_purify_retention.py` →

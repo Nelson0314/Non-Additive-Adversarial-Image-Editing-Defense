@@ -1,9 +1,20 @@
 # 文件與實驗資料索引
 
-最後整理：2026-08-02（E29 之後）。
+最後整理：2026-08-03（E31 進行中）。
 
 本檔的用途是讓接手者在不讀 git log 的情況下，知道**哪一份文件是現行的、
 哪一份已被取代、每一個 run 目錄屬於哪個實驗**。
+
+三份索引各司其職，不重複：
+
+| 檔案 | 索引的對象 | 什麼時候查 |
+|---|---|---|
+| `docs/INDEX.md`（本檔） | **檔案** | 想知道哪份文件現行、哪個 run 目錄屬於哪個實驗 |
+| `docs/LEDGER.md` | **主張** | 想知道某個結論還算不算數、出處在哪、被什麼推翻 |
+| `docs/gallery.html` | **人眼比對頁** | 想知道某個門檻當初是看哪張圖定出來的 |
+
+每一份 `RESULTS_*.md` 的標題下都有一塊統一的狀態表（狀態／日期／硬體／
+承接／後續／資料），可直接 `grep "STATUS-BLOCK" docs/` 列出全部。
 
 ---
 
@@ -21,7 +32,11 @@
 | `docs/RESULTS_E25-E26.md` | 承接 E25–E26：語意軸重判（726 格語意失敗 0 格）、淨化保留率、**攻擊端缺少 classifier-free guidance 這個根因**、cross-attention 與 targeted 兩個目標、site C（色度矩陣場） | **現行，且是最重要的一份**。它使 E2–E23 的每一個 `net_lpips` 失效 |
 | `docs/RESULTS_E27_calibration.md` | 承接 E27：H100 的成本基準、四個假的綁定者、兩臂的學習率重新校準、**匹配失真第三次被證明是假的（site C 買色調偏移）** | 現行。其中的成本基準（2.47 s/step）已由 E29 §2 確認是在 TF32 開啟下量的 |
 | `docs/RESULTS_E28_chroma.md` | 承接 E28：色度偏壓約束（第三道）、ΔE 全族不合格的判別、τ=0.8 的人眼定錨、TF32 跨機器精度陷阱 | 現行。§5 描述的主網格計畫已由 E29 中止 |
-| `docs/RESULTS_E29_negative.md` | 承接 E29：修好協議後的第一次實測、**防禦擋不住編輯**（影像與 SigLIP 一致）、site C 的綁定者是參數化的固有性質、TF32 指紋比對、**實驗設計與研究歷史的邏輯稽核** | **現行，且是本階段的起點**。E30 主網格未跑，理由在 §5 |
+| `docs/RESULTS_E29_negative.md` | 承接 E29：修好協議後的第一次實測、**防禦擋不住編輯**（影像與 SigLIP 一致）、site C 的綁定者是參數化的固有性質、TF32 指紋比對、**實驗設計與研究歷史的邏輯稽核** | 現行。E30 主網格未跑，理由在 §5。E31 由此接手 |
+| `docs/LEDGER.md` | **結論總帳**：現行主張、已被推翻的主張（含推翻它的資料）、死路清單、尚未回答的問題 | 現行。每條都附出處 |
+| `docs/gallery.html` | **人眼比對頁總覽**：把散在 `runs/` 各處的比對頁集中，並記下每一頁當初決定了什麼 | 現行 |
+| `docs/specs/2026-08-02-e31-positive-control.md` | E31 的設計規格：正對照搜尋、ISR 判準、12 格網格、本機／雲端分工、gate。§12 記錄兩道次要門檻改為逐預算的變更與推翻原假設的資料 | **現行，且是本階段的設計依據** |
+| `docs/plans/2026-08-02-e31.md` | E31 的實作計畫（12 個任務，含每步的驗證方式與本機／雲端標記） | 現行 |
 | `docs/HANDOFF_PROMPT.md` | 可直接貼進新 session 的交接 prompt。2026-08-02 改寫為**重新決定方向**用，不再是執行既有計畫 | 現行 |
 | `docs/NEXT_SESSION.md` | 2026-08-02 改寫（E29 之後）：否定結果、兩個結構性問題、存活的結論、死路清單、環境與成本 | 現行，接手先讀 `RESULTS_E29_negative.md` 再讀這份 |
 | `docs/specs/2026-07-28-lowrank-residual-defense.md` | 設計規格 v1 | 現行的**設計依據**，但其後的推翻不回頭改寫本文，須與上兩份對讀 |
@@ -91,7 +106,12 @@
 | `e29b_C_lr0.15/0.2` | E29 | 補兩個中間學習率。四個值跨 3 倍範圍，綁定者不變 |
 | `e29c_C_tau0.10`、`e29c_P_tau0.10` | E29 | 網格會用到的最寬鬆運作點：τ=0.10、上限 150 步、平台停止、含評測。**含 SigLIP 語意軸，即正式判準** |
 | `e29_edit_page`、`e29c_edit_page` | E29 | 把防禦圖真的拿去被編輯一次的人眼比對頁。**否定結果的主要證據** |
-| `logs` | — | 各 run 的 driver 與 stdout 紀錄。含 E29 的 `tf32_probe.log`（TF32 開／關的成本實測） |
+| `p11_degrade_ladder` | E31 | 感知劣化階梯：四算子各四級 × 四個無參考指標，含人眼比對頁。用以定出 ISR 另一半的門檻 |
+| `p12_isr_rejudge` | E31 | 以 ISR 聯集判準重判既有全部 run。828 格語意失敗 0 格；`edit_niqe_*` 從未被讀過這件事在此曝光 |
+| `p13_budget_probe` | E31 | 把既有解沿射線放大到各預算，量 acut／chroma／RMS。**含 i.i.d. 白雜訊參照臂**，據此判定 τ=0.28 在原約束集下不可達 |
+| `p14_budget_thresholds` | E31 | 逐預算的多臂等 LPIPS 探針，定出每個預算的 τ_acut 與 τ_chroma |
+| `e31_sources` | E31 | 本機產生的六張未防禦編輯輸出（w=7.5、strength=0.5、held-out 種子），供 p11 定錨用。既有 run 只有 car_00 一張 |
+| `logs` | — | 各 run 的 driver 與 stdout 紀錄。含 E29 的 `tf32_probe.log`（TF32 開／關的成本實測）與 E31 的 `e31_local_probe.log`（本機無梯度 SDEdit 的可行性）、`e31_train_probe.log`（本機含梯度訓練的解析度上限） |
 
 ### 涉及已作廢方向的資料
 
@@ -149,6 +169,17 @@ python scripts/make_report_figures.py   # docs/figures/*.png（E2/E8/E9/E10/E12�
 python scripts/make_report.py     # docs/archive/2026-07-29-RESULTS_lowrank.html（E0–E3）
 python scripts/colab_probe.py     # 實測本機器每步／每格評測成本，推算時間
 python scripts/e29_edit_page.py runs/<run> --montage_only  # 只重畫比對圖，不需 GPU
+# --- E31（全部可在本機跑）---
+python scripts/p11_degrade_ladder.py      # 劣化階梯 + 人眼比對頁（GPU 數分鐘）
+python scripts/p12_isr_rejudge.py --degrade_tau <值>   # ISR 重判既有 run（秒級）
+python scripts/p13_budget_probe.py        # 預算探針 + 白雜訊參照臂（CPU 約 2 分）
+python scripts/p14_budget_thresholds.py   # 逐預算門檻（GPU 數分鐘 / CPU 約 1 小時）
+python scripts/make_target_gray.py        # 產生 targeted 模式的灰色目標影像
+python scripts/e31_make_edits.py --limit 6  # 本機產生未防禦編輯（GPU 約 22 分）
+python scripts/e31_local_probe.py         # 本機能否跑無梯度 512² SDEdit
+python scripts/e31_train_probe.py         # 本機含梯度訓練的解析度上限
+python scripts/e31_report.py --degrade_tau <值>   # E31 網格彙整（網格跑完才有資料）
+bash   scripts/drivers/local_night.sh     # 上列三支 GPU 工作串起來跑，避免互搶顯存
 ```
 
 `scripts/e17_vae_floor.py` 需要 GPU 與 SD 權重，不能在本機重跑。
@@ -161,13 +192,32 @@ Colab 的完整流程另有 notebook：`notebooks/colab_e29_e30.ipynb`，
 
 ---
 
-## 5. 待執行的實驗（需雲端 GPU）
+## 5. 待執行的實驗
 
-驅動腳本在 `scripts/drivers/`，說明見該目錄的 README，設定的出處見
-`docs/NEXT_SESSION.md` §4–§6。順序固定，E29 沒通過綁定者判準就不要開 E30。
+驅動腳本在 `scripts/drivers/`，說明見該目錄的 README。設計的出處是
+`docs/specs/2026-08-02-e31-positive-control.md`，逐步的作法是
+`docs/plans/2026-08-02-e31.md`。
 
-| 腳本 | 產生的 run | 成本 |
-|---|---|---|
-| `drivers/remote_setup.sh` | 無（環境準備） | 約 5 分鐘 |
-| `drivers/e29_calibration.sh` | `e29_{C,P}_lr*`（8 格） | 約 20 分鐘 |
-| `drivers/e30_grid.sh` | `e30_{C,P}_tau*`（36 格） | 2–4.2 小時 |
+### 需雲端 GPU（E31）
+
+順序固定，**R1 的綁定者判定沒有全部是 LPIPS hinge 就不要開 R2**。
+
+| 腳本 | 產生的 run | 成本 | 前置 |
+|---|---|---|---|
+| `drivers/colab_setup.sh` | 無（環境準備） | 約 5 分鐘 | 不要用 `remote_setup.sh`，後者會 `pip install torch` 而有換版風險 |
+| `drivers/e31_calibration.sh` | `e31_P_tau0.28_*`（4 格） | 約 20 分鐘 | 須以 `TA_028`／`TC_028` 傳入 p14 定出的門檻 |
+| `drivers/e31_grid.sh` | `e31_{untargeted,targeted,attn}_tau*_s*`（12 格） | 約 1.5–2 小時 | 須以 `LR_028`、`TA_*`、`TC_*` 傳入實際值 |
+
+### 已中止（保留為證據）
+
+| 腳本 | 為何中止 |
+|---|---|
+| `drivers/e29_calibration.sh` | 已執行。判準未通過：site C 六個學習率全部由色度 hinge 綁住（E29 §3） |
+| `drivers/e30_grid.sh` | 未執行。E29 的否定結果使該網格只會得到「兩個都無效」的 36 格版本（E29 §8） |
+
+### 本機可跑（零雲端成本）
+
+見 §4 的 E31 區塊。`drivers/local_night.sh` 把三支 GPU 工作串起來跑——
+本機是 RTX 2050 4 GB，兩個 GPU 工作並行必然互搶，CPU 工作與 GPU 工作並行時
+CPU 那側的 LPIPS 會把 GPU 工作的 Python 執行緒餓住（實測單張耗時由 222 s
+拉長到 30 分鐘以上）。

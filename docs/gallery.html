@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="zh-Hant">
+<meta charset="utf-8">
+<title>WACV — 人眼比對頁總覽</title>
+<style>
+  :root { color-scheme: dark; }
+  body { font-family: "Segoe UI", "Noto Sans TC", sans-serif;
+         background: #101215; color: #e6e8ea; margin: 0; padding: 32px;
+         line-height: 1.7; }
+  .wrap { max-width: 1080px; margin: 0 auto; }
+  h1 { font-size: 26px; margin: 0 0 6px; }
+  .sub { color: #9aa3ad; margin: 0 0 28px; }
+  h2 { font-size: 18px; margin: 34px 0 10px; color: #8cc7ff;
+       border-bottom: 1px solid #24282d; padding-bottom: 6px; }
+  table { border-collapse: collapse; width: 100%; }
+  th, td { text-align: left; padding: 9px 10px; vertical-align: top;
+           border-bottom: 1px solid #1e2227; font-size: 14px; }
+  th { color: #9aa3ad; font-weight: 600; font-size: 13px; }
+  a { color: #7ec9ff; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  code { background: #191c20; padding: 1px 5px; border-radius: 3px;
+         font-size: 12.5px; color: #d6c58c; }
+  .decided { color: #b6e3a8; }
+  .pending { color: #ffcf7a; }
+  .note { background: #16191d; border-left: 3px solid #3a4450;
+          padding: 12px 16px; margin: 20px 0; font-size: 14px;
+          color: #b9c1c9; }
+</style>
+<div class="wrap">
+
+<h1>WACV — 人眼比對頁總覽</h1>
+<p class="sub">最後整理 2026-08-03。本頁把散在 <code>runs/</code> 各處的比對頁集中起來，
+並記下每一頁當初<b>決定了什麼</b>。</p>
+
+<div class="note">
+本專案的規則是：<b>指標之間出現矛盾時，把影像做成比對頁交人眼判斷</b>。
+τ_acut、τ_chroma 兩個門檻與 E29 的否定結果都是這樣定或確認的。
+每一頁都對應一個當時無法只靠數字解決的判斷，故保留全部原圖不刪。
+相關索引：<a href="LEDGER.md">結論總帳</a>、<a href="INDEX.md">檔案索引</a>。
+</div>
+
+<h2>約束與門檻的定錨</h2>
+<table>
+<tr><th>頁面</th><th>實驗</th><th>決定了什麼</th></tr>
+<tr>
+  <td><a href="../runs/p1_iso_lpips_probe/compare.html">等 LPIPS 的模糊 vs 雜訊</a></td>
+  <td>E20 / P1</td>
+  <td class="decided">四臂校準到同一 LPIPS。使用者判讀為「0.4–0.6 px 的位移不明顯，模糊明顯較糟」，
+      據此淘汰 GMSD／NLPD／HaarPSI／VIF／SSIM／DISTS／PSNR（它們量的是位移），
+      選出 <code>local_acutance_dev</code> 並定出 τ_acut = 0.04。</td>
+</tr>
+<tr>
+  <td><a href="../runs/p10_chroma_ladder/compare.html">色度偏壓的階梯</a></td>
+  <td>E28 / P10</td>
+  <td class="decided">0.3 與 0.6 看不出來、1.0 要很仔細看才看得出來。
+      τ_chroma 取 0.8 而非 1.0，因為 1.0 屬於已確認看得見的一級。</td>
+</tr>
+<tr>
+  <td><a href="../runs/e27d_C_lr0.3/compare.html">把失真預算用滿之後長什麼樣</a></td>
+  <td>E27</td>
+  <td class="decided">同一個 LPIPS 下 site C 買到人眼可見的色調偏移，而 site P 沒有。
+      這是「匹配失真是假的」第三次成立，直接促成 E28 的第三道約束。</td>
+</tr>
+<tr>
+  <td><a href="../runs/p13_budget_probe/compare.html">預算探針</a></td>
+  <td>E31 / P13</td>
+  <td class="decided">把既有解沿射線放大到各個 LPIPS 預算。連 i.i.d. 白高斯雜訊都在
+      LPIPS 0.20 超過 τ_acut、0.28 同時超過兩道，據此把兩道次要門檻改為逐預算。</td>
+</tr>
+<tr>
+  <td><a href="../runs/p11_degrade_ladder/compare.html">劣化階梯</a></td>
+  <td>E31 / P11</td>
+  <td class="pending">待判讀。四個算子各四級施加在未防禦的編輯輸出上，
+      要決定哪一級開始「這張圖已經不能用」，用以定出 ISR 感知劣化那一半的門檻。</td>
+</tr>
+</table>
+
+<h2>攻擊端與判準</h2>
+<table>
+<tr><th>頁面</th><th>實驗</th><th>決定了什麼</th></tr>
+<tr>
+  <td><a href="../runs/p7_attack_sanity/compare.html">guidance scale 決定編輯有沒有發生</a></td>
+  <td>E26 / P7</td>
+  <td class="decided">w=1 與 w=7.5 的未防禦編輯對照。w=1 下 SD v1.4 幾乎不服從 prompt——
+      本專案 E2–E23 全部跑在 w=1，即在防禦一個不存在的攻擊。這是那批數字失效的根因。</td>
+</tr>
+<tr>
+  <td><a href="../runs/p5_semantic_axis/compare.html">編輯有沒有被擋下來</a></td>
+  <td>E25 / P5</td>
+  <td class="decided">使用者判讀後指出比「防禦無效」更根本的事：連未防禦的原圖被編輯都沒有成功。
+      這條線索直接導向 E26 的根因。</td>
+</tr>
+</table>
+
+<h2>否定結果的主要證據</h2>
+<table>
+<tr><th>影像</th><th>實驗</th><th>決定了什麼</th></tr>
+<tr>
+  <td><a href="../runs/e29_edit_page/all_montage.png">e29_edit_page / all_montage.png</a><br>
+      <a href="../runs/e29_edit_page/car_00_compare.png">car_00_compare.png</a>、
+      <a href="../runs/e29_edit_page/car_01_compare.png">car_01_compare.png</a></td>
+  <td>E29（τ=0.05、60 步）</td>
+  <td class="decided">上排是防禦圖、下排是同一張圖被 <code>a wrecked car after an accident</code>
+      編輯之後。每一張下排都長出了 prompt 要求的毀損車輛，含未防禦對照與全部防禦版本。</td>
+</tr>
+<tr>
+  <td><a href="../runs/e29c_edit_page/all_montage.png">e29c_edit_page / all_montage.png</a><br>
+      <a href="../runs/e29c_edit_page/car_00_compare.png">car_00_compare.png</a></td>
+  <td>E29c（τ=0.10、150 步上限、平台停止）</td>
+  <td class="decided">網格會用到的<b>最寬鬆</b>運作點，結論相同。且用的是防禦訓練時見過的那個 ε，
+      即對防禦最有利的條件。</td>
+</tr>
+</table>
+
+<h2>報表與圖</h2>
+<table>
+<tr><th>檔案</th><th>內容</th><th>狀態</th></tr>
+<tr><td><a href="REPORT.html">REPORT.html</a></td><td>E0–E12 的報告</td>
+    <td>防禦效果的數字已失效（E26 的 guidance 缺陷、E25 的判準問題）。方法層面仍有效</td></tr>
+<tr><td><a href="architecture.html">architecture.html</a></td><td>威脅模型、參數化、loss 與梯度路徑</td>
+    <td>注入位置、保真約束、攻擊端 guidance 三處過時，概念部分仍可讀</td></tr>
+<tr><td><a href="archive/2026-07-26-RESULTS_v2.html">archive/2026-07-26-RESULTS_v2.html</a></td>
+    <td>前一代研究框架的結果</td><td>已封存，該路線整批作廢</td></tr>
+<tr><td><a href="archive/2026-07-29-RESULTS_lowrank.html">archive/2026-07-29-RESULTS_lowrank.html</a></td>
+    <td>E0–E3</td><td>已封存。保留是因為 E0 成本表與 E0c 地板表只有這份有</td></tr>
+<tr><td><code>docs/figures/fig1..fig7.png</code></td><td>E2／E8／E9／E10／E12 的圖</td>
+    <td>由 <code>scripts/make_report_figures.py</code> 產生</td></tr>
+</table>
+
+</div>
+</html>

@@ -1,5 +1,17 @@
 # E18–E19 實驗結果
 
+<!-- STATUS-BLOCK -->
+| | |
+|---|---|
+| **狀態** | 現行——只涉及 VAE 重建地板與銳利度量測，不經過防禦效果那一軸 |
+| **日期** | 2026-07-31 |
+| **硬體** | TWCC V100、SD v1-4、512² |
+| **承接** | docs/RESULTS_E13-E17.md |
+| **後續** | docs/RESULTS_E20_fidelity.md |
+| **資料** | `runs/e18_*、runs/e19_*` |
+
+> 主張的索引見 [`docs/LEDGER.md`](LEDGER.md)；檔案的索引見 [`docs/INDEX.md`](INDEX.md)。
+
 - 資料日期：2026-07-31（TWCC V100，SD v1-4，512²）
 - 承接 `docs/RESULTS_E13-E17.md`。所有數字由 `runs/` 重新產生，未經人工轉抄。
 - 重跑：`python scripts/e18_report.py`、`python scripts/e19_acutance.py`

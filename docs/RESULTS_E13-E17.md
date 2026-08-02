@@ -1,5 +1,17 @@
 # E13–E17 實驗結果
 
+<!-- STATUS-BLOCK -->
+| | |
+|---|---|
+| **狀態** | 部分失效——其防禦效果數字受 E26 的 guidance 缺陷影響；§3.1 的 1.15× 已於 E20 撤回 |
+| **日期** | 2026-07-31 |
+| **硬體** | TWCC V100、SD v1-4、512² |
+| **承接** | docs/REPORT.html（E0–E12） |
+| **後續** | docs/RESULTS_E18-E19.md |
+| **資料** | `runs/e13_*、runs/e14_*、runs/e15_*、runs/e16_*、runs/e17_vae_floor` |
+
+> 主張的索引見 [`docs/LEDGER.md`](LEDGER.md)；檔案的索引見 [`docs/INDEX.md`](INDEX.md)。
+
 - 資料日期：2026-07-31（TWCC V100，SD v1-4，512²）
 - 本文件的每個數字皆由 `runs/` 底下的原始檔重新產生，未經人工轉抄。
   重跑指令列於各節末。

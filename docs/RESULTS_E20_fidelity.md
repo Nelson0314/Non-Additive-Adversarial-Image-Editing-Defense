@@ -1,5 +1,17 @@
 # E20 — 保真約束的方法調查
 
+<!-- STATUS-BLOCK -->
+| | |
+|---|---|
+| **狀態** | 現行——保真約束的方法學，不依賴攻擊端設定 |
+| **日期** | 2026-07-31 至 08-01 |
+| **硬體** | 本機 CPU |
+| **承接** | docs/RESULTS_E18-E19.md §4 |
+| **後續** | docs/RESULTS_E21-E22.md |
+| **資料** | `runs/p1_iso_lpips_probe、runs/p2_e15_battery、runs/p3_local_acutance、runs/p4_constraint_check` |
+
+> 主張的索引見 [`docs/LEDGER.md`](LEDGER.md)；檔案的索引見 [`docs/INDEX.md`](INDEX.md)。
+
 - 2026-07-31 至 08-01。承接 `docs/RESULTS_E18-E19.md` §4 的待決事項。
 - 本階段全部在本機 CPU 執行，不需 GPU：所需影像（`runs/e15_{S,P}_tau0.05/` 的
   `orig.png` 與 `defended.png`）已入庫。

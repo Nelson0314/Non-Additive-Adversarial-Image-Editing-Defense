@@ -70,9 +70,22 @@ import torch
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from scripts.p9_chroma_probe import ARMS, calibrate, make_arm, to_tensor
+from scripts.p9_chroma_probe import calibrate, make_arm, to_tensor
 from src.metrics.chroma import local_chroma_bias
 from src.metrics.local_acutance import local_acutance_dev
+
+# 臂的**實作**沿用 p9（`make_arm`），但**搜尋範圍**在此重新給，不改 p9。
+# p9 的 ARMS 只需要涵蓋單一預算 τ=0.05；本腳本要跨到 0.28，兩個變形臂的
+# 上界 3.0 不夠——實測 person_00 的 warp_bilinear 在 3.0 只到 LPIPS 0.2196，
+# `calibrate` 因此正確地拋出而非回傳上界。
+# 改 p9 的常數會動到 E28 已入庫結果的重跑條件，故在此另立。
+ARMS = [
+    ("blur", 0.0, 8.0),
+    ("noise", 0.0, 0.5),
+    ("warp_bilinear", 0.0, 20.0),
+    ("warp_bicubic", 0.0, 20.0),
+    ("chroma", 0.0, 6.0),
+]
 
 # 臂的歸屬。沿用 E20 §5.2 與 E28 §1 的既有判定，見模組 docstring。
 PASS_ACUT = ("noise", "warp_bicubic")

@@ -233,7 +233,7 @@ footer{margin-top:78px;padding-top:26px;border-top:1px solid var(--line);
 
 <div style="border:2px solid #c0392b;border-radius:8px;padding:14px 18px;margin:0 0 24px;background:color-mix(in srgb,#c0392b 8%,transparent)">
 <b>本文內容已部分過時</b>
-<p style="margin:8px 0 0">本文寫於 2026-07-28，描述的是當時的設計。以下各點此後已改變，閱讀時須一併知道：（1）注入位置由三個增為七個（P / PF / L / E / W / S / C）；（2）保真約束由單一 LPIPS 改為 LPIPS ∩ 鈍化 ∩ 色度的交集，見 <code>docs/RESULTS_E20_fidelity.md</code> 與 <code>docs/RESULTS_E28_chroma.md</code>；（3）攻擊端當時沒有 classifier-free guidance，等同 w=1，該設定下 SD v1.4 幾乎不服從 prompt，見 <code>docs/RESULTS_E25-E26.md</code> §3。本文不回頭改寫，改動的原因與資料留在上列各份報告裡。</p>
+<p style="margin:8px 0 0">本文寫於 2026-07-28，描述的是當時的設計。以下各點此後已改變，閱讀時須一併知道：（1）注入位置由三個增為七個（P / PF / L / E / W / S / C）；（2）保真約束由單一 LPIPS 改為 LPIPS ∩ 鈍化 ∩ 色度的交集，見 <code>docs/RESULTS_E20_fidelity.md</code> 與 <code>docs/RESULTS_E28_chroma.md</code>；（3）攻擊端當時沒有 classifier-free guidance，等同 w=1，該設定下 SD v1.4 幾乎不服從 prompt，見 <code>docs/RESULTS_E25-E26.md</code> §3。（4）研究問句其後收斂為「在匹配人眼可辨失真下，非加性能否勝過加性」，而 E29 實測兩臂在現行運作點都沒有防禦效果，現階段的工作見 <a href="specs/2026-08-02-e31-positive-control.md">E31 規格</a>。本文不回頭改寫，改動的原因與資料留在上列各份報告裡；哪些主張現在還算數，逐條列在 <a href="LEDGER.md">docs/LEDGER.md</a>。</p>
 </div>
 
 <header>

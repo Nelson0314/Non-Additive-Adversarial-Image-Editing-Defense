@@ -1455,3 +1455,55 @@ def test_BDIA下site_L的注入仍生效且梯度抵達phi(sd, x01):
     x_def = gen.generate(x01, ctx)
     x_def.pow(2).sum().backward()
     assert mod.tensor.V.grad is not None and mod.tensor.V.grad.abs().sum() > 0
+
+
+# ------------------------------------------------------------ E31：targeted 的目標影像
+
+
+def test_灰色目標影像存在且為中性灰():
+    """`targeted` 模式的目標影像。取 RGB 128/255 的中性灰，與 PhotoGuard 的
+    encoder attack 一致（arXiv:2302.06588）。
+
+    它是實驗設定的一部分，故入版控而非執行時生成：目標影像換了，那一批
+    `targeted` 的結果就不可比，而執行時生成的東西在 `env.json` 裡看不出來。
+    """
+    from pathlib import Path
+
+    import numpy as np
+    from PIL import Image
+
+    p = Path(__file__).resolve().parent.parent / "data" / "targets" / "gray.png"
+    assert p.exists(), f"缺少 {p}，請跑 scripts/make_target_gray.py"
+    a = np.asarray(Image.open(p).convert("RGB"))
+    assert a.shape == (512, 512, 3)
+    assert a.min() == 128 and a.max() == 128
+
+
+def test_crossattn在平台時停止且步數少於上限(sd, x01):
+    """固定步數的網格是死路（E21–E23 §5.4）。crossattn 路徑原本沒有平台
+    停止，本測試釘住它接上之後確實會提早停，且監看的是 `attn_div` 而非
+    在該路徑上恆為 NaN 的 `edit_shift`。
+
+    `stop_tol=1e9` 讓任何改善量都低於門檻：測的是「接線有沒有接上」，
+    不是收斂本身——收斂由 test_plateau_stop.py 的純函數測試負責。
+
+    `tau_lpips=0.0` 是必要的，不是為了讓測試通過而放寬。停止準則的第一個
+    條件是「約束確實啟動過」，而 tiny-SD 在 64² 上跑 30 步的 LPIPS 只到
+    1e-4 量級，預設 τ=0.05 下沒有任何 hinge 會啟動，準則會正確地一直不停。
+    把 τ 設為 0 使 hinge 從防禦一有動作就啟動，被測的仍是同一條路徑。
+    """
+    from src.defense.optimize import optimize_crossattn
+
+    module = PixelResidual(size=SIZE, channels=3, max_rank=2,
+                           const_rank=2, seed=SEED).to(DEV)
+    cfg = OptimConfig(steps=30, lr=0.05, n_edit=2, attn_timesteps=2,
+                      stop_on_plateau=True, stop_patience=4,
+                      stop_tol=1e9, stop_min_steps=4,
+                      prompt_edit="a wrecked car")
+    res = optimize_crossattn(sd, module, x01, cfg, LossConfig(tau_lpips=0.0),
+                             default_train_set()[:1])
+    assert res.steps_done < cfg.steps
+    assert res.steps_done == len(res.history)
+    assert res.stop_reason
+    assert "attn_div" in res.stop_reason
+    assert res.x_def is not None

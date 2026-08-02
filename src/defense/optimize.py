@@ -161,6 +161,7 @@ def plateau_stop(
     min_steps: int,
     require_constraint: bool = True,
     constraint_keys: tuple = ("fid_pen_lpips", "fid_pen_acut"),
+    monitor_key: str = "edit_shift",
 ) -> tuple:
     """該不該停？回傳 (要不要停, 原因)。
 
@@ -195,6 +196,28 @@ def plateau_stop(
 
     抽成純函數是為了能在沒有 SD 的情況下驗證取樣邏輯——這段決定了每一格
     跑多久，是本協議的核心，不該只能靠跑完整實驗才看得出對錯。
+
+    2026-08-02（E31）新增 `monitor_key`。
+
+        修訂前（本檔 line 214-215）
+            a = sum(h["edit_shift"] for h in window[:half]) / half
+            b = sum(h["edit_shift"] for h in window[half:]) / (patience - half)
+
+        修訂後
+            monitor_key: str = "edit_shift"      ← 新參數，預設維持既有行為
+            a = sum(h[monitor_key] for h in window[:half]) / half
+            b = sum(h[monitor_key] for h in window[half:]) / (patience - half)
+
+    理由：`optimize_crossattn` 原本是固定步數，而固定步數的網格是 E21–E23
+    §5.4 記錄的方法問題，E31 要把平台停止接上去。但該路徑的 history 把
+    `edit_shift` 記為 `float("nan")`（本檔 `optimize_crossattn` 的 log 區塊）
+    ——它沒有 y_orig 可比，那個欄位在該路徑上沒有定義。NaN 的一切比較恆為
+    False，直接沿用會讓停止準則**永遠不觸發**，症狀是「加了停止準則但沒有
+    作用」而非報錯。crossattn 改監看 `attn_div`，其方向與 `edit_shift` 一致
+    （兩者都是越大代表防禦越有進展），故不等式與 `tol` 的符號都不變。
+
+    缺鍵與 NaN 都改為拋出而非略過：這兩種情形下「不停」與「該停但沒停」
+    在外部完全分不出來。
     """
     if patience < 2:
         raise ValueError(
@@ -211,14 +234,30 @@ def plateau_stop(
         if not engaged:
             return (False, "")
 
+    for h in window:
+        if monitor_key not in h:
+            raise KeyError(
+                f"history 沒有監看鍵 {monitor_key!r}。停止準則的監看量必須"
+                f"存在——缺席時靜默不停的症狀是「加了停止準則但沒有作用」，"
+                f"在外部與「該停但沒停」分不出來"
+            )
+        v = h[monitor_key]
+        if v != v:      # NaN
+            raise ValueError(
+                f"監看鍵 {monitor_key!r} 的值是 NaN。NaN 的一切比較恆為 "
+                f"False，用它當監看量會永遠不停。crossattn 路徑的 "
+                f"edit_shift 沒有定義（無 y_orig 可比），該路徑須改用 "
+                f"monitor_key='attn_div'"
+            )
+
     half = patience // 2
-    a = sum(h["edit_shift"] for h in window[:half]) / half
-    b = sum(h["edit_shift"] for h in window[half:]) / (patience - half)
+    a = sum(h[monitor_key] for h in window[:half]) / half
+    b = sum(h[monitor_key] for h in window[half:]) / (patience - half)
     # 兩半的中心相距 patience/2 步，故每步改善量為總差除以該距離
     per_step = (b - a) / (patience / 2.0)
     if per_step < tol:
-        return (True, f"約束已啟動且 edit_shift 在最近 {patience} 步的每步改善 "
-                      f"{per_step:+.2e} 低於 {tol:.1e}")
+        return (True, f"約束已啟動且 {monitor_key} 在最近 {patience} 步的每步"
+                      f"改善 {per_step:+.2e} 低於 {tol:.1e}")
     return (False, "")
 
 
@@ -654,6 +693,34 @@ def optimize_crossattn(
 
     參考分佈 A(x, c, t) 不依賴 φ，故對每個取樣到的 t 只算一次並快取。
     兩條分支共用同一組加噪 ε（spec §5.1），否則量到的差異主要來自噪聲不同。
+
+    2026-08-02（E31）接上平台停止。
+
+        修訂前
+            for step in range(cfg.steps):        ← 恆跑滿
+                ...
+                if step == cfg.steps - 1:
+                    result.x_def = x_def.detach().clone()
+            result.steps_done = cfg.steps
+
+        修訂後
+            constraint_keys = active_constraint_keys(loss_cfg) if ... else ()
+            for step in range(cfg.steps):
+                ...
+                if cfg.stop_on_plateau or step == cfg.steps - 1:
+                    result.x_def = x_def.detach().clone()   ← 每步覆寫
+                if cfg.stop_on_plateau:
+                    stop, reason = plateau_stop(..., monitor_key="attn_div")
+                    if stop: result.stop_reason = reason; break
+            result.steps_done = len(result.history)
+
+    理由：固定步數的網格是 E21–E23 §5.4 記錄的方法問題——兩個 site 的 φ
+    量綱與學習率都不同，「同樣跑 N 步」對兩者從來不是同一件事，實測後果是
+    每一格被不同的東西綁住。E31 要把三個 defense_mode 放進同一個網格比較，
+    這條路徑不能是唯一一條跑固定步數的。
+
+    監看量取 `attn_div` 而非 `edit_shift`：本路徑沒有 y_orig 可比，該欄位
+    記為 NaN，而 NaN 的比較恆為 False，沿用會讓停止準則永遠不觸發。
     """
     from src.models.attention import (
         CrossAttentionRecorder, attention_content_suppression,
@@ -666,6 +733,10 @@ def optimize_crossattn(
     obj = DefenseObjective(loss_cfg, device)
     opt = torch.optim.Adam(module.parameters(), lr=cfg.lr)
     rec = CrossAttentionRecorder(sd.unet)
+    # 與 optimize() 相同：只認係數非零、真的會綁住優化的那幾道 hinge。
+    constraint_keys = (
+        active_constraint_keys(loss_cfg) if cfg.stop_on_plateau else ()
+    )
 
     emb_edit = sd.encode_text(cfg.prompt_edit).detach()
     span = token_span(sd.tokenizer, cfg.prompt_edit) if cfg.attn_content_only else None
@@ -773,13 +844,33 @@ def optimize_crossattn(
                   f"psnr={parts['fid_psnr_total']:.2f}  "
                   f"|g|={log['grad_norm']:.3e}", flush=True)
 
-        if step == cfg.steps - 1:
+        if cfg.stop_on_plateau or step == cfg.steps - 1:
+            # 開啟停止準則後每步覆寫，因為任何一步都可能是最後一步。
+            # 一張 512² 的 clone 約 3 MB，相對 E0 量到的峰值可忽略。
             result.x_def = x_def.detach().clone()
 
         del x_def, divs, total
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
 
+        if cfg.stop_on_plateau:
+            # 監看 attn_div 而非 edit_shift：後者在本路徑恆為 NaN（見上方
+            # log 區塊），NaN 的比較恆為 False，用它會永遠不停。
+            stop, reason = plateau_stop(
+                result.history, cfg.stop_patience, cfg.stop_tol,
+                cfg.stop_min_steps, constraint_keys=constraint_keys,
+                monitor_key="attn_div",
+            )
+            if stop:
+                result.stop_reason = reason
+                print(f"  [stop] 第 {step} 步停止：{reason}", flush=True)
+                break
+
     result.seconds = time.perf_counter() - t0
-    result.steps_done = cfg.steps
+    result.steps_done = len(result.history)
+    if cfg.stop_on_plateau and not result.stop_reason:
+        # 跑滿上限而非收斂。這一格不可用於跨 site 比較，理由與 E21–E23
+        # §5.4 相同：量到的是「走到哪裡」不是「能力」。
+        print(f"  [stop] 用盡上限 {cfg.steps} 步仍未達停止準則，"
+              f"該格不可用於跨 site 比較", flush=True)
     return result

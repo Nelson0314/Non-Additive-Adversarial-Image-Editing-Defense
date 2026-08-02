@@ -45,6 +45,12 @@ HIGHER_IS_BETTER = {
     "dists": False, "niqe": False, "clip": True, "siglip": True,
     # 銳利度保留率的最佳值是 1（與原圖相同），不是越高越好也不是越低越好：
     # < 1 為鈍化、> 1 為過銳。故不列於此表，報告端須依「趨近 1」處理。
+    #
+    # 擾動的能量與尖峰比例（2026-08-02，E31）。文獻以 ε=16/255 的 L∞ 球為
+    # 標準預算，而本專案的 beta_linf=0，擾動是稀疏尖峰型：τ=0.10 的實測是
+    # 5.3% 的像素超過該球、中位數只有 5/255。只報 LPIPS 會讓與文獻的對比
+    # 失真，故兩軸都要有欄位。
+    "rms": False, "frac_gt_16_255": False,
 }
 
 
@@ -90,6 +96,14 @@ class MetricSuite:
 
         銳利度不對稱：`acutance_ratio` 是 b 相對 a 的比值，故 a 必須是
         參照（原圖）、b 是待評影像。其餘各項對調不變，此項會變成倒數。
+
+        2026-08-02（E31）加入 `rms` 與 `frac_gt_16_255`。原本只有 psnr /
+        linf / ssim / lpips / dists / acutance_ratio 六項。理由：與文獻的
+        預算對比需要 RMS 這一軸。本專案在 τ_lpips=0.10 的實測是 LPIPS
+        0.0856、RMS 0.0319、L∞ 0.373，其中 L∞ 是文獻標準球 ε=16/255 的
+        六倍而 LPIPS 只有文獻運作點（0.267–0.362）的三分之一——擾動是稀疏
+        尖峰型（5.3% 的像素超過該球、中位數 5/255），只報單一軸會讓
+        「本專案的預算比文獻低 5–8 倍」這個敘述在別的軸上不成立。
         """
         import piq
 
@@ -97,13 +111,16 @@ class MetricSuite:
 
         a = a.to(self.device).clamp(0, 1)
         b = b.to(self.device).clamp(0, 1)
+        d = (a - b).abs()
         return {
             "psnr": float(piq.psnr(a, b, data_range=1.0)),
-            "linf": float((a - b).abs().max()),
+            "linf": float(d.max()),
             "ssim": float(piq.ssim(a, b, data_range=1.0)),
             "lpips": float(self._lpips(a, b)),
             "dists": float(self._dists(a, b)),
             "acutance_ratio": acutance(a, b)["acutance_ratio"],
+            "rms": float((d ** 2).mean().sqrt()),
+            "frac_gt_16_255": float((d > 16 / 255).float().mean()),
         }
 
     # NIQE 把影像切成 96×96 區塊統計，短邊小於此值時沒有任何完整區塊，

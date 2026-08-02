@@ -138,3 +138,38 @@ def test_全部係數為零時拒絕():
         active_constraint_keys(LossConfig(
             gamma_lpips=0.0, gamma_acut=0.0, gamma_chroma=0.0,
             beta_linf=0.0, gamma_psnr=0.0))
+
+
+# ---------------------------------------------------- E31：可指定監看鍵
+
+
+def test_可指定監看鍵():
+    """crossattn 路徑監看 `attn_div` 而非 `edit_shift`。"""
+    h = [{"edit_shift": float("nan"), "attn_div": 0.5, "fid_pen_lpips": 0.1}
+         for _ in range(PAT)]
+    stop, reason = plateau_stop(h, PAT, TOL, min_steps=5,
+                                monitor_key="attn_div")
+    assert stop is True
+    assert "attn_div" in reason
+
+
+def test_監看鍵仍在上升時不停():
+    h = [{"edit_shift": float("nan"), "attn_div": 0.1 * i,
+          "fid_pen_lpips": 0.1} for i in range(PAT)]
+    stop, _ = plateau_stop(h, PAT, TOL, min_steps=5, monitor_key="attn_div")
+    assert stop is False
+
+
+def test_監看鍵缺席時報錯而非靜默不停():
+    # 靜默不停的症狀是「加了停止準則但沒有作用」，比報錯難追得多。
+    h = [{"edit_shift": 0.1, "fid_pen_lpips": 0.1} for _ in range(PAT)]
+    with pytest.raises(KeyError):
+        plateau_stop(h, PAT, TOL, min_steps=5, monitor_key="attn_div")
+
+
+def test_監看鍵為NaN時報錯():
+    # crossattn 的 history 把 edit_shift 記為 NaN；NaN 比較恆為 False，
+    # 用它當監看量會永遠不停。
+    h = [{"edit_shift": float("nan"), "fid_pen_lpips": 0.1} for _ in range(PAT)]
+    with pytest.raises(ValueError):
+        plateau_stop(h, PAT, TOL, min_steps=5)

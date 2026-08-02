@@ -1,0 +1,4 @@
+car_00: a wrecked car after an accident
+car_01: a wrecked car after an accident
+
+guidance_scale=7.5 strength=0.5 n_edit=10 seed=20260728

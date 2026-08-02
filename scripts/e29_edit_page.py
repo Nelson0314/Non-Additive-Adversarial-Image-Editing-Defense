@@ -62,20 +62,50 @@ def cells_of(run_dir: Path):
     return out
 
 
-def montage(rows, labels, cell=320, pad=6, header=22):
-    """rows[i] 是一列 PIL 影像，labels 是欄標題。"""
+def montage(rows, labels, cell=384, pad=8, header=20):
+    """rows[i] 是一列 PIL 影像，labels 是欄標題。
+
+    標題一律用 ASCII。PIL 的內建點陣字型沒有中文字符，中文標題會整排畫成
+    空心方框，看圖的人分不出哪一欄是哪一個——比對頁的欄標題看不懂，這頁就
+    等於沒有做。要中文標題得隨附字型檔，那不屬於本專案要維護的東西。
+    """
     ncol = max(len(r) for r in rows)
     W = ncol * cell + (ncol + 1) * pad
-    H = len(rows) * cell + (len(rows) + 1) * pad + header
+    H = len(rows) * (cell + header) + (len(rows) + 1) * pad
     canvas = Image.new("RGB", (W, H), (128, 128, 128))
     d = ImageDraw.Draw(canvas)
-    for j, lab in enumerate(labels):
-        d.text((pad + j * (cell + pad) + 4, 5), lab, fill=(255, 255, 255))
     for i, row in enumerate(rows):
+        y = pad + i * (cell + header + pad)
         for j, im in enumerate(row):
-            canvas.paste(im.resize((cell, cell), Image.LANCZOS),
-                         (pad + j * (cell + pad), header + pad + i * (cell + pad)))
+            x = pad + j * (cell + pad)
+            if i == 0 and j < len(labels):
+                d.text((x + 2, y + 4), labels[j], fill=(255, 255, 255))
+            elif j < len(labels):
+                d.text((x + 2, y + 4), labels[j], fill=(230, 230, 230))
+            canvas.paste(im.resize((cell, cell), Image.LANCZOS), (x, y + header))
     return canvas
+
+
+def rebuild_montages(out: Path, run_names, images):
+    """只用已存檔的 PNG 重畫比對圖，不需要 GPU 也不重跑編輯。
+
+    上下兩列對照而非一整列並排：要比的是「同一個防禦在編輯前後」與「不同
+    防禦在同一欄」，並排八張會讓視線在兩個維度上同時跳。
+    """
+    labels = ["no defense"] + [n.replace("e29_", "").replace("e29b_", "")
+                               for n in run_names]
+    for name in images:
+        top = [Image.open(out / f"{name}_00_orig.png")]
+        bot = [Image.open(out / f"{name}_01_orig_edited.png")]
+        for rn in run_names:
+            top.append(Image.open(out / f"{name}_{rn}_def.png"))
+            bot.append(Image.open(out / f"{name}_{rn}_def_edited.png"))
+        m = montage([top, bot], labels)
+        d = ImageDraw.Draw(m)
+        d.text((4, m.height - 12), "top: protected image   bottom: after the edit attack",
+               fill=(255, 255, 255))
+        m.save(out / f"{name}_compare.png")
+        print("  重畫", out / f"{name}_compare.png")
 
 
 def main():
@@ -87,10 +117,19 @@ def main():
     ap.add_argument("--strength", type=float, default=0.5)
     ap.add_argument("--guidance_scale", type=float, default=7.5)
     ap.add_argument("--seed", type=int, default=20260728)
+    ap.add_argument("--montage_only", action="store_true",
+                    help="只用已存檔的 PNG 重畫比對圖，不載入 SD、不重跑編輯")
     args = ap.parse_args()
 
-    device = get_device()
     out = ROOT / args.out
+    if args.montage_only:
+        names = [Path(r).name for r in args.runs]
+        imgs = sorted({p.name.split("_00_orig")[0]
+                       for p in out.glob("*_00_orig.png")})
+        rebuild_montages(out, names, imgs)
+        return
+
+    device = get_device()
     out.mkdir(parents=True, exist_ok=True)
     print(f"[edit] device={device} tf32={tf32_enabled()} w={args.guidance_scale}")
 

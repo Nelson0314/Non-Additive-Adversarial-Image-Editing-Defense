@@ -56,12 +56,36 @@ E29 在修好量測與校準之後做了第一次實測，**在試過的每一�
 ### 待辦
 
 1. **使用者判讀** `runs/p11_degrade_ladder/compare.html`，定出感知劣化的門檻。
-2. **R1**（雲端，約 20 分）：`scripts/drivers/e31_calibration.sh`，τ=0.28 的
-   學習率校準。須以 `TA_028`／`TC_028` 傳入 p14 定出的門檻。
+2. **R1**（雲端，約 20 分）。指令可直接複製：
+
+   ```bash
+   TA_028=0.1648 TC_028=3.4009 bash scripts/drivers/e31_calibration.sh
+   ```
+
+   數值出自 `runs/p14_budget_thresholds/thresholds.csv` 的 budget=0.28 那一列。
+   R2 需要的另一組是 budget=0.10 那一列：`TA_010=0.0594 TC_010=1.2861`。
 3. **Gate**：R1 的綁定者判定必須全部是 LPIPS hinge，否則不開 R2
    （處置見規格 §8，**不得以放寬約束草率繞過**）。
-4. **R2**（雲端，約 1.5–2 小時）：`scripts/drivers/e31_grid.sh`，12 格主網格。
-5. **判定與報告**（本機）：`scripts/e31_report.py`、`docs/RESULTS_E31.md`。
+4. **R2**（雲端，約 1.5–2 小時）：
+
+   ```bash
+   LR_028=<R1 定出的值> TA_010=0.0594 TC_010=1.2861 \
+     TA_028=0.1648 TC_028=3.4009 bash scripts/drivers/e31_grid.sh
+   ```
+
+5. **判定與報告**（本機）：`scripts/e31_report.py --degrade_tau <第 1 項定出的值>`、
+   `docs/RESULTS_E31.md`。報告須逐項對照規格 §9 事先寫下的四種預期否定結果。
+
+### 一個尚未決定的事項
+
+acut 軸的分離度隨預算塌掉：0.05 時擋下側是通過側的 4.41 倍，0.28 時只剩
+**1.18 倍**（`runs/p14_budget_thresholds/separation.csv`）。原因是 τ=0.28 時
+`noise`、`warp_bilinear`、`warp_bicubic` 三者的 acut 全部收斂到約 0.16，
+只有真正的高斯模糊（0.61）還分得開——位移大到那個量級時插值核心已不重要。
+
+處置的兩個選項與取捨寫在規格 §12.4，**須與使用者討論後再改**。在那之前
+driver 用的是現行歸屬的值（較保守的一組），gate 仍然過得了（site P 的解在
+τ=0.28 是 acut 0.1302 < 0.1648、chroma 2.8275 < 3.4009）。
 
 ---
 

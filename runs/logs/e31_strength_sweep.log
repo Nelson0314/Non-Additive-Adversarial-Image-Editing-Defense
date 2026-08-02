@@ -12,3 +12,22 @@ Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF
 Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights:  83%|████████▎ | 340/408 [00:00<00:00, 3371.63it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 3818.78it/s]
   s=0.2 undefended  siglip=0.0587 clip=0.2236 niqe=3.416 (213s)
   s=0.2 site_P      siglip=0.0752 clip=0.2250 niqe=3.983 (265s)
+  s=0.2 site_C      siglip=0.0465 clip=0.2195 niqe=3.189 (265s)
+  s=0.3 undefended  siglip=0.0619 clip=0.2283 niqe=3.177 (260s)
+  s=0.3 site_P      siglip=0.1142 clip=0.2439 niqe=4.137 (263s)
+  s=0.3 site_C      siglip=0.0499 clip=0.2284 niqe=3.042 (263s)
+  s=0.4 undefended  siglip=0.0973 clip=0.2340 niqe=2.785 (258s)
+  s=0.4 site_P      siglip=0.1138 clip=0.2807 niqe=3.627 (263s)
+  s=0.4 site_C      siglip=0.0818 clip=0.2273 niqe=2.814 (263s)
+  s=0.5 undefended  siglip=0.1090 clip=0.2739 niqe=2.941 (258s)
+  s=0.5 site_P      siglip=0.1139 clip=0.3014 niqe=3.721 (263s)
+  s=0.5 site_C      siglip=0.1096 clip=0.2856 niqe=2.730 (263s)
+
+strength  Δsiglip(P)  Δsiglip(C)  Δniqe(P)  Δniqe(C)
+0.2          +0.0164     -0.0122    +0.567    -0.227
+0.3          +0.0524     -0.0120    +0.960    -0.135
+0.4          +0.0165     -0.0155    +0.842    +0.028
+0.5          +0.0049     +0.0005    +0.780    -0.211
+
+[sweep] 寫出 C:\WACV\runs\e31_strength_sweep\sweep.csv、C:\WACV\runs\e31_strength_sweep\deltas.csv、C:\WACV\runs\e31_strength_sweep\compare.html
+[sweep] 提醒：防禦圖是在 strength=0.5 下訓練的，這裡量的是遷移不是匹配設定，故為下界。

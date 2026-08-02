@@ -1,0 +1,31 @@
+page,arm,image,prompt,niqe_orig,niqe_def,dniqe,siglip_orig,siglip_def,dsiglip
+e29_edit_page,e29_C_lr0.3,car_00,"car_00: a wrecked car after an accident
+car_01: a wrecked car after an accident
+
+guidance_scale=7.5 strength=0.5 n_edit=10 seed=20260728",3.087476595799558,2.9428833859365104,-0.14459320986304736,0.08987743407487869,0.09730260074138641,0.007425166666507721
+e29_edit_page,e29_P_lr0.03,car_00,"car_00: a wrecked car after an accident
+car_01: a wrecked car after an accident
+
+guidance_scale=7.5 strength=0.5 n_edit=10 seed=20260728",3.087476595799558,3.456049132952359,0.36857253715280125,0.08987743407487869,0.1095031201839447,0.01962568610906601
+e29_edit_page,e29b_C_lr0.2,car_00,"car_00: a wrecked car after an accident
+car_01: a wrecked car after an accident
+
+guidance_scale=7.5 strength=0.5 n_edit=10 seed=20260728",3.087476595799558,2.9948868977783287,-0.09258969802122907,0.08987743407487869,0.09107555449008942,0.0011981204152107239
+e29_edit_page,e29_C_lr0.3,car_01,"car_00: a wrecked car after an accident
+car_01: a wrecked car after an accident
+
+guidance_scale=7.5 strength=0.5 n_edit=10 seed=20260728",2.4470553234189403,3.3208951712716983,0.873839847852758,0.10647495836019516,0.038699448108673096,-0.06777551025152206
+e29_edit_page,e29_P_lr0.03,car_01,"car_00: a wrecked car after an accident
+car_01: a wrecked car after an accident
+
+guidance_scale=7.5 strength=0.5 n_edit=10 seed=20260728",2.4470553234189403,2.2844083475665817,-0.16264697585235854,0.10647495836019516,0.10520532727241516,-0.0012696310877799988
+e29_edit_page,e29b_C_lr0.2,car_01,"car_00: a wrecked car after an accident
+car_01: a wrecked car after an accident
+
+guidance_scale=7.5 strength=0.5 n_edit=10 seed=20260728",2.4470553234189403,3.0071291774401985,0.5600738540212582,0.10647495836019516,0.101149782538414,-0.0053251758217811584
+e29c_edit_page,e29c_C_tau0.10,car_00,"car_00: a wrecked car after an accident
+
+guidance_scale=7.5 strength=0.5 n_edit=10 seed=20260728",3.087476595799558,2.9868141896459606,-0.10066240615359723,0.10993538796901703,0.10286298394203186,-0.0070724040269851685
+e29c_edit_page,e29c_P_tau0.10,car_00,"car_00: a wrecked car after an accident
+
+guidance_scale=7.5 strength=0.5 n_edit=10 seed=20260728",3.087476595799558,4.669191389379163,1.5817147935796054,0.10993538796901703,0.12284897267818451,0.01291358470916748

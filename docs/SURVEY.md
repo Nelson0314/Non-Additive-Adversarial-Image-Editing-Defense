@@ -230,6 +230,30 @@ E31 把 strength 0.3 納入網格正是為了量出這一項的貢獻，而不�
 
 ---
 
+## 7.1 一個必須劃清的範圍：三個不同的任務
+
+這條線的論文常被混在一起引用，但它們防的是三件不同的事，**結論不互通**：
+
+| 任務 | 攻擊方做什麼 | 代表 |
+|---|---|---|
+| **文字引導編輯**（本專案） | 拿**單一張**受保護影像，用 prompt 改它 | PhotoGuard、DiffusionGuard、SDA、本專案 |
+| 風格模仿 | 拿**一批**受保護影像**微調**模型，再生成新作品 | Glaze、Nightshade、Mist |
+| 個人化／DreamBooth | 拿數張人臉微調，再生成該人的新影像 | Anti-DreamBooth、CAT、`arXiv:2509.13922` |
+
+差別在攻擊方是否**訓練**。後兩者的擾動要在梯度平均與資料增強之後仍然存活，
+成功條件與失效機制都與單張編輯不同。
+
+這一點在數字上很明顯：Glaze 自報防護率 >92%，看起來遠優於編輯那一族的
+41.9% 人類偏好勝率——但那是兩個不可比的量。而且
+[Adversarial Perturbations Cannot Reliably Protect Artists From Generative
+AI](https://arxiv.org/pdf/2406.12027) 指出 Glaze v2.0 在強健模仿下沒有改善，
+「noisy upscaling」幾乎達成完美模仿。
+
+**本專案引用該族只用於方法學**（例如 `arXiv:2512.08329` 對 Glaze 擾動結構的
+分析），不引用其防護率。
+
+---
+
 ## 8. 尚未有人回答的
 
 按對本專案的相關性排序：
@@ -319,5 +343,7 @@ E31 把 strength 0.3 納入網格正是為了量出這一項的貢獻，而不�
 | NAPPure | Adversarial Purification for Robust Image Classification under Non-Additive Perturbations | [arXiv:2510.14025](https://arxiv.org/html/2510.14025) |
 | SDA | Structure Disruption: Subverting Malicious Diffusion-Based Inpainting via Self-Attention Query Perturbation | [arXiv:2505.19425](https://arxiv.org/abs/2505.19425) |
 | HYPE-EDIT-1 | Benchmark for Measuring Reliability in Frontier Image Editing Models | [arXiv:2602.00105](https://arxiv.org/pdf/2602.00105) |
+| Glaze | Protecting Artists from Style Mimicry by Text-to-Image Models | [arXiv:2302.04222](https://arxiv.org/abs/2302.04222)（USENIX Security 2023） |
+| Hönig et al. | Adversarial Perturbations Cannot Reliably Protect Artists From Generative AI | [arXiv:2406.12027](https://arxiv.org/pdf/2406.12027) |
 | BlurGuard | A Simple Approach for Robustifying Image Protection Against AI-Powered Editing | [arXiv:2511.00143](https://arxiv.org/html/2511.00143v1) |
 | STP-Diff | Synergistic fusion of spatial transformation perturbations and diffusion models for robust face privacy protection | Information Fusion 2025 |

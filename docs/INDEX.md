@@ -121,6 +121,8 @@
 | `p14_budget_thresholds` | E31 | 逐預算的多臂等 LPIPS 探針，定出每個預算的 τ_acut 與 τ_chroma |
 | `e31_strength_sweep` | E31 | 既有防禦圖在 strength 0.2–0.5 下被編輯的響應曲線。**遷移設定不是匹配設定**（防禦圖在 0.5 下訓練），故為下界 |
 | `e31_sources` | E31 | 本機產生的六張未防禦編輯輸出（w=7.5、strength=0.5、held-out 種子），供 p11 定錨用。既有 run 只有 car_00 一張 |
+| `lo_smoke` | Lo 對齊 | 本機端到端煙霧測試（1 圖、2 步、2 timestep）。**抓到 semantic attack 共用 VAE 計算圖的 bug**，並給出 κ 與感知失真的第一個對照 |
+| `p17_kappa_visibility` | Lo 對齊 | κ = 0.06 對應多少感知失真的射線階梯，含 `ladder.png` 人眼比對頁。**κ 對應 LPIPS 0.58**，是本專案跑過最大預算的 5.8 倍 |
 | `logs` | — | 各 run 的 driver 與 stdout 紀錄。含 E29 的 `tf32_probe.log`（TF32 開／關的成本實測）與 E31 的 `e31_local_probe.log`（本機無梯度 SDEdit 的可行性）、`e31_train_probe.log`（本機含梯度訓練的解析度上限） |
 
 ### 涉及已作廢方向的資料
@@ -191,6 +193,8 @@ python scripts/e31_train_probe.py         # 本機含梯度訓練的解析度上
 python scripts/e31_report.py --degrade_tau <值>   # E31 網格彙整（該網格已作廢）
 bash   scripts/drivers/local_night.sh     # 上列三支 GPU 工作串起來跑，避免互搶顯存
 # --- 對齊基準論文（2026-08-03）---
+python scripts/fetch_cc0_images.py --out data/_raw --per_class 20     # 動物類 CC0 候選池
+python scripts/generate_person_images.py --out data/_selected         # 人物類生成（GPU）
 python scripts/prepare_dataset.py --src <來源> --dst data/lo_aligned  # 資料集正規化
 python scripts/prepare_dataset.py --check     # 只驗證資料集完整性（秒級）
 python scripts/run_lo_baseline.py --out runs/lo_baseline --eval_seeds 20  # L1，需雲端

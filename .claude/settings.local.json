@@ -17,7 +17,9 @@
       "Bash(nvidia-smi --query-gpu=utilization.gpu,memory.used --format=csv,noheader)",
       "Bash(PYTHONIOENCODING=utf-8 C:/Users/nelso/miniconda3/envs/wacv/python.exe scripts/report_table1.py --out docs/RESULTS_TABLE1.md)",
       "Bash(git commit *)",
-      "Bash(PYTHONIOENCODING=utf-8 C:/Users/nelso/miniconda3/envs/wacv/python.exe -)"
+      "Bash(PYTHONIOENCODING=utf-8 C:/Users/nelso/miniconda3/envs/wacv/python.exe -)",
+      "Bash(export PYTHONIOENCODING=utf-8)",
+      "Bash(C:/Users/nelso/miniconda3/envs/wacv/python.exe scripts/run_ours_lo_eval.py --model hf-internal-testing/tiny-stable-diffusion-pipe --data __TRACKED_VAR__/smoke_data --out __TRACKED_VAR__/smoke_ours --sites PF,S --rank 32 --size 64 --steps 3 --n_edit 2 --eval_seeds 2)"
     ]
   }
 }

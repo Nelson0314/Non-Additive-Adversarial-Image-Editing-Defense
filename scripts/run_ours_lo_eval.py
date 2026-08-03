@@ -81,6 +81,19 @@ def main():
     ap.add_argument("--lr", type=float, default=0.03)
     ap.add_argument("--tau_lpips", type=float, default=0.10)
     ap.add_argument("--margin", type=float, default=1.0)
+    # 以下兩個係數的 dataclass 預設值都不是本專案要的，必須明確覆寫。
+    #
+    # beta_linf：預設 100.0，配 tau_linf = 0.06。留著它，綁定的就是 L∞ 而不是
+    #   LPIPS。對 site S 是致命的——把一條邊緣移動不到一個像素，L∞ 可接近 1
+    #   而人眼幾乎看不出來，那正是本專案主張 L∞ 不是好失真尺的理由。2026-08-03
+    #   實測後果：site S 停在 pert_linf 0.0750（= tau_linf + 罰項），pert_lpips
+    #   只有 0.0034，離 τ = 0.10 的預算還有 29 倍，等於完全沒有施展空間。
+    # alpha_lpips：預設 1.0，即 LPIPS 在 τ 以內也要收費，最佳化因此不會把
+    #   預算用滿，τ 就不是真正的匹配軸（見 objective.py line 244-252）。
+    #
+    # 兩者在 runs/e29c_P_tau0.10/env.json 裡都是 0.0。
+    ap.add_argument("--beta_linf", type=float, default=0.0)
+    ap.add_argument("--alpha_lpips", type=float, default=0.0)
     ap.add_argument("--defense_mode", default="untargeted",
                     choices=["untargeted", "targeted"])
     ap.add_argument("--target_image", default="",
@@ -171,7 +184,15 @@ def main():
             loss_cfg = LossConfig(
                 margin=args.margin, defense_mode=args.defense_mode,
                 tau_lpips=args.tau_lpips,
+                beta_linf=args.beta_linf, alpha_lpips=args.alpha_lpips,
             )
+            # 綁定的必須是 LPIPS。若 L∞ 的係數非零，量到的是「在 L∞ 預算下
+            # 能做什麼」，那是基準的約束不是本專案的，兩邊的臂會被不同的東西
+            # 綁住，比較不成立。此處不靜默接受，直接印出來讓它進日誌。
+            print(f"  [約束] gamma_lpips={loss_cfg.gamma_lpips} "
+                  f"tau_lpips={loss_cfg.tau_lpips} "
+                  f"alpha_lpips={loss_cfg.alpha_lpips} "
+                  f"beta_linf={loss_cfg.beta_linf}", flush=True)
             print(f"\n=== {name} / site {site} / τ_lpips={args.tau_lpips} / "
                   f"{prompt!r} ===", flush=True)
             reset_peak_memory()

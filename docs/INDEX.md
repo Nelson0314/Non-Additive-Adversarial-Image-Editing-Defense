@@ -198,6 +198,9 @@ python scripts/prepare_dataset.py --src <來源> --dst data/lo_aligned  # 資料
 python scripts/prepare_dataset.py --check     # 只驗證資料集完整性（秒級）
 python scripts/run_lo_baseline.py --out runs/lo_baseline --eval_seeds 20  # L1，需雲端
 python scripts/report_table1.py               # L2，Table 1 對照表（只讀 CSV，秒級）
+bash   scripts/drivers/lo_l1.sh 0             # L1 驅動，0/1 是編輯 prompt 索引
+python scripts/run_ours_lo_eval.py --out runs/ours_lo --sites PF,S  # L4，需雲端
+bash   scripts/drivers/ours_l2.sh             # L4 驅動
 ```
 
 `scripts/e17_vae_floor.py` 需要 GPU 與 SD 權重，不能在本機重跑。
@@ -215,15 +218,18 @@ Colab 的完整流程另有 notebook：`notebooks/colab_e29_e30.ipynb`，
 設計的出處是 `docs/specs/2026-08-03-lo-aligned-protocol.md` §5，
 現在要做什麼看 `docs/NEXT_SESSION.md`。
 
-| 編號 | 內容 | 在哪跑 | 前置 |
-|---|---|---|---|
-| **L0** | 備齊資料集影像（人物與動物六類），過 `prepare_dataset.py --check` | 本機 | **使用者提供影像** |
-| **L1** | 三個攻擊在 κ = 0.06 上跑完，20 種子評測 → `runs/lo_baseline/` | 雲端 | L0 |
-| **L2** | `report_table1.py` 對照 Table 1，判定第一層是否通過 | 本機 | L1 |
-| **L3** | 同一批 x_adv 加測語意軸與劣化軸 | 本機 | L1 |
-| **L4** | 非加性臂在匹配 LPIPS 下與 L1 的加性解比較 | 雲端 | L2 通過 |
+| 編號 | 內容 | 在哪跑 | 前置 | 狀態 |
+|---|---|---|---|---|
+| **L0** | 備齊資料集影像（人物與動物六類），過 `prepare_dataset.py --check` | 本機 | — | **已完成** |
+| **L1** | 三個攻擊在 κ = 0.06 上跑完，20 種子評測 → `runs/lo_baseline/` | 雲端 | L0 | **已完成**，72/72 格。PhotoGuard 兩根重現（LEDGER 3.15），semantic 未重現（3.16） |
+| **L2** | `report_table1.py` 對照 Table 1，判定第一層是否通過 | 本機 | L1 | **已完成** → `docs/RESULTS_TABLE1.md` |
+| **L3** | 同一批 x_adv 加測語意軸與劣化軸 | 本機 | L1 | 未做 |
+| **L4** | 本專案的臂走 L1 的同一條評測路徑 → `runs/ours_lo/` | 雲端 | L2 | **部分**，2026-08-03 機器時間用盡，n = 1 影像（LEDGER 3.18、3.19） |
+| **L5** | 匹配失真的掃描：PhotoGuard 降 κ 或本專案升 τ，讓兩條曲線在同一失真上取值 | 雲端 | L4 | 未做。使用者 2026-08-03 指示「先不要著重失真匹配」 |
 
-**L4 之前不做任何其他實驗**，明確排除的清單見規格 §7。
+L1 只跑了 `--prompt_index 0`。補充材料 §A 的 Table 1 是兩個編輯 prompt 一起
+平均，另一半用 `bash scripts/drivers/lo_l1.sh 1`（約 2–3 小時）。使用者已決定
+semantic 改引用論文原數據，故該半邊不是必要項。
 
 ### 已中止（保留為證據）
 

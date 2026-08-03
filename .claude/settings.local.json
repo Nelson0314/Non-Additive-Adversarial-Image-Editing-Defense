@@ -16,7 +16,8 @@
       "Bash(git rm *)",
       "Bash(nvidia-smi --query-gpu=utilization.gpu,memory.used --format=csv,noheader)",
       "Bash(PYTHONIOENCODING=utf-8 C:/Users/nelso/miniconda3/envs/wacv/python.exe scripts/report_table1.py --out docs/RESULTS_TABLE1.md)",
-      "Bash(git commit *)"
+      "Bash(git commit *)",
+      "Bash(PYTHONIOENCODING=utf-8 C:/Users/nelso/miniconda3/envs/wacv/python.exe -)"
     ]
   }
 }

@@ -85,6 +85,15 @@ def main():
                     choices=["untargeted", "targeted"])
     ap.add_argument("--target_image", default="",
                     help="有目標模式的目標影像；基準的兩個 PhotoGuard 變體用灰圖")
+    # site S 專用。預設值改為 bicubic：OptimConfig 的預設 bilinear 只為了讓
+    # E13–E19 可重現，E20 §5.2 量出 bicubic 把銳利度保留率由 85.0% 拉到
+    # 99.9%，e21 的實測也顯示同一 τ 下 bicubic 的編輯 LPIPS 0.2473 對
+    # bilinear 的 0.0931。拿 bilinear 跑等於自願讓非加性臂變弱。
+    ap.add_argument("--warp_resample", default="bicubic",
+                    choices=["bilinear", "bicubic"])
+    ap.add_argument("--warp_max_disp", type=float, default=1.5,
+                    help="site S 的位移硬上界，單位像素。與 tau_lpips 併列"
+                         "記錄：本位置的失真預算是位移量而非 L∞")
     # ---- 必須與 run_lo_baseline 相同，否則量到的是另一個攻擊 ----
     ap.add_argument("--strength", type=float, default=0.3)
     ap.add_argument("--guidance", type=float, default=7.5)
@@ -156,6 +165,8 @@ def main():
                 strength=args.strength, guidance_scale=args.guidance,
                 prompt_edit=prompt, seed=args.seed,
                 stop_on_plateau=True,
+                warp_resample=args.warp_resample,
+                warp_max_disp=args.warp_max_disp,
             )
             loss_cfg = LossConfig(
                 margin=args.margin, defense_mode=args.defense_mode,
@@ -188,6 +199,10 @@ def main():
                 "steps": args.steps, "steps_done": res.steps_done,
                 "stop_reason": res.stop_reason,
                 "defense_mode": args.defense_mode, "rank": args.rank,
+                # site S 的失真預算是位移量，不是 L∞ 或 τ_lpips，不記就
+                # 無從得知該格實際被綁在哪裡
+                "warp_resample": args.warp_resample,
+                "warp_max_disp": args.warp_max_disp,
                 "strength": args.strength, "guidance_scale": args.guidance,
                 "attack_seconds": round(res.seconds, 1),
                 "peak_mb": round(peak_memory_mb(), 1),

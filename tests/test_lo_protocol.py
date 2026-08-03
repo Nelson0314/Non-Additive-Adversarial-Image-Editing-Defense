@@ -296,3 +296,47 @@ def test_未知的攻擊名稱必須報錯():
 def test_有目標的攻擊缺目標圖必須報錯():
     with pytest.raises(ValueError, match="x_target"):
         build_attack("pg_encoder", None, LinfAttackConfig(), torch.zeros(1))
+
+
+# ---------------------------------------------------------------------------
+# 接續執行：L1 要跑約三小時，中途斷掉不能把已算好的結果一起丟掉
+# ---------------------------------------------------------------------------
+
+
+def test_已完成的格由summary判定(tmp_path):
+    from scripts.run_lo_baseline import append_csv, completed_pairs
+
+    p = tmp_path / "summary.csv"
+    assert completed_pairs(p) == set()          # 檔案不存在時為空集合
+    append_csv(p, [{"image": "dog_00", "attack": "semantic", "x": 1}])
+    append_csv(p, [{"image": "dog_00", "attack": "pg_encoder", "x": 2}])
+    assert completed_pairs(p) == {("dog_00", "semantic"), ("dog_00", "pg_encoder")}
+
+
+def test_附加不重寫表頭(tmp_path):
+    from scripts.run_lo_baseline import append_csv
+
+    p = tmp_path / "r.csv"
+    append_csv(p, [{"a": 1, "b": 2}])
+    append_csv(p, [{"a": 3, "b": 4}, {"a": 5, "b": 6}])
+    lines = p.read_text(encoding="utf-8").strip().splitlines()
+    assert lines[0] == "a,b"
+    assert len(lines) == 4                      # 表頭 + 三列
+
+
+def test_表頭不符必須拒絕附加(tmp_path):
+    # 欄位集合變了代表程式改過。混在同一個檔裡會讓後續判讀無聲錯位，
+    # 那比中止難查得多。
+    from scripts.run_lo_baseline import append_csv
+
+    p = tmp_path / "r.csv"
+    append_csv(p, [{"a": 1, "b": 2}])
+    with pytest.raises(RuntimeError, match="表頭"):
+        append_csv(p, [{"a": 1, "c": 3}])
+
+
+def test_空列拒絕寫出(tmp_path):
+    from scripts.run_lo_baseline import append_csv
+
+    with pytest.raises(RuntimeError, match="沒有任何列"):
+        append_csv(tmp_path / "r.csv", [])

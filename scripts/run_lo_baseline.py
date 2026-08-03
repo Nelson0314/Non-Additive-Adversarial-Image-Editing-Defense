@@ -182,6 +182,9 @@ def main():
                     help="論文為 20；降低只省約 12%% 的時間（攻擊占 95%% 成本），"
                          "卻讓平均值的標準誤差變大，不划算")
     ap.add_argument("--seed", type=int, default=20260803)
+    ap.add_argument("--resume", action="store_true",
+                    help="接續既有的 --out：略過 summary.csv 裡已完成的格。"
+                         "不加此旗標而目錄已有結果時會拒絕執行，不覆寫")
     args = ap.parse_args()
 
     out = Path(args.out)
@@ -202,9 +205,25 @@ def main():
     x_target = T.ToTensor()(tgt_img).unsqueeze(0).to(device)
 
     attacks = [a.strip() for a in args.attacks.split(",") if a.strip()]
-    rows, summary = [], []
+
+    res_path, sum_path = out / "results.csv", out / "summary.csv"
+    done = completed_pairs(sum_path)
+    if done and not args.resume:
+        raise SystemExit(
+            f"{sum_path} 已有 {len(done)} 格結果。要接續請加 --resume；"
+            "要重跑請換一個 --out 或先自行移走舊目錄。"
+            "此處不自動覆寫——`runs/` 是唯一的證據來源且實驗無法重跑"
+        )
+    if done:
+        print(f"接續模式：已完成 {len(done)} 格，將略過", flush=True)
+
+    n_done = 0
     for name, x01, prompts, content in data:
         prompt = prompts[args.prompt_index]
+        todo = [a for a in attacks if (name, a) not in done]
+        if not todo:
+            print(f"=== {name}：三格皆已完成，略過 ===", flush=True)
+            continue
         # 未防禦的編輯只算一次，三個攻擊共用。見 reference_edits 的 docstring。
         t_ref = time.perf_counter()
         refs = reference_edits(
@@ -216,7 +235,7 @@ def main():
         )
         print(f"\n=== {name}：{len(refs)} 個種子的未防禦編輯，"
               f"{time.perf_counter()-t_ref:.0f}s ===", flush=True)
-        for atk in attacks:
+        for atk in todo:
             cfg = LinfAttackConfig(
                 kappa=args.kappa, steps=args.steps, step_size=args.step_size,
                 timesteps=args.timesteps, content=content,
@@ -238,6 +257,7 @@ def main():
             pert = suite.pairwise(x01, res.x_adv)
             ev = evaluate(sd, suite, refs, res.x_adv, prompt, cfg,
                           out, f"{name}__{atk}")
+            rows = []
             for r in ev:
                 rows.append({
                     "image": name, "attack": atk, "content": content,
@@ -252,7 +272,7 @@ def main():
                     **r,
                 })
             n = len(ev)
-            summary.append({
+            srow = {
                 "image": name, "attack": atk,
                 "n_seeds": n,
                 **{f"edit_{k}": sum(r[f"edit_{k}"] for r in ev) / n
@@ -261,21 +281,58 @@ def main():
                 "mask_coverage": coverage,
                 "seconds": round(res.seconds, 1),
                 "peak_mb": round(peak_memory_mb(), 1),
-            })
+            }
+            # 每一格完成就落地，不是全部跑完才寫。24 張 × 3 攻擊要跑約
+            # 三小時，中途斷線或 OOM 時把已算好的結果一起丟掉是不可接受的
+            # ——`runs/` 是唯一的證據來源。
+            append_csv(res_path, rows)
+            append_csv(sum_path, [srow])
+            n_done += 1
             print(f"  [{atk}] 完成 {time.perf_counter()-t0:.0f}s  "
-                  + "  ".join(f"{k}={summary[-1]['edit_'+k]:.4f}"
-                              for k in TABLE1), flush=True)
+                  + "  ".join(f"{k}={srow['edit_'+k]:.4f}" for k in TABLE1)
+                  + f"   （本次第 {n_done} 格）", flush=True)
 
-    _write_csv(out / "results.csv", rows)
-    _write_csv(out / "summary.csv", summary)
-    print(f"\n寫出 {out/'results.csv'}（{len(rows)} 列）"
-          f"與 {out/'summary.csv'}（{len(summary)} 列）")
+    if n_done == 0:
+        print("沒有任何待跑的格；全部已完成。")
+    else:
+        print(f"\n本次完成 {n_done} 格，累計寫入 {sum_path}")
 
 
-def _write_csv(path: Path, rows):
+def completed_pairs(sum_path: Path) -> set:
+    """讀 summary.csv，回傳已完成的 (影像, 攻擊) 組合。
+
+    以 summary 而非 results 判定：summary 每格恰好一列，是在該格**全部**
+    種子都評測完之後才寫入的。用 results 判定會把「寫到一半」的格子誤判為
+    已完成，於是接續時跳過一個實際上不完整的格。
+    """
+    if not sum_path.exists():
+        return set()
+    with sum_path.open(encoding="utf-8", newline="") as f:
+        return {(r["image"], r["attack"]) for r in csv.DictReader(f)}
+
+
+def append_csv(path: Path, rows):
+    """附加到 CSV；檔案不存在時連同表頭一起寫。
+
+    表頭不符時拋出而非默默附加：欄位集合變了代表程式改過，把兩種 schema
+    混在同一個檔裡會讓後續的判讀無聲地錯位。
+    """
     if not rows:
         raise RuntimeError(f"沒有任何列可以寫入 {path}；不寫出空檔案掩蓋失敗")
     keys = list(rows[0].keys())
+    if path.exists():
+        with path.open(encoding="utf-8", newline="") as f:
+            old = next(csv.reader(f), None)
+        if old != keys:
+            raise RuntimeError(
+                f"{path} 既有的表頭與本次的欄位不同，拒絕附加。\n"
+                f"  既有：{old}\n  本次：{keys}\n"
+                "欄位變了表示程式改過；混在同一個檔裡會讓判讀無聲錯位。"
+                "請換一個 --out。"
+            )
+        with path.open("a", newline="", encoding="utf-8") as f:
+            csv.DictWriter(f, fieldnames=keys).writerows(rows)
+        return
     with path.open("w", newline="", encoding="utf-8") as f:
         w = csv.DictWriter(f, fieldnames=keys)
         w.writeheader()

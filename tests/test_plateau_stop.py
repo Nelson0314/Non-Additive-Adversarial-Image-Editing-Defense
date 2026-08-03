@@ -173,3 +173,44 @@ def test_監看鍵為NaN時報錯():
     h = [{"edit_shift": float("nan"), "fid_pen_lpips": 0.1} for _ in range(PAT)]
     with pytest.raises(ValueError):
         plateau_stop(h, PAT, TOL, min_steps=5)
+
+
+# ---------------------------------------------------------------------------
+# require_feasible：2026-08-03，L2 匹配失真的比較
+# ---------------------------------------------------------------------------
+
+
+def test_約束仍被違反時不停():
+    """實測來源：site PF 在第 31 步停止，當時 LPIPS 罰項仍有 34（失真約
+    0.44，預算 0.10 的 4.4 倍），而 `edit_shift` 正在下降——最佳化正把失真
+    拉回預算內，那是該發生的事，卻被判成「沒進展」。該格因此停在 3.3 倍
+    預算上，量到的不是「該方法在 τ 下的能力」。
+    """
+    hist = _hist([0.60 - 0.001 * i for i in range(40)], pen_lpips=34.0)
+    assert plateau_stop(hist, PAT, TOL, MIN)[0] is True, "既有行為：會停"
+    stop, _ = plateau_stop(hist, PAT, TOL, MIN, require_feasible=True)
+    assert stop is False, "罰項還有 34，尚未在該約束下收斂"
+
+
+def test_約束已滿足且進展已停就停():
+    hist = _hist([0.1] * 40, pen_lpips=0.0)
+    # 啟動點必須落在觀察窗（最後 PAT 步）內，否則「約束已啟動」那道條件
+    # 本來就不成立，測不到 require_feasible。
+    hist[-15]["fid_pen_lpips"] = 0.5        # 啟動過，但最後已回到預算內
+    stop, reason = plateau_stop(hist, PAT, TOL, MIN, require_feasible=True)
+    assert stop is True and reason
+
+
+def test_只看最後一步是否可行():
+    """觀察窗中間違反過不影響：要求的是「停下來的那一刻在預算內」，
+    不是「整段都在預算內」——後者會把正常的越界再拉回判成永不收斂。
+    """
+    hist = _hist([0.1] * 40, pen_lpips=0.0)
+    hist[-5]["fid_pen_lpips"] = 2.0
+    assert plateau_stop(hist, PAT, TOL, MIN, require_feasible=True)[0] is True
+
+
+def test_預設不改變既有行為():
+    """E21–E31 的 run 必須維持可重現。"""
+    hist = _hist([0.1] * 40, pen_lpips=5.0)
+    assert plateau_stop(hist, PAT, TOL, MIN)[0] is True

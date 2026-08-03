@@ -99,6 +99,9 @@ class OptimConfig:
     # 用絕對量而非相對率的理由見 `plateau_stop` 的 docstring。
     stop_tol: float = 1e-4
     stop_min_steps: int = 25    # 下限，讓約束有機會啟動；與 E15–E23 的步數一致
+    # 不在約束仍被違反時停止。預設 False 以保留 E21–E31 的可重現性；
+    # 匹配失真的比較一律開啟，理由見 plateau_stop 的 `require_feasible`。
+    stop_require_feasible: bool = False
     # ---- cross-attention 目標專用 ----
     # "divergence" — 把防禦圖的注意力分佈推離原圖的（改變綁定的指向）
     # "entropy"    — 直接把分佈推向均勻（瓦解綁定本身，不需要參考分佈）
@@ -162,6 +165,8 @@ def plateau_stop(
     require_constraint: bool = True,
     constraint_keys: tuple = ("fid_pen_lpips", "fid_pen_acut"),
     monitor_key: str = "edit_shift",
+    require_feasible: bool = False,
+    feas_tol: float = 1e-6,
 ) -> tuple:
     """該不該停？回傳 (要不要停, 原因)。
 
@@ -232,6 +237,19 @@ def plateau_stop(
             any(h.get(k, 0.0) > 0.0 for k in constraint_keys) for h in window
         )
         if not engaged:
+            return (False, "")
+    if require_feasible:
+        # 「啟動過」不等於「已滿足」。實測（2026-08-03，site PF）：第 31 步
+        # 時 LPIPS 罰項仍有 34（即失真約 0.44，預算 0.10 的 4.4 倍），而
+        # `edit_shift` 正在**下降**——最佳化正在把失真拉回預算內，那正是
+        # 該發生的事，卻被判成「沒進展」而中止，該格因此停在 3.3 倍預算上。
+        #
+        # 本函式的 docstring 要求「每一格都被同一道約束綁住**且已在該約束
+        # 下收斂**」。在超標時停止不符合這個意圖，故加這道條件。預設關閉
+        # 以保留 E21–E31 既有 run 的可重現性。
+        latest = history[-1]
+        violated = [k for k in constraint_keys if latest.get(k, 0.0) > feas_tol]
+        if violated:
             return (False, "")
 
     for h in window:
@@ -538,6 +556,7 @@ def optimize(
             stop, reason = plateau_stop(
                 result.history, cfg.stop_patience, cfg.stop_tol,
                 cfg.stop_min_steps, constraint_keys=constraint_keys,
+                require_feasible=cfg.stop_require_feasible,
             )
             if stop:
                 result.stop_reason = reason

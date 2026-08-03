@@ -178,6 +178,7 @@ def main():
                 strength=args.strength, guidance_scale=args.guidance,
                 prompt_edit=prompt, seed=args.seed,
                 stop_on_plateau=True,
+                stop_require_feasible=True,
                 warp_resample=args.warp_resample,
                 warp_max_disp=args.warp_max_disp,
             )

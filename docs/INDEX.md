@@ -46,8 +46,8 @@
 | `docs/RESULTS_TABLE1.md` | 既有全部 run 在 Table 1 判準下的對照表，由 `scripts/report_table1.py` 生成 | 現行。**不要手改** |
 | `docs/specs/2026-08-02-e31-positive-control.md` | E31 的設計規格：正對照搜尋、ISR 判準、12 格網格、gate。§12 記錄兩道次要門檻改為逐預算的變更 | **設計部分已作廢**（頂端有狀態表）。§12 的逐預算門檻仍有效，L4 會用到 |
 | `docs/plans/2026-08-02-e31.md` | E31 的實作計畫（12 個任務） | Task 1–7 已完成且有效；**Task 8–11 已作廢** |
-| `docs/HANDOFF_PROMPT.md` | 可直接貼進新 session 的交接 prompt。2026-08-02 改寫為**重新決定方向**用，不再是執行既有計畫 | 現行 |
-| `docs/NEXT_SESSION.md` | 2026-08-02 改寫（E29 之後）：否定結果、兩個結構性問題、存活的結論、死路清單、環境與成本 | 現行，接手先讀 `RESULTS_E29_negative.md` 再讀這份 |
+| `docs/HANDOFF_PROMPT.md` | 可直接貼進新 session 的交接 prompt。2026-08-03 改寫：對齊基準論文之後的兩層論證、L1 的指令與成本、第一層沒過時的排查順序 | 現行 |
+| `docs/NEXT_SESSION.md` | 2026-08-03 改寫：兩層論證、L0–L4 待辦、兩套約束的分工、H100 成本 | 現行，接手先讀這份 |
 | `docs/specs/2026-07-28-lowrank-residual-defense.md` | 設計規格 v1 | 現行的**設計依據**，但其後的推翻不回頭改寫本文，須與上兩份對讀 |
 | `docs/archive/2026-08-01-HANDOFF_PROMPT.md` | 2026-08-01 上一次交接時給新 session 的 prompt | 已封存。其描述的狀態早於 E25–E28 |
 | `docs/NIGHT_RUN_2026-07-29.md` | 2026-07-29 夜間自主執行的完整紀錄 | 歷史紀錄，非報告。記錄了 site L 防禦不存在這個否定結果的推導過程 |

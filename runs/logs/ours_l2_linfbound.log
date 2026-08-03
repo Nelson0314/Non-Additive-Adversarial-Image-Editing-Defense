@@ -1,0 +1,61 @@
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 13934.09it/s]
+Loading pipeline components...:  67%|██████▋   | 4/6 [00:00<00:00, 27.94it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 31.49it/s]
+/home/zeus/miniconda3/envs/cloudspace/lib/python3.12/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/home/zeus/miniconda3/envs/cloudspace/lib/python3.12/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+
+=== man_00：20 個種子的未防禦編輯，10s ===
+
+=== man_00 / site PF / τ_lpips=0.1 / 'a woman' ===
+  [stop] 監看的約束：fid_pen_lpips, fid_pen_acut, fid_pen_chroma, fid_pen_linf
+/teamspace/studios/this_studio/WACV/src/defense/objective.py:463: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:835.)
+  "fid_linf_total": float((xd - xr).abs().max()),
+  step    0  loss=1.0000  L_def=1.0000  L_fid=0.0000  shift=0.0000  psnr=120.00  linf=0.0000  |g|=0.000e+00
+  step   10  loss=172.9066  L_def=0.5346  L_fid=172.3720  shift=0.4654  psnr=23.43  linf=0.2254  |g|=1.000e+00
+  step   20  loss=110.9755  L_def=0.3893  L_fid=110.5862  shift=0.6107  psnr=22.41  linf=0.3549  |g|=1.000e+00
+  step   30  loss=79.6099  L_def=0.3583  L_fid=79.2517  shift=0.6417  psnr=22.18  linf=0.4168  |g|=1.000e+00
+  [stop] 第 31 步停止：約束已啟動且 edit_shift 在最近 20 步的每步改善 -7.16e-04 低於 1.0e-04
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 43584.58it/s]
+[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
+[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
+Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 12297.98it/s]
+  [PF] 擾動 LPIPS 0.4084 / L∞ 0.4298  →  編輯 LPIPS 0.6102  PSNR 22.93  （32 步，64s）
+
+=== man_00 / site S / τ_lpips=0.1 / 'a woman' ===
+  [stop] 監看的約束：fid_pen_lpips, fid_pen_acut, fid_pen_chroma, fid_pen_linf
+  step    0  loss=1.0000  L_def=1.0000  L_fid=0.0000  shift=0.0000  psnr=120.00  linf=0.0000  |g|=4.881e-04
+  step   10  loss=1.9188  L_def=0.8442  L_fid=1.0746  shift=0.1558  psnr=48.18  linf=0.0707  |g|=1.000e+00
+  step   20  loss=2.7601  L_def=0.9128  L_fid=1.8473  shift=0.0872  psnr=46.23  linf=0.0784  |g|=1.000e+00
+  [stop] 第 24 步停止：約束已啟動且 edit_shift 在最近 20 步的每步改善 -9.05e-05 低於 1.0e-04
+  [S] 擾動 LPIPS 0.0034 / L∞ 0.0750  →  編輯 LPIPS 0.0179  PSNR 41.48  （25 步，49s）
+
+=== man_01：20 個種子的未防禦編輯，10s ===
+
+=== man_01 / site PF / τ_lpips=0.1 / 'a woman' ===
+  [stop] 監看的約束：fid_pen_lpips, fid_pen_acut, fid_pen_chroma, fid_pen_linf
+  step    0  loss=1.0000  L_def=1.0000  L_fid=0.0000  shift=0.0000  psnr=120.00  linf=0.0000  |g|=0.000e+00
+  step   10  loss=96.9384  L_def=0.5234  L_fid=96.4151  shift=0.4766  psnr=23.29  linf=0.2112  |g|=1.000e+00
+  step   20  loss=85.8640  L_def=0.4895  L_fid=85.3745  shift=0.5105  psnr=21.33  linf=0.3048  |g|=1.000e+00
+  step   30  loss=69.1396  L_def=0.4657  L_fid=68.6739  shift=0.5343  psnr=21.00  linf=0.3568  |g|=1.000e+00
+  step   40  loss=57.6581  L_def=0.4620  L_fid=57.1961  shift=0.5380  psnr=20.96  linf=0.3781  |g|=1.000e+00
+  step   50  loss=62.4994  L_def=0.4760  L_fid=62.0235  shift=0.5240  psnr=21.03  linf=0.3832  |g|=1.000e+00
+  [stop] 第 50 步停止：約束已啟動且 edit_shift 在最近 20 步的每步改善 +8.07e-05 低於 1.0e-04
+  [PF] 擾動 LPIPS 0.2450 / L∞ 0.3832  →  編輯 LPIPS 0.4785  PSNR 18.53  （51 步，101s）
+
+=== man_01 / site S / τ_lpips=0.1 / 'a woman' ===
+  [stop] 監看的約束：fid_pen_lpips, fid_pen_acut, fid_pen_chroma, fid_pen_linf
+  step    0  loss=1.0000  L_def=1.0000  L_fid=0.0000  shift=0.0000  psnr=119.18  linf=0.0000  |g|=2.973e-03
+  step   10  loss=7.1321  L_def=0.7070  L_fid=6.4252  shift=0.2930  psnr=39.65  linf=0.1242  |g|=1.000e+00
+  step   20  loss=9.7762  L_def=0.8616  L_fid=8.9146  shift=0.1384  psnr=37.42  linf=0.1491  |g|=1.000e+00
+  [stop] 第 26 步停止：約束已啟動且 edit_shift 在最近 20 步的每步改善 -5.64e-04 低於 1.0e-04
+  [S] 擾動 LPIPS 0.0056 / L∞ 0.1509  →  編輯 LPIPS 0.0474  PSNR 29.19  （27 步，53s）
+
+=== man_02：20 個種子的未防禦編輯，10s ===
+
+=== man_02 / site PF / τ_lpips=0.1 / 'a woman' ===
+  [stop] 監看的約束：fid_pen_lpips, fid_pen_acut, fid_pen_chroma, fid_pen_linf
+  step    0  loss=1.0000  L_def=1.0000  L_fid=0.0000  shift=0.0000  psnr=120.00  linf=0.0000  |g|=0.000e+00

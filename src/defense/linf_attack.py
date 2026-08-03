@@ -74,7 +74,9 @@ class LinfAttackConfig:
     # number of iterations N = 100 for all attacks.」
     kappa: float = 0.06
     steps: int = 100
-    # 論文未給步長，見模組 docstring 偏離之二
+    # 論文未給步長，見模組 docstring 偏離之二。None 時取 κ/10 = 0.006，
+    # 即 10 步可由 0 走到球面、其餘 90 步用於調整方向。比例 10:90 使「走得到
+    # 邊界」與「有足夠步數修正方向」兩者都成立；1/255（≈0.0039）亦屬合理範圍。
     step_size: Optional[float] = None
 
     # 論文：「For the diffusion attack and our semantic attack, the number of
@@ -88,10 +90,19 @@ class LinfAttackConfig:
     mask_tau: float = 0.5
 
     # ---- 攻擊方的設定 ----
-    # 用於產生 t 的區間與 diffusion attack 的編輯鏈。論文未公布 strength 與
-    # guidance_scale，本專案依 E26 的結論一律指定 7.5（w=1 時 SD v1.4 幾乎
-    # 不服從 prompt，該設定下的「編輯」量不出東西）。
-    strength: float = 0.5
+    # 用於產生 t 的區間與 diffusion attack 的編輯鏈。
+    #
+    # strength 論文未公布。取 0.3（2026-08-03 決定，先前為 0.5）：論文 §4.3
+    # 明說資料集與評測「adopt experimental settings similar to [23]」，而 [23]
+    # 是 PhotoGuard，其 img2img 評測用 0.2／0.3。L1 的目的是重現他的 Table 1，
+    # 故取最可能與他一致的值，而非本專案自選的 0.5。
+    #
+    # **這使 L1 與本專案既有的 run 不在同一個 strength 上**，兩者不可直接
+    # 並列；L1 對照的是論文公布的數字，不是我們自己的舊資料。
+    strength: float = 0.3
+    # 論文亦未公布。依 E26 的結論固定 7.5——w=1 時 SD v1.4 幾乎不服從 prompt，
+    # 該設定下的「編輯」與「什麼都沒做」在指標上分不出來。7.5 亦為 diffusers
+    # 對 SD 的預設值。
     guidance_scale: float = 7.5
     n_edit: int = 10
     prompt_edit: str = "a photo"
@@ -280,9 +291,10 @@ def make_semantic_attack_loss(
             rec.clear()
         att_ref = torch.stack(atts).mean(dim=0)
     mask = attention_region_mask(att_ref, cfg.mask_tau)
+    coverage = float(mask.mean())
     print(
         f"  [semantic] c_a={cfg.content!r}  遮罩覆蓋 "
-        f"{float(mask.mean()) * 100:.1f}% 的格點  "
+        f"{coverage * 100:.1f}% 的格點  "
         f"（{int(mask.sum())} / {mask.numel()}）",
         flush=True,
     )
@@ -311,6 +323,11 @@ def make_semantic_attack_loss(
             rec.clear()
             yield masked_attention_l1(att, mask)
 
+    # 遮罩覆蓋率要進 CSV，不能只印出來。`mask_tau` 是論文未公布、由本專案
+    # 選定的超參數（見模組 docstring 偏離之三），其效果必須在事後可查：
+    # 覆蓋率若接近 0 或接近 1，代表門檻選錯——前者等於幾乎沒有梯度，後者
+    # 等於攻擊了整張圖而不是「那個詞所在的區域」，兩者都不是論文的方法。
+    terms.mask_coverage = coverage
     return terms
 
 

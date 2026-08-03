@@ -23,6 +23,11 @@ number of iterations N = 100 for all attacks」）。
 對噪聲種子高度敏感，單種子的 Table 1 數字沒有意義：本專案 E29 之前的
 n = 1 是後來一連串判定問題的來源（見 docs/LEDGER.md）。評測種子與攻擊
 用的種子錯開 `EVAL_SEED_OFFSET`，否則量到的是訓練集表現。
+
+**維持 20，不要降。** 曾考慮降到 5，實測的取捨是：只省 12% 的總時間，因為
+三個攻擊占 95% 的成本、評測本來就便宜；代價卻是平均值的標準誤差變成兩倍
+（∝ 1/√n），而 SDEdit 對種子的變異本來就大。真正的成本槓桿是 `pg_diffusion`
+（占 54%），但它是必要項。
 """
 
 import argparse
@@ -151,11 +156,13 @@ def main():
     # 論文未公布，本專案指定
     ap.add_argument("--step_size", type=float, default=None)
     ap.add_argument("--mask_tau", type=float, default=0.5)
-    ap.add_argument("--strength", type=float, default=0.5)
+    ap.add_argument("--strength", type=float, default=0.3,
+                help="論文未公布；0.3 對齊 PhotoGuard 的 img2img 評測")
     ap.add_argument("--guidance", type=float, default=7.5)
     ap.add_argument("--n_edit", type=int, default=10)
     ap.add_argument("--eval_seeds", type=int, default=20,
-                    help="論文為 20；降低會讓 Table 1 的數字不可比")
+                    help="論文為 20；降低只省約 12%% 的時間（攻擊占 95%% 成本），"
+                         "卻讓平均值的標準誤差變大，不划算")
     ap.add_argument("--seed", type=int, default=20260803)
     args = ap.parse_args()
 
@@ -204,6 +211,7 @@ def main():
             reset_peak_memory()
             t0 = time.perf_counter()
             terms = build_attack(atk, sd, cfg, x01, x_target)
+            coverage = getattr(terms, "mask_coverage", "")
             res = pgd_linf(x01, terms, cfg, tag=atk)
             save_image(res.x_adv, out / f"{name}__{atk}__adv.png")
             save_json(res.history, out / f"{name}__{atk}__history.json")
@@ -218,6 +226,9 @@ def main():
                     "prompt": prompt, "kappa": args.kappa, "steps": args.steps,
                     "strength": args.strength, "guidance_scale": args.guidance,
                     "attack_seconds": round(res.seconds, 1),
+                    "mask_coverage": coverage,
+                    "step_size": cfg.step_size or cfg.kappa / 10,
+                    "mask_tau": cfg.mask_tau,
                     "peak_mb": round(peak_memory_mb(), 1),
                     **{f"pert_{k}": v for k, v in pert.items()},
                     **r,
@@ -229,6 +240,7 @@ def main():
                 **{f"edit_{k}": sum(r[f"edit_{k}"] for r in ev) / n
                    for k in TABLE1},
                 "pert_linf": pert["linf"], "pert_lpips": pert["lpips"],
+                "mask_coverage": coverage,
                 "seconds": round(res.seconds, 1),
                 "peak_mb": round(peak_memory_mb(), 1),
             })

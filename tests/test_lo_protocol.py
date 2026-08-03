@@ -268,6 +268,26 @@ def test_論文的預設值():
     assert cfg.timesteps == 10
 
 
+def test_論文未公布的超參數取本專案選定的值():
+    # 這四個論文與補充材料都沒寫，由本專案指定（2026-08-03）。釘住它們是
+    # 因為它們是「我們的選擇」而非「論文的條件」：日後若重現不成功，這裡
+    # 就是要回頭檢查的四個旋鈕，值被無聲改掉會讓那次檢查失去基準。
+    cfg = LinfAttackConfig()
+    assert cfg.strength == 0.3          # 對齊 PhotoGuard 的 img2img 評測
+    assert cfg.guidance_scale == 7.5    # E26：w=1 下 SD v1.4 幾乎不服從 prompt
+    assert cfg.mask_tau == 0.5          # 作用在峰值正規化後的 [0,1] 尺度上
+    assert cfg.step_size is None        # None → κ/10，見 pgd_linf
+
+
+def test_步長預設為預算的十分之一():
+    # 起點取 0.5 而非 0：貼著值域下界時位移會被 clamp 掉，量到的是 0 而
+    # 不是步長。這是寫測試時實際踩到的。
+    x = torch.full((1, 1, 4, 4), 0.5)
+    cfg = LinfAttackConfig(kappa=0.06, steps=1, log_every=1000)
+    r = pgd_linf(x, _quadratic_terms(torch.zeros_like(x)), cfg)
+    assert float((r.x_adv - x).abs().max()) == pytest.approx(0.006, abs=1e-6)
+
+
 def test_未知的攻擊名稱必須報錯():
     with pytest.raises(ValueError, match="未知的攻擊"):
         build_attack("nope", None, LinfAttackConfig(), torch.zeros(1))

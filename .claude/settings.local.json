@@ -12,7 +12,11 @@
       "Bash(PYTHONIOENCODING=utf-8 C:/Users/nelso/miniconda3/envs/wacv/python.exe -m pytest -q)",
       "Bash(python -)",
       "Bash(git commit -q -m 'Add a script that puts the E29 defended images through a real edit *)",
-      "Bash(git pull *)"
+      "Bash(git pull *)",
+      "Bash(git rm *)",
+      "Bash(nvidia-smi --query-gpu=utilization.gpu,memory.used --format=csv,noheader)",
+      "Bash(PYTHONIOENCODING=utf-8 C:/Users/nelso/miniconda3/envs/wacv/python.exe scripts/report_table1.py --out docs/RESULTS_TABLE1.md)",
+      "Bash(git commit *)"
     ]
   }
 }

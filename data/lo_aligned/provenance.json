@@ -1,5 +1,93 @@
 [
   {
+    "output": "man/man_00.png",
+    "source_name": "cand_07.jpg",
+    "source_sha256": "6de5aecb635dc2cd68dcf279fa39efa8ec091d54b854f1be223c19fd9751419d",
+    "source_size": [
+      720,
+      1280
+    ],
+    "crop_side": 720,
+    "output_size": 512
+  },
+  {
+    "output": "man/man_01.png",
+    "source_name": "cand_09.jpg",
+    "source_sha256": "2f12f8472356e8f37ee409e32011f7131d4608f4f0c156303341623bc2fe2b0b",
+    "source_size": [
+      960,
+      776
+    ],
+    "crop_side": 776,
+    "output_size": 512
+  },
+  {
+    "output": "man/man_02.png",
+    "source_name": "cand_16.jpg",
+    "source_sha256": "833a8c3323d2ca05b00db8ff386ef9b4544bb2bc52c83f68b333197471150471",
+    "source_size": [
+      960,
+      720
+    ],
+    "crop_side": 720,
+    "output_size": 512
+  },
+  {
+    "output": "man/man_03.png",
+    "source_name": "cand_18.jpg",
+    "source_sha256": "89a066d45b670d859853fc64d2ef93db1ca319ca6f85fe7c63bcc1971fa0ac81",
+    "source_size": [
+      960,
+      1445
+    ],
+    "crop_side": 960,
+    "output_size": 512
+  },
+  {
+    "output": "woman/woman_00.png",
+    "source_name": "cand_07.jpg",
+    "source_sha256": "75c3f26844f1cb85c80dfaa4ca65e92b3aaf028ccd4881197bcfcb29a572e8bf",
+    "source_size": [
+      960,
+      960
+    ],
+    "crop_side": 960,
+    "output_size": 512
+  },
+  {
+    "output": "woman/woman_01.png",
+    "source_name": "cand_08.jpg",
+    "source_sha256": "64fb41b7b32632154301dd1b1f6a1d883f5acb5d65bc34792e9ffa82308a162e",
+    "source_size": [
+      700,
+      1000
+    ],
+    "crop_side": 700,
+    "output_size": 512
+  },
+  {
+    "output": "woman/woman_02.png",
+    "source_name": "cand_09.jpg",
+    "source_sha256": "29879a482b92b5730306e5df3eab452e6b787e1853793e8b0802e1b97ff287c5",
+    "source_size": [
+      960,
+      649
+    ],
+    "crop_side": 649,
+    "output_size": 512
+  },
+  {
+    "output": "woman/woman_03.png",
+    "source_name": "cand_11.jpg",
+    "source_sha256": "49ab87cbcf8a66c4cbd49e9fb0934f38a8f6bc9a1363adbda5525089400dbd35",
+    "source_size": [
+      809,
+      993
+    ],
+    "crop_side": 809,
+    "output_size": 512
+  },
+  {
     "output": "dog/dog_00.png",
     "source_name": "cand_02.jpg",
     "source_sha256": "da479a3fa42e03a2304b2bbf02ba246a42708c600c76c4c829a6c910d97e061c",

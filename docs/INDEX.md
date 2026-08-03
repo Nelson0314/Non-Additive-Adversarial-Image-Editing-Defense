@@ -194,7 +194,6 @@ python scripts/e31_report.py --degrade_tau <值>   # E31 網格彙整（該網�
 bash   scripts/drivers/local_night.sh     # 上列三支 GPU 工作串起來跑，避免互搶顯存
 # --- 對齊基準論文（2026-08-03）---
 python scripts/fetch_cc0_images.py --out data/_raw --per_class 20     # 動物類 CC0 候選池
-python scripts/generate_person_images.py --out data/_selected         # 人物類生成（GPU）
 python scripts/prepare_dataset.py --src <來源> --dst data/lo_aligned  # 資料集正規化
 python scripts/prepare_dataset.py --check     # 只驗證資料集完整性（秒級）
 python scripts/run_lo_baseline.py --out runs/lo_baseline --eval_seeds 20  # L1，需雲端

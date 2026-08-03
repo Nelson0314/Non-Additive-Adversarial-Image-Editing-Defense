@@ -173,26 +173,25 @@ for n = 1..N:
 定義在 `data/lo_aligned/prompts.yaml`。`content` 為必填，`load_dataset`
 不接受預設值——c_a 猜錯會讓 semantic attack 攻擊到別的東西而毫無症狀。
 
-### 4.0 影像的來源分兩路，理由不同
+### 4.0 影像全部取自真實照片
 
-| 類別 | 來源 | 工具 |
-|---|---|---|
-| dog／cat／horse／bird | Wikimedia Commons 的 **CC0 實拍照片** | `scripts/fetch_cc0_images.py` |
-| man／woman | **SD v1.4 生成** | `scripts/generate_person_images.py` |
+24 張全部來自 Wikimedia Commons、授權為 **CC0**，由
+`scripts/fetch_cc0_images.py` 取得。只收放棄全部著作權者（CC0、公有領域），
+不收 CC BY／BY-SA——後者要求姓名標示，在論文附圖與衍生資料集上會產生持續
+的義務。
 
-人物類生成而非取用真實照片，是照基準論文自己的處置。其第 1 頁註腳：
+**人物類與基準論文的處置不同，這是有記錄的偏離。** 該論文第 1 頁註腳：
 
 > For ethical considerations, the human face image is synthesized by the
 > diffusion model.
 
-三個理由：(a) CC0 只放棄著作權，不處理肖像權，而本專案的主題正是對人臉
-影像施加擾動再讓模型編輯它；(b) 與基準論文一致，資料取得方式屬於協定的
-一部分；(c) prompt 與 seed 全部寫進 `generation.json`，任何人都能重新生成
-同一批影像，不需下載任何檔案。
+本專案的 man／woman 兩類用**真實照片**（使用者 2026-08-03 指定）。理由是
+評測效度：擴散模型生成的影像本身就落在該模型的分布內，拿它評測「對真實
+照片的保護效果」會高估，而本專案的目標是後者。代價是肖像權——CC0 只放棄
+著作權，不處理被攝者的人格權；使用時應限於學術評測，論文附圖若要使用
+須另行確認。
 
-動物類不涉及肖像權，用實拍可保留自然影像的統計性質。取用時只收 CC0 與
-公有領域（放棄全部著作權），不收 CC BY／BY-SA——後者要求姓名標示，在論文
-附圖與衍生資料集上會產生持續的義務。
+動物類同樣用實拍，可保留自然影像的統計性質。
 
 **候選池要人眼挑選，不可直接採用搜尋結果。** 實測 Commons 的 `CC-Zero`
 分類裡混著大量大都會博物館的文物照（胸針、頭骨標本）、Naturalis 的鳥類

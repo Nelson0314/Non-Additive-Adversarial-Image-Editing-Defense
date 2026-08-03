@@ -45,12 +45,18 @@ CC0_CAT = 'incategory:"CC-Zero"'
 # 對編輯攻擊的行為與一般照片不同，必須排除。
 ART = "-MET -brooch -ornament -figurine -cranium -skull -sculpture -painting -mummy -vase"
 
-# **人物類不在此表。** 基準論文對人臉的處理是生成而非取用真實照片
-# （其註腳：「For ethical considerations, the human face image is synthesized
-# by the diffusion model」）。CC0 只放棄著作權，不處理肖像權，而本專案的主題
-# 正是對人臉影像的攻擊與保護。man／woman 兩類改由
-# `scripts/generate_person_images.py` 以 SD v1.4 生成，與論文一致。
+# 人物類**用真實 CC0 照片**（使用者 2026-08-03 指定：「別用假照片」）。
+#
+# 這與基準論文的處置不同——其註腳為「For ethical considerations, the human
+# face image is synthesized by the diffusion model」。此處記下這個偏離：
+# 生成影像的統計性質與真實照片不同（擴散模型的輸出本身就在該模型的分布內），
+# 拿它評測「對真實照片的保護」會高估效果，而本專案的目標是後者。
+# 取用時仍只收 CC0／公有領域，且以人物照為主體、不收可辨識度極高的名人肖像。
 QUERIES = {
+    "man": [f"man {CC0_CAT} {ART} -statue -bust -mask -coin -stamp",
+            f"portrait man photograph {CC0_CAT} {ART} -statue -bust"],
+    "woman": [f"woman {CC0_CAT} {ART} -statue -bust -mask -coin -stamp",
+              f"portrait woman photograph {CC0_CAT} {ART} -statue -bust"],
     "dog": [f"dog {CC0_CAT} {ART}", f"puppy {CC0_CAT} {ART}"],
     "cat": [f"cat {CC0_CAT} {ART}", f"kitten {CC0_CAT} {ART}"],
     # horse：CC-Zero 裡「horse」大量命中英國酒吧招牌（The White Horse）與

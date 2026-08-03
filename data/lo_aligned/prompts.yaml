@@ -15,6 +15,11 @@
 # 之間的一個直接可對照的錨點。
 #
 # 每類的建議張數與成本見 docs/specs/2026-08-03-lo-aligned-protocol.md §4。
+#
+# 六類各 4 張，全部為 Wikimedia Commons 的 CC0 真實照片。人物類**不用生成
+# 影像**（使用者 2026-08-03 指定），與基準論文的處置不同，理由與代價見
+# 規格 §4.0。出處逐張記在 data/lo_aligned/provenance.json 與
+# data/_selected/<類別>/attribution.json。
 
 man:
   content: "man"

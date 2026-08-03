@@ -23,6 +23,7 @@ import argparse
 import csv
 import glob
 import os
+import re
 import statistics as st
 from pathlib import Path
 
@@ -39,16 +40,23 @@ COLS = ["psnr", "ssim", "vif_p", "fsim", "lpips"]
 ARROW = {"psnr": "↓", "ssim": "↓", "vif_p": "↓", "fsim": "↓", "lpips": "↑"}
 
 
-def collect(runs_root: Path):
+def collect(runs_root: Path, pool_prompts: bool = True):
     """讀 runs/*/results.csv 的乾淨攻擊列，回傳逐 (run, site) 的平均。
 
     乾淨攻擊 = `purify == 'identity'` 且淨化強度為 0。這一列才是「沒有任何
     後處理時的免疫效果」，也就是 Table 1 量的東西；其餘各列是抗淨化，
     Lo 的表沒有那一項。
+
+    `pool_prompts` 會把 `<run>_p1` 併入 `<run>`。論文補充材料 §A 的 Table 1
+    是「每個物件兩個編輯 prompt」一起平均，兩個 prompt 分開的數字都不是
+    該表的對照對象。兩半的影像數與種子數相同，故直接對所有列取平均，
+    與先分半再平均等值。
     """
     groups = {}
     for f in sorted(glob.glob(str(runs_root / "*" / "results.csv"))):
         run = os.path.basename(os.path.dirname(f))
+        if pool_prompts:
+            run = re.sub(r"_p\d+$", "", run)
         for r in csv.DictReader(open(f, encoding="utf-8")):
             # lo_baseline 的 results.csv 沒有 purify 欄（該協定不含淨化），
             # 其餘 run 有。缺欄視為乾淨攻擊，有欄則必須是 identity + 0。
@@ -73,6 +81,58 @@ def collect(runs_root: Path):
             row[c] = st.mean(got) if got else None
         out.append(row)
     return out
+
+
+def c_a_in_prompt(content: str, prompt: str) -> bool:
+    """c_a 是否以**完整詞**出現在編輯 prompt 裡。
+
+    必須看詞邊界，不能用子字串：本專案的類別裡 `man` 是 `woman` 的子字串，
+    子字串比對會把 man 類的「a woman」判成「c_a 有出現」，方向剛好相反。
+    """
+    return re.search(rf"\b{re.escape(content.strip())}\b", prompt,
+                     flags=re.IGNORECASE) is not None
+
+
+def by_prompt(runs_root: Path, base: str):
+    """把 `base` 與 `base_p*` 的列拆成逐 (攻擊, 編輯 prompt) 的平均。
+
+    存在的理由：semantic attack 的輸入 c_a 由防禦方選，可能出現也可能不出現
+    在攻擊方寫的編輯 prompt 裡。論文 §4.3 把「不出現時仍有效」當成優點提出，
+    等於承認兩種情況的難度不同。合併後的那張表看不出這件事，但它決定
+    semantic 這根柱子能不能與論文對照，必須單獨列出。兩根 PhotoGuard
+    不使用 c_a，其逐 prompt 差異只反映 prompt 本身的編輯幅度。
+    """
+    groups = {}
+    for f in sorted(glob.glob(str(runs_root / "*" / "results.csv"))):
+        run = os.path.basename(os.path.dirname(f))
+        if re.sub(r"_p\d+$", "", run) != base:
+            continue
+        for r in csv.DictReader(open(f, encoding="utf-8")):
+            key = (r["attack"], c_a_in_prompt(r["content"], r["prompt"]))
+            groups.setdefault(key, []).append(
+                {c: float(r[f"edit_{c}"]) for c in COLS})
+    out = []
+    for (atk, in_prompt), vs in sorted(groups.items()):
+        row = {"attack": atk, "c_a_in_prompt": in_prompt, "n": len(vs)}
+        for c in COLS:
+            row[c] = st.mean(v[c] for v in vs)
+        out.append(row)
+    return out
+
+
+def render_by_prompt(rows):
+    head = ("| 攻擊 | c_a 出現在編輯 prompt 裡 | 情境 | n | "
+            + " | ".join(f"{c.upper()} {ARROW[c]}" for c in COLS) + " |")
+    lines = [head, "|" + "---|" * (4 + len(COLS))]
+    for r in sorted(rows, key=lambda r: (r["attack"], r["c_a_in_prompt"])):
+        scen = "改動其他區域（編輯 prompt 2）" if r["c_a_in_prompt"] \
+            else "改掉該內容（編輯 prompt 1）"
+        lines.append(
+            f"| `{r['attack']}` | {'是' if r['c_a_in_prompt'] else '否'} | "
+            f"{scen} | {r['n']} | "
+            + " | ".join(fmt(r[c], 4 if c != "psnr" else 2) for c in COLS) + " |"
+        )
+    return "\n".join(lines)
 
 
 def fmt(v, nd=4):
@@ -108,6 +168,8 @@ def main():
     ap.add_argument("--out", default="docs/RESULTS_TABLE1.md")
     ap.add_argument("--kappa", type=float, default=0.06)
     ap.add_argument("--min_n", type=int, default=1)
+    ap.add_argument("--split_base", default="lo_baseline",
+                    help="要額外做逐編輯 prompt 分解的 run 名稱（不含 _p1 尾綴）")
     args = ap.parse_args()
 
     rows = [r for r in collect(Path(args.runs)) if r["n"] >= args.min_n]
@@ -115,6 +177,16 @@ def main():
         raise SystemExit(f"{args.runs} 底下沒有可判讀的乾淨攻擊列")
 
     body = render(rows, args.kappa)
+    split = by_prompt(Path(args.runs), args.split_base)
+    split_md = (
+        f"\n## 逐編輯 prompt 的分解（`{args.split_base}`）\n\n"
+        "論文補充材料 §A 的每個物件有兩個編輯 prompt，上表是兩者一起平均。\n"
+        "此處拆開，因為 semantic attack 的輸入 c_a 由防禦方選定，可能出現、\n"
+        "也可能不出現在攻擊方寫的編輯 prompt 裡；論文 §4.3 把「不出現時仍\n"
+        "有效」列為額外的優點，等於承認兩種情況難度不同。兩根 PhotoGuard\n"
+        "不使用 c_a，其兩列的差異只反映 prompt 本身的編輯幅度，可作為對照。\n\n"
+        + render_by_prompt(split) + "\n"
+    ) if split else ""
     text = f"""# Table 1 對照：本專案 vs Lo et al. (CVPR 2024)
 
 <!-- 由 scripts/report_table1.py 產生，不要手改 -->
@@ -129,7 +201,7 @@ def main():
 之前跑的，當時 `suite.pairwise` 還沒有這兩項。
 
 {body}
-
+{split_md}
 ## 讀這張表的三個前提
 
 1. **資料集不同。** 論文是用擴散模型生成的 150 張圖（dog／horse／man，

@@ -7,6 +7,7 @@
 不需要 SD 權重：注意力聚合吃的是張量、PGD 迴圈吃的是任意可微損失。
 """
 
+import json
 import math
 
 import pytest
@@ -340,3 +341,81 @@ def test_空列拒絕寫出(tmp_path):
 
     with pytest.raises(RuntimeError, match="沒有任何列"):
         append_csv(tmp_path / "r.csv", [])
+
+
+# ---------------------------------------------------------------------------
+# 協定守衛：--resume 只看 (影像, 攻擊)，不看參數，換了參數會無聲混雜
+# ---------------------------------------------------------------------------
+
+
+class _Args:
+    """`check_protocol` 只讀 PROTOCOL_KEYS，其餘欄位不影響。"""
+
+    def __init__(self, **kw):
+        from scripts.run_lo_baseline import PROTOCOL_KEYS
+
+        for k in PROTOCOL_KEYS:
+            setattr(self, k, kw.pop(k, 0))
+        assert not kw, f"不是協定參數：{list(kw)}"
+
+
+def test_首次執行寫下協定(tmp_path):
+    from scripts.run_lo_baseline import check_protocol
+
+    check_protocol(tmp_path, _Args(prompt_index=0))
+    got = json.loads((tmp_path / "protocol.json").read_text(encoding="utf-8"))
+    assert got["prompt_index"] == 0
+
+
+def test_同一組協定可以接續(tmp_path):
+    from scripts.run_lo_baseline import check_protocol
+
+    check_protocol(tmp_path, _Args(prompt_index=1, kappa=0.06))
+    check_protocol(tmp_path, _Args(prompt_index=1, kappa=0.06))   # 不得拋出
+
+
+def test_換了編輯prompt不得接續同一目錄(tmp_path):
+    # 這正是 2026-08-03 發現的問題：論文補充材料 §A 每個物件有兩個編輯
+    # prompt，Table 1 是兩者一起平均。兩半混進同一個目錄後 summary.csv
+    # 不記 prompt，事後看不出來。
+    from scripts.run_lo_baseline import check_protocol
+
+    check_protocol(tmp_path, _Args(prompt_index=0))
+    with pytest.raises(SystemExit, match="prompt_index"):
+        check_protocol(tmp_path, _Args(prompt_index=1))
+
+
+def test_換了預算不得接續同一目錄(tmp_path):
+    from scripts.run_lo_baseline import check_protocol
+
+    check_protocol(tmp_path, _Args(kappa=0.06))
+    with pytest.raises(SystemExit, match="kappa"):
+        check_protocol(tmp_path, _Args(kappa=0.03))
+
+
+def test_補跑攻擊不算換協定(tmp_path):
+    # `--attacks` 刻意不在 PROTOCOL_KEYS 裡：分批補跑攻擊是正當的接續。
+    from scripts.run_lo_baseline import PROTOCOL_KEYS
+
+    assert "attacks" not in PROTOCOL_KEYS
+    assert "limit" not in PROTOCOL_KEYS
+
+
+# ---------------------------------------------------------------------------
+# 逐編輯 prompt 的分解
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize("content,prompt,expect", [
+    ("man", "a woman", False),      # 子字串比對會判成 True，方向剛好相反
+    ("man", "a man in a snowy street", True),
+    ("dog", "a cat", False),
+    ("dog", "a dog in the park", True),
+    ("cat", "A CAT on a snowy roof", True),   # 不分大小寫
+    ("horse", "a horse and a cow", True),
+    ("bird", "a butterfly", False),
+])
+def test_c_a是否以完整詞出現在prompt裡(content, prompt, expect):
+    from scripts.report_table1 import c_a_in_prompt
+
+    assert c_a_in_prompt(content, prompt) is expect

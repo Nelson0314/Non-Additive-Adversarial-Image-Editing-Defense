@@ -2,8 +2,22 @@
 # L1：在 L∞ ≤ 0.06 上重現 Lo et al. (CVPR 2024) Table 1 的三根柱子。
 #
 # 用法（在 repo 根目錄）：
-#   bash scripts/drivers/lo_l1.sh              # 開始或接續
-#   bash scripts/drivers/lo_l1.sh --fg         # 前景執行，看得到即時輸出
+#   bash scripts/drivers/lo_l1.sh 0            # 編輯 prompt 1，開始或接續
+#   bash scripts/drivers/lo_l1.sh 1            # 編輯 prompt 2
+#   bash scripts/drivers/lo_l1.sh 0 --fg       # 前景執行，看得到即時輸出
+#
+# 兩個 prompt 都要跑
+# ─────────────────────────────────────────────────────────────────────
+# 論文補充材料 §A：每個物件有兩個編輯 prompt，Table 1 是兩者一起平均。
+#
+#   prompt 1（索引 0）改掉指定的內容，c_a **不**出現在 prompt 裡（A dog → "A cat"）
+#   prompt 2（索引 1）改動其他區域，c_a 出現在 prompt 裡（"A dog in the park"）
+#
+# 只跑索引 0 會系統性低估 semantic attack：正文 §4.3 把「c_a 未出現在編輯
+# prompt 中仍有效」列為額外的優點，代表那是較難的一半。兩根 PhotoGuard 柱子
+# 完全不用 c_a，不受影響——這正是 2026-08-03 首批 37 格觀察到的模式
+# （PhotoGuard 重現、semantic 反而低於論文）。兩半各自寫進不同的 --out，
+# 由 scripts/report_table1.py 合併。
 #
 # 為什麼要 detached
 # ─────────────────────────────────────────────────────────────────────
@@ -28,20 +42,32 @@ set -euo pipefail
 cd "$(dirname "$0")/../.."
 
 PY="${PY:-/home/zeus/miniconda3/envs/cloudspace/bin/python3}"
-OUT="${OUT:-runs/lo_baseline}"
 export HF_HOME="${HF_HOME:-/teamspace/studios/this_studio/hf_cache}"
 export WACV_ALLOW_TF32="${WACV_ALLOW_TF32:-1}"
 
+PI="${1:-0}"
+case "$PI" in
+  0) SUF="" ;;
+  1) SUF="_p1" ;;
+  *) echo "prompt 索引只能是 0 或 1，收到 '$PI'" >&2; exit 2 ;;
+esac
+shift || true
+
+# 索引 0 沿用原本的目錄名，2026-08-03 之前跑的 37 格才接得上。
+OUT="${OUT:-runs/lo_baseline$SUF}"
+
 mkdir -p runs/logs
-LOG="runs/logs/lo_l1.log"
+LOG="runs/logs/lo_l1$SUF.log"
 
 CMD=("$PY" scripts/run_lo_baseline.py
      --data data/lo_aligned
      --out "$OUT"
      --attacks pg_encoder,pg_diffusion,semantic
+     --prompt_index "$PI"
      --eval_seeds 20
      --resume)
 
+echo "編輯 prompt : 索引 $PI"
 echo "輸出目錄 : $OUT"
 echo "日誌     : $LOG"
 echo "TF32     : $WACV_ALLOW_TF32"

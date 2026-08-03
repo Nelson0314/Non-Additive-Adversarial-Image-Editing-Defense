@@ -214,6 +214,7 @@ def main():
             "要重跑請換一個 --out 或先自行移走舊目錄。"
             "此處不自動覆寫——`runs/` 是唯一的證據來源且實驗無法重跑"
         )
+    check_protocol(out, args)
     if done:
         print(f"接續模式：已完成 {len(done)} 格，將略過", flush=True)
 
@@ -309,6 +310,39 @@ def completed_pairs(sum_path: Path) -> set:
         return set()
     with sum_path.open(encoding="utf-8", newline="") as f:
         return {(r["image"], r["attack"]) for r in csv.DictReader(f)}
+
+
+# 決定「同一個 --out 底下的列彼此可比」的參數。改動其中任何一個，先前算的
+# 格子就不再是同一個實驗。`--attacks` 不在此列：分批補跑攻擊是正當的接續。
+# `--limit` 也不在此列：補進更多影像同樣正當。
+PROTOCOL_KEYS = [
+    "data", "size", "model", "prompt_index", "kappa", "steps", "timesteps",
+    "step_size", "mask_tau", "strength", "guidance", "n_edit", "eval_seeds",
+    "seed",
+]
+
+
+def check_protocol(out: Path, args) -> None:
+    """首次執行時寫下協定參數；接續時比對，不符就拒絕。
+
+    `--resume` 已是常態用法（見 scripts/drivers/lo_l1.sh），而接續與否只看
+    summary.csv 的 (影像, 攻擊)，不看參數。少打一個 `--prompt_index 1` 就會
+    把兩個編輯 prompt 的結果混進同一個平均，而且沒有任何症狀——summary.csv
+    不記 prompt，事後也看不出來。這道守衛就是為了讓那種錯誤變成當場失敗。
+    """
+    now = {k: getattr(args, k) for k in PROTOCOL_KEYS}
+    path = out / "protocol.json"
+    if not path.exists():
+        save_json(now, path)
+        return
+    old = json.loads(path.read_text(encoding="utf-8"))
+    diff = {k: (old.get(k), now[k]) for k in PROTOCOL_KEYS if old.get(k) != now[k]}
+    if diff:
+        raise SystemExit(
+            f"{path} 記錄的協定與本次不同，拒絕接續：\n"
+            + "\n".join(f"  {k}：既有 {o!r} → 本次 {n!r}" for k, (o, n) in diff.items())
+            + "\n把不同協定的結果寫進同一個目錄會讓平均值無聲混雜。請換一個 --out。"
+        )
 
 
 def append_csv(path: Path, rows):

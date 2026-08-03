@@ -3,21 +3,48 @@
 <!-- STATUS-BLOCK -->
 | | |
 |---|---|
-| **狀態** | 現行。2026-08-03 建立，涵蓋至 2026 年 6 月的 arXiv |
+| **狀態** | 現行。2026-08-03 建立並於同日補入基準論文，涵蓋至 2026 年 6 月的 arXiv |
 | **範圍** | 只收與本專案研究問句直接相關者：白盒、外掛模組、抵抗文字引導編輯、匹配人眼可辨失真 |
-| **相關** | 設計依據 `docs/specs/2026-08-02-e31-positive-control.md` §2；主張索引 `docs/LEDGER.md` |
+| **相關** | 設計依據 `docs/specs/2026-08-03-lo-aligned-protocol.md`；主張索引 `docs/LEDGER.md` |
 
 > 本檔按**問句**組織而非按論文組織。每一節先給答案，再列證據。
 > 論文只在能回答某個問句時出現，不做逐篇摘要。
 
 ---
 
-## 0. 一頁摘要
+## 0. 基準論文
+
+其餘各節都是圍繞這一篇的脈絡，**先讀這一段**。
+
+> Ling Lo, Cheng Yu Yeo, Hong-Han Shuai, Wen-Huang Cheng,
+> **Distraction is All You Need: Memory-Efficient Image Immunization against
+> Diffusion-Based Image Editing**, CVPR 2024, pp. 24462–24471.
+> [CVF open access](https://openaccess.thecvf.com/content/CVPR2024/html/Lo_Distraction_is_All_You_Need_Memory-Efficient_Image_Immunization_against_Diffusion-Based_CVPR_2024_paper.html)
+
+| 面向 | 該論文的做法 |
+|---|---|
+| 方法 | 加性 `x_adv = x + δ`；損失是遮罩內 cross-attention 反應的 L1（式 5） |
+| 更新 | PGD sign + L∞ 投影；逐 timestep 反傳再平均（Algorithm 1） |
+| 約束 | **只有 L∞ ≤ 0.06**，N = 100，T = 10，所有方法一致 |
+| 判準 | Table 1：PSNR↓ SSIM↓ VIFp↓ FSIM↓ LPIPS↑，全部是第 1 族「與未防禦編輯的距離」 |
+| baseline | PhotoGuard 的 encoder attack 與 diffusion attack |
+| 資料 | 擴散生成 150 張、3 物件 × 2 prompt、**20 種子平均** |
+| 自陳限制 | 模糊或 JPEG 壓縮可能消掉免疫效果 |
+
+**這一篇的地位不同於本檔其他論文**：其約束、判準與 baseline 已定為本專案的
+必要對齊項（使用者 2026-08-03）。逐項的對齊狀態見新規格 §3。
+
+它同時決定了本檔以下各節的讀法：第 2 節說「第 1 族判準無效」，那是**本專案
+在自己的資料上的判定**，不是可以直接套到這一篇上的結論——順序見新規格 §7。
+
+---
+
+## 0.1 一頁摘要
 
 | 問句 | 目前的答案 | 對本專案的意涵 |
 |---|---|---|
 | 擾動式保護真的擋得住編輯嗎？ | **多半擋不住**，且受保護影像常**更**服從 prompt | E29 的否定結果是已知現象的白盒複現，不是實作瑕疵 |
-| 領域用什麼判準？ | 尚未收斂。2026 年的 TPAMI 論文仍用「與未防禦編輯的距離」 | 本專案的判準方法學領先，是可發表的材料 |
+| 領域用什麼判準？ | 尚未收斂。基準論文與 2026 年的 TPAMI 論文都用「與未防禦編輯的距離」 | 本專案有一份該判準與另兩族之相關性的量測（ρ = 0.140／−0.207／0.014），但**在重現落後基準時不提出**（新規格 §7） |
 | 目標函數有幾族？ | 至少四族，本專案只跑過其中一族 | `targeted`、`suppress` 待跑；**「只攻第一個去噪步」**這一族（兩個成員）從未考慮過 |
 | 標準失真預算？ | ε∞ = 16/255；LPIPS 0.267–0.362 | 本專案的 LPIPS 低一個量級，但 L∞ 高六倍 |
 | 標準攻擊設定？ | 多數是**遮罩式 inpainting**；img2img 用 strength 0.2–0.3 | 本專案用全域 SDEdit strength 0.5，是文獻中最難的設定 |
@@ -60,7 +87,7 @@
 
 | 判準族 | 代表 | 量的是什麼 | 本專案的判定 |
 |---|---|---|---|
-| 與未防禦編輯的距離 | TDAE（TPAMI 2026）用 PSNR／SSIM／FSIM／VIFP／LPIPS | 輸出移動了多少 | **無效**。E25 §1.2 在 726 格中語意失敗 0 格；E29 §4.3 的 `edit_shift` 達 0.42–0.47 而編輯照常發生 |
+| 與未防禦編輯的距離 | **基準論文 Table 1**、TDAE（TPAMI 2026），都用 PSNR／SSIM／FSIM／VIFp／LPIPS | 輸出移動了多少 | **本專案已定為必要判準**（使用者 2026-08-03）。本專案另有一份量測顯示它與語意軸幾乎不相關（ρ = 0.140）、與劣化軸負相關（ρ = −0.207），資料在 `runs/p16_criterion_correlation/`；依新規格 §7，該論證在第一層重現通過之前不提出 |
 | 影像—文字對齊 | ICIP 2025 用 CLIP-S／PAC-S++ | 輸出服不服從 prompt | 可用，但 **CLIP 未通過本專案的 edit_effect 對照**（E25 §1.1），SigLIP 通過 |
 | 聯集式 | SIFM 的 ISR（MLLM 判定）；Attention Attack 的 Caption Similarity + semantic IoU | 語意不符 **或** 感知劣化 | 本專案 E31 採用，但用 NR 品質指標取代 MLLM |
 

@@ -1,6 +1,11 @@
 # 文件與實驗資料索引
 
-最後整理：2026-08-03（E31 進行中）。
+最後整理：2026-08-03（對齊基準論文之後）。
+
+> **方向已於 2026-08-03 修正。** 指導者 Ling Lo 為 *Distraction is All You
+> Need*（CVPR 2024）第一作者，其約束、判準與 baseline 已定為必要對齊項。
+> 現行的設計依據是 `docs/specs/2026-08-03-lo-aligned-protocol.md`；
+> E31 的 12 格網格設計已作廢，其本機階段的量測結果仍然有效。
 
 本檔的用途是讓接手者在不讀 git log 的情況下，知道**哪一份文件是現行的、
 哪一份已被取代、每一個 run 目錄屬於哪個實驗**。
@@ -34,11 +39,13 @@
 | `docs/RESULTS_E28_chroma.md` | 承接 E28：色度偏壓約束（第三道）、ΔE 全族不合格的判別、τ=0.8 的人眼定錨、TF32 跨機器精度陷阱 | 現行。§5 描述的主網格計畫已由 E29 中止 |
 | `docs/RESULTS_E29_negative.md` | 承接 E29：修好協議後的第一次實測、**防禦擋不住編輯**（影像與 SigLIP 一致）、site C 的綁定者是參數化的固有性質、TF32 指紋比對、**實驗設計與研究歷史的邏輯稽核** | 現行。E30 主網格未跑，理由在 §5。E31 由此接手 |
 | `docs/RESULTS_E31_local.md` | 承接 E31 的本機階段：判準補完（`edit_niqe_*` 從未被讀過）、**τ=0.28 在原約束集下不可達**（白雜訊參照臂）、逐預算門檻、本機能力的兩個邊界 | 現行。雲端的 R1／R2 尚未執行 |
-| `docs/SURVEY.md` | 文獻調查，按**問句**組織而非按論文。目標函數至少四族而本專案只跑過一族；「只攻第一個去噪步」那一族有兩個成員 | 現行 |
+| `docs/SURVEY.md` | 文獻調查，按**問句**組織而非按論文。§0 是**基準論文**（Lo et al., CVPR 2024）的逐項照錄，其餘各節圍繞它 | 現行 |
 | `docs/LEDGER.md` | **結論總帳**：現行主張、已被推翻的主張（含推翻它的資料）、死路清單、尚未回答的問題 | 現行。每條都附出處 |
 | `docs/gallery.html` | **人眼比對頁總覽**：把散在 `runs/` 各處的比對頁集中，並記下每一頁當初決定了什麼 | 現行 |
-| `docs/specs/2026-08-02-e31-positive-control.md` | E31 的設計規格：正對照搜尋、ISR 判準、12 格網格、本機／雲端分工、gate。§12 記錄兩道次要門檻改為逐預算的變更與推翻原假設的資料 | **現行，且是本階段的設計依據** |
-| `docs/plans/2026-08-02-e31.md` | E31 的實作計畫（12 個任務，含每步的驗證方式與本機／雲端標記） | 現行 |
+| `docs/specs/2026-08-03-lo-aligned-protocol.md` | **對齊基準論文的協定**：Lo et al. (CVPR 2024) 的方法／約束／判準／baseline 逐項照錄、必要項與改良項的分工、資料集、實驗清單 L0–L4、**明確不做的事** | **現行，且是本階段的設計依據** |
+| `docs/RESULTS_TABLE1.md` | 既有全部 run 在 Table 1 判準下的對照表，由 `scripts/report_table1.py` 生成 | 現行。**不要手改** |
+| `docs/specs/2026-08-02-e31-positive-control.md` | E31 的設計規格：正對照搜尋、ISR 判準、12 格網格、gate。§12 記錄兩道次要門檻改為逐預算的變更 | **設計部分已作廢**（頂端有狀態表）。§12 的逐預算門檻仍有效，L4 會用到 |
+| `docs/plans/2026-08-02-e31.md` | E31 的實作計畫（12 個任務） | Task 1–7 已完成且有效；**Task 8–11 已作廢** |
 | `docs/HANDOFF_PROMPT.md` | 可直接貼進新 session 的交接 prompt。2026-08-02 改寫為**重新決定方向**用，不再是執行既有計畫 | 現行 |
 | `docs/NEXT_SESSION.md` | 2026-08-02 改寫（E29 之後）：否定結果、兩個結構性問題、存活的結論、死路清單、環境與成本 | 現行，接手先讀 `RESULTS_E29_negative.md` 再讀這份 |
 | `docs/specs/2026-07-28-lowrank-residual-defense.md` | 設計規格 v1 | 現行的**設計依據**，但其後的推翻不回頭改寫本文，須與上兩份對讀 |
@@ -181,8 +188,13 @@ python scripts/make_target_gray.py        # 產生 targeted 模式的灰色目�
 python scripts/e31_make_edits.py --limit 6  # 本機產生未防禦編輯（GPU 約 22 分）
 python scripts/e31_local_probe.py         # 本機能否跑無梯度 512² SDEdit
 python scripts/e31_train_probe.py         # 本機含梯度訓練的解析度上限
-python scripts/e31_report.py --degrade_tau <值>   # E31 網格彙整（網格跑完才有資料）
+python scripts/e31_report.py --degrade_tau <值>   # E31 網格彙整（該網格已作廢）
 bash   scripts/drivers/local_night.sh     # 上列三支 GPU 工作串起來跑，避免互搶顯存
+# --- 對齊基準論文（2026-08-03）---
+python scripts/prepare_dataset.py --src <來源> --dst data/lo_aligned  # 資料集正規化
+python scripts/prepare_dataset.py --check     # 只驗證資料集完整性（秒級）
+python scripts/run_lo_baseline.py --out runs/lo_baseline --eval_seeds 20  # L1，需雲端
+python scripts/report_table1.py               # L2，Table 1 對照表（只讀 CSV，秒級）
 ```
 
 `scripts/e17_vae_floor.py` 需要 GPU 與 SD 權重，不能在本機重跑。
@@ -197,19 +209,18 @@ Colab 的完整流程另有 notebook：`notebooks/colab_e29_e30.ipynb`，
 
 ## 5. 待執行的實驗
 
-驅動腳本在 `scripts/drivers/`，說明見該目錄的 README。設計的出處是
-`docs/specs/2026-08-02-e31-positive-control.md`，逐步的作法是
-`docs/plans/2026-08-02-e31.md`。
+設計的出處是 `docs/specs/2026-08-03-lo-aligned-protocol.md` §5，
+現在要做什麼看 `docs/NEXT_SESSION.md`。
 
-### 需雲端 GPU（E31）
-
-順序固定，**R1 的綁定者判定沒有全部是 LPIPS hinge 就不要開 R2**。
-
-| 腳本 | 產生的 run | 成本 | 前置 |
+| 編號 | 內容 | 在哪跑 | 前置 |
 |---|---|---|---|
-| `drivers/colab_setup.sh` | 無（環境準備） | 約 5 分鐘 | 不要用 `remote_setup.sh`，後者會 `pip install torch` 而有換版風險 |
-| `drivers/e31_calibration.sh` | `e31_P_tau0.28_*`（4 格） | 約 20 分鐘 | 須以 `TA_028`／`TC_028` 傳入 p14 定出的門檻 |
-| `drivers/e31_grid.sh` | `e31_{untargeted,targeted,attn}_tau*_s*`（12 格） | 約 1.5–2 小時 | 須以 `LR_028`、`TA_*`、`TC_*` 傳入實際值 |
+| **L0** | 備齊資料集影像（人物與動物六類），過 `prepare_dataset.py --check` | 本機 | **使用者提供影像** |
+| **L1** | 三個攻擊在 κ = 0.06 上跑完，20 種子評測 → `runs/lo_baseline/` | 雲端 | L0 |
+| **L2** | `report_table1.py` 對照 Table 1，判定第一層是否通過 | 本機 | L1 |
+| **L3** | 同一批 x_adv 加測語意軸與劣化軸 | 本機 | L1 |
+| **L4** | 非加性臂在匹配 LPIPS 下與 L1 的加性解比較 | 雲端 | L2 通過 |
+
+**L4 之前不做任何其他實驗**，明確排除的清單見規格 §7。
 
 ### 已中止（保留為證據）
 
@@ -217,6 +228,7 @@ Colab 的完整流程另有 notebook：`notebooks/colab_e29_e30.ipynb`，
 |---|---|
 | `drivers/e29_calibration.sh` | 已執行。判準未通過：site C 六個學習率全部由色度 hinge 綁住（E29 §3） |
 | `drivers/e30_grid.sh` | 未執行。E29 的否定結果使該網格只會得到「兩個都無效」的 36 格版本（E29 §8） |
+| `drivers/e31_calibration.sh`、`drivers/e31_grid.sh` | 未執行。2026-08-03 由 L1 取代——基準論文 Table 1 提供了現成的座標，不需要盲搜運作點 |
 
 ### 本機可跑（零雲端成本）
 

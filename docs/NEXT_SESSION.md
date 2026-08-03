@@ -1,124 +1,130 @@
-# 下一階段：E31 正對照搜尋
+# 下一階段：對齊 Lo et al. (CVPR 2024) 的協定
 
 <!-- STATUS-BLOCK -->
 | | |
 |---|---|
-| **狀態** | 現行。2026-08-03 改寫，取代 2026-08-02 的「方向需要重新決定」版——方向已定 |
-| **設計依據** | `docs/specs/2026-08-02-e31-positive-control.md` |
-| **逐步作法** | `docs/plans/2026-08-02-e31.md` |
-| **前一輪** | `docs/RESULTS_E29_negative.md` |
+| **狀態** | 現行。2026-08-03 改寫，取代同日稍早的「E31 正對照搜尋」版 |
+| **設計依據** | `docs/specs/2026-08-03-lo-aligned-protocol.md` |
+| **基準論文** | Lo, Yeo, Shuai, Cheng, *Distraction is All You Need*, CVPR 2024 |
+| **前一輪** | `docs/RESULTS_E31_local.md`（本機階段，結果仍有效） |
 
 > 三份索引：主張查 [`docs/LEDGER.md`](LEDGER.md)、檔案查 [`docs/INDEX.md`](INDEX.md)、
-> 比對頁查 [`docs/gallery.html`](gallery.html)。本檔只講**現在要做什麼**，
-> 不重複那三份的內容。
+> 比對頁查 [`docs/gallery.html`](gallery.html)。本檔只講**現在要做什麼**。
 
 ---
 
 ## 1. 一句話交代現況
 
-E29 在修好量測與校準之後做了第一次實測，**在試過的每一個運作點上防禦都沒有
-阻止文字編輯達成 prompt**，加性與非加性皆然。E31 因此不再比較兩臂——兩個零
-之間的比較沒有內容——改為在加性基準上尋找**任何一個擋得下編輯的運作點**，
-為本專案從未驗證過的量測裝置建立正對照。
+指導者 Ling Lo 是基準論文的第一作者，其約束（L∞ ≤ 0.06）、判準（Table 1
+五指標）與 baseline（PhotoGuard 兩變體）已定為本專案的必要對齊項。用他的
+判準重算既有全部資料後發現：**在他的預算上，我們的加性實作落後 PhotoGuard**
+（LPIPS 0.3466 對 0.4056、PSNR 24.96 對 18.26）。因此當務之急由「找防禦有沒有
+效」改為「先把加性基準重現對」。
 
 ---
 
-## 2. E31 在做什麼
+## 2. 論證的兩層結構
 
-沿三個文獻指認的軸掃描 site P（加性）單臂，12 格 × 2 圖：
-
-| 軸 | 值 | 為什麼是這一軸 |
+| 層 | 要回答的 | 現況 |
 |---|---|---|
-| 目標函數 | `untargeted` / `targeted`（灰圖）/ `crossattn:suppress` | `untargeted` 最大化的正是已被判定不對應防禦成功的 `edit_shift`（LEDGER 5.1）。後兩者從未在真實 SD 上產生過資料（LEDGER 5.2） |
-| τ_lpips | 0.10 / 0.28 | 現有資料無法分辨「方法無效」與「預算太小」，因為從未在文獻的預算區間量過 |
-| strength | 0.5 / 0.3 | 0.5 的全域編輯下輸出主要由 prompt 重新生成，「語意不符」在原理上幾乎不可達成。規格原本把這列為 E29 為負的最大單一原因，**但本機的強度掃描與該推論相反**，見下方「跑之前先知道」 |
+| **第一層：重現** | 在 L∞ ≤ 0.06、N = 100、Table 1 判準下，我們的加性實作是否達到論文水準？ | **未達到** |
+| **第二層：貢獻** | 非加性在匹配人眼可辨失真下能否勝過該基準？ | 第一層通過後才有意義 |
 
-判準改為 ISR 式的聯集：**語意不符 prompt 或明顯的感知劣化**。E25 之後只取了
-前半（LEDGER 1.5）。
+順序不可顛倒。第一層落後基準時，任何對其判準或設定的質疑都會被讀成
+「沒調好就怪尺」。
 
 ---
 
 ## 3. 進度
 
-### 已完成（全部在本機，零雲端成本）
+### 已完成（2026-08-03，全部在本機，零雲端成本）
 
-| 項 | 產出 | 結果 |
-|---|---|---|
-| ISR 重判既有 run | `runs/p12_isr_rejudge/` | 828 格語意失敗 0 格。`edit_niqe_*` 自 E2 起就在 CSV 裡而從未被讀過 |
-| 預算探針 | `runs/p13_budget_probe/` | **τ=0.28 在原約束集下不可達**，且與防禦方法無關 |
-| 逐預算門檻 | `runs/p14_budget_thresholds/` | 兩道次要門檻改為隨預算而定（規格 §12） |
-| 劣化階梯 | `runs/p11_degrade_ladder/` | 待使用者判讀 `compare.html` 定出門檻 |
-| 本機補產生的編輯來源 | `runs/e31_sources/` | 六張未防禦編輯（既有 run 只有 car_00 一張） |
-| 程式改動 | `src/defense/optimize.py`、`src/metrics/suite.py`、`scripts/run_defense.py` | 三個 `defense_mode` 都可跑；擾動 RMS 與尖峰比例進 CSV；`--tau_acut` 可由命令列指定 |
-
-測試：284 passed / 1 skipped、0 failed（基準 253 + 新增 31）。
+| 項 | 產出 |
+|---|---|
+| 論文本文與補充材料的協定逐項抄錄 | 規格 §2 |
+| Table 1 五指標補齊 | `src/metrics/suite.py` 加入 `vif_p`、`fsim` |
+| 式 (3)(4)(5) 實作 | `src/models/attention.py` 三個新函式 |
+| Algorithm 1 實作 | `src/defense/linf_attack.py` |
+| 三根柱子的損失 | 同上：`semantic`／`pg_encoder`／`pg_diffusion` |
+| 驅動腳本 | `scripts/run_lo_baseline.py`（含 20 種子平均） |
+| 對照報表 | `scripts/report_table1.py` → `docs/RESULTS_TABLE1.md` |
+| 資料集規格與正規化工具 | `data/lo_aligned/prompts.yaml`、`scripts/prepare_dataset.py` |
+| 既有資料在該判準下的重判 | 規格 §6 |
+| 測試 | `tests/test_lo_protocol.py`，27 項 |
 
 ### 待辦
 
-1. **使用者判讀** `runs/p11_degrade_ladder/compare.html`，定出感知劣化的門檻。
-2. **R1**（雲端，約 20 分）。指令可直接複製：
+| 編號 | 內容 | 在哪跑 | 前置 |
+|---|---|---|---|
+| **L0** | 備齊資料集影像（人物與動物六類，建議每類 4 張），過 `--check` | 本機 | **使用者提供影像** |
+| **L1** | 三個攻擊在 κ = 0.06 上跑完，20 種子評測 | 雲端 | L0 |
+| **L2** | 對照 Table 1，判定第一層是否通過 | 本機 | L1 |
+| **L3** | 同一批 x_adv 加測語意軸與劣化軸 | 本機 | L1 |
+| **L4** | 非加性臂在匹配 LPIPS 下與 L1 的加性解比較 | 雲端 | L2 通過 |
 
-   ```bash
-   TA_028=0.1460 TC_028=3.6653 bash scripts/drivers/e31_calibration.sh
-   ```
+指令：
 
-   數值出自 `runs/p14_budget_thresholds/thresholds.csv` 的 budget=0.28 那一列。
-   R2 需要的另一組是 budget=0.10 那一列：`TA_010=0.0598 TC_010=1.2965`。
-3. **Gate**：R1 的綁定者判定必須全部是 LPIPS hinge，否則不開 R2
-   （處置見規格 §8，**不得以放寬約束草率繞過**）。
-4. **R2**（雲端，約 1.5–2 小時）：
+```bash
+# L0（本機）
+python scripts/prepare_dataset.py --src <來源根目錄> --dst data/lo_aligned
+python scripts/prepare_dataset.py --check
 
-   ```bash
-   LR_028=<R1 定出的值> TA_010=0.0598 TC_010=1.2965 \
-     TA_028=0.1460 TC_028=3.6653 bash scripts/drivers/e31_grid.sh
-   ```
+# L1（雲端）
+python scripts/run_lo_baseline.py --data data/lo_aligned \
+    --out runs/lo_baseline --attacks pg_encoder,pg_diffusion,semantic \
+    --eval_seeds 20
 
-5. **判定與報告**（本機）：`scripts/e31_report.py --degrade_tau <第 1 項定出的值>`、
-   `docs/RESULTS_E31.md`。報告須逐項對照規格 §9 事先寫下的四種預期否定結果。
+# L2（本機）
+python scripts/report_table1.py --out docs/RESULTS_TABLE1.md
+```
 
-### 跑之前先知道：strength 這一軸的預期要調整
-
-E31 規格 §5 把 strength 納入網格的理由是「0.5 的全域編輯下語意不符幾乎不可
-達成，這很可能是 E29 為負的最大單一原因」。**本機的強度掃描與該推論相反**
-（`docs/RESULTS_E31_local.md` §5.2）：site P 的 Δsiglip 在四個 strength 上
-都是正的，且在文獻慣用的 0.3 上最大（+0.0524，是 0.5 下 +0.0049 的十倍）。
-
-那是遷移設定（防禦在 0.5 下訓練）、單一影像，不是結論。但網格的 strength=0.3
-那幾格若也是負的，就足以**排除**「E29 為負主要是 strength 造成的」這個解釋，
-而不是留著當未檢驗的替代說法。這一軸仍然要跑，只是預期不同。
-
-### 一個尚未決定的事項
-
-acut 軸的分離度隨預算收窄：0.05 時擋下側是通過側的 5.12 倍，0.28 時只剩
-**1.39 倍**（`runs/p14_budget_thresholds/separation.csv`）。機制是加性雜訊的
-acut 隨振幅陡升（0.05→0.28 之間漲 14 倍）而幾何變形飽和（只漲 1.28 倍），
-於是高預算下雜訊本身在局部梯度能量上就和模糊型失真一樣「異常」。
-
-處置的兩個選項與取捨寫在規格 §12.4，**須與使用者討論後再改**。在那之前
-driver 用的是現行歸屬的值（較保守的一組），gate 仍然過得了（site P 的解在
-τ=0.28 是 acut 0.1302 < 0.1460、chroma 2.8275 < 3.6653）。
+**L4 之前不做任何其他實驗。** 明確排除的清單見規格 §7。
 
 ---
 
-## 4. 本機與雲端的分工
+## 4. 第一層若沒通過，往哪裡查
 
-**線上 GPU 時間只用於必須用它的部分。** 本機是 i5-12500H + RTX 2050 4 GB
-（sm 86、torch 2.13.0+cu126），SD v1.4／SigLIP／tiny-SD 權重都在本機 HF 快取。
+落差來源依可能性排序，前兩項會被 L1 直接消除：
+
+1. **單種子 vs 20 種子。** 既有 run 全部 n = 1 或 n = 6 但單種子。
+2. **優化器。** 我們是 Adam + 平台停止，論文是 PGD sign × 固定 100 步。
+3. **`n_edit = 10`** 對論文未公布的 SDEdit 步數。
+4. **真實照片 vs 擴散生成影像。**
+5. **strength 與 guidance。** 論文與補充材料都沒寫。本專案依 E26 一律用
+   guidance_scale = 7.5。
+
+---
+
+## 5. 兩套約束不可混用
+
+| | L∞ 球（κ = 0.06） | LPIPS 綁定 + 鈍化 + 色度 |
+|---|---|---|
+| 角色 | **必要的對照條件** | **我們的貢獻條件** |
+| 適用 | 加性方法之間的比較 | 含非加性方法的比較 |
+| 為什麼不能只用前者 | `e15_S_tau0.05`（空間變形）的 L∞ 是 0.5654，即 κ 的 9.4 倍，而實際位移不到一個像素——L∞ 量不出非加性方法的可辨失真 | — |
+
+`report_table1.py` 強制併列 `L∞` 與 `×κ` 兩欄，就是要讓「哪幾列可以互相
+比較」在表面上看得出來。
+
+---
+
+## 6. 本機與雲端的分工
+
+**線上 GPU 時間只用於必須用它的部分。** 本機是 i5-12500H + RTX 2050 4 GB。
 
 | 工作 | 在哪跑 | 實測成本 |
 |---|---|---|
-| 含梯度的 512² 訓練 | **只能雲端** | H100 每步 2.36 s、峰值 10.3 GB（TF32 開） |
-| 無梯度的 512² SDEdit | 本機可 | 峰值 4873 MB（靠 Windows 共享記憶體外溢）、單次 222.5 s |
+| 含梯度的 512² 訓練（含 PGD） | **只能雲端** | 本機 256² 已是 178 s/step，比 H100 的 512² 慢 75 倍 |
+| 無梯度的 512² SDEdit（即 L1 的評測段） | 本機可 | 峰值 4873 MB、單次 222.5 s |
 | 指標、判定、報表、比對頁 | 本機 | 秒級到數分鐘 |
-| 多臂等 LPIPS 探針 | 本機 GPU | CPU 上約一小時，GPU 上數分鐘 |
 
-`scripts/drivers/local_night.sh` 把本機的 GPU 工作串起來跑。**不要並行**：
-兩個 GPU 工作必然互搶 4 GB；CPU 工作與 GPU 工作並行時，CPU 那側的 LPIPS 會把
-GPU 工作的 Python 執行緒餓住（實測單張耗時由 222 s 拉長到 30 分鐘以上）。
+**不要並行跑兩個 GPU 工作，也不要讓 CPU 密集工作與 GPU 工作並行**（實測單張
+SDEdit 由 222 s 被拉長到 30 分鐘以上）。`scripts/drivers/local_night.sh` 因此
+把本機工作串起來跑。
 
 ---
 
-## 5. 雲端環境
+## 7. 雲端環境
 
 - Lightning AI Studio，H100 80GB，torch 2.8.0+cu128，conda env `cloudspace`，
   repo 在 `/teamspace/studios/this_studio/WACV`。
@@ -126,22 +132,19 @@ GPU 工作的 Python 執行緒餓住（實測單張耗時由 222 s 拉長到 30 
   `/home/zeus/miniconda3/envs/cloudspace/bin/python3`。
 - 環境準備用 `scripts/drivers/colab_setup.sh`，**不是** `remote_setup.sh`
   （後者會 `pip install torch` 而有換版風險）。
-- 該環境的三個坑已在 E29 修掉並寫進 `colab_setup.sh`：numpy 2 與預裝
-  pandas／matplotlib／scikit-learn 的 ABI 衝突、`pyiqa` 要 `--no-deps`、
-  缺 `sentencepiece` 會讓 SigLIP 起不來（而 SigLIP 是判準）。
-- 換機器先跑 `scripts/colab_probe.py`。TF32 開／關的成本差三倍，且會改變
-  數值（LEDGER 6.5）。
-- 遠端 `git pull` 常因 `runs/` 未追蹤檔衝突而 abort。先把它們 `mv` 到備份
-  目錄再 pull。
+- 三個已修掉的坑：numpy 2 與預裝 pandas／matplotlib／scikit-learn 的 ABI
+  衝突、`pyiqa` 要 `--no-deps`、缺 `sentencepiece` 會讓 SigLIP 起不來。
+- 換機器先跑 `scripts/colab_probe.py`。TF32 開／關的成本差三倍且會改變數值。
+- 遠端 `git pull` 常因 `runs/` 未追蹤檔衝突而 abort，先 `mv` 到備份目錄。
 - 連線資訊與 token 由使用者提供，**不得寫入任何入庫檔案**。
 
 本機環境於 2026-08-03 補裝：`clip-anytorch`、`ftfy`、`wcwidth`、`facexlib`
-（`pyiqa` 的 `clipiqa` 與 `topiq_nr` 需要），並把 `setuptools` 由 83 降到 80
-以取回 `pkg_resources.packaging`。
+（`pyiqa` 的 `clipiqa` 與 `topiq_nr` 需要），`setuptools` 由 83 降到 80。
+`piq` 0.8.0 已內含 `vif_p` 與 `fsim`，不需新增相依。
 
 ---
 
-## 6. 分支
+## 8. 分支
 
 `claude/e20-fidelity-constraint`，**未併入 main**。
 未經明確授權不得併入（`CLAUDE.md`）。

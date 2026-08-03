@@ -30,3 +30,8 @@ runs/**
 __pycache__/
 .pytest_cache/
 .ipynb_checkpoints/
+
+# 資料集的候選池。29 MB，且完全可由 scripts/fetch_cc0_images.py 重新取得
+# （固定 seed 的打散 + 固定查詢詞）。實際採用的影像在 data/_selected/
+# 與 data/lo_aligned/，兩者都入版控並帶出處紀錄。
+data/_raw/

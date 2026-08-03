@@ -83,23 +83,45 @@ def load_dataset(root: Path, size: int, device, limit=None):
     return out[:limit] if limit else out
 
 
-def evaluate(sd, suite, x01, x_adv, prompt, cfg, n_seeds, out_dir, name):
-    """逐種子比較「未防禦的編輯」與「免疫後的編輯」，回傳每個種子一列。
+@torch.no_grad()
+def reference_edits(sd, x01, prompt, cfg, n_seeds):
+    """未防禦的編輯，逐種子各一張。回傳 [(seed, noise, y_ref)]。
 
-    兩條分支必須共用同一個 ε（spec §5.1），否則量到的差異主要來自噪聲不同。
+    對同一張影像與同一個 prompt，`y_ref` 與攻擊方法無關。三個攻擊各自重算
+    一次是把雲端時間白燒三分之一——每張影像 20 個種子的編輯鏈是本協定
+    評測側的主要成本。故在攻擊迴圈之外算一次、三個攻擊共用。
+
+    順帶保證了三個攻擊比的是**同一個**參照。分開算雖然種子相同、結果也應
+    相同，但那是靠實作巧合而非結構保證。
     """
     emb = sd.encode_text(prompt).detach()
     emb_un = sd.encode_text("").detach()
     lat = sd.latent_shape(x01.shape[-2], x01.shape[-1])
+    out = []
+    for i in range(n_seeds):
+        seed = cfg.seed + EVAL_SEED_OFFSET + i
+        nz = sd.sample_edit_noise(torch.empty(lat, device=x01.device), seed=seed)
+        y = sd.sdedit(x01, emb, nz, cfg.n_edit, strength=cfg.strength,
+                      guidance_scale=cfg.guidance_scale, emb_uncond=emb_un)
+        out.append((seed, nz, y))
+    return out
+
+
+def evaluate(sd, suite, refs, x_adv, prompt, cfg, out_dir, name):
+    """逐種子比較「未防禦的編輯」與「免疫後的編輯」，回傳每個種子一列。
+
+    兩條分支必須共用同一個 ε（spec §5.1），否則量到的差異主要來自噪聲不同。
+    此處由 `refs` 帶入該 ε，故共用是結構上的而非約定上的。
+    """
+    emb = sd.encode_text(prompt).detach()
+    emb_un = sd.encode_text("").detach()
     rows = []
     with torch.no_grad():
-        for i in range(n_seeds):
-            seed = cfg.seed + EVAL_SEED_OFFSET + i
-            nz = sd.sample_edit_noise(torch.empty(lat, device=x01.device), seed=seed)
-            kw = dict(strength=cfg.strength, guidance_scale=cfg.guidance_scale,
-                      emb_uncond=emb_un)
-            y_ref = sd.sdedit(x01, emb, nz, cfg.n_edit, **kw)
-            y_def = sd.sdedit(x_adv, emb, nz, cfg.n_edit, **kw)
+        for i, (seed, nz, y_ref) in enumerate(refs):
+            y_def = sd.sdedit(x_adv, emb, nz, cfg.n_edit,
+                              strength=cfg.strength,
+                              guidance_scale=cfg.guidance_scale,
+                              emb_uncond=emb_un)
             m = suite.full(y_ref, y_def, prompt=prompt)
             rows.append({"eval_seed": seed, **{f"edit_{k}": v for k, v in m.items()}})
             if i == 0:
@@ -158,6 +180,17 @@ def main():
     rows, summary = [], []
     for name, x01, prompts, content in data:
         prompt = prompts[args.prompt_index]
+        # 未防禦的編輯只算一次，三個攻擊共用。見 reference_edits 的 docstring。
+        t_ref = time.perf_counter()
+        refs = reference_edits(
+            sd, x01,
+            prompt,
+            LinfAttackConfig(strength=args.strength, guidance_scale=args.guidance,
+                             n_edit=args.n_edit, seed=args.seed),
+            args.eval_seeds,
+        )
+        print(f"\n=== {name}：{len(refs)} 個種子的未防禦編輯，"
+              f"{time.perf_counter()-t_ref:.0f}s ===", flush=True)
         for atk in attacks:
             cfg = LinfAttackConfig(
                 kappa=args.kappa, steps=args.steps, step_size=args.step_size,
@@ -177,8 +210,8 @@ def main():
 
             # 擾動本身的失真：這是「他的約束」與「我們的約束」之間的橋。
             pert = suite.pairwise(x01, res.x_adv)
-            ev = evaluate(sd, suite, x01, res.x_adv, prompt, cfg,
-                          args.eval_seeds, out, f"{name}__{atk}")
+            ev = evaluate(sd, suite, refs, res.x_adv, prompt, cfg,
+                          out, f"{name}__{atk}")
             for r in ev:
                 rows.append({
                     "image": name, "attack": atk, "content": content,

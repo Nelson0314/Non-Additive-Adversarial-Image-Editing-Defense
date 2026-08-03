@@ -173,6 +173,33 @@ for n = 1..N:
 定義在 `data/lo_aligned/prompts.yaml`。`content` 為必填，`load_dataset`
 不接受預設值——c_a 猜錯會讓 semantic attack 攻擊到別的東西而毫無症狀。
 
+### 4.0 影像的來源分兩路，理由不同
+
+| 類別 | 來源 | 工具 |
+|---|---|---|
+| dog／cat／horse／bird | Wikimedia Commons 的 **CC0 實拍照片** | `scripts/fetch_cc0_images.py` |
+| man／woman | **SD v1.4 生成** | `scripts/generate_person_images.py` |
+
+人物類生成而非取用真實照片，是照基準論文自己的處置。其第 1 頁註腳：
+
+> For ethical considerations, the human face image is synthesized by the
+> diffusion model.
+
+三個理由：(a) CC0 只放棄著作權，不處理肖像權，而本專案的主題正是對人臉
+影像施加擾動再讓模型編輯它；(b) 與基準論文一致，資料取得方式屬於協定的
+一部分；(c) prompt 與 seed 全部寫進 `generation.json`，任何人都能重新生成
+同一批影像，不需下載任何檔案。
+
+動物類不涉及肖像權，用實拍可保留自然影像的統計性質。取用時只收 CC0 與
+公有領域（放棄全部著作權），不收 CC BY／BY-SA——後者要求姓名標示，在論文
+附圖與衍生資料集上會產生持續的義務。
+
+**候選池要人眼挑選，不可直接採用搜尋結果。** 實測 Commons 的 `CC-Zero`
+分類裡混著大量大都會博物館的文物照（胸針、頭骨標本）、Naturalis 的鳥類
+標本照、英國酒吧招牌（The White Horse）與 QR code。腳本已加否定詞、依標題
+去重、並打散排序，但仍須看圖確認。本輪的挑選記錄在
+`data/_selected/*/attribution.json`。
+
 影像正規化由 `scripts/prepare_dataset.py` 處理：置中裁切成正方形後以 LANCZOS
 縮放到 512²、存 PNG（不可用 JPEG，理由見該檔）、寫出 `provenance.json`
 記錄每張的來源與 SHA-256。`--check` 可在跑實驗前驗證完整性。

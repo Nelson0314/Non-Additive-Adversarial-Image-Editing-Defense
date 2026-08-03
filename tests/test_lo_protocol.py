@@ -225,6 +225,26 @@ def test_多項損失取平均梯度():
     assert torch.allclose(r_two.x_adv, r_one.x_adv)
 
 
+def test_多項損失各自擁有計算圖():
+    # 迴歸測試。`pgd_linf` 對每一項各呼叫一次 retain_graph=False 的 grad，
+    # 若各項共用上游子圖，第一項反傳就會把它釋放，第二項拋出
+    # 「Trying to backward through the graph a second time」。
+    # semantic attack 原本把 VAE 編碼提到 timestep 迴圈外，正是這個形狀，
+    # 本機實測在真實 SD 上炸掉（2026-08-03）。
+    x = torch.full((1, 1, 4, 4), 0.5)
+
+    def shared_prefix_terms(v):
+        for k in (1.0, 2.0):
+            # 前置計算在迴圈內重算 —— 這是本模組要求的正確寫法
+            pre = v * 3.0
+            yield (pre * k).sum()
+
+    cfg = LinfAttackConfig(kappa=0.05, steps=2, step_size=0.01, log_every=1000)
+    r = pgd_linf(x, shared_prefix_terms, cfg)
+    assert len(r.history) == 2
+    assert r.history[0]["grad_norm"] > 0
+
+
 def test_沒有任何損失項必須報錯():
     def empty(x):
         return iter(())

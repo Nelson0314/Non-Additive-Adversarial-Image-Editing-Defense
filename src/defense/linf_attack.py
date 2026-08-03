@@ -112,6 +112,11 @@ class LinfAttackResult:
 
 # 損失介面：吃 x_adv，逐項產生要「最小化」的純量。
 # 逐項而非單一純量的理由見模組 docstring 最後一節。
+#
+# **每一項必須自己擁有完整的計算圖。** `pgd_linf` 對每一項各呼叫一次
+# `autograd.grad(..., retain_graph=False)`，共用的上游子圖會在第一項反傳後
+# 被釋放，第二項即拋出「Trying to backward through the graph a second time」。
+# 若有共用的前置計算（例如 VAE 編碼），要放進逐項的迴圈內重算，不是提到外面。
 LossTerms = Callable[[torch.Tensor], Iterator[torch.Tensor]]
 
 
@@ -283,8 +288,19 @@ def make_semantic_attack_loss(
     )
 
     def terms(x_adv: torch.Tensor) -> Iterator[torch.Tensor]:
-        z = sd.encode_image(x_adv, use_ckpt=cfg.vae_ckpt)
         for t, n in zip(t_list, noises):
+            # VAE 編碼在迴圈**內**，每個 timestep 各自建一次圖。
+            #
+            # 放在迴圈外只算一次會壞：`pgd_linf` 對每一項各呼叫一次
+            # `autograd.grad(..., retain_graph=False)`，第一次就把共用的編碼器
+            # 子圖釋放掉，第二項拋出「Trying to backward through the graph a
+            # second time」。本機實測確認（2026-08-03）。
+            #
+            # 代價是每個 PGD 步多 T−1 次 VAE 編碼。不改用 retain_graph 的理由
+            # 是那會讓 T 份圖同時存活，而逐項反傳的整個用意就是不要如此——
+            # 論文的賣點是記憶體效率（其 Figure 6）。這也與論文把去雜訊步
+            # 視為「independent denoising steps」的框架一致。
+            z = sd.encode_image(x_adv, use_ckpt=cfg.vae_ckpt)
             zt = abar[t].sqrt() * z + (1 - abar[t]).sqrt() * n
             with rec:
                 # 此處不開 UNet checkpoint：hook 在原前向時掛著、重算時已卸除，

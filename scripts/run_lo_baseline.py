@@ -72,19 +72,37 @@ def load_dataset(root: Path, size: int, device, limit=None):
     import torchvision.transforms as T
 
     spec = yaml.safe_load((root / "prompts.yaml").read_text(encoding="utf-8"))
+
+    # 只走 prompts.yaml 宣告過的類別目錄，不用 rglob 掃整棵樹。
+    #
+    # rglob 會把根目錄下的任何 PNG 也算進來——實測 `overview.png`（資料集
+    # 的總覽圖）就這樣被當成一張待攻擊的影像。防呆有擋下來，但正確的作法是
+    # 「收錄的內容恰好等於宣告的內容」，而不是掃到什麼算什麼。
     out = []
-    for p in sorted(root.rglob("*.png")):
-        cls = p.parent.name
-        if cls not in spec:
-            raise KeyError(
-                f"{p} 所屬的類別 {cls!r} 不在 {root/'prompts.yaml'} 裡。"
-                "每一類都必須明確宣告 prompts 與 content，不接受預設值——"
-                "c_a 猜錯會讓 semantic attack 攻擊到別的東西而毫無症狀"
+    for cls, entry in spec.items():
+        d = root / cls
+        if not d.is_dir():
+            raise FileNotFoundError(
+                f"{root/'prompts.yaml'} 宣告了類別 {cls!r}，但 {d} 不存在"
             )
-        entry = spec[cls]
-        img = Image.open(p).convert("RGB").resize((size, size), Image.LANCZOS)
-        x = T.ToTensor()(img).unsqueeze(0).to(device)
-        out.append((p.stem, x, list(entry["prompts"]), entry["content"]))
+        for p in sorted(d.glob("*.png")):
+            img = Image.open(p).convert("RGB").resize((size, size), Image.LANCZOS)
+            x = T.ToTensor()(img).unsqueeze(0).to(device)
+            out.append((p.stem, x, list(entry["prompts"]), entry["content"]))
+
+    # 未宣告的子目錄若放了 PNG，會被靜默忽略——那與「忘了宣告」無法區分，
+    # 故明確拒絕。根目錄下的 PNG 不算（總覽圖之類的說明用檔案）。
+    stray = [
+        p for p in root.iterdir()
+        if p.is_dir() and p.name not in spec and any(p.glob("*.png"))
+    ]
+    if stray:
+        raise KeyError(
+            f"這些目錄有 PNG 但沒有在 {root/'prompts.yaml'} 裡宣告："
+            f"{[p.name for p in stray]}。每一類都必須明確宣告 prompts 與"
+            " content，不接受預設值——c_a 猜錯會讓 semantic attack 攻擊到"
+            "別的東西而毫無症狀"
+        )
     return out[:limit] if limit else out
 
 

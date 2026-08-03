@@ -6,9 +6,23 @@
 prompt 的每個 token 綁定到影像的特定區域：query 來自影像 latent 的空間
 位置，key/value 來自文字嵌入，softmax 後的分佈 A[q, τ] 決定「第 q 個位置
 要聽第 τ 個 token 的」。既有的目標函數把編輯結果推離原編輯，是在輸出
-端量測；此處改為在該綁定本身上施力（Xu et al., "Immunizing Images from
-Text to Image Editing via Adversarial Cross-Attention", arXiv 2509.10359，
-ACM MM 2025 採取相同的著力點）。
+端量測；此處改為在該綁定本身上施力。
+
+這正是 **Lo et al., "Distraction is All You Need: Memory-Efficient Image
+Immunization against Diffusion-Based Image Editing", CVPR 2024** 的著力點，
+本專案以該論文為對齊基準（Xu et al., arXiv 2509.10359, ACM MM 2025 為
+同一路線的後續）。2026-08-03 依該論文補入三個函式，實作其式 (3)(4)(5)：
+
+| 函式 | 對應 | 與本模組既有函式的差別 |
+|---|---|---|
+| `aggregate_token_attention` | 式 (3) | 保留空間維度，不壓成純量 |
+| `attention_region_mask` | 式 (4) | 本模組原本沒有空間遮罩的概念 |
+| `masked_attention_l1` | 式 (5) | 取 L1 而非注意力質量的補數 |
+
+既有的 `attention_content_suppression` 與之最接近，但有兩處實質不同：
+它對**全部** query 位置取平均（Lo 只取遮罩區內），且量的是「1 − 內容
+token 的質量」（Lo 直接取聚合反應的 L1）。兩者都保留——前者是本專案的
+變體，後者是文獻基準，網格中並列。
 
 擷取方式：forward pre-hook，不換 attention processor
 
@@ -203,6 +217,127 @@ def attention_content_suppression(
         mass = a[..., span[0]:span[1]].sum(dim=-1)
         terms.append((1.0 - mass).mean())
     return torch.stack(terms).mean()
+
+
+def aggregate_token_attention(
+    maps: List[torch.Tensor], span: tuple, side: Optional[int] = None
+) -> torch.Tensor:
+    """Lo et al. (CVPR 2024) 式 (3) 的注意力聚合：跨層上採樣後逐像素相加。
+
+        Att(x, c_a) = Σ_{l=1..L} upsample( A_l(x, c_a) )
+
+    與本模組其他函式的差別是**輸出的形狀**。`attention_content_suppression`
+    等函式把每層各自壓成一個純量再平均，得到的是「綁定強度」這個全域量；
+    此處保留空間維度，得到一張 (B, side, side) 的圖，因為 Lo 的方法需要在
+    這張圖上取遮罩（式 4）並只在遮罩內施力（式 5）。壓成純量就沒有遮罩可言。
+
+    實際運算，逐層做：
+
+    1. 取內容 token 的切片 `A_l[..., span[0]:span[1]]`，在 token 維度求和，
+       得到 (B, Q_l)——即「該位置分給這個詞的注意力總質量」。
+    2. 把 Q_l 還原成 (h_l, w_l)。UNet 各層的解析度不同（512² 影像對應
+       64²／32²／16²／8²），此處要求 Q_l 為完全平方數，否則拋出。**不作
+       任何長寬比推測**：猜錯會讓注意力圖被轉置而遮罩落在錯的區域，且不會
+       有任何症狀顯示出來。非方形影像須由呼叫端另行提供形狀。
+    3. 以雙三次插值上採樣到 `side`。論文明確指定 bicubic，理由是 UNet 的
+       全卷積性質讓中間座標局部對應到初始尺寸特徵圖的鄰域。
+    4. 全部層相加（不是平均）。論文式 (3) 是 Σ，故值域是 [0, L] 而非 [0, 1]。
+
+    `side` 為 None 時取各層中最大的邊長，即最高解析度那一層的尺寸。
+    """
+    if span is None or span[1] <= span[0]:
+        raise ValueError(
+            f"aggregate_token_attention 需要非空的內容 token 區間，收到 {span}。"
+            "Lo 的方法是對「要保護的那個詞」施力，沒有該詞就沒有攻擊目標"
+        )
+    if not maps:
+        raise ValueError("注意力圖清單為空；CrossAttentionRecorder 未記錄到任何層")
+
+    import math
+
+    planes = []
+    for a in maps:
+        b, qn, _ = a.shape
+        h = int(math.isqrt(qn))
+        if h * h != qn:
+            raise ValueError(
+                f"注意力圖的 query 數 {qn} 不是完全平方數，無法還原成方形空間"
+                "格點。本函式只支援方形影像；非方形須由呼叫端提供 (h, w)"
+            )
+        mass = a[..., span[0]:span[1]].sum(dim=-1)     # (B, Q_l)
+        planes.append(mass.reshape(b, 1, h, h))
+
+    tgt = side or max(p.shape[-1] for p in planes)
+    up = [
+        torch.nn.functional.interpolate(
+            p, size=(tgt, tgt), mode="bicubic", align_corners=False
+        )
+        for p in planes
+    ]
+    return torch.stack(up).sum(dim=0).squeeze(1)       # (B, side, side)
+
+
+def attention_region_mask(att_ref: torch.Tensor, tau: float = 0.5) -> torch.Tensor:
+    """Lo et al. 式 (4) 的二值遮罩：M = I(Att(x, c_a) > τ)。
+
+    遮罩由**原圖**的注意力圖決定，故對防禦參數為常數；此處回傳的張量已
+    脫離計算圖。它標出「模型認為這個詞在影像的哪一塊」，攻擊只在該區內
+    壓低注意力。
+
+    論文沒有給出 τ 的數值。本實作把 `att_ref` 先除以自身的最大值再比較，
+    即 τ 作用在正規化後的 [0, 1] 尺度上。**這是一個有記錄的偏離**，理由是
+    式 (3) 的 Att 是 L 層相加，值域上界隨 UNet 的層數而變（SD v1.4 的
+    attn2 有 16 層），絕對門檻會隨模型換代而失去意義，也無法跨影像比較。
+    正規化後 τ = 0.5 的意思是「注意力達到該影像峰值一半以上的區域」。
+
+    以峰值正規化帶來一個結構性保證：峰值那一格的正規化值恆為 1，而 τ < 1，
+    故**遮罩永遠至少含有峰值，不可能為空**。下方的空遮罩檢查因此在目前的
+    正規化下不可達；保留它是為了在有人改掉正規化方式時，讓「L1 恆為 0、
+    梯度恆為零、最佳化靜默地什麼都不做」這個失效有一個具名的攔截點，而不是
+    跑完才發現什麼都沒動。此性質由 `tests/test_lo_protocol.py` 釘住。
+    """
+    if not 0.0 < tau < 1.0:
+        raise ValueError(f"tau 須落在開區間 (0, 1)，收到 {tau}")
+    ref = att_ref.detach()
+    peak = ref.amax(dim=(-2, -1), keepdim=True)
+    if float(peak.min()) <= 0:
+        raise ValueError(
+            "參照注意力圖的最大值為 0，表示該內容 token 沒有分到任何注意力質量；"
+            "無法據以取遮罩"
+        )
+    mask = (ref / peak > tau).to(ref.dtype)
+    if float(mask.sum()) == 0:
+        raise ValueError(
+            f"τ = {tau} 產生了空遮罩。後續的 masked L1 會恆為 0 而梯度恆為零，"
+            "最佳化將靜默地不做任何事"
+        )
+    return mask
+
+
+def masked_attention_l1(
+    att: torch.Tensor, mask: torch.Tensor
+) -> torch.Tensor:
+    """Lo et al. 式 (5) 的注意力抑制損失：L = ‖Att(M ⊙ x_adv, c_a)‖₁。
+
+    最小化它，即把遮罩區內該詞的注意力反應壓下去——論文稱為把模型的注意力
+    「分散」（distract），使它找不到該編輯哪一塊。
+
+    式 (5) 的寫法 `Att(M ⊙ x_adv, c_a)` 字面上是「先遮罩影像再算注意力」，
+    但式 (4) 把 M 定義在注意力圖的空間格點上，且補充材料 Figure B 展示的是
+    「注意力衰減」。本實作採後者：**先算注意力圖，再以 M 取該區域**。
+    兩種讀法在梯度上不同（前者會讓遮罩外的像素完全收不到梯度），此處採用
+    的版本讓整張影像都可以被更新，只是損失只計遮罩內的反應。此偏離已記錄。
+
+    取和而非取平均，與「component-wise ℓ1-norm」一致。尺度隨遮罩大小而變，
+    但 Algorithm 1 的更新是 `sign(grad)`，對損失的整體縮放不敏感，故此處的
+    尺度選擇不影響最佳化軌跡。
+    """
+    if att.shape[-2:] != mask.shape[-2:]:
+        raise ValueError(
+            f"注意力圖 {tuple(att.shape)} 與遮罩 {tuple(mask.shape)} 的空間"
+            "尺寸不符；遮罩必須在與 att 相同的格點上取"
+        )
+    return (att * mask).abs().sum()
 
 
 def attention_entropy(

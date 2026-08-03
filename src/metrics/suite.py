@@ -5,17 +5,24 @@
 LPIPS 與 pg_enc 幾乎相同，PSNR 卻相差 12.7 dB、L∞ 相差 28 倍。單一 LPIPS
 會低估非加性方法造成的失真，據以下結論會有系統性偏差。
 
-| 指標 | 類型 | 方向 | 實作 |
-|---|---|---|---|
-| PSNR   | 像素   | 高者佳 | piq.psnr |
-| L∞     | 像素   | 低者佳 | 直接計算 |
-| SSIM   | 結構   | 高者佳 | piq.ssim |
-| LPIPS  | 感知   | 低者佳 | piq.LPIPS (AlexNet) |
-| DISTS  | 感知   | 低者佳 | piq.DISTS |
-| 銳利度 | 頻域   | 趨近 1 | src.metrics.acutance |
-| NIQE   | 無參考 | 低者佳 | pyiqa |
-| CLIP   | 語意   | 高者佳 | openai/clip-vit-base-patch32 |
-| SigLIP | 語意   | 高者佳 | google/siglip-base-patch16-224 |
+| 指標 | 類型 | 方向 | 實作 | Lo Table 1 |
+|---|---|---|---|---|
+| PSNR   | 像素   | 高者佳 | piq.psnr | ✓ |
+| L∞     | 像素   | 低者佳 | 直接計算 | 約束 κ |
+| SSIM   | 結構   | 高者佳 | piq.ssim | ✓ |
+| VIFp   | 資訊   | 高者佳 | piq.vif_p | ✓ |
+| FSIM   | 特徵   | 高者佳 | piq.fsim | ✓ |
+| LPIPS  | 感知   | 低者佳 | piq.LPIPS (AlexNet) | ✓ |
+| DISTS  | 感知   | 低者佳 | piq.DISTS | |
+| 銳利度 | 頻域   | 趨近 1 | src.metrics.acutance | |
+| NIQE   | 無參考 | 低者佳 | pyiqa | |
+| CLIP   | 語意   | 高者佳 | openai/clip-vit-base-patch32 | |
+| SigLIP | 語意   | 高者佳 | google/siglip-base-patch16-224 | |
+
+最右欄標示該項是否出現在 Lo et al., *Distraction is All You Need*（CVPR 2024）
+Table 1。該表是本專案對齊的主判準：五項全部量「免疫後的編輯輸出」與
+「原始編輯結果」之間的不相似度（PSNR↓ SSIM↓ VIFp↓ FSIM↓ LPIPS↑），
+對應本模組 `full(y_ref, y_def)` 產生的 `edit_*` 欄位。
 
 2026-07-31 新增銳利度保留率（第 9 項）。before：`pairwise` 回傳
 psnr/linf/ssim/lpips/dists 五項。after：加上 `acutance_ratio`。原因是 E18 的
@@ -43,6 +50,11 @@ SIGLIP_REPO = "google/siglip-base-patch16-224"
 HIGHER_IS_BETTER = {
     "psnr": True, "linf": False, "ssim": True, "lpips": False,
     "dists": False, "niqe": False, "clip": True, "siglip": True,
+    # VIFp 與 FSIM（2026-08-03）：兩者皆為相似度，高者代表兩張影像較接近。
+    # 注意本表描述的是「影像品質／相似度」的方向，不是「防禦成功」的方向。
+    # 用於 Lo Table 1 的判準時，`edit_*` 前綴下的 vif_p、fsim 反而是越低
+    # 代表防禦越成功——那個轉換由報表端負責，不在此表混入。
+    "vif_p": True, "fsim": True,
     # 銳利度保留率的最佳值是 1（與原圖相同），不是越高越好也不是越低越好：
     # < 1 為鈍化、> 1 為過銳。故不列於此表，報告端須依「趨近 1」處理。
     #
@@ -104,6 +116,18 @@ class MetricSuite:
         六倍而 LPIPS 只有文獻運作點（0.267–0.362）的三分之一——擾動是稀疏
         尖峰型（5.3% 的像素超過該球、中位數 5/255），只報單一軸會讓
         「本專案的預算比文獻低 5–8 倍」這個敘述在別的軸上不成立。
+
+        2026-08-03 加入 `vif_p` 與 `fsim`。
+
+            before: psnr / linf / ssim / lpips / dists / acutance_ratio
+                    / rms / frac_gt_16_255                        八項
+            after:  上列八項 + vif_p + fsim                        十項
+
+        理由：Lo et al.（CVPR 2024）Table 1 的判準是 PSNR／SSIM／VIFp／
+        FSIM／LPIPS 五項，本專案原本只有其中三項。缺 VIFp 與 FSIM 時，
+        既有全部 run 都無法與該表逐欄對照——而該表是本專案的主判準
+        （見模組 docstring 的表格最右欄）。`piq` 0.8.0 已內含 `vif_p` 與
+        `fsim`，不需新增相依。
         """
         import piq
 
@@ -116,6 +140,8 @@ class MetricSuite:
             "psnr": float(piq.psnr(a, b, data_range=1.0)),
             "linf": float(d.max()),
             "ssim": float(piq.ssim(a, b, data_range=1.0)),
+            "vif_p": float(piq.vif_p(a, b, data_range=1.0)),
+            "fsim": float(piq.fsim(a, b, data_range=1.0)),
             "lpips": float(self._lpips(a, b)),
             "dists": float(self._dists(a, b)),
             "acutance_ratio": acutance(a, b)["acutance_ratio"],

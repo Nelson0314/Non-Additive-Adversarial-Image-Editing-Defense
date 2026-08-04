@@ -15,9 +15,21 @@ quantize，各數個強度），而所有既有報告只讀了無淨化那一格
 即該條件還留下原本效果的幾分之幾。比較的是 S 與 P 的 retention，而不是 net
 的絕對值——後者已由無淨化那一格決定，這裡問的是「誰掉得比較慢」。
 
-為什麼要同時用 Δsiglip 重算一次。E25-1 顯示 `net_lpips` 與語意軸給出
-不同的圖像（726 格中語意失敗 0 格）。若兩個被保留量給出相反的排序，那表示
-「保留率」保留的是視覺偏移而非防禦，結論不能只憑 net 下。兩者一併列出。
+被保留的量取哪一個。**主判定為 Δsiglip**（防禦後的編輯輸出對 prompt 的
+服從度變化，越負代表編輯越不照 prompt 走）。`net_lpips` 兩次被量到與
+「編輯有沒有失敗」不對應——它量的是輸出移動了多少——故不可作為主判定，
+但仍逐格輸出以便與先驗批次對讀。Δniqe（畫面劣化）第三個一併輸出：
+它是代價不是成果，若某一側的保留率靠劣化撐著，這一欄會顯示出來。
+
+三個量的方向不同，保留率的定義因此逐量而異：
+
+    Δsiglip  越負越好 → retention = Δsiglip(該條件) / Δsiglip(無淨化)
+    net_lpips 越大越好 → retention = net(該條件) / net(無淨化)
+    Δniqe    越小越好（是代價）→ 不計保留率，只逐格列出絕對值
+
+分母接近零時比值不可解讀。無淨化那一格的量小於 `MIN_BASE` 時，該配對的
+該量記為 NaN 並在輸出中標示，不進入判定——先驗批次曾因兩側都趨近零而
+出現 −43、−98 這種比值。
 
 判準（事先宣告，不得事後調整）：
 
@@ -61,8 +73,15 @@ PAIRS = [
 # 未見種子的無淨化格子是 blur 強度 0（等同 identity），見 scripts/run_defense.py。
 BASE = ("blur", 0.0)
 
-QUANTITIES = ("net_lpips", "dsiglip")
+# 主判定用的量。改為 Δsiglip：net_lpips 兩次被量到與「編輯有沒有失敗」
+# 不對應（見模組 docstring），故降為並列輸出而非判定依據。
+PRIMARY = "dsiglip"
 MIN_OPS = 3
+
+# 無淨化那一格的量小於此值時，保留率的分母不可靠，該配對的該量記為 NaN。
+# 門檻取 E25 量到的 edit_effect 標準差 0.0237 的四分之一：低於它的效果本來
+# 就在雜訊裡，除以它得到的比值沒有意義。
+MIN_BASE = {"dsiglip": 0.006, "net_lpips": 0.01}
 
 
 def arm_means(run: str):
@@ -82,8 +101,24 @@ def arm_means(run: str):
             "net_lpips": float(np.mean([float(r["net_lpips"]) for r in rs])),
             "dsiglip": float(np.mean([float(r["edit_siglip_b"]) - float(r["edit_siglip_a"])
                                       for r in rs])),
+            # Δniqe 是代價不是成果，故不計保留率，只逐格列出。缺欄時拋出而
+            # 不填 0：先驗批次曾有整整一族欄位從未被讀過而無人察覺。
+            "dniqe": float(np.mean([float(r["edit_niqe_b"]) - float(r["edit_niqe_a"])
+                                    for r in rs])),
         }
     return out
+
+
+def retention(cur: float, base: float, quantity: str) -> float:
+    """保留率。分母太小則回傳 NaN——比值在該處由量測雜訊主導。
+
+    `dsiglip` 越負越好、`net_lpips` 越大越好，但兩者的保留率都是「現值 ÷
+    無淨化值」，故方向由分子分母自帶，此處不必再分支。要分支的只有
+    「分母夠不夠大」，而那個門檻逐量而異。
+    """
+    if abs(base) < MIN_BASE[quantity]:
+        return float("nan")
+    return cur / base
 
 
 def main() -> None:
@@ -96,34 +131,46 @@ def main() -> None:
             raise KeyError(f"{label}：找不到無淨化基準格 {BASE}，保留率無從定義")
         base_s, base_p = S[BASE], P[BASE]
 
+        usable = (abs(base_s[PRIMARY]) >= MIN_BASE[PRIMARY]
+                  and abs(base_p[PRIMARY]) >= MIN_BASE[PRIMARY])
+
         print(f"\n=== {label} ===")
         print(f"  S={run_s}  P={run_p}   n={base_s['n']}/{base_p['n']}")
-        print(f"  無淨化 net：S {base_s['net_lpips']:.4f}   P {base_p['net_lpips']:.4f}"
-              f"   S/P {base_s['net_lpips'] / base_p['net_lpips']:.2f}×")
-        print(f"{'算子':>9s}{'強度':>7s}{'S net':>9s}{'P net':>9s}"
-              f"{'S 保留':>9s}{'P 保留':>9s}{'S/P':>7s}{'Δsiglip S':>11s}{'Δsiglip P':>11s}")
+        print(f"  無淨化 Δsiglip：S {base_s['dsiglip']:+.4f}   P {base_p['dsiglip']:+.4f}"
+              f"{'' if usable else '   ← 分母低於門檻，本配對不計入判定'}")
+        print(f"  無淨化 net_lpips：S {base_s['net_lpips']:.4f}   P {base_p['net_lpips']:.4f}"
+              f"（並列參考，非判定依據）")
+        print(f"{'算子':>9s}{'強度':>7s}{'S Δsig':>10s}{'P Δsig':>10s}"
+              f"{'S 保留':>9s}{'P 保留':>9s}{'S net 保留':>11s}{'P net 保留':>11s}"
+              f"{'S Δniqe':>10s}{'P Δniqe':>10s}")
 
         ops_favouring_s, per_op = set(), defaultdict(list)
         for key in sorted(set(S) & set(P), key=lambda k: (k[0], k[1])):
             if key == BASE:
                 continue
             s, p = S[key], P[key]
-            rs = base_s["net_lpips"] and s["net_lpips"] / base_s["net_lpips"]
-            rp = base_p["net_lpips"] and p["net_lpips"] / base_p["net_lpips"]
-            if rs > rp:
+            rs = retention(s[PRIMARY], base_s[PRIMARY], PRIMARY)
+            rp = retention(p[PRIMARY], base_p[PRIMARY], PRIMARY)
+            rs_net = retention(s["net_lpips"], base_s["net_lpips"], "net_lpips")
+            rp_net = retention(p["net_lpips"], base_p["net_lpips"], "net_lpips")
+            # NaN 的比較恆為 False，不可靠的格子因此自動不計入，不需另設分支
+            favour = usable and rs > rp
+            if favour:
                 ops_favouring_s.add(key[0])
-            per_op[key[0]].append(rs > rp)
-            print(f"{key[0]:>9s}{key[1]:>7g}{s['net_lpips']:>9.4f}{p['net_lpips']:>9.4f}"
+            if usable and not (np.isnan(rs) or np.isnan(rp)):
+                per_op[key[0]].append(favour)
+            print(f"{key[0]:>9s}{key[1]:>7g}{s[PRIMARY]:>+10.4f}{p[PRIMARY]:>+10.4f}"
                   f"{100 * rs:>8.1f}%{100 * rp:>8.1f}%"
-                  f"{s['net_lpips'] / p['net_lpips'] if p['net_lpips'] else float('nan'):>7.2f}"
-                  f"{s['dsiglip']:>+11.4f}{p['dsiglip']:>+11.4f}")
+                  f"{100 * rs_net:>10.1f}%{100 * rp_net:>10.1f}%"
+                  f"{s['dniqe']:>+10.3f}{p['dniqe']:>+10.3f}")
             rows.append({
                 "pair": label, "run_s": run_s, "run_p": run_p,
-                "purify": key[0], "strength": key[1],
-                "s_net": s["net_lpips"], "p_net": p["net_lpips"],
-                "s_retention": rs, "p_retention": rp,
-                "s_over_p": s["net_lpips"] / p["net_lpips"] if p["net_lpips"] else float("nan"),
+                "purify": key[0], "strength": key[1], "usable": usable,
                 "s_dsiglip": s["dsiglip"], "p_dsiglip": p["dsiglip"],
+                "s_retention": rs, "p_retention": rp,
+                "s_net": s["net_lpips"], "p_net": p["net_lpips"],
+                "s_net_retention": rs_net, "p_net_retention": rp_net,
+                "s_dniqe": s["dniqe"], "p_dniqe": p["dniqe"],
             })
 
         majority = sorted(op for op, v in per_op.items() if sum(v) * 2 > len(v))
@@ -148,10 +195,13 @@ def main() -> None:
               f"{'成立' if ok_maj else '不成立':>6s}  {label:32s}"
               + " ".join(f"{op} {r}" for op, r in ratios.items()))
 
-    print("\n注意：保留率的分子分母都是 net_lpips，而 E25-1 已顯示 net_lpips 量的是"
-          "\n『輸出移動了多少』而非『編輯有沒有失敗』（726 格語意失敗 0 格）。"
-          "\n故本表證明的是『非加性的視覺偏移對淨化較耐受』，"
-          "\n不是『非加性的防禦對淨化較耐受』。兩者不可混為一談。")
+    n_skip = sum(1 for r in rows if not r["usable"])
+    if n_skip:
+        print(f"\n注意：{n_skip} 格因無淨化基準的 Δsiglip 低於 {MIN_BASE[PRIMARY]}"
+              "而未計入判定。分母在雜訊量級時，保留率不可解讀。")
+    print("\n判定用的是 Δsiglip 的保留率；net_lpips 兩欄並列輸出僅供與先驗批次"
+          "\n對讀，不參與判定——它量的是輸出移動了多少，不是編輯有沒有失敗。"
+          "\nΔniqe 兩欄是代價不是成果：某一側若靠畫面劣化撐住效果，會在該欄顯示。")
     print(f"\n寫入 {OUT}")
 
 

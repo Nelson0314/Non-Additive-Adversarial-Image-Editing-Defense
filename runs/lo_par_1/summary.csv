@@ -1,2 +1,0 @@
-image,attack,n_seeds,edit_psnr,edit_ssim,edit_vif_p,edit_fsim,edit_lpips,pert_linf,pert_lpips,mask_coverage,seconds,peak_mb
-man_00,pg_diffusion,1,27.742382049560547,0.8618531227111816,0.2210485190153122,0.8958338499069214,0.4696124196052551,0.030000030994415283,0.4477759003639221,,28.6,10066.2

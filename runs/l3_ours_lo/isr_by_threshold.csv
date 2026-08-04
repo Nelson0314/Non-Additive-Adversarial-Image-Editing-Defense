@@ -1,6 +1,0 @@
-degrade_tau,n_cells,semantic_fail,degrade_fail,isr_union,isr_rate
-0.0,7,1,2,3,0.4286
-0.5,7,1,2,3,0.4286
-1.0,7,1,0,1,0.1429
-2.0,7,1,0,1,0.1429
-4.0,7,1,0,1,0.1429

@@ -1,4 +1,0 @@
-attack,n_cells,dist_mean,dist_sd,dsiglip_mean,dsiglip_sd,dclip_mean,dclip_sd,dniqe_mean,dniqe_sd
-pg_diffusion,24,0.60702,0.07335,0.02028,0.02591,0.02842,0.02394,0.73087,1.61288
-pg_encoder,24,0.63631,0.0794,0.02031,0.03375,0.02116,0.03248,5.81455,1.5426
-semantic,24,0.55934,0.05223,0.0001,0.03381,0.01166,0.03316,-0.39766,1.57503

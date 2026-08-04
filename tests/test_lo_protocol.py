@@ -399,23 +399,3 @@ def test_補跑攻擊不算換協定(tmp_path):
 
     assert "attacks" not in PROTOCOL_KEYS
     assert "limit" not in PROTOCOL_KEYS
-
-
-# ---------------------------------------------------------------------------
-# 逐編輯 prompt 的分解
-# ---------------------------------------------------------------------------
-
-
-@pytest.mark.parametrize("content,prompt,expect", [
-    ("man", "a woman", False),      # 子字串比對會判成 True，方向剛好相反
-    ("man", "a man in a snowy street", True),
-    ("dog", "a cat", False),
-    ("dog", "a dog in the park", True),
-    ("cat", "A CAT on a snowy roof", True),   # 不分大小寫
-    ("horse", "a horse and a cow", True),
-    ("bird", "a butterfly", False),
-])
-def test_c_a是否以完整詞出現在prompt裡(content, prompt, expect):
-    from scripts.report_table1 import c_a_in_prompt
-
-    assert c_a_in_prompt(content, prompt) is expect

@@ -40,9 +40,19 @@ from typing import Optional
 
 from src.residual.composite import CompositeResidual
 from src.residual.site_latent import LatentResidual
-from src.residual.site_weight import WeightResidual
+from src.residual.site_weight import APA_BLOCKS, WeightResidual
 
 STAGE1, STAGE2 = "stage1", "stage2"
+
+# 階段一的 LoRA 設定，取自官方實作 https://github.com/deep-kaixun/APA
+# （2026-08-05 查證，見 `docs/SOURCE_AUDIT_2026-08-05.md`）。
+# **這些值論文中不存在**——APA 的 arXiv v1 是唯一版本且沒有 Appendix，
+# 論文四處引用它卻查無該節，故階段一的全部超參數只能取自程式碼。
+APA_LORA_RANK = 8
+APA_LORA_ALPHA = 8
+APA_STAGE1_LR = 1e-4          # AdamW，constant schedule
+APA_STAGE1_STEPS = 200
+APA_NOISE_OFFSET = 0.1        # 論文未提，只在程式碼中
 
 
 def build_apa(
@@ -50,8 +60,9 @@ def build_apa(
     steps: int,
     latent_size: int,
     latent_channels: int = 4,
-    lora_rank: int = 16,
-    lora_alpha: Optional[float] = None,
+    lora_rank: int = APA_LORA_RANK,
+    lora_alpha: Optional[float] = APA_LORA_ALPHA,
+    lora_blocks: tuple = APA_BLOCKS,
     latent_max_rank: int = 32,
     latent_const_rank: int = 8,
     latent_scale: float = 1.0,
@@ -70,7 +81,11 @@ def build_apa(
     latent 注入的參數是噪聲量級，量綱不同；Adam 每步位移約等於 lr，
     同一個值對兩者代表兩種步長。實測不同注入位置的校準值可差 12.5 倍。
     """
-    lora = WeightResidual(unet, rank=lora_rank, alpha=lora_alpha, seed=seed)
+    # blocks 預設為 APA_BLOCKS = ("attn1", "attn2")：官方實作的 LoRA
+    # target_modules 掛在整個 UNet 上，同時涵蓋 self- 與 cross-attention。
+    # 本專案原本寫死只掃 attn2，照它實作會少掉一半的目標層。
+    lora = WeightResidual(unet, rank=lora_rank, alpha=lora_alpha, seed=seed,
+                          blocks=lora_blocks)
     latent = LatentResidual(
         steps=steps,
         channels=latent_channels,

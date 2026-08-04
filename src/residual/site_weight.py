@@ -50,6 +50,17 @@ from src.residual.base import ResidualModule
 # cross-attention（attn2）才吃文字條件；attn1 是 self-attention。
 DEFAULT_TARGETS = ("to_q", "to_k", "to_v", "to_out.0")
 
+# 要掛載的 attention 區塊。預設只有 cross-attention，維持既有行為。
+#
+# **APA 移植必須用 ("attn1", "attn2")。** 2026-08-05 的原始碼查證
+# （`docs/SOURCE_AUDIT_2026-08-05.md`）確認 APA 官方實作的 LoRA
+# `target_modules=["to_k","to_q","to_v","to_out.0"]` 是掛在整個 UNet 上的，
+# 因此同時涵蓋 self-attention（attn1）與 cross-attention（attn2）。
+# 原本此處寫死 `.attn2.`，照它實作會少掉一半的目標層，是一個不會有症狀的
+# 容量差異——訓練跑得完、曲線正常，只是階段一的視覺一致性對齊能力被削弱。
+DEFAULT_BLOCKS = ("attn2",)
+APA_BLOCKS = ("attn1", "attn2")
+
 
 class _LoRAHook(nn.Module):
     """單一 Linear 的低秩修正。輸出 += (α/r)·B(A(x))。"""
@@ -81,6 +92,7 @@ class WeightResidual(ResidualModule):
         targets: tuple = DEFAULT_TARGETS,
         init_std: float = 0.02,
         seed: int = None,
+        blocks: tuple = DEFAULT_BLOCKS,
     ):
         super().__init__()
         self.hooks = nn.ModuleDict()
@@ -93,13 +105,13 @@ class WeightResidual(ResidualModule):
         named = dict(unet.named_modules())
         selected = [
             (n, m) for n, m in named.items()
-            if ".attn2." in n and isinstance(m, nn.Linear)
+            if any(f".{b}." in n for b in blocks) and isinstance(m, nn.Linear)
             and any(n.endswith(t) for t in targets)
         ]
         if not selected:
             raise ValueError(
-                f"在 UNet 中找不到符合 {targets} 的 cross-attention Linear；"
-                "此模型的模組命名可能與 diffusers 的 attn2 慣例不同"
+                f"在 UNet 中找不到符合 blocks={blocks}、targets={targets} 的 Linear；"
+                "此模型的模組命名可能與 diffusers 的 attn1/attn2 慣例不同"
             )
 
         for name, lin in selected:
@@ -115,6 +127,7 @@ class WeightResidual(ResidualModule):
 
         self.rank = rank
         self.targets = targets
+        self.blocks = blocks
         self.n_layers = len(selected)
 
     def _make_hook(self, key: str):

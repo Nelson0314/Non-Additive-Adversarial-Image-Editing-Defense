@@ -84,3 +84,27 @@ class ResidualModule(nn.Module):
 
     def num_trainable(self) -> int:
         return sum(p.numel() for p in self.parameters() if p.requires_grad)
+
+    # ---- 參數分組 ----
+
+    def param_groups(self) -> dict:
+        """{組名: 參數清單}。預設為單一組，即整個模塊一起優化。
+
+        存在理由是 APA 移植的兩階段結構：階段一只更新 LoRA、階段二只更新
+        latent 注入。在此之前 `optimize.py` 只有 `module.parameters()` 一個
+        入口，取不到分組，兩階段就只能寫成兩個模塊各自優化——那會讓
+        「同一個 φ」被拆成兩個物件，`generator.py` 的分派也要跟著改。
+
+        覆寫者見 `src/residual/composite.py`。
+        """
+        return {"default": list(self.parameters())}
+
+    def remove(self) -> None:
+        """卸除模塊對外部模型造成的掛載（如 forward hook）。預設無事可做。
+
+        `WeightResidual` 覆寫它：hook 註冊在 SD 的模組上，模塊本身被垃圾
+        回收並不會移除它們，殘留的 hook 會污染共用同一個 `SDWrapper` 的
+        後續實驗。定義在基底類別是為了讓呼叫端可以無條件呼叫，
+        不需要先判斷模塊是哪一種。
+        """
+        return None

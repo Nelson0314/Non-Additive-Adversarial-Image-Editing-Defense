@@ -63,7 +63,7 @@ blockquote{margin:1.1em 0;padding:.6em 1em;border-left:3px solid var(--warn);
 
 <div style="border:2px solid #c0392b;border-radius:8px;padding:14px 18px;margin:0 0 24px;background:color-mix(in srgb,#c0392b 8%,transparent)">
 <b>本報告的防禦效果數字已失效</b>
-<p style="margin:8px 0 0">本報告涵蓋 E0–E12，寫於 2026-07-30。其後的實驗推翻了它所依據的兩個前提，報告中的每一個防禦效果數字都因此不可引用：（1）攻擊端沒有 classifier-free guidance，等同 w=1，該設定下 SD v1.4 幾乎不服從 prompt，實測「編輯」與「什麼都沒做」在指標上分不出來，見 <code>docs/RESULTS_E25-E26.md</code> §3；（2）判準 <code>net_lpips</code> 量的是輸出移動了多少，不是編輯有沒有失敗，同份文件 §1。方法層面的結論（成本模型、記憶體歸因、重建地板）不受影響。哪些主張現在還算數，逐條列在 <a href="LEDGER.md">docs/LEDGER.md</a>；各實驗的比對頁集中在 <a href="gallery.html">docs/gallery.html</a>。</p>
+<p style="margin:8px 0 0">本報告涵蓋 E0–E12，寫於 2026-07-30。其後的實驗推翻了它所依據的兩個前提，報告中的每一個防禦效果數字都因此不可引用：（1）攻擊端沒有 classifier-free guidance，等同 w=1，該設定下 SD v1.4 幾乎不服從 prompt，實測「編輯」與「什麼都沒做」在指標上分不出來，見 <code>docs/RESULTS_E25-E31.md</code> §3；（2）判準 <code>net_lpips</code> 量的是輸出移動了多少，不是編輯有沒有失敗，同份文件 §1。方法層面的結論（成本模型、記憶體歸因、重建誤差下限）不受影響。哪些主張現在還算數，逐條列在 <a href="LEDGER.md">docs/LEDGER.md</a>；各實驗的比對頁集中在 <a href="gallery.html">docs/gallery.html</a>。</p>
 </div>
 
 <h1>低秩殘差防禦 — 實驗報告</h1>
@@ -270,7 +270,7 @@ blockquote{margin:1.1em 0;padding:.6em 1em;border-left:3px solid var(--warn);
 </div>
 
 <blockquote>
-<b>我做過的一個設計錯誤。</b>site LA 是我為了繞開保真度地板而發明的錨定寫法。方括號裡
+<b>我做過的一個設計錯誤。</b>site LA 是我為了繞開保真度下限而發明的錨定寫法。方括號裡
 確實是非線性生成的，但外面那個 <span class="mono">x +</span> <b>把它變回加性了</b> ——
 我親手把唯一能檢驗核心假設的那條 arm，變成了又一條加性 arm。它在模糊下是負值，
 不是「非加性沒用」的證據，只是再一次證明加性擾動沒用。
@@ -390,7 +390,7 @@ JPEG 與量化的橫軸已反轉，一律左弱右強。</figcaption>
 <h3>4.4 秩與步數都只是能量預算</h3>
 <figure>
 <img src="figures/fig2_rank_is_a_budget.png" alt="秩掃描：偏移與失真同步上升">
-<figcaption>提高秩會買到偏移，代價是保真度；單位失真換到的偏移量幾乎不變。
+<figcaption>提高秩會換得偏移，代價是保真度；單位失真換到的偏移量幾乎不變。
 步數也一樣：P 由 20 步到 100 步偏移 0.1011→0.1283（+27%），PSNR 41.54→37.21（−4.3 dB）。</figcaption>
 </figure>
 
@@ -482,18 +482,18 @@ SDEdit 編碼、SDEdit 解碼）。未 checkpoint 時峰值是三者總和，che
 <h3 style="margin-top:0">成本模型</h3>
 <p class="mono" style="margin:.3em 0">秒 ≈ 1.05 + 0.384·k_inv + 0.304·n_edit·n_eot</p>
 <p class="sub" style="margin:.4em 0 0">在 (50, 50) 處誤差 0.8%。記憶體與步數無關，
-時間線性相關 —— 所以 n_eot 是最貴的旋鈕。</p>
+時間線性相關 —— 所以 n_eot 是最貴的參數。</p>
 </div>
 <div class="card">
-<h3 style="margin-top:0">latent 位置的重建地板</h3>
+<h3 style="margin-top:0">latent 位置的重建誤差下限</h3>
 <dl class="kv">
 <dt>只走 VAE 一來一回</dt><dd>27.51 dB / LPIPS 0.143</dd>
 <dt>t_max=500, 20 步</dt><dd>26.56 dB / 0.194 <span class="tag">採用</span></dd>
 <dt>t_max=999, 10 步</dt><dd class="bad">16.87 dB / 0.697</dd>
 </dl>
 <p class="sub" style="margin:.6em 0 0">原設定的重建 LPIPS 0.697 —— 不是「接近原圖」，
-是另一張圖。逐張 PSNR 地板相差 <b>11.4 dB</b>（car_00 19.96 到 person_00 33.34），
-LPIPS 地板只在 0.157–0.210 之間。</p>
+是另一張圖。逐張 PSNR 下限相差 <b>11.4 dB</b>（car_00 19.96 到 person_00 33.34），
+LPIPS 下限只在 0.157–0.210 之間。</p>
 </div>
 <div class="card">
 <h3 style="margin-top:0">學習率</h3>
@@ -571,7 +571,7 @@ LPIPS 地板只在 0.157–0.210 之間。</p>
   <td><span class="mono">clamp</span> 就是非線性變換（實測有效秩 2→84）</td>
   <td>低秩在能量意義成立、精確秩不成立</td><td class="good">已進規格</td></tr>
 <tr><td>3</td><td>τ=0.06、PSNR_floor=30 dB，對象為 x_def−x</td>
-  <td>對 L 不可達（L∞ 地板 0.707、PSNR 地板逐張差 11.4 dB）</td>
+  <td>對 L 不可達（L∞ 下限 0.707、PSNR 下限逐張差 11.4 dB）</td>
   <td>兩道 hinge 改為相對 x_base</td><td class="good">已進規格</td></tr>
 <tr><td>4</td><td>L_def 以未淨化的 E(x) 為基準</td>
   <td>淨化本身造成的偏移被算成防禦</td>
@@ -651,7 +651,7 @@ LPIPS 地板只在 0.157–0.210 之間。</p>
 <tr><td class="mono">runs/</td><td>逐圖訓練軌跡與診斷圖。本報告寫成時為 25 個 run、289 個 csv/json/md/log，2026-08-03 為 109 個 run</td></tr>
 <tr><td class="mono">docs/REPORT.html</td><td>本報告</td></tr>
 <tr><td class="mono">docs/figures/</td><td>7 張分析圖與範例圖</td></tr>
-<tr><td class="mono">docs/NIGHT_RUN_2026-07-29.md</td><td>夜間執行紀錄，含撤回說明</td></tr>
+<tr><td class="mono">docs/NIGHT_LOGS.md</td><td>夜間執行紀錄，含撤回說明</td></tr>
 <tr><td class="mono">docs/specs/</td><td>規格與五處更正紀錄</td></tr>
 <tr><td class="mono">scripts/make_report_figures.py</td><td>本報告所有分析圖的產生腳本</td></tr>
 <tr><td class="mono">scripts/figure_pipeline.py</td><td>管線範例圖的產生腳本</td></tr>

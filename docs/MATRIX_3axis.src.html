@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>三軸對照表：方法類 × 指標群 × 損失著力點</title>
+<style>
+:root{--bg:#fff;--fg:#16181d;--muted:#5c6370;--line:#dfe3ea;--accent:#1f4e9c;
+ --accent-soft:#eef3fb;--hot:#a3341f;--hot-soft:#fbeeeb;--cool:#1a6b4a;
+ --cool-soft:#eaf5ef;--warn:#8a6d12;--warn-soft:#fdf6e3;--code-bg:#f4f6f9;--card:#fafbfc;}
+@media (prefers-color-scheme:dark){:root{--bg:#14161a;--fg:#e6e8ec;--muted:#98a0ad;
+ --line:#2b303a;--accent:#7ea9ee;--accent-soft:#1b2534;--hot:#e79079;--hot-soft:#2e211d;
+ --cool:#6fc79f;--cool-soft:#17251f;--warn:#d9bb63;--warn-soft:#2a2513;
+ --code-bg:#1c1f26;--card:#191c22;}}
+:root[data-theme="dark"]{--bg:#14161a;--fg:#e6e8ec;--muted:#98a0ad;--line:#2b303a;
+ --accent:#7ea9ee;--accent-soft:#1b2534;--hot:#e79079;--hot-soft:#2e211d;--cool:#6fc79f;
+ --cool-soft:#17251f;--warn:#d9bb63;--warn-soft:#2a2513;--code-bg:#1c1f26;--card:#191c22;}
+:root[data-theme="light"]{--bg:#fff;--fg:#16181d;--muted:#5c6370;--line:#dfe3ea;
+ --accent:#1f4e9c;--accent-soft:#eef3fb;--hot:#a3341f;--hot-soft:#fbeeeb;--cool:#1a6b4a;
+ --cool-soft:#eaf5ef;--warn:#8a6d12;--warn-soft:#fdf6e3;--code-bg:#f4f6f9;--card:#fafbfc;}
+html{background:var(--bg);}
+body{background:var(--bg);color:var(--fg);margin:0;font-size:16px;line-height:1.7;
+ font-family:"Noto Sans TC","Microsoft JhengHei","PingFang TC",-apple-system,
+ BlinkMacSystemFont,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased;}
+.wrap{max-width:1180px;margin:0 auto;padding:42px 20px 80px;}
+h1{font-size:1.7rem;margin:0 0 6px;line-height:1.32;}
+h2{font-size:1.2rem;margin:44px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--line);}
+p,li{max-width:80ch;} p{margin:0 0 12px;} ul,ol{margin:0 0 13px;padding-left:1.45em;}
+li{margin:0 0 6px;}
+.sub{color:var(--muted);}
+code{font-family:ui-monospace,Consolas,monospace;font-size:.85em;background:var(--code-bg);
+ padding:.08em .34em;border-radius:4px;}
+.tw{overflow-x:auto;margin:14px 0 20px;border:1px solid var(--line);border-radius:8px;}
+table{border-collapse:collapse;width:100%;font-size:.83rem;font-variant-numeric:tabular-nums;}
+th,td{padding:8px 11px;text-align:left;border-bottom:1px solid var(--line);
+ border-right:1px solid var(--line);vertical-align:top;}
+th:last-child,td:last-child{border-right:none;}
+th{background:var(--card);font-weight:600;font-size:.8rem;color:var(--muted);
+ white-space:nowrap;position:sticky;top:0;z-index:2;}
+td{white-space:normal;min-width:15ch;}
+td.k{white-space:nowrap;min-width:auto;font-weight:600;background:var(--card);}
+.famA td.fam{background:var(--warn-soft);}
+.famB td.fam{background:var(--accent-soft);}
+.famC td.fam{background:var(--cool-soft);}
+td.fam{white-space:normal;min-width:13ch;font-weight:600;font-size:.84rem;
+ border-right:2px solid var(--line);}
+td.grp{white-space:nowrap;font-weight:600;background:var(--card);font-size:.82rem;}
+tr.sep td{border-top:2px solid var(--line);}
+.n{color:var(--fg);}
+.tag{display:inline-block;font-size:.68rem;letter-spacing:.04em;padding:0 6px;
+ border-radius:20px;border:1px solid;line-height:1.6;white-space:nowrap;}
+.ok{color:var(--cool);border-color:var(--cool);}
+.mid{color:var(--warn);border-color:var(--warn);}
+.no{color:var(--hot);border-color:var(--hot);}
+.na{color:var(--muted);border-color:var(--line);}
+.box{border:1px solid var(--line);border-left:4px solid var(--accent);background:var(--card);
+ border-radius:0 8px 8px 0;padding:12px 16px;margin:16px 0;}
+.box p:last-child{margin-bottom:0;}
+.box .lbl{display:block;font-size:.73rem;letter-spacing:.09em;font-weight:700;
+ color:var(--accent);margin-bottom:5px;}
+.box.warnb{border-left-color:var(--hot);background:var(--hot-soft);}
+.box.warnb .lbl{color:var(--hot);}
+.fn{font-size:.82rem;color:var(--muted);max-width:80ch;}
+.legend{display:flex;gap:18px;flex-wrap:wrap;font-size:.83rem;color:var(--muted);margin:10px 0 0;}
+a{color:var(--accent);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>三軸對照表</h1>
+<p class="sub">方法類別（3）× 指標群（3）× 損失著力點（2）。每一格填的是實際量到的數字，沒有的一律標明。</p>
+
+<div class="legend">
+  <span><span class="tag ok">可用</span> 在正確的評測設定下量到，可以引用</span>
+  <span><span class="tag mid">有資料但不可引用</span> 數字是真的，但設定或計分方式已被否定</span>
+  <span><span class="tag no">無資料</span> 沒跑過</span>
+  <span><span class="tag na">不適用</span> 該組合在定義上不存在</span>
+</div>
+
+<h2 id="t">對照表</h2>
+
+<div class="tw"><table>
+<thead><tr>
+  <th>方法類別</th><th>指標群</th><th>指標</th>
+  <th>針對 semantic 層攻擊<br><span style="font-weight:400">損失讀文字與影像的綁定</span></th>
+  <th>針對 diffusion 結果攻擊<br><span style="font-weight:400">損失讀整條路徑跑完的輸出</span></th>
+</tr></thead>
+<tbody>
+
+<!-- ============ A ============ -->
+<tr class="famA sep">
+  <td class="fam" rowspan="9">A<br>非加性<br>抗分類器<br><span style="font-weight:400;font-size:.78rem">stAdv 這一類（文獻）<br>ICLR 2018</span></td>
+  <td class="grp" rowspan="2">防禦效果</td>
+  <td class="k">攻擊成功率（MNIST）</td>
+  <td><span class="tag ok">可用</span><br><b>99.95% / 99.98% / 100.00%</b><br>模型 A / B / C，皆為指定目標類別</td>
+  <td rowspan="9" style="background:var(--card)"><span class="tag na">不適用</span><br><br>分類器沒有「diffusion 結果」這個對應物。<br><br>stAdv 的損失讀的是<b>分類 logits</b>，屬於左欄那一類（語意層），不是輸出像素距離。<br><br>這一點本身就是移植時的第一個落差：分類器的語意層是一個 1000 維的輸出，擴散模型的語意層是 16 張注意力分佈。</td>
+</tr>
+<tr class="famA"><td class="k">攻擊成功率（CIFAR-10）</td>
+  <td><span class="tag ok">可用</span><br><b>99.56%</b>（ResNet32）<br><b>98.84%</b>（Wide ResNet34）</td></tr>
+
+<tr class="famA"><td class="grp" rowspan="4">抗淨化效果<br><span style="font-weight:400;font-size:.78rem">分類器這邊的對應物<br>是對抗訓練防禦</span></td>
+  <td class="k">FGSM 對抗訓練下的成功率</td>
+  <td><span class="tag ok">可用</span><br>stAdv <b>30.44–50.17%</b>（MNIST）<br><b>31.66–43.36%</b>（CIFAR）<br><span class="sub">同表 FGSM 3.22–13.10%、C&amp;W 0.86–11.9%</span></td></tr>
+<tr class="famA"><td class="k">集成對抗訓練下的成功率</td>
+  <td><span class="tag ok">可用</span><br>stAdv <b>28.82–48.07%</b>（MNIST）<br><b>29.56–36.89%</b>（CIFAR）<br><span class="sub">同表 FGSM 1.45–10.00%、C&amp;W 0.98–10.3%</span></td></tr>
+<tr class="famA"><td class="k">PGD 對抗訓練下的成功率</td>
+  <td><span class="tag ok">可用</span><br>stAdv <b>28.13–49.82%</b>（MNIST）<br><b>31.6–49.19%</b>（CIFAR）<br><span class="sub">同表 FGSM 2.1–22.8%、C&amp;W 0.98–21.4%</span><br><b>非加性在防禦下維持的成功率是加性的 2–20 倍</b></td></tr>
+<tr class="famA"><td class="k">輸入變換式淨化（JPEG／模糊／量化）</td>
+  <td><span class="tag no">無資料</span><br>原文只測對抗訓練，未測輸入變換式防禦。本專案也未查到其他論文在同一設定下量過</td></tr>
+
+<tr class="famA"><td class="grp" rowspan="3">與原圖差異</td>
+  <td class="k">失真的限制方式</td>
+  <td><span class="tag ok">可用</span><br><b>flow loss，τ = 0.05</b>——限制的是位移場的局部幾何平滑度，<b>不是 Lp</b>。原文明講 L2 對位移不是好指標</td></tr>
+<tr class="famA"><td class="k">人類感知研究</td>
+  <td><span class="tag ok">可用</span><br><b>47.01% ± 1.96%</b> 的試次中被選為「較真實」<br>（50% = 與原圖不可分辨）<br><span class="sub">600 張影像、2,740 個標註、93 位受試者</span></td></tr>
+<tr class="famA"><td class="k">LPIPS／PSNR／SSIM</td>
+  <td><span class="tag no">無資料</span><br>原文不報這些量</td></tr>
+
+<!-- ============ B ============ -->
+<tr class="famB sep">
+  <td class="fam" rowspan="9">B<br>加性<br>抗編輯<br><span style="font-weight:400;font-size:.78rem">PhotoGuard 與本專案的<br>逐像素殘差</span></td>
+  <td class="grp" rowspan="3">防禦效果</td>
+  <td class="k">編輯輸出 vs 未防禦編輯<br>LPIPS ↑ / PSNR ↓ / SSIM ↓ / VIFp ↓ / FSIM ↓</td>
+  <td><span class="tag ok">可用</span><br><b>0.5593</b> / 20.23 / 0.5473 / 0.0955 / 0.7854<br><span class="sub">semantic attack，24 張 × 20 種子，L∞ ≤ 0.06</span></td>
+  <td><span class="tag ok">可用</span><br><b>0.6070</b> / 18.81 / 0.5351 / 0.0959 / 0.7784<br><span class="sub">PhotoGuard diffusion，同設定</span><br><br><span class="tag mid">不可引用</span> 本專案的 site P：<b>0.4791</b> / 22.22 / 0.6912<br><span class="sub">E23、100 步，攻擊方無 guidance</span></td></tr>
+<tr class="famB"><td class="k">SigLIP 變化<br><span style="font-weight:400">負 = 編輯不再照 prompt 走</span></td>
+  <td><span class="tag ok">可用</span><br><b>−0.0124</b>（18 張過濾後）<br>+0.0001（24 張全算）</td>
+  <td><span class="tag ok">可用</span><br><b>+0.0091</b>（18 張）／+0.0203（24 張）<br><span class="pos">正值 = 保護後編輯<b>更</b>照 prompt 走</span><br><br><span class="tag mid">不可引用</span> 本專案 site PF：−0.00463<br><span class="sub">7 格中 5 格跑滿步數上限</span></td></tr>
+<tr class="famB"><td class="k">逐張判定「編輯不再符合 prompt」</td>
+  <td><span class="tag ok">可用</span><br><b>6/24</b></td>
+  <td><span class="tag ok">可用</span><br><b>0/24</b><br><span class="sub">PhotoGuard encoder（讀 latent）為 1/24</span></td></tr>
+
+<tr class="famB"><td class="grp" rowspan="3">抗淨化效果</td>
+  <td class="k">模糊／JPEG 下的保留率</td>
+  <td><span class="tag no">無資料</span><br><code>lo_baseline</code> 的協定不含淨化</td>
+  <td><span class="tag mid">不可引用</span><br>site P 保留率中位數：模糊 <b>0.052</b>、JPEG <b>0.254</b><br><span class="sub">7 組配對 × 全強度，攻擊方無 guidance，且計分用的 <code>net_lpips</code> 已被否定</span></td></tr>
+<tr class="famB"><td class="k">雜訊／量化下的保留率</td>
+  <td><span class="tag no">無資料</span></td>
+  <td><span class="tag mid">不可引用</span><br>雜訊 <b>0.229</b>、量化 <b>0.307</b>（中位數）</td></tr>
+<tr class="famB"><td class="k">訓練期是否做淨化 EOT</td>
+  <td><span class="tag na">不適用</span><br>三個文獻方法都不做</td>
+  <td><span class="tag ok">可用</span><br>本專案做：identity／模糊 σ=1.0／JPEG q=75 輪替，2/3 的梯度步在被淨化過的輸入上求<br><span class="sub">但評測路徑兩側都不量淨化，故這個加項從未被回報</span></td></tr>
+
+<tr class="famB"><td class="grp" rowspan="3">與原圖差異</td>
+  <td class="k">擾動 LPIPS</td>
+  <td><span class="tag ok">可用</span><br><b>0.5080</b></td>
+  <td><span class="tag ok">可用</span><br><b>0.5313</b>（PhotoGuard diffusion）<br><span class="tag mid">不可引用</span> site P：0.0433</td></tr>
+<tr class="famB"><td class="k">L∞</td>
+  <td><span class="tag ok">可用</span><br><b>0.06</b>（＝限制條件本身）</td>
+  <td><span class="tag ok">可用</span><br><b>0.06</b><br><span class="tag mid">不可引用</span> site P：0.1711</td></tr>
+<tr class="famB"><td class="k">NIQE 變化<br><span style="font-weight:400">正 = 畫面變糟</span></td>
+  <td><span class="tag ok">可用</span><br><b>−0.40</b>（輸出品質略有改善）</td>
+  <td><span class="tag ok">可用</span><br><b>+0.73</b><br><span class="sub">PhotoGuard encoder 為 <b>+5.81</b>——它的高分靠把畫面弄糊換來</span></td></tr>
+
+<!-- ============ C ============ -->
+<tr class="famC sep">
+  <td class="fam" rowspan="9">C<br>非加性<br>抗編輯<br><span style="font-weight:400;font-size:.78rem">由 A 移植而來：<br>把 stAdv 的位移場<br>接到抗編輯上</span></td>
+  <td class="grp" rowspan="3">防禦效果</td>
+  <td class="k">編輯輸出 vs 未防禦編輯<br>LPIPS ↑</td>
+  <td><span class="tag ok">可用</span><br><b>0.3403</b>（控制點 32×32）<br><b>0.3607</b>（128×128）<br><span class="sub">1 張 × 5 種子、256²、擾動 LPIPS 上限 0.55</span></td>
+  <td><span class="tag mid">不可引用</span><br><b>0.3264</b>（E23、100 步，攻擊方無 guidance）<br><b>0.0414–0.0868</b>（<code>ours_lo</code>，攻擊方設定正確但學習率用成加性位置的 1/12.5、位移上限設成 1.5 px 而實測需要 5.4 px）</td></tr>
+<tr class="famC"><td class="k">SigLIP 變化</td>
+  <td><span class="tag ok">可用</span><br><b>−0.00212</b>（32×32）<br><b>−0.00310</b>（128×128）</td>
+  <td><span class="tag mid">不可引用</span><br>−0.00146（<code>ours_lo</code>，3 格全部跑滿步數上限）</td></tr>
+<tr class="famC"><td class="k"><b>相對同失真隨機擾動的差值</b><br><span style="font-weight:400">負 = 最佳化勝過隨機</span></td>
+  <td><span class="tag ok">可用</span><br><b class="pos">+0.00744</b>（32×32，5 個種子 1 個同向）<br><b class="pos">+0.01140</b>（128×128，同樣 1/5）<br><span class="sub">對照：加性位置在同一設定下是 <b>−0.01487</b>（d = −1.06、4/5 同向）</span></td>
+  <td><span class="tag no">無資料</span><br>這一類從未配過同失真隨機對照</td></tr>
+
+<tr class="famC"><td class="grp" rowspan="3">抗淨化效果</td>
+  <td class="k">模糊／JPEG 下的保留率</td>
+  <td><span class="tag no">無資料</span><br>gate 的協定不含淨化</td>
+  <td><span class="tag mid">不可引用</span><br>site S 保留率中位數：模糊 <b>0.062</b>、JPEG <b>0.278</b><br><b>133 格中 90 格（68%）非加性較高</b></td></tr>
+<tr class="famC"><td class="k">雜訊／量化下的保留率</td>
+  <td><span class="tag no">無資料</span></td>
+  <td><span class="tag mid">不可引用</span><br>雜訊 <b>0.306</b>、量化 <b>0.573</b>（中位數）<br>逐強度：弱模糊 20/21 格勝、強模糊 1/14；強雜訊 7/7 勝、強量化 0/7</td></tr>
+<tr class="famC"><td class="k">成對影像</td>
+  <td><span class="tag no">無資料</span></td>
+  <td><span class="tag mid">有圖但設定不可引用</span><br>E21／E23 有完整成對檔案：防禦圖、淨化後防禦圖、淨化後編輯輸出，四種算子各兩個強度<br><span class="sub">見 <code>docs/EVIDENCE_nonadditive.html</code> §1.3</span></td></tr>
+
+<tr class="famC"><td class="grp" rowspan="3">與原圖差異</td>
+  <td class="k">擾動 LPIPS</td>
+  <td><span class="tag ok">可用</span><br><b>0.1077</b>（32×32）／<b>0.1783</b>（128×128）<br><span class="sub">上限 0.55，只用掉 20–32%</span></td>
+  <td><span class="tag mid">不可引用</span><br>0.0452（E23）／0.0163–0.0250（<code>ours_lo</code>）</td></tr>
+<tr class="famC"><td class="k">L∞</td>
+  <td><span class="tag ok">可用</span><br><b>0.5439</b>（32×32）／0.5397（128×128）<br><b>是文獻標準幅度 0.06 的 9 倍，人眼卻幾乎看不出來</b></td>
+  <td><span class="tag mid">不可引用</span><br>0.8165（E23）／0.3536–0.6728（<code>ours_lo</code>）</td></tr>
+<tr class="famC"><td class="k">NIQE 變化</td>
+  <td><span class="tag ok">可用</span><br><b>+0.24</b>（32×32）／<b>+0.48</b>（128×128）<br><span class="sub">對照 PhotoGuard encoder 的 +5.81，差 12–24 倍</span></td>
+  <td><span class="tag mid">不可引用</span><br>−0.065（<code>ours_lo</code>）</td></tr>
+
+</tbody>
+</table></div>
+
+<h2 id="read">怎麼讀這張表</h2>
+
+<div class="box"><span class="lbl">四個直接讀得出來的對比</span>
+<p><b>一、A 的抗防禦優勢是明確的，而且量級很大。</b>在對抗訓練防禦下，非加性維持 28–50% 的成功率，同一張表的兩個加性方法只剩 0.86–22.8%——<b>差 2 到 20 倍</b>。這是把非加性搬過來的原始動機，而且它在分類器上是有數字支撐的。</p>
+<p><b>二、B 的兩欄告訴我們「著力點」比「加不加性」更決定成敗。</b>讀 semantic 層的那一個是三者中唯一讓 SigLIP 下降的（−0.0124，6/24 張）；讀 diffusion 結果與讀 latent 的兩個都是<b>正的</b>（+0.0091、+0.0066），即保護後編輯更照 prompt 走。</p>
+<p><b>三、C 在 semantic 欄有可用資料，而且是負的。</b>相對同失真隨機擾動的差值 +0.0074／+0.0114（正值代表最佳化不如隨機），同一設定下加性位置是 −0.0149。這是目前唯一控制正確的移植結果。</p>
+<p><b>四、C 的「與原圖差異」那一組是它目前唯一的優勢。</b>NIQE 變化只有 +0.24，是 PhotoGuard encoder 的 1/24；失真預算只用掉 20%；而 L∞ 是標準幅度的 9 倍卻幾乎看不出來——後者直接說明<b>文獻用 L∞ 限制擾動，對非加性方法量不到東西</b>。</p>
+</div>
+
+<div class="box warnb"><span class="lbl">這張表最重要的一格是空的</span>
+<p><b>C 的「抗淨化 × semantic 層」完全沒有資料</b>，而那正是 A 的優勢所在（A 的優勢就在抗防禦那一組）。</p>
+<p>現有的抗淨化資料全部落在 <b>C × diffusion 結果</b>那一欄，而且整批跑在攻擊方沒有 classifier-free guidance 的設定下、用了已被否定的計分量。也就是說：<b>非加性最可能有優勢的那一格，我們量的是另一格，而且量錯了設定。</b></p>
+</div>
+
+<h2 id="gap">依這張表排出的三個實驗</h2>
+
+<div class="tw"><table>
+<thead><tr><th class="n">#</th><th>要填的格子</th><th>怎麼做</th><th>成本</th><th>它回答什麼</th></tr></thead>
+<tbody>
+<tr><td class="n">1</td><td><b>C × 抗淨化 × semantic 層</b></td><td>把 gate 的協定加上淨化評測（四種算子各數個強度），兩個位置都跑，攻擊方 guidance = 7.5，改用 SigLIP 與 NIQE 計分，不用 <code>net_lpips</code></td><td>只有評測，本機可跑</td><td>把 A 的優勢直接對到抗編輯上——這是整張表裡唯一可能複製 A 那個 2–20 倍的位置</td></tr>
+<tr><td class="n">2</td><td><b>C × 防禦效果 × latent 著力點</b>（表上沒有這一欄，因為一次都沒跑過）</td><td>把 <code>make_photoguard_encoder_loss</code> 接到位移場模組上</td><td>本機 11.87 s/step，一張圖 20 分鐘</td><td>stAdv 的損失讀的是分類器的表示層；VAE 編碼器是擴散模型這邊最接近的對應物。這是<b>最忠實的移植</b></td></tr>
+<tr><td class="n">3</td><td><b>C × diffusion 結果</b>整欄重跑</td><td>用修正後的學習率（0.1）與位移上限，攻擊方 guidance = 7.5</td><td>需雲端，177.68 s/step</td><td>把該欄由「不可引用」變成可用</td></tr>
+</tbody>
+</table></div>
+
+<h2 id="src">資料出處</h2>
+<div class="tw"><table>
+<thead><tr><th>方法類別</th><th>出處</th></tr></thead>
+<tbody>
+<tr><td>A（stAdv）</td><td><a href="https://arxiv.org/abs/1801.02612">Xiao, Zhu, Li, He, Liu, Song, <i>Spatially Transformed Adversarial Examples</i>, ICLR 2018</a>。Table 1（MNIST 成功率）、Table 2（CIFAR-10 成功率）、Table 3（三種對抗訓練防禦下的成功率）、§4.3（人類感知研究）</td></tr>
+<tr><td>B（semantic 欄）</td><td><code>runs/lo_baseline/</code>、<code>runs/l3_criterion_axes/</code>、<code>runs/l3_criterion_axes_working/</code></td></tr>
+<tr><td>B（diffusion 欄）</td><td>同上；本專案 site P 為 <code>runs/e23_P_s100_tau0.05/</code>、<code>runs/ours_lo/</code>；抗淨化為 <code>runs/p6_purify_retention/</code></td></tr>
+<tr><td>C（semantic 欄）</td><td><code>runs/gate_S/</code>、<code>runs/gate_S_g128b/</code>、<code>runs/gate_compare.csv</code></td></tr>
+<tr><td>C（diffusion 欄）</td><td><code>runs/e15_S_*</code>、<code>e21_Sbic_*</code>、<code>e22_*</code>、<code>e23_Sbic_*</code>、<code>runs/ours_lo/</code>；抗淨化為 <code>runs/p6_purify_retention/</code></td></tr>
+</tbody>
+</table></div>
+
+<p class="fn">A 的三個防禦是 FGSM 對抗訓練、集成對抗訓練、PGD 對抗訓練；本表把它們列在「抗淨化效果」那一組，因為它們在分類器那邊扮演的角色與淨化在抗編輯這邊相同——都是攻擊產生之後、由防守方施加的還原手段。兩者<b>不是同一種操作</b>，對讀時須注意：對抗訓練改變的是模型，淨化改變的是輸入。</p>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,25 @@
+image,cls,prompt,siglip_orig,siglip_edit_ref,edit_effect,n_ref_rows,edit_worked,edit_worked_clearly
+dog_03,dog,a cat,0.010221,0.009514,-0.000708,60,False,False
+man_02,man,a woman,-0.059871,-0.056353,0.003518,60,True,False
+cat_01,cat,a dog,0.040504,0.049595,0.009091,60,True,False
+dog_02,dog,a cat,0.017611,0.027817,0.010207,60,True,False
+woman_00,woman,a man,-0.030122,-0.018973,0.01115,60,True,False
+bird_03,bird,a butterfly,0.004797,0.017212,0.012414,60,True,False
+dog_00,dog,a cat,-0.000505,0.024676,0.025182,60,True,True
+man_03,man,a woman,-0.016037,0.01721,0.033247,60,True,True
+woman_02,woman,a man,0.018732,0.056723,0.037991,60,True,True
+woman_03,woman,a man,0.000943,0.039279,0.038337,60,True,True
+cat_00,cat,a dog,0.033847,0.077618,0.043772,60,True,True
+horse_00,horse,a zebra,0.074803,0.118984,0.044181,60,True,True
+bird_00,bird,a butterfly,0.003341,0.051305,0.047964,60,True,True
+cat_02,cat,a dog,0.039537,0.089479,0.049942,60,True,True
+cat_03,cat,a dog,0.029373,0.08089,0.051517,60,True,True
+bird_02,bird,a butterfly,0.006274,0.060915,0.054641,60,True,True
+horse_01,horse,a zebra,0.061899,0.118039,0.05614,60,True,True
+man_00,man,a woman,-0.002728,0.054548,0.057277,60,True,True
+man_01,man,a woman,-0.045919,0.012233,0.058153,60,True,True
+woman_01,woman,a man,-0.020622,0.039194,0.059816,60,True,True
+horse_03,horse,a zebra,0.034169,0.097582,0.063414,60,True,True
+dog_01,dog,a cat,0.013142,0.083323,0.070181,60,True,True
+horse_02,horse,a zebra,0.019229,0.097137,0.077908,60,True,True
+bird_01,bird,a butterfly,0.018177,0.099967,0.08179,60,True,True

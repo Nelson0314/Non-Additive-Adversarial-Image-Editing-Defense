@@ -48,7 +48,7 @@ class DefenseGenerator:
         self.k_inv = k_inv
         # True 改用 BDIA（arXiv 2307.10829）。latent 空間來回誤差由 DDIM 的
         # 1.4（k=20, t_max=500，tiny-SD 實測最大絕對值）降到 1.4e-04。
-        # 但影像空間的地板不會歸零：VAE 的編解碼來回誤差（實測 27.51 dB /
+        # 但影像空間的下限不會歸零：VAE 的編解碼來回誤差（實測 27.51 dB /
         # LPIPS 0.143）不在 BDIA 的作用範圍內。
         self.exact_inversion = exact_inversion
         # t_max=None 表示走滿 [0, 999]。E0c 實測該設定下 k_inv=10 的重建

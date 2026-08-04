@@ -39,12 +39,12 @@ def _img(seed=0, size=64):
 
 
 def test_保真項在完全相同時為零(obj):
-    """x_def = x 時 LPIPS=0、SSIM=1、兩道地板都不觸發，總和必須為 0。"""
+    """x_def = x 時 LPIPS=0、SSIM=1、兩道下限都不觸發，總和必須為 0。"""
     x = _img(1)
     total, parts = obj.fidelity_term(x, x)
     assert parts["fid_linf"] == 0.0
     assert parts["fid_pen_linf"] == 0.0
-    assert parts["fid_pen_psnr"] == 0.0, "完全相同時 PSNR 地板不應觸發"
+    assert parts["fid_pen_psnr"] == 0.0, "完全相同時 PSNR 下限不應觸發"
     assert abs(float(total)) < 1e-4
 
 
@@ -130,7 +130,7 @@ def test_鈍化以x_base為對象(obj):
     assert parts["fid_acut"] == pytest.approx(0.0, abs=1e-6)
 
 
-def test_PSNR地板在低於門檻時才施力(obj):
+def test_PSNR下限在低於門檻時才施力(obj):
     """hinge 的定義：超過門檻不施力，低於才施力。兩側都要驗。"""
     x = _img(2)
     good = (x + 0.001 * torch.randn_like(x)).clamp(0, 1)   # 高 PSNR
@@ -139,12 +139,12 @@ def test_PSNR地板在低於門檻時才施力(obj):
     _, pg = obj.fidelity_term(good, x)
     _, pb = obj.fidelity_term(bad, x)
     assert pg["fid_psnr"] > obj.cfg.psnr_floor
-    assert pg["fid_pen_psnr"] == 0.0, "PSNR 高於地板時不得施力"
+    assert pg["fid_pen_psnr"] == 0.0, "PSNR 高於下限時不得施力"
     assert pb["fid_psnr"] < obj.cfg.psnr_floor
-    assert pb["fid_pen_psnr"] > 0.0, "PSNR 低於地板時必須施力"
+    assert pb["fid_pen_psnr"] > 0.0, "PSNR 低於下限時必須施力"
 
 
-def test_Linf地板在超過tau時才施力(obj):
+def test_Linf下限在超過tau時才施力(obj):
     x = _img(3)
     small = (x + 0.5 * obj.cfg.tau_linf).clamp(0, 1)
     _, ps = obj.fidelity_term(x, x)
@@ -160,7 +160,7 @@ def test_Linf地板在超過tau時才施力(obj):
 def test_兩道hinge以x_base為對象而非原圖(obj):
     """spec §5.2 修訂：hinge 量的是「防禦加了多少」，不是「與原圖差多少」。
 
-    這是必要的：E0c 實測各影像的重建地板由 19.61 dB 到 31.01 dB，相差
+    這是必要的：E0c 實測各影像的重建誤差下限由 19.61 dB 到 31.01 dB，相差
     11.4 dB，任何全域固定的絕對門檻對部分影像不可達、對另一部分不施力。
     構造一個「x_base 已遠離 x、但 x_def 等於 x_base」的情形——防禦什麼都
     沒加，兩道 hinge 都必須為零，即使 x_def 與 x 差很多。
@@ -224,7 +224,7 @@ def test_未知的purify_mode必須報錯():
 # ------------------------------------------------------------------ 保真項續
 
 
-def test_LPIPS地板在超過tau時才施力(obj):
+def test_LPIPS下限在超過tau時才施力(obj):
     """綁定約束改為感知指標後的 hinge 定義。
 
     不預設「某個擾動幅度會落在 τ 的哪一側」——先前有測試因為假設兩張隨機
@@ -247,7 +247,7 @@ def test_LPIPS地板在超過tau時才施力(obj):
     assert seen_below and seen_above, "掃描未涵蓋 τ 兩側，測試沒有鑑別力"
 
 
-def test_LPIPS地板同樣以x_base為對象(obj):
+def test_LPIPS下限同樣以x_base為對象(obj):
     """與 L∞、PSNR 兩道 hinge 一致：量的是防禦加了多少，不是與原圖差多少。
 
     若這道 hinge 誤用原圖為對象，site L 那種 x_base 本身就遠離 x 的情形會
@@ -263,7 +263,7 @@ def test_LPIPS地板同樣以x_base為對象(obj):
     assert p["fid_lpips"] > obj.cfg.tau_lpips
 
 
-def test_PSNR地板預設不參與梯度但仍記錄(obj):
+def test_PSNR下限預設不參與梯度但仍記錄(obj):
     """修訂之二把 gamma_psnr 設為 0：保留量測與記錄，不影響優化方向。
 
     同時驗證係數可一行復原——這是保留該項而非刪除的唯一理由。
@@ -272,7 +272,7 @@ def test_PSNR地板預設不參與梯度但仍記錄(obj):
     xd = (x + 0.2 * torch.randn_like(x)).clamp(0, 1)
 
     total_off, p = obj.fidelity_term(xd, x)
-    assert p["fid_pen_psnr"] > 0.0, "PSNR 低於地板，量測值必須照實記錄"
+    assert p["fid_pen_psnr"] > 0.0, "PSNR 低於下限，量測值必須照實記錄"
     assert obj.cfg.gamma_psnr == 0.0, "預設不參與梯度"
 
     revived = DefenseObjective(LossConfig(gamma_psnr=1.0), DEV)
@@ -284,7 +284,7 @@ def test_PSNR地板預設不參與梯度但仍記錄(obj):
 
 
 def test_保真項對x_def可微(obj):
-    """φ 的梯度必須能穿過保真項，否則兩道地板形同虛設。"""
+    """φ 的梯度必須能穿過保真項，否則兩道下限形同虛設。"""
     x = _img(4)
     xd = (x + 0.05 * torch.randn_like(x)).clamp(0, 1).requires_grad_(True)
     total, _ = obj.fidelity_term(xd, x)
@@ -595,7 +595,7 @@ def test_alpha_lpips為零時原始項不進梯度():
     但 L_fid 裡那個係數為 1 的原始 lpips 項仍是加權和的一半：它是一個持續把
     失真往零拉的力，使最佳化停在 τ 之下，τ 因而不是綁定的約束。
 
-    實測（H100、w=7.5、其他候選綁定者全部排除）：site C 末端 LPIPS
+    實測（H100、w=7.5、其他候選有效約束全部排除）：site C 末端 LPIPS
     0.031–0.045、site P 0.040，而 τ=0.05 的 hinge 在 60 步中只啟動 0–8 步。
     """
     import torch
@@ -628,10 +628,10 @@ def test_alpha_lpips預設維持一():
 
 def test_色度偏壓約束預設開啟且門檻為零點六():
     """預設開啟是刻意的（與 gamma_acut 於 E20 導入時相同，而非 alpha_lpips
-    那種預設關閉）。忘記開會重演 E27 的失效——site C 用色調偏移買防禦
+    那種預設關閉）。忘記開會重演 E27 的失效——site C 用色調偏移換防禦
     效果，而報告裡沒有任何一欄看得出來。
 
-    0.6 由人眼定錨：使用者在 runs/p10_chroma_ladder 的階梯上判讀
+    0.6 由人眼判讀：使用者在 runs/p10_chroma_ladder 的階梯上判讀
     「0.3 還有 0.6 都看不出來，1.0 以上才開始有一些細微色調變化」。
     """
     from src.defense.objective import LossConfig
@@ -642,9 +642,9 @@ def test_色度偏壓約束預設開啟且門檻為零點六():
 
 
 def test_連貫色偏被色度hinge擋下而隨機擾動不被擋():
-    """這道約束存在的理由，且它必須對兩臂一視同仁。
+    """這道約束存在的理由，且它必須對兩個條件一視同仁。
 
-    ΔE 那一族分不出這兩者（P9 實測等 LPIPS 下 2.44 對 2.79），若拿它當約束，
+    ΔE 那一類分不出這兩者（P9 實測等 LPIPS 下 2.44 對 2.79），若拿它當約束，
     加性基準會與非加性一起被擋，比較就不成立。
     """
     import torch
@@ -657,14 +657,14 @@ def test_連貫色偏被色度hinge擋下而隨機擾動不被擋():
     # 故底圖仍是無彩的，不影響色度的比較。
     xs = torch.linspace(0, 12 * torch.pi, 64)
     base = (0.5 + 0.15 * xs.sin().view(1, 1, 1, -1)).expand(1, 3, 64, 64).contiguous()
-    # 兩臂的逐像素色度誤差量值相近（實測 12.86 對 12.65），差別只在空間結構；
+    # 兩個條件的逐像素色度誤差量值相近（實測 12.86 對 12.65），差別只在空間結構；
     # 偏壓則差 18 倍（0.69 對 12.64）。見 test_chroma.py 的同一構造。
     noisy = (base + 0.06 * torch.randn(base.shape, generator=g)).clamp(0, 1)
     shifted = base.clone()
     shifted[:, 0] += 0.12
     shifted = shifted.clamp(0, 1)
 
-    # τ 在此顯式給定，不用生產預設值。這兩臂的實測偏壓是 0.67 與 12.6，
+    # τ 在此顯式給定，不用生產預設值。這兩個條件的實測偏壓是 0.67 與 12.6，
     # 而生產的 τ_chroma=0.8 恰好落在 0.67 之上——若沿用預設，這個測試會通過，
     # 但通過的原因會與「τ 選在哪裡」糾纏在一起。測試要驗的是構造能分開
     # 兩者，不是某個特定門檻剛好區分得開；把 τ 設在兩者之間才驗得到那件事。

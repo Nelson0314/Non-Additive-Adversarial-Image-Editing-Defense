@@ -55,30 +55,85 @@ from src.utils.device import (
 )
 
 
+def class_prompts(entry, cls: str, src: Path) -> list:
+    """把 prompts.yaml 的一筆類別條目轉成 prompt 清單。
+
+    本專案有兩種資料集格式，且**兩者都還在用**：
+
+        data/dayn_testset  →  {類別: [prompt, ...]}
+        data/lo_aligned    →  {類別: {content: c_a, prompts: [prompt, ...]}}
+
+    原本此處寫的是 `list(prompts.get(cls) or ["a photo"])`。對後者，
+    `list(dict)` 回傳的是**鍵名**，即 φ 會被拿去對著 `"content"` 與
+    `"prompts"` 這兩個字串最佳化，而且完全沒有症狀——腳本正常跑完、
+    CSV 正常寫出、每個數字都是一次真實的最佳化，只是攻擊 prompt 不是
+    資料集裡宣告的那個。這正是 `run_ours_lo_eval.py` 的 docstring 列為
+    「不直接用 run_defense.py」的第一個理由。
+
+    故此處逐一辨認格式，不認識的一律拋出。靜默退回 `["a photo"]` 與
+    「宣告了 prompt 但沒被讀到」在外部分不出來。
+    """
+    if isinstance(entry, dict):
+        if "prompts" not in entry:
+            raise KeyError(
+                f"{src} 的類別 {cls!r} 是 dict 卻沒有 'prompts' 鍵："
+                f"實際鍵為 {sorted(entry)}。不接受猜測——猜錯會讓 φ 對著"
+                "鍵名最佳化而毫無症狀"
+            )
+        return list(entry["prompts"])
+    if isinstance(entry, (list, tuple)):
+        return list(entry)
+    raise TypeError(
+        f"{src} 的類別 {cls!r} 是 {type(entry).__name__}，"
+        "只接受 list（[prompt, ...]）或 dict（{'prompts': [...], ...}）"
+    )
+
+
 def load_images(root: Path, size: int, device, limit=None):
     """回傳 [(名稱, 張量, prompt 清單)]。
 
     回傳整個清單而非只有第一個：prompts.yaml 每類已有兩個惡意編輯 prompt，
     訓練只用第 [0] 個，第 [1] 個是現成的 held-out。φ 是針對特定 prompt
     優化出來的，只在訓練用的那個上評測量到的是訓練集表現。
+
+    收錄的內容恰好等於 prompts.yaml 宣告的內容，與 `run_lo_baseline.
+    load_dataset` 同一條規則。原本此處走 `root.rglob("*.png")`，會把根目錄
+    下的任何 PNG 也算進來——`data/lo_aligned/overview.png`（資料集總覽圖）
+    就會被當成一張待防禦的影像，而 `run_lo_baseline` 已因同一個原因改掉。
     """
     from PIL import Image
     import torchvision.transforms as T
 
-    prompts = {}
     pf = root / "prompts.yaml"
-    if pf.exists():
-        import yaml
+    if not pf.exists():
+        raise FileNotFoundError(
+            f"{pf} 不存在。prompt 是攻擊方的輸入，缺少時無法定義要防禦什麼；"
+            "退回 ['a photo'] 會讓整批 run 防的是另一個攻擊而沒有症狀"
+        )
+    import yaml
 
-        prompts = yaml.safe_load(pf.read_text(encoding="utf-8")) or {}
+    spec = yaml.safe_load(pf.read_text(encoding="utf-8")) or {}
 
     out = []
-    for p in sorted(root.rglob("*.png")):
-        cls = p.parent.name
-        img = Image.open(p).convert("RGB").resize((size, size), Image.LANCZOS)
-        x = T.ToTensor()(img).unsqueeze(0).to(device)
-        plist = list(prompts.get(cls) or ["a photo"])
-        out.append((p.stem, x, plist))
+    for cls, entry in spec.items():
+        d = root / cls
+        if not d.is_dir():
+            raise FileNotFoundError(f"{pf} 宣告了類別 {cls!r}，但 {d} 不存在")
+        plist = class_prompts(entry, cls, pf)
+        for p in sorted(d.glob("*.png")):
+            img = Image.open(p).convert("RGB").resize((size, size), Image.LANCZOS)
+            x = T.ToTensor()(img).unsqueeze(0).to(device)
+            out.append((p.stem, x, list(plist)))
+
+    # 未宣告的子目錄若放了 PNG 會被靜默忽略，那與「忘了宣告」分不出來。
+    stray = [
+        p for p in root.iterdir()
+        if p.is_dir() and p.name not in spec and any(p.glob("*.png"))
+    ]
+    if stray:
+        raise KeyError(
+            f"這些目錄有 PNG 但沒有在 {pf} 裡宣告：{[p.name for p in stray]}"
+        )
     return out[:limit] if limit else out
 
 
@@ -282,7 +337,7 @@ def main():
     ap.add_argument("--k_inv", type=int, default=10)
     ap.add_argument(
         "--t_max", type=int, default=None,
-        help="inversion timestep 上限。依 E0c 的重建地板量測結果指定",
+        help="inversion timestep 上限。依 E0c 的重建誤差下限量測結果指定",
     )
     ap.add_argument("--n_edit", type=int, default=10)
     ap.add_argument("--n_eot", type=int, default=1)
@@ -334,7 +389,7 @@ def main():
         help="suppress=降低內容 token 分到的注意力質量（預設）；"
              "entropy=把分佈推向均勻；"
              "divergence=把分佈推離原圖的（φ=0 時梯度恆為零，跑了不會動，"
-             "見 docs/RESULTS_E20_fidelity.md §9）",
+             "見 docs/RESULTS_E13-E23.md §9）",
     )
     ap.add_argument(
         "--attn_timesteps", type=int, default=OptimConfig.attn_timesteps,
@@ -364,28 +419,28 @@ def main():
     )
     ap.add_argument(
         "--tau_chroma", type=float, default=LossConfig.tau_chroma,
-        help="色度偏壓 hinge 的門檻。0.8 由人眼定錨（runs/p10_chroma_ladder）："
+        help="色度偏壓 hinge 的門檻。0.8 由人眼判讀（runs/p10_chroma_ladder）："
              "0.3 與 0.6 看不出來、1.0 要很仔細看才看得出來。取 0.8 而非 1.0，"
              "是因為 1.0 屬於已確認看得見的一級",
     )
     ap.add_argument(
         "--gamma_chroma", type=float, default=LossConfig.gamma_chroma,
         help="色度偏壓 hinge 的係數。設 0 可關掉該道約束（僅供對照，"
-             "關掉會讓 site C 重新能用色調偏移買防禦效果）",
+             "關掉會讓 site C 重新能用色調偏移換防禦效果）",
     )
     ap.add_argument(
         "--alpha_lpips", type=float, default=LossConfig.alpha_lpips,
         help="L_fid 裡那個係數為 1 的原始 lpips 項（不是 hinge）。**設 0 才能"
              "讓 τ 真正成為綁定的約束**：E27 實測留著它會讓最佳化停在 τ 之下"
-             "（末端 LPIPS 0.031–0.045、hinge 0–8/60 步啟動），兩臂各自停在"
+             "（末端 LPIPS 0.031–0.045、hinge 0–8/60 步啟動），兩個條件各自停在"
              "不同的失真上，匹配失真的比較不成立。預設 1.0 只為了可重現既有結果",
     )
     ap.add_argument(
         "--margin", type=float, default=LossConfig.margin,
         help="防禦 hinge 的 margin。偏移超過它之後防禦項不再施力，優化轉去"
-             "改善保真項。它必須大到不成為綁定者：E27 實測 w=7.5 下 "
+             "改善保真項。它必須大到不成為有效約束：E27 實測 w=7.5 下 "
              "site C 的 edit_shift 已達 0.44–0.49，逼近預設的 0.5，於是 LPIPS "
-             "hinge 只啟動 1–8/60 步，兩臂會停在各自不同的失真上而非匹配失真",
+             "hinge 只啟動 1–8/60 步，兩個條件會停在各自不同的失真上而非匹配失真",
     )
     ap.add_argument(
         "--stop_on_plateau", action="store_true",
@@ -394,15 +449,29 @@ def main():
              "方法問題；正式重跑必須開啟",
     )
     ap.add_argument("--stop_patience", type=int, default=OptimConfig.stop_patience)
-    ap.add_argument("--stop_tol", type=float, default=OptimConfig.stop_tol)
+    ap.add_argument(
+        "--stop_tol", type=float, default=None,
+        help="平台停止的每步改善量門檻。**留空**表示依監看量取校準過的值"
+             "（optimize.MONITOR_TOL：edit_shift 1e-4、attn_div 1e-5）。"
+             "兩者的動態範圍差 39 倍，共用一個絕對門檻會讓 crossattn 在"
+             "半途就判定收斂而沒有症狀，見 LEDGER 6.21")
     ap.add_argument("--stop_min_steps", type=int,
                     default=OptimConfig.stop_min_steps)
+    ap.add_argument(
+        "--stop_require_feasible", action="store_true",
+        help="不在約束仍被違反時停止。--stop_on_plateau 的條件一只檢查"
+             "「罰項曾非零」，不檢查「已回到預算內」：2026-08-03 實測 site PF "
+             "第 31 步停止時 LPIPS 罰項仍有 34（失真約 0.44，是預算 0.10 的 "
+             "4.4 倍），觸發原因是 edit_shift 正在下降——那是最佳化在把失真"
+             "拉回預算，卻被判成沒進展。匹配失真的比較一律開啟，"
+             "見 docs/LEDGER.md 6.13",
+    )
     ap.add_argument(
         "--guidance_scale", type=float, default=OptimConfig.guidance_scale,
         help="攻擊方的 classifier-free guidance 權重。**預設 1.0 只為了讓 "
              "E2–E23 可重現，它不是正確的威脅模型**：E26 實測 w=1 時 SD v1.4 "
              "幾乎不服從 prompt，該設定下的『編輯』與『什麼都沒做』在指標上 "
-             "分不出來。新實驗一律指定 7.5。見 docs/RESULTS_E25-E26.md §3",
+             "分不出來。新實驗一律指定 7.5。見 docs/RESULTS_E25-E31.md §3",
     )
     ap.add_argument(
         "--color_max_dev", type=float, default=OptimConfig.color_max_dev,
@@ -494,6 +563,7 @@ def main():
                     stop_patience=args.stop_patience,
                     stop_tol=args.stop_tol,
                     stop_min_steps=args.stop_min_steps,
+                    stop_require_feasible=args.stop_require_feasible,
                     exact_inversion=args.exact_inversion,
                     attn_mode=args.attn_mode,
                     attn_timesteps=args.attn_timesteps,
@@ -685,6 +755,7 @@ def main():
         "stop_patience": args.stop_patience,
         "stop_tol": args.stop_tol,
         "stop_min_steps": args.stop_min_steps,
+        "stop_require_feasible": args.stop_require_feasible,
         "attn_mode": args.attn_mode, "attn_timesteps": args.attn_timesteps,
         "exact_inversion": args.exact_inversion,
         "n_images": len(images), "torch": torch.__version__,

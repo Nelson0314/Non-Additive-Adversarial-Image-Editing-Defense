@@ -34,7 +34,7 @@ DEGRADE_HIGHER_IS_WORSE = {"niqe": True}
 
 
 def judge_cell(deltas_sem, deltas_deg, degrade_tau):
-    """一格（一個 run × 一個淨化臂）的 ISR 判定。
+    """一格（一個 run × 一個淨化條件）的 ISR 判定。
 
     `deltas_sem`：逐影像的 SigLIP(防禦後編輯) − SigLIP(未防禦編輯)。
     `deltas_deg`：逐影像的劣化量，已由呼叫端依指標方向轉為「越大越劣化」。
@@ -119,7 +119,7 @@ def main():
     ap.add_argument("--degrade_metric", default="niqe")
     ap.add_argument("--degrade_tau", type=float, default=1.0,
                     help="感知劣化門檻，由 p11 的人眼階梯定出。"
-                         "預設 1.0 只是佔位，正式判定必須傳入定錨值")
+                         "預設 1.0 只是佔位，正式判定必須傳入人眼判讀定出的值")
     args = ap.parse_args()
 
     runs_root = ROOT / args.runs

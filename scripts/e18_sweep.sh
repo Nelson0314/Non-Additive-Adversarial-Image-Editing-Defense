@@ -3,7 +3,7 @@
 #
 # 步數不另開格：latent_opt_history.json 每 25 步記一次 lpips，
 # 400/800/1200/1600 的值由軌跡讀出，因此只需 3 個 lr 各跑滿 1600 步。
-# --skip_asym：asym 兩臂與 lr/步數無關，E17 已量過，重跑只是浪費機時。
+# --skip_asym：asym 兩個條件與 lr/步數無關，E17 已量過，重跑只是浪費機時。
 set -u
 cd /work/nelson0314/WACV
 source env.sh

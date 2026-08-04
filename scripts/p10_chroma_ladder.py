@@ -1,7 +1,7 @@
 """E28 —— 色度偏壓的階梯：τ_chroma 要定在哪裡？
 
 為什麼需要人眼定調。P9 選出了 `local_chroma_bias` 這把尺，但沒有定出
-刻度。目前只有兩個由人眼定錨的點：
+刻度。目前只有兩個由人眼判讀的點：
 
 | 來源 | `local_chroma_bias` | 人眼判讀 |
 |---|---|---|
@@ -43,7 +43,7 @@ from src.utils.device import get_device  # noqa: E402
 OUT = ROOT / "runs" / "p10_chroma_ladder"
 CROP, ZOOM, GRID, SEED = 128, 4, 32, 20260728
 
-# 級距涵蓋兩個已定錨的點（site P 0.30、site C 3.94）並在中間補滿。
+# 級距涵蓋兩個已判讀定出的點（site P 0.30、site C 3.94）並在中間補滿。
 LEVELS = [0.3, 0.6, 1.0, 1.5, 2.5, 4.0]
 
 # 取三張色度含量不同的圖：p8 量到平均色度量值 person_00 0.0362、

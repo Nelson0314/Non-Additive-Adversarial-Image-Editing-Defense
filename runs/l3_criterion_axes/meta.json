@@ -1,0 +1,19 @@
+{
+  "source_run": "runs/lo_baseline",
+  "n_rows": 1440,
+  "n_cells": 72,
+  "n_images": 24,
+  "attacks": [
+    "pg_diffusion",
+    "pg_encoder",
+    "semantic"
+  ],
+  "seeds_per_cell": 20,
+  "degrade_taus": [
+    0.0,
+    0.5,
+    1.0,
+    2.0,
+    4.0
+  ]
+}

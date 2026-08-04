@@ -5,29 +5,29 @@ LPIPS，再看各候選指標分別收多少費；判準是「真的在量 X 的
 較高」。E20 靠這個方法發現 GMSD、NLPD、VIF、HaarPSI 量的其實是位移而非鈍化，
 而它們在真實資料上看似有效只是因為 site S 恰好是一個變形——那是循環論證。
 
-本次要找的是能擋住 site C 買色調偏移的約束（E27 §4）。要求有三條，缺一不可：
+本次要找的是能擋住 site C 換到的是色調偏移的約束（E27 §4）。要求有三條，缺一不可：
 
 1. 對色度偏移收費明顯——否則擋不住。
 2. 對位移與雜訊不多收——site S 本來就被允許是變形、site P 本來就被允許是
    加性擾動，對它們收費就是把「不是我們要禁止的東西」也禁掉，重蹈 E20 §5.3
    的循環論證。
 3. site P 的真實解必須遠低於 site C 的真實解——這是最終判準。前兩條是
-   合成臂上的性質，這一條是真實資料上的結果，且方向已由人眼定調：使用者
+   合成條件上的性質，這一條是真實資料上的結果，且方向已由人眼定調：使用者
    判讀 `runs/e27d_C_lr0.3/compare.html` 的回報是「P 的那兩張防禦圖人眼看起來
    跟原圖幾乎一樣，其他則有色調偏移一點點」。
 
-臂的組成（前四臂與 E20 的四臂探針相同，第五臂是本次新增）：
+條件的組成（前四個條件與 E20 的四條件探針相同，第五個條件是本次新增）：
 
-| 臂 | 產生方式 | 角色 |
+| 條件 | 產生方式 | 角色 |
 |---|---|---|
-| 模糊 | 高斯 σ 二分搜尋至目標 LPIPS | E20 的既有臂 |
+| 模糊 | 高斯 σ 二分搜尋至目標 LPIPS | E20 的既有條件 |
 | 雜訊 | 加性高斯，同上 | site P 的失真型態 |
 | 變形-雙線性 | `WarpResidual` 隨機平滑位移 | site S 的失真型態（含鈍化） |
 | 變形-雙三次 | 同上、換重取樣 | site S 的失真型態（不含鈍化） |
 | 色度偏移 | `ColorResidual` 隨機平滑 ΔM | site C 的失真型態 |
 
 另把 site C 與 site P 的真實解（`runs/e27d_*` 的 `defended.png`）一併評分，
-因為合成臂與真實解可能不同——E20 §4.1 就出現過兩者判定矛盾的情形。
+因為合成條件與真實解可能不同——E20 §4.1 就出現過兩者判定矛盾的情形。
 
 輸出 `runs/p9_chroma_probe/{probe.csv, real.csv, summary.txt}`。
 CPU 執行，不需要 GPU。
@@ -54,7 +54,7 @@ TARGET_LPIPS = 0.05          # 與 E27 校準所用的 τ 相同
 SEED = 20260728
 GRID = 32
 
-# 真實解：E27 第四輪的校準結果，兩臂都貼著 τ=0.05 跑
+# 真實解：E27 第四輪的校準結果，兩個條件都貼著 τ=0.05 跑
 REAL_RUNS = [("site C", "e27d_C_lr0.3"), ("site P", "e27d_P_lr0.03")]
 
 
@@ -69,7 +69,7 @@ def gaussian_blur(x, sigma):
 
 
 def make_arm(kind: str, x: torch.Tensor, amount: float) -> torch.Tensor:
-    """依強度參數產生該臂的失真影像。強度與 LPIPS 單調遞增，供二分搜尋。"""
+    """依強度參數產生該條件的失真影像。強度與 LPIPS 單調遞增，供二分搜尋。"""
     if kind == "blur":
         return gaussian_blur(x, amount)
     if kind == "noise":
@@ -89,15 +89,15 @@ def make_arm(kind: str, x: torch.Tensor, amount: float) -> torch.Tensor:
         mod.delta.data = torch.randn(mod.delta.shape, generator=g) * amount
         with torch.no_grad():
             return mod.pixel_residual(x)
-    raise ValueError(f"未知的臂：{kind!r}")
+    raise ValueError(f"未知的條件：{kind!r}")
 
 
 def calibrate(kind: str, x: torch.Tensor, lpips_fn, target: float,
               lo: float, hi: float, iters: int = 24):
-    """二分搜尋強度參數，使該臂的 LPIPS 命中目標。
+    """二分搜尋強度參數，使該條件的 LPIPS 命中目標。
 
     先確認上界真的越過目標再開始搜尋——上界不足時二分會回傳上界，
-    產生一個「看起來校準過但其實沒到」的臂，該情形會使整組比較失效。
+    產生一個「看起來校準過但其實沒到」的條件，該情形會使整組比較失效。
     """
     with torch.no_grad():
         top = float(lpips_fn(x, make_arm(kind, x, hi).clamp(0, 1)))
@@ -186,7 +186,7 @@ def main() -> None:
     lines = []
     keys = ["de76", "de00", "dchroma", "local_dchroma_dev",
             "local_chroma_bias", "local_acutance_dev"]
-    lines.append(f"=== 合成臂（全部校準到 LPIPS = {TARGET_LPIPS}，n={len(imgs)}）===")
+    lines.append(f"=== 合成條件（全部校準到 LPIPS = {TARGET_LPIPS}，n={len(imgs)}）===")
     lines.append(f"{'指標':>20s}" + "".join(f"{k:>16s}" for k, _, _ in ARMS))
     for k in keys:
         vals = {a: np.mean([r[k] for r in rows if r["arm"] == a]) for a, _, _ in ARMS}

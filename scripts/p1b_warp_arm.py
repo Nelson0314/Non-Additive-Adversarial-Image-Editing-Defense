@@ -1,4 +1,4 @@
-"""P1b —— 在探針上加入第三、第四臂：純空間變形（雙線性 / 雙三次）。
+"""P1b —— 在探針上加入第三、第四個條件：純空間變形（雙線性 / 雙三次）。
 
 動機是 P1 與 P2 的一個矛盾。P1（等 LPIPS 的模糊 vs 雜訊）判 NLPD 與 VIF
 與 LPIPS 同盲區，但 P2（真實的 E15 資料）中這兩者卻把 site S 與 site P 分得
@@ -9,7 +9,7 @@
 加進約束會因為 site S 是一個變形而懲罰它——這是循環論證：site S 本來就
 被允許是變形，它只是不被允許變模糊。
 
-本腳本以第三、第四臂檢驗此假說：把 site S 自己的位移場機制（粗網格 + 雙線性
+本腳本以第三、第四個條件檢驗此假說：把 site S 自己的位移場機制（粗網格 + 雙線性
 上採樣，`src/residual/site_warp.py`）套上隨機平滑位移，同樣校準到 LPIPS
 0.05，再看各指標怎麼計價。
 
@@ -170,7 +170,7 @@ def main() -> None:
 
 
 def report(rows: list[dict]) -> None:
-    """把兩個變形臂與既有的模糊／雜訊臂並排，全部在 LPIPS = 0.05 上。
+    """把兩個空間變形位置與既有的模糊／雜訊條件並排，全部在 LPIPS = 0.05 上。
 
     判準：一個合格的抗模糊約束，應該對模糊收高費、對位移收低費。
     對位移收高費者，會因為 site S 是變形而懲罰它，那是循環論證。
@@ -179,7 +179,7 @@ def report(rows: list[dict]) -> None:
                  if abs(float(r["target_lpips"]) - TARGET) < 1e-9]
     if len(blur_rows) != len(rows):
         raise ValueError(
-            f"probe.csv 在 τ={TARGET} 有 {len(blur_rows)} 張，warp 臂有 {len(rows)} 張，"
+            f"probe.csv 在 τ={TARGET} 有 {len(blur_rows)} 張，warp 條件有 {len(rows)} 張，"
             "兩者必須是同一組影像才能並排比較"
         )
 

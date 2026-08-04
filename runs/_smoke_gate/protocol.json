@@ -1,0 +1,17 @@
+{
+  "data": "data/lo_aligned",
+  "out": "runs/_smoke_gate",
+  "model": "CompVis/stable-diffusion-v1-4",
+  "images": "horse_00",
+  "sites": "PF",
+  "size": 256,
+  "steps": 2,
+  "lr": 0.008,
+  "tau_lpips": 0.55,
+  "attn_timesteps": 4,
+  "strength": 0.3,
+  "guidance": 7.5,
+  "n_edit": 10,
+  "eval_seeds": 2,
+  "seed": 20260804
+}

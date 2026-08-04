@@ -272,7 +272,7 @@ def test_論文的預設值():
 def test_論文未公布的超參數取本專案選定的值():
     # 這四個論文與補充材料都沒寫，由本專案指定（2026-08-03）。釘住它們是
     # 因為它們是「我們的選擇」而非「論文的條件」：日後若重現不成功，這裡
-    # 就是要回頭檢查的四個旋鈕，值被無聲改掉會讓那次檢查失去基準。
+    # 就是要回頭檢查的四個參數，值被無聲改掉會讓那次檢查失去基準。
     cfg = LinfAttackConfig()
     assert cfg.strength == 0.3          # 對齊 PhotoGuard 的 img2img 評測
     assert cfg.guidance_scale == 7.5    # E26：w=1 下 SD v1.4 幾乎不服從 prompt

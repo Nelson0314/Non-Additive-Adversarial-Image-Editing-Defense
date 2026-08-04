@@ -1,0 +1,18 @@
+{
+  "source_run": "runs/ours_lo",
+  "n_rows": 140,
+  "n_cells": 7,
+  "n_images": 4,
+  "attacks": [
+    "PF",
+    "S"
+  ],
+  "seeds_per_cell": 20,
+  "degrade_taus": [
+    0.0,
+    0.5,
+    1.0,
+    2.0,
+    4.0
+  ]
+}

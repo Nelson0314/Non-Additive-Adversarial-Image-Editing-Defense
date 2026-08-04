@@ -106,7 +106,7 @@ def main():
         w.writeheader()
         w.writerows(rows)
 
-    # 逐（頁面, 臂）聚合成一格，用與正式判準同一個函數
+    # 逐（頁面, 條件）聚合成一格，用與正式判準同一個函數
     groups = defaultdict(lambda: ([], []))
     for r in rows:
         k = (r["page"], r["arm"])
@@ -114,7 +114,7 @@ def main():
         groups[k][1].append(r["dniqe"])
 
     verdicts = []
-    print(f"\n{'頁面 / 臂':<44} {'n':>2} {'ΔSigLIP':>9} {'Δ劣化':>8} "
+    print(f"\n{'頁面 / 條件':<44} {'n':>2} {'ΔSigLIP':>9} {'Δ劣化':>8} "
           f"{'語意':<4} {'劣化':<4} ISR")
     for (page, arm), (sem, deg) in sorted(groups.items()):
         v = judge_cell(sem, deg, args.degrade_tau)

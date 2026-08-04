@@ -14,24 +14,24 @@ p13 的探針顯示問題不在防禦方法：
 
 ## 作法
 
-兩道門檻的職責不是「限制失真量」——那是 τ_lpips 的事——而是**擋住最佳化去買
+兩道門檻的職責不是「限制失真量」——那是 τ_lpips 的事——而是**擋住最佳化轉向
 LPIPS 收費不足的那兩種失真**：模糊（E18/E19 觀察到的）與空間連貫的色偏
 （E27/E28 觀察到的 site C）。職責是相對的，門檻就該是相對的。
 
-沿用 E20 的多臂等 LPIPS 探針，只是把「預算」加成一個軸：對每一個 τ_lpips，
-把五個臂全部校準到該 LPIPS，量各臂的 acut 與 chroma，再把門檻定在
-「該通過的臂」與「該被擋下的臂」之間。
+沿用 E20 的多條件等 LPIPS 探針，只是把「預算」加成一個軸：對每一個 τ_lpips，
+把五個條件全部校準到該 LPIPS，量各條件的 acut 與 chroma，再把門檻定在
+「該通過的條件」與「該被擋下的條件」之間。
 
     acut：   通過 = {noise, warp_bicubic}   擋下 = {blur, warp_bilinear}
     chroma： 通過 = {noise, warp_bicubic}   擋下 = {chroma}
 
-臂的歸屬直接沿用 E20 §5.2 與 E28 §1 的既有判定，不重新裁定：使用者對比對頁
+條件的歸屬直接沿用 E20 §5.2 與 E28 §1 的既有判定，不重新裁定：使用者對比對頁
 的判讀是「0.4–0.6 px 的位移不明顯，模糊明顯較糟」，而雙線性重取樣本身會鈍化
 （E20 實測只保留 85.0% 銳利度，雙三次為 99.9%），故雙線性歸在該擋下那一側。
 
 ## 門檻定在區間的哪個位置
 
-不取幾何中點，而是**沿用既有人眼定錨值所在的位置**。作法是先在定錨預算
+不取幾何中點，而是**沿用既有人眼判讀定出的門檻值所在的位置**。作法是先在基準預算
 （τ_lpips = 0.05，即 E20 與 E28 當初量的那個量級）上量出通過側上緣 `p` 與
 擋下側下緣 `b`，再算既有門檻 `τ₀` 在 [p, b] 這個對數區間上的位置
 
@@ -42,7 +42,7 @@ LPIPS 收費不足的那兩種失真**：模糊（E18/E19 觀察到的）與空�
 而不是用一個新規則取代它。
 
 實測（car_00）：τ_chroma = 0.8 落在 pos ≈ 0.50，即幾何中點——幾何平均在該軸上
-獨立重現了 E28 的人眼定錨值（0.802 對 0.8）。τ_acut = 0.04 落在 pos ≈ 0.12，
+獨立重現了 E28 的人眼判讀定出的門檻值（0.802 對 0.8）。τ_acut = 0.04 落在 pos ≈ 0.12，
 明顯偏向通過側，與 E20 「site P 自身的 0.0089 與雙三次的 0.0296 都須留有餘裕」
 的敘述一致。兩軸的 pos 不同，故各用各的。
 
@@ -74,8 +74,8 @@ from scripts.p9_chroma_probe import calibrate, make_arm, to_tensor
 from src.metrics.chroma import local_chroma_bias
 from src.metrics.local_acutance import local_acutance_dev
 
-# 臂的**實作**沿用 p9（`make_arm`），但**搜尋範圍**在此重新給，不改 p9。
-# p9 的 ARMS 只需要涵蓋單一預算 τ=0.05；本腳本要跨到 0.28，兩個變形臂的
+# 條件的**實作**沿用 p9（`make_arm`），但**搜尋範圍**在此重新給，不改 p9。
+# p9 的 ARMS 只需要涵蓋單一預算 τ=0.05；本腳本要跨到 0.28，兩個空間變形位置的
 # 上界 3.0 不夠——實測 person_00 的 warp_bilinear 在 3.0 只到 LPIPS 0.2196，
 # `calibrate` 因此正確地拋出而非回傳上界。
 # 改 p9 的常數會動到 E28 已入庫結果的重跑條件，故在此另立。
@@ -87,7 +87,7 @@ ARMS = [
     ("chroma", 0.0, 6.0),
 ]
 
-# 臂的歸屬。沿用 E20 §5.2 與 E28 §1 的既有判定，見模組 docstring。
+# 條件的歸屬。沿用 E20 §5.2 與 E28 §1 的既有判定，見模組 docstring。
 PASS_ACUT = ("noise", "warp_bicubic")
 BLOCK_ACUT = ("blur", "warp_bilinear")
 PASS_CHROMA = ("noise", "warp_bicubic")
@@ -116,10 +116,10 @@ def pick_threshold(values: dict, pass_arms, block_arms, pos: float = 0.5):
 
 
 def anchor_position(tau0: float, hi_pass: float, lo_block: float) -> float:
-    """既有人眼定錨值 `tau0` 在對數區間上的位置。
+    """既有人眼判讀定出的門檻值 `tau0` 在對數區間上的位置。
 
-    落在區間外時拋出：那表示既有門檻本身已經擋掉了該通過的臂（pos<0）或
-    放過了該擋下的臂（pos>1），此時「沿用它的位置」沒有意義，必須先處理
+    落在區間外時拋出：那表示既有門檻本身已經擋掉了該通過的條件（pos<0）或
+    放過了該擋下的條件（pos>1），此時「沿用它的位置」沒有意義，必須先處理
     那個矛盾而不是外推一個不成立的位置。
     """
     pos = math.log(tau0 / hi_pass) / math.log(lo_block / hi_pass)
@@ -196,7 +196,7 @@ def main():
 
     if args.anchor_budget not in budgets:
         raise ValueError(
-            f"定錨預算 {args.anchor_budget} 不在 --budgets 內。位置 pos 必須"
+            f"基準預算 {args.anchor_budget} 不在 --budgets 內。位置 pos 必須"
             f"在既有門檻被定出來的那個預算上量，不可用別的預算代替"
         )
     a0, c0 = bounds(args.anchor_budget)
@@ -204,7 +204,7 @@ def main():
                             *pick_threshold(a0, PASS_ACUT, BLOCK_ACUT)[1:])
     pos_c = anchor_position(args.anchor_tau_chroma,
                             *pick_threshold(c0, PASS_CHROMA, BLOCK_CHROMA)[1:])
-    print(f"\n[定錨] τ_acut={args.anchor_tau_acut} 位於 pos={pos_a:.3f}；"
+    print(f"\n[判讀定出] τ_acut={args.anchor_tau_acut} 位於 pos={pos_a:.3f}；"
           f"τ_chroma={args.anchor_tau_chroma} 位於 pos={pos_c:.3f}"
           f"（0.5 即幾何中點）", flush=True)
 

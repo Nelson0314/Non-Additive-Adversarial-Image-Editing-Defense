@@ -1,6 +1,6 @@
 """P3 —— 用已校準好的影像檢驗局部銳利度偏差。
 
-P1/P1b 產生的四臂影像（模糊／雜訊／變形-雙線性／變形-雙三次）全部已校準到
+P1/P1b 產生的四個條件影像（模糊／雜訊／變形-雙線性／變形-雙三次）全部已校準到
 LPIPS = 0.05 並存檔，故新指標可以直接在這些檔案上評分，不需要重跑任何
 二分搜尋。P2 的 E15 真實資料同理。
 
@@ -54,7 +54,7 @@ def main() -> None:
             p = PROBE / f"{name}__lpips0p05__{arm}.png"
             if not p.exists():
                 raise FileNotFoundError(
-                    f"缺少 {p}。四臂必須齊備才能比較；warp 兩臂由 "
+                    f"缺少 {p}。四個條件必須齊備才能比較；warp 兩個條件由 "
                     "scripts/p1b_warp_arm.py 產生")
             y = load(p)
             rows.append({"image": name, "arm": arm,
@@ -84,8 +84,8 @@ def main() -> None:
     keys = ["acutance_ratio", "local_acutance_dev",
             "local_acutance_signed", "local_acutance_worst"]
 
-    print("=== 四臂（LPIPS 全部 = 0.05，n=6）===")
-    print(f"{'臂':>14s} " + " ".join(f"{k:>22s}" for k in keys))
+    print("=== 四個條件（LPIPS 全部 = 0.05，n=6）===")
+    print(f"{'條件':>14s} " + " ".join(f"{k:>22s}" for k in keys))
     print("-" * 106)
     for arm, lab in ARMS:
         sub = [r for r in rows if r["arm"] == arm]

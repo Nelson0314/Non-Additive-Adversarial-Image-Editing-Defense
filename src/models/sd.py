@@ -155,7 +155,7 @@ class SDWrapper:
         缺漏。修訂前全專案沒有任何 CFG：`_eps` 只以條件嵌入呼叫一次 UNet，
         等同 w = 1。Stable Diffusion v1.x 是在 CFG 下訓練也在 CFG 下使用
         的，w = 1 時 prompt 對輸出的影響極弱，SDEdit 退化成「加噪再去噪」。
-        實測後果見 `docs/RESULTS_E26_guidance.md`：CLIP(原圖) 0.2030 →
+        實測後果見 `docs/RESULTS_E25-E31.md`：CLIP(原圖) 0.2030 →
         CLIP(所謂的編輯結果) 0.2132，只升 0.0101 而標準差 0.0169，即編輯
         根本沒有發生；使用者對 `runs/p5_semantic_axis/compare.html` 的判讀是
         「連原始圖片被文字編輯都沒有成功」。
@@ -247,8 +247,8 @@ class SDWrapper:
 
         精確的只有擴散這一段。`G(x;0)` 仍要經過 VAE 的編碼與解碼，其
         來回誤差實測為 PSNR 27.51 dB / LPIPS 0.143，BDIA 不改變這一項。
-        故本方法把重建地板由 LPIPS 0.194 降到 0.143 為止，仍高於像素側加性
-        位置實際運作的 0.063。採用與否應以此為準，不應期待地板歸零。
+        故本方法把重建誤差下限由 LPIPS 0.194 降到 0.143 為止，仍高於像素側加性
+        位置實際運作的 0.063。採用與否應以此為準，不應期待下限歸零。
         """
         if gamma == 0:
             raise ValueError("gamma=0 使 BDIA 退化為不可反解的 DDIM，無意義")

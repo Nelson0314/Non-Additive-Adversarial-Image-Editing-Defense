@@ -153,7 +153,7 @@ def _cell_dir(run_dir: Path, row: dict):
 
 
 def delta_table(runs):
-    """逐 run × 淨化臂的配對差 Δ。回傳明細列。"""
+    """逐 run × 淨化條件的配對差 Δ。回傳明細列。"""
     out = []
     for name, csv_path in runs:
         by = defaultdict(list)
@@ -249,7 +249,7 @@ def main() -> None:
               f"  {'是' if fail else '否'}")
 
     n_fail = sum(any(r[f"d{k}_fail"] for k in valid) for r in rows)
-    print(f"\n全部 {len(rows)} 個 (run × 淨化臂) 格子中，"
+    print(f"\n全部 {len(rows)} 個 (run × 淨化條件) 格子中，"
           f"依 {'/'.join(valid)} 判定為語意失敗的有 {n_fail} 格。")
     if n_fail:
         print("  這些格子是：")

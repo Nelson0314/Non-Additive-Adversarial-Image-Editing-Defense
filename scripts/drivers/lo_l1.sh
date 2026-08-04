@@ -1,5 +1,5 @@
 #!/bin/bash
-# L1：在 L∞ ≤ 0.06 上重現 Lo et al. (CVPR 2024) Table 1 的三根柱子。
+# L1：在 L∞ ≤ 0.06 上重現 Lo et al. (CVPR 2024) Table 1 的三個基準方法。
 #
 # 用法（在 repo 根目錄）：
 #   bash scripts/drivers/lo_l1.sh 0            # 編輯 prompt 1，開始或接續
@@ -14,7 +14,7 @@
 #   prompt 2（索引 1）改動其他區域，c_a 出現在 prompt 裡（"A dog in the park"）
 #
 # 只跑索引 0 會系統性低估 semantic attack：正文 §4.3 把「c_a 未出現在編輯
-# prompt 中仍有效」列為額外的優點，代表那是較難的一半。兩根 PhotoGuard 柱子
+# prompt 中仍有效」列為額外的優點，代表那是較難的一半。兩個 PhotoGuard 變體 基準方法
 # 完全不用 c_a，不受影響——這正是 2026-08-03 首批 37 格觀察到的模式
 # （PhotoGuard 重現、semantic 反而低於論文）。兩半各自寫進不同的 --out，
 # 由 scripts/report_table1.py 合併。

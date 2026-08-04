@@ -185,7 +185,7 @@ def attention_content_suppression(
 
     這個模式存在的理由是 `divergence` 從 φ=0 起不了步。KL(A_φ ‖ A_ref) 在
     φ=0 時兩個分佈逐元素相同，KL = 0，而 0 是 KL 的最小值，故梯度在該點
-    精確為零（實測 grad_norm = 0.000e+00，見 `docs/RESULTS_E20_fidelity.md` §9
+    精確為零（實測 grad_norm = 0.000e+00，見 `docs/RESULTS_E13-E23.md` §9
     與 `tests/test_pipeline.py::test_divergence模式在phi等於零時無梯度`）。
     任何「與未防禦參照的散度」形式的目標都有這個性質，換一種散度並不能解決。
 

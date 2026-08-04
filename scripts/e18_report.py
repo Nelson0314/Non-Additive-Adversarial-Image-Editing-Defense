@@ -124,7 +124,7 @@ def main():
             tag = ""
 
     print()
-    print("參照：E17 現況地板 roundtrip 0.1434 / 27.51 dB；"
+    print("參照：E17 現況下限 roundtrip 0.1434 / 27.51 dB；"
           f"site P 實際運作於 LPIPS {TARGET}")
     print("註：roundtrip 是自身的參照點，其 psnr/dists 必然「不退」，"
           "該列的這兩欄恆為滿分，不具資訊。")

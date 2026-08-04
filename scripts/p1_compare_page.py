@@ -30,7 +30,7 @@ OUT = ROOT / "runs" / "p1_iso_lpips_probe"
 CROP = 128          # 裁切邊長（原圖像素）
 ZOOM = 4            # 放大倍率，最近鄰
 BASE_VARIANTS = [("orig", "原圖"), ("blur", "模糊"), ("noise", "雜訊")]
-# 兩個變形臂只在 τ=0.05 產生（見 scripts/p1b_warp_arm.py 的範圍說明）
+# 兩個空間變形位置只在 τ=0.05 產生（見 scripts/p1b_warp_arm.py 的範圍說明）
 WARP_VARIANTS = [("warp_bilinear", "變形-雙線性"), ("warp_bicubic", "變形-雙三次")]
 WARP_TAU = 0.05
 
@@ -133,11 +133,11 @@ document.addEventListener('keydown', e => {
 
 
 def collect_values() -> dict:
-    """把三個來源的指標值收成 (影像, τ, 臂, 指標) → 值。
+    """把三個來源的指標值收成 (影像, τ, 條件, 指標) → 值。
 
-    - `probe.csv`：模糊與雜訊兩臂的全部指標（三個 τ）
-    - `warp.csv`：兩個變形臂的全部指標（僅 τ=0.05）
-    - `p3_local_acutance/probe_arms.csv`：四臂的局部銳利度偏差（僅 τ=0.05）
+    - `probe.csv`：模糊與雜訊兩個條件的全部指標（三個 τ）
+    - `warp.csv`：兩個空間變形位置的全部指標（僅 τ=0.05）
+    - `p3_local_acutance/probe_arms.csv`：四個條件的局部銳利度偏差（僅 τ=0.05）
     """
     vals: dict = {}
     for r in csv.DictReader((OUT / "probe.csv").open(encoding="utf-8")):
@@ -190,7 +190,7 @@ def main() -> None:
         missing = [f for f in files.values() if not (OUT / f).exists()]
         if missing:
             raise FileNotFoundError(
-                f"缺少 {missing}。τ={tgt} 的全部臂必須齊備；變形兩臂由 "
+                f"缺少 {missing}。τ={tgt} 的全部條件必須齊備；變形兩個條件由 "
                 "scripts/p1b_warp_arm.py 產生")
 
         zooms = {}

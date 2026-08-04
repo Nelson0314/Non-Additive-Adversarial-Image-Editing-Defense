@@ -1,4 +1,4 @@
-"""在 L∞ ≤ κ 上重現 Lo et al. (CVPR 2024) Table 1 的三根柱子。
+"""在 L∞ ≤ κ 上重現 Lo et al. (CVPR 2024) Table 1 的三個基準方法。
 
     python scripts/run_lo_baseline.py --data data/lo_aligned \
         --out runs/lo_baseline --attacks pg_encoder,pg_diffusion,semantic \
@@ -111,7 +111,7 @@ def reference_edits(sd, x01, prompt, cfg, n_seeds):
     """未防禦的編輯，逐種子各一張。回傳 [(seed, noise, y_ref)]。
 
     對同一張影像與同一個 prompt，`y_ref` 與攻擊方法無關。三個攻擊各自重算
-    一次是把雲端時間白燒三分之一——每張影像 20 個種子的編輯鏈是本協定
+    一次會多耗用三分之一的雲端時間——每張影像 20 個種子的編輯鏈是本協定
     評測側的主要成本。故在攻擊迴圈之外算一次、三個攻擊共用。
 
     順帶保證了三個攻擊比的是**同一個**參照。分開算雖然種子相同、結果也應

@@ -1,18 +1,18 @@
 """E25-2 —— 淨化保留率：非加性的優勢是不是在「淨化之後」才出現？
 
 動機。E23 在無淨化下量到 Sbic / P = 0.85×，據此判定非加性沒有優勢。
-但 `results.csv` 每一列都帶著 22 個淨化臂（identity / blur / noise / jpeg /
+但 `results.csv` 每一列都帶著 22 個淨化條件（identity / blur / noise / jpeg /
 quantize，各數個強度），而所有既有報告只讀了無淨化那一格。文獻對這一點有
 明確預期：NAPPure（ICCV 2025）量到既有的淨化方法是為加性雜訊設計的，
 對非加性擾動（模糊／遮擋／flow-field 變形）明顯失效；stAdv 那條線也記載
 「空間平滑的擾動對 JPEG 防禦較強健」。若該預期成立，S/P 的比值應該隨淨化
 強度上升。
 
-量什麼。對每個淨化臂
+量什麼。對每個淨化條件
 
-    retention = net(該臂) / net(無淨化)
+    retention = net(該條件) / net(無淨化)
 
-即該臂還留下原本效果的幾分之幾。比較的是 S 與 P 的 retention，而不是 net
+即該條件還留下原本效果的幾分之幾。比較的是 S 與 P 的 retention，而不是 net
 的絕對值——後者已由無淨化那一格決定，這裡問的是「誰掉得比較慢」。
 
 為什麼要同時用 Δsiglip 重算一次。E25-1 顯示 `net_lpips` 與語意軸給出

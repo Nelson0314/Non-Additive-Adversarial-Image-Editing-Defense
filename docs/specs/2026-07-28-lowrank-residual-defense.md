@@ -2,7 +2,7 @@
 
 - 版本：v1（2026-07-28）
 - 狀態：已實作並執行至 E17。本規格為當時的設計依據，後續的推翻與修正
-  記於 `docs/REPORT.html` §六、§七與 `docs/RESULTS_E13-E17.md`，本文不再回頭改寫。
+  記於 `docs/REPORT.html` §六、§七與 `docs/RESULTS_E13-E23.md`，本文不再回頭改寫。
 - 前置：v2 實驗已封存於 `docs/archive/2026-07-26-RESULTS_v2.html`；v2 程式碼已自工作區移除，
   可由 git 歷史 commit `02cf175` 取回
 
@@ -203,7 +203,7 @@ L_fid = LPIPS(x_def, x)
       + γ · max(0, PSNR_floor − PSNR(x_def, x))
 ```
 
-後兩項為 hinge 形式的硬地板。其存在理由為 v2 的直接實測結果：apa 方法的 LPIPS 與 pg_enc 幾乎相同，但 PSNR 相差 12.7 dB、L∞ 相差 28 倍。若保真項僅使用 LPIPS，優化過程會利用 LPIPS 的量測盲區，產生 LPIPS 數值良好但人眼可見的失真。`τ` 與 `PSNR_floor` 兩道地板封閉此路徑。
+後兩項為 hinge 形式的硬性下限。其存在理由為 v2 的直接實測結果：apa 方法的 LPIPS 與 pg_enc 幾乎相同，但 PSNR 相差 12.7 dB、L∞ 相差 28 倍。若保真項僅使用 LPIPS，優化過程會利用 LPIPS 的量測盲區，產生 LPIPS 數值良好但人眼可見的失真。`τ` 與 `PSNR_floor` 兩道下限封閉此路徑。
 
 ### 5.3 梯度路徑
 
@@ -256,7 +256,7 @@ L_def → d(y_def, y_orig) → E 的 n_edit 步去噪鏈 → VAE.decode
 
 - 外積參數化使秩成為架構硬約束而非懲罰項（§4.1）。
 - 三注入位置（P／L／W）× 秩的兩軸因子設計，以 P 與 L 的對比切割「秩」與「非加性」兩個混淆因素（§6 下方、§7 E2–E3）。
-- 多項硬地板保真項，其設計動機來自 v2 對單一 LPIPS 量測盲區的實測（§5.2）。
+- 多項硬性下限保真項，其設計動機來自 v2 對單一 LPIPS 量測盲區的實測（§5.2）。
 - 將淨化期望值寫入訓練目標，使耐淨化性成為優化目標而非事後觀察（§5.1）。
 
 ---
@@ -342,7 +342,7 @@ L_fid = LPIPS(x_def, x) + α·(1 − SSIM(x_def, x))
 ```
 其中 `Δ = x_def − x`，`τ = 0.06`、`PSNR_floor = 30 dB`。
 
-**問題**：兩道地板都設在 site L **不可能達到**的位置。site L 的 `x_def` 在 `φ = 0` 時已是「VAE 編碼 → DDIM inversion → 去噪 → VAE 解碼」的重建，該重建誤差與防禦強度無關且 `φ` 無法消除。
+**問題**：兩道下限都設在 site L **不可能達到**的位置。site L 的 `x_def` 在 `φ = 0` 時已是「VAE 編碼 → DDIM inversion → 去噪 → VAE 解碼」的重建，該重建誤差與防禦強度無關且 `φ` 無法消除。
 
 E0c 實測（n = 6，`t_max = 500`、`k_inv = 20`）：
 
@@ -356,7 +356,7 @@ pilot 實測 `φ = 0` 時 site L 的 `L∞ = 1.0000`，代入原式得 `β·(1.0
 **更正後**：
 
 1. **L∞ hinge 的對象改為 `x_def − x_base`**，其中 `x_base = G(x; φ=0)`。site P 的 `x_base = x`（故此改動對 site P 無影響）；site L 的 `x_base` 為其重建。兩個 site 量到的都是「防禦本身加了多少」，彼此可比。
-2. **`PSNR_floor` 由 30 dB 改為 26 dB**，略低於實測地板 26.56 dB，使 hinge 可以釋放。
+2. **`PSNR_floor` 由 30 dB 改為 26 dB**，略低於實測下限 26.56 dB，使 hinge 可以釋放。
 
 **未更動**：LPIPS、SSIM、PSNR 三項的對象仍為 `(x_def, x)`，總體保真度仍受把關。`L∞` 對原圖的總值以 `fid_linf_total` 逐步記錄並在報告中列出，不因改了優化對象就不報。
 

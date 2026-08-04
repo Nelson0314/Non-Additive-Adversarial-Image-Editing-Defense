@@ -4,8 +4,8 @@
 # 原本只存在於遠端的 /teamspace/studios/this_studio/WACV/，用途與本目錄其他
 # 腳本相同：保留參數的出處。報告裡的每一輪對應下面哪一段，在此可以查到。
 #
-# 四輪的差別只在每次放寬一個候選綁定者，過程與結論見
-# docs/RESULTS_E27_calibration.md §2。
+# 四輪的差別只在每次放寬一個候選有效約束，過程與結論見
+# docs/RESULTS_E25-E31.md §2。
 set -e
 PY=/home/zeus/miniconda3/envs/cloudspace/bin/python3
 cd /teamspace/studios/this_studio/WACV
@@ -34,7 +34,7 @@ done
 "$PY" scripts/run_defense.py --sites P --ranks 16 --lr 0.008 $BASE \
   --margin 1.0 --out "runs/e27c_P_lr0.008"
 
-# 第四輪：alpha_lpips=0。τ 終於成為綁定者，並定出兩臂的 lr。
+# 第四輪：alpha_lpips=0。τ 終於成為有效約束，並定出兩個條件的 lr。
 for LR in 0.1 0.3; do
   "$PY" scripts/run_defense.py --sites C --ranks 32 --lr "$LR" $BASE \
     --color_max_dev 2.0 --margin 1.0 --alpha_lpips 0 --out "runs/e27d_C_lr$LR"

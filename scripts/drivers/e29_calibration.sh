@@ -1,6 +1,6 @@
 #!/bin/bash
 # 【已執行，2026-08-02】結果在 `runs/e29_*`，判定見
-# `docs/RESULTS_E29_negative.md` §3：site C 的四個學習率（連同 `e29b` 的兩個，
+# `docs/RESULTS_E25-E31.md` §3：site C 的四個學習率（連同 `e29b` 的兩個，
 # 共跨 3 倍範圍）全部由色度 hinge 綁住，本腳本設定的判準未通過。後續的
 # `e30_grid.sh` 因此沒有執行。再調 site C 的學習率已列為死路
 # （`docs/NEXT_SESSION.md` §6）。
@@ -38,7 +38,7 @@ BASE="--size 512 --steps 60 --k_inv 10 --n_edit 10 --limit 2 --no_eval \
   echo "=== E29 校準開始 $(date -Is) ==="
   "$PY" -c "import torch; print('torch', torch.__version__, 'cuda', torch.cuda.is_available())"
 
-  # 非加性臂：site C（色度矩陣場）。lr 由本輪重新選定。
+  # 非加性位置：site C（色度矩陣場）。lr 由本輪重新選定。
   for LR in 0.1 0.3; do
     "$PY" scripts/run_defense.py --sites C --ranks 32 --lr "$LR" $BASE \
       --color_max_dev 2.0 --out "runs/e29_C_lr$LR"
@@ -51,7 +51,7 @@ BASE="--size 512 --steps 60 --k_inv 10 --n_edit 10 --limit 2 --no_eval \
       --out "runs/e29_P_lr$LR"
   done
 
-  echo "=== 綁定者診斷 ==="
+  echo "=== 有效約束診斷 ==="
   "$PY" scripts/e27_binding_check.py runs/e29_C_lr0.1 runs/e29_C_lr0.3 \
     runs/e29_P_lr0.03 runs/e29_P_lr0.1
   echo "=== E29 校準結束 $(date -Is) ==="

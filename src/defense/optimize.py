@@ -9,7 +9,7 @@
     peak    ≈ 9.95 GB，於 k_inv、n_edit ∈ [5,50] 幾乎不變
 
 記憶體與步數無關是因為兩條 UNet 鏈與三次 VAE 呼叫都已 checkpoint；時間則
-與步數線性相關。故 n_eot 直接乘在時間上，是本迴圈最貴的旋鈕。
+與步數線性相關。故 n_eot 直接乘在時間上，是本迴圈最貴的參數。
 """
 
 import time
@@ -33,10 +33,10 @@ class OptimConfig:
     t_max: Optional[int] = None   # inversion 的 timestep 上限，見 E0c
     # True 改用 BDIA 精確反演（arXiv 2307.10829）取代 DDIM。tiny-SD 實測
     # latent 空間來回誤差由 1.41 降到 1.37e-04（k=20, t_max=500）。
-    # 影像空間的地板不會歸零：VAE 編解碼來回誤差（真實 SD 實測
+    # 影像空間的下限不會歸零：VAE 編解碼來回誤差（真實 SD 實測
     # 27.51 dB / LPIPS 0.143）與反演無關，BDIA 不觸及該項。預期效果是把
-    # 重建地板由 LPIPS 0.194 降到 0.143，仍高於像素側加性位置實際運作的
-    # 0.063，故此旗標是量測反演佔地板多少的工具，不是解除封鎖的萬靈丹。
+    # 重建誤差下限由 LPIPS 0.194 降到 0.143，仍高於像素側加性位置實際運作的
+    # 0.063，故此旗標是量測反演佔下限多少的工具，不是消除該下限的手段。
     exact_inversion: bool = False
     n_edit: int = 10
     n_eot: int = 1              # 每步的噪聲取樣數
@@ -84,20 +84,24 @@ class OptimConfig:
     # 數字可重現，它不是正確的威脅模型：E26 實測 w=1 時 SD v1.4 幾乎不服從
     # prompt，該設定下的「編輯」與「什麼都沒做」在指標上分不出來（Δclip
     # +0.0116，而對照的噪聲範圍是 ±0.0169）。新實驗一律指定 7.5。
-    # 見 docs/RESULTS_E25-E26.md §3。
+    # 見 docs/RESULTS_E25-E31.md §3。
     guidance_scale: float = 1.0
 
     # ---- 停止準則 ----
     # 預設 False 使 `steps` 維持既有語意（跑滿），既有 53 個 run 可重現。
     # 開啟後 `steps` 變成上限，實際步數由 `plateau_stop` 決定，見該函式的
-    # docstring 與 docs/RESULTS_E21-E22.md §5.4。正式重跑必須開啟。
+    # docstring 與 docs/RESULTS_E13-E23.md §5.4。正式重跑必須開啟。
     stop_on_plateau: bool = False
     stop_patience: int = 20     # 觀察窗長度，切成前後兩半比較改善量
-    # `edit_shift` 每步的絕對改善量門檻，低於此值視為進展已停。
-    # 1e-4 的來源：E23 實測 site P 在 25→100 步之間平均每步改善 5.4e-4 且
-    # 末端仍在上升，該格必須被判為未收斂；1e-4 比它低一個量級。
-    # 用絕對量而非相對率的理由見 `plateau_stop` 的 docstring。
-    stop_tol: float = 1e-4
+    # 每步的絕對改善量門檻，低於此值視為進展已停。
+    #
+    # **這個值與監看的量綁在一起，換監看量就必須換它**（見 MONITOR_TOL）。
+    # 預設 1e-4 是為 `edit_shift` 校準的：E23 實測 site P 在 25→100 步之間
+    # 平均每步改善 5.4e-4 且末端仍在上升，該格必須被判為未收斂，故取低一個
+    # 量級的 1e-4。用絕對量而非相對率的理由見 `plateau_stop` 的 docstring。
+    #
+    # `None` 表示依 `monitor_key` 自動取 MONITOR_TOL 的值；給定數值則覆寫。
+    stop_tol: Optional[float] = None
     stop_min_steps: int = 25    # 下限，讓約束有機會啟動；與 E15–E23 的步數一致
     # 不在約束仍被違反時停止。預設 False 以保留 E21–E31 的可重現性；
     # 匹配失真的比較一律開啟，理由見 plateau_stop 的 `require_feasible`。
@@ -126,6 +130,49 @@ class OptimConfig:
     vae_ckpt: bool = True       # E0b：三次 VAE 呼叫的激活由總和降為最大值
     log_every: int = 10
     grad_clip: float = 1.0
+
+
+# 每個監看量各自的停止門檻。**不可共用一個值。**
+#
+# `plateau_stop` 比較的是「每步的絕對改善量」，而不同監看量的動態範圍差很多，
+# 同一個絕對門檻在兩者上是兩件不同的事。2026-08-04 實測（同一張影像、
+# 同一個 site PF、60 步）：
+#
+#   edit_shift  0.0000 → 0.3665   總改善 0.3665   平均每步 7.8e-03
+#   attn_div    0.9847 → 0.9942   總改善 0.0095   平均每步 1.6e-04
+#
+# **相差 39 倍。** 把 `edit_shift` 的 1e-4 套到 `attn_div` 上，門檻只比平均
+# 改善率低 1.6 倍而不是一個量級，實測會在第 30 步（共 60 步）就判定收斂，
+# 砍掉 53% 的改善，而且沒有任何症狀——它會回報「已收斂」。
+#
+# `attn_div` 的範圍為何這麼小：它是「1 − 內容 token 的注意力質量」，而內容
+# token 的質量本來就只有約 1.5%（BOS/EOS/padding 吸走大部分），故可達的改善
+# 上限就是那 1.5%。這也是本專案的變體與論文式 (5) 的一個實質差異——後者取
+# 聚合反應的 L1、保留空間維度，動態範圍大得多（LEDGER 5.7）。
+#
+# 取值規則與 `edit_shift` 相同：比實測的平均每步改善低一個量級。
+MONITOR_TOL = {
+    "edit_shift": 1e-4,     # E23 實測平均 5.4e-4
+    "attn_div": 1e-5,       # 2026-08-04 實測平均 1.6e-4
+}
+
+
+def resolve_stop_tol(cfg_tol: Optional[float], monitor_key: str) -> float:
+    """回傳這次要用的 `stop_tol`。呼叫端給了就用它，否則依監看量取。
+
+    未知的監看量直接拋出，不退回 `edit_shift` 的值：那正是這道缺陷的形狀
+    ——一個為某個量校準的門檻被沿用到另一個量上，而且沒有症狀。
+    """
+    if cfg_tol is not None:
+        return cfg_tol
+    if monitor_key not in MONITOR_TOL:
+        raise KeyError(
+            f"監看量 {monitor_key!r} 沒有校準過的 stop_tol。"
+            f"已校準的是 {sorted(MONITOR_TOL)}。"
+            "不可沿用別的量的門檻——不同監看量的動態範圍差數十倍，"
+            "同一個絕對門檻在兩者上是兩件不同的事（見 MONITOR_TOL）"
+        )
+    return MONITOR_TOL[monitor_key]
 
 
 def active_constraint_keys(loss_cfg: LossConfig) -> tuple:
@@ -554,7 +601,8 @@ def optimize(
 
         if cfg.stop_on_plateau:
             stop, reason = plateau_stop(
-                result.history, cfg.stop_patience, cfg.stop_tol,
+                result.history, cfg.stop_patience,
+                resolve_stop_tol(cfg.stop_tol, "edit_shift"),
                 cfg.stop_min_steps, constraint_keys=constraint_keys,
                 require_feasible=cfg.stop_require_feasible,
             )
@@ -876,7 +924,8 @@ def optimize_crossattn(
             # 監看 attn_div 而非 edit_shift：後者在本路徑恆為 NaN（見上方
             # log 區塊），NaN 的比較恆為 False，用它會永遠不停。
             stop, reason = plateau_stop(
-                result.history, cfg.stop_patience, cfg.stop_tol,
+                result.history, cfg.stop_patience,
+                resolve_stop_tol(cfg.stop_tol, "attn_div"),
                 cfg.stop_min_steps, constraint_keys=constraint_keys,
                 monitor_key="attn_div",
             )

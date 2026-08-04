@@ -1,0 +1,17 @@
+{
+  "data": "data/lo_aligned",
+  "out": "runs/gate_suppress",
+  "model": "CompVis/stable-diffusion-v1-4",
+  "images": "horse_00,horse_01",
+  "sites": "PF",
+  "size": 256,
+  "steps": 60,
+  "lr": 0.008,
+  "tau_lpips": 0.55,
+  "attn_timesteps": 4,
+  "strength": 0.3,
+  "guidance": 7.5,
+  "n_edit": 10,
+  "eval_seeds": 5,
+  "seed": 20260804
+}

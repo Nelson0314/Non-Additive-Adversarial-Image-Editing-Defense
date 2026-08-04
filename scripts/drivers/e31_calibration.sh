@@ -1,7 +1,16 @@
 #!/bin/bash
+# ============================================================================
+# 已中止，不要執行。2026-08-03 由對齊基準論文的 L1 取代：Lo et al. Table 1
+# 提供了現成的運作點座標與強基準，不需要盲搜。設計依據改為
+# docs/specs/2026-08-03-lo-aligned-protocol.md §5；現行的雲端腳本是
+# lo_l1.sh 與 ours_l2.sh。本檔保留為該計畫的紀錄（LEDGER §8 死路清單）。
+#
+# 本檔產出的相依資料 runs/p14_budget_thresholds/thresholds.csv 仍然現行，
+# 由 scripts/run_ours_lo_eval.py 直接讀取（LEDGER 6.17）。
+# ============================================================================
 # E31 R1：τ=0.28 的學習率校準（12 格主網格 e31_grid.sh 的前置）。
 #
-# 設計見 docs/specs/2026-08-02-e31-positive-control.md §7.3、§8。
+# 設計見 docs/archive/2026-08-02-e31-positive-control.md §7.3、§8。
 #
 # 為什麼要重校。E29 定出的 site P lr=0.03 是在 τ_lpips=0.05 下校的。E31 把
 # 失真預算拉到文獻區間（0.28；DCT-Shield 自報 0.267，PhotoGuard／MIST／AdvDM／
@@ -52,7 +61,7 @@ BASE="--sites P --ranks 16 --size 512 --steps 60 --k_inv 10 --n_edit 10 \
   echo "=== E31 R1 校準開始 $(date -Is) ==="
   "$PY" -c "import torch; print('torch', torch.__version__, 'cuda', torch.cuda.is_available())"
 
-  # 加性臂在新預算下的 lr。E29 的 0.03 是 τ=0.05 下校的，此處跨一個數量級。
+  # 加性位置在新預算下的 lr。E29 的 0.03 是 τ=0.05 下校的，此處跨一個數量級。
   for LR in 0.03 0.1 0.3; do
     "$PY" scripts/run_defense.py --lr "$LR" $BASE --out "runs/e31_P_tau0.28_lr$LR"
   done
@@ -63,7 +72,7 @@ BASE="--sites P --ranks 16 --size 512 --steps 60 --k_inv 10 --n_edit 10 \
     --defense_mode crossattn --attn_mode suppress --attn_timesteps 4 \
     --out runs/e31_P_tau0.28_attn
 
-  echo "=== 綁定者判定（gate）==="
+  echo "=== 有效約束判定（gate）==="
   "$PY" scripts/e27_binding_check.py runs/e31_P_tau0.28_*
   echo "=== E31 R1 校準結束 $(date -Is) ==="
 } 2>&1 | tee runs/logs/e31_calibration.log

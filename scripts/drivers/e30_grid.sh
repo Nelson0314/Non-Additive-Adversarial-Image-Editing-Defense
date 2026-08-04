@@ -1,11 +1,11 @@
 #!/bin/bash
 # 【2026-08-02 起這支不該直接執行】E29 在本腳本會用到的最寬鬆運作點
-# （τ=0.10、上限 150 步、平台停止）上實測，兩臂都沒有阻止編輯達成 prompt，
-# 證據見 `docs/RESULTS_E29_negative.md`。照本腳本跑完 36 格只會得到同一個
+# （τ=0.10、上限 150 步、平台停止）上實測，兩個條件都沒有阻止編輯達成 prompt，
+# 證據見 `docs/RESULTS_E25-E31.md`。照本腳本跑完 36 格只會得到同一個
 # 結論的複本。檔案保留是因為它記錄了那個計畫實際打算下什麼參數。
 # 那兩個結構性問題已由 E31 處理：設計見
-# `docs/specs/2026-08-02-e31-positive-control.md`，網格改由
-# `scripts/drivers/e31_grid.sh` 承擔（site P 單臂、三個目標函數、
+# `docs/archive/2026-08-02-e31-positive-control.md`，網格改由
+# `scripts/drivers/e31_grid.sh` 承擔（site P 單一條件、三個目標函數、
 # 兩個失真預算、兩個 strength）。本檔不再有後續，保留為那個計畫的紀錄。
 #
 # E30：主網格。修好攻擊端（E26）、判準（E25）與三道保真約束（E20/E28）之後的
@@ -51,7 +51,7 @@ BASE="--size 512 --steps 150 --k_inv 10 --n_edit 10 \
 
   echo "=== 彙整 ==="
   "$PY" scripts/e27_report.py --prefix e30
-  echo "=== 綁定者診斷 ==="
+  echo "=== 有效約束診斷 ==="
   "$PY" scripts/e27_binding_check.py runs/e30_C_tau0.05 runs/e30_P_tau0.05 \
     runs/e30_C_tau0.02 runs/e30_P_tau0.02 runs/e30_C_tau0.10 runs/e30_P_tau0.10
   echo "=== E30 主網格結束 $(date -Is) ==="

@@ -1,7 +1,7 @@
-"""綁定者診斷 `e27_binding_check.analyse` 的判定邏輯。
+"""有效約束診斷 `e27_binding_check.analyse` 的判定邏輯。
 
 這支腳本是常設步驟：每一輪校準與網格跑完都要用它確認「τ 才是綁住這一格的
-那道約束」。本專案已經連續踩到四個假的綁定者（`max_dev` 兩次、防禦 margin、
+那道約束」。本專案已經連續踩到四個誤判的有效約束（`max_dev` 兩次、防禦 margin、
 `L_fid` 裡係數為 1 的原始 lpips 項），每一個都讓整批網格變成無效資料，而且
 都是事後翻 `history.json` 才發現的。診斷工具本身判錯，等於這道保險不存在。
 
@@ -56,7 +56,7 @@ def test_色度綁住時判定為色度而非LPIPS(tmp_path):
 
 
 def test_兩道同時綁住時並列列出(tmp_path):
-    """跨 site 比較要求兩臂被同一組約束綁住。一臂只有 LPIPS、另一臂
+    """跨 site 比較要求兩個條件被同一組約束綁住。一條件只有 LPIPS、另一條件
     LPIPS＋色度，是不同的狀態，不可並列，故判定不得只報其中一道。
     """
     d = _make_run(tmp_path, LOSS,
@@ -67,7 +67,7 @@ def test_兩道同時綁住時並列列出(tmp_path):
 
 def test_係數為零的hinge不算約束(tmp_path):
     """`beta_linf=0` 的 L∞ 罰則仍會被計算與記錄，但不進梯度。初版把這種
-    hinge 當成綁定者，實測把 site C 判成「PSNR hinge 56/60 步啟動」。
+    hinge 當成有效約束，實測把 site C 判成「PSNR hinge 56/60 步啟動」。
     """
     loss = {**LOSS, "beta_linf": 0.0}
     d = _make_run(tmp_path, loss, _steps(60, fid_pen_linf=0.5))
@@ -91,7 +91,7 @@ def test_舊run沒有色度係數也沒有色度記錄時跳過(tmp_path):
 
 def test_有色度記錄卻沒有係數欄位時報錯(tmp_path):
     """env.json 與 history 不一致代表無法判定該道 hinge 有沒有進梯度。
-    此時當成零會重演「假的綁定者」那一類錯誤，故要求停下來查清楚。
+    此時當成零會重演「誤判的有效約束」那一類錯誤，故要求停下來查清楚。
     """
     loss = {k: v for k, v in LOSS.items() if k != "gamma_chroma"}
     d = _make_run(tmp_path, loss, _steps(60, fid_pen_chroma=0.3))

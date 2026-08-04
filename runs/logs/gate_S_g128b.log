@@ -1,0 +1,35 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  17%|¢i¢n        | 1/6 [00:00<00:00,  7.30it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|¢i¢i¢i¢i¢i¢i¢i¢i¢i¢i| 196/196 [00:00<00:00, 4846.76it/s]
+Loading pipeline components...:  67%|¢i¢i¢i¢i¢i¢i¢n   | 4/6 [00:00<00:00, 12.32it/s]Loading pipeline components...: 100%|¢i¢i¢i¢i¢i¢i¢i¢i¢i¢i| 6/6 [00:00<00:00, 16.21it/s]
+C:\Users\nelso\miniconda3\envs\wacv\Lib\site-packages\torchvision\models\_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+C:\Users\nelso\miniconda3\envs\wacv\Lib\site-packages\torchvision\models\_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+
+=== horse_00 / site S / £n_lpips=0.55 / 'a zebra' / c_a='horse' ===
+  [¬ù§ô] ¥u¦³ LPIPS¡Ggamma_lpips=100.0 tau=0.55¡Facut/chroma/linf/psnr ¥þ¬° 0¡Flr=0.1¡@max_disp=8.0
+C:\WACV\src\defense\objective.py:319: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at C:\actions-runner\_work\pytorch\pytorch\torch\csrc\autograd\generated\python_variable_methods.cpp:823.)
+  "fid_linf_total": float((xd - xr).abs().max()),
+  [attn] step    0  loss=-0.9847  div=9.8470e-01  lpips=0.0000  psnr=120.00  |g|=1.228e-03
+  [attn] step   10  loss=-0.9894  div=9.8940e-01  lpips=0.0792  psnr=34.47  |g|=1.105e-04
+  [attn] step   20  loss=-0.9906  div=9.9061e-01  lpips=0.1130  psnr=32.05  |g|=9.569e-05
+  [attn] step   30  loss=-0.9914  div=9.9140e-01  lpips=0.1362  psnr=31.18  |g|=1.182e-04
+  [attn] step   40  loss=-0.9919  div=9.9190e-01  lpips=0.1532  psnr=30.69  |g|=8.079e-05
+  [attn] step   50  loss=-0.9922  div=9.9223e-01  lpips=0.1682  psnr=30.35  |g|=1.616e-04
+  [attn] step   59  loss=-0.9926  div=9.9256e-01  lpips=0.1783  psnr=30.13  |g|=8.427e-05
+  [¦ì²¾] ¥­§¡ 0.947 px¡@³Ì¤j 4.966 px¡@p99 2.872 px¡@¤W¬É 8.0
+  [¹ï·Ó] ÀH¾÷ÂZ°Ê¹ï¨ì LPIPS 0.1804¡]¥Ø¼Ð 0.1783¡^
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|¢i¢i¢i¢i¢i¢i¢i¢i¢i¢i| 398/398 [00:00<00:00, 39635.61it/s]
+[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
+[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
+Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights:  91%|¢i¢i¢i¢i¢i¢i¢i¢i¢i | 372/408 [00:00<00:00, 3718.26it/s]Loading weights: 100%|¢i¢i¢i¢i¢i¢i¢i¢i¢i¢i| 408/408 [00:00<00:00, 4078.09it/s]
+  [S/opt] ÂZ°Ê LPIPS 0.1783 / L¡Û 0.5397   £Gsiglip -0.00310 ¡Ó 0.02157   £Gniqe +0.4792 ¡Ó 0.4548   »y·N¥¢±Ñ=False
+  [S/opt] ½s¿è LPIPS 0.3607  PSNR 21.04
+  [S/rand] ÂZ°Ê LPIPS 0.1804 / L¡Û 0.0908   £Gsiglip -0.01449 ¡Ó 0.02374   £Gniqe +0.0715 ¡Ó 0.5491   »y·N¥¢±Ñ=False
+  [S/rand] ½s¿è LPIPS 0.3614  PSNR 21.93
+  [S] attn_div 9.8470e-01 ¡÷ 9.9256e-01¡]60 ¨B¡A3390s¡^
+
+§¹¦¨¡CC:\WACV\runs\gate_S_g128b\summary.csv
+Åªªk¡Gsemantic_fail ¥þ¬° False ¥B £Gsiglip ¬°¥¿©Î±µªñ¹s¡A§Y¹hªù¥¼¹L¡X¡X²Ä¤G¼h¦b¦¹«Â¯Ù¼Ò«¬¤U¤£¥iµª¡A¨£ docs/CONVERGENCE.md ¡±3

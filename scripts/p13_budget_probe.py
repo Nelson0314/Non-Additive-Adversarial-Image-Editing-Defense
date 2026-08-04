@@ -1,6 +1,6 @@
 """τ=0.28 的可行域預估：把既有擾動放大到文獻預算，量另外兩道約束。
 
-E31 的 gate（規格 §8）要求每一格的綁定者都是 LPIPS hinge。τ=0.10 時
+E31 的 gate（規格 §8）要求每一格的有效約束都是 LPIPS hinge。τ=0.10 時
 `local_acutance_dev` 實測 0.0185（門檻 0.04）、`local_chroma_bias` 0.6475
 （門檻 0.8），都還沒啟動。τ 拉到 0.28 之後它們會不會翻上來，決定 R1 的校準
 會不會通過，而 R1 要花雲端 GPU。
@@ -84,9 +84,9 @@ def main():
 
     rows = []
     cell_specs = [(c.strip(), False) for c in args.cells.split(",")]
-    # 參照臂：等 LPIPS 的純加性高斯雜訊。沒有它就無法分辨兩件事——
-    # 「這個解在該預算上買了鈍化／色偏」與「τ_acut 與 τ_chroma 是在低預算下
-    # 定的，任何達到該 LPIPS 的擾動都會超標」。E20 的四臂探針就是為了同一個
+    # 參照條件：等 LPIPS 的純加性高斯雜訊。沒有它就無法分辨兩件事——
+    # 「這個解在該預算上換到的是鈍化／色偏」與「τ_acut 與 τ_chroma 是在低預算下
+    # 定的，任何達到該 LPIPS 的擾動都會超標」。E20 的四條件探針就是為了同一個
     # 區別而做的；此處把「預算」這一軸加進去。
     cell_specs.append((cell_specs[0][0], True))
 
@@ -106,7 +106,7 @@ def main():
         def build(k):
             return (x_base + k * delta).clamp(0, 1)
 
-        # 純雜訊臂的 δ 是單位標準差，達到相同 LPIPS 所需的 k 比防禦解小得多，
+        # 純雜訊條件的 δ 是單位標準差，達到相同 LPIPS 所需的 k 比防禦解小得多，
         # 故下界要放到 0 而非 1——1.0 就已經遠超過目標，會直接回傳下界。
         lo = 0.0 if as_noise else 1.0
         for target in [float(t) for t in args.targets.split(",")]:
@@ -152,7 +152,7 @@ def main():
         "<h1>把 τ=0.10 的解沿射線放大到各個 LPIPS 預算</h1>",
         "<p>這是沿既有解的射線放大，<b>不是</b>重新最佳化。用途是判斷 "
         f"acut（門檻 {TAU_ACUT}）與 chroma（門檻 {TAU_CHROMA}）在該量級是否"
-        "翻上來成為綁定者，以及 τ=0.28 在人眼上是什麼樣子。</p>",
+        "翻上來成為有效約束，以及 τ=0.28 在人眼上是什麼樣子。</p>",
     ]
     for tag in tags:
         html.append(f"<h2>{tag}</h2><table><tr>")

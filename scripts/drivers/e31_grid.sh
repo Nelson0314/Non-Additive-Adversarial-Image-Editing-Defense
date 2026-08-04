@@ -1,8 +1,17 @@
 #!/bin/bash
-# E31 R2：正對照搜尋的主網格。
-# 設計見 docs/specs/2026-08-02-e31-positive-control.md §5。
+# ============================================================================
+# 已中止，不要執行。2026-08-03 由對齊基準論文的 L1 取代：Lo et al. Table 1
+# 提供了現成的運作點座標與強基準，不需要盲搜。設計依據改為
+# docs/specs/2026-08-03-lo-aligned-protocol.md §5；現行的雲端腳本是
+# lo_l1.sh 與 ours_l2.sh。本檔保留為該計畫的紀錄（LEDGER §8 死路清單）。
 #
-# 只跑加性臂 site P。目的不是比較加性與非加性——E29 已證實兩臂在現行運作點
+# 本檔產出的相依資料 runs/p14_budget_thresholds/thresholds.csv 仍然現行，
+# 由 scripts/run_ours_lo_eval.py 直接讀取（LEDGER 6.17）。
+# ============================================================================
+# E31 R2：正對照搜尋的主網格。
+# 設計見 docs/archive/2026-08-02-e31-positive-control.md §5。
+#
+# 只跑加性位置 site P。目的不是比較加性與非加性——E29 已證實兩個條件在現行運作點
 # 都是零，兩個零之間的比較沒有內容。目的是找到**任何一個**擋得下編輯的運作
 # 點，為量測裝置建立本專案從未有過的正對照。
 #
@@ -36,7 +45,7 @@
 # runs/p14_budget_thresholds/thresholds.csv，執行前必須以環境變數傳入。
 #
 # 前置：
-#   1. e31_calibration.sh 的綁定者判定全部是 LPIPS hinge。
+#   1. e31_calibration.sh 的有效約束判定全部是 LPIPS hinge。
 #   2. LR_028、TA_*、TC_* 四組值由該輪與 p14 定出——預設只是佔位。
 #
 # 用法：
@@ -102,7 +111,7 @@ BASE="--sites P --ranks 16 --size 512 --steps 150 --k_inv 10 --n_edit 10 \
     done
   done
 
-  echo "=== 綁定者判定 ==="
+  echo "=== 有效約束判定 ==="
   "$PY" scripts/e27_binding_check.py runs/e31_*_tau*_s*
   echo "=== E31 R2 主網格結束 $(date -Is) ==="
 } 2>&1 | tee runs/logs/e31_grid.log

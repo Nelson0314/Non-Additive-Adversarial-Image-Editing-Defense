@@ -84,7 +84,7 @@ def main() -> None:
         raise SystemExit(f"沒有任何 {args.prefix}_* 的資料，無法彙整")
 
     print("=== 主表（無淨化、未見種子）===")
-    print(f"{'τ':>6s}{'臂':>4s}{'n':>3s}{'收斂':>6s}{'步數':>7s}"
+    print(f"{'τ':>6s}{'條件':>4s}{'n':>3s}{'收斂':>6s}{'步數':>7s}"
           f"{'net_lpips':>12s}{'Δsiglip':>11s}{'保真LPIPS':>11s}{'銳利度':>9s}")
     for tau in TAUS:
         for site, label in ARMS:
@@ -98,24 +98,24 @@ def main() -> None:
                   f"{s['dsiglip'].mean():>+8.4f}±{s['dsiglip'].std():.4f}"
                   f"{s['defimg_lpips'].mean():>11.4f}{s['acut'].mean():>9.3f}")
 
-    print("\n=== 比值（只用兩臂都收斂的格子）===")
+    print("\n=== 比值（只用兩個條件都收斂的格子）===")
     print(f"{'τ':>6s}{'可用格數':>10s}{'net C/P':>10s}{'Δsiglip C/P':>14s}  判定")
     for tau in TAUS:
         c, p = table.get((tau, "C")), table.get((tau, "P"))
         if c is None or p is None:
             continue
-        # 逐圖配對，且兩臂都必須收斂。跨 site 比較的前提是兩邊都已在同一道
+        # 逐圖配對，且兩個條件都必須收斂。跨 site 比較的前提是兩邊都已在同一道
         # 約束下停下來，這正是 E21–E23 §5.4 的要求。
         keep = c["converged"] & p["converged"]
         k = int(keep.sum())
         if k == 0:
-            print(f"{tau:>6s}{0:>10d}{'—':>10s}{'—':>14s}  無可用格子（兩臂未同時收斂）")
+            print(f"{tau:>6s}{0:>10d}{'—':>10s}{'—':>14s}  無可用格子（兩個條件未同時收斂）")
             continue
         rn = c["net"][keep].mean() / p["net"][keep].mean()
         ds_c, ds_p = c["dsiglip"][keep].mean(), p["dsiglip"][keep].mean()
         # Δsiglip 越負代表防禦越有效，故比值取「誰比較負」而非直接相除：
         # 兩者可能異號，相除會給出無意義的數字。
-        verdict = ("兩臂皆未達語意失敗" if ds_c >= 0 and ds_p >= 0 else
+        verdict = ("兩個條件皆未達語意失敗" if ds_c >= 0 and ds_p >= 0 else
                    "C 較有效" if ds_c < ds_p else "P 較有效")
         rs = f"{ds_c:+.4f} vs {ds_p:+.4f}"
         print(f"{tau:>6s}{k:>10d}{rn:>10.2f}{rs:>14s}  {verdict}")

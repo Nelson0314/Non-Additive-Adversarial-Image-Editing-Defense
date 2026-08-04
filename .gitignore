@@ -25,6 +25,15 @@ runs/**
 # summary.txt / report.txt 是判定結果的可讀形式，兩者都是證據而非中間產物。
 !runs/**/*.html
 !runs/**/*.txt
+# 2026-08-04 追加 *.pt：`gate_suppress.py` 存下每一格的 φ（state_dict）。
+# 它不是中間產物——沿射線縮放位移場需要 φ 本身，只有防禦圖 PNG 的話
+# 就只能在影像空間做，而那對 site S 是交叉淡入不是「更大的位移」
+# （見 src/metrics/ray_scale.py::solve_k）。體積：site S 的位移場
+# 32×32×2 約 8 KB，site PF 的全秩像素殘差在 256² 約 786 KB。
+#
+# 逐圖的 residual.npy 仍然排除：那是低秩外積展開後的結果，可由 φ 重算，
+# 且 e8 那一批單目錄就 24 MB。兩者的差別是「能不能重建解」而不是副檔名。
+!runs/**/*.pt
 
 # Python
 __pycache__/

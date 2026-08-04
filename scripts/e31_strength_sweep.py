@@ -44,7 +44,7 @@ from src.utils.device import get_device
 
 EVAL_SEED_OFFSET = 10000
 DEFAULT_SEED = 20260728
-# E29c 的兩臂：τ=0.10、平台停止，即網格會用到的最寬鬆運作點。
+# E29c 的兩個條件：τ=0.10、平台停止，即網格會用到的最寬鬆運作點。
 CELLS = [
     ("undefended", "runs/e29c_P_tau0.10/car_00__P__r16/orig.png"),
     ("site_P", "runs/e29c_P_tau0.10/car_00__P__r16/defended.png"),
@@ -84,7 +84,7 @@ def main():
     strengths = [float(s) for s in args.strengths.split(",")]
     rows = []
     for strength in strengths:
-        # 同一個 strength 下三臂共用同一個 ε：否則量到的差異主要來自噪聲。
+        # 同一個 strength 下三個設定共用同一個 ε：否則量到的差異主要來自噪聲。
         noise = sd.sample_edit_noise(torch.empty(lat, device=device),
                                      seed=args.seed + EVAL_SEED_OFFSET)
         for arm, rel in CELLS:
@@ -144,7 +144,7 @@ def _page(out: Path, rows, strengths):
             "small{font-size:11px;color:#aaa}th{color:#8cf}</style>",
             "<h1>攻擊強度掃描：既有防禦圖在不同 SDEdit strength 下被編輯</h1>",
             f"<p>prompt = <code>{PROMPT}</code>，w=7.5，n_edit=10，"
-            "三臂共用同一個 ε。</p>",
+            "三個設定共用同一個 ε。</p>",
             "<p><b>這是遷移不是匹配設定</b>：防禦圖在 strength=0.5 下訓練，"
             "在其他 strength 上評測。匹配設定應優於此，故本頁是下界。</p>",
             "<table><tr><th></th>"]

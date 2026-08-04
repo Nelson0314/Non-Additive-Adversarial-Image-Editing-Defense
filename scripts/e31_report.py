@@ -28,7 +28,7 @@ def main():
     ap.add_argument("--degrade_metric", default="niqe")
     ap.add_argument("--degrade_tau", type=float, required=True,
                     help="p11 的人眼階梯定出的劣化門檻。必填——用預設值跑出來"
-                         "的判定沒有定錨，不可寫進報告")
+                         "的判定沒有由人眼判讀定出，不可寫進報告")
     ap.add_argument("--out", default="runs/e31_report")
     args = ap.parse_args()
 

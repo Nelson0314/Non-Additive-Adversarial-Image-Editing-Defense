@@ -5,7 +5,7 @@ CSV 的路徑與量測條件，避免報告與原始資料脫節。
 
 此腳本只涵蓋 E0–E3，其輸出已被 docs/REPORT.html（由 make_report_figures.py
 產生，涵蓋到 E12）取代。舊輸出封存於 docs/archive/2026-07-29-RESULTS_lowrank.html。
-保留本腳本是因為 E0/E0c 的成本與地板表格只有它會生成。
+保留本腳本是因為 E0/E0c 的成本與下限表格只有它會生成。
 
 執行：python scripts/make_report.py --out docs/archive/2026-07-29-RESULTS_lowrank.html
 """
@@ -129,18 +129,18 @@ def section_e0c(root: Path):
             mean([fnum(r, "linf") for r in sel]),
         ])
     return (
-        "<h2>E0c — site L 的保真地板</h2>"
+        "<h2>E0c — site L 的保真度下限</h2>"
         "<p class='src'>來源：<code>runs/e0c_tmax/recon_floor.csv</code>，n = 6 張。</p>"
         "<p>site P 在 φ=0 時 <code>x_def = x</code> 逐元素相等；site L 在 φ=0 時"
         "<code>x_def</code> 仍是「VAE 編碼 → DDIM inversion → 去噪 → VAE 解碼」"
         "的重建，其誤差 φ 無法消除。<code>t_max = 0, k_inv = 0</code> 一列是"
-        "VAE 單獨來回，即<strong>不可約的地板</strong>。</p>"
+        "VAE 單獨來回，即<strong>不可約的下限</strong>。</p>"
         + table(["t_max", "k_inv", "PSNR", "LPIPS", "SSIM", "L∞"], body)
         + "<p>原設定 <code>t_max = 999</code>、<code>k_inv = 10</code> 的重建為"
         " PSNR 16.87 / LPIPS 0.697，即 φ=0 時 <code>x_def</code> 與 <code>x</code>"
         " 已是兩張不同的圖，spec §1.1 的「人眼尺度上接近」在起點就不成立。"
         "改用 <code>t_max = 500</code>、<code>k_inv = 20</code> 後為 26.56 / 0.194，"
-        "與 VAE 地板（27.51 / 0.143）相距約 1 dB。</p>"
+        "與 VAE 重建誤差下限（27.51 / 0.143）相距約 1 dB。</p>"
     )
 
 

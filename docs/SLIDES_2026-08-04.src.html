@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>白盒抗文字編輯防禦：兩條路線的進度簡報</title>
+<style>
+:root{--bg:#fff;--fg:#16181d;--muted:#5c6370;--line:#dfe3ea;--accent:#1f4e9c;
+ --accent-soft:#eef3fb;--hot:#a3341f;--hot-soft:#fbeeeb;--cool:#1a6b4a;
+ --code-bg:#f4f6f9;--card:#fafbfc;}
+@media (prefers-color-scheme:dark){:root{--bg:#14161a;--fg:#e6e8ec;--muted:#98a0ad;
+ --line:#2b303a;--accent:#7ea9ee;--accent-soft:#1b2534;--hot:#e79079;
+ --hot-soft:#2e211d;--cool:#6fc79f;--code-bg:#1c1f26;--card:#191c22;}}
+:root[data-theme="dark"]{--bg:#14161a;--fg:#e6e8ec;--muted:#98a0ad;--line:#2b303a;
+ --accent:#7ea9ee;--accent-soft:#1b2534;--hot:#e79079;--hot-soft:#2e211d;
+ --cool:#6fc79f;--code-bg:#1c1f26;--card:#191c22;}
+:root[data-theme="light"]{--bg:#fff;--fg:#16181d;--muted:#5c6370;--line:#dfe3ea;
+ --accent:#1f4e9c;--accent-soft:#eef3fb;--hot:#a3341f;--hot-soft:#fbeeeb;
+ --cool:#1a6b4a;--code-bg:#f4f6f9;--card:#fafbfc;}
+html{background:var(--bg);}
+body{background:var(--bg);color:var(--fg);margin:0;font-size:16px;line-height:1.7;
+ font-family:"Noto Sans TC","Microsoft JhengHei","PingFang TC",-apple-system,
+ BlinkMacSystemFont,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased;}
+.wrap{max-width:1000px;margin:0 auto;padding:40px 24px 72px;}
+.slide{border:1px solid var(--line);border-radius:12px;padding:26px 30px;
+ margin:0 0 22px;background:var(--card);}
+.slide > :first-child{margin-top:0;}
+.no{display:inline-block;font-size:.72rem;letter-spacing:.12em;color:var(--muted);
+ border:1px solid var(--line);border-radius:20px;padding:2px 11px;margin-bottom:10px;}
+h1{font-size:1.7rem;margin:0 0 6px;line-height:1.3;}
+h2{font-size:1.22rem;margin:0 0 12px;}
+h3{font-size:1rem;margin:22px 0 6px;}
+p,li{max-width:76ch;} p{margin:0 0 11px;} ul,ol{margin:0 0 12px;padding-left:1.45em;}
+li{margin:0 0 6px;}
+.sub{color:var(--muted);}
+code{font-family:ui-monospace,Consolas,monospace;font-size:.87em;
+ background:var(--code-bg);padding:.1em .36em;border-radius:4px;}
+pre{background:var(--code-bg);border:1px solid var(--line);border-radius:8px;
+ padding:13px 16px;overflow-x:auto;font-size:.84rem;line-height:1.65;margin:12px 0;}
+pre code{background:none;padding:0;}
+.tw{overflow-x:auto;margin:12px 0 16px;border:1px solid var(--line);border-radius:8px;
+ background:var(--bg);}
+table{border-collapse:collapse;width:100%;font-size:.86rem;
+ font-variant-numeric:tabular-nums;}
+th,td{padding:8px 12px;text-align:left;border-bottom:1px solid var(--line);
+ white-space:nowrap;}
+th{background:var(--card);font-weight:600;font-size:.82rem;color:var(--muted);}
+tbody tr:last-child td{border-bottom:none;}
+td.n,th.n{text-align:right;} td.w{white-space:normal;min-width:20ch;}
+tr.hi td{background:var(--accent-soft);}
+.neg{color:var(--cool);font-weight:600;} .pos{color:var(--hot);font-weight:600;}
+.key{border-left:4px solid var(--cool);background:var(--bg);border:1px solid var(--line);
+ border-radius:0 8px 8px 0;padding:12px 16px;margin:14px 0;}
+.key .lbl{display:block;font-size:.73rem;letter-spacing:.09em;color:var(--cool);
+ font-weight:700;margin-bottom:5px;}
+.key p:last-child{margin-bottom:0;}
+.warnbox{border-left-color:var(--hot);}
+.warnbox .lbl{color:var(--hot);}
+figure{margin:16px 0;} figure img{max-width:100%;height:auto;display:block;
+ border-radius:6px;border:1px solid var(--line);}
+figcaption{font-size:.82rem;color:var(--muted);margin-top:8px;max-width:76ch;line-height:1.6;}
+.imgrow{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));}
+.imgrow figure{margin:0;} .imgrow img{width:100%;}
+.imgrow .cap{font-size:.77rem;color:var(--muted);margin-top:5px;line-height:1.45;}
+.imgrow .cap b{color:var(--fg);display:block;font-size:.82rem;}
+svg{max-width:100%;height:auto;}
+.diagram text{fill:var(--fg);font-family:inherit;}
+.diagram .s{font-size:10px;fill:var(--muted);}
+.diagram .t{font-size:12px;}
+.diagram .h{font-size:12.5px;font-weight:600;}
+.fn{font-size:.82rem;color:var(--muted);max-width:76ch;}
+a{color:var(--accent);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ===================== 0 ===================== -->
+<section class="slide">
+<h1>白盒抗文字編輯防禦：兩條路線的進度</h1>
+<p class="sub">2026-08-04．資料全部取自版控中的 <code>runs/</code></p>
+
+<p><b>目標。</b>攻擊方拿一個未經修改的 Stable Diffusion v1.4，用一句 prompt 改別人的照片。防禦方在照片被公開前先動它一次，讓那次編輯改不動——而且動過的照片人眼要看不太出來。防禦方的工具限定為<b>一個外掛模組</b>，不能改攻擊方的模型。</p>
+
+<div class="tw"><table>
+<thead><tr><th>路線</th><th>模組接在哪</th><th>狀態</th><th class="w">一句話</th></tr></thead>
+<tbody>
+<tr><td>一、模組化 SD</td><td>SD 內部（latent／文字嵌入／權重）</td><td><b>已擱置</b></td><td class="w">影像進出模型一次就先失真掉了，把那個失真壓下來的三種做法都差最後一步，加上成本高，暫停</td></tr>
+<tr class="hi"><td>二、空間變形</td><td>SD 之前（直接改照片）</td><td><b>進行中</b></td><td class="w">改法本身可行且代價極低，但目前擋不動編輯——問題出在改動的方向不對，不是改得不夠多</td></tr>
+</tbody>
+</table></div>
+</section>
+
+<!-- ===================== 1 ===================== -->
+<section class="slide">
+<span class="no">架構</span>
+<h2>1. 模組接在哪：兩條路線的差別</h2>
+
+<figure>
+<svg class="diagram" viewBox="0 0 980 300" role="img" aria-label="兩條路線中防禦模組的位置">
+<defs><marker id="m1" markerWidth="8" markerHeight="8" refX="6.5" refY="2.8" orient="auto">
+<path d="M0,0 L6.5,2.8 L0,5.6 z" fill="currentColor"/></marker></defs>
+
+<text class="h" x="8" y="16">路線一：模組接在 SD 內部——防禦後的照片是由 diffusion 產生的（已擱置）</text>
+<rect x="8" y="26" width="624" height="94" rx="8" fill="var(--hot-soft)" stroke="var(--hot)" stroke-dasharray="5 3"/>
+<rect x="20" y="52" width="46" height="40" rx="4" fill="var(--bg)" stroke="var(--fg)"/>
+<text class="t" x="43" y="76" text-anchor="middle">原圖</text>
+<line x1="70" y1="72" x2="86" y2="72" stroke="currentColor" stroke-width="1.3" marker-end="url(#m1)"/>
+<rect x="90" y="52" width="84" height="40" rx="4" fill="var(--card)" stroke="var(--fg)"/>
+<text class="t" x="132" y="76" text-anchor="middle">VAE 編碼</text>
+<line x1="178" y1="72" x2="194" y2="72" stroke="currentColor" stroke-width="1.3" marker-end="url(#m1)"/>
+<rect x="198" y="46" width="96" height="52" rx="5" fill="var(--bg)" stroke="var(--hot)" stroke-width="1.6"/>
+<text class="t" x="246" y="66" text-anchor="middle" fill="var(--hot)">模組 φ</text>
+<text class="s" x="246" y="82" text-anchor="middle">加在 latent／</text>
+<text class="s" x="246" y="93" text-anchor="middle">文字嵌入／權重</text>
+<line x1="298" y1="72" x2="314" y2="72" stroke="currentColor" stroke-width="1.3" marker-end="url(#m1)"/>
+<rect x="318" y="52" width="88" height="40" rx="4" fill="var(--card)" stroke="var(--fg)"/>
+<text class="t" x="362" y="76" text-anchor="middle">UNet 生成</text>
+<line x1="410" y1="72" x2="426" y2="72" stroke="currentColor" stroke-width="1.3" marker-end="url(#m1)"/>
+<rect x="430" y="52" width="84" height="40" rx="4" fill="var(--card)" stroke="var(--fg)"/>
+<text class="t" x="472" y="76" text-anchor="middle">VAE 解碼</text>
+<line x1="518" y1="72" x2="534" y2="72" stroke="currentColor" stroke-width="1.3" marker-end="url(#m1)"/>
+<rect x="538" y="52" width="84" height="40" rx="4" fill="var(--bg)" stroke="var(--hot)"/>
+<text class="t" x="580" y="76" text-anchor="middle">防禦後照片</text>
+<text class="s" x="316" y="136" text-anchor="middle">把模組關掉（φ=0）走同一條路徑，就是這條路線的對照組——這正是「開關模組」的原始構想</text>
+
+<text class="h" x="8" y="176">路線二：模組接在 SD 之前——直接改照片（現行）</text>
+<rect x="8" y="186" width="624" height="80" rx="8" fill="var(--hot-soft)" stroke="var(--hot)" stroke-dasharray="5 3"/>
+<rect x="20" y="206" width="46" height="40" rx="4" fill="var(--bg)" stroke="var(--fg)"/>
+<text class="t" x="43" y="230" text-anchor="middle">原圖</text>
+<line x1="70" y1="226" x2="90" y2="226" stroke="currentColor" stroke-width="1.3" marker-end="url(#m1)"/>
+<rect x="94" y="200" width="150" height="52" rx="5" fill="var(--bg)" stroke="var(--hot)" stroke-width="1.6"/>
+<text class="t" x="169" y="220" text-anchor="middle" fill="var(--hot)">模組 G(x; φ)</text>
+<text class="s" x="169" y="236" text-anchor="middle">把像素搬到別的座標</text>
+<text class="s" x="169" y="247" text-anchor="middle">（不加東西上去）</text>
+<line x1="248" y1="226" x2="268" y2="226" stroke="currentColor" stroke-width="1.3" marker-end="url(#m1)"/>
+<rect x="272" y="206" width="84" height="40" rx="4" fill="var(--bg)" stroke="var(--hot)"/>
+<text class="t" x="314" y="230" text-anchor="middle">防禦後照片</text>
+<text class="s" x="470" y="222" text-anchor="middle">不經過 diffusion，</text>
+<text class="s" x="470" y="236" text-anchor="middle">沒有進出模型的失真</text>
+
+<line x1="626" y1="72" x2="682" y2="122" stroke="currentColor" stroke-width="1.3" marker-end="url(#m1)"/>
+<line x1="360" y1="256" x2="360" y2="278" stroke="currentColor" stroke-width="1.3"/>
+<line x1="360" y1="278" x2="706" y2="278" stroke="currentColor" stroke-width="1.3"/>
+<line x1="706" y1="278" x2="706" y2="200" stroke="currentColor" stroke-width="1.3" marker-end="url(#m1)"/>
+
+<rect x="684" y="120" width="288" height="76" rx="8" fill="var(--card)" stroke="var(--fg)"/>
+<text class="h" x="828" y="144" text-anchor="middle">攻擊方：未修改的 SD v1.4</text>
+<text class="s" x="828" y="162" text-anchor="middle">SDEdit，strength 0.3、guidance 7.5、去噪 10 步</text>
+<text class="s" x="828" y="178" text-anchor="middle">攻擊方的模型與流程完全公開，防禦方不能改</text>
+<line x1="828" y1="200" x2="828" y2="218" stroke="currentColor" stroke-width="1.3" marker-end="url(#m1)"/>
+<rect x="744" y="222" width="168" height="40" rx="4" fill="var(--bg)" stroke="var(--fg)"/>
+<text class="t" x="828" y="246" text-anchor="middle">編輯輸出（拿來評分）</text>
+</svg>
+<figcaption>兩條路線的差別只在模組接在 SD 的哪一側。右邊的攻擊流程兩條路線完全相同。</figcaption>
+</figure>
+</section>
+
+<!-- ===================== 2 ===================== -->
+<section class="slide">
+<span class="no">架構</span>
+<h2>2. 訓練方法、最佳化方法、損失函數</h2>
+
+<h3>訓練方法</h3>
+<p>不是訓練一個能泛化的網路，而是<b>對每一張照片各自把 φ 解出來</b>。每一步的流程是：模組產生防禦後照片 → 把它送進固定的 SD 走一次前向 → 讀出要施力的量 → 算損失 → 把梯度傳回 φ。SD 的所有權重全程凍結，只有 φ 在動。</p>
+
+<div class="tw"><table>
+<thead><tr><th>項目</th><th>設定</th><th class="w">理由</th></tr></thead>
+<tbody>
+<tr><td>可訓練參數</td><td>只有模組的 φ</td><td class="w">控制點位移場，2×32×32 = 2,048 個（或 2×128×128 = 32,768）</td></tr>
+<tr><td>每步的前向</td><td>4 個時間步 × 1 次 UNet</td><td class="w">時間步均分在 SDEdit 實際走過的區間 [0, 300]（strength 0.3 × 1000），每個時間步配一個固定噪聲</td></tr>
+<tr><td>讀取方式</td><td>forward pre-hook</td><td class="w">只讀取交叉注意層的輸入再自行算一次分佈，不換 attention processor——換掉會連帶改變 UNet 自己的計算路徑</td></tr>
+<tr><td>步數</td><td>60</td><td class="w">本機單卡約 1.5 小時／張</td></tr>
+<tr><td>評測</td><td>5 個未參與訓練的噪聲種子</td><td class="w">訓練與評測的噪聲分開（偏移 10000）</td></tr>
+</tbody>
+</table></div>
+
+<h3>最佳化方法</h3>
+<div class="tw"><table>
+<thead><tr><th>項目</th><th>設定</th><th class="w">理由</th></tr></thead>
+<tbody>
+<tr><td>最佳化器</td><td>Adam，lr = 0.1</td><td class="w">逐模組校準過的值。位移場的單位是「像素」，與逐像素改動的「像素值」不是同一個量綱，不能共用同一個 lr</td></tr>
+<tr><td>梯度裁剪</td><td>有</td><td class="w">避免單步跳出可行範圍</td></tr>
+<tr><td>位移上限</td><td>硬性 clamp ±8 px</td><td class="w">直接夾住而不是加罰項，確保上限一定不被超過</td></tr>
+<tr><td>停止</td><td>固定 60 步</td><td class="w">此設定下沒有任何罰項被觸發，平台停止準則在這種情形沒有定義</td></tr>
+</tbody>
+</table></div>
+
+<h3>損失函數（實際跑的版本）</h3>
+<pre><code>L(φ) = L_def + L_fid
+
+L_def = 平均over 16 個交叉注意層 [ 平均over 全部影像位置 q (
+            1 − Σ_{τ ∈ 內容 token} A_l[q, τ] ) ]
+
+L_fid = 100 · max( 0 , LPIPS( G(x;φ) , G(x;0) ) − 0.55 )</code></pre>
+
+<ul>
+<li><b>L_def（要壓低的東西）。</b><code>A_l[q, τ]</code> 是第 <code>l</code> 個交叉注意層 softmax 後的分佈，代表「影像第 <code>q</code> 個位置有多聽第 <code>τ</code> 個文字 token 的」。把攻擊方 prompt 裡的<b>內容詞</b>所分到的注意力質量加起來，取 <code>1 −</code> 它，就是「影像有多不聽那些詞的」。最大化這一項＝切斷文字與影像的綁定。值域 [0, 1]，有界，所以不需要額外設上限。</li>
+<li><b>為什麼不用「把注意力推離原本的分佈」。</b>任何「與未防禦參照的散度」形式的損失，在 φ=0 時兩個分佈逐元素相同、散度為 0，而 0 是它的最小值——梯度在起點精確為零，最佳化離不開原地（實測 <code>grad_norm = 0.000e+00</code>）。改成「內容詞的注意力質量」就沒有這個問題：它在 φ=0 時是一個中間值不是極值。</li>
+<li><b>L_fid（限制看得出來的改動）。</b>只開一道：把防禦後照片與<b>模組關掉時的輸出</b>之間的 LPIPS 壓在 0.55 以內，超過才罰、係數 100。另外三項（銳利度、色度、L∞）係數一律設 0。</li>
+<li><b>為什麼參照的是「模組關掉時的輸出」而不是原圖。</b>這樣兩條路線可以用同一份程式：路線二的模組關掉就是原圖；路線一的模組關掉則是照片走完一趟 diffusion 的結果——而那一趟本身就有代價，正是下一頁的主題。</li>
+</ul>
+</section>
+
+<!-- ===================== 3 ===================== -->
+<section class="slide">
+<span class="no">路線一</span>
+<h2>3. 模組化 SD：做了什麼</h2>
+
+<p><b>做法。</b>照片先經 VAE 編碼成 latent，模組在 SD 內部加擾動（三種位置：latent、文字嵌入、權重上的 LoRA），再經 UNet 與 VAE 解碼產生防禦後照片。模組關掉（φ=0）走同一條路徑就是對照組。</p>
+
+<p><b>吸引力。</b>防禦方與攻擊方用的是同一個生成模型，差別只有一個開關；模組小、可插拔；而且擾動天生落在模型自己的表示空間裡。</p>
+
+<div class="key warnbox"><span class="lbl">問題出在第一步</span>
+<p>把照片編碼再解碼一次，<b>什麼都還沒做，影像就已經變了</b>。這不是實作缺陷，是 VAE 的有損壓縮本來就會這樣。</p>
+</div>
+
+<figure>
+<div class="imgrow">
+  <figure><img src="ASSET:runs/e17_vae_floor/car_00/orig.png|400|jpeg" alt="原圖"><div class="cap"><b>原圖</b>LPIPS 0</div></figure>
+  <figure><img src="ASSET:runs/e17_vae_floor/car_00/roundtrip.png|400|jpeg" alt="編碼解碼一次"><div class="cap"><b>模組關掉，只進出一次</b>LPIPS 0.1434<br>PSNR 27.51 dB</div></figure>
+  <figure><img src="ASSET:runs/e17_vae_floor/car_00/latent_opt.png|400|jpeg" alt="latent 最佳化"><div class="cap"><b>改法一：latent 最佳化</b>LPIPS 0.0760</div></figure>
+  <figure><img src="ASSET:runs/e19_lam10/car_00/asym_free.png|400|jpeg" alt="換解碼器"><div class="cap"><b>改法二：換解碼器</b>LPIPS 0.1291</div></figure>
+  <figure><img src="ASSET:runs/e19_lam10/car_00/latent_opt_asym.png|400|jpeg" alt="兩者疊加"><div class="cap"><b>改法三：兩者疊加</b>LPIPS 0.0716</div></figure>
+</div>
+<figcaption>六張影像的平均值。當時像素路徑的實際運作點是 LPIPS 0.063——也就是說，<b>模組關著的代價就已經是對手總預算的 2.3 倍</b>。</figcaption>
+</figure>
+</section>
+
+<!-- ===================== 4 ===================== -->
+<section class="slide">
+<span class="no">路線一</span>
+<h2>4. 發現了什麼，以及為什麼擱置</h2>
+
+<div class="tw"><table>
+<thead><tr><th class="n">#</th><th>發現</th><th>數字</th></tr></thead>
+<tbody>
+<tr><td class="n">1</td><td class="w"><b>看到的「防禦效果」其實來自進出模型那一趟，不是模組。</b>把模組關掉跑同一條路徑，數字幾乎一樣——也就是說「開關」這個變因本身沒有作用</td><td class="w">開：擾動 LPIPS 0.1890、編輯改變量 0.0765<br>關：0.1938、0.0695</td></tr>
+<tr><td class="n">2</td><td class="w"><b>進出一次的代價量出來了。</b>已先用精確反演把「反演」造成的那一半消掉，剩下的是純粹的編碼／解碼損失</td><td class="w">LPIPS 0.1434、PSNR 27.51 dB</td></tr>
+<tr><td class="n">3</td><td class="w"><b>三種壓縮做法都差最後一步。</b>直接對 latent 做最佳化最有效；換一個非對稱解碼器只降一成；兩者疊加最好，但仍高於當時的運作點 0.063 約 14%</td><td class="w">0.1434 → 0.0760（−47%）<br>→ 0.1291（−10%）<br>→ <b>0.0716</b></td></tr>
+<tr><td class="n">4</td><td class="w"><b>不是欠調參。</b>步數與學習率都試過，四倍步數、四分之一學習率，落點都在同一處</td><td class="w">皆落在 0.075 附近</td></tr>
+<tr><td class="n">5</td><td class="w"><b>壓縮的代價是畫面變鈍。</b>壓縮用的損失在低權重下由逐像素誤差主導，而那個最佳解本來就偏模糊；換解碼器救不回來，只能靠調高感知項的權重</td><td class="w">高頻保留率 84.2% → 93.2%（調高權重後）</td></tr>
+</tbody>
+</table></div>
+
+<div class="key"><span class="lbl">擱置的理由</span>
+<p><b>一、代價太高而效果無法歸因。</b>模組關著就已經比對手的總預算貴 2.3 倍，而模組開著與關著幾乎沒有差別。</p>
+<p><b>二、運算成本。</b>這條路線每一個訓練步都要走完整的「編碼 → UNet → 解碼」再反傳，本機跑不動，需要雲端。當時的判斷是先把便宜的路線二做完。</p>
+</div>
+
+<div class="key"><span class="lbl">但這個判定的前提已經變了</span>
+<p>上面第 3、5 點都是相對於「LPIPS 0.063 的失真預算」講的。<b>現在的預算是 0.55</b>（為了與文獻的標準幅度對齊，見第 8 頁）。在這個預算下，進出一次的代價只佔 <b>26%</b>，壓縮後只佔 <b>13%</b>——「代價高過預算」這個理由不再成立。</p>
+<p>第 1 點也需要重測：那批用的損失是舊版（讀輸出像素距離），而且攻擊方當時沒有開 classifier-free guidance，等於在防一個不會發生的編輯。</p>
+</div>
+</section>
+
+<!-- ===================== 5 ===================== -->
+<section class="slide">
+<span class="no">路線二</span>
+<h2>5. 空間變形：想法來源與構造</h2>
+
+<h3>想法來源</h3>
+<p>去雨那條線。<a href="https://openaccess.thecvf.com/content_cvpr_2017/html/Fu_Removing_Rain_From_CVPR_2017_paper.html">Fu et al.（CVPR 2017）</a>把有雨影像寫成 <code>O = B + R</code>，網路只學那一層雨 <code>R</code>，輸出取 <code>O − R</code>；作者說明理由是<b>縮小輸入到輸出的映射範圍</b>，讓學習變容易。<a href="https://arxiv.org/abs/1804.07493">ResGuideNet（ACM MM 2018）</a>再把它做成串接的殘差區塊，並且是可拆卸的——測試時可以少接幾塊，用品質換速度。</p>
+
+<p><b>搬過來的是「限制映射範圍」這個想法</b>：不要讓模組自由地改每一個像素，只讓它做某一類結構化的改動。空間變形就是這樣一類——它只能把像素搬到別的座標，不能加任何東西上去。</p>
+
+<p class="fn">必須講清楚的落差：ResGuideNet 的「可拆卸」指的是測試時少接幾個區塊換速度，<b>不是「同一個模型靠開關產生兩種輸出」</b>。你記憶中的那個形態，文獻裡沒有直接對應物。</p>
+
+<h3>構造</h3>
+<figure>
+<svg class="diagram" viewBox="0 0 980 190" role="img" aria-label="空間變形模組的內部構造">
+<defs><marker id="m2" markerWidth="8" markerHeight="8" refX="6.5" refY="2.8" orient="auto">
+<path d="M0,0 L6.5,2.8 L0,5.6 z" fill="currentColor"/></marker></defs>
+<g>
+  <rect x="16" y="34" width="66" height="66" rx="3" fill="var(--hot-soft)" stroke="var(--hot)"/>
+  <g stroke="var(--hot)" stroke-width="1" opacity=".75" marker-end="url(#m2)">
+    <path d="M27,45 l6,4"/><path d="M49,45 l-4,6"/><path d="M71,45 l3,6"/>
+    <path d="M27,67 l5,-5"/><path d="M49,67 l6,3"/><path d="M71,67 l-5,4"/>
+    <path d="M27,89 l4,-6"/><path d="M49,89 l-6,-3"/><path d="M71,89 l4,5"/>
+  </g>
+  <text class="s" x="8" y="118">φ：控制點位移</text>
+  <text class="s" x="8" y="131">32×32 → 2,048 個參數</text>
+  <text class="s" x="8" y="144">128×128 → 32,768 個</text>
+</g>
+<line x1="88" y1="67" x2="110" y2="67" stroke="currentColor" stroke-width="1.3" marker-end="url(#m2)"/>
+<rect x="114" y="44" width="112" height="46" rx="4" fill="var(--bg)" stroke="var(--fg)"/>
+<text class="t" x="170" y="62" text-anchor="middle">雙線性上採樣</text>
+<text class="s" x="170" y="78" text-anchor="middle">放大成整張的位移場</text>
+<text class="s" x="170" y="108" text-anchor="middle">控制點越少，位移場越平滑</text>
+<line x1="230" y1="67" x2="252" y2="67" stroke="currentColor" stroke-width="1.3" marker-end="url(#m2)"/>
+<rect x="256" y="44" width="106" height="46" rx="4" fill="var(--bg)" stroke="var(--fg)"/>
+<text class="t" x="309" y="62" text-anchor="middle">夾在 ±8 px</text>
+<text class="s" x="309" y="78" text-anchor="middle">每個像素最多搬 8 格</text>
+<line x1="366" y1="67" x2="388" y2="67" stroke="currentColor" stroke-width="1.3" marker-end="url(#m2)"/>
+<rect x="392" y="44" width="130" height="46" rx="4" fill="var(--bg)" stroke="var(--fg)"/>
+<text class="t" x="457" y="62" text-anchor="middle">取樣座標</text>
+<text class="s" x="457" y="78" text-anchor="middle">原座標 + 位移場</text>
+<line x1="526" y1="67" x2="548" y2="67" stroke="currentColor" stroke-width="1.3" marker-end="url(#m2)"/>
+<rect x="552" y="44" width="118" height="46" rx="4" fill="var(--bg)" stroke="var(--fg)"/>
+<text class="t" x="611" y="62" text-anchor="middle">重新取樣</text>
+<text class="s" x="611" y="78" text-anchor="middle">雙線性內插</text>
+<line x1="674" y1="67" x2="696" y2="67" stroke="currentColor" stroke-width="1.3" marker-end="url(#m2)"/>
+<rect x="700" y="42" width="90" height="50" rx="4" fill="var(--bg)" stroke="var(--hot)"/>
+<text class="t" x="745" y="72" text-anchor="middle">防禦後照片</text>
+<text class="s" x="880" y="52" text-anchor="middle">整條路徑可微，</text>
+<text class="s" x="880" y="66" text-anchor="middle">梯度可從編輯輸出</text>
+<text class="s" x="880" y="80" text-anchor="middle">一路傳回控制點</text>
+</svg>
+</figure>
+</section>
+
+<!-- ===================== 6 ===================== -->
+<section class="slide">
+<span class="no">路線二</span>
+<h2>6. 實驗與結論</h2>
+
+<p><b>做了什麼。</b>同一張照片、同一個損失、同樣 60 步，跑兩個控制點設定（32×32 與 128×128）。每一個設定都另外配一條<b>對照</b>：把高斯雜訊調到與最佳化解看起來一樣不同（LPIPS 相同），同樣送去編輯。兩邊用逐元素相同的 5 組評測噪聲，可以逐種子相減。</p>
+
+<p><b>想看到什麼。</b>如果最佳化找到的搬法真的有意義，它讓編輯失效的程度應該明顯多過隨便搬。如果差不多，代表效果來自「照片被動過」本身而不是「動得有道理」。</p>
+
+<div class="tw"><table>
+<thead><tr><th>設定</th><th class="n">可調參數</th><th class="n">擾動 LPIPS</th><th class="n">最佳化的<br>SigLIP 變化</th><th class="n">同 LPIPS 隨機的<br>SigLIP 變化</th><th class="n">差值</th><th class="n">5 個種子中同向</th></tr></thead>
+<tbody>
+<tr><td>控制點 32×32</td><td class="n">2,048</td><td class="n">0.1077</td><td class="n">−0.00212</td><td class="n">−0.00956</td><td class="n pos">+0.00744</td><td class="n">1/5</td></tr>
+<tr><td>控制點 128×128</td><td class="n">32,768</td><td class="n">0.1783</td><td class="n">−0.00310</td><td class="n">−0.01449</td><td class="n pos">+0.01140</td><td class="n">1/5</td></tr>
+</tbody>
+</table></div>
+<p class="fn">SigLIP 變化越負代表編輯結果越不照 prompt 走。差值＝最佳化 − 隨機，<b>負值代表最佳化較好</b>。</p>
+
+<div class="imgrow">
+  <figure><img src="ASSET:runs/gate_S/horse_00__orig.png" alt="原圖"><div class="cap"><b>原圖</b>256²</div></figure>
+  <figure><img src="ASSET:runs/gate_S/horse_00__S__def.png" alt="控制點 32 最佳化"><div class="cap"><b>32×32 最佳化</b>LPIPS 0.1077</div></figure>
+  <figure><img src="ASSET:runs/gate_S/horse_00__S__rand.png" alt="控制點 32 隨機對照"><div class="cap"><b>32×32 隨機對照</b>LPIPS 0.1056</div></figure>
+  <figure><img src="ASSET:runs/gate_S_g128b/horse_00__S__def.png" alt="控制點 128 最佳化"><div class="cap"><b>128×128 最佳化</b>LPIPS 0.1783</div></figure>
+  <figure><img src="ASSET:runs/gate_S_g128b/horse_00__S__rand.png" alt="控制點 128 隨機對照"><div class="cap"><b>128×128 隨機對照</b>LPIPS 0.1804</div></figure>
+</div>
+
+<h3>排除了哪些可能的解釋</h3>
+<div class="tw"><table>
+<thead><tr><th>可能卡住它的原因</th><th>實際值</th><th>結論</th></tr></thead>
+<tbody>
+<tr><td>失真預算用完了</td><td>只用到 0.1077，上限是 0.55</td><td>沒有，只用掉 20%</td></tr>
+<tr><td>位移上限卡住</td><td>平均 1.217 px、最大 5.386 px，上限 8 px</td><td>沒有碰到</td></tr>
+<tr><td>學習率不對</td><td>0.1，就是它自己校準出來的值</td><td>不是</td></tr>
+<tr><td>能表達的變形太粗</td><td>參數量放大 16 倍後結論沒有翻轉，反而更差</td><td>不是</td></tr>
+<tr><td>換控制點數其實沒作用</td><td>起點梯度 1.258e-03 對 1.228e-03（相差 2%）；達到同一注意力偏移量所需步數由第 40 步縮到第 10 步</td><td>有作用，操作是有效的</td></tr>
+</tbody>
+</table></div>
+
+<div class="key"><span class="lbl">結論</span>
+<p><b>最佳化找到的搬法，並沒有比隨便搬更能擋住編輯</b>——兩個設定的差值都是正的，5 個種子只有 1 個站在最佳化這邊。</p>
+<p>而上表逐項排除之後，剩下的解釋只有一個：<b>不是它動得不夠多，是動得不夠準。</b>平滑位移場能施加的注意力改變，方向性不足。</p>
+<p class="fn">限制：單張照片、5 組評測噪聲、一個損失、256² 解析度。</p>
+</div>
+</section>
+
+<!-- ===================== 7 ===================== -->
+<section class="slide">
+<span class="no">路線二</span>
+<h2>7. 比現行 baseline 輸在哪，以及哪些地方是優勢</h2>
+
+<div class="tw"><table>
+<thead><tr><th>方法</th><th class="n">擾動 LPIPS</th><th class="n">編輯輸出被改變的程度</th><th class="n">畫面劣化</th><th class="n">可調參數</th></tr></thead>
+<tbody>
+<tr class="hi"><td>空間變形（32×32）</td><td class="n">0.1077</td><td class="n">0.3403</td><td class="n neg">+0.24</td><td class="n">2,048</td></tr>
+<tr class="hi"><td>空間變形（128×128）</td><td class="n">0.1783</td><td class="n">0.3607</td><td class="n neg">+0.48</td><td class="n">32,768</td></tr>
+<tr><td>PhotoGuard encoder</td><td class="n">0.5514</td><td class="n"><b>0.6363</b></td><td class="n pos">+5.81</td><td class="n">786,432</td></tr>
+<tr><td>PhotoGuard diffusion</td><td class="n">0.5313</td><td class="n">0.6070</td><td class="n">+0.73</td><td class="n">786,432</td></tr>
+<tr><td>semantic attack</td><td class="n">0.5080</td><td class="n">0.5593</td><td class="n">−0.40</td><td class="n">786,432</td></tr>
+</tbody>
+</table></div>
+<p class="fn">「編輯輸出被改變的程度」是防禦後的編輯結果與未防禦的編輯結果之間的 LPIPS，越大表示編輯被改變越多。「畫面劣化」是 NIQE 的變化量，正值代表輸出看起來變糟。<b>兩組的失真量差 3–5 倍，不在同一點上，因此這張表不是勝負判定</b>；空間變形是 256²、單張、5 個種子，三個基準是 512²、24 張、20 個種子。</p>
+
+<h3>輸在哪</h3>
+<ul>
+<li><b>絕對效果小。</b>編輯被改變的程度 0.34–0.36，對三個基準的 0.56–0.64。</li>
+<li><b>更關鍵的是第 6 頁那條。</b>相對自己的同失真對照，最佳化沒有取得優勢。基準方法至少在「有沒有比隨機好」這一點上還沒被這樣檢驗過，但我們自己這一條已經檢驗了，答案是沒有。</li>
+</ul>
+
+<h3>可能可以改善的優勢</h3>
+<ol>
+<li><b>失真預算還有八成沒用。</b>只走到 0.108（上限 0.55），而且逐項確認過不是被任何設定卡住。若能提高方向性，還有很大的空間可用。</li>
+<li><b>幾乎不把畫面弄糟。</b>NIQE 變化 +0.24，對 PhotoGuard encoder 的 +5.81，差 24 倍。後者的高分很大一部分是把畫面整個弄糊換來的——那是「輸出很爛」不是「編輯被擋」。空間變形沒有走這條捷徑。</li>
+<li><b>在文獻慣用的那把尺上，它天生量不到。</b>空間變形的 L∞ 是 0.5439 而 LPIPS 只有 0.1077——L∞ 是文獻標準幅度的 9 倍，人眼卻幾乎看不出來。這代表<b>文獻用 L∞ 當限制對非加性方法根本不適用</b>，這本身是一個可以獨立發表的觀察。</li>
+<li><b>參數量少 1–2 個數量級。</b>2,048 或 32,768，對逐像素做法的 786,432。</li>
+</ol>
+</section>
+
+<!-- ===================== 8 ===================== -->
+<section class="slide">
+<span class="no">統整</span>
+<h2>8. 實驗與文獻加起來看到的四件事</h2>
+
+<ol>
+<li><b>這整條研究線的天花板本來就很低。</b>在同一份資料上重跑三個文獻方法：24 張照片裡，只有一個方法能讓 6 張的編輯不再符合 prompt；另外兩個方法的 SigLIP 變化是<b>正的</b>（+0.0066、+0.0091），也就是加了保護之後編輯<b>更</b>照 prompt 走。獨立研究（ICIP 2025）在別的資料上量到 54–77% 的受保護影像完全沒有掉對齊度。<b>不是我們的模組比別人差，是這條線本身就幾乎不成立。</b></li>
+<li><b>文獻最常用的評分方式，會把「畫面被弄糊」算成「免疫成功」。</b>那五個影像距離數字把 PhotoGuard encoder 排第一，而它的畫面劣化是 +5.81；同一批輸出上，距離數字與 SigLIP 的排序相反。也就是說，<b>拿哪一組數字宣告成功，會直接改變誰是最好的方法</b>。</li>
+<li><b>「失真一樣」這件事沒有被正確定義過。</b>把四種不同性質的失真調到 LPIPS 完全相同時，PSNR 相差 12 dB。文獻用 L∞ 限制擾動，而 L∞ = 0.06 這個標準幅度換算成 LPIPS 接近 0.6、人眼一眼看得出來，且對非加性方法完全失準（見第 7 頁第 3 點）。</li>
+<li><b>非加性用於抗文字編輯，查不到直接前作。</b>逐篇核對後，原本引為支持的兩篇都不成立——一篇的 non-additive 講的是另一件事，另一篇（STP-Diff）防的是人臉辨識、黑盒威脅模型。新穎性高，但也代表<b>沒有任何外部結果顯示這條路走得通</b>。</li>
+</ol>
+</section>
+
+<!-- ===================== 9 ===================== -->
+<section class="slide">
+<span class="no">規劃</span>
+<h2>9. 基於這些結果的後續規劃</h2>
+
+<p>兩條路線各留下一個明確的下一步，加上一條不依賴防禦是否有效的退路。</p>
+
+<div class="tw"><table>
+<thead><tr><th class="n">#</th><th>要做什麼</th><th>它回答什麼</th><th>成本</th></tr></thead>
+<tbody>
+<tr class="hi"><td class="n">1</td><td class="w"><b>把路線一重測一次。</b>設定：模組加在 latent、用現在的交叉注意損失、失真上限 0.55，必帶兩條對照——模組關掉（φ=0）與同失真的隨機擾動</td><td class="w">擋住路線一的理由是「進出一次的代價高過預算」，而預算已由 0.063 換成 0.55，那個代價現在只佔 13%。<b>這個判定該重做</b></td><td>需雲端</td></tr>
+<tr class="hi"><td class="n">2</td><td class="w"><b>換一個方向性更強的損失。</b>基準論文的版本有由原圖取出的空間遮罩、跨層保留空間維度、只針對防禦方自己選定的那個詞</td><td class="w">第 6 頁的結論是「動得不夠準」。這個損失同時<b>效果更強</b>且<b>假設更弱</b>（不需要知道攻擊方的 prompt），而且已經實作好並驗證過，只是還沒接到模組上</td><td>一次改動 + 重跑</td></tr>
+<tr><td class="n">3</td><td class="w"><b>量「失真 vs 效果」的曲線，不再追求「匹配點」。</b>把解沿射線放大縮小成 5 級，每一級帶同失真對照</td><td class="w">兩個方法只要曲線有一段重疊就能比較，不需要哪一次剛好落在指定的點上。也能分辨空間變形是「到不了大失真」還是「到了也沒用」</td><td><b>不需訓練</b>，本機 1.5 小時</td></tr>
+<tr><td class="n">4</td><td class="w"><b>把評測種子由 5 加到 20，並補第二張照片</b></td><td class="w">目前的判定建立在單張照片與 5 個種子上，統計上需要 7 個</td><td>只有評測，本機約 2 小時</td></tr>
+<tr><td class="n">5</td><td class="w"><b>退路：把量測方法寫成主結果。</b>第 8 頁的四件事全部已經量完</td><td class="w">它們<b>不依賴我們的防禦有沒有效</b>，而且都是在基準論文自己的協定與預算上取得的</td><td>寫作</td></tr>
+</tbody>
+</table></div>
+
+<div class="key"><span class="lbl">順序與取捨</span>
+<p>先做 3 與 4（本機、不需雲端），把現有結論從「單點」變成「曲線」並補足樣本。接著做 2，因為它直接對應第 6 頁量到的那個缺陷。1 需要雲端，安排在 2 之後——若 2 讓方向性改善了，路線一重測才有意義。</p>
+<p><b>若 1 到 4 都不成立</b>，第 8 頁那四件事本身就是結論：這條研究線的問題不只是「還沒找到好方法」，而是<b>連怎麼判斷一個方法好不好都還沒有共識</b>。5 就是把這件事寫清楚。</p>
+</div>
+</section>
+
+<p class="fn">資料位置：路線一 <code>runs/e17_vae_floor/</code>、<code>runs/e19_lam10/</code>、<code>runs/e2_phi0/</code>；路線二 <code>runs/gate_S/</code>、<code>runs/gate_S_g128b/</code>；三個基準 <code>runs/lo_baseline/</code>、<code>runs/l3_criterion_axes/</code>。詳細版報告見 <code>docs/REPORT_2026-08-04.html</code>。</p>
+
+</div>
+</body>
+</html>

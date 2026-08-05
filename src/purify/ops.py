@@ -313,14 +313,33 @@ class Purifier:
             return diffpure_real(x, t=t, ckpt=self.options.get("ckpt"))
         return cnn_denoise_substitute_real(x, ckpt=self.options.get("ckpt"))
 
+    def _run(self, x: torch.Tensor) -> torch.Tensor:
+        """在 fp32 上執行算子，回傳時轉回輸入的 dtype。
+
+        **算子一律在 fp32 上做。** jpeg、quantize、crop_resize、
+        adverse_cleaner 與 CNN 去噪都要經 numpy 或 OpenCV，而那兩者沒有
+        bfloat16：`x.cpu().numpy()` 直接以
+        `TypeError: Got unsupported ScalarType BFloat16` 中止
+        （2026-08-06 於段 0 的 N3 stage2 實測）。
+
+        只有生成路徑會餵進半精度：warp 的輸出沿用 `x01` 的 fp32，而 apa
+        走 `decode(...)`，在 bf16 下產出的就是 bf16。也就是說這條路徑
+        只有 N3 會踩到，N1／N2 不會——差異來自注入位置，不是來自算子。
+
+        轉回輸入的 dtype 是為了讓本類別對呼叫端**dtype 中性**：淨化不該
+        改變管線的精度。fp32 進來時兩次轉型都是恆等，故評測路徑
+        （輸入恆為 fp32）逐位元不變。
+        """
+        return self._real(x.float()).to(x.dtype)
+
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         if self.differentiable:
-            return self._real(x)
-        return straight_through(x, self._real(x))
+            return self._run(x)
+        return straight_through(x, self._run(x))
 
     @torch.no_grad()
     def evaluate(self, x: torch.Tensor) -> torch.Tensor:
-        return self._real(x)
+        return self._run(x)
 
     def proxy_gap(self, x: torch.Tensor) -> float:
         """代理與真實實作的前向最大絕對差，供報告引用。"""

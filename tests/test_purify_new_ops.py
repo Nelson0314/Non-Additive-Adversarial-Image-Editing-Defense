@@ -442,3 +442,38 @@ def test_DiffPure缺檔時的訊息指得到處置方式(monkeypatch):
         D.diffpure_real(torch.rand(1, 3, 32, 32))
     assert "fetch_diffpure.py" in str(e.value)
     assert D.DIFFPURE_CKPT_ENV in str(e.value)
+
+
+# ---------------------------------------------------------------------------
+# 半精度輸入（2026-08-06，段 0 於 GPU 上實測後補）
+# ---------------------------------------------------------------------------
+
+@pytest.mark.parametrize("kind,strength", [
+    ("identity", 0.0), ("jpeg", 75), ("quantize", 32),
+    ("blur", 1.0), ("noise", 0.02), ("crop_resize", 0.10),
+])
+def test_算子吃得下bf16且不改變管線精度(kind, strength):
+    """生成路徑（site apa）在 bf16 下 `decode(...)` 產出的就是半精度。
+
+    jpeg／quantize／crop_resize 等要經 numpy 或 OpenCV，而那裡沒有
+    bfloat16——`x.cpu().numpy()` 以 `TypeError: Got unsupported ScalarType
+    BFloat16` 中止。warp 的輸出沿用 x01 的 fp32，故 N1／N2 不會踩到，
+    只有 N3 會：差異來自注入位置，不是來自算子。
+
+    同時釘住「淨化不改變管線的精度」——回傳的 dtype 必須與輸入相同。
+    """
+    p = Purifier(kind, strength, seed=0)
+    x = _img(3, size=32).to(torch.bfloat16)
+    for out in (p.forward(x), p.evaluate(x)):
+        assert out.dtype == torch.bfloat16, f"{kind} 改掉了管線的精度"
+        assert out.shape == x.shape
+        assert torch.isfinite(out.float()).all()
+
+
+def test_fp32輸入時轉型是恆等():
+    """評測路徑的輸入恆為 fp32，兩次轉型都必須是恆等，數字逐位元不變。"""
+    from src.purify.ops import jpeg_real
+
+    p = Purifier("jpeg", 75, seed=0)
+    x = _img(4, size=32)
+    assert torch.equal(p.evaluate(x), jpeg_real(x, 75))

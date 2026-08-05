@@ -74,27 +74,156 @@ def resize_params() -> dict:
     return {"size": DIFFPURE_RESOLUTION, "mode": RESIZE_MODE, "antialias": RESIZE_ANTIALIAS}
 
 
+# `NVlabs/DiffPure` 的 `configs/imagenet.yml` 的 `model:` 區塊，逐欄照抄
+# （2026-08-05 由 raw 檔核對）。這些值覆寫 `model_and_diffusion_defaults()`。
+# **不得憑 `256x256_diffusion_uncond.pt` 這個檔名推測參數**：guided-diffusion
+# 同一解析度有 `learn_sigma`／`attention_resolutions` 不同的多組設定，
+# 猜錯會讓 `load_state_dict` 以形狀不符中止（有症狀），或更糟——形狀碰巧
+# 相符而權重對應到別的層（無症狀）。
+#
+# 這組設定已與檢查點交叉核對（2026-08-05，不需下載即可驗證）：
+# `create_model_and_diffusion(**cfg)` 的 `state_dict` 共 552,814,086 個元素，
+# fp32 下 2,211,256,344 bytes；檢查點的 HTTP Content-Length 為 2,211,383,297，
+# 差 126,953 bytes 即 zip 容器與 pickle 的開銷（比值 0.99994）。
+# 由 `tests/test_purify_new_ops.py::test_DiffPure的設定與檢查點大小相符` 釘住。
+DIFFPURE_MODEL_CONFIG = {
+    "attention_resolutions": "32,16,8",
+    "class_cond": False,
+    "diffusion_steps": 1000,
+    "rescale_timesteps": True,
+    "timestep_respacing": "1000",
+    "image_size": 256,
+    "learn_sigma": True,
+    "noise_schedule": "linear",
+    "num_channels": 256,
+    "num_head_channels": 64,
+    "num_res_blocks": 2,
+    "resblock_updown": True,
+    "use_fp16": False,     # 見 `_load_guided`：本專案在 fp32 下跑淨化
+    "use_scale_shift_norm": True,
+}
+
+# 檢查點的預設位置。以環境變數覆寫，因為 GPU 機器與本機的路徑不同，
+# 而把路徑寫進入庫檔案會讓「這批資料用的是哪份權重」隨機器而變。
+DIFFPURE_CKPT_ENV = "DIFFPURE_CKPT"
+
+_CACHE: dict = {}
+
+
+def diffpure_checkpoint_path(ckpt=None):
+    """檢查點路徑。`ckpt` > 環境變數 `DIFFPURE_CKPT` > `None`。"""
+    import os
+    from pathlib import Path
+
+    if ckpt:
+        return Path(ckpt)
+    env = os.environ.get(DIFFPURE_CKPT_ENV)
+    return Path(env) if env else None
+
+
 def has_diffpure_weights(ckpt=None) -> bool:
-    """權重與相依套件是否到位。目前恆為 False，見 `diffpure_real` 的說明。"""
-    return False
+    """檢查點與 `guided_diffusion` 套件是否都到位。
 
-
-def diffpure_real(x01: torch.Tensor, t: int = DIFFPURE_T_DEFAULT, ckpt=None) -> torch.Tensor:
-    """真實 DiffPure。**目前無法執行**，缺項逐條列於例外訊息中。
-
-    介面已定案：輸入輸出為 `(B,3,H,W)`、RGB、`[0,1]`；內部應換算到 `[-1,1]`，
-    在 256² 上跑 `t` 步，再由 `resize_roundtrip` 升回原尺寸。
+    兩者都要檢查。只檢查其一的話，缺的那一項會在**跑到那一格時**才炸，
+    而那已經是數小時機時之後——`Purifier.available` 的存在就是為了讓
+    `annotate_unavailable` 在跑之前就把那些格標成 skipped。
     """
-    raise NotImplementedError(
-        "DiffPure 無法執行，缺以下項目（不得以其他擴散模型或自寫近似替代）：\n"
-        f"  1. 檢查點 {DIFFPURE_CHECKPOINT}（guided-diffusion 的 256×256 無條件模型，"
-        f"來源 {DIFFPURE_CHECKPOINT_SOURCE}，MIT）。\n"
-        "  2. `guided_diffusion` 套件本身（`create_model_and_diffusion`、`p_sample`），"
-        "或 NVlabs/DiffPure repo 內的 `runners/diffpure_guided.py`。\n"
-        "  3. 若要用論文主結果的 SDE 版，另需 `torchsde`"
-        "（`sdeint_adjoint`, method='euler', dt=1e-3），目前環境未安裝。\n"
-        f"  設定已定案：t={t}（ImageNet），sample_step={DIFFPURE_SAMPLE_STEP}，"
-        "clip_denoised=True，值域 [-1,1]，"
-        f"解析度經 resize_roundtrip（{RESIZE_MODE}, antialias={RESIZE_ANTIALIAS}, "
-        f"{DIFFPURE_RESOLUTION}²）——最後這一項為我方指定，非 DiffPure 原設定。"
+    from importlib.util import find_spec
+
+    p = diffpure_checkpoint_path(ckpt)
+    if p is None or not p.exists():
+        return False
+    return find_spec("guided_diffusion") is not None
+
+
+def _load_guided(ckpt=None, device=None):
+    """載入 guided-diffusion 的 256² 無條件模型。**同一個行程只載入一次。**
+
+    模型約 2.2 GB，逐格重載會讓 4,050 格的評測完全被 I/O 綁住。
+    以 (路徑, 裝置) 為鍵快取。
+
+    `use_fp16=False`：`convert_to_fp16` 只在 CUDA 上有意義，而淨化是評測
+    路徑的一部分，其數值必須與精度無關才不會在 `precision_equiv` 之外
+    另外引入一個變因。速度差異相對 4,050 格的總成本可忽略。
+    """
+    import torch as _torch
+    from guided_diffusion.script_util import (
+        create_model_and_diffusion, model_and_diffusion_defaults,
     )
+
+    p = diffpure_checkpoint_path(ckpt)
+    if p is None or not p.exists():
+        raise FileNotFoundError(
+            f"找不到 DiffPure 的檢查點。請設環境變數 {DIFFPURE_CKPT_ENV} 指向 "
+            f"{DIFFPURE_CHECKPOINT}，或以 `scripts/fetch_diffpure.py` 下載。"
+            f"（來源 {DIFFPURE_CHECKPOINT_SOURCE}，2.2 GB，不入版控）"
+        )
+    key = (str(p), str(device))
+    if key in _CACHE:
+        return _CACHE[key]
+
+    cfg = model_and_diffusion_defaults()
+    cfg.update(DIFFPURE_MODEL_CONFIG)
+    model, diffusion = create_model_and_diffusion(**cfg)
+    state = _torch.load(p, map_location="cpu")
+    # `strict=True`（預設）：少一個鍵或多一個鍵都表示設定與檢查點不配對，
+    # 而 `strict=False` 會讓未載入的層留在隨機初始化上——淨化仍然跑得完，
+    # 輸出也仍是一張圖，只是那不是 DiffPure。
+    model.load_state_dict(state)
+    model.requires_grad_(False).eval()
+    if device is not None:
+        model.to(device)
+    _CACHE[key] = (model, diffusion)
+    return model, diffusion
+
+
+def diffpure_real(x01: torch.Tensor, t: int = DIFFPURE_T_DEFAULT,
+                  ckpt=None, sample_step: int = DIFFPURE_SAMPLE_STEP,
+                  seed=None) -> torch.Tensor:
+    """真實 DiffPure（guided 版）。輸入輸出 `(B,3,H,W)`、RGB、`[0,1]`。
+
+    逐行對應 `NVlabs/DiffPure` 的 `runners/diffpure_guided.py`
+    `GuidedDiffusion.image_editing_sample`（2026-08-05 由 raw 檔核對）：
+
+        a = (1 - betas).cumprod(0)
+        x = x0·√a[t-1] + e·√(1 − a[t-1])              # 一次加噪到 t
+        for i in reversed(range(t)):                   # 逐步去噪回 0
+            x = diffusion.p_sample(model, x, i, clip_denoised=True)["sample"]
+
+    值域為 `[-1,1]`，故此處先 `x·2−1`、最後 `(x+1)/2`。
+    解析度由 `resize_roundtrip` 處理（**我方指定**，DiffPure 原文無 resize）。
+
+    `t` 取 150（ImageNet 那組）。`sample_step` 為外層重複次數，原始碼
+    argparse 預設 1；大於 1 時原作把各次結果 `cat` 起來當成多個樣本，
+    本專案要的是單一淨化影像，故只取最後一次——這一點與原作的**用途**
+    不同（它做的是對抗防禦的隨機平滑），已在此註明。
+    """
+    if x01.dim() != 4:
+        raise ValueError(f"需要 (B,C,H,W) 張量，收到 {tuple(x01.shape)}")
+    model, diffusion = _load_guided(ckpt, device=x01.device)
+    betas = torch.from_numpy(diffusion.betas).float().to(x01.device)
+    a = (1.0 - betas).cumprod(dim=0)
+    if not 0 < t <= len(a):
+        raise ValueError(f"t={t} 超出 betas 的長度 {len(a)}")
+
+    gen = None
+    if seed is not None:
+        gen = torch.Generator(device="cpu").manual_seed(int(seed))
+
+    def inner(small01: torch.Tensor) -> torch.Tensor:
+        x0 = small01 * 2.0 - 1.0
+        with torch.no_grad():
+            for _ in range(max(1, sample_step)):
+                e = torch.randn(x0.shape, generator=gen,
+                                dtype=x0.dtype).to(x0.device)
+                x = x0 * a[t - 1].sqrt() + e * (1.0 - a[t - 1]).sqrt()
+                for i in reversed(range(t)):
+                    tt = torch.full((x.shape[0],), i, device=x.device,
+                                    dtype=torch.long)
+                    x = diffusion.p_sample(
+                        model, x, tt, clip_denoised=True, denoised_fn=None,
+                        cond_fn=None, model_kwargs=None)["sample"]
+                x0 = x
+        return ((x0 + 1.0) / 2.0).clamp(0, 1)
+
+    return resize_roundtrip(x01, inner=inner)

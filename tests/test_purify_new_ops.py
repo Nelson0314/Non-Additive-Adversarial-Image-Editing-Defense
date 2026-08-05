@@ -112,12 +112,16 @@ def test_crop_resize_比例過大時拋出():
 # ------------------------------------------------- DiffPure 與其 resize 對照
 
 
-def test_diffpure_缺權重時拋出且訊息寫明缺什麼():
-    with pytest.raises(NotImplementedError) as e:
+def test_diffpure_缺權重時拋出且訊息寫明缺什麼(monkeypatch):
+    """2026-08-05 起 `diffpure_real` 已實作（guided 版，逐行對應
+    `runners/diffpure_guided.py`），故缺的不再是程式而是 2.2 GB 的檢查點。
+    訊息必須指得到取得方式，否則接手的人只知道「不能跑」。"""
+    monkeypatch.delenv(dp.DIFFPURE_CKPT_ENV, raising=False)
+    with pytest.raises(FileNotFoundError) as e:
         Purifier("diffpure", dp.DIFFPURE_T_DEFAULT).evaluate(_img(4))
     msg = str(e.value)
     assert dp.DIFFPURE_CHECKPOINT in msg
-    assert "torchsde" in msg
+    assert "fetch_diffpure.py" in msg
 
 
 def test_diffpure_的_t_取_imagenet_那組():
@@ -136,10 +140,10 @@ def test_resize_only_與_diffpure_的降升取樣參數一致():
     x = _img(5, size=128)
     # DiffPure 走的是同一個 resize_roundtrip，inner=None 時必須逐元素等同
     assert torch.equal(dp.resize_roundtrip(x, inner=None), Purifier("resize_only").evaluate(x))
-    # 訊息中載明 resize 為我方指定，不得混入 DiffPure 原設定
-    with pytest.raises(NotImplementedError) as e:
-        dp.diffpure_real(x)
-    assert "我方指定" in str(e.value)
+    # resize 為我方指定（DiffPure 原文無 resize 步驟），該事實記在 docstring
+    # 而非例外訊息裡——實作完成後那個例外已不再存在。
+    assert "我方指定" in dp.diffpure_real.__doc__
+    assert "我方指定" in dp.__doc__
 
 
 def test_resize_only_形狀與值域():
@@ -280,8 +284,12 @@ def test_cnn_去噪明確標示為我方替代且缺權重時拋出():
     msg = str(e.value)
     assert "非 NTIRE 2023 冠軍" in msg
     assert "Restormer" in msg
-    assert "非 NTIRE 2023 冠軍" in cnn_denoise_substitute_real.__doc__ or True
-    assert "我方替代" in cnn_denoise_substitute_real.__doc__
+    # `or True` 會讓整行恆真。標註若從 docstring 消失就必須失敗——那正是
+    # 「不得聲稱重現 DiffVax 該項評測」這條紀律的唯一機械保障。
+    doc = cnn_denoise_substitute_real.__doc__
+    assert doc, "cnn_denoise_substitute_real 沒有 docstring"
+    assert "非 NTIRE 2023 冠軍" in doc
+    assert "我方替代" in doc
 
 
 # ------------------------------------------------------- proxy_gap 與集合
@@ -346,3 +354,71 @@ def test_eval_sweep_含主組新算子與_resize_對照():
     assert sw["impress"][0].options.get("sd") is None
     sd = _StubSD()
     assert eval_sweep(sd=sd)["impress"][0].options["sd"] is sd
+
+
+# ---------------------------------------------------------- DiffPure
+
+
+def test_DiffPure的設定與檢查點大小相符():
+    """`DIFFPURE_MODEL_CONFIG` 若與檢查點不配對，`load_state_dict` 會以
+    形狀不符中止——那還算好的；更糟的是形狀碰巧相符而權重落到別的層，
+    淨化照樣跑得完、輸出照樣是一張圖，只是那不是 DiffPure。
+
+    此處不下載 2.2 GB 的權重，改以「參數量 × 4 bytes 應等於檔案大小」
+    交叉核對：552,814,086 × 4 = 2,211,256,344，而檢查點為 2,211,383,297，
+    差的 126,953 bytes 是 zip 容器與 pickle 的開銷。
+    """
+    pytest.importorskip("guided_diffusion")
+    from guided_diffusion.script_util import (
+        create_model_and_diffusion, model_and_diffusion_defaults,
+    )
+
+    from src.purify.diffpure import DIFFPURE_MODEL_CONFIG
+
+    cfg = model_and_diffusion_defaults()
+    cfg.update(DIFFPURE_MODEL_CONFIG)
+    model, diffusion = create_model_and_diffusion(**cfg)
+    n = sum(p.numel() for p in model.state_dict().values())
+    assert n == 552_814_086
+    assert abs(n * 4 / 2_211_383_297 - 1.0) < 1e-4
+    assert len(diffusion.betas) == 1000
+
+
+def test_DiffPure缺權重或缺套件都算不可用(monkeypatch, tmp_path):
+    """兩者都要檢查。只檢查其一時，缺的那一項會在跑到那一格才炸，
+    而那已經是數小時機時之後。"""
+    from src.purify import diffpure as D
+
+    monkeypatch.delenv(D.DIFFPURE_CKPT_ENV, raising=False)
+    assert D.has_diffpure_weights() is False, "沒有路徑就不可用"
+
+    missing = tmp_path / "nope.pt"
+    assert D.has_diffpure_weights(missing) is False
+
+    present = tmp_path / "256x256_diffusion_uncond.pt"
+    present.write_bytes(b"x")
+    monkeypatch.setattr(D, "find_spec", None, raising=False)
+    import importlib.util as _u
+    monkeypatch.setattr(_u, "find_spec", lambda name: None)
+    assert D.has_diffpure_weights(present) is False, "缺套件也不可用"
+
+
+def test_DiffPure的環境變數會被讀到(monkeypatch, tmp_path):
+    """路徑不寫進入庫檔案：GPU 機器與本機的路徑不同，寫死會讓
+    「這批資料用的是哪份權重」隨機器而變。"""
+    from src.purify import diffpure as D
+
+    p = tmp_path / "ckpt.pt"
+    monkeypatch.setenv(D.DIFFPURE_CKPT_ENV, str(p))
+    assert D.diffpure_checkpoint_path() == p
+    assert D.diffpure_checkpoint_path(tmp_path / "other.pt").name == "other.pt"
+
+
+def test_DiffPure缺檔時的訊息指得到處置方式(monkeypatch):
+    from src.purify import diffpure as D
+
+    monkeypatch.delenv(D.DIFFPURE_CKPT_ENV, raising=False)
+    with pytest.raises(FileNotFoundError) as e:
+        D.diffpure_real(torch.rand(1, 3, 32, 32))
+    assert "fetch_diffpure.py" in str(e.value)
+    assert D.DIFFPURE_CKPT_ENV in str(e.value)

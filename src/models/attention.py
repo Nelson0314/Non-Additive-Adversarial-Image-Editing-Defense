@@ -191,6 +191,8 @@ class CrossAttentionRecorder:
         self.unet = unet
         self.average_heads = average_heads
         self.maps: List[torch.Tensor] = []
+        # 逐步擷取時由呼叫端在取樣步之外關閉，見 `_make_hook`。
+        self.enabled = True
         self._handles = []
         self._layers = [
             m for n, m in unet.named_modules() if n.endswith("attn2")
@@ -222,6 +224,11 @@ class CrossAttentionRecorder:
 
     def _make_hook(self):
         def hook(module, args, kwargs):
+            # `enabled` 為假時直接返回。逐步擷取只在取樣步上要，而 hook 本身
+            # 會實體化 (Q, 77) 的注意力矩陣——那正是 SDPA 融合核所避免的，
+            # 全程開著等於讓 UNet 前向成本大幅增加。
+            if not self.enabled:
+                return None
             # attn2 的呼叫可能用位置引數也可能用關鍵字，兩種都要接
             hidden = kwargs.get("hidden_states", args[0] if args else None)
             enc = kwargs.get("encoder_hidden_states", None)

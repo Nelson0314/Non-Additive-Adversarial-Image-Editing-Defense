@@ -131,3 +131,33 @@ def save_x0_trace(trace: List[torch.Tensor], sd, out_dir: Path) -> None:
     with torch.no_grad():
         for j, z in enumerate(trace):
             save_image(sd.decode_latent(z), out_dir / f"x0_step{j:03d}.png")
+
+
+def save_heatmap(m: torch.Tensor, path: Path,
+                 vmax: Optional[float] = None) -> Path:
+    """把 (H,W) 或 (1,H,W) 的注意力圖存成灰階 PNG，回傳路徑。
+
+    **每張圖各自正規化到自己的最大值**（`vmax=None` 時），因為各層的質量
+    尺度相差數個量級——共用一個尺度會讓深層那幾張全黑，而那正是要看的層。
+    代價是不同圖之間的亮度不可直接比較，數值比較一律以 `attn_stats.csv`
+    為準；這個取捨寫在這裡，避免有人拿兩張圖的亮度下結論。
+
+    需要跨圖可比時由呼叫端明給 `vmax`。
+    """
+    from PIL import Image
+    import numpy as np
+
+    a = m.detach().float().cpu()
+    if a.dim() == 3:
+        a = a[0]
+    if a.dim() != 2:
+        raise ValueError(f"熱圖必須是 (H,W) 或 (1,H,W)，收到 {tuple(m.shape)}")
+    top = float(a.max()) if vmax is None else float(vmax)
+    if top <= 0:
+        # 全零圖是有意義的結果（該層完全沒有質量），不可除以零後得到 nan。
+        arr = np.zeros(tuple(a.shape), dtype=np.uint8)
+    else:
+        arr = (a.clamp_min(0) / top * 255).round().numpy().astype(np.uint8)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    Image.fromarray(arr, mode="L").save(path)
+    return path

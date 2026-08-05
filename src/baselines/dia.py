@@ -82,6 +82,49 @@ def dia_timesteps(sd, num_inference_steps: int = DIA_NUM_INFERENCE_STEPS) -> tor
     return torch.from_numpy(ts) + offset
 
 
+def resolve_final_abar(sd, abar: torch.Tensor) -> torch.Tensor:
+    """`prev_timestep < 0` 時 DDIM 用的 ᾱ（`DIA_PT.py:315-319`）。
+
+    **這條退路會實際觸發，不是防禦性程式碼。** DIA 的格點最低點是 t=1
+    （`dia_timesteps`），而 `prev_t = t − 100`，故第一步就是 `−99 < 0`，
+    每條反演軌跡都會走到它一次。
+
+    diffusers 的 `DDIMScheduler` 定義為
+
+        final_alpha_cumprod = 1.0 if set_alpha_to_one else alphas_cumprod[0]
+
+    stock SD 的 `scheduler/scheduler_config.json` 記 `set_alpha_to_one: false`，
+    故該值為 `alphas_cumprod[0]`。DIA 由 `from_pretrained` 載入 pipeline、
+    未覆寫該欄位（`DIA_PT.py` 全檔無 `set_alpha_to_one`），故取 `abar[0]`。
+
+    **為什麼不能只靠 `getattr(sd.scheduler, ...)`**：SDXL 的預設排程器是
+    `EulerDiscreteScheduler`，根本沒有這個屬性。而 DIA 只從排程器讀
+    `alphas_cumprod`、自己實作 DDIM 步（`_ddim`），排程器的種類本不影響其
+    數值——SDXL 與 SD v1.x 的 beta 排程相同（0.00085–0.012、scaled_linear、
+    1000 步），`alphas_cumprod` 逐元素相同。
+
+    排程器若**有**該屬性則交叉核對，不一致即拋出：那表示該檢查點的
+    `set_alpha_to_one` 與 stock SD 不同，沿用會靜默算出另一條軌跡。
+
+    未確認項：`set_alpha_to_one=True`（diffusers 的建構子預設）會給出 1.0，
+    與 `abar[0] ≈ 0.99915` 相差 0.085%。DIA 的 repo 未附 scheduler 設定檔，
+    上述判定依據的是 stock SD 的設定。差異量級記於此，供日後查核。
+    """
+    derived = abar[0]
+    exposed = getattr(sd.scheduler, "final_alpha_cumprod", None)
+    if exposed is not None:
+        exposed = torch.as_tensor(exposed, device=abar.device, dtype=abar.dtype)
+        if not torch.allclose(exposed, derived, atol=1e-6):
+            raise NotImplementedError(
+                f"排程器的 final_alpha_cumprod 為 {float(exposed):.6f}，與 "
+                f"stock SD 的 alphas_cumprod[0]={float(derived):.6f} 不符。"
+                "這表示該檢查點的 set_alpha_to_one 與 DIA 所依據的設定不同；"
+                "沿用任一個都會靜默算出另一條反演軌跡，必須先確認出處"
+            )
+        return exposed
+    return derived
+
+
 class DIAContext:
     def __init__(self, sd, spec, variant, emb, ts, num_inference_steps, generator):
         self.spec = spec
@@ -92,13 +135,7 @@ class DIAContext:
         self.generator = generator
         abar = sd.alphas_cumprod(emb.device)
         self.abar = abar
-        self.final_abar = getattr(sd.scheduler, "final_alpha_cumprod", None)
-        if self.final_abar is None:
-            raise NotImplementedError(
-                "DIA 的 DDIM 步在 prev_timestep < 0 時取 "
-                "`scheduler.final_alpha_cumprod`（DIA_PT.py:313-317），"
-                "但目前的 scheduler 沒有這個屬性。必須確認替代值的出處後才能繼續"
-            )
+        self.final_abar = resolve_final_abar(sd, abar)
 
 
 def _ddim(z, eps, alpha_t, alpha_tm1):

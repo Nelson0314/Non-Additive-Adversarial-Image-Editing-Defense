@@ -19,7 +19,6 @@ from src.purify.ops import (
     default_train_set,
 )
 from src.residual.lowrank import LowRankResidual
-from src.residual.site_pixel_full import FullRankPixelResidual
 
 DEV = torch.device("cpu")
 SEED = 20260728
@@ -444,36 +443,6 @@ def test_能量秩不高於有效秩():
     assert energy_rank(d, 0.90) <= energy_rank(d, 0.99)
 
 
-def test_clamp破壞site_P的精確秩但保留能量低秩():
-    """spec §7.2 修訂紀錄：x_def−x 的秩不等於 r，clamp 是非線性變換。
-
-    此測試鎖住的是一個曾寫錯的規格敘述，不是一個實作細節。用飽和像素
-    構造出必然觸發 clamp 的情形，確認：精確秩被破壞、能量秩仍為 r。
-    """
-    from src.residual.site_pixel import PixelResidual
-
-    r, n = 2, 64
-    x = torch.rand(1, 3, n, n)
-    x[0, :, :, :8] = 1.0   # 人為製造飽和區，保證 clamp 會作用
-
-    mod = PixelResidual(size=n, channels=3, max_rank=r, const_rank=r, seed=SEED)
-    with torch.no_grad():
-        mod.tensor.V.normal_(0, 0.05, generator=torch.Generator().manual_seed(SEED))
-
-    raw = mod.raw_residual()[0]
-    eff = (mod.pixel_residual(x) - x).detach()[0]
-
-    assert mod.clamped_fraction(x) > 0, "測試前提：必須真的有元素被 clamp"
-    for c in range(3):
-        assert effective_rank(raw[c]) == r, "clamp 前的 Δ 秩必須精確等於 r"
-    assert max(effective_rank(eff[c]) for c in range(3)) > r, (
-        "clamp 後精確秩應被破壞；若此斷言失敗，代表 clamp 未觸發或秩判準有誤"
-    )
-    assert max(energy_rank(eff[c], 0.99) for c in range(3)) <= r + 2, (
-        "clamp 造成的擾動能量極小，99% 能量秩應仍在 r 附近"
-    )
-
-
 def test_零殘差的秩為零():
     assert effective_rank(torch.zeros(16, 16)) == 0
     assert energy_rank(torch.zeros(16, 16)) == 0
@@ -489,57 +458,10 @@ def test_譜分析逐通道且欄位齊全():
         assert spec["cumulative_energy"][-1] == pytest.approx(1.0, abs=1e-9)
 
 
-# ------------------------------------------------------- 全秩對照組
-
-
-def test_全秩殘差初始為零且防禦圖等於原圖():
-    """「模塊停用時不改變任何計算結果」的不變量，在全秩對照上也必須成立。
-
-    自由參數在 Δ=0 處梯度不為零，故零初始化同時給到「x_def = x 逐元素
-    相等」與「梯度可流動」，不需要 site P 那種 U 高斯／V 零的安排。
-    """
-    x = _img(40, size=32)
-    mod = FullRankPixelResidual(size=32)
-    assert torch.equal(mod.delta(), torch.zeros_like(mod.delta()))
-    assert torch.equal(mod.pixel_residual(x), x)
-
-    mod.disable()
-    assert torch.equal(mod.pixel_residual(x), x), "停用時亦須逐元素相等"
-
-
-def test_全秩殘差在Δ為零處梯度不為零():
-    """這是零初始化可行的前提；若梯度為零，優化永遠動不了。"""
-    x = _img(41, size=32)
-    mod = FullRankPixelResidual(size=32)
-    mod.pixel_residual(x).pow(2).sum().backward()
-    assert mod.delta_param.grad is not None
-    assert float(mod.delta_param.grad.abs().max()) > 0.0
-
-
-@pytest.mark.parametrize("r", [1, 4, 8])
-def test_全秩殘差的實測秩遠高於低秩(r):
-    """對照組必須真的不受秩約束，否則整個比較沒有意義。
-
-    以隨機值填入自由參數後量實測有效秩，並與同尺寸的低秩模塊比較。
-    低秩那側取 clamp 前的 Δ（raw_residual），因為 clamp 本身會抬高秩，
-    此處要比的是參數化造成的差異，不是 clamp 造成的。
-    """
-    size = 32
-    full = FullRankPixelResidual(size=size)
-    with torch.no_grad():
-        full.delta_param.copy_(torch.randn_like(full.delta_param) * 0.02)
-
-    low = LowRankResidual(steps=1, channels=3, height=size, width=size,
-                          max_rank=r, seed=SEED)
-    with torch.no_grad():   # V 初始為零會讓 Δ 恆為零，量不到秩
-        low.V.copy_(torch.randn_like(low.V) * 0.02)
-    low_delta = low(step=0, rank=r).unsqueeze(0)
-
-    # effective_rank 吃單一通道的二維矩陣；逐通道分析用 analyze
-    full_rank = analyze(full.raw_residual())["effective_rank"]
-    low_rank_ = analyze(low_delta)["effective_rank"]
-    assert max(low_rank_) <= r, f"低秩側的實測秩不得超過 {r}"
-    assert min(full_rank) > r, "全秩側必須明顯高於低秩側，否則對照無效"
+# 2026-08-05：全秩對照組（`site_pixel_full.py`）與 site P（`site_pixel.py`）
+# 已依 `ARCH` §2.3 刪除——加性由 baseline 擔任，低秩不深究。相關測試隨之移除，
+# 可由 `git checkout 4d2332c -- <path>` 取回。
+# `LowRankResidual` 本身保留（site E 與 site L 仍在用），其測試見上方譜診斷節。
 
 
 # ----------------------------------------------- 有目標與 VAE 編碼器目標

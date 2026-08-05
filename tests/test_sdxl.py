@@ -592,10 +592,26 @@ def test_GPU上待驗項目清單():
        只有 8，不會重現真實 VAE 的激活量級，故只能釘住規則，釘不住現象。
     4. **70 層注意力擷取的記憶體**。64² 那 24 層每層是 4096×77 的分佈，
        逐 head 保留會再乘上 head 數。V100 32 GB 下的上限須實測。
-    5. **`optimize.py` 的 `attn_div` 平台停止門檻 1e-5**。該值於 SD v1.4、
-       16 層上實測（`docs/` 記載平均改善 1.6e-4），層數變 4.4 倍後必須重新校準。
+    5. **平台停止門檻**。先驗值於 SD v1.4、16 層、512²、site PF 上實測，
+       層數變 4.4 倍後不可沿用。**已結構性處置**：`optimize.MONITOR_TOL` 已
+       更名為 `LEGACY_MONITOR_TOL`（僅作量級紀錄、無任何讀取路徑），
+       `resolve_stop_tol` 取消全部回退，未校準即拋 `KeyError`。
+       實際數值仍須由段 0 的 `calibrate_lr` 在 GPU 上產出。
+    6. **baseline 在真實 SDXL 權重上的數值**。§7 的實跑用的是極小結構
+       （隨機權重、`IMG=128`），驗的是「路徑能不能跑、梯度是否非零」，
+       不是攻擊強度。五篇的損失量級、`grad_reps` 的收斂，以及 1024² 下
+       PhotoGuard-c（200 步 × 10 reps × 4 去噪步）與 PromptFlare
+       （400 步、全 activation 保留）的 peak VRAM 都必須在 GPU 上實測。
     """
-    assert True
+    from src.defense import optimize as O
+
+    # 這個檢查表是「列成測試讓它跟著程式走」的，清單被清空或門檻回退被
+    # 悄悄加回來時必須失敗，否則本測試退化成一行 `assert True`。
+    items = [ln for ln in test_GPU上待驗項目清單.__doc__.splitlines()
+             if ln.strip().startswith(("1.", "2.", "3.", "4.", "5.", "6."))]
+    assert len(items) == 6, "待驗清單的項目數與文件不符"
+    assert not hasattr(O, "MONITOR_TOL"), "第 5 項的結構性處置被回退了"
+    assert hasattr(O, "LEGACY_MONITOR_TOL"), "先驗門檻的量級紀錄不應消失"
 
 
 # ===========================================================================
@@ -701,3 +717,228 @@ def test_variant是官方權重檔而非換模型():
     for forbidden in ("fp16-fix", "madebyollin"):
         assert forbidden not in src.split('"""')[2], (
             f"可執行的程式碼不得出現 {forbidden}")
+
+
+def test_promptflare的白名單在SDXL結構上實測(sdxl, x01):
+    """`test_baselines.py` 的白名單測試以 stub 餵 token 數，驗的是規則本身；
+    這裡驗前向真的能收集到 token 數，且 SDXL 的結構確實只有兩級。
+
+    SDXL 的 `down_blocks[0]` 是 `DownBlock2D`（無 attention），故 attn2 只
+    出現在 latent/2 與 latent/4 兩級——與 SD1.x 的四級不同，這正是原作寫死的
+    `[1024, 256, 64]` 不能沿用的原因。
+    """
+    from src.baselines import promptflare as PF
+    from src.baselines.pgd import BaselineSpec
+
+    spec = PF.SPEC
+    ctx = PF.prepare(sdxl, x01, spec, strength=0.6, seed=0)
+    try:
+        counts = PF.observed_token_counts(sdxl, ctx, IMG, IMG)
+        assert len(counts) == 2, f"SDXL 的 attn2 應只有兩級，實得 {counts}"
+        assert counts == sorted(counts)
+        # latent 邊長 IMG/8，兩級分別為 (IMG/16)² 與 (IMG/32)²。
+        assert counts == [(IMG // 32) ** 2, (IMG // 16) ** 2]
+        assert ctx.loss_depth == counts[:-1], "白名單應為去掉最外一級"
+    finally:
+        ctx.close()
+
+
+# ===========================================================================
+# 7. baseline 在 SDXL 上實跑（審查點名的最大缺口）
+# ===========================================================================
+
+# 2026-08-05 的程式審查（`docs/INDEX.md` §3）：五篇的 `prepare` 與 `loss_fn` 一行都沒有被
+# 執行過，`run_pgd` 的骨幹迴圈也沒有。既有 34 項測試全部只驗 `BaselineSpec`
+# 的欄位值與四個純函式。
+#
+# 這個缺口在換到 SDXL 之後由「沒被驗到」升級為「一定是壞的」：五篇原本都照
+# SD v1.x 的 API 寫，`sd.encode_text()` 在 SDXL 上回傳 `SDXLPrompt` 而非張量，
+# 而 `.repeat()`／`.expand()`／`torch.cat()` 對它全部不適用。以極小 SDXL
+# 結構實跑即可在 CPU 上攔下這類錯誤，不需要 6.9 GB 權重。
+
+# 各篇 `prepare` 需要、而本專案的威脅模型明確決定的項目。
+# 與 `src/experiment/executors.py::baseline_kwargs` 同一組來源。
+BASELINE_KW = {
+    "photoguard_c": dict(strength=0.6),
+    "advpaint": dict(strength=0.6, prompt="", guidance_scale=7.5),
+    "promptflare": dict(strength=0.6),
+    "mist": dict(),          # target01 於測試中另給，見下
+    "dia_r": dict(),
+    "dia_pt": dict(),
+}
+
+
+@pytest.mark.parametrize("name", sorted(BASELINE_KW))
+def test_baseline在SDXL上可實跑且梯度非零(sdxl, x01, name):
+    """`prepare` → `loss_fn` → `autograd.grad`，三步都必須真的走過。
+
+    `loss` 有限且梯度非零是最低要求：梯度為零時 `sign(0) = 0`，PGD 會原地
+    踏步跑完全部步數、log 正常列印、輸出一張未改動的圖——沒有任何症狀。
+
+    Mist 在此傳入合成的 target 張量。那**不是** MIST.png，故本測試不宣稱
+    重現 Mist 的數值，只驗其計算路徑在 SDXL 上可執行。
+    """
+    from src.baselines import REGISTRY
+    from src.baselines.pgd import BaselineSpec
+
+    spec: BaselineSpec = REGISTRY[name]
+    kw = dict(BASELINE_KW[name])
+    if spec.needs_target_image:
+        g = torch.Generator().manual_seed(7)
+        kw["target01"] = torch.rand(1, 3, IMG, IMG, generator=g).to(DEV)
+
+    ctx = spec.prepare(sdxl, x01, spec, seed=0, **kw)
+    try:
+        vr = spec.value_range
+        x_adv = vr.from01(x01).clone().requires_grad_(True)
+        loss = spec.loss_fn(sdxl, x_adv, ctx)
+
+        assert loss.dim() == 0, f"{name} 的損失必須是純量，實得 shape {tuple(loss.shape)}"
+        assert torch.isfinite(loss), f"{name} 的損失為 {loss.item()}"
+
+        (grad,) = torch.autograd.grad(loss, x_adv)
+        assert torch.isfinite(grad).all(), f"{name} 的梯度含 inf/nan"
+        assert float(grad.abs().sum()) > 0, (
+            f"{name} 的梯度全為零：sign(0)=0 會讓 PGD 原地踏步而毫無症狀"
+        )
+    finally:
+        if hasattr(ctx, "close"):
+            ctx.close()
+
+
+@pytest.mark.parametrize("name", ["photoguard_c", "advpaint", "promptflare"])
+def test_run_pgd的骨幹在SDXL上跑得完(sdxl, x01, name):
+    """骨幹迴圈（初始化→梯度→更新→投影→夾限）從未被執行過。
+
+    步數以 `dataclasses.replace` 降到 2：這裡驗的是**流程能不能跑完**，
+    不是攻擊強度。失真預算仍以原 spec 的 eps 判定——投影寫錯時
+    `delta_linf01` 會超出預算，那是骨幹最容易出錯而事後看不出來的地方。
+    """
+    import dataclasses
+
+    from src.baselines import REGISTRY
+    from src.baselines.pgd import run_pgd
+
+    spec = dataclasses.replace(REGISTRY[name], steps=2, grad_reps=1)
+    result = run_pgd(
+        sdxl, x01, spec, seed=0, verbose=False, **BASELINE_KW[name]
+    )
+
+    assert result.x_adv01.shape == x01.shape
+    assert torch.isfinite(result.x_adv01).all()
+    assert float(result.x_adv01.min()) >= 0.0 and float(result.x_adv01.max()) <= 1.0
+    assert len(result.history) == 2, "每一步都要留一筆紀錄"
+
+    if spec.norm == "linf":
+        got = float((result.x_adv01 - x01).abs().max())
+        assert got <= spec.eps_pixel01 + 1e-5, (
+            f"{name} 的 ℓ∞ 失真 {got:.6f} 超出預算 {spec.eps_pixel01:.6f}"
+        )
+
+
+# ===========================================================================
+# 8. attention 擷取（CODE §4.2）
+# ===========================================================================
+
+def test_取樣步固定含第零步與最後一步():
+    """最後一步不可省：x̂₀ 在末段才收斂，只看前段會把「注意力早期被打散、
+    後期又長回來」誤讀成防禦成功。"""
+    from src.experiment.attn_capture import sampled_steps
+
+    assert sampled_steps(50, every=5) == [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 49]
+    assert sampled_steps(1) == [0]
+    assert sampled_steps(3, every=5) == [0, 2]
+    with pytest.raises(ValueError):
+        sampled_steps(0)
+
+
+def test_擷取只在取樣步開啟(sdxl, x01):
+    """recorder 會實體化 (Q, 77) 的注意力矩陣——那正是 SDPA 融合核所避免的。
+    全程開著等於讓 UNet 前向成本大幅增加。"""
+    from src.experiment.attn_capture import AttnCapture, capture_span
+
+    steps = 6
+    cap = AttnCapture(sdxl, steps, capture_span(sdxl, ""), every=5)
+    seen = []
+    with cap:
+        assert cap.recorder.enabled is False, "進入時預設關閉"
+        for i in range(steps):
+            cap.step_hook(i, torch.tensor(1), None)
+            seen.append(cap.recorder.enabled)
+    assert seen == [True, False, False, False, False, True]
+
+
+def test_擷取產生聚合圖逐層圖與統計表(sdxl, x01, tmp_path):
+    """`attn_stats.csv` 的列數必須等於「取樣步數 × 層數」——少了就是
+    某些層或某些步沒被記到，而圖仍然畫得出來。"""
+    from src.experiment.attn_capture import AttnCapture, capture_span
+
+    steps = 4
+    cap = AttnCapture(sdxl, steps, capture_span(sdxl, ""), every=5)
+    lat = sdxl.latent_shape(IMG, IMG)
+    noise = sdxl.sample_edit_noise(torch.empty(lat, device=DEV), seed=0)
+    emb = sdxl.encode_text("a wrecked car")
+    with cap, torch.no_grad():
+        sdxl.sdedit(x01, emb, noise, steps, strength=0.6,
+                    guidance_scale=7.5, emb_uncond=sdxl.uncond_prompt(),
+                    step_hook=cap.step_hook)
+
+    n_layers = cap.n_layers
+    assert n_layers == len([n for n, _ in sdxl.unet.named_modules()
+                            if n.endswith("attn2")])
+    assert cap.n_sampled == len(cap.steps) == 2
+    assert len(cap.rows) == cap.n_sampled * n_layers
+
+    paths = cap.write(tmp_path / "attn", "tau0.2_seed0", full=True)
+    names = {p.name for p in paths}
+    assert "tau0.2_seed0_agg.png" in names
+    assert "attn_stats.csv" in names
+    assert sum(1 for n in names if "_layer" in n) == n_layers
+
+
+def test_不完整擷取時只寫聚合圖與統計表(sdxl, x01, tmp_path):
+    """體積控制：逐層原圖只在主表所在的 τ、seed 0 完整存。"""
+    from src.experiment.attn_capture import AttnCapture, capture_span
+
+    cap = AttnCapture(sdxl, 2, capture_span(sdxl, ""), every=5)
+    lat = sdxl.latent_shape(IMG, IMG)
+    with cap, torch.no_grad():
+        sdxl.sdedit(x01, sdxl.encode_text(""),
+                    sdxl.sample_edit_noise(torch.empty(lat, device=DEV), 0),
+                    2, strength=0.6, guidance_scale=1.0,
+                    step_hook=cap.step_hook)
+    names = {p.name for p in cap.write(tmp_path / "a", "t", full=False)}
+    assert names == {"t_agg.png", "attn_stats.csv"}
+
+
+def test_CFG下只取條件分支(sdxl, x01):
+    """`_eps_cfg` 先無條件後條件。stock SDXL 的無條件嵌入是零張量，
+    其注意力不承載任何文字綁定，混進來只會把統計量往均勻分佈拉。"""
+    from src.experiment.attn_capture import AttnCapture, capture_span
+
+    cap = AttnCapture(sdxl, 2, capture_span(sdxl, ""), every=5)
+    n = cap.n_layers
+    fake = [torch.rand(1, 16, 77) for _ in range(2 * n)]
+    assert cap._cond_branch(fake) == fake[n:]
+    assert cap._cond_branch(fake[:n]) == fake[:n]
+    with pytest.raises(RuntimeError, match="分不出哪些是條件分支"):
+        cap._cond_branch(fake[:n + 1])
+
+
+def test_沒有接上step_hook時明確拋出(sdxl):
+    """靜默回傳一張全零圖會讓「注意力被完全打掉」成為預設結論。"""
+    from src.experiment.attn_capture import AttnCapture, capture_span
+
+    cap = AttnCapture(sdxl, 4, capture_span(sdxl, ""))
+    with pytest.raises(RuntimeError, match="沒有任何取樣步"):
+        cap.agg_map()
+
+
+def test_attention擷取預設為開():
+    """它是主判準的一部分。關掉它是測試替身的明示宣告，不是效能選項。"""
+    import dataclasses
+
+    from src.experiment.executors import RunConfig
+
+    field = {f.name: f for f in dataclasses.fields(RunConfig)}["capture_attn"]
+    assert field.default is True

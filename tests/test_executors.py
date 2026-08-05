@@ -131,6 +131,10 @@ def make_res(tmp_path, images=("dog_00", "cat_00"), with_calib=True,
         resolution=SIZE, guidance=7.5, strength=0.6, steps=3, seed=7,
         train_n_edit=2, k_inv=2, max_steps=3, align_steps=2, probe_steps=2,
         warp_grid_size=4, warp_max_disp=6.0, random_init_std=0.5,
+        # attention 擷取要掃真實 UNet 的 attn2 層，`FakeSD` 沒有 UNet。
+        # 這是替身的明示宣告，不是效能選項——預設必須是開，
+        # 由 `test_attention擷取預設為開` 釘住。
+        capture_attn=False,
         target_image="", **cfg_kw,
     )
     base = dict(BASE, loss_params=cfg.loss_params(),

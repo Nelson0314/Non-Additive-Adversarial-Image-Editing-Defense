@@ -11,10 +11,21 @@
 明確不是重點：
 
 - **low rank 完全不深究。**
-- 非加性本身與抗淨化都只是附帶結果，「有更好、沒有也沒關係」。
 - 架構不設限，只需維持外掛模組的形態。
 
 要多做 paper survey；不要在會失敗的方向持續深究。
+
+**2026-08-05 主張階層改版**（使用者定案，見 `docs/DESIGN_2026-08-05.md` §1）：
+原本「抗淨化只是附帶結果」的定位已改。現行階層為
+
+| 層級 | 主張 |
+|---|---|
+| **主** | 非加性**抗淨化**勝過加性 |
+| 次 | 抗編輯持平或小輸：同時滿足 (a) ≥ 0.85 × 最佳 baseline、(b) > 同失真高斯隨機對照 R |
+| 三 | 保真受控，報全部指標不挑選 |
+
+**判準以人眼為主、數值指標為輔**（同日定案）。`compare.html` 因此由附屬產物
+升格為主要產出物，每一格都必須有影像可看；指標與人眼矛盾時以人眼為準並記錄。
 
 ## 注入位置
 
@@ -34,12 +45,19 @@ stock SD；防禦方換掉自己 G 裡的 decode 完全合法。
 
 | 用途 | 路徑 |
 |---|---|
-| 注入位置 | `src/residual/site_{pixel,pixel_full,latent,embedding,weight,warp}.py` |
+| 注入位置 | `src/residual/site_{latent,embedding,weight,warp,apa}.py` |
 | 目標函數 | `src/defense/objective.py`（LPIPS 為綁定約束，`beta_linf` 可關） |
 | 優化 | `src/defense/optimize.py`（`optimize` / `optimize_encoder` / `optimize_crossattn` / `align`） |
 | cross-attention 擷取 | `src/models/attention.py` |
 | BDIA 精確反演 | `src/models/sd.py` 的 `bdia_inversion` |
-| 主驅動 | `scripts/run_defense.py` |
+| baseline 攻擊 | `src/baselines/`（`pgd.py` 為共用骨幹，五篇各一檔） |
+| **主驅動** | **`scripts/run_stage.py`**（calib／train／rayscale／eval／report 五段） |
+| 格點與續跑 | `src/experiment/`（`grid.py`／`runner.py`／`executors.py`） |
+
+`scripts/run_defense.py`（先驗階段的驅動）與 `site_pixel.py`／`site_pixel_full.py`／
+`site_color.py` 已於 2026-08-05 依 `ARCH` §2.3 刪除：加性由 baseline 擔任，
+色度矩陣場不在本輪範圍，而該驅動只服務於這三個位置。
+要取回原檔用 `git checkout 4d2332c -- <path>`。
 
 `src/defense/generator.py` **依模塊提供的能力分派，不比對 site 名稱**。
 新增 site 時提供 `pixel_residual` 或 `eps_hook` 即可，不要在此加 `if site == ...`。
@@ -51,7 +69,8 @@ stock SD；防禦方換掉自己 G 裡的 decode 完全合法。
 ## 環境
 
 - 本機 Python：`C:/Users/nelso/miniconda3/envs/wacv/python.exe`（**不是 base**，base 沒有 pytest）。
-- 測試：`python -m pytest -q`，基準為 142 passed / 1 skipped。
+- 測試：`python -m pytest -q`，基準為 **629 passed / 1 skipped / 1 xfailed**。
+  xfailed 是刻意釘住的 DIA-PT L1 起點缺陷（原始碼自身的問題，`strict=True`）。
 - 遠端 TWCC 容器：host/port 每次重開都不同，由使用者提供；密碼與 GitHub token 同樣由使用者提供，**不得寫入任何入庫檔案**。
 - 遠端持久儲存 `/work/nelson0314` 跨容器保留：conda env `wacv`、repo 在
   `/work/nelson0314/WACV`、`hf_cache` 5.9 G（SD v1.4 已下載）。

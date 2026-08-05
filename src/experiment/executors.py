@@ -52,6 +52,8 @@
 
 import copy
 import csv
+import json
+import math
 import statistics
 import time
 import zlib
@@ -67,6 +69,9 @@ from src.defense.objective import LossConfig
 from src.defense.generator import DefenseGenerator
 from src.defense.optimize import OptimConfig, StageSpec, optimize
 from src.experiment import grid
+from src.experiment.attention_page import build_attention_html
+from src.experiment.attn_capture import AttnCapture, capture_span, sampled_steps
+from src.experiment.compare_page import build_compare_html
 from src.experiment.runner import cell_config
 from src.metrics.ray_scale import lpips_against, solve_k
 from src.metrics.suite import MetricSuite
@@ -78,7 +83,29 @@ from src.utils.artifacts import (
 )
 from src.utils.calibration import REQUIRED_CONTEXT, Calibration
 from src.utils.cellid import config_hash
-from src.utils.progress import load_cells
+from src.utils.progress import load_cells, write_atomic
+
+
+def read_env(batch_dir: Path) -> Dict[str, Any]:
+    """讀 `env.json`。缺檔時回空字典——頁面會顯示 `?`，與 `dashboard.py` 一致。
+
+    不拋出：`env.json` 由 `run_stage.py` 在跑任何一段之前寫入，缺它表示
+    這是一個舊批次或手工建的目錄，那時「卡別未知」是正確的呈現，
+    而不是讓整個報表段失敗。卡別與精度的權威來源是每格 `meta.json` 內的
+    `config_hash`（兩者都進雜湊），不是這個頁首。
+    """
+    p = Path(batch_dir) / "env.json"
+    if not p.exists():
+        return {}
+    return json.loads(p.read_text(encoding="utf-8"))
+
+
+def write_text(path: Path, text: str) -> Path:
+    """HTML 產物一律經 `write_atomic`：儀表板與比對頁都可能被另一個
+    session 同時開著，直接寫會讓對方讀到半份檔案。"""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    write_atomic(path, text)
+    return path
 
 # 評測噪聲與訓練噪聲必須錯開。φ 是針對訓練用的那一組 ε 優化出來的，
 # 沿用同一組 ε 量到的是訓練集表現，偏移量會被系統性高估且幅度未知。
@@ -314,6 +341,14 @@ class RunConfig:
     log_every: int = 10
     unet_ckpt: bool = True
     vae_ckpt: bool = True
+
+    # 評測期是否擷取 cross-attention（`CODE` §4.2）。**預設開，且必須維持
+    # 預設開**：attention map 是主判準的一部分，AdvPaint、PromptFlare 與 N1
+    # 三者都以 attention 為著力點，沒有它就無法說明「防禦是否真的讓那些層
+    # 失效」。存在這個旗標的唯一理由是擷取需要真實的 UNet
+    # （`CrossAttentionRecorder` 掃 `attn2` 層），而測試用的 SD 替身沒有；
+    # 關掉它是測試替身的明示宣告，不是效能選項。
+    capture_attn: bool = True
 
     # ---- 保真約束 ----
     tau_train: float = grid.TRAIN_TAU
@@ -1090,18 +1125,33 @@ def rayscale_executor(cell: grid.Cell, ctx: Dict[str, Any]
 # ---------------------------------------------------------------------------
 
 
-def _sdedit(res: Resources, x: torch.Tensor, prompt: str,
-            seed_idx: int) -> torch.Tensor:
-    """攻擊方的編輯。兩側必須逐元素共用同一組噪聲，故噪聲由種子決定而非現抽。"""
+def _sdedit(res: Resources, x: torch.Tensor, prompt: str, seed_idx: int,
+            attn_dir: Optional[Path] = None, attn_tag: str = "",
+            attn_full: bool = False) -> Tuple[torch.Tensor, List[Path]]:
+    """攻擊方的編輯。兩側必須逐元素共用同一組噪聲，故噪聲由種子決定而非現抽。
+
+    `attn_dir` 給定時一併擷取 cross-attention（`CODE` §4.2）。擷取只在取樣步
+    上開啟，非取樣步的 hook 是空操作——recorder 會實體化 (Q, 77) 的注意力
+    矩陣，那正是 SDPA 融合核所避免的，全程開著會大幅拉高前向成本。
+
+    回傳 (編輯結果, attention 產物路徑)。
+    """
     emb = res.sd.encode_text(prompt).detach()
     emb_u = res.sd.uncond_prompt()
     lat = res.sd.latent_shape(x.shape[-2], x.shape[-1])
     noise = res.sd.sample_edit_noise(
         torch.empty(lat, device=x.device), seed=eval_noise_seed(res, seed_idx))
-    with torch.no_grad():
-        return res.sd.sdedit(
-            x, emb, noise, res.cfg.steps, strength=res.cfg.strength,
-            guidance_scale=res.cfg.guidance, emb_uncond=emb_u)
+    kw = dict(strength=res.cfg.strength, guidance_scale=res.cfg.guidance,
+              emb_uncond=emb_u)
+    if attn_dir is None:
+        with torch.no_grad():
+            return res.sd.sdedit(x, emb, noise, res.cfg.steps, **kw), []
+
+    cap = AttnCapture(res.sd, res.cfg.steps, capture_span(res.sd, prompt))
+    with cap, torch.no_grad():
+        y = res.sd.sdedit(x, emb, noise, res.cfg.steps,
+                          step_hook=cap.step_hook, **kw)
+    return y, cap.write(attn_dir, attn_tag, full=attn_full)
 
 
 def control_dir(res: Resources, image_id: str, purify: Tuple[str, float]
@@ -1127,7 +1177,13 @@ def control_executor(cell: grid.Cell, ctx: Dict[str, Any]
 
     pur = make_purifier(kind, strength, eval_noise_seed(res, cell.seed), res)
     x_p = pur.evaluate(entry.x01)
-    y_ctrl = _sdedit(res, x_p, entry.prompts[0], cell.seed)
+    # 對照側同樣要存 attention（`CODE` §4.2「兩側都要」），否則無從相減。
+    # 對照與 τ 無關，故 `attn_full` 只看種子。
+    tag = f"seed{cell.seed}"
+    y_ctrl, attn_arts = _sdedit(
+        res, x_p, entry.prompts[0], cell.seed,
+        attn_dir=(out_dir / "attn") if res.cfg.capture_attn else None,
+        attn_tag=tag, attn_full=(cell.seed == 0))
 
     save_image(x_p, out_dir / "x_purified.png")
     edit_png = out_dir / f"edit_seed{cell.seed}.png"
@@ -1141,10 +1197,12 @@ def control_executor(cell: grid.Cell, ctx: Dict[str, Any]
         "ctrl_clip": sem["clip"], "ctrl_siglip": sem["siglip"],
         "purify_available": pur.available,
         "purify_differentiable": pur.differentiable,
+        "attn_full": cell.seed == 0,
+        "attn_steps": len(sampled_steps(res.cfg.steps)),
     }
     meta_path = out_dir / f"meta_seed{cell.seed}.json"
     write_meta(res, cell, meta_path, extra)
-    arts = [out_dir / "x_purified.png", edit_png, meta_path]
+    arts = [out_dir / "x_purified.png", edit_png, meta_path] + attn_arts
     return [res.rel(p) for p in arts], extra
 
 
@@ -1190,7 +1248,15 @@ def eval_executor(cell: grid.Cell, ctx: Dict[str, Any]
     x_def = _x_def_for(res, cell.condition, cell.image_id, tau)
     pur = make_purifier(kind, strength, eval_noise_seed(res, cell.seed), res)
     x_p = pur.evaluate(x_def)
-    y_def = _sdedit(res, x_p, entry.prompts[0], cell.seed)
+    # `CODE` §4.2 的體積控制：逐層原圖只在主表所在的 τ、seed 0 完整存，
+    # 其餘格點只留聚合圖與 attn_stats.csv。理由是體積不是重要性——
+    # 數值在每一格都齊全，結論不受影響。
+    attn_full = (tau == grid.MAIN_TAU and cell.seed == 0)
+    tag = f"tau{tau:g}_seed{cell.seed}"
+    y_def, attn_arts = _sdedit(
+        res, x_p, entry.prompts[0], cell.seed,
+        attn_dir=(out_dir / "attn") if res.cfg.capture_attn else None,
+        attn_tag=tag, attn_full=attn_full)
 
     save_image(x_p, out_dir / "x_purified.png")
     edit_png = out_dir / f"edit_seed{cell.seed}.png"
@@ -1219,10 +1285,12 @@ def eval_executor(cell: grid.Cell, ctx: Dict[str, Any]
     if not pur.differentiable:
         row["proxy_gap"] = pur.proxy_gap(x_def)
     row["purify_available"] = pur.available
+    row["attn_full"] = attn_full
+    row["attn_steps"] = len(sampled_steps(res.cfg.steps))
 
     meta_path = out_dir / f"metrics_seed{cell.seed}.json"
     write_meta(res, cell, meta_path, row)
-    arts = [out_dir / "x_purified.png", edit_png, meta_path]
+    arts = [out_dir / "x_purified.png", edit_png, meta_path] + attn_arts
     return [res.rel(p) for p in arts], row
 
 
@@ -1530,13 +1598,105 @@ def micro_bench(res: Resources, calib_dir: Path) -> Dict[str, Any]:
     return {r["op"]: r["seconds"] for r in rows}
 
 
+def calibrate_precision_equiv(res: Resources, calib_dir: Path) -> Dict[str, Any]:
+    """`precision_equiv.csv` —— 半精度對 fp32 的等價性（`ARCH` §7.1）。
+
+    比的是**同一組權重在不同計算精度下的結果**，不是兩份不同的權重檔
+    （`SDXLWrapper._load_pipeline` 的 `variant` 只選存檔精度，兩者都是官方
+    發布的同一個模型）。故此處以同一個 `model_name` 另建一個 fp32 的
+    wrapper，跑同一組輸入逐項比對。
+
+    量三件事，涵蓋三條會分別出錯的路徑：
+
+    | op | 路徑 | 為什麼要單獨量 |
+    |---|---|---|
+    | `vae_roundtrip` | VAE 編解碼 | fp16 下 SDXL 的 VAE 會溢位成全黑圖，`resolve_precision` 因此強制它留在 fp32；這一列是那條規則的實測依據 |
+    | `eps` | 單次 UNet 前向 | ε 在 fp16 下只有 10 bit 尾數，而 PGD 的梯度品質直接取決於它 |
+    | `sdedit` | 完整編輯鏈 | 逐步累積的誤差，前兩項各自看起來都很小時仍可能在此發散 |
+
+    **本函式不自行判定「等價」**。門檻沒有出處，寫一個看起來合理的數字
+    再據以自動退回 fp32，等於用一個猜測決定整批資料的精度。此處只把數值
+    落盤並寫進校準表，由人讀了之後決定是否退回 fp32 並重估耗時
+    （`RUNBOOK` §1.1）。
+
+    計算精度已是 fp32 時不載入第二份權重：差值恆為零，該列直接標記。
+    """
+    from src.models.sd import SDWrapper, SDXLWrapper
+
+    calib_dir.mkdir(parents=True, exist_ok=True)
+    entry = next(iter(res.images.values()))
+    run_dtype = res.sd.compute_dtype
+    rows: List[Dict[str, Any]] = []
+
+    if run_dtype == torch.float32:
+        rows.append({"op": "all", "dtype": "float32", "reference": "float32",
+                     "max_abs": 0.0, "rel_l2": 0.0, "psnr": float("inf"),
+                     "note": "本批以 fp32 執行，與參考同一路徑，無須比對"})
+        write_csv(calib_dir / "precision_equiv.csv", rows)
+        return {"dtype": "float32", "compared": False, "rows": rows}
+
+    def probes(sd) -> Dict[str, torch.Tensor]:
+        lat = sd.latent_shape(entry.x01.shape[-2], entry.x01.shape[-1])
+        noise = sd.sample_edit_noise(
+            torch.empty(lat, device=sd.device), seed=eval_noise_seed(res, 0))
+        emb = sd.encode_text(entry.prompts[0]).detach()
+        emb_u = sd.uncond_prompt()
+        t = torch.tensor(int(sd.num_train_timesteps * res.cfg.strength) - 1,
+                         device=sd.device)
+        with torch.no_grad():
+            z = sd.encode_image(entry.x01)
+            out = {
+                "vae_roundtrip": sd.decode_latent(z).float().cpu(),
+                "eps": sd._eps(z, t, emb).float().cpu(),
+                "sdedit": sd.sdedit(
+                    entry.x01, emb, noise, res.cfg.steps,
+                    strength=res.cfg.strength,
+                    guidance_scale=res.cfg.guidance,
+                    emb_uncond=emb_u).float().cpu(),
+            }
+        return out
+
+    got = probes(res.sd)
+    cls = type(res.sd)
+    if cls not in (SDWrapper, SDXLWrapper):
+        cls = SDXLWrapper if isinstance(res.sd, SDXLWrapper) else SDWrapper
+    print(f"[calib] 另載入 {cls.__name__}({res.sd.model_name}) fp32 作為參考",
+          flush=True)
+    ref_sd = cls(res.sd.model_name, dtype=torch.float32)
+    try:
+        ref = probes(ref_sd)
+    finally:
+        del ref_sd
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+
+    name = str(run_dtype).replace("torch.", "")
+    for op, a in got.items():
+        b = ref[op]
+        if a.shape != b.shape:
+            raise RuntimeError(
+                f"{op} 在兩個精度下的形狀不同（{tuple(a.shape)} vs "
+                f"{tuple(b.shape)}）。這不是精度差異，是路徑不同"
+            )
+        d = (a - b)
+        mse = float(d.pow(2).mean())
+        rows.append({
+            "op": op, "dtype": name, "reference": "float32",
+            "max_abs": float(d.abs().max()),
+            "rel_l2": float(d.norm() / b.norm().clamp_min(1e-12)),
+            "psnr": (float("inf") if mse == 0
+                     else float(10.0 * math.log10(1.0 / mse))),
+            "note": "",
+        })
+    write_csv(calib_dir / "precision_equiv.csv", rows)
+    return {"dtype": name, "compared": True, "rows": rows}
+
+
 def run_calibration(res: Resources) -> Dict[str, Any]:
-    """段 0。產出 `calib/calibration.json` 與四個逐項 CSV。
+    """段 0。產出 `calib/calibration.json` 與五個逐項 CSV。
 
-    **未涵蓋的兩項**，兩者都需要主 session 決定後才能做：
+    **未涵蓋的一項**，需要主 session 決定後才能做：
 
-    - `precision_equiv.csv`（fp16／bf16 對 fp32 的等價性）：要在同一台機器
-      上載入兩份不同精度的權重逐項比對，成本與流程都與本段其餘部分不同。
     - `attn_norm`（SDXL 的 cross-attention 層清單與正規化常數）：本輪的 N1
       走 `shared_token_mass`，它逐層取平均後才跨層平均，不需要外部的正規化
       常數；`DESIGN` §6 第 3 項是為舊的散度形式寫的。若改回需要正規化的
@@ -1549,6 +1709,13 @@ def run_calibration(res: Resources) -> Dict[str, Any]:
     summary: Dict[str, Any] = {}
 
     summary["micro_bench"] = micro_bench(res, calib_dir)
+    summary["precision_equiv"] = calibrate_precision_equiv(res, calib_dir)
+    for r in summary["precision_equiv"]["rows"]:
+        # 進校準表而不只是 CSV：報告要引用「本批的半精度與 fp32 差多少」，
+        # 而校準表的 context 已含 gpu 與 precision，數值與其條件綁在一起。
+        table.put(f"precision_equiv.{r['op']}.rel_l2", r["rel_l2"], ctx,
+                  note=f"{r['dtype']} 對 fp32 的相對 L2；判定由人讀數字決定")
+
     summary["strength"] = calibrate_strength(res, calib_dir)
     table.put("strength.recommended", summary["strength"]["recommended"], ctx,
               note="SigLIP 平均編輯效果最大的一點；實跑值由 CLI 指定")
@@ -1606,8 +1773,8 @@ def run_report(res: Resources) -> Dict[str, Any]:
     `extra_meta` 已經是那一格的完整量測結果，重新從產物解析一次等於讓
     同一份數字有兩條互相可能不一致的來源。
 
-    `compare.html`（人眼比對頁，主判準）與 `attention.html` **不在本函式內**
-    ——見模組末尾的「已知缺口」。
+    `compare.html`（人眼比對頁，**主判準**）與 `attention.html` 同樣在此產生，
+    來源也是 `_cells/*.json`：兩者只寫 `<img src>`，不讀影像內容、不碰 GPU。
     """
     cells = load_cells(res.batch_dir)
     by_id = {c["id"]: c for c in cells}
@@ -1648,13 +1815,32 @@ def run_report(res: Resources) -> Dict[str, Any]:
     _fill_retention(rows)
     ordered = [_order_row(r) for r in rows]
     path = write_csv(res.batch_dir / "grid.csv", ordered)
+
+    # `_fill_retention` 只改 `rows`，而比對頁讀的是 `cells`。把兩個算出來的
+    # 欄位回填，頁面才看得到「這一格的 retention 不可用」——那正是先驗實驗
+    # 的 −43／−98 應該在資料層就被標出的地方。
+    for r in rows:
+        c = by_id.get(r.get("cell_id"))
+        if c is not None:
+            for k in ("retention", "retention_usable", "effect_control"):
+                if k in r:
+                    c[k] = r[k]
+
+    env = read_env(res.batch_dir)
+    write_text(res.batch_dir / "compare.html",
+               build_compare_html(cells, batch=res.batch_dir.name, env=env))
+    write_text(res.batch_dir / "attention.html",
+               build_attention_html(cells, batch=res.batch_dir.name, env=env))
+
     save_json({"n_rows": len(ordered),
                "conditions": sorted({r.get("condition") for r in rows
                                      if r.get("condition")}),
                "usable_rows": sum(1 for r in rows
                                   if r.get("retention_usable") is True)},
               res.batch_dir / "report_summary.json")
-    return {"path": path, "n_rows": len(ordered)}
+    return {"path": path, "n_rows": len(ordered),
+            "compare": res.rel(res.batch_dir / "compare.html"),
+            "attention": res.rel(res.batch_dir / "attention.html")}
 
 
 def _join(row: Dict[str, Any], by_id: Dict[str, Dict], cell: grid.Cell,
@@ -1797,16 +1983,20 @@ def annotate_unavailable(cells: Sequence[grid.Cell], res: Resources
 # 已知缺口（`CODE` §4 尚未涵蓋的部分）
 # ---------------------------------------------------------------------------
 #
-# 1. **attention map 的留存**（`CODE` §4.2）。`attn/` 目錄、`attn_stats.csv`
-#    與 `attention.html` 都沒有產生。技術上可行（`CrossAttentionRecorder`
-#    可以包住整條 `sdedit`），但 SDXL 有 70 個 attn2 層 × 50 步 ×
-#    16384 × 77 的張量，逐格保留會直接吃光顯存，取樣規則必須先定。
-#    **需主 session 裁決取樣規則後才能接。**
+# 2026-08-05：原列的第 1–3 項均已完成，逐項如下。
 #
-# 2. **`compare.html`**（人眼比對頁，主判準）。段 4 目前只產生 `grid.csv`。
-#    產出它需要決定每一頁要並排哪幾張圖，那是判讀設計而非計算。
+# 1. **attention map 的留存**（`CODE` §4.2）：`src/experiment/attn_capture.py`。
+#    取樣規則不需另行裁決——`CODE` §4.2 本來就已寫定（每 5 步、固定含首末步、
+#    兩側都存、逐層原圖只在主表 τ 與 seed 0 完整存）。記憶體的顧慮以
+#    `CrossAttentionRecorder.enabled` 解決：非取樣步的 hook 是空操作，
+#    故 70 層 × (Q, 77) 的矩陣只在 11 個取樣步上實體化。
 #
-# 3. **`precision_equiv.csv`**。見 `run_calibration` 的 docstring。
+# 2. **`compare.html`**：`src/experiment/compare_page.py`。版面由判準決定而非
+#    自由選擇——要判的是「非加性在同失真、同淨化下是否勝過加性」，故以
+#    (影像, τ, 淨化) 分組、九個條件並排成列，六張圖依因果鏈排序。
+#
+# 3. **`precision_equiv.csv`**：`calibrate_precision_equiv`。
 #
 # 4. **FID／Precision**。`DESIGN` §5.1 已把兩者降為「參考值、不作判定用」
 #    （N=3 下分布層級指標無意義），故本輪不計算。擴大 N 後才需要補。
+#    **這是唯一仍未做的一項，且是刻意不做。**

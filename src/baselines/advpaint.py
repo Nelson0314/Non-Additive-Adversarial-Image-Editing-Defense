@@ -2,6 +2,8 @@
 
 出處：官方 `AdvPaint.py`（本次以 raw 檔逐行核對，行為與
 `docs/SOURCE_AUDIT_2026-08-05.md` §1 一致，另補一項該文件未記的落差，見下）。
+逐字佐證見 `docs/_audit_advpaint_dia_promptflare.md` §1；下列行號以該文件
+記載的 raw 檔（`main` 分支，13891 bytes）為準。
 
 損失只有四個成分
 ──────────────────────────────────────────────────────────────────────
@@ -23,21 +25,27 @@ path 數（self-attention 層數）。它是常數，sign 更新下不改變方�
 四項與 `SOURCE_AUDIT` §1.4 的補充／修正
 ──────────────────────────────────────────────────────────────────────
 
-1. **有隨機初始化。** `AdvPaint.py:80`
-   `X_adv = X.clone().detach() + (torch.rand(*X.shape)*2*eps - eps)`。
+1. **有隨機初始化。** `AdvPaint.py:76`
+   `X_adv = X.clone().detach() + ((torch.rand(*X.shape)*2*eps-eps).to("cuda"))`。
    SOURCE_AUDIT §1.4 未記此項；漏掉它會讓起點不同、最終解落在球面的
-   另一側。
-2. eps／step_size 的函式預設為 0.06／0.03，**CLI 預設為 0.1／0.05**
-   （`--eps default=0.1`、`--step_size default=0.05`）。依裁決取論文正文
+   另一側。該行位於 mask 迴圈**之外**，即多個 mask 共用同一個起點且
+   `X_adv` 跨 mask 累積。
+2. eps／step_size 的函式預設為 0.06／0.03（`AdvPaint.py:57` 的簽章），
+   **CLI 預設為 0.1／0.05**（`AdvPaint.py:372-373`）。依裁決取論文正文
    那組（0.06／0.03），因為那是論文報告數字所依據的設定。
-3. `--prompt` 是 **required 且無預設**的 CLI 參數，攻擊時以
-   `guidance_scale=7.5` 走 classifier-free guidance（`prompt_embeds` 為
-   `[uncond; cond]` 兩列）。故「攻擊時用什麼 prompt」沒有原始碼可依，
-   必須由呼叫端指定。
-4. **原作的梯度只走 masked-image 那一路。** `AdvPaint.py:203-212` 把
+3. `--prompt` 是 **required 且無預設**的 CLI 參數（`AdvPaint.py:370-371`），
+   攻擊時以 `guidance_scale=7.5`（`AdvPaint.py:100`）走 classifier-free
+   guidance（`prompt_embeds` 為 `[uncond; cond]` 兩列）。故「攻擊時用什麼
+   prompt」沒有原始碼可依，必須由呼叫端指定。
+4. **原作的梯度只走 masked-image 那一路。** `AdvPaint.py:206-214` 把
    `vae.encode(X_adv)` → `add_noise` 整段包在 `torch.no_grad()` 內，
-   真正可微的是 `masked_image = X_adv * (mask_512 < 0.5)` 之後的
-   `masked_image_latents`（9 通道 inpainting 輸入的後 4 通道）。
+   真正可微的是 `masked_image = X_adv * (mask_512 < 0.5)`（`AdvPaint.py:219`）
+   之後的 `masked_image_latents`（9 通道 inpainting 輸入的後 4 通道）。
+5. **GT 與每次迭代的雜訊是不同的抽樣。** GT 段（`AdvPaint.py:124-129`）
+   與迭代段（`AdvPaint.py:207-214`）都呼叫 `latent_dist.sample(model.generator)`
+   與 `randn_tensor(..., generator=model.generator)`，產生器狀態在兩者之間
+   前進，故 GT 的 `noise` 與第 1…100 次迭代的 `noise` 兩兩皆不同。
+   本移植照樣重現（`_forward_and_record` 共用同一個 generator）。
 
 移植到 img2img（`modified_from_paper=True`）
 ──────────────────────────────────────────────────────────────────────
@@ -58,6 +66,7 @@ from typing import List, Optional
 import torch
 
 from src.baselines.pgd import BaselineSpec, ValueRange
+from src.models.sd import cat_cond
 
 ADVPAINT_RANGE = ValueRange(
     -1.0,
@@ -181,7 +190,10 @@ def _forward_and_record(sd, ctx_like, x_paper, emb2, t0, generator, recorder,
         z2 = torch.cat([z] * 2)
         recorder.clear()
         with recorder:
-            sd.unet(z2, t0, encoder_hidden_states=emb2)
+            # `sd.unet_forward` 而非 `sd.unet`：SDXL 的條件是 SDXLPrompt，
+            # UNet 另需 added_cond_kwargs（pooled 嵌入 + time_ids），少傳會
+            # 直接報錯；同樣的程式碼在 SD v1.x 上卻能跑。
+            sd.unet_forward(z2, t0, emb2)
         return (
             list(recorder.self_q),
             list(recorder.self_k),
@@ -224,14 +236,19 @@ def prepare(
     x_paper = vr.from01(x01.detach())
 
     emb_cond = sd.encode_text(prompt).detach()
-    emb_uncond = sd.encode_text("").detach()
+    # **無條件分支取 `uncond_prompt()` 而非 `encode_text("")`。**
+    # 原作跑在 SD v1.x 上，兩者恆等；stock SDXL base 的
+    # `force_zeros_for_empty_prompt=true`，其無條件分支是零張量。
+    # 威脅模型要求攻擊方是 stock 模型，用 `encode_text("")` 模擬的就不是
+    # stock 行為，而該差異沒有任何症狀——影像照樣生得出來。
+    emb_uncond = sd.uncond_prompt().detach()
     if guidance_scale == 1.0:
         raise NotImplementedError(
             "AdvPaint 固定以 guidance_scale=7.5 走 CFG（prompt_embeds 為兩列）。"
             "guidance_scale=1 時 pipeline 的 do_classifier_free_guidance 為 False，"
             "latent 不再複製兩份，記錄到的 Q/K/V 形狀與原作不同；該路徑未查證"
         )
-    emb2 = torch.cat([emb_uncond, emb_cond])
+    emb2 = cat_cond([emb_uncond, emb_cond])
 
     t0 = min(
         int(sd.num_train_timesteps * strength), sd.num_train_timesteps - 1
@@ -255,12 +272,20 @@ def loss_fn(sd, x_adv: torch.Tensor, ctx: AdvPaintContext) -> torch.Tensor:
     等價於最大化 GT 與對抗樣本之間的 Q／K／V 距離。骨幹以
     `objective="minimize"` 走 `X_adv − sign(grad)·step`，與
     `AdvPaint.py:296` 逐字相同。符號不吸收進骨幹，見 `pgd.run_pgd`。
+
+    累加**不得**從 `x_adv.sum() * 0.0` 這類錨點起算。該錨點會讓 `x_adv`
+    恆被計算圖使用，`pgd.run_pgd` 的 `torch.autograd.grad(loss, probe)`
+    （`allow_unused=False`）就永遠不會拋出「輸入未被使用」——那是本專案
+    唯一會偵測「hook 沒裝上／前向被 no_grad 切斷」的機制。拆掉它之後，
+    梯度一旦斷了會回傳全零，`sign(0)=0` 使 x_adv 停在初始值，100 步跑完、
+    loss 曲線是平線但仍有數值，看不出異常。故此處由第一個實際的 norm 項
+    起算，路徑斷掉時 autograd 會直接拋錯。
     """
     cur = _forward_and_record(
         sd, ctx, x_adv, ctx.emb2, ctx.t0, ctx.generator, ctx.recorder,
         differentiable=True,
     )
-    total = x_adv.sum() * 0.0        # 保持 dtype／device，且不影響數值
+    terms = []
     for gt_group, cur_group in zip(ctx.gt, cur):
         if len(gt_group) != len(cur_group):
             raise RuntimeError(
@@ -268,8 +293,13 @@ def loss_fn(sd, x_adv: torch.Tensor, ctx: AdvPaintContext) -> torch.Tensor:
                 "hook 沒有正確安裝或 UNet 前向路徑改變了"
             )
         for gt_t, cur_t in zip(gt_group, cur_group):
-            total = total - (gt_t - cur_t).norm(p=2)
-    return total / ctx.length
+            terms.append((gt_t - cur_t).norm(p=2))
+    if not terms:
+        raise RuntimeError(
+            "四組 Q／K／V 記錄皆為空：QKVRecorder 的 hook 沒有攔截到任何 "
+            "attention 層。損失無從計算"
+        )
+    return -torch.stack(terms).sum() / ctx.length
 
 
 SPEC = BaselineSpec(

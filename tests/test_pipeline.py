@@ -23,8 +23,6 @@ from src.purify.ops import default_train_set
 from src.residual.site_embedding import EmbeddingResidual
 from src.residual.site_latent import LatentResidual
 from src.residual.base import ResidualModule
-from src.residual.site_pixel import PixelResidual
-from src.residual.site_pixel_full import FullRankPixelResidual
 from src.residual.site_warp import WarpResidual
 from src.residual.site_weight import WeightResidual
 from src.utils.device import get_device
@@ -67,30 +65,62 @@ def _noise(sd, lat, seed=SEED):
     return sd.sample_edit_noise(torch.empty(lat, device=DEV), seed=seed)
 
 
-# ------------------------------------------------------------------ T1-P
+# --------------------------------------------------------- T1（像素側路徑）
+
+# 2026-08-05：本節原本以 site P（`site_pixel.py`）為對象，該檔已依
+# `ARCH` §2.3 刪除（加性由 baseline 擔任）。改以 site warp——它是 N1／N2
+# 的本體，也是現行唯一的像素側位置。
+#
+# **契約有一處實質差異，測試照契約寫而不是照舊斷言寫。** site P 的 Δ=0
+# 是代數上的零，逐位元恆等；warp 的 φ=0 是恆等取樣網格，經 `grid_sample`
+# 後有純數值誤差（`align_corners=True` 下座標 −1+2i/(N−1) 在 float32 無法
+# 精確表示）。`site_warp.pixel_residual` 因此在**不建計算圖時短路**回傳原圖，
+# 使評測與全部留存影像逐位元精確；建圖時（訓練第一步）不短路，
+# 誤差上界為該檔實測的 5.78e-05。兩者都要驗。
 
 
-def test_T1_P_殘差為零時防禦圖與原圖恆等(sd, x01):
-    """site P：Δ=0 ⟹ x_def = x 逐元素相等，無任何重建誤差。"""
+def test_T1_warp_評測路徑上phi為零時逐位元恆等(sd, x01):
+    """φ=0 且不建計算圖 ⟹ x_def 與 x 逐位元相同。
+
+    這是「模塊停用時不改變任何計算結果」在像素側的形態。評測、
+    `x_base0 = G(x;0)` 與所有留存影像都在 `torch.no_grad()` 下計算，
+    故這條涵蓋全部需要精確的場合。
+    """
     lat = _latent(sd)
-    mod = PixelResidual(size=SIZE, max_rank=8, const_rank=8).to(DEV)
+    mod = WarpResidual(size=SIZE, grid_size=4, max_disp=1.5).to(DEV)
     gen = DefenseGenerator(sd, mod, k_inv=2)
     ctx = gen.prepare(x01)
-    x_def = gen.generate(x01, ctx)
-    assert torch.equal(x_def, x01), "V 初始為零，x_def 必須與 x 完全相同"
+    with torch.no_grad():
+        x_def = gen.generate(x01, ctx)
+    assert torch.equal(x_def, x01), "φ 初始為零，x_def 必須與 x 完全相同"
     assert lat[1] >= 1
 
 
-def test_T1_P_編輯結果在殘差為零時完全相同(sd, x01):
+def test_T1_warp_建圖時的數值底線在實測上界內(sd, x01):
+    """建圖時不短路（短路會切斷 φ 與輸出的連結，訓練第一步會以
+    `element 0 of tensors does not require grad` 失敗）。
+
+    代價是 `grid_sample` 的表示誤差。`site_warp.py` 實測其上界為 5.78e-05
+    （512²、float32）。這裡釘住那個數量級：若有人改了 `align_corners` 或
+    重取樣方式而使誤差變大，φ=0 的「防禦圖」就不再等於原圖，而保真度指標
+    會把那筆誤差算成防禦造成的失真。
+    """
+    mod = WarpResidual(size=SIZE, grid_size=4, max_disp=1.5).to(DEV)
+    gen = DefenseGenerator(sd, mod, k_inv=2)
+    x_def = gen.generate(x01, gen.prepare(x01))
+    assert x_def.requires_grad, "建圖時必須保留 φ 的連結"
+    assert float((x_def - x01).detach().abs().max()) <= 6e-5
+
+
+def test_T1_warp_編輯結果在phi為零時完全相同(sd, x01):
     lat = _latent(sd)
     emb = sd.encode_text("a photo").detach()
     noise = _noise(sd, lat)
 
-    mod = PixelResidual(size=SIZE, max_rank=8, const_rank=8).to(DEV)
+    mod = WarpResidual(size=SIZE, grid_size=4, max_disp=1.5).to(DEV)
     gen = DefenseGenerator(sd, mod, k_inv=2)
-    x_def = gen.generate(x01, gen.prepare(x01))
-
     with torch.no_grad():
+        x_def = gen.generate(x01, gen.prepare(x01))
         y_orig = sd.sdedit(x01, emb, noise, num_steps=3)
         y_def = sd.sdedit(x_def, emb, noise, num_steps=3)
     assert torch.equal(y_def, y_orig)
@@ -502,7 +532,7 @@ def test_無重建誤差時略過階段一(sd, x01):
     x_base0 與 x 是否相等來決定，將來新增注入位置不需改動這段邏輯。
     """
     cfg = _cfg()
-    mod = PixelResidual(size=SIZE, max_rank=4, const_rank=4, seed=SEED).to(DEV)
+    mod = WarpResidual(size=SIZE, grid_size=4, max_disp=1.5, seed=SEED).to(DEV)
     res = optimize(sd, mod, x01, cfg, LossConfig(), default_train_set(),
                    calib=_calib_for(cfg), calib_context=TEST_CTX,
                    y_target=torch.rand(1, 3, SIZE, SIZE, device=DEV))
@@ -515,16 +545,36 @@ def test_無重建誤差時略過階段一(sd, x01):
 # ------------------------------------------- generator 依能力而非 site 分派
 
 
+class _UnknownPixelModule(ResidualModule):
+    """一個 generator 從未聽過名字的像素側模塊。
+
+    2026-08-05：本測試原本用 `FullRankPixelResidual`（site "PF"），該檔已依
+    `ARCH` §2.3 刪除。改用測試本地定義的模塊**強化**了原本的檢驗——
+    site 名稱是 `"UNKNOWN"`，任何以名稱比對的分派都必然走錯，
+    而它確實提供 `pixel_residual`，故依能力分派必然走對。
+    """
+
+    site = "UNKNOWN"
+
+    def __init__(self, size: int):
+        super().__init__()
+        self.delta_param = torch.nn.Parameter(torch.zeros(1, 3, size, size))
+
+    def pixel_residual(self, x01):
+        if not self.enabled:
+            return x01
+        return (x01 + self.delta_param).clamp(0, 1)
+
+
 def test_像素側模塊不因site名稱而走錯路徑(sd, x01):
     """generator 必須依「提供哪種能力」分派，不得比對 site 名稱。
 
-    原本的條件是 `pixel is not None and self.module.site == "P"`。新增全秩
-    對照（site "PF"）時該條件失效：模塊確實提供 pixel_residual，卻因名稱
-    不是 "P" 而被送進 inversion + 去噪路徑，取到的 eps_hook 為 None，φ 完全
-    沒有進入計算圖。症狀只在 backward 出現，訊息是 "does not require grad"，
-    完全看不出真正原因。
+    原本的條件是 `pixel is not None and self.module.site == "P"`。模塊確實
+    提供 pixel_residual，卻因名稱不在白名單而被送進 inversion + 去噪路徑，
+    取到的 eps_hook 為 None，φ 完全沒有進入計算圖。症狀只在 backward 出現，
+    訊息是 "does not require grad"，完全看不出真正原因。
     """
-    mod = FullRankPixelResidual(size=SIZE).to(DEV)
+    mod = _UnknownPixelModule(size=SIZE).to(DEV)
     gen = DefenseGenerator(sd, mod, k_inv=2)
 
     ctx = gen.prepare(x01)
@@ -768,7 +818,7 @@ def test_編碼器目標不走去噪鏈且梯度抵達phi(sd, x01):
 
     sd.sdedit = counting
     try:
-        mod = PixelResidual(size=SIZE, max_rank=4, const_rank=4, seed=SEED).to(DEV)
+        mod = WarpResidual(size=SIZE, grid_size=4, max_disp=1.5, seed=SEED).to(DEV)
         cfg = _cfg(steps=2, k_inv=2, n_edit=2)
         res = optimize_encoder(sd, mod, x01, cfg, LossConfig(), default_train_set(),
                                calib=_calib(0.05), calib_context=TEST_CTX)
@@ -792,7 +842,7 @@ def test_編碼器目標的損失朝目標下降(sd, x01):
        兩者並存時「損失有沒有下降」量到的是兩股力的淨結果，不是編碼器目標
        本身可不可優化。
     """
-    mod = PixelResidual(size=SIZE, max_rank=4, const_rank=4, seed=SEED).to(DEV)
+    mod = WarpResidual(size=SIZE, grid_size=4, max_disp=1.5, seed=SEED).to(DEV)
     cfg = _cfg(steps=4, k_inv=2, purify_mode="all")
     res = optimize_encoder(sd, mod, x01, cfg, LossConfig(lam_fid=0.0),
                            default_train_set(),
@@ -803,7 +853,7 @@ def test_編碼器目標的損失朝目標下降(sd, x01):
 
 def test_有目標模式需要y_target(sd, x01):
     """缺少目標時必須在此報錯，不得靜默退回無目標。"""
-    mod = PixelResidual(size=SIZE, max_rank=4, const_rank=4, seed=SEED).to(DEV)
+    mod = WarpResidual(size=SIZE, grid_size=4, max_disp=1.5, seed=SEED).to(DEV)
     cfg = _cfg(steps=1, k_inv=2, n_edit=2)
     with pytest.raises(ValueError, match="y_target"):
         optimize(sd, mod, x01, cfg, LossConfig(defense_mode="targeted_output"),
@@ -873,8 +923,8 @@ def test_有目標模式端到端可訓練(sd, x01):
     斷言取結構性質而非收斂：tiny-SD 是隨機初始化的，四步之內的收斂行為不能
     代表真實 SD（同 `test_低秩注入使編輯偏移增加` 的理由）。
     """
-    mod = PixelResidual(size=SIZE, max_rank=4, const_rank=4, seed=SEED).to(DEV)
-    before = mod.tensor.V.detach().clone()
+    mod = WarpResidual(size=SIZE, grid_size=4, max_disp=1.5, seed=SEED).to(DEV)
+    before = mod.flow.detach().clone()
     cfg = _cfg(steps=3, k_inv=2, n_edit=2)
     y_target = torch.rand(1, 3, SIZE, SIZE, device=DEV)
 
@@ -887,7 +937,7 @@ def test_有目標模式端到端可訓練(sd, x01):
     # 比無目標穩的原因：損失地形有盆地，不是只有一個「往外走」的方向。
     assert res.history[0]["L_def"] > 0.0
     assert res.history[-1]["grad_norm"] > 0.0, "梯度未抵達 φ"
-    assert not torch.equal(before, mod.tensor.V), "φ 未被更新"
+    assert not torch.equal(before, mod.flow), "φ 未被更新"
 
 
 def test_階段一還原軌跡最佳的phi而非最後一步(sd, x01):
@@ -1288,15 +1338,15 @@ def test_targeted_attn在phi等於零時梯度非零(sd, x01):
     # 測試明寫一個值；正式實驗必須由段 0 量出來。
     cfg = _cfg(steps=2, attn_timesteps=2, stop_tol=1e-5)
     cfg.unet_ckpt = False
-    mod = PixelResidual(size=SIZE, max_rank=4, const_rank=4).to(DEV)
-    before = mod.tensor.V.detach().clone()
+    mod = WarpResidual(size=SIZE, grid_size=4, max_disp=1.5).to(DEV)
+    before = mod.flow.detach().clone()
     res = optimize(sd, mod, x01, cfg, LossConfig(defense_mode="targeted_attn"),
                              default_train_set()[:1],
                    calib=_calib_for(cfg), calib_context=TEST_CTX)
 
     assert res.history[0]["grad_norm"] > 0, "targeted_attn 在 φ=0 必須有梯度"
     assert "shared_mass" in res.history[0], "監看量必須被記錄"
-    assert not torch.equal(before, mod.tensor.V), "φ 未被更新"
+    assert not torch.equal(before, mod.flow), "φ 未被更新"
 
 
 def test_targeted_attn不需要攻擊方的prompt(sd, x01):
@@ -1314,7 +1364,7 @@ def test_targeted_attn不需要攻擊方的prompt(sd, x01):
 
     cfg = _cfg(steps=1, attn_timesteps=1, stop_tol=1e-5, prompt_def="")
     cfg.unet_ckpt = False
-    mod = PixelResidual(size=SIZE, max_rank=4, const_rank=4).to(DEV)
+    mod = WarpResidual(size=SIZE, grid_size=4, max_disp=1.5).to(DEV)
     res = optimize(sd, mod, x01, cfg, LossConfig(defense_mode="targeted_attn"),
                    default_train_set()[:1],
                    calib=_calib_for(cfg), calib_context=TEST_CTX)
@@ -1341,7 +1391,7 @@ def test_cross_attention目標的梯度抵達phi(sd, x01):
     cfg = _cfg(steps=2, attn_timesteps=2, stop_tol=1e-5)
     cfg.unet_ckpt = False
     cfg.attn_mode = "entropy"
-    mod = PixelResidual(size=SIZE, max_rank=4, const_rank=4).to(DEV)
+    mod = WarpResidual(size=SIZE, grid_size=4, max_disp=1.5).to(DEV)
     res = optimize(sd, mod, x01, cfg, LossConfig(defense_mode="targeted_attn"),
                              default_train_set()[:1],
                    calib=_calib_for(cfg), calib_context=TEST_CTX)
@@ -1384,7 +1434,7 @@ def test_未知的defense_mode明確報錯(sd, x01):
 
     cfg = _cfg(steps=1, attn_timesteps=1, stop_tol=1e-5)
     cfg.unet_ckpt = False
-    mod = PixelResidual(size=SIZE, max_rank=4, const_rank=4).to(DEV)
+    mod = WarpResidual(size=SIZE, grid_size=4, max_disp=1.5).to(DEV)
     with pytest.raises((ValueError, KeyError)):
         optimize(sd, mod, x01, cfg, LossConfig(defense_mode="nonsense"),
                  default_train_set()[:1],
@@ -1552,23 +1602,29 @@ def test_crossattn在平台時停止且步數少於上限(sd, x01):
     `stop_tol=1e9` 讓任何改善量都低於門檻：測的是「接線有沒有接上」，
     不是收斂本身——收斂由 test_plateau_stop.py 的純函數測試負責。
 
-    `tau_lpips=0.0` 是必要的，不是為了讓測試通過而放寬。停止準則的第一個
-    條件是「約束確實啟動過」，而 tiny-SD 在 64² 上跑 30 步的 LPIPS 只到
-    1e-4 量級，預設 τ=0.05 下沒有任何 hinge 會啟動，準則會正確地一直不停。
-    把 τ 設為 0 使 hinge 從防禦一有動作就啟動，被測的仍是同一條路徑。
+    2026-08-05：本測試原本用 site P 並取 `tau_lpips=0.0`。site P 已依
+    `ARCH` §2.3 刪除，改用 site warp 之後 **τ=0 不再可用，且原因是實質的**：
+    停止準則的第三個條件是「約束目前已被滿足」（`require_feasible`），
+    而 τ=0 表示任何非零失真都算違反，warp 每步的位移遠大於 site P 每步的
+    像素改變量，故一旦動起來就永遠回不到可行域，準則會正確地一直不停。
+
+    改取 `lr=0.1`、`tau_lpips=0.005`——該組合實測讓三個條件都真的被走到：
+    LPIPS hinge 在 20 步中啟動 3 次、末步回到可行、偵測到平台而於第 20 步
+    停止。若只把 τ 放寬到 hinge 從不啟動，第一個條件就會被繞過，
+    測試會因為錯的理由通過。
     """
     from src.defense.optimize import optimize
 
-    module = PixelResidual(size=SIZE, channels=3, max_rank=2,
-                           const_rank=2, seed=SEED).to(DEV)
+    module = WarpResidual(size=SIZE, grid_size=4, max_disp=1.5,
+                          seed=SEED).to(DEV)
     cfg = _cfg(steps=30, lr=0.05, n_edit=2, attn_timesteps=2,
                       stop_on_plateau=True, stop_patience=4,
                       stop_tol=1e9, stop_min_steps=4,
                       prompt_def="a wrecked car")
     res = optimize(sd, module, x01, cfg,
-                   LossConfig(defense_mode="targeted_attn", tau_lpips=0.0),
+                   LossConfig(defense_mode="targeted_attn", tau_lpips=0.005),
                              default_train_set()[:1],
-                   calib=_calib_for(cfg), calib_context=TEST_CTX)
+                   calib=_calib_for(cfg, lr=0.1), calib_context=TEST_CTX)
     # `cfg.steps` 已由 `stages` 取代；上限取該階段的 max_steps。
     assert res.steps_done < cfg.stages[0].max_steps
     assert res.steps_done == len(res.history)

@@ -28,7 +28,11 @@ PromptFlare 記錄的是 cross-attention 模組**經 `to_out` 之後的輸出**
    sign 更新下不影響方向，但損失曲線的尺度隨層數而變。
 3. `loss_depth = [1024, 256, 64]` 是 **token 數白名單**（依 latent 解析度
    篩層），不是層編號。`h = 4096`（64×64）那一層不在白名單內。
-   **此值與影像解析度綁定**：非 512² 時必須重新決定，見 `prepare`。
+   **此值與影像解析度綁定**：原作寫死的清單只在 512² 成立。本移植把它改寫
+   成它所依據的規則——「觀察到的層級去掉最外（token 數最大）那一級」——
+   並由 `resolve_loss_depth` 在每次 `prepare` 時實測決定。該規則在
+   512²／SD1.x 上還原原值（測試釘住），在 SDXL／1024² 上給出 `{1024}`
+   （70 層中的 60 層）。推導見 `resolve_loss_depth` 的 docstring。
 
 另：全 repo 無任何 seed，`torch.randn` 未固定，原作的保護結果不可逐位元
 重現。本實作以顯式 generator 固定，屬我方加強（不改變方法）。
@@ -51,6 +55,7 @@ import torch
 import torch.nn.functional as F
 
 from src.baselines.pgd import BaselineSpec, ValueRange
+from src.models.sd import cat_cond
 
 PROMPTFLARE_RANGE = ValueRange(
     -1.0,
@@ -269,6 +274,68 @@ class PromptFlareContext:
         self._saved = []
 
 
+def observed_token_counts(sd, ctx: "PromptFlareContext", h: int, w: int) -> List[int]:
+    """跑一次空白前向，收集各 attn2 層實際看到的 token 數。
+
+    不由 UNet config 推導，是因為推導要同時假設「哪些 block 有 attention」
+    與「各 block 的下採樣倍率」；那兩個假設在 SD1.x 與 SDXL 之間不同，
+    寫錯不會有症狀（白名單少涵蓋幾層，損失照樣有值）。實際前向一次即得，
+    成本相對 400 步 PGD 可忽略。
+    """
+    z = torch.zeros(
+        sd.latent_shape(h, w), device=ctx.emb2.device, dtype=sd.unet.dtype
+    )
+    ctx.controller.reset()
+    with torch.no_grad():
+        sd.unet_forward(
+            torch.cat([z] * 2),
+            ctx.t0,
+            ctx.emb2,
+            encoder_attention_mask=ctx.encoder_attention_mask,
+        )
+    counts = sorted({int(p.shape[1]) for p in ctx.controller.attn2_preds})
+    ctx.controller.reset()
+    return counts
+
+
+def resolve_loss_depth(sd, ctx: "PromptFlareContext", h: int, w: int) -> List[int]:
+    """決定 token 數白名單：**觀察到的層級去掉最外（token 數最大）那一級**。
+
+    原作把 `loss_depth` 寫死為 `[1024, 256, 64]`（`promptflare.py:11`），
+    對應 512² 影像、latent 64² 下的 attn2 層級 `{4096, 1024, 256, 64}`
+    去掉 4096。原值與解析度綁定，SDXL／1024² 沿用會涵蓋錯的層且無症狀
+    （見 `SOURCE_AUDIT §2.5`）。
+
+    此處實作的規則在 512²／SD1.x 上**還原原值**（由
+    `tests/test_baselines.py` 釘住），故不是另立一套判準，而是把原作寫死的
+    那個清單改寫成它所依據的規則。兩種讀法在 SDXL 上給出同一個答案：
+
+    - 逐字讀「token 數白名單 `{1024, 256, 64}`」：SDXL／1024² 的 attn2 只有
+      `{4096, 1024}` 兩級，交集為 `{1024}`。
+    - 讀成「排除最外層」：去掉 4096，同樣得 `{1024}`。
+
+    兩者一致，故此項不是自由選擇。SDXL 的 70 層 attn2 中，10 層在 4096
+    （down_blocks[1] 4 層、up_blocks[1] 6 層），其餘 60 層在 1024。
+    """
+    counts = observed_token_counts(sd, ctx, h, w)
+    if len(counts) < 2:
+        raise NotImplementedError(
+            f"只觀察到 {len(counts)} 個 attn2 層級（token 數 {counts}）。"
+            "「排除最外層」之後白名單會是空的，損失恆為 0 且無症狀。"
+            "此形狀下必須另行決定白名單"
+        )
+    depth = counts[:-1]
+    if (h, w) == (512, 512) and counts[-1] == 4096:
+        # 原作的情形。規則若在此處與寫死的清單不符，就是規則寫錯了。
+        expected = sorted(PF_LOSS_DEPTH)
+        if depth != expected:
+            raise RuntimeError(
+                f"512² 下推導出的白名單 {depth} 與原作寫死的 "
+                f"{expected} 不符；規則有誤，不得沿用"
+            )
+    return depth
+
+
 def prepare(
     sd,
     x01: torch.Tensor,
@@ -289,15 +356,6 @@ def prepare(
         )
 
     h, w = x01.shape[-2], x01.shape[-1]
-    if (h, w) != (512, 512):
-        raise NotImplementedError(
-            f"PromptFlare 的 loss_depth={list(PF_LOSS_DEPTH)} 是 **token 數白名單**，"
-            f"對應 512×512 影像（latent 64²）的 32²/16²/8² 三層 attn2。"
-            f"目前影像為 {h}×{w}，各 attn2 層的 token 數不同，白名單必須依"
-            "「排除最外層」的原則重新決定（見 SOURCE_AUDIT §2.5）。"
-            "在未決定前不得沿用原值——沿用會讓損失恆為 0 或涵蓋錯的層，且無症狀"
-        )
-
     device = x01.device
     if mask01 is None:
         # 本輪設為全圖：損失涵蓋整張影像。原作的 mask 為待重繪區，
@@ -305,7 +363,9 @@ def prepare(
         mask01 = torch.ones(1, 1, h, w, device=device, dtype=x01.dtype)
 
     emb = sd.encode_text(prompt).detach()
-    emb2 = emb.repeat(2, 1, 1)          # `promptflare.py:22`：兩列是同一個 prompt
+    # `promptflare.py:22`：兩列是同一個 prompt。`cat_cond` 而非 `.repeat`——
+    # SDXL 的條件是 SDXLPrompt，沒有 `repeat` 方法，且 pooled 那一半也要跟著複製。
+    emb2 = cat_cond([emb, emb])
 
     # `promptflare.py:40-41`：第 0 列全 1（不遮罩），第 1 列只留位置 0（BOS）。
     encoder_attention_mask = torch.ones(2, 77, device=device, dtype=emb.dtype)
@@ -314,10 +374,12 @@ def prepare(
     t0 = min(int(sd.num_train_timesteps * strength), sd.num_train_timesteps - 1)
     controller = AttnController(mask01)
     generator = torch.Generator(device=device).manual_seed(seed)
-    return PromptFlareContext(
+    ctx = PromptFlareContext(
         sd, spec, emb2, encoder_attention_mask, t0, controller,
-        list(PF_LOSS_DEPTH), generator,
+        None, generator,
     )
+    ctx.loss_depth = resolve_loss_depth(sd, ctx, h, w)
+    return ctx
 
 
 def loss_fn(sd, x_adv: torch.Tensor, ctx: PromptFlareContext) -> torch.Tensor:
@@ -336,10 +398,14 @@ def loss_fn(sd, x_adv: torch.Tensor, ctx: PromptFlareContext) -> torch.Tensor:
     z = abar.sqrt() * z0 + (1 - abar).sqrt() * noise
     z2 = torch.cat([z] * 2)
 
-    sd.unet(
+    # `sd.unet_forward` 而非 `sd.unet`：SDXL 的條件是 SDXLPrompt，UNet 另需
+    # added_cond_kwargs。`encoder_attention_mask` 原樣轉交——它作用在 token
+    # 軸（77），SDXL 串接兩個 encoder 改變的是最後一維，token 軸不變，
+    # 故 BOS decoy 的語意在兩種模型上一致。
+    sd.unet_forward(
         z2,
         ctx.t0,
-        encoder_hidden_states=ctx.emb2,
+        ctx.emb2,
         encoder_attention_mask=ctx.encoder_attention_mask,
     )
     return ctx.controller.cal_loss(
@@ -386,7 +452,11 @@ SPEC = BaselineSpec(
         "k": PF_K,
         "loss_mask": PF_LOSS_MASK,
         "loss_depth": list(PF_LOSS_DEPTH),
-        "loss_depth_meaning": "token 數白名單，非層編號；與 512² 解析度綁定",
+        "loss_depth_meaning": (
+            "原作寫死的 token 數白名單（非層編號），只在 512² 成立；"
+            "實際使用的白名單由 resolve_loss_depth 依「去掉最外一級」實測決定，"
+            "512² 下還原此值，SDXL/1024² 下為 [1024]"
+        ),
         "prompt": QUALITY_TAG_PROMPT,
         "attn_layers": "只有 attn2（attn1 在原始碼中被註解掉）",
         "model": "runwayml/stable-diffusion-inpainting（原作）",

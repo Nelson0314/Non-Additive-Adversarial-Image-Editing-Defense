@@ -29,7 +29,7 @@ fp16 下只有 10 bit 尾數，該測試必須在 fp16 與 fp32 各跑一次並�
 """
 
 from dataclasses import dataclass
-from typing import Callable, Optional, Tuple
+from typing import Callable, Optional, Sequence, Tuple
 
 import torch
 import torch.utils.checkpoint as ckpt
@@ -38,6 +38,43 @@ from src.utils.device import bf16_supported, get_device, resolve_precision
 
 # eps_hook(eps, step_idx, t) -> eps'，回傳修改後的噪聲預測
 EpsHook = Callable[[torch.Tensor, int, torch.Tensor], torch.Tensor]
+
+
+def cat_cond(items: Sequence):
+    """把數個文字條件沿批次維串接，裸張量與 `SDXLPrompt` 都能處理。
+
+    存在的理由：`src/baselines/` 的 AdvPaint 與 PromptFlare 需要自建兩列
+    批次。在 SD v1.x 上那就是 `torch.cat([...])`，但 SDXL 的條件是
+    `SDXLPrompt`（序列嵌入 + pooled 嵌入兩件），`torch.cat` 會直接拋
+    `TypeError`，而 `.repeat()` 這種張量方法在 `SDXLPrompt` 上根本不存在。
+
+    寫成函式而非要求呼叫端 `isinstance` 判斷，是因為那種判斷會漏掉
+    pooled 那一半——症狀是 UNet 的 additive embedding 只拿到一列條件，
+    兩列共用同一組 pooled，看起來像「CFG 效果怪怪的」而沒有錯誤訊息。
+    """
+    items = list(items)
+    if not items:
+        raise ValueError("cat_cond 收到空序列")
+    first = items[0]
+    if isinstance(first, SDXLPrompt):
+        return SDXLPrompt(
+            torch.cat([p.embeds for p in items]),
+            torch.cat([p.pooled for p in items]),
+        )
+    return torch.cat(items)
+
+
+def expand_cond(emb, batch: int):
+    """把單列的文字條件擴成 `batch` 列。裸張量與 `SDXLPrompt` 都能處理。
+
+    對應 SD v1.x 的 `emb.expand(batch, -1, -1)`。`SDXLPrompt` 沒有 `expand`，
+    且 pooled 是二維（B, 1280）與序列嵌入的三維不同，兩者要分別處理。
+    """
+    if isinstance(emb, SDXLPrompt):
+        return SDXLPrompt(
+            emb.embeds.expand(batch, -1, -1), emb.pooled.expand(batch, -1)
+        )
+    return emb.expand(batch, -1, -1)
 
 
 class SDWrapper:
@@ -273,8 +310,30 @@ class SDWrapper:
         """
         return (emb,)
 
-    def _unet_call(self, z, t, *cond) -> torch.Tensor:
-        return self.unet(z, t, encoder_hidden_states=cond[0]).sample
+    def _unet_call(self, z, t, *cond, **unet_kwargs) -> torch.Tensor:
+        return self.unet(
+            z, t, encoder_hidden_states=cond[0], **unet_kwargs
+        ).sample
+
+    def unet_forward(self, z, t, emb, **unet_kwargs) -> torch.Tensor:
+        """一次 UNet 前向，條件的內部結構由 `_cond_tensors`／`_unet_call` 吸收。
+
+        供**必須自建批次**的呼叫端使用。`_eps_cfg` 做的是兩次分開的前向，
+        產不出「同一批次內兩列的條件不同」這種輸入，而 AdvPaint（`[uncond; cond]`
+        做 CFG）與 PromptFlare（`[完整注意力; 只看 BOS]`）都需要在**同一次**
+        前向裡取得兩列並 `chunk(2)`——它們要 hook 的注意力就發生在那一次前向。
+
+        直接呼叫 `self.unet(...)` 是不行的：SDXL 的條件是 `SDXLPrompt`，
+        UNet 另需 `added_cond_kwargs`（pooled 嵌入 + time_ids），少傳會直接
+        報錯；而在 SD v1.x 上同樣的程式碼卻能跑。經由本方法即與模型無關。
+
+        `unet_kwargs` 原樣轉交 UNet，例如 PromptFlare 的 `encoder_attention_mask`。
+        該遮罩作用在 **token 軸（77）**，SDXL 串接兩個 encoder 改變的是最後
+        一維（768+1280=2048），token 軸不變，故語意在兩種模型上一致。
+        """
+        zc = z.to(self.unet.dtype)
+        cond = tuple(c.to(self.unet.dtype) for c in self._cond_tensors(emb))
+        return self._unet_call(zc, t, *cond, **unet_kwargs).to(z.dtype)
 
     def _eps(self, z, t, emb, use_ckpt: bool = False) -> torch.Tensor:
         """ε 預測。半精度時輸入轉成骨幹 dtype，輸出轉回 z 的 dtype。
@@ -463,6 +522,7 @@ class SDWrapper:
         vae_ckpt: bool = False,
         guidance_scale: float = 1.0,
         emb_uncond: Optional[torch.Tensor] = None,
+        step_hook: Optional[Callable[[int, torch.Tensor, torch.Tensor], None]] = None,
     ) -> torch.Tensor:
         """可微分 SDEdit。
 
@@ -478,6 +538,11 @@ class SDWrapper:
         1.0 正是 E26 找到的缺陷所在——攻擊方實際上會用 7.5 左右，w=1 時
         prompt 幾乎不起作用，SDEdit 退化成加噪再去噪。新的實驗必須明確指定。
 
+        `step_hook(i, t, pred_x0)` 於每一步算出 x̂₀ 之後呼叫，供呼叫端取
+        中間圖與 attention map（`CODE` §4.1、§4.2 要求兩者都要留存）。
+        它**不能**改變 `z`：回傳值被忽略，簽名上就不提供修改的途徑。
+        需要改 ε 的是防禦端的 `eps_hook`，那是另一件事、在另一條路徑上。
+
         回傳 (1,3,H,W) [0,1]，計算圖保留。
         """
         abar = self.alphas_cumprod(x01.device)
@@ -489,9 +554,15 @@ class SDWrapper:
         ts = torch.linspace(t0, 0, num_steps + 1).round().long()
         for i in range(num_steps):
             t, t_prev = ts[i], ts[i + 1]
+            if step_hook is not None:
+                # 取樣旗標必須在前向**之前**設好：注意力是在 UNet 前向當中
+                # 擷取的，前向跑完再問「這一步要不要記」已經來不及。
+                step_hook(i, t, None)
             eps = self._eps_cfg(z, t, emb, guidance_scale, emb_uncond,
                                 use_ckpt=use_ckpt)
             pred_x0 = (z - (1 - abar[t]).sqrt() * eps) / abar[t].sqrt()
+            if step_hook is not None:
+                step_hook(i, t, pred_x0)
             z = abar[t_prev].sqrt() * pred_x0 + (1 - abar[t_prev]).sqrt() * eps
 
         return self.decode_latent(z, use_ckpt=vae_ckpt)
@@ -784,13 +855,24 @@ class SDXLWrapper(SDWrapper):
             )
         return (emb.embeds, emb.pooled)
 
-    def _unet_call(self, z, t, *cond) -> torch.Tensor:
+    def _unet_call(self, z, t, *cond, **unet_kwargs) -> torch.Tensor:
         embeds, pooled = cond
         time_ids = self._time_ids(z, pooled.dtype)
         self._check_added_cond_dim(pooled, time_ids.shape[-1])
+        if pooled.shape[0] != z.shape[0]:
+            # `_time_ids` 依 z 的批次大小產生，pooled 由呼叫端提供。兩者不符
+            # 表示自建批次的呼叫端（AdvPaint／PromptFlare）只複製了 latent
+            # 沒複製條件。additive embedding 會拿到與 latent 對不上的列數，
+            # 而 UNet 不一定會拒絕——廣播之後兩列共用同一組條件，症狀是
+            # 「CFG 好像沒作用」，沒有錯誤訊息。
+            raise ValueError(
+                f"latent 的批次為 {z.shape[0]}，pooled 嵌入為 {pooled.shape[0]}。"
+                "自建批次時 latent 與條件必須複製成相同的列數"
+            )
         return self.unet(
             z,
             t,
             encoder_hidden_states=embeds,
             added_cond_kwargs={"text_embeds": pooled, "time_ids": time_ids},
+            **unet_kwargs,
         ).sample

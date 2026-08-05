@@ -220,7 +220,7 @@ class OptimConfig:
 # `resolve_stop_tol(None, "edit_shift")` 會靜默回傳 1e-4；`shared_mass`
 # 因不在表內而拋出。即同一道規則對兩個監看量鬆緊不一。
 # after：全部監看量一律向校準表索取，本表只作為量級參考留存。
-# 原因見 `docs/_review_defense.md` §2「MONITOR_TOL 沿用舊模型的校準值」。
+# 原因見 `docs/INDEX.md` §3「停止門檻沿用舊模型的校準值且無 context 檢查」。
 LEGACY_MONITOR_TOL = {
     "edit_shift": 1e-4,     # E23 實測平均 5.4e-4（SD v1.4／512²／site PF）
     "attn_div": 1e-5,       # 2026-08-04 實測平均 1.6e-4（同上）

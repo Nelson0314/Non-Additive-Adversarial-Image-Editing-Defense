@@ -39,6 +39,7 @@ from typing import Optional
 import torch
 
 from src.baselines.pgd import BaselineSpec, ValueRange
+from src.models.sd import expand_cond
 
 # `mist_v3.py:230-233` `img / 127.5 - 1.0`；PGD 的 `clip_min=-1.0`。
 MIST_RANGE = ValueRange(
@@ -136,7 +137,9 @@ def _semantic_loss(sd, x_paper: torch.Tensor, ctx: MistContext) -> torch.Tensor:
     )
     abar = sd.alphas_cumprod(z.device)[t].view(-1, 1, 1, 1).to(z.dtype)
     z_noisy = abar.sqrt() * z + (1 - abar).sqrt() * noise
-    eps_pred = sd._eps(z_noisy, t, ctx.emb.expand(z.shape[0], -1, -1))
+    # `expand_cond` 而非 `.expand(...)`：SDXL 的條件是 SDXLPrompt，
+    # 沒有 `expand` 方法，且 pooled 是二維、序列嵌入是三維，要分別處理。
+    eps_pred = sd._eps(z_noisy, t, expand_cond(ctx.emb, z.shape[0]))
     return ((noise - eps_pred) ** 2).mean(dim=[1, 2, 3]).mean()
 
 

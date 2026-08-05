@@ -81,10 +81,21 @@ def _structured(seed=20260801, size=128):
     return x
 
 
-def test_SSIM預設不參與梯度():
-    """E20 實測 SSIM 在等 LPIPS 下把雜訊判得比模糊貴約 2 倍，留在梯度裡
-    等於補貼模糊。係數保留但預設為 0，可一行復原。"""
-    assert LossConfig().alpha_ssim == 0.0
+def test_SSIM只出現在回報欄位不進梯度(obj):
+    """`LOGIC_CHECK` A8：SSIM／NLPD／VIF／GMSD／HaarPSI／ΔE 系列是已排除的
+    度量，只能出現在回報欄位，不得進入 hinge。
+
+    E20 實測 SSIM 在等 LPIPS 下把雜訊判得比模糊貴約 2 倍，留在梯度裡等於
+    補貼模糊。2026-08-05 把 `alpha_ssim` 這個係數整個刪除——留一個預設為 0
+    的係數，就留了一條「把它設回 1.0」的路。
+    """
+    assert not hasattr(LossConfig(), "alpha_ssim"), (
+        "係數不得存在：預設為 0 只是預設，刪除才是約束")
+    x = _structured()
+    xd = _blur(x)
+    _, parts = obj.fidelity_term(xd, x)
+    assert "fid_ssim" in parts, "SSIM 仍須照實記錄，只是不進梯度"
+    assert 0.0 <= parts["fid_ssim"] <= 1.0
 
 
 def test_鈍化hinge對模糊施力對雜訊不施力(obj):
@@ -295,57 +306,42 @@ def test_保真項對x_def可微(obj):
 # ------------------------------------------------------------------ 防禦項
 
 
-def test_hinge在偏移超過margin後不再施力(obj):
-    """無界最大化會發散，hinge 是必要設計（spec §5.1）。
+def test_margin已隨untargeted一併移除():
+    """hinge 存在的唯一理由是「無界的最大化會發散」。
 
-    margin 由實測距離推出，不預設「兩張無關的圖 LPIPS 必大於 0.5」——
-    實測兩張獨立均勻雜訊圖的 LPIPS 僅約 0.33，該預設會誤判。
+    targeted 是最小化一個下界為 0 的距離，不會發散，故不需要 margin。留一個
+    無人使用的 margin 欄位，就留了一條「把 defense_mode 改回去」的路。
     """
-    a = _img(5)
-    far = _img(6)
-    d_far = float(obj.distance(far, a))
-    assert d_far > 0, "測試前提：兩張獨立影像的距離須為正"
-
-    below = DefenseObjective(LossConfig(margin=d_far * 0.5), DEV)
-    above = DefenseObjective(LossConfig(margin=d_far * 2.0), DEV)
-
-    assert float(below.defense_term([far], [a])) == 0.0, (
-        "距離已超過 margin，hinge 必須歸零"
-    )
-    saturated = float(above.defense_term([far], [a]))
-    assert saturated == pytest.approx(d_far * 2.0 - d_far, abs=1e-5), (
-        "距離未達 margin 時應為 m − d"
-    )
-
-
-def test_hinge在距離為零時施力最大(obj):
-    a = _img(5)
-    assert float(obj.defense_term([a], [a])) == pytest.approx(obj.cfg.margin, abs=1e-5)
+    assert not hasattr(LossConfig(), "margin")
 
 
 def test_防禦項取樣數不符時報錯(obj):
+    """兩側逐一配對的長度檢查是「同噪聲配對」這個不變量唯一的程式化把關。"""
     a = _img(7)
     with pytest.raises(ValueError, match="取樣數不符"):
-        obj.defense_term([a, a], [a])
+        obj.defense_term([a, a], [a], _img(70))
 
 
 def test_edit_shift與L_def分開記錄(obj):
-    """hinge 飽和後 L_def 恆為 0，只看 L_def 會誤判優化停滯。
+    """兩者量的是不同的東西，只看其中一個會誤判。
 
-    故意把 margin 設在實測距離之下，製造出飽和情形，再確認 edit_shift
-    仍記錄得到真實偏移。
+    targeted 之後 L_def 是「離目標多近」（越小越好），`edit_shift` 是
+    「離原編輯多遠」（越大代表防禦越有進展，也是評測所報的量）。
+    構造一個「已經很接近目標、但離原編輯很遠」的情形，兩個數字必須分別
+    反映這兩件事。
     """
     x = _img(8)
     xd = (x + 0.02 * torch.randn_like(x)).clamp(0, 1)
-    far = _img(9)
-    d = float(obj.distance(far, x))
+    tgt = _img(50)
+    near = (tgt + 0.01 * torch.randn_like(tgt)).clamp(0, 1)
 
-    sat = DefenseObjective(LossConfig(margin=d * 0.5), DEV)
-    _, log = sat(xd, x, [far], [x])
-    assert log["L_def"] == 0.0, "margin 低於實測距離時 hinge 應飽和"
-    assert log["edit_shift"] == pytest.approx(d, abs=1e-5), (
-        "偏移量必須獨立於 hinge 之外被記錄"
-    )
+    _, log = obj(xd, x, y_def_list=[near], y_orig_list=[x], y_target=tgt)
+    d_target = float(obj.distance(near, tgt))
+    d_orig = float(obj.distance(near, x))
+    assert log["L_def"] == pytest.approx(d_target, abs=1e-5)
+    assert log["edit_shift"] == pytest.approx(d_orig, abs=1e-5)
+    assert log["edit_shift"] > log["L_def"], (
+        "測試前提：這一格離目標近、離原編輯遠")
 
 
 # ------------------------------------------------------------------ 淨化
@@ -538,44 +534,131 @@ def test_全秩殘差的實測秩遠高於低秩(r):
 # ----------------------------------------------- 有目標與 VAE 編碼器目標
 
 
-def test_有目標模式最小化與目標的距離(obj):
-    """無目標是「離原編輯遠」，有目標是「往固定目標去」，方向不同。
+def test_targeted_output最小化與目標的距離(obj):
+    """構造兩個候選：一個接近目標、一個遠離目標，前者的損失必須較小。
 
-    構造兩個候選：一個接近目標、一個遠離目標。有目標模式下前者的損失
-    必須較小——這正是無目標模式做不到的區分（兩者離 y_orig 可能一樣遠）。
+    這正是已淘汰的無目標模式做不到的區分——兩個候選離 y_orig 可能一樣遠，
+    無目標的損失因此相同，而它們與「防禦要達到的狀態」的距離差很多。
     """
     tgt = _img(50)
     near = (tgt + 0.02 * torch.randn_like(tgt)).clamp(0, 1)
     far = _img(51)
     y_orig = _img(52)
 
-    o = DefenseObjective(LossConfig(defense_mode="targeted"), DEV)
-    l_near = float(o.defense_term([near], [y_orig], y_target=tgt))
-    l_far = float(o.defense_term([far], [y_orig], y_target=tgt))
+    l_near = float(obj.defense_term([near], [y_orig], tgt))
+    l_far = float(obj.defense_term([far], [y_orig], tgt))
     assert l_near < l_far, "接近目標者的損失必須較小"
     assert l_near >= 0.0
 
 
-def test_有目標模式缺少目標時報錯():
-    """靜默退回無目標會讓實驗跑完才發現量的是另一個目標函數。"""
-    o = DefenseObjective(LossConfig(defense_mode="targeted"), DEV)
+def test_targeted_output的MSE度量同樣可分辨遠近():
+    """N3 階段二的 R_a 是 ‖·‖²（`DESIGN` §4），不改寫成 LPIPS。"""
+    o = DefenseObjective(
+        LossConfig(defense_mode="targeted_output", target_metric="mse"), DEV)
+    tgt = _img(60)
+    near = (tgt + 0.02 * torch.randn_like(tgt)).clamp(0, 1)
+    far = _img(61)
+    y_orig = _img(62)
+    assert float(o.defense_term([near], [y_orig], tgt)) < float(
+        o.defense_term([far], [y_orig], tgt))
+
+
+def test_缺少目標時報錯(obj):
+    """靜默退回任何無目標形式會讓實驗跑完才發現量的是另一個目標函數，
+    而且那個函數在起點的梯度是零（LOGIC_CHECK A1）。"""
     with pytest.raises(ValueError, match="y_target"):
-        o.defense_term([_img(53)], [_img(54)])
+        obj.defense_term([_img(53)], [_img(54)], None)
 
 
-def test_未知的defense_mode必須報錯():
-    o = DefenseObjective(LossConfig(defense_mode="minimax"), DEV)
+def test_未知的模式與度量在建構設定時就報錯():
+    """在 LossConfig 建構時擋下，而不是等到第一次 backward。"""
     with pytest.raises(ValueError, match="defense_mode"):
-        o.defense_term([_img(55)], [_img(56)])
+        LossConfig(defense_mode="minimax")
+    with pytest.raises(ValueError, match="target_metric"):
+        LossConfig(target_metric="ssim")
 
 
-def test_無目標模式行為不變(obj):
-    """新增模式不得改動既有路徑，否則既有結果失去可比性。"""
-    a, b = _img(57), _img(58)
-    d = float(obj.distance(a, b))
-    expected = max(0.0, obj.cfg.margin - d)
-    assert obj.cfg.defense_mode == "untargeted", "預設必須維持無目標"
-    assert float(obj.defense_term([a], [b])) == pytest.approx(expected, abs=1e-6)
+def test_預設模式為targeted():
+    """三個非加性條件一律 targeted（`DESIGN` §2.1）。預設不得是別的東西。"""
+    assert LossConfig().defense_mode == "targeted_output"
+
+
+# ------------------------------------------------------- N1 的注意力目標
+
+
+def _attn_maps(n_layers=3, n_tokens=77, q=16, seed=0):
+    """假的 cross-attention 分佈 (B, Q, T)，已在 token 維度正規化。"""
+    g = torch.Generator().manual_seed(seed)
+    out = []
+    for _ in range(n_layers):
+        a = torch.rand(1, q, n_tokens, generator=g)
+        out.append(a / a.sum(dim=-1, keepdim=True))
+    return out
+
+
+def test_注意力目標把質量導向shared_token():
+    """把 shared token 的質量抬高，損失必須下降。方向錯了整個條件就是反的。"""
+    o = DefenseObjective(
+        LossConfig(defense_mode="targeted_attn", shared_tokens=(0,)), DEV)
+    base = _attn_maps(seed=70)
+    lifted = []
+    for a in base:
+        b = a.clone()
+        b[..., 0] += 0.5
+        lifted.append(b / b.sum(dim=-1, keepdim=True))
+    assert float(o.attention_term([lifted])) < float(o.attention_term([base]))
+
+
+def test_注意力目標的值域與質量互補():
+    o = DefenseObjective(LossConfig(defense_mode="targeted_attn"), DEV)
+    maps = _attn_maps(seed=71)
+    mass = float(o.shared_token_mass(maps))
+    assert 0.0 < mass < 1.0
+    assert float(o.attention_term([maps])) == pytest.approx(1.0 - mass, abs=1e-6)
+
+
+def test_shared_token涵蓋全部格時必須報錯():
+    """全部 token 的注意力質量和恆為 1，該目標會退化成常數 0，最佳化不會
+    產生任何更新——與「跑了但沒效果」在外部分不出來。"""
+    o = DefenseObjective(
+        LossConfig(defense_mode="targeted_attn",
+                   shared_tokens=tuple(range(8))), DEV)
+    with pytest.raises(ValueError, match="退化成常數"):
+        o.shared_token_mass(_attn_maps(n_tokens=8, seed=72))
+
+
+def test_shared_token超出範圍時必須報錯():
+    """位置錯了會靜默地對別的 token 施力。"""
+    o = DefenseObjective(
+        LossConfig(defense_mode="targeted_attn", shared_tokens=(0, 99)), DEV)
+    with pytest.raises(IndexError, match="超出範圍"):
+        o.shared_token_mass(_attn_maps(n_tokens=77, seed=73))
+
+
+def test_空的shared_tokens在建構設定時就報錯():
+    with pytest.raises(ValueError, match="shared_tokens"):
+        LossConfig(defense_mode="targeted_attn", shared_tokens=())
+
+
+def test_兩種模式各自要求自己的引數():
+    """引數傳錯時必須拋出，不得改走另一種模式。"""
+    x = _img(80)
+    out = DefenseObjective(LossConfig(defense_mode="targeted_output"), DEV)
+    att = DefenseObjective(LossConfig(defense_mode="targeted_attn"), DEV)
+    with pytest.raises(ValueError, match="y_def_list"):
+        out(x, x, attn_maps=[_attn_maps(seed=81)])
+    with pytest.raises(ValueError, match="attn_maps"):
+        att(x, x, y_def_list=[x], y_orig_list=[x], y_target=x)
+
+
+def test_注意力模式的edit_shift記為NaN而非零():
+    """本路徑沒有 y_orig 可比，該欄位沒有定義。記 0 會讓「沒有定義」與
+    「量到零」在事後分不出來；`plateau_stop` 對 NaN 監看量直接拋出。"""
+    x = _img(82)
+    att = DefenseObjective(LossConfig(defense_mode="targeted_attn"), DEV)
+    _, log = att(x, x, attn_maps=[_attn_maps(seed=83)])
+    assert log["edit_shift"] != log["edit_shift"], "必須是 NaN"
+    assert 0.0 < log["shared_mass"] < 1.0
 
 
 def test_編碼器目標在相同時為零且可微(obj):
@@ -590,13 +673,17 @@ def test_編碼器目標在相同時為零且可微(obj):
     assert z.grad is not None and float(z.grad.abs().max()) > 0.0
 
 
-def test_alpha_lpips為零時原始項不進梯度():
-    """E27 的修訂之四。交集式 hinge 的可行域不允許「用便宜的軸換貴的軸」，
-    但 L_fid 裡那個係數為 1 的原始 lpips 項仍是加權和的一半：它是一個持續把
-    失真往零拉的力，使最佳化停在 τ 之下，τ 因而不是綁定的約束。
+def test_τ以內的失真完全免費():
+    """交集式 hinge 的定義：τ 以內不施力、τ 以外才施力。
 
+    2026-08-05 之前 `L_fid` 裡有一個係數為 1 的原始 lpips 項，它是加權和的
+    一半——一個持續把失真往零拉的力，使最佳化停在 τ 之下，τ 因而不是綁定的約束。
     實測（H100、w=7.5、其他候選有效約束全部排除）：site C 末端 LPIPS
     0.031–0.045、site P 0.040，而 τ=0.05 的 hinge 在 60 步中只啟動 0–8 步。
+
+    該係數（`alpha_lpips`）與 `alpha_ssim` 已於 2026-08-05 整個刪除，
+    不是改成預設 0——留一個預設為 0 的旋鈕，下一個人仍會把它打開。
+    本測試改為直接驗證刪除後的性質。
     """
     import torch
 
@@ -605,25 +692,30 @@ def test_alpha_lpips為零時原始項不進梯度():
     x = torch.rand(1, 3, 64, 64, device=DEV)
     xd = (x + 0.02 * torch.randn_like(x)).clamp(0, 1)
 
-    # τ 遠大於實際失真，故兩道 hinge 都不啟動；此時總損失應只剩原始 lpips 項
-    cfg_on = LossConfig(alpha_lpips=1.0, tau_lpips=0.9, tau_acut=0.9,
-                        beta_linf=0.0, gamma_psnr=0.0, alpha_ssim=0.0)
-    cfg_off = LossConfig(alpha_lpips=0.0, tau_lpips=0.9, tau_acut=0.9,
-                         beta_linf=0.0, gamma_psnr=0.0, alpha_ssim=0.0)
-    on, parts = DefenseObjective(cfg_on, DEV).fidelity_term(xd, x)
-    off, _ = DefenseObjective(cfg_off, DEV).fidelity_term(xd, x)
+    # τ 遠大於實際失真，故四道 hinge 都不啟動，保真項應精確為零
+    cfg = LossConfig(tau_lpips=0.9, tau_acut=0.9, tau_chroma=9.0,
+                     beta_linf=0.0, gamma_psnr=0.0)
+    total, parts = DefenseObjective(cfg, DEV).fidelity_term(xd, x)
 
-    assert float(on) == pytest.approx(parts["fid_lpips"], rel=1e-5)
-    assert float(off) == pytest.approx(0.0, abs=1e-6), (
-        "係數為 0 時，τ 以內的失真必須完全免費，否則最佳化不會把預算用滿")
-    assert float(on) > float(off)
+    assert float(total) == pytest.approx(0.0, abs=1e-6), (
+        "τ 以內的失真必須完全免費，否則最佳化不會把預算用滿")
+    # 實際失真仍要被記錄下來供報表使用，只是不進梯度
+    assert parts["fid_lpips"] > 0.0
 
 
-def test_alpha_lpips預設維持一():
-    """預設不得改動：E2–E27 的既有數字全部是在 alpha_lpips=1.0 下產生的。"""
+def test_加權保真項已被刪除而非設為零():
+    """`alpha_lpips` 與 `alpha_ssim` 必須不存在。
+
+    留一個預設為 0 的係數不等於刪除：它仍在簽名裡，下一個人會把它打開，
+    而打開之後沒有任何症狀——只是 τ 不再是綁定的約束。
+    """
     from src.defense.objective import LossConfig
 
-    assert LossConfig().alpha_lpips == 1.0
+    cfg = LossConfig()
+    for dead in ("alpha_lpips", "alpha_ssim"):
+        assert not hasattr(cfg, dead), f"{dead} 應已刪除，不是設為 0"
+        with pytest.raises(TypeError):
+            LossConfig(**{dead: 1.0})
 
 
 def test_色度偏壓約束預設開啟且門檻為零點六():
@@ -668,8 +760,8 @@ def test_連貫色偏被色度hinge擋下而隨機擾動不被擋():
     # 而生產的 τ_chroma=0.8 恰好落在 0.67 之上——若沿用預設，這個測試會通過，
     # 但通過的原因會與「τ 選在哪裡」糾纏在一起。測試要驗的是構造能分開
     # 兩者，不是某個特定門檻剛好區分得開；把 τ 設在兩者之間才驗得到那件事。
-    cfg = LossConfig(alpha_lpips=0.0, tau_lpips=0.9, tau_acut=0.9,
-                     beta_linf=0.0, gamma_psnr=0.0, alpha_ssim=0.0,
+    cfg = LossConfig(tau_lpips=0.9, tau_acut=0.9,
+                     beta_linf=0.0, gamma_psnr=0.0,
                      tau_chroma=2.0)
     obj = DefenseObjective(cfg, DEV)
     _, pn = obj.fidelity_term(noisy.to(DEV), base.to(DEV))

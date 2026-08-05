@@ -22,6 +22,23 @@ spec §5.1 要求淨化寫進訓練目標而非事後量測，這需要淨化在
 
 GrIDPure 需要額外的擴散模型推論，成本遠高於上列各項，列為後續工作，
 不在本階段的 𝒫 內。此為範圍限制，須在報告中載明。
+
+---
+
+## 主組（文獻共識的六個算子，`DESIGN_2026-08-05.md` §3.3）
+
+| 算子 | kind | 訓練 | 評測 | 出處與狀態 |
+|---|---|---|---|---|
+| JPEG | `jpeg` | 直通 | 真實 | DIA / DiffVax / PhotoGuard 系，q = 75、30 |
+| Crop & Resize | `crop_resize` | 可微 | 同 | DIA 給「10%」，其餘我方指定（見 `crop_resize`） |
+| Adverse Cleaner | `adverse_cleaner` | 直通 | 真實 | 上游 16 行原碼，需 opencv-contrib |
+| CNN 去噪 | `cnn_denoise_substitute` | — | — | **非 NTIRE 2023 冠軍**，冠軍不可得，為我方替代；缺權重 |
+| IMPRESS | `impress` | 直通 | 真實 | 官方 repo，PhotoGuard 情境參數；需 SDWrapper 與 LPIPS 後端 |
+| DiffPure | `diffpure` | 直通 | 真實 | 官方 repo，t=150；**缺檢查點，目前拋出** |
+| （對照）resize only | `resize_only` | 可微 | 同 | DiffPure 降升取樣的必要對照，見 `src/purify/diffpure.py` |
+
+每個算子的逐項出處查證見 `docs/_audit_purify.md`，裁決見
+`docs/SOURCE_AUDIT_2026-08-05.md` §9。凡標「我方指定」者不得寫成原論文設定。
 """
 
 import io
@@ -30,6 +47,11 @@ from typing import Dict, List
 
 import torch
 import torch.nn.functional as F
+
+from src.purify import diffpure as _diffpure
+from src.purify.adverse_cleaner import adverse_cleaner_real, has_guided_filter
+from src.purify.diffpure import diffpure_real, resize_only
+from src.purify.impress import impress_real
 
 
 def _gaussian_kernel1d(sigma: float, device, dtype) -> torch.Tensor:
@@ -121,34 +143,149 @@ def jpeg_proxy(x: torch.Tensor, quality: int) -> torch.Tensor:
     return straight_through(x, jpeg_real(x, quality))
 
 
-class Purifier:
-    """單一淨化設定。`forward` 供訓練、`evaluate` 供評測。"""
+# --------------------------------------------------------------- Crop & Resize
 
-    def __init__(self, kind: str, strength: float = 0.0, seed: int = None):
+# DIA 補充材料 §B.2：`We cropped 10% of each image and then resized it to match
+# the model's input requirements.` 只有「10%」有來源。
+CROP_FRACTION_DIA = 0.10
+# 以下三項 DIA 全文未指定，為我方指定（`SOURCE_AUDIT_2026-08-05.md` §9 第 5 項）：
+# 中心裁切、每邊各裁 10%、bicubic 升回原尺寸。
+CROP_MODE = "center"
+CROP_INTERPOLATION = "bicubic"
+CROP_ANTIALIAS = True
+
+
+def crop_resize(
+    x: torch.Tensor,
+    fraction: float = CROP_FRACTION_DIA,
+    mode: str = CROP_INTERPOLATION,
+    antialias: bool = CROP_ANTIALIAS,
+) -> torch.Tensor:
+    """Crop & Resize。原生可微（切片 + `F.interpolate`）。
+
+    來源切分（不得混為一談）：
+
+    - **來自 DIA**：裁切比例 10%，裁完縮放回模型輸入尺寸。
+    - **我方指定**：中心裁切（DIA 未寫中心或隨機）、10% 解讀為**每邊各裁邊長的
+      10%**（故保留中央 80% 邊長，DIA 未寫是邊長還是面積）、以 bicubic 升回原尺寸
+      並開 antialias（DIA 未寫插值方法）。
+
+    bicubic 會過衝出 `[0,1]`，故最後 clamp；此為值域維護，非演算法內容。
+    """
+    if x.dim() != 4:
+        raise ValueError(f"需要 (B,C,H,W) 張量，收到 {tuple(x.shape)}")
+    h, w = x.shape[-2:]
+    dh, dw = int(round(h * fraction)), int(round(w * fraction))
+    if 2 * dh >= h or 2 * dw >= w:
+        raise ValueError(f"裁切比例 {fraction} 對 {h}×{w} 的影像過大，裁完為空")
+    cropped = x[..., dh : h - dh, dw : w - dw]
+    return F.interpolate(cropped, size=(h, w), mode=mode, antialias=antialias).clamp(0, 1)
+
+
+# ------------------------------------------------------------- CNN 去噪（替代）
+
+# DiffVax 只引 NTIRE 2023 挑戰賽報告、未指名模型；冠軍 IPTV2（Team Apply AI）的
+# 程式碼與權重皆未公開（`_audit_purify.md` §4.3）。依 `SOURCE_AUDIT` §9 第 3 項，
+# 改用公開的強去噪器替代，暫定 Restormer。**不得稱為 NTIRE 2023 冠軍模型。**
+CNN_DENOISE_SUBSTITUTE_ARCH = "Restormer (swz30/Restormer)"
+CNN_DENOISE_SUBSTITUTE_CKPT = "gaussian_color_denoising_sigma50.pth"
+CNN_DENOISE_SIGMA = 50  # NTIRE 2023 挑戰賽的雜訊等級（[0,255] 尺度），非盲
+
+
+def has_cnn_denoise_weights(ckpt=None) -> bool:
+    """替代去噪器的架構與權重是否到位。目前恆為 False。"""
+    return False
+
+
+def cnn_denoise_substitute_real(x: torch.Tensor, ckpt=None) -> torch.Tensor:
+    """CNN 去噪（**我方替代，非 NTIRE 2023 冠軍模型**）。目前無法執行。
+
+    NTIRE 2023 冠軍為 Team Apply AI 的 IPTV2（29.96 dB），其程式碼與權重皆未公開；
+    挑戰賽官方 repo `ofsoundof/NTIRE2023_Dn50` 的 `model_zoo/` 只有主辦方 baseline
+    SGN，非任何參賽方法。DiffVax 也未指名其所用的去噪器。因此本項一律標註為
+    我方替代，不得聲稱重現 DiffVax 的該項評測。
+    """
+    raise NotImplementedError(
+        "CNN 去噪（我方替代，非 NTIRE 2023 冠軍）無法執行，缺以下項目：\n"
+        f"  1. 權重 {CNN_DENOISE_SUBSTITUTE_CKPT}（{CNN_DENOISE_SUBSTITUTE_ARCH} 的"
+        f" σ={CNN_DENOISE_SIGMA} 彩色高斯去噪模型，官方以 Google Drive 發布，"
+        "本機無此檔且環境無網路）。\n"
+        "  2. 對應的架構定義（Restormer 的 `basicsr`-style arch），環境未安裝 basicsr。\n"
+        "  另需主 session 裁決：替代對象確定為 Restormer 或改 NAFNet／SCUNet"
+        "（SOURCE_AUDIT §9 第 3 項標為『需你確認替代對象』）。"
+    )
+
+
+KINDS = (
+    # 既有（掃描組）
+    "identity",
+    "blur",
+    "noise",
+    "jpeg",
+    "quantize",
+    # 主組新增
+    "crop_resize",
+    "adverse_cleaner",
+    "cnn_denoise_substitute",
+    "impress",
+    "diffpure",
+    "resize_only",
+)
+
+# 原生可微（`forward` 走真實實作並提供真實梯度）的算子。其餘一律經
+# `straight_through`：前向為真實輸出、反向視為恆等。
+_DIFFERENTIABLE = ("identity", "blur", "noise", "crop_resize", "resize_only")
+
+
+class Purifier:
+    """單一淨化設定。`forward` 供訓練、`evaluate` 供評測。
+
+    `options` 供各算子的額外相依：
+
+    | kind | 用到的 option |
+    |---|---|
+    | `crop_resize` | 無（`strength` 即裁切比例，預設 DIA 的 0.10） |
+    | `adverse_cleaner` | 無（七個參數皆為上游固定值，`strength` 未使用） |
+    | `impress` | `sd`（SDWrapper，必要）、`backend`、`iters`、`lr`、`alpha`、`noise`、`eps` |
+    | `diffpure` | `ckpt`（`strength` 即 t，預設 150） |
+    | `cnn_denoise_substitute` | `ckpt` |
+    | `resize_only` | 無（降升取樣參數由 `src/purify/diffpure.py` 統一提供） |
+    """
+
+    def __init__(self, kind: str, strength: float = 0.0, seed: int = None, **options):
         self.kind = kind
         self.strength = strength
         self.seed = seed
-        if kind not in ("identity", "blur", "noise", "jpeg", "quantize"):
+        self.options = options
+        if kind not in KINDS:
             raise ValueError(f"未知的淨化算子 {kind!r}")
 
     @property
     def differentiable(self) -> bool:
-        """代理是否提供了真實梯度。jpeg 與 quantize 為直通估計，故為 False。"""
-        return self.kind in ("identity", "blur", "noise")
+        """代理是否提供了真實梯度。走直通估計者（jpeg、quantize、
+        adverse_cleaner、impress、diffpure）為 False。
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        if self.kind == "identity":
-            return x
-        if self.kind == "blur":
-            return gaussian_blur(x, self.strength)
-        if self.kind == "noise":
-            return gaussian_noise(x, self.strength, self.seed)
-        if self.kind == "jpeg":
-            return jpeg_proxy(x, int(self.strength))
-        return quantize_proxy(x, int(self.strength))
+        `cnn_denoise_substitute` 也是 False：替代對象未定案、權重未到位，
+        在能實際跑之前不宣稱其梯度性質。
+        """
+        return self.kind in _DIFFERENTIABLE
 
-    @torch.no_grad()
-    def evaluate(self, x: torch.Tensor) -> torch.Tensor:
+    @property
+    def available(self) -> bool:
+        """相依是否齊備。False 表示呼叫 `forward`／`evaluate` 會拋出。"""
+        if self.kind == "adverse_cleaner":
+            return has_guided_filter()
+        if self.kind == "impress":
+            return self.options.get("sd") is not None
+        if self.kind == "diffpure":
+            return _diffpure.has_diffpure_weights(self.options.get("ckpt"))
+        if self.kind == "cnn_denoise_substitute":
+            return has_cnn_denoise_weights(self.options.get("ckpt"))
+        return True
+
+    # ---- 真實實作（評測用），`forward` 與 `evaluate` 共用同一份 ----
+
+    def _real(self, x: torch.Tensor) -> torch.Tensor:
         if self.kind == "identity":
             return x
         if self.kind == "blur":
@@ -157,7 +294,32 @@ class Purifier:
             return gaussian_noise(x, self.strength, self.seed)
         if self.kind == "jpeg":
             return jpeg_real(x, int(self.strength))
-        return quantize_real(x, int(self.strength))
+        if self.kind == "quantize":
+            return quantize_real(x, int(self.strength))
+        if self.kind == "crop_resize":
+            frac = self.strength if self.strength else CROP_FRACTION_DIA
+            return crop_resize(x, frac)
+        if self.kind == "resize_only":
+            return resize_only(x)
+        if self.kind == "adverse_cleaner":
+            return adverse_cleaner_real(x)
+        if self.kind == "impress":
+            opts = dict(self.options)
+            sd = opts.pop("sd", None)
+            return impress_real(x, sd, seed=self.seed, **opts)
+        if self.kind == "diffpure":
+            t = int(self.strength) if self.strength else _diffpure.DIFFPURE_T_DEFAULT
+            return diffpure_real(x, t=t, ckpt=self.options.get("ckpt"))
+        return cnn_denoise_substitute_real(x, ckpt=self.options.get("ckpt"))
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        if self.differentiable:
+            return self._real(x)
+        return straight_through(x, self._real(x))
+
+    @torch.no_grad()
+    def evaluate(self, x: torch.Tensor) -> torch.Tensor:
+        return self._real(x)
 
     def proxy_gap(self, x: torch.Tensor) -> float:
         """代理與真實實作的前向最大絕對差，供報告引用。"""
@@ -181,11 +343,52 @@ def default_train_set() -> List[Purifier]:
     ]
 
 
-def eval_sweep() -> Dict[str, List[Purifier]]:
-    """E3 的淨化強度掃描。每個算子由弱到強，含強度 0 的對照。"""
+def main_set(sd=None, seed: int = 0) -> List[Purifier]:
+    """主組：文獻共識的六個淨化算子（`DESIGN_2026-08-05.md` §3.3 上半表）。
+
+    JPEG 取 q = 75 與 30（DIA 報 70／80／90，DiffVax 與 PhotoGuard 系另有其值，
+    本專案沿用既有的 75／30 兩點）。其餘五項各一個設定：
+
+    - Crop & Resize：DIA 的 10%（其餘細節我方指定，見 `crop_resize`）
+    - Adverse Cleaner：上游預設（DIA 未覆寫）
+    - CNN 去噪：我方替代，非 NTIRE 2023 冠軍
+    - IMPRESS：PhotoGuard 情境那組預設，需傳入 `sd`
+    - DiffPure：t = 150（ImageNet）
+
+    `resize_only` **不在主組六個之內**，它是 DiffPure 解析度處置的對照
+    （`SOURCE_AUDIT` §9 第 4 項），列在 `eval_sweep` 中一併量測。
+    """
+    return [
+        Purifier("jpeg", 75),
+        Purifier("jpeg", 30),
+        Purifier("crop_resize", CROP_FRACTION_DIA),
+        Purifier("adverse_cleaner"),
+        Purifier("cnn_denoise_substitute"),
+        Purifier("impress", sd=sd, seed=seed),
+        Purifier("diffpure", _diffpure.DIFFPURE_T_DEFAULT, seed=seed),
+    ]
+
+
+def eval_sweep(sd=None) -> Dict[str, List[Purifier]]:
+    """E3 的淨化強度掃描（既有掃描組）＋ 主組的五個新算子。
+
+    既有的四個鍵（blur／jpeg／noise／quantize）逐字未動：其中 jpeg 的 95…30
+    已涵蓋主組要的 75 與 30 兩點，不另設重複的鍵。
+
+    新增的鍵各只有一個設定（這些算子由來源固定參數，沒有強度軸可掃）。
+    `diffpure` 與 `cnn_denoise_substitute` 目前缺權重、`impress` 需 `sd`、
+    `adverse_cleaner` 需 opencv-contrib；呼叫端可先以 `Purifier.available`
+    篩選，未篩選時會在該算子上明確拋出而不是靜默略過。
+    """
     return {
         "blur": [Purifier("blur", s) for s in (0.0, 0.5, 1.0, 1.5, 2.0, 3.0)],
         "jpeg": [Purifier("jpeg", q) for q in (95, 85, 75, 60, 45, 30)],
         "noise": [Purifier("noise", s, seed=0) for s in (0.0, 0.01, 0.02, 0.04, 0.08)],
         "quantize": [Purifier("quantize", n) for n in (256, 64, 32, 16, 8)],
+        "crop_resize": [Purifier("crop_resize", CROP_FRACTION_DIA)],
+        "adverse_cleaner": [Purifier("adverse_cleaner")],
+        "cnn_denoise_substitute": [Purifier("cnn_denoise_substitute")],
+        "impress": [Purifier("impress", sd=sd, seed=0)],
+        "diffpure": [Purifier("diffpure", _diffpure.DIFFPURE_T_DEFAULT, seed=0)],
+        "resize_only": [Purifier("resize_only")],
     }

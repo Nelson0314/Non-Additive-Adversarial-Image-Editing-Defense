@@ -35,11 +35,138 @@ token 的質量」（Lo 直接取聚合反應的 L1）。兩者都保留——�
 SD v1.4 的 attn2 其 `group_norm` 與 `norm_cross` 均為 None（實測），但此處
 仍照 diffusers `AttnProcessor.__call__` 的順序處理該兩者，否則換模型時會
 算出不同的東西。
+
+層數與解析度隨模型而變，不得寫死
+
+2026-08-05 移植到 SDXL 時，本模組原先隱含在文字敘述中的兩個常數全部作廢：
+
+| 量 | SD v1.5（512²） | SDXL base（1024²） |
+|---|---|---|
+| `attn2` 層數 | 16 | **70**（down 4+20、mid 10、up 30+6） |
+| 有 cross-attention 的 latent 邊長 | 64、32、16、8 | **只有 64、32** |
+
+SDXL 的 latent 是 128²，而最細的那一層（`DownBlock2D`／`UpBlock2D`）沒有
+attention，故聚合圖的最高解析度是 latent 的一半，不是 latent 本身。任何
+「聚合圖與 latent 同尺寸」的假設在 SDXL 上都是錯的。
+
+這兩個量現在一律由 `cross_attention_layer_count` 與
+`cross_attention_resolutions` 從 UNet 的 config 推導，並由
+`CrossAttentionRecorder` 在掃描時比對；掃到的層數與推導值不符即拋出，
+不接受「安靜地少記幾層」。
 """
 
 from typing import List, Optional
 
 import torch
+
+
+_MISSING = object()
+
+
+def _cfg_get(config, key: str, default=_MISSING):
+    """讀取 diffusers 的 config。FrozenDict 與一般 dict／物件三種形態都要接。"""
+    if hasattr(config, "get"):
+        val = config.get(key, _MISSING)
+    else:
+        val = getattr(config, key, _MISSING)
+    if val is _MISSING:
+        if default is _MISSING:
+            raise KeyError(f"UNet config 缺少必要欄位 {key!r}")
+        return default
+    return val
+
+
+def _as_per_block(value, n: int, name: str) -> List[int]:
+    if isinstance(value, int):
+        return [value] * n
+    seq = list(value)
+    if len(seq) != n:
+        raise ValueError(
+            f"{name} 的長度 {len(seq)} 與 down_block_types 的 {n} 不符"
+        )
+    return seq
+
+
+def cross_attention_layer_count(config) -> dict:
+    """由 UNet 的 config 推導 `attn2` 的層數，不需要實例化模型。
+
+    每個 `CrossAttn*Block2D` 內含若干個 `Transformer2DModel`，個數等於該
+    block 的 resnet 數（down 為 `layers_per_block`，up 為 `layers_per_block+1`，
+    因為 up 多接一路 skip）；每個 `Transformer2DModel` 內含
+    `transformer_layers_per_block` 個 `BasicTransformerBlock`，每個
+    BasicTransformerBlock 恰有一個 `attn2`。mid block 只有一個
+    `Transformer2DModel`，其層數取 `transformer_layers_per_block` 的最後一項。
+
+    驗算：
+
+    - SD v1.5：down 3×2×1 = 6、mid 1、up 3×3×1 = 9，合計 **16**
+    - SDXL base：down 2×2 + 2×10 = 24、mid 10、up 3×10 + 3×2 = 36，合計 **70**
+
+    回傳 `{"down", "mid", "up", "total"}`。
+    """
+    down_types = list(_cfg_get(config, "down_block_types"))
+    up_types = list(_cfg_get(config, "up_block_types"))
+    mid_type = _cfg_get(config, "mid_block_type", "UNetMidBlock2DCrossAttn")
+    n = len(down_types)
+    if len(up_types) != n:
+        raise ValueError(
+            f"up_block_types 有 {len(up_types)} 個、down_block_types 有 {n} 個，"
+            "UNet 的下行與上行必須等長"
+        )
+    tl = _as_per_block(
+        _cfg_get(config, "transformer_layers_per_block", 1), n,
+        "transformer_layers_per_block",
+    )
+    lpb = _as_per_block(
+        _cfg_get(config, "layers_per_block", 2), n, "layers_per_block"
+    )
+
+    down = sum(lpb[i] * tl[i] for i, t in enumerate(down_types) if "CrossAttn" in t)
+    # up_block_types 的順序與 down 相反，故逐項對應時要把 per-block 的清單反過來
+    rev_tl, rev_lpb = tl[::-1], lpb[::-1]
+    up = sum(
+        (rev_lpb[i] + 1) * rev_tl[i]
+        for i, t in enumerate(up_types) if "CrossAttn" in t
+    )
+
+    if mid_type in (None, "UNetMidBlock2D"):
+        mid = 0
+    elif mid_type == "UNetMidBlock2DCrossAttn":
+        mid = tl[-1]
+    else:
+        raise ValueError(
+            f"未知的 mid_block_type {mid_type!r}。安靜地當成 0 或 1 會讓層數"
+            "核對失去意義，必須先確認該 block 內 attn2 的實際個數再加進來"
+        )
+    return {"down": down, "mid": mid, "up": up, "total": down + mid + up}
+
+
+def cross_attention_resolutions(config, latent_size: int) -> List[int]:
+    """有 cross-attention 的那些層，其 latent 空間邊長（由大到小）。
+
+    第 i 個 down block 在 `latent_size / 2**i` 上運算（下採樣發生在該 block
+    的 attention 之後），mid block 在最深的一層，第 j 個 up block 在
+    `latent_size / 2**(n-1-j)`。
+
+    驗算：SD v1.5、latent 64 → [64, 32, 16, 8]；SDXL base、latent 128 →
+    **[64, 32]**——最細的 128² 那一層是 `DownBlock2D`／`UpBlock2D`，沒有
+    attention。這正是「聚合圖不等於 latent 尺寸」的來源。
+    """
+    down_types = list(_cfg_get(config, "down_block_types"))
+    up_types = list(_cfg_get(config, "up_block_types"))
+    mid_type = _cfg_get(config, "mid_block_type", "UNetMidBlock2DCrossAttn")
+    n = len(down_types)
+
+    sides = set()
+    for i, t in enumerate(down_types):
+        if "CrossAttn" in t:
+            sides.add(latent_size // (2 ** i))
+    if mid_type not in (None, "UNetMidBlock2D"):
+        sides.add(latent_size // (2 ** (n - 1)))
+    for j, t in enumerate(up_types):
+        if "CrossAttn" in t:
+            sides.add(latent_size // (2 ** (n - 1 - j)))
+    return sorted(sides, reverse=True)
 
 
 class CrossAttentionRecorder:
@@ -60,7 +187,7 @@ class CrossAttentionRecorder:
     聽哪個 token」，head 之間的分工不是本研究要區分的對象。
     """
 
-    def __init__(self, unet, average_heads: bool = True):
+    def __init__(self, unet, average_heads: bool = True, verify_count: bool = True):
         self.unet = unet
         self.average_heads = average_heads
         self.maps: List[torch.Tensor] = []
@@ -73,6 +200,25 @@ class CrossAttentionRecorder:
                 "在 UNet 中找不到任何 attn2 層；此模型可能不是 SD 架構，"
                 "cross-attention 目標無法套用"
             )
+        # 掃到的層數必須等於由 config 推導的層數。名稱比對（`endswith("attn2")`）
+        # 是一個字串規則，模型換代時可能多掃到或漏掉；而漏掉的症狀只是
+        # 「目標值偏小」，沒有任何錯誤訊息。SD v1.5 應為 16、SDXL 應為 70。
+        self.expected = None
+        cfg = getattr(unet, "config", None)
+        if verify_count and cfg is not None:
+            self.expected = cross_attention_layer_count(cfg)
+            if self.expected["total"] != len(self._layers):
+                raise RuntimeError(
+                    f"掃到 {len(self._layers)} 個 attn2 層，但由 UNet config "
+                    f"推導應為 {self.expected['total']} 個"
+                    f"（down {self.expected['down']}、mid {self.expected['mid']}、"
+                    f"up {self.expected['up']}）。層數不符表示擷取未完整覆蓋，"
+                    "算出的注意力目標不可用"
+                )
+
+    @property
+    def n_layers(self) -> int:
+        return len(self._layers)
 
     def _make_hook(self):
         def hook(module, args, kwargs):
@@ -220,7 +366,8 @@ def attention_content_suppression(
 
 
 def aggregate_token_attention(
-    maps: List[torch.Tensor], span: tuple, side: Optional[int] = None
+    maps: List[torch.Tensor], span: tuple, side: Optional[int] = None,
+    reduce: str = "sum",
 ) -> torch.Tensor:
     """Lo et al. (CVPR 2024) 式 (3) 的注意力聚合：跨層上採樣後逐像素相加。
 
@@ -243,7 +390,21 @@ def aggregate_token_attention(
        全卷積性質讓中間座標局部對應到初始尺寸特徵圖的鄰域。
     4. 全部層相加（不是平均）。論文式 (3) 是 Σ，故值域是 [0, L] 而非 [0, 1]。
 
-    `side` 為 None 時取各層中最大的邊長，即最高解析度那一層的尺寸。
+    `side` 為 None 時取各層中最大的邊長，即最高解析度那一層的尺寸。**該值
+    由實際掃到的層推導，不是 latent 的邊長**：SDXL 在 1024² 下 latent 是
+    128²，但最細的一層沒有 attention，故聚合圖是 64²。
+
+    `reduce` 的兩種取值：
+
+    - `"sum"`（預設）＝ 論文式 (3) 的 Σ。值域上界 L 隨模型而變（SD v1.5 的
+      16 對 SDXL 的 70，相差 4.4 倍），故**同一個 `reduce="sum"` 的數值在
+      兩個模型之間不可比**。`attention_region_mask` 以峰值正規化，遮罩不受
+      影響；`masked_attention_l1` 的絕對值則會整體放大 4.4 倍。
+    - `"mean"` ＝ 除以實際層數 L，值域回到 [0, 1]，跨模型可比。要在報表中
+      並列 SD v1.5 與 SDXL 的注意力強度時用這一個。
+
+    兩者只差一個常數因子，梯度方向相同；Lo 的 Algorithm 1 以 `sign(grad)`
+    更新，對整體縮放不敏感，故切換 `reduce` 不改變該基準的最佳化軌跡。
     """
     if span is None or span[1] <= span[0]:
         raise ValueError(
@@ -252,6 +413,10 @@ def aggregate_token_attention(
         )
     if not maps:
         raise ValueError("注意力圖清單為空；CrossAttentionRecorder 未記錄到任何層")
+    if reduce not in ("sum", "mean"):
+        raise ValueError(
+            f"reduce 只能是 'sum'（論文式 3）或 'mean'（除以實際層數），收到 {reduce!r}"
+        )
 
     import math
 
@@ -274,7 +439,9 @@ def aggregate_token_attention(
         )
         for p in planes
     ]
-    return torch.stack(up).sum(dim=0).squeeze(1)       # (B, side, side)
+    stacked = torch.stack(up)
+    agg = stacked.mean(dim=0) if reduce == "mean" else stacked.sum(dim=0)
+    return agg.squeeze(1)                             # (B, side, side)
 
 
 def attention_region_mask(att_ref: torch.Tensor, tau: float = 0.5) -> torch.Tensor:
@@ -286,9 +453,15 @@ def attention_region_mask(att_ref: torch.Tensor, tau: float = 0.5) -> torch.Tens
 
     論文沒有給出 τ 的數值。本實作把 `att_ref` 先除以自身的最大值再比較，
     即 τ 作用在正規化後的 [0, 1] 尺度上。**這是一個有記錄的偏離**，理由是
-    式 (3) 的 Att 是 L 層相加，值域上界隨 UNet 的層數而變（SD v1.4 的
-    attn2 有 16 層），絕對門檻會隨模型換代而失去意義，也無法跨影像比較。
+    式 (3) 的 Att 是 L 層相加，值域上界隨 UNet 的層數而變——SD v1.5 的
+    attn2 有 16 層、SDXL base 有 70 層，相差 4.4 倍——絕對門檻會隨模型換代
+    而失去意義，也無法跨影像比較。
     正規化後 τ = 0.5 的意思是「注意力達到該影像峰值一半以上的區域」。
+
+    這個正規化正是本模組**唯一不需要重新校準**的常數：它由資料自身推導，
+    移植到 SDXL 後 τ 的語意逐字不變。相對地，`masked_attention_l1` 的絕對值
+    與 `optimize.py` 中 `attn_div` 的平台停止門檻（1e-5，於 SD v1.4 上實測）
+    都綁在舊層數上，必須在段 0 重新量測。
 
     以峰值正規化帶來一個結構性保證：峰值那一格的正規化值恆為 1，而 τ < 1，
     故**遮罩永遠至少含有峰值，不可能為空**。下方的空遮罩檢查因此在目前的

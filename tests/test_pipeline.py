@@ -387,11 +387,59 @@ def test_const排程每步相同(sd):
 # ------------------------------------------------------- 階段一：保真對齊
 
 
-def _cfg(**kw):
-    base = dict(steps=1, k_inv=2, n_edit=2, n_eot=1, lr=0.01,
-                align_steps=2, align_lr=0.05, log_every=100, seed=SEED)
+# 測試用的校準 context 與學習率鍵。
+#
+# `optimize` 沒有「沒給校準表就用預設」這條路（`resolve_lr` 直接拋出），
+# 故測試必須自備一張表。這不是測試的負擔而是設計要保護的性質：
+# 忘記傳校準表的症狀若是「跑完了、數字看起來正常」，那就是先驗實驗
+# 重複十次的那個缺陷。
+TEST_CTX = {
+    "model": "tiny-sd", "resolution": 64, "guidance": 7.5,
+    "steps": 3, "gpu": "test", "precision": "fp32",
+}
+TEST_LR_KEY = "lr.test"
+TEST_ALIGN_LR_KEY = "lr.test_align"
+
+
+def _calib(lr: float = 0.01, key: str = TEST_LR_KEY, align_lr: float = 0.05):
+    from src.utils.calibration import Calibration
+
+    c = Calibration()
+    c.put(key, lr, TEST_CTX, note="tests/test_pipeline.py 的固定值")
+    # 階段一（保真對齊）的學習率同樣走校準表，不共用主階段的值：
+    # 兩者優化的是不同的目標，量綱不同。
+    c.put(TEST_ALIGN_LR_KEY, align_lr, TEST_CTX, note="階段一保真對齊")
+    return c
+
+
+def _cfg(steps: int = 1, lr: float = 0.01, group: str = "default",
+         lr_key: str = TEST_LR_KEY, **kw):
+    """舊介面的 `steps`／`lr` 在此轉為單一 `StageSpec`。
+
+    2026-08-05 的改動：`OptimConfig` 由「一組步數 + 一個學習率」改為
+    `stages: Tuple[StageSpec, ...]`，因為 APA 移植需要分階段（階段一只更新
+    LoRA、階段二只更新 latent），而學習率改由校準表取得。
+    本檔的既有測試都是單階段，故在此包一層，測試本體不必逐一改寫。
+    """
+    from src.defense.optimize import StageSpec
+
+    base = dict(
+        stages=(StageSpec(group=group, lr_key=lr_key, max_steps=steps),),
+        k_inv=2, n_edit=2, n_eot=1,
+        align_steps=2, align_lr_key=TEST_ALIGN_LR_KEY, log_every=100, seed=SEED,
+    )
+    # 舊介面的 `align_lr` 是數值，新介面是校準鍵。呼叫端若仍傳數值，
+    # 在此轉成鍵並把該值寫進測試用的校準表——測試不該因為介面搬動而改寫。
+    align_lr = kw.pop("align_lr", None)
     base.update(kw)
-    return OptimConfig(**base)
+    cfg = OptimConfig(**base)
+    cfg._test_align_lr = align_lr      # 由 _calib_for 讀取，見下
+    return cfg
+
+
+def _calib_for(cfg, lr: float = 0.01):
+    """依 `_cfg` 產生的設定組出對應的校準表。"""
+    return _calib(lr, align_lr=getattr(cfg, "_test_align_lr", None) or 0.05)
 
 
 def _latent_module(sd, steps):
@@ -414,7 +462,8 @@ def test_階段一會改變phi且記錄每一步(sd, x01):
     gen = DefenseGenerator(sd, mod, k_inv=cfg.k_inv)
     before = mod.tensor.V.detach().clone()
 
-    x_align, hist = align(sd, mod, x01, cfg, LossConfig(), gen)
+    x_align, hist = align(sd, mod, x01, cfg, LossConfig(), gen,
+                          _calib_for(cfg), TEST_CTX)
 
     assert len(hist) == cfg.align_steps, "每一步都必須留下記錄"
     assert all("fid_lpips" in h and "fid_psnr_total" in h for h in hist), \
@@ -432,7 +481,9 @@ def test_階段一後保真基準改為對齊結果(sd, x01):
     """
     cfg = _cfg()
     mod = _latent_module(sd, cfg.k_inv)
-    res = optimize(sd, mod, x01, cfg, LossConfig(), default_train_set())
+    res = optimize(sd, mod, x01, cfg, LossConfig(), default_train_set(),
+                   calib=_calib_for(cfg), calib_context=TEST_CTX,
+                   y_target=torch.rand(1, 3, SIZE, SIZE, device=DEV))
 
     assert res.x_base0 is not None and res.x_base is not None
     assert len(res.align_history) == cfg.align_steps
@@ -448,7 +499,9 @@ def test_無重建誤差時略過階段一(sd, x01):
     """
     cfg = _cfg()
     mod = PixelResidual(size=SIZE, max_rank=4, const_rank=4, seed=SEED).to(DEV)
-    res = optimize(sd, mod, x01, cfg, LossConfig(), default_train_set())
+    res = optimize(sd, mod, x01, cfg, LossConfig(), default_train_set(),
+                   calib=_calib_for(cfg), calib_context=TEST_CTX,
+                   y_target=torch.rand(1, 3, SIZE, SIZE, device=DEV))
 
     assert torch.equal(res.x_base0, x01), "site P 的 φ=0 輸出必須等於原圖"
     assert res.align_history == [], "沒有重建誤差時階段一必須被略過"
@@ -712,8 +765,9 @@ def test_編碼器目標不走去噪鏈且梯度抵達phi(sd, x01):
     sd.sdedit = counting
     try:
         mod = PixelResidual(size=SIZE, max_rank=4, const_rank=4, seed=SEED).to(DEV)
-        cfg = OptimConfig(steps=2, k_inv=2, n_edit=2, lr=0.05, log_every=100)
-        res = optimize_encoder(sd, mod, x01, cfg, LossConfig(), default_train_set())
+        cfg = _cfg(steps=2, k_inv=2, n_edit=2)
+        res = optimize_encoder(sd, mod, x01, cfg, LossConfig(), default_train_set(),
+                               calib=_calib(0.05), calib_context=TEST_CTX)
     finally:
         sd.sdedit = orig
 
@@ -735,9 +789,10 @@ def test_編碼器目標的損失朝目標下降(sd, x01):
        本身可不可優化。
     """
     mod = PixelResidual(size=SIZE, max_rank=4, const_rank=4, seed=SEED).to(DEV)
-    cfg = OptimConfig(steps=4, k_inv=2, lr=0.1, log_every=100, purify_mode="all")
+    cfg = _cfg(steps=4, k_inv=2, purify_mode="all")
     res = optimize_encoder(sd, mod, x01, cfg, LossConfig(lam_fid=0.0),
-                           default_train_set())
+                           default_train_set(),
+                           calib=_calib(0.1), calib_context=TEST_CTX)
     l = [h["L_def"] for h in res.history]
     assert l[-1] < l[0], f"編碼器損失未下降：{l[0]:.5f} -> {l[-1]:.5f}"
 
@@ -745,10 +800,10 @@ def test_編碼器目標的損失朝目標下降(sd, x01):
 def test_有目標模式需要y_target(sd, x01):
     """缺少目標時必須在此報錯，不得靜默退回無目標。"""
     mod = PixelResidual(size=SIZE, max_rank=4, const_rank=4, seed=SEED).to(DEV)
-    cfg = OptimConfig(steps=1, k_inv=2, n_edit=2, log_every=100)
+    cfg = _cfg(steps=1, k_inv=2, n_edit=2)
     with pytest.raises(ValueError, match="y_target"):
-        optimize(sd, mod, x01, cfg, LossConfig(defense_mode="targeted"),
-                 default_train_set())
+        optimize(sd, mod, x01, cfg, LossConfig(defense_mode="targeted_output"),
+                 default_train_set(), calib=_calib(), calib_context=TEST_CTX)
 
 
 def test_CFG_權重為一時與單分支逐位元相同(sd, x01):
@@ -816,13 +871,14 @@ def test_有目標模式端到端可訓練(sd, x01):
     """
     mod = PixelResidual(size=SIZE, max_rank=4, const_rank=4, seed=SEED).to(DEV)
     before = mod.tensor.V.detach().clone()
-    cfg = OptimConfig(steps=3, k_inv=2, n_edit=2, lr=0.1, log_every=100)
+    cfg = _cfg(steps=3, k_inv=2, n_edit=2)
     y_target = torch.rand(1, 3, SIZE, SIZE, device=DEV)
 
-    res = optimize(sd, mod, x01, cfg, LossConfig(defense_mode="targeted"),
-                   default_train_set()[:1], y_target=y_target)
+    res = optimize(sd, mod, x01, cfg, LossConfig(defense_mode="targeted_output"),
+                   default_train_set()[:1], y_target=y_target,
+                   calib=_calib(0.1), calib_context=TEST_CTX)
 
-    assert res.history[0]["defense_mode"] == "targeted"
+    assert res.history[0]["defense_mode"] == "targeted_output"
     # 有目標的 L_def 是一個距離而非 hinge，故不會在起點就是 0——那正是它
     # 比無目標穩的原因：損失地形有盆地，不是只有一個「往外走」的方向。
     assert res.history[0]["L_def"] > 0.0
@@ -843,7 +899,8 @@ def test_階段一還原軌跡最佳的phi而非最後一步(sd, x01):
     cfg = _cfg(align_steps=8, align_lr=5.0)   # 刻意過大，逼出發散
     mod = _latent_module(sd, cfg.k_inv)
     gen = DefenseGenerator(sd, mod, k_inv=cfg.k_inv)
-    _, hist = align(sd, mod, x01, cfg, LossConfig(), gen)
+    _, hist = align(sd, mod, x01, cfg, LossConfig(), gen,
+                    _calib_for(cfg), TEST_CTX)
 
     losses = [h["align_loss"] for h in hist]
     best_step = hist[0]["align_best_step"]
@@ -1210,40 +1267,54 @@ def test_內容質量抑制缺少span時拒絕(sd):
         attention_content_suppression(maps, (3, 3))
 
 
-def test_suppress模式在phi等於零時梯度非零(sd, x01):
-    """這是 `test_divergence模式在phi等於零時無梯度` 的對照。
+def test_targeted_attn在phi等於零時梯度非零(sd, x01):
+    """這是 `test_散度形式在phi等於零時梯度為零` 的對照。
 
-    divergence 從 φ=0 起不了步，原因是 KL 在 φ=0 恰為最小值。suppress 換成一個
-    最佳點不在 φ=0 的量（內容 token 的注意力質量），故起步梯度一般非零。
+    2026-08-05 之前此處有三個 `attn_mode`（divergence／suppress／entropy）。
+    divergence 從 φ=0 起不了步，原因是 KL 在 φ=0 恰為最小值——與
+    `LOGIC_CHECK` A1 是同一個缺陷。三個模式已整批移除，改為單一的
+    targeted 形式：把注意力質量導向 shared token（空 prompt 的 CLIP 編碼）。
+    目標點不在 φ=0，故起步梯度一般非零。
+
     兩個測試必須並存：一個釘住缺陷、一個釘住修法確實有效。
     """
-    from src.defense.optimize import optimize_crossattn
+    from src.defense.optimize import optimize
 
-    cfg = _cfg(steps=2, attn_timesteps=2)
+    # shared_mass 的 stop_tol 尚未校準（見 optimize.MONITOR_TOL 的說明），
+    # 測試明寫一個值；正式實驗必須由段 0 量出來。
+    cfg = _cfg(steps=2, attn_timesteps=2, stop_tol=1e-5)
     cfg.unet_ckpt = False
-    cfg.attn_mode = "suppress"
     mod = PixelResidual(size=SIZE, max_rank=4, const_rank=4).to(DEV)
     before = mod.tensor.V.detach().clone()
-    res = optimize_crossattn(sd, mod, x01, cfg, LossConfig(),
-                             default_train_set()[:1])
+    res = optimize(sd, mod, x01, cfg, LossConfig(defense_mode="targeted_attn"),
+                             default_train_set()[:1],
+                   calib=_calib_for(cfg), calib_context=TEST_CTX)
 
-    assert res.history[0]["grad_norm"] > 0, "suppress 在 φ=0 必須有梯度"
-    assert 0.0 <= res.history[0]["L_def"] * -1.0 <= 1.0, "抑制量的值域為 [0,1]"
+    assert res.history[0]["grad_norm"] > 0, "targeted_attn 在 φ=0 必須有梯度"
+    assert "shared_mass" in res.history[0], "監看量必須被記錄"
     assert not torch.equal(before, mod.tensor.V), "φ 未被更新"
 
 
-def test_suppress模式在空prompt時提前拒絕(sd, x01):
-    """span 為空時 suppress 會退化成常數，必須在跑之前就拒絕。"""
-    from src.defense.optimize import optimize_crossattn
+def test_targeted_attn不需要攻擊方的prompt(sd, x01):
+    """舊的 suppress 模式需要 `prompt_edit` 的 span，span 為空會退化成常數，
+    故當時必須提前拒絕。
 
-    cfg = _cfg(steps=1, attn_timesteps=1)
+    targeted 形式沒有這個前提：它導向的是 shared token（`[BOS][EOS][PAD]×75`
+    的嵌入），那些 token 在攻擊方的**任何** prompt 中都存在且語意無資訊。
+    這正是 `DESIGN` §2.1 的 prompt-free 設計——防禦方不知道攻擊方的 prompt，
+    而用自動 caption 代替會引入一個無法量測的落差。
+
+    故本測試由「空 prompt 要拒絕」反轉為「空 prompt 必須可以跑」。
+    """
+    from src.defense.optimize import optimize
+
+    cfg = _cfg(steps=1, attn_timesteps=1, stop_tol=1e-5, prompt_def="")
     cfg.unet_ckpt = False
-    cfg.attn_mode = "suppress"
-    cfg.prompt_edit = ""
     mod = PixelResidual(size=SIZE, max_rank=4, const_rank=4).to(DEV)
-    with pytest.raises(ValueError, match="suppress"):
-        optimize_crossattn(sd, mod, x01, cfg, LossConfig(),
-                           default_train_set()[:1])
+    res = optimize(sd, mod, x01, cfg, LossConfig(defense_mode="targeted_attn"),
+                   default_train_set()[:1],
+                   calib=_calib_for(cfg), calib_context=TEST_CTX)
+    assert res.history[0]["grad_norm"] > 0.0, "空 prompt 下仍須有梯度"
 
 
 def test_cross_attention目標的梯度抵達phi(sd, x01):
@@ -1259,71 +1330,61 @@ def test_cross_attention目標的梯度抵達phi(sd, x01):
     之後殘渣消失，測試才暴露出來。要驗的是整條路徑可微，故改用一個
     在 φ=0 有真實梯度的模式。
     """
-    from src.defense.optimize import optimize_crossattn
+    from src.defense.optimize import optimize
 
-    cfg = _cfg(steps=2, attn_timesteps=2)
+    # shared_mass 的 stop_tol 尚未校準（見 optimize.MONITOR_TOL 的說明），
+    # 測試明寫一個值；正式實驗必須由段 0 量出來。
+    cfg = _cfg(steps=2, attn_timesteps=2, stop_tol=1e-5)
     cfg.unet_ckpt = False
     cfg.attn_mode = "entropy"
     mod = PixelResidual(size=SIZE, max_rank=4, const_rank=4).to(DEV)
-    res = optimize_crossattn(sd, mod, x01, cfg, LossConfig(),
-                             default_train_set()[:1])
+    res = optimize(sd, mod, x01, cfg, LossConfig(defense_mode="targeted_attn"),
+                             default_train_set()[:1],
+                   calib=_calib_for(cfg), calib_context=TEST_CTX)
 
     assert len(res.history) == 2
     assert res.history[-1]["grad_norm"] > 0, "梯度未抵達 φ"
     assert res.x_def is not None
 
 
-def test_divergence模式在phi等於零時無梯度(sd, x01):
-    """釘住一個已知缺陷，不是釘住正確行為。
+def test_散度形式在phi等於零時梯度為零(sd, x01):
+    """記錄一個已被移除的設計，以及移除它的理由。
 
-    `attn_mode="divergence"` 量的是當前注意力圖與未防禦參照的 KL 散度。
-    φ=0 時兩者逐元素相同，KL = 0；而 0 是 KL 的最小值，故其梯度也精確為 0。
-    最佳化從 φ=0 出發永遠離不開起點——實測兩步的 grad_norm 皆為 0.000e+00，
-    L_def 皆為 −0.000e+00。
+    2026-08-05 之前 `attn_mode="divergence"` 是預設模式，量的是當前注意力圖
+    與**未防禦參照**的 KL 散度。φ=0 時兩者逐元素相同，KL = 0；而 0 是 KL 的
+    最小值，故其梯度也精確為 0。最佳化從 φ=0 出發永遠離不開起點——實測兩步的
+    grad_norm 皆為 0.000e+00，L_def 皆為 −0.000e+00。
 
-    這是 `divergence` 的預設模式，且該目標至今一次都沒在 GPU 上跑過
-    （見 docs/NEXT_SESSION.md §5）。若直接拿去跑，它會不會產生任何更新。
+    這與 `LOGIC_CHECK` A1（untargeted hinge 的起點零梯度）是**同一個缺陷的
+    兩個面貌**：任何「離未防禦參照多遠」的形式，在 φ=0 都取到最小值。
 
-    此測試存在的目的是讓該缺陷有一個具名的位置：修好之後這個測試會失敗，
-    屆時應改成斷言梯度非零，而不是刪掉它。
+    該模式已整批移除，改為 targeted 的 shared token 導向
+    （`test_targeted_attn在phi等於零時梯度非零`）。本測試改為直接量底層函式，
+    使「為什麼不能用散度」這件事在程式中仍有一個具名的位置。
     """
-    from src.defense.optimize import optimize_crossattn
+    from src.models.attention import attention_divergence
 
-    cfg = _cfg(steps=2, attn_timesteps=2)
+    ref = [torch.full((1, 4, 16), 1.0 / 16, device=DEV)]
+    cur = [t.clone().requires_grad_(True) for t in ref]
+    d = attention_divergence(cur, ref)
+
+    assert float(d) == pytest.approx(0.0, abs=1e-7), "φ=0 時與參照的散度必為 0"
+    d.backward()
+    assert float(cur[0].grad.abs().max()) == pytest.approx(0.0, abs=1e-7), (
+        "散度在其最小值處的梯度必為零——這正是它不能當防禦目標的原因")
+
+
+def test_未知的defense_mode明確報錯(sd, x01):
+    """靜默退回某個預設模式會讓「跑的是哪個目標」不可考。"""
+    from src.defense.optimize import optimize
+
+    cfg = _cfg(steps=1, attn_timesteps=1, stop_tol=1e-5)
     cfg.unet_ckpt = False
-    cfg.attn_mode = "divergence"
     mod = PixelResidual(size=SIZE, max_rank=4, const_rank=4).to(DEV)
-    res = optimize_crossattn(sd, mod, x01, cfg, LossConfig(),
-                             default_train_set()[:1])
-
-    assert res.history[0]["L_def"] == 0.0, "φ=0 時與參照的散度必為 0"
-    assert res.history[0]["grad_norm"] == 0.0, (
-        "散度在最小值處的梯度為零，這是 divergence 模式無法從 φ=0 起步的原因")
-
-
-def test_cross_attention目標下phi確實被改動(sd, x01):
-    """同上，改用 entropy 模式：divergence 在 φ=0 沒有梯度，φ 不會被更新。"""
-    from src.defense.optimize import optimize_crossattn
-
-    cfg = _cfg(steps=2, attn_timesteps=2)
-    cfg.unet_ckpt = False
-    cfg.attn_mode = "entropy"
-    mod = PixelResidual(size=SIZE, max_rank=4, const_rank=4).to(DEV)
-    before = mod.tensor.V.detach().clone()
-    optimize_crossattn(sd, mod, x01, cfg, LossConfig(), default_train_set()[:1])
-    assert not torch.equal(before, mod.tensor.V), "φ 未被更新"
-
-
-def test_未知的attn_mode明確報錯(sd, x01):
-    from src.defense.optimize import optimize_crossattn
-
-    cfg = _cfg(steps=1, attn_timesteps=1)
-    cfg.unet_ckpt = False
-    cfg.attn_mode = "nonsense"
-    mod = PixelResidual(size=SIZE, max_rank=4, const_rank=4).to(DEV)
-    with pytest.raises(ValueError):
-        optimize_crossattn(sd, mod, x01, cfg, LossConfig(),
-                           default_train_set()[:1])
+    with pytest.raises((ValueError, KeyError)):
+        optimize(sd, mod, x01, cfg, LossConfig(defense_mode="nonsense"),
+                 default_train_set()[:1],
+                 calib=_calib_for(cfg), calib_context=TEST_CTX)
 
 
 def test_注意力擷取與checkpoint不相容須以錯誤呈現(sd, x01):
@@ -1492,18 +1553,23 @@ def test_crossattn在平台時停止且步數少於上限(sd, x01):
     1e-4 量級，預設 τ=0.05 下沒有任何 hinge 會啟動，準則會正確地一直不停。
     把 τ 設為 0 使 hinge 從防禦一有動作就啟動，被測的仍是同一條路徑。
     """
-    from src.defense.optimize import optimize_crossattn
+    from src.defense.optimize import optimize
 
     module = PixelResidual(size=SIZE, channels=3, max_rank=2,
                            const_rank=2, seed=SEED).to(DEV)
-    cfg = OptimConfig(steps=30, lr=0.05, n_edit=2, attn_timesteps=2,
+    cfg = _cfg(steps=30, lr=0.05, n_edit=2, attn_timesteps=2,
                       stop_on_plateau=True, stop_patience=4,
                       stop_tol=1e9, stop_min_steps=4,
-                      prompt_edit="a wrecked car")
-    res = optimize_crossattn(sd, module, x01, cfg, LossConfig(tau_lpips=0.0),
-                             default_train_set()[:1])
-    assert res.steps_done < cfg.steps
+                      prompt_def="a wrecked car")
+    res = optimize(sd, module, x01, cfg,
+                   LossConfig(defense_mode="targeted_attn", tau_lpips=0.0),
+                             default_train_set()[:1],
+                   calib=_calib_for(cfg), calib_context=TEST_CTX)
+    # `cfg.steps` 已由 `stages` 取代；上限取該階段的 max_steps。
+    assert res.steps_done < cfg.stages[0].max_steps
     assert res.steps_done == len(res.history)
     assert res.stop_reason
-    assert "attn_div" in res.stop_reason
+    # 監看量隨 targeted 改寫由 attn_div 換成 shared_mass：前者量的是「離未防禦
+    # 參照多遠」，在 φ=0 取最小值故不可用（見 test_散度形式在phi等於零時梯度為零）。
+    assert "shared_mass" in res.stop_reason
     assert res.x_def is not None

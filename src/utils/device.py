@@ -45,6 +45,53 @@ def get_device() -> torch.device:
     return torch.device("cpu")
 
 
+def bf16_supported(device=None) -> bool:
+    """目前裝置是否支援 bf16。
+
+    V100（sm_70）沒有 bf16 硬體支援，`torch.cuda.is_bf16_supported()` 回傳
+    False；RTX 5090（sm_120）回傳 True。CPU 上 torch 可以模擬 bf16 運算，
+    故回傳 True 使結構性測試能在無 GPU 環境執行。
+    """
+    if device is not None and torch.device(device).type == "cpu":
+        return True
+    if not torch.cuda.is_available():
+        return True
+    return bool(torch.cuda.is_bf16_supported())
+
+
+def resolve_precision(compute_dtype: torch.dtype) -> "tuple[torch.dtype, torch.dtype]":
+    """由指定的計算精度推出 (骨幹 dtype, VAE dtype)。
+
+    回傳的第一項給 UNet 與兩個 text encoder，第二項給 VAE。**這是一條規則，
+    不是註解**：呼叫端不得自行決定 VAE 的 dtype，`SDWrapper` 一律經此函式取得。
+
+    | compute_dtype | 骨幹 | VAE | 理由 |
+    |---|---|---|---|
+    | fp32 | fp32 | fp32 | 基準，E15–E23 的既有數字全部是這一格 |
+    | fp16 | fp16 | **fp32** | SDXL 的 VAE 在 fp16 下的中間激活會超出 fp16 的最大值 65504 而變成 inf，解碼結果是全黑圖 |
+    | bf16 | bf16 | bf16 | bf16 的指數位寬與 fp32 相同（8 bit），動態範圍一致，不會溢位 |
+
+    fp16 那一格的處置只有兩種：把 VAE 留在 fp32，或換一份重新縮放過的
+    VAE 權重（社群的 `sdxl-vae-fp16-fix`）。**本專案只能選前者**——威脅模型
+    要求攻擊方使用 stock SDXL，換權重就是換模型（`docs/ARCH_2026-08-05.md`
+    §7.1 已撤回該項）。故本函式只回傳 dtype，永遠不回傳權重來源，程式中
+    也不存在任何載入替代 VAE 的路徑。
+
+    未列入表中的 dtype 一律拋出。靜默落回 fp32 會讓「這批資料是什麼精度」
+    無從查證，而精度正是跨卡比較時唯一的差異來源。
+    """
+    if compute_dtype == torch.float32:
+        return torch.float32, torch.float32
+    if compute_dtype == torch.float16:
+        return torch.float16, torch.float32
+    if compute_dtype == torch.bfloat16:
+        return torch.bfloat16, torch.bfloat16
+    raise ValueError(
+        f"不支援的計算精度 {compute_dtype}。可用的只有 float32、float16、"
+        "bfloat16 三種；靜默落回預設會讓每批資料的精度無從查證"
+    )
+
+
 def peak_memory_mb() -> float:
     """回傳目前裝置的 peak GPU 記憶體（MB）。CPU 上回傳 0。"""
     if not torch.cuda.is_available():

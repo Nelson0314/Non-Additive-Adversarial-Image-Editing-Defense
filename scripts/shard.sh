@@ -55,7 +55,31 @@ PRECISION=bf16
 # 兩者都必須帶：rotate 下前向數等於 attn_timesteps，缺 rotate 就是 6 圖。
 # 改用顯存更大的卡時可以調回，但 `gpu` 進 config_hash，那本來就是新批次。
 MEM="--purify-mode rotate --attn-timesteps 2"
-COMMON="--gpu-tag $GPU_TAG --precision $PRECISION --mist-target data/targets/MIST.png $MEM"
+
+# `--warp-max-disp` 由段 0 的 `warp_reach` 決定，不是預設值。程式預設 1.5,
+# 而 2026-08-06 於 RTX 3090、1024²、grid_size=32 實測的可達 LPIPS 為：
+#
+#   max_disp    bird_03   cat_02   dog_03   三者最小
+#      1.5       0.1091   0.2182   0.1544    0.109   ← 程式預設，蓋不住
+#      3.0       0.2170   0.3846   0.2905    0.217
+#      5.0       0.3099   0.4946   0.3918    0.310
+#      8.0       0.3914   0.5579   0.4641    0.391   ← 採用
+#     12.0       0.4480   0.5928   0.5111    0.448
+#     20.0       0.4845   0.6164   0.5446    0.485
+#
+# `--tau-train` 是 0.35，故最小值必須 ≥ 0.35：1.5 下段 2 會在 τ=0.20 與 0.35
+# 兩點拋出（三張圖有兩張連 0.20 都到不了），主表就是空的。取 8.0 是蓋得住
+# 且仍在曲線膝部的最小格點；再往上收益遞減（12→20 只多 0.037）。
+#
+# 這個量測用的是 **R**（高斯隨機位移）——而 R 本身就是格點裡的一個條件，
+# 故它必須自己達得到 τ=0.35，不能只看最佳化後的 N1／N2。先驗實測「同振幅
+# 下最佳化解的可辨失真是隨機的 2–3 倍」，所以對 N1／N2 而言 8.0 是寬鬆的。
+#
+# `max_disp` 是硬上界（`site_warp.displacement` 直接 clamp），不是損失權重：
+# 放寬它不會讓防禦白白變強，實際失真仍由段 2 的射線縮放固定在 τ 上。
+REACH="--warp-max-disp 8.0"
+
+COMMON="--gpu-tag $GPU_TAG --precision $PRECISION --mist-target data/targets/MIST.png $MEM $REACH"
 RUNS=$HOME/WACV/runs
 
 shard_dir() { echo "$RUNS/${BATCH}_$1"; }

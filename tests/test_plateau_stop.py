@@ -120,13 +120,14 @@ def test_只認係數非零的hinge():
     assert plateau_stop(hist, PAT, TOL, MIN,
                         constraint_keys=("fid_pen_linf",))[0] is True
 
-    # 預設的 LossConfig：LPIPS、鈍化、色度、L∞ 四道係數非零，PSNR 為 0
+    # 預設的 LossConfig：LPIPS、鈍化、色度三道係數非零；
+    # L∞ 於 2026-08-05 改為預設 0（實測它在位移場上的懲罰是 LPIPS 的 95 倍，
+    # 開著會取代 LPIPS 成為綁定約束，而共同貨幣是 τ_LPIPS）；PSNR 一向為 0。
     keys = active_constraint_keys(LossConfig())
-    assert keys == ("fid_pen_lpips", "fid_pen_acut", "fid_pen_chroma",
-                    "fid_pen_linf")
-    # E15 之後主網格用 beta_linf=0，此時 L∞ 不再是約束
-    assert active_constraint_keys(LossConfig(beta_linf=0.0)) == (
-        "fid_pen_lpips", "fid_pen_acut", "fid_pen_chroma")
+    assert keys == ("fid_pen_lpips", "fid_pen_acut", "fid_pen_chroma")
+    # 顯式開啟時它才回到約束集——重現 baseline 的 ℓ∞ 設定會用到
+    assert active_constraint_keys(LossConfig(beta_linf=100.0)) == (
+        "fid_pen_lpips", "fid_pen_acut", "fid_pen_chroma", "fid_pen_linf")
 
 
 def test_全部係數為零時拒絕():

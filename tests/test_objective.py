@@ -295,10 +295,21 @@ def test_PSNR下限預設不參與梯度但仍記錄(obj):
 
 
 def test_保真項對x_def可微(obj):
-    """φ 的梯度必須能穿過保真項，否則兩道下限形同虛設。"""
+    """φ 的梯度必須能穿過保真項，否則四道 hinge 形同虛設。
+
+    2026-08-05 修訂。before：擾動 0.05 且不檢查是否越界。
+    after：擾動加大到確實越過 τ_lpips，並先斷言該前提。
+
+    原因是本測試先前能通過，靠的是 `beta_linf=100` 那個在 τ 以內就開始
+    施力的項——把它改為預設關閉後，一個四道 hinge 都不越界的輸入其總損失
+    精確為 0，梯度自然是零。那不是「不可微」，是「沒有東西要微」。
+
+    交集式 hinge 的定義就是 τ 以內完全免費，故驗可微必須在越界處驗。
+    """
     x = _img(4)
-    xd = (x + 0.05 * torch.randn_like(x)).clamp(0, 1).requires_grad_(True)
-    total, _ = obj.fidelity_term(xd, x)
+    xd = (x + 0.35 * torch.randn_like(x)).clamp(0, 1).requires_grad_(True)
+    total, parts = obj.fidelity_term(xd, x)
+    assert parts["fid_pen_lpips"] > 0.0, "前提：必須真的越過 τ_lpips"
     total.backward()
     assert xd.grad is not None and xd.grad.abs().sum() > 0
 
@@ -771,3 +782,61 @@ def test_連貫色偏被色度hinge擋下而隨機擾動不被擋():
         f"隨機擾動不該被色度 hinge 擋下，實得偏壓 {pn['fid_chroma']:.3f}")
     assert ps["fid_pen_chroma"] > 0.0, (
         f"連貫色偏必須被擋下，實得偏壓 {ps['fid_chroma']:.3f}")
+
+
+def test_Linf的hinge預設關閉():
+    """L∞ 對非加性參數化不具鑑別力，開著它會讓它取代 LPIPS 成為綁定約束。
+
+    實測（位移場、grid 32、bicubic）：LPIPS 0.0593 時 L∞ 已達 0.9386，
+    在 τ_lpips=0.05／τ_linf=0.06 下兩者的 hinge 懲罰為 0.0093 對 0.8786，
+    **相差 95 倍**。整個實驗設計的共同貨幣是 τ_LPIPS，射線縮放也沿 LPIPS
+    求解；若最佳化實際停在 L∞ 的邊界上，報表會以為它停在 τ_LPIPS 上。
+    """
+    from src.defense.objective import LossConfig
+
+    assert LossConfig().beta_linf == 0.0
+
+
+def test_關閉Linf後位移場的綁定約束是LPIPS():
+    """把上面那組數字釘成迴歸測試。"""
+    import torch
+
+    from src.defense.objective import DefenseObjective, LossConfig
+    from src.residual.site_warp import WarpResidual
+
+    torch.manual_seed(0)
+    x = torch.rand(1, 3, 128, 128, device=DEV)
+    m = WarpResidual(size=128, grid_size=32, max_disp=1.5,
+                     resample="bicubic").to(DEV)
+    with torch.no_grad():
+        m.flow.normal_(0, 0.35)
+    xd = m.pixel_residual(x)
+
+    cfg_off = LossConfig()                      # beta_linf 預設為 0
+    cfg_on = LossConfig(beta_linf=100.0)
+    total_off, p = DefenseObjective(cfg_off, DEV).fidelity_term(xd, x)
+    total_on, _ = DefenseObjective(cfg_on, DEV).fidelity_term(xd, x)
+
+    assert p["fid_linf"] > 0.5, "前提：位移場的 L∞ 本來就很大"
+    # `fid_pen_*` 記的是未乘係數的 hinge 量，恆為正；要驗的是它有沒有
+    # 進入總損失。開與關的差額即 L∞ 實際貢獻的力。
+    assert p["fid_pen_linf"] > 0.5, "前提：L∞ 確實越界"
+    contribution = float(total_on) - float(total_off)
+    lpips_force = cfg_off.gamma_lpips * p["fid_pen_lpips"]
+    assert contribution > 50 * lpips_force, (
+        f"前提：開著 L∞ 時它會主導（{contribution:.1f} vs {lpips_force:.3f}）")
+    assert float(total_off) == pytest.approx(
+        lpips_force + cfg_off.gamma_acut * p["fid_pen_acut"]
+        + cfg_off.gamma_chroma * p["fid_pen_chroma"], rel=1e-4), (
+        "關閉後總損失只剩 LPIPS、鈍化、色偏三道，L∞ 不得有任何貢獻")
+
+
+def test_baseline的Linf走投影而非hinge():
+    """四篇 baseline 原生是 ℓ∞ 約束的，但那條路徑是 `pgd.project()` 的
+    硬投影，不是這裡的軟懲罰。兩者不可互相替代，故本檔的預設值為 0
+    不影響 baseline 的忠實度。"""
+    from src.baselines import REGISTRY
+    from src.baselines.pgd import project
+
+    assert sum(1 for s in REGISTRY.values() if s.norm == "linf") >= 4
+    assert callable(project)

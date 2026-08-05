@@ -207,3 +207,40 @@ def test_cell不可變():
     c = grid.Cell("train", "N1", "img")
     with pytest.raises(Exception):
         c.condition = "N2"
+
+
+# ---------------------------------------------------------------------------
+# 未納入的方法（使用者 2026-08-05 裁決）
+# ---------------------------------------------------------------------------
+
+def test_未納入的方法都有記錄理由():
+    """「某篇為何不在表上」是審稿人一定會問的。移出而不留記錄，
+    等於讓那個問題無從查考。"""
+    assert set(grid.EXCLUDED) == {"dia_pt", "diffvax"}
+    for name, reason in grid.EXCLUDED.items():
+        assert len(reason) > 80, f"{name} 的理由過於簡略"
+
+
+def test_未納入的方法確實不在條件清單內():
+    for name in grid.EXCLUDED:
+        assert name not in grid.CONDITIONS
+
+
+def test_dia_pt的程式碼仍保留():
+    """裁決是「保留但不實作」——spec 逐字忠於原始碼、不加投影，
+    改 CONDITIONS 一行即可納入。刪掉程式碼就回不去了。"""
+    from src.baselines import REGISTRY
+
+    assert "dia_pt" in REGISTRY
+    assert REGISTRY["dia_pt"].init_rule == "l1_ball", "不得為了規避缺陷而改它"
+    assert REGISTRY["dia_pt"].modified_from_paper is False
+
+
+def test_DIA仍有一個忠實的代表():
+    """整篇 DIA 不能因為一個變體有缺陷就整篇消失。"""
+    assert "dia_r" in grid.CONDITIONS
+
+
+def test_五篇baseline():
+    assert len(grid.BASELINES) == 5
+    assert len(grid.CONDITIONS) == 9

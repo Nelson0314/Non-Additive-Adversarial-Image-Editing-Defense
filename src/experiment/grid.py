@@ -37,8 +37,33 @@ from typing import Dict, Iterator, List, Optional, Sequence, Tuple
 # 三個非加性條件是本專案的方法；五個 baseline 是加性對照（使用者 2026-08-05
 # 決定不再自行實作加性方法，由 baseline 擔任該角色）；R 是同失真隨機對照。
 NONADDITIVE = ("N1", "N2", "N3")
-BASELINES = ("photoguard_c", "mist", "dia_pt", "dia_r", "advpaint", "promptflare")
+
+# `dia_pt` 與 `diffvax` 保留在程式中但**不納入本輪實驗**，各有其原因，
+# 兩者都記錄在 `EXCLUDED` 並由測試釘住——移出而不留記錄，等於讓
+# 「為什麼少了這一篇」變成無從查考的事。
+BASELINES = ("photoguard_c", "mist", "dia_r", "advpaint", "promptflare")
 RANDOM_CONTROL = "R"
+
+# 未納入的方法與理由。**保留在此而非刪除**：報表與論文都要引用這些理由，
+# 而「某篇為何不在表上」是審稿人一定會問的。
+EXCLUDED: Dict[str, str] = {
+    "dia_pt": (
+        "DIA 的 l1_ball 起點在某些輸入下遠超其 eps 球（實測 eps=0.05 下 "
+        "‖d‖∞ 達 1.499，30 倍）。根因是其 _l1_projection 取自 AutoAttack，"
+        "該演算法的箱型約束假設 x ∈ [0,1] 而 DIA 用在 [-1,1] 上。"
+        "加投影可以修好，但那是我方改動別人的攻擊程序；同一篇的 DIA-R "
+        "變體不受影響且已納入，故 DIA 仍有忠實的代表。程式碼保留於 "
+        "src/baselines/dia.py，改 CONDITIONS 一行即可納入。"
+    ),
+    "diffvax": (
+        "其免疫器實際餵入的是編輯區已歸零的 masked image（完整原圖載入後"
+        "從未使用），attack() 硬編碼 9 通道 inpainting 輸入，全 repo 對 "
+        "img2img／SDEdit 命中 0 筆。在無 mask 的全圖 SDEdit 威脅模型下"
+        "忠實重現結構上不可能，強行改寫等於我方設計一個新方法再冠上它的名字。"
+        "另其論文報告的 counter-attack 評測（CNN 去噪、JPEG、IMPRESS）"
+        "在 repo 中完全不存在。改列為相關工作引用，不進比較表。"
+    ),
+}
 
 # R 不是選配。先驗實測：在同一可辨失真上，隨機高斯雜訊即取得最佳化解
 # 60–74% 的語意失效。沒有這條對照，任何正結果都不可解讀。

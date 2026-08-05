@@ -596,3 +596,67 @@ def test_GPU上待驗項目清單():
        16 層上實測（`docs/` 記載平均改善 1.6e-4），層數變 4.4 倍後必須重新校準。
     """
     assert True
+
+
+# ===========================================================================
+# 6. 無條件分支的構造（審查發現，2026-08-05）
+# ===========================================================================
+
+def test_無條件分支不得寫死():
+    """`force_zeros_for_empty_prompt` 必須由 pipeline 的 config 讀取。
+
+    stock SDXL base 記為 `true`，即其 CFG 無條件分支是零張量而非
+    `encode_text("")`。refiner 與其他檢查點的值可能不同，寫死會在換模型時
+    靜默給出錯誤的無條件分支——影像仍然生得出來，只是攻擊方不再是 stock 模型。
+    """
+    import inspect
+
+    from src.models import sd as sd_mod
+
+    src = inspect.getsource(sd_mod.SDXLWrapper.force_zeros_for_empty_prompt.fget)
+    assert "config" in src, "必須由 config 讀取"
+    assert "return True" not in src and "return False" not in src, "不得寫死"
+
+
+def test_config缺該欄位時拋出而非猜一邊(sdxl):
+    """猜錯的差異沒有症狀，故必須拋出。"""
+    w = sdxl
+
+    class _NoFlag:
+        """沒有該欄位的 config。diffusers 的 FrozenDict 不可就地賦值，
+        故以整個物件替換而非刪一個鍵。"""
+
+    monkey = type(w.pipe)
+    original = monkey.config
+    try:
+        monkey.config = property(lambda self: _NoFlag())
+        with pytest.raises(RuntimeError, match="force_zeros_for_empty_prompt"):
+            _ = w.force_zeros_for_empty_prompt
+    finally:
+        monkey.config = original
+
+
+def test_旗標為真時無條件分支為零張量(sdxl):
+    w = sdxl
+    if not w.force_zeros_for_empty_prompt:
+        pytest.skip("此 pipeline 的旗標為 False")
+    u = w.uncond_prompt()
+    assert float(u.embeds.abs().max()) == 0.0
+    assert float(u.pooled.abs().max()) == 0.0
+
+
+def test_無條件分支的形狀與條件分支一致(sdxl):
+    """形狀不符會在 UNet 前向才炸，且訊息指不到真正的原因。"""
+    w = sdxl
+    c = w.encode_text("a photo")
+    u = w.uncond_prompt()
+    assert u.embeds.shape == c.embeds.shape
+    assert u.pooled.shape == c.pooled.shape
+
+
+def test_空prompt的編碼不等於無條件分支(sdxl):
+    """兩者在 stock SDXL base 上是不同的東西。混用沒有症狀，故要有測試。"""
+    w = sdxl
+    if not w.force_zeros_for_empty_prompt:
+        pytest.skip("此 pipeline 的旗標為 False，兩者本就相同")
+    assert not torch.equal(w.encode_text("").embeds, w.uncond_prompt().embeds)

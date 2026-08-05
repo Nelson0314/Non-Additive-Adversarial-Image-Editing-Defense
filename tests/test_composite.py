@@ -47,10 +47,17 @@ def _weight_module(unet, **kw):
 
 
 def _apa_like():
+    """與 `build_apa` 同構的複合模塊。
+
+    `init_std` **不可為 0**：它控制外積參數化中高斯的那一半，給 0 會讓兩個
+    因子同時為零、梯度永久為零。此處原本複製了 `site_apa.py` 當時的錯誤值，
+    使 `test_φ為零時eps_hook不改變預測噪聲` 的 `torch.equal` 在參數化已死時
+    照樣通過——一個假通過。2026-08-05 修正。
+    """
     unet = _FakeUNet()
     w = _weight_module(unet)
     lat = LatentResidual(steps=4, channels=4, size=8, max_rank=2, const_rank=2,
-                         init_std=0.0, seed=0)
+                         init_std=0.02, seed=0)
     return unet, CompositeResidual([w, lat], ["stage1", "stage2"])
 
 
@@ -256,3 +263,57 @@ def test_嵌入殘差相加():
     comp = CompositeResidual([_Emb(1), _Emb(2)], ["a", "b"])
     out = comp.emb_residual(torch.zeros(1, 4))
     assert torch.allclose(out, torch.full((1, 4), 3.0))
+
+
+# ---- APA 移植的參數化必須是活的 ----
+
+def test_APA階段二的梯度不為零():
+    """釘住一個實際發生過的缺陷。
+
+    低秩外積 `U⊗V` 的梯度是 `∂/∂U = V`、`∂/∂V = U`。兩個因子同時為零時
+    兩邊的梯度**永久**為零，而且不會報錯：損失算得出來、優化器跑得完、
+    日誌正常，只是 φ 從頭到尾沒變，N3 靜默退化成「只有 LoRA」的條件。
+
+    `run_stages` 的防護只擋 `grad is None`，擋不住恆零梯度。
+    """
+    from src.residual.site_apa import build_apa
+
+    unet = _FakeUNet()
+    comp = build_apa(unet, steps=4, latent_size=8, lora_rank=2,
+                     latent_max_rank=2, latent_const_rank=2, seed=0)
+    ts = torch.tensor([0, 250, 500, 750, 999])
+    hook = comp.eps_hook(ts, 4)
+    eps = torch.randn(1, 4, 8, 8)
+    out = hook(eps, 0, ts[-1])
+    (out * torch.randn_like(out)).sum().backward()
+
+    stage2 = comp.param_groups()["stage2"]
+    total = sum(float(p.grad.abs().max()) for p in stage2 if p.grad is not None)
+    assert total > 0.0, "階段二的梯度恆為零，該參數化是死的"
+    comp.remove()
+
+
+def test_APA拒絕會讓參數化死掉的初值():
+    """症狀不存在的缺陷必須在建構時就擋下，不能等訓練跑完才發現。"""
+    from src.residual.site_apa import build_apa
+
+    unet = _FakeUNet()
+    with pytest.raises(ValueError, match="梯度永久為零"):
+        build_apa(unet, steps=4, latent_size=8, lora_rank=2,
+                  latent_max_rank=2, latent_const_rank=2,
+                  latent_init_std=0.0, seed=0)
+
+
+def test_APA在φ為零時仍逐位元等同未注入():
+    """非零的 init_std 不得破壞這個性質：V 初值為零使外積恆為零。"""
+    from src.residual.site_apa import build_apa
+
+    unet = _FakeUNet()
+    comp = build_apa(unet, steps=4, latent_size=8, lora_rank=2,
+                     latent_max_rank=2, latent_const_rank=2, seed=0)
+    ts = torch.tensor([0, 250, 500, 750, 999])
+    with torch.no_grad():
+        eps = torch.randn(1, 4, 8, 8)
+        out = comp.eps_hook(ts, 4)(eps.clone(), 0, ts[-1])
+    assert torch.equal(out, eps), "φ=0 時必須逐位元等同"
+    comp.remove()

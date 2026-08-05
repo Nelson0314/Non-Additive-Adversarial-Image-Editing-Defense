@@ -402,7 +402,16 @@ def run_pgd(
     x_adv = x_init_cpu.to(device=device, dtype=x_ref.dtype)
     x_adv = x_adv.clamp(vr.lo, vr.hi)
 
-    ctx = spec.prepare(sd, x01, spec, **kw)
+    # `seed` 必須顯式傳給 prepare。六篇的 prepare 都宣告了這個參數（用於
+    # 評測噪聲、目標 latent 的取樣等），但它是 run_pgd 的 keyword-only 參數，
+    # 不在 `**kw` 內，先前因此永遠傳不到。
+    #
+    # 症狀完全不存在：PGD 照跑、輸出一張合理的防禦圖。但對三篇
+    # `init_rule="none"` 的（photoguard_c、dia_r、promptflare），起點也不隨
+    # seed 改變，於是換 seed 得到**逐位元相同**的結果——多 seed 實驗的
+    # 樣本標準差恆為 0。而 `|mean| > sd` 在 sd=0 時對任何非零均值自動成立，
+    # 那正是先驗實驗產生 24 格假陽性的同一個機制。
+    ctx = spec.prepare(sd, x01, spec, seed=seed, **kw)
 
     history: List[Dict] = []
     t0 = time.perf_counter()

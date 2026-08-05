@@ -601,6 +601,60 @@ class SDXLWrapper(SDWrapper):
 
     # ---- 文字條件 ----
 
+    @property
+    def force_zeros_for_empty_prompt(self) -> bool:
+        """stock SDXL base 的 `model_index.json` 記為 `true`（已查證）。
+
+        其意義是：**空 prompt 的無條件分支不是 `encode_text("")`，而是
+        `torch.zeros_like`**。diffusers 的 `encode_prompt` 依此旗標分派。
+
+        這對本專案有兩個後果：
+
+        1. 攻擊方必須是 stock SDXL。若我們用 `encode_text("")` 當 CFG 的
+           無條件分支，模擬的就不是 stock 行為，威脅模型不成立。
+        2. **prompt-free 的著力點需要重新檢視**（`DESIGN` §2.1）。
+           在 SD v1.x 上，空 prompt 的 CLIP 編碼是 `[BOS][EOS][PAD]×75` 的
+           非零嵌入，把注意力質量導向 `[BOS]` 是有意義的；在 SDXL 上，
+           若無條件分支恆為零，該 token 位置在無條件分支中不承載任何東西。
+           N1 的注意力目標必須取自**條件分支**而非無條件分支。
+
+        由 pipeline 的設定讀取而非寫死：refiner 與其他檢查點的值可能不同，
+        寫死會在換模型時靜默給出錯誤的無條件分支。
+        """
+        cfg = getattr(self.pipe, "config", None)
+        if cfg is None:
+            raise RuntimeError("pipeline 沒有 config，無法判定無條件分支的構造")
+        value = getattr(cfg, "force_zeros_for_empty_prompt", None)
+        if value is None:
+            raise RuntimeError(
+                "pipeline 的 config 缺少 force_zeros_for_empty_prompt。"
+                "不預設任何一邊——猜錯會讓 CFG 的無條件分支與 stock 行為不符，"
+                "而該差異沒有任何症狀"
+            )
+        return bool(value)
+
+    def uncond_prompt(self, batch: int = 1) -> SDXLPrompt:
+        """CFG 的無條件分支，依 stock SDXL 的規則產生。
+
+        `force_zeros_for_empty_prompt=True` 時回傳零張量，與 diffusers 的
+        `encode_prompt` 一致；否則回傳 `encode_text("")`。
+
+        **不要直接用 `encode_text("")` 當無條件分支**——在 stock SDXL base 上
+        那是錯的，且錯得沒有症狀：影像仍然生得出來，只是攻擊方不再是 stock 模型。
+        """
+        if not self.force_zeros_for_empty_prompt:
+            return self.encode_text("")
+        dim = self.unet.config.cross_attention_dim
+        pooled_dim = self.text_encoder_2.config.projection_dim
+        length = self.tokenizer.model_max_length
+        # 取 backbone 的 dtype：無條件分支要餵進 UNet，與條件分支同一路徑。
+        # VAE 在 fp16 下另有自己的 dtype（見 `resolve_precision`），與此無關。
+        kw = dict(device=self.device, dtype=self.backbone_dtype)
+        return SDXLPrompt(
+            torch.zeros(batch, length, dim, **kw),
+            torch.zeros(batch, pooled_dim, **kw),
+        )
+
     def encode_text(self, prompt: str) -> SDXLPrompt:
         """回傳 (B,77,2048) 的序列嵌入與 (B,1280) 的 pooled 嵌入。
 
@@ -609,6 +663,10 @@ class SDXLWrapper(SDWrapper):
         只取自第二個 encoder（`CLIPTextModelWithProjection` 的 `text_embeds`）。
         取最後一層或改取第一個 encoder 的 pooled 都會得到能跑但語意不同的
         條件，且沒有任何症狀。
+
+        **這不是 CFG 的無條件分支。** stock SDXL base 的
+        `force_zeros_for_empty_prompt=True`，其無條件分支是零張量；
+        取無條件分支請用 `uncond_prompt()`。
         """
         parts = []
         pooled = None

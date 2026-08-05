@@ -66,6 +66,7 @@ def build_apa(
     latent_max_rank: int = 32,
     latent_const_rank: int = 8,
     latent_scale: float = 1.0,
+    latent_init_std: float = 0.02,
     seed: Optional[int] = None,
 ) -> CompositeResidual:
     """回傳 `names = ["stage1", "stage2"]` 的複合模塊。
@@ -84,6 +85,12 @@ def build_apa(
     # blocks 預設為 APA_BLOCKS = ("attn1", "attn2")：官方實作的 LoRA
     # target_modules 掛在整個 UNet 上，同時涵蓋 self- 與 cross-attention。
     # 本專案原本寫死只掃 attn2，照它實作會少掉一半的目標層。
+    if latent_init_std <= 0.0:
+        raise ValueError(
+            f"latent_init_std={latent_init_std} 會讓外積參數化的兩個因子同時為零，"
+            "梯度永久為零而不會報錯——階段二將完全訓練不動，"
+            "N3 靜默退化成「只有 LoRA」的條件。見本模組對該參數的說明。"
+        )
     lora = WeightResidual(unet, rank=lora_rank, alpha=lora_alpha, seed=seed,
                           blocks=lora_blocks)
     latent = LatentResidual(
@@ -93,10 +100,26 @@ def build_apa(
         max_rank=latent_max_rank,
         const_rank=latent_const_rank,
         scale=latent_scale,
-        # 初值為零：φ=0 必須逐位元等同未注入。LatentResidual 的低秩外積
-        # 參數化在兩個因子都為零時梯度也為零，故其內部採「一半高斯、一半零」
-        # 的安排，此處給 0 指的是整體殘差為零。
-        init_std=0.0,
+        # **`init_std` 不可為 0。** 它控制的是外積參數化中「高斯的那一半」
+        # （U），另一半（V）本來就初始化為零。兩個因子同時為零時
+        #
+        #     ∂(U⊗V)/∂U = V = 0    且    ∂(U⊗V)/∂V = U = 0
+        #
+        # 兩邊的梯度**永久**為零，階段二完全訓練不動——而且不會報錯：
+        # 損失算得出來、優化器跑得完、日誌看起來正常，只是 φ 從頭到尾沒變。
+        # N3 會靜默退化成「只有 LoRA 保真對齊」的條件。
+        #
+        # 實測（`LowRankResidual`，rank 2）：
+        #     init_std=0.0  → gradU 0.0     gradV 0.0
+        #     init_std=0.02 → gradU 0.0     gradV 0.1896
+        #
+        # 非零的 `init_std` 不會破壞「φ=0 逐位元等同未注入」：V 為零使外積
+        # 恆為零，殘差仍精確是 0。這正是 LoRA（Hu et al., ICLR 2022）採用
+        # 「一半高斯、一半零」的理由，`site_weight.py` 的 `_LoRAHook` 同一慣例。
+        #
+        # 2026-08-05 修正。before：`init_std=0.0`，註解誤稱「此處給 0 指的是
+        # 整體殘差為零」。after：沿用 `LatentResidual` 的預設 0.02。
+        init_std=latent_init_std,
         seed=seed,
     )
     return CompositeResidual([lora, latent], [STAGE1, STAGE2])

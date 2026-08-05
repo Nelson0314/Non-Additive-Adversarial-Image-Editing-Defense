@@ -344,3 +344,48 @@ def test_spec不可變():
     """設定在跑到一半被改掉會讓 config_hash 與實際執行的內容脫節。"""
     with pytest.raises(dataclasses.FrozenInstanceError):
         REGISTRY["mist"].steps = 1
+
+
+# ---------------------------------------------------------------------------
+# 4. seed 的接線（審查發現，2026-08-05）
+# ---------------------------------------------------------------------------
+
+def test_每篇的prepare都接受seed():
+    """`prepare` 用 seed 取樣評測噪聲與目標 latent。少了它，同一篇在不同
+    seed 下會得到逐位元相同的結果。"""
+    import inspect
+
+    for name, s in REGISTRY.items():
+        params = inspect.signature(s.prepare).parameters
+        assert "seed" in params, f"{name} 的 prepare 未宣告 seed"
+
+
+def test_run_pgd把seed傳給prepare():
+    """釘住一個實際發生過的接線缺陷。
+
+    `seed` 是 `run_pgd` 的 keyword-only 參數，不在 `**kw` 內，
+    先前因此永遠傳不到 `prepare`。症狀完全不存在——PGD 照跑、輸出一張圖，
+    只是三篇 `init_rule="none"` 的在任何 seed 下結果逐位元相同，
+    多 seed 實驗的標準差恆為 0（`|mean| > sd` 因而恆真，
+    正是先驗實驗 24 格假陽性的機制）。
+    """
+    import inspect
+
+    from src.baselines import pgd
+
+    src = inspect.getsource(pgd.run_pgd)
+    assert "spec.prepare(" in src
+    call = src[src.index("spec.prepare("):]
+    call = call[:call.index(")") + 1]
+    assert "seed=seed" in call, f"seed 未傳給 prepare：{call}"
+
+
+def test_起點隨seed改變的三篇與不變的三篇():
+    """`init_rule="none"` 的三篇起點不隨 seed 變，故其 seed 相依性
+    **完全**來自 `prepare`——這使上一個測試不是形式檢查而是必要條件。"""
+    x = torch.rand(1, 3, 16, 16, generator=torch.Generator().manual_seed(5)) * 2 - 1
+    for name, s in REGISTRY.items():
+        a = initial_point(x, s, torch.Generator().manual_seed(0))
+        b = initial_point(x, s, torch.Generator().manual_seed(999))
+        differs = float((a - b).abs().max()) > 0
+        assert differs is (s.init_rule != "none"), name

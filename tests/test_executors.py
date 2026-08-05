@@ -819,3 +819,26 @@ def test_未知影像id立刻拋出(tmp_path):
 #    CNN 去噪替代品在遠端環境是否齊備。
 # 8. 記憶體：`materialize` 對 N3 每次都重跑一條 k_inv 步的生成鏈，
 #    段 2 的二分搜尋最多 28 次；1024² 下的峰值必須實測。
+
+
+def test_兩個lr探測都用臨時校準表取設定():
+    """段 0 **正在產生**校準表，`res.calib` 此時必為 None，而 `optim_config`
+    會向校準表索取 `stop_tol`。兩個探測函式都必須把自己那張臨時表換進去。
+
+    以原始碼檢查而非實跑：`_probe_align_lr` 只有帶 `align_lr_key` 的條件
+    （N3／apa）走得到，而建 APA 模組需要真實 UNet，`FakeSD` 刻意不提供
+    （見該類別的 docstring）。
+
+    2026-08-06 修正。before：`_probe_align_lr` 寫的是 `optim_config(res, spec)`，
+    在 GPU 上以 `CalibrationMismatch: calibration.json 尚未產生` 中止段 0。
+    """
+    import inspect
+
+    for fn in (executors._probe_lr, executors._probe_align_lr):
+        # 排除 docstring：它記著修正前的原貌（`修改論文方法要記 before/after`），
+        # 那段文字本身就含要被禁止的呼叫形式。
+        src = inspect.getsource(fn).replace(fn.__doc__ or "\0", "")
+        assert "optim_config(res, spec)" not in src, (
+            f"{fn.__name__} 直接把未校準的 res 交給 optim_config")
+        assert "calib=tmp" in src, (
+            f"{fn.__name__} 沒有把臨時校準表換進去")

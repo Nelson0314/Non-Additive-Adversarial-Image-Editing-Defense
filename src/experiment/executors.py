@@ -1442,14 +1442,27 @@ def _probe_lr(res: Resources, condition: str, entry: ImageEntry,
 
 def _probe_align_lr(res: Resources, condition: str, entry: ImageEntry,
                     lr: float, steps: int) -> Dict[str, Any]:
-    """階段一（保真對齊）的候選探測。判準是對齊損失本身。"""
+    """階段一（保真對齊）的候選探測。判準是對齊損失本身。
+
+    與 `_probe_lr` 同樣把候選值放進一張**臨時**的表再交出去。`optim_config`
+    會向校準表索取 `stop_tol`，而段 0 正在產生那張表、`res.calib` 此時必為
+    None，故**必須把 `tmp` 換進去**——用原本的 `res` 會拿到
+    `CalibrationMismatch: calibration.json 尚未產生`。
+
+    2026-08-06 修正。before：`cfg = optim_config(res, spec)`，且 `tmp` 只放了
+    `align_lr_key`。本函式只有帶 `align_lr_key` 的條件（N3／apa）會走到，
+    而段 0 從未在 GPU 上跑過，故該缺陷未被暴露。
+    """
     from src.defense.optimize import align
 
     spec = condition_spec(condition)
     tmp = Calibration()
     ctx = res.calib_context
     tmp.put(spec.align_lr_key, lr, ctx, note="段 0 的候選值")
-    cfg = optim_config(res, spec)
+    if spec.monitor:
+        tmp.put(f"stop_tol.{spec.monitor}", 0.0, ctx,
+                note="段 0 探測期不啟用平台停止")
+    cfg = optim_config(dc_replace(res, calib=tmp), spec)
     cfg.align_steps = steps
     module = build_module(condition, res, entry, seed=res.cfg.seed)
     try:

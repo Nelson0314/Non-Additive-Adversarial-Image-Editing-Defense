@@ -588,11 +588,36 @@ class SDXLWrapper(SDWrapper):
     """
 
     @staticmethod
-    def _load_pipeline(model_name: str, dtype: torch.dtype):
+    def _load_pipeline(model_name: str, dtype: torch.dtype,
+                       variant: Optional[str] = "fp16"):
+        """載入 stock SDXL。`variant` 選官方 repo 內的權重檔變體。
+
+        **`variant` 不是換模型。** `stabilityai/stable-diffusion-xl-base-1.0`
+        的官方 repo 同時提供兩組權重檔：預設的 fp32（`*.safetensors`）與
+        fp16 變體（`*.fp16.safetensors`）。兩者都是官方發布的同一個模型，
+        差別只在存檔精度。這與 `sdxl-vae-fp16-fix` 完全不同——後者是**第三方
+        重新訓練的 VAE**，換它就是換模型，故被禁止（`ARCH` §7.1）。
+
+        預設取 fp16 變體，理由有二：
+
+        1. **更貼近真實威脅模型。** 攻擊方是「使用 stock SDXL 的一般使用者」，
+           而實務上絕大多數 SDXL 應用載入的就是 fp16 變體——它只有一半大小
+           且是 diffusers 文件的建議用法。
+        2. 本輪一律以 bf16 執行（RTX 5090 支援），fp32 權重檔的多餘精度
+           在載入時就會被截掉，多下載 7 GB 換不到任何數值差異。
+
+        `variant=None` 取 fp32 檔。段 0 的精度等價性驗證若要以 fp32 權重
+        為基準，由呼叫端明給。**該驗證比較的是「同一組權重在不同計算精度下
+        的結果」**，故用哪一組權重存檔並不影響其結論。
+
+        2026-08-05 新增。before：無 `variant` 參數，載入 ModelScope 鏡像的
+        fp16 檔案時以 `OSError: no file named model.safetensors` 失敗。
+        """
         from diffusers import StableDiffusionXLImg2ImgPipeline
 
         return StableDiffusionXLImg2ImgPipeline.from_pretrained(
             model_name, torch_dtype=dtype, add_watermarker=False,
+            variant=variant,
         )
 
     def _frozen_modules(self) -> list:

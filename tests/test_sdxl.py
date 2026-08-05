@@ -677,3 +677,27 @@ def test_CFG的兩支不得是同一個張量(sdxl):
     assert "sd.uncond_prompt()" in src, "無條件分支必須由模型的規則產生"
     assert "emb_uncond=emb_cond" not in src, (
         "不得把條件分支同時當成無條件分支——CFG 會退化成 w=1")
+
+
+def test_variant是官方權重檔而非換模型():
+    """`variant="fp16"` 取的是官方 repo 內的 fp16 權重檔，不是換模型。
+
+    官方 `stabilityai/stable-diffusion-xl-base-1.0` 同時提供 fp32 與 fp16
+    兩組權重檔，兩者都是同一個模型的官方發布，差別只在存檔精度。
+
+    這與 `sdxl-vae-fp16-fix` 有本質差別——後者是第三方**重新訓練**的 VAE，
+    換它就是換模型。`test_不存在換VAE權重的路徑` 仍然把那條路擋死；
+    本測試確認兩者沒有被混為一談。
+    """
+    import inspect
+
+    from src.models.sd import SDXLWrapper
+
+    sig = inspect.signature(SDXLWrapper._load_pipeline)
+    assert "variant" in sig.parameters
+    assert sig.parameters["variant"].default == "fp16"
+
+    src = inspect.getsource(SDXLWrapper._load_pipeline)
+    for forbidden in ("fp16-fix", "madebyollin"):
+        assert forbidden not in src.split('"""')[2], (
+            f"可執行的程式碼不得出現 {forbidden}")

@@ -72,12 +72,22 @@ calib)
   IMAGES=("$@")
   [ ${#IMAGES[@]} -gt 0 ] || { echo "要給影像 id" >&2; exit 1; }
   GPU=$(free_gpus | head -1)
+  # 批次目錄必須先存在：tmux 指令裡的 `> …/calib.log` 在目錄不存在時
+  # 直接失敗，而那個失敗發生在 tmux 內，外面只看得到「session 沒了」。
+  mkdir -p "$RUNS/$BATCH"
   echo "段 0 在 GPU $GPU 上跑，影像：${IMAGES[*]}"
   tmux new-session -d -s "wacv-calib" \
     "cd $HOME/WACV && PYTHONIOENCODING=utf-8 CUDA_VISIBLE_DEVICES=$GPU \
 PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True \
 $PY scripts/run_stage.py calib --batch $BATCH $COMMON --images ${IMAGES[*]} \
 > $RUNS/$BATCH/calib.log 2>&1; echo \"[exit \$?]\" >> $RUNS/$BATCH/calib.log"
+  # 起不來要當場知道。先前漏了 mkdir，症狀是 session 靜默消失、log 不存在，
+  # 而輪詢的一方只會看到「還在跑」——那是最貴的一種失敗。
+  sleep 5
+  tmux has-session -t wacv-calib 2>/dev/null || {
+    echo "wacv-calib 沒有起來。log：" >&2
+    cat "$RUNS/$BATCH/calib.log" 2>/dev/null | tail -20 >&2
+    exit 1; }
   echo "log: $RUNS/$BATCH/calib.log"
   ;;
 
@@ -104,7 +114,14 @@ for S in train rayscale eval; do \
   $PY scripts/run_stage.py \$S --batch ${BATCH}_$IMG $COMMON --images $IMG || break; \
 done > $LOG 2>&1; echo \"[exit \$?]\" >> $LOG"
   done
-  sleep 3; tmux ls
+  sleep 5
+  for IMG in "${IMAGES[@]}"; do
+    tmux has-session -t "wacv-$IMG" 2>/dev/null || {
+      echo "分片 $IMG 沒有起來。log：" >&2
+      tail -20 "$(shard_dir "$IMG")/run.log" 2>/dev/null >&2
+      exit 1; }
+  done
+  tmux ls
   ;;
 
 watch)

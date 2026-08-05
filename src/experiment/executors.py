@@ -1049,6 +1049,9 @@ def _finish_train(res: Resources, cell: grid.Cell, out_dir: Path,
 def train_executor(cell: grid.Cell, ctx: Dict[str, Any]
                    ) -> Tuple[List[str], Dict[str, Any]]:
     res: Resources = ctx["res"]
+    # 段 1 全程不用語意指標，而它接下來要建的訓練圖是全案最吃顯存的一段。
+    # 理由與 `calibrate_lr` 同，見 `MetricSuite.release_vlm`。
+    res.suite.release_vlm()
     out_dir = res.cell_dir(cell.condition, cell.image_id)
     out_dir.mkdir(parents=True, exist_ok=True)
     kind = condition_spec(cell.condition).kind
@@ -1483,6 +1486,11 @@ def calibrate_lr(res: Resources, calib_dir: Path) -> Dict[str, Any]:
     正式訓練開著平台停止，過大的 lr 會在 `stop_require_feasible` 下無法收斂
     而暴露出來。真正的替代方案是逐候選跑滿 250 步，成本是 20 倍。
     """
+    # 語意指標的兩份權重（CLIP + SigLIP，合計 1,352 MB）到此為止都用不到了，
+    # 而下面每個候選都要建 N1 的訓練圖——那條路徑不能開 UNet checkpoint，
+    # 1024² 下 24 GB 的卡差約 600 MB 就 OOM。見 `MetricSuite.release_vlm`。
+    res.suite.release_vlm()
+
     rows: List[Dict[str, Any]] = []
     entry = next(iter(res.images.values()))
     out: Dict[str, Any] = {}

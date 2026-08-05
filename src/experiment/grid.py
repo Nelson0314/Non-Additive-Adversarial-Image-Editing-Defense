@@ -41,7 +41,7 @@ NONADDITIVE = ("N1", "N2", "N3")
 # `dia_pt` 與 `diffvax` 保留在程式中但**不納入本輪實驗**，各有其原因，
 # 兩者都記錄在 `EXCLUDED` 並由測試釘住——移出而不留記錄，等於讓
 # 「為什麼少了這一篇」變成無從查考的事。
-BASELINES = ("photoguard_c", "mist", "dia_r", "advpaint", "promptflare")
+BASELINES = ("photoguard_c", "mist", "dia_r")
 RANDOM_CONTROL = "R"
 
 # 未納入的方法與理由。**保留在此而非刪除**：報表與論文都要引用這些理由，
@@ -62,6 +62,31 @@ EXCLUDED: Dict[str, str] = {
         "忠實重現結構上不可能，強行改寫等於我方設計一個新方法再冠上它的名字。"
         "另其論文報告的 counter-attack 評測（CNN 去噪、JPEG、IMPRESS）"
         "在 repo 中完全不存在。改列為相關工作引用，不進比較表。"
+    ),
+    # 以下三項為 2026-08-06 的機時裁決（使用者決定），與上面兩項的「方法本身
+    # 有結構性問題」不同類。理由仍寫在此，因為審稿人問的是同一個問題。
+    "advpaint": (
+        "機時裁決（使用者 2026-08-06）。基準留三篇：PhotoGuard（ICML 2023）、"
+        "Mist（ICML 2023 Oral）、DIA（ICCV 2025），三者皆為常被引用的加性"
+        "對照，次要主張的「最佳 baseline」仍有公認的比較對象。移除兩篇省下"
+        "段 1 約 1 小時與段 3 的 900 格（約 4 小時，3090 實測外推）。"
+        "程式碼與逐行佐證完整保留於 src/baselines/advpaint.py，"
+        "把名字加回 BASELINES 一行即可納入。"
+    ),
+    "promptflare": (
+        "機時裁決（使用者 2026-08-06），與 advpaint 同一次決定。它是五篇中"
+        "訓練最貴的第二名（400 步 × 2 列，約為 PhotoGuard-c 的十分之一而為"
+        "其餘三篇的二至八倍）。程式碼保留於 src/baselines/promptflare.py，"
+        "把名字加回 BASELINES 一行即可納入。"
+    ),
+    "impress": (
+        "機時裁決（使用者 2026-08-06）：程式保留但本輪不執行。IMPRESS "
+        "（Cao et al., NeurIPS 2023）每格是 1000 次 Adam 迭代，每次為一整個"
+        "1024² SDXL VAE 的前向加反向，285 格依實測的 VAE 成本外推逾 100 小時，"
+        "且在 23.56 GB 的 RTX 3090 上實測 OOM（用掉 23.45 GB 後失敗）。"
+        "抗淨化的證據改以 DiffPure 與 JPEG／blur 的強度掃描承擔。"
+        "程式碼與參數佐證保留於 src/purify/impress.py，"
+        "把它加回 MAIN_PURIFIERS 一行即可納入。"
     ),
 }
 
@@ -90,9 +115,13 @@ GENERATIVE_CONDITIONS = ("N3",)
 
 IDENTITY = ("identity", 0.0)
 
-# 主組：文獻共識的六個算子。出處見 `docs/SOURCE_AUDIT_2026-08-05.md` §8。
+# 主組：文獻共識的算子。出處見 `docs/SOURCE_AUDIT_2026-08-05.md` §8。
 # `cnn_denoise_substitute` 的命名刻意帶 substitute——NTIRE 2023 冠軍的
 # 程式碼與權重皆未公開，此為我方替代，不得聲稱重現 DiffVax 的該項評測。
+#
+# 2026-08-06 由六項降為五項：`impress` 移入 `EXCLUDED`（機時裁決，程式保留）。
+# 抗淨化的證據因此由 DiffPure 這個「強淨化」對照，加上 SWEEP_PURIFIERS 的
+# JPEG 兩點與 blur 四點強度掃描承擔。
 MAIN_PURIFIERS: Tuple[Tuple[str, float], ...] = (
     IDENTITY,
     ("jpeg", 75),
@@ -100,7 +129,6 @@ MAIN_PURIFIERS: Tuple[Tuple[str, float], ...] = (
     ("crop_resize", 0.10),
     ("adverse_cleaner", 0.0),
     ("cnn_denoise_substitute", 0.0),
-    ("impress", 0.0),
     ("diffpure", 150),
 )
 

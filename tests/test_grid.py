@@ -107,10 +107,23 @@ def test_每個完整點都含identity():
         assert grid.IDENTITY in grid.purifiers_for(t), t
 
 
-def test_主組是文獻共識的六個算子加identity():
+def test_主組的算子清單():
+    """2026-08-06 起不含 `impress`（機時裁決，程式保留、見 EXCLUDED）。"""
     kinds = {k for k, _ in grid.MAIN_PURIFIERS}
     assert kinds == {"identity", "jpeg", "crop_resize", "adverse_cleaner",
-                     "cnn_denoise_substitute", "impress", "diffpure"}
+                     "cnn_denoise_substitute", "diffpure"}
+
+
+def test_抗淨化仍有強淨化與強度掃描():
+    """主張一是抗淨化。移除 IMPRESS 之後，承擔該主張的是 DiffPure 這個
+    強淨化對照，加上 JPEG 與 blur 的強度掃描——三者缺一，主張一就只剩
+    單點量測，看不出「效果隨淨化強度怎麼衰減」。"""
+    main = {k for k, _ in grid.MAIN_PURIFIERS}
+    assert "diffpure" in main
+    jpeg = sorted(s for k, s in grid.MAIN_PURIFIERS if k == "jpeg")
+    blur = sorted(s for k, s in grid.SWEEP_PURIFIERS if k == "blur")
+    assert len(jpeg) >= 2, f"JPEG 至少要兩個強度，實得 {jpeg}"
+    assert len(blur) >= 4, f"blur 至少要四個強度，實得 {blur}"
 
 
 def test_CNN去噪的命名帶substitute():
@@ -216,7 +229,8 @@ def test_cell不可變():
 def test_未納入的方法都有記錄理由():
     """「某篇為何不在表上」是審稿人一定會問的。移出而不留記錄，
     等於讓那個問題無從查考。"""
-    assert set(grid.EXCLUDED) == {"dia_pt", "diffvax"}
+    assert set(grid.EXCLUDED) == {"dia_pt", "diffvax", "advpaint",
+                                  "promptflare", "impress"}
     for name, reason in grid.EXCLUDED.items():
         assert len(reason) > 80, f"{name} 的理由過於簡略"
 
@@ -224,6 +238,20 @@ def test_未納入的方法都有記錄理由():
 def test_未納入的方法確實不在條件清單內():
     for name in grid.EXCLUDED:
         assert name not in grid.CONDITIONS
+    # impress 是淨化算子不是條件，它要不在的是主組
+    assert "impress" not in {k for k, _ in grid.MAIN_PURIFIERS}
+
+
+def test_機時裁決移除的方法程式碼仍保留():
+    """裁決是「保留但不實作」。刪掉程式碼就回不去了，而三者各自的逐行
+    原始碼佐證（`SOURCE_AUDIT` §1、§2、§8）是重跑時唯一的依據。"""
+    from src.baselines import REGISTRY
+    from src.purify.impress import PHOTOGUARD_PRESET, impress_real
+
+    for name in ("advpaint", "promptflare"):
+        assert name in REGISTRY, f"{name} 的 spec 被刪掉了"
+    assert callable(impress_real)
+    assert PHOTOGUARD_PRESET["iters"] == 1000, "保留的必須是原設定"
 
 
 def test_dia_pt的程式碼仍保留():
@@ -241,6 +269,8 @@ def test_DIA仍有一個忠實的代表():
     assert "dia_r" in grid.CONDITIONS
 
 
-def test_五篇baseline():
-    assert len(grid.BASELINES) == 5
-    assert len(grid.CONDITIONS) == 9
+def test_三篇baseline():
+    """2026-08-06 的機時裁決後為三篇。三篇都是常被引用的加性對照，
+    次要主張的「最佳 baseline」因此仍有公認的比較對象。"""
+    assert grid.BASELINES == ("photoguard_c", "mist", "dia_r")
+    assert len(grid.CONDITIONS) == 7

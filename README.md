@@ -49,7 +49,7 @@
 | 目標函數 | `src/defense/objective.py`（LPIPS 為綁定約束，`beta_linf` 可關） |
 | 優化 | `src/defense/optimize.py`（`optimize` / `optimize_encoder` / `optimize_crossattn` / `align`） |
 | cross-attention 擷取 | `src/models/attention.py` |
-| baseline 攻擊 | `src/baselines/`（`pgd.py` 為共用骨幹，五篇各一檔） |
+| baseline 攻擊 | `src/baselines/`（`pgd.py` 為共用骨幹，五篇各一檔；本輪跑其中三篇，見 `grid.EXCLUDED`） |
 | 保真度指標 | `src/metrics/`（`local_acutance.py`、`chroma.py`、`suite.py`、`ray_scale.py`） |
 | 淨化算子 | `src/purify/ops.py` |
 | **主驅動** | **`scripts/run_stage.py`**（五段：calib／train／rayscale／eval／report） |
@@ -73,7 +73,7 @@ python -m pytest -q
 
 # 五段流程。stage 是**位置引數**；--gpu-tag 與 --precision 必填。
 # --dry-run 在耗掉機時之前回答「會跑幾格」。
-COMMON="--batch b1 --gpu-tag RTX-5090 --precision bf16"
+COMMON="--batch b1 --gpu-tag RTX-3090 --precision bf16"
 python scripts/run_stage.py calib    $COMMON --mist-target data/targets/MIST.png
 python scripts/run_stage.py train    $COMMON --mist-target data/targets/MIST.png
 python scripts/run_stage.py rayscale $COMMON

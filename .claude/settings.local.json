@@ -21,7 +21,9 @@
       "Bash(export PYTHONIOENCODING=utf-8)",
       "Bash(C:/Users/nelso/miniconda3/envs/wacv/python.exe scripts/run_ours_lo_eval.py --model hf-internal-testing/tiny-stable-diffusion-pipe --data __TRACKED_VAR__/smoke_data --out __TRACKED_VAR__/smoke_ours --sites PF,S --rank 32 --size 64 --steps 3 --n_edit 2 --eval_seeds 2)",
       "Bash(PYTHONIOENCODING=utf-8 timeout 900 /c/Users/nelso/miniconda3/envs/wacv/python.exe scripts/gate_suppress.py --out runs/_smoke_gate --images horse_00 --size 256 --steps 2 --eval_seeds 2)",
-      "Bash(grep -vE \"Warning|warn|^\\\\s*$|it/s\\\\]\")"
+      "Bash(grep -vE \"Warning|warn|^\\\\s*$|it/s\\\\]\")",
+      "Bash(C:/Users/nelso/miniconda3/envs/wacv/python.exe -c ' *)",
+      "Bash(cp .claude/settings.local.json \"C:/Users/nelso/AppData/Local/Temp/claude/C--WACV/0d5a8acb-13cf-4827-8ffb-9f26ab20f2e0/scratchpad/settings.local.json.bak\")"
     ]
   }
 }

@@ -103,6 +103,11 @@ class FakeSuite:
     def semantic(self, x, prompt):
         return {"clip": float(x.mean()), "siglip": float(x.std())}
 
+    def release_vlm(self):
+        """真身會把 CLIP 與 SigLIP 移出顯存（1,352 MB）。替身記錄被呼叫的
+        次數，供 `test_訓練前釋放語意權重` 檢查呼叫點沒有被拿掉。"""
+        self.released = getattr(self, "released", 0) + 1
+
     def full(self, a, b, prompt=None):
         out = self.pairwise(a, b)
         out["niqe_a"], out["niqe_b"] = self.niqe(a), self.niqe(b)
@@ -637,11 +642,23 @@ def test_已有skip_reason的格不被覆寫(tmp_path):
 
 
 def test_事前檢查點名缺MIST圖與PromptFlare的解析度限制(tmp_path):
+    """條件明給而非取 `grid.CONDITIONS` 的預設：promptflare 自 2026-08-06
+    起因機時裁決不在格點內（`grid.EXCLUDED`），但那個檢查必須留著——
+    把它加回 BASELINES 時，解析度限制仍然成立。"""
     res = make_res(tmp_path)
     res.cfg.resolution = 1024
-    warns = " ".join(executors.preflight(res))
+    warns = " ".join(executors.preflight(res, conditions=("mist", "promptflare")))
     assert "MIST.png" in warns
     assert "promptflare" in warns and "512" in warns
+
+
+def test_訓練前釋放語意權重(tmp_path):
+    """CLIP 與 SigLIP 合計 1,352 MB，訓練迴圈一次也不碰，而 N1 的訓練圖
+    在 1024² 下差約 600 MB 就 OOM（RTX 3090 實測）。呼叫點被拿掉的症狀
+    只有 OOM，且只在顯存較小的卡上出現，故以測試釘住。"""
+    res = make_res(tmp_path)
+    executors.train_executor(grid.Cell("train", "R", "dog_00"), {"res": res})
+    assert getattr(res.suite, "released", 0) >= 1, "段 1 沒有釋放語意權重"
 
 
 def test_事前檢查提醒兩個門檻仍是舊預算的值(tmp_path):

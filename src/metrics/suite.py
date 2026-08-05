@@ -100,6 +100,35 @@ class MetricSuite:
         self._siglip_proc = AutoProcessor.from_pretrained(SIGLIP_REPO)
         self._siglip = AutoModel.from_pretrained(SIGLIP_REPO).to(self.device).eval()
 
+    def release_vlm(self) -> None:
+        """把 CLIP 與 SigLIP 移出顯存。下次用到時 `_ensure_vlm` 會重新載入。
+
+        兩者合計 **1,352 MB**（CLIP 577 + SigLIP 775，2026-08-06 於 RTX 3090
+        實測），而它們**只在語意指標上用得到**，訓練迴圈一次也不碰。
+
+        為什麼需要顯式釋放：`_ensure_vlm` 是延遲載入，段 0 的
+        `calibrate_strength` 為了做編輯有效性過濾而呼叫 `semantic()`，之後
+        兩份權重就一直留在卡上。接著 `calibrate_lr` 要建 N1 的訓練圖——
+        該條件因 attention hook 與 checkpoint 不相容而**不能開 UNet
+        checkpoint**（見 `optimize._build_attn_step`），1024² 下需保留
+        12 個完整的 UNet 計算圖。23.56 GB 的卡上實測差約 600 MB 而 OOM，
+        閒置的 1,352 MB 正是可回收的部分。
+
+        本方法只動裝置常駐，不改任何數值：重新載入的是同一個 repo 的同一份
+        權重，`semantic()` 的結果逐位元不變。
+
+        **不要在評測迴圈裡逐格呼叫**——那 4,000 格每格都要重載 1.35 GB。
+        呼叫點限於「接下來要跑長時間最佳化」之處。
+
+        2026-08-06 新增。before：無釋放路徑，`_ensure_vlm` 載入後即常駐。
+        """
+        self._clip = None
+        self._siglip = None
+        self._clip_proc = None
+        self._siglip_proc = None
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+
     # ---- 成對指標 ----
 
     @torch.no_grad()

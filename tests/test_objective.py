@@ -800,3 +800,30 @@ def test_LPIPS的呼叫一律經過_perceptual():
     body = src.replace(inspect.getsource(mod.DefenseObjective._perceptual), "")
     hits = re.findall(r"self\._lpips\s*\(", body)
     assert not hits, f"有 {len(hits)} 處直接呼叫 self._lpips，必須改走 _perceptual"
+
+
+def test_保真度的入口一律轉fp32():
+    """混合精度下 `x_def` 是半精度而 `x`／`x_base` 是 fp32。
+
+    `piq` 的 LPIPS 與 SSIM 都依**第一個引數**建核或轉模型，再拿它算第二個
+    引數，故混著傳一定中止。2026-08-06 於段 0 連續遇到兩次。此處以實跑
+    驗證整條 `fidelity_term` 在混合 dtype 下走得通。
+    """
+    o = DefenseObjective(LossConfig(), DEV)
+    g = torch.Generator().manual_seed(SEED)
+    x = torch.rand(1, 3, 64, 64, generator=g)
+    xd = (x * 0.9 + 0.05).to(torch.bfloat16)      # 生成路徑的輸出：bf16
+    loss, parts = o.fidelity_term(xd, x, x_base=x)
+    assert torch.isfinite(loss).all() and loss.dtype == torch.float32
+    for k in ("fid_lpips", "fid_ssim", "fid_psnr", "fid_linf"):
+        assert k in parts and parts[k] == parts[k], f"{k} 不是有限值"
+
+
+def test_targeted的MSE也吃得下混合dtype():
+    """`y_target` 是由 PNG 載入的 fp32，`y_def` 在 bf16 下是半精度。"""
+    o = DefenseObjective(LossConfig(target_metric="mse"), DEV)
+    g = torch.Generator().manual_seed(SEED)
+    y_t = torch.rand(1, 3, 32, 32, generator=g)
+    y_d = (y_t * 0.8).to(torch.bfloat16)
+    d = o.target_distance(y_d, y_t)
+    assert torch.isfinite(d).all() and d.dtype == torch.float32

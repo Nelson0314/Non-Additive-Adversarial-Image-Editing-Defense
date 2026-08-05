@@ -238,6 +238,28 @@ class DefenseObjective:
 
     `y_orig` 對 φ 為常數，由呼叫端算好並傳入；本類別不負責快取，以免把
     「哪些量對 φ 為常數」這個關鍵前提藏在實作細節裡。
+
+    ## 保真度一律在 fp32 上量
+
+    **本類別的每一個度量都在 fp32 上計算，不論骨幹跑什麼精度。**
+    進來的張量在各入口 `.float()`，出去的純量因此也是 fp32。
+
+    兩個理由，各自獨立成立：
+
+    1. **一致性。** `lpips_rel` 是綁定的保真約束，而段 2 的射線縮放解的是
+       **同一個 τ**——後者走 `MetricSuite`，輸入是 fp32 的影像張量
+       （`ray_scale.lpips_against`）。兩者若在不同精度上算，訓練期滿足的 τ
+       與對齊期解出的 τ 就是兩個不同的量，而「匹配失真」是全案最關鍵的
+       前提（`RUNBOOK` §0.5），該前提已被證偽四次。
+
+    2. **混合精度下的輸入本來就不同調。** bf16 時 `x_gen`／`y_def` 是半精度，
+       而 `x01`、`y_target`（由 PNG 載入）是 fp32。`piq` 的 LPIPS 與 SSIM
+       都會依**第一個引數**建核或轉模型，再拿它算第二個引數，故混著傳一定
+       中止。2026-08-06 於段 0 連續遇到兩次（`_perceptual` 與 `piq.ssim`）。
+
+    降精度換記憶體在這裡不划算：保真度是本研究的判準本身，不是中間量。
+    新增任何度量時，輸入一律先 `.float()`，由
+    `test_保真度的入口一律轉fp32` 釘住。
     """
 
     def __init__(self, cfg: LossConfig, device: torch.device):
@@ -295,7 +317,9 @@ class DefenseObjective:
         """
         if self.cfg.target_metric == "lpips":
             return self.distance(y, y_target)
-        return torch.nn.functional.mse_loss(y, y_target)
+        # 與 `_perceptual` 同一個理由：`y` 在 bf16 下是半精度而 `y_target`
+        # 是由 PNG 載入的 fp32。見類別 docstring。
+        return torch.nn.functional.mse_loss(y.float(), y_target.float())
 
     # ---- 防禦項（一）：targeted_output ----
 
@@ -413,9 +437,13 @@ class DefenseObjective:
         import piq
 
         c = self.cfg
-        xd = x_def.clamp(0, 1)
-        xr = x.clamp(0, 1)
-        xb = xr if x_base is None else x_base.clamp(0, 1)
+        # 三者一律轉 fp32，見類別 docstring「保真度一律在 fp32 上量」。
+        # 生成路徑在 bf16 下的 `x_gen` 是半精度而 `x01` 是 fp32，混著進
+        # `piq.ssim` 會以 `RuntimeError: expected scalar type Float but found
+        # BFloat16` 中止（2026-08-06 於段 0 的 N3 對齊實測）。
+        xd = x_def.clamp(0, 1).float()
+        xr = x.clamp(0, 1).float()
+        xb = xr if x_base is None else x_base.clamp(0, 1).float()
 
         # 對原圖的絕對值：只記錄，不進梯度。
         lpips = self._perceptual(xd, xr)

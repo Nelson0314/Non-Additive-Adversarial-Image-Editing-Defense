@@ -34,3 +34,10 @@ dependencies:
       - pyyaml
       - psutil         # 記憶體量測（開發輔助）
       - matplotlib     # stage 腳本之校準與淨化強度曲線
+      # `MetricSuite.semantic()` 的 SigLIP（google/siglip-base-patch16-224）。
+      # 其 tokenizer 是 SentencePiece 型，transformers 載入時要 protobuf 解
+      # tokenizer 模型；缺任一者都以 ImportError 失敗。兩項本機都在
+      # （protobuf 7.35.1、sentencepiece 0.2.2）但本檔 2026-08-06 之前都沒列，
+      # 故在 basic-1 的乾淨 env 上於段 0 的 `calibrate_strength` 才暴露。
+      - protobuf
+      - sentencepiece

@@ -426,6 +426,10 @@ def _cfg(steps: int = 1, lr: float = 0.01, group: str = "default",
     base = dict(
         stages=(StageSpec(group=group, lr_key=lr_key, max_steps=steps),),
         k_inv=2, n_edit=2, n_eot=1,
+        # `stop_tol` 自 2026-08-05 起沒有回退值（見 `resolve_stop_tol`）：
+        # 呼叫端必須明給或由校準表取得。本檔測的是接線與梯度，不是收斂，
+        # 故在此明寫一個測試值，個別測試仍可用 `stop_tol=` 覆寫。
+        stop_tol=1e-4,
         align_steps=2, align_lr_key=TEST_ALIGN_LR_KEY, log_every=100, seed=SEED,
     )
     # 舊介面的 `align_lr` 是數值，新介面是校準鍵。呼叫端若仍傳數值，

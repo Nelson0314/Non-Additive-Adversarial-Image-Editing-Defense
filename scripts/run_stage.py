@@ -125,10 +125,13 @@ def run_config(args) -> executors.RunConfig:
 def base_config(args) -> dict:
     """整批共用的設定。格點自己的四個軸由 `cell_config` 疊上去。
 
-    `loss_params` 不是空的：凡是會改變數值結果的計算層旋鈕都放進去，
+    三份參數字典都不是空的：凡是會改變數值結果的計算層旋鈕都放進去，
     使「改了設定卻沿用舊結果」在雜湊層就被擋下。漏掉任何一項的症狀是
     完全沒有症狀——輸出仍是一張合理的圖，只是它不是這次設定跑出來的。
+    `module_params` 承載參數化容量（控制點數、LoRA 秩），
+    `optim_params` 承載最佳化旋鈕（步數、停止準則）。
     """
+    cfg = run_config(args)
     return {
         "spec_version": args.spec_version,
         "model": args.model,
@@ -138,7 +141,9 @@ def base_config(args) -> dict:
         "strength": args.strength,
         "gpu": args.gpu_tag,
         "precision": args.precision,
-        "loss_params": run_config(args).loss_params(),
+        "loss_params": cfg.loss_params(),
+        "module_params": cfg.module_params(),
+        "optim_params": cfg.optim_params(),
         # 學習率由校準表決定，不由 CLI 給，故此處恆為 None。實際採用的值
         # 寫進每格的 `meta.json`（`lr` 欄），使事後查得到。
         "lr": None,
@@ -158,18 +163,29 @@ def load_entries(args, device) -> list:
     )
 
 
-def build_resources(args, batch_dir: Path) -> executors.Resources:
+def build_resources(args, batch_dir: Path, load_model: bool = True
+                    ) -> executors.Resources:
     """載入權重與指標模型，組出跨格共用的 `Resources`。
 
     校準表在此**盡力載入**：段 0 本身要產生它，故不存在時不視為錯誤；
     但段 1 之後任何一次取學習率都會經 `Resources.require_calib()` 拋出。
     這與「沒有校準表就用預設值」是兩件事——後者才是本專案要消滅的路徑。
+
+    `load_model=False` 供段 4：它只讀 `_cells/` 的逐格紀錄，載入 SDXL 是
+    數分鐘的純浪費。此時 `sd` 與影像都是空的，任何需要它們的路徑都會以
+    `AttributeError`／`KeyError` 當場失敗，不會靜默算出一個沒有模型的結果。
     """
     import torch
 
     from src.metrics.suite import MetricSuite
     from src.models.sd import SDWrapper, SDXLWrapper
     from src.utils.calibration import Calibration
+
+    if not load_model:
+        return executors.Resources(
+            sd=None, suite=None, batch_dir=batch_dir,
+            base_config=base_config(args), cfg=run_config(args),
+        )
 
     dtype = getattr(torch, PRECISION[args.precision])
     wrapper = SDXLWrapper if args.wrapper == "sdxl" else SDWrapper
@@ -371,7 +387,9 @@ def main(argv=None) -> int:
         (batch_dir / "env.json").write_text(
             json.dumps(build_env(args), indent=2, ensure_ascii=False),
             encoding="utf-8")
-        res = build_resources(args, batch_dir)
+        # 段 4 只讀 `_cells/` 的逐格紀錄，載入 SDXL 是數分鐘的純浪費。
+        res = build_resources(args, batch_dir,
+                              load_model=(args.stage != "report"))
         ctx = {"res": res}
 
         # 段 0 與段 4 沒有格點：`grid.plan()` 不列它們，硬塞進格點框架只會

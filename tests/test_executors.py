@@ -121,15 +121,21 @@ BASE = {
 }
 
 
+CALIB_KEYS = ("lr.N1", "lr.N2", "lr.N3_stage1", "lr.N3_stage2",
+              "stop_tol.shared_mass", "stop_tol.edit_shift")
+
+
 def make_res(tmp_path, images=("dog_00", "cat_00"), with_calib=True,
-             **cfg_kw) -> executors.Resources:
+             calib_keys=CALIB_KEYS, **cfg_kw) -> executors.Resources:
     cfg = executors.RunConfig(
         resolution=SIZE, guidance=7.5, strength=0.6, steps=3, seed=7,
         train_n_edit=2, k_inv=2, max_steps=3, align_steps=2, probe_steps=2,
         warp_grid_size=4, warp_max_disp=6.0, random_init_std=0.5,
         target_image="", **cfg_kw,
     )
-    base = dict(BASE, loss_params=cfg.loss_params())
+    base = dict(BASE, loss_params=cfg.loss_params(),
+                module_params=cfg.module_params(),
+                optim_params=cfg.optim_params())
     entries = executors.load_lo_aligned(DATA, SIZE, torch.device("cpu"),
                                         ids=list(images))
     res = executors.Resources(
@@ -141,10 +147,10 @@ def make_res(tmp_path, images=("dog_00", "cat_00"), with_calib=True,
     res.batch_dir.mkdir(parents=True, exist_ok=True)
     if with_calib:
         table = Calibration()
-        for key in ("lr.N1", "lr.N2", "lr.N3_stage1", "lr.N3_stage2"):
-            table.put(key, 0.01, res.calib_context, note="測試固定值")
-        table.put("stop_tol.shared_mass", 3e-4, res.calib_context,
-                  note="測試固定值")
+        fixed = {"stop_tol.shared_mass": 3e-4, "stop_tol.edit_shift": 5e-4}
+        for key in calib_keys:
+            table.put(key, fixed.get(key, 0.01), res.calib_context,
+                      note="測試固定值")
         res.calib = table
     return res
 
@@ -223,8 +229,7 @@ def test_N3的兩階段分別取用不同的組與鍵(tmp_path):
 
 
 def test_N1向校準表索取stop_tol(tmp_path):
-    """`shared_mass` 不在 `MONITOR_TOL` 內（刻意留空），未校準時
-    `resolve_stop_tol` 會拋出。"""
+    """停止門檻沒有回退路徑，未校準時 `resolve_stop_tol` 會拋出。"""
     res = make_res(tmp_path)
     cfg = executors.optim_config(res, executors.condition_spec("N1"))
     assert cfg.stop_tol == pytest.approx(3e-4)
@@ -233,10 +238,21 @@ def test_N1向校準表索取stop_tol(tmp_path):
     )
 
 
-def test_N2不需要stop_tol而沿用已校準的edit_shift(tmp_path):
+def test_N2的edit_shift門檻同樣由校準表取得(tmp_path):
+    """2026-08-05 收緊。before：`edit_shift` 走 `MONITOR_TOL` 的 1e-4——
+    那是 SD v1.4／512² 的實測值，靜默沿用到 SDXL／1024²。"""
     res = make_res(tmp_path)
     assert executors.optim_config(
-        res, executors.condition_spec("N2")).stop_tol is None
+        res, executors.condition_spec("N2")).stop_tol == pytest.approx(5e-4)
+
+
+def test_未校準edit_shift時N2直接拋出(tmp_path):
+    from src.utils.calibration import CalibrationMismatch
+
+    res = make_res(tmp_path, calib_keys=("lr.N1", "lr.N2", "lr.N3_stage1",
+                                         "lr.N3_stage2", "stop_tol.shared_mass"))
+    with pytest.raises(CalibrationMismatch):
+        executors.optim_config(res, executors.condition_spec("N2"))
 
 
 def test_沒有校準表時取學習率直接拋出(tmp_path):

@@ -230,14 +230,18 @@ def test_未知的defense_mode必須報錯():
 # ---------------------------------------------------------------------------
 
 
-def test_每個監看量各有自己的停止門檻():
-    """`plateau_stop` 比的是絕對改善量，而兩個監看量的動態範圍差 39 倍。"""
-    from src.defense.optimize import MONITOR_TOL, resolve_stop_tol
+def test_停止門檻沒有任何回退路徑():
+    """`plateau_stop` 比的是絕對改善量，而不同監看量的動態範圍差 39 倍。
 
-    assert resolve_stop_tol(None, "edit_shift") == MONITOR_TOL["edit_shift"]
-    assert resolve_stop_tol(None, "attn_div") == MONITOR_TOL["attn_div"]
-    # attn_div 的範圍小一個量級，門檻也必須小一個量級
-    assert MONITOR_TOL["edit_shift"] / MONITOR_TOL["attn_div"] == pytest.approx(10.0)
+    2026-08-05 收緊：先前 `edit_shift` 有回退值（1e-4，量在 SD v1.4／512²／
+    site PF 上），只有 `shared_mass` 會拋出，即同一道規則對兩個監看量鬆緊
+    不一。門檻與學習率是同一種量，故比照 `resolve_lr` 改為完全無回退。
+    """
+    from src.defense.optimize import resolve_stop_tol
+
+    for key in ("edit_shift", "attn_div", "shared_mass", "some_new_metric"):
+        with pytest.raises(KeyError, match="stop_tol"):
+            resolve_stop_tol(None, key)
 
 
 def test_呼叫端明寫的門檻優先():
@@ -246,15 +250,19 @@ def test_呼叫端明寫的門檻優先():
     assert resolve_stop_tol(3e-4, "attn_div") == 3e-4
 
 
-def test_未校準的監看量必須拋出而不是沿用別人的門檻():
-    """這正是這道缺陷的形狀：為某個量校準的門檻被沿用而沒有症狀。"""
-    from src.defense.optimize import resolve_stop_tol
+def test_先驗門檻只作為量級紀錄留存():
+    """兩個舊值仍要查得到——它們是「該用什麼量級」的唯一參考——
+    但不得成為任何一條解析路徑的回傳值。"""
+    from src.defense import optimize as O
 
-    with pytest.raises(KeyError, match="沒有校準過的 stop_tol"):
-        resolve_stop_tol(None, "some_new_metric")
+    assert not hasattr(O, "MONITOR_TOL"), (
+        "舊名保留會讓呼叫端以為它仍是生效的表"
+    )
+    assert O.LEGACY_MONITOR_TOL["edit_shift"] / \
+        O.LEGACY_MONITOR_TOL["attn_div"] == pytest.approx(10.0)
 
 
-def test_N1的新監看量尚未校準故必須拋出():
+def test_N1的監看量必須由校準表取得():
     """`shared_mass` 是 targeted 之後的新監看量，`attn_div` 的 1e-5 不適用。
 
     前者是「導向 shared token 的質量」、後者是「1 − 內容 token 的質量」，
@@ -264,7 +272,7 @@ def test_N1的新監看量尚未校準故必須拋出():
     from src.defense.optimize import DEFENSE_MONITOR, resolve_stop_tol
 
     assert DEFENSE_MONITOR["targeted_attn"] == "shared_mass"
-    with pytest.raises(KeyError, match="沒有校準過的 stop_tol"):
+    with pytest.raises(KeyError, match="stop_tol"):
         resolve_stop_tol(None, "shared_mass")
 
 

@@ -71,7 +71,20 @@ def solve_k(
             return x, got, k
         lo, hi = (k, hi) if got < target else (lo, k)
     x = build(k)
-    return x, lpips_fn(x), k
+    got = lpips_fn(x)
+    if abs(got - target) >= tol:
+        # 上界擴張那一段會拋出，二分用盡卻靜默回傳，是同一條規則只實作了一半。
+        # 兩種成因都落在這裡：(a) `build(0)` 本身已高於 target——生成路徑的
+        # VAE 來回下限（LPIPS 0.1434）使任何 target < 0.1434 必然如此；
+        # (b) 該方向在 target 附近不連續。兩者都必須是例外而不是一列數字：
+        # 主表標成 τ=0.20 的格若實際失真是別的值，下游沒有任何欄位看得出來。
+        raise ValueError(
+            f"二分 {iters} 次後 LPIPS 停在 {got:.4f}，與目標 {target} 的差距 "
+            f"{abs(got - target):.4f} 超過容差 {tol}（k={k:.4g}）。"
+            f"若 build(0) 本身已超過目標（例如生成路徑的 VAE 重建下限），"
+            f"該 τ 對此條件結構上不可達，應由格點標為 skipped 而非縮放"
+        )
+    return x, got, k
 
 
 def scale_to_lpips(

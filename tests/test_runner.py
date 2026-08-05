@@ -15,7 +15,8 @@ from src.utils.progress import ProgressWriter
 BASE = {
     "spec_version": 1, "model": "SDXL-1.0-base", "resolution": 1024,
     "guidance": 7.5, "steps": 50, "strength": 0.6,
-    "gpu": "V100", "precision": "fp16", "loss_params": {}, "lr": None,
+    "gpu": "V100", "precision": "fp16", "loss_params": {},
+    "module_params": {}, "optim_params": {}, "lr": None,
 }
 
 

@@ -43,6 +43,13 @@ REQUIRED_KEYS = (
     "precision",
     "condition",
     "loss_params",
+    # 2026-08-05 新增。before：只有 `loss_params`，於是「同一個 condition、
+    # 不同的參數化容量」會算出**相同的雜湊**——A7 原文點名的控制點 32 與 128
+    # 正是這個情形，`is_done` 會把第二組判為已完成並沿用第一組的產物。
+    # 最佳化的旋鈕（步數、停止準則）同理：它們改變結果卻不改變路徑。
+    # after：參數化與最佳化各自一個必填鍵，缺任一即拋出。
+    "module_params",
+    "optim_params",
     "lr",
     "tau",
     "purify",

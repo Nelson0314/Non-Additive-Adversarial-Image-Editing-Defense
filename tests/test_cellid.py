@@ -10,6 +10,8 @@ BASE = {
     "guidance": 7.5, "steps": 50, "strength": 0.6,
     "gpu": "Tesla V100-SXM2-32GB", "precision": "fp16",
     "condition": "N1", "loss_params": {"margin": 0.5, "lam_def": 1.0},
+    "module_params": {"warp_grid_size": 32, "warp_max_disp": 1.5},
+    "optim_params": {"max_steps": 250, "stop_patience": 20},
     "lr": 0.1, "tau": 0.20, "purify": None, "seed": 0, "image_id": "pie_0007",
 }
 
@@ -34,6 +36,22 @@ def test_任一變因改動即改變雜湊(key, new):
 def test_巢狀損失參數改動也改變雜湊():
     """loss_params 是字典，若只比對頂層鍵就會漏掉這一層。"""
     other = BASE | {"loss_params": {"margin": 0.9, "lam_def": 1.0}}
+    assert config_hash(other) != config_hash(BASE)
+
+
+def test_控制點數改變即改變雜湊():
+    """A7 原文點名的情形：同一個 condition、控制點 32 與 128。
+
+    兩者若算出同一個雜湊，`is_done` 會把第二組判為已完成並沿用第一組的
+    產物，而把兩者的結果平均正好抹掉要量的效應——輸出完全正常。
+    """
+    other = BASE | {"module_params": {"warp_grid_size": 128,
+                                      "warp_max_disp": 1.5}}
+    assert config_hash(other) != config_hash(BASE)
+
+
+def test_最佳化步數改變即改變雜湊():
+    other = BASE | {"optim_params": {"max_steps": 100, "stop_patience": 20}}
     assert config_hash(other) != config_hash(BASE)
 
 

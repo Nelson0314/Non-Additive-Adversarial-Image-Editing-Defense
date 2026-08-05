@@ -342,9 +342,14 @@ class RunConfig:
     diffpure_ckpt: str = ""
 
     def loss_params(self) -> Dict[str, Any]:
-        """會改變數值結果、因而必須進 `config_hash` 的欄位。
+        """定義**損失本身**的欄位：目標、約束門檻、以及損失所走的前向鏈。
 
-        漏掉任何一項的症狀是「改了設定卻沿用舊結果」，而輸出看起來完全正常。
+        > 2026-08-05 拆分。before：本方法回傳全部旋鈕，`config_hash` 只有
+        > `loss_params` 一個必填鍵承載它們。那使「參數化容量」與「最佳化步數」
+        > 沒有各自的宣告位置——`cellid.REQUIRED_KEYS` 檢查的是鍵的存在，
+        > 呼叫端漏放容量參數不會有任何症狀（A7）。
+        > after：拆成 `loss_params` / `module_params` / `optim_params` 三份，
+        > 三者皆為 `REQUIRED_KEYS`，缺任一即拋 `ConfigIncomplete`。
         """
         return {
             "train_n_edit": self.train_n_edit,
@@ -353,16 +358,22 @@ class RunConfig:
             "t_max": self.t_max,
             "exact_inversion": self.exact_inversion,
             "purify_mode": self.purify_mode,
-            "max_steps": self.max_steps,
-            "align_steps": self.align_steps,
-            "stop_patience": self.stop_patience,
-            "stop_min_steps": self.stop_min_steps,
             "attn_timesteps": self.attn_timesteps,
             "tau_train": self.tau_train,
             "tau_acut": self.tau_acut,
             "tau_chroma": self.tau_chroma,
             "beta_linf": self.beta_linf,
             "tau_linf": self.tau_linf,
+            "target_image": self.target_image,
+        }
+
+    def module_params(self) -> Dict[str, Any]:
+        """**參數化的容量**。A7 原文點名的「控制點 32 與 128」就在這裡。
+
+        把控制點 32 與 128 的結果合併統計，那個平均正好抹掉要量的效應，
+        而輸出看起來完全正常。它們必須讓 `config_hash` 分得開。
+        """
+        return {
             "warp_grid_size": self.warp_grid_size,
             "warp_max_disp": self.warp_max_disp,
             "warp_resample": self.warp_resample,
@@ -370,7 +381,19 @@ class RunConfig:
             "apa_latent_max_rank": self.apa_latent_max_rank,
             "apa_latent_const_rank": self.apa_latent_const_rank,
             "random_init_std": self.random_init_std,
-            "target_image": self.target_image,
+        }
+
+    def optim_params(self) -> Dict[str, Any]:
+        """**最佳化過程**的旋鈕。改了它們，同一個 φ 的解不同。
+
+        學習率不在此：它由校準表決定、逐格記在 `meta.json` 的 `lr` 欄，
+        而 `lr` 自己就是 `REQUIRED_KEYS` 的一員。
+        """
+        return {
+            "max_steps": self.max_steps,
+            "align_steps": self.align_steps,
+            "stop_patience": self.stop_patience,
+            "stop_min_steps": self.stop_min_steps,
         }
 
 
@@ -739,13 +762,17 @@ def loss_config(res: Resources, spec: ConditionSpec) -> LossConfig:
 def optim_config(res: Resources, spec: ConditionSpec) -> OptimConfig:
     """訓練期的優化設定。
 
-    `stop_tol` 只有在監看量是 `shared_mass`（N1）時才向校準表索取：
-    `optimize.MONITOR_TOL` 對 `edit_shift` 已有實測值，對 `shared_mass`
-    刻意留空（見該表的說明），未校準時 `resolve_stop_tol` 會拋出。
+    `stop_tol` **一律**向校準表索取，不分監看量。
+
+    > 2026-08-05 修正。before：只有 `shared_mass` 向校準表索取，`edit_shift`
+    > 走 `optimize.MONITOR_TOL` 的 1e-4——那是 SD v1.4／512²／site PF 的實測
+    > 值，靜默沿用到 SDXL／1024²／位移場。門檻過嚴會在第一個觀察窗就回報
+    > 「已收斂」、過鬆等於沒開停止準則，兩者都沒有症狀。
+    > after：兩個監看量同權，未校準即拋 `CalibrationMismatch`。
     """
     stop_tol = None
-    if spec.monitor == "shared_mass":
-        stop_tol = float(res.require_calib().get("stop_tol.shared_mass",
+    if spec.monitor:
+        stop_tol = float(res.require_calib().get(f"stop_tol.{spec.monitor}",
                                                  res.calib_context))
     align_steps = res.cfg.align_steps if spec.align_lr_key else 0
     return OptimConfig(
@@ -1309,8 +1336,8 @@ def _probe_lr(res: Resources, condition: str, entry: ImageEntry,
         # 並在 note 裡註明它只是探測用——最終的 stage1 值由自己的探測決定。
         tmp.put(spec.align_lr_key, statistics.median(res.cfg.lr_grid), ctx,
                 note="段 0 探測階段二時的暫用值，非最終校準結果")
-    if spec.monitor == "shared_mass":
-        tmp.put("stop_tol.shared_mass", 0.0, ctx,
+    if spec.monitor:
+        tmp.put(f"stop_tol.{spec.monitor}", 0.0, ctx,
                 note="段 0 探測期不啟用平台停止")
 
     probe = dc_replace(res.cfg, max_steps=steps, align_steps=0)
@@ -1391,6 +1418,9 @@ def calibrate_lr(res: Resources, calib_dir: Path) -> Dict[str, Any]:
     rows: List[Dict[str, Any]] = []
     entry = next(iter(res.images.values()))
     out: Dict[str, Any] = {}
+    # 停止門檻的鍵是**監看量**而非條件（N2 與 N3 共用 `edit_shift`），故逐監看量
+    # 彙總全部候選再算一次，不讓後一個條件覆寫前一個的值。
+    by_monitor: Dict[str, List[Dict[str, Any]]] = {}
 
     for cond in grid.NONADDITIVE:
         spec = condition_spec(cond)
@@ -1403,8 +1433,11 @@ def calibrate_lr(res: Resources, calib_dir: Path) -> Dict[str, Any]:
                             res.cfg.probe_steps) for lr in res.cfg.lr_grid]
         rows += probes
         out[spec.lr_key] = _pick_best(probes, spec.lr_key)
-        if spec.monitor == "shared_mass":
-            out["stop_tol.shared_mass"] = _pick_stop_tol(probes)
+        if spec.monitor:
+            by_monitor.setdefault(spec.monitor, []).extend(probes)
+
+    for monitor, probes in by_monitor.items():
+        out[f"stop_tol.{monitor}"] = _pick_stop_tol(probes, monitor)
 
     write_csv(calib_dir / "lr_probe.csv", rows)
     return out
@@ -1420,19 +1453,20 @@ def _pick_best(probes: Sequence[Dict[str, Any]], lr_key: str) -> float:
     return float(min(ok, key=lambda p: p["final_loss"])["lr"])
 
 
-def _pick_stop_tol(probes: Sequence[Dict[str, Any]]) -> float:
-    """`shared_mass` 的平台停止門檻。
+def _pick_stop_tol(probes: Sequence[Dict[str, Any]], monitor: str) -> float:
+    """該監看量的平台停止門檻。
 
-    `optimize.MONITOR_TOL` 的取值規則是「比實測的平均每步改善低一個量級」，
-    此處照辦：取各候選中每步改善的最大值，除以 10。刻意用最大值而非平均：
-    門檻取得過高會讓最好的那個候選在正式訓練中被提早判為收斂。
+    `optimize.LEGACY_MONITOR_TOL` 的取值規則是「比實測的平均每步改善低一個
+    量級」，此處照辦：取各候選中每步改善的最大值，除以 10。刻意用最大值而非
+    平均：門檻取得過高會讓最好的那個候選在正式訓練中被提早判為收斂。
     """
     vals = [abs(p["monitor_per_step"]) for p in probes
             if p["finite"] and "monitor_per_step" in p]
     if not vals:
         raise RuntimeError(
-            "沒有任何候選回報 shared_mass 的每步改善量，無法定出 stop_tol。"
-            "不可沿用 edit_shift 的 1e-4——兩個監看量的動態範圍差數十倍"
+            f"沒有任何候選回報 {monitor} 的每步改善量，無法定出 stop_tol。"
+            "不可沿用另一個監看量的門檻——動態範圍差數十倍（見 "
+            "optimize.LEGACY_MONITOR_TOL 的說明）"
         )
     return max(vals) / 10.0
 
@@ -1583,8 +1617,12 @@ def run_report(res: Resources) -> Dict[str, Any]:
         if c.get("stage") != "eval":
             continue
         if c.get("status") == "skipped":
-            rows.append({"cell_id": c["id"], "condition": c.get("condition"),
-                         "image_id": c.get("image"),
+            # 不適用的格由 `runner` 以最小的 meta 記錄（只有 config_hash 與
+            # skipped_reason），故條件與影像必須由識別碼還原——少了這兩欄，
+            # 「哪些格沒跑」在報表上就只剩一串路徑。
+            parts = c["id"].split("/")
+            rows.append({"cell_id": c["id"], "condition": parts[1],
+                         "image_id": parts[2],
                          "skipped_reason": c.get("skipped_reason", "")})
             continue
         if c.get("status") != "done":

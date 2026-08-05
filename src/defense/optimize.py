@@ -211,33 +211,40 @@ class OptimConfig:
 #
 # 取值規則：比實測的平均每步改善低一個量級。
 #
-# **`shared_mass` 刻意不在表內。** 它是 N1 改為 targeted 之後的新監看量
-# （導向 shared token 的注意力質量），其動態範圍尚未實測——`attn_div` 的
-# 1e-5 是為「1 − 內容 token 質量」校準的，兩者不是同一個量。未校準前
-# `resolve_stop_tol` 會拋出，呼叫端必須在設定裡明寫 `stop_tol`，或先跑段 0
-# 把它量出來。這是刻意留下的拋出點，不是遺漏。
-MONITOR_TOL = {
-    "edit_shift": 1e-4,     # E23 實測平均 5.4e-4
-    "attn_div": 1e-5,       # 2026-08-04 實測平均 1.6e-4
+# 下表是**先驗實驗的紀錄，不是本輪可用的值**，故名為 LEGACY。
+# 兩個值都量在 SD v1.4／512²／site PF 上；本輪是 SDXL／1024²／位移場，
+# LPIPS 的動態範圍與注意力層數都不同，沿用它們就是 A2 的形狀
+# （「一個為某個對象校準的值被沿用到另一個對象上，而且沒有症狀」）。
+#
+# 2026-08-05 修正。before：`MONITOR_TOL` 同時是紀錄與**回退值**，
+# `resolve_stop_tol(None, "edit_shift")` 會靜默回傳 1e-4；`shared_mass`
+# 因不在表內而拋出。即同一道規則對兩個監看量鬆緊不一。
+# after：全部監看量一律向校準表索取，本表只作為量級參考留存。
+# 原因見 `docs/_review_defense.md` §2「MONITOR_TOL 沿用舊模型的校準值」。
+LEGACY_MONITOR_TOL = {
+    "edit_shift": 1e-4,     # E23 實測平均 5.4e-4（SD v1.4／512²／site PF）
+    "attn_div": 1e-5,       # 2026-08-04 實測平均 1.6e-4（同上）
 }
 
 
 def resolve_stop_tol(cfg_tol: Optional[float], monitor_key: str) -> float:
-    """回傳這次要用的 `stop_tol`。呼叫端給了就用它，否則依監看量取。
+    """回傳這次要用的 `stop_tol`。**只有呼叫端明給這一個入口。**
 
-    未知的監看量直接拋出，不退回 `edit_shift` 的值：那正是這道缺陷的形狀
-    ——一個為某個量校準的門檻被沿用到另一個量上，而且沒有症狀。
+    沒有任何回退路徑，與 `resolve_lr` 同構：門檻與學習率是同一種量——
+    為某個模型／解析度／參數化量出來的值，換了對象就不再成立，而沿用它
+    不會有症狀（門檻過嚴會回報「已收斂」，過鬆等於沒開停止準則）。
+
+    段 0 的 `calibrate_lr` 會為每個條件的監看量量出 `stop_tol.<監看量>`
+    並寫進 `calibration.json`；`executors.optim_config` 由該表取得後傳入。
     """
     if cfg_tol is not None:
         return cfg_tol
-    if monitor_key not in MONITOR_TOL:
-        raise KeyError(
-            f"監看量 {monitor_key!r} 沒有校準過的 stop_tol。"
-            f"已校準的是 {sorted(MONITOR_TOL)}。"
-            "不可沿用別的量的門檻——不同監看量的動態範圍差數十倍，"
-            "同一個絕對門檻在兩者上是兩件不同的事（見 MONITOR_TOL）"
-        )
-    return MONITOR_TOL[monitor_key]
+    raise KeyError(
+        f"監看量 {monitor_key!r} 的 stop_tol 未給。它只能由段 0 的校準表取得"
+        f"（鍵名 stop_tol.{monitor_key}），沒有預設值也沒有回退。"
+        f"先驗實驗的量級參考為 {LEGACY_MONITOR_TOL}，但那是 SD v1.4／512² "
+        f"上的值，不可沿用到本輪的 SDXL／1024²"
+    )
 
 
 def resolve_lr(

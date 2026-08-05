@@ -41,3 +41,8 @@ dependencies:
       # 故在 basic-1 的乾淨 env 上於段 0 的 `calibrate_strength` 才暴露。
       - protobuf
       - sentencepiece
+      # IMPRESS 的 LPIPS 後端。原始碼用 `lpips.LPIPS(net='vgg')`，
+      # `src/purify/impress.py` 預設即該後端且**不會靜默改用 piq**。
+      # 缺它時 `Purifier('impress').available` 為 False，那 285 格會被
+      # `annotate_unavailable` 標成 skipped，主張一少一個文獻淨化算子。
+      - lpips

@@ -51,6 +51,26 @@ ADAM_EPS = 1e-5              # 原碼 `torch.optim.Adam([X_p], lr=lr, eps=1e-5)`
 SCHEDULER_ETA_MIN = 1e-5     # 原碼 `CosineAnnealingLR(optimizer, iters, eta_min=1e-5)`
 
 
+def has_impress_deps(sd, backend: str = "lpips") -> bool:
+    """VAE 與 LPIPS 後端是否都到位。`Purifier.available` 用它。
+
+    兩者都要檢查。只檢查 `sd` 的話，缺 `lpips` 套件會在**跑到那一格時**
+    才由 `_make_lpips` 拋出——而 IMPRESS 那 285 格排在數小時機時之後，
+    且連續失敗會在第 10 格中止整段。`has_diffpure_weights` 檢查檢查點與
+    `guided_diffusion` 兩者是同一個理由。
+
+    2026-08-06 新增。before：`ops.Purifier.available` 對 `impress` 只回傳
+    `self.options.get("sd") is not None`，漏掉了預設後端所需的 `lpips` 套件。
+    """
+    if sd is None:
+        return False
+    if backend == "lpips":
+        from importlib.util import find_spec
+
+        return find_spec("lpips") is not None
+    return True
+
+
 def _make_lpips(backend: str, device, dtype):
     """建立 LPIPS 函式，輸入為 `[-1, 1]` 的張量（與原碼一致）。"""
     if backend == "lpips":

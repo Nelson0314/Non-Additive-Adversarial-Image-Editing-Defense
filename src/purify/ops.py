@@ -51,7 +51,7 @@ import torch.nn.functional as F
 from src.purify import diffpure as _diffpure
 from src.purify.adverse_cleaner import adverse_cleaner_real, has_guided_filter
 from src.purify.diffpure import diffpure_real, resize_only
-from src.purify.impress import impress_real
+from src.purify.impress import has_impress_deps, impress_real
 
 
 def _gaussian_kernel1d(sigma: float, device, dtype) -> torch.Tensor:
@@ -276,7 +276,8 @@ class Purifier:
         if self.kind == "adverse_cleaner":
             return has_guided_filter()
         if self.kind == "impress":
-            return self.options.get("sd") is not None
+            return has_impress_deps(self.options.get("sd"),
+                                    self.options.get("backend", "lpips"))
         if self.kind == "diffpure":
             return _diffpure.has_diffpure_weights(self.options.get("ckpt"))
         if self.kind == "cnn_denoise_substitute":

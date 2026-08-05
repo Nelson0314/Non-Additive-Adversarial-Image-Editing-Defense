@@ -253,6 +253,26 @@ def test_impress_未安裝_lpips_套件時不得靜默改用他者():
     assert "pip install lpips" in str(e.value)
 
 
+def test_impress_的available涵蓋lpips套件():
+    """`available` 漏檢相依的症狀是「跑到那一格才炸」。
+
+    IMPRESS 那 285 格排在數小時機時之後，且連續 10 格失敗會中止整段。
+    `annotate_unavailable` 的存在就是要在**跑之前**把缺相依的格標成 skipped，
+    故 `available` 必須涵蓋 `_make_lpips` 會用到的每一項，而不只是 `sd`。
+    """
+    from importlib.util import find_spec
+
+    from src.purify.impress import has_impress_deps
+
+    有lpips = find_spec("lpips") is not None
+    assert has_impress_deps(None) is False, "沒有 VAE 時不可宣稱可用"
+    assert has_impress_deps(_StubSD(), backend="lpips") is 有lpips
+    assert has_impress_deps(_StubSD(), backend="piq") is True, \
+        "piq 後端不經 lpips 套件"
+    assert Purifier("impress", sd=_StubSD()).available is 有lpips, \
+        "Purifier 必須走同一個判定"
+
+
 def test_impress_形狀值域與可重現性():
     """以 piq 後端與極短迭代驗證流程本身；真實評測須用 lpips 後端與 1000 步。"""
     pytest.importorskip("piq")

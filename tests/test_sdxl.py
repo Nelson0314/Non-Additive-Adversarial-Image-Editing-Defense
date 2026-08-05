@@ -660,3 +660,20 @@ def test_空prompt的編碼不等於無條件分支(sdxl):
     if not w.force_zeros_for_empty_prompt:
         pytest.skip("此 pipeline 的旗標為 False，兩者本就相同")
     assert not torch.equal(w.encode_text("").embeds, w.uncond_prompt().embeds)
+
+
+def test_CFG的兩支不得是同一個張量(sdxl):
+    """條件與無條件分支若逐元素相同，`ε_u + w·(ε_c − ε_u)` 的括號恆為零，
+    guidance_scale 設多少都等同 w=1。
+
+    w=1 下 SD 幾乎不服從 prompt、SDEdit 退化成「加噪再去噪」，
+    防禦訓練會跑在一個不會發生的攻擊上（`LOGIC_CHECK` A6）。
+    """
+    import inspect
+
+    from src.defense import optimize as opt
+
+    src = inspect.getsource(opt.optimize)
+    assert "sd.uncond_prompt()" in src, "無條件分支必須由模型的規則產生"
+    assert "emb_uncond=emb_cond" not in src, (
+        "不得把條件分支同時當成無條件分支——CFG 會退化成 w=1")

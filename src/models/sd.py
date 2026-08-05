@@ -192,6 +192,22 @@ class SDWrapper:
         )
         return self.text_encoder(tok.input_ids.to(self.device))[0]
 
+    def uncond_prompt(self, batch: int = 1) -> torch.Tensor:
+        """CFG 的無條件分支。
+
+        SD v1.x 沒有 `force_zeros_for_empty_prompt`——其無條件嵌入就是空
+        prompt 的 CLIP 編碼（`[BOS][EOS][PAD]×75`，非零）。故此處等同
+        `encode_text("")`。
+
+        存在的理由是**介面一致**：`optimize.py` 對兩種 wrapper 走同一段程式，
+        由各自的 `uncond_prompt()` 決定該回傳什麼。SDXL 覆寫它以回傳零張量
+        （其 `force_zeros_for_empty_prompt = true`）。呼叫端因此不需要
+        判斷自己拿到的是哪一種模型——那種判斷正是會寫錯而且沒有症狀的地方。
+
+        `batch` 供介面對齊；SD v1.x 的嵌入不依 batch 改變，故忽略。
+        """
+        return self.encode_text("")
+
     # ---- 時間格點 ----
 
     def timesteps(self, num_steps: int, t_max: Optional[int] = None) -> torch.Tensor:

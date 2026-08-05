@@ -148,8 +148,16 @@ class OptimConfig:
     # prompt，該設定下的「編輯」與「什麼都沒做」在指標上分不出來
     # （Δclip +0.0116，而對照的噪聲範圍是 ±0.0169）。`DESIGN` §2 定為 7.5。
     #
-    # 注意：訓練期一律餵空 prompt（prompt-free，`DESIGN` §2.1），此時條件分支
-    # 與無條件分支逐元素相同，CFG 在數值上是恆等的，只是多算一次 UNet。
+    # 訓練期一律餵空 prompt（prompt-free，`DESIGN` §2.1），但**條件分支與
+    # 無條件分支不是同一個張量**：後者由 `sd.uncond_prompt()` 依模型自己的
+    # 規則產生。stock SDXL base 的 `force_zeros_for_empty_prompt = true`，
+    # 其無條件分支是零張量而非空 prompt 的編碼。
+    #
+    # 2026-08-05 修訂。before：此處註明「兩者逐元素相同，CFG 在數值上是恆等的」。
+    # 那個說法在 SD v1.x 上為真、在 SDXL 上為假，而且即使為真也不該那樣實作：
+    # 兩支相同時 `ε_u + w·(ε_c − ε_u)` 的括號恆為零，guidance_scale 設多少
+    # 都等同 w=1——那正是 `LOGIC_CHECK` A6 列為硬規則要避免的失效模式。
+    #
     # 評測期的 guidance 由評測程式另行指定，與此欄位無關。
     guidance_scale: float = 7.5
 
@@ -739,8 +747,30 @@ def optimize(
         print(f"  [stop] 監看 {monitor_key}；約束："
               f"{', '.join(constraint_keys)}", flush=True)
 
-    # prompt-free：條件嵌入與無條件嵌入都是空 prompt 的 CLIP 編碼。
+    # prompt-free 的兩個分支。**兩者不是同一個張量。**
+    #
+    # 2026-08-05 修訂。before：`emb_cond = sd.encode_text("")`，且呼叫
+    # `sdedit` 時把同一個張量同時當成 `emb` 與 `emb_uncond`。
+    # after：條件分支仍為空 prompt 的編碼，無條件分支改由 `sd.uncond_prompt()`
+    # 依模型自己的規則產生。
+    #
+    # 兩個理由，各自獨立成立：
+    #
+    # 1. **CFG 會退化成 w=1。** 若條件與無條件分支逐元素相同，
+    #    `ε = ε_u + w·(ε_c − ε_u)` 的括號恆為零，guidance_scale 無論設多少
+    #    都等同 w=1。而 w=1 下 SD 幾乎不服從 prompt，SDEdit 退化成
+    #    「加噪再去噪」——那是本專案已實測過並列為硬規則的失效模式
+    #    （`LOGIC_CHECK` A6）。防禦訓練若跑在 w=1 上，等於在防一個不會發生的攻擊。
+    #
+    # 2. **stock SDXL 的無條件分支不是空 prompt 的編碼。** 其
+    #    `force_zeros_for_empty_prompt = true`（已查證 `model_index.json`），
+    #    無條件分支是零張量。用 `encode_text("")` 代替，模擬的攻擊方就不是
+    #    stock 模型，而該差異沒有任何症狀。
+    #
+    # `uncond_prompt()` 由模型的 config 決定回傳零張量還是空 prompt 的編碼，
+    # 故同一段程式在 SD v1.x 與 SDXL 上都正確。
     emb_cond = sd.encode_text("").detach()
+    emb_uncond = sd.uncond_prompt().detach()
 
     # x_base0 = G(x; φ=0)，即該 site 未施加防禦時就已產生的圖。像素側為 x
     # 本身；生成路徑為 inversion + VAE 來回的重建。停用模塊即可取得。
@@ -774,11 +804,11 @@ def optimize(
 
     if loss_cfg.defense_mode == "targeted_output":
         step_fn = _build_output_step(
-            sd, gen, obj, cfg, x01, emb_cond, purifiers, y_target,
+            sd, gen, obj, cfg, x01, emb_cond, emb_uncond, purifiers, y_target,
             x_base, result)
     else:
         step_fn = _build_attn_step(
-            sd, gen, obj, cfg, x01, emb_cond, purifiers, x_base, result)
+            sd, gen, obj, cfg, x01, emb_cond, emb_uncond, purifiers, x_base, result)
 
     t0 = time.perf_counter()
     run_stages(module, cfg, calib, calib_context, step_fn,
@@ -798,7 +828,7 @@ def optimize(
     return result
 
 
-def _build_output_step(sd, gen, obj, cfg, x01, emb_cond, purifiers,
+def _build_output_step(sd, gen, obj, cfg, x01, emb_cond, emb_uncond, purifiers,
                        y_target, x_base, result):
     """targeted_output（N2、N3 階段二）的單步前向。
 
@@ -814,7 +844,7 @@ def _build_output_step(sd, gen, obj, cfg, x01, emb_cond, purifiers,
     with torch.no_grad():
         y_origs = [
             sd.sdedit(x01, emb_cond, n, cfg.n_edit, strength=cfg.strength,
-                      guidance_scale=cfg.guidance_scale, emb_uncond=emb_cond)
+                      guidance_scale=cfg.guidance_scale, emb_uncond=emb_uncond)
             for n in noises
         ]
 
@@ -834,7 +864,7 @@ def _build_output_step(sd, gen, obj, cfg, x01, emb_cond, purifiers,
                     purifiers[pi].forward(x_def), emb_cond, noises[i],
                     cfg.n_edit, strength=cfg.strength,
                     use_ckpt=cfg.unet_ckpt, vae_ckpt=cfg.vae_ckpt,
-                    guidance_scale=cfg.guidance_scale, emb_uncond=emb_cond,
+                    guidance_scale=cfg.guidance_scale, emb_uncond=emb_uncond,
                 )
             )
             y_refs.append(y_origs[i])
@@ -849,7 +879,7 @@ def _build_output_step(sd, gen, obj, cfg, x01, emb_cond, purifiers,
     return step_fn
 
 
-def _build_attn_step(sd, gen, obj, cfg, x01, emb_cond, purifiers,
+def _build_attn_step(sd, gen, obj, cfg, x01, emb_cond, emb_uncond, purifiers,
                      x_base, result):
     """targeted_attn（N1）的單步前向。
 

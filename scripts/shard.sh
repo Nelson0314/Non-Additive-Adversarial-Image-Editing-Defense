@@ -41,7 +41,21 @@ source "$HOME/env.sh"
 BATCH=${BATCH:-b1}
 GPU_TAG=RTX-3090
 PRECISION=bf16
-COMMON="--gpu-tag $GPU_TAG --precision $PRECISION --mist-target data/targets/MIST.png"
+# `--purify-mode rotate --attn-timesteps 2` 不是調味，是 24 GB 下的必要條件。
+# N1（`optimize._build_attn_step`）不能開 UNet checkpoint——hook 在 backward
+# 重算時已卸除，兩次存檔的張量數對不上——故每步要留住
+# `attn_timesteps × 淨化算子數` 個完整的 SDXL UNet 計算圖，1024² 下每個約
+# 4.5 GB。2026-08-06 於 RTX 3090（23.56 GB）逐一實測：
+#
+#   all   + t=4（預設，12 圖）  OOM
+#   rotate + t=4（4 圖）        OOM
+#   rotate + t=3（3 圖）        峰值 24124 MiB → OOM
+#   rotate + t=2（2 圖）        峰值 22964 MiB → 通過
+#
+# 兩者都必須帶：rotate 下前向數等於 attn_timesteps，缺 rotate 就是 6 圖。
+# 改用顯存更大的卡時可以調回，但 `gpu` 進 config_hash，那本來就是新批次。
+MEM="--purify-mode rotate --attn-timesteps 2"
+COMMON="--gpu-tag $GPU_TAG --precision $PRECISION --mist-target data/targets/MIST.png $MEM"
 RUNS=$HOME/WACV/runs
 
 shard_dir() { echo "$RUNS/${BATCH}_$1"; }

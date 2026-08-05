@@ -762,3 +762,41 @@ def test_baseline的Linf走投影而非hinge():
 
     assert sum(1 for s in REGISTRY.values() if s.norm == "linf") >= 4
     assert callable(project)
+
+
+# ---------------------------------------------------------------------------
+# LPIPS 的精度（2026-08-06，段 0 於 GPU 上實測後補）
+# ---------------------------------------------------------------------------
+
+def test_LPIPS對混合dtype的輸入不中止():
+    """`piq.ContentLoss.forward` 第一行是 `self.model.to(x)`：它把 VGG 轉成
+    **第一個引數**的 dtype，再用同一個模型對第二個引數取特徵。兩個引數
+    dtype 不同時直接以 RuntimeError 中止，而本專案在 bf16 下的 `y_def` 是
+    半精度、`y_target`（MIST.png）是 fp32，正是這個情形。
+
+    本機無 GPU 也重現得了：dtype 的判定與裝置無關。
+    """
+    o = DefenseObjective(LossConfig(), DEV)
+    a = torch.rand(1, 3, 64, 64, generator=torch.Generator().manual_seed(SEED))
+    d = o.distance(a.to(torch.bfloat16), a)      # bf16 對 fp32
+    assert torch.isfinite(d).all()
+    assert d.dtype == torch.float32, "LPIPS 應在 fp32 上算出"
+
+
+def test_LPIPS的呼叫一律經過_perceptual():
+    """釘住呼叫點而不只是能力。
+
+    綁定的保真約束 `lpips_rel` 與段 2 射線縮放解的是**同一個 τ**，而後者走
+    `MetricSuite` 的 LPIPS、輸入是 fp32（`ray_scale.lpips_against`）。任何一個
+    呼叫點繞過 `_perceptual`，訓練期滿足的 τ 與對齊期解出的 τ 就是兩個不同的
+    量——而「匹配失真」是全案最關鍵的前提，已被證偽四次。
+    """
+    import inspect
+    import re
+
+    from src.defense import objective as mod
+
+    src = inspect.getsource(mod.DefenseObjective)
+    body = src.replace(inspect.getsource(mod.DefenseObjective._perceptual), "")
+    hits = re.findall(r"self\._lpips\s*\(", body)
+    assert not hits, f"有 {len(hits)} 處直接呼叫 self._lpips，必須改走 _perceptual"

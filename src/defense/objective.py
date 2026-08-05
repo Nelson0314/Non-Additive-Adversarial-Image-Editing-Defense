@@ -248,6 +248,33 @@ class DefenseObjective:
         # piq.LPIPS 可微，訓練與評測共用同一實作，避免兩者定義不一致
         self._lpips = piq.LPIPS().to(device)
 
+    def _perceptual(self, a: torch.Tensor, b: torch.Tensor) -> torch.Tensor:
+        """LPIPS，**一律在 fp32 上算**。本類別所有 LPIPS 都必須經由此處。
+
+        兩個獨立的理由：
+
+        1. **正確性。** `piq` 的 `ContentLoss.forward` 第一行是
+           `self.model.to(x)`——它把 VGG 轉成**第一個引數**的 dtype 與裝置，
+           再用同一個模型對第二個引數取特徵。故兩個引數 dtype 不同時直接
+           以 `RuntimeError: Input type (float) and bias type (c10::BFloat16)
+           should be the same` 中止。本專案在 bf16 下的 `y_def` 是半精度而
+           `y_target`（MIST.png）是 fp32，正是這個情形（2026-08-06 於段 0
+           的 N2 探測實測）。更糟的是它會**持久改寫** `self.model` 的 dtype，
+           故失敗與否還取決於此前哪一次呼叫先到。
+
+        2. **一致性，這一項更重要。** `lpips_rel` 是綁定的保真約束，而段 2
+           的射線縮放解的是同一個 τ——後者走 `MetricSuite` 的 LPIPS，輸入是
+           fp32 的影像張量（`ray_scale.lpips_against`）。兩者若在不同精度上
+           算，訓練期滿足的 τ 與對齊期解出的 τ 就是兩個不同的量，而「匹配
+           失真」是全案最關鍵的前提（`RUNBOOK` §0.5，該前提已被證偽四次）。
+
+        `.float()` 對 autograd 是可微的，φ 的梯度照常回傳。
+
+        2026-08-06 新增。before：三個呼叫點各自直接呼叫 `self._lpips`，
+        dtype 取決於呼叫端傳進來的張量。GPU 上從未跑過，故未暴露。
+        """
+        return self._lpips(a.float(), b.float())
+
     # ---- 距離 d(·,·) ----
 
     def distance(self, y_a: torch.Tensor, y_b: torch.Tensor) -> torch.Tensor:
@@ -256,7 +283,7 @@ class DefenseObjective:
         本函式固定為 LPIPS，與 `target_metric` 無關：它同時是 `edit_shift`
         的定義，而該量必須跨條件可比，不能隨損失設定而換一種尺度。
         """
-        return self._lpips(y_a.clamp(0, 1), y_b.clamp(0, 1))
+        return self._perceptual(y_a.clamp(0, 1), y_b.clamp(0, 1))
 
     def target_distance(
         self, y: torch.Tensor, y_target: torch.Tensor
@@ -391,7 +418,7 @@ class DefenseObjective:
         xb = xr if x_base is None else x_base.clamp(0, 1)
 
         # 對原圖的絕對值：只記錄，不進梯度。
-        lpips = self._lpips(xd, xr)
+        lpips = self._perceptual(xd, xr)
         # SSIM 是已排除的度量（LOGIC_CHECK A8），只能出現在回報欄位。
         ssim = piq.ssim(xd, xr, data_range=1.0)
 
@@ -413,7 +440,7 @@ class DefenseObjective:
         # 綁定的感知約束，對象與 L∞/PSNR 一致為 x_base。像素側的 x_base 即 x，
         # 此時本項與上方的 lpips 相同；多算一次是為了讓兩個 site 的 hinge
         # 定義一致，不因 site 而分支。
-        lpips_rel = lpips if x_base is None else self._lpips(xd, xb)
+        lpips_rel = lpips if x_base is None else self._perceptual(xd, xb)
 
         # 鈍化：量的是「防禦本身讓影像鈍化了多少」。此量對位移不敏感，
         # 故空間變形只要不模糊就不被罰。

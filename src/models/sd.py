@@ -28,6 +28,7 @@ site L 與其他 site 共用同一條去噪迴圈。
 fp16 下只有 10 bit 尾數，該測試必須在 fp16 與 fp32 各跑一次並比較。
 """
 
+import contextlib
 from dataclasses import dataclass
 from typing import Callable, Optional, Sequence, Tuple
 
@@ -143,6 +144,43 @@ class SDWrapper:
 
     def _text_encoders(self) -> list:
         return [self.text_encoder]
+
+    @contextlib.contextmanager
+    def offloaded(self):
+        """暫時把權重搬到 CPU，讓另一份權重能獨占顯存。離開時搬回。
+
+        唯一的用途是段 0 的 `calibrate_precision_equiv`：它要在同一台機器上
+        比對 bf16 與 fp32 兩條計算路徑，而兩份 SDXL 同時常駐在 24 GB 的卡上
+        放不下（2026-08-06 於 RTX 3090 實測 OOM，見下）。
+
+        **只搬裝置不動 dtype。** `nn.Module.to("cpu")` 不帶 dtype 引數時只換
+        裝置，`_apply_precision` 施加的混合精度（backbone 半精度、VAE 依規則
+        可能留 fp32）原樣保留，故搬回之後的數值路徑與搬走之前逐位元相同。
+
+        走子模組而不走 `self.pipe.to()`：後者是 diffusers 的管線層策略，
+        對半精度管線移往 CPU 另有規則；此處要的只是「把張量挪開」這件事。
+
+        **搬走期間本封裝不可用。** `self.device` 仍指向 cuda，此時任何一次
+        前向都會以裝置不符當場拋出——那正是要的失敗方式，不是靜默算錯。
+        故本方法不做任何保護，由呼叫端保證區塊內不碰這個封裝。
+
+        2026-08-06 新增。before：無此方法，`calibrate_precision_equiv` 在
+        bf16 權重仍常駐時直接建構第二個 fp32 封裝，於 RTX 3090（23.56 GB）
+        以 `torch.OutOfMemoryError` 失敗於 `decode_latent`（bf16 5.2 GB
+        ＋ fp32 14 GB ＋ VAE 解碼活化，合計超過容量）。RTX 5090 的
+        31.4 GB 放得下，故先前未暴露。
+        """
+        if self.device.type != "cuda":
+            yield
+            return
+        for m in self._frozen_modules():
+            m.to("cpu")
+        torch.cuda.empty_cache()
+        try:
+            yield
+        finally:
+            for m in self._frozen_modules():
+                m.to(self.device)
 
     # ---- 元件 ----
 

@@ -575,6 +575,54 @@ def test_bf16下VAE也是bf16():
     assert sd.vae.dtype == torch.bfloat16, "bf16 的指數位與 fp32 相同，不會溢位"
 
 
+def test_offloaded搬走再搬回不改變dtype與輸出():
+    """段 0 要在同一台機器上比對 bf16 與 fp32 兩條路徑，而 24 GB 的卡放不下
+    兩份 SDXL（RTX 3090 實測 OOM）。處置是把本批的權重暫時搬到 CPU。
+
+    搬動只能換裝置。若連 dtype 一起換，搬回之後的計算路徑就與搬走之前不同，
+    而段 0 量的正是「精度差異」——那會讓被測量的東西被量測手段本身污染。
+    故此處釘住 dtype 與輸出兩者。
+    """
+    sd = SDXLWrapper("tiny-sdxl-structure", dtype=torch.float16,
+                     pipe=_tiny_sdxl_pipe())
+    z = torch.randn(1, 4, IMG // 8, IMG // 8, dtype=torch.float16,
+                    device=sd.device)
+    with torch.no_grad():
+        before = sd.decode_latent(z)
+
+    dtypes = [m.dtype for m in sd._frozen_modules()]
+    devices = [next(m.parameters()).device for m in sd._frozen_modules()]
+
+    with sd.offloaded():
+        if sd.device.type == "cuda":
+            assert all(next(m.parameters()).device.type == "cpu"
+                       for m in sd._frozen_modules()), "搬走期間權重應不在卡上"
+
+    assert [m.dtype for m in sd._frozen_modules()] == dtypes, "dtype 被搬動改掉了"
+    assert [next(m.parameters()).device
+            for m in sd._frozen_modules()] == devices, "沒有搬回原裝置"
+
+    with torch.no_grad():
+        after = sd.decode_latent(z)
+    assert torch.equal(before, after), "搬回之後的輸出必須逐位元相同"
+
+
+def test_precision_equiv在建第二份權重前讓開顯存():
+    """釘住呼叫端，不只釘住能力。
+
+    `offloaded()` 存在但沒被用上，症狀是 OOM——在 31.4 GB 的卡上看不到，
+    在 24 GB 的卡上要跑到段 0 的中段才炸。故以原始碼檢查釘住。
+    """
+    import inspect
+
+    from src.experiment import executors as E
+
+    src = inspect.getsource(E.calibrate_precision_equiv)
+    ref_at = src.index("ref_sd = cls(")
+    off_at = src.index("with res.sd.offloaded():")
+    assert off_at < ref_at, "第二份 fp32 權重必須在讓開顯存之後才建構"
+
+
 def test_GPU上待驗項目清單():
     """本檔驗不到、必須在 GPU 上以真實 SDXL 權重跑過才算數的項目。
 

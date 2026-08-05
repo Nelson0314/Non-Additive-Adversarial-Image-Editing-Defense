@@ -1662,13 +1662,17 @@ def calibrate_precision_equiv(res: Resources, calib_dir: Path) -> Dict[str, Any]
         cls = SDXLWrapper if isinstance(res.sd, SDXLWrapper) else SDWrapper
     print(f"[calib] 另載入 {cls.__name__}({res.sd.model_name}) fp32 作為參考",
           flush=True)
-    ref_sd = cls(res.sd.model_name, dtype=torch.float32)
-    try:
-        ref = probes(ref_sd)
-    finally:
-        del ref_sd
-        if torch.cuda.is_available():
-            torch.cuda.empty_cache()
+    # 本批的權重先讓開：兩份 SDXL 同時常駐在 24 GB 的卡上放不下（RTX 3090
+    # 實測 OOM）。`got` 已算完且落在 CPU，故區塊內不需要 `res.sd`。
+    # 搬動只換裝置不換 dtype，離開時搬回，數值路徑不變（見 `SDWrapper.offloaded`）。
+    with res.sd.offloaded():
+        ref_sd = cls(res.sd.model_name, dtype=torch.float32)
+        try:
+            ref = probes(ref_sd)
+        finally:
+            del ref_sd
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
 
     name = str(run_dtype).replace("torch.", "")
     for op, a in got.items():

@@ -77,8 +77,28 @@ class _LoRAHook(nn.Module):
         self.scaling = alpha / rank
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """輸入先轉成 A／B 的 dtype。**參數不跟著骨幹降精度。**
+
+        骨幹在本輪是 bf16 而 A／B 是 fp32，兩者相乘會以
+        `RuntimeError: expected mat1 and mat2 to have the same dtype, but got:
+        c10::BFloat16 != float` 中止（2026-08-06 於段 0 的 N3 探測實測）。
+
+        修法是轉輸入而不是把參數降成 bf16：A／B 就是 φ 本身，是**唯一**的
+        可訓練參數。bf16 只有 8 位尾數，B 由零起步、Adam 的單步更新量遠小於
+        權重量級，降精度會讓更新被捨入吃掉——訓練仍然跑得完、曲線仍然像樣，
+        只是學不動。凍結的骨幹走半精度、可訓練參數留 fp32，是混合精度的
+        標準配置。
+
+        回程由 `_make_hook` 的 `.to(output.dtype)` 負責，那一行本來就在，
+        也就是說「LoRA 自己一個精度、進出各轉一次」原本就是設計意圖，
+        只是入口那一半漏了。
+
+        2026-08-06 新增。before：`linear(linear(x, self.A), self.B) * scaling`，
+        直接以 `x` 進入。fp32 全程時 dtype 相同，故本機的 CPU 測試不會暴露。
+        """
+        xa = x.to(self.A.dtype)
         return torch.nn.functional.linear(
-            torch.nn.functional.linear(x, self.A), self.B) * self.scaling
+            torch.nn.functional.linear(xa, self.A), self.B) * self.scaling
 
 
 class WeightResidual(ResidualModule):

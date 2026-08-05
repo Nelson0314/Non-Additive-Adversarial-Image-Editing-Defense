@@ -317,3 +317,38 @@ def test_APA在φ為零時仍逐位元等同未注入():
         out = comp.eps_hook(ts, 4)(eps.clone(), 0, ts[-1])
     assert torch.equal(out, eps), "φ=0 時必須逐位元等同"
     comp.remove()
+
+
+# ---------------------------------------------------------------------------
+# 半精度骨幹（2026-08-06，段 0 於 GPU 上實測後補）
+# ---------------------------------------------------------------------------
+
+def test_LoRA在半精度骨幹上可運算且參數留在fp32():
+    """本輪骨幹是 bf16 而 φ（LoRA 的 A／B）是 fp32。
+
+    兩者直接相乘會以 `RuntimeError: expected mat1 and mat2 to have the same
+    dtype` 中止——段 0 的 N3 探測實測。修法是把**輸入**轉進 φ 的精度，
+    不是把 φ 降成 bf16：bf16 只有 8 位尾數，而 B 由零起步、Adam 的單步
+    更新量遠小於權重量級，降精度的症狀是「跑得完但學不動」，沒有錯誤訊息。
+
+    本機無 GPU 也驗得到：dtype 的判定與裝置無關。
+    """
+    unet = _FakeUNet().to(torch.bfloat16)
+    mod = _weight_module(unet)
+
+    assert all(p.dtype == torch.float32 for p in mod.parameters()), \
+        "φ 必須留在 fp32"
+
+    x = torch.randn(2, 8, dtype=torch.bfloat16)
+    mod.disable()
+    with torch.no_grad():
+        base = unet(x)
+    mod.enable()
+    with torch.no_grad():
+        out = unet(x)
+
+    assert out.dtype == torch.bfloat16, "回程必須轉回骨幹的 dtype"
+    assert torch.isfinite(out).all()
+    # B 初始為零 ⟹ 初始修正量恆為零，掛上與不掛應逐位元相同
+    assert torch.equal(out, base), "B=0 時 LoRA 的初始修正量應為零"
+    mod.remove()

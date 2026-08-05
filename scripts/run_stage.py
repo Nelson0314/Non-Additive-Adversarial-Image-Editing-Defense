@@ -4,20 +4,28 @@
 
 段：`calib` / `train` / `rayscale` / `eval` / `report`，依序執行。
 
-## 目前的完成度
+## 三層的分工
 
-**骨架已完成並有測試；計算層待在 GPU 上接線。**
+| 層 | 位置 | 職責 |
+|---|---|---|
+| 格點 | `src/experiment/grid.py` | 哪些格存在、哪些結構上不適用 |
+| 骨架 | `src/experiment/runner.py` | 哪些格要跑、跑過了沒有、失敗怎麼記 |
+| 計算 | `src/experiment/executors.py` | 實際的訓練、縮放、評測、彙整 |
+| 驅動 | 本檔 | 把三者接起來，並決定每段的前置條件 |
 
-可用（不需 GPU，已驗證）：
+前三層各有測試。本檔的責任只有「接線」，故它刻意不含任何計算邏輯——
+任何在這裡出現的數值處理，都是一段沒有測試涵蓋的程式。
 
-- `--dry-run` 列出每段有幾格要跑、幾格可續、幾格不適用
-- 格點列舉、續跑判定、進度寫入、失敗處置（`src/experiment/`）
-- `env.json` 的產出
+## 段與段之間的前置條件
 
-待接線（需 SDXL 權重與 GPU）：各段的 `executor`。接線點是本檔的
-`_executor_for()`，它目前對每一段拋出 `NotImplementedError` 並寫明缺什麼。
-**這是刻意的**——寫了但從未執行過的計算層，其完成度是假的；
-專案規範要求宣告完成前必須實際跑過並看到成功輸出。
+- `train` 需要 `calib/calibration.json`（學習率只有校準表一個入口）
+- `rayscale` 需要段 1 的 `phi.pt`
+- `eval` 需要段 2 的 `phi_tau{τ}.pt`，**且需要 φ=0 對照**。對照是
+  `grid.control_cells()` 的格，跨 9 個條件共用，故它與 `eval` 一起跑：
+  本檔先跑完 `control` 再跑 `eval`，順序由此保證。
+- `report` 需要 `_cells/` 裡的 eval 紀錄
+
+缺前置條件時executor 會以 `FileNotFoundError` 指出缺哪一個檔，不會靜默跳過。
 
 ## 為什麼 --dry-run 值得單獨存在
 
@@ -33,9 +41,9 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from src.experiment import grid                              # noqa: E402
-from src.experiment.runner import plan_report, run_stage     # noqa: E402
-from src.utils.progress import ProgressWriter                # noqa: E402
+from src.experiment import executors, grid                    # noqa: E402
+from src.experiment.runner import plan_report, run_stage      # noqa: E402
+from src.utils.progress import ProgressWriter                 # noqa: E402
 
 STAGES = ("calib", "train", "rayscale", "eval", "report")
 
@@ -43,6 +51,10 @@ STAGES = ("calib", "train", "rayscale", "eval", "report")
 # 因為兩者共用同一批淨化後的影像。但它**必須出現在乾跑報告裡**：
 # 它有 300 格（N=3 時），漏掉會讓「這次要跑多久」少算一截。
 REPORTED = ("calib", "train", "rayscale", "control", "eval", "report")
+
+# 精度旗標與 torch dtype 的對應。SDWrapper 會依 `resolve_precision` 決定
+# VAE 要不要留在 fp32（fp16 下不留會讓 SDXL 的 VAE 溢位成全黑圖）。
+PRECISION = {"fp32": "float32", "fp16": "float16", "bf16": "bfloat16"}
 
 
 def build_env(args) -> dict:
@@ -70,8 +82,53 @@ def build_env(args) -> dict:
     }
 
 
+def run_config(args) -> executors.RunConfig:
+    """CLI → 計算層設定。這裡不做任何預設值的推導：每一項都有明確來源。"""
+    return executors.RunConfig(
+        resolution=args.resolution,
+        guidance=args.guidance,
+        strength=args.strength,
+        steps=args.steps,
+        seed=args.seed,
+        train_n_edit=args.train_n_edit,
+        n_eot=args.n_eot,
+        k_inv=args.k_inv,
+        t_max=args.t_max,
+        exact_inversion=args.exact_inversion,
+        purify_mode=args.purify_mode,
+        max_steps=args.max_steps,
+        align_steps=args.align_steps,
+        stop_patience=args.stop_patience,
+        stop_min_steps=args.stop_min_steps,
+        attn_timesteps=args.attn_timesteps,
+        tau_train=args.tau_train,
+        tau_acut=args.tau_acut,
+        tau_chroma=args.tau_chroma,
+        beta_linf=args.beta_linf,
+        tau_linf=args.tau_linf,
+        warp_grid_size=args.warp_grid_size,
+        warp_max_disp=args.warp_max_disp,
+        warp_resample=args.warp_resample,
+        apa_lora_rank=args.apa_lora_rank,
+        apa_latent_max_rank=args.apa_latent_max_rank,
+        apa_latent_const_rank=args.apa_latent_const_rank,
+        random_init_std=args.random_init_std,
+        lr_grid=tuple(float(v) for v in args.lr_grid.split(",")),
+        probe_steps=args.probe_steps,
+        edit_effect_threshold=args.edit_effect_threshold,
+        target_image=args.target_image,
+        mist_target=args.mist_target,
+        diffpure_ckpt=args.diffpure_ckpt,
+    )
+
+
 def base_config(args) -> dict:
-    """整批共用的設定。格點自己的四個軸由 `cell_config` 疊上去。"""
+    """整批共用的設定。格點自己的四個軸由 `cell_config` 疊上去。
+
+    `loss_params` 不是空的：凡是會改變數值結果的計算層旋鈕都放進去，
+    使「改了設定卻沿用舊結果」在雜湊層就被擋下。漏掉任何一項的症狀是
+    完全沒有症狀——輸出仍是一張合理的圖，只是它不是這次設定跑出來的。
+    """
     return {
         "spec_version": args.spec_version,
         "model": args.model,
@@ -81,54 +138,111 @@ def base_config(args) -> dict:
         "strength": args.strength,
         "gpu": args.gpu_tag,
         "precision": args.precision,
-        "loss_params": {},
+        "loss_params": run_config(args).loss_params(),
+        # 學習率由校準表決定，不由 CLI 給，故此處恆為 None。實際採用的值
+        # 寫進每格的 `meta.json`（`lr` 欄），使事後查得到。
         "lr": None,
     }
 
 
-def load_images(args) -> list:
-    """回傳影像 id 清單。`--images` 明給時用它，否則由資料集分層抽樣。
+def load_entries(args, device) -> list:
+    """回傳 `ImageEntry` 清單。
 
-    `n` 是唯一的樣本數入口。程式中不得出現字面值樣本數，
-    使 N 由 3 擴到 150 只需改一個設定值。
+    本輪用 `data/lo_aligned/`（25 張 CC0 真實照片）而非 PIE-Bench：遠端機器
+    連不上 HuggingFace，取不到後者。`n` 是樣本數的唯一入口，`--images`
+    明給時覆蓋它。
+    """
+    return executors.load_lo_aligned(
+        args.data, args.resolution, device,
+        ids=args.images, n=(None if args.images else args.n), seed=args.seed,
+    )
+
+
+def build_resources(args, batch_dir: Path) -> executors.Resources:
+    """載入權重與指標模型，組出跨格共用的 `Resources`。
+
+    校準表在此**盡力載入**：段 0 本身要產生它，故不存在時不視為錯誤；
+    但段 1 之後任何一次取學習率都會經 `Resources.require_calib()` 拋出。
+    這與「沒有校準表就用預設值」是兩件事——後者才是本專案要消滅的路徑。
+    """
+    import torch
+
+    from src.metrics.suite import MetricSuite
+    from src.models.sd import SDWrapper, SDXLWrapper
+    from src.utils.calibration import Calibration
+
+    dtype = getattr(torch, PRECISION[args.precision])
+    wrapper = SDXLWrapper if args.wrapper == "sdxl" else SDWrapper
+    if args.wrapper == "auto":
+        wrapper = SDXLWrapper if "xl" in args.model.lower() else SDWrapper
+    print(f"[env] 載入 {wrapper.__name__}({args.model}) dtype={dtype}",
+          flush=True)
+    sd = wrapper(args.model, dtype=dtype)
+    suite = MetricSuite(device=sd.device)
+
+    entries = load_entries(args, sd.device)
+    print(f"[env] 影像 {len(entries)} 張：{[e.image_id for e in entries]}",
+          flush=True)
+
+    calib_path = batch_dir / "calib" / "calibration.json"
+    calib = Calibration.load(calib_path) if calib_path.exists() else None
+
+    y_target = None
+    if args.target_image:
+        y_target = executors.load_image_tensor(
+            Path(args.target_image), sd.device)
+        if y_target.shape[-1] != args.resolution:
+            import torch.nn.functional as F
+
+            y_target = F.interpolate(
+                y_target, size=(args.resolution, args.resolution),
+                mode="bicubic", antialias=True).clamp(0, 1)
+
+    return executors.Resources(
+        sd=sd, suite=suite, batch_dir=batch_dir,
+        base_config=base_config(args), cfg=run_config(args),
+        images={e.image_id: e for e in entries},
+        calib=calib, y_target=y_target,
+    )
+
+
+def load_images(args) -> list:
+    """乾跑與格點列舉用的影像 id 清單。**不載入影像本身。**
+
+    乾跑必須在載入 SDXL 之前就能回答「這次要跑多久」，故此處只讀
+    `prompts.yaml` 的目錄結構。
     """
     if args.images:
         return list(args.images)
-    from src.data.pie_bench import load, stratified_pick
+    import yaml
 
-    samples = load(args.data)
-    return [s.key for s in stratified_pick(samples, args.n, seed=args.seed)]
+    root = Path(args.data)
+    spec = yaml.safe_load((root / "prompts.yaml").read_text(encoding="utf-8"))
+    by_group = {cls: sorted(p.stem for p in (root / cls).glob("*.png"))
+                for cls in sorted(spec)}
+    picked, round_idx = [], 0
+    while len(picked) < args.n:
+        progressed = False
+        for cls in sorted(by_group):
+            if len(picked) >= args.n:
+                break
+            if round_idx < len(by_group[cls]):
+                picked.append(by_group[cls][round_idx])
+                progressed = True
+        if not progressed:
+            raise ValueError(
+                f"{root} 只有 {len(picked)} 張影像，少於要求的 n={args.n}")
+        round_idx += 1
+    return picked
 
 
-def _executor_for(stage: str, args):
-    """回傳該段的計算函式。
-
-    **目前全部拋出。** 接線需要 SDXL 權重與 GPU，而未經執行的計算層
-    其完成度是假的。每一段的訊息寫明該接什麼、依賴哪個模組。
-    """
-    needs = {
-        "calib": ("段 0 校準：strength 掃描、編輯有效性過濾、逐條件學習率、"
-                  "SDXL 的 attn_norm、fp16／bf16 對 fp32 的等價性驗證。"
-                  "產出 calib/calibration.json 與 micro_bench.csv。"
-                  "依賴 src/models/sd.py 的 SDXLWrapper 與真實權重"),
-        "train": ("段 1 訓練：非加性條件走 src/defense/optimize.py 的 optimize()，"
-                  "baseline 走 src/baselines/pgd.py 的 run_pgd()。"
-                  "兩者的學習率都必須由 calibration.json 取得"),
-        "rayscale": ("段 2 射線縮放：src/metrics/ray_scale.py 的二分搜尋，"
-                     "把訓練好的 φ 落到各個 τ 上。只有前向、無梯度"),
-        "eval": ("段 3 評測：淨化 → SDEdit → 指標。φ=0 對照跨條件共用，"
-                 "見 grid.control_cells()"),
-        "report": ("段 4 報表：grid.csv 彙整、compare.html（人眼比對頁，主判準）、"
-                   "attention.html"),
-    }
-
-    def not_wired(cell, ctx):
-        raise NotImplementedError(
-            f"{stage} 的計算層尚未接線。\n  {needs[stage]}\n"
-            "骨架（格點、續跑、進度）已完成並有測試，見 tests/test_runner.py。"
-        )
-
-    return not_wired
+def _print_warnings(warns) -> None:
+    if not warns:
+        return
+    print("\n[preflight] 以下事項會影響本批的結果，請先處理：", file=sys.stderr)
+    for w in warns:
+        print(f"  - {w}", file=sys.stderr)
+    print("", file=sys.stderr)
 
 
 def main(argv=None) -> int:
@@ -144,16 +258,84 @@ def main(argv=None) -> int:
                     choices=["fp32", "fp16", "bf16"])
 
     ap.add_argument("--model", default="stabilityai/stable-diffusion-xl-base-1.0")
+    ap.add_argument("--wrapper", default="auto", choices=["auto", "sd", "sdxl"],
+                    help="auto 依 model 名稱含不含 xl 判斷")
     ap.add_argument("--resolution", type=int, default=1024)
     ap.add_argument("--guidance", type=float, default=7.5)
     ap.add_argument("--steps", type=int, default=50, help="攻擊方的去噪步數")
     ap.add_argument("--strength", type=float, default=0.6)
     ap.add_argument("--spec-version", type=int, default=1)
 
-    ap.add_argument("--data", type=Path, default=Path("data/pie_bench"))
+    ap.add_argument("--data", type=Path, default=Path("data/lo_aligned"))
     ap.add_argument("--n", type=int, default=3, help="樣本數的唯一入口")
     ap.add_argument("--images", nargs="*", help="直接指定影像 id，覆蓋 --n")
     ap.add_argument("--seed", type=int, default=20260805)
+
+    # ---- 防禦訓練 ----
+    g = ap.add_argument_group("訓練")
+    g.add_argument("--train-n-edit", type=int, default=10,
+                   help="訓練期代理編輯鏈的步數，與評測期的 --steps 分開")
+    g.add_argument("--n-eot", type=int, default=1)
+    g.add_argument("--k-inv", type=int, default=10)
+    g.add_argument("--t-max", type=int, default=None,
+                   help="inversion 的 timestep 上限，依段 0 的重建誤差量測指定")
+    g.add_argument("--exact-inversion", action="store_true",
+                   help="以 BDIA 取代 DDIM inversion，只影響走生成路徑的條件")
+    g.add_argument("--purify-mode", default="all", choices=["rotate", "all"])
+    g.add_argument("--max-steps", type=int, default=250,
+                   help="N1／N2／N3 階段二的步數上限（開平台停止時）")
+    g.add_argument("--align-steps", type=int, default=200,
+                   help="N3 階段一（LoRA 保真對齊）的步數，APA 官方實作為 200")
+    g.add_argument("--stop-patience", type=int, default=20)
+    g.add_argument("--stop-min-steps", type=int, default=25)
+    g.add_argument("--attn-timesteps", type=int, default=4)
+
+    # ---- 保真約束 ----
+    g = ap.add_argument_group("保真約束")
+    g.add_argument("--tau-train", type=float, default=grid.TRAIN_TAU,
+                   help="訓練所在的失真預算，其餘 τ 由段 2 的射線縮放取得")
+    g.add_argument("--tau-acut", type=float,
+                   default=executors.RunConfig.tau_acut,
+                   help="鈍化 hinge 的門檻。預設值是在 τ_lpips=0.05 上由人眼"
+                        "判讀定出的絕對值，本輪訓練在 0.35，須重新判讀")
+    g.add_argument("--tau-chroma", type=float,
+                   default=executors.RunConfig.tau_chroma,
+                   help="色度偏壓 hinge 的門檻。同上，須重新判讀")
+    g.add_argument("--beta-linf", type=float,
+                   default=executors.RunConfig.beta_linf,
+                   help="L∞ hinge 的係數。預設 0：L∞ 對非加性參數化不具鑑別力，"
+                        "開著它綁定約束就不是 τ_LPIPS 而是 L∞")
+    g.add_argument("--tau-linf", type=float,
+                   default=executors.RunConfig.tau_linf)
+
+    # ---- 參數化 ----
+    g = ap.add_argument_group("參數化")
+    g.add_argument("--warp-grid-size", type=int, default=32)
+    g.add_argument("--warp-max-disp", type=float, default=1.5,
+                   help="位移場的硬上界（像素）。段 0 的 warp_reach.csv 會量出"
+                        "該上界下可達的最大 LPIPS，低於 --tau-train 時段 2 會拋出")
+    g.add_argument("--warp-resample", default="bicubic",
+                   choices=["bilinear", "bicubic"])
+    g.add_argument("--apa-lora-rank", type=int, default=8)
+    g.add_argument("--apa-latent-max-rank", type=int, default=32)
+    g.add_argument("--apa-latent-const-rank", type=int, default=8)
+    g.add_argument("--random-init-std", type=float, default=0.5,
+                   help="R（同失真隨機對照）的位移場初始標準差")
+
+    # ---- 段 0 ----
+    g = ap.add_argument_group("段 0 校準")
+    g.add_argument("--lr-grid", default="1e-4,1e-3,5e-3,2e-2,1e-1")
+    g.add_argument("--probe-steps", type=int, default=12)
+    g.add_argument("--edit-effect-threshold", type=float, default=0.0,
+                   help="SigLIP(編輯,target) − SigLIP(原圖,target) 的下限")
+
+    # ---- 外部檔案 ----
+    g = ap.add_argument_group("外部檔案")
+    g.add_argument("--target-image", default="data/targets/gray.png",
+                   help="targeted 模式的目標影像（N2 取 LPIPS、N3 取 MSE）")
+    g.add_argument("--mist-target", default="",
+                   help="Mist 的 MIST.png。缺少時該條件的每一格都會明確失敗")
+    g.add_argument("--diffpure-ckpt", default="")
 
     ap.add_argument("--dry-run", action="store_true",
                     help="只列出會跑哪些格，不執行也不寫入")
@@ -185,23 +367,55 @@ def main(argv=None) -> int:
                 print(f"  {name}: {reason[:70]}…")
         return 0
 
-    if args.stage not in plan and args.stage not in ("calib", "report"):
-        print(f"段 {args.stage} 沒有對應的格點", file=sys.stderr)
-        return 2
-
     with ProgressWriter(batch_dir, env=build_env(args)) as w:
         (batch_dir / "env.json").write_text(
             json.dumps(build_env(args), indent=2, ensure_ascii=False),
             encoding="utf-8")
+        res = build_resources(args, batch_dir)
+        ctx = {"res": res}
+
+        # 段 0 與段 4 沒有格點：`grid.plan()` 不列它們，硬塞進格點框架只會
+        # 得到一個「零格、永遠成功」的段。
+        if args.stage == "calib":
+            out = executors.run_calibration(res)
+            print(f"\n[calib] 校準表寫入 {out['path']}")
+            print(json.dumps(out["summary"], indent=2, ensure_ascii=False,
+                             default=str))
+            return 0
+        if args.stage == "report":
+            out = executors.run_report(res)
+            print(f"\n[report] {out['path']}（{out['n_rows']} 列）")
+            return 0
+
+        _print_warnings(executors.preflight(res))
+        executor = executors.make_executor(args.stage)
+        failed = 0
+
+        # φ=0 對照與 eval 一起跑：兩者共用同一批淨化後的影像，而對照
+        # 跨 9 個條件共用，各條件各算一次就是 9 倍的重複計算。
+        if args.stage == "eval":
+            ctrl = executors.annotate_unavailable(plan["control"], res)
+            cres = run_stage("control", ctrl, executors.make_executor("control"),
+                             w, base_config(args), ctx=ctx, force=args.force)
+            print(f"\n[control] done={cres.done} failed={cres.failed} "
+                  f"skipped={cres.skipped} resumed={cres.resumed}")
+            if cres.aborted:
+                print(cres.abort_reason, file=sys.stderr)
+                return 3
+            failed += cres.failed
+
         cells = plan.get(args.stage, [])
-        res = run_stage(args.stage, cells, _executor_for(args.stage, args),
-                        w, base_config(args), force=args.force)
-        print(f"\n[{res.stage}] done={res.done} failed={res.failed} "
-              f"skipped={res.skipped} resumed={res.resumed}")
-        if res.aborted:
-            print(res.abort_reason, file=sys.stderr)
+        if args.stage == "eval":
+            cells = executors.annotate_unavailable(cells, res)
+        res_stage = run_stage(args.stage, cells, executor, w,
+                              base_config(args), ctx=ctx, force=args.force)
+        print(f"\n[{res_stage.stage}] done={res_stage.done} "
+              f"failed={res_stage.failed} skipped={res_stage.skipped} "
+              f"resumed={res_stage.resumed}")
+        if res_stage.aborted:
+            print(res_stage.abort_reason, file=sys.stderr)
             return 3
-        return 1 if res.failed else 0
+        return 1 if (failed + res_stage.failed) else 0
 
 
 if __name__ == "__main__":

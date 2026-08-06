@@ -635,6 +635,26 @@ def run_stages(
     return result
 
 
+class Diverged(RuntimeError):
+    """φ 發散到非有限值。**是結果，不是程式錯誤。**
+
+    段 0 的 lr 格點刻意跨數個量級，故一定會有候選發散；`_pick_best` 依
+    `finite` 欄剔除它們。發散本身要被辨識出來並如實記錄，而不是讓 NaN
+    一路流進指標套件——`fidelity_term` 的 `clamp(0, 1)` 不消除 NaN，
+    `piq.ssim` 會以 `AssertionError: Expected values to be greater or equal
+    to 0, got nan` 中止，而那個訊息看不出真正原因，且會讓整個段 0 陪葬
+    （2026-08-06 實測於 SD v1.4／512²，`lr.N3_stage1 = 0.1`）。
+    """
+
+
+def raise_if_diverged(x: torch.Tensor, step: int) -> None:
+    if not torch.isfinite(x).all():
+        raise Diverged(
+            f"第 {step} 步：生成結果出現非有限值（NaN 或 inf）。"
+            "這個學習率下 φ 已發散，該候選不可用"
+        )
+
+
 @torch.no_grad()
 def recon_floor_thresholds(x_floor: torch.Tensor, x01: torch.Tensor,
                            perceptual) -> Dict[str, float]:
@@ -748,6 +768,28 @@ def align(
             ctx = gen.prepare(x01, prompt_def=cfg.prompt_def)
             x_gen = gen.generate(x01, ctx, use_ckpt=cfg.unet_ckpt,
                                  vae_ckpt=cfg.vae_ckpt)
+
+            # 發散到 NaN 時當場停下並如實記錄，不交給指標套件。
+            #
+            # 2026-08-06 加入。段 0 的 lr 格點刻意跨數個量級，**本來就預期
+            # 會有候選發散**——`_pick_best` 依 `finite` 欄剔除它們。但
+            # `fidelity_term` 的 `clamp(0, 1)` 不會消除 NaN（NaN 夾出來仍是
+            # NaN），於是 `piq.ssim` 的輸入檢查以
+            # `AssertionError: Expected values to be greater or equal to 0,
+            # got nan` 中止，整個段 0 陪葬。實測於 SD v1.4／512²，
+            # `lr.N3_stage1 = 0.1` 的第 20 步之後。
+            #
+            # 記 inf 而非跳過：這個候選確實發散了，該事實要進 `lr_probe.csv`
+            # 供報告引用；靜默略過會讓它看起來只是步數比較少。
+            if not torch.isfinite(x_gen).all():
+                print(f"  [align] step {step:>4d}  發散：x_gen 出現非有限值，"
+                      "本候選就此停止", flush=True)
+                history.append({"step": step, "align_loss": float("inf"),
+                                "fid_lpips": float("nan"),
+                                "fid_psnr_total": float("nan"),
+                                "diverged": True})
+                break
+
             loss, parts = obj.fidelity_term(x_gen, x01, x_base=None)
             loss.backward()
             if cfg.grad_clip > 0:
@@ -801,6 +843,10 @@ def align(
     with torch.no_grad():
         ctx = gen.prepare(x01, prompt_def=cfg.prompt_def)
         x_align = gen.generate(x01, ctx).detach()
+    # 第 0 步就發散時沒有可還原的 φ，`x_align` 仍是 NaN。交出去會讓 NaN 從
+    # `x_base` 一路流進防禦階段，最後在某個指標上以看不出來源的訊息中止。
+    # 此處明講：這是一個發散的對齊，不是一個可用的基準。
+    raise_if_diverged(x_align, len(history))
     return x_align, history
 
 
@@ -949,6 +995,7 @@ def _build_output_step(sd, gen, obj, cfg, x01, emb_cond, emb_uncond, purifiers,
         ctx = gen.prepare(x01, prompt_def=cfg.prompt_def)
         x_def = gen.generate(x01, ctx, use_ckpt=cfg.unet_ckpt,
                              vae_ckpt=cfg.vae_ckpt)
+        raise_if_diverged(x_def, global_step)
 
         # (淨化算子索引, 噪聲索引) 的取樣清單。defense_term 對清單取平均，
         # 故 "all" 模式下一次 backward 得到的就是全算子的平均梯度。
@@ -1026,6 +1073,7 @@ def _build_attn_step(sd, gen, obj, cfg, x01, emb_cond, emb_uncond, purifiers,
         ctx = gen.prepare(x01, prompt_def=cfg.prompt_def)
         x_def = gen.generate(x01, ctx, use_ckpt=cfg.unet_ckpt,
                              vae_ckpt=cfg.vae_ckpt)
+        raise_if_diverged(x_def, global_step)
 
         pairs = eot_pairs(cfg.purify_mode, global_step, len(t_list),
                           len(purifiers))
@@ -1110,6 +1158,7 @@ def optimize_encoder(
         ctx = gen.prepare(x01, prompt_def=cfg.prompt_def)
         x_def = gen.generate(x01, ctx, use_ckpt=cfg.unet_ckpt,
                              vae_ckpt=cfg.vae_ckpt)
+        raise_if_diverged(x_def, global_step)
         # 淨化仍以 EOT 取樣：編碼器目標不會自動帶來耐淨化性，那是兩件事
         pairs = eot_pairs(cfg.purify_mode, global_step, 1, len(purifiers))
         z_defs = [sd.encode_image(purifiers[pi].forward(x_def),

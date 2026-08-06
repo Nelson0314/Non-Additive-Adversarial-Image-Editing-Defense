@@ -67,7 +67,7 @@ from src.baselines import REGISTRY as BASELINE_REGISTRY
 from src.baselines.pgd import run_pgd
 from src.defense.objective import LossConfig
 from src.defense.generator import DefenseGenerator
-from src.defense.optimize import OptimConfig, StageSpec, optimize
+from src.defense.optimize import Diverged, OptimConfig, StageSpec, optimize
 from src.experiment import grid
 from src.experiment.attention_page import build_attention_html
 from src.experiment.attn_capture import AttnCapture, capture_span, sampled_steps
@@ -1457,6 +1457,16 @@ def _probe_lr(res: Resources, condition: str, entry: ImageEntry,
             y_target=(res.y_target if spec.defense_mode == "targeted_output"
                       else None),
         )
+    except Diverged as e:
+        # 發散是這個候選的**結果**，不是段 0 的錯誤。格點刻意跨數個量級，
+        # 上端本來就該發散；`_pick_best` 依 `finite` 欄剔除它。不接住的話
+        # 一個候選發散就會讓整個段 0 中止（2026-08-06 實測）。
+        print(f"  [probe] {lr_key}={lr:g} 發散：{e}", flush=True)
+        return {"condition": condition, "lr_key": lr_key, "lr": lr,
+                "steps": 0, "image_id": entry.image_id,
+                "final_loss": float("inf"), "final_L_def": float("nan"),
+                "final_L_fid": float("nan"), "finite": False,
+                "diverged": True}
     finally:
         module.remove()
     last = result.history[-1]
@@ -1516,6 +1526,13 @@ def _probe_align_lr(res: Resources, condition: str, entry: ImageEntry,
                 module.enable()
         _, hist = align(res.sd, module, entry.x01, cfg,
                         loss_config(res, spec), gen, tmp, ctx, x_base0)
+    except Diverged as e:
+        # 第 0 步就發散時 `align` 沒有可還原的 φ 而拋出；理由同 `_probe_lr`。
+        print(f"  [probe] {spec.align_lr_key}={lr:g} 發散：{e}", flush=True)
+        return {"condition": condition, "lr_key": spec.align_lr_key, "lr": lr,
+                "steps": 0, "image_id": entry.image_id,
+                "final_loss": float("inf"), "final_lpips": float("nan"),
+                "final_psnr": float("nan"), "finite": False, "diverged": True}
     finally:
         module.remove()
     last = hist[-1]

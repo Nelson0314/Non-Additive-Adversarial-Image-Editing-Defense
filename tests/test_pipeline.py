@@ -1699,3 +1699,46 @@ def test_階段一的門檻取自純VAE來回而非phi0(sd, x01):
     positive, _ = obj.fidelity_term(x_init, x01, x_base=None)
     assert float(positive) > 0.0,         "純 VAE 來回必嚴格優於經過 inversion 的重建，故第 0 步應受罰"
     assert by_vae["tau_lpips"] <= by_phi0["tau_lpips"],         "純 VAE 來回是下限，不可能比 G(x;φ=0) 差"
+
+
+def test_發散到NaN時當場辨識而非交給指標套件(sd, x01):
+    """段 0 的 lr 格點刻意跨數個量級，故一定會有候選發散。
+
+    `fidelity_term` 的 `clamp(0, 1)` 不消除 NaN（NaN 夾出來仍是 NaN），
+    於是 NaN 會一路流到 `piq.ssim` 的輸入檢查，以
+    `AssertionError: Expected values to be greater or equal to 0, got nan`
+    中止——訊息看不出真正原因，且整個段 0 陪葬。2026-08-06 實測於
+    SD v1.4／512²、`lr.N3_stage1 = 0.1`。
+
+    此處只驗辨識本身：`raise_if_diverged` 對含 NaN 的張量拋 `Diverged`，
+    對正常張量放行。發散是**結果**，呼叫端據此把該候選標為不可用。
+    """
+    from src.defense.optimize import Diverged, raise_if_diverged
+
+    raise_if_diverged(x01, 0)          # 正常影像不該拋
+
+    bad = x01.clone()
+    bad[0, 0, 0, 0] = float("nan")
+    with pytest.raises(Diverged, match="第 7 步"):
+        raise_if_diverged(bad, 7)
+
+    inf = x01.clone()
+    inf[0, 0, 0, 0] = float("inf")
+    with pytest.raises(Diverged):
+        raise_if_diverged(inf, 0)
+
+    # 這正是舊行為失敗的地方：clamp 之後 NaN 仍在
+    assert torch.isnan(bad.clamp(0, 1)).any(),         "clamp 若消除得掉 NaN，本測試的前提就不成立"
+
+
+def test_三個防禦步進函式都檢查發散():
+    """三條路徑（輸出距離、注意力、編碼器）都會生成 x_def，都要檢查。
+
+    以原始碼檢查而非實跑：讓真實模型發散需要 GPU 與數十步。
+    """
+    import inspect
+
+    from src.defense import optimize as O
+
+    for fn in (O._build_output_step, O._build_attn_step, O.optimize_encoder):
+        assert "raise_if_diverged" in inspect.getsource(fn),             f"{fn.__name__} 沒有檢查生成結果是否發散"

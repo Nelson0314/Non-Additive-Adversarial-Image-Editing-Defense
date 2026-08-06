@@ -94,6 +94,31 @@ EXCLUDED: Dict[str, str] = {
 # 60–74% 的語意失效。沒有這條對照，任何正結果都不可解讀。
 CONDITIONS: Tuple[str, ...] = NONADDITIVE + BASELINES + (RANDOM_CONTROL,)
 
+
+def resolve_conditions(names) -> Tuple[str, ...]:
+    """把 CLI 的 `--conditions` 轉成格點用的條件序列；未指定即全部。
+
+    存在理由是 `purify_mode` 進 `config_hash`（`RunConfig.loss_params`）而它
+    **只影響訓練期對淨化算子取期望值的方式**：`src/baselines/` 完全不引用
+    `Purifier`，R 不最佳化，故那四個條件的結果與該旗標無關。沒有條件篩選時，
+    只為了改 N2／N3 的取樣方式就得整批換旗標，而那會讓 baseline 的雜湊一起
+    改變、把已經算完的 `photoguard_c` 判成未完成——那一格是段 1 的主成本
+    （200 步 × 10 reps × 4 步去噪，以成本單位計為其餘兩篇的 40 至 80 倍）。
+
+    未知名稱一律拋出。靜默忽略打錯的名字會得到空集合，而空集合在續跑判定
+    下看起來與「全部都已完成」完全一樣。
+    """
+    if not names:
+        return CONDITIONS
+    unknown = [n for n in names if n not in CONDITIONS]
+    if unknown:
+        raise ValueError(
+            f"未知的條件 {unknown}；本輪已定義的是 {list(CONDITIONS)}。"
+            f"（已排除的方法見 EXCLUDED，加回去要改 NONADDITIVE／BASELINES）"
+        )
+    # 依 CONDITIONS 的順序輸出，使兩次給定順序不同的呼叫得到相同的格點順序
+    return tuple(c for c in CONDITIONS if c in set(names))
+
 # ---------------------------------------------------------------------------
 # 軸三：失真預算
 # ---------------------------------------------------------------------------

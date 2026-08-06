@@ -274,3 +274,34 @@ def test_三篇baseline():
     次要主張的「最佳 baseline」因此仍有公認的比較對象。"""
     assert grid.BASELINES == ("photoguard_c", "mist", "dia_r")
     assert len(grid.CONDITIONS) == 7
+
+
+# --------------------------------------------------- 條件篩選（--conditions）
+
+
+def test_未指定條件時涵蓋全部():
+    assert grid.resolve_conditions(None) == grid.CONDITIONS
+    assert grid.resolve_conditions([]) == grid.CONDITIONS
+
+
+def test_指定條件時只留下指定的那些():
+    got = grid.resolve_conditions(["N2", "N3"])
+    assert got == ("N2", "N3")
+    cells = grid.plan(["img_a"], conditions=got)["train"]
+    assert sorted({c.condition for c in cells}) == ["N2", "N3"]
+
+
+def test_未知的條件名必須拋出而不是靜默忽略():
+    """打錯字若被忽略，整段會跑成空集合而看起來像「全部都已完成」。"""
+    with pytest.raises(ValueError, match="N9"):
+        grid.resolve_conditions(["N2", "N9"])
+
+
+def test_條件篩選不影響共用的phi0對照格():
+    """control 是 φ=0 的同淨化對照，跨條件共用，故不隨條件篩選而變。
+
+    否則以 `--conditions N2` 續跑時，那 285 格會被算成另一組雜湊而重跑一次。
+    """
+    full = grid.plan(["img_a"], conditions=grid.CONDITIONS)["control"]
+    part = grid.plan(["img_a"], conditions=("N2",))["control"]
+    assert [c.cell_id() for c in full] == [c.cell_id() for c in part]

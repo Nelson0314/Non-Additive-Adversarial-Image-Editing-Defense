@@ -357,6 +357,13 @@ def main(argv=None) -> int:
                    help="Mist 的 MIST.png。缺少時該條件的每一格都會明確失敗")
     g.add_argument("--diffpure-ckpt", default="")
 
+    ap.add_argument("--conditions", nargs="*", default=None,
+                    help="只跑這些條件（預設全部）。用途是讓只影響部分條件的"
+                         "旗標不必整批切換——`--purify-mode` 只作用於訓練期對"
+                         "淨化算子取期望值的方式，baseline 與 R 都不受影響，"
+                         "但它在 config_hash 內，整批切換會把已算完的 "
+                         "photoguard_c 判成未完成。φ=0 的 control 格跨條件"
+                         "共用，不隨本旗標改變")
     ap.add_argument("--dry-run", action="store_true",
                     help="只列出會跑哪些格，不執行也不寫入")
     ap.add_argument("--force", action="store_true",
@@ -365,13 +372,15 @@ def main(argv=None) -> int:
 
     batch_dir = args.runs_root / args.batch
     images = load_images(args)
-    plan = grid.plan(images, n_seeds=grid.N_SEEDS)
+    conditions = grid.resolve_conditions(args.conditions)
+    plan = grid.plan(images, conditions=conditions, n_seeds=grid.N_SEEDS)
 
     if args.dry_run:
         # 乾跑不取寫入鎖：它是唯讀的，且可能與正在跑的批次並存
         w = ProgressWriter(batch_dir, env=build_env(args), take_lock=False)
         rep = plan_report(plan, w, base_config(args))
-        print(f"batch {args.batch}   影像 {len(images)}   條件 {len(grid.CONDITIONS)}")
+        print(f"batch {args.batch}   影像 {len(images)}   "
+              f"條件 {len(conditions)}{'' if len(conditions) == len(grid.CONDITIONS) else ' ' + str(list(conditions))}")
         print(f"{'stage':<10}{'todo':>8}{'resumable':>11}{'skipped':>9}{'total':>8}")
         total_todo = 0
         for st in REPORTED:

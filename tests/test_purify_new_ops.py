@@ -70,11 +70,25 @@ def test_可微性宣告():
         assert not Purifier(kind).differentiable, kind
 
 
-def test_相依缺席時_available_為假():
+def test_相依缺席時_available_為假(tmp_path):
+    """缺席必須由測試自己構造，不能靠「這台機器剛好沒裝」。
+
+    2026-08-06 修正。before：`assert Purifier("diffpure").available is False`
+    ——不傳 `ckpt`，於是 `diffpure_checkpoint_path` 退回環境變數
+    `DIFFPURE_CKPT`。本機沒裝所以通過，而在**已依 RUNBOOK §2.3 裝好
+    DiffPure 的執行機上必定失敗**（實測於 basic-1）。那等於用測試把
+    「環境不完整」釘成正確狀態，方向剛好相反。
+
+    after：明給一個不存在的路徑。這樣測的是 `has_diffpure_weights` 的
+    判定邏輯本身，兩種環境下結果相同。
+    """
+    missing = tmp_path / "does_not_exist.pt"
+    assert not missing.exists(), "測試前提：這個路徑必須不存在"
+
     assert Purifier("crop_resize").available
     assert Purifier("resize_only").available
     assert Purifier("impress").available is False, "沒有 SDWrapper 時不應宣稱可用"
-    assert Purifier("diffpure").available is False
+    assert Purifier("diffpure", ckpt=str(missing)).available is False
     assert Purifier("cnn_denoise_substitute").available is False
     assert Purifier("adverse_cleaner").available == has_guided_filter()
 

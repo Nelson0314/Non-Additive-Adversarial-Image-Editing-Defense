@@ -1,0 +1,28 @@
+{
+  "schema": 1,
+  "batch": "b1",
+  "created": "2026-08-06T09:51:35+08:00",
+  "updated": "2026-08-06T09:51:35+08:00",
+  "env": {
+    "gpu": "RTX-3090",
+    "precision": "bf16",
+    "torch": "2.13.0+cu126",
+    "cuda": "12.6",
+    "commit": "6abac51",
+    "spec_version": 1,
+    "model": "stabilityai/stable-diffusion-xl-base-1.0",
+    "resolution": 1024
+  },
+  "stages": {},
+  "cells": [],
+  "summary": {
+    "pending": 0,
+    "running": 0,
+    "done": 0,
+    "failed": 0,
+    "skipped": 0,
+    "total": 0,
+    "eta_seconds": null,
+    "elapsed_seconds": 0
+  }
+}

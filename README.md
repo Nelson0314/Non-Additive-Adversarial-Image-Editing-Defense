@@ -16,7 +16,7 @@
 
 基準論文是 Lo, Yeo, Shuai, Cheng, *Distraction is All You Need*, CVPR 2024；
 其第一作者是本專案的指導者，故其約束、判準與 baseline 為必要對齊項
-（見 `ADVISOR.md`）。
+（原記於 `ADVISOR.md`，該檔已於 2026-08-07 移除，見 `docs/INDEX.md` §4）。
 
 ---
 

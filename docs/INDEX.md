@@ -73,6 +73,13 @@
 `archive/2026-08-02-e31-positive-control.md` 等：`docs/archive/` 下的內容
 **設計部分已作廢**，量測結果仍有效。
 
+`ADVISOR.md`（先驗實驗總結與指導者協定）於 **2026-08-07 依使用者指示移除**：
+其 §1–§4 描述的是 reset 之前的先驗實驗與當時的方法組成，威脅模型（SD v1.4、
+strength 0.3、去噪 10 步）與現行設定（見 `DESIGN` §2）已全面不符，留著會與
+現況分岔。仍被引用的兩項結論已寫進引用處本文：攻擊方模型的 v1.4 協定
+（`DESIGN` §2.0）與可編輯性過濾的要求（`LOGIC_CHECK`）。原文用
+`git show 5b775cc:ADVISOR.md`。
+
 `8e0ffbc` 之前的文件（`EXPLAINER.md`、`LEDGER.md`、`CONVERGENCE.md`、
 `NEXT_SESSION.md`、`RESULTS_E13-E23.md`、`RESULTS_E25-E31.md` 等）全部刪除，
 內容已由 `HANDOFF.md` 承接。要查原文用
@@ -126,5 +133,4 @@ PNG／HTML 一律入版控，改動 `.gitignore` 的 `runs/` 區塊時必須用
 | 檔案 | 內容 |
 |---|---|
 | `HANDOFF.md` | reset 之後的唯一總覽：環境、先驗結果、量測陷阱、既知缺陷 A1–A13、參考文獻 |
-| `ADVISOR.md` | 指導者的基準論文（Lo et al., CVPR 2024）對齊事項 |
 | `README.md` | 專案入口，指向本檔 |

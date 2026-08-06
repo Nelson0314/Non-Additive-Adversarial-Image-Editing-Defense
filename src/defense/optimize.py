@@ -221,6 +221,23 @@ class OptimConfig:
 # 因不在表內而拋出。即同一道規則對兩個監看量鬆緊不一。
 # after：全部監看量一律向校準表索取，本表只作為量級參考留存。
 # 原因見 `docs/INDEX.md` §3「停止門檻沿用舊模型的校準值且無 context 檢查」。
+# N1 起點的 shared token 質量下限。低於此值即拋出，不讓最佳化空跑。
+#
+# 這道防護的存在理由是 `LOGIC_CHECK` A1：已移除的 `untargeted` 模式在起點的
+# 梯度精確為零，而該缺陷涵蓋先驗實驗 59 個有紀錄批次的 100%——因為「損失
+# 不動」在 log 上看起來就只是「還沒開始降」，沒有人會在第 10 步就停下來查。
+#
+# 取 1e-3 的依據是實測（2026-08-06，SDXL、70 層 attn2、1024²）：
+#   token 0（BOS）    質量 7.2e-06（空 prompt）／5.6e-06（"a cat"）  ← 等於零
+#   token 76（末位 PAD）質量 1.59e-02 ／ 4.84e-03                    ← 可用
+# 兩者相差三個數量級，1e-3 落在中間且遠離兩端，不是一個需要調的旋鈕。
+#
+# BOS 拿不到質量的原因也量到了：它的嵌入 L2 範數為 1193，其餘 token 只有
+# 24–37。那是 CLIP 文字編碼器的 massive-activation 現象，BOS 是高範數的
+# 暫存槽而非被 attend 的對象。PromptFlare 的 `L_CA` 對 BOS 施力是在
+# SD v1.x 上成立的，換到 SDXL 不成立。
+MIN_SHARED_MASS = 1e-3
+
 LEGACY_MONITOR_TOL = {
     "edit_shift": 1e-4,     # E23 實測平均 5.4e-4（SD v1.4／512²／site PF）
     "attn_div": 1e-5,       # 2026-08-04 實測平均 1.6e-4（同上）
@@ -951,6 +968,15 @@ def _build_attn_step(sd, gen, obj, cfg, x01, emb_cond, emb_uncond, purifiers,
             rec.clear()
 
         total, log = obj(x_def, x01, x_base=x_base, attn_maps=maps_list)
+        if global_step == 0 and log["shared_mass"] < MIN_SHARED_MASS:
+            raise RuntimeError(
+                f"起點的 shared token 質量為 {log['shared_mass']:.3e}，"
+                f"低於下限 {MIN_SHARED_MASS}。"
+                f"`shared_tokens={obj.cfg.shared_tokens}` 在這個模型上幾乎"
+                "拿不到注意力，`1 − mass` 因此坐在它的最大值上，梯度為零，"
+                "最佳化不會產生任何更新。改用一個確實被 attend 的 token 格"
+                "（`--shared-tokens`）。SDXL 的實測見 `RUNBOOK` §3。"
+            )
         result.x_def = x_def.detach().clone()
         return total, log
 

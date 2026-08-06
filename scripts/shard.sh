@@ -79,7 +79,16 @@ MEM="--purify-mode rotate --attn-timesteps 2"
 # 放寬它不會讓防禦白白變強，實際失真仍由段 2 的射線縮放固定在 τ 上。
 REACH="--warp-max-disp 8.0"
 
-COMMON="--gpu-tag $GPU_TAG --precision $PRECISION --mist-target data/targets/MIST.png $MEM $REACH"
+# N1 的 decoy 位置。程式預設 0（BOS，忠於 PromptFlare 的 L_CA 原形式），
+# 但那在 SDXL 上拿不到注意力：2026-08-06 實測 70 層 attn2 的平均 token 質量
+# 為 7.2e-06（空 prompt）／5.6e-06（"a cat"），等於零，`1 − mass` 坐在最大值
+# 上、梯度為零。原因是 BOS 的嵌入 L2 範數 1193 而其餘 token 只有 24–37——
+# CLIP 的 massive-activation 現象，BOS 是暫存槽不是被 attend 的對象。
+# 末位 PAD（第 76 格）的質量是 1.59e-02／4.84e-03，索引固定且不承載語意，
+# 同樣 prompt-free。`optimize.MIN_SHARED_MASS` 會在第 0 步檢查並拋出。
+ATTN="--shared-tokens 76"
+
+COMMON="--gpu-tag $GPU_TAG --precision $PRECISION --mist-target data/targets/MIST.png $MEM $REACH $ATTN"
 RUNS=$HOME/WACV/runs
 
 shard_dir() { echo "$RUNS/${BATCH}_$1"; }

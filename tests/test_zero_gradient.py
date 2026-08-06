@@ -304,3 +304,35 @@ def test_用edit_shift的門檻會讓注意力路徑在半途停下():
 
     assert first_stop(1e-4) == 30          # edit_shift 的門檻：半途就停
     assert first_stop(1e-5) is None        # 該量自己的門檻：跑滿 60 步
+
+
+# ---------------------------------------------------------------------------
+# N1 的 decoy 位置（2026-08-06，SDXL 實測後補）
+# ---------------------------------------------------------------------------
+
+def test_起點質量過低時拋出而非空跑():
+    """`1 − mass` 在 mass=0 處是**最大值**，梯度為零，最佳化不會有任何更新。
+
+    這與已移除的 `untargeted` 完全同型（A1），而該缺陷涵蓋先驗實驗 59 個
+    有紀錄批次的 100%——因為「損失不動」在 log 上看起來只是「還沒開始降」。
+    故必須在第 0 步就拋出，不能靠人盯。
+
+    SDXL 實測：token 0（BOS）的質量 7.2e-06、token 76（末位 PAD）1.59e-02，
+    相差三個數量級，門檻 1e-3 落在中間。
+    """
+    from src.defense.optimize import MIN_SHARED_MASS
+
+    assert 7.2e-06 < MIN_SHARED_MASS < 4.84e-03, (
+        "門檻必須把 BOS（7.2e-06）判為不可用、把末位 PAD（4.84e-03，"
+        "有內容 prompt 下的值）判為可用")
+
+
+def test_防護確實接在N1的第0步上():
+    """釘住呼叫點：常數存在但沒被用上時，症狀仍然是整段空跑。"""
+    import inspect
+
+    from src.defense import optimize as O
+
+    src = inspect.getsource(O._build_attn_step)
+    assert "MIN_SHARED_MASS" in src, "N1 的 step_fn 沒有檢查起點質量"
+    assert "global_step == 0" in src, "檢查必須只在第 0 步做，不是每步"

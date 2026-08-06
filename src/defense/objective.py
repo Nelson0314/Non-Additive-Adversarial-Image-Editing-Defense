@@ -151,12 +151,28 @@ class LossConfig:
     target_metric: str = "lpips"
     # targeted_attn 要把注意力質量導向的 token 位置。
     #
-    # CLIP tokenizer 的輸出是 [BOS] tok₁ … tok_n [EOS] [PAD]×…，第 0 格恆為
-    # [BOS]，與 prompt 的內容無關，故它在攻擊方的任何 prompt 中都存在且不承載
-    # 語意。取它作為 decoy 不需要知道攻擊方的 prompt，這正是 prompt-free 的
-    # 著力點（PromptFlare 的 L_CA 對 M^BOS 取，同一位置）。
+    # CLIP tokenizer 的輸出是 [BOS] tok₁ … tok_n [EOS] [PAD]×…。要當 decoy 的
+    # 位置必須同時滿足兩件事：**索引固定**（防禦方不知道攻擊 prompt 的長度 n）
+    # 與**不承載語意**。合格的只有兩端：第 0 格的 [BOS]，以及第 76 格的
+    # 末位 [PAD]（任何短於 76 token 的 prompt 都會補到那裡）。中間的 EOS 與
+    # 前段 PAD 位置隨 n 移動，不可用。
     #
-    # 不預設含 EOS／PAD：它們的位置依 prompt 長度而變，防禦方不知道 n。
+    # **本輪在 SDXL 上取 76 而非 0（`--shared-tokens 76`）。**
+    # 2026-08-06 實測 70 層 attn2 的平均 token 質量：
+    #
+    #   token          空 prompt      "a cat"
+    #   0（BOS）        7.2e-06        5.6e-06     ← 等於零
+    #   76（末位 PAD）  1.59e-02       4.84e-03
+    #
+    # BOS 拿不到質量的原因也量到了：它的嵌入 L2 範數是 1193，其餘 token 只有
+    # 24–37。那是 CLIP 文字編碼器的 massive-activation 現象——BOS 是個高範數
+    # 的暫存槽，不是被 attend 的對象。質量為零時 `1 − mass` 坐在**最大值**上，
+    # 梯度為零，最佳化不會產生任何更新，而 log 上看起來只是「損失還沒降」。
+    # 這與已移除的 `untargeted` 完全同型（A1）。`optimize.MIN_SHARED_MASS`
+    # 因此在第 0 步就檢查並拋出。
+    #
+    # PromptFlare 的 `L_CA` 對 M^BOS 取是在 SD v1.x 上成立的，換到 SDXL 不成立。
+    # 預設值保留 0 以忠於該原形式；本輪的選擇由 CLI 明給並進入 `config_hash`。
     shared_tokens: Tuple[int, ...] = (0,)
 
     # ---- 保真項：四道 hinge 取交集 ----

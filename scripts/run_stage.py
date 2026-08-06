@@ -307,8 +307,8 @@ def main(argv=None) -> int:
     g.add_argument("--stop-min-steps", type=int, default=25)
     g.add_argument("--attn-timesteps", type=int, default=4)
     g.add_argument("--shared-tokens", type=int, nargs="+", default=[0],
-                   help="N1 要把注意力質量導向的 token 格。預設 0（BOS）；
-SDXL 上 BOS 的質量實測僅 7e-06，見 RUNBOOK §3")
+                   help="N1 要把注意力質量導向的 token 格。預設 0（BOS）；"
+                        "SDXL 上 BOS 的質量實測僅 7e-06，見 RUNBOOK §3")
 
     # ---- 保真約束 ----
     g = ap.add_argument_group("保真約束")

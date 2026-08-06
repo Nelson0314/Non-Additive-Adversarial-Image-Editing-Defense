@@ -7,7 +7,7 @@
 
 | 層 | 主張 | 現況（2026-08-05） |
 |---|---|---|
-| **主** | 非加性在**抗淨化**上勝過加性 | 待跑。先驗資料無法回答：以 `net_lpips` 計曾看似成立，換成 Δsiglip 後七組配對全部不成立（`HANDOFF.md` §3.2） |
+| **主** | 非加性在**抗淨化**上勝過加性 | 待跑。先驗資料無法回答：以 `net_lpips` 計曾看似成立，換成 Δsiglip 後七組配對全部不成立（`PRIOR_FINDINGS.md` §3.2） |
 | **次** | 抗編輯能力達最佳 baseline 的 0.85 倍以上，**且**高於同失真高斯隨機對照 R | 待跑。兩個條件須同時滿足（`LOGIC_CHECK` §C2） |
 | **三** | 失真受控 | 射線縮放到同一 τ_LPIPS，並回報全部保真度指標（既知缺陷 A3：「匹配失真」曾被四度證偽） |
 
@@ -25,19 +25,19 @@
 | 你想知道 | 讀這個 |
 |---|---|
 | **哪份文件現行、哪個 run 屬於哪個實驗** | **`docs/INDEX.md`**（檔案索引，先讀這份） |
-| **接手正在跑的批次**：現狀、當天改了什麼、待辦風險 | **`docs/HANDOVER_2026-08-06.md`** |
+| **接手正在跑的批次**：現狀、正在跑什麼、如何重啟監控、待裁決事項 | **`docs/HANDOVER_2026-08-07.md`** |
 | **接手執行**：環境、實作進度、五段指令、失敗處理 | **`docs/RUNBOOK_2026-08-05.md`** |
 | 要證什麼、怎麼算成立 | `docs/DESIGN_2026-08-05.md` |
 | 為什麼選這些 baseline／這個威脅模型 | `docs/SURVEY_2026-08-05.md` |
 | 程式怎麼組起來、續跑語意 | `docs/ARCH_2026-08-05.md`、`docs/CODE_2026-08-05.md` |
 | 哪裡曾經錯過、為什麼現在的寫法是那樣 | `docs/LOGIC_CHECK_2026-08-05.md`（既知缺陷 A1–A13） |
 | 某個 baseline 的參數為什麼是這個值 | `docs/SOURCE_AUDIT_2026-08-05.md` 與 `docs/_audit_*.md`（逐字原始碼佐證） |
-| 先驗階段的結果、量測陷阱、參考文獻 | `HANDOFF.md` |
+| 先驗階段的結果、量測陷阱、參考文獻 | `PRIOR_FINDINGS.md` |
 | 工作規範 | `CLAUDE.md` |
 
 `8e0ffbc`（Reset the project to the minimal reproducible set）刪除了 3775 個檔案，
 包含 `EXPLAINER.md`、`LEDGER.md`、`CONVERGENCE.md`、`NEXT_SESSION.md`、
-逐實驗的 `RESULTS_*.md` 等。內容已由 `HANDOFF.md` 承接；要查原文用
+逐實驗的 `RESULTS_*.md` 等。內容已由 `PRIOR_FINDINGS.md` 承接；要查原文用
 `git show 8e0ffbc^:docs/<檔名>`。
 
 ---

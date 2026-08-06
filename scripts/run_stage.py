@@ -101,6 +101,7 @@ def run_config(args) -> executors.RunConfig:
         stop_patience=args.stop_patience,
         stop_min_steps=args.stop_min_steps,
         attn_timesteps=args.attn_timesteps,
+        shared_tokens=tuple(args.shared_tokens),
         tau_train=args.tau_train,
         tau_acut=args.tau_acut,
         tau_chroma=args.tau_chroma,
@@ -305,6 +306,9 @@ def main(argv=None) -> int:
     g.add_argument("--stop-patience", type=int, default=20)
     g.add_argument("--stop-min-steps", type=int, default=25)
     g.add_argument("--attn-timesteps", type=int, default=4)
+    g.add_argument("--shared-tokens", type=int, nargs="+", default=[0],
+                   help="N1 要把注意力質量導向的 token 格。預設 0（BOS）；
+SDXL 上 BOS 的質量實測僅 7e-06，見 RUNBOOK §3")
 
     # ---- 保真約束 ----
     g = ap.add_argument_group("保真約束")

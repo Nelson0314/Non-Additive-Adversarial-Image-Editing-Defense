@@ -356,6 +356,9 @@ class RunConfig:
     tau_chroma: float = LossConfig.tau_chroma
     beta_linf: float = LossConfig.beta_linf
     tau_linf: float = LossConfig.tau_linf
+    # N1 要把注意力質量導向哪些 token 格。**定義 N1 攻擊的是什麼**，
+    # 故必須進 `config_hash`（見 `loss_params`）。
+    shared_tokens: Tuple[int, ...] = LossConfig.shared_tokens
 
     # ---- 參數化 ----
     warp_grid_size: int = 32
@@ -400,6 +403,10 @@ class RunConfig:
             "beta_linf": self.beta_linf,
             "tau_linf": self.tau_linf,
             "target_image": self.target_image,
+            # 2026-08-06 補入。before：本欄不在雜湊內，而它決定 N1 的
+            # 著力點落在哪一格 token——改了它等於換一個 L_def，舊格卻會
+            # 被續跑判定視為完成而靜默沿用。這正是 A7 點名的缺陷型態。
+            "shared_tokens": list(self.shared_tokens),
         }
 
     def module_params(self) -> Dict[str, Any]:
@@ -791,6 +798,7 @@ def loss_config(res: Resources, spec: ConditionSpec) -> LossConfig:
         tau_chroma=res.cfg.tau_chroma,
         beta_linf=res.cfg.beta_linf,
         tau_linf=res.cfg.tau_linf,
+        shared_tokens=tuple(res.cfg.shared_tokens),
     )
 
 

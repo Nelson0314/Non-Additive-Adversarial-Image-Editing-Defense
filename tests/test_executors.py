@@ -842,3 +842,34 @@ def test_兩個lr探測都用臨時校準表取設定():
             f"{fn.__name__} 直接把未校準的 res 交給 optim_config")
         assert "calib=tmp" in src, (
             f"{fn.__name__} 沒有把臨時校準表換進去")
+
+
+def test_shared_tokens進入config_hash(tmp_path):
+    """`shared_tokens` 決定 N1 的 L_def 對哪一格 token 施力——改了它就是換一個
+    目標函數。不進雜湊的話，改了值之後舊格會被續跑判定視為完成而靜默沿用，
+    而報表上看不出任何差別。這正是 A7 點名的缺陷型態。
+
+    2026-08-06 補入。before：本欄只是 `LossConfig` 的預設值，既不在
+    `RunConfig` 也不在 `loss_params()`，且沒有 CLI 入口。
+    """
+    a = make_res(tmp_path / "a")
+    b = make_res(tmp_path / "b", shared_tokens=(76,))
+    assert a.cfg.loss_params()["shared_tokens"] == [0]
+    assert b.cfg.loss_params()["shared_tokens"] == [76]
+
+    cell = grid.Cell("train", "N1", "dog_00")
+    base_a = dict(BASE, loss_params=a.cfg.loss_params(),
+                  module_params=a.cfg.module_params(),
+                  optim_params=a.cfg.optim_params())
+    base_b = dict(BASE, loss_params=b.cfg.loss_params(),
+                  module_params=b.cfg.module_params(),
+                  optim_params=b.cfg.optim_params())
+    assert (config_hash(cell_config(cell, base_a))
+            != config_hash(cell_config(cell, base_b))), \
+        "換了 shared_tokens 卻算出同一個雜湊，舊格會被沿用"
+
+
+def test_shared_tokens傳得到損失設定(tmp_path):
+    res = make_res(tmp_path, shared_tokens=(76,))
+    cfg = executors.loss_config(res, executors.condition_spec("N1"))
+    assert cfg.shared_tokens == (76,)

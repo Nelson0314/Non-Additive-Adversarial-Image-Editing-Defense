@@ -44,7 +44,7 @@ import torch
 from src.defense.generator import DefenseGenerator
 from src.experiment.executors import load_lo_aligned, write_csv
 from src.metrics.suite import MetricSuite
-from src.models.sd import SDXLWrapper
+from src.models.sd import SDWrapper, SDXLWrapper
 from src.residual.site_apa import build_apa
 
 PRECISION = {"fp32": torch.float32, "fp16": torch.float16, "bf16": torch.bfloat16}
@@ -57,6 +57,8 @@ def main(argv=None) -> int:
     ap.add_argument("--model",
                     default="stabilityai/stable-diffusion-xl-base-1.0")
     ap.add_argument("--resolution", type=int, default=1024)
+    ap.add_argument("--wrapper", default="auto", choices=["auto", "sd", "sdxl"],
+                    help="auto 依 model 名稱含不含 xl 判斷，與 run_stage.py 同")
     ap.add_argument("--precision", default="bf16", choices=list(PRECISION))
     ap.add_argument("--recon", action="store_true",
                     help="加量 G(x; φ=0) 的 (k_inv, t_max, exact_inversion) 掃描")
@@ -67,7 +69,10 @@ def main(argv=None) -> int:
     args = ap.parse_args(argv)
 
     args.out.mkdir(parents=True, exist_ok=True)
-    sd = SDXLWrapper(args.model, dtype=PRECISION[args.precision])
+    wrapper = SDXLWrapper if args.wrapper == "sdxl" else SDWrapper
+    if args.wrapper == "auto":
+        wrapper = SDXLWrapper if "xl" in args.model.lower() else SDWrapper
+    sd = wrapper(args.model, dtype=PRECISION[args.precision])
     suite = MetricSuite(device=sd.device)
     entries = load_lo_aligned(args.data, args.resolution, sd.device,
                               ids=args.images, n=None, seed=0)

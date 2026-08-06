@@ -88,6 +88,30 @@ REACH="--warp-max-disp 8.0"
 # 同樣 prompt-free。`optimize.MIN_SHARED_MASS` 會在第 0 步檢查並拋出。
 ATTN="--shared-tokens 76"
 
+# 走生成路徑的條件（N3／site apa）的反演設定。**這兩項不可省。**
+#
+# `generator.py` 的 t_max 註解寫明「此參數必須由呼叫端依 E0c 的量測結果
+# 指定，不可沿用預設值」，而 `run_stage.py` 的預設是 None（走滿 [0,999]）、
+# 段 0 的 `run_calibration` 又不產生它。b1 因此以 None + DDIM 執行，
+# G(x;0) 的 LPIPS 是 0.7325／0.6736／0.6917——φ=0 時產出的已經是另一張圖，
+# 保真預算在防禦起作用之前就被吃光，N3 的階段二第 24 步即被判為收斂。
+#
+# 2026-08-06 於 RTX 3090、SDXL、1024²、bf16、k_inv=10 實測（三張圖）：
+#
+#   DDIM   + t_max 走滿   0.7325 / 0.6736 / 0.6917  ← b1 用的
+#   DDIM   + t_max 200    0.1395 / 0.2846 / 0.1400
+#   BDIA   + t_max 走滿   0.1237 / 0.2270 / 0.1017
+#   BDIA   + t_max 200    0.1092 / 0.2208 / 0.0976  ← 採用
+#   （純 VAE 來回下限     0.0986 / 0.2130 / 0.0889）
+#
+# 取 BDIA + 200 使 G(x;0) 落在純 VAE 下限上方 0.008–0.010，即生成路徑本身
+# 幾乎不再額外收費。k_inv 維持 10：開了 BDIA 之後 20 反而較差（0.1393）。
+#
+# 註：那 0.008–0.010 是 bf16 的累積誤差。fp32 下 BDIA 精確到與純 VAE 來回
+# 逐位相同，`--t-max` 屆時是無關參數（SD v1.4/512²/fp32 實測，
+# 見 RESULTS_2026-08-06 §8.1）。
+INV="--exact-inversion --t-max 200"
+
 # 產物寫在**版控範圍之外**，預設 `~/wacv_runs`。
 #
 # 2026-08-06 實測到的事故：`runs/b1*` 依「runs/ 是唯一證據來源」的規定提交
@@ -103,7 +127,14 @@ ATTN="--shared-tokens 76"
 # 回收流程不變：從 $RUNS 打包拉回本機的 `runs/` 再入版控。
 RUNS=${WACV_RUNS:-$HOME/wacv_runs}
 
-COMMON="--runs-root $RUNS --gpu-tag $GPU_TAG --precision $PRECISION --mist-target data/targets/MIST.png $MEM $REACH $ATTN"
+# 學習率探測的步數。程式預設 12，而 2026-08-06 實測 12 步對位移場**沒有
+# 鑑別力**：N2 的五個候選末端損失全距 0.9%（0.7324–0.7414），小於「當步輪到
+# 哪個淨化算子」單獨造成的 9% 落差，`_pick_best` 的 argmin 等於抽籤。
+# 拉到 60 步後三個候選單調分開（0.7191 / 0.7037 / 0.6943），且 disp_max
+# 由 0.068 px 分到 3.046 px。詳見 RESULTS_2026-08-06 §2。
+PROBE="--probe-steps 60"
+
+COMMON="--runs-root $RUNS --gpu-tag $GPU_TAG --precision $PRECISION --mist-target data/targets/MIST.png $MEM $REACH $ATTN $INV $PROBE"
 
 shard_dir() { echo "$RUNS/${BATCH}_$1"; }
 

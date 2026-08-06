@@ -1,0 +1,91 @@
+{
+  "cell_id": "train/N2/cat_02",
+  "config_hash": "c9dd12f1bbfd",
+  "config": {
+    "spec_version": 1,
+    "model": "stabilityai/stable-diffusion-xl-base-1.0",
+    "resolution": 1024,
+    "guidance": 7.5,
+    "steps": 50,
+    "strength": 0.6,
+    "gpu": "RTX-3090",
+    "precision": "bf16",
+    "loss_params": {
+      "train_n_edit": 10,
+      "n_eot": 1,
+      "k_inv": 10,
+      "t_max": null,
+      "exact_inversion": false,
+      "purify_mode": "rotate",
+      "attn_timesteps": 2,
+      "tau_train": 0.35,
+      "tau_acut": 0.04,
+      "tau_chroma": 0.8,
+      "beta_linf": 0.0,
+      "tau_linf": 0.06,
+      "target_image": "data/targets/gray.png",
+      "shared_tokens": [
+        76
+      ]
+    },
+    "module_params": {
+      "warp_grid_size": 32,
+      "warp_max_disp": 8.0,
+      "warp_resample": "bicubic",
+      "apa_lora_rank": 8,
+      "apa_latent_max_rank": 32,
+      "apa_latent_const_rank": 8,
+      "random_init_std": 0.5
+    },
+    "optim_params": {
+      "max_steps": 250,
+      "align_steps": 200,
+      "stop_patience": 20,
+      "stop_min_steps": 25
+    },
+    "lr": null,
+    "condition": "N2",
+    "image_id": "cat_02",
+    "tau": null,
+    "purify": null,
+    "seed": null
+  },
+  "steps_used": 250,
+  "stop_reason": "",
+  "stage_reports": [
+    {
+      "group": "default",
+      "lr_key": "lr.N2",
+      "lr": 0.001,
+      "max_steps": 250,
+      "steps": 250,
+      "stop_reason": ""
+    }
+  ],
+  "align_seconds": 0.0,
+  "seconds_optimize": 2931.62,
+  "lr": 0.001,
+  "final_L_def": 0.8272995948791504,
+  "final_L_fid": 0.0,
+  "final_lpips": 0.00013012802810408175,
+  "final_edit_shift": 0.12142062932252884,
+  "disp_mean_px": 0.022174175828695297,
+  "disp_max_px": 0.11174885183572769,
+  "disp_p99_px": 0.05983860790729523,
+  "flow_tv": 0.044753313064575195,
+  "grid_size": 32,
+  "residual_gain": 27.2940502762395,
+  "fid_psnr": 60.28957748413086,
+  "fid_linf": 0.018319010734558105,
+  "fid_ssim": 0.9999597072601318,
+  "fid_vif_p": 0.9949731826782227,
+  "fid_fsim": 0.9999672770500183,
+  "fid_lpips": 0.00013012802810408175,
+  "fid_dists": 8.690357208251953e-05,
+  "fid_acutance_ratio": 1.0001988410949707,
+  "fid_rms": 0.000962027523200959,
+  "fid_frac_gt_16_255": 0.0,
+  "fid_niqe": 5.63990253536982,
+  "group": "cat",
+  "prompt": "a dog"
+}

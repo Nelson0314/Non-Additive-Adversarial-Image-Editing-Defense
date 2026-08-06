@@ -1,5 +1,14 @@
 {
-  "artifacts": [],
+  "align_seconds": 0.0,
+  "artifacts": [
+    "N1/bird_03/phi.pt",
+    "N1/bird_03/train.csv",
+    "N1/bird_03/history.png",
+    "N1/bird_03/orig.png",
+    "N1/bird_03/x_def.png",
+    "N1/bird_03/residual.png",
+    "N1/bird_03/meta.json"
+  ],
   "condition": "N1",
   "config": {
     "condition": "N1",
@@ -51,12 +60,49 @@
     "tau": null
   },
   "config_hash": "4cfb3bd3872b",
+  "disp_max_px": 3.0871212482452393,
+  "disp_mean_px": 0.7521166205406189,
+  "disp_p99_px": 2.0312914848327637,
   "error": null,
-  "finished": null,
+  "fid_acutance_ratio": 1.0189815759658813,
+  "fid_dists": 0.009962022304534912,
+  "fid_frac_gt_16_255": 0.00980122946202755,
+  "fid_fsim": 0.9892672300338745,
+  "fid_linf": 0.4311879873275757,
+  "fid_lpips": 0.021860893815755844,
+  "fid_niqe": 5.848790201505388,
+  "fid_psnr": 36.580474853515625,
+  "fid_rms": 0.014824040234088898,
+  "fid_ssim": 0.9915351271629333,
+  "fid_vif_p": 0.7049604654312134,
+  "final_L_def": 0.9839761257171631,
+  "final_L_fid": 0.0,
+  "final_edit_shift": NaN,
+  "final_lpips": 0.021860893815755844,
+  "finished": "2026-08-06T12:38:07+08:00",
+  "flow_tv": 1.538059115409851,
+  "grid_size": 32,
+  "group": "bird",
   "id": "train/N1/bird_03",
   "image": "bird_03",
-  "seconds": null,
+  "lr": 0.1,
+  "prompt": "a butterfly",
+  "residual_gain": 1.1595870355732973,
+  "seconds": 195.87660464411601,
+  "seconds_optimize": 191.75,
   "stage": "train",
-  "started": "2026-08-06T09:46:43+08:00",
-  "status": "running"
+  "stage_reports": [
+    {
+      "group": "default",
+      "lr": 0.1,
+      "lr_key": "lr.N1",
+      "max_steps": 250,
+      "steps": 71,
+      "stop_reason": "約束已啟動且 shared_mass 在最近 20 步的每步改善 +1.20e-07 低於 2.3e-07"
+    }
+  ],
+  "started": "2026-08-06T12:34:51+08:00",
+  "status": "done",
+  "steps_used": 71,
+  "stop_reason": "約束已啟動且 shared_mass 在最近 20 步的每步改善 +1.20e-07 低於 2.3e-07"
 }

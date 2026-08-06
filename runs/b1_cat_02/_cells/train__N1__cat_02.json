@@ -1,5 +1,14 @@
 {
-  "artifacts": [],
+  "align_seconds": 0.0,
+  "artifacts": [
+    "N1/cat_02/phi.pt",
+    "N1/cat_02/train.csv",
+    "N1/cat_02/history.png",
+    "N1/cat_02/orig.png",
+    "N1/cat_02/x_def.png",
+    "N1/cat_02/residual.png",
+    "N1/cat_02/meta.json"
+  ],
   "condition": "N1",
   "config": {
     "condition": "N1",
@@ -51,12 +60,49 @@
     "tau": null
   },
   "config_hash": "4a4b50cc4161",
+  "disp_max_px": 4.793764591217041,
+  "disp_mean_px": 1.0610905885696411,
+  "disp_p99_px": 2.8415613174438477,
   "error": null,
-  "finished": null,
+  "fid_acutance_ratio": 1.0222909450531006,
+  "fid_dists": 0.02908337116241455,
+  "fid_frac_gt_16_255": 0.0657491683959961,
+  "fid_fsim": 0.9718244075775146,
+  "fid_linf": 0.5635384321212769,
+  "fid_lpips": 0.07917667925357819,
+  "fid_niqe": 6.053126359776305,
+  "fid_psnr": 29.479076385498047,
+  "fid_rms": 0.03357718512415886,
+  "fid_ssim": 0.9531676173210144,
+  "fid_vif_p": 0.4300020635128021,
+  "final_L_def": 0.9834023714065552,
+  "final_L_fid": 0.0,
+  "final_edit_shift": NaN,
+  "final_lpips": 0.07917667925357819,
+  "finished": "2026-08-06T12:41:29+08:00",
+  "flow_tv": 2.3554797172546387,
+  "grid_size": 32,
+  "group": "cat",
   "id": "train/N1/cat_02",
   "image": "cat_02",
-  "seconds": null,
+  "lr": 0.1,
+  "prompt": "a dog",
+  "residual_gain": 0.8872509335661369,
+  "seconds": 397.15885404497385,
+  "seconds_optimize": 393.04,
   "stage": "train",
-  "started": "2026-08-06T09:46:43+08:00",
-  "status": "running"
+  "stage_reports": [
+    {
+      "group": "default",
+      "lr": 0.1,
+      "lr_key": "lr.N1",
+      "max_steps": 250,
+      "steps": 149,
+      "stop_reason": "約束已啟動且 shared_mass 在最近 20 步的每步改善 -5.02e-07 低於 2.3e-07"
+    }
+  ],
+  "started": "2026-08-06T12:34:52+08:00",
+  "status": "done",
+  "steps_used": 149,
+  "stop_reason": "約束已啟動且 shared_mass 在最近 20 步的每步改善 -5.02e-07 低於 2.3e-07"
 }

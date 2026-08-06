@@ -1,0 +1,91 @@
+{
+  "cell_id": "train/N1/bird_03",
+  "config_hash": "4cfb3bd3872b",
+  "config": {
+    "spec_version": 1,
+    "model": "stabilityai/stable-diffusion-xl-base-1.0",
+    "resolution": 1024,
+    "guidance": 7.5,
+    "steps": 50,
+    "strength": 0.6,
+    "gpu": "RTX-3090",
+    "precision": "bf16",
+    "loss_params": {
+      "train_n_edit": 10,
+      "n_eot": 1,
+      "k_inv": 10,
+      "t_max": null,
+      "exact_inversion": false,
+      "purify_mode": "rotate",
+      "attn_timesteps": 2,
+      "tau_train": 0.35,
+      "tau_acut": 0.04,
+      "tau_chroma": 0.8,
+      "beta_linf": 0.0,
+      "tau_linf": 0.06,
+      "target_image": "data/targets/gray.png",
+      "shared_tokens": [
+        76
+      ]
+    },
+    "module_params": {
+      "warp_grid_size": 32,
+      "warp_max_disp": 8.0,
+      "warp_resample": "bicubic",
+      "apa_lora_rank": 8,
+      "apa_latent_max_rank": 32,
+      "apa_latent_const_rank": 8,
+      "random_init_std": 0.5
+    },
+    "optim_params": {
+      "max_steps": 250,
+      "align_steps": 200,
+      "stop_patience": 20,
+      "stop_min_steps": 25
+    },
+    "lr": null,
+    "condition": "N1",
+    "image_id": "bird_03",
+    "tau": null,
+    "purify": null,
+    "seed": null
+  },
+  "steps_used": 71,
+  "stop_reason": "約束已啟動且 shared_mass 在最近 20 步的每步改善 +1.20e-07 低於 2.3e-07",
+  "stage_reports": [
+    {
+      "group": "default",
+      "lr_key": "lr.N1",
+      "lr": 0.1,
+      "max_steps": 250,
+      "steps": 71,
+      "stop_reason": "約束已啟動且 shared_mass 在最近 20 步的每步改善 +1.20e-07 低於 2.3e-07"
+    }
+  ],
+  "align_seconds": 0.0,
+  "seconds_optimize": 191.75,
+  "lr": 0.1,
+  "final_L_def": 0.9839761257171631,
+  "final_L_fid": 0.0,
+  "final_lpips": 0.021860893815755844,
+  "final_edit_shift": NaN,
+  "disp_mean_px": 0.7521166205406189,
+  "disp_max_px": 3.0871212482452393,
+  "disp_p99_px": 2.0312914848327637,
+  "flow_tv": 1.538059115409851,
+  "grid_size": 32,
+  "residual_gain": 1.1595870355732973,
+  "fid_psnr": 36.580474853515625,
+  "fid_linf": 0.4311879873275757,
+  "fid_ssim": 0.9915351271629333,
+  "fid_vif_p": 0.7049604654312134,
+  "fid_fsim": 0.9892672300338745,
+  "fid_lpips": 0.021860893815755844,
+  "fid_dists": 0.009962022304534912,
+  "fid_acutance_ratio": 1.0189815759658813,
+  "fid_rms": 0.014824040234088898,
+  "fid_frac_gt_16_255": 0.00980122946202755,
+  "fid_niqe": 5.848790201505388,
+  "group": "bird",
+  "prompt": "a butterfly"
+}

@@ -157,13 +157,27 @@ class MetricSuite:
         既有全部 run 都無法與該表逐欄對照——而該表是本專案的主判準
         （見模組 docstring 的表格最右欄）。`piq` 0.8.0 已內含 `vif_p` 與
         `fsim`，不需新增相依。
+
+        兩個輸入一律轉 fp32。**指標量的是影像，不是產生它的計算精度**，
+        而 `piq` 不做隱式轉型：混著餵會以
+        `RuntimeError: expected scalar type BFloat16 but found Float` 中止。
+
+        2026-08-06 修正。before：只有 `.to(self.device).clamp(0, 1)`，dtype
+        原樣傳給 `piq`。走生成路徑的條件（N3／site apa）的 `x_def` 來自
+        `gen.generate`，是本批的計算精度（bf16），而 `entry.x01` 是 fp32，
+        於是 `_finish_train` 的 `pairwise(entry.x01, x_def)` 在**整格訓練
+        跑完之後**中止（b2 的 N3 bird_03，第 117 步收斂後）。
+
+        `objective.fidelity_term` 早已在自己內部做同一件事（見該函式
+        「三者一律轉 fp32」）。同一個問題在兩處各修一次，代表轉型應該放在
+        指標的邊界上，故此處補上——凡是進得了指標套件的張量都經過這裡。
         """
         import piq
 
         from src.metrics.acutance import acutance
 
-        a = a.to(self.device).clamp(0, 1)
-        b = b.to(self.device).clamp(0, 1)
+        a = a.to(self.device).float().clamp(0, 1)
+        b = b.to(self.device).float().clamp(0, 1)
         d = (a - b).abs()
         return {
             "psnr": float(piq.psnr(a, b, data_range=1.0)),
@@ -190,22 +204,29 @@ class MetricSuite:
         512² 的正式實驗不會觸發，只有 tiny-SD 的 64² 煙霧測試會。讓一個
         指標算不出來就中斷整批實驗，是把限制升級成故障。NaN 會原樣寫入
         CSV，分析時看得見它缺席，不會被誤當成 0。
+
+        `pairwise` 的 fp32 轉型理由在此同樣適用：pyiqa 的 NIQE 權重是 fp32。
+        段 2 的 `rayscale_executor` 對 N3 傳的 `x_tau` 直接來自
+        `gen.generate`，即本批的計算精度。
         """
         side = min(x.shape[-2], x.shape[-1])
         if side < self.NIQE_MIN_SIDE:
             return float("nan")
         self._ensure_niqe()
-        return float(self._niqe(x.to(self.device).clamp(0, 1)))
+        return float(self._niqe(x.to(self.device).float().clamp(0, 1)))
 
     @torch.no_grad()
     def semantic(self, x: torch.Tensor, prompt: str) -> Dict[str, float]:
         """影像與 prompt 的語意對齊。CLIP 取餘弦相似度、SigLIP 取其 logit。
 
         兩者尺度不同，只比較組間差異，不比較彼此的絕對值。
+
+        輸入轉 fp32 的理由同 `pairwise`：CLIP 與 SigLIP 的權重是 fp32。
         """
         self._ensure_vlm()
         from torchvision.transforms.functional import resize
 
+        x = x.to(self.device).float()
         out = {}
         for key, model, proc in (
             ("clip", self._clip, self._clip_proc),
@@ -213,7 +234,7 @@ class MetricSuite:
         ):
             size = proc.image_processor.size
             side = size.get("shortest_edge") or size["height"]
-            img = resize(x.to(self.device).clamp(0, 1), [side, side], antialias=True)
+            img = resize(x.clamp(0, 1), [side, side], antialias=True)
             mean = torch.tensor(proc.image_processor.image_mean, device=self.device)
             std = torch.tensor(proc.image_processor.image_std, device=self.device)
             img = (img - mean[:, None, None]) / std[:, None, None]

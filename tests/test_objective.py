@@ -827,3 +827,57 @@ def test_targeted的MSE也吃得下混合dtype():
     y_d = (y_t * 0.8).to(torch.bfloat16)
     d = o.target_distance(y_d, y_t)
     assert torch.isfinite(d).all() and d.dtype == torch.float32
+
+
+def _attn_maps_fixed_mass(mass: float, dtype=torch.bfloat16, n_layers: int = 4,
+               q: int = 64, n_tok: int = 77):
+    """人工注意力圖：末位 token 恰好分到 `mass`，其餘平分。
+
+    直接指定質量而不用亂數，是為了讓「回傳值該是多少」有解析解，
+    量化造成的差異才不會與取樣雜訊混在一起。
+    """
+    a = torch.full((1, q, n_tok), (1.0 - mass) / (n_tok - 1))
+    a[..., -1] = mass
+    return [a.to(dtype).clone() for _ in range(n_layers)]
+
+
+def test_注意力項的入口一律轉fp32():
+    """N1 的防禦項在 bf16 的注意力圖上必須仍能分辨質量的細微變化。
+
+    2026-08-06 於 RTX 3090 的段 0 暴露：`attention_term` 算的是 `1 − mass`，
+    而 mass ≈ 0.0156 落在指數 2⁻⁶、`1 − mass` ≈ 0.984 落在 2⁻¹。bf16 只有
+    7 位尾數，故相減後的間距由 1.2e-04 變成 **3.9e-03**，精度掉 32 倍。
+    實測後果是 mass 在 [0.0156, 0.0176] 之間的任何值都被映到同一個
+    `l_def = 0.984375`：`lr_probe.csv` 的五個候選學習率（跨 1000 倍）末端
+    損失逐位元相同，`_pick_best` 因而在無訊號下挑了格點第一個值，
+    `_pick_stop_tol` 算出 0，250 步的 log 上損失一格都沒動過。
+
+    與 `test_保真度的入口一律轉fp32` 同一條規則（見 `DefenseObjective`
+    的類別 docstring「本類別的每一個度量都在 fp32 上計算」），該支只涵蓋
+    保真度入口，防禦項是漏網的那一半。
+    """
+    o = DefenseObjective(
+        LossConfig(defense_mode="targeted_attn", shared_tokens=(76,)), DEV)
+    lo = o.attention_term([_attn_maps_fixed_mass(0.0156)])
+    hi = o.attention_term([_attn_maps_fixed_mass(0.0166)])
+    assert lo.dtype == torch.float32, "防禦項必須在 fp32 上算"
+    # mass 越大 → `1 − mass` 越小。兩者的真實差距約 9.8e-04。
+    assert float(lo) > float(hi), "質量變大時 L_def 必須變小"
+    assert float(lo) - float(hi) > 5e-4, (
+        f"L_def 對 mass 的 9.8e-04 變化只反應了 {float(lo) - float(hi):.3e}；"
+        "解析度不足以驅動最佳化或平台停止"
+    )
+
+
+def test_注意力質量在bf16下不被相減吃掉():
+    """`shared_token_mass` 本身的回傳值也要是 fp32。
+
+    回報給 log 的 `shared_mass` 是由 `1 − l_def` 反推的（見 `defense_term`），
+    故 l_def 一旦被量化到 3.9e-03 的格上，監看量就跟著失去解析度——
+    平台停止與段 0 的 `stop_tol` 都建立在那個量上。
+    """
+    o = DefenseObjective(
+        LossConfig(defense_mode="targeted_attn", shared_tokens=(76,)), DEV)
+    m = o.shared_token_mass(_attn_maps_fixed_mass(0.0156))
+    assert m.dtype == torch.float32
+    assert abs(float(m) - 0.015625) < 1e-4, float(m)

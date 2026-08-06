@@ -378,6 +378,30 @@ class DefenseObjective:
 
         逐層平均而非加總：層數隨模型而異（SD1.5 的 attn2 有 16 層、SDXL 有
         70 層），取平均後這個量在不同模型之間才可比。
+
+        **一律在 fp32 上歸約**，見類別 docstring「本類別的每一個度量都在
+        fp32 上計算」。2026-08-06 修正，before／after：
+
+            before（403–404 行）  terms.append(a.index_select(-1, sel)
+                                              .sum(dim=-1).mean())
+            after                 …index_select(-1, sel).float().sum(…).mean()
+
+        理由是實測而非原則。bf16 只有 7 位尾數，間距隨指數跳：mass ≈ 0.0156
+        落在 2⁻⁶，間距 1.2e-04；而 `attention_term` 要算的 `1 − mass` ≈ 0.984
+        落在 2⁻¹，間距 **3.9e-03**——相減本身把解析度砍掉 32 倍。後果是
+        [0.0156, 0.0176] 區間內的任何質量都被映到同一個 `l_def = 0.984375`，
+        回報的 `shared_mass` 則恆為 `1 − 0.984375 = 0.015625`。
+
+        2026-08-06 於 RTX 3090 的段 0 實測到的症狀：`lr_probe.csv` 中 N1 的
+        五個候選學習率（1e-4 至 1e-1，跨 1000 倍）末端損失與監看量**逐位元
+        相同**，`_pick_best` 因而在完全無訊號的情況下挑了格點第一個值，
+        `_pick_stop_tol` 算出 `stop_tol.shared_mass = 0`；段 1 的 250 步
+        log 上 `loss=0.9844` 一格未動，而 `|g|` 是正常的 2e-04 量級。
+        亦即梯度一直是對的，被量化掉的是**判準與監看量**。
+
+        這與 `untargeted`（A1）同樣是「跑完了但什麼都沒動」，但成因相反：
+        A1 是梯度真的為零，此處梯度非零而**量表讀不出來**。`MIN_SHARED_MASS`
+        只在第 0 步檢查起點質量，擋得住前者，擋不住後者。
         """
         if not maps:
             raise ValueError(
@@ -401,7 +425,12 @@ class DefenseObjective:
                     "最佳化不會產生任何更新"
                 )
             sel = torch.as_tensor(idx, device=a.device, dtype=torch.long)
-            terms.append(a.index_select(-1, sel).sum(dim=-1).mean())
+            # `.float()` 擺在 `index_select` **之後**：挑格是純搬移、不做算術，
+            # 在 bf16 上是精確的，故先挑再轉——fp32 張量只有 (B, Q, |idx|) 而
+            # 非 (B, Q, 77)，省 77 倍。N1 不能開 UNet checkpoint，是全批記憶體
+            # 最緊的一條路徑（實測峰值 22964 MiB / 23.56 GB），這個順序不是
+            # 風格問題。
+            terms.append(a.index_select(-1, sel).float().sum(dim=-1).mean())
         return torch.stack(terms).mean()
 
     def attention_term(

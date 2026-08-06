@@ -6,6 +6,13 @@
 #   bash scripts/shard.sh watch                           # 看各分片進度
 #   bash scripts/shard.sh merge   <影像1> <影像2> ...     # 合併分片並跑段 4
 #
+# 批次由環境變數 `BATCH` 指定，它同時選定模型設定（見下方 profile 區）：
+#
+#   BATCH=b3  → SDXL 1.0 base / 1024² / bf16   （預設）
+#   BATCH=v14 → SD v1.4 / 512² / fp32
+#
+# fanout 產生的 tmux session 名為 `wacv-<批次>-<影像>`。
+#
 # ---------------------------------------------------------------------------
 # 為什麼這樣可行（三個前提，改動任一個之前先確認它們還成立）
 #
@@ -41,6 +48,9 @@ source "$HOME/env.sh"
 BATCH=${BATCH:-b1}
 GPU_TAG=RTX-3090
 PRECISION=bf16
+# 模型設定的預設值＝b1／b2／b3 那一組（SDXL 1.0 base，程式預設值），
+# 故此處留空以維持原本的命令列逐字不變。v14 的覆寫在本檔末的 profile 區。
+MODEL=""
 # `--purify-mode rotate --attn-timesteps 2` 不是調味，是 24 GB 下的必要條件。
 # N1（`optimize._build_attn_step`）不能開 UNet checkpoint——hook 在 backward
 # 重算時已卸除，兩次存檔的張量數對不上——故每步要留住
@@ -143,7 +153,43 @@ RUNS=${WACV_RUNS:-$HOME/wacv_runs}
 # 由 0.068 px 分到 3.046 px。詳見 RESULTS_2026-08-06 §2。
 PROBE="--probe-steps 60"
 
-COMMON="--runs-root $RUNS --gpu-tag $GPU_TAG --precision $PRECISION --mist-target data/targets/MIST.png $MEM $REACH $ATTN $INV $PROBE"
+# ---------------------------------------------------------------------------
+# 批次 profile
+#
+# `DESIGN_2026-08-05` §2.0a（使用者 2026-08-06 定案）並行兩組實驗，兩組的
+# 模型／解析度／精度不同，而上面那些常數是為 b3（SDXL）寫的。此處以 BATCH
+# 名稱選 profile，**不改上面任何一行**，使 b1／b2／b3 的命令列逐字不變。
+#
+# 為什麼必須逐字不變：`Calibration.REQUIRED_CONTEXT` 是
+# (model, resolution, guidance, steps, gpu, precision)，段 1 拿段 0 的
+# calibration.json 時會比對這六項。差一項就是 `CalibrationMismatch`，
+# 而段 0 要兩小時。
+#
+# v14 的四項差異與其理由（`HANDOVER_2026-08-07` §4）：
+#
+#   --wrapper sd --resolution 512 --precision fp32
+#       Mist 與 DIA 的原生模型，且為指導者協定所指定。
+#   --purify-mode all（不帶 --attn-timesteps）
+#       512² 下 N1 的計算圖只有 1024² 的四分之一，24 GB 沒有壓力，
+#       故不必用 rotate + t=2 這個為 SDXL 省記憶體的設定。
+#   --shared-tokens 0
+#       BOS，PromptFlare 原作的選擇。SDXL 上 BOS 拿不到注意力質量
+#       （實測 7.2e-06）才改用第 76 格的 PAD；SD v1.4 上 BOS 實測質量
+#       93.9%，原形式成立。
+#   不帶 --t-max
+#       fp32 下 BDIA 反演與純 VAE 來回逐位相同，該參數無關
+#       （RESULTS_2026-08-06 §8.1）。帶上去只會多一項 config 差異。
+case "$BATCH" in
+  v14*)
+    PRECISION=fp32
+    MODEL="--model CompVis/stable-diffusion-v1-4 --wrapper sd --resolution 512"
+    MEM="--purify-mode all"
+    ATTN="--shared-tokens 0"
+    INV="--exact-inversion"
+    ;;
+esac
+
+COMMON="--runs-root $RUNS --gpu-tag $GPU_TAG --precision $PRECISION $MODEL --mist-target data/targets/MIST.png $MEM $REACH $ATTN $INV $PROBE"
 
 shard_dir() { echo "$RUNS/${BATCH}_$1"; }
 
@@ -193,7 +239,9 @@ fanout)
     cp -r "$RUNS/$BATCH/calib" "$D/"
     LOG="$D/run.log"
     echo "分片 $IMG → GPU $GPU   $LOG"
-    tmux new-session -d -s "wacv-$IMG" \
+    # session 名帶批次：兩組實驗的影像 id 相同，不帶批次就會在
+    # `tmux new-session` 撞名，而第二組的失敗只表現為「session 沒有起來」。
+    tmux new-session -d -s "wacv-$BATCH-$IMG" \
       "cd $HOME/WACV && export PYTHONIOENCODING=utf-8 \
 CUDA_VISIBLE_DEVICES=$GPU PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True; \
 for S in train rayscale eval; do \
@@ -203,7 +251,7 @@ done > $LOG 2>&1; echo \"[exit \$?]\" >> $LOG"
   done
   sleep 5
   for IMG in "${IMAGES[@]}"; do
-    tmux has-session -t "wacv-$IMG" 2>/dev/null || {
+    tmux has-session -t "wacv-$BATCH-$IMG" 2>/dev/null || {
       echo "分片 $IMG 沒有起來。log：" >&2
       tail -20 "$(shard_dir "$IMG")/run.log" 2>/dev/null >&2
       exit 1; }

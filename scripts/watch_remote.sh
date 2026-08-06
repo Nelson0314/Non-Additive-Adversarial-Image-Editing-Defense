@@ -39,12 +39,14 @@ ssh -p "$PORT" -o StrictHostKeyChecking=no -o ConnectTimeout=20 "$H" \
   "JOBS='$JOBS' bash -s" <<'EOS'
 R=$HOME/wacv_runs
 for S in $JOBS; do
-  # session 名稱與 log 路徑的對應。`shard.sh` 的分片是 wacv-<影像>，
-  # 段 0 是 wacv-calib；其餘依批次自行加。
+  # session 名稱與 log 路徑的對應。`shard.sh` 的分片是 wacv-<批次>-<影像>，
+  # 對到 $R/<批次>_<影像>/run.log；段 0 是 wacv-calib（b3）與 v14calib。
+  # 批次名不含 `-`、影像 id 不含 `-`，故第一個 `-` 就是兩者的分界。
   case $S in
     wacv-calib)  L=$R/b3/calib.log;;
     v14calib)    L=$R/v14/calib.log;;
-    wacv-*)      L=$R/b3_${S#wacv-}/run.log;;
+    wacv-*-*)    T=${S#wacv-}; L=$R/${T%%-*}_${T#*-}/run.log;;
+    wacv-*)      L=$R/b3_${S#wacv-}/run.log;;   # 舊式命名，b1／b2 的既有 log
     b2-*)        L=$R/b2_${S#b2-}/run.log;;
     *)           L=$R/$S/run.log;;
   esac

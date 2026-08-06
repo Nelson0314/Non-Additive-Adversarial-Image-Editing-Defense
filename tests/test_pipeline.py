@@ -10,13 +10,15 @@ y_def 不可能等於 y_orig。正確的不變量是「模塊停用時其存在�
 計算結果」，本檔依此撰寫，並保留 site P 的恆等檢查作為 T1-P。
 """
 
+from dataclasses import replace as dc_replace
+
 import pytest
 import torch
 
 from src.defense.generator import DefenseGenerator
 from src.defense.objective import DefenseObjective, LossConfig
 from src.defense.optimize import (
-    OptimConfig, align, optimize, optimize_encoder,
+    OptimConfig, align, optimize, optimize_encoder, recon_floor_thresholds,
 )
 from src.models.sd import SDWrapper
 from src.purify.ops import default_train_set
@@ -484,6 +486,22 @@ def _latent_module(sd, steps):
     ).to(DEV)
 
 
+def _x_base0(gen, mod, x01):
+    """G(x; φ=0)。取法與 `optimize()` 內部一致——停用模塊再生成一次。
+
+    階段一的門檻**不是**由它決定（那會使階段一成為空操作，見
+    `optimize.recon_floor_thresholds`），而是由純 VAE 來回決定；此處只是
+    `align()` 的引數。"""
+    was = mod.enabled
+    mod.disable()
+    try:
+        with torch.no_grad():
+            return gen.generate(x01, gen.prepare(x01)).detach()
+    finally:
+        if was:
+            mod.enable()
+
+
 def test_階段一會改變phi且記錄每一步(sd, x01):
     """階段一是一段真的優化，不是佔位。
 
@@ -497,7 +515,7 @@ def test_階段一會改變phi且記錄每一步(sd, x01):
     before = mod.tensor.V.detach().clone()
 
     x_align, hist = align(sd, mod, x01, cfg, LossConfig(), gen,
-                          _calib_for(cfg), TEST_CTX)
+                          _calib_for(cfg), TEST_CTX, _x_base0(gen, mod, x01))
 
     assert len(hist) == cfg.align_steps, "每一步都必須留下記錄"
     assert all("fid_lpips" in h and "fid_psnr_total" in h for h in hist), \
@@ -954,7 +972,7 @@ def test_階段一還原軌跡最佳的phi而非最後一步(sd, x01):
     mod = _latent_module(sd, cfg.k_inv)
     gen = DefenseGenerator(sd, mod, k_inv=cfg.k_inv)
     _, hist = align(sd, mod, x01, cfg, LossConfig(), gen,
-                    _calib_for(cfg), TEST_CTX)
+                    _calib_for(cfg), TEST_CTX, _x_base0(gen, mod, x01))
 
     losses = [h["align_loss"] for h in hist]
     best_step = hist[0]["align_best_step"]
@@ -963,8 +981,17 @@ def test_階段一還原軌跡最佳的phi而非最後一步(sd, x01):
     if best_step == len(losses) - 1:
         pytest.skip("此設定下未發生後段發散，本測試沒有可驗證的還原行為")
 
-    # 還原後重新前向，其損失必須等於最佳步的損失而非最後一步的
+    # 還原後重新前向，其損失必須等於最佳步的損失而非最後一步的。
+    #
+    # 門檻必須與 `align` 當時用的同一組，即該影像自己的重建下限
+    # （`recon_floor_thresholds`），不是 `LossConfig` 的預設值。
+    # 2026-08-06 之前兩者恰好相同，改為逐影像門檻之後就不是了；沿用預設值
+    # 會算出另一個目標函數的損失，本斷言則以一個與還原行為無關的理由失敗。
     obj = DefenseObjective(LossConfig(gamma_psnr=cfg.align_gamma_psnr), DEV)
+    with torch.no_grad():
+        x_floor = sd.decode_latent(sd.encode_image(x01)).detach()
+    obj.cfg = dc_replace(
+        obj.cfg, **recon_floor_thresholds(x_floor, x01, obj._perceptual))
     with torch.no_grad():
         x_gen = gen.generate(x01, gen.prepare(x01))
         again, _ = obj.fidelity_term(x_gen, x01, x_base=None)
@@ -1633,3 +1660,42 @@ def test_crossattn在平台時停止且步數少於上限(sd, x01):
     # 參照多遠」，在 φ=0 取最小值故不可用（見 test_散度形式在phi等於零時梯度為零）。
     assert "shared_mass" in res.stop_reason
     assert res.x_def is not None
+
+
+def test_階段一的門檻取自純VAE來回而非phi0(sd, x01):
+    """門檻若取 `G(x; φ=0)`，階段一會是空操作。
+
+    `LowRankResidual` 的初始化是 `U ~ N(0,σ)`、`V = 0`，故初始 Δ 恆為零，
+    `G(x; φ_init)` 與 `G(x; φ=0)` 逐位元相同。門檻取後者時第 0 步的四道
+    hinge 全部恰好落在門檻上、損失為零、梯度為零。取純 VAE 來回則留下
+    inversion 與去噪那一段作為餘裕，而那正是 LoRA 唯一能作用的地方。
+
+    2026-08-06 加入。這個區別在 tiny-SD 上就看得出來，不必等 GPU。
+    """
+    cfg = _cfg()
+    mod = _latent_module(sd, cfg.k_inv)
+    gen = DefenseGenerator(sd, mod, k_inv=cfg.k_inv)
+    obj = DefenseObjective(LossConfig(), DEV)
+
+    with torch.no_grad():
+        x_floor = sd.decode_latent(sd.encode_image(x01)).detach()
+    x_b0 = _x_base0(gen, mod, x01)
+
+    by_vae = recon_floor_thresholds(x_floor, x01, obj._perceptual)
+    by_phi0 = recon_floor_thresholds(x_b0, x01, obj._perceptual)
+
+    # 初始 Δ 為零，故 G(x; φ_init) 就是 G(x; φ=0)
+    with torch.no_grad():
+        x_init = gen.generate(x01, gen.prepare(x01)).detach()
+    assert torch.equal(x_init, x_b0), "初始 Δ 應為零，前提不成立則本測試無意義"
+
+    # 取 φ=0 當門檻：第 0 步損失恰為零，沒有梯度可用
+    obj.cfg = dc_replace(obj.cfg, gamma_psnr=cfg.align_gamma_psnr, **by_phi0)
+    zero, _ = obj.fidelity_term(x_init, x01, x_base=None)
+    assert float(zero) == pytest.approx(0.0, abs=1e-6),         "門檻取 G(x;φ=0) 時第 0 步的損失必為零——這正是不能這樣取的理由"
+
+    # 取純 VAE 來回當門檻：inversion 與去噪那一段仍受罰，階段一有事可做
+    obj.cfg = dc_replace(obj.cfg, gamma_psnr=cfg.align_gamma_psnr, **by_vae)
+    positive, _ = obj.fidelity_term(x_init, x01, x_base=None)
+    assert float(positive) > 0.0,         "純 VAE 來回必嚴格優於經過 inversion 的重建，故第 0 步應受罰"
+    assert by_vae["tau_lpips"] <= by_phi0["tau_lpips"],         "純 VAE 來回是下限，不可能比 G(x;φ=0) 差"

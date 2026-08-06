@@ -1503,8 +1503,19 @@ def _probe_align_lr(res: Resources, condition: str, entry: ImageEntry,
         gen = DefenseGenerator(res.sd, module, k_inv=res.cfg.k_inv,
                                t_max=res.cfg.t_max,
                                exact_inversion=res.cfg.exact_inversion)
+        # x_base0 = G(x; φ=0)，階段一的四道 hinge 門檻由它決定
+        # （`optimize.recon_floor_thresholds`）。探測與正式訓練必須用同一條
+        # 基準線，否則探出來的學習率對應的是另一個目標函數。
+        was_enabled = module.enabled
+        module.disable()
+        try:
+            with torch.no_grad():
+                x_base0 = gen.generate(entry.x01, gen.prepare(entry.x01)).detach()
+        finally:
+            if was_enabled:
+                module.enable()
         _, hist = align(res.sd, module, entry.x01, cfg,
-                        loss_config(res, spec), gen, tmp, ctx)
+                        loss_config(res, spec), gen, tmp, ctx, x_base0)
     finally:
         module.remove()
     last = hist[-1]

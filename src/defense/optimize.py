@@ -635,6 +635,57 @@ def run_stages(
     return result
 
 
+@torch.no_grad()
+def recon_floor_thresholds(x_floor: torch.Tensor, x01: torch.Tensor,
+                           perceptual) -> Dict[str, float]:
+    """階段一四道 hinge 的門檻，逐影像取自該影像自己的重建下限。
+
+    判準是「**不可以比 VAE 自己造成的更差**」：門檻取 `decode(encode(x))`
+    對原圖的實測值，任何劣於它的都受罰。
+
+    **門檻取純 VAE 來回而不是 `G(x; φ=0)`**，兩者差別是後者多了 inversion
+    與去噪。這個選擇是必要的：`LowRankResidual` 的初始化是 `U ~ N(0,σ)`、
+    `V = 0`，故初始 Δ 恆為零（`lowrank.py` 檔頭），即
+    `G(x; φ_init)` 與 `G(x; φ=0)` **逐位元相同**。門檻若取後者，第 0 步的
+    四道 hinge 全部恰好落在門檻上、損失為零、梯度為零，階段一成為空操作。
+    取純 VAE 來回則留下 inversion 與去噪造成的那一段作為可改善的餘裕，而
+    那正是 LoRA 唯一能作用的地方（它改 UNet，不改 VAE）。
+
+    2026-08-06 改動（使用者裁決）。before：`psnr_floor` 固定 34.0 dB、
+    `tau_acut` 0.04、`tau_chroma` 0.8、`tau_lpips` 取 τ_train，四者皆為
+    與影像無關的常數。實測 SDXL/1024² 下純 VAE 來回的 PSNR 為 36.71
+    （bird_03）／29.68（cat_02）／33.68（dog_03） dB，即 34 dB 這道門檻對
+    後兩張**永遠不可達**，200 步全在被一個常數推，反而把 LPIPS 推壞
+    （cat_02 +0.054，佔其總預算四成）。`objective.py` 的
+    「E0c 實測各影像的重建誤差下限由 19.61 到 31.01 dB，相差 11.4 dB，
+    任何全域固定的 psnr_floor 都不可能同時適用」講的正是這件事，但該處的
+    處置（改對 x_base 量）只用在防禦階段；階段一量的是**絕對**保真度，
+    不能改對象，只能改門檻。
+
+    與那個失效模式的關鍵差別：這裡的門檻**存在一個 φ 能達成**（即 φ=0），
+    而 34 dB 沒有任何 φ 能達成。階段一要做的就是用 LoRA 把 latent 注入
+    （`latent_init_std`）造成的劣化補回到這條線上。
+
+    `tau_linf` 不在此列：`fidelity_term` 的 L∞ 一律以 `x_base` 為對象，
+    階段一的 `x_base=None` 使其等於原圖，而 `beta_linf` 預設為 0。
+
+    `perceptual` 取 `DefenseObjective._perceptual`，不自建第二個 `piq.LPIPS`
+    ——門檻與被它約束的量必須由同一個實作算出，否則門檻本身就有偏差。
+    """
+    from src.defense.objective import local_acutance_dev, local_chroma_bias
+
+    xb = x_floor.clamp(0, 1).float()
+    xr = x01.clamp(0, 1).float()
+    mse = torch.nn.functional.mse_loss(xb, xr)
+    psnr = 10.0 * torch.log10(1.0 / mse.clamp_min(1e-12))
+    return {
+        "psnr_floor": float(psnr),
+        "tau_acut": float(local_acutance_dev(xr, xb)),
+        "tau_chroma": float(local_chroma_bias(xr, xb)),
+        "tau_lpips": float(perceptual(xb, xr)),
+    }
+
+
 def align(
     sd: SDWrapper,
     module: ResidualModule,
@@ -644,6 +695,7 @@ def align(
     gen: DefenseGenerator,
     calib: Optional[Calibration],
     calib_context: Dict[str, Any],
+    x_base0: torch.Tensor,
 ) -> Tuple[torch.Tensor, List[Dict]]:
     """保真對齊：訓練 φ 使 G(x; φ) 逼近 x。回傳 (x_align, history)。
 
@@ -667,10 +719,15 @@ def align(
     `align_group` 使本階段可以只更新其中一組參數。APA 移植的階段一即
     `align_group="stage1"`（只訓練 LoRA），與階段二的 latent 完全分開。
     """
-    # 只覆蓋 gamma_psnr，其餘係數與防禦階段一致：保真度的「定義」不變，
-    # 變的是逐像素項在這個階段要不要參與梯度。
-    align_cfg = replace(loss_cfg, gamma_psnr=cfg.align_gamma_psnr)
-    obj = DefenseObjective(align_cfg, x01.device)
+    # 只覆蓋 gamma_psnr：保真度的「定義」不變，變的是逐像素項在這個階段
+    # 要不要參與梯度。四道 hinge 的門檻另由該影像自己的重建下限決定。
+    obj = DefenseObjective(replace(loss_cfg, gamma_psnr=cfg.align_gamma_psnr),
+                           x01.device)
+    with torch.no_grad():
+        x_floor = sd.decode_latent(sd.encode_image(x01)).detach()
+    floors = recon_floor_thresholds(x_floor, x01, obj._perceptual)
+    obj.cfg = replace(obj.cfg, **floors)
+
     params = stage_parameters(module, cfg.align_group)
     lr = resolve_lr(calib, cfg.align_lr_key, calib_context)
     history: List[Dict] = []
@@ -680,6 +737,11 @@ def align(
         opt = torch.optim.Adam(params, lr=lr)
         print(f"  [align] group={cfg.align_group} lr={lr:g}"
               f"（{cfg.align_lr_key}）{cfg.align_steps} 步", flush=True)
+        print(f"  [align] 門檻取自本圖的重建下限："
+              f"psnr≥{floors['psnr_floor']:.2f}dB "
+              f"lpips≤{floors['tau_lpips']:.4f} "
+              f"acut≤{floors['tau_acut']:.4f} "
+              f"chroma≤{floors['tau_chroma']:.4f}", flush=True)
 
         for step in range(cfg.align_steps):
             opt.zero_grad(set_to_none=True)
@@ -690,7 +752,6 @@ def align(
             loss.backward()
             if cfg.grad_clip > 0:
                 torch.nn.utils.clip_grad_norm_(params, cfg.grad_clip)
-            opt.step()
 
             # 保留軌跡最佳的 φ，最後還原它，而不是拿最後一步的。
             #
@@ -702,13 +763,24 @@ def align(
             #
             # 選擇判準用總損失而非單一 LPIPS：損失才是這個階段在最小化的量，
             # 挑 LPIPS 最低的一步可能挑到 PSNR 被犧牲掉的那一步。
+            #
+            # **存檔必須在 `opt.step()` 之前。** 2026-08-06 修正。
+            # before：`opt.step()` 在本區塊之上，於是 `state_dict()` 取到的是
+            # **更新之後**的參數，而 `loss` 是更新之前那組算出來的——保留的 φ
+            # 比它被選中的理由晚一步。實測（tiny-SD、lr=5.0）還原後重新前向
+            # 得 0.0042，而記錄的最佳損失是 0.0000，兩者本應相等。
+            # 該缺陷使 E12 訂下這條規則的目的落空：留下的不是最佳步的 φ。
             if float(loss) < best_loss:
                 best_loss, best_step = float(loss), step
                 best_state = {k: v.detach().clone()
                               for k, v in module.state_dict().items()}
+            opt.step()
 
             parts["step"] = step
             parts["align_loss"] = float(loss)
+            # 門檻逐影像不同，故必須隨軌跡落盤——否則 align.csv 的懲罰值
+            # 事後無從還原是對哪一條線量的。
+            parts.update({f"align_{k}": v for k, v in floors.items()})
             history.append(parts)
             if step % cfg.log_every == 0 or step == cfg.align_steps - 1:
                 print(f"  [align] step {step:>4d}  loss={float(loss):.4f}  "
@@ -820,7 +892,8 @@ def optimize(
         else:
             ta = time.perf_counter()
             x_base, result.align_history = align(
-                sd, module, x01, cfg, loss_cfg, gen, calib, calib_context)
+                sd, module, x01, cfg, loss_cfg, gen, calib, calib_context,
+                x_base0)
             result.align_seconds = time.perf_counter() - ta
             # 保真基準改為對齊實際達成的重建。對齊若成功 x_base ≈ x，相對
             # hinge 與絕對 hinge 自然合流；若失敗，x_base 仍是誠實的基準，

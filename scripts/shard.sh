@@ -88,8 +88,22 @@ REACH="--warp-max-disp 8.0"
 # 同樣 prompt-free。`optimize.MIN_SHARED_MASS` 會在第 0 步檢查並拋出。
 ATTN="--shared-tokens 76"
 
-COMMON="--gpu-tag $GPU_TAG --precision $PRECISION --mist-target data/targets/MIST.png $MEM $REACH $ATTN"
-RUNS=$HOME/WACV/runs
+# 產物寫在**版控範圍之外**，預設 `~/wacv_runs`。
+#
+# 2026-08-06 實測到的事故：`runs/b1*` 依「runs/ 是唯一證據來源」的規定提交
+# 進版控之後，機器上的一次 `git pull` 把**實驗正在寫的目錄刪掉了**。機制是
+# 機器的 sparse-checkout 為 `/*` 加 `!/runs/`，於是那些路徑一旦成為被追蹤的
+# 檔案就會被標成 skip-worktree（`git ls-files -v` 顯示 `S`）並從工作區移除。
+#
+# 當時只有與已提交版本**逐位元不同**的檔案（該次新產生的 calibration.json、
+# lr_probe.csv）因為 git 不敢刪而倖存，其餘全部消失。也就是說這個機制專門
+# 刪掉「已經回收過的結果」，而那正是最容易被誤判為安全的一類。
+#
+# 把輸出移出 repo 之後，git 完全看不到實驗產物，pull 與實驗不再互相干擾。
+# 回收流程不變：從 $RUNS 打包拉回本機的 `runs/` 再入版控。
+RUNS=${WACV_RUNS:-$HOME/wacv_runs}
+
+COMMON="--runs-root $RUNS --gpu-tag $GPU_TAG --precision $PRECISION --mist-target data/targets/MIST.png $MEM $REACH $ATTN"
 
 shard_dir() { echo "$RUNS/${BATCH}_$1"; }
 

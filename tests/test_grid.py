@@ -45,9 +45,29 @@ def test_兩個完整淨化點都在N3可達的區間內():
         assert not grid.generative_floor_skip("N3", t), f"τ={t} 對 N3 不適用"
 
 
-def test_訓練只在最大tau上做一次():
-    """逐 τ 重訓是 ×4 成本，且「匹配失真」的前提已四次被證偽。"""
-    assert grid.TRAIN_TAU == max(grid.TAUS)
+def test_訓練只在一個tau上做一次():
+    """逐 τ 重訓是 ×4 成本，且「匹配失真」的前提已四次被證偽。
+
+    訓練點必須是 `TAUS` 中的一個，但**不必是最大的那個**：`solve_k` 雙向
+    可行，段 2 能往上也能往下縮放。
+
+    2026-08-06 修正。before：`assert grid.TRAIN_TAU == max(grid.TAUS)`。
+    該斷言把「訓練在最大預算」寫死成不變量，而實測顯示位移場在 max(TAUS)
+    = 0.35 上已頂死 `max_disp` 的硬上界（disp_max 自 τ=0.20 起固定在
+    8√2 = 11.31 px）且人眼明顯壞掉，那個點不該是最佳化發生的地方。
+    理由與數據見 `grid.TRAIN_TAU` 的註解。
+    """
+    assert grid.TRAIN_TAU in grid.TAUS
+
+
+def test_訓練點是人眼可接受的那個點():
+    """訓練點與主表同點。
+
+    主表是全部主張的宣告位置，在別的點上最佳化等於報告一個沒有被最佳化過
+    的工作點。這一條與上一條分開：上一條管「是不是格點之一」，這一條管
+    「是哪一個」。
+    """
+    assert grid.TRAIN_TAU == grid.MAIN_TAU
 
 
 # ---------------------------------------------------------------------------

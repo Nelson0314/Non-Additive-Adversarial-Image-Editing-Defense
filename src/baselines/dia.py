@@ -126,8 +126,20 @@ def resolve_final_abar(sd, abar: torch.Tensor) -> torch.Tensor:
 
 
 class DIAContext:
-    def __init__(self, sd, spec, variant, emb, ts, num_inference_steps, generator):
+    def __init__(self, sd, spec, variant, emb, ts, num_inference_steps,
+                 generator, use_ckpt: bool = False):
         self.spec = spec
+        # DIA 的損失把整條反演（DIA-R 還加上整條重建）留在同一張計算圖上，
+        # 即 `num_inference_steps` 或其兩倍次 UNet 前向。SDXL 在 1024² 下
+        # 每次前向的中間激活約 4.5 GB，DIA-R 的 20 次遠超 RTX 3090 的
+        # 23.56 GB——2026-08-06 實測在第一次反演的 down block 就
+        # `torch.OutOfMemoryError`，兩張圖的 dia_r 全部失敗。
+        #
+        # `use_ckpt` 讓每次 `_eps` 成為一個 checkpoint 區塊，反向時逐一重算，
+        # 峰值由步數的線性和降為單步。**數值上中性**（重算的是同一個函式），
+        # 故它不進 `config_hash`，與 `unet_ckpt` 對非加性條件的處理一致；
+        # 代價是時間乘二。
+        self.use_ckpt = bool(use_ckpt)
         self.variant = variant
         self.emb = emb
         self.ts = ts
@@ -155,7 +167,7 @@ def _step(sd, ctx: DIAContext, t: torch.Tensor, z: torch.Tensor, inversion: bool
     classifier-free guidance。`prev_timestep = t − num_train // n_steps`，
     反演時把 `alpha_prod_t` 與 `alpha_prod_t_prev` 對調。
     """
-    eps = sd._eps(z, t, ctx.emb)
+    eps = sd._eps(z, t, ctx.emb, use_ckpt=ctx.use_ckpt)
     prev_t = int(t) - sd.num_train_timesteps // ctx.num_inference_steps
     a_t = ctx.abar[int(t)]
     a_prev = ctx.abar[prev_t] if prev_t >= 0 else ctx.final_abar
@@ -186,18 +198,22 @@ def prepare(
     *,
     num_inference_steps: int = DIA_NUM_INFERENCE_STEPS,
     seed: int = 1234,
+    use_ckpt: bool = False,
     **_,
 ) -> DIAContext:
     """`seed` 預設 1234（`attack_benchmark.py --seed`）。
 
     prompt 三者皆為空字串、`forward_cfg = backward_cfg = 1`，即攻擊端的
     反演與重建都在**空 prompt、無 CFG** 下進行。
+
+    `use_ckpt` 只影響記憶體與時間，不影響數值，見 `DIAContext`。
     """
     variant = spec.extras["variant"]
     emb = sd.encode_text(DIA_PROMPTS["uncond"]).detach()
     ts = dia_timesteps(sd, num_inference_steps).to(x01.device)
     generator = torch.Generator(device=x01.device).manual_seed(seed)
-    return DIAContext(sd, spec, variant, emb, ts, num_inference_steps, generator)
+    return DIAContext(sd, spec, variant, emb, ts, num_inference_steps,
+                      generator, use_ckpt=use_ckpt)
 
 
 def loss_fn(sd, x_adv: torch.Tensor, ctx: DIAContext) -> torch.Tensor:

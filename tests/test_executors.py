@@ -873,3 +873,68 @@ def test_shared_tokens傳得到損失設定(tmp_path):
     res = make_res(tmp_path, shared_tokens=(76,))
     cfg = executors.loss_config(res, executors.condition_spec("N1"))
     assert cfg.shared_tokens == (76,)
+
+
+def test_外部素材依本批解析度縮放(tmp_path):
+    """`load_image_tensor(size=...)` 必須把素材縮到本批解析度。
+
+    MIST.png 是 1440×1440 的固定素材，本批在 1024²。不縮放時錯誤發生在
+    `mist.loss_fn` 的 `mse_sum(zx, ctx.z_target)`：latent 邊長 180 對 128，
+    訊息裡只有兩個數字，看不出來源是一張沒有縮放的素材。
+    """
+    from PIL import Image
+
+    src = tmp_path / "big.png"
+    Image.new("RGB", (45, 45), (12, 34, 56)).save(src)
+    dev = torch.device("cpu")
+
+    raw = executors.load_image_tensor(src, dev)
+    assert raw.shape == (1, 3, 45, 45), "不給 size 時不該改動尺寸"
+
+    scaled = executors.load_image_tensor(src, dev, size=SIZE)
+    assert scaled.shape == (1, 3, SIZE, SIZE)
+    assert float(scaled.min()) >= 0.0 and float(scaled.max()) <= 1.0
+
+
+def test_mist的target縮到本批解析度(tmp_path):
+    """`--mist-target` 與 `--target-image` 是兩個入口，縮放不可只做其中一個。
+
+    2026-08-06 修正。before：`baseline_kwargs` 直接
+    `load_image_tensor(path, res.device)`，兩張圖的 mist 格全部以
+    `RuntimeError: The size of tensor a (128) must match the size of
+    tensor b (180)` 失敗。
+    """
+    from PIL import Image
+
+    tgt = tmp_path / "MIST.png"
+    Image.new("RGB", (45, 45), (0, 0, 0)).save(tgt)
+    res = make_res(tmp_path, mist_target=str(tgt))
+    kw = executors.baseline_kwargs("mist", res, res.image("dog_00"))
+    assert kw["target01"].shape[-1] == res.cfg.resolution, (
+        "mist 的 target 沒有縮到本批解析度")
+
+
+def test_dia用本批的checkpoint設定(tmp_path):
+    """DIA 的損失把整條反演留在同一張圖上，1024² 下不 checkpoint 就 OOM。
+
+    數值中性，故沿用 `unet_ckpt` 而不新增旗標；此處釘住它確實傳得到。
+    """
+    res = make_res(tmp_path)
+    entry = res.image("dog_00")
+    for name in ("dia_pt", "dia_r"):
+        assert executors.baseline_kwargs(name, res, entry)["use_ckpt"] is True
+
+    off = make_res(tmp_path / "off", unet_ckpt=False)
+    assert executors.baseline_kwargs(
+        "dia_r", off, off.image("dog_00"))["use_ckpt"] is False
+
+
+def test_dia的context把checkpoint交給eps():
+    """旗標要真的到達 `sd._eps`，否則 `baseline_kwargs` 傳了也沒有效果。"""
+    import inspect
+
+    from src.baselines import dia
+
+    src = inspect.getsource(dia._step)
+    assert "use_ckpt=ctx.use_ckpt" in src, "_step 沒有把 checkpoint 設定交給 _eps"
+    assert "use_ckpt" in inspect.signature(dia.prepare).parameters

@@ -23,7 +23,8 @@
       "Bash(PYTHONIOENCODING=utf-8 timeout 900 /c/Users/nelso/miniconda3/envs/wacv/python.exe scripts/gate_suppress.py --out runs/_smoke_gate --images horse_00 --size 256 --steps 2 --eval_seeds 2)",
       "Bash(grep -vE \"Warning|warn|^\\\\s*$|it/s\\\\]\")",
       "Bash(C:/Users/nelso/miniconda3/envs/wacv/python.exe -c ' *)",
-      "Bash(cp .claude/settings.local.json \"C:/Users/nelso/AppData/Local/Temp/claude/C--WACV/0d5a8acb-13cf-4827-8ffb-9f26ab20f2e0/scratchpad/settings.local.json.bak\")"
+      "Bash(cp .claude/settings.local.json \"C:/Users/nelso/AppData/Local/Temp/claude/C--WACV/0d5a8acb-13cf-4827-8ffb-9f26ab20f2e0/scratchpad/settings.local.json.bak\")",
+      "Bash(ssh -p 10101 nelson0314@server.basiclab.lab.nycu.edu.tw 'cd ~/WACV && date && ls -la runs/b1/calib/ && nvidia-smi --query-gpu=index,memory.used,utilization.gpu --format=csv,noheader')"
     ]
   }
 }

@@ -533,13 +533,26 @@ def write_csv(path: Path, rows: Sequence[Dict[str, Any]]) -> Path:
     return path
 
 
-def load_image_tensor(path: Path, device) -> torch.Tensor:
-    """讀回 PNG 成 (1,3,H,W)、[0,1]。對照側的參照走這條，見模組 docstring。"""
+def load_image_tensor(path: Path, device, size: Optional[int] = None
+                      ) -> torch.Tensor:
+    """讀回 PNG 成 (1,3,H,W)、[0,1]。對照側的參照走這條，見模組 docstring。
+
+    `size` 明給時縮放到 `size × size`。**外部素材必須經過這一步**：它們的
+    尺寸由檔案決定，與本批的 `--resolution` 無關，而 latent 的邊長是影像邊長
+    ÷ 8，兩者不符時錯誤發生在損失函式裡（`mse_loss` 的 broadcast），
+    看不出來源是一張沒有縮放的素材。留存的產物（`x_def.png` 等）本來就
+    是本批解析度，故預設不縮放。
+    """
     from PIL import Image
+    import torch.nn.functional as F
     import torchvision.transforms as T
 
     img = Image.open(path).convert("RGB")
-    return T.ToTensor()(img).unsqueeze(0).to(device)
+    x = T.ToTensor()(img).unsqueeze(0).to(device)
+    if size is not None and x.shape[-1] != size:
+        x = F.interpolate(x, size=(size, size), mode="bicubic",
+                          antialias=True).clamp(0, 1)
+    return x
 
 
 def purify_dir_name(kind: str, strength: float) -> str:
@@ -868,9 +881,22 @@ def baseline_kwargs(name: str, res: Resources, entry: ImageEntry
     if name == "advpaint":
         kw["prompt"] = ""
         kw["guidance_scale"] = res.cfg.guidance
+    if name.startswith("dia_"):
+        # DIA 把整條反演（DIA-R 再加整條重建）留在同一張圖上，1024² 下必須
+        # checkpoint 才放得下。數值中性，故沿用本批的 `unet_ckpt`，不新增旗標。
+        kw["use_ckpt"] = res.cfg.unet_ckpt
     if name == "mist" and res.cfg.mist_target:
+        # MIST.png 是 1440×1440 的固定素材（`mist.py` 的 NotImplementedError
+        # 記其規格），與本批的 1024² 不符。
+        #
+        # 2026-08-06 修正。before：`load_image_tensor(path, res.device)`，
+        # 不縮放。症狀是 `mist.loss_fn` 的 `mse_sum(zx, ctx.z_target)` 以
+        # `RuntimeError: The size of tensor a (128) must match the size of
+        # tensor b (180)` 中止——1440 ÷ 8 = 180，1024 ÷ 8 = 128。
+        # `--target-image` 走的 `build_resources` 一直都有這段縮放，
+        # `--mist-target` 是另一個入口而漏了，故兩張圖的 mist 格全數失敗。
         kw["target01"] = load_image_tensor(
-            Path(res.cfg.mist_target), res.device)
+            Path(res.cfg.mist_target), res.device, size=res.cfg.resolution)
     return kw
 
 

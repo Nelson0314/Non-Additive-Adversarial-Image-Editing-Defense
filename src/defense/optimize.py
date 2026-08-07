@@ -1060,16 +1060,50 @@ def _build_attn_step(sd, gen, obj, cfg, x01, emb_cond, emb_uncond, purifiers,
     不需要參考分佈：targeted 的目標是「把質量導向哪裡」，不是「離原分佈多遠」。
     這正是移除 `attn_mode="divergence"` 的理由——任何「與未防禦參照的散度」
     形式在 φ=0 時都取到最小值，梯度精確為零（實測 grad_norm = 0.000e+00）。
+
+    2026-08-08 修訂：**本函式原本只在 img2img 下成立**，ip1 段 0 的第一次
+    上機即以 `TypeError: unsupported operand type(s) for *: 'int' and
+    'NoneType'` 中止。兩處各自的 before/after：
+
+    1. 取樣區間（本檔第 1071 行）。before：`int(T · cfg.strength)`，而
+       inpainting 下 `cfg.strength` 依約定為 `None`。after：依威脅模型分岔，
+       inpainting 取滿 `[0, T−1]`——那個形態由純噪聲起跑並跑滿自己的排程
+       （`SDWrapper.inpaint` docstring 第 1 點），整個區間都是攻擊者會經過的
+       地方，不存在「超出區間就白費」的那一段。
+    2. UNet 輸入的通道數。before：只餵 4 通道的 `zt`。inpainting 權重的
+       `in_channels` 是 9，這一步會在 `_eps` 內以形狀不符中止。after：依
+       `sd.is_inpainting` 補上後 5 個通道，內容取 `sd.mask_latents(x_p, mask)`
+       ——與 `inpaint()` 逐字同一個來源，故訓練期看到的條件與評測期一致。
+       梯度因此也走 `masked_image_latents` 那條路，即 AdvPaint 與 PromptFlare
+       原作施力的地方。
+
+    `zt` 本身仍取「防禦圖 latent 的加噪版本」。inpainting 的真實取樣鏈在遮罩
+    **內**是模型生成的內容，不是 x_def 的加噪；但遮罩**外**每一步貼回的正是
+    這個量（`inpaint()` 的 `z_keep_t`）。單步代理取這個共同的部分，與 img2img
+    版本的作法一致，且它是唯一與 φ 有連結的選擇。
     """
     from src.models.attention import CrossAttentionRecorder
 
     device = x01.device
     rec = CrossAttentionRecorder(sd.unet)
 
-    # 取樣 timestep：均分於 [0, t_edit]，即 SDEdit 在該 strength 下實際走過
-    # 的區間。超出該區間的 t 對攻擊者的編輯不起作用，在那裡施力是浪費預算。
-    t_edit = min(int(sd.num_train_timesteps * cfg.strength),
-                 sd.num_train_timesteps - 1)
+    if sd.is_inpainting and cfg.edit_mask is None:
+        raise ValueError(
+            "inpainting 權重下 `edit_mask` 不可為 None：9 通道輸入的後 5 個"
+            "通道由遮罩決定，沒有它就湊不出模型的輸入"
+        )
+    if cfg.strength is None and not sd.is_inpainting:
+        raise ValueError(
+            "img2img 威脅模型下 `strength` 不可為 None：取樣區間 [0, T·strength] "
+            "由它決定"
+        )
+
+    # 取樣 timestep：均分於 [0, t_edit]。img2img 下 t_edit 是 SDEdit 在該
+    # strength 下實際走過的上界，超出該區間的 t 對攻擊者的編輯不起作用，
+    # 在那裡施力是浪費預算；inpainting 沒有這個上界（見 docstring）。
+    t_edit = (sd.num_train_timesteps - 1 if cfg.strength is None
+              else min(int(sd.num_train_timesteps * cfg.strength),
+                       sd.num_train_timesteps - 1))
     t_list = torch.linspace(0, t_edit, cfg.attn_timesteps + 1)[1:].round().long()
     abar = sd.alphas_cumprod(device)
 
@@ -1089,10 +1123,15 @@ def _build_attn_step(sd, gen, obj, cfg, x01, emb_cond, emb_uncond, purifiers,
                           len(purifiers))
         maps_list = []
         for pi, ti in pairs:
-            z_def = sd.encode_image(purifiers[pi].forward(x_def),
-                                    use_ckpt=cfg.vae_ckpt)
+            x_p = purifiers[pi].forward(x_def)
+            z_def = sd.encode_image(x_p, use_ckpt=cfg.vae_ckpt)
             t, n = t_list[ti], noises[ti]
             zt = abar[t].sqrt() * z_def + (1 - abar[t]).sqrt() * n
+            if sd.is_inpainting:
+                m, z_masked = sd.mask_latents(x_p, cfg.edit_mask,
+                                              vae_ckpt=cfg.vae_ckpt)
+                zt = torch.cat([zt, m.to(zt.dtype), z_masked.to(zt.dtype)],
+                               dim=1)
             with rec:
                 sd._eps(zt, t, emb_cond)   # 見 docstring：此處不開 checkpoint
             maps_list.append(list(rec.maps))

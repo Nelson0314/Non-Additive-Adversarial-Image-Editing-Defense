@@ -10,6 +10,8 @@
 - 梯度確實從防禦圖流到輸出（防禦訓練整個建立在這條路上）。
 """
 
+from unittest.mock import MagicMock, patch
+
 import pytest
 import torch
 from diffusers import (
@@ -640,3 +642,90 @@ def test_shard的三個profile():
     # inpainting profile 不得帶 strength
     ip = s.split("ip*)")[1].split(";;")[0]
     assert "--strength" not in ip
+
+
+# ---------------------------------------------------------------------------
+# N1（targeted_attn）的注意力前向在 inpainting 下
+# ---------------------------------------------------------------------------
+
+def _attn_cfg(mask, strength):
+    """`_build_attn_step` 實際會讀到的欄位，其餘留預設。"""
+    from src.defense.optimize import OptimConfig, StageSpec
+
+    return OptimConfig(
+        stages=(StageSpec(group="default", lr_key="lr.N1", max_steps=2),),
+        attn_timesteps=2, seed=0, strength=strength, edit_mask=mask,
+        unet_ckpt=False, vae_ckpt=False)
+
+
+def test_注意力前向在inpainting下取滿整個timestep區間(sd9, x01, mask):
+    """before：`t_edit = int(T · cfg.strength)`，而 inpainting 下 strength 是
+    None，於是 ip1 段 0 的第一次上機以 TypeError 中止。
+
+    after：inpainting 取滿 [0, T−1]。那個形態由純噪聲起跑並跑滿自己的排程，
+    整個區間都是攻擊者會經過的地方，不存在「超出區間就白費」的那一段。
+    """
+    from src.defense import optimize as op
+
+    seen = {}
+    real = torch.linspace
+
+    def spy(a, b, n, **kw):
+        seen.setdefault("hi", float(b))
+        return real(a, b, n, **kw)
+
+    obj = MagicMock(return_value=(torch.zeros(()), {"shared_mass": 0.5}))
+    gen = MagicMock()
+    gen.generate.return_value = x01.clone()
+    with patch.object(torch, "linspace", spy):
+        op._build_attn_step(sd9, gen, obj, _attn_cfg(mask, None), x01,
+                            torch.zeros(1, 4, DIM, device=DEV), None, [], x01,
+                            MagicMock())
+    assert seen["hi"] == float(sd9.num_train_timesteps - 1)
+
+
+def test_注意力前向在inpainting下餵九通道(sd9, x01, mask):
+    """inpainting 權重的 `in_channels` 是 9。只餵 4 通道會在 `_eps` 內以形狀
+    不符中止——那是第一個缺陷修好之後接著出現的第二個。
+    """
+    from src.defense import optimize as op
+    from src.purify.ops import Purifier
+
+    got = {}
+    real_eps = sd9._eps
+
+    def spy(zin, t, emb, **kw):
+        got["ch"] = int(zin.shape[1])
+        return real_eps(zin, t, emb, **kw)
+
+    gen = MagicMock()
+    gen.generate.return_value = x01.clone()
+    gen.prepare.return_value = None
+    obj = MagicMock(return_value=(torch.zeros(()), {"shared_mass": 0.5}))
+    step = op._build_attn_step(
+        sd9, gen, obj, _attn_cfg(mask, None), x01,
+        sd9.encode_text(""), None, [Purifier("identity")], x01, MagicMock())
+    with patch.object(sd9, "_eps", spy):
+        step("default", 0, 0)
+    assert got["ch"] == sd9.inpaint_in_channels
+
+
+def test_img2img下缺strength立刻拋出(sd4, x01):
+    """兩個威脅模型各自拒絕對方缺的參數，不互相沿用預設值。"""
+    from src.defense import optimize as op
+
+    with pytest.raises(ValueError, match="strength"):
+        op._build_attn_step(sd4, MagicMock(), MagicMock(),
+                            _attn_cfg(None, None), x01,
+                            torch.zeros(1, 4, DIM, device=DEV), None, [], x01,
+                            MagicMock())
+
+
+def test_inpainting下缺遮罩立刻拋出注意力前向(sd9, x01):
+    from src.defense import optimize as op
+
+    with pytest.raises(ValueError, match="edit_mask"):
+        op._build_attn_step(sd9, MagicMock(), MagicMock(),
+                            _attn_cfg(None, None), x01,
+                            torch.zeros(1, 4, DIM, device=DEV), None, [], x01,
+                            MagicMock())

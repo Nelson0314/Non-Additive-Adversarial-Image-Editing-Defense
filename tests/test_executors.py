@@ -76,6 +76,19 @@ class FakeSD:
         # 輸出必須依賴 x 與 noise，否則兩側的比較恆為零、測試沒有鑑別力
         return (x01 * 0.7 + 0.15 + float(noise.mean()) * 0.01).clamp(0, 1)
 
+    # `SDWrapper.edit` 是唯一的威脅模型分派點；替身照抄它的**契約**而不是
+    # 直接轉呼叫 `sdedit`，否則「img2img 不該收到遮罩」這條規則在測試裡
+    # 就不存在，而那正是漏接遮罩時唯一會發出的聲音。
+    is_inpainting = False
+
+    def edit(self, x01, emb, noise, num_steps, *, mask=None, strength=None,
+             **kw):
+        if mask is not None:
+            raise ValueError("img2img 威脅模型不吃遮罩")
+        if strength is None:
+            raise ValueError("img2img 需要 strength")
+        return self.sdedit(x01, emb, noise, num_steps, strength=strength, **kw)
+
     def decode_latent(self, z, use_ckpt=False):
         return z[:, :3].clamp(0, 1)
 

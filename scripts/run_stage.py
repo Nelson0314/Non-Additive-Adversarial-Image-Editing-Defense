@@ -41,6 +41,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
+from src.data.masks import MASK_MODES                         # noqa: E402
 from src.experiment import executors, grid                    # noqa: E402
 from src.experiment.runner import plan_report, run_stage      # noqa: E402
 from src.utils.progress import ProgressWriter                 # noqa: E402
@@ -133,7 +134,7 @@ def base_config(args) -> dict:
     `optim_params` 承載最佳化旋鈕（步數、停止準則）。
     """
     cfg = run_config(args)
-    return {
+    out = {
         "spec_version": args.spec_version,
         "model": args.model,
         "resolution": args.resolution,
@@ -149,6 +150,16 @@ def base_config(args) -> dict:
         # 寫進每格的 `meta.json`（`lr` 欄），使事後查得到。
         "lr": None,
     }
+    # 遮罩設定**只在 inpainting 威脅模型下出現**。
+    #
+    # `config_hash` 吃的是整個 dict，多一個鍵就會改變**每一格**的雜湊。無條件
+    # 加入的話，img2img 的既有批次一旦續跑就會把已完成的格全部判為未完成——
+    # 2026-08-07 當下正有三個分片在跑，其中一個還剩約五小時。故此鍵的存在
+    # 與否本身就承載「這批是哪一種威脅模型」，而 img2img 的雜湊逐位不變。
+    if args.mask_mode:
+        out["mask"] = {"mode": args.mask_mode, "tau": args.mask_tau,
+                       "timestep": args.mask_timestep}
+    return out
 
 
 def load_entries(args, device) -> list:
@@ -179,7 +190,7 @@ def build_resources(args, batch_dir: Path, load_model: bool = True
     import torch
 
     from src.metrics.suite import MetricSuite
-    from src.models.sd import SDWrapper, SDXLWrapper
+    from src.models.sd import SDInpaintWrapper, SDWrapper, SDXLWrapper
     from src.utils.calibration import Calibration
 
     if not load_model:
@@ -189,9 +200,12 @@ def build_resources(args, batch_dir: Path, load_model: bool = True
         )
 
     dtype = getattr(torch, PRECISION[args.precision])
-    wrapper = SDXLWrapper if args.wrapper == "sdxl" else SDWrapper
-    if args.wrapper == "auto":
-        wrapper = SDXLWrapper if "xl" in args.model.lower() else SDWrapper
+    wrapper = {"sdxl": SDXLWrapper, "sd_inpaint": SDInpaintWrapper,
+               "sd": SDWrapper}.get(args.wrapper)
+    if wrapper is None:                                   # auto
+        name = args.model.lower()
+        wrapper = (SDInpaintWrapper if "inpaint" in name
+                   else SDXLWrapper if "xl" in name else SDWrapper)
     print(f"[env] 載入 {wrapper.__name__}({args.model}) dtype={dtype}",
           flush=True)
     sd = wrapper(args.model, dtype=dtype)
@@ -200,6 +214,41 @@ def build_resources(args, batch_dir: Path, load_model: bool = True
     entries = load_entries(args, sd.device)
     print(f"[env] 影像 {len(entries)} 張：{[e.image_id for e in entries]}",
           flush=True)
+
+    # 威脅模型與載入的權重必須一致。兩個方向都要擋：
+    #
+    # - 給了 `--mask-mode` 卻載入一般權重 → `SDWrapper.edit` 會在第一格拋出，
+    #   但那時已經載完模型、跑完段 0 的一部分。此處提前擋掉。
+    # - 載入 inpainting 權重卻沒給 `--mask-mode` → `edit` 會因為缺遮罩拋出。
+    #   同樣提前擋。
+    if bool(args.mask_mode) != bool(sd.is_inpainting):
+        raise SystemExit(
+            f"威脅模型與權重不一致：--mask-mode={args.mask_mode!r} 而 "
+            f"{args.model} 的 UNet in_channels="
+            f"{sd.unet.config.in_channels}。inpainting 兩者都要給，"
+            "img2img 兩者都不要給")
+
+    if args.mask_mode:
+        # 遮罩逐影像產生一次。它是**攻擊方的設定**（要換掉哪一塊），與防禦
+        # 參數無關，故不隨格點重算；但它進 `config_hash`（`base_config` 的
+        # `mask` 鍵），換一個模式就是換一組實驗。
+        from dataclasses import replace as dc_replace
+
+        from src.data.masks import content_mask
+
+        # `ImageEntry` 是 frozen 的（刻意：影像與 prompt 在批次中途被改掉，
+        # 症狀是某幾格用了別的輸入而報表看不出來），故產生新的 entry 而非
+        # 就地賦值。
+        filled = []
+        for e in entries:
+            out = content_mask(sd, e.x01, e.content, mode=args.mask_mode,
+                               tau=args.mask_tau, timestep=args.mask_timestep,
+                               seed=args.seed)
+            filled.append(dc_replace(e, mask=out["mask"]))
+            print(f"  [mask] {e.image_id} content={e.content!r} "
+                  f"涵蓋率={out['coverage']:.3f} "
+                  f"注意力圖邊長={out.get('attn_side')}", flush=True)
+        entries = filled
 
     calib_path = batch_dir / "calib" / "calibration.json"
     calib = Calibration.load(calib_path) if calib_path.exists() else None
@@ -275,7 +324,24 @@ def main(argv=None) -> int:
                     choices=["fp32", "fp16", "bf16"])
 
     ap.add_argument("--model", default="stabilityai/stable-diffusion-xl-base-1.0")
-    ap.add_argument("--wrapper", default="auto", choices=["auto", "sd", "sdxl"],
+    # ---- inpainting 威脅模型 ----
+    #
+    # 給了 `--mask-mode` 就是跑 inpainting。它同時決定 `base_config` 多不多
+    # 一個 `mask` 鍵，故不設預設值：預設一個模式等於讓每個 img2img 批次的
+    # 雜湊也跟著變。權重必須是 inpainting 專用的（9 通道），否則
+    # `SDWrapper.edit` 會在第一格就拋出。
+    g = ap.add_argument_group("inpainting")
+    g.add_argument("--mask-mode", default=None, choices=list(MASK_MODES),
+                   help="給定即切換到 inpainting 威脅模型。遮罩由模型對資料集"
+                        "宣告的 content 詞的 cross-attention 產生（Lo et al. "
+                        "式 3/4），見 src/data/masks.py")
+    g.add_argument("--mask-tau", type=float, default=0.5,
+                   help="式 (4) 的閾值，作用在以峰值正規化後的 [0,1] 尺度上")
+    g.add_argument("--mask-timestep", type=int, default=500,
+                   help="取注意力的 timestep。中段最能反映物件位置")
+
+    ap.add_argument("--wrapper", default="auto",
+                    choices=["auto", "sd", "sdxl", "sd_inpaint"],
                     help="auto 依 model 名稱含不含 xl 判斷")
     ap.add_argument("--resolution", type=int, default=1024)
     ap.add_argument("--guidance", type=float, default=7.5)

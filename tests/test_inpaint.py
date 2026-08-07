@@ -337,3 +337,61 @@ def test_img2img缺strength立刻拋出(sd4, x01):
         torch.empty(sd4.latent_shape(IMG, IMG), device=DEV), seed=0)
     with pytest.raises(ValueError, match="需要 strength"):
         sd4.edit(x01, emb, n, num_steps=1)
+
+
+# ---------------------------------------------------------------------------
+# 遮罩設定不得污染 img2img 的雜湊
+# ---------------------------------------------------------------------------
+
+def test_遮罩鍵只在inpainting批次出現():
+    """`config_hash` 吃整個 dict，多一個鍵就改變**每一格**的雜湊。
+
+    無條件加入的話，img2img 的既有批次一旦續跑就會把已完成的格全部判為
+    未完成。2026-08-07 當下正有三個分片在跑，其中一個還剩約五小時，故此處
+    以「img2img 的雜湊逐位不變」釘住。
+    """
+    import sys
+    import types
+    from pathlib import Path as _P
+
+    sys.path.insert(0, str(_P(__file__).resolve().parent.parent / "scripts"))
+    import run_stage as rs
+    from src.utils.cellid import config_hash
+
+    def mk(**over):
+        a = types.SimpleNamespace(
+            spec_version=1, model="m", resolution=512, guidance=7.5, steps=50,
+            strength=0.6, gpu_tag="g", precision="fp32",
+            mask_mode=None, mask_tau=0.5, mask_timestep=500,
+        )
+        for k, v in over.items():
+            setattr(a, k, v)
+        return a
+
+    real = rs.run_config
+
+    class _Cfg:
+        def loss_params(self):
+            return {}
+
+        def module_params(self):
+            return {}
+
+        def optim_params(self):
+            return {}
+
+    rs.run_config = lambda a: _Cfg()
+    try:
+        plain = rs.base_config(mk())
+        inpaint = rs.base_config(mk(mask_mode="attention_box"))
+    finally:
+        rs.run_config = real
+
+    assert "mask" not in plain, "img2img 的 base_config 不該有 mask 鍵"
+    assert inpaint["mask"] == {"mode": "attention_box", "tau": 0.5,
+                               "timestep": 500}
+    assert config_hash(dict(plain, condition="N2", image_id="a", tau=0.2,
+                            purify=None, seed=0, lr=None)) != \
+        config_hash(dict(inpaint, condition="N2", image_id="a", tau=0.2,
+                         purify=None, seed=0, lr=None)), \
+        "換威脅模型必須換雜湊"

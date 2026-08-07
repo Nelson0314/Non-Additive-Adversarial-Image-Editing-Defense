@@ -209,6 +209,11 @@ class ImageEntry:
     prompts: Tuple[str, ...]
     content: str
     group: str
+    # inpainting 威脅模型的遮罩，(1,1,H,W)、1 表示攻擊方要重畫的區域。
+    # img2img 下恆為 None——`SDWrapper.edit` 在兩種形態下各自拒絕對方的參數，
+    # 故「這一批有沒有遮罩」不會被靜默沿用。由 `run_stage.build_resources`
+    # 在載入模型之後填入（需要模型自己的 cross-attention，見 `data/masks.py`）。
+    mask: Optional[torch.Tensor] = None
 
 
 def load_lo_aligned(root, size: int, device, ids: Optional[Sequence[str]] = None,
@@ -1174,12 +1179,19 @@ def rayscale_executor(cell: grid.Cell, ctx: Dict[str, Any]
 
 def _sdedit(res: Resources, x: torch.Tensor, prompt: str, seed_idx: int,
             attn_dir: Optional[Path] = None, attn_tag: str = "",
-            attn_full: bool = False) -> Tuple[torch.Tensor, List[Path]]:
+            attn_full: bool = False,
+            mask: Optional[torch.Tensor] = None
+            ) -> Tuple[torch.Tensor, List[Path]]:
     """攻擊方的編輯。兩側必須逐元素共用同一組噪聲，故噪聲由種子決定而非現抽。
 
     `attn_dir` 給定時一併擷取 cross-attention（`CODE` §4.2）。擷取只在取樣步
     上開啟，非取樣步的 hook 是空操作——recorder 會實體化 (Q, 77) 的注意力
     矩陣，那正是 SDPA 融合核所避免的，全程開著會大幅拉高前向成本。
+
+    `mask` 給定時走 inpainting（`SDWrapper.edit` 依權重分派）。**兩種形態的
+    參數不互相沿用**：img2img 傳 `strength` 不傳 `mask`，inpainting 反之，
+    兩者都由 `edit` 檢查。故此處把 strength 也交給它判斷，不在這裡先分支
+    ——分支寫在這裡就等於多了一個要與 `edit` 保持同步的地方。
 
     回傳 (編輯結果, attention 產物路徑)。
     """
@@ -1188,16 +1200,17 @@ def _sdedit(res: Resources, x: torch.Tensor, prompt: str, seed_idx: int,
     lat = res.sd.latent_shape(x.shape[-2], x.shape[-1])
     noise = res.sd.sample_edit_noise(
         torch.empty(lat, device=x.device), seed=eval_noise_seed(res, seed_idx))
-    kw = dict(strength=res.cfg.strength, guidance_scale=res.cfg.guidance,
-              emb_uncond=emb_u)
+    kw = dict(guidance_scale=res.cfg.guidance, emb_uncond=emb_u,
+              mask=mask, strength=(None if mask is not None
+                                   else res.cfg.strength))
     if attn_dir is None:
         with torch.no_grad():
-            return res.sd.sdedit(x, emb, noise, res.cfg.steps, **kw), []
+            return res.sd.edit(x, emb, noise, res.cfg.steps, **kw), []
 
     cap = AttnCapture(res.sd, res.cfg.steps, capture_span(res.sd, prompt))
     with cap, torch.no_grad():
-        y = res.sd.sdedit(x, emb, noise, res.cfg.steps,
-                          step_hook=cap.step_hook, **kw)
+        y = res.sd.edit(x, emb, noise, res.cfg.steps,
+                        step_hook=cap.step_hook, **kw)
     return y, cap.write(attn_dir, attn_tag, full=attn_full)
 
 
@@ -1230,7 +1243,7 @@ def control_executor(cell: grid.Cell, ctx: Dict[str, Any]
     y_ctrl, attn_arts = _sdedit(
         res, x_p, entry.prompts[0], cell.seed,
         attn_dir=(out_dir / "attn") if res.cfg.capture_attn else None,
-        attn_tag=tag, attn_full=(cell.seed == 0))
+        attn_tag=tag, attn_full=(cell.seed == 0), mask=entry.mask)
 
     save_image(x_p, out_dir / "x_purified.png")
     edit_png = out_dir / f"edit_seed{cell.seed}.png"
@@ -1303,7 +1316,7 @@ def eval_executor(cell: grid.Cell, ctx: Dict[str, Any]
     y_def, attn_arts = _sdedit(
         res, x_p, entry.prompts[0], cell.seed,
         attn_dir=(out_dir / "attn") if res.cfg.capture_attn else None,
-        attn_tag=tag, attn_full=attn_full)
+        attn_tag=tag, attn_full=attn_full, mask=entry.mask)
 
     save_image(x_p, out_dir / "x_purified.png")
     edit_png = out_dir / f"edit_seed{cell.seed}.png"
@@ -1386,9 +1399,14 @@ def _edit_effect(res: Resources, entry: ImageEntry, strength: float,
     noise = res.sd.sample_edit_noise(
         torch.empty(lat, device=res.device), seed=eval_noise_seed(res, seed_idx))
     with torch.no_grad():
-        y = res.sd.sdedit(entry.x01, emb, noise, res.cfg.steps,
-                          strength=strength, guidance_scale=res.cfg.guidance,
-                          emb_uncond=emb_u)
+        # inpainting 沒有 strength，故 `calibrate_strength` 的掃描在該威脅
+        # 模型下退化為單一點（`STRENGTH_GRID` 的每一格算出同一個東西）。
+        # 那是正確的行為而不是缺陷：段 0 該量的是「編輯有沒有效」，而
+        # inpainting 的攻擊強度由遮罩面積決定，不由一個純量決定。
+        y = res.sd.edit(entry.x01, emb, noise, res.cfg.steps,
+                        mask=entry.mask,
+                        strength=(None if entry.mask is not None else strength),
+                        guidance_scale=res.cfg.guidance, emb_uncond=emb_u)
     a = res.suite.semantic(entry.x01, entry.prompts[0])
     b = res.suite.semantic(y, entry.prompts[0])
     return {"clip_orig": a["clip"], "clip_edit": b["clip"],
@@ -1733,7 +1751,8 @@ def micro_bench(res: Resources, calib_dir: Path) -> Dict[str, Any]:
         timed("vae_roundtrip",
               lambda: res.sd.decode_latent(res.sd.encode_image(entry.x01)))
         timed(f"sdedit_{res.cfg.steps}steps",
-              lambda: _sdedit(res, entry.x01, entry.prompts[0], 0))
+              lambda: _sdedit(res, entry.x01, entry.prompts[0], 0,
+                              mask=entry.mask))
     write_csv(calib_dir / "micro_bench.csv", rows)
     return {r["op"]: r["seconds"] for r in rows}
 

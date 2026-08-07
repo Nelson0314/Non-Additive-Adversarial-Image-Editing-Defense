@@ -8,8 +8,9 @@
 #
 # 批次由環境變數 `BATCH` 指定，它同時選定模型設定（見下方 profile 區）：
 #
-#   BATCH=b3  → SDXL 1.0 base / 1024² / bf16   （預設）
-#   BATCH=v14 → SD v1.4 / 512² / fp32
+#   BATCH=b3  → SDXL 1.0 base / 1024² / bf16      （預設，img2img）
+#   BATCH=v14 → SD v1.4 / 512² / fp32              （img2img）
+#   BATCH=ip* → SD inpainting / 512² / fp32        （**inpainting**，無 strength）
 #
 # fanout 產生的 tmux session 名為 `wacv-<批次>-<影像>`。
 #
@@ -179,6 +180,17 @@ PROBE="--probe-steps 60"
 #   不帶 --t-max
 #       fp32 下 BDIA 反演與純 VAE 來回逐位相同，該參數無關
 #       （RESULTS_2026-08-06 §8.1）。帶上去只會多一項 config 差異。
+#
+#   ip*：inpainting 威脅模型（使用者 2026-08-07 定案的下一批）。
+#       權重取 `runwayml/stable-diffusion-inpainting`——PhotoGuard-c、
+#       AdvPaint、PromptFlare 三篇原作共同指定的那一份，換過去之後它們
+#       回到原生的 9 通道形態。
+#       **不帶 `--strength`**：inpainting 沒有這個參數，pipeline 由純噪聲
+#       起跑並跑滿自己的排程，`SDWrapper.edit` 收到它會拋出。五篇 baseline
+#       的原始碼裡也都沒有這個數（`photoguard.py:124` 等三處各自拒絕預設值）。
+#       `--mask-mode` 是切換威脅模型的旗標，同時決定 `base_config` 多不多
+#       一個 `mask` 鍵；沒有它就是 img2img。
+MASK=""
 case "$BATCH" in
   v14*)
     PRECISION=fp32
@@ -187,9 +199,17 @@ case "$BATCH" in
     ATTN="--shared-tokens 0"
     INV="--exact-inversion"
     ;;
+  ip*)
+    PRECISION=fp32
+    MODEL="--model runwayml/stable-diffusion-inpainting --wrapper sd_inpaint --resolution 512"
+    MEM="--purify-mode all"
+    ATTN="--shared-tokens 0"
+    INV="--exact-inversion"
+    MASK="--mask-mode attention_box --mask-tau 0.5"
+    ;;
 esac
 
-COMMON="--runs-root $RUNS --gpu-tag $GPU_TAG --precision $PRECISION $MODEL --mist-target data/targets/MIST.png $MEM $REACH $ATTN $INV $PROBE"
+COMMON="--runs-root $RUNS --gpu-tag $GPU_TAG --precision $PRECISION $MODEL --mist-target data/targets/MIST.png $MEM $REACH $ATTN $INV $PROBE $MASK"
 
 shard_dir() { echo "$RUNS/${BATCH}_$1"; }
 

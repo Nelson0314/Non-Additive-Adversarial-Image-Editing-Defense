@@ -239,15 +239,31 @@ def build_resources(args, batch_dir: Path, load_model: bool = True
         # `ImageEntry` 是 frozen 的（刻意：影像與 prompt 在批次中途被改掉，
         # 症狀是某幾格用了別的輸入而報表看不出來），故產生新的 entry 而非
         # 就地賦值。
-        filled = []
+        # 遮罩落盤存證。它決定攻擊方能改哪一塊，故是**結果的一部分**而不是
+        # 中間狀態：涵蓋率不同，同一個防禦的效果就不同。`runs/` 是唯一的
+        # 證據來源（`CLAUDE.md`），只印涵蓋率而不存圖，事後無從判斷某一格
+        # 的遮罩是不是落在對的物件上。
+        mask_dir = batch_dir / "masks"
+        mask_dir.mkdir(parents=True, exist_ok=True)
+        filled, rows = [], []
         for e in entries:
             out = content_mask(sd, e.x01, e.content, mode=args.mask_mode,
                                tau=args.mask_tau, timestep=args.mask_timestep,
                                seed=args.seed)
             filled.append(dc_replace(e, mask=out["mask"]))
+            executors.save_image(out["mask"].expand(-1, 3, -1, -1),
+                                 mask_dir / f"{e.image_id}_mask.png")
+            # 遮罩疊在原圖上：判斷「它有沒有蓋住那個物件」只能靠這張圖，
+            # 純遮罩看不出對位。
+            executors.save_image(
+                (e.x01 * (1.0 - 0.6 * out["mask"])).clamp(0, 1),
+                mask_dir / f"{e.image_id}_overlay.png")
+            rows.append({"image_id": e.image_id, "group": e.group,
+                         **{k: v for k, v in out.items() if k != "mask"}})
             print(f"  [mask] {e.image_id} content={e.content!r} "
                   f"涵蓋率={out['coverage']:.3f} "
                   f"注意力圖邊長={out.get('attn_side')}", flush=True)
+        executors.write_csv(mask_dir / "masks.csv", rows)
         entries = filled
 
     calib_path = batch_dir / "calib" / "calibration.json"
@@ -435,6 +451,21 @@ def main(argv=None) -> int:
     ap.add_argument("--force", action="store_true",
                     help="忽略續跑判定重跑全部格子")
     args = ap.parse_args(argv)
+
+    # inpainting 沒有 strength。`--strength` 的預設是 0.6，不清掉的話它會
+    # 進 `base_config`、進 `config_hash`、再被交給 `SDWrapper.edit` 而拋出
+    # ——那時模型已經載完。清成 None 之後「這個威脅模型沒有 strength」這件事
+    # 出現在雜湊與每一格的紀錄裡，而不是一個沿用下來卻不起作用的數。
+    #
+    # 明給 `--strength` 又給 `--mask-mode` 是矛盾的指令，直接擋掉而不是
+    # 靜默忽略其中一個。
+    if args.mask_mode:
+        if "--strength" in (argv if argv is not None else sys.argv[1:]):
+            raise SystemExit(
+                "--mask-mode 與 --strength 不可並用：inpainting 由純噪聲起跑、"
+                "跑滿自己的排程，沒有 strength 這個參數（五篇 baseline 的"
+                "原始碼裡也都沒有）")
+        args.strength = None
 
     batch_dir = args.runs_root / args.batch
     images = load_images(args)

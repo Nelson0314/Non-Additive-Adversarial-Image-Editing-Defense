@@ -585,3 +585,58 @@ def test_三篇的prepare都接遮罩且遮罩下不要求strength():
         assert "mask" in sig, f"{m.__name__}.prepare 不接遮罩"
         src = inspect.getsource(m.prepare)
         assert "if strength is None and mask is None:" in src, m.__name__
+
+
+def test_遮罩落盤存證():
+    """遮罩決定攻擊方能改哪一塊，是**結果的一部分**而不是中間狀態。
+
+    涵蓋率不同，同一個防禦的效果就不同。只印涵蓋率而不存圖，事後無從判斷
+    某一格的遮罩是不是落在對的物件上——而 `runs/` 是唯一的證據來源
+    （`CLAUDE.md`）。疊圖也必須存：純遮罩看不出對位。
+    """
+    import inspect
+    import sys
+    from pathlib import Path as _P
+
+    sys.path.insert(0, str(_P(__file__).resolve().parent.parent / "scripts"))
+    import run_stage as rs
+
+    src = inspect.getsource(rs.build_resources)
+    assert 'mask_dir = batch_dir / "masks"' in src
+    assert '_mask.png' in src and '_overlay.png' in src
+    assert 'write_csv(mask_dir / "masks.csv", rows)' in src
+    # CSV 不得夾帶張量：`write_csv` 會把它轉成字串塞進一欄
+    assert 'k != "mask"' in src
+
+
+def test_inpainting批次的strength被清成None():
+    """`--strength` 的預設是 0.6，不清掉會進 config_hash 再被 `edit` 拋出。
+
+    那時模型已經載完、段 0 也跑掉一部分。清成 None 之後「這個威脅模型沒有
+    strength」出現在雜湊與每一格的紀錄裡，而不是一個沿用下來卻不起作用的數。
+    """
+    import inspect
+    import sys
+    from pathlib import Path as _P
+
+    sys.path.insert(0, str(_P(__file__).resolve().parent.parent / "scripts"))
+    import run_stage as rs
+
+    src = inspect.getsource(rs.main)
+    assert "args.strength = None" in src
+    # 兩者並用是矛盾的指令，要擋掉而不是靜默忽略其中一個
+    assert "--mask-mode 與 --strength 不可並用" in src
+
+
+def test_shard的三個profile():
+    """b3 的命令列必須逐字不變——段 0 要兩小時，差一項就是 CalibrationMismatch。"""
+    from pathlib import Path as _P
+
+    s = (_P(__file__).resolve().parent.parent
+         / "scripts" / "shard.sh").read_text(encoding="utf-8")
+    assert "ip*)" in s and "runwayml/stable-diffusion-inpainting" in s
+    assert "--wrapper sd_inpaint" in s
+    assert "--mask-mode attention_box" in s
+    # inpainting profile 不得帶 strength
+    ip = s.split("ip*)")[1].split(";;")[0]
+    assert "--strength" not in ip

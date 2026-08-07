@@ -37,6 +37,8 @@ VAE 取樣而非取均值
 from typing import Optional
 
 import torch
+import torch.utils.checkpoint as ckpt
+from diffusers.utils.torch_utils import randn_tensor
 
 from src.baselines.pgd import BaselineSpec, ValueRange
 from src.models.sd import expand_cond
@@ -55,7 +57,7 @@ MIST_PROMPT = "a painting"
 
 class MistContext:
     def __init__(self, sd, spec, z_target, emb, mode, rate, generator,
-                 use_ckpt: bool = False):
+                 use_ckpt: bool = False, vae_ckpt: bool = False):
         self.spec = spec
         self.z_target = z_target
         self.emb = emb
@@ -73,31 +75,64 @@ class MistContext:
         # 512²／SD v1.4 的同一格則正常跑完（v14 三張圖 `done=7 failed=0`），
         # 即這是 1024² 專屬的容量問題。
         #
-        # `use_ckpt` 只作用於 UNet。VAE 那兩次刻意不包，理由見
-        # `_encode_sampled`。重算的是同一個函式，**數值中性**，故不進
-        # `config_hash`——與 `1024633` 對 DIA 的處理同一原則。
+        # 2026-08-07 實測：只包 UNet **不夠**，mist 仍在同一個位置 OOM
+        # （`b3_bird_03/diag_fix.log`）。主導成本是那兩次 1024² 的 VAE 編碼，
+        # 故 `vae_ckpt` 也必須開。它的重參數化寫法見 `_encode_sampled`。
+        #
+        # 兩個開關分開，與 `SDWrapper` 的 `use_ckpt`／`vae_ckpt` 一致。重算的
+        # 是同一個函式且噪聲已固定，**數值中性**，故兩者都不進 `config_hash`
+        # ——與 `1024633` 對 DIA 的處理同一原則。
         self.use_ckpt = bool(use_ckpt)
+        self.vae_ckpt = bool(vae_ckpt)
         self.mse_sum = torch.nn.MSELoss(reduction="sum")
 
 
-def _encode_sampled(sd, x_paper: torch.Tensor, generator) -> torch.Tensor:
+def _encode_sampled(sd, x_paper: torch.Tensor, generator,
+                    use_ckpt: bool = False) -> torch.Tensor:
     """`z = scale_factor · sample(q(z|x))`，輸入已在 `[-1,1]`。
 
     對應 `get_first_stage_encoding(encode_first_stage(x))`。**必須取樣**，
     見模組 docstring。`scale_factor` 取自模型設定（SD v1.x 為 0.18215，
     與 `configs/stable-diffusion/v1-inference-attack.yaml` 一致）。
 
-    **本函式刻意不接 `use_ckpt`。** `torch.utils.checkpoint` 會在反向時重算
-    區塊，而 `latent_dist.sample(generator)` 用的是呼叫端持有的顯式
-    `Generator`——`use_reentrant=False` 保存的是預設 RNG 狀態，管不到它，
-    重算時會**再抽一個樣本**，於是反向傳播算的梯度屬於另一個函式。那是
-    不會有任何症狀的數值汙染。要 checkpoint 這一段，必須先把 eps 抽在區塊
-    外再以 `mean + std·eps` 重參數化，而那需要逐字核對 diffusers 的
-    `DiagonalGaussianDistribution.sample` 才能保證與原作等價；在 UNet 的
-    checkpoint 已足夠放下這一格之前不值得引入該風險。
+    `use_ckpt` 為真時**不能直接把 `.sample(generator)` 包進 checkpoint**：
+    `use_reentrant=False` 保存的是預設 RNG 狀態，管不到呼叫端持有的顯式
+    `Generator`，重算會再抽一個樣本，於是反向傳播算的梯度屬於另一個函式
+    ——沒有任何症狀的數值汙染。
+
+    故此處把噪聲抽在區塊**外**，區塊內只做重參數化。diffusers 0.39.0 的
+    `DiagonalGaussianDistribution.sample` 逐字為
+
+        sample = randn_tensor(self.mean.shape, generator=generator,
+                              device=self.parameters.device,
+                              dtype=self.parameters.dtype)
+        x = self.mean + self.std * sample
+
+    本函式以同一個 `randn_tensor`、同一組 (shape, generator, device, dtype)
+    抽噪聲，故產生的樣本與抽樣順序都與原路徑**逐位元相同**，重算則因 eps
+    已固定而成為確定性。形狀在區塊內明確核對：不符時會 broadcast 成另一個
+    張量而不報錯，那正是要擋掉的失效。
     """
-    post = sd.vae.encode(x_paper.to(sd.vae.dtype)).latent_dist
-    return post.sample(generator) * sd.scaling_factor
+    x = x_paper.to(sd.vae.dtype)
+    if not use_ckpt:
+        post = sd.vae.encode(x).latent_dist
+        return post.sample(generator) * sd.scaling_factor
+
+    shape = sd.latent_shape(x.shape[-2], x.shape[-1])
+    eps = randn_tensor(tuple(shape), generator=generator,
+                       device=sd.vae.device, dtype=sd.vae.dtype)
+
+    def _enc(a, e):
+        post = sd.vae.encode(a).latent_dist
+        if post.mean.shape != e.shape:
+            raise RuntimeError(
+                f"重參數化的噪聲形狀 {tuple(e.shape)} 與後驗均值 "
+                f"{tuple(post.mean.shape)} 不符。`latent_shape` 推導的形狀與 "
+                "VAE 實際輸出不一致，直接相乘會 broadcast 成另一個張量而不報錯"
+            )
+        return (post.mean + post.std * e) * sd.scaling_factor
+
+    return ckpt.checkpoint(_enc, x, eps, use_reentrant=False)
 
 
 def prepare(
@@ -111,6 +146,7 @@ def prepare(
     block_num: int = 1,
     seed: int = 23,
     use_ckpt: bool = False,
+    vae_ckpt: bool = False,
     **_,
 ) -> MistContext:
     """預設值取自 CLI：`--mode` 2（fused）、`--rate` 1 → `10**(1+3)` = 1e4
@@ -139,7 +175,7 @@ def prepare(
         z_target = _encode_sampled(sd, tgt_paper, generator).detach()
     emb = sd.encode_text(MIST_PROMPT).detach()
     return MistContext(sd, spec, z_target, emb, mode, rate, generator,
-                       use_ckpt=use_ckpt)
+                       use_ckpt=use_ckpt, vae_ckpt=vae_ckpt)
 
 
 def _semantic_loss(sd, x_paper: torch.Tensor, ctx: MistContext) -> torch.Tensor:
@@ -154,7 +190,8 @@ def _semantic_loss(sd, x_paper: torch.Tensor, ctx: MistContext) -> torch.Tensor:
     `pre_process` 是 `RandomCrop(target_size)`；`block_num=1` 時
     `target_size == input_size`，退化為 identity（`prepare` 已擋掉其他情形）。
     """
-    z = _encode_sampled(sd, x_paper, ctx.generator)
+    z = _encode_sampled(sd, x_paper, ctx.generator,
+                        use_ckpt=ctx.vae_ckpt)
     n_train = sd.num_train_timesteps
     t = torch.randint(
         0, n_train, (z.shape[0],), generator=ctx.generator, device=z.device
@@ -189,10 +226,12 @@ def loss_fn(sd, x_adv: torch.Tensor, ctx: MistContext) -> torch.Tensor:
     if ctx.mode == 0:
         return -_semantic_loss(sd, x_adv, ctx)
     if ctx.mode == 1:
-        zx = _encode_sampled(sd, x_adv, ctx.generator)
+        zx = _encode_sampled(sd, x_adv, ctx.generator,
+                             use_ckpt=ctx.vae_ckpt)
         return ctx.mse_sum(zx, ctx.z_target)
     if ctx.mode == 2:
-        zx = _encode_sampled(sd, x_adv, ctx.generator)
+        zx = _encode_sampled(sd, x_adv, ctx.generator,
+                             use_ckpt=ctx.vae_ckpt)
         textural = ctx.mse_sum(zx, ctx.z_target)
         return textural - _semantic_loss(sd, x_adv, ctx) * ctx.rate
     raise ValueError(

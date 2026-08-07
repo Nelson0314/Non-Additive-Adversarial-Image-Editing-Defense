@@ -234,20 +234,35 @@ fanout)
 
   for i in "${!IMAGES[@]}"; do
     IMG=${IMAGES[$i]}; GPU=${GPUS[$i]}; D=$(shard_dir "$IMG")
-    mkdir -p "$D"
-    # 共用同一份校準表：這是不可省的一步，理由見檔頭第 2 點
-    cp -r "$RUNS/$BATCH/calib" "$D/"
+    mkdir -p "$D/calib"
+    # 共用同一份校準表：這是不可省的一步，理由見檔頭第 2 點。
+    # 寫成 `cp -r <src>/. <dst>/` 而非 `cp -r <src> <dst>/`：後者在 <dst>/calib
+    # 已存在時會複製成 `<dst>/calib/calib`。分片中斷後重跑 fanout 續跑是
+    # 正常操作（`run_stage` 會跳過已完成的格），故這條路徑必須可重入。
+    cp -r "$RUNS/$BATCH/calib/." "$D/calib/"
     LOG="$D/run.log"
     echo "分片 $IMG → GPU $GPU   $LOG"
     # session 名帶批次：兩組實驗的影像 id 相同，不帶批次就會在
     # `tmux new-session` 撞名，而第二組的失敗只表現為「session 沒有起來」。
+    #
+    # 退出碼必須自己記。原本寫的是 `… || break; done …; echo "[exit $?]"`，
+    # 而以 `break` 結束的迴圈其狀態是 `break` 自己的 0，於是**失敗也印
+    # `[exit 0]`**。2026-08-07 兩次實測都被這一點誤導：b3_bird_03 的 train
+    # 有 2 格 OOM 失敗、v14_cat_02 的 rayscale 有 1 格失敗，兩者的 log 尾端
+    # 都是 `[exit 0]`，而 `watch_remote.sh` 依 `[exit` 判定收工，於是把失敗
+    # 回報成「收工」——最貴的一種誤報。
+    #
+    # `$?` 也不能寫在 `if ! cmd` 之後：`!` 會把狀態反相，取到的是 0。
     tmux new-session -d -s "wacv-$BATCH-$IMG" \
       "cd $HOME/WACV && export PYTHONIOENCODING=utf-8 \
 CUDA_VISIBLE_DEVICES=$GPU PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True; \
+RC=0; \
 for S in train rayscale eval; do \
   echo \"===== \$S =====\"; \
-  $PY scripts/run_stage.py \$S --batch ${BATCH}_$IMG $COMMON --images $IMG || break; \
-done > $LOG 2>&1; echo \"[exit \$?]\" >> $LOG"
+  $PY scripts/run_stage.py \$S --batch ${BATCH}_$IMG $COMMON --images $IMG; \
+  RC=\$?; \
+  if [ \$RC -ne 0 ]; then echo \"[fail-stage \$S rc=\$RC]\"; break; fi; \
+done > $LOG 2>&1; echo \"[exit \$RC]\" >> $LOG"
   done
   sleep 5
   for IMG in "${IMAGES[@]}"; do

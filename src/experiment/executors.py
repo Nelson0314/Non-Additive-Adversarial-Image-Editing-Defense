@@ -890,9 +890,11 @@ def baseline_kwargs(name: str, res: Resources, entry: ImageEntry
         kw["vae_ckpt"] = res.cfg.vae_ckpt
     if name == "mist":
         # mist 的 fused mode 同樣把兩次 VAE 編碼與一次完整 UNet 前向放在
-        # 同一張圖上。此處只給 UNet 的開關——VAE 那兩次走 `.sample()`，
-        # checkpoint 的重算會抽到另一個樣本，見 `mist._encode_sampled`。
+        # 同一張圖上。2026-08-07 實測只包 UNet 不夠，主導成本是那兩次
+        # 1024² 的 VAE 編碼，故兩個開關都要給。取樣的重參數化寫法見
+        # `mist._encode_sampled`。
         kw["use_ckpt"] = res.cfg.unet_ckpt
+        kw["vae_ckpt"] = res.cfg.vae_ckpt
     if name == "mist" and res.cfg.mist_target:
         # MIST.png 是 1440×1440 的固定素材（`mist.py` 的 NotImplementedError
         # 記其規格），與本批的 1024² 不符。

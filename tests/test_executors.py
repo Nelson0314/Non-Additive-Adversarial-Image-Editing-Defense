@@ -1029,18 +1029,14 @@ def test_dia_r的兩次vae呼叫也吃checkpoint設定(tmp_path):
     assert "sd.vae.decode(" in src
 
 
-def test_mist拿到unet的checkpoint設定但vae不包(tmp_path):
+def test_mist的unet與vae都吃checkpoint設定(tmp_path):
     """mist 的 fused mode 把兩次 VAE 編碼與一次完整 UNet 前向放在同一張圖上。
 
     2026-08-07 修正。before：`baseline_kwargs` 完全沒給 mist 任何 checkpoint
     設定，`_semantic_loss` 的 `sd._eps` 因此永遠不包。實測在 SDXL／1024²／
     bf16 於**第一次計算損失前**即 OOM，且在全新行程中單獨跑同樣失敗——
-    不是跨格累積，是單格容量。
-
-    VAE 那兩次刻意不包：`latent_dist.sample(generator)` 用的是顯式
-    `Generator`，`use_reentrant=False` 保存的預設 RNG 狀態管不到它，重算會
-    抽到另一個樣本，使反向的梯度屬於另一個函式。此處把「不包」也釘住，
-    避免日後為了省記憶體而順手加上去。
+    不是跨格累積，是單格容量。只包 UNet 之後仍在同一個位置 OOM，故兩次
+    VAE 編碼才是主導項。
     """
     import inspect
 
@@ -1048,13 +1044,37 @@ def test_mist拿到unet的checkpoint設定但vae不包(tmp_path):
 
     res = make_res(tmp_path)
     kw = executors.baseline_kwargs("mist", res, res.image("dog_00"))
-    assert kw["use_ckpt"] is True
-    off = make_res(tmp_path / "off", unet_ckpt=False)
-    assert executors.baseline_kwargs(
-        "mist", off, off.image("dog_00"))["use_ckpt"] is False
+    assert kw["use_ckpt"] is True and kw["vae_ckpt"] is True
+    off = make_res(tmp_path / "off", unet_ckpt=False, vae_ckpt=False)
+    off_kw = executors.baseline_kwargs("mist", off, off.image("dog_00"))
+    assert off_kw["use_ckpt"] is False and off_kw["vae_ckpt"] is False
 
-    assert "use_ckpt" in inspect.signature(mist.prepare).parameters
+    sig = inspect.signature(mist.prepare).parameters
+    assert "use_ckpt" in sig and "vae_ckpt" in sig
     assert "use_ckpt=ctx.use_ckpt" in inspect.getsource(mist._semantic_loss)
-    enc = inspect.getsource(mist._encode_sampled)
-    assert "checkpoint" not in enc.replace(mist._encode_sampled.__doc__, ""), (
-        "取樣的 VAE 編碼被 checkpoint：重算會抽到另一個樣本")
+    assert "use_ckpt=ctx.vae_ckpt" in inspect.getsource(mist._semantic_loss)
+    assert "use_ckpt=ctx.vae_ckpt" in inspect.getsource(mist.loss_fn)
+
+
+def test_mist的取樣噪聲抽在checkpoint區塊外():
+    """checkpoint 的重算若再抽一次樣本，反向的梯度就屬於另一個函式。
+
+    `use_reentrant=False` 保存的是**預設** RNG 狀態，管不到 `.sample()` 收到
+    的顯式 `Generator`。故 `_encode_sampled` 必須把噪聲抽在區塊外、區塊內
+    只做 `mean + std·eps` 的重參數化。此處釘住這個結構，避免日後有人為了
+    少寫幾行而把 `.sample(generator)` 直接包進去——那個錯誤不會有任何症狀。
+    """
+    import inspect
+
+    from src.baselines import mist
+
+    body = inspect.getsource(mist._encode_sampled).replace(
+        mist._encode_sampled.__doc__, "")
+    ckpt_at = body.index("ckpt.checkpoint")
+    draw_at = body.index("randn_tensor(")
+    assert draw_at < ckpt_at, "噪聲是在 checkpoint 區塊內抽的"
+    assert "post.mean + post.std * e" in body, "區塊內不是重參數化"
+    assert ".sample(generator)" in body, (
+        "不走 checkpoint 的那條路必須維持原作的 .sample()")
+    # 形狀不符會 broadcast 成另一個張量而不報錯，必須明確擋掉
+    assert "post.mean.shape != e.shape" in body

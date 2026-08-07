@@ -820,8 +820,14 @@ def loss_config(res: Resources, spec: ConditionSpec) -> LossConfig:
     )
 
 
-def optim_config(res: Resources, spec: ConditionSpec) -> OptimConfig:
+def optim_config(res: Resources, spec: ConditionSpec,
+                 entry: Optional[ImageEntry] = None) -> OptimConfig:
     """訓練期的優化設定。
+
+    `entry` 只用來取該影像的 inpainting 遮罩。訓練期的代理編輯鏈必須與評測期
+    走同一種攻擊——分歧的症狀是防禦對著另一個威脅模型最佳化，而報表上兩者
+    都叫「編輯」。img2img 下遮罩為 None，`SDWrapper.edit` 會在收到遮罩時拋出，
+    故漏傳不會靜默通過。
 
     `stop_tol` **一律**向校準表索取，不分監看量。
 
@@ -848,7 +854,9 @@ def optim_config(res: Resources, spec: ConditionSpec) -> OptimConfig:
         align_steps=align_steps,
         align_lr_key=spec.align_lr_key,
         align_group="stage1" if spec.site == "apa" else "default",
-        strength=res.cfg.strength,
+        strength=(None if (entry is not None and entry.mask is not None)
+                  else res.cfg.strength),
+        edit_mask=(entry.mask if entry is not None else None),
         warp_max_disp=res.cfg.warp_max_disp,
         warp_resample=res.cfg.warp_resample,
         guidance_scale=res.cfg.guidance,
@@ -922,7 +930,7 @@ def _train_nonadditive(cell: grid.Cell, res: Resources, out_dir: Path
     module = build_module(cell.condition, res, entry, seed=res.cfg.seed)
     try:
         result = optimize(
-            res.sd, module, entry.x01, optim_config(res, spec),
+            res.sd, module, entry.x01, optim_config(res, spec, entry),
             loss_config(res, spec), default_train_set(),
             calib=res.require_calib(), calib_context=res.calib_context,
             y_target=(res.y_target if spec.defense_mode == "targeted_output"
@@ -1475,7 +1483,7 @@ def _probe_lr(res: Resources, condition: str, entry: ImageEntry,
 
     probe = dc_replace(res.cfg, max_steps=steps, align_steps=0)
     probe_res = dc_replace(res, cfg=probe, calib=tmp)
-    cfg = optim_config(probe_res, spec)
+    cfg = optim_config(probe_res, spec, entry)
     cfg.stop_on_plateau = False        # 探測要跑滿固定步數，否則各候選不可比
     module = build_module(condition, res, entry, seed=res.cfg.seed)
     try:
@@ -1538,7 +1546,7 @@ def _probe_align_lr(res: Resources, condition: str, entry: ImageEntry,
     if spec.monitor:
         tmp.put(f"stop_tol.{spec.monitor}", 0.0, ctx,
                 note="段 0 探測期不啟用平台停止")
-    cfg = optim_config(dc_replace(res, calib=tmp), spec)
+    cfg = optim_config(dc_replace(res, calib=tmp), spec, entry)
     cfg.align_steps = steps
     module = build_module(condition, res, entry, seed=res.cfg.seed)
     try:

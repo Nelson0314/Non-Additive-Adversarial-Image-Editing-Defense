@@ -395,3 +395,40 @@ def test_遮罩鍵只在inpainting批次出現():
         config_hash(dict(inpaint, condition="N2", image_id="a", tau=0.2,
                          purify=None, seed=0, lr=None)), \
         "換威脅模型必須換雜湊"
+
+
+# ---------------------------------------------------------------------------
+# 訓練期與評測期必須是同一種攻擊
+# ---------------------------------------------------------------------------
+
+def test_訓練期的代理編輯鏈也走分派點():
+    """訓練與評測用不同的攻擊，症狀是防禦對著另一個威脅模型最佳化。
+
+    報表上兩者都叫「編輯」，數字看起來也合理，故此處以原始碼檢查釘住
+    `optimize` 不得再直接呼叫 `sd.sdedit`。
+    """
+    import inspect
+
+    from src.defense import optimize as op
+
+    src = inspect.getsource(op._build_output_step)
+    body = src.replace(op._build_output_step.__doc__ or "\0", "")
+    assert "sd.sdedit(" not in body, "代理編輯鏈仍直接呼叫 sdedit"
+    assert body.count("sd.edit(") == 2, (
+        "y_orig 與 y_def 兩條鏈都必須走 edit")
+    assert "mask=cfg.edit_mask" in body
+
+
+def test_optim_config把遮罩與strength一起切換():
+    """inpainting 下 strength 必須是 None，否則 `edit` 會拒絕。
+
+    兩者是同一個開關的兩面：留一個沿用下來的 strength 會讓紀錄看起來像是
+    設定過，而 `edit` 會在第一格就拋出——那時段 0 已經跑掉一部分。
+    """
+    import inspect
+
+    from src.experiment import executors as ex
+
+    src = inspect.getsource(ex.optim_config)
+    assert "edit_mask=(entry.mask if entry is not None else None)" in src
+    assert "None if (entry is not None and entry.mask is not None)" in src

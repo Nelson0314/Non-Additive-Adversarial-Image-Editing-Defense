@@ -136,7 +136,13 @@ class OptimConfig:
     # 重建對齊是逐像素準確度確實重要的場合；防禦階段不是。
     align_gamma_psnr: float = 1.0
 
-    strength: float = 0.5
+    # 代理編輯鏈的 strength。**inpainting 威脅模型下必須為 None**——
+    # 那個形態沒有這個參數，`SDWrapper.edit` 會拒絕收到它。
+    strength: Optional[float] = 0.5
+    # inpainting 的遮罩，(1,1,H,W)、1 為攻擊方要重畫的區域。None 即 img2img。
+    # 訓練期的代理編輯鏈必須與評測期走同一種攻擊，否則防禦是對著另一個
+    # 威脅模型最佳化的，而報表上兩者都叫「編輯」。
+    edit_mask: Optional[torch.Tensor] = None
     # site S 專用：位移場的硬上界，單位為像素。空間變形的保真度預算是位移量
     # 而非 L∞（把一條邊緣移動一像素，L∞ 可接近 1.0 卻幾乎看不出來），
     # 故此值必須與 tau_lpips 併列記錄。
@@ -985,9 +991,13 @@ def _build_output_step(sd, gen, obj, cfg, x01, emb_cond, emb_uncond, purifiers,
         for i in range(cfg.n_eot)
     ]
     with torch.no_grad():
+        # 走 `edit` 而非 `sdedit`：訓練期的代理編輯鏈必須與評測期是同一種
+        # 攻擊。分歧的症狀是防禦對著另一個威脅模型最佳化，而報表上兩者
+        # 都叫「編輯」。
         y_origs = [
-            sd.sdedit(x01, emb_cond, n, cfg.n_edit, strength=cfg.strength,
-                      guidance_scale=cfg.guidance_scale, emb_uncond=emb_uncond)
+            sd.edit(x01, emb_cond, n, cfg.n_edit, mask=cfg.edit_mask,
+                    strength=cfg.strength,
+                    guidance_scale=cfg.guidance_scale, emb_uncond=emb_uncond)
             for n in noises
         ]
 
@@ -1004,9 +1014,9 @@ def _build_output_step(sd, gen, obj, cfg, x01, emb_cond, emb_uncond, purifiers,
         y_defs, y_refs = [], []
         for pi, i in pairs:
             y_defs.append(
-                sd.sdedit(
+                sd.edit(
                     purifiers[pi].forward(x_def), emb_cond, noises[i],
-                    cfg.n_edit, strength=cfg.strength,
+                    cfg.n_edit, mask=cfg.edit_mask, strength=cfg.strength,
                     use_ckpt=cfg.unet_ckpt, vae_ckpt=cfg.vae_ckpt,
                     guidance_scale=cfg.guidance_scale, emb_uncond=emb_uncond,
                 )

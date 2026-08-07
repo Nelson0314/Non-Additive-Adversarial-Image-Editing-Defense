@@ -48,12 +48,24 @@ for S in $JOBS; do
     wacv-*-*)    T=${S#wacv-}; L=$R/${T%%-*}_${T#*-}/run.log;;
     wacv-*)      L=$R/b3_${S#wacv-}/run.log;;   # 舊式命名，b1／b2 的既有 log
     b2-*)        L=$R/b2_${S#b2-}/run.log;;
+    # 診斷用的一次性 session：`sweep_<批次>` 對到該批次的 sweep.log。
+    # 2026-08-07 加入。before：落到下面的 `*)` 而找到 $R/sweep_v14/run.log
+    # 這個不存在的路徑，`wc -l` 於是把 stderr 印進本函式的輸出，整輪回報作廢。
+    sweep_*)     L=$R/${S#sweep_}_bird_03/sweep.log;;
     *)           L=$R/$S/run.log;;
   esac
   alive=no; tmux has-session -t "$S" 2>/dev/null && alive=yes
   done_=no; tail -5 "$L" 2>/dev/null | grep -q '\[exit' && done_=yes
   err=no;  grep -ql 'Traceback' "$L" 2>/dev/null && err=yes
-  n=$(wc -l < "$L" 2>/dev/null || echo 0)
+  # 推進與否看**逐格紀錄**而不是 log 行數。
+  #
+  # 2026-08-07 改。before：`n=$(wc -l < "$L")`。`run_stage` 每 50 格才印一行，
+  # 而 b3（SDXL/1024²）一格要 20 秒以上——50 格即 17 分鐘，遠超本腳本 9 分鐘
+  # 的窗口，於是正常跑的分片被連續回報為「可能卡住」。逐格紀錄每格都寫，
+  # 是這裡唯一夠細的訊號。
+  D=$(dirname "$L")
+  n=$(ls "$D"/_cells/*.json 2>/dev/null | wc -l)
+  [ "$n" -eq 0 ] && n=$(wc -l < "$L" 2>/dev/null || echo 0)   # 段 0 沒有 _cells
   echo "$S|$alive|$done_|$err|$n|$(tail -1 "$L" 2>/dev/null | cut -c1-60)"
 done
 EOS

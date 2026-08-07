@@ -35,8 +35,8 @@
 from __future__ import annotations
 
 import argparse
-import json
 import sys
+from dataclasses import replace as dc_replace
 from pathlib import Path
 
 import torch
@@ -71,6 +71,12 @@ def main(argv=None) -> int:
     ap.add_argument("--n-seeds", type=int, default=grid.N_SEEDS)
     ap.add_argument("--conditions", nargs="*", default=None)
     ap.add_argument("--out", type=Path, default=None)
+    ap.add_argument("--strengths", default=None,
+                    help="逗號分隔的 strength 掃描點，例 0.2,0.3,0.4,0.5,0.6。"
+                         "給定時對照側逐點重算，不沿用 control/ 的產物")
+    ap.add_argument("--source", default="native",
+                    help="native 取段 1 的 x_def.png（k=1，各方法自己的工作"
+                         "點）；給 τ 值則取段 2 的 x_def_tau<τ>.png")
     args = ap.parse_args(argv)
 
     # `build_resources` 需要的其餘欄位取程式預設；本腳本不訓練，故那些
@@ -98,53 +104,96 @@ def main(argv=None) -> int:
     res = rs.build_resources(args, batch_dir, load_model=True)
     conds = grid.resolve_conditions(args.conditions)
 
+    strengths = ([float(x) for x in args.strengths.split(",")]
+                 if args.strengths else [args.strength])
+    src = args.source
+    tag = "x_def.png" if src == "native" else f"x_def_tau{src}.png"
+
     rows = []
     for entry in res.images.values():
         img = entry.image_id
         prompt = entry.prompts[0]
-        ctrl_dir = executors.control_dir(res, img, grid.IDENTITY)
+        # 防禦圖先讀進來：它與 strength 無關，每個 strength 重讀是純浪費
+        defs = {}
         for cond in conds:
-            xdef_png = res.cell_dir(cond, img) / "x_def.png"
-            if not xdef_png.exists():
-                print(f"  [skip] {cond}/{img}：{xdef_png} 不存在", flush=True)
+            p = res.cell_dir(cond, img) / tag
+            if not p.exists():
+                print(f"  [skip] {cond}/{img}：{p} 不存在", flush=True)
                 continue
-            x_def = executors.load_image_tensor(xdef_png, res.device)
-            fid = res.suite.pairwise(entry.x01, x_def)
+            x = executors.load_image_tensor(p, res.device)
+            defs[cond] = (x, res.suite.pairwise(entry.x01, x))
+
+        for st in strengths:
+            # **對照側必須在同一個 strength 上重算。** `control/` 存的是
+            # `--strength` 那一點的結果，拿它去比另一個 strength 的防禦側，
+            # 量到的差異主要來自 strength 本身。
+            res.cfg = dc_replace(res.cfg, strength=st)
+            ctrls = {}
             for s in range(args.n_seeds):
-                ctrl_png = ctrl_dir / f"edit_seed{s}.png"
-                if not ctrl_png.exists():
-                    raise FileNotFoundError(
-                        f"{ctrl_png} 不存在：對照側必須已跑完。兩側共用同一組"
-                        "編輯噪聲，重跑對照會引入與防禦無關的差異")
-                y_ctrl = executors.load_image_tensor(ctrl_png, res.device)
-                y_def, _ = executors._sdedit(res, x_def, prompt, s)
-                a = res.suite.semantic(y_ctrl, prompt)
-                b = res.suite.semantic(y_def, prompt)
-                rows.append({
-                    "image_id": img, "condition": cond, "seed": s,
-                    "scale_k": 1.0, "prompt": prompt,
-                    "fid_lpips": fid["lpips"], "fid_psnr": fid["psnr"],
-                    "fid_linf": fid["linf"],
-                    "siglip_ctrl": a["siglip"], "siglip_def": b["siglip"],
-                    "clip_ctrl": a["clip"], "clip_def": b["clip"],
-                    "effect_siglip": a["siglip"] - b["siglip"],
-                    "effect_clip": a["clip"] - b["clip"],
-                    "edit_lpips": float(
-                        res.suite.pairwise(y_ctrl, y_def)["lpips"]),
-                })
-                print(f"  {cond:<14} {img} seed{s}  "
-                      f"effect_siglip={rows[-1]['effect_siglip']:+.4f}  "
-                      f"lpips(def,orig)={fid['lpips']:.4f}", flush=True)
-                del y_def, y_ctrl
-                if torch.cuda.is_available():
-                    torch.cuda.empty_cache()
+                y, _ = executors._sdedit(res, entry.x01, prompt, s)
+                ctrls[s] = (y, res.suite.semantic(y, prompt))
+
+            for cond, (x_def, fid) in defs.items():
+                for s in range(args.n_seeds):
+                    y_ctrl, a = ctrls[s]
+                    y_def, _ = executors._sdedit(res, x_def, prompt, s)
+                    b = res.suite.semantic(y_def, prompt)
+                    rows.append({
+                        "image_id": img, "condition": cond, "seed": s,
+                        "strength": st, "source": src, "prompt": prompt,
+                        "fid_lpips": fid["lpips"], "fid_psnr": fid["psnr"],
+                        "fid_linf": fid["linf"],
+                        "siglip_ctrl": a["siglip"], "siglip_def": b["siglip"],
+                        "clip_ctrl": a["clip"], "clip_def": b["clip"],
+                        "effect_siglip": a["siglip"] - b["siglip"],
+                        "effect_clip": a["clip"] - b["clip"],
+                        # 攻擊方在這個 strength 上「本來能拿多少」。防禦效果
+                        # 必須對它正規化才跨 strength 可比：strength 越低，
+                        # 編輯本身移動得越少，同樣的絕對值代表的比例不同。
+                        "siglip_orig": res.suite.semantic(
+                            entry.x01, prompt)["siglip"],
+                        "edit_lpips": float(
+                            res.suite.pairwise(y_ctrl, y_def)["lpips"]),
+                    })
+                    print(f"  st={st:.2f} {cond:<14} {img} seed{s}  "
+                          f"effect={rows[-1]['effect_siglip']:+.4f}  "
+                          f"lpips(def,orig)={fid['lpips']:.4f}", flush=True)
+                    del y_def
+                    if torch.cuda.is_available():
+                        torch.cuda.empty_cache()
+            del ctrls
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
 
     out = args.out or (batch_dir / "native_strength.csv")
     executors.write_csv(out, rows)
     print(f"\n寫出 {out}（{len(rows)} 列）")
 
     import statistics
-    print("\n=== 原始強度（k=1）下的 effect_siglip ===")
+    if len(strengths) > 1:
+        print("\n=== effect_siglip 隨 strength（正 = 防禦有效）===")
+        print(f"{'條件':<16}" + "".join(f"{st:>11.2f}" for st in strengths)
+              + f"{'原生LPIPS':>12}")
+        for c in conds:
+            if c not in {r["condition"] for r in rows}:
+                continue
+            line = f"{c:<16}"
+            for st in strengths:
+                v = [r["effect_siglip"] for r in rows
+                     if r["condition"] == c and r["strength"] == st]
+                line += f"{statistics.fmean(v):>+11.4f}" if v else f"{'-':>11}"
+            fl = [r["fid_lpips"] for r in rows if r["condition"] == c]
+            line += f"{statistics.fmean(fl):>12.4f}"
+            print(line)
+
+        print("\n=== 攻擊方在該 strength 上開出的區間（siglip_edit − siglip_orig）===")
+        for st in strengths:
+            v = [r["siglip_ctrl"] - r["siglip_orig"] for r in rows
+                 if r["strength"] == st]
+            if v:
+                print(f"  strength={st:.2f}  gap={statistics.fmean(v):+.4f}")
+
+    print("\n=== 逐條件的 effect_siglip ===")
     by = {}
     for r in rows:
         by.setdefault(r["condition"], []).append(r["effect_siglip"])

@@ -294,7 +294,20 @@ calib)
   # 直接失敗，而那個失敗發生在 tmux 內，外面只看得到「session 沒了」。
   mkdir -p "$RUNS/$BATCH"
   echo "段 0 在 GPU $GPU 上跑，影像：${IMAGES[*]}"
-  tmux new-session -d -s "wacv-calib" \
+  # session 名帶批次。2026-08-08 改，before：固定的 `wacv-calib`。
+  #
+  # 那個名字使**兩個批次的段 0 不能並存**，而 fanout 早就是帶批次的
+  # （`wacv-$BATCH-$IMG`，理由見該處註解），兩者不一致。2026-08-08 實測撞上：
+  # v14r 的段 0 佔著這個名字，ip2 的 `tmux new-session` 以 `duplicate session`
+  # 失敗。`set -e` 確實在該處中止（實測 rc=1，其後的 `echo` 沒有執行），故這
+  # **不是**一個靜默失敗；危險的是那行訊息只說「名字重複」，看不出「是另一個
+  # 批次佔著」，而呼叫端若把輸出接進 pipeline 就連 rc 都收不到。
+  #
+  # 若當時 `set -e` 沒有生效，接下來的 `tmux has-session` 會拿別的批次的
+  # session 判定為成功——那才會是 §7 第 3 項那種型態。名字帶批次之後兩條路
+  # 都不成立。
+  SESS="wacv-$BATCH-calib"
+  tmux new-session -d -s "$SESS" \
     "cd $HOME/WACV && PYTHONIOENCODING=utf-8 CUDA_VISIBLE_DEVICES=$GPU \
 PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True \
 $PY scripts/run_stage.py calib --batch $BATCH $COMMON --images ${IMAGES[*]} \
@@ -302,8 +315,8 @@ $PY scripts/run_stage.py calib --batch $BATCH $COMMON --images ${IMAGES[*]} \
   # 起不來要當場知道。先前漏了 mkdir，症狀是 session 靜默消失、log 不存在，
   # 而輪詢的一方只會看到「還在跑」——那是最貴的一種失敗。
   sleep 5
-  tmux has-session -t wacv-calib 2>/dev/null || {
-    echo "wacv-calib 沒有起來。log：" >&2
+  tmux has-session -t "$SESS" 2>/dev/null || {
+    echo "$SESS 沒有起來。log：" >&2
     cat "$RUNS/$BATCH/calib.log" 2>/dev/null | tail -20 >&2
     exit 1; }
   echo "log: $RUNS/$BATCH/calib.log"

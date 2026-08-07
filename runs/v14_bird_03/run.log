@@ -1,0 +1,172 @@
+===== train =====
+[env] 載入 SDWrapper(CompVis/stable-diffusion-v1-4) dtype=torch.float32
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3978.78it/s]
+Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00, 10.37it/s]Loading pipeline components...:  83%|████████▎ | 5/6 [00:00<00:00, 18.36it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 16.31it/s]
+There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+[env] 影像 1 張：['bird_03']
+
+[preflight] 以下事項會影響本批的結果，請先處理：
+  - tau_acut 仍為 0.04，那是在 τ_lpips=0.05 的量級上由人眼判讀定出的絕對值；本輪訓練在 τ=0.2。需重新判讀後以 --tau-acut 指定（objective.py「門檻的適用範圍」）
+  - tau_chroma 仍為 0.8，同上，需重新判讀
+
+  [stop] 監看 shared_mass；約束：fid_pen_lpips, fid_pen_acut, fid_pen_chroma
+  [stage default] lr=0.1（lr.N1）上限 250 步
+/nfs/home/nelson0314/WACV/src/defense/objective.py:550: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /__w/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:822.)
+  "fid_linf_total": float((xd - xr).abs().max()),
+  [default] step    0  loss=0.0611  L_def=0.0611  L_fid=0.0000  |g|=8.631e-04
+  [default] step   10  loss=0.0597  L_def=0.0597  L_fid=0.0000  |g|=1.487e-04
+  [default] step   20  loss=0.0592  L_def=0.0592  L_fid=0.0000  |g|=1.315e-04
+  [default] step   30  loss=0.0593  L_def=0.0593  L_fid=0.0000  |g|=1.982e-04
+  [stop] 階段 default 第 31 步停止：約束已啟動且 shared_mass 在最近 20 步的每步改善 -7.05e-07 低於 3.2e-06
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+  [stop] 監看 edit_shift；約束：fid_pen_lpips, fid_pen_acut, fid_pen_chroma
+  [stage default] lr=0.1（lr.N2）上限 250 步
+  [default] step    0  loss=0.7171  L_def=0.7171  L_fid=0.0000  |g|=1.700e-02
+  [default] step   10  loss=0.6878  L_def=0.6878  L_fid=0.0000  |g|=2.867e-03
+  [default] step   20  loss=0.6746  L_def=0.6746  L_fid=0.0000  |g|=2.485e-03
+  [default] step   30  loss=0.6685  L_def=0.6685  L_fid=0.0000  |g|=2.745e-03
+  [stop] 階段 default 第 39 步停止：約束已啟動且 edit_shift 在最近 20 步的每步改善 +9.60e-05 低於 1.4e-04
+  [stop] 監看 edit_shift；約束：fid_pen_lpips, fid_pen_acut, fid_pen_chroma
+  [align] group=stage1 lr=0.0001（lr.N3_stage1）200 步
+  [align] 門檻取自本圖的重建下限：psnr≥30.10dB lpips≤0.1330 acut≤0.0911 chroma≤0.9714
+  [align] step    0  loss=0.0000  lpips=0.1330  psnr=30.10
+  [align] step   10  loss=0.0000  lpips=0.1311  psnr=30.14
+  [align] step   20  loss=0.0000  lpips=0.1308  psnr=30.24
+  [align] step   30  loss=0.0000  lpips=0.1307  psnr=30.28
+  [align] step   40  loss=0.0000  lpips=0.1307  psnr=30.29
+  [align] step   50  loss=0.0000  lpips=0.1307  psnr=30.30
+  [align] step   60  loss=0.0000  lpips=0.1307  psnr=30.30
+  [align] step   70  loss=0.0000  lpips=0.1307  psnr=30.30
+  [align] step   80  loss=0.0000  lpips=0.1307  psnr=30.30
+  [align] step   90  loss=0.0000  lpips=0.1307  psnr=30.30
+  [align] step  100  loss=0.0000  lpips=0.1307  psnr=30.30
+  [align] step  110  loss=0.0000  lpips=0.1307  psnr=30.30
+  [align] step  120  loss=0.0000  lpips=0.1307  psnr=30.30
+  [align] step  130  loss=0.0000  lpips=0.1307  psnr=30.30
+  [align] step  140  loss=0.0000  lpips=0.1307  psnr=30.30
+  [align] step  150  loss=0.0000  lpips=0.1307  psnr=30.30
+  [align] step  160  loss=0.0000  lpips=0.1307  psnr=30.30
+  [align] step  170  loss=0.0000  lpips=0.1307  psnr=30.30
+  [align] step  180  loss=0.0000  lpips=0.1307  psnr=30.30
+  [align] step  190  loss=0.0000  lpips=0.1307  psnr=30.30
+  [align] step  199  loss=0.0000  lpips=0.1307  psnr=30.30
+  [align] 還原第 0 步的 φ（loss=0.0000）；最後一步為 0.0000
+  [stage stage2] lr=0.001（lr.N3_stage2）上限 250 步
+  [stage2] step    0  loss=0.0203  L_def=0.0203  L_fid=0.0000  |g|=4.798e-04
+  [stage2] step   10  loss=0.0196  L_def=0.0196  L_fid=0.0000  |g|=1.160e-03
+  [stage2] step   20  loss=0.0179  L_def=0.0179  L_fid=0.0000  |g|=1.998e-03
+  [stage2] step   30  loss=0.0177  L_def=0.0177  L_fid=0.0000  |g|=1.999e-03
+  [stop] 階段 stage2 第 38 步停止：約束已啟動且 edit_shift 在最近 20 步的每步改善 +2.91e-05 低於 1.4e-04
+  [photoguard_c] step    0  L=2.535531e+02  Linf01=0.1598  L2=1.000
+  [photoguard_c] step   10  L=2.183290e+02  Linf01=0.1619  L2=5.695
+  [photoguard_c] step   20  L=2.033610e+02  Linf01=0.1608  L2=8.541
+  [photoguard_c] step   30  L=1.957655e+02  Linf01=0.1664  L2=10.811
+  [photoguard_c] step   40  L=1.946355e+02  Linf01=0.1940  L2=12.683
+  [photoguard_c] step   50  L=1.898049e+02  Linf01=0.2137  L2=14.383
+  [photoguard_c] step   60  L=1.908771e+02  Linf01=0.2259  L2=15.976
+  [photoguard_c] step   70  L=1.645902e+02  Linf01=0.2152  L2=16.000
+  [photoguard_c] step   80  L=1.645946e+02  Linf01=0.2117  L2=16.000
+  [photoguard_c] step   90  L=1.706291e+02  Linf01=0.2207  L2=16.000
+  [photoguard_c] step  100  L=1.701767e+02  Linf01=0.2167  L2=16.000
+  [photoguard_c] step  110  L=1.579966e+02  Linf01=0.2185  L2=16.000
+  [photoguard_c] step  120  L=1.620868e+02  Linf01=0.2183  L2=16.000
+  [photoguard_c] step  130  L=1.674741e+02  Linf01=0.2275  L2=16.000
+  [photoguard_c] step  140  L=1.566086e+02  Linf01=0.2261  L2=16.000
+  [photoguard_c] step  150  L=1.680131e+02  Linf01=0.2329  L2=16.000
+  [photoguard_c] step  160  L=1.517210e+02  Linf01=0.2308  L2=16.000
+  [photoguard_c] step  170  L=1.571188e+02  Linf01=0.2291  L2=16.000
+  [photoguard_c] step  180  L=1.584049e+02  Linf01=0.2242  L2=16.000
+  [photoguard_c] step  190  L=1.600115e+02  Linf01=0.2216  L2=16.000
+  [photoguard_c] step  199  L=1.585577e+02  Linf01=0.2230  L2=16.000
+  [mist] step    0  L=2.996680e+04  Linf01=0.0627  L2=64.346
+  [mist] step   10  L=1.831156e+04  Linf01=0.0627  L2=66.099
+  [mist] step   20  L=1.294664e+04  Linf01=0.0627  L2=68.571
+  [mist] step   30  L=1.549915e+04  Linf01=0.0627  L2=71.532
+  [mist] step   40  L=1.476074e+04  Linf01=0.0627  L2=73.981
+  [mist] step   50  L=1.388695e+04  Linf01=0.0627  L2=76.077
+  [mist] step   60  L=1.401712e+04  Linf01=0.0627  L2=77.716
+  [mist] step   70  L=1.362563e+04  Linf01=0.0627  L2=79.364
+  [mist] step   80  L=1.290783e+04  Linf01=0.0627  L2=80.816
+  [mist] step   90  L=1.321905e+04  Linf01=0.0627  L2=81.963
+  [mist] step   99  L=1.255323e+04  Linf01=0.0627  L2=82.751
+  [dia_r] step    0  L=6.694641e+01  Linf01=0.0020  L2=3.477
+  [dia_r] step   10  L=5.636000e+02  Linf01=0.0216  L2=12.170
+  [dia_r] step   19  L=7.077439e+02  Linf01=0.0250  L2=16.846
+
+[train] done=7 failed=0 skipped=0 resumed=0
+===== rayscale =====
+[env] 載入 SDWrapper(CompVis/stable-diffusion-v1-4) dtype=torch.float32
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 4220.21it/s]
+Loading pipeline components...:  50%|█████     | 3/6 [00:00<00:00, 15.85it/s]Loading pipeline components...:  83%|████████▎ | 5/6 [00:00<00:00, 14.30it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 17.07it/s]
+There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+[env] 影像 1 張：['bird_03']
+
+[preflight] 以下事項會影響本批的結果，請先處理：
+  - tau_acut 仍為 0.04，那是在 τ_lpips=0.05 的量級上由人眼判讀定出的絕對值；本輪訓練在 τ=0.2。需重新判讀後以 --tau-acut 指定（objective.py「門檻的適用範圍」）
+  - tau_chroma 仍為 0.8，同上，需重新判讀
+
+
+[rayscale] done=26 failed=0 skipped=2 resumed=0
+===== eval =====
+[env] 載入 SDWrapper(CompVis/stable-diffusion-v1-4) dtype=torch.float32
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  17%|█▋        | 1/6 [00:00<00:00,  9.60it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 4018.46it/s]
+Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00,  7.80it/s]Loading pipeline components...:  83%|████████▎ | 5/6 [00:00<00:00, 16.14it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 16.48it/s]
+There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+[env] 影像 1 張：['bird_03']
+
+[preflight] 以下事項會影響本批的結果，請先處理：
+  - tau_acut 仍為 0.04，那是在 τ_lpips=0.05 的量級上由人眼判讀定出的絕對值；本輪訓練在 τ=0.2。需重新判讀後以 --tau-acut 指定（objective.py「門檻的適用範圍」）
+  - tau_chroma 仍為 0.8，同上，需重新判讀
+
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 12189.01it/s]
+[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
+[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
+Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights:  88%|████████▊ | 360/408 [00:00<00:00, 3571.52it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 3543.58it/s]
+  [control] 50/95  done=45 failed=0 resumed=0
+
+[control] done=90 failed=0 skipped=5 resumed=0
+  [eval] 50/980  done=45 failed=0 resumed=0
+  [eval] 100/980  done=95 failed=0 resumed=0
+  [eval] 150/980  done=140 failed=0 resumed=0
+  [eval] 200/980  done=185 failed=0 resumed=0
+  [eval] 250/980  done=235 failed=0 resumed=0
+  [eval] 300/980  done=270 failed=0 resumed=0
+  [eval] 350/980  done=315 failed=0 resumed=0
+  [eval] 400/980  done=365 failed=0 resumed=0
+  [eval] 450/980  done=410 failed=0 resumed=0
+  [eval] 500/980  done=455 failed=0 resumed=0
+  [eval] 550/980  done=505 failed=0 resumed=0
+  [eval] 650/980  done=595 failed=0 resumed=0
+  [eval] 700/980  done=640 failed=0 resumed=0
+  [eval] 750/980  done=685 failed=0 resumed=0
+  [eval] 800/980  done=735 failed=0 resumed=0
+  [eval] 850/980  done=780 failed=0 resumed=0
+  [eval] 900/980  done=825 failed=0 resumed=0
+  [eval] 950/980  done=875 failed=0 resumed=0
+
+[eval] done=900 failed=0 skipped=80 resumed=0
+[exit 0]

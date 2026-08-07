@@ -1,0 +1,57 @@
+{
+  "micro_bench": {
+    "vae_roundtrip": 0.3979942169971764,
+    "sdedit_50steps": 8.35819368204102
+  },
+  "precision_equiv": {
+    "dtype": "float32",
+    "compared": false,
+    "rows": [
+      {
+        "op": "all",
+        "dtype": "float32",
+        "reference": "float32",
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "psnr": Infinity,
+        "note": "本批以 fp32 執行，與參考同一路徑，無須比對"
+      }
+    ]
+  },
+  "strength": {
+    "recommended": 0.6,
+    "mean_effect_siglip": {
+      "0.3": 0.020704003361364205,
+      "0.4": 0.042780449303487934,
+      "0.5": 0.06042294856160879,
+      "0.6": 0.07115705218166113,
+      "0.7": 0.0711002191528678,
+      "0.8": 0.0684347019220392
+    }
+  },
+  "editable": {
+    "threshold": 0.0,
+    "passed": [
+      "bird_03",
+      "cat_02",
+      "dog_03"
+    ],
+    "n_passed": 3,
+    "n_total": 3
+  },
+  "warp_reach": {
+    "min_lpips_at_bound": 0.46549534797668457,
+    "covers_train_tau": true
+  },
+  "calibration_keys": [
+    "lr.N1",
+    "lr.N2",
+    "lr.N3_stage1",
+    "lr.N3_stage2",
+    "precision_equiv.all.rel_l2",
+    "stop_tol.edit_shift",
+    "stop_tol.shared_mass",
+    "strength.recommended",
+    "warp.min_lpips_at_bound"
+  ]
+}

@@ -1,0 +1,70 @@
+{
+  "cell_id": "rayscale/mist/dog_03/tau0.1",
+  "config_hash": "9d37134547ed",
+  "config": {
+    "spec_version": 1,
+    "model": "CompVis/stable-diffusion-v1-4",
+    "resolution": 512,
+    "guidance": 7.5,
+    "steps": 50,
+    "strength": 0.6,
+    "gpu": "RTX-3090",
+    "precision": "fp32",
+    "loss_params": {
+      "train_n_edit": 10,
+      "n_eot": 1,
+      "k_inv": 10,
+      "t_max": null,
+      "exact_inversion": true,
+      "purify_mode": "all",
+      "attn_timesteps": 4,
+      "tau_train": 0.2,
+      "tau_acut": 0.04,
+      "tau_chroma": 0.8,
+      "beta_linf": 0.0,
+      "tau_linf": 0.06,
+      "target_image": "data/targets/gray.png",
+      "shared_tokens": [
+        0
+      ]
+    },
+    "module_params": {
+      "warp_grid_size": 32,
+      "warp_max_disp": 8.0,
+      "warp_resample": "bicubic",
+      "apa_lora_rank": 8,
+      "apa_latent_max_rank": 32,
+      "apa_latent_const_rank": 8,
+      "random_init_std": 0.5
+    },
+    "optim_params": {
+      "max_steps": 250,
+      "align_steps": 200,
+      "stop_patience": 20,
+      "stop_min_steps": 25
+    },
+    "lr": null,
+    "condition": "mist",
+    "image_id": "dog_03",
+    "tau": 0.1,
+    "purify": null,
+    "seed": null
+  },
+  "condition": "mist",
+  "image_id": "dog_03",
+  "tau_target": 0.1,
+  "tau_achieved": 0.09517194330692291,
+  "scale_k": 0.171875,
+  "niqe": 2.271415383086534,
+  "fid_psnr": 41.73269271850586,
+  "fid_linf": 0.010784327983856201,
+  "fid_ssim": 0.9943236112594604,
+  "fid_vif_p": 0.8721483945846558,
+  "fid_fsim": 0.9978932738304138,
+  "fid_lpips": 0.09517194330692291,
+  "fid_dists": 0.006052136421203613,
+  "fid_acutance_ratio": 0.9720748662948608,
+  "fid_rms": 0.00819092895835638,
+  "fid_frac_gt_16_255": 0.0,
+  "seconds_rayscale": 0.25
+}

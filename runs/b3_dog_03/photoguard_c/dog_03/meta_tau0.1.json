@@ -1,0 +1,70 @@
+{
+  "cell_id": "rayscale/photoguard_c/dog_03/tau0.1",
+  "config_hash": "54814c00fb8d",
+  "config": {
+    "spec_version": 1,
+    "model": "stabilityai/stable-diffusion-xl-base-1.0",
+    "resolution": 1024,
+    "guidance": 7.5,
+    "steps": 50,
+    "strength": 0.6,
+    "gpu": "RTX-3090",
+    "precision": "bf16",
+    "loss_params": {
+      "train_n_edit": 10,
+      "n_eot": 1,
+      "k_inv": 10,
+      "t_max": 200,
+      "exact_inversion": true,
+      "purify_mode": "rotate",
+      "attn_timesteps": 2,
+      "tau_train": 0.2,
+      "tau_acut": 0.04,
+      "tau_chroma": 0.8,
+      "beta_linf": 0.0,
+      "tau_linf": 0.06,
+      "target_image": "data/targets/gray.png",
+      "shared_tokens": [
+        76
+      ]
+    },
+    "module_params": {
+      "warp_grid_size": 32,
+      "warp_max_disp": 8.0,
+      "warp_resample": "bicubic",
+      "apa_lora_rank": 8,
+      "apa_latent_max_rank": 32,
+      "apa_latent_const_rank": 8,
+      "random_init_std": 0.5
+    },
+    "optim_params": {
+      "max_steps": 250,
+      "align_steps": 200,
+      "stop_patience": 20,
+      "stop_min_steps": 25
+    },
+    "lr": null,
+    "condition": "photoguard_c",
+    "image_id": "dog_03",
+    "tau": 0.1,
+    "purify": null,
+    "seed": null
+  },
+  "condition": "photoguard_c",
+  "image_id": "dog_03",
+  "tau_target": 0.1,
+  "tau_achieved": 0.10441818833351135,
+  "scale_k": 0.75,
+  "niqe": 4.162611860078731,
+  "fid_psnr": 49.410614013671875,
+  "fid_linf": 0.10681748390197754,
+  "fid_ssim": 0.9988752603530884,
+  "fid_vif_p": 0.9417229294776917,
+  "fid_fsim": 0.9995049238204956,
+  "fid_lpips": 0.10441818833351135,
+  "fid_dists": 0.005020856857299805,
+  "fid_acutance_ratio": 1.0052212476730347,
+  "fid_rms": 0.003382825991138816,
+  "fid_frac_gt_16_255": 3.306071084807627e-05,
+  "seconds_rayscale": 0.27
+}

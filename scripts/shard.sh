@@ -9,7 +9,8 @@
 # 批次由環境變數 `BATCH` 指定，它同時選定模型設定（見下方 profile 區）：
 #
 #   BATCH=b3  → SDXL 1.0 base / 1024² / bf16      （預設，img2img）
-#   BATCH=v14 → SD v1.4 / 512² / fp32              （img2img）
+#   BATCH=v14 → SD v1.4 / 512² / fp32              （img2img，strength 0.6）
+#   BATCH=v14r→ 同上但 strength 0.4                （2026-08-08 的重做）
 #   BATCH=ip* → SD inpainting / 512² / fp32        （**inpainting**，無 strength）
 #
 # fanout 產生的 tmux session 名為 `wacv-<批次>-<影像>`。
@@ -191,7 +192,29 @@ PROBE="--probe-steps 60"
 #       `--mask-mode` 是切換威脅模型的旗標，同時決定 `base_config` 多不多
 #       一個 `mask` 鍵；沒有它就是 img2img。
 MASK=""
+# 攻擊方的 strength。留空即沿用 `run_stage` 的預設 0.6，故 b1/b2/b3/v14 的
+# 命令列逐字不變。
+#
+# `v14r*`（2026-08-08 的重做）取 **0.4**：strength 掃描顯示攻擊的區間在 0.5
+# 就飽和而防禦效果在 0.4 之後崩掉，0.4 是唯一同時滿足「攻擊確實有效」與
+# 「防禦仍有著力點」的點（`RESULTS_2026-08-07` §6c）。0.6 是段 0 的
+# `calibrate_strength` 取「編輯效果最大」選出的，那由建構上就落在防禦最
+# 無力的一端。
+#
+# **inpainting（ip*）不可帶**：那個威脅模型沒有 strength，`run_stage` 會在
+# `--mask-mode` 下拒絕並中止。
+STRENGTH=""
 case "$BATCH" in
+  v14r*)
+    # 重做：模型設定與 v14 完全相同，只改 strength。門檻不必在此指定——
+    # `run_stage` 會由 `--tau-train` 依比例導出（0.8×τ、16×τ）並印在 log 上。
+    PRECISION=fp32
+    MODEL="--model CompVis/stable-diffusion-v1-4 --wrapper sd --resolution 512"
+    MEM="--purify-mode all"
+    ATTN="--shared-tokens 0"
+    INV="--exact-inversion"
+    STRENGTH="--strength 0.4"
+    ;;
   v14*)
     PRECISION=fp32
     MODEL="--model CompVis/stable-diffusion-v1-4 --wrapper sd --resolution 512"
@@ -221,7 +244,7 @@ case "$BATCH" in
     ;;
 esac
 
-COMMON="--runs-root $RUNS --gpu-tag $GPU_TAG --precision $PRECISION $MODEL --mist-target data/targets/MIST.png $MEM $REACH $ATTN $INV $PROBE $MASK"
+COMMON="--runs-root $RUNS --gpu-tag $GPU_TAG --precision $PRECISION $MODEL --mist-target data/targets/MIST.png $MEM $REACH $ATTN $INV $PROBE $MASK $STRENGTH"
 
 shard_dir() { echo "$RUNS/${BATCH}_$1"; }
 

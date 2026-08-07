@@ -154,8 +154,10 @@ class QKVRecorder:
 
 
 class AdvPaintContext:
-    def __init__(self, sd, spec, emb2, t0, latent_shape, generator, gt):
+    def __init__(self, sd, spec, emb2, t0, latent_shape, generator, gt,
+                 mask=None):
         self.spec = spec
+        self.mask = mask
         self.emb2 = emb2
         self.t0 = t0
         self.latent_shape = latent_shape
@@ -168,7 +170,7 @@ class AdvPaintContext:
         pass
 
 
-def _forward_and_record(sd, ctx_like, x_paper, emb2, t0, generator, recorder,
+def _forward_and_record(sd, mask, x_paper, emb2, t0, generator, recorder,
                         differentiable: bool):
     """跑一次 UNet 前向並取回 Q／K／V。
 
@@ -180,13 +182,39 @@ def _forward_and_record(sd, ctx_like, x_paper, emb2, t0, generator, recorder,
     """
     ctx = torch.enable_grad() if differentiable else torch.no_grad()
     with ctx:
-        post = sd.vae.encode(x_paper.to(sd.vae.dtype)).latent_dist
-        z0 = post.sample(generator) * sd.scaling_factor
-        noise = torch.randn(
-            z0.shape, generator=generator, device=z0.device, dtype=z0.dtype
-        )
-        abar = sd.alphas_cumprod(z0.device)[t0].to(z0.dtype)
-        z = abar.sqrt() * z0 + (1 - abar).sqrt() * noise
+        # **原作的梯度只走 masked-image 那一路。** `AdvPaint.py:206-214` 把
+        # `vae.encode(X_adv)` → `add_noise` 整段包在 `torch.no_grad()` 內，
+        # 真正可微的是 `masked_image = X_adv * (mask_512 < 0.5)`
+        # （`AdvPaint.py:219`）之後的 `masked_image_latents`。
+        #
+        # img2img 沒有那一路，故本專案的移植改讓梯度經加噪後的 latent——
+        # 那是移植表第二列標為「實質改動」的那一項。遮罩給定時此處回到
+        # 原作：帶噪 latent 切斷梯度，改由後 4 個通道進入。
+        z_ctx = torch.no_grad() if mask is not None else ctx
+        with z_ctx:
+            post = sd.vae.encode(x_paper.to(sd.vae.dtype)).latent_dist
+            z0 = post.sample(generator) * sd.scaling_factor
+            noise = torch.randn(
+                z0.shape, generator=generator, device=z0.device, dtype=z0.dtype
+            )
+            abar = sd.alphas_cumprod(z0.device)[t0].to(z0.dtype)
+            z = abar.sqrt() * z0 + (1 - abar).sqrt() * noise
+        if mask is not None:
+            # `mask_512 < 0.5` 即保留**未遮罩**的區域，等價於 x·(1−m)。
+            #
+            # **一項未由原始碼查證的細節**：此處的 `masked_image_latents` 取
+            # 後驗抽樣（與上面的 z0 一致，也與 diffusers inpaint pipeline 的
+            # `retrieve_latents(..., generator)` 一致），但原作取 sample 還是
+            # mode 未在既有的逐行紀錄中載明。兩者差一個 std·ε 項，會改變損失
+            # 的數值但不改變梯度所走的路徑。取回原始碼確認之前，此項列入
+            # `discrepancy_note`。
+            m = torch.nn.functional.interpolate(
+                mask.to(z.device, z.dtype), size=z.shape[-2:], mode="nearest")
+            mpost = sd.vae.encode(
+                (x_paper * (1.0 - mask.to(x_paper))).to(sd.vae.dtype)
+            ).latent_dist
+            z_masked = mpost.sample(generator) * sd.scaling_factor
+            z = torch.cat([z, m, z_masked.to(z.dtype)], dim=1)
         z2 = torch.cat([z] * 2)
         recorder.clear()
         with recorder:
@@ -209,6 +237,7 @@ def prepare(
     *,
     prompt: Optional[str] = None,
     strength: Optional[float] = None,
+    mask: Optional[torch.Tensor] = None,
     guidance_scale: float = 7.5,
     seed: int = 9999,
     **_,
@@ -224,7 +253,7 @@ def prepare(
             "CLI 參數，論文亦未給定攻擊時使用哪個 prompt。請由呼叫端明確指定"
             "（本專案為 prompt-free，見 DESIGN §2.1），並在報表標註為我方設定"
         )
-    if strength is None:
+    if strength is None and mask is None:
         raise NotImplementedError(
             "AdvPaint 的 img2img 版缺 strength：原作在 inpainting pipeline 的預設排程上"
             "取 `timesteps[0]`（50 步、strength=1），img2img 的第一個 timestep 由 "
@@ -250,18 +279,26 @@ def prepare(
         )
     emb2 = cat_cond([emb_uncond, emb_cond])
 
-    t0 = min(
-        int(sd.num_train_timesteps * strength), sd.num_train_timesteps - 1
-    )
+    # inpainting 下原作取 pipeline 預設排程的 `timesteps[0]`（50 步、
+    # strength=1），即整條排程的第一個 timestep。img2img 沒有那個排程，
+    # 故本專案的移植改由呼叫端的 strength 決定——那正是移植表第四列。
+    t0 = (sd.num_train_timesteps - 1 if mask is not None else
+          min(int(sd.num_train_timesteps * strength),
+              sd.num_train_timesteps - 1))
     generator = torch.Generator(device=device).manual_seed(seed)
     recorder = QKVRecorder(sd.unet)
+    # GT 與迭代必須走**同一條**路徑。先前這裡傳 None，遮罩因此讀不到，
+    # GT 會走 img2img 而迭代走 inpainting——兩組 Q/K/V 來自不同的前向，
+    # 相減得到的距離量的是路徑差異而不是擾動。
     gt = _forward_and_record(
-        sd, None, x_paper, emb2, t0, generator, recorder, differentiable=False
+        sd, mask, x_paper, emb2, t0, generator, recorder,
+        differentiable=False
     )
     gt = tuple([t.detach() for t in group] for group in gt)
 
     latent_shape = sd.latent_shape(x01.shape[-2], x01.shape[-1])
-    ctx = AdvPaintContext(sd, spec, emb2, t0, latent_shape, generator, gt)
+    ctx = AdvPaintContext(sd, spec, emb2, t0, latent_shape, generator, gt,
+                          mask=mask)
     return ctx
 
 
@@ -282,7 +319,7 @@ def loss_fn(sd, x_adv: torch.Tensor, ctx: AdvPaintContext) -> torch.Tensor:
     起算，路徑斷掉時 autograd 會直接拋錯。
     """
     cur = _forward_and_record(
-        sd, ctx, x_adv, ctx.emb2, ctx.t0, ctx.generator, ctx.recorder,
+        sd, ctx.mask, x_adv, ctx.emb2, ctx.t0, ctx.generator, ctx.recorder,
         differentiable=True,
     )
     terms = []

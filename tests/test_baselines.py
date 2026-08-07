@@ -458,12 +458,15 @@ class _FakeRecorder:
 
 
 class _FakeAdvPaintCtx:
-    def __init__(self, gt):
+    def __init__(self, gt, mask=None):
         self.gt = gt
         self.length = max(1, len(gt[0]))
         self.emb2 = None
         self.t0 = 0
         self.generator = None
+        # 替身照契約補上而非讓 `loss_fn` 改用 `getattr` 迴避：後者會讓
+        # 「遮罩沒傳到」靜默通過，而那正是 GT 與迭代走不同前向的成因。
+        self.mask = mask
         self.recorder = _FakeRecorder()
 
 

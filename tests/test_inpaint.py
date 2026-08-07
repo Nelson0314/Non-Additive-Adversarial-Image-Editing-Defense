@@ -501,3 +501,49 @@ def test_photoguard在有遮罩時不再要求strength():
     src = inspect.getsource(photoguard.prepare)
     assert "if strength is None and mask is None:" in src
     assert "mask" in inspect.signature(photoguard.prepare).parameters
+
+
+def test_advpaint的GT與迭代走同一條前向():
+    """GT 與迭代若走不同路徑，相減得到的距離量的是路徑差異而不是擾動。
+
+    `_forward_and_record` 原本由 `ctx_like` 讀遮罩，而 GT 那次呼叫傳的是
+    `None`——遮罩讀不到，GT 會走 img2img 而迭代走 inpainting。改成顯式
+    參數之後兩處都必須明寫。
+    """
+    import inspect
+
+    from src.baselines import advpaint
+
+    sig = inspect.signature(advpaint._forward_and_record).parameters
+    assert "mask" in sig and "ctx_like" not in sig
+
+    prep = inspect.getsource(advpaint.prepare)
+    assert "sd, mask, x_paper, emb2, t0, generator, recorder" in prep
+    loss = inspect.getsource(advpaint.loss_fn)
+    assert "sd, ctx.mask, x_adv" in loss
+
+
+def test_advpaint在遮罩下讓梯度只走masked_image():
+    """`AdvPaint.py:206-214` 把 encode→add_noise 包在 no_grad 內。
+
+    img2img 沒有 masked-image 那一路，故移植版讓梯度經加噪後的 latent；
+    遮罩給定時必須切回原作，否則 9 通道跑起來了但梯度仍走錯路。
+    """
+    import inspect
+
+    from src.baselines import advpaint
+
+    body = inspect.getsource(advpaint._forward_and_record)
+    assert "z_ctx = torch.no_grad() if mask is not None else ctx" in body
+    assert "x_paper * (1.0 - mask.to(x_paper))" in body
+    assert "torch.cat([z, m, z_masked.to(z.dtype)], dim=1)" in body
+
+
+def test_advpaint在遮罩下取整條排程的第一個timestep():
+    """原作取 inpainting pipeline 預設排程的 timesteps[0]（50 步、strength=1）。"""
+    import inspect
+
+    from src.baselines import advpaint
+
+    src = inspect.getsource(advpaint.prepare)
+    assert "sd.num_train_timesteps - 1 if mask is not None else" in src

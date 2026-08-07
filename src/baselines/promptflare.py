@@ -347,7 +347,7 @@ def prepare(
     seed: int = 0,
     **_,
 ) -> PromptFlareContext:
-    if strength is None:
+    if strength is None and mask is None:
         raise NotImplementedError(
             "PromptFlare 的 img2img 版缺 strength：原作是 inpainting，latent 由 "
             "torch.randn 起跑（`promptflare.py:29-31`），x_adv 只經 masked_image_latents "

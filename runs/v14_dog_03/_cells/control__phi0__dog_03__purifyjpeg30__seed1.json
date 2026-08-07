@@ -1,0 +1,83 @@
+{
+  "artifacts": [
+    "control/dog_03/purify/jpeg_30/x_purified.png",
+    "control/dog_03/purify/jpeg_30/edit_seed1.png",
+    "control/dog_03/purify/jpeg_30/meta_seed1.json",
+    "control/dog_03/purify/jpeg_30/attn/seed1_agg.png",
+    "control/dog_03/purify/jpeg_30/attn/attn_stats.csv"
+  ],
+  "attn_full": false,
+  "attn_steps": 11,
+  "condition": "phi0",
+  "config": {
+    "condition": "phi0",
+    "gpu": "RTX-3090",
+    "guidance": 7.5,
+    "image_id": "dog_03",
+    "loss_params": {
+      "attn_timesteps": 4,
+      "beta_linf": 0.0,
+      "exact_inversion": true,
+      "k_inv": 10,
+      "n_eot": 1,
+      "purify_mode": "all",
+      "shared_tokens": [
+        0
+      ],
+      "t_max": null,
+      "target_image": "data/targets/gray.png",
+      "tau_acut": 0.04,
+      "tau_chroma": 0.8,
+      "tau_linf": 0.06,
+      "tau_train": 0.2,
+      "train_n_edit": 10
+    },
+    "lr": null,
+    "model": "CompVis/stable-diffusion-v1-4",
+    "module_params": {
+      "apa_latent_const_rank": 8,
+      "apa_latent_max_rank": 32,
+      "apa_lora_rank": 8,
+      "random_init_std": 0.5,
+      "warp_grid_size": 32,
+      "warp_max_disp": 8.0,
+      "warp_resample": "bicubic"
+    },
+    "optim_params": {
+      "align_steps": 200,
+      "max_steps": 250,
+      "stop_min_steps": 25,
+      "stop_patience": 20
+    },
+    "precision": "fp32",
+    "purify": {
+      "kind": "jpeg",
+      "strength": 30
+    },
+    "resolution": 512,
+    "seed": 1,
+    "spec_version": 1,
+    "steps": 50,
+    "strength": 0.6,
+    "tau": null
+  },
+  "config_hash": "6903020c4e1c",
+  "ctrl_clip": 0.2754020392894745,
+  "ctrl_siglip": 0.075250044465065,
+  "error": null,
+  "finished": "2026-08-07T09:07:31+08:00",
+  "group": "dog",
+  "id": "control/phi0/dog_03/purifyjpeg30/seed1",
+  "image": "dog_03",
+  "image_id": "dog_03",
+  "prompt": "a cat",
+  "purify_available": true,
+  "purify_differentiable": false,
+  "purify_kind": "jpeg",
+  "purify_strength": 30,
+  "seconds": 8.954526589019224,
+  "seed": 1,
+  "stage": "control",
+  "started": "2026-08-07T09:07:22+08:00",
+  "status": "done"
+}

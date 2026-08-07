@@ -39,12 +39,18 @@ ssh -p "$PORT" -o StrictHostKeyChecking=no -o ConnectTimeout=20 "$H" \
   "JOBS='$JOBS' bash -s" <<'EOS'
 R=$HOME/wacv_runs
 for S in $JOBS; do
+  SESS=""
   # session 名稱與 log 路徑的對應。`shard.sh` 的分片是 wacv-<批次>-<影像>，
   # 對到 $R/<批次>_<影像>/run.log；段 0 是 wacv-calib（b3）與 v14calib。
   # 批次名不含 `-`、影像 id 不含 `-`，故第一個 `-` 就是兩者的分界。
   case $S in
     wacv-calib)  L=$R/b3/calib.log;;
     v14calib)    L=$R/v14/calib.log;;
+    # `shard.sh calib` 固定把 session 命名為 `wacv-calib`，故 log 路徑無法
+    # 由 session 名反推。`calib:<批次>` 讓呼叫端明指批次：**檢查的 session
+    # 仍是 `wacv-calib`**，只有 log 換掉。不分開的話
+    # `tmux has-session -t calib:v14r` 必然失敗，會誤報成「session 消失」。
+    calib:*)     L=$R/${S#calib:}/calib.log; SESS=wacv-calib;;
     wacv-*-*)    T=${S#wacv-}; L=$R/${T%%-*}_${T#*-}/run.log;;
     wacv-*)      L=$R/b3_${S#wacv-}/run.log;;   # 舊式命名，b1／b2 的既有 log
     b2-*)        L=$R/b2_${S#b2-}/run.log;;
@@ -54,7 +60,7 @@ for S in $JOBS; do
     sweep_*)     L=$R/${S#sweep_}_bird_03/sweep.log;;
     *)           L=$R/$S/run.log;;
   esac
-  alive=no; tmux has-session -t "$S" 2>/dev/null && alive=yes
+  alive=no; tmux has-session -t "${SESS:-$S}" 2>/dev/null && alive=yes
   done_=no; tail -5 "$L" 2>/dev/null | grep -q '\[exit' && done_=yes
   err=no;  grep -ql 'Traceback' "$L" 2>/dev/null && err=yes
   # 推進與否看**逐格紀錄**而不是 log 行數。

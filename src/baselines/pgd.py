@@ -114,6 +114,14 @@ class BaselineSpec:
     prepare: Callable[..., Any]
     loss_fn: Callable[..., torch.Tensor]
 
+    # 原始碼是否把梯度限制在遮罩**外**。
+    #
+    # 只有 PhotoGuard-c 為真：其 `attack_forward` 逐字為
+    # `grad = grad * (1 - cur_mask)`，擾動只落在不會被重繪的區域。
+    # **不可用 `needs_mask` 代替**——那一欄問的是「原作的攻擊需不需要遮罩」
+    # （AdvPaint 與 PromptFlare 為真，本輪以全圖遮罩代入），與「梯度要不要
+    # 被遮罩限制」是兩件事，兩者在本專案的五篇上取值恰好互補。
+    grad_outside_mask: bool = False
     # 論文正文與原始碼的落差。報表在該列加註，避免把原始碼的行為寫成
     # 論文宣稱的設定（SOURCE_AUDIT §3.6 對 PhotoGuard-c 的要求）。
     discrepancy_note: str = ""
@@ -365,6 +373,7 @@ def run_pgd(
     seed: int = 0,
     log_every: int = 20,
     verbose: bool = True,
+    grad_mask: Optional[torch.Tensor] = None,
     **kw,
 ) -> PGDResult:
     """共用 PGD 骨幹。換 baseline = 換 `spec`。
@@ -432,6 +441,16 @@ def run_pgd(
             losses.append(float(loss.detach()))
             del loss, g, probe
         grad = torch.stack(grads).mean(0)
+        if grad_mask is not None:
+            # PhotoGuard-c 的 `attack_forward` 逐字為 `grad = grad * (1 - cur_mask)`
+            # ——擾動只落在**不會被重繪**的區域。那是該篇在 inpainting 下的
+            # 忠實項，也是它唯一能起作用的地方：遮罩內的像素攻擊方會整片
+            # 覆寫掉，往那裡放擾動等於把預算丟進去換不到東西。
+            #
+            # 施加在**平均後的梯度**上而非逐 rep：兩者對線性運算等價，但
+            # 前者少乘 `grad_reps` 次。遮罩為 1 的地方梯度歸零，於是那些像素
+            # 的 `x_adv` 恆等於起點，`project` 也不會把它們拉開。
+            grad = grad * (1.0 - grad_mask.to(grad))
 
         s = step_size_at(spec, it)
         x_adv = x_adv.detach() + sign * s * update_direction(grad, spec)

@@ -432,3 +432,72 @@ def test_optim_config把遮罩與strength一起切換():
     src = inspect.getsource(ex.optim_config)
     assert "edit_mask=(entry.mask if entry is not None else None)" in src
     assert "None if (entry is not None and entry.mask is not None)" in src
+
+
+# ---------------------------------------------------------------------------
+# 三篇原生 inpainting 的 baseline
+# ---------------------------------------------------------------------------
+
+def test_photoguard的梯度只落在遮罩外():
+    """`attack_forward` 逐字為 `grad = grad * (1 - cur_mask)`。
+
+    遮罩內的像素攻擊方會整片覆寫掉，往那裡放擾動等於把預算丟進去換不到
+    東西。這是該篇在 inpainting 下唯一有意義的放置處。
+    """
+    import inspect
+
+    from src.baselines import pgd, photoguard
+
+    assert photoguard.SPEC.grad_outside_mask is True
+    # 其餘四篇的原始碼沒有這一步
+    from src.baselines import advpaint, dia, mist, promptflare
+    for m in (mist, dia, advpaint, promptflare):
+        specs = [v for v in vars(m).values()
+                 if isinstance(v, pgd.BaselineSpec)]
+        for sp in specs:
+            assert sp.grad_outside_mask is False, f"{sp.name} 不該遮罩梯度"
+
+    body = inspect.getsource(pgd.run_pgd)
+    assert "grad = grad * (1.0 - grad_mask.to(grad))" in body
+
+
+def test_needs_mask與grad_outside_mask是兩件事():
+    """兩者在五篇上取值恰好互補，用錯一個不會報錯只會算錯。
+
+    `needs_mask` 問的是「原作的攻擊需不需要遮罩」（AdvPaint、PromptFlare
+    為真），`grad_outside_mask` 問的是「梯度要不要被遮罩限制」
+    （只有 PhotoGuard-c 為真）。
+    """
+    from src.baselines import advpaint, photoguard, promptflare
+
+    assert photoguard.SPEC.needs_mask is False
+    assert photoguard.SPEC.grad_outside_mask is True
+    for m in (advpaint, promptflare):
+        assert m.SPEC.needs_mask is True
+        assert m.SPEC.grad_outside_mask is False
+
+
+def test_三篇的strength與遮罩一起切換(tmp_path):
+    """遮罩給定時它們回到原生形態，strength 隨之消失。
+
+    留一個不起作用的 strength 會讓紀錄看起來像是設定過，而 `SDWrapper.edit`
+    會在第一格就拋出——那時段 0 已經跑掉一部分。
+    """
+    import inspect
+
+    from src.experiment import executors as ex
+
+    src = inspect.getsource(ex.baseline_kwargs)
+    assert 'kw["mask"] = entry.mask' in src
+    assert 'None if entry.mask is not None else res.cfg.strength' in src
+
+
+def test_photoguard在有遮罩時不再要求strength():
+    """img2img 版缺 strength 要拋出，inpainting 版**本來就沒有**這個數。"""
+    import inspect
+
+    from src.baselines import photoguard
+
+    src = inspect.getsource(photoguard.prepare)
+    assert "if strength is None and mask is None:" in src
+    assert "mask" in inspect.signature(photoguard.prepare).parameters

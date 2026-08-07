@@ -890,7 +890,12 @@ def baseline_kwargs(name: str, res: Resources, entry: ImageEntry
     """
     kw: Dict[str, Any] = {}
     if name in ("photoguard_c", "advpaint", "promptflare"):
-        kw["strength"] = res.cfg.strength
+        # 這三篇原作**就是 inpainting**。遮罩給定時它們回到原生形態，
+        # `strength` 隨之消失——那個參數在原始碼裡本來就不存在，是本專案
+        # 為了移植到 img2img 才引入的（`photoguard.py:124` 等三處各自拒絕
+        # 預設值並寫明理由）。兩者一起切換，不留一個不起作用的值。
+        kw["mask"] = entry.mask
+        kw["strength"] = None if entry.mask is not None else res.cfg.strength
     if name == "advpaint":
         kw["prompt"] = ""
         kw["guidance_scale"] = res.cfg.guidance
@@ -1031,9 +1036,15 @@ def _train_baseline(cell: grid.Cell, res: Resources, out_dir: Path
                     ) -> Tuple[List[str], Dict[str, Any]]:
     entry = res.image(cell.image_id)
     spec = BASELINE_REGISTRY[cell.condition]
+    # PhotoGuard-c 的 `attack_forward` 逐字為 `grad = grad * (1 - cur_mask)`：
+    # 擾動只落在**不會被重繪**的區域。那是它在 inpainting 下的忠實項，也是
+    # 唯一有意義的放置處——遮罩內的像素攻擊方會整片覆寫掉。其餘四篇的原始碼
+    # 沒有這一步，故只有本篇傳 `grad_mask`；靠 `spec.grad_outside_mask` 分派而不是
+    # 比對名稱，與 `generator.py` 依能力分派同一原則。
     result = run_pgd(
         res.sd, entry.x01, spec, seed=res.cfg.seed,
         log_every=res.cfg.log_every,
+        grad_mask=(entry.mask if spec.grad_outside_mask else None),
         **baseline_kwargs(cell.condition, res, entry),
     )
     arts = [save_phi(out_dir / "phi.pt", cell.condition, cell.image_id,

@@ -77,8 +77,12 @@ class PhotoGuardContext:
     """與 δ 無關的常量。每個 rep 換一個編輯噪聲，見模組 docstring 的移植表。"""
 
     def __init__(self, sd, spec, target, emb, emb_uncond, latent_shape,
-                 strength, num_inference_steps, guidance_scale, seed):
+                 strength, num_inference_steps, guidance_scale, seed,
+                 mask=None):
         self.spec = spec
+        # inpainting 遮罩。給定時本篇回到**原生形態**：9 通道輸入、由純噪聲
+        # 起跑、不吃 strength。那也是 repo 唯一存在的版本。
+        self.mask = mask
         self.target = target
         self.emb = emb
         self.emb_uncond = emb_uncond
@@ -105,6 +109,7 @@ def prepare(
     spec: BaselineSpec,
     *,
     strength: Optional[float] = None,
+    mask: Optional[torch.Tensor] = None,
     target01: Optional[torch.Tensor] = None,
     prompt: str = "",
     num_inference_steps: int = 4,
@@ -121,7 +126,7 @@ def prepare(
 
     `strength` **無預設且必填**，理由見模組 docstring。
     """
-    if strength is None:
+    if strength is None and mask is None:
         raise NotImplementedError(
             "PhotoGuard-c 的 img2img 版缺 strength：官方只有 inpainting 版，"
             "其 attack_forward 由 torch.randn 起跑、不吃 strength；"
@@ -152,7 +157,7 @@ def prepare(
     latent_shape = sd.latent_shape(x01.shape[-2], x01.shape[-1])
     return PhotoGuardContext(
         sd, spec, target, emb, emb_uncond, latent_shape,
-        strength, num_inference_steps, guidance_scale, seed,
+        strength, num_inference_steps, guidance_scale, seed, mask=mask,
     )
 
 
@@ -165,12 +170,16 @@ def loss_fn(sd, x_adv: torch.Tensor, ctx: PhotoGuardContext) -> torch.Tensor:
     """
     vr = ctx.spec.value_range
     x01_adv = vr.to01(x_adv)
-    y01 = sd.sdedit(
+    # 走 `edit`：遮罩給定時即回到原作的 9 通道 `attack_forward`（由純噪聲
+    # 起跑、不吃 strength），否則維持本專案移植的 img2img 版。分派的規則
+    # 只有 `SDWrapper.edit` 一處，此處不重寫。
+    y01 = sd.edit(
         x01_adv,
         ctx.emb,
         ctx.next_noise(),
         ctx.num_inference_steps,
-        strength=ctx.strength,
+        mask=ctx.mask,
+        strength=(None if ctx.mask is not None else ctx.strength),
         use_ckpt=True,
         vae_ckpt=True,
         guidance_scale=ctx.guidance_scale,
@@ -198,6 +207,9 @@ SPEC = BaselineSpec(
     grad_reps=10,             # cell 10 `grad_reps=10`
     needs_target_image=True,  # 但預設即零張量，不需外部檔案（cell 10 §3.4）
     needs_mask=False,
+    # `attack_forward`：`grad = grad * (1 - cur_mask)`。inpainting 威脅
+    # 模型下由 `run_pgd` 施加；img2img 下呼叫端不傳遮罩，本旗標無作用。
+    grad_outside_mask=True,
     modified_from_paper=True,
     modification_note=(
         "官方只有 inpainting 版的 complex attack，img2img 版由本專案移植："

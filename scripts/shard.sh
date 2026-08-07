@@ -3,6 +3,7 @@
 #
 #   bash scripts/shard.sh calib   <影像1> <影像2> ...     # 段 0，一次，單卡
 #   bash scripts/shard.sh fanout  <影像1> <影像2> ...     # 段 1–3，每張圖一卡
+#       環境變數 `STAGES` 可只跑其中幾段，預設 "train rayscale eval"。
 #   bash scripts/shard.sh watch                           # 看各分片進度
 #   bash scripts/shard.sh merge   <影像1> <影像2> ...     # 合併分片並跑段 4
 #
@@ -48,6 +49,22 @@ shift || true
 source "$HOME/env.sh"
 
 BATCH=${BATCH:-b1}
+# `fanout` 每個分片依序跑的段。預設值即原本寫死的三段，故既有命令列的行為
+# 逐字不變。
+#
+# 2026-08-08 由寫死改為可覆寫。理由：`HANDOVER_2026-08-08` §8.3 要求 v14r 在
+# **段 2 之後停下來**，先用人眼看 τ=0.20 的 `x_def` 再決定要不要跑段 3——
+# 放寬 `tau_acut` 買到的是訓練自由度，代價可能是同一 LPIPS 下可見失真變差，
+# 而段 3 要 7 小時。寫死三段時唯一的做法是在段 2 結束後去 kill session，
+# 那會落在 `eval` 已經開始之後，且 log 尾端不會有 `[exit`，監控無法分辨
+# 「人為中止」與「掛掉」。
+#
+#   STAGES="train rayscale" BATCH=v14r bash scripts/shard.sh fanout …   # 先停
+#   STAGES="eval"           BATCH=v14r bash scripts/shard.sh fanout …   # 看完再續
+#
+# 續跑是安全的：`run_stage` 依逐格紀錄跳過已完成的格，段 1／2 的 `_cells`
+# 已在，第二次只會跑 `eval`。
+STAGES=${STAGES:-"train rayscale eval"}
 GPU_TAG=RTX-3090
 PRECISION=bf16
 # 模型設定的預設值＝b1／b2／b3 那一組（SDXL 1.0 base，程式預設值），
@@ -369,7 +386,7 @@ fanout)
       "cd $HOME/WACV && export PYTHONIOENCODING=utf-8 \
 CUDA_VISIBLE_DEVICES=$GPU PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True; \
 RC=0; \
-for S in train rayscale eval; do \
+for S in $STAGES; do \
   echo \"===== \$S =====\"; \
   $PY scripts/run_stage.py \$S --batch ${BATCH}_$IMG $COMMON --images $IMG; \
   RC=\$?; \

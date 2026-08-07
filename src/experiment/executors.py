@@ -1470,10 +1470,14 @@ def _probe_lr(res: Resources, condition: str, entry: ImageEntry,
     finally:
         module.remove()
     last = result.history[-1]
+    # `diverged` 明寫 False 而非省略：`write_csv` 取全部列的鍵**聯集**，
+    # 省略時該欄只在恰好有候選發散的批次裡出現，於是讀 `lr_probe.csv` 的人
+    # 無法分辨「沒有候選發散」與「這一欄根本沒被寫出來」。
     out = {"condition": condition, "lr_key": lr_key, "lr": lr,
            "steps": len(result.history), "image_id": entry.image_id,
            "final_loss": last["loss"], "final_L_def": last["L_def"],
-           "final_L_fid": last["L_fid"], "finite": _finite(last["loss"])}
+           "final_L_fid": last["L_fid"], "finite": _finite(last["loss"]),
+           "diverged": False}
     if spec.monitor in last:
         out["monitor"] = spec.monitor
         out["monitor_first"] = result.history[0][spec.monitor]
@@ -1536,12 +1540,24 @@ def _probe_align_lr(res: Resources, condition: str, entry: ImageEntry,
     finally:
         module.remove()
     last = hist[-1]
+    # `align` 的發散有兩條路，此處必須涵蓋兩條：
+    #
+    #   1. 第 0 步就發散 → `raise_if_diverged` 拋 `Diverged` → 上面的 except。
+    #   2. 迴圈中途出現非有限值 → `optimize.align` 以 `break` 記一列
+    #      `diverged=True` 的 history 後正常返回（還原最佳步的 φ，故
+    #      `x_align` 仍可用，不該拋例外）。
+    #
+    # before：本返回值不看 history 的 `diverged`，於是第 2 條路的候選只留下
+    # `final_loss=inf` 與 `finite=False`，而 `optimize.py:782` 明寫「該事實要進
+    # lr_probe.csv 供報告引用」。2026-08-07 於 v14 段 0 實測暴露：
+    # `lr.N3_stage1=0.1` 在第 46 步發散，CSV 卻整張表都沒有 `diverged` 欄。
     return {"condition": condition, "lr_key": spec.align_lr_key, "lr": lr,
             "steps": len(hist), "image_id": entry.image_id,
             "final_loss": last["align_loss"],
             "final_lpips": last["fid_lpips"],
             "final_psnr": last["fid_psnr_total"],
-            "finite": _finite(last["align_loss"])}
+            "finite": _finite(last["align_loss"]),
+            "diverged": bool(last.get("diverged", False))}
 
 
 def _finite(v: float) -> bool:

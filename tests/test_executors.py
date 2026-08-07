@@ -24,7 +24,7 @@ SD 呼叫則以 `unittest.mock.patch` 攔在 `optimize` / `run_pgd` 這一層。
 """
 
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 import torch
@@ -842,6 +842,62 @@ def test_兩個lr探測都用臨時校準表取設定():
             f"{fn.__name__} 直接把未校準的 res 交給 optim_config")
         assert "calib=tmp" in src, (
             f"{fn.__name__} 沒有把臨時校準表換進去")
+
+
+def test_align探測把迴圈中途的發散帶進probe列(tmp_path):
+    """`align` 的發散有兩條路，兩條都必須在 `lr_probe.csv` 留下 `diverged`。
+
+    第 0 步發散時 `raise_if_diverged` 拋 `Diverged`，由 except 記下；但迴圈
+    中途出現非有限值時 `align` 是以 `break` 記一列 history 後**正常返回**
+    ——還原最佳步的 φ 之後 `x_align` 仍可用，不該拋例外。
+
+    2026-08-07 修正。before：正常返回路徑不看 history 的 `diverged`，於是
+    第二條路的候選只留下 `final_loss=inf` 與 `finite=False`。而 `write_csv`
+    取全部列的鍵聯集，該欄因此整張表都不存在——`optimize.py` 明寫「該事實
+    要進 lr_probe.csv 供報告引用」卻沒有做到。v14 段 0 實測暴露：
+    `lr.N3_stage1=0.1` 在第 46 步發散，CSV 沒有 `diverged` 欄。
+    """
+    res = make_res(tmp_path)
+    entry = res.image("dog_00")
+    x = entry.x01
+
+    module = MagicMock()
+    module.enabled = True
+    gen = MagicMock()
+    gen.prepare.return_value = None
+    gen.generate.return_value = x.clone()
+
+    def fake_align(*a, **kw):
+        # `align` 中途發散時留下的那一列：φ 已還原故第一個回傳值是有限的
+        return x.clone(), [{"step": 0, "align_loss": 0.0, "fid_lpips": 0.1,
+                            "fid_psnr_total": 30.0},
+                           {"step": 46, "align_loss": float("inf"),
+                            "fid_lpips": float("nan"),
+                            "fid_psnr_total": float("nan"),
+                            "diverged": True}]
+
+    with patch.object(executors, "build_module", return_value=module), \
+         patch.object(executors, "DefenseGenerator", return_value=gen), \
+         patch("src.defense.optimize.align", fake_align):
+        row = executors._probe_align_lr(res, "N3", entry, 0.1, steps=60)
+
+    assert row["diverged"] is True, "中途發散沒有被帶進 probe 列"
+    assert row["finite"] is False
+    assert row["steps"] == 2, "步數應取實際跑過的 history 長度"
+
+
+def test_未發散的probe列也明寫diverged欄(tmp_path):
+    """`write_csv` 取全部列的鍵**聯集**：省略 `diverged` 時，該欄只在恰好有
+    候選發散的批次裡出現。讀 CSV 的人因此無法分辨「沒有候選發散」與
+    「這一欄根本沒被寫出來」——b3 段 0 的 `lr_probe.csv` 正是後者的樣子。
+    """
+    res = make_res(tmp_path)
+    entry = res.image("dog_00")
+    with patch.object(executors, "optimize",
+                      return_value=fake_optim_result(res, entry)), \
+         patch.object(executors, "build_module", return_value=MagicMock()):
+        row = executors._probe_lr(res, "N2", entry, "lr.N2", 0.01, steps=3)
+    assert row["diverged"] is False
 
 
 def test_shared_tokens進入config_hash(tmp_path):

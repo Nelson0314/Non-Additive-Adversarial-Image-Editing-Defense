@@ -250,8 +250,10 @@ class PromptFlareContext:
     """安裝／還原 processor 的責任在這裡。`run_pgd` 結束時呼叫 `close()`。"""
 
     def __init__(self, sd, spec, emb2, encoder_attention_mask, t0,
-                 controller, loss_depth, generator):
+                 controller, loss_depth, generator, mask=None):
         self.spec = spec
+        # 給定時回到原作：latents 為隨機噪聲，x_adv 只經後 4 個通道進入。
+        self.mask = mask
         self.emb2 = emb2
         self.encoder_attention_mask = encoder_attention_mask
         self.t0 = t0
@@ -342,6 +344,7 @@ def prepare(
     spec: BaselineSpec,
     *,
     strength: Optional[float] = None,
+    mask: Optional[torch.Tensor] = None,
     mask01: Optional[torch.Tensor] = None,
     prompt: str = QUALITY_TAG_PROMPT,
     seed: int = 0,
@@ -371,12 +374,17 @@ def prepare(
     encoder_attention_mask = torch.ones(2, 77, device=device, dtype=emb.dtype)
     encoder_attention_mask[1][1:] = 0
 
-    t0 = min(int(sd.num_train_timesteps * strength), sd.num_train_timesteps - 1)
+    # 原作以 `k=1` 只在排程的第一個 timestep 上算一次損失，而該排程是
+    # inpainting pipeline 的預設（strength=1）。img2img 的第一個 timestep
+    # 由呼叫端的 strength 決定，那是本專案的移植。
+    t0 = (sd.num_train_timesteps - 1 if mask is not None else
+          min(int(sd.num_train_timesteps * strength),
+              sd.num_train_timesteps - 1))
     controller = AttnController(mask01)
     generator = torch.Generator(device=device).manual_seed(seed)
     ctx = PromptFlareContext(
         sd, spec, emb2, encoder_attention_mask, t0, controller,
-        None, generator,
+        None, generator, mask=mask,
     )
     ctx.loss_depth = resolve_loss_depth(sd, ctx, h, w)
     return ctx
@@ -389,13 +397,30 @@ def loss_fn(sd, x_adv: torch.Tensor, ctx: PromptFlareContext) -> torch.Tensor:
     `latents = pred_noise` 是死碼，兩者都不影響結果。
     """
     ctx.controller.reset()
-    post = sd.vae.encode(x_adv.to(sd.vae.dtype)).latent_dist
-    z0 = post.sample(ctx.generator) * sd.scaling_factor
-    noise = torch.randn(
-        z0.shape, generator=ctx.generator, device=z0.device, dtype=z0.dtype
-    )
-    abar = sd.alphas_cumprod(z0.device)[ctx.t0].to(z0.dtype)
-    z = abar.sqrt() * z0 + (1 - abar).sqrt() * noise
+    if ctx.mask is not None:
+        # **原生形態**（`promptflare.py:82-94`）：`latents` 是與 `x_adv` 無關的
+        # 隨機噪聲，`x_adv` 只經 `masked_adv = adv * (1 - cur_mask)` 之後的
+        # `masked_image_latents` 進入計算圖。img2img 沒有那個通道，照搬會讓
+        # 損失對 `x_adv` 的梯度**恆為零**——那正是本專案改由加噪 latent 進入
+        # 的理由（見模組 docstring）。遮罩給定時切回原作。
+        lat = sd.latent_shape(x_adv.shape[-2], x_adv.shape[-1])
+        with torch.no_grad():
+            z = torch.randn(lat, generator=ctx.generator, device=x_adv.device,
+                            dtype=x_adv.dtype)
+        m = F.interpolate(ctx.mask.to(z.device, z.dtype), size=z.shape[-2:],
+                          mode="nearest")
+        mpost = sd.vae.encode(
+            (x_adv * (1.0 - ctx.mask.to(x_adv))).to(sd.vae.dtype)).latent_dist
+        z_masked = mpost.sample(ctx.generator) * sd.scaling_factor
+        z = torch.cat([z, m, z_masked.to(z.dtype)], dim=1)
+    else:
+        post = sd.vae.encode(x_adv.to(sd.vae.dtype)).latent_dist
+        z0 = post.sample(ctx.generator) * sd.scaling_factor
+        noise = torch.randn(
+            z0.shape, generator=ctx.generator, device=z0.device, dtype=z0.dtype
+        )
+        abar = sd.alphas_cumprod(z0.device)[ctx.t0].to(z0.dtype)
+        z = abar.sqrt() * z0 + (1 - abar).sqrt() * noise
     z2 = torch.cat([z] * 2)
 
     # `sd.unet_forward` 而非 `sd.unet`：SDXL 的條件是 SDXLPrompt，UNet 另需
@@ -429,6 +454,9 @@ SPEC = BaselineSpec(
     grad_reps=1,                 # `promptflare.py:75`
     needs_target_image=False,
     needs_mask=True,             # 本輪設為全圖
+    # `promptflare.py:82-94`：`masked_adv = adv * (1 - cur_mask)`，
+    # 且**梯度亦乘 `(1 - cur_mask)`**。與 PhotoGuard-c 同一項忠實處置。
+    grad_outside_mask=True,
     modified_from_paper=True,
     modification_note=(
         "(1) mask 設為全圖：損失涵蓋整張影像，且不再有「噪聲只加在保留區」的切分；"

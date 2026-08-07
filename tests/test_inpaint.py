@@ -449,9 +449,9 @@ def test_photoguard的梯度只落在遮罩外():
     from src.baselines import pgd, photoguard
 
     assert photoguard.SPEC.grad_outside_mask is True
-    # 其餘四篇的原始碼沒有這一步
-    from src.baselines import advpaint, dia, mist, promptflare
-    for m in (mist, dia, advpaint, promptflare):
+    # mist／dia／advpaint 的原始碼沒有這一步（promptflare 有，見下一條）
+    from src.baselines import advpaint, dia, mist
+    for m in (mist, dia, advpaint):
         specs = [v for v in vars(m).values()
                  if isinstance(v, pgd.BaselineSpec)]
         for sp in specs:
@@ -462,19 +462,25 @@ def test_photoguard的梯度只落在遮罩外():
 
 
 def test_needs_mask與grad_outside_mask是兩件事():
-    """兩者在五篇上取值恰好互補，用錯一個不會報錯只會算錯。
+    """兩者問的不是同一件事，用錯一個不會報錯只會算錯。
 
-    `needs_mask` 問的是「原作的攻擊需不需要遮罩」（AdvPaint、PromptFlare
-    為真），`grad_outside_mask` 問的是「梯度要不要被遮罩限制」
-    （只有 PhotoGuard-c 為真）。
+    `needs_mask` 問「原作的攻擊需不需要遮罩」，`grad_outside_mask` 問
+    「原始碼有沒有把梯度乘 (1 − mask)」。PhotoGuard-c 在前者為 False、
+    後者為 True；AdvPaint 恰好相反。若兩者可互相代替，這兩篇就會各自
+    被套上對方的處置。
+
+    2026-08-07 修正：先前此處斷言 PromptFlare 的 `grad_outside_mask` 為
+    False。模組 docstring 記載 `promptflare.py:82-94` 同樣把梯度乘
+    `(1 - cur_mask)`，故應為 True。
     """
     from src.baselines import advpaint, photoguard, promptflare
 
     assert photoguard.SPEC.needs_mask is False
     assert photoguard.SPEC.grad_outside_mask is True
-    for m in (advpaint, promptflare):
-        assert m.SPEC.needs_mask is True
-        assert m.SPEC.grad_outside_mask is False
+    assert advpaint.SPEC.needs_mask is True
+    assert advpaint.SPEC.grad_outside_mask is False
+    assert promptflare.SPEC.needs_mask is True
+    assert promptflare.SPEC.grad_outside_mask is True
 
 
 def test_三篇的strength與遮罩一起切換(tmp_path):
@@ -547,3 +553,35 @@ def test_advpaint在遮罩下取整條排程的第一個timestep():
 
     src = inspect.getsource(advpaint.prepare)
     assert "sd.num_train_timesteps - 1 if mask is not None else" in src
+
+
+def test_promptflare在遮罩下latent與x_adv無關():
+    """原作的 `latents` 是隨機噪聲，`x_adv` 只經後 4 個通道進入。
+
+    照搬到 img2img 會讓損失對 `x_adv` 的梯度**恆為零**——那正是本專案改由
+    加噪 latent 進入的理由。遮罩給定時必須切回原作，否則 9 通道跑起來了但
+    梯度仍走移植版那一路。
+    """
+    import inspect
+
+    from src.baselines import promptflare
+
+    body = inspect.getsource(promptflare.loss_fn)
+    assert "if ctx.mask is not None:" in body
+    assert "z = torch.randn(lat, generator=ctx.generator" in body
+    assert "x_adv * (1.0 - ctx.mask.to(x_adv))" in body
+    assert "torch.cat([z, m, z_masked.to(z.dtype)], dim=1)" in body
+    # 移植版那一路必須留著，img2img 批次仍要走它
+    assert "abar.sqrt() * z0 + (1 - abar).sqrt() * noise" in body
+
+
+def test_三篇的prepare都接遮罩且遮罩下不要求strength():
+    import inspect
+
+    from src.baselines import advpaint, photoguard, promptflare
+
+    for m in (photoguard, advpaint, promptflare):
+        sig = inspect.signature(m.prepare).parameters
+        assert "mask" in sig, f"{m.__name__}.prepare 不接遮罩"
+        src = inspect.getsource(m.prepare)
+        assert "if strength is None and mask is None:" in src, m.__name__

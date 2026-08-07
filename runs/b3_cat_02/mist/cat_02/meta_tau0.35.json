@@ -1,0 +1,70 @@
+{
+  "cell_id": "rayscale/mist/cat_02/tau0.35",
+  "config_hash": "975a49464ecd",
+  "config": {
+    "spec_version": 1,
+    "model": "stabilityai/stable-diffusion-xl-base-1.0",
+    "resolution": 1024,
+    "guidance": 7.5,
+    "steps": 50,
+    "strength": 0.6,
+    "gpu": "RTX-3090",
+    "precision": "bf16",
+    "loss_params": {
+      "train_n_edit": 10,
+      "n_eot": 1,
+      "k_inv": 10,
+      "t_max": 200,
+      "exact_inversion": true,
+      "purify_mode": "rotate",
+      "attn_timesteps": 2,
+      "tau_train": 0.2,
+      "tau_acut": 0.04,
+      "tau_chroma": 0.8,
+      "beta_linf": 0.0,
+      "tau_linf": 0.06,
+      "target_image": "data/targets/gray.png",
+      "shared_tokens": [
+        76
+      ]
+    },
+    "module_params": {
+      "warp_grid_size": 32,
+      "warp_max_disp": 8.0,
+      "warp_resample": "bicubic",
+      "apa_lora_rank": 8,
+      "apa_latent_max_rank": 32,
+      "apa_latent_const_rank": 8,
+      "random_init_std": 0.5
+    },
+    "optim_params": {
+      "max_steps": 250,
+      "align_steps": 200,
+      "stop_patience": 20,
+      "stop_min_steps": 25
+    },
+    "lr": null,
+    "condition": "mist",
+    "image_id": "cat_02",
+    "tau": 0.35,
+    "purify": null,
+    "seed": null
+  },
+  "condition": "mist",
+  "image_id": "cat_02",
+  "tau_target": 0.35,
+  "tau_achieved": 0.34669509530067444,
+  "scale_k": 0.5625,
+  "niqe": 4.5048771329948725,
+  "fid_psnr": 31.218812942504883,
+  "fid_linf": 0.035294145345687866,
+  "fid_ssim": 0.9640113711357117,
+  "fid_vif_p": 0.5406662821769714,
+  "fid_fsim": 0.9814559817314148,
+  "fid_lpips": 0.34669509530067444,
+  "fid_dists": 0.0831761360168457,
+  "fid_acutance_ratio": 0.6882099509239197,
+  "fid_rms": 0.027482524514198303,
+  "fid_frac_gt_16_255": 0.0,
+  "seconds_rayscale": 0.45
+}

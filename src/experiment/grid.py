@@ -28,7 +28,7 @@ N3 在 τ = 0.05、0.10 上標記為 `skipped` 而非 `failed`。
 """
 
 from dataclasses import dataclass
-from typing import Dict, Iterator, List, Optional, Sequence, Tuple
+from typing import Dict, Iterator, List, Mapping, Optional, Sequence, Tuple
 
 # ---------------------------------------------------------------------------
 # 軸一＋二：訓練條件
@@ -157,9 +157,17 @@ MAIN_TAU = 0.20          # 主表所在點，見模組 docstring
 TRAIN_TAU = 0.20
 FULL_PURIFY_TAUS: Tuple[float, ...] = (0.20, 0.35)
 
-# 走生成路徑的條件在此下限以下結構上不可能達成（實測 decode(encode(x)) 本身
-# 即 LPIPS 0.1434 / PSNR 27.51 dB）。壓縮實驗若把下限降到 0.0716 以下，
-# 改這個常數即可讓 τ = 0.10 加入，不需動格點邏輯。
+# 走生成路徑的條件在此下限以下結構上不可能達成。**這是名目值，只用於
+# 乾跑**：真正執行時一律改用該影像自己實測的下限（見下方
+# `generative_floor_skip` 的 `floors`）。
+#
+# 2026-08-07 改。before：本常數是唯一的判準。實測顯示下限**逐影像**差很多
+# ——SD v1.4／512² 上 bird_03 為 0.1330、dog_03 0.1403，而 cat_02 是
+# **0.2398**，高於 τ=0.20。於是 `rayscale/N3/cat_02/tau0.2` 被送進 `solve_k`，
+# 二分 28 次後正確地拒絕（k 已推到 3.7e-09 仍降不到目標）並拋出，該格記為
+# `failed`，整個分片就此停住。這與 2026-08-06 第 8 號缺陷（門檻是一個不可達
+# 的全域常數）是同一個型態：一個對「平均影像」成立的常數，套到個別影像上
+# 就不成立。
 GENERATIVE_LPIPS_FLOOR = 0.1434
 GENERATIVE_CONDITIONS = ("N3",)
 
@@ -234,15 +242,33 @@ class Cell:
         return cell_id(self.stage, self.condition, self.image_id, **parts)
 
 
-def generative_floor_skip(condition: str, tau: float) -> str:
+def generative_floor_skip(condition: str, tau: float,
+                          floor: Optional[float] = None) -> str:
     """回傳不適用的理由，適用時回傳空字串。
 
     抽成函數而非寫在迴圈裡，是為了讓「為什麼這格沒跑」在報表與測試中
     都取得同一個字串，不會出現兩種說法。
+
+    `floor` 是**該影像**實測的 `LPIPS(decode(encode(x)), x)`。給定時用它，
+    並在理由中註明是實測值；`None` 時退回 `GENERATIVE_LPIPS_FLOOR` 並註明
+    那是名目值。兩者的字串刻意不同：報表上「這格為什麼沒跑」必須看得出
+    依據的是量出來的數字還是一個常數。
+
+    `None` 只該出現在乾跑——它要在載入模型之前回答「這次要跑多久」，
+    那時沒有任何影像被讀進來。真正執行的路徑由 `run_stage.py` 在
+    `build_resources` 之後量測並重建格點。
     """
-    if condition in GENERATIVE_CONDITIONS and tau < GENERATIVE_LPIPS_FLOOR:
-        return (f"{condition} 走生成路徑，其 VAE 重建誤差下限為 LPIPS "
-                f"{GENERATIVE_LPIPS_FLOOR}，τ={tau} 結構上不可能達成")
+    if condition not in GENERATIVE_CONDITIONS:
+        return ""
+    if floor is None:
+        if tau < GENERATIVE_LPIPS_FLOOR:
+            return (f"{condition} 走生成路徑，其 VAE 重建誤差下限名目值為 LPIPS "
+                    f"{GENERATIVE_LPIPS_FLOOR}，τ={tau} 結構上不可能達成"
+                    "（名目值，未逐影像量測）")
+        return ""
+    if tau < floor:
+        return (f"{condition} 走生成路徑，本影像實測的 VAE 重建誤差下限為 "
+                f"LPIPS {floor:.4f}，τ={tau} 結構上不可能達成")
     return ""
 
 
@@ -258,14 +284,16 @@ def train_cells(images: Sequence[str],
 
 def rayscale_cells(images: Sequence[str],
                    conditions: Sequence[str] = CONDITIONS,
-                   taus: Sequence[float] = TAUS) -> List[Cell]:
+                   taus: Sequence[float] = TAUS,
+                   floors: Optional[Mapping[str, float]] = None) -> List[Cell]:
     """段 2：把訓練好的 φ 沿參數射線縮放到各個 τ。"""
     out = []
     for c in conditions:
         for img in images:
+            fl = None if floors is None else floors.get(img)
             for t in taus:
                 out.append(Cell("rayscale", c, img, tau=t,
-                                skip_reason=generative_floor_skip(c, t)))
+                                skip_reason=generative_floor_skip(c, t, fl)))
     return out
 
 
@@ -289,7 +317,8 @@ def eval_cells(images: Sequence[str],
                conditions: Sequence[str] = CONDITIONS,
                taus: Sequence[float] = TAUS,
                n_seeds: int = N_SEEDS,
-               include_sweep: bool = True) -> List[Cell]:
+               include_sweep: bool = True,
+               floors: Optional[Mapping[str, float]] = None) -> List[Cell]:
     """段 3：淨化與編輯評測。"""
     if n_seeds < MIN_SEEDS:
         raise ValueError(
@@ -299,8 +328,9 @@ def eval_cells(images: Sequence[str],
     out = []
     for c in conditions:
         for img in images:
+            fl = None if floors is None else floors.get(img)
             for t in taus:
-                skip = generative_floor_skip(c, t)
+                skip = generative_floor_skip(c, t, fl)
                 for p in purifiers_for(t, include_sweep):
                     for s in range(n_seeds):
                         out.append(Cell("eval", c, img, tau=t, purify=p,
@@ -333,14 +363,19 @@ def control_cells(images: Sequence[str], taus: Sequence[float] = TAUS,
 
 
 def plan(images: Sequence[str], **kw) -> Dict[str, List[Cell]]:
-    """全部四段的格點。供 `run_stage.py` 與儀表板共用同一份定義。"""
+    """全部四段的格點。供 `run_stage.py` 與儀表板共用同一份定義。
+
+    `floors` 為 `{影像 id: 該圖實測的 VAE 重建下限 LPIPS}`。省略時走名目值，
+    只適用於乾跑——理由見 `generative_floor_skip`。
+    """
+    floors = kw.get("floors")
     return {
         "train": train_cells(images, kw.get("conditions", CONDITIONS)),
         "rayscale": rayscale_cells(images, kw.get("conditions", CONDITIONS),
-                                   kw.get("taus", TAUS)),
+                                   kw.get("taus", TAUS), floors),
         "eval": eval_cells(images, kw.get("conditions", CONDITIONS),
                            kw.get("taus", TAUS), kw.get("n_seeds", N_SEEDS),
-                           kw.get("include_sweep", True)),
+                           kw.get("include_sweep", True), floors),
         "control": control_cells(images, kw.get("taus", TAUS),
                                  kw.get("n_seeds", N_SEEDS),
                                  kw.get("include_sweep", True)),

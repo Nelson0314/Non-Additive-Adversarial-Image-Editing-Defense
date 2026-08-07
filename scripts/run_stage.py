@@ -373,6 +373,7 @@ def main(argv=None) -> int:
     batch_dir = args.runs_root / args.batch
     images = load_images(args)
     conditions = grid.resolve_conditions(args.conditions)
+    # 這一份用**名目**下限。乾跑到此為止；真跑會在載入模型之後重建，見下方。
     plan = grid.plan(images, conditions=conditions, n_seeds=grid.N_SEEDS)
 
     if args.dry_run:
@@ -419,6 +420,26 @@ def main(argv=None) -> int:
             return 0
 
         _print_warnings(executors.preflight(res))
+
+        # 以**實測**的逐影像重建下限重建格點。
+        #
+        # 上面那一份用的是 `grid.GENERATIVE_LPIPS_FLOOR` 這個名目常數，因為
+        # 乾跑必須在載入 SDXL 之前就能回答「這次要跑多久」。到了這裡模型與
+        # 影像都在，量一次 VAE 來回只要 0.4 秒／張（`micro_bench` 實測），
+        # 沒有理由再用常數。
+        #
+        # 2026-08-07 加入。before：全程只有名目值，而實測下限逐影像差很多
+        # （cat_02 是 0.2398，高於 τ=0.20）。`rayscale/N3/cat_02/tau0.2` 因此
+        # 被送進 `solve_k`，二分 28 次後正確地拒絕並拋出，該格記為 failed，
+        # 分片就此停住。改用實測值之後那一格是 skipped——結構上不適用，
+        # 不是失敗。**跳過與否不進 `config_hash`**，故已完成的格不受影響。
+        floors = executors.measure_recon_floors(res, batch_dir / "calib")
+        print("  [floor] 生成路徑的逐影像重建下限（LPIPS）："
+              + "、".join(f"{k}={v:.4f}" for k, v in sorted(floors.items())),
+              flush=True)
+        plan = grid.plan(images, conditions=conditions,
+                         n_seeds=grid.N_SEEDS, floors=floors)
+
         executor = executors.make_executor(args.stage)
         failed = 0
 

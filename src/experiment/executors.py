@@ -1648,6 +1648,37 @@ def _pick_stop_tol(probes: Sequence[Dict[str, Any]], monitor: str) -> float:
     return max(vals) / 10.0
 
 
+def measure_recon_floors(res: Resources,
+                         calib_dir: Optional[Path] = None
+                         ) -> Dict[str, float]:
+    """每張影像走生成路徑的失真下限：`LPIPS(decode(encode(x)), x)`。
+
+    走生成路徑的條件（N3）無論 φ 取什麼，其輸出都要經過一次 VAE 來回，
+    故這個值是該影像上 τ 的硬下界。**它逐影像差很多**，不能用一個常數代替
+    ——SD v1.4／512² 實測 bird_03 0.1330、dog_03 0.1403、cat_02 **0.2398**，
+    最後這個高於 τ=0.20（`grid.GENERATIVE_LPIPS_FLOOR` 的名目值是 0.1434）。
+
+    只做一次 VAE 來回，`micro_bench` 實測 0.40 秒／張，故真正執行的每一段
+    都可以現場量而不必依賴段 0 的產物；`calib_dir` 給定時另寫一份 CSV 存證。
+
+    無梯度、無隨機性：`encode_image` 取後驗均值，`decode_latent` 是純函式，
+    故同一張圖在同一個模型與精度下量幾次都相同。
+    """
+    floors: Dict[str, float] = {}
+    rows = []
+    for e in res.images.values():
+        with torch.no_grad():
+            x_rec = res.sd.decode_latent(res.sd.encode_image(e.x01))
+        m = res.suite.pairwise(e.x01, x_rec)
+        floors[e.image_id] = float(m["lpips"])
+        rows.append({"image_id": e.image_id, "group": e.group,
+                     "lpips": float(m["lpips"]), "psnr": float(m["psnr"]),
+                     "ssim": float(m["ssim"])})
+    if calib_dir is not None:
+        write_csv(Path(calib_dir) / "recon_floor.csv", rows)
+    return floors
+
+
 def measure_warp_reach(res: Resources, calib_dir: Path) -> Dict[str, Any]:
     """位移場在 `warp_max_disp` 下能達到的最大 LPIPS。
 
@@ -1845,6 +1876,12 @@ def run_calibration(res: Resources) -> Dict[str, Any]:
     table.put("warp.min_lpips_at_bound",
               summary["warp_reach"]["min_lpips_at_bound"], ctx,
               note=f"max_disp={res.cfg.warp_max_disp} 下可達的最小 LPIPS")
+
+    # 逐影像的生成路徑下限。段 2／段 3 據此把結構上不可達的格標成 skipped
+    # 而非讓 `solve_k` 拋出（2026-08-07 的 cat_02 事故）。此處存 CSV 供報告
+    # 引用；真正執行時各段會自己再量一次（一次 VAE 來回 0.4 秒），故不必
+    # 為了取得它而重跑段 0。
+    summary["recon_floor"] = measure_recon_floors(res, calib_dir)
 
     for key, value in calibrate_lr(res, calib_dir).items():
         table.put(key, value, ctx,

@@ -93,6 +93,65 @@ def test_像素路徑的條件不受下限影響():
         assert grid.generative_floor_skip(c, 0.05) == ""
 
 
+def test_逐影像的下限覆蓋名目常數():
+    """下限是**該影像**的性質，不是一個對全體成立的常數。
+
+    2026-08-07 加入。SD v1.4／512² 實測 bird_03 0.1330、dog_03 0.1403、
+    cat_02 **0.2398**，而名目常數是 0.1434。cat_02 在 τ=0.20 上因此結構上
+    不可達，卻被名目值判為可跑，送進 `solve_k` 之後以 `ValueError` 中止、
+    該格記為 failed，整個分片停住。
+    """
+    # 名目值判為可跑，實測值判為不可跑——兩者必須給出不同答案
+    assert grid.generative_floor_skip("N3", 0.20) == ""
+    r = grid.generative_floor_skip("N3", 0.20, floor=0.2398)
+    assert r and "0.2398" in r
+
+    # 反向：某張圖的下限比名目值低時，名目值不該把可跑的格擋掉
+    assert grid.generative_floor_skip("N3", 0.10) != ""
+    assert grid.generative_floor_skip("N3", 0.10, floor=0.0889) == ""
+
+
+def test_實測與名目的理由字串分得出來():
+    """報表要看得出這一格是依實測值還是依常數被跳過的。"""
+    nominal = grid.generative_floor_skip("N3", 0.05)
+    measured = grid.generative_floor_skip("N3", 0.05, floor=0.2398)
+    assert "名目" in nominal and "名目" not in measured
+    assert "實測" in measured
+
+
+def test_格點依逐影像下限跳過正確的格():
+    """cat_02 只有 τ=0.20 被跳過，bird_03 在同一個 τ 上照跑。"""
+    floors = {"bird_03": 0.1330, "cat_02": 0.2398, "dog_03": 0.1403}
+    cells = grid.rayscale_cells(
+        ["bird_03", "cat_02", "dog_03"], conditions=("N3",),
+        taus=(0.20, 0.35), floors=floors)
+    got = {(c.image_id, c.tau): c.skipped for c in cells}
+    assert got[("cat_02", 0.20)] is True
+    assert got[("cat_02", 0.35)] is False, "0.35 高於該圖下限，仍要跑"
+    assert got[("bird_03", 0.20)] is False
+    assert got[("dog_03", 0.20)] is False
+
+
+def test_跳過與否不進config_hash():
+    """換一個下限不得讓已完成的格重跑。
+
+    `skip_reason` 是排程資訊不是設定：它決定「這一格跑不跑」，不決定
+    「跑起來算的是什麼」。若它進了雜湊，2026-08-07 這次修正會讓兩個批次
+    已經算完的上千格全部作廢。
+    """
+    from src.experiment.runner import cell_config
+    from src.utils.cellid import config_hash
+
+    base = {"spec_version": 1, "model": "m", "resolution": 512,
+            "guidance": 7.5, "steps": 50, "strength": 0.6, "gpu": "g",
+            "precision": "fp32", "loss_params": {}, "module_params": {},
+            "optim_params": {}, "lr": None}
+    a = grid.Cell("rayscale", "N3", "cat_02", tau=0.35, skip_reason="")
+    b = grid.Cell("rayscale", "N3", "cat_02", tau=0.35,
+                  skip_reason="某個理由")
+    assert config_hash(cell_config(a, base)) == config_hash(cell_config(b, base))
+
+
 def test_不適用的格仍被列出而非消失():
     """列出並標記 skipped，與 failed 分開。整段消失的話，
     報表看不出「這裡本來應該有東西」。"""

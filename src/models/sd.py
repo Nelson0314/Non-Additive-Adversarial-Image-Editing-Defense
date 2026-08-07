@@ -612,9 +612,177 @@ class SDWrapper:
             z_like.shape, generator=g, dtype=z_like.dtype
         ).to(z_like.device)
 
-    def latent_shape(self, height: int, width: int):
+    # ---- inpainting（威脅模型的第二種形態）----
+
+    @property
+    def is_inpainting(self) -> bool:
+        """本模型的 UNet 吃不吃 9 通道輸入。
+
+        SD 的 inpainting 權重把輸入擴成 `4（帶噪 latent）+ 1（遮罩）+ 4
+        （遮罩後影像的 latent）= 9`；一般權重是 4。這個數是**模型自身的
+        性質**，不是設定，故由 config 讀而不由呼叫端宣告——宣告錯的症狀是
+        UNet 以形狀不符中止，而在通道數恰好對上的情況下會安靜地算錯。
+        """
+        return int(self.unet.config.in_channels) == self.inpaint_in_channels
+
+    @property
+    def inpaint_in_channels(self) -> int:
+        """inpainting UNet 的輸入通道數：latent + 遮罩 + 遮罩後影像的 latent。"""
+        return self.latent_channels + 1 + self.latent_channels
+
+    @property
+    def latent_channels(self) -> int:
+        """latent 的通道數。**不可用 `unet.config.in_channels` 代替。**
+
+        一般 UNet 兩者相同（都是 4），inpainting UNet 的 `in_channels` 是 9
+        而 latent 仍是 4。`latent_shape` 先前直接取 `in_channels`，在
+        inpainting 權重上會回傳 9 通道的形狀，於是 `sample_edit_noise` 產生
+        的噪聲與 latent 對不起來。VAE 的 `latent_channels` 才是真相來源。
+        """
+        return int(self.vae.config.latent_channels)
+
+    def mask_latents(self, x01: torch.Tensor, mask: torch.Tensor,
+                     vae_ckpt: bool = False
+                     ) -> Tuple[torch.Tensor, torch.Tensor]:
+        """inpainting UNet 後 5 個通道的內容：(下採樣的遮罩, 遮罩後影像的 latent)。
+
+        `mask` 為 (1,1,H,W)、值域 [0,1]，**1 表示要重畫的區域**（diffusers
+        的 inpainting pipeline 同一約定）。
+
+        遮罩以最近鄰下採樣到 latent 邊長。不用雙線性：遮罩是二值的指示函數，
+        插值會在邊界產生 0 與 1 之間的值，那些格子既不算保留也不算重畫，
+        而該誤差只表現為邊界一圈的品質異常，看不出來源。
+
+        **遮罩後影像取 `x01 * (1 − mask)` 再編碼**，不是先編碼再遮罩：VAE 是
+        非線性的，兩者不等價，而 diffusers 的 pipeline 做的是前者。
+        """
         f = 2 ** (len(self.vae.config.block_out_channels) - 1)
-        return (1, self.unet.config.in_channels, height // f, width // f)
+        h, w = x01.shape[-2] // f, x01.shape[-1] // f
+        m = torch.nn.functional.interpolate(
+            mask.to(x01.device, x01.dtype), size=(h, w), mode="nearest")
+        z_masked = self.encode_image(x01 * (1.0 - mask.to(x01)),
+                                     use_ckpt=vae_ckpt)
+        return m, z_masked
+
+    def inpaint(
+        self,
+        x01: torch.Tensor,
+        mask: torch.Tensor,
+        emb: torch.Tensor,
+        noise: torch.Tensor,
+        num_steps: int,
+        use_ckpt: bool = False,
+        vae_ckpt: bool = False,
+        guidance_scale: float = 1.0,
+        emb_uncond: Optional[torch.Tensor] = None,
+        step_hook: Optional[Callable[[int, torch.Tensor, torch.Tensor], None]] = None,
+    ) -> torch.Tensor:
+        """可微分的 inpainting。回傳 (1,3,H,W) [0,1]，計算圖保留。
+
+        與 `sdedit` 的三個差別，每一個都改變防禦方的著力點：
+
+        1. **沒有 strength。** 由純噪聲起跑、跑滿 `num_steps`，這是
+           inpainting pipeline 的定義。`sdedit` 的 strength 是我們為了把
+           inpainting 專用的三篇 baseline 移植到 img2img 才引入的參數——
+           五篇原始碼裡都沒有這個數（`photoguard.py:124`、`advpaint.py:227`、
+           `promptflare.py:350` 各自拒絕預設值並寫明理由）。換到本路徑之後
+           那個自由度消失。
+        2. **原圖經由後 4 個通道進入**，而不是經由初始 latent。這正是
+           AdvPaint 與 PromptFlare 原作梯度所走的那條路
+           （`advpaint.py:43`「`masked_image_latents`（9 通道 inpainting
+           輸入的後 4 通道）」）。
+        3. **未遮罩的區域每一步都被重新貼回。** 模型只能改遮罩內，遮罩外
+           必須與給定的影像一致，故防禦擾動污染的是「生成內容所依據的脈絡」。
+
+        `noise` 由呼叫端提供且必須在比較的兩條分支間共用，理由同 `sdedit`。
+        """
+        if not self.is_inpainting:
+            raise RuntimeError(
+                f"{self.model_name} 的 UNet in_channels = "
+                f"{self.unet.config.in_channels}，不是 inpainting 權重"
+                f"（需 {self.inpaint_in_channels}）。"
+                "inpainting 威脅模型必須載入 inpainting 專用權重，"
+                "一般權重接不了 9 通道輸入"
+            )
+        if mask.shape[-2:] != x01.shape[-2:]:
+            raise ValueError(
+                f"遮罩 {tuple(mask.shape)} 與影像 {tuple(x01.shape)} 的空間"
+                "尺寸不符。遮罩必須在影像格點上給定，縮放由本方法負責——"
+                "呼叫端自行縮放會出現兩種插值方式並存而無從得知用了哪一種"
+            )
+
+        abar = self.alphas_cumprod(x01.device)
+        m, z_masked = self.mask_latents(x01, mask, vae_ckpt=vae_ckpt)
+        # 未遮罩區域的參照 latent。每一步貼回它，故它必須是**原圖**的編碼
+        # 而不是遮罩後影像的編碼。
+        z_keep = self.encode_image(x01, use_ckpt=vae_ckpt)
+
+        ts = torch.linspace(self.num_train_timesteps - 1, 0,
+                            num_steps + 1).round().long()
+        z = noise.to(z_keep.dtype)
+        for i in range(num_steps):
+            t, t_prev = ts[i], ts[i + 1]
+            if step_hook is not None:
+                step_hook(i, t, None)
+            zin = torch.cat([z, m.to(z.dtype), z_masked.to(z.dtype)], dim=1)
+            eps = self._eps_cfg(zin, t, emb, guidance_scale, emb_uncond,
+                                use_ckpt=use_ckpt)
+            pred_x0 = (z - (1 - abar[t]).sqrt() * eps) / abar[t].sqrt()
+            if step_hook is not None:
+                step_hook(i, t, pred_x0)
+            z = abar[t_prev].sqrt() * pred_x0 + (1 - abar[t_prev]).sqrt() * eps
+            # 遮罩外貼回原圖在該 timestep 的帶噪版本。pipeline 在每一步都做
+            # 這件事；只在最後貼一次會讓模型在生成過程中「看見」自己改動過的
+            # 脈絡，那與攻擊方實際跑的不是同一條鏈。
+            if t_prev > 0:
+                z_keep_t = (abar[t_prev].sqrt() * z_keep
+                            + (1 - abar[t_prev]).sqrt() * noise.to(z_keep.dtype))
+            else:
+                z_keep_t = z_keep
+            z = m.to(z.dtype) * z + (1 - m.to(z.dtype)) * z_keep_t.to(z.dtype)
+
+        return self.decode_latent(z, use_ckpt=vae_ckpt)
+
+    def latent_shape(self, height: int, width: int):
+        """latent 的形狀。
+
+        2026-08-07 修正。before：通道數取 `self.unet.config.in_channels`。
+        一般權重上兩者都是 4 故無症狀，但 inpainting 權重的 `in_channels`
+        是 9（4 + 1 + 4），該寫法會回傳 9 通道的形狀，`sample_edit_noise`
+        產生的噪聲於是與 latent 對不起來。改取 VAE 的 `latent_channels`，
+        那才是 latent 通道數的真相來源。
+        """
+        f = 2 ** (len(self.vae.config.block_out_channels) - 1)
+        return (1, self.latent_channels, height // f, width // f)
+
+
+class SDInpaintWrapper(SDWrapper):
+    """SD 的 inpainting 權重（9 通道 UNet）。
+
+    存在理由是威脅模型的形態改變，不是為了多支援一個模型：本專案的五篇
+    baseline 中有三篇（PhotoGuard-c、AdvPaint、PromptFlare）**原作就是
+    inpainting**，目前表上全部標著 `modified_from_paper=True`，而改動的性質
+    是「梯度從哪條路進入計算圖」——AdvPaint 原作的梯度只走
+    `masked_image_latents`（`advpaint.py:43`），img2img 沒有那條路。載入
+    inpainting 權重之後那三篇回到原生形式。
+
+    `runwayml/stable-diffusion-inpainting` 是那三篇共同指定的權重
+    （`advpaint.py:345`、`promptflare.py:462` 的 `model` 欄）。
+
+    只覆寫 pipeline 類別：9 通道的處置在 `SDWrapper.inpaint` 內，與權重
+    來源無關，故不在此重複。
+    """
+
+    @staticmethod
+    def _load_pipeline(model_name: str, dtype: torch.dtype):
+        from diffusers import StableDiffusionInpaintPipeline
+
+        return StableDiffusionInpaintPipeline.from_pretrained(
+            model_name,
+            safety_checker=None,
+            requires_safety_checker=False,
+            torch_dtype=dtype,
+        )
 
 
 # ===========================================================================

@@ -1,0 +1,4 @@
+image_id,group,coverage,mode,content,tau,timestep,attn_side
+bird_03,bird,0.05810546875,attention,bird,0.5,500,64
+cat_02,cat,0.14306640625,attention,cat,0.5,500,64
+dog_03,dog,0.359619140625,attention,dog,0.5,500,64

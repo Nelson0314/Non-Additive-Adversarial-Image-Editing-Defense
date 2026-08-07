@@ -283,3 +283,57 @@ def test_外接矩形是實心的(sd9, x01):
     y0, x0 = idx.min(dim=0).values.tolist()
     y1, x1 = idx.max(dim=0).values.tolist()
     assert float(m[0, 0, y0:y1 + 1, x0:x1 + 1].min()) == 1.0
+
+
+# ---------------------------------------------------------------------------
+# 唯一的分派點
+# ---------------------------------------------------------------------------
+
+def test_edit依權重分派(sd9, sd4, x01, mask):
+    """呼叫端有九處。在每一處各加一個 if，漏掉任何一處都不會報錯。"""
+    emb9 = sd9.encode_text("a cat")
+    n9 = sd9.sample_edit_noise(
+        torch.empty(sd9.latent_shape(IMG, IMG), device=DEV), seed=0)
+    y9 = sd9.edit(x01, emb9, n9, num_steps=2, mask=mask)
+    assert y9.shape == x01.shape
+
+    emb4 = sd4.encode_text("a cat")
+    n4 = sd4.sample_edit_noise(
+        torch.empty(sd4.latent_shape(IMG, IMG), device=DEV), seed=0)
+    y4 = sd4.edit(x01, emb4, n4, num_steps=2, strength=0.6)
+    assert y4.shape == x01.shape
+
+
+def test_inpainting缺遮罩立刻拋出(sd9, x01):
+    emb = sd9.encode_text("a cat")
+    n = sd9.sample_edit_noise(
+        torch.empty(sd9.latent_shape(IMG, IMG), device=DEV), seed=0)
+    with pytest.raises(ValueError, match="需要遮罩"):
+        sd9.edit(x01, emb, n, num_steps=1)
+
+
+def test_inpainting不接受strength(sd9, x01, mask):
+    """沿用一個不起作用的值會讓紀錄看起來像是設定過。"""
+    emb = sd9.encode_text("a cat")
+    n = sd9.sample_edit_noise(
+        torch.empty(sd9.latent_shape(IMG, IMG), device=DEV), seed=0)
+    with pytest.raises(ValueError, match="沒有 strength"):
+        sd9.edit(x01, emb, n, num_steps=1, mask=mask, strength=0.6)
+
+
+def test_img2img不接受遮罩(sd4, x01, mask):
+    """傳了遮罩表示呼叫端以為在跑 inpainting，而載入的是一般權重。"""
+    emb = sd4.encode_text("a cat")
+    n = sd4.sample_edit_noise(
+        torch.empty(sd4.latent_shape(IMG, IMG), device=DEV), seed=0)
+    with pytest.raises(ValueError, match="不吃遮罩"):
+        sd4.edit(x01, emb, n, num_steps=1, mask=mask, strength=0.6)
+
+
+def test_img2img缺strength立刻拋出(sd4, x01):
+    """五篇 baseline 的原始碼都沒有這個數，故無預設值。"""
+    emb = sd4.encode_text("a cat")
+    n = sd4.sample_edit_noise(
+        torch.empty(sd4.latent_shape(IMG, IMG), device=DEV), seed=0)
+    with pytest.raises(ValueError, match="需要 strength"):
+        sd4.edit(x01, emb, n, num_steps=1)

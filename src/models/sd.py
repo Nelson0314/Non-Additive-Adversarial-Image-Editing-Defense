@@ -743,6 +743,58 @@ class SDWrapper:
 
         return self.decode_latent(z, use_ckpt=vae_ckpt)
 
+    def edit(
+        self,
+        x01: torch.Tensor,
+        emb: torch.Tensor,
+        noise: torch.Tensor,
+        num_steps: int,
+        *,
+        mask: Optional[torch.Tensor] = None,
+        strength: Optional[float] = None,
+        **kw,
+    ) -> torch.Tensor:
+        """攻擊方的編輯，依載入的權重分派到 `sdedit` 或 `inpaint`。
+
+        存在理由是**呼叫端有九處**（訓練的代理編輯鏈、評測、對照、baseline、
+        段 0 的計時…）。在每一處各加一個 `if` 等於讓「這批跑的是哪一種威脅
+        模型」散落在九個地方，其中任何一處漏掉都不會報錯——只會安靜地對同
+        一批資料混用兩種攻擊。此處是唯一的分派點。
+
+        兩種形態各自缺參數時一律拋出，不互相沿用預設值：
+
+        - **img2img** 需要 `strength`、且**不接受** `mask`。
+        - **inpainting** 需要 `mask`、且**不接受** `strength`——那個參數在
+          inpainting 中不存在（pipeline 由純噪聲起跑、跑滿自己的排程）。
+          五篇 baseline 的原始碼裡也都沒有這個數，見 `inpaint` 的 docstring。
+
+        故 inpainting 批次的 `RunConfig.strength` 應為 `None`，讓「這個威脅
+        模型沒有 strength」這件事出現在 `config_hash` 與每一格的紀錄裡，而不是
+        留一個沿用下來卻不起作用的 0.6。
+        """
+        if self.is_inpainting:
+            if mask is None:
+                raise ValueError(
+                    "inpainting 威脅模型需要遮罩。它決定攻擊方能改哪一塊，"
+                    "而防禦方的著力點是遮罩**外**的脈絡——沒有遮罩就沒有"
+                    "定義好的攻擊")
+            if strength is not None:
+                raise ValueError(
+                    f"inpainting 沒有 strength（收到 {strength}）。pipeline "
+                    "由純噪聲起跑並跑滿自己的排程；沿用一個不起作用的值會讓"
+                    "紀錄看起來像是設定過")
+            return self.inpaint(x01, mask, emb, noise, num_steps, **kw)
+
+        if mask is not None:
+            raise ValueError(
+                "img2img 威脅模型不吃遮罩（全圖、無 mask，見 `DESIGN` §2）。"
+                "傳了遮罩表示呼叫端以為在跑 inpainting，而載入的是一般權重")
+        if strength is None:
+            raise ValueError(
+                "img2img 需要 strength。五篇 baseline 的原始碼都沒有這個數，"
+                "它由本專案的威脅模型指定，故無預設值")
+        return self.sdedit(x01, emb, noise, num_steps, strength=strength, **kw)
+
     def latent_shape(self, height: int, width: int):
         """latent 的形狀。
 

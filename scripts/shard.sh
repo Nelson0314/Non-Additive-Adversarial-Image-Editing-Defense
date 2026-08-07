@@ -240,7 +240,25 @@ case "$BATCH" in
     #       2026-08-08 起 `run_stage` 在未明給時由 `--tau-train` 依比例導出
     #       （0.8 × τ、16 × τ），τ_train=0.20 下為 0.16 與 3.2，並印在 log
     #       的 `[thresholds]` 行。明給只會多一項與規則不同步的風險。
-    MASK="--mask-mode attention_box --mask-tau 0.5 --warp-mask-gate"
+    #
+    #       `--mask-mode attention`（**不是 attention_box**，2026-08-08 使用者
+    #       裁決）。before：`attention_box`，即注意力區域的外接矩形。ip1 段 0
+    #       實跑量到的涵蓋率是 bird_03 0.483／cat_02 0.314／**dog_03 0.875**，
+    #       第三張超過 `HANDOVER` §3.2a 的 0.6 停止線。疊圖確認框的**對位正確**
+    #       ——問題不在框錯而在物件本身佔滿畫面，外接矩形因此逼近全圖。
+    #
+    #       全 24 張的實測（`runs/ip1_maskprobe/coverage.csv`）：
+    #
+    #         模式 · τ            涵蓋率範圍      落在 0.05–0.6 的張數
+    #         attention_box 0.5   0.046 – 1.000   11 / 24（人像 8 張全為 1.0）
+    #         attention_box 0.7   0.010 – 1.000   14 / 24
+    #         attention     0.5   0.026 – 0.769   19 / 24   ← 採用
+    #         attention     0.7   0.004 – 0.143    3 / 24（多數低於下限）
+    #
+    #       改用輪廓遮罩後三張圖為 0.093／0.127／0.358，全部落在停止線內，
+    #       且不必換圖——與第一階段同三張，可直接對照。PhotoGuard 原作用的
+    #       也是物件遮罩而非矩形框。
+    MASK="--mask-mode attention --mask-tau 0.5 --warp-mask-gate"
     ;;
 esac
 

@@ -102,9 +102,29 @@ CLIP tokenizer 的結構（`[BOS]` 恆在第 0 格），與 prompt 的內容無�
 ## 門檻的適用範圍
 
 `tau_acut` 與 `tau_chroma` 是在 τ_lpips = 0.05 的量級上定出來的**絕對值**。
-本輪主表在 τ_lpips = 0.20、訓練在 0.35，這兩個門檻必須重新以人眼判讀定出，
-不可沿用。本檔不提供推測值——沿用未經該預算校準的門檻正是本專案重複十次的
-缺陷型態。
+本輪主表在 τ_lpips = 0.20，這兩個門檻必須重新以人眼判讀定出，不可沿用。
+沿用未經該預算校準的門檻正是本專案重複十次的缺陷型態。
+
+**2026-08-08 修訂：改為正比於 τ_lpips**（使用者裁決，處置 A）。
+
+before：`LossConfig.tau_acut = 0.04`、`tau_chroma = 0.8` 為絕對值，
+與 `tau_lpips` 無任何連動（本檔第 213、220 行）。
+after：新增 `ACUT_PER_TAU` / `CHROMA_PER_TAU` 兩個比例常數與
+`scaled_thresholds()`，由呼叫端依該批的 τ 導出。**兩個 dataclass 預設值不動**
+——它們是 τ=0.05 的既有結果所依賴的值，改掉會讓舊批次無法重現。
+
+理由是第一階段的實測：六個訓練格的 `fid_acut` 全部精確頂在 0.04015–0.04038，
+即三個非加性條件**從未在主表的 τ=0.20 上最佳化過**，停在 LPIPS 0.052–0.174
+就被鈍化 hinge 擋下，之後由段 2 的射線縮放放大上去。由
+`runs/tau_threshold_probe_v14.csv` 線性內插，各條件撞到 acut=0.04 時的 LPIPS
+為 0.066（bird_03·R）至 0.193（dog_03·N2），全部低於主表的 0.20；而加性
+baseline（PhotoGuard-c）到 τ=0.35 都沒撞到，綁定它的是 `tau_lpips`。
+也就是說這道 hinge 對非加性單方面加價，**匹配失真的比較在訓練期就不成立**。
+
+比例的錨點是使用者在 τ_lpips = 0.05 上的原判讀：0.04 = 0.8 × 0.05、
+0.8 = 16 × 0.05。該規則同時重現另外兩次獨立的人眼判讀：τ=0.20 時
+（`RESULTS_2026-08-06` §10.1 判為可接受）門檻 0.16 不觸發，τ=0.35 時
+（同節判為「明顯壞掉」）N3 實測的 0.343／0.355 仍高於門檻 0.28 而觸發。
 
 ## 修訂史
 
@@ -132,6 +152,27 @@ RETIRED_MODES = {
 
 DEFENSE_MODES = ("targeted_output", "targeted_attn")
 TARGET_METRICS = ("lpips", "mse")
+
+# 第二、三道 hinge 的門檻相對 τ_lpips 的比例。錨點是使用者在 τ_lpips = 0.05
+# 上的人眼判讀（0.04 與 0.8），見模組 docstring「門檻的適用範圍」。
+ACUT_PER_TAU = 0.8
+CHROMA_PER_TAU = 16.0
+
+
+def scaled_thresholds(tau_lpips: float) -> Dict[str, float]:
+    """依 τ_lpips 等比例給出 `tau_acut` 與 `tau_chroma`。
+
+    回傳的是**具體數值**，由呼叫端明給進 `LossConfig` 並進入 `config_hash`：
+    這裡不改任何預設值，也不在損失內部即時換算。門檻若只以「比例」的形式
+    存在，`config_hash` 就記不下當次實際用的絕對值，而事後查表要的是後者。
+    """
+    if not tau_lpips > 0:
+        raise ValueError(
+            f"tau_lpips 須為正數，收到 {tau_lpips!r}；門檻是它的固定倍數，"
+            "非正值會讓兩道 hinge 恆為啟動或恆不啟動而看不出症狀"
+        )
+    return {"tau_acut": ACUT_PER_TAU * float(tau_lpips),
+            "tau_chroma": CHROMA_PER_TAU * float(tau_lpips)}
 
 
 @dataclass
@@ -208,14 +249,17 @@ class LossConfig:
     gamma_lpips: float = 100.0
     tau_lpips: float = 0.05
 
-    # 第二道：鈍化。τ_acut = 0.04 是在 τ_lpips = 0.05 上定出的絕對值。
+    # 第二道：鈍化。τ_acut = 0.04 是在 τ_lpips = 0.05 上定出的絕對值，
+    # 只在 τ_lpips = 0.05 的批次上成立；其餘批次由 `scaled_thresholds` 導出
+    # 並由呼叫端明給（2026-08-08，見模組 docstring）。
     gamma_acut: float = 100.0
     tau_acut: float = 0.04
 
     # 第三道：色度偏壓。τ = 0.8 由人眼判讀（2026-08-01，`runs/p10_chroma_ladder/`）：
     # 「0.3 還有 0.6 都看不出來，1.0 以上才開始有一些細微色調變化」。取 0.8 而非
     # 1.0——1.0 是已確認看得見的那一級，把門檻設在該處等於允許約束放行一個
-    # 可見的失真，約束就失去意義。
+    # 可見的失真，約束就失去意義。同 `tau_acut`，其餘批次的值由
+    # `scaled_thresholds` 導出。
     gamma_chroma: float = 100.0
     tau_chroma: float = 0.8
 

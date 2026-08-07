@@ -42,6 +42,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from src.data.masks import MASK_MODES                         # noqa: E402
+from src.defense import objective                             # noqa: E402
 from src.experiment import executors, grid                    # noqa: E402
 from src.experiment.runner import plan_report, run_stage      # noqa: E402
 from src.utils.progress import ProgressWriter                 # noqa: E402
@@ -84,7 +85,20 @@ def build_env(args) -> dict:
 
 
 def run_config(args) -> executors.RunConfig:
-    """CLI → 計算層設定。這裡不做任何預設值的推導：每一項都有明確來源。"""
+    """CLI → 計算層設定。這裡不做任何預設值的推導：每一項都有明確來源。
+
+    `tau_acut` / `tau_chroma` 的比例導出在 `main` 完成（要印出導出的值），
+    故到這裡時它們必為具體數值。仍在此擋一次 `None`：讓它流下去的話
+    `loss_params` 會把 `None` 寫進 `config_hash`，而那是一個合法的雜湊，
+    整批跑完才會在 hinge 的比較上以 TypeError 出現。
+    """
+    missing = [k for k in ("tau_acut", "tau_chroma")
+               if getattr(args, k) is None]
+    if missing:
+        raise ValueError(
+            f"{missing} 尚未解析；呼叫 run_config 之前必須先做比例導出"
+            "（run_stage.main 的 [thresholds] 那一段）"
+        )
     return executors.RunConfig(
         resolution=args.resolution,
         guidance=args.guidance,
@@ -111,6 +125,7 @@ def run_config(args) -> executors.RunConfig:
         warp_grid_size=args.warp_grid_size,
         warp_max_disp=args.warp_max_disp,
         warp_resample=args.warp_resample,
+        warp_mask_gate=args.warp_mask_gate,
         apa_lora_rank=args.apa_lora_rank,
         apa_latent_max_rank=args.apa_latent_max_rank,
         apa_latent_const_rank=args.apa_latent_const_rank,
@@ -396,13 +411,13 @@ def main(argv=None) -> int:
     g = ap.add_argument_group("保真約束")
     g.add_argument("--tau-train", type=float, default=grid.TRAIN_TAU,
                    help="訓練所在的失真預算，其餘 τ 由段 2 的射線縮放取得")
-    g.add_argument("--tau-acut", type=float,
-                   default=executors.RunConfig.tau_acut,
-                   help="鈍化 hinge 的門檻。預設值是在 τ_lpips=0.05 上由人眼"
-                        "判讀定出的絕對值，本輪訓練在 0.35，須重新判讀")
-    g.add_argument("--tau-chroma", type=float,
-                   default=executors.RunConfig.tau_chroma,
-                   help="色度偏壓 hinge 的門檻。同上，須重新判讀")
+    g.add_argument("--tau-acut", type=float, default=None,
+                   help=f"鈍化 hinge 的門檻。不給時由 --tau-train 依比例導出"
+                        f"（{objective.ACUT_PER_TAU} × τ），錨點是 τ_lpips=0.05 "
+                        f"上的人眼判讀 0.04")
+    g.add_argument("--tau-chroma", type=float, default=None,
+                   help=f"色度偏壓 hinge 的門檻。不給時同上依比例導出"
+                        f"（{objective.CHROMA_PER_TAU} × τ）")
     g.add_argument("--beta-linf", type=float,
                    default=executors.RunConfig.beta_linf,
                    help="L∞ hinge 的係數。預設 0：L∞ 對非加性參數化不具鑑別力，"
@@ -418,6 +433,9 @@ def main(argv=None) -> int:
                         "該上界下可達的最大 LPIPS，低於 --tau-train 時段 2 會拋出")
     g.add_argument("--warp-resample", default="bicubic",
                    choices=["bilinear", "bicubic"])
+    g.add_argument("--warp-mask-gate", action="store_true",
+                   help="位移場在遮罩內歸零，只擾動攻擊方不會覆寫的脈絡。"
+                        "須與 --mask-mode 並用（inpainting 才有遮罩）")
     g.add_argument("--apa-lora-rank", type=int, default=8)
     g.add_argument("--apa-latent-max-rank", type=int, default=32)
     g.add_argument("--apa-latent-const-rank", type=int, default=8)
@@ -466,6 +484,23 @@ def main(argv=None) -> int:
                 "跑滿自己的排程，沒有 strength 這個參數（五篇 baseline 的"
                 "原始碼裡也都沒有）")
         args.strength = None
+    elif args.warp_mask_gate:
+        # 沒有遮罩就沒有閘可加。靜默忽略會讓命令列上明寫的設定不生效，而
+        # 那正是本專案要消滅的路徑——`config_hash` 屆時也記不出差別。
+        raise SystemExit(
+            "--warp-mask-gate 須與 --mask-mode 並用：閘由遮罩產生，"
+            "img2img 威脅模型沒有遮罩")
+
+    # 兩道 hinge 的門檻不給時依 τ_train 等比例導出（2026-08-08 處置 A，見
+    # `objective` 的「門檻的適用範圍」）。導出的是**具體數值**，之後照常
+    # 進 `loss_params` 與 `config_hash`；此處印出來，使命令列沒寫的那兩個
+    # 數在 log 上仍查得到。
+    derived = objective.scaled_thresholds(args.tau_train)
+    for key in ("tau_acut", "tau_chroma"):
+        if getattr(args, key) is None:
+            setattr(args, key, derived[key])
+            print(f"[thresholds] {key} = {derived[key]:.4g} "
+                  f"（由 τ_train={args.tau_train} 依比例導出）", flush=True)
 
     batch_dir = args.runs_root / args.batch
     images = load_images(args)

@@ -38,6 +38,20 @@ LPIPS 0.194 / PSNR 26.56 dB，保真度預算在 φ 起作用之前就用光了�
 比由懲罰項近似更可靠，且 `grid_size` 直接就是一個乾淨的容量參數。
 `grid_size=None` 表示逐像素自由位移（等同 stAdv 的原始設定），此時平滑度
 只能靠 `tv()` 診斷觀察。
+
+遮罩閘（2026-08-08 新增，使用者裁決的處置 B）
+
+inpainting 威脅模型下攻擊方會把遮罩內整片重畫，防禦方在該區域的擾動
+**沒有任何防禦價值，卻照樣被 `L_fid` 全額收費**。PhotoGuard-c 與 PromptFlare
+的原始碼本來就把梯度乘 `(1 − mask)`（本專案以 `grad_outside_mask` 忠實
+實作），不加閘等於我方先丟掉「遮罩涵蓋率」比例的預算才開始比較。
+
+閘作用在**粗網格上的 `flow` 參數**而非上採樣後的位移場：後者會讓位移量在
+遮罩邊界一個像素內由 `max_disp` 跳到 0，而 `attention_box` 產生的是硬邊
+矩形，那道跳變正是本模塊靠粗網格避掉的撕裂瑕疵。乘在粗網格上再上採樣，
+過渡帶自然展開為 `size / grid_size` 個像素（512²、`grid_size=32` 下為 16）。
+閘值取該格**未被遮罩覆蓋的面積比例**（`mode="area"` 降採樣），故完全落在
+遮罩內的格恰為 0、完全在外的恰為 1。
 """
 
 from typing import Optional
@@ -80,8 +94,14 @@ class WarpResidual(ResidualModule):
         seed: int = None,
         force_resample: bool = False,
         resample: str = "bilinear",
+        gate: Optional[torch.Tensor] = None,
     ):
         """`max_disp` 的單位是像素；`grid_size=None` 表示逐像素自由位移。
+
+        `gate` 是 `coarse_gate()` 產生的 (1,1,g,g) 遮罩閘，`None` 表示不加閘
+        （img2img 威脅模型）。它不是可訓練參數也不進 `state_dict`
+        （`persistent=False`）——它由遮罩決定，重建時與 `grid_size` 一樣
+        由 `phi.pt` 的 `build` 欄還原。
 
         `resample` 選 `grid_sample` 的插值模式。預設維持 `"bilinear"`，使
         E13–E19 的既有結果可重現；`"bicubic"` 是 E20 之後的建議值，理由見
@@ -113,6 +133,36 @@ class WarpResidual(ResidualModule):
         self.max_disp = float(max_disp)
         self.force_resample = bool(force_resample)
         self.resample = resample
+        if gate is not None:
+            if tuple(gate.shape) != (1, 1, g, g):
+                raise ValueError(
+                    f"gate 的形狀為 {tuple(gate.shape)}，應為 (1, 1, {g}, {g})"
+                    "，即與 flow 同一個粗網格。形狀不符時廣播會靜默給出一個"
+                    "看似合理但閘錯位置的位移場"
+                )
+            gate = gate.detach().clone().float()
+        self.register_buffer("gate", gate, persistent=False)
+
+    # ---- 遮罩閘 ----
+
+    @staticmethod
+    def coarse_gate(mask: torch.Tensor, grid_size: int) -> torch.Tensor:
+        """由 (1,1,H,W) 的遮罩產生 (1,1,g,g) 的閘，值域 [0,1]。
+
+        `mask` 的約定與 `src/data/masks.py` 一致：**1 表示攻擊方要重畫的
+        區域**。閘為 `1 − 該格被遮罩覆蓋的面積比例`，故遮罩內為 0。
+
+        降採樣取 `mode="area"`（面積平均）而非 `nearest`：後者只看格中心，
+        一個比格小的遮罩會整個消失，而症狀是「閘看起來全開、結果照樣被
+        重畫的區域吃掉預算」。
+        """
+        if mask.dim() != 4 or mask.shape[:2] != (1, 1):
+            raise ValueError(
+                f"遮罩形狀為 {tuple(mask.shape)}，應為 (1, 1, H, W)"
+            )
+        m = F.interpolate(mask.float(), size=(grid_size, grid_size),
+                          mode="area")
+        return (1.0 - m).clamp(0.0, 1.0)
 
     # ---- 位移場 ----
 
@@ -121,8 +171,12 @@ class WarpResidual(ResidualModule):
 
         粗網格以雙線性上採樣到全解析度，藉此取得平滑性；`align_corners=True`
         與 `identity_grid` 的約定一致，否則兩者的座標系統會錯開半個像素。
+        遮罩閘（若有）在上採樣**之前**乘上去，理由見模組 docstring。
         """
         f = self.flow
+        if self.gate is not None:
+            # 乘在粗網格上，過渡帶由後續的雙線性上採樣展開（見模組 docstring）
+            f = f * self.gate.to(dtype=f.dtype, device=f.device)
         if f.shape[-2] != h or f.shape[-1] != w:
             f = F.interpolate(f, size=(h, w), mode="bilinear", align_corners=True)
         if self.max_disp > 0:
@@ -201,6 +255,11 @@ class WarpResidual(ResidualModule):
             "disp_p99_px": float(mag.flatten().quantile(0.99)),
             "flow_tv": float(self.tv()),
             "grid_size": self.grid_size,
+            # 有沒有加閘必須逐格留在證據裡：兩種形態的位移場統計看起來一樣，
+            # 事後只憑 disp_max 分不出這一格是不是只動了脈絡。
+            "mask_gated": self.gate is not None,
+            "gate_open_frac": (1.0 if self.gate is None
+                               else float(self.gate.mean())),
         }
 
     def tv(self) -> torch.Tensor:

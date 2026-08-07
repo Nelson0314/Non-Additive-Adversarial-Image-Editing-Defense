@@ -6,7 +6,11 @@
 import pytest
 import torch
 
-from src.defense.objective import DefenseObjective, LossConfig
+from src.defense.objective import (
+    DefenseObjective,
+    LossConfig,
+    scaled_thresholds,
+)
 from src.defense.optimize import eot_pairs
 from src.metrics.spectrum import analyze, effective_rank, energy_rank
 from src.purify.ops import (
@@ -881,3 +885,33 @@ def test_注意力質量在bf16下不被相減吃掉():
     m = o.shared_token_mass(_attn_maps_fixed_mass(0.0156))
     assert m.dtype == torch.float32
     assert abs(float(m) - 0.015625) < 1e-4, float(m)
+
+
+# ---------------------------------------------------------------------------
+# 門檻依 τ 等比例（2026-08-08 處置 A）
+# ---------------------------------------------------------------------------
+
+
+def test_門檻在原錨點上還原人眼判讀的絕對值():
+    """比例的錨點是使用者在 τ_lpips = 0.05 上的兩次判讀：0.04 與 0.8。
+    規則若不能在錨點上還原它們，就不是同一條規則。"""
+    t = scaled_thresholds(0.05)
+    assert t["tau_acut"] == pytest.approx(LossConfig.tau_acut)
+    assert t["tau_chroma"] == pytest.approx(LossConfig.tau_chroma)
+
+
+def test_門檻在本輪主表的預算上為0點16與3點2():
+    t = scaled_thresholds(0.20)
+    assert t["tau_acut"] == pytest.approx(0.16)
+    assert t["tau_chroma"] == pytest.approx(3.2)
+
+
+def test_門檻仍擋得住已判為明顯壞掉的那一點():
+    """τ=0.35 上 N3 實測的 acut 為 0.343／0.355（`RESULTS_2026-08-06` §10.1
+    判為「明顯壞掉」）。規則若把門檻放到那之上，這道 hinge 就只是擺著。"""
+    assert scaled_thresholds(0.35)["tau_acut"] < 0.343
+
+
+def test_非正的tau即拋出():
+    with pytest.raises(ValueError, match="tau_lpips"):
+        scaled_thresholds(0.0)

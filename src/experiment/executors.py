@@ -65,7 +65,7 @@ import torch
 
 from src.baselines import REGISTRY as BASELINE_REGISTRY
 from src.baselines.pgd import run_pgd
-from src.defense.objective import LossConfig
+from src.defense.objective import LossConfig, scaled_thresholds
 from src.defense.generator import DefenseGenerator
 from src.defense.optimize import Diverged, OptimConfig, StageSpec, optimize
 from src.experiment import grid
@@ -369,6 +369,9 @@ class RunConfig:
     warp_grid_size: int = 32
     warp_max_disp: float = 1.5
     warp_resample: str = "bicubic"
+    # 位移場是否在遮罩內歸零（2026-08-08，處置 B）。**只在 inpainting 下
+    # 可為 True**；`run_stage` 在沒有 `--mask-mode` 時拒絕這個旗標。
+    warp_mask_gate: bool = False
     apa_lora_rank: int = 8
     apa_latent_max_rank: int = 32
     apa_latent_const_rank: int = 8
@@ -420,7 +423,7 @@ class RunConfig:
         把控制點 32 與 128 的結果合併統計，那個平均正好抹掉要量的效應，
         而輸出看起來完全正常。它們必須讓 `config_hash` 分得開。
         """
-        return {
+        out = {
             "warp_grid_size": self.warp_grid_size,
             "warp_max_disp": self.warp_max_disp,
             "warp_resample": self.warp_resample,
@@ -429,6 +432,13 @@ class RunConfig:
             "apa_latent_const_rank": self.apa_latent_const_rank,
             "random_init_std": self.random_init_std,
         }
+        # 遮罩閘的鍵**只在開啟時出現**，理由與 `base_config` 的 `mask` 鍵
+        # 相同（`run_stage.base_config`）：`config_hash` 吃整個 dict，無條件
+        # 加入會改變 img2img 既有批次的每一格雜湊，續跑時把已完成的格全部
+        # 判為未完成。此鍵存在與否本身就承載「位移場有沒有加閘」。
+        if self.warp_mask_gate:
+            out["warp_mask_gate"] = True
+        return out
 
     def optim_params(self) -> Dict[str, Any]:
         """**最佳化過程**的旋鈕。改了它們，同一個 φ 的解不同。
@@ -626,12 +636,24 @@ def _module_build_kwargs(condition: str, res: Resources,
     """
     spec = condition_spec(condition)
     if spec.site == "warp":
-        return {
+        kw = {
             "site": "warp", "size": res.cfg.resolution,
             "grid_size": res.cfg.warp_grid_size,
             "max_disp": res.cfg.warp_max_disp,
             "resample": res.cfg.warp_resample,
         }
+        if res.cfg.warp_mask_gate:
+            if entry.mask is None:
+                raise ValueError(
+                    f"warp_mask_gate 為 True，但影像 {entry.image_id!r} 沒有"
+                    "遮罩。閘由遮罩決定，沒有遮罩時靜默不加閘會讓同一批裡"
+                    "有些格加閘、有些沒有，而兩者的 config_hash 相同"
+                )
+            # 存粗網格上的閘（32² = 4 KB）而非整張遮罩（512² = 1 MB）：
+            # 實際乘進位移場的就是它，而 `phi.pt` 逐格落盤且全部入版控。
+            kw["gate"] = WarpResidual.coarse_gate(
+                entry.mask.detach().cpu(), res.cfg.warp_grid_size)
+        return kw
     if spec.site == "apa":
         lat = res.sd.latent_shape(res.cfg.resolution, res.cfg.resolution)
         return {
@@ -654,7 +676,7 @@ def build_module(condition: str, res: Resources, entry: ImageEntry,
         return WarpResidual(
             size=kw["size"], grid_size=kw["grid_size"],
             max_disp=kw["max_disp"], resample=kw["resample"],
-            init_std=init_std, seed=seed,
+            init_std=init_std, seed=seed, gate=kw.get("gate"),
         ).to(res.device)
     return build_apa(
         res.sd.unet, steps=kw["steps"], latent_size=kw["latent_size"],
@@ -671,7 +693,7 @@ def rebuild_module(payload: Dict[str, Any], res: Resources):
         mod = WarpResidual(
             size=kw["size"], grid_size=kw["grid_size"],
             max_disp=kw["max_disp"], resample=kw["resample"],
-            init_std=0.0,
+            init_std=0.0, gate=kw.get("gate"),
         ).to(res.device)
     elif kw["site"] == "apa":
         mod = build_apa(
@@ -2117,16 +2139,20 @@ def preflight(res: Resources, conditions: Sequence[str] = grid.CONDITIONS
                 "白名單必須依「排除最外層」的原則重新決定（SOURCE_AUDIT §2.5），"
                 "在未決定前不得沿用原值——沿用會讓損失恆為 0 或涵蓋錯的層"
             )
-    if res.cfg.tau_acut == LossConfig.tau_acut:
-        warns.append(
-            f"tau_acut 仍為 {LossConfig.tau_acut}，那是在 τ_lpips=0.05 的量級"
-            f"上由人眼判讀定出的絕對值；本輪訓練在 τ={res.cfg.tau_train}。"
-            "需重新判讀後以 --tau-acut 指定（objective.py「門檻的適用範圍」）"
-        )
-    if res.cfg.tau_chroma == LossConfig.tau_chroma:
-        warns.append(
-            f"tau_chroma 仍為 {LossConfig.tau_chroma}，同上，需重新判讀"
-        )
+    # 2026-08-08 改。before：判準是「等於 `LossConfig` 的預設值」。after：判準
+    # 改為「偏離 τ_train 的比例規則」。理由是處置 A 之後門檻由
+    # `scaled_thresholds` 導出，舊判準只在 τ_train 恰為 0.05 時才會觸發，而
+    # 那正是唯一不需要警告的情形——判準與症狀反了。
+    want = scaled_thresholds(res.cfg.tau_train)
+    for key in ("tau_acut", "tau_chroma"):
+        got = getattr(res.cfg, key)
+        if abs(got - want[key]) > 1e-9:
+            warns.append(
+                f"{key} 為 {got}，而 τ_train={res.cfg.tau_train} 依比例規則"
+                f"應為 {want[key]:.4g}。門檻是在 τ_lpips=0.05 上由人眼判讀"
+                "定出的，用在別的預算上必須等比例放大，否則非加性條件會在"
+                "到達 τ 之前就被這道 hinge 擋下（objective.py「門檻的適用範圍」）"
+            )
     return warns
 
 

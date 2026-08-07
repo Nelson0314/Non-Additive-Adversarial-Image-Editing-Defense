@@ -1091,3 +1091,100 @@ def test_mist的取樣噪聲抽在checkpoint區塊外():
         "不走 checkpoint 的那條路必須維持原作的 .sample()")
     # 形狀不符會 broadcast 成另一個張量而不報錯，必須明確擋掉
     assert "post.mean.shape != e.shape" in body
+
+
+# ---------------------------------------------------------------------------
+# 位移場的遮罩閘與門檻比例（2026-08-08 處置 A／B）
+# ---------------------------------------------------------------------------
+
+
+def _with_mask(res, image_id="dog_00"):
+    """把一張半邊遮罩塞進該影像，回傳新的 entry（`ImageEntry` 是 frozen）。"""
+    import dataclasses
+
+    e = res.image(image_id)
+    m = torch.zeros(1, 1, SIZE, SIZE)
+    m[..., SIZE // 2:] = 1.0
+    e2 = dataclasses.replace(e, mask=m)
+    res.images[image_id] = e2
+    return e2
+
+
+def test_遮罩閘關閉時module_params逐鍵不變(tmp_path):
+    """`config_hash` 吃整個 dict。無條件加入這個鍵會改變 img2img 既有批次的
+    每一格雜湊，續跑時把已完成的格全部判為未完成——與 `base_config` 的
+    `mask` 鍵同一個理由。"""
+    res = make_res(tmp_path)
+    assert "warp_mask_gate" not in res.cfg.module_params()
+
+
+def test_遮罩閘進入config_hash(tmp_path):
+    a = make_res(tmp_path / "a")
+    b = make_res(tmp_path / "b", warp_mask_gate=True)
+    assert b.cfg.module_params()["warp_mask_gate"] is True
+
+    cell = grid.Cell("train", "N2", "dog_00")
+    base_a = dict(BASE, loss_params=a.cfg.loss_params(),
+                  module_params=a.cfg.module_params(),
+                  optim_params=a.cfg.optim_params())
+    base_b = dict(BASE, loss_params=b.cfg.loss_params(),
+                  module_params=b.cfg.module_params(),
+                  optim_params=b.cfg.optim_params())
+    assert (config_hash(cell_config(cell, base_a))
+            != config_hash(cell_config(cell, base_b))), \
+        "加了遮罩閘卻算出同一個雜湊，舊格會被沿用"
+
+
+def test_開閘卻沒有遮罩即拋出(tmp_path):
+    """靜默不加閘會讓同一批裡有些格加閘、有些沒有，而兩者的雜湊相同。"""
+    res = make_res(tmp_path, warp_mask_gate=True)
+    with pytest.raises(ValueError, match="沒有.*遮罩"):
+        executors.build_module("N2", res, res.image("dog_00"), seed=0)
+
+
+def test_遮罩閘傳到位移場模塊(tmp_path):
+    res = make_res(tmp_path, warp_mask_gate=True)
+    e = _with_mask(res)
+    mod = executors.build_module("N2", res, e, seed=0)
+    assert mod.gate is not None
+    assert mod.gate.shape == (1, 1, res.cfg.warp_grid_size,
+                              res.cfg.warp_grid_size)
+    assert float(mod.gate.mean()) == pytest.approx(0.5)
+
+
+def test_隨機對照也走同一條閘(tmp_path):
+    """R 是「同失真」的對照。它若沒加閘，兩者的差別就不只是參數化。"""
+    res = make_res(tmp_path, warp_mask_gate=True)
+    e = _with_mask(res)
+    assert executors.build_module("R", res, e, seed=0,
+                                  init_std=0.5).gate is not None
+
+
+def test_phi落盤與重建都帶著閘(tmp_path):
+    """段 2／段 3 由 `phi.pt` 重建模塊，該路徑拿不到 `entry`。閘沒有一起
+    存下來的話，射線縮放與評測會用一個沒有閘的位移場，而數字仍然合理。"""
+    res = make_res(tmp_path, warp_mask_gate=True)
+    e = _with_mask(res)
+    mod = executors.build_module("N2", res, e, seed=0, init_std=0.4)
+    p = executors.save_phi(tmp_path / "phi.pt", "N2", e.image_id, res, e,
+                           module=mod)
+    again = executors.rebuild_module(executors.load_phi(p), res)
+    assert again.gate is not None
+    assert torch.equal(mod.pixel_residual(e.x01), again.pixel_residual(e.x01))
+
+
+def test_門檻偏離比例規則時警告(tmp_path):
+    """判準是「偏離 τ_train 的比例規則」而不是「等於舊預設值」：處置 A 之後
+    門檻由 τ 導出，舊判準只在 τ_train 恰為 0.05 時觸發，而那正是唯一不需要
+    警告的情形。"""
+    from src.defense.objective import scaled_thresholds
+
+    res = make_res(tmp_path)          # tau_train=0.20、tau_acut 仍為 0.04
+    got = executors.preflight(res, ["N2"])
+    assert any("tau_acut" in w for w in got)
+
+    ok = scaled_thresholds(res.cfg.tau_train)
+    res2 = make_res(tmp_path / "ok", tau_acut=ok["tau_acut"],
+                    tau_chroma=ok["tau_chroma"])
+    assert not [w for w in executors.preflight(res2, ["N2"])
+                if "tau_acut" in w or "tau_chroma" in w]

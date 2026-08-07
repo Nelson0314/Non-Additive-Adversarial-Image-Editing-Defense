@@ -205,7 +205,19 @@ case "$BATCH" in
     MEM="--purify-mode all"
     ATTN="--shared-tokens 0"
     INV="--exact-inversion"
-    MASK="--mask-mode attention_box --mask-tau 0.5"
+    #       `--warp-mask-gate`（2026-08-08，使用者裁決的處置 B）：位移場在
+    #       遮罩內歸零。遮罩內是攻擊方會整片覆寫的區域，我方在那裡的擾動
+    #       **零防禦價值、全額保真成本**，而 PhotoGuard-c 與 PromptFlare 的
+    #       原始碼本來就把梯度乘 (1 − mask)。不加閘等於先丟掉「涵蓋率」比例
+    #       的預算才開始比較。它進 `module_params` 因而進 `config_hash`。
+    #       套用範圍是 site warp 的三個條件（N1／N2／R）；N3 走生成路徑，
+    #       其擾動經 VAE 解碼後本來就不是逐像素定域的，無法以同一方式加閘。
+    #
+    #       兩道 hinge 的門檻（`--tau-acut`／`--tau-chroma`）不寫在這裡：
+    #       2026-08-08 起 `run_stage` 在未明給時由 `--tau-train` 依比例導出
+    #       （0.8 × τ、16 × τ），τ_train=0.20 下為 0.16 與 3.2，並印在 log
+    #       的 `[thresholds]` 行。明給只會多一項與規則不同步的風險。
+    MASK="--mask-mode attention_box --mask-tau 0.5 --warp-mask-gate"
     ;;
 esac
 

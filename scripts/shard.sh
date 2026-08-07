@@ -234,8 +234,20 @@ free_gpus() {
 case "$MODE" in
 
 calib)
+  # `--dry-run` 走前景、不開 tmux、不佔卡。2026-08-08 補入：
+  # `HANDOVER_2026-08-08` §3.2 的第二步逐字寫了這個用法，而在此之前
+  # `--dry-run` 會被當成一個影像 id 塞進 `--images`，argparse 於是把它解析
+  # 成旗標、把真正的三個 id 當成多餘的位置參數而拒絕。錯誤訊息看不出原因。
+  DRY=""
+  if [ "${1:-}" = "--dry-run" ]; then DRY="--dry-run"; shift; fi
   IMAGES=("$@")
   [ ${#IMAGES[@]} -gt 0 ] || { echo "要給影像 id" >&2; exit 1; }
+  if [ -n "$DRY" ]; then
+    cd "$HOME/WACV"
+    PYTHONIOENCODING=utf-8 $PY scripts/run_stage.py calib --batch "$BATCH" \
+      $COMMON --images "${IMAGES[@]}" --dry-run
+    exit $?
+  fi
   GPU=$(free_gpus | head -1)
   # 批次目錄必須先存在：tmux 指令裡的 `> …/calib.log` 在目錄不存在時
   # 直接失敗，而那個失敗發生在 tmux 內，外面只看得到「session 沒了」。

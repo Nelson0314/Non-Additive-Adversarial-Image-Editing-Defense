@@ -1,0 +1,108 @@
+===== train =====
+[env] 載入 SDXLWrapper(stabilityai/stable-diffusion-xl-base-1.0) dtype=torch.bfloat16
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/7 [00:00<?, ?it/s]Loading pipeline components...:  14%|█▍        | 1/7 [00:00<00:00,  9.66it/s]Loading pipeline components...:  29%|██▊       | 2/7 [00:00<00:00,  7.09it/s]Loading pipeline components...:  57%|█████▋    | 4/7 [00:02<00:02,  1.22it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 2831.30it/s]
+Loading pipeline components...:  86%|████████▌ | 6/7 [00:02<00:00,  2.09it/s]
+Loading weights:   0%|          | 0/517 [00:00<?, ?it/s][A
+Loading weights:  44%|████▎     | 226/517 [00:00<00:00, 2255.52it/s][ALoading weights: 100%|██████████| 517/517 [00:00<00:00, 2603.93it/s]
+Loading pipeline components...: 100%|██████████| 7/7 [00:03<00:00,  2.18it/s]Loading pipeline components...: 100%|██████████| 7/7 [00:03<00:00,  2.11it/s]
+There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+[env] 影像 1 張：['bird_03']
+
+[preflight] 以下事項會影響本批的結果，請先處理：
+  - tau_acut 仍為 0.04，那是在 τ_lpips=0.05 的量級上由人眼判讀定出的絕對值；本輪訓練在 τ=0.2。需重新判讀後以 --tau-acut 指定（objective.py「門檻的適用範圍」）
+  - tau_chroma 仍為 0.8，同上，需重新判讀
+
+  [mist] step    0  L=1.423360e+05  Linf01=0.0627  L2=128.579
+  [mist] step   10  L=1.228800e+05  Linf01=0.0627  L2=127.510
+  [mist] step   20  L=1.126400e+05  Linf01=0.0627  L2=130.830
+  [mist] step   30  L=1.111040e+05  Linf01=0.0627  L2=136.282
+  [mist] step   40  L=1.090560e+05  Linf01=0.0627  L2=141.386
+  [mist] step   50  L=1.080320e+05  Linf01=0.0627  L2=144.325
+  [mist] step   60  L=1.075200e+05  Linf01=0.0627  L2=146.827
+  [mist] step   70  L=1.070080e+05  Linf01=0.0627  L2=149.062
+  [mist] step   80  L=1.059840e+05  Linf01=0.0627  L2=151.107
+  [mist] step   90  L=1.054720e+05  Linf01=0.0627  L2=152.722
+  [mist] step   99  L=1.059840e+05  Linf01=0.0627  L2=152.664
+
+[train] done=1 failed=0 skipped=0 resumed=6
+===== rayscale =====
+[env] 載入 SDXLWrapper(stabilityai/stable-diffusion-xl-base-1.0) dtype=torch.bfloat16
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/7 [00:00<?, ?it/s]Loading pipeline components...:  43%|████▎     | 3/7 [00:00<00:00, 15.46it/s]
+Loading weights:   0%|          | 0/517 [00:00<?, ?it/s][A
+Loading weights:  36%|███▌      | 184/517 [00:00<00:00, 1803.09it/s][A
+Loading weights:  71%|███████   | 365/517 [00:00<00:00, 1746.38it/s][ALoading weights: 100%|██████████| 517/517 [00:00<00:00, 1768.07it/s]
+
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 2276.84it/s]
+Loading pipeline components...:  71%|███████▏  | 5/7 [00:00<00:00,  4.96it/s]Loading pipeline components...:  86%|████████▌ | 6/7 [00:01<00:00,  2.31it/s]Loading pipeline components...: 100%|██████████| 7/7 [00:02<00:00,  3.42it/s]
+There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+[env] 影像 1 張：['bird_03']
+
+[preflight] 以下事項會影響本批的結果，請先處理：
+  - tau_acut 仍為 0.04，那是在 τ_lpips=0.05 的量級上由人眼判讀定出的絕對值；本輪訓練在 τ=0.2。需重新判讀後以 --tau-acut 指定（objective.py「門檻的適用範圍」）
+  - tau_chroma 仍為 0.8，同上，需重新判讀
+
+
+[rayscale] done=26 failed=0 skipped=2 resumed=0
+===== eval =====
+[env] 載入 SDXLWrapper(stabilityai/stable-diffusion-xl-base-1.0) dtype=torch.bfloat16
+Loading pipeline components...:   0%|          | 0/7 [00:00<?, ?it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 2318.92it/s]
+Loading pipeline components...:  14%|█▍        | 1/7 [00:00<00:01,  4.47it/s]
+Loading weights:   0%|          | 0/517 [00:00<?, ?it/s][A
+Loading weights:  39%|███▉      | 204/517 [00:00<00:00, 2039.30it/s][A
+Loading weights:  79%|███████▉  | 408/517 [00:00<00:00, 1819.18it/s][ALoading weights: 100%|██████████| 517/517 [00:00<00:00, 1865.81it/s]
+Loading pipeline components...:  29%|██▊       | 2/7 [00:00<00:01,  2.76it/s]Loading pipeline components...:  43%|████▎     | 3/7 [00:00<00:00,  4.02it/s]Loading pipeline components...:  71%|███████▏  | 5/7 [00:00<00:00,  6.94it/s]Loading pipeline components...:  86%|████████▌ | 6/7 [00:01<00:00,  2.46it/s]Loading pipeline components...: 100%|██████████| 7/7 [00:01<00:00,  3.52it/s]
+There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+[env] 影像 1 張：['bird_03']
+
+[preflight] 以下事項會影響本批的結果，請先處理：
+  - tau_acut 仍為 0.04，那是在 τ_lpips=0.05 的量級上由人眼判讀定出的絕對值；本輪訓練在 τ=0.2。需重新判讀後以 --tau-acut 指定（objective.py「門檻的適用範圍」）
+  - tau_chroma 仍為 0.8，同上，需重新判讀
+
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 18422.87it/s]
+[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
+[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
+Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights:  86%|████████▌ | 351/408 [00:00<00:00, 3503.85it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 3454.03it/s]
+  [control] 50/95  done=45 failed=0 resumed=0
+
+[control] done=90 failed=0 skipped=5 resumed=0
+  [eval] 50/980  done=45 failed=0 resumed=0
+  [eval] 100/980  done=95 failed=0 resumed=0
+  [eval] 150/980  done=140 failed=0 resumed=0
+  [eval] 200/980  done=185 failed=0 resumed=0
+  [eval] 250/980  done=235 failed=0 resumed=0
+  [eval] 300/980  done=270 failed=0 resumed=0
+  [eval] 350/980  done=315 failed=0 resumed=0
+  [eval] 400/980  done=365 failed=0 resumed=0
+  [eval] 450/980  done=410 failed=0 resumed=0
+  [eval] 500/980  done=455 failed=0 resumed=0
+  [eval] 550/980  done=505 failed=0 resumed=0
+  [eval] 650/980  done=595 failed=0 resumed=0
+  [eval] 700/980  done=640 failed=0 resumed=0
+  [eval] 750/980  done=685 failed=0 resumed=0
+  [eval] 800/980  done=735 failed=0 resumed=0
+  [eval] 850/980  done=780 failed=0 resumed=0
+  [eval] 900/980  done=825 failed=0 resumed=0
+  [eval] 950/980  done=875 failed=0 resumed=0
+
+[eval] done=900 failed=0 skipped=80 resumed=0
+[exit 0]

@@ -1,0 +1,283 @@
+[env] 載入 SDXLWrapper(stabilityai/stable-diffusion-xl-base-1.0) dtype=torch.bfloat16
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/7 [00:00<?, ?it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 2446.45it/s]
+Loading pipeline components...:  29%|██▊       | 2/7 [00:00<00:00,  7.22it/s]Loading pipeline components...:  71%|███████▏  | 5/7 [00:00<00:00, 12.77it/s]
+Loading weights:   0%|          | 0/517 [00:00<?, ?it/s][A
+Loading weights:  36%|███▌      | 184/517 [00:00<00:00, 1809.92it/s][A
+Loading weights:  73%|███████▎  | 376/517 [00:00<00:00, 1873.33it/s][ALoading weights: 100%|██████████| 517/517 [00:00<00:00, 1877.20it/s]
+Loading pipeline components...: 100%|██████████| 7/7 [00:02<00:00,  2.72it/s]Loading pipeline components...: 100%|██████████| 7/7 [00:02<00:00,  3.41it/s]
+There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+[env] 影像 3 張：['bird_03', 'cat_02', 'dog_03']
+[calib] 另載入 SDXLWrapper(stabilityai/stable-diffusion-xl-base-1.0) fp32 作為參考
+Loading pipeline components...:   0%|          | 0/7 [00:00<?, ?it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 2018.80it/s]
+Loading pipeline components...:  29%|██▊       | 2/7 [00:00<00:00,  7.34it/s]Loading pipeline components...:  71%|███████▏  | 5/7 [00:00<00:00, 12.20it/s]
+Loading weights:   0%|          | 0/517 [00:00<?, ?it/s][A
+Loading weights:  30%|███       | 157/517 [00:00<00:00, 1557.96it/s][A
+Loading weights:  63%|██████▎   | 326/517 [00:00<00:00, 1604.50it/s][A
+Loading weights:  95%|█████████▍| 489/517 [00:00<00:00, 1615.80it/s][ALoading weights: 100%|██████████| 517/517 [00:00<00:00, 1615.02it/s]
+Loading pipeline components...: 100%|██████████| 7/7 [00:02<00:00,  2.53it/s]Loading pipeline components...: 100%|██████████| 7/7 [00:02<00:00,  3.19it/s]
+There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 5285.49it/s]
+[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
+[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
+Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights:  89%|████████▉ | 365/408 [00:00<00:00, 3639.83it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 3623.90it/s]
+  [stage default] lr=0.0001（lr.N1）上限 60 步
+/nfs/home/nelson0314/WACV/src/defense/objective.py:550: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /__w/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:822.)
+  "fid_linf_total": float((xd - xr).abs().max()),
+  [default] step    0  loss=0.9840  L_def=0.9840  L_fid=0.0000  |g|=2.385e-04
+  [default] step   10  loss=0.9840  L_def=0.9840  L_fid=0.0000  |g|=2.238e-04
+  [default] step   20  loss=0.9840  L_def=0.9840  L_fid=0.0000  |g|=1.337e-04
+  [default] step   30  loss=0.9840  L_def=0.9840  L_fid=0.0000  |g|=1.622e-04
+  [default] step   40  loss=0.9840  L_def=0.9840  L_fid=0.0000  |g|=1.584e-04
+  [default] step   50  loss=0.9840  L_def=0.9840  L_fid=0.0000  |g|=2.110e-04
+  [default] step   59  loss=0.9840  L_def=0.9840  L_fid=0.0000  |g|=1.973e-04
+  [stage default] lr=0.001（lr.N1）上限 60 步
+  [default] step    0  loss=0.9840  L_def=0.9840  L_fid=0.0000  |g|=2.380e-04
+  [default] step   10  loss=0.9840  L_def=0.9840  L_fid=0.0000  |g|=1.369e-04
+  [default] step   20  loss=0.9840  L_def=0.9840  L_fid=0.0000  |g|=1.390e-04
+  [default] step   30  loss=0.9840  L_def=0.9840  L_fid=0.0000  |g|=1.954e-04
+  [default] step   40  loss=0.9840  L_def=0.9840  L_fid=0.0000  |g|=1.575e-04
+  [default] step   50  loss=0.9840  L_def=0.9840  L_fid=0.0000  |g|=9.769e-05
+  [default] step   59  loss=0.9840  L_def=0.9840  L_fid=0.0000  |g|=1.230e-04
+  [stage default] lr=0.005（lr.N1）上限 60 步
+  [default] step    0  loss=0.9840  L_def=0.9840  L_fid=0.0000  |g|=2.384e-04
+  [default] step   10  loss=0.9840  L_def=0.9840  L_fid=0.0000  |g|=1.577e-04
+  [default] step   20  loss=0.9840  L_def=0.9840  L_fid=0.0000  |g|=8.499e-05
+  [default] step   30  loss=0.9840  L_def=0.9840  L_fid=0.0000  |g|=1.214e-04
+  [default] step   40  loss=0.9840  L_def=0.9840  L_fid=0.0000  |g|=1.539e-04
+  [default] step   50  loss=0.9840  L_def=0.9840  L_fid=0.0000  |g|=1.250e-04
+  [default] step   59  loss=0.9840  L_def=0.9840  L_fid=0.0000  |g|=1.048e-04
+  [stage default] lr=0.02（lr.N1）上限 60 步
+  [default] step    0  loss=0.9840  L_def=0.9840  L_fid=0.0000  |g|=2.383e-04
+  [default] step   10  loss=0.9840  L_def=0.9840  L_fid=0.0000  |g|=1.549e-04
+  [default] step   20  loss=0.9840  L_def=0.9840  L_fid=0.0000  |g|=1.272e-04
+  [default] step   30  loss=0.9840  L_def=0.9840  L_fid=0.0000  |g|=1.110e-04
+  [default] step   40  loss=0.9840  L_def=0.9840  L_fid=0.0000  |g|=1.297e-04
+  [default] step   50  loss=0.9840  L_def=0.9840  L_fid=0.0000  |g|=8.839e-05
+  [default] step   59  loss=0.9840  L_def=0.9840  L_fid=0.0000  |g|=1.259e-04
+  [stage default] lr=0.1（lr.N1）上限 60 步
+  [default] step    0  loss=0.9840  L_def=0.9840  L_fid=0.0000  |g|=2.384e-04
+  [default] step   10  loss=0.9840  L_def=0.9840  L_fid=0.0000  |g|=1.289e-04
+  [default] step   20  loss=0.9840  L_def=0.9840  L_fid=0.0000  |g|=1.012e-04
+  [default] step   30  loss=0.9840  L_def=0.9840  L_fid=0.0000  |g|=6.692e-05
+  [default] step   40  loss=0.9840  L_def=0.9840  L_fid=0.0000  |g|=2.149e-04
+  [default] step   50  loss=0.9840  L_def=0.9840  L_fid=0.0000  |g|=9.362e-05
+  [default] step   59  loss=0.9840  L_def=0.9840  L_fid=0.0000  |g|=6.962e-05
+  [stage default] lr=0.0001（lr.N2）上限 60 步
+  [default] step    0  loss=0.7424  L_def=0.7424  L_fid=0.0000  |g|=3.068e-01
+  [default] step   10  loss=0.6842  L_def=0.6842  L_fid=0.0000  |g|=1.182e-01
+  [default] step   20  loss=0.7318  L_def=0.7318  L_fid=0.0000  |g|=9.238e-02
+  [default] step   30  loss=0.7427  L_def=0.7427  L_fid=0.0000  |g|=1.774e-01
+  [default] step   40  loss=0.6846  L_def=0.6846  L_fid=0.0000  |g|=1.381e-01
+  [default] step   50  loss=0.7287  L_def=0.7287  L_fid=0.0000  |g|=1.017e-01
+  [default] step   59  loss=0.7319  L_def=0.7319  L_fid=0.0000  |g|=1.030e-01
+  [stage default] lr=0.001（lr.N2）上限 60 步
+  [default] step    0  loss=0.7424  L_def=0.7424  L_fid=0.0000  |g|=3.058e-01
+  [default] step   10  loss=0.6828  L_def=0.6828  L_fid=0.0000  |g|=1.281e-01
+  [default] step   20  loss=0.7315  L_def=0.7315  L_fid=0.0000  |g|=2.052e-01
+  [default] step   30  loss=0.7450  L_def=0.7450  L_fid=0.0000  |g|=1.779e-01
+  [default] step   40  loss=0.6803  L_def=0.6803  L_fid=0.0000  |g|=6.782e-02
+  [default] step   50  loss=0.7368  L_def=0.7368  L_fid=0.0000  |g|=7.936e-02
+  [default] step   59  loss=0.7346  L_def=0.7346  L_fid=0.0000  |g|=9.962e-02
+  [stage default] lr=0.005（lr.N2）上限 60 步
+  [default] step    0  loss=0.7424  L_def=0.7424  L_fid=0.0000  |g|=2.953e-01
+  [default] step   10  loss=0.6827  L_def=0.6827  L_fid=0.0000  |g|=8.960e-02
+  [default] step   20  loss=0.7395  L_def=0.7395  L_fid=0.0000  |g|=1.666e-01
+  [default] step   30  loss=0.7402  L_def=0.7402  L_fid=0.0000  |g|=7.390e-02
+  [default] step   40  loss=0.6791  L_def=0.6791  L_fid=0.0000  |g|=6.975e-02
+  [default] step   50  loss=0.7339  L_def=0.7339  L_fid=0.0000  |g|=2.758e-01
+  [default] step   59  loss=0.7325  L_def=0.7325  L_fid=0.0000  |g|=1.038e-01
+  [stage default] lr=0.02（lr.N2）上限 60 步
+  [default] step    0  loss=0.7424  L_def=0.7424  L_fid=0.0000  |g|=3.086e-01
+  [default] step   10  loss=0.6822  L_def=0.6822  L_fid=0.0000  |g|=9.947e-02
+  [default] step   20  loss=0.7388  L_def=0.7388  L_fid=0.0000  |g|=1.972e-01
+  [default] step   30  loss=0.7353  L_def=0.7353  L_fid=0.0000  |g|=6.190e-02
+  [default] step   40  loss=0.6753  L_def=0.6753  L_fid=0.0000  |g|=8.540e-02
+  [default] step   50  loss=0.7360  L_def=0.7360  L_fid=0.0000  |g|=1.268e-01
+  [default] step   59  loss=0.7371  L_def=0.7371  L_fid=0.0000  |g|=1.194e-01
+  [stage default] lr=0.1（lr.N2）上限 60 步
+  [default] step    0  loss=0.7424  L_def=0.7424  L_fid=0.0000  |g|=2.944e-01
+  [default] step   10  loss=0.6813  L_def=0.6813  L_fid=0.0000  |g|=6.661e-02
+  [default] step   20  loss=0.7336  L_def=0.7336  L_fid=0.0000  |g|=2.093e-01
+  [default] step   30  loss=0.7227  L_def=0.7227  L_fid=0.0000  |g|=1.359e-01
+  [default] step   40  loss=0.6596  L_def=0.6596  L_fid=0.0000  |g|=8.490e-02
+  [default] step   50  loss=0.7242  L_def=0.7242  L_fid=0.0000  |g|=1.169e-01
+  [default] step   59  loss=0.7233  L_def=0.7233  L_fid=0.0000  |g|=1.641e-01
+  [align] group=stage1 lr=0.0001（lr.N3_stage1）60 步
+  [align] 門檻取自本圖的重建下限：psnr≥36.71dB lpips≤0.0986 acut≤0.1718 chroma≤0.4544
+  [align] step    0  loss=3.3654  lpips=0.1092  psnr=36.45
+  [align] step   10  loss=2.2522  lpips=0.1168  psnr=36.27
+  [align] step   20  loss=2.2587  lpips=0.1162  psnr=36.21
+  [align] step   30  loss=1.8633  lpips=0.1127  psnr=36.25
+  [align] step   40  loss=1.6336  lpips=0.1109  psnr=36.30
+  [align] step   50  loss=1.2471  lpips=0.1079  psnr=36.39
+  [align] step   59  loss=1.1334  lpips=0.1070  psnr=36.41
+  [align] group=stage1 lr=0.001（lr.N3_stage1）60 步
+  [align] 門檻取自本圖的重建下限：psnr≥36.71dB lpips≤0.0986 acut≤0.1718 chroma≤0.4544
+  [align] step    0  loss=3.3654  lpips=0.1092  psnr=36.45
+  [align] step   10  loss=1.4680  lpips=0.1092  psnr=36.30
+  [align] step   20  loss=0.7371  lpips=0.1041  psnr=36.52
+  [align] step   30  loss=0.5167  lpips=0.1014  psnr=36.47
+  [align] step   40  loss=0.0548  lpips=0.0985  psnr=36.65
+  [align] step   50  loss=0.0341  lpips=0.0982  psnr=36.67
+  [align] step   59  loss=0.0000  lpips=0.0978  psnr=36.77
+  [align] 還原第 48 步的 φ（loss=0.0000）；最後一步為 0.0000
+  [align] group=stage1 lr=0.005（lr.N3_stage1）60 步
+  [align] 門檻取自本圖的重建下限：psnr≥36.71dB lpips≤0.0986 acut≤0.1718 chroma≤0.4544
+  [align] step    0  loss=3.3654  lpips=0.1092  psnr=36.45
+  [align] step   10  loss=50.7459  lpips=0.1583  psnr=34.00
+  [align] step   20  loss=23.8484  lpips=0.1559  psnr=33.94
+  [align] step   30  loss=20.3198  lpips=0.1496  psnr=33.71
+  [align] step   40  loss=118.4504  lpips=0.2121  psnr=30.85
+  [align] step   50  loss=75.0809  lpips=0.2019  psnr=31.27
+  [align] step   59  loss=210.9059  lpips=0.2396  psnr=29.45
+  [align] 還原第 0 步的 φ（loss=3.3654）；最後一步為 210.9059
+  [align] group=stage1 lr=0.02（lr.N3_stage1）60 步
+  [align] 門檻取自本圖的重建下限：psnr≥36.71dB lpips≤0.0986 acut≤0.1718 chroma≤0.4544
+  [align] step    0  loss=3.3654  lpips=0.1092  psnr=36.45
+  [align] step   10  loss=999.2149  lpips=0.6226  psnr=18.45
+  [align] step   20  loss=825.7750  lpips=0.6207  psnr=17.41
+  [align] step   30  loss=758.5684  lpips=0.6179  psnr=16.72
+  [align] step   40  loss=668.9635  lpips=0.6117  psnr=16.94
+  [align] step   50  loss=626.4184  lpips=0.6087  psnr=16.72
+  [align] step   59  loss=619.0453  lpips=0.6089  psnr=16.56
+  [align] 還原第 0 步的 φ（loss=3.3654）；最後一步為 619.0453
+  [align] group=stage1 lr=0.1（lr.N3_stage1）60 步
+  [align] 門檻取自本圖的重建下限：psnr≥36.71dB lpips≤0.0986 acut≤0.1718 chroma≤0.4544
+  [align] step    0  loss=3.3654  lpips=0.1092  psnr=36.45
+  [align] step   10  loss=927.2706  lpips=0.6192  psnr=17.86
+  [align] step   20  loss=820.4081  lpips=0.6197  psnr=17.55
+  [align] step   30  loss=821.8004  lpips=0.6206  psnr=17.09
+  [align] step   40  loss=795.0085  lpips=0.6178  psnr=16.69
+  [align] step   50  loss=802.1101  lpips=0.6230  psnr=16.56
+  [align] step   59  loss=784.0162  lpips=0.6191  psnr=16.62
+  [align] 還原第 0 步的 φ（loss=3.3654）；最後一步為 784.0162
+  [stage stage2] lr=0.0001（lr.N3_stage2）上限 60 步
+  [stage2] step    0  loss=0.0190  L_def=0.0190  L_fid=0.0000  |g|=1.257e-03
+  [stage2] step   10  loss=0.0190  L_def=0.0190  L_fid=0.0000  |g|=7.099e-04
+  [stage2] step   20  loss=0.0190  L_def=0.0190  L_fid=0.0000  |g|=1.110e-03
+  [stage2] step   30  loss=0.0190  L_def=0.0190  L_fid=0.0000  |g|=1.301e-03
+  [stage2] step   40  loss=0.0191  L_def=0.0191  L_fid=0.0000  |g|=2.853e-03
+  [stage2] step   50  loss=0.0190  L_def=0.0190  L_fid=0.0000  |g|=1.420e-03
+  [stage2] step   59  loss=0.0189  L_def=0.0189  L_fid=0.0000  |g|=9.760e-04
+  [stage stage2] lr=0.001（lr.N3_stage2）上限 60 步
+  [stage2] step    0  loss=0.0190  L_def=0.0190  L_fid=0.0000  |g|=1.249e-03
+  [stage2] step   10  loss=0.0190  L_def=0.0190  L_fid=0.0000  |g|=1.406e-03
+  [stage2] step   20  loss=0.0189  L_def=0.0189  L_fid=0.0000  |g|=1.576e-03
+  [stage2] step   30  loss=0.0191  L_def=0.0191  L_fid=0.0000  |g|=1.562e-03
+  [stage2] step   40  loss=0.0190  L_def=0.0190  L_fid=0.0000  |g|=4.469e-03
+  [stage2] step   50  loss=0.0190  L_def=0.0190  L_fid=0.0000  |g|=1.842e-03
+  [stage2] step   59  loss=0.0188  L_def=0.0188  L_fid=0.0000  |g|=1.552e-03
+  [stage stage2] lr=0.005（lr.N3_stage2）上限 60 步
+  [stage2] step    0  loss=0.0190  L_def=0.0190  L_fid=0.0000  |g|=1.258e-03
+  [stage2] step   10  loss=0.0190  L_def=0.0190  L_fid=0.0000  |g|=8.444e-04
+  [stage2] step   20  loss=0.0189  L_def=0.0189  L_fid=0.0000  |g|=2.836e-03
+  [stage2] step   30  loss=0.0189  L_def=0.0189  L_fid=0.0000  |g|=1.336e-03
+  [stage2] step   40  loss=0.0187  L_def=0.0187  L_fid=0.0000  |g|=2.754e-03
+  [stage2] step   50  loss=0.0187  L_def=0.0187  L_fid=0.0000  |g|=4.582e-03
+  [stage2] step   59  loss=0.0184  L_def=0.0184  L_fid=0.0000  |g|=8.272e-03
+  [stage stage2] lr=0.02（lr.N3_stage2）上限 60 步
+  [stage2] step    0  loss=0.0190  L_def=0.0190  L_fid=0.0000  |g|=1.257e-03
+  [stage2] step   10  loss=0.0189  L_def=0.0189  L_fid=0.0000  |g|=2.983e-03
+  [stage2] step   20  loss=0.0186  L_def=0.0186  L_fid=0.0000  |g|=8.739e-03
+  [stage2] step   30  loss=0.0187  L_def=0.0187  L_fid=0.0000  |g|=9.898e-03
+  [stage2] step   40  loss=0.0187  L_def=0.0187  L_fid=0.0000  |g|=1.117e-02
+  [stage2] step   50  loss=0.0191  L_def=0.0191  L_fid=0.0000  |g|=6.474e-03
+  [stage2] step   59  loss=0.0188  L_def=0.0188  L_fid=0.0000  |g|=9.076e-03
+  [stage stage2] lr=0.1（lr.N3_stage2）上限 60 步
+  [stage2] step    0  loss=0.0190  L_def=0.0190  L_fid=0.0000  |g|=1.264e-03
+  [stage2] step   10  loss=6.1481  L_def=0.0192  L_fid=6.1288  |g|=1.000e+00
+  [stage2] step   20  loss=12.1256  L_def=0.0198  L_fid=12.1058  |g|=1.000e+00
+  [stage2] step   30  loss=16.0102  L_def=0.0201  L_fid=15.9901  |g|=1.000e+00
+  [stage2] step   40  loss=8.4250  L_def=0.0215  L_fid=8.4035  |g|=1.000e+00
+  [stage2] step   50  loss=7.7228  L_def=0.0224  L_fid=7.7003  |g|=1.000e+00
+  [stage2] step   59  loss=8.2975  L_def=0.0236  L_fid=8.2739  |g|=1.000e+00
+
+[calib] 校準表寫入 /nfs/home/nelson0314/wacv_runs/b3/calib/calibration.json
+{
+  "micro_bench": {
+    "vae_roundtrip": 0.633817670866847,
+    "sdedit_50steps": 14.034761759918183
+  },
+  "precision_equiv": {
+    "dtype": "bfloat16",
+    "compared": true,
+    "rows": [
+      {
+        "op": "vae_roundtrip",
+        "dtype": "bfloat16",
+        "reference": "float32",
+        "max_abs": 0.19690388441085815,
+        "rel_l2": 0.008964276872575283,
+        "psnr": 45.7722843285702,
+        "note": ""
+      },
+      {
+        "op": "eps",
+        "dtype": "bfloat16",
+        "reference": "float32",
+        "max_abs": 1.8160710334777832,
+        "rel_l2": 0.12388662248849869,
+        "psnr": 23.346259787577345,
+        "note": ""
+      },
+      {
+        "op": "sdedit",
+        "dtype": "bfloat16",
+        "reference": "float32",
+        "max_abs": 0.4300035238265991,
+        "rel_l2": 0.022205505520105362,
+        "psnr": 37.790268122741345,
+        "note": ""
+      }
+    ]
+  },
+  "strength": {
+    "recommended": 0.8,
+    "mean_effect_siglip": {
+      "0.3": 0.013569357494513193,
+      "0.4": 0.015560675412416458,
+      "0.5": 0.015075857130189737,
+      "0.6": 0.026554851482311886,
+      "0.7": 0.07108560142417748,
+      "0.8": 0.08181519992649555
+    }
+  },
+  "editable": {
+    "threshold": 0.0,
+    "passed": [
+      "bird_03",
+      "cat_02",
+      "dog_03"
+    ],
+    "n_passed": 3,
+    "n_total": 3
+  },
+  "warp_reach": {
+    "min_lpips_at_bound": 0.39136943221092224,
+    "covers_train_tau": true
+  },
+  "calibration_keys": [
+    "lr.N1",
+    "lr.N2",
+    "lr.N3_stage1",
+    "lr.N3_stage2",
+    "precision_equiv.eps.rel_l2",
+    "precision_equiv.sdedit.rel_l2",
+    "precision_equiv.vae_roundtrip.rel_l2",
+    "stop_tol.edit_shift",
+    "stop_tol.shared_mass",
+    "strength.recommended",
+    "warp.min_lpips_at_bound"
+  ]
+}
+[exit 0]

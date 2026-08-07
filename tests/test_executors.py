@@ -994,3 +994,67 @@ def test_dia的context把checkpoint交給eps():
     src = inspect.getsource(dia._step)
     assert "use_ckpt=ctx.use_ckpt" in src, "_step 沒有把 checkpoint 設定交給 _eps"
     assert "use_ckpt" in inspect.signature(dia.prepare).parameters
+
+
+def test_dia_r的兩次vae呼叫也吃checkpoint設定(tmp_path):
+    """只包 UNet 不夠：DIA-R 的圖上還有一次 VAE 編碼與一次 VAE 解碼。
+
+    2026-08-07 修正。before：`baseline_kwargs` 只傳 `use_ckpt`，而 2026-08-06
+    那次修正也只涵蓋 `_eps`。實測 dia_r 在 SDXL／1024²／bf16 改在
+    `sd.vae.decode` 以 `torch.OutOfMemoryError` 中止（Tried to allocate
+    256.00 MiB，22.91 GiB 已被活著的張量佔用）。
+
+    兩者都取確定性的值（編碼是 `.mode()`、解碼是純函式），重算逐位元相同，
+    故可安全 checkpoint。DIA-PT 的 `_encode_pt` 走 `.sample()`，不套用。
+    """
+    import inspect
+
+    from src.baselines import dia
+
+    res = make_res(tmp_path)
+    assert executors.baseline_kwargs(
+        "dia_r", res, res.image("dog_00"))["vae_ckpt"] is True
+    off = make_res(tmp_path / "off", vae_ckpt=False)
+    assert executors.baseline_kwargs(
+        "dia_r", off, off.image("dog_00"))["vae_ckpt"] is False
+
+    assert "vae_ckpt" in inspect.signature(dia.prepare).parameters
+    src = inspect.getsource(dia.loss_fn)
+    assert "use_ckpt=ctx.vae_ckpt" in src, "DIA-R 的 VAE 編碼沒有吃 vae_ckpt"
+    assert "ckpt.checkpoint(_dec" in src, "DIA-R 的 VAE 解碼沒有被 checkpoint"
+    # 不裁切是對原作的忠實項（`utils_general_H.py:312-318`），故解碼必須
+    # 仍然直接走 `sd.vae.decode`，不得為了包 checkpoint 而改用會 clamp 的
+    # `decode_latent`。以正面斷言檢查：該識別字在本函式的說明註解裡本來
+    # 就會出現，用「不存在」來驗會驗到註解而非程式。
+    assert "sd.vae.decode(" in src
+
+
+def test_mist拿到unet的checkpoint設定但vae不包(tmp_path):
+    """mist 的 fused mode 把兩次 VAE 編碼與一次完整 UNet 前向放在同一張圖上。
+
+    2026-08-07 修正。before：`baseline_kwargs` 完全沒給 mist 任何 checkpoint
+    設定，`_semantic_loss` 的 `sd._eps` 因此永遠不包。實測在 SDXL／1024²／
+    bf16 於**第一次計算損失前**即 OOM，且在全新行程中單獨跑同樣失敗——
+    不是跨格累積，是單格容量。
+
+    VAE 那兩次刻意不包：`latent_dist.sample(generator)` 用的是顯式
+    `Generator`，`use_reentrant=False` 保存的預設 RNG 狀態管不到它，重算會
+    抽到另一個樣本，使反向的梯度屬於另一個函式。此處把「不包」也釘住，
+    避免日後為了省記憶體而順手加上去。
+    """
+    import inspect
+
+    from src.baselines import mist
+
+    res = make_res(tmp_path)
+    kw = executors.baseline_kwargs("mist", res, res.image("dog_00"))
+    assert kw["use_ckpt"] is True
+    off = make_res(tmp_path / "off", unet_ckpt=False)
+    assert executors.baseline_kwargs(
+        "mist", off, off.image("dog_00"))["use_ckpt"] is False
+
+    assert "use_ckpt" in inspect.signature(mist.prepare).parameters
+    assert "use_ckpt=ctx.use_ckpt" in inspect.getsource(mist._semantic_loss)
+    enc = inspect.getsource(mist._encode_sampled)
+    assert "checkpoint" not in enc.replace(mist._encode_sampled.__doc__, ""), (
+        "取樣的 VAE 編碼被 checkpoint：重算會抽到另一個樣本")

@@ -54,13 +54,29 @@ MIST_PROMPT = "a painting"
 
 
 class MistContext:
-    def __init__(self, sd, spec, z_target, emb, mode, rate, generator):
+    def __init__(self, sd, spec, z_target, emb, mode, rate, generator,
+                 use_ckpt: bool = False):
         self.spec = spec
         self.z_target = z_target
         self.emb = emb
         self.mode = mode
         self.rate = rate
         self.generator = generator
+        # fused mode（本專案採用的預設）在**同一張計算圖**上放三樣東西：
+        # textural 的一次 VAE 編碼、`_semantic_loss` 內的另一次 VAE 編碼、
+        # 以及一次完整的 UNet 前向。不做 checkpoint 時 peak 是三者之和。
+        #
+        # 2026-08-07 實測於 RTX 3090（23.56 GB）、SDXL、1024²、bf16：mist 在
+        # 第一次計算損失時即 `torch.OutOfMemoryError`，訊息為「23.14 GiB is
+        # allocated by PyTorch」——**活著的張量**，不是快取碎片；且在全新
+        # 行程中單獨跑同樣失敗（`b3_bird_03/diag_mist.log`），故不是跨格累積。
+        # 512²／SD v1.4 的同一格則正常跑完（v14 三張圖 `done=7 failed=0`），
+        # 即這是 1024² 專屬的容量問題。
+        #
+        # `use_ckpt` 只作用於 UNet。VAE 那兩次刻意不包，理由見
+        # `_encode_sampled`。重算的是同一個函式，**數值中性**，故不進
+        # `config_hash`——與 `1024633` 對 DIA 的處理同一原則。
+        self.use_ckpt = bool(use_ckpt)
         self.mse_sum = torch.nn.MSELoss(reduction="sum")
 
 
@@ -70,6 +86,15 @@ def _encode_sampled(sd, x_paper: torch.Tensor, generator) -> torch.Tensor:
     對應 `get_first_stage_encoding(encode_first_stage(x))`。**必須取樣**，
     見模組 docstring。`scale_factor` 取自模型設定（SD v1.x 為 0.18215，
     與 `configs/stable-diffusion/v1-inference-attack.yaml` 一致）。
+
+    **本函式刻意不接 `use_ckpt`。** `torch.utils.checkpoint` 會在反向時重算
+    區塊，而 `latent_dist.sample(generator)` 用的是呼叫端持有的顯式
+    `Generator`——`use_reentrant=False` 保存的是預設 RNG 狀態，管不到它，
+    重算時會**再抽一個樣本**，於是反向傳播算的梯度屬於另一個函式。那是
+    不會有任何症狀的數值汙染。要 checkpoint 這一段，必須先把 eps 抽在區塊
+    外再以 `mean + std·eps` 重參數化，而那需要逐字核對 diffusers 的
+    `DiagonalGaussianDistribution.sample` 才能保證與原作等價；在 UNet 的
+    checkpoint 已足夠放下這一格之前不值得引入該風險。
     """
     post = sd.vae.encode(x_paper.to(sd.vae.dtype)).latent_dist
     return post.sample(generator) * sd.scaling_factor
@@ -85,6 +110,7 @@ def prepare(
     rate: float = 1e4,
     block_num: int = 1,
     seed: int = 23,
+    use_ckpt: bool = False,
     **_,
 ) -> MistContext:
     """預設值取自 CLI：`--mode` 2（fused）、`--rate` 1 → `10**(1+3)` = 1e4
@@ -112,7 +138,8 @@ def prepare(
     with torch.no_grad():
         z_target = _encode_sampled(sd, tgt_paper, generator).detach()
     emb = sd.encode_text(MIST_PROMPT).detach()
-    return MistContext(sd, spec, z_target, emb, mode, rate, generator)
+    return MistContext(sd, spec, z_target, emb, mode, rate, generator,
+                       use_ckpt=use_ckpt)
 
 
 def _semantic_loss(sd, x_paper: torch.Tensor, ctx: MistContext) -> torch.Tensor:
@@ -139,7 +166,8 @@ def _semantic_loss(sd, x_paper: torch.Tensor, ctx: MistContext) -> torch.Tensor:
     z_noisy = abar.sqrt() * z + (1 - abar).sqrt() * noise
     # `expand_cond` 而非 `.expand(...)`：SDXL 的條件是 SDXLPrompt，
     # 沒有 `expand` 方法，且 pooled 是二維、序列嵌入是三維，要分別處理。
-    eps_pred = sd._eps(z_noisy, t, expand_cond(ctx.emb, z.shape[0]))
+    eps_pred = sd._eps(z_noisy, t, expand_cond(ctx.emb, z.shape[0]),
+                       use_ckpt=ctx.use_ckpt)
     return ((noise - eps_pred) ** 2).mean(dim=[1, 2, 3]).mean()
 
 

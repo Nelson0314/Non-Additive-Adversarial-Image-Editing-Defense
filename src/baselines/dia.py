@@ -47,6 +47,7 @@ sign 更新下不影響方向，此處照原始碼。
 from typing import Optional
 
 import torch
+import torch.utils.checkpoint as ckpt
 
 from src.baselines.pgd import BaselineSpec, ValueRange
 
@@ -127,7 +128,7 @@ def resolve_final_abar(sd, abar: torch.Tensor) -> torch.Tensor:
 
 class DIAContext:
     def __init__(self, sd, spec, variant, emb, ts, num_inference_steps,
-                 generator, use_ckpt: bool = False):
+                 generator, use_ckpt: bool = False, vae_ckpt: bool = False):
         self.spec = spec
         # DIA 的損失把整條反演（DIA-R 還加上整條重建）留在同一張計算圖上，
         # 即 `num_inference_steps` 或其兩倍次 UNet 前向。SDXL 在 1024² 下
@@ -140,6 +141,18 @@ class DIAContext:
         # 故它不進 `config_hash`，與 `unet_ckpt` 對非加性條件的處理一致；
         # 代價是時間乘二。
         self.use_ckpt = bool(use_ckpt)
+        # 上面那次修正只涵蓋 UNet。2026-08-07 實測 dia_r 在 1024² 下再次
+        # OOM，而這次的位置是 **`sd.vae.decode`**（訊息：Tried to allocate
+        # 256.00 MiB，22.91 GiB is allocated by PyTorch）——DIA-R 的圖上除了
+        # 20 次已 checkpoint 的前向，還有一次 VAE 編碼與一次 VAE 解碼，
+        # 1024² 下這兩者的中間激活同時留存。`vae_ckpt` 讓兩者各成一個區塊，
+        # peak 由兩者之和降為最大值。
+        #
+        # 只對 DIA-R 這條路成立：它的編碼取 `.mode()`、解碼是純函式，兩者
+        # **確定性**，重算得到逐位元相同的結果。DIA-PT 的 `_encode_pt` 走
+        # `.sample()`，重算會抽到另一個樣本而使反向的梯度屬於另一個函式，
+        # 故不套用——該變體本來就不在本輪格點內（`grid.EXCLUDED`）。
+        self.vae_ckpt = bool(vae_ckpt)
         self.variant = variant
         self.emb = emb
         self.ts = ts
@@ -185,10 +198,19 @@ def _encode_pt(sd, x_paper, generator):
     return mode + (sample - mode).detach()
 
 
-def _encode_r(sd, x_paper):
-    """DIA-R：前向與反傳都是 `.mode()`（`DIA_R.py:353`、`vjp_encode_fn`）。"""
-    post = sd.vae.encode(x_paper.to(sd.vae.dtype)).latent_dist
-    return post.mode() * sd.scaling_factor
+def _encode_r(sd, x_paper, use_ckpt: bool = False):
+    """DIA-R：前向與反傳都是 `.mode()`（`DIA_R.py:353`、`vjp_encode_fn`）。
+
+    `.mode()` 是確定性的（取後驗的均值，不抽樣），故 checkpoint 的重算逐位元
+    相同，可以安全包起來。理由與時機見 `DIAContext.vae_ckpt`。
+    """
+    def _enc(a):
+        return sd.vae.encode(a).latent_dist.mode() * sd.scaling_factor
+
+    x = x_paper.to(sd.vae.dtype)
+    if use_ckpt:
+        return ckpt.checkpoint(_enc, x, use_reentrant=False)
+    return _enc(x)
 
 
 def prepare(
@@ -199,6 +221,7 @@ def prepare(
     num_inference_steps: int = DIA_NUM_INFERENCE_STEPS,
     seed: int = 1234,
     use_ckpt: bool = False,
+    vae_ckpt: bool = False,
     **_,
 ) -> DIAContext:
     """`seed` 預設 1234（`attack_benchmark.py --seed`）。
@@ -213,7 +236,7 @@ def prepare(
     ts = dia_timesteps(sd, num_inference_steps).to(x01.device)
     generator = torch.Generator(device=x01.device).manual_seed(seed)
     return DIAContext(sd, spec, variant, emb, ts, num_inference_steps,
-                      generator, use_ckpt=use_ckpt)
+                      generator, use_ckpt=use_ckpt, vae_ckpt=vae_ckpt)
 
 
 def loss_fn(sd, x_adv: torch.Tensor, ctx: DIAContext) -> torch.Tensor:
@@ -230,7 +253,7 @@ def loss_fn(sd, x_adv: torch.Tensor, ctx: DIAContext) -> torch.Tensor:
         return (z - z0.detach()).norm(p=2)
 
     if ctx.variant == "R":
-        z0 = _encode_r(sd, x_adv)
+        z0 = _encode_r(sd, x_adv, use_ckpt=ctx.vae_ckpt)
         z = z0
         for t in ctx.ts:                       # 升冪：反演
             z = _step(sd, ctx, t, z, inversion=True)
@@ -238,8 +261,15 @@ def loss_fn(sd, x_adv: torch.Tensor, ctx: DIAContext) -> torch.Tensor:
             z = _step(sd, ctx, t, z, inversion=False)
         # `decode_image`（`utils_general_H.py:312-318`）為 `vae.decode(z/0.18215).sample`，
         # **不裁切**。本專案的 `decode_latent` 會 clamp(0,1) 再換到 [0,1]，
-        # 被裁切處梯度為零，故此處直接用 vae。
-        x_rec = sd.vae.decode(z / sd.scaling_factor).sample
+        # 被裁切處梯度為零，故此處直接用 vae——`vae_ckpt` 也因此不能改走
+        # `decode_latent`，必須在這裡自行包 checkpoint 以保住不裁切的語意。
+        def _dec(a):
+            return sd.vae.decode(a / sd.scaling_factor).sample
+
+        # z 不轉型：原作直接餵進 vae，而轉型本身會改動數值。dtype 若不合
+        # 應以 diffusers 的 "expected scalar type" 明確中止，不在此處吸收。
+        x_rec = (ckpt.checkpoint(_dec, z, use_reentrant=False)
+                 if ctx.vae_ckpt else _dec(z))
         return (x_rec.float() - x_adv.detach().float()).norm(p=2)
 
     raise ValueError(f"DIA 只有 PT 與 R 兩個變體，收到 {ctx.variant!r}")

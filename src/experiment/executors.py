@@ -885,6 +885,14 @@ def baseline_kwargs(name: str, res: Resources, entry: ImageEntry
         # DIA 把整條反演（DIA-R 再加整條重建）留在同一張圖上，1024² 下必須
         # checkpoint 才放得下。數值中性，故沿用本批的 `unet_ckpt`，不新增旗標。
         kw["use_ckpt"] = res.cfg.unet_ckpt
+        # 2026-08-07 補：只包 UNet 仍不夠，dia_r 改在 `sd.vae.decode` OOM。
+        # 圖上另有一次 VAE 編碼與一次 VAE 解碼，1024² 下兩者的激活同時留存。
+        kw["vae_ckpt"] = res.cfg.vae_ckpt
+    if name == "mist":
+        # mist 的 fused mode 同樣把兩次 VAE 編碼與一次完整 UNet 前向放在
+        # 同一張圖上。此處只給 UNet 的開關——VAE 那兩次走 `.sample()`，
+        # checkpoint 的重算會抽到另一個樣本，見 `mist._encode_sampled`。
+        kw["use_ckpt"] = res.cfg.unet_ckpt
     if name == "mist" and res.cfg.mist_target:
         # MIST.png 是 1440×1440 的固定素材（`mist.py` 的 NotImplementedError
         # 記其規格），與本批的 1024² 不符。

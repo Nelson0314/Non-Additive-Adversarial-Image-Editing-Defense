@@ -13,8 +13,13 @@
 #   BATCH=v14 → SD v1.4 / 512² / fp32              （img2img，strength 0.6）
 #   BATCH=v14r→ 同上但 strength 0.4                （2026-08-08 的重做）
 #   BATCH=ip* → SD inpainting / 512² / fp32        （**inpainting**，無 strength）
+#   BATCH=s3a*→ 第三階段批次 A：site apa + Lo 式 (5)，τ_train **0.50**
+#   BATCH=s3b*→ 第三階段批次 B：同上但 τ_train **0.20**（等使用者指示才跑）
 #
 # fanout 產生的 tmux session 名為 `wacv-<批次>-<影像>`。
+#
+# **本腳本以自己的位置推導 repo 根目錄**（`WACV_ROOT`），不再寫死
+# `$HOME/WACV`——遠端只有一個工作目錄而兩個 session 共用它，見該變數的說明。
 #
 # ---------------------------------------------------------------------------
 # 為什麼這樣可行（三個前提，改動任一個之前先確認它們還成立）
@@ -44,6 +49,21 @@ set -euo pipefail
 
 MODE=${1:?用法見檔頭}
 shift || true
+
+# 這個 repo 的根目錄，由本腳本自己的位置推導。
+#
+# 2026-08-09 由 `$HOME/WACV` 改為推導（三處 `cd`，含兩處 tmux 指令內部）。
+# before 的症狀在第三階段才會出現，但它一出現就是最貴的一種：**遠端只有
+# 一個工作目錄，而兩個 session 共用它**。第三階段要跑的是
+# `claude/stage3-apa-attn`，ip3 那個 session 跑的是
+# `claude/e20-fidelity-constraint`；在 `$HOME/WACV` 裡切分支會把對方正在
+# 用的程式碼換掉，而已經載入記憶體的 python 行程不受影響、**下一個起來的
+# 才會用到新碼**——那正是「跑起來很正常、數字也合理」的那一類失敗
+# （`RESULTS_2026-08-08` §9.8 已經記錄過同一型的干擾一次）。
+#
+# 推導之後，第三階段在 `$HOME/WACV-s3`（git worktree）裡跑，對方的工作
+# 目錄完全不動。`WACV_ROOT` 可覆寫供特殊情形使用。
+WACV_ROOT=${WACV_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}
 
 # shellcheck disable=SC1090
 source "$HOME/env.sh"
@@ -374,7 +394,7 @@ calib)
   IMAGES=("$@")
   [ ${#IMAGES[@]} -gt 0 ] || { echo "要給影像 id" >&2; exit 1; }
   if [ -n "$DRY" ]; then
-    cd "$HOME/WACV"
+    cd "$WACV_ROOT"
     PYTHONIOENCODING=utf-8 $PY scripts/run_stage.py calib --batch "$BATCH" \
       $COMMON --images "${IMAGES[@]}" --dry-run
     exit $?
@@ -398,7 +418,7 @@ calib)
   # 都不成立。
   SESS="wacv-$BATCH-calib"
   tmux new-session -d -s "$SESS" \
-    "cd $HOME/WACV && PYTHONIOENCODING=utf-8 CUDA_VISIBLE_DEVICES=$GPU \
+    "cd $WACV_ROOT && PYTHONIOENCODING=utf-8 CUDA_VISIBLE_DEVICES=$GPU \
 PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True \
 $PY scripts/run_stage.py calib --batch $BATCH $COMMON --images ${IMAGES[*]} \
 > $RUNS/$BATCH/calib.log 2>&1; echo \"[exit \$?]\" >> $RUNS/$BATCH/calib.log"
@@ -442,7 +462,7 @@ fanout)
     #
     # `$?` 也不能寫在 `if ! cmd` 之後：`!` 會把狀態反相，取到的是 0。
     tmux new-session -d -s "wacv-$BATCH-$IMG" \
-      "cd $HOME/WACV && export PYTHONIOENCODING=utf-8 \
+      "cd $WACV_ROOT && export PYTHONIOENCODING=utf-8 \
 CUDA_VISIBLE_DEVICES=$GPU PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True; \
 RC=0; \
 for S in $STAGES; do \

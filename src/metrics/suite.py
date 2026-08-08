@@ -39,7 +39,7 @@ CLIP 與 SigLIP 兩個語意指標都納入，是為了避免單一視覺語言�
 模型權重載入一次後常駐，`MetricSuite` 應在整個實驗中共用同一個實例。
 """
 
-from typing import Dict, Optional
+from typing import Dict, Optional, Sequence
 
 import torch
 
@@ -216,18 +216,33 @@ class MetricSuite:
         return float(self._niqe(x.to(self.device).float().clamp(0, 1)))
 
     @torch.no_grad()
-    def semantic(self, x: torch.Tensor, prompt: str) -> Dict[str, float]:
-        """影像與 prompt 的語意對齊。CLIP 取餘弦相似度、SigLIP 取其 logit。
+    def semantic_multi(self, x: torch.Tensor,
+                       prompts: Sequence[str]) -> Dict[str, Dict[str, float]]:
+        """一張影像對多個 prompt 的語意對齊，回傳 `{prompt: {model: score}}`。
 
-        兩者尺度不同，只比較組間差異，不比較彼此的絕對值。
+        2026-08-08 新增。動機是**類別 margin** 這個讀出量：
 
-        輸入轉 fp32 的理由同 `pairwise`：CLIP 與 SigLIP 的權重是 fp32。
+            margin(y) = SigLIP(y, 目標類) − SigLIP(y, 原類)
+
+        它比的是**同一張圖對兩個 prompt**，故畫質與風格的變化會同時影響兩項
+        而抵消，剩下的才是類別訊息。既有的 `effect_siglip` 比的是**兩張不同
+        的圖對同一個 prompt**，於是「圖變怪了」與「類別被改掉了」進到同一個
+        數字裡（`RESULTS_2026-08-08` §9.2）。
+
+        `semantic` 改為呼叫本方法，故**兩者的數字不可能分歧**——那正是把
+        多 prompt 版本做成同一條路徑而不是另寫一份前處理的理由。有測試釘住。
+
+        影像只前向一次，文字逐 prompt 前向。全量重算 2100 張圖時，這使
+        SigLIP／CLIP 的影像前向次數由 `圖 × prompt` 降到 `圖`。
         """
         self._ensure_vlm()
         from torchvision.transforms.functional import resize
 
+        prompts = list(prompts)
+        if not prompts:
+            raise ValueError("prompts 不可為空：沒有 prompt 就沒有可算的對齊")
         x = x.to(self.device).float()
-        out = {}
+        out: Dict[str, Dict[str, float]] = {p: {} for p in prompts}
         for key, model, proc in (
             ("clip", self._clip, self._clip_proc),
             ("siglip", self._siglip, self._siglip_proc),
@@ -240,15 +255,28 @@ class MetricSuite:
             img = (img - mean[:, None, None]) / std[:, None, None]
 
             tok = proc.tokenizer(
-                [prompt], return_tensors="pt",
+                prompts, return_tensors="pt",
                 padding="max_length" if key == "siglip" else True,
                 truncation=True,
             ).to(self.device)
             res = model(pixel_values=img, **tok)
             ie = res.image_embeds / res.image_embeds.norm(dim=-1, keepdim=True)
             te = res.text_embeds / res.text_embeds.norm(dim=-1, keepdim=True)
-            out[key] = float((ie * te).sum(-1).mean())
+            # ie 是 (1, D)、te 是 (P, D)。逐 prompt 取內積，`semantic` 的
+            # 單 prompt 情形於是逐位元落回原本的 `(ie * te).sum(-1).mean()`。
+            sims = (ie * te).sum(-1)
+            for p, v in zip(prompts, sims.tolist()):
+                out[p][key] = float(v)
         return out
+
+    def semantic(self, x: torch.Tensor, prompt: str) -> Dict[str, float]:
+        """影像與 prompt 的語意對齊。CLIP 取餘弦相似度、SigLIP 取其 logit。
+
+        兩者尺度不同，只比較組間差異，不比較彼此的絕對值。
+
+        輸入轉 fp32 的理由同 `pairwise`：CLIP 與 SigLIP 的權重是 fp32。
+        """
+        return self.semantic_multi(x, [prompt])[prompt]
 
     def full(
         self, a: torch.Tensor, b: torch.Tensor, prompt: Optional[str] = None

@@ -1,0 +1,253 @@
+[env] 載入 SDWrapper(CompVis/stable-diffusion-v1-4) dtype=torch.float32
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00, 10.55it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 4275.16it/s]
+Loading pipeline components...:  83%|████████▎ | 5/6 [00:00<00:00, 14.28it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 16.39it/s]
+There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+[env] 影像 1 張：['bird_03']
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 9554.28it/s]
+[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
+[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
+Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights:  87%|████████▋ | 356/408 [00:00<00:00, 3555.79it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 3569.57it/s]
+  st=0.30 N1             bird_03 seed0  effect=-0.0010  lpips(def,orig)=0.2003
+  st=0.30 N1             bird_03 seed1  effect=-0.0596  lpips(def,orig)=0.2003
+  st=0.30 N1             bird_03 seed2  effect=-0.0085  lpips(def,orig)=0.2003
+  st=0.30 N1             bird_03 seed3  effect=-0.0160  lpips(def,orig)=0.2003
+  st=0.30 N1             bird_03 seed4  effect=-0.0029  lpips(def,orig)=0.2003
+  st=0.30 N1             bird_03 seed5  effect=-0.0044  lpips(def,orig)=0.2003
+  st=0.30 N1             bird_03 seed6  effect=+0.0041  lpips(def,orig)=0.2003
+  st=0.30 N1             bird_03 seed7  effect=+0.0060  lpips(def,orig)=0.2003
+  st=0.30 N1             bird_03 seed8  effect=-0.0158  lpips(def,orig)=0.2003
+  st=0.30 N1             bird_03 seed9  effect=-0.0191  lpips(def,orig)=0.2003
+  st=0.30 N2             bird_03 seed0  effect=+0.0041  lpips(def,orig)=0.1977
+  st=0.30 N2             bird_03 seed1  effect=-0.0300  lpips(def,orig)=0.1977
+  st=0.30 N2             bird_03 seed2  effect=+0.0190  lpips(def,orig)=0.1977
+  st=0.30 N2             bird_03 seed3  effect=-0.0110  lpips(def,orig)=0.1977
+  st=0.30 N2             bird_03 seed4  effect=-0.0065  lpips(def,orig)=0.1977
+  st=0.30 N2             bird_03 seed5  effect=+0.0174  lpips(def,orig)=0.1977
+  st=0.30 N2             bird_03 seed6  effect=+0.0069  lpips(def,orig)=0.1977
+  st=0.30 N2             bird_03 seed7  effect=+0.0103  lpips(def,orig)=0.1977
+  st=0.30 N2             bird_03 seed8  effect=+0.0191  lpips(def,orig)=0.1977
+  st=0.30 N2             bird_03 seed9  effect=-0.0628  lpips(def,orig)=0.1977
+  st=0.30 N3             bird_03 seed0  effect=+0.0067  lpips(def,orig)=0.1981
+  st=0.30 N3             bird_03 seed1  effect=-0.0159  lpips(def,orig)=0.1981
+  st=0.30 N3             bird_03 seed2  effect=-0.0213  lpips(def,orig)=0.1981
+  st=0.30 N3             bird_03 seed3  effect=-0.0117  lpips(def,orig)=0.1981
+  st=0.30 N3             bird_03 seed4  effect=-0.0168  lpips(def,orig)=0.1981
+  st=0.30 N3             bird_03 seed5  effect=+0.0027  lpips(def,orig)=0.1981
+  st=0.30 N3             bird_03 seed6  effect=-0.0059  lpips(def,orig)=0.1981
+  st=0.30 N3             bird_03 seed7  effect=-0.0031  lpips(def,orig)=0.1981
+  st=0.30 N3             bird_03 seed8  effect=+0.0062  lpips(def,orig)=0.1981
+  st=0.30 N3             bird_03 seed9  effect=-0.0063  lpips(def,orig)=0.1981
+  st=0.30 photoguard_c   bird_03 seed0  effect=+0.0098  lpips(def,orig)=0.1998
+  st=0.30 photoguard_c   bird_03 seed1  effect=-0.0041  lpips(def,orig)=0.1998
+  st=0.30 photoguard_c   bird_03 seed2  effect=-0.0008  lpips(def,orig)=0.1998
+  st=0.30 photoguard_c   bird_03 seed3  effect=-0.0004  lpips(def,orig)=0.1998
+  st=0.30 photoguard_c   bird_03 seed4  effect=-0.0098  lpips(def,orig)=0.1998
+  st=0.30 photoguard_c   bird_03 seed5  effect=+0.0066  lpips(def,orig)=0.1998
+  st=0.30 photoguard_c   bird_03 seed6  effect=+0.0236  lpips(def,orig)=0.1998
+  st=0.30 photoguard_c   bird_03 seed7  effect=+0.0000  lpips(def,orig)=0.1998
+  st=0.30 photoguard_c   bird_03 seed8  effect=+0.0116  lpips(def,orig)=0.1998
+  st=0.30 photoguard_c   bird_03 seed9  effect=-0.0002  lpips(def,orig)=0.1998
+  st=0.30 mist           bird_03 seed0  effect=+0.0079  lpips(def,orig)=0.2132
+  st=0.30 mist           bird_03 seed1  effect=-0.0103  lpips(def,orig)=0.2132
+  st=0.30 mist           bird_03 seed2  effect=+0.0042  lpips(def,orig)=0.2132
+  st=0.30 mist           bird_03 seed3  effect=-0.0009  lpips(def,orig)=0.2132
+  st=0.30 mist           bird_03 seed4  effect=-0.0121  lpips(def,orig)=0.2132
+  st=0.30 mist           bird_03 seed5  effect=+0.0149  lpips(def,orig)=0.2132
+  st=0.30 mist           bird_03 seed6  effect=+0.0067  lpips(def,orig)=0.2132
+  st=0.30 mist           bird_03 seed7  effect=+0.0080  lpips(def,orig)=0.2132
+  st=0.30 mist           bird_03 seed8  effect=+0.0051  lpips(def,orig)=0.2132
+  st=0.30 mist           bird_03 seed9  effect=-0.0111  lpips(def,orig)=0.2132
+  st=0.30 dia_r          bird_03 seed0  effect=-0.0020  lpips(def,orig)=0.2013
+  st=0.30 dia_r          bird_03 seed1  effect=-0.0388  lpips(def,orig)=0.2013
+  st=0.30 dia_r          bird_03 seed2  effect=-0.0437  lpips(def,orig)=0.2013
+  st=0.30 dia_r          bird_03 seed3  effect=-0.0119  lpips(def,orig)=0.2013
+  st=0.30 dia_r          bird_03 seed4  effect=-0.0375  lpips(def,orig)=0.2013
+  st=0.30 dia_r          bird_03 seed5  effect=+0.0099  lpips(def,orig)=0.2013
+  st=0.30 dia_r          bird_03 seed6  effect=+0.0078  lpips(def,orig)=0.2013
+  st=0.30 dia_r          bird_03 seed7  effect=-0.0159  lpips(def,orig)=0.2013
+  st=0.30 dia_r          bird_03 seed8  effect=+0.0113  lpips(def,orig)=0.2013
+  st=0.30 dia_r          bird_03 seed9  effect=-0.0875  lpips(def,orig)=0.2013
+  st=0.30 R              bird_03 seed0  effect=-0.0027  lpips(def,orig)=0.1954
+  st=0.30 R              bird_03 seed1  effect=-0.0235  lpips(def,orig)=0.1954
+  st=0.30 R              bird_03 seed2  effect=-0.0409  lpips(def,orig)=0.1954
+  st=0.30 R              bird_03 seed3  effect=-0.0041  lpips(def,orig)=0.1954
+  st=0.30 R              bird_03 seed4  effect=-0.0134  lpips(def,orig)=0.1954
+  st=0.30 R              bird_03 seed5  effect=-0.0115  lpips(def,orig)=0.1954
+  st=0.30 R              bird_03 seed6  effect=-0.0143  lpips(def,orig)=0.1954
+  st=0.30 R              bird_03 seed7  effect=-0.0480  lpips(def,orig)=0.1954
+  st=0.30 R              bird_03 seed8  effect=-0.0406  lpips(def,orig)=0.1954
+  st=0.30 R              bird_03 seed9  effect=-0.0202  lpips(def,orig)=0.1954
+  st=0.40 N1             bird_03 seed0  effect=-0.0262  lpips(def,orig)=0.2003
+  st=0.40 N1             bird_03 seed1  effect=-0.0021  lpips(def,orig)=0.2003
+  st=0.40 N1             bird_03 seed2  effect=+0.0194  lpips(def,orig)=0.2003
+  st=0.40 N1             bird_03 seed3  effect=+0.0136  lpips(def,orig)=0.2003
+  st=0.40 N1             bird_03 seed4  effect=+0.0037  lpips(def,orig)=0.2003
+  st=0.40 N1             bird_03 seed5  effect=-0.0103  lpips(def,orig)=0.2003
+  st=0.40 N1             bird_03 seed6  effect=-0.0408  lpips(def,orig)=0.2003
+  st=0.40 N1             bird_03 seed7  effect=+0.0060  lpips(def,orig)=0.2003
+  st=0.40 N1             bird_03 seed8  effect=-0.0224  lpips(def,orig)=0.2003
+  st=0.40 N1             bird_03 seed9  effect=+0.0112  lpips(def,orig)=0.2003
+  st=0.40 N2             bird_03 seed0  effect=+0.0061  lpips(def,orig)=0.1977
+  st=0.40 N2             bird_03 seed1  effect=-0.0039  lpips(def,orig)=0.1977
+  st=0.40 N2             bird_03 seed2  effect=+0.0099  lpips(def,orig)=0.1977
+  st=0.40 N2             bird_03 seed3  effect=-0.0097  lpips(def,orig)=0.1977
+  st=0.40 N2             bird_03 seed4  effect=+0.0079  lpips(def,orig)=0.1977
+  st=0.40 N2             bird_03 seed5  effect=+0.0361  lpips(def,orig)=0.1977
+  st=0.40 N2             bird_03 seed6  effect=-0.0641  lpips(def,orig)=0.1977
+  st=0.40 N2             bird_03 seed7  effect=+0.0232  lpips(def,orig)=0.1977
+  st=0.40 N2             bird_03 seed8  effect=-0.0195  lpips(def,orig)=0.1977
+  st=0.40 N2             bird_03 seed9  effect=-0.0057  lpips(def,orig)=0.1977
+  st=0.40 N3             bird_03 seed0  effect=-0.0128  lpips(def,orig)=0.1981
+  st=0.40 N3             bird_03 seed1  effect=+0.0050  lpips(def,orig)=0.1981
+  st=0.40 N3             bird_03 seed2  effect=+0.0022  lpips(def,orig)=0.1981
+  st=0.40 N3             bird_03 seed3  effect=-0.0005  lpips(def,orig)=0.1981
+  st=0.40 N3             bird_03 seed4  effect=+0.0023  lpips(def,orig)=0.1981
+  st=0.40 N3             bird_03 seed5  effect=-0.0254  lpips(def,orig)=0.1981
+  st=0.40 N3             bird_03 seed6  effect=-0.0292  lpips(def,orig)=0.1981
+  st=0.40 N3             bird_03 seed7  effect=-0.0072  lpips(def,orig)=0.1981
+  st=0.40 N3             bird_03 seed8  effect=-0.0168  lpips(def,orig)=0.1981
+  st=0.40 N3             bird_03 seed9  effect=-0.0003  lpips(def,orig)=0.1981
+  st=0.40 photoguard_c   bird_03 seed0  effect=-0.0112  lpips(def,orig)=0.1998
+  st=0.40 photoguard_c   bird_03 seed1  effect=-0.0081  lpips(def,orig)=0.1998
+  st=0.40 photoguard_c   bird_03 seed2  effect=+0.0567  lpips(def,orig)=0.1998
+  st=0.40 photoguard_c   bird_03 seed3  effect=+0.0320  lpips(def,orig)=0.1998
+  st=0.40 photoguard_c   bird_03 seed4  effect=-0.0198  lpips(def,orig)=0.1998
+  st=0.40 photoguard_c   bird_03 seed5  effect=+0.0003  lpips(def,orig)=0.1998
+  st=0.40 photoguard_c   bird_03 seed6  effect=+0.0099  lpips(def,orig)=0.1998
+  st=0.40 photoguard_c   bird_03 seed7  effect=+0.0446  lpips(def,orig)=0.1998
+  st=0.40 photoguard_c   bird_03 seed8  effect=+0.0286  lpips(def,orig)=0.1998
+  st=0.40 photoguard_c   bird_03 seed9  effect=+0.0012  lpips(def,orig)=0.1998
+  st=0.40 mist           bird_03 seed0  effect=-0.0089  lpips(def,orig)=0.2132
+  st=0.40 mist           bird_03 seed1  effect=+0.0080  lpips(def,orig)=0.2132
+  st=0.40 mist           bird_03 seed2  effect=+0.0480  lpips(def,orig)=0.2132
+  st=0.40 mist           bird_03 seed3  effect=+0.0244  lpips(def,orig)=0.2132
+  st=0.40 mist           bird_03 seed4  effect=+0.0031  lpips(def,orig)=0.2132
+  st=0.40 mist           bird_03 seed5  effect=+0.0070  lpips(def,orig)=0.2132
+  st=0.40 mist           bird_03 seed6  effect=+0.0284  lpips(def,orig)=0.2132
+  st=0.40 mist           bird_03 seed7  effect=+0.0049  lpips(def,orig)=0.2132
+  st=0.40 mist           bird_03 seed8  effect=-0.0451  lpips(def,orig)=0.2132
+  st=0.40 mist           bird_03 seed9  effect=+0.0755  lpips(def,orig)=0.2132
+  st=0.40 dia_r          bird_03 seed0  effect=-0.0406  lpips(def,orig)=0.2013
+  st=0.40 dia_r          bird_03 seed1  effect=-0.0020  lpips(def,orig)=0.2013
+  st=0.40 dia_r          bird_03 seed2  effect=-0.0078  lpips(def,orig)=0.2013
+  st=0.40 dia_r          bird_03 seed3  effect=-0.0031  lpips(def,orig)=0.2013
+  st=0.40 dia_r          bird_03 seed4  effect=-0.0308  lpips(def,orig)=0.2013
+  st=0.40 dia_r          bird_03 seed5  effect=-0.0400  lpips(def,orig)=0.2013
+  st=0.40 dia_r          bird_03 seed6  effect=-0.0427  lpips(def,orig)=0.2013
+  st=0.40 dia_r          bird_03 seed7  effect=-0.0009  lpips(def,orig)=0.2013
+  st=0.40 dia_r          bird_03 seed8  effect=+0.0097  lpips(def,orig)=0.2013
+  st=0.40 dia_r          bird_03 seed9  effect=+0.0197  lpips(def,orig)=0.2013
+  st=0.40 R              bird_03 seed0  effect=-0.0192  lpips(def,orig)=0.1954
+  st=0.40 R              bird_03 seed1  effect=-0.0002  lpips(def,orig)=0.1954
+  st=0.40 R              bird_03 seed2  effect=+0.0013  lpips(def,orig)=0.1954
+  st=0.40 R              bird_03 seed3  effect=-0.0168  lpips(def,orig)=0.1954
+  st=0.40 R              bird_03 seed4  effect=-0.0001  lpips(def,orig)=0.1954
+  st=0.40 R              bird_03 seed5  effect=-0.0461  lpips(def,orig)=0.1954
+  st=0.40 R              bird_03 seed6  effect=-0.0430  lpips(def,orig)=0.1954
+  st=0.40 R              bird_03 seed7  effect=-0.0071  lpips(def,orig)=0.1954
+  st=0.40 R              bird_03 seed8  effect=-0.0336  lpips(def,orig)=0.1954
+  st=0.40 R              bird_03 seed9  effect=-0.0065  lpips(def,orig)=0.1954
+  st=0.50 N1             bird_03 seed0  effect=-0.0073  lpips(def,orig)=0.2003
+  st=0.50 N1             bird_03 seed1  effect=-0.0066  lpips(def,orig)=0.2003
+  st=0.50 N1             bird_03 seed2  effect=+0.0115  lpips(def,orig)=0.2003
+  st=0.50 N1             bird_03 seed3  effect=+0.0030  lpips(def,orig)=0.2003
+  st=0.50 N1             bird_03 seed4  effect=+0.0110  lpips(def,orig)=0.2003
+  st=0.50 N1             bird_03 seed5  effect=-0.0031  lpips(def,orig)=0.2003
+  st=0.50 N1             bird_03 seed6  effect=-0.0078  lpips(def,orig)=0.2003
+  st=0.50 N1             bird_03 seed7  effect=-0.0082  lpips(def,orig)=0.2003
+  st=0.50 N1             bird_03 seed8  effect=+0.0081  lpips(def,orig)=0.2003
+  st=0.50 N1             bird_03 seed9  effect=-0.0070  lpips(def,orig)=0.2003
+  st=0.50 N2             bird_03 seed0  effect=-0.0102  lpips(def,orig)=0.1977
+  st=0.50 N2             bird_03 seed1  effect=-0.0028  lpips(def,orig)=0.1977
+  st=0.50 N2             bird_03 seed2  effect=-0.0009  lpips(def,orig)=0.1977
+  st=0.50 N2             bird_03 seed3  effect=+0.0022  lpips(def,orig)=0.1977
+  st=0.50 N2             bird_03 seed4  effect=+0.0209  lpips(def,orig)=0.1977
+  st=0.50 N2             bird_03 seed5  effect=+0.0208  lpips(def,orig)=0.1977
+  st=0.50 N2             bird_03 seed6  effect=+0.0020  lpips(def,orig)=0.1977
+  st=0.50 N2             bird_03 seed7  effect=-0.0057  lpips(def,orig)=0.1977
+  st=0.50 N2             bird_03 seed8  effect=-0.0021  lpips(def,orig)=0.1977
+  st=0.50 N2             bird_03 seed9  effect=-0.0138  lpips(def,orig)=0.1977
+  st=0.50 N3             bird_03 seed0  effect=+0.0103  lpips(def,orig)=0.1981
+  st=0.50 N3             bird_03 seed1  effect=+0.0079  lpips(def,orig)=0.1981
+  st=0.50 N3             bird_03 seed2  effect=+0.0056  lpips(def,orig)=0.1981
+  st=0.50 N3             bird_03 seed3  effect=-0.0011  lpips(def,orig)=0.1981
+  st=0.50 N3             bird_03 seed4  effect=+0.0040  lpips(def,orig)=0.1981
+  st=0.50 N3             bird_03 seed5  effect=-0.0083  lpips(def,orig)=0.1981
+  st=0.50 N3             bird_03 seed6  effect=+0.0007  lpips(def,orig)=0.1981
+  st=0.50 N3             bird_03 seed7  effect=-0.0067  lpips(def,orig)=0.1981
+  st=0.50 N3             bird_03 seed8  effect=-0.0003  lpips(def,orig)=0.1981
+  st=0.50 N3             bird_03 seed9  effect=+0.0020  lpips(def,orig)=0.1981
+  st=0.50 photoguard_c   bird_03 seed0  effect=-0.0129  lpips(def,orig)=0.1998
+  st=0.50 photoguard_c   bird_03 seed1  effect=+0.0062  lpips(def,orig)=0.1998
+  st=0.50 photoguard_c   bird_03 seed2  effect=+0.0405  lpips(def,orig)=0.1998
+  st=0.50 photoguard_c   bird_03 seed3  effect=-0.0083  lpips(def,orig)=0.1998
+  st=0.50 photoguard_c   bird_03 seed4  effect=+0.0058  lpips(def,orig)=0.1998
+  st=0.50 photoguard_c   bird_03 seed5  effect=+0.0110  lpips(def,orig)=0.1998
+  st=0.50 photoguard_c   bird_03 seed6  effect=+0.0359  lpips(def,orig)=0.1998
+  st=0.50 photoguard_c   bird_03 seed7  effect=-0.0019  lpips(def,orig)=0.1998
+  st=0.50 photoguard_c   bird_03 seed8  effect=-0.0129  lpips(def,orig)=0.1998
+  st=0.50 photoguard_c   bird_03 seed9  effect=-0.0099  lpips(def,orig)=0.1998
+  st=0.50 mist           bird_03 seed0  effect=-0.0134  lpips(def,orig)=0.2132
+  st=0.50 mist           bird_03 seed1  effect=-0.0018  lpips(def,orig)=0.2132
+  st=0.50 mist           bird_03 seed2  effect=+0.0141  lpips(def,orig)=0.2132
+  st=0.50 mist           bird_03 seed3  effect=+0.0002  lpips(def,orig)=0.2132
+  st=0.50 mist           bird_03 seed4  effect=+0.0016  lpips(def,orig)=0.2132
+  st=0.50 mist           bird_03 seed5  effect=+0.0725  lpips(def,orig)=0.2132
+  st=0.50 mist           bird_03 seed6  effect=+0.0201  lpips(def,orig)=0.2132
+  st=0.50 mist           bird_03 seed7  effect=+0.0027  lpips(def,orig)=0.2132
+  st=0.50 mist           bird_03 seed8  effect=+0.0106  lpips(def,orig)=0.2132
+  st=0.50 mist           bird_03 seed9  effect=+0.0027  lpips(def,orig)=0.2132
+  st=0.50 dia_r          bird_03 seed0  effect=-0.0093  lpips(def,orig)=0.2013
+  st=0.50 dia_r          bird_03 seed1  effect=+0.0060  lpips(def,orig)=0.2013
+  st=0.50 dia_r          bird_03 seed2  effect=+0.0097  lpips(def,orig)=0.2013
+  st=0.50 dia_r          bird_03 seed3  effect=+0.0054  lpips(def,orig)=0.2013
+  st=0.50 dia_r          bird_03 seed4  effect=-0.0005  lpips(def,orig)=0.2013
+  st=0.50 dia_r          bird_03 seed5  effect=+0.0130  lpips(def,orig)=0.2013
+  st=0.50 dia_r          bird_03 seed6  effect=-0.0017  lpips(def,orig)=0.2013
+  st=0.50 dia_r          bird_03 seed7  effect=-0.0085  lpips(def,orig)=0.2013
+  st=0.50 dia_r          bird_03 seed8  effect=-0.0043  lpips(def,orig)=0.2013
+  st=0.50 dia_r          bird_03 seed9  effect=-0.0087  lpips(def,orig)=0.2013
+  st=0.50 R              bird_03 seed0  effect=-0.0094  lpips(def,orig)=0.1954
+  st=0.50 R              bird_03 seed1  effect=+0.0026  lpips(def,orig)=0.1954
+  st=0.50 R              bird_03 seed2  effect=+0.0066  lpips(def,orig)=0.1954
+  st=0.50 R              bird_03 seed3  effect=+0.0011  lpips(def,orig)=0.1954
+  st=0.50 R              bird_03 seed4  effect=+0.0095  lpips(def,orig)=0.1954
+  st=0.50 R              bird_03 seed5  effect=-0.0009  lpips(def,orig)=0.1954
+  st=0.50 R              bird_03 seed6  effect=-0.0036  lpips(def,orig)=0.1954
+  st=0.50 R              bird_03 seed7  effect=-0.0109  lpips(def,orig)=0.1954
+  st=0.50 R              bird_03 seed8  effect=+0.0020  lpips(def,orig)=0.1954
+  st=0.50 R              bird_03 seed9  effect=-0.0023  lpips(def,orig)=0.1954
+
+寫出 /nfs/home/nelson0314/wacv_runs/v14_bird_03/strength_sweep_tau0.2.csv（210 列）
+
+=== effect_siglip 隨 strength（正 = 防禦有效）===
+條件                     0.30       0.40       0.50     原生LPIPS
+N1                  -0.0117    -0.0048    -0.0006      0.2003
+N2                  -0.0034    -0.0020    +0.0010      0.1977
+N3                  -0.0065    -0.0083    +0.0014      0.1981
+photoguard_c        +0.0036    +0.0134    +0.0054      0.1998
+mist                +0.0012    +0.0145    +0.0109      0.2132
+dia_r               -0.0208    -0.0138    +0.0001      0.2013
+R                   -0.0219    -0.0171    -0.0005      0.1954
+
+=== 攻擊方在該 strength 上開出的區間（siglip_edit − siglip_orig）===
+  strength=0.30  gap=+0.0157
+  strength=0.40  gap=+0.0576
+  strength=0.50  gap=+0.0920
+
+=== 逐條件的 effect_siglip ===
+  N1               mean=-0.0057  sd=0.0165  n=30
+  N2               mean=-0.0014  sd=0.0220  n=30
+  N3               mean=-0.0045  sd=0.0103  n=30
+  R                mean=-0.0132  sd=0.0167  n=30
+  dia_r            mean=-0.0115  sd=0.0237  n=30
+  mist             mean=+0.0089  sd=0.0237  n=30
+  photoguard_c     mean=+0.0075  sd=0.0191  n=30
+[exit 0]

@@ -273,7 +273,26 @@ case "$BATCH" in
     # 本批記憶體最緊的一格。段 0 的乾跑若 OOM，先降 `--attn-timesteps`。
     PRECISION=fp32
     MODEL="--model CompVis/stable-diffusion-v1-4 --wrapper sd --resolution 512"
-    MEM="--purify-mode all"
+    # `--attn-timesteps 2`（不是預設的 4）是**記憶體實測的結果**，不是調味。
+    #
+    # N4 的注意力前向恆不能 checkpoint（hook 與 checkpoint 重算不相容），故每步
+    # 要同時留住 `attn_timesteps × 淨化算子數` 份完整的 UNet 計算圖；
+    # `--purify-mode all` 下淨化算子是 3 個，t=4 就是 12 份。
+    # 2026-08-09 於 RTX 3090（24576 MiB）、SD v1.4、512²、fp32 實測段 0：
+    #
+    #   attn_timesteps=4   峰值 23924 MiB（97.3%，只剩 652 MiB）  跑得完但貼著上限
+    #   attn_timesteps=2   峰值 15126 MiB（61.5%，餘裕 9450 MiB） 採用
+    #
+    # 兩者都跑得完，取 2 是因為 652 MiB 的餘裕撐不住段 1 的 250 步——碎片化
+    # 累積之後在第 200 步 OOM 會賠掉數小時，而那正是本專案最貴的一種失敗。
+    # 代價是注意力目標在 [0, t_edit] 上只取兩個 timestep 而非四個；t=2 在本
+    # 專案有前例（SDXL 的 b3 因同一個記憶體理由用 `rotate + t=2`）。
+    #
+    # **它在 `loss_params` 因而進 `config_hash`**，故這是一個被記錄下來的批次
+    # 選擇，不是隱形的預設值。要拿回 t=4 的正解是把 `_build_attn_step` 改成
+    # 逐 pair 反傳再累加梯度（DAYN 自己的 Algorithm 1 就是那樣做的，
+    # 見 `linf_attack.pgd_linf`），那會讓峰值與 t 無關；本輪不做該改動。
+    MEM="--purify-mode all --attn-timesteps 2"
     ATTN="--shared-tokens 0 --attn-mask-tau 0.5"
     INV="--exact-inversion"
     STRENGTH="--strength 0.4"

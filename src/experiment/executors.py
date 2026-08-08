@@ -1359,9 +1359,30 @@ def eval_executor(cell: grid.Cell, ctx: Dict[str, Any]
         attn_dir=(out_dir / "attn") if res.cfg.capture_attn else None,
         attn_tag=tag, attn_full=attn_full, mask=entry.mask)
 
-    save_image(x_p, out_dir / "x_purified.png")
-    edit_png = out_dir / f"edit_seed{cell.seed}.png"
+    # 產物檔名必須帶 τ。2026-08-08 修。
+    #
+    # before：`x_purified.png` 與 `edit_seed{k}.png`，**都不帶 τ**。同一個
+    # （條件, 影像, 淨化算子, seed）在四個 τ 上各寫一次同一個檔名，於是只有
+    # **最後跑完的那個 τ** 留在磁碟上。實測 v14／v14r 兩批留下的都是 τ=0.35，
+    # 也就是說**主表所在的 τ=0.20 的編輯輸出全部不存在**。
+    #
+    # 這不是體積控制（§4.2 那條規則是明確地只留聚合圖，且 attn 的檔名一直
+    # 都帶 τ），是漏帶鍵。危險之處在於它不留痕跡：`compare.html` 的每一個
+    # τ 的列都照樣渲染得出圖，只是那張圖屬於另一個 τ——**缺圖看得出來，
+    # 錯圖看不出來**。而使用者 2026-08-08 定案人眼判讀為主判準，這些正是
+    # 被判讀的檔案。
+    #
+    # after：改用與 attn 相同的 `tag`（`tau{τ:g}_seed{k}`）。
+    #
+    # `x_purified` 只在 seed 0 落盤：它是 `x_def_tau{τ}.png`（已逐 τ 落盤）
+    # 經淨化算子的結果，可由既有產物重建，故取一個代表性樣本即可；確定性的
+    # 算子（blur／jpeg／quantize／crop_resize／identity）逐 seed 本來就相同。
+    # 這是**明講的**取捨，與上面那個漏帶鍵不同。
+    edit_png = out_dir / f"edit_{tag}.png"
     save_image(y_def, edit_png)
+    purified_png = out_dir / f"x_purified_{tag}.png"
+    if cell.seed == 0:
+        save_image(x_p, purified_png)
 
     m = res.suite.full(y_ctrl, y_def, prompt=entry.prompts[0])
     row: Dict[str, Any] = {
@@ -1389,9 +1410,15 @@ def eval_executor(cell: grid.Cell, ctx: Dict[str, Any]
     row["attn_full"] = attn_full
     row["attn_steps"] = len(sampled_steps(res.cfg.steps))
 
-    meta_path = out_dir / f"metrics_seed{cell.seed}.json"
+    meta_path = out_dir / f"metrics_{tag}.json"
     write_meta(res, cell, meta_path, row)
-    arts = [out_dir / "x_purified.png", edit_png, meta_path] + attn_arts
+    # `x_purified` 只在 seed 0 存在，故只有存在時才進 `artifacts`——這份清單
+    # 是 `compare_page._artifact` 的唯一依據，列一個沒寫出去的檔會讓頁面
+    # 指向不存在的路徑。
+    arts = [edit_png, meta_path]
+    if cell.seed == 0:
+        arts.insert(0, purified_png)
+    arts += attn_arts
     return [res.rel(p) for p in arts], row
 
 

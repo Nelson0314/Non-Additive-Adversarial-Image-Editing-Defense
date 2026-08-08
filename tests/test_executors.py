@@ -581,7 +581,52 @@ def test_eval_效果量的是對照減防禦(tmp_path):
     assert "effect_clip" in row, "對齊文獻仍需 CLIP 欄位"
     assert_artifacts_exist(res, arts)
     assert {Path(a).name for a in arts} == {
-        "x_purified.png", "edit_seed0.png", "metrics_seed0.json"}
+        "x_purified_tau0.05_seed0.png", "edit_tau0.05_seed0.png",
+        "metrics_tau0.05_seed0.json"}
+
+
+def test_eval_不同tau的產物不互相覆寫(tmp_path):
+    """檔名不帶 τ 時四個 τ 寫同一個檔，只有最後一個留下來。
+
+    2026-08-08 由 v14／v14r 兩批實測發現：留在磁碟上的都是 τ=0.35，
+    **主表所在的 τ=0.20 的編輯輸出全部不存在**。危險之處是它不留痕跡——
+    `compare.html` 的每一個 τ 的列都照樣渲染得出圖，只是那張圖屬於另一個 τ。
+    缺圖看得出來，錯圖看不出來，而人眼判讀是本專案的主判準。
+    """
+    res = make_res(tmp_path)
+    executors.train_executor(grid.Cell("train", "R", "dog_00"), {"res": res})
+    executors.control_executor(
+        grid.Cell("control", "phi0", "dog_00",
+                  purify=("identity", 0.0), seed=0), {"res": res})
+    names = []
+    for tau in (0.05, 0.1):
+        executors.rayscale_executor(
+            grid.Cell("rayscale", "R", "dog_00", tau=tau), {"res": res})
+        arts, _ = executors.eval_executor(
+            grid.Cell("eval", "R", "dog_00", tau=tau,
+                      purify=("identity", 0.0), seed=0), {"res": res})
+        assert_artifacts_exist(res, arts)
+        names.append({Path(a).name for a in arts})
+    assert not (names[0] & names[1]), (
+        f"兩個 τ 的產物撞名：{names[0] & names[1]}——後跑的會蓋掉先跑的"
+    )
+    # 先跑的那個 τ 在第二次跑完之後仍必須在磁碟上
+    for n in names[0]:
+        assert list(Path(res.batch_dir).rglob(n)), f"{n} 已被覆寫"
+
+
+def test_eval_x_purified只在seed0落盤且不列進其他seed的產物(tmp_path):
+    """它可由逐 τ 落盤的 `x_def` 重建，故只取一個代表性樣本。
+
+    這是**明講的**體積取捨。`artifacts` 必須跟著條件走——列一個沒寫出去的
+    檔會讓 `compare_page` 指向不存在的路徑。
+    """
+    res = make_res(tmp_path)
+    _, (arts0, _) = _chain(res, seed=0)
+    assert any(Path(a).name.startswith("x_purified_") for a in arts0)
+    _, (arts1, _) = _chain(res, seed=1)
+    assert not any(Path(a).name.startswith("x_purified_") for a in arts1)
+    assert_artifacts_exist(res, arts1)
 
 
 def test_eval_缺對照時明確指出必須先跑control(tmp_path):

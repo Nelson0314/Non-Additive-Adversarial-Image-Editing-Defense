@@ -103,10 +103,34 @@ def _row_images(cell: Dict[str, Any], by_id: Dict[str, Dict[str, Any]],
         "x_def": _artifact(ray, "x_def.png") or _artifact(train, "x_def.png"),
         "residual": _artifact(ray, "residual.png")
         or _artifact(train, "residual.png"),
-        "x_purified": _artifact(cell, "x_purified.png"),
-        "edit_def": _artifact(cell, f"edit_seed{seed}.png"),
+        # 帶 τ 的新檔名優先，取不到再退回舊名。2026-08-08 加入。
+        #
+        # 防禦側的 `edit` 與 `x_purified` 原本不帶 τ，四個 τ 互相覆寫
+        # （見 `executors._run_eval` 的 before/after）。改名之後**既有批次
+        # 的逐格紀錄裡仍然是舊名**，沒有這道回退，重新產生 v14／b3／v14r
+        # 的報表會整片缺圖——而那三批是本專案唯一的證據來源。
+        #
+        # 對照側不帶 τ 是正確的：φ=0 的編輯與 τ 無關，那一側從來沒有覆寫。
+        "x_purified": _artifact(cell, f"x_purified_{_tag(tau, seed)}.png")
+        or _artifact(cell, "x_purified.png"),
+        "edit_def": _artifact(cell, f"edit_{_tag(tau, seed)}.png")
+        or _artifact(cell, f"edit_seed{seed}.png"),
         "edit_ctrl": _artifact(ctrl, f"edit_seed{seed}.png"),
     }
+
+
+def _tag(tau: Any, seed: Any) -> str:
+    """`executors._run_eval` 的產物標籤。兩處必須逐字一致。
+
+    `tau` 由逐格紀錄讀回時可能是字串（`"0.2"`）或數（`0.2`），而寫檔那一側
+    用的是 `f"{float(tau):g}"`。不統一格式的話 `0.20` 與 `0.2` 會比不中，
+    症狀同樣是缺圖。
+    """
+    try:
+        t = f"{float(tau):g}"
+    except (TypeError, ValueError):
+        t = str(tau)
+    return f"tau{t}_seed{seed}"
 
 
 def _as_purify(p) -> Optional[Tuple[str, float]]:

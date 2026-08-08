@@ -103,6 +103,51 @@ def test_缺產物顯示為缺而不是留白():
     assert 'class="miss"' in html, "對照側缺檔必須看得出來"
 
 
+def test_帶tau的新產物名解析得到():
+    """2026-08-08 起防禦側的 `edit`／`x_purified` 檔名帶 τ。
+
+    before：`edit_seed{k}.png`，四個 τ 寫同一個檔名而互相覆寫；
+    after：`edit_tau{τ:g}_seed{k}.png`。`_artifact` 是後綴比對，故頁面那一側
+    必須跟著改，否則新批次整片缺圖。
+    """
+    cells = _batch()
+    ev = next(c for c in cells if c["stage"] == "eval")
+    d = "N1/dog_00/purify/jpeg30"
+    ev["artifacts"] = [f"{d}/x_purified_tau0.2_seed0.png",
+                       f"{d}/edit_tau0.2_seed0.png",
+                       f"{d}/attn/tau0.2_seed0_agg.png"]
+    html = build_compare_html(cells, batch="b1")
+    assert 'class="miss"' not in html
+    srcs = _srcs(html)
+    assert f"{d}/edit_tau0.2_seed0.png" in srcs
+    assert f"{d}/x_purified_tau0.2_seed0.png" in srcs
+
+
+def test_舊批次的無tau產物名仍然解析得到():
+    """v14／b3／v14r 的逐格紀錄裡是舊名，而那三批是唯一的證據來源。
+
+    沒有回退路徑的話，替既有批次重新產生報表會得到一整頁缺圖，而那不是
+    資料的問題，是改名的副作用。
+    """
+    html = build_compare_html(_batch(), batch="b1")   # fixture 用的就是舊名
+    assert 'class="miss"' not in html
+    srcs = _srcs(html)
+    assert "N1/dog_00/purify/jpeg30/edit_seed0.png" in srcs
+    assert "N1/dog_00/purify/jpeg30/x_purified.png" in srcs
+
+
+def test_tau的字面格式不影響配對():
+    """逐格紀錄讀回的 τ 可能是字串或數。`0.20` 與 `0.2` 比不中的症狀同樣
+    是缺圖，而缺圖會被當成「那一格沒跑」。"""
+    cells = _batch()
+    ev = next(c for c in cells if c["stage"] == "eval")
+    ev["config"]["tau"] = "0.20"
+    d = "N1/dog_00/purify/jpeg30"
+    ev["artifacts"] = [f"{d}/edit_tau0.2_seed0.png"]
+    html = build_compare_html(cells, batch="b1")
+    assert f"{d}/edit_tau0.2_seed0.png" in _srcs(html)
+
+
 def test_不適用的格顯示理由而不是消失():
     """`DESIGN` §1.1 要求每一格都要能看到東西，而「這格為什麼沒有圖」
     本身就是要看的資訊。整組消失會讓讀者以為那個 τ 沒有被跑。"""

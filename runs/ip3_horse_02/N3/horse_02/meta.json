@@ -1,0 +1,92 @@
+{
+  "cell_id": "train/N3/horse_02",
+  "config_hash": "999c80537958",
+  "config": {
+    "spec_version": 1,
+    "model": "runwayml/stable-diffusion-inpainting",
+    "resolution": 512,
+    "guidance": 7.5,
+    "steps": 50,
+    "strength": null,
+    "gpu": "RTX-3090",
+    "precision": "fp32",
+    "loss_params": {
+      "train_n_edit": 10,
+      "n_eot": 1,
+      "k_inv": 10,
+      "t_max": null,
+      "exact_inversion": true,
+      "purify_mode": "all",
+      "attn_timesteps": 4,
+      "tau_train": 0.2,
+      "tau_acut": 0.16000000000000003,
+      "tau_chroma": 3.2,
+      "beta_linf": 0.0,
+      "tau_linf": 0.06,
+      "target_image": "data/targets/gray.png",
+      "shared_tokens": [
+        0
+      ]
+    },
+    "module_params": {
+      "warp_grid_size": 32,
+      "warp_max_disp": 8.0,
+      "warp_resample": "bicubic",
+      "apa_lora_rank": 8,
+      "apa_latent_max_rank": 32,
+      "apa_latent_const_rank": 8,
+      "random_init_std": 0.5,
+      "warp_mask_gate": true
+    },
+    "optim_params": {
+      "max_steps": 250,
+      "align_steps": 200,
+      "stop_patience": 20,
+      "stop_min_steps": 25
+    },
+    "lr": null,
+    "mask": {
+      "mode": "attention_box",
+      "tau": 0.5,
+      "timestep": 500
+    },
+    "condition": "N3",
+    "image_id": "horse_02",
+    "tau": null,
+    "purify": null,
+    "seed": null
+  },
+  "steps_used": 33,
+  "stop_reason": "約束已啟動且 edit_shift 在最近 20 步的每步改善 +9.69e-05 低於 2.5e-04",
+  "stage_reports": [
+    {
+      "group": "stage2",
+      "lr_key": "lr.N3_stage2",
+      "lr": 0.005,
+      "max_steps": 250,
+      "steps": 33,
+      "stop_reason": "約束已啟動且 edit_shift 在最近 20 步的每步改善 +9.69e-05 低於 2.5e-04"
+    }
+  ],
+  "align_seconds": 958.44,
+  "seconds_optimize": 920.08,
+  "lr": 0.005,
+  "final_L_def": 0.09626580774784088,
+  "final_L_fid": 0.0,
+  "final_lpips": 0.25796985626220703,
+  "final_edit_shift": 0.2578332722187042,
+  "residual_gain": 0.622613219923218,
+  "fid_psnr": 17.805484771728516,
+  "fid_linf": 0.8030667901039124,
+  "fid_ssim": 0.6093499660491943,
+  "fid_vif_p": 0.14965230226516724,
+  "fid_fsim": 0.8593317866325378,
+  "fid_lpips": 0.25796985626220703,
+  "fid_dists": 0.09991168975830078,
+  "fid_acutance_ratio": 0.9258834719657898,
+  "fid_rms": 0.12874358892440796,
+  "fid_frac_gt_16_255": 0.5589956045150757,
+  "fid_niqe": 4.258148375787147,
+  "group": "horse",
+  "prompt": "a zebra"
+}

@@ -1,0 +1,2 @@
+image_id,group,coverage,mode,content,tau,timestep,attn_side
+horse_02,horse,0.275390625,attention_box,horse,0.5,500,64

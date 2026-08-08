@@ -1,0 +1,112 @@
+{
+  "align_seconds": 930.59,
+  "artifacts": [
+    "N3/cat_01/phi.pt",
+    "N3/cat_01/train.csv",
+    "N3/cat_01/align.csv",
+    "N3/cat_01/history.png",
+    "N3/cat_01/x0_trace",
+    "N3/cat_01/orig.png",
+    "N3/cat_01/x_def.png",
+    "N3/cat_01/residual.png",
+    "N3/cat_01/baseline_phi0.png",
+    "N3/cat_01/meta.json"
+  ],
+  "condition": "N3",
+  "config": {
+    "condition": "N3",
+    "gpu": "RTX-3090",
+    "guidance": 7.5,
+    "image_id": "cat_01",
+    "loss_params": {
+      "attn_timesteps": 4,
+      "beta_linf": 0.0,
+      "exact_inversion": true,
+      "k_inv": 10,
+      "n_eot": 1,
+      "purify_mode": "all",
+      "shared_tokens": [
+        0
+      ],
+      "t_max": null,
+      "target_image": "data/targets/gray.png",
+      "tau_acut": 0.16000000000000003,
+      "tau_chroma": 3.2,
+      "tau_linf": 0.06,
+      "tau_train": 0.2,
+      "train_n_edit": 10
+    },
+    "lr": null,
+    "mask": {
+      "mode": "attention_box",
+      "tau": 0.5,
+      "timestep": 500
+    },
+    "model": "runwayml/stable-diffusion-inpainting",
+    "module_params": {
+      "apa_latent_const_rank": 8,
+      "apa_latent_max_rank": 32,
+      "apa_lora_rank": 8,
+      "random_init_std": 0.5,
+      "warp_grid_size": 32,
+      "warp_mask_gate": true,
+      "warp_max_disp": 8.0,
+      "warp_resample": "bicubic"
+    },
+    "optim_params": {
+      "align_steps": 200,
+      "max_steps": 250,
+      "stop_min_steps": 25,
+      "stop_patience": 20
+    },
+    "precision": "fp32",
+    "purify": null,
+    "resolution": 512,
+    "seed": null,
+    "spec_version": 1,
+    "steps": 50,
+    "strength": null,
+    "tau": null
+  },
+  "config_hash": "a1436763075c",
+  "error": null,
+  "fid_acutance_ratio": 0.9797469973564148,
+  "fid_dists": 0.04971444606781006,
+  "fid_frac_gt_16_255": 0.13531622290611267,
+  "fid_fsim": 0.9580649733543396,
+  "fid_linf": 0.8106064200401306,
+  "fid_lpips": 0.13308817148208618,
+  "fid_niqe": 4.333172171588981,
+  "fid_psnr": 26.595182418823242,
+  "fid_rms": 0.04679936170578003,
+  "fid_ssim": 0.9149240255355835,
+  "fid_vif_p": 0.529631495475769,
+  "final_L_def": 0.09258636087179184,
+  "final_L_fid": 0.0,
+  "final_edit_shift": 0.15858426690101624,
+  "final_lpips": 0.13308817148208618,
+  "finished": "2026-08-08T16:11:41+08:00",
+  "group": "cat",
+  "id": "train/N3/cat_01",
+  "image": "cat_01",
+  "lr": 0.005,
+  "prompt": "a dog",
+  "residual_gain": 0.6168221563989668,
+  "seconds": 1687.9070313361008,
+  "seconds_optimize": 748.56,
+  "stage": "train",
+  "stage_reports": [
+    {
+      "group": "stage2",
+      "lr": 0.005,
+      "lr_key": "lr.N3_stage2",
+      "max_steps": 250,
+      "steps": 28,
+      "stop_reason": "約束已啟動且 edit_shift 在最近 20 步的每步改善 +1.31e-04 低於 2.5e-04"
+    }
+  ],
+  "started": "2026-08-08T15:43:33+08:00",
+  "status": "done",
+  "steps_used": 28,
+  "stop_reason": "約束已啟動且 edit_shift 在最近 20 步的每步改善 +1.31e-04 低於 2.5e-04"
+}

@@ -1,0 +1,90 @@
+{
+  "artifacts": [
+    "mist/horse_02/phi_tau0.2.pt",
+    "mist/horse_02/x_def_tau0.2.png",
+    "mist/horse_02/residual_tau0.2.png",
+    "mist/horse_02/fidelity_tau0.2.csv",
+    "mist/horse_02/meta_tau0.2.json"
+  ],
+  "condition": "mist",
+  "config": {
+    "condition": "mist",
+    "gpu": "RTX-3090",
+    "guidance": 7.5,
+    "image_id": "horse_02",
+    "loss_params": {
+      "attn_timesteps": 4,
+      "beta_linf": 0.0,
+      "exact_inversion": true,
+      "k_inv": 10,
+      "n_eot": 1,
+      "purify_mode": "all",
+      "shared_tokens": [
+        0
+      ],
+      "t_max": null,
+      "target_image": "data/targets/gray.png",
+      "tau_acut": 0.16000000000000003,
+      "tau_chroma": 3.2,
+      "tau_linf": 0.06,
+      "tau_train": 0.2,
+      "train_n_edit": 10
+    },
+    "lr": null,
+    "mask": {
+      "mode": "attention_box",
+      "tau": 0.5,
+      "timestep": 500
+    },
+    "model": "runwayml/stable-diffusion-inpainting",
+    "module_params": {
+      "apa_latent_const_rank": 8,
+      "apa_latent_max_rank": 32,
+      "apa_lora_rank": 8,
+      "random_init_std": 0.5,
+      "warp_grid_size": 32,
+      "warp_mask_gate": true,
+      "warp_max_disp": 8.0,
+      "warp_resample": "bicubic"
+    },
+    "optim_params": {
+      "align_steps": 200,
+      "max_steps": 250,
+      "stop_min_steps": 25,
+      "stop_patience": 20
+    },
+    "precision": "fp32",
+    "purify": null,
+    "resolution": 512,
+    "seed": null,
+    "spec_version": 1,
+    "steps": 50,
+    "strength": null,
+    "tau": 0.2
+  },
+  "config_hash": "3fa8cae0ccf6",
+  "error": null,
+  "fid_acutance_ratio": 0.9106553196907043,
+  "fid_dists": 0.03451496362686157,
+  "fid_frac_gt_16_255": 0.0,
+  "fid_fsim": 0.9856192469596863,
+  "fid_linf": 0.030392199754714966,
+  "fid_lpips": 0.2011551856994629,
+  "fid_psnr": 32.500492095947266,
+  "fid_rms": 0.02371218241751194,
+  "fid_ssim": 0.963575541973114,
+  "fid_vif_p": 0.6355451941490173,
+  "finished": "2026-08-08T18:58:22+08:00",
+  "id": "rayscale/mist/horse_02/tau0.2",
+  "image": "horse_02",
+  "image_id": "horse_02",
+  "niqe": 5.326723495991178,
+  "scale_k": 0.484375,
+  "seconds": 0.5084833218716085,
+  "seconds_rayscale": 0.26,
+  "stage": "rayscale",
+  "started": "2026-08-08T18:58:21+08:00",
+  "status": "done",
+  "tau_achieved": 0.2011551856994629,
+  "tau_target": 0.2
+}

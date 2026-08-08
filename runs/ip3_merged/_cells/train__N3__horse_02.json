@@ -1,0 +1,112 @@
+{
+  "align_seconds": 958.44,
+  "artifacts": [
+    "N3/horse_02/phi.pt",
+    "N3/horse_02/train.csv",
+    "N3/horse_02/align.csv",
+    "N3/horse_02/history.png",
+    "N3/horse_02/x0_trace",
+    "N3/horse_02/orig.png",
+    "N3/horse_02/x_def.png",
+    "N3/horse_02/residual.png",
+    "N3/horse_02/baseline_phi0.png",
+    "N3/horse_02/meta.json"
+  ],
+  "condition": "N3",
+  "config": {
+    "condition": "N3",
+    "gpu": "RTX-3090",
+    "guidance": 7.5,
+    "image_id": "horse_02",
+    "loss_params": {
+      "attn_timesteps": 4,
+      "beta_linf": 0.0,
+      "exact_inversion": true,
+      "k_inv": 10,
+      "n_eot": 1,
+      "purify_mode": "all",
+      "shared_tokens": [
+        0
+      ],
+      "t_max": null,
+      "target_image": "data/targets/gray.png",
+      "tau_acut": 0.16000000000000003,
+      "tau_chroma": 3.2,
+      "tau_linf": 0.06,
+      "tau_train": 0.2,
+      "train_n_edit": 10
+    },
+    "lr": null,
+    "mask": {
+      "mode": "attention_box",
+      "tau": 0.5,
+      "timestep": 500
+    },
+    "model": "runwayml/stable-diffusion-inpainting",
+    "module_params": {
+      "apa_latent_const_rank": 8,
+      "apa_latent_max_rank": 32,
+      "apa_lora_rank": 8,
+      "random_init_std": 0.5,
+      "warp_grid_size": 32,
+      "warp_mask_gate": true,
+      "warp_max_disp": 8.0,
+      "warp_resample": "bicubic"
+    },
+    "optim_params": {
+      "align_steps": 200,
+      "max_steps": 250,
+      "stop_min_steps": 25,
+      "stop_patience": 20
+    },
+    "precision": "fp32",
+    "purify": null,
+    "resolution": 512,
+    "seed": null,
+    "spec_version": 1,
+    "steps": 50,
+    "strength": null,
+    "tau": null
+  },
+  "config_hash": "999c80537958",
+  "error": null,
+  "fid_acutance_ratio": 0.9258834719657898,
+  "fid_dists": 0.09991168975830078,
+  "fid_frac_gt_16_255": 0.5589956045150757,
+  "fid_fsim": 0.8593317866325378,
+  "fid_linf": 0.8030667901039124,
+  "fid_lpips": 0.25796985626220703,
+  "fid_niqe": 4.258148375787147,
+  "fid_psnr": 17.805484771728516,
+  "fid_rms": 0.12874358892440796,
+  "fid_ssim": 0.6093499660491943,
+  "fid_vif_p": 0.14965230226516724,
+  "final_L_def": 0.09626580774784088,
+  "final_L_fid": 0.0,
+  "final_edit_shift": 0.2578332722187042,
+  "final_lpips": 0.25796985626220703,
+  "finished": "2026-08-08T16:55:11+08:00",
+  "group": "horse",
+  "id": "train/N3/horse_02",
+  "image": "horse_02",
+  "lr": 0.005,
+  "prompt": "a zebra",
+  "residual_gain": 0.622613219923218,
+  "seconds": 1887.4076304899063,
+  "seconds_optimize": 920.08,
+  "stage": "train",
+  "stage_reports": [
+    {
+      "group": "stage2",
+      "lr": 0.005,
+      "lr_key": "lr.N3_stage2",
+      "max_steps": 250,
+      "steps": 33,
+      "stop_reason": "約束已啟動且 edit_shift 在最近 20 步的每步改善 +9.69e-05 低於 2.5e-04"
+    }
+  ],
+  "started": "2026-08-08T16:23:44+08:00",
+  "status": "done",
+  "steps_used": 33,
+  "stop_reason": "約束已啟動且 edit_shift 在最近 20 步的每步改善 +9.69e-05 低於 2.5e-04"
+}

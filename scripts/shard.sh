@@ -377,7 +377,24 @@ COMMON="--runs-root $RUNS --gpu-tag $GPU_TAG --precision $PRECISION $MODEL --mis
 shard_dir() { echo "$RUNS/${BATCH}_$1"; }
 
 # 空閒的卡，記憶體用量由低到高。排除他人正在用的。
+#
+# `WACV_GPUS` 明給要用哪幾張（空白分隔的 index），給定時**完全跳過偵測**。
+#
+# 2026-08-09 新增。理由是「保留」與「起跑」之間的空窗：這台機器有其他使用者，
+# 段 0 只吃一張卡而段 1–3 要三張，中間隔著一到兩小時。若在段 0 期間放著另外
+# 兩張不管，等 fanout 要用時很可能已經被別人拿走，而 fanout 的失敗訊息是
+# 「空閒卡 N 張，少於影像 3 張」——那時段 0 的機時已經花掉了。
+#
+# 佔卡的作法是在那些卡上放一個佔用行程，於是它們在 `nvidia-smi` 上就是忙的，
+# **自動偵測會把自己佔的卡也排除掉**。故必須有一條明給的路徑。
+#
+# 明給時不做任何檢查：呼叫端既然指名了，就由呼叫端負責那些卡是可用的。
+# 自動偵測那條路徑的行為逐字不變，既有批次的命令列不受影響。
 free_gpus() {
+  if [ -n "${WACV_GPUS:-}" ]; then
+    printf '%s\n' $WACV_GPUS
+    return
+  fi
   nvidia-smi --query-gpu=index,memory.used --format=csv,noheader,nounits \
     | awk -F', ' '$2 < 1000 {print $1}'
 }

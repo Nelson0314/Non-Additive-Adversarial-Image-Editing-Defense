@@ -244,33 +244,39 @@ def loss_fn(sd, x_adv: torch.Tensor, ctx: DIAContext) -> torch.Tensor:
 
     DIA-PT（`DIA_PT.py:388`）：`(x_T − z_0.detach()).norm(p=2)`
     DIA-R（`DIA_R.py:378`）：`(decode(z_rec) − x_adv.detach()).norm(p=2)`
+
+    9 通道（inpainting）權重下的後 5 個通道取**全 1 遮罩**，理由與 Mist
+    相同（見 `mist.loss_fn`）：本篇走的是固定 10 步 DDIM 的反演與重建，
+    原作的 ε_θ 沒有影像條件，全 1 遮罩才是它的對應物。
     """
-    if ctx.variant == "PT":
-        z0 = _encode_pt(sd, x_adv, ctx.generator)
-        z = z0
-        for t in ctx.ts:                       # 升冪：反演
-            z = _step(sd, ctx, t, z, inversion=True)
-        return (z - z0.detach()).norm(p=2)
+    with sd.conditioning_for(x_adv, mask=torch.ones_like(x_adv[:, :1])):
+        if ctx.variant == "PT":
+            z0 = _encode_pt(sd, x_adv, ctx.generator)
+            z = z0
+            for t in ctx.ts:                       # 升冪：反演
+                z = _step(sd, ctx, t, z, inversion=True)
+            return (z - z0.detach()).norm(p=2)
 
-    if ctx.variant == "R":
-        z0 = _encode_r(sd, x_adv, use_ckpt=ctx.vae_ckpt)
-        z = z0
-        for t in ctx.ts:                       # 升冪：反演
-            z = _step(sd, ctx, t, z, inversion=True)
-        for t in reversed(ctx.ts):             # 降冪：重建（backward_point = 0，全走）
-            z = _step(sd, ctx, t, z, inversion=False)
-        # `decode_image`（`utils_general_H.py:312-318`）為 `vae.decode(z/0.18215).sample`，
-        # **不裁切**。本專案的 `decode_latent` 會 clamp(0,1) 再換到 [0,1]，
-        # 被裁切處梯度為零，故此處直接用 vae——`vae_ckpt` 也因此不能改走
-        # `decode_latent`，必須在這裡自行包 checkpoint 以保住不裁切的語意。
-        def _dec(a):
-            return sd.vae.decode(a / sd.scaling_factor).sample
+        if ctx.variant == "R":
+            z0 = _encode_r(sd, x_adv, use_ckpt=ctx.vae_ckpt)
+            z = z0
+            for t in ctx.ts:                       # 升冪：反演
+                z = _step(sd, ctx, t, z, inversion=True)
+            for t in reversed(ctx.ts):             # 降冪：重建（backward_point = 0，全走）
+                z = _step(sd, ctx, t, z, inversion=False)
+            # `decode_image`（`utils_general_H.py:312-318`）為
+            # `vae.decode(z/0.18215).sample`，**不裁切**。本專案的
+            # `decode_latent` 會 clamp(0,1) 再換到 [0,1]，被裁切處梯度為零，
+            # 故此處直接用 vae——`vae_ckpt` 也因此不能改走 `decode_latent`，
+            # 必須在這裡自行包 checkpoint 以保住不裁切的語意。
+            def _dec(a):
+                return sd.vae.decode(a / sd.scaling_factor).sample
 
-        # z 不轉型：原作直接餵進 vae，而轉型本身會改動數值。dtype 若不合
-        # 應以 diffusers 的 "expected scalar type" 明確中止，不在此處吸收。
-        x_rec = (ckpt.checkpoint(_dec, z, use_reentrant=False)
-                 if ctx.vae_ckpt else _dec(z))
-        return (x_rec.float() - x_adv.detach().float()).norm(p=2)
+            # z 不轉型：原作直接餵進 vae，而轉型本身會改動數值。dtype 若不合
+            # 應以 diffusers 的 "expected scalar type" 明確中止，不在此處吸收。
+            x_rec = (ckpt.checkpoint(_dec, z, use_reentrant=False)
+                     if ctx.vae_ckpt else _dec(z))
+            return (x_rec.float() - x_adv.detach().float()).norm(p=2)
 
     raise ValueError(f"DIA 只有 PT 與 R 兩個變體，收到 {ctx.variant!r}")
 

@@ -106,6 +106,9 @@ class SDWrapper:
                 "請改用 float16——該精度下 VAE 會自動留在 fp32"
             )
 
+        # 9 通道權重下 `_eps` 要補的後 5 個通道，由 `inpaint_conditioning()`
+        # 設定。**沒有它時 `_eps` 拒絕跑**，理由見該方法。
+        self._inpaint_cond: Optional[Tuple[torch.Tensor, torch.Tensor]] = None
         self.pipe = (pipe if pipe is not None
                      else self._load_pipeline(model_name, self.backbone_dtype))
         self.pipe.to(self.device)
@@ -369,9 +372,87 @@ class SDWrapper:
         該遮罩作用在 **token 軸（77）**，SDXL 串接兩個 encoder 改變的是最後
         一維（768+1280=2048），token 軸不變，故語意在兩種模型上一致。
         """
-        zc = z.to(self.unet.dtype)
+        zc = self._latent_in(z.to(self.unet.dtype))
         cond = tuple(c.to(self.unet.dtype) for c in self._cond_tensors(emb))
         return self._unet_call(zc, t, *cond, **unet_kwargs).to(z.dtype)
+
+    # ---- 9 通道權重的後 5 個通道 ----
+
+    @contextlib.contextmanager
+    def inpaint_conditioning(self, x01: torch.Tensor,
+                             mask: Optional[torch.Tensor] = None,
+                             vae_ckpt: bool = False):
+        """在此區塊內，`_eps` 與 `unet_forward` 會自動補上後 5 個通道。
+
+        2026-08-08 新增。inpainting 權重的 UNet 是 9 通道，而本專案有**十幾處**
+        呼叫端餵的是 4 通道的 latent：防禦方自己的生成路徑（`DefenseGenerator`
+        的反演與去噪）、Mist 與 DIA 的代理前向、精度等價診斷、注意力擷取。
+        ip3 段 0 在跑了 2.5 小時之後才死在其中一處（N3 的階段一），錯誤是
+        `expected input[1, 4, 64, 64] to have 9 channels`。
+
+        **`mask=None` 表示「不重畫任何區域」**，即後 5 通道為 (全 0 遮罩,
+        原圖的 latent)。那是**重建**路徑該用的條件：`DefenseGenerator` 要
+        G(x; φ=0) 盡量等於 x，而整個保真預算的下限就建立在這件事上；餵全 1
+        遮罩等於叫模型從噪聲重畫整張，G(x;0) 會離 x 很遠。同理，Mist 與 DIA
+        原作把 UNet 當**整張影像的去噪器**用，它們沒有遮罩這個概念，換到
+        9 通道權重之後最忠實的對應也是「不重畫任何區域」。
+
+        要模擬**攻擊方**那一次呼叫時才傳真正的遮罩（評測期的注意力擷取），
+        而攻擊本身走 `inpaint()`，它自己拼 9 通道，不經過這裡。
+
+        巢狀時內層覆蓋外層，離開後還原。
+        """
+        if not self.is_inpainting:
+            # 4 通道權重下設這個沒有意義。靜默接受會讓「這批到底是不是
+            # inpainting」在呼叫端變得看不出來。
+            raise RuntimeError(
+                f"{self.model_name} 不是 inpainting 權重（UNet in_channels = "
+                f"{self.unet.config.in_channels}），不需要也不接受這個 context"
+            )
+        if mask is None:
+            mask = torch.zeros_like(x01[:, :1])
+        prev = self._inpaint_cond
+        self._inpaint_cond = self.mask_latents(x01, mask, vae_ckpt=vae_ckpt)
+        try:
+            yield
+        finally:
+            self._inpaint_cond = prev
+
+    def conditioning_for(self, x01: torch.Tensor,
+                         mask: Optional[torch.Tensor] = None,
+                         vae_ckpt: bool = False):
+        """與權重無關的入口：4 通道權重回傳空 context，9 通道走上面那個。
+
+        呼叫端多半是模型無關的（防禦生成、baseline 的代理前向、診斷），
+        寫 `if sd.is_inpainting` 分岔會在每一處重複同一段判斷。
+        """
+        if not self.is_inpainting:
+            return contextlib.nullcontext()
+        return self.inpaint_conditioning(x01, mask, vae_ckpt=vae_ckpt)
+
+    def _latent_in(self, zc: torch.Tensor) -> torch.Tensor:
+        """9 通道權重下把 4 通道的 latent 補成 9 通道。
+
+        **沒有 `inpaint_conditioning` 就拋出，不預設補零。** 預設值會讓每一個
+        還沒轉換的呼叫端靜默拿到一個「不重畫任何區域」的條件——對重建路徑
+        那恰好是對的，對評測期的注意力擷取卻是錯的（那裡要的是攻擊方真正
+        用的遮罩），而兩者的輸出都是一張合理的圖。
+        """
+        if not self.is_inpainting or zc.shape[1] != self.latent_channels:
+            return zc
+        m, z_masked = self._require_inpaint_cond()
+        return torch.cat([zc, m.to(zc.dtype), z_masked.to(zc.dtype)], dim=1)
+
+    def _require_inpaint_cond(self):
+        if self._inpaint_cond is None:
+            raise RuntimeError(
+                f"{self.model_name} 的 UNet 是 {self.unet.config.in_channels} "
+                f"通道，收到 {self.latent_channels} 通道的 latent，而沒有作用中的 "
+                "`inpaint_conditioning`。後 5 個通道必須由呼叫端明確決定："
+                "重建路徑用 `mask=None`（不重畫任何區域），模擬攻擊方時傳"
+                "攻擊真正用的遮罩。兩者都會產出一張合理的圖，補錯看不出來"
+            )
+        return self._inpaint_cond
 
     def _eps(self, z, t, emb, use_ckpt: bool = False) -> torch.Tensor:
         """ε 預測。半精度時輸入轉成骨幹 dtype，輸出轉回 z 的 dtype。
@@ -380,8 +461,12 @@ class SDWrapper:
         上做加減，狀態張量留在 fp32 才不會逐步累積半精度的捨入誤差，而
         BDIA 的整個存在理由就是數值精確性。fp32 全程時兩次 `.to` 都回傳
         原張量，故 E15–E23 的既有數字逐位元不變。
+
+        9 通道權重下，4 通道的輸入由 `_latent_in` 依作用中的
+        `inpaint_conditioning` 補齊；已經是 9 通道的（`inpaint()` 自己拼的、
+        N1 的注意力前向）原樣通過。
         """
-        zc = z.to(self.unet.dtype)
+        zc = self._latent_in(z.to(self.unet.dtype))
         cond = tuple(c.to(self.unet.dtype) for c in self._cond_tensors(emb))
         if use_ckpt:
             out = ckpt.checkpoint(

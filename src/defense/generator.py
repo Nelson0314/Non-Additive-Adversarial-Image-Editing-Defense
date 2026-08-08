@@ -76,7 +76,10 @@ class DefenseGenerator:
         was_enabled = self.module.enabled
         self.module.disable()
         try:
-            with torch.no_grad():
+            # 9 通道權重下反演也要餵後 5 個通道。取「不重畫任何區域」：這條
+            # 是**重建**路徑，G(x; φ=0) 要盡量等於 x，而整個保真預算的下限
+            # 就建立在那件事上（`SDWrapper.inpaint_conditioning`）。
+            with torch.no_grad(), self.sd.conditioning_for(x01):
                 z0 = self.sd.encode_image(x01)
                 if self.exact_inversion:
                     z_inv, z_prev = self.sd.bdia_inversion(z0, emb, ts, self.k_inv)
@@ -131,25 +134,28 @@ class DefenseGenerator:
                 "啟用中卻未提供 pixel_residual、eps_hook、emb_residual、"
                 "patches_model 之任一，φ 無法進入計算圖"
             )
-        if ctx.z_prev is not None:
-            z, x0_list = self.sd.bdia_denoise(
-                (ctx.z_inv, ctx.z_prev),
-                emb,
-                ctx.ts,
-                ctx.steps,
-                eps_hook=hook,
-                use_ckpt=use_ckpt,
-                collect_x0=collect_x0,
-            )
-        else:
-            z, x0_list = self.sd.denoise(
-                ctx.z_inv,
-                emb,
-                ctx.ts,
-                ctx.steps,
-                eps_hook=hook,
-                use_ckpt=use_ckpt,
-                collect_x0=collect_x0,
-            )
+        # 去噪與反演必須用同一組後 5 通道，否則兩半走的是不同的條件而
+        # G(x; φ=0) 不再逼近 x——那個偏差看起來只是「重建差一點」。
+        with self.sd.conditioning_for(x01, vae_ckpt=vae_ckpt):
+            if ctx.z_prev is not None:
+                z, x0_list = self.sd.bdia_denoise(
+                    (ctx.z_inv, ctx.z_prev),
+                    emb,
+                    ctx.ts,
+                    ctx.steps,
+                    eps_hook=hook,
+                    use_ckpt=use_ckpt,
+                    collect_x0=collect_x0,
+                )
+            else:
+                z, x0_list = self.sd.denoise(
+                    ctx.z_inv,
+                    emb,
+                    ctx.ts,
+                    ctx.steps,
+                    eps_hook=hook,
+                    use_ckpt=use_ckpt,
+                    collect_x0=collect_x0,
+                )
         ctx.x0_trace = x0_list
         return self.sd.decode_latent(z, use_ckpt=vae_ckpt)

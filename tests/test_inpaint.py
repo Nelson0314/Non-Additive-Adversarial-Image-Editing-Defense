@@ -729,3 +729,87 @@ def test_inpainting下缺遮罩立刻拋出注意力前向(sd9, x01):
                             _attn_cfg(None, None), x01,
                             torch.zeros(1, 4, DIM, device=DEV), None, [], x01,
                             MagicMock())
+
+
+# ---------------------------------------------------------------------------
+# 9 通道權重下的 conditioning context
+# ---------------------------------------------------------------------------
+
+def test_四通道latent缺conditioning立刻拋出(sd9, x01):
+    """ip3 段 0 跑了 2.5 小時才死在 N3 的階段一，錯誤是 torch 的
+    `expected input[1, 4, 64, 64] to have 9 channels`——看不出後 5 個通道
+    該放什麼。改由本專案自己的訊息在同一點拋出。
+
+    **不預設補零**：對重建路徑「不重畫任何區域」恰好是對的，對模擬攻擊方的
+    路徑卻是錯的，而兩者都會產出一張合理的圖。
+    """
+    z = torch.randn(1, 4, IMG // 8, IMG // 8, device=DEV)
+    with pytest.raises(RuntimeError, match="inpaint_conditioning"):
+        sd9._eps(z, torch.tensor(10, device=DEV), sd9.encode_text(""))
+
+
+def test_conditioning下四通道被補成九通道(sd9, x01):
+    got = {}
+    real = sd9._unet_call
+
+    def spy(zc, t, *cond, **kw):
+        got["ch"] = int(zc.shape[1])
+        return real(zc, t, *cond, **kw)
+
+    z = torch.randn(1, 4, IMG // 8, IMG // 8, device=DEV)
+    with patch.object(sd9, "_unet_call", spy), sd9.conditioning_for(x01):
+        sd9._eps(z, torch.tensor(10, device=DEV), sd9.encode_text(""))
+    assert got["ch"] == sd9.inpaint_in_channels
+
+
+def test_預設的conditioning是不重畫任何區域(sd9, x01):
+    """重建路徑要 G(x; φ=0) 盡量等於 x，整個保真預算的下限建立在那件事上。
+    全 1 遮罩等於叫模型從噪聲重畫整張。"""
+    with sd9.conditioning_for(x01):
+        m, z_masked = sd9._inpaint_cond
+    assert float(m.abs().max()) == 0.0
+    assert torch.allclose(z_masked, sd9.encode_image(x01), atol=1e-5)
+
+
+def test_全一遮罩下沒有影像條件(sd9, x01):
+    """Mist 與 DIA 用的那一種：`masked_image_latents` 是 `encode(0)`，
+    UNet 退化為純文字條件的去噪器，才對得上它們原作的 ε_θ。"""
+    with sd9.conditioning_for(x01, mask=torch.ones_like(x01[:, :1])):
+        m, z_masked = sd9._inpaint_cond
+    assert float(m.min()) == 1.0
+    assert torch.allclose(z_masked, sd9.encode_image(torch.zeros_like(x01)),
+                          atol=1e-5)
+
+
+def test_conditioning離開後還原(sd9, x01):
+    assert sd9._inpaint_cond is None
+    with sd9.conditioning_for(x01):
+        assert sd9._inpaint_cond is not None
+    assert sd9._inpaint_cond is None
+
+
+def test_四通道權重不接受這個context(sd4, x01):
+    """靜默接受會讓「這批到底是不是 inpainting」在呼叫端看不出來。"""
+    with pytest.raises(RuntimeError, match="不是 inpainting 權重"):
+        with sd4.inpaint_conditioning(x01):
+            pass
+    # 與權重無關的入口在 4 通道下是空操作
+    with sd4.conditioning_for(x01):
+        pass
+
+
+def test_防禦生成路徑在九通道下跑得完(sd9, x01):
+    """`DefenseGenerator` 的反演與去噪都要在同一組後 5 通道下跑，否則兩半
+    走不同的條件而 G(x; φ=0) 不再逼近 x——偏差只表現為「重建差一點」。"""
+    from src.defense.generator import DefenseGenerator
+    from src.residual.site_apa import build_apa
+
+    mod = build_apa(sd9.unet, steps=2, latent_size=IMG // 8,
+                    latent_channels=4, lora_rank=2, latent_max_rank=2,
+                    latent_const_rank=1, seed=0).to(DEV)
+    try:
+        gen = DefenseGenerator(sd9, mod, k_inv=2, t_max=200)
+        out = gen.generate(x01, gen.prepare(x01))
+        assert out.shape == x01.shape
+    finally:
+        mod.remove()

@@ -222,18 +222,26 @@ def loss_fn(sd, x_adv: torch.Tensor, ctx: MistContext) -> torch.Tensor:
         δ* = argmax_δ [ w·L_semantic(x+δ) − L_textural(x+δ, y) ]
 
     與論文 Eq (4) 同號。
+
+    9 通道（inpainting）權重下的後 5 個通道取**全 1 遮罩**，即「整張都要
+    重畫、沒有已知像素」。2026-08-08 補入。本篇的 L_semantic 是
+    `E‖ε − ε_θ(z_t,t,c)‖²`，原作的 ε_θ **沒有影像條件**；全 1 遮罩下
+    `masked_image_latents` 是 `encode(0)`，UNet 退化為純文字條件的去噪器，
+    那才是原形式的對應物。取全 0 遮罩會把乾淨影像從後 4 個通道送進去，
+    去噪任務變成抄答案，損失趨近退化——而曲線照樣會動。
     """
-    if ctx.mode == 0:
-        return -_semantic_loss(sd, x_adv, ctx)
-    if ctx.mode == 1:
-        zx = _encode_sampled(sd, x_adv, ctx.generator,
-                             use_ckpt=ctx.vae_ckpt)
-        return ctx.mse_sum(zx, ctx.z_target)
-    if ctx.mode == 2:
-        zx = _encode_sampled(sd, x_adv, ctx.generator,
-                             use_ckpt=ctx.vae_ckpt)
-        textural = ctx.mse_sum(zx, ctx.z_target)
-        return textural - _semantic_loss(sd, x_adv, ctx) * ctx.rate
+    with sd.conditioning_for(x_adv, mask=torch.ones_like(x_adv[:, :1])):
+        if ctx.mode == 0:
+            return -_semantic_loss(sd, x_adv, ctx)
+        if ctx.mode == 1:
+            zx = _encode_sampled(sd, x_adv, ctx.generator,
+                                 use_ckpt=ctx.vae_ckpt)
+            return ctx.mse_sum(zx, ctx.z_target)
+        if ctx.mode == 2:
+            zx = _encode_sampled(sd, x_adv, ctx.generator,
+                                 use_ckpt=ctx.vae_ckpt)
+            textural = ctx.mse_sum(zx, ctx.z_target)
+            return textural - _semantic_loss(sd, x_adv, ctx) * ctx.rate
     raise ValueError(
         f"Mist 的 mode 只有 0（semantic）／1（textural）／2（fused），收到 {ctx.mode}"
     )

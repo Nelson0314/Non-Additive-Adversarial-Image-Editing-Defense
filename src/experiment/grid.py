@@ -28,7 +28,7 @@ N3 在 τ = 0.05、0.10 上標記為 `skipped` 而非 `failed`。
 """
 
 from dataclasses import dataclass
-from typing import Dict, Iterator, List, Mapping, Optional, Sequence, Tuple
+from typing import Dict, List, Mapping, Optional, Sequence, Tuple
 
 # ---------------------------------------------------------------------------
 # 軸一＋二：訓練條件
@@ -36,13 +36,29 @@ from typing import Dict, Iterator, List, Mapping, Optional, Sequence, Tuple
 
 # 三個非加性條件是本專案的方法；五個 baseline 是加性對照（使用者 2026-08-05
 # 決定不再自行實作加性方法，由 baseline 擔任該角色）；R 是同失真隨機對照。
-NONADDITIVE = ("N1", "N2", "N3")
+#
+# 2026-08-09（第三階段）新增 `N4`。它與 N3 同樣走 site apa，差別在損失：
+# N3 是 `targeted_output`（推向固定目標影像），N4 是 `suppress_attn_ca`
+# （Lo et al. 式 5，壓低防禦方指名的詞 c_a 在其對應區域的注意力）。
+NONADDITIVE = ("N1", "N2", "N3", "N4")
 
 # `dia_pt` 與 `diffvax` 保留在程式中但**不納入本輪實驗**，各有其原因，
 # 兩者都記錄在 `EXCLUDED` 並由測試釘住——移出而不留記錄，等於讓
 # 「為什麼少了這一篇」變成無從查考的事。
 BASELINES = ("photoguard_c", "mist", "dia_r")
+
+# 同失真隨機對照，**逐參數化各一個**。
+#
+# 隨機對照必須與被比較的條件走**同一個參數化**（`DESIGN` §6.3 (b)：問的是
+# 「最佳化取得了多少，超過同樣形狀的隨機擾動」）。`R` 是位移場上的那一個，
+# 只能拿來對照 N1／N2；N3／N4 走 site apa，其對照是 `Ra`。
+#
+# 沒有 `Ra` 的話 apa 上的任何正結果都不可解讀——v14r 正是靠 `R` 才判斷出
+# 位移場沒有貢獻（N1 對 R 的 `edit_lpips` 比值 1.046、語意失敗 4/15 對 4/15，
+# `RESULTS_2026-08-08` §12.1 與 §11.3）。
 RANDOM_CONTROL = "R"
+RANDOM_CONTROL_APA = "Ra"
+RANDOM_CONTROLS = (RANDOM_CONTROL, RANDOM_CONTROL_APA)
 
 # 未納入的方法與理由。**保留在此而非刪除**：報表與論文都要引用這些理由，
 # 而「某篇為何不在表上」是審稿人一定會問的。
@@ -90,9 +106,18 @@ EXCLUDED: Dict[str, str] = {
     ),
 }
 
-# R 不是選配。先驗實測：在同一可辨失真上，隨機高斯雜訊即取得最佳化解
+# 隨機對照不是選配。先驗實測：在同一可辨失真上，隨機高斯雜訊即取得最佳化解
 # 60–74% 的語意失效。沒有這條對照，任何正結果都不可解讀。
-CONDITIONS: Tuple[str, ...] = NONADDITIVE + BASELINES + (RANDOM_CONTROL,)
+#
+# `CONDITIONS` 是**已定義條件的登記表**，不是某一批要跑的清單。哪些條件進入
+# 某一批由 `--conditions` 決定（`resolve_conditions`），批次的選擇記在
+# `scripts/shard.sh` 的 profile 裡。
+#
+# 2026-08-09：第三階段的批次跑 `N4 Ra photoguard_c mist dia_r` 五個條件，
+# 位移場的三個（N1／N2／R）**移出格點但原始碼與登記表都保留**——`runs/` 有
+# 36893 個已入版控的檔案要靠 `site_warp` 由 `.pt` 重建，刪掉它們等於讓那些
+# 證據無法還原。放棄位移場的量化依據見 `docs/DECISION_stage3.md`。
+CONDITIONS: Tuple[str, ...] = NONADDITIVE + BASELINES + RANDOM_CONTROLS
 
 
 def resolve_conditions(names) -> Tuple[str, ...]:
@@ -157,6 +182,102 @@ MAIN_TAU = 0.20          # 主表所在點，見模組 docstring
 TRAIN_TAU = 0.20
 FULL_PURIFY_TAUS: Tuple[float, ...] = (0.20, 0.35)
 
+
+# ---------------------------------------------------------------------------
+# 逐批次的 τ 計畫（2026-08-09，第三階段）
+# ---------------------------------------------------------------------------
+#
+# 上面四個常數是**模組層級的**，而第三階段的批次 A 要在 τ_train = 0.50 上跑。
+# 就地改它們會讓 v14／v14r 重跑時產出不同的格點，破壞 `runs/` 已入版控的
+# 160705 個檔案的可重現性——那些檔案是唯一的證據來源，容器已刪、實驗無法重跑。
+#
+# 故改為：常數不動，另立一個逐批次的計畫物件，由 `--tau-train` 導出。
+#
+# **為什麼四個常數必須一致地跟著批次走**，而不是只改 `TRAIN_TAU`：
+# `purifiers_for` 對不在 `FULL_PURIFY_TAUS` 內的 τ 只回傳 identity，且掃描組
+# 只在 `tau == MAIN_TAU` 上跑。照現況把 τ_train 設成 0.50 而不動其餘三個，
+# 結果會是**訓練點上一個淨化格都沒有**——而抗淨化是主張一。這個症狀在報表上
+# 看起來只是「那幾列不在表裡」，不會有任何錯誤訊息。
+
+@dataclass(frozen=True)
+class TauPlan:
+    """一個批次的失真預算軸。四個欄位必須一致，故綁在同一個物件上。
+
+    `taus` 是要報告的全部預算點；`train_tau` 是**最佳化實際發生**的那一點，
+    其餘由段 2 的射線縮放取得；`main_tau` 是主表與掃描組所在點；
+    `full_purify_taus` 是跑完整主組淨化算子的點。
+    """
+
+    taus: Tuple[float, ...]
+    main_tau: float
+    train_tau: float
+    full_purify_taus: Tuple[float, ...]
+
+    def __post_init__(self):
+        for name in ("main_tau", "train_tau"):
+            if getattr(self, name) not in self.taus:
+                raise ValueError(
+                    f"{name}={getattr(self, name)} 不在 taus={self.taus} 內。"
+                    f"主表或訓練點不在報告的預算軸上，該點的結果不會被列舉出來"
+                )
+        missing = [t for t in self.full_purify_taus if t not in self.taus]
+        if missing:
+            raise ValueError(
+                f"full_purify_taus 的 {missing} 不在 taus={self.taus} 內"
+            )
+        if self.train_tau not in self.full_purify_taus:
+            raise ValueError(
+                f"train_tau={self.train_tau} 不在 full_purify_taus="
+                f"{self.full_purify_taus} 內：訓練點上不會有任何淨化格，"
+                "而抗淨化（主張一）的分母正是訓練點上的效果。"
+                "這正是 2026-08-09 §4a 指出的失效"
+            )
+
+
+DEFAULT_TAU_PLAN = TauPlan(
+    taus=TAUS, main_tau=MAIN_TAU, train_tau=TRAIN_TAU,
+    full_purify_taus=FULL_PURIFY_TAUS,
+)
+
+
+def tau_plan_for(train_tau: Optional[float] = None,
+                 full_purify_taus: Optional[Sequence[float]] = None
+                 ) -> TauPlan:
+    """由 `--tau-train` 導出該批次的 τ 計畫。
+
+    **`train_tau` 為 None 或恰等於模組常數 `TRAIN_TAU` 時，回傳
+    `DEFAULT_TAU_PLAN` 本身**，即 v14／v14r 的格點逐格不變。這一條由
+    `tests/test_grid.py` 釘住——本函式的存在理由是換批次，不是換既有結果。
+
+    其餘情形的導出規則：
+
+    - `taus` = 既有的四點 ∪ {train_tau}，排序。既有四點照實保留，讓
+      失真–效果曲線的低端仍然補得起來，且與 v14／v14r 的報告點對得上。
+    - `main_tau` = `train_tau`。主表與掃描組必須落在最佳化實際發生的那一點；
+      v14 的主表與訓練點本來就是同一點（都是 0.20），此處只是把該性質寫成規則。
+    - `full_purify_taus` = `(train_tau,)`，除非呼叫端明給。
+
+    最後一項是**本輪的選擇，不是既有設計的延伸**，故必須說明：v14 在 0.20 與
+    0.35 兩點跑完整淨化組，理由是「兩個完整點都落在 N3 可達的區間內，故曲線
+    兩端可比」。批次 A 的 φ 訓練在 0.50，其 0.35 那一點是射線縮放的結果，
+    與 v14r 訓練在 0.20 的 0.35 不是同一個東西，並列不構成「可比」。而多一個
+    完整點的代價是段 3 的 eval 由 1725 格增為 2175 格（+26%）。故預設只在
+    訓練點跑完整淨化組，要加回來用 `--full-purify-taus` 明給並記錄理由。
+    """
+    if train_tau is None or float(train_tau) == TRAIN_TAU:
+        if full_purify_taus is None:
+            return DEFAULT_TAU_PLAN
+        train_tau = TRAIN_TAU
+
+    train_tau = float(train_tau)
+    if not train_tau > 0:
+        raise ValueError(f"train_tau 須為正數，收到 {train_tau!r}")
+    taus = tuple(sorted(set(TAUS) | {train_tau}))
+    full = (tuple(sorted(float(t) for t in full_purify_taus))
+            if full_purify_taus is not None else (train_tau,))
+    return TauPlan(taus=taus, main_tau=train_tau, train_tau=train_tau,
+                   full_purify_taus=full)
+
 # 走生成路徑的條件在此下限以下結構上不可能達成。**這是名目值，只用於
 # 乾跑**：真正執行時一律改用該影像自己實測的下限（見下方
 # `generative_floor_skip` 的 `floors`）。
@@ -169,7 +290,10 @@ FULL_PURIFY_TAUS: Tuple[float, ...] = (0.20, 0.35)
 # 的全域常數）是同一個型態：一個對「平均影像」成立的常數，套到個別影像上
 # 就不成立。
 GENERATIVE_LPIPS_FLOOR = 0.1434
-GENERATIVE_CONDITIONS = ("N3",)
+# 全部走 site apa 的條件都有這個下限——它來自 `decode(encode(x))` 這條來回，
+# 與損失是什麼無關。2026-08-09 補入 N4 與 Ra：漏掉的症狀是段 2 的 `solve_k`
+# 在達不到的 τ 上二分到極限才拋出，整個分片就此停住（2026-08-07 的 cat_02 事故）。
+GENERATIVE_CONDITIONS = ("N3", "N4", "Ra")
 
 # ---------------------------------------------------------------------------
 # 軸四：淨化
@@ -297,18 +421,23 @@ def rayscale_cells(images: Sequence[str],
     return out
 
 
-def purifiers_for(tau: float, include_sweep: bool = True
+def purifiers_for(tau: float, include_sweep: bool = True,
+                  tau_plan: TauPlan = DEFAULT_TAU_PLAN
                   ) -> List[Tuple[str, float]]:
     """該 τ 要跑哪些淨化設定。
 
-    完整主組只在 `FULL_PURIFY_TAUS` 上跑；掃描組只在主表的 τ 上跑。
+    完整主組只在 `tau_plan.full_purify_taus` 上跑；掃描組只在主表的 τ 上跑。
     其餘 τ 只跑 identity——它們的用途是把失真–效果曲線的低端補起來，
     不是量抗淨化。
+
+    `tau_plan` 預設為 `DEFAULT_TAU_PLAN`，即模組常數；逐批次覆寫見
+    `tau_plan_for`。**判準取自 plan 而非模組常數**，否則改了 `--tau-train`
+    的批次會在訓練點上一個淨化格都沒有（§4a）。
     """
-    if tau not in FULL_PURIFY_TAUS:
+    if tau not in tau_plan.full_purify_taus:
         return [IDENTITY]
     out = list(MAIN_PURIFIERS)
-    if include_sweep and tau == MAIN_TAU:
+    if include_sweep and tau == tau_plan.main_tau:
         out += list(SWEEP_PURIFIERS)
     return out
 
@@ -318,7 +447,8 @@ def eval_cells(images: Sequence[str],
                taus: Sequence[float] = TAUS,
                n_seeds: int = N_SEEDS,
                include_sweep: bool = True,
-               floors: Optional[Mapping[str, float]] = None) -> List[Cell]:
+               floors: Optional[Mapping[str, float]] = None,
+               tau_plan: TauPlan = DEFAULT_TAU_PLAN) -> List[Cell]:
     """段 3：淨化與編輯評測。"""
     if n_seeds < MIN_SEEDS:
         raise ValueError(
@@ -331,7 +461,7 @@ def eval_cells(images: Sequence[str],
             fl = None if floors is None else floors.get(img)
             for t in taus:
                 skip = generative_floor_skip(c, t, fl)
-                for p in purifiers_for(t, include_sweep):
+                for p in purifiers_for(t, include_sweep, tau_plan):
                     for s in range(n_seeds):
                         out.append(Cell("eval", c, img, tau=t, purify=p,
                                         seed=s, skip_reason=skip))
@@ -340,7 +470,8 @@ def eval_cells(images: Sequence[str],
 
 def control_cells(images: Sequence[str], taus: Sequence[float] = TAUS,
                   n_seeds: int = N_SEEDS,
-                  include_sweep: bool = True) -> List[Cell]:
+                  include_sweep: bool = True,
+                  tau_plan: TauPlan = DEFAULT_TAU_PLAN) -> List[Cell]:
     """φ=0 的同淨化對照。**不依賴條件也不依賴 τ**，故跨條件共用。
 
     每個 `(影像, 淨化, 種子)` 只算一次。若每個條件各算一次，就是 9 倍的
@@ -352,7 +483,7 @@ def control_cells(images: Sequence[str], taus: Sequence[float] = TAUS,
     out = []
     for img in images:
         for t in taus:
-            for p in purifiers_for(t, include_sweep):
+            for p in purifiers_for(t, include_sweep, tau_plan):
                 for s in range(n_seeds):
                     key = (img, p, s)
                     if key in seen:
@@ -367,18 +498,31 @@ def plan(images: Sequence[str], **kw) -> Dict[str, List[Cell]]:
 
     `floors` 為 `{影像 id: 該圖實測的 VAE 重建下限 LPIPS}`。省略時走名目值，
     只適用於乾跑——理由見 `generative_floor_skip`。
+
+    `tau_plan` 為該批次的預算軸（見 `tau_plan_for`）。**`taus` 由它決定，
+    不再各段各自取模組常數**：兩者分開給定時，`rayscale` 與 `eval` 可以列舉
+    到不同的 τ 集合，而症狀是段 3 讀不到某個 τ 的 φ，跑到那一格才失敗。
+    呼叫端仍可明給 `taus` 覆寫（測試用），但那必須是 `tau_plan.taus` 的子集。
     """
     floors = kw.get("floors")
+    tau_plan = kw.get("tau_plan", DEFAULT_TAU_PLAN)
+    taus = kw.get("taus", tau_plan.taus)
+    extra = [t for t in taus if t not in tau_plan.taus]
+    if extra:
+        raise ValueError(
+            f"taus 的 {extra} 不在 tau_plan.taus={tau_plan.taus} 內。"
+            "淨化組的判準取自 tau_plan，多出來的 τ 會只跑 identity 而看不出原因"
+        )
+    conditions = kw.get("conditions", CONDITIONS)
+    n_seeds = kw.get("n_seeds", N_SEEDS)
+    include_sweep = kw.get("include_sweep", True)
     return {
-        "train": train_cells(images, kw.get("conditions", CONDITIONS)),
-        "rayscale": rayscale_cells(images, kw.get("conditions", CONDITIONS),
-                                   kw.get("taus", TAUS), floors),
-        "eval": eval_cells(images, kw.get("conditions", CONDITIONS),
-                           kw.get("taus", TAUS), kw.get("n_seeds", N_SEEDS),
-                           kw.get("include_sweep", True), floors),
-        "control": control_cells(images, kw.get("taus", TAUS),
-                                 kw.get("n_seeds", N_SEEDS),
-                                 kw.get("include_sweep", True)),
+        "train": train_cells(images, conditions),
+        "rayscale": rayscale_cells(images, conditions, taus, floors),
+        "eval": eval_cells(images, conditions, taus, n_seeds,
+                           include_sweep, floors, tau_plan),
+        "control": control_cells(images, taus, n_seeds, include_sweep,
+                                 tau_plan),
     }
 
 

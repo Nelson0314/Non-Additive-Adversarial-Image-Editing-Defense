@@ -1,0 +1,355 @@
+# 第三階段的方向裁決 —— 2026-08-09
+
+> **本檔記錄一個放棄與一個改換，以及兩者各自的量化依據。**
+>
+> 放棄：位移場（site warp）不再是研究方向。
+> 改換：專做 site apa，並換上 DAYN 式 (5) 的注意力抑制目標。
+>
+> 依據全部取自 `RESULTS_2026-08-08.md` 的實測，逐項標到節次。指標的用法與
+> 分層見 `METRICS_2026-08-08.md`，判定的短版見 `HANDOVER_METRICS_2026-08-08.md`。
+
+---
+
+## 1. 放棄位移場：兩個判準都區分不出它與隨機對照
+
+`DESIGN` §6.3 (b) 把「勝過同失真的隨機對照」列為次主張的必要條件之一，理由是
+先驗實測「在同一可辨失真上，隨機高斯雜訊即取得最佳化解 60–74% 的語意失效」。
+v14r 在三張影像、事前宣告的判準下重測，**兩個判準都顯示訓練幾乎沒有貢獻**。
+
+| 判準 | N1（最佳化的位移場） | R（同失真隨機位移場） | 比值 | 出處 |
+|---|---|---|---|---|
+| 第 1 層 · 位移 `edit_lpips`（τ=0.20、identity） | 0.2539 | 0.2427 | **1.046** | `RESULTS_2026-08-08` §12.1 |
+| 第 2 層 · 語意失敗數（τ=0.35、15 個樣本） | **4 / 15** | **4 / 15** | 1.000 | `RESULTS_2026-08-08` §11.3 |
+
+第一列的 1.046 是「有效」與「只是把圖扭了一下」之間最關鍵的分野，而 4.6% 的
+差距落在該量的逐格散布之內。第二列更直接：**逐格判定完全相同**。
+
+兩項旁證，都指向同一結論：
+
+- **N1 的語意失敗數 4/15 低於未防禦對照的 5/15**（同節），即防禦之後編輯
+  成功得更多。次主張的另一道門檻 (a)「≥ 0.85 × 最佳 baseline」也不通過——
+  N1 是 0.649（§12.1）。
+- **這不是「沒訓練夠」。** v14r 已經確認訓練約束被解開：被鈍化 hinge 罰過的
+  格數由 6/6 降到 0/6，六個位移場格全部走到 LPIPS 0.20，訓練步數同步由
+  32 步變長到 198 步（§6.2）。也就是說位移場拿到了完整預算，結果仍與隨機
+  無法區分。
+
+> **裁決：位移場作為研究方向到此為止。** 不再為它調 `max_disp`、`grid_size`
+> 或學習率——那些都是「訓練得夠不夠好」的旋鈕，而問題不在那裡。
+
+### 1.1 位移場唯一站得住的優勢仍然照實保留
+
+§11.5／§12.4：位移場的 ΔNIQE 是負的（N1 −0.423、N2 −0.391、R −0.292），
+加性為正（mist +1.331、photoguard_c +0.532，後者銳利度比 0.356）。即
+**非加性不會用劣化製造出表面上的免疫**。這不是「防禦得比較好」，但它是三層
+評測裡唯一站得住的非加性差異，論文的定位段落要保留它。本裁決不推翻它——
+放棄的是「位移場作為方法」，不是「位移場的觀察」。
+
+---
+
+## 2. 原始碼保留，只把條件移出格點
+
+**`src/residual/site_warp.py` 與 N1／N2／R 的全部程式碼不刪。**
+
+理由是可重現性，不是感情：`runs/` 有 **36893 個已入版控的位移場檔案**（v14、
+v14r、b3 及其分片），其中 `phi.pt` 存的是模塊的 `state_dict`，要靠
+`executors.rebuild_module` 呼叫 `WarpResidual` 才能還原成影像。容器已刪、
+實驗無法重跑（`CLAUDE.md`：`runs/` 是唯一的證據來源）。刪掉 `site_warp` 等於
+讓那些檔案變成一堆無法解讀的張量。
+
+實作上的分界：
+
+| | 處置 |
+|---|---|
+| `src/residual/site_warp.py`、`WarpResidual`、遮罩閘 | **不動** |
+| `grid.CONDITIONS` 的 N1／N2／R | **留在登記表內**——`CONDITIONS` 是「已定義的條件」，不是「這一批要跑的條件」 |
+| 本批實際跑哪些 | 由 `--conditions` 決定，記在 `scripts/shard.sh` 的 `s3a*`／`s3b*` profile |
+
+這使 v14／v14r 隨時可以原樣重跑（`tests/test_grid.py::test_不指定tau_train時v14的格點逐格不變`
+逐格釘住），也使「為什麼少了這三個條件」有一個可查的答案而不是無從查考。
+
+---
+
+## 3. 新方向：site apa + DAYN 式 (5)
+
+### 3.1 依據
+
+DAYN（Lo et al., *Distraction is All You Need*, CVPR 2024）的 Figure 顯示：
+注意力由集中於物件變成散開之後，編輯輸出被導向完全無意義的影像。該機制在
+本專案**已實作但從未被任何訓練條件使用**——`src/models/attention.py` 的
+`aggregate_token_attention`（式 3）、`attention_region_mask`（式 4）、
+`masked_attention_l1`（式 5）自 2026-08-03 起就在，由
+`tests/test_lo_protocol.py` 釘住，但唯一的呼叫端是
+`src/defense/linf_attack.py` 那條文獻基準路徑（L∞ 球上的 PGD），
+與本專案的參數化最佳化完全分離。
+
+本輪把同一組式子接成 `objective.py` 的一個 `defense_mode`，套在 site apa 上。
+
+### 3.2 與 N1 既有 attention loss 的差別
+
+兩者都關於 cross-attention，**但不是同一件事**：
+
+| | N1 `targeted_attn` | N4 `suppress_attn_ca` |
+|---|---|---|
+| L_def | `1 − shared_token_mass` | `‖Att(x_adv, c_a) ⊙ M‖₁` |
+| 施力方向 | 把注意力質量**導向** decoy token（BOS／末位 PAD） | 把指定詞的注意力反應**壓低** |
+| 作用位置 | **全部 query 位置取平均** | **只在式 (4) 的遮罩 M 內** |
+| 需不需要 c_a | **不需要** | **需要** |
+| 量的形狀 | 每層壓成純量再平均（全域綁定強度） | 保留空間維度的聚合圖 |
+| 隨進展 | 上升（故可直接當監看量） | **下降**（監看量另取，見 §3.5） |
+
+形式上的來源也不同：N1 取自 PromptFlare 的 cross-attention decoy（`L_CA` 對
+`M^BOS`），N4 取自 DAYN 的式 (5)。
+
+### 3.3 威脅模型的改變：防禦方必須指名要保護什麼
+
+**這是本輪最實質的改變，不是實作細節。**
+
+前三個條件（N1／N2／N3）都是 prompt-free：N1 的 decoy 位置只依賴 CLIP
+tokenizer 的結構，N2／N3 的去噪期一律餵空 prompt。防禦方因此不需要知道
+攻擊方的 prompt，也不需要為原圖產生 caption。
+
+N4 不是。式 (5) 要壓低的是**防禦方指名的那個詞 c_a**，遮罩 M 也由該詞在原圖
+上的注意力決定。防禦方必須說出「我要保護這張圖裡的什麼」。
+
+c_a 的來源是 `data/lo_aligned/prompts.yaml` 的 `content` 欄，該檔第 8–11 行
+逐字寫明這件事：
+
+> `content` 是防禦方選擇要保護的那個詞（論文的 c_a）。它**不是**從 prompt 推
+> 出來的：prompt 是攻擊方寫的、c_a 是防禦方選的，在威脅模型裡屬於不同的人。
+> semantic attack 只壓低 c_a 在其對應區域的注意力，選錯就會攻擊到別的東西
+> 而且沒有任何症狀，故此欄為必填，`load_dataset` 不接受預設值。
+
+`scripts/run_lo_baseline.py::load_dataset` 的 docstring 有同樣的記載。
+
+**查證結果：主格點不必補資料集欄位。** `ImageEntry` 已有 `content` 欄
+（`src/experiment/executors.py`），由同一個 `prompts.yaml` 的同一個鍵載入，
+inpainting 的遮罩產生（`run_stage.py` 的 `content_mask(sd, e.x01, e.content, …)`）
+早就在用它。三張圖的 c_a 分別是 `bird`／`cat`／`dog`。
+
+程式層的把關：`LossConfig.__post_init__` 對 `suppress_attn_ca` 缺 `content`
+或缺 `attn_mask_tau` 一律拋出，不接受預設值也不由 prompt 推導。
+
+**論文必須寫明這項不對稱**：與加性 baseline 相比，本方法多要求一個輸入。
+PhotoGuard-c、Mist、DIA 都不需要防禦方說出要保護什麼。這是方法的成本，
+不可略過不提。
+
+### 3.4 判定為何不會被污染
+
+**損失用 attention、判定用 SigLIP margin，兩者不同源。**
+
+```
+L_def   = ‖Att(x_adv, c_a) ⊙ M‖₁            ← SD v1.4 的 UNet cross-attention
+判定    = SigLIP(y, 目標類) − SigLIP(y, 原類) ← SigLIP，另一個模型、另一個量
+```
+
+三點：
+
+1. **兩個模型不同。** 損失量的是 SD 的 UNet 內部把 token 綁到哪些空間位置；
+   判定量的是 SigLIP 對編輯**輸出影像**判成哪一類。前者是防禦方可以直接
+   施力的機制，後者是使用者實際看到的結果。
+2. **兩個輸入不同。** 損失作用在 `x_def`（防禦圖）的單步代理前向上；判定作用
+   在 `y_def`（走完整條攻擊編輯鏈之後的輸出）上。
+3. **沒有拿測試集訓練的問題。** 訓練從頭到尾不曾看過 SigLIP 的分數，也不曾
+   最佳化 margin。
+
+> 附帶記錄：`HANDOVER_METRICS` §8 末尾指出 margin **可以**直接當損失
+> （最小化 `margin(y_def)`，對 SigLIP 可微），並說那是它相對 `effect_siglip`
+> 最實際的好處。**本輪刻意不做**——那會讓判準與訓練目標同源，正是這一節要
+> 避免的事。要做的話必須另立一個判定量，屬於另一個問題。
+
+### 3.5 監看量與停止準則
+
+`plateau_stop` 判的是「每步的絕對改善量 < tol」，故監看量**必須隨進展上升**
+——餵一個下降的量進去會在 `stop_min_steps` 一到就判定收斂，而且沒有任何症狀
+（`optimize.DEFENSE_MONITOR` 的註解記載這條規則）。
+
+N4 的 L_def 隨進展下降，故監看量取 `attn_suppressed = 起點的遮罩內 L1 − 當前值`，
+另記相對量 `attn_suppressed_rel`（絕對值的尺度隨 UNet 層數與遮罩面積而變，
+跨影像不可比）。`stop_tol.attn_suppressed` 由段 0 的探測產生，與其餘監看量
+同權，未校準即拋出。
+
+### 3.6 隨機對照必須重建在 apa 上
+
+`R` 是**位移場上**的隨機對照，拿它去比 apa 的方法，量到的差異裡混著參數化
+本身的效果。故新增 `Ra`：同一個 apa 參數化、同樣跑階段一的保真對齊，只把
+射線縮放要乘的方向參數抽成高斯，不最佳化。
+
+**它也跑階段一的對齊**，這一點不可省：不對齊的話 Ra 的 `x_base` 是未對齊的
+VAE 重建，同一個 τ 之下它得先付掉更大的重建誤差，留給隨機方向的預算比 N4 少
+——那會讓對照系統性地偏弱，也就讓 N4 的任何勝出不可解讀。而這條對照存在的
+唯一理由就是判斷「有沒有勝過隨便擾動一下」。
+
+`tests/test_grid.py::test_隨機對照不是選配且逐參數化各一個` 釘住「每一個非加性
+條件都要有同參數化的隨機對照」。
+
+### 3.7 段 0 的 `warp_reach` 在本批不適用，明確跳過
+
+`measure_warp_reach` 原本寫死 `build_module("R", …)` 且由 `run_calibration`
+無條件呼叫，**完全不看格點有哪些條件**。隨機對照移到 apa 之後，`build_apa`
+產生的 `CompositeResidual` 兩個成員都不是像素側，`pixel_residual()` 回傳
+`None`，接著 `suite.pairwise(x, None)` 會在指標內部以看不出來源的訊息中止。
+
+處置：由呼叫端傳入本批的條件，沒有任何 site warp 條件時回傳
+`{"skipped": True, …}` 並且**不寫入校準表**——一個沒有量過的
+`warp.min_lpips_at_bound` 比不寫更危險。
+
+**apa 那一側的對應量不是上界而是下界。** 位移場受限於「最多能扭多遠」
+（`max_disp` 是硬 clamp），apa 受限於「最少也有這麼糊」（`decode(encode(x))`
+的重建誤差）。後者由 `measure_recon_floors` 逐影像量出並寫進
+`calib/recon_floor.csv`，本輪另在 `calib_summary.json` 加一項
+`recon_floor_check`，段 0 一跑完就看得到哪些影像在訓練點上結構上不可達，
+不必等段 2 的 `solve_k` 拋出才知道。
+
+---
+
+## 4. 三個已知風險
+
+### 4.1 生成路徑的重建下限（逐圖 0.133–0.240）
+
+apa 走生成路徑，`x_def` 必經 `decode(encode(x))`，該來回本身就是失真的硬下界，
+**且逐影像差很多**（SD v1.4／512²／fp32 實測）：
+
+| 影像 | 重建下限 LPIPS |
+|---|---|
+| bird_03 | 0.1330 |
+| dog_03 | 0.1403 |
+| **cat_02** | **0.2398** |
+
+**cat_02 的 0.2398 高於 τ=0.20。** 故在 τ=0.20 那一批（批次 B），cat_02 的
+全部 apa 格會被標成 `skipped`——**這是預期行為，不是失敗**
+（`grid.generative_floor_skip`，2026-08-07 的事故修正）。v14r 的
+`skipped` 統計裡 cat_02 多出的 91 格正是這一項（`RESULTS_2026-08-08` §7.1）。
+
+**這是先跑批次 A（τ=0.50）的理由之一**：0.50 遠高於 0.2398，三張圖都有充裕
+餘裕；τ=0.20 反而會讓 cat_02 整張不可達，而 v14r 已經確認 cat_02 在語意判定
+上是三張圖裡唯一飽和（全部條件 5/5）的那張，少了它反而不是損失——但那要在
+批次 B 的報告裡講清楚，不能讓讀者以為是失敗格。
+
+### 4.2 N3 在 v14r 只用掉約三分之一的預算就早停
+
+`RESULTS_2026-08-08` §6.3：三個 N3 訓練格的末端 `max fid_lpips_rel` 是
+0.0706／0.0596／0.0825，而預算是 0.20——**離預算差 2.5 倍以上**；步數 27／37／31，
+而 `max_steps` 是 250。
+
+**停下來的原因不是保真門檻**（bird_03 那格的 acut 一次都沒被罰），而是防禦
+目標本身的早停條件（`stop_min_steps=25`、`stop_patience=20`）。
+
+對本輪的意義：N4 與 N3 共用參數化與階段一，若 N4 也在 30 步左右停下，那不是
+「訓練不夠」而是**這個目標在這個參數化上很快就不再改善**。段 1 一跑完要先看
+`train.csv` 的步數與末端 `fid_lpips_rel`：
+
+- 步數接近 250 且 `fid_lpips_rel` 接近 0.50 → 目標確實在用預算；
+- 步數在 30 上下 → 與 N3 同一型態，此時**延長步數不會有用**
+  （§9.10 對 ip3 的同型診斷已經確認過一次：`engaged` 恆為 False 時停止準則
+  永遠不會觸發，而那批「不是還在進步，是不動了但停止準則沒資格開口」）。
+
+### 4.3 N3 在 v14r 比不防禦更糟
+
+`RESULTS_2026-08-08` §11.3（τ=0.35，語意失敗數，愈高愈好）：
+
+| 條件 | 語意失敗 |
+|---|---|
+| **對照（未防禦）** | **5 / 15** |
+| N3（apa） | **2 / 15** |
+
+即 apa 這個參數化在 v14r 的工作點上**把編輯成功率推高了**。§9.6 的
+identity、τ=0.35 全量重算同向：N3 在 dog_03 由 1/5 推到 4/5。
+
+這是本方向最直接的風險：換損失換不掉參數化。若 N4 的語意失敗數同樣低於
+未防禦對照，那就不是「這個損失不好」而是「apa 這個注入位置在這個威脅模型下
+會幫倒忙」，而那個結論對兩個損失都成立。
+
+**批次 A 的判讀順序因此固定**：先看 N4 對未防禦對照的語意失敗數（能不能贏過
+「什麼都不做」），再看 N4 對 Ra（能不能贏過「隨便擾動一下」）。兩道都過不了
+就結束這個方向，不必再跑批次 B 與 inpainting 的兩批。
+
+---
+
+## 5. τ=0.20 這個裁決不自動適用於 apa
+
+`grid.TRAIN_TAU` 由 0.35 降到 0.20 的註解（2026-08-06）依據是：
+
+> `max_disp=8.0` 的每分量上界對應最大位移量 8√2 = 11.31 px，而 τ=0.20 與
+> 0.35 量到的**都是 11.31**。從 0.20 往上，k 由 10.5 拉到 26.0 而最大位移
+> 一動也不動——射線縮放已不是在縮放射線，只是把越來越多像素壓到上界。
+
+**那是 site warp 專屬的限制。** apa 沒有 `max_disp` 這種硬上界，其射線縮放
+乘的是階段二的 latent 偏移，不存在「越來越多像素被壓到上界」這個機制。
+
+另一半理由（人眼判讀 τ=0.35「明顯壞掉」）同樣不自動適用：使用者 2026-08-08
+在 `runs/v14r_vs_v14_tau0.2.html` 上的判讀是「位移場類型的失真較大……**apa
+提高門檻後的失真人眼看依舊非常不明顯**」（`RESULTS_2026-08-08` §6.6）。
+`METRICS_2026-08-08` §5 記載其量化形式：N3 的絕對 LPIPS 是 0.197–0.205，
+但其中大部分是 VAE 來回的重建下限，相對量只有 0.060–0.083。
+
+> **裁決：批次 A 取 τ_train = 0.50，批次 B 取 0.20，兩者都是明給的選擇，
+> 不是沿用。** 0.50 的依據是本專案重現 DAYN 時實測其 `pert_lpips ≈ 0.51`
+> （L∞ = 0.06、n=480，`git show fc23d2278:runs/lo_baseline/summary.csv`），
+> 即加性方法普遍所在的量級。在對方自己的預算上輸給隨機對照，是最強的證偽。
+
+### 5.1 四個 τ 常數必須一致地跟著批次走
+
+`grid.py` 的 `TAUS` / `MAIN_TAU` / `TRAIN_TAU` / `FULL_PURIFY_TAUS` 是模組層級
+常數，而 `purifiers_for(tau)` 對不在 `FULL_PURIFY_TAUS` 的 τ **只回傳
+identity**，掃描組又只在 `tau == MAIN_TAU` 上跑。
+
+**照現況只設 `--tau-train 0.50` 而不動其餘三個，訓練點上一個淨化格都不會有**
+——而抗淨化是主張一。症狀在報表上只是「那幾列不在表裡」，不會有錯誤訊息。
+
+處置：常數不動（就地改會讓 v14／v14r 重跑產出不同格點，破壞
+`runs/` 已入版控的 160705 個檔案的可重現性），另立逐批次的 `TauPlan`，
+由 `--tau-train` 導出，與 `--full-purify-taus` 同一條路徑。
+
+`--tau-train` 為預設值時 `tau_plan_for()` 回傳模組常數**本身**（同一個物件），
+v14 的格點逐格不變，由 `tests/test_grid.py::test_不指定tau_train時v14的格點逐格不變`
+釘住（逐 `cell_id` 比對，不是只比數量）。
+
+批次 A 導出的計畫：
+
+```
+taus              (0.05, 0.10, 0.20, 0.35, 0.50)
+main_tau          0.50        ← 主表與掃描組
+train_tau         0.50
+full_purify_taus  (0.50,)
+```
+
+**`full_purify_taus` 只取訓練點是本輪的選擇，不是既有設計的延伸**，故記在此：
+v14 在 0.20 與 0.35 兩點跑完整淨化組，理由是「兩個完整點都落在 N3 可達的
+區間內，故曲線兩端可比」。批次 A 的 φ 訓練在 0.50，其 0.35 那一點是射線縮放
+的結果，與 v14r 訓練在 0.20 的 0.35 不是同一個東西，並列不構成「可比」。
+多一個完整點的代價是段 3 的 eval 由 1725 格增為 2175 格（+26%）。要加回來用
+`--full-purify-taus` 明給。
+
+---
+
+## 6. 待辦：`attention_entropy`
+
+`src/models/attention.py` 另有 `attention_entropy`——注意力分佈在 token 維度
+上的熵，**不需要 c_a**，故威脅模型退回 prompt-free。它與 N4 問的是不同的
+問題：「破壞綁定」對「把綁定改指向別處」哪一種比較能跨 prompt 泛化。
+
+**本輪刻意不納入格點**，以免把批次成本翻倍。接法與 N4 相同（同一個
+`_build_attn_step`、同一種監看量結構），差別只在不需要 c_a 與遮罩。
+要做時它已經在那裡。
+
+---
+
+## 7. 本輪改動的清單
+
+| 檔案 | 改動 |
+|---|---|
+| `src/defense/objective.py` | 新增 `suppress_attn_ca` 模式、`masked_attention_term`、`MIN_MASKED_ATTENTION`、`LossConfig.content` / `attn_mask_tau` |
+| `src/defense/optimize.py` | `_build_attn_step` 依模式分派（條件嵌入與損失兩處）、遮罩由原圖取、`DEFENSE_MONITOR` 新增 `attn_suppressed`、`OptimResult` 記遮罩覆蓋率與起點 L1 |
+| `src/experiment/grid.py` | `TauPlan` / `tau_plan_for` / `DEFAULT_TAU_PLAN`；`N4`、`Ra` 進登記表；`GENERATIVE_CONDITIONS` 補上兩者 |
+| `src/experiment/executors.py` | `N4`／`Ra` 的 `ConditionSpec`；`_train_random` 支援生成路徑；`loss_config` 取 c_a；`RunConfig.conditions` / `tau_plan` / `attn_mask_tau`；`calibrate_lr` 只探測本批條件並拒絕靜默的鍵覆寫；`measure_warp_reach` 條件化；`recon_floor_check` |
+| `scripts/run_stage.py` | `--attn-mask-tau`、`--attn-mask-timesteps`、`--full-purify-taus`；τ 計畫串進兩處 `grid.plan` |
+| `scripts/shard.sh` | `s3a*`／`s3b*` profile |
+| `scripts/{class_margin,edit_success_page,eval_protocols,purify_advantage}.py` | 條件清單改由 `grid.CONDITIONS` 導出，不再各自寫死一份會與它分岔的名單 |
+
+測試基準：**806 passed / 1 xfailed**（改動前為 783 / 1，新增 23 條）。
+其中最重要的一條是
+`tests/test_executors.py::test_img2img既有批次的config_hash逐位不變`：
+它比對的五個雜湊取自**改動之前**的 commit `f0ec5b9b7`，在該 commit 的一個
+獨立 worktree 上以同一段程式現算後逐位比對，不是由改動後的程式自己產生的
+——由現行程式現算會讓那條測試恆真。

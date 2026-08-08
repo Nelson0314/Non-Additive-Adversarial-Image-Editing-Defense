@@ -221,7 +221,66 @@ MASK=""
 # **inpainting（ip*）不可帶**：那個威脅模型沒有 strength，`run_stage` 會在
 # `--mask-mode` 下拒絕並中止。
 STRENGTH=""
+# 本批要跑哪些條件，以及失真預算軸。留空即 `run_stage` 的預設（全部條件、
+# τ_train=0.20），故 b1/b2/b3/v14/v14r/ip3 的命令列逐字不變。
+GRID=""
 case "$BATCH" in
+  s3a*|s3b*)
+    # ---------------------------------------------------------------------
+    # 第三階段（2026-08-09）。模型設定與 v14r **逐字相同**——換掉的只有
+    # 條件、防禦目標與訓練點，威脅模型不動。
+    #
+    # 為什麼 strength 沿用 0.4 而不是回到 0.6：0.3／0.4／0.5／0.6 已全部量過，
+    # 沒有任何一點產生可與雜訊區分的正效果（`RESULTS_2026-08-08` §7.3、§7.4），
+    # 使用者裁決「下一輪不要再調 strength」。沿用 v14r 的 0.4 使本批與它在
+    # 同一個工作點上，兩批的加性 baseline 因此可以直接對照。
+    #
+    # 五個條件：`N4`（apa + Lo 式 5）、`Ra`（apa 上的同失真隨機對照）、
+    # 三個加性 baseline。位移場的 N1／N2／R 移出格點但原始碼保留——依據見
+    # `docs/DECISION_stage3.md`：v14r 實測 N1 對 R 的 `edit_lpips` 比值 1.046、
+    # 語意失敗 4/15 對 4/15，即訓練對位移場幾乎沒有貢獻。
+    #
+    # `--attn-mask-tau 0.5` 是式 (4) 的遮罩門檻，作用在峰值正規化後的尺度上。
+    # 論文（Lo et al., CVPR 2024）未給值，本專案選定並記錄；它進
+    # `config_hash`，且**只在給定時出現**，故 img2img 既有批次的雜湊逐位不變
+    # （`tests/test_executors.py::test_img2img既有批次的config_hash逐位不變`）。
+    # 0.5 沿用 `linf_attack` 那條文獻基準路徑已經在用的值，使兩條路徑的遮罩
+    # 定義一致；覆蓋率兩端的警告由 `optimize._build_attn_step` 印出。
+    #
+    # `--purify-mode all` 沿用 v14r：512² 下 N4 的計算圖是 1024² 的四分之一。
+    # **但 N4 與 N1 一樣不能開 UNet checkpoint**（hook 在 backward 重算時已
+    # 卸除，兩次存檔的張量數對不上），且它走生成路徑、圖比 N1 更長，故這是
+    # 本批記憶體最緊的一格。段 0 的乾跑若 OOM，先降 `--attn-timesteps`。
+    PRECISION=fp32
+    MODEL="--model CompVis/stable-diffusion-v1-4 --wrapper sd --resolution 512"
+    MEM="--purify-mode all"
+    ATTN="--shared-tokens 0 --attn-mask-tau 0.5"
+    INV="--exact-inversion"
+    STRENGTH="--strength 0.4"
+    GRID="--conditions N4 Ra photoguard_c mist dia_r"
+    ;;&
+  s3a*)
+    # 批次 A：τ_train = 0.50，加性方法普遍所在的量級。
+    #
+    # 依據是本專案重現 DAYN 時實測其 `pert_lpips ≈ 0.51`（L∞ = 0.06，n=480），
+    # 可由 `git show fc23d2278:runs/lo_baseline/summary.csv` 取回。
+    #
+    # **四個 τ 常數一致地跟著批次走**（`grid.tau_plan_for`）：0.50 進 TAUS、
+    # 成為 MAIN_TAU 與 TRAIN_TAU、並落在 FULL_PURIFY_TAUS 內。只改訓練點而
+    # 不動其餘三個的話，`purifiers_for` 對不在 FULL_PURIFY_TAUS 的 τ 只回傳
+    # identity，**訓練點上一個淨化格都不會有**——而抗淨化是主張一。
+    #
+    # 兩道 hinge 的門檻不寫在這裡：`run_stage` 由 `--tau-train` 依比例導出
+    # （0.8×τ = 0.40、16×τ = 8.0）並印在 log 的 `[thresholds]` 行。
+    GRID="$GRID --tau-train 0.50"
+    ;;
+  s3b*)
+    # 批次 B：τ_train = 0.20，使用者判讀的人眼上限。**等使用者指示才跑。**
+    #
+    # 0.20 是 `grid.TRAIN_TAU` 的預設值，故 `tau_plan_for` 會回傳模組常數
+    # 本身，完整淨化組落在 (0.20, 0.35) —— 與 v14／v14r 同一組報告點。
+    GRID="$GRID --tau-train 0.20"
+    ;;
   v14r*)
     # 重做：模型設定與 v14 完全相同，只改 strength。門檻不必在此指定——
     # `run_stage` 會由 `--tau-train` 依比例導出（0.8×τ、16×τ）並印在 log 上。
@@ -293,7 +352,7 @@ case "$BATCH" in
     ;;
 esac
 
-COMMON="--runs-root $RUNS --gpu-tag $GPU_TAG --precision $PRECISION $MODEL --mist-target data/targets/MIST.png $MEM $REACH $ATTN $INV $PROBE $MASK $STRENGTH"
+COMMON="--runs-root $RUNS --gpu-tag $GPU_TAG --precision $PRECISION $MODEL --mist-target data/targets/MIST.png $MEM $REACH $ATTN $INV $PROBE $MASK $STRENGTH $GRID"
 
 shard_dir() { echo "$RUNS/${BATCH}_$1"; }
 

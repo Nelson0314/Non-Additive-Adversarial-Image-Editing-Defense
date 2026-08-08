@@ -50,9 +50,19 @@ from typing import Dict, List, Optional, Tuple
 
 ROOT = Path(__file__).resolve().parent.parent
 
-NONADDITIVE = ("N1", "N2", "N3")
-ADDITIVE = ("photoguard_c", "mist", "dia_r")
-RANDOM = "R"
+import sys                                                  # noqa: E402
+
+sys.path.insert(0, str(ROOT))
+
+from src.experiment import grid                             # noqa: E402
+
+# 由格點的登記表導出（2026-08-09）。before：三行寫死的名字，新增條件之後
+# 抗淨化的比較會靜默漏掉它們。
+NONADDITIVE = grid.NONADDITIVE
+ADDITIVE = grid.BASELINES
+# 隨機對照逐參數化各一個（位移場 R、apa Ra），故不再是單一個名字。
+RANDOM_BY_SITE = {"warp": grid.RANDOM_CONTROL, "apa": grid.RANDOM_CONTROL_APA}
+RANDOM = grid.RANDOM_CONTROL
 
 # 主判定的量。`effect_abs` 是 `run_report` 用來算 retention 的分子，
 # 定義見 `executors._fill_retention`；此處不另訂一個，兩處必須同源。

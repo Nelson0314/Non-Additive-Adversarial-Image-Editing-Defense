@@ -116,7 +116,11 @@ def run_config(args) -> executors.RunConfig:
         stop_patience=args.stop_patience,
         stop_min_steps=args.stop_min_steps,
         attn_timesteps=args.attn_timesteps,
+        attn_mask_tau=args.attn_mask_tau,
+        attn_mask_timesteps=args.attn_mask_timesteps,
         shared_tokens=tuple(args.shared_tokens),
+        conditions=grid.resolve_conditions(args.conditions),
+        tau_plan=grid.tau_plan_for(args.tau_train, args.full_purify_taus),
         tau_train=args.tau_train,
         tau_acut=args.tau_acut,
         tau_chroma=args.tau_chroma,
@@ -440,7 +444,18 @@ def main(argv=None) -> int:
     g.add_argument("--apa-latent-max-rank", type=int, default=32)
     g.add_argument("--apa-latent-const-rank", type=int, default=8)
     g.add_argument("--random-init-std", type=float, default=0.5,
-                   help="R（同失真隨機對照）的位移場初始標準差")
+                   help="同失真隨機對照的初始標準差。R 用於位移場的 flow，"
+                        "Ra 用於 apa 階段二的方向參數（射線縮放會把兩者都"
+                        "拉到 τ，故此值只決定起點的方向分布）")
+    g.add_argument("--attn-mask-tau", type=float, default=None,
+                   help="N4（suppress_attn_ca）式 (4) 的遮罩門檻，作用在**峰值"
+                        "正規化後**的 [0,1] 尺度上。論文未給值（Lo et al. "
+                        "CVPR 2024），本專案選定並記錄。不給時 N4 直接拋出，"
+                        "不回退到 0.5——它決定損失壓的是哪一塊。"
+                        "**只在給定時進 config_hash**，故不影響既有批次")
+    g.add_argument("--attn-mask-timesteps", type=int, default=0,
+                   help="取遮罩時要平均幾個 timestep。0 表示沿用 "
+                        "--attn-timesteps，即遮罩與施力落在同一組 t 上")
 
     # ---- 段 0 ----
     g = ap.add_argument_group("段 0 校準")
@@ -464,6 +479,12 @@ def main(argv=None) -> int:
                          "但它在 config_hash 內，整批切換會把已算完的 "
                          "photoguard_c 判成未完成。φ=0 的 control 格跨條件"
                          "共用，不隨本旗標改變")
+    ap.add_argument("--full-purify-taus", type=float, nargs="*", default=None,
+                    help="在哪些 τ 上跑完整的主組淨化算子。不給時：--tau-train "
+                         "為預設值 0.20 的批次沿用模組常數 (0.20, 0.35)，"
+                         "其餘批次只在訓練點上跑。**訓練點必須在其中**——"
+                         "抗淨化（主張一）的分母就是訓練點上的效果，"
+                         "不在其中的話那一批一個淨化格都不會有（TauPlan 會拒絕）")
     ap.add_argument("--dry-run", action="store_true",
                     help="只列出會跑哪些格，不執行也不寫入")
     ap.add_argument("--force", action="store_true",
@@ -505,8 +526,18 @@ def main(argv=None) -> int:
     batch_dir = args.runs_root / args.batch
     images = load_images(args)
     conditions = grid.resolve_conditions(args.conditions)
+    # 失真預算軸逐批次導出（2026-08-09）。四個常數必須一致地跟著批次走：
+    # 只改 `--tau-train` 而不動其餘三個，訓練點上一個淨化格都不會有，
+    # 而抗淨化是主張一。`--tau-train` 為預設值時本函式回傳模組常數本身，
+    # 故 v14／v14r 的格點逐格不變（`tests/test_grid.py` 釘住）。
+    tau_plan = grid.tau_plan_for(args.tau_train, args.full_purify_taus)
+    if tau_plan is not grid.DEFAULT_TAU_PLAN:
+        print(f"[taus] τ 軸 {tau_plan.taus}；主表與掃描組 "
+              f"{tau_plan.main_tau}；完整淨化組 {tau_plan.full_purify_taus}"
+              f"（由 --tau-train={args.tau_train} 導出）", flush=True)
     # 這一份用**名目**下限。乾跑到此為止；真跑會在載入模型之後重建，見下方。
-    plan = grid.plan(images, conditions=conditions, n_seeds=grid.N_SEEDS)
+    plan = grid.plan(images, conditions=conditions, n_seeds=grid.N_SEEDS,
+                     tau_plan=tau_plan)
 
     if args.dry_run:
         # 乾跑不取寫入鎖：它是唯讀的，且可能與正在跑的批次並存
@@ -570,7 +601,8 @@ def main(argv=None) -> int:
               + "、".join(f"{k}={v:.4f}" for k, v in sorted(floors.items())),
               flush=True)
         plan = grid.plan(images, conditions=conditions,
-                         n_seeds=grid.N_SEEDS, floors=floors)
+                         n_seeds=grid.N_SEEDS, floors=floors,
+                         tau_plan=tau_plan)
 
         executor = executors.make_executor(args.stage)
         failed = 0

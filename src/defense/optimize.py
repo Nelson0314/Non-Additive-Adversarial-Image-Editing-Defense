@@ -41,7 +41,11 @@ import torch
 import torch.nn as nn
 
 from src.defense.generator import DefenseGenerator
-from src.defense.objective import DefenseObjective, LossConfig
+from src.defense.objective import (
+    MIN_MASKED_ATTENTION,
+    DefenseObjective,
+    LossConfig,
+)
 from src.models.sd import SDWrapper
 from src.purify.ops import Purifier
 from src.residual.base import ResidualModule
@@ -87,9 +91,13 @@ class StageSpec:
 # 改監看 `edit_shift`（離原編輯多遠），隨進展上升且已有校準值。
 # targeted_attn 監看 `shared_mass`（導向 shared token 的注意力質量），
 # 隨進展上升。
+# suppress_attn_ca 的 L_def 是 `‖Att ⊙ M‖₁`，隨進展**下降**，故與
+# targeted_output 同理不可直接監看；改監看 `attn_suppressed`
+# （= 起點的遮罩內 L1 − 當前值），隨進展上升。
 DEFENSE_MONITOR = {
     "targeted_output": "edit_shift",
     "targeted_attn": "shared_mass",
+    "suppress_attn_ca": "attn_suppressed",
 }
 
 
@@ -181,6 +189,16 @@ class OptimConfig:
     # 每步取樣幾個 timestep。cross-attention 的綁定強度隨 t 變化，只在單一 t
     # 上施力等於只防住編輯鏈的其中一步。取樣點均分於 [0, t_edit]。
     attn_timesteps: int = 4
+
+    # ---- suppress_attn_ca 專用 ----
+    # 遮罩取自**原圖**（式 4），與 `linf_attack.make_semantic_attack_loss`
+    # 同一作法：對取樣到的全部 t 各算一次原圖的聚合注意力後取平均再二值化，
+    # 使遮罩代表「跨越整個去雜訊區間，模型認為這個詞在哪裡」，而不是某一個
+    # t 的偶然結果。論文的式 (4) 記號裡沒有 t，此為有記錄的補齊。
+    #
+    # `attn_mask_timesteps = 0` 表示沿用 `attn_timesteps`。取樣點與訓練期
+    # 逐字相同時，遮罩與施力落在同一組 t 上。
+    attn_mask_timesteps: int = 0
 
     prompt_def: str = ""        # 防禦生成的 prompt
     seed: int = 20260728
@@ -528,6 +546,15 @@ class OptimResult:
     # 最後一個階段的停止原因。空字串表示跑滿上限（即上限用盡而非收斂），
     # 該格不可用於跨條件比較——那正是 E21–E23 §5.4 的問題。
     stop_reason: str = ""
+    # suppress_attn_ca 專用，`None` 表示本格不走該模式。
+    #
+    # 兩者都必須逐格落盤：`attn_mask_tau` 是論文未公布、由本專案選定的超參數
+    # （`linf_attack` 模組 docstring 偏離之三），其效果只能事後由覆蓋率查證
+    # ——接近 0 等於幾乎沒有梯度，接近 1 等於攻擊了整張圖而不是「那個詞所在
+    # 的區域」，兩者都不是論文的方法。起點 L1 則是 `attn_suppressed` 的基準，
+    # 少了它報表上的「壓下多少」無從還原。
+    attn_mask_coverage: Optional[float] = None
+    attn_ref_l1: Optional[float] = None
 
 
 def run_stages(
@@ -1035,7 +1062,19 @@ def _build_output_step(sd, gen, obj, cfg, x01, emb_cond, emb_uncond, purifiers,
 
 def _build_attn_step(sd, gen, obj, cfg, x01, emb_cond, emb_uncond, purifiers,
                      x_base, result):
-    """targeted_attn（N1）的單步前向。
+    """cross-attention 兩個模式（N1 `targeted_attn`、N4 `suppress_attn_ca`）
+    共用的單步前向。
+
+    共用的是**擷取的機制**：一次單步 UNet 前向、以 forward pre-hook 記下全部
+    attn2 層的分佈。分派點只有兩處，各自在下方標明：
+
+    | | `targeted_attn`（N1） | `suppress_attn_ca`（N4） |
+    |---|---|---|
+    | 前向餵的條件嵌入 | 空 prompt（prompt-free） | **c_a 的編碼** |
+    | 損失 | `1 − shared token 質量`，全域 | 遮罩內的 L1，遮罩由原圖取 |
+
+    第一列是威脅模型的改變，不是實作細節：N4 的防禦方必須指名要保護什麼。
+    見 `objective.py` 模組 docstring 的對照表。
 
     著力點與輸出端不同：直接作用在使文字編輯得以定位的機制上——UNet 的
     cross-attention 把每個 token 綁到影像的特定區域，質量被導向語意無資訊的
@@ -1113,6 +1152,103 @@ def _build_attn_step(sd, gen, obj, cfg, x01, emb_cond, emb_uncond, purifiers,
         for i in range(len(t_list))
     ]
 
+    def _noised(x_p, ti):
+        """單步代理輸入。inpainting 下補上後 5 個通道，與評測期同一來源。"""
+        z = sd.encode_image(x_p, use_ckpt=cfg.vae_ckpt)
+        t, n = t_list[ti], noises[ti]
+        zt = abar[t].sqrt() * z + (1 - abar[t]).sqrt() * n
+        if sd.is_inpainting:
+            m, z_masked = sd.mask_latents(x_p, cfg.edit_mask,
+                                          vae_ckpt=cfg.vae_ckpt)
+            zt = torch.cat([zt, m.to(zt.dtype), z_masked.to(zt.dtype)], dim=1)
+        return zt, t
+
+    # ---- 分派點一：前向餵哪一個條件嵌入 ----
+    suppress = obj.cfg.defense_mode == "suppress_attn_ca"
+    span = mask = None
+    ref_l1 = None
+    if suppress:
+        from src.models.attention import (
+            aggregate_token_attention,
+            attention_region_mask,
+            masked_attention_l1,
+            token_span,
+        )
+
+        # c_a 的編碼取代空 prompt。**這是威脅模型的改變**：防禦方指名要保護
+        # 的詞，而攻擊方的 prompt 仍然未知。兩者屬於不同的人，見
+        # `data/lo_aligned/prompts.yaml` 第 8–11 行。
+        emb_attn = sd.encode_text(obj.cfg.content).detach()
+        span = token_span(sd.tokenizer, obj.cfg.content)
+        if span[1] <= span[0]:
+            raise ValueError(
+                f"c_a={obj.cfg.content!r} 沒有產生任何內容 token（span={span}）；"
+                "式 (5) 對空區間沒有定義"
+            )
+
+        # 遮罩取自**原圖**，對 φ 為常數，故算一次。對取樣到的全部 t 平均後
+        # 再二值化，理由見 `OptimConfig.attn_mask_timesteps`。
+        n_mask_t = cfg.attn_mask_timesteps or cfg.attn_timesteps
+        mask_ts = torch.linspace(0, int(t_list[-1]), n_mask_t + 1)[1:]
+        mask_ts = mask_ts.round().long()
+        with torch.no_grad():
+            # 原圖的 latent 對 t 為常數，提到迴圈外。此處無梯度可斷，
+            # 與 `linf_attack` 那條路徑必須把編碼留在迴圈內的理由不同
+            # （那是為了讓每一項各自擁有完整的計算圖）。
+            z0 = sd.encode_image(x01)
+            atts = []
+            for j, t in enumerate(mask_ts):
+                n = noises[j % len(noises)]
+                zt = abar[t].sqrt() * z0 + (1 - abar[t]).sqrt() * n
+                if sd.is_inpainting:
+                    m9, z_masked = sd.mask_latents(x01, cfg.edit_mask)
+                    zt = torch.cat(
+                        [zt, m9.to(zt.dtype), z_masked.to(zt.dtype)], dim=1)
+                with rec:
+                    sd._eps(zt, t, emb_attn)
+                atts.append(aggregate_token_attention(rec.maps, span,
+                                                      reduce="sum"))
+                rec.clear()
+            att_ref = torch.stack(atts).mean(dim=0)
+        mask = attention_region_mask(att_ref, obj.cfg.attn_mask_tau)
+        ref_l1 = float(masked_attention_l1(att_ref, mask).detach())
+        coverage = float(mask.mean())
+        print(f"  [suppress] c_a={obj.cfg.content!r}  遮罩覆蓋 "
+              f"{coverage * 100:.1f}%（{int(mask.sum())}/{mask.numel()} 格點，"
+              f"邊長 {mask.shape[-1]}）  起點 L1={ref_l1:.6g}", flush=True)
+        # 覆蓋率兩端都不是論文的方法：接近 0 等於幾乎沒有梯度，接近 1 等於
+        # 攻擊了整張圖而不是「那個詞所在的區域」。`mask_tau` 是論文未公布、
+        # 由本專案選定的超參數（`linf_attack` 模組 docstring 偏離之三），
+        # 其效果只能事後由覆蓋率查證。
+        #
+        # 這裡**不設硬性中止**：合格的區間隨物件在畫面中的佔比而變（ip3 的
+        # 遮罩涵蓋率實測 0.20–0.40，而人像類整組 0.92–1.00），一個全域常數
+        # 正是本專案重複踩過的缺陷型態。改為印出警告並把數值落盤，由段 0
+        # 的判讀決定；判準寫在 `docs/DECISION_stage3.md`。
+        if not 0.02 <= coverage <= 0.90:
+            print(
+                f"  [suppress] **警告** 遮罩覆蓋率 {coverage:.4f} 落在兩端。"
+                f"接近 0：梯度幾乎不存在；接近 1：施力對象是整張圖而不是 c_a "
+                f"所在的區域，本條件就不再是 Lo 的方法。"
+                f"請看 calib 的覆蓋率表再決定 attn_mask_tau"
+                f"（目前 {obj.cfg.attn_mask_tau}）",
+                flush=True,
+            )
+        if ref_l1 < MIN_MASKED_ATTENTION:
+            raise RuntimeError(
+                f"起點遮罩內的注意力 L1 為 {ref_l1:.3e}，低於下限 "
+                f"{MIN_MASKED_ATTENTION}。損失 ‖Att ⊙ M‖₁ 的最小值是 0，"
+                f"起點已經坐在那裡，梯度趨近零、最佳化不會產生任何更新，"
+                f"而 log 上會看起來像是「防禦損失很低」。"
+                f"c_a={obj.cfg.content!r} 在這個模型上可能拿不到注意力質量，"
+                f"或 attn_mask_tau={obj.cfg.attn_mask_tau} 選出的區域不對。"
+                f"這與 MIN_SHARED_MASS 攔的是同一型失效（LOGIC_CHECK A1）"
+            )
+        result.attn_mask_coverage = coverage
+        result.attn_ref_l1 = ref_l1
+    else:
+        emb_attn = emb_cond
+
     def step_fn(stage, stage_step, global_step):
         ctx = gen.prepare(x01, prompt_def=cfg.prompt_def)
         x_def = gen.generate(x01, ctx, use_ckpt=cfg.unet_ckpt,
@@ -1124,18 +1260,19 @@ def _build_attn_step(sd, gen, obj, cfg, x01, emb_cond, emb_uncond, purifiers,
         maps_list = []
         for pi, ti in pairs:
             x_p = purifiers[pi].forward(x_def)
-            z_def = sd.encode_image(x_p, use_ckpt=cfg.vae_ckpt)
-            t, n = t_list[ti], noises[ti]
-            zt = abar[t].sqrt() * z_def + (1 - abar[t]).sqrt() * n
-            if sd.is_inpainting:
-                m, z_masked = sd.mask_latents(x_p, cfg.edit_mask,
-                                              vae_ckpt=cfg.vae_ckpt)
-                zt = torch.cat([zt, m.to(zt.dtype), z_masked.to(zt.dtype)],
-                               dim=1)
+            zt, t = _noised(x_p, ti)
             with rec:
-                sd._eps(zt, t, emb_cond)   # 見 docstring：此處不開 checkpoint
+                sd._eps(zt, t, emb_attn)   # 見 docstring：此處不開 checkpoint
             maps_list.append(list(rec.maps))
             rec.clear()
+
+        # ---- 分派點二：損失 ----
+        if suppress:
+            total, log = obj(x_def, x01, x_base=x_base, attn_maps=maps_list,
+                             attn_span=span, attn_mask=mask,
+                             attn_ref_l1=ref_l1)
+            result.x_def = x_def.detach().clone()
+            return total, log
 
         total, log = obj(x_def, x01, x_base=x_base, attn_maps=maps_list)
         if global_step == 0 and log["shared_mass"] < MIN_SHARED_MASS:

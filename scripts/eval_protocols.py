@@ -60,9 +60,14 @@ from __future__ import annotations
 import argparse
 import csv
 import statistics as st
+import sys
 from collections import defaultdict
 from pathlib import Path
 from typing import Dict, List, Optional, Sequence
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
+from src.experiment import grid                             # noqa: E402
 
 # 第 1 層。值為「免疫成功的方向」，與 `suite.HIGHER_IS_BETTER`（描述影像相似度）
 # 相反：此處描述的是免疫效果。
@@ -84,7 +89,14 @@ LAYER3 = [
     ("edit_rms", "RMS", "—", "本專案"),
 ]
 THETAS: Sequence[Optional[float]] = (0.5, 1.0, 2.0, 3.0, None)
-CONDS = ["control", "N1", "N2", "N3", "R", "photoguard_c", "mist", "dia_r"]
+# 由格點的登記表導出，不再各自寫一份。
+#
+# 2026-08-09 修正。before：這裡（與 `class_margin.py`／`edit_success_page.py`
+# 的 argparse 預設值）各自寫死八個名字，於是新增條件之後判定層會**靜默漏掉
+# 它們**——表格看起來完整，只是少了幾列，而那幾列正是本輪要判定的對象。
+# 這與 `condition_spec` 的 docstring 講的是同一件事：條件表在兩處各寫一份時，
+# 兩份的鍵集合必須由程式保證相同。
+CONDS = ["control", *grid.CONDITIONS]
 
 
 def num(r: Dict[str, str], k: str) -> Optional[float]:

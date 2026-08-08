@@ -174,7 +174,41 @@ CONDITION_SPECS: Dict[str, ConditionSpec] = {
         target_metric="mse", lr_key="lr.N3_stage2",
         align_lr_key="lr.N3_stage1", monitor="edit_shift",
     ),
+    # 2026-08-09（第三階段）。與 N3 同一個參數化與同一組學習率校準鍵——
+    # 階段一（LoRA 保真對齊）逐字相同，差別只在階段二的損失。共用
+    # `lr.N3_stage*` 是刻意的：那兩個鍵校準的是「這個參數化的步長」，
+    # 而參數化沒有改變；另立 `lr.N4_stage*` 會讓段 0 多探測兩組而量到同一件事。
+    #
+    # `unet_ckpt=False` 與 N1 同一個理由：cross-attention 的 forward pre-hook
+    # 與 UNet checkpoint 不相容（backward 以「兩次存檔的張量數 477 vs 459」
+    # 中止）。**這一格因此是本批記憶體最緊的一條路徑**，見 `attention.py`。
+    # 2026-08-09（第三階段）。與 N3 同一個參數化，差別只在階段二的損失。
+    #
+    # **但學習率的鍵必須自己一組。** `_pick_best` 的判準是「固定步數後末端
+    # 總損失最小者」，而總損失是模式相依的：N3 的 L_def 是 MSE、N4 是
+    # `‖Att ⊙ M‖₁`，兩者的尺度與地景都不同，argmin 沒有理由相同。共用
+    # `lr.N3_stage2` 還會讓同批同時跑 N3 與 N4 時，`calibrate_lr` 的
+    # `out[spec.lr_key]` 被後者**靜默覆寫**。
+    #
+    # `unet_ckpt=False` 與 N1 同一個理由：cross-attention 的 forward pre-hook
+    # 與 UNet checkpoint 不相容（backward 以「兩次存檔的張量數 477 vs 459」
+    # 中止）。**這一格因此是本批記憶體最緊的一條路徑**，見 `attention.py`。
+    "N4": ConditionSpec(
+        "N4", "nonadditive", site="apa", defense_mode="suppress_attn_ca",
+        lr_key="lr.N4_stage2", align_lr_key="lr.N4_stage1",
+        monitor="attn_suppressed", unet_ckpt=False,
+    ),
     "R": ConditionSpec("R", "random", site="warp"),
+    # apa 上的同失真隨機對照。**它也跑階段一的保真對齊**（`align_lr_key`
+    # 非空），理由見 `_train_random`：不對齊的話它的 `x_base` 是未對齊的
+    # VAE 重建，同一個 τ 之下留給隨機方向的預算比 N4 少，比較就偏向我方。
+    #
+    # 階段一與 N4 共用 `lr.N4_stage1` 是安全的，與上面階段二的情形相反：
+    # `_probe_align_lr` 的判準是**對齊損失**，那是保真度，與防禦模式無關，
+    # 兩者會探出同一個值。共用因此省下一組探測而不改變任何數值。
+    "Ra": ConditionSpec(
+        "Ra", "random", site="apa", align_lr_key="lr.N4_stage1",
+    ),
 }
 for _b in grid.BASELINES:
     CONDITION_SPECS[_b] = ConditionSpec(_b, "baseline")
@@ -364,6 +398,12 @@ class RunConfig:
     # N1 要把注意力質量導向哪些 token 格。**定義 N1 攻擊的是什麼**，
     # 故必須進 `config_hash`（見 `loss_params`）。
     shared_tokens: Tuple[int, ...] = LossConfig.shared_tokens
+    # N4（`suppress_attn_ca`）式 (4) 的遮罩門檻，作用在峰值正規化後的尺度上。
+    # **`None` 表示本批不用該模式**，此時它不出現在 `loss_params()`，故 v14／
+    # v14r 既有格點的 `config_hash` 逐位不變（與 `warp_mask_gate` 同一慣例）。
+    attn_mask_tau: Optional[float] = None
+    # 取遮罩時要平均幾個 timestep。0 表示沿用 `attn_timesteps`。
+    attn_mask_timesteps: int = 0
 
     # ---- 參數化 ----
     warp_grid_size: int = 32
@@ -377,6 +417,18 @@ class RunConfig:
     apa_latent_const_rank: int = 8
     random_init_std: float = 0.5
 
+    # ---- 本批的格點 ----
+    # 這一批實際要跑的條件，以及失真預算軸。**兩者都不進 `config_hash`**：
+    # 它們決定「列舉哪些格」，而每一格自己已經帶著 condition 與 tau
+    # （`Cell.cell_id`），把批次層級的清單也放進雜湊會讓同一格在兩批之間
+    # 算出不同的雜湊而無法續跑。
+    #
+    # 段 0 需要 `conditions`：`measure_warp_reach` 依它判斷本批有沒有位移場
+    # 條件，`recon_floor` 的判定依它判斷有沒有生成路徑條件。段 0 原本完全
+    # 不看格點，於是第三階段把隨機對照移到 apa 之後會在指標內部炸開。
+    conditions: Tuple[str, ...] = grid.CONDITIONS
+    tau_plan: grid.TauPlan = grid.DEFAULT_TAU_PLAN
+
     # ---- 段 0 ----
     lr_grid: Tuple[float, ...] = LR_GRID
     probe_steps: int = 12
@@ -387,7 +439,7 @@ class RunConfig:
     mist_target: str = ""         # Mist 的 MIST.png，無則該條件會明確拋出
     diffpure_ckpt: str = ""
 
-    def loss_params(self) -> Dict[str, Any]:
+    def _loss_params_base(self) -> Dict[str, Any]:
         """定義**損失本身**的欄位：目標、約束門檻、以及損失所走的前向鏈。
 
         > 2026-08-05 拆分。before：本方法回傳全部旋鈕，`config_hash` 只有
@@ -416,6 +468,22 @@ class RunConfig:
             # 被續跑判定視為完成而靜默沿用。這正是 A7 點名的缺陷型態。
             "shared_tokens": list(self.shared_tokens),
         }
+
+    def loss_params(self) -> Dict[str, Any]:
+        """`_loss_params_base` 加上只在啟用時出現的鍵。"""
+        out = self._loss_params_base()
+        # N4 的兩個鍵**只在啟用時出現**，理由與 `module_params` 的
+        # `warp_mask_gate` 逐字相同：`config_hash` 吃整個 dict，無條件加入會
+        # 改變 img2img 既有批次的每一格雜湊，續跑時把已完成的格全部判為未完成。
+        # 鍵存在與否本身就承載「本批有沒有用式 (5) 這個目標」。
+        if self.attn_mask_tau is not None:
+            out["attn_mask_tau"] = self.attn_mask_tau
+            # 只在遮罩取樣點與施力取樣點不同時才進雜湊。相同時它不是一個
+            # 獨立的變因（`attn_timesteps` 已經在表內），多一個鍵只會讓
+            # 兩種等價的寫法算出不同的雜湊。
+            if self.attn_mask_timesteps:
+                out["attn_mask_timesteps"] = self.attn_mask_timesteps
+        return out
 
     def module_params(self) -> Dict[str, Any]:
         """**參數化的容量**。A7 原文點名的「控制點 32 與 128」就在這裡。
@@ -821,7 +889,8 @@ def scaled_payload(payload: Dict[str, Any], res: Resources, k: float
 # ---------------------------------------------------------------------------
 
 
-def loss_config(res: Resources, spec: ConditionSpec) -> LossConfig:
+def loss_config(res: Resources, spec: ConditionSpec,
+                entry: Optional[ImageEntry] = None) -> LossConfig:
     """訓練期的損失設定。τ 取 `grid.TRAIN_TAU`（最大預算），其餘 τ 由段 2 取得。
 
     `tau_acut` 與 `tau_chroma` 沿用 `LossConfig` 的預設值，而那兩個值是在
@@ -829,9 +898,30 @@ def loss_config(res: Resources, spec: ConditionSpec) -> LossConfig:
     「門檻的適用範圍」）。本輪訓練在 0.35，兩者理應重新判讀。程式不代為推測，
     改由 `RunConfig.tau_acut` / `tau_chroma` 明給並進入 `config_hash`：
     改了值即視為另一組實驗，不會靜默沿用。**這一項需要主 session 裁決。**
+
+    `entry` 只在 `suppress_attn_ca` 下被用到，取其 `content`（Lo et al. 的
+    c_a，來自 `data/lo_aligned/prompts.yaml` 的 `content` 欄）。它**逐影像
+    不同**，故不能像 `shared_tokens` 那樣放進整批共用的 `RunConfig`。
+    漏傳 `entry` 時 `LossConfig.__post_init__` 會以「需要 content」中止，
+    不會靜默落回空字串——空 c_a 的 span 是空區間，式 (5) 沒有定義。
+
+    `defense_mode` 為空字串的條件（`R`／`Ra` 這兩個隨機對照）不建立損失，
+    此處回傳的物件只供保真門檻使用，故仍走 `LossConfig` 的預設模式。
     """
+    mode = spec.defense_mode or LossConfig.defense_mode
+    content = ""
+    attn_mask_tau = None
+    if mode == "suppress_attn_ca":
+        if entry is None:
+            raise ValueError(
+                f"條件 {spec.name!r} 走 suppress_attn_ca，需要 entry 才能取得 "
+                "c_a（ImageEntry.content）。c_a 逐影像不同，不可由整批共用的 "
+                "RunConfig 提供，也不可由 prompt 推導"
+            )
+        content = entry.content
+        attn_mask_tau = res.cfg.attn_mask_tau
     return LossConfig(
-        defense_mode=spec.defense_mode,
+        defense_mode=mode,
         target_metric=spec.target_metric,
         tau_lpips=res.cfg.tau_train,
         tau_acut=res.cfg.tau_acut,
@@ -839,6 +929,8 @@ def loss_config(res: Resources, spec: ConditionSpec) -> LossConfig:
         beta_linf=res.cfg.beta_linf,
         tau_linf=res.cfg.tau_linf,
         shared_tokens=tuple(res.cfg.shared_tokens),
+        content=content,
+        attn_mask_tau=attn_mask_tau,
     )
 
 
@@ -886,6 +978,7 @@ def optim_config(res: Resources, spec: ConditionSpec,
         stop_patience=res.cfg.stop_patience,
         stop_min_steps=res.cfg.stop_min_steps,
         attn_timesteps=res.cfg.attn_timesteps,
+        attn_mask_timesteps=res.cfg.attn_mask_timesteps,
         prompt_def="",
         seed=res.cfg.seed,
         unet_ckpt=res.cfg.unet_ckpt and spec.unet_ckpt,
@@ -958,7 +1051,7 @@ def _train_nonadditive(cell: grid.Cell, res: Resources, out_dir: Path
     try:
         result = optimize(
             res.sd, module, entry.x01, optim_config(res, spec, entry),
-            loss_config(res, spec), default_train_set(),
+            loss_config(res, spec, entry), default_train_set(),
             calib=res.require_calib(), calib_context=res.calib_context,
             y_target=(res.y_target if spec.defense_mode == "targeted_output"
                       else None),
@@ -1026,25 +1119,88 @@ def _train_random(cell: grid.Cell, res: Resources, out_dir: Path
     否則各 τ 之間相關。本格點結構是「訓練一次、射線縮放到四個 τ」，四個
     τ 因此共用同一個隨機方向。要改成逐 τ 獨立抽樣，得讓 R 在段 2 各自抽，
     那會使 R 與其他條件走不同的流程。**此項需主 session 裁決。**
+
+    ## 兩個 site 的隨機化位置不同（2026-08-09）
+
+    位移場（`R`）的隨機來自 `WarpResidual(init_std=…)`，即建構時就把 `flow`
+    抽成高斯，之後直接取 `pixel_residual`。
+
+    site apa（`Ra`）不能照做，三個理由：
+
+    1. **`build_apa` 不吃 `init_std`。** 它的兩個因子刻意「一半高斯、一半零」
+       （LoRA 慣例），故 φ 在建構後恆為零殘差——`pixel_residual` 回傳 `None`，
+       `x_def` 會是 `None` 而不是一張圖。要隨機的是**射線縮放要乘的那個方向
+       參數**，即 `direction_param`（階段二的 latent V），不是整包參數。
+    2. **它走生成路徑**，`x_def = G(x; φ)` 要經 inversion、去噪與 VAE 解碼，
+       沒有像素側的捷徑。
+    3. **它必須跑階段一的保真對齊。** 不對齊的話 `x_base` 是未對齊的 VAE
+       重建，而段 2 的 τ 是對**原圖**求解的：同一個 τ=0.50 之下，未對齊的
+       Ra 得先付掉更大的重建誤差，留給隨機方向的預算比 N4 少。那會讓對照
+       系統性地偏弱，也就讓 N4 的任何勝出不可解讀——而這條對照存在的唯一
+       理由就是判斷「有沒有勝過隨便擾動一下」。
     """
+    from src.defense.generator import DefenseGenerator
+    from src.defense.optimize import align
+
+    spec = condition_spec(cell.condition)
     entry = res.image(cell.image_id)
     seed = res.cfg.seed + zlib.crc32(cell.image_id.encode("utf-8"))
     module = build_module(cell.condition, res, entry, seed=seed,
                           init_std=res.cfg.random_init_std)
+    extra: Dict[str, Any] = {
+        "steps_used": 0, "stop_reason": "random control：無最佳化",
+        "random_seed": seed, "lr": None,
+    }
+    rows = [{"step": 0, "note": "random control：無最佳化",
+             "random_seed": seed, "init_std": res.cfg.random_init_std,
+             "site": spec.site}]
     try:
-        with torch.no_grad():
-            x_def = module.pixel_residual(entry.x01)
+        if spec.site == "warp":
+            with torch.no_grad():
+                x_def = module.pixel_residual(entry.x01)
+        else:
+            optim_cfg = optim_config(res, spec, entry)
+            loss_cfg = loss_config(res, spec, entry)
+            gen = DefenseGenerator(
+                res.sd, module, k_inv=optim_cfg.k_inv, t_max=optim_cfg.t_max,
+                exact_inversion=optim_cfg.exact_inversion)
+            # 階段一：與 N4 逐字相同的保真對齊（見 docstring 第 3 點）。
+            if optim_cfg.align_steps > 0:
+                with torch.no_grad():
+                    module.disable()
+                    x_base0 = gen.generate(
+                        entry.x01, gen.prepare(entry.x01,
+                                               prompt_def=optim_cfg.prompt_def)
+                    ).detach()
+                    module.enable()
+                _, align_hist = align(
+                    res.sd, module, entry.x01, optim_cfg, loss_cfg, gen,
+                    res.require_calib(), res.calib_context, x_base0)
+                rows.extend(align_hist)
+                extra["align_steps_used"] = len(align_hist)
+            # 階段二：只把**方向參數**抽成高斯。其餘參數（階段一的 LoRA）
+            # 是對齊的結果，動它等於在改變重建本身，那正是 `direction_param`
+            # 的 docstring 指明不可做的事。
+            gd = torch.Generator(device="cpu").manual_seed(seed)
+            with torch.no_grad():
+                p = direction_param(module)
+                p.data = (torch.randn(p.shape, generator=gd,
+                                      dtype=torch.float32)
+                          .to(p.device, p.dtype) * res.cfg.random_init_std)
+                x_def = gen.generate(
+                    entry.x01,
+                    gen.prepare(entry.x01, prompt_def=optim_cfg.prompt_def),
+                ).detach()
+
+        if x_def is None:
+            raise RuntimeError(
+                f"{cell.cell_id()}：隨機對照沒有產生 x_def。"
+                f"site={spec.site!r} 的模塊既沒有像素側輸出也沒有走生成路徑"
+            )
         arts = [save_phi(out_dir / "phi.pt", cell.condition, cell.image_id,
                          res, entry, module=module,
                          extra={"random_seed": seed})]
-        arts.append(write_csv(out_dir / "train.csv", [{
-            "step": 0, "note": "random control：無最佳化",
-            "random_seed": seed, "init_std": res.cfg.random_init_std,
-        }]))
-        extra: Dict[str, Any] = {
-            "steps_used": 0, "stop_reason": "random control：無最佳化",
-            "random_seed": seed, "lr": None,
-        }
+        arts.append(write_csv(out_dir / "train.csv", rows))
         if hasattr(module, "disp_stats"):
             extra.update(module.disp_stats())
         imgs, gain = _save_train_images(res, entry, x_def, out_dir)
@@ -1548,7 +1704,7 @@ def _probe_lr(res: Resources, condition: str, entry: ImageEntry,
     module = build_module(condition, res, entry, seed=res.cfg.seed)
     try:
         result = optimize(
-            res.sd, module, entry.x01, cfg, loss_config(res, spec),
+            res.sd, module, entry.x01, cfg, loss_config(res, spec, entry),
             default_train_set(), calib=tmp, calib_context=ctx,
             y_target=(res.y_target if spec.defense_mode == "targeted_output"
                       else None),
@@ -1625,7 +1781,7 @@ def _probe_align_lr(res: Resources, condition: str, entry: ImageEntry,
             if was_enabled:
                 module.enable()
         _, hist = align(res.sd, module, entry.x01, cfg,
-                        loss_config(res, spec), gen, tmp, ctx, x_base0)
+                        loss_config(res, spec, entry), gen, tmp, ctx, x_base0)
     except Diverged as e:
         # 第 0 步就發散時 `align` 沒有可還原的 φ 而拋出；理由同 `_probe_lr`。
         print(f"  [probe] {spec.align_lr_key}={lr:g} 發散：{e}", flush=True)
@@ -1684,14 +1840,49 @@ def calibrate_lr(res: Resources, calib_dir: Path) -> Dict[str, Any]:
     # 停止門檻的鍵是**監看量**而非條件（N2 與 N3 共用 `edit_shift`），故逐監看量
     # 彙總全部候選再算一次，不讓後一個條件覆寫前一個的值。
     by_monitor: Dict[str, List[Dict[str, Any]]] = {}
+    # 哪個條件先認領了某個 lr 鍵。共用是合法的（Ra 與 N4 共用階段一），
+    # 但**只有在兩者會探出同一個值時才合法**，故記下認領者的識別特徵。
+    claimed: Dict[str, Tuple[str, tuple]] = {}
 
-    for cond in grid.NONADDITIVE:
+    def _claim(key: str, cond: str, ident: tuple) -> bool:
+        """回傳是否要真的跑這一組探測。已被等價的條件認領過就跳過。"""
+        if key not in claimed:
+            claimed[key] = (cond, ident)
+            return True
+        owner, owner_ident = claimed[key]
+        if owner_ident != ident:
+            raise ValueError(
+                f"條件 {cond!r} 與 {owner!r} 共用學習率鍵 {key!r}，但兩者的"
+                f"探測對象不同（{ident} vs {owner_ident}）。判準是「固定步數後"
+                f"末端總損失最小者」，而總損失是模式相依的，argmin 沒有理由"
+                f"相同；照跑會讓後者靜默覆寫前者。請給其中一個條件自己的鍵"
+            )
+        print(f"  [probe] {key} 已由 {owner!r} 探測，{cond!r} 共用（探測對象"
+              f"相同：{ident}）", flush=True)
+        return False
+
+    # **只探測這一批要跑的條件。** before：一律走 `grid.NONADDITIVE`，於是
+    # 第三階段只跑 N4／Ra 的批次仍會為 N1／N2／N3 各跑 5 個候選，而那三個
+    # 條件的 φ 這一批根本不會被用到。段 0 在 v14r 實測 4.9 小時，其中學習率
+    # 探測是主成本。
+    for cond in res.cfg.conditions:
         spec = condition_spec(cond)
         if spec.align_lr_key:
-            probes = [_probe_align_lr(res, cond, entry, lr, res.cfg.probe_steps)
-                      for lr in res.cfg.lr_grid]
-            rows += probes
-            out[spec.align_lr_key] = _pick_best(probes, spec.align_lr_key)
+            # 對齊探測的判準是**對齊損失**（保真度），只由參數化決定。
+            ident = ("align", spec.site)
+            if _claim(spec.align_lr_key, cond, ident):
+                probes = [
+                    _probe_align_lr(res, cond, entry, lr, res.cfg.probe_steps)
+                    for lr in res.cfg.lr_grid
+                ]
+                rows += probes
+                out[spec.align_lr_key] = _pick_best(probes, spec.align_lr_key)
+        if not spec.lr_key:
+            # 隨機對照與 baseline 沒有要最佳化的階段二，沒有學習率可探。
+            continue
+        ident = ("defense", spec.site, spec.defense_mode, spec.target_metric)
+        if not _claim(spec.lr_key, cond, ident):
+            continue
         probes = [_probe_lr(res, cond, entry, spec.lr_key, lr,
                             res.cfg.probe_steps) for lr in res.cfg.lr_grid]
         rows += probes
@@ -1765,18 +1956,49 @@ def measure_recon_floors(res: Resources,
     return floors
 
 
-def measure_warp_reach(res: Resources, calib_dir: Path) -> Dict[str, Any]:
+def measure_warp_reach(res: Resources, calib_dir: Path,
+                       conditions: Sequence[str] = ()) -> Dict[str, Any]:
     """位移場在 `warp_max_disp` 下能達到的最大 LPIPS。
 
     存在理由：`max_disp` 是**硬上界**（`site_warp.displacement` 直接 clamp），
     而段 2 要把 φ 縮放到 τ = 0.35。若該上界下可達的 LPIPS 低於 0.35，
     `solve_k` 會拋出，而那不是程式錯誤而是「這個預算組合不可能達成」。
     在耗掉段 1 的機時之前先量出來。
+
+    ## 本批沒有位移場條件時明確跳過（2026-08-09）
+
+    before：本函式寫死 `build_module("R", ...)`，且 `run_calibration` 無條件
+    呼叫它——**完全不看格點有哪些條件**。第三階段的隨機對照移到 site apa
+    之後，`build_apa` 產生的 `CompositeResidual` 兩個成員都不是像素側，
+    `pixel_residual()` 依 `composite.py` 回傳 `None`，接著
+    `res.suite.pairwise(e.x01, None)` 會在指標內部以看不出來源的訊息中止。
+
+    after：由呼叫端傳入本批實際要跑的條件，沒有任何 site warp 的條件時回傳
+    `{"skipped": True, ...}` 並且**不寫入校準表**——寫一個沒有量過的
+    `warp.min_lpips_at_bound` 進去，比不寫更危險。
+
+    apa 那一側的對應量不是這個上界而是**下界**：`decode(encode(x))` 的重建
+    誤差，由 `measure_recon_floors` 量出並逐影像存進 `calib/recon_floor.csv`。
+    兩者不可互相代替——位移場受限於「最多能扭多遠」，apa 受限於「最少也有
+    這麼糊」，故本函式跳過時該檢查由 `recon_floor` 承擔，見
+    `run_calibration` 對兩者的處置。
     """
+    warp_conditions = [c for c in (conditions or (grid.RANDOM_CONTROL,))
+                       if condition_spec(c).site == "warp"]
+    if not warp_conditions:
+        reason = (
+            f"本批的條件 {list(conditions)} 沒有任何一個走 site warp，"
+            "位移場的可達上界對本批不適用。apa 那一側的對應量是重建誤差"
+            "**下界**，見 calib/recon_floor.csv"
+        )
+        print(f"  [warp_reach] 跳過：{reason}", flush=True)
+        return {"skipped": True, "reason": reason}
+
+    probe = warp_conditions[0]
     rows = []
     for e in res.images.values():
         seed = res.cfg.seed + zlib.crc32(e.image_id.encode("utf-8"))
-        mod = build_module("R", res, e, seed=seed,
+        mod = build_module(probe, res, e, seed=seed,
                            init_std=res.cfg.random_init_std)
         try:
             with torch.no_grad():
@@ -1786,6 +2008,7 @@ def measure_warp_reach(res: Resources, calib_dir: Path) -> Dict[str, Any]:
                 x = mod.pixel_residual(e.x01)
             rows.append({
                 "image_id": e.image_id, "group": e.group,
+                "condition": probe,
                 "max_disp": res.cfg.warp_max_disp,
                 "grid_size": res.cfg.warp_grid_size,
                 "lpips_at_bound": float(
@@ -1959,16 +2182,41 @@ def run_calibration(res: Resources) -> Dict[str, Any]:
             "在無效編輯上量免疫效果沒有意義，此處停下而不是繼續跑段 1"
         )
 
-    summary["warp_reach"] = measure_warp_reach(res, calib_dir)
-    table.put("warp.min_lpips_at_bound",
-              summary["warp_reach"]["min_lpips_at_bound"], ctx,
-              note=f"max_disp={res.cfg.warp_max_disp} 下可達的最小 LPIPS")
+    summary["warp_reach"] = measure_warp_reach(res, calib_dir,
+                                               res.cfg.conditions)
+    if not summary["warp_reach"].get("skipped"):
+        table.put("warp.min_lpips_at_bound",
+                  summary["warp_reach"]["min_lpips_at_bound"], ctx,
+                  note=f"max_disp={res.cfg.warp_max_disp} 下可達的最小 LPIPS")
 
     # 逐影像的生成路徑下限。段 2／段 3 據此把結構上不可達的格標成 skipped
     # 而非讓 `solve_k` 拋出（2026-08-07 的 cat_02 事故）。此處存 CSV 供報告
     # 引用；真正執行時各段會自己再量一次（一次 VAE 來回 0.4 秒），故不必
     # 為了取得它而重跑段 0。
     summary["recon_floor"] = measure_recon_floors(res, calib_dir)
+
+    # 走生成路徑的條件在場時，重建下限就是這一批的可達性判準（位移場那一側
+    # 是 `warp_reach` 的上界，兩者不可互相代替，見 `measure_warp_reach`）。
+    # 逐影像的下限高於訓練點時，該影像在訓練點上結構上不可達——v14r 的
+    # cat_02（0.2398）在 τ=0.20 就是這個情形。這裡把判定寫進 summary，
+    # 段 0 一跑完就看得到，不必等段 2 的 `solve_k` 拋出才知道。
+    gen_conditions = [c for c in res.cfg.conditions
+                      if c in grid.GENERATIVE_CONDITIONS]
+    if gen_conditions:
+        floors = summary["recon_floor"]
+        blocked = {k: v for k, v in floors.items() if v >= res.cfg.tau_train}
+        summary["recon_floor_check"] = {
+            "conditions": gen_conditions,
+            "tau_train": res.cfg.tau_train,
+            "max_floor": max(floors.values()) if floors else None,
+            "covers_train_tau": not blocked,
+            "blocked_images": blocked,
+        }
+        if blocked:
+            print(f"  [recon_floor] **注意** 這些影像的重建下限已達或超過 "
+                  f"τ_train={res.cfg.tau_train}：{blocked}。"
+                  f"{gen_conditions} 在該影像的訓練點上結構上不可達，"
+                  f"段 1／段 2 會把它標成 skipped", flush=True)
 
     for key, value in calibrate_lr(res, calib_dir).items():
         table.put(key, value, ctx,

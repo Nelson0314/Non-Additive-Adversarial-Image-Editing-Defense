@@ -12,10 +12,45 @@
 | N1 | `targeted_attn` | `1 − (shared token 分到的注意力質量)` | 空 prompt 的 CLIP 編碼（CFG 的無條件嵌入）中恆為 shared 的位置 |
 | N2 | `targeted_output`（`target_metric="lpips"`） | `LPIPS(y_def, y_target)` | 固定的目標影像 |
 | N3 階段二 | `targeted_output`（`target_metric="mse"`） | `‖SDEdit_sub(x_adv; c_∅) − x_target‖²` | 同上，度量改為 MSE（`DESIGN` §4） |
+| N4 | `suppress_attn_ca` | `‖Att(x_adv, c_a) ⊙ M‖₁`（Lo 式 5） | **防禦方指名要保護的詞 c_a**，遮罩 M 由原圖的注意力取（式 4） |
 
-三者都是 prompt-free：N1 的 shared token 在**任何**攻擊 prompt 中都出現且
+前三者都是 prompt-free：N1 的 shared token 在**任何**攻擊 prompt 中都出現且
 語意無資訊，N2／N3 的去噪期一律餵空 prompt。防禦方因此不需要知道攻擊方的
 prompt，也不需要為原圖產生 caption。
+
+### `suppress_attn_ca` 與 N1 的 `targeted_attn` 是兩件不同的事
+
+兩者都關於 cross-attention，但著力點、作用範圍與威脅模型都不同：
+
+| | N1 `targeted_attn` | N4 `suppress_attn_ca` |
+|---|---|---|
+| 施力方向 | 把注意力質量**導向** decoy token（BOS／末位 PAD） | 把指定詞的注意力反應**壓低** |
+| 作用位置 | 全部 query 位置取平均 | **只在式 (4) 的遮罩 M 內** |
+| 需不需要 c_a | **不需要**，decoy 的索引由 tokenizer 結構決定 | **需要**，沒有 c_a 就沒有攻擊目標 |
+| 量的形狀 | 每層壓成純量再平均（全域綁定強度） | 保留空間維度的聚合圖，取遮罩內的 L1 |
+| 威脅模型 | prompt-free | **防禦方必須指名要保護什麼** |
+
+最後一列是實質的改變，不是實作細節。c_a 由 `data/lo_aligned/prompts.yaml`
+的 `content` 欄給定（`ImageEntry.content`），而編輯 prompt 由同檔的 `prompts`
+欄給定——**兩者在威脅模型裡屬於不同的人**：prompt 是攻擊方寫的，c_a 是
+防禦方選的。該檔第 8–11 行逐字寫明這件事，`run_lo_baseline.load_dataset`
+的 docstring 亦然。選錯 c_a 會讓損失壓到別的區域而**沒有任何症狀**，故
+`LossConfig` 對本模式的缺項一律拋出，不接受預設值。
+
+本模式的三個函式實作在 `src/models/attention.py`，對應 Lo et al.
+(CVPR 2024) 的式 (3)(4)(5)：`aggregate_token_attention`、
+`attention_region_mask`、`masked_attention_l1`。它們在 2026-08-03 就已寫好
+並由 `tests/test_lo_protocol.py` 釘住，但在本次改動之前**沒有任何訓練條件
+在用**——只有 `src/defense/linf_attack.py` 的文獻基準路徑（PGD on L∞ ball）
+呼叫它們。本模式把同一組式子接到本專案的參數化最佳化上。
+
+### 刻意不做：`attention_entropy`
+
+`src/models/attention.py` 另有 `attention_entropy`（注意力分佈在 token 維度
+上的熵，**不需要 c_a**）。它與本模式問的是不同的問題——「破壞綁定」對
+「把綁定改指向別處」哪一種比較能跨 prompt 泛化——**本輪刻意不納入格點**，
+以免把批次成本翻倍。列為待辦：要做時它已經在那裡，接法與本模式相同，
+差別只在不需要 c_a 與遮罩，故威脅模型退回 prompt-free。
 
 ### 為什麼 N1 取「導向 shared token」而不是「壓低內容 token」
 
@@ -150,8 +185,21 @@ RETIRED_MODES = {
     ),
 }
 
-DEFENSE_MODES = ("targeted_output", "targeted_attn")
+DEFENSE_MODES = ("targeted_output", "targeted_attn", "suppress_attn_ca")
 TARGET_METRICS = ("lpips", "mse")
+
+# `suppress_attn_ca` 的起點：遮罩內參照注意力的 L1 下限。低於此值即拋出。
+#
+# 存在理由與 `optimize.MIN_SHARED_MASS` 完全同型（`LOGIC_CHECK` A1）：
+# 損失是 `‖Att ⊙ M‖₁`，其最小值為 0。若原圖在遮罩內本來就幾乎沒有該詞的
+# 注意力反應，損失一開始就坐在最小值上，梯度趨近零，**最佳化不會產生任何
+# 更新，而 log 上看起來只是「損失很低」**——那比「損失不動」更難察覺，
+# 因為一個接近零的防禦損失看起來像是已經成功。
+#
+# 取 1e-3 而非 0：式 (3) 的 Att 是 L 層相加後在遮罩內求和，其量級由層數與
+# 遮罩面積決定，真實模型上遠大於此（SD v1.4／16 層／512² 的量級為 10⁰–10¹）。
+# 這道閘攔的是「結構上沒有東西可壓」，不是一個需要調的旋鈕。
+MIN_MASKED_ATTENTION = 1e-3
 
 # 第二、三道 hinge 的門檻相對 τ_lpips 的比例。錨點是使用者在 τ_lpips = 0.05
 # 上的人眼判讀（0.04 與 0.8），見模組 docstring「門檻的適用範圍」。
@@ -215,6 +263,23 @@ class LossConfig:
     # PromptFlare 的 `L_CA` 對 M^BOS 取是在 SD v1.x 上成立的，換到 SDXL 不成立。
     # 預設值保留 0 以忠於該原形式；本輪的選擇由 CLI 明給並進入 `config_hash`。
     shared_tokens: Tuple[int, ...] = (0,)
+
+    # ---- suppress_attn_ca 專用 ----
+    #
+    # 防禦方指名要保護的那個詞（Lo et al. 的 c_a）。**沒有預設值**：
+    # 由 prompt 猜 c_a 會讓損失壓到別的區域而毫無症狀，而 prompt 是攻擊方
+    # 寫的、c_a 是防禦方選的，兩者在威脅模型裡屬於不同的人。
+    # 值由 `ImageEntry.content` 逐影像給定（`data/lo_aligned/prompts.yaml`
+    # 的 `content` 欄），故此欄在 `LossConfig` 上是逐格填入而非整批共用。
+    content: str = ""
+    # 式 (4) 的遮罩門檻，作用在**峰值正規化後**的 [0,1] 尺度上
+    # （見 `attention_region_mask`：論文未給值，且式 (3) 的值域上界隨 UNet
+    # 層數而變，絕對門檻換模型就失去意義）。
+    #
+    # `None` 表示未指定。`suppress_attn_ca` 下拋出而不是回退到 0.5——
+    # 它決定「壓哪一塊」，與 `shared_tokens` 決定「導向哪一格」同一種量，
+    # 而後者已於 2026-08-06 因為不在 `config_hash` 內而被點名（A7）。
+    attn_mask_tau: Optional[float] = None
 
     # ---- 保真項：四道 hinge 取交集 ----
     #
@@ -291,6 +356,28 @@ class LossConfig:
                 "targeted_attn 需要非空的 shared_tokens。空集合下注意力質量恆為 0，"
                 "L_def 退化成常數 1，最佳化不會產生任何更新"
             )
+        if self.defense_mode == "suppress_attn_ca":
+            if not self.content.strip():
+                raise ValueError(
+                    "suppress_attn_ca 需要 content（Lo et al. 的 c_a），"
+                    "即防禦方指名要保護的那個詞。不接受預設值也不由 prompt "
+                    "推導：prompt 是攻擊方寫的、c_a 是防禦方選的，兩者在威脅"
+                    "模型裡屬於不同的人，猜錯會讓損失壓到別的區域而毫無症狀。"
+                    "來源是 data/lo_aligned/prompts.yaml 的 content 欄"
+                    "（ImageEntry.content）"
+                )
+            if self.attn_mask_tau is None:
+                raise ValueError(
+                    "suppress_attn_ca 需要 attn_mask_tau（式 4 的遮罩門檻）。"
+                    "不回退到 0.5：它決定損失作用在影像的哪一塊，與 "
+                    "shared_tokens 同一種量，而後者正因為未進 config_hash "
+                    "被列為缺陷 A7。由 CLI 明給並進入 config_hash"
+                )
+            if not 0.0 < self.attn_mask_tau < 1.0:
+                raise ValueError(
+                    f"attn_mask_tau 須落在開區間 (0, 1)，收到 "
+                    f"{self.attn_mask_tau}；它作用在峰值正規化後的尺度上"
+                )
 
 
 class DefenseObjective:
@@ -496,6 +583,44 @@ class DefenseObjective:
             [1.0 - self.shared_token_mass(m) for m in maps_list]
         ).mean()
 
+    # ---- 防禦項（三）：suppress_attn_ca（Lo et al. 式 5）----
+
+    def masked_attention_term(
+        self,
+        maps_list: Sequence[List[torch.Tensor]],
+        span: tuple,
+        mask: torch.Tensor,
+    ) -> torch.Tensor:
+        """`‖Att(x_adv, c_a) ⊙ M‖₁`，對取樣求平均。越小代表該詞越找不到落點。
+
+        逐取樣先走式 (3) 的跨層聚合再取遮罩內的 L1，**不是**先平均注意力圖
+        再聚合：式 (3) 的上採樣與相加是逐次前向內部的運算，把不同 timestep
+        的注意力圖先平均會抹掉「哪一個 t 上的綁定被破壞」，而綁定強度隨 t
+        變化正是 `attn_timesteps` 要取樣多個 t 的理由。
+
+        `reduce="sum"` 即論文式 (3) 的 Σ。值域上界隨 UNet 層數而變，故本項的
+        絕對值**跨模型不可比**（SD v1.5 的 16 層對 SDXL 的 70 層差 4.4 倍）；
+        遮罩不受影響，因為式 (4) 以峰值正規化。跨模型引用時要改看
+        `attn_suppressed_rel`（見 `__call__`），那是相對起點的比值。
+
+        與 `attention_term`（N1）的差別見模組 docstring 的對照表：那一項對
+        全部 query 位置取平均且不需要 c_a，本項只計遮罩內且必須有 c_a。
+        """
+        from src.models.attention import (
+            aggregate_token_attention,
+            masked_attention_l1,
+        )
+
+        if not maps_list:
+            raise ValueError("suppress_attn_ca 需要至少一組注意力圖")
+        side = int(mask.shape[-1])
+        terms = []
+        for maps in maps_list:
+            att = aggregate_token_attention(maps, span, side=side,
+                                            reduce="sum")
+            terms.append(masked_attention_l1(att, mask))
+        return torch.stack(terms).mean()
+
     # ---- VAE 編碼器目標（PhotoGuard 的 encoder attack 形式）----
 
     def encoder_term(
@@ -616,6 +741,9 @@ class DefenseObjective:
         y_orig_list: Optional[List[torch.Tensor]] = None,
         y_target: Optional[torch.Tensor] = None,
         attn_maps: Optional[Sequence[List[torch.Tensor]]] = None,
+        attn_span: Optional[tuple] = None,
+        attn_mask: Optional[torch.Tensor] = None,
+        attn_ref_l1: Optional[float] = None,
     ) -> Tuple[torch.Tensor, Dict[str, float]]:
         """依 `defense_mode` 取用對應的引數。缺少者拋出，不改走另一種模式。
 
@@ -638,6 +766,34 @@ class DefenseObjective:
                      for yd, yo in zip(y_def_list, y_orig_list)]
                 ).mean()
             extra = {"edit_shift": float(shift)}
+        elif c.defense_mode == "suppress_attn_ca":
+            if attn_maps is None or attn_span is None or attn_mask is None:
+                raise ValueError(
+                    "suppress_attn_ca 需要 attn_maps、attn_span 與 attn_mask "
+                    "三者。span 由 c_a 的 token 區間決定、mask 由原圖的注意力"
+                    "取（式 4），缺任一都不可落回全域——那會變成另一個目標"
+                )
+            if attn_ref_l1 is None:
+                raise ValueError(
+                    "suppress_attn_ca 需要 attn_ref_l1（φ=0 時遮罩內的 L1）。"
+                    "本模式的 L_def 隨進展**下降**，不能直接當平台停止的監看量；"
+                    "監看的是由它導出的 `attn_suppressed`，而那需要起點值"
+                )
+            l_def = self.masked_attention_term(attn_maps, attn_span, attn_mask)
+            # 監看量必須隨進展**上升**（`optimize.DEFENSE_MONITOR` 的規則：
+            # 餵一個下降的量進 `plateau_stop` 會在 min_steps 一到就判定收斂，
+            # 且沒有症狀）。故記「已壓下多少」而不是損失本身。
+            #
+            # 同時記相對量：絕對值的尺度隨 UNet 層數與遮罩面積而變，跨模型
+            # 與跨影像都不可比，而報表要並列不同影像。
+            suppressed = attn_ref_l1 - float(l_def.detach())
+            extra = {
+                "edit_shift": float("nan"),   # 本路徑沒有 y_orig 可比
+                "attn_masked_l1": float(l_def.detach()),
+                "attn_ref_l1": float(attn_ref_l1),
+                "attn_suppressed": suppressed,
+                "attn_suppressed_rel": suppressed / max(abs(attn_ref_l1), 1e-12),
+            }
         else:
             if attn_maps is None:
                 raise ValueError("targeted_attn 需要 attn_maps")

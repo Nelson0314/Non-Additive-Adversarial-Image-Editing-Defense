@@ -140,7 +140,9 @@ BASE = {
 
 
 CALIB_KEYS = ("lr.N1", "lr.N2", "lr.N3_stage1", "lr.N3_stage2",
-              "stop_tol.shared_mass", "stop_tol.edit_shift")
+              "lr.N4_stage1", "lr.N4_stage2",
+              "stop_tol.shared_mass", "stop_tol.edit_shift",
+              "stop_tol.attn_suppressed")
 
 
 def make_res(tmp_path, images=("dog_00", "cat_00"), with_calib=True,
@@ -169,7 +171,8 @@ def make_res(tmp_path, images=("dog_00", "cat_00"), with_calib=True,
     res.batch_dir.mkdir(parents=True, exist_ok=True)
     if with_calib:
         table = Calibration()
-        fixed = {"stop_tol.shared_mass": 3e-4, "stop_tol.edit_shift": 5e-4}
+        fixed = {"stop_tol.shared_mass": 3e-4, "stop_tol.edit_shift": 5e-4,
+                 "stop_tol.attn_suppressed": 7e-4}
         for key in calib_keys:
             table.put(key, fixed.get(key, 0.01), res.calib_context,
                       note="測試固定值")
@@ -234,8 +237,29 @@ def test_學習率鍵逐條件不同且來自校準表(tmp_path):
     res = make_res(tmp_path)
     keys = {c: executors.optim_config(res, executors.condition_spec(c))
             .stages[0].lr_key for c in grid.NONADDITIVE}
-    assert keys == {"N1": "lr.N1", "N2": "lr.N2", "N3": "lr.N3_stage2"}
-    assert len(set(keys.values())) == 3, "學習率不可跨條件共用"
+    assert keys == {"N1": "lr.N1", "N2": "lr.N2", "N3": "lr.N3_stage2",
+                    "N4": "lr.N4_stage2"}
+    assert len(set(keys.values())) == len(keys), "學習率不可跨條件共用"
+
+
+def test_N4與N3的階段二學習率鍵不同(tmp_path):
+    """兩者同一個參數化，但 `_pick_best` 的判準是「末端總損失最小者」，
+    而總損失是模式相依的：N3 的 L_def 是 MSE、N4 是 `‖Att ⊙ M‖₁`，
+    尺度與地景都不同，argmin 沒有理由相同。
+
+    共用同一個鍵還會讓 `calibrate_lr` 在同批跑兩者時**靜默覆寫**前一個的值
+    ——那是這道測試真正要擋的東西。階段一（保真對齊）則可以共用：
+    `_probe_align_lr` 的判準是對齊損失，與防禦模式無關。
+    """
+    res = make_res(tmp_path)
+    n3 = executors.condition_spec("N3")
+    n4 = executors.condition_spec("N4")
+    assert n3.site == n4.site == "apa"
+    assert n3.lr_key != n4.lr_key
+    ra = executors.condition_spec("Ra")
+    assert ra.site == "apa"
+    assert ra.align_lr_key == n4.align_lr_key, "階段一同源，共用不改變數值"
+    assert not ra.lr_key, "隨機對照沒有要最佳化的階段二"
 
 
 def test_N3的兩階段分別取用不同的組與鍵(tmp_path):
@@ -1161,6 +1185,142 @@ def test_遮罩閘關閉時module_params逐鍵不變(tmp_path):
     `mask` 鍵同一個理由。"""
     res = make_res(tmp_path)
     assert "warp_mask_gate" not in res.cfg.module_params()
+
+
+# ---------------------------------------------------------------------------
+# 第三階段：N4（suppress_attn_ca）與 Ra。三個新鍵都只在啟用時出現於 dict。
+# ---------------------------------------------------------------------------
+
+# 這五個值取自**第三階段改動之前**的程式碼（commit f0ec5b9b7），在一個該
+# commit 的獨立 worktree 上以同一段程式現算後逐位比對，不是由改動後的程式
+# 自己產生的——由現行程式現算會讓下面那條測試恆真。
+EXPECTED_HASHES_BEFORE_STAGE3 = {
+    "control/phi0/cat_00/purifyidentity/seed0": "11e8a5d4a353",
+    "eval/photoguard_c/dog_00/purifyjpeg30/seed3/tau0.2": "936fda57f236",
+    "rayscale/N2/cat_00/tau0.2": "57ff0b48479f",
+    "train/N1/dog_00": "a963f57250b5",
+    "train/N3/dog_00": "753c47adcc84",
+}
+
+
+def test_img2img既有批次的config_hash逐位不變(tmp_path):
+    """**這是本輪最重要的一條回歸測試。**
+
+    `runs/` 有 160705 個已入版控的檔案，其中 img2img 的四個批次（v14、v14r、
+    b3 與其分片）是唯一的證據來源——容器已刪、實驗無法重跑。新增的鍵若無條件
+    進入 `loss_params`，那些批次一旦續跑就會把**每一格**判為未完成，而症狀是
+    「跑起來了、數字也合理」，只是那不是原本那批的結果。
+
+    故釘住兩件事：不啟用時新鍵不存在，且逐格雜湊與**未改動之前**逐位相同。
+    第二項用寫死的期望值比對——由現行程式現算會讓這條測試恆真。
+    """
+    res = make_res(tmp_path)
+    lp = res.cfg.loss_params()
+    for key in ("attn_mask_tau", "attn_mask_timesteps"):
+        assert key not in lp, f"{key} 在未啟用時出現於 loss_params"
+
+    # 期望值取自本次改動**之前**的程式（git stash 後現算），逐格四個階段各一。
+    # 值本身不重要，重要的是它們不會因為新增條件或新鍵而改變。
+    base = dict(BASE, loss_params=lp, module_params=res.cfg.module_params(),
+                optim_params=res.cfg.optim_params())
+    got = {
+        c.cell_id(): config_hash(cell_config(c, base))
+        for c in (grid.Cell("train", "N1", "dog_00"),
+                  grid.Cell("train", "N3", "dog_00"),
+                  grid.Cell("rayscale", "N2", "cat_00", tau=0.20),
+                  grid.Cell("eval", "photoguard_c", "dog_00", tau=0.20,
+                            purify=("jpeg", 30), seed=3),
+                  grid.Cell("control", "phi0", "cat_00",
+                            purify=("identity", 0.0), seed=0))
+    }
+    assert got == EXPECTED_HASHES_BEFORE_STAGE3
+
+
+def test_啟用式五的目標才讓雜湊改變(tmp_path):
+    """反向：真的開了新目標，雜湊就必須不同，否則新舊結果會被混在一起。"""
+    a = make_res(tmp_path / "a")
+    b = make_res(tmp_path / "b", attn_mask_tau=0.5)
+    assert b.cfg.loss_params()["attn_mask_tau"] == 0.5
+
+    cell = grid.Cell("train", "N4", "dog_00")
+    base_a = dict(BASE, loss_params=a.cfg.loss_params(),
+                  module_params=a.cfg.module_params(),
+                  optim_params=a.cfg.optim_params())
+    base_b = dict(BASE, loss_params=b.cfg.loss_params(),
+                  module_params=b.cfg.module_params(),
+                  optim_params=b.cfg.optim_params())
+    assert (config_hash(cell_config(cell, base_a))
+            != config_hash(cell_config(cell, base_b)))
+
+
+def test_遮罩取樣點只在與施力點不同時進雜湊(tmp_path):
+    """相同時它不是獨立的變因（`attn_timesteps` 已在表內），多一個鍵只會讓
+    兩種等價的寫法算出不同的雜湊。"""
+    same = make_res(tmp_path / "s", attn_mask_tau=0.5)
+    assert "attn_mask_timesteps" not in same.cfg.loss_params()
+    diff = make_res(tmp_path / "d", attn_mask_tau=0.5, attn_mask_timesteps=8)
+    assert diff.cfg.loss_params()["attn_mask_timesteps"] == 8
+
+
+def test_N4缺c_a即拋出而不是靜默用空字串(tmp_path):
+    """c_a 是防禦方選的、prompt 是攻擊方寫的，兩者屬於不同的人。猜錯會讓
+    損失壓到別的區域而**沒有任何症狀**，故不接受預設值。"""
+    res = make_res(tmp_path, attn_mask_tau=0.5)
+    spec = executors.condition_spec("N4")
+    with pytest.raises(ValueError, match="c_a|content"):
+        executors.loss_config(res, spec)          # 沒有 entry
+
+
+def test_N4缺遮罩門檻即拋出(tmp_path):
+    """`attn_mask_tau` 決定損失壓的是哪一塊，與 `shared_tokens` 同一種量，
+    而後者正因為未進 config_hash 被列為缺陷 A7。不回退到 0.5。"""
+    res = make_res(tmp_path)                       # attn_mask_tau 為 None
+    spec = executors.condition_spec("N4")
+    with pytest.raises(ValueError, match="attn_mask_tau"):
+        executors.loss_config(res, spec, res.image("dog_00"))
+
+
+def test_N4的c_a取自資料集的content欄(tmp_path):
+    """來源是 `data/lo_aligned/prompts.yaml` 的 `content`，逐影像不同，
+    故不可放進整批共用的 RunConfig。"""
+    res = make_res(tmp_path, attn_mask_tau=0.5)
+    spec = executors.condition_spec("N4")
+    for image_id in ("dog_00", "cat_00"):
+        entry = res.image(image_id)
+        cfg = executors.loss_config(res, spec, entry)
+        assert cfg.content == entry.content
+        assert cfg.content, "c_a 為空字串時式 (5) 沒有定義"
+        # prompt 是攻擊方寫的，c_a 不得等於它
+        assert cfg.content not in entry.prompts
+
+
+def test_沒有位移場條件時段0跳過warp_reach而不是炸開(tmp_path):
+    """`measure_warp_reach` 原本寫死 `build_module("R", ...)` 且無條件執行。
+    隨機對照移到 site apa 之後，`pixel_residual()` 回傳 None，接著
+    `suite.pairwise(x, None)` 會在指標內部以看不出來源的訊息中止。
+
+    跳過時**不得寫入校準表**：一個沒有量過的 `warp.min_lpips_at_bound`
+    比不寫更危險。
+    """
+    res = make_res(tmp_path)
+    calib_dir = res.batch_dir / "calib"
+    calib_dir.mkdir(parents=True, exist_ok=True)
+    out = executors.measure_warp_reach(res, calib_dir,
+                                       conditions=("N4", "Ra", "mist"))
+    assert out["skipped"] is True
+    assert "recon_floor" in out["reason"]
+    assert not (calib_dir / "warp_reach.csv").exists()
+
+
+def test_有位移場條件時warp_reach照常量(tmp_path):
+    res = make_res(tmp_path)
+    calib_dir = res.batch_dir / "calib"
+    calib_dir.mkdir(parents=True, exist_ok=True)
+    out = executors.measure_warp_reach(res, calib_dir,
+                                       conditions=("N1", "R", "mist"))
+    assert not out.get("skipped")
+    assert "min_lpips_at_bound" in out
+    assert (calib_dir / "warp_reach.csv").exists()
 
 
 def test_遮罩閘進入config_hash(tmp_path):

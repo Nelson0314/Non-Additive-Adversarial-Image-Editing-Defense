@@ -62,6 +62,7 @@ import torch
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
+from src.experiment import grid                         # noqa: E402
 from src.experiment.executors import load_image_tensor  # noqa: E402
 from src.metrics.suite import MetricSuite                # noqa: E402
 
@@ -119,9 +120,10 @@ def main() -> None:
         formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--batch", type=Path, required=True)
     ap.add_argument("--images", nargs="+", required=True)
+    # 預設由格點的登記表導出，不再寫死一份會與它分岔的清單——寫死的症狀是
+    # 新條件被靜默漏掉，表格看起來完整只是少了幾列（2026-08-09）。
     ap.add_argument("--conditions", nargs="+",
-                    default=["control", "N1", "N2", "N3", "R",
-                             "photoguard_c", "mist", "dia_r"])
+                    default=["control", *grid.CONDITIONS])
     ap.add_argument("--purifiers", nargs="*", default=None,
                     help="淨化算子目錄名，省略即全部")
     ap.add_argument("--device", default="cpu",

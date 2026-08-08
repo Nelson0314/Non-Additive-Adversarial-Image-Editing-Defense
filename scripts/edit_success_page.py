@@ -33,8 +33,13 @@ import argparse
 import html
 import json
 import os
+import sys
 from pathlib import Path
 from typing import List, Optional
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
+from src.experiment import grid                             # noqa: E402
 
 CSS = """
 body{font:14px/1.5 system-ui,sans-serif;margin:1.5rem;max-width:120rem}
@@ -140,8 +145,7 @@ def main() -> None:
     ap.add_argument("--batch", type=Path, required=True)
     ap.add_argument("--images", nargs="+", required=True)
     ap.add_argument("--conditions", nargs="+",
-                    default=["control", "N1", "N2", "N3", "R",
-                             "photoguard_c", "mist", "dia_r"])
+                    default=["control", *grid.CONDITIONS])
     ap.add_argument("--seeds", type=int, nargs="+", default=[0, 1, 2, 3, 4])
     ap.add_argument("--purify", default="identity_0",
                     help="淨化算子目錄名。identity_0 即未淨化")

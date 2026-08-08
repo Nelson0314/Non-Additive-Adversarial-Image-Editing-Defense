@@ -15,21 +15,38 @@ IMGS = ("pie_0001", "pie_0002", "pie_0003")
 # 軸的定義
 # ---------------------------------------------------------------------------
 
-def test_九個訓練條件():
-    """三個非加性 + 五篇 baseline + 一條隨機對照。
+def test_登記表的條件組成():
+    """四個非加性 + 三篇 baseline + 兩條隨機對照。
 
     DiffVax 不在內：它的免疫器吃 masked image、只支援 inpainting，
     在無 mask 的 SDEdit 下忠實重現結構上不可能（SOURCE_AUDIT §9 第 1 項）。
+
+    2026-08-09：N4（apa + Lo 式 5）與 Ra（apa 上的隨機對照）加入登記表。
+    **`CONDITIONS` 是登記表不是某一批的清單**——第三階段的批次由
+    `--conditions` 選出五個，位移場的三個移出格點但原始碼與登記表都保留。
     """
-    assert len(grid.NONADDITIVE) == 3
+    assert len(grid.NONADDITIVE) == 4
     assert "diffvax" not in grid.CONDITIONS
-    assert grid.RANDOM_CONTROL in grid.CONDITIONS
+    assert set(grid.RANDOM_CONTROLS) <= set(grid.CONDITIONS)
 
 
-def test_隨機對照不是選配():
+def test_隨機對照不是選配且逐參數化各一個():
     """先驗實測：同一可辨失真上，隨機高斯雜訊即取得最佳化解 60–74% 的
-    語意失效。沒有這條對照，任何正結果都不可解讀。"""
+    語意失效。沒有這條對照，任何正結果都不可解讀。
+
+    對照必須與被比較的條件走**同一個參數化**（`DESIGN` §6.3 (b)）。位移場
+    的對照是 R、site apa 的是 Ra，兩者不可互相代替：拿位移場的隨機對照去比
+    apa 的方法，量到的差異裡混著參數化本身的效果。
+    """
     assert grid.RANDOM_CONTROL in grid.CONDITIONS
+    assert grid.RANDOM_CONTROL_APA in grid.CONDITIONS
+    from src.experiment.executors import condition_spec
+    assert condition_spec(grid.RANDOM_CONTROL).site == "warp"
+    assert condition_spec(grid.RANDOM_CONTROL_APA).site == "apa"
+    # 每一個非加性條件都要有同參數化的隨機對照，否則它的結果不可解讀
+    sites = {condition_spec(c).site for c in grid.NONADDITIVE}
+    control_sites = {condition_spec(c).site for c in grid.RANDOM_CONTROLS}
+    assert sites <= control_sites
 
 
 def test_主表在tau零點二():
@@ -268,11 +285,78 @@ def test_格點數與設計相符():
 
     assert s["train"]["total"] == n_cond * n_img
     assert s["rayscale"]["total"] == n_cond * n_img * len(grid.TAUS)
-    # N3 在兩個低 τ 上不適用
-    assert s["rayscale"]["skipped"] == n_img * 2
+    # 走生成路徑的條件在兩個低 τ 上不適用（名目下限 0.1434 > 0.05、0.10）
+    n_gen = len(grid.GENERATIVE_CONDITIONS)
+    assert s["rayscale"]["skipped"] == n_img * 2 * n_gen
     assert s["eval"]["total"] == sum(
         len(grid.purifiers_for(t)) for t in grid.TAUS
     ) * n_cond * n_img * grid.N_SEEDS
+
+
+# ------------------------------------------------- 逐批次的 τ 計畫（第三階段）
+
+
+def test_不指定tau_train時v14的格點逐格不變():
+    """**本輪最重要的格點回歸測試。**
+
+    `TAUS` / `MAIN_TAU` / `TRAIN_TAU` / `FULL_PURIFY_TAUS` 是模組層級常數，
+    就地改會讓 v14／v14r 重跑產出不同的格點，破壞 `runs/` 已入版控的證據。
+    故改為逐批次的 `TauPlan`，而預設路徑必須回到**同一個物件**。
+
+    逐格比對而不是只比數量：數量相同但某一格的 τ 或淨化設定換了，
+    報表看起來仍然完整。
+    """
+    assert grid.tau_plan_for() is grid.DEFAULT_TAU_PLAN
+    assert grid.tau_plan_for(grid.TRAIN_TAU) is grid.DEFAULT_TAU_PLAN
+
+    before = grid.plan(IMGS)
+    after = grid.plan(IMGS, tau_plan=grid.tau_plan_for(grid.TRAIN_TAU))
+    for stage in before:
+        assert [c.cell_id() for c in before[stage]] == \
+               [c.cell_id() for c in after[stage]], f"{stage} 的格點改變了"
+
+
+def test_換tau_train時四個常數一致地跟著走():
+    """只改訓練點而不動其餘三個，訓練點上一個淨化格都不會有——而抗淨化
+    （主張一）的分母正是訓練點上的效果。症狀只是「那幾列不在表裡」。"""
+    p = grid.tau_plan_for(0.50)
+    assert p.train_tau == 0.50
+    assert p.main_tau == 0.50, "主表與掃描組必須落在最佳化實際發生的那一點"
+    assert 0.50 in p.taus
+    assert 0.50 in p.full_purify_taus
+
+    full = grid.purifiers_for(0.50, tau_plan=p)
+    assert len(full) == len(grid.MAIN_PURIFIERS) + len(grid.SWEEP_PURIFIERS)
+    assert grid.IDENTITY in full
+    # 其餘 τ 只補曲線的低端，仍然只跑 identity
+    assert grid.purifiers_for(0.20, tau_plan=p) == [grid.IDENTITY]
+
+
+def test_訓練點不在完整淨化組內即拒絕():
+    """這正是 §4a 指出的失效，故在資料結構層就擋下，不等到跑完才發現。"""
+    with pytest.raises(ValueError, match="full_purify_taus"):
+        grid.TauPlan(taus=(0.20, 0.50), main_tau=0.50, train_tau=0.50,
+                     full_purify_taus=(0.20,))
+
+
+def test_主表或訓練點不在tau軸上即拒絕():
+    with pytest.raises(ValueError, match="不在 taus"):
+        grid.TauPlan(taus=(0.05, 0.20), main_tau=0.50, train_tau=0.20,
+                     full_purify_taus=(0.20,))
+
+
+def test_批次A的格點規模():
+    """五個條件、τ_train=0.50、完整淨化組只在訓練點。
+
+    釘住它是因為機時估計直接由格數導出，而估計錯了會排錯批次。
+    """
+    conds = ("N4", "Ra", "photoguard_c", "mist", "dia_r")
+    p = grid.tau_plan_for(0.50)
+    s = grid.summarize(grid.plan(IMGS, conditions=conds, tau_plan=p))
+    assert s["train"]["total"] == 5 * 3
+    assert s["rayscale"]["total"] == 5 * 3 * 5
+    assert s["eval"]["total"] == 1725
+    assert s["control"]["total"] == 285
 
 
 def test_N由三擴到一百五十只需改影像清單():
@@ -352,7 +436,11 @@ def test_三篇baseline():
     """2026-08-06 的機時裁決後為三篇。三篇都是常被引用的加性對照，
     次要主張的「最佳 baseline」因此仍有公認的比較對象。"""
     assert grid.BASELINES == ("photoguard_c", "mist", "dia_r")
-    assert len(grid.CONDITIONS) == 7
+    # 登記表 = 非加性 + baseline + 隨機對照，且三者互不重疊
+    assert len(grid.CONDITIONS) == (
+        len(grid.NONADDITIVE) + len(grid.BASELINES) + len(grid.RANDOM_CONTROLS)
+    )
+    assert len(set(grid.CONDITIONS)) == len(grid.CONDITIONS)
 
 
 # --------------------------------------------------- 條件篩選（--conditions）

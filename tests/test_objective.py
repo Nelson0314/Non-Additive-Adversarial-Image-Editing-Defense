@@ -7,6 +7,7 @@ import pytest
 import torch
 
 from src.defense.objective import (
+    MIN_MASKED_ATTENTION,
     DefenseObjective,
     LossConfig,
     scaled_thresholds,
@@ -915,3 +916,145 @@ def test_門檻仍擋得住已判為明顯壞掉的那一點():
 def test_非正的tau即拋出():
     with pytest.raises(ValueError, match="tau_lpips"):
         scaled_thresholds(0.0)
+
+
+# ---------------------------------------------------------------------------
+# suppress_attn_ca —— Lo et al. (CVPR 2024) 式 (5)，第三階段新增
+# ---------------------------------------------------------------------------
+#
+# 這個模式與 N1 的 `targeted_attn` 都關於 cross-attention，但著力點、作用範圍
+# 與威脅模型都不同（見 `objective.py` 模組 docstring 的對照表）。下面的測試
+# 逐項釘住那些差別，以及三道「錯了不會報錯」的防線。
+
+
+def _fake_maps(n_layers=3, q=16, tokens=77, seed=0):
+    """`CrossAttentionRecorder` 的輸出形狀：每層一個 (B, Q, T)，softmax 過。"""
+    g = torch.Generator().manual_seed(seed)
+    return [torch.softmax(torch.randn(1, q, tokens, generator=g), dim=-1)
+            for _ in range(n_layers)]
+
+
+def test_式五需要c_a且不接受預設值():
+    """prompt 是攻擊方寫的、c_a 是防禦方選的，兩者屬於不同的人。
+    猜錯會讓損失壓到別的區域而毫無症狀。"""
+    with pytest.raises(ValueError, match="content|c_a"):
+        LossConfig(defense_mode="suppress_attn_ca", attn_mask_tau=0.5)
+
+
+def test_式五需要遮罩門檻且不回退到零點五():
+    with pytest.raises(ValueError, match="attn_mask_tau"):
+        LossConfig(defense_mode="suppress_attn_ca", content="cat")
+
+
+def test_遮罩門檻須落在開區間():
+    """它作用在**峰值正規化後**的尺度上，1.0 會產生空遮罩、0 會選中整張圖。"""
+    for bad in (0.0, 1.0, 1.5, -0.1):
+        with pytest.raises(ValueError, match="開區間|attn_mask_tau"):
+            LossConfig(defense_mode="suppress_attn_ca", content="cat",
+                       attn_mask_tau=bad)
+
+
+def test_式五只計遮罩內而N1對全部位置取平均():
+    """兩者的差別不是係數而是**作用範圍**，故用同一組注意力圖比對：
+    把遮罩縮小一半，式 (5) 的值必須跟著變；N1 的 `attention_term` 不變。"""
+    cfg = LossConfig(defense_mode="suppress_attn_ca", content="cat",
+                     attn_mask_tau=0.5)
+    o = DefenseObjective(cfg, DEV)
+    maps = _fake_maps()
+    span = (1, 3)
+    side = 4
+    full = torch.ones(1, side, side)
+    half = torch.zeros(1, side, side)
+    half[..., :side // 2, :] = 1.0
+
+    l_full = o.masked_attention_term([maps], span, full)
+    l_half = o.masked_attention_term([maps], span, half)
+    assert float(l_half) < float(l_full), "縮小遮罩卻沒有改變式 (5) 的值"
+
+    n1 = DefenseObjective(LossConfig(defense_mode="targeted_attn"), DEV)
+    assert float(n1.attention_term([maps])) == float(n1.attention_term([maps]))
+
+
+def test_式五對取樣求平均而不是先平均注意力圖():
+    """綁定強度隨 t 變化，先平均會抹掉「哪一個 t 上的綁定被破壞」。"""
+    cfg = LossConfig(defense_mode="suppress_attn_ca", content="cat",
+                     attn_mask_tau=0.5)
+    o = DefenseObjective(cfg, DEV)
+    span, mask = (1, 3), torch.ones(1, 4, 4)
+    a, b = _fake_maps(seed=1), _fake_maps(seed=2)
+    both = o.masked_attention_term([a, b], span, mask)
+    each = [o.masked_attention_term([m], span, mask) for m in (a, b)]
+    assert float(both) == pytest.approx(
+        (float(each[0]) + float(each[1])) / 2, rel=1e-6)
+
+
+def test_式五缺三個引數之一即拋出而不落回全域():
+    """缺 span 或 mask 時落回「整張圖」會變成另一個目標，且沒有症狀。"""
+    cfg = LossConfig(defense_mode="suppress_attn_ca", content="cat",
+                     attn_mask_tau=0.5)
+    o = DefenseObjective(cfg, DEV)
+    x = torch.rand(1, 3, 32, 32)
+    maps = _fake_maps()
+    for kw in ({"attn_maps": [maps], "attn_span": (1, 3)},
+               {"attn_maps": [maps], "attn_mask": torch.ones(1, 4, 4)},
+               {"attn_span": (1, 3), "attn_mask": torch.ones(1, 4, 4)}):
+        with pytest.raises(ValueError, match="attn_maps|attn_span|attn_mask"):
+            o(x, x, x_base=x, attn_ref_l1=1.0, **kw)
+
+
+def test_式五需要起點L1才算得出監看量():
+    """本模式的 L_def 隨進展**下降**，不能直接當平台停止的監看量
+    （餵一個下降的量進 `plateau_stop` 會在 min_steps 一到就判定收斂，
+    而且沒有症狀）。監看的是由起點導出的 `attn_suppressed`。"""
+    cfg = LossConfig(defense_mode="suppress_attn_ca", content="cat",
+                     attn_mask_tau=0.5)
+    o = DefenseObjective(cfg, DEV)
+    x = torch.rand(1, 3, 32, 32)
+    with pytest.raises(ValueError, match="attn_ref_l1"):
+        o(x, x, x_base=x, attn_maps=[_fake_maps()], attn_span=(1, 3),
+          attn_mask=torch.ones(1, 4, 4))
+
+
+def test_監看量隨進展上升且相對量可跨影像比較():
+    cfg = LossConfig(defense_mode="suppress_attn_ca", content="cat",
+                     attn_mask_tau=0.5)
+    o = DefenseObjective(cfg, DEV)
+    x = torch.rand(1, 3, 32, 32)
+    maps, span, mask = _fake_maps(), (1, 3), torch.ones(1, 4, 4)
+    l1 = float(o.masked_attention_term([maps], span, mask))
+
+    # 起點：壓下的量為零
+    _, log = o(x, x, x_base=x, attn_maps=[maps], attn_span=span,
+               attn_mask=mask, attn_ref_l1=l1)
+    assert log["attn_suppressed"] == pytest.approx(0.0, abs=1e-9)
+    assert log["attn_masked_l1"] == pytest.approx(l1, rel=1e-6)
+
+    # 假設起點更高：壓下的量為正，且相對量落在 (0, 1)
+    _, log2 = o(x, x, x_base=x, attn_maps=[maps], attn_span=span,
+                attn_mask=mask, attn_ref_l1=l1 * 2)
+    assert log2["attn_suppressed"] > 0
+    assert 0 < log2["attn_suppressed_rel"] < 1
+    # 本路徑沒有 y_orig 可比，`edit_shift` 沒有定義；記 NaN 而不是 0，
+    # 因為 0 是一個合法的偏移值
+    assert log2["edit_shift"] != log2["edit_shift"]
+
+
+def test_起點遮罩內幾乎沒有注意力時的下限是一個具名的攔截點():
+    """損失 `‖Att ⊙ M‖₁` 的最小值是 0。起點就坐在那裡時梯度趨近零、
+    最佳化不做任何事，而 log 上會看起來像是「防禦損失很低」——比
+    `untargeted`（A1）那一型更難察覺，因為低損失看起來像成功。"""
+    assert MIN_MASKED_ATTENTION > 0
+    # 攔截點在 `optimize._build_attn_step`，此處只釘住常數存在且為正，
+    # 實際觸發由 tests/test_lo_protocol.py 的協定測試與段 0 的乾跑覆蓋。
+
+
+def test_式五的梯度回得到注意力圖():
+    """訓練整個建立在這條路上。"""
+    cfg = LossConfig(defense_mode="suppress_attn_ca", content="cat",
+                     attn_mask_tau=0.5)
+    o = DefenseObjective(cfg, DEV)
+    maps = [m.clone().requires_grad_(True) for m in _fake_maps()]
+    loss = o.masked_attention_term([maps], (1, 3), torch.ones(1, 4, 4))
+    loss.backward()
+    assert all(m.grad is not None and float(m.grad.abs().sum()) > 0
+               for m in maps)

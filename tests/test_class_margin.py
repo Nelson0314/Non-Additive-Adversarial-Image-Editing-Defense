@@ -77,3 +77,53 @@ def test_新舊並存時以帶tau的為準(cell):
     got = cm.edit_pngs(cell)
     assert len(got) == len(TAUS) * len(SEEDS)
     assert all(t is not None for t, _, _ in got)
+
+
+# ---------------------------------------------------------------------------
+# 遮罩內讀出量（`HANDOVER_METRICS_2026-08-08` §6.2）
+# ---------------------------------------------------------------------------
+
+def _write_mask(path, size=64, box=(16, 48, 8, 40)):
+    """(y0, y1, x0, x1) 為 1 的實心矩形遮罩，其餘為 0。"""
+    import torch
+
+    from src.experiment.executors import save_image
+
+    m = torch.zeros(1, 3, size, size)
+    m[..., box[0]:box[1], box[2]:box[3]] = 1.0
+    save_image(m, path)
+    return box
+
+
+def test_外接矩形取自遮罩本身(tmp_path):
+    import torch
+
+    p = tmp_path / "bird_02_mask.png"
+    box = _write_mask(p)
+    assert cm.mask_bbox(p, torch.device("cpu")) == box
+
+
+def test_非矩形遮罩取其外接矩形(tmp_path):
+    """輪廓遮罩下仍然包含全部被重畫的像素，只是多帶一點脈絡——那個方向是
+    保守的（訊號被稀釋而非放大）。"""
+    import torch
+
+    from src.experiment.executors import save_image
+
+    m = torch.zeros(1, 3, 64, 64)
+    m[..., 10:12, 20:22] = 1.0        # 左上一小塊
+    m[..., 40:42, 50:52] = 1.0        # 右下一小塊
+    p = tmp_path / "x_mask.png"
+    save_image(m, p)
+    assert cm.mask_bbox(p, torch.device("cpu")) == (10, 42, 20, 52)
+
+
+def test_全零遮罩立刻拋出(tmp_path):
+    import torch
+
+    from src.experiment.executors import save_image
+
+    p = tmp_path / "z_mask.png"
+    save_image(torch.zeros(1, 3, 32, 32), p)
+    with pytest.raises(ValueError, match="全零遮罩"):
+        cm.mask_bbox(p, torch.device("cpu"))

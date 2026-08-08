@@ -67,6 +67,7 @@ from src.metrics.suite import MetricSuite                # noqa: E402
 
 FIELDS = ["batch", "image_id", "group", "condition", "purify_dir",
           "purify_kind", "purify_strength", "seed", "tau", "png",
+          "readout", "crop",
           "s_target", "s_source", "margin", "success",
           "clip_target", "clip_source", "clip_margin"]
 
@@ -75,6 +76,27 @@ FIELDS = ["batch", "image_id", "group", "condition", "purify_dir",
 # 於是 `purify_kind == "identity"` 這種比對會**靜默漏掉整個對照側**——而對照側
 # 正是分母。目錄名兩側都有且逐字相同。
 IDENTITY_DIR = "identity_0"
+
+
+def mask_bbox(mask_png: Path, device) -> Tuple[int, int, int, int]:
+    """遮罩的外接矩形 (y0, y1, x0, x1)，半開區間。
+
+    2026-08-09 新增，`HANDOVER_METRICS_2026-08-08` §6.2：inpainting 下攻擊方
+    只重畫遮罩內，ip3 的涵蓋率是 0.275–0.401。對**整張圖**算 SigLIP 會把訊號
+    稀釋 2.5–3.6 倍而噪聲不變，讓本來就緊的判定更不可能通過。
+
+    取**裁切**而不是把遮罩外塗黑：塗黑會產生模型沒見過的輸入（大片純色），
+    分數的變化就不再只反映類別；`attention_box` 的遮罩本來就是實心矩形，
+    裁切後是一張自然的子影像。非矩形遮罩下這是它的外接矩形，仍然包含全部
+    被重畫的像素，只是多帶一點脈絡——那個方向是保守的（訊號被稀釋而非放大）。
+    """
+    m = load_image_tensor(mask_png, device)[0, 0] > 0.5
+    rows = torch.nonzero(m.any(dim=1)).flatten()
+    cols = torch.nonzero(m.any(dim=0)).flatten()
+    if rows.numel() == 0 or cols.numel() == 0:
+        raise ValueError(f"{mask_png} 是全零遮罩，沒有外接矩形")
+    return (int(rows[0]), int(rows[-1]) + 1,
+            int(cols[0]), int(cols[-1]) + 1)
 
 
 def edit_pngs(cell_dir: Path) -> List[Tuple[Optional[str], int, Path]]:
@@ -146,11 +168,17 @@ def main() -> None:
                     help="淨化算子目錄名，省略即全部")
     ap.add_argument("--device", default="cpu",
                     help="cpu 或 cuda:N。SigLIP／CLIP 很小，cpu 可行但慢")
+    ap.add_argument("--mask-dir", type=Path, default=None,
+                    help="遮罩目錄（含 <影像>_mask.png）。給定時只在遮罩的"
+                         "外接矩形內判定，見 mask_bbox 的說明。省略即全圖")
     ap.add_argument("--out", type=Path, required=True)
     args = ap.parse_args()
 
     suite = MetricSuite(device=torch.device(args.device))
     rows: List[Dict] = []
+    # 兩種讀出量不可混在同一份 CSV 裡：判定的分母（對照側）與分子必須在同一
+    # 個讀出量上取。故此處逐批固定，並寫進每一列的 `readout` 欄。
+    readout = "full" if args.mask_dir is None else "mask_crop"
 
     for image_id in args.images:
         classes = image_classes(args.batch, image_id, args.conditions)
@@ -159,8 +187,17 @@ def main() -> None:
                 f"{image_id}：找不到帶 group／prompt 的 metrics json，"
                 "原類與目標類無從決定。不猜，直接停下")
         src_prompt, tgt_prompt = classes
-        print(f"{image_id}: 原類 {src_prompt!r} → 目標 {tgt_prompt!r}",
-              flush=True)
+        box = None
+        if args.mask_dir is not None:
+            mp = args.mask_dir / f"{image_id}_mask.png"
+            if not mp.exists():
+                # 靜默退回全圖會讓同一份 CSV 混兩種讀出量，而 `readout` 欄
+                # 仍寫著 mask_crop——分子與分母於是在不同的量上比較。
+                raise SystemExit(f"{mp} 不存在；指定了 --mask-dir 就必須有遮罩")
+            box = mask_bbox(mp, suite.device)
+        print(f"{image_id}: 原類 {src_prompt!r} → 目標 {tgt_prompt!r}"
+              + (f"　裁切 y{box[0]}:{box[1]} x{box[2]}:{box[3]}"
+                 if box else "　全圖"), flush=True)
 
         for cond in args.conditions:
             root = args.batch / cond / image_id / "purify"
@@ -173,6 +210,8 @@ def main() -> None:
                 for tau, seed, png in edit_pngs(cdir):
                     m = meta_for(cdir, tau, seed)
                     x = load_image_tensor(png, suite.device)
+                    if box is not None:
+                        x = x[..., box[0]:box[1], box[2]:box[3]]
                     sc = suite.semantic_multi(x, [tgt_prompt, src_prompt])
                     marg = sc[tgt_prompt]["siglip"] - sc[src_prompt]["siglip"]
                     rows.append({
@@ -186,6 +225,9 @@ def main() -> None:
                         "seed": seed,
                         "tau": tau if tau is not None else m.get("tau", ""),
                         "png": png.relative_to(args.batch).as_posix(),
+                        "readout": readout,
+                        "crop": ("" if box is None else
+                                 f"y{box[0]}:{box[1]},x{box[2]}:{box[3]}"),
                         "s_target": sc[tgt_prompt]["siglip"],
                         "s_source": sc[src_prompt]["siglip"],
                         "margin": marg, "success": int(marg > 0),

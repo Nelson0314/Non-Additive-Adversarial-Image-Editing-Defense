@@ -1,0 +1,82 @@
+{
+  "cell_id": "train/dia_r/bird_02",
+  "config_hash": "ceb810381501",
+  "config": {
+    "spec_version": 1,
+    "model": "runwayml/stable-diffusion-inpainting",
+    "resolution": 512,
+    "guidance": 7.5,
+    "steps": 50,
+    "strength": null,
+    "gpu": "RTX-3090",
+    "precision": "fp32",
+    "loss_params": {
+      "train_n_edit": 10,
+      "n_eot": 1,
+      "k_inv": 10,
+      "t_max": null,
+      "exact_inversion": true,
+      "purify_mode": "all",
+      "attn_timesteps": 4,
+      "tau_train": 0.2,
+      "tau_acut": 0.16000000000000003,
+      "tau_chroma": 3.2,
+      "beta_linf": 0.0,
+      "tau_linf": 0.06,
+      "target_image": "data/targets/gray.png",
+      "shared_tokens": [
+        0
+      ]
+    },
+    "module_params": {
+      "warp_grid_size": 32,
+      "warp_max_disp": 8.0,
+      "warp_resample": "bicubic",
+      "apa_lora_rank": 8,
+      "apa_latent_max_rank": 32,
+      "apa_latent_const_rank": 8,
+      "random_init_std": 0.5,
+      "warp_mask_gate": true
+    },
+    "optim_params": {
+      "max_steps": 250,
+      "align_steps": 200,
+      "stop_patience": 20,
+      "stop_min_steps": 25
+    },
+    "lr": null,
+    "mask": {
+      "mode": "attention_box",
+      "tau": 0.5,
+      "timestep": 500
+    },
+    "condition": "dia_r",
+    "image_id": "bird_02",
+    "tau": null,
+    "purify": null,
+    "seed": null
+  },
+  "steps_used": 20,
+  "stop_reason": "dia_r：步數照原論文（20）",
+  "seconds_optimize": 142.17,
+  "lr": null,
+  "modified_from_paper": false,
+  "modification_note": "",
+  "discrepancy_note": "論文 Eq. 9/10 寫 ‖·‖₂²，程式碼為 .norm(p=2) 未平方（sign 更新下不影響方向）；論文正文未給 step size，本值取自 attack_setting.json；論文未述值域，由程式碼確認為 [-1,1]，故 eps=0.05 在 [0,1] 只有 0.025。本實作以 autograd 取代原作的 FlowGrad 逐步 VJP（同一個梯度，記憶體不同）；DIA-PT 的『值取樣、梯度走均值』以直通式重現。",
+  "eps_pixel01": 0.025,
+  "final_delta_linf01": 0.025000035762786865,
+  "residual_gain": 19.999971389811435,
+  "fid_psnr": 39.96986770629883,
+  "fid_linf": 0.025000035762786865,
+  "fid_ssim": 0.9856817722320557,
+  "fid_vif_p": 0.7648082971572876,
+  "fid_fsim": 0.9953129291534424,
+  "fid_lpips": 0.23866654932498932,
+  "fid_dists": 0.011893749237060547,
+  "fid_acutance_ratio": 1.0194768905639648,
+  "fid_rms": 0.010034257546067238,
+  "fid_frac_gt_16_255": 0.0,
+  "fid_niqe": 7.682294225269078,
+  "group": "bird",
+  "prompt": "a butterfly"
+}

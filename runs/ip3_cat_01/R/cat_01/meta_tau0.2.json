@@ -1,0 +1,83 @@
+{
+  "cell_id": "rayscale/R/cat_01/tau0.2",
+  "config_hash": "8bdd554db0a4",
+  "config": {
+    "spec_version": 1,
+    "model": "runwayml/stable-diffusion-inpainting",
+    "resolution": 512,
+    "guidance": 7.5,
+    "steps": 50,
+    "strength": null,
+    "gpu": "RTX-3090",
+    "precision": "fp32",
+    "loss_params": {
+      "train_n_edit": 10,
+      "n_eot": 1,
+      "k_inv": 10,
+      "t_max": null,
+      "exact_inversion": true,
+      "purify_mode": "all",
+      "attn_timesteps": 4,
+      "tau_train": 0.2,
+      "tau_acut": 0.16000000000000003,
+      "tau_chroma": 3.2,
+      "beta_linf": 0.0,
+      "tau_linf": 0.06,
+      "target_image": "data/targets/gray.png",
+      "shared_tokens": [
+        0
+      ]
+    },
+    "module_params": {
+      "warp_grid_size": 32,
+      "warp_max_disp": 8.0,
+      "warp_resample": "bicubic",
+      "apa_lora_rank": 8,
+      "apa_latent_max_rank": 32,
+      "apa_latent_const_rank": 8,
+      "random_init_std": 0.5,
+      "warp_mask_gate": true
+    },
+    "optim_params": {
+      "max_steps": 250,
+      "align_steps": 200,
+      "stop_patience": 20,
+      "stop_min_steps": 25
+    },
+    "lr": null,
+    "mask": {
+      "mode": "attention_box",
+      "tau": 0.5,
+      "timestep": 500
+    },
+    "condition": "R",
+    "image_id": "cat_01",
+    "tau": 0.2,
+    "purify": null,
+    "seed": null
+  },
+  "condition": "R",
+  "image_id": "cat_01",
+  "tau_target": 0.2,
+  "tau_achieved": 0.20007023215293884,
+  "scale_k": 7.0,
+  "niqe": 4.15471542448559,
+  "fid_psnr": 26.14282989501953,
+  "fid_linf": 0.6901339888572693,
+  "fid_ssim": 0.8769673109054565,
+  "fid_vif_p": 0.5042975544929504,
+  "fid_fsim": 0.9237419962882996,
+  "fid_lpips": 0.20007023215293884,
+  "fid_dists": 0.07832562923431396,
+  "fid_acutance_ratio": 1.0362639427185059,
+  "fid_rms": 0.04930121451616287,
+  "fid_frac_gt_16_255": 0.11644363403320312,
+  "disp_mean_px": 2.193565845489502,
+  "disp_max_px": 10.789103507995605,
+  "disp_p99_px": 7.324577808380127,
+  "flow_tv": 7.800941467285156,
+  "grid_size": 32,
+  "mask_gated": true,
+  "gate_open_frac": 0.766357421875,
+  "seconds_rayscale": 0.25
+}

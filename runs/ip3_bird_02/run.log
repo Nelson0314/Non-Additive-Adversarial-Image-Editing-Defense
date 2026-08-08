@@ -1,0 +1,217 @@
+===== train =====
+[thresholds] tau_acut = 0.16 （由 τ_train=0.2 依比例導出）
+[thresholds] tau_chroma = 3.2 （由 τ_train=0.2 依比例導出）
+[env] 載入 SDInpaintWrapper(runwayml/stable-diffusion-inpainting) dtype=torch.float32
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]An error occurred while trying to fetch /var/cache/huggingface/hub/models--runwayml--stable-diffusion-inpainting/snapshots/8a4288a76071f7280aedbdb3253bdb9e9d5d84bb/unet: Error no file named diffusion_pytorch_model.safetensors found in directory /var/cache/huggingface/hub/models--runwayml--stable-diffusion-inpainting/snapshots/8a4288a76071f7280aedbdb3253bdb9e9d5d84bb/unet.
+Defaulting to unsafe serialization. Pass `allow_pickle=False` to raise an error instead.
+Loading pipeline components...:  17%|█▋        | 1/6 [00:00<00:00,  5.93it/s]An error occurred while trying to fetch /var/cache/huggingface/hub/models--runwayml--stable-diffusion-inpainting/snapshots/8a4288a76071f7280aedbdb3253bdb9e9d5d84bb/vae: Error no file named diffusion_pytorch_model.safetensors found in directory /var/cache/huggingface/hub/models--runwayml--stable-diffusion-inpainting/snapshots/8a4288a76071f7280aedbdb3253bdb9e9d5d84bb/vae.
+Defaulting to unsafe serialization. Pass `allow_pickle=False` to raise an error instead.
+Loading pipeline components...:  67%|██████▋   | 4/6 [00:00<00:00, 15.48it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 19354.98it/s]
+Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 15.26it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 14.18it/s]
+There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+[env] 影像 1 張：['bird_02']
+  [mask] bird_02 content='bird' 涵蓋率=0.401 注意力圖邊長=64
+  [floor] 生成路徑的逐影像重建下限（LPIPS）：bird_02=0.1853
+  [stop] 監看 shared_mass；約束：fid_pen_lpips, fid_pen_acut, fid_pen_chroma
+  [stage default] lr=0.1（lr.N1）上限 250 步
+/nfs/home/nelson0314/WACV/src/defense/objective.py:594: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /__w/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:822.)
+  "fid_linf_total": float((xd - xr).abs().max()),
+  [default] step    0  loss=0.0585  L_def=0.0585  L_fid=0.0000  |g|=3.269e-04
+  [default] step   10  loss=0.0576  L_def=0.0576  L_fid=0.0000  |g|=2.401e-04
+  [default] step   20  loss=0.0573  L_def=0.0573  L_fid=0.0000  |g|=7.216e-04
+  [default] step   30  loss=0.0571  L_def=0.0571  L_fid=0.0000  |g|=2.972e-04
+  [default] step   40  loss=0.0568  L_def=0.0568  L_fid=0.0000  |g|=2.918e-04
+  [default] step   50  loss=0.0567  L_def=0.0567  L_fid=0.0000  |g|=2.863e-04
+  [default] step   60  loss=0.0565  L_def=0.0565  L_fid=0.0000  |g|=1.675e-04
+  [default] step   70  loss=0.0565  L_def=0.0565  L_fid=0.0000  |g|=1.695e-04
+  [default] step   80  loss=0.0564  L_def=0.0564  L_fid=0.0000  |g|=2.635e-04
+  [default] step   90  loss=0.0563  L_def=0.0563  L_fid=0.0000  |g|=2.708e-04
+  [default] step  100  loss=0.0562  L_def=0.0562  L_fid=0.0000  |g|=1.842e-04
+  [default] step  110  loss=0.0562  L_def=0.0562  L_fid=0.0000  |g|=2.501e-04
+  [default] step  120  loss=0.0561  L_def=0.0561  L_fid=0.0000  |g|=3.618e-04
+  [default] step  130  loss=0.0560  L_def=0.0560  L_fid=0.0000  |g|=2.041e-04
+  [default] step  140  loss=0.0560  L_def=0.0560  L_fid=0.0000  |g|=4.520e-04
+  [default] step  150  loss=0.0559  L_def=0.0559  L_fid=0.0000  |g|=2.551e-04
+  [default] step  160  loss=0.0559  L_def=0.0559  L_fid=0.0000  |g|=4.019e-04
+  [default] step  170  loss=0.0558  L_def=0.0558  L_fid=0.0000  |g|=2.497e-04
+  [default] step  180  loss=0.0558  L_def=0.0558  L_fid=0.0000  |g|=2.999e-04
+  [default] step  190  loss=0.0558  L_def=0.0558  L_fid=0.0000  |g|=3.502e-04
+  [default] step  200  loss=0.0558  L_def=0.0558  L_fid=0.0000  |g|=3.611e-04
+  [default] step  210  loss=0.0557  L_def=0.0557  L_fid=0.0000  |g|=3.623e-04
+  [default] step  220  loss=0.0556  L_def=0.0556  L_fid=0.0000  |g|=2.472e-04
+  [default] step  230  loss=0.0557  L_def=0.0557  L_fid=0.0000  |g|=2.505e-04
+  [default] step  240  loss=0.0556  L_def=0.0556  L_fid=0.0000  |g|=2.551e-04
+  [default] step  249  loss=0.0556  L_def=0.0556  L_fid=0.0000  |g|=2.983e-04
+  [stop] 階段 default 用盡上限 250 步仍未達停止準則，該格不可用於跨條件比較
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+  [stop] 監看 edit_shift；約束：fid_pen_lpips, fid_pen_acut, fid_pen_chroma
+  [stage default] lr=0.1（lr.N2）上限 250 步
+  [default] step    0  loss=0.8478  L_def=0.8478  L_fid=0.0000  |g|=5.237e-03
+  [default] step   10  loss=0.8326  L_def=0.8326  L_fid=0.0000  |g|=8.904e-03
+  [default] step   20  loss=0.8231  L_def=0.8231  L_fid=0.0000  |g|=7.128e-03
+  [default] step   30  loss=0.8142  L_def=0.8142  L_fid=0.0000  |g|=6.788e-03
+  [default] step   40  loss=0.8120  L_def=0.8120  L_fid=0.0000  |g|=8.017e-03
+  [default] step   50  loss=0.8107  L_def=0.8107  L_fid=0.0000  |g|=1.063e-02
+  [default] step   60  loss=0.8104  L_def=0.8104  L_fid=0.0000  |g|=3.935e-03
+  [default] step   70  loss=0.8091  L_def=0.8091  L_fid=0.0000  |g|=6.044e-03
+  [default] step   80  loss=0.8075  L_def=0.8075  L_fid=0.0000  |g|=5.636e-03
+  [default] step   90  loss=0.8065  L_def=0.8065  L_fid=0.0000  |g|=5.499e-03
+  [default] step  100  loss=0.8063  L_def=0.8063  L_fid=0.0000  |g|=6.961e-03
+  [default] step  110  loss=0.8044  L_def=0.8044  L_fid=0.0000  |g|=7.746e-03
+  [default] step  120  loss=0.8047  L_def=0.8047  L_fid=0.0000  |g|=7.050e-03
+  [default] step  130  loss=0.8035  L_def=0.8035  L_fid=0.0000  |g|=5.093e-03
+  [default] step  140  loss=0.8033  L_def=0.8033  L_fid=0.0000  |g|=6.363e-03
+  [default] step  150  loss=0.8024  L_def=0.8024  L_fid=0.0000  |g|=7.109e-03
+  [default] step  160  loss=0.8017  L_def=0.8017  L_fid=0.0000  |g|=5.576e-03
+  [default] step  170  loss=0.8010  L_def=0.8010  L_fid=0.0000  |g|=5.492e-03
+  [default] step  180  loss=0.8015  L_def=0.8015  L_fid=0.0000  |g|=6.032e-03
+  [default] step  190  loss=0.8005  L_def=0.8005  L_fid=0.0000  |g|=5.871e-03
+  [default] step  200  loss=0.8003  L_def=0.8003  L_fid=0.0000  |g|=4.708e-03
+  [default] step  210  loss=0.7993  L_def=0.7993  L_fid=0.0000  |g|=5.191e-03
+  [default] step  220  loss=0.7987  L_def=0.7987  L_fid=0.0000  |g|=5.936e-03
+  [default] step  230  loss=0.7982  L_def=0.7982  L_fid=0.0000  |g|=5.221e-03
+  [default] step  240  loss=0.7986  L_def=0.7986  L_fid=0.0000  |g|=6.248e-03
+  [default] step  249  loss=0.7978  L_def=0.7978  L_fid=0.0000  |g|=8.576e-03
+  [stop] 階段 default 用盡上限 250 步仍未達停止準則，該格不可用於跨條件比較
+  [stop] 監看 edit_shift；約束：fid_pen_lpips, fid_pen_acut, fid_pen_chroma
+  [align] group=stage1 lr=0.0001（lr.N3_stage1）200 步
+  [align] 門檻取自本圖的重建下限：psnr≥27.17dB lpips≤0.1853 acut≤0.0830 chroma≤1.4107
+  [align] step    0  loss=0.0002  lpips=0.1853  psnr=27.17
+  [align] step   10  loss=0.0000  lpips=0.1851  psnr=27.17
+  [align] step   20  loss=0.0000  lpips=0.1850  psnr=27.18
+  [align] step   30  loss=0.0000  lpips=0.1849  psnr=27.19
+  [align] step   40  loss=0.0000  lpips=0.1849  psnr=27.20
+  [align] step   50  loss=0.0000  lpips=0.1849  psnr=27.20
+  [align] step   60  loss=0.0000  lpips=0.1849  psnr=27.20
+  [align] step   70  loss=0.0000  lpips=0.1849  psnr=27.20
+  [align] step   80  loss=0.0000  lpips=0.1849  psnr=27.20
+  [align] step   90  loss=0.0000  lpips=0.1849  psnr=27.20
+  [align] step  100  loss=0.0000  lpips=0.1849  psnr=27.20
+  [align] step  110  loss=0.0000  lpips=0.1849  psnr=27.20
+  [align] step  120  loss=0.0000  lpips=0.1849  psnr=27.20
+  [align] step  130  loss=0.0000  lpips=0.1849  psnr=27.20
+  [align] step  140  loss=0.0000  lpips=0.1849  psnr=27.20
+  [align] step  150  loss=0.0000  lpips=0.1849  psnr=27.20
+  [align] step  160  loss=0.0000  lpips=0.1849  psnr=27.20
+  [align] step  170  loss=0.0000  lpips=0.1849  psnr=27.20
+  [align] step  180  loss=0.0000  lpips=0.1849  psnr=27.20
+  [align] step  190  loss=0.0000  lpips=0.1849  psnr=27.20
+  [align] step  199  loss=0.0000  lpips=0.1849  psnr=27.20
+  [align] 還原第 6 步的 φ（loss=0.0000）；最後一步為 0.0000
+  [stage stage2] lr=0.005（lr.N3_stage2）上限 250 步
+  [stage2] step    0  loss=0.1137  L_def=0.1137  L_fid=0.0000  |g|=1.094e-02
+  [stage2] step   10  loss=0.0915  L_def=0.0915  L_fid=0.0000  |g|=1.247e-02
+  [stage2] step   20  loss=0.0843  L_def=0.0843  L_fid=0.0000  |g|=1.197e-02
+  [stage2] step   30  loss=0.0827  L_def=0.0827  L_fid=0.0000  |g|=8.078e-03
+  [stage2] step   40  loss=0.0825  L_def=0.0825  L_fid=0.0000  |g|=9.836e-03
+  [stop] 階段 stage2 第 40 步停止：約束已啟動且 edit_shift 在最近 20 步的每步改善 +2.45e-04 低於 2.5e-04
+  [photoguard_c] step    0  L=5.775993e+02  Linf01=0.0364  L2=0.825
+  [photoguard_c] step   10  L=5.414173e+02  Linf01=0.0911  L2=3.234
+  [photoguard_c] step   20  L=5.211317e+02  Linf01=0.2016  L2=5.118
+  [photoguard_c] step   30  L=4.754670e+02  Linf01=0.2710  L2=7.438
+  [photoguard_c] step   40  L=4.357575e+02  Linf01=0.3029  L2=9.598
+  [photoguard_c] step   50  L=3.989289e+02  Linf01=0.3217  L2=11.296
+  [photoguard_c] step   60  L=3.850277e+02  Linf01=0.3355  L2=12.752
+  [photoguard_c] step   70  L=3.616686e+02  Linf01=0.3472  L2=14.241
+  [photoguard_c] step   80  L=3.009232e+02  Linf01=0.3560  L2=15.595
+  [photoguard_c] step   90  L=3.096625e+02  Linf01=0.3459  L2=15.999
+  [photoguard_c] step  100  L=3.045910e+02  Linf01=0.3274  L2=15.998
+  [photoguard_c] step  110  L=2.654150e+02  Linf01=0.3136  L2=15.998
+  [photoguard_c] step  120  L=2.669688e+02  Linf01=0.3049  L2=15.999
+  [photoguard_c] step  130  L=2.556692e+02  Linf01=0.2975  L2=15.998
+  [photoguard_c] step  140  L=2.658184e+02  Linf01=0.2936  L2=15.999
+  [photoguard_c] step  150  L=2.450302e+02  Linf01=0.2874  L2=15.996
+  [photoguard_c] step  160  L=2.542660e+02  Linf01=0.2815  L2=15.997
+  [photoguard_c] step  170  L=2.528334e+02  Linf01=0.2819  L2=15.998
+  [photoguard_c] step  180  L=2.328619e+02  Linf01=0.2824  L2=15.994
+  [photoguard_c] step  190  L=2.360678e+02  Linf01=0.2839  L2=15.998
+  [photoguard_c] step  199  L=2.333365e+02  Linf01=0.2822  L2=15.996
+  [mist] step    0  L=2.455122e+04  Linf01=0.0627  L2=64.150
+  [mist] step   10  L=1.513355e+04  Linf01=0.0627  L2=65.915
+  [mist] step   20  L=9.551619e+03  Linf01=0.0627  L2=68.214
+  [mist] step   30  L=1.283445e+04  Linf01=0.0627  L2=70.999
+  [mist] step   40  L=1.203575e+04  Linf01=0.0627  L2=73.648
+  [mist] step   50  L=1.108354e+04  Linf01=0.0627  L2=75.640
+  [mist] step   60  L=1.128749e+04  Linf01=0.0627  L2=77.219
+  [mist] step   70  L=1.088691e+04  Linf01=0.0627  L2=78.790
+  [mist] step   80  L=1.008525e+04  Linf01=0.0627  L2=79.950
+  [mist] step   90  L=1.056075e+04  Linf01=0.0627  L2=80.687
+  [mist] step   99  L=9.496762e+03  Linf01=0.0627  L2=81.465
+  [dia_r] step    0  L=8.695122e+01  Linf01=0.0020  L2=3.474
+  [dia_r] step   10  L=3.456149e+02  Linf01=0.0216  L2=13.192
+  [dia_r] step   19  L=6.415537e+02  Linf01=0.0250  L2=17.797
+
+[train] done=7 failed=0 skipped=0 resumed=0
+===== rayscale =====
+[thresholds] tau_acut = 0.16 （由 τ_train=0.2 依比例導出）
+[thresholds] tau_chroma = 3.2 （由 τ_train=0.2 依比例導出）
+[env] 載入 SDInpaintWrapper(runwayml/stable-diffusion-inpainting) dtype=torch.float32
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 15673.06it/s]
+Loading pipeline components...:  17%|█▋        | 1/6 [00:00<00:00,  7.57it/s]An error occurred while trying to fetch /var/cache/huggingface/hub/models--runwayml--stable-diffusion-inpainting/snapshots/8a4288a76071f7280aedbdb3253bdb9e9d5d84bb/unet: Error no file named diffusion_pytorch_model.safetensors found in directory /var/cache/huggingface/hub/models--runwayml--stable-diffusion-inpainting/snapshots/8a4288a76071f7280aedbdb3253bdb9e9d5d84bb/unet.
+Defaulting to unsafe serialization. Pass `allow_pickle=False` to raise an error instead.
+Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00,  7.32it/s]An error occurred while trying to fetch /var/cache/huggingface/hub/models--runwayml--stable-diffusion-inpainting/snapshots/8a4288a76071f7280aedbdb3253bdb9e9d5d84bb/vae: Error no file named diffusion_pytorch_model.safetensors found in directory /var/cache/huggingface/hub/models--runwayml--stable-diffusion-inpainting/snapshots/8a4288a76071f7280aedbdb3253bdb9e9d5d84bb/vae.
+Defaulting to unsafe serialization. Pass `allow_pickle=False` to raise an error instead.
+Loading pipeline components...:  83%|████████▎ | 5/6 [00:00<00:00, 15.41it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 15.41it/s]
+There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+[env] 影像 1 張：['bird_02']
+  [mask] bird_02 content='bird' 涵蓋率=0.401 注意力圖邊長=64
+  [floor] 生成路徑的逐影像重建下限（LPIPS）：bird_02=0.1853
+
+[rayscale] done=26 failed=0 skipped=2 resumed=0
+===== eval =====
+[thresholds] tau_acut = 0.16 （由 τ_train=0.2 依比例導出）
+[thresholds] tau_chroma = 3.2 （由 τ_train=0.2 依比例導出）
+[env] 載入 SDInpaintWrapper(runwayml/stable-diffusion-inpainting) dtype=torch.float32
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]An error occurred while trying to fetch /var/cache/huggingface/hub/models--runwayml--stable-diffusion-inpainting/snapshots/8a4288a76071f7280aedbdb3253bdb9e9d5d84bb/vae: Error no file named diffusion_pytorch_model.safetensors found in directory /var/cache/huggingface/hub/models--runwayml--stable-diffusion-inpainting/snapshots/8a4288a76071f7280aedbdb3253bdb9e9d5d84bb/vae.
+Defaulting to unsafe serialization. Pass `allow_pickle=False` to raise an error instead.
+
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 12787.91it/s]
+Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00, 10.80it/s]An error occurred while trying to fetch /var/cache/huggingface/hub/models--runwayml--stable-diffusion-inpainting/snapshots/8a4288a76071f7280aedbdb3253bdb9e9d5d84bb/unet: Error no file named diffusion_pytorch_model.safetensors found in directory /var/cache/huggingface/hub/models--runwayml--stable-diffusion-inpainting/snapshots/8a4288a76071f7280aedbdb3253bdb9e9d5d84bb/unet.
+Defaulting to unsafe serialization. Pass `allow_pickle=False` to raise an error instead.
+Loading pipeline components...:  83%|████████▎ | 5/6 [00:00<00:00, 15.97it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 15.09it/s]
+There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+[env] 影像 1 張：['bird_02']
+  [mask] bird_02 content='bird' 涵蓋率=0.401 注意力圖邊長=64
+  [floor] 生成路徑的逐影像重建下限（LPIPS）：bird_02=0.1853
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 15135.16it/s]
+[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
+[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
+Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights:  85%|████████▍ | 345/408 [00:00<00:00, 3404.20it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 3382.76it/s]
+  [control] 50/95  done=45 failed=0 resumed=0
+
+[control] done=90 failed=0 skipped=5 resumed=0
+  [eval] 50/980  done=45 failed=0 resumed=0
+  [eval] 100/980  done=95 failed=0 resumed=0
+  [eval] 150/980  done=140 failed=0 resumed=0
+  [eval] 200/980  done=185 failed=0 resumed=0
+  [eval] 250/980  done=235 failed=0 resumed=0
+  [eval] 300/980  done=270 failed=0 resumed=0
+  [eval] 350/980  done=315 failed=0 resumed=0
+  [eval] 400/980  done=365 failed=0 resumed=0
+  [eval] 450/980  done=410 failed=0 resumed=0
+  [eval] 500/980  done=455 failed=0 resumed=0
+  [eval] 550/980  done=505 failed=0 resumed=0

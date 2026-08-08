@@ -1,0 +1,66 @@
+{
+  "micro_bench": {
+    "vae_roundtrip": 0.17574947094544768,
+    "sdedit_50steps": 8.27404550393112
+  },
+  "precision_equiv": {
+    "dtype": "float32",
+    "compared": false,
+    "rows": [
+      {
+        "op": "all",
+        "dtype": "float32",
+        "reference": "float32",
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "psnr": Infinity,
+        "note": "本批以 fp32 執行，與參考同一路徑，無須比對"
+      }
+    ]
+  },
+  "strength": {
+    "recommended": 0.3,
+    "mean_effect_siglip": {
+      "0.3": 0.01412253143886725,
+      "0.4": 0.01412253143886725,
+      "0.5": 0.01412253143886725,
+      "0.6": 0.01412253143886725,
+      "0.7": 0.01412253143886725,
+      "0.8": 0.01412253143886725
+    }
+  },
+  "editable": {
+    "threshold": 0.0,
+    "passed": [
+      "bird_02",
+      "horse_02",
+      "cat_01",
+      "horse_00"
+    ],
+    "n_passed": 4,
+    "n_total": 6
+  },
+  "warp_reach": {
+    "min_lpips_at_bound": 0.3637974262237549,
+    "covers_train_tau": true
+  },
+  "recon_floor": {
+    "bird_02": 0.18528607487678528,
+    "cat_02": 0.2398258000612259,
+    "horse_02": 0.21029190719127655,
+    "cat_01": 0.09367108345031738,
+    "horse_01": 0.2168666571378708,
+    "horse_00": 0.12831369042396545
+  },
+  "calibration_keys": [
+    "lr.N1",
+    "lr.N2",
+    "lr.N3_stage1",
+    "lr.N3_stage2",
+    "precision_equiv.all.rel_l2",
+    "stop_tol.edit_shift",
+    "stop_tol.shared_mass",
+    "strength.recommended",
+    "warp.min_lpips_at_bound"
+  ]
+}

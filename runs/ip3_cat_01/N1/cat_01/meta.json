@@ -1,0 +1,99 @@
+{
+  "cell_id": "train/N1/cat_01",
+  "config_hash": "5bda13d1a40d",
+  "config": {
+    "spec_version": 1,
+    "model": "runwayml/stable-diffusion-inpainting",
+    "resolution": 512,
+    "guidance": 7.5,
+    "steps": 50,
+    "strength": null,
+    "gpu": "RTX-3090",
+    "precision": "fp32",
+    "loss_params": {
+      "train_n_edit": 10,
+      "n_eot": 1,
+      "k_inv": 10,
+      "t_max": null,
+      "exact_inversion": true,
+      "purify_mode": "all",
+      "attn_timesteps": 4,
+      "tau_train": 0.2,
+      "tau_acut": 0.16000000000000003,
+      "tau_chroma": 3.2,
+      "beta_linf": 0.0,
+      "tau_linf": 0.06,
+      "target_image": "data/targets/gray.png",
+      "shared_tokens": [
+        0
+      ]
+    },
+    "module_params": {
+      "warp_grid_size": 32,
+      "warp_max_disp": 8.0,
+      "warp_resample": "bicubic",
+      "apa_lora_rank": 8,
+      "apa_latent_max_rank": 32,
+      "apa_latent_const_rank": 8,
+      "random_init_std": 0.5,
+      "warp_mask_gate": true
+    },
+    "optim_params": {
+      "max_steps": 250,
+      "align_steps": 200,
+      "stop_patience": 20,
+      "stop_min_steps": 25
+    },
+    "lr": null,
+    "mask": {
+      "mode": "attention_box",
+      "tau": 0.5,
+      "timestep": 500
+    },
+    "condition": "N1",
+    "image_id": "cat_01",
+    "tau": null,
+    "purify": null,
+    "seed": null
+  },
+  "steps_used": 183,
+  "stop_reason": "約束已啟動且 shared_mass 在最近 20 步的每步改善 +1.63e-06 低於 3.3e-06",
+  "stage_reports": [
+    {
+      "group": "default",
+      "lr_key": "lr.N1",
+      "lr": 0.1,
+      "max_steps": 250,
+      "steps": 183,
+      "stop_reason": "約束已啟動且 shared_mass 在最近 20 步的每步改善 +1.63e-06 低於 3.3e-06"
+    }
+  ],
+  "align_seconds": 0.0,
+  "seconds_optimize": 1584.08,
+  "lr": 0.1,
+  "final_L_def": 0.054992929100990295,
+  "final_L_fid": 0.0,
+  "final_lpips": 0.17840594053268433,
+  "final_edit_shift": NaN,
+  "disp_mean_px": 2.2718591690063477,
+  "disp_max_px": 11.313708305358887,
+  "disp_p99_px": 8.066267013549805,
+  "flow_tv": 6.457061767578125,
+  "grid_size": 32,
+  "mask_gated": true,
+  "gate_open_frac": 0.766357421875,
+  "residual_gain": 0.7402070417636052,
+  "fid_psnr": 25.345779418945312,
+  "fid_linf": 0.67548668384552,
+  "fid_ssim": 0.8699983358383179,
+  "fid_vif_p": 0.5052464008331299,
+  "fid_fsim": 0.9174569845199585,
+  "fid_lpips": 0.17840594053268433,
+  "fid_dists": 0.0665740966796875,
+  "fid_acutance_ratio": 1.0364375114440918,
+  "fid_rms": 0.05403938516974449,
+  "fid_frac_gt_16_255": 0.12840907275676727,
+  "fid_niqe": 4.07757767093848,
+  "group": "cat",
+  "prompt": "a dog"
+}

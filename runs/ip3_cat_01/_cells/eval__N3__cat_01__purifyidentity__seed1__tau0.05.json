@@ -1,0 +1,12 @@
+{
+  "artifacts": [],
+  "config_hash": "",
+  "error": null,
+  "finished": "2026-08-09T00:03:35+08:00",
+  "id": "eval/N3/cat_01/purifyidentity/seed1/tau0.05",
+  "seconds": null,
+  "skipped_reason": "N3 走生成路徑，本影像實測的 VAE 重建誤差下限為 LPIPS 0.0937，τ=0.05 結構上不可能達成",
+  "stage": "eval",
+  "started": "2026-08-09T00:03:34+08:00",
+  "status": "skipped"
+}

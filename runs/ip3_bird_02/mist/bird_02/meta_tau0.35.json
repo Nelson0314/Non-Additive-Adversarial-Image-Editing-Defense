@@ -1,0 +1,76 @@
+{
+  "cell_id": "rayscale/mist/bird_02/tau0.35",
+  "config_hash": "a7a8a3184d7c",
+  "config": {
+    "spec_version": 1,
+    "model": "runwayml/stable-diffusion-inpainting",
+    "resolution": 512,
+    "guidance": 7.5,
+    "steps": 50,
+    "strength": null,
+    "gpu": "RTX-3090",
+    "precision": "fp32",
+    "loss_params": {
+      "train_n_edit": 10,
+      "n_eot": 1,
+      "k_inv": 10,
+      "t_max": null,
+      "exact_inversion": true,
+      "purify_mode": "all",
+      "attn_timesteps": 4,
+      "tau_train": 0.2,
+      "tau_acut": 0.16000000000000003,
+      "tau_chroma": 3.2,
+      "beta_linf": 0.0,
+      "tau_linf": 0.06,
+      "target_image": "data/targets/gray.png",
+      "shared_tokens": [
+        0
+      ]
+    },
+    "module_params": {
+      "warp_grid_size": 32,
+      "warp_max_disp": 8.0,
+      "warp_resample": "bicubic",
+      "apa_lora_rank": 8,
+      "apa_latent_max_rank": 32,
+      "apa_latent_const_rank": 8,
+      "random_init_std": 0.5,
+      "warp_mask_gate": true
+    },
+    "optim_params": {
+      "max_steps": 250,
+      "align_steps": 200,
+      "stop_patience": 20,
+      "stop_min_steps": 25
+    },
+    "lr": null,
+    "mask": {
+      "mode": "attention_box",
+      "tau": 0.5,
+      "timestep": 500
+    },
+    "condition": "mist",
+    "image_id": "bird_02",
+    "tau": 0.35,
+    "purify": null,
+    "seed": null
+  },
+  "condition": "mist",
+  "image_id": "bird_02",
+  "tau_target": 0.35,
+  "tau_achieved": 0.3534506559371948,
+  "scale_k": 0.484375,
+  "niqe": 7.3770883006089,
+  "fid_psnr": 33.054039001464844,
+  "fid_linf": 0.030392199754714966,
+  "fid_ssim": 0.9340763092041016,
+  "fid_vif_p": 0.5411344170570374,
+  "fid_fsim": 0.9712866544723511,
+  "fid_lpips": 0.3534506559371948,
+  "fid_dists": 0.07012838125228882,
+  "fid_acutance_ratio": 0.988106906414032,
+  "fid_rms": 0.02224813587963581,
+  "fid_frac_gt_16_255": 0.0,
+  "seconds_rayscale": 0.29
+}

@@ -1,0 +1,2 @@
+image_id,group,coverage,mode,content,tau,timestep,attn_side
+cat_01,cat,0.233642578125,attention_box,cat,0.5,500,64

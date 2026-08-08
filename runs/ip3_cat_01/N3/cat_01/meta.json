@@ -1,0 +1,92 @@
+{
+  "cell_id": "train/N3/cat_01",
+  "config_hash": "a1436763075c",
+  "config": {
+    "spec_version": 1,
+    "model": "runwayml/stable-diffusion-inpainting",
+    "resolution": 512,
+    "guidance": 7.5,
+    "steps": 50,
+    "strength": null,
+    "gpu": "RTX-3090",
+    "precision": "fp32",
+    "loss_params": {
+      "train_n_edit": 10,
+      "n_eot": 1,
+      "k_inv": 10,
+      "t_max": null,
+      "exact_inversion": true,
+      "purify_mode": "all",
+      "attn_timesteps": 4,
+      "tau_train": 0.2,
+      "tau_acut": 0.16000000000000003,
+      "tau_chroma": 3.2,
+      "beta_linf": 0.0,
+      "tau_linf": 0.06,
+      "target_image": "data/targets/gray.png",
+      "shared_tokens": [
+        0
+      ]
+    },
+    "module_params": {
+      "warp_grid_size": 32,
+      "warp_max_disp": 8.0,
+      "warp_resample": "bicubic",
+      "apa_lora_rank": 8,
+      "apa_latent_max_rank": 32,
+      "apa_latent_const_rank": 8,
+      "random_init_std": 0.5,
+      "warp_mask_gate": true
+    },
+    "optim_params": {
+      "max_steps": 250,
+      "align_steps": 200,
+      "stop_patience": 20,
+      "stop_min_steps": 25
+    },
+    "lr": null,
+    "mask": {
+      "mode": "attention_box",
+      "tau": 0.5,
+      "timestep": 500
+    },
+    "condition": "N3",
+    "image_id": "cat_01",
+    "tau": null,
+    "purify": null,
+    "seed": null
+  },
+  "steps_used": 28,
+  "stop_reason": "約束已啟動且 edit_shift 在最近 20 步的每步改善 +1.31e-04 低於 2.5e-04",
+  "stage_reports": [
+    {
+      "group": "stage2",
+      "lr_key": "lr.N3_stage2",
+      "lr": 0.005,
+      "max_steps": 250,
+      "steps": 28,
+      "stop_reason": "約束已啟動且 edit_shift 在最近 20 步的每步改善 +1.31e-04 低於 2.5e-04"
+    }
+  ],
+  "align_seconds": 930.59,
+  "seconds_optimize": 748.56,
+  "lr": 0.005,
+  "final_L_def": 0.09258636087179184,
+  "final_L_fid": 0.0,
+  "final_lpips": 0.13308817148208618,
+  "final_edit_shift": 0.15858426690101624,
+  "residual_gain": 0.6168221563989668,
+  "fid_psnr": 26.595182418823242,
+  "fid_linf": 0.8106064200401306,
+  "fid_ssim": 0.9149240255355835,
+  "fid_vif_p": 0.529631495475769,
+  "fid_fsim": 0.9580649733543396,
+  "fid_lpips": 0.13308817148208618,
+  "fid_dists": 0.04971444606781006,
+  "fid_acutance_ratio": 0.9797469973564148,
+  "fid_rms": 0.04679936170578003,
+  "fid_frac_gt_16_255": 0.13531622290611267,
+  "fid_niqe": 4.333172171588981,
+  "group": "cat",
+  "prompt": "a dog"
+}

@@ -242,6 +242,59 @@ def test_學習率鍵逐條件不同且來自校準表(tmp_path):
     assert len(set(keys.values())) == len(keys), "學習率不可跨條件共用"
 
 
+def test_注意力前向恆不checkpoint且與unet_ckpt旗標無關():
+    """cross-attention 的 forward pre-hook 與 UNet checkpoint 不相容
+    （backward 以「兩次存檔的張量數 477 vs 459」中止：hook 在原前向掛著、
+    重算時已卸除）。
+
+    擋住它的是 `_build_attn_step` 裡那個**不傳 `use_ckpt`** 的 `sd._eps(...)`，
+    **不是** `ConditionSpec.unet_ckpt`——後者只管生成／編輯路徑。
+
+    這條測試釘住的正是那個分界。2026-08-09 因為把兩者混為一談，N4 沿用了
+    N1 的 `unet_ckpt=False`，於是 apa 的 10 步去噪鏈少了 checkpoint 而在
+    段 0 的保真對齊就 OOM——而那一步根本不碰注意力目標。
+    """
+    import ast
+    import inspect
+    import textwrap
+
+    from src.defense import optimize as opt
+
+    # 以 AST 找真正的呼叫節點，不掃字串——docstring 與註解裡本來就會提到
+    # `sd._eps(...)`（說明的正是這條規則），逐行比對會抓到那些散文。
+    tree = ast.parse(textwrap.dedent(inspect.getsource(opt._build_attn_step)))
+    eps_calls = [
+        n for n in ast.walk(tree)
+        if isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute)
+        and n.func.attr == "_eps"
+    ]
+    assert eps_calls, "找不到注意力前向的 _eps 呼叫"
+    for call in eps_calls:
+        kw = [k.arg for k in call.keywords]
+        assert "use_ckpt" not in kw, (
+            f"注意力前向在第 {call.lineno} 行傳了 use_ckpt。這條路徑必須恆不 "
+            "checkpoint，而且不可交由旗標決定——旗標開著就會在 backward 中止"
+        )
+
+
+def test_走生成路徑的條件必須開checkpoint(tmp_path):
+    """site apa 的 `gen.generate` 是 k_inv 步的可微去噪鏈。關掉 checkpoint
+    會讓那麼多份完整的 512² fp32 UNet 計算圖同時存活，24 GB 的卡放不下
+    （2026-08-09 實測 23.42 GiB 時 OOM）。
+
+    site warp 不在此列：它的 `gen.generate` 直接回傳 `pixel_residual`，
+    整條路徑不碰 UNet，故該旗標對它是空轉的。
+    """
+    res = make_res(tmp_path)
+    for name, spec in executors.CONDITION_SPECS.items():
+        if spec.site != "apa":
+            continue
+        cfg = executors.optim_config(res, spec, res.image("dog_00"))
+        assert cfg.unet_ckpt, (
+            f"條件 {name!r} 走生成路徑卻關掉了 UNet checkpoint"
+        )
+
+
 def test_N4與N3的階段二學習率鍵不同(tmp_path):
     """兩者同一個參數化，但 `_pick_best` 的判準是「末端總損失最小者」，
     而總損失是模式相依的：N3 的 L_def 是 MSE、N4 是 `‖Att ⊙ M‖₁`，

@@ -151,8 +151,25 @@ class ConditionSpec:
     # `plateau_stop` 的監看量。由 `optimize.DEFENSE_MONITOR` 依 defense_mode
     # 決定，此處只記錄，用於判斷要不要向校準表索取 stop_tol。
     monitor: str = ""
-    # cross-attention 擷取與 UNet checkpoint 不相容（實測 backward 以
-    # RuntimeError 中止，兩次存檔的張量數 477 vs 459）。N1 因此關閉。
+    # **這個旗標只管生成／編輯路徑**（`gen.generate` 與 `sd.edit`），
+    # 不管注意力前向。
+    #
+    # 2026-08-09 修正這段說明。before 寫的是「cross-attention 擷取與 UNet
+    # checkpoint 不相容，N1 因此關閉」——那句話把**症狀**與**處置的位置**
+    # 對錯了。不相容是真的（backward 以「兩次存檔的張量數 477 vs 459」中止，
+    # 因為 hook 在原前向掛著、重算時已卸除），但擋住它的不是這個旗標：
+    # `_build_attn_step` 呼叫 `sd._eps(...)` 時**不傳 `use_ckpt`**（預設
+    # False），那是寫死的、與本旗標無關。
+    #
+    # 對 N1 而言本旗標是**空轉**的：site warp 的 `gen.generate` 直接回傳
+    # `pixel_residual`，整條路徑不碰 UNet。故它設成什麼都沒有差別，
+    # 而那正是這個誤解能存活的原因。
+    #
+    # 對走生成路徑的條件就不是空轉。2026-08-09 於 RTX 3090 實測：N4 沿用
+    # `unet_ckpt=False` 之後，段 0 的 `_probe_align_lr` 在**保真對齊**那一步
+    # OOM（23.42 GiB / 23.56 GiB，死在 backward 重算 VAE decode）——那一步
+    # 根本不碰注意力目標，純粹是 k_inv=10 步的去噪鏈少了 checkpoint，
+    # 10 份完整的 512² fp32 UNet 計算圖同時存活。
     unet_ckpt: bool = True
 
 
@@ -190,13 +207,18 @@ CONDITION_SPECS: Dict[str, ConditionSpec] = {
     # `lr.N3_stage2` 還會讓同批同時跑 N3 與 N4 時，`calibrate_lr` 的
     # `out[spec.lr_key]` 被後者**靜默覆寫**。
     #
-    # `unet_ckpt=False` 與 N1 同一個理由：cross-attention 的 forward pre-hook
-    # 與 UNet checkpoint 不相容（backward 以「兩次存檔的張量數 477 vs 459」
-    # 中止）。**這一格因此是本批記憶體最緊的一條路徑**，見 `attention.py`。
+    # **`unet_ckpt` 維持預設的 True，不照抄 N1 的 False。** 兩者的注意力前向
+    # 同樣不能開 checkpoint，但擋住那件事的是 `_build_attn_step` 裡寫死的
+    # `sd._eps(...)`（不傳 `use_ckpt`），不是這個旗標——本旗標只管生成路徑，
+    # 詳見 `ConditionSpec.unet_ckpt` 的說明與 2026-08-09 的 OOM 實測。
+    #
+    # **這一格仍是本批記憶體最緊的一條路徑**：注意力前向恆不 checkpoint，
+    # 而 `--purify-mode all` × `attn_timesteps 4` 是 12 份完整的 UNet 計算圖，
+    # 再加上生成路徑（已 checkpoint）。段 0 若仍 OOM，先降 `--attn-timesteps`。
     "N4": ConditionSpec(
         "N4", "nonadditive", site="apa", defense_mode="suppress_attn_ca",
         lr_key="lr.N4_stage2", align_lr_key="lr.N4_stage1",
-        monitor="attn_suppressed", unet_ckpt=False,
+        monitor="attn_suppressed",
     ),
     "R": ConditionSpec("R", "random", site="warp"),
     # apa 上的同失真隨機對照。**它也跑階段一的保真對齊**（`align_lr_key`

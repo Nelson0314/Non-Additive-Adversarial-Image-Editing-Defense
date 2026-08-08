@@ -77,20 +77,40 @@ FIELDS = ["batch", "image_id", "group", "condition", "purify_dir",
 IDENTITY_DIR = "identity_0"
 
 
-def edit_pngs(cell_dir: Path) -> List[Tuple[int, Path]]:
-    """該格的編輯輸出，回傳 (seed, path)。帶 τ 的新檔名優先。"""
-    out: Dict[int, Path] = {}
+def edit_pngs(cell_dir: Path) -> List[Tuple[Optional[str], int, Path]]:
+    """該格的編輯輸出，回傳 (τ, seed, path)；對照側與舊批次的 τ 為 None。
+
+    2026-08-09 修。before：回傳 `(seed, path)`，且以 `out[seed] = p` 收集。
+    帶 τ 的新檔名下同一個目錄有四個 τ × 五個 seed，四個 τ 因此**塌成同一個
+    鍵**，只有 glob 排序最後的 τ=0.35 留下來。`meta_for` 反過來取排序的
+    **第一個**，拿到的是 τ=0.05——影像與 metrics 於是配對錯開，而 CSV 的
+    `tau` 欄看起來完全正常。
+
+    舊批次每格只剩一個 τ（那正是 `e9a35a5c6` 修掉的覆寫），所以這個缺陷在
+    v14／v14r 上不顯現；ip3 是第一個四個 τ 都在磁碟上的批次。與 §7 那個
+    覆寫是同一族的漏帶鍵。
+
+    after：鍵改為 (τ, seed)，τ 由檔名解析而不是由旁邊的 json 猜。
+    """
+    out: List[Tuple[Optional[str], int, Path]] = []
     for p in sorted(cell_dir.glob("edit_tau*_seed*.png")):
-        out[int(p.stem.rsplit("seed", 1)[1])] = p
+        tau, _, seed = p.stem[len("edit_tau"):].partition("_seed")
+        out.append((tau, int(seed), p))
     if out:
-        return sorted(out.items())
+        return sorted(out, key=lambda t: (float(t[0]), t[1]))
     for p in sorted(cell_dir.glob("edit_seed*.png")):
-        out[int(p.stem.rsplit("seed", 1)[1])] = p
-    return sorted(out.items())
+        out.append((None, int(p.stem.rsplit("seed", 1)[1]), p))
+    return sorted(out, key=lambda t: t[1])
 
 
-def meta_for(cell_dir: Path, seed: int) -> Dict:
-    for pat in (f"metrics_tau*_seed{seed}.json", f"metrics_seed{seed}.json"):
+def meta_for(cell_dir: Path, tau: Optional[str], seed: int) -> Dict:
+    """與該 (τ, seed) 對應的 metrics json。τ 為 None 時取不帶 τ 的舊檔名。
+
+    **不接受「隨便一個 seed 相符的檔」**：那正是上面那個缺陷的另一半。
+    """
+    pats = [] if tau is None else [f"metrics_tau{tau}_seed{seed}.json"]
+    pats.append(f"metrics_seed{seed}.json")
+    for pat in pats:
         for p in sorted(cell_dir.glob(pat)):
             try:
                 return json.load(p.open(encoding="utf-8"))
@@ -106,8 +126,8 @@ def image_classes(batch: Path, image_id: str,
         if cond == "control":
             continue
         for cdir in sorted((batch / cond / image_id / "purify").glob("*")):
-            for seed, _ in edit_pngs(cdir):
-                m = meta_for(cdir, seed)
+            for tau, seed, _ in edit_pngs(cdir):
+                m = meta_for(cdir, tau, seed)
                 if m.get("group") and m.get("prompt"):
                     return f"a {m['group']}", str(m["prompt"])
     return None
@@ -150,8 +170,8 @@ def main() -> None:
             for cdir in sorted(root.glob("*")):
                 if args.purifiers and cdir.name not in args.purifiers:
                     continue
-                for seed, png in edit_pngs(cdir):
-                    m = meta_for(cdir, seed)
+                for tau, seed, png in edit_pngs(cdir):
+                    m = meta_for(cdir, tau, seed)
                     x = load_image_tensor(png, suite.device)
                     sc = suite.semantic_multi(x, [tgt_prompt, src_prompt])
                     marg = sc[tgt_prompt]["siglip"] - sc[src_prompt]["siglip"]
@@ -161,7 +181,10 @@ def main() -> None:
                         "purify_dir": cdir.name,
                         "purify_kind": m.get("purify_kind", ""),
                         "purify_strength": m.get("purify_strength", ""),
-                        "seed": seed, "tau": m.get("tau", ""),
+                        # τ 取自檔名（唯一可靠的來源），json 只在舊批次
+                        # 沒有帶 τ 的檔名時退而求其次
+                        "seed": seed,
+                        "tau": tau if tau is not None else m.get("tau", ""),
                         "png": png.relative_to(args.batch).as_posix(),
                         "s_target": sc[tgt_prompt]["siglip"],
                         "s_source": sc[src_prompt]["siglip"],
@@ -180,23 +203,35 @@ def main() -> None:
         w.writerows(rows)
     print(f"\n寫入 {args.out}（{len(rows)} 列）")
 
-    # 摘要：識別淨化（identity）上的編輯成功率，逐條件逐影像。
+    # 摘要：identity（未淨化）上的編輯成功率，**逐 τ** 一張表。
+    #
+    # 2026-08-09 加上 τ 這一層。before：只按 (條件, 影像) 聚合。四個 τ 都在
+    # 磁碟上時（ip3 是第一批）那等於把不同失真預算的成功率平均起來，而整個
+    # 實驗的前提就是「在同一個 τ 上比較」。對照側（control）沒有 τ 這個軸，
+    # 它是每一張表共用的分母，故在每一張表裡都印一次。
     agg = defaultdict(list)
     for r in rows:
         if r["purify_dir"] == IDENTITY_DIR:
-            agg[(r["condition"], r["image_id"])].append(r["success"])
-    imgs = sorted({k[1] for k in agg})
-    print("\nidentity（未淨化）上的編輯成功率")
-    print(f"{'條件':<14}" + "".join(f"{i:>12}" for i in imgs) + f"{'合計':>10}")
-    for cond in args.conditions:
-        cells, tot = [], []
-        for i in imgs:
-            v = agg.get((cond, i), [])
-            tot += v
-            cells.append(f"{sum(v)}/{len(v)}" if v else "—")
-        line = f"{cond:<14}" + "".join(f"{c:>12}" for c in cells)
-        line += f"{(f'{100*sum(tot)/len(tot):.0f}%' if tot else '—'):>10}"
-        print(line)
+            agg[(str(r["tau"]), r["condition"], r["image_id"])].append(
+                r["success"])
+    imgs = sorted({k[2] for k in agg})
+    taus = sorted({k[0] for k in agg if k[0] != ""},
+                  key=lambda s: float(s)) or [""]
+    ctl = {k: v for k, v in agg.items() if k[0] == ""}
+
+    for tau in taus:
+        print(f"\nidentity（未淨化）上的編輯成功率　τ={tau or '（不分'})")
+        print(f"{'條件':<14}" + "".join(f"{i:>12}" for i in imgs)
+              + f"{'合計':>10}")
+        for cond in args.conditions:
+            cells, tot = [], []
+            for i in imgs:
+                v = agg.get((tau, cond, i)) or ctl.get(("", cond, i), [])
+                tot += v
+                cells.append(f"{sum(v)}/{len(v)}" if v else "—")
+            line = f"{cond:<14}" + "".join(f"{c:>12}" for c in cells)
+            line += f"{(f'{100*sum(tot)/len(tot):.0f}%' if tot else '—'):>10}"
+            print(line)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,83 @@
+{
+  "artifacts": [
+    "control/dog_03/purify/adverse_cleaner_0/x_purified.png",
+    "control/dog_03/purify/adverse_cleaner_0/edit_seed1.png",
+    "control/dog_03/purify/adverse_cleaner_0/meta_seed1.json",
+    "control/dog_03/purify/adverse_cleaner_0/attn/seed1_agg.png",
+    "control/dog_03/purify/adverse_cleaner_0/attn/attn_stats.csv"
+  ],
+  "attn_full": false,
+  "attn_steps": 11,
+  "condition": "phi0",
+  "config": {
+    "condition": "phi0",
+    "gpu": "RTX-3090",
+    "guidance": 7.5,
+    "image_id": "dog_03",
+    "loss_params": {
+      "attn_timesteps": 4,
+      "beta_linf": 0.0,
+      "exact_inversion": true,
+      "k_inv": 10,
+      "n_eot": 1,
+      "purify_mode": "all",
+      "shared_tokens": [
+        0
+      ],
+      "t_max": null,
+      "target_image": "data/targets/gray.png",
+      "tau_acut": 0.16000000000000003,
+      "tau_chroma": 3.2,
+      "tau_linf": 0.06,
+      "tau_train": 0.2,
+      "train_n_edit": 10
+    },
+    "lr": null,
+    "model": "CompVis/stable-diffusion-v1-4",
+    "module_params": {
+      "apa_latent_const_rank": 8,
+      "apa_latent_max_rank": 32,
+      "apa_lora_rank": 8,
+      "random_init_std": 0.5,
+      "warp_grid_size": 32,
+      "warp_max_disp": 8.0,
+      "warp_resample": "bicubic"
+    },
+    "optim_params": {
+      "align_steps": 200,
+      "max_steps": 250,
+      "stop_min_steps": 25,
+      "stop_patience": 20
+    },
+    "precision": "fp32",
+    "purify": {
+      "kind": "adverse_cleaner",
+      "strength": 0.0
+    },
+    "resolution": 512,
+    "seed": 1,
+    "spec_version": 1,
+    "steps": 50,
+    "strength": 0.4,
+    "tau": null
+  },
+  "config_hash": "ee4e5cc45aac",
+  "ctrl_clip": 0.22061899304389954,
+  "ctrl_siglip": 0.0036748377606272697,
+  "error": null,
+  "finished": "2026-08-08T14:06:39+08:00",
+  "group": "dog",
+  "id": "control/phi0/dog_03/purifyadverse_cleaner0/seed1",
+  "image": "dog_03",
+  "image_id": "dog_03",
+  "prompt": "a cat",
+  "purify_available": true,
+  "purify_differentiable": false,
+  "purify_kind": "adverse_cleaner",
+  "purify_strength": 0.0,
+  "seconds": 9.098163791000843,
+  "seed": 1,
+  "stage": "control",
+  "started": "2026-08-08T14:06:29+08:00",
+  "status": "done"
+}

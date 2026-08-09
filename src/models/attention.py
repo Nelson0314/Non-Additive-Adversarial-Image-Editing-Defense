@@ -520,6 +520,51 @@ def masked_attention_l1(
     return (att * mask).abs().sum()
 
 
+def assert_masks_disjoint(
+    edit_mask: torch.Tensor, m: torch.Tensor, *, where: str
+) -> float:
+    """釘住 inpainting 的遮罩與式 (4) 的 M 不相交。重疊即拋出。
+
+    這是 Lo et al. (CVPR 2024) Figure 3 的字面要求：遮罩是攻擊方要重畫的
+    區域，而 c_a 是**遮罩外**那個要保住的物件（圖說寫明底線的詞即要免疫的
+    內容，而底線在遮罩外的 corgi）。兩者相交時實驗在結構上就量不到東西：
+
+    - 式 (4) 的 M 落在會被攻擊方整片覆寫的區域，防禦擾動一步都活不過；
+    - `--warp-mask-gate` 又把擾動推到遮罩外，於是**損失看的地方與擾動所在
+      的地方不相交**。
+
+    ip1／ip2／ip3 三批都是這個配置（遮罩與 M 同由 `content` 產生），而它
+    **沒有任何症狀**——遮罩產得出來、涵蓋率印得出數字、格點全部 `done`。
+    缺的就是這道檢查（DEF-011）。
+
+    比對在**注意力圖的格點上**進行，因為 M 只定義在那裡。影像解析度的
+    `edit_mask` 以 adaptive max-pool 降到同一邊長：取 max 而非 mean 或
+    nearest，使「該格內只要有任何一個像素屬於遮罩」就算重疊。這個方向是
+    刻意的——寧可誤報重疊，不可漏掉。
+
+    回傳重疊格數佔 M 的比例（恆為 0，否則已拋出），供呼叫端落盤存證。
+    """
+    if edit_mask.dim() != 4:
+        raise ValueError(
+            f"edit_mask 需為 (B,1,H,W)，收到 {tuple(edit_mask.shape)}")
+    mm = m if m.dim() == 4 else m.unsqueeze(1)
+    side = int(mm.shape[-1])
+    em = torch.nn.functional.adaptive_max_pool2d(
+        edit_mask.to(mm.dtype), (side, side))
+    inter = ((em > 0.5) & (mm > 0.5)).sum()
+    n_m = int((mm > 0.5).sum())
+    if int(inter) > 0:
+        raise ValueError(
+            f"[{where}] inpainting 的遮罩與式 (4) 的 M 有 {int(inter)} 個格點"
+            f"重疊（M 共 {n_m} 格，邊長 {side}）。Lo et al. Figure 3 要求 c_a "
+            "在遮罩外：重疊時防禦擾動落在會被整片覆寫的區域，一步都活不過，"
+            "而格點會全部跑完且看不出症狀。這是 DEF-011，ip1／ip2／ip3 三批"
+            "都栽在這裡。請用 scripts/draw_masks.py 把這張影像的遮罩重畫，"
+            "讓它避開 c_a 所在的位置"
+        )
+    return float(inter) / max(n_m, 1)
+
+
 def attention_entropy(
     maps: List[torch.Tensor], span: Optional[tuple] = None
 ) -> torch.Tensor:

@@ -68,6 +68,30 @@
 - **測試**：`test_隨機對照不是選配且逐參數化各一個` 釘住
   「每個非加性條件都要有同參數化的隨機對照」
 
+## MTH-inpaint · inpainting 威脅模型下的配置（尚未起跑）
+
+不是一個新條件，而是上列條件換到 inpainting 權重時**共同改變的設定**。
+條件本身不變：N4、Ra 加三個 baseline，位移場三個不放回來（DEC-005）。
+
+- **攻擊 prompt**：取 `prompts[1]`（保留 c_a、改動別處），由 `--prompt-index 1`
+  選定。img2img 各批一律 `prompts[0]`。全部呼叫點只准經
+  `ImageEntry.attack_prompt`，`test_攻擊prompt只有一個入口` 以原始碼掃描釘住
+- **遮罩**：**人工繪製**，逐影像一張 PNG，由 `--masks <目錄>` 指定
+  （`scripts/draw_masks.py`）。畫的時候 **c_a 要留在遮罩外**——Lo et al.
+  Figure 3 的要求，也是 DEF-011 的處置。文獻同此作法：PIE-Bench 附標註
+  遮罩、PhotoGuard 與 AdvPaint 用人工遮罩。遮罩內容進 `config_hash`，
+  改一張遮罩即改變全部格的雜湊
+- **不可帶 `--strength`**：inpainting 沒有這個參數，`SDWrapper.edit` 會拒絕
+- **`--attn-mask-tau` 必須明給**：`suppress_attn_ca` 不接受預設值
+- **`--attn-timesteps 2`**：DEC-011，記憶體實測 15126 MiB 對 23924 MiB
+- **選圖**：涵蓋率窗口 [0.15, 0.45] 由繪製工具即時顯示，落在窗外只警告
+  不阻擋（全域常數正是本專案重複踩過的缺陷型態）。改人工之後約束變成
+  「主體之外還有沒有地方畫得下這麼大一塊」——人像 8 張主體佔滿畫面，
+  結論多半不變但要重新判讀。**選圖尚未定案**
+- **τ_train**：不沿用 0.25／0.30。DEC-001 與 DEC-007 的工作點都是在 img2img
+  上由人眼定的，inpainting 的失真型態不同，須重新掃描後由使用者選定
+- **主判準**：連續量，不用二元 margin（DEC-006）
+
 ## MTH-photoguard_c · PhotoGuard 的 diffusion attack
 
 - **類型**：加性（L∞ 球上的 PGD）

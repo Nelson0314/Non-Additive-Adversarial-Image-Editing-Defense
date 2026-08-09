@@ -912,6 +912,58 @@ def test_資料集只收prompts_yaml宣告過的內容():
     )
 
 
+def _mini_dataset(tmp_path, **over):
+    """最小資料集：一類、一張圖。`over` 覆寫該類別的宣告。"""
+    import yaml
+    from PIL import Image
+
+    spec = {"content": "horse",
+            "prompts": ["a zebra", "a horse and a cow"]}
+    spec.update(over)
+    (tmp_path / "horse").mkdir()
+    Image.new("RGB", (8, 8)).save(tmp_path / "horse" / "horse_00.png")
+    (tmp_path / "prompts.yaml").write_text(
+        yaml.safe_dump({"horse": spec}), encoding="utf-8")
+    return tmp_path
+
+
+def test_取不到的prompt索引在載入時就拋出(tmp_path):
+    """讓它在載入時炸，而不是等到某一格去取 `attack_prompt` 才炸。"""
+    d = _mini_dataset(tmp_path, prompts=["a zebra"])
+    with pytest.raises(ValueError, match="prompt_index"):
+        executors.load_lo_aligned(d, 8, torch.device("cpu"), prompt_index=1)
+
+
+def test_攻擊prompt只有一個入口():
+    """`executors.py` 裡不得再有任何 `entry.prompts[索引]`。
+
+    原本 `prompts[0]` 寫死在十二處。改用 `prompts[1]` 時漏掉其中幾處的症狀
+    是同一格的訓練與評測用了不同的攻擊 prompt——兩邊都跑得完、都寫得出
+    metrics，報表上看不出來。以原始碼掃描釘住，因為這是「在每一處各加一個
+    改動、漏掉任何一處都不會報錯」的型態（同 `test_edit依權重分派`）。
+    """
+    src = Path(executors.__file__).read_text(encoding="utf-8")
+    assert "entry.prompts[" not in src, (
+        "改用 entry.attack_prompt；直接取索引會繞過 prompt_index")
+
+
+def test_prompt索引預設取第一個而可切到第二個():
+    a = executors.load_lo_aligned(DATA, 8, torch.device("cpu"), ids=["horse_00"])
+    b = executors.load_lo_aligned(DATA, 8, torch.device("cpu"), ids=["horse_00"],
+                                  prompt_index=1)
+    assert a[0].attack_prompt == "a zebra"
+    assert b[0].attack_prompt == "a horse and a cow"
+
+
+def test_attack_prompt自己也擋超出範圍的索引():
+    """載入時已經擋過一次；這一道是給直接構造 entry 的路徑用的。"""
+    e = executors.ImageEntry(
+        image_id="x", x01=torch.zeros(1, 3, 8, 8), prompts=("a",),
+        content="c", group="g", prompt_index=3)
+    with pytest.raises(IndexError, match="prompt_index"):
+        _ = e.attack_prompt
+
+
 def test_資料集抽樣讓前k張落在k個不同類別上():
     picked = executors.load_lo_aligned(DATA, 8, torch.device("cpu"), n=3,
                                        seed=1)

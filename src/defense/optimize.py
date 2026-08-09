@@ -1211,6 +1211,17 @@ def _build_attn_step(sd, gen, obj, cfg, x01, emb_cond, emb_uncond, purifiers,
                 rec.clear()
             att_ref = torch.stack(atts).mean(dim=0)
         mask = attention_region_mask(att_ref, obj.cfg.attn_mask_tau)
+        # inpainting：M 與攻擊方的遮罩不可相交（Lo Figure 3、DEF-011）。
+        # 這裡是**具約束力**的那一道——`data/masks.py` 產遮罩時已檢查過一次，
+        # 但那用的是單一 timestep、reduce="mean"、9 通道補全 1 的近似圖；
+        # 真正進損失的 M 是此處這一張（逐 t 平均、reduce="sum"、且 9 通道
+        # 餵的正是 cfg.edit_mask）。兩張不同，故必須在這裡再斷言一次。
+        if sd.is_inpainting and cfg.edit_mask is not None:
+            from src.models.attention import assert_masks_disjoint
+
+            assert_masks_disjoint(
+                cfg.edit_mask, mask,
+                where=f"optimize/suppress_attn_ca/{obj.cfg.content}")
         ref_l1 = float(masked_attention_l1(att_ref, mask).detach())
         coverage = float(mask.mean())
         print(f"  [suppress] c_a={obj.cfg.content!r}  遮罩覆蓋 "

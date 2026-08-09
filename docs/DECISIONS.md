@@ -91,7 +91,26 @@
 - **依據**：DEF-011
 - **代價**：需要「一個被編輯的物件 + 一個要保住的物件」的影像，
   或改用從未使用過的 `prompts[1]`（保留主體、改動別處）
-- **狀態**：**已裁決，尚未實作**。優先序待 EXP-s3t25／s3t30 的結果再定
+- **資料走哪一條**（2026-08-09 使用者裁決）：取 `prompts[1]`。
+  `prompts.yaml` 六類本來就都有它、且就是 Lo 的原始結構（horse 那組是論文
+  原文 "a horse and a cow"），不必重新蒐圖，既有 24 張的 provenance 不作廢
+- **遮罩怎麼來**（同日裁決，**取代當日稍早的一版**）：**人工繪製**。
+  逐影像一張 PNG 存在 `data/lo_aligned/masks/`，工具是
+  `scripts/draw_masks.py`（滑鼠框選／筆刷／擦除，即時顯示涵蓋率）
+- **為什麼不由模型產**：文獻裡這一項幾乎都是人工的——PIE-Bench 附標註
+  遮罩、PhotoGuard 與 AdvPaint 的 inpainting 實驗用人工遮罩、Lo Figure 3
+  那張也是手畫的；真實的 inpainting 軟體本來就是讓使用者自己框。遮罩是
+  **攻擊方的設定**，讓它由模型的注意力決定，等於把「攻擊方能改多少」交給
+  一個與威脅模型無關的量。本專案兩次嘗試自動產遮罩，兩次都引進了自己的
+  失效：第一次是遮罩與 M 同源而完全重疊（DEF-011）；第二次改由 `prompts[1]`
+  的新增物件詞產生，但該物件在原圖裡還不存在，模型會把注意力放在畫面中
+  最像它的地方（"cow" 在只有馬的照片上就落在馬身上），必須再扣掉 c_a 的
+  保護帶才擋得住。該作法連同 `edit_region` 欄位已移除
+- **狀態**：**已實作**（2026-08-09）。`scripts/draw_masks.py`、
+  `src/data/masks.py::load_drawn_mask`／`masks_digest`、`--masks`、
+  `--prompt-index`。遮罩內容進 `config_hash`；不相交由
+  `assert_masks_disjoint` 在 `optimize.py` 對真正進損失的 M 斷言。
+  **遮罩尚未繪製、批次尚未起跑**，選圖與 τ_train 待使用者決定
 
 ## DEC-011 · `attn_timesteps` 取 2 而非預設的 4
 

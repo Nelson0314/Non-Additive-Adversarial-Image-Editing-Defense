@@ -288,6 +288,145 @@ def test_外接矩形是實心的(sd9, x01):
 
 
 # ---------------------------------------------------------------------------
+# Lo 配置的遮罩：c_a 必須在遮罩外（DEF-011）
+# ---------------------------------------------------------------------------
+#
+# 這一組釘住的是「錯了也不會報錯」的那個型態。ip1／ip2／ip3 三批的遮罩與
+# 式 (4) 的 M 由同一個詞產生而完全重疊，遮罩產得出來、涵蓋率印得出數字、
+# 格點全部 done——缺的就是這道檢查。
+#
+# 極小模型的注意力圖只有 4×4，預設 guard_k=5 會把整張圖吃掉，故此處明給
+# guard_k=1；保護帶本身以合成張量單獨驗（見下方兩條）。
+
+
+def test_重疊的遮罩與M立刻拋出():
+    """核心不變量。單獨用合成張量驗，不依賴任何模型的注意力落在哪裡。"""
+    from src.models.attention import assert_masks_disjoint
+
+    m_ca = torch.zeros(1, 1, 8, 8)
+    m_ca[..., 2:5, 2:5] = 1.0
+    edit = torch.zeros(1, 1, 64, 64)
+    edit[..., 32:40, 32:40] = 1.0            # 對到 8×8 上的 (4:5, 4:5)，相交
+    with pytest.raises(ValueError, match="DEF-011"):
+        assert_masks_disjoint(edit, m_ca, where="test")
+
+
+def test_不相交時回傳零重疊():
+    from src.models.attention import assert_masks_disjoint
+
+    m_ca = torch.zeros(1, 1, 8, 8)
+    m_ca[..., 0:3, 0:3] = 1.0
+    edit = torch.zeros(1, 1, 64, 64)
+    edit[..., 48:64, 48:64] = 1.0            # 對到 (6:8, 6:8)，不相交
+    assert assert_masks_disjoint(edit, m_ca, where="test") == 0.0
+
+
+def test_不相交檢查以max_pool保守比對():
+    """影像解析度上只要有**一個像素**落進 M 的格子就要算重疊。
+
+    取 mean 或 nearest 會讓這一個像素被平均掉／取樣掉，而那正是「遮罩邊緣
+    壓在 c_a 上」的形態——它不會有症狀，只會讓防禦擾動在邊界被覆寫。
+    """
+    from src.models.attention import assert_masks_disjoint
+
+    m_ca = torch.zeros(1, 1, 8, 8)
+    m_ca[..., 4, 4] = 1.0
+    edit = torch.zeros(1, 1, 64, 64)
+    edit[..., 32, 32] = 1.0                  # 8×8 上恰為 (4,4) 這一格
+    with pytest.raises(ValueError, match="重疊"):
+        assert_masks_disjoint(edit, m_ca, where="test")
+
+
+def test_人工遮罩載入為二值且尺寸對齊(tmp_path):
+    from PIL import Image
+
+    from src.data.masks import load_drawn_mask
+
+    m = Image.new("L", (64, 64), 0)
+    m.paste(255, (0, 0, 32, 64))                 # 左半邊要重畫
+    m.save(tmp_path / "a.png")
+
+    t = load_drawn_mask(tmp_path / "a.png", 64, torch.device("cpu"))
+    assert t.shape == (1, 1, 64, 64)
+    assert torch.isin(t, torch.tensor([0.0, 1.0])).all()
+    assert float(t.mean()) == pytest.approx(0.5)
+
+
+def test_人工遮罩尺寸不符時以nearest縮放而不插值(tmp_path):
+    """任何插值都會在邊界造出中間值，而遮罩是二值的。"""
+    from PIL import Image
+
+    from src.data.masks import load_drawn_mask
+
+    m = Image.new("L", (16, 16), 0)
+    m.paste(255, (0, 0, 8, 16))
+    m.save(tmp_path / "a.png")
+
+    t = load_drawn_mask(tmp_path / "a.png", 64, torch.device("cpu"))
+    assert t.shape == (1, 1, 64, 64)
+    assert torch.isin(t, torch.tensor([0.0, 1.0])).all()
+    assert float(t.mean()) == pytest.approx(0.5)
+
+
+def test_缺遮罩檔時拋出且不落回自動產生(tmp_path):
+    """混用人工與自動產生的遮罩會讓同一張表上的各列不可比，且看不出症狀。"""
+    from src.data.masks import load_drawn_mask
+
+    with pytest.raises(FileNotFoundError, match="draw_masks"):
+        load_drawn_mask(tmp_path / "nope.png", 64, torch.device("cpu"))
+
+
+def test_空遮罩與填滿的遮罩都拒收(tmp_path):
+    from PIL import Image
+
+    from src.data.masks import load_drawn_mask
+
+    Image.new("L", (64, 64), 0).save(tmp_path / "empty.png")
+    Image.new("L", (64, 64), 255).save(tmp_path / "full.png")
+
+    with pytest.raises(ValueError, match="為空"):
+        load_drawn_mask(tmp_path / "empty.png", 64, torch.device("cpu"))
+    # 填滿整張時 c_a 不可能在遮罩外，即 DEF-011 的配置
+    with pytest.raises(ValueError, match="DEF-011"):
+        load_drawn_mask(tmp_path / "full.png", 64, torch.device("cpu"))
+
+
+def test_總覽圖不得進遮罩雜湊(tmp_path):
+    """`overview.png` 是給人看的衍生物，重產一次就變。
+
+    放進 digest 的話，「重新產一張總覽圖」會靜默改掉每一格的 config_hash，
+    續跑時把已完成的格全部判為未完成——而那看不出症狀。
+    """
+    from PIL import Image
+
+    from src.data.masks import mask_files, masks_digest
+
+    m = Image.new("L", (8, 8), 0)
+    m.paste(255, (0, 0, 4, 8))
+    m.save(tmp_path / "horse_00.png")
+    before = masks_digest(mask_files(tmp_path))
+
+    Image.new("RGB", (64, 64), (9, 9, 9)).save(tmp_path / "overview.png")
+    assert mask_files(tmp_path) == [tmp_path / "horse_00.png"]
+    assert masks_digest(mask_files(tmp_path)) == before
+
+
+def test_遮罩內容進雜湊而不只是目錄名(tmp_path):
+    """換一張遮罩就是換一個攻擊，舊結果不可沿用。"""
+    from PIL import Image
+
+    from src.data.masks import masks_digest
+
+    p = tmp_path / "a.png"
+    Image.new("L", (8, 8), 0).save(p)
+    before = masks_digest([p])
+    m = Image.new("L", (8, 8), 0)
+    m.paste(255, (0, 0, 4, 8))
+    m.save(p)
+    assert masks_digest([p]) != before
+
+
+# ---------------------------------------------------------------------------
 # 唯一的分派點
 # ---------------------------------------------------------------------------
 
@@ -345,7 +484,7 @@ def test_img2img缺strength立刻拋出(sd4, x01):
 # 遮罩設定不得污染 img2img 的雜湊
 # ---------------------------------------------------------------------------
 
-def test_遮罩鍵只在inpainting批次出現():
+def test_遮罩鍵只在inpainting批次出現(tmp_path):
     """`config_hash` 吃整個 dict，多一個鍵就改變**每一格**的雜湊。
 
     無條件加入的話，img2img 的既有批次一旦續跑就會把已完成的格全部判為
@@ -364,7 +503,7 @@ def test_遮罩鍵只在inpainting批次出現():
         a = types.SimpleNamespace(
             spec_version=1, model="m", resolution=512, guidance=7.5, steps=50,
             strength=0.6, gpu_tag="g", precision="fp32",
-            mask_mode=None, mask_tau=0.5, mask_timestep=500,
+            masks=None, prompt_index=0,
         )
         for k, v in over.items():
             setattr(a, k, v)
@@ -382,21 +521,35 @@ def test_遮罩鍵只在inpainting批次出現():
         def optim_params(self):
             return {}
 
+    from PIL import Image
+
+    mdir = tmp_path / "masks"
+    mdir.mkdir()
+    m = Image.new("L", (8, 8), 0)
+    m.paste(255, (0, 0, 4, 8))
+    m.save(mdir / "horse_00.png")
+
     rs.run_config = lambda a: _Cfg()
     try:
         plain = rs.base_config(mk())
-        inpaint = rs.base_config(mk(mask_mode="attention_box"))
+        inpaint = rs.base_config(mk(masks=mdir))
+        second = rs.base_config(mk(prompt_index=1))
     finally:
         rs.run_config = real
 
-    assert "mask" not in plain, "img2img 的 base_config 不該有 mask 鍵"
-    assert inpaint["mask"] == {"mode": "attention_box", "tau": 0.5,
-                               "timestep": 500}
-    assert config_hash(dict(plain, condition="N2", image_id="a", tau=0.2,
-                            purify=None, seed=0, lr=None)) != \
-        config_hash(dict(inpaint, condition="N2", image_id="a", tau=0.2,
-                         purify=None, seed=0, lr=None)), \
-        "換威脅模型必須換雜湊"
+    assert "masks" not in plain, "img2img 的 base_config 不該有 masks 鍵"
+    assert inpaint["masks"]["dir"] == "masks"
+    assert len(inpaint["masks"]["digest"]) == 16
+
+    def h(cfg):
+        return config_hash(dict(cfg, condition="N2", image_id="a", tau=0.2,
+                                purify=None, seed=0, lr=None))
+
+    assert h(plain) != h(inpaint), "換威脅模型必須換雜湊"
+    # 攻擊 prompt 換一個就是換一個攻擊，續跑不可把舊格判為完成。
+    assert "prompt_index" not in plain
+    assert second["prompt_index"] == 1
+    assert h(plain) != h(second), "換攻擊 prompt 必須換雜湊"
 
 
 # ---------------------------------------------------------------------------
@@ -607,8 +760,11 @@ def test_遮罩落盤存證():
     assert 'mask_dir = batch_dir / "masks"' in src
     assert '_mask.png' in src and '_overlay.png' in src
     assert 'write_csv(mask_dir / "masks.csv", rows)' in src
-    # CSV 不得夾帶張量：`write_csv` 會把它轉成字串塞進一欄
-    assert 'k != "mask"' in src
+    # CSV 不得夾帶張量：`write_csv` 會把它轉成字串塞進一欄。逐鍵明寫，
+    # 且每個鍵都是純量或路徑。
+    assert '"coverage": cov' in src and '"source": str(src)' in src
+    # 遮罩只能載入，不得在此產生——缺檔要拋出而不是落回自動版本
+    assert "load_drawn_mask" in src
 
 
 def test_inpainting批次的strength被清成None():
@@ -627,7 +783,7 @@ def test_inpainting批次的strength被清成None():
     src = inspect.getsource(rs.main)
     assert "args.strength = None" in src
     # 兩者並用是矛盾的指令，要擋掉而不是靜默忽略其中一個
-    assert "--mask-mode 與 --strength 不可並用" in src
+    assert "--masks 與 --strength 不可並用" in src
 
 
 def test_shard的三個profile():
@@ -638,7 +794,9 @@ def test_shard的三個profile():
          / "scripts" / "shard.sh").read_text(encoding="utf-8")
     assert "ip*)" in s and "runwayml/stable-diffusion-inpainting" in s
     assert "--wrapper sd_inpaint" in s
-    assert "--mask-mode attention_box" in s
+    assert "--masks data/lo_masks" in s
+    # 遮罩目錄不可在資料集裡：`load_lo_aligned` 拒絕未宣告卻含 PNG 的子目錄
+    assert "--masks data/lo_aligned" not in s
     # inpainting profile 不得帶 strength
     ip = s.split("ip*)")[1].split(";;")[0]
     assert "--strength" not in ip

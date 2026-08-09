@@ -41,7 +41,6 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from src.data.masks import MASK_MODES                         # noqa: E402
 from src.defense import objective                             # noqa: E402
 from src.experiment import executors, grid                    # noqa: E402
 from src.experiment.runner import plan_report, run_stage      # noqa: E402
@@ -175,9 +174,19 @@ def base_config(args) -> dict:
     # 加入的話，img2img 的既有批次一旦續跑就會把已完成的格全部判為未完成——
     # 2026-08-07 當下正有三個分片在跑，其中一個還剩約五小時。故此鍵的存在
     # 與否本身就承載「這批是哪一種威脅模型」，而 img2img 的雜湊逐位不變。
-    if args.mask_mode:
-        out["mask"] = {"mode": args.mask_mode, "tau": args.mask_tau,
-                       "timestep": args.mask_timestep}
+    if args.masks:
+        # 遮罩的**內容**進雜湊，不只是目錄名：換一張遮罩就是換一個攻擊，
+        # 舊結果不可沿用。取整組摘要而非逐影像，故改一張會使全部格的雜湊
+        # 改變——刻意的保守方向，寧可多重跑，不可靜默沿用（`masks_digest`）。
+        from src.data.masks import mask_files, masks_digest
+
+        out["masks"] = {"dir": args.masks.name,
+                        "digest": masks_digest(mask_files(args.masks))}
+    # 攻擊 prompt 換一個就是換一個攻擊，**必須**進雜湊，否則續跑會把用另一個
+    # prompt 跑出來的格判為完成。與 `mask` 同一慣例：只在非預設值時出現，
+    # 使 img2img 既有批次的每一格雜湊逐位不變。
+    if args.prompt_index:
+        out["prompt_index"] = args.prompt_index
     return out
 
 
@@ -191,6 +200,7 @@ def load_entries(args, device) -> list:
     return executors.load_lo_aligned(
         args.data, args.resolution, device,
         ids=args.images, n=(None if args.images else args.n), seed=args.seed,
+        prompt_index=args.prompt_index,
     )
 
 
@@ -236,52 +246,51 @@ def build_resources(args, batch_dir: Path, load_model: bool = True
 
     # 威脅模型與載入的權重必須一致。兩個方向都要擋：
     #
-    # - 給了 `--mask-mode` 卻載入一般權重 → `SDWrapper.edit` 會在第一格拋出，
+    # - 給了 `--masks` 卻載入一般權重 → `SDWrapper.edit` 會在第一格拋出，
     #   但那時已經載完模型、跑完段 0 的一部分。此處提前擋掉。
-    # - 載入 inpainting 權重卻沒給 `--mask-mode` → `edit` 會因為缺遮罩拋出。
+    # - 載入 inpainting 權重卻沒給 `--masks` → `edit` 會因為缺遮罩拋出。
     #   同樣提前擋。
-    if bool(args.mask_mode) != bool(sd.is_inpainting):
+    if bool(args.masks) != bool(sd.is_inpainting):
         raise SystemExit(
-            f"威脅模型與權重不一致：--mask-mode={args.mask_mode!r} 而 "
+            f"威脅模型與權重不一致：--masks={args.masks!r} 而 "
             f"{args.model} 的 UNet in_channels="
             f"{sd.unet.config.in_channels}。inpainting 兩者都要給，"
             "img2img 兩者都不要給")
 
-    if args.mask_mode:
-        # 遮罩逐影像產生一次。它是**攻擊方的設定**（要換掉哪一塊），與防禦
-        # 參數無關，故不隨格點重算；但它進 `config_hash`（`base_config` 的
-        # `mask` 鍵），換一個模式就是換一組實驗。
+    if args.masks:
+        # 遮罩是**攻擊方的設定**（他要重畫哪一塊），由人工繪製，逐影像一張
+        # PNG（`scripts/draw_masks.py`，DEC-010）。此處只負責載入與驗證，
+        # 不產生任何遮罩——缺檔即拋出，不落回自動產生的版本。
         from dataclasses import replace as dc_replace
 
-        from src.data.masks import content_mask
+        from src.data.masks import load_drawn_mask
 
         # `ImageEntry` 是 frozen 的（刻意：影像與 prompt 在批次中途被改掉，
         # 症狀是某幾格用了別的輸入而報表看不出來），故產生新的 entry 而非
         # 就地賦值。
-        # 遮罩落盤存證。它決定攻擊方能改哪一塊，故是**結果的一部分**而不是
-        # 中間狀態：涵蓋率不同，同一個防禦的效果就不同。`runs/` 是唯一的
-        # 證據來源（`CLAUDE.md`），只印涵蓋率而不存圖，事後無從判斷某一格
-        # 的遮罩是不是落在對的物件上。
+        # 遮罩落盤存證到批次目錄。它決定攻擊方能改哪一塊，故是**結果的一
+        # 部分**而不是中間狀態：涵蓋率不同，同一個防禦的效果就不同。
+        # `runs/` 是唯一的證據來源（`CLAUDE.md`），而 `data/` 那份日後可能
+        # 被重畫，兩者必須各存一份才對得起帳。
         mask_dir = batch_dir / "masks"
         mask_dir.mkdir(parents=True, exist_ok=True)
         filled, rows = [], []
         for e in entries:
-            out = content_mask(sd, e.x01, e.content, mode=args.mask_mode,
-                               tau=args.mask_tau, timestep=args.mask_timestep,
-                               seed=args.seed)
-            filled.append(dc_replace(e, mask=out["mask"]))
-            executors.save_image(out["mask"].expand(-1, 3, -1, -1),
+            src = args.masks / f"{e.image_id}.png"
+            m = load_drawn_mask(src, args.resolution, sd.device)
+            filled.append(dc_replace(e, mask=m))
+            executors.save_image(m.expand(-1, 3, -1, -1),
                                  mask_dir / f"{e.image_id}_mask.png")
-            # 遮罩疊在原圖上：判斷「它有沒有蓋住那個物件」只能靠這張圖，
+            # 遮罩疊在原圖上：判斷「它有沒有壓到 c_a」只能靠這張圖，
             # 純遮罩看不出對位。
-            executors.save_image(
-                (e.x01 * (1.0 - 0.6 * out["mask"])).clamp(0, 1),
-                mask_dir / f"{e.image_id}_overlay.png")
+            executors.save_image((e.x01 * (1.0 - 0.6 * m)).clamp(0, 1),
+                                 mask_dir / f"{e.image_id}_overlay.png")
+            cov = float(m.mean())
             rows.append({"image_id": e.image_id, "group": e.group,
-                         **{k: v for k, v in out.items() if k != "mask"}})
-            print(f"  [mask] {e.image_id} content={e.content!r} "
-                  f"涵蓋率={out['coverage']:.3f} "
-                  f"注意力圖邊長={out.get('attn_side')}", flush=True)
+                         "content": e.content, "coverage": cov,
+                         "source": str(src)})
+            print(f"  [mask] {e.image_id} c_a={e.content!r}（須在遮罩外）"
+                  f" 涵蓋率={cov:.3f}  ← {src}", flush=True)
         executors.write_csv(mask_dir / "masks.csv", rows)
         entries = filled
 
@@ -361,19 +370,22 @@ def main(argv=None) -> int:
     ap.add_argument("--model", default="stabilityai/stable-diffusion-xl-base-1.0")
     # ---- inpainting 威脅模型 ----
     #
-    # 給了 `--mask-mode` 就是跑 inpainting。它同時決定 `base_config` 多不多
-    # 一個 `mask` 鍵，故不設預設值：預設一個模式等於讓每個 img2img 批次的
-    # 雜湊也跟著變。權重必須是 inpainting 專用的（9 通道），否則
+    # 給了 `--masks` 就是跑 inpainting。它同時決定 `base_config` 多不多一個
+    # `masks` 鍵，故不設預設值：預設一個目錄等於讓每個 img2img 批次的雜湊
+    # 也跟著變。權重必須是 inpainting 專用的（9 通道），否則
     # `SDWrapper.edit` 會在第一格就拋出。
     g = ap.add_argument_group("inpainting")
-    g.add_argument("--mask-mode", default=None, choices=list(MASK_MODES),
-                   help="給定即切換到 inpainting 威脅模型。遮罩由模型對資料集"
-                        "宣告的 content 詞的 cross-attention 產生（Lo et al. "
-                        "式 3/4），見 src/data/masks.py")
-    g.add_argument("--mask-tau", type=float, default=0.5,
-                   help="式 (4) 的閾值，作用在以峰值正規化後的 [0,1] 尺度上")
-    g.add_argument("--mask-timestep", type=int, default=500,
-                   help="取注意力的 timestep。中段最能反映物件位置")
+    g.add_argument("--masks", type=Path, default=None,
+                   help="人工繪製的遮罩目錄，逐影像 <image_id>.png，"
+                        "255 表示要重畫的區域。給定即切換到 inpainting 威脅"
+                        "模型。用 scripts/draw_masks.py 產生（DEC-010）。"
+                        "缺任何一張即拋出，不落回自動產生的遮罩")
+    ap.add_argument("--prompt-index", type=int, default=0,
+                    help="本批用 prompts.yaml 的第幾個攻擊 prompt。"
+                         "0 = 改掉 c_a（img2img 各批一律如此）、"
+                         "1 = 保留 c_a 改動別處（Lo 的 inpainting 情境，"
+                         "DEC-010）。非 0 時才進 config_hash，故 img2img "
+                         "既有批次的每一格雜湊逐位不變")
 
     ap.add_argument("--wrapper", default="auto",
                     choices=["auto", "sd", "sdxl", "sd_inpaint"],
@@ -496,12 +508,12 @@ def main(argv=None) -> int:
     # ——那時模型已經載完。清成 None 之後「這個威脅模型沒有 strength」這件事
     # 出現在雜湊與每一格的紀錄裡，而不是一個沿用下來卻不起作用的數。
     #
-    # 明給 `--strength` 又給 `--mask-mode` 是矛盾的指令，直接擋掉而不是
+    # 明給 `--strength` 又給 `--masks` 是矛盾的指令，直接擋掉而不是
     # 靜默忽略其中一個。
-    if args.mask_mode:
+    if args.masks:
         if "--strength" in (argv if argv is not None else sys.argv[1:]):
             raise SystemExit(
-                "--mask-mode 與 --strength 不可並用：inpainting 由純噪聲起跑、"
+                "--masks 與 --strength 不可並用：inpainting 由純噪聲起跑、"
                 "跑滿自己的排程，沒有 strength 這個參數（五篇 baseline 的"
                 "原始碼裡也都沒有）")
         args.strength = None
@@ -509,7 +521,7 @@ def main(argv=None) -> int:
         # 沒有遮罩就沒有閘可加。靜默忽略會讓命令列上明寫的設定不生效，而
         # 那正是本專案要消滅的路徑——`config_hash` 屆時也記不出差別。
         raise SystemExit(
-            "--warp-mask-gate 須與 --mask-mode 並用：閘由遮罩產生，"
+            "--warp-mask-gate 須與 --masks 並用：閘由遮罩產生，"
             "img2img 威脅模型沒有遮罩")
 
     # 兩道 hinge 的門檻不給時依 τ_train 等比例導出（2026-08-08 處置 A，見

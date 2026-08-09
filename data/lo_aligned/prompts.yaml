@@ -10,6 +10,13 @@
 # semantic attack 只壓低 c_a 在其對應區域的注意力，選錯就會攻擊到別的東西
 # 而且沒有任何症狀，故此欄為必填，`load_dataset` 不接受預設值。
 #
+# inpainting 的遮罩**不在這個檔裡**，也不由模型產生：它是人工畫的，逐影像
+# 一張 PNG，放在 data/lo_aligned/masks/（2026-08-09 使用者裁決，見 DEC-010）。
+# 文獻的作法即如此——PIE-Bench 附標註遮罩、PhotoGuard 與 AdvPaint 的
+# inpainting 實驗用人工遮罩、Lo et al. Figure 3 那張也是手畫的。畫的時候
+# 要讓 c_a 落在遮罩**外**，那是 Figure 3 的要求，也是 DEF-011 的處置。
+# 工具是 scripts/draw_masks.py。
+#
 # 與論文的差別（使用者於 2026-08-03 指定）：捨棄 car（既不是人物也不是動物），
 # 類別改為人物兩類、動物四類。horse 那兩個 prompt 沿用論文原文，作為與該表
 # 之間的一個直接可對照的錨點。

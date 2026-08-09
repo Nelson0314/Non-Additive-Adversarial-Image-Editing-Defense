@@ -252,7 +252,7 @@ def condition_spec(name: str) -> ConditionSpec:
 
 @dataclass(frozen=True)
 class ImageEntry:
-    """一張待防禦影像。`prompts[0]` 是訓練與評測用的攻擊 prompt。
+    """一張待防禦影像。訓練與評測用的攻擊 prompt 一律由 `attack_prompt` 取。
 
     `group` 是 `prompts.yaml` 的類別（man／dog／…），在報表中作為
     PIE-Bench `subtask` 欄位的對應物——本輪不用 PIE-Bench（遠端機器連不上
@@ -264,15 +264,36 @@ class ImageEntry:
     prompts: Tuple[str, ...]
     content: str
     group: str
+    # 本批用 `prompts` 的哪一個。0 = 改掉 c_a（img2img 各批一律如此）、
+    # 1 = 保留 c_a 改動別處（Lo 的 inpainting 情境）。逐 entry 帶著而不是
+    # 讓各呼叫點各自去查設定：`prompts[0]` 原本寫死在十二處，在其中若干處
+    # 改而另幾處沒改，症狀是同一格的訓練與評測用了不同的攻擊 prompt，
+    # 而報表上完全看不出來。
+    prompt_index: int = 0
     # inpainting 威脅模型的遮罩，(1,1,H,W)、1 表示攻擊方要重畫的區域。
     # img2img 下恆為 None——`SDWrapper.edit` 在兩種形態下各自拒絕對方的參數，
     # 故「這一批有沒有遮罩」不會被靜默沿用。由 `run_stage.build_resources`
     # 在載入模型之後填入（需要模型自己的 cross-attention，見 `data/masks.py`）。
     mask: Optional[torch.Tensor] = None
 
+    @property
+    def attack_prompt(self) -> str:
+        """本批實際使用的攻擊 prompt。**全部呼叫點只准用這個入口。**
+
+        `tests/test_executors.py::test_攻擊prompt只有一個入口` 以原始碼掃描
+        釘住 `executors.py` 裡不再有任何 `prompts[0]`。
+        """
+        if not 0 <= self.prompt_index < len(self.prompts):
+            raise IndexError(
+                f"{self.image_id}：prompt_index={self.prompt_index} 超出 "
+                f"{len(self.prompts)} 個 prompt 的範圍"
+            )
+        return self.prompts[self.prompt_index]
+
 
 def load_lo_aligned(root, size: int, device, ids: Optional[Sequence[str]] = None,
-                    n: Optional[int] = None, seed: int = 0) -> List[ImageEntry]:
+                    n: Optional[int] = None, seed: int = 0,
+                    prompt_index: int = 0) -> List[ImageEntry]:
     """讀 `data/lo_aligned/`。收錄的內容恰好等於 `prompts.yaml` 宣告的內容。
 
     不用 `rglob("*.png")`：根目錄的 `overview.png`（資料集總覽圖）會被當成
@@ -281,6 +302,10 @@ def load_lo_aligned(root, size: int, device, ids: Optional[Sequence[str]] = None
 
     `n` 是樣本數的唯一入口（`ARCH` §1 第 2 條）。抽樣依類別輪流取，使前 k
     張必落在 k 個不同類別上；`ids` 明給時覆蓋 `n`。
+
+    `prompt_index` 選本批用哪一個攻擊 prompt：0 = 改掉 c_a、1 = 保留 c_a
+    改動別處（Lo 的 inpainting 情境，DEC-010）。它寫進每個 entry，使各
+    呼叫點不必各自去查設定。
     """
     import yaml
     from PIL import Image
@@ -305,12 +330,19 @@ def load_lo_aligned(root, size: int, device, ids: Optional[Sequence[str]] = None
                 f"{pf} 的類別 {cls!r} 缺 prompts 或 content；"
                 "c_a 是防禦方選的、prompt 是攻擊方寫的，兩者都不接受預設值"
             )
+        prompts = tuple(entry["prompts"])
+        if not 0 <= prompt_index < len(prompts):
+            raise ValueError(
+                f"{pf} 的類別 {cls!r} 只有 {len(prompts)} 個 prompt，"
+                f"取不到 prompt_index={prompt_index}"
+            )
         for p in sorted(d.glob("*.png")):
             img = Image.open(p).convert("RGB").resize((size, size), Image.LANCZOS)
             x = T.ToTensor()(img).unsqueeze(0).to(device)
             by_group.setdefault(cls, []).append(ImageEntry(
-                image_id=p.stem, x01=x, prompts=tuple(entry["prompts"]),
+                image_id=p.stem, x01=x, prompts=prompts,
                 content=entry["content"], group=cls,
+                prompt_index=prompt_index,
             ))
 
     stray = [p.name for p in root.iterdir()
@@ -1304,7 +1336,7 @@ def _finish_train(res: Resources, cell: grid.Cell, out_dir: Path,
     extra.update({f"fid_{k}": v for k, v in fid.items()})
     extra["fid_niqe"] = res.suite.niqe(x_def)
     extra["group"] = entry.group
-    extra["prompt"] = entry.prompts[0]
+    extra["prompt"] = entry.attack_prompt
     write_meta(res, cell, out_dir / "meta.json", extra)
     # 訓練換了 φ，段 3 的 x_def 快取必須失效，否則同一批次內先跑 eval
     # 再重跑 train 會拿到上一版的防禦圖。
@@ -1459,7 +1491,7 @@ def control_executor(cell: grid.Cell, ctx: Dict[str, Any]
     # 對照與 τ 無關，故 `attn_full` 只看種子。
     tag = f"seed{cell.seed}"
     y_ctrl, attn_arts = _sdedit(
-        res, x_p, entry.prompts[0], cell.seed,
+        res, x_p, entry.attack_prompt, cell.seed,
         attn_dir=(out_dir / "attn") if res.cfg.capture_attn else None,
         attn_tag=tag, attn_full=(cell.seed == 0), mask=entry.mask)
 
@@ -1467,11 +1499,11 @@ def control_executor(cell: grid.Cell, ctx: Dict[str, Any]
     edit_png = out_dir / f"edit_seed{cell.seed}.png"
     save_image(y_ctrl, edit_png)
 
-    sem = res.suite.semantic(y_ctrl, entry.prompts[0])
+    sem = res.suite.semantic(y_ctrl, entry.attack_prompt)
     extra = {
         "image_id": cell.image_id, "group": entry.group,
         "purify_kind": kind, "purify_strength": strength, "seed": cell.seed,
-        "prompt": entry.prompts[0],
+        "prompt": entry.attack_prompt,
         "ctrl_clip": sem["clip"], "ctrl_siglip": sem["siglip"],
         "purify_available": pur.available,
         "purify_differentiable": pur.differentiable,
@@ -1532,7 +1564,7 @@ def eval_executor(cell: grid.Cell, ctx: Dict[str, Any]
     attn_full = (tau == grid.MAIN_TAU and cell.seed == 0)
     tag = f"tau{tau:g}_seed{cell.seed}"
     y_def, attn_arts = _sdedit(
-        res, x_p, entry.prompts[0], cell.seed,
+        res, x_p, entry.attack_prompt, cell.seed,
         attn_dir=(out_dir / "attn") if res.cfg.capture_attn else None,
         attn_tag=tag, attn_full=attn_full, mask=entry.mask)
 
@@ -1561,12 +1593,12 @@ def eval_executor(cell: grid.Cell, ctx: Dict[str, Any]
     if cell.seed == 0:
         save_image(x_p, purified_png)
 
-    m = res.suite.full(y_ctrl, y_def, prompt=entry.prompts[0])
+    m = res.suite.full(y_ctrl, y_def, prompt=entry.attack_prompt)
     row: Dict[str, Any] = {
         "condition": cell.condition, "image_id": cell.image_id,
         "group": entry.group, "tau": tau,
         "purify_kind": kind, "purify_strength": strength, "seed": cell.seed,
-        "prompt": entry.prompts[0],
+        "prompt": entry.attack_prompt,
         **{f"edit_{k}": v for k, v in m.items()},
         **{f"defimg_{k}": v for k, v in
            res.suite.pairwise(entry.x01, x_p).items()},
@@ -1638,7 +1670,7 @@ def _edit_effect(res: Resources, entry: ImageEntry, strength: float,
     **CLIP 不可用於此判定**（實測 +0.0101 ± 0.0169，標準差大於均值），
     但仍一併回報以便與文獻的欄位對齊。
     """
-    emb = res.sd.encode_text(entry.prompts[0]).detach()
+    emb = res.sd.encode_text(entry.attack_prompt).detach()
     emb_u = res.sd.uncond_prompt()
     lat = res.sd.latent_shape(entry.x01.shape[-2], entry.x01.shape[-1])
     noise = res.sd.sample_edit_noise(
@@ -1652,8 +1684,8 @@ def _edit_effect(res: Resources, entry: ImageEntry, strength: float,
                         mask=entry.mask,
                         strength=(None if entry.mask is not None else strength),
                         guidance_scale=res.cfg.guidance, emb_uncond=emb_u)
-    a = res.suite.semantic(entry.x01, entry.prompts[0])
-    b = res.suite.semantic(y, entry.prompts[0])
+    a = res.suite.semantic(entry.x01, entry.attack_prompt)
+    b = res.suite.semantic(y, entry.attack_prompt)
     return {"clip_orig": a["clip"], "clip_edit": b["clip"],
             "siglip_orig": a["siglip"], "siglip_edit": b["siglip"],
             "effect_clip": b["clip"] - a["clip"],
@@ -2063,7 +2095,7 @@ def micro_bench(res: Resources, calib_dir: Path) -> Dict[str, Any]:
         timed("vae_roundtrip",
               lambda: res.sd.decode_latent(res.sd.encode_image(entry.x01)))
         timed(f"sdedit_{res.cfg.steps}steps",
-              lambda: _sdedit(res, entry.x01, entry.prompts[0], 0,
+              lambda: _sdedit(res, entry.x01, entry.attack_prompt, 0,
                               mask=entry.mask))
     write_csv(calib_dir / "micro_bench.csv", rows)
     return {r["op"]: r["seconds"] for r in rows}
@@ -2110,7 +2142,7 @@ def calibrate_precision_equiv(res: Resources, calib_dir: Path) -> Dict[str, Any]
         lat = sd.latent_shape(entry.x01.shape[-2], entry.x01.shape[-1])
         noise = sd.sample_edit_noise(
             torch.empty(lat, device=sd.device), seed=eval_noise_seed(res, 0))
-        emb = sd.encode_text(entry.prompts[0]).detach()
+        emb = sd.encode_text(entry.attack_prompt).detach()
         emb_u = sd.uncond_prompt()
         t = torch.tensor(int(sd.num_train_timesteps * res.cfg.strength) - 1,
                          device=sd.device)

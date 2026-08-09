@@ -14,7 +14,8 @@
 #   BATCH=v14r→ 同上但 strength 0.4                （2026-08-08 的重做）
 #   BATCH=ip* → SD inpainting / 512² / fp32        （**inpainting**，無 strength）
 #   BATCH=s3a*→ 第三階段批次 A：site apa + Lo 式 (5)，τ_train **0.50**
-#   BATCH=s3b*→ 第三階段批次 B：同上但 τ_train **0.20**（等使用者指示才跑）
+#   BATCH=s3b*→ 第三階段批次 B：同上但 τ_train **0.20**（未執行）
+#   BATCH=s3t<NN>→ 第三階段後續：τ_train = 0.NN（s3t25 → 0.25）
 #
 # fanout 產生的 tmux session 名為 `wacv-<批次>-<影像>`。
 #
@@ -262,6 +263,30 @@ STRENGTH=""
 # τ_train=0.20），故 b1/b2/b3/v14/v14r/ip3 的命令列逐字不變。
 GRID=""
 case "$BATCH" in
+  s3t*)
+    # 第三階段的後續批次，τ_train 寫在批次名裡：`s3t25` → 0.25、`s3t30` → 0.30。
+    #
+    # 為什麼由名字帶而不是再開兩個 profile：模型、條件、遮罩門檻與 strength
+    # 全部與 s3a 相同，唯一的差別就是那個數字。開一個分支只為改一個數字，
+    # 兩份設定就會開始各自漂移——而它們必須逐字相同，否則跨 τ 不可比。
+    #
+    # 影像由命令列給（`horse_00 horse_03 woman_03`，2026-08-09 使用者選定）：
+    # bird → butterfly 汰換，理由是連未防禦的編輯都難說成功；
+    # 人物改用 woman_03（構圖是正經人像，man_01/02/03 的臉只佔畫面 3–8%，
+    # strength 0.4 動不了）。選圖的預跑見 `runs/s3_preflight*`。
+    _t=${BATCH#s3t}; _t=${_t%%_*}
+    case "$_t" in
+      [0-9][0-9]) ;;
+      *) echo "批次名 $BATCH 的 τ 部分是 '$_t'，必須恰為兩位數字" >&2; exit 1;;
+    esac
+    PRECISION=fp32
+    MODEL="--model CompVis/stable-diffusion-v1-4 --wrapper sd --resolution 512"
+    MEM="--purify-mode all --attn-timesteps 2"
+    ATTN="--shared-tokens 0 --attn-mask-tau 0.5"
+    INV="--exact-inversion"
+    STRENGTH="--strength 0.4"
+    GRID="--conditions N4 Ra photoguard_c mist dia_r --tau-train 0.$_t"
+    ;;
   s3a*|s3b*)
     # ---------------------------------------------------------------------
     # 第三階段（2026-08-09）。模型設定與 v14r **逐字相同**——換掉的只有

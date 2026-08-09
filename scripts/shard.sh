@@ -68,6 +68,23 @@ WACV_ROOT=${WACV_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}
 # shellcheck disable=SC1090
 source "$HOME/env.sh"
 
+# **`env.sh` 的最後一行是 `cd $HOME/WACV`**，故 source 之後工作目錄會被換到
+# 那裡——而在有第二個 worktree 的情況下，那是**另一個 session 的樹**。
+#
+# 2026-08-09 實測到的後果：`merge` 分支呼叫 `$PY scripts/run_stage.py` 時
+# 沒有自己的 `cd`（tmux 那幾條有），於是跑到 `$HOME/WACV/scripts/run_stage.py`
+# ——ip3 那條分支的版本，不認得本批的 `--attn-mask-tau`，段 4 以
+# 「unrecognized arguments」中止。段 1–3 沒中招純粹是因為它們的 tmux 指令
+# 各自明寫了 `cd $WACV_ROOT`。
+#
+# 危險的是它**只在旗標剛好不存在時才報錯**：若兩條分支的 CLI 介面相容，
+# 就會安靜地用另一棵樹的程式碼跑完，而 `sys.path` 由 `run_stage.py` 自己
+# 的位置決定（`sys.path.insert(0, parents[1])`），故連 `src` 都會跟著換。
+# 那正是本專案記錄過的「跑起來很正常、數字也合理」那一型。
+#
+# 修在源頭而不是逐處補 `cd`：一行涵蓋全部分支，且新增分支不會漏。
+cd "$WACV_ROOT"
+
 BATCH=${BATCH:-b1}
 # `fanout` 每個分片依序跑的段。預設值即原本寫死的三段，故既有命令列的行為
 # 逐字不變。

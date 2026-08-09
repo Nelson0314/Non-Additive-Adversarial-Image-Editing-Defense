@@ -77,10 +77,18 @@
   選定。img2img 各批一律 `prompts[0]`。全部呼叫點只准經
   `ImageEntry.attack_prompt`，`test_攻擊prompt只有一個入口` 以原始碼掃描釘住
 - **遮罩**：**人工繪製**，逐影像一張 PNG，由 `--masks <目錄>` 指定
-  （`scripts/draw_masks.py`）。畫的時候 **c_a 要留在遮罩外**——Lo et al.
-  Figure 3 的要求，也是 DEF-011 的處置。文獻同此作法：PIE-Bench 附標註
-  遮罩、PhotoGuard 與 AdvPaint 用人工遮罩。遮罩內容進 `config_hash`，
-  改一張遮罩即改變全部格的雜湊
+  （`scripts/draw_masks.py`，遮罩在 `data/lo_masks/`）。畫的時候
+  **c_a 要留在遮罩外**——Lo et al. Figure 3 的要求。文獻同此作法：
+  PIE-Bench 附標註遮罩、PhotoGuard 與 AdvPaint 用人工遮罩。遮罩內容進
+  `config_hash`，改一張遮罩即改變全部格的雜湊
+- **式 (5) 的作用範圍**：**只算 M 落在遮罩外的部分**（DEC-012）。這是相對
+  Lo 原式的偏離，必須在論文中載明。遮罩內的格點承載不了防禦——
+  `mask_latents` 做 `encode(x_def * (1 − mask))`，那些像素在進入模型之前
+  就被歸零，輸出端也會被整片重畫。逐格記錄 `attn_mask_kept`（M 有多少比例
+  落在遮罩外）：損失實際算在多大的區域上會影響 `attn_suppressed` 的量級，
+  缺了它兩張影像之間不可比。本批實測 90.4%／75.3%／82.4%
+- **不可帶 `--warp-mask-gate`**：閘只作用於 site warp 的三個條件，
+  而它們已依 DEC-005 移出格點
 - **不可帶 `--strength`**：inpainting 沒有這個參數，`SDWrapper.edit` 會拒絕
 - **`--attn-mask-tau` 必須明給**：`suppress_attn_ca` 不接受預設值
 - **`--attn-timesteps 2`**：DEC-011，記憶體實測 15126 MiB 對 23924 MiB

@@ -95,8 +95,10 @@
   `prompts.yaml` 六類本來就都有它、且就是 Lo 的原始結構（horse 那組是論文
   原文 "a horse and a cow"），不必重新蒐圖，既有 24 張的 provenance 不作廢
 - **遮罩怎麼來**（同日裁決，**取代當日稍早的一版**）：**人工繪製**。
-  逐影像一張 PNG 存在 `data/lo_aligned/masks/`，工具是
-  `scripts/draw_masks.py`（滑鼠框選／筆刷／擦除，即時顯示涵蓋率）
+  逐影像一張 PNG 存在 `data/lo_masks/`，工具是 `scripts/draw_masks.py`
+  （套索／多邊形描邊、筆刷修邊、即時顯示涵蓋率）。**遮罩目錄不可放在
+  `data/lo_aligned/` 裡**：`load_lo_aligned` 拒絕未宣告卻含 PNG 的子目錄，
+  那道檢查擋的是「忘了宣告類別」，不該為遮罩鬆綁
 - **為什麼不由模型產**：文獻裡這一項幾乎都是人工的——PIE-Bench 附標註
   遮罩、PhotoGuard 與 AdvPaint 的 inpainting 實驗用人工遮罩、Lo Figure 3
   那張也是手畫的；真實的 inpainting 軟體本來就是讓使用者自己框。遮罩是
@@ -108,9 +110,13 @@
   保護帶才擋得住。該作法連同 `edit_region` 欄位已移除
 - **狀態**：**已實作**（2026-08-09）。`scripts/draw_masks.py`、
   `src/data/masks.py::load_drawn_mask`／`masks_digest`、`--masks`、
-  `--prompt-index`。遮罩內容進 `config_hash`；不相交由
-  `assert_masks_disjoint` 在 `optimize.py` 對真正進損失的 M 斷言。
-  **遮罩尚未繪製、批次尚未起跑**，選圖與 τ_train 待使用者決定
+  `--prompt-index`。遮罩內容進 `config_hash`
+- **後續**：「c_a 在遮罩外」這條要求原本編碼成「M 與遮罩不相交」的斷言，
+  實測不可滿足，已由 **DEC-012** 改為「式 (5) 只算遮罩外的 M」
+- **狀態**：24 張遮罩已由使用者繪製完成（`data/lo_masks/`，另有主體原稿
+  `_subject/` 與裁切前原圖 `data/lo_original/`）。**本批影像為
+  horse_00、man_00、bird_03**（使用者 2026-08-09 挑選）。
+  批次尚未起跑，τ_train 待 τ 掃描後由使用者決定
 
 ## DEC-011 · `attn_timesteps` 取 2 而非預設的 4
 
@@ -122,3 +128,34 @@
   用過 `rotate + t=2`
 - **正解**（未做）：把 `_build_attn_step` 改成逐 pair 反傳再累加梯度
   （Lo et al. 的 Algorithm 1 即如此），峰值會與 `attn_timesteps` 無關
+
+## DEC-012 · inpainting 下式 (5) 只算落在攻擊方遮罩外的那部分 M
+
+- **決定**（2026-08-10 使用者裁決）：`suppress_attn_ca` 的損失改為
+  `Σ|Att(x_def, c_a) ⊙ (M ⊙ (1 − mask))|`。遮罩內的格點不計入
+- **這是相對 Lo et al. 式 (5) 的偏離，必須在論文中載明**。原式對整個 M 取；
+  此處只取 M 落在攻擊方遮罩外的部分
+- **依據**：遮罩內的格點在這個威脅模型下承載不了防禦。
+  `SDWrapper.mask_latents` 做的是 `encode_image(x_def * (1 - mask))`——
+  遮罩內的像素**在進入模型之前就被歸零**（`test_遮罩後影像先遮罩再編碼`
+  釘住），而輸出端遮罩內由模型重新生成、遮罩外每一步貼回。在那裡壓注意力
+  是零防禦價值、全額保真成本
+- **同一個論證專案內已有前例**：`--warp-mask-gate` 對**擾動**做的就是這件事
+  （`shard.sh` 的 ip profile 註解），PhotoGuard-c 與 PromptFlare 的原始碼
+  把梯度乘 `(1 − mask)`。差別只在這次套用的對象是損失。site apa 的擾動在
+  latent 與權重上，經 VAE 解碼後不是逐像素定域的，無法以同一方式加閘
+- **為什麼不是維持「不相交」**：那條不變量過嚴而不可滿足。Lo Figure 3 要求的
+  是 c_a 這個**物件**在遮罩外，而 M 是它的**注意力圖**，cross-attention 本來
+  就瀰漫。實測（SD v1.4 inpainting、horse_00／man_00／bird_03）M 有
+  9.6%／24.7%／17.6% 落在遮罩內，且兩個旋鈕都救不回來：保護帶由 13 px 加到
+  81 px 只把最嚴重項從 0.096 降到 0.046；`attn_mask_tau` 加到 0.9 時 M 只剩
+  2–5 格（梯度幾乎不存在）仍相交，man_00 更變成 100% 落在遮罩內
+- **實作**：`src/models/attention.py::restrict_outside_mask` 取代
+  `assert_masks_disjoint`；`OptimResult.attn_mask_kept` 逐格落盤。
+  保留比例低於 5% 時拋出——那表示該影像沒有可施力的地方，應換圖或重畫遮罩，
+  不是讓最佳化在幾個格點上空轉
+- **實測**（改後，同三張影像）：M 落在遮罩外 90.4%／75.3%／82.4%，
+  起點 L1 為 499.1／237.3／341.7，遠高於 `MIN_MASKED_ATTENTION`
+- **連帶未處理**：保真約束 τ 仍對整張圖量 LPIPS，包含遮罩內那些會被丟掉的
+  改動，故防禦在那裡被罰卻沒得到東西。改成只在遮罩外量會破壞與 img2img
+  各批的可比性，故維持現狀並在報告中註明此項不對稱

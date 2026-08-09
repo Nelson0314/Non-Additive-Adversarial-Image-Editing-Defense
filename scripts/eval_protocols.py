@@ -149,7 +149,8 @@ def main() -> None:
     ap.add_argument("--purify", default="identity",
                     help="第 1／3 層取哪個淨化算子；identity 即未淨化")
     ap.add_argument("--taus", type=float, nargs="+",
-                    default=[0.05, 0.1, 0.2, 0.35])
+                    default=None,
+                    help="不給時取 grid.csv 裡實際出現的全部 τ")
     ap.add_argument("--out", type=Path, required=True)
     args = ap.parse_args()
 
@@ -163,7 +164,7 @@ def main() -> None:
         r["d_niqe"] = "" if (a is None or b is None) else f"{b - a}"
 
     out: List[str] = [
-        "# v14r 分層評測：一次報完三層判準",
+        "# 分層評測：一次報完三層判準",
         "",
         f"批次 `{args.batch.name}`，淨化算子 `{args.purify}`。",
         "",
@@ -173,7 +174,16 @@ def main() -> None:
     ]
 
     # ---- 第 1 層與第 3 層：逐 τ，數值在 grid.csv 每一格都齊全 ----
-    for tau in args.taus:
+    #
+    # τ 由 `grid.csv` 實際出現的值決定，不寫死。before 的預設是
+    # `[0.05, 0.1, 0.2, 0.35]`——第一階段的 τ 軸——於是 s3a（τ_train=0.50）
+    # 跑出來的報表**完全沒有主表那一點**，而它照樣印出四張看起來正常的表。
+    taus = args.taus
+    if taus is None:
+        taus = sorted({num(r, "tau") for r in grid
+                       if r.get("stage") == "eval"
+                       and num(r, "tau") is not None})
+    for tau in taus:
         sel = [r for r in grid
                if r.get("stage") == "eval" and r.get("status") == "done"
                and r.get("purify_kind") == args.purify
@@ -200,15 +210,21 @@ def main() -> None:
               "此層是代價，不是成果——若某一側的免疫靠劣化撐著，這裡會顯示出來。",
               LAYER3, by, out)
 
-    # ---- 第 2 層的判定與 ISR：需要影像，故只有 margin 存在的 τ ----
-    mtaus = sorted({m["tau"] for m in mrows if m["tau"]})
+    # ---- 第 2 層的判定與 ISR：**逐 τ 分開**，不可混算 ----
+    #
+    # 2026-08-09 改。before：本段對整份 margin 檔一次算完、不分 τ。那在舊批次
+    # 是對的——四個 τ 的 PNG 互相覆寫，每格本來就只剩一個
+    # （`RESULTS_2026-08-08` §10）。`e9a35a5c6` 讓檔名帶上 τ 之後前提消失，
+    # 混算等於把不同失真預算的條件放進同一個分數，而 τ 正是本實驗設計的
+    # 共同貨幣（`DESIGN` §3.2）。s3a 實測混出來的後果：各條件落在各自不同的
+    # τ 上，而表格看起來完全正常。
+    mtaus = sorted({m["tau"] for m in mrows if m["tau"]}, key=float)
     out.append("\n---\n\n## 第 2 層 · 語意判定與 ISR（θ 掃描）\n")
     out.append(
         "判定 `語意失敗 := margin(y_def) ≤ 0`。"
-        "防禦側的影像每一格只存在一個 τ"
-        "（其餘 τ 的 PNG 曾被覆寫，見 `RESULTS_2026-08-08` §10），"
-        f"整份 margin 檔涵蓋 τ = {', '.join(mtaus)}；"
-        "本節實際用到的 τ 列在表格下方。\n")
+        f"margin 檔涵蓋 τ = {', '.join(mtaus)}，**逐 τ 分開列**——"
+        "跨 τ 混算等於拿不同失真預算的條件互比。"
+        "對照側（φ=0）沒有 τ 這個軸，故它在每一個 τ 的表裡都出現且逐 τ 相同。\n")
     out.append(
         "**ISR 不是原文的重現**：SIFM 的判定由 MLLM 做，本專案沒有那個 judge，"
         "故劣化分支改用 ΔNIQE 並**掃描門檻**。取單一門檻等於事後選一個有利的值，"
@@ -224,39 +240,40 @@ def main() -> None:
 
     labels = ["語意失敗率"] + [
         ("ISR 僅語意" if th is None else f"ISR θ={th:g}") for th in THETAS]
-    out.append("| 條件 | " + " | ".join(labels) + " |")
-    out.append("|" + "---|" * (len(labels) + 1))
-    used_taus = set()
-    for c in CONDS:
-        sem, isr = [], {th: [] for th in THETAS}
-        for m in mrows:
-            if m["condition"] != c or m["purify_dir"] != f"{args.purify}_0":
+    for tau in mtaus:
+        out.append(f"\n### τ = {tau}\n")
+        out.append("| 條件 | " + " | ".join(labels) + " |")
+        out.append("|" + "---|" * (len(labels) + 1))
+        for c in CONDS:
+            sem, isr = [], {th: [] for th in THETAS}
+            for m in mrows:
+                if m["condition"] != c or m["purify_dir"] != f"{args.purify}_0":
+                    continue
+                # 對照側沒有 τ，在每一個 τ 的表裡都算進去（它是共用分母）
+                if m["tau"] and m["tau"] != tau:
+                    continue
+                marg = float(m["margin"])
+                fail = marg <= 0
+                sem.append(fail)
+                d = dn.get((c, m["image_id"], m["seed"], m["tau"]))
+                for th in THETAS:
+                    if th is None:
+                        isr[th].append(fail)
+                    else:
+                        isr[th].append(fail or (d is not None and d >= th))
+            if not sem:
                 continue
-            marg = float(m["margin"])
-            fail = marg <= 0
-            sem.append(fail)
-            if m["tau"]:
-                used_taus.add(m["tau"])
-            d = dn.get((c, m["image_id"], m["seed"], m["tau"]))
+            cells = [f"{sum(sem)}/{len(sem)}"]
             for th in THETAS:
-                if th is None:
-                    isr[th].append(fail)
-                else:
-                    isr[th].append(fail or (d is not None and d >= th))
-        if not sem:
-            continue
-        cells = [f"{sum(sem)}/{len(sem)}"]
-        for th in THETAS:
-            v = isr[th]
-            cells.append(f"{sum(v)}/{len(v)}")
-        out.append(f"| {c} | " + " | ".join(cells) + " |")
+                v = isr[th]
+                cells.append(f"{sum(v)}/{len(v)}")
+            out.append(f"| {c} | " + " | ".join(cells) + " |")
     out.append("")
     out.append(
         "`control` 是未防禦的對照，其「語意失敗」即**攻擊本身失敗**的比例，"
         "是全部條件的分母。任何條件要算防禦有效，該欄必須**高於** control。\n\n"
         "`control` 逐 θ 不變是正確的：對照側就是 `y_ref` 本身，"
-        "ΔNIQE 依定義為零，故 OR 的劣化分支對它永遠不成立。\n\n"
-        f"本節實際用到的 τ：{', '.join(sorted(used_taus)) or '（無）'}。")
+        "ΔNIQE 依定義為零，故 OR 的劣化分支對它永遠不成立。")
 
     args.out.mkdir(parents=True, exist_ok=True)
     (args.out / "protocols.md").write_text("\n".join(out), encoding="utf-8")

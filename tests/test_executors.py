@@ -29,7 +29,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 import torch
 
-from src.defense.optimize import OptimConfig, OptimResult
+from src.defense.optimize import OptimResult
 from src.experiment import executors, grid
 from src.experiment.runner import cell_config, run_stage
 from src.utils.calibration import Calibration, CalibrationMismatch
@@ -304,7 +304,6 @@ def test_N4與N3的階段二學習率鍵不同(tmp_path):
     ——那是這道測試真正要擋的東西。階段一（保真對齊）則可以共用：
     `_probe_align_lr` 的判準是對齊損失，與防禦模式無關。
     """
-    res = make_res(tmp_path)
     n3 = executors.condition_spec("N3")
     n4 = executors.condition_spec("N4")
     assert n3.site == n4.site == "apa"
@@ -452,7 +451,6 @@ def test_train_baseline走run_pgd且帶入該篇的spec(tmp_path):
     from src.baselines.pgd import PGDResult
 
     res = make_res(tmp_path)
-    entry = res.image("dog_00")
     seen = {}
 
     def fake_run_pgd(sd, x01, spec, **kw):

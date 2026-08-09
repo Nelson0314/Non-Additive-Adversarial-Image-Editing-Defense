@@ -40,7 +40,7 @@ base 的 `force_zeros_for_empty_prompt=true`，無條件分支的嵌入是零張
 
 import math
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
+from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 import torch
 

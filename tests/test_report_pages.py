@@ -11,7 +11,6 @@
 
 import re
 
-import pytest
 
 from src.experiment.attention_page import build_attention_html
 from src.experiment.compare_page import COLUMNS, build_compare_html

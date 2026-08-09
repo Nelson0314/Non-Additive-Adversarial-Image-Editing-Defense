@@ -44,7 +44,6 @@ sign 更新下不影響方向，此處照原始碼。
 `std` 亦為 x 的函數）。
 """
 
-from typing import Optional
 
 import torch
 import torch.utils.checkpoint as ckpt

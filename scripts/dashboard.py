@@ -108,7 +108,7 @@ def render_failed(snap: dict) -> str:
         out.append(f"=== {c['id']}")
         out.append(f"    config_hash: {c.get('config_hash', '?')}")
         out.append(f"    started    : {c.get('started', '?')}")
-        out.append(f"    error      :")
+        out.append("    error      :")
         out.extend("      " + ln for ln in (c.get("error") or "").splitlines())
         out.append("")
     return "\n".join(out)

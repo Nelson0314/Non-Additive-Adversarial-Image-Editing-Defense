@@ -40,7 +40,7 @@ SD 的權重張量從頭到尾沒有被寫入過，`disable()` 即刻還原，�
 必須搭配階段一使用；單獨啟用只是換一個地方注入同樣的問題。
 """
 
-from typing import List, Optional
+from typing import Optional
 
 import torch
 import torch.nn as nn

@@ -703,7 +703,6 @@ def test_site_W_初始B為零時完全不改變模型行為(sd, x01):
     是唯一直接改動模型的位置，這個不變量若不成立，之後所有結果都無法歸因。
     """
     k = 2
-    lat = _latent(sd)
     emb = sd.encode_text("").detach()
     ts = sd.timesteps(k)
     with torch.no_grad():
@@ -728,7 +727,6 @@ def test_site_W_初始B為零時完全不改變模型行為(sd, x01):
 def test_site_W_B非零時結果必須改變且梯度抵達phi(sd, x01):
     """反向檢查：確認上一個測試不是把整個注入關掉了。"""
     k = 2
-    lat = _latent(sd)
     emb = sd.encode_text("").detach()
     ts = sd.timesteps(k)
     with torch.no_grad():

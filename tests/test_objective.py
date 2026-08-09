@@ -160,9 +160,17 @@ def test_PSNR下限在低於門檻時才施力(obj):
 
 
 def test_Linf下限在超過tau時才施力(obj):
+    """hinge 的兩側都要驗。
+
+    2026-08-09 修正。before：算出了 `small`（低於門檻的擾動）卻沒有用它，
+    實際比的是 `fidelity_term(x, x)` ——恆等情形下 L∞ 恆為 0，
+    「低於門檻不施力」那一半**等於沒有測到**，因為它連門檻都碰不到。
+    """
     x = _img(3)
     small = (x + 0.5 * obj.cfg.tau_linf).clamp(0, 1)
-    _, ps = obj.fidelity_term(x, x)
+    _, ps = obj.fidelity_term(small, x)
+    assert 0.0 < ps["fid_linf"] <= obj.cfg.tau_linf, (
+        "這一半要驗的是「有擾動但未超過門檻」，不是「完全沒有擾動」")
     assert ps["fid_pen_linf"] == 0.0
 
     big = x.clone()

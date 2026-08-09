@@ -776,7 +776,6 @@ def test_promptflare的白名單在SDXL結構上實測(sdxl, x01):
     `[1024, 256, 64]` 不能沿用的原因。
     """
     from src.baselines import promptflare as PF
-    from src.baselines.pgd import BaselineSpec
 
     spec = PF.SPEC
     ctx = PF.prepare(sdxl, x01, spec, strength=0.6, seed=0)

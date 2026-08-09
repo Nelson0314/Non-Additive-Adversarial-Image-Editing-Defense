@@ -157,7 +157,6 @@ def pgd_linf(
         raise ValueError(f"擾動預算 κ 必須為正，收到 {cfg.kappa}")
     s = cfg.step_size if cfg.step_size is not None else cfg.kappa / 10.0
 
-    device = x01.device
     x_ref = x01.detach()
     delta = torch.zeros_like(x_ref)
     history: List[Dict] = []

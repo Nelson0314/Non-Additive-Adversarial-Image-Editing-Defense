@@ -74,7 +74,6 @@ from src.experiment.attn_capture import AttnCapture, capture_span, sampled_steps
 from src.experiment.compare_page import build_compare_html
 from src.experiment.runner import cell_config
 from src.metrics.ray_scale import lpips_against, solve_k
-from src.metrics.suite import MetricSuite
 from src.purify.ops import Purifier, default_train_set
 from src.residual.site_apa import APA_STAGE1_STEPS, build_apa
 from src.residual.site_warp import WarpResidual

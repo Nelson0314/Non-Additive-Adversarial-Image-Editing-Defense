@@ -1,0 +1,12 @@
+{
+  "artifacts": [],
+  "config_hash": "",
+  "error": null,
+  "finished": "2026-08-09T08:35:49+08:00",
+  "id": "eval/Ra/dog_03/purifyidentity/seed2/tau0.1",
+  "seconds": null,
+  "skipped_reason": "Ra 走生成路徑，本影像實測的 VAE 重建誤差下限為 LPIPS 0.1403，τ=0.1 結構上不可能達成",
+  "stage": "eval",
+  "started": "2026-08-09T08:35:49+08:00",
+  "status": "skipped"
+}

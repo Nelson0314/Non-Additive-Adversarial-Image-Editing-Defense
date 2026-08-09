@@ -1,0 +1,12 @@
+{
+  "artifacts": [],
+  "config_hash": "",
+  "error": null,
+  "finished": "2026-08-09T06:47:05+08:00",
+  "id": "rayscale/N4/dog_03/tau0.1",
+  "seconds": null,
+  "skipped_reason": "N4 走生成路徑，本影像實測的 VAE 重建誤差下限為 LPIPS 0.1403，τ=0.1 結構上不可能達成",
+  "stage": "rayscale",
+  "started": "2026-08-09T06:47:05+08:00",
+  "status": "skipped"
+}

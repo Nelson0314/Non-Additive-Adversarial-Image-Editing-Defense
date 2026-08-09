@@ -295,7 +295,12 @@ tr.failed th[scope=row]{{color:#c33}}
 section{{margin-bottom:2rem}}
 @media(prefers-color-scheme:dark){{body{{background:#111;color:#ddd}}
   td.num,.index{{color:#999}}}}
+.nav{{font-size:.85em;margin:0 0 1rem;padding-bottom:.5rem;
+  border-bottom:1px solid #8884}}
+.nav a{{margin-right:.9rem}}
+.nav .here{{font-weight:600;color:#666}}
 </style>
+<p class="nav"><a href="../index.html">← 報告目錄</a><span class="here">人眼比對</span><a href="attention.html">注意力圖</a><a href="grid.csv">逐格數值</a></p>
 <h1>人眼比對 · batch {batch}</h1>
 <p>{meta}</p>
 <p class="lead"><b>這一頁是主判準。</b>數值指標為輔助；兩者矛盾時以人眼為準，

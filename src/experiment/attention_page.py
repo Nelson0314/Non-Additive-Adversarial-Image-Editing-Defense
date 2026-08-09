@@ -147,7 +147,12 @@ td.links{{font-size:.8em;color:#666;word-break:break-all}}
 section{{margin-bottom:2rem}}
 @media(prefers-color-scheme:dark){{body{{background:#111;color:#ddd}}
   td.links,.index{{color:#999}}}}
+.nav{{font-size:.85em;margin:0 0 1rem;padding-bottom:.5rem;
+  border-bottom:1px solid #8884}}
+.nav a{{margin-right:.9rem}}
+.nav .here{{font-weight:600;color:#666}}
 </style>
+<p class="nav"><a href="../index.html">← 報告目錄</a><a href="compare.html">人眼比對</a><span class="here">注意力圖</span><a href="grid.csv">逐格數值</a></p>
 <h1>cross-attention 對照 · batch {batch}</h1>
 <p>{meta}</p>
 <p class="lead"><b>每張熱圖各自正規化到自己的最大值</b>——各層的質量尺度

@@ -299,42 +299,71 @@ def test_外接矩形是實心的(sd9, x01):
 # guard_k=1；保護帶本身以合成張量單獨驗（見下方兩條）。
 
 
-def test_重疊的遮罩與M立刻拋出():
-    """核心不變量。單獨用合成張量驗，不依賴任何模型的注意力落在哪裡。"""
-    from src.models.attention import assert_masks_disjoint
+def test_遮罩內的格點不計入式5():
+    """核心不變量。用合成張量驗，不賭任何模型的注意力落在哪裡。
 
-    m_ca = torch.zeros(1, 1, 8, 8)
-    m_ca[..., 2:5, 2:5] = 1.0
-    edit = torch.zeros(1, 1, 64, 64)
-    edit[..., 32:40, 32:40] = 1.0            # 對到 8×8 上的 (4:5, 4:5)，相交
-    with pytest.raises(ValueError, match="DEF-011"):
-        assert_masks_disjoint(edit, m_ca, where="test")
-
-
-def test_不相交時回傳零重疊():
-    from src.models.attention import assert_masks_disjoint
-
-    m_ca = torch.zeros(1, 1, 8, 8)
-    m_ca[..., 0:3, 0:3] = 1.0
-    edit = torch.zeros(1, 1, 64, 64)
-    edit[..., 48:64, 48:64] = 1.0            # 對到 (6:8, 6:8)，不相交
-    assert assert_masks_disjoint(edit, m_ca, where="test") == 0.0
-
-
-def test_不相交檢查以max_pool保守比對():
-    """影像解析度上只要有**一個像素**落進 M 的格子就要算重疊。
-
-    取 mean 或 nearest 會讓這一個像素被平均掉／取樣掉，而那正是「遮罩邊緣
-    壓在 c_a 上」的形態——它不會有症狀，只會讓防禦擾動在邊界被覆寫。
+    M 是左上 4×4，攻擊方的遮罩蓋住其中右半。式 (5) 只該算剩下的左半。
     """
-    from src.models.attention import assert_masks_disjoint
+    from src.models.attention import restrict_outside_mask
 
-    m_ca = torch.zeros(1, 1, 8, 8)
-    m_ca[..., 4, 4] = 1.0
+    M = torch.zeros(1, 1, 8, 8)
+    M[..., 0:4, 0:4] = 1.0                   # 16 格
+    edit = torch.zeros(1, 1, 64, 64)
+    edit[..., 0:32, 16:32] = 1.0             # 對到 8×8 的 (0:4, 2:4)，8 格
+    out, kept = restrict_outside_mask(M, edit, where="test")
+    assert float(out.sum()) == 8.0
+    assert kept == pytest.approx(0.5)
+    # 被排除的那 8 格確實是遮罩內的那一半
+    assert float(out[..., 0:4, 0:2].sum()) == 8.0
+    assert float(out[..., 0:4, 2:4].sum()) == 0.0
+
+
+def test_遮罩與M完全不相交時M原樣保留():
+    from src.models.attention import restrict_outside_mask
+
+    M = torch.zeros(1, 1, 8, 8)
+    M[..., 0:3, 0:3] = 1.0
+    edit = torch.zeros(1, 1, 64, 64)
+    edit[..., 48:64, 48:64] = 1.0            # 對到 (6:8, 6:8)
+    out, kept = restrict_outside_mask(M, edit, where="test")
+    assert kept == 1.0
+    assert torch.equal(out, M)
+
+
+def test_限制以max_pool保守排除():
+    """影像解析度上只要有**一個像素**落進某格，整格就要排除。
+
+    取 mean 或 nearest 會讓那一個像素被平均掉／取樣掉，於是一個實際上會被
+    攻擊方覆寫的格點仍留在損失裡——那不會有症狀，只是白花失真預算。
+    """
+    from src.models.attention import restrict_outside_mask
+
+    M = torch.zeros(1, 1, 8, 8)
+    M[..., 4, 4] = 1.0
+    M[..., 0, 0] = 1.0
     edit = torch.zeros(1, 1, 64, 64)
     edit[..., 32, 32] = 1.0                  # 8×8 上恰為 (4,4) 這一格
-    with pytest.raises(ValueError, match="重疊"):
-        assert_masks_disjoint(edit, m_ca, where="test")
+    out, kept = restrict_outside_mask(M, edit, where="test")
+    assert float(out[..., 4, 4]) == 0.0
+    assert float(out[..., 0, 0]) == 1.0
+    assert kept == pytest.approx(0.5)
+
+
+def test_遮罩外幾乎沒有M時拋出():
+    """c_a 的注意力幾乎整片落在會被重畫的區域，該影像沒有可施力的地方。
+
+    此時要拋出而不是讓最佳化在幾個格點上空轉——後者跑得完、也寫得出
+    metrics，只是量到的不是防禦。
+    """
+    from src.models.attention import restrict_outside_mask
+
+    M = torch.zeros(1, 1, 8, 8)
+    M[..., 0:4, 0:4] = 1.0                   # 16 格
+    edit = torch.zeros(1, 1, 64, 64)
+    edit[..., 0:32, 0:24] = 1.0              # 對到 (0:4, 0:3)，只剩 4 格 = 0.25
+    restrict_outside_mask(M, edit, where="t", min_kept=0.2)      # 0.25 ≥ 0.2
+    with pytest.raises(ValueError, match="低於下限"):
+        restrict_outside_mask(M, edit, where="t", min_kept=0.3)
 
 
 def test_人工遮罩載入為二值且尺寸對齊(tmp_path):

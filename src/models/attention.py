@@ -55,7 +55,7 @@ attention，故聚合圖的最高解析度是 latent 的一半，不是 latent �
 不接受「安靜地少記幾層」。
 """
 
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 import torch
 
@@ -520,29 +520,38 @@ def masked_attention_l1(
     return (att * mask).abs().sum()
 
 
-def assert_masks_disjoint(
-    edit_mask: torch.Tensor, m: torch.Tensor, *, where: str
-) -> float:
-    """釘住 inpainting 的遮罩與式 (4) 的 M 不相交。重疊即拋出。
+def restrict_outside_mask(
+    m: torch.Tensor, edit_mask: torch.Tensor, *, where: str,
+    min_kept: float = 0.05
+) -> Tuple[torch.Tensor, float]:
+    """把式 (4) 的 M 限制在攻擊方遮罩**之外**，回傳 (受限的 M, 保留比例)。
 
-    這是 Lo et al. (CVPR 2024) Figure 3 的字面要求：遮罩是攻擊方要重畫的
-    區域，而 c_a 是**遮罩外**那個要保住的物件（圖說寫明底線的詞即要免疫的
-    內容，而底線在遮罩外的 corgi）。兩者相交時實驗在結構上就量不到東西：
+    為什麼是限制而不是斷言不相交
+    ──────────────────────────────────────────────────────────────
+    先前這裡是 `assert_masks_disjoint`，要求 M 與遮罩完全不相交。那條
+    不變量**過嚴而不可滿足**：Lo et al. Figure 3 要求的是「c_a 這個**物件**
+    在遮罩外」，而 M 是 c_a 的**注意力圖**，cross-attention 本來就是瀰漫的
+    ——「horse」在草地上也有反應。實測（2026-08-09，SD v1.4 inpainting、
+    本批三張影像）：M 有 9.6%／24.7%／17.6% 落在遮罩內，而且救不回來，
+    保護帶由 13 px 加到 81 px 只把最嚴重的一項從 0.096 降到 0.046，
+    `attn_mask_tau` 加到 0.9 時 M 只剩 2–5 格（梯度幾乎不存在）仍相交。
 
-    - 式 (4) 的 M 落在會被攻擊方整片覆寫的區域，防禦擾動一步都活不過；
-    - `--warp-mask-gate` 又把擾動推到遮罩外，於是**損失看的地方與擾動所在
-      的地方不相交**。
+    處置（DEC-012）：遮罩內的格點**不計入式 (5)**。它們在這個威脅模型下
+    對防禦沒有作用——`SDWrapper.mask_latents` 做 `encode(x_def * (1 - mask))`，
+    遮罩內的像素在進入模型之前就被歸零，而輸出端遮罩內由模型重新生成。
+    在那裡壓注意力是零防禦價值、全額保真成本，與 `--warp-mask-gate` 對
+    擾動所做的是同一個論證。
 
-    ip1／ip2／ip3 三批都是這個配置（遮罩與 M 同由 `content` 產生），而它
-    **沒有任何症狀**——遮罩產得出來、涵蓋率印得出數字、格點全部 `done`。
-    缺的就是這道檢查（DEF-011）。
+    實際運算
+    ──────────────────────────────────────────────────────────────
+    `edit_mask` 是影像解析度的 (B,1,H,W)，M 定義在注意力格點上（512² 下
+    為 64²）。以 `adaptive_max_pool2d` 降到同一邊長：取 max 而非 mean 或
+    nearest，使「該格內只要有任何一個像素屬於遮罩」就整格排除。這個方向
+    是刻意的——寧可少算幾格，不可把會被覆寫的格點留在損失裡。
 
-    比對在**注意力圖的格點上**進行，因為 M 只定義在那裡。影像解析度的
-    `edit_mask` 以 adaptive max-pool 降到同一邊長：取 max 而非 mean 或
-    nearest，使「該格內只要有任何一個像素屬於遮罩」就算重疊。這個方向是
-    刻意的——寧可誤報重疊，不可漏掉。
-
-    回傳重疊格數佔 M 的比例（恆為 0，否則已拋出），供呼叫端落盤存證。
+    保留比例低於 `min_kept` 時拋出：那表示 c_a 的注意力幾乎整片落在會被
+    重畫的區域，該影像在這個配置下沒有可施力的地方，應換圖或重畫遮罩，
+    而不是讓最佳化在幾格上空轉。
     """
     if edit_mask.dim() != 4:
         raise ValueError(
@@ -551,18 +560,20 @@ def assert_masks_disjoint(
     side = int(mm.shape[-1])
     em = torch.nn.functional.adaptive_max_pool2d(
         edit_mask.to(mm.dtype), (side, side))
-    inter = ((em > 0.5) & (mm > 0.5)).sum()
     n_m = int((mm > 0.5).sum())
-    if int(inter) > 0:
+    if n_m == 0:
+        raise ValueError(f"[{where}] 式 (4) 的 M 為空，沒有可限制的區域")
+    out = mm * (em <= 0.5).to(mm.dtype)
+    kept = float((out > 0.5).sum()) / n_m
+    if kept < min_kept:
         raise ValueError(
-            f"[{where}] inpainting 的遮罩與式 (4) 的 M 有 {int(inter)} 個格點"
-            f"重疊（M 共 {n_m} 格，邊長 {side}）。Lo et al. Figure 3 要求 c_a "
-            "在遮罩外：重疊時防禦擾動落在會被整片覆寫的區域，一步都活不過，"
-            "而格點會全部跑完且看不出症狀。這是 DEF-011，ip1／ip2／ip3 三批"
-            "都栽在這裡。請用 scripts/draw_masks.py 把這張影像的遮罩重畫，"
-            "讓它避開 c_a 所在的位置"
+            f"[{where}] 式 (4) 的 M 只有 {kept:.3f} 落在攻擊方的遮罩外"
+            f"（M 共 {n_m} 格，邊長 {side}），低於下限 {min_kept}。"
+            "c_a 的注意力幾乎整片落在會被重畫的區域，該影像在這個配置下"
+            "沒有可施力的地方——換一張影像，或用 scripts/draw_masks.py "
+            "把遮罩改小，不要讓最佳化在幾個格點上空轉"
         )
-    return float(inter) / max(n_m, 1)
+    return (out if m.dim() == 4 else out.squeeze(1)), kept
 
 
 def attention_entropy(

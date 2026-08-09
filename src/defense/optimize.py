@@ -555,6 +555,11 @@ class OptimResult:
     # 少了它報表上的「壓下多少」無從還原。
     attn_mask_coverage: Optional[float] = None
     attn_ref_l1: Optional[float] = None
+    # inpainting 專用：式 (4) 的 M 有多少比例落在攻擊方的遮罩外，也就是
+    # 實際進入式 (5) 的那一部分（DEC-012）。img2img 下恆為 `None`——那個
+    # 威脅模型沒有遮罩，M 全部計入。這一欄必須落盤：它是「本格的損失實際
+    # 算在多大的區域上」，缺了它，兩張影像之間的 `attn_suppressed` 不可比。
+    attn_mask_kept: Optional[float] = None
 
 
 def run_stages(
@@ -1211,17 +1216,30 @@ def _build_attn_step(sd, gen, obj, cfg, x01, emb_cond, emb_uncond, purifiers,
                 rec.clear()
             att_ref = torch.stack(atts).mean(dim=0)
         mask = attention_region_mask(att_ref, obj.cfg.attn_mask_tau)
-        # inpainting：M 與攻擊方的遮罩不可相交（Lo Figure 3、DEF-011）。
-        # 這裡是**具約束力**的那一道——`data/masks.py` 產遮罩時已檢查過一次，
-        # 但那用的是單一 timestep、reduce="mean"、9 通道補全 1 的近似圖；
-        # 真正進損失的 M 是此處這一張（逐 t 平均、reduce="sum"、且 9 通道
-        # 餵的正是 cfg.edit_mask）。兩張不同，故必須在這裡再斷言一次。
+        # inpainting：式 (5) **只算落在攻擊方遮罩外的那部分 M**
+        # （2026-08-10 使用者裁決，DEC-012；處置的是 DEF-011）。
+        #
+        # 遮罩內的格點在這個威脅模型下對防禦沒有作用：`SDWrapper.mask_latents`
+        # 做的是 `encode_image(x_def * (1 - mask))`，**遮罩內的像素在進入模型
+        # 之前就被歸零**，而輸出端遮罩內由模型重新生成、遮罩外每一步貼回。
+        # 把那些格點放進式 (5)，等於要最佳化器去改一個它送不進模型、且輸出
+        # 會被整片覆寫的東西——花的是失真預算，換到的是零。
+        #
+        # 這是既有規則換一個作用對象：`--warp-mask-gate` 對**擾動**做的就是
+        # 這件事，而 PhotoGuard-c 與 PromptFlare 的原始碼把梯度乘 (1 − mask)。
+        # site apa 的擾動在 latent 與權重上，經 VAE 解碼後不是逐像素定域的，
+        # 無法以同一方式加閘（`shard.sh` 的 ip profile 已載明）；損失可以。
+        n_before = int(mask.sum())
         if sd.is_inpainting and cfg.edit_mask is not None:
-            from src.models.attention import assert_masks_disjoint
+            from src.models.attention import restrict_outside_mask
 
-            assert_masks_disjoint(
-                cfg.edit_mask, mask,
+            mask, kept = restrict_outside_mask(
+                mask, cfg.edit_mask,
                 where=f"optimize/suppress_attn_ca/{obj.cfg.content}")
+            result.attn_mask_kept = kept
+            print(f"  [suppress] M 落在遮罩外的比例 {kept:.3f}"
+                  f"（{int(mask.sum())}/{n_before} 格點）；遮罩內的格點不計入"
+                  f"式 (5)，它們會被攻擊方整片覆寫", flush=True)
         ref_l1 = float(masked_attention_l1(att_ref, mask).detach())
         coverage = float(mask.mean())
         print(f"  [suppress] c_a={obj.cfg.content!r}  遮罩覆蓋 "

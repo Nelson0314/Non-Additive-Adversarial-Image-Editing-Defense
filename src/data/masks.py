@@ -9,7 +9,7 @@
 **這不是 inpainting 遮罩的來源。**
 ──────────────────────────────────────────────────────────────────────
 2026-08-09 起，攻擊方的遮罩改為**人工繪製**，逐影像一張 PNG 存在
-`data/lo_aligned/masks/`，工具是 `scripts/draw_masks.py`（DEC-010）。
+`data/lo_masks/`，工具是 `scripts/draw_masks.py`（DEC-010）。
 文獻的作法即如此：PIE-Bench 附標註遮罩、PhotoGuard 與 AdvPaint 的
 inpainting 實驗用人工遮罩、Lo et al. Figure 3 那張也是手畫的；真實的
 inpainting 軟體本來就是讓使用者自己框。
@@ -29,8 +29,9 @@ before：遮罩由 `content_mask` 依 c_a 的注意力產生，於是它與式 (
 式 (4) 的 M 本身仍由 c_a 的注意力取得（真正進損失的那張在
 `src/defense/optimize.py`）。本模組的 `content_mask` 是它套在單張影像上的
 形式，供診斷與視覺化用——例如要看「模型認為 c_a 在哪裡」與人工遮罩有沒有
-打架。人工遮罩與 M 不相交這條不變量由
-`src.models.attention.assert_masks_disjoint` 在 `optimize.py` 斷言。
+打架。人工遮罩與 M 的關係由 `src.models.attention.restrict_outside_mask` 處理：
+式 (5) 只計算 M 落在遮罩**外**的那一部分（DEC-012）。遮罩內的格點對防禦
+沒有作用——那裡的像素在 `mask_latents` 就被歸零、輸出也會被整片重畫。
 """
 
 from __future__ import annotations

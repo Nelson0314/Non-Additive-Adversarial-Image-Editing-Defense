@@ -1,0 +1,73 @@
+{
+  "cell_id": "train/Ra/horse_03",
+  "config_hash": "f8ef7b303539",
+  "config": {
+    "spec_version": 1,
+    "model": "CompVis/stable-diffusion-v1-4",
+    "resolution": 512,
+    "guidance": 7.5,
+    "steps": 50,
+    "strength": 0.4,
+    "gpu": "RTX-3090",
+    "precision": "fp32",
+    "loss_params": {
+      "train_n_edit": 10,
+      "n_eot": 1,
+      "k_inv": 10,
+      "t_max": null,
+      "exact_inversion": true,
+      "purify_mode": "all",
+      "attn_timesteps": 2,
+      "tau_train": 0.25,
+      "tau_acut": 0.2,
+      "tau_chroma": 4.0,
+      "beta_linf": 0.0,
+      "tau_linf": 0.06,
+      "target_image": "data/targets/gray.png",
+      "shared_tokens": [
+        0
+      ],
+      "attn_mask_tau": 0.5
+    },
+    "module_params": {
+      "warp_grid_size": 32,
+      "warp_max_disp": 8.0,
+      "warp_resample": "bicubic",
+      "apa_lora_rank": 8,
+      "apa_latent_max_rank": 32,
+      "apa_latent_const_rank": 8,
+      "random_init_std": 0.5
+    },
+    "optim_params": {
+      "max_steps": 250,
+      "align_steps": 200,
+      "stop_patience": 20,
+      "stop_min_steps": 25
+    },
+    "lr": null,
+    "condition": "Ra",
+    "image_id": "horse_03",
+    "tau": null,
+    "purify": null,
+    "seed": null
+  },
+  "steps_used": 0,
+  "stop_reason": "random control：無最佳化",
+  "random_seed": 3925442476,
+  "lr": null,
+  "align_steps_used": 200,
+  "residual_gain": 0.6238402287545852,
+  "fid_psnr": 23.790138244628906,
+  "fid_linf": 0.8014872670173645,
+  "fid_ssim": 0.7797967195510864,
+  "fid_vif_p": 0.21933747828006744,
+  "fid_fsim": 0.9069458842277527,
+  "fid_lpips": 0.22152307629585266,
+  "fid_dists": 0.09609705209732056,
+  "fid_acutance_ratio": 1.1253995895385742,
+  "fid_rms": 0.06463871151208878,
+  "fid_frac_gt_16_255": 0.2082366943359375,
+  "fid_niqe": 2.3146772510933205,
+  "group": "horse",
+  "prompt": "a zebra"
+}

@@ -1,0 +1,87 @@
+{
+  "cell_id": "train/N4/woman_03",
+  "config_hash": "3a0501ecbd04",
+  "config": {
+    "spec_version": 1,
+    "model": "CompVis/stable-diffusion-v1-4",
+    "resolution": 512,
+    "guidance": 7.5,
+    "steps": 50,
+    "strength": 0.4,
+    "gpu": "RTX-3090",
+    "precision": "fp32",
+    "loss_params": {
+      "train_n_edit": 10,
+      "n_eot": 1,
+      "k_inv": 10,
+      "t_max": null,
+      "exact_inversion": true,
+      "purify_mode": "all",
+      "attn_timesteps": 2,
+      "tau_train": 0.25,
+      "tau_acut": 0.2,
+      "tau_chroma": 4.0,
+      "beta_linf": 0.0,
+      "tau_linf": 0.06,
+      "target_image": "data/targets/gray.png",
+      "shared_tokens": [
+        0
+      ],
+      "attn_mask_tau": 0.5
+    },
+    "module_params": {
+      "warp_grid_size": 32,
+      "warp_max_disp": 8.0,
+      "warp_resample": "bicubic",
+      "apa_lora_rank": 8,
+      "apa_latent_max_rank": 32,
+      "apa_latent_const_rank": 8,
+      "random_init_std": 0.5
+    },
+    "optim_params": {
+      "max_steps": 250,
+      "align_steps": 200,
+      "stop_patience": 20,
+      "stop_min_steps": 25
+    },
+    "lr": null,
+    "condition": "N4",
+    "image_id": "woman_03",
+    "tau": null,
+    "purify": null,
+    "seed": null
+  },
+  "steps_used": 132,
+  "stop_reason": "約束已啟動且 attn_suppressed 在最近 20 步的每步改善 +1.35e-01 低於 2.4e-01",
+  "stage_reports": [
+    {
+      "group": "stage2",
+      "lr_key": "lr.N4_stage2",
+      "lr": 0.02,
+      "max_steps": 250,
+      "steps": 132,
+      "stop_reason": "約束已啟動且 attn_suppressed 在最近 20 步的每步改善 +1.35e-01 低於 2.4e-01"
+    }
+  ],
+  "align_seconds": 944.03,
+  "seconds_optimize": 1013.08,
+  "lr": 0.02,
+  "final_L_def": 67.8597412109375,
+  "final_L_fid": 0.0,
+  "final_lpips": 0.26791366934776306,
+  "final_edit_shift": NaN,
+  "residual_gain": 0.5524401788780706,
+  "fid_psnr": 19.614484786987305,
+  "fid_linf": 0.9050753712654114,
+  "fid_ssim": 0.588394284248352,
+  "fid_vif_p": 0.06983324885368347,
+  "fid_fsim": 0.815934956073761,
+  "fid_lpips": 0.26791366934776306,
+  "fid_dists": 0.22930943965911865,
+  "fid_acutance_ratio": 1.0457737445831299,
+  "fid_rms": 0.10453834384679794,
+  "fid_frac_gt_16_255": 0.4852345883846283,
+  "fid_niqe": 4.858236424289488,
+  "group": "woman",
+  "prompt": "a man"
+}

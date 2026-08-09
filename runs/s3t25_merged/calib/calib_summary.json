@@ -1,0 +1,68 @@
+{
+  "micro_bench": {
+    "vae_roundtrip": 0.44424205482937396,
+    "sdedit_50steps": 8.263275959994644
+  },
+  "precision_equiv": {
+    "dtype": "float32",
+    "compared": false,
+    "rows": [
+      {
+        "op": "all",
+        "dtype": "float32",
+        "reference": "float32",
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "psnr": Infinity,
+        "note": "本批以 fp32 執行，與參考同一路徑，無須比對"
+      }
+    ]
+  },
+  "strength": {
+    "recommended": 0.8,
+    "mean_effect_siglip": {
+      "0.3": 0.04340151666353146,
+      "0.4": 0.07071683183312416,
+      "0.5": 0.06682950382431348,
+      "0.6": 0.06713979318737984,
+      "0.7": 0.054588564982016884,
+      "0.8": 0.07093919937809308
+    }
+  },
+  "editable": {
+    "threshold": 0.0,
+    "passed": [
+      "horse_00",
+      "horse_03",
+      "woman_03"
+    ],
+    "n_passed": 3,
+    "n_total": 3
+  },
+  "warp_reach": {
+    "skipped": true,
+    "reason": "本批的條件 ['N4', 'photoguard_c', 'mist', 'dia_r', 'Ra'] 沒有任何一個走 site warp，位移場的可達上界對本批不適用。apa 那一側的對應量是重建誤差**下界**，見 calib/recon_floor.csv"
+  },
+  "recon_floor": {
+    "horse_00": 0.12831369042396545,
+    "horse_03": 0.14480172097682953,
+    "woman_03": 0.08779364079236984
+  },
+  "recon_floor_check": {
+    "conditions": [
+      "N4",
+      "Ra"
+    ],
+    "tau_train": 0.25,
+    "max_floor": 0.14480172097682953,
+    "covers_train_tau": true,
+    "blocked_images": {}
+  },
+  "calibration_keys": [
+    "lr.N4_stage1",
+    "lr.N4_stage2",
+    "precision_equiv.all.rel_l2",
+    "stop_tol.attn_suppressed",
+    "strength.recommended"
+  ]
+}

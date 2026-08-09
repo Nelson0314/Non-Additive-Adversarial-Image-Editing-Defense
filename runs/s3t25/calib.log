@@ -1,0 +1,188 @@
+[thresholds] tau_acut = 0.2 （由 τ_train=0.25 依比例導出）
+[thresholds] tau_chroma = 4 （由 τ_train=0.25 依比例導出）
+[taus] τ 軸 (0.05, 0.1, 0.2, 0.25, 0.35)；主表與掃描組 0.25；完整淨化組 (0.25,)（由 --tau-train=0.25 導出）
+[env] 載入 SDWrapper(CompVis/stable-diffusion-v1-4) dtype=torch.float32
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3764.41it/s]
+Loading pipeline components...:  17%|█▋        | 1/6 [00:00<00:00,  6.17it/s]Loading pipeline components...:  83%|████████▎ | 5/6 [00:00<00:00, 19.16it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 15.58it/s]
+There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+[env] 影像 3 張：['horse_00', 'horse_03', 'woman_03']
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 24679.31it/s]
+[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
+[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
+Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 5364.13it/s]
+  [warp_reach] 跳過：本批的條件 ['N4', 'photoguard_c', 'mist', 'dia_r', 'Ra'] 沒有任何一個走 site warp，位移場的可達上界對本批不適用。apa 那一側的對應量是重建誤差**下界**，見 calib/recon_floor.csv
+  [align] group=stage1 lr=0.0001（lr.N4_stage1）60 步
+  [align] 門檻取自本圖的重建下限：psnr≥26.88dB lpips≤0.1283 acut≤0.0961 chroma≤0.9972
+/nfs/home/nelson0314/WACV-s3/src/defense/objective.py:719: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /__w/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:822.)
+  "fid_linf_total": float((xd - xr).abs().max()),
+  [align] step    0  loss=0.0000  lpips=0.1283  psnr=26.88
+  [align] step   10  loss=0.0000  lpips=0.1266  psnr=26.96
+  [align] step   20  loss=0.0000  lpips=0.1265  psnr=26.95
+  [align] step   30  loss=0.0000  lpips=0.1267  psnr=26.93
+  [align] step   40  loss=0.0000  lpips=0.1267  psnr=26.92
+  [align] step   50  loss=0.0000  lpips=0.1268  psnr=26.92
+  [align] step   59  loss=0.0000  lpips=0.1268  psnr=26.92
+  [align] 還原第 0 步的 φ（loss=0.0000）；最後一步為 0.0000
+  [align] group=stage1 lr=0.001（lr.N4_stage1）60 步
+  [align] 門檻取自本圖的重建下限：psnr≥26.88dB lpips≤0.1283 acut≤0.0961 chroma≤0.9972
+  [align] step    0  loss=0.0000  lpips=0.1283  psnr=26.88
+  [align] step   10  loss=0.0000  lpips=0.1255  psnr=26.98
+  [align] step   20  loss=0.0000  lpips=0.1259  psnr=27.05
+  [align] step   30  loss=0.0000  lpips=0.1269  psnr=27.02
+  [align] step   40  loss=0.0000  lpips=0.1263  psnr=26.99
+  [align] step   50  loss=0.0000  lpips=0.1254  psnr=27.04
+  [align] step   59  loss=0.0439  lpips=0.1288  psnr=26.99
+  [align] 還原第 0 步的 φ（loss=0.0000）；最後一步為 0.0439
+  [align] group=stage1 lr=0.005（lr.N4_stage1）60 步
+  [align] 門檻取自本圖的重建下限：psnr≥26.88dB lpips≤0.1283 acut≤0.0961 chroma≤0.9972
+  [align] step    0  loss=0.0000  lpips=0.1283  psnr=26.88
+  [align] step   10  loss=210.8748  lpips=0.2436  psnr=23.43
+  [align] step   20  loss=139.8125  lpips=0.2023  psnr=25.13
+  [align] step   30  loss=84.8038  lpips=0.1834  psnr=25.77
+  [align] step   40  loss=80.8115  lpips=0.1861  psnr=26.17
+  [align] step   50  loss=47.3380  lpips=0.1924  psnr=25.48
+  [align] step   59  loss=6.6033  lpips=0.1680  psnr=26.07
+  [align] 還原第 0 步的 φ（loss=0.0000）；最後一步為 6.6033
+  [align] group=stage1 lr=0.02（lr.N4_stage1）60 步
+  [align] 門檻取自本圖的重建下限：psnr≥26.88dB lpips≤0.1283 acut≤0.0961 chroma≤0.9972
+  [align] step    0  loss=0.0000  lpips=0.1283  psnr=26.88
+  [align] step   10  loss=3601.3914  lpips=0.7933  psnr=7.92
+  [align] step   20  loss=2351.2087  lpips=0.7734  psnr=10.20
+  [align] step   30  loss=2007.6980  lpips=0.7690  psnr=10.73
+  [align] step   40  loss=1629.3593  lpips=0.7655  psnr=11.00
+  [align] step   50  loss=1662.9368  lpips=0.7569  psnr=10.93
+  [align] step   59  loss=1781.5892  lpips=0.7643  psnr=10.26
+  [align] 還原第 0 步的 φ（loss=0.0000）；最後一步為 1781.5892
+  [align] group=stage1 lr=0.1（lr.N4_stage1）60 步
+  [align] 門檻取自本圖的重建下限：psnr≥26.88dB lpips≤0.1283 acut≤0.0961 chroma≤0.9972
+  [align] step    0  loss=0.0000  lpips=0.1283  psnr=26.88
+  [align] step   10  loss=3139.1038  lpips=0.7774  psnr=7.80
+  [align] step   20  loss=2698.3630  lpips=0.7758  psnr=7.87
+  [align] step   30  loss=2664.8967  lpips=0.7694  psnr=8.13
+  [align] step   33  發散：x_gen 出現非有限值，本候選就此停止
+  [align] 還原第 0 步的 φ（loss=0.0000）；最後一步為 inf
+  [suppress] c_a='horse'  遮罩覆蓋 7.0%（287/4096 格點，邊長 64）  起點 L1=166.139
+  [stage stage2] lr=0.0001（lr.N4_stage2）上限 60 步
+  [stage2] step    0  loss=164.5228  L_def=164.5228  L_fid=0.0000  |g|=1.000e+00
+  [stage2] step   10  loss=164.0718  L_def=164.0718  L_fid=0.0000  |g|=1.000e+00
+  [stage2] step   20  loss=163.4848  L_def=163.4848  L_fid=0.0000  |g|=1.000e+00
+  [stage2] step   30  loss=163.8613  L_def=163.8613  L_fid=0.0000  |g|=1.000e+00
+  [stage2] step   40  loss=162.9749  L_def=162.9749  L_fid=0.0000  |g|=1.000e+00
+  [stage2] step   50  loss=163.5152  L_def=163.5152  L_fid=0.0000  |g|=1.000e+00
+  [stage2] step   59  loss=162.4469  L_def=162.4469  L_fid=0.0000  |g|=1.000e+00
+  [suppress] c_a='horse'  遮罩覆蓋 7.0%（287/4096 格點，邊長 64）  起點 L1=166.139
+  [stage stage2] lr=0.001（lr.N4_stage2）上限 60 步
+  [stage2] step    0  loss=164.5228  L_def=164.5228  L_fid=0.0000  |g|=1.000e+00
+  [stage2] step   10  loss=161.7166  L_def=161.7166  L_fid=0.0000  |g|=1.000e+00
+  [stage2] step   20  loss=158.6929  L_def=158.6929  L_fid=0.0000  |g|=1.000e+00
+  [stage2] step   30  loss=154.2541  L_def=154.2541  L_fid=0.0000  |g|=1.000e+00
+  [stage2] step   40  loss=149.7519  L_def=149.7519  L_fid=0.0000  |g|=1.000e+00
+  [stage2] step   50  loss=145.1039  L_def=145.1039  L_fid=0.0000  |g|=1.000e+00
+  [stage2] step   59  loss=139.1897  L_def=139.1897  L_fid=0.0000  |g|=1.000e+00
+  [suppress] c_a='horse'  遮罩覆蓋 7.0%（287/4096 格點，邊長 64）  起點 L1=166.139
+  [stage stage2] lr=0.005（lr.N4_stage2）上限 60 步
+  [stage2] step    0  loss=164.5228  L_def=164.5228  L_fid=0.0000  |g|=1.000e+00
+  [stage2] step   10  loss=148.5623  L_def=148.5623  L_fid=0.0000  |g|=1.000e+00
+  [stage2] step   20  loss=122.6232  L_def=122.6232  L_fid=0.0000  |g|=1.000e+00
+  [stage2] step   30  loss=101.6268  L_def=101.6268  L_fid=0.0000  |g|=1.000e+00
+  [stage2] step   40  loss=80.4238  L_def=80.4238  L_fid=0.0000  |g|=1.000e+00
+  [stage2] step   50  loss=62.1514  L_def=61.6387  L_fid=0.5127  |g|=1.000e+00
+  [stage2] step   59  loss=51.3377  L_def=51.1049  L_fid=0.2328  |g|=1.000e+00
+  [suppress] c_a='horse'  遮罩覆蓋 7.0%（287/4096 格點，邊長 64）  起點 L1=166.139
+  [stage stage2] lr=0.02（lr.N4_stage2）上限 60 步
+  [stage2] step    0  loss=164.5228  L_def=164.5228  L_fid=0.0000  |g|=1.000e+00
+  [stage2] step   10  loss=101.8006  L_def=96.9314  L_fid=4.8692  |g|=1.000e+00
+  [stage2] step   20  loss=60.9229  L_def=56.0222  L_fid=4.9007  |g|=1.000e+00
+  [stage2] step   30  loss=37.7060  L_def=37.7060  L_fid=0.0000  |g|=1.000e+00
+  [stage2] step   40  loss=31.4108  L_def=30.3106  L_fid=1.1002  |g|=1.000e+00
+  [stage2] step   50  loss=26.0755  L_def=25.9083  L_fid=0.1672  |g|=1.000e+00
+  [stage2] step   59  loss=24.8268  L_def=23.8371  L_fid=0.9897  |g|=1.000e+00
+  [suppress] c_a='horse'  遮罩覆蓋 7.0%（287/4096 格點，邊長 64）  起點 L1=166.139
+  [stage stage2] lr=0.1（lr.N4_stage2）上限 60 步
+  [stage2] step    0  loss=164.5228  L_def=164.5228  L_fid=0.0000  |g|=1.000e+00
+  [stage2] step   10  loss=134.5835  L_def=54.9985  L_fid=79.5850  |g|=1.000e+00
+  [stage2] step   20  loss=57.3759  L_def=33.5434  L_fid=23.8325  |g|=1.000e+00
+  [stage2] step   30  loss=86.9145  L_def=26.7920  L_fid=60.1225  |g|=1.000e+00
+  [stage2] step   40  loss=45.8303  L_def=25.9049  L_fid=19.9254  |g|=1.000e+00
+  [stage2] step   50  loss=44.2398  L_def=23.6150  L_fid=20.6249  |g|=1.000e+00
+  [stage2] step   59  loss=38.3513  L_def=21.7514  L_fid=16.5999  |g|=1.000e+00
+  [probe] lr.N4_stage1 已由 'N4' 探測，'Ra' 共用（探測對象相同：('align', 'apa')）
+
+[calib] 校準表寫入 /nfs/home/nelson0314/wacv_runs/s3t25/calib/calibration.json
+{
+  "micro_bench": {
+    "vae_roundtrip": 0.44424205482937396,
+    "sdedit_50steps": 8.263275959994644
+  },
+  "precision_equiv": {
+    "dtype": "float32",
+    "compared": false,
+    "rows": [
+      {
+        "op": "all",
+        "dtype": "float32",
+        "reference": "float32",
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "psnr": Infinity,
+        "note": "本批以 fp32 執行，與參考同一路徑，無須比對"
+      }
+    ]
+  },
+  "strength": {
+    "recommended": 0.8,
+    "mean_effect_siglip": {
+      "0.3": 0.04340151666353146,
+      "0.4": 0.07071683183312416,
+      "0.5": 0.06682950382431348,
+      "0.6": 0.06713979318737984,
+      "0.7": 0.054588564982016884,
+      "0.8": 0.07093919937809308
+    }
+  },
+  "editable": {
+    "threshold": 0.0,
+    "passed": [
+      "horse_00",
+      "horse_03",
+      "woman_03"
+    ],
+    "n_passed": 3,
+    "n_total": 3
+  },
+  "warp_reach": {
+    "skipped": true,
+    "reason": "本批的條件 ['N4', 'photoguard_c', 'mist', 'dia_r', 'Ra'] 沒有任何一個走 site warp，位移場的可達上界對本批不適用。apa 那一側的對應量是重建誤差**下界**，見 calib/recon_floor.csv"
+  },
+  "recon_floor": {
+    "horse_00": 0.12831369042396545,
+    "horse_03": 0.14480172097682953,
+    "woman_03": 0.08779364079236984
+  },
+  "recon_floor_check": {
+    "conditions": [
+      "N4",
+      "Ra"
+    ],
+    "tau_train": 0.25,
+    "max_floor": 0.14480172097682953,
+    "covers_train_tau": true,
+    "blocked_images": {}
+  },
+  "calibration_keys": [
+    "lr.N4_stage1",
+    "lr.N4_stage2",
+    "precision_equiv.all.rel_l2",
+    "stop_tol.attn_suppressed",
+    "strength.recommended"
+  ]
+}
+[exit 0]

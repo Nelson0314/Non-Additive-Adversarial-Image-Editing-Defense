@@ -355,7 +355,13 @@ def _print_warnings(warns) -> None:
     print("", file=sys.stderr)
 
 
-def main(argv=None) -> int:
+def build_parser() -> argparse.ArgumentParser:
+    """整份命令列定義。**與 `main` 分開**，使其他腳本能複用同一份。
+
+    `scripts/tau_preview.py` 要用 `build_resources`，而後者吃的是這裡解析出
+    來的 `args`。抄一份平行的參數表出去，兩份就會分岔——而分岔的症狀是
+    某個旗標在主驅動上生效、在別的腳本上靜默失效。
+    """
     ap = argparse.ArgumentParser(description="WACV 實驗主驅動")
     ap.add_argument("stage", choices=STAGES)
     ap.add_argument("--batch", required=True, help="批次名，例 b1")
@@ -501,7 +507,11 @@ def main(argv=None) -> int:
                     help="只列出會跑哪些格，不執行也不寫入")
     ap.add_argument("--force", action="store_true",
                     help="忽略續跑判定重跑全部格子")
-    args = ap.parse_args(argv)
+    return ap
+
+
+def main(argv=None) -> int:
+    args = build_parser().parse_args(argv)
 
     # inpainting 沒有 strength。`--strength` 的預設是 0.6，不清掉的話它會
     # 進 `base_config`、進 `config_hash`、再被交給 `SDWrapper.edit` 而拋出

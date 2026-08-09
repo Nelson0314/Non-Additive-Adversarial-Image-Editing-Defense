@@ -1,0 +1,71 @@
+{
+  "cell_id": "rayscale/photoguard_c/woman_03/tau0.25",
+  "config_hash": "bae0b308debe",
+  "config": {
+    "spec_version": 1,
+    "model": "CompVis/stable-diffusion-v1-4",
+    "resolution": 512,
+    "guidance": 7.5,
+    "steps": 50,
+    "strength": 0.4,
+    "gpu": "RTX-3090",
+    "precision": "fp32",
+    "loss_params": {
+      "train_n_edit": 10,
+      "n_eot": 1,
+      "k_inv": 10,
+      "t_max": null,
+      "exact_inversion": true,
+      "purify_mode": "all",
+      "attn_timesteps": 2,
+      "tau_train": 0.25,
+      "tau_acut": 0.2,
+      "tau_chroma": 4.0,
+      "beta_linf": 0.0,
+      "tau_linf": 0.06,
+      "target_image": "data/targets/gray.png",
+      "shared_tokens": [
+        0
+      ],
+      "attn_mask_tau": 0.5
+    },
+    "module_params": {
+      "warp_grid_size": 32,
+      "warp_max_disp": 8.0,
+      "warp_resample": "bicubic",
+      "apa_lora_rank": 8,
+      "apa_latent_max_rank": 32,
+      "apa_latent_const_rank": 8,
+      "random_init_std": 0.5
+    },
+    "optim_params": {
+      "max_steps": 250,
+      "align_steps": 200,
+      "stop_patience": 20,
+      "stop_min_steps": 25
+    },
+    "lr": null,
+    "condition": "photoguard_c",
+    "image_id": "woman_03",
+    "tau": 0.25,
+    "purify": null,
+    "seed": null
+  },
+  "condition": "photoguard_c",
+  "image_id": "woman_03",
+  "tau_target": 0.25,
+  "tau_achieved": 0.24837669730186462,
+  "scale_k": 0.6875,
+  "niqe": 4.351137374478915,
+  "fid_psnr": 44.149017333984375,
+  "fid_linf": 0.18814913928508759,
+  "fid_ssim": 0.9913462400436401,
+  "fid_vif_p": 0.7352320551872253,
+  "fid_fsim": 0.9928790330886841,
+  "fid_lpips": 0.24837669730186462,
+  "fid_dists": 0.01949465274810791,
+  "fid_acutance_ratio": 0.9968196153640747,
+  "fid_rms": 0.006201443262398243,
+  "fid_frac_gt_16_255": 0.0005086263408884406,
+  "seconds_rayscale": 0.21
+}

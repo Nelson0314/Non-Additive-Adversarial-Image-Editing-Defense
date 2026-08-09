@@ -1,0 +1,84 @@
+{
+  "artifacts": [
+    "control/woman_03/purify/jpeg_30/x_purified.png",
+    "control/woman_03/purify/jpeg_30/edit_seed3.png",
+    "control/woman_03/purify/jpeg_30/meta_seed3.json",
+    "control/woman_03/purify/jpeg_30/attn/seed3_agg.png",
+    "control/woman_03/purify/jpeg_30/attn/attn_stats.csv"
+  ],
+  "attn_full": false,
+  "attn_steps": 11,
+  "condition": "phi0",
+  "config": {
+    "condition": "phi0",
+    "gpu": "RTX-3090",
+    "guidance": 7.5,
+    "image_id": "woman_03",
+    "loss_params": {
+      "attn_mask_tau": 0.5,
+      "attn_timesteps": 2,
+      "beta_linf": 0.0,
+      "exact_inversion": true,
+      "k_inv": 10,
+      "n_eot": 1,
+      "purify_mode": "all",
+      "shared_tokens": [
+        0
+      ],
+      "t_max": null,
+      "target_image": "data/targets/gray.png",
+      "tau_acut": 0.2,
+      "tau_chroma": 4.0,
+      "tau_linf": 0.06,
+      "tau_train": 0.25,
+      "train_n_edit": 10
+    },
+    "lr": null,
+    "model": "CompVis/stable-diffusion-v1-4",
+    "module_params": {
+      "apa_latent_const_rank": 8,
+      "apa_latent_max_rank": 32,
+      "apa_lora_rank": 8,
+      "random_init_std": 0.5,
+      "warp_grid_size": 32,
+      "warp_max_disp": 8.0,
+      "warp_resample": "bicubic"
+    },
+    "optim_params": {
+      "align_steps": 200,
+      "max_steps": 250,
+      "stop_min_steps": 25,
+      "stop_patience": 20
+    },
+    "precision": "fp32",
+    "purify": {
+      "kind": "jpeg",
+      "strength": 30
+    },
+    "resolution": 512,
+    "seed": 3,
+    "spec_version": 1,
+    "steps": 50,
+    "strength": 0.4,
+    "tau": null
+  },
+  "config_hash": "0604fa0a9e92",
+  "ctrl_clip": 0.22557109594345093,
+  "ctrl_siglip": 0.0824018120765686,
+  "error": null,
+  "finished": "2026-08-09T21:05:43+08:00",
+  "group": "woman",
+  "id": "control/phi0/woman_03/purifyjpeg30/seed3",
+  "image": "woman_03",
+  "image_id": "woman_03",
+  "prompt": "a man",
+  "purify_available": true,
+  "purify_differentiable": false,
+  "purify_kind": "jpeg",
+  "purify_strength": 30,
+  "seconds": 9.40414256695658,
+  "seed": 3,
+  "stage": "control",
+  "started": "2026-08-09T21:05:34+08:00",
+  "status": "done"
+}

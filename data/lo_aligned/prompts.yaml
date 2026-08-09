@@ -24,7 +24,11 @@
 man:
   content: "man"
   prompts:
-    - "a woman"
+    # 2026-08-09 由 "a woman" 改為 "an old woman"（使用者裁決）。
+    # 理由：批次 A 的 bird → butterfly 顯示，**跳太大的編輯連未防禦的那一側
+    # 都難說成功**，於是防禦有沒有效就無從量起——分母本身不成立。
+    # 改成同為人物、只改年齡與性別的編輯，攻擊本身可信，量測才有動態範圍。
+    - "an old woman"
     - "a man in a snowy street"
 
 woman:

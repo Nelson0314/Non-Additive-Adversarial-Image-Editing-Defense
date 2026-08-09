@@ -78,7 +78,11 @@
   `grid.csv`、`progress.json` 等）移入對應的 `_merged/_shards/<影像>/`
 - **依據**：FND-015（逐位元重複）
 - **不會發生的事**：`.git` 不會因此縮小（內容定址，重複的 blob 本來就只存一份）
-- **狀態**：**待使用者確認才執行**
+- **狀態**：**已執行**（2026-08-09）。追蹤檔數 170837 → 93167，減少 77670 個；
+  52 個逐片差異檔（`run.log`、`grid.csv`、`progress.json`、`calib/recon_floor.csv`
+  等）已移入 `runs/<批次>_merged/_shards/<影像>/`
+- **未執行的部分**：可再生的中間影像（`x_purified*.png`、`residual*.png`，
+  約 1.2 GB）**保留**，使用者 2026-08-09 裁決
 
 ## DEC-010 · inpainting 的遮罩與 `c_a` 位置關係要改
 

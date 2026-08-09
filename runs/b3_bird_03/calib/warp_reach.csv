@@ -1,4 +1,0 @@
-image_id,group,max_disp,grid_size,lpips_at_bound
-bird_03,bird,8.0,32,0.39136943221092224
-cat_02,cat,8.0,32,0.5579341650009155
-dog_03,dog,8.0,32,0.464050829410553

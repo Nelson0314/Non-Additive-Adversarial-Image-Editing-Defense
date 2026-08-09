@@ -148,7 +148,7 @@ def main() -> None:
     h = ['<title>s3t25 · τ_train = 0.25 · 實驗報告</title>', css,
          '<div class="wrap"><header class="masthead">',
          '<p class="eyebrow">批次 s3t25 · SD v1.4 · 512² · fp32 · img2img</p>',
-         '<h1>降低訓練預算之後，<br>次主張的兩道門檻首次同時成立</h1>']
+         '<h1>數值上兩道門檻首次同時成立，<br>但人眼判定它不成立</h1>']
 
     n4_35, _ = eval_mean(rows25, "N4", 0.35, "edit_lpips")
     ra_35, _ = eval_mean(rows25, "Ra", 0.35, "edit_lpips")
@@ -159,8 +159,10 @@ def main() -> None:
         f'由 EXP-s3a 的 0.50 降到 <b>0.25</b>，其餘設定不變。'
         f'N4 對同失真隨機對照拉開到 <b>{n4_35 / ra_35:.2f}×</b>、對最佳 '
         f'baseline 達 <b>{n4_35 / best_35[0]:.2f}×</b>（皆在 τ=0.35），'
-        '這是本專案第一次兩道門檻同時成立。但跨批次的比較同時換過影像集，'
-        '且「高 τ 的高分是不是靠把圖毀掉換的」尚未經人眼——兩項但書見文末。</p>')
+        '數值上是本專案第一次兩道門檻同時成立。'
+        '<b>但人眼看過之後這個結論不成立</b>：τ=0.25 的防禦圖已經明顯毀掉'
+        '（馬臉糊化、出現青綠色塊），τ=0.35 只會更糟，'
+        '與 FND-013 對 s3a τ=0.50 的判語同型。判準以人眼為主、數值為輔。</p>')
     h.append('<div class="meta">'
              '<span><b>執行</b> 2026-08-09 17:09 – 23:17</span>'
              f'<span><b>格點</b> 2100 格，{len(rows25)} 列，零失敗</span>'
@@ -171,17 +173,25 @@ def main() -> None:
     # ---- 摘要卡 ----
     h.append('<section><div class="head"><p class="eyebrow">摘要</p>'
              '<h2>四項結論</h2></div><div class="verdicts">')
+    # 逐 τ 的 N4/Ra，現算而不寫死——寫死的數字改一次資料就要重抄一次，
+    # 而抄錯沒有症狀。
+    gb = []
+    for t in taus:
+        a, _ = eval_mean(rows25, "N4", t, "edit_lpips")
+        b, _ = eval_mean(rows25, "Ra", t, "edit_lpips")
+        if a is not None and b:
+            gb.append(f"{a / b:.2f}×")
     h.append(
         '<div class="card is-good"><span class="k">確立</span>'
         '<span class="v">勝過同參數化隨機對照的幅度是實質的</span>'
-        f'<span class="sub">N4/Ra 在四個可達的 τ 上為 1.65× / 2.26× / '
-        f'2.94× / 2.79×。EXP-s3a 是 1.25–1.41× 的邊緣值。</span></div>')
+        f'<span class="sub">N4/Ra 在 {len(gb)} 個可達的 τ 上為 '
+        f'{" / ".join(gb)}。EXP-s3a 是 1.25–1.41× 的邊緣值。</span></div>')
     h.append(
-        '<div class="card is-good"><span class="k">確立</span>'
-        '<span class="v">門檻 (a) 在 τ=0.35 首次通過</span>'
-        f'<span class="sub">N4 達最佳 baseline（{best_35[1]}）的 '
-        f'{n4_35 / best_35[0]:.2f}×，超過 0.85。s3a 最好只有 0.82×，'
-        '且那一點已被 FND-013 判為不算數。</span></div>')
+        '<div class="card is-bad"><span class="k">否定</span>'
+        '<span class="v">門檻 (a) 數值上通過，人眼判定不算數</span>'
+        f'<span class="sub">N4 在 τ=0.35 達最佳 baseline（{best_35[1]}）的 '
+        f'{n4_35 / best_35[0]:.2f}×，超過 0.85。但 τ=0.25 的防禦圖已明顯毀掉，'
+        '0.35 更甚——與 FND-013 對 s3a τ=0.50 的 0.82× 同型。</span></div>')
     h.append(
         '<div class="card is-good"><span class="k">確立</span>'
         '<span class="v">最佳化本身沒有受限</span>'
@@ -362,6 +372,33 @@ def main() -> None:
              '這不改變門檻 (a) 的結論，但它說明那個分母本身帶著劣化成分。'
              '</div></section>')
 
+    # ---- 同一 LPIPS 的兩種長相 ----
+    h.append('<section><div class="head"><p class="eyebrow">人眼 · 關鍵證據</p>'
+             '<h2>同一個 τ、同一個 LPIPS，兩種完全不同的長相</h2></div>'
+             '<p class="measure">下面每一組的三張圖，其對原圖的 LPIPS '
+             '<b>都等於 0.25</b>。Ra 把失真攤平在整張圖上，看起來只是輕微'
+             '柔化；N4 把同樣的預算<b>集中</b>到 c_a 所在的區域——那正是式 (5) '
+             '要它做的事——於是同一個數字在人眼上差了一個量級。</p>')
+    for iid in IMAGES:
+        h.append(f"<h3>{iid}</h3><div class='plate n3'>")
+        h.append(fig(T25 / "N4" / iid / "orig.png", "原圖", "LPIPS 0"))
+        h.append(fig(T25 / "Ra" / iid / "x_def_tau0.25.png",
+                     "Ra（隨機）", "LPIPS 0.25"))
+        h.append(fig(T25 / "N4" / iid / "x_def_tau0.25.png",
+                     "N4（最佳化）", "LPIPS 0.25"))
+        h.append("</div>")
+    h.append('<div class="callout bad"><b>LPIPS 對最佳化過的非加性失真嚴重'
+             '低估。</b> 這不是新發現，是 DEC-003 附帶更正（「LPIPS 對非加性'
+             '其實是<b>寬鬆</b>而非嚴苛」）的具體後果。直接影響是 τ 這個'
+             '共同貨幣在 N4 與 baseline 之間<b>不等值</b>——同樣標稱 τ=0.25，'
+             'N4 付出的可見代價遠高於加性方法。門檻 (a) 的比較因此偏向 N4，'
+             '而它仍然沒過。</div>')
+    h.append('<div class="callout warn"><b>餘裕在 0.20 → 0.25 之間幾乎翻倍。</b> '
+             'horse_03 的重建下限是 0.1448，扣掉之後真正用於對抗的預算是 '
+             'τ=0.20 的 0.055 對 τ=0.25 的 0.105，增加 91%。'
+             'τ 的一小步對應的是接近兩倍的破壞力，故工作點必須用看的，'
+             '不能在 τ 軸上等距取樣。</div></section>')
+
     # ---- 人眼比對 ----
     h.append('<section><div class="head"><p class="eyebrow">人眼</p>'
              '<h2>τ=0.25 與 τ=0.35 的實際輸出</h2></div>'
@@ -444,10 +481,14 @@ def main() -> None:
              f'{n4_20 / best_20[0]:.2f}×」。要拆開這個混淆，需在 s3a 的三張'
              '影像上補跑 τ_train=0.25，或反過來——一整批機時，屬使用者的決定。'
              '</div>')
-    h.append('<div class="callout bad"><b>二、τ=0.35 的「通過」尚未經人眼。</b> '
-             'FND-013 對 s3a 在 τ=0.50 追到 0.82× 的判語是「靠把圖毀掉換的」。'
-             '本批 τ=0.35 是否同樣如此，只能看圖。看完之前，'
-             '門檻 (a) 的「通過」只是數值上的通過。</div>')
+    h.append('<div class="callout bad"><b>二、τ=0.35 的「通過」已經看過，'
+             '不成立。</b> τ=0.25 的防禦圖就已明顯毀掉，0.35 更甚。'
+             'FND-013 對 s3a τ=0.50 的 0.82× 判語是「靠把圖毀掉換的，不算數」'
+             '——本批同型，只是門檻降得更低。<br><br>'
+             '<b>連帶</b>：τ_train=0.25 這個工作點本身要重新定。它是在'
+             '<b>另一組影像</b>上由人眼挑的（DEC-007，見但書一），'
+             '搬到 horse／woman 這組並不成立。合理的範圍可能在 0.15–0.20，'
+             '但那要看圖才能定。</div>')
     h.append("</section>")
 
     h.append('<p class="foot sub" style="margin-top:4rem;font-size:.8rem">'

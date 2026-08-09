@@ -135,3 +135,29 @@
 - **根因**：判斷值走了合併 stderr 的路徑，再用 `tr -dc '0-9'` 抽數字；
   ssh 的警告訊息裡的埠號 `10101` 被抽出來當成計數
 - **處置**：判斷用的取值一律丟掉 stderr，並只接受 `K=<整數>` 這個形狀
+
+## DEF-014 · 裁切就地覆蓋資料集，遠端共用工作樹於 `git pull` 時靜默換圖
+
+- **症狀**：s3t30 的 `calib/recon_floor.csv` 與 s3t25 對不上——horse_00
+  由 0.1283 變成 0.1581、woman_03 由 0.0878 變成 0.0653。兩批的設計差異
+  只有 τ_train，重建下限**不應該**變
+- **根因**：`draw_masks.py --recrop` 為 inpainting 產生裁切放大的影像時，
+  **就地覆蓋 `data/lo_aligned/`**——那是 img2img 各批（s3a／s3t25／v14／…）
+  的資料集。commit 後遠端 `git pull`（basic-1 與 basic-2 共用同一個 NFS
+  工作樹 `~/WACV-s3`）把工作樹的影像換成裁切版
+- **時序**：s3t25 的分片在 18:15 就把影像載進記憶體，23:05 的 pull 動不了
+  它們，故 s3t25 未受影響；s3t30 的段 0 在 23:18 起跑，讀到的是裁切版
+- **為什麼難察覺**：兩批都跑得完、格點全部 `done`、報表也印得出數字。
+  唯一的線索是重建下限這個與 τ_train 無關的量變了。若不是逐項比對段 0 的
+  判讀，這批資料會被當成「τ_train = 0.30 的對照」寫進論文
+- **處置**（2026-08-10）：
+  1. s3t30 停跑（使用者裁決），`data/lo_aligned/` 由備份逐位元還原，
+     以 `git diff f1d32f9a6 -- data/lo_aligned/` 確認 24 張全部回到裁切前
+  2. 兩個資料集分開：`data/lo_aligned/`（原圖，img2img，**不得改動**）與
+     `data/lo_inpaint/`（裁切版，inpainting）
+  3. `--recrop` 改為從 `--originals` 讀、寫到 `--data`，**不就地覆蓋**
+  4. `shard.sh` 的 ip profile 帶 `--data data/lo_inpaint`
+- **測試**：`test_shard的三個profile` 加驗 `--data data/lo_inpaint`
+- **一般化的教訓**：遠端工作樹是共用的，`git pull` 會影響**排隊中**而尚未
+  起跑的批次。改動 `data/` 之下任何已被實驗用過的檔案時，要把它當成改動
+  `runs/` 一樣看待——舊實驗的輸入是證據的一部分

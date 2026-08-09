@@ -27,9 +27,21 @@ PIE-Bench 附標註遮罩、PhotoGuard 與 AdvPaint 的 inpainting 實驗用人�
     python scripts/draw_masks.py --invert            # 主體 → 主體之外
     python scripts/draw_masks.py --recrop            # 裁切放大到合適占比
 
-遮罩存在 `data/lo_masks/`、裁切前的原圖在 `data/lo_original/`。兩者都
-**不放在 `data/lo_aligned/` 裡**：`load_lo_aligned` 拒絕未宣告卻含有 PNG
-的子目錄，那道檢查擋的是「忘了宣告類別」，不該為了放遮罩而鬆綁。
+三個目錄的分工：
+
+| 目錄 | 內容 | 誰在用 |
+|---|---|---|
+| `data/lo_aligned/` | 原始 24 張，**不得改動** | img2img 各批（s3a／s3t25／…）|
+| `data/lo_inpaint/` | 裁切放大後的 24 張 | inpainting 批次 |
+| `data/lo_masks/` | 人工遮罩，對應 `lo_inpaint` | inpainting 批次 |
+
+`--recrop` 從 `--originals`（預設 `data/lo_aligned`）讀、寫到 `--data`
+（預設 `data/lo_inpaint`），**不就地覆蓋**。2026-08-10 之前它是就地覆蓋的，
+後果是遠端共用工作樹 `git pull` 之後，排隊中的 s3t30 讀到裁切版而與 s3t25
+不可比（見 DEF-014）。
+
+遮罩目錄不放在資料集裡：`load_lo_aligned` 拒絕未宣告卻含有 PNG 的子目錄，
+那道檢查擋的是「忘了宣告類別」，不該為了放遮罩而鬆綁。
 
 遮罩要**貼合物件輪廓**，不是方框。方框會把物件周圍的背景一起劃進重畫區，
 於是涵蓋率不再代表「攻擊方改掉了那個物件」，而防禦效果的分母跟著失真。
@@ -594,7 +606,7 @@ def main() -> None:
     ap = argparse.ArgumentParser(
         description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--data", type=Path, default=Path("data/lo_aligned"))
+    ap.add_argument("--data", type=Path, default=Path("data/lo_inpaint"))
     ap.add_argument("--images", nargs="+", default=None,
                     help="只畫這幾張；不給時全部 24 張")
     ap.add_argument("--out", type=Path, default=Path("data/lo_masks"),
@@ -607,8 +619,10 @@ def main() -> None:
                     help="把描在主體上的遮罩翻成主體之外的遮罩（先膨脹出"
                          "保護帶再取補集）。原稿留在 <out>/_subject/，"
                          "重跑一律從原稿翻，不會翻兩次")
-    ap.add_argument("--originals", type=Path, default=Path("data/lo_original"),
-                    help="裁切前原圖的備份目錄，同樣不可放在資料集目錄裡")
+    ap.add_argument("--originals", type=Path, default=Path("data/lo_aligned"),
+                    help="裁切的來源。預設是 img2img 的資料集——裁切**不可**"
+                         "就地覆蓋它：s3a／s3t25 等批次是在那些原圖上跑的，"
+                         "覆蓋掉等於讓已完成實驗的輸入從版控中消失")
     ap.add_argument("--recrop", action="store_true",
                     help="裁切放大原圖，使翻面後的涵蓋率落進可用窗口。"
                          "原圖備份在 <data>/_original/，一律從備份裁，"

@@ -824,6 +824,8 @@ def test_shard的三個profile():
     assert "ip*)" in s and "runwayml/stable-diffusion-inpainting" in s
     assert "--wrapper sd_inpaint" in s
     assert "--masks data/lo_masks" in s
+    # inpainting 用裁切後的資料集，不可與 img2img 共用目錄
+    assert "--data data/lo_inpaint" in s
     # 遮罩目錄不可在資料集裡：`load_lo_aligned` 拒絕未宣告卻含 PNG 的子目錄
     assert "--masks data/lo_aligned" not in s
     # inpainting profile 不得帶 strength

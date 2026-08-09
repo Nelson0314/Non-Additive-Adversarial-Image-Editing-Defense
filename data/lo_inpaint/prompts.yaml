@@ -1,0 +1,69 @@
+# 對齊 Lo et al. (CVPR 2024) 補充材料 §A 的資料集結構，內容改以人物與動物為主。
+#
+# 論文的結構是「每個物件兩個編輯 prompt」，對應兩種惡意情境：
+#
+#   prompts[0] — 改掉指定的內容（他的例子：A dog → A cat）
+#   prompts[1] — 保留該內容、改動其他區域（他的例子：A dog in the park）
+#
+# content 是防禦方選擇要保護的那個詞（論文的 c_a）。它**不是**從 prompt 推
+# 出來的：prompt 是攻擊方寫的、c_a 是防禦方選的，在威脅模型裡屬於不同的人。
+# semantic attack 只壓低 c_a 在其對應區域的注意力，選錯就會攻擊到別的東西
+# 而且沒有任何症狀，故此欄為必填，`load_dataset` 不接受預設值。
+#
+# inpainting 的遮罩**不在這個檔裡**，也不由模型產生：它是人工畫的，逐影像
+# 一張 PNG，放在 data/lo_aligned/masks/（2026-08-09 使用者裁決，見 DEC-010）。
+# 文獻的作法即如此——PIE-Bench 附標註遮罩、PhotoGuard 與 AdvPaint 的
+# inpainting 實驗用人工遮罩、Lo et al. Figure 3 那張也是手畫的。畫的時候
+# 要讓 c_a 落在遮罩**外**，那是 Figure 3 的要求，也是 DEF-011 的處置。
+# 工具是 scripts/draw_masks.py。
+#
+# 與論文的差別（使用者於 2026-08-03 指定）：捨棄 car（既不是人物也不是動物），
+# 類別改為人物兩類、動物四類。horse 那兩個 prompt 沿用論文原文，作為與該表
+# 之間的一個直接可對照的錨點。
+#
+# 每類的建議張數與成本見 docs/specs/2026-08-03-lo-aligned-protocol.md §4。
+#
+# 六類各 4 張，全部為 Wikimedia Commons 的 CC0 真實照片。人物類**不用生成
+# 影像**（使用者 2026-08-03 指定），與基準論文的處置不同，理由與代價見
+# 規格 §4.0。出處逐張記在 data/lo_aligned/provenance.json 與
+# data/_selected/<類別>/attribution.json。
+
+man:
+  content: "man"
+  prompts:
+    # 2026-08-09 由 "a woman" 改為 "an old woman"（使用者裁決）。
+    # 理由：批次 A 的 bird → butterfly 顯示，**跳太大的編輯連未防禦的那一側
+    # 都難說成功**，於是防禦有沒有效就無從量起——分母本身不成立。
+    # 改成同為人物、只改年齡與性別的編輯，攻擊本身可信，量測才有動態範圍。
+    - "an old woman"
+    - "a man in a snowy street"
+
+woman:
+  content: "woman"
+  prompts:
+    - "a man"
+    - "a woman in a burning room"
+
+dog:
+  content: "dog"
+  prompts:
+    - "a cat"                       # 論文原文
+    - "a dog in the park"           # 論文原文
+
+cat:
+  content: "cat"
+  prompts:
+    - "a dog"
+    - "a cat on a snowy roof"
+
+horse:
+  content: "horse"
+  prompts:
+    - "a zebra"                     # 論文原文
+    - "a horse and a cow"           # 論文原文
+
+bird:
+  content: "bird"
+  prompts:
+    - "a butterfly"
+    - "a bird on a flooded street"

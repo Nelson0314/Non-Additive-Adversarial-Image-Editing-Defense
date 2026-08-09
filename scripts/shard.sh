@@ -446,7 +446,12 @@ case "$BATCH" in
     #       而它們已依 DEC-005 移出格點（本輪是 N4／Ra 加三個 baseline）。
     #       留著它只會在 `module_params` 多一個對本批毫無作用的鍵，
     #       且讓雜湊與「這批到底加了什麼」對不起來。
-    MASK="--masks data/lo_masks"
+    #       `--data data/lo_inpaint`：inpainting 用**裁切後**的影像，
+    #       與 img2img 的 `data/lo_aligned` 分開。兩者不可共用一個目錄
+    #       ——s3a／s3t25 是在原圖上跑的，覆蓋掉等於讓已完成實驗的輸入
+    #       從版控中消失，而遠端共用工作樹會讓這件事在 `git pull` 時
+    #       靜默發生（DEF-014）。
+    MASK="--masks data/lo_masks --data data/lo_inpaint"
     ;;
 esac
 

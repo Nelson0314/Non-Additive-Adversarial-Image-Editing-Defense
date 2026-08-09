@@ -1,0 +1,2 @@
+image_id,group,coverage,mode,content,tau,timestep,attn_side
+bird_02,bird,0.401123046875,attention_box,bird,0.5,500,64

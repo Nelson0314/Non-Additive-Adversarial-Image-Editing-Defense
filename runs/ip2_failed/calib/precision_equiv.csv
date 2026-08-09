@@ -1,0 +1,2 @@
+op,dtype,reference,max_abs,rel_l2,psnr,note
+all,float32,float32,0.0,0.0,inf,本批以 fp32 執行，與參考同一路徑，無須比對

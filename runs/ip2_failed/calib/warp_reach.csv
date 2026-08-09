@@ -1,0 +1,4 @@
+image_id,group,max_disp,grid_size,lpips_at_bound
+bird_03,bird,8.0,32,0.4574674367904663
+cat_02,cat,8.0,32,0.5316962003707886
+dog_03,dog,8.0,32,0.3972092270851135

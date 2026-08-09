@@ -238,7 +238,7 @@ def test_學習率鍵逐條件不同且來自校準表(tmp_path):
     keys = {c: executors.optim_config(res, executors.condition_spec(c))
             .stages[0].lr_key for c in grid.NONADDITIVE}
     assert keys == {"N1": "lr.N1", "N2": "lr.N2", "N3": "lr.N3_stage2",
-                    "N4": "lr.N4_stage2"}
+                    "apa": "lr.N4_stage2"}
     assert len(set(keys.values())) == len(keys), "學習率不可跨條件共用"
 
 
@@ -250,7 +250,7 @@ def test_注意力前向恆不checkpoint且與unet_ckpt旗標無關():
     擋住它的是 `_build_attn_step` 裡那個**不傳 `use_ckpt`** 的 `sd._eps(...)`，
     **不是** `ConditionSpec.unet_ckpt`——後者只管生成／編輯路徑。
 
-    這條測試釘住的正是那個分界。2026-08-09 因為把兩者混為一談，N4 沿用了
+    這條測試釘住的正是那個分界。2026-08-09 因為把兩者混為一談，apa 沿用了
     N1 的 `unet_ckpt=False`，於是 apa 的 10 步去噪鏈少了 checkpoint 而在
     段 0 的保真對齊就 OOM——而那一步根本不碰注意力目標。
     """
@@ -297,7 +297,7 @@ def test_走生成路徑的條件必須開checkpoint(tmp_path):
 
 def test_N4與N3的階段二學習率鍵不同(tmp_path):
     """兩者同一個參數化，但 `_pick_best` 的判準是「末端總損失最小者」，
-    而總損失是模式相依的：N3 的 L_def 是 MSE、N4 是 `‖Att ⊙ M‖₁`，
+    而總損失是模式相依的：N3 的 L_def 是 MSE、apa 是 `‖Att ⊙ M‖₁`，
     尺度與地景都不同，argmin 沒有理由相同。
 
     共用同一個鍵還會讓 `calibrate_lr` 在同批跑兩者時**靜默覆寫**前一個的值
@@ -305,7 +305,7 @@ def test_N4與N3的階段二學習率鍵不同(tmp_path):
     `_probe_align_lr` 的判準是對齊損失，與防禦模式無關。
     """
     n3 = executors.condition_spec("N3")
-    n4 = executors.condition_spec("N4")
+    n4 = executors.condition_spec("apa")
     assert n3.site == n4.site == "apa"
     assert n3.lr_key != n4.lr_key
     ra = executors.condition_spec("Ra")
@@ -1291,7 +1291,7 @@ def test_遮罩閘關閉時module_params逐鍵不變(tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# 第三階段：N4（suppress_attn_ca）與 Ra。三個新鍵都只在啟用時出現於 dict。
+# 第三階段：apa（suppress_attn_ca）與 Ra。三個新鍵都只在啟用時出現於 dict。
 # ---------------------------------------------------------------------------
 
 # 這五個值取自**第三階段改動之前**的程式碼（commit f0ec5b9b7），在一個該
@@ -1345,7 +1345,7 @@ def test_啟用式五的目標才讓雜湊改變(tmp_path):
     b = make_res(tmp_path / "b", attn_mask_tau=0.5)
     assert b.cfg.loss_params()["attn_mask_tau"] == 0.5
 
-    cell = grid.Cell("train", "N4", "dog_00")
+    cell = grid.Cell("train", "apa", "dog_00")
     base_a = dict(BASE, loss_params=a.cfg.loss_params(),
                   module_params=a.cfg.module_params(),
                   optim_params=a.cfg.optim_params())
@@ -1369,7 +1369,7 @@ def test_N4缺c_a即拋出而不是靜默用空字串(tmp_path):
     """c_a 是防禦方選的、prompt 是攻擊方寫的，兩者屬於不同的人。猜錯會讓
     損失壓到別的區域而**沒有任何症狀**，故不接受預設值。"""
     res = make_res(tmp_path, attn_mask_tau=0.5)
-    spec = executors.condition_spec("N4")
+    spec = executors.condition_spec("apa")
     with pytest.raises(ValueError, match="c_a|content"):
         executors.loss_config(res, spec)          # 沒有 entry
 
@@ -1378,7 +1378,7 @@ def test_N4缺遮罩門檻即拋出(tmp_path):
     """`attn_mask_tau` 決定損失壓的是哪一塊，與 `shared_tokens` 同一種量，
     而後者正因為未進 config_hash 被列為缺陷 A7。不回退到 0.5。"""
     res = make_res(tmp_path)                       # attn_mask_tau 為 None
-    spec = executors.condition_spec("N4")
+    spec = executors.condition_spec("apa")
     with pytest.raises(ValueError, match="attn_mask_tau"):
         executors.loss_config(res, spec, res.image("dog_00"))
 
@@ -1387,7 +1387,7 @@ def test_N4的c_a取自資料集的content欄(tmp_path):
     """來源是 `data/lo_aligned/prompts.yaml` 的 `content`，逐影像不同，
     故不可放進整批共用的 RunConfig。"""
     res = make_res(tmp_path, attn_mask_tau=0.5)
-    spec = executors.condition_spec("N4")
+    spec = executors.condition_spec("apa")
     for image_id in ("dog_00", "cat_00"):
         entry = res.image(image_id)
         cfg = executors.loss_config(res, spec, entry)
@@ -1409,7 +1409,7 @@ def test_沒有位移場條件時段0跳過warp_reach而不是炸開(tmp_path):
     calib_dir = res.batch_dir / "calib"
     calib_dir.mkdir(parents=True, exist_ok=True)
     out = executors.measure_warp_reach(res, calib_dir,
-                                       conditions=("N4", "Ra", "mist"))
+                                       conditions=("apa", "Ra", "mist"))
     assert out["skipped"] is True
     assert "recon_floor" in out["reason"]
     assert not (calib_dir / "warp_reach.csv").exists()

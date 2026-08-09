@@ -8,7 +8,7 @@
 ## 1. 一句話說明這批要做什麼
 
 在 inpainting 威脅模型下重跑第三階段的配置。條件與 EXP-s3a／s3t25／s3t30
-逐字相同（N4、Ra、photoguard_c、mist、dia_r），換掉的是威脅模型：
+逐字相同（apa、Ra、photoguard_c、mist、dia_r），換掉的是威脅模型：
 9 通道 inpainting 權重、攻擊方帶一張遮罩、攻擊 prompt 改用 `prompts[1]`。
 
 舊的 ip1／ip2／ip3 有 DEF-011（遮罩與式 (4) 的 M 重疊），**結構上量不到
@@ -120,7 +120,7 @@ GPU 1/2/3/6 是 jayson、7 是 johnlee，**不要碰**。
 ```
 MODEL="--model runwayml/stable-diffusion-inpainting --wrapper sd_inpaint --resolution 512"
 MASK="--masks data/lo_masks"
-GRID="--conditions N4 Ra photoguard_c mist dia_r --tau-train <未定>"
+GRID="--conditions apa Ra photoguard_c mist dia_r --tau-train <未定>"
 ```
 
 還需要補上 `--prompt-index 1` 與 `--attn-mask-tau 0.5`、`--attn-timesteps 2`

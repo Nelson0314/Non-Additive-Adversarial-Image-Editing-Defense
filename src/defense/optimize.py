@@ -1067,18 +1067,18 @@ def _build_output_step(sd, gen, obj, cfg, x01, emb_cond, emb_uncond, purifiers,
 
 def _build_attn_step(sd, gen, obj, cfg, x01, emb_cond, emb_uncond, purifiers,
                      x_base, result):
-    """cross-attention 兩個模式（N1 `targeted_attn`、N4 `suppress_attn_ca`）
+    """cross-attention 兩個模式（N1 `targeted_attn`、apa `suppress_attn_ca`）
     共用的單步前向。
 
     共用的是**擷取的機制**：一次單步 UNet 前向、以 forward pre-hook 記下全部
     attn2 層的分佈。分派點只有兩處，各自在下方標明：
 
-    | | `targeted_attn`（N1） | `suppress_attn_ca`（N4） |
+    | | `targeted_attn`（N1） | `suppress_attn_ca`（apa） |
     |---|---|---|
     | 前向餵的條件嵌入 | 空 prompt（prompt-free） | **c_a 的編碼** |
     | 損失 | `1 − shared token 質量`，全域 | 遮罩內的 L1，遮罩由原圖取 |
 
-    第一列是威脅模型的改變，不是實作細節：N4 的防禦方必須指名要保護什麼。
+    第一列是威脅模型的改變，不是實作細節：apa 的防禦方必須指名要保護什麼。
     見 `objective.py` 模組 docstring 的對照表。
 
     著力點與輸出端不同：直接作用在使文字編輯得以定位的機制上——UNet 的

@@ -285,7 +285,7 @@ case "$BATCH" in
     ATTN="--shared-tokens 0 --attn-mask-tau 0.5"
     INV="--exact-inversion"
     STRENGTH="--strength 0.4"
-    GRID="--conditions N4 Ra photoguard_c mist dia_r --tau-train 0.$_t"
+    GRID="--conditions apa Ra photoguard_c mist dia_r --tau-train 0.$_t"
     ;;
   s3a*|s3b*)
     # ---------------------------------------------------------------------
@@ -297,7 +297,7 @@ case "$BATCH" in
     # 使用者裁決「下一輪不要再調 strength」。沿用 v14r 的 0.4 使本批與它在
     # 同一個工作點上，兩批的加性 baseline 因此可以直接對照。
     #
-    # 五個條件：`N4`（apa + Lo 式 5）、`Ra`（apa 上的同失真隨機對照）、
+    # 五個條件：`apa`（apa + Lo 式 5）、`Ra`（apa 上的同失真隨機對照）、
     # 三個加性 baseline。位移場的 N1／N2／R 移出格點但原始碼保留——依據見
     # `docs/archive/DECISION_stage3.md`：v14r 實測 N1 對 R 的 `edit_lpips` 比值 1.046、
     # 語意失敗 4/15 對 4/15，即訓練對位移場幾乎沒有貢獻。
@@ -309,15 +309,15 @@ case "$BATCH" in
     # 0.5 沿用 `linf_attack` 那條文獻基準路徑已經在用的值，使兩條路徑的遮罩
     # 定義一致；覆蓋率兩端的警告由 `optimize._build_attn_step` 印出。
     #
-    # `--purify-mode all` 沿用 v14r：512² 下 N4 的計算圖是 1024² 的四分之一。
-    # **但 N4 與 N1 一樣不能開 UNet checkpoint**（hook 在 backward 重算時已
+    # `--purify-mode all` 沿用 v14r：512² 下 apa 的計算圖是 1024² 的四分之一。
+    # **但 apa 與 N1 一樣不能開 UNet checkpoint**（hook 在 backward 重算時已
     # 卸除，兩次存檔的張量數對不上），且它走生成路徑、圖比 N1 更長，故這是
     # 本批記憶體最緊的一格。段 0 的乾跑若 OOM，先降 `--attn-timesteps`。
     PRECISION=fp32
     MODEL="--model CompVis/stable-diffusion-v1-4 --wrapper sd --resolution 512"
     # `--attn-timesteps 2`（不是預設的 4）是**記憶體實測的結果**，不是調味。
     #
-    # N4 的注意力前向恆不能 checkpoint（hook 與 checkpoint 重算不相容），故每步
+    # apa 的注意力前向恆不能 checkpoint（hook 與 checkpoint 重算不相容），故每步
     # 要同時留住 `attn_timesteps × 淨化算子數` 份完整的 UNet 計算圖；
     # `--purify-mode all` 下淨化算子是 3 個，t=4 就是 12 份。
     # 2026-08-09 於 RTX 3090（24576 MiB）、SD v1.4、512²、fp32 實測段 0：
@@ -338,7 +338,7 @@ case "$BATCH" in
     ATTN="--shared-tokens 0 --attn-mask-tau 0.5"
     INV="--exact-inversion"
     STRENGTH="--strength 0.4"
-    GRID="--conditions N4 Ra photoguard_c mist dia_r"
+    GRID="--conditions apa Ra photoguard_c mist dia_r"
     ;;&
   s3a*)
     # 批次 A：τ_train = 0.50，加性方法普遍所在的量級。
@@ -443,7 +443,7 @@ case "$BATCH" in
     #       區域」——人像那 8 張主體佔滿畫面，結論多半不變，但要重新判讀。
     #       選圖尚未定案，影像由命令列給。
     #       `--warp-mask-gate` 不再帶：閘只作用於 site warp 的三個條件，
-    #       而它們已依 DEC-005 移出格點（本輪是 N4／Ra 加三個 baseline）。
+    #       而它們已依 DEC-005 移出格點（本輪是 apa／Ra 加三個 baseline）。
     #       留著它只會在 `module_params` 多一個對本批毫無作用的鍵，
     #       且讓雜湊與「這批到底加了什麼」對不起來。
     #       `--data data/lo_inpaint`：inpainting 用**裁切後**的影像，
@@ -452,6 +452,19 @@ case "$BATCH" in
     #       從版控中消失，而遠端共用工作樹會讓這件事在 `git pull` 時
     #       靜默發生（DEF-014）。
     MASK="--masks data/lo_masks --data data/lo_inpaint"
+    #       MTH-inpaint 的三個不變項（`docs/METHODS.md`）：
+    #       `--prompt-index 1` 取「保留 c_a、改動別處」那個攻擊 prompt；
+    #       `--attn-mask-tau` 必須明給，`suppress_attn_ca` 不接受預設值；
+    #       `--attn-timesteps 2` 是 24 GB 下的必要條件（DEC-011）。
+    #       本 profile **不帶 strength 旗標**（inpainting 沒有這個參數），
+    #       也不帶位移場的遮罩閘（閘只作用於已移出格點的 site warp）。
+    ATTN="$ATTN --prompt-index 1 --attn-mask-tau 0.5 --attn-timesteps 2"
+    #       τ_train 由批次名帶：ip20 → 0.20。與 s3t<NN> 同一慣例，
+    #       使「這批用哪個工作點」在 tmux session 名與目錄名上就看得到。
+    _t=${BATCH#ip}; _t=${_t%%_*}
+    if [ -n "$_t" ] && [ "$_t" -eq "$_t" ] 2>/dev/null; then
+      GRID="--conditions apa Ra photoguard_c mist dia_r --tau-train 0.$_t"
+    fi
     ;;
 esac
 

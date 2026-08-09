@@ -486,9 +486,9 @@ def build_parser() -> argparse.ArgumentParser:
                         "Ra 用於 apa 階段二的方向參數（射線縮放會把兩者都"
                         "拉到 τ，故此值只決定起點的方向分布）")
     g.add_argument("--attn-mask-tau", type=float, default=None,
-                   help="N4（suppress_attn_ca）式 (4) 的遮罩門檻，作用在**峰值"
+                   help="apa（suppress_attn_ca）式 (4) 的遮罩門檻，作用在**峰值"
                         "正規化後**的 [0,1] 尺度上。論文未給值（Lo et al. "
-                        "CVPR 2024），本專案選定並記錄。不給時 N4 直接拋出，"
+                        "CVPR 2024），本專案選定並記錄。不給時 apa 直接拋出，"
                         "不回退到 0.5——它決定損失壓的是哪一塊。"
                         "**只在給定時進 config_hash**，故不影響既有批次")
     g.add_argument("--attn-mask-timesteps", type=int, default=0,

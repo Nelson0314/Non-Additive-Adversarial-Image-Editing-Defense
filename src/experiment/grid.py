@@ -37,10 +37,10 @@ from typing import Dict, List, Mapping, Optional, Sequence, Tuple
 # 三個非加性條件是本專案的方法；五個 baseline 是加性對照（使用者 2026-08-05
 # 決定不再自行實作加性方法，由 baseline 擔任該角色）；R 是同失真隨機對照。
 #
-# 2026-08-09（第三階段）新增 `N4`。它與 N3 同樣走 site apa，差別在損失：
-# N3 是 `targeted_output`（推向固定目標影像），N4 是 `suppress_attn_ca`
+# 2026-08-09（第三階段）新增 `apa`。它與 N3 同樣走 site apa，差別在損失：
+# N3 是 `targeted_output`（推向固定目標影像），apa 是 `suppress_attn_ca`
 # （Lo et al. 式 5，壓低防禦方指名的詞 c_a 在其對應區域的注意力）。
-NONADDITIVE = ("N1", "N2", "N3", "N4")
+NONADDITIVE = ("N1", "N2", "N3", "apa")
 
 # `dia_pt` 與 `diffvax` 保留在程式中但**不納入本輪實驗**，各有其原因，
 # 兩者都記錄在 `EXCLUDED` 並由測試釘住——移出而不留記錄，等於讓
@@ -51,7 +51,7 @@ BASELINES = ("photoguard_c", "mist", "dia_r")
 #
 # 隨機對照必須與被比較的條件走**同一個參數化**（`DESIGN` §6.3 (b)：問的是
 # 「最佳化取得了多少，超過同樣形狀的隨機擾動」）。`R` 是位移場上的那一個，
-# 只能拿來對照 N1／N2；N3／N4 走 site apa，其對照是 `Ra`。
+# 只能拿來對照 N1／N2；N3／apa 走 site apa，其對照是 `Ra`。
 #
 # 沒有 `Ra` 的話 apa 上的任何正結果都不可解讀——v14r 正是靠 `R` 才判斷出
 # 位移場沒有貢獻（N1 對 R 的 `edit_lpips` 比值 1.046、語意失敗 4/15 對 4/15，
@@ -113,7 +113,7 @@ EXCLUDED: Dict[str, str] = {
 # 某一批由 `--conditions` 決定（`resolve_conditions`），批次的選擇記在
 # `scripts/shard.sh` 的 profile 裡。
 #
-# 2026-08-09：第三階段的批次跑 `N4 Ra photoguard_c mist dia_r` 五個條件，
+# 2026-08-09：第三階段的批次跑 `apa Ra photoguard_c mist dia_r` 五個條件，
 # 位移場的三個（N1／N2／R）**移出格點但原始碼與登記表都保留**——`runs/` 有
 # 36893 個已入版控的檔案要靠 `site_warp` 由 `.pt` 重建，刪掉它們等於讓那些
 # 證據無法還原。放棄位移場的量化依據見 `docs/archive/DECISION_stage3.md`。
@@ -291,9 +291,9 @@ def tau_plan_for(train_tau: Optional[float] = None,
 # 就不成立。
 GENERATIVE_LPIPS_FLOOR = 0.1434
 # 全部走 site apa 的條件都有這個下限——它來自 `decode(encode(x))` 這條來回，
-# 與損失是什麼無關。2026-08-09 補入 N4 與 Ra：漏掉的症狀是段 2 的 `solve_k`
+# 與損失是什麼無關。2026-08-09 補入 apa 與 Ra：漏掉的症狀是段 2 的 `solve_k`
 # 在達不到的 τ 上二分到極限才拋出，整個分片就此停住（2026-08-07 的 cat_02 事故）。
-GENERATIVE_CONDITIONS = ("N3", "N4", "Ra")
+GENERATIVE_CONDITIONS = ("N3", "apa", "Ra")
 
 # ---------------------------------------------------------------------------
 # 軸四：淨化

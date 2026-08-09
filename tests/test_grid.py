@@ -21,7 +21,7 @@ def test_登記表的條件組成():
     DiffVax 不在內：它的免疫器吃 masked image、只支援 inpainting，
     在無 mask 的 SDEdit 下忠實重現結構上不可能（SOURCE_AUDIT §9 第 1 項）。
 
-    2026-08-09：N4（apa + Lo 式 5）與 Ra（apa 上的隨機對照）加入登記表。
+    2026-08-09：apa（apa + Lo 式 5）與 Ra（apa 上的隨機對照）加入登記表。
     **`CONDITIONS` 是登記表不是某一批的清單**——第三階段的批次由
     `--conditions` 選出五個，位移場的三個移出格點但原始碼與登記表都保留。
     """
@@ -350,7 +350,7 @@ def test_批次A的格點規模():
 
     釘住它是因為機時估計直接由格數導出，而估計錯了會排錯批次。
     """
-    conds = ("N4", "Ra", "photoguard_c", "mist", "dia_r")
+    conds = ("apa", "Ra", "photoguard_c", "mist", "dia_r")
     p = grid.tau_plan_for(0.50)
     s = grid.summarize(grid.plan(IMGS, conditions=conds, tau_plan=p))
     assert s["train"]["total"] == 5 * 3

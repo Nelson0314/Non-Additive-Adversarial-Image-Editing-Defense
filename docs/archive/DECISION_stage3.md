@@ -89,7 +89,7 @@ DAYN（Lo et al., *Distraction is All You Need*, CVPR 2024）的 Figure 顯示�
 
 兩者都關於 cross-attention，**但不是同一件事**：
 
-| | N1 `targeted_attn` | N4 `suppress_attn_ca` |
+| | N1 `targeted_attn` | apa `suppress_attn_ca` |
 |---|---|---|
 | L_def | `1 − shared_token_mass` | `‖Att(x_adv, c_a) ⊙ M‖₁` |
 | 施力方向 | 把注意力質量**導向** decoy token（BOS／末位 PAD） | 把指定詞的注意力反應**壓低** |
@@ -99,7 +99,7 @@ DAYN（Lo et al., *Distraction is All You Need*, CVPR 2024）的 Figure 顯示�
 | 隨進展 | 上升（故可直接當監看量） | **下降**（監看量另取，見 §3.5） |
 
 形式上的來源也不同：N1 取自 PromptFlare 的 cross-attention decoy（`L_CA` 對
-`M^BOS`），N4 取自 DAYN 的式 (5)。
+`M^BOS`），apa 取自 DAYN 的式 (5)。
 
 ### 3.3 威脅模型的改變：防禦方必須指名要保護什麼
 
@@ -109,7 +109,7 @@ DAYN（Lo et al., *Distraction is All You Need*, CVPR 2024）的 Figure 顯示�
 tokenizer 的結構，N2／N3 的去噪期一律餵空 prompt。防禦方因此不需要知道
 攻擊方的 prompt，也不需要為原圖產生 caption。
 
-N4 不是。式 (5) 要壓低的是**防禦方指名的那個詞 c_a**，遮罩 M 也由該詞在原圖
+apa 不是。式 (5) 要壓低的是**防禦方指名的那個詞 c_a**，遮罩 M 也由該詞在原圖
 上的注意力決定。防禦方必須說出「我要保護這張圖裡的什麼」。
 
 c_a 的來源是 `data/lo_aligned/prompts.yaml` 的 `content` 欄，該檔第 8–11 行
@@ -164,7 +164,7 @@ L_def   = ‖Att(x_adv, c_a) ⊙ M‖₁            ← SD v1.4 的 UNet cross-a
 ——餵一個下降的量進去會在 `stop_min_steps` 一到就判定收斂，而且沒有任何症狀
 （`optimize.DEFENSE_MONITOR` 的註解記載這條規則）。
 
-N4 的 L_def 隨進展下降，故監看量取 `attn_suppressed = 起點的遮罩內 L1 − 當前值`，
+apa 的 L_def 隨進展下降，故監看量取 `attn_suppressed = 起點的遮罩內 L1 − 當前值`，
 另記相對量 `attn_suppressed_rel`（絕對值的尺度隨 UNet 層數與遮罩面積而變，
 跨影像不可比）。`stop_tol.attn_suppressed` 由段 0 的探測產生，與其餘監看量
 同權，未校準即拋出。
@@ -176,8 +176,8 @@ N4 的 L_def 隨進展下降，故監看量取 `attn_suppressed = 起點的遮�
 射線縮放要乘的方向參數抽成高斯，不最佳化。
 
 **它也跑階段一的對齊**，這一點不可省：不對齊的話 Ra 的 `x_base` 是未對齊的
-VAE 重建，同一個 τ 之下它得先付掉更大的重建誤差，留給隨機方向的預算比 N4 少
-——那會讓對照系統性地偏弱，也就讓 N4 的任何勝出不可解讀。而這條對照存在的
+VAE 重建，同一個 τ 之下它得先付掉更大的重建誤差，留給隨機方向的預算比 apa 少
+——那會讓對照系統性地偏弱，也就讓 apa 的任何勝出不可解讀。而這條對照存在的
 唯一理由就是判斷「有沒有勝過隨便擾動一下」。
 
 `tests/test_grid.py::test_隨機對照不是選配且逐參數化各一個` 釘住「每一個非加性
@@ -235,7 +235,7 @@ apa 走生成路徑，`x_def` 必經 `decode(encode(x))`，該來回本身就是
 **停下來的原因不是保真門檻**（bird_03 那格的 acut 一次都沒被罰），而是防禦
 目標本身的早停條件（`stop_min_steps=25`、`stop_patience=20`）。
 
-對本輪的意義：N4 與 N3 共用參數化與階段一，若 N4 也在 30 步左右停下，那不是
+對本輪的意義：apa 與 N3 共用參數化與階段一，若 apa 也在 30 步左右停下，那不是
 「訓練不夠」而是**這個目標在這個參數化上很快就不再改善**。段 1 一跑完要先看
 `train.csv` 的步數與末端 `fid_lpips_rel`：
 
@@ -256,12 +256,12 @@ apa 走生成路徑，`x_def` 必經 `decode(encode(x))`，該來回本身就是
 即 apa 這個參數化在 v14r 的工作點上**把編輯成功率推高了**。§9.6 的
 identity、τ=0.35 全量重算同向：N3 在 dog_03 由 1/5 推到 4/5。
 
-這是本方向最直接的風險：換損失換不掉參數化。若 N4 的語意失敗數同樣低於
+這是本方向最直接的風險：換損失換不掉參數化。若 apa 的語意失敗數同樣低於
 未防禦對照，那就不是「這個損失不好」而是「apa 這個注入位置在這個威脅模型下
 會幫倒忙」，而那個結論對兩個損失都成立。
 
-**批次 A 的判讀順序因此固定**：先看 N4 對未防禦對照的語意失敗數（能不能贏過
-「什麼都不做」），再看 N4 對 Ra（能不能贏過「隨便擾動一下」）。兩道都過不了
+**批次 A 的判讀順序因此固定**：先看 apa 對未防禦對照的語意失敗數（能不能贏過
+「什麼都不做」），再看 apa 對 Ra（能不能贏過「隨便擾動一下」）。兩道都過不了
 就結束這個方向，不必再跑批次 B 與 inpainting 的兩批。
 
 ---
@@ -326,10 +326,10 @@ v14 在 0.20 與 0.35 兩點跑完整淨化組，理由是「兩個完整點都�
 ## 6. 待辦：`attention_entropy`
 
 `src/models/attention.py` 另有 `attention_entropy`——注意力分佈在 token 維度
-上的熵，**不需要 c_a**，故威脅模型退回 prompt-free。它與 N4 問的是不同的
+上的熵，**不需要 c_a**，故威脅模型退回 prompt-free。它與 apa 問的是不同的
 問題：「破壞綁定」對「把綁定改指向別處」哪一種比較能跨 prompt 泛化。
 
-**本輪刻意不納入格點**，以免把批次成本翻倍。接法與 N4 相同（同一個
+**本輪刻意不納入格點**，以免把批次成本翻倍。接法與 apa 相同（同一個
 `_build_attn_step`、同一種監看量結構），差別只在不需要 c_a 與遮罩。
 要做時它已經在那裡。
 
@@ -341,8 +341,8 @@ v14 在 0.20 與 0.35 兩點跑完整淨化組，理由是「兩個完整點都�
 |---|---|
 | `src/defense/objective.py` | 新增 `suppress_attn_ca` 模式、`masked_attention_term`、`MIN_MASKED_ATTENTION`、`LossConfig.content` / `attn_mask_tau` |
 | `src/defense/optimize.py` | `_build_attn_step` 依模式分派（條件嵌入與損失兩處）、遮罩由原圖取、`DEFENSE_MONITOR` 新增 `attn_suppressed`、`OptimResult` 記遮罩覆蓋率與起點 L1 |
-| `src/experiment/grid.py` | `TauPlan` / `tau_plan_for` / `DEFAULT_TAU_PLAN`；`N4`、`Ra` 進登記表；`GENERATIVE_CONDITIONS` 補上兩者 |
-| `src/experiment/executors.py` | `N4`／`Ra` 的 `ConditionSpec`；`_train_random` 支援生成路徑；`loss_config` 取 c_a；`RunConfig.conditions` / `tau_plan` / `attn_mask_tau`；`calibrate_lr` 只探測本批條件並拒絕靜默的鍵覆寫；`measure_warp_reach` 條件化；`recon_floor_check` |
+| `src/experiment/grid.py` | `TauPlan` / `tau_plan_for` / `DEFAULT_TAU_PLAN`；`apa`、`Ra` 進登記表；`GENERATIVE_CONDITIONS` 補上兩者 |
+| `src/experiment/executors.py` | `apa`／`Ra` 的 `ConditionSpec`；`_train_random` 支援生成路徑；`loss_config` 取 c_a；`RunConfig.conditions` / `tau_plan` / `attn_mask_tau`；`calibrate_lr` 只探測本批條件並拒絕靜默的鍵覆寫；`measure_warp_reach` 條件化；`recon_floor_check` |
 | `scripts/run_stage.py` | `--attn-mask-tau`、`--attn-mask-timesteps`、`--full-purify-taus`；τ 計畫串進兩處 `grid.plan` |
 | `scripts/shard.sh` | `s3a*`／`s3b*` profile |
 | `scripts/{class_margin,edit_success_page,eval_protocols,purify_advantage}.py` | 條件清單改由 `grid.CONDITIONS` 導出，不再各自寫死一份會與它分岔的名單 |
@@ -367,7 +367,7 @@ v14r 段 1 的逐格耗時（`RESULTS_2026-08-08` §6.1）與逐格步數（§6.
 反解的驗算（另兩張圖，未參與求解）：cat_02 預測 30.9 m 對實測 31.8 m、
 dog_03 預測 28.3 m 對實測 29.2 m，**誤差 3%**。
 
-由此得 **N4 = 4.5 + 6.1 = 10.6 s/步**（apa 的生成路徑加上注意力區塊，
+由此得 **apa = 4.5 + 6.1 = 10.6 s/步**（apa 的生成路徑加上注意力區塊，
 它不跑 SDEdit 鏈）。這一項是全部估計裡唯一沒有實測支撐的——本機只在極小
 隨機權重的 SD 上驗過它跑得起來，故下表對它取 ±30%。
 
@@ -375,14 +375,14 @@ dog_03 預測 28.3 m 對實測 29.2 m，**誤差 3%**。
 
 | 段 | 條件 | 逐條件成本 | 說明 |
 |---|---|---|---|
-| **0** | N4 階段一探測 | 5 候選 × 60 步 × 4.5 s = **22 m** | |
-| | N4 階段二探測 | 5 × 60 × 10.6 s = **53 m** | ±30% → 37–69 m |
-| | Ra | **0** | 階段一與 N4 同源，共用 `lr.N4_stage1`，`calibrate_lr` 跳過 |
+| **0** | apa 階段一探測 | 5 候選 × 60 步 × 4.5 s = **22 m** | |
+| | apa 階段二探測 | 5 × 60 × 10.6 s = **53 m** | ±30% → 37–69 m |
+| | Ra | **0** | 階段一與 apa 同源，共用 `lr.N4_stage1`，`calibrate_lr` 跳過 |
 | | 三個 baseline | **0** | 沒有要最佳化的階段 |
 | | 固定項 | **約 6 m** | micro_bench、precision_equiv、strength 掃描、可編輯性、recon_floor |
 | | `warp_reach` | **0** | 本批無 site warp 條件，明確跳過（§3.7） |
 | | **段 0 合計** | **1.1–1.8 h** | v14r 實測 4.9 h（它探 20 格，本批只探 10 格） |
-| **1** | N4 | 階段一 200×4.5 = 15 m ＋ 階段二 ≤ 250×10.6 = 44 m | **15–59 m**，早停與否見 §4.2 |
+| **1** | apa | 階段一 200×4.5 = 15 m ＋ 階段二 ≤ 250×10.6 = 44 m | **15–59 m**，早停與否見 §4.2 |
 | | Ra | 階段一 200×4.5 ＋ 一次生成 | **15 m** |
 | | **photoguard_c** | **107 m** | v14r 實測，三張圖幾乎相同（107.4／107.5 m）。**單格就佔段 1 的六成** |
 | | mist | **1.3 m** | |
@@ -415,7 +415,7 @@ dog_03 預測 28.3 m 對實測 29.2 m，**誤差 3%**。
 ### 8.3a 記憶體：`attn_timesteps` 由 4 降到 2（2026-08-09 實測）
 
 第一次起跑段 0 以 OOM 中止，根因見 §9.1。修好之後仍要決定 `attn_timesteps`，
-因為 N4 的注意力前向**恆不能 checkpoint**，每步要同時留住
+因為 apa 的注意力前向**恆不能 checkpoint**，每步要同時留住
 `attn_timesteps × 淨化算子數` 份完整的 UNet 計算圖（`--purify-mode all` 下
 淨化算子是 3 個）。RTX 3090（24576 MiB）、SD v1.4、512²、fp32 實測段 0 峰值：
 
@@ -434,15 +434,15 @@ t=2 在本專案有前例（SDXL 的 b3 因同一個理由用 `rotate + t=2`）�
 效率正是該論文的賣點），峰值會與 `attn_timesteps` 無關。本輪不做該改動：
 它動的是 N1 也在用的共用路徑，而本輪的目的是先問方向可不可行。
 
-因此段 1 的 N4 逐步成本應由 10.6 s 下修為約 **7.6 s/步**（注意力區塊由 12 份
-降為 6 份，即 6.1 → 3.05 s），段 1 的 N4 上限由 44 m 降為約 32 m。
+因此段 1 的 apa 逐步成本應由 10.6 s 下修為約 **7.6 s/步**（注意力區塊由 12 份
+降為 6 份，即 6.1 → 3.05 s），段 1 的 apa 上限由 44 m 降為約 32 m。
 
 ### 8.4 兩個會讓估計失準的地方
 
-1. **N4 的每步成本沒有在真實模型上量過。** 段 0 的 `lr_probe.csv` 一跑完就
+1. **apa 的每步成本沒有在真實模型上量過。** 段 0 的 `lr_probe.csv` 一跑完就
    有實測值（5 候選 × 60 步），屆時應以它重算段 1，再決定要不要調整排程。
-2. **N4 若不早停，段 1 由 2.4 h 變 3.1 h。** 這不只是機時問題——§4.2 指出
-   N3 在 v14r 只跑 27–37 步就停，若 N4 同型，那本身就是一個要記錄的結果。
+2. **apa 若不早停，段 1 由 2.4 h 變 3.1 h。** 這不只是機時問題——§4.2 指出
+   N3 在 v14r 只跑 27–37 步就停，若 apa 同型，那本身就是一個要記錄的結果。
 其中最重要的一條是
 `tests/test_executors.py::test_img2img既有批次的config_hash逐位不變`：
 它比對的五個雜湊取自**改動之前**的 commit `f0ec5b9b7`，在該 commit 的一個
@@ -459,7 +459,7 @@ t=2 在本專案有前例（SDXL 的 b3 因同一個理由用 `rotate + t=2`）�
 中止，`torch.OutOfMemoryError`，卡上 23.42 GiB / 23.56 GiB 已被佔用，
 死在 backward 重算 VAE decode 的那一步。
 
-**位置**：`_probe_align_lr` —— N4 的**階段一保真對齊**探測。那一步根本不碰
+**位置**：`_probe_align_lr` —— apa 的**階段一保真對齊**探測。那一步根本不碰
 注意力目標，只走生成路徑。這一點就把嫌疑範圍縮到一半。
 
 **根因**：`ConditionSpec.unet_ckpt` governs `gen.generate` 與 `sd.edit`，
@@ -468,13 +468,13 @@ t=2 在本專案有前例（SDXL 的 b3 因同一個理由用 `rotate + t=2`）�
 ——擋它的是 `_build_attn_step` 裡那個不傳 `use_ckpt` 的 `sd._eps(...)`，
 是寫死的。
 
-我把 N1 的 `unet_ckpt=False` 照抄到 N4，而**對 N1 那個旗標是空轉的**：
+我把 N1 的 `unet_ckpt=False` 照抄到 apa，而**對 N1 那個旗標是空轉的**：
 site warp 的 `gen.generate` 直接回傳 `pixel_residual`，整條路徑不碰 UNet，
-故設成什麼都沒差別——那正是這個誤解能存活的原因。對 N4（site apa）它卻
+故設成什麼都沒差別——那正是這個誤解能存活的原因。對 apa（site apa）它卻
 關掉了 `k_inv=10` 步可微去噪鏈的 checkpoint，十份完整的 512² fp32 UNet
 計算圖同時存活。
 
-**處置**：N4 改回 `unet_ckpt=True`（預設值），並改寫 `ConditionSpec.unet_ckpt`
+**處置**：apa 改回 `unet_ckpt=True`（預設值），並改寫 `ConditionSpec.unet_ckpt`
 的說明，把「症狀」與「處置的位置」分開講。兩條測試釘住這個分界：
 
 - `test_注意力前向恆不checkpoint且與unet_ckpt旗標無關`——以 AST 檢查

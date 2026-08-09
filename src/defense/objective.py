@@ -12,7 +12,7 @@
 | N1 | `targeted_attn` | `1 − (shared token 分到的注意力質量)` | 空 prompt 的 CLIP 編碼（CFG 的無條件嵌入）中恆為 shared 的位置 |
 | N2 | `targeted_output`（`target_metric="lpips"`） | `LPIPS(y_def, y_target)` | 固定的目標影像 |
 | N3 階段二 | `targeted_output`（`target_metric="mse"`） | `‖SDEdit_sub(x_adv; c_∅) − x_target‖²` | 同上，度量改為 MSE（`DESIGN` §4） |
-| N4 | `suppress_attn_ca` | `‖Att(x_adv, c_a) ⊙ M‖₁`（Lo 式 5） | **防禦方指名要保護的詞 c_a**，遮罩 M 由原圖的注意力取（式 4） |
+| apa | `suppress_attn_ca` | `‖Att(x_adv, c_a) ⊙ M‖₁`（Lo 式 5） | **防禦方指名要保護的詞 c_a**，遮罩 M 由原圖的注意力取（式 4） |
 
 前三者都是 prompt-free：N1 的 shared token 在**任何**攻擊 prompt 中都出現且
 語意無資訊，N2／N3 的去噪期一律餵空 prompt。防禦方因此不需要知道攻擊方的
@@ -22,7 +22,7 @@ prompt，也不需要為原圖產生 caption。
 
 兩者都關於 cross-attention，但著力點、作用範圍與威脅模型都不同：
 
-| | N1 `targeted_attn` | N4 `suppress_attn_ca` |
+| | N1 `targeted_attn` | apa `suppress_attn_ca` |
 |---|---|---|
 | 施力方向 | 把注意力質量**導向** decoy token（BOS／末位 PAD） | 把指定詞的注意力反應**壓低** |
 | 作用位置 | 全部 query 位置取平均 | **只在式 (4) 的遮罩 M 內** |

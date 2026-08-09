@@ -104,5 +104,5 @@ def test_條件清單由格點登記表導出(tmp_path):
     """寫死一份清單的症狀是新條件被靜默漏掉，表格看起來仍然完整。"""
     from src.experiment import grid
 
-    assert "N4" in grid.CONDITIONS
+    assert "apa" in grid.CONDITIONS
     assert "Ra" in grid.CONDITIONS

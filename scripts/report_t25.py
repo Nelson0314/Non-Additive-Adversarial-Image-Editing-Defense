@@ -31,7 +31,19 @@ T30 = ROOT / "runs" / "s3t30_merged"
 T30_PENDING = not (T30 / "grid.csv").exists()
 
 IMAGES = ["horse_00", "horse_03", "woman_03"]
-CONDS = ["N4", "Ra", "photoguard_c", "mist", "dia_r"]
+# **讀取端用的名字，不是現行的名字。** s3a 與 s3t25 是在條件由 `N4` 改名為
+# `apa` 之前跑完的，其 `grid.csv` 的 condition 欄與 `runs/` 的目錄名都還是
+# `N4`。`runs/` 是唯一的證據來源，不改名——改了它，那些格的 `config_hash`
+# 就與檔案裡記錄的值對不起來，而那正是本專案要消滅的那種「看不出症狀」。
+# 故此處讀舊名、顯示新名。
+COND_STORED = "N4"
+COND_SHOWN = "apa"
+CONDS = [COND_STORED, "Ra", "photoguard_c", "mist", "dia_r"]
+
+
+def shown(cond: str) -> str:
+    """條件在版面上的名字。歷史資料的 `N4` 一律顯示為 `apa`。"""
+    return COND_SHOWN if cond == COND_STORED else cond
 TRAIN_TAU = 0.25
 # 佔位符。**不用「—」**：那與「這一格量到的就是沒有值」分不出來。
 TBD = '<span class="missing">待補</span>'
@@ -150,14 +162,14 @@ def main() -> None:
          '<p class="eyebrow">批次 s3t25 · SD v1.4 · 512² · fp32 · img2img</p>',
          '<h1>數值上兩道門檻首次同時成立，<br>但人眼判定它不成立</h1>']
 
-    n4_35, _ = eval_mean(rows25, "N4", 0.35, "edit_lpips")
+    n4_35, _ = eval_mean(rows25, COND_STORED, 0.35, "edit_lpips")
     ra_35, _ = eval_mean(rows25, "Ra", 0.35, "edit_lpips")
     best_35 = max((eval_mean(rows25, c, 0.35, "edit_lpips")[0] or 0, c)
                   for c in CONDS[2:])
     h.append(
         '<p class="lede measure">白盒非加性抗文字編輯防禦。本批只把 τ_train '
         f'由 EXP-s3a 的 0.50 降到 <b>0.25</b>，其餘設定不變。'
-        f'N4 對同失真隨機對照拉開到 <b>{n4_35 / ra_35:.2f}×</b>、對最佳 '
+        f'apa 對同失真隨機對照拉開到 <b>{n4_35 / ra_35:.2f}×</b>、對最佳 '
         f'baseline 達 <b>{n4_35 / best_35[0]:.2f}×</b>（皆在 τ=0.35），'
         '數值上是本專案第一次兩道門檻同時成立。'
         '<b>但人眼看過之後這個結論不成立</b>：τ=0.25 的防禦圖已經明顯毀掉'
@@ -173,23 +185,23 @@ def main() -> None:
     # ---- 摘要卡 ----
     h.append('<section><div class="head"><p class="eyebrow">摘要</p>'
              '<h2>四項結論</h2></div><div class="verdicts">')
-    # 逐 τ 的 N4/Ra，現算而不寫死——寫死的數字改一次資料就要重抄一次，
+    # 逐 τ 的 apa/Ra，現算而不寫死——寫死的數字改一次資料就要重抄一次，
     # 而抄錯沒有症狀。
     gb = []
     for t in taus:
-        a, _ = eval_mean(rows25, "N4", t, "edit_lpips")
+        a, _ = eval_mean(rows25, COND_STORED, t, "edit_lpips")
         b, _ = eval_mean(rows25, "Ra", t, "edit_lpips")
         if a is not None and b:
             gb.append(f"{a / b:.2f}×")
     h.append(
         '<div class="card is-good"><span class="k">確立</span>'
         '<span class="v">勝過同參數化隨機對照的幅度是實質的</span>'
-        f'<span class="sub">N4/Ra 在 {len(gb)} 個可達的 τ 上為 '
+        f'<span class="sub">apa/Ra 在 {len(gb)} 個可達的 τ 上為 '
         f'{" / ".join(gb)}。EXP-s3a 是 1.25–1.41× 的邊緣值。</span></div>')
     h.append(
         '<div class="card is-bad"><span class="k">否定</span>'
         '<span class="v">門檻 (a) 數值上通過，人眼判定不算數</span>'
-        f'<span class="sub">N4 在 τ=0.35 達最佳 baseline（{best_35[1]}）的 '
+        f'<span class="sub">apa 在 τ=0.35 達最佳 baseline（{best_35[1]}）的 '
         f'{n4_35 / best_35[0]:.2f}×，超過 0.85。但 τ=0.25 的防禦圖已明顯毀掉，'
         '0.35 更甚——與 FND-013 對 s3a τ=0.50 的 0.82× 同型。</span></div>')
     h.append(
@@ -262,7 +274,7 @@ def main() -> None:
              '<th>final L_def</th><th>fid_lpips</th><th>PSNR</th>'
              '<th>步數</th><th>停止原因</th></tr></thead><tbody>')
     for iid in IMAGES:
-        d = tr25[("N4", iid)]
+        d = tr25[(COND_STORED, iid)]
         h.append(f'<tr><td>{iid}</td>'
                  f'<td class="num">{d["final_L_def"]:.4g}</td>'
                  f'<td class="num">{d["fid_lpips"]:.4f}</td>'
@@ -281,16 +293,16 @@ def main() -> None:
              '<p class="sub" style="font-size:.85rem">逐影像的 '
              '<code>optimize</code> 歷程。</p><div class="plate n3">')
     for iid in IMAGES:
-        h.append(fig(T25 / "N4" / iid / "history.png", f"{iid} · N4"))
+        h.append(fig(T25 / COND_STORED / iid / "history.png", f"{iid} · {COND_SHOWN}"))
     h.append("</div>")
 
     h.append("<h3>訓練點的防禦圖</h3>"
              '<p class="sub" style="font-size:.85rem">上排原圖、下排 '
              '<code>x_def</code>（τ_train = 0.25）。</p><div class="plate n3">')
     for iid in IMAGES:
-        h.append(fig(T25 / "N4" / iid / "orig.png", f"{iid} · 原圖"))
+        h.append(fig(T25 / COND_STORED / iid / "orig.png", f"{iid} · 原圖"))
     for iid in IMAGES:
-        h.append(fig(T25 / "N4" / iid / "x_def_tau0.25.png",
+        h.append(fig(T25 / COND_STORED / iid / "x_def_tau0.25.png",
                      f"{iid} · x_def τ=0.25"))
     h.append("</div></section>")
 
@@ -300,7 +312,7 @@ def main() -> None:
              '<div class="tw"><table><caption><code>edit_lpips</code>'
              '（identity），愈高代表把編輯推得愈遠。括號為樣本數'
              '</caption><thead><tr><th>τ</th>'
-             + "".join(f"<th>{c}</th>" for c in CONDS)
+             + "".join(f"<th>{shown(c)}</th>" for c in CONDS)
              + "</tr></thead><tbody>")
     for t in taus:
         cells = []
@@ -308,7 +320,7 @@ def main() -> None:
         for c in CONDS:
             v, n = eval_mean(rows25, c, t, "edit_lpips")
             vals[c] = v
-            cls = "num good" if (c == "N4" and v) else "num"
+            cls = "num good" if (c == COND_STORED and v) else "num"
             cells.append(f'<td class="{cls}">'
                          + (f"{v:.4f} <span class=sub>({n})</span>"
                             if v is not None else "—") + "</td>")
@@ -321,11 +333,11 @@ def main() -> None:
     # 門檻表
     h.append('<div class="tw"><table><caption>次主張的兩道門檻：'
              '(a) ≥ 0.85 × 最佳 baseline；(b) &gt; 同失真隨機對照'
-             '</caption><thead><tr><th>τ</th><th>N4 / Ra（門檻 b）</th>'
-             '<th>N4 / 最佳 baseline（門檻 a）</th><th>最佳者</th>'
+             '</caption><thead><tr><th>τ</th><th>apa / Ra（門檻 b）</th>'
+             '<th>apa / 最佳 baseline（門檻 a）</th><th>最佳者</th>'
              '<th>τ_train=0.30</th></tr></thead><tbody>')
     for t in taus:
-        n4, _ = eval_mean(rows25, "N4", t, "edit_lpips")
+        n4, _ = eval_mean(rows25, COND_STORED, t, "edit_lpips")
         ra, _ = eval_mean(rows25, "Ra", t, "edit_lpips")
         if n4 is None or ra is None:
             continue
@@ -359,7 +371,7 @@ def main() -> None:
         ac, _ = eval_mean(rows25, c, TRAIN_TAU, "edit_acutance_ratio")
         dn = (nb - na) if (na is not None and nb is not None) else None
         dncls = "num bad" if (dn is not None and dn > 0.5) else "num"
-        h.append(f"<tr><td>{c}</td><td class='num'>{fmt(lp)}</td>"
+        h.append(f"<tr><td>{shown(c)}</td><td class='num'>{fmt(lp)}</td>"
                  f"<td class='num'>{fmt(ps, 2)}</td>"
                  f"<td class='num'>{fmt(ss)}</td>"
                  f"<td class='{dncls}'>{fmt(dn, 3)}</td>"
@@ -368,7 +380,7 @@ def main() -> None:
     h.append('<div class="callout warn">第 3 層這次<b>對 baseline 不利而非'
              '對我方不利</b>：photoguard_c 的 ΔNIQE 為 +0.975、銳利度比 0.54，'
              '代表它在該 τ 上的免疫有一部分是靠把輸出弄糟撐起來的。'
-             'N4 的 ΔNIQE 是負的，即輸出的無參考品質沒有變差。'
+             'apa 的 ΔNIQE 是負的，即輸出的無參考品質沒有變差。'
              '這不改變門檻 (a) 的結論，但它說明那個分母本身帶著劣化成分。'
              '</div></section>')
 
@@ -377,21 +389,21 @@ def main() -> None:
              '<h2>同一個 τ、同一個 LPIPS，兩種完全不同的長相</h2></div>'
              '<p class="measure">下面每一組的三張圖，其對原圖的 LPIPS '
              '<b>都等於 0.25</b>。Ra 把失真攤平在整張圖上，看起來只是輕微'
-             '柔化；N4 把同樣的預算<b>集中</b>到 c_a 所在的區域——那正是式 (5) '
+             '柔化；apa 把同樣的預算<b>集中</b>到 c_a 所在的區域——那正是式 (5) '
              '要它做的事——於是同一個數字在人眼上差了一個量級。</p>')
     for iid in IMAGES:
         h.append(f"<h3>{iid}</h3><div class='plate n3'>")
-        h.append(fig(T25 / "N4" / iid / "orig.png", "原圖", "LPIPS 0"))
+        h.append(fig(T25 / COND_STORED / iid / "orig.png", "原圖", "LPIPS 0"))
         h.append(fig(T25 / "Ra" / iid / "x_def_tau0.25.png",
                      "Ra（隨機）", "LPIPS 0.25"))
-        h.append(fig(T25 / "N4" / iid / "x_def_tau0.25.png",
-                     "N4（最佳化）", "LPIPS 0.25"))
+        h.append(fig(T25 / COND_STORED / iid / "x_def_tau0.25.png",
+                     "apa（最佳化）", "LPIPS 0.25"))
         h.append("</div>")
     h.append('<div class="callout bad"><b>LPIPS 對最佳化過的非加性失真嚴重'
              '低估。</b> 這不是新發現，是 DEC-003 附帶更正（「LPIPS 對非加性'
              '其實是<b>寬鬆</b>而非嚴苛」）的具體後果。直接影響是 τ 這個'
-             '共同貨幣在 N4 與 baseline 之間<b>不等值</b>——同樣標稱 τ=0.25，'
-             'N4 付出的可見代價遠高於加性方法。門檻 (a) 的比較因此偏向 N4，'
+             '共同貨幣在 apa 與 baseline 之間<b>不等值</b>——同樣標稱 τ=0.25，'
+             'apa 付出的可見代價遠高於加性方法。門檻 (a) 的比較因此偏向 apa，'
              '而它仍然沒過。</div>')
     h.append('<div class="callout warn"><b>餘裕在 0.20 → 0.25 之間幾乎翻倍。</b> '
              'horse_03 的重建下限是 0.1448，扣掉之後真正用於對抗的預算是 '
@@ -407,9 +419,9 @@ def main() -> None:
              '不算數」——τ=0.35 這一點是否同樣如此，指標答不了。</p>')
     for iid in IMAGES:
         h.append(f"<h3>{iid}</h3><div class='plate n4'>")
-        h.append(fig(T25 / "N4" / iid / "orig.png", "原圖"))
-        h.append(fig(T25 / "N4" / iid / "x_def_tau0.25.png", "x_def τ=0.25"))
-        h.append(fig(T25 / "N4" / iid / "purify/identity_0"
+        h.append(fig(T25 / COND_STORED / iid / "orig.png", "原圖"))
+        h.append(fig(T25 / COND_STORED / iid / "x_def_tau0.25.png", "x_def τ=0.25"))
+        h.append(fig(T25 / COND_STORED / iid / "purify/identity_0"
                      / "edit_tau0.25_seed0.png", "防禦後的編輯 τ=0.25"))
         h.append(fig(T25 / "control" / iid / "purify/identity_0"
                      / "edit_seed0.png", "未防禦的編輯（對照）"))
@@ -423,7 +435,7 @@ def main() -> None:
              '<h2>抗淨化</h2></div>'
              f'<p class="measure">{TBD}。需跑 '
              '<code>scripts/purify_advantage.py</code>；其前提是「在 identity '
-             '上先有可測的效果」，而本批 N4 在 τ=0.25 上的 edit_lpips 為 '
+             '上先有可測的效果」，而本批 apa 在 τ=0.25 上的 edit_lpips 為 '
              '0.2384，遠高於階段一落在雜訊裡的量級，故該前提在本批首次成立。'
              's3t30 收工後兩批一起做。</p></section>')
 
@@ -434,7 +446,7 @@ def main() -> None:
              '「τ_train 的效果」</b>，理由見文末但書</caption><thead><tr>'
              '<th>量</th><th>s3a（0.50）</th><th>s3t25（0.25）</th>'
              '<th>s3t30（0.30）</th></tr></thead><tbody>')
-    n4_20, _ = eval_mean(rows25, "N4", 0.20, "edit_lpips")
+    n4_20, _ = eval_mean(rows25, COND_STORED, 0.20, "edit_lpips")
     ra_20, _ = eval_mean(rows25, "Ra", 0.20, "edit_lpips")
     best_20 = max((eval_mean(rows25, c, 0.20, "edit_lpips")[0] or 0, c)
                   for c in CONDS[2:])
@@ -442,10 +454,10 @@ def main() -> None:
             ("lr.N4_stage2", "0.1（格點上界）", "0.02（內部極小）"),
             ("段 1 步數", "54 / 72 / 90", "73 / 79 / 132"),
             ("重建下限最大值", "0.2398（cat_02）", "0.1448（horse_03）"),
-            ("N4/Ra @ τ=0.20", "1.25×", f"{n4_20 / ra_20:.2f}×"),
-            ("N4/Ra @ τ=0.35", "1.31×", f"{n4_35 / ra_35:.2f}×"),
-            ("N4/最佳 @ τ=0.20", "0.31×", f"{n4_20 / best_20[0]:.2f}×"),
-            ("N4/最佳 @ τ=0.35", "0.46×", f"{n4_35 / best_35[0]:.2f}×")]:
+            ("apa/Ra @ τ=0.20", "1.25×", f"{n4_20 / ra_20:.2f}×"),
+            ("apa/Ra @ τ=0.35", "1.31×", f"{n4_35 / ra_35:.2f}×"),
+            ("apa/最佳 @ τ=0.20", "0.31×", f"{n4_20 / best_20[0]:.2f}×"),
+            ("apa/最佳 @ τ=0.35", "0.46×", f"{n4_35 / best_35[0]:.2f}×")]:
         h.append(f"<tr><td>{label}</td><td class='num'>{a}</td>"
                  f"<td class='num'>{b}</td>"
                  f"<td class='num'>{TBD if T30_PENDING else ''}</td></tr>")

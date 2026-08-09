@@ -164,7 +164,7 @@ class ConditionSpec:
     # `pixel_residual`，整條路徑不碰 UNet。故它設成什麼都沒有差別，
     # 而那正是這個誤解能存活的原因。
     #
-    # 對走生成路徑的條件就不是空轉。2026-08-09 於 RTX 3090 實測：N4 沿用
+    # 對走生成路徑的條件就不是空轉。2026-08-09 於 RTX 3090 實測：apa 沿用
     # `unet_ckpt=False` 之後，段 0 的 `_probe_align_lr` 在**保真對齊**那一步
     # OOM（23.42 GiB / 23.56 GiB，死在 backward 重算 VAE decode）——那一步
     # 根本不碰注意力目標，純粹是 k_inv=10 步的去噪鏈少了 checkpoint，
@@ -201,9 +201,9 @@ CONDITION_SPECS: Dict[str, ConditionSpec] = {
     # 2026-08-09（第三階段）。與 N3 同一個參數化，差別只在階段二的損失。
     #
     # **但學習率的鍵必須自己一組。** `_pick_best` 的判準是「固定步數後末端
-    # 總損失最小者」，而總損失是模式相依的：N3 的 L_def 是 MSE、N4 是
+    # 總損失最小者」，而總損失是模式相依的：N3 的 L_def 是 MSE、apa 是
     # `‖Att ⊙ M‖₁`，兩者的尺度與地景都不同，argmin 沒有理由相同。共用
-    # `lr.N3_stage2` 還會讓同批同時跑 N3 與 N4 時，`calibrate_lr` 的
+    # `lr.N3_stage2` 還會讓同批同時跑 N3 與 apa 時，`calibrate_lr` 的
     # `out[spec.lr_key]` 被後者**靜默覆寫**。
     #
     # **`unet_ckpt` 維持預設的 True，不照抄 N1 的 False。** 兩者的注意力前向
@@ -214,17 +214,17 @@ CONDITION_SPECS: Dict[str, ConditionSpec] = {
     # **這一格仍是本批記憶體最緊的一條路徑**：注意力前向恆不 checkpoint，
     # 而 `--purify-mode all` × `attn_timesteps 4` 是 12 份完整的 UNet 計算圖，
     # 再加上生成路徑（已 checkpoint）。段 0 若仍 OOM，先降 `--attn-timesteps`。
-    "N4": ConditionSpec(
-        "N4", "nonadditive", site="apa", defense_mode="suppress_attn_ca",
+    "apa": ConditionSpec(
+        "apa", "nonadditive", site="apa", defense_mode="suppress_attn_ca",
         lr_key="lr.N4_stage2", align_lr_key="lr.N4_stage1",
         monitor="attn_suppressed",
     ),
     "R": ConditionSpec("R", "random", site="warp"),
     # apa 上的同失真隨機對照。**它也跑階段一的保真對齊**（`align_lr_key`
     # 非空），理由見 `_train_random`：不對齊的話它的 `x_base` 是未對齊的
-    # VAE 重建，同一個 τ 之下留給隨機方向的預算比 N4 少，比較就偏向我方。
+    # VAE 重建，同一個 τ 之下留給隨機方向的預算比 apa 少，比較就偏向我方。
     #
-    # 階段一與 N4 共用 `lr.N4_stage1` 是安全的，與上面階段二的情形相反：
+    # 階段一與 apa 共用 `lr.N4_stage1` 是安全的，與上面階段二的情形相反：
     # `_probe_align_lr` 的判準是**對齊損失**，那是保真度，與防禦模式無關，
     # 兩者會探出同一個值。共用因此省下一組探測而不改變任何數值。
     "Ra": ConditionSpec(
@@ -451,7 +451,7 @@ class RunConfig:
     # N1 要把注意力質量導向哪些 token 格。**定義 N1 攻擊的是什麼**，
     # 故必須進 `config_hash`（見 `loss_params`）。
     shared_tokens: Tuple[int, ...] = LossConfig.shared_tokens
-    # N4（`suppress_attn_ca`）式 (4) 的遮罩門檻，作用在峰值正規化後的尺度上。
+    # apa（`suppress_attn_ca`）式 (4) 的遮罩門檻，作用在峰值正規化後的尺度上。
     # **`None` 表示本批不用該模式**，此時它不出現在 `loss_params()`，故 v14／
     # v14r 既有格點的 `config_hash` 逐位不變（與 `warp_mask_gate` 同一慣例）。
     attn_mask_tau: Optional[float] = None
@@ -525,7 +525,7 @@ class RunConfig:
     def loss_params(self) -> Dict[str, Any]:
         """`_loss_params_base` 加上只在啟用時出現的鍵。"""
         out = self._loss_params_base()
-        # N4 的兩個鍵**只在啟用時出現**，理由與 `module_params` 的
+        # apa 的兩個鍵**只在啟用時出現**，理由與 `module_params` 的
         # `warp_mask_gate` 逐字相同：`config_hash` 吃整個 dict，無條件加入會
         # 改變 img2img 既有批次的每一格雜湊，續跑時把已完成的格全部判為未完成。
         # 鍵存在與否本身就承載「本批有沒有用式 (5) 這個目標」。
@@ -1188,8 +1188,8 @@ def _train_random(cell: grid.Cell, res: Resources, out_dir: Path
        沒有像素側的捷徑。
     3. **它必須跑階段一的保真對齊。** 不對齊的話 `x_base` 是未對齊的 VAE
        重建，而段 2 的 τ 是對**原圖**求解的：同一個 τ=0.50 之下，未對齊的
-       Ra 得先付掉更大的重建誤差，留給隨機方向的預算比 N4 少。那會讓對照
-       系統性地偏弱，也就讓 N4 的任何勝出不可解讀——而這條對照存在的唯一
+       Ra 得先付掉更大的重建誤差，留給隨機方向的預算比 apa 少。那會讓對照
+       系統性地偏弱，也就讓 apa 的任何勝出不可解讀——而這條對照存在的唯一
        理由就是判斷「有沒有勝過隨便擾動一下」。
     """
     from src.defense.generator import DefenseGenerator
@@ -1217,7 +1217,7 @@ def _train_random(cell: grid.Cell, res: Resources, out_dir: Path
             gen = DefenseGenerator(
                 res.sd, module, k_inv=optim_cfg.k_inv, t_max=optim_cfg.t_max,
                 exact_inversion=optim_cfg.exact_inversion)
-            # 階段一：與 N4 逐字相同的保真對齊（見 docstring 第 3 點）。
+            # 階段一：與 apa 逐字相同的保真對齊（見 docstring 第 3 點）。
             if optim_cfg.align_steps > 0:
                 with torch.no_grad():
                     module.disable()
@@ -1893,7 +1893,7 @@ def calibrate_lr(res: Resources, calib_dir: Path) -> Dict[str, Any]:
     # 停止門檻的鍵是**監看量**而非條件（N2 與 N3 共用 `edit_shift`），故逐監看量
     # 彙總全部候選再算一次，不讓後一個條件覆寫前一個的值。
     by_monitor: Dict[str, List[Dict[str, Any]]] = {}
-    # 哪個條件先認領了某個 lr 鍵。共用是合法的（Ra 與 N4 共用階段一），
+    # 哪個條件先認領了某個 lr 鍵。共用是合法的（Ra 與 apa 共用階段一），
     # 但**只有在兩者會探出同一個值時才合法**，故記下認領者的識別特徵。
     claimed: Dict[str, Tuple[str, tuple]] = {}
 
@@ -1915,7 +1915,7 @@ def calibrate_lr(res: Resources, calib_dir: Path) -> Dict[str, Any]:
         return False
 
     # **只探測這一批要跑的條件。** before：一律走 `grid.NONADDITIVE`，於是
-    # 第三階段只跑 N4／Ra 的批次仍會為 N1／N2／N3 各跑 5 個候選，而那三個
+    # 第三階段只跑 apa／Ra 的批次仍會為 N1／N2／N3 各跑 5 個候選，而那三個
     # 條件的 φ 這一批根本不會被用到。段 0 在 v14r 實測 4.9 小時，其中學習率
     # 探測是主成本。
     for cond in res.cfg.conditions:

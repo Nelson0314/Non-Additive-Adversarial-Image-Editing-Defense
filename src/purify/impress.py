@@ -5,7 +5,7 @@
 - 損失：`MSE(D(E(x_pur)), x_pur) + α · max(LPIPS(x_pur, x_ptb) − L, 0)`
   （論文 Eq. 4.1；程式 `impress.py` 第 13–17 行）。
 - 官方 `impress.py` 有三組「預設」（函式簽名／Glaze 情境／PhotoGuard 情境）。
-  本專案的威脅模型是編輯而非風格微調，依 `SOURCE_AUDIT_2026-08-05.md` §8 取
+  本專案的威脅模型是編輯而非風格微調，依 `reference/SOURCE_AUDIT.md` §8 取
   **PhotoGuard 情境**那一組：eps(L) 0.1、iters 1000、lr 0.005、α 0.01、σ 0.05、
   值域 `[-1, 1]`。該組同時見於 README、`scripts/new/pg_mask_diff_test.sh`
   與論文附錄 B，三者一致。

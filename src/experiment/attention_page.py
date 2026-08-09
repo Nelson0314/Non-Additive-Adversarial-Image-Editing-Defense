@@ -1,4 +1,4 @@
-"""attention map 對照頁 —— `CODE_2026-08-05.md` §4.2。
+"""attention map 對照頁 —— `reference/CODE_CONTRACTS.md` §4.2。
 
 `compare.html` 回答「編輯被擋住了嗎」，這一頁回答**為什麼**：防禦是不是
 真的讓 cross-attention 失效，以及淨化是不是把那個擾亂洗掉了。

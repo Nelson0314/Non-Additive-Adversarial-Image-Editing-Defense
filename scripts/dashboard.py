@@ -1,4 +1,4 @@
-"""實驗進度儀表板（唯讀）— `docs/CODE_2026-08-05.md` §2.4。
+"""實驗進度儀表板（唯讀）— `docs/reference/CODE_CONTRACTS.md` §2.4。
 
 給實驗 agent 監察格點狀態用。**唯讀、不碰 GPU、不啟停任何行程、
 不寫入批次目錄**（`--html` 產生的 `dashboard.html` 除外）。

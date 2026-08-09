@@ -1,4 +1,4 @@
-"""進度儀表板的寫入端 — `docs/CODE_2026-08-05.md` §2。
+"""進度儀表板的寫入端 — `docs/reference/CODE_CONTRACTS.md` §2。
 
 ## 真相與快取
 

@@ -1,4 +1,4 @@
-"""GPU 機器的環境驗證 — `docs/RUNBOOK_2026-08-05.md` §1、`ARCH` §8。
+"""GPU 機器的環境驗證 — `docs/RUNBOOK.md` §1、`ARCH` §8。
 
     python scripts/verify_gpu_env.py [--load-sdxl] [--json]
 

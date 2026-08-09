@@ -6,7 +6,7 @@
 
 ## 為什麼要分層
 
-`SURVEY_2026-08-05` §2.2 已經指認六篇 baseline 的判準**沒有交集**。實測之後
+`reference/SURVEY` §2.2 已經指認六篇 baseline 的判準**沒有交集**。實測之後
 問題更具體：用文獻的判準，本專案的每一個條件都「有效」；用「編輯有沒有失敗」
 判，全部無效（`RESULTS_2026-08-08` §7.5、§9.6）。兩者不是矛盾，是兩個不同的
 問題被同一個詞（「防禦成功」）指稱。
@@ -284,7 +284,7 @@ def main() -> None:
 
 | 指標 | 出自 | 為什麼算不出來 |
 |---|---|---|
-| FID、Precision／Recall | PhotoGuard-c、Mist、AdvPaint 的主指標 | 分布層級指標，需要數百張才穩定。本批 3 張影像 × 5 seed = 15 個樣本，算出來沒有意義（`SURVEY_2026-08-05` §4.2） |
+| FID、Precision／Recall | PhotoGuard-c、Mist、AdvPaint 的主指標 | 分布層級指標，需要數百張才穩定。本批 3 張影像 × 5 seed = 15 個樣本，算出來沒有意義（`reference/SURVEY` §4.2） |
 | Aesthetic Score、PickScore | PromptFlare | 需要額外模型權重，未下載 |
 | 背景保留（mask 隔離的 PSNR／LPIPS／MSE／SSIM） | DIA | 依賴 PIE-Bench 的編輯 mask。img2img 沒有 mask，該隔離程序無對應物（`SURVEY` §4.2） |
 | ISR（原文形式） | SIFM | 判定由 MLLM 做，本專案沒有該 judge。已改為 ΔNIQE 門檻掃描的代理，**不是重現** |

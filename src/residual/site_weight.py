@@ -53,7 +53,7 @@ DEFAULT_TARGETS = ("to_q", "to_k", "to_v", "to_out.0")
 # 要掛載的 attention 區塊。預設只有 cross-attention，維持既有行為。
 #
 # **APA 移植必須用 ("attn1", "attn2")。** 2026-08-05 的原始碼查證
-# （`docs/SOURCE_AUDIT_2026-08-05.md`）確認 APA 官方實作的 LoRA
+# （`docs/reference/SOURCE_AUDIT.md`）確認 APA 官方實作的 LoRA
 # `target_modules=["to_k","to_q","to_v","to_out.0"]` 是掛在整個 UNet 上的，
 # 因此同時涵蓋 self-attention（attn1）與 cross-attention（attn2）。
 # 原本此處寫死 `.attn2.`，照它實作會少掉一半的目標層，是一個不會有症狀的

@@ -1,7 +1,7 @@
 """AdvPaint —— Jeon et al.（`JoonsungJeon/AdvPaint`）。
 
 出處：官方 `AdvPaint.py`（本次以 raw 檔逐行核對，行為與
-`docs/SOURCE_AUDIT_2026-08-05.md` §1 一致，另補一項該文件未記的落差，見下）。
+`docs/reference/SOURCE_AUDIT.md` §1 一致，另補一項該文件未記的落差，見下）。
 逐字佐證見 `docs/_audit_advpaint_dia_promptflare.md` §1；下列行號以該文件
 記載的 raw 檔（`main` 分支，13891 bytes）為準。
 

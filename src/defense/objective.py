@@ -1,10 +1,10 @@
-"""損失函數 — `docs/DESIGN_2026-08-05.md` §2.1、§3.1、§4。
+"""損失函數 — `docs/DESIGN.md` §2.1、§3.1、§4。
 
     L(φ) = λ_def · L_def + λ_fid · L_fid
 
 ## 防禦項 L_def：三個條件都是 targeted
 
-`docs/LOGIC_CHECK_2026-08-05.md` A1 的處置。三個非加性條件的著力點不同，
+`docs/archive/LOGIC_CHECK_2026-08-05.md` A1 的處置。三個非加性條件的著力點不同，
 但**沒有一個是無目標的最大化**：
 
 | 條件 | `defense_mode` | L_def | 目標從哪裡來 |

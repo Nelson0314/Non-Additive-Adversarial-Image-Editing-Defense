@@ -3,7 +3,7 @@
 出處：`sohn1029/DIA`（共同第一作者帳號，內容與論文所附匿名 repo 相同），
 `attack/DIA_PT.py`、`attack/DIA_R.py`、`attack_setting.json`。
 逐項佐證見 `docs/_audit_dia_apa.md` §對象一，值域裁決見
-`docs/SOURCE_AUDIT_2026-08-05.md` §6 與 §10。
+`docs/reference/SOURCE_AUDIT.md` §6 與 §10。
 
 兩個變體
 ──────────────────────────────────────────────────────────────────────

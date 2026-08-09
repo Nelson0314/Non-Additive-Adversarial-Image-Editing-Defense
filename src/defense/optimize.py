@@ -1,11 +1,11 @@
-"""逐圖優化 φ — `docs/ARCH_2026-08-05.md` §5、`docs/CODE_2026-08-05.md` §1.1。
+"""逐圖優化 φ — `docs/ARCHITECTURE.md` §5、`docs/reference/CODE_CONTRACTS.md` §1.1。
 
 每張影像獨立優化一組 φ。防禦者擁有原圖與完整權重（威脅模型），故逐圖優化
 符合威脅模型，不需泛化到未見影像。
 
 ## 這一版改了什麼
 
-三件事，各自對應 `docs/LOGIC_CHECK_2026-08-05.md` 的一條既知缺陷：
+三件事，各自對應 `docs/archive/LOGIC_CHECK_2026-08-05.md` 的一條既知缺陷：
 
 | 缺陷 | 改動 |
 |---|---|
@@ -1224,7 +1224,7 @@ def _build_attn_step(sd, gen, obj, cfg, x01, emb_cond, emb_uncond, purifiers,
         # 這裡**不設硬性中止**：合格的區間隨物件在畫面中的佔比而變（ip3 的
         # 遮罩涵蓋率實測 0.20–0.40，而人像類整組 0.92–1.00），一個全域常數
         # 正是本專案重複踩過的缺陷型態。改為印出警告並把數值落盤，由段 0
-        # 的判讀決定；判準寫在 `docs/DECISION_stage3.md`。
+        # 的判讀決定；判準寫在 `docs/archive/DECISION_stage3.md`。
         if not 0.02 <= coverage <= 0.90:
             print(
                 f"  [suppress] **警告** 遮罩覆蓋率 {coverage:.4f} 落在兩端。"

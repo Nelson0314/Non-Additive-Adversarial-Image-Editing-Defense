@@ -1,4 +1,4 @@
-"""段落執行器 — `docs/ARCH_2026-08-05.md` §5、`docs/RUNBOOK_2026-08-05.md` §3。
+"""段落執行器 — `docs/ARCHITECTURE.md` §5、`docs/RUNBOOK.md` §3。
 
 ## 為什麼骨架與計算分離
 

@@ -25,13 +25,13 @@
 | 你想知道 | 讀這個 |
 |---|---|
 | **哪份文件現行、哪個 run 屬於哪個實驗** | **`docs/INDEX.md`**（檔案索引，先讀這份） |
-| **接手正在跑的批次**：現狀、正在跑什麼、如何重啟監控、待裁決事項 | **`docs/HANDOVER_2026-08-07.md`** |
-| **接手執行**：環境、實作進度、五段指令、失敗處理 | **`docs/RUNBOOK_2026-08-05.md`** |
-| 要證什麼、怎麼算成立 | `docs/DESIGN_2026-08-05.md` |
-| 為什麼選這些 baseline／這個威脅模型 | `docs/SURVEY_2026-08-05.md` |
-| 程式怎麼組起來、續跑語意 | `docs/ARCH_2026-08-05.md`、`docs/CODE_2026-08-05.md` |
-| 哪裡曾經錯過、為什麼現在的寫法是那樣 | `docs/LOGIC_CHECK_2026-08-05.md`（既知缺陷 A1–A13） |
-| 某個 baseline 的參數為什麼是這個值 | `docs/SOURCE_AUDIT_2026-08-05.md` 與 `docs/_audit_*.md`（逐字原始碼佐證） |
+| **接手正在跑的批次**：現狀、正在跑什麼、如何重啟監控、待裁決事項 | **`docs/archive/HANDOVER_2026-08-07.md`** |
+| **接手執行**：環境、實作進度、五段指令、失敗處理 | **`docs/RUNBOOK.md`** |
+| 要證什麼、怎麼算成立 | `docs/DESIGN.md` |
+| 為什麼選這些 baseline／這個威脅模型 | `docs/reference/SURVEY.md` |
+| 程式怎麼組起來、續跑語意 | `docs/ARCHITECTURE.md`、`docs/reference/CODE_CONTRACTS.md` |
+| 哪裡曾經錯過、為什麼現在的寫法是那樣 | `docs/archive/LOGIC_CHECK_2026-08-05.md`（既知缺陷 A1–A13） |
+| 某個 baseline 的參數為什麼是這個值 | `docs/reference/SOURCE_AUDIT.md` 與 `docs/_audit_*.md`（逐字原始碼佐證） |
 | 先驗階段的結果、量測陷阱、參考文獻 | `PRIOR_FINDINGS.md` |
 | 工作規範 | `CLAUDE.md` |
 
@@ -85,7 +85,7 @@ python scripts/run_stage.py report   $COMMON
 python scripts/dashboard.py runs/b1 --json
 ```
 
-**上機前先讀 `docs/RUNBOOK_2026-08-05.md`**——那份是自足的執行手冊，
+**上機前先讀 `docs/RUNBOOK.md`**——那份是自足的執行手冊，
 含研究背景、五段內容、失敗處理、機時估計與判讀指南。
 **GPU 工作不可並行**——CPU 密集工作（例如 pytest）與 GPU 工作並行時，
 實測把單張 SDEdit 由 222 s 拉長到 30 分鐘以上。

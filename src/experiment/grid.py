@@ -1,4 +1,4 @@
-"""四軸格點的列舉 — `docs/DESIGN_2026-08-05.md` §3。
+"""四軸格點的列舉 — `docs/DESIGN.md` §3。
 
 本模組決定「實際會跑哪些格子」。它是純函數、不碰 GPU，因為
 **格點定義錯誤是事後看不出來的**：少跑一個條件、某個 τ 的淨化掃描漏了一半，
@@ -116,7 +116,7 @@ EXCLUDED: Dict[str, str] = {
 # 2026-08-09：第三階段的批次跑 `N4 Ra photoguard_c mist dia_r` 五個條件，
 # 位移場的三個（N1／N2／R）**移出格點但原始碼與登記表都保留**——`runs/` 有
 # 36893 個已入版控的檔案要靠 `site_warp` 由 `.pt` 重建，刪掉它們等於讓那些
-# 證據無法還原。放棄位移場的量化依據見 `docs/DECISION_stage3.md`。
+# 證據無法還原。放棄位移場的量化依據見 `docs/archive/DECISION_stage3.md`。
 CONDITIONS: Tuple[str, ...] = NONADDITIVE + BASELINES + RANDOM_CONTROLS
 
 
@@ -301,7 +301,7 @@ GENERATIVE_CONDITIONS = ("N3", "N4", "Ra")
 
 IDENTITY = ("identity", 0.0)
 
-# 主組：文獻共識的算子。出處見 `docs/SOURCE_AUDIT_2026-08-05.md` §8。
+# 主組：文獻共識的算子。出處見 `docs/reference/SOURCE_AUDIT.md` §8。
 # `cnn_denoise_substitute` 的命名刻意帶 substitute——NTIRE 2023 冠軍的
 # 程式碼與權重皆未公開，此為我方替代，不得聲稱重現 DiffVax 的該項評測。
 #

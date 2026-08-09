@@ -1,7 +1,7 @@
 """baseline 攻擊層：五篇論文，一個 PGD 骨幹。
 
 **這些是別人論文的方法，不是我們的。** 每一個超參數、每一個損失項、每一個
-值域轉換都必須有查證過的出處（`docs/SOURCE_AUDIT_2026-08-05.md` 與
+值域轉換都必須有查證過的出處（`docs/reference/SOURCE_AUDIT.md` 與
 `docs/_audit_*.md`）。查不到的項目一律在 `prepare` 中拋出
 `NotImplementedError` 並寫明缺什麼——填一個看起來合理的值會讓整批實驗的
 比較基礎失效，且事後補不回來。

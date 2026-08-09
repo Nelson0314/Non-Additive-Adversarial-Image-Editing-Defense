@@ -1,4 +1,4 @@
-"""APA 移植（條件 N3）— `docs/DESIGN_2026-08-05.md` §4。
+"""APA 移植（條件 N3）— `docs/DESIGN.md` §4。
 
 ## 與原論文的對應
 
@@ -45,7 +45,7 @@ from src.residual.site_weight import APA_BLOCKS, WeightResidual
 STAGE1, STAGE2 = "stage1", "stage2"
 
 # 階段一的 LoRA 設定，取自官方實作 https://github.com/deep-kaixun/APA
-# （2026-08-05 查證，見 `docs/SOURCE_AUDIT_2026-08-05.md`）。
+# （2026-08-05 查證，見 `docs/reference/SOURCE_AUDIT.md`）。
 # **這些值論文中不存在**——APA 的 arXiv v1 是唯一版本且沒有 Appendix，
 # 論文四處引用它卻查無該節，故階段一的全部超參數只能取自程式碼。
 APA_LORA_RANK = 8

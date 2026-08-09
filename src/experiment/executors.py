@@ -1,4 +1,4 @@
-"""五段的計算層 — `docs/ARCH_2026-08-05.md` §5、`docs/CODE_2026-08-05.md` §4。
+"""五段的計算層 — `docs/ARCHITECTURE.md` §5、`docs/reference/CODE_CONTRACTS.md` §4。
 
 `src/experiment/runner.py` 只管「哪些格要跑、跑過了沒有」；本模組是它呼叫的
 `executor`，負責實際的訓練、縮放、評測與彙整。兩者分離的理由見 `runner.py`

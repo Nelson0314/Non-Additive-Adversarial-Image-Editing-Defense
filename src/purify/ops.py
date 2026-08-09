@@ -25,7 +25,7 @@ GrIDPure 需要額外的擴散模型推論，成本遠高於上列各項，列�
 
 ---
 
-## 主組（文獻共識的六個算子，`DESIGN_2026-08-05.md` §3.3）
+## 主組（文獻共識的六個算子，`DESIGN.md` §3.3）
 
 | 算子 | kind | 訓練 | 評測 | 出處與狀態 |
 |---|---|---|---|---|
@@ -38,7 +38,7 @@ GrIDPure 需要額外的擴散模型推論，成本遠高於上列各項，列�
 | （對照）resize only | `resize_only` | 可微 | 同 | DiffPure 降升取樣的必要對照，見 `src/purify/diffpure.py` |
 
 每個算子的逐項出處查證見 `docs/_audit_purify.md`，裁決見
-`docs/SOURCE_AUDIT_2026-08-05.md` §9。凡標「我方指定」者不得寫成原論文設定。
+`docs/reference/SOURCE_AUDIT.md` §9。凡標「我方指定」者不得寫成原論文設定。
 """
 
 import io
@@ -148,7 +148,7 @@ def jpeg_proxy(x: torch.Tensor, quality: int) -> torch.Tensor:
 # DIA 補充材料 §B.2：`We cropped 10% of each image and then resized it to match
 # the model's input requirements.` 只有「10%」有來源。
 CROP_FRACTION_DIA = 0.10
-# 以下三項 DIA 全文未指定，為我方指定（`SOURCE_AUDIT_2026-08-05.md` §9 第 5 項）：
+# 以下三項 DIA 全文未指定，為我方指定（`reference/SOURCE_AUDIT.md` §9 第 5 項）：
 # 中心裁切、每邊各裁 10%、bicubic 升回原尺寸。
 CROP_MODE = "center"
 CROP_INTERPOLATION = "bicubic"
@@ -364,7 +364,7 @@ def default_train_set() -> List[Purifier]:
 
 
 def main_set(sd=None, seed: int = 0) -> List[Purifier]:
-    """主組：文獻共識的六個淨化算子（`DESIGN_2026-08-05.md` §3.3 上半表）。
+    """主組：文獻共識的六個淨化算子（`DESIGN.md` §3.3 上半表）。
 
     JPEG 取 q = 75 與 30（DIA 報 70／80／90，DiffVax 與 PhotoGuard 系另有其值，
     本專案沿用既有的 75／30 兩點）。其餘五項各一個設定：

@@ -1,4 +1,4 @@
-"""PIE-Bench 載入與抽樣 — `docs/CODE_2026-08-05.md` §1.5。
+"""PIE-Bench 載入與抽樣 — `docs/reference/CODE_CONTRACTS.md` §1.5。
 
 出處：PnP Inversion（ICLR 2024），[cure-lab/PnPInversion](https://github.com/cure-lab/PnPInversion)。
 DIA（ICCV 2025）用的是同一個 benchmark，故本專案與 DIA 的數字可直接對照。

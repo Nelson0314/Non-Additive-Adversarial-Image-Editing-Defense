@@ -1,4 +1,4 @@
-"""實驗主驅動 — `docs/RUNBOOK_2026-08-05.md` §3。
+"""實驗主驅動 — `docs/RUNBOOK.md` §3。
 
     python scripts/run_stage.py <段> --batch b1 [選項]
 

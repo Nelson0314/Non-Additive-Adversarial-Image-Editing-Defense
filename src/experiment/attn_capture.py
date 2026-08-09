@@ -1,4 +1,4 @@
-"""編輯路徑上的 cross-attention 擷取與落盤 —— `CODE_2026-08-05.md` §4.2。
+"""編輯路徑上的 cross-attention 擷取與落盤 —— `reference/CODE_CONTRACTS.md` §4.2。
 
 **這是主判準的一部分，不是附屬產物。** 對比論文中 AdvPaint（self- 與
 cross-attention 擾亂）、PromptFlare（cross-attention decoy）與本專案的 N1

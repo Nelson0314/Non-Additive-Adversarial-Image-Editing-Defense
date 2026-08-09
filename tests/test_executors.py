@@ -7,7 +7,7 @@
 - 回傳 `(artifacts, extra_meta)`，且 `artifacts` 裡的每一條路徑執行後真的存在
   （續跑判定 `ProgressWriter.is_done` 只檢查存在性，列了卻沒產生的路徑會讓
   該格永遠重跑，而症狀是「這段怎麼跑不完」）；
-- 產物落盤符合 `docs/CODE_2026-08-05.md` §4；
+- 產物落盤符合 `docs/reference/CODE_CONTRACTS.md` §4；
 - 學習率確實只從 `Calibration.get()` 取得，未校準時拋出；
 - 各段呼叫 `optimize()` / `run_pgd()` / `solve_k()` 時傳的參數正確。
 

@@ -2,7 +2,7 @@
 
 出處：`mist-project/mist`，commit `99f5f3c455022bef77ef25ba440a4289ea472d25`，
 主程式 `mist_v3.py`。逐行佐證見 `docs/_audit_mist_diffvax.md` §1–§8，
-複驗與裁決見 `docs/SOURCE_AUDIT_2026-08-05.md` §4。
+複驗與裁決見 `docs/reference/SOURCE_AUDIT.md` §4。
 
 三項與論文正文的落差
 ──────────────────────────────────────────────────────────────────────

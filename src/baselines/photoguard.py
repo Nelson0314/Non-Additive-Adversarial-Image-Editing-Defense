@@ -3,7 +3,7 @@
 出處：`MadryLab/photoguard`，HEAD `686bea75c786cb46c88fc396a0cd0ee3d7d28c2e`，
 `notebooks/demo_complex_attack_inpainting.ipynb`。逐字佐證見
 `docs/_audit_promptflare_photoguard.md` §PhotoGuard 1–4，裁決見
-`docs/SOURCE_AUDIT_2026-08-05.md` §3。
+`docs/reference/SOURCE_AUDIT.md` §3。
 
 三項必須照原始碼而非論文正文的地方
 ──────────────────────────────────────────────────────────────────────

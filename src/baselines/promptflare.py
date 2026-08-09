@@ -1,7 +1,7 @@
 """PromptFlare —— `NAHOHYUN-SKKU/PromptFlare`，HEAD `5e9ad004b0e06cfe69608a65e38d2aa24f870142`。
 
 逐行佐證見 `docs/_audit_promptflare_photoguard.md` §PromptFlare 1–5，
-裁決見 `docs/SOURCE_AUDIT_2026-08-05.md` §2 與 §2.5。
+裁決見 `docs/reference/SOURCE_AUDIT.md` §2 與 §2.5。
 
 必須換掉 attention processor，不可改用 pre-hook
 ──────────────────────────────────────────────────────────────────────

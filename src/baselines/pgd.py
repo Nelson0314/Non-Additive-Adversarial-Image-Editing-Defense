@@ -1,6 +1,6 @@
 """五篇 baseline 共用的 PGD 骨幹與 `BaselineSpec`。
 
-設計原則（`docs/ARCH_2026-08-05.md` §4、`docs/CODE_2026-08-05.md` §1.4）
+設計原則（`docs/ARCHITECTURE.md` §4、`docs/reference/CODE_CONTRACTS.md` §1.4）
 
 **換 baseline = 換一個損失函式，不是各寫一支腳本。** 但「共用骨幹」不等於
 「硬套同一條更新式」：五篇的更新規則實際上不一樣（PhotoGuard-c 是歸一化
@@ -12,7 +12,7 @@ L∞ 逐元素夾），隨機初始化更是三種都有。這些差異全部由
 ──────────────────────────────────────────────────────────────────────
 
 本專案的張量介面是 `[0,1]`（`src/models/sd.py` 模組 docstring），而五篇
-baseline 全部在 `[-1,1]` 上最佳化。`docs/SOURCE_AUDIT_2026-08-05.md` §10
+baseline 全部在 `[-1,1]` 上最佳化。`docs/reference/SOURCE_AUDIT.md` §10
 指出：三篇的 eps 換算方式彼此不同，且**看起來都寫 `eps/255`**——
 
 | 方法 | 程式碼的 eps 寫法 | `[0,1]` 的實際 eps |
@@ -79,7 +79,7 @@ class ValueRange:
 class BaselineSpec:
     """一篇 baseline 的完整可執行規格。
 
-    每一欄都必須在 `docs/SOURCE_AUDIT_2026-08-05.md` 或 `docs/_audit_*.md`
+    每一欄都必須在 `docs/reference/SOURCE_AUDIT.md` 或 `docs/_audit_*.md`
     中有出處。**不得由程式猜測**：查不到的項目由 `prepare` 拋出
     `NotImplementedError` 並寫明缺什麼，不填一個看起來合理的值。
 

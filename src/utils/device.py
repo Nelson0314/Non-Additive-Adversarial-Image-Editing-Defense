@@ -73,7 +73,7 @@ def resolve_precision(compute_dtype: torch.dtype) -> "tuple[torch.dtype, torch.d
 
     fp16 那一格的處置只有兩種：把 VAE 留在 fp32，或換一份重新縮放過的
     VAE 權重（社群的 `sdxl-vae-fp16-fix`）。**本專案只能選前者**——威脅模型
-    要求攻擊方使用 stock SDXL，換權重就是換模型（`docs/ARCH_2026-08-05.md`
+    要求攻擊方使用 stock SDXL，換權重就是換模型（`docs/ARCHITECTURE.md`
     §7.1 已撤回該項）。故本函式只回傳 dtype，永遠不回傳權重來源，程式中
     也不存在任何載入替代 VAE 的路徑。
 

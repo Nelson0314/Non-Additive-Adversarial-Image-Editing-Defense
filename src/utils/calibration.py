@@ -1,4 +1,4 @@
-"""校準表 — `docs/CODE_2026-08-05.md` §1.1。
+"""校準表 — `docs/reference/CODE_CONTRACTS.md` §1.1。
 
 ## 存在理由
 

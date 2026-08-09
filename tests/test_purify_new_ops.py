@@ -1,4 +1,4 @@
-"""主組淨化算子的介面與數值測試（`DESIGN_2026-08-05.md` §3.3 上半表）。
+"""主組淨化算子的介面與數值測試（`DESIGN.md` §3.3 上半表）。
 
 全部可在 CPU 上執行。需要外部權重或外部套件的算子（Adverse Cleaner 需
 opencv-contrib、IMPRESS 需 LPIPS 後端、DiffPure 與 CNN 去噪需檢查點）在相依

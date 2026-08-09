@@ -190,6 +190,26 @@ def base_config(args) -> dict:
     return out
 
 
+def resolve_thresholds(args, verbose: bool = True) -> None:
+    """把兩道 hinge 的門檻就地填成具體數值。**呼叫 `run_config` 之前必做。**
+
+    不給時依 τ_train 等比例導出（2026-08-08 處置 A，見 `objective` 的
+    「門檻的適用範圍」）。導出的是具體數值，之後照常進 `loss_params` 與
+    `config_hash`；印出來使命令列沒寫的那兩個數在 log 上仍查得到。
+
+    與 `build_parser` 同一個理由抽成函式：`scripts/tau_preview.py` 也要
+    `build_resources`，而後者會經 `run_config`，那裡對 `None` 是硬拋的。
+    抄一份導出規則出去，兩份就會分岔。
+    """
+    derived = objective.scaled_thresholds(args.tau_train)
+    for key in ("tau_acut", "tau_chroma"):
+        if getattr(args, key) is None:
+            setattr(args, key, derived[key])
+            if verbose:
+                print(f"[thresholds] {key} = {derived[key]:.4g} "
+                      f"（由 τ_train={args.tau_train} 依比例導出）", flush=True)
+
+
 def load_entries(args, device) -> list:
     """回傳 `ImageEntry` 清單。
 
@@ -534,16 +554,7 @@ def main(argv=None) -> int:
             "--warp-mask-gate 須與 --masks 並用：閘由遮罩產生，"
             "img2img 威脅模型沒有遮罩")
 
-    # 兩道 hinge 的門檻不給時依 τ_train 等比例導出（2026-08-08 處置 A，見
-    # `objective` 的「門檻的適用範圍」）。導出的是**具體數值**，之後照常
-    # 進 `loss_params` 與 `config_hash`；此處印出來，使命令列沒寫的那兩個
-    # 數在 log 上仍查得到。
-    derived = objective.scaled_thresholds(args.tau_train)
-    for key in ("tau_acut", "tau_chroma"):
-        if getattr(args, key) is None:
-            setattr(args, key, derived[key])
-            print(f"[thresholds] {key} = {derived[key]:.4g} "
-                  f"（由 τ_train={args.tau_train} 依比例導出）", flush=True)
+    resolve_thresholds(args)
 
     batch_dir = args.runs_root / args.batch
     images = load_images(args)

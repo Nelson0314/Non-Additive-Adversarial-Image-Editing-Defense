@@ -80,6 +80,7 @@ def main() -> None:
             "--runs-root", str(args.batch.parent),
             "--images", *args.images, *rest]
     rs_args = rs.build_parser().parse_args(argv)
+    rs.resolve_thresholds(rs_args, verbose=False)
     res = rs.build_resources(rs_args, args.batch)
 
     out_dir = args.out or (args.batch / "tau_preview")

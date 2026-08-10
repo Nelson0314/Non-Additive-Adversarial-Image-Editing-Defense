@@ -16,7 +16,7 @@ IMGS = ("pie_0001", "pie_0002", "pie_0003")
 # ---------------------------------------------------------------------------
 
 def test_登記表的條件組成():
-    """四個非加性 + 三篇 baseline + 兩條隨機對照。
+    """五個非加性 + 三篇 baseline + 兩條隨機對照。
 
     DiffVax 不在內：它的免疫器吃 masked image、只支援 inpainting，
     在無 mask 的 SDEdit 下忠實重現結構上不可能（SOURCE_AUDIT §9 第 1 項）。
@@ -25,7 +25,12 @@ def test_登記表的條件組成():
     **`CONDITIONS` 是登記表不是某一批的清單**——第三階段的批次由
     `--conditions` 選出五個，位移場的三個移出格點但原始碼與登記表都保留。
     """
-    assert len(grid.NONADDITIVE) == 4
+    # 2026-08-11：4 → 5，`apa_rd` 加入（改良 5b）。它與 `apa` 同參數化、
+    # 同監看量，只有 L_def 的分母不同（`‖Att ⊙ M‖₁` 對「它佔全圖的比例」），
+    # 故列在非加性而不是另開一個軸——兩者的對照就是「注意力這個著力點該
+    # 怎麼用」。學習率鍵另立 `lr.N5_stage2`，理由見 `ConditionSpec`。
+    assert len(grid.NONADDITIVE) == 5
+    assert "apa_rd" in grid.NONADDITIVE
     assert "diffvax" not in grid.CONDITIONS
     assert set(grid.RANDOM_CONTROLS) <= set(grid.CONDITIONS)
 

@@ -219,6 +219,25 @@ CONDITION_SPECS: Dict[str, ConditionSpec] = {
         lr_key="lr.N4_stage2", align_lr_key="lr.N4_stage1",
         monitor="attn_suppressed",
     ),
+    # 2026-08-11（改良 5b）。與 `apa` 逐字相同的參數化、學習率鍵與監看量，
+    # **唯一的差別是 L_def 的分母**：`suppress_attn_ca` 取 `‖Att ⊙ M‖₁`、
+    # 本條件取它佔全圖的比例。理由是實測 `apa` 把該 L1 壓掉 77–87% 而
+    # `edit_lpips` 只有 0.107——把整張注意力圖一起攤平是 SD 自己會吸收的
+    # 擾動。取比例之後只有把質量移出 M 才會下降。見
+    # `attention.masked_attention_fraction`。
+    #
+    # 兩者必須當成**同一批的兩個變因**跑：它們差一個損失，其餘逐字相同。
+    # **學習率鍵必須自己一組。** `_pick_best` 取「固定步數後末端總損失最小者」，
+    # 而 `redirect_attn_ca` 的 L_def 是落在 [0, 1] 的比例、`suppress_attn_ca`
+    # 的是量級 100–300 的 L1，兩者的地景與尺度都不同，argmin 沒有理由相同；
+    # 共用還會讓同批同時跑兩者時 `calibrate_lr` 的 `out[spec.lr_key]` 被後者
+    # 靜默覆寫。階段一的鍵可以共用（那是保真度，與損失模式無關），理由與
+    # `Ra` 那一條逐字相同。
+    "apa_rd": ConditionSpec(
+        "apa_rd", "nonadditive", site="apa", defense_mode="redirect_attn_ca",
+        lr_key="lr.N5_stage2", align_lr_key="lr.N4_stage1",
+        monitor="attn_suppressed",
+    ),
     "R": ConditionSpec("R", "random", site="warp"),
     # apa 上的同失真隨機對照。**它也跑階段一的保真對齊**（`align_lr_key`
     # 非空），理由見 `_train_random`：不對齊的話它的 `x_base` 是未對齊的
@@ -873,7 +892,18 @@ def direction_param(module) -> torch.nn.Parameter:
     if isinstance(module, WarpResidual):
         return module.flow
     if hasattr(module, "members"):
-        return module.members[1].tensor.V
+        # **依能力挑，不依位置。** `apa_lora_rank = 0` 時複合模塊只有 latent
+        # 一個成員，寫死 `members[1]` 會 IndexError；更糟的情形是日後成員順序
+        # 一改，`members[1]` 仍然存在卻指向別的東西，而射線縮放縮到錯的參數上
+        # **沒有任何症狀**——失真照樣解到 τ，只是解的不是攻擊的那一半。
+        cands = [m for m in module.members
+                 if hasattr(getattr(m, "tensor", None), "V")]
+        if len(cands) != 1:
+            raise TypeError(
+                f"複合模塊有 {len(cands)} 個成員帶外積參數化的方向參數，"
+                "射線縮放無法判斷要縮放哪一個。新增成員時必須在此明寫"
+            )
+        return cands[0].tensor.V
     raise TypeError(
         f"{type(module).__name__} 沒有定義射線縮放的方向參數；"
         "新增參數化時必須在此明寫要縮放哪一個，不得預設為全部參數"

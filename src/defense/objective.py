@@ -185,7 +185,8 @@ RETIRED_MODES = {
     ),
 }
 
-DEFENSE_MODES = ("targeted_output", "targeted_attn", "suppress_attn_ca")
+DEFENSE_MODES = ("targeted_output", "targeted_attn", "suppress_attn_ca",
+                 "redirect_attn_ca")
 TARGET_METRICS = ("lpips", "mse")
 
 # `suppress_attn_ca` 的起點：遮罩內參照注意力的 L1 下限。低於此值即拋出。
@@ -356,10 +357,10 @@ class LossConfig:
                 "targeted_attn 需要非空的 shared_tokens。空集合下注意力質量恆為 0，"
                 "L_def 退化成常數 1，最佳化不會產生任何更新"
             )
-        if self.defense_mode == "suppress_attn_ca":
+        if self.defense_mode in ("suppress_attn_ca", "redirect_attn_ca"):
             if not self.content.strip():
                 raise ValueError(
-                    "suppress_attn_ca 需要 content（Lo et al. 的 c_a），"
+                    f"{self.defense_mode} 需要 content（Lo et al. 的 c_a），"
                     "即防禦方指名要保護的那個詞。不接受預設值也不由 prompt "
                     "推導：prompt 是攻擊方寫的、c_a 是防禦方選的，兩者在威脅"
                     "模型裡屬於不同的人，猜錯會讓損失壓到別的區域而毫無症狀。"
@@ -368,7 +369,7 @@ class LossConfig:
                 )
             if self.attn_mask_tau is None:
                 raise ValueError(
-                    "suppress_attn_ca 需要 attn_mask_tau（式 4 的遮罩門檻）。"
+                    f"{self.defense_mode} 需要 attn_mask_tau（式 4 的遮罩門檻）。"
                     "不回退到 0.5：它決定損失作用在影像的哪一塊，與 "
                     "shared_tokens 同一種量，而後者正因為未進 config_hash "
                     "被列為缺陷 A7。由 CLI 明給並進入 config_hash"
@@ -608,17 +609,26 @@ class DefenseObjective:
         """
         from src.models.attention import (
             aggregate_token_attention,
+            masked_attention_fraction,
             masked_attention_l1,
         )
 
         if not maps_list:
-            raise ValueError("suppress_attn_ca 需要至少一組注意力圖")
+            raise ValueError(f"{self.cfg.defense_mode} 需要至少一組注意力圖")
+        # `redirect_attn_ca` 只換分母：由 `‖Att ⊙ M‖₁` 改為它佔全圖的比例。
+        # 兩者的差別不是尺度而是**可達成的手段**——前者可以靠把整張注意力
+        # 圖一起壓低來降低，而那是去噪鏈後續步數會自行補回來的擾動；後者的
+        # 分子分母同時縮小，只有把質量真的移到 M 外才會下降。見
+        # `attention.masked_attention_fraction` 的對照表與實測動機。
+        term = (masked_attention_fraction
+                if self.cfg.defense_mode == "redirect_attn_ca"
+                else masked_attention_l1)
         side = int(mask.shape[-1])
         terms = []
         for maps in maps_list:
             att = aggregate_token_attention(maps, span, side=side,
                                             reduce="sum")
-            terms.append(masked_attention_l1(att, mask))
+            terms.append(term(att, mask))
         return torch.stack(terms).mean()
 
     # ---- VAE 編碼器目標（PhotoGuard 的 encoder attack 形式）----
@@ -766,16 +776,16 @@ class DefenseObjective:
                      for yd, yo in zip(y_def_list, y_orig_list)]
                 ).mean()
             extra = {"edit_shift": float(shift)}
-        elif c.defense_mode == "suppress_attn_ca":
+        elif c.defense_mode in ("suppress_attn_ca", "redirect_attn_ca"):
             if attn_maps is None or attn_span is None or attn_mask is None:
                 raise ValueError(
-                    "suppress_attn_ca 需要 attn_maps、attn_span 與 attn_mask "
+                    f"{c.defense_mode} 需要 attn_maps、attn_span 與 attn_mask "
                     "三者。span 由 c_a 的 token 區間決定、mask 由原圖的注意力"
                     "取（式 4），缺任一都不可落回全域——那會變成另一個目標"
                 )
             if attn_ref_l1 is None:
                 raise ValueError(
-                    "suppress_attn_ca 需要 attn_ref_l1（φ=0 時遮罩內的 L1）。"
+                    f"{c.defense_mode} 需要 attn_ref_l1（φ=0 時的起點值）。"
                     "本模式的 L_def 隨進展**下降**，不能直接當平台停止的監看量；"
                     "監看的是由它導出的 `attn_suppressed`，而那需要起點值"
                 )

@@ -245,7 +245,7 @@ def test_學習率鍵逐條件不同且來自校準表(tmp_path):
     keys = {c: executors.optim_config(res, executors.condition_spec(c))
             .stages[0].lr_key for c in grid.NONADDITIVE}
     assert keys == {"N1": "lr.N1", "N2": "lr.N2", "N3": "lr.N3_stage2",
-                    "apa": "lr.N4_stage2"}
+                    "apa": "lr.N4_stage2", "apa_rd": "lr.N5_stage2"}
     assert len(set(keys.values())) == len(keys), "學習率不可跨條件共用"
 
 

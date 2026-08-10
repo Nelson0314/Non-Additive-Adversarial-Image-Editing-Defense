@@ -520,6 +520,37 @@ def masked_attention_l1(
     return (att * mask).abs().sum()
 
 
+def masked_attention_fraction(
+    att: torch.Tensor, mask: torch.Tensor, eps: float = 1e-8
+) -> torch.Tensor:
+    """遮罩內的注意力質量**佔全圖的比例**，值域 [0, 1]。
+
+    與 `masked_attention_l1` 的差別是分母，而那個差別決定最佳化器可以怎麼
+    達成目標：
+
+    | | `masked_attention_l1` | 本函式 |
+    |---|---|---|
+    | 量 | `‖Att ⊙ M‖₁` | `‖Att ⊙ M‖₁ / ‖Att‖₁` |
+    | 可以靠「整張圖的注意力一起變弱」降低嗎 | **可以** | 不行，分子分母同時縮小 |
+    | 唯一能降低它的方式 | 壓低或攤平 | **把質量移到 M 外** |
+
+    實測動機：`suppress_attn_ca` 把 `‖Att ⊙ M‖₁` 壓掉 77–87%，而編輯照樣
+    成功、`edit_lpips` 只有 0.107（baseline 0.24–0.36）。攤平整張注意力圖
+    是一個 SD 自己就能吸收的擾動——去噪鏈後續的步數會把質量重新聚回物件上。
+    改成比例之後，要降低它就必須讓**別的地方**接走質量，那是一個有方向的
+    改動，不是一個可以被重新正規化掉的改動。
+
+    值域有界也順帶處理了發散：分子恆 ≤ 分母，故損失落在 [0, 1]，不需要 hinge。
+    """
+    if att.shape[-2:] != mask.shape[-2:]:
+        raise ValueError(
+            f"注意力圖 {tuple(att.shape)} 與遮罩 {tuple(mask.shape)} 的空間"
+            "尺寸不符；遮罩必須在與 att 相同的格點上取"
+        )
+    a = att.abs()
+    return (a * mask).sum() / a.sum().clamp_min(eps)
+
+
 def outside_mask_fraction(m: torch.Tensor, edit_mask: torch.Tensor) -> float:
     """式 (4) 的 M 有多少比例落在攻擊方的遮罩**外**。**只作為診斷。**
 

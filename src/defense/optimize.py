@@ -98,6 +98,9 @@ DEFENSE_MONITOR = {
     "targeted_output": "edit_shift",
     "targeted_attn": "shared_mass",
     "suppress_attn_ca": "attn_suppressed",
+    # `redirect_attn_ca` 的 L_def 同樣隨進展下降（比例由 ~1 走向 0），故監看
+    # 的一樣是「已壓下多少」＝起點值 − 當前值，隨進展上升。
+    "redirect_attn_ca": "attn_suppressed",
 }
 
 
@@ -1176,7 +1179,7 @@ def _build_attn_step(sd, gen, obj, cfg, x01, emb_cond, emb_uncond, purifiers,
         return zt, t
 
     # ---- 分派點一：前向餵哪一個條件嵌入 ----
-    suppress = obj.cfg.defense_mode == "suppress_attn_ca"
+    suppress = obj.cfg.defense_mode in ("suppress_attn_ca", "redirect_attn_ca")
     span = mask = None
     ref_l1 = None
     if suppress:
@@ -1256,7 +1259,15 @@ def _build_attn_step(sd, gen, obj, cfg, x01, emb_cond, emb_uncond, purifiers,
             result.attn_mask_kept = outside_mask_fraction(mask, cfg.edit_mask)
             print(f"  [suppress] M 有 {result.attn_mask_kept:.3f} 落在攻擊方"
                   f"遮罩外（僅診斷，式 (5) 仍對整個 M 取）", flush=True)
-        ref_l1 = float(masked_attention_l1(att_ref, mask).detach())
+        # 起點值必須與損失用**同一個式子**算：`redirect_attn_ca` 的 L_def 是
+        # 比例、`suppress_attn_ca` 是 L1，而 `attn_suppressed` ＝ 起點 − 當前。
+        # 兩者混用會讓監看量變成兩個不同量的差，其正負與收斂都失去意義。
+        ref_abs = float(masked_attention_l1(att_ref, mask).detach())
+        if obj.cfg.defense_mode == "redirect_attn_ca":
+            from src.models.attention import masked_attention_fraction
+            ref_l1 = float(masked_attention_fraction(att_ref, mask).detach())
+        else:
+            ref_l1 = ref_abs
         coverage = float(mask.mean())
         print(f"  [suppress] c_a={obj.cfg.content!r}  遮罩覆蓋 "
               f"{coverage * 100:.1f}%（{int(mask.sum())}/{mask.numel()} 格點，"
@@ -1279,9 +1290,12 @@ def _build_attn_step(sd, gen, obj, cfg, x01, emb_cond, emb_uncond, purifiers,
                 f"（目前 {obj.cfg.attn_mask_tau}）",
                 flush=True,
             )
-        if ref_l1 < MIN_MASKED_ATTENTION:
+        # 這道下限一律看**絕對**的 L1：它問的是「c_a 在這個模型上拿不拿得到
+        # 注意力質量」，與損失取比例或取絕對值無關。改看比例會讓一張注意力
+        # 幾乎為零、但那點質量恰好落在 M 內的影像通過檢查。
+        if ref_abs < MIN_MASKED_ATTENTION:
             raise RuntimeError(
-                f"起點遮罩內的注意力 L1 為 {ref_l1:.3e}，低於下限 "
+                f"起點遮罩內的注意力 L1 為 {ref_abs:.3e}，低於下限 "
                 f"{MIN_MASKED_ATTENTION}。損失 ‖Att ⊙ M‖₁ 的最小值是 0，"
                 f"起點已經坐在那裡，梯度趨近零、最佳化不會產生任何更新，"
                 f"而 log 上會看起來像是「防禦損失很低」。"

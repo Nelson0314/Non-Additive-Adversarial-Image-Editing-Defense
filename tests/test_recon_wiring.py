@@ -268,3 +268,42 @@ def test_solve_把微調值還原給下一張圖():
 
     for k, v in sd.vae.decoder.named_parameters():
         assert torch.equal(v, before[k]), f"{k} 沒有還原"
+
+
+# ---------------------------------------------------------------------------
+# apa_lora_rank = 0：拿掉不起作用的階段一
+# ---------------------------------------------------------------------------
+
+
+def test_lora_rank_0_只留_latent_一個成員():
+    """實測 LoRA 的 B 因子恆為零、`--recon` 後又不再訓練，那 1594368 個參數
+    對輸出沒有作用。留著的代價是論文會描述一個沒有在跑的東西。"""
+    from src.residual.site_apa import build_apa
+
+    m = build_apa(None, steps=2, latent_size=8, lora_rank=0,
+                  latent_max_rank=4, latent_const_rank=2)
+    assert list(m.param_groups()) == ["stage2"], "組名變了，StageSpec 會抓不到"
+    assert len(m.members) == 1
+
+
+def test_lora_rank_0_的方向參數仍然抓得到():
+    """射線縮放依能力挑成員。寫死 `members[1]` 的話，縮到錯的參數上不會有
+    任何症狀——失真照樣解到 τ，只是解的不是攻擊的那一半。"""
+    from src.experiment.executors import direction_param
+    from src.residual.site_apa import build_apa
+
+    m = build_apa(None, steps=2, latent_size=8, lora_rank=0,
+                  latent_max_rank=4, latent_const_rank=2)
+    p = direction_param(m)
+    assert p is m.members[0].tensor.V
+
+
+def test_φ_初始仍為零殘差():
+    """關掉 LoRA 不可以破壞「φ=0 逐位元等同未注入」，x_base 的定義靠它。"""
+    from src.residual.site_apa import build_apa
+
+    m = build_apa(None, steps=2, latent_size=8, lora_rank=0,
+                  latent_max_rank=4, latent_const_rank=2)
+    hook = m.eps_hook(torch.arange(2), 2)
+    eps = torch.randn(1, 4, 8, 8)
+    assert torch.equal(hook(eps.clone(), 0, torch.tensor(0)), eps)

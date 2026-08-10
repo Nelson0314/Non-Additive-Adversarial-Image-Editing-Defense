@@ -44,6 +44,12 @@ from src.residual.site_weight import APA_BLOCKS, WeightResidual
 
 STAGE1, STAGE2 = "stage1", "stage2"
 
+_INIT_STD_MSG = (
+    "latent_init_std 為 0 會讓外積參數化的兩個因子同時為零，梯度永久為零而"
+    "不會報錯——階段二將完全訓練不動，條件靜默退化成「只有 LoRA」。"
+    "見本模組對該參數的說明。"
+)
+
 # 階段一的 LoRA 設定，取自官方實作 https://github.com/deep-kaixun/APA
 # （2026-08-05 查證，見 `docs/reference/SOURCE_AUDIT.md`）。
 # **這些值論文中不存在**——APA 的 arXiv v1 是唯一版本且沒有 Appendix，
@@ -85,12 +91,28 @@ def build_apa(
     # blocks 預設為 APA_BLOCKS = ("attn1", "attn2")：官方實作的 LoRA
     # target_modules 掛在整個 UNet 上，同時涵蓋 self- 與 cross-attention。
     # 本專案原本寫死只掃 attn2，照它實作會少掉一半的目標層。
-    if latent_init_std <= 0.0:
-        raise ValueError(
-            f"latent_init_std={latent_init_std} 會讓外積參數化的兩個因子同時為零，"
-            "梯度永久為零而不會報錯——階段二將完全訓練不動，"
-            "N3 靜默退化成「只有 LoRA」的條件。見本模組對該參數的說明。"
+    # `lora_rank = 0` 表示**不要階段一**。實測（`runs/s3t20_r_merged/apa/
+    # horse_00/phi.pt` 逐張量檢查）：LoRA 的 `.A` 因子非零而 `.B` 因子全為零，
+    # 乘積 B·A 恆等於 0，而 `--recon` 之後階段一不再訓練，那 1,594,368 個參數
+    # 對輸出**沒有任何作用**——佔全部參數的 90.7%，每格還要為它們多存 6.4 MB。
+    #
+    # 留一個不起作用的成員的代價不只是記憶體：論文的方法一節會描述一個實際
+    # 沒有在跑的東西。A 段（DEC-016）已經取代了階段一原本的目的（補重建誤差）
+    # 且做得更好，故此處提供關掉它的路徑。
+    if lora_rank == 0:
+        if latent_init_std <= 0.0:
+            raise ValueError(_INIT_STD_MSG)
+        latent = LatentResidual(
+            steps=steps, channels=latent_channels, size=latent_size,
+            max_rank=latent_max_rank, const_rank=latent_const_rank,
+            scale=latent_scale, init_std=latent_init_std, seed=seed,
         )
+        # 仍然包成 `CompositeResidual` 且組名仍是 `stage2`：`StageSpec` 與
+        # `param_groups()` 的呼叫端因此逐字不變，差別只在成員少一個。
+        return CompositeResidual([latent], [STAGE2])
+
+    if latent_init_std <= 0.0:
+        raise ValueError(_INIT_STD_MSG)
     lora = WeightResidual(unet, rank=lora_rank, alpha=lora_alpha, seed=seed,
                           blocks=lora_blocks)
     latent = LatentResidual(

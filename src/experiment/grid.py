@@ -40,7 +40,10 @@ from typing import Dict, List, Mapping, Optional, Sequence, Tuple
 # 2026-08-09（第三階段）新增 `apa`。它與 N3 同樣走 site apa，差別在損失：
 # N3 是 `targeted_output`（推向固定目標影像），apa 是 `suppress_attn_ca`
 # （Lo et al. 式 5，壓低防禦方指名的詞 c_a 在其對應區域的注意力）。
-NONADDITIVE = ("N1", "N2", "N3", "apa")
+# `apa_rd` 是 `apa` 的損失變因（改良 5b，2026-08-11）：同參數化、同學習率鍵，
+# L_def 由 `‖Att ⊙ M‖₁` 改為它佔全圖的比例。列在這裡而不是另開一個軸，是因為
+# 它與 `apa` 的對照就是「注意力這個著力點該怎麼用」，屬於同一條主張。
+NONADDITIVE = ("N1", "N2", "N3", "apa", "apa_rd")
 
 # `dia_pt` 與 `diffvax` 保留在程式中但**不納入本輪實驗**，各有其原因，
 # 兩者都記錄在 `EXCLUDED` 並由測試釘住——移出而不留記錄，等於讓

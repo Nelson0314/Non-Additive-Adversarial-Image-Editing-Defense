@@ -83,6 +83,9 @@ def build_parser() -> argparse.ArgumentParser:
     ap.add_argument("--resp-scale", type=float, default=0.05,
                     help="latent 反應探針的擾動能量，相對於 ‖z*‖")
     ap.add_argument("--resp-seed", type=int, default=20260810)
+    ap.add_argument("--merge", nargs="+", default=[],
+                    help="把逐影像分片的產物疊成一個目錄（第一個是目的地）。"
+                         "檔名全部帶影像 id，故直接疊不會互相覆蓋")
     ap.add_argument("--page-only", nargs="+", default=[],
                     help="不載入模型，只把既有的產物目錄合成一頁。"
                          "格式 `標籤=路徑`")
@@ -341,8 +344,37 @@ def _read_csv(path: Path):
         return list(csv.DictReader(f))
 
 
+def merge(dst: Path, srcs) -> Path:
+    """疊合逐影像分片。`floor_ab.csv` 串接，其餘檔案直接複製。
+
+    `floor_ab.json` 取第一個分片的：各分片的旗標必須相同（不同就不該疊在
+    一起比較），而頁面只從它讀探針的能量設定。逐分片的 `detail` 仍留在各自
+    的目錄裡，沒有被丟掉。
+    """
+    import csv
+    import shutil
+
+    dst.mkdir(parents=True, exist_ok=True)
+    rows = []
+    for s in srcs:
+        s = Path(s)
+        with (s / "floor_ab.csv").open(encoding="utf-8", newline="") as f:
+            rows.extend(csv.DictReader(f))
+        for p in s.iterdir():
+            if p.suffix in (".png", ".pt"):
+                shutil.copy2(p, dst / p.name)
+        if not (dst / "floor_ab.json").exists():
+            shutil.copy2(s / "floor_ab.json", dst / "floor_ab.json")
+    executors.write_csv(dst / "floor_ab.csv", rows)
+    print(f"疊合 {len(srcs)} 個分片、{len(rows)} 列 → {dst}")
+    return dst
+
+
 def main() -> None:
     args, rest = build_parser().parse_known_args()
+    if args.merge:
+        merge(Path(args.merge[0]), args.merge[1:])
+        return
     if args.page_only:
         if args.page is None:
             raise SystemExit("--page-only 要一併給 --page")

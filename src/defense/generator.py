@@ -42,10 +42,19 @@ class DefenseGenerator:
         k_inv: int = 10,
         t_max: Optional[int] = None,
         exact_inversion: bool = False,
+        recon=None,
     ):
         self.sd = sd
         self.module = module
         self.k_inv = k_inv
+        # A 段（DEC-016）的產物：生成路徑的新起點 z* 與解碼器的逐圖微調值。
+        # 依「有沒有提供這個能力」分派，與本檔既有的慣例一致：`None` 時
+        # 每一步都與先前逐位元相同，故既有批次不受影響。
+        #
+        # 它同時改動這條路徑的**兩端**：`prepare()` 的起點與 `generate()` 的
+        # 解碼。只換其中一端是沒有意義的——A2 的那組解碼器參數是在 z* 上
+        # 擬合出來的，套在 `encode(x)` 上等於用一個為別的輸入調好的解碼器。
+        self.recon = recon
         # True 改用 BDIA（arXiv 2307.10829）。latent 空間來回誤差由 DDIM 的
         # 1.4（k=20, t_max=500，tiny-SD 實測最大絕對值）降到 1.4e-04。
         # 但影像空間的下限不會歸零：VAE 的編解碼來回誤差（實測 27.51 dB /
@@ -80,7 +89,12 @@ class DefenseGenerator:
             # 是**重建**路徑，G(x; φ=0) 要盡量等於 x，而整個保真預算的下限
             # 就建立在那件事上（`SDWrapper.inpaint_conditioning`）。
             with torch.no_grad(), self.sd.conditioning_for(x01):
-                z0 = self.sd.encode_image(x01)
+                # A 段接上時起點改為解出來的 z*，不再呼叫編碼器。這一行
+                # 就是 A1 的全部作用：參數量相同、模組不變，只是不從
+                # `encode(x)` 出發。
+                z0 = (self.recon.z_star.to(x01.device, x01.dtype)
+                      if self.recon is not None
+                      else self.sd.encode_image(x01))
                 if self.exact_inversion:
                     z_inv, z_prev = self.sd.bdia_inversion(z0, emb, ts, self.k_inv)
                 else:
@@ -158,4 +172,9 @@ class DefenseGenerator:
                     collect_x0=collect_x0,
                 )
         ctx.x0_trace = x0_list
-        return self.sd.decode_latent(z, use_ckpt=vae_ckpt)
+        if self.recon is None:
+            return self.sd.decode_latent(z, use_ckpt=vae_ckpt)
+        # 微調值只在這一次解碼期間生效，離開即還原：同一個 SDWrapper 會被
+        # 整批影像共用，留在權重上等於讓上一張圖的過擬合污染下一張。
+        with self.recon.applied(self.sd.vae.decoder):
+            return self.sd.decode_latent(z, use_ckpt=vae_ckpt)

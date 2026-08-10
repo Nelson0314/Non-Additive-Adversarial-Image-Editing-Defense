@@ -505,6 +505,13 @@ fi
 SUBSET=""
 [ -n "${CONDITIONS:-}" ] && SUBSET="--conditions $CONDITIONS"
 [ -n "${FORCE:-}" ] && SUBSET="$SUBSET --force"
+# 任意追加旗標，同樣**接在 COMMON 末端**，故 profile 組出來的那一份原封不動
+# 留在命令列上，log 看得出被追加了什麼。
+#
+# 2026-08-10 新增，用途是 A 段（DEC-016）的 `--recon`：它只對 site apa 的兩個
+# 條件有意義，而 profile 是跨批共用的，把旗標寫進 profile 會讓沒有要跑 A 段
+# 的批次也帶著它——那些批次的 `config_hash` 會因此改變而整批重跑。
+[ -n "${EXTRA:-}" ] && SUBSET="$SUBSET $EXTRA"
 
 COMMON="--runs-root $RUNS --gpu-tag $GPU_TAG --precision $PRECISION $MODEL --mist-target data/targets/MIST.png $MEM $REACH $ATTN $INV $PROBE $MASK $STRENGTH $GRID $BUDGET $SUBSET"
 

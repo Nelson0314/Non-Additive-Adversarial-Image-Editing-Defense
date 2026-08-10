@@ -26,6 +26,7 @@ A2 為什麼必須有硬停止條件
 from __future__ import annotations
 
 from contextlib import contextmanager
+from dataclasses import dataclass
 from typing import Callable, Dict, List, Optional, Sequence, Tuple
 
 import torch
@@ -346,3 +347,143 @@ def latent_response(sd, z: torch.Tensor, pairwise: Callable,
         y0 = sd.decode_latent(z)
         y1 = sd.decode_latent(z + d)
     return pairwise(y0, y1)
+
+
+@dataclass
+class ReconAdapter:
+    """A 段的產物：生成路徑的新起點 `z*` 與解碼器的逐圖微調值。
+
+    這個物件是 A 段與其餘四段之間唯一的介面。它跟著 `phi.pt` 一起落盤
+    （`executors.save_phi`），故段 2 的射線縮放與段 3 的評測不必知道 A 段
+    跑過什麼——`materialize` 從 payload 取出它交給 `DefenseGenerator` 即可。
+
+    **`decoder` 存的是絕對值不是差值。** 差值需要另外知道 stock 權重才能
+    還原，而那份權重取決於載入的是哪個 checkpoint；存絕對值使這份檔案自足。
+    35715 個 fp32 是 143 KB，逐圖存得起。
+    """
+
+    z_star: torch.Tensor
+    decoder: Dict[str, torch.Tensor]
+
+    def to(self, device, dtype=None) -> "ReconAdapter":
+        z = self.z_star.to(device=device, dtype=dtype or self.z_star.dtype)
+        return ReconAdapter(z, {k: v.to(device) for k, v in self.decoder.items()})
+
+    def to_payload(self) -> Dict[str, object]:
+        return {"z_star": self.z_star.detach().cpu(),
+                "decoder": {k: v.detach().cpu()
+                            for k, v in self.decoder.items()}}
+
+    @classmethod
+    def from_payload(cls, payload: Dict[str, object]) -> "ReconAdapter":
+        return cls(payload["z_star"], dict(payload["decoder"]))
+
+    @contextmanager
+    def applied(self, decoder: nn.Module):
+        """在區塊內把微調值寫進 `decoder`，離開時還原原值。
+
+        依名稱對齊而非位置：位置對齊會在模型結構改動時靜默寫到別的張量上。
+        名稱對不上直接拋出——那代表這份 A 段產物與當前載入的 VAE 不是同一
+        個結構，沿用它算出來的圖不屬於任何一個已定義的條件。
+        """
+        named = dict(decoder.named_parameters())
+        missing = [k for k in self.decoder if k not in named]
+        if missing:
+            raise KeyError(
+                f"解碼器沒有這些參數：{missing[:5]}（共 {len(missing)} 個）。"
+                "這份 A 段產物與當前的 VAE 結構不符，不自動略過"
+            )
+        saved = {k: named[k].detach().clone() for k in self.decoder}
+        try:
+            with torch.no_grad():
+                for k, v in self.decoder.items():
+                    named[k].copy_(v.to(named[k].device, named[k].dtype))
+            yield
+        finally:
+            with torch.no_grad():
+                for k, v in saved.items():
+                    named[k].copy_(v)
+
+
+def solve(
+    sd,
+    x01: torch.Tensor,
+    perceptual: Callable,
+    measure: Callable[[torch.Tensor], Dict[str, float]],
+    *,
+    key: str,
+    a1_steps: int,
+    a1_lr: float,
+    a2_steps: int,
+    a2_lr: float,
+    floor_ratio: float,
+    w_pixel: float,
+    gamma_acut: float,
+    acut_band: float,
+    resp_seed: int,
+    resp_scale: float,
+    log_every: int = 20,
+) -> Tuple[ReconAdapter, List[Dict], Dict]:
+    """跑完 A1 + A2，回傳 `(adapter, history, summary)`。
+
+    這是訓練路徑（`executors.solve_recon`）的進入點。量測腳本
+    `scripts/recon_floor_ab.py` 目前把同一段順序寫在自己的迴圈裡，因為它
+    另外要跑一條無約束的 A1 當對照欄、並保留每一欄的影像去做比對頁。
+    **兩邊的順序與係數必須一致**：不一致時訓練用的 `z*` 與比對頁上看到的
+    不是同一個東西，而那不會有任何症狀。改動本函式時要一併看那支腳本。
+
+    `floor_ratio` 乘在**這張圖自己的舊下限**上得到 A2 的停止目標，判準與
+    `optimize.recon_floor_thresholds` 同一條線：不拿全域常數當門檻。
+    """
+    with torch.no_grad():
+        y_floor = sd.decode_latent(sd.encode_image(x01))
+    m_floor = measure(y_floor)
+    band = acutance_band(m_floor["acutance_ratio"], acut_band)
+    target = floor_ratio * m_floor[key]
+    print(f"  [A] 舊下限 {key}={m_floor[key]:.4f}  A2 目標 ≤{target:.4f}  "
+          f"銳利度帶 |1−r|≤{band:.4f}", flush=True)
+
+    z, h1, s1 = align_latent(
+        sd, x01, perceptual, measure, key=key, steps=a1_steps, lr=a1_lr,
+        w_pixel=w_pixel, gamma_acut=gamma_acut, band=band, log_every=log_every)
+    resp_a1 = latent_response(sd, z, measure, seed=resp_seed, scale=resp_scale)
+
+    tunable = decoder_tunable(sd.vae.decoder)
+    params = [p for _, p in tunable]
+    with restored(params):
+        h2, s2 = finetune_decoder(
+            sd, x01, z, params, perceptual, measure, key=key, steps=a2_steps,
+            lr=a2_lr, target=target, w_pixel=w_pixel, gamma_acut=gamma_acut,
+            band=band, log_every=max(1, log_every // 2))
+        resp_a2 = latent_response(sd, z, measure, seed=resp_seed,
+                                  scale=resp_scale)
+        with torch.no_grad():
+            m_final = measure(sd.decode_latent(z))
+        adapter = ReconAdapter(
+            z.detach().cpu(),
+            {name: p.detach().cpu().clone() for name, p in tunable})
+
+    if not s2["reached"]:
+        print(f"  [A] **A2 未達目標** {key}≤{target:.4f}，最佳 {s2['best']:.4f}"
+              f"（第 {s2['best_step']} 步）。如實記錄，該值即為此參數組在本圖"
+              "上的容量上限", flush=True)
+
+    history = ([{"phase": "A1", **h} for h in h1]
+               + [{"phase": "A2", **h} for h in h2])
+    summary = {
+        "recon_key": key, "recon_target": target, "recon_band": band,
+        "recon_floor_ratio": floor_ratio,
+        "a1_best_step": s1["best_step"], "a2_reached": s2["reached"],
+        "a2_stop_step": s2["stop_step"], "a2_best_step": s2["best_step"],
+        "n_tunable": int(sum(p.numel() for p in params)),
+        # 解碼器有沒有因為背熟原圖而對 latent 擾動變遲鈍。比值遠小於 1 即
+        # 代表防禦的表達管道被關掉了（模組 docstring）。
+        "resp_a1": resp_a1[key], "resp_a2": resp_a2[key],
+        "resp_ratio": resp_a2[key] / max(resp_a1[key], 1e-12),
+        **{f"floor_{k}": v for k, v in m_floor.items()},
+        **{f"recon_{k}": v for k, v in m_final.items()},
+    }
+    print(f"  [A] {key} {m_floor[key]:.4f} → {m_final[key]:.4f}"
+          f"（{(m_final[key] / m_floor[key] - 1) * 100:+.1f}%）  "
+          f"latent 反應比 {summary['resp_ratio']:.3f}", flush=True)
+    return adapter, history, summary

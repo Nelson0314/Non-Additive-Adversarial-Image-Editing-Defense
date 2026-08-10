@@ -133,6 +133,17 @@ def run_config(args) -> executors.RunConfig:
         apa_latent_max_rank=args.apa_latent_max_rank,
         apa_latent_const_rank=args.apa_latent_const_rank,
         random_init_std=args.random_init_std,
+        recon=args.recon,
+        recon_objective=args.recon_objective,
+        recon_a1_steps=args.recon_a1_steps,
+        recon_a1_lr=args.recon_a1_lr,
+        recon_a2_steps=args.recon_a2_steps,
+        recon_a2_lr=args.recon_a2_lr,
+        recon_floor_ratio=args.recon_floor_ratio,
+        recon_gamma_acut=args.recon_gamma_acut,
+        recon_acut_band=args.recon_acut_band,
+        recon_w_pixel=args.recon_w_pixel,
+        recon_resp_scale=args.recon_resp_scale,
         lr_grid=tuple(float(v) for v in args.lr_grid.split(",")),
         probe_steps=args.probe_steps,
         edit_effect_threshold=args.edit_effect_threshold,
@@ -516,6 +527,38 @@ def build_parser() -> argparse.ArgumentParser:
                    help="同失真隨機對照的初始標準差。R 用於位移場的 flow，"
                         "Ra 用於 apa 階段二的方向參數（射線縮放會把兩者都"
                         "拉到 τ，故此值只決定起點的方向分布）")
+    g.add_argument("--recon", action="store_true",
+                   help="A 段（DEC-016）：把 site apa 的階段一從 UNet 的 LoRA "
+                        "換成 VAE 上的兩件事——A1 解 z* 使 decode(z*)≈x、"
+                        "A2 只微調解碼器的 GroupNorm affine 與 conv bias。"
+                        "開啟時 apa／Ra 的 --align-steps 自動歸零（階段一在 "
+                        "UNet 上，碰不到 VAE 的重建誤差，實測 200 步只移動 "
+                        "LPIPS 0.0015 卻花 910 秒）。不給時全部相關鍵不進 "
+                        "config_hash，既有批次逐格雜湊不變")
+    g.add_argument("--recon-objective", default="lpips",
+                   choices=["lpips", "dists"],
+                   help="A 段的感知項與停止判準。dists 目標實測會被鑽穿"
+                        "（DISTS 掉 86–95% 而 LPIPS 反升 1–51%、PSNR 不動），"
+                        "改它之前先看 runs/faA 的比對頁")
+    g.add_argument("--recon-a1-steps", type=int, default=200)
+    g.add_argument("--recon-a1-lr", type=float, default=0.02)
+    g.add_argument("--recon-a2-steps", type=int, default=200)
+    g.add_argument("--recon-a2-lr", type=float, default=2e-3)
+    g.add_argument("--recon-floor-ratio", type=float, default=0.5,
+                   help="A2 的停止目標＝本圖舊下限 × 此比例。這是硬停止條件"
+                        "本身：解碼器背熟原圖會對 latent 擾動變遲鈍，防禦就"
+                        "失去表達管道（recon 模組 docstring）")
+    g.add_argument("--recon-gamma-acut", type=float, default=1.0,
+                   help="A1／A2 雙邊銳利度 hinge 的係數。設 0 關閉，但關掉後"
+                        "實測會拿變糊換感知分數（銳利度比 0.9935→0.7887）")
+    g.add_argument("--recon-acut-band", type=float, default=0.05,
+                   help="銳利度帶的半寬下限，實際取它與本圖舊下限自身偏差的"
+                        "大者，故起點恆為可行")
+    g.add_argument("--recon-w-pixel", type=float, default=0.5,
+                   help="A 段損失中逐像素項的權重，逐目標校準："
+                        "lpips 用 0.5、dists 用 0.15")
+    g.add_argument("--recon-resp-scale", type=float, default=0.05,
+                   help="latent 反應探針的擾動大小，以 ‖z‖ 的比例給定")
     g.add_argument("--attn-mask-tau", type=float, default=None,
                    help="apa（suppress_attn_ca）式 (4) 的遮罩門檻，作用在**峰值"
                         "正規化後**的 [0,1] 尺度上。論文未給值（Lo et al. "

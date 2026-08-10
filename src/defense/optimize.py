@@ -143,6 +143,12 @@ class OptimConfig:
     # 階段一專用的 PSNR 係數，覆蓋 LossConfig.gamma_psnr（防禦階段為 0.0）。
     # 重建對齊是逐像素準確度確實重要的場合；防禦階段不是。
     align_gamma_psnr: float = 1.0
+    # A 段（DEC-016）的產物 `recon.ReconAdapter`。**非 None 時 `align_steps`
+    # 應為 0**：兩者想做的是同一件事（把 G(x; φ=0) 拉近原圖），而階段一的
+    # LoRA 在 UNet 上、重建誤差在 VAE 上，實測 200 步只移動 LPIPS 0.0015 卻
+    # 花掉 910 秒（`runs/s3t20_merged/apa/*/align.csv`，FND-016）。兩者同時
+    # 開啟不會出錯，但那 910 秒買不到任何東西。
+    recon: object = None
 
     # 代理編輯鏈的 strength。**inpainting 威脅模型下必須為 None**——
     # 那個形態沒有這個參數，`SDWrapper.edit` 會拒絕收到它。
@@ -917,7 +923,8 @@ def optimize(
     device = x01.device
     calib_context = calib_context or {}
     gen = DefenseGenerator(sd, module, k_inv=cfg.k_inv, t_max=cfg.t_max,
-                           exact_inversion=cfg.exact_inversion)
+                           exact_inversion=cfg.exact_inversion,
+                           recon=cfg.recon)
     obj = DefenseObjective(loss_cfg, device)
     monitor_key = DEFENSE_MONITOR[loss_cfg.defense_mode]
     constraint_keys = (

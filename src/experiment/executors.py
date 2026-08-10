@@ -470,6 +470,25 @@ class RunConfig:
     apa_latent_const_rank: int = 8
     random_init_std: float = 0.5
 
+    # ---- A 段：重建下限（DEC-016）----
+    # `recon=False` 時以下全部不進 `config_hash`，故既有批次的每一格雜湊
+    # 逐位不變（與 `warp_mask_gate`、`attn_mask_tau` 同一慣例，由
+    # `tests/test_recon_wiring.py` 釘住）。開啟時它取代 site apa 的階段一。
+    recon: bool = False
+    recon_objective: str = "lpips"
+    recon_a1_steps: int = 200
+    recon_a1_lr: float = 0.02
+    recon_a2_steps: int = 200
+    recon_a2_lr: float = 2e-3
+    # A2 的停止目標＝本圖舊下限 × 這個比例。硬停止的理由見 `recon` 模組
+    # docstring：解碼器背熟原圖會讓 latent 上的擾動傳不到輸出。
+    recon_floor_ratio: float = 0.5
+    recon_gamma_acut: float = 1.0
+    recon_acut_band: float = 0.05
+    # 感知項與逐像素項的相對權重，逐目標校準，不可跨目標沿用。
+    recon_w_pixel: float = 0.5
+    recon_resp_scale: float = 0.05
+
     # ---- 本批的格點 ----
     # 這一批實際要跑的條件，以及失真預算軸。**兩者都不進 `config_hash`**：
     # 它們決定「列舉哪些格」，而每一格自己已經帶著 condition 與 tau
@@ -553,6 +572,20 @@ class RunConfig:
             "apa_latent_const_rank": self.apa_latent_const_rank,
             "random_init_std": self.random_init_std,
         }
+        # A 段的鍵**只在啟用時出現**，理由與下方的 `warp_mask_gate` 逐字
+        # 相同：`config_hash` 吃整個 dict，無條件加入會改變既有批次每一格
+        # 的雜湊，續跑時把已完成的格全部判為未完成。鍵存在與否本身就承載
+        # 「本批的生成路徑有沒有換過起點與解碼器」。
+        if self.recon:
+            out["recon"] = {
+                "objective": self.recon_objective,
+                "a1_steps": self.recon_a1_steps, "a1_lr": self.recon_a1_lr,
+                "a2_steps": self.recon_a2_steps, "a2_lr": self.recon_a2_lr,
+                "floor_ratio": self.recon_floor_ratio,
+                "gamma_acut": self.recon_gamma_acut,
+                "acut_band": self.recon_acut_band,
+                "w_pixel": self.recon_w_pixel,
+            }
         # 遮罩閘的鍵**只在開啟時出現**，理由與 `base_config` 的 `mask` 鍵
         # 相同（`run_stage.base_config`）：`config_hash` 吃整個 dict，無條件
         # 加入會改變 img2img 既有批次的每一格雜湊，續跑時把已完成的格全部
@@ -849,9 +882,15 @@ def direction_param(module) -> torch.nn.Parameter:
 
 def save_phi(path: Path, condition: str, image_id: str, res: Resources,
              entry: ImageEntry, module=None,
-             delta01: Optional[torch.Tensor] = None,
+             delta01: Optional[torch.Tensor] = None, recon=None,
              extra: Optional[Dict[str, Any]] = None) -> Path:
-    """統一的 φ 落盤格式。加性（baseline／R 的像素形式）走 `delta01`。"""
+    """統一的 φ 落盤格式。加性（baseline／R 的像素形式）走 `delta01`。
+
+    A 段的產物（`recon.ReconAdapter`）跟著 φ 一起存，**不另開一個檔**：
+    段 2 的射線縮放與段 3 的評測拿到 payload 就拿到 `z*` 與那組解碼器參數，
+    不可能與訓練期用到不同的重建起點。多出來的體積是 16 KB 的 `z*` 加上
+    143 KB 的解碼器參數。
+    """
     if (module is None) == (delta01 is None):
         raise ValueError("save_phi 必須且只能給定 module 與 delta01 其中之一")
     payload: Dict[str, Any] = {
@@ -868,6 +907,8 @@ def save_phi(path: Path, condition: str, image_id: str, res: Resources,
         payload["parameterization"] = "additive"
         payload["build"] = {"site": "additive"}
         payload["delta01"] = delta01.detach().cpu()
+    if recon is not None:
+        payload["recon"] = recon.to_payload()
     path.parent.mkdir(parents=True, exist_ok=True)
     torch.save(payload, path)
     return path
@@ -909,9 +950,17 @@ def materialize(payload: Dict[str, Any], res: Resources, entry: ImageEntry,
                 raise RuntimeError("位移場模塊沒有回傳像素側輸出")
             return out.detach()
         kw = payload["build"]
+        # A 段的產物若在 payload 內就一定要用上：`x_def` 是拿它算出來的，
+        # 少了它重建的是另一條路徑上的圖，而那個差異看起來只像是「重建差
+        # 一點」。沒有這個鍵時 `recon=None`，行為與先前逐位元相同。
+        recon = None
+        if "recon" in payload:
+            from src.defense.recon import ReconAdapter
+            recon = ReconAdapter.from_payload(payload["recon"]).to(res.device)
         gen = DefenseGenerator(res.sd, module, k_inv=kw["k_inv"],
                                t_max=kw["t_max"],
-                               exact_inversion=kw["exact_inversion"])
+                               exact_inversion=kw["exact_inversion"],
+                               recon=recon)
         return gen.generate(entry.x01, gen.prepare(entry.x01)).detach()
     finally:
         module.remove()
@@ -988,7 +1037,8 @@ def loss_config(res: Resources, spec: ConditionSpec,
 
 
 def optim_config(res: Resources, spec: ConditionSpec,
-                 entry: Optional[ImageEntry] = None) -> OptimConfig:
+                 entry: Optional[ImageEntry] = None,
+                 recon=None) -> OptimConfig:
     """訓練期的優化設定。
 
     `entry` 只用來取該影像的 inpainting 遮罩。訓練期的代理編輯鏈必須與評測期
@@ -1009,7 +1059,13 @@ def optim_config(res: Resources, spec: ConditionSpec,
         stop_tol = float(res.require_calib().get(f"stop_tol.{spec.monitor}",
                                                  res.calib_context))
     align_steps = res.cfg.align_steps if spec.align_lr_key else 0
+    # A 段取代階段一：兩者的目的相同（把 G(x; φ=0) 拉近原圖），但階段一的
+    # LoRA 在 UNet 上、重建誤差在 VAE 上，實測 200 步只移動 LPIPS 0.0015
+    # 卻花 910 秒（FND-016）。留著它跑等於每格白燒那段時間。
+    if res.cfg.recon and spec.site == "apa":
+        align_steps = 0
     return OptimConfig(
+        recon=recon,
         stages=(StageSpec(group=("stage2" if spec.site == "apa" else "default"),
                           lr_key=spec.lr_key, max_steps=res.cfg.max_steps),),
         k_inv=res.cfg.k_inv,
@@ -1096,14 +1152,51 @@ def baseline_kwargs(name: str, res: Resources, entry: ImageEntry
     return kw
 
 
+def solve_recon(res: Resources, entry: ImageEntry, out_dir: Path
+                ) -> Tuple[object, Path, Dict[str, Any]]:
+    """跑 A 段並落盤，回傳 `(adapter, recon.csv 路徑, summary)`。
+
+    只有走生成路徑的條件會呼叫本函式（site apa）。像素側的 `build(0)` 就是
+    原圖，沒有重建下限可壓。
+
+    `adapter` 之後會跟著 `phi.pt` 一起存（`save_phi`），故段 2 的射線縮放與
+    段 3 的評測不需要重跑 A 段，也不可能與訓練期用到不同的 `z*`。
+    """
+    from src.defense import recon as reconmod
+
+    key = res.cfg.recon_objective
+    perceptual = {"lpips": res.suite.lpips_module,
+                  "dists": res.suite.dists_module}[key]
+
+    def measure(y):
+        return res.suite.pairwise(entry.x01, y)
+
+    t0 = time.perf_counter()
+    adapter, history, summary = reconmod.solve(
+        res.sd, entry.x01, perceptual, measure, key=key,
+        a1_steps=res.cfg.recon_a1_steps, a1_lr=res.cfg.recon_a1_lr,
+        a2_steps=res.cfg.recon_a2_steps, a2_lr=res.cfg.recon_a2_lr,
+        floor_ratio=res.cfg.recon_floor_ratio, w_pixel=res.cfg.recon_w_pixel,
+        gamma_acut=res.cfg.recon_gamma_acut, acut_band=res.cfg.recon_acut_band,
+        resp_seed=res.cfg.seed, resp_scale=res.cfg.recon_resp_scale,
+        log_every=res.cfg.log_every)
+    summary["recon_seconds"] = round(time.perf_counter() - t0, 2)
+    path = write_csv(out_dir / "recon.csv", [dict(h) for h in history])
+    return adapter.to(res.device), path, summary
+
+
 def _train_nonadditive(cell: grid.Cell, res: Resources, out_dir: Path
                        ) -> Tuple[List[str], Dict[str, Any]]:
     spec = condition_spec(cell.condition)
     entry = res.image(cell.image_id)
     module = build_module(cell.condition, res, entry, seed=res.cfg.seed)
+    recon = recon_csv = None
+    recon_summary: Dict[str, Any] = {}
+    if res.cfg.recon and spec.site == "apa":
+        recon, recon_csv, recon_summary = solve_recon(res, entry, out_dir)
     try:
         result = optimize(
-            res.sd, module, entry.x01, optim_config(res, spec, entry),
+            res.sd, module, entry.x01, optim_config(res, spec, entry, recon),
             loss_config(res, spec, entry), default_train_set(),
             calib=res.require_calib(), calib_context=res.calib_context,
             y_target=(res.y_target if spec.defense_mode == "targeted_output"
@@ -1115,7 +1208,9 @@ def _train_nonadditive(cell: grid.Cell, res: Resources, out_dir: Path
                 f"{cell.cell_id()}：optimize 沒有回傳 x_def，該格沒有防禦圖"
             )
         arts = [save_phi(out_dir / "phi.pt", cell.condition, cell.image_id,
-                         res, entry, module=module)]
+                         res, entry, module=module, recon=recon)]
+        if recon_csv is not None:
+            arts.append(recon_csv)
         rows = [dict(h) for h in result.history]
         arts.append(write_csv(out_dir / "train.csv", rows))
         if result.align_history:
@@ -1138,6 +1233,7 @@ def _train_nonadditive(cell: grid.Cell, res: Resources, out_dir: Path
             "stage_reports": result.stage_reports,
             "align_seconds": round(result.align_seconds, 2),
             "seconds_optimize": round(result.seconds, 2),
+            **recon_summary,
             "lr": (result.stage_reports[-1]["lr"]
                    if result.stage_reports else None),
             "final_L_def": last.get("L_def"),
@@ -1217,16 +1313,24 @@ def _train_random(cell: grid.Cell, res: Resources, out_dir: Path
     rows = [{"step": 0, "note": "random control：無最佳化",
              "random_seed": seed, "init_std": res.cfg.random_init_std,
              "site": spec.site}]
+    recon = recon_csv = None
     try:
         if spec.site == "warp":
             with torch.no_grad():
                 x_def = module.pixel_residual(entry.x01)
         else:
-            optim_cfg = optim_config(res, spec, entry)
+            # A 段對 `Ra` 與 `apa` 逐字相同，理由與階段一那條相同（docstring
+            # 第 3 點）：兩者的 `x_base` 必須走在同一條重建基準上，否則同一個
+            # τ 之下留給隨機方向的預算比 apa 少，比較系統性地偏向我方。
+            if res.cfg.recon and spec.site == "apa":
+                recon, recon_csv, recon_summary = solve_recon(res, entry,
+                                                              out_dir)
+                extra.update(recon_summary)
+            optim_cfg = optim_config(res, spec, entry, recon)
             loss_cfg = loss_config(res, spec, entry)
             gen = DefenseGenerator(
                 res.sd, module, k_inv=optim_cfg.k_inv, t_max=optim_cfg.t_max,
-                exact_inversion=optim_cfg.exact_inversion)
+                exact_inversion=optim_cfg.exact_inversion, recon=recon)
             # 階段一：與 apa 逐字相同的保真對齊（見 docstring 第 3 點）。
             if optim_cfg.align_steps > 0:
                 with torch.no_grad():
@@ -1261,8 +1365,10 @@ def _train_random(cell: grid.Cell, res: Resources, out_dir: Path
                 f"site={spec.site!r} 的模塊既沒有像素側輸出也沒有走生成路徑"
             )
         arts = [save_phi(out_dir / "phi.pt", cell.condition, cell.image_id,
-                         res, entry, module=module,
+                         res, entry, module=module, recon=recon,
                          extra={"random_seed": seed})]
+        if recon_csv is not None:
+            arts.append(recon_csv)
         arts.append(write_csv(out_dir / "train.csv", rows))
         if hasattr(module, "disp_stats"):
             extra.update(module.disp_stats())

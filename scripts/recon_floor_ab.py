@@ -49,6 +49,7 @@ import torch                                                 # noqa: E402
 from src.defense import recon                                # noqa: E402
 from src.defense.generator import DefenseGenerator           # noqa: E402
 from src.experiment import executors                         # noqa: E402
+from src.metrics.local_acutance import local_acutance_dev    # noqa: E402
 from tau_preview import diff_map                             # noqa: E402
 
 # 報表要看的四項。銳利度比不對稱（`MetricSuite.pairwise` 的 a 必須是原圖），
@@ -68,10 +69,13 @@ def build_parser() -> argparse.ArgumentParser:
     ap.add_argument("--a2-lr", type=float, default=2e-3)
     ap.add_argument("--w-pixel", type=float, default=0.5,
                     help="重建損失裡逐像素項的權重。感知項固定為 1")
-    ap.add_argument("--floor-ratio", type=float, default=0.40,
+    ap.add_argument("--gamma-acut", type=float, default=100.0,
+                    help="鈍化 hinge 的係數，門檻取該影像舊下限的 "
+                         "local_acutance_dev。0 為關閉——關掉時 A1 會拿變鈍"
+                         "換下限（實測銳利度比 0.9935 → 0.7887）")
+    ap.add_argument("--floor-ratio", type=float, default=0.50,
                     help="A2 的硬停止目標，取該影像舊下限的這個比例。"
-                         "預設 0.40（即壓掉 60%%）刻意設在 A1 單獨的能力"
-                         "（先驗紀錄 −47%%）之外，使 A2 有一件定義清楚的事要做；"
+                         "預設 0.50 即先驗紀錄的 A1+A2 落點（0.1434 → 0.0716）。"
                          "它是停止規則，不是對結果的宣稱")
     ap.add_argument("--log-every", type=int, default=10)
     ap.add_argument("--resp-scale", type=float, default=0.05,
@@ -138,10 +142,17 @@ def measure(args, rest) -> Path:
               flush=True)
 
         # ---- 2. A1 ----
+        # 鈍化 hinge 的門檻取這張圖自己的舊下限：判準是「不可以比 VAE 自己
+        # 造成的更鈍」（`optimize.recon_floor_thresholds` 同一條線）。
+        tau_acut = float(local_acutance_dev(x.float().clamp(0, 1),
+                                            y_vae.float().clamp(0, 1)))
         target = args.floor_ratio * m_vae["lpips"]
+        print(f"[{image_id}] A2 目標 lpips≤{target:.4f}  "
+              f"鈍化門檻 tau_acut={tau_acut:.4f}", flush=True)
         z1, h1, s1 = recon.align_latent(
             res.sd, x, res.suite.lpips_module, pair,
             steps=args.a1_steps, lr=args.a1_lr, w_pixel=args.w_pixel,
+            gamma_acut=args.gamma_acut, tau_acut=tau_acut,
             log_every=args.log_every)
         with torch.no_grad():
             y1 = res.sd.decode_latent(z1)
@@ -155,7 +166,8 @@ def measure(args, rest) -> Path:
             h2, s2 = recon.finetune_decoder(
                 res.sd, x, z1, params, res.suite.lpips_module, pair,
                 steps=args.a2_steps, lr=args.a2_lr, target=target,
-                w_pixel=args.w_pixel, log_every=max(1, args.log_every // 2))
+                w_pixel=args.w_pixel, gamma_acut=args.gamma_acut,
+                tau_acut=tau_acut, log_every=max(1, args.log_every // 2))
             with torch.no_grad():
                 y2 = res.sd.decode_latent(z1)
             m2 = pair(y2)
@@ -181,6 +193,7 @@ def measure(args, rest) -> Path:
             executors.save_image(img, out / f"{image_id}__{name}.png")
 
         row = {"image_id": image_id, "target_lpips": round(target, 4),
+               "tau_acut": round(tau_acut, 4), "gamma_acut": args.gamma_acut,
                "a2_reached": s2["reached"], "a2_stop_step": s2["stop_step"],
                "a1_best_step": s1["best_step"],
                "path_minus_vae_lpips": round(m_path["lpips"] - m_vae["lpips"], 6),

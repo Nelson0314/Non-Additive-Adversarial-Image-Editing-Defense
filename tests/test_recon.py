@@ -9,7 +9,9 @@ import pytest
 import torch
 import torch.nn as nn
 
-from src.defense.recon import decoder_tunable, descend, restored
+from src.defense.recon import (decoder_tunable, descend, reconstruction_loss,
+                               restored)
+from src.metrics.local_acutance import local_acutance_dev
 
 
 class Toy(nn.Module):
@@ -50,6 +52,36 @@ def test_restored_把數值與_requires_grad_還原():
         assert torch.equal(p, b)
         assert p.requires_grad is False
         assert p.grad is None
+
+
+def _blur(x):
+    return torch.nn.functional.avg_pool2d(x, 3, 1, 1)
+
+
+def test_鈍化_hinge_在門檻上不施力():
+    """門檻取該影像自己的舊下限，故起點恰好落在門檻上、第 0 步不受罰。
+    受罰的只有「被推得比舊下限更鈍」的那一段。"""
+    torch.manual_seed(0)
+    x = torch.rand(1, 3, 64, 64)
+    floor = _blur(x)                       # 假想的舊下限
+    tau = float(local_acutance_dev(x, floor))
+    zero = lambda a, b: torch.zeros(())    # noqa: E731  只留 hinge
+
+    at_floor = reconstruction_loss(floor, x, zero, 0.0, 0.0,
+                                   gamma_acut=100.0, tau_acut=tau)
+    blunter = reconstruction_loss(_blur(floor), x, zero, 0.0, 0.0,
+                                  gamma_acut=100.0, tau_acut=tau)
+    assert float(at_floor) == pytest.approx(0.0, abs=1e-6)
+    assert float(blunter) > 0.1, "更鈍的影像沒有被罰，hinge 等於沒接上"
+
+
+def test_鈍化_hinge_可關閉且不影響其餘兩項():
+    x = torch.rand(1, 3, 32, 32)
+    y = _blur(x)
+    lp = lambda a, b: (a - b).pow(2).mean()  # noqa: E731
+    off = reconstruction_loss(y, x, lp, 1.0, 0.5, gamma_acut=0.0)
+    assert float(off) == pytest.approx(
+        float(lp(y, x)) + 0.5 * float((y - x).abs().mean()))
 
 
 def _toy_descend(target, steps=50, lr=0.5, log_every=1):

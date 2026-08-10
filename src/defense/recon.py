@@ -31,6 +31,8 @@ from typing import Callable, Dict, List, Optional, Sequence, Tuple
 import torch
 import torch.nn as nn
 
+from src.metrics.local_acutance import local_acutance_dev
+
 
 def decoder_tunable(decoder: nn.Module) -> List[Tuple[str, nn.Parameter]]:
     """逐圖微調要開的參數：GroupNorm 的 affine 與各層 conv 的 bias。
@@ -87,16 +89,30 @@ def restored(params: Sequence[nn.Parameter], trainable: bool = True):
 
 
 def reconstruction_loss(y: torch.Tensor, x01: torch.Tensor,
-                        lpips_fn: Callable, w_lpips: float, w_pixel: float
+                        lpips_fn: Callable, w_lpips: float, w_pixel: float,
+                        gamma_acut: float = 0.0, tau_acut: float = 0.0
                         ) -> torch.Tensor:
-    """重建損失：感知項加逐像素項。
+    """重建損失：感知項、逐像素項，加一道鈍化 hinge。
 
-    兩項都要。只有 LPIPS 時 PSNR 會自由漂移（E9 實測 car_01 的 PSNR 在對齊
-    後反而掉 1.84 dB）；只有逐像素項時影像會變鈍（先驗紀錄：高頻保留率
-    84.2%，調高感知項權重後才回到 93.2%）。權重由呼叫端給，兩者都落盤。
+    前兩項都要。只有 LPIPS 時 PSNR 會自由漂移（E9 實測 car_01 的 PSNR 在對齊
+    後反而掉 1.84 dB）；只有逐像素項時影像會變鈍。
+
+    第三項不是可選的裝飾。2026-08-10 於 horse_00 實測：不加它時 A1 把 LPIPS
+    由 0.1283 壓到 0.0829，**銳利度比同時由 0.9935 掉到 0.7887**——那個下限
+    有一部分是拿變鈍換來的，而使用者在 0.664 的銳利度比上判過「看得出來」。
+    先驗紀錄的同一件事：高頻保留率 84.2%，調高感知項權重後才回到 93.2%。
+
+    門檻 `tau_acut` 由呼叫端取**該影像自己的舊下限**的 `local_acutance_dev`
+    （`optimize.recon_floor_thresholds` 同一個判準：不可以比 VAE 自己造成的
+    更差）。起點恰好落在門檻上，故第 0 步這一項為零、不施力，只有在對齊
+    真的把影像推鈍時才啟動。`gamma_acut=0` 關閉本項。
     """
-    return (w_lpips * lpips_fn(y, x01).mean()
+    loss = (w_lpips * lpips_fn(y, x01).mean()
             + w_pixel * (y - x01).abs().mean())
+    if gamma_acut:
+        dev = local_acutance_dev(x01.float().clamp(0, 1), y.float().clamp(0, 1))
+        loss = loss + gamma_acut * torch.clamp(dev - tau_acut, min=0.0)
+    return loss
 
 
 def descend(
@@ -177,6 +193,8 @@ def align_latent(
     target: Optional[float] = None,
     w_lpips: float = 1.0,
     w_pixel: float = 0.5,
+    gamma_acut: float = 0.0,
+    tau_acut: float = 0.0,
     log_every: int = 10,
 ) -> Tuple[torch.Tensor, List[Dict], Dict]:
     """A1：解 `z*` 使 `decode(z*) ≈ x`。回傳 `(z*, history, summary)`。
@@ -194,11 +212,12 @@ def align_latent(
     history, summary = descend(
         [z],
         forward=lambda: sd.decode_latent(z),
-        loss_fn=lambda y: reconstruction_loss(y, x01, lpips_fn,
-                                              w_lpips, w_pixel),
+        loss_fn=lambda y: reconstruction_loss(y, x01, lpips_fn, w_lpips,
+                                              w_pixel, gamma_acut, tau_acut),
         measure=measure, steps=steps, lr=lr, key=key, target=target,
         log_every=log_every, tag="A1")
     summary.update({"w_lpips": w_lpips, "w_pixel": w_pixel,
+                    "gamma_acut": gamma_acut, "tau_acut": tau_acut,
                     "n_params": int(z.numel())})
     return z.detach(), history, summary
 
@@ -217,6 +236,8 @@ def finetune_decoder(
     key: str = "lpips",
     w_lpips: float = 1.0,
     w_pixel: float = 0.5,
+    gamma_acut: float = 0.0,
+    tau_acut: float = 0.0,
     log_every: int = 5,
 ) -> Tuple[List[Dict], Dict]:
     """A2：固定 `z`，只更新 `params` 對這一張影像過擬合。
@@ -233,8 +254,8 @@ def finetune_decoder(
     return descend(
         list(params),
         forward=lambda: sd.decode_latent(z),
-        loss_fn=lambda y: reconstruction_loss(y, x01, lpips_fn,
-                                              w_lpips, w_pixel),
+        loss_fn=lambda y: reconstruction_loss(y, x01, lpips_fn, w_lpips,
+                                              w_pixel, gamma_acut, tau_acut),
         measure=measure, steps=steps, lr=lr, key=key, target=target,
         log_every=log_every, tag="A2")
 

@@ -66,6 +66,12 @@ def main() -> None:
                     help="讀哪一個條件的 φ。預設 Ra（同參數化隨機對照）")
     ap.add_argument("--taus", type=float, nargs="+",
                     default=[0.16, 0.20, 0.25, 0.30, 0.35, 0.40, 0.50])
+    ap.add_argument("--metric", default="lpips", choices=["lpips", "dists"],
+                    help="射線縮放要命中哪一個量。**LPIPS 排不出人眼順序**"
+                         "（2026-08-10 實測：毀掉的 horse_00 其 LPIPS 0.179 "
+                         "反而低於可接受的 horse_03 0.198），DISTS 排得出"
+                         "（0.150 對 0.091）。理由是 DISTS 把結構與紋理分開量，"
+                         "而本專案的失效模式是結構被改寫")
     ap.add_argument("--tol", type=float, default=0.005,
                     help="二分的容差，與 rayscale 段一致")
     ap.add_argument("--out", type=Path, default=None)
@@ -100,7 +106,8 @@ def main() -> None:
         executors.save_image(entry.x01, out_dir / f"{image_id}__orig.png")
         base = executors.materialize(payload, res, entry, k=0.0)
         m0 = res.suite.pairwise(entry.x01, base)
-        print(f"[{image_id}] φ=0 的重建下限 LPIPS={m0['lpips']:.4f} "
+        print(f"[{image_id}] φ=0 的重建下限 {args.metric}="
+              f"{m0[args.metric]:.4f}  LPIPS={m0['lpips']:.4f} "
               f"PSNR={m0['psnr']:.2f} dB", flush=True)
         executors.save_image(base, out_dir / f"{image_id}__floor.png")
         rows.append({"image_id": image_id, "tau": 0.0, "reachable": True,
@@ -109,17 +116,17 @@ def main() -> None:
                      "note": "φ=0，即 VAE 重建下限"})
 
         for tau in args.taus:
-            if tau < m0["lpips"] - args.tol:
+            if tau < m0[args.metric] - args.tol:
                 # 低於下限：不是最佳化失敗，是這條參數化構不到。
-                print(f"[{image_id}] τ={tau:.2f} 低於重建下限 "
-                      f"{m0['lpips']:.4f}，結構上不可達", flush=True)
+                print(f"[{image_id}] 目標={tau:.4f} 低於重建下限 "
+                      f"{m0[args.metric]:.4f}，結構上不可達", flush=True)
                 rows.append({"image_id": image_id, "tau": tau,
                              "reachable": False, "k": "", "lpips": "",
                              "psnr": "", "note": "低於 VAE 重建下限"})
                 continue
             try:
                 x_def, got, k = solve_k(
-                    lpips_fn=lambda y: res.suite.pairwise(entry.x01, y)["lpips"],
+                    lpips_fn=lambda y: res.suite.pairwise(entry.x01, y)[args.metric],
                     build=lambda kk: executors.materialize(
                         payload, res, entry, k=kk),
                     target=tau, tol=args.tol)
@@ -138,9 +145,13 @@ def main() -> None:
                          "k": round(k, 4), "lpips": round(got, 4),
                          "psnr": round(m["psnr"], 2),
                          "acut": round(m.get("acutance_ratio", float("nan")), 4),
+                         "dists": round(m["dists"], 4),
+                         "metric": args.metric,
                          "note": ""})
-            print(f"[{image_id}] τ={tau:.2f}  k={k:.3f}  "
-                  f"LPIPS={got:.4f}  PSNR={m['psnr']:.2f} dB", flush=True)
+            print(f"[{image_id}] 目標 {args.metric}={tau:.4f}  k={k:.3f}  "
+                  f"達成={got:.4f}  LPIPS={m['lpips']:.4f}  "
+                  f"DISTS={m['dists']:.4f}  PSNR={m['psnr']:.2f} dB",
+                  flush=True)
 
     executors.write_csv(out_dir / "tau_preview.csv", rows)
     page = render(rows, args.images, args.taus, out_dir)

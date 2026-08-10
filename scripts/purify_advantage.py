@@ -64,9 +64,62 @@ ADDITIVE = grid.BASELINES
 RANDOM_BY_SITE = {"warp": grid.RANDOM_CONTROL, "apa": grid.RANDOM_CONTROL_APA}
 RANDOM = grid.RANDOM_CONTROL
 
-# 主判定的量。`effect_abs` 是 `run_report` 用來算 retention 的分子，
-# 定義見 `executors._fill_retention`；此處不另訂一個，兩處必須同源。
+# 主判定的量。`grid.csv` 裡現成的 `retention` 是 `effect_abs`（＝
+# `effect_siglip`）的比值，見 `executors._fill_retention`。**那個讀出量已被
+# DEC-004／DEC-006 判定不可用**——它把「圖變怪了」與「類別被改掉了」放進同一
+# 個數字，實測雜訊與訊號同量級。抗淨化這一層當初沒有跟著 DEC-006 一起換，
+# 於是它的分母坐在雜訊裡，`retention_usable` 幾乎全 false，本腳本因此
+# **五次拒絕出表**。
+#
+# 2026-08-10 改：retention 改由 `--readout` 指定的欄位**在讀取端重算**，
+# 預設 `edit_lpips`（DEC-006 的主判準）。`runs/` 的既有欄位不動——那是證據。
+#
+# 實測（EXP-s3t25，(條件, 影像, τ) 共 65 組，閘門為 identity 的
+# mean ≥ 3σ）：`effect_siglip` 只有 **1/65** 通過，`edit_lpips` **60/65**。
+# 換掉的不是判準的形狀，是那個坐在雜訊裡的分母。
+READOUT_DEFAULT = "edit_lpips"
 MIN_OPS = 3
+
+
+def recompute_retention(rows: List[Dict[str, str]], readout: str) -> int:
+    """以 `readout` 重算每一列的 retention 與 3σ 閘門，就地寫回 `rows`。
+
+    與 `executors._fill_retention` 同一個式子與同一道閘門，差別只有分子分母
+    取哪一欄。分組鍵也相同：(條件, 影像, τ)，分母是該組 identity 的跨 seed
+    平均，閘門是 `mean ≥ 3 × sd`。
+
+    回傳通過閘門的列數。
+    """
+    base: Dict[Tuple[str, str, str], List[float]] = defaultdict(list)
+    for r in rows:
+        if (r.get("purify_kind") == "identity" and r.get("stage") == "eval"
+                and r.get("status") == "done"):
+            v = _f(r.get(readout))
+            if v is not None:
+                base[(r.get("condition"), r.get("image_id"),
+                      r.get("tau"))].append(v)
+
+    stats = {}
+    for k, vals in base.items():
+        if len(vals) < 2:
+            continue
+        m = statistics.fmean(vals)
+        stats[k] = (m, statistics.stdev(vals))
+
+    n_ok = 0
+    for r in rows:
+        v = _f(r.get(readout))
+        key = (r.get("condition"), r.get("image_id"), r.get("tau"))
+        if v is None or key not in stats:
+            r["retention_usable"] = "False"
+            continue
+        m, sd = stats[key]
+        r["retention"] = str(v / m) if m else ""
+        r["effect_control"] = str(m)
+        ok = bool(sd == sd and m >= 3.0 * sd)
+        r["retention_usable"] = "True" if ok else "False"
+        n_ok += int(ok)
+    return n_ok
 
 
 def load_rows(batch_dir: Path) -> List[Dict[str, str]]:

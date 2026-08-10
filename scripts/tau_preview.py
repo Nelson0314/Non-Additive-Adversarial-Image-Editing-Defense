@@ -77,6 +77,19 @@ def main() -> None:
     ap.add_argument("--out", type=Path, default=None)
     args, rest = ap.parse_known_args()
 
+    # 兩個目標靠得比容差還近時，`solve_k` 會對兩者回傳同一個 k——它一達到
+    # |got − target| < tol 就停，而那個 k 對兩個 target 都合格。症狀是掃描表
+    # 上兩列的 k 與達成值逐字相同，看起來像「這一段曲線是平的」。
+    # 2026-08-10 實測：--taus 0.0695 0.0745（間距 0.005 = 預設 tol）在三張
+    # 影像上全部塌成一點。
+    ts = sorted(args.taus)
+    close = [(a_, b_) for a_, b_ in zip(ts, ts[1:]) if b_ - a_ < 2 * args.tol]
+    if close:
+        raise SystemExit(
+            f"目標間距 {close[0][1] - close[0][0]:.4g} 小於 2×tol "
+            f"({2 * args.tol:.4g})，{close[0]} 這兩點會解到同一個 k。"
+            f"把 --tol 調小，或把目標拉開")
+
     # `build_resources` 需要完整的批次設定（模型、遮罩、prompt 索引……）。
     # 這裡不重建一份平行的參數表——那是兩份會分岔的清單——而是把未知旗標
     # 原樣轉交給 `run_stage` 的 parser。

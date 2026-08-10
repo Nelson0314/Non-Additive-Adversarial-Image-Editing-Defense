@@ -418,3 +418,14 @@ def test_投影式條件的隨機起點在_build_module_而非訓練路徑():
         "隨機起點不在 build_module 裡，段 0 的學習率探測會拿到零方向")
     train = inspect.getsource(executors._train_nonadditive)
     assert "randn" not in train, "訓練路徑上仍有一份重複的起點初始化"
+
+
+def test_A段接上時不探測階段一的學習率():
+    """`optim_config` 已把 `align_steps` 歸零，那個學習率不會被任何一格用到。
+    實測每條件約 20 分鐘（5 個候選 × 60 步），純浪費。"""
+    import inspect
+
+    from src.experiment import executors
+
+    src = inspect.getsource(executors.calibrate_lr)
+    assert "skip_align" in src and "res.cfg.recon" in src

@@ -2140,7 +2140,11 @@ def calibrate_lr(res: Resources, calib_dir: Path) -> Dict[str, Any]:
     # 探測是主成本。
     for cond in res.cfg.conditions:
         spec = condition_spec(cond)
-        if spec.align_lr_key:
+        # A 段接上時階段一不執行（`optim_config` 把 `align_steps` 歸零），
+        # 探測它的學習率就是純粹的浪費：實測每個候選 60 步、格點 5 個候選，
+        # 一個條件約 20 分鐘，而那個值不會被任何一格用到。
+        skip_align = res.cfg.recon and spec.site == "apa"
+        if spec.align_lr_key and not skip_align:
             # 對齊探測的判準是**對齊損失**（保真度），只由參數化決定。
             ident = ("align", spec.site)
             if _claim(spec.align_lr_key, cond, ident):

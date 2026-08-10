@@ -120,8 +120,8 @@
 
 ## EXP-ip20 · inpainting，DEC-014 重訓，相對 DISTS Δ=0.04
 
-- **狀態**：**段 3 未完成即停止**（使用者 2026-08-10 裁決轉向 DEC-016）。
-  段 1（apa／Ra 於 DEC-014 下重訓）與段 2 完成，段 3 各片停在 eval 300–350/475
+- **狀態**：**段 1–4 完成，判定層完成**。段 3 曾在 eval 300–350/475 停過一次
+  （使用者裁決轉向 DEC-016），同日續跑補完（`resumed` 326–347 格）
 - **設定**：runwayml/stable-diffusion-inpainting／512²／fp32／無 strength；
   `--masks data/lo_masks --data data/lo_inpaint --prompt-index 1
   --attn-mask-tau 0.5 --attn-timesteps 2`；影像 horse_00／man_00／bird_03
@@ -129,9 +129,20 @@
   0.3720／0.2784／0.3214，三張都跑滿 250 步；`attn_mask_kept`
   0.904／0.754／0.824
 - **段 2**（Δ=0.04）：apa 的 k = 0.109／0.156／0.125
-- **產物**：`runs/ip20_horse_00/`、`runs/ip20_man_00/`、`runs/ip20_bird_03/`
-  （逐格紀錄完整，可用同一條命令續跑，剩餘約 26 分鐘）
+- **規模**：合併後 `grid.csv` 1425 列。eval 每片 done+resumed=450／skipped 25
+  （skipped 全為 `cnn_denoise_substitute`，權重與套件未公開）
+- **產物**：`runs/ip20_merged/`（grid.csv、margin.csv、compare.html、attention.html）、
+  `runs/ip20_protocols/protocols.md`。分片目錄依 DEC-009 刪除
 - **人眼**：三張 apa 防禦圖比 DEC-012 受限版乾淨很多；man_00 襯衫仍有青紫色紋
+- **結論**：FND-020（抗淨化 7/7 重現，Ra 仍高於 apa）、
+  FND-021（類別 margin 判準在本威脅模型下無效，`control` 分母為零）
+
+### 續跑時踩到的坑
+
+kill tmux 之後 `.writer.lock` 成為殘留檔，`ProgressWriter` 依設計拒絕啟動並
+要求手動刪除（它刻意不自動判定行程是否存活，誤判會讓兩個寫入者同時動同一批
+資料）。處置是先用 `ps -p` 逐一確認鎖檔記錄的 pid 已結束，再刪鎖續跑。
+**不要略過那一步**——鎖的存在理由就是它。
 
 ## EXP-taupreview · Δ 掃描（不重訓，只換段 2 的目標）
 

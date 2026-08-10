@@ -1,0 +1,90 @@
+{
+  "artifacts": [
+    "photoguard_c/horse_00/phi_tau0.05.pt",
+    "photoguard_c/horse_00/x_def_tau0.05.png",
+    "photoguard_c/horse_00/residual_tau0.05.png",
+    "photoguard_c/horse_00/fidelity_tau0.05.csv",
+    "photoguard_c/horse_00/meta_tau0.05.json"
+  ],
+  "condition": "photoguard_c",
+  "config": {
+    "condition": "photoguard_c",
+    "gpu": "RTX-3090",
+    "guidance": 7.5,
+    "image_id": "horse_00",
+    "loss_params": {
+      "attn_mask_tau": 0.5,
+      "attn_timesteps": 2,
+      "beta_linf": 0.0,
+      "exact_inversion": true,
+      "k_inv": 10,
+      "n_eot": 1,
+      "purify_mode": "all",
+      "shared_tokens": [
+        0
+      ],
+      "t_max": null,
+      "target_image": "data/targets/gray.png",
+      "tau_acut": 0.16000000000000003,
+      "tau_chroma": 3.2,
+      "tau_linf": 0.06,
+      "tau_train": 0.2,
+      "train_n_edit": 10
+    },
+    "lr": null,
+    "masks": {
+      "digest": "a536cd2286c9f719",
+      "dir": "lo_masks"
+    },
+    "model": "runwayml/stable-diffusion-inpainting",
+    "module_params": {
+      "apa_latent_const_rank": 8,
+      "apa_latent_max_rank": 32,
+      "apa_lora_rank": 8,
+      "random_init_std": 0.5,
+      "warp_grid_size": 32,
+      "warp_max_disp": 8.0,
+      "warp_resample": "bicubic"
+    },
+    "optim_params": {
+      "align_steps": 200,
+      "max_steps": 250,
+      "stop_min_steps": 25,
+      "stop_patience": 20
+    },
+    "precision": "fp32",
+    "prompt_index": 1,
+    "purify": null,
+    "resolution": 512,
+    "seed": null,
+    "spec_version": 1,
+    "steps": 50,
+    "strength": null,
+    "tau": 0.05
+  },
+  "config_hash": "1b2e9a33e3d8",
+  "error": null,
+  "fid_acutance_ratio": 0.9890645742416382,
+  "fid_dists": 0.013950467109680176,
+  "fid_frac_gt_16_255": 3.814697265625e-05,
+  "fid_fsim": 0.9981419444084167,
+  "fid_linf": 0.13339218497276306,
+  "fid_lpips": 0.05244901031255722,
+  "fid_psnr": 48.07246398925781,
+  "fid_rms": 0.003946730401366949,
+  "fid_ssim": 0.9973491430282593,
+  "fid_vif_p": 0.9356669187545776,
+  "finished": "2026-08-10T11:27:57+08:00",
+  "id": "rayscale/photoguard_c/horse_00/tau0.05",
+  "image": "horse_00",
+  "image_id": "horse_00",
+  "niqe": 4.149347240643322,
+  "scale_k": 0.4375,
+  "seconds": 0.5595673371572047,
+  "seconds_rayscale": 0.3,
+  "stage": "rayscale",
+  "started": "2026-08-10T11:27:56+08:00",
+  "status": "done",
+  "tau_achieved": 0.05244901031255722,
+  "tau_target": 0.05
+}

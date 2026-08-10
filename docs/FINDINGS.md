@@ -224,3 +224,32 @@
   而三道保真 hinge（LPIPS、銳利度、色度）全是空間平均，集中幾乎不付代價
 - **後果**：DEC-016 的 B2（最差區塊 hinge）
 - **狀態**：成立
+
+## FND-020 · 抗淨化的優勢在 inpainting 上重現，型態與 img2img 完全相同
+
+- **來源**：EXP-ip20，`scripts/purify_advantage.py --readout edit_lpips --tau 0.04`
+- **判定**：apa > photoguard_c、apa > mist、apa > dia_r，**7/7 算子嚴格成立**；
+  1425 列有 **990 列**通過 3σ 閘門
+- **與 FND-018 同一個 caveat**：Ra 的 retention 普遍高於 apa
+  （diffpure 150：Ra 2.846、apa 1.580；crop_resize 0.1：2.168 對 1.308）。
+  兩個威脅模型獨立給出同一個結論——**優勢來自非加性參數化，不是 Lo 式 (5)**
+- **第 1 層（identity）**：photoguard_c LPIPS 0.3589、dia_r 0.2390、
+  apa 0.1563、mist 0.1479、Ra 0.0919
+- **第 3 層**：photoguard_c 的銳利度比 **0.4981**、apa 0.8156、mist 0.9455、
+  dia_r 1.1984。與 FND-017 一致，photoguard_c 的位移買在劣化上
+- **狀態**：成立
+
+## FND-021 · 類別 margin 這個第 2 層判準在 inpainting 威脅模型下無效
+
+- **量**：`margin(y) = SigLIP(y, 目標類) − SigLIP(y, 原類) > 0` 記為攻擊成功
+- **值**（EXP-ip20，identity，3 圖 × 5 seed）：**`control` 0/15**，
+  apa／Ra／photoguard_c／mist／dia_r 亦全部 0/15
+- **原因**：inpainting 的攻擊 prompt 取 `--prompt-index 1`，即「保留 c_a、
+  改動別處」（MTH-inpaint 的不變項）。**攻擊方根本不打算換掉主體的類別**，
+  而該判準量的正是「輸出被判成目標類」。分母恆為零
+- **判讀**：0/15 **不是防禦成功**，是判準搬錯了威脅模型。
+  `eval_protocols` 的第 2 層與其 ISR 欄在 inpainting 批次上不得引用
+- **要修的話**：需換一個問法（例如量遮罩內重繪內容與攻擊 prompt 的對齊度），
+  那是新的判準設計，不在 DEC-016 的範圍內
+- **對照**：img2img（EXP-s3t20）的 `control` 是 15/15 成功，判準在那裡有分母
+- **狀態**：成立

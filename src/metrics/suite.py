@@ -93,6 +93,17 @@ class MetricSuite:
         """
         return self._lpips
 
+    @property
+    def dists_module(self):
+        """可微的 DISTS 本體。存在理由同 `lpips_module`。
+
+        兩個都要能拿到：本專案的預算軸是**相對 DISTS**（DEC-015），而
+        LPIPS 排不出人眼順序（2026-08-10 實測：毀掉的 horse_00 其 LPIPS
+        0.179 反而低於可接受的 horse_03 0.198）。要壓哪一個下限是實驗設定，
+        不該由這裡替呼叫端決定。
+        """
+        return self._dists
+
     # ---- 延遲載入：像素／感知指標常用，語意與無參考指標較少用 ----
 
     def _ensure_niqe(self):

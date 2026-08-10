@@ -1,0 +1,11 @@
+{
+  "n_rows": 1425,
+  "conditions": [
+    "Ra",
+    "apa",
+    "dia_r",
+    "mist",
+    "photoguard_c"
+  ],
+  "usable_rows": 0
+}

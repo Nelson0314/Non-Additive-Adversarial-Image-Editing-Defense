@@ -1,0 +1,100 @@
+{
+  "artifacts": [
+    "mist/bird_03/phi_tau0.04.pt",
+    "mist/bird_03/x_def_tau0.04.png",
+    "mist/bird_03/residual_tau0.04.png",
+    "mist/bird_03/fidelity_tau0.04.csv",
+    "mist/bird_03/meta_tau0.04.json"
+  ],
+  "budget_achieved_abs": 0.04392367601394653,
+  "budget_floor": 0.0,
+  "budget_metric": "dists",
+  "budget_relative": true,
+  "budget_target_abs": 0.0400002384185791,
+  "condition": "mist",
+  "config": {
+    "budget": {
+      "delta": 0.04,
+      "metric": "dists",
+      "relative": true
+    },
+    "condition": "mist",
+    "gpu": "RTX-3090",
+    "guidance": 7.5,
+    "image_id": "bird_03",
+    "loss_params": {
+      "attn_mask_tau": 0.5,
+      "attn_timesteps": 2,
+      "beta_linf": 0.0,
+      "exact_inversion": true,
+      "k_inv": 10,
+      "n_eot": 1,
+      "purify_mode": "all",
+      "shared_tokens": [
+        0
+      ],
+      "t_max": null,
+      "target_image": "data/targets/gray.png",
+      "tau_acut": 0.16000000000000003,
+      "tau_chroma": 3.2,
+      "tau_linf": 0.06,
+      "tau_train": 0.2,
+      "train_n_edit": 10
+    },
+    "lr": null,
+    "masks": {
+      "digest": "a536cd2286c9f719",
+      "dir": "lo_masks"
+    },
+    "model": "runwayml/stable-diffusion-inpainting",
+    "module_params": {
+      "apa_latent_const_rank": 8,
+      "apa_latent_max_rank": 32,
+      "apa_lora_rank": 8,
+      "random_init_std": 0.5,
+      "warp_grid_size": 32,
+      "warp_max_disp": 8.0,
+      "warp_resample": "bicubic"
+    },
+    "optim_params": {
+      "align_steps": 200,
+      "max_steps": 250,
+      "stop_min_steps": 25,
+      "stop_patience": 20
+    },
+    "precision": "fp32",
+    "prompt_index": 1,
+    "purify": null,
+    "resolution": 512,
+    "seed": null,
+    "spec_version": 1,
+    "steps": 50,
+    "strength": null,
+    "tau": 0.04
+  },
+  "config_hash": "9a4ec0710d3f",
+  "error": null,
+  "fid_acutance_ratio": 0.9762994050979614,
+  "fid_dists": 0.04392367601394653,
+  "fid_frac_gt_16_255": 0.0,
+  "fid_fsim": 0.991715133190155,
+  "fid_linf": 0.01568630337715149,
+  "fid_lpips": 0.29495856165885925,
+  "fid_psnr": 38.741966247558594,
+  "fid_rms": 0.011558077298104763,
+  "fid_ssim": 0.9731569290161133,
+  "fid_vif_p": 0.6826571226119995,
+  "finished": "2026-08-10T15:19:01+08:00",
+  "id": "rayscale/mist/bird_03/tau0.04",
+  "image": "bird_03",
+  "image_id": "bird_03",
+  "niqe": 3.934598662508141,
+  "scale_k": 0.25,
+  "seconds": 0.39697468001395464,
+  "seconds_rayscale": 0.11,
+  "stage": "rayscale",
+  "started": "2026-08-10T15:19:01+08:00",
+  "status": "done",
+  "tau_achieved": 0.04392343759536743,
+  "tau_target": 0.04
+}

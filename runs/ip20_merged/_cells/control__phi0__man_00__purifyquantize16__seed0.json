@@ -1,0 +1,110 @@
+{
+  "artifacts": [
+    "control/man_00/purify/quantize_16/x_purified.png",
+    "control/man_00/purify/quantize_16/edit_seed0.png",
+    "control/man_00/purify/quantize_16/meta_seed0.json",
+    "control/man_00/purify/quantize_16/attn/seed0_agg.png",
+    "control/man_00/purify/quantize_16/attn/seed0_res64_layer00.png",
+    "control/man_00/purify/quantize_16/attn/seed0_res64_layer01.png",
+    "control/man_00/purify/quantize_16/attn/seed0_res32_layer02.png",
+    "control/man_00/purify/quantize_16/attn/seed0_res32_layer03.png",
+    "control/man_00/purify/quantize_16/attn/seed0_res16_layer04.png",
+    "control/man_00/purify/quantize_16/attn/seed0_res16_layer05.png",
+    "control/man_00/purify/quantize_16/attn/seed0_res8_layer06.png",
+    "control/man_00/purify/quantize_16/attn/seed0_res16_layer07.png",
+    "control/man_00/purify/quantize_16/attn/seed0_res16_layer08.png",
+    "control/man_00/purify/quantize_16/attn/seed0_res16_layer09.png",
+    "control/man_00/purify/quantize_16/attn/seed0_res32_layer10.png",
+    "control/man_00/purify/quantize_16/attn/seed0_res32_layer11.png",
+    "control/man_00/purify/quantize_16/attn/seed0_res32_layer12.png",
+    "control/man_00/purify/quantize_16/attn/seed0_res64_layer13.png",
+    "control/man_00/purify/quantize_16/attn/seed0_res64_layer14.png",
+    "control/man_00/purify/quantize_16/attn/seed0_res64_layer15.png",
+    "control/man_00/purify/quantize_16/attn/attn_stats.csv"
+  ],
+  "attn_full": true,
+  "attn_steps": 11,
+  "condition": "phi0",
+  "config": {
+    "budget": {
+      "delta": 0.04,
+      "metric": "dists",
+      "relative": true
+    },
+    "condition": "phi0",
+    "gpu": "RTX-3090",
+    "guidance": 7.5,
+    "image_id": "man_00",
+    "loss_params": {
+      "attn_mask_tau": 0.5,
+      "attn_timesteps": 2,
+      "beta_linf": 0.0,
+      "exact_inversion": true,
+      "k_inv": 10,
+      "n_eot": 1,
+      "purify_mode": "all",
+      "shared_tokens": [
+        0
+      ],
+      "t_max": null,
+      "target_image": "data/targets/gray.png",
+      "tau_acut": 0.16000000000000003,
+      "tau_chroma": 3.2,
+      "tau_linf": 0.06,
+      "tau_train": 0.2,
+      "train_n_edit": 10
+    },
+    "lr": null,
+    "masks": {
+      "digest": "a536cd2286c9f719",
+      "dir": "lo_masks"
+    },
+    "model": "runwayml/stable-diffusion-inpainting",
+    "module_params": {
+      "apa_latent_const_rank": 8,
+      "apa_latent_max_rank": 32,
+      "apa_lora_rank": 8,
+      "random_init_std": 0.5,
+      "warp_grid_size": 32,
+      "warp_max_disp": 8.0,
+      "warp_resample": "bicubic"
+    },
+    "optim_params": {
+      "align_steps": 200,
+      "max_steps": 250,
+      "stop_min_steps": 25,
+      "stop_patience": 20
+    },
+    "precision": "fp32",
+    "prompt_index": 1,
+    "purify": {
+      "kind": "quantize",
+      "strength": 16
+    },
+    "resolution": 512,
+    "seed": 0,
+    "spec_version": 1,
+    "steps": 50,
+    "strength": null,
+    "tau": null
+  },
+  "config_hash": "16a9d70b605e",
+  "ctrl_clip": 0.20988136529922485,
+  "ctrl_siglip": 0.027220839634537697,
+  "error": null,
+  "finished": "2026-08-10T15:34:44+08:00",
+  "group": "man",
+  "id": "control/phi0/man_00/purifyquantize16/seed0",
+  "image": "man_00",
+  "image_id": "man_00",
+  "prompt": "a man in a snowy street",
+  "purify_available": true,
+  "purify_differentiable": false,
+  "purify_kind": "quantize",
+  "purify_strength": 16,
+  "seconds": 8.967682514106855,
+  "seed": 0,
+  "stage": "control",
+  "started": "2026-08-10T15:34:35+08:00",
+  "status": "done"
+}

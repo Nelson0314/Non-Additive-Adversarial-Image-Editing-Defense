@@ -1,0 +1,94 @@
+{
+  "artifacts": [
+    "control/horse_00/purify/blur_1/x_purified.png",
+    "control/horse_00/purify/blur_1/edit_seed3.png",
+    "control/horse_00/purify/blur_1/meta_seed3.json",
+    "control/horse_00/purify/blur_1/attn/seed3_agg.png",
+    "control/horse_00/purify/blur_1/attn/attn_stats.csv"
+  ],
+  "attn_full": false,
+  "attn_steps": 11,
+  "condition": "phi0",
+  "config": {
+    "budget": {
+      "delta": 0.04,
+      "metric": "dists",
+      "relative": true
+    },
+    "condition": "phi0",
+    "gpu": "RTX-3090",
+    "guidance": 7.5,
+    "image_id": "horse_00",
+    "loss_params": {
+      "attn_mask_tau": 0.5,
+      "attn_timesteps": 2,
+      "beta_linf": 0.0,
+      "exact_inversion": true,
+      "k_inv": 10,
+      "n_eot": 1,
+      "purify_mode": "all",
+      "shared_tokens": [
+        0
+      ],
+      "t_max": null,
+      "target_image": "data/targets/gray.png",
+      "tau_acut": 0.16000000000000003,
+      "tau_chroma": 3.2,
+      "tau_linf": 0.06,
+      "tau_train": 0.2,
+      "train_n_edit": 10
+    },
+    "lr": null,
+    "masks": {
+      "digest": "a536cd2286c9f719",
+      "dir": "lo_masks"
+    },
+    "model": "runwayml/stable-diffusion-inpainting",
+    "module_params": {
+      "apa_latent_const_rank": 8,
+      "apa_latent_max_rank": 32,
+      "apa_lora_rank": 8,
+      "random_init_std": 0.5,
+      "warp_grid_size": 32,
+      "warp_max_disp": 8.0,
+      "warp_resample": "bicubic"
+    },
+    "optim_params": {
+      "align_steps": 200,
+      "max_steps": 250,
+      "stop_min_steps": 25,
+      "stop_patience": 20
+    },
+    "precision": "fp32",
+    "prompt_index": 1,
+    "purify": {
+      "kind": "blur",
+      "strength": 1.0
+    },
+    "resolution": 512,
+    "seed": 3,
+    "spec_version": 1,
+    "steps": 50,
+    "strength": null,
+    "tau": null
+  },
+  "config_hash": "c2fed269b906",
+  "ctrl_clip": 0.23974253237247467,
+  "ctrl_siglip": 0.07014938443899155,
+  "error": null,
+  "finished": "2026-08-10T15:28:27+08:00",
+  "group": "horse",
+  "id": "control/phi0/horse_00/purifyblur1/seed3",
+  "image": "horse_00",
+  "image_id": "horse_00",
+  "prompt": "a horse and a cow",
+  "purify_available": true,
+  "purify_differentiable": true,
+  "purify_kind": "blur",
+  "purify_strength": 1.0,
+  "seconds": 9.092878211988136,
+  "seed": 3,
+  "stage": "control",
+  "started": "2026-08-10T15:28:18+08:00",
+  "status": "done"
+}

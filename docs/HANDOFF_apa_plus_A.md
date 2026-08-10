@@ -113,10 +113,16 @@ A 段新增的產物照同一條線：新的下限影像與差分圖要留，逐
 | 批次 | 狀態 |
 |---|---|
 | `s3t20`（img2img，Δ=0.04） | **完整跑完**，已合併、已出判定層。`runs/s3t20_merged/`、`runs/s3t20_protocols/` |
-| `ip20`（inpainting，Δ=0.04） | 段 3 停在 eval 300–350/475。逐格紀錄完整，可用同一命令續跑（約 26 分鐘）。`runs/ip20_*/` |
+| `ip20`（inpainting，Δ=0.04） | **完整跑完**，已合併、已出判定層。`runs/ip20_merged/`、`runs/ip20_protocols/` |
 | Δ 掃描 | 完成。`runs/tp_sweep2/`、`runs/tpi_sweep/` |
 
 遠端 tmux 已全部 kill，沒有任何 session 在跑。
+
+**讀這兩批的判定層時有一個陷阱**：`ip20_protocols/protocols.md` 的**第 2 層
+（語意判定）與 ISR 欄整段不可引用**。inpainting 的攻擊 prompt 是「保留 c_a、
+改動別處」，攻擊方本來就不打算換掉主體類別，而該判準量的是「輸出被判成目標
+類」，於是 `control` 也是 0/15——分母恆為零。**0/15 不是防禦成功，是判準搬錯了
+威脅模型**（FND-021）。img2img 那一批的 `control` 是 15/15，判準在那裡才有分母。
 
 ## 7. 使用者已經定案、不要重新討論的事
 

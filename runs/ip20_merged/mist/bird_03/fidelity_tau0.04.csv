@@ -1,0 +1,2 @@
+condition,image_id,tau_target,tau_achieved,scale_k,budget_metric,budget_relative,budget_floor,budget_target_abs,budget_achieved_abs,niqe,fid_psnr,fid_linf,fid_ssim,fid_vif_p,fid_fsim,fid_lpips,fid_dists,fid_acutance_ratio,fid_rms,fid_frac_gt_16_255
+mist,bird_03,0.04,0.04392343759536743,0.25,dists,True,0.0,0.0400002384185791,0.04392367601394653,3.934598662508141,38.741966247558594,0.01568630337715149,0.9731569290161133,0.6826571226119995,0.991715133190155,0.29495856165885925,0.04392367601394653,0.9762994050979614,0.011558077298104763,0.0

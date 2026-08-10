@@ -1,0 +1,95 @@
+{
+  "cell_id": "train/apa/bird_03",
+  "config_hash": "9e02c320748e",
+  "config": {
+    "spec_version": 1,
+    "model": "runwayml/stable-diffusion-inpainting",
+    "resolution": 512,
+    "guidance": 7.5,
+    "steps": 50,
+    "strength": null,
+    "gpu": "RTX-3090",
+    "precision": "fp32",
+    "loss_params": {
+      "train_n_edit": 10,
+      "n_eot": 1,
+      "k_inv": 10,
+      "t_max": null,
+      "exact_inversion": true,
+      "purify_mode": "all",
+      "attn_timesteps": 2,
+      "tau_train": 0.2,
+      "tau_acut": 0.16000000000000003,
+      "tau_chroma": 3.2,
+      "beta_linf": 0.0,
+      "tau_linf": 0.06,
+      "target_image": "data/targets/gray.png",
+      "shared_tokens": [
+        0
+      ],
+      "attn_mask_tau": 0.5
+    },
+    "module_params": {
+      "warp_grid_size": 32,
+      "warp_max_disp": 8.0,
+      "warp_resample": "bicubic",
+      "apa_lora_rank": 8,
+      "apa_latent_max_rank": 32,
+      "apa_latent_const_rank": 8,
+      "random_init_std": 0.5
+    },
+    "optim_params": {
+      "max_steps": 250,
+      "align_steps": 200,
+      "stop_patience": 20,
+      "stop_min_steps": 25
+    },
+    "lr": null,
+    "masks": {
+      "dir": "lo_masks",
+      "digest": "a536cd2286c9f719"
+    },
+    "prompt_index": 1,
+    "condition": "apa",
+    "image_id": "bird_03",
+    "tau": null,
+    "purify": null,
+    "seed": null
+  },
+  "steps_used": 250,
+  "stop_reason": "",
+  "stage_reports": [
+    {
+      "group": "stage2",
+      "lr_key": "lr.N4_stage2",
+      "lr": 0.02,
+      "max_steps": 250,
+      "steps": 250,
+      "stop_reason": ""
+    }
+  ],
+  "align_seconds": 953.43,
+  "seconds_optimize": 2258.16,
+  "lr": 0.02,
+  "final_L_def": 109.93441009521484,
+  "final_L_fid": 12.482413291931152,
+  "final_lpips": 0.3213769495487213,
+  "final_edit_shift": NaN,
+  "attn_mask_coverage": 0.27490234375,
+  "attn_ref_l1": 410.95904541015625,
+  "attn_mask_kept": 0.8241563055062167,
+  "residual_gain": 0.5,
+  "fid_psnr": 18.293224334716797,
+  "fid_linf": 1.0,
+  "fid_ssim": 0.6599210500717163,
+  "fid_vif_p": 0.17510731518268585,
+  "fid_fsim": 0.7950913310050964,
+  "fid_lpips": 0.3213769495487213,
+  "fid_dists": 0.2676805257797241,
+  "fid_acutance_ratio": 1.1026426553726196,
+  "fid_rms": 0.12171349674463272,
+  "fid_frac_gt_16_255": 0.43785732984542847,
+  "fid_niqe": 5.286486508949766,
+  "group": "bird",
+  "prompt": "a bird on a flooded street"
+}

@@ -1,0 +1,76 @@
+{
+  "cell_id": "rayscale/dia_r/man_00/tau0.05",
+  "config_hash": "e9d32147139f",
+  "config": {
+    "spec_version": 1,
+    "model": "runwayml/stable-diffusion-inpainting",
+    "resolution": 512,
+    "guidance": 7.5,
+    "steps": 50,
+    "strength": null,
+    "gpu": "RTX-3090",
+    "precision": "fp32",
+    "loss_params": {
+      "train_n_edit": 10,
+      "n_eot": 1,
+      "k_inv": 10,
+      "t_max": null,
+      "exact_inversion": true,
+      "purify_mode": "all",
+      "attn_timesteps": 2,
+      "tau_train": 0.2,
+      "tau_acut": 0.16000000000000003,
+      "tau_chroma": 3.2,
+      "beta_linf": 0.0,
+      "tau_linf": 0.06,
+      "target_image": "data/targets/gray.png",
+      "shared_tokens": [
+        0
+      ],
+      "attn_mask_tau": 0.5
+    },
+    "module_params": {
+      "warp_grid_size": 32,
+      "warp_max_disp": 8.0,
+      "warp_resample": "bicubic",
+      "apa_lora_rank": 8,
+      "apa_latent_max_rank": 32,
+      "apa_latent_const_rank": 8,
+      "random_init_std": 0.5
+    },
+    "optim_params": {
+      "max_steps": 250,
+      "align_steps": 200,
+      "stop_patience": 20,
+      "stop_min_steps": 25
+    },
+    "lr": null,
+    "masks": {
+      "dir": "lo_masks",
+      "digest": "a536cd2286c9f719"
+    },
+    "prompt_index": 1,
+    "condition": "dia_r",
+    "image_id": "man_00",
+    "tau": 0.05,
+    "purify": null,
+    "seed": null
+  },
+  "condition": "dia_r",
+  "image_id": "man_00",
+  "tau_target": 0.05,
+  "tau_achieved": 0.05088159441947937,
+  "scale_k": 0.21875,
+  "niqe": 5.6972336203122875,
+  "fid_psnr": 53.28920364379883,
+  "fid_linf": 0.005468785762786865,
+  "fid_ssim": 0.9989691972732544,
+  "fid_vif_p": 0.9584188461303711,
+  "fid_fsim": 0.9995896220207214,
+  "fid_lpips": 0.05088159441947937,
+  "fid_dists": 0.0041695237159729,
+  "fid_acutance_ratio": 1.0022475719451904,
+  "fid_rms": 0.0021630986593663692,
+  "fid_frac_gt_16_255": 0.0,
+  "seconds_rayscale": 0.35
+}

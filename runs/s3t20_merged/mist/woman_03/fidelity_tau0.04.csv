@@ -1,0 +1,2 @@
+condition,image_id,tau_target,tau_achieved,scale_k,budget_metric,budget_relative,budget_floor,budget_target_abs,budget_achieved_abs,niqe,fid_psnr,fid_linf,fid_ssim,fid_vif_p,fid_fsim,fid_lpips,fid_dists,fid_acutance_ratio,fid_rms,fid_frac_gt_16_255
+mist,woman_03,0.04,0.0431709885597229,0.15625,dists,True,0.0,0.04000011920928955,0.04317110776901245,3.789386462856771,42.85163116455078,0.009803950786590576,0.9873509407043457,0.7404979467391968,0.9890681505203247,0.21934472024440765,0.04317110776901245,0.9692045450210571,0.007200733292847872,0.0

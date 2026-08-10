@@ -1,0 +1,86 @@
+{
+  "cell_id": "rayscale/dia_r/bird_03/tau0.04",
+  "config_hash": "5805673dd5b5",
+  "config": {
+    "spec_version": 1,
+    "model": "runwayml/stable-diffusion-inpainting",
+    "resolution": 512,
+    "guidance": 7.5,
+    "steps": 50,
+    "strength": null,
+    "gpu": "RTX-3090",
+    "precision": "fp32",
+    "loss_params": {
+      "train_n_edit": 10,
+      "n_eot": 1,
+      "k_inv": 10,
+      "t_max": null,
+      "exact_inversion": true,
+      "purify_mode": "all",
+      "attn_timesteps": 2,
+      "tau_train": 0.2,
+      "tau_acut": 0.16000000000000003,
+      "tau_chroma": 3.2,
+      "beta_linf": 0.0,
+      "tau_linf": 0.06,
+      "target_image": "data/targets/gray.png",
+      "shared_tokens": [
+        0
+      ],
+      "attn_mask_tau": 0.5
+    },
+    "module_params": {
+      "warp_grid_size": 32,
+      "warp_max_disp": 8.0,
+      "warp_resample": "bicubic",
+      "apa_lora_rank": 8,
+      "apa_latent_max_rank": 32,
+      "apa_latent_const_rank": 8,
+      "random_init_std": 0.5
+    },
+    "optim_params": {
+      "max_steps": 250,
+      "align_steps": 200,
+      "stop_patience": 20,
+      "stop_min_steps": 25
+    },
+    "lr": null,
+    "masks": {
+      "dir": "lo_masks",
+      "digest": "a536cd2286c9f719"
+    },
+    "prompt_index": 1,
+    "budget": {
+      "metric": "dists",
+      "delta": 0.04,
+      "relative": true
+    },
+    "condition": "dia_r",
+    "image_id": "bird_03",
+    "tau": 0.04,
+    "purify": null,
+    "seed": null
+  },
+  "condition": "dia_r",
+  "image_id": "bird_03",
+  "tau_target": 0.04,
+  "tau_achieved": 0.039965033531188965,
+  "scale_k": 1.25,
+  "budget_metric": "dists",
+  "budget_relative": true,
+  "budget_floor": 0.0,
+  "budget_target_abs": 0.0400002384185791,
+  "budget_achieved_abs": 0.039965271949768066,
+  "niqe": 4.568617123156903,
+  "fid_psnr": 38.214439392089844,
+  "fid_linf": 0.031250059604644775,
+  "fid_ssim": 0.970458447933197,
+  "fid_vif_p": 0.6013938188552856,
+  "fid_fsim": 0.991186261177063,
+  "fid_lpips": 0.38707035779953003,
+  "fid_dists": 0.039965271949768066,
+  "fid_acutance_ratio": 1.06791090965271,
+  "fid_rms": 0.012281849049031734,
+  "fid_frac_gt_16_255": 0.0,
+  "seconds_rayscale": 0.18
+}

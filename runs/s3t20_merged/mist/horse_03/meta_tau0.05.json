@@ -1,0 +1,71 @@
+{
+  "cell_id": "rayscale/mist/horse_03/tau0.05",
+  "config_hash": "8eb9f151017a",
+  "config": {
+    "spec_version": 1,
+    "model": "CompVis/stable-diffusion-v1-4",
+    "resolution": 512,
+    "guidance": 7.5,
+    "steps": 50,
+    "strength": 0.4,
+    "gpu": "RTX-3090",
+    "precision": "fp32",
+    "loss_params": {
+      "train_n_edit": 10,
+      "n_eot": 1,
+      "k_inv": 10,
+      "t_max": null,
+      "exact_inversion": true,
+      "purify_mode": "all",
+      "attn_timesteps": 2,
+      "tau_train": 0.2,
+      "tau_acut": 0.16000000000000003,
+      "tau_chroma": 3.2,
+      "beta_linf": 0.0,
+      "tau_linf": 0.06,
+      "target_image": "data/targets/gray.png",
+      "shared_tokens": [
+        0
+      ],
+      "attn_mask_tau": 0.5
+    },
+    "module_params": {
+      "warp_grid_size": 32,
+      "warp_max_disp": 8.0,
+      "warp_resample": "bicubic",
+      "apa_lora_rank": 8,
+      "apa_latent_max_rank": 32,
+      "apa_latent_const_rank": 8,
+      "random_init_std": 0.5
+    },
+    "optim_params": {
+      "max_steps": 250,
+      "align_steps": 200,
+      "stop_patience": 20,
+      "stop_min_steps": 25
+    },
+    "lr": null,
+    "condition": "mist",
+    "image_id": "horse_03",
+    "tau": 0.05,
+    "purify": null,
+    "seed": null
+  },
+  "condition": "mist",
+  "image_id": "horse_03",
+  "tau_target": 0.05,
+  "tau_achieved": 0.04795832559466362,
+  "scale_k": 0.125,
+  "niqe": 2.8174127384855767,
+  "fid_psnr": 44.68305969238281,
+  "fid_linf": 0.007843166589736938,
+  "fid_ssim": 0.9949339628219604,
+  "fid_vif_p": 0.9095603823661804,
+  "fid_fsim": 0.9984951019287109,
+  "fid_lpips": 0.04795832559466362,
+  "fid_dists": 0.009689807891845703,
+  "fid_acutance_ratio": 0.974866509437561,
+  "fid_rms": 0.00583154009655118,
+  "fid_frac_gt_16_255": 0.0,
+  "seconds_rayscale": 0.14
+}

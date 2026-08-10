@@ -140,12 +140,17 @@ def acutance_feasible(band: float, tol: float = 1e-4
 
 
 def reconstruction_loss(y: torch.Tensor, x01: torch.Tensor,
-                        lpips_fn: Callable, w_lpips: float, w_pixel: float,
+                        perceptual: Callable, w_perc: float, w_pixel: float,
                         gamma_acut: float = 0.0, band: float = 0.0
                         ) -> torch.Tensor:
     """重建損失：感知項、逐像素項，加一道鈍化 hinge。
 
-    前兩項都要。只有 LPIPS 時 PSNR 會自由漂移（E9 實測 car_01 的 PSNR 在對齊
+    `perceptual` 是 LPIPS 或 DISTS，由呼叫端給。**兩者的量級差約三倍**
+    （同一批影像的重建下限實測 LPIPS 0.085–0.158、DISTS 0.023–0.050），
+    故 `w_pixel` 是逐目標校準的值，不可跨目標沿用——那正是本專案記錄過
+    重複十次的缺陷型態。
+
+    前兩項都要。只有感知項時 PSNR 會自由漂移（E9 實測 car_01 的 PSNR 在對齊
     後反而掉 1.84 dB）；只有逐像素項時影像會變鈍。
 
     第三項不是可選的裝飾。2026-08-10 於 horse_00 實測：不加它時 A1 把 LPIPS
@@ -156,7 +161,7 @@ def reconstruction_loss(y: torch.Tensor, x01: torch.Tensor,
     `band` 由 `acutance_band` 依該影像自己的舊下限解出。`gamma_acut=0`
     關閉本項——那正是「不設鈍化約束的 A1」這個對照組。
     """
-    loss = (w_lpips * lpips_fn(y, x01).mean()
+    loss = (w_perc * perceptual(y, x01).mean()
             + w_pixel * (y - x01).abs().mean())
     if gamma_acut:
         loss = loss + gamma_acut * blunting_penalty(y, x01, band)
@@ -244,14 +249,14 @@ def descend(
 def align_latent(
     sd,
     x01: torch.Tensor,
-    lpips_fn: Callable,
+    perceptual: Callable,
     measure: Callable[[torch.Tensor], Dict[str, float]],
     *,
     steps: int,
     lr: float,
     key: str = "lpips",
     target: Optional[float] = None,
-    w_lpips: float = 1.0,
+    w_perc: float = 1.0,
     w_pixel: float = 0.5,
     gamma_acut: float = 0.0,
     band: float = 0.0,
@@ -272,12 +277,12 @@ def align_latent(
     history, summary = descend(
         [z],
         forward=lambda: sd.decode_latent(z),
-        loss_fn=lambda y: reconstruction_loss(y, x01, lpips_fn, w_lpips,
+        loss_fn=lambda y: reconstruction_loss(y, x01, perceptual, w_perc,
                                               w_pixel, gamma_acut, band),
         measure=measure, steps=steps, lr=lr, key=key, target=target,
         feasible=acutance_feasible(band) if gamma_acut else None,
         log_every=log_every, tag="A1")
-    summary.update({"w_lpips": w_lpips, "w_pixel": w_pixel,
+    summary.update({"w_perc": w_perc, "w_pixel": w_pixel,
                     "gamma_acut": gamma_acut, "band": band,
                     "n_params": int(z.numel())})
     return z.detach(), history, summary
@@ -288,14 +293,14 @@ def finetune_decoder(
     x01: torch.Tensor,
     z: torch.Tensor,
     params: Sequence[nn.Parameter],
-    lpips_fn: Callable,
+    perceptual: Callable,
     measure: Callable[[torch.Tensor], Dict[str, float]],
     *,
     steps: int,
     lr: float,
     target: float,
     key: str = "lpips",
-    w_lpips: float = 1.0,
+    w_perc: float = 1.0,
     w_pixel: float = 0.5,
     gamma_acut: float = 0.0,
     band: float = 0.0,
@@ -315,7 +320,7 @@ def finetune_decoder(
     return descend(
         list(params),
         forward=lambda: sd.decode_latent(z),
-        loss_fn=lambda y: reconstruction_loss(y, x01, lpips_fn, w_lpips,
+        loss_fn=lambda y: reconstruction_loss(y, x01, perceptual, w_perc,
                                               w_pixel, gamma_acut, band),
         measure=measure, steps=steps, lr=lr, key=key, target=target,
         feasible=acutance_feasible(band) if gamma_acut else None,

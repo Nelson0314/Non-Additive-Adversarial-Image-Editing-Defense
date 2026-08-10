@@ -55,6 +55,13 @@ from tau_preview import diff_map                             # noqa: E402
 # 呼叫端一律以 `pairwise(x01, y)` 的順序取。
 KEYS = ("lpips", "dists", "psnr", "acutance_ratio")
 
+# 逐像素項的權重，**逐目標校準**。兩個感知量的量級差約三倍（本批六張影像的
+# 重建下限實測 LPIPS 0.085–0.158、DISTS 0.023–0.050），沿用同一個權重會讓
+# 換目標的同時也悄悄換掉了「感知項對逐像素項」的比例，而那個變因不會有症狀
+# ——先驗紀錄裡重複十次的缺陷型態就是這個。0.15 是 0.5 依上述比例縮下來的。
+# 未列出的目標直接拋出，不內插也不退回預設值。
+W_PIXEL = {"lpips": 0.5, "dists": 0.15}
+
 
 def build_parser() -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser(
@@ -66,8 +73,13 @@ def build_parser() -> argparse.ArgumentParser:
     ap.add_argument("--a1-lr", type=float, default=0.02)
     ap.add_argument("--a2-steps", type=int, default=300)
     ap.add_argument("--a2-lr", type=float, default=2e-3)
-    ap.add_argument("--w-pixel", type=float, default=0.5,
-                    help="重建損失裡逐像素項的權重。感知項固定為 1")
+    ap.add_argument("--objective", choices=sorted(W_PIXEL), default="lpips",
+                    help="壓哪一個下限。損失的感知項與停止判準一起換——"
+                         "只換其中一個會得到「優化 A 卻以 B 判停」的組合，"
+                         "而那在紀錄上看不出來")
+    ap.add_argument("--w-pixel", type=float, default=None,
+                    help="重建損失裡逐像素項的權重，感知項固定為 1。"
+                         f"未給時依 --objective 查表 {W_PIXEL}")
     ap.add_argument("--gamma-acut", type=float, default=1.0,
                     help="銳利度 hinge 的係數。0 為關閉——關掉時 A1 會拿變鈍"
                          "換下限（實測銳利度比 0.9935 → 0.7887）。"
@@ -76,9 +88,10 @@ def build_parser() -> argparse.ArgumentParser:
                     help="銳利度帶的半寬 |1−銳利度比| 的容差。實際使用的帶是"
                          "它與該影像舊下限自身偏差取大者（`recon.acutance_band`）")
     ap.add_argument("--floor-ratio", type=float, default=0.50,
-                    help="A2 的硬停止目標，取該影像舊下限的這個比例。"
-                         "預設 0.50 即先驗紀錄的 A1+A2 落點（0.1434 → 0.0716）。"
-                         "它是停止規則，不是對結果的宣稱")
+                    help="A2 的硬停止目標，取該影像舊下限（依 --objective）"
+                         "的這個比例。預設 0.50 即先驗紀錄的 A1+A2 落點"
+                         "（LPIPS 0.1434 → 0.0716）。它是停止規則，"
+                         "不是對結果的宣稱")
     ap.add_argument("--log-every", type=int, default=10)
     ap.add_argument("--resp-scale", type=float, default=0.05,
                     help="latent 反應探針的擾動能量，相對於 ‖z*‖")
@@ -107,6 +120,11 @@ def measure(args, rest) -> Path:
 
     out = args.out
     out.mkdir(parents=True, exist_ok=True)
+    key = args.objective
+    perceptual = {"lpips": res.suite.lpips_module,
+                  "dists": res.suite.dists_module}[key]
+    w_pixel = W_PIXEL[key] if args.w_pixel is None else args.w_pixel
+    print(f"[目標] {key}（感知項與停止判準）  w_pixel={w_pixel}", flush=True)
     # 解碼器要開的那一組參數在整批影像上是同一組物件，取一次即可；數值的
     # 還原由 `recon.restored` 逐影像負責。
     tunable = recon.decoder_tunable(res.sd.vae.decoder)
@@ -150,23 +168,23 @@ def measure(args, rest) -> Path:
         # 銳利度帶由這張圖自己的舊下限解出：判準是「不可以比 VAE 自己造成的
         # 更差」（`optimize.recon_floor_thresholds` 同一條線）。
         band = recon.acutance_band(m_vae["acutance_ratio"], args.acut_band)
-        target = args.floor_ratio * m_vae["lpips"]
-        print(f"[{image_id}] A2 目標 lpips≤{target:.4f}  "
+        target = args.floor_ratio * m_vae[key]
+        print(f"[{image_id}] A2 目標 {key}≤{target:.4f}  "
               f"銳利度帶 |1−r|≤{band:.4f}", flush=True)
 
         # 無約束的 A1 是對照欄，不是備援：它把「壓下限有多少是拿變鈍換來的」
         # 直接放在同一頁上讓人眼判，而那是本專案的主判準（DESIGN §1.1）。
         z0s, h0, s0 = recon.align_latent(
-            res.sd, x, res.suite.lpips_module, pair,
-            steps=args.a1_steps, lr=args.a1_lr, w_pixel=args.w_pixel,
+            res.sd, x, perceptual, pair, key=key,
+            steps=args.a1_steps, lr=args.a1_lr, w_pixel=w_pixel,
             gamma_acut=0.0, log_every=args.log_every)
         with torch.no_grad():
             y0 = res.sd.decode_latent(z0s)
         m0 = pair(y0)
 
         z1, h1, s1 = recon.align_latent(
-            res.sd, x, res.suite.lpips_module, pair,
-            steps=args.a1_steps, lr=args.a1_lr, w_pixel=args.w_pixel,
+            res.sd, x, perceptual, pair, key=key,
+            steps=args.a1_steps, lr=args.a1_lr, w_pixel=w_pixel,
             gamma_acut=args.gamma_acut, band=band,
             log_every=args.log_every)
         with torch.no_grad():
@@ -179,9 +197,9 @@ def measure(args, rest) -> Path:
         # ---- 3. A2 ----
         with recon.restored(params):
             h2, s2 = recon.finetune_decoder(
-                res.sd, x, z1, params, res.suite.lpips_module, pair,
+                res.sd, x, z1, params, perceptual, pair, key=key,
                 steps=args.a2_steps, lr=args.a2_lr, target=target,
-                w_pixel=args.w_pixel, gamma_acut=args.gamma_acut,
+                w_pixel=w_pixel, gamma_acut=args.gamma_acut,
                 band=band, log_every=max(1, args.log_every // 2))
             with torch.no_grad():
                 y2 = res.sd.decode_latent(z1)
@@ -194,7 +212,7 @@ def measure(args, rest) -> Path:
                     "image_id": image_id}, out / f"recon_{image_id}.pt")
 
         if not s2["reached"]:
-            print(f"[{image_id}] **A2 未達目標** lpips≤{target:.4f}，"
+            print(f"[{image_id}] **A2 未達目標** {key}≤{target:.4f}，"
                   f"最佳 {s2['best']:.4f}（第 {s2['best_step']} 步）。"
                   "如實記錄，該值即為此參數組在本圖上的容量上限", flush=True)
 
@@ -207,7 +225,8 @@ def measure(args, rest) -> Path:
         for name, img in save.items():
             executors.save_image(img, out / f"{image_id}__{name}.png")
 
-        row = {"image_id": image_id, "target_lpips": round(target, 4),
+        row = {"image_id": image_id, "objective": key,
+               "target": round(target, 4), "w_pixel": w_pixel,
                "band": round(band, 4), "gamma_acut": args.gamma_acut,
                "a2_reached": s2["reached"], "a2_stop_step": s2["stop_step"],
                "a1_best_step": s1["best_step"],
@@ -287,7 +306,9 @@ def render(sections, page: Path) -> Path:
          "第 5 欄再加上逐圖微調的解碼器（A2）。每張圖下方是它與原圖的差分（×6）"
          "——非加性的失真在原圖上常看不出來，型態要在差分圖上看。"
          "四項指標中 LPIPS 與 DISTS 愈小愈好、PSNR 愈大愈好、"
-         "銳利度比愈接近 1 愈好。</p>"]
+         "銳利度比愈接近 1 愈好。最右欄的「＊」標的是這一次實際去壓的那一個"
+         "下限（`--objective`）；另一個軸列在旁邊，因為 A 段對預算軸"
+         "（相對 DISTS，DEC-015）有沒有效益要看的是它。</p>"]
     for label, d in sections:
         d = Path(d)
         rows = list(_read_csv(d / "floor_ab.csv"))
@@ -307,15 +328,21 @@ def render(sections, page: Path) -> Path:
             h.append(cell(d, img, "free", g("free"), "free_diff"))
             h.append(cell(d, img, "a1", g("a1"), "a1_diff"))
             h.append(cell(d, img, "a2", g("a2"), "a2_diff"))
-            f0 = float(r["floor_lpips"])
-            rel = "".join(
-                f"{name} {100 * (float(r[k]) - f0) / f0:+.1f}%<br>"
-                for name, k in (("無約束", "free_lpips"), ("A1", "a1_lpips"),
-                                ("A1+A2", "a2_lpips")))
+            # 兩個感知軸都列。壓下來的是哪一個下限由 --objective 決定，而
+            # 另一個是否跟著動，正是 A 段對預算軸（相對 DISTS，DEC-015）
+            # 到底有沒有效益的判準，不能只報被優化的那一個。
+            rel = ""
+            for axis in ("lpips", "dists"):
+                f0 = float(r[f"floor_{axis}"])
+                star = "＊" if axis == r.get("objective") else ""
+                rel += f"{axis.upper()}{star}<br>" + "".join(
+                    f"　{name} {100 * (float(r[f'{p}_{axis}']) - f0) / f0:+.1f}%<br>"
+                    for name, p in (("無約束", "free"), ("A1", "a1"),
+                                    ("A1+A2", "a2")))
             ok = "good" if r["a2_reached"] in ("True", True) else "bad"
             h.append(
-                f"<td class=m>LPIPS<br>{rel}<br>"
-                f"<span class={ok}>A2 目標 {r['target_lpips']}<br>"
+                f"<td class=m>{rel}<br>"
+                f"<span class={ok}>A2 目標 {r['target']}<br>"
                 f"{'達到' if ok == 'good' else '未達'}於第 "
                 f"{r['a2_stop_step']} 步</span><br><br>"
                 f"銳利度帶 ±{r['band']}<br><br>"

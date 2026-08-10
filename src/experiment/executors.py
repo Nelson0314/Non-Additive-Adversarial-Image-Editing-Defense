@@ -1065,10 +1065,14 @@ def loss_config(res: Resources, spec: ConditionSpec,
     mode = spec.defense_mode or LossConfig.defense_mode
     content = ""
     attn_mask_tau = None
-    if mode == "suppress_attn_ca":
+    # `redirect_attn_ca` 與 `suppress_attn_ca` 需要**同一組**逐影像設定：
+    # 兩者都對 c_a 取式 (3) 的聚合、都在式 (4) 的 M 上算，差別只在分母。
+    # 漏掉新模式的話它會拿到空的 c_a，而 `LossConfig.__post_init__` 只在
+    # 建立時擋得住——那是段 0 跑到一半才會炸的位置。
+    if mode in ("suppress_attn_ca", "redirect_attn_ca"):
         if entry is None:
             raise ValueError(
-                f"條件 {spec.name!r} 走 suppress_attn_ca，需要 entry 才能取得 "
+                f"條件 {spec.name!r} 走 {mode}，需要 entry 才能取得 "
                 "c_a（ImageEntry.content）。c_a 逐影像不同，不可由整批共用的 "
                 "RunConfig 提供，也不可由 prompt 推導"
             )
@@ -1261,6 +1265,23 @@ def _train_nonadditive(cell: grid.Cell, res: Resources, out_dir: Path
     recon_summary: Dict[str, Any] = {}
     if res.cfg.recon and spec.site == "apa":
         recon, recon_csv, recon_summary = solve_recon(res, entry, out_dir)
+    if spec.project:
+        # **投影式條件必須有隨機起點。** 方向參數 V 依 LoRA 慣例初始化為零
+        # （使 φ_init 的殘差精確為零），而零向量沒有徑向投影——縮放它到任何
+        # 倍數都還是零，第 0 步的投影會以「放大到 2048 倍仍達不到 Δ」中止。
+        #
+        # 這不是為了繞過那個錯誤，而是 PGD 本來的形狀：在可行集內取一個隨機
+        # 起點，再做「梯度步 + 投影」。起點取高斯、種子由影像 id 決定，與
+        # `_train_random` 的 `Ra` 逐字同一條規則，故兩者的起點分布相同。
+        #
+        # φ_init 不再是零殘差不影響 `x_base0`：那個量在 `optimize()` 內以
+        # `module.disable()` 取得，與 φ 的數值無關。
+        gd = torch.Generator(device="cpu").manual_seed(
+            res.cfg.seed + zlib.crc32(cell.image_id.encode("utf-8")))
+        dp = direction_param(module)
+        with torch.no_grad():
+            dp.data = (torch.randn(dp.shape, generator=gd, dtype=torch.float32)
+                       .to(dp.device, dp.dtype) * res.cfg.random_init_std)
     try:
         result = optimize(
             res.sd, module, entry.x01, optim_config(res, spec, entry, recon),
@@ -2789,6 +2810,12 @@ def budget_projector(res: "Resources", entry: ImageEntry, module, gen,
             p.data = saved
 
     def project(step: int) -> Dict[str, float]:
+        if float(p.data.abs().sum()) == 0.0:
+            raise ValueError(
+                f"第 {step} 步：方向參數恆為零，沒有徑向投影可言。"
+                "投影式條件必須用隨機起點（PGD 的作法），見 "
+                "`_train_nonadditive` 對 `spec.project` 的處理"
+            )
         if state["base"] is None:
             # φ=0 的下限只需算一次：它不依賴 φ，而每步重算等於每步多一條
             # 完整生成路徑。A 段接上時它就是壓過的那個新下限。

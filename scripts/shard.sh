@@ -489,7 +489,19 @@ if [ -n "${BUDGET_DELTA:-}" ]; then
   esac
 fi
 
-COMMON="--runs-root $RUNS --gpu-tag $GPU_TAG --precision $PRECISION $MODEL --mist-target data/targets/MIST.png $MEM $REACH $ATTN $INV $PROBE $MASK $STRENGTH $GRID $BUDGET"
+# 只跑 profile 條件清單的一個子集，以及強制重跑。兩者都**追加在 COMMON 末端**
+# ——`--conditions` 出現兩次時 argparse 取後者，故 profile 的那一份原封不動地
+# 留在命令列上，log 一眼就看得出被覆寫了什麼。
+#
+# 2026-08-10 新增，用途是 DEC-014 之後只重訓 apa 與 Ra：式 (5) 的遮罩限制被
+# 撤銷只影響這兩個條件，三個加性 baseline 的 φ 與該決定無關，而它們合計要
+# 兩小時。`--force` 必須與 `CONDITIONS` 並用才有意義——它是逐段全格重跑，
+# 不帶條件篩選就會把那兩小時也一起賠掉。
+SUBSET=""
+[ -n "${CONDITIONS:-}" ] && SUBSET="--conditions $CONDITIONS"
+[ -n "${FORCE:-}" ] && SUBSET="$SUBSET --force"
+
+COMMON="--runs-root $RUNS --gpu-tag $GPU_TAG --precision $PRECISION $MODEL --mist-target data/targets/MIST.png $MEM $REACH $ATTN $INV $PROBE $MASK $STRENGTH $GRID $BUDGET $SUBSET"
 
 shard_dir() { echo "$RUNS/${BATCH}_$1"; }
 

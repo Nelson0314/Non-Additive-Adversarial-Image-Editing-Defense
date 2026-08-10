@@ -403,3 +403,18 @@ def test_project_budget_未給時不進雜湊():
     from src.experiment.executors import RunConfig
     assert "project" not in RunConfig().module_params()
     assert "project" in RunConfig(project_budget=0.04).module_params()
+
+
+def test_投影式條件的隨機起點在_build_module_而非訓練路徑():
+    """模塊有多條建構路徑：段 1 訓練、段 0 的 `_probe_lr`、量測腳本。起點只加
+    在其中一條的話，其餘每一條都會各自以「放大到 2048 倍仍達不到 Δ」中止一次
+    ——那正是本專案 2026-08-11 實測到的失效順序。"""
+    import inspect
+
+    from src.experiment import executors
+
+    src = inspect.getsource(executors.build_module)
+    assert "condition_spec(condition).project" in src, (
+        "隨機起點不在 build_module 裡，段 0 的學習率探測會拿到零方向")
+    train = inspect.getsource(executors._train_nonadditive)
+    assert "randn" not in train, "訓練路徑上仍有一份重複的起點初始化"

@@ -873,12 +873,33 @@ def build_module(condition: str, res: Resources, entry: ImageEntry,
             max_disp=kw["max_disp"], resample=kw["resample"],
             init_std=init_std, seed=seed, gate=kw.get("gate"),
         ).to(res.device)
-    return build_apa(
+    module = build_apa(
         res.sd.unet, steps=kw["steps"], latent_size=kw["latent_size"],
         latent_channels=kw["latent_channels"], lora_rank=kw["lora_rank"],
         latent_max_rank=kw["latent_max_rank"],
         latent_const_rank=kw["latent_const_rank"], seed=seed,
     ).to(res.device)
+    # **投影式條件的隨機起點放在這裡，不在訓練路徑上。**
+    #
+    # 方向參數 V 依 LoRA 慣例初始化為零（使 φ_init 的殘差精確為零），而零向量
+    # 沒有徑向投影——縮放它到任何倍數都還是零。PGD 本來就是「可行集內取隨機
+    # 起點，再做梯度步 + 投影」，故此處補上那個起點。
+    #
+    # 放在 `build_module` 是因為模塊有**多條**建構路徑：段 1 的訓練、段 0 的
+    # `_probe_lr` 學習率探測、以及量測腳本。先前只加在訓練路徑上，段 0 就以
+    # 「放大到 2048 倍仍達不到 Δ」中止——同一個缺陷會在每一條漏掉的路徑上
+    # 各出現一次，且訊息描述的是症狀不是原因。
+    #
+    # 種子取 `seed + crc32(image_id)`，與 `Ra` 的隨機對照逐字同一條規則，
+    # 故兩者的起點分布相同、比較不含起點造成的差異。
+    if condition_spec(condition).project:
+        gd = torch.Generator(device="cpu").manual_seed(
+            seed + zlib.crc32(entry.image_id.encode("utf-8")))
+        dp = direction_param(module)
+        with torch.no_grad():
+            dp.data = (torch.randn(dp.shape, generator=gd, dtype=torch.float32)
+                       .to(dp.device, dp.dtype) * res.cfg.random_init_std)
+    return module
 
 
 def rebuild_module(payload: Dict[str, Any], res: Resources):
@@ -1265,23 +1286,6 @@ def _train_nonadditive(cell: grid.Cell, res: Resources, out_dir: Path
     recon_summary: Dict[str, Any] = {}
     if res.cfg.recon and spec.site == "apa":
         recon, recon_csv, recon_summary = solve_recon(res, entry, out_dir)
-    if spec.project:
-        # **投影式條件必須有隨機起點。** 方向參數 V 依 LoRA 慣例初始化為零
-        # （使 φ_init 的殘差精確為零），而零向量沒有徑向投影——縮放它到任何
-        # 倍數都還是零，第 0 步的投影會以「放大到 2048 倍仍達不到 Δ」中止。
-        #
-        # 這不是為了繞過那個錯誤，而是 PGD 本來的形狀：在可行集內取一個隨機
-        # 起點，再做「梯度步 + 投影」。起點取高斯、種子由影像 id 決定，與
-        # `_train_random` 的 `Ra` 逐字同一條規則，故兩者的起點分布相同。
-        #
-        # φ_init 不再是零殘差不影響 `x_base0`：那個量在 `optimize()` 內以
-        # `module.disable()` 取得，與 φ 的數值無關。
-        gd = torch.Generator(device="cpu").manual_seed(
-            res.cfg.seed + zlib.crc32(cell.image_id.encode("utf-8")))
-        dp = direction_param(module)
-        with torch.no_grad():
-            dp.data = (torch.randn(dp.shape, generator=gd, dtype=torch.float32)
-                       .to(dp.device, dp.dtype) * res.cfg.random_init_std)
     try:
         result = optimize(
             res.sd, module, entry.x01, optim_config(res, spec, entry, recon),

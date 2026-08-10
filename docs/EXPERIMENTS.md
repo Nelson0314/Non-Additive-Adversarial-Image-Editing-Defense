@@ -104,3 +104,43 @@
   程式與評測流程整批重造
 - **地位**：其結論已被後續批次取代或已寫入 `FINDINGS.md`；
   原始紀錄在 `archive/PRIOR_FINDINGS.md`
+
+## EXP-s3t20 · site apa，τ_train 0.20，評測改用相對 DISTS Δ=0.04
+
+- **狀態**：段 1–4 完成，判定層完成
+- **設定**：SD v1.4／512²／fp32／strength 0.4；條件 `apa Ra photoguard_c mist dia_r`；
+  影像 horse_00／horse_03／woman_03；段 1 綁 τ_LPIPS=0.20，段 2 改用
+  `--budget-delta 0.04 --budget-metric dists`（DEC-015）
+- **規模**：合併後 1800 格，`grid.csv` 1425 列。eval 每片 450 done／25 skipped
+  （skipped 全為 `cnn_denoise_substitute`，其權重與套件未公開）
+- **產物**：`runs/s3t20_merged/`（grid.csv、margin.csv、compare.html）、
+  `runs/s3t20_protocols/protocols.md`
+- **結論**：FND-017（無人防得住，photoguard_c 的位移全來自劣化）、
+  FND-018（抗淨化 7/7 成立但優勢來自參數化）、FND-019（集中度）
+
+## EXP-ip20 · inpainting，DEC-014 重訓，相對 DISTS Δ=0.04
+
+- **狀態**：**段 3 未完成即停止**（使用者 2026-08-10 裁決轉向 DEC-016）。
+  段 1（apa／Ra 於 DEC-014 下重訓）與段 2 完成，段 3 各片停在 eval 300–350/475
+- **設定**：runwayml/stable-diffusion-inpainting／512²／fp32／無 strength；
+  `--masks data/lo_masks --data data/lo_inpaint --prompt-index 1
+  --attn-mask-tau 0.5 --attn-timesteps 2`；影像 horse_00／man_00／bird_03
+- **段 1 端點**（DEC-014，式 (5) 對整個 M）：apa 的 `fid_lpips`
+  0.3720／0.2784／0.3214，三張都跑滿 250 步；`attn_mask_kept`
+  0.904／0.754／0.824
+- **段 2**（Δ=0.04）：apa 的 k = 0.109／0.156／0.125
+- **產物**：`runs/ip20_horse_00/`、`runs/ip20_man_00/`、`runs/ip20_bird_03/`
+  （逐格紀錄完整，可用同一條命令續跑，剩餘約 26 分鐘）
+- **人眼**：三張 apa 防禦圖比 DEC-012 受限版乾淨很多；man_00 襯衫仍有青紫色紋
+
+## EXP-taupreview · Δ 掃描（不重訓，只換段 2 的目標）
+
+- **狀態**：完成
+- **內容**：用既有 φ 以 `scripts/tau_preview.py --metric dists --tol 0.001`
+  求 Δ = 0.02／0.025／0.03 的縮放係數與防禦圖
+- **產物**：`runs/tp_sweep2/`（img2img）、`runs/tpi_sweep/`（inpainting）、
+  `runs/tp_dists/`、`runs/tpd_ip/`（Δ=0.05 的先期版本）
+- **用途**：使用者挑 Δ 的比對頁。裁決結果是 **Δ=0.04 可接受**
+  （「除了女人照片那張之外，其他的照片失真都在可接受範圍」），
+  woman_03 的銳利度比在 Δ=0.04 為 0.664、Δ=0.02 仍只有 0.730，
+  **降 Δ 救不了它**，屬臉部平滑化而非幅度問題

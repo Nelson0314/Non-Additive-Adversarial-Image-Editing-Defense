@@ -88,32 +88,60 @@ def restored(params: Sequence[nn.Parameter], trainable: bool = True):
                 p.grad = None
 
 
-def blunting_penalty(y: torch.Tensor, x01: torch.Tensor, tau_ratio: float
+def acutance_band(floor_ratio: float, band: float = 0.0) -> float:
+    """銳利度帶的半寬：`max(band, |1 − 舊下限的銳利度比|)`。
+
+    兩個下界各有理由，取大的那個：
+
+    - `|1 − floor_ratio|` 保證**起點必定可行**。判準與
+      `optimize.recon_floor_thresholds` 同一條線：不可以比 VAE 來回更差，
+      而 VAE 來回本身依定義不比自己差。少了它，下限本來就鈍的影像會在第 0
+      步就違反約束，整段對齊沒有一個可行的落點。
+    - `band` 是人眼可辨的容差。SD v1.4／512² 的 VAE 來回實測只動 0.0065
+      （horse_00），單用前者會把帶收得比雜訊還窄，最佳化寸步難行。
+    """
+    return max(float(band), abs(1.0 - float(floor_ratio)))
+
+
+def blunting_penalty(y: torch.Tensor, x01: torch.Tensor, band: float
                      ) -> torch.Tensor:
-    """只罰「比 `tau_ratio` 更鈍」：`max(0, τ − 銳利度比)`。
+    """銳利度偏離帶的懲罰：`max(0, |1 − 銳利度比| − band)`。
 
     量與 `MetricSuite.pairwise` 的 `acutance_ratio` 是同一個（`gradient_energy`
     的比值），故報表上看到的數字就是被約束的數字。
 
-    **只罰鈍化、不罰過銳**：本階段唯一要防的是「拿變模糊換低下限」；比原圖
-    更銳在重建對齊裡不會發生（下降方向是往原圖走），為它加一道對稱的懲罰
-    只會多一個沒有作用卻會影響梯度尺度的項。
+    **兩邊都要罰。** 先做過單邊版本（只罰 `τ − r`），2026-08-10 於 horse_00
+    的 γ 掃描顯示它把最佳化推到反方向：γ=1／4／16 在前 25 步分別衝到銳利度比
+    1.86／2.53／2.94。比原圖銳三倍不是「保住了細節」，是**加了雜訊**
+    （`acutance` 模組：「> 1.0 由雜訊或加性擾動造成」），而那正是要防的
+    可見失真的另一種型態。取 `|1 − r|` 與專案在防禦階段用的
+    `local_acutance_dev` 是同一個形式（該模組：「約束應該用無號的 dev」）。
 
-    為什麼不是專案在防禦階段用的 `local_acutance_dev`：那一項的門檻在此處
-    必須取起點自己的值（判準是「不可以比 VAE 來回更差」），於是約束**從第 0
-    步就是緊的**，而 γ=100 的 hinge 在起點就是一道陡壁。2026-08-10 於
-    horse_00 實測：加上它之後 LPIPS 由 0.1283 **上升**到 0.1418 再也沒回來，
-    120 步全在壁上，等於整段對齊被關掉。此處的量級（比值 ≈ 1，可動範圍
-    ~0.2）與係數搭得起來，`local_acutance_dev`（≈0.096，可動範圍 1e-4）搭不起來。
+    為什麼不直接用 `local_acutance_dev`：它的門檻在此處必須取起點自己的值，
+    於是約束從第 0 步就是緊的，而 γ=100 的 hinge 在起點就是一道陡壁。
+    2026-08-10 實測：加上它之後 LPIPS 由 0.1283 **上升**到 0.1418 再也沒回來，
+    120 步全在壁上。此處的量級（比值 ≈ 1，可動範圍 ~0.2）與 O(1) 的係數搭得
+    起來，`local_acutance_dev`（≈0.096，可動範圍 1e-4）搭不起來。
     """
     r = (gradient_energy(y.float().clamp(0, 1))
          / gradient_energy(x01.float().clamp(0, 1)).clamp_min(1e-12))
-    return torch.clamp(tau_ratio - r, min=0.0).mean()
+    return torch.clamp((1.0 - r).abs() - band, min=0.0).mean()
+
+
+def acutance_feasible(band: float, tol: float = 1e-4
+                      ) -> Callable[[Dict[str, float]], bool]:
+    """`descend` 的可行性判準：銳利度比必須落在帶內。
+
+    與 `blunting_penalty` 同一個帶，故「損失在罰什麼」與「哪些步算數」
+    不可能分岔——那正是本專案反覆抓到的缺陷型態（一個為某個對象定的值被
+    沿用到另一個對象上而沒有症狀）。
+    """
+    return lambda m: abs(1.0 - m["acutance_ratio"]) <= band + tol
 
 
 def reconstruction_loss(y: torch.Tensor, x01: torch.Tensor,
                         lpips_fn: Callable, w_lpips: float, w_pixel: float,
-                        gamma_acut: float = 0.0, tau_acut: float = 0.0
+                        gamma_acut: float = 0.0, band: float = 0.0
                         ) -> torch.Tensor:
     """重建損失：感知項、逐像素項，加一道鈍化 hinge。
 
@@ -125,14 +153,13 @@ def reconstruction_loss(y: torch.Tensor, x01: torch.Tensor,
     有一部分是拿變鈍換來的，而使用者在 0.664 的銳利度比上判過「看得出來」。
     先驗紀錄的同一件事：高頻保留率 84.2%，調高感知項權重後才回到 93.2%。
 
-    門檻 `tau_acut` 由呼叫端取**該影像自己的舊下限**的銳利度比（判準與
-    `optimize.recon_floor_thresholds` 同一條線：不可以比 VAE 來回更差）。
-    `gamma_acut=0` 關閉本項。
+    `band` 由 `acutance_band` 依該影像自己的舊下限解出。`gamma_acut=0`
+    關閉本項——那正是「不設鈍化約束的 A1」這個對照組。
     """
     loss = (w_lpips * lpips_fn(y, x01).mean()
             + w_pixel * (y - x01).abs().mean())
     if gamma_acut:
-        loss = loss + gamma_acut * blunting_penalty(y, x01, tau_acut)
+        loss = loss + gamma_acut * blunting_penalty(y, x01, band)
     return loss
 
 
@@ -146,6 +173,7 @@ def descend(
     lr: float,
     key: str,
     target: Optional[float] = None,
+    feasible: Optional[Callable[[Dict[str, float]], bool]] = None,
     log_every: int = 10,
     tag: str = "",
 ) -> Tuple[List[Dict], Dict]:
@@ -153,6 +181,12 @@ def descend(
 
     回傳 `(history, summary)`。`summary` 記 `reached`（有沒有達到 `target`）、
     `stop_step`（實際停在第幾步）、`best_step` 與 `best`（`key` 的最佳值）。
+
+    `feasible` 給定時，**只有滿足它的步才算數**——最佳步與達標判定都只在
+    可行的步之間取。損失裡的 hinge 是一股力，不是一道保證：2026-08-10 的
+    γ 掃描量到中途衝到銳利度比 2.06 的步，其 LPIPS 恰好也是全程最低，若不
+    篩，回傳的「新下限」會是一張加了雜訊的圖。第 0 步（起點）依定義可行，
+    故可行集合不會是空的，最壞情況是回到起點而下限沒有改善——那是結果。
 
     **達不到 target 不是例外，是結果**：本函式如實記 `reached=False` 並回傳
     最佳步的參數，由呼叫端決定怎麼呈現。把它變成 raise 會讓一張圖的容量上限
@@ -174,13 +208,16 @@ def descend(
         if step % log_every == 0 or step == steps:
             with torch.no_grad():
                 m = measure(y.detach())
-            history.append({"step": step, "loss": float(loss.detach()), **m})
+            ok = feasible is None or feasible(m)
+            history.append({"step": step, "loss": float(loss.detach()),
+                            "feasible": ok, **m})
             print(f"  [{tag}] step {step:>4d}  loss={float(loss.detach()):.5f}  "
-                  + "  ".join(f"{k}={v:.4f}" for k, v in m.items()), flush=True)
-            if m[key] < best:
+                  + "  ".join(f"{k}={v:.4f}" for k, v in m.items())
+                  + ("" if ok else "  [不可行]"), flush=True)
+            if ok and m[key] < best:
                 best, best_step = m[key], step
                 best_state = [p.detach().clone() for p in params]
-            if target is not None and m[key] <= target:
+            if ok and target is not None and m[key] <= target:
                 stop_step, reached = step, True
                 print(f"  [{tag}] 第 {step} 步達到目標 {key}≤{target:.4f}"
                       f"（{m[key]:.4f}），停止", flush=True)
@@ -193,7 +230,9 @@ def descend(
         opt.step()
 
     if best_step < 0:
-        raise RuntimeError("下降迴圈一次也沒有量到指標，log_every 或 steps 有誤")
+        raise RuntimeError(
+            "下降迴圈沒有任何可行且量到指標的步。第 0 步依定義可行，"
+            "故這代表 feasible 的門檻與起點對不起來，或 log_every／steps 有誤")
     with torch.no_grad():
         for p, value in zip(params, best_state):
             p.copy_(value)
@@ -215,7 +254,7 @@ def align_latent(
     w_lpips: float = 1.0,
     w_pixel: float = 0.5,
     gamma_acut: float = 0.0,
-    tau_acut: float = 0.0,
+    band: float = 0.0,
     log_every: int = 10,
 ) -> Tuple[torch.Tensor, List[Dict], Dict]:
     """A1：解 `z*` 使 `decode(z*) ≈ x`。回傳 `(z*, history, summary)`。
@@ -234,11 +273,12 @@ def align_latent(
         [z],
         forward=lambda: sd.decode_latent(z),
         loss_fn=lambda y: reconstruction_loss(y, x01, lpips_fn, w_lpips,
-                                              w_pixel, gamma_acut, tau_acut),
+                                              w_pixel, gamma_acut, band),
         measure=measure, steps=steps, lr=lr, key=key, target=target,
+        feasible=acutance_feasible(band) if gamma_acut else None,
         log_every=log_every, tag="A1")
     summary.update({"w_lpips": w_lpips, "w_pixel": w_pixel,
-                    "gamma_acut": gamma_acut, "tau_acut": tau_acut,
+                    "gamma_acut": gamma_acut, "band": band,
                     "n_params": int(z.numel())})
     return z.detach(), history, summary
 
@@ -258,7 +298,7 @@ def finetune_decoder(
     w_lpips: float = 1.0,
     w_pixel: float = 0.5,
     gamma_acut: float = 0.0,
-    tau_acut: float = 0.0,
+    band: float = 0.0,
     log_every: int = 5,
 ) -> Tuple[List[Dict], Dict]:
     """A2：固定 `z`，只更新 `params` 對這一張影像過擬合。
@@ -276,8 +316,9 @@ def finetune_decoder(
         list(params),
         forward=lambda: sd.decode_latent(z),
         loss_fn=lambda y: reconstruction_loss(y, x01, lpips_fn, w_lpips,
-                                              w_pixel, gamma_acut, tau_acut),
+                                              w_pixel, gamma_acut, band),
         measure=measure, steps=steps, lr=lr, key=key, target=target,
+        feasible=acutance_feasible(band) if gamma_acut else None,
         log_every=log_every, tag="A2")
 
 

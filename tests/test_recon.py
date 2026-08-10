@@ -9,7 +9,8 @@ import pytest
 import torch
 import torch.nn as nn
 
-from src.defense.recon import (blunting_penalty, decoder_tunable, descend,
+from src.defense.recon import (acutance_band, acutance_feasible,
+                               blunting_penalty, decoder_tunable, descend,
                                reconstruction_loss, restored)
 from src.metrics.acutance import acutance
 
@@ -58,25 +59,40 @@ def _blur(x):
     return torch.nn.functional.avg_pool2d(x, 3, 1, 1)
 
 
-def test_鈍化_hinge_在門檻上不施力而更鈍時施力():
-    """門檻取該影像自己的舊下限，故起點恰好落在門檻上、第 0 步不受罰。
-    受罰的只有「被推得比舊下限更鈍」的那一段。"""
+def test_銳利度帶保證起點可行():
+    """帶的半寬取「容差」與「舊下限自身偏差」的大者，故舊下限一定落在帶內。
+    少了這一條，本來就鈍的影像會在第 0 步就違反約束而沒有任何可行落點。"""
+    assert acutance_band(0.60, band=0.05) == pytest.approx(0.40)
+    assert acutance_band(0.9935, band=0.05) == pytest.approx(0.05)
+
+
+def test_鈍化_hinge_在帶內不施力而更鈍時施力():
     torch.manual_seed(0)
     x = torch.rand(1, 3, 64, 64)
     floor = _blur(x)                       # 假想的舊下限
-    tau = acutance(x, floor)["acutance_ratio"]
+    band = acutance_band(acutance(x, floor)["acutance_ratio"])
 
-    assert float(blunting_penalty(floor, x, tau)) == pytest.approx(0, abs=1e-6)
-    assert float(blunting_penalty(_blur(floor), x, tau)) > 0.05
+    assert float(blunting_penalty(floor, x, band)) == pytest.approx(0, abs=1e-6)
+    assert float(blunting_penalty(_blur(floor), x, band)) > 0.05
 
 
-def test_鈍化_hinge_不罰比門檻更銳():
-    """只防「拿變模糊換低下限」。對稱地罰過銳只會多一個無作用卻影響梯度
-    尺度的項。"""
+def test_過銳也要罰():
+    """單邊版本把最佳化推到反方向：實測衝到銳利度比 2.94，那是加雜訊。"""
     torch.manual_seed(0)
     x = torch.rand(1, 3, 64, 64)
-    tau = acutance(x, _blur(x))["acutance_ratio"]
-    assert float(blunting_penalty(x, x, tau)) == 0.0
+    band = 0.05
+    sharper = (x + 0.3 * torch.randn_like(x)).clamp(0, 1)
+    assert acutance(x, sharper)["acutance_ratio"] > 1.0 + band
+    assert float(blunting_penalty(sharper, x, band)) > 0.0
+
+
+def test_可行性判準與_hinge_用同一個帶():
+    """兩者分岔正是本專案反覆抓到的缺陷型態，故要釘住。"""
+    band = 0.05
+    ok = acutance_feasible(band)
+    assert ok({"acutance_ratio": 1.0 - band}) is True
+    assert ok({"acutance_ratio": 1.0 + band}) is True
+    assert ok({"acutance_ratio": 1.0 + 2 * band}) is False
 
 
 def test_鈍化_hinge_可關閉且不影響其餘兩項():

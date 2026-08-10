@@ -68,10 +68,13 @@ def build_parser() -> argparse.ArgumentParser:
     ap.add_argument("--a2-lr", type=float, default=2e-3)
     ap.add_argument("--w-pixel", type=float, default=0.5,
                     help="重建損失裡逐像素項的權重。感知項固定為 1")
-    ap.add_argument("--gamma-acut", type=float, default=2.0,
-                    help="鈍化 hinge 的係數，門檻取該影像舊下限的銳利度比。"
-                         "0 為關閉——關掉時 A1 會拿變鈍換下限"
-                         "（實測銳利度比 0.9935 → 0.7887）")
+    ap.add_argument("--gamma-acut", type=float, default=1.0,
+                    help="銳利度 hinge 的係數。0 為關閉——關掉時 A1 會拿變鈍"
+                         "換下限（實測銳利度比 0.9935 → 0.7887）。"
+                         "本腳本無論如何都會另跑一欄 γ=0 作為對照")
+    ap.add_argument("--acut-band", type=float, default=0.05,
+                    help="銳利度帶的半寬 |1−銳利度比| 的容差。實際使用的帶是"
+                         "它與該影像舊下限自身偏差取大者（`recon.acutance_band`）")
     ap.add_argument("--floor-ratio", type=float, default=0.50,
                     help="A2 的硬停止目標，取該影像舊下限的這個比例。"
                          "預設 0.50 即先驗紀錄的 A1+A2 落點（0.1434 → 0.0716）。"
@@ -141,16 +144,27 @@ def measure(args, rest) -> Path:
               flush=True)
 
         # ---- 2. A1 ----
-        # 鈍化 hinge 的門檻取這張圖自己的舊下限：判準是「不可以比 VAE 自己
-        # 造成的更鈍」（`optimize.recon_floor_thresholds` 同一條線）。
-        tau_acut = m_vae["acutance_ratio"]
+        # 銳利度帶由這張圖自己的舊下限解出：判準是「不可以比 VAE 自己造成的
+        # 更差」（`optimize.recon_floor_thresholds` 同一條線）。
+        band = recon.acutance_band(m_vae["acutance_ratio"], args.acut_band)
         target = args.floor_ratio * m_vae["lpips"]
         print(f"[{image_id}] A2 目標 lpips≤{target:.4f}  "
-              f"鈍化門檻 tau_acut={tau_acut:.4f}", flush=True)
+              f"銳利度帶 |1−r|≤{band:.4f}", flush=True)
+
+        # 無約束的 A1 是對照欄，不是備援：它把「壓下限有多少是拿變鈍換來的」
+        # 直接放在同一頁上讓人眼判，而那是本專案的主判準（DESIGN §1.1）。
+        z0s, h0, s0 = recon.align_latent(
+            res.sd, x, res.suite.lpips_module, pair,
+            steps=args.a1_steps, lr=args.a1_lr, w_pixel=args.w_pixel,
+            gamma_acut=0.0, log_every=args.log_every)
+        with torch.no_grad():
+            y0 = res.sd.decode_latent(z0s)
+        m0 = pair(y0)
+
         z1, h1, s1 = recon.align_latent(
             res.sd, x, res.suite.lpips_module, pair,
             steps=args.a1_steps, lr=args.a1_lr, w_pixel=args.w_pixel,
-            gamma_acut=args.gamma_acut, tau_acut=tau_acut,
+            gamma_acut=args.gamma_acut, band=band,
             log_every=args.log_every)
         with torch.no_grad():
             y1 = res.sd.decode_latent(z1)
@@ -165,7 +179,7 @@ def measure(args, rest) -> Path:
                 res.sd, x, z1, params, res.suite.lpips_module, pair,
                 steps=args.a2_steps, lr=args.a2_lr, target=target,
                 w_pixel=args.w_pixel, gamma_acut=args.gamma_acut,
-                tau_acut=tau_acut, log_every=max(1, args.log_every // 2))
+                band=band, log_every=max(1, args.log_every // 2))
             with torch.no_grad():
                 y2 = res.sd.decode_latent(z1)
             m2 = pair(y2)
@@ -183,30 +197,34 @@ def measure(args, rest) -> Path:
 
         # ---- 4. 落盤 ----
         save = {
-            "orig": x, "floor": y_path, "a1": y1, "a2": y2,
-            "floor_diff": diff_map(y_path, x), "a1_diff": diff_map(y1, x),
-            "a2_diff": diff_map(y2, x),
+            "orig": x, "floor": y_path, "free": y0, "a1": y1, "a2": y2,
+            "floor_diff": diff_map(y_path, x), "free_diff": diff_map(y0, x),
+            "a1_diff": diff_map(y1, x), "a2_diff": diff_map(y2, x),
         }
         for name, img in save.items():
             executors.save_image(img, out / f"{image_id}__{name}.png")
 
         row = {"image_id": image_id, "target_lpips": round(target, 4),
-               "tau_acut": round(tau_acut, 4), "gamma_acut": args.gamma_acut,
+               "band": round(band, 4), "gamma_acut": args.gamma_acut,
                "a2_reached": s2["reached"], "a2_stop_step": s2["stop_step"],
                "a1_best_step": s1["best_step"],
+               "free_best_step": s0["best_step"],
                "path_minus_vae_lpips": round(m_path["lpips"] - m_vae["lpips"], 6),
                "resp_a1_dists": round(resp1["dists"], 4),
                "resp_a2_dists": round(resp2["dists"], 4),
                "resp_ratio": round(resp2["dists"] / resp1["dists"], 4),
                "n_tunable": n_tunable}
-        for stage, m in (("floor", m_path), ("a1", m1), ("a2", m2)):
+        for stage, m in (("floor", m_path), ("free", m0), ("a1", m1),
+                         ("a2", m2)):
             row.update({f"{stage}_{k}": round(m[k], 4) for k in KEYS})
         rows.append(row)
-        detail[image_id] = {"a1": {"history": h1, "summary": s1},
+        detail[image_id] = {"free": {"history": h0, "summary": s0},
+                            "a1": {"history": h1, "summary": s1},
                             "a2": {"history": h2, "summary": s2},
                             "vae_floor": m_vae, "path_floor": m_path,
                             "resp_a1": resp1, "resp_a2": resp2}
-        print(f"[{image_id}] A1 {fmt(m1)}\n[{image_id}] A2 {fmt(m2)}\n"
+        print(f"[{image_id}] A1 無約束 {fmt(m0)}\n"
+              f"[{image_id}] A1 {fmt(m1)}\n[{image_id}] A2 {fmt(m2)}\n"
               f"[{image_id}] latent 反應 DISTS {resp1['dists']:.4f} → "
               f"{resp2['dists']:.4f}（比 {row['resp_ratio']:.3f}）", flush=True)
 
@@ -260,8 +278,10 @@ def render(sections, page: Path) -> Path:
          "<meta charset='utf-8'>", f"<style>{CSS}</style>",
          "<h1>A 段：φ=0 重建下限（DEC-016）</h1>",
          "<p class=hint>第 2 欄是<strong>現行</strong>生成路徑在 φ=0 時的輸出，"
-         "即整條失真預算軸的原點。第 3 欄只換了起點的 latent（A1），第 4 欄"
-         "再加上逐圖微調的解碼器（A2）。每張防禦圖下方是它與原圖的差分（×6）"
+         "即整條失真預算軸的原點。第 3、4 欄都只換了起點的 latent（A1），"
+         "差別在於第 3 欄不設銳利度約束、第 4 欄設；把兩者並排是因為"
+         "<strong>壓下限有一部分可以拿變鈍換</strong>，而那要人眼判。"
+         "第 5 欄再加上逐圖微調的解碼器（A2）。每張圖下方是它與原圖的差分（×6）"
          "——非加性的失真在原圖上常看不出來，型態要在差分圖上看。"
          "四項指標中 LPIPS 與 DISTS 愈小愈好、PSNR 愈大愈好、"
          "銳利度比愈接近 1 愈好。</p>"]
@@ -271,7 +291,8 @@ def render(sections, page: Path) -> Path:
         h.append(f"<h2>{label}</h2>")
         h.append("<table><tr><th>影像</th><th>原圖</th>"
                  "<th>舊下限<br><span class=m>現行路徑</span></th>"
-                 "<th>A1<br><span class=m>latent 對齊</span></th>"
+                 "<th>A1 無約束<br><span class=m>只壓 LPIPS</span></th>"
+                 "<th>A1<br><span class=m>latent 對齊＋銳利度帶</span></th>"
                  "<th>A1+A2<br><span class=m>再加解碼器微調</span></th>"
                  "<th>相對舊下限</th></tr>")
         for r in rows:
@@ -280,17 +301,21 @@ def render(sections, page: Path) -> Path:
             h.append(f"<tr><td>{img}</td>")
             h.append(f"<td><img src='{b64(d / f'{img}__orig.png')}'></td>")
             h.append(cell(d, img, "floor", g("floor"), "floor_diff"))
+            h.append(cell(d, img, "free", g("free"), "free_diff"))
             h.append(cell(d, img, "a1", g("a1"), "a1_diff"))
             h.append(cell(d, img, "a2", g("a2"), "a2_diff"))
-            f0, f1, f2 = (float(r["floor_lpips"]), float(r["a1_lpips"]),
-                          float(r["a2_lpips"]))
+            f0 = float(r["floor_lpips"])
+            rel = "".join(
+                f"{name} {100 * (float(r[k]) - f0) / f0:+.1f}%<br>"
+                for name, k in (("無約束", "free_lpips"), ("A1", "a1_lpips"),
+                                ("A1+A2", "a2_lpips")))
             ok = "good" if r["a2_reached"] in ("True", True) else "bad"
             h.append(
-                f"<td class=m>LPIPS<br>A1 {100 * (f1 - f0) / f0:+.1f}%<br>"
-                f"A1+A2 {100 * (f2 - f0) / f0:+.1f}%<br><br>"
+                f"<td class=m>LPIPS<br>{rel}<br>"
                 f"<span class={ok}>A2 目標 {r['target_lpips']}<br>"
                 f"{'達到' if ok == 'good' else '未達'}於第 "
                 f"{r['a2_stop_step']} 步</span><br><br>"
+                f"銳利度帶 ±{r['band']}<br><br>"
                 f"latent 反應<br>DISTS {r['resp_a1_dists']} → "
                 f"{r['resp_a2_dists']}<br>比 {r['resp_ratio']}</td>")
             h.append("</tr>")

@@ -299,71 +299,49 @@ def test_外接矩形是實心的(sd9, x01):
 # guard_k=1；保護帶本身以合成張量單獨驗（見下方兩條）。
 
 
-def test_遮罩內的格點不計入式5():
-    """核心不變量。用合成張量驗，不賭任何模型的注意力落在哪裡。
+def test_遮罩外比例只是診斷不改變M():
+    """DEC-014：式 (5) 對整個 M 取，這個量不得改動任何計算。
 
-    M 是左上 4×4，攻擊方的遮罩蓋住其中右半。式 (5) 只該算剩下的左半。
+    曾經改動過（DEC-012 只算遮罩外的 M），後果是把全部失真預算擠到 c_a
+    所在之處，主體被打爛而背景乾淨。此處釘住它現在只回報比例。
     """
-    from src.models.attention import restrict_outside_mask
+    from src.models.attention import outside_mask_fraction
 
     M = torch.zeros(1, 1, 8, 8)
     M[..., 0:4, 0:4] = 1.0                   # 16 格
     edit = torch.zeros(1, 1, 64, 64)
     edit[..., 0:32, 16:32] = 1.0             # 對到 8×8 的 (0:4, 2:4)，8 格
-    out, kept = restrict_outside_mask(M, edit, where="test")
-    assert float(out.sum()) == 8.0
-    assert kept == pytest.approx(0.5)
-    # 被排除的那 8 格確實是遮罩內的那一半
-    assert float(out[..., 0:4, 0:2].sum()) == 8.0
-    assert float(out[..., 0:4, 2:4].sum()) == 0.0
+    before = M.clone()
+    frac = outside_mask_fraction(M, edit)
+    assert frac == pytest.approx(0.5)
+    assert torch.equal(M, before), "M 不可被就地改動"
 
 
-def test_遮罩與M完全不相交時M原樣保留():
-    from src.models.attention import restrict_outside_mask
+def test_遮罩外比例以max_pool保守估計():
+    """一個像素落進某格就算該格在遮罩內——會低估「活得下來」的比例。
 
-    M = torch.zeros(1, 1, 8, 8)
-    M[..., 0:3, 0:3] = 1.0
-    edit = torch.zeros(1, 1, 64, 64)
-    edit[..., 48:64, 48:64] = 1.0            # 對到 (6:8, 6:8)
-    out, kept = restrict_outside_mask(M, edit, where="test")
-    assert kept == 1.0
-    assert torch.equal(out, M)
-
-
-def test_限制以max_pool保守排除():
-    """影像解析度上只要有**一個像素**落進某格，整格就要排除。
-
-    取 mean 或 nearest 會讓那一個像素被平均掉／取樣掉，於是一個實際上會被
-    攻擊方覆寫的格點仍留在損失裡——那不會有症狀，只是白花失真預算。
+    方向是刻意的：寧可把可用的區域report得小，不可report得大。
     """
-    from src.models.attention import restrict_outside_mask
+    from src.models.attention import outside_mask_fraction
 
     M = torch.zeros(1, 1, 8, 8)
     M[..., 4, 4] = 1.0
     M[..., 0, 0] = 1.0
     edit = torch.zeros(1, 1, 64, 64)
     edit[..., 32, 32] = 1.0                  # 8×8 上恰為 (4,4) 這一格
-    out, kept = restrict_outside_mask(M, edit, where="test")
-    assert float(out[..., 4, 4]) == 0.0
-    assert float(out[..., 0, 0]) == 1.0
-    assert kept == pytest.approx(0.5)
+    assert outside_mask_fraction(M, edit) == pytest.approx(0.5)
 
 
-def test_遮罩外幾乎沒有M時拋出():
-    """c_a 的注意力幾乎整片落在會被重畫的區域，該影像沒有可施力的地方。
+def test_式5對整個M取而不是只算遮罩外():
+    """以原始碼掃描釘住 DEC-014：`optimize` 不得再限制 M。"""
+    import inspect
 
-    此時要拋出而不是讓最佳化在幾個格點上空轉——後者跑得完、也寫得出
-    metrics，只是量到的不是防禦。
-    """
-    from src.models.attention import restrict_outside_mask
+    from src.defense import optimize as om
 
-    M = torch.zeros(1, 1, 8, 8)
-    M[..., 0:4, 0:4] = 1.0                   # 16 格
-    edit = torch.zeros(1, 1, 64, 64)
-    edit[..., 0:32, 0:24] = 1.0              # 對到 (0:4, 0:3)，只剩 4 格 = 0.25
-    restrict_outside_mask(M, edit, where="t", min_kept=0.2)      # 0.25 ≥ 0.2
-    with pytest.raises(ValueError, match="低於下限"):
-        restrict_outside_mask(M, edit, where="t", min_kept=0.3)
+    src = inspect.getsource(om._build_attn_step)
+    assert "restrict_outside_mask" not in src, (
+        "式 (5) 應對整個 M 取（DEC-014）；限制版是 DEC-012，已推翻")
+    assert "outside_mask_fraction" in src, "遮罩外比例仍要落盤作為診斷"
 
 
 def test_人工遮罩載入為二值且尺寸對齊(tmp_path):

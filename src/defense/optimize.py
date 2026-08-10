@@ -1229,17 +1229,26 @@ def _build_attn_step(sd, gen, obj, cfg, x01, emb_cond, emb_uncond, purifiers,
         # 這件事，而 PhotoGuard-c 與 PromptFlare 的原始碼把梯度乘 (1 − mask)。
         # site apa 的擾動在 latent 與權重上，經 VAE 解碼後不是逐像素定域的，
         # 無法以同一方式加閘（`shard.sh` 的 ip profile 已載明）；損失可以。
-        n_before = int(mask.sum())
+        # inpainting：**式 (5) 不做任何限制，對整個 M 取**（DEC-014，
+        # 推翻 DEC-012）。攻擊方重畫的是背景、主體不動；防禦擾動加在整張圖，
+        # 落在遮罩內的那部分會被覆寫掉——那是已知的浪費，不去管它。
+        #
+        # before（DEC-012）：損失只算 M 落在遮罩外的格點。論證本身沒錯
+        # （遮罩內的像素在 `mask_latents` 就被歸零），但實測後果是把全部
+        # 失真預算擠到遮罩外——而遮罩外正是 c_a 所在之處，於是「保護那個
+        # 物件」變成「把那個物件畫花」。ip20 段 1 實測：horse_00 的馬整隻
+        # 被打爛成噪塊而背景乾淨，`fid_lpips` 0.3435。使用者 2026-08-10
+        # 裁決回到原文。
+        #
+        # `attn_mask_kept` 仍然量並落盤，但**只作為診斷**：它說的是「這一格
+        # 的損失有多少比例真的能活過攻擊」，是報告裡要交代的事實，不再改變
+        # 任何計算。
         if sd.is_inpainting and cfg.edit_mask is not None:
-            from src.models.attention import restrict_outside_mask
+            from src.models.attention import outside_mask_fraction
 
-            mask, kept = restrict_outside_mask(
-                mask, cfg.edit_mask,
-                where=f"optimize/suppress_attn_ca/{obj.cfg.content}")
-            result.attn_mask_kept = kept
-            print(f"  [suppress] M 落在遮罩外的比例 {kept:.3f}"
-                  f"（{int(mask.sum())}/{n_before} 格點）；遮罩內的格點不計入"
-                  f"式 (5)，它們會被攻擊方整片覆寫", flush=True)
+            result.attn_mask_kept = outside_mask_fraction(mask, cfg.edit_mask)
+            print(f"  [suppress] M 有 {result.attn_mask_kept:.3f} 落在攻擊方"
+                  f"遮罩外（僅診斷，式 (5) 仍對整個 M 取）", flush=True)
         ref_l1 = float(masked_attention_l1(att_ref, mask).detach())
         coverage = float(mask.mean())
         print(f"  [suppress] c_a={obj.cfg.content!r}  遮罩覆蓋 "

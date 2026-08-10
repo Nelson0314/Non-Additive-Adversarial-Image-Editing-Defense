@@ -1145,6 +1145,16 @@ def _train_nonadditive(cell: grid.Cell, res: Resources, out_dir: Path
             "final_lpips": last.get("fid_lpips"),
             "final_edit_shift": last.get("edit_shift"),
         }
+        # `suppress_attn_ca` 專用的三個量。**必須逐格落盤**：
+        # `attn_suppressed` 是「壓下多少」，而它的量級取決於損失實際算在
+        # 多大的區域上——`attn_mask_coverage` 是那塊區域佔格點的比例、
+        # `attn_ref_l1` 是起點值、`attn_mask_kept`（僅 inpainting）是 M 有
+        # 多少比例落在攻擊方遮罩外（DEC-012）。缺了它們，兩張影像之間的
+        # `attn_suppressed` 不可比，而報表上看不出這件事。
+        for k in ("attn_mask_coverage", "attn_ref_l1", "attn_mask_kept"):
+            v = getattr(result, k, None)
+            if v is not None:
+                extra[k] = v
         if hasattr(module, "disp_stats"):
             extra.update(module.disp_stats())
         imgs, gain = _save_train_images(res, entry, x_def, out_dir,

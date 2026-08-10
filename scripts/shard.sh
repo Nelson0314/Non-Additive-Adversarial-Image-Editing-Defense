@@ -481,12 +481,17 @@ esac
 BUDGET=""
 if [ -n "${BUDGET_DELTA:-}" ]; then
   BUDGET="--budget-delta $BUDGET_DELTA"
-  case " $STAGES " in
-    *" train "*)
-      echo "BUDGET_DELTA 不可與 STAGES 中的 train 並用：相對預算軸是評測期的" >&2
-      echo "預算，段 1 必須先以絕對模式跑完。現有 STAGES=\"$STAGES\"" >&2
-      exit 1;;
-  esac
+  # 只有 `fanout` 會依 `STAGES` 逐段執行；`merge`／`watch`／`common` 不看它，
+  # 對它們檢查 `STAGES` 等於拿一個沒有作用的變數擋住合法操作
+  # （2026-08-10：merge 因此被預設的 STAGES 擋掉）。
+  if [ "$MODE" = fanout ]; then
+    case " $STAGES " in
+      *" train "*)
+        echo "BUDGET_DELTA 不可與 STAGES 中的 train 並用：相對預算軸是評測期的" >&2
+        echo "預算，段 1 必須先以絕對模式跑完。現有 STAGES=\"$STAGES\"" >&2
+        exit 1;;
+    esac
+  fi
 fi
 
 # 只跑 profile 條件清單的一個子集，以及強制重跑。兩者都**追加在 COMMON 末端**

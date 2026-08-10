@@ -113,6 +113,10 @@ def main() -> None:
         rows.append({"image_id": image_id, "tau": 0.0, "reachable": True,
                      "k": 0.0, "lpips": round(m0["lpips"], 4),
                      "psnr": round(m0["psnr"], 2),
+                     "acut": round(m0.get("acutance_ratio", float("nan")), 4),
+                     "dists": round(m0["dists"], 4),
+                     "achieved": round(m0[args.metric], 4),
+                     "metric": args.metric,
                      "note": "φ=0，即 VAE 重建下限"})
 
         for tau in args.taus:
@@ -142,7 +146,8 @@ def main() -> None:
             executors.save_image(diff_map(x_def, entry.x01),
                                  out_dir / f"{image_id}__tau{tau:g}_diff.png")
             rows.append({"image_id": image_id, "tau": tau, "reachable": True,
-                         "k": round(k, 4), "lpips": round(got, 4),
+                         "k": round(k, 4), "lpips": round(m["lpips"], 4),
+                         "achieved": round(got, 4),
                          "psnr": round(m["psnr"], 2),
                          "acut": round(m.get("acutance_ratio", float("nan")), 4),
                          "dists": round(m["dists"], 4),

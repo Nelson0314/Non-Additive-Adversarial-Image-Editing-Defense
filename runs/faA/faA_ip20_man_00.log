@@ -1,0 +1,72 @@
+[launch] profile=ip20 gpu=5 out=/nfs/home/nelson0314/wacv_runs/faA_ip20_man_00 images=man_00
+[env] 載入 SDInpaintWrapper(runwayml/stable-diffusion-inpainting) dtype=torch.float32
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00, 17.67it/s]An error occurred while trying to fetch /var/cache/huggingface/hub/models--runwayml--stable-diffusion-inpainting/snapshots/8a4288a76071f7280aedbdb3253bdb9e9d5d84bb/unet: Error no file named diffusion_pytorch_model.safetensors found in directory /var/cache/huggingface/hub/models--runwayml--stable-diffusion-inpainting/snapshots/8a4288a76071f7280aedbdb3253bdb9e9d5d84bb/unet.
+Defaulting to unsafe serialization. Pass `allow_pickle=False` to raise an error instead.
+Loading pipeline components...:  67%|██████▋   | 4/6 [00:00<00:00, 14.10it/s]An error occurred while trying to fetch /var/cache/huggingface/hub/models--runwayml--stable-diffusion-inpainting/snapshots/8a4288a76071f7280aedbdb3253bdb9e9d5d84bb/vae: Error no file named diffusion_pytorch_model.safetensors found in directory /var/cache/huggingface/hub/models--runwayml--stable-diffusion-inpainting/snapshots/8a4288a76071f7280aedbdb3253bdb9e9d5d84bb/vae.
+Defaulting to unsafe serialization. Pass `allow_pickle=False` to raise an error instead.
+
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 19365.47it/s]
+Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00,  6.20it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00,  7.38it/s]
+There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+[env] 影像 1 張：['man_00']
+  [mask] man_00 c_a='man'（須在遮罩外） 涵蓋率=0.501  ← data/lo_masks/man_00.png
+[A2] 可微調參數 95 組共 35715 個（解碼器全參數 49490179）
+[man_00] 舊下限 VAE 來回 LPIPS 0.0851  DISTS 0.0234  PSNR 33.82 dB  銳利度比 0.9560
+[man_00] 舊下限 生成路徑 LPIPS 0.0851  DISTS 0.0234  PSNR 33.82 dB  銳利度比 0.9560  兩者 LPIPS 差 3.73e-08
+[man_00] A2 目標 lpips≤0.0425  銳利度帶 |1−r|≤0.0500
+  [A1] step    0  loss=0.09144  lpips=0.0851  dists=0.0234  psnr=33.8247  acutance_ratio=0.9560
+  [A1] step   20  loss=0.05449  lpips=0.0494  dists=0.0195  psnr=34.6570  acutance_ratio=0.9224
+  [A1] step   40  loss=0.04984  lpips=0.0451  dists=0.0163  psnr=35.1035  acutance_ratio=0.8989
+  [A1] step   60  loss=0.04823  lpips=0.0435  dists=0.0169  psnr=35.2726  acutance_ratio=0.8876
+  [A1] step   80  loss=0.04748  lpips=0.0428  dists=0.0173  psnr=35.3455  acutance_ratio=0.8828
+  [A1] step  100  loss=0.04706  lpips=0.0424  dists=0.0174  psnr=35.3887  acutance_ratio=0.8777
+  [A1] step  120  loss=0.04677  lpips=0.0421  dists=0.0177  psnr=35.4216  acutance_ratio=0.8782
+  [A1] step  140  loss=0.04654  lpips=0.0419  dists=0.0176  psnr=35.4461  acutance_ratio=0.8769
+  [A1] step  160  loss=0.04638  lpips=0.0418  dists=0.0178  psnr=35.4625  acutance_ratio=0.8772
+  [A1] step  180  loss=0.04627  lpips=0.0416  dists=0.0181  psnr=35.4666  acutance_ratio=0.8780
+  [A1] step  200  loss=0.04619  lpips=0.0416  dists=0.0184  psnr=35.4762  acutance_ratio=0.8780
+  [A1] step    0  loss=0.09144  lpips=0.0851  dists=0.0234  psnr=33.8247  acutance_ratio=0.9560
+  [A1] step   20  loss=0.10311  lpips=0.0523  dists=0.0205  psnr=34.4655  acutance_ratio=0.9044  [不可行]
+  [A1] step   40  loss=0.05528  lpips=0.0501  dists=0.0215  psnr=34.3249  acutance_ratio=0.9691
+  [A1] step   60  loss=0.05221  lpips=0.0472  dists=0.0195  psnr=34.4909  acutance_ratio=0.9791
+  [A1] step   80  loss=0.05089  lpips=0.0459  dists=0.0189  psnr=34.6439  acutance_ratio=0.9764
+  [A1] step  100  loss=0.05015  lpips=0.0453  dists=0.0190  psnr=34.7442  acutance_ratio=0.9694
+  [A1] step  120  loss=0.04965  lpips=0.0448  dists=0.0187  psnr=34.8198  acutance_ratio=0.9625
+  [A1] step  140  loss=0.04928  lpips=0.0444  dists=0.0186  psnr=34.8767  acutance_ratio=0.9564
+  [A1] step  160  loss=0.04899  lpips=0.0442  dists=0.0184  psnr=34.9250  acutance_ratio=0.9507
+  [A1] step  180  loss=0.05219  lpips=0.0472  dists=0.0201  psnr=34.7087  acutance_ratio=0.9525
+  [A1] step  200  loss=0.04992  lpips=0.0450  dists=0.0195  psnr=34.6915  acutance_ratio=0.9989
+  [A2] step    0  loss=0.04899  lpips=0.0442  dists=0.0184  psnr=34.9250  acutance_ratio=0.9507
+  [A2] step   10  loss=0.04920  lpips=0.0443  dists=0.0193  psnr=34.9441  acutance_ratio=0.9573
+  [A2] step   20  loss=0.04867  lpips=0.0439  dists=0.0191  psnr=34.8891  acutance_ratio=0.9904
+  [A2] step   30  loss=0.05669  lpips=0.0443  dists=0.0193  psnr=34.6570  acutance_ratio=1.0574  [不可行]
+  [A2] step   40  loss=0.04864  lpips=0.0438  dists=0.0191  psnr=34.8155  acutance_ratio=1.0176
+  [A2] step   50  loss=0.04852  lpips=0.0437  dists=0.0193  psnr=34.9854  acutance_ratio=0.9615
+  [A2] step   60  loss=0.04857  lpips=0.0437  dists=0.0190  psnr=34.8109  acutance_ratio=1.0233
+  [A2] step   70  loss=0.04844  lpips=0.0436  dists=0.0193  psnr=34.8120  acutance_ratio=1.0260
+  [A2] step   80  loss=0.04828  lpips=0.0435  dists=0.0192  psnr=34.8730  acutance_ratio=1.0115
+  [A2] step   90  loss=0.04816  lpips=0.0434  dists=0.0188  psnr=34.9204  acutance_ratio=0.9975
+  [A2] step  100  loss=0.04807  lpips=0.0433  dists=0.0186  psnr=34.9654  acutance_ratio=0.9856
+  [A2] step  110  loss=0.04799  lpips=0.0432  dists=0.0185  psnr=34.9944  acutance_ratio=0.9773
+  [A2] step  120  loss=0.04793  lpips=0.0432  dists=0.0184  psnr=35.0143  acutance_ratio=0.9719
+  [A2] step  130  loss=0.04787  lpips=0.0431  dists=0.0184  psnr=35.0312  acutance_ratio=0.9675
+  [A2] step  140  loss=0.04782  lpips=0.0431  dists=0.0183  psnr=35.0445  acutance_ratio=0.9641
+  [A2] step  150  loss=0.04776  lpips=0.0430  dists=0.0183  psnr=35.0563  acutance_ratio=0.9614
+  [A2] step  160  loss=0.04771  lpips=0.0430  dists=0.0183  psnr=35.0670  acutance_ratio=0.9592
+  [A2] step  170  loss=0.04767  lpips=0.0430  dists=0.0182  psnr=35.0768  acutance_ratio=0.9573
+  [A2] step  180  loss=0.04762  lpips=0.0429  dists=0.0182  psnr=35.0861  acutance_ratio=0.9556
+  [A2] step  190  loss=0.04757  lpips=0.0429  dists=0.0182  psnr=35.0947  acutance_ratio=0.9542
+  [A2] step  200  loss=0.04753  lpips=0.0428  dists=0.0182  psnr=35.1028  acutance_ratio=0.9529
+[man_00] **A2 未達目標** lpips≤0.0425，最佳 0.0428（第 200 步）。如實記錄，該值即為此參數組在本圖上的容量上限
+[man_00] A1 無約束 LPIPS 0.0416  DISTS 0.0184  PSNR 35.48 dB  銳利度比 0.8780
+[man_00] A1 LPIPS 0.0442  DISTS 0.0184  PSNR 34.93 dB  銳利度比 0.9507
+[man_00] A2 LPIPS 0.0428  DISTS 0.0182  PSNR 35.10 dB  銳利度比 0.9529
+[man_00] latent 反應 DISTS 0.0129 → 0.0127（比 0.984）
+
+表：/nfs/home/nelson0314/wacv_runs/faA_ip20_man_00/floor_ab.csv
+比對頁：/nfs/home/nelson0314/wacv_runs/faA_ip20_man_00/compare.html

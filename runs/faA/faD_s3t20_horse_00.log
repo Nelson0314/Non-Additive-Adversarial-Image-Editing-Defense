@@ -1,0 +1,49 @@
+[launch] profile=s3t20 gpu=5 out=/nfs/home/nelson0314/wacv_runs/faD_s3t20_horse_00 images=horse_00
+[env] 載入 SDWrapper(CompVis/stable-diffusion-v1-4) dtype=torch.float32
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  50%|█████     | 3/6 [00:00<00:00, 20.15it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3134.77it/s]
+Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 12.33it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 13.09it/s]
+There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+[env] 影像 1 張：['horse_00']
+[目標] dists（感知項與停止判準）  w_pixel=0.15
+[A2] 可微調參數 95 組共 35715 個（解碼器全參數 49490179）
+[horse_00] 舊下限 VAE 來回 LPIPS 0.1283  DISTS 0.0495  PSNR 26.88 dB  銳利度比 0.9935
+[horse_00] 舊下限 生成路徑 LPIPS 0.1283  DISTS 0.0495  PSNR 26.88 dB  銳利度比 0.9935  兩者 LPIPS 差 0.00e+00
+[horse_00] A2 目標 dists≤0.0247  銳利度帶 |1−r|≤0.0500
+  [A1] step    0  loss=0.05371  lpips=0.1283  dists=0.0495  psnr=26.8786  acutance_ratio=0.9935
+  [A1] step   20  loss=0.01481  lpips=0.1836  dists=0.0102  psnr=26.4816  acutance_ratio=1.0184
+  [A1] step   40  loss=0.01021  lpips=0.1790  dists=0.0058  psnr=26.6700  acutance_ratio=0.9397
+  [A1] step   60  loss=0.01027  lpips=0.1732  dists=0.0060  psnr=26.9047  acutance_ratio=0.8859
+  [A1] step   80  loss=0.01050  lpips=0.1696  dists=0.0063  psnr=27.0484  acutance_ratio=0.8658
+  [A1] step  100  loss=0.00892  lpips=0.1692  dists=0.0048  psnr=27.1382  acutance_ratio=0.8546
+  [A1] step  120  loss=0.00874  lpips=0.1676  dists=0.0047  psnr=27.2510  acutance_ratio=0.8469
+  [A1] step  140  loss=0.00921  lpips=0.1656  dists=0.0052  psnr=27.3378  acutance_ratio=0.8427
+  [A1] step  160  loss=0.00855  lpips=0.1701  dists=0.0046  psnr=27.3525  acutance_ratio=0.8362
+  [A1] step  180  loss=0.00743  lpips=0.1696  dists=0.0035  psnr=27.4052  acutance_ratio=0.8307
+  [A1] step  200  loss=0.00984  lpips=0.1786  dists=0.0058  psnr=27.4545  acutance_ratio=0.8278
+  [A1] step    0  loss=0.05371  lpips=0.1283  dists=0.0495  psnr=26.8786  acutance_ratio=0.9935
+  [A1] step   20  loss=0.01697  lpips=0.1842  dists=0.0124  psnr=26.4822  acutance_ratio=1.0167
+  [A1] step   40  loss=0.01264  lpips=0.1842  dists=0.0081  psnr=26.5052  acutance_ratio=1.0344
+  [A1] step   60  loss=0.00966  lpips=0.1818  dists=0.0052  psnr=26.6044  acutance_ratio=1.0072
+  [A1] step   80  loss=0.01471  lpips=0.1785  dists=0.0065  psnr=26.7516  acutance_ratio=0.9461  [不可行]
+  [A1] step  100  loss=0.03323  lpips=0.1761  dists=0.0060  psnr=26.8174  acutance_ratio=0.9270  [不可行]
+  [A1] step  120  loss=0.00927  lpips=0.1779  dists=0.0050  psnr=26.7129  acutance_ratio=0.9922
+  [A1] step  140  loss=0.00834  lpips=0.1793  dists=0.0041  psnr=26.6502  acutance_ratio=1.0497
+  [A1] step  160  loss=0.01115  lpips=0.1745  dists=0.0039  psnr=26.8590  acutance_ratio=0.9470  [不可行]
+  [A1] step  180  loss=0.00875  lpips=0.1760  dists=0.0045  psnr=26.7457  acutance_ratio=1.0283
+  [A1] step  200  loss=0.00747  lpips=0.1743  dists=0.0033  psnr=26.8058  acutance_ratio=1.0209
+  [A2] step    0  loss=0.00747  lpips=0.1743  dists=0.0033  psnr=26.8058  acutance_ratio=1.0209
+  [A2] 第 0 步達到目標 dists≤0.0247（0.0033），停止
+[horse_00] A1 無約束 LPIPS 0.1696  DISTS 0.0035  PSNR 27.41 dB  銳利度比 0.8307
+[horse_00] A1 LPIPS 0.1743  DISTS 0.0033  PSNR 26.81 dB  銳利度比 1.0209
+[horse_00] A2 LPIPS 0.1743  DISTS 0.0033  PSNR 26.81 dB  銳利度比 1.0209
+[horse_00] latent 反應 DISTS 0.0094 → 0.0094（比 1.000）
+
+表：/nfs/home/nelson0314/wacv_runs/faD_s3t20_horse_00/floor_ab.csv
+比對頁：/nfs/home/nelson0314/wacv_runs/faD_s3t20_horse_00/compare.html

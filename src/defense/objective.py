@@ -395,7 +395,7 @@ class DefenseObjective:
 
     1. **一致性。** `lpips_rel` 是綁定的保真約束，而段 2 的射線縮放解的是
        **同一個 τ**——後者走 `MetricSuite`，輸入是 fp32 的影像張量
-       （`ray_scale.lpips_against`）。兩者若在不同精度上算，訓練期滿足的 τ
+       （`ray_scale.metric_against`）。兩者若在不同精度上算，訓練期滿足的 τ
        與對齊期解出的 τ 就是兩個不同的量，而「匹配失真」是全案最關鍵的
        前提（`RUNBOOK` §0.5），該前提已被證偽四次。
 
@@ -433,7 +433,7 @@ class DefenseObjective:
 
         2. **一致性，這一項更重要。** `lpips_rel` 是綁定的保真約束，而段 2
            的射線縮放解的是同一個 τ——後者走 `MetricSuite` 的 LPIPS，輸入是
-           fp32 的影像張量（`ray_scale.lpips_against`）。兩者若在不同精度上
+           fp32 的影像張量（`ray_scale.metric_against`）。兩者若在不同精度上
            算，訓練期滿足的 τ 與對齊期解出的 τ 就是兩個不同的量，而「匹配
            失真」是全案最關鍵的前提（`RUNBOOK` §0.5，該前提已被證偽四次）。
 

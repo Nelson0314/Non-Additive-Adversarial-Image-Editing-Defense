@@ -73,7 +73,7 @@ from src.experiment.attention_page import build_attention_html
 from src.experiment.attn_capture import AttnCapture, capture_span, sampled_steps
 from src.experiment.compare_page import build_compare_html
 from src.experiment.runner import cell_config
-from src.metrics.ray_scale import lpips_against, solve_k
+from src.metrics.ray_scale import metric_against, solve_k
 from src.purify.ops import Purifier, default_train_set
 from src.residual.site_apa import APA_STAGE1_STEPS, build_apa
 from src.residual.site_warp import WarpResidual
@@ -1397,10 +1397,19 @@ def rayscale_executor(cell: grid.Cell, ctx: Dict[str, Any]
     tau = float(cell.tau)
     tag = f"tau{tau:g}"
 
-    lpips_fn = lpips_against(res.suite, entry.x01)
+    plan = res.cfg.tau_plan
+    build = lambda kk: materialize(payload, res, entry, kk)  # noqa: E731
+    metric_fn = metric_against(res.suite, entry.x01, plan.metric)
+
+    # 相對預算軸（`grid.budget_tau_plan`）：原點是這一格自己的 `build(0)`，
+    # 不是原圖。加性位置的 `build(0)` 就是原圖，故 floor≈0，同一條規則不必
+    # 分兩種寫法；生成路徑的 floor 是它的 VAE 來回下限，減掉之後兩類位置
+    # 比的是**同一份可見的增量**。
+    floor = metric_fn(build(0.0)) if plan.relative else 0.0
+    target = tau + floor
+
     t0 = time.perf_counter()
-    x_tau, got, k = solve_k(
-        lpips_fn, lambda kk: materialize(payload, res, entry, kk), tau)
+    x_tau, got, k = solve_k(metric_fn, build, target)
     seconds = time.perf_counter() - t0
 
     out = scaled_payload(payload, res, k)
@@ -1410,7 +1419,10 @@ def rayscale_executor(cell: grid.Cell, ctx: Dict[str, Any]
 
     fid = res.suite.pairwise(entry.x01, x_tau)
     row = {"condition": cell.condition, "image_id": cell.image_id,
-           "tau_target": tau, "tau_achieved": got, "scale_k": k,
+           "tau_target": tau, "tau_achieved": got - floor, "scale_k": k,
+           "budget_metric": plan.metric, "budget_relative": plan.relative,
+           "budget_floor": round(floor, 6), "budget_target_abs": target,
+           "budget_achieved_abs": got,
            "niqe": res.suite.niqe(x_tau),
            **{f"fid_{kk}": v for kk, v in fid.items()}}
     if payload["parameterization"] == "warp":

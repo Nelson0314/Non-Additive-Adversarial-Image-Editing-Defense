@@ -194,6 +194,11 @@ def main(argv=None) -> int:
     ap.add_argument("--tau", type=float, default=0.20,
                     help="主表所在的失真預算（grid.MAIN_TAU）")
     ap.add_argument("--json-out", type=Path, default=None)
+    ap.add_argument("--readout", default=READOUT_DEFAULT,
+                    help="retention 的分子分母取哪一欄。預設 "
+                         f"{READOUT_DEFAULT}（DEC-006 的主判準）；`grid.csv` "
+                         "裡現成的 retention 用的是 effect_siglip，"
+                         "實測 65 組只有 1 組過得了 3σ 閘門")
     args = ap.parse_args(argv)
 
     rows: List[Dict[str, str]] = []
@@ -201,17 +206,21 @@ def main(argv=None) -> int:
         rows += load_rows(b)
     print(f"讀入 {len(rows)} 列，來自 {len(args.batches)} 個批次\n")
 
+    n_ok = recompute_retention(rows, args.readout)
+    print(f"以 {args.readout} 重算 retention：{n_ok} 列通過 3σ 閘門\n")
+
     data = collect(rows, args.tau)
     if not data:
         # 靜默印一張空表等於讓「還沒有資料」看起來像「沒有優勢」
         raise SystemExit(
             f"τ={args.tau} 上沒有任何 retention_usable 的列。可能是段 3 還沒"
-            "跑完，或 identity 那一格的效果都在雜訊裡（見 _fill_retention）")
+            f"跑完，或 identity 那一格的 {args.readout} 都在雜訊裡"
+            "（3σ 閘門，見 recompute_retention）")
     means = summarize(data)
 
     conds = sorted({k[0] for k in means})
     ops = sorted({(k[1], k[2]) for k in means})
-    print(f"τ = {args.tau}   條件 {conds}")
+    print(f"τ = {args.tau}   讀出量 {args.readout}   條件 {conds}")
     print(f"{'淨化算子':<26}" + "".join(f"{c:>14}" for c in conds))
     for op, s in ops:
         label = f"{op}" + (f" {s:g}" if s else "")
@@ -238,7 +247,8 @@ def main(argv=None) -> int:
 
     if args.json_out:
         args.json_out.write_text(
-            json.dumps({"tau": args.tau, "verdicts": verdicts,
+            json.dumps({"tau": args.tau, "readout": args.readout,
+                        "verdicts": verdicts,
                         "means": {f"{c}|{o}|{s}": m
                                   for (c, o, s), m in means.items()}},
                        indent=2, ensure_ascii=False), encoding="utf-8")

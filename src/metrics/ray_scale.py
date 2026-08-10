@@ -125,9 +125,17 @@ def gaussian_control(
     return scale_to_lpips(lpips_fn, x01, noise, target, **kw)
 
 
-def lpips_against(suite, x01: torch.Tensor) -> Callable[[torch.Tensor], float]:
-    """把 `MetricSuite` 包成本模組要的 `lpips_fn`。"""
+def metric_against(suite, x01: torch.Tensor,
+                   metric: str = "lpips") -> Callable[[torch.Tensor], float]:
+    """把 `MetricSuite` 包成本模組要的 `lpips_fn`，量在 `metric` 上。
+
+    `metric` 是本批的宣告（`grid.TauPlan.metric`），不在此處回退：拿 DISTS
+    當預算軸卻對 LPIPS 二分，得到的表每一列都標錯了單位。
+    """
+    if metric not in ("lpips", "dists"):
+        raise ValueError(f"metric={metric!r} 不是 lpips 或 dists")
+
     def fn(x: torch.Tensor) -> float:
         with torch.no_grad():
-            return float(suite.pairwise(x01, x)["lpips"])
+            return float(suite.pairwise(x01, x)[metric])
     return fn

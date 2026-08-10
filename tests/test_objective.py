@@ -800,7 +800,7 @@ def test_LPIPS的呼叫一律經過_perceptual():
     """釘住呼叫點而不只是能力。
 
     綁定的保真約束 `lpips_rel` 與段 2 射線縮放解的是**同一個 τ**，而後者走
-    `MetricSuite` 的 LPIPS、輸入是 fp32（`ray_scale.lpips_against`）。任何一個
+    `MetricSuite` 的 LPIPS、輸入是 fp32（`ray_scale.metric_against`）。任何一個
     呼叫點繞過 `_perceptual`，訓練期滿足的 τ 與對齊期解出的 τ 就是兩個不同的
     量——而「匹配失真」是全案最關鍵的前提，已被證偽四次。
     """

@@ -510,7 +510,8 @@ def test_遮罩鍵只在inpainting批次出現(tmp_path):
         a = types.SimpleNamespace(
             spec_version=1, model="m", resolution=512, guidance=7.5, steps=50,
             strength=0.6, gpu_tag="g", precision="fp32",
-            masks=None, prompt_index=0,
+            masks=None, prompt_index=0, budget_delta=None,
+            budget_metric="dists",
         )
         for k, v in over.items():
             setattr(a, k, v)
@@ -541,6 +542,7 @@ def test_遮罩鍵只在inpainting批次出現(tmp_path):
         plain = rs.base_config(mk())
         inpaint = rs.base_config(mk(masks=mdir))
         second = rs.base_config(mk(prompt_index=1))
+        budget = rs.base_config(mk(budget_delta=0.04))
     finally:
         rs.run_config = real
 
@@ -557,6 +559,11 @@ def test_遮罩鍵只在inpainting批次出現(tmp_path):
     assert "prompt_index" not in plain
     assert second["prompt_index"] == 1
     assert h(plain) != h(second), "換攻擊 prompt 必須換雜湊"
+    # 預算軸的定義換了，同一個 τ 標籤就不是同一個失真量。
+    assert "budget" not in plain
+    assert budget["budget"] == {"metric": "dists", "delta": 0.04,
+                                "relative": True}
+    assert h(plain) != h(budget), "換預算軸必須換雜湊"
 
 
 # ---------------------------------------------------------------------------

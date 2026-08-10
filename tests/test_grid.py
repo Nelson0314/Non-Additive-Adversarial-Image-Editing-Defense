@@ -472,3 +472,48 @@ def test_條件篩選不影響共用的phi0對照格():
     full = grid.plan(["img_a"], conditions=grid.CONDITIONS)["control"]
     part = grid.plan(["img_a"], conditions=("N2",))["control"]
     assert [c.cell_id() for c in full] == [c.cell_id() for c in part]
+
+
+# --------------------------------------------------------- 相對預算軸（Δ 模式）
+
+
+def test_相對預算軸只有一個點且完整淨化組落在該點():
+    plan = grid.budget_tau_plan(0.04)
+    assert plan.taus == (0.04,)
+    assert plan.main_tau == plan.train_tau == 0.04
+    assert plan.full_purify_taus == (0.04,)
+    assert plan.relative is True
+    assert plan.metric == "dists", "預設指標是 DISTS，見 MET-dists"
+
+
+def test_相對預算軸不因重建下限跳過生成路徑的格():
+    """下限已被減掉，任何正的 Δ 都落在 `build(0)` 之上。
+
+    絕對軸上 τ=0.04 對 apa 是結構上不可達（VAE 來回下限就有 0.14），
+    相對軸上同一個數字是「超出下限 0.04」，兩者不是同一件事。
+    """
+    assert grid.generative_floor_skip("apa", 0.04, floor=0.1581) != ""
+    assert grid.generative_floor_skip("apa", 0.04, floor=0.1581,
+                                      relative=True) == ""
+
+    cells = grid.plan(["horse_00"], conditions=("apa",),
+                      floors={"horse_00": 0.1581},
+                      tau_plan=grid.budget_tau_plan(0.04))
+    assert [c for c in cells["rayscale"] if c.skipped] == []
+    assert [c for c in cells["eval"] if c.skipped] == []
+
+
+def test_相對預算軸的Δ必須為正():
+    with pytest.raises(ValueError, match="delta"):
+        grid.budget_tau_plan(0.0)
+
+
+def test_預算軸的指標只接受lpips與dists():
+    with pytest.raises(ValueError, match="metric"):
+        grid.budget_tau_plan(0.04, "psnr")
+
+
+def test_預設τ計畫是絕對軸且量在lpips上():
+    """新增模式不得改動既有批次的軸。"""
+    assert grid.DEFAULT_TAU_PLAN.relative is False
+    assert grid.DEFAULT_TAU_PLAN.metric == "lpips"

@@ -98,6 +98,12 @@ class FakeSuite:
     二分搜尋要的是**單調且可達**，不是真的 LPIPS。"""
 
     LPIPS_GAIN = 20.0
+    # DISTS 用不同的增益，且**與 LPIPS 不成同一比例**：相對預算軸可以指定
+    # 量在 DISTS 上，若替身讓兩者恆等，「有沒有真的換指標」在測試裡看不出來。
+    DISTS_GAIN = 12.0
+    # `build(0)` 的失真下限。真身的下限來自生成路徑的 VAE 來回；替身沒有
+    # VAE，改由指標本身帶一個常數偏移來模擬，走的是同一段「減掉下限」的算術。
+    DISTS_FLOOR = 0.0
 
     def pairwise(self, a, b):
         d = (a - b).abs()
@@ -105,7 +111,8 @@ class FakeSuite:
             "psnr": 42.0, "linf": float(d.max()), "ssim": 0.9,
             "vif_p": 0.8, "fsim": 0.95,
             "lpips": float(d.mean()) * self.LPIPS_GAIN,
-            "dists": 0.1, "acutance_ratio": 1.0,
+            "dists": self.DISTS_FLOOR + float(d.mean()) * self.DISTS_GAIN,
+            "acutance_ratio": 1.0,
             "rms": float((d ** 2).mean().sqrt()),
             "frac_gt_16_255": float((d > 16 / 255).float().mean()),
         }
@@ -556,6 +563,45 @@ def test_rayscale_落在目標失真上並留下逐τ產物(tmp_path):
     names = {Path(a).name for a in arts}
     assert {"phi_tau0.05.pt", "x_def_tau0.05.png", "residual_tau0.05.png",
             "fidelity_tau0.05.csv", "meta_tau0.05.json"} == names
+
+
+def test_rayscale_相對預算軸把下限減掉後落在增量上(tmp_path):
+    """相對軸上 τ 是「超出 `build(0)` 的量」，不是達成的絕對失真。
+
+    生成路徑的重建下限人眼看不出來（φ=0 的重建圖與原圖無法區分，儘管
+    LPIPS 已 0.128），把它算進預算等於讓加性 baseline 拿到全部可見預算、
+    非加性只拿到餘額。此處用替身的 `DISTS_FLOOR` 模擬那個下限。
+    """
+    res = make_res(tmp_path, tau_plan=grid.budget_tau_plan(0.04, "dists"))
+    res.suite.DISTS_FLOOR = 0.037
+    executors.train_executor(grid.Cell("train", "R", "dog_00"), {"res": res})
+
+    _, extra = executors.rayscale_executor(
+        grid.Cell("rayscale", "R", "dog_00", tau=0.04), {"res": res})
+
+    assert extra["budget_metric"] == "dists"
+    assert extra["budget_relative"] is True
+    assert extra["budget_floor"] == pytest.approx(0.037, abs=1e-6)
+    assert extra["budget_target_abs"] == pytest.approx(0.077, abs=1e-6)
+    assert extra["budget_achieved_abs"] == pytest.approx(0.077, abs=0.005)
+    assert extra["tau_achieved"] == pytest.approx(0.04, abs=0.005), (
+        "tau_achieved 在相對軸上必須是減掉下限之後的增量，"
+        "否則主表的 τ 欄與它宣告的意義不符"
+    )
+
+
+def test_rayscale_絕對軸不減下限也不量在dists上(tmp_path):
+    """預設模式必須逐位不變：相對軸是新增的第二種模式，不是換掉第一種。"""
+    res = make_res(tmp_path)
+    res.suite.DISTS_FLOOR = 0.037
+    executors.train_executor(grid.Cell("train", "R", "dog_00"), {"res": res})
+
+    _, extra = executors.rayscale_executor(
+        grid.Cell("rayscale", "R", "dog_00", tau=0.05), {"res": res})
+
+    assert extra["budget_relative"] is False
+    assert extra["budget_floor"] == 0.0
+    assert extra["fid_lpips"] == pytest.approx(0.05, abs=0.005)
 
 
 def test_rayscale_縮放後的phi可獨立重建出同一張圖(tmp_path):

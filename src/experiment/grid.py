@@ -212,8 +212,20 @@ class TauPlan:
     main_tau: float
     train_tau: float
     full_purify_taus: Tuple[float, ...]
+    # 預算軸量在哪個保真指標上，以及 τ 是絕對值還是相對於該格自己的 φ=0
+    # 下限的增量。**兩者都有預設，故既有批次的 TauPlan 逐欄不變。**
+    #
+    # `relative=True` 的意義見 `budget_tau_plan`：τ 不再是「達成的失真」而是
+    # 「超出重建下限多少」。生成路徑的下限因此被減掉，任何正的 τ 都可達，
+    # `generative_floor_skip` 在該模式下不跳過任何格。
+    metric: str = "lpips"
+    relative: bool = False
 
     def __post_init__(self):
+        if self.metric not in ("lpips", "dists"):
+            raise ValueError(
+                f"metric={self.metric!r} 不是 lpips 或 dists。射線縮放要對"
+                "哪個指標二分是本批的宣告，不接受靜默回退")
         for name in ("main_tau", "train_tau"):
             if getattr(self, name) not in self.taus:
                 raise ValueError(
@@ -238,6 +250,37 @@ DEFAULT_TAU_PLAN = TauPlan(
     taus=TAUS, main_tau=MAIN_TAU, train_tau=TRAIN_TAU,
     full_purify_taus=FULL_PURIFY_TAUS,
 )
+
+
+def budget_tau_plan(delta: float, metric: str = "dists") -> TauPlan:
+    """相對預算軸：τ 是**超出該格自己 φ=0 下限**的增量。
+
+    ## 為什麼要有這個模式
+
+    絕對 LPIPS 軸把兩件性質不同的失真加在一起：生成路徑的 VAE 來回下限，
+    與最佳化真正加上去的那一份。前者實測**看不出來**——`φ=0` 的重建圖與
+    原圖在人眼下無法區分，儘管 LPIPS 已經是 0.128（2026-08-10 逐圖確認）。
+    把兩份綁在同一個門檻上，等於讓加性 baseline 拿到全部預算、非加性只拿到
+    扣掉下限之後的餘額，而扣掉的那一份並不可見。
+
+    相對模式把下限減掉：**每一格都取自己的 `build(0)` 當原點**，加性位置的
+    原點就是原圖（下限 0），故同一條規則對兩類位置都成立，不必特例。
+
+    ## 為什麼指標預設是 DISTS
+
+    LPIPS 是全圖平均，主體只占畫面 15% 時，主體被改寫的代價會被背景稀釋
+    ——實測 LPIPS 給「主體毀掉」的 horse_00 0.179、給人眼可接受的 horse_03
+    0.198，順序是反的（`docs/METRICS.md` MET-dists）。DISTS、NIQE、VIF_p 與
+    銳利度比在同一組樣本上排序正確。
+
+    只給一個 τ 點：相對軸上的低端沒有意義（τ→0 就是重建圖），曲線要補
+    低端仍用絕對模式。
+    """
+    delta = float(delta)
+    if not delta > 0:
+        raise ValueError(f"delta 須為正數，收到 {delta!r}")
+    return TauPlan(taus=(delta,), main_tau=delta, train_tau=delta,
+                   full_purify_taus=(delta,), metric=metric, relative=True)
 
 
 def tau_plan_for(train_tau: Optional[float] = None,
@@ -367,7 +410,8 @@ class Cell:
 
 
 def generative_floor_skip(condition: str, tau: float,
-                          floor: Optional[float] = None) -> str:
+                          floor: Optional[float] = None,
+                          relative: bool = False) -> str:
     """回傳不適用的理由，適用時回傳空字串。
 
     抽成函數而非寫在迴圈裡，是為了讓「為什麼這格沒跑」在報表與測試中
@@ -381,7 +425,14 @@ def generative_floor_skip(condition: str, tau: float,
     `None` 只該出現在乾跑——它要在載入模型之前回答「這次要跑多久」，
     那時沒有任何影像被讀進來。真正執行的路徑由 `run_stage.py` 在
     `build_resources` 之後量測並重建格點。
+
+    `relative=True`（見 `budget_tau_plan`）時恆回傳空字串：該模式下 τ 是
+    超出下限的增量，下限本身不再構成不可達。
     """
+    if relative:
+        # 相對預算軸上 τ 是「超出下限多少」，下限已被減掉，任何正的 τ 都
+        # 落在 `build(0)` 之上。此處不是「放寬判準」而是判準不適用。
+        return ""
     if condition not in GENERATIVE_CONDITIONS:
         return ""
     if floor is None:
@@ -409,7 +460,8 @@ def train_cells(images: Sequence[str],
 def rayscale_cells(images: Sequence[str],
                    conditions: Sequence[str] = CONDITIONS,
                    taus: Sequence[float] = TAUS,
-                   floors: Optional[Mapping[str, float]] = None) -> List[Cell]:
+                   floors: Optional[Mapping[str, float]] = None,
+                   relative: bool = False) -> List[Cell]:
     """段 2：把訓練好的 φ 沿參數射線縮放到各個 τ。"""
     out = []
     for c in conditions:
@@ -417,7 +469,8 @@ def rayscale_cells(images: Sequence[str],
             fl = None if floors is None else floors.get(img)
             for t in taus:
                 out.append(Cell("rayscale", c, img, tau=t,
-                                skip_reason=generative_floor_skip(c, t, fl)))
+                                skip_reason=generative_floor_skip(
+                                    c, t, fl, relative)))
     return out
 
 
@@ -448,7 +501,8 @@ def eval_cells(images: Sequence[str],
                n_seeds: int = N_SEEDS,
                include_sweep: bool = True,
                floors: Optional[Mapping[str, float]] = None,
-               tau_plan: TauPlan = DEFAULT_TAU_PLAN) -> List[Cell]:
+               tau_plan: TauPlan = DEFAULT_TAU_PLAN,
+               relative: bool = False) -> List[Cell]:
     """段 3：淨化與編輯評測。"""
     if n_seeds < MIN_SEEDS:
         raise ValueError(
@@ -460,7 +514,7 @@ def eval_cells(images: Sequence[str],
         for img in images:
             fl = None if floors is None else floors.get(img)
             for t in taus:
-                skip = generative_floor_skip(c, t, fl)
+                skip = generative_floor_skip(c, t, fl, relative)
                 for p in purifiers_for(t, include_sweep, tau_plan):
                     for s in range(n_seeds):
                         out.append(Cell("eval", c, img, tau=t, purify=p,
@@ -518,9 +572,11 @@ def plan(images: Sequence[str], **kw) -> Dict[str, List[Cell]]:
     include_sweep = kw.get("include_sweep", True)
     return {
         "train": train_cells(images, conditions),
-        "rayscale": rayscale_cells(images, conditions, taus, floors),
+        "rayscale": rayscale_cells(images, conditions, taus, floors,
+                                   tau_plan.relative),
         "eval": eval_cells(images, conditions, taus, n_seeds,
-                           include_sweep, floors, tau_plan),
+                           include_sweep, floors, tau_plan,
+                           tau_plan.relative),
         "control": control_cells(images, taus, n_seeds, include_sweep,
                                  tau_plan),
     }

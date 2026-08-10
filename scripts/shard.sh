@@ -468,7 +468,28 @@ case "$BATCH" in
     ;;
 esac
 
-COMMON="--runs-root $RUNS --gpu-tag $GPU_TAG --precision $PRECISION $MODEL --mist-target data/targets/MIST.png $MEM $REACH $ATTN $INV $PROBE $MASK $STRENGTH $GRID"
+# 相對預算軸（2026-08-10）。`BUDGET_DELTA` 給定時 τ 改為「超出該格自己 φ=0
+# 下限的 DISTS 增量」，軸上只有那一點（`grid.budget_tau_plan`）。
+#
+# **只能與 `STAGES="rayscale eval"` 並用**：段 1 的綁定約束是絕對 τ_LPIPS，
+# `run_stage` 會拒絕 `--budget-delta` 加 `train`。用法是先用絕對模式跑完段 1，
+# 再用同一個分片目錄以本模式重跑段 2–3——φ 不重訓，只換縮放的目標。
+#
+# 為什麼要有它：LPIPS 是全圖平均，主體占比小時會把主體被改寫的代價稀釋掉
+# （`docs/METRICS.md` MET-dists），而生成路徑的 VAE 重建下限人眼看不出來，
+# 把它算進預算等於讓加性 baseline 拿到全部可見預算。
+BUDGET=""
+if [ -n "${BUDGET_DELTA:-}" ]; then
+  BUDGET="--budget-delta $BUDGET_DELTA"
+  case " $STAGES " in
+    *" train "*)
+      echo "BUDGET_DELTA 不可與 STAGES 中的 train 並用：相對預算軸是評測期的" >&2
+      echo "預算，段 1 必須先以絕對模式跑完。現有 STAGES=\"$STAGES\"" >&2
+      exit 1;;
+  esac
+fi
+
+COMMON="--runs-root $RUNS --gpu-tag $GPU_TAG --precision $PRECISION $MODEL --mist-target data/targets/MIST.png $MEM $REACH $ATTN $INV $PROBE $MASK $STRENGTH $GRID $BUDGET"
 
 shard_dir() { echo "$RUNS/${BATCH}_$1"; }
 

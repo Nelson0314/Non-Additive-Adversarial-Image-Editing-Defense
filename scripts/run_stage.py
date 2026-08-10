@@ -119,7 +119,7 @@ def run_config(args) -> executors.RunConfig:
         attn_mask_timesteps=args.attn_mask_timesteps,
         shared_tokens=tuple(args.shared_tokens),
         conditions=grid.resolve_conditions(args.conditions),
-        tau_plan=grid.tau_plan_for(args.tau_train, args.full_purify_taus),
+        tau_plan=tau_plan_of(args),
         tau_train=args.tau_train,
         tau_acut=args.tau_acut,
         tau_chroma=args.tau_chroma,
@@ -140,6 +140,22 @@ def run_config(args) -> executors.RunConfig:
         mist_target=args.mist_target,
         diffpure_ckpt=args.diffpure_ckpt,
     )
+
+
+def tau_plan_of(args) -> grid.TauPlan:
+    """本批的失真預算軸。**唯一的導出點。**
+
+    `run_config`（進 `RunConfig.tau_plan`，段 2 的射線縮放讀它）與 `main`
+    （列舉格點）各自呼叫 `grid.tau_plan_for` 的話，加一個模式就得改兩處，
+    而漏改的症狀是格點按相對軸列舉、縮放卻按絕對軸求解，兩邊都不報錯。
+    """
+    if args.budget_delta is None:
+        return grid.tau_plan_for(args.tau_train, args.full_purify_taus)
+    if args.full_purify_taus is not None:
+        raise SystemExit(
+            "--budget-delta 與 --full-purify-taus 不可並用："
+            "相對軸上只有一個預算點，完整淨化組必然就在該點")
+    return grid.budget_tau_plan(args.budget_delta, args.budget_metric)
 
 
 def base_config(args) -> dict:
@@ -187,6 +203,12 @@ def base_config(args) -> dict:
     # 使 img2img 既有批次的每一格雜湊逐位不變。
     if args.prompt_index:
         out["prompt_index"] = args.prompt_index
+    # 預算軸的定義換了，同一個 τ 標籤就不是同一個失真量。與 `masks`、
+    # `prompt_index` 同一慣例：只在非預設（即相對模式）時出現，故絕對模式的
+    # 既有批次雜湊逐位不變。
+    if args.budget_delta is not None:
+        out["budget"] = {"metric": args.budget_metric,
+                         "delta": args.budget_delta, "relative": True}
     return out
 
 
@@ -460,6 +482,15 @@ def build_parser() -> argparse.ArgumentParser:
     g.add_argument("--tau-chroma", type=float, default=None,
                    help=f"色度偏壓 hinge 的門檻。不給時同上依比例導出"
                         f"（{objective.CHROMA_PER_TAU} × τ）")
+    g.add_argument("--budget-delta", type=float, default=None,
+                   help="改用相對預算軸：τ 是**超出該格自己 φ=0 下限**的增量"
+                        "（見 grid.budget_tau_plan）。給定時 τ 軸只有這一點，"
+                        "且段 1 拒絕執行——本模式是評測預算，不是訓練預算，"
+                        "φ 必須已由絕對模式訓練好")
+    g.add_argument("--budget-metric", default="dists", choices=["lpips", "dists"],
+                   help="相對預算軸量在哪個指標上。只在 --budget-delta 給定時"
+                        "生效。預設 DISTS：LPIPS 是全圖平均，主體占比小時會"
+                        "把主體被改寫的代價稀釋掉（docs/METRICS.md MET-dists）")
     g.add_argument("--beta-linf", type=float,
                    default=executors.RunConfig.beta_linf,
                    help="L∞ hinge 的係數。預設 0：L∞ 對非加性參數化不具鑑別力，"
@@ -563,11 +594,21 @@ def main(argv=None) -> int:
     # 只改 `--tau-train` 而不動其餘三個，訓練點上一個淨化格都不會有，
     # 而抗淨化是主張一。`--tau-train` 為預設值時本函式回傳模組常數本身，
     # 故 v14／v14r 的格點逐格不變（`tests/test_grid.py` 釘住）。
-    tau_plan = grid.tau_plan_for(args.tau_train, args.full_purify_taus)
+    if args.budget_delta is not None and args.stage == "train":
+        raise SystemExit(
+            "--budget-delta 與 `train` 段不可並用：相對預算軸是評測期的預算"
+            "（τ = 超出該格 φ=0 下限的增量），而段 1 的綁定約束是絕對 "
+            "τ_LPIPS。要在此模式下評測，先用絕對模式跑完段 1，"
+            "本批直接從 rayscale 開始")
+    tau_plan = tau_plan_of(args)
     if tau_plan is not grid.DEFAULT_TAU_PLAN:
+        origin = (f"相對軸：τ = 超出各格 φ=0 下限的 {tau_plan.metric.upper()} 增量"
+                  if tau_plan.relative
+                  else f"絕對軸：τ = 達成的 {tau_plan.metric.upper()}"
+                       f"（由 --tau-train={args.tau_train} 導出）")
         print(f"[taus] τ 軸 {tau_plan.taus}；主表與掃描組 "
               f"{tau_plan.main_tau}；完整淨化組 {tau_plan.full_purify_taus}"
-              f"（由 --tau-train={args.tau_train} 導出）", flush=True)
+              f"；{origin}", flush=True)
     # 這一份用**名目**下限。乾跑到此為止；真跑會在載入模型之後重建，見下方。
     plan = grid.plan(images, conditions=conditions, n_seeds=grid.N_SEEDS,
                      tau_plan=tau_plan)

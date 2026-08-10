@@ -429,3 +429,22 @@ def test_A段接上時不探測階段一的學習率():
 
     src = inspect.getsource(executors.calibrate_lr)
     assert "skip_align" in src and "res.cfg.recon" in src
+
+
+def test_投影式條件關掉_LPIPS_hinge_但保留銳利度與色偏(tmp_path):
+    """同一件事不可由兩個機制同時管：投影已保證失真落在預算球面上，hinge
+    要嘛恆為零、要嘛與投影拉扯。銳利度與色偏保留——它們不是縮放能保證的
+    性質，投影管不到。"""
+    from dataclasses import replace as dc_replace
+
+    from src.experiment import executors
+    from tests.test_executors import make_res
+
+    res = make_res(tmp_path)
+    res.cfg = dc_replace(res.cfg, project_budget=0.04, attn_mask_tau=0.5)
+    entry = res.image("dog_00")
+    pj = executors.loss_config(res, executors.condition_spec("apa_pj"), entry)
+    ap = executors.loss_config(res, executors.condition_spec("apa"), entry)
+    assert pj.gamma_lpips == 0.0
+    assert ap.gamma_lpips > 0.0
+    assert pj.gamma_acut == ap.gamma_acut and pj.gamma_chroma == ap.gamma_chroma

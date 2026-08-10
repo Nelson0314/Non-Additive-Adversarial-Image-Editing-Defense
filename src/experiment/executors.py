@@ -1099,9 +1099,19 @@ def loss_config(res: Resources, spec: ConditionSpec,
             )
         content = entry.content
         attn_mask_tau = res.cfg.attn_mask_tau
+    # 投影式條件把 LPIPS 那一道 hinge 關掉：**同一件事不可以由兩個機制同時
+    # 管。** 投影保證每步結束後失真恰好落在預算球面上，此時 hinge 要嘛恆為零
+    # （多算一次沒有作用的力），要嘛與投影拉扯——實測段 0 第 0 步
+    # `L_fid=11.98` 佔總損失 177 的 6.8%，那個力全部用在對抗投影剛設定好的
+    # 半徑上，而 argmin 會因此挑到一個偏向壓低失真的學習率。
+    #
+    # 銳利度與色偏兩道**保留**：它們不是縮放能保證的性質（同一半徑上有的方向
+    # 鈍、有的銳），投影管不到，見 `budget_projector` 的說明。
+    gamma_lpips = 0.0 if spec.project else LossConfig.gamma_lpips
     return LossConfig(
         defense_mode=mode,
         target_metric=spec.target_metric,
+        gamma_lpips=gamma_lpips,
         tau_lpips=res.cfg.tau_train,
         tau_acut=res.cfg.tau_acut,
         tau_chroma=res.cfg.tau_chroma,

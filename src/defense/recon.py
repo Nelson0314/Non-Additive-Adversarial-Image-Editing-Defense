@@ -31,7 +31,7 @@ from typing import Callable, Dict, List, Optional, Sequence, Tuple
 import torch
 import torch.nn as nn
 
-from src.metrics.local_acutance import local_acutance_dev
+from src.metrics.acutance import gradient_energy
 
 
 def decoder_tunable(decoder: nn.Module) -> List[Tuple[str, nn.Parameter]]:
@@ -88,6 +88,29 @@ def restored(params: Sequence[nn.Parameter], trainable: bool = True):
                 p.grad = None
 
 
+def blunting_penalty(y: torch.Tensor, x01: torch.Tensor, tau_ratio: float
+                     ) -> torch.Tensor:
+    """只罰「比 `tau_ratio` 更鈍」：`max(0, τ − 銳利度比)`。
+
+    量與 `MetricSuite.pairwise` 的 `acutance_ratio` 是同一個（`gradient_energy`
+    的比值），故報表上看到的數字就是被約束的數字。
+
+    **只罰鈍化、不罰過銳**：本階段唯一要防的是「拿變模糊換低下限」；比原圖
+    更銳在重建對齊裡不會發生（下降方向是往原圖走），為它加一道對稱的懲罰
+    只會多一個沒有作用卻會影響梯度尺度的項。
+
+    為什麼不是專案在防禦階段用的 `local_acutance_dev`：那一項的門檻在此處
+    必須取起點自己的值（判準是「不可以比 VAE 來回更差」），於是約束**從第 0
+    步就是緊的**，而 γ=100 的 hinge 在起點就是一道陡壁。2026-08-10 於
+    horse_00 實測：加上它之後 LPIPS 由 0.1283 **上升**到 0.1418 再也沒回來，
+    120 步全在壁上，等於整段對齊被關掉。此處的量級（比值 ≈ 1，可動範圍
+    ~0.2）與係數搭得起來，`local_acutance_dev`（≈0.096，可動範圍 1e-4）搭不起來。
+    """
+    r = (gradient_energy(y.float().clamp(0, 1))
+         / gradient_energy(x01.float().clamp(0, 1)).clamp_min(1e-12))
+    return torch.clamp(tau_ratio - r, min=0.0).mean()
+
+
 def reconstruction_loss(y: torch.Tensor, x01: torch.Tensor,
                         lpips_fn: Callable, w_lpips: float, w_pixel: float,
                         gamma_acut: float = 0.0, tau_acut: float = 0.0
@@ -102,16 +125,14 @@ def reconstruction_loss(y: torch.Tensor, x01: torch.Tensor,
     有一部分是拿變鈍換來的，而使用者在 0.664 的銳利度比上判過「看得出來」。
     先驗紀錄的同一件事：高頻保留率 84.2%，調高感知項權重後才回到 93.2%。
 
-    門檻 `tau_acut` 由呼叫端取**該影像自己的舊下限**的 `local_acutance_dev`
-    （`optimize.recon_floor_thresholds` 同一個判準：不可以比 VAE 自己造成的
-    更差）。起點恰好落在門檻上，故第 0 步這一項為零、不施力，只有在對齊
-    真的把影像推鈍時才啟動。`gamma_acut=0` 關閉本項。
+    門檻 `tau_acut` 由呼叫端取**該影像自己的舊下限**的銳利度比（判準與
+    `optimize.recon_floor_thresholds` 同一條線：不可以比 VAE 來回更差）。
+    `gamma_acut=0` 關閉本項。
     """
     loss = (w_lpips * lpips_fn(y, x01).mean()
             + w_pixel * (y - x01).abs().mean())
     if gamma_acut:
-        dev = local_acutance_dev(x01.float().clamp(0, 1), y.float().clamp(0, 1))
-        loss = loss + gamma_acut * torch.clamp(dev - tau_acut, min=0.0)
+        loss = loss + gamma_acut * blunting_penalty(y, x01, tau_acut)
     return loss
 
 

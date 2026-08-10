@@ -49,7 +49,6 @@ import torch                                                 # noqa: E402
 from src.defense import recon                                # noqa: E402
 from src.defense.generator import DefenseGenerator           # noqa: E402
 from src.experiment import executors                         # noqa: E402
-from src.metrics.local_acutance import local_acutance_dev    # noqa: E402
 from tau_preview import diff_map                             # noqa: E402
 
 # 報表要看的四項。銳利度比不對稱（`MetricSuite.pairwise` 的 a 必須是原圖），
@@ -69,10 +68,10 @@ def build_parser() -> argparse.ArgumentParser:
     ap.add_argument("--a2-lr", type=float, default=2e-3)
     ap.add_argument("--w-pixel", type=float, default=0.5,
                     help="重建損失裡逐像素項的權重。感知項固定為 1")
-    ap.add_argument("--gamma-acut", type=float, default=100.0,
-                    help="鈍化 hinge 的係數，門檻取該影像舊下限的 "
-                         "local_acutance_dev。0 為關閉——關掉時 A1 會拿變鈍"
-                         "換下限（實測銳利度比 0.9935 → 0.7887）")
+    ap.add_argument("--gamma-acut", type=float, default=2.0,
+                    help="鈍化 hinge 的係數，門檻取該影像舊下限的銳利度比。"
+                         "0 為關閉——關掉時 A1 會拿變鈍換下限"
+                         "（實測銳利度比 0.9935 → 0.7887）")
     ap.add_argument("--floor-ratio", type=float, default=0.50,
                     help="A2 的硬停止目標，取該影像舊下限的這個比例。"
                          "預設 0.50 即先驗紀錄的 A1+A2 落點（0.1434 → 0.0716）。"
@@ -144,8 +143,7 @@ def measure(args, rest) -> Path:
         # ---- 2. A1 ----
         # 鈍化 hinge 的門檻取這張圖自己的舊下限：判準是「不可以比 VAE 自己
         # 造成的更鈍」（`optimize.recon_floor_thresholds` 同一條線）。
-        tau_acut = float(local_acutance_dev(x.float().clamp(0, 1),
-                                            y_vae.float().clamp(0, 1)))
+        tau_acut = m_vae["acutance_ratio"]
         target = args.floor_ratio * m_vae["lpips"]
         print(f"[{image_id}] A2 目標 lpips≤{target:.4f}  "
               f"鈍化門檻 tau_acut={tau_acut:.4f}", flush=True)

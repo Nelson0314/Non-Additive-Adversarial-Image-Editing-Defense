@@ -183,3 +183,88 @@ def test_每個_A_段旋鈕都改變雜湊(field, value):
     base = RunConfig(recon=True)
     other = RunConfig(recon=True, **{field: value})
     assert config_hash(_cell_cfg(base)) != config_hash(_cell_cfg(other))
+
+
+# ---------------------------------------------------------------------------
+# solve() 的端到端形狀
+# ---------------------------------------------------------------------------
+
+
+class _ToyVAE:
+    def __init__(self, dec):
+        self.decoder = dec
+
+
+class _ToySD:
+    """夠 `solve()` 跑完的最小替身：編碼是降採樣、解碼是升採樣過玩具解碼器。
+
+    存在的理由是 `solve()` 只在 GPU 上跑過，而它把四個 callable 串起來——
+    其中兩個的參數個數不同（`measure` 一個、`pairwise` 兩個）。實測上機時
+    正是在這裡以 `TypeError: measure() takes 1 positional argument but 2
+    were given` 中止，而那一步在 A1 的 200 步**之後**才執行，等於整批白跑。
+    """
+
+    def __init__(self):
+        self.vae = _ToyVAE(ToyDecoder())
+
+    def encode_image(self, x01, use_ckpt=False):
+        return torch.nn.functional.avg_pool2d(x01.mean(1, keepdim=True)
+                                              .repeat(1, 4, 1, 1), 4)
+
+    def decode_latent(self, z, use_ckpt=False):
+        y = self.vae.decoder.conv(self.vae.decoder.norm(z))
+        y = torch.nn.functional.interpolate(y, scale_factor=4)
+        return y[:, :3].clamp(0, 1)
+
+
+def test_solve_跑得完並回傳可套用的_adapter():
+    from src.defense import recon as reconmod
+
+    torch.manual_seed(0)
+    sd, x = _ToySD(), torch.rand(1, 3, 32, 32)
+
+    def perceptual(a, b):
+        return (a - b).pow(2).mean()
+
+    def pairwise(a, b):
+        from src.metrics.acutance import acutance
+        return {"lpips": float((a - b).abs().mean()), **acutance(a, b)}
+
+    def measure(y):
+        return pairwise(x, y)
+
+    adapter, history, summary = reconmod.solve(
+        sd, x, perceptual, measure, pairwise, key="lpips",
+        a1_steps=3, a1_lr=0.01, a2_steps=3, a2_lr=0.01, floor_ratio=0.5,
+        w_pixel=0.5, gamma_acut=1.0, acut_band=0.05, resp_seed=0,
+        resp_scale=0.05, log_every=1)
+
+    assert adapter.z_star.shape == sd.encode_image(x).shape
+    assert set(adapter.decoder) == {"norm.weight", "norm.bias", "conv.bias"}
+    assert {h["phase"] for h in history} == {"A1", "A2"}
+    # 探針必須真的量到東西：兩個都是 0 代表 `pairwise` 被餵了同一張圖。
+    assert summary["resp_a1"] > 0 and summary["resp_a2"] > 0
+    with adapter.applied(sd.vae.decoder):
+        pass
+
+
+def test_solve_把微調值還原給下一張圖():
+    """`solve` 內部用 `restored` 包住 A2。沒有還原的話第二張圖是從第一張的
+    過擬合權重出發，而那看起來只是「後面的圖比較好壓」。"""
+    from src.defense import recon as reconmod
+
+    sd, x = _ToySD(), torch.rand(1, 3, 32, 32)
+    before = {k: v.detach().clone() for k, v in sd.vae.decoder.named_parameters()}
+
+    def pairwise(a, b):
+        from src.metrics.acutance import acutance
+        return {"lpips": float((a - b).abs().mean()), **acutance(a, b)}
+
+    reconmod.solve(sd, x, lambda a, b: (a - b).pow(2).mean(),
+                   lambda y: pairwise(x, y), pairwise, key="lpips",
+                   a1_steps=2, a1_lr=0.01, a2_steps=2, a2_lr=0.01,
+                   floor_ratio=0.5, w_pixel=0.5, gamma_acut=0.0,
+                   acut_band=0.05, resp_seed=0, resp_scale=0.05, log_every=1)
+
+    for k, v in sd.vae.decoder.named_parameters():
+        assert torch.equal(v, before[k]), f"{k} 沒有還原"

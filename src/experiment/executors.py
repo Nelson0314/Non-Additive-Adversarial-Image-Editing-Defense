@@ -1173,7 +1173,7 @@ def solve_recon(res: Resources, entry: ImageEntry, out_dir: Path
 
     t0 = time.perf_counter()
     adapter, history, summary = reconmod.solve(
-        res.sd, entry.x01, perceptual, measure, key=key,
+        res.sd, entry.x01, perceptual, measure, res.suite.pairwise, key=key,
         a1_steps=res.cfg.recon_a1_steps, a1_lr=res.cfg.recon_a1_lr,
         a2_steps=res.cfg.recon_a2_steps, a2_lr=res.cfg.recon_a2_lr,
         floor_ratio=res.cfg.recon_floor_ratio, w_pixel=res.cfg.recon_w_pixel,

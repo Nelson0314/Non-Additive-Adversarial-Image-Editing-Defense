@@ -410,6 +410,7 @@ def solve(
     x01: torch.Tensor,
     perceptual: Callable,
     measure: Callable[[torch.Tensor], Dict[str, float]],
+    pairwise: Callable[[torch.Tensor, torch.Tensor], Dict[str, float]],
     *,
     key: str,
     a1_steps: int,
@@ -434,6 +435,11 @@ def solve(
 
     `floor_ratio` 乘在**這張圖自己的舊下限**上得到 A2 的停止目標，判準與
     `optimize.recon_floor_thresholds` 同一條線：不拿全域常數當門檻。
+
+    `measure` 與 `pairwise` **是兩個不同的東西**，不可互相代入：前者是綁定
+    原圖的單參數量測 `y ↦ 指標`，後者是雙參數的 `(y0, y1) ↦ 指標`。latent
+    反應探針量的是「同一個解碼器對兩個相鄰 latent 的輸出差多少」，與原圖
+    無關，故只有後者算得出來。
     """
     with torch.no_grad():
         y_floor = sd.decode_latent(sd.encode_image(x01))
@@ -446,7 +452,8 @@ def solve(
     z, h1, s1 = align_latent(
         sd, x01, perceptual, measure, key=key, steps=a1_steps, lr=a1_lr,
         w_pixel=w_pixel, gamma_acut=gamma_acut, band=band, log_every=log_every)
-    resp_a1 = latent_response(sd, z, measure, seed=resp_seed, scale=resp_scale)
+    resp_a1 = latent_response(sd, z, pairwise, seed=resp_seed,
+                              scale=resp_scale)
 
     tunable = decoder_tunable(sd.vae.decoder)
     params = [p for _, p in tunable]
@@ -455,7 +462,7 @@ def solve(
             sd, x01, z, params, perceptual, measure, key=key, steps=a2_steps,
             lr=a2_lr, target=target, w_pixel=w_pixel, gamma_acut=gamma_acut,
             band=band, log_every=max(1, log_every // 2))
-        resp_a2 = latent_response(sd, z, measure, seed=resp_seed,
+        resp_a2 = latent_response(sd, z, pairwise, seed=resp_seed,
                                   scale=resp_scale)
         with torch.no_grad():
             m_final = measure(sd.decode_latent(z))

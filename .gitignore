@@ -35,6 +35,22 @@ runs/**
 # 且 e8 那一批單目錄就 24 MB。兩者的差別是「能不能重建解」而不是副檔名。
 !runs/**/*.pt
 
+# 2026-08-10 使用者裁決：**中間圖不入庫**，只留產出的圖、attention map 與殘差。
+#
+# 兩類被排除，兩類都可由已入庫的東西重建，故排除的是重複而不是證據：
+#
+#   x0_trace/    每個訓練格 3 張逐步去噪的 x0 預測。純診斷用，且要重看它
+#                只需重跑該格的前向。
+#   history.png  訓練曲線圖。**逐點的數值就在同目錄的 train.csv 裡**，
+#                圖只是它的一種畫法。
+#
+# 留下的界線在哪裡：`x_purified.png` **不排除**——它是 compare.html 的
+# 「淨化後」那一欄（`compare_page.py:50`），而判準以人眼為主、每一格都必須
+# 有影像可看（DESIGN §1.1）。`aligned_phi.png` 與 `baseline_phi0.png` 同樣
+# 留下：它們是 φ=0 的參照，DEC-016 的 A 段驗收正是拿它們對照。
+runs/**/x0_trace/
+runs/**/history.png
+
 # Python
 __pycache__/
 .pytest_cache/

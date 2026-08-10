@@ -82,6 +82,17 @@ class MetricSuite:
             self._ensure_niqe()
             self._ensure_vlm()
 
+    @property
+    def lpips_module(self):
+        """可微的 LPIPS 本體，給要拿它當損失的呼叫端。
+
+        `pairwise` 是 `@torch.no_grad` 的量測介面，回傳的是 float，接不到
+        梯度。重建對齊（`src/defense/recon.py`）要的是同一個度量的**可微**
+        版本——同一份權重，量測與最佳化才是同一件事；各自 `piq.LPIPS()` 一份
+        會多佔一份 VGG 的顯存，而且哪一份被用到看不出來。
+        """
+        return self._lpips
+
     # ---- 延遲載入：像素／感知指標常用，語意與無參考指標較少用 ----
 
     def _ensure_niqe(self):

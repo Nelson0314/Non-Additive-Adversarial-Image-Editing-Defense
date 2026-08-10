@@ -150,6 +150,10 @@ class ConditionSpec:
     # `plateau_stop` 的監看量。由 `optimize.DEFENSE_MONITOR` 依 defense_mode
     # 決定，此處只記錄，用於判斷要不要向校準表索取 stop_tol。
     monitor: str = ""
+    # 保真約束改用投影而非 hinge（改良 1–3）。True 時 `optim_config` 掛上
+    # `budget_projector`，且把 LPIPS 那一道 hinge 的係數歸零——同一件事由
+    # 兩個機制同時管，等於在球面上再加一個沒有作用的力。
+    project: bool = False
     # **這個旗標只管生成／編輯路徑**（`gen.generate` 與 `sd.edit`），
     # 不管注意力前向。
     #
@@ -233,6 +237,14 @@ CONDITION_SPECS: Dict[str, ConditionSpec] = {
     # 共用還會讓同批同時跑兩者時 `calibrate_lr` 的 `out[spec.lr_key]` 被後者
     # 靜默覆寫。階段一的鍵可以共用（那是保真度，與損失模式無關），理由與
     # `Ra` 那一條逐字相同。
+    # 2026-08-11（改良 1–3）。與 `apa` **同一個損失**，差別只在保真約束的
+    # 施加方式：hinge（罰項）改為每步投影回失真預算的球面。學習率鍵同樣要
+    # 自己一組——損失雖然相同，但可行域變了，同一個 lr 的 argmin 沒有理由相同。
+    "apa_pj": ConditionSpec(
+        "apa_pj", "nonadditive", site="apa", defense_mode="suppress_attn_ca",
+        lr_key="lr.N6_stage2", align_lr_key="lr.N4_stage1",
+        monitor="attn_suppressed", project=True,
+    ),
     "apa_rd": ConditionSpec(
         "apa_rd", "nonadditive", site="apa", defense_mode="redirect_attn_ca",
         lr_key="lr.N5_stage2", align_lr_key="lr.N4_stage1",
@@ -508,6 +520,12 @@ class RunConfig:
     recon_w_pixel: float = 0.5
     recon_resp_scale: float = 0.05
 
+    # ---- 投影式約束（改良 1–3）----
+    # `None` 時不出現在 `module_params()`，既有批次的雜湊逐位不變。
+    project_budget: Optional[float] = None
+    project_metric: str = "dists"
+    project_every: int = 1
+
     # ---- 本批的格點 ----
     # 這一批實際要跑的條件，以及失真預算軸。**兩者都不進 `config_hash`**：
     # 它們決定「列舉哪些格」，而每一格自己已經帶著 condition 與 tau
@@ -595,6 +613,10 @@ class RunConfig:
         # 相同：`config_hash` 吃整個 dict，無條件加入會改變既有批次每一格
         # 的雜湊，續跑時把已完成的格全部判為未完成。鍵存在與否本身就承載
         # 「本批的生成路徑有沒有換過起點與解碼器」。
+        if self.project_budget is not None:
+            out["project"] = {"budget": self.project_budget,
+                              "metric": self.project_metric,
+                              "every": self.project_every}
         if self.recon:
             out["recon"] = {
                 "objective": self.recon_objective,
@@ -1094,8 +1116,23 @@ def optim_config(res: Resources, spec: ConditionSpec,
     # 卻花 910 秒（FND-016）。留著它跑等於每格白燒那段時間。
     if res.cfg.recon and spec.site == "apa":
         align_steps = 0
+    project_factory = None
+    if spec.project:
+        if res.cfg.project_budget is None:
+            raise ValueError(
+                f"條件 {spec.name!r} 要用投影式約束，但本批沒有給 "
+                "--project-budget。不預設一個值：那是失真預算本身，"
+                "而它必須與段 2 的 --budget-delta 是同一個數"
+            )
+        project_factory = (
+            lambda module, gen, _e=entry: budget_projector(
+                res, _e, module, gen, delta=res.cfg.project_budget,
+                metric=res.cfg.project_metric)
+        )
     return OptimConfig(
         recon=recon,
+        project_factory=project_factory,
+        project_every=res.cfg.project_every,
         stages=(StageSpec(group=("stage2" if spec.site == "apa" else "default"),
                           lr_key=spec.lr_key, max_steps=res.cfg.max_steps),),
         k_inv=res.cfg.k_inv,
@@ -2700,3 +2737,96 @@ def annotate_unavailable(cells: Sequence[grid.Cell], res: Resources
 # 4. **FID／Precision**。`DESIGN` §5.1 已把兩者降為「參考值、不作判定用」
 #    （N=3 下分布層級指標無意義），故本輪不計算。擴大 N 後才需要補。
 #    **這是唯一仍未做的一項，且是刻意不做。**
+
+
+def budget_projector(res: "Resources", entry: ImageEntry, module, gen,
+                     delta: float, metric: str = "dists",
+                     tol: float = 0.002, max_iter: int = 12):
+    """回傳 `project(step) -> dict`：把 φ 的方向參數縮放到失真預算的球面上。
+
+    這是改良 1–3 的核心。現行作法把保真度做成損失裡的 hinge，而 hinge 是
+    一個力不是一個保證：只要 `λ_def·ΔL_def` 大於懲罰的上升，最佳化器就會踩
+    過門檻；在門檻附近兩個梯度還會互相稀釋。投影把它換成硬約束——每一步結束
+    後 φ 都恰好坐在 `metric(G(x;φ)) − metric(G(x;0)) = delta` 這個球面上。
+
+    ## 為什麼這件事在本專案裡特別划算
+
+    評測期**一定**會做射線縮放（`rayscale_executor`），把訓練出來的方向重新
+    拉到 Δ 上。也就是說訓練期那四道 hinge 限制的「大小」最後會被覆寫，只有
+    「方向」留得下來。實測 `apa` 的訓練停在 `fid_lpips=0.178`，而評測用的 φ
+    是它乘上 k≈2.4 之後的版本——**訓練 log 上的每一個 L_def 都不是最終 φ 的
+    L_def**。投影之後兩者是同一個東西，訓練曲線第一次可以直接引用。
+
+    順帶消掉 DEC-016 B1 記的那個落差：訓練綁絕對 τ_LPIPS=0.20、評測綁相對
+    DISTS Δ=0.04，兩者差約六倍。這裡用的 `delta` 與 `metric` 與段 2 逐字相同。
+
+    ## 熱啟動的二分
+
+    `ray_scale.solve_k` 每次由 `[0, 1]` 起手並最多 28 次二分，每次一條完整的
+    生成路徑；每步全額投影會讓訓練成本增加約 28 倍，不可接受。此處以上一步
+    的 k 為中心開一個 `[k/1.3, k·1.3]` 的區間——k 逐步只會微幅變化，實測 1–2
+    次即落在容差內。區間套不住時才回退到全域二分，並如實記錄。
+
+    ## 不能投影的那兩道約束
+
+    DISTS 隨 k 單調，可以投影；「鈍化不得超過 τ_a」「色偏不得超過 τ_c」不是
+    縮放能保證的性質——同一個半徑上有的方向鈍、有的方向銳。那兩道改由
+    `stop_require_feasible` 的可行性過濾承擔，作法與 A 段的 `descend` 相同：
+    不改變搜尋軌跡，只決定哪一步有資格被留下。
+    """
+    p = direction_param(module)
+    metric_fn = metric_against(res.suite, entry.x01, metric)
+    state = {"k": 1.0, "base": None}
+
+    def render(scale: float) -> float:
+        """把方向參數暫時乘上 scale，量 `G(x; φ)` 對原圖的失真。"""
+        saved = p.data.clone()
+        try:
+            p.data = saved * float(scale)
+            x = gen.generate(entry.x01, gen.prepare(entry.x01)).detach()
+            return metric_fn(x)
+        finally:
+            p.data = saved
+
+    def project(step: int) -> Dict[str, float]:
+        if state["base"] is None:
+            # φ=0 的下限只需算一次：它不依賴 φ，而每步重算等於每步多一條
+            # 完整生成路徑。A 段接上時它就是壓過的那個新下限。
+            state["base"] = render(0.0)
+        target = state["base"] + delta
+
+        lo, hi = state["k"] / 1.3, state["k"] * 1.3
+        f_lo, f_hi = render(lo), render(hi)
+        iters = 2
+        if not (f_lo <= target <= f_hi):
+            # 熱啟動的區間套不住，回退全域二分。**記錄下來而不是靜默處理**：
+            # 頻繁回退代表 k 在逐步之間跳動，那本身是「這個方向不穩定」的
+            # 徵候，而它只在這一欄看得見。
+            lo, hi = 0.0, max(1.0, state["k"])
+            while render(hi) < target:
+                hi *= 2.0
+                iters += 1
+                if hi > 1024.0:
+                    raise ValueError(
+                        f"第 {step} 步：方向參數放大到 {hi:g} 倍仍達不到 "
+                        f"{metric} 增量 {delta}。該方向的容量不足，"
+                        "這是關於這一格的結果，不靜默取最接近的值"
+                    )
+            f_lo = render(lo)
+
+        k = 0.5 * (lo + hi)
+        for _ in range(max_iter):
+            got = render(k)
+            if abs(got - target) < tol:
+                break
+            lo, hi = (k, hi) if got < target else (lo, k)
+            k = 0.5 * (lo + hi)
+            iters += 1
+
+        with torch.no_grad():
+            p.data = p.data * float(k)
+        state["k"] = 1.0  # 已經乘進去了，下一步的起點又回到 1 附近
+        return {"proj_k": float(k), "proj_metric": float(got),
+                "proj_floor": float(state["base"]), "proj_iters": iters}
+
+    return project

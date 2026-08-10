@@ -43,7 +43,10 @@ from typing import Dict, List, Mapping, Optional, Sequence, Tuple
 # `apa_rd` 是 `apa` 的損失變因（改良 5b，2026-08-11）：同參數化、同學習率鍵，
 # L_def 由 `‖Att ⊙ M‖₁` 改為它佔全圖的比例。列在這裡而不是另開一個軸，是因為
 # 它與 `apa` 的對照就是「注意力這個著力點該怎麼用」，屬於同一條主張。
-NONADDITIVE = ("N1", "N2", "N3", "apa", "apa_rd")
+# `apa_pj` 是 `apa` 的**約束**變因（改良 1–3）：同一個損失，保真度由 hinge
+# 改為每步投影回失真預算的球面。與 `apa_rd`（損失變因）分開列，是因為兩者
+# 不可同時開——一起改的話結果變好也分不出是哪一個造成的。
+NONADDITIVE = ("N1", "N2", "N3", "apa", "apa_rd", "apa_pj")
 
 # `dia_pt` 與 `diffvax` 保留在程式中但**不納入本輪實驗**，各有其原因，
 # 兩者都記錄在 `EXCLUDED` 並由測試釘住——移出而不留記錄，等於讓

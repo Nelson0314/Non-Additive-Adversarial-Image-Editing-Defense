@@ -133,6 +133,9 @@ def run_config(args) -> executors.RunConfig:
         apa_latent_max_rank=args.apa_latent_max_rank,
         apa_latent_const_rank=args.apa_latent_const_rank,
         random_init_std=args.random_init_std,
+        project_budget=args.project_budget,
+        project_metric=args.project_metric,
+        project_every=args.project_every,
         recon=args.recon,
         recon_objective=args.recon_objective,
         recon_a1_steps=args.recon_a1_steps,
@@ -527,6 +530,19 @@ def build_parser() -> argparse.ArgumentParser:
                    help="同失真隨機對照的初始標準差。R 用於位移場的 flow，"
                         "Ra 用於 apa 階段二的方向參數（射線縮放會把兩者都"
                         "拉到 τ，故此值只決定起點的方向分布）")
+    g.add_argument("--project-budget", type=float, default=None,
+                   help="投影式保真約束（改良 1–3）的失真預算 Δ。給定時 "
+                        "apa_pj 每步結束後把 φ 的方向參數縮放到 "
+                        "metric(G(x;φ))−metric(G(x;0))=Δ 的球面上，取代 "
+                        "LPIPS 那一道 hinge。**必須與段 2 的 --budget-delta "
+                        "是同一個數**，否則訓練與評測仍綁在不同的預算上。"
+                        "不給時全部相關鍵不進 config_hash")
+    g.add_argument("--project-metric", default="dists",
+                   choices=["dists", "lpips"],
+                   help="投影用的失真度量，與段 2 的預算軸同一個")
+    g.add_argument("--project-every", type=int, default=1,
+                   help="每幾步投影一次。1 = 每步。投影要跑數次完整生成路徑，"
+                        "這是成本與「軌跡有多貼合球面」之間的取捨")
     g.add_argument("--recon", action="store_true",
                    help="A 段（DEC-016）：把 site apa 的階段一從 UNet 的 LoRA "
                         "換成 VAE 上的兩件事——A1 解 z* 使 decode(z*)≈x、"

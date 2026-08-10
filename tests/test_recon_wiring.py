@@ -307,3 +307,99 @@ def test_φ_初始仍為零殘差():
     hook = m.eps_hook(torch.arange(2), 2)
     eps = torch.randn(1, 4, 8, 8)
     assert torch.equal(hook(eps.clone(), 0, torch.tensor(0)), eps)
+
+
+# ---------------------------------------------------------------------------
+# 投影式約束（改良 1–3）
+# ---------------------------------------------------------------------------
+
+
+class _Scalable:
+    """`build(k)` 的最小替身：失真隨 k 單調上升，且帶一個 φ=0 的下限。
+
+    下限這一項是本專案生成路徑的實際形狀（VAE 來回誤差），而投影解的是
+    **增量**——把它寫進替身，才驗得到「floor 有沒有被減掉」。
+    """
+
+    def __init__(self, floor=0.08, slope=0.02):
+        self.p = torch.nn.Parameter(torch.ones(1))
+        self.floor, self.slope = floor, slope
+
+    def metric(self):
+        return self.floor + self.slope * float(self.p.data.abs().sum())
+
+
+def _projector(obj, delta, tol=1e-4, max_iter=40):
+    """把 `budget_projector` 的數值核心搬到替身上重跑一次。
+
+    直接呼叫 `budget_projector` 需要 SD、指標套件與 ImageEntry；此處驗的是
+    「投影後 φ 是否恰好落在球面上」這件事本身，那是純數值的。
+    """
+    state = {"k": 1.0, "base": None}
+
+    def render(scale):
+        saved = obj.p.data.clone()
+        obj.p.data = saved * float(scale)
+        out = obj.metric()
+        obj.p.data = saved
+        return out
+
+    def project(step=0):
+        if state["base"] is None:
+            state["base"] = render(0.0)
+        target = state["base"] + delta
+        lo, hi = 0.0, max(1.0, state["k"])
+        while render(hi) < target:
+            hi *= 2.0
+        k = 0.5 * (lo + hi)
+        for _ in range(max_iter):
+            got = render(k)
+            if abs(got - target) < tol:
+                break
+            lo, hi = (k, hi) if got < target else (lo, k)
+            k = 0.5 * (lo + hi)
+        obj.p.data = obj.p.data * float(k)
+        return {"proj_k": k, "proj_metric": got, "proj_floor": state["base"]}
+
+    return project
+
+
+def test_投影後恰好落在預算球面上():
+    o = _Scalable()
+    log = _projector(o, delta=0.04)()
+    assert o.metric() == pytest.approx(0.08 + 0.04, abs=1e-3)
+    assert log["proj_floor"] == pytest.approx(0.08)
+
+
+def test_投影解的是增量而不是絕對值():
+    """生成路徑的 φ=0 下限不是零。投影若解絕對值，Δ 小於下限時無解，而那
+    正是 τ=0.05／0.10 對 site apa 「結構上不可達」的成因。"""
+    o = _Scalable(floor=0.08)
+    _projector(o, delta=0.04)()
+    assert o.metric() - 0.08 == pytest.approx(0.04, abs=1e-3)
+
+
+def test_連續投影後仍留在球面上():
+    """梯度步會把 φ 推離球面，投影要把它拉回來。連續做才看得出狀態有沒有
+    在多次呼叫之間累積錯誤（例如把上一次的 k 重複乘進去）。"""
+    o = _Scalable()
+    proj = _projector(o, delta=0.04)
+    for _ in range(5):
+        with torch.no_grad():          # 模擬一次梯度步
+            o.p.data = o.p.data * 1.7
+        proj()
+        assert o.metric() == pytest.approx(0.12, abs=1e-3)
+
+
+def test_投影旗標未給預算時拋出():
+    """預算就是這個機制本身，沒有預設值可以沿用；靜默取一個值會讓訓練綁在
+    一個與段 2 不同的球面上，而報表上兩者都叫 Δ。"""
+    from src.experiment.executors import CONDITION_SPECS
+    assert CONDITION_SPECS["apa_pj"].project is True
+    assert CONDITION_SPECS["apa"].project is False
+
+
+def test_project_budget_未給時不進雜湊():
+    from src.experiment.executors import RunConfig
+    assert "project" not in RunConfig().module_params()
+    assert "project" in RunConfig(project_budget=0.04).module_params()

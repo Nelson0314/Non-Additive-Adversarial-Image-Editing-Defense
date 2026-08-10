@@ -27,6 +27,7 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
+from dataclasses import replace as dc_replace
 import torch
 
 from src.defense.optimize import OptimResult
@@ -242,10 +243,14 @@ def test_calib與report沒有格點式的計算層():
 
 def test_學習率鍵逐條件不同且來自校準表(tmp_path):
     res = make_res(tmp_path)
+    # `apa_pj` 要有失真預算才建得起來（投影式約束的預算就是它本身，
+    # 不預設值），故這裡的 res 明給一個。
+    res.cfg = dc_replace(res.cfg, project_budget=0.04)
     keys = {c: executors.optim_config(res, executors.condition_spec(c))
             .stages[0].lr_key for c in grid.NONADDITIVE}
     assert keys == {"N1": "lr.N1", "N2": "lr.N2", "N3": "lr.N3_stage2",
-                    "apa": "lr.N4_stage2", "apa_rd": "lr.N5_stage2"}
+                    "apa": "lr.N4_stage2", "apa_rd": "lr.N5_stage2",
+                    "apa_pj": "lr.N6_stage2"}
     assert len(set(keys.values())) == len(keys), "學習率不可跨條件共用"
 
 
@@ -293,6 +298,8 @@ def test_走生成路徑的條件必須開checkpoint(tmp_path):
     整條路徑不碰 UNet，故該旗標對它是空轉的。
     """
     res = make_res(tmp_path)
+    # 投影式條件要有失真預算才建得起來（見 `ConditionSpec.project`）。
+    res.cfg = dc_replace(res.cfg, project_budget=0.04)
     for name, spec in executors.CONDITION_SPECS.items():
         if spec.site != "apa":
             continue

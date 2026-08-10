@@ -152,6 +152,22 @@ class OptimConfig:
     # 花掉 910 秒（`runs/s3t20_merged/apa/*/align.csv`，FND-016）。兩者同時
     # 開啟不會出錯，但那 910 秒買不到任何東西。
     recon: object = None
+    # ---- 投影式約束（改良 1–3，2026-08-11）----
+    # `project(step) -> dict` 由呼叫端提供：把 φ 的方向參數縮放到失真預算的
+    # 球面上，回傳要記進 history 的欄位。**None 時本檔行為逐位元不變。**
+    #
+    # 為什麼是 callable 而不是一個 Δ 數值：投影要算 `metric(G(x; kφ))`，那需要
+    # SD、指標套件與該參數化的方向參數，而本模組刻意不碰 SD（見 `run_stages`
+    # 的 docstring）。把閉包外提，投影的定義就留在知道這些東西的那一層。
+    project: Optional[Callable[[int], Dict[str, float]]] = None
+    # 投影閉包要拿到 `optimize()` 內部建的 `gen`，故呼叫端給的是**工廠**，
+    # 由 `optimize()` 在 gen 建好之後解開。直接給閉包的話，呼叫端得自己
+    # 再造一個 DefenseGenerator，而那個與訓練實際用的不是同一個物件——
+    # 投影量到的失真會與訓練前向走不同的路徑。
+    project_factory: Optional[Callable[[Any, Any], Callable[[int], Dict[str, float]]]] = None
+    # 每幾步投影一次。1 = 每步。投影本身要跑數次完整生成路徑，故這是成本與
+    # 「軌跡有多貼合球面」之間的取捨。
+    project_every: int = 1
 
     # 代理編輯鏈的 strength。**inpainting 威脅模型下必須為 None**——
     # 那個形態沒有這個參數，`SDWrapper.edit` 會拒絕收到它。
@@ -626,6 +642,13 @@ def run_stages(
                     torch.nn.utils.clip_grad_norm_(params, cfg.grad_clip)
                 opt.step()
 
+                # 投影。**必須在 `opt.step()` 之後**：梯度步先把 φ 推出可行集，
+                # 投影再把它拉回球面，這正是 PGD 的順序。放在之前等於投影一個
+                # 還沒更新的 φ，而下一步的前向用的是未投影的那個。
+                if cfg.project is not None and s % cfg.project_every == 0:
+                    with torch.no_grad():
+                        log = {**log, **cfg.project(len(result.history))}
+
                 log = dict(log)
                 log["step"] = len(result.history)
                 log["stage"] = stage.group
@@ -928,6 +951,8 @@ def optimize(
     gen = DefenseGenerator(sd, module, k_inv=cfg.k_inv, t_max=cfg.t_max,
                            exact_inversion=cfg.exact_inversion,
                            recon=cfg.recon)
+    if cfg.project_factory is not None:
+        cfg = replace(cfg, project=cfg.project_factory(module, gen))
     obj = DefenseObjective(loss_cfg, device)
     monitor_key = DEFENSE_MONITOR[loss_cfg.defense_mode]
     constraint_keys = (

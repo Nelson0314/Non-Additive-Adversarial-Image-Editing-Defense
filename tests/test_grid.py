@@ -227,7 +227,12 @@ def test_抗淨化仍有強淨化與強度掃描():
     jpeg = sorted(s for k, s in grid.MAIN_PURIFIERS if k == "jpeg")
     blur = sorted(s for k, s in grid.SWEEP_PURIFIERS if k == "blur")
     assert len(jpeg) >= 2, f"JPEG 至少要兩個強度，實得 {jpeg}"
-    assert len(blur) >= 4, f"blur 至少要四個強度，實得 {blur}"
+    # 2026-08-11：由 ≥4 降為 ≥3。強度點數本身不是目的，可讀性才是——
+    # blur 1.0 起未防禦的編輯自己就被毀掉（ΔNIQE +1.63），多留一點只是
+    # 多一列比不出東西的數字。判準見 `SWEEP_PURIFIERS`。
+    assert len(blur) >= 3, f"blur 至少要三個強度，實得 {blur}"
+    assert max(blur) <= 1.0, (
+        f"blur 掃描不得含毀掉未防禦編輯的強度，實得 {blur}")
 
 
 def test_CNN去噪的命名帶substitute():
@@ -363,11 +368,11 @@ def test_批次A的格點規模():
     s = grid.summarize(grid.plan(IMGS, conditions=conds, tau_plan=p))
     assert s["train"]["total"] == 5 * 3
     assert s["rayscale"]["total"] == 5 * 3 * 5
-    # 2026-08-11：1725 → 2100，掃描組由 12 個強度補到 17 個（`SWEEP_PURIFIERS`
-    # 的弱端三點加 noise／quantize 各一）。差額 375 = 5 條件 × 3 影像 × 5 seed
-    # × 5 個新強度，逐項對得上；`control` 同理由 285 加到 360（1 × 3 × 5 × 5）。
-    assert s["eval"]["total"] == 2100
-    assert s["control"]["total"] == 360
+    # 2026-08-11：1725 → 1500，掃描組由 12 個強度重訂為 9 個（弱端補三點、
+    # 強端移除七點，判準見 `SWEEP_PURIFIERS` 的說明）。差額 −225 = 5 條件 ×
+    # 3 影像 × 5 seed × (−3) 個強度；`control` 同理由 285 減到 240。
+    assert s["eval"]["total"] == 1500
+    assert s["control"]["total"] == 240
 
 
 def test_N由三擴到一百五十只需改影像清單():

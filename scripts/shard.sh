@@ -661,5 +661,12 @@ merge)
   echo "compare.html → $OUT/compare.html"
   ;;
 
+common)
+  # 把本 profile 組出來的旗標原樣印出來。`scripts/tau_preview.py` 要用同一組
+  # 設定才讀得到批次的校準表（`Calibration.REQUIRED_CONTEXT` 含 model、
+  # resolution、guidance、steps、gpu、precision），手抄一份出去兩份就會分岔。
+  echo "$COMMON"
+  ;;
+
 *) echo "未知模式 $MODE" >&2; exit 1;;
 esac

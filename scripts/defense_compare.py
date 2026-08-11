@@ -40,8 +40,13 @@ from src.experiment.executors import purify_dir_name  # noqa: E402
 
 # 淨化算子：identity 是主表，其餘四個是使用者關心的「淨化過後還剩多少」。
 # 取兩端與中間各一，而不是全部 18 個——那會是 400 張圖。
-PURIFIERS = [("identity", 0.0), ("blur", 3.0), ("jpeg", 30.0),
-             ("quantize", 64.0), ("diffpure", 150.0)]
+# 2026-08-11：改用修剪後的掃描點。強端整段移除的判準見
+# `grid.SWEEP_PURIFIERS`——未防禦的編輯自己被毀掉時（ΔNIQE ≥ +1.0），這一頁
+# 每一列的第一格就是一團糊，右邊全部無從比起。
+# `blur 0.75` 特別列出：加性 baseline 在那裡由 84% 掉到 43–52%，非加性不動。
+PURIFIERS = [("identity", 0.0), ("blur", 0.5), ("blur", 0.75),
+             ("noise", 0.01), ("jpeg", 30.0), ("quantize", 64.0),
+             ("adverse_cleaner", 0.0), ("diffpure", 150.0)]
 IMAGES = ["horse_00", "horse_03", "woman_03"]
 TAU = "0.04"
 
@@ -81,6 +86,10 @@ def main(argv=None) -> int:
                     help="帶 A 段的批次目錄（apa+A／Ra+A 由此取）")
     ap.add_argument("--old", type=Path, required=True,
                     help="不帶 A 段的批次目錄（control 與三個 baseline 由此取）")
+    ap.add_argument("--rd", type=Path, default=None,
+                    help="Arm A（換損失，apa_rd）的批次目錄")
+    ap.add_argument("--pj", type=Path, default=None,
+                    help="Arm B（換約束，apa_pj）的批次目錄")
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--out", type=Path, required=True)
     a = ap.parse_args(argv)
@@ -88,8 +97,13 @@ def main(argv=None) -> int:
     grid_new, grid_old = rows_of(a.new), rows_of(a.old)
     # (顯示名, 批次目錄, grid, 條件名)。順序即欄序。
     cols = [
-        ("apa（無 A 段）", a.old, grid_old, "apa"),
-        ("apa + A 段", a.new, grid_new, "apa"),
+        ("apa + A 段（基準）", a.new, grid_new, "apa"),
+    ]
+    if a.rd is not None:
+        cols.append(("apa_rd（換損失）", a.rd, rows_of(a.rd), "apa_rd"))
+    if a.pj is not None:
+        cols.append(("apa_pj（換約束）", a.pj, rows_of(a.pj), "apa_pj"))
+    cols += [
         ("Ra + A 段（隨機對照）", a.new, grid_new, "Ra"),
         ("PhotoGuard-c", a.old, grid_old, "photoguard_c"),
         ("Mist", a.old, grid_old, "mist"),
@@ -100,10 +114,10 @@ def main(argv=None) -> int:
 body{font:14px/1.5 system-ui,sans-serif;margin:24px;background:#fff;color:#111}
 table{border-collapse:collapse;margin:8px 0 28px}
 td,th{border:1px solid #ddd;padding:4px;vertical-align:top;text-align:center}
-img{width:250px;height:250px;object-fit:contain;display:block}
+img{width:210px;height:210px;object-fit:contain;display:block}
 .t{font-size:11px;color:#333;margin-top:3px}
 .n{font-size:11px;color:#777;font-family:ui-monospace,monospace}
-.miss{width:250px;height:250px;display:flex;align-items:center;
+.miss{width:210px;height:210px;display:flex;align-items:center;
       justify-content:center;color:#b00;font-size:12px;background:#faf0f0}
 th{background:#f5f5f5;font-size:12px;position:sticky;top:0}
 h2{margin:32px 0 4px}h3{margin:20px 0 4px;color:#444;font-weight:600}

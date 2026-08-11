@@ -1,0 +1,111 @@
+{
+  "artifacts": [
+    "apa_pj/woman_03/phi_tau0.04.pt",
+    "apa_pj/woman_03/x_def_tau0.04.png",
+    "apa_pj/woman_03/residual_tau0.04.png",
+    "apa_pj/woman_03/fidelity_tau0.04.csv",
+    "apa_pj/woman_03/meta_tau0.04.json"
+  ],
+  "budget_achieved_abs": 0.07357686758041382,
+  "budget_floor": 0.035356,
+  "budget_metric": "dists",
+  "budget_relative": true,
+  "budget_target_abs": 0.07535640239715577,
+  "condition": "apa_pj",
+  "config": {
+    "budget": {
+      "delta": 0.04,
+      "metric": "dists",
+      "relative": true
+    },
+    "condition": "apa_pj",
+    "gpu": "RTX-3090",
+    "guidance": 7.5,
+    "image_id": "woman_03",
+    "loss_params": {
+      "attn_mask_tau": 0.5,
+      "attn_timesteps": 2,
+      "beta_linf": 0.0,
+      "exact_inversion": true,
+      "k_inv": 10,
+      "n_eot": 1,
+      "purify_mode": "all",
+      "shared_tokens": [
+        0
+      ],
+      "t_max": null,
+      "target_image": "data/targets/gray.png",
+      "tau_acut": 0.16000000000000003,
+      "tau_chroma": 3.2,
+      "tau_linf": 0.06,
+      "tau_train": 0.2,
+      "train_n_edit": 10
+    },
+    "lr": null,
+    "model": "CompVis/stable-diffusion-v1-4",
+    "module_params": {
+      "apa_latent_const_rank": 8,
+      "apa_latent_max_rank": 32,
+      "apa_lora_rank": 8,
+      "project": {
+        "budget": 0.04,
+        "every": 1,
+        "metric": "dists"
+      },
+      "random_init_std": 0.5,
+      "recon": {
+        "a1_lr": 0.02,
+        "a1_steps": 200,
+        "a2_lr": 0.002,
+        "a2_steps": 200,
+        "acut_band": 0.05,
+        "floor_ratio": 0.5,
+        "gamma_acut": 1.0,
+        "objective": "lpips",
+        "w_pixel": 0.5
+      },
+      "warp_grid_size": 32,
+      "warp_max_disp": 8.0,
+      "warp_resample": "bicubic"
+    },
+    "optim_params": {
+      "align_steps": 200,
+      "max_steps": 250,
+      "stop_min_steps": 25,
+      "stop_patience": 20
+    },
+    "precision": "fp32",
+    "purify": null,
+    "resolution": 512,
+    "seed": null,
+    "spec_version": 1,
+    "steps": 50,
+    "strength": 0.4,
+    "tau": 0.04
+  },
+  "config_hash": "4e3d8b4b5208",
+  "error": null,
+  "fid_acutance_ratio": 0.9604392647743225,
+  "fid_dists": 0.07357686758041382,
+  "fid_frac_gt_16_255": 0.0486653670668602,
+  "fid_fsim": 0.9517345428466797,
+  "fid_linf": 0.7677295207977295,
+  "fid_lpips": 0.12908247113227844,
+  "fid_psnr": 30.02539825439453,
+  "fid_rms": 0.031530287116765976,
+  "fid_ssim": 0.9156634211540222,
+  "fid_vif_p": 0.3469647169113159,
+  "finished": "2026-08-11T07:03:20+08:00",
+  "id": "rayscale/apa_pj/woman_03/tau0.04",
+  "image": "woman_03",
+  "image_id": "woman_03",
+  "niqe": 3.5848814921438765,
+  "scale_k": 0.96875,
+  "seconds": 13.185808188980445,
+  "seconds_rayscale": 10.67,
+  "stage": "rayscale",
+  "started": "2026-08-11T07:03:07+08:00",
+  "status": "done",
+  "tau_achieved": 0.03822046518325806,
+  "tau_target": 0.04
+}

@@ -83,7 +83,18 @@ class NativeStage2Config:
     steps: int = 50             # 去噪步數（DDIM 架構用；BDIA 架構見 t_max/k_inv）
     t_max: Optional[int] = None
     index_cond_frac: float = 0.8   # 對應官方 index_cond=40/50=0.8：最後 20% 的步驟做 step-level guidance
-    guidance_scale: float = 7.5    # 攻擊方 CFG（跟本專案評測期 SDEdit 同一個值）
+    # **CFG 必須是 1.0，這是 APA 原生設定**（`dia_apa.md` §3.2：
+    # `attack_alignment.py:146,148,152,156` 反演與去噪都是 `guidance_scale=1`）。
+    #
+    # 2026-08-12 修正。before：7.5（誤用本專案**評測期** SDEdit 的攻擊方 CFG）。
+    # 那個值屬於另一條路徑——評測期模擬的是攻擊方用 stock SD 做文字引導編輯，
+    # 需要高 CFG 才會服從 prompt（E26）；階段二是防禦方自己在跑生成鏈，
+    # APA 在這裡刻意關掉 CFG。
+    #
+    # 症狀不是報錯而是數值：CFG=7.5 下文字條件把 latent 擾動放大成大幅語意
+    # 改變，實測 12 個原生格的 `fid_lpips` 落在 0.51–0.82，而 APA 原文
+    # Table 3 報的是 0.23–0.25。差距全部來自這一個旗標。
+    guidance_scale: float = 1.0
     fidelity_lambda: float = 10.0  # 官方 APA-GC reward 裡 -10·MSE(ori_latents, z̄_0) 那一項
     attn_mask_tau: float = 0.5
     ref_timestep_frac: float = 0.1  # 算 trajectory-level 注意力圖用的參照 timestep，相對 t_max（或 999）

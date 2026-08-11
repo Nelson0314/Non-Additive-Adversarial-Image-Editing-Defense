@@ -168,6 +168,15 @@ class OptimConfig:
     # 每幾步投影一次。1 = 每步。投影本身要跑數次完整生成路徑，故這是成本與
     # 「軌跡有多貼合球面」之間的取捨。
     project_every: int = 1
+    # 投影模式下「約束已啟動」這個前提要關掉。`plateau_stop` 預設要求某一道
+    # hinge 的懲罰為正才允許停止，理由是「還沒被綁住就停 = 停在容量而不是
+    # 極限」。投影把約束從罰項換成硬約束之後，φ **恆**坐在預算球面上，四道
+    # hinge 因此恆為零——那不是「還沒被綁住」，而是「一直被綁得剛剛好」，
+    # 但判準看不出差別，於是三格全部跑滿 250 步（2026-08-11 實測）。
+    #
+    # 跑滿上限的格子在本專案的協議下**不可用於跨條件比較**（量到的是「走到
+    # 哪裡」不是「能力」），所以這不是效率問題，是那三格的可用性問題。
+    stop_require_constraint: bool = True
 
     # 代理編輯鏈的 strength。**inpainting 威脅模型下必須為 None**——
     # 那個形態沒有這個參數，`SDWrapper.edit` 會拒絕收到它。
@@ -677,6 +686,7 @@ def run_stages(
                         result.history[start:], cfg.stop_patience,
                         resolve_stop_tol(cfg.stop_tol, monitor_key),
                         cfg.stop_min_steps,
+                        require_constraint=cfg.stop_require_constraint,
                         constraint_keys=constraint_keys,
                         monitor_key=monitor_key,
                         require_feasible=cfg.stop_require_feasible,

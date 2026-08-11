@@ -1168,6 +1168,8 @@ def optim_config(res: Resources, spec: ConditionSpec,
         recon=recon,
         project_factory=project_factory,
         project_every=res.cfg.project_every,
+        # 投影模式下約束恆滿足，「約束已啟動」判不出來，見該欄位的說明。
+        stop_require_constraint=not spec.project,
         stages=(StageSpec(group=("stage2" if spec.site == "apa" else "default"),
                           lr_key=spec.lr_key, max_steps=res.cfg.max_steps),),
         k_inv=res.cfg.k_inv,

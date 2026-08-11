@@ -448,3 +448,43 @@ def test_投影式條件關掉_LPIPS_hinge_但保留銳利度與色偏(tmp_path)
     assert pj.gamma_lpips == 0.0
     assert ap.gamma_lpips > 0.0
     assert pj.gamma_acut == ap.gamma_acut and pj.gamma_chroma == ap.gamma_chroma
+
+
+# ---------------------------------------------------------------------------
+# 投影模式下的停止準則
+# ---------------------------------------------------------------------------
+
+
+def _hist(n, monitor, pen=0.0):
+    return [{"step": i, "attn_suppressed": monitor(i), "fid_pen_lpips": pen,
+             "fid_pen_acut": pen} for i in range(n)]
+
+
+def test_投影模式下約束恆滿足時仍judge得到平台():
+    """hinge 恆為零在投影模式下代表「一直被綁得剛剛好」，不是「還沒被綁住」。
+    預設的 `require_constraint` 分不出這兩者，實測三格全部跑滿 250 步，而跑滿
+    上限的格子依本專案的協議不可用於跨條件比較。"""
+    from src.defense.optimize import plateau_stop
+
+    h = _hist(60, lambda i: 1.0 - 0.5 ** i, pen=0.0)   # 監看量早已走平
+    kw = dict(patience=20, tol=1e-4, min_steps=25,
+              monitor_key="attn_suppressed")
+    stop_default, _ = plateau_stop(h, **kw)
+    stop_proj, reason = plateau_stop(h, require_constraint=False, **kw)
+    assert stop_default is False, "預設行為變了：罰項模式不該在約束未啟動時停"
+    assert stop_proj is True and reason
+
+
+def test_投影式條件把該旗標關掉而其餘條件不變(tmp_path):
+    from dataclasses import replace as dc_replace
+
+    from src.experiment import executors
+    from tests.test_executors import make_res
+
+    res = make_res(tmp_path)
+    res.cfg = dc_replace(res.cfg, project_budget=0.04, attn_mask_tau=0.5)
+    entry = res.image("dog_00")
+    pj = executors.optim_config(res, executors.condition_spec("apa_pj"), entry)
+    ap = executors.optim_config(res, executors.condition_spec("apa"), entry)
+    assert pj.stop_require_constraint is False
+    assert ap.stop_require_constraint is True

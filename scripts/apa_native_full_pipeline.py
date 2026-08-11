@@ -181,11 +181,22 @@ def run_baseline(sd, item, name: str, seed: int) -> dict:
     if name == "photoguard_c":
         kw = {"mask": None, "strength": EDIT_STRENGTH}
     elif name == "mist":
-        kw = {"use_ckpt": False, "vae_ckpt": False,
+        # mist 的 fused mode 把兩次 VAE 編碼與一次完整 UNet 前向放在同一張
+        # 計算圖上，故兩個 checkpoint 開關都要給（`executors.baseline_kwargs`
+        # 同一條規則）。checkpoint 是數值中性的，只換記憶體與時間。
+        kw = {"use_ckpt": True, "vae_ckpt": True,
              "target01": executors.load_image_tensor(
                  Path("data/targets/MIST.png"), sd.device, size=RESOLUTION)}
     elif name == "dia_r":
-        kw = {"use_ckpt": False, "vae_ckpt": False}
+        # **兩個都必須為 True。** DIA-R 把整條反演再加整條重建留在同一張圖上，
+        # 圖上另有一次 VAE 編碼與一次 VAE 解碼。
+        #
+        # 2026-08-12 修正。before：兩者皆 False，三張圖全部以
+        # `torch.OutOfMemoryError`（23.54/23.56 GiB 用盡）中止於 UNet 的 FFN。
+        # `executors.baseline_kwargs` 早已記載這條規則（2026-08-07 那一筆
+        # 補的正是「只包 UNet 仍不夠，dia_r 改在 vae.decode OOM」），
+        # 本腳本沒走那個函式而自行組 kwargs，於是漏掉。
+        kw = {"use_ckpt": True, "vae_ckpt": True}
     t0 = time.time()
     result = run_pgd(sd, item["path01"], spec, seed=seed, verbose=True, **kw)
     seconds = time.time() - t0

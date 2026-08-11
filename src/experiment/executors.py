@@ -154,6 +154,17 @@ class ConditionSpec:
     # `budget_projector`，且把 LPIPS 那一道 hinge 的係數歸零——同一件事由
     # 兩個機制同時管，等於在球面上再加一個沒有作用的力。
     project: bool = False
+    # 這個條件要更新哪一組參數，以及階段一要更新哪一組。
+    #
+    # **明寫而不是由 site 名稱推導。** 先前是 `"stage2" if site == "apa" else
+    # "default"`，與本檔的既有慣例（`generator.py` 依能力分派、
+    # `direction_param` 依能力挑成員）相反：新增一個同樣有兩階段的 site 時，
+    # 那兩個三元運算子要各改一次，漏掉一個的後果是 `stage_parameters` 以
+    # KeyError 中止（還算好），或更糟——落回 `default` 而把兩個階段的參數
+    # 一起更新，那與設定的兩階段結構是兩件不同的事，且**沒有症狀**
+    # （`stage_parameters` 的 docstring 記的就是這個失效）。
+    train_group: str = "default"
+    align_group: str = "default"
     # **這個旗標只管生成／編輯路徑**（`gen.generate` 與 `sd.edit`），
     # 不管注意力前向。
     #
@@ -190,7 +201,8 @@ CONDITION_SPECS: Dict[str, ConditionSpec] = {
     # 元素、latent 注入的是噪聲量級，Adam 每步位移約等於 lr，同一個數值
     # 對兩者代表兩種步長。
     "N3": ConditionSpec(
-        "N3", "nonadditive", site="apa", defense_mode="targeted_output",
+        "N3", "nonadditive", site="apa",
+        train_group="stage2", align_group="stage1", defense_mode="targeted_output",
         target_metric="mse", lr_key="lr.N3_stage2",
         align_lr_key="lr.N3_stage1", monitor="edit_shift",
     ),
@@ -219,7 +231,8 @@ CONDITION_SPECS: Dict[str, ConditionSpec] = {
     # 而 `--purify-mode all` × `attn_timesteps 4` 是 12 份完整的 UNet 計算圖，
     # 再加上生成路徑（已 checkpoint）。段 0 若仍 OOM，先降 `--attn-timesteps`。
     "apa": ConditionSpec(
-        "apa", "nonadditive", site="apa", defense_mode="suppress_attn_ca",
+        "apa", "nonadditive", site="apa",
+        train_group="stage2", align_group="stage1", defense_mode="suppress_attn_ca",
         lr_key="lr.N4_stage2", align_lr_key="lr.N4_stage1",
         monitor="attn_suppressed",
     ),
@@ -249,7 +262,8 @@ CONDITION_SPECS: Dict[str, ConditionSpec] = {
     # `target_metric="mse"` 與 N3 相同（`DESIGN` §4）：形式取自 PhotoGuard-c
     # 的 diffusion attack 與 Mist 的 textural loss，故與 B1／B2 可直接對照。
     "apa_tj": ConditionSpec(
-        "apa_tj", "nonadditive", site="apa", defense_mode="targeted_output",
+        "apa_tj", "nonadditive", site="apa",
+        train_group="stage2", align_group="stage1", defense_mode="targeted_output",
         target_metric="mse", lr_key="lr.N7_stage2",
         align_lr_key="lr.N4_stage1", monitor="edit_shift", project=True,
     ),
@@ -257,12 +271,14 @@ CONDITION_SPECS: Dict[str, ConditionSpec] = {
     # 施加方式：hinge（罰項）改為每步投影回失真預算的球面。學習率鍵同樣要
     # 自己一組——損失雖然相同，但可行域變了，同一個 lr 的 argmin 沒有理由相同。
     "apa_pj": ConditionSpec(
-        "apa_pj", "nonadditive", site="apa", defense_mode="suppress_attn_ca",
+        "apa_pj", "nonadditive", site="apa",
+        train_group="stage2", align_group="stage1", defense_mode="suppress_attn_ca",
         lr_key="lr.N6_stage2", align_lr_key="lr.N4_stage1",
         monitor="attn_suppressed", project=True,
     ),
     "apa_rd": ConditionSpec(
-        "apa_rd", "nonadditive", site="apa", defense_mode="redirect_attn_ca",
+        "apa_rd", "nonadditive", site="apa",
+        train_group="stage2", align_group="stage1", defense_mode="redirect_attn_ca",
         lr_key="lr.N5_stage2", align_lr_key="lr.N4_stage1",
         monitor="attn_suppressed",
     ),
@@ -275,11 +291,37 @@ CONDITION_SPECS: Dict[str, ConditionSpec] = {
     # `_probe_align_lr` 的判準是**對齊損失**，那是保真度，與防禦模式無關，
     # 兩者會探出同一個值。共用因此省下一組探測而不改變任何數值。
     "Ra": ConditionSpec(
-        "Ra", "random", site="apa", align_lr_key="lr.N4_stage1",
+        "Ra", "random", site="apa",
+        train_group="stage2", align_group="stage1", align_lr_key="lr.N4_stage1",
     ),
 }
 for _b in grid.BASELINES:
     CONDITION_SPECS[_b] = ConditionSpec(_b, "baseline")
+
+
+def uses_stage_a(cfg: "RunConfig", spec: ConditionSpec) -> bool:
+    """這一格要不要用 A 段（DEC-016）取代階段一。
+
+    **集中在這裡是因為它先前散落三處**：`optim_config` 把 `align_steps` 歸零、
+    `_train_nonadditive` 呼叫 `solve_recon`、`calibrate_lr` 跳過階段一的探測。
+    三處各寫一次 `res.cfg.recon and spec.site == "apa"`，而它們必須同進同退：
+    只改其中兩處的後果是「A 段跑了但階段一也跑了」或「跳過探測卻仍要那個值」，
+    兩種都不會報錯，只會多燒 910 秒或在段 1 才以缺鍵中止。
+
+    判準是「這個條件走不走生成路徑」。新增生成路徑的 site 時只改這裡。
+    """
+    return bool(cfg.recon and spec.site == "apa")
+
+
+def image_seed(cfg: "RunConfig", image_id: str) -> int:
+    """逐影像但可重現的種子。
+
+    `crc32` 使同一張影像在任何一次執行都得到同一個值，而不同影像互相獨立。
+    集中在這裡是因為它決定**兩個條件的起點是不是同一個分布**：`Ra` 的隨機
+    方向與投影式條件的隨機起點都用它，兩者若各寫一份而其中一份改了，比較
+    到的差異裡就混進了起點的差異，且沒有任何症狀。
+    """
+    return cfg.seed + zlib.crc32(image_id.encode("utf-8"))
 
 
 def condition_spec(name: str) -> ConditionSpec:
@@ -919,7 +961,7 @@ def build_module(condition: str, res: Resources, entry: ImageEntry,
     # 故兩者的起點分布相同、比較不含起點造成的差異。
     if condition_spec(condition).project:
         gd = torch.Generator(device="cpu").manual_seed(
-            seed + zlib.crc32(entry.image_id.encode("utf-8")))
+            image_seed(res.cfg, entry.image_id))
         dp = direction_param(module)
         with torch.no_grad():
             dp.data = (torch.randn(dp.shape, generator=gd, dtype=torch.float32)
@@ -1174,7 +1216,7 @@ def optim_config(res: Resources, spec: ConditionSpec,
     # A 段取代階段一：兩者的目的相同（把 G(x; φ=0) 拉近原圖），但階段一的
     # LoRA 在 UNet 上、重建誤差在 VAE 上，實測 200 步只移動 LPIPS 0.0015
     # 卻花 910 秒（FND-016）。留著它跑等於每格白燒那段時間。
-    if res.cfg.recon and spec.site == "apa":
+    if uses_stage_a(res.cfg, spec):
         align_steps = 0
     project_factory = None
     if spec.project:
@@ -1195,8 +1237,8 @@ def optim_config(res: Resources, spec: ConditionSpec,
         project_every=res.cfg.project_every,
         # 投影模式下約束恆滿足，「約束已啟動」判不出來，見該欄位的說明。
         stop_require_constraint=not spec.project,
-        stages=(StageSpec(group=("stage2" if spec.site == "apa" else "default"),
-                          lr_key=spec.lr_key, max_steps=res.cfg.max_steps),),
+        stages=(StageSpec(group=spec.train_group, lr_key=spec.lr_key,
+                          max_steps=res.cfg.max_steps),),
         k_inv=res.cfg.k_inv,
         t_max=res.cfg.t_max,
         exact_inversion=res.cfg.exact_inversion,
@@ -1205,7 +1247,7 @@ def optim_config(res: Resources, spec: ConditionSpec,
         purify_mode=res.cfg.purify_mode,
         align_steps=align_steps,
         align_lr_key=spec.align_lr_key,
-        align_group="stage1" if spec.site == "apa" else "default",
+        align_group=spec.align_group,
         strength=(None if (entry is not None and entry.mask is not None)
                   else res.cfg.strength),
         edit_mask=(entry.mask if entry is not None else None),
@@ -1321,7 +1363,7 @@ def _train_nonadditive(cell: grid.Cell, res: Resources, out_dir: Path
     module = build_module(cell.condition, res, entry, seed=res.cfg.seed)
     recon = recon_csv = None
     recon_summary: Dict[str, Any] = {}
-    if res.cfg.recon and spec.site == "apa":
+    if uses_stage_a(res.cfg, spec):
         recon, recon_csv, recon_summary = solve_recon(res, entry, out_dir)
     try:
         result = optimize(
@@ -1432,7 +1474,7 @@ def _train_random(cell: grid.Cell, res: Resources, out_dir: Path
 
     spec = condition_spec(cell.condition)
     entry = res.image(cell.image_id)
-    seed = res.cfg.seed + zlib.crc32(cell.image_id.encode("utf-8"))
+    seed = image_seed(res.cfg, cell.image_id)
     module = build_module(cell.condition, res, entry, seed=seed,
                           init_std=res.cfg.random_init_std)
     extra: Dict[str, Any] = {
@@ -1451,7 +1493,7 @@ def _train_random(cell: grid.Cell, res: Resources, out_dir: Path
             # A 段對 `Ra` 與 `apa` 逐字相同，理由與階段一那條相同（docstring
             # 第 3 點）：兩者的 `x_base` 必須走在同一條重建基準上，否則同一個
             # τ 之下留給隨機方向的預算比 apa 少，比較系統性地偏向我方。
-            if res.cfg.recon and spec.site == "apa":
+            if uses_stage_a(res.cfg, spec):
                 recon, recon_csv, recon_summary = solve_recon(res, entry,
                                                               out_dir)
                 extra.update(recon_summary)
@@ -2180,7 +2222,7 @@ def calibrate_lr(res: Resources, calib_dir: Path) -> Dict[str, Any]:
         # A 段接上時階段一不執行（`optim_config` 把 `align_steps` 歸零），
         # 探測它的學習率就是純粹的浪費：實測每個候選 60 步、格點 5 個候選，
         # 一個條件約 20 分鐘，而那個值不會被任何一格用到。
-        skip_align = res.cfg.recon and spec.site == "apa"
+        skip_align = uses_stage_a(res.cfg, spec)
         if spec.align_lr_key and not skip_align:
             # 對齊探測的判準是**對齊損失**（保真度），只由參數化決定。
             ident = ("align", spec.site)

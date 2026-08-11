@@ -428,7 +428,17 @@ def test_A段接上時不探測階段一的學習率():
     from src.experiment import executors
 
     src = inspect.getsource(executors.calibrate_lr)
-    assert "skip_align" in src and "res.cfg.recon" in src
+    assert "skip_align" in src and "uses_stage_a" in src
+    # 三處必須共用同一個謂詞：只改其中兩處不會報錯，只會多燒 910 秒或在段 1
+    # 才以缺鍵中止（見 `uses_stage_a` 的說明）。
+    # 謂詞的本體與它自己的說明各算一次，其餘任何一處都是就地展開。
+    whole = inspect.getsource(executors)
+    assert whole.count('cfg.recon and spec.site == "apa"') == 2, (
+        "政策謂詞又被就地展開了；它必須只出現在 uses_stage_a 裡")
+    for fn in (executors.optim_config, executors._train_nonadditive,
+               executors._train_random):
+        assert 'spec.site == "apa"' not in inspect.getsource(fn).replace(
+            "uses_stage_a", ""), f"{fn.__name__} 仍在就地比對 site 名稱"
 
 
 def test_投影式條件關掉_LPIPS_hinge_但保留銳利度與色偏(tmp_path):
@@ -488,3 +498,20 @@ def test_投影式條件把該旗標關掉而其餘條件不變(tmp_path):
     ap = executors.optim_config(res, executors.condition_spec("apa"), entry)
     assert pj.stop_require_constraint is False
     assert ap.stop_require_constraint is True
+
+
+def test_參數組由_ConditionSpec_明寫而非由_site_名稱推導():
+    """先前是 `"stage2" if site == "apa" else "default"`，與本專案「依能力分派、
+    不比對名稱」的慣例相反。新增一個同樣有兩階段的 site 時，漏改的後果可能是
+    落回 `default` 而把兩個階段的參數一起更新——那與設定的兩階段結構是兩件
+    不同的事，且沒有症狀。"""
+    import inspect
+
+    from src.experiment.executors import CONDITION_SPECS, optim_config
+
+    src = inspect.getsource(optim_config)
+    assert 'spec.site == "apa"' not in src.replace("uses_stage_a", "")
+    for name, spec in CONDITION_SPECS.items():
+        want = ("stage2", "stage1") if spec.site == "apa" else ("default",
+                                                                "default")
+        assert (spec.train_group, spec.align_group)[:len(want)] == want, name

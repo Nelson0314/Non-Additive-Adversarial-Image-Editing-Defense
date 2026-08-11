@@ -32,8 +32,8 @@ def test_登記表的條件組成():
     # 2026-08-11：4 → 6。`apa_rd` 是損失變因、`apa_pj` 是約束變因，兩者都
     # 與 `apa` 同參數化。分成兩個條件而不是一個旗標，是因為它們**不可同時
     # 開**：一起改的話結果變好也分不出是哪一個造成的。
-    assert len(grid.NONADDITIVE) == 6
-    assert {"apa_rd", "apa_pj"} <= set(grid.NONADDITIVE)
+    assert len(grid.NONADDITIVE) == 7
+    assert {"apa_rd", "apa_pj", "apa_tj"} <= set(grid.NONADDITIVE)
     assert "diffvax" not in grid.CONDITIONS
     assert set(grid.RANDOM_CONTROLS) <= set(grid.CONDITIONS)
 

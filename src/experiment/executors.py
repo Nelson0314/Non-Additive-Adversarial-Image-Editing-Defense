@@ -237,6 +237,22 @@ CONDITION_SPECS: Dict[str, ConditionSpec] = {
     # 共用還會讓同批同時跑兩者時 `calibrate_lr` 的 `out[spec.lr_key]` 被後者
     # 靜默覆寫。階段一的鍵可以共用（那是保真度，與損失模式無關），理由與
     # `Ra` 那一條逐字相同。
+    # 2026-08-11。投影式約束套在**另一個著力點**上：`targeted_output` 直接把
+    # 代理編輯鏈的輸出推離未防禦的編輯，而那正是評測期量的東西（`edit_lpips`）。
+    #
+    # 為什麼值得試：`apa`／`apa_rd`／`apa_pj` 三者的著力點都是注意力，實測
+    # `edit_lpips` 落在 0.087–0.107 而三個加性 baseline 是 0.24–0.36，差距
+    # 2.5–4 倍不是調參能補的。投影本身被證明有效（銳利度比 0.646 → 0.960），
+    # 但它套在一個無效的損失上。本條件把「有效的約束」與「與評測對齊的損失」
+    # 合起來，是這兩件事各自成立之後唯一還沒試過的組合。
+    #
+    # `target_metric="mse"` 與 N3 相同（`DESIGN` §4）：形式取自 PhotoGuard-c
+    # 的 diffusion attack 與 Mist 的 textural loss，故與 B1／B2 可直接對照。
+    "apa_tj": ConditionSpec(
+        "apa_tj", "nonadditive", site="apa", defense_mode="targeted_output",
+        target_metric="mse", lr_key="lr.N7_stage2",
+        align_lr_key="lr.N4_stage1", monitor="edit_shift", project=True,
+    ),
     # 2026-08-11（改良 1–3）。與 `apa` **同一個損失**，差別只在保真約束的
     # 施加方式：hinge（罰項）改為每步投影回失真預算的球面。學習率鍵同樣要
     # 自己一組——損失雖然相同，但可行域變了，同一個 lr 的 argmin 沒有理由相同。
@@ -641,12 +657,21 @@ class RunConfig:
         學習率不在此：它由校準表決定、逐格記在 `meta.json` 的 `lr` 欄，
         而 `lr` 自己就是 `REQUIRED_KEYS` 的一員。
         """
-        return {
+        out = {
             "max_steps": self.max_steps,
             "align_steps": self.align_steps,
             "stop_patience": self.stop_patience,
             "stop_min_steps": self.stop_min_steps,
         }
+        # 投影模式關掉「約束已啟動」這個前提（`OptimConfig.stop_require_constraint`），
+        # 而那**改變同一個 φ 停在第幾步**——2026-08-11 之前的 apa_pj 三格全部
+        # 跑滿 250 步、修好之後會提早停。兩者若共用雜湊，續跑會把舊的那三格
+        # 判為已完成而靜默沿用，那正是 A7 點名的缺陷型態。
+        #
+        # 鍵**只在投影時出現**，故不含投影的批次雜湊逐位不變。
+        if self.project_budget is not None:
+            out["stop_require_constraint"] = False
+        return out
 
 
 @dataclass

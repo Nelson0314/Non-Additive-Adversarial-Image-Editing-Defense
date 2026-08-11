@@ -1,0 +1,12 @@
+{
+  "artifacts": [],
+  "config_hash": "",
+  "error": null,
+  "finished": "2026-08-11T13:04:38+08:00",
+  "id": "control/phi0/horse_03/purifycnn_denoise_substitute0/seed4",
+  "seconds": null,
+  "skipped_reason": "淨化算子 cnn_denoise_substitute 的相依不齊（權重或套件缺席），本批無法執行；見 src/purify/ops.py 對該算子的說明",
+  "stage": "control",
+  "started": "2026-08-11T13:04:38+08:00",
+  "status": "skipped"
+}

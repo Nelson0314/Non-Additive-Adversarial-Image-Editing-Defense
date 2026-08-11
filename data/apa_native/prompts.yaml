@@ -1,0 +1,27 @@
+# APA 官方 repo 附的三張真實影像（images_un/1.png、3.png、4.png，見
+# provenance.json）用於「原生 APA 完整流程重現」實驗——階段一 LoRA、
+# 階段二 dual-path + L∞ 球約束、reward 換成本專案的 attention 抑制損失，
+# 並與本專案現行做法（z*+decoder、latent 殘差投影）以及三個加性 baseline
+# 並列比較。
+
+# content 是防禦方選擇要保護的詞（Lo et al. 的 c_a），跟階段一 LoRA
+# 訓練用的官方 class 名稱同一個字串（見 provenance.json 的 apa_class）。
+# prompts 是攻擊方的編輯 prompt，供 SDEdit 抗編輯評測用——APA 原文沒有
+# 這個概念（它攻擊分類器不是文字引導編輯），這裡是本專案為了跟現行主線
+# 用同一套抗編輯協議比較而補上的，同構圖、換語意內容，跟 data/lo_aligned
+# 的慣例一致。
+
+panda:
+  content: "giant panda"
+  prompts:
+    - "a giant panda astronaut floating in outer space"
+
+butterfly:
+  content: "gossamer-winged butterfly"
+  prompts:
+    - "a group of monarch butterflies resting on a red rose"
+
+coot:
+  content: "American coot"
+  prompts:
+    - "a white swan gliding on a golden lake at sunset"

@@ -1,0 +1,2 @@
+image,condition,stage1_seconds,total_seconds,fid_lpips,fid_ssim,fid_dists,fid_psnr,fid_clip_img,fid_nima,fid_cnniqa,edit_lpips,edit_clip_orig,edit_clip_def,edit_clip_drop,edit_siglip_orig,edit_siglip_def,edit_siglip_drop
+butterfly,ourStage1_DDIM,0.0,177.2,0.2313,0.8074,0.1013,22.7399,0.9772,5.313,0.5018,0.2492,0.2684,0.2712,-0.0027,0.0562,0.045,0.0112

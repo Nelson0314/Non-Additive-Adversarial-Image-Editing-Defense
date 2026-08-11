@@ -1,0 +1,2 @@
+image,condition,stage1_seconds,total_seconds,fid_lpips,fid_ssim,fid_dists,fid_psnr,fid_clip_img,fid_nima,fid_cnniqa,edit_lpips,edit_clip_orig,edit_clip_def,edit_clip_drop,edit_siglip_orig,edit_siglip_def,edit_siglip_drop
+coot,ourStage1_DDIM,0.0,159.6,0.2287,0.8005,0.1794,23.0672,0.92,4.4066,0.4985,0.1573,0.301,0.3112,-0.0102,0.1004,0.0876,0.0128

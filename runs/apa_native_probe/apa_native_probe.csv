@@ -1,0 +1,4 @@
+image,class,lora_train_seconds,lora_diverged,recon_a2_reached,recon_a2_stop_step,floor_lpips,floor_ssim,floor_dists,floor_psnr,floor_clip_img,floor_nima,floor_cnniqa,lora_native_lpips,lora_native_ssim,lora_native_dists,lora_native_psnr,lora_native_clip_img,lora_native_nima,lora_native_cnniqa,recon_lpips,recon_ssim,recon_dists,recon_psnr,recon_clip_img,recon_nima,recon_cnniqa
+panda,giant panda,46.1,False,True,20,0.1783,0.8453,0.0608,27.4632,0.9787,4.878,0.4804,0.2154,0.8194,0.0879,26.3193,0.9826,4.6863,0.4576,0.0889,0.8741,0.0534,27.8496,0.9921,4.6589,0.5083
+butterfly,gossamer-winged butterfly,46.5,False,True,95,0.1711,0.8604,0.0401,24.7387,0.995,5.5365,0.5863,0.2112,0.8187,0.0834,22.4653,0.9897,5.3775,0.5423,0.0855,0.8819,0.0397,25.2003,0.9944,5.5393,0.5488
+coot,American coot,46.4,False,True,0,0.1649,0.8616,0.0508,25.3397,0.9859,4.3218,0.4559,0.1973,0.8299,0.0995,23.7822,0.9571,4.2526,0.4367,0.0822,0.8878,0.0485,26.0241,0.9838,4.3121,0.466

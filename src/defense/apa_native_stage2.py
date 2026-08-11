@@ -41,6 +41,28 @@ checkpoint`／`cond_guidance`，2026-08-12 直接取官方原始碼核對）。�
 對防禦訊號為常數，符合 Lo et al. 式(4) 與本專案既有 `suppress_attn_ca`
 的慣例。
 
+### 換 reward 之後必須重新標定的一件事（DEC-021）
+
+官方 APA-GC 的 reward 是 `CE − 10·MSE(z_0, z̄_0)`，**兩項同一個量級**，
+後面那個 MSE 是有作用的保真煞車。注意力抑制損失是「16 層注意力圖在遮罩區
+內的 L1 總和」，量級差三個數量級——實測 `r_attn` 455–1588 對
+`fid_pen` 0.15–0.71，比值 1000–2000 倍，於是**那道煞車在換 reward 之後
+等於被關掉**。這不是實作缺陷，是「只換 reward、其餘照抄」的必然後果，
+而且不會有症狀：訓練跑得完、L∞ 球照樣綁住幅度，只是失真比原文大得多。
+
+處置（使用者 2026-08-12 裁決）：把 `R_attn` 除以它自己在**第 0 次迭代**的
+絕對值，使該項由 −1 起步，`fidelity_lambda` 維持官方的 10.0 不動
+（`normalize_attn_reward`，預設開啟）。正的常數縮放不改變該項的梯度方向，
+改變的只有它與保真項的相對權重。
+
+    before（v1/v2 兩批）：reward = R_attn − 10·MSE
+                          實測 r_attn ≈ 455–1588、fid_pen ≈ 0.15–0.71
+    after （v3）        ：reward = R_attn/|R_attn⁰| − 10·MSE
+                          第 0 次迭代該項恆為 −1，兩項回到同量級
+
+**這是相對 APA 原文的第三個有記錄偏離**（另外兩個是 reward 本身的替換、
+以及不做 diffusion augmentation），論文須載明。
+
 ## 架構變因（DDIM vs BDIA）怎麼接
 
 `use_bdia=False`：標準 DDIM 步進（`sd._ddim_step` 的單方向版本），對應
@@ -116,6 +138,25 @@ class NativeStage2Config:
     # Table 3 報的是 0.23–0.25。差距全部來自這一個旗標。
     guidance_scale: float = 1.0
     fidelity_lambda: float = 10.0  # 官方 APA-GC reward 裡 -10·MSE(ori_latents, z̄_0) 那一項
+    # **把注意力 reward 正規化到 cross-entropy 原本佔的量級**（使用者
+    # 2026-08-12 裁決，見 DEC-021）。`True` 時 `R_attn` 除以它自己在第 0 次
+    # 迭代的絕對值，使該項由 −1 起步；`fidelity_lambda` 維持官方的 10.0 不動。
+    #
+    # 為什麼需要：官方 reward 是 `CE − 10·MSE(z_0, z̄_0)`，兩項同量級、
+    # 那個 MSE 真的在制衡。換成注意力抑制損失（16 層注意力圖在遮罩區內的
+    # L1 **總和**）之後量級差三個數量級——v2 實測 `r_attn` 455–1588 而
+    # `fid_pen` 0.15–0.71，比值 1000–2000 倍，**APA 內建的那道保真煞車
+    # 等於失效**。這不是實作錯誤，是「只換 reward、其他照抄」的必然結果。
+    #
+    # 為什麼是正規化 reward 而不是放大 λ：這樣官方的 λ=10 逐字保留，
+    # 偏離只有一處且可逆；改 λ 則要挑一個 6.6×10⁴ 量級的數字，那個數字
+    # 沒有出處、也無法對照回原文。正的常數縮放不改變該項的梯度方向，
+    # 改變的只有它與保真項的相對權重——那正是要修的東西。
+    #
+    # 正規化常數取第 0 次迭代的值而非固定常數：`r_attn` 的絕對值隨影像的
+    # 注意力質量而變（遮罩大小、主體佔比都會影響），固定常數會讓不同影像
+    # 拿到不同的有效權重，而那個差異不會有症狀。
+    normalize_attn_reward: bool = True
     attn_mask_tau: float = 0.5
     ref_timestep_frac: float = 0.1  # 算 trajectory-level 注意力圖用的參照 timestep，相對 t_max（或 999）
     use_ckpt: bool = True
@@ -169,12 +210,19 @@ def _trajectory_pass(
     sd, adv_latents: torch.Tensor, emb_cond: torch.Tensor,
     emb_uncond: torch.Tensor, emb_ca: torch.Tensor, ori_latents: torch.Tensor,
     cfg: NativeStage2Config, span: tuple, mask: torch.Tensor, side: int,
-    ts: torch.Tensor,
+    ts: torch.Tensor, attn_norm: Optional[List[float]] = None,
 ) -> Tuple[torch.Tensor, torch.Tensor, Dict]:
     """跑一次完整去噪（可反傳），回傳 `(z_0, reward, log)`。
 
-    `ts` 升冪、長度 `steps+1`（同 `sd.timesteps` 的慣例）。DDIM 與 BDIA
-    共用這一個函式，差別只在 `cfg.use_bdia` 切換單步公式。
+    `ts` 升冪、長度 `schedule_steps+1`（同 `sd.timesteps` 的慣例），本函式
+    只走前 `cfg.steps` 格。DDIM 與 BDIA 共用這一個函式，差別只在
+    `cfg.use_bdia` 切換單步公式。
+
+    `attn_norm` 是單元素 list 的可變狀態，供 `normalize_attn_reward` 用：
+    第一次呼叫時由本函式填入 `|R_attn|`，其後各次沿用同一個值。用可變容器
+    而不是回傳值，是為了讓「整輪攻擊共用同一個正規化常數」成為呼叫端不必
+    自己維護的性質——每次迭代各自正規化會讓 `R_attn` 恆為 −1，梯度尺度
+    被抹平，那與這個旗標要做的事相反。
     """
     device = adv_latents[0].device if cfg.use_bdia else adv_latents.device
     abar = sd.alphas_cumprod(device)
@@ -225,11 +273,24 @@ def _trajectory_pass(
 
     ref_t = torch.as_tensor(_ref_timestep(cfg, cfg.t_max or (sd.num_train_timesteps - 1)),
                             device=z_0.device)
-    r_attn = _attention_reward(sd, z_0, ref_t, emb_ca, span, mask, side)
+    r_attn_raw = _attention_reward(sd, z_0, ref_t, emb_ca, span, mask, side)
+    r_attn = r_attn_raw
+    if cfg.normalize_attn_reward:
+        if attn_norm is None:
+            raise ValueError(
+                "normalize_attn_reward=True 但呼叫端沒有提供 attn_norm 狀態。"
+                "正規化常數必須跨迭代共用，見 DEC-021"
+            )
+        if attn_norm[0] is None:
+            attn_norm[0] = float(r_attn_raw.detach().abs().clamp_min(1e-12))
+        r_attn = r_attn_raw / attn_norm[0]
     fidelity_pen = cfg.fidelity_lambda * torch.nn.functional.mse_loss(
         ori_latents.float(), z_0.float())
     reward = r_attn - fidelity_pen
-    log = {"r_attn": float(r_attn.detach()), "fidelity_pen": float(fidelity_pen.detach())}
+    log = {"r_attn": float(r_attn.detach()),
+           "r_attn_raw": float(r_attn_raw.detach()),
+           "attn_norm": attn_norm[0] if attn_norm else None,
+           "fidelity_pen": float(fidelity_pen.detach())}
     return z_0, reward, log
 
 
@@ -292,6 +353,8 @@ def attack_native(
     adv = (la_0.clone() if not cfg.use_bdia
           else (la_0[0].clone(), la_0[1].clone()))
     momentum = torch.zeros_like(z_T)
+    # 整輪共用一個正規化常數，由第 0 次迭代填入（DEC-021）。
+    attn_norm: List[Optional[float]] = [None]
 
     history: List[Dict] = []
     for ii in range(cfg.niters):
@@ -307,7 +370,7 @@ def attack_native(
 
         z_0, reward, log = _trajectory_pass(
             sd, adv_in, emb_cond, emb_uncond, emb_ca, ori_latents,
-            cfg, span, mask, side, ts)
+            cfg, span, mask, side, ts, attn_norm)
 
         grad = torch.autograd.grad(reward, opt_var, retain_graph=False,
                                    create_graph=False)[0].detach()
@@ -334,6 +397,6 @@ def attack_native(
     with torch.no_grad():
         z_final, _, _ = _trajectory_pass(
             sd, adv, emb_cond, emb_uncond, emb_ca, ori_latents,
-            cfg, span, mask, side, ts)
+            cfg, span, mask, side, ts, attn_norm)
         x_def = sd.decode_latent(z_final)
     return x_def, history

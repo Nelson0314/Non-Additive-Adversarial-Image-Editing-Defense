@@ -1,32 +1,31 @@
 #!/usr/bin/env python
-"""訓練期壓下的 c_a 抑制，有沒有活過攻擊方的編輯鏈。
+"""訓練期壓下的 c_a 抑制，在**沒有被取樣到的 timestep** 上還在不在。
 
-    python scripts/ca_attention_probe.py --out runs/ca_probe \
-        --cond "apa+A=runs/s3t20_r_merged/apa" ... <run_stage 的旗標>
+    python scripts/ca_attention_probe.py --out runs/ca_probe         --cond "apa+A=runs/s3t20_r_merged/apa" ... <run_stage 的旗標>
 
-## 這支腳本存在的理由
+## 這支腳本問的問題
 
 `apa` 的訓練把 `‖Att(x_def, c_a) ⊙ M‖₁` 壓掉 77–87%，而評測期的 `edit_lpips`
-只有 0.107。中間缺一個環節：**那個抑制在攻擊方真正的取樣鏈上還在不在。**
+只有 0.107。中間缺一個環節：那個抑制的**適用範圍**有多大。
 
-現有的 `attention.html` 答不了這個問題。`_sdedit` 的 `capture_span` 取的是
-**攻擊方 prompt** 的內容 token（`a zebra` 的 `zebra`），而訓練期施力的是防禦方
-指名的 c_a（`horse`）——兩者是不同的詞、不同的 span。拿前者去說後者，是把
-兩個量當成同一個。
+訓練只在 `attn_timesteps = 2` 個 timestep 上施力（`_build_attn_step` 把
+`[0, t_edit]` 均分取兩點），而攻擊方走 50 步。若抑制只存在於被取樣到的那兩點，
+它對攻擊鏈上其餘 48 步就沒有作用——那會是「訓練目標達成、防禦無效」的直接
+機制解釋，也指出 DEC-016 C2（2 → 4）該往哪個方向調。
 
-本腳本在同一條 50 步編輯鏈上，改以 **c_a 的 span** 擷取注意力，逐條件比較：
+故本腳本在**同一組條件**下（c_a 的嵌入、原圖取的遮罩 M、同一個式 (3) 聚合）
+把 timestep 掃密，逐條件比較遮罩內的 L1 與它佔全圖的比例。
 
-- 抑制活過來了 → 防禦圖的 c_a 質量顯著低於未防禦，且低於隨機對照
-- 抑制沒活過來 → 三者相同，那麼「壓低 c_a 注意力」這個著力點在訓練期成功、
-  在攻擊期無效，`edit_lpips` 為何只有 0.107 就有了機制上的解釋
+## 為什麼不是「在攻擊鏈上量 c_a」
 
-**與隨機對照 `Ra` 並列是必要的**：若防禦圖與未防禦有差、但隨機擾動也有同樣
-的差，那個差就不是抑制造成的。
+那個問法不可執行，而**第一版正是這樣寫的，量到的是錯的東西**：攻擊鏈的條件
+嵌入是攻擊方的 prompt（`a zebra`），而 `token_span(tokenizer, "horse")` 回傳
+的是 (1, 2)——`a zebra` 的第 1 格是 `a`。兩者拼起來量到的是「a」這個 token
+的注意力，與 c_a 無關，而數字看起來完全正常（各條件差 −0.7% 到 +2.2%）。
+c_a 不在攻擊 prompt 裡，它的注意力只有在以 c_a 為條件時才有定義。
 
-## 不動評測管線
-
-刻意寫成獨立腳本而不是改 `eval_executor`：改後者會讓既有批次的 `config_hash`
-全部改變、整批判為未完成。這裡只讀已經存到磁碟的 `x_def`，重跑一次編輯鏈。
+**與隨機對照 `Ra` 並列是必要的**：若隨機擾動也造成同樣的下降，那個下降就不是
+最佳化取得的。
 """
 
 import csv
@@ -47,31 +46,74 @@ from src.experiment.executors import (eval_noise_seed,  # noqa: E402
 from src.models.attention import token_span  # noqa: E402
 
 
-def probe(res, entry, x, seeds):
-    """在攻擊鏈上以 c_a 的 span 擷取注意力，回傳逐 seed 的統計。
+def _mask_and_span(res, entry, n_t):
+    """式 (4) 的遮罩 M 與 c_a 的 token 區間，取法與訓練期逐字相同。
 
-    prompt、噪聲、步數、guidance 全部取評測期的同一組值——差一個就不是
-    「攻擊方實際會走的那條鏈」，而這支腳本問的正是那條鏈上發生什麼。
+    遮罩由**原圖**取（對 φ 為常數），在多個 timestep 上平均後再二值化。
     """
+    from src.models.attention import (aggregate_token_attention,
+                                      attention_region_mask)
+    from src.models.attention import CrossAttentionRecorder
+
     span = token_span(res.sd.tokenizer, entry.content)
-    emb = res.sd.encode_text(entry.attack_prompt).detach()
-    emb_u = res.sd.uncond_prompt().detach()
-    lat = res.sd.latent_shape(x.shape[-2], x.shape[-1])
+    emb = res.sd.encode_text(entry.content).detach()
+    t_edit = (res.sd.num_train_timesteps - 1 if entry.mask is not None
+              else min(int(res.sd.num_train_timesteps * res.cfg.strength),
+                       res.sd.num_train_timesteps - 1))
+    ts = torch.linspace(0, t_edit, n_t + 1)[1:].round().long()
+    abar = res.sd.alphas_cumprod(res.device)
+    rec = CrossAttentionRecorder(res.sd.unet)
+    lat = res.sd.latent_shape(*entry.x01.shape[-2:])
+    with torch.no_grad():
+        z0 = res.sd.encode_image(entry.x01)
+        atts = []
+        for i, t in enumerate(ts):
+            n = res.sd.sample_edit_noise(torch.empty(lat, device=res.device),
+                                         seed=res.cfg.seed + i)
+            zt = abar[t].sqrt() * z0 + (1 - abar[t]).sqrt() * n
+            if res.sd.is_inpainting:
+                m9, zm = res.sd.mask_latents(entry.x01, entry.mask)
+                zt = torch.cat([zt, m9.to(zt.dtype), zm.to(zt.dtype)], dim=1)
+            with rec:
+                res.sd._eps(zt, t, emb)
+            atts.append(aggregate_token_attention(rec.maps, span, reduce="sum"))
+            rec.clear()
+        ref = torch.stack(atts).mean(dim=0)
+    return attention_region_mask(ref, res.cfg.attn_mask_tau), span, emb, ts, abar
+
+
+def probe(res, entry, x, mask, span, emb, ts, abar):
+    """逐 timestep 量遮罩內的注意力 L1 與它佔全圖的比例。
+
+    條件嵌入取 **c_a 本身**，與訓練期的 `emb_attn` 逐字相同。c_a 不在攻擊
+    prompt 裡，故「c_a 的注意力」只有在以 c_a 為條件時才有定義（見模組
+    docstring 對第一版錯誤的說明）。
+    """
+    from src.models.attention import (CrossAttentionRecorder,
+                                      aggregate_token_attention,
+                                      masked_attention_fraction,
+                                      masked_attention_l1)
+
+    rec = CrossAttentionRecorder(res.sd.unet)
+    lat = res.sd.latent_shape(*x.shape[-2:])
+    side = int(mask.shape[-1])
     out = []
-    for s in seeds:
-        noise = res.sd.sample_edit_noise(
-            torch.empty(lat, device=x.device), seed=eval_noise_seed(res, s))
-        cap = AttnCapture(res.sd, res.cfg.steps, span)
-        with cap, torch.no_grad():
-            res.sd.edit(x, emb, noise, res.cfg.steps,
-                        guidance_scale=res.cfg.guidance, emb_uncond=emb_u,
-                        mask=entry.mask,
-                        strength=(None if entry.mask is not None
-                                  else res.cfg.strength),
-                        step_hook=cap.step_hook)
-        rows = cap.rows
-        out.append((st.fmean(r["content_mass_mean"] for r in rows),
-                    st.fmean(r["entropy"] for r in rows)))
+    with torch.no_grad():
+        z0 = res.sd.encode_image(x)
+        for i, t in enumerate(ts):
+            n = res.sd.sample_edit_noise(torch.empty(lat, device=res.device),
+                                         seed=res.cfg.seed + i)
+            zt = abar[t].sqrt() * z0 + (1 - abar[t]).sqrt() * n
+            if res.sd.is_inpainting:
+                m9, zm = res.sd.mask_latents(x, entry.mask)
+                zt = torch.cat([zt, m9.to(zt.dtype), zm.to(zt.dtype)], dim=1)
+            with rec:
+                res.sd._eps(zt, t, emb)
+            att = aggregate_token_attention(rec.maps, span, side=side,
+                                            reduce="sum")
+            rec.clear()
+            out.append((int(t), float(masked_attention_l1(att, mask)),
+                        float(masked_attention_fraction(att, mask))))
     return out
 
 
@@ -80,7 +122,8 @@ def main(argv=None) -> int:
     ap.add_argument("--cond", action="append", required=True,
                     help="`名稱=條件目錄`。名稱內不可有 `=`")
     ap.add_argument("--out", type=Path, required=True)
-    ap.add_argument("--probe-seeds", type=int, default=3)
+    ap.add_argument("--n-timesteps", type=int, default=12,
+                    help="掃描幾個 timestep（均分於 [0, t_edit]）")
     # `build_parser()` 的 `stage` 與 `--batch` 是給五段驅動用的必填項，本腳本
     # 兩者都用不到（`build_resources` 直接收 `--out` 當批次目錄）。在此補上
     # 佔位值而不是叫呼叫端硬打——那會讓命令列出現一個沒有意義卻不能省的字。
@@ -97,31 +140,44 @@ def main(argv=None) -> int:
 
     args.out.mkdir(parents=True, exist_ok=True)
     res = build_resources(args, args.out)
-    seeds = list(range(args.probe_seeds))
     rows = []
     for image_id in args.images:
         entry = res.image(image_id)
-        print(f"\n[{image_id}] c_a={entry.content!r}  "
-              f"攻擊 prompt={entry.attack_prompt!r}", flush=True)
+        mask, span, emb, ts, abar = _mask_and_span(res, entry, args.n_timesteps)
+        # 訓練實際施力的兩點：`_build_attn_step` 把 [0, t_edit] 均分取
+        # `attn_timesteps` 個。標出來才看得出「有施力的 t」與「沒施力的 t」
+        # 之間有沒有差別——那正是本腳本要判的事。
+        t_edit = int(ts[-1])
+        trained = set(int(v) for v in torch.linspace(
+            0, t_edit, res.cfg.attn_timesteps + 1)[1:].round().long())
+        print(f"\n[{image_id}] c_a={entry.content!r}  遮罩覆蓋 "
+              f"{float(mask.mean()) * 100:.1f}%  訓練施力於 t={sorted(trained)}",
+              flush=True)
         base = None
         for name, root in cols:
             png = root / image_id / "x_def_tau0.04.png"
             x = (entry.x01 if not png.exists()
                  else load_image_tensor(png, res.device, args.resolution))
-            got = probe(res, entry, x, seeds)
-            mass = st.fmean(m for m, _ in got)
-            ent = st.fmean(e for _, e in got)
+            got = probe(res, entry, x, mask, span, emb, ts, abar)
             if base is None:
-                base = (mass, ent)
-            rel = (mass / base[0] - 1) * 100
-            print(f"  {name:<22} c_a 質量 {mass:.5f}（{rel:+.1f}%）  "
-                  f"熵 {ent:.4f}  來源 {'原圖' if not png.exists() else png.name}",
-                  flush=True)
-            rows.append({"image_id": image_id, "condition": name,
-                         "ca": entry.content, "ca_mass": mass,
-                         "ca_entropy": ent, "rel_to_first_pct": rel,
-                         "n_seeds": len(seeds),
-                         "source": "orig" if not png.exists() else str(png)})
+                base = {t: (l1, fr) for t, l1, fr in got}
+            near = [(t, l1, fr) for t, l1, fr in got
+                    if min(abs(t - u) for u in trained) <= t_edit / (2 * args.n_timesteps)]
+            far = [(t, l1, fr) for t, l1, fr in got if (t, l1, fr) not in near]
+            def rel(sub):
+                return (st.fmean(l1 / base[t][0] - 1 for t, l1, _ in sub) * 100
+                        if sub else float("nan"))
+            print(f"  {name:<20} L1 全域 {st.fmean(l1 for _, l1, _ in got):>8.2f}"
+                  f"（{rel(got):+6.1f}%）  施力點附近 {rel(near):+6.1f}%  "
+                  f"其餘 t {rel(far):+6.1f}%", flush=True)
+            for t, l1, fr in got:
+                rows.append({"image_id": image_id, "condition": name,
+                             "ca": entry.content, "t": t, "masked_l1": l1,
+                             "masked_fraction": fr,
+                             "rel_to_first_pct": (l1 / base[t][0] - 1) * 100,
+                             "trained_at_t": min(abs(t - u) for u in trained)
+                             <= t_edit / (2 * args.n_timesteps),
+                             "source": "orig" if not png.exists() else str(png)})
 
     with (args.out / "ca_attention.csv").open("w", newline="",
                                               encoding="utf-8") as f:

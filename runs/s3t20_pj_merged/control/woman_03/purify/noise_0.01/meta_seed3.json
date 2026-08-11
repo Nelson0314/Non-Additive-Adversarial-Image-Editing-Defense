@@ -1,6 +1,6 @@
 {
   "cell_id": "control/phi0/woman_03/purifynoise0.01/seed3",
-  "config_hash": "3b06261c5a02",
+  "config_hash": "329bfe56dd03",
   "config": {
     "spec_version": 1,
     "model": "CompVis/stable-diffusion-v1-4",
@@ -58,7 +58,8 @@
       "max_steps": 250,
       "align_steps": 200,
       "stop_patience": 20,
-      "stop_min_steps": 25
+      "stop_min_steps": 25,
+      "stop_require_constraint": false
     },
     "lr": null,
     "budget": {

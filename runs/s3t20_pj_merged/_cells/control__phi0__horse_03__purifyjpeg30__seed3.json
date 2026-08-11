@@ -69,7 +69,8 @@
       "align_steps": 200,
       "max_steps": 250,
       "stop_min_steps": 25,
-      "stop_patience": 20
+      "stop_patience": 20,
+      "stop_require_constraint": false
     },
     "precision": "fp32",
     "purify": {
@@ -83,11 +84,11 @@
     "strength": 0.4,
     "tau": null
   },
-  "config_hash": "066ad18728ef",
+  "config_hash": "3d075ba35895",
   "ctrl_clip": 0.31443801522254944,
   "ctrl_siglip": 0.12069034576416016,
   "error": null,
-  "finished": "2026-08-11T07:05:46+08:00",
+  "finished": "2026-08-11T11:40:20+08:00",
   "group": "horse",
   "id": "control/phi0/horse_03/purifyjpeg30/seed3",
   "image": "horse_03",
@@ -97,9 +98,9 @@
   "purify_differentiable": false,
   "purify_kind": "jpeg",
   "purify_strength": 30,
-  "seconds": 8.873564462177455,
+  "seconds": 9.013725365046412,
   "seed": 3,
   "stage": "control",
-  "started": "2026-08-11T07:05:37+08:00",
+  "started": "2026-08-11T11:40:11+08:00",
   "status": "done"
 }

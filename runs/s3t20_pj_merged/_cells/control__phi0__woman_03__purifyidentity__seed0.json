@@ -85,7 +85,8 @@
       "align_steps": 200,
       "max_steps": 250,
       "stop_min_steps": 25,
-      "stop_patience": 20
+      "stop_patience": 20,
+      "stop_require_constraint": false
     },
     "precision": "fp32",
     "purify": {
@@ -99,11 +100,11 @@
     "strength": 0.4,
     "tau": null
   },
-  "config_hash": "a65d04bc4683",
+  "config_hash": "8335a1b28f0d",
   "ctrl_clip": 0.24046966433525085,
   "ctrl_siglip": 0.08798478543758392,
   "error": null,
-  "finished": "2026-08-11T07:03:54+08:00",
+  "finished": "2026-08-11T11:38:23+08:00",
   "group": "woman",
   "id": "control/phi0/woman_03/purifyidentity/seed0",
   "image": "woman_03",
@@ -113,9 +114,9 @@
   "purify_differentiable": true,
   "purify_kind": "identity",
   "purify_strength": 0.0,
-  "seconds": 18.50555577594787,
+  "seconds": 18.545699760084972,
   "seed": 0,
   "stage": "control",
-  "started": "2026-08-11T07:03:35+08:00",
+  "started": "2026-08-11T11:38:04+08:00",
   "status": "done"
 }

@@ -1,6 +1,6 @@
 {
   "cell_id": "control/phi0/horse_03/purifyquantize32/seed2",
-  "config_hash": "d1bb97b975e5",
+  "config_hash": "449c91a261fc",
   "config": {
     "spec_version": 1,
     "model": "CompVis/stable-diffusion-v1-4",
@@ -58,7 +58,8 @@
       "max_steps": 250,
       "align_steps": 200,
       "stop_patience": 20,
-      "stop_min_steps": 25
+      "stop_min_steps": 25,
+      "stop_require_constraint": false
     },
     "lr": null,
     "budget": {

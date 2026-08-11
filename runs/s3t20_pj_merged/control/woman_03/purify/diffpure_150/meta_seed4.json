@@ -1,6 +1,6 @@
 {
   "cell_id": "control/phi0/woman_03/purifydiffpure150/seed4",
-  "config_hash": "19f0efecdbfb",
+  "config_hash": "80c5caf020bf",
   "config": {
     "spec_version": 1,
     "model": "CompVis/stable-diffusion-v1-4",
@@ -58,7 +58,8 @@
       "max_steps": 250,
       "align_steps": 200,
       "stop_patience": 20,
-      "stop_min_steps": 25
+      "stop_min_steps": 25,
+      "stop_require_constraint": false
     },
     "lr": null,
     "budget": {
@@ -81,8 +82,8 @@
   "purify_strength": 150,
   "seed": 4,
   "prompt": "a man",
-  "ctrl_clip": 0.2232259213924408,
-  "ctrl_siglip": 0.08751649409532547,
+  "ctrl_clip": 0.2282644659280777,
+  "ctrl_siglip": 0.07432612031698227,
   "purify_available": true,
   "purify_differentiable": false,
   "attn_full": false,

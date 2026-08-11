@@ -1,6 +1,6 @@
 {
   "cell_id": "control/phi0/horse_03/purifydiffpure150/seed2",
-  "config_hash": "2d5ee5967521",
+  "config_hash": "934666bbbd73",
   "config": {
     "spec_version": 1,
     "model": "CompVis/stable-diffusion-v1-4",
@@ -58,7 +58,8 @@
       "max_steps": 250,
       "align_steps": 200,
       "stop_patience": 20,
-      "stop_min_steps": 25
+      "stop_min_steps": 25,
+      "stop_require_constraint": false
     },
     "lr": null,
     "budget": {
@@ -81,8 +82,8 @@
   "purify_strength": 150,
   "seed": 2,
   "prompt": "a zebra",
-  "ctrl_clip": 0.26484495401382446,
-  "ctrl_siglip": 0.12010306119918823,
+  "ctrl_clip": 0.2718656063079834,
+  "ctrl_siglip": 0.11671002209186554,
   "purify_available": true,
   "purify_differentiable": false,
   "attn_full": false,

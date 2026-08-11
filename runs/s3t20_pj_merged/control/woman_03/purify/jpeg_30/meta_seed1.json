@@ -1,6 +1,6 @@
 {
   "cell_id": "control/phi0/woman_03/purifyjpeg30/seed1",
-  "config_hash": "b67d2f071e3d",
+  "config_hash": "a3270bf70a6c",
   "config": {
     "spec_version": 1,
     "model": "CompVis/stable-diffusion-v1-4",
@@ -58,7 +58,8 @@
       "max_steps": 250,
       "align_steps": 200,
       "stop_patience": 20,
-      "stop_min_steps": 25
+      "stop_min_steps": 25,
+      "stop_require_constraint": false
     },
     "lr": null,
     "budget": {

@@ -1,6 +1,6 @@
 {
   "cell_id": "control/phi0/woman_03/purifyquantize16/seed1",
-  "config_hash": "ed64b9de2b0d",
+  "config_hash": "edb5abd3cf7d",
   "config": {
     "spec_version": 1,
     "model": "CompVis/stable-diffusion-v1-4",
@@ -58,7 +58,8 @@
       "max_steps": 250,
       "align_steps": 200,
       "stop_patience": 20,
-      "stop_min_steps": 25
+      "stop_min_steps": 25,
+      "stop_require_constraint": false
     },
     "lr": null,
     "budget": {

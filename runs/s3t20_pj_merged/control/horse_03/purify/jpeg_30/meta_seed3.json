@@ -1,6 +1,6 @@
 {
   "cell_id": "control/phi0/horse_03/purifyjpeg30/seed3",
-  "config_hash": "066ad18728ef",
+  "config_hash": "3d075ba35895",
   "config": {
     "spec_version": 1,
     "model": "CompVis/stable-diffusion-v1-4",
@@ -58,7 +58,8 @@
       "max_steps": 250,
       "align_steps": 200,
       "stop_patience": 20,
-      "stop_min_steps": 25
+      "stop_min_steps": 25,
+      "stop_require_constraint": false
     },
     "lr": null,
     "budget": {

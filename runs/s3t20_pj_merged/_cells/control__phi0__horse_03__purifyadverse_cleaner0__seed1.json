@@ -69,7 +69,8 @@
       "align_steps": 200,
       "max_steps": 250,
       "stop_min_steps": 25,
-      "stop_patience": 20
+      "stop_patience": 20,
+      "stop_require_constraint": false
     },
     "precision": "fp32",
     "purify": {
@@ -83,11 +84,11 @@
     "strength": 0.4,
     "tau": null
   },
-  "config_hash": "4764f7f20f31",
+  "config_hash": "309ca70c2dee",
   "ctrl_clip": 0.2589288651943207,
   "ctrl_siglip": 0.11246699839830399,
   "error": null,
-  "finished": "2026-08-11T07:06:57+08:00",
+  "finished": "2026-08-11T11:41:34+08:00",
   "group": "horse",
   "id": "control/phi0/horse_03/purifyadverse_cleaner0/seed1",
   "image": "horse_03",
@@ -97,9 +98,9 @@
   "purify_differentiable": false,
   "purify_kind": "adverse_cleaner",
   "purify_strength": 0.0,
-  "seconds": 9.037783154053614,
+  "seconds": 9.159408235922456,
   "seed": 1,
   "stage": "control",
-  "started": "2026-08-11T07:06:48+08:00",
+  "started": "2026-08-11T11:41:25+08:00",
   "status": "done"
 }

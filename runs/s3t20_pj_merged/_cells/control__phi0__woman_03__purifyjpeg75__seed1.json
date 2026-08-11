@@ -69,7 +69,8 @@
       "align_steps": 200,
       "max_steps": 250,
       "stop_min_steps": 25,
-      "stop_patience": 20
+      "stop_patience": 20,
+      "stop_require_constraint": false
     },
     "precision": "fp32",
     "purify": {
@@ -83,11 +84,11 @@
     "strength": 0.4,
     "tau": null
   },
-  "config_hash": "cee1b3fe7309",
+  "config_hash": "436624ee3a40",
   "ctrl_clip": 0.22497254610061646,
   "ctrl_siglip": 0.0884690135717392,
   "error": null,
-  "finished": "2026-08-11T07:04:45+08:00",
+  "finished": "2026-08-11T11:39:16+08:00",
   "group": "woman",
   "id": "control/phi0/woman_03/purifyjpeg75/seed1",
   "image": "woman_03",
@@ -97,9 +98,9 @@
   "purify_differentiable": false,
   "purify_kind": "jpeg",
   "purify_strength": 75,
-  "seconds": 8.566649589920416,
+  "seconds": 8.790746253915131,
   "seed": 1,
   "stage": "control",
-  "started": "2026-08-11T07:04:37+08:00",
+  "started": "2026-08-11T11:39:07+08:00",
   "status": "done"
 }

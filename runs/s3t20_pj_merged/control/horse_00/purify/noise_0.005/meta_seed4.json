@@ -1,6 +1,6 @@
 {
   "cell_id": "control/phi0/horse_00/purifynoise0.005/seed4",
-  "config_hash": "af692feef3dc",
+  "config_hash": "40f5e330bb17",
   "config": {
     "spec_version": 1,
     "model": "CompVis/stable-diffusion-v1-4",
@@ -58,7 +58,8 @@
       "max_steps": 250,
       "align_steps": 200,
       "stop_patience": 20,
-      "stop_min_steps": 25
+      "stop_min_steps": 25,
+      "stop_require_constraint": false
     },
     "lr": null,
     "budget": {

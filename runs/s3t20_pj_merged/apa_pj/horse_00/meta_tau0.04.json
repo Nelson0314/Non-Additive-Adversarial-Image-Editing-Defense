@@ -1,6 +1,6 @@
 {
   "cell_id": "rayscale/apa_pj/horse_00/tau0.04",
-  "config_hash": "f293cac1b6cd",
+  "config_hash": "11ee9b0bb59e",
   "config": {
     "spec_version": 1,
     "model": "CompVis/stable-diffusion-v1-4",
@@ -58,7 +58,8 @@
       "max_steps": 250,
       "align_steps": 200,
       "stop_patience": 20,
-      "stop_min_steps": 25
+      "stop_min_steps": 25,
+      "stop_require_constraint": false
     },
     "lr": null,
     "budget": {
@@ -75,23 +76,23 @@
   "condition": "apa_pj",
   "image_id": "horse_00",
   "tau_target": 0.04,
-  "tau_achieved": 0.03800541162490845,
-  "scale_k": 1.0,
+  "tau_achieved": 0.03804135322570801,
+  "scale_k": 0.9375,
   "budget_metric": "dists",
   "budget_relative": true,
-  "budget_floor": 0.039303,
-  "budget_target_abs": 0.07930264711380006,
-  "budget_achieved_abs": 0.0773080587387085,
-  "niqe": 4.3303895966761266,
-  "fid_psnr": 26.9832820892334,
-  "fid_linf": 0.6072579622268677,
-  "fid_ssim": 0.8101446032524109,
-  "fid_vif_p": 0.2680300176143646,
-  "fid_fsim": 0.9246134161949158,
-  "fid_lpips": 0.11001725494861603,
-  "fid_dists": 0.0773080587387085,
-  "fid_acutance_ratio": 1.0304896831512451,
-  "fid_rms": 0.04475429654121399,
-  "fid_frac_gt_16_255": 0.13644790649414062,
-  "seconds_rayscale": 5.51
+  "budget_floor": 0.039178,
+  "budget_target_abs": 0.07917831182479859,
+  "budget_achieved_abs": 0.07721966505050659,
+  "niqe": 4.370591873138522,
+  "fid_psnr": 27.10097312927246,
+  "fid_linf": 0.5830532908439636,
+  "fid_ssim": 0.8098803758621216,
+  "fid_vif_p": 0.2692365050315857,
+  "fid_fsim": 0.9257628917694092,
+  "fid_lpips": 0.11421997845172882,
+  "fid_dists": 0.07721966505050659,
+  "fid_acutance_ratio": 0.9537133574485779,
+  "fid_rms": 0.04415198788046837,
+  "fid_frac_gt_16_255": 0.13247554004192352,
+  "seconds_rayscale": 8.82
 }

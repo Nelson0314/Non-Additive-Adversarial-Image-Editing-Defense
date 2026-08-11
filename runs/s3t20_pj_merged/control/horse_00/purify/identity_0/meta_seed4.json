@@ -1,6 +1,6 @@
 {
   "cell_id": "control/phi0/horse_00/purifyidentity/seed4",
-  "config_hash": "f159667c5c91",
+  "config_hash": "ce72b8c1dbcb",
   "config": {
     "spec_version": 1,
     "model": "CompVis/stable-diffusion-v1-4",
@@ -58,7 +58,8 @@
       "max_steps": 250,
       "align_steps": 200,
       "stop_patience": 20,
-      "stop_min_steps": 25
+      "stop_min_steps": 25,
+      "stop_require_constraint": false
     },
     "lr": null,
     "budget": {

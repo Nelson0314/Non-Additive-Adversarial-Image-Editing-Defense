@@ -54,7 +54,7 @@ def probe(res, entry, x, seeds):
     「攻擊方實際會走的那條鏈」，而這支腳本問的正是那條鏈上發生什麼。
     """
     span = token_span(res.sd.tokenizer, entry.content)
-    emb = res.sd.encode_text(entry.attack_prompt()).detach()
+    emb = res.sd.encode_text(entry.attack_prompt).detach()
     emb_u = res.sd.uncond_prompt().detach()
     lat = res.sd.latent_shape(x.shape[-2], x.shape[-1])
     out = []
@@ -102,7 +102,7 @@ def main(argv=None) -> int:
     for image_id in args.images:
         entry = res.image(image_id)
         print(f"\n[{image_id}] c_a={entry.content!r}  "
-              f"攻擊 prompt={entry.attack_prompt()!r}", flush=True)
+              f"攻擊 prompt={entry.attack_prompt!r}", flush=True)
         base = None
         for name, root in cols:
             png = root / image_id / "x_def_tau0.04.png"

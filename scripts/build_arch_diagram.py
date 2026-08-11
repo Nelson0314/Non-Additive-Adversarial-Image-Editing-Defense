@@ -17,22 +17,22 @@ GOOD, BAD = "#1F7A4C", "#A8231F"
 
 
 def box(x, y, w, h, title, sub="", sub2="", stroke=OURS, fill="#F4F8F8",
-        ts=17, ss=13):
+        ts=19, ss=14):
     o = [f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="8" fill="{fill}" '
-         f'stroke="{stroke}" stroke-width="2"/>']
+         f'stroke="{stroke}" stroke-width="2.5"/>']
     cx = x + w / 2
     o.append(f'<text x="{cx}" y="{y+30}" fill="{INK}" font-size="{ts}" '
-             f'font-weight="700" text-anchor="middle">{title}</text>')
+             f'font-weight="800" text-anchor="middle">{title}</text>')
     if sub:
-        o.append(f'<text x="{cx}" y="{y+54}" fill="{SOFT}" font-size="{ss}" '
-                 f'text-anchor="middle">{sub}</text>')
+        o.append(f'<text x="{cx}" y="{y+55}" fill="{SOFT}" font-size="{ss}" '
+                 f'font-weight="600" text-anchor="middle">{sub}</text>')
     if sub2:
-        o.append(f'<text x="{cx}" y="{y+75}" fill="{FAINT}" font-size="{ss-1}" '
-                 f'text-anchor="middle">{sub2}</text>')
+        o.append(f'<text x="{cx}" y="{y+77}" fill="{FAINT}" font-size="{ss-1}" '
+                 f'font-weight="600" text-anchor="middle">{sub2}</text>')
     return "\n".join(o)
 
 
-def t(x, y, s, fill=SOFT, size=13, anchor="middle", weight="400"):
+def t(x, y, s, fill=SOFT, size=14, anchor="middle", weight="600"):
     return (f'<text x="{x}" y="{y}" fill="{fill}" font-size="{size}" '
             f'text-anchor="{anchor}" font-weight="{weight}">{s}</text>')
 
@@ -68,7 +68,7 @@ S.append(f'''<defs>
 S.append(f'<rect width="{W}" height="{H}" fill="{SURF}"/>')
 
 # ── 標題 ───────────────────────────────────────────────────────────────
-S.append(t(W / 2, 42, "白盒非加性抗編輯防禦", INK, 26, weight="700"))
+S.append(t(W / 2, 42, "白盒非加性抗編輯防禦", INK, 30, weight="800"))
 S.append(t(W / 2, 70, "威脅模型：攻擊方使用 stock Stable Diffusion，"
                       "prompt 未知；防禦方為外掛模組", SOFT, 14))
 

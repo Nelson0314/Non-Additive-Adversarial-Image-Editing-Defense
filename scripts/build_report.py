@@ -294,6 +294,10 @@ for k, (tag, name, root) in ARM.items():
                  "tau0.04_seed0_agg.png", f"{tag} · {name}", ""))
 H.append('</div>')
 
+# ── 併自既有批次報告的章節 ──────────────────────────────────────────
+exec(io.open(os.path.join(str(D), "extra_sections.py"),
+             encoding="utf-8").read())
+
 # ── 訓練 ─────────────────────────────────────────────────────────────
 H.append('<div class="head"><p class="eyebrow">七</p><h2>訓練</h2></div>')
 rows = []
@@ -337,6 +341,6 @@ H.append('<div class="foot sub">資料來源：runs/s3t20_pj_merged · '
          '全部指標由同一組實作計算，未經挑選。</div>')
 H.append('</div></body></html>')
 
-out = Path(r"C:\WACV-s3\report_loss_comparison.html")
+out = Path(r"C:\WACV-s3\report_s3t20.html")
 out.write_text("\n".join(H), encoding="utf-8")
 print(f"寫入 {out}（{out.stat().st_size/1e6:.1f} MB）")

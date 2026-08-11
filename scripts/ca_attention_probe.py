@@ -81,7 +81,11 @@ def main(argv=None) -> int:
                     help="`名稱=條件目錄`。名稱內不可有 `=`")
     ap.add_argument("--out", type=Path, required=True)
     ap.add_argument("--probe-seeds", type=int, default=3)
-    args, unknown = ap.parse_known_args(argv)
+    # `build_parser()` 的 `stage` 與 `--batch` 是給五段驅動用的必填項，本腳本
+    # 兩者都用不到（`build_resources` 直接收 `--out` 當批次目錄）。在此補上
+    # 佔位值而不是叫呼叫端硬打——那會讓命令列出現一個沒有意義卻不能省的字。
+    argv = list(sys.argv[1:] if argv is None else argv)
+    args, unknown = ap.parse_known_args(["eval", "--batch", "ca_probe", *argv])
     resolve_thresholds(args, verbose=False)
 
     cols = []

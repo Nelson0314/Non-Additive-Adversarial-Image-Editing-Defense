@@ -53,6 +53,10 @@ stock SD；防禦方換掉自己 G 裡的 decode 完全合法。
 | baseline 攻擊 | `src/baselines/`（`pgd.py` 為共用骨幹，五篇各一檔） |
 | **主驅動** | **`scripts/run_stage.py`**（calib／train／rayscale／eval／report 五段） |
 | 格點與續跑 | `src/experiment/`（`grid.py`／`runner.py`／`executors.py`） |
+| 重建下限（取代原文階段一） | `src/defense/recon.py`（`solve`／`ReconAdapter`），旗標 `--recon` |
+| 投影式約束 | `executors.budget_projector`，旗標 `--project-budget`（DEC-019） |
+| 報告產生 | `scripts/build_report.py`（HTML）／`build_report_md.py`（HackMD）／`build_arch_diagram.py`／`build_purify_chart.py`，資料由 `collect_report_data.py` 匯出 |
+| 分析腳本 | `apa_advantage.py`（配對比較）／`ca_attention_probe.py`（c_a 的 timestep 掃描）／`suppression_sweep.py`（放大既有 φ）／`defense_compare.py`、`attn_compare.py`（比對頁） |
 
 `scripts/run_defense.py`（先驗階段的驅動）與 `site_pixel.py`／`site_pixel_full.py`／
 `site_color.py` 已於 2026-08-05 依 `ARCH` §2.3 刪除：加性由 baseline 擔任，

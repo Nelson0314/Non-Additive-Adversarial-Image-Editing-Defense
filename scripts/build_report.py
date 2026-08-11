@@ -4,11 +4,17 @@
 """
 import base64
 import io
+import sys
 import json
 import os
 from pathlib import Path
 
 from PIL import Image
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+import report_chart_sections  # noqa: E402
+import report_extra_sections  # noqa: E402
 
 D = Path(os.path.expandvars(
     r"$TEMP\claude\C--WACV-s3\f97b0be2-7c2c-4175-8705-a671a63a1017\scratchpad"))
@@ -295,11 +301,8 @@ for k, (tag, name, root) in ARM.items():
 H.append('</div>')
 
 # ── 併自既有批次報告的章節 ──────────────────────────────────────────
-exec(io.open(os.path.join(str(D), "chart_sections.py"),
-             encoding="utf-8").read())
-
-exec(io.open(os.path.join(str(D), "extra_sections.py"),
-             encoding="utf-8").read())
+report_chart_sections.render(H, D)
+report_extra_sections.render(H, DATA, keys, labels, IMGS)
 
 # ── 訓練 ─────────────────────────────────────────────────────────────
 H.append('<div class="head"><p class="eyebrow">七</p><h2>訓練</h2></div>')

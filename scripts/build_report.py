@@ -295,6 +295,9 @@ for k, (tag, name, root) in ARM.items():
 H.append('</div>')
 
 # ── 併自既有批次報告的章節 ──────────────────────────────────────────
+exec(io.open(os.path.join(str(D), "chart_sections.py"),
+             encoding="utf-8").read())
+
 exec(io.open(os.path.join(str(D), "extra_sections.py"),
              encoding="utf-8").read())
 

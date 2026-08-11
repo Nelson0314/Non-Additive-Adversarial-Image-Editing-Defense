@@ -60,7 +60,7 @@ TABLE1 = {
 }
 
 
-def load_dataset(root: Path, size: int, device, limit=None):
+def load_dataset(root: Path, size: int, device, limit=None, ids=None):
     """回傳 [(名稱, 張量, prompt, 要保護的內容 c_a)]。
 
     與 `run_defense.load_images` 的差別是多回傳 c_a。Lo 的 semantic attack
@@ -103,6 +103,15 @@ def load_dataset(root: Path, size: int, device, limit=None):
             " content，不接受預設值——c_a 猜錯會讓 semantic attack 攻擊到"
             "別的東西而毫無症狀"
         )
+    if ids:
+        # 明指影像。`--limit` 取的是資料集前 N 張，那與別的批次跑的是哪幾張
+        # 無關——要與本專案的 s3t20 系列對照就必須指名同一組，否則比較到的
+        # 差異裡混著「換了影像」這個變因。
+        have = {n for n, *_ in out}
+        missing = [i for i in ids if i not in have]
+        if missing:
+            raise SystemExit(f"資料集裡沒有這些影像：{missing}；有的是 {sorted(have)}")
+        return [r for r in out if r[0] in set(ids)]
     return out[:limit] if limit else out
 
 
@@ -165,6 +174,9 @@ def main():
                     help="PhotoGuard 兩個變體的目標影像")
     ap.add_argument("--size", type=int, default=512)
     ap.add_argument("--limit", type=int, default=None)
+    ap.add_argument("--images", nargs="*", default=None,
+                    help="明指要跑哪幾張（與 --limit 互斥的用法）。與別的批次"
+                         "對照時必須指名同一組")
     ap.add_argument("--prompt_index", type=int, default=0,
                     help="用 prompts.yaml 的第幾個編輯 prompt")
     # 論文寫死的三個數字
@@ -193,7 +205,8 @@ def main():
     sd = SDWrapper(args.model)
     suite = MetricSuite(device=device)
 
-    data = load_dataset(Path(args.data), args.size, device, args.limit)
+    data = load_dataset(Path(args.data), args.size, device, args.limit,
+                        args.images)
     if not data:
         raise SystemExit(f"{args.data} 底下沒有任何 PNG")
 

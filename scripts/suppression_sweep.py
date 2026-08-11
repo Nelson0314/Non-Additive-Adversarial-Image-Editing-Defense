@@ -98,6 +98,11 @@ def main(argv=None) -> int:
     ap.add_argument("--k-grid", default="1,2,4,8,16,32,64",
                     help="要掃的縮放係數。抑制隨 k 單調上升，故取最小的達標者")
     ap.add_argument("--n-timesteps", type=int, default=6)
+    ap.add_argument("--render-k", default=None,
+                    help="改為在明指的 k 上各渲染一次（逗號分隔），不做達標挑選。"
+                         "抑制對 k **不是單調的**（實測 horse_00 在 k=16 達到"
+                         "38%% 之後回落到 24%%），所以「最小的達標 k」在達不到"
+                         "目標時沒有意義，要看的是整條曲線上的幾個點")
     argv = list(sys.argv[1:] if argv is None else argv)
     args, _ = ap.parse_known_args(["eval", "--batch", "sweep", *argv])
     resolve_thresholds(args, verbose=False)
@@ -115,6 +120,25 @@ def main(argv=None) -> int:
               f"{float(mask.mean()) * 100:.1f}%  未防禦 L1={base:.2f}", flush=True)
 
         payload = load_phi(args.phi_root / image_id / "phi.pt")
+        if args.render_k:
+            save_image(entry.x01, args.out / f"{image_id}__orig.png")
+            save_image(edit_once(res, entry, entry.x01),
+                       args.out / f"{image_id}__edit_undefended.png")
+            for k in [float(v) for v in args.render_k.split(",")]:
+                x = materialize(payload, res, entry, k)
+                l1 = masked_l1(res, entry, x, mask, span, emb, ts, abar)
+                fid = res.suite.pairwise(entry.x01, x)
+                sup = 1 - l1 / base
+                save_image(x, args.out / f"{image_id}__xdef_k{k:g}.png")
+                save_image(edit_once(res, entry, x),
+                           args.out / f"{image_id}__edit_k{k:g}.png")
+                print(f"  k={k:>5.1f}  抑制 {sup * 100:>5.1f}%  "
+                      f"lpips {fid['lpips']:.4f}  銳利度 {fid['acutance_ratio']:.3f}"
+                      f"  → 已存", flush=True)
+                rows.append({"image_id": image_id, "k": k, "suppression": sup,
+                             "masked_l1": l1, "base_l1": base, "rendered": True,
+                             **{f"fid_{a}": b for a, b in fid.items()}})
+            continue
         picked = None
         for k in ks:
             x = materialize(payload, res, entry, k)

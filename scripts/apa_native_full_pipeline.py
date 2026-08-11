@@ -235,6 +235,10 @@ def main() -> None:
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--out", type=Path, required=True)
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--images", nargs="+", default=None,
+                    help="只跑這些影像（供多 GPU 平行分片用），預設全部三張")
+    ap.add_argument("--conditions", nargs="+", default=None,
+                    help="只跑這些條件名稱（見 ALL_CONDITIONS），預設全部七個")
     args = ap.parse_args()
     args.out.mkdir(parents=True, exist_ok=True)
 
@@ -243,13 +247,22 @@ def main() -> None:
     aes = AestheticSuite(device=sd.device)
     get_ori_latents._suite = suite
 
+    dataset = load_dataset()
+    if args.images:
+        dataset = [it for it in dataset if it["name"] in args.images]
+    native_conditions = NATIVE_CONDITIONS
+    baseline_conditions = BASELINE_CONDITIONS
+    if args.conditions:
+        native_conditions = [c for c in NATIVE_CONDITIONS if c[0] in args.conditions]
+        baseline_conditions = [c for c in BASELINE_CONDITIONS if c in args.conditions]
+
     rows = []
-    for item in load_dataset():
+    for item in dataset:
         item["path01"] = executors.load_image_tensor(item["path"], sd.device, size=RESOLUTION)
         save_image(item["path01"], args.out / f"{item['name']}__orig.png")
         print(f"\n########## {item['name']} ({item['class']}) ##########", flush=True)
 
-        for cond_name, stage1, arch in NATIVE_CONDITIONS:
+        for cond_name, stage1, arch in native_conditions:
             print(f"=== {item['name']} / {cond_name} ===", flush=True)
             t0 = time.time()
             res = run_native(sd, item, stage1, arch, args.seed)
@@ -265,7 +278,7 @@ def main() -> None:
             print(row, flush=True)
             executors.write_csv(args.out / "apa_native_full.csv", rows)
 
-        for name in BASELINE_CONDITIONS:
+        for name in baseline_conditions:
             print(f"=== {item['name']} / {name} ===", flush=True)
             t0 = time.time()
             res = run_baseline(sd, item, name, args.seed)

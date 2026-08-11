@@ -80,9 +80,29 @@ class NativeStage2Config:
     eps_a: float = 0.4          # ε_a，Eq.7 的 L∞ 球半徑
     mu: float = 0.04            # µ，trajectory-level 步長
     niters: int = 10            # N，外層迭代數
-    steps: int = 50             # 去噪步數（DDIM 架構用；BDIA 架構見 t_max/k_inv）
+    # **timestep 排程的粒度與實際執行的步數是兩件事，APA-GC 兩者不同。**
+    #
+    # 官方（`pipe_ours.py:186-210` 的 `ddim_inversion` 與
+    # `attack_optimization_checkpoint` 的去噪迴圈，2026-08-12 逐行核對）：
+    # `set_timesteps(50)` 給出 50 格排程，但反演走 `reversed(timesteps)`
+    # 並在 `i == inversion_step`（GC 為 10）**break**，即只反演前 11 格、
+    # 停在中等噪聲而非完整 z_T；去噪迴圈以
+    # `if i < len(timesteps) - inversion_step - 1: continue` 跳過前 39 格，
+    # 只跑最後 11 格——與反演的深度剛好對上。
+    #
+    # 這個「淺噪聲帶」正是 APA 保住保真度的機制：同一個 ε_a=0.4 的球，
+    # 加在中等噪聲的 latent 上、只經 11 步去噪，與加在最大噪聲上、
+    # 經 50 步放大，是完全不同的失真量級。
+    #
+    # 2026-08-12 修正。before：`steps=50` 且完整反演到最大噪聲再完整去噪
+    # （本模組 docstring 原本記為「那個分段不是要控制的變因，追加只會多一層
+    # 耦合」——**那個判斷是錯的**，它不是自由參數而是方法的一部分）。
+    # 實測後果：CFG 修正後 12 個原生格的 `fid_lpips` 仍落在 0.50–0.71，
+    # 而 APA 原文 Table 3 是 0.23–0.25。
+    schedule_steps: int = 50    # 排程粒度（`set_timesteps(50)`）
+    steps: int = 11             # 實際執行的反演／去噪步數（inversion_step=10 → 11 格）
+    guidance_steps: int = 10    # T_a，最後幾步做 step-level guidance
     t_max: Optional[int] = None
-    index_cond_frac: float = 0.8   # 對應官方 index_cond=40/50=0.8：最後 20% 的步驟做 step-level guidance
     # **CFG 必須是 1.0，這是 APA 原生設定**（`dia_apa.md` §3.2：
     # `attack_alignment.py:146,148,152,156` 反演與去噪都是 `guidance_scale=1`）。
     #
@@ -159,7 +179,13 @@ def _trajectory_pass(
     device = adv_latents[0].device if cfg.use_bdia else adv_latents.device
     abar = sd.alphas_cumprod(device)
     steps = cfg.steps
-    index_cond = round(cfg.index_cond_frac * steps)
+    # BDIA 的遞迴比 DDIM 少跑一格（它不需要反解反演的第 0 步，見
+    # `sd.bdia_denoise`），故迴圈長度逐架構不同。guidance 一律施加在**最後
+    # `guidance_steps` 步**，這樣兩種架構的 T_a 是同一個數，而不是同一個比例
+    # ——後者會讓迴圈短的那一邊拿到比較少的 guidance 步數，那是架構之外的
+    # 第二個變因。
+    loop_len = (steps - 1) if cfg.use_bdia else steps
+    index_cond = max(0, loop_len - cfg.guidance_steps)
     m_state = [torch.zeros(1, device=device)]
 
     if cfg.use_bdia:
@@ -239,7 +265,13 @@ def attack_native(
     span = token_span(sd.tokenizer, c_a)
 
     top = cfg.t_max or (sd.num_train_timesteps - 1)
-    ts = sd.timesteps(cfg.steps, t_max=cfg.t_max)
+    # **排程用 `schedule_steps` 產生、只執行前 `steps` 格**（官方
+    # `set_timesteps(50)` + `break at i==inversion_step` 的對應）。
+    # 用 `sd.timesteps(cfg.steps)` 產生排程是錯的：那會把 11 格均分到
+    # 整個 [0, t_max]，每格的噪聲跨度變成官方的 4.5 倍，等於在完全不同的
+    # 噪聲帶上運作。呼叫端（`apa_native_full_pipeline.run_native`）的反演
+    # 也吃這一條 `ts`，兩邊必須是同一個排程。
+    ts = sd.timesteps(cfg.schedule_steps, t_max=cfg.t_max)
     ref_t = torch.as_tensor(_ref_timestep(cfg, top), device=device)
 
     side = None  # aggregate_token_attention 用掃到的最大解析度

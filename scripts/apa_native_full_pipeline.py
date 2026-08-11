@@ -57,10 +57,10 @@ DATA_DIR = Path(__file__).resolve().parent.parent / "data" / "apa_native"
 MODEL_NAME = "CompVis/stable-diffusion-v1-4"
 RESOLUTION = 512
 
-# 架構變因的兩組設定，理由見 apa_native_stage2.py 模組 docstring
-# 「架構變因怎麼接」——各用各自「本來就在跑」的步數/範圍，不強行對齊。
-DDIM_STEPS, DDIM_T_MAX = 50, None
-BDIA_STEPS, BDIA_T_MAX = 20, 500
+# 排程／步數不再逐架構分開設定：兩者共用 `NativeStage2Config` 的
+# `schedule_steps=50`／`steps=11`／`guidance_steps=10`（APA-GC 的原生
+# 操作點），使「架構」是唯一的變因。2026-08-12 移除 DDIM_STEPS 等四個
+# 常數，理由見 `run_native` 內的註解與 apa_native_stage2 的 `steps` 欄位。
 
 # 保真/抗編輯評測參數，沿用 EXP-s3t20 那條 SD v1.4/512² 軌
 EDIT_STRENGTH = 0.4
@@ -144,18 +144,20 @@ def run_native(sd, item, stage1: str, arch: str, seed: int) -> dict:
     else:
         stage1_seconds = 0.0
 
-    steps, t_max = (BDIA_STEPS, BDIA_T_MAX) if arch == "bdia" else (DDIM_STEPS, DDIM_T_MAX)
+    # **兩種架構共用同一個排程與同一個反演深度**，差別只在遞迴公式。
+    # 這是 2026-08-12 的修訂：先前 DDIM 走 50 步全範圍、BDIA 走 20 步
+    # t_max=500，兩者的噪聲帶與步數都不同，「架構」這個變因因此混進了
+    # 噪聲深度與步數兩個額外變因。現行取 APA-GC 的原生操作點
+    # （50 格排程只執行前 11 格、T_a=10），兩種架構同時套用。
     emb_cond = sd.encode_text(item["class"])
-    ts = sd.timesteps(steps, t_max=t_max)
+    cfg = NativeStage2Config(use_bdia=(arch == "bdia"), use_ckpt=True)
+    ts = sd.timesteps(cfg.schedule_steps, t_max=cfg.t_max)
     with torch.no_grad():
         if arch == "bdia":
-            z_T, z_prev = sd.bdia_inversion(ori_latents, emb_cond, ts, steps)
+            z_T, z_prev = sd.bdia_inversion(ori_latents, emb_cond, ts, cfg.steps)
         else:
-            z_T = sd.ddim_inversion(ori_latents, emb_cond, ts, steps)
+            z_T = sd.ddim_inversion(ori_latents, emb_cond, ts, cfg.steps)
             z_prev = None
-
-    cfg = NativeStage2Config(steps=steps, t_max=t_max, use_bdia=(arch == "bdia"),
-                             use_ckpt=True)
     x_def, history = attack_native(
         sd, z_T, z_prev, ori_latents, item["class"], item["content"], cfg,
         seed=seed, log_every=2)

@@ -41,27 +41,35 @@
 關鍵框定：那個下限是**我們選的 G** 造成的，不是威脅模型強加的。攻擊方用
 stock SD；防禦方換掉自己 G 裡的 decode 完全合法。
 
+## 主線與弱 baseline（2026-08-12 起）
+
+**先讀 `docs/MAINLINE.md`。** 現行內部弱 baseline 是「完全原生 APA，只把
+reward 換成 targeted output」（DEC-023）——四個位置（階段一 LoRA、dual-path
+階段二、latent L∞ 球、sign 更新）維持原生，只換 reward。它的語意抵抗接近零，
+是**位置基準不是有效防禦**。使用者正在尋找其他方法。
+
+舊主線（注意力抑制損失、相對 DISTS 預算、投影約束、淨化與 inpainting 批次）
+已降級到 `docs/archive/LEGACY_*.md`：仍然成立，但不再是現行判準來源。
+
 ## 程式位置
 
 | 用途 | 路徑 |
 |---|---|
-| 注入位置 | `src/residual/site_{latent,embedding,weight,warp,apa}.py` |
-| 目標函數 | `src/defense/objective.py`（LPIPS 為綁定約束，`beta_linf` 可關） |
-| 優化 | `src/defense/optimize.py`（`optimize` / `optimize_encoder` / `optimize_crossattn` / `align`） |
-| cross-attention 擷取 | `src/models/attention.py` |
-| BDIA 精確反演 | `src/models/sd.py` 的 `bdia_inversion` |
+| **主驅動（主線）** | **`scripts/apa_baseline.py`**（弱 baseline + 三個加性 baseline） |
+| 階段二（主線） | `src/defense/apa_native_stage2.py` |
+| 階段一（主線） | `src/defense/optimize.py::align_apa_native` |
+| LoRA 掛載 | `src/residual/site_weight.py`、常數在 `site_apa.py` |
+| 指標 | `src/metrics/suite.py`、`aesthetic.py` |
 | baseline 攻擊 | `src/baselines/`（`pgd.py` 為共用骨幹，五篇各一檔） |
-| **主驅動** | **`scripts/run_stage.py`**（calib／train／rayscale／eval／report 五段） |
-| 格點與續跑 | `src/experiment/`（`grid.py`／`runner.py`／`executors.py`） |
-| 重建下限（取代原文階段一） | `src/defense/recon.py`（`solve`／`ReconAdapter`），旗標 `--recon` |
-| 投影式約束 | `executors.budget_projector`，旗標 `--project-budget`（DEC-019） |
-| 報告產生 | `scripts/build_report.py`（HTML）／`build_report_md.py`（HackMD）／`build_arch_diagram.py`／`build_purify_chart.py`，資料由 `collect_report_data.py` 匯出 |
-| 分析腳本 | `apa_advantage.py`（配對比較）／`ca_attention_probe.py`（c_a 的 timestep 掃描）／`suppression_sweep.py`（放大既有 φ）／`defense_compare.py`、`attn_compare.py`（比對頁） |
+| 專案五段流程（保留） | `scripts/run_stage.py`、`src/experiment/` |
+| 目標函數／優化（舊線仍在用） | `src/defense/objective.py`、`optimize.py` |
+| 重建下限 | `src/defense/recon.py` |
+| BDIA 精確反演 | `src/models/sd.py` 的 `bdia_inversion` |
+| cross-attention 擷取 | `src/models/attention.py` |
 
-`scripts/run_defense.py`（先驗階段的驅動）與 `site_pixel.py`／`site_pixel_full.py`／
-`site_color.py` 已於 2026-08-05 依 `ARCH` §2.3 刪除：加性由 baseline 擔任，
-色度矩陣場不在本輪範圍，而該驅動只服務於這三個位置。
-要取回原檔用 `git checkout 4d2332c -- <path>`。
+已測過並否決的變體（注意力抑制／分類器 CE／latent／CLIP 四種 reward、
+DISTS 進 loss 的軟約束、Adam 更新規則）與本輪四支一次性腳本已移除，結論在
+FND-027…030。取回：`git checkout a4f93451f -- <path>`。
 
 `src/defense/generator.py` **依模塊提供的能力分派，不比對 site 名稱**。
 新增 site 時提供 `pixel_residual` 或 `eps_hook` 即可，不要在此加 `if site == ...`。

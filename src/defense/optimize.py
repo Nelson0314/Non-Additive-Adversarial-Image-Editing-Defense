@@ -970,7 +970,7 @@ def align_apa_native(
 
     `class_name` 對應官方的 `data.json` 的 `class` 欄（ImageNet 類別名，
     無模板），不是本專案 prompt-free 協定下的攻擊 prompt——見呼叫端
-    （`scripts/apa_native_lora_probe.py`）如何選取這個值。
+    （`scripts/apa_baseline.py`）如何選取這個值。
 
     回傳逐步的 `{"step", "loss"}`（或發散時的 `{"step", "loss": inf,
     "diverged": True}`），不回傳影像——呼叫端在訓練結束後自行跑一次

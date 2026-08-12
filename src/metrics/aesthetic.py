@@ -1,4 +1,4 @@
-"""美學／影像品質指標 — 只給 `scripts/apa_native_lora_probe.py` 用。
+"""美學／影像品質指標 — 給 `scripts/apa_baseline.py` 的評測用。
 
 NIMA-AVA、CNNIQA 出自指導者提供的 APA 官方消融表（Table 3，
 `docs/reference/dia_apa.md` §5.1），本專案既有的 `MetricSuite` 沒有這兩項

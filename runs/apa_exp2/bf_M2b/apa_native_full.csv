@@ -1,0 +1,6 @@
+image,condition,reward_mode,fidelity_mode,update_rule,dists_lambda,stage1_seconds,total_seconds,fid_lpips,fid_ssim,fid_dists,fid_psnr,fid_clip_img,fid_nima,fid_cnniqa,edit_lpips,edit_clip_orig,edit_clip_def,edit_clip_drop,edit_siglip_orig,edit_siglip_def,edit_siglip_drop
+butterfly,M2_soft_sign_BDIA_lam0.5,attn,soft,sign,0.5,0.0,178.4,0.2691,0.7789,0.0526,22.1432,0.9777,4.85,0.5458,0.3084,0.31,0.3146,-0.0046,0.12,0.1176,0.0024
+butterfly,M2_soft_sign_BDIA_lam2,attn,soft,sign,2.0,0.0,188.7,0.2963,0.7516,0.046,21.7391,0.9709,4.7139,0.5469,0.3113,0.31,0.31,0.0,0.12,0.1181,0.0019
+butterfly,M2_soft_sign_BDIA_lam8,attn,soft,sign,8.0,0.0,182.1,0.3269,0.7127,0.0478,21.1877,0.9617,4.8003,0.5661,0.3116,0.31,0.308,0.002,0.12,0.1043,0.0157
+butterfly,M2_soft_sign_BDIA_lam32,attn,soft,sign,32.0,0.0,180.8,0.3481,0.686,0.0543,20.8051,0.9618,4.6099,0.5171,0.3721,0.31,0.3051,0.0049,0.12,0.1141,0.006
+butterfly,M2_soft_sign_BDIA_lam128,attn,soft,sign,128.0,0.0,182.4,0.3499,0.6887,0.0517,20.8948,0.9565,4.6458,0.4812,0.2846,0.31,0.2944,0.0156,0.12,0.086,0.0341

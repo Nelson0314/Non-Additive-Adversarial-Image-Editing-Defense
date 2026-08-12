@@ -1,0 +1,3 @@
+image,condition,reward_mode,fidelity_mode,update_rule,dists_lambda,stage1_seconds,total_seconds,fid_lpips,fid_ssim,fid_dists,fid_psnr,fid_clip_img,fid_nima,fid_cnniqa,edit_lpips,edit_clip_orig,edit_clip_def,edit_clip_drop,edit_siglip_orig,edit_siglip_def,edit_siglip_drop
+coot,B_classifier_DDIM,classifier,ball,sign,,0.0,167.5,0.3091,0.7023,0.1867,20.4488,0.963,4.5966,0.3987,0.1923,0.3225,0.3416,-0.019,0.0941,0.098,-0.0039
+coot,B_classifier_BDIA,classifier,ball,sign,,0.0,162.3,0.4054,0.669,0.2262,19.665,0.8213,3.661,0.4418,0.172,0.3225,0.3223,0.0003,0.0941,0.0996,-0.0055

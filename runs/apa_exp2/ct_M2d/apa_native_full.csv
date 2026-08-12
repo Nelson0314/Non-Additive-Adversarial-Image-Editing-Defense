@@ -1,0 +1,6 @@
+image,condition,reward_mode,fidelity_mode,update_rule,dists_lambda,stage1_seconds,total_seconds,fid_lpips,fid_ssim,fid_dists,fid_psnr,fid_clip_img,fid_nima,fid_cnniqa,edit_lpips,edit_clip_orig,edit_clip_def,edit_clip_drop,edit_siglip_orig,edit_siglip_def,edit_siglip_drop
+coot,M2_soft_sign_DDIM_lam0.5,attn,soft,sign,0.5,0.0,159.0,0.2261,0.7981,0.1034,22.885,0.9441,4.2829,0.5085,0.1589,0.3225,0.3353,-0.0128,0.0941,0.1103,-0.0162
+coot,M2_soft_sign_DDIM_lam2,attn,soft,sign,2.0,0.0,158.9,0.2343,0.7806,0.0753,22.3544,0.9641,4.22,0.5224,0.2177,0.3225,0.3297,-0.0072,0.0941,0.095,-0.0009
+coot,M2_soft_sign_DDIM_lam8,attn,soft,sign,8.0,0.0,159.4,0.2601,0.7548,0.0705,21.5333,0.9426,4.1402,0.458,0.2326,0.3225,0.3244,-0.0019,0.0941,0.1054,-0.0113
+coot,M2_soft_sign_DDIM_lam32,attn,soft,sign,32.0,0.0,159.5,0.2776,0.7206,0.09,20.8174,0.9659,4.3786,0.4238,0.2342,0.3225,0.3262,-0.0036,0.0941,0.1051,-0.011
+coot,M2_soft_sign_DDIM_lam128,attn,soft,sign,128.0,0.0,159.6,0.2715,0.7205,0.0629,21.0284,0.9748,4.1882,0.4197,0.237,0.3225,0.3232,-0.0006,0.0941,0.0967,-0.0026

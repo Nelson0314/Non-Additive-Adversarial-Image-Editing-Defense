@@ -1,0 +1,6 @@
+image,condition,reward_mode,fidelity_mode,update_rule,dists_lambda,stage1_seconds,total_seconds,fid_lpips,fid_ssim,fid_dists,fid_psnr,fid_clip_img,fid_nima,fid_cnniqa,edit_lpips,edit_clip_orig,edit_clip_def,edit_clip_drop,edit_siglip_orig,edit_siglip_def,edit_siglip_drop
+butterfly,M3_soft_adam_BDIA_lam0.5,attn,soft,adam,0.5,0.0,173.8,0.2281,0.8091,0.0398,22.8811,0.9858,5.1696,0.5661,0.2941,0.31,0.3133,-0.0033,0.12,0.1126,0.0075
+butterfly,M3_soft_adam_BDIA_lam2,attn,soft,adam,2.0,0.0,177.4,0.232,0.803,0.0326,22.8893,0.9836,5.1154,0.6213,0.2824,0.31,0.315,-0.005,0.12,0.1134,0.0066
+butterfly,M3_soft_adam_BDIA_lam8,attn,soft,adam,8.0,0.0,187.3,0.2427,0.7982,0.0258,22.8917,0.987,5.0787,0.5317,0.3109,0.31,0.3131,-0.0031,0.12,0.1076,0.0125
+butterfly,M3_soft_adam_BDIA_lam32,attn,soft,adam,32.0,0.0,201.7,0.2478,0.7931,0.0276,22.7601,0.983,5.0577,0.5537,0.267,0.31,0.3142,-0.0042,0.12,0.1113,0.0088
+butterfly,M3_soft_adam_BDIA_lam128,attn,soft,adam,128.0,0.0,188.8,0.2559,0.7873,0.0255,22.6679,0.98,4.9339,0.5845,0.2946,0.31,0.3133,-0.0033,0.12,0.0898,0.0303

@@ -32,7 +32,7 @@ import pathlib
 import subprocess
 import sys
 
-ROOT = pathlib.Path(__file__).resolve().parent.parent
+ROOT = pathlib.Path(__file__).resolve().parents[2]
 
 # 到不了但**刻意保留**的模組，附保留理由。列在這裡的不算問題。
 DORMANT = {

@@ -10,7 +10,7 @@
 
 ## 1. 主張
 
-使用者 2026-08-13 定案，取代 `DESIGN.md` §1 的三層階層：
+使用者 2026-08-13 定案，取代 `archive/DESIGN.md` §1 的三層階層：
 
 | 層級 | 主張 | 讀數 |
 |---|---|---|
@@ -360,33 +360,54 @@ Stable Diffusion」的前提。**處置**：跑得動就報並誠實承認結果
 「只認弱 baseline」直接衝突。改寫成以弱 baseline 為唯一起點的形式。
 before／after 依 `CLAUDE.md` 的工作要求記錄具體行號與原貌。
 
-### 6.3 docs 骨架
+### 6.3 docs 骨架（已執行）
 
-主線五份 ＋ 兩個目錄：
+主線八份 ＋ 兩個目錄：
 
 ```
 docs/
-  START_HERE.txt     新 session 讀檔須知（併入原 INDEX.md 的編碼制度說明）
-  MAINLINE.md        弱 baseline 的定義與最小程式集合
+  START_HERE.txt     新 session 讀檔須知（已併入原 INDEX.md 的編碼制度）
+  MAINLINE.md        主線是什麼、程式在哪（23 支清單）、已知什麼
   PLAN.md            本檔：現在要做什麼
   FINDINGS.md        測得的事實（FND-）
   DECISIONS.md       裁決（DEC-）
   METRICS.md         指標定義與其陷阱（MET-）
   RUNBOOK.md         操作流程
   DEFECTS.md         犯過的錯（DEF-）
-  reference/         外部論文的查證紀錄
+  reference/         外部論文的查證紀錄（含 ROBUSTNESS_TESTS.md）
   archive/           降級的逐次紀錄
 ```
 
-`INDEX.md` **併入 `START_HERE.txt` 後移除**：它的功能是「哪一種編碼放在哪個
-檔」，主線收斂到八份之後那張對照表只剩八列，獨立成檔反而多一次跳轉。
-`CLAUDE.md` 現行寫著「先讀 `docs/INDEX.md`」，須同步改。
-`EXP-`／`MTH-`／`DEF-` 三種編碼中，`MTH-` 隨 `METHODS.md` 一併降級，
-`EXP-` 隨 `EXPERIMENTS.md` 降級；新批次的紀錄直接寫進 `FINDINGS.md`。
+已移入 `archive/`：`DESIGN.md`、`ARCHITECTURE.md`、`METHODS.md`、
+`SYNTHESIS.md`、`EXPERIMENTS.md`、兩份 `HANDOFF_*.md`。
+`INDEX.md` **已移除**——它的功能是「哪一種編碼放在哪個檔」，主線收斂到八份
+之後那張對照表只剩八列，獨立成檔反而多一次跳轉。
 
-`DESIGN.md`、`ARCHITECTURE.md`、`METHODS.md`、`SYNTHESIS.md`、`EXPERIMENTS.md`、
-兩份 `HANDOFF_*.md` 移入 `archive/`，其中仍生效的內容（DESIGN §2 威脅模型、
-ARCHITECTURE §2.4 淨化介面）摘要進 `MAINLINE.md`。
+其中仍生效的內容已摘進主線：`DESIGN.md` §2 的威脅模型、`ARCHITECTURE.md`
+§2.4 的淨化介面（`forward`／`evaluate`／`proxy_gap`）分別在 `MAINLINE.md`
+與本檔 §3.4。`MTH-` 隨 `METHODS.md` 降級、`EXP-` 隨 `EXPERIMENTS.md` 降級，
+新批次的紀錄直接寫進 `FINDINGS.md`。
+
+### 6.4 執行結果（2026-08-13）
+
+| 項目 | 結果 |
+|---|---|
+| `scripts/` | 33 支 → **1 支**（`apa_baseline.py`），其餘在 `legacy/scripts/` |
+| `src/` | 原地不動，45 支；主線遞移依賴 **23 支**（`MAINLINE.md` §3） |
+| `tests/` | 不搬，34 支全部一起跑；**900 passed / 1 xfailed** |
+| `docs/` | 15 份 → **8 份** ＋ `reference/` ＋ `archive/` |
+| `CLAUDE.md` | 主張階層、注入位置、程式位置、文件四節重寫；測試基準由 629 更正為 900 |
+
+**搬動時踩到的兩個坑**（已寫進 `START_HERE.txt` §7）：
+
+1. **本 repo 用 sparse-checkout（cone mode）。** `legacy/` 不在定義內時
+   `git mv` 會全數拒絕，需先 `git sparse-checkout add legacy`。拒絕是乾淨的
+   ——不留半途狀態
+2. **測試跑的期間不要改原始碼。** pytest 逐檔 import，中途改檔會讀到不一致
+   的狀態。本次因此出現過一次 2 個測試失敗，重跑即全綠——極容易誤判成缺陷
+
+`legacy/scripts/` 的 19 支腳本其 `sys.path` 由 `parents[1]` 改為 `parents[2]`；
+`tests/` 有 5 支引用 `scripts.*` 或以路徑載入，已改指 `legacy/scripts/`。
 
 ## 7. 已知陷阱（動手前必讀）
 

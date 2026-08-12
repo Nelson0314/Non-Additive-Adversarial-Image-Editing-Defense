@@ -1,24 +1,37 @@
 新 SESSION 讀檔須知
 ====================================================================
-最後更新 2026-08-12。純文字，不需要讀對話記錄。
+最後更新 2026-08-13。純文字，不需要讀對話記錄。
 
 
 一、先讀哪些檔（依序，約十分鐘）
 --------------------------------------------------------------------
-1. CLAUDE.md              專案指令：研究範圍、工作要求、環境、資料保全
-2. docs/MAINLINE.md       現行主線：弱 baseline 的定義、最小程式集合、
-                          已知什麼、下一步的空間
-3. docs/INDEX.md          編碼制度：哪一種資料放在哪個檔
-4. docs/FINDINGS.md       主線的測得事實（12 筆）
-5. docs/DECISIONS.md      主線的裁決（3 筆）
+1. CLAUDE.md              專案指令：研究範圍、主張階層、工作要求、環境
+2. docs/MAINLINE.md       主線是什麼、程式在哪（23 支的完整清單）、已知什麼
+3. docs/PLAN.md           **現在要做什麼、為什麼、怎麼判成功**
+4. docs/FINDINGS.md       測得的事實（12 筆）
+5. docs/DECISIONS.md      裁決（3 筆）
 
-其餘按需要再查，不必預讀。
+其餘按需要再查，不必預讀。編碼（FND- / DEC- / MET- / DEF-）每一筆自足、
+可單獨讀完，只用來互相指認，不代表先後或依賴。
 
 
-二、現在的主線是什麼
+二、主張是什麼（2026-08-13 定案）
 --------------------------------------------------------------------
-內部弱 baseline（DEC-023）＝「完全原生 APA，只把 reward 換成 targeted
-output」。五個位置裡四個維持原生：
+  主    非加性「更」抗淨化：淨化後的效果衰減率低於加性 baseline
+  並列  防禦效果本身不輸：未淨化時的位移量不低於加性 baseline
+  三    保真受控，報全部指標不挑選
+
+**不再追求語意抵抗。** CLIP-T 掉幅仍照報但不作為成敗判準——四個軸全部
+否證（FND-024/029/030），且 arXiv:2506.04394 獨立測到同一現象。
+主讀數是位移量（edit_lpips）。判定式見 PLAN.md §2。
+
+archive/DESIGN.md §1 的 2026-08-05 版階層已被取代。對照組 R 的定義同時改為
+「同失真的加性隨機」，而 Ra（同 site 的隨機方向）歸為非加性族的下界。
+
+
+三、內部弱 baseline（DEC-023）
+--------------------------------------------------------------------
+「完全原生 APA，只把 reward 換成 targeted output」。五個位置裡四個原生：
 
     階段一   APA 官方 LoRA（denoising MSE、AdamW 1e-4、200 步、rank=8）
     階段二   dual-path attack guidance（trajectory + step-level）
@@ -27,7 +40,6 @@ output」。五個位置裡四個維持原生：
     reward   −‖D(z̄_0) − y_target‖²        ← 唯一的替換
 
 叫「弱」是因為它的語意抵抗接近零。它是位置基準，不是有效的防禦。
-使用者正在尋找其他方法。
 
 跑它：
     python scripts/apa_baseline.py --out runs/<批次名> \
@@ -37,21 +49,24 @@ output」。五個位置裡四個維持原生：
 --conditions 可只挑其中幾個（apa_weak / photoguard_c / mist / dia_r）。
 
 
-三、程式的最小集合
+四、程式怎麼分層
 --------------------------------------------------------------------
-scripts/apa_baseline.py               主驅動（弱 baseline + 三個加性 baseline）
-src/defense/apa_native_stage2.py      階段二：dual-path、latent 球、sign
-src/defense/optimize.py               階段一在 align_apa_native
-src/residual/site_weight.py           LoRA 掛載
-src/residual/site_apa.py              官方階段一的超參數常數
-src/metrics/suite.py, aesthetic.py    指標
-src/baselines/                        三個加性 baseline（pgd.py 是共用骨幹）
+scripts/          只有 apa_baseline.py 一支
+legacy/scripts/   舊主線的 33 支（含五段流程的 run_stage.py）
+src/              45 支，其中 23 支在主線的遞移依賴內
 
-專案既有的 scripts/run_stage.py 與 src/experiment/ 五段流程保留著，
-那是主架構不是冗餘，舊主線的條件仍靠它跑。
+src/ 不搬到 legacy/：legacy/src/ 會與 src/ 撞名，Python 只會載入 sys.path
+上先出現的那一個。改用清單標示——完整的 23 支見 MAINLINE.md §3。
+
+兩個重新匯出，不要複製實作：
+    executors.write_csv / load_image_tensor  →  src/utils/io.py
+    optimize.align_apa_native                →  src/defense/apa_stage1.py
+
+主線用新名字、舊批次用舊名字，同一份實作。分岔了不會報錯，只會讓既有
+runs/ 慢慢變得不可比（FND-027 就是拿 align_apa_native 量出來的）。
 
 
-四、已經被否證的方向（不要重試）
+五、已經被否證的方向（不要重試）
 --------------------------------------------------------------------
 四個軸都試過了：「把編輯推遠」做得到，「讓編輯不服從 prompt」做不到。
 
@@ -64,12 +79,31 @@ src/baselines/                        三個加性 baseline（pgd.py 是共用�
   * 換更新規則 —— sign 與 Adam 都測過。FND-029
   * 換階段一 —— 原生 LoRA 與 z*+decoder 都測過。FND-023/027
 
-尚未試過、且最有依據的組合：把最會推離的 reward（targeted）與最保真的
-訓練方法（Adam 或影像空間投影）合起來——targeted 只跟原生的球+sign
-配過，從未配過另外兩者。
+**外部獨立確證**：arXiv:2506.04394（ICIP 2025）測到多數情況下受保護影像
+的編輯仍符合 prompt，加噪聲甚至可能提高輸出與 prompt 的關聯。這些負面
+結果是可引用的，不是「我們沒做出來」。
 
 
-五、動手前必須知道的坑
+六、現在在做什麼
+--------------------------------------------------------------------
+見 PLAN.md。兩條路線：
+
+  A  對淨化的 min-max：max_φ min_{P∈𝒫} effect(P(G(x;φ)))
+     維持弱 baseline 的四個原生位置，只在 reward 外包一層 min over 𝒫。
+     內層用確定性最壞情況，不用隨機輪替（算子噪聲會蓋過方法訊號）。
+
+  B  cross-attention target injection reward（程式已完成，待跑四格消融）
+     R = −‖A(z̄₀,c) − A(y_tgt,c)‖² + β·‖A(z̄₀,c) − A(x,c)‖²
+     與已否證的注意力抑制不同：對象是 attn2 的「輸出」不是「分佈」，
+     動作是「讓另一個語意接管」不是「把質量拿走」。
+     注入目標 data/targets/obama.png（公有領域）。
+
+淨化算子要新增三個（ROBUSTNESS_TESTS.md §4）：C&R 串接、NAPPure-flow、
+PDM-Pure。第二個最關鍵——它是針對非加性設計的淨化，不納入的話主張
+可被一句「沒測針對性淨化」推翻。
+
+
+七、動手前必須知道的坑
 --------------------------------------------------------------------
 量測與方法
   * 未防禦的編輯必須真的成功，否則抗編輯那一欄的分母不成立。換資料集或
@@ -78,25 +112,30 @@ src/baselines/                        三個加性 baseline（pgd.py 是共用�
     翻轉。要比絕對值時先確認量在哪個解析度。FND-026
   * latent 半徑不是保真約束：同一個 ε_a 在不同影像上是完全不同的可見
     失真，而 LPIPS/DISTS/SSIM 三者的排序都可能與人眼相反。FND-028
+  * retention 的分母在 effect_siglip 讀數下不可用（65 組只過 1 組），
+    但在位移讀數下 1425 列有 1350 列可用。PLAN.md §2.1
   * 加性 baseline 不經 VAE 來回，其 39–41 dB 有相當部分來自結構差異，
     不宜與走生成路徑的格直接比保真度絕對值。
   * APA 階段二的 CFG 必須是 1.0、反演必須走淺噪聲帶（50 格排程只執行
     前 11 格）。這兩處弄錯不會報錯，只會讓失真量級整個不同。
+  * injection reward 可正可負，第 0 次迭代若落在零附近，DEC-021 的正規化
+    常數會極小而讓 reward 爆掉。每格第一行 log 要看 reward_raw。PLAN.md §4.2a
 
 工程
-  * 遠端跑 run_stage.py 時預設模型是 SDXL/1024²，本專案主線是
-    SD v1.4/512²，必須明給 --model 與 --resolution。
+  * **本 repo 用 sparse-checkout（cone mode）。** 新增頂層目錄前要先
+    `git sparse-checkout add <目錄>`，否則 git mv 會拒絕且不留半途狀態。
+  * **測試跑的期間不要改原始碼。** pytest 逐檔 import，中途改檔會讀到
+    不一致的狀態，症狀是隨機幾個測試失敗而重跑就好——極容易誤判成缺陷。
+  * 遠端跑 legacy/scripts/run_stage.py 時預設模型是 SDXL/1024²，本專案
+    主線是 SD v1.4/512²，必須明給 --model 與 --resolution。
   * dia_r 與 mist 必須開 use_ckpt 與 vae_ckpt，否則 OOM。
-  * suppress_attn_ca 之類的條件要求 --attn-mask-tau 由 CLI 明給，
-    刻意不設預設值。
   * 同一個批次目錄只允許一個寫入者（.writer.lock）。要平行就用不同的
-    批次目錄，不要共用。殺掉行程後鎖會殘留，先用 ps -p 確認 pid 已死
-    再刪。
+    批次目錄。殺掉行程後鎖會殘留，先用 ps -p 確認 pid 已死再刪。
   * runs/ 是唯一的證據來源，全部入版控。改 .gitignore 的 runs/ 區塊後
     必須用 git status --porcelain --ignored 確認沒有結果檔被靜默排除。
 
 
-六、機器
+八、機器
 --------------------------------------------------------------------
 NYCU BASIC lab，兩台各 8 張 RTX 3090，home 目錄跨機同步：
 
@@ -112,19 +151,21 @@ runs/，要用到既有結果得從本機 scp 上去）。金鑰認證已設好�
 只用於寫程式、跑 pytest、看報表——RTX 2050 4GB 跑不動本專案的 GPU 工作。
 指令前加 PYTHONIOENCODING=utf-8，否則印中文會炸。
 
-測試基準：882 passed / 1 xfailed。
+測試基準：900 passed / 1 xfailed。
 
 
-七、次要紀錄在哪
+九、次要紀錄在哪
 --------------------------------------------------------------------
-docs/archive/LEGACY_findings.md      舊主線的測得事實（18 筆）
-docs/archive/LEGACY_decisions.md     舊主線的裁決（20 筆）
-docs/archive/LEGACY_experiments.md   舊主線的實驗批次（21 筆）
+docs/reference/ROBUSTNESS_TESTS.md   三份外部抗淨化檢定協定的精確設定
+docs/reference/SURVEY.md             六篇 baseline 的對照表
+docs/reference/SOURCE_AUDIT.md       原始碼查證與不可用項目
+docs/METRICS.md                      指標定義與其陷阱
+docs/DEFECTS.md                      犯過的錯
+docs/RUNBOOK.md                      操作流程
 
-那是 2026-08-12 之前的主線（注意力抑制損失、相對 DISTS 預算、投影約束、
-淨化與 inpainting 批次）。降級不代表作廢——結論仍然成立，只是不再是現行
-工作的判準來源。工程與量測的教訓沒有降級，留在 DEFECTS.md、RUNBOOK.md
-與主線 FINDINGS.md。
+docs/archive/ 是 2026-08-12 之前的主線逐次紀錄（注意力抑制損失、相對
+DISTS 預算、投影約束、淨化與 inpainting 批次）。降級不代表作廢——結論
+仍然成立，只是不再是現行工作的判準來源。
 
 已移除的程式（結論都在 FND-027…030）可以取回：
     git checkout a4f93451f -- <path>

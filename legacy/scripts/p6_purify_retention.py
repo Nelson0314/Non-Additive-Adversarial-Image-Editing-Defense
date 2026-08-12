@@ -55,7 +55,7 @@ from pathlib import Path
 
 import numpy as np
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "runs" / "p6_purify_retention"
 
 # (標籤, site S 側的 run, site P 側的 run)。兩側必須同實驗、同 τ、同步數。

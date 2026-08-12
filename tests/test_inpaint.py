@@ -502,7 +502,7 @@ def test_遮罩鍵只在inpainting批次出現(tmp_path):
     import types
     from pathlib import Path as _P
 
-    sys.path.insert(0, str(_P(__file__).resolve().parent.parent / "scripts"))
+    sys.path.insert(0, str(_P(__file__).resolve().parent.parent / "legacy" / "scripts"))
     import run_stage as rs
     from src.utils.cellid import config_hash
 
@@ -767,7 +767,7 @@ def test_遮罩落盤存證():
     import sys
     from pathlib import Path as _P
 
-    sys.path.insert(0, str(_P(__file__).resolve().parent.parent / "scripts"))
+    sys.path.insert(0, str(_P(__file__).resolve().parent.parent / "legacy" / "scripts"))
     import run_stage as rs
 
     src = inspect.getsource(rs.build_resources)
@@ -791,7 +791,7 @@ def test_inpainting批次的strength被清成None():
     import sys
     from pathlib import Path as _P
 
-    sys.path.insert(0, str(_P(__file__).resolve().parent.parent / "scripts"))
+    sys.path.insert(0, str(_P(__file__).resolve().parent.parent / "legacy" / "scripts"))
     import run_stage as rs
 
     src = inspect.getsource(rs.main)
@@ -805,7 +805,7 @@ def test_shard的三個profile():
     from pathlib import Path as _P
 
     s = (_P(__file__).resolve().parent.parent
-         / "scripts" / "shard.sh").read_text(encoding="utf-8")
+         / "legacy" / "scripts" / "shard.sh").read_text(encoding="utf-8")
     assert "ip*)" in s and "runwayml/stable-diffusion-inpainting" in s
     assert "--wrapper sd_inpaint" in s
     assert "--masks data/lo_masks" in s

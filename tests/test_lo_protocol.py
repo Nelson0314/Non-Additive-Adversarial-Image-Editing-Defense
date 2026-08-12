@@ -304,7 +304,7 @@ def test_有目標的攻擊缺目標圖必須報錯():
 
 
 def test_已完成的格由summary判定(tmp_path):
-    from scripts.run_lo_baseline import append_csv, completed_pairs
+    from legacy.scripts.run_lo_baseline import append_csv, completed_pairs
 
     p = tmp_path / "summary.csv"
     assert completed_pairs(p) == set()          # 檔案不存在時為空集合
@@ -314,7 +314,7 @@ def test_已完成的格由summary判定(tmp_path):
 
 
 def test_附加不重寫表頭(tmp_path):
-    from scripts.run_lo_baseline import append_csv
+    from legacy.scripts.run_lo_baseline import append_csv
 
     p = tmp_path / "r.csv"
     append_csv(p, [{"a": 1, "b": 2}])
@@ -327,7 +327,7 @@ def test_附加不重寫表頭(tmp_path):
 def test_表頭不符必須拒絕附加(tmp_path):
     # 欄位集合變了代表程式改過。混在同一個檔裡會讓後續判讀無聲錯位，
     # 那比中止難查得多。
-    from scripts.run_lo_baseline import append_csv
+    from legacy.scripts.run_lo_baseline import append_csv
 
     p = tmp_path / "r.csv"
     append_csv(p, [{"a": 1, "b": 2}])
@@ -336,7 +336,7 @@ def test_表頭不符必須拒絕附加(tmp_path):
 
 
 def test_空列拒絕寫出(tmp_path):
-    from scripts.run_lo_baseline import append_csv
+    from legacy.scripts.run_lo_baseline import append_csv
 
     with pytest.raises(RuntimeError, match="沒有任何列"):
         append_csv(tmp_path / "r.csv", [])
@@ -351,7 +351,7 @@ class _Args:
     """`check_protocol` 只讀 PROTOCOL_KEYS，其餘欄位不影響。"""
 
     def __init__(self, **kw):
-        from scripts.run_lo_baseline import PROTOCOL_KEYS
+        from legacy.scripts.run_lo_baseline import PROTOCOL_KEYS
 
         for k in PROTOCOL_KEYS:
             setattr(self, k, kw.pop(k, 0))
@@ -359,7 +359,7 @@ class _Args:
 
 
 def test_首次執行寫下協定(tmp_path):
-    from scripts.run_lo_baseline import check_protocol
+    from legacy.scripts.run_lo_baseline import check_protocol
 
     check_protocol(tmp_path, _Args(prompt_index=0))
     got = json.loads((tmp_path / "protocol.json").read_text(encoding="utf-8"))
@@ -367,7 +367,7 @@ def test_首次執行寫下協定(tmp_path):
 
 
 def test_同一組協定可以接續(tmp_path):
-    from scripts.run_lo_baseline import check_protocol
+    from legacy.scripts.run_lo_baseline import check_protocol
 
     check_protocol(tmp_path, _Args(prompt_index=1, kappa=0.06))
     check_protocol(tmp_path, _Args(prompt_index=1, kappa=0.06))   # 不得拋出
@@ -377,7 +377,7 @@ def test_換了編輯prompt不得接續同一目錄(tmp_path):
     # 這正是 2026-08-03 發現的問題：論文補充材料 §A 每個物件有兩個編輯
     # prompt，Table 1 是兩者一起平均。兩半混進同一個目錄後 summary.csv
     # 不記 prompt，事後看不出來。
-    from scripts.run_lo_baseline import check_protocol
+    from legacy.scripts.run_lo_baseline import check_protocol
 
     check_protocol(tmp_path, _Args(prompt_index=0))
     with pytest.raises(SystemExit, match="prompt_index"):
@@ -385,7 +385,7 @@ def test_換了編輯prompt不得接續同一目錄(tmp_path):
 
 
 def test_換了預算不得接續同一目錄(tmp_path):
-    from scripts.run_lo_baseline import check_protocol
+    from legacy.scripts.run_lo_baseline import check_protocol
 
     check_protocol(tmp_path, _Args(kappa=0.06))
     with pytest.raises(SystemExit, match="kappa"):
@@ -394,7 +394,7 @@ def test_換了預算不得接續同一目錄(tmp_path):
 
 def test_補跑攻擊不算換協定(tmp_path):
     # `--attacks` 刻意不在 PROTOCOL_KEYS 裡：分批補跑攻擊是正當的接續。
-    from scripts.run_lo_baseline import PROTOCOL_KEYS
+    from legacy.scripts.run_lo_baseline import PROTOCOL_KEYS
 
     assert "attacks" not in PROTOCOL_KEYS
     assert "limit" not in PROTOCOL_KEYS

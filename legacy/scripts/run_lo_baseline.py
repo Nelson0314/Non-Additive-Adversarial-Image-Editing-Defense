@@ -40,7 +40,7 @@ import torch
 
 import sys
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from src.defense.linf_attack import LinfAttackConfig, build_attack, pgd_linf
 from src.metrics.suite import MetricSuite

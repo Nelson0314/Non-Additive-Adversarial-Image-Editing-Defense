@@ -36,7 +36,7 @@ from pathlib import Path
 
 import torch
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from scripts.run_stage import (build_parser, build_resources,  # noqa: E402
                                resolve_thresholds)

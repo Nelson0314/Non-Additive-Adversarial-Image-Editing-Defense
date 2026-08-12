@@ -1,4 +1,4 @@
-"""主張階層之首的判定腳本 —— `scripts/purify_advantage.py`。
+"""主張階層之首的判定腳本 —— `legacy/scripts/purify_advantage.py`。
 
 這裡驗的是**判準本身**，不是某一批的結論：判準若沒有分辨力，跑出來的
 「成立」不代表任何事。`p6_purify_retention.py` 的模組 docstring 記載了
@@ -15,7 +15,7 @@ import pytest
 ROOT = Path(__file__).resolve().parent.parent
 
 spec = importlib.util.spec_from_file_location(
-    "purify_advantage", ROOT / "scripts" / "purify_advantage.py")
+    "purify_advantage", ROOT / "legacy" / "scripts" / "purify_advantage.py")
 pa = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(pa)
 

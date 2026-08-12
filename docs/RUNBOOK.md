@@ -124,11 +124,11 @@ PSNR 27.51 dB 的重建誤差，故 N3 在 τ=0.05 與 0.10 **結構上不可能
 
 需要更深的依據時讀這些（順序即依賴順序）：
 
-`reference/SURVEY.md`（文獻與方法選擇）→ `DESIGN.md`（實驗設計、
-判定式）→ `ARCHITECTURE.md`（架構、五段流程）→ `reference/CODE_CONTRACTS.md`
+`reference/SURVEY.md`（文獻與方法選擇）→ `archive/DESIGN.md`（實驗設計、
+判定式）→ `archive/ARCHITECTURE.md`（架構、五段流程）→ `reference/CODE_CONTRACTS.md`
 （介面契約、產物清單）→ `LOGIC_CHECK_2026-08-05.md`（既知缺陷 A1–A13 與未決
 事項 C1–C4）。baseline 的每一個參數為什麼是那個值：`reference/SOURCE_AUDIT.md`
-與四份 `_audit_*.md`。程式審查的處置結果：`INDEX.md` §3。
+與四份 `_audit_*.md`。
 
 ---
 

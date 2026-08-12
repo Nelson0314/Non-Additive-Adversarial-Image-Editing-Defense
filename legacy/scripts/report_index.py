@@ -21,7 +21,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parents[2]
 
 # 批次 → (EXP 編碼, 一句話說明)。取自 docs/EXPERIMENTS.md，改那邊要同步改這裡。
 # 沒列到的批次仍會出現在「其他」區，不會靜默消失。

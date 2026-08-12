@@ -23,9 +23,9 @@ import sys
 from collections import defaultdict
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parents[2]
 T25 = ROOT / "runs" / "s3t25_merged"
 T30 = ROOT / "runs" / "s3t30_merged"
 T30_PENDING = not (T30 / "grid.csv").exists()

@@ -1,4 +1,4 @@
-"""`scripts/class_margin.py` 的檔案配對 —— 判定層最容易靜默出錯的地方。
+"""`legacy/scripts/class_margin.py` 的檔案配對 —— 判定層最容易靜默出錯的地方。
 
 這裡釘住的兩件事在 2026-08-09 的 s3a 批次上同時發生過，而且**數字看起來
 完全合理**：
@@ -22,9 +22,9 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def _load():
-    """以檔案路徑載入 `scripts/class_margin.py`（scripts/ 不是套件）。"""
+    """以檔案路徑載入 `legacy/scripts/class_margin.py`（legacy/scripts/ 不是套件）。"""
     spec = importlib.util.spec_from_file_location(
-        "class_margin", ROOT / "scripts" / "class_margin.py")
+        "class_margin", ROOT / "legacy" / "scripts" / "class_margin.py")
     mod = importlib.util.module_from_spec(spec)
     sys.modules["class_margin"] = mod
     spec.loader.exec_module(mod)

@@ -15,31 +15,42 @@
 
 要多做 paper survey；不要在會失敗的方向持續深究。
 
-**2026-08-05 主張階層改版**（使用者定案，見 `docs/DESIGN.md` §1）：
-原本「抗淨化只是附帶結果」的定位已改。現行階層為
+**2026-08-13 主張階層改版**（使用者定案，判定式見 `docs/PLAN.md` §1–2）：
 
-| 層級 | 主張 |
-|---|---|
-| **主** | 非加性**抗淨化**勝過加性 |
-| 次 | 抗編輯持平或小輸：同時滿足 (a) ≥ 0.85 × 最佳 baseline、(b) > 同失真高斯隨機對照 R |
-| 三 | 保真受控，報全部指標不挑選 |
+| 層級 | 主張 | 讀數 |
+|---|---|---|
+| **主** | 非加性**更**抗淨化：淨化後的效果**衰減率**低於加性 baseline | `retention` |
+| **並列** | 防禦效果本身不輸：未淨化時的位移量不低於加性 baseline | `effect(·, identity)` |
+| 三 | 保真受控，報全部指標不挑選 | LPIPS／DISTS／PSNR／SSIM／NIQE／銳利度 |
 
-**判準以人眼為主、數值指標為輔**（同日定案）。`compare.html` 因此由附屬產物
-升格為主要產出物，每一格都必須有影像可看；指標與人眼矛盾時以人眼為準並記錄。
+**不再追求語意抵抗。** CLIP-T 對齊掉幅仍照報，但不作為成敗判準——四個軸全部
+否證（FND-024／029／030），且 arXiv:2506.04394（ICIP 2025）獨立測到同一現象。
+**主讀數是位移量。**
+
+`docs/archive/DESIGN.md` §1 的 2026-08-05 版階層（次要判準為「≥ 0.85 × 最佳 baseline」）
+已被上表取代。對照組 R 的定義同時修正為**同失真的加性隨機**，見 `PLAN.md` §2.2。
+
+**判準以人眼為主、數值指標為輔。** `compare.html` 是主要產出物，每一格都必須
+有影像可看；指標與人眼矛盾時以人眼為準並記錄。
 
 ## 注入位置
 
-分兩類，差別在於是否經過 VAE 來回：
+**現行只有一個：APA 的 latent 擾動（site apa）。** 弱 baseline 在階段一把
+LoRA 掛上 UNet、階段二在 latent 上做 dual-path guidance，其餘位置都不使用。
 
-- **A 類／生成路徑**：site L（latent ε）、site E（文字嵌入）、site W（權重 LoRA）。
-  全部經 `decode(... encode(x) ...)`，共用同一個重建誤差下限。BDIA 精確反演已實作
-  並驗證（latent 來回誤差降 5 個數量級），消掉反演那一半後仍剩純 VAE 來回
-  LPIPS 0.1434 / 27.51 dB。E17 顯示 latent 最佳化可把下限砍到 0.0760。
-- **B 類／像素路徑**：site P（加性低秩）、site PF（加性全秩）、site S（空間變形）。
-  無下限。
+早期探索過六個位置（A 類經 VAE 來回：latent ε／文字嵌入／權重 LoRA；
+B 類走像素路徑：加性低秩／加性全秩／空間變形），結論留在
+`docs/archive/LEGACY_findings.md`。其中兩件事仍然有效：
 
-關鍵框定：那個下限是**我們選的 G** 造成的，不是威脅模型強加的。攻擊方用
-stock SD；防禦方換掉自己 G 裡的 decode 完全合法。
+1. **生成路徑有逐影像的重建下限**（FND-001），BDIA 精確反演讓它幾乎不再
+   額外收費（FND-002）。那個下限是**我們選的 G** 造成的，不是威脅模型強加
+   的——攻擊方用 stock SD，防禦方換掉自己 G 裡的 decode 完全合法。
+2. **空間變形（`src/residual/site_warp.py`）在路線 A 的第二階段可能取回**
+   （`docs/PLAN.md` §3.2），屆時它是第二個變因，不與 min-max 同時改。
+
+`src/defense/generator.py` 依模塊提供的能力分派，**不比對 site 名稱**。
+新增位置時提供 `pixel_residual` 或 `eps_hook` 即可，不要在此加
+`if site == ...`。該檔目前不在主線依賴內。
 
 ## 主線與弱 baseline（2026-08-12 起）
 
@@ -53,36 +64,57 @@ reward 換成 targeted output」（DEC-023）——四個位置（階段一 LoRA
 
 ## 程式位置
 
+**完整清單見 `docs/MAINLINE.md` §3**（用 AST 實測的 23 支遞移依賴，不是估計）。
+此處只列最常用的六個：
+
 | 用途 | 路徑 |
 |---|---|
-| **主驅動（主線）** | **`scripts/apa_baseline.py`**（弱 baseline + 三個加性 baseline） |
-| 階段二（主線） | `src/defense/apa_native_stage2.py` |
-| 階段一（主線） | `src/defense/optimize.py::align_apa_native` |
-| LoRA 掛載 | `src/residual/site_weight.py`、常數在 `site_apa.py` |
+| **主驅動** | **`scripts/apa_baseline.py`**（`scripts/` 只有這一支） |
+| 階段一 | `src/defense/apa_stage1.py::align_apa_native` |
+| 階段二 | `src/defense/apa_native_stage2.py` |
+| LoRA 掛載 | `src/residual/site_weight.py`，常數在 `site_apa.py` |
 | 指標 | `src/metrics/suite.py`、`aesthetic.py` |
-| baseline 攻擊 | `src/baselines/`（`pgd.py` 為共用骨幹，五篇各一檔） |
-| 專案五段流程（保留） | `scripts/run_stage.py`、`src/experiment/` |
-| 目標函數／優化（舊線仍在用） | `src/defense/objective.py`、`optimize.py` |
-| 重建下限 | `src/defense/recon.py` |
-| BDIA 精確反演 | `src/models/sd.py` 的 `bdia_inversion` |
-| cross-attention 擷取 | `src/models/attention.py` |
+| cross-attention 擷取 | `src/models/attention.py`（分佈與輸出各一個 recorder） |
+
+**三層結構**：
+
+- **主線**：上表 ＋ `src/baselines/`（加性對照）、`src/models/sd.py`、
+  `src/utils/`。共 23 支
+- **原地保留、不在主線依賴內**：`src/experiment/`、`src/purify/`、
+  `src/defense/objective.py`／`generator.py`／`optimize.py`／`recon.py`、
+  `src/residual/site_warp.py`／`site_embedding.py`、`src/data/`。
+  **不搬到 `legacy/`**：`legacy/src/` 會與 `src/` 撞名，Python 只會載入
+  `sys.path` 上先出現的那一個
+- **`legacy/scripts/`**：舊主線的 33 支腳本（含五段流程的 `run_stage.py`）。
+  平坦目錄無套件語意，故可以搬
+
+**兩個重新匯出，不要複製實作**：`executors.write_csv`／`load_image_tensor`
+指向 `src/utils/io.py`；`optimize.align_apa_native` 指向
+`src/defense/apa_stage1.py`。兩份實作會慢慢分岔而沒有症狀。
 
 已測過並否決的變體（注意力抑制／分類器 CE／latent／CLIP 四種 reward、
-DISTS 進 loss 的軟約束、Adam 更新規則）與本輪四支一次性腳本已移除，結論在
-FND-027…030。取回：`git checkout a4f93451f -- <path>`。
-
-`src/defense/generator.py` **依模塊提供的能力分派，不比對 site 名稱**。
-新增 site 時提供 `pixel_residual` 或 `eps_hook` 即可，不要在此加 `if site == ...`。
+DISTS 進 loss 的軟約束、Adam 更新規則）已移除，結論在 FND-027…030。
+取回：`git checkout a4f93451f -- <path>`。
 
 ## 文件
 
-先讀 `docs/INDEX.md`：它列出全部編碼（`EXP-`／`FND-`／`DEC-`／`DEF-`／`MTH-`／`MET-`）與各自在哪個檔案。每一筆都自足、可單獨讀完，編碼只用來互相指認，**不代表先後或依賴**。
-結論與判準一律以 `docs/FINDINGS.md`、`docs/DECISIONS.md` 為準；`docs/archive/` 是逐次紀錄，不是判準來源。
+新 session 先讀 `docs/START_HERE.txt`，接著三份：
+
+| 檔 | 回答什麼 |
+|---|---|
+| `docs/MAINLINE.md` | 主線是什麼、程式在哪、已知什麼 |
+| `docs/PLAN.md` | **現在要做什麼、為什麼、怎麼判成功** |
+| `docs/FINDINGS.md`／`DECISIONS.md` | 測得的事實與裁決，**判準一律以這兩份為準** |
+
+外部論文的查證紀錄在 `docs/reference/`（含 `ROBUSTNESS_TESTS.md`：三份抗淨化
+檢定協定的精確設定）。`docs/archive/` 是降級的逐次紀錄，不是判準來源。
+編碼（`FND-`／`DEC-`／`MET-`／`DEF-`）每一筆自足、可單獨讀完，只用來互相
+指認，**不代表先後或依賴**。
 
 ## 環境
 
 - 本機 Python：`C:/Users/nelso/miniconda3/envs/wacv/python.exe`（**不是 base**，base 沒有 pytest）。
-- 測試：`python -m pytest -q`，基準為 **629 passed / 1 skipped / 1 xfailed**。
+- 測試：`python -m pytest -q`，基準為 **900 passed / 1 xfailed**（2026-08-13）。
   xfailed 是刻意釘住的 DIA-PT L1 起點缺陷（原始碼自身的問題，`strict=True`）。
 - 遠端 TWCC 容器：host/port 每次重開都不同，由使用者提供；密碼與 GitHub token 同樣由使用者提供，**不得寫入任何入庫檔案**。
 - 遠端持久儲存 `/work/nelson0314` 跨容器保留：conda env `wacv`、repo 在

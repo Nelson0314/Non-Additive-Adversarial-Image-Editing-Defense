@@ -12,7 +12,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from scripts import dashboard  # noqa: E402
+from legacy.scripts import dashboard  # noqa: E402
 from src.utils.progress import ProgressWriter  # noqa: E402
 
 META = {"config_hash": "abc123456789"}

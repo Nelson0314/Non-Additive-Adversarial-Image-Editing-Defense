@@ -34,11 +34,11 @@ import yaml  # noqa: E402
 
 from src.baselines import dia, mist, photoguard  # noqa: E402
 from src.baselines.pgd import run_pgd  # noqa: E402
-from src.defense import optimize  # noqa: E402
+from src.defense.apa_stage1 import align_apa_native  # noqa: E402
 from src.defense.apa_native_stage2 import (  # noqa: E402
     REWARD_MODES, NativeStage2Config, attack_native,
 )
-from src.experiment import executors  # noqa: E402
+from src.utils.io import load_image_tensor, write_csv  # noqa: E402
 from src.metrics.aesthetic import AestheticSuite  # noqa: E402
 from src.metrics.suite import MetricSuite  # noqa: E402
 from src.models.sd import SDWrapper  # noqa: E402
@@ -94,7 +94,7 @@ def run_weak_baseline(sd, item, y_target, seed: int,
     lora = WeightResidual(sd.unet, rank=APA_LORA_RANK, alpha=APA_LORA_ALPHA,
                           blocks=APA_BLOCKS, seed=seed).to(sd.device)
     t0 = time.time()
-    optimize.align_apa_native(sd, lora, x01, item["class"], steps=APA_STAGE1_STEPS,
+    align_apa_native(sd, lora, x01, item["class"], steps=APA_STAGE1_STEPS,
                               lr=APA_STAGE1_LR, noise_offset=APA_NOISE_OFFSET, seed=seed)
     lora.enable()
     stage1_seconds = time.time() - t0
@@ -121,7 +121,7 @@ def run_additive(sd, item, name: str, seed: int) -> dict:
     elif name == "mist":
         # fused mode 把兩次 VAE 編碼與一次完整 UNet 前向放在同一張圖上。
         kw = {"use_ckpt": True, "vae_ckpt": True,
-              "target01": executors.load_image_tensor(
+              "target01": load_image_tensor(
                   Path("data/targets/MIST.png"), sd.device, size=RESOLUTION)}
     elif name == "dia_r":
         # DIA-R 把整條反演加整條重建留在同一張圖上，兩個開關都必須開，
@@ -184,7 +184,7 @@ def main() -> None:
     sd = SDWrapper(MODEL_NAME, dtype=torch.float32)
     suite = MetricSuite(device=sd.device)
     aes = AestheticSuite(device=sd.device)
-    y_target = executors.load_image_tensor(args.target, sd.device,
+    y_target = load_image_tensor(args.target, sd.device,
                                            size=RESOLUTION)
 
     dataset = load_dataset(args.data)
@@ -194,7 +194,7 @@ def main() -> None:
 
     rows = []
     for item in dataset:
-        item["path01"] = executors.load_image_tensor(item["path"], sd.device,
+        item["path01"] = load_image_tensor(item["path"], sd.device,
                                                      size=RESOLUTION)
         save_image(item["path01"], args.out / f"{item['name']}__orig.png")
         print(f"\n########## {item['name']} ({item['class']}) ##########", flush=True)
@@ -213,7 +213,7 @@ def main() -> None:
                    "total_seconds": round(time.time() - t0, 1), **metrics}
             rows.append(row)
             print(row, flush=True)
-            executors.write_csv(args.out / "results.csv", rows)
+            write_csv(args.out / "results.csv", rows)
     print(f"\n表：{args.out / 'results.csv'}")
 
 

@@ -271,7 +271,52 @@ Stable Diffusion」的前提。**處置**：跑得動就報並誠實承認結果
 | 支援 | `src/metrics/`、`src/models/`、`src/purify/`、`src/baselines/`（三個加性對照）、`src/utils/` | 原地 |
 | 舊主線 | 見下方 §6.1a 的實測清單 | **`legacy/`** |
 
-### 6.1a 依賴實測：可搬的遠少於預估
+### 6.1a 依賴實測與兩次抽出（2026-08-13 執行）
+
+用 AST 追 `scripts/apa_baseline.py` 的遞移依賴。**`from pkg import mod` 形式
+必須把 `pkg.mod` 也當模組解析**，漏了這條會低估依賴、把主線需要的檔案搬走
+（本次先前的盤點正是漏了它，得出「主線只碰 17 支」的錯誤結論）。
+
+| 階段 | 主線遞移依賴 |
+|---|---|
+| 起點 | **45** |
+| 抽出 `src/utils/io.py` 後 | 34 |
+| 抽出 `src/defense/apa_stage1.py` 後 | **23** |
+
+**抽出一：`src/utils/io.py`。** `apa_baseline` 只為 `load_image_tensor` 與
+`write_csv` 匯入 `src.experiment.executors`，而 `executors` 拉進整個
+`src/experiment/` 與 `objective.py`、`purify/`、`site_warp.py`。
+
+**抽出二：`src/defense/apa_stage1.py`。** `align_apa_native` 只用 `sd` 與
+`lora`，與 `optimize.py`（1570 行）其餘部分零耦合，但該檔匯入
+`generator`／`objective`／`purify.ops`／`calibration`，一支帶進 16 個模組。
+
+兩處都在原位置**重新匯出**而非複製實作——`executors.write_csv` 與
+`optimize.align_apa_native` 這兩個名字仍被舊主線的批次使用，兩份實作會慢慢
+分岔而沒有症狀（FND-027 就是拿 `align_apa_native` 量出來的）。
+
+脫離主線的有：`src/experiment/`（6 支）、`src/purify/`（5 支）、
+`src/defense/objective.py`、`generator.py`、`optimize.py`、`recon.py`、
+`src/residual/site_warp.py`、`site_embedding.py`、`src/data/`（3 支）、
+`src/metrics/` 的 4 支。
+
+### 6.1b `src/` 不搬到 `legacy/`，理由是套件會撞名
+
+`legacy/src/` 與 `src/` 同名，Python 只會載入 `sys.path` 上先出現的那一個。
+這不是風格問題，是會壞掉。三個可行的形態：
+
+| 形態 | 代價 |
+|---|---|
+| **A. `src/` 原地不動，用清單與模組標註分層**（建議） | 目錄看起來沒變，靠 `MAINLINE.md` 的 23 支清單與各檔頂端的狀態標註 |
+| B. 非主線移到 `src/legacy/` 子套件 | 不撞名，但要改 36 個模組與 31 支 script 的 import；漏改的症狀是 ImportError（會報錯，不會靜默） |
+| C. 整個 repo 拆成兩個套件 | 過大 |
+
+`scripts/` 沒有這個問題（平坦、無套件語意），**31 支可直接搬到
+`legacy/scripts/`**，只需把 `sys.path` 的 `parents[1]` 改成 `parents[2]`。
+`tests/` 不搬：混在一起跑一次 `pytest` 就能同時保護主線與 legacy，拆開要
+維護兩套設定，而測試正是 legacy 程式不腐爛的唯一保護。
+
+### 6.1c 原始的預估（已被上表取代）
 
 用 AST 追 `scripts/apa_baseline.py` 與主線測試的遞移依賴（**`from pkg import mod`
 形式必須把 `pkg.mod` 也當模組解析**，漏了這條會低估依賴、把主線需要的檔案

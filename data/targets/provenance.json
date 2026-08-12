@@ -1,0 +1,27 @@
+[
+ {
+  "output": "obama.png",
+  "role": "injection_target",
+  "commons_title": "File:President Barack Obama.jpg",
+  "descriptionurl": "https://commons.wikimedia.org/wiki/File:President_Barack_Obama.jpg",
+  "license": "Public domain",
+  "usage_terms": "Public domain",
+  "artist_html": "Official White House Photo by <a href=\"https://en.wikipedia.org/wiki/Pete_Souza\" class=\"extiw\" title=\"w:Pete Souza\">Pete Souza</a>",
+  "credit": "<a rel=\"nofollow\" class=\"external text\" href=\"https://www.flickr.com/photos/whitehouse/8390033709/\">P120612PS-0463</a> (<a rel=\"nofollow\" class=\"external text\" href=\"http://farm9.staticflickr.com/8369/8390033709_fd364647a4_o.jpg\">direct link</a>)<br><a rel=\"nofollow\" class=\"external text\" href=\"https://web.archive.org/web/20160227060205/https://www.whitehouse.gov/administration/president-obama\">Official White House page</a> <a rel=\"nofollow\" class=\"external text\" href=\"https://web.archive.org/web/20160227060914/https://www.whitehouse.gov/sites/whitehouse.gov/files/images/Administration/People/president_official_portrait_hires.jpg\">direct link</a>)",
+  "original_size": [
+   2687,
+   3356
+  ],
+  "downloaded": {
+   "thumb_width": 800,
+   "size": [
+    960,
+    1199
+   ],
+   "sha256": "44b332991ff9ab23aac3c6389fe8abff53722941b40fe655aa46bff6db584638"
+  },
+  "crop_side": 960,
+  "output_size": 512,
+  "note": "公有領域只放棄著作權，不處理被攝者的肖像權。本圖僅作為方法內部的注入目標，不是評測資料集的一部分。"
+ }
+]

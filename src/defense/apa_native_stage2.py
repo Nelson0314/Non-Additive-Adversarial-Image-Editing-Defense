@@ -56,7 +56,12 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Tuple
 
+from src.models.attention import CrossAttentionOutputRecorder
+
 import torch
+
+
+REWARD_MODES = ("targeted", "injection")
 
 
 @dataclass
@@ -79,6 +84,20 @@ class NativeStage2Config:
     normalize_reward: bool = True  # DEC-021
     use_ckpt: bool = True
     use_bdia: bool = False
+    # ---- 路線 B（PLAN.md §4）----
+    # "targeted"  官方形式的像素目標：−‖D(z̄₀) − y_target‖²（DEC-023 的弱 baseline）
+    # "injection" cross-attention 目標注入 ＋ 原圖抑制
+    reward_mode: str = "targeted"
+    injection_beta: float = 1.0   # β，suppression 項的權重；0 即純 injection
+    injection_t: int = 200        # 擷取注意力輸出時所用的固定 timestep
+
+    def __post_init__(self):
+        if self.reward_mode not in REWARD_MODES:
+            raise ValueError(
+                f"未知的 reward_mode {self.reward_mode!r}，"
+                f"可用的是 {sorted(REWARD_MODES)}。"
+                "靜默回退會讓消融的四格跑成同一件事而沒有症狀"
+            )
 
 
 def _targeted_reward(sd, z: torch.Tensor, y_target: torch.Tensor) -> torch.Tensor:
@@ -89,10 +108,63 @@ def _targeted_reward(sd, z: torch.Tensor, y_target: torch.Tensor) -> torch.Tenso
     return -torch.nn.functional.mse_loss(sd.decode_latent(z).clamp(0, 1), y_target)
 
 
+def _reward(sd, z, y_target, cfg, attn_ref, emb_cond):
+    """依 `cfg.reward_mode` 分派。dual-path 的兩條線共用同一個 reward——
+    只換其中一條會讓「唯一替換是 reward」這個歸因失效（DEC-023）。
+    """
+    if cfg is None or cfg.reward_mode == "targeted":
+        return _targeted_reward(sd, z, y_target)
+    return _injection_reward(_attn_outputs(sd, z, cfg, emb_cond),
+                             attn_ref["tgt"], attn_ref["src"], cfg.injection_beta)
+
+
+def _attn_outputs(sd, z: torch.Tensor, cfg: "NativeStage2Config", emb_cond):
+    """在固定的 `cfg.injection_t` 上跑一次 UNet 前向，取回各層 attn2 的輸出。
+
+    這一次前向**不能省**：沿著 trajectory 記到的是中間態 `z_t` 的注意力，
+    而 reward 定義在末端的 `z̄₀` 上，兩者不是同一個東西。
+    """
+    rec = CrossAttentionOutputRecorder(sd.unet)
+    with rec:
+        sd._eps(z, torch.tensor(cfg.injection_t), emb_cond, use_ckpt=cfg.use_ckpt)
+    return rec.outputs
+
+
+def _injection_reward(out_def, out_tgt, out_src, beta: float) -> torch.Tensor:
+    """cross-attention target injection ＋ source suppression（`PLAN.md` §4.2）。
+
+        R = −‖A(z̄, c) − A(y_tgt, c)‖²  +  β · ‖A(z̄, c) − A(x, c)‖²
+
+    三個引數都是 `CrossAttentionOutputRecorder.outputs`：list，每層一個
+    `(B, Q_l, C_l)`。**逐層算完再平均**，不把各層攤平相加——各層的 Q_l 與
+    C_l 不同，相加等於讓 query 數最多的那一層（最高解析度）獨佔權重。
+
+    負號使它與官方「maximize R_a」的號約定一致，與 `_targeted_reward` 相同：
+    injection 是 −MSE（越接近目標越好），suppression 是 +β·MSE（越遠離原圖
+    越好）。兩項同號的話「推離原圖」這個作用會消失而不報錯。
+    """
+    if not (len(out_def) == len(out_tgt) == len(out_src)):
+        raise ValueError(
+            f"三組注意力輸出的層數不一致："
+            f"def {len(out_def)}、tgt {len(out_tgt)}、src {len(out_src)}。"
+            "zip 會靜默截短，少記幾層只會讓 reward 偏小而沒有錯誤訊息"
+        )
+    inject = torch.stack([
+        torch.nn.functional.mse_loss(d, t) for d, t in zip(out_def, out_tgt)
+    ]).mean()
+    if beta == 0.0:
+        return -inject
+    suppress = torch.stack([
+        torch.nn.functional.mse_loss(d, s) for d, s in zip(out_def, out_src)
+    ]).mean()
+    return -inject + beta * suppress
+
+
 def _step_guidance(
     sd, z_t: torch.Tensor, t: torch.Tensor, noise_pred: torch.Tensor,
     ori_latents: torch.Tensor, m_state: List[torch.Tensor],
     y_target: torch.Tensor, abar: torch.Tensor,
+    cfg: "NativeStage2Config" = None, attn_ref=None, emb_cond=None,
 ) -> torch.Tensor:
     """`cond_guidance` 的逐字對應（Eq.8/9/10/11）。
 
@@ -107,7 +179,7 @@ def _step_guidance(
         pred_x0 = (z_local - beta_prod_t.sqrt() * noise_pred.detach()) / alpha_prod_t.sqrt()
         fac = beta_prod_t.sqrt()
         z_in = ori_latents * fac + pred_x0 * (1.0 - fac)          # Eq.10
-        reward = _targeted_reward(sd, z_in, y_target)
+        reward = _reward(sd, z_in, y_target, cfg, attn_ref, emb_cond)
         grad = torch.autograd.grad(reward, z_local)[0]
     l1_grad = grad / grad.norm(p=1).clamp_min(1e-12)
     m_state[0] = m_state[0] + l1_grad.detach()
@@ -117,7 +189,7 @@ def _step_guidance(
 def _trajectory_pass(
     sd, adv_latents, emb_cond: torch.Tensor, emb_uncond: torch.Tensor,
     ori_latents: torch.Tensor, y_target: torch.Tensor,
-    cfg: NativeStage2Config, ts: torch.Tensor,
+    cfg: NativeStage2Config, ts: torch.Tensor, attn_ref=None,
     norm: Optional[List[Optional[float]]] = None,
 ) -> Tuple[torch.Tensor, torch.Tensor, Dict]:
     """跑一次完整去噪（可反傳），回傳 `(z_0, reward, log)`。
@@ -147,7 +219,8 @@ def _trajectory_pass(
                               emb_uncond, use_ckpt=cfg.use_ckpt)
             if step_idx >= index_cond:
                 eps = eps - _step_guidance(sd, z_cur, t, eps, ori_latents,
-                                           m_state, y_target, abar)
+                                           m_state, y_target, abar,
+                                           cfg, attn_ref, emb_cond)
             a_plus = sd._ddim_step(z_cur, eps, ts[i], ts[i + 1], abar)
             a_minus = sd._ddim_step(z_cur, eps, ts[i], ts[i - 1], abar)
             z_next, z_cur = z_cur, (z_next - a_plus) + a_minus   # gamma=1
@@ -160,12 +233,13 @@ def _trajectory_pass(
                               emb_uncond, use_ckpt=cfg.use_ckpt)
             if step_idx >= index_cond:
                 eps = eps - _step_guidance(sd, z, t, eps, ori_latents,
-                                           m_state, y_target, abar)
+                                           m_state, y_target, abar,
+                                           cfg, attn_ref, emb_cond)
             pred_x0 = (z - (1 - abar[t]).sqrt() * eps) / abar[t].sqrt()
             z = abar[t_prev].sqrt() * pred_x0 + (1 - abar[t_prev]).sqrt() * eps
         z_0 = z
 
-    r_raw = _targeted_reward(sd, z_0, y_target)
+    r_raw = _reward(sd, z_0, y_target, cfg, attn_ref, emb_cond)
     r_main = r_raw
     if cfg.normalize_reward:
         if norm is None:
@@ -207,6 +281,17 @@ def attack_native(
     emb_uncond = sd.uncond_prompt()
     ts = sd.timesteps(cfg.schedule_steps, t_max=cfg.t_max)
 
+    # 注入目標與原圖的注意力輸出：y_target、injection_t、emb_cond 三者全程
+    # 固定，故整輪只算一次。detach 是必要的——它們是常數參照，不是最佳化變數。
+    attn_ref = None
+    if cfg.reward_mode == "injection":
+        with torch.no_grad():
+            z_tgt = sd.encode_image(y_target, use_ckpt=cfg.use_ckpt)
+            attn_ref = {
+                "tgt": [a.detach() for a in _attn_outputs(sd, z_tgt, cfg, emb_cond)],
+                "src": [a.detach() for a in _attn_outputs(sd, ori_latents, cfg, emb_cond)],
+            }
+
     la_0 = (z_T.detach().clone() if not cfg.use_bdia
             else (z_T.detach().clone(), z_prev.detach().clone()))
     # `adv` 必須與 `la_0` 是不同物件：下面的 `requires_grad_()` 是 in-place，
@@ -226,7 +311,8 @@ def attack_native(
             adv_in = opt_var = adv
 
         z_0, reward, log = _trajectory_pass(
-            sd, adv_in, emb_cond, emb_uncond, ori_latents, y_target, cfg, ts, norm)
+            sd, adv_in, emb_cond, emb_uncond, ori_latents, y_target, cfg, ts,
+            attn_ref=attn_ref, norm=norm)
         grad = torch.autograd.grad(reward, opt_var)[0].detach()
 
         # 官方更新規則：L1 正規化動量 + sign + 固定步長，再投影回 L∞ 球。
@@ -248,6 +334,7 @@ def attack_native(
 
     with torch.no_grad():
         z_final, _, _ = _trajectory_pass(
-            sd, adv, emb_cond, emb_uncond, ori_latents, y_target, cfg, ts, norm)
+            sd, adv, emb_cond, emb_uncond, ori_latents, y_target, cfg, ts,
+            attn_ref=attn_ref, norm=norm)
         x_def = sd.decode_latent(z_final)
     return x_def, history

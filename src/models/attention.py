@@ -277,6 +277,81 @@ class CrossAttentionRecorder:
         self.maps = []
 
 
+class CrossAttentionOutputRecorder:
+    """context manager：記錄一次 UNet 前向中所有 cross-attention 層的**輸出**。
+
+    與 `CrossAttentionRecorder` 的差別只有一處，但那一處決定了方法的意義：
+
+    | | 記什麼 | 形狀 | 用途 |
+    |---|---|---|---|
+    | `CrossAttentionRecorder` | attention 分佈 | (B, Q, T) | 抑制（把質量拿走） |
+    | 本類別 | attn2 的輸出張量 | (B, Q, C) | 注入（讓另一個語意接管） |
+
+    T 是文字 token 數、C 是特徵維，兩者不同。分佈的抑制已於 FND-024 否證：
+    質量確實被移出遮罩，但**沒有東西接管那個位置**，去噪過程照 prompt 填回。
+
+    用法：
+
+        rec = CrossAttentionOutputRecorder(sd.unet)
+        with rec:
+            eps = sd._eps(z, t, emb)
+        outs = rec.outputs      # list，每層一個 (B, Q_l, C_l)
+
+    逐層的 Q_l 與 C_l 都不同，故不合併成單一張量——理由與
+    `CrossAttentionRecorder` 相同。
+    """
+
+    def __init__(self, unet):
+        self.unet = unet
+        self.outputs: List[torch.Tensor] = []
+        self.enabled = True
+        self._handles = []
+        self._layers = [
+            m for n, m in unet.named_modules() if n.endswith("attn2")
+        ]
+        if not self._layers:
+            raise RuntimeError(
+                "在 UNet 中找不到任何 attn2 層；此模型可能不是 SD 架構，"
+                "cross-attention 注入目標無法套用"
+            )
+
+    @property
+    def n_layers(self) -> int:
+        return len(self._layers)
+
+    def _make_hook(self):
+        def hook(module, args, kwargs, output):
+            if not self.enabled:
+                return None
+            enc = kwargs.get("encoder_hidden_states", None)
+            if enc is None and len(args) > 1:
+                enc = args[1]
+            if enc is None:
+                # 退化成 self-attention 的層沒有文字綁定可言，跳過而非誤記
+                return None
+            self.outputs.append(output)
+            return None
+
+        return hook
+
+    def __enter__(self):
+        self.outputs = []
+        for layer in self._layers:
+            self._handles.append(
+                layer.register_forward_hook(self._make_hook(), with_kwargs=True)
+            )
+        return self
+
+    def __exit__(self, *exc):
+        for h in self._handles:
+            h.remove()
+        self._handles = []
+        return False
+
+    def clear(self):
+        self.outputs = []
+
+
 def token_span(tokenizer, prompt: str) -> tuple:
     """回傳 prompt 的內容 token 在 77 格中的區間 (start, end)，不含 BOS/EOS。
 

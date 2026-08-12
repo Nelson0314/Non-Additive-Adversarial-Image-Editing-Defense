@@ -116,13 +116,19 @@ DISTS 進 loss 的軟約束、Adam 更新規則）已移除，結論在 FND-027�
 - 本機 Python：`C:/Users/nelso/miniconda3/envs/wacv/python.exe`（**不是 base**，base 沒有 pytest）。
 - 測試：`python -m pytest -q`，基準為 **900 passed / 1 xfailed**（2026-08-13）。
   xfailed 是刻意釘住的 DIA-PT L1 起點缺陷（原始碼自身的問題，`strict=True`）。
-- 遠端 TWCC 容器：host/port 每次重開都不同，由使用者提供；密碼與 GitHub token 同樣由使用者提供，**不得寫入任何入庫檔案**。
-- 遠端持久儲存 `/work/nelson0314` 跨容器保留：conda env `wacv`、repo 在
-  `/work/nelson0314/WACV`、`hf_cache` 5.9 G（SD v1.4 已下載）。
-  每次執行前先 `source /work/nelson0314/WACV/env.sh`。
-- 容器預裝的 NGC torch **不支援 V100 的 sm_70**，必須用 conda env 的 torch cu118。
-- 遠端 `git pull` 常因 `runs/` 未追蹤檔衝突而 abort。作法是先把它們
-  `mv` 到 `/work/nelson0314/pull_backup/` 再 pull。
+- **GPU 工作一律在 NYCU BASIC lab 跑**（兩台各 8 張 RTX 3090，home 目錄跨機同步）：
+
+      ssh -p 10101 nelson0314@server.basiclab.lab.nycu.edu.tw   # basic-1
+      ssh -p 10102 nelson0314@server.basiclab.lab.nycu.edu.tw   # basic-2
+      source ~/env.sh        # PATH／venv／HF_HOME，並 cd 到 repo
+
+  repo 在 `/nfs/home/nelson0314/WACV-s3`。金鑰認證已設好，**密碼與 token
+  不得寫入任何入庫檔案**。卡是多人共用，跑之前先看 `nvidia-smi`。
+- 本機 RTX 2050 4GB 跑不動本專案的 GPU 工作，只用於寫程式、跑 pytest、看報表。
+- 遠端也用 sparse-checkout。`git pull` 之後若某個頂層目錄沒出現，
+  先 `git sparse-checkout add <目錄>`。
+- 遠端 `git pull` 常因 `runs/` 未追蹤檔衝突而 abort，先把它們 `mv` 到
+  暫存目錄再 pull。
 
 ## 工作要求
 
@@ -137,7 +143,7 @@ DISTS 進 loss 的軟約束、Adam 更新規則）已移除，結論在 FND-027�
 
 ## 資料保全
 
-`runs/` 是唯一的證據來源，TWCC 容器會被刪除，實驗無法重跑。所有 CSV / JSON /
+`runs/` 是唯一的證據來源，遠端機器不保證保留，實驗無法重跑。所有 CSV / JSON /
 log / PNG 一律入版控。`.gitignore` 的 `runs/` 區塊曾有一條 `runs/*/**` 讓 git
 停止遞迴而靜默漏掉 273 個檔案（見 commit `1942e38`）；改動該區塊時必須用
 `git status --porcelain --ignored` 確認沒有結果檔被排除。

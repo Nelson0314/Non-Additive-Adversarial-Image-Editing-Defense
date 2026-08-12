@@ -1,0 +1,11 @@
+image,condition,reward_mode,fidelity_mode,update_rule,dists_lambda,stage1_seconds,total_seconds,fid_lpips,fid_ssim,fid_dists,fid_psnr,fid_clip_img,fid_nima,fid_cnniqa,edit_lpips,edit_clip_orig,edit_clip_def,edit_clip_drop,edit_siglip_orig,edit_siglip_def,edit_siglip_drop
+butterfly,NF_soft_DDIM_lam0.5,classifier,soft,sign,0.5,46.7,125.4,0.3104,0.7193,0.1258,20.7231,0.9572,5.4705,0.614,0.5106,0.31,0.2852,0.0248,0.12,0.0694,0.0506
+butterfly,NF_soft_DDIM_lam2,classifier,soft,sign,2.0,47.3,126.3,0.3055,0.7271,0.0934,20.7715,0.9656,5.2118,0.5139,0.2773,0.31,0.3105,-0.0005,0.12,0.0955,0.0245
+butterfly,NF_soft_DDIM_lam8,classifier,soft,sign,8.0,49.3,132.9,0.2914,0.7321,0.0582,20.9409,0.9778,5.5898,0.564,0.4218,0.31,0.3221,-0.0121,0.12,0.1221,-0.002
+butterfly,NF_soft_DDIM_lam32,classifier,soft,sign,32.0,48.7,129.9,0.2861,0.7397,0.051,21.1446,0.9839,5.5963,0.5549,0.3015,0.31,0.307,0.003,0.12,0.0862,0.0339
+butterfly,NF_soft_DDIM_lam128,classifier,soft,sign,128.0,48.3,129.3,0.2841,0.7401,0.0481,20.8871,0.9874,5.266,0.528,0.5053,0.31,0.2924,0.0177,0.12,0.0528,0.0672
+butterfly,NF_soft_BDIA_lam0.5,classifier,soft,sign,0.5,48.2,123.0,0.4084,0.6318,0.1813,20.155,0.921,4.1564,0.515,0.2691,0.31,0.321,-0.011,0.12,0.1205,-0.0005
+butterfly,NF_soft_BDIA_lam2,classifier,soft,sign,2.0,48.4,123.1,0.4049,0.6251,0.1458,20.0723,0.9196,4.5359,0.5789,0.2659,0.31,0.2978,0.0122,0.12,0.113,0.007
+butterfly,NF_soft_BDIA_lam8,classifier,soft,sign,8.0,48.0,122.4,0.3885,0.6456,0.1091,20.3591,0.9374,4.6364,0.536,0.2857,0.31,0.3183,-0.0082,0.12,0.1066,0.0134
+butterfly,NF_soft_BDIA_lam32,classifier,soft,sign,32.0,48.1,122.8,0.3733,0.6613,0.0675,20.5887,0.952,4.7344,0.6017,0.2808,0.31,0.299,0.011,0.12,0.1025,0.0175
+butterfly,NF_soft_BDIA_lam128,classifier,soft,sign,128.0,48.1,123.0,0.3796,0.6598,0.0666,20.6004,0.9526,4.6768,0.6041,0.2854,0.31,0.3038,0.0062,0.12,0.1121,0.008

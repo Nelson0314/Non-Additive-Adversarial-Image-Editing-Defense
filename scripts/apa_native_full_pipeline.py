@@ -137,6 +137,20 @@ NATIVE_CONDITIONS = [
     ("NF_adam_BDIA", "lora", "bdia",
      dict(reward_mode="classifier", update_rule="adam")),
 ]
+# ---- 2026-08-12 使用者指定的 2×3×2 格點（horse／man／bird）----
+# 維度一 階段一：APA 原生 LoRA vs 我方 z*+decoder
+# 維度二 loss  ：latent（推離原圖 latent）／target（推向固定目標圖）／CLIP
+# 維度三 約束+更新：原生（latent 球 + sign + L1 動量）vs 我方（DISTS 進 loss + Adam）
+# 架構固定 DDIM——本輪已測得 DDIM 在此淺噪聲帶上 4/4 優於 BDIA（FND-029），
+# 再帶一個已知的變因進來只會稀釋這 12 組的可讀性。
+for _s1, _s1tag in (("lora", "L"), ("z*", "Z")):
+    for _rw in ("latent", "targeted", "clip"):
+        for _fm, _ur, _mtag in (("ball", "sign", "native"), ("soft", "adam", "ours")):
+            NATIVE_CONDITIONS.append((
+                f"G_{_s1tag}_{_rw}_{_mtag}", _s1, "ddim",
+                dict(reward_mode=_rw, fidelity_mode=_fm, update_rule=_ur,
+                     **({"dists_lambda": 8.0} if _fm == "soft" else {}))))
+
 BASELINE_CONDITIONS = ["photoguard_c", "mist", "dia_r"]
 ALL_CONDITIONS = [c[0] for c in NATIVE_CONDITIONS] + BASELINE_CONDITIONS
 
@@ -157,7 +171,23 @@ RECON_GAMMA_ACUT, RECON_ACUT_BAND = 1.0, 0.05
 RECON_FLOOR_RATIO = 0.50
 
 
-def load_dataset() -> list:
+def load_dataset(root: Path = None) -> list:
+    """`root` 給定時讀 `data/lo_aligned` 版面（每類一個子目錄、無 ImageNet
+    標籤）；不給時讀 `data/apa_native`（平放 + provenance.json）。
+
+    兩種版面分開處理而不是統一：APA 那批的類別名與標籤來自官方 `data.json`，
+    是重現的一部分；lo_aligned 是本專案自己的資料集，沒有也不需要標籤
+    （分類器 reward 不在用它的格點裡）。
+    """
+    if root is not None:
+        prompts = yaml.safe_load((root / "prompts.yaml").read_text(encoding="utf-8"))
+        out = []
+        for cls in sorted(prompts):
+            for img in sorted((root / cls).glob("*.png")):
+                out.append({"name": img.stem, "class": prompts[cls]["content"],
+                            "path": img, "content": prompts[cls]["content"],
+                            "prompt": prompts[cls]["prompts"][0], "label": None})
+        return out
     provenance = json.loads((DATA_DIR / "provenance.json").read_text(encoding="utf-8"))
     prompts = yaml.safe_load((DATA_DIR / "prompts.yaml").read_text(encoding="utf-8"))
     out = []
@@ -245,7 +275,7 @@ def run_native(sd, item, stage1: str, arch: str, seed: int,
         sd, z_T, z_prev, ori_latents, item["class"], item["content"], cfg,
         seed=seed, log_every=2, x01=item["path01"],
         y_target=res.get("y_target"), clf=res.get("clf"), label=label,
-        dists_module=res.get("dists_module"))
+        dists_module=res.get("dists_module"), clip_pack=res.get("clip_pack"))
 
     if stage1 == "z*" and "decoder_state" in extra:
         # x_def 是在 attack_native 內部用 stock decoder 解出來的；補一次
@@ -337,6 +367,8 @@ def main() -> None:
                     help="只跑這些影像（供多 GPU 平行分片用），預設全部三張")
     ap.add_argument("--conditions", nargs="+", default=None,
                     help="只跑這些條件名稱（見 ALL_CONDITIONS），預設全部")
+    ap.add_argument("--data", type=Path, default=None,
+                    help="改讀 lo_aligned 版面的資料集根目錄（每類一子目錄）")
     ap.add_argument("--lam", type=float, default=None,
                     help="soft 模式只跑這一個 λ。不給時跑 DISTS_LAMBDA_SWEEP 全部")
     args = ap.parse_args()
@@ -356,7 +388,7 @@ def main() -> None:
         "clf": None,
     }
 
-    dataset = load_dataset()
+    dataset = load_dataset(args.data)
     if args.images:
         dataset = [it for it in dataset if it["name"] in args.images]
     native_conditions = NATIVE_CONDITIONS
@@ -373,7 +405,8 @@ def main() -> None:
     # 匹配失真比較。ball 模式不吃 λ，維持單格。
     expanded = []
     for name, st1, arch, ov in native_conditions:
-        if ov.get("fidelity_mode") == "soft" and args.lam is None:
+        if (ov.get("fidelity_mode") == "soft" and args.lam is None
+                and "dists_lambda" not in ov):
             for lam in DISTS_LAMBDA_SWEEP:
                 expanded.append((f"{name}_lam{lam:g}", st1, arch,
                                  {**ov, "dists_lambda": lam}))
@@ -389,6 +422,10 @@ def main() -> None:
         item["path01"] = executors.load_image_tensor(item["path"], sd.device, size=RESOLUTION)
         save_image(item["path01"], args.out / f"{item['name']}__orig.png")
         print(f"\n########## {item['name']} ({item['class']}) ##########", flush=True)
+
+        if any(c[3].get("reward_mode") == "clip" for c in native_conditions):
+            from src.defense.apa_native_stage2 import build_clip_pack
+            shared["clip_pack"] = build_clip_pack(suite, item["content"], sd.device)
 
         for cond_name, stage1, arch, ov in native_conditions:
             print(f"=== {item['name']} / {cond_name} ===", flush=True)

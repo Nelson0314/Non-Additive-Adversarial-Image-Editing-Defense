@@ -174,6 +174,14 @@ class NativeStage2Config:
     #                「誤導分類器」這件事本身去看它對文字引導編輯有沒有
     #                意外的抵抗效果——原文的攻擊目標與本專案的威脅模型
     #                不同，兩者有沒有交集是一個沒人量過的問題
+    #   "latent"     最大化 ‖z̄_0 − z_0‖²：在 latent 空間把生成結果推離原圖的
+    #                latent。這是 APA-GC reward 裡 `−10·MSE(z_0, z̄_0)` 那一項
+    #                的反向，也是 DIA-PT 同族（該篇最大化反演終點對 E(x) 的距離）
+    #   "clip"       最小化 CLIP(D(z̄_0), c_a) 的影像-文字相似度：讓生成結果在
+    #                CLIP 空間裡不再像「那個詞」。這是 Lo 式(5) 注意力抑制的
+    #                CLIP 空間對應物，也是本輪唯一與評測同族的度量。
+    #                **用 c_a 而不是攻擊 prompt**：訓練期是 prompt-free
+    #                （`DESIGN` §2.1），防禦方不知道攻擊方會寫什麼
     reward_mode: str = "attn"
     #
     # `fidelity_mode` — 保真度怎麼被控制：
@@ -260,6 +268,56 @@ def _classifier_reward(sd, z: torch.Tensor, clf, label: torch.Tensor
     return torch.nn.functional.cross_entropy(out, label)
 
 
+def _latent_reward(z: torch.Tensor, ori_latents: torch.Tensor) -> torch.Tensor:
+    """`+‖z̄_0 − z_0‖²`：latent 空間推離原圖的 latent。
+
+    正號使它與其餘 reward 同為「越大越好」。與 `_trajectory_pass` 裡官方那道
+    `−λ·MSE(z_0, z̄_0)` 保真項**方向相反**——那一項要拉近、這個 reward 要推遠，
+    兩者在同一個量上拔河。這不是缺陷而是這一臂的定義：APA 原文的 reward 也是
+    與該保真項對抗的（只是它在分類器空間裡對抗）。
+    """
+    return torch.nn.functional.mse_loss(z.float(), ori_latents.float())
+
+
+def _clip_reward(sd, z: torch.Tensor, clip_pack) -> torch.Tensor:
+    """`−cos(CLIP_img(D(z)), CLIP_txt(c_a))`：讓輸出在 CLIP 空間裡不像 c_a。
+
+    `clip_pack` 是 `(model, text_embed, mean, std, side)`，由呼叫端建一次共用
+    ——文字嵌入與正規化常數對 φ 為常數，逐次重算只是浪費。
+
+    全程可微：`decode_latent` 保留計算圖，插值與正規化都是可微運算，
+    CLIP 的視覺塔本身也可微。**不可改用 `MetricSuite.semantic`**，那是
+    `@torch.no_grad` 的量測介面，接不到梯度而且不會報錯——症狀會是
+    「φ 收不到這一項的梯度」，在 log 上看不出來。
+    """
+    model, txt, mean, std, side = clip_pack
+    img = sd.decode_latent(z).clamp(0, 1)
+    img = torch.nn.functional.interpolate(img, size=(side, side),
+                                          mode="bilinear", align_corners=False)
+    feat = model.get_image_features(pixel_values=(img - mean) / std).pooler_output
+    feat = feat / feat.norm(dim=-1, keepdim=True)
+    return -(feat @ txt.T).mean()
+
+
+def build_clip_pack(suite, c_a: str, device):
+    """組出 `_clip_reward` 要的常數。文字嵌入取 `c_a` 本身，不加模板。"""
+    suite._ensure_vlm()
+    model, proc = suite._clip, suite._clip_proc
+    tok = proc.tokenizer([c_a], return_tensors="pt", padding=True,
+                         truncation=True).to(device)
+    with torch.no_grad():
+        # transformers 5.14.1：`get_text_features` 回傳
+        # `BaseModelOutputWithPooling`，投影後的文字特徵在 `.pooler_output`，
+        # 與 `src/metrics/aesthetic.py` 的影像側同一個處置。
+        txt = model.get_text_features(**tok).pooler_output
+        txt = txt / txt.norm(dim=-1, keepdim=True)
+    size = proc.image_processor.size
+    side = size.get("shortest_edge") or size["height"]
+    mean = torch.tensor(proc.image_processor.image_mean, device=device).view(1, 3, 1, 1)
+    std = torch.tensor(proc.image_processor.image_std, device=device).view(1, 3, 1, 1)
+    return (model, txt, mean, std, side)
+
+
 def _targeted_reward(sd, z: torch.Tensor, y_target: torch.Tensor
                      ) -> torch.Tensor:
     """`−‖D(z) − y_target‖²`：把輸出推向一張固定的目標影像。
@@ -285,9 +343,13 @@ def _reward_at(sd, z, t, cfg, ctx) -> torch.Tensor:
         return _classifier_reward(sd, z, ctx["clf"], ctx["label"])
     if cfg.reward_mode == "targeted":
         return _targeted_reward(sd, z, ctx["y_target"])
+    if cfg.reward_mode == "latent":
+        return _latent_reward(z, ctx["ori_latents"])
+    if cfg.reward_mode == "clip":
+        return _clip_reward(sd, z, ctx["clip_pack"])
     raise ValueError(
-        f"未知的 reward_mode {cfg.reward_mode!r}；只接受 "
-        "'attn'／'classifier'／'targeted'，不回退到預設")
+        f"未知的 reward_mode {cfg.reward_mode!r}；只接受 'attn'／'classifier'／"
+        "'targeted'／'latent'／'clip'，不回退到預設")
 
 
 def _step_guidance(
@@ -434,6 +496,7 @@ def attack_native(
     clf=None,
     label: Optional[torch.Tensor] = None,
     dists_module=None,
+    clip_pack=None,
 ) -> Tuple[torch.Tensor, List[Dict]]:
     """對應 `attack_optimization_checkpoint` 的外層迴圈（Eq.7）。
 
@@ -479,10 +542,11 @@ def attack_native(
 
     ctx = {"emb_ca": emb_ca, "span": span, "mask": mask, "side": side,
            "x01": x01, "y_target": y_target, "clf": clf, "label": label,
-           "dists_module": dists_module}
+           "dists_module": dists_module, "ori_latents": ori_latents,
+           "clip_pack": clip_pack}
     # 缺件一律當場拋出，不讓它延後到迴圈裡才以 KeyError／None 的形式出現。
-    need = {"targeted": ("y_target",), "classifier": ("clf", "label")}.get(
-        cfg.reward_mode, ())
+    need = {"targeted": ("y_target",), "classifier": ("clf", "label"),
+            "clip": ("clip_pack",)}.get(cfg.reward_mode, ())
     missing = [k for k in need if ctx.get(k) is None]
     if missing:
         raise ValueError(

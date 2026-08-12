@@ -114,6 +114,28 @@ NATIVE_CONDITIONS = [
     # 與本專案的威脅模型（抗文字引導編輯）不同，兩者有沒有交集？
     ("B_classifier_DDIM", "z*", "ddim", dict(reward_mode="classifier")),
     ("B_classifier_BDIA", "z*", "bdia", dict(reward_mode="classifier")),
+
+    # ---- 「完全原生 APA」錨點與它的單因子變體（2026-08-12）----
+    #
+    # 先前每一格都至少改了一處（`nativeLoRA_*` 換了 reward、`B_classifier_*`
+    # 換了階段一），於是「只改一處」的比較沒有基準可對。這裡補上真正的
+    # 原生格：APA 自己的階段一 LoRA ＋ 自己的 reward（分類器 CE）＋
+    # 自己的約束（latent 球）＋ 自己的更新規則（sign）。
+    ("NATIVE_full_DDIM", "lora", "ddim", dict(reward_mode="classifier")),
+    ("NATIVE_full_BDIA", "lora", "bdia", dict(reward_mode="classifier")),
+    # 只改 reward → targeted
+    ("NF_targeted_DDIM", "lora", "ddim", dict(reward_mode="targeted")),
+    ("NF_targeted_BDIA", "lora", "bdia", dict(reward_mode="targeted")),
+    # 只改約束 → soft（λ 固定取掃描的中點 8.0，避免再多一個變因）
+    ("NF_soft_DDIM", "lora", "ddim",
+     dict(reward_mode="classifier", fidelity_mode="soft", dists_lambda=8.0)),
+    ("NF_soft_BDIA", "lora", "bdia",
+     dict(reward_mode="classifier", fidelity_mode="soft", dists_lambda=8.0)),
+    # 只改更新規則 → Adam（**保留 latent 球**，這樣真的只有一處不同）
+    ("NF_adam_DDIM", "lora", "ddim",
+     dict(reward_mode="classifier", update_rule="adam")),
+    ("NF_adam_BDIA", "lora", "bdia",
+     dict(reward_mode="classifier", update_rule="adam")),
 ]
 BASELINE_CONDITIONS = ["photoguard_c", "mist", "dia_r"]
 ALL_CONDITIONS = [c[0] for c in NATIVE_CONDITIONS] + BASELINE_CONDITIONS

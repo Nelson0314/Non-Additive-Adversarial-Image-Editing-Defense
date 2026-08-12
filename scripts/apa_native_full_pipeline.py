@@ -411,8 +411,18 @@ def main() -> None:
                 expanded.append((f"{name}_lam{lam:g}", st1, arch,
                                  {**ov, "dists_lambda": lam}))
         elif ov.get("fidelity_mode") == "soft":
-            expanded.append((f"{name}_lam{args.lam:g}", st1, arch,
-                             {**ov, "dists_lambda": args.lam}))
+            # λ 的來源有兩個且**條件自帶的優先**：`--lam` 是整批覆寫，
+            # 條件裡的 `dists_lambda` 是該條件定義的一部分（例如 2×3×2 格點
+            # 固定取 8.0，避免多一個變因）。
+            #
+            # 2026-08-12 修正。before：這一支無條件格式化 `args.lam`，而
+            # 條件自帶 λ 時 `args.lam` 是 None，於是以
+            # `TypeError: unsupported format string passed to NoneType.__format__`
+            # 中止——9 個 shard 全在載完模型之後才炸。
+            lam = args.lam if args.lam is not None else ov["dists_lambda"]
+            suffix = "" if args.lam is None else f"_lam{lam:g}"
+            expanded.append((f"{name}{suffix}", st1, arch,
+                             {**ov, "dists_lambda": lam}))
         else:
             expanded.append((name, st1, arch, ov))
     native_conditions = expanded

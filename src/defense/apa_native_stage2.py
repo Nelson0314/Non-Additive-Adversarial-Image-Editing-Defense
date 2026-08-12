@@ -158,6 +158,41 @@ class NativeStage2Config:
     # 拿到不同的有效權重，而那個差異不會有症狀。
     normalize_attn_reward: bool = True
     attn_mask_tau: float = 0.5
+
+    # ---- 三個新的變因軸（2026-08-12，使用者裁決一併跑）----
+    #
+    # `reward_mode` — 階段二在最大化什麼：
+    #   "attn"       Lo et al. 式(5) 的注意力抑制（本輪主線，FND-024 已證明
+    #                它與「編輯失敗」沒有因果關係）
+    #   "targeted"   `−‖D(z) − y_target‖²`，形式取自 PhotoGuard-c 的 diffusion
+    #                attack 與 Mist 的 textural loss。動機：本輪八條件中唯一
+    #                在兩張圖、兩個語意指標上都為正的是 Mist，而它用的正是
+    #                這個形式；FND-024 已排除「大失真本身就夠」，故剩下的
+    #                可解釋變因是目標函數
+    #   "classifier" **APA 原文的原生 reward**：替代分類器的 cross-entropy，
+    #                untargeted（最大化 CE 使其偏離原類別）。這一臂是拿
+    #                「誤導分類器」這件事本身去看它對文字引導編輯有沒有
+    #                意外的抵抗效果——原文的攻擊目標與本專案的威脅模型
+    #                不同，兩者有沒有交集是一個沒人量過的問題
+    reward_mode: str = "attn"
+    #
+    # `fidelity_mode` — 保真度怎麼被控制：
+    #   "ball"  latent L∞ 球（APA 原生）。**實測它從來沒有綁住過任何東西**：
+    #           ε_a=0.4 而 µ×N=0.04×10=0.4，兩者恰好相等，log 中 linf 逐迭代
+    #           精確等於 µ×iter，投影 Π 全程是空操作
+    #   "soft"  把 DISTS 直接加進 reward（使用者提案的實驗二），取消球約束。
+    #           `dists_lambda` 決定強度
+    fidelity_mode: str = "ball"
+    dists_lambda: float = 1.0
+    #
+    # `update_rule` — 怎麼更新 z_T：
+    #   "sign"  APA 原生的 L1 動量 + sign + 固定步長 µ。**sign 丟掉梯度大小**，
+    #           故此規則下失真幅度恆為 µ×N，與 reward 裡放什麼無關——這正是
+    #           「soft + sign」被設計成對照組的理由：它應該與 ball 幾乎同失真，
+    #           只有方向不同
+    #   "adam"  真實梯度 + Adam。只有換掉 sign，loss 裡的保真項才真的能控制幅度
+    update_rule: str = "sign"
+    adam_lr: float = 0.02
     ref_timestep_frac: float = 0.1  # 算 trajectory-level 注意力圖用的參照 timestep，相對 t_max（或 999）
     use_ckpt: bool = True
     use_bdia: bool = False
@@ -180,13 +215,87 @@ def _attention_reward(
     return -masked_attention_l1(att, mask)
 
 
+# 分類器輸入的正規化。APA 的 `WrapperModel`（`utils.py:20-28`）依模型而異，
+# ResNet 系用 ImageNet 的均值／標準差——本輪只用 ResNet-50（官方
+# `--source_model` 的預設），故此處只放這一組，不做「依名稱查表」的分派：
+# 換模型時要明寫，不得靜默沿用別的模型的常數。
+_IMAGENET_MEAN = (0.485, 0.456, 0.406)
+_IMAGENET_STD = (0.229, 0.224, 0.225)
+CLASSIFIER_SIZE = 224
+
+
+def load_source_classifier(device):
+    """APA 原生 reward 用的替代分類器（ResNet-50，ImageNet 預訓練）。
+
+    對應官方 `attack_alignment.py` 的 `--source_model ResNet50` 預設。
+    回傳的模組已 `eval()` 且凍結——它是評分器不是被優化的對象。
+    """
+    import torchvision.models as tvm
+
+    clf = tvm.resnet50(weights=tvm.ResNet50_Weights.IMAGENET1K_V1)
+    clf.eval().to(device)
+    for p in clf.parameters():
+        p.requires_grad_(False)
+    return clf
+
+
+def _classifier_reward(sd, z: torch.Tensor, clf, label: torch.Tensor
+                       ) -> torch.Tensor:
+    """**APA 原文的原生 reward**：`R_a = CE(f_φ(D(z)), y)`，untargeted。
+
+    最大化 cross-entropy 即把影像推離其真實類別，與官方
+    `attack_optimization_checkpoint` 的 `reward = CrossEntropyLoss()(out, label)`
+    逐字相同（官方另有 `−10·MSE` 那一項，由 `_trajectory_pass` 統一施加）。
+
+    `decode_latent` 已回傳 [0,1]，故此處只做尺寸與 ImageNet 正規化，
+    與官方 `decode_la` + `F.interpolate` + `WrapperModel` 的順序一致。
+    """
+    img = sd.decode_latent(z).clamp(0, 1)
+    img = torch.nn.functional.interpolate(
+        img, size=(CLASSIFIER_SIZE, CLASSIFIER_SIZE), mode="bilinear",
+        align_corners=False)
+    mean = torch.tensor(_IMAGENET_MEAN, device=img.device).view(1, 3, 1, 1)
+    std = torch.tensor(_IMAGENET_STD, device=img.device).view(1, 3, 1, 1)
+    out = clf((img - mean) / std)
+    return torch.nn.functional.cross_entropy(out, label)
+
+
+def _targeted_reward(sd, z: torch.Tensor, y_target: torch.Tensor
+                     ) -> torch.Tensor:
+    """`−‖D(z) − y_target‖²`：把輸出推向一張固定的目標影像。
+
+    形式取自 PhotoGuard-c 的 diffusion attack 與 Mist 的 textural loss，
+    與本專案既有的 `targeted_output` 模式同一個量（`DESIGN` §4），故與
+    B1／B2 可直接對照。負號使它與其餘 reward 同為「越大越好」。
+    """
+    img = sd.decode_latent(z).clamp(0, 1)
+    return -torch.nn.functional.mse_loss(img, y_target)
+
+
+def _reward_at(sd, z, t, cfg, ctx) -> torch.Tensor:
+    """依 `cfg.reward_mode` 分派。`ctx` 帶各模式各自需要的東西。
+
+    不對未知模式回退到預設：回退會讓「模式名稱打錯」變成「跑了另一個實驗」，
+    而輸出上完全看不出來。
+    """
+    if cfg.reward_mode == "attn":
+        return _attention_reward(sd, z, t, ctx["emb_ca"], ctx["span"],
+                                 ctx["mask"], ctx["side"])
+    if cfg.reward_mode == "classifier":
+        return _classifier_reward(sd, z, ctx["clf"], ctx["label"])
+    if cfg.reward_mode == "targeted":
+        return _targeted_reward(sd, z, ctx["y_target"])
+    raise ValueError(
+        f"未知的 reward_mode {cfg.reward_mode!r}；只接受 "
+        "'attn'／'classifier'／'targeted'，不回退到預設")
+
+
 def _step_guidance(
     sd, z_t: torch.Tensor, t: torch.Tensor, noise_pred: torch.Tensor,
     ori_latents: torch.Tensor, m_state: List[torch.Tensor],
-    emb_ca: torch.Tensor, span: tuple, mask: torch.Tensor, side: int,
-    abar: torch.Tensor,
+    cfg: NativeStage2Config, ctx: Dict, abar: torch.Tensor,
 ) -> torch.Tensor:
-    """`cond_guidance` 的逐字對應（Eq.8/9/10/11），reward 換成注意力抑制。
+    """`cond_guidance` 的逐字對應（Eq.8/9/10/11），reward 由 `cfg.reward_mode` 決定。
 
     `z_t` 進來前**必須先 detach**——官方在這裡開一個獨立於外層計算圖的
     局部梯度，只用來算 sign-momentum 修正量，不讓這段反傳污染 trajectory-
@@ -199,7 +308,7 @@ def _step_guidance(
         pred_x0 = (z_local - beta_prod_t.sqrt() * noise_pred.detach()) / alpha_prod_t.sqrt()
         fac = beta_prod_t.sqrt()
         z_in = ori_latents * fac + pred_x0 * (1.0 - fac)          # Eq.10
-        reward = _attention_reward(sd, z_in, t, emb_ca, span, mask, side)
+        reward = _reward_at(sd, z_in, t, cfg, ctx)
         grad = torch.autograd.grad(reward, z_local)[0]
     l1_grad = grad / grad.norm(p=1).clamp_min(1e-12)
     m_state[0] = m_state[0] + l1_grad.detach()
@@ -208,8 +317,8 @@ def _step_guidance(
 
 def _trajectory_pass(
     sd, adv_latents: torch.Tensor, emb_cond: torch.Tensor,
-    emb_uncond: torch.Tensor, emb_ca: torch.Tensor, ori_latents: torch.Tensor,
-    cfg: NativeStage2Config, span: tuple, mask: torch.Tensor, side: int,
+    emb_uncond: torch.Tensor, ori_latents: torch.Tensor,
+    cfg: NativeStage2Config, ctx: Dict,
     ts: torch.Tensor, attn_norm: Optional[List[float]] = None,
 ) -> Tuple[torch.Tensor, torch.Tensor, Dict]:
     """跑一次完整去噪（可反傳），回傳 `(z_0, reward, log)`。
@@ -250,7 +359,7 @@ def _trajectory_pass(
                               emb_uncond, use_ckpt=cfg.use_ckpt)
             if step_idx >= index_cond:
                 delta = _step_guidance(sd, z_cur, t, eps, ori_latents,
-                                       m_state, emb_ca, span, mask, side, abar)
+                                       m_state, cfg, ctx, abar)
                 eps = eps - delta
             a_plus = sd._ddim_step(z_cur, eps, ts[i], ts[i + 1], abar)
             a_minus = sd._ddim_step(z_cur, eps, ts[i], ts[i - 1], abar)
@@ -265,7 +374,7 @@ def _trajectory_pass(
                               emb_uncond, use_ckpt=cfg.use_ckpt)
             if step_idx >= index_cond:
                 delta = _step_guidance(sd, z, t, eps, ori_latents,
-                                       m_state, emb_ca, span, mask, side, abar)
+                                       m_state, cfg, ctx, abar)
                 eps = eps - delta
             pred_x0 = (z - (1 - abar[t]).sqrt() * eps) / abar[t].sqrt()
             z = abar[t_prev].sqrt() * pred_x0 + (1 - abar[t_prev]).sqrt() * eps
@@ -273,8 +382,11 @@ def _trajectory_pass(
 
     ref_t = torch.as_tensor(_ref_timestep(cfg, cfg.t_max or (sd.num_train_timesteps - 1)),
                             device=z_0.device)
-    r_attn_raw = _attention_reward(sd, z_0, ref_t, emb_ca, span, mask, side)
-    r_attn = r_attn_raw
+    r_raw = _reward_at(sd, z_0, ref_t, cfg, ctx)
+    r_main = r_raw
+    # 正規化對三種 reward 一律適用（DEC-021 的理由與 reward 是哪一種無關：
+    # 它要的是「主項與官方 λ=10 的保真項同量級」）。cross-entropy 本來就在
+    # O(1–10)，正規化後仍是 O(1)，故 classifier 臂與官方的相對權重最接近。
     if cfg.normalize_attn_reward:
         if attn_norm is None:
             raise ValueError(
@@ -282,15 +394,28 @@ def _trajectory_pass(
                 "正規化常數必須跨迭代共用，見 DEC-021"
             )
         if attn_norm[0] is None:
-            attn_norm[0] = float(r_attn_raw.detach().abs().clamp_min(1e-12))
-        r_attn = r_attn_raw / attn_norm[0]
+            attn_norm[0] = float(r_raw.detach().abs().clamp_min(1e-12))
+        r_main = r_raw / attn_norm[0]
     fidelity_pen = cfg.fidelity_lambda * torch.nn.functional.mse_loss(
         ori_latents.float(), z_0.float())
-    reward = r_attn - fidelity_pen
-    log = {"r_attn": float(r_attn.detach()),
-           "r_attn_raw": float(r_attn_raw.detach()),
+    reward = r_main - fidelity_pen
+    log = {"r_attn": float(r_main.detach()),
+           "r_attn_raw": float(r_raw.detach()),
            "attn_norm": attn_norm[0] if attn_norm else None,
            "fidelity_pen": float(fidelity_pen.detach())}
+
+    # soft 模式：把 DISTS 直接加進 reward（實驗二）。**只有在這個模式下
+    # 才計算**——它需要一次 VAE 解碼加一次 DISTS 前向，ball 模式不該付這個成本。
+    if cfg.fidelity_mode == "soft":
+        dists_fn = ctx.get("dists_module")
+        if dists_fn is None:
+            raise ValueError(
+                "fidelity_mode='soft' 需要可微的 DISTS（ctx['dists_module']）。"
+                "不回退到 LPIPS：預算軸是哪一個度量必須與段 2 逐字相同")
+        x_gen = sd.decode_latent(z_0).clamp(0, 1).float()
+        d = dists_fn(x_gen, ctx["x01"].float())
+        reward = reward - cfg.dists_lambda * d
+        log["dists"] = float(d.detach())
     return z_0, reward, log
 
 
@@ -304,6 +429,11 @@ def attack_native(
     cfg: NativeStage2Config,
     seed: int = 0,
     log_every: int = 1,
+    x01: Optional[torch.Tensor] = None,
+    y_target: Optional[torch.Tensor] = None,
+    clf=None,
+    label: Optional[torch.Tensor] = None,
+    dists_module=None,
 ) -> Tuple[torch.Tensor, List[Dict]]:
     """對應 `attack_optimization_checkpoint` 的外層迴圈（Eq.7）。
 
@@ -335,6 +465,9 @@ def attack_native(
     ts = sd.timesteps(cfg.schedule_steps, t_max=cfg.t_max)
     ref_t = torch.as_tensor(_ref_timestep(cfg, top), device=device)
 
+    # 遮罩只有 attn 模式用得到，另兩種 reward 不需要它——但仍然一律計算，
+    # 因為它同時是 `[suppress]` 那行診斷的來源（遮罩覆蓋率是判讀 c_a 選得
+    # 對不對的唯一線索），成本是一次 UNet 前向。
     side = None  # aggregate_token_attention 用掃到的最大解析度
     with torch.no_grad():
         rec = CrossAttentionRecorder(sd.unet)
@@ -343,6 +476,19 @@ def attack_native(
         ref_att = aggregate_token_attention(rec.maps, span, side=side, reduce="sum")
         side = ref_att.shape[-1]
         mask = attention_region_mask(ref_att, tau=cfg.attn_mask_tau)
+
+    ctx = {"emb_ca": emb_ca, "span": span, "mask": mask, "side": side,
+           "x01": x01, "y_target": y_target, "clf": clf, "label": label,
+           "dists_module": dists_module}
+    # 缺件一律當場拋出，不讓它延後到迴圈裡才以 KeyError／None 的形式出現。
+    need = {"targeted": ("y_target",), "classifier": ("clf", "label")}.get(
+        cfg.reward_mode, ())
+    missing = [k for k in need if ctx.get(k) is None]
+    if missing:
+        raise ValueError(
+            f"reward_mode={cfg.reward_mode!r} 需要 {missing}，呼叫端沒有提供")
+    if cfg.fidelity_mode == "soft" and (x01 is None or dists_module is None):
+        raise ValueError("fidelity_mode='soft' 需要 x01 與 dists_module")
 
     la_0 = (z_T.detach().clone() if not cfg.use_bdia
            else (z_T.detach().clone(), z_prev.detach().clone()))
@@ -353,6 +499,7 @@ def attack_native(
     adv = (la_0.clone() if not cfg.use_bdia
           else (la_0[0].clone(), la_0[1].clone()))
     momentum = torch.zeros_like(z_T)
+    adam_state = {"m": torch.zeros_like(z_T), "v": torch.zeros_like(z_T), "t": 0}
     # 整輪共用一個正規化常數，由第 0 次迭代填入（DEC-021）。
     attn_norm: List[Optional[float]] = [None]
 
@@ -369,17 +516,44 @@ def attack_native(
             opt_var = adv
 
         z_0, reward, log = _trajectory_pass(
-            sd, adv_in, emb_cond, emb_uncond, emb_ca, ori_latents,
-            cfg, span, mask, side, ts, attn_norm)
+            sd, adv_in, emb_cond, emb_uncond, ori_latents, cfg, ctx,
+            ts, attn_norm)
 
         grad = torch.autograd.grad(reward, opt_var, retain_graph=False,
                                    create_graph=False)[0].detach()
-        l1_grad = grad / grad.norm(p=1).clamp_min(1e-12)
-        momentum = momentum + l1_grad
-        opt_var = opt_var.detach() + torch.sign(momentum) * cfg.mu
         target0 = la_0[0] if cfg.use_bdia else la_0
-        noise = (opt_var - target0).clamp(-cfg.eps_a, cfg.eps_a)
-        opt_var = target0 + noise
+
+        if cfg.update_rule == "sign":
+            # APA 原生：L1 正規化動量 + sign + 固定步長。**sign 丟掉梯度大小**，
+            # 故位移量恆為 µ×iter，與 reward 的內容無關。
+            l1_grad = grad / grad.norm(p=1).clamp_min(1e-12)
+            momentum = momentum + l1_grad
+            opt_var = opt_var.detach() + torch.sign(momentum) * cfg.mu
+        elif cfg.update_rule == "adam":
+            # 真實梯度上升。用 Adam 的狀態手動實作而非 `torch.optim.Adam`：
+            # 被優化的 `opt_var` 每次迭代都是新張量（重建計算圖），優化器
+            # 綁在舊張量上會靜默地什麼都不更新。
+            adam_state["t"] += 1
+            b1, b2, eps_ = 0.9, 0.999, 1e-8
+            g = -grad          # 最大化 reward = 最小化 −reward
+            adam_state["m"] = b1 * adam_state["m"] + (1 - b1) * g
+            adam_state["v"] = b2 * adam_state["v"] + (1 - b2) * g * g
+            mh = adam_state["m"] / (1 - b1 ** adam_state["t"])
+            vh = adam_state["v"] / (1 - b2 ** adam_state["t"])
+            opt_var = opt_var.detach() - cfg.adam_lr * mh / (vh.sqrt() + eps_)
+        else:
+            raise ValueError(
+                f"未知的 update_rule {cfg.update_rule!r}；只接受 'sign' 或 'adam'")
+
+        if cfg.fidelity_mode == "ball":
+            noise = (opt_var - target0).clamp(-cfg.eps_a, cfg.eps_a)
+            opt_var = target0 + noise
+        elif cfg.fidelity_mode == "soft":
+            # 不投影：幅度由 reward 裡的 DISTS 項承擔（這正是本模式要測的）。
+            noise = opt_var - target0
+        else:
+            raise ValueError(
+                f"未知的 fidelity_mode {cfg.fidelity_mode!r}；只接受 'ball' 或 'soft'")
 
         if cfg.use_bdia:
             adv = (opt_var, la_0[1])
@@ -396,7 +570,7 @@ def attack_native(
 
     with torch.no_grad():
         z_final, _, _ = _trajectory_pass(
-            sd, adv, emb_cond, emb_uncond, emb_ca, ori_latents,
-            cfg, span, mask, side, ts, attn_norm)
+            sd, adv, emb_cond, emb_uncond, ori_latents, cfg, ctx,
+            ts, attn_norm)
         x_def = sd.decode_latent(z_final)
     return x_def, history

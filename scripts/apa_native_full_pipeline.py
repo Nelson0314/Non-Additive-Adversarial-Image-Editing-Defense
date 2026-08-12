@@ -76,13 +76,56 @@ EDIT_STEPS = 30
 EDIT_SEED = 20260812
 
 NATIVE_CONDITIONS = [
-    ("nativeLoRA_DDIM", "lora", "ddim"),
-    ("nativeLoRA_BDIA", "lora", "bdia"),
-    ("ourStage1_DDIM", "z*", "ddim"),
-    ("ourStage1_BDIA", "z*", "bdia"),
+    # (名稱, 階段一, 架構, 階段二覆寫)
+    ("nativeLoRA_DDIM", "lora", "ddim", {}),
+    ("nativeLoRA_BDIA", "lora", "bdia", {}),
+    ("ourStage1_DDIM", "z*", "ddim", {}),
+    ("ourStage1_BDIA", "z*", "bdia", {}),
+
+    # ---- 2026-08-12 新增三組（使用者裁決，與上面四格同一批跑）----
+    #
+    # 【實驗二】階段二的訓練方法。M1 = 上面四格（ball + sign），M4 = apa_pj
+    # （影像空間投影 + Adam），兩者已有數據；這裡補中間兩格，使
+    # 「保真控制」與「更新規則」兩個因子可以各自分離：
+    #   M1→M2 只換保真控制、M2→M3 只換更新規則、M3→M4 只換施加方式。
+    #
+    # M2 是刻意設計的**對照組**：sign 丟掉梯度大小，故位移量恆為 µ×iter，
+    # 與 reward 裡放什麼無關。它應該與 M1 幾乎同失真、只有方向不同；
+    # 若實測不是如此，代表對機制的理解有誤，要先查清楚再往下走。
+    ("M2_soft_sign_DDIM", "z*", "ddim",
+     dict(fidelity_mode="soft", update_rule="sign")),
+    ("M2_soft_sign_BDIA", "z*", "bdia",
+     dict(fidelity_mode="soft", update_rule="sign")),
+    ("M3_soft_adam_DDIM", "z*", "ddim",
+     dict(fidelity_mode="soft", update_rule="adam")),
+    ("M3_soft_adam_BDIA", "z*", "bdia",
+     dict(fidelity_mode="soft", update_rule="adam")),
+
+    # 【新臂 A】換目標函數：targeted_output（PhotoGuard-c／Mist 的形式）。
+    # 動機：本輪八條件中唯一在兩張圖、兩個語意指標上都為正的是 Mist，
+    # 而它用的正是這個形式；FND-024 已排除「大失真本身就夠」，故剩下的
+    # 可解釋變因是目標函數。階段二機制其餘部分維持原生。
+    ("A_targeted_DDIM", "z*", "ddim", dict(reward_mode="targeted")),
+    ("A_targeted_BDIA", "z*", "bdia", dict(reward_mode="targeted")),
+
+    # 【新臂 B】**連 reward 都用原生**：替代分類器的 cross-entropy
+    # （ResNet-50、ImageNet 標籤取自 APA 官方 data.json），untargeted。
+    # 這一臂問的是一個沒人量過的問題：APA 原文的攻擊目標是「誤導分類器」，
+    # 與本專案的威脅模型（抗文字引導編輯）不同，兩者有沒有交集？
+    ("B_classifier_DDIM", "z*", "ddim", dict(reward_mode="classifier")),
+    ("B_classifier_BDIA", "z*", "bdia", dict(reward_mode="classifier")),
 ]
 BASELINE_CONDITIONS = ["photoguard_c", "mist", "dia_r"]
 ALL_CONDITIONS = [c[0] for c in NATIVE_CONDITIONS] + BASELINE_CONDITIONS
+
+# soft 模式的 λ 掃描值。**不做二分**：M2 的位移量依機制推論與 λ 無關，
+# 二分在它上面不會收斂；M3 則用掃描點事後挑「DISTS 最接近 apa_pj」的那一格
+# 做匹配失真比較，這比二分省一半機時而結論相同。
+DISTS_LAMBDA_SWEEP = (0.5, 2.0, 8.0, 32.0, 128.0)
+
+# targeted 臂的目標影像，與專案既有 `targeted_output` 條件同一張
+# （`executors.RunConfig.target_image` 的預設）。
+TARGET_IMAGE = "data/targets/gray.png"
 
 RECON_KEY = "lpips"
 RECON_W_PIXEL = 0.5
@@ -101,6 +144,7 @@ def load_dataset() -> list:
         out.append({
             "name": name, "class": p["apa_class"], "path": DATA_DIR / p["output"],
             "content": prompts[name]["content"], "prompt": prompts[name]["prompts"][0],
+            "label": p["apa_label"],
         })
     return out
 
@@ -134,7 +178,14 @@ def get_ori_latents(sd, x01, stage1: str, seed: int):
     return z1.detach(), {"decoder_state": decoder_state}
 
 
-def run_native(sd, item, stage1: str, arch: str, seed: int) -> dict:
+def run_native(sd, item, stage1: str, arch: str, seed: int,
+               overrides: dict = None, res=None) -> dict:
+    """`overrides` 覆寫 `NativeStage2Config` 的欄位（reward_mode／
+    fidelity_mode／update_rule／dists_lambda）。`res` 帶 reward 需要的
+    外部素材（分類器、目標影像、可微 DISTS），由呼叫端建一次共用——
+    ResNet-50 與 DISTS 各自都要載權重，逐格重建會讓每格多付數秒。"""
+    overrides = overrides or {}
+    res = res or {}
     lora = None
     ori_latents, extra = get_ori_latents(sd, item["path01"], stage1, seed)
     ori_latents = ori_latents.clone()
@@ -157,7 +208,8 @@ def run_native(sd, item, stage1: str, arch: str, seed: int) -> dict:
     # 噪聲深度與步數兩個額外變因。現行取 APA-GC 的原生操作點
     # （50 格排程只執行前 11 格、T_a=10），兩種架構同時套用。
     emb_cond = sd.encode_text(item["class"])
-    cfg = NativeStage2Config(use_bdia=(arch == "bdia"), use_ckpt=True)
+    cfg = NativeStage2Config(use_bdia=(arch == "bdia"), use_ckpt=True,
+                             **overrides)
     ts = sd.timesteps(cfg.schedule_steps, t_max=cfg.t_max)
     with torch.no_grad():
         if arch == "bdia":
@@ -165,9 +217,13 @@ def run_native(sd, item, stage1: str, arch: str, seed: int) -> dict:
         else:
             z_T = sd.ddim_inversion(ori_latents, emb_cond, ts, cfg.steps)
             z_prev = None
+    label = (torch.tensor([item["label"]], device=sd.device)
+             if item.get("label") is not None else None)
     x_def, history = attack_native(
         sd, z_T, z_prev, ori_latents, item["class"], item["content"], cfg,
-        seed=seed, log_every=2)
+        seed=seed, log_every=2, x01=item["path01"],
+        y_target=res.get("y_target"), clf=res.get("clf"), label=label,
+        dists_module=res.get("dists_module"))
 
     if stage1 == "z*" and "decoder_state" in extra:
         # x_def 是在 attack_native 內部用 stock decoder 解出來的；補一次
@@ -258,7 +314,9 @@ def main() -> None:
     ap.add_argument("--images", nargs="+", default=None,
                     help="只跑這些影像（供多 GPU 平行分片用），預設全部三張")
     ap.add_argument("--conditions", nargs="+", default=None,
-                    help="只跑這些條件名稱（見 ALL_CONDITIONS），預設全部七個")
+                    help="只跑這些條件名稱（見 ALL_CONDITIONS），預設全部")
+    ap.add_argument("--lam", type=float, default=None,
+                    help="soft 模式只跑這一個 λ。不給時跑 DISTS_LAMBDA_SWEEP 全部")
     args = ap.parse_args()
     args.out.mkdir(parents=True, exist_ok=True)
 
@@ -266,6 +324,15 @@ def main() -> None:
     suite = MetricSuite(device=sd.device)
     aes = AestheticSuite(device=sd.device)
     get_ori_latents._suite = suite
+
+    # reward 需要的外部素材建一次共用。分類器與目標影像只在對應的臂才會
+    # 被用到，但建構成本低（ResNet-50 一次載入），比逐格判斷要不要建簡單。
+    shared = {
+        "dists_module": suite.dists_module,
+        "y_target": executors.load_image_tensor(
+            Path(TARGET_IMAGE), sd.device, size=RESOLUTION),
+        "clf": None,
+    }
 
     dataset = load_dataset()
     if args.images:
@@ -275,6 +342,25 @@ def main() -> None:
     if args.conditions:
         native_conditions = [c for c in NATIVE_CONDITIONS if c[0] in args.conditions]
         baseline_conditions = [c for c in BASELINE_CONDITIONS if c in args.conditions]
+    if any(c[3].get("reward_mode") == "classifier" for c in native_conditions):
+        from src.defense.apa_native_stage2 import load_source_classifier
+        shared["clf"] = load_source_classifier(sd.device)
+
+    # soft 模式的格子展開成 λ 掃描：同一個條件名稱配多個 λ，落盤時帶
+    # `dists_lambda` 欄位，事後才能挑「DISTS 最接近 apa_pj」的那一格做
+    # 匹配失真比較。ball 模式不吃 λ，維持單格。
+    expanded = []
+    for name, st1, arch, ov in native_conditions:
+        if ov.get("fidelity_mode") == "soft" and args.lam is None:
+            for lam in DISTS_LAMBDA_SWEEP:
+                expanded.append((f"{name}_lam{lam:g}", st1, arch,
+                                 {**ov, "dists_lambda": lam}))
+        elif ov.get("fidelity_mode") == "soft":
+            expanded.append((f"{name}_lam{args.lam:g}", st1, arch,
+                             {**ov, "dists_lambda": args.lam}))
+        else:
+            expanded.append((name, st1, arch, ov))
+    native_conditions = expanded
 
     rows = []
     for item in dataset:
@@ -282,16 +368,21 @@ def main() -> None:
         save_image(item["path01"], args.out / f"{item['name']}__orig.png")
         print(f"\n########## {item['name']} ({item['class']}) ##########", flush=True)
 
-        for cond_name, stage1, arch in native_conditions:
+        for cond_name, stage1, arch, ov in native_conditions:
             print(f"=== {item['name']} / {cond_name} ===", flush=True)
             t0 = time.time()
-            res = run_native(sd, item, stage1, arch, args.seed)
+            res = run_native(sd, item, stage1, arch, args.seed,
+                             overrides=ov, res=shared)
             total_seconds = time.time() - t0
             metrics, edit_orig, edit_def = evaluate(sd, suite, aes, item, res["x_def"])
             save_image(res["x_def"], args.out / f"{item['name']}__{cond_name}__def.png")
             save_image(edit_orig, args.out / f"{item['name']}__{cond_name}__edit_orig.png")
             save_image(edit_def, args.out / f"{item['name']}__{cond_name}__edit_def.png")
             row = {"image": item["name"], "condition": cond_name,
+                  "reward_mode": ov.get("reward_mode", "attn"),
+                  "fidelity_mode": ov.get("fidelity_mode", "ball"),
+                  "update_rule": ov.get("update_rule", "sign"),
+                  "dists_lambda": ov.get("dists_lambda", ""),
                   "stage1_seconds": round(res["stage1_seconds"], 1),
                   "total_seconds": round(total_seconds, 1), **metrics}
             rows.append(row)

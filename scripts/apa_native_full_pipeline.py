@@ -63,7 +63,14 @@ RESOLUTION = 512
 # 常數，理由見 `run_native` 內的註解與 apa_native_stage2 的 `steps` 欄位。
 
 # 保真/抗編輯評測參數，沿用 EXP-s3t20 那條 SD v1.4/512² 軌
-EDIT_STRENGTH = 0.4
+# 2026-08-12 由 0.4 改為 0.55（使用者裁決，依 `scripts/apa_native_edit_sweep.py`
+# 的掃描結果）。0.4 下 butterfly 的未防禦編輯與原圖幾乎沒有差別——攻擊本身
+# 沒有發生，而防禦強弱是拿「防禦後的編輯」對「未防禦的編輯」比的，分母不成立
+# 時整組抗編輯數字都沒有意義（`data/lo_aligned/prompts.yaml` 記過同一個失效
+# 模式）。掃描實測：0.55 下 butterfly 出現明顯的帝王蝶＋紅玫瑰、coot 變成
+# 白天鵝，且**兩者構圖仍認得出是同一張照片**；0.7 則構圖整個換掉，反而讓
+# 「編輯成功與否」不再能歸因到防禦。prompt 不動，問題只在強度。
+EDIT_STRENGTH = 0.55
 EDIT_GUIDANCE = 7.5
 EDIT_STEPS = 30
 EDIT_SEED = 20260812

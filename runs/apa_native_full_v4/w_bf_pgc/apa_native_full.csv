@@ -1,0 +1,2 @@
+image,condition,stage1_seconds,total_seconds,fid_lpips,fid_ssim,fid_dists,fid_psnr,fid_clip_img,fid_nima,fid_cnniqa,edit_lpips,edit_clip_orig,edit_clip_def,edit_clip_drop,edit_siglip_orig,edit_siglip_def,edit_siglip_drop
+butterfly,photoguard_c,0.0,6820.5,0.2207,0.989,0.0309,40.8945,0.9929,5.6106,0.5464,0.6248,0.31,0.312,-0.002,0.12,0.0924,0.0276

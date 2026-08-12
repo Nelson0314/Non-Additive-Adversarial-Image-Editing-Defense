@@ -1,0 +1,21 @@
+image,prompt_index,prompt,strength,tag,lpips_vs_orig,clip_orig,clip_edit,clip_gain,siglip_gain
+butterfly,0,a group of monarch butterflies resting on a red rose,0.4,butterfly__p0__s0.4,0.4861,0.2314,0.2684,0.037,0.0372
+butterfly,0,a group of monarch butterflies resting on a red rose,0.55,butterfly__p0__s0.55,0.6273,0.2314,0.31,0.0786,0.101
+butterfly,0,a group of monarch butterflies resting on a red rose,0.7,butterfly__p0__s0.7,0.7165,0.2314,0.2724,0.041,0.0486
+butterfly,0,a group of monarch butterflies resting on a red rose,0.85,butterfly__p0__s0.85,0.7938,0.2314,0.308,0.0766,0.0968
+butterfly,1,a butterfly resting on a bright red rose,0.4,butterfly__p1__s0.4,0.4642,0.2099,0.2223,0.0123,0.0281
+butterfly,1,a butterfly resting on a bright red rose,0.55,butterfly__p1__s0.55,0.5623,0.2099,0.2532,0.0433,0.0477
+butterfly,1,a butterfly resting on a bright red rose,0.7,butterfly__p1__s0.7,0.6888,0.2099,0.2718,0.0619,0.0603
+butterfly,1,a butterfly resting on a bright red rose,0.85,butterfly__p1__s0.85,0.7536,0.2099,0.314,0.1041,0.0893
+butterfly,2,an orange monarch butterfly on a dried thistle,0.4,butterfly__p2__s0.4,0.4613,0.2852,0.2848,-0.0004,0.0307
+butterfly,2,an orange monarch butterfly on a dried thistle,0.55,butterfly__p2__s0.55,0.573,0.2852,0.3139,0.0287,0.0843
+butterfly,2,an orange monarch butterfly on a dried thistle,0.7,butterfly__p2__s0.7,0.6692,0.2852,0.3339,0.0487,0.0581
+butterfly,2,an orange monarch butterfly on a dried thistle,0.85,butterfly__p2__s0.85,0.7175,0.2852,0.3277,0.0425,0.0544
+coot,0,a white swan gliding on a golden lake at sunset,0.4,coot__p0__s0.4,0.4248,0.2017,0.301,0.0993,0.1248
+coot,0,a white swan gliding on a golden lake at sunset,0.55,coot__p0__s0.55,0.4854,0.2017,0.3225,0.1208,0.1184
+coot,0,a white swan gliding on a golden lake at sunset,0.7,coot__p0__s0.7,0.5381,0.2017,0.3332,0.1315,0.108
+coot,0,a white swan gliding on a golden lake at sunset,0.85,coot__p0__s0.85,0.6829,0.2017,0.3007,0.099,0.1324
+coot,1,a white swan on a lake,0.4,coot__p1__s0.4,0.4272,0.2239,0.2667,0.0427,0.0786
+coot,1,a white swan on a lake,0.55,coot__p1__s0.55,0.4802,0.2239,0.3073,0.0834,0.0818
+coot,1,a white swan on a lake,0.7,coot__p1__s0.7,0.5449,0.2239,0.301,0.077,0.0772
+coot,1,a white swan on a lake,0.85,coot__p1__s0.85,0.6378,0.2239,0.3387,0.1148,0.1075

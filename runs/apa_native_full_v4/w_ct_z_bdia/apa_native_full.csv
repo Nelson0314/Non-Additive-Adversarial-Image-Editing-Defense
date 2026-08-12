@@ -1,0 +1,2 @@
+image,condition,stage1_seconds,total_seconds,fid_lpips,fid_ssim,fid_dists,fid_psnr,fid_clip_img,fid_nima,fid_cnniqa,edit_lpips,edit_clip_orig,edit_clip_def,edit_clip_drop,edit_siglip_orig,edit_siglip_def,edit_siglip_drop
+coot,ourStage1_BDIA,0.0,153.4,0.2453,0.7929,0.1735,22.5725,0.9208,4.1018,0.4944,0.1523,0.3225,0.3259,-0.0034,0.0941,0.0863,0.0078

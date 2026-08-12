@@ -1,0 +1,2 @@
+image,condition,stage1_seconds,total_seconds,fid_lpips,fid_ssim,fid_dists,fid_psnr,fid_clip_img,fid_nima,fid_cnniqa,edit_lpips,edit_clip_orig,edit_clip_def,edit_clip_drop,edit_siglip_orig,edit_siglip_def,edit_siglip_drop
+butterfly,nativeLoRA_BDIA,46.6,108.3,0.2672,0.8002,0.1058,22.7563,0.9815,4.9314,0.637,0.2619,0.31,0.299,0.0111,0.12,0.091,0.0291

@@ -1,0 +1,2 @@
+image,condition,stage1_seconds,total_seconds,fid_lpips,fid_ssim,fid_dists,fid_psnr,fid_clip_img,fid_nima,fid_cnniqa,edit_lpips,edit_clip_orig,edit_clip_def,edit_clip_drop,edit_siglip_orig,edit_siglip_def,edit_siglip_drop
+butterfly,mist,0.0,72.4,0.5493,0.8474,0.1719,26.284,0.9413,4.8388,0.6047,0.754,0.31,0.2692,0.0408,0.12,0.0382,0.0819

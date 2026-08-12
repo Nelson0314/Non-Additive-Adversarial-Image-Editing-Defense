@@ -126,8 +126,8 @@ def test_注入項在輸出等於目標時取到上界零():
     tgt = _outs(1.0)
     src = _outs(0.0)
 
-    aligned = _injection_reward(_outs(1.0), tgt, src, beta=0.0)
-    off = _injection_reward(_outs(1.5), tgt, src, beta=0.0)
+    aligned = _injection_reward(_outs(1.0), tgt, None, src, beta=0.0)
+    off = _injection_reward(_outs(1.5), tgt, None, src, beta=0.0)
 
     assert torch.isclose(aligned, torch.tensor(0.0), atol=1e-6)
     assert off < aligned, "偏離目標必須讓 reward 變小"
@@ -145,8 +145,8 @@ def test_抑制項讓遠離原圖的輸出得到較高的reward():
     # 若拿「離目標等距的兩個 def」來比，兩邊的 MSE 只差最後一個浮點位，
     # 測試會因捨入而僥倖通過（實測 0.64000005 對 0.6399999）。
     d, tgt = _outs(0.5), _outs(1.0)
-    near_src = _injection_reward(d, tgt, _outs(0.4), beta=1.0)
-    far_src = _injection_reward(d, tgt, _outs(5.0), beta=1.0)
+    near_src = _injection_reward(d, tgt, d, _outs(0.4), beta=1.0)
+    far_src = _injection_reward(d, tgt, d, _outs(5.0), beta=1.0)
 
     assert far_src > near_src, "β>0 時遠離原圖必須讓 reward 變高"
 
@@ -156,8 +156,8 @@ def test_beta為零時抑制項完全不參與():
     from src.defense.apa_native_stage2 import _injection_reward
 
     tgt = _outs(1.0)
-    a = _injection_reward(_outs(0.5), tgt, _outs(0.0), beta=0.0)
-    b = _injection_reward(_outs(0.5), tgt, _outs(9.9), beta=0.0)
+    a = _injection_reward(_outs(0.5), tgt, None, _outs(0.0), beta=0.0)
+    b = _injection_reward(_outs(0.5), tgt, None, _outs(9.9), beta=0.0)
     assert torch.equal(a, b), "β=0 時 reward 不得隨原圖的注意力輸出改變"
 
 
@@ -170,9 +170,9 @@ def test_逐層取平均而非相加():
     from src.defense.apa_native_stage2 import _injection_reward
 
     r3 = _injection_reward(_outs(0.5, n_layers=3), _outs(1.0, n_layers=3),
-                           _outs(0.0, n_layers=3), beta=0.0)
+                           None, _outs(0.0, n_layers=3), beta=0.0)
     r9 = _injection_reward(_outs(0.5, n_layers=9), _outs(1.0, n_layers=9),
-                           _outs(0.0, n_layers=9), beta=0.0)
+                           None, _outs(0.0, n_layers=9), beta=0.0)
     assert torch.isclose(r3, r9, atol=1e-6), "reward 不得隨層數放大"
 
 
@@ -180,9 +180,9 @@ def test_層數不一致時直接拒絕():
     """zip 會靜默截短：少記了幾層只會讓 reward 偏小，沒有任何錯誤訊息。"""
     from src.defense.apa_native_stage2 import _injection_reward
 
-    with pytest.raises(ValueError, match="層數"):
+    with pytest.raises(ValueError, match="層數不一致"):
         _injection_reward(_outs(0.5, n_layers=3), _outs(1.0, n_layers=2),
-                          _outs(0.0, n_layers=3), beta=0.0)
+                          None, _outs(0.0, n_layers=3), beta=0.0)
 
 
 # ---------------------------------------------------------------------------
@@ -222,7 +222,8 @@ def test_injection模式產生的防禦圖不同於像素targeted(sd, x01):
     xd_t, _ = attack_native(sd, z, None, z, "a photo", y, _fast_cfg(
         reward_mode="targeted"))
     xd_i, _ = attack_native(sd, z, None, z, "a photo", y, _fast_cfg(
-        reward_mode="injection", injection_beta=0.0))
+        reward_mode="injection", injection_beta=0.0,
+        injection_prompt="a photo of Obama"))
 
     assert not torch.allclose(xd_t, xd_i, atol=1e-6), \
         "兩種 reward 給出逐位元相同的結果，表示 reward_mode 沒有接線"
@@ -261,3 +262,48 @@ def test_四格消融可由CLI各自指定():
     g4 = _parse(["--out", "runs/x", "--target", "data/targets/obama.png",
                  "--reward-mode", "injection", "--injection-beta", "1.5"])
     assert g4.injection_beta == 1.5
+
+
+# ---------------------------------------------------------------------------
+# 注入項的文字條件 —— arXiv:2602.14679 Eq.5／Eq.6
+#
+#   L_inj = Σ_ℓ ‖CA_ℓ(E(x+δ), t_tar) − CA_ℓ(E(x_tar), t_tar)‖²   ← 目標 token
+#   L_sup = −Σ_ℓ ‖CA_ℓ(E(x+δ), t)     − CA_ℓ(E(x),     t)‖²      ← 來源 token
+#
+# 兩項用「不同的」文字條件。先前的實作兩項都用來源類別名，等於在對齊
+# 「防禦圖對 horse 的回應」與「Obama 照片對 horse 的回應」，語意上不成立。
+# ---------------------------------------------------------------------------
+
+
+def test_未指定注入提示詞時直接拒絕():
+    """靜默沿用來源類別名的話，injection 會退化成先前那個無意義的目標，
+    而訓練照跑、reward 照樣單調上升，沒有任何症狀。"""
+    from src.defense.apa_native_stage2 import NativeStage2Config
+
+    with pytest.raises(ValueError, match="injection_prompt"):
+        NativeStage2Config(reward_mode="injection")
+
+
+def test_兩項各自用自己的文字條件(sd, x01):
+    """injection 用目標 token、suppression 用來源 token。
+
+    釘住的是「`encode_text` 被呼叫時拿到哪些字串」——這是唯一能區分
+    正確與錯誤實作的地方，兩者的張量形狀完全相同。
+    """
+    from src.defense.apa_native_stage2 import attack_native
+
+    seen = []
+    orig = sd.encode_text
+    sd.encode_text = lambda p: (seen.append(p), orig(p))[1]
+    try:
+        z = sd.encode_image(x01).detach()
+        g = torch.Generator().manual_seed(7)
+        y = torch.rand(1, 3, IMG, IMG, generator=g).to(DEV)
+        attack_native(sd, z, None, z, "a horse", y, _fast_cfg(
+            reward_mode="injection", injection_beta=1.0,
+            injection_prompt="a photo of Obama"))
+    finally:
+        sd.encode_text = orig
+
+    assert "a horse" in seen, "來源條件應為 class_name"
+    assert "a photo of Obama" in seen, "注入條件應為 injection_prompt，不是 class_name"

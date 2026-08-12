@@ -90,6 +90,9 @@ class NativeStage2Config:
     reward_mode: str = "targeted"
     injection_beta: float = 1.0   # β，suppression 項的權重；0 即純 injection
     injection_t: int = 200        # 擷取注意力輸出時所用的固定 timestep
+    # t_tar：注入項的文字條件（Eq.5）。**與來源類別名是不同的字串**，
+    # 沒有合理的預設值，故 reward_mode="injection" 時必須明給。
+    injection_prompt: Optional[str] = None
 
     def __post_init__(self):
         if self.reward_mode not in REWARD_MODES:
@@ -97,6 +100,12 @@ class NativeStage2Config:
                 f"未知的 reward_mode {self.reward_mode!r}，"
                 f"可用的是 {sorted(REWARD_MODES)}。"
                 "靜默回退會讓消融的四格跑成同一件事而沒有症狀"
+            )
+        if self.reward_mode == "injection" and not self.injection_prompt:
+            raise ValueError(
+                "reward_mode='injection' 需要 injection_prompt（Eq.5 的 t_tar）。"
+                "沿用來源類別名會讓注入項變成「對齊兩張圖對來源詞的回應」，"
+                "語意上不成立，而訓練照跑、reward 照樣單調上升，沒有症狀"
             )
 
 
@@ -111,11 +120,17 @@ def _targeted_reward(sd, z: torch.Tensor, y_target: torch.Tensor) -> torch.Tenso
 def _reward(sd, z, y_target, cfg, attn_ref, emb_cond):
     """依 `cfg.reward_mode` 分派。dual-path 的兩條線共用同一個 reward——
     只換其中一條會讓「唯一替換是 reward」這個歸因失效（DEC-023）。
+
+    injection 模式下，**兩項各用自己的文字條件**（arXiv:2602.14679 Eq.5／6）：
+    注入項在 `t_tar` 上比、抑制項在來源的 `t` 上比。故 β>0 時需要兩次前向。
     """
     if cfg is None or cfg.reward_mode == "targeted":
         return _targeted_reward(sd, z, y_target)
-    return _injection_reward(_attn_outputs(sd, z, cfg, emb_cond),
-                             attn_ref["tgt"], attn_ref["src"], cfg.injection_beta)
+    out_tar = _attn_outputs(sd, z, cfg, attn_ref["emb_tar"])
+    out_src = (None if cfg.injection_beta == 0.0
+               else _attn_outputs(sd, z, cfg, emb_cond))
+    return _injection_reward(out_tar, attn_ref["tgt"],
+                             out_src, attn_ref["src"], cfg.injection_beta)
 
 
 def _attn_outputs(sd, z: torch.Tensor, cfg: "NativeStage2Config", emb_cond):
@@ -130,34 +145,39 @@ def _attn_outputs(sd, z: torch.Tensor, cfg: "NativeStage2Config", emb_cond):
     return rec.outputs
 
 
-def _injection_reward(out_def, out_tgt, out_src, beta: float) -> torch.Tensor:
-    """cross-attention target injection ＋ source suppression（`PLAN.md` §4.2）。
+def _injection_reward(out_def_tar, out_tgt, out_def_src, out_src,
+                      beta: float) -> torch.Tensor:
+    """cross-attention target injection ＋ source suppression。
 
-        R = −‖A(z̄, c) − A(y_tgt, c)‖²  +  β · ‖A(z̄, c) − A(x, c)‖²
+    arXiv:2602.14679 Eq.5／Eq.6 的對應，**兩項用不同的文字條件**：
 
-    三個引數都是 `CrossAttentionOutputRecorder.outputs`：list，每層一個
+        R = −Σ_ℓ‖CA_ℓ(z̄₀, t_tar) − CA_ℓ(x_tar, t_tar)‖²      ← 注入，目標詞
+            + β·Σ_ℓ‖CA_ℓ(z̄₀, t)   − CA_ℓ(x,     t)‖²          ← 抑制，來源詞
+
+    引數都是 `CrossAttentionOutputRecorder.outputs`：list，每層一個
     `(B, Q_l, C_l)`。**逐層算完再平均**，不把各層攤平相加——各層的 Q_l 與
     C_l 不同，相加等於讓 query 數最多的那一層（最高解析度）獨佔權重。
 
     負號使它與官方「maximize R_a」的號約定一致，與 `_targeted_reward` 相同：
     injection 是 −MSE（越接近目標越好），suppression 是 +β·MSE（越遠離原圖
     越好）。兩項同號的話「推離原圖」這個作用會消失而不報錯。
+
+    `β = 0` 時 `out_def_src` 可為 `None`——那一次前向不必跑。
     """
-    if not (len(out_def) == len(out_tgt) == len(out_src)):
-        raise ValueError(
-            f"三組注意力輸出的層數不一致："
-            f"def {len(out_def)}、tgt {len(out_tgt)}、src {len(out_src)}。"
-            "zip 會靜默截短，少記幾層只會讓 reward 偏小而沒有錯誤訊息"
-        )
-    inject = torch.stack([
-        torch.nn.functional.mse_loss(d, t) for d, t in zip(out_def, out_tgt)
-    ]).mean()
+    def _mean_mse(a, b, what):
+        if len(a) != len(b):
+            raise ValueError(
+                f"{what}的注意力輸出層數不一致：{len(a)} 對 {len(b)}。"
+                "zip 會靜默截短，少記幾層只會讓 reward 偏小而沒有錯誤訊息"
+            )
+        return torch.stack([
+            torch.nn.functional.mse_loss(x, y) for x, y in zip(a, b)
+        ]).mean()
+
+    inject = _mean_mse(out_def_tar, out_tgt, "注入項")
     if beta == 0.0:
         return -inject
-    suppress = torch.stack([
-        torch.nn.functional.mse_loss(d, s) for d, s in zip(out_def, out_src)
-    ]).mean()
-    return -inject + beta * suppress
+    return -inject + beta * _mean_mse(out_def_src, out_src, "抑制項")
 
 
 def _step_guidance(
@@ -286,9 +306,13 @@ def attack_native(
     attn_ref = None
     if cfg.reward_mode == "injection":
         with torch.no_grad():
+            emb_tar = sd.encode_text(cfg.injection_prompt)
             z_tgt = sd.encode_image(y_target, use_ckpt=cfg.use_ckpt)
+            # 注入側在 t_tar 上比、抑制側在來源的 t 上比（Eq.5／6）。
+            # y_target、injection_t 與兩個文字條件全程固定，故整輪只算一次。
             attn_ref = {
-                "tgt": [a.detach() for a in _attn_outputs(sd, z_tgt, cfg, emb_cond)],
+                "emb_tar": emb_tar,
+                "tgt": [a.detach() for a in _attn_outputs(sd, z_tgt, cfg, emb_tar)],
                 "src": [a.detach() for a in _attn_outputs(sd, ori_latents, cfg, emb_cond)],
             }
 

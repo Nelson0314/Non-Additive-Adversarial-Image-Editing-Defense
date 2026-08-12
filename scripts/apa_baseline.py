@@ -85,7 +85,8 @@ def load_dataset(root: Path = None) -> list:
 
 def run_weak_baseline(sd, item, y_target, seed: int,
                       reward_mode: str = "targeted",
-                      injection_beta: float = 1.0) -> dict:
+                      injection_beta: float = 1.0,
+                      injection_prompt=None) -> dict:
     """階段一（官方 LoRA）＋ 階段二（dual-path + 球 + sign），reward 為 targeted。"""
     x01 = item["path01"]
     with torch.no_grad():
@@ -100,7 +101,8 @@ def run_weak_baseline(sd, item, y_target, seed: int,
     stage1_seconds = time.time() - t0
 
     cfg = NativeStage2Config(reward_mode=reward_mode,
-                             injection_beta=injection_beta)
+                             injection_beta=injection_beta,
+                             injection_prompt=injection_prompt)
     ts = sd.timesteps(cfg.schedule_steps, t_max=cfg.t_max)
     emb_cond = sd.encode_text(item["class"])
     with torch.no_grad():
@@ -174,6 +176,9 @@ def build_parser() -> argparse.ArgumentParser:
                     help="targeted＝像素目標（原生形式）；injection＝cross-attention 注入")
     ap.add_argument("--injection-beta", type=float, default=1.0,
                     help="β：source suppression 項的權重，0 即純 injection")
+    ap.add_argument("--injection-prompt", default=None,
+                    help="t_tar：注入項的文字條件（Eq.5）。"
+                         "--reward-mode injection 時必給，無預設值")
     return ap
 
 
@@ -202,7 +207,8 @@ def main() -> None:
             print(f"=== {item['name']} / {cond} ===", flush=True)
             t0 = time.time()
             res = (run_weak_baseline(sd, item, y_target, args.seed,
-                                    args.reward_mode, args.injection_beta)
+                                    args.reward_mode, args.injection_beta,
+                                    args.injection_prompt)
                    if cond == "apa_weak"
                    else run_additive(sd, item, cond, args.seed))
             metrics, eo, ed = evaluate(sd, suite, aes, item, res["x_def"])

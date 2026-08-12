@@ -115,6 +115,32 @@ suppression 雙損失，在單一 image-agnostic 擾動的嚴格約束下仍宣�
 
 ### 4.2 reward 形式
 
+**2026-08-13 修正**（使用者指出）。arXiv:2602.14679 的 Eq.5／Eq.6 逐字為：
+
+```
+L_inj = Σ_ℓ ‖CA_ℓ(E(x+δ), t_tar) − CA_ℓ(E(x_tar), t_tar)‖²     ← 目標詞 t_tar
+L_sup = −Σ_ℓ ‖CA_ℓ(E(x+δ), t)    − CA_ℓ(E(x),     t)‖²          ← 來源詞 t
+```
+
+**兩項用不同的文字條件。** 注入項在 `t_tar`（例如 "Obama"）上比，抑制項在
+來源的 `t`（物件類別名）上比。目標側**仍然是一張真的目標影像** `x_tar`
+——被對齊的是「一張真 Obama 照片在『Obama』條件下的注意力回應」。
+
+before（`apa_native_stage2.py:291-292`、`:117`，commit `5947d93e9`）：
+兩項都用 `emb_cond = sd.encode_text(class_name)`，即注入項在對齊
+「防禦圖對『horse』的回應」與「Obama 照片對『horse』的回應」。**語意上不成立**，
+而訓練照跑、reward 照樣由 −1 單調升到 +0.52，沒有任何症狀。FND-031 的四格
+是在這個錯誤條件下跑的。
+
+after：`NativeStage2Config.injection_prompt`（無預設值，`reward_mode=
+"injection"` 時必給），`attn_ref` 快取 `emb_tar` 與兩組參照，
+`_injection_reward` 接受兩組 def 側輸出。
+
+**代價**：β>0 時每次 reward 要兩次 attn 前向（兩個條件各一次），β=0 時仍是
+一次。故 β>0 的格會比 FND-031 那批更慢。
+
+### 4.2b 舊的 reward 形式（已被 §4.2 取代，保留以對照）
+
 ```
 R_B = −‖A(z̄₀, c) − A(y_target, c)‖²  +  β · ‖A(z̄₀, c) − A(x, c)‖²
           ↑ injection：對齊到目標          ↑ suppression：推離原圖

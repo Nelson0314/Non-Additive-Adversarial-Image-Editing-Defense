@@ -35,9 +35,7 @@ import yaml  # noqa: E402
 from src.baselines import dia, mist, photoguard  # noqa: E402
 from src.baselines.pgd import run_pgd  # noqa: E402
 from src.defense.apa_stage1 import align_apa_native  # noqa: E402
-from src.defense.apa_native_stage2 import (  # noqa: E402
-    REWARD_MODES, NativeStage2Config, attack_native,
-)
+from src.defense.apa_native_stage2 import NativeStage2Config, attack_native  # noqa: E402
 from src.utils.io import load_image_tensor, write_csv  # noqa: E402
 from src.metrics.aesthetic import AestheticSuite  # noqa: E402
 from src.metrics.suite import MetricSuite  # noqa: E402
@@ -52,9 +50,7 @@ from src.utils.artifacts import save_image  # noqa: E402
 DATA_DIR = Path(__file__).resolve().parent.parent / "data" / "apa_native"
 MODEL_NAME = "CompVis/stable-diffusion-v1-4"
 RESOLUTION = 512
-# 弱 baseline（DEC-023）的目標圖。預設維持灰圖使既有的 runs/ 可重跑出
-# 同一個數字；消融格 2–4 由 --target／--reward-mode 指定（PLAN.md §4.5）。
-DEFAULT_TARGET_IMAGE = "data/targets/gray.png"
+TARGET_IMAGE = "data/targets/gray.png"
 
 # 評測設定。strength 0.55 由 DEC-022 定出——0.4 下有影像的未防禦編輯
 # 根本沒發生，分母不成立。換資料集時**必須重新確認未防禦的編輯有成功**。
@@ -83,10 +79,7 @@ def load_dataset(root: Path = None) -> list:
     return out
 
 
-def run_weak_baseline(sd, item, y_target, seed: int,
-                      reward_mode: str = "targeted",
-                      injection_beta: float = 1.0,
-                      injection_prompt=None) -> dict:
+def run_weak_baseline(sd, item, y_target, seed: int) -> dict:
     """階段一（官方 LoRA）＋ 階段二（dual-path + 球 + sign），reward 為 targeted。"""
     x01 = item["path01"]
     with torch.no_grad():
@@ -100,9 +93,7 @@ def run_weak_baseline(sd, item, y_target, seed: int,
     lora.enable()
     stage1_seconds = time.time() - t0
 
-    cfg = NativeStage2Config(reward_mode=reward_mode,
-                             injection_beta=injection_beta,
-                             injection_prompt=injection_prompt)
+    cfg = NativeStage2Config()
     ts = sd.timesteps(cfg.schedule_steps, t_max=cfg.t_max)
     emb_cond = sd.encode_text(item["class"])
     with torch.no_grad():
@@ -162,7 +153,7 @@ def evaluate(sd, suite, aes, item, x_def):
             edit_orig, edit_def)
 
 
-def build_parser() -> argparse.ArgumentParser:
+def main() -> None:
     ap = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--out", type=Path, required=True)
@@ -170,20 +161,7 @@ def build_parser() -> argparse.ArgumentParser:
     ap.add_argument("--images", nargs="+", default=None)
     ap.add_argument("--conditions", nargs="+", default=None)
     ap.add_argument("--seed", type=int, default=0)
-    ap.add_argument("--target", type=Path, default=Path(DEFAULT_TARGET_IMAGE),
-                    help="注入目標影像。預設灰圖即 DEC-023 的弱 baseline")
-    ap.add_argument("--reward-mode", choices=REWARD_MODES, default="targeted",
-                    help="targeted＝像素目標（原生形式）；injection＝cross-attention 注入")
-    ap.add_argument("--injection-beta", type=float, default=1.0,
-                    help="β：source suppression 項的權重，0 即純 injection")
-    ap.add_argument("--injection-prompt", default=None,
-                    help="t_tar：注入項的文字條件（Eq.5）。"
-                         "--reward-mode injection 時必給，無預設值")
-    return ap
-
-
-def main() -> None:
-    args = build_parser().parse_args()
+    args = ap.parse_args()
     args.out.mkdir(parents=True, exist_ok=True)
 
     sd = SDWrapper(MODEL_NAME, dtype=torch.float32)
@@ -206,10 +184,7 @@ def main() -> None:
         for cond in conds:
             print(f"=== {item['name']} / {cond} ===", flush=True)
             t0 = time.time()
-            res = (run_weak_baseline(sd, item, y_target, args.seed,
-                                    args.reward_mode, args.injection_beta,
-                                    args.injection_prompt)
-                   if cond == "apa_weak"
+            res = (run_weak_baseline(sd, item, y_target, args.seed) if cond == "apa_weak"
                    else run_additive(sd, item, cond, args.seed))
             metrics, eo, ed = evaluate(sd, suite, aes, item, res["x_def"])
             for tag, img in (("def", res["x_def"]), ("edit_orig", eo), ("edit_def", ed)):

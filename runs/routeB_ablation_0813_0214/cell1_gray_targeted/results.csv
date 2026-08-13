@@ -1,4 +1,0 @@
-image,condition,stage1_seconds,total_seconds,fid_lpips,fid_ssim,fid_dists,fid_psnr,fid_clip_img,fid_nima,fid_cnniqa,edit_lpips,edit_clip_orig,edit_clip_def,edit_clip_drop,edit_siglip_orig,edit_siglip_def,edit_siglip_drop
-bird_03,apa_weak,47.3,151.6,0.2227,0.7727,0.1962,19.1692,0.9421,5.1263,0.5829,0.3716,0.2725,0.2602,0.0123,0.1038,0.1052,-0.0014
-horse_00,apa_weak,48.4,135.0,0.2295,0.7327,0.1621,16.8396,0.9396,5.1409,0.5549,0.3582,0.306,0.3132,-0.0072,0.119,0.1226,-0.0036
-man_00,apa_weak,48.0,135.8,0.1256,0.9176,0.0851,20.6714,0.9791,4.5151,0.5485,0.3096,0.2819,0.3046,-0.0227,0.1079,0.1264,-0.0185

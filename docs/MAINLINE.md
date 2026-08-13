@@ -1,15 +1,15 @@
 # 主線
 
 2026-08-13 更新。判準與結論以 `FINDINGS.md`／`DECISIONS.md` 為準，現行工作
-以 `PLAN.md` 為準。本頁只回答三個問題：**主線是什麼、程式在哪、已知什麼**。
+本頁只回答三個問題：**主線是什麼、程式在哪、已知什麼**。
 
 ---
 
 ## 1. 研究目標
 
 白盒條件、外掛模組形態下，找出非加性方法，在匹配人眼可辨失真下勝過加性
-基準。主張階層見 `PLAN.md` §1（2026-08-13 改為「非加性**更**抗淨化」為主、
-防禦效果不輸為並列，主讀數是位移量，不再追求語意抵抗）。
+基準。**不再追求語意抵抗**（FND-024／029／030 四個軸全部否證），主讀數是
+位移量與抗淨化的衰減率。
 
 判準以人眼為主、數值指標為輔。`compare.html` 是主要產出物，每一格都必須有
 影像可看；指標與人眼矛盾時以人眼為準並記錄。
@@ -38,13 +38,12 @@ python scripts/apa_baseline.py --out runs/<批次名> \
 
 不給 `--data` 時讀 `data/apa_native`（APA 官方那三張圖）。
 `--conditions` 可只挑其中幾個（`apa_weak`／`photoguard_c`／`mist`／`dia_r`）。
-路線 B 的四格消融見 `PLAN.md` §4.6。
 
 ## 3. 程式：主線的 23 支
 
 `scripts/` 只有 `apa_baseline.py` 一支；其餘 33 支已移到 `legacy/scripts/`。
 `src/` 的檔案**原地不動**（`legacy/src/` 會與 `src/` 撞名，Python 只會載入
-`sys.path` 上先出現的那一個，見 `PLAN.md` §6.1b）。以下是
+`sys.path` 上先出現的那一個）。以下是
 `scripts/apa_baseline.py` 的完整遞移依賴，用 AST 實測而非估計：
 
 ### 3.1 弱 baseline 自身
@@ -82,9 +81,9 @@ python scripts/apa_baseline.py --out runs/<批次名> \
 `src/data/`（3 支）、`src/metrics/` 的 `battery`／`spectrum`／`chroma`／
 `local_acutance`／`ray_scale`。
 
-其中兩支在 `PLAN.md` 的路線 A 會被取回：**`src/purify/ops.py`**（`forward`／
-`evaluate`／`proxy_gap` 三件式與 `default_train_set()` 已具備）與
-**`src/residual/site_warp.py`**（換非加性參數化時）。
+其中 **`src/purify/ops.py`**（`forward`／`evaluate`／`proxy_gap` 三件式與
+`default_train_set()`）與 **`src/residual/site_warp.py`** 在做抗淨化或換非加性
+參數化時可直接取用。
 
 ### 3.5 兩個重新匯出，不要複製實作
 
@@ -122,9 +121,12 @@ python scripts/apa_baseline.py --out runs/<批次名> \
   而非 Lo 式 (5)**——同 site 的隨機方向 `Ra` 處處等於或高於我方
 - **量測陷阱**：DISTS 在 512² 上先降採樣到 256²，使加性與非加性的失真比較翻轉
   （FND-026）；`retention` 的分母在 `effect_siglip` 讀數下不可用，但在位移讀數
-  下 1425 列有 1350 列可用（`PLAN.md` §2.1）
+  下 1425 列有 1350 列可用
 
 ## 6. 現在在做什麼
 
-見 `PLAN.md`。兩條路線：**A** 對淨化的 min-max、**B** cross-attention target
-injection reward（程式已完成，待跑四格消融）。
+**尚未有有效方法。** 2026-08-13 的四個方向全部否決（歸檔在 `FINDINGS.md`
+末段）：cross-attention 目標注入、分階段注入、amortized generator 與對淨化的
+min-max、顏色通道。全部沒有改善抗編輯。
+
+弱 baseline 仍是唯一的位置基準。

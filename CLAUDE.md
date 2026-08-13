@@ -105,8 +105,8 @@ DISTS 進 loss 的軟約束、Adam 更新規則）已移除，結論在 FND-027�
 | `docs/MAINLINE.md` | 主線是什麼、程式在哪、已知什麼 |
 | `docs/FINDINGS.md`／`DECISIONS.md` | 測得的事實與裁決，**判準一律以這兩份為準** |
 
-外部論文的查證紀錄在 `docs/reference/`（含 `ROBUSTNESS_TESTS.md`：三份抗淨化
-檢定協定的精確設定）。`docs/archive/` 是降級的逐次紀錄，不是判準來源。
+外部論文的查證紀錄在 `docs/reference/`：`BIBLIOGRAPHY.md` 是全部文獻與網址的
+分類索引，`ROBUSTNESS_TESTS.md` 是三份抗淨化檢定協定的精確設定。`docs/archive/` 是降級的逐次紀錄，不是判準來源。
 編碼（`FND-`／`DEC-`／`MET-`／`DEF-`）每一筆自足、可單獨讀完，只用來互相
 指認，**不代表先後或依賴**。
 

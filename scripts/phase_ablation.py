@@ -38,7 +38,7 @@ from apa_baseline import (  # noqa: E402
 )
 from src.baselines.encoder_target import make_encoder_target_loss  # noqa: E402
 from src.defense.param_pgd import (  # noqa: E402
-    AdditiveParam, PhaseParam, RandomPhaseParam, fit_to_budget,
+    AdditiveParam, PhaseParam, RandomPhaseParam, fit_to_budget, run_param_pgd,
 )
 from src.metrics.aesthetic import AestheticSuite  # noqa: E402
 from src.metrics.suite import MetricSuite  # noqa: E402
@@ -51,6 +51,12 @@ CONDITIONS = ("add", "phase", "phase_rand")
 # 兩個預算點。0.075 是現行非加性條件的水位、0.04 是加性的（FND-026 的表）。
 # 單點容易是巧合，故取兩點看趨勢。
 BUDGETS = (0.04, 0.075)
+
+# 人眼門檻（使用者 2026-08-13 於失真掃描頁上劃定）。給 --human-threshold 時
+# 不做預算對齊，直接用這兩個半徑——**每個條件各自在自己的可接受上限上**，
+# 這才是「匹配人眼可辨失真」的字面意思。以任何單一指標對齊都做不到這件事：
+# 兩個門檻在十六項指標上沒有一項落在同一個值（最接近的 LPIPS 也差 1.28 倍）。
+HUMAN_RADIUS = {"phase": 1.30, "phase_rand": 1.30, "add": 1.2 / 255.0}
 
 # 加性的半徑上界取 32/255：Mist 在 [0,1] 上的等價 eps 是 16/255，留一倍
 # 餘裕讓二分搜尋在上界內找得到 DISTS 0.075。
@@ -77,6 +83,8 @@ def main() -> None:
     ap.add_argument("--images", nargs="+", default=None)
     ap.add_argument("--conditions", nargs="+", default=list(CONDITIONS))
     ap.add_argument("--budgets", nargs="+", type=float, default=list(BUDGETS))
+    ap.add_argument("--human-threshold", action="store_true",
+                    help="不做預算對齊，直接用 HUMAN_RADIUS 的人眼門檻半徑")
     ap.add_argument("--target", type=Path, default=Path(TARGET_IMAGE))
     ap.add_argument("--steps", type=int, default=100)
     ap.add_argument("--rounds", type=int, default=8)
@@ -103,18 +111,28 @@ def main() -> None:
         save_image(item["path01"], args.out / f"{item['name']}__orig.png")
         print(f"\n########## {item['name']} ({item['class']}) ##########", flush=True)
 
-        for budget in args.budgets:
+        budgets = ["human"] if args.human_threshold else args.budgets
+        for budget in budgets:
             for cond in args.conditions:
-                tag = f"{cond}__d{budget:g}"
+                tag = (f"{cond}__human" if budget == "human"
+                       else f"{cond}__d{budget:g}")
                 print(f"=== {item['name']} / {tag} ===", flush=True)
                 t0 = time.time()
                 param, lo, hi = build(cond, args.seed)
-                res = fit_to_budget(
-                    item["path01"], param, loss_fn, dists_of, budget,
-                    lo=lo, hi=hi, steps=args.steps, seed=args.seed,
-                    rounds=args.rounds,
-                )
-                fit = res.history[-1]
+                if budget == "human":
+                    param.set_radius(HUMAN_RADIUS[cond])
+                    res = run_param_pgd(item["path01"], param, loss_fn,
+                                        steps=args.steps, seed=args.seed)
+                    fit = {"unreachable": False, "target": HUMAN_RADIUS[cond],
+                           "reached": dists_of(res.x_def, item["path01"]),
+                           "radius": param.radius}
+                else:
+                    res = fit_to_budget(
+                        item["path01"], param, loss_fn, dists_of, budget,
+                        lo=lo, hi=hi, steps=args.steps, seed=args.seed,
+                        rounds=args.rounds,
+                    )
+                    fit = res.history[-1]
                 metrics, eo, ed = evaluate(sd, suite, aes, item, res.x_def)
                 for sub, img in (("def", res.x_def), ("edit_orig", eo),
                                  ("edit_def", ed)):
@@ -123,6 +141,7 @@ def main() -> None:
                 row = {
                     "image": item["name"], "condition": cond,
                     "budget_target": budget,
+                    "budget_mode": "human" if budget == "human" else "dists",
                     "budget_reached": round(float(fit["reached"]), 5),
                     "unreachable": bool(fit["unreachable"]),
                     "radius": round(float(fit["radius"]), 5),

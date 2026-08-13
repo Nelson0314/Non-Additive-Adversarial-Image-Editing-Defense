@@ -1,0 +1,134 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  17%|█▋        | 1/6 [00:00<00:00,  7.93it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 4383.53it/s]
+Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00,  6.85it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 18.68it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 15.37it/s]
+There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+Downloading: "https://github.com/photosynthesis-team/piq/releases/download/v0.4.0/brisque_svm_weights.pt" to /nfs/home/nelson0314/.cache/torch/hub/checkpoints/brisque_svm_weights.pt
+  0%|          | 0.00/112k [00:00<?, ?B/s]100%|██████████| 112k/112k [00:00<00:00, 2.37MB/s]
+
+########## bird_03 （原圖 niqe=3.6502 brisque=9.2986） ##########
+  phase  r=0.1500  dists=0.0023 lpips=0.0108 psnr=51.02 haarpsi=0.9937 gmsd=0.0036 niqe=3.60
+  phase  r=0.2500  dists=0.0042 lpips=0.0283 psnr=46.90 haarpsi=0.9852 gmsd=0.0073 niqe=3.60
+  phase  r=0.4000  dists=0.0067 lpips=0.0609 psnr=43.29 haarpsi=0.9687 gmsd=0.0138 niqe=3.65
+  phase  r=0.6000  dists=0.0104 lpips=0.1043 psnr=40.19 haarpsi=0.9424 gmsd=0.0238 niqe=3.58
+  phase  r=0.9000  dists=0.0176 lpips=0.1522 psnr=37.29 haarpsi=0.9025 gmsd=0.0383 niqe=3.66
+  phase  r=1.3000  dists=0.0268 lpips=0.1923 psnr=34.97 haarpsi=0.8559 gmsd=0.0543 niqe=3.80
+  phase  r=1.8000  dists=0.0339 lpips=0.2240 psnr=33.05 haarpsi=0.8086 gmsd=0.0718 niqe=3.92
+  phase  r=2.4000  dists=0.0545 lpips=0.2468 psnr=31.51 haarpsi=0.7645 gmsd=0.0872 niqe=4.18
+  phase  r=3.1416  dists=0.0672 lpips=0.2677 psnr=30.68 haarpsi=0.7352 gmsd=0.0985 niqe=4.36
+  add    r=0.0020  dists=0.0009 lpips=0.0929 psnr=55.17 haarpsi=0.9992 gmsd=0.0003 niqe=3.75
+  add    r=0.0039  dists=0.0085 lpips=0.1930 psnr=49.53 haarpsi=0.9971 gmsd=0.0008 niqe=3.73
+  add    r=0.0078  dists=0.0272 lpips=0.3079 psnr=44.24 haarpsi=0.9901 gmsd=0.0028 niqe=3.61
+  add    r=0.0118  dists=0.0373 lpips=0.3683 psnr=41.35 haarpsi=0.9803 gmsd=0.0054 niqe=3.60
+  add    r=0.0196  dists=0.0526 lpips=0.4410 psnr=37.86 haarpsi=0.9562 gmsd=0.0121 niqe=3.97
+  add    r=0.0314  dists=0.0717 lpips=0.5032 psnr=34.61 haarpsi=0.9157 gmsd=0.0237 niqe=4.70
+  add    r=0.0471  dists=0.0940 lpips=0.5536 psnr=31.76 haarpsi=0.8547 gmsd=0.0403 niqe=5.41
+  add    r=0.0706  dists=0.1195 lpips=0.6064 psnr=28.88 haarpsi=0.7729 gmsd=0.0655 niqe=5.88
+  add    r=0.1020  dists=0.1524 lpips=0.6514 psnr=26.21 haarpsi=0.6758 gmsd=0.0969 niqe=7.23
+
+########## cat_02 （原圖 niqe=4.145 brisque=16.7221） ##########
+  phase  r=0.1500  dists=0.0030 lpips=0.0177 psnr=48.75 haarpsi=0.9949 gmsd=0.0030 niqe=4.08
+  phase  r=0.2500  dists=0.0057 lpips=0.0467 psnr=44.65 haarpsi=0.9875 gmsd=0.0065 niqe=4.06
+  phase  r=0.4000  dists=0.0139 lpips=0.1047 psnr=40.87 haarpsi=0.9720 gmsd=0.0132 niqe=4.01
+  phase  r=0.6000  dists=0.0193 lpips=0.1789 psnr=37.71 haarpsi=0.9473 gmsd=0.0228 niqe=4.03
+  phase  r=0.9000  dists=0.0255 lpips=0.2611 psnr=34.64 haarpsi=0.9066 gmsd=0.0380 niqe=4.22
+  phase  r=1.3000  dists=0.0383 lpips=0.3325 psnr=32.07 haarpsi=0.8563 gmsd=0.0559 niqe=4.16
+  phase  r=1.8000  dists=0.0551 lpips=0.3920 psnr=30.03 haarpsi=0.8059 gmsd=0.0757 niqe=4.40
+  phase  r=2.4000  dists=0.0744 lpips=0.4351 psnr=28.50 haarpsi=0.7589 gmsd=0.0943 niqe=4.55
+  phase  r=3.1416  dists=0.0952 lpips=0.4695 psnr=27.33 haarpsi=0.7199 gmsd=0.1096 niqe=5.03
+  add    r=0.0020  dists=0.0028 lpips=0.0105 psnr=54.82 haarpsi=0.9995 gmsd=0.0001 niqe=4.13
+  add    r=0.0039  dists=0.0047 lpips=0.0428 psnr=48.97 haarpsi=0.9983 gmsd=0.0004 niqe=4.15
+  add    r=0.0078  dists=0.0104 lpips=0.1514 psnr=43.26 haarpsi=0.9937 gmsd=0.0016 niqe=4.15
+  add    r=0.0118  dists=0.0185 lpips=0.2535 psnr=40.01 haarpsi=0.9864 gmsd=0.0033 niqe=4.28
+  add    r=0.0196  dists=0.0336 lpips=0.3707 psnr=36.15 haarpsi=0.9659 gmsd=0.0081 niqe=4.39
+  add    r=0.0314  dists=0.0553 lpips=0.4442 psnr=33.00 haarpsi=0.9292 gmsd=0.0176 niqe=4.78
+  add    r=0.0471  dists=0.0805 lpips=0.5000 psnr=30.34 haarpsi=0.8780 gmsd=0.0316 niqe=4.86
+  add    r=0.0706  dists=0.1141 lpips=0.5436 psnr=27.64 haarpsi=0.8082 gmsd=0.0510 niqe=5.44
+  add    r=0.1020  dists=0.1626 lpips=0.5865 psnr=25.28 haarpsi=0.7368 gmsd=0.0711 niqe=5.93
+
+########## dog_03 （原圖 niqe=2.4454 brisque=0.688） ##########
+  phase  r=0.1500  dists=0.0026 lpips=0.0127 psnr=46.22 haarpsi=0.9898 gmsd=0.0068 niqe=2.45
+  phase  r=0.2500  dists=0.0046 lpips=0.0328 psnr=42.11 haarpsi=0.9766 gmsd=0.0145 niqe=2.46
+  phase  r=0.4000  dists=0.0072 lpips=0.0739 psnr=38.41 haarpsi=0.9524 gmsd=0.0261 niqe=2.46
+  phase  r=0.6000  dists=0.0125 lpips=0.1261 psnr=35.33 haarpsi=0.9187 gmsd=0.0398 niqe=2.48
+  phase  r=0.9000  dists=0.0206 lpips=0.1846 psnr=32.48 haarpsi=0.8741 gmsd=0.0597 niqe=2.53
+  phase  r=1.3000  dists=0.0350 lpips=0.2396 psnr=30.01 haarpsi=0.8224 gmsd=0.0804 niqe=2.72
+  phase  r=1.8000  dists=0.0548 lpips=0.2857 psnr=28.08 haarpsi=0.7709 gmsd=0.1015 niqe=2.91
+  phase  r=2.4000  dists=0.0730 lpips=0.3253 psnr=26.73 haarpsi=0.7277 gmsd=0.1182 niqe=3.17
+  phase  r=3.1416  dists=0.1006 lpips=0.3533 psnr=25.76 haarpsi=0.6935 gmsd=0.1312 niqe=3.29
+  add    r=0.0020  dists=0.0004 lpips=0.0381 psnr=54.87 haarpsi=0.9993 gmsd=0.0002 niqe=2.42
+  add    r=0.0039  dists=0.0012 lpips=0.1129 psnr=49.11 haarpsi=0.9975 gmsd=0.0008 niqe=2.37
+  add    r=0.0078  dists=0.0044 lpips=0.2201 psnr=43.51 haarpsi=0.9912 gmsd=0.0028 niqe=2.33
+  add    r=0.0118  dists=0.0088 lpips=0.2928 psnr=40.35 haarpsi=0.9817 gmsd=0.0054 niqe=2.31
+  add    r=0.0196  dists=0.0201 lpips=0.3811 psnr=36.46 haarpsi=0.9552 gmsd=0.0117 niqe=2.50
+  add    r=0.0314  dists=0.0386 lpips=0.4505 psnr=33.13 haarpsi=0.9125 gmsd=0.0221 niqe=2.89
+  add    r=0.0471  dists=0.0615 lpips=0.5101 psnr=30.36 haarpsi=0.8543 gmsd=0.0365 niqe=3.48
+  add    r=0.0706  dists=0.0926 lpips=0.5640 psnr=27.62 haarpsi=0.7757 gmsd=0.0570 niqe=4.26
+  add    r=0.1020  dists=0.1235 lpips=0.6055 psnr=25.03 haarpsi=0.6934 gmsd=0.0813 niqe=5.31
+
+########## horse_00 （原圖 niqe=3.8447 brisque=-0.3466） ##########
+  phase  r=0.1500  dists=0.0021 lpips=0.0217 psnr=49.54 haarpsi=0.9948 gmsd=0.0024 niqe=3.90
+  phase  r=0.2500  dists=0.0043 lpips=0.0619 psnr=45.32 haarpsi=0.9867 gmsd=0.0058 niqe=3.93
+  phase  r=0.4000  dists=0.0095 lpips=0.1189 psnr=41.60 haarpsi=0.9692 gmsd=0.0127 niqe=4.00
+  phase  r=0.6000  dists=0.0189 lpips=0.1674 psnr=38.61 haarpsi=0.9433 gmsd=0.0222 niqe=4.03
+  phase  r=0.9000  dists=0.0294 lpips=0.2078 psnr=35.92 haarpsi=0.9083 gmsd=0.0346 niqe=4.08
+  phase  r=1.3000  dists=0.0508 lpips=0.2390 psnr=33.75 haarpsi=0.8646 gmsd=0.0500 niqe=4.20
+  phase  r=1.8000  dists=0.0647 lpips=0.2660 psnr=32.16 haarpsi=0.8249 gmsd=0.0646 niqe=4.18
+  phase  r=2.4000  dists=0.0901 lpips=0.2846 psnr=31.00 haarpsi=0.7902 gmsd=0.0776 niqe=4.33
+  phase  r=3.1416  dists=0.1086 lpips=0.2987 psnr=30.17 haarpsi=0.7581 gmsd=0.0884 niqe=4.20
+  add    r=0.0020  dists=0.0037 lpips=0.0673 psnr=55.29 haarpsi=0.9987 gmsd=0.0004 niqe=3.83
+  add    r=0.0039  dists=0.0093 lpips=0.1608 psnr=49.62 haarpsi=0.9960 gmsd=0.0013 niqe=3.93
+  add    r=0.0078  dists=0.0218 lpips=0.2774 psnr=44.07 haarpsi=0.9868 gmsd=0.0036 niqe=3.95
+  add    r=0.0118  dists=0.0339 lpips=0.3626 psnr=40.98 haarpsi=0.9743 gmsd=0.0065 niqe=4.12
+  add    r=0.0196  dists=0.0574 lpips=0.4526 psnr=37.40 haarpsi=0.9457 gmsd=0.0124 niqe=4.41
+  add    r=0.0314  dists=0.0824 lpips=0.5163 psnr=34.25 haarpsi=0.8970 gmsd=0.0238 niqe=4.62
+  add    r=0.0471  dists=0.1074 lpips=0.5631 psnr=31.55 haarpsi=0.8355 gmsd=0.0395 niqe=5.08
+  add    r=0.0706  dists=0.1560 lpips=0.6052 psnr=28.84 haarpsi=0.7458 gmsd=0.0643 niqe=5.48
+  add    r=0.1020  dists=0.2002 lpips=0.6431 psnr=26.29 haarpsi=0.6601 gmsd=0.0932 niqe=5.94
+
+########## man_00 （原圖 niqe=5.1678 brisque=33.2122） ##########
+  phase  r=0.1500  dists=0.0010 lpips=0.0040 psnr=55.17 haarpsi=0.9966 gmsd=0.0025 niqe=5.15
+  phase  r=0.2500  dists=0.0024 lpips=0.0097 psnr=51.23 haarpsi=0.9925 gmsd=0.0052 niqe=5.09
+  phase  r=0.4000  dists=0.0053 lpips=0.0224 psnr=47.66 haarpsi=0.9846 gmsd=0.0094 niqe=5.06
+  phase  r=0.6000  dists=0.0090 lpips=0.0436 psnr=44.52 haarpsi=0.9718 gmsd=0.0154 niqe=5.06
+  phase  r=0.9000  dists=0.0168 lpips=0.0742 psnr=41.81 haarpsi=0.9550 gmsd=0.0219 niqe=4.95
+  phase  r=1.3000  dists=0.0293 lpips=0.1093 psnr=39.50 haarpsi=0.9341 gmsd=0.0306 niqe=4.95
+  phase  r=1.8000  dists=0.0423 lpips=0.1403 psnr=37.51 haarpsi=0.9057 gmsd=0.0413 niqe=4.82
+  phase  r=2.4000  dists=0.0524 lpips=0.1686 psnr=36.17 haarpsi=0.8866 gmsd=0.0492 niqe=4.90
+  phase  r=3.1416  dists=0.0708 lpips=0.1952 psnr=35.18 haarpsi=0.8617 gmsd=0.0584 niqe=4.80
+  add    r=0.0020  dists=0.0024 lpips=0.0748 psnr=55.42 haarpsi=0.9989 gmsd=0.0005 niqe=5.34
+  add    r=0.0039  dists=0.0077 lpips=0.1820 psnr=49.90 haarpsi=0.9961 gmsd=0.0014 niqe=5.60
+  add    r=0.0078  dists=0.0296 lpips=0.3085 psnr=44.74 haarpsi=0.9877 gmsd=0.0039 niqe=5.78
+  add    r=0.0118  dists=0.0459 lpips=0.3736 psnr=41.84 haarpsi=0.9769 gmsd=0.0068 niqe=5.55
+  add    r=0.0196  dists=0.0696 lpips=0.4502 psnr=38.23 haarpsi=0.9497 gmsd=0.0144 niqe=5.75
+  add    r=0.0314  dists=0.0975 lpips=0.5166 psnr=34.81 haarpsi=0.9028 gmsd=0.0275 niqe=6.02
+  add    r=0.0471  dists=0.1229 lpips=0.5622 psnr=31.98 haarpsi=0.8470 gmsd=0.0449 niqe=6.22
+  add    r=0.0706  dists=0.1508 lpips=0.6204 psnr=28.85 haarpsi=0.7572 gmsd=0.0754 niqe=6.11
+  add    r=0.1020  dists=0.1754 lpips=0.6796 psnr=25.93 haarpsi=0.6542 gmsd=0.1128 niqe=6.23
+
+########## woman_03 （原圖 niqe=3.7652 brisque=21.0292） ##########
+  phase  r=0.1500  dists=0.0019 lpips=0.0101 psnr=51.26 haarpsi=0.9919 gmsd=0.0037 niqe=3.67
+  phase  r=0.2500  dists=0.0034 lpips=0.0241 psnr=47.37 haarpsi=0.9822 gmsd=0.0074 niqe=3.58
+  phase  r=0.4000  dists=0.0092 lpips=0.0475 psnr=43.75 haarpsi=0.9647 gmsd=0.0142 niqe=3.42
+  phase  r=0.6000  dists=0.0171 lpips=0.0722 psnr=40.82 haarpsi=0.9385 gmsd=0.0227 niqe=3.34
+  phase  r=0.9000  dists=0.0273 lpips=0.0998 psnr=38.08 haarpsi=0.9055 gmsd=0.0335 niqe=3.42
+  phase  r=1.3000  dists=0.0442 lpips=0.1277 psnr=35.90 haarpsi=0.8680 gmsd=0.0443 niqe=3.57
+  phase  r=1.8000  dists=0.0630 lpips=0.1496 psnr=34.15 haarpsi=0.8311 gmsd=0.0568 niqe=4.00
+  phase  r=2.4000  dists=0.0732 lpips=0.1717 psnr=32.82 haarpsi=0.8025 gmsd=0.0660 niqe=3.87
+  phase  r=3.1416  dists=0.0884 lpips=0.1911 psnr=31.66 haarpsi=0.7663 gmsd=0.0768 niqe=4.02
+  add    r=0.0020  dists=0.0017 lpips=0.0428 psnr=55.75 haarpsi=0.9983 gmsd=0.0005 niqe=3.84
+  add    r=0.0039  dists=0.0038 lpips=0.1305 psnr=50.22 haarpsi=0.9941 gmsd=0.0014 niqe=3.75
+  add    r=0.0078  dists=0.0141 lpips=0.2704 psnr=44.76 haarpsi=0.9819 gmsd=0.0038 niqe=4.02
+  add    r=0.0118  dists=0.0267 lpips=0.3340 psnr=41.77 haarpsi=0.9676 gmsd=0.0068 niqe=4.20
+  add    r=0.0196  dists=0.0485 lpips=0.3940 psnr=38.16 haarpsi=0.9392 gmsd=0.0138 niqe=4.66
+  add    r=0.0314  dists=0.0747 lpips=0.4464 psnr=34.90 haarpsi=0.8914 gmsd=0.0278 niqe=5.06
+  add    r=0.0471  dists=0.1052 lpips=0.4897 psnr=31.96 haarpsi=0.8314 gmsd=0.0476 niqe=5.55
+  add    r=0.0706  dists=0.1380 lpips=0.5198 psnr=29.02 haarpsi=0.7459 gmsd=0.0775 niqe=5.98
+  add    r=0.1020  dists=0.1672 lpips=0.5530 psnr=26.28 haarpsi=0.6586 gmsd=0.1118 niqe=6.45
+
+表：runs/phase_sweep/sweep.csv（108 列）

@@ -1,0 +1,561 @@
+<style>
+body{font:13px/1.5 -apple-system,'Segoe UI',sans-serif;margin:24px;background:#fafafa;color:#222}
+h1{font-size:18px} h2{font-size:15px;margin:28px 0 8px}
+table{border-collapse:collapse;margin-bottom:24px}
+td,th{border:1px solid #ddd;padding:6px;vertical-align:top;background:#fff}
+th{background:#f0f0f0;font-weight:600;text-align:left;white-space:nowrap}
+img{display:block;width:190px;height:190px;object-fit:cover;border:1px solid #ccc}
+.trip{display:flex;gap:4px}
+.cap{font-size:11px;color:#666;text-align:center;margin-top:2px}
+.m{font-size:11px;color:#333;margin-top:6px;white-space:pre;font-family:ui-monospace,monospace}
+.warn{color:#b00;font-weight:600}
+.note{background:#fff8e1;border:1px solid #e0d0a0;padding:10px;margin:12px 0;max-width:920px}
+</style>
+<h1>phaseA_full · compare</h1>
+<div class="note">判準以人眼為主、數值指標為輔。指標與人眼矛盾時以人眼為準並記錄。<br>三張圖分別是防禦圖、未防禦的編輯、防禦後的編輯——<b>未防禦的編輯必須真的成功</b>，否則抗編輯那一欄的分母不成立（DEC-022）。</div>
+<h2>DISTS 預算 0.04</h2>
+<table><tr><th>影像</th><th>add</th><th>phase</th><th>phase_rand</th></tr>
+<tr><th>bird_03</th>
+<td><div class="trip"><div><img src="bird_03__add__d0.04__def.png" alt="bird_03__add__d0.04__def.png"><div class="cap">防禦圖</div></div><div><img src="bird_03__add__d0.04__edit_orig.png" alt="bird_03__add__d0.04__edit_orig.png"><div class="cap">未防禦的編輯</div></div><div><img src="bird_03__add__d0.04__edit_def.png" alt="bird_03__add__d0.04__edit_def.png"><div class="cap">防禦後的編輯</div></div></div><div class="m">DISTS 目標 0.04 → 實得 0.03902
+半徑 0.01354
+fid_dists       0.039
+fid_lpips       0.3864
+fid_psnr        40.4011
+fid_ssim        0.9852
+fid_clip_img    0.9867
+fid_nima        5.5426
+fid_cnniqa      0.7215
+edit_lpips      0.543
+edit_clip_drop  -0.0314
+edit_siglip_drop-0.0085
+total_seconds   117.6</div></td>
+<td><div class="trip"><div><img src="bird_03__phase__d0.04__def.png" alt="bird_03__phase__d0.04__def.png"><div class="cap">防禦圖</div></div><div><img src="bird_03__phase__d0.04__edit_orig.png" alt="bird_03__phase__d0.04__edit_orig.png"><div class="cap">未防禦的編輯</div></div><div><img src="bird_03__phase__d0.04__edit_def.png" alt="bird_03__phase__d0.04__edit_def.png"><div class="cap">防禦後的編輯</div></div></div><div class="m">DISTS 目標 0.04 → 實得 0.03922
+半徑 1.95809
+fid_dists       0.0392
+fid_lpips       0.2302
+fid_psnr        32.6074
+fid_ssim        0.9385
+fid_clip_img    0.9955
+fid_nima        5.4056
+fid_cnniqa      0.7154
+edit_lpips      0.5744
+edit_clip_drop  -0.0187
+edit_siglip_drop-0.0027
+amp_dev         0.02034
+active_fraction 0.4617
+total_seconds   133.6</div></td>
+<td><div class="trip"><div><img src="bird_03__phase_rand__d0.04__def.png" alt="bird_03__phase_rand__d0.04__def.png"><div class="cap">防禦圖</div></div><div><img src="bird_03__phase_rand__d0.04__edit_orig.png" alt="bird_03__phase_rand__d0.04__edit_orig.png"><div class="cap">未防禦的編輯</div></div><div><img src="bird_03__phase_rand__d0.04__edit_def.png" alt="bird_03__phase_rand__d0.04__edit_def.png"><div class="cap">防禦後的編輯</div></div></div><div class="m">DISTS 目標 0.04 → 實得 0.0391
+半徑 1.30596
+fid_dists       0.0391
+fid_lpips       0.068
+fid_psnr        35.6378
+fid_ssim        0.968
+fid_clip_img    0.9967
+fid_nima        5.5204
+fid_cnniqa      0.7121
+edit_lpips      0.1721
+edit_clip_drop  0.0063
+edit_siglip_drop-0.0025
+amp_dev         0.01381
+active_fraction 0.4617
+total_seconds   11.5</div></td>
+</tr>
+<tr><th>cat_02</th>
+<td><div class="trip"><div><img src="cat_02__add__d0.04__def.png" alt="cat_02__add__d0.04__def.png"><div class="cap">防禦圖</div></div><div><img src="cat_02__add__d0.04__edit_orig.png" alt="cat_02__add__d0.04__edit_orig.png"><div class="cap">未防禦的編輯</div></div><div><img src="cat_02__add__d0.04__edit_def.png" alt="cat_02__add__d0.04__edit_def.png"><div class="cap">防禦後的編輯</div></div></div><div class="m">DISTS 目標 0.04 → 實得 0.03828
+半徑 0.02126
+fid_dists       0.0383
+fid_lpips       0.3848
+fid_psnr        35.5926
+fid_ssim        0.9835
+fid_clip_img    0.9862
+fid_nima        4.3762
+fid_cnniqa      0.6339
+edit_lpips      0.6067
+edit_clip_drop  -0.0308
+edit_siglip_drop-0.0014
+total_seconds   101.2</div></td>
+<td><div class="trip"><div><img src="cat_02__phase__d0.04__def.png" alt="cat_02__phase__d0.04__def.png"><div class="cap">防禦圖</div></div><div><img src="cat_02__phase__d0.04__edit_orig.png" alt="cat_02__phase__d0.04__edit_orig.png"><div class="cap">未防禦的編輯</div></div><div><img src="cat_02__phase__d0.04__edit_def.png" alt="cat_02__phase__d0.04__edit_def.png"><div class="cap">防禦後的編輯</div></div></div><div class="m">DISTS 目標 0.04 → 實得 0.03922
+半徑 1.30596
+fid_dists       0.0392
+fid_lpips       0.3341
+fid_psnr        32.0223
+fid_ssim        0.955
+fid_clip_img    0.9971
+fid_nima        4.4958
+fid_cnniqa      0.654
+edit_lpips      0.5481
+edit_clip_drop  -0.0032
+edit_siglip_drop0.0042
+amp_dev         0.0224
+active_fraction 0.5549
+total_seconds   102.7</div></td>
+<td><div class="trip"><div><img src="cat_02__phase_rand__d0.04__def.png" alt="cat_02__phase_rand__d0.04__def.png"><div class="cap">防禦圖</div></div><div><img src="cat_02__phase_rand__d0.04__edit_orig.png" alt="cat_02__phase_rand__d0.04__edit_orig.png"><div class="cap">未防禦的編輯</div></div><div><img src="cat_02__phase_rand__d0.04__edit_def.png" alt="cat_02__phase_rand__d0.04__edit_def.png"><div class="cap">防禦後的編輯</div></div></div><div class="m">DISTS 目標 0.04 → 實得 0.04025
+半徑 1.20935
+fid_dists       0.0402
+fid_lpips       0.0562
+fid_psnr        34.6105
+fid_ssim        0.9735
+fid_clip_img    0.9976
+fid_nima        4.3159
+fid_cnniqa      0.5836
+edit_lpips      0.1683
+edit_clip_drop  0.0004
+edit_siglip_drop-0.002
+amp_dev         0.0172
+active_fraction 0.5549
+total_seconds   11.2</div></td>
+</tr>
+<tr><th>dog_03</th>
+<td><div class="trip"><div><img src="dog_03__add__d0.04__def.png" alt="dog_03__add__d0.04__def.png"><div class="cap">防禦圖</div></div><div><img src="dog_03__add__d0.04__edit_orig.png" alt="dog_03__add__d0.04__edit_orig.png"><div class="cap">未防禦的編輯</div></div><div><img src="dog_03__add__d0.04__edit_def.png" alt="dog_03__add__d0.04__edit_def.png"><div class="cap">防禦後的編輯</div></div></div><div class="m">DISTS 目標 0.04 → 實得 0.04112
+半徑 0.03091
+fid_dists       0.0411
+fid_lpips       0.4503
+fid_psnr        33.2149
+fid_ssim        0.966
+fid_clip_img    0.9601
+fid_nima        5.057
+fid_cnniqa      0.674
+edit_lpips      0.6275
+edit_clip_drop  -0.0322
+edit_siglip_drop-0.0108
+total_seconds   116.4</div></td>
+<td><div class="trip"><div><img src="dog_03__phase__d0.04__def.png" alt="dog_03__phase__d0.04__def.png"><div class="cap">防禦圖</div></div><div><img src="dog_03__phase__d0.04__edit_orig.png" alt="dog_03__phase__d0.04__edit_orig.png"><div class="cap">未防禦的編輯</div></div><div><img src="dog_03__phase__d0.04__edit_def.png" alt="dog_03__phase__d0.04__edit_def.png"><div class="cap">防禦後的編輯</div></div></div><div class="m">DISTS 目標 0.04 → 實得 0.0393
+半徑 1.45088
+fid_dists       0.0393
+fid_lpips       0.2564
+fid_psnr        29.3578
+fid_ssim        0.9381
+fid_clip_img    0.9878
+fid_nima        4.8981
+fid_cnniqa      0.6755
+edit_lpips      0.5413
+edit_clip_drop  -0.0178
+edit_siglip_drop-0.0145
+amp_dev         0.02623
+active_fraction 0.4764
+total_seconds   118.5</div></td>
+<td><div class="trip"><div><img src="dog_03__phase_rand__d0.04__def.png" alt="dog_03__phase_rand__d0.04__def.png"><div class="cap">防禦圖</div></div><div><img src="dog_03__phase_rand__d0.04__edit_orig.png" alt="dog_03__phase_rand__d0.04__edit_orig.png"><div class="cap">未防禦的編輯</div></div><div><img src="dog_03__phase_rand__d0.04__edit_def.png" alt="dog_03__phase_rand__d0.04__edit_def.png"><div class="cap">防禦後的編輯</div></div></div><div class="m">DISTS 目標 0.04 → 實得 0.03956
+半徑 1.40257
+fid_dists       0.0396
+fid_lpips       0.0914
+fid_psnr        29.8975
+fid_ssim        0.9458
+fid_clip_img    0.9878
+fid_nima        4.8808
+fid_cnniqa      0.622
+edit_lpips      0.3953
+edit_clip_drop  -0.0007
+edit_siglip_drop-0.0025
+amp_dev         0.02593
+active_fraction 0.4764
+total_seconds   11.4</div></td>
+</tr>
+<tr><th>horse_00</th>
+<td><div class="trip"><div><img src="horse_00__add__d0.04__def.png" alt="horse_00__add__d0.04__def.png"><div class="cap">防禦圖</div></div><div><img src="horse_00__add__d0.04__edit_orig.png" alt="horse_00__add__d0.04__edit_orig.png"><div class="cap">未防禦的編輯</div></div><div><img src="horse_00__add__d0.04__edit_def.png" alt="horse_00__add__d0.04__edit_def.png"><div class="cap">防禦後的編輯</div></div></div><div class="m">DISTS 目標 0.04 → 實得 0.04089
+半徑 0.01354
+fid_dists       0.0409
+fid_lpips       0.3888
+fid_psnr        39.9717
+fid_ssim        0.983
+fid_clip_img    0.9449
+fid_nima        5.9428
+fid_cnniqa      0.6903
+edit_lpips      0.4055
+edit_clip_drop  -0.0028
+edit_siglip_drop0.0062
+total_seconds   101.9</div></td>
+<td><div class="trip"><div><img src="horse_00__phase__d0.04__def.png" alt="horse_00__phase__d0.04__def.png"><div class="cap">防禦圖</div></div><div><img src="horse_00__phase__d0.04__edit_orig.png" alt="horse_00__phase__d0.04__edit_orig.png"><div class="cap">未防禦的編輯</div></div><div><img src="horse_00__phase__d0.04__edit_def.png" alt="horse_00__phase__d0.04__edit_def.png"><div class="cap">防禦後的編輯</div></div></div><div class="m">DISTS 目標 0.04 → 實得 0.03874
+半徑 1.08858
+fid_dists       0.0387
+fid_lpips       0.2265
+fid_psnr        34.7646
+fid_ssim        0.9635
+fid_clip_img    0.9926
+fid_nima        5.8738
+fid_cnniqa      0.6799
+edit_lpips      0.4485
+edit_clip_drop  -0.0172
+edit_siglip_drop0.0022
+amp_dev         0.01502
+active_fraction 0.4655
+total_seconds   133.7</div></td>
+<td><div class="trip"><div><img src="horse_00__phase_rand__d0.04__def.png" alt="horse_00__phase_rand__d0.04__def.png"><div class="cap">防禦圖</div></div><div><img src="horse_00__phase_rand__d0.04__edit_orig.png" alt="horse_00__phase_rand__d0.04__edit_orig.png"><div class="cap">未防禦的編輯</div></div><div><img src="horse_00__phase_rand__d0.04__edit_def.png" alt="horse_00__phase_rand__d0.04__edit_def.png"><div class="cap">防禦後的編輯</div></div></div><div class="m">DISTS 目標 0.04 → 實得 0.04118
+半徑 1.01612
+fid_dists       0.0412
+fid_lpips       0.0347
+fid_psnr        37.1242
+fid_ssim        0.9769
+fid_clip_img    0.9959
+fid_nima        5.7895
+fid_cnniqa      0.6709
+edit_lpips      0.0606
+edit_clip_drop  0.0039
+edit_siglip_drop0.002
+amp_dev         0.01269
+active_fraction 0.4655
+total_seconds   11.4</div></td>
+</tr>
+<tr><th>man_00</th>
+<td><div class="trip"><div><img src="man_00__add__d0.04__def.png" alt="man_00__add__d0.04__def.png"><div class="cap">防禦圖</div></div><div><img src="man_00__add__d0.04__edit_orig.png" alt="man_00__add__d0.04__edit_orig.png"><div class="cap">未防禦的編輯</div></div><div><img src="man_00__add__d0.04__edit_def.png" alt="man_00__add__d0.04__edit_def.png"><div class="cap">防禦後的編輯</div></div></div><div class="m">DISTS 目標 0.04 → 實得 0.0404
+半徑 0.01065
+fid_dists       0.0404
+fid_lpips       0.3543
+fid_psnr        42.5787
+fid_ssim        0.9881
+fid_clip_img    0.9891
+fid_nima        4.7226
+fid_cnniqa      0.6761
+edit_lpips      0.493
+edit_clip_drop  -0.0345
+edit_siglip_drop-0.0135
+total_seconds   132.1</div></td>
+<td><div class="trip"><div><img src="man_00__phase__d0.04__def.png" alt="man_00__phase__d0.04__def.png"><div class="cap">防禦圖</div></div><div><img src="man_00__phase__d0.04__edit_orig.png" alt="man_00__phase__d0.04__edit_orig.png"><div class="cap">未防禦的編輯</div></div><div><img src="man_00__phase__d0.04__edit_def.png" alt="man_00__phase__d0.04__edit_def.png"><div class="cap">防禦後的編輯</div></div></div><div class="m">DISTS 目標 0.04 → 實得 0.04039
+半徑 1.69241
+fid_dists       0.0404
+fid_lpips       0.1355
+fid_psnr        37.8423
+fid_ssim        0.9838
+fid_clip_img    0.9974
+fid_nima        4.4441
+fid_cnniqa      0.6752
+edit_lpips      0.3479
+edit_clip_drop  -0.0179
+edit_siglip_drop-0.0213
+amp_dev         0.00914
+active_fraction 0.279
+total_seconds   102.9</div></td>
+<td><div class="trip"><div><img src="man_00__phase_rand__d0.04__def.png" alt="man_00__phase_rand__d0.04__def.png"><div class="cap">防禦圖</div></div><div><img src="man_00__phase_rand__d0.04__edit_orig.png" alt="man_00__phase_rand__d0.04__edit_orig.png"><div class="cap">未防禦的編輯</div></div><div><img src="man_00__phase_rand__d0.04__edit_def.png" alt="man_00__phase_rand__d0.04__edit_def.png"><div class="cap">防禦後的編輯</div></div></div><div class="m">DISTS 目標 0.04 → 實得 0.04123
+半徑 1.40257
+fid_dists       0.0412
+fid_lpips       0.0541
+fid_psnr        38.8822
+fid_ssim        0.9851
+fid_clip_img    0.9977
+fid_nima        4.363
+fid_cnniqa      0.6239
+edit_lpips      0.2154
+edit_clip_drop  -0.0188
+edit_siglip_drop-0.0102
+amp_dev         0.00787
+active_fraction 0.279
+total_seconds   11.4</div></td>
+</tr>
+<tr><th>woman_03</th>
+<td><div class="trip"><div><img src="woman_03__add__d0.04__def.png" alt="woman_03__add__d0.04__def.png"><div class="cap">防禦圖</div></div><div><img src="woman_03__add__d0.04__edit_orig.png" alt="woman_03__add__d0.04__edit_orig.png"><div class="cap">未防禦的編輯</div></div><div><img src="woman_03__add__d0.04__edit_def.png" alt="woman_03__add__d0.04__edit_def.png"><div class="cap">防禦後的編輯</div></div></div><div class="m">DISTS 目標 0.04 → 實得 0.03824
+半徑 0.01547
+fid_dists       0.0382
+fid_lpips       0.3674
+fid_psnr        39.843
+fid_ssim        0.9793
+fid_clip_img    0.9825
+fid_nima        4.6847
+fid_cnniqa      0.6977
+edit_lpips      0.413
+edit_clip_drop  0.0044
+edit_siglip_drop-0.0122
+total_seconds   116.6</div></td>
+<td><div class="trip"><div><img src="woman_03__phase__d0.04__def.png" alt="woman_03__phase__d0.04__def.png"><div class="cap">防禦圖</div></div><div><img src="woman_03__phase__d0.04__edit_orig.png" alt="woman_03__phase__d0.04__edit_orig.png"><div class="cap">未防禦的編輯</div></div><div><img src="woman_03__phase__d0.04__edit_def.png" alt="woman_03__phase__d0.04__edit_def.png"><div class="cap">防禦後的編輯</div></div></div><div class="m">DISTS 目標 0.04 → 實得 0.03935
+半徑 1.20935
+fid_dists       0.0394
+fid_lpips       0.1183
+fid_psnr        36.3478
+fid_ssim        0.9767
+fid_clip_img    0.9919
+fid_nima        4.7711
+fid_cnniqa      0.6839
+edit_lpips      0.4229
+edit_clip_drop  0.0143
+edit_siglip_drop-0.0123
+amp_dev         0.0109
+active_fraction 0.5233
+total_seconds   72.1</div></td>
+<td><div class="trip"><div><img src="woman_03__phase_rand__d0.04__def.png" alt="woman_03__phase_rand__d0.04__def.png"><div class="cap">防禦圖</div></div><div><img src="woman_03__phase_rand__d0.04__edit_orig.png" alt="woman_03__phase_rand__d0.04__edit_orig.png"><div class="cap">未防禦的編輯</div></div><div><img src="woman_03__phase_rand__d0.04__edit_def.png" alt="woman_03__phase_rand__d0.04__edit_def.png"><div class="cap">防禦後的編輯</div></div></div><div class="m">DISTS 目標 0.04 → 實得 0.0408
+半徑 0.91951
+fid_dists       0.0408
+fid_lpips       0.0367
+fid_psnr        39.1947
+fid_ssim        0.9877
+fid_clip_img    0.9973
+fid_nima        4.6638
+fid_cnniqa      0.6835
+edit_lpips      0.0625
+edit_clip_drop  0.0166
+edit_siglip_drop-0.0068
+amp_dev         0.00819
+active_fraction 0.5233
+total_seconds   11.4</div></td>
+</tr>
+</table>
+<h2>DISTS 預算 0.075</h2>
+<table><tr><th>影像</th><th>add</th><th>phase</th><th>phase_rand</th></tr>
+<tr><th>bird_03</th>
+<td><div class="trip"><div><img src="bird_03__add__d0.075__def.png" alt="bird_03__add__d0.075__def.png"><div class="cap">防禦圖</div></div><div><img src="bird_03__add__d0.075__edit_orig.png" alt="bird_03__add__d0.075__edit_orig.png"><div class="cap">未防禦的編輯</div></div><div><img src="bird_03__add__d0.075__edit_def.png" alt="bird_03__add__d0.075__edit_def.png"><div class="cap">防禦後的編輯</div></div></div><div class="m">DISTS 目標 0.075 → 實得 0.07372
+半徑 0.0367
+fid_dists       0.0737
+fid_lpips       0.5213
+fid_psnr        33.5321
+fid_ssim        0.9381
+fid_clip_img    0.9579
+fid_nima        5.3818
+fid_cnniqa      0.7178
+edit_lpips      0.6588
+edit_clip_drop  0.0365
+edit_siglip_drop0.0011
+total_seconds   101.6</div></td>
+<td><div class="trip"><div><img src="bird_03__phase__d0.075__def.png" alt="bird_03__phase__d0.075__def.png"><div class="cap">防禦圖</div></div><div><img src="bird_03__phase__d0.075__edit_orig.png" alt="bird_03__phase__d0.075__edit_orig.png"><div class="cap">未防禦的編輯</div></div><div><img src="bird_03__phase__d0.075__edit_def.png" alt="bird_03__phase__d0.075__edit_def.png"><div class="cap">防禦後的編輯</div></div></div><div class="m">DISTS 目標 0.075 → 實得 0.07105 &lt;span class=warn&gt;unreachable&lt;/span&gt;
+半徑 3.14159
+fid_dists       0.071
+fid_lpips       0.2685
+fid_psnr        30.6747
+fid_ssim        0.9063
+fid_clip_img    0.9916
+fid_nima        5.3095
+fid_cnniqa      0.704
+edit_lpips      0.5869
+edit_clip_drop  -0.0223
+edit_siglip_drop0.001
+amp_dev         0.0271
+active_fraction 0.4617
+total_seconds   26.4</div></td>
+<td><div class="trip"><div><img src="bird_03__phase_rand__d0.075__def.png" alt="bird_03__phase_rand__d0.075__def.png"><div class="cap">防禦圖</div></div><div><img src="bird_03__phase_rand__d0.075__edit_orig.png" alt="bird_03__phase_rand__d0.075__edit_orig.png"><div class="cap">未防禦的編輯</div></div><div><img src="bird_03__phase_rand__d0.075__edit_def.png" alt="bird_03__phase_rand__d0.075__edit_def.png"><div class="cap">防禦後的編輯</div></div></div><div class="m">DISTS 目標 0.075 → 實得 0.07542
+半徑 2.17547
+fid_dists       0.0754
+fid_lpips       0.1462
+fid_psnr        30.8533
+fid_ssim        0.9027
+fid_clip_img    0.9898
+fid_nima        5.3936
+fid_cnniqa      0.6982
+edit_lpips      0.204
+edit_clip_drop  0.0006
+edit_siglip_drop-0.0001
+amp_dev         0.02476
+active_fraction 0.4617
+total_seconds   11.4</div></td>
+</tr>
+<tr><th>cat_02</th>
+<td><div class="trip"><div><img src="cat_02__add__d0.075__def.png" alt="cat_02__add__d0.075__def.png"><div class="cap">防禦圖</div></div><div><img src="cat_02__add__d0.075__edit_orig.png" alt="cat_02__add__d0.075__edit_orig.png"><div class="cap">未防禦的編輯</div></div><div><img src="cat_02__add__d0.075__edit_def.png" alt="cat_02__add__d0.075__edit_def.png"><div class="cap">防禦後的編輯</div></div></div><div class="m">DISTS 目標 0.075 → 實得 0.07373
+半徑 0.04201
+fid_dists       0.0737
+fid_lpips       0.4856
+fid_psnr        31.044
+fid_ssim        0.9517
+fid_clip_img    0.9587
+fid_nima        4.1926
+fid_cnniqa      0.6454
+edit_lpips      0.7277
+edit_clip_drop  -0.0297
+edit_siglip_drop-0.0077
+total_seconds   147.2</div></td>
+<td><div class="trip"><div><img src="cat_02__phase__d0.075__def.png" alt="cat_02__phase__d0.075__def.png"><div class="cap">防禦圖</div></div><div><img src="cat_02__phase__d0.075__edit_orig.png" alt="cat_02__phase__d0.075__edit_orig.png"><div class="cap">未防禦的編輯</div></div><div><img src="cat_02__phase__d0.075__edit_def.png" alt="cat_02__phase__d0.075__edit_def.png"><div class="cap">防禦後的編輯</div></div></div><div class="m">DISTS 目標 0.075 → 實得 0.07562
+半徑 2.46531
+fid_dists       0.0756
+fid_lpips       0.4405
+fid_psnr        28.3888
+fid_ssim        0.8908
+fid_clip_img    0.9926
+fid_nima        4.3987
+fid_cnniqa      0.6637
+edit_lpips      0.6758
+edit_clip_drop  -0.0147
+edit_siglip_drop0.0114
+amp_dev         0.03786
+active_fraction 0.5549
+total_seconds   102.8</div></td>
+<td><div class="trip"><div><img src="cat_02__phase_rand__d0.075__def.png" alt="cat_02__phase_rand__d0.075__def.png"><div class="cap">防禦圖</div></div><div><img src="cat_02__phase_rand__d0.075__edit_orig.png" alt="cat_02__phase_rand__d0.075__edit_orig.png"><div class="cap">未防禦的編輯</div></div><div><img src="cat_02__phase_rand__d0.075__edit_def.png" alt="cat_02__phase_rand__d0.075__edit_def.png"><div class="cap">防禦後的編輯</div></div></div><div class="m">DISTS 目標 0.075 → 實得 0.07594
+半徑 1.69241
+fid_dists       0.0759
+fid_lpips       0.1075
+fid_psnr        31.4303
+fid_ssim        0.9445
+fid_clip_img    0.9949
+fid_nima        4.2662
+fid_cnniqa      0.5388
+edit_lpips      0.3309
+edit_clip_drop  -0.001
+edit_siglip_drop-0.0087
+amp_dev         0.02616
+active_fraction 0.5549
+total_seconds   11.5</div></td>
+</tr>
+<tr><th>dog_03</th>
+<td><div class="trip"><div><img src="dog_03__add__d0.075__def.png" alt="dog_03__add__d0.075__def.png"><div class="cap">防禦圖</div></div><div><img src="dog_03__add__d0.075__edit_orig.png" alt="dog_03__add__d0.075__edit_orig.png"><div class="cap">未防禦的編輯</div></div><div><img src="dog_03__add__d0.075__edit_def.png" alt="dog_03__add__d0.075__edit_def.png"><div class="cap">防禦後的編輯</div></div></div><div class="m">DISTS 目標 0.075 → 實得 0.07546
+半徑 0.056
+fid_dists       0.0755
+fid_lpips       0.5321
+fid_psnr        29.2077
+fid_ssim        0.9214
+fid_clip_img    0.9397
+fid_nima        4.6467
+fid_cnniqa      0.681
+edit_lpips      0.6705
+edit_clip_drop  -0.0325
+edit_siglip_drop-0.0063
+total_seconds   86.9</div></td>
+<td><div class="trip"><div><img src="dog_03__phase__d0.075__def.png" alt="dog_03__phase__d0.075__def.png"><div class="cap">防禦圖</div></div><div><img src="dog_03__phase__d0.075__edit_orig.png" alt="dog_03__phase__d0.075__edit_orig.png"><div class="cap">未防禦的編輯</div></div><div><img src="dog_03__phase__d0.075__edit_def.png" alt="dog_03__phase__d0.075__edit_def.png"><div class="cap">防禦後的編輯</div></div></div><div class="m">DISTS 目標 0.075 → 實得 0.07326
+半徑 2.32039
+fid_dists       0.0733
+fid_lpips       0.3198
+fid_psnr        26.8246
+fid_ssim        0.8876
+fid_clip_img    0.9618
+fid_nima        4.6161
+fid_cnniqa      0.6288
+edit_lpips      0.5784
+edit_clip_drop  -0.0199
+edit_siglip_drop-0.0164
+amp_dev         0.03764
+active_fraction 0.4764
+total_seconds   118.7</div></td>
+<td><div class="trip"><div><img src="dog_03__phase_rand__d0.075__def.png" alt="dog_03__phase_rand__d0.075__def.png"><div class="cap">防禦圖</div></div><div><img src="dog_03__phase_rand__d0.075__edit_orig.png" alt="dog_03__phase_rand__d0.075__edit_orig.png"><div class="cap">未防禦的編輯</div></div><div><img src="dog_03__phase_rand__d0.075__edit_def.png" alt="dog_03__phase_rand__d0.075__edit_def.png"><div class="cap">防禦後的編輯</div></div></div><div class="m">DISTS 目標 0.075 → 實得 0.07367
+半徑 1.98225
+fid_dists       0.0737
+fid_lpips       0.1572
+fid_psnr        26.5564
+fid_ssim        0.8866
+fid_clip_img    0.9589
+fid_nima        4.6981
+fid_cnniqa      0.5713
+edit_lpips      0.3844
+edit_clip_drop  -0.0022
+edit_siglip_drop-0.0023
+amp_dev         0.03894
+active_fraction 0.4764
+total_seconds   11.4</div></td>
+</tr>
+<tr><th>horse_00</th>
+<td><div class="trip"><div><img src="horse_00__add__d0.075__def.png" alt="horse_00__add__d0.075__def.png"><div class="cap">防禦圖</div></div><div><img src="horse_00__add__d0.075__edit_orig.png" alt="horse_00__add__d0.075__edit_orig.png"><div class="cap">未防禦的編輯</div></div><div><img src="horse_00__add__d0.075__edit_def.png" alt="horse_00__add__d0.075__edit_def.png"><div class="cap">防禦後的編輯</div></div></div><div class="m">DISTS 目標 0.075 → 實得 0.07715
+半徑 0.02802
+fid_dists       0.0771
+fid_lpips       0.5049
+fid_psnr        34.9694
+fid_ssim        0.9503
+fid_clip_img    0.8873
+fid_nima        5.7642
+fid_cnniqa      0.6887
+edit_lpips      0.5445
+edit_clip_drop  -0.026
+edit_siglip_drop-0.0001
+total_seconds   147.4</div></td>
+<td><div class="trip"><div><img src="horse_00__phase__d0.075__def.png" alt="horse_00__phase__d0.075__def.png"><div class="cap">防禦圖</div></div><div><img src="horse_00__phase__d0.075__edit_orig.png" alt="horse_00__phase__d0.075__edit_orig.png"><div class="cap">未防禦的編輯</div></div><div><img src="horse_00__phase__d0.075__edit_def.png" alt="horse_00__phase__d0.075__edit_def.png"><div class="cap">防禦後的編輯</div></div></div><div class="m">DISTS 目標 0.075 → 實得 0.07502
+半徑 1.87356
+fid_dists       0.075
+fid_lpips       0.2674
+fid_psnr        31.9837
+fid_ssim        0.9267
+fid_clip_img    0.9847
+fid_nima        5.8776
+fid_cnniqa      0.6709
+edit_lpips      0.501
+edit_clip_drop  -0.0165
+edit_siglip_drop0.0031
+amp_dev         0.02207
+active_fraction 0.4655
+total_seconds   148.9</div></td>
+<td><div class="trip"><div><img src="horse_00__phase_rand__d0.075__def.png" alt="horse_00__phase_rand__d0.075__def.png"><div class="cap">防禦圖</div></div><div><img src="horse_00__phase_rand__d0.075__edit_orig.png" alt="horse_00__phase_rand__d0.075__edit_orig.png"><div class="cap">未防禦的編輯</div></div><div><img src="horse_00__phase_rand__d0.075__edit_def.png" alt="horse_00__phase_rand__d0.075__edit_def.png"><div class="cap">防禦後的編輯</div></div></div><div class="m">DISTS 目標 0.075 → 實得 0.07356
+半徑 1.45088
+fid_dists       0.0736
+fid_lpips       0.0684
+fid_psnr        33.6355
+fid_ssim        0.9471
+fid_clip_img    0.9898
+fid_nima        5.8184
+fid_cnniqa      0.6547
+edit_lpips      0.0786
+edit_clip_drop  0.0057
+edit_siglip_drop0.0042
+amp_dev         0.02002
+active_fraction 0.4655
+total_seconds   11.5</div></td>
+</tr>
+<tr><th>man_00</th>
+<td><div class="trip"><div><img src="man_00__add__d0.075__def.png" alt="man_00__add__d0.075__def.png"><div class="cap">防禦圖</div></div><div><img src="man_00__add__d0.075__edit_orig.png" alt="man_00__add__d0.075__edit_orig.png"><div class="cap">未防禦的編輯</div></div><div><img src="man_00__add__d0.075__edit_def.png" alt="man_00__add__d0.075__edit_def.png"><div class="cap">防禦後的編輯</div></div></div><div class="m">DISTS 目標 0.075 → 實得 0.0754
+半徑 0.02126
+fid_dists       0.0754
+fid_lpips       0.4611
+fid_psnr        37.6512
+fid_ssim        0.9677
+fid_clip_img    0.9826
+fid_nima        4.6564
+fid_cnniqa      0.6795
+edit_lpips      0.5259
+edit_clip_drop  -0.007
+edit_siglip_drop0.0089
+total_seconds   101.7</div></td>
+<td><div class="trip"><div><img src="man_00__phase__d0.075__def.png" alt="man_00__phase__d0.075__def.png"><div class="cap">防禦圖</div></div><div><img src="man_00__phase__d0.075__edit_orig.png" alt="man_00__phase__d0.075__edit_orig.png"><div class="cap">未防禦的編輯</div></div><div><img src="man_00__phase__d0.075__edit_def.png" alt="man_00__phase__d0.075__edit_def.png"><div class="cap">防禦後的編輯</div></div></div><div class="m">DISTS 目標 0.075 → 實得 0.06959 &lt;span class=warn&gt;unreachable&lt;/span&gt;
+半徑 3.14159
+fid_dists       0.0696
+fid_lpips       0.1961
+fid_psnr        34.9319
+fid_ssim        0.9682
+fid_clip_img    0.9951
+fid_nima        4.3227
+fid_cnniqa      0.6475
+edit_lpips      0.4642
+edit_clip_drop  -0.0197
+edit_siglip_drop-0.0172
+amp_dev         0.01326
+active_fraction 0.279
+total_seconds   26.4</div></td>
+<td><div class="trip"><div><img src="man_00__phase_rand__d0.075__def.png" alt="man_00__phase_rand__d0.075__def.png"><div class="cap">防禦圖</div></div><div><img src="man_00__phase_rand__d0.075__edit_orig.png" alt="man_00__phase_rand__d0.075__edit_orig.png"><div class="cap">未防禦的編輯</div></div><div><img src="man_00__phase_rand__d0.075__edit_def.png" alt="man_00__phase_rand__d0.075__edit_def.png"><div class="cap">防禦後的編輯</div></div></div><div class="m">DISTS 目標 0.075 → 實得 0.076
+半徑 2.27208
+fid_dists       0.076
+fid_lpips       0.1062
+fid_psnr        34.4127
+fid_ssim        0.9626
+fid_clip_img    0.99
+fid_nima        4.2975
+fid_cnniqa      0.5652
+edit_lpips      0.1745
+edit_clip_drop  -0.0173
+edit_siglip_drop-0.0035
+amp_dev         0.01384
+active_fraction 0.279
+total_seconds   11.4</div></td>
+</tr>
+<tr><th>woman_03</th>
+<td><div class="trip"><div><img src="woman_03__add__d0.075__def.png" alt="woman_03__add__d0.075__def.png"><div class="cap">防禦圖</div></div><div><img src="woman_03__add__d0.075__edit_orig.png" alt="woman_03__add__d0.075__edit_orig.png"><div class="cap">未防禦的編輯</div></div><div><img src="woman_03__add__d0.075__edit_def.png" alt="woman_03__add__d0.075__edit_def.png"><div class="cap">防禦後的編輯</div></div></div><div class="m">DISTS 目標 0.075 → 實得 0.07508
+半徑 0.03091
+fid_dists       0.0751
+fid_lpips       0.4465
+fid_psnr        34.9564
+fid_ssim        0.9422
+fid_clip_img    0.8991
+fid_nima        4.4352
+fid_cnniqa      0.6966
+edit_lpips      0.4712
+edit_clip_drop  -0.011
+edit_siglip_drop0.0124
+total_seconds   116.6</div></td>
+<td><div class="trip"><div><img src="woman_03__phase__d0.075__def.png" alt="woman_03__phase__d0.075__def.png"><div class="cap">防禦圖</div></div><div><img src="woman_03__phase__d0.075__edit_orig.png" alt="woman_03__phase__d0.075__edit_orig.png"><div class="cap">未防禦的編輯</div></div><div><img src="woman_03__phase__d0.075__edit_def.png" alt="woman_03__phase__d0.075__edit_def.png"><div class="cap">防禦後的編輯</div></div></div><div class="m">DISTS 目標 0.075 → 實得 0.07327
+半徑 2.17547
+fid_dists       0.0733
+fid_lpips       0.1626
+fid_psnr        33.1583
+fid_ssim        0.9524
+fid_clip_img    0.9741
+fid_nima        4.5933
+fid_cnniqa      0.6691
+edit_lpips      0.4394
+edit_clip_drop  0.0187
+edit_siglip_drop-0.0071
+amp_dev         0.01733
+active_fraction 0.5233
+total_seconds   87.1</div></td>
+<td><div class="trip"><div><img src="woman_03__phase_rand__d0.075__def.png" alt="woman_03__phase_rand__d0.075__def.png"><div class="cap">防禦圖</div></div><div><img src="woman_03__phase_rand__d0.075__edit_orig.png" alt="woman_03__phase_rand__d0.075__edit_orig.png"><div class="cap">未防禦的編輯</div></div><div><img src="woman_03__phase_rand__d0.075__edit_def.png" alt="woman_03__phase_rand__d0.075__edit_def.png"><div class="cap">防禦後的編輯</div></div></div><div class="m">DISTS 目標 0.075 → 實得 0.07511
+半徑 1.45088
+fid_dists       0.0751
+fid_lpips       0.0776
+fid_psnr        34.8175
+fid_ssim        0.9681
+fid_clip_img    0.9858
+fid_nima        4.4286
+fid_cnniqa      0.675
+edit_lpips      0.0783
+edit_clip_drop  0.0154
+edit_siglip_drop-0.0084
+amp_dev         0.01463
+active_fraction 0.5233
+total_seconds   11.5</div></td>
+</tr>
+</table>

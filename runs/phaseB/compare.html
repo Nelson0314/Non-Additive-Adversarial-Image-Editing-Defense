@@ -1,0 +1,95 @@
+<style>
+body{font:13px/1.5 -apple-system,'Segoe UI',sans-serif;margin:24px;background:#fafafa;color:#222}
+h1{font-size:18px} h2{font-size:15px;margin:28px 0 8px}
+table{border-collapse:collapse;margin-bottom:24px}
+td,th{border:1px solid #ddd;padding:6px;vertical-align:top;background:#fff}
+th{background:#f0f0f0;font-weight:600;text-align:left;white-space:nowrap}
+img{display:block;width:190px;height:190px;object-fit:cover;border:1px solid #ccc}
+.trip{display:flex;gap:4px}
+.cap{font-size:11px;color:#666;text-align:center;margin-top:2px}
+.m{font-size:11px;color:#333;margin-top:6px;white-space:pre;font-family:ui-monospace,monospace}
+.warn{color:#b00;font-weight:600}
+.note{background:#fff8e1;border:1px solid #e0d0a0;padding:10px;margin:12px 0;max-width:920px}
+</style>
+<h1>phaseB · compare</h1>
+<div class="note">判準以人眼為主、數值指標為輔。指標與人眼矛盾時以人眼為準並記錄。<br>三張圖分別是防禦圖、未防禦的編輯、防禦後的編輯——<b>未防禦的編輯必須真的成功</b>，否則抗編輯那一欄的分母不成立（DEC-022）。</div>
+<table><tr><th>影像</th><th>apa_weak</th><th>apa_phase</th></tr>
+<tr><th>bird_03</th>
+<td><div class="trip"><div><img src="bird_03__apa_weak__def.png" alt="bird_03__apa_weak__def.png"><div class="cap">防禦圖</div></div><div><img src="bird_03__apa_weak__edit_orig.png" alt="bird_03__apa_weak__edit_orig.png"><div class="cap">未防禦的編輯</div></div><div><img src="bird_03__apa_weak__edit_def.png" alt="bird_03__apa_weak__edit_def.png"><div class="cap">防禦後的編輯</div></div></div><div class="m">fid_dists       0.1962
+fid_lpips       0.2227
+fid_psnr        19.1692
+fid_ssim        0.7727
+fid_clip_img    0.9421
+fid_nima        5.1259
+fid_cnniqa      0.5829
+edit_lpips      0.3716
+edit_clip_drop  0.0123
+edit_siglip_drop-0.0014
+total_seconds   146.0
+stage1_seconds  46.3</div></td>
+<td><div class="trip"><div><img src="bird_03__apa_phase__def.png" alt="bird_03__apa_phase__def.png"><div class="cap">防禦圖</div></div><div><img src="bird_03__apa_phase__edit_orig.png" alt="bird_03__apa_phase__edit_orig.png"><div class="cap">未防禦的編輯</div></div><div><img src="bird_03__apa_phase__edit_def.png" alt="bird_03__apa_phase__edit_def.png"><div class="cap">防禦後的編輯</div></div></div><div class="m">fid_dists       0.207
+fid_lpips       0.2726
+fid_psnr        19.4885
+fid_ssim        0.7643
+fid_clip_img    0.9322
+fid_nima        5.1975
+fid_cnniqa      0.598
+edit_lpips      0.3836
+edit_clip_drop  -0.0057
+edit_siglip_drop-0.004
+total_seconds   129.9
+stage1_seconds  46.6</div></td>
+</tr>
+<tr><th>horse_00</th>
+<td><div class="trip"><div><img src="horse_00__apa_weak__def.png" alt="horse_00__apa_weak__def.png"><div class="cap">防禦圖</div></div><div><img src="horse_00__apa_weak__edit_orig.png" alt="horse_00__apa_weak__edit_orig.png"><div class="cap">未防禦的編輯</div></div><div><img src="horse_00__apa_weak__edit_def.png" alt="horse_00__apa_weak__edit_def.png"><div class="cap">防禦後的編輯</div></div></div><div class="m">fid_dists       0.162
+fid_lpips       0.2293
+fid_psnr        16.8404
+fid_ssim        0.7327
+fid_clip_img    0.9399
+fid_nima        5.1381
+fid_cnniqa      0.5545
+edit_lpips      0.3568
+edit_clip_drop  -0.0069
+edit_siglip_drop-0.0037
+total_seconds   130.0
+stage1_seconds  46.8</div></td>
+<td><div class="trip"><div><img src="horse_00__apa_phase__def.png" alt="horse_00__apa_phase__def.png"><div class="cap">防禦圖</div></div><div><img src="horse_00__apa_phase__edit_orig.png" alt="horse_00__apa_phase__edit_orig.png"><div class="cap">未防禦的編輯</div></div><div><img src="horse_00__apa_phase__edit_def.png" alt="horse_00__apa_phase__edit_def.png"><div class="cap">防禦後的編輯</div></div></div><div class="m">fid_dists       0.1782
+fid_lpips       0.2306
+fid_psnr        17.731
+fid_ssim        0.7264
+fid_clip_img    0.9434
+fid_nima        5.9352
+fid_cnniqa      0.5851
+edit_lpips      0.2995
+edit_clip_drop  -0.0189
+edit_siglip_drop-0.0042
+total_seconds   129.5
+stage1_seconds  46.7</div></td>
+</tr>
+<tr><th>man_00</th>
+<td><div class="trip"><div><img src="man_00__apa_weak__def.png" alt="man_00__apa_weak__def.png"><div class="cap">防禦圖</div></div><div><img src="man_00__apa_weak__edit_orig.png" alt="man_00__apa_weak__edit_orig.png"><div class="cap">未防禦的編輯</div></div><div><img src="man_00__apa_weak__edit_def.png" alt="man_00__apa_weak__edit_def.png"><div class="cap">防禦後的編輯</div></div></div><div class="m">fid_dists       0.0824
+fid_lpips       0.1234
+fid_psnr        20.6741
+fid_ssim        0.9178
+fid_clip_img    0.9793
+fid_nima        4.5015
+fid_cnniqa      0.5503
+edit_lpips      0.3094
+edit_clip_drop  -0.0228
+edit_siglip_drop-0.0186
+total_seconds   130.0
+stage1_seconds  46.8</div></td>
+<td><div class="trip"><div><img src="man_00__apa_phase__def.png" alt="man_00__apa_phase__def.png"><div class="cap">防禦圖</div></div><div><img src="man_00__apa_phase__edit_orig.png" alt="man_00__apa_phase__edit_orig.png"><div class="cap">未防禦的編輯</div></div><div><img src="man_00__apa_phase__edit_def.png" alt="man_00__apa_phase__edit_def.png"><div class="cap">防禦後的編輯</div></div></div><div class="m">fid_dists       0.1146
+fid_lpips       0.1657
+fid_psnr        20.9519
+fid_ssim        0.8935
+fid_clip_img    0.9584
+fid_nima        4.6613
+fid_cnniqa      0.6008
+edit_lpips      0.3242
+edit_clip_drop  -0.0201
+edit_siglip_drop-0.0191
+total_seconds   130.1
+stage1_seconds  46.8</div></td>
+</tr>
+</table>

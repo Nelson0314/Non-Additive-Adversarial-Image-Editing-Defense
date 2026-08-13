@@ -76,7 +76,7 @@
   取回：`git checkout a4f93451f -- src/defense/apa_native_stage2.py`。
   本 session 的四支一次性腳本（階段一比較、DDIM 對照、編輯強度掃描、
   apa_pj 評測橋接）同批移除，取回用同一個 commit
-- **舊主線降級**：與新主線無關的 FND／DEC／EXP 移入 `docs/archive/LEGACY_*.md`，
+- **舊主線降級**：與新主線無關的 FND／DEC／EXP 移入 `docs/archive/LEGACY_*.md`（該目錄已於 2026-08-13 隨方向收斂刪除，其中六條仍載重的 FND 已升到 `FINDINGS.md` 末段），
   屬於次要紀錄、不是判準來源。**工程與量測的教訓不降級**——硬體與程式犯過的
   錯留在 `DEFECTS.md`、`RUNBOOK.md` 與主線 `FINDINGS.md`（FND-015 分片重複、
   FND-026 DISTS 降採樣）

@@ -20,7 +20,7 @@
 | 層級 | 主張 | 讀數 |
 |---|---|---|
 | **主** | 非加性**更**抗淨化：淨化後的效果**衰減率**低於加性 baseline<br>**site F 已成立**：10 個算子勝加性 9/10，含 C&R 串接（FND-033） | `retention` |
-| **並列** | 防禦效果本身不輸：未淨化時的位移量不低於加性 baseline<br>**未達成**：0.90–0.93×（FND-032） | `effect(·, identity)` |
+| **並列** | 防禦效果本身不輸：未淨化時的位移量不低於加性 baseline<br>**已成立**：人眼門檻上 1.55×、逐圖 22/24（FND-035） | `effect(·, identity)` |
 | 三 | 保真受控，報全部指標不挑選 | LPIPS／DISTS／PSNR／SSIM／NIQE／銳利度 |
 
 **不再追求語意抵抗。** CLIP-T 對齊掉幅仍照報，但不作為成敗判準——四個軸全部
@@ -101,7 +101,7 @@ FND-023…034，不要重試。
 ## 環境
 
 - 本機 Python：`C:/Users/nelso/miniconda3/envs/wacv/python.exe`（**不是 base**，base 沒有 pytest）。
-- 測試：`python -m pytest -q`，基準為 **190 passed / 1 xfailed**（2026-08-13 方向收斂後）。
+- 測試：`python -m pytest -q`，基準為 **196 passed / 1 xfailed**（2026-08-14 起）。
   xfailed 是刻意釘住的 DIA-PT L1 起點缺陷（原始碼自身的問題，`strict=True`）。
 - **GPU 工作一律在 NYCU BASIC lab 跑**（兩台各 8 張 RTX 3090，home 目錄跨機同步）：
 

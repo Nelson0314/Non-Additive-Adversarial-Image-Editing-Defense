@@ -61,6 +61,29 @@ def purifier_set(sd, seed: int):
     return kept
 
 
+def cell_of(row: dict) -> dict:
+    """由 results.csv 的一列還原出防禦圖的檔名段（`tag`）。
+
+    三種來源的命名各不相同，**必須由列本身決定**，不能寫死一種：
+
+        phase_ablation 預算對齊   {image}__{cond}__d{budget:g}__def.png
+        phase_ablation 人眼門檻   {image}__{cond}__human__def.png
+        apa_baseline              {image}__{cond}__def.png
+
+    早先此處寫死成 `__d{budget:g}`，人眼批次與 baseline 批次都會在
+    `FileNotFoundError` 上停住。
+    """
+    cond, budget = row["condition"], row.get("budget_target", "")
+    if row.get("budget_mode") == "human" or budget == "human":
+        return {"image": row["image"], "condition": cond,
+                "budget": "human", "tag": f"{cond}__human"}
+    if budget:
+        return {"image": row["image"], "condition": cond, "budget": budget,
+                "tag": f"{cond}__d{float(budget):g}"}
+    return {"image": row["image"], "condition": cond, "budget": "native",
+            "tag": cond}
+
+
 def label(p) -> str:
     return p.kind if not p.strength else f"{p.kind}{p.strength:g}"
 
@@ -71,18 +94,24 @@ def main() -> None:
     ap.add_argument("--run", type=Path, required=True)
     ap.add_argument("--data", type=Path, default=Path("data/lo_aligned"))
     ap.add_argument("--seeds", type=int, default=3)
+    ap.add_argument("--images", nargs="+", default=None,
+                    help="只跑這些影像；用來把 cells 分片到多張卡上")
+    ap.add_argument("--conditions", nargs="+", default=None,
+                    help="只跑這些條件；同上")
     ap.add_argument("--out", type=Path, default=None)
     args = ap.parse_args()
     out = args.out or (args.run / "retention.csv")
 
     with (args.run / "results.csv").open(encoding="utf-8") as fh:
-        cells = [
-            {"image": r["image"], "condition": r["condition"],
-             "budget": r["budget_target"]}
-            for r in csv.DictReader(fh)
-        ]
+        cells = [cell_of(r) for r in csv.DictReader(fh)]
+    if args.images:
+        keep = set(args.images)
+        cells = [c for c in cells if c["image"] in keep]
+    if args.conditions:
+        keep = set(args.conditions)
+        cells = [c for c in cells if c["condition"] in keep]
     if not cells:
-        raise SystemExit(f"{args.run / 'results.csv'} 沒有任何列")
+        raise SystemExit(f"{args.run / 'results.csv'} 沒有符合條件的列")
 
     sd = SDWrapper(MODEL_NAME, dtype=torch.float32)
     suite = MetricSuite(device=sd.device)
@@ -104,7 +133,7 @@ def main() -> None:
     for cell in cells:
         item = dataset[cell["image"]]
         x01 = load_image_tensor(item["path"], sd.device, size=RESOLUTION)
-        tag = f"{cell['condition']}__d{float(cell['budget']):g}"
+        tag = cell["tag"]
         def_png = args.run / f"{cell['image']}__{tag}__def.png"
         if not def_png.exists():
             raise FileNotFoundError(f"缺少防禦圖 {def_png}")

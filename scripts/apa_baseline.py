@@ -160,6 +160,7 @@ def main() -> None:
     ap.add_argument("--data", type=Path, default=None)
     ap.add_argument("--images", nargs="+", default=None)
     ap.add_argument("--conditions", nargs="+", default=None)
+    ap.add_argument("--target", type=Path, default=Path(TARGET_IMAGE))
     ap.add_argument("--seed", type=int, default=0)
     args = ap.parse_args()
     args.out.mkdir(parents=True, exist_ok=True)

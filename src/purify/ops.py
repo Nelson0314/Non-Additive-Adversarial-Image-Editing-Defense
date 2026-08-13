@@ -143,6 +143,53 @@ def jpeg_proxy(x: torch.Tensor, quality: int) -> torch.Tensor:
     return straight_through(x, jpeg_real(x, quality))
 
 
+# ------------------------------------------------- 真實世界變換串接（C&R）
+
+# arXiv:2604.23688 §4：C = JPEG quality factor 75，R = 0.5× 降採樣、Lanczos
+# 插值，**C&R 指先 C 再 R**（順序是協定的一部分）。該論文測到三格之下所有
+# 防護方法大幅失效，且結論是「只以單獨變換評測會嚴重高估 robustness」。
+CR_JPEG_QUALITY = 75
+CR_RESIZE_FACTOR = 0.5
+# 以下一項該論文未指定，為我方指定（與 `crop_resize` 的三項同性質）：降採樣
+# 之後**升回原尺寸**。理由是本專案的評測端要把淨化後的圖餵回 512² 的 SDEdit，
+# 停在 256² 會讓「淨化」與「換解析度」兩件事混在同一格裡。升取樣同樣用
+# Lanczos，使降升兩端的插值核一致。
+CR_UPSAMPLE_BACK = True
+
+
+def jpeg_then_resize(
+    x: torch.Tensor,
+    quality: int = CR_JPEG_QUALITY,
+    factor: float = CR_RESIZE_FACTOR,
+    upsample_back: bool = CR_UPSAMPLE_BACK,
+) -> torch.Tensor:
+    """JPEG(q) → factor× Lanczos 降採樣 →（可選）Lanczos 升回原尺寸。
+
+    Lanczos 走 PIL：`F.interpolate` 沒有 lanczos 核，用 bicubic 代替會是另一個
+    算子而不是同一個算子的近似。本函式整條都不可微，故只能經 `straight_through`
+    當代理——與 `jpeg` 相同的限制。
+    """
+    from PIL import Image
+    import numpy as np
+
+    h, w = x.shape[-2:]
+    nh, nw = max(1, int(round(h * factor))), max(1, int(round(w * factor)))
+    out = []
+    for i in range(x.shape[0]):
+        arr = (x[i].detach().clamp(0, 1).permute(1, 2, 0).cpu().numpy() * 255).astype(
+            np.uint8
+        )
+        buf = io.BytesIO()
+        Image.fromarray(arr).save(buf, format="JPEG", quality=int(quality))
+        buf.seek(0)
+        im = Image.open(buf).convert("RGB").resize((nw, nh), Image.LANCZOS)
+        if upsample_back:
+            im = im.resize((w, h), Image.LANCZOS)
+        dec = np.asarray(im).astype(np.float32) / 255.0
+        out.append(torch.from_numpy(dec).permute(2, 0, 1))
+    return torch.stack(out).to(x.device, x.dtype).clamp(0, 1)
+
+
 # --------------------------------------------------------------- Crop & Resize
 
 # DIA 補充材料 §B.2：`We cropped 10% of each image and then resized it to match
@@ -230,6 +277,7 @@ KINDS = (
     "impress",
     "diffpure",
     "resize_only",
+    "jpeg_then_resize",
 )
 
 # 原生可微（`forward` 走真實實作並提供真實梯度）的算子。其餘一律經
@@ -302,6 +350,9 @@ class Purifier:
             return crop_resize(x, frac)
         if self.kind == "resize_only":
             return resize_only(x)
+        if self.kind == "jpeg_then_resize":
+            q = int(self.strength) if self.strength else CR_JPEG_QUALITY
+            return jpeg_then_resize(x, quality=q)
         if self.kind == "adverse_cleaner":
             return adverse_cleaner_real(x)
         if self.kind == "impress":

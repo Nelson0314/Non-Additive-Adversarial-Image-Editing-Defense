@@ -58,6 +58,8 @@ from typing import Dict, List, Optional, Tuple
 
 import torch
 
+from src.residual.site_phase import PhaseResidual
+
 
 @dataclass
 class NativeStage2Config:
@@ -79,6 +81,17 @@ class NativeStage2Config:
     normalize_reward: bool = True  # DEC-021
     use_ckpt: bool = True
     use_bdia: bool = False
+
+    # ---- B 臂：換掉約束與參數化，其餘四個位置維持原生 ----
+    # `linf` 是 DEC-023 的弱 baseline（官方 Eq.7 的 latent L∞ 球）。
+    # `phase` 把同一個 latent 上的擾動改成 site F 的相位參數化，用來檢查
+    # A 臂（像素空間）量到的參數化差異在既有管線內是否也成立。
+    # 更新規則（L1 動量 + sign）與迭代數不變——B 臂只動這一個位置。
+    parameterization: str = "linf"
+    phase_block: int = 8         # latent 是 64²，區塊比像素空間的 32 小一個數量級
+    phase_r_min: float = 0.12    # 與 A 臂同值；天花板由它決定（實測見規格 §6）
+    phase_theta_max: float = 3.141592653589793
+    phase_mu: float = 0.3141592653589793   # θ_max / 10，與 µ×N 用滿半徑的比例一致
 
 
 def _targeted_reward(sd, z: torch.Tensor, y_target: torch.Tensor) -> torch.Tensor:
@@ -183,6 +196,67 @@ def _trajectory_pass(
     }
 
 
+def _attack_phase(
+    sd, la_0: torch.Tensor, emb_cond, emb_uncond, ori_latents: torch.Tensor,
+    y_target: torch.Tensor, cfg: "NativeStage2Config", ts, log_every: int,
+) -> Tuple[torch.Tensor, List[Dict]]:
+    """B 臂：把 latent 擾動由「L∞ 球內的加性 offset」換成 site F 的相位參數化。
+
+    其餘四個位置維持原生——階段一的 LoRA、dual-path 的 trajectory ＋
+    step-level guidance、L1 正規化動量 ＋ sign 的更新規則、以及淺噪聲帶的
+    反演都不動。**只換這一個位置**，故 A 臂（像素空間）量到的參數化差異
+    若在這裡重現，就不是像素空間特有的現象。
+
+    `log` 裡 `linf` 仍然是 latent 空間的 L∞（`adv − la_0`），與 `linf` 分支
+    同一個量；相位自己的幅度另記在 `theta_linf`。兩個條件的同名欄位必須是
+    同一個量，否則既有的 CSV 讀起來會是錯的。
+    """
+    if cfg.use_bdia:
+        raise ValueError(
+            "phase 參數化只支援 DDIM 路徑。BDIA 的遞迴狀態是相鄰兩點，"
+            "對 z_T 單獨做相位重排會讓 z_prev 與它不再相容"
+        )
+    module = PhaseResidual(
+        size=la_0.shape[-1], block=cfg.phase_block, r_min=cfg.phase_r_min,
+        theta_max=cfg.phase_theta_max,
+    ).to(device=la_0.device, dtype=la_0.dtype)
+    module.prepare_gates(la_0)
+
+    momentum = torch.zeros_like(module.theta)
+    norm: List[Optional[float]] = [None]
+    history: List[Dict] = []
+
+    for ii in range(cfg.niters):
+        adv_in = module.pixel_residual(la_0)
+        z_0, reward, log = _trajectory_pass(
+            sd, adv_in, emb_cond, emb_uncond, ori_latents, y_target, cfg, ts, norm)
+        grad = torch.autograd.grad(reward, module.theta)[0].detach()
+
+        # 官方更新規則逐字不動：L1 正規化動量 + sign + 固定步長。約束由
+        # 相位自己的週期性給出（clamp 到 θ_max ≤ π），不再需要投影回球。
+        l1_grad = grad / grad.norm(p=1).clamp_min(1e-12)
+        momentum = momentum + l1_grad
+        with torch.no_grad():
+            module.theta.add_(torch.sign(momentum) * cfg.phase_mu)
+            module.theta.clamp_(-cfg.phase_theta_max, cfg.phase_theta_max)
+            linf = float((module.pixel_residual(la_0) - la_0).abs().max())
+
+        log.update({"iter": ii, "reward": float(reward.detach()), "linf": linf,
+                    "theta_linf": float(module.theta.detach().abs().max())})
+        history.append(log)
+        if ii % log_every == 0 or ii == cfg.niters - 1:
+            print(f"  [attack_phase] iter {ii:>3d}  reward={log['reward']:+.4f}  "
+                  f"R={log['reward_main']:+.4f}  fid_pen={log['fidelity_pen']:.4f}  "
+                  f"linf={linf:.3f}  theta={log['theta_linf']:.3f}", flush=True)
+
+    with torch.no_grad():
+        adv = module.pixel_residual(la_0)
+        z_final, _, _ = _trajectory_pass(
+            sd, adv, emb_cond, emb_uncond, ori_latents, y_target, cfg, ts, norm)
+        x_def = sd.decode_latent(z_final)
+    return x_def, history
+
+
 def attack_native(
     sd,
     z_T: torch.Tensor,
@@ -209,6 +283,15 @@ def attack_native(
 
     la_0 = (z_T.detach().clone() if not cfg.use_bdia
             else (z_T.detach().clone(), z_prev.detach().clone()))
+
+    if cfg.parameterization == "phase":
+        return _attack_phase(sd, la_0, emb_cond, emb_uncond, ori_latents,
+                             y_target, cfg, ts, log_every)
+    if cfg.parameterization != "linf":
+        raise ValueError(
+            f"未知的 parameterization {cfg.parameterization!r}，"
+            f"只接受 'linf'（DEC-023 的弱 baseline）或 'phase'（B 臂）"
+        )
     # `adv` 必須與 `la_0` 是不同物件：下面的 `requires_grad_()` 是 in-place，
     # 共用會讓 L∞ 投影的固定中心也被標成需要梯度。
     adv = (la_0.clone() if not cfg.use_bdia

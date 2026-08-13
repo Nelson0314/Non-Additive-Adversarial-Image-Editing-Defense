@@ -61,6 +61,10 @@ EDIT_SEED = 20260812
 
 CONDITIONS = ["apa_weak", "photoguard_c", "mist", "dia_r"]
 
+# B 臂（規格 §3）：與 apa_weak 完全相同，只把 latent 的 L∞ 球換成 site F 的
+# 相位參數化。不列入 CONDITIONS 的預設，要用 --conditions 明給。
+PARAMETERIZATION = {"apa_weak": "linf", "apa_phase": "phase"}
+
 
 def load_dataset(root: Path = None) -> list:
     """`root` 給定時讀 lo_aligned 版面（每類一子目錄）；否則讀 data/apa_native。"""
@@ -79,7 +83,8 @@ def load_dataset(root: Path = None) -> list:
     return out
 
 
-def run_weak_baseline(sd, item, y_target, seed: int) -> dict:
+def run_weak_baseline(sd, item, y_target, seed: int,
+                      parameterization: str = "linf") -> dict:
     """階段一（官方 LoRA）＋ 階段二（dual-path + 球 + sign），reward 為 targeted。"""
     x01 = item["path01"]
     with torch.no_grad():
@@ -93,7 +98,7 @@ def run_weak_baseline(sd, item, y_target, seed: int) -> dict:
     lora.enable()
     stage1_seconds = time.time() - t0
 
-    cfg = NativeStage2Config()
+    cfg = NativeStage2Config(parameterization=parameterization)
     ts = sd.timesteps(cfg.schedule_steps, t_max=cfg.t_max)
     emb_cond = sd.encode_text(item["class"])
     with torch.no_grad():
@@ -185,7 +190,9 @@ def main() -> None:
         for cond in conds:
             print(f"=== {item['name']} / {cond} ===", flush=True)
             t0 = time.time()
-            res = (run_weak_baseline(sd, item, y_target, args.seed) if cond == "apa_weak"
+            res = (run_weak_baseline(sd, item, y_target, args.seed,
+                                     PARAMETERIZATION[cond])
+                   if cond in PARAMETERIZATION
                    else run_additive(sd, item, cond, args.seed))
             metrics, eo, ed = evaluate(sd, suite, aes, item, res["x_def"])
             for tag, img in (("def", res["x_def"]), ("edit_orig", eo), ("edit_def", ed)):

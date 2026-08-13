@@ -1,0 +1,116 @@
+[hb5] s2_arm gpu=5 :: /nfs/home/nelson0314/venvs/wacv/bin/python scripts/phase_retention.py --run runs/phaseA_human --data data/lo_aligned --seeds 3 --images man_02 woman_02 dog_03 horse_03 cat_01 --conditions add phase phase_rand --out runs/hb5/retention_arm.csv
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00,  7.71it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3660.21it/s]
+Loading pipeline components...:  50%|█████     | 3/6 [00:00<00:00,  6.51it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 11.81it/s]
+There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+=== cat_01 / add__human ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    分母塌陷：effect(identity) mean=0.2824 sd=0.1198，本格的 retention 不可用
+    identity=0.2824, blur1=0.2408, noise0.05=0.4208, quantize16=0.3251, jpeg75=0.1085, jpeg30=0.2184, crop_resize0.1=0.4706, jpeg_then_resize75=0.1878, adverse_cleaner=0.1767, impress=0.1795
+=== cat_01 / phase__human ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    分母塌陷：effect(identity) mean=0.4120 sd=0.1434，本格的 retention 不可用
+    identity=0.4120, blur1=0.2734, noise0.05=0.4347, quantize16=0.4471, jpeg75=0.1866, jpeg30=0.2698, crop_resize0.1=0.5020, jpeg_then_resize75=0.2111, adverse_cleaner=0.3625, impress=0.2618
+=== cat_01 / phase_rand__human ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    分母塌陷：effect(identity) mean=0.1036 sd=0.0355，本格的 retention 不可用
+    identity=0.1036, blur1=0.2623, noise0.05=0.4300, quantize16=0.3434, jpeg75=0.1611, jpeg30=0.2367, crop_resize0.1=0.4787, jpeg_then_resize75=0.2088, adverse_cleaner=0.1831, impress=0.1756
+=== dog_03 / add__human ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    identity=0.3126, blur1=0.3711, noise0.05=0.5443, quantize16=0.4407, jpeg75=0.2824, jpeg30=0.3939, crop_resize0.1=0.5429, jpeg_then_resize75=0.3290, adverse_cleaner=0.2831, impress=0.4309
+=== dog_03 / phase__human ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    identity=0.5496, blur1=0.4774, noise0.05=0.5389, quantize16=0.5513, jpeg75=0.4613, jpeg30=0.4301, crop_resize0.1=0.6166, jpeg_then_resize75=0.4377, adverse_cleaner=0.5422, impress=0.5027
+=== dog_03 / phase_rand__human ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    identity=0.2875, blur1=0.3838, noise0.05=0.5483, quantize16=0.4062, jpeg75=0.3499, jpeg30=0.4187, crop_resize0.1=0.5259, jpeg_then_resize75=0.3969, adverse_cleaner=0.3300, impress=0.4111
+=== horse_03 / add__human ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    identity=0.2297, blur1=0.3583, noise0.05=0.4217, quantize16=0.1995, jpeg75=0.1925, jpeg30=0.3199, crop_resize0.1=0.5404, jpeg_then_resize75=0.2708, adverse_cleaner=0.2211, impress=0.2752
+=== horse_03 / phase__human ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    identity=0.4593, blur1=0.4233, noise0.05=0.4838, quantize16=0.4571, jpeg75=0.3132, jpeg30=0.3613, crop_resize0.1=0.5726, jpeg_then_resize75=0.3106, adverse_cleaner=0.4910, impress=0.4251
+=== horse_03 / phase_rand__human ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    identity=0.1631, blur1=0.3492, noise0.05=0.4417, quantize16=0.2080, jpeg75=0.2321, jpeg30=0.3429, crop_resize0.1=0.5421, jpeg_then_resize75=0.2885, adverse_cleaner=0.2800, impress=0.2369
+=== man_02 / add__human ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    identity=0.1817, blur1=0.4079, noise0.05=0.3489, quantize16=0.2004, jpeg75=0.2186, jpeg30=0.2564, crop_resize0.1=0.5353, jpeg_then_resize75=0.3767, adverse_cleaner=0.2018, impress=0.2805
+=== man_02 / phase__human ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    identity=0.4143, blur1=0.4268, noise0.05=0.4936, quantize16=0.4430, jpeg75=0.3819, jpeg30=0.3582, crop_resize0.1=0.5303, jpeg_then_resize75=0.3843, adverse_cleaner=0.3832, impress=0.3831
+=== man_02 / phase_rand__human ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    identity=0.2038, blur1=0.3847, noise0.05=0.3918, quantize16=0.2745, jpeg75=0.2597, jpeg30=0.2863, crop_resize0.1=0.5351, jpeg_then_resize75=0.3759, adverse_cleaner=0.2268, impress=0.2849
+=== woman_02 / add__human ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    identity=0.2605, blur1=0.2616, noise0.05=0.4100, quantize16=0.2557, jpeg75=0.1332, jpeg30=0.2953, crop_resize0.1=0.4460, jpeg_then_resize75=0.1797, adverse_cleaner=0.1927, impress=0.1973
+=== woman_02 / phase__human ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    identity=0.3596, blur1=0.2714, noise0.05=0.4249, quantize16=0.3688, jpeg75=0.1820, jpeg30=0.3148, crop_resize0.1=0.4792, jpeg_then_resize75=0.1971, adverse_cleaner=0.3049, impress=0.3237
+=== woman_02 / phase_rand__human ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    identity=0.0831, blur1=0.2413, noise0.05=0.4298, quantize16=0.2320, jpeg75=0.1474, jpeg30=0.3093, crop_resize0.1=0.4235, jpeg_then_resize75=0.1942, adverse_cleaner=0.2207, impress=0.1983
+
+表：runs/hb5/retention_arm.csv（150 列）
+[hb5] s2_arm 完成
+[hb5] s2_base_2 gpu=5 :: /nfs/home/nelson0314/venvs/wacv/bin/python scripts/phase_retention.py --run runs/hb5 --data data/lo_aligned --seeds 3 --images horse_03 cat_01 --conditions apa_weak mist dia_r --out runs/hb5/retention_b2.csv
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3422.67it/s]
+Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00, 11.07it/s]Loading pipeline components...:  83%|████████▎ | 5/6 [00:00<00:00, 17.64it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 14.93it/s]
+There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+=== cat_01 / apa_weak ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    identity=0.2158, blur1=0.2827, noise0.05=0.5278, quantize16=0.4572, jpeg75=0.2202, jpeg30=0.3360, crop_resize0.1=0.4775, jpeg_then_resize75=0.2435, adverse_cleaner=0.2786, impress=0.2334
+=== cat_01 / mist ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    identity=0.7140, blur1=0.3314, noise0.05=0.6289, quantize16=0.6663, jpeg75=0.5661, jpeg30=0.3974, crop_resize0.1=0.6272, jpeg_then_resize75=0.2555, adverse_cleaner=0.6257, impress=0.5630
+=== cat_01 / dia_r ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    分母塌陷：effect(identity) mean=0.2333 sd=0.0963，本格的 retention 不可用
+    identity=0.2333, blur1=0.2425, noise0.05=0.4118, quantize16=0.3097, jpeg75=0.1117, jpeg30=0.2287, crop_resize0.1=0.4863, jpeg_then_resize75=0.1839, adverse_cleaner=0.2133, impress=0.1960
+=== horse_03 / apa_weak ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    分母塌陷：effect(identity) mean=0.2999 sd=0.1128，本格的 retention 不可用
+    identity=0.2999, blur1=0.4181, noise0.05=0.5338, quantize16=0.3569, jpeg75=0.2899, jpeg30=0.4030, crop_resize0.1=0.5709, jpeg_then_resize75=0.3396, adverse_cleaner=0.3351, impress=0.3473
+=== horse_03 / mist ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    identity=0.6178, blur1=0.5388, noise0.05=0.5564, quantize16=0.5903, jpeg75=0.5150, jpeg30=0.4670, crop_resize0.1=0.5888, jpeg_then_resize75=0.4256, adverse_cleaner=0.5195, impress=0.5186
+=== horse_03 / dia_r ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    identity=0.2152, blur1=0.3308, noise0.05=0.4224, quantize16=0.2735, jpeg75=0.2008, jpeg30=0.3055, crop_resize0.1=0.5354, jpeg_then_resize75=0.2790, adverse_cleaner=0.2292, impress=0.2573
+
+表：runs/hb5/retention_b2.csv（60 列）
+[hb5] s2_base_2 完成

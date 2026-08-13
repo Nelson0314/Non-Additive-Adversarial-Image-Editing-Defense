@@ -1,0 +1,22 @@
+[hb5] s2_pgc_2 gpu=3 :: /nfs/home/nelson0314/venvs/wacv/bin/python scripts/phase_retention.py --run runs/hb5_pgc --data data/lo_aligned --seeds 3 --images dog_03 horse_03 --out runs/hb5/retention_p2.csv
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  17%|█▋        | 1/6 [00:00<00:00,  8.81it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 5177.79it/s]
+Loading pipeline components...:  50%|█████     | 3/6 [00:00<00:00, 11.02it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 17.70it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 15.62it/s]
+There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+=== dog_03 / photoguard_c ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    identity=0.5398, blur1=0.4096, noise0.05=0.5459, quantize16=0.5007, jpeg75=0.3754, jpeg30=0.4014, crop_resize0.1=0.5702, jpeg_then_resize75=0.3543, adverse_cleaner=0.3789, impress=0.4519
+=== horse_03 / photoguard_c ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    identity=0.4394, blur1=0.3676, noise0.05=0.4380, quantize16=0.4059, jpeg75=0.2228, jpeg30=0.3177, crop_resize0.1=0.5613, jpeg_then_resize75=0.2951, adverse_cleaner=0.2498, impress=0.3099
+
+表：runs/hb5/retention_p2.csv（20 列）
+[hb5] s2_pgc_2 完成

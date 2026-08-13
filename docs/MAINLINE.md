@@ -1,132 +1,112 @@
 # 主線
 
-2026-08-13 更新。判準與結論以 `FINDINGS.md`／`DECISIONS.md` 為準，現行工作
-本頁只回答三個問題：**主線是什麼、程式在哪、已知什麼**。
+2026-08-13 改版。判準與結論以 `FINDINGS.md`／`DECISIONS.md` 為準，本頁只回答
+三個問題：**主線是什麼、程式在哪、已知什麼**。
 
 ---
 
 ## 1. 研究目標
 
-白盒條件、外掛模組形態下，找出非加性方法，在匹配人眼可辨失真下勝過加性
-基準。**不再追求語意抵抗**（FND-024／029／030 四個軸全部否證），主讀數是
-位移量與抗淨化的衰減率。
+白盒條件（攻擊方使用 stock Stable Diffusion）、外掛模組形態下，找出非加性方法，
+在匹配人眼可辨失真下勝過加性基準。**不再追求語意抵抗**（FND-024／029／030
+四個軸全部否證），主讀數是位移量與抗淨化的衰減率。
 
-判準以人眼為主、數值指標為輔。`compare.html` 是主要產出物，每一格都必須有
-影像可看；指標與人眼矛盾時以人眼為準並記錄。
+判準以人眼為主、數值指標為輔。`compare.html` 是主要產出物，每一格都必須有影像
+可看；指標與人眼矛盾時以人眼為準並記錄。
 
-## 2. 內部弱 baseline（DEC-023）
+## 2. 三個條件，沒有第四個
 
-「完全原生 APA，只把 reward 換成 targeted output」。五個位置裡四個維持原生：
+2026-08-13 使用者裁定方向收斂。**現行只保留三類條件**，其餘歷史變體的程式與
+文字紀錄已刪除（`runs/` 全部保留，是唯一的證據來源）：
 
-| 位置 | 設定 | 出處 |
+| 條件 | 是什麼 | 程式 |
 |---|---|---|
-| 階段一 | APA 官方 LoRA：denoising MSE、AdamW 1e-4、200 步固定、rank=8、noise_offset=0.1 | 官方 `visual_alignment.py` |
-| 階段二 | dual-path attack guidance（trajectory ＋ step-level） | 官方 `pipe_ours.py` |
-| 約束 | latent L∞ 球 ε_a = 0.4 | 官方 Eq.7 |
-| 更新 | L1 正規化動量 ＋ sign，µ=0.04、N=10 | 官方 Eq.7 |
-| 反演 | DDIM，50 格排程只執行前 11 格、T_a=10、CFG=1 | 官方 APA-GC |
-| **reward** | **`−‖D(z̄₀) − y_target‖²`** | PhotoGuard-c／Mist 形式 |
+| **弱 baseline** | 完全原生 APA，只把 reward 換成 targeted output（DEC-023） | `scripts/apa_baseline.py --conditions apa_weak` |
+| **強 baseline** | 三個已發表的加性方法：`photoguard_c`／`mist`／`dia_r` | 同上，`src/baselines/` |
+| **site F** | **紋理重相位**，本專案的正式方向 | `src/residual/site_phase.py` |
 
-叫「弱」是因為它的語意抵抗接近零——**它是位置基準，不是有效的防禦**。
+`add`（加性 δ 走同一個 encoder-targeted 損失）與 `phase_rand`（同失真隨機相位，
+即 RPN）是 site F 消融的兩個**內部對照**，不是獨立條件。
 
-跑它：
+## 3. 程式：六支腳本、35 支 src
+
+`scripts/`：
+
+| 腳本 | 用途 |
+|---|---|
+| `apa_baseline.py` | 弱 baseline ＋ 三個強 baseline 的訓練與評測；`--conditions apa_phase` 走 B 臂 |
+| `phase_ablation.py` | A 臂參數化消融：`add`／`phase`／`phase_rand`，對齊預算 |
+| `phase_distortion_sweep.py` | 失真掃描，供人眼定門檻。十六項指標，不跑編輯評測 |
+| `phase_retention.py` | 抗淨化的 retention，跑在已存的防禦圖上，不重跑攻擊 |
+| `phase_gate_probe.py` | 紋理閘有效面積與 θ_max 校準（CPU，不載入 SD） |
+| `phase_compare_page.py` | `compare.html` 產生器 |
+
+`src/` 的 35 支：
+
+| 目錄 | 內容 |
+|---|---|
+| `residual/` | `site_phase.py`（site F）、`site_weight.py`／`site_apa.py`（APA 階段一 LoRA）、`site_latent.py`、`base.py`／`composite.py`／`lowrank.py` |
+| `defense/` | `apa_stage1.py`、`apa_native_stage2.py`（含 B 臂的相位分支）、`param_pgd.py` |
+| `baselines/` | `pgd.py` 骨幹 ＋ 五篇（`REGISTRY` 需要五篇齊全）＋ `encoder_target.py` |
+| `models/` | `sd.py`（SD 包裝、DDIM／BDIA 反演） |
+| `metrics/` | `suite.py`、`aesthetic.py`、`acutance.py` |
+| `purify/` | `ops.py`（含 C&R 串接 `jpeg_then_resize`）、`diffpure.py`、`impress.py`、`adverse_cleaner.py` |
+| `utils/` | `io.py`、`artifacts.py`、`device.py` |
+
+**沒有 `legacy/`、沒有 `docs/archive/`、沒有 `src/experiment/`。** 舊主線的
+33 支腳本、24 支 src 模組、21 支測試與逐次紀錄已於 2026-08-13 刪除。
+取回：`git checkout 6bb656280 -- <path>`。
+
+## 4. site F 的構造
 
 ```
-python scripts/apa_baseline.py --out runs/<批次名> \
-    --data data/lo_aligned --images horse_00 man_00 bird_03
+x_def = OLA( irfft2( rfft2(w·P_b) · exp(i·g_b·m_ω·θ_b) )·w ) / OLA(w²)
 ```
 
-不給 `--data` 時讀 `data/apa_native`（APA 官方那三張圖）。
-`--conditions` 可只挑其中幾個（`apa_weak`／`photoguard_c`／`mist`／`dia_r`）。
+32×32 區塊、hop 16、Hann 窗，512² 上共 1089 個區塊 × 32×17 個頻格，
+約 59 萬個參數（加性 δ 為 78.6 萬）。三個由構造保證的性質：
 
-## 3. 程式：主線的 23 支
+1. `θ = 0` 時輸出**逐位元等於原圖**，由 `OLA(w²)` 正規化保證，不依賴 COLA。
+2. **幅度譜逐位保留**，係數乘上模長為 1 的複數而非拆 `abs`／`angle`。
+3. 輸出為實數；`fx = 0` 與 `fx = N/2` 兩行的閘取 0，避免破壞共軛對稱。
 
-`scripts/` 只有 `apa_baseline.py` 一支；其餘 33 支已移到 `legacy/scripts/`。
-`src/` 的檔案**原地不動**（`legacy/src/` 會與 `src/` 撞名，Python 只會載入
-`sys.path` 上先出現的那一個）。以下是
-`scripts/apa_baseline.py` 的完整遞移依賴，用 AST 實測而非估計：
+`g_b` 是結構張量 coherence 導出的紋理度閘（邊緣與平坦區皆為 0），`m_ω` 是徑向
+頻率閘。兩者由原圖算一次即固定，**不參與最佳化**。
 
-### 3.1 弱 baseline 自身
+定案的三個參數：`block = 32`、`r_min = 0.12`、紋理閘分位數 `0.5`。理由見
+`docs/superpowers/specs/2026-08-13-texture-rephasing-design.md` 與 FND-032。
 
-| 檔案 | 用途 |
-|---|---|
-| `scripts/apa_baseline.py` | **主驅動**：弱 baseline ＋ 三個加性 baseline，訓練與評測 |
-| `src/defense/apa_stage1.py` | 階段一：官方 Eq.6 的 denoising MSE |
-| `src/defense/apa_native_stage2.py` | 階段二：dual-path、latent 球、sign 更新、reward |
-| `src/residual/site_apa.py` | 官方階段一的超參數常數 |
-| `src/residual/site_weight.py` | LoRA 掛載（`WeightResidual`） |
-| `src/residual/base.py`、`composite.py`、`lowrank.py`、`site_latent.py` | 上面兩支的相依 |
-
-### 3.2 加性對照
-
-`src/baselines/`：`pgd.py`（共用骨幹）、`photoguard.py`、`mist.py`、`dia.py`。
-`__init__.py` 的 `REGISTRY` 需要五篇齊全，故 `advpaint.py`、`promptflare.py`
-也在依賴內——那是完整清單的一部分，不是冗餘。
-
-### 3.3 模型與指標
-
-| 檔案 | 用途 |
-|---|---|
-| `src/models/sd.py` | SD 包裝、DDIM／BDIA 反演 |
-| `src/models/attention.py` | cross-attention 擷取（分佈 ＋ 輸出兩個 recorder） |
-| `src/metrics/suite.py`、`aesthetic.py`、`acutance.py` | 指標 |
-| `src/utils/io.py` | 影像張量與 CSV 讀寫 |
-| `src/utils/artifacts.py`、`device.py` | 存圖、裝置與精度 |
-
-### 3.4 不在主線上的（原地保留，仍可用）
-
-`src/experiment/`（五段流程 6 支）、`src/purify/`（5 支）、
-`src/defense/objective.py`、`generator.py`、`optimize.py`、`recon.py`、
-`linf_attack.py`、`src/residual/site_warp.py`、`site_embedding.py`、
-`src/data/`（3 支）、`src/metrics/` 的 `battery`／`spectrum`／`chroma`／
-`local_acutance`／`ray_scale`。
-
-其中 **`src/purify/ops.py`**（`forward`／`evaluate`／`proxy_gap` 三件式與
-`default_train_set()`）與 **`src/residual/site_warp.py`** 在做抗淨化或換非加性
-參數化時可直接取用。
-
-### 3.5 兩個重新匯出，不要複製實作
-
-| 舊名字 | 現在指向 |
-|---|---|
-| `src/experiment/executors.py` 的 `write_csv`、`load_image_tensor` | `src/utils/io.py` |
-| `src/defense/optimize.py` 的 `align_apa_native` | `src/defense/apa_stage1.py` |
-
-舊主線的批次仍用舊名字。**兩份實作會慢慢分岔而沒有症狀**——CSV 的欄位規則
-分岔會讓既有 `runs/` 不可比，而 FND-027 正是拿 `align_apa_native` 量出來的。
-
-## 4. 資料
+## 5. 資料
 
 | 目錄 | 內容 |
 |---|---|
 | `data/apa_native/` | APA 官方三張圖 |
-| `data/lo_aligned/` | 本專案的馬／人／鳥等六類真實照片 |
-| `data/targets/` | `gray.png`（弱 baseline 的目標）、`obama.png`（路線 B 的注入目標）、`MIST.png`（Mist 用） |
+| `data/lo_aligned/` | 本專案的馬／人／鳥／貓／狗／女六類真實照片 |
+| `data/targets/` | `gray.png`（targeted 目標）、`obama.png`、`MIST.png` |
 
-`data/targets/provenance.json` 記錄來源與授權。注入目標只收 CC0／公有領域。
+## 6. 已知什麼
 
-## 5. 已知什麼
+- **site F 的主讀數成立**：retention 在 10 個淨化算子上勝過加性 9/10（DISTS 0.04）
+  與 8/10（0.075），含最接近真實的 C&R 串接。FND-033
+- **site F 勝過同失真隨機 12/12**，倍率 2.6–2.7×。本專案第一次（FND-004 打平、
+  FND-018 落後）。FND-032
+- **位移量尚未達標**：對加性是 0.90–0.93×，而該比較用的 DISTS 軸對 site F 有利。
+  FND-032
+- **B 臂無效**：相位參數化搬進 APA 的 latent 上沒有收益，優勢是像素空間特有的。
+  FND-032
+- **指標與人眼**：DISTS 與 LPIPS 都低估相位擾動的可見失真，PSNR、GMSD、HaarPSI
+  與人眼一致。GMSD 在同一個 DISTS 上判 site F 差 5.7 倍。FND-034
+- **反演與重建**：BDIA 精確反演使生成路徑幾乎不再額外收費（FND-002）；原生
+  階段一 LoRA 在 BDIA 管線上有害（FND-027）
+- **量測陷阱**：DISTS 在 512² 上先降採樣到 256²（FND-026）；latent 半徑不是保真
+  約束（FND-028）；`retention` 的分母塌陷時不可解讀（METRICS.md §6）
 
-- **反演與重建**：生成路徑有逐影像的重建下限（FND-001）；BDIA 精確反演讓該
-  下限幾乎不再額外收費（FND-002）；LoRA 在 UNet 上碰不到 VAE 的誤差（FND-016）
-- **階段一**：原生 LoRA 在 BDIA 管線上不只無效而是有害（FND-027）；換掉它買到
-  的是保真度與時間，不是防禦（FND-023）
-- **階段二**：latent 球從未生效（`ε_a` 恰等於 `µ×N`），且同一半徑在不同影像上
-  是不同的可見失真，三個指標的排序都與人眼相反（FND-028）
-- **四個軸的分工**：reward 決定位移量、更新規則決定保真度，**沒有任何一個軸讓
-  語意抵抗成立**（FND-029）。原文自己的分類器 reward 與抗文字編輯無交集
-  （FND-030）；注意力抑制與「編輯失敗」之間沒有因果關係（FND-024）
-- **抗淨化**：非加性勝過三個加性 baseline，7/7 算子嚴格成立，且在 img2img 與
-  inpainting 兩個威脅模型上獨立重現（FND-018／020）。**但優勢來自非加性參數化
-  而非 Lo 式 (5)**——同 site 的隨機方向 `Ra` 處處等於或高於我方
-- **量測陷阱**：DISTS 在 512² 上先降採樣到 256²，使加性與非加性的失真比較翻轉
-  （FND-026）；`retention` 的分母在 `effect_siglip` 讀數下不可用，但在位移讀數
-  下 1425 列有 1350 列可用
+## 7. 現在在做什麼
 
-## 6. 現在在做什麼
+等使用者在失真掃描頁上劃定人眼門檻，之後：
 
-**尚未有有效方法。** 2026-08-13 的四個方向全部否決（歸檔在 `FINDINGS.md`
-末段）：cross-attention 目標注入、分階段注入、amortized generator 與對淨化的
-min-max、顏色通道。全部沒有改善抗編輯。
-
-弱 baseline 仍是唯一的位置基準。
+1. 把 `fit_to_budget` 的 `distortion_fn` 換成該門檻對應的指標
+2. 對 θ 加空間平滑（粗網格上採樣，由構造保證），壓掉塊狀斑駁
+3. **對 site F 做多種淨化方式與串接的測試**（協定見 `reference/ROBUSTNESS_TESTS.md`）
+4. 把 **DCT-Shield（ICCV 2025，arXiv:2504.17894）** 加進 baseline 清單——同場景、
+   同主張（更少視覺瑕疵、抗 JPEG），必須正面比較

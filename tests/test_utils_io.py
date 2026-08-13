@@ -50,13 +50,3 @@ def test_指定size時縮放到正方(tmp_path):
     Image.new("RGB", (64, 32), (10, 20, 30)).save(tmp_path / "b.png")
     x = load_image_tensor(tmp_path / "b.png", DEV, size=16)
     assert x.shape == (1, 3, 16, 16)
-
-
-def test_executors的舊名字仍指向同一個實作(tmp_path):
-    """舊主線的批次仍用 `executors.load_image_tensor` 的名字。抽出後若變成
-    兩份實作，兩邊的行為會慢慢分岔而沒有症狀。"""
-    from src.experiment import executors
-    from src.utils import io
-
-    assert executors.load_image_tensor is io.load_image_tensor
-    assert executors.write_csv is io.write_csv

@@ -1,20 +1,22 @@
 新 SESSION 讀檔須知
 ====================================================================
-最後更新 2026-08-13。純文字，不需要讀對話記錄。
+最後更新 2026-08-13（方向收斂當日）。純文字，不需要讀對話記錄。
 
 
 一、一句話現況
 --------------------------------------------------------------------
-**還沒有有效方法。** 弱 baseline 是唯一的位置基準，不是防禦。
-2026-08-13 試過的四個方向全部否決，歸檔在 FINDINGS.md 末段。
+**正式方向是 site F（紋理重相位）。** 抗淨化的主張已成立（10 個算子勝
+加性 9/10），位移量尚未達標（0.90-0.93x）。專案範圍已收斂到三個條件，
+舊主線的程式與逐次紀錄已刪除。
 
 
 二、先讀哪些檔（依序，約十分鐘）
 --------------------------------------------------------------------
 1. CLAUDE.md              專案指令：研究範圍、主張、工作要求、環境
-2. docs/MAINLINE.md       主線是什麼、程式在哪（23 支清單）、已知什麼
-3. docs/FINDINGS.md       測得的事實（FND-），**末段是 08-13 的否決歸檔**
+2. docs/MAINLINE.md       主線是什麼、程式在哪、site F 怎麼構造、已知什麼
+3. docs/FINDINGS.md       測得的事實（FND-），末段 FND-032/033/034 是現行結論
 4. docs/DECISIONS.md      裁決（DEC-）
+5. docs/superpowers/specs/2026-08-13-texture-rephasing-design.md   site F 的規格
 
 其餘按需要再查。編碼（FND- / DEC- / MET- / DEF-）每一筆自足、可單獨讀完，
 只用來互相指認，不代表先後或依賴。
@@ -26,97 +28,79 @@
 失真下勝過加性基準。
 
   主    非加性「更」抗淨化：淨化後的效果衰減率低於加性 baseline
+        -> **已成立**（FND-033），含 C&R 串接
   並列  防禦效果本身不輸：未淨化時的位移量不低於加性 baseline
+        -> **未達成**，0.90-0.93x（FND-032）
   三    保真受控，報全部指標不挑選
 
-**不再追求語意抵抗。** CLIP-T 掉幅照報但不作為成敗判準——四個軸全部否證
-（FND-024/029/030），且 arXiv:2506.04394 獨立測到同一現象。
+**不再追求語意抵抗。** CLIP-T 掉幅照報但不作為成敗判準（FND-024/029/030，
+且 arXiv:2506.04394 獨立測到同一現象）。
 
 **判準以人眼為主、數值指標為輔。** compare.html 是主要產出物，每一格都必須
 有影像可看；指標與人眼矛盾時以人眼為準並記錄。
 
 
-四、內部弱 baseline（DEC-023）
+四、三個條件，沒有第四個
 --------------------------------------------------------------------
-「完全原生 APA，只把 reward 換成 targeted output」。五個位置裡四個原生：
+弱 baseline   完全原生 APA，只把 reward 換成 targeted output（DEC-023）
+強 baseline   photoguard_c / mist / dia_r 三個已發表的加性方法
+site F        紋理重相位，本專案的正式方向
 
-    階段一   APA 官方 LoRA（denoising MSE、AdamW 1e-4、200 步、rank=8）
-    階段二   dual-path attack guidance（trajectory + step-level）
-    約束     latent L-inf 球 eps_a = 0.4
-    更新     L1 正規化動量 + sign，mu=0.04、N=10
-    反演     DDIM，50 格排程只執行前 11 格、T_a=10、CFG=1
-    reward   -||D(z_0) - y_target||^2        <- 唯一的替換
+add（加性 delta 走同一個 encoder-targeted 損失）與 phase_rand（同失真隨機
+相位，即 RPN）是 site F 消融的內部對照，不是獨立條件。
 
-叫「弱」是因為語意抵抗接近零。**它是位置基準，不是有效的防禦。**
-
-跑它：
-    python scripts/apa_baseline.py --out runs/<批次名>         --data data/lo_aligned --images horse_00 man_00 bird_03
-
-不給 --data 時讀 data/apa_native。--conditions 可只挑其中幾個
-（apa_weak / photoguard_c / mist / dia_r）。
+跑法：
+    python scripts/apa_baseline.py --out runs/<批次> --data data/lo_aligned \
+        --images horse_00 man_00 bird_03
+    python scripts/phase_ablation.py --out runs/<批次> --data data/lo_aligned
+    python scripts/phase_distortion_sweep.py --out runs/<批次>
+    python scripts/phase_retention.py --run runs/<批次> --seeds 3
 
 
-五、程式怎麼分層
+五、site F 是什麼（一段）
 --------------------------------------------------------------------
-scripts/          只有 apa_baseline.py 一支
-legacy/scripts/   舊主線的 33 支（含五段流程的 run_stage.py）
-src/              45 支，其中 23 支在主線的遞移依賴內（MAINLINE.md 第 3 節）
+    x_def = OLA( irfft2( rfft2(w*P_b) * exp(i*g_b*m_w*theta_b) )*w ) / OLA(w^2)
 
-src/ 不搬到 legacy/：legacy/src/ 會與 src/ 撞名，Python 只會載入 sys.path
-上先出現的那一個。改用清單標示。
+把影像切成 32x32 重疊區塊、加 Hann 窗做 FFT，只把**相位**轉一個角度，幅度
+譜逐位保留，再重疊相加回去。theta 是唯一的參數；紋理度閘 g_b（結構張量
+coherence）與徑向頻率閘 m_w 由原圖算一次即固定。theta=0 時輸出逐位元等於
+原圖。文獻依據是 Random Phase Noise（Galerne et al., IEEE TIP 2011）。
 
-兩個重新匯出，不要複製實作：
-    executors.write_csv / load_image_tensor  ->  src/utils/io.py
-    optimize.align_apa_native                ->  src/defense/apa_stage1.py
-分岔了不會報錯，只會讓既有 runs/ 慢慢變得不可比。
+定案參數：block=32、r_min=0.12、紋理閘分位數 0.5。
 
 
 六、已經被否證的方向（不要重試）
 --------------------------------------------------------------------
 「把編輯推遠」做得到，「讓編輯不服從 prompt」做不到。
 
-2026-08-12 之前（FND-023..030）：
-  * 提高失真預算 —— tau=0.50 下注意力抑制 89-94%，編輯成功率 100%，
-    比不防禦（67%）還高
-  * 放大既有方向 —— k 掃到 64 倍，抑制率非單調
-  * 換 reward —— 注意力抑制、分類器 CE、latent、CLIP 四種都測過
-  * 換約束、換更新規則、換階段一 —— 全部測過
-
-2026-08-13（FINDINGS.md 末段的歸檔）：
-  * cross-attention 目標注入（arXiv:2602.14679 Eq.5/6）—— 優化不動
-  * 分階段注入 —— 位移 +12.1% 且逐圖 3/3，但仍不抗編輯
-  * amortized generator（GAN）與對淨化的 min-max —— 訓練等同擲硬幣（51.2%）
-  * 顏色通道 —— 等亮度色度的位移低 31%；RGB 獨立的效果全來自順帶改的亮度
+  * 提高失真預算、放大既有方向、換 reward（注意力抑制/分類器 CE/latent/CLIP）、
+    換約束、換更新規則、換階段一 —— 全部測過（FND-023..030）
+  * cross-attention 目標注入、分階段注入、amortized generator（GAN）、
+    對淨化的 min-max、顏色通道 —— 2026-08-13 全部否決
+  * 位移場（flow）—— 與同失真隨機無法區分（FND-004）
+  * site F 搬進 APA 的 latent（B 臂）—— 無收益（FND-032）
 
 
 七、動手前必須知道的坑
 --------------------------------------------------------------------
 量測與方法
-  * **做加性／非加性的比較時，預算指標必須先講清楚。** 2026-08-13 實測同一
-    個問題在 LPIPS 與 DISTS 兩個預算軸下答案相反（勝率 10.4% 對 93.8%），
-    而只有 DISTS 與人眼一致。與 FND-026 同型。
-  * 未防禦的編輯必須真的成功，否則抗編輯那一欄的分母不成立。換資料集或
-    prompt 後先看 edit_orig 的圖。DEC-022
-  * DISTS 在 512 上會先降採樣到 256，加性與非加性的失真比較會因此翻轉。
-    FND-026
-  * latent 半徑不是保真約束：同一個 eps_a 在不同影像上是不同的可見失真，
-    LPIPS/DISTS/SSIM 的排序都可能與人眼相反。FND-028
-  * retention 的分母塌陷時不可解讀（METRICS.md 第 6 節）。
-  * 任何「與原圖的距離」型 reward 在零初始化處恰為零，拿它當 DEC-021 的
-    正規化常數會讓 reward 爆掉（實測 1.3e7）。clamp_min 只防除以零、
-    不防「很小」。每格第一行 log 要看 reward_raw。
+  * **DISTS 與 LPIPS 都低估相位擾動的可見失真**，PSNR / GMSD / HaarPSI 與人眼
+    一致。同一個 DISTS 下 GMSD 判 site F 差 5.7 倍。**不要拿 DISTS 當 site F 的
+    預算軸。** FND-034
+  * 做加性/非加性比較時，預算指標必須先講清楚。同一個問題在不同預算軸下
+    答案會相反。FND-026 / FND-034
+  * 未防禦的編輯必須真的成功，否則抗編輯那一欄的分母不成立。DEC-022
+  * retention 的分母塌陷時不可解讀（METRICS.md 第 6 節）。phase_rand 的
+    retention 1.4-3.4 是分母只有三分之一造成的假象，不是它比較強。FND-033
+  * latent 半徑不是保真約束。FND-028
   * 階段二的 CFG 必須是 1.0、反演必須走淺噪聲帶（50 格排程只執行前 11 格）。
-    弄錯不會報錯，只會讓失真量級整個不同。
 
 工程
   * **本 repo 用 sparse-checkout（cone mode）。** 新增頂層目錄或新的 runs/
-    子目錄前要先 `git sparse-checkout add <路徑>`，否則 git mv / git add
-    會被拒絕。
-  * **測試跑的期間不要改原始碼。** pytest 逐檔 import，中途改檔會讀到不一致
-    的狀態，症狀是隨機幾個測試失敗而重跑就好——極容易誤判成缺陷。
+    子目錄前要先 `git sparse-checkout add <路徑>`，否則 git add 會被拒絕。
+  * **測試跑的期間不要改原始碼。** 症狀是隨機幾個測試失敗而重跑就好。
   * dia_r 與 mist 必須開 use_ckpt 與 vae_ckpt，否則 OOM。
-  * photoguard_c 需要 200 步/圖，實測約 1.3 分/步（4.4 小時/圖），
-    要跑得排專用時段。
+  * photoguard_c 需要 200 步/圖，實測約 1.3 分/步（4.4 小時/圖）。
   * 同一個批次目錄只允許一個寫入者（.writer.lock）。要平行就用不同目錄。
   * runs/ 是唯一的證據來源，全部入版控。改 .gitignore 的 runs/ 區塊後必須用
     git status --porcelain --ignored 確認沒有結果檔被靜默排除。
@@ -132,24 +116,23 @@ NYCU BASIC lab，兩台各 8 張 RTX 3090，home 目錄跨機同步：
 repo 在 /nfs/home/nelson0314/WACV-s3。卡是多人共用，跑之前先看 nvidia-smi。
 需要校內網路（VPN），連不上時三個 port 都會 timeout。
 
-**注意**：~/env.sh 的 PYTHONPATH 指向 $HOME/WACV（另一個舊 repo），
-與現行的 WACV-s3 不同。腳本要自己明給 PYTHONPATH，不要依賴它。
-Python 用 $HOME/venvs/wacv/bin/python，HF_HOME=$HOME/hf_cache，
-DiffPure 權重在 $HOME/thirdparty/diffpure/256x256_diffusion_uncond.pt。
+**注意**：~/env.sh 的 PYTHONPATH 指向 $HOME/WACV（另一個舊 repo）。
+腳本要自己明給 PYTHONPATH。Python 用 $HOME/venvs/wacv/bin/python，
+HF_HOME=$HOME/hf_cache，DiffPure 權重在
+$HOME/thirdparty/diffpure/256x256_diffusion_uncond.pt。
 
-遠端 ~/pull_backup_20260813/ 有 516 個**先前**未入庫的舊實驗結果（179 MB），
-是 2026-08-13 pull 前搬開的，尚未處理。
+背景執行用 setsid nohup ... < /dev/null &，否則 ssh 斷線會一起帶走。
 
 本機 C:/Users/nelso/miniconda3/envs/wacv/python.exe（不是 base）。
 只用於寫程式、跑 pytest、看報表——RTX 2050 4GB 跑不動 GPU 工作。
 指令前加 PYTHONIOENCODING=utf-8，否則印中文會炸。
 
-測試基準：890 passed / 1 xfailed。
+測試基準：190 passed / 1 xfailed（2026-08-13 方向收斂後）。
 
 
 九、其餘文件在哪
 --------------------------------------------------------------------
-docs/reference/BIBLIOGRAPHY.md       **全部文獻與網址，分十類**
+docs/reference/BIBLIOGRAPHY.md       全部文獻與網址，分十類
 docs/reference/ROBUSTNESS_TESTS.md   三份外部抗淨化檢定協定的精確設定
 docs/reference/SURVEY.md             六篇 baseline 的對照表
 docs/reference/SOURCE_AUDIT.md       原始碼查證與不可用項目
@@ -157,9 +140,15 @@ docs/METRICS.md                      指標定義與其陷阱
 docs/DEFECTS.md                      犯過的錯
 docs/RUNBOOK.md                      操作流程
 
-docs/archive/ 是降級的逐次紀錄，不是判準來源。降級不代表作廢——結論仍然
-成立，只是不再是現行工作的判準來源。
+**docs/archive/ 與 legacy/ 已於 2026-08-13 刪除。** 仍然載重的六條舊 FND
+（004/008/013/018/019/020）已逐字升到 FINDINGS.md 末段。
+取回已刪除的程式與文件：git checkout 6bb656280 -- <path>
 
-已刪除的程式可以取回：
-    git checkout 96657e17b -- <path>     # 2026-08-13 的四個方向
-    git checkout a4f93451f -- <path>     # 更早被否決的 reward 與更新規則
+
+十、下一步
+--------------------------------------------------------------------
+1. 等使用者在失真掃描頁上劃定人眼門檻
+2. 把 fit_to_budget 的 distortion_fn 換成該門檻對應的指標
+3. 對 theta 加空間平滑（粗網格上採樣，由構造保證），壓掉塊狀斑駁
+4. 對 site F 做多種淨化方式與串接的測試（ROBUSTNESS_TESTS.md）
+5. 把 DCT-Shield（ICCV 2025, arXiv:2504.17894）加進 baseline 清單

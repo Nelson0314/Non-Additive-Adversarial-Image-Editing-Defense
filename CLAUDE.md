@@ -19,82 +19,68 @@
 
 | 層級 | 主張 | 讀數 |
 |---|---|---|
-| **主** | 非加性**更**抗淨化：淨化後的效果**衰減率**低於加性 baseline | `retention` |
-| **並列** | 防禦效果本身不輸：未淨化時的位移量不低於加性 baseline | `effect(·, identity)` |
+| **主** | 非加性**更**抗淨化：淨化後的效果**衰減率**低於加性 baseline<br>**site F 已成立**：10 個算子勝加性 9/10，含 C&R 串接（FND-033） | `retention` |
+| **並列** | 防禦效果本身不輸：未淨化時的位移量不低於加性 baseline<br>**未達成**：0.90–0.93×（FND-032） | `effect(·, identity)` |
 | 三 | 保真受控，報全部指標不挑選 | LPIPS／DISTS／PSNR／SSIM／NIQE／銳利度 |
 
 **不再追求語意抵抗。** CLIP-T 對齊掉幅仍照報，但不作為成敗判準——四個軸全部
 否證（FND-024／029／030），且 arXiv:2506.04394（ICIP 2025）獨立測到同一現象。
-**主讀數是位移量。**
 
-`docs/archive/DESIGN.md` §1 的 2026-08-05 版階層（次要判準為「≥ 0.85 × 最佳 baseline」）
-已被上表取代。對照組 R 的定義同時修正為**同失真的加性隨機**。
+**兩個讀數都要報**：`retention`（主）與 `effect(·, identity)`（並列）。對照組 R
+的定義是**同失真的加性隨機**；site F 另有 `phase_rand`（同失真隨機相位）。
+`retention` 的分母塌陷時不可解讀——`phase_rand` 的 1.4–3.4 是分母只有三分之一
+造成的假象，不是它比較強（FND-033）。
 
 **判準以人眼為主、數值指標為輔。** `compare.html` 是主要產出物，每一格都必須
 有影像可看；指標與人眼矛盾時以人眼為準並記錄。
 
-## 注入位置
+## 正式方向：site F（紋理重相位）
 
-**現行只有一個：APA 的 latent 擾動（site apa）。** 弱 baseline 在階段一把
-LoRA 掛上 UNet、階段二在 latent 上做 dual-path guidance，其餘位置都不使用。
+2026-08-13 使用者裁定。**專案範圍收斂到三個條件，沒有第四個**：
 
-早期探索過六個位置（A 類經 VAE 來回：latent ε／文字嵌入／權重 LoRA；
-B 類走像素路徑：加性低秩／加性全秩／空間變形），結論留在
-`docs/archive/LEGACY_findings.md`。其中兩件事仍然有效：
+| 條件 | 是什麼 |
+|---|---|
+| **弱 baseline** | 完全原生 APA，只把 reward 換成 targeted output（DEC-023） |
+| **強 baseline** | `photoguard_c`／`mist`／`dia_r` 三個已發表的加性方法 |
+| **site F** | **紋理重相位**，`src/residual/site_phase.py` |
 
-1. **生成路徑有逐影像的重建下限**（FND-001），BDIA 精確反演讓它幾乎不再
-   額外收費（FND-002）。那個下限是**我們選的 G** 造成的，不是威脅模型強加
-   的——攻擊方用 stock SD，防禦方換掉自己 G 裡的 decode 完全合法。
-2. **空間變形（`src/residual/site_warp.py`）仍在原地**，做抗淨化或換非加性
-   參數化時可直接取用。
+`add`（加性 δ 走同一個 encoder-targeted 損失）與 `phase_rand`（同失真隨機相位，
+即 RPN）是 site F 消融的內部對照，不是獨立條件。
 
-`src/defense/generator.py` 依模塊提供的能力分派，**不比對 site 名稱**。
-新增位置時提供 `pixel_residual` 或 `eps_hook` 即可，不要在此加
-`if site == ...`。該檔目前不在主線依賴內。
+site F 的構造與定案參數見 `docs/MAINLINE.md` §4 與
+`docs/superpowers/specs/2026-08-13-texture-rephasing-design.md`。一句話：把影像
+切成重疊區塊做加窗 FFT，**只轉相位、幅度譜逐位保留**，再重疊相加回去；`θ=0`
+時輸出逐位元等於原圖。文獻依據是 Random Phase Noise（Galerne et al., TIP 2011）。
 
-## 主線與弱 baseline（2026-08-12 起）
+**舊主線已刪除。** 2026-08-13 移除 `legacy/`（33 支腳本）、`docs/archive/`、
+`src/experiment/`、`src/data/`、`src/defense/` 的四支舊模組、`src/metrics/` 的五支、
+`src/residual/site_warp.py`／`site_embedding.py`、`src/models/attention.py`、
+`src/utils/` 的三支，以及 21 支對應測試。`runs/` **全部保留**——它是唯一的證據
+來源，實驗無法重跑。取回：`git checkout 6bb656280 -- <path>`。
 
-**先讀 `docs/MAINLINE.md`。** 現行內部弱 baseline 是「完全原生 APA，只把
-reward 換成 targeted output」（DEC-023）——四個位置（階段一 LoRA、dual-path
-階段二、latent L∞ 球、sign 更新）維持原生，只換 reward。它的語意抵抗接近零，
-是**位置基準不是有效防禦**。使用者正在尋找其他方法。
-
-舊主線（注意力抑制損失、相對 DISTS 預算、投影約束、淨化與 inpainting 批次）
-已降級到 `docs/archive/LEGACY_*.md`：仍然成立，但不再是現行判準來源。
+已測過並否決的方向（注意力抑制／分類器 CE／latent／CLIP 四種 reward、DISTS 進
+loss 的軟約束、Adam 更新規則、位移場、cross-attention 注入、分階段注入、
+amortized generator、顏色通道、site F 搬進 latent）結論留在 FND-004、
+FND-023…034，不要重試。
 
 ## 程式位置
 
-**完整清單見 `docs/MAINLINE.md` §3**（用 AST 實測的 23 支遞移依賴，不是估計）。
-此處只列最常用的六個：
+**完整清單見 `docs/MAINLINE.md` §3。** 六支腳本、35 支 src。最常用的：
 
 | 用途 | 路徑 |
 |---|---|
-| **主驅動** | **`scripts/apa_baseline.py`**（`scripts/` 只有這一支） |
-| 階段一 | `src/defense/apa_stage1.py::align_apa_native` |
-| 階段二 | `src/defense/apa_native_stage2.py` |
-| LoRA 掛載 | `src/residual/site_weight.py`，常數在 `site_apa.py` |
+| **site F 算子** | **`src/residual/site_phase.py`** |
+| 參數化 PGD ＋ 預算對齊 | `src/defense/param_pgd.py` |
+| A 臂消融驅動 | `scripts/phase_ablation.py` |
+| 失真掃描（定門檻） | `scripts/phase_distortion_sweep.py` |
+| 抗淨化 retention | `scripts/phase_retention.py` |
+| 弱／強 baseline 驅動 | `scripts/apa_baseline.py` |
+| 階段一／階段二 | `src/defense/apa_stage1.py`、`apa_native_stage2.py` |
 | 指標 | `src/metrics/suite.py`、`aesthetic.py` |
-| cross-attention 擷取 | `src/models/attention.py`（分佈與輸出各一個 recorder） |
+| 淨化算子 | `src/purify/ops.py`（含 C&R 串接 `jpeg_then_resize`） |
 
-**三層結構**：
-
-- **主線**：上表 ＋ `src/baselines/`（加性對照）、`src/models/sd.py`、
-  `src/utils/`。共 23 支
-- **原地保留、不在主線依賴內**：`src/experiment/`、`src/purify/`、
-  `src/defense/objective.py`／`generator.py`／`optimize.py`／`recon.py`、
-  `src/residual/site_warp.py`／`site_embedding.py`、`src/data/`。
-  **不搬到 `legacy/`**：`legacy/src/` 會與 `src/` 撞名，Python 只會載入
-  `sys.path` 上先出現的那一個
-- **`legacy/scripts/`**：舊主線的 33 支腳本（含五段流程的 `run_stage.py`）。
-  平坦目錄無套件語意，故可以搬
-
-**兩個重新匯出，不要複製實作**：`executors.write_csv`／`load_image_tensor`
-指向 `src/utils/io.py`；`optimize.align_apa_native` 指向
-`src/defense/apa_stage1.py`。兩份實作會慢慢分岔而沒有症狀。
-
-已測過並否決的變體（注意力抑制／分類器 CE／latent／CLIP 四種 reward、
-DISTS 進 loss 的軟約束、Adam 更新規則）已移除，結論在 FND-027…030。
-取回：`git checkout a4f93451f -- <path>`。
+`src/residual/base.py` 以「能力」而非型別對外表達：像素側實作 `pixel_residual`,
+去噪側實作 `eps_hook`。新增位置時提供其一即可，**不要依 site 名稱寫分支**。
 
 ## 文件
 
@@ -106,14 +92,16 @@ DISTS 進 loss 的軟約束、Adam 更新規則）已移除，結論在 FND-027�
 | `docs/FINDINGS.md`／`DECISIONS.md` | 測得的事實與裁決，**判準一律以這兩份為準** |
 
 外部論文的查證紀錄在 `docs/reference/`：`BIBLIOGRAPHY.md` 是全部文獻與網址的
-分類索引，`ROBUSTNESS_TESTS.md` 是三份抗淨化檢定協定的精確設定。`docs/archive/` 是降級的逐次紀錄，不是判準來源。
+分類索引，`ROBUSTNESS_TESTS.md` 是三份抗淨化檢定協定的精確設定。
+**`docs/archive/` 已於 2026-08-13 刪除**，仍然載重的六條舊 FND
+（004／008／013／018／019／020）已逐字升到 `FINDINGS.md` 末段。
 編碼（`FND-`／`DEC-`／`MET-`／`DEF-`）每一筆自足、可單獨讀完，只用來互相
 指認，**不代表先後或依賴**。
 
 ## 環境
 
 - 本機 Python：`C:/Users/nelso/miniconda3/envs/wacv/python.exe`（**不是 base**，base 沒有 pytest）。
-- 測試：`python -m pytest -q`，基準為 **900 passed / 1 xfailed**（2026-08-13）。
+- 測試：`python -m pytest -q`，基準為 **190 passed / 1 xfailed**（2026-08-13 方向收斂後）。
   xfailed 是刻意釘住的 DIA-PT L1 起點缺陷（原始碼自身的問題，`strict=True`）。
 - **GPU 工作一律在 NYCU BASIC lab 跑**（兩台各 8 張 RTX 3090，home 目錄跨機同步）：
 

@@ -104,11 +104,3 @@ def test_跑滿指定步數且不保留最佳步():
                             steps=5, lr=1e-4, noise_offset=0.0, log_every=99)
     assert [h["step"] for h in hist] == [0, 1, 2, 3, 4]
     assert all("loss" in h for h in hist)
-
-
-def test_舊名字仍指向同一個實作():
-    """舊主線的批次仍用 `optimize.align_apa_native`。抽出後若變成兩份實作，
-    兩邊會慢慢分岔而沒有症狀。"""
-    from src.defense import apa_stage1, optimize
-
-    assert optimize.align_apa_native is apa_stage1.align_apa_native

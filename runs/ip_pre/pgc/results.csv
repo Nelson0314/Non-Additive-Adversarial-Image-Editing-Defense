@@ -1,0 +1,2 @@
+image,condition,radius,total_seconds,fid_lpips,fid_ssim,fid_dists,fid_psnr,fid_linf,fid_clip_img,fid_nima,fid_cnniqa,gen_lpips,gen_lpips_full,clip_orig,clip_def,clip_drop,mask_coverage
+dog_03,photoguard_c,,6641.6,0.1654,0.9924,0.012,40.8949,0.1666,0.9975,5.23,0.6725,0.1664,0.3462,0.2021,0.1989,0.0032,0.3609

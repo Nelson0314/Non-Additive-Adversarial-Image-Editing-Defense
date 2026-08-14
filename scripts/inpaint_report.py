@@ -109,12 +109,21 @@ def main() -> None:
     conds = [c for c in CONDS if any((i, c) in res for i in images)]
 
     def col(c, key):
-        v = [float(res[(i, c)][key]) for i in images if (i, c) in res]
+        v = [float(res[(i, c)][key]) for i in images
+             if (i, c) in res and res[(i, c)].get(key)]
         return st.fmean(v) if v else float("nan")
 
     S = {c: {k: col(c, k) for k in
              ("gen_lpips", "gen_lpips_full", "fid_dists", "fid_lpips",
-              "fid_psnr", "attack_strength")} for c in conds}
+              "fid_psnr")} for c in conds}
+    # `attack_strength` 是逐影像的量（未防禦的重畫對原圖，與條件無關），
+    # 且 2026-08-14 才加入——早幾分鐘跑完的 baseline 列沒有這一欄。
+    # 從同一張圖任一有值的列取即可，不必逐條件平均。
+    atk = {}
+    for (i, _), r in res.items():
+        if r.get("attack_strength") and i not in atk:
+            atk[i] = float(r["attack_strength"])
+    ATTACK = st.fmean(atk.values()) if atk else float("nan")
 
     # ---------- 抗淨化 ----------
     rows = []
@@ -124,17 +133,20 @@ def main() -> None:
     ok = {(x["image"], x["condition"]): x["usable"] == "True" for x in rows}
     rconds = [c for c in conds if any(k[1] == c for k in ok)]
     common = [i for i in images if all(ok.get((i, c), False) for c in rconds)]
+    # **池化估計。** 逐影像的 3σ 分母閘在 inpainting 的效果量級上幾乎全部
+    # 不通過（效果 0.01–0.21，與跨 seed 變異同量級），沒有任何一張影像的
+    # 全部條件同時可用。故此處先跨影像與 seed 把效果加總，再取比值——分母
+    # 的變異數因此小得多。逐影像的閘結果照報，不藏。
     eff = defaultdict(lambda: defaultdict(list))
-    ret = defaultdict(lambda: defaultdict(list))
     per = {}
     for x in rows:
         per[(x["image"], x["condition"], x["purifier"])] = x
-        if x["image"] in common:
-            eff[x["purifier"]][x["condition"]].append(float(x["effect_mean"]))
-            if x["retention"]:
-                ret[x["purifier"]][x["condition"]].append(float(x["retention"]))
+        eff[x["purifier"]][x["condition"]].append(float(x["effect_mean"]))
     E = {k: {c: st.fmean(v) for c, v in d.items()} for k, d in eff.items()}
-    R = {k: {c: st.fmean(v) for c, v in d.items()} for k, d in ret.items()}
+    base = E.get("identity", {})
+    R = {k: {c: v / base[c] for c, v in d.items() if base.get(c)}
+         for k, d in E.items()}
+    nusable = sum(1 for v in ok.values() if v)
 
     PEAR = float("nan")
     corr = ""
@@ -170,7 +182,7 @@ def main() -> None:
         step("2", "9 通道 UNet<br>[z, m, E(x⊙(1−m))]"),
         step("3", "每一步把遮罩外<br>貼回原圖"),
         tile(find(args.runs, f"{ref}__phase__gen_orig.png"), "重畫結果",
-             "未防禦", "攻擊強度 %.3f" % S.get("phase", {}).get("attack_strength", 0),
+             "未防禦", "攻擊強度 %.3f（%d 張平均）" % (ATTACK, len(atk)),
              cls="fx", size=300),
     ])
 
@@ -279,6 +291,7 @@ def main() -> None:
         head=head, eff=ptab(E) or "", ret=ptab(R) or "",
         corr=corr, pear=PEAR, nimg=len(images), ncond=len(conds),
         ncommon=len(common), common="、".join(common) or "—",
+        nusable=nusable, ncell=len(ok),
         purimg=args.pur_image)
     args.out.write_text(html, encoding="utf-8")
     print("bytes", len(html.encode()), "->", args.out)
@@ -399,7 +412,9 @@ TEMPLATE = """<title>遮罩重繪防禦圖譜</title>
 <h2>分母與衰減率 · Pearson r = %(pear)+.2f</h2>
 <div class="tw"><table><thead><tr><th>條件</th><th>分母 effect(identity)</th>
 <th>平均 retention</th></tr></thead><tbody>%(corr)s</tbody></table></div>
-<div class="key"><span>抗淨化兩表取全部條件通過 3σ 分母閘的 %(ncommon)d 張交集：%(common)s</span></div>
+<div class="key"><span>抗淨化兩表為<b>池化估計</b>：跨 5 張影像與 3 個 seed 加總效果後再取比值。
+逐影像的 3σ 分母閘 %(nusable)d/%(ncell)d 格通過，八條件同時可用的影像 %(ncommon)d 張——
+逐影像的比值因此不可解讀，此處不使用。</span></div>
 </div>"""
 
 

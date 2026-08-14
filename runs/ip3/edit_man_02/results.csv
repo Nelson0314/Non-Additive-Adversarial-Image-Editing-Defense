@@ -1,0 +1,8 @@
+image,condition,region,prompt,gen_lpips,gen_lpips_sd,attack_strength,mask_coverage,fid_lpips,fid_dists,fid_psnr,fid_ssim,fid_nima,seconds
+man_02,phase,torso,a man wearing a red leather jacket,0.2078,0.0257,0.3334,0.4675,0.2062,0.0445,23.1534,0.9289,5.2129,28.2
+man_02,add,torso,a man wearing a red leather jacket,0.1361,0.0416,0.3334,0.4675,0.0666,0.0035,49.2886,0.9985,5.0797,26.2
+man_02,phase_rand,torso,a man wearing a red leather jacket,0.1592,0.0663,0.3334,0.4675,0.0987,0.0658,24.0199,0.9345,5.0696,26.2
+man_02,apa_weak,torso,a man wearing a red leather jacket,0.1999,0.0465,0.3334,0.4675,0.2429,0.1452,14.8018,0.601,4.5891,26.2
+man_02,mist,torso,a man wearing a red leather jacket,0.247,0.0222,0.3334,0.4675,0.4422,0.1058,26.2106,0.8511,5.2209,26.2
+man_02,dia_r,torso,a man wearing a red leather jacket,0.1184,0.0313,0.3334,0.4675,0.1243,0.0216,39.3893,0.989,5.061,26.2
+man_02,photoguard_c,torso,a man wearing a red leather jacket,0.1544,0.0412,0.3334,0.4675,0.225,0.0198,40.8276,0.9875,5.0991,26.2

@@ -749,14 +749,23 @@ class SDWrapper:
         插值會在邊界產生 0 與 1 之間的值，那些格子既不算保留也不算重畫，
         而該誤差只表現為邊界一圈的品質異常，看不出來源。
 
-        **遮罩後影像取 `x01 * (1 − mask)` 再編碼**，不是先編碼再遮罩：VAE 是
+        **遮罩後影像取「遮罩區歸零」再編碼**，不是先編碼再遮罩：VAE 是
         非線性的，兩者不等價，而 diffusers 的 pipeline 做的是前者。
+
+        **歸零必須在模型的值域 `[-1, 1]` 上做，不是在 `[0, 1]` 上。**
+        diffusers 的 `prepare_mask_latents` 對已經換算成 `[-1, 1]` 的影像乘
+        `(mask < 0.5)`，故遮罩區成為 `[-1, 1]` 的 0，即**中灰**。在 `[0, 1]`
+        上乘 `(1 − mask)` 會得到 0，經 `encode_image` 的 `x*2−1` 變成 **−1，
+        也就是黑**——模型被告知「這個洞是黑的」，就照著把它畫黑。
+        2026-08-14 實測：遮罩區亮度 0.0992，官方 pipeline 為 0.7361。
+        故此處填 0.5（`[0, 1]` 的中灰），換算後恰為 0。
         """
         f = 2 ** (len(self.vae.config.block_out_channels) - 1)
         h, w = x01.shape[-2] // f, x01.shape[-1] // f
         m = torch.nn.functional.interpolate(
             mask.to(x01.device, x01.dtype), size=(h, w), mode="nearest")
-        z_masked = self.encode_image(x01 * (1.0 - mask.to(x01)),
+        mk = mask.to(x01)
+        z_masked = self.encode_image(x01 * (1.0 - mk) + 0.5 * mk,
                                      use_ckpt=vae_ckpt)
         return m, z_masked
 

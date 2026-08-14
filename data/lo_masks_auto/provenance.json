@@ -4,6 +4,7 @@
   "rho": 1.2,
   "score_min": 0.5,
   "head_up": 1.1,
-  "animal_head_frac": 0.45,
+  "animal_head_band": 0.22,
+  "animal_head_min": 0.16,
   "note": "head/torso 是方框而非輪廓：要在主體上加東西，重畫區必須涵蓋主體之外的空間"
 }

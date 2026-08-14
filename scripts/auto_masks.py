@@ -17,7 +17,8 @@ horse／bird）取該類別的實例。**不引入新相依。**
 重畫區必須涵蓋主體之外的空間，貼著輪廓切就沒地方長出來。
 
 person 的頭與軀幹由 Keypoint R-CNN 的 COCO 17 點決定（眼耳鼻定頭、肩髖定
-軀幹）；動物沒有對應的關鍵點模型，頭部改取實例外接框的上緣一段。
+軀幹）；動物沒有對應的關鍵點模型，頭部取**遮罩最上緣那一帶的水平重心**——
+用外接框的上緣一段會失敗，馬的外接框橫跨整張圖而那一帶大半是天空與鬃毛。
 
 用法：
     python scripts/auto_masks.py --data data/lo_aligned --out data/lo_masks_auto
@@ -50,8 +51,10 @@ RESOLUTION = 512
 KP = KeypointRCNN_ResNet50_FPN_Weights.DEFAULT.meta["keypoint_names"]
 # 頭框向上延伸的倍率（以頭框高為單位）。戴帽子需要頭頂之上的空間。
 HEAD_UP = 1.1
-# 動物的頭部取實例外接框上緣這個比例。
-ANIMAL_HEAD_FRAC = 0.45
+# 動物頭部：取遮罩最上緣這個比例的帶狀區域來定位水平重心。
+ANIMAL_HEAD_BAND = 0.22
+# 頭框半寬的下限，以外接框寬為單位。避免帶狀區域太窄時框到一個小點。
+ANIMAL_HEAD_MIN = 0.16
 
 
 def dilate(mask: torch.Tensor, px: int) -> torch.Tensor:
@@ -155,9 +158,17 @@ def main() -> None:
                 torso = box_mask(subject, sy - 0.12 * wd, hy + 0.10 * wd,
                                  min(sx) - 0.35 * wd, max(sx) + 0.35 * wd)
         if head is None:
-            h = y1 - y0
-            head = box_mask(subject, y0 - HEAD_UP * ANIMAL_HEAD_FRAC * h,
-                            y0 + ANIMAL_HEAD_FRAC * h, x0, x1)
+            # 動物沒有關鍵點模型。取**遮罩最上緣那一帶的水平重心**定位頭部，
+            # 不用外接框的上緣一段——外接框可能橫跨整張圖（horse_03 的馬身
+            # 在右側延伸），那一帶大半是天空與鬃毛，帽子不會落在頭上。
+            band = subject.clone()
+            band[..., y0 + int(ANIMAL_HEAD_BAND * (y1 - y0)):, :] = 0.0
+            cols = torch.nonzero(band[0, 0].sum(0) > 0).flatten()
+            cx = float(cols.float().mean())
+            half = max(0.5 * float(cols[-1] - cols[0]),
+                       ANIMAL_HEAD_MIN * (x1 - x0)) / 1.0
+            head = box_mask(subject, y0 - HEAD_UP * half, y0 + 2.2 * half,
+                            cx - half, cx + half)
 
         out_masks = {"subject": subject, "background": 1.0 - guarded, "head": head}
         if torso is not None:
@@ -189,7 +200,8 @@ def main() -> None:
         "seg": "torchvision maskrcnn_resnet50_fpn_v2, COCO",
         "keypoints": "torchvision keypointrcnn_resnet50_fpn, COCO 17 點（person）",
         "rho": args.rho, "score_min": args.score_min,
-        "head_up": HEAD_UP, "animal_head_frac": ANIMAL_HEAD_FRAC,
+        "head_up": HEAD_UP, "animal_head_band": ANIMAL_HEAD_BAND,
+        "animal_head_min": ANIMAL_HEAD_MIN,
         "note": "head/torso 是方框而非輪廓：要在主體上加東西，重畫區必須涵蓋"
                 "主體之外的空間",
     }, ensure_ascii=False, indent=2), encoding="utf-8")

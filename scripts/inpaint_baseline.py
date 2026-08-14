@@ -139,12 +139,16 @@ def evaluate(sd, suite, aes, item, x01, mask, x_def):
                            guidance_scale=INPAINT_GUIDANCE, emb_uncond=emb_u)
     co = masked_compare(y_orig, x01, mask)
     cd = masked_compare(y_def, x01, mask)
+    # 分母診斷（DEC-022 在 inpainting 下的對應物）：未防禦的重畫若與原圖
+    # 幾乎相同，攻擊本身就沒發生，`gen_lpips` 那一欄的分母不成立。
+    attack_strength = float(suite.pairwise(masked_compare(x01, x01, mask), co)["lpips"])
     so, sd_ = suite.semantic(y_orig, item["prompt"]), suite.semantic(y_def, item["prompt"])
     row = {**{f"fid_{k}": round(float(v), 4) for k, v in fid.items()},
            "gen_lpips": round(float(suite.pairwise(co, cd)["lpips"]), 4),
            "gen_lpips_full": round(float(suite.pairwise(y_orig, y_def)["lpips"]), 4),
            "clip_orig": round(so["clip"], 4), "clip_def": round(sd_["clip"], 4),
            "clip_drop": round(so["clip"] - sd_["clip"], 4),
+           "attack_strength": round(attack_strength, 4),
            "mask_coverage": round(float(mask.mean()), 4)}
     return row, y_orig, y_def
 
@@ -167,7 +171,6 @@ def main() -> None:
     suite = MetricSuite(device=sd.device)
     aes = AestheticSuite(device=sd.device)
     y_target = load_image_tensor(args.target, sd.device, size=RESOLUTION)
-    loss_fn = make_encoder_target_loss(sd, y_target)
 
     dataset = load_dataset(args.data, args.masks)
     if args.images:
@@ -182,6 +185,11 @@ def main() -> None:
         save_image(mask.expand(-1, 3, -1, -1), args.out / f"{item['name']}__mask.png")
         print(f"\n########## {item['name']} ({item['class']}) "
               f"重畫區 {float(mask.mean()):.3f} ##########", flush=True)
+
+        # 損失必須看模型實際收到的東西：inpainting 的後 4 個通道是
+        # `encode(x ⊙ (1 − mask))`，對整張圖取損失會把梯度打在會被歸零的
+        # 像素上（2026-08-14 預檢實測到的後果見 `encoder_target` 檔頭）。
+        loss_fn = make_encoder_target_loss(sd, y_target, mask=mask)
 
         for cond in args.conditions:
             print(f"=== {item['name']} / {cond} ===", flush=True)

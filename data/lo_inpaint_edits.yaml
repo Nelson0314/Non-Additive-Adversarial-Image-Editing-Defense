@@ -14,7 +14,9 @@
 # 問題）。換衣服的區域小得多，且是實際會發生的惡意編輯。
 #
 # prompt 必須讓未防禦的編輯**明顯成功**，否則抗編輯那一欄的分母不成立。
-# 每一條都在開跑前以人眼複驗過（見 runs/ip3/preflight）。
+# 每一條都在開跑前以人眼複驗過（見 runs/ip3/preflight 與 runs/ip3/psweep）。
+# 五張全部確認未防禦的重畫明顯成功：貓戴上紅色派對帽、狗戴上墨鏡、
+# 馬戴上藍色防蠅罩、男性換成紅色皮衣、女性換成深色外套配黃色內搭。
 
 cat_01:
   region: head
@@ -24,9 +26,13 @@ dog_03:
   region: head
   prompt: "a dog wearing sunglasses"
 
+# 草帽／牛仔帽／派對帽／皇冠／sombrero 五種都試過，模型一概照原樣重畫
+# （強度 0.045-0.051，圖上看不出任何物件）。防蠅頭罩是真實的馬具，訓練資料
+# 裡常見，一次就成功。**強度數字不能用來判斷成敗**：放寬遮罩配 santa hat 的
+# 強度 0.0954 卻什麼都沒加，這一條 0.0569 卻明顯戴上。
 horse_03:
   region: head
-  prompt: "a horse wearing a straw hat"
+  prompt: "a horse wearing a blue fly mask"
 
 man_02:
   region: torso

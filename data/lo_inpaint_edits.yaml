@@ -1,0 +1,37 @@
+# inpainting 威脅模型的編輯規格（2026-08-15 使用者裁定）。
+#
+# 場景只有一種：**在主體上加東西**。遮罩是主體的一個局部方框，prompt 描述
+# 加上配件之後的整體。這與「換掉整個主體」不同——後者那一組已完全移除，
+# 理由是它逼模型從零重畫一個物件，難度高且與實際的惡意編輯情境不符。
+#
+# region 對應 `auto_masks.py` 產出的遮罩檔：
+#
+#   head    頭部方框，向上延伸留出戴帽子的空間。動物與人皆有
+#   torso   軀幹方框（僅 person），用於換衣服
+#
+# **人物用 torso 而非 head**：這批的人物在畫面中佔比大，臉部方框會涵蓋畫面
+# 的一半，重畫區太大則「攻擊有沒有成功」不再能歸因到防禦（DEC-022 的同型
+# 問題）。換衣服的區域小得多，且是實際會發生的惡意編輯。
+#
+# prompt 必須讓未防禦的編輯**明顯成功**，否則抗編輯那一欄的分母不成立。
+# 每一條都在開跑前以人眼複驗過（見 runs/ip3/preflight）。
+
+cat_01:
+  region: head
+  prompt: "a cat wearing a red party hat"
+
+dog_03:
+  region: head
+  prompt: "a dog wearing sunglasses"
+
+horse_03:
+  region: head
+  prompt: "a horse wearing a straw hat"
+
+man_02:
+  region: torso
+  prompt: "a man wearing a red leather jacket"
+
+woman_02:
+  region: torso
+  prompt: "a woman wearing a yellow raincoat"

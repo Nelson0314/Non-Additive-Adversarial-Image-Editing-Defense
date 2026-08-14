@@ -1,16 +1,16 @@
-"""用既有的全圖防禦圖跑 inpainting 編輯。兩種場景，遮罩自動產生。
+"""用既有的全圖防禦圖跑 inpainting 編輯。遮罩自動產生，場景只有一種。
 
-修正 2026-08-14 第一版 inpainting 批次的協定錯誤（見 FND-038 的更正）：
-那一版把遮罩畫在**背景**、prompt 卻用**描述主體**的 `prompts[0]`，等於叫模型
-在背景畫一隻狗、而狗本人在遮罩外原封不動——攻擊本來就不可能成立。
+**在主體上加東西**：遮罩是主體的一個局部方框（頭部或軀幹），prompt 描述
+加上配件之後的整體（`a cat wearing a red party hat`）。使用者 2026-08-15
+裁定移除「換掉整個主體」那一組——它逼模型從零重畫一個物件，難度高且與實際
+的惡意編輯情境不符。
 
-文獻的兩種場景（AdvPaint ICLR 2025 同時測兩者）：
+人物用 `torso` 而非 `head`：這批的人物在畫面中佔比大，臉部方框會涵蓋畫面
+一半，重畫區太大則「攻擊有沒有成功」不再能歸因到防禦。
 
-    subject      遮罩＝主體，prompt＝`prompts[0]`（換掉主體：a dog → a cat）
-    background   遮罩＝主體以外，prompt＝`prompts[1]`（保住主體、重畫其餘：
-                 a dog in the park）
-
-`prompts.yaml` 的檔頭本來就是這樣分工的，第一版用錯了那一欄。
+逐影像的 region 與 prompt 由 `data/lo_inpaint_edits.yaml` 給定，**只有這一
+個地方決定它們**——2026-08-14 的協定錯誤（FND-038）正是遮罩與 prompt 各自
+從不同來源取值造成的。
 
 **防禦加在整張圖上，遮罩在編輯時才套用。** 故不需要為 inpainting 重跑攻擊，
 直接讀 img2img 批次（`runs/hb5`）存下的 `*__def.png`。
@@ -19,8 +19,7 @@
 差一個防禦擾動，整張圖算 LPIPS 會把失真算成效果。
 
 用法：
-    python scripts/inpaint_edit.py --out runs/ip2/background --scenario background \
-        --defended runs/hb5 runs/hb5_pgc --masks data/lo_masks_auto
+    python scripts/inpaint_edit.py --out runs/ip3 --defended runs/hb5 runs/hb5_pgc         --masks data/lo_masks_auto --seeds 3
 """
 
 from __future__ import annotations
@@ -53,24 +52,30 @@ INPAINT_SEED = 20260814
 TAG = {"phase": "phase__human", "add": "add__human",
        "phase_rand": "phase_rand__human", "apa_weak": "apa_weak",
        "mist": "mist", "dia_r": "dia_r", "photoguard_c": "photoguard_c"}
-# prompts.yaml 的哪一欄。0＝換掉主體，1＝保住主體改其餘。
-SCENARIO_PROMPT = {"subject": 0, "background": 1}
+EDITS = Path("data/lo_inpaint_edits.yaml")
 
 
-def load_items(data: Path, masks: Path, scenario: str, images=None) -> list:
-    spec = yaml.safe_load((data / "prompts.yaml").read_text(encoding="utf-8"))
-    idx = SCENARIO_PROMPT[scenario]
+def load_items(data: Path, masks: Path, edits: Path, images=None) -> list:
+    """逐影像的 region 與 prompt 由 `lo_inpaint_edits.yaml` 給定。
+
+    不再由 `prompts.yaml` 推 prompt——那份是 img2img 的規格，兩邊各自決定
+    prompt 正是 2026-08-14 那次協定錯誤的來源（FND-038）。
+    """
+    spec = yaml.safe_load(edits.read_text(encoding="utf-8"))
+    paths = {p.stem: p for c in data.iterdir() if c.is_dir()
+             for p in c.glob("*.png")}
     out = []
-    for c in sorted(spec):
-        for img in sorted((data / c).glob("*.png")):
-            if images and img.stem not in images:
-                continue
-            m = masks / f"{img.stem}__{scenario}.png"
-            if not m.exists():
-                raise FileNotFoundError(f"{img.stem} 缺 {scenario} 遮罩：{m}")
-            out.append({"name": img.stem, "content": spec[c]["content"],
-                        "path": img, "mask": m,
-                        "prompt": spec[c]["prompts"][idx]})
+    for name in sorted(spec):
+        if images and name not in images:
+            continue
+        if name not in paths:
+            raise FileNotFoundError(f"{name} 不在 {data}")
+        region = spec[name]["region"]
+        m = masks / f"{name}__{region}.png"
+        if not m.exists():
+            raise FileNotFoundError(f"{name} 缺 {region} 遮罩：{m}")
+        out.append({"name": name, "path": paths[name], "mask": m,
+                    "region": region, "prompt": spec[name]["prompt"]})
     return out
 
 
@@ -99,7 +104,9 @@ def main() -> None:
     ap = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--out", type=Path, required=True)
-    ap.add_argument("--scenario", choices=list(SCENARIO_PROMPT), required=True)
+    ap.add_argument("--edits", type=Path, default=EDITS)
+    ap.add_argument("--orig-only", action="store_true",
+                    help="只跑未防禦的重畫，供開跑前以人眼複驗攻擊是否成功")
     ap.add_argument("--defended", nargs="+", required=True)
     ap.add_argument("--data", type=Path, default=Path("data/lo_aligned"))
     ap.add_argument("--masks", type=Path, default=Path("data/lo_masks_auto"))
@@ -112,7 +119,7 @@ def main() -> None:
     sd = SDInpaintWrapper(MODEL_NAME, dtype=torch.float32)
     suite = MetricSuite(device=sd.device)
     aes = AestheticSuite(device=sd.device)
-    items = load_items(args.data, args.masks, args.scenario, args.images)
+    items = load_items(args.data, args.masks, args.edits, args.images)
     seeds = [INPAINT_SEED + k for k in range(args.seeds)]
 
     def repaint(x01, item, mask, seed):
@@ -141,6 +148,8 @@ def main() -> None:
         atk = float(suite.pairwise(
             masked_compare(x01, x01, mask), base[seeds[0]])["lpips"])
 
+        if args.orig_only:
+            continue
         for cond in args.conditions:
             p = find_def(args.defended, item["name"], cond)
             if p is None:
@@ -158,7 +167,7 @@ def main() -> None:
             m = suite.pairwise(x01, x_def)
             a = aes.measure(x_def)
             row = {"image": item["name"], "condition": cond,
-                   "scenario": args.scenario, "prompt": item["prompt"],
+                   "region": item["region"], "prompt": item["prompt"],
                    "gen_lpips": round(sum(vals) / len(vals), 4),
                    "gen_lpips_sd": round(
                        (sum((v - sum(vals) / len(vals)) ** 2 for v in vals)

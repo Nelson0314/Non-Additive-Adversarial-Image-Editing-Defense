@@ -1,0 +1,7 @@
+{
+  "method": "torchvision maskrcnn_resnet50_fpn_v2, COCO weights",
+  "weights": "MaskRCNN_ResNet50_FPN_V2_Weights.COCO_V1",
+  "rho": 1.2,
+  "score_min": 0.5,
+  "note": "AdvPaint 用 Grounded SAM（Grounding DINO 偵測 + SAM 分割，ρ=1.2）；此處類別由 prompts.yaml 的 content 給定，故偵測改為直接取該類別分數最高的實例，分割仍由實例分割模型產出"
+}

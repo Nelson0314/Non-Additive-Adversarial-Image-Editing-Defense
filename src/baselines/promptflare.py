@@ -250,10 +250,14 @@ class PromptFlareContext:
     """安裝／還原 processor 的責任在這裡。`run_pgd` 結束時呼叫 `close()`。"""
 
     def __init__(self, sd, spec, emb2, encoder_attention_mask, t0,
-                 controller, loss_depth, generator, mask=None):
+                 controller, loss_depth, generator, mask=None, x01=None):
         self.spec = spec
         # 給定時回到原作：latents 為隨機噪聲，x_adv 只經後 4 個通道進入。
         self.mask = mask
+        # 只給 `observed_token_counts` 用：9 通道權重下那次空白前向也要有
+        # 後 5 個通道，而它們必須是攻擊方真正的條件（`SDWrapper._latent_in`
+        # 拒絕代為預設，理由見該處）。
+        self.x01 = x01
         self.emb2 = emb2
         self.encoder_attention_mask = encoder_attention_mask
         self.t0 = t0
@@ -288,7 +292,9 @@ def observed_token_counts(sd, ctx: "PromptFlareContext", h: int, w: int) -> List
         sd.latent_shape(h, w), device=ctx.emb2.device, dtype=sd.unet.dtype
     )
     ctx.controller.reset()
-    with torch.no_grad():
+    # 9 通道權重下這次前向同樣需要後 5 個通道。token 數只取決於形狀，但
+    # 條件仍取攻擊方真正的遮罩——`conditioning_for` 在 4 通道權重下是空的。
+    with torch.no_grad(), sd.conditioning_for(ctx.x01, ctx.mask):
         sd.unet_forward(
             torch.cat([z] * 2),
             ctx.t0,
@@ -384,7 +390,7 @@ def prepare(
     generator = torch.Generator(device=device).manual_seed(seed)
     ctx = PromptFlareContext(
         sd, spec, emb2, encoder_attention_mask, t0, controller,
-        None, generator, mask=mask,
+        None, generator, mask=mask, x01=x01,
     )
     ctx.loss_depth = resolve_loss_depth(sd, ctx, h, w)
     return ctx

@@ -1,0 +1,36 @@
+image,condition,scenario,prompt,gen_lpips,gen_lpips_sd,attack_strength,mask_coverage,fid_lpips,fid_dists,fid_psnr,fid_ssim,fid_nima,seconds
+cat_01,phase,background,a cat on a snowy roof,0.3269,0.0551,0.6843,0.7648,0.1632,0.0378,33.2647,0.9684,5.5598,27.2
+cat_01,add,background,a cat on a snowy roof,0.2235,0.1016,0.6843,0.7648,0.1497,0.0017,48.6315,0.9987,5.5384,25.4
+cat_01,phase_rand,background,a cat on a snowy roof,0.267,0.0226,0.6843,0.7648,0.0736,0.0394,33.6585,0.9711,5.1039,25.5
+cat_01,apa_weak,background,a cat on a snowy roof,0.2875,0.0189,0.6843,0.7648,0.1622,0.1033,20.6555,0.8302,5.154,25.5
+cat_01,mist,background,a cat on a snowy roof,0.5189,0.0544,0.6843,0.7648,0.6177,0.1483,26.3347,0.8251,4.6616,25.4
+cat_01,dia_r,background,a cat on a snowy roof,0.3067,0.0491,0.6843,0.7648,0.2264,0.0164,40.6876,0.9904,5.4699,25.5
+cat_01,photoguard_c,background,a cat on a snowy roof,0.4114,0.0485,0.6843,0.7648,0.28,0.0143,40.8266,0.9888,5.5307,25.5
+dog_03,phase,background,a dog in the park,0.0552,0.0066,0.0972,0.2137,0.2372,0.0335,30.0482,0.9478,5.0693,25.5
+dog_03,add,background,a dog in the park,0.0493,0.0133,0.0972,0.2137,0.1147,0.0014,48.8206,0.9988,5.3442,25.5
+dog_03,phase_rand,background,a dog in the park,0.0119,0.0052,0.0972,0.2137,0.0809,0.0344,30.628,0.9539,4.9255,25.5
+dog_03,apa_weak,background,a dog in the park,0.0719,0.0067,0.0972,0.2137,0.2097,0.1277,18.2106,0.717,4.9307,25.5
+dog_03,mist,background,a dog in the park,0.1579,0.0045,0.0972,0.2137,0.5646,0.1204,26.472,0.854,4.6085,25.5
+dog_03,dia_r,background,a dog in the park,0.0721,0.0113,0.0972,0.2137,0.1814,0.0136,39.9873,0.9907,5.2159,25.5
+dog_03,photoguard_c,background,a dog in the park,0.1032,0.006,0.0972,0.2137,0.2809,0.0136,40.8274,0.9896,5.2403,25.5
+horse_03,phase,background,a horse and a cow,0.1291,0.023,0.1591,0.4185,0.2591,0.0432,30.8088,0.9474,5.0168,25.5
+horse_03,add,background,a horse and a cow,0.0704,0.0165,0.1591,0.4185,0.1015,0.0031,49.0382,0.9982,5.0782,25.5
+horse_03,phase_rand,background,a horse and a cow,0.0528,0.0106,0.1591,0.4185,0.0878,0.049,31.2281,0.952,4.9149,25.5
+horse_03,apa_weak,background,a horse and a cow,0.1145,0.0133,0.1591,0.4185,0.208,0.1002,18.6058,0.7173,4.8175,25.5
+horse_03,mist,background,a horse and a cow,0.28,0.0136,0.1591,0.4185,0.5582,0.1442,26.6539,0.7862,4.6113,25.5
+horse_03,dia_r,background,a horse and a cow,0.0855,0.0172,0.1591,0.4185,0.1857,0.0354,39.5091,0.9843,4.9738,25.5
+horse_03,photoguard_c,background,a horse and a cow,0.1676,0.0126,0.1591,0.4185,0.2662,0.031,40.828,0.9832,4.9411,25.5
+man_02,phase,background,a man in a snowy street,0.073,0.0076,0.1297,0.2409,0.2062,0.0445,23.1534,0.9289,5.2129,25.5
+man_02,add,background,a man in a snowy street,0.0392,0.0164,0.1297,0.2409,0.0666,0.0035,49.2886,0.9985,5.0797,25.5
+man_02,phase_rand,background,a man in a snowy street,0.0437,0.0164,0.1297,0.2409,0.0987,0.0658,24.0199,0.9345,5.0696,25.5
+man_02,apa_weak,background,a man in a snowy street,0.0861,0.0114,0.1297,0.2409,0.2429,0.1452,14.8018,0.601,4.5891,25.5
+man_02,mist,background,a man in a snowy street,0.1718,0.006,0.1297,0.2409,0.4422,0.1058,26.2106,0.8511,5.2209,25.5
+man_02,dia_r,background,a man in a snowy street,0.0557,0.0038,0.1297,0.2409,0.1243,0.0216,39.3893,0.989,5.061,25.5
+man_02,photoguard_c,background,a man in a snowy street,0.1139,0.0068,0.1297,0.2409,0.225,0.0198,40.8276,0.9875,5.0991,25.5
+woman_02,phase,background,a woman in a burning room,0.1422,0.0257,0.1725,0.3213,0.2056,0.0397,33.5019,0.969,4.1046,25.5
+woman_02,add,background,a woman in a burning room,0.1074,0.0488,0.1725,0.3213,0.1985,0.0029,48.9777,0.9976,4.2118,25.5
+woman_02,phase_rand,background,a woman in a burning room,0.0534,0.0322,0.1725,0.3213,0.0599,0.0407,33.5106,0.9708,4.0938,25.5
+woman_02,apa_weak,background,a woman in a burning room,0.0631,0.0194,0.1725,0.3213,0.1518,0.0718,22.6811,0.8644,4.1355,25.5
+woman_02,mist,background,a woman in a burning room,0.2447,0.0156,0.1725,0.3213,0.6239,0.1492,26.6895,0.7734,3.8054,25.5
+woman_02,dia_r,background,a woman in a burning room,0.1397,0.0137,0.1725,0.3213,0.3262,0.0372,39.309,0.9803,4.084,25.5
+woman_02,photoguard_c,background,a woman in a burning room,0.2169,0.022,0.1725,0.3213,0.3737,0.0266,40.8244,0.9814,4.1324,25.5

@@ -1,14 +1,14 @@
-"""inpainting 批次的圖形化報告：威脅模型、對比圖、淨化結果、數據表。
+"""inpainting 批次的圖形化報告：威脅模型、兩種場景的對比圖、淨化結果、數據表。
 
 刻意不含敘述文字與結論（使用者 2026-08-14 指定）。每一格都必須有影像可看。
 
-威脅模型那一段的每一張圖都是實際張量：遮罩由 `data/lo_masks` 讀入，
-`x ⊙ (1 − mask)` 就是 `SDWrapper.mask_latents` 編碼的那一張，重畫結果取自
-批次的 `*__gen_orig.png`。
+威脅模型那一段的每一張圖都是實際張量，包含 **UNet 後 4 通道真正編碼的那一張**
+（遮罩區填 `[0,1]` 的 0.5，換算後為模型值域的 0）——填黑會讓模型把洞畫黑，
+那正是 2026-08-14 修掉的缺陷。
 
 用法：
     python scripts/inpaint_report.py --out inpaint_report.html \
-        --runs runs/ip5/man_02 runs/ip5/woman_02 ... --retention runs/ip5
+        --runs runs/ip2/background runs/ip2/subject --retention runs/ip2
 """
 
 from __future__ import annotations
@@ -26,31 +26,26 @@ from pathlib import Path
 import numpy as np
 from PIL import Image
 
-CONDS = ["phase", "phase_out", "add", "add_out", "phase_rand",
-         "photoguard_c", "advpaint", "promptflare"]
-LABEL = {"phase": "site F 紋理重相位", "phase_out": "site F ＋遮罩感知閘",
-         "add": "加性 δ", "add_out": "加性 δ ＋遮罩限制",
-         "phase_rand": "隨機相位 RPN", "photoguard_c": "PhotoGuard-c",
-         "advpaint": "AdvPaint", "promptflare": "PromptFlare"}
-SHORT = {"phase": "site F", "phase_out": "site F+M", "add": "加性 δ",
-         "add_out": "加性+M", "phase_rand": "隨機相位",
-         "photoguard_c": "PhotoGuard-c", "advpaint": "AdvPaint",
-         "promptflare": "PromptFlare"}
-BUDGET = {"phase": "θ = 1.30", "phase_out": "θ = 1.30", "add": "ε∞ = 1.2/255",
-          "add_out": "ε∞ = 1.2/255", "phase_rand": "θ = 1.30",
-          "photoguard_c": "‖δ‖₂ = 16", "advpaint": "ε∞ = 0.03",
-          "promptflare": "ε∞ = 0.0235"}
-ORIGIN = {"phase": "人眼門檻", "phase_out": "人眼門檻", "add": "人眼門檻",
-          "add_out": "人眼門檻", "phase_rand": "同失真",
-          "photoguard_c": "原生", "advpaint": "原生", "promptflare": "原生"}
+CONDS = ["phase", "add", "phase_rand", "apa_weak", "mist", "dia_r", "photoguard_c"]
+LABEL = {"phase": "site F 紋理重相位", "add": "加性 δ", "phase_rand": "隨機相位 RPN",
+         "apa_weak": "弱 baseline APA", "mist": "Mist", "dia_r": "DIA-R",
+         "photoguard_c": "PhotoGuard-c"}
+SHORT = {"phase": "site F", "add": "加性 δ", "phase_rand": "隨機相位",
+         "apa_weak": "APA", "mist": "Mist", "dia_r": "DIA-R",
+         "photoguard_c": "PhotoGuard-c"}
+BUDGET = {"phase": "θ = 1.30", "add": "ε∞ = 1.2/255", "phase_rand": "θ = 1.30",
+          "apa_weak": "ε_a = 0.4 latent", "mist": "ε∞ = 16/255",
+          "dia_r": "ε∞ = 0.025", "photoguard_c": "‖δ‖₂ = 16"}
+ORIGIN = {"phase": "人眼門檻", "add": "人眼門檻", "phase_rand": "同失真",
+          "apa_weak": "原生", "mist": "原生", "dia_r": "原生",
+          "photoguard_c": "原生 L2"}
+SCEN = {"background": "背景重畫 · 主體保住", "subject": "主體置換 · 背景保住"}
 PURIF = ["identity", "blur1", "noise0.05", "quantize16", "jpeg75", "jpeg30",
          "crop_resize0.1", "jpeg_then_resize75", "adverse_cleaner", "impress"]
 PNAME = {"identity": "未淨化", "blur1": "模糊 σ1", "noise0.05": "雜訊 .05",
          "quantize16": "量化 16", "jpeg75": "JPEG 75", "jpeg30": "JPEG 30",
          "crop_resize0.1": "裁切重縮", "jpeg_then_resize75": "C&R 串接",
          "adverse_cleaner": "AdvCleaner", "impress": "IMPRESS"}
-PROMPT = {"man_02": "an old woman", "woman_02": "a man", "dog_03": "a cat",
-          "horse_03": "a zebra", "cat_01": "a dog"}
 
 
 def b64(p, size=None, q=80):
@@ -80,12 +75,9 @@ def tile(data, title, sub="", meta="", cls="", size=None, q=80, arr=False):
                '<span class="d">%s</span>' % meta if meta else ""))
 
 
-def find(runs, name):
-    for r in runs:
-        p = Path(r) / name
-        if p.exists():
-            return p
-    return None
+def img_of(run: Path, name: str):
+    p = run / name
+    return p if p.exists() else None
 
 
 def main() -> None:
@@ -93,52 +85,38 @@ def main() -> None:
     ap.add_argument("--out", type=Path, required=True)
     ap.add_argument("--runs", nargs="+", required=True)
     ap.add_argument("--retention", nargs="+", default=[])
-    ap.add_argument("--gallery", type=Path, default=Path("runs/ip5/gallery"))
-    ap.add_argument("--masks", type=Path, default=Path("data/lo_masks"))
+    ap.add_argument("--gallery", type=Path, default=Path("runs/ip2/gallery"))
+    ap.add_argument("--masks", type=Path, default=Path("data/lo_masks_auto"))
     ap.add_argument("--pur-image", default="dog_03")
     args = ap.parse_args()
 
-    res = {}
-    for r in args.runs:
-        p = Path(r) / "results.csv"
-        if not p.exists():
-            continue
-        for row in csv.DictReader(open(p, encoding="utf-8")):
-            res[(row["image"], row["condition"])] = row
-    images = sorted({i for i, _ in res})
-    conds = [c for c in CONDS if any((i, c) in res for i in images)]
+    runs = {Path(r).name: Path(r) for r in args.runs}
+    res = defaultdict(dict)
+    for sc, r in runs.items():
+        for row in csv.DictReader(open(r / "results.csv", encoding="utf-8")):
+            res[sc][(row["image"], row["condition"])] = row
+    scen = [s for s in ("background", "subject") if s in res]
+    images = sorted({i for s in scen for i, _ in res[s]})
+    conds = [c for c in CONDS if any((i, c) in res[scen[0]] for i in images)]
 
-    def col(c, key):
-        v = [float(res[(i, c)][key]) for i in images
-             if (i, c) in res and res[(i, c)].get(key)]
+    def agg(sc, c, key):
+        v = [float(res[sc][(i, c)][key]) for i in images
+             if (i, c) in res[sc] and res[sc][(i, c)].get(key)]
         return st.fmean(v) if v else float("nan")
-
-    S = {c: {k: col(c, k) for k in
-             ("gen_lpips", "gen_lpips_full", "fid_dists", "fid_lpips",
-              "fid_psnr")} for c in conds}
-    # `attack_strength` 是逐影像的量（未防禦的重畫對原圖，與條件無關），
-    # 且 2026-08-14 才加入——早幾分鐘跑完的 baseline 列沒有這一欄。
-    # 從同一張圖任一有值的列取即可，不必逐條件平均。
-    atk = {}
-    for (i, _), r in res.items():
-        if r.get("attack_strength") and i not in atk:
-            atk[i] = float(r["attack_strength"])
-    ATTACK = st.fmean(atk.values()) if atk else float("nan")
 
     # ---------- 抗淨化 ----------
     rows = []
     for r in args.retention:
-        for p in sorted(glob.glob(str(Path(r) / "retention*.csv"))):
+        for p in sorted(glob.glob(str(Path(r) / "ret_*.csv"))):
             rows += list(csv.DictReader(open(p, encoding="utf-8")))
     ok = {(x["image"], x["condition"]): x["usable"] == "True" for x in rows}
     rconds = [c for c in conds if any(k[1] == c for k in ok)]
-    common = [i for i in images if all(ok.get((i, c), False) for c in rconds)]
-    # **池化估計。** 逐影像的 3σ 分母閘在 inpainting 的效果量級上幾乎全部
-    # 不通過（效果 0.01–0.21，與跨 seed 變異同量級），沒有任何一張影像的
-    # 全部條件同時可用。故此處先跨影像與 seed 把效果加總，再取比值——分母
-    # 的變異數因此小得多。逐影像的閘結果照報，不藏。
+    common = [i for i in images if rconds and all(ok.get((i, c), False) for c in rconds)]
     eff = defaultdict(lambda: defaultdict(list))
     per = {}
+    # **池化估計。** 逐影像的 3σ 分母閘會排除掉效果最小的條件（`add` 與
+    # `phase_rand`），而那兩個正是 site F 最需要比的對照組，取交集等於把
+    # 比較對象刪掉。故跨影像與 seed 加總後再取比值；閘的結果照報。
     for x in rows:
         per[(x["image"], x["condition"], x["purifier"])] = x
         eff[x["purifier"]][x["condition"]].append(float(x["effect_mean"]))
@@ -146,72 +124,86 @@ def main() -> None:
     base = E.get("identity", {})
     R = {k: {c: v / base[c] for c, v in d.items() if base.get(c)}
          for k, d in E.items()}
-    nusable = sum(1 for v in ok.values() if v)
 
-    PEAR = float("nan")
-    corr = ""
-    if R and rconds:
-        ident = {c: E["identity"][c] for c in rconds if c in E.get("identity", {})}
-        mret = {c: st.fmean([R[k][c] for k in PURIF if k != "identity" and c in R.get(k, {})])
-                for c in ident}
-        X, Y = [ident[c] for c in ident], [mret[c] for c in ident]
-        if len(X) > 2:
-            mx, my = st.fmean(X), st.fmean(Y)
-            den = math.sqrt(sum((a - mx) ** 2 for a in X) * sum((b - my) ** 2 for b in Y))
-            if den > 0:
-                PEAR = sum((a - mx) * (b - my) for a, b in zip(X, Y)) / den
+    PEAR, corr = float("nan"), ""
+    if len(base) > 2:
+        mret = {c: st.fmean([R[k][c] for k in PURIF
+                             if k != "identity" and c in R.get(k, {})])
+                for c in base}
+        X, Y = list(base.values()), [mret[c] for c in base]
+        mx, my = st.fmean(X), st.fmean(Y)
+        den = math.sqrt(sum((a - mx) ** 2 for a in X) * sum((b - my) ** 2 for b in Y))
+        if den > 0:
+            PEAR = sum((a - mx) * (b - my) for a, b in zip(X, Y)) / den
         corr = "".join(
             '<tr class="%s"><td>%s</td><td class="n">%.4f</td><td class="n">%.4f</td></tr>'
-            % ("hi" if c == "phase" else "", LABEL[c], ident[c], mret[c])
-            for c in sorted(ident, key=lambda c: -ident[c]))
+            % ("hi" if c == "phase" else "", LABEL[c], base[c], mret[c])
+            for c in sorted(base, key=lambda c: -base[c]))
 
     # ---------- 威脅模型 ----------
     ref = args.pur_image if args.pur_image in images else images[0]
-    x = np.asarray(Image.open(find(args.runs, f"{ref}__orig.png")).convert("RGB"),
+    r0 = runs[scen[0]]
+    x = np.asarray(Image.open(r0 / f"{ref}__orig.png").convert("RGB"),
                    dtype=np.float32) / 255.0
-    m = np.asarray(Image.open(args.masks / f"{ref}.png").convert("L"),
+    m = np.asarray(Image.open(r0 / f"{ref}__mask.png").convert("L"),
                    dtype=np.float32)[..., None] / 255.0
     step = lambda n, t: '<div class="op"><span class="no">%s</span>%s</div>' % (n, t)
-    flow = "".join([
-        tile(find(args.runs, f"{ref}__orig.png"), "x", "原圖 512²", cls="fx", size=300),
-        tile(m.repeat(3, axis=2), "mask", "人工繪製，1 = 重畫區",
-             "涵蓋 %.3f" % float(m.mean()), cls="fx", size=300, arr=True),
-        step("1", "x ⊙ (1 − mask)<br>遮罩後影像"),
-        tile(x * (1 - m), "x ⊙ (1−mask)", "UNet 後 4 通道編碼的就是這張",
-             "重畫區的擾動在此歸零", cls="fx b", size=300, arr=True),
-        step("2", "9 通道 UNet<br>[z, m, E(x⊙(1−m))]"),
-        step("3", "每一步把遮罩外<br>貼回原圖"),
-        tile(find(args.runs, f"{ref}__phase__gen_orig.png"), "重畫結果",
-             "未防禦", "攻擊強度 %.3f（%d 張平均）" % (ATTACK, len(atk)),
-             cls="fx", size=300),
-    ])
+    ovl = img_of(args.masks, f"{ref}__overlay.png")
+    flow = "".join(
+        [tile(r0 / f"{ref}__orig.png", "x", "原圖 512²，防禦已加在整張圖上",
+              cls="fx", size=300)]
+        + ([tile(ovl, "分割", "紅＝主體、藍＝ρ=1.2 保護帶",
+                 "Mask R-CNN 自動產生", cls="fx", size=300)] if ovl else [])
+        + [step("1", "取遮罩<br>1 = 攻擊方重畫"),
+           tile(m.repeat(3, axis=2), "mask", SCEN[scen[0]],
+                "涵蓋 %.3f" % float(m.mean()), cls="fx", size=300, arr=True),
+           step("2", "遮罩區填中灰<br>再編碼成後 4 通道"),
+           tile(x * (1 - m) + 0.5 * m, "UNet 收到的條件影像",
+                "填 0.5（模型值域的 0）", "填黑會讓模型把洞畫黑",
+                cls="fx b", size=300, arr=True),
+           step("3", "9 通道 UNet<br>50 步，無 strength"),
+           tile(r0 / f"{ref}__gen_orig.png", "未防禦的重畫", "",
+                "攻擊強度 %.3f" % agg(scen[0], conds[0], "attack_strength"),
+                cls="fx", size=300)])
 
     # ---------- 表 ----------
-    be = max(S[c]["gen_lpips"] for c in conds)
-    t1 = "".join(
-        '<tr class="%s"><td>%s</td><td class="g">%s</td><td class="mono">%s</td>'
-        '<td class="n%s">%.4f</td><td class="n">%.4f</td><td class="n">%.4f</td>'
-        '<td class="n">%.4f</td><td class="n">%.2f</td></tr>'
-        % ("hi" if c == "phase" else "", LABEL[c], ORIGIN[c], BUDGET[c],
-           " b" if S[c]["gen_lpips"] == be else "", S[c]["gen_lpips"],
-           S[c]["gen_lpips_full"], S[c]["fid_dists"], S[c]["fid_lpips"],
-           S[c]["fid_psnr"]) for c in conds)
+    tabs = []
+    for sc in scen:
+        be = max(agg(sc, c, "gen_lpips") for c in conds)
+        body = "".join(
+            '<tr class="%s"><td>%s</td><td class="g">%s</td><td class="mono">%s</td>'
+            '<td class="n%s">%.4f</td><td class="n">%.4f</td><td class="n">%.4f</td>'
+            '<td class="n">%.4f</td><td class="n">%.2f</td></tr>'
+            % ("hi" if c == "phase" else "", LABEL[c], ORIGIN[c], BUDGET[c],
+               " b" if agg(sc, c, "gen_lpips") == be else "",
+               agg(sc, c, "gen_lpips"), agg(sc, c, "gen_lpips_sd"),
+               agg(sc, c, "fid_dists"), agg(sc, c, "fid_lpips"),
+               agg(sc, c, "fid_psnr"))
+            for c in sorted(conds, key=lambda c: -agg(sc, c, "gen_lpips")))
+        tabs.append(
+            '<h4>%s · %s · 攻擊強度 %.3f · 重畫區 %.3f</h4>'
+            '<div class="tw"><table><thead><tr><th>條件</th><th>預算來源</th>'
+            '<th>半徑</th><th>效果（遮罩內）</th><th>效果 sd</th><th>DISTS</th>'
+            '<th>LPIPS</th><th>PSNR</th></tr></thead><tbody>%s</tbody></table></div>'
+            % (sc, SCEN[sc], agg(sc, conds[0], "attack_strength"),
+               agg(sc, conds[0], "mask_coverage"), body))
 
-    def ratio_row(a, b, lab):
-        va = [float(res[(i, a)]["gen_lpips"]) for i in images if (i, a) in res and (i, b) in res]
-        vb = [float(res[(i, b)]["gen_lpips"]) for i in images if (i, a) in res and (i, b) in res]
-        if not va:
-            return ""
-        return ('<tr><td>%s</td><td class="n b">%.3f</td><td class="n">%d/%d</td></tr>'
-                % (lab, st.fmean(va) / st.fmean(vb),
-                   sum(p > q for p, q in zip(va, vb)), len(va)))
-    ratios = "".join([
-        ratio_row("phase", "add", "site F ÷ 加性 δ"),
-        ratio_row("phase", "phase_rand", "site F ÷ 隨機相位"),
-        ratio_row("phase_out", "phase", "遮罩感知閘 ÷ 原閘"),
-        ratio_row("add_out", "add", "遮罩限制 ÷ 原加性"),
-    ] + [ratio_row("phase", c, "site F ÷ " + LABEL[c])
-         for c in ("photoguard_c", "advpaint", "promptflare") if c in conds])
+    def ratio_rows(sc):
+        out = []
+        for b in ("add", "phase_rand", "dia_r", "apa_weak", "photoguard_c", "mist"):
+            if b not in conds:
+                continue
+            va = [float(res[sc][(i, "phase")]["gen_lpips"]) for i in images]
+            vb = [float(res[sc][(i, b)]["gen_lpips"]) for i in images]
+            r = st.fmean(va) / st.fmean(vb)
+            out.append('<tr><td>site F ÷ %s</td><td class="n %s">%.3f</td>'
+                       '<td class="n">%d/%d</td></tr>'
+                       % (LABEL[b], "b" if r > 1 else "", r,
+                          sum(p > q for p, q in zip(va, vb)), len(va)))
+        return "".join(out)
+    ratios = "".join('<h4>%s</h4><div class="tw"><table><thead><tr><th>比較</th>'
+                     '<th>比值</th><th>逐圖勝出</th></tr></thead><tbody>%s</tbody>'
+                     '</table></div>' % (sc, ratio_rows(sc)) for sc in scen)
 
     def ptab(D):
         out = []
@@ -233,48 +225,44 @@ def main() -> None:
 
     # ---------- 影像板 ----------
     plates = []
-    for img in images:
-        mk = np.asarray(Image.open(args.masks / f"{img}.png").convert("L"),
-                        dtype=np.float32)[..., None] / 255.0
-        t = [tile(find(args.runs, f"{img}__orig.png"), "原圖", "未防禦", cls="pl", size=512),
-             tile(mk.repeat(3, axis=2), "遮罩", "1 = 攻擊方重畫",
-                  "涵蓋 %.3f" % float(mk.mean()), cls="pl", size=512, arr=True)]
-        g = []
-        gen0 = find(args.runs, f"{img}__{conds[0]}__gen_orig.png")
-        if gen0:
-            g.append(tile(gen0, "未防禦的重畫", "", "", cls="ed", size=384))
-        for c in conds:
-            r = res.get((img, c))
-            if not r:
-                continue
-            t.append(tile(find(args.runs, f"{img}__{c}__def.png"), LABEL[c],
-                          "%s · %s" % (BUDGET[c], ORIGIN[c]),
-                          "DISTS %.4f · LPIPS %.4f · PSNR %.1f"
-                          % (float(r["fid_dists"]), float(r["fid_lpips"]),
-                             float(r["fid_psnr"])),
-                          cls="pl" + (" hi" if c == "phase" else ""), size=512))
-            g.append(tile(find(args.runs, f"{img}__{c}__gen_def.png"), LABEL[c], "",
-                          "效果 %.3f" % float(r["gen_lpips"]),
-                          cls="ed" + (" hi" if c == "phase" else ""), size=384))
-        tag = "" if not common or img in common else '<span class="tag">retention 部分不可用</span>'
-        plates.append(
-            '<h3>%s <span class="pr">“%s”</span>%s</h3>'
-            '<h4>防禦後（512² 原生解析度）</h4><div class="gp">%s</div>'
-            '<h4>重畫結果</h4><div class="ge">%s</div>'
-            % (img, PROMPT.get(img, ""), tag, "".join(t), "".join(g)))
+    for sc in scen:
+        r = runs[sc]
+        for img in images:
+            g = [tile(r / f"{img}__orig.png", "原圖", "未防禦", cls="ed", size=384),
+                 tile(r / f"{img}__mask.png", "遮罩", SCEN[sc],
+                      "涵蓋 %.3f"
+                      % float(res[sc][(img, conds[0])]["mask_coverage"]),
+                      cls="ed", size=384),
+                 tile(r / f"{img}__gen_orig.png", "未防禦的重畫", "",
+                      "攻擊強度 %.3f"
+                      % float(res[sc][(img, conds[0])]["attack_strength"]),
+                      cls="ed", size=384)]
+            for c in conds:
+                row = res[sc].get((img, c))
+                if not row:
+                    continue
+                g.append(tile(r / f"{img}__{c}__gen_def.png", LABEL[c],
+                              "%s · %s" % (BUDGET[c], ORIGIN[c]),
+                              "效果 %.3f · DISTS %.4f"
+                              % (float(row["gen_lpips"]), float(row["fid_dists"])),
+                              cls="ed" + (" hi" if c == "phase" else ""), size=384))
+            plates.append(
+                '<h3>%s · %s <span class="pr">“%s”</span></h3><div class="ge">%s</div>'
+                % (img, sc, res[sc][(img, conds[0])]["prompt"], "".join(g)))
 
     # ---------- 淨化區段 ----------
     purs = []
-    for c in [x for x in ("phase", "add", "phase_rand", "photoguard_c") if x in rconds]:
+    for c in [z for z in ("phase", "add", "phase_rand", "photoguard_c")
+              if z in rconds]:
         cells = []
         for k in PURIF:
             pu = args.gallery / f"{args.pur_image}__{c}__{k}__pur.png"
             gn = args.gallery / f"{args.pur_image}__{c}__{k}__gen.png"
             if not (pu.exists() and gn.exists()):
                 continue
-            r = per.get((args.pur_image, c, k))
-            d = ("效果 %.3f · ret %.2f" % (float(r["effect_mean"]),
-                                           float(r["retention"]))) if r else ""
+            rr = per.get((args.pur_image, c, k))
+            d = ("效果 %.3f · ret %.2f" % (float(rr["effect_mean"]),
+                                           float(rr["retention"]))) if rr else ""
             cells.append(
                 '<div class="pu"><img src="data:image/jpeg;base64,%s" alt="淨化">'
                 '<img src="data:image/jpeg;base64,%s" alt="重畫">'
@@ -286,17 +274,19 @@ def main() -> None:
 
     head = "".join("<th>%s</th>" % SHORT[c] for c in rconds)
     html = TEMPLATE % dict(
-        css=CSS, flow=flow, t1=t1, ratios=ratios, plates="".join(plates),
-        purs="".join(purs) or "<p class=\"na\">尚未產出</p>",
-        head=head, eff=ptab(E) or "", ret=ptab(R) or "",
-        corr=corr, pear=PEAR, nimg=len(images), ncond=len(conds),
+        css=CSS, flow=flow, tabs="".join(tabs), ratios=ratios,
+        plates="".join(plates),
+        purs="".join(purs) or '<p class="na">尚未產出</p>',
+        head=head or "<th>—</th>", eff=ptab(E), ret=ptab(R), corr=corr, pear=PEAR,
+        nimg=len(images), ncond=len(conds), nscen=len(scen),
+        nusable=sum(1 for v in ok.values() if v), ncell=len(ok),
         ncommon=len(common), common="、".join(common) or "—",
-        nusable=nusable, ncell=len(ok),
         purimg=args.pur_image)
     args.out.write_text(html, encoding="utf-8")
     print("bytes", len(html.encode()), "->", args.out)
-    print("影像", images)
-    print("條件", conds, "| retention 條件", rconds, "| 共同可用", common)
+    print("場景", scen, "| 影像", images, "| 條件", conds)
+    print("retention 可用 %d/%d，共同可用影像 %s"
+          % (sum(1 for v in ok.values() if v), len(ok), common))
 
 
 CSS = """
@@ -320,7 +310,7 @@ h1{font-size:29px;line-height:1.2;margin:0;letter-spacing:-.02em}
 .meta b{color:var(--ink);font-weight:600}
 h2{font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--acc);
 margin:56px 0 14px;font-weight:700;border-bottom:1px solid var(--line);padding-bottom:7px}
-h3{font-size:17px;margin:36px 0 4px;letter-spacing:-.01em}
+h3{font-size:16px;margin:30px 0 8px;letter-spacing:-.01em}
 h4{font-size:11px;letter-spacing:.11em;text-transform:uppercase;color:var(--mut);
 margin:22px 0 9px;font-weight:700}
 .pr{font-weight:400;font-size:13px;color:var(--mut)}
@@ -352,8 +342,7 @@ td.mono{font-size:11.5px;color:var(--mut)}
 td.b{font-weight:700;color:var(--ok)}
 tr.hi td,td.hi{background:var(--acc-w)}
 td.rk{color:var(--mut);font-size:11.5px}
-.gp{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:14px}
-.ge{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:12px}
+.ge{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
 .gu{display:grid;grid-template-columns:repeat(auto-fill,minmax(158px,1fr));gap:10px}
 .pu{background:var(--surf);border:1px solid var(--line);border-radius:6px;overflow:hidden}
 .pu img{width:100%;display:block;aspect-ratio:1;object-fit:cover}
@@ -362,8 +351,6 @@ td.rk{color:var(--mut);font-size:11.5px}
 .pc b{display:block;font-weight:650}
 .pc .d{display:block;color:var(--mut);font-size:9.5px;margin-top:2px;
 font-family:ui-monospace,Consolas,monospace}
-.tag{font-size:10.5px;padding:2px 7px;border-radius:99px;background:var(--warn-w);
-color:var(--warn);font-weight:700;vertical-align:2px;margin-left:6px}
 .key{display:flex;flex-wrap:wrap;gap:14px;font-size:11.5px;color:var(--mut);margin:8px 0 0}
 """
 
@@ -373,31 +360,29 @@ TEMPLATE = """<title>遮罩重繪防禦圖譜</title>
 <header>
 <h1>遮罩重繪防禦圖譜 · inpainting</h1>
 <div class="meta">
-<span><b>批次</b> runs/ip5</span>
+<span><b>批次</b> runs/ip2</span>
 <span><b>權重</b> runwayml/stable-diffusion-inpainting（9 通道）</span>
+<span><b>場景</b> %(nscen)d</span>
 <span><b>影像</b> %(nimg)d</span>
 <span><b>條件</b> %(ncond)d</span>
-<span><b>重畫</b> 50 步 · 無 strength</span>
-<span><b>遮罩</b> 人工繪製，主體在遮罩外</span>
+<span><b>遮罩</b> Mask R-CNN 自動產生 · ρ = 1.2</span>
+<span><b>防禦圖</b> 取自 img2img 批次，加在整張圖上</span>
 </div>
 </header>
 
 <h2>威脅模型</h2>
 <div class="flow">%(flow)s</div>
 
-<h2>抗編輯 · %(nimg)d 張平均</h2>
-<div class="tw"><table><thead><tr><th>條件</th><th>預算來源</th><th>半徑</th>
-<th>效果（遮罩內）</th><th>整張 LPIPS</th><th>DISTS</th><th>LPIPS</th><th>PSNR</th></tr></thead>
-<tbody>%(t1)s</tbody></table></div>
+<h2>抗編輯</h2>
+%(tabs)s
 
-<h4>比值</h4>
-<div class="tw"><table><thead><tr><th>比較</th><th>比值</th><th>逐圖勝出</th></tr></thead>
-<tbody>%(ratios)s</tbody></table></div>
+<h2>比值</h2>
+%(ratios)s
 
 <h2>對比圖</h2>
 %(plates)s
 
-<h2>淨化結果 · %(purimg)s</h2>
+<h2>淨化結果 · %(purimg)s · 背景重畫</h2>
 <h4>每格上＝淨化後的防禦圖，下＝該圖再經重畫</h4>
 %(purs)s
 
@@ -412,9 +397,10 @@ TEMPLATE = """<title>遮罩重繪防禦圖譜</title>
 <h2>分母與衰減率 · Pearson r = %(pear)+.2f</h2>
 <div class="tw"><table><thead><tr><th>條件</th><th>分母 effect(identity)</th>
 <th>平均 retention</th></tr></thead><tbody>%(corr)s</tbody></table></div>
-<div class="key"><span>抗淨化兩表為<b>池化估計</b>：跨 5 張影像與 3 個 seed 加總效果後再取比值。
-逐影像的 3σ 分母閘 %(nusable)d/%(ncell)d 格通過，八條件同時可用的影像 %(ncommon)d 張——
-逐影像的比值因此不可解讀，此處不使用。</span></div>
+<div class="key"><span>抗淨化兩表為<b>池化估計</b>：跨 %(nimg)d 張影像與 3 個 seed
+加總效果後再取比值。逐影像的 3σ 分母閘 %(nusable)d/%(ncell)d 格通過，全部條件同時可用的
+影像 %(ncommon)d 張（%(common)s）——被閘擋下的正是效果最小的 add 與隨機相位，
+取交集會刪掉比較對象，故不使用。</span></div>
 </div>"""
 
 

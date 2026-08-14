@@ -295,14 +295,14 @@ margin:22px 0 9px;font-weight:700}
 .op{flex:0 0 auto;align-self:center;background:var(--surf2);border:1px solid var(--line);
 border-radius:6px;padding:10px 13px;font-size:12px;line-height:1.45;position:relative;
 min-width:118px;color:var(--mut)}
-.op .no{display:inline-flex;width:17px;height:17px;border-radius:50%%;background:var(--acc);
+.op .no{display:inline-flex;width:17px;height:17px;border-radius:50%;background:var(--acc);
 color:var(--bg);align-items:center;justify-content:center;font-size:10.5px;font-weight:700;
 margin-right:6px;vertical-align:1px}
 figure{margin:0;background:var(--surf);border:1px solid var(--line);border-radius:6px;
 overflow:hidden}
 figure.hi{border-color:var(--acc);border-width:2px}
 figure.b{border-color:var(--ok);border-width:2px}
-figure img{width:100%%;display:block;aspect-ratio:1;object-fit:cover}
+figure img{width:100%;display:block;aspect-ratio:1;object-fit:cover}
 figure.fs{flex:0 0 132px} figure.fx{flex:0 0 232px}
 figcaption{padding:6px 8px;font-size:11.5px;line-height:1.4}
 figcaption b{display:block;font-weight:650}
@@ -315,7 +315,7 @@ font-family:ui-monospace,Consolas,monospace}
 .cv{font-size:22px;font-weight:700;letter-spacing:-.02em;margin:5px 0 2px;color:var(--ok)}
 .cs{font-size:11px;color:var(--mut)}
 .tw{overflow-x:auto;border:1px solid var(--line);border-radius:6px;background:var(--surf);margin:14px 0}
-table{border-collapse:collapse;width:100%%;font-size:13px;min-width:700px}
+table{border-collapse:collapse;width:100%;font-size:13px;min-width:700px}
 th,td{padding:7px 11px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
 th{background:var(--surf2);font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;
 color:var(--mut);font-weight:700}
@@ -329,7 +329,7 @@ td.rk{color:var(--mut);font-size:11.5px}
 .ge{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:12px}
 .gu{display:grid;grid-template-columns:repeat(auto-fill,minmax(158px,1fr));gap:10px}
 .pu{background:var(--surf);border:1px solid var(--line);border-radius:6px;overflow:hidden}
-.pu img{width:100%%;display:block;aspect-ratio:1;object-fit:cover}
+.pu img{width:100%;display:block;aspect-ratio:1;object-fit:cover}
 .pu img+img{border-top:2px solid var(--acc)}
 .pc{padding:6px 8px;font-size:11px;line-height:1.35}
 .pc b{display:block;font-weight:650}

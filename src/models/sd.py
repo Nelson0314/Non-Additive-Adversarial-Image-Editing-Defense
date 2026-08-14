@@ -441,6 +441,17 @@ class SDWrapper:
         if not self.is_inpainting or zc.shape[1] != self.latent_channels:
             return zc
         m, z_masked = self._require_inpaint_cond()
+        # CFG 把 batch 疊成兩份（條件與無條件），而條件本身逐影像只有一份。
+        # 兩支走的是同一張影像與同一個遮罩，故沿 batch 複製即為正確。
+        if m.shape[0] != zc.shape[0]:
+            if zc.shape[0] % m.shape[0] != 0:
+                raise ValueError(
+                    f"latent 的 batch {zc.shape[0]} 不是 inpainting 條件 batch "
+                    f"{m.shape[0]} 的整數倍，無法決定哪一份條件配哪一個樣本"
+                )
+            rep = zc.shape[0] // m.shape[0]
+            m = m.repeat(rep, 1, 1, 1)
+            z_masked = z_masked.repeat(rep, 1, 1, 1)
         return torch.cat([zc, m.to(zc.dtype), z_masked.to(zc.dtype)], dim=1)
 
     def _require_inpaint_cond(self):

@@ -113,19 +113,24 @@ def texture_gate(
     gx = F.conv2d(F.pad(lum, (1, 1, 1, 1), mode="reflect"), kx)
     gy = F.conv2d(F.pad(lum, (1, 1, 1, 1), mode="reflect"), ky)
 
-    pad = block // 2
-    comps = []
-    for t in (gx * gx, gx * gy, gy * gy):
-        t = F.pad(t, (pad, pad, pad, pad), mode="reflect")
-        # 區塊內平均：unfold 後對區塊維取平均，與相位區塊完全同一組位置
-        comps.append(F.unfold(t, kernel_size=block, stride=hop).mean(dim=1))
-    jxx, jxy, jyy = comps
+    jxx, jxy, jyy = (block_mean(t, block, hop) for t in (gx * gx, gx * gy, gy * gy))
 
     tr = jxx + jyy
     disc = torch.sqrt(torch.clamp(((jxx - jyy) * 0.5) ** 2 + jxy ** 2, min=0.0))
     coh = (2.0 * disc) / (tr + eps)
     ref = torch.quantile(tr, energy_quantile, dim=1, keepdim=True).clamp_min(eps)
     return (1.0 - coh ** 2) * torch.clamp(tr / ref, 0.0, 1.0)
+
+
+def block_mean(t: torch.Tensor, block: int, hop: int) -> torch.Tensor:
+    """(1,1,H,W) → (1,L)，每個區塊內取平均。
+
+    紋理閘與遮罩閘都必須走這一條：兩者若用不同的填補或步幅，就落在不同的
+    區塊格點上，相乘之後對不齊而且沒有症狀。
+    """
+    pad = block // 2
+    t = F.pad(t, (pad, pad, pad, pad), mode="reflect")
+    return F.unfold(t, kernel_size=block, stride=hop).mean(dim=1)
 
 
 def rephase_blocks(blocks: torch.Tensor, shift: torch.Tensor) -> torch.Tensor:
@@ -205,18 +210,28 @@ class PhaseResidual(ResidualModule):
 
     # ---- 閘 ----
 
-    def prepare_gates(self, x01: torch.Tensor) -> None:
+    def prepare_gates(self, x01: torch.Tensor,
+                      keep: Optional[torch.Tensor] = None) -> None:
         """由原圖算出兩個固定閘。必須在第一次前向之前呼叫一次。
 
         閘取自**原圖**而非當前的防禦圖：閘若隨 phi 移動，`g_b` 會變成優化目標
         的一部分（把擾動搬到閘自己放寬的地方），那不是本模塊要量的東西。
+
+        `keep` (1,1,H,W) 給定時再乘上每個區塊落在其中的比例。inpainting 威脅
+        模型下這是必要的：`SDWrapper.mask_latents` 算的是
+        `encode(x01 * (1 - mask))`，**落在重畫區的擾動在進入 UNet 之前就被
+        歸零**，那部分容量是白付的失真。傳 `keep = 1 - mask` 把容量集中到
+        存活得下來的區域。取比例而非二值：區塊有重疊又加了窗，部分落在界外
+        的區塊仍有貢獻，二值化會把邊界上的容量整塊丟掉。
         """
         device, dtype = x01.device, x01.dtype
         self.window = hann2d(self.block, device, dtype)
         self.freq_gate = radial_gate(self.block, self.r_min, device, dtype)
-        self.tex_gate = texture_gate(
-            x01, self.block, self.hop, self.energy_quantile
-        ).detach()
+        tex = texture_gate(x01, self.block, self.hop, self.energy_quantile)
+        if keep is not None:
+            tex = tex * block_mean(keep.to(device=device, dtype=dtype),
+                                   self.block, self.hop)
+        self.tex_gate = tex.detach()
         self._gates_ready = True
 
     def gate(self) -> torch.Tensor:

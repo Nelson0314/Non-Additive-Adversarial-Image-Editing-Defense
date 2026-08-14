@@ -50,19 +50,27 @@ class Parameterization(Protocol):
 
 
 class AdditiveParam:
-    """φ = δ，`x_def = clamp(x + δ, 0, 1)`，L∞ 投影。加性對照組。"""
+    """φ = δ，`x_def = clamp(x + δ, 0, 1)`，L∞ 投影。加性對照組。
+
+    `keep` (1,1,H,W) 或 (1,3,H,W) 給定時，δ 先乘上它再加到影像上。
+    inpainting 下傳 `1 - mask`：重畫區的擾動被 `mask_latents` 歸零，
+    留在那裡只是白付失真。等價於 PhotoGuard-c 原始碼的 `grad * (1 - cur_mask)`。
+    """
 
     name = "add"
 
-    def __init__(self, radius: float = 16.0 / 255.0):
+    def __init__(self, radius: float = 16.0 / 255.0,
+                 keep: Optional[torch.Tensor] = None):
         self.radius = radius
+        self.keep = keep
         self.delta: Optional[torch.Tensor] = None
 
     def reset(self, x01: torch.Tensor, seed: int) -> None:
         self.delta = torch.zeros_like(x01, requires_grad=True)
 
     def render(self, x01: torch.Tensor) -> torch.Tensor:
-        return (x01 + self.delta).clamp(0.0, 1.0)
+        d = self.delta if self.keep is None else self.delta * self.keep.to(self.delta)
+        return (x01 + d).clamp(0.0, 1.0)
 
     def params(self) -> List[torch.Tensor]:
         return [self.delta]
@@ -87,10 +95,12 @@ class PhaseParam:
     name = "phase"
 
     def __init__(self, size: int = 512, block: int = 32, r_min: float = 0.12,
-                 radius: float = math.pi, energy_quantile: float = 0.5):
+                 radius: float = math.pi, energy_quantile: float = 0.5,
+                 keep: Optional[torch.Tensor] = None):
         self.size, self.block, self.r_min = size, block, r_min
         self.energy_quantile = energy_quantile
         self.radius = min(radius, math.pi)
+        self.keep = keep
         self.module: Optional[PhaseResidual] = None
 
     def reset(self, x01: torch.Tensor, seed: int) -> None:
@@ -98,7 +108,7 @@ class PhaseParam:
             size=self.size, block=self.block, r_min=self.r_min,
             theta_max=self.radius, energy_quantile=self.energy_quantile,
         ).to(device=x01.device, dtype=x01.dtype)
-        self.module.prepare_gates(x01)
+        self.module.prepare_gates(x01, keep=self.keep)
 
     def render(self, x01: torch.Tensor) -> torch.Tensor:
         return self.module.pixel_residual(x01).clamp(0.0, 1.0)

@@ -135,7 +135,7 @@ def main() -> None:
         mask = load_mask(item["mask"], sd.device)
         save_image(x01, args.out / f"{item['name']}__orig.png")
         save_image(mask.expand(-1, 3, -1, -1), args.out / f"{item['name']}__mask.png")
-        print(f"\n##### {item['name']} · {args.scenario} · “{item['prompt']}” "
+        print(f"\n##### {item['name']} · {item['region']} · “{item['prompt']}” "
               f"· 重畫區 {float(mask.mean()):.3f} #####", flush=True)
 
         base = {}

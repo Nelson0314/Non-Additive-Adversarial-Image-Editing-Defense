@@ -8,7 +8,7 @@
 2. **`effect` 只在遮罩內量。** `sd.inpaint` 每一步把遮罩外貼回，兩條分支在
    該處正好差一個防禦擾動；淨化過的分支同理。整張圖算 LPIPS 會把失真與
    淨化的痕跡都算成防禦效果。
-3. **場景與 prompt 由 run 目錄決定。** `inpaint_edit.py` 的 `results.csv`
+3. **region 與 prompt 由 run 目錄決定。** `inpaint_edit.py` 的 `results.csv`
    已記下每一列的 `scenario` 與 `prompt`，遮罩存在同一個目錄，故此處不重新
    查表——第一版的協定錯誤正是出在兩邊各自決定 prompt。
 
@@ -60,7 +60,7 @@ def main() -> None:
 
     with (args.run / "results.csv").open(encoding="utf-8") as fh:
         cells = [{"image": r["image"], "condition": r["condition"],
-                  "prompt": r["prompt"], "scenario": r["scenario"]}
+                  "prompt": r["prompt"], "region": r["region"]}
                  for r in csv.DictReader(fh)]
     if args.images:
         keep = set(args.images)
@@ -103,7 +103,7 @@ def main() -> None:
                 orig_cache[key] = masked_compare(
                     repaint(x01, cell["prompt"], mask, seed), x01, mask)
 
-        print(f"=== {img} / {cell['condition']} / {cell['scenario']} ===", flush=True)
+        print(f"=== {img} / {cell['condition']} / {cell['region']} ===", flush=True)
         t0 = time.time()
         effects: dict = {}
         for pur in purifiers:
@@ -130,7 +130,7 @@ def main() -> None:
         for name, vals in effects.items():
             rows.append({
                 "image": img, "condition": cell["condition"],
-                "scenario": cell["scenario"], "purifier": name,
+                "region": cell["region"], "purifier": name,
                 "effect_mean": round(statistics.fmean(vals), 5),
                 "effect_sd": round(statistics.stdev(vals), 5) if len(vals) > 1 else "",
                 "effect_identity_mean": round(bm, 5),

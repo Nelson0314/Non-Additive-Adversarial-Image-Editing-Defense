@@ -131,7 +131,7 @@ $HOME/thirdparty/diffpure/256x256_diffusion_uncond.pt。
 只用於寫程式、跑 pytest、看報表——RTX 2050 4GB 跑不動 GPU 工作。
 指令前加 PYTHONIOENCODING=utf-8，否則印中文會炸。
 
-測試基準：196 passed / 1 xfailed（2026-08-14 加入 test_retention_cells.py 後）。
+測試基準：196 passed / 1 xfailed（2026-08-15 起）。
 
 
 九、其餘文件在哪
@@ -151,9 +151,6 @@ docs/RUNBOOK.md                      操作流程
 
 十、下一步
 --------------------------------------------------------------------
-runs/hb5 批次已於 2026-08-14 跑完（4.05 小時、4 x RTX 3090）。結論見
-FND-036/037，報告產生器是 scripts/hb5_report.py。接下來：
-
 1. **跑空白地板控制組**：effect(purify(原圖))，把未防禦的原圖淨化後再編輯，
    量算子自己的位移地板。沒有它，主張一（更抗淨化）沒有可判定的讀數
    ——現行 retention 比值與分母的相關是 r = -0.83（FND-037）。
@@ -164,3 +161,7 @@ FND-036/037，報告產生器是 scripts/hb5_report.py。接下來：
    不等於固定失真的問題（PSNR 逐圖 23.2-30.6）
 4. 補一次雙盲 2AFC 使用者研究，把 FND-035 的門檻從單一評分者升上去
 5. 把 DCT-Shield（ICCV 2025, arXiv:2504.17894）加進 baseline 清單
+
+**inpainting 方向已於 2026-08-15 完全放棄**，相關程式、資料、遮罩、批次與
+紀錄全部刪除。威脅模型只有 img2img（SDEdit）一種。取回：git log 找刪除前的
+commit，git checkout <commit> -- <path>。

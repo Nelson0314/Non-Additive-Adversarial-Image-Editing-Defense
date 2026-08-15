@@ -1,8 +1,0 @@
-image,condition,region,prompt,gen_lpips,gen_lpips_sd,attack_strength,mask_coverage,fid_lpips,fid_dists,fid_psnr,fid_ssim,fid_nima,seconds
-horse_03,phase,head,a horse wearing a blue fly mask,0.0435,0.0078,0.0569,0.1001,0.2591,0.0432,30.8088,0.9474,5.0168,28.3
-horse_03,add,head,a horse wearing a blue fly mask,0.0295,0.0085,0.0569,0.1001,0.1015,0.0031,49.0382,0.9982,5.0782,26.0
-horse_03,phase_rand,head,a horse wearing a blue fly mask,0.0151,0.0038,0.0569,0.1001,0.0878,0.049,31.2281,0.952,4.9149,26.1
-horse_03,apa_weak,head,a horse wearing a blue fly mask,0.038,0.009,0.0569,0.1001,0.208,0.1002,18.6058,0.7173,4.8175,26.1
-horse_03,mist,head,a horse wearing a blue fly mask,0.0715,0.0011,0.0569,0.1001,0.5582,0.1442,26.6539,0.7862,4.6113,26.1
-horse_03,dia_r,head,a horse wearing a blue fly mask,0.0395,0.0089,0.0569,0.1001,0.1857,0.0354,39.5091,0.9843,4.9738,26.1
-horse_03,photoguard_c,head,a horse wearing a blue fly mask,0.0497,0.004,0.0569,0.1001,0.2662,0.031,40.828,0.9832,4.9411,26.1

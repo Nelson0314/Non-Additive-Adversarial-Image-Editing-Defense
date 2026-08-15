@@ -1,8 +1,0 @@
-image,condition,region,prompt,gen_lpips,gen_lpips_sd,attack_strength,mask_coverage,fid_lpips,fid_dists,fid_psnr,fid_ssim,fid_nima,seconds
-dog_03,phase,head,a dog wearing sunglasses,0.1947,0.0152,0.2903,0.4358,0.2372,0.0335,30.0482,0.9478,5.0693,27.6
-dog_03,add,head,a dog wearing sunglasses,0.1631,0.0246,0.2903,0.4358,0.1147,0.0014,48.8206,0.9988,5.3442,25.9
-dog_03,phase_rand,head,a dog wearing sunglasses,0.1806,0.015,0.2903,0.4358,0.0809,0.0344,30.628,0.9539,4.9255,25.8
-dog_03,apa_weak,head,a dog wearing sunglasses,0.2067,0.0266,0.2903,0.4358,0.2097,0.1277,18.2106,0.717,4.9307,25.9
-dog_03,mist,head,a dog wearing sunglasses,0.2928,0.0064,0.2903,0.4358,0.5646,0.1204,26.472,0.854,4.6085,25.8
-dog_03,dia_r,head,a dog wearing sunglasses,0.2164,0.0203,0.2903,0.4358,0.1814,0.0136,39.9873,0.9907,5.2159,25.9
-dog_03,photoguard_c,head,a dog wearing sunglasses,0.2277,0.0172,0.2903,0.4358,0.2809,0.0136,40.8274,0.9896,5.2403,25.9

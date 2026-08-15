@@ -1,8 +1,0 @@
-image,condition,region,prompt,gen_lpips,gen_lpips_sd,attack_strength,mask_coverage,fid_lpips,fid_dists,fid_psnr,fid_ssim,fid_nima,seconds
-woman_02,phase,torso,a woman wearing a yellow raincoat,0.1788,0.0116,0.2461,0.3516,0.2056,0.0397,33.5019,0.969,4.1046,28.1
-woman_02,add,torso,a woman wearing a yellow raincoat,0.1076,0.0428,0.2461,0.3516,0.1985,0.0029,48.9777,0.9976,4.2118,26.2
-woman_02,phase_rand,torso,a woman wearing a yellow raincoat,0.1247,0.0691,0.2461,0.3516,0.0599,0.0407,33.5106,0.9708,4.0938,26.3
-woman_02,apa_weak,torso,a woman wearing a yellow raincoat,0.0744,0.0286,0.2461,0.3516,0.1518,0.0718,22.6811,0.8644,4.1355,26.3
-woman_02,mist,torso,a woman wearing a yellow raincoat,0.2631,0.0278,0.2461,0.3516,0.6239,0.1492,26.6895,0.7734,3.8054,26.2
-woman_02,dia_r,torso,a woman wearing a yellow raincoat,0.1174,0.0432,0.2461,0.3516,0.3262,0.0372,39.309,0.9803,4.084,26.3
-woman_02,photoguard_c,torso,a woman wearing a yellow raincoat,0.1456,0.0249,0.2461,0.3516,0.3737,0.0266,40.8244,0.9814,4.1324,26.3

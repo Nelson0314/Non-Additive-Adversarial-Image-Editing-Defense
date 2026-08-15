@@ -1,8 +1,0 @@
-image,condition,region,prompt,gen_lpips,gen_lpips_sd,attack_strength,mask_coverage,fid_lpips,fid_dists,fid_psnr,fid_ssim,fid_nima,seconds
-cat_01,phase,head,a cat wearing a red party hat,0.0347,0.0061,0.0708,0.0923,0.1632,0.0378,33.2647,0.9684,5.5598,27.2
-cat_01,add,head,a cat wearing a red party hat,0.0255,0.0136,0.0708,0.0923,0.1497,0.0017,48.6315,0.9987,5.5384,25.4
-cat_01,phase_rand,head,a cat wearing a red party hat,0.0153,0.0074,0.0708,0.0923,0.0736,0.0394,33.6585,0.9711,5.1039,25.4
-cat_01,apa_weak,head,a cat wearing a red party hat,0.0377,0.0176,0.0708,0.0923,0.1622,0.1033,20.6555,0.8302,5.154,25.4
-cat_01,mist,head,a cat wearing a red party hat,0.062,0.0024,0.0708,0.0923,0.6177,0.1483,26.3347,0.8251,4.6616,25.4
-cat_01,dia_r,head,a cat wearing a red party hat,0.0289,0.0087,0.0708,0.0923,0.2264,0.0164,40.6876,0.9904,5.4699,25.4
-cat_01,photoguard_c,head,a cat wearing a red party hat,0.0522,0.0079,0.0708,0.0923,0.28,0.0143,40.8266,0.9888,5.5307,25.4

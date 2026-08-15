@@ -101,7 +101,7 @@ FND-023…034，不要重試。
 ## 環境
 
 - 本機 Python：`C:/Users/nelso/miniconda3/envs/wacv/python.exe`（**不是 base**，base 沒有 pytest）。
-- 測試：`python -m pytest -q`，基準為 **196 passed / 1 xfailed**（2026-08-14 起）。
+- 測試：`python -m pytest -q`，基準為 **196 passed / 1 xfailed**（2026-08-15 起）。
   xfailed 是刻意釘住的 DIA-PT L1 起點缺陷（原始碼自身的問題，`strict=True`）。
 - **GPU 工作一律在 NYCU BASIC lab 跑**（兩台各 8 張 RTX 3090，home 目錄跨機同步）：
 

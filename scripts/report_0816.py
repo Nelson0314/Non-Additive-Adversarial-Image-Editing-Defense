@@ -563,6 +563,81 @@ def build_ablation(out: Path) -> str:
                          + f"<figcaption><b>{name}</b></figcaption></figure>")
             b.append("</div>")
 
+    # ---------- 操作點：閘與 theta 的取捨 ----------
+    b.append("<h3>把省下來的失真用 θ 花掉之後</h3>")
+    b.append("<p>上一張表是<b>固定 θ = 1.30</b> 量的，所以拉高 <code>r_min</code> "
+             "同時把失真壓低了——效率變好一部分只是因為花得少。真正的問題是"
+             "<b>在同一個失真水位上</b>誰的效果高。</p>")
+    tdirs2 = sorted((ROOT / "runs/theta").glob("*")) if (ROOT / "runs/theta").exists() else []
+    tt = {d.name: read_csv(d / "results.csv") for d in tdirs2 if (d / "results.csv").exists()}
+    alt = read_csv(ROOT / "runs/alt_r025/results.csv")
+    if not tt:
+        b.append(missing("θ 掃描", "python scripts/phase_ablation.py --out "
+                         "runs/theta/rR_tT --human-threshold --conditions phase "
+                         "--r-min R --phase-radius T"))
+    else:
+        common2 = None
+        for rs in tt.values():
+            s2 = {r["image"] for r in rs}
+            common2 = s2 if common2 is None else (common2 & s2)
+        common2 = sorted(common2 or [])
+        rows2 = []
+        bs = [r for r in base
+              if r["condition"] == "phase" and r["image"] in common2]
+        if bs:
+            rows2.append(["定案 r 0.12 / θ 1.30", len(bs),
+                          fmt(mean([num(r, "edit_lpips") for r in bs])),
+                          fmt(mean([num(r, "fid_dists") for r in bs])),
+                          fmt(mean([num(r, "fid_lpips") for r in bs])),
+                          fmt(mean([num(r, "fid_psnr") for r in bs]), 2),
+                          fmt(mean([num(r, "amp_dev") for r in bs]))])
+        for name in sorted(tt):
+            sel = [r for r in tt[name] if r["image"] in common2]
+            if not sel:
+                continue
+            rows2.append([name, len(sel),
+                          fmt(mean([num(r, "edit_lpips") for r in sel])),
+                          fmt(mean([num(r, "fid_dists") for r in sel])),
+                          fmt(mean([num(r, "fid_lpips") for r in sel])),
+                          fmt(mean([num(r, "fid_psnr") for r in sel]), 2),
+                          fmt(mean([num(r, "amp_dev") for r in sel]))])
+        b.append(table(["設定", "n", "edit_lpips 越大越好", "DISTS", "LPIPS",
+                        "PSNR", "幅度偏差"], rows2))
+        b.append("<div class='note warn'><b>兩個軸給出相反的答案。</b>"
+                 "在同一個 DISTS 上，高 <code>r_min</code> 配高 θ 的效果比定案高；"
+                 "但它的 LPIPS 反而更差。這與 FND-026／034 同型——"
+                 "<b>操作點的選擇是人眼的事，不是指標的事。</b></div>")
+    if alt:
+        a_ph = [r for r in alt if r["condition"] == "phase"]
+        b0 = [r for r in base if r["condition"] == "phase"
+              and r["image"] in {r2["image"] for r2 in a_ph}]
+        if a_ph and b0:
+            b.append("<h3>換操作點跑滿 24 張</h3>")
+            b.append(table(["設定", "n", "edit_lpips", "DISTS", "LPIPS", "PSNR"], [
+                ["定案 r 0.12 / θ 1.30", len(b0),
+                 fmt(mean([num(r, "edit_lpips") for r in b0])),
+                 fmt(mean([num(r, "fid_dists") for r in b0])),
+                 fmt(mean([num(r, "fid_lpips") for r in b0])),
+                 fmt(mean([num(r, "fid_psnr") for r in b0]), 2)],
+                ["r 0.25 / θ 2.6", len(a_ph),
+                 fmt(mean([num(r, "edit_lpips") for r in a_ph])),
+                 fmt(mean([num(r, "fid_dists") for r in a_ph])),
+                 fmt(mean([num(r, "fid_lpips") for r in a_ph])),
+                 fmt(mean([num(r, "fid_psnr") for r in a_ph]), 2)]]))
+            if common2:
+                im2 = sorted({r["image"] for r in a_ph})[0]
+                b.append("<div class='grid g3'>"
+                         + "<figure>"
+                         + img_tag(ROOT / "runs/phaseA_human" / (im2 + "__phase__human__def.png"))
+                         + "<figcaption><b>定案</b>r 0.12 / θ 1.30</figcaption></figure>"
+                         + "<figure>"
+                         + img_tag(ROOT / "runs/alt_r025" / (im2 + "__phase__human__def.png"))
+                         + "<figcaption><b>換操作點</b>r 0.25 / θ 2.6</figcaption></figure>"
+                         + "<figure>"
+                         + img_tag(ROOT / "runs/phaseA_human" / (im2 + "__orig.png"))
+                         + "<figcaption><b>原圖</b></figcaption></figure>"
+                         + "</div>")
+
     # ---------- 第二個 prompt ----------
     b.append("<h2>三、換掉編輯 prompt</h2>")
     b.append("<p><code>prompts.yaml</code> 每一類有兩個編輯 prompt，對應兩種惡意"

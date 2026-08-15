@@ -11,6 +11,9 @@
 | `05_maintenance.md` | 命名、文件與資料維護 |
 | `docs/reference/SURVEY_2026-08-16.md` | 文獻查證：DCT-Shield 與相位攻擊的前例 |
 
+本檔即 `00_summary.md`。全部證據落在 `docs/FINDINGS.md` 的 FND-038 至 FND-048，
+批次資料在 `runs/`。
+
 ---
 
 ## 一、三個主張的現況（更新後）
@@ -57,7 +60,7 @@ DIA-R 與加性在 JPEG→resize 串接上是**負值**——防禦之後比不�
 
 ---
 
-## 二、六個新發現
+## 二、十一個新發現（FND-038 至 FND-048）
 
 | 編號 | 內容 |
 |---|---|

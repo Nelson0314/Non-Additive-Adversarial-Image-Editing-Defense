@@ -261,40 +261,42 @@ def build_external(out: Path) -> str:
         ["條件", "n", "edit_lpips↑", "DISTS↓", "LPIPS↓", "PSNR↑", "SSIM↑",
          "CLIP 掉幅", "秒/圖"], rows))
 
-    # 只在共同影像上做配對比較，否則不同 n 的平均不可比
-    common = None
-    for c in ("phase", "photoguard_c", "mist", "dia_r", "apa_weak"):
-        s = set(imgs_per_cond.get(c, []))
-        common = s if common is None else (common & s)
-    common = sorted(common or [])
-    body.append("<h2>二、配對比較（只用所有條件都跑過的影像）</h2>")
-    if not common:
-        body.append(missing("共同影像", "等 runs/ext24 的批次跑完"))
-    else:
-        body.append(f"<p>共同影像 <b>{len(common)}</b> 張："
-                    f"<code>{'、'.join(common)}</code></p>")
-        base = {r["image"]: num(r, "edit_lpips")
-                for r in per["phase"] if r["image"] in common}
-        prow = []
-        for c in ORDER:
-            if c == "phase" or c not in per:
-                continue
-            other = {r["image"]: num(r, "edit_lpips")
-                     for r in per[c] if r["image"] in common}
-            pair = [(base[i], other[i]) for i in common
-                    if i in base and i in other and base[i] and other[i]]
-            if not pair:
-                continue
-            ratio = mean([a for a, _ in pair]) / mean([b for _, b in pair])
-            wins = sum(1 for a, b in pair if a > b)
-            prow.append([LABEL.get(c, c), len(pair),
-                         fmt(mean([a for a, _ in pair])),
-                         fmt(mean([b for _, b in pair])),
-                         sig(ratio), f"{wins}/{len(pair)}"])
-        body.append(table(["對手", "n", "紋理重相位", "對手", "倍率", "逐圖勝場"], prow))
-        body.append("<div class=note><b>比值只報「平均比平均」，不報「逐圖比值的平均」。</b>"
-                    "後者會被分母支配——同一個缺陷已經讓 <code>retention</code> "
-                    "不可解讀（FND-037，r = −0.83），詳見第二份報告。</div>")
+    # 逐對手各自配對：不同對手跑過的影像不一樣，硬取全體交集會把 n 砍到最小的那個
+    body.append("<h2>二、逐對手配對比較</h2>")
+    body.append("<p>每一列只用<b>該對手與紋理重相位都跑過</b>的影像，所以每列的 n "
+                "不同。硬取全體交集會把樣本數砍到跑得最慢的那個條件。</p>")
+    ph_by = {r["image"]: num(r, "edit_lpips") for r in per.get("phase", [])}
+    ph_d = {r["image"]: num(r, "fid_dists") for r in per.get("phase", [])}
+    prow = []
+    for c in ORDER:
+        if c == "phase" or c not in per:
+            continue
+        other = {r["image"]: num(r, "edit_lpips") for r in per[c]}
+        other_d = {r["image"]: num(r, "fid_dists") for r in per[c]}
+        common = sorted(i for i in other if i in ph_by and ph_by[i] and other[i])
+        if not common:
+            continue
+        a = [ph_by[i] for i in common]
+        b = [other[i] for i in common]
+        ratio = mean(a) / mean(b)
+        wins = sum(1 for x, y in zip(a, b) if x > y)
+        prow.append([LABEL.get(c, c), len(common), fmt(mean(a)), fmt(mean(b)),
+                     sig(ratio), f"{wins}/{len(common)}",
+                     fmt(mean([ph_d[i] for i in common])),
+                     fmt(mean([other_d[i] for i in common]))])
+    body.append(table(["對手", "n", "紋理重相位", "對手", "倍率", "逐圖勝場",
+                       "相位 DISTS", "對手 DISTS"], prow))
+    body.append("<div class=note><b>倍率與逐圖勝場要一起讀。</b>兩者可以指向不同的"
+                "故事——聚合打平但逐圖大輸，代表本方法在少數影像上贏很多、"
+                "在多數影像上小輸。<b>DISTS 兩欄也必須一起讀</b>：外部方法走各自論文的"
+                "原生預算，失真水位不同，倍率本身不是公平的比較。</div>")
+    body.append("<div class=note><b>比值只報「平均比平均」，不報「逐圖比值的平均」。</b>"
+                "後者會被分母支配——同一個缺陷已經讓 <code>retention</code> "
+                "不可解讀（FND-037，r = −0.83），詳見第二份報告。</div>")
+
+    # 看圖用的影像：取有 photoguard_c 的那些（它是最強的對手）
+    pgc_imgs = sorted({r["image"] for r in per.get("photoguard_c", [])})
+    common = pgc_imgs or sorted(imgs_per_cond.get("phase", []))
 
     # 影像
     body.append("<h2>三、看圖</h2>")

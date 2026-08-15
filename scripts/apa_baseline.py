@@ -40,11 +40,11 @@ from src.utils.io import load_image_tensor, write_csv  # noqa: E402
 from src.metrics.aesthetic import AestheticSuite  # noqa: E402
 from src.metrics.suite import MetricSuite  # noqa: E402
 from src.models.sd import SDWrapper  # noqa: E402
-from src.residual.site_apa import (  # noqa: E402
+from src.residual.apa_port import (  # noqa: E402
     APA_LORA_ALPHA, APA_LORA_RANK, APA_NOISE_OFFSET,
     APA_STAGE1_LR, APA_STAGE1_STEPS,
 )
-from src.residual.site_weight import APA_BLOCKS, WeightResidual  # noqa: E402
+from src.residual.lora_weights import APA_BLOCKS, WeightResidual  # noqa: E402
 from src.utils.artifacts import save_image  # noqa: E402
 
 DATA_DIR = Path(__file__).resolve().parent.parent / "data" / "apa_native"
@@ -61,7 +61,7 @@ EDIT_SEED = 20260812
 
 CONDITIONS = ["apa_weak", "photoguard_c", "mist", "dia_r"]
 
-# B 臂（規格 §3）：與 apa_weak 完全相同，只把 latent 的 L∞ 球換成 site F 的
+# latent 臂（規格 §3）：與 apa_weak 完全相同，只把 latent 的 L∞ 球換成 紋理重相位的
 # 相位參數化。不列入 CONDITIONS 的預設，要用 --conditions 明給。
 PARAMETERIZATION = {"apa_weak": "linf", "apa_phase": "phase"}
 

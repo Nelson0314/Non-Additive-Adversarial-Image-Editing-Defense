@@ -7,7 +7,7 @@
 3. `sdedit`：攻擊者的編輯管線，可微分（殘差模塊關閉）
 
 殘差注入以 callback 形式傳入，SDWrapper 不知道殘差如何產生 —— 這使
-site L 與其他 site 共用同一條去噪迴圈。
+latent 逐步注入與其他 site 共用同一條去噪迴圈。
 
 所有影像張量介面為 [0,1]、(1,3,H,W)；內部轉為 SD VAE 的 [-1,1] 值域。
 
@@ -580,7 +580,7 @@ class SDWrapper:
 
         注入點比 DDIM 少一個。迴圈跑 i=K−1…1 共 K−1 步，而 `denoise`
         跑 K 步，因為 BDIA 不需要反解反演的第 0 步。故 `eps_hook` 收到的
-        `step_idx` 為 0…K−2，site L 那類以 steps 為第一維的模塊會有一格
+        `step_idx` 為 0…K−2，latent 逐步注入 那類以 steps 為第一維的模塊會有一格
         用不到。留著那一格而非改動模塊的形狀：模塊的參數量因此在兩種反演
         之間保持一致，比較才不會多一個變因。
         """
@@ -963,7 +963,7 @@ class SDXLPrompt:
     一支會拿到條件的 pooled，而症狀只是「CFG 的效果怪怪的」，沒有任何錯誤
     訊息。綁成一個物件之後，走錯配對在型別上就不可能發生。
 
-    `emb_residual`（site E）的作用對象**只有 `embeds`**——那是 cross-attention
+    `emb_residual`（文字嵌入）的作用對象**只有 `embeds`**——那是 cross-attention
     讀的序列，也是文字定位發生的地方。`__add__` 因此只加在 `embeds` 上，
     使 `generator.py` 的 `emb = emb + d_emb` 不必修改即有正確語意。
     """
@@ -998,7 +998,7 @@ class SDXLPrompt:
         if delta.shape[-1] != self.embeds.shape[-1]:
             raise ValueError(
                 f"殘差的最後一維 {delta.shape[-1]} 與序列嵌入的 "
-                f"{self.embeds.shape[-1]} 不符。site E 的作用對象是那條 2048 維"
+                f"{self.embeds.shape[-1]} 不符。文字嵌入 的作用對象是那條 2048 維"
                 "的序列，不是 1280 維的 pooled 嵌入"
             )
         return SDXLPrompt(self.embeds + delta, self.pooled)

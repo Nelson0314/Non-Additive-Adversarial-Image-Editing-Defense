@@ -1,4 +1,4 @@
-# 設計規格：紋理重相位（site F）
+# 設計規格：紋理重相位（紋理重相位）
 
 2026-08-13 定案。判準沿用 `docs/FINDINGS.md`／`docs/DECISIONS.md`，本檔不新增判準。
 
@@ -59,7 +59,7 @@
 
 ## 3. 兩臂與對照組
 
-### A 臂（像素空間，科學主體）
+### 像素臂（像素空間，科學主體）
 
 損失、優化器、步數、種子完全相同，**唯一變因是參數化**：
 
@@ -76,12 +76,12 @@ baseline 的 targeted 形式同源。
 `phase_rand` 自第一天即存在。FND-004 與 FND-018 兩次都是被「贏不過同失真隨機」
 擋下來的，事後補對照組等於重蹈覆轍。
 
-### B 臂（latent，相容性檢查）
+### latent 臂（latent，相容性檢查）
 
 把 APA 階段二的 `δ ∈ L∞ 球` 換成 latent 上的相位 θ（8×8 區塊、hop 4），其餘
 五個位置維持原生，對照現行弱 baseline。
 
-此臂**不能**與 A 臂共用損失：直接擾動 latent 會使 encoder 損失退化為平凡解。
+此臂**不能**與 像素臂共用損失：直接擾動 latent 會使 encoder 損失退化為平凡解。
 故沿用 APA 的 `−‖D(z̄₀) − y_target‖²`。
 
 ### 外部水位
@@ -106,12 +106,12 @@ baseline 的 targeted 形式同源。
 
 | 檔 | 狀態 | 內容 |
 |---|---|---|
-| `src/residual/site_phase.py` | 新增 | 算子本體，`site = "F"`（E／L／S／W 已佔用） |
-| `src/baselines/encoder_target.py` | 新增 | A 臂共用的 encoder-targeted 損失與 spec |
-| `scripts/phase_ablation.py` | 新增 | A 臂驅動 |
-| `src/defense/apa_native_stage2.py` | 修改 | B 臂：新增 latent 相位參數化分支 |
+| `src/residual/texture_rephase.py` | 新增 | 算子本體，`site = "F"`（E／L／S／W 已佔用） |
+| `src/baselines/encoder_target.py` | 新增 | 像素臂共用的 encoder-targeted 損失與 spec |
+| `scripts/phase_ablation.py` | 新增 | 像素臂驅動 |
+| `src/defense/apa_native_stage2.py` | 修改 | latent 臂：新增 latent 相位參數化分支 |
 | `src/purify/ops.py` | 修改 | 新增 `jpeg75_then_resize` |
-| `tests/test_site_phase.py` | 新增 | 見下 |
+| `tests/test_texture_rephase.py` | 新增 | 見下 |
 
 測試要釘住的性質：
 

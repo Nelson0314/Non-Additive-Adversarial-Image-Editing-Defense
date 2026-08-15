@@ -1,4 +1,4 @@
-"""site W — 權重空間 —— spec §4.3 列出但從未實作的第三個注入位置。
+"""LoRA 權重 — 權重空間 —— spec §4.3 列出但從未實作的第三個注入位置。
 
     W' = W + (α/r)·B·A      B ∈ ℝ^{out×r}, A ∈ ℝ^{r×in}
     φ = { A, B }  於 UNet cross-attention 的 to_q / to_k / to_v / to_out
@@ -20,11 +20,11 @@
 | 載體 | 參數量（SD v1.4, 512², r=16） |
 |---|---|
 | 低秩 ε 注入 | 163,840 —— 實測容量不足 |
-| 嵌入空間 site E | 13,520 —— 比現況更少，不會更好 |
-| 像素全秩 site PF（對照用，非生成式） | 786,432 |
-| 權重空間 site W | 1,591,296（16 個 transformer block × 4 個 Linear）|
+| 嵌入空間 文字嵌入 | 13,520 —— 比現況更少，不會更好 |
+| 像素全秩 像素加性F（對照用，非生成式） | 786,432 |
+| 權重空間 LoRA 權重 | 1,591,296（16 個 transformer block × 4 個 Linear）|
 
-site W 的參數量是低秩 ε 注入的 9.7 倍。r=4 時為 397,824，仍為 2.4 倍。
+LoRA 權重 的參數量是低秩 ε 注入的 9.7 倍。r=4 時為 397,824，仍為 2.4 倍。
 
 實作方式：forward hook，不改動模型權重本身
 
@@ -102,7 +102,7 @@ class _LoRAHook(nn.Module):
 
 
 class WeightResidual(ResidualModule):
-    site = "W"
+    name = "lora_weights"
 
     def __init__(
         self,

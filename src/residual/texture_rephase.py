@@ -1,4 +1,4 @@
-"""site F — 紋理重相位 —— 非加性、停在像素空間、由構造保證恆等。
+"""紋理重相位 — 紋理重相位 —— 非加性、停在像素空間、由構造保證恆等。
 
     x_def = OLA( irfft2( rfft2(w*P_b) * exp(i * g_b * m_w * theta_b) ) * w ) / OLA(w^2)
 
@@ -145,14 +145,14 @@ def rephase_blocks(blocks: torch.Tensor, shift: torch.Tensor) -> torch.Tensor:
 
 
 class PhaseResidual(ResidualModule):
-    """site F。phi = theta，形狀 (1, L, block, block//2+1)，RGB 三通道共用。
+    """紋理重相位。phi = theta，形狀 (1, L, block, block//2+1)，RGB 三通道共用。
 
     通道共用相位是依 2026-08-13 的顏色結論：等亮度色度擾動的位移比 RGB 獨立
     低 31%，而 RGB 獨立那組的效果全部來自它順帶改變的亮度。共用相位使擾動
     落在結構而非色度上，不白付色偏的代價。
     """
 
-    site = "F"
+    name = "texture_rephase"
 
     def __init__(
         self,

@@ -2,7 +2,7 @@
 
 刻意不含敘述文字與結論（使用者 2026-08-14 指定）。每一格都必須有影像可看。
 
-架構圖的每一張中間影像都由 `src/residual/site_phase.py` 的真實程式碼算出，
+架構圖的每一張中間影像都由 `src/residual/texture_rephase.py` 的真實程式碼算出，
 不是示意圖；`arch/facts.json` 存的是同一次計算印出的可驗證數值。
 
 前置：
@@ -29,10 +29,10 @@ from PIL import Image
 
 IMAGES = ["man_02", "woman_02", "dog_03", "horse_03", "cat_01"]
 CONDS = ["phase", "add", "phase_rand", "apa_weak", "mist", "dia_r", "photoguard_c"]
-LABEL = {"phase": "site F 紋理重相位", "add": "加性 δ", "phase_rand": "隨機相位 RPN",
+LABEL = {"phase": "紋理重相位", "add": "加性 δ", "phase_rand": "隨機相位 RPN",
          "apa_weak": "弱 baseline APA", "mist": "Mist", "dia_r": "DIA-R",
          "photoguard_c": "PhotoGuard-c"}
-SHORT = {"phase": "site F", "add": "加性 δ", "phase_rand": "隨機相位",
+SHORT = {"phase": "紋理重相位", "add": "加性 δ", "phase_rand": "隨機相位",
          "apa_weak": "APA", "mist": "Mist", "dia_r": "DIA-R",
          "photoguard_c": "PhotoGuard-c"}
 BUDGET = {"phase": "θ = 1.30", "add": "ε∞ = 1.2/255", "phase_rand": "θ = 1.30",
@@ -121,7 +121,7 @@ def main() -> None:
     PEAR = (sum((a - mx) * (b - my) for a, b in zip(X, Y)) /
             math.sqrt(sum((a - mx) ** 2 for a in X) * sum((b - my) ** 2 for b in Y)))
 
-    # ---------- 架構：site F ----------
+    # ---------- 架構：紋理重相位 ----------
     step = lambda n, t: '<div class="op"><span class="no">%s</span>%s</div>' % (n, t)
     flow = "".join([
         tile(A / "01b_input_marked.png", "x", "512² 輸入", "紅框＝下方追蹤的區塊",
@@ -176,7 +176,7 @@ def main() -> None:
         tile(A / "11_add_def.png", "x_def", "實際訓練結果", "ε = 1.2/255",
              cls="fx", size=340),
     ])
-    phres = tile(A / "12_phase_res.png", "site F 的殘差", "×8 ＋0.5",
+    phres = tile(A / "12_phase_res.png", "紋理重相位的殘差", "×8 ＋0.5",
                  "L∞ %.4f · RMS %.5f" % (F["phase_res_linf"], F["phase_res_rms"]),
                  cls="fx", size=340)
     adres = tile(A / "12_add_res.png", "加性 δ 的殘差", "×8 ＋0.5",
@@ -356,10 +356,10 @@ TEMPLATE = """<title>紋理重相位防禦圖譜</title>
 <span><b>攻擊者</b> stock SD v1.4 · SDEdit 0.55</span>
 <span><b>硬體</b> 4 × RTX 3090 · 4.05 h</span>
 </div>
-<div class="key"><span class="a">site F</span><span class="o">最佳值 / 構造保證</span></div>
+<div class="key"><span class="a">紋理重相位</span><span class="o">最佳值 / 構造保證</span></div>
 </header>
 
-<h2>架構 · site F 紋理重相位</h2>
+<h2>架構 · 紋理重相位</h2>
 <div class="flow">%(flow)s</div>
 <div class="flow">%(flow2)s</div>
 <div class="checks">%(checks)s</div>
@@ -383,11 +383,11 @@ TEMPLATE = """<title>紋理重相位防禦圖譜</title>
 %(purs)s
 
 <h2>抗淨化 · 淨化後的絕對位移量</h2>
-<div class="tw"><table><thead><tr><th>淨化算子</th>%(head)s<th>site F</th></tr></thead>
+<div class="tw"><table><thead><tr><th>淨化算子</th>%(head)s<th>紋理重相位</th></tr></thead>
 <tbody>%(eff)s</tbody></table></div>
 
 <h2>抗淨化 · 衰減率 retention</h2>
-<div class="tw"><table><thead><tr><th>淨化算子</th>%(head)s<th>site F</th></tr></thead>
+<div class="tw"><table><thead><tr><th>淨化算子</th>%(head)s<th>紋理重相位</th></tr></thead>
 <tbody>%(ret)s</tbody></table></div>
 
 <h2>分母與衰減率 · Pearson r = %(pear)+.2f</h2>

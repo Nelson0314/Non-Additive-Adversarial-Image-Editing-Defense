@@ -58,7 +58,7 @@ from typing import Dict, List, Optional, Tuple
 
 import torch
 
-from src.residual.site_phase import PhaseResidual
+from src.residual.texture_rephase import PhaseResidual
 
 
 @dataclass
@@ -82,14 +82,14 @@ class NativeStage2Config:
     use_ckpt: bool = True
     use_bdia: bool = False
 
-    # ---- B 臂：換掉約束與參數化，其餘四個位置維持原生 ----
+    # ---- latent 臂：換掉約束與參數化，其餘四個位置維持原生 ----
     # `linf` 是 DEC-023 的弱 baseline（官方 Eq.7 的 latent L∞ 球）。
-    # `phase` 把同一個 latent 上的擾動改成 site F 的相位參數化，用來檢查
-    # A 臂（像素空間）量到的參數化差異在既有管線內是否也成立。
-    # 更新規則（L1 動量 + sign）與迭代數不變——B 臂只動這一個位置。
+    # `phase` 把同一個 latent 上的擾動改成 紋理重相位的相位參數化，用來檢查
+    # 像素臂（像素空間）量到的參數化差異在既有管線內是否也成立。
+    # 更新規則（L1 動量 + sign）與迭代數不變——latent 臂只動這一個位置。
     parameterization: str = "linf"
     phase_block: int = 8         # latent 是 64²，區塊比像素空間的 32 小一個數量級
-    phase_r_min: float = 0.12    # 與 A 臂同值；天花板由它決定（實測見規格 §6）
+    phase_r_min: float = 0.12    # 與 像素臂同值；天花板由它決定（實測見規格 §6）
     phase_theta_max: float = 3.141592653589793
     phase_mu: float = 0.3141592653589793   # θ_max / 10，與 µ×N 用滿半徑的比例一致
 
@@ -200,11 +200,11 @@ def _attack_phase(
     sd, la_0: torch.Tensor, emb_cond, emb_uncond, ori_latents: torch.Tensor,
     y_target: torch.Tensor, cfg: "NativeStage2Config", ts, log_every: int,
 ) -> Tuple[torch.Tensor, List[Dict]]:
-    """B 臂：把 latent 擾動由「L∞ 球內的加性 offset」換成 site F 的相位參數化。
+    """latent 臂：把 latent 擾動由「L∞ 球內的加性 offset」換成 紋理重相位的相位參數化。
 
     其餘四個位置維持原生——階段一的 LoRA、dual-path 的 trajectory ＋
     step-level guidance、L1 正規化動量 ＋ sign 的更新規則、以及淺噪聲帶的
-    反演都不動。**只換這一個位置**，故 A 臂（像素空間）量到的參數化差異
+    反演都不動。**只換這一個位置**，故 像素臂（像素空間）量到的參數化差異
     若在這裡重現，就不是像素空間特有的現象。
 
     `log` 裡 `linf` 仍然是 latent 空間的 L∞（`adv − la_0`），與 `linf` 分支
@@ -290,7 +290,7 @@ def attack_native(
     if cfg.parameterization != "linf":
         raise ValueError(
             f"未知的 parameterization {cfg.parameterization!r}，"
-            f"只接受 'linf'（DEC-023 的弱 baseline）或 'phase'（B 臂）"
+            f"只接受 'linf'（DEC-023 的弱 baseline）或 'phase'（latent 臂）"
         )
     # `adv` 必須與 `la_0` 是不同物件：下面的 `requires_grad_()` 是 in-place，
     # 共用會讓 L∞ 投影的固定中心也被標成需要梯度。

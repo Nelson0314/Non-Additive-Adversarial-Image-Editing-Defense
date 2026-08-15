@@ -385,9 +385,9 @@ APA 的 arXiv v1 是唯一版本且**沒有 Appendix**，論文四處引用它�
 | 粒度 | per-image 一組 LoRA |
 | prompt | ImageNet 類別名 |
 
-> **已據此修正程式。** `src/residual/site_weight.py` 原本寫死只掃 `.attn2.`，
+> **已據此修正程式。** `src/residual/lora_weights.py` 原本寫死只掃 `.attn2.`，
 > 照 APA 實作會少掉一半目標層（實測 4 → 8 層）。已新增 `blocks` 參數，
-> 預設維持 `("attn2",)` 使既有行為不變，`site_apa.py` 改用 `APA_BLOCKS`。
+> 預設維持 `("attn2",)` 使既有行為不變，`apa_port.py` 改用 `APA_BLOCKS`。
 > 這是一個不會有症狀的容量差異：訓練跑得完、曲線正常，只是階段一的對齊能力被削弱。
 
 ### 7.2 論文自我矛盾（不影響本專案，但須在論文中說明）

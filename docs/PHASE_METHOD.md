@@ -1,6 +1,6 @@
-# site F（紋理重相位）的完整紀錄
+# 紋理重相位的完整紀錄
 
-2026-08-15 收束。本頁自足：不讀其他檔也能知道 site F 是什麼、怎麼量的、
+2026-08-15 收束。本頁自足：不讀其他檔也能知道 紋理重相位是什麼、怎麼量的、
 量到什麼、哪些說法被推翻過、還缺什麼。逐筆的原始證據在 `FINDINGS.md`
 （FND-）與 `DECISIONS.md`（DEC-），批次在 `runs/`。
 
@@ -41,7 +41,7 @@ x_def = OLA( irfft2( rfft2(w·P_b) · exp(i·g_b·m_ω·θ_b) )·w ) / OLA(w²)
 
 **文獻依據**：Random Phase Noise（Galerne, Gousseau & Morel, IEEE TIP 20(1):
 257–267, 2011）——隨機化 Fourier 相位可保留微紋理的外觀。`phase_rand` 就是
-RPN 本身，是 site F 的同失真對照組。
+RPN 本身，是 紋理重相位的同失真對照組。
 
 ### 為什麼失真有天花板
 
@@ -58,7 +58,7 @@ RPN 本身，是 site F 的同失真對照組。
 
 | 組 | 條件 | 預算 |
 |---|---|---|
-| site F | `phase` | θ = 1.30（人眼門檻） |
+| 紋理重相位 | `phase` | θ = 1.30（人眼門檻） |
 | 內部對照 | `add` | ε∞ = 1.2/255（人眼門檻） |
 | 內部對照 | `phase_rand` | θ = 1.30（同失真隨機相位＝RPN） |
 | 弱 baseline | `apa_weak` | 原生 ε_a = 0.4（latent） |
@@ -189,9 +189,9 @@ FND-033 的「勝 9/10」在 DISTS 對齊下成立，因為當時兩個分母只
 
 注意力抑制／分類器 CE／latent／CLIP 四種 reward、DISTS 進 loss 的軟約束、
 Adam 更新規則、位移場、cross-attention 注入、分階段注入、amortized generator、
-顏色通道、**site F 搬進 latent（B 臂）**。結論留在 FND-004、FND-023…034。
+顏色通道、**紋理重相位搬進 latent（latent 臂）**。結論留在 FND-004、FND-023…034。
 
-B 臂無效的機制：要利用的落差是「人眼與 DISTS 對紋理重取樣寬容、VAE encoder
+latent 臂無效的機制：要利用的落差是「人眼與 DISTS 對紋理重取樣寬容、VAE encoder
 對相位敏感」，而 latent 擾動已在 encoder 之後。**優勢是像素空間特有的。**
 
 ---
@@ -220,7 +220,7 @@ B 臂無效的機制：要利用的落差是「人眼與 DISTS 對紋理重取�
 # 失真掃描（定人眼門檻）
 python scripts/phase_distortion_sweep.py --out runs/<批次>
 
-# A 臂：人眼門檻
+# 像素臂：人眼門檻
 python scripts/phase_ablation.py --out runs/<批次> --data data/lo_aligned \
     --human-threshold
 

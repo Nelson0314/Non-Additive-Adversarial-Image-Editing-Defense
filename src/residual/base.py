@@ -2,7 +2,7 @@
 
 介面判準：
 - `optimize.py` 只呼叫 `module.parameters()`，不得知道自己在優化外積向量還是 LoRA 矩陣
-- `generator.py` 只詢問模塊提供哪種能力，不得依 site 寫死分支邏輯
+- `generator.py` 只詢問模塊提供哪種能力，不得依注入位置的名稱寫死分支邏輯
 
 因此模塊以「能力」而非「型別」對外表達：像素側殘差實作 `pixel_residual`，
 去噪側殘差實作 `eps_hook`，兩者的預設實作皆回傳 None 表示不提供。
@@ -17,7 +17,7 @@ import torch.nn as nn
 class ResidualModule(nn.Module):
     """可開關的殘差模塊。關閉時行為必須與模塊不存在完全一致。"""
 
-    site: str = "?"
+    name: str = "?"
 
     def __init__(self):
         super().__init__()
@@ -57,7 +57,7 @@ class ResidualModule(nn.Module):
     def patches_model(self) -> bool:
         """φ 是否直接改動模型本身，而非走任何顯式的殘差路徑。
 
-        site W（權重空間 LoRA）為 True：它以 forward hook 修改 UNet 的
+        LoRA 權重（權重空間 LoRA）為 True：它以 forward hook 修改 UNet 的
         cross-attention 輸出，不提供上面三種能力中的任何一種。generator
         需要知道這件事，否則會誤判「φ 進不了計算圖」而報錯。
         """
@@ -69,12 +69,12 @@ class ResidualModule(nn.Module):
         """注入前、未經任何非線性變換的殘差，其秩等於設定值。
 
         存在理由是把「架構保證的秩」與「實際觀察到的像素秩」分開量測。
-        site P 的 `x_def − x` 已經過 clamp，其數值秩不等於設定值：
+        像素加性的 `x_def − x` 已經過 clamp，其數值秩不等於設定值：
         實測 r=2、128² 真實影像上為 84~87，但 99% 能量仍落在秩 2~3，
         因為只有 0.46% 的元素被 clamp 改動。沒有這個介面就無法區分
         「秩約束失效」與「clamp 造成的稀疏擾動」。
 
-        回傳 None 表示該 site 沒有對應的像素空間量（如 site L）。
+        回傳 None 表示該位置沒有對應的像素空間量（如 latent 逐步注入）。
         """
         return None
 
@@ -102,7 +102,7 @@ class ResidualModule(nn.Module):
     def remove(self) -> None:
         """卸除模塊對外部模型造成的掛載（如 forward hook）。預設無事可做。
 
-        `WeightResidual` 覆寫它：hook 註冊在 SD 的模組上，模塊本身被垃圾
+        `LoRAWeights` 覆寫它：hook 註冊在 SD 的模組上，模塊本身被垃圾
         回收並不會移除它們，殘留的 hook 會污染共用同一個 `SDWrapper` 的
         後續實驗。定義在基底類別是為了讓呼叫端可以無條件呼叫，
         不需要先判斷模塊是哪一種。

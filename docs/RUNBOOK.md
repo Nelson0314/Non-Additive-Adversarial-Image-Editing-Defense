@@ -29,7 +29,7 @@
 | 位置 | 運算 | 用於 |
 |---|---|---|
 | **site warp**（`site_warp.py`） | `x_def = grid_sample(x, identity_grid + f_φ)`；φ 是位移場，每個像素被搬移一小段。不是加減，是**重新取樣** | N1、N2、R |
-| **site apa**（`site_apa.py`） | 兩階段：LoRA 改 UNet 權重（保真對齊）+ latent 注入，最後 `decode(...)` 出圖 | N3 |
+| **site apa**（`apa_port.py`） | 兩階段：LoRA 改 UNet 權重（保真對齊）+ latent 注入，最後 `decode(...)` 出圖 | N3 |
 
 ### 0.2 攻擊方那條運算鏈（威脅模型）
 

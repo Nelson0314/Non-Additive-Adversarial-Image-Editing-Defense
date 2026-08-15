@@ -46,7 +46,7 @@ case "$JOB" in
   s1_cheap)  run "$PY" scripts/apa_baseline.py --out "$B/g2" --data "$DATA" \
                  --conditions apa_weak mist dia_r --images "${IMAGES[@]}" ;;
 
-  # A 臂三條件不必重跑：runs/phaseA_human 已在人眼半徑上跑完 24 張。
+  # 像素臂三條件不必重跑：runs/phaseA_human 已在人眼半徑上跑完 24 張。
   # 故本工作在波次一就能開始，不等任何東西。
   s2_arm)    run "$PY" scripts/phase_retention.py --run runs/phaseA_human \
                  --data "$DATA" --seeds 3 --images "${IMAGES[@]}" \

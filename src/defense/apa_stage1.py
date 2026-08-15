@@ -52,7 +52,7 @@ def align_apa_native(
        （`docs/reference/CODE_CONTRACTS.md`）是「未校準的值一律拒絕」，
        但本函式的目的正是忠實重現官方超參數，不是本專案自訂的逐條件校準
        ——查表反而會把這次比較做成另一個「本專案版本」，答不了「原生做法
-       多好」這個問題。呼叫端傳入 `src/residual/site_apa.py` 的
+       多好」這個問題。呼叫端傳入 `src/residual/apa_port.py` 的
        `APA_STAGE1_LR`／`APA_STAGE1_STEPS`／`APA_NOISE_OFFSET`。
 
     不做 `align()` 的「保留軌跡最佳步」：官方程式碼本身也沒有這個機制

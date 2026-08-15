@@ -39,8 +39,8 @@ APA 走生成路徑，`x_def` 經 `decode(encode(x))`，該來回本身即
 from typing import Optional
 
 from src.residual.composite import CompositeResidual
-from src.residual.site_latent import LatentResidual
-from src.residual.site_weight import APA_BLOCKS, WeightResidual
+from src.residual.latent_inject import LatentResidual
+from src.residual.lora_weights import APA_BLOCKS, WeightResidual
 
 STAGE1, STAGE2 = "stage1", "stage2"
 
@@ -137,7 +137,7 @@ def build_apa(
         #
         # 非零的 `init_std` 不會破壞「φ=0 逐位元等同未注入」：V 為零使外積
         # 恆為零，殘差仍精確是 0。這正是 LoRA（Hu et al., ICLR 2022）採用
-        # 「一半高斯、一半零」的理由，`site_weight.py` 的 `_LoRAHook` 同一慣例。
+        # 「一半高斯、一半零」的理由，`lora_weights.py` 的 `_LoRAHook` 同一慣例。
         #
         # 2026-08-05 修正。before：`init_std=0.0`，註解誤稱「此處給 0 指的是
         # 整體殘差為零」。after：沿用 `LatentResidual` 的預設 0.02。

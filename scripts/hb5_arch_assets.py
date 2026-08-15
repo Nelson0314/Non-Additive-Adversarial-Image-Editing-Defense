@@ -1,6 +1,6 @@
-"""產生 site F 架構圖需要的每一張中間影像，供 `hb5_report.py` 使用。
+"""產生 紋理重相位架構圖需要的每一張中間影像，供 `hb5_report.py` 使用。
 
-每一張都由 `src/residual/site_phase.py` 的真實程式碼算出，**不是示意圖**：
+每一張都由 `src/residual/texture_rephase.py` 的真實程式碼算出，**不是示意圖**：
 窗、幅度譜、相位譜、兩個閘、旋轉前後的頻譜，都是同一條前向路徑上的實際
 張量。一併輸出 `facts.json`，內含三個由構造保證、可被逐次複驗的數值：
 
@@ -26,7 +26,7 @@ import numpy as np  # noqa: E402
 import torch  # noqa: E402
 from PIL import Image  # noqa: E402
 
-from src.residual.site_phase import (  # noqa: E402
+from src.residual.texture_rephase import (  # noqa: E402
     PhaseResidual, hann2d, radial_gate, rephase_blocks)
 
 # 追蹤用的區塊左上角。取在狗毛上——閘在平坦區與邊緣皆為 0，圖要能看出作用。

@@ -23,10 +23,10 @@
 |---|---|---|
 | **弱 baseline** | 完全原生 APA，只把 reward 換成 targeted output（DEC-023） | `scripts/apa_baseline.py --conditions apa_weak` |
 | **強 baseline** | 三個已發表的加性方法：`photoguard_c`／`mist`／`dia_r` | 同上，`src/baselines/` |
-| **site F** | **紋理重相位**，本專案的正式方向 | `src/residual/site_phase.py` |
+| **紋理重相位** | **把影像切塊、只轉傅立葉相位**，本專案的正式方向 | `src/residual/texture_rephase.py` |
 
 `add`（加性 δ 走同一個 encoder-targeted 損失）與 `phase_rand`（同失真隨機相位，
-即 RPN）是 site F 消融的兩個**內部對照**，不是獨立條件。
+即 RPN）是 紋理重相位消融的兩個**內部對照**，不是獨立條件。
 
 ## 3. 程式：十支腳本
 
@@ -35,21 +35,21 @@
 | 腳本 | 用途 |
 |---|---|
 | `apa_baseline.py` | 弱 baseline ＋ 三個強 baseline 的訓練與評測 |
-| `phase_ablation.py` | A 臂參數化消融：`add`／`phase`／`phase_rand`。`--human-threshold` 走人眼門檻半徑，否則對齊 DISTS |
+| `phase_ablation.py` | 像素臂參數化消融：`add`／`phase`／`phase_rand`。`--human-threshold` 走人眼門檻半徑，否則對齊 DISTS |
 | `phase_distortion_sweep.py` | 失真掃描，供人眼定門檻。十六項指標，不跑編輯評測 |
 | `phase_retention.py` | 抗淨化的 retention，跑在已存的防禦圖上，不重跑攻擊 |
 | `phase_gate_probe.py` | 紋理閘有效面積與 θ_max 校準（CPU，不載入 SD） |
 | `phase_compare_page.py` | `compare.html` 產生器 |
 | `merge_runs.py` | 併平行分片。**平行必須分片**：`write_csv` 每次整份覆寫，兩個行程寫同一個目錄會互相蓋掉 |
 | `run_hb5.sh` | hb5 批次的具名工作表與分派 |
-| `hb5_arch_assets.py` | site F 架構圖的每一張中間張量，由真實前向路徑算出 |
+| `hb5_arch_assets.py` | 紋理重相位架構圖的每一張中間張量，由真實前向路徑算出 |
 | `hb5_purify_gallery.py`／`hb5_report.py` | 淨化圖庫與報告產生器 |
 
 `src/`：
 
 | 目錄 | 內容 |
 |---|---|
-| `residual/` | `site_phase.py`（site F）、`site_weight.py`／`site_apa.py`（APA 階段一 LoRA）、`site_latent.py`、`base.py`／`composite.py`／`lowrank.py` |
+| `residual/` | `texture_rephase.py`（紋理重相位）、`lora_weights.py`／`apa_port.py`（APA 階段一 LoRA）、`latent_inject.py`、`base.py`／`composite.py`／`lowrank.py` |
 | `defense/` | `apa_stage1.py`、`apa_native_stage2.py`、`param_pgd.py` |
 | `baselines/` | `pgd.py` 骨幹 ＋ 五篇（`REGISTRY` 需要五篇齊全）＋ `encoder_target.py` |
 | `models/` | `sd.py`（SD 包裝、DDIM／BDIA 反演） |
@@ -61,9 +61,9 @@
 33 支腳本、24 支 src 模組、21 支測試與逐次紀錄已於 2026-08-13 刪除。
 取回：`git checkout 6bb656280 -- <path>`。
 
-## 4. site F 的構造
+## 4. 紋理重相位的構造
 
-> **完整紀錄見 `SITE_F_RECORD.md`**——自足、可獨立讀完，含被推翻過的說法。
+> **完整紀錄見 `PHASE_METHOD.md`**——自足、可獨立讀完，含被推翻過的說法。
 
 
 ```
@@ -96,20 +96,20 @@ x_def = OLA( irfft2( rfft2(w·P_b) · exp(i·g_b·m_ω·θ_b) )·w ) / OLA(w²)
 | 批次 | 內容 |
 |---|---|
 | `phase_sweep` | 失真掃描 108 格，人眼門檻由此劃定 |
-| `phaseA_full` | A 臂 DISTS 對齊，6 張 × 3 條件 × 2 預算 ＋ retention 360 列 |
-| `phaseA_human` | A 臂人眼門檻，**24 張** × 3 條件（FND-035 的來源） |
-| `phaseB` | B 臂（相位搬進 latent），已否決 |
+| `phaseA_full` | 像素臂 DISTS 對齊，6 張 × 3 條件 × 2 預算 ＋ retention 360 列 |
+| `phaseA_human` | 像素臂人眼門檻，**24 張** × 3 條件（FND-035 的來源） |
+| `phaseB` | latent 臂（相位搬進 latent），已否決 |
 | `hb5`／`hb5_pgc` | 人眼門檻 vs 原生預算的七條件對照 ＋ 40 格 retention（FND-036／037） |
 
 ## 6. 已知什麼
 
-- **site F 的主讀數成立**：retention 在 10 個淨化算子上勝過加性 9/10（DISTS 0.04）
+- **紋理重相位的主讀數成立**：retention 在 10 個淨化算子上勝過加性 9/10（DISTS 0.04）
   與 8/10（0.075），含最接近真實的 C&R 串接。FND-033
-- **site F 勝過同失真隨機 12/12**，倍率 2.6–2.7×。本專案第一次（FND-004 打平、
+- **紋理重相位勝過同失真隨機 12/12**，倍率 2.6–2.7×。本專案第一次（FND-004 打平、
   FND-018 落後）。FND-032
 - **位移量在人眼門檻上達標**：θ=1.30 對 ε=1.2/255 是 **1.55×**、逐圖 22/24。
   FND-032 的 0.90–0.93× 是 DISTS 對齊軸下的悲觀下界。FND-035
-- **B 臂無效**：相位參數化搬進 APA 的 latent 上沒有收益，優勢是像素空間特有的。
+- **latent 臂無效**：相位參數化搬進 APA 的 latent 上沒有收益，優勢是像素空間特有的。
   FND-032
 - **沒有共用的預算軸**：兩個家族的人眼門檻在十六項指標上沒有一項落在同一個值
   （DISTS 差 4.5 倍、最接近的 LPIPS 也差 1.28 倍）。每個條件跑在自己的可接受
@@ -122,7 +122,7 @@ x_def = OLA( irfft2( rfft2(w·P_b) · exp(i·g_b·m_ω·θ_b) )·w ) / OLA(w²)
 ## 7. 現在在做什麼
 
 `runs/hb5` 是最後一個完整批次（2026-08-14）：五個類別各一張真實照片、七個
-條件、十個淨化算子。A 臂三條件走使用者裁定的人眼門檻（θ=1.30、ε=1.2/255），
+條件、十個淨化算子。像素臂三條件走使用者裁定的人眼門檻（θ=1.30、ε=1.2/255），
 四個 baseline 走各自論文的原生預算。
 
 **inpainting 方向已於 2026-08-15 完全放棄**，相關程式、資料、遮罩、批次與

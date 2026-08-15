@@ -5,7 +5,7 @@
 
 一、一句話現況
 --------------------------------------------------------------------
-**正式方向是 site F（紋理重相位）。** 兩個主張的現況：
+**正式方向是 紋理重相位。** 兩個主張的現況：
 
   位移量（並列主張）  **成立**。人眼門檻上勝加性 1.55x、逐圖 22/24（FND-035）。
                       但與原生預算的 photoguard_c 打平（0.99x，FND-036）。
@@ -18,13 +18,13 @@
 
 二、先讀哪些檔（依序，約十分鐘）
 --------------------------------------------------------------------
-0. docs/SITE_F_RECORD.md  **site F 的完整紀錄，自足可獨立讀完**。算子、量法、
+0. docs/PHASE_METHOD.md  **紋理重相位的完整紀錄，自足可獨立讀完**。算子、量法、
                           結果、被推翻過的說法、還缺什麼、怎麼重跑
 1. CLAUDE.md              專案指令：研究範圍、主張、工作要求、環境
-2. docs/MAINLINE.md       主線是什麼、程式在哪、site F 怎麼構造、已知什麼
+2. docs/MAINLINE.md       主線是什麼、程式在哪、紋理重相位怎麼構造、已知什麼
 3. docs/FINDINGS.md       測得的事實（FND-），末段 FND-032/033/034 是現行結論
 4. docs/DECISIONS.md      裁決（DEC-）
-5. docs/superpowers/specs/2026-08-13-texture-rephasing-design.md   site F 的規格
+5. docs/superpowers/specs/2026-08-13-texture-rephasing-design.md   紋理重相位的規格
 
 其餘按需要再查。編碼（FND- / DEC- / MET- / DEF-）每一筆自足、可單獨讀完，
 只用來互相指認，不代表先後或依賴。
@@ -54,10 +54,10 @@
 --------------------------------------------------------------------
 弱 baseline   完全原生 APA，只把 reward 換成 targeted output（DEC-023）
 強 baseline   photoguard_c / mist / dia_r 三個已發表的加性方法
-site F        紋理重相位，本專案的正式方向
+紋理重相位     把影像切塊、只轉傅立葉相位，本專案的正式方向
 
 add（加性 delta 走同一個 encoder-targeted 損失）與 phase_rand（同失真隨機
-相位，即 RPN）是 site F 消融的內部對照，不是獨立條件。
+相位，即 RPN）是 紋理重相位消融的內部對照，不是獨立條件。
 
 跑法：
     python scripts/apa_baseline.py --out runs/<批次> --data data/lo_aligned \
@@ -67,7 +67,7 @@ add（加性 delta 走同一個 encoder-targeted 損失）與 phase_rand（同�
     python scripts/phase_retention.py --run runs/<批次> --seeds 3
 
 
-五、site F 是什麼（一段）
+五、紋理重相位是什麼（一段）
 --------------------------------------------------------------------
     x_def = OLA( irfft2( rfft2(w*P_b) * exp(i*g_b*m_w*theta_b) )*w ) / OLA(w^2)
 
@@ -88,7 +88,7 @@ coherence）與徑向頻率閘 m_w 由原圖算一次即固定。theta=0 時輸�
   * cross-attention 目標注入、分階段注入、amortized generator（GAN）、
     對淨化的 min-max、顏色通道 —— 2026-08-13 全部否決
   * 位移場（flow）—— 與同失真隨機無法區分（FND-004）
-  * site F 搬進 APA 的 latent（B 臂）—— 無收益（FND-032）
+  * 紋理重相位搬進 APA 的 latent（latent 臂）—— 無收益（FND-032）
 
 
 七、動手前必須知道的坑
@@ -163,7 +163,7 @@ docs/RUNBOOK.md                      操作流程
    量算子自己的位移地板。沒有它，主張一（更抗淨化）沒有可判定的讀數
    ——現行 retention 比值與分母的相關是 r = -0.83（FND-037）。
    成本約 55 分鐘一張卡。**這是目前最高優先的缺口。**
-2. 人眼裁定 photoguard_c 的失真是否可接受。它在原生預算下位移量與 site F
+2. 人眼裁定 photoguard_c 的失真是否可接受。它在原生預算下位移量與 紋理重相位
    打平（0.99x），DISTS/PSNR 更優、LPIPS 更差，指標沒有共識（FND-036）
 3. 對 theta 加空間平滑（粗網格上採樣，由構造保證）；順帶解決固定 theta
    不等於固定失真的問題（PSNR 逐圖 23.2-30.6）

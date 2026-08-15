@@ -119,7 +119,7 @@
   與投影條件的隨機起點）。兩者必須同分布，否則比較到的差異裡混著起點的差異。
   已集中為 `image_seed()`
 
-## DEF-016 · 參數組由 site 名稱推導，新增 site 時會靜默落回 default
+## DEF-016 · 參數組由注入位置的名稱推導，新增位置時會靜默落回 default
 
 - **症狀**：無症狀
 - **根因**：`optim_config` 寫 `"stage2" if spec.site == "apa" else "default"`，

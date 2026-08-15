@@ -1,4 +1,4 @@
-"""site L — latent 空間、去噪逐步注入 — spec §4.3。
+"""latent 逐步注入 — latent 空間、去噪逐步注入 — spec §4.3。
 
 第 j 步的注入方式為修改預測噪聲：
 
@@ -21,7 +21,7 @@ from src.residual.lowrank import LowRankResidual, rank_at
 
 
 class LatentResidual(ResidualModule):
-    site = "L"
+    name = "latent_inject"
 
     def __init__(
         self,

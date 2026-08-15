@@ -82,7 +82,7 @@ class CompositeResidual(ResidualModule):
 
 `ResidualModule.param_groups()` 的預設實作回傳 `{"default": list(self.parameters())}`。
 
-### 1.3 `src/residual/site_apa.py`
+### 1.3 `src/residual/apa_port.py`
 
 ```python
 def build_apa(sd, lora_rank: int, latent_shape, **kw) -> CompositeResidual:

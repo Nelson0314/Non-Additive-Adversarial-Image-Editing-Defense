@@ -1,4 +1,4 @@
-"""site F（紋理重相位）的構造性質。
+"""紋理重相位的構造性質。
 
 每一條都在釘住模組 docstring 宣稱「由構造保證」的東西。這些性質若破掉，
 症狀不會出現在訓練曲線上——輸出仍是一張合理的防禦圖，只是它不再是相位
@@ -10,7 +10,7 @@ import math
 import pytest
 import torch
 
-from src.residual.site_phase import (
+from src.residual.texture_rephase import (
     PhaseResidual,
     hann2d,
     radial_gate,

@@ -34,7 +34,7 @@ from typing import Callable, Dict, List, Optional, Protocol
 
 import torch
 
-from src.residual.site_phase import PhaseResidual
+from src.residual.texture_rephase import PhaseResidual
 
 
 class Parameterization(Protocol):

@@ -1,8 +1,8 @@
-"""site F 的前置量測：紋理閘的有效面積，與 theta_max 對可見失真的校準。
+"""紋理重相位的前置量測：紋理閘的有效面積，與 theta_max 對可見失真的校準。
 
 在跑任何最佳化之前先回答規格 §6 的風險三——真實照片的紋理區佔比是否足以
 支撐足夠的自由度。同時量隨機相位（即 RPN 本身）在各個 theta_max 下的失真,
-用來決定 A 臂兩個預算點各自要從哪個 theta_max 起步。
+用來決定 像素臂兩個預算點各自要從哪個 theta_max 起步。
 
 只用 CPU，不載入 Stable Diffusion。
 """
@@ -14,7 +14,7 @@ from pathlib import Path
 import torch
 
 from src.metrics.suite import MetricSuite
-from src.residual.site_phase import PhaseResidual
+from src.residual.texture_rephase import PhaseResidual
 from src.utils.io import load_image_tensor, write_csv
 
 THETA_GRID = (0.05, 0.1, 0.2, 0.4, 0.8, 1.6, math.pi)

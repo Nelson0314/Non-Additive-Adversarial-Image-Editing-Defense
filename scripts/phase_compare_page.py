@@ -1,4 +1,4 @@
-"""把 A 臂的批次輸出成 `compare.html`：每一格都必須有影像可看。
+"""把 像素臂的批次輸出成 `compare.html`：每一格都必須有影像可看。
 
 專案規則是「判準以人眼為主、數值指標為輔；指標與人眼矛盾時以人眼為準」。
 本頁的存在就是為了讓那個判定做得起來，所以三張圖（防禦圖、未防禦的編輯、
@@ -71,7 +71,7 @@ def main() -> None:
     ap.add_argument("--run", type=Path, required=True)
     ap.add_argument("--out", type=Path, default=None)
     ap.add_argument("--layout", choices=("budget", "condition"), default="budget",
-                    help="budget：每個預算點一張表（A 臂）；condition：單表（B 臂）")
+                    help="budget：每個預算點一張表（像素臂）；condition：單表（latent 臂）")
     args = ap.parse_args()
     out = args.out or (args.run / "compare.html")
 

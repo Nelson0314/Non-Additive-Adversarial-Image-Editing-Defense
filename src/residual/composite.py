@@ -6,13 +6,13 @@ APA 移植（條件 N3）同時需要兩個位置：
 
 | 階段 | 位置 | 能力 |
 |---|---|---|
-| 一：視覺一致性 | LoRA（`site_weight.py`） | `patches_model` |
-| 二：攻擊有效性 | latent 注入（`site_latent.py`） | `eps_hook` |
+| 一：視覺一致性 | LoRA（`lora_weights.py`） | `patches_model` |
+| 二：攻擊有效性 | latent 注入（`latent_inject.py`） | `eps_hook` |
 
 `generator.py` 的檢查是「四種能力至少提供其一」，並未禁止同時提供兩種——
 但在此之前沒有任何模塊這樣做，該路徑從未被驗證過。
 
-處置是新增本模塊而**不改 `generator.py`**：後者依能力分派、不比對 site 名稱，
+處置是新增本模塊而**不改 `generator.py`**：後者依能力分派、不比對注入位置的名稱，
 複合模塊只要如實回報自己聚合後的能力，分派邏輯就不需要知道成員有幾個。
 在此加 `if isinstance(module, CompositeResidual)` 會直接違反該設計。
 
@@ -44,7 +44,7 @@ from src.residual.base import ResidualModule
 
 
 class CompositeResidual(ResidualModule):
-    site = "composite"
+    name = "composite"
 
     def __init__(self, members: List[ResidualModule], names: List[str]):
         super().__init__()
@@ -164,6 +164,6 @@ class CompositeResidual(ResidualModule):
         return out
 
     def __repr__(self) -> str:
-        inner = ", ".join(f"{n}={type(m).__name__}(site {m.site})"
+        inner = ", ".join(f"{n}={type(m).__name__}({m.name})"
                           for n, m in zip(self.names, self.members))
         return f"CompositeResidual({inner})"

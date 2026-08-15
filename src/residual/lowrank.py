@@ -78,8 +78,8 @@ class LowRankResidual(nn.Module):
     U: (steps, channels, max_rank, height)
     V: (steps, channels, max_rank, width)
 
-    `steps` 為需要獨立殘差的步數。site P 為 1（像素空間單一殘差）；
-    site L 為 k_inv（去噪每步一組）。
+    `steps` 為需要獨立殘差的步數。像素加性 為 1（像素空間單一殘差）；
+    latent 逐步注入 為 k_inv（去噪每步一組）。
 
     初始化採 U ~ N(0, init_std)、V = 0，故初始 Δ = 0（即 x_def = x），
     同時 ∂L/∂V ≠ 0 使梯度可流動。此慣例沿用 LoRA 的 A 高斯／B 零初始化。

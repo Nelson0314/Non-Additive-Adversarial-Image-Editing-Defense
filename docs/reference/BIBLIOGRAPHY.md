@@ -1,6 +1,6 @@
 # 文獻清單
 
-本專案至 2026-08-13 引用過的全部文獻，含網址。**這是索引不是判準來源**——
+本專案至 2026-08-16 引用過的全部文獻，含網址。**這是索引不是判準來源**——
 逐篇的查證細節在同目錄的其他檔案（`SOURCE_AUDIT.md`、`SURVEY.md`、
 `ROBUSTNESS_TESTS.md`、`dia_apa.md`、`mist_diffvax.md`、
 `promptflare_photoguard.md`、`advpaint_dia_promptflare.md`、`purify.md`）。
@@ -24,6 +24,7 @@
 | **PromptFlare**（ACM MM 2025） | inpainting | 已實作（改寫為全圖 mask） | [arXiv:2508.16217](https://arxiv.org/abs/2508.16217) ／ [ACM](https://dl.acm.org/doi/10.1145/3746027.3755763) ／ [repo](https://github.com/NAHOHYUN-SKKU/PromptFlare) |
 | **DiffVax**（ICLR 2026） | inpainting，前饋 UNet++ | 已查證，**移出 baseline 清單** | [arXiv:2411.17957](https://arxiv.org/abs/2411.17957) ／ [repo](https://github.com/ozdentarikcan/DiffVax) ／ [專案頁](https://diffvax.github.io/) |
 | **Glaze**（USENIX Sec 2023） | 風格模仿 | 僅引用 | [arXiv:2302.04222](https://arxiv.org/abs/2302.04222) |
+| **DCT-Shield**（ICCV 2025 Highlight） | img2img 編輯，**DCT 係數上的加性擾動** | 已查證，**待實作**，見 `SURVEY_2026-08-16.md` §1 | [arXiv:2504.17894](https://arxiv.org/abs/2504.17894) ／ [CVF](https://openaccess.thecvf.com/content/ICCV2025/papers/Bala_DCT-Shield_A_Robust_Frequency_Domain_Defense_against_Malicious_Image_Editing_ICCV_2025_paper.pdf) ／ [專案頁](https://dct-shield.github.io/project-page/) |
 
 移出 DiffVax 的理由見 `SOURCE_AUDIT.md` §5：其免疫器吃 masked image、
 只支援 inpainting、無 L∞ 預算，在無 mask 的 SDEdit 下忠實重現結構上不可能。
@@ -33,9 +34,31 @@
 | 論文 | 用途 | 連結 |
 |---|---|---|
 | **APA**（本專案弱 baseline 的原型） | 兩階段：LoRA 對齊 ＋ dual-path latent 攻擊 | [arXiv:2506.01511](https://arxiv.org/abs/2506.01511) ／ [repo](https://github.com/deep-kaixun/APA) |
-| **stAdv**（ICLR 2018） | 空間變形對抗樣本，`site_warp.py` 的構造來源 | [arXiv:1801.02612](https://arxiv.org/abs/1801.02612) |
+| **stAdv**（ICLR 2018） | 空間變形對抗樣本，已刪除的位移場模組的構造來源 | [arXiv:1801.02612](https://arxiv.org/abs/1801.02612) |
 | **Lo et al.**（CVPR 2024） | 指導者的基準論文，注意力抑制損失（式 5） | 見 `archive/` 的先驗紀錄 |
 | **Asymmetric VQGAN** | 解碼器側的重建改善 | [arXiv:2306.04632](https://arxiv.org/abs/2306.04632) |
+
+## 2b. 紋理重相位的構造來源與相位擾動的前例
+
+2026-08-16 補。前五筆是本方法**實際依賴**但索引檔漏收的；後五筆是同日查證
+新增。逐篇的查證細節在 `SURVEY_2026-08-16.md`。
+
+| 論文 | 在本專案的角色 | 連結 |
+|---|---|---|
+| **Galerne, Gousseau, Morel**. Random Phase Textures: Theory and Synthesis. IEEE TIP 20(1):257-267, 2011 | **紋理重相位的構造來源**：隨機化傅立葉相位可保留微紋理外觀。`phase_rand` 即 RPN 本身 | — |
+| **Ding, Ma, Wang, Simoncelli**. Unifying Structure and Texture Similarity. TPAMI 2021 | DISTS。預算軸，以及「對紋理重取樣寬容」這半個機制假設的依據 | [arXiv:2004.07728](https://arxiv.org/abs/2004.07728) |
+| **Madry et al.** Towards Deep Learning Models Resistant to Adversarial Attacks. ICLR 2018 | **PGD 本身**。`param_pgd.py` 的 sign 更新式此前沒有引用出處 | [arXiv:1706.06083](https://arxiv.org/abs/1706.06083) |
+| **Oppenheim & Lim**. The Importance of Phase in Signals. Proc. IEEE 69(5):529-541, 1981 | 相位比幅度更決定可辨識內容。**本方法必須正面處理的矛盾**——兩個閘就是答案 | [PDF](https://dsp-group.mit.edu/wp-content/uploads/2024/11/ImportancePhaseSignals_1981.pdf) |
+| 結構張量（Foerstner／Harris／Bigun 一系） | 紋理閘的 coherence 來源 | — |
+| **Perturbing the Phase**（2026） | **相位攻擊的前例**：只動相位、幅度逐點保留，且相位攻擊比幅度攻擊有效。其幅度相依的相位上限 `2·arcsin(eps/(2·mag))` 可解決本專案「固定 theta 不等於固定失真」的問題 | [arXiv:2602.06577](https://arxiv.org/html/2602.06577) |
+| **Black box phase-based adversarial attacks on image classifiers**（JEI 34(1):013041, 2025） | 相位攻擊的前例，黑盒、分類任務 | [doi:10.1117/1.JEI.34.1.013041](https://doi.org/10.1117/1.JEI.34.1.013041) |
+| **PPD: Permutation Phase Defense** | 把相位置換當**防禦**使用 | [arXiv:1812.10049](https://arxiv.org/pdf/1812.10049) |
+| **Interpreting Structured Perturbations**（2025） | Glaze／Nightshade 在頻域上是「沿影像主頻率軸重分配能量」，不是隨機噪聲。支撐本方法的框架 | [arXiv:2512.08329](https://arxiv.org/abs/2512.08329) |
+| **NeuralRemaster: Phase-Preserving Diffusion** | 相位承載結構，擴散脈絡下的確認 | [arXiv:2512.05106](https://arxiv.org/html/2512.05106v2) |
+
+**新穎性主張因此收窄**：不能宣稱首次把相位擾動用於對抗攻擊。可宣稱的是
+首次把**加窗重疊區塊的頻譜相位旋轉**用於**擴散編輯防護**，並以兩個由原圖
+決定的閘限制作用範圍。理由見 `SURVEY_2026-08-16.md` §2.4。
 
 ## 3. 淨化與破解：對防護擾動的攻擊
 

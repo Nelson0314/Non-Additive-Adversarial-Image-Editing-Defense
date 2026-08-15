@@ -11,8 +11,23 @@
 不重跑攻擊：像素臂已把 `*__def.png` 存下來，本腳本只讀圖。故換淨化算子集合
 或加 seed 都不需要重新訓練。
 
+## 空白地板（`--floor`）
+
+`--floor` 額外加一格 `condition = "none"`，其「防禦圖」就是**原圖本身**。
+量到的 `effect` 因此是
+
+    LPIPS( 編輯(原圖), 編輯(淨化(原圖)) )
+
+即**淨化算子自己造成的位移**，與有沒有防禦無關。沒有這一格，「淨化後某條件
+的絕對位移量比較大」就無法排除「該算子本來就把編輯推得比較開」這個平庸解釋
+——`crop_resize` 之後七個條件的絕對位移量收斂到 0.495–0.617 即是此現象。
+
+該格的 `effect(identity)` 由構造為 0（同 seed、同輸入、SDEdit 是確定性的），
+故 `retention` 欄留空。**空白地板只看絕對值，不看比值。**
+
 用法：
     python scripts/phase_retention.py --run runs/phaseA_full --seeds 3
+    python scripts/phase_retention.py --run runs/phaseA_human --floor         --images man_00 --out runs/floor.csv
 """
 
 from __future__ import annotations
@@ -99,11 +114,24 @@ def main() -> None:
     ap.add_argument("--conditions", nargs="+", default=None,
                     help="只跑這些條件；同上")
     ap.add_argument("--out", type=Path, default=None)
+    ap.add_argument("--floor", action="store_true",
+                    help="改跑空白地板：把原圖當防禦圖，量算子自己造成的位移")
     args = ap.parse_args()
     out = args.out or (args.run / "retention.csv")
 
     with (args.run / "results.csv").open(encoding="utf-8") as fh:
-        cells = [cell_of(r) for r in csv.DictReader(fh)]
+        rows_in = list(csv.DictReader(fh))
+    if args.floor:
+        # 地板與條件無關，故每張影像只需要一格。`tag=None` 表示不讀防禦圖。
+        seen, cells = set(), []
+        for r in rows_in:
+            if r["image"] in seen:
+                continue
+            seen.add(r["image"])
+            cells.append({"image": r["image"], "condition": "none",
+                          "budget": "floor", "tag": None})
+    else:
+        cells = [cell_of(r) for r in rows_in]
     if args.images:
         keep = set(args.images)
         cells = [c for c in cells if c["image"] in keep]
@@ -134,10 +162,13 @@ def main() -> None:
         item = dataset[cell["image"]]
         x01 = load_image_tensor(item["path"], sd.device, size=RESOLUTION)
         tag = cell["tag"]
-        def_png = args.run / f"{cell['image']}__{tag}__def.png"
-        if not def_png.exists():
-            raise FileNotFoundError(f"缺少防禦圖 {def_png}")
-        x_def = load_image_tensor(def_png, sd.device, size=RESOLUTION)
+        if tag is None:                       # 空白地板：防禦圖就是原圖
+            x_def, tag = x01, "floor"
+        else:
+            def_png = args.run / f"{cell['image']}__{tag}__def.png"
+            if not def_png.exists():
+                raise FileNotFoundError(f"缺少防禦圖 {def_png}")
+            x_def = load_image_tensor(def_png, sd.device, size=RESOLUTION)
 
         for seed in seeds:
             key = (cell["image"], seed)
@@ -160,7 +191,10 @@ def main() -> None:
         base = effects["identity"]
         base_mean = statistics.fmean(base)
         base_sd = statistics.stdev(base) if len(base) > 1 else float("nan")
-        usable = bool(base_sd == base_sd and base_mean >= 3.0 * base_sd)
+        if cell["condition"] == "none":
+            usable = True          # 地板只看絕對值，分母為 0 是構造使然
+        else:
+            usable = bool(base_sd == base_sd and base_mean >= 3.0 * base_sd)
         if not usable:
             print(f"    分母塌陷：effect(identity) mean={base_mean:.4f} "
                   f"sd={base_sd:.4f}，本格的 retention 不可用", flush=True)

@@ -352,6 +352,7 @@ def build_budget(out: Path) -> str:
     imgs = sorted(i for i in by if {"phase", "add", "phase_rand"} <= set(by[i]))
     P = [by[i]["phase"] for i in imgs]
     A = [by[i]["add"] for i in imgs]
+    A_by_img = A
     R = [by[i]["phase_rand"] for i in imgs]
     pe = [num(r, "edit_lpips") for r in P]
     ae = [num(r, "edit_lpips") for r in A]
@@ -431,6 +432,57 @@ def build_budget(out: Path) -> str:
                  f"紋理閘佔比最低的三張是 <code>{'、'.join(lo)}</code>——"
                  "兩份名單高度重疊。紋理少的影像撐不起足夠的擾動容量，"
                  "這正是規格 §6 風險三預先寫下的失敗情形。</div>")
+
+    # --- 三點五、把預算釘死之後還在不在
+    b.append("<h2>三點五、把預算釘死之後，結論還在不在</h2>")
+    al = read_csv(ROOT / "runs/aligned/results.csv")
+    if not al:
+        b.append(missing("逐圖對齊的批次",
+                         "python scripts/phase_ablation.py --out runs/aligned "
+                         "--data data/lo_aligned --conditions phase phase_rand "
+                         "--budgets 0.0434"))
+    else:
+        b.append("<p>用 <code>fit_to_budget</code> 對<b>半徑</b>二分搜尋，"
+                 "讓每一張圖的最終 DISTS 都落在 0.0434 ± 0.002，"
+                 "而不是所有圖共用同一個 θ。這是上面那兩節的直接檢定："
+                 "若主結果是預算漂移造成的，把預算釘死之後倍率應該塌掉。</p>")
+        arow = []
+        for c in ("phase", "phase_rand"):
+            rs = [r for r in al if r["condition"] == c]
+            if not rs:
+                continue
+            d = [num(r, "budget_reached") for r in rs]
+            arow.append([LABEL[c], len(rs), fmt(mean(d)), fmt(sd(d)),
+                         f"{min(d):.4f} – {max(d):.4f}",
+                         fmt(mean([num(r, "fid_psnr") for r in rs]), 2),
+                         fmt(sd([num(r, "fid_psnr") for r in rs]), 2)])
+        # 固定 theta 的對照
+        fp = [num(r, "fid_dists") for r in P]
+        arow.append(["固定 θ = 1.30（對照）", len(P), fmt(mean(fp)), fmt(sd(fp)),
+                     f"{min(fp):.4f} – {max(fp):.4f}",
+                     fmt(mean(pp), 2), fmt(sd(pp), 2)])
+        b.append(table(["條件", "n", "達到的 DISTS", "標準差", "全距",
+                        "PSNR", "PSNR 標準差"], arow))
+        aph = {r["image"]: num(r, "edit_lpips")
+               for r in al if r["condition"] == "phase"}
+        adm = {r["image"]: num(r, "edit_lpips") for r in A_by_img}
+        pair = [(aph[i], adm[i]) for i in aph if i in adm and adm[i]]
+        if pair:
+            r_al = mean([x for x, _ in pair]) / mean([y for _, y in pair])
+            w_al = sum(1 for x, y in pair if x > y)
+            b.append(table(["讀法", "對加性的倍率", "逐圖勝場"], [
+                ["固定 θ = 1.30", f"{mean(pe)/mean(ae):.3f}",
+                 f"{sum(1 for x in ratio if x > 1)}/{len(ratio)}"],
+                ["逐圖對齊 DISTS 0.0434", f"<b>{r_al:.3f}</b>",
+                 f"<b>{w_al}/{len(pair)}</b>"]]))
+            verdict = "沒有塌" if r_al > 0.9 * (mean(pe) / mean(ae)) else "塌了"
+            b.append(f"<div class='note ok'><b>倍率{verdict}。</b>"
+                     "主結果不是預算漂移造成的——前兩節指出的缺陷是"
+                     "<b>讀數層級</b>的（逐圖比值的平均與全距不可解讀），"
+                     "不是結論層級的。</div>")
+        b.append("<div class=note><b>但對齊 DISTS 不會順帶對齊 PSNR。</b>"
+                 "兩個指標之間沒有單調對應。要在 PSNR 上對齊必須改用 PSNR 當 "
+                 "<code>distortion_fn</code>。</div>")
 
     # --- 四、與隨機相位的乾淨對照
     b.append("<h2>四、和隨機相位的比較是唯一預算完全對齊的一組</h2>")

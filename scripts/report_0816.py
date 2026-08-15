@@ -625,6 +625,7 @@ def build_ablation(out: Path) -> str:
     tdirs2 = sorted((ROOT / "runs/theta").glob("*")) if (ROOT / "runs/theta").exists() else []
     tt = {d.name: read_csv(d / "results.csv") for d in tdirs2 if (d / "results.csv").exists()}
     alt = read_csv(ROOT / "runs/alt_r025/results.csv")
+    alt40 = read_csv(ROOT / "runs/alt_r040/results.csv")
     if not tt:
         b.append(missing("θ 掃描", "python scripts/phase_ablation.py --out "
                          "runs/theta/rR_tT --human-threshold --conditions phase "
@@ -677,7 +678,13 @@ def build_ablation(out: Path) -> str:
                  fmt(mean([num(r, "edit_lpips") for r in a_ph])),
                  fmt(mean([num(r, "fid_dists") for r in a_ph])),
                  fmt(mean([num(r, "fid_lpips") for r in a_ph])),
-                 fmt(mean([num(r, "fid_psnr") for r in a_ph]), 2)]]))
+                 fmt(mean([num(r, "fid_psnr") for r in a_ph]), 2)]]
+                + ([["r 0.40 / θ 3.14", len(alt40),
+                     fmt(mean([num(r, "edit_lpips") for r in alt40])),
+                     fmt(mean([num(r, "fid_dists") for r in alt40])),
+                     fmt(mean([num(r, "fid_lpips") for r in alt40])),
+                     fmt(mean([num(r, "fid_psnr") for r in alt40]), 2)]]
+                    if alt40 else [])))
             if common2:
                 im2 = sorted({r["image"] for r in a_ph})[0]
                 b.append("<div class='grid g3'>"
@@ -750,7 +757,9 @@ def build_floor(out: Path) -> str:
              "<b>算子自己造成的</b>，與有沒有防禦無關。</p>"
              "<p>沒有這一格，「淨化後某條件的絕對位移量比較大」就無法排除"
              "「該算子本來就把編輯推得比較開」這個平庸解釋。</p>")
-    floor = read_csv(ROOT / "runs/hb5/retention_floor.csv")
+    floor = []
+    for fp in sorted((ROOT / "runs/hb5").glob("retention_floor*.csv")):
+        floor += read_csv(fp)
     if not floor:
         return "".join(b) + missing(
             "空白地板",
@@ -760,9 +769,12 @@ def build_floor(out: Path) -> str:
 
     ret = []
     for p in sorted((ROOT / "runs/hb5").glob("retention_*.csv")):
-        if p.name == "retention_floor.csv":
+        if p.name.startswith("retention_floor"):
             continue
         ret += read_csv(p)
+    # 地板與條件必須在**同一組影像**上比較，否則扣出來的淨增益不是同一件事
+    floor_imgs = {r["image"] for r in floor}
+    ret = [r for r in ret if r["image"] in floor_imgs]
     fl = defaultdict(list)
     for r in floor:
         fl[r["purifier"]].append(num(r, "effect_mean"))
@@ -789,6 +801,9 @@ def build_floor(out: Path) -> str:
                 cls = "win" if over > 0 else "lose"
                 row.append(f'{v:.4f} <span class="{cls}">({over:+.4f})</span>')
         rows.append(row)
+    b.append(f"<p>影像 <b>{len(floor_imgs)}</b> 張："
+             f"<code>{'、'.join(sorted(floor_imgs))}</code>。"
+             "地板與各條件一律取同一組影像。</p>")
     b.append("<h2>一、淨化後的絕對位移量，與地板的差</h2>")
     b.append("<p>括號內是<b>扣掉地板之後真正屬於防禦的位移</b>。</p>")
     b.append(table(head, rows))

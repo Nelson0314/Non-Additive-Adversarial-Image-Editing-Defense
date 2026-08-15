@@ -63,6 +63,9 @@
 
 ## 4. site F 的構造
 
+> **完整紀錄見 `SITE_F_RECORD.md`**——自足、可獨立讀完，含被推翻過的說法。
+
+
 ```
 x_def = OLA( irfft2( rfft2(w·P_b) · exp(i·g_b·m_ω·θ_b) )·w ) / OLA(w²)
 ```

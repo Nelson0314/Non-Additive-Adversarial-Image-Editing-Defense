@@ -1,4 +1,4 @@
-"""latent 臂：APA 階段二換上 紋理重相位的相位參數化。
+"""latent 臂：APA 階段二換上紋理重相位的相位參數化。
 
 不載入 Stable Diffusion——`_attack_phase` 只透過四個方法用到 sd
 （`alphas_cumprod`／`_eps_cfg`／`decode_latent`），故可以用一個假的 sd

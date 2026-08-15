@@ -54,10 +54,10 @@
 --------------------------------------------------------------------
 弱 baseline   完全原生 APA，只把 reward 換成 targeted output（DEC-023）
 強 baseline   photoguard_c / mist / dia_r 三個已發表的加性方法
-紋理重相位     把影像切塊、只轉傅立葉相位，本專案的正式方向
+紋理重相位    把影像切塊、只轉傅立葉相位（本專案的正式方向）
 
 add（加性 delta 走同一個 encoder-targeted 損失）與 phase_rand（同失真隨機
-相位，即 RPN）是 紋理重相位消融的內部對照，不是獨立條件。
+相位，即 RPN）是紋理重相位消融的內部對照，不是獨立條件。
 
 跑法：
     python scripts/apa_baseline.py --out runs/<批次> --data data/lo_aligned \

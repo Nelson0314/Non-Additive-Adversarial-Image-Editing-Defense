@@ -27,7 +27,7 @@
 否證（FND-024／029／030），且 arXiv:2506.04394（ICIP 2025）獨立測到同一現象。
 
 **兩個讀數都要報**：`retention`（主）與 `effect(·, identity)`（並列）。對照組 R
-的定義是**同失真的加性隨機**；紋理重相位 另有 `phase_rand`（同失真隨機相位）。
+的定義是**同失真的加性隨機**；紋理重相位另有 `phase_rand`（同失真隨機相位）。
 `retention` 的分母塌陷時不可解讀——`phase_rand` 的 1.4–3.4 是分母只有三分之一
 造成的假象，不是它比較強（FND-033）。
 
@@ -45,7 +45,7 @@
 | **紋理重相位** | **把影像切塊、只轉傅立葉相位**，`src/residual/texture_rephase.py` |
 
 `add`（加性 δ 走同一個 encoder-targeted 損失）與 `phase_rand`（同失真隨機相位，
-即 RPN）是 紋理重相位消融的內部對照，不是獨立條件。
+即 RPN）是紋理重相位消融的內部對照，不是獨立條件。
 
 紋理重相位的構造與定案參數見 `docs/MAINLINE.md` §4 與
 `docs/superpowers/specs/2026-08-13-texture-rephasing-design.md`。一句話：把影像
@@ -69,7 +69,7 @@ FND-023…034，不要重試。
 
 | 用途 | 路徑 |
 |---|---|
-| **紋理重相位 算子** | **`src/residual/texture_rephase.py`** |
+| **紋理重相位算子** | **`src/residual/texture_rephase.py`** |
 | 參數化 PGD ＋ 預算對齊 | `src/defense/param_pgd.py` |
 | 像素臂消融驅動 | `scripts/phase_ablation.py` |
 | 失真掃描（定門檻） | `scripts/phase_distortion_sweep.py` |

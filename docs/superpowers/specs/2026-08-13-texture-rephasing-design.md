@@ -81,7 +81,7 @@ baseline 的 targeted 形式同源。
 把 APA 階段二的 `δ ∈ L∞ 球` 換成 latent 上的相位 θ（8×8 區塊、hop 4），其餘
 五個位置維持原生，對照現行弱 baseline。
 
-此臂**不能**與 像素臂共用損失：直接擾動 latent 會使 encoder 損失退化為平凡解。
+此臂**不能**與像素臂共用損失：直接擾動 latent 會使 encoder 損失退化為平凡解。
 故沿用 APA 的 `−‖D(z̄₀) − y_target‖²`。
 
 ### 外部水位

@@ -84,12 +84,12 @@ class NativeStage2Config:
 
     # ---- latent 臂：換掉約束與參數化，其餘四個位置維持原生 ----
     # `linf` 是 DEC-023 的弱 baseline（官方 Eq.7 的 latent L∞ 球）。
-    # `phase` 把同一個 latent 上的擾動改成 紋理重相位的相位參數化，用來檢查
+    # `phase` 把同一個 latent 上的擾動改成紋理重相位的相位參數化，用來檢查
     # 像素臂（像素空間）量到的參數化差異在既有管線內是否也成立。
     # 更新規則（L1 動量 + sign）與迭代數不變——latent 臂只動這一個位置。
     parameterization: str = "linf"
     phase_block: int = 8         # latent 是 64²，區塊比像素空間的 32 小一個數量級
-    phase_r_min: float = 0.12    # 與 像素臂同值；天花板由它決定（實測見規格 §6）
+    phase_r_min: float = 0.12    # 與像素臂同值；天花板由它決定（實測見規格 §6）
     phase_theta_max: float = 3.141592653589793
     phase_mu: float = 0.3141592653589793   # θ_max / 10，與 µ×N 用滿半徑的比例一致
 
@@ -200,7 +200,7 @@ def _attack_phase(
     sd, la_0: torch.Tensor, emb_cond, emb_uncond, ori_latents: torch.Tensor,
     y_target: torch.Tensor, cfg: "NativeStage2Config", ts, log_every: int,
 ) -> Tuple[torch.Tensor, List[Dict]]:
-    """latent 臂：把 latent 擾動由「L∞ 球內的加性 offset」換成 紋理重相位的相位參數化。
+    """latent 臂：把 latent 擾動由「L∞ 球內的加性 offset」換成紋理重相位的相位參數化。
 
     其餘四個位置維持原生——階段一的 LoRA、dual-path 的 trajectory ＋
     step-level guidance、L1 正規化動量 ＋ sign 的更新規則、以及淺噪聲帶的

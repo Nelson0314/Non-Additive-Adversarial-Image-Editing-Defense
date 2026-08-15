@@ -61,7 +61,7 @@ EDIT_SEED = 20260812
 
 CONDITIONS = ["apa_weak", "photoguard_c", "mist", "dia_r"]
 
-# latent 臂（規格 §3）：與 apa_weak 完全相同，只把 latent 的 L∞ 球換成 紋理重相位的
+# latent 臂（規格 §3）：與 apa_weak 完全相同，只把 latent 的 L∞ 球換成紋理重相位的
 # 相位參數化。不列入 CONDITIONS 的預設，要用 --conditions 明給。
 PARAMETERIZATION = {"apa_weak": "linf", "apa_phase": "phase"}
 

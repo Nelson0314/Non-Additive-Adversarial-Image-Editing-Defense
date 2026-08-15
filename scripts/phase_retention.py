@@ -1,4 +1,4 @@
-"""主讀數：抗淨化的衰減率（retention），跑在 像素臂已存的防禦圖上。
+"""主讀數：抗淨化的衰減率（retention），跑在像素臂已存的防禦圖上。
 
 規格 §4。`retention = effect(淨化) / effect(identity)`，`effect` 取
 `LPIPS(未防禦的編輯, 防禦後的編輯)`——與 `apa_baseline.evaluate` 的

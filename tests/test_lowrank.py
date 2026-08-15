@@ -189,13 +189,13 @@ def test_一步更新後兩者皆有梯度():
 
 def test_參數量對上spec的表():
     """spec §4.3 參數量表：像素加性 (R_m=32) = 98,304；latent 逐步注入 (k_inv=10, R_m=32) = 163,840。"""
-    site_p = LowRankResidual(steps=1, channels=3, height=512, width=512, max_rank=32)
-    assert site_p.num_parameters() == 98_304
-    assert site_p.num_parameters(rank=8) == 24_576
+    pixel_side = LowRankResidual(steps=1, channels=3, height=512, width=512, max_rank=32)
+    assert pixel_side.num_parameters() == 98_304
+    assert pixel_side.num_parameters(rank=8) == 24_576
 
-    site_l = LowRankResidual(steps=10, channels=4, height=64, width=64, max_rank=32)
-    assert site_l.num_parameters() == 163_840
-    assert site_l.num_parameters(rank=8) == 40_960
+    latent_side = LowRankResidual(steps=10, channels=4, height=64, width=64, max_rank=32)
+    assert latent_side.num_parameters() == 163_840
+    assert latent_side.num_parameters(rank=8) == 40_960
 
 
 def test_實際參數張量大小與宣告一致():

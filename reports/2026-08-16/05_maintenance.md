@@ -218,3 +218,57 @@ git symbolic-ref HEAD refs/heads/<branch>
 
 已補進新的 §2b，另加本輪查到的五筆。查證細節與新穎性主張的收窄見
 `docs/reference/SURVEY_2026-08-16.md`。
+
+---
+
+## 7. 波次中途又踩到的兩件事（2026-08-16 稍晚）
+
+### 7.1 `git stash -u -- runs` 會把跑到一半的結果吞掉
+
+為了讓遠端能 `git pull`，用了
+
+```bash
+git stash -q -u -- runs && git pull --ff-only && git stash pop
+```
+
+但那次 pull 因為分支已經分岔而 **abort**，於是 `stash pop` 沒有執行，
+`runs/theta/` 六個批次目錄（30 列結果、120 張 PNG）就留在 stash 裡、
+從工作區消失。後來 `git stash pop` 把它們救回來了，但 pop 本身也部分失敗
+（幾個 log 檔已重新存在），stash entry 至今保留著沒有丟棄。
+
+**處置**：遠端不要再用 `git stash` 同步。要更新遠端的程式而不動 HEAD，用
+
+```bash
+git fetch origin
+git checkout origin/<branch> -- scripts docs
+```
+
+這條只覆寫指定路徑，完全不碰 `runs/`，也不移動 HEAD。
+
+### 7.2 遠端與 origin 分岔之後不能 ff
+
+遠端自己 commit 了批次產物（機器上沒有 GitHub 認證，推不上去），
+而本機又繼續往 origin 推，於是兩邊分岔，`git pull --ff-only` 一律 abort。
+
+**處置**：遠端的 commit 用 §4.4 的方式從本機 fetch 下來再推；
+遠端本身只用 `git checkout origin/<branch> -- <路徑>` 取程式，不做 merge。
+
+---
+
+## 8. 一個刻意沒有做的事：沒有新增影像
+
+使用者提到「再找稍微多一點的圖片」。本輪**沒有**新增影像，理由是：
+
+1. `data/lo_aligned` 的 24 張與 `data/_selected` 的 24 張候選是 **1:1 的**，
+   沒有現成的備用影像。新增就要重新從 Wikimedia Commons 找 CC0 真實照片、
+   逐張查證授權、寫 `provenance.json`。
+2. 更關鍵的是**新影像跑不動外部比較**。`photoguard_c` 是 1.9 小時一張圖，
+   八張卡一整晚也只能加十幾張。新影像只會拿到便宜的三個條件，
+   對「跟外部方法比較」這個目標幫助有限。
+
+改成把**既有 24 張的另一個編輯 prompt** 跑完（`prompts.yaml` 每類都有兩個，
+第二個從來沒被評測過），等於在不新增影像的前提下把評測情境從一種變成兩種。
+結果見 FND-044：兩個 prompt 上的結論一致，第二個的 margin 略寬。
+
+要新增影像的話，建議的順序是：先補完 `photoguard_c` 在既有 24 張上的覆蓋
+（目前 11 張），再談擴充資料集。

@@ -150,6 +150,23 @@ NIQE 看似只差 0.9%，但它在整條相位掃描上只從 3.75 動到 4.28 �
 | adverse_cleaner | **0.4303** | 0.2247 | 0.2644 |
 | impress | **0.4087** | 0.2960 | 0.2828 |
 
+### 2026-08-16 新增的三組
+
+**扣掉地板的抗淨化淨增益**（`runs/hb5/retention_floor.csv`，5 張 × 10 算子 × 3 seed）：
+本方法勝加性 9/9、勝隨機相位 9/9、勝 dia_r 9/9、勝 photoguard_c 8/9、
+勝 apa_weak 5/9、輸 mist 0/9。地板本身佔淨化後位移量的 47%–92%，
+`crop_resize`（92%）與 `noise 0.05`（90%）兩列實質上不具鑑別力。詳見 FND-043。
+
+**第二個編輯 prompt**（`runs/pidx1`，改場景而非改主體）：對加性 **1.743、17/18**，
+對隨機相位 **2.888、17/17**——比第一個 prompt 的 1.55 更寬。防禦對換 prompt 是穩的。
+詳見 FND-044。
+
+**閘設定與 θ 的取捨**（`runs/gates`、`runs/theta`，5 張圖）：固定 θ 時把 `r_min`
+從定案的 0.12 拉到 0.40，可拿到 87% 的效果卻只付 26% 的 DISTS、74% 的 LPIPS，
+且 PSNR 高 5.9 dB——**四個指標排序一致**。但把省下的失真用 θ 花掉之後
+（`r 0.25 / θ 2.6`），只在 DISTS 軸上比定案高 8.1%，LPIPS 反而高 23%。
+**操作點的選擇因此是人眼的事，不是指標的事。** 詳見 FND-042。
+
 ---
 
 ## 4. 被推翻過的說法（不要重犯）
@@ -196,21 +213,34 @@ latent 臂無效的機制：要利用的落差是「人眼與 DISTS 對紋理重
 
 ---
 
-## 5. 還缺什麼（依優先序）
+## 5. 還缺什麼（依優先序，2026-08-16 更新）
 
-1. **空白地板控制組** `effect(purify(原圖))`——把未防禦的原圖淨化後再編輯，
-   量算子自己的位移地板。沒有它，「更抗淨化」這個主張沒有可判定的讀數。
-   成本約 55 分鐘一張卡。**最高優先**
-2. **`photoguard_c` 的失真是否通過人眼門檻**。它的 L∞ 是 36–116/255（遠超
+**已補上的**（原第 1 項）：空白地板控制組已於 2026-08-16 跑完（FND-043）。
+主張一因此可判定：扣掉地板的淨增益上，本方法勝加性 9/9、勝 photoguard_c 8/9、
+勝 dia_r 9/9、勝隨機相位 9/9，輸 mist 0/9（而 mist 的失真是 3.3 倍）。
+
+仍然缺的：
+
+1. **逐圖把 θ 對齊到固定失真。** 現行固定 θ = 1.30 讓 PSNR 逐圖漂 **16.4 dB**，
+   而該漂移與「相位在哪張圖上贏」的相關是 **r = +0.776**（FND-038）。
+   `fit_to_budget` 已存在，只是沒有用在人眼門檻的批次上。
+   另一條路是 `arXiv:2602.06577` 的幅度相依相位上限 `2·arcsin(ε/(2|X|))`，
+   讓可動範圍隨局部幅度反比縮放（`SURVEY_2026-08-16.md` §2.2）。**最高優先**
+2. **人眼裁定操作點。** 閘掃描顯示固定 θ 時 `r_min` 拉高在四個指標上一致更省；
+   但把省下的失真用 θ 花掉之後，優勢只剩 DISTS 軸，LPIPS 反而變差（FND-042）。
+   兩個軸相反，只能由人眼決定用哪個操作點
+3. **`photoguard_c` 的失真是否通過人眼門檻**。它的 L∞ 是 36–116/255（遠超
    加性門檻的 1.2/255），但 L2 球讓擾動極稀疏故 PSNR 仍有 40.9。指標分不出來，
    只能人眼裁定
-3. **對 θ 加空間平滑**（粗網格上採樣，由構造保證），壓掉塊狀斑駁；順帶解決
-   **固定 θ 不等於固定失真**——PSNR 逐圖從 23.2 漂到 30.6，而 photoguard 的
-   L2 球穩定在 40.90（固定 L2 半徑就是固定 RMS）
 4. **雙盲 2AFC 使用者研究**。目前的門檻是單一評分者、非強迫選擇，審稿人會直接
-   攻擊「phase 拿到 8.3 倍的 DISTS」
-5. 把 **DCT-Shield（ICCV 2025，arXiv:2504.17894）** 加進 baseline——同場景、
-   同主張（更少視覺瑕疵、抗 JPEG），必須正面比較
+   攻擊「相位拿到 8.3 倍的 DISTS」。**排在第 1 項之後**——若逐圖對齊改變了數字，
+   門檻要重定，先做的 2AFC 會白做
+5. 把 **DCT-Shield（ICCV 2025，arXiv:2504.17894）** 加進 baseline。它是 DCT 係數上的
+   **加性**方法，主張與本方法逐條重疊（更少瑕疵、抗 JPEG、參數量少 67%），
+   且**它同時是「保不保留幅度」的對照組**（`SURVEY_2026-08-16.md` §1、§4.2）
+6. **「同樣位置、同樣頻帶的加性」對照組**。效果與幅度譜偏差的相關是 r = +0.449
+   （FND-040），目前沒有任何實驗排除「效果來自那 1–6.5% 的新能量」。
+   `add` 是全圖無限制的加性、`phase_rand` 也保留幅度，兩者都不隔離這個變因
 
 ---
 
@@ -229,6 +259,14 @@ bash scripts/run_hb5.sh <job> <gpu>        # 具名工作表見該檔
 
 # 抗淨化（跑在已存的防禦圖上，不重跑攻擊）
 python scripts/phase_retention.py --run runs/<批次> --seeds 3
+
+# 空白地板（算子自己造成的位移，2026-08-16 新增）
+python scripts/phase_retention.py --run runs/<批次> --seeds 3 --floor     --images man_02 woman_02 dog_03 horse_03 cat_01     --out runs/<批次>/retention_floor.csv
+
+# 第二個編輯 prompt／換目標影像／換閘設定（2026-08-16 新增的旗標）
+python scripts/phase_ablation.py --out runs/<批次> --human-threshold     --prompt-index 1
+python scripts/phase_ablation.py --out runs/<批次> --human-threshold     --conditions phase --target data/targets/noise.png
+python scripts/phase_ablation.py --out runs/<批次> --human-threshold     --conditions phase --r-min 0.25 --phase-radius 2.6
 
 # 報告
 python scripts/hb5_arch_assets.py --out runs/<批次>/arch

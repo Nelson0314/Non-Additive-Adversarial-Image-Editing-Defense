@@ -3,20 +3,26 @@
 在白盒條件（攻擊方使用 stock Stable Diffusion）、外掛模組形式下，尋找非加性
 方法，在**匹配人眼可辨失真**下，於**抵抗文字引導編輯**上勝過加性基準。
 
-主張分三層，順序即強度：
+威脅模型只有一種：**img2img（SDEdit，strength 0.55）**。
 
-| 層 | 主張 | 現況（2026-08-05） |
+正式方向是**紋理重相位**——把影像切成重疊區塊做加窗 FFT，只轉相位、幅度譜
+逐位保留，再重疊相加回去。
+
+---
+
+## 現況（2026-08-16）
+
+| 層 | 主張 | 現況 |
 |---|---|---|
-| **主** | 非加性在**抗淨化**上勝過加性 | 待跑。先驗資料無法回答：以 `net_lpips` 計曾看似成立，換成 Δsiglip 後七組配對全部不成立（`PRIOR_FINDINGS.md` §3.2） |
-| **次** | 抗編輯能力達最佳 baseline 的 0.85 倍以上，**且**高於同失真高斯隨機對照 R | 待跑。兩個條件須同時滿足（`LOGIC_CHECK` §C2） |
-| **三** | 失真受控 | 射線縮放到同一 τ_LPIPS，並回報全部保真度指標（既知缺陷 A3：「匹配失真」曾被四度證偽） |
+| **主** | 非加性在**抗淨化**上勝過加性 | **成立**。扣掉空白地板的淨增益上勝加性 9/9、勝 PhotoGuard-c 8/9、勝 DIA-R 9/9、勝隨機相位 9/9；輸 Mist 0/9（Mist 的失真是 3.3 倍）。FND-043 |
+| **並列** | 防禦效果本身不輸加性 | **成立**，但**對 PhotoGuard-c 只是打平**（聚合 0.994、逐圖 3/11）。勝 APA 弱 baseline 22/22、勝 DIA-R 20/22、輸 Mist 1/22。FND-045 |
+| **三** | 失真受控 | 全部指標照報不挑選。沒有任何單一指標可以當加性與非加性的共用預算軸（FND-035） |
 
-**截至 2026-08-04 的所有實驗一律視為先驗實驗**，程式與評測流程已整批重造。
-`runs/` 下的 20 個目錄全部屬於先驗階段，新一輪批次尚未建立。
+**不再追求語意抵抗。** 「把編輯推遠」做得到，「讓編輯不服從 prompt」做不到
+（FND-024／029／030，且 arXiv:2506.04394 獨立測到同一現象）。
 
 基準論文是 Lo, Yeo, Shuai, Cheng, *Distraction is All You Need*, CVPR 2024；
-其第一作者是本專案的指導者，故其約束、判準與 baseline 為必要對齊項
-（原記於 `ADVISOR.md`，該檔已於 2026-08-07 移除，見 `docs/INDEX.md` §4）。
+其第一作者是本專案的指導者，故其約束、判準與 baseline 為必要對齊項。
 
 ---
 
@@ -24,21 +30,20 @@
 
 | 你想知道 | 讀這個 |
 |---|---|
-| **哪份文件現行、哪個 run 屬於哪個實驗** | **`docs/INDEX.md`**（檔案索引，先讀這份） |
-| **接手正在跑的批次**：現狀、正在跑什麼、如何重啟監控、待裁決事項 | **`docs/archive/HANDOVER_2026-08-07.md`** |
-| **接手執行**：環境、實作進度、五段指令、失敗處理 | **`docs/RUNBOOK.md`** |
-| 要證什麼、怎麼算成立 | `docs/DESIGN.md` |
-| 為什麼選這些 baseline／這個威脅模型 | `docs/reference/SURVEY.md` |
-| 程式怎麼組起來、續跑語意 | `docs/ARCHITECTURE.md`、`docs/reference/CODE_CONTRACTS.md` |
-| 哪裡曾經錯過、為什麼現在的寫法是那樣 | `docs/archive/LOGIC_CHECK_2026-08-05.md`（既知缺陷 A1–A13） |
-| 某個 baseline 的參數為什麼是這個值 | `docs/reference/SOURCE_AUDIT.md` 與 `docs/_audit_*.md`（逐字原始碼佐證） |
-| 先驗階段的結果、量測陷阱、參考文獻 | `PRIOR_FINDINGS.md` |
+| **新 session 的第一份** | **`docs/START_HERE.txt`**（純文字，十分鐘） |
+| 方法是什麼、量到什麼、還缺什麼 | **`docs/PHASE_METHOD.md`**（自足，可獨立讀完） |
+| 測得的事實 | `docs/FINDINGS.md`（FND-。末段 FND-037 至 FND-048 是現行結論） |
+| 裁決 | `docs/DECISIONS.md`（DEC-） |
+| 主線是什麼、程式在哪 | `docs/MAINLINE.md` |
+| 上機怎麼跑 | `docs/RUNBOOK.md`（2026-08-16 重寫） |
+| 指標的定義與陷阱 | `docs/METRICS.md` |
+| 犯過的錯 | `docs/DEFECTS.md` |
+| 文獻 | `docs/reference/BIBLIOGRAPHY.md`、`SURVEY_2026-08-16.md` |
+| 最新一輪的結果 | `reports/2026-08-16/00_summary.md` |
 | 工作規範 | `CLAUDE.md` |
 
-`8e0ffbc`（Reset the project to the minimal reproducible set）刪除了 3775 個檔案，
-包含 `EXPLAINER.md`、`LEDGER.md`、`CONVERGENCE.md`、`NEXT_SESSION.md`、
-逐實驗的 `RESULTS_*.md` 等。內容已由 `PRIOR_FINDINGS.md` 承接；要查原文用
-`git show 8e0ffbc^:docs/<檔名>`。
+編碼（`FND-`／`DEC-`／`MET-`／`DEF-`）每一筆自足、可單獨讀完，只用來互相指認，
+**不代表先後或依賴**。
 
 ---
 
@@ -46,70 +51,96 @@
 
 | 用途 | 路徑 |
 |---|---|
-| 注入位置 | `src/residual/site_{latent,embedding,weight,warp,apa}.py` |
-| 目標函數 | `src/defense/objective.py`（LPIPS 為綁定約束，`beta_linf` 可關） |
-| 優化 | `src/defense/optimize.py`（`optimize` / `optimize_encoder` / `optimize_crossattn` / `align`） |
-| cross-attention 擷取 | `src/models/attention.py` |
-| baseline 攻擊 | `src/baselines/`（`pgd.py` 為共用骨幹，五篇各一檔；本輪跑其中三篇，見 `grid.EXCLUDED`） |
-| 保真度指標 | `src/metrics/`（`local_acutance.py`、`chroma.py`、`suite.py`、`ray_scale.py`） |
-| 淨化算子 | `src/purify/ops.py` |
-| **主驅動** | **`scripts/run_stage.py`**（五段：calib／train／rayscale／eval／report） |
-| 格點與續跑 | `src/experiment/`（`grid.py` 決定跑哪些格、`runner.py` 決定要不要跑、`executors.py` 實際計算） |
-| 進度監察 | `scripts/dashboard.py` |
+| **紋理重相位算子** | **`src/residual/texture_rephase.py`** |
+| 參數化 PGD ＋ 預算對齊 | `src/defense/param_pgd.py` |
+| 共用損失（encoder-targeted） | `src/baselines/encoder_target.py` |
+| baseline 攻擊 | `src/baselines/`（`pgd.py` 為共用骨幹，各篇一檔） |
+| APA 弱 baseline 的兩階段 | `src/defense/apa_stage1.py`、`apa_native_stage2.py` |
+| 殘差模塊介面 | `src/residual/base.py` |
+| 指標 | `src/metrics/suite.py`、`aesthetic.py`、`acutance.py` |
+| 淨化算子 | `src/purify/ops.py`（含 C&R 串接） |
+| SD 包裝 | `src/models/sd.py` |
 
-`scripts/run_defense.py`（先驗階段的驅動）與 site P／PF／color 三個注入位置
-已於 2026-08-05 依 `ARCH` §2.3 刪除。`runs/` 下 20 個先驗批次由它產生，
-要查當時的作法用 `git checkout 4d2332c -- scripts/run_defense.py`。
+`src/residual/base.py` 以「能力」而非型別對外表達：像素側實作 `pixel_residual`，
+去噪側實作 `eps_hook`。新增注入位置時提供其一即可，**不要依位置的名稱寫分支**。
 
-`src/defense/generator.py` **依模塊提供的能力分派，不比對 site 名稱**。
-新增 site 時提供 `pixel_residual` 或 `eps_hook` 即可。
+### 六支腳本
+
+| 腳本 | 做什麼 |
+|---|---|
+| `scripts/phase_ablation.py` | 像素臂：`add`／`phase`／`phase_rand` |
+| `scripts/apa_baseline.py` | 弱 baseline ＋ 三個加性 baseline |
+| `scripts/phase_retention.py` | 抗淨化，含 `--floor` 空白地板 |
+| `scripts/phase_distortion_sweep.py` | 失真掃描，供人眼定門檻 |
+| `scripts/merge_runs.py` | 併分片 |
+| `scripts/report_0816.py` | 產報告 |
 
 ---
 
 ## 執行
 
 ```bash
-# 測試（基準見下方；全部在 CPU 上跑，不需要 SD 權重）
+# 測試（CPU，不需要 SD 權重）。基準：196 passed / 1 xfailed
 python -m pytest -q
 
-# 五段流程。stage 是**位置引數**；--gpu-tag 與 --precision 必填。
-# --dry-run 在耗掉機時之前回答「會跑幾格」。
-COMMON="--batch b1 --gpu-tag RTX-3090 --precision bf16"
-python scripts/run_stage.py calib    $COMMON --mist-target data/targets/MIST.png
-python scripts/run_stage.py train    $COMMON --mist-target data/targets/MIST.png
-python scripts/run_stage.py rayscale $COMMON
-python scripts/run_stage.py eval     $COMMON --mist-target data/targets/MIST.png
-python scripts/run_stage.py report   $COMMON
+# 像素臂三條件，人眼門檻
+python scripts/phase_ablation.py --out runs/<批次> --data data/lo_aligned \
+    --human-threshold
 
-# 進度監察（唯讀，不動 GPU）
-python scripts/dashboard.py runs/b1 --json
+# 外部 baseline
+python scripts/apa_baseline.py --out runs/<批次> --data data/lo_aligned \
+    --conditions apa_weak mist dia_r photoguard_c
+
+# 抗淨化（跑在已存的防禦圖上，不重跑攻擊）＋ 空白地板
+python scripts/phase_retention.py --run runs/<批次> --seeds 3
+python scripts/phase_retention.py --run runs/<批次> --seeds 3 --floor \
+    --out runs/<批次>/retention_floor.csv
+
+# 報告
+python scripts/report_0816.py --out reports/<日期>
 ```
 
-**上機前先讀 `docs/RUNBOOK.md`**——那份是自足的執行手冊，
-含研究背景、五段內容、失敗處理、機時估計與判讀指南。
-**GPU 工作不可並行**——CPU 密集工作（例如 pytest）與 GPU 工作並行時，
-實測把單張 SDEdit 由 222 s 拉長到 30 分鐘以上。
+**上機前先讀 `docs/RUNBOOK.md`**——含機器、成本、分片、git 與四個踩過的坑。
 
-本機直譯器是 `C:/Users/nelso/miniconda3/envs/wacv/python.exe`（**不是 base**）。
-指令前加 `PYTHONIOENCODING=utf-8`——Windows 預設的 cp950 編不了 `²` 這類字元，
-會在印出結果時才炸掉一支已經跑完的腳本。
+**GPU 工作一律在 NYCU BASIC lab 跑**。本機 RTX 2050 4 GB 跑不動，
+只用於寫程式、跑 pytest、看報表。本機直譯器是
+`C:/Users/nelso/miniconda3/envs/wacv/python.exe`（**不是 base**）；
+指令前加 `PYTHONIOENCODING=utf-8`，否則印中文會炸。
 
-**本機不要並行跑兩個 GPU 工作**（RTX 2050 只有 4 GB），也不要讓 CPU 密集工作
-與 GPU 工作並行：實測後者會把 GPU 工作的 Python 執行緒餓住，單張耗時由 222 s
-拉長到 30 分鐘以上。
+**不要讓 CPU 密集工作與 GPU 工作並行**：實測會把 GPU 工作的 Python 執行緒
+餓住，單張 SDEdit 由 222 s 拉長到 30 分鐘以上。
 
 ---
 
 ## 資料保全
 
-`runs/` 是唯一的證據來源，雲端容器會被刪除，實驗無法重跑。所有 CSV / JSON /
-log / PNG / HTML 一律入版控。`.gitignore` 的 `runs/` 區塊曾有一條 `runs/*/**`
-讓 git 停止遞迴而靜默漏掉 273 個檔案（見 commit `1942e38`）；改動該區塊時必須用
-`git status --porcelain --ignored` 確認沒有結果檔被排除。
+`runs/` 是唯一的證據來源，遠端機器不保證保留，實驗無法重跑。
+所有 CSV / JSON / log / PNG / HTML 一律入版控。
+
+`.gitignore` 的 `runs/` 區塊曾有一條 `runs/*/**` 讓 git 停止遞迴而靜默漏掉
+273 個檔案（commit `1942e38`）；改動該區塊時必須用
+
+```bash
+git status --porcelain --ignored runs | grep "^!!"
+```
+
+確認沒有結果檔被排除（輸出為空才對）。
+
+本 repo 用 sparse-checkout（cone mode）。新增頂層目錄或新的 `runs/` 子目錄前
+要先 `git sparse-checkout add <路徑>`。
+
+---
+
+## 已刪除的東西
+
+2026-08-13 移除舊主線（`legacy/` 的 33 支腳本、`src/experiment/`、`src/data/`、
+`docs/archive/` 等），2026-08-15 移除 inpainting 方向的全部產物。
+`runs/` **全部保留**。
+
+取回：`git checkout 6bb656280 -- <path>`，或 `git log` 找刪除前的 commit。
 
 ---
 
 ## 分支
 
-目前在 `claude/e20-fidelity-constraint`，**未併入 main**。
-未經明確授權不得併入。
+目前在 `claude/stage3-apa-attn`，**未併入 main**。未經明確授權不得併入。

@@ -839,9 +839,12 @@ def main() -> None:
     for fn, title, sub, _ in specs:
         idx.append(f'<li><a href="{fn}">{title}</a> — {sub}</li>')
     idx.append("</ul>")
+    idx.insert(0, "<div class='note ok'><b>先讀 <code>00_summary.md</code>。</b>"
+                  "那份是六份報告的入口與結論，其餘四份 HTML 是它引用的證據。</div>")
     idx.append("<h2>文字報告</h2><ul>"
-               "<li><code>docs/reference/SURVEY_2026-08-16.md</code> — 文獻查證</li>"
+               "<li><code>reports/2026-08-16/00_summary.md</code> — <b>總結與建議</b></li>"
                "<li><code>reports/2026-08-16/05_maintenance.md</code> — 命名與資料維護</li>"
+               "<li><code>docs/reference/SURVEY_2026-08-16.md</code> — 文獻查證</li>"
                "<li><code>docs/PHASE_METHOD.md</code> — 方法的完整紀錄</li></ul>")
     (args.out / "index.html").write_text(
         page("2026-08-16 批次報告", stamp, "".join(idx)), encoding="utf-8")

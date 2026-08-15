@@ -14,6 +14,27 @@
 本檔即 `00_summary.md`。全部證據落在 `docs/FINDINGS.md` 的 FND-038 至 FND-048，
 批次資料在 `runs/`。
 
+> **四份 HTML 的產生時間是 07:00 左右，本檔的數字比它們新。**
+> 校內網路在 07:15 中斷（兩個 port 都 timeout，是文件記載的 VPN 症狀），
+> 之後無法從機器取回新資料。GPU 工作以 `setsid nohup` 執行，**沒有中斷**，
+> 產物留在機器上。
+>
+> HTML 尚未包含的三項，其數字**已寫進本檔與 `FINDINGS.md`**：
+> 逐圖對齊固定 DISTS 的檢定（FND-047）、逐對手配對的外部比較表（FND-045）、
+> 目標影像消融（FND-048）。
+>
+> 網路恢復後重跑一行即可補齊：
+> `python scripts/report_0816.py --out reports/2026-08-16`
+>
+> 中斷時仍在跑、因此**尚未併入任何報告**的批次：
+>
+> | 批次 | 內容 | 中斷時的進度 |
+> |---|---|---|
+> | `runs/ext24/g0..g5` 第二張圖 | `photoguard_c` 再 6 張，會把 n 由 11 推到 17 | 各卡 step 180/200 |
+> | `runs/ext24/g8` | `photoguard_c` on `bird_02` | 進行中 |
+> | `runs/alt_r040` | `r_min` 0.40／θ π 跑滿 24 張 | 進行中 |
+> | `runs/hb5/retention_arm2.csv`、`retention_floor2.csv` | 抗淨化擴到 7 張 | 30/60 列 |
+
 ---
 
 ## 一、三個主張的現況（更新後）

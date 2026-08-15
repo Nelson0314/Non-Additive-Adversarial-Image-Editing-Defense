@@ -1,729 +1,289 @@
 # 上機執行手冊
 
-> 2026-08-05。**給接手執行實驗的 session 用。**
->
-> 這份文件是自足的：讀完就知道在做什麼研究、每一段在算什麼、指令怎麼下、
-> 產物怎麼判讀。需要更深的背景時再去讀 §0.6 列的原始設計文件。
->
-> **動手之前把 §0 讀完。** §1–§2 是上機流程，§3 是五段的內容，
-> §4–§6 是監察、失敗處理與收工，§7 是機時估計，§8 是判讀指南。
+2026-08-16 重寫。
+
+**舊版（729 行）描述的是 2026-08-13 已刪除的舊主線**——五段流程（calib／train／
+rayscale／eval／report）、`scripts/run_stage.py`、`scripts/shard.sh`、
+`src/utils/progress.py`、SDXL 1024²、attention 擷取。**它指名的每一支腳本都已經
+不存在**，照著做只會得到一連串 FileNotFoundError。取回舊版：
+
+    git show cce89f4ac:docs/RUNBOOK.md
+
+本版只寫**現在真的能跑的東西**：六支腳本、SD v1.4、512²。
 
 ---
 
-## 0. 研究背景與設計
+## 1. 機器
 
-### 0.1 要證明什麼
+NYCU BASIC lab，兩台各 8 張 RTX 3090（24 GB），home 目錄跨機同步：
 
-有人把照片放上網，別人拿 Stable Diffusion 打一句話就能把照片改掉。**防禦**
-是事先在照片上動手腳，讓它被丟進 SD 編輯時產出爛結果，但人眼看原圖看不太
-出來被動過。
+    ssh -p 10101 nelson0314@server.basiclab.lab.nycu.edu.tw   # basic-1
+    ssh -p 10102 nelson0314@server.basiclab.lab.nycu.edu.tw   # basic-2
 
-現有方法幾乎都是**加性**的：算一個與原圖同尺寸的擾動 Δ，輸出 `x + Δ`。
-本研究問的是：
+需要校內網路（VPN）。連不上時兩個 port 都會 timeout。
 
-> 在白盒條件、外掛模組形式下，有沒有**非加性**的作法，在**匹配人眼可辨
-> 失真**下勝過加性方法。
+repo 在 `/nfs/home/nelson0314/WACV-s3`。**它是 `/nfs/home/nelson0314/WACV/.git`
+的一個 git worktree**（`.git` 是指標檔不是目錄），這一點在處理 git 狀態時很重要
+——見 §6。
 
-「非加性」指輸出不是 `x + Δ` 的形式。本輪用兩種：
+### 環境變數要自己給
 
-| 位置 | 運算 | 用於 |
-|---|---|---|
-| **site warp**（`site_warp.py`） | `x_def = grid_sample(x, identity_grid + f_φ)`；φ 是位移場，每個像素被搬移一小段。不是加減，是**重新取樣** | N1、N2、R |
-| **site apa**（`apa_port.py`） | 兩階段：LoRA 改 UNet 權重（保真對齊）+ latent 注入，最後 `decode(...)` 出圖 | N3 |
-
-### 0.2 攻擊方那條運算鏈（威脅模型）
-
-白盒（模型與流程完全已知），**但不知道 prompt**。攻擊方拿 stock SDXL 1.0
-base 跑 SDEdit：
-
-1. `z0 = VAE.encode(x_def)` —— 1024×1024 壓成 128×128×4 的 latent。
-2. `z = √ᾱ_t·z0 + √(1−ᾱ_t)·ε` —— 加噪到 `strength=0.6` 對應的 t（= 600）。
-3. 從 t 往回跑 **50 步**去噪，每步 UNet 前向**兩次**（有 prompt 一次、無 prompt
-   一次），`ε = ε_uncond + 7.5·(ε_cond − ε_uncond)`。
-4. `y = VAE.decode(z_final)`。
-
-因為不知道 prompt，**我方全部條件的訓練一律 prompt-free**（空字串）。
-
-選 SDXL 的理由：它是最後一代用 UNet + cross-attention 的 SD（3.x 起是
-MMDiT，沒有 cross-attention），而 N1 的著力點就在 cross-attention。
-SDXL 的 `attn2` 有 **70 層**，SD v1.5 只有 16 層——所有寫死 16 的地方都作廢。
-
-> **與指導者協定的牴觸**：先驗總結（`ADVISOR.md`，已移除）§2.1 記的
-> 攻擊方模型是 SD v1.4。
-> 使用者在得知牴觸後仍選擇 SDXL，理由見 `DESIGN` §2.0（摘要：改回 v1.4
-> 並不會讓 baseline 變原生——AdvPaint／PromptFlare／PhotoGuard 的原始碼都是
-> 9 通道 inpainting，而威脅模型是全圖 img2img，那個實質改動兩邊都躲不掉）。
-> **這件事必須寫進論文。**
-
-### 0.3 七個條件
-
-| 條件 | 類別 | 參數化 | 損失盯什麼 | 監看量 |
-|---|---|---|---|---|
-| **N1** | 非加性 | warp | cross-attention：讓文字 token 的注意力質量散掉 | `shared_mass` |
-| **N2** | 非加性 | warp | 編輯輸出：把 `SDEdit(x_def)` 推離 `SDEdit(x)`（距離取 LPIPS） | `edit_shift` |
-| **N3** | 非加性 | apa | 同上但距離取 MSE；另有階段一的 LoRA 保真對齊 | `edit_shift` |
-| `photoguard_c` | 加性 baseline | 像素 δ | 完整 pipeline 輸出壓向中性灰 | — |
-| `mist` | 加性 baseline | 像素 δ | textural + semantic 雙損失 | — |
-| `dia_r` | 加性 baseline | 像素 δ | DDIM 反演後再解碼的重建誤差 | — |
-| **R** | 隨機對照 | warp（參數取高斯隨機） | 不最佳化 | — |
-
-**R 不是選配。** 先驗實測：在同一可辨失真上，純隨機高斯雜訊即取得最佳化解
-60–74% 的語意失效。沒有 R，任何正結果都不可解讀。
-
-未納入的方法都記在 `grid.EXCLUDED`，理由保留在程式裡供論文引用。分兩類：
-
-**方法本身有結構性問題**——`dia_pt`（L1 起點遠超其 eps 球，根因是 AutoAttack
-的箱型約束假設 `[0,1]` 而 DIA 用 `[-1,1]`；同篇的 `dia_r` 不受影響且已納入）、
-`diffvax`（其免疫器硬編碼 9 通道 inpainting 輸入，全圖 SDEdit 下結構上不可能
-忠實重現）。
-
-**機時裁決（使用者 2026-08-06）**——`advpaint` 與 `promptflare` 兩篇 baseline，
-以及淨化算子 `impress`。三者的程式碼與逐行原始碼佐證完整保留，把名字加回
-`BASELINES`／`MAIN_PURIFIERS` 一行即可納入，由 `test_機時裁決移除的方法程式碼仍保留`
-釘住。保留的三篇 baseline 都是常被引用的加性對照（PhotoGuard ICML 2023、
-Mist ICML 2023 Oral、DIA ICCV 2025），故次要主張的「最佳 baseline」仍有
-公認的比較對象。移除 IMPRESS 之後，主張一（抗淨化）改由 **DiffPure**
-這個強淨化對照，加上 **JPEG 兩點與 blur 四點的強度掃描**承擔——由
-`test_抗淨化仍有強淨化與強度掃描` 釘住。
-
-### 0.4 三層主張
-
-| 層級 | 主張 | 判定式 |
-|---|---|---|
-| **主** | 非加性**抗淨化**勝過加性 | 同一 τ 下，非加性的**淨化後絕對防禦效果**高於全部 baseline；主組算子多數成立且分層型態一致 |
-| 次 | 抗編輯持平或小輸 | **兩條同時成立**：(a) ≥ 0.85 × 最佳 baseline；(b) > 同失真隨機對照 R |
-| 三 | 保真受控 | 同 τ 下報**全部**指標（PSNR／NIQE／銳利度保留率），不挑選 |
-
-用「絕對效果」而非「保留率」是刻意的：先驗實驗用保留率（淨化後 ÷ 未淨化）
-曾看似成立，換一個指標後七組配對全部不成立——分母小的條件會被系統性放大。
-
-**判準以人眼為主、數值指標為輔**（使用者 2026-08-05 定案）。`compare.html`
-因此是**主要產出物**，見 §8。
-
-### 0.5 失真怎麼對齊——全案最關鍵的設計
-
-「匹配失真」這個前提在先驗實驗被**證偽四次**。實測：
-
-| 擾動 | LPIPS |
-|---|---|
-| PGD 解 | 0.2935 |
-| 同振幅的隨機 sign | 0.1497 |
-| 同 RMS 的高斯 | 0.1084 |
-
-同振幅時，最佳化解的可辨失真是隨機的 2–3 倍。所以**不比振幅、不比 RMS，
-直接對感知失真本身對齊**：段 1 只在最大的 τ=0.35 訓練一次，段 2 對縮放係數
-k 二分搜尋使 `LPIPS(build(k·φ)) ≈ τ`（28 次二分、容差 0.005），一次訓練得到
-整條失真–效果曲線，不必逐 τ 重訓（省 4 倍成本）。
-
-**N3 走生成路徑**，`decode(encode(x))` 這趟來回本身就有 LPIPS 0.1434 /
-PSNR 27.51 dB 的重建誤差，故 N3 在 τ=0.05 與 0.10 **結構上不可能達成**，
-那些格標為 `skipped` 而非 `failed`。**主表因此設在 τ=0.20**——那是三個非加性
-條件與全部 baseline 同時在場的最低點。
-
-### 0.6 原始設計文件
-
-需要更深的依據時讀這些（順序即依賴順序）：
-
-`reference/SURVEY.md`（文獻與方法選擇）→ `archive/DESIGN.md`（實驗設計、
-判定式）→ `archive/ARCHITECTURE.md`（架構、五段流程）→ `reference/CODE_CONTRACTS.md`
-（介面契約、產物清單）→ `LOGIC_CHECK_2026-08-05.md`（既知缺陷 A1–A13 與未決
-事項 C1–C4）。baseline 的每一個參數為什麼是那個值：`reference/SOURCE_AUDIT.md`
-與四份 `_audit_*.md`。
-
----
-
-## 1. 環境
-
-### 1.1 目標機器：NYCU BASIC lab `basic-1`（2026-08-06 實測）
+`~/env.sh` 的 `PYTHONPATH` 指向 `$HOME/WACV`（另一個舊 repo）。**每一支腳本
+都要自己明給**：
 
 ```bash
-ssh -p 10101 nelson0314@server.basiclab.lab.nycu.edu.tw
-source ~/env.sh          # PATH／venv／HF_HOME／DIFFPURE_CKPT，並 cd 到 repo
-```
-
-連線資訊出自實驗室的說明頁（`https://hackmd.io/@yilun/HytuGDvCj`）。三台共用
-同一個 host、以 port 區分：`10101` basic-1（RTX 3090 ×8）、`10102` basic-2
-（RTX 3090 ×8）、`10103` basic-3（H100 ×4，權限受限）。**home 目錄跨機同步**，
-所以在 basic-1 建好的 env 在 basic-2 上直接可用。密碼由使用者提供，
-**不得寫進任何入庫檔案**；已改為 ed25519 公鑰認證。
-
-實測環境（`scripts/verify_gpu_env.py --load-sdxl`，**13/13 通過**）：
-
-| 項目 | 值 |
-|---|---|
-| GPU | RTX 3090，**sm_86**，**23.56 GB** 可用（共 8 張，多人共用） |
-| torch | 2.13.0+cu126 |
-| bf16 | **支援** |
-| `attn2` 層數 | **實掃 70**（推導值亦為 70） |
-| `force_zeros_for_empty_prompt` | **True**，無條件分支為零張量 |
-| VAE 來回 | 未溢位，峰值 9.74 GB |
-| 儲存 | home 為 NFS，共用區尚餘 4.6 T；本機碟 `/tmp` 131 G |
-| diffusers / transformers | 0.39.0 / 5.14.1（與本機逐項相同） |
-
-**本輪一律 `--precision bf16 --gpu-tag RTX-3090`。** `gpu` 與 `precision` 都進
-`config_hash`，**換卡會使全部格點自動視為未完成**。這是刻意的：兩張卡的數值
-路徑不同，混跑會產生無法歸因的變因。
-
-### 1.2 這台機器的三個要點
-
-> ⚠️ **24 GB 是綁定資源，不是餘裕。** 三處實測到 OOM，處置都已入版控：
->
-> | 位置 | 原因 | 處置 |
-> |---|---|---|
-> | 段 0 `calibrate_precision_equiv` | bf16 與 fp32 兩份 SDXL 同時常駐 | `SDWrapper.offloaded()` 先把本批權重搬到 CPU |
-> | 段 0 `calibrate_lr`／段 1 N1 | CLIP + SigLIP 閒置佔 **1,352 MB**，而 N1 不能開 UNet checkpoint（hook 與 checkpoint 不相容，見 `optimize._build_attn_step`），1024² 下要留 12 個 UNet 計算圖 | `MetricSuite.release_vlm()` 在最佳化前釋放 |
-> | `impress` | 1024² 的 VAE 前向加反向用掉 23.45 GB | 本輪不執行（`grid.EXCLUDED`） |
->
-> 另**必須設 `PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True`**：實測把
-> 「已保留但未配置」的碎片由 447 MB 降到 44 MB。它只改配置器的分段策略，
-> **不動任何數值路徑**。`env.sh` 已含這一行。
-
-> ✅ **儲存是持久的 NFS**，容器不會被刪。但 `runs/` 仍是唯一的證據來源，
-> **每一段跑完就拉回本機並 commit**——規則不因這台機器而放寬。
-
-> ✅ **對外網路全通**（HuggingFace、GitHub、pypi、openaipublic 皆 200）。
-> 故不需要 ModelScope 鏡像，也不需要 tar over SSH：直接 `git clone`。
-> SDXL 的 6.62 GiB **本來就在機器的全機共用快取** `/var/cache/huggingface/hub`
-> 裡（系統把 `HF_HUB_CACHE` 設在那裡，會覆蓋 `HF_HOME`），首次載入一秒完成。
-
-### 1.3 本機
-
-`C:/Users/nelso/miniconda3/envs/wacv/python.exe`（**不是 base**，base 沒有
-pytest）。**RTX 2050 4 GB 完全不能跑本輪的 GPU 工作**——SDXL 1024² 連無梯度
-推論都放不下。本機只用於：寫程式、跑 pytest、看報表、下載外部檔案、
-git 操作。
-
-指令前加 `PYTHONIOENCODING=utf-8`——Windows 預設的 cp950 編不了 `²` 這類字元，
-症狀是腳本在**印出結果時**才炸，前面的計算全部白做。
-
----
-
-## 2. 上機流程
-
-### 2.1 本機：確認起點
-
-```bash
-cd C:/WACV
-PYTHONIOENCODING=utf-8 python -m pytest -q      # 基準 647 passed / 1 skipped / 1 xfailed
-git status --porcelain                          # 應為乾淨
-git push origin claude/e20-fidelity-constraint  # 機器是 git pull 取碼，先推上去
-```
-
-### 2.2 機器：建環境（**只需做一次**，home 跨機同步）
-
-沒有 conda，也不要裝：用 `uv` 建一個 python 3.11 的 venv 最省事。
-
-```bash
-curl -LsSf https://astral.sh/uv/install.sh | sh
-export PATH="$HOME/.local/bin:$PATH"
-
-# repo。部分複製 + sparse checkout，不取 runs/（先驗證據在機器上用不到）
-git clone --filter=blob:none --sparse \
-  --branch claude/e20-fidelity-constraint \
-  https://github.com/Nelson0314/Non-Additive-Adversarial-Image-Editing-Defense ~/WACV
-cd ~/WACV && git sparse-checkout set --no-cone '/*' '!/runs/'
-
-uv venv --python 3.11 ~/venvs/wacv
-uv pip install --python ~/venvs/wacv/bin/python \
-  torch==2.13.0 torchvision==0.28.0 --index-url https://download.pytorch.org/whl/cu126
-uv pip install --python ~/venvs/wacv/bin/python \
-  diffusers==0.39.0 transformers==5.14.1 accelerate safetensors piq scipy \
-  opencv-contrib-python peft pytest pyyaml psutil matplotlib einops \
-  sentencepiece protobuf lpips blobfile
-uv pip install --python ~/venvs/wacv/bin/python --no-deps pyiqa
-```
-
-> `protobuf`／`sentencepiece` 是 SigLIP tokenizer 的相依，`lpips` 是 IMPRESS
-> 的後端，`blobfile` 是 guided-diffusion 的相依。三者 2026-08-06 之前都不在
-> `environment.yml` 裡，在乾淨 env 上會一段一段炸出來。現已補齊。
-
-`~/env.sh`（每次上機先 `source` 這個）：
-
-```bash
-export PATH="$HOME/.local/bin:$PATH"
-export VENV=$HOME/venvs/wacv
-export PY=$VENV/bin/python
+export PYTHONPATH=/nfs/home/nelson0314/WACV-s3
 export HF_HOME=$HOME/hf_cache
-export DIFFPURE_CKPT=$HOME/thirdparty/diffpure/256x256_diffusion_uncond.pt
-export PYTHONPATH=$HOME/WACV
-export TOKENIZERS_PARALLELISM=false
-export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True   # 見 §1.2，不可省
-cd $HOME/WACV
+export PYTHONIOENCODING=utf-8
+PY=$HOME/venvs/wacv/bin/python
 ```
 
-### 2.3 機器：DiffPure 的檢查點
+DiffPure 權重在 `$HOME/thirdparty/diffpure/256x256_diffusion_uncond.pt`。
 
-網路全通，**直接在機器上抓**（2.21 GB，實測約 0.4 MB/s、需一小時）：
+### 卡是多人共用
+
+跑之前先看：
 
 ```bash
-source ~/env.sh
-$PY scripts/fetch_diffpure.py --dest ~/thirdparty/diffpure
+nvidia-smi --query-gpu=index,memory.used,utilization.gpu --format=csv,noheader
 ```
 
-該腳本最後一步 `pip install -e` 會失敗——**uv 建的 venv 沒有 pip**。改用 uv
-做同一件事（**必須 editable，理由見下**）：
+`memory.used` 只有 1 MiB 的才算空。本專案每個行程約佔 **10–13 GB**，
+一張卡放一個行程。
+
+### 背景執行
 
 ```bash
-uv pip install --python $PY --no-deps -e ~/thirdparty/diffpure/guided-diffusion
-$PY -c "import guided_diffusion; print('OK')"
+( setsid nohup $PY scripts/xxx.py ... > runs/xxx.log 2>&1 < /dev/null & )
 ```
 
-> **為什麼一定要 editable**：上游 `openai/guided-diffusion` 的 `setup.py` 寫的是
-> `py_modules=["guided_diffusion"]`，而 `py_modules` 指的是**單一 .py 檔**，
-> `guided_diffusion` 卻是一個目錄。`pip install git+...` 會「安裝成功」但 wheel
-> 只有 1978 bytes 的 metadata，`import guided_diffusion` 仍然失敗。這是上游的
-> 缺陷不是環境問題。
-
-**沒設 `DIFFPURE_CKPT` 也能跑**：`Purifier("diffpure").available` 會是 False，
-`annotate_unavailable` 在**跑之前**把那些格標成 skipped，不會跑到一半才炸。
-但 DiffPure 是本輪唯一的「強淨化」對照（IMPRESS 已移出），少了它主張一的
-證據只剩 JPEG／blur 的強度掃描。
-
-### 2.4 機器：驗證
-
-```bash
-source ~/env.sh
-PYTHONIOENCODING=utf-8 $PY scripts/verify_gpu_env.py --load-sdxl   # 期望 13/13
-PYTHONIOENCODING=utf-8 $PY -m pytest -q                            # 期望與本機同
-```
-
-`--load-sdxl` 才會驗到 `attn2` 實掃層數、`force_zeros_for_empty_prompt`、
-VAE 是否溢位與 VAE 來回的峰值記憶體。`CrossAttentionRecorder` 建構時也會
-自動比對推導值與掃描值，不符即拋出，故段 0 一跑起來就會再驗一次。
-
-### 2.5 機器：先乾跑
-
-```bash
-source ~/env.sh
-PYTHONIOENCODING=utf-8 $PY scripts/run_stage.py eval \
-    --batch b1 --gpu-tag RTX-3090 --precision bf16 --dry-run
-```
-
-`--dry-run` 只列出會跑哪些格、不執行也不寫入。**在耗掉機時之前確認格數是
-21 / 78 / 285 / 2910**（train / rayscale / control / eval，合計 3294）。
+`setsid` 與 `< /dev/null` 都不能省，否則 ssh 一斷線就整批帶走。外層的括號
+讓 ssh 不等它。
 
 ---
 
-## 3. 五段的內容與指令
+## 2. 六支腳本
 
-五段。每段的產物落盤後即可獨立重跑後續段落。`<批次>` 取 `b1`、`b2`…，
-換卡或改 `--spec-version` 就開新批次。
-
-**注意 stage 是位置引數不是選項**：`run_stage.py calib`，不是 `--stage calib`。
-
-**所有指令共用的必填參數**（以下各段不重複寫）：
-
-```
---batch b1 --gpu-tag RTX-3090 --precision bf16 --purify-mode rotate --attn-timesteps 2
-```
-
-> ⚠️ **後兩個是 24 GB 下的必要條件，不是調味。** N1 不能開 UNet
-> checkpoint，故每步要留住 `attn_timesteps × 淨化算子數` 個完整的 SDXL UNet
-> 計算圖，1024² 下每個約 4.5 GB。2026-08-06 於 RTX 3090 逐一實測：
->
-> | 設定 | 保留的圖數 | 峰值 | 結果 |
-> |---|---|---|---|
-> | `all` + `t=4`（程式預設） | 12 | — | OOM |
-> | `rotate` + `t=4` | 4 | — | OOM |
-> | `rotate` + `t=3` | 3 | 24124 MiB | OOM |
-> | **`rotate` + `t=2`** | **2** | **22964 MiB** | **通過** |
->
-> **兩個都要帶**：`rotate` 下前向數才等於 `attn_timesteps`，只帶 `t=2` 而
-> 不帶 `rotate` 是 6 個圖。`scripts/shard.sh` 已內建這兩項。
->
-> **代價要寫進論文。** `rotate` 把「每步對淨化算子集合 𝒫 取完整平均」改成
-> 「每步抽一個、逐步輪替」——期望值相同，250 步下每個算子仍被看到約 83 次，
-> 是標準的 EOT 抽樣；但單步梯度的變異數較大。`attn_timesteps` 由 4 降為 2
-> 則是 N1 在 `[0, t_edit]` 上的取樣點由 4 個減為 2 個。
->
-> 前者是估計方式的改變，後者是著力點覆蓋範圍的改變，兩者都由
-> `optim_params` 進 `config_hash`，換回去就是新批次。
-
-Mist 要跑就加 `--mist-target data/targets/MIST.png`。
-
-### 段 0：calib（前置校準）
-
-```bash
-PYTHONIOENCODING=utf-8 python scripts/run_stage.py calib \
-    --batch b1 --gpu-tag RTX-3090 --precision bf16 \
-    --mist-target data/targets/MIST.png
-```
-
-產出 `runs/b1/calib/`：
-
-| 檔案 | 內容 | 過不了就停 |
+| 腳本 | 做什麼 | 成本（實測 2026-08-16） |
 |---|---|---|
-| `precision_equiv.csv` | bf16 對 fp32 的差距，分 `vae_roundtrip` / `eps` / `sdedit` 三列 | **本函式不自行判定「等價」**——門檻沒有出處。由人讀數字決定是否退回 fp32 並重估耗時 |
-| `micro_bench.csv` | `vae_roundtrip` 與 `sdedit_50steps` 的實測秒數 | **§7 的機時估計要用實測值取代估計值**，報告不得引用估計值 |
-| `strength_sweep.csv` | SDEdit strength 掃描 | |
-| `editable_filter.csv` | 編輯有效性過濾的逐張結果 | **選不出足夠張數就直接拋出**（`run_calibration` 有硬檢查）——在無效編輯上量免疫沒有意義 |
-| `warp_reach.csv` | `max_disp` 下可達的最小 LPIPS | 低於 `--tau-train` 時段 2 會拋出。**2026-08-06 實測即為此況**，見下 |
-| `calibration.json` | 逐條件學習率、停止門檻 | 任一條件未校準，後續會直接拋 `CalibrationMismatch` |
+| `phase_distortion_sweep.py` | 把相位與加性的半徑掃一整排，供人眼定門檻 | 分鐘量級 |
+| `phase_ablation.py` | 像素臂：`add`／`phase`／`phase_rand` 三條件 | **人眼門檻 45–60 s/圖·條件**；DISTS 對齊要 ×9（二分搜尋） |
+| `apa_baseline.py` | 弱 baseline ＋ 三個加性 baseline | 見下表 |
+| `phase_retention.py` | 抗淨化：十個算子 × 多 seed，跑在已存的防禦圖上 | **約 660 s/格**（10 算子 × 3 seed） |
+| `merge_runs.py` | 把分片的批次併成一個 | CPU，秒 |
+| `report_0816.py` | 產四份 HTML 報告 | CPU，分鐘 |
 
-#### 段 0 的第一次完整執行揪出的兩件事（2026-08-06）
+`apa_baseline.py` 逐條件的實測（含兩次 SDEdit 評測）：
 
-**一、`--warp-max-disp` 必須由 1.5 調到 8.0。** 段 0 回報
-`covers_train_tau: false`。實測各 `max_disp` 下位移場可達的 LPIPS：
+| 條件 | 秒/圖 | 備註 |
+|---|---|---|
+| `mist` | **85** | 必須開 `use_ckpt` 與 `vae_ckpt`，否則 OOM |
+| `apa_weak` | **130–150** | 階段一 LoRA 200 步 ＋ 階段二 |
+| `dia_r` | **150** | 同上，要開 ckpt |
+| `photoguard_c` | **6700–7000** | 200 步／圖，約 **33 s/步**。全批次的瓶頸 |
 
-| `max_disp` | bird_03 | cat_02 | dog_03 | 三者最小 |
-|---|---|---|---|---|
-| **1.5**（程式預設） | 0.1091 | 0.2182 | 0.1544 | **0.109** |
-| 3.0 | 0.2170 | 0.3846 | 0.2905 | 0.217 |
-| 5.0 | 0.3099 | 0.4946 | 0.3918 | 0.310 |
-| **8.0**（採用） | 0.3914 | 0.5579 | 0.4641 | **0.391** |
-| 12.0 | 0.4480 | 0.5928 | 0.5111 | 0.448 |
-| 20.0 | 0.4845 | 0.6164 | 0.5446 | 0.485 |
+**`photoguard_c` 佔一批七條件實驗 94% 的機時。** 排程時把它單獨拆出去。
 
-留在 1.5 的後果不是精度差一點，是**主表空掉**：τ=0.20 有兩張圖到不了、
-τ=0.35 三張都到不了，段 2 會在那些格拋出。取 8.0 是蓋得住 τ_train 且仍在
-曲線膝部的最小格點（12→20 只再多 0.037）。
+---
 
-量測用的是 **R**（高斯隨機位移）。這不是保守起見——**R 本身就是格點裡的
-一個條件**，它必須自己達得到 τ=0.35。對 N1／N2 而言 8.0 是寬鬆的：先驗
-實測「同振幅下最佳化解的可辨失真是隨機的 2–3 倍」。
+## 3. 一個完整批次怎麼跑
 
-`max_disp` 是硬上界（`site_warp.displacement` 直接 clamp），不是損失權重。
-放寬它不會讓防禦白白變強，實際失真仍由段 2 的射線縮放固定在 τ 上。
-
-**二、`strength.recommended = 0.8` 不採納，維持 0.6。** 段 0 依 Δsiglip
-挑出 0.8（0.6 為 0.0265、0.8 為 0.0818）。但**人眼判讀推翻該建議**：
-在 strength 0.6 下三張圖的編輯都是徹底的語意置換——
-
-| 影像 | prompt | 0.6 下的結果 | Δsiglip |
-|---|---|---|---|
-| `bird_03` | *a butterfly* | 鳥整隻變成昆蟲／蝴蝶形體，複眼、觸角、翅膀俱全 | +0.059 |
-| `cat_02` | *a dog* | 貓變成白色長毛犬，姿態與毛質全換 | +0.040 |
-| `dog_03` | *a cat* | 臘腸犬長出黃綠色豎瞳、鬍鬚，口鼻改成貓的形狀 | +0.024 |
-
-**Δsiglip 嚴重低估編輯幅度**（`dog_03` 的 +0.024 對應的是一次完整的物種
-置換）。依 §0.4「判準以人眼為主、數值指標為輔」，維持 `--strength 0.6`；
-`strength.recommended` 這一欄只作記錄，不驅動設定。
-
-> **`precision_equiv` 會載入第二份 fp32 權重**（約 7 GB），是本段最重的一步。
-> 31.4 GB 顯存下可行，且它與 bf16 那份不同時長存（跑完即釋放）。
-
-### 段 1：train（訓練）
+### 3.1 像素臂三條件（人眼門檻）
 
 ```bash
-PYTHONIOENCODING=utf-8 nohup python scripts/run_stage.py train \
-    --batch b1 --gpu-tag RTX-3090 --precision bf16 \
-    --mist-target data/targets/MIST.png > runs/b1/train.log 2>&1 &
+$PY scripts/phase_ablation.py --out runs/<批次> --data data/lo_aligned \
+    --human-threshold
 ```
 
-**21 格**（7 條件 × 3 影像），在 `--tau-train`（預設 0.35）上訓練一次。
+24 張圖 × 3 條件約 **45 分鐘一張卡**。
 
-- N1／N2／N3：plateau 停止，上限 250 步。停止準則有三個條件缺一不可——
-  約束確實啟動過、目前已滿足、監看量的改善低於門檻。
-- 三個 baseline：步數照**原始碼**（PhotoGuard-c 200、Mist 100、DIA 20）。
-  PhotoGuard-c 是全段的主成本：200 步 × `grad_reps` 10 × 4 步去噪，
-  以成本單位計為其餘兩篇的 40 至 80 倍。
-- R：不最佳化，直接取高斯隨機參數。
+可調的軸（2026-08-16 新增）：
 
-### 段 2：rayscale（射線縮放）
-
-```bash
-PYTHONIOENCODING=utf-8 python scripts/run_stage.py rayscale \
-    --batch b1 --gpu-tag RTX-3090 --precision bf16
-```
-
-**78 格**（84 減去 N3 的 6 格不適用）。無訓練，只有前向：對每個 φ 沿參數
-射線二分搜尋，落在 τ ∈ {0.05, 0.10, 0.20, 0.35}。
-
-N3 在 τ=0.05、0.10 標成 `skipped`（VAE 重建下限 0.1434），**這是預期行為
-不是失敗**。二分 28 次後仍未達容差 0.005 會**拋出**而不是回傳最接近值——
-標成 τ=0.20 但實際是別的失真，下游沒有任何欄位看得出來。
-
-### 段 3：eval（淨化與編輯評測）
-
-```bash
-PYTHONIOENCODING=utf-8 nohup python scripts/run_stage.py eval \
-    --batch b1 --gpu-tag RTX-3090 --precision bf16 \
-    --mist-target data/targets/MIST.png > runs/b1/eval.log 2>&1 &
-```
-
-**285 格 control + 2910 格 eval**，是整批的主成本。驅動會**先跑完 control 再跑
-eval**（eval 要讀 control 的產物）。
-
-- φ=0 的同淨化對照每 `(影像, 淨化, 種子)` 只算一次、**跨 9 個條件共用**。
-  若每個條件各算一次就是 9 倍的重複計算。
-- 主組 7 個算子（identity、jpeg75、jpeg30、crop_resize、adverse_cleaner、
-  cnn_denoise_substitute、diffpure）跑在 τ ∈ {0.20, 0.35}；
-  τ=0.05、0.10 只跑 identity。
-- 掃描組 12 個設定（blur×4、noise×4、quantize×4）只在主表所在的 **τ=0.20** 跑。
-- 每格另擷取 cross-attention（每 5 步、固定含首末步、兩側都存）。
-  逐層原圖只在 **τ=0.20 且 seed 0** 完整存（70 張），其餘只存聚合圖與
-  `attn_stats.csv`——理由是體積，數值在每一格都齊全。
-
-**`cnn_denoise_substitute` 恆為不可用**：NTIRE 2023 冠軍（Team Apply AI 的
-IPTV2）的程式碼與權重從未公開，挑戰賽官方 repo 只有主辦方 baseline SGN。
-那 285 格會被標成 skipped。**不得以其他去噪器代替再聲稱重現 DiffVax 的該項評測。**
-
-### 段 4：report（報表與比對頁）
-
-```bash
-PYTHONIOENCODING=utf-8 python scripts/run_stage.py report \
-    --batch b1 --gpu-tag RTX-3090 --precision bf16
-```
-
-**不載入 SDXL**（只讀 `_cells/*.json`），本機也能跑。產出：
-
-| 產物 | 內容 |
+| 旗標 | 意義 |
 |---|---|
-| `grid.csv` | 每格一列，全部指標 |
-| `report_summary.json` | 列數、條件清單、可用列數 |
-| **`compare.html`** | **人眼比對頁，主判準**。見 §8 |
-| `attention.html` | cross-attention 對照頁 |
+| `--prompt-index {0,1}` | 用 `prompts.yaml` 的哪個編輯 prompt。0 改主體、1 改場景 |
+| `--r-min` | 徑向頻率閘下限。定案 0.12 |
+| `--block` | 重疊區塊邊長。定案 32 |
+| `--quantile` | 紋理閘的能量參考分位數。定案 0.5 |
+| `--phase-radius` | 覆寫人眼門檻的相位半徑 |
+| `--target` | 損失的目標影像。定案 `data/targets/gray.png` |
+| `--tag-suffix` | 讓同一個 `--out` 下的多組設定不互相覆寫檔名 |
 
----
+### 3.2 外部 baseline
 
-## 4. 進度監察
-
-**唯讀，不碰 GPU，不啟停任何行程。**
-
-```bash
-python scripts/dashboard.py runs/b1 --json      # 給 agent：機器可讀
-python scripts/dashboard.py runs/b1 --watch 60  # 給人看
-python scripts/dashboard.py runs/b1 --failed    # 只看失敗
-python scripts/dashboard.py runs/b1 --rebuild   # progress.json 壞掉時掃產物重建
-```
-
-| 狀態 | 意義 | 該做什麼 |
-|---|---|---|
-| `pending` | 尚未開始 | 等 |
-| `running` | 執行中 | 等 |
-| `done` | 完成且產物齊全 | — |
-| `failed` | **真的失敗** | 用 `--failed` 取全文，**回報使用者，不要自行重跑** |
-| `skipped` | 結構上不適用（N3 在低 τ、不可用的淨化算子） | **不是失敗**，不需處理 |
-
-三條約定：
-
-- 輪詢一律用 `--json`，不要解析終端表格。
-- **不要在 GPU 工作執行期間跑 pytest 或其他 CPU 密集工作**——實測會把單張
-  SDEdit 由 222 s 拉長到 30 分鐘以上。
-- 不要自行判斷「這格失敗了重跑一次就好」。先驗實驗十次事後診斷都是
-  「一個值被沿用到另一個對象上而且沒有症狀」，盲目重跑會把症狀蓋掉。
-
-### 續跑
-
-每格算一個 `config_hash`（spec_version、model、resolution、guidance、steps、
-strength、gpu、precision、loss_params、module_params、optim_params、lr、tau、
-purify、seed 全部進去）。「完成」的定義是**狀態 done 且雜湊相符且產物檔都還在**，
-三者缺一即重跑。中斷後直接重下同一條指令即可續跑，不需要任何旗標。
-
-`--force` 忽略續跑判定重跑全部格子。**重跑不可重跑的實驗是無法回復的損失**，
-除非確知在做什麼否則不要用。
-
----
-
-## 5. 失敗處理
-
-| 症狀 | 可能原因 | 處置 |
-|---|---|---|
-| `CalibrationMismatch` | context 與校準表不符，通常是換卡或改了解析度 | 看例外訊息列出的雙方內容。**不要放寬比對**，重跑段 0 |
-| `KeyError: 監看量 '...' 的 stop_tol 未給` | 該監看量沒有校準值 | 重跑段 0。**不要填一個看起來合理的數字** |
-| `no kernel image is available` | torch 版本與卡不符 | 3090 是 sm_86，cu126 輪子即可；5090（sm_120）需 torch ≥ 2.7 + cu128 |
-| 解碼出全黑圖 | SDXL VAE 在 fp16 下溢位 | 用 bf16。**不可改用 `sdxl-vae-fp16-fix`**——那是第三方重訓的 VAE，換它就是換模型 |
-| `element 0 of tensors does not require grad` | φ 沒進計算圖 | 檢查模組是否提供了 `pixel_residual`／`eps_hook` 之一 |
-| 找不到 `attn2` 層 / 層數不符 | 模型不是 SDXL，或鏡像與官方不一致 | 確認是 SDXL base 而非 refiner 或 SD 3.x |
-| `FileNotFoundError: 找不到 DiffPure 的檢查點` | `DIFFPURE_CKPT` 沒設 | 見 §2.3；或接受該算子被標成 skipped |
-| Mist 拋 `NotImplementedError` | 沒傳 `--mist-target` | 加上 `--mist-target data/targets/MIST.png` |
-| 二分後 LPIPS 與目標差距超過容差 | 該 (影像, 方向) 組合達不到該 τ | **這是關於該方向的結果不是錯誤**，記下來回報 |
-| 單張 SDEdit 耗時暴增到 30 分鐘 | 有另一個 GPU 或 CPU 密集工作在搶 | `nvidia-smi` 與 `ps` 查，停掉另一個 |
-
-**禁止用 try/except 或條件跳過來掩蓋症狀。** 要找根本原因。
-
----
-
-## 6. 收工
-
-**每一段跑完就做一次**（機器沒有持久儲存）：
+便宜的三個放一張卡，`photoguard_c` 每張卡分兩張圖：
 
 ```bash
-# 本機執行：從機器打包拉回
-ssh -p <port> root@<host> 'cd /workspace/WACV && tar czf - runs' | tar xzf -
+# 一張卡，十二張圖，約 75 分鐘
+$PY scripts/apa_baseline.py --out runs/<批次>/cheap --data data/lo_aligned \
+    --conditions apa_weak mist dia_r --images <12 張>
 
-# 本機：確認沒有結果檔被 .gitignore 排除
-git status --porcelain --ignored | grep '^!!' | grep runs/
-
-# 入版控（commit message 用英文）
-git add runs/b1
-git commit -m "Add batch b1 <stage> results"
+# 每張卡兩張圖，約 3.7 小時
+for g in 0 1 2 3 4 5; do
+  CUDA_VISIBLE_DEVICES=$g ( setsid nohup $PY scripts/apa_baseline.py \
+      --out runs/<批次>/g$g --data data/lo_aligned \
+      --conditions photoguard_c --images <兩張> > runs/pg$g.log 2>&1 < /dev/null & )
+done
 ```
 
-放行清單為 `.csv .json .md .log .png .html .txt .pt`，**`.yaml` 不在其中**。
-寫入任何新副檔名之前先跑 `git check-ignore -v <預計路徑>`——注意命中
-`!runs/**/*.png` 這類**否定**規則代表**未被**排除，要看 exit code 而不是有無輸出。
+### 3.3 抗淨化
 
-**未經明確授權不得把分支併入 main。** 目前在 `claude/e20-fidelity-constraint`。
-
-### 跑完一批要回報的五項
-
-不要只回報「跑完了」：
-
-1. `dashboard.py --json` 的最終摘要（done／failed／skipped 各幾格）。
-2. `precision_equiv.csv` 的三列數字——bf16 有沒有改變任何指標的方向。
-3. `micro_bench.csv` 的實測秒數，與 §7 的估計對照。
-4. `editable_filter.csv`：哪幾張通過、哪幾張沒通過。
-5. **`compare.html` 的人眼判讀**——指標說什麼不算數，圖看起來怎樣才算數。
-   指標與人眼矛盾時，把矛盾寫下來，不要挑一邊。
-
----
-
-## 7. RTX 3090 的機時估計
-
-**基準是實測。** 段 0 的 `micro_bench.csv` 在 basic-1 的 RTX 3090 上量到
-（bf16、1024²、CFG 兩次前向且**分開做而非合批**——那是 `_eps_cfg` 為了記憶體
-而刻意的選擇）：
-
-| op | 實測 |
-|---|---|
-| `sdedit_50steps`（即 `T_edit`） | **14.16 s / 14.04 s**（兩次獨立量測） |
-| `vae_roundtrip` | 0.76 s / 0.60 s（前者含首次呼叫的 kernel autotune） |
-
-`T_edit ≈ 14.1 s`，是先前 RTX 5090 假設值（9 s）的 **1.57 倍**。下表即以此
-換算，格數為 2026-08-06 機時裁決後的值。
-
-| 段 | 格數 | 主成本 | 估計 |
-|---|---|---|---|
-| 0 calib | — | strength 掃描、編輯過濾、lr 探測、precision_equiv（含載入第二份 fp32 權重） | **0.8–1.6 h** |
-| 1 train | 21 | `photoguard_c` 主導：200 步 × 10 reps × 4 步去噪 | **6–8 h** |
-| 2 rayscale | 78 | 28 次二分 × materialize + LPIPS；warp 便宜、N3 每次要走生成路徑 | **0.4–0.7 h** |
-| 3a control | 285 | 285 × T_edit + 淨化 | **1.5 h** |
-| 3b eval | 2910 | 2910 × T_edit + 淨化 + attention 擷取 | **12–14 h** |
-| 4 report | — | 純 I/O，不載入模型 | **< 5 min** |
-
-**合計：約 21–26 GPU 小時。**
-
-`photoguard_c` 是段 1 的主成本，以成本單位計是其餘兩篇的 40 至 80 倍：
-
-| baseline | 步數 × reps × 鏈長 | 成本單位 |
-|---|---|---|
-| `photoguard_c` | 200 × 10 × 4 | 8,000 |
-| `dia_r` | 20 × 1 × 10 | 200 |
-| `mist` | 100 × 1 × 1 | 100 |
-
-### 8 張卡怎麼用：逐影像分片
-
-`ProgressWriter._acquire()`（`src/utils/progress.py:139`）在鎖已存在時拋
-`WriterLockHeld`，故**同一批次只能有一個寫入者**。但那個鎖是**逐批次目錄**的：
-N 個影像分成 N 個批次目錄，就是 N 個各自持鎖的寫入者，完全合法且**不用改
-任何 Python 程式**。工具是 `scripts/shard.sh`。
-
-牆鐘時間因此降為「一張圖的工作量」，與影像總數無關：段 1–3 的 20–24 h
-除以影像數，3 張圖約 **7–8 h**，加上不可平行的段 0 約 **9 h**。
-
-**唯一可分片的軸是影像**——只有它有 CLI 入口（`--images`），條件與 τ 都沒有。
-不要試圖再細分。
-
-> **段 0 只跑一次，校準表複製給每個分片。** 這一步不可省。
-> `Calibration.REQUIRED_CONTEXT` 是 `(model, resolution, guidance, steps, gpu,
-> precision)`，**不含 image**；`calibrate_lr` 本來就只探測
-> `next(iter(res.images.values()))` 一張圖。也就是說學習率在設計上與影像無關。
-> 若讓每個分片各跑自己的段 0，各分片會拿到**不同的學習率**，那是跨影像
-> 比較中無法歸因的變因。
-
-合併之所以安全是構造上的：產物在 `batch_dir/<條件>/<影像>/`，逐格紀錄的檔名
-帶影像，而 `run_report` 只讀 `_cells/*.json`、只寫相對路徑的 `<img src>`。
-把各分片疊進同一個目錄再跑段 4，得到的就是完整的 `compare.html`。
+跑在**已存的防禦圖**上，不重跑攻擊：
 
 ```bash
-source ~/env.sh
-bash scripts/shard.sh calib  bird_03 cat_02 dog_03   # 段 0，單卡，約 1.5 h
-bash scripts/shard.sh fanout bird_03 cat_02 dog_03   # 段 1–3，每圖一卡
-bash scripts/shard.sh watch                          # 各分片進度（唯讀）
-bash scripts/shard.sh merge  bird_03 cat_02 dog_03   # 合併 + 段 4
+$PY scripts/phase_retention.py --run runs/<批次> --data data/lo_aligned --seeds 3
 ```
 
-`fanout` 只挑記憶體用量 < 1 GB 的卡，會避開實驗室其他人正在用的。
-**要用更多卡就加影像**：牆鐘時間不變，樣本數線性增加。`data/lo_aligned`
-有 25 張 CC0 真實照片可選。
+空白地板（算子自己造成的位移，2026-08-16 新增）：
 
-### 已移除的 IMPRESS（機時裁決，2026-08-06）
+```bash
+$PY scripts/phase_retention.py --run runs/<批次> --seeds 3 --floor \
+    --images <五張> --out runs/<批次>/retention_floor.csv
+```
 
-`impress` 的參數取自 PhotoGuard 那組（`PHOTOGUARD_PRESET`）：**每一格 1000 次
-Adam 迭代**，每次是一整個 SDXL VAE 的 `encode→decode` 前向**加反向**，在 1024²
-上。以實測的 `vae_roundtrip` 外推，285 格逾 **100 小時**——比其餘全部加起來還久
-四倍；且它在 23.56 GB 的 3090 上**直接 OOM**（用掉 23.45 GB 後失敗）。
+五張圖約 **55 分鐘一張卡**。
 
-使用者裁決為**程式保留、本輪不執行**。要取回它：把 `("impress", 0.0)` 加回
-`grid.MAIN_PURIFIERS`，其餘不必動。屆時要先解決 1024² 的記憶體，
-選項是降 `iters`（偏離原設定，須列入 `modification_note`）或換更大的卡。
+### 3.4 報告
 
-### 其他值得知道的成本
-
-- **DiffPure**：150 步反向擴散 × 552M 模型 @256²，每格約 3–5 s，
-  合計約 **20 分鐘**。不是瓶頸。它是本輪唯一的強淨化對照。
-- **adverse_cleaner**：64 次 bilateral + 4 次 guided filter，走 OpenCV 在 **CPU**
-  上跑，1024² 下每格約 3–5 s，合計約 **20 分鐘**。它不佔 GPU，但會與 GPU 工作
-  搶 CPU。basic-1 有 64 核，這條規則在此比在先前的機器上寬鬆，但仍不要
-  在跑實驗時同時跑 pytest。
-- **attention 擷取**：只在 11 個取樣步上開啟（`CrossAttentionRecorder.enabled`
-  在非取樣步是空操作），估計為 eval 增加 5–10%。已含在上表的 12–14 h 內。
-- **磁碟**：逐層 attention 圖只在 τ=0.20 且 seed 0 存，那是
-  7 條件 × 3 影像 × 19 淨化 × 70 層 ≈ 27,900 張小灰階 PNG。加上各格的
-  `x_purified.png` 與 `edit_seed*.png`，預估 `runs/b1` 在 **15–25 GB**。
-  home 所在的 NFS 共用區尚餘 4.6 T，夠；但**拉回本機與入版控之前要先確認
-  本機空間**。
+```bash
+$PY scripts/report_0816.py --out reports/<日期>
+```
 
 ---
 
-## 8. 判讀指南——怎麼從 `compare.html` 下結論
+## 4. 分片：同一個目錄只能有一個寫入者
 
-使用者 2026-08-05 定案：**人眼為主判準，數值指標為輔**。這不是降低嚴謹度，
-而是與實測一致：
+**這不是鎖，是覆寫語意。** `write_csv` 每次呼叫都**整份重寫** `results.csv`。
+兩個行程寫同一個 `--out` 會互相蓋掉，而且**不會報錯**。
 
-- 編輯 LPIPS 0.2593 聽起來像「有部分效果」，逐張看是「編輯照樣成功，
-  只是細節略有不同」。
-- 同為 LPIPS 0.05 時，四種失真的 PSNR 由 24.44 到 36.47（差 12 dB），
-  人眼看到的是四種不同的東西。
-- E2–E23 全部在防禦一個不存在的攻擊，是使用者看 `compare.html` 才發現的
-  （「連原始圖片被文字編輯都沒有成功」）。
+處置：每張卡給自己的 `--out`，最後用 `merge_runs.py` 併起來。
 
-### 頁面怎麼組織
+可分片的軸只有**影像**（`--images`）。條件也可以分（`--conditions`），但要記得
+每個分片都會重跑一次評測用的未防禦編輯。
 
-以 **(影像, τ, 淨化)** 分組，組內七個條件**並排成列**。這個分組不是任意的：
-要判的正是「非加性在**同失真、同淨化**下是否勝過加性」，以條件分組會把它們
-隔開數百列。
+---
 
-每列六張圖依因果鏈排列：
+## 5. 排程一個晚上的實例（2026-08-16 實跑）
 
+8 張卡、6 小時，實際排法：
+
+| 卡 | 波次一 | 波次二 |
+|---|---|---|
+| 0–5 | `photoguard_c`，每卡兩張圖（3.7 h） | — |
+| 6 | `apa_weak`／`mist`／`dia_r`，十二張圖（75 min） | `--prompt-index 1`，24 張 × 3 條件 |
+| 7 | 目標影像消融 ＋ 閘設定掃描（~2 h） | 空白地板（55 min） |
+
+波次二用一支等待腳本接手：
+
+```bash
+while pgrep -af "<前一支的識別字串>" | grep -v "本腳本的檔名" | grep -q .; do
+  sleep 60
+done
 ```
-原圖 → 防禦圖 → 殘差 → 淨化後 → 防禦側編輯 ‖ 對照側編輯
+
+**`grep -v` 那一段不能省。** 等待腳本的命令列參數裡就含有要等的字串，
+直接 `pgrep -f` 會匹配到自己而永遠等下去。
+
+---
+
+## 6. git 與資料保全
+
+### 6.1 runs/ 全部入版控
+
+`runs/` 是唯一的證據來源，遠端機器不保證保留，實驗無法重跑。
+所有 CSV／JSON／log／PNG 一律入版控。
+
+`.gitignore` 的 `runs/` 區塊曾有一條 `runs/*/**` 讓 git 停止遞迴而靜默漏掉
+273 個檔案（commit `1942e38`）。改動該區塊後必須用
+
+```bash
+git status --porcelain --ignored runs | grep "^!!"
 ```
 
-前三張回答「防禦看得出來嗎」（主張三），後三張回答「編輯被擋住了嗎」
-（主張一與二）。**最後兩張並排是整頁的重點**：同一個淨化、同一個種子、
-同一個 prompt，唯一的差別是防禦有沒有開。
+確認沒有結果檔被排除（輸出為空才對）。
 
-### 判讀順序
+### 6.2 sparse-checkout
 
-1. **先確認未防禦編輯真的成功了。** 看「對照側編輯」——它有沒有照 prompt
-   改成該有的樣子？沒有的話那一列**整列不可解讀**，防的是一個不會發生的事。
-   > `LOGIC_CHECK` §C4：這道過濾本輪由使用者裁決為**事後補做**，不排在段 0
-   > 之前。跑完主表後**必須執行**，作法見該節的四個步驟。
-2. **再看防禦側編輯壞掉沒有。** 與對照側並排：防禦側是不是明顯沒有照
-   prompt 走、或糊掉、或出現結構性瑕疵。
-3. **然後看防禦圖與殘差。** 防禦圖與原圖比，人眼看不看得出來？同一組
-   （同 τ）的七個條件應該「看起來一樣髒」——看起來不一樣就表示射線縮放
-   對齊的是 LPIPS 而人眼看到的是別的東西，**把這個矛盾記下來**。
-4. **最後才看數字。** `effect`、`retention`、LPIPS、PSNR 印在每列右側。
-   **指標與人眼矛盾時以人眼為準並記錄該矛盾**，不要挑一邊。
+本 repo 用 cone mode。新增頂層目錄或新的 `runs/` 子目錄前要先
 
-### 頁面上的標記
+```bash
+git sparse-checkout add runs/<新目錄>
+```
 
-| 標記 | 意義 |
-|---|---|
-| **改寫**（紅） | 該 baseline 是 `modified_from_paper=True`。**不可當成原論文設定引用** |
-| **不可用**（紅） | `effect(identity)` 低於 3 倍量測標準差，該列的 `retention` 不進任何統計 |
-| **缺** | 該張圖的產物不存在。不是留白，是缺檔 |
-| `skipped：<理由>` | 結構上不適用（例如 N3 低於 VAE 重建下限） |
+否則 `git add` 會被拒絕。
 
-### `attention.html`
+### 6.3 遠端的 pull 常因未追蹤檔而 abort
 
-回答「**為什麼**」：防禦是不是真的讓 cross-attention 失效、淨化是不是把那個
-擾亂洗掉了。AdvPaint、PromptFlare 與 N1 三者都以 attention 為著力點，
-沒有這一頁，「注意力被打散了」在報告裡沒有可查證的依據。
+先把未追蹤的結果檔移到暫存目錄，pull 完再移回：
 
-> **每張熱圖各自正規化到自己的最大值**（各層的質量尺度相差數個量級，
-> 共用尺度會讓深層全黑）。故**不同圖之間的亮度不可直接比較**，
-> 數值結論一律以 `attn_stats.csv` 為準。
+```bash
+git status --porcelain | sed "s/^?? //" > /tmp/untracked.txt
+while read -r f; do d="$STASH/$(dirname "$f")"; mkdir -p "$d"; mv "$f" "$d/"; done \
+    < /tmp/untracked.txt
+git pull --ff-only
+cp -rn "$STASH"/. .
+```
+
+**用 `mv` 不要用 `rm`。**
+
+### 6.4 遠端推不上 GitHub
+
+機器上沒有 GitHub 認證，`git push` 會停在 `could not read Username`。
+在機器上 commit 之後，**從本機把它抓下來再推**：
+
+```bash
+git fetch "ssh://nelson0314@server.basiclab.lab.nycu.edu.tw:10102/nfs/home/nelson0314/WACV-s3" \
+    claude/stage3-apa-attn
+git merge --ff-only FETCH_HEAD
+git push origin claude/stage3-apa-attn
+```
+
+### 6.5 worktree 的 detached HEAD
+
+repo 是 worktree，`git pull --rebase` 若因缺 identity 而中斷，會留下
+**detached HEAD**，而 `git branch -f` 會拒絕（「branch used by worktree」）。
+不要用 checkout 硬推（會動到工作區）。用：
+
+```bash
+git update-ref refs/heads/<branch> <你要的 commit>
+git symbolic-ref HEAD refs/heads/<branch>
+```
+
+兩條都不碰工作區。先在機器上設好 identity 可以避免整件事：
+
+```bash
+git config user.name "Nelson0314"
+git config user.email "nelson.weng20@gmail.com"
+```
+
+---
+
+## 7. 其他坑
+
+- **`pkill -f "<字串>"` 會殺到自己。** ssh 送過去的命令列本身含有那個字串，
+  pkill 會匹配到執行它的 shell，於是連線直接斷、你也看不到輸出。
+  用 PID 殺，或在 pattern 上加排除。
+- **測試跑的期間不要改原始碼。** 症狀是隨機幾個測試失敗，重跑就好。
+- **本機 RTX 2050 4 GB 跑不動本專案的 GPU 工作**，只用於寫程式、跑 pytest、看報表。
+  指令前加 `PYTHONIOENCODING=utf-8`，否則印中文會炸。
+- Python 用 `C:/Users/nelso/miniconda3/envs/wacv/python.exe`（**不是 base**）。
+- 測試基準：**196 passed / 1 xfailed**。
+
+---
+
+## 8. 怎麼判讀結果
+
+**判準以人眼為主、數值指標為輔。** 報告的每一格都必須有影像可看；
+指標與人眼矛盾時以人眼為準並記錄。
+
+順序：
+
+1. **先確認未防禦的編輯真的成功**（DEC-022）。沒成功的話，抗編輯那一欄的
+   分母不成立，該影像整列作廢。
+2. 看 `edit_lpips`（防禦後的編輯 對 未防禦的編輯）。越大代表推得越遠。
+3. **比值一律報「平均比平均」與逐圖勝場，不報逐圖比值的平均。**
+   後者會被分母支配——FND-037（`retention`，r = −0.83）與 FND-039
+   （主結果，r = −0.900）是同一個缺陷。
+4. 保真度全部照報，不挑選。沒有任何單一指標可以當加性與非加性的
+   共用預算軸（FND-035）。
+5. 抗淨化要扣掉**空白地板**（§3.3）。地板佔比接近 1 的算子，該列不具鑑別力。

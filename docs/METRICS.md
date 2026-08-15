@@ -1,5 +1,8 @@
 # 指標用法 —— 每個量在問什麼、對齊哪一篇、怎麼讀
 
+> **本檔提到的部分腳本已不存在。**`scripts/class_margin.py`、`scripts/eval_protocols.py`、`scripts/purify_advantage.py`、`scripts/run_lo_baseline.py`、`tests/test_lo_protocol.py` 於 2026-08-13 隨舊主線刪除。這些條目是**當時的紀錄**，路徑保留以便追溯，不是現在可以執行的東西。取回：`git checkout 6bb656280 -- <path>`。
+
+
 > 常設參考。**要引用某個指標之前先讀這份。**
 >
 > 存在理由：本專案的指標欄位有 74 個，而其中至少三組在問**互不相同的問題**。

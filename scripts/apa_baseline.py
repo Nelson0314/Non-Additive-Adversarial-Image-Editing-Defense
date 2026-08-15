@@ -66,12 +66,21 @@ CONDITIONS = ["apa_weak", "photoguard_c", "mist", "dia_r"]
 PARAMETERIZATION = {"apa_weak": "linf", "apa_phase": "phase"}
 
 
-def load_dataset(root: Path = None) -> list:
-    """`root` 給定時讀 lo_aligned 版面（每類一子目錄）；否則讀 data/apa_native。"""
+def load_dataset(root: Path = None, prompt_index: int = 0) -> list:
+    """`root` 給定時讀 lo_aligned 版面（每類一子目錄）；否則讀 data/apa_native。
+
+    `prompt_index` 選 `prompts.yaml` 的第幾個編輯 prompt。0 是「改掉指定內容」
+    （論文的 A dog -> A cat），1 是「保留該內容、改動其他區域」（A dog in the
+    park）。兩者是不同的惡意情境，防禦的難度不同——第二個 prompt 不要求模型
+    改掉主體，故未防禦的編輯改動較小，抗編輯那一欄的分母也較小。
+    **換 prompt 必須重新確認未防禦的編輯有成功**（DEC-022）。
+    """
     if root is not None:
         spec = yaml.safe_load((root / "prompts.yaml").read_text(encoding="utf-8"))
         return [{"name": img.stem, "class": spec[c]["content"], "path": img,
-                 "content": spec[c]["content"], "prompt": spec[c]["prompts"][0]}
+                 "content": spec[c]["content"],
+                 "prompt": spec[c]["prompts"][prompt_index],
+                 "prompt_index": prompt_index}
                 for c in sorted(spec) for img in sorted((root / c).glob("*.png"))]
     prov = json.loads((DATA_DIR / "provenance.json").read_text(encoding="utf-8"))
     prompts = yaml.safe_load((DATA_DIR / "prompts.yaml").read_text(encoding="utf-8"))
@@ -79,7 +88,9 @@ def load_dataset(root: Path = None) -> list:
     for p in prov:
         n = p["output"][:-4]
         out.append({"name": n, "class": p["apa_class"], "path": DATA_DIR / p["output"],
-                    "content": prompts[n]["content"], "prompt": prompts[n]["prompts"][0]})
+                    "content": prompts[n]["content"],
+                    "prompt": prompts[n]["prompts"][prompt_index],
+                    "prompt_index": prompt_index})
     return out
 
 
@@ -167,6 +178,8 @@ def main() -> None:
     ap.add_argument("--conditions", nargs="+", default=None)
     ap.add_argument("--target", type=Path, default=Path(TARGET_IMAGE))
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--prompt-index", type=int, default=0,
+                    help="用 prompts.yaml 的第幾個編輯 prompt（0 改內容、1 改場景）")
     args = ap.parse_args()
     args.out.mkdir(parents=True, exist_ok=True)
 
@@ -176,7 +189,7 @@ def main() -> None:
     y_target = load_image_tensor(args.target, sd.device,
                                            size=RESOLUTION)
 
-    dataset = load_dataset(args.data)
+    dataset = load_dataset(args.data, prompt_index=args.prompt_index)
     if args.images:
         dataset = [d for d in dataset if d["name"] in args.images]
     conds = args.conditions or CONDITIONS

@@ -65,13 +65,22 @@ ADD_RADIUS_LO = 0.5 / 255.0
 PHASE_RADIUS_LO = 0.05
 
 
-def build(name: str, seed: int):
+def build(name: str, seed: int, block: int = 32, r_min: float = 0.12,
+          quantile: float = 0.5):
+    """`block`／`r_min`／`quantile` 是相位算子的三個構造設定。
+
+    預設值是 2026-08-13 的定案（`docs/MAINLINE.md` §4）。開放成參數是為了掃描
+    「約束落在哪個頻帶、哪些區塊」對效果與失真的取捨——三者都改變**閘**，
+    也就是改變擾動被允許出現的位置，不改變損失或更新規則。
+    """
     if name == "add":
         return AdditiveParam(radius=ADD_RADIUS_HI), ADD_RADIUS_LO, ADD_RADIUS_HI
     if name == "phase":
-        return PhaseParam(size=RESOLUTION), PHASE_RADIUS_LO, math.pi
+        return (PhaseParam(size=RESOLUTION, block=block, r_min=r_min,
+                           energy_quantile=quantile), PHASE_RADIUS_LO, math.pi)
     if name == "phase_rand":
-        return RandomPhaseParam(size=RESOLUTION), PHASE_RADIUS_LO, math.pi
+        return (RandomPhaseParam(size=RESOLUTION, block=block, r_min=r_min,
+                                 energy_quantile=quantile), PHASE_RADIUS_LO, math.pi)
     raise ValueError(f"未知條件 {name}")
 
 
@@ -89,6 +98,16 @@ def main() -> None:
     ap.add_argument("--steps", type=int, default=100)
     ap.add_argument("--rounds", type=int, default=8)
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--prompt-index", type=int, default=0,
+                    help="用 prompts.yaml 的第幾個編輯 prompt（0 改內容、1 改場景）")
+    ap.add_argument("--block", type=int, default=32, help="重疊區塊邊長")
+    ap.add_argument("--r-min", type=float, default=0.12, help="徑向頻率閘的下限")
+    ap.add_argument("--quantile", type=float, default=0.5,
+                    help="紋理閘的梯度能量參考分位數")
+    ap.add_argument("--phase-radius", type=float, default=None,
+                    help="覆寫人眼門檻的相位半徑（只在 --human-threshold 下有效）")
+    ap.add_argument("--tag-suffix", type=str, default="",
+                    help="附加在條件標籤後，讓同一個 --out 下的多組設定不互相覆寫檔名")
     args = ap.parse_args()
     args.out.mkdir(parents=True, exist_ok=True)
 
@@ -101,7 +120,7 @@ def main() -> None:
     def dists_of(a, b):
         return float(suite.pairwise(a.clamp(0, 1), b)["dists"])
 
-    dataset = load_dataset(args.data)
+    dataset = load_dataset(args.data, prompt_index=args.prompt_index)
     if args.images:
         dataset = [d for d in dataset if d["name"] in args.images]
 
@@ -115,15 +134,19 @@ def main() -> None:
         for budget in budgets:
             for cond in args.conditions:
                 tag = (f"{cond}__human" if budget == "human"
-                       else f"{cond}__d{budget:g}")
+                       else f"{cond}__d{budget:g}") + args.tag_suffix
                 print(f"=== {item['name']} / {tag} ===", flush=True)
                 t0 = time.time()
-                param, lo, hi = build(cond, args.seed)
+                param, lo, hi = build(cond, args.seed, block=args.block,
+                                      r_min=args.r_min, quantile=args.quantile)
                 if budget == "human":
-                    param.set_radius(HUMAN_RADIUS[cond])
+                    r_human = HUMAN_RADIUS[cond]
+                    if args.phase_radius is not None and cond in ("phase", "phase_rand"):
+                        r_human = args.phase_radius
+                    param.set_radius(r_human)
                     res = run_param_pgd(item["path01"], param, loss_fn,
                                         steps=args.steps, seed=args.seed)
-                    fit = {"unreachable": False, "target": HUMAN_RADIUS[cond],
+                    fit = {"unreachable": False, "target": r_human,
                            "reached": dists_of(res.x_def, item["path01"]),
                            "radius": param.radius}
                 else:
@@ -140,6 +163,9 @@ def main() -> None:
 
                 row = {
                     "image": item["name"], "condition": cond,
+                    "prompt_index": args.prompt_index, "prompt": item["prompt"],
+                    "block": args.block, "r_min": args.r_min,
+                    "quantile": args.quantile, "target_image": str(args.target),
                     "budget_target": budget,
                     "budget_mode": "human" if budget == "human" else "dists",
                     "budget_reached": round(float(fit["reached"]), 5),

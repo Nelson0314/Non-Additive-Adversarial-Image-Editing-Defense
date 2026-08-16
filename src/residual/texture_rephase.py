@@ -22,8 +22,14 @@ resampling（Ding et al. 2020），人眼判紋理亦靠統計量，而 VAE enco
 三個由構造而非懲罰項保證的性質
 ────────────────────────────────────────────────────────────────────
 1. **theta = 0 時逐位等於原圖。** 分析窗與合成窗各乘一次、再除以 `OLA(w^2)`,
-   theta=0 時分子恰為 `OLA(w^2 * x)`，與分母逐位相消。不依賴 COLA 條件，故
-   換窗型或換 hop 都不會靜默破壞恆等——這一點由測試實測。
+   theta=0 時分子恰為 `OLA(w^2 * x)`，與分母逐位相消。
+   這條式子不是本模塊發明的：它是 Griffin & Lim (1984) 對「由被修改過的 STFT
+   還原訊號」這個問題的**最小平方最佳解**——先乘分析窗再疊加相加，多出來的
+   那次加窗以窗平方和正規化補償。
+   **依賴的是 NOLA 而非 COLA。** COLA（相鄰窗和為常數）是完美重建的**充分**
+   條件；必要的是更弱的 NOLA（`sum w^2 > 0` 處處成立），由 `clamp_min(1e-8)`
+   保證。故換窗型或換 hop 都不會靜默破壞恆等——這一點由測試實測
+   （`test_identity_holds_for_non_cola_hop` 用不滿足 COLA 的 hop=8）。
 2. **幅度譜逐位保留。** 係數乘上單位模的複數 `exp(i*theta)` 而非走
    `abs`／`angle` 再重組：後者在零幅度處梯度未定義，前者處處可微且
    `|X * e^{i*theta}| = |X|` 是代數恆等式。
@@ -33,12 +39,30 @@ resampling（Ding et al. 2020），人眼判紋理亦靠統計量，而 VAE enco
    故 `m_w` 在這兩行取 0——寧可少 2/17 的自由度，也不要一個只在兩行上
    失效、且不會有任何症狀的近似。
 
-已知的不精確之處（要量，不要假設）
+已知的不精確之處：STFT 一致性投影誤差
 ────────────────────────────────────────────────────────────────────
-相鄰區塊各自改相位後重疊相加會部分抵消，故「局部幅度譜保留」在整張圖的
-層級是近似而非恆等。`amplitude_deviation()` 回報該偏差，供報告列出。構造上
-它應該接近 0；實測偏大即代表本模塊在造新能量而不是重排相位，那會讓它退化
-成被紋理遮蔽的加性高頻噪聲（規格 §6 風險一）。
+逐區塊各自轉相位之後，那組係數**一般不是任何一張實影像的 STFT**——重疊的
+區塊之間互相不一致。Griffin & Lim (1984) 稱這種輸入為 modified STFT，
+而上面第 1 點的重建式正是把它**投影回一致集合**的最小平方解。投影會改動
+係數，所以「局部幅度譜保留」在整張圖的層級是近似而非恆等。
+
+`amplitude_deviation()` 回報該偏差。構造上它應該接近 0；實測偏大即代表本模塊
+在造新能量而不是重排相位，那會讓它退化成被紋理遮蔽的加性高頻噪聲
+（規格 §6 風險一）。實測 0.0065–0.0653，且與效果正相關 r = +0.449（FND-040）。
+
+**要壓低它有現成的辦法**：Griffin-Lim 的迭代投影。跑幾輪之後 `amp_dev` 應該
+下降，此時效果掉多少就直接回答了「效果來自相位重排還是來自新造的能量」。
+
+參考文獻
+────────────────────────────────────────────────────────────────────
+- Griffin & Lim. Signal Estimation from Modified Short-Time Fourier Transform.
+  IEEE TASSP 32(2):236-243, 1984.  ——重建式與一致性投影
+- Allen & Rabiner. A Unified Approach to Short-Time Fourier Analysis and
+  Synthesis. Proc. IEEE 65(11):1558-1564, 1977.  ——STFT 分析/合成框架
+- Galerne, Gousseau & Morel. Random Phase Textures. IEEE TIP 20(1):257-267,
+  2011.  ——相位隨機化保留微紋理外觀（整張圖，未切塊）
+- Weickert. Coherence-Enhancing Diffusion Filtering. IJCV 31:111-127, 1999.
+  ——結構張量的 coherence（紋理閘）
 """
 
 import math
@@ -54,9 +78,12 @@ from src.residual.base import ResidualModule
 def hann2d(n: int, device, dtype) -> torch.Tensor:
     """(n, n) 的 2D 週期 Hann 窗，可分離構造。
 
-    取週期（periodic）而非對稱版本：週期 Hann 在 hop = n/2 下相鄰窗和恰為 1,
-    對稱版本不是。本模塊的恆等性由 `OLA(w^2)` 正規化保證而不依賴此性質，
-    但保留週期版本使 `OLA(w^2)` 不出現接近零的格。
+    取週期（periodic）而非對稱版本：週期 Hann 在 hop = n/2 下相鄰窗和恰為 1
+    （即滿足 COLA），對稱版本不是。本模塊的恆等性由 `OLA(w^2)` 正規化保證，
+    **只需要 NOLA 而不需要 COLA**；保留週期版本是為了讓 `OLA(w^2)` 不出現
+    接近零的格，也就是讓 NOLA 有充裕的餘裕。
+
+    Hann 窗與 STFT 的分析/合成框架見 Allen & Rabiner, Proc. IEEE 65(11), 1977。
     """
     k = torch.arange(n, device=device, dtype=dtype)
     w = 0.5 - 0.5 * torch.cos(2.0 * math.pi * k / n)
@@ -90,7 +117,9 @@ def texture_gate(
 
         g = (1 - coherence^2) * clamp(energy / energy_ref, 0, 1)
 
-    `coherence = (l1 - l2)/(l1 + l2)` 取自結構張量。邊緣的梯度方向一致,
+    `coherence = (l1 - l2)/(l1 + l2)` 取自結構張量（Foerstner & Guelch 1987、
+    Bigun & Granlund 1987；coherence 這個量與名稱見 Weickert, IJCV 31, 1999）。
+    邊緣的梯度方向一致,
     coherence 接近 1；紋理的梯度方向雜亂，接近 0。平坦區兩者都小，靠第二個
     因子壓掉——那裡任何改動都直接可見，而 coherence 在該處是零除的雜訊。
 

@@ -25,7 +25,7 @@ def _image(size: int = 64, seed: int = 0) -> torch.Tensor:
 
 
 def test_identity_when_theta_is_zero():
-    """theta=0 時輸出逐位等於原圖。恆等由 OLA(w^2) 正規化保證，不靠 COLA。"""
+    """theta=0 時輸出逐位等於原圖。恆等由 OLA(w^2) 正規化保證，只需 NOLA 不需 COLA。"""
     x = _image()
     m = PhaseResidual(size=64, block=16).to(torch.float64)
     m.prepare_gates(x)

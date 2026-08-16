@@ -35,7 +35,9 @@
 | `g_b` | 紋理度閘，固定不可學，逐區塊純量 |
 | `m_ω` | 徑向頻率閘，固定不可學，歸一化半徑 < `r_min` 的頻格為 0 |
 
-**恆等保證**：Hann 窗在 50% 重疊下滿足 COLA，故 `θ = 0` 時 `x' = x`。與
+**恆等保證**：重建式取 Griffin & Lim (1984) 的最小平方解——分析窗與合成窗
+各乘一次，再除以 `OLA(w²)`。**依賴的是 NOLA 而非 COLA**：COLA 是充分條件，
+必要的只是 `Σw² > 0` 處處成立。故 `θ = 0` 時 `x' = x`。與
 `site_warp.py` 同一條「由構造保證恆等」的原則，且必須由測試實測，不得假設。
 
 **通道共用相位**：依 2026-08-13 的顏色結論——等亮度色度擾動的位移比 RGB 獨立
@@ -115,7 +117,7 @@ baseline 的 targeted 形式同源。
 
 測試要釘住的性質：
 
-1. `θ = 0` 時輸出逐位等於原圖（COLA 恆等）。
+1. `θ = 0` 時輸出逐位等於原圖（NOLA 恆等；測試以不滿足 COLA 的 hop 驗證）。
 2. 輸出為實數（由 `rfft2`／`irfft2` 結構保證，仍須實測 dtype 與虛部）。
 3. 單區塊、無重疊時，幅度譜逐位保留。
 4. 梯度能傳到 `θ`。
@@ -136,6 +138,9 @@ baseline 的 targeted 形式同源。
 
 ## 7. 引用
 
+- Griffin, Lim. Signal Estimation from Modified Short-Time Fourier Transform. IEEE TASSP 32(2):236–243, 1984.（重建式、一致性投影）
+- Allen, Rabiner. A Unified Approach to Short-Time Fourier Analysis and Synthesis. Proc. IEEE 65(11):1558–1564, 1977.（STFT 框架、加窗）
+- Weickert. Coherence-Enhancing Diffusion Filtering. IJCV 31:111–127, 1999.（結構張量的 coherence）
 - Galerne, Gousseau, Morel. Random Phase Textures: Theory and Synthesis. IEEE TIP 20(1):257–267, 2011.
 - Ding, Ma, Wang, Simoncelli. Image Quality Assessment: Unifying Structure and Texture Similarity. arXiv:2004.07728.
 - Salman et al. Raising the Cost of Malicious AI-Powered Image Editing. ICML 2023. arXiv:2302.06588.

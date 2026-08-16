@@ -49,12 +49,22 @@
 | **Ding, Ma, Wang, Simoncelli**. Unifying Structure and Texture Similarity. TPAMI 2021 | DISTS。預算軸，以及「對紋理重取樣寬容」這半個機制假設的依據 | [arXiv:2004.07728](https://arxiv.org/abs/2004.07728) |
 | **Madry et al.** Towards Deep Learning Models Resistant to Adversarial Attacks. ICLR 2018 | **PGD 本身**。`param_pgd.py` 的 sign 更新式此前沒有引用出處 | [arXiv:1706.06083](https://arxiv.org/abs/1706.06083) |
 | **Oppenheim & Lim**. The Importance of Phase in Signals. Proc. IEEE 69(5):529-541, 1981 | 相位比幅度更決定可辨識內容。**本方法必須正面處理的矛盾**——兩個閘就是答案 | [PDF](https://dsp-group.mit.edu/wp-content/uploads/2024/11/ImportancePhaseSignals_1981.pdf) |
-| 結構張量（Foerstner／Harris／Bigun 一系） | 紋理閘的 coherence 來源 | — |
+| **Griffin, Lim**. Signal Estimation from Modified Short-Time Fourier Transform. IEEE TASSP 32(2):236–243, 1984 | **重建式 `OLA(w²·x)/OLA(w²)` 的出處**——它是「由被修改過的 STFT 還原訊號」的最小平方最佳解。本方法逐區塊轉相位後的係數一般不一致，該式即把它投影回一致集合；`amplitude_deviation` 就是這個投影誤差 | — |
+| **Allen, Rabiner**. A Unified Approach to Short-Time Fourier Analysis and Synthesis. Proc. IEEE 65(11):1558–1564, 1977 | STFT 的分析／合成框架：切塊、加窗、重疊相加 | — |
+| **Weickert**. Coherence-Enhancing Diffusion Filtering. IJCV 31:111–127, 1999 | 紋理閘用的 coherence `(λ₁−λ₂)/(λ₁+λ₂)`，這個量與名稱的來源 | [doi:10.1023/A:1008009714131](https://doi.org/10.1023/A:1008009714131) |
+| 結構張量本身（Förstner & Gülch 1987、Bigün & Granlund 1987） | 紋理閘的梯度外積統計 | — |
 | **Perturbing the Phase**（2026） | **相位攻擊的前例**：只動相位、幅度逐點保留，且相位攻擊比幅度攻擊有效。其幅度相依的相位上限 `2·arcsin(eps/(2·mag))` 可解決本專案「固定 theta 不等於固定失真」的問題 | [arXiv:2602.06577](https://arxiv.org/html/2602.06577) |
 | **Black box phase-based adversarial attacks on image classifiers**（JEI 34(1):013041, 2025） | 相位攻擊的前例，黑盒、分類任務 | [doi:10.1117/1.JEI.34.1.013041](https://doi.org/10.1117/1.JEI.34.1.013041) |
 | **PPD: Permutation Phase Defense** | 把相位置換當**防禦**使用 | [arXiv:1812.10049](https://arxiv.org/pdf/1812.10049) |
 | **Interpreting Structured Perturbations**（2025） | Glaze／Nightshade 在頻域上是「沿影像主頻率軸重分配能量」，不是隨機噪聲。支撐本方法的框架 | [arXiv:2512.08329](https://arxiv.org/abs/2512.08329) |
 | **NeuralRemaster: Phase-Preserving Diffusion** | 相位承載結構，擴散脈絡下的確認 | [arXiv:2512.05106](https://arxiv.org/html/2512.05106v2) |
+
+**本方法的訊號處理骨架全部是教科書內容**：切塊、加窗、FFT、重疊相加是 STFT
+（Allen & Rabiner 1977），`OLA(w²)` 正規化是 Griffin & Lim (1984) 的最小平方解，
+Hann 窗與 COLA／NOLA、實數 FFT 的共軛對稱都是標準性質。**這不是缺點——方法
+建立在成熟的基礎上是優點——但必須引用。** 真正屬於本專案的是兩個閘、
+把 RPN 的隨機換成最佳化，以及 `fx=0`／`fx=N/2` 兩行的處理（Galerne 不切塊，
+遇不到那個問題）。
 
 **新穎性主張因此收窄**：不能宣稱首次把相位擾動用於對抗攻擊。可宣稱的是
 首次把**加窗重疊區塊的頻譜相位旋轉**用於**擴散編輯防護**，並以兩個由原圖

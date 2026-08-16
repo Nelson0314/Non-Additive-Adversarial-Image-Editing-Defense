@@ -1,0 +1,115 @@
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00, 17.44it/s]Loading pipeline components...:  67%|██████▋   | 4/6 [00:00<00:00,  7.99it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3785.70it/s]
+Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00,  9.50it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00,  9.63it/s]
+There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+
+########## bird_00 (bird) ##########
+=== bird_00 / phase__human__gl16 ===
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pretrained model NIMA from /nfs/home/nelson0314/.cache/torch/hub/pyiqa/NIMA_InceptionV2_ava-b0c77c00.pth
+Loading pretrained model CNNIQA from /nfs/home/nelson0314/.cache/torch/hub/pyiqa/CNNIQA_koniq10k-e6f14c91.pth
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 12430.25it/s]
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 11021.90it/s]
+[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
+[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
+Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights:  25%|██▌       | 102/408 [00:00<00:00, 981.06it/s]Loading weights:  49%|████▉     | 201/408 [00:00<00:00, 816.62it/s]Loading weights:  70%|██████▉   | 285/408 [00:00<00:00, 798.87it/s]Loading weights:  92%|█████████▏| 374/408 [00:00<00:00, 830.35it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 876.51it/s]
+{'image': 'bird_00', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a butterfly', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.00927, 'unreachable': False, 'radius': 1.3, 'total_seconds': 52.4, 'fid_lpips': 0.049, 'fid_ssim': 0.9894, 'fid_dists': 0.0093, 'fid_psnr': 36.5165, 'fid_clip_img': 0.9975, 'fid_nima': 5.5705, 'fid_cnniqa': 0.7184, 'edit_lpips': 0.3724, 'edit_clip_orig': 0.2715, 'edit_clip_def': 0.282, 'edit_clip_drop': -0.0104, 'edit_siglip_orig': 0.106, 'edit_siglip_def': 0.0985, 'edit_siglip_drop': 0.0075, 'amp_dev': 0.00423, 'active_fraction': 0.3902}
+
+########## bird_01 (bird) ##########
+=== bird_01 / phase__human__gl16 ===
+{'image': 'bird_01', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a butterfly', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.01872, 'unreachable': False, 'radius': 1.3, 'total_seconds': 29.5, 'fid_lpips': 0.0849, 'fid_ssim': 0.9781, 'fid_dists': 0.0187, 'fid_psnr': 33.5689, 'fid_clip_img': 0.9968, 'fid_nima': 5.0126, 'fid_cnniqa': 0.7162, 'edit_lpips': 0.3101, 'edit_clip_orig': 0.2765, 'edit_clip_def': 0.2914, 'edit_clip_drop': -0.0149, 'edit_siglip_orig': 0.1118, 'edit_siglip_def': 0.1086, 'edit_siglip_drop': 0.0032, 'amp_dev': 0.00621, 'active_fraction': 0.5692}
+
+########## bird_02 (bird) ##########
+=== bird_02 / phase__human__gl16 ===
+{'image': 'bird_02', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a butterfly', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.00651, 'unreachable': False, 'radius': 1.3, 'total_seconds': 29.6, 'fid_lpips': 0.1088, 'fid_ssim': 0.9826, 'fid_dists': 0.0065, 'fid_psnr': 37.4038, 'fid_clip_img': 0.9992, 'fid_nima': 4.4318, 'fid_cnniqa': 0.6132, 'edit_lpips': 0.3362, 'edit_clip_orig': 0.2817, 'edit_clip_def': 0.2954, 'edit_clip_drop': -0.0138, 'edit_siglip_orig': 0.109, 'edit_siglip_def': 0.1059, 'edit_siglip_drop': 0.0031, 'amp_dev': 0.005, 'active_fraction': 0.6916}
+
+########## bird_03 (bird) ##########
+=== bird_03 / phase__human__gl16 ===
+{'image': 'bird_03', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a butterfly', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.00503, 'unreachable': False, 'radius': 1.3, 'total_seconds': 29.8, 'fid_lpips': 0.0509, 'fid_ssim': 0.9893, 'fid_dists': 0.005, 'fid_psnr': 39.3099, 'fid_clip_img': 0.9992, 'fid_nima': 5.6091, 'fid_cnniqa': 0.7223, 'edit_lpips': 0.2429, 'edit_clip_orig': 0.2725, 'edit_clip_def': 0.2698, 'edit_clip_drop': 0.0027, 'edit_siglip_orig': 0.1038, 'edit_siglip_def': 0.1062, 'edit_siglip_drop': -0.0023, 'amp_dev': 0.00312, 'active_fraction': 0.4617}
+
+########## cat_00 (cat) ##########
+=== cat_00 / phase__human__gl16 ===
+{'image': 'cat_00', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a dog', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.01115, 'unreachable': False, 'radius': 1.3, 'total_seconds': 29.7, 'fid_lpips': 0.0734, 'fid_ssim': 0.9664, 'fid_dists': 0.0112, 'fid_psnr': 26.8213, 'fid_clip_img': 0.9956, 'fid_nima': 4.9198, 'fid_cnniqa': 0.731, 'edit_lpips': 0.4432, 'edit_clip_orig': 0.2452, 'edit_clip_def': 0.2592, 'edit_clip_drop': -0.014, 'edit_siglip_orig': 0.0621, 'edit_siglip_def': 0.0776, 'edit_siglip_drop': -0.0154, 'amp_dev': 0.01276, 'active_fraction': 0.5538}
+
+########## cat_01 (cat) ##########
+=== cat_01 / phase__human__gl16 ===
+{'image': 'cat_01', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a dog', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.00823, 'unreachable': False, 'radius': 1.3, 'total_seconds': 29.9, 'fid_lpips': 0.039, 'fid_ssim': 0.9911, 'fid_dists': 0.0082, 'fid_psnr': 38.1494, 'fid_clip_img': 0.9977, 'fid_nima': 5.434, 'fid_cnniqa': 0.7047, 'edit_lpips': 0.1463, 'edit_clip_orig': 0.2601, 'edit_clip_def': 0.2566, 'edit_clip_drop': 0.0036, 'edit_siglip_orig': 0.0917, 'edit_siglip_def': 0.0895, 'edit_siglip_drop': 0.0022, 'amp_dev': 0.00324, 'active_fraction': 0.4877}
+
+########## cat_02 (cat) ##########
+=== cat_02 / phase__human__gl16 ===
+{'image': 'cat_02', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a dog', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.01132, 'unreachable': False, 'radius': 1.3, 'total_seconds': 29.7, 'fid_lpips': 0.0893, 'fid_ssim': 0.984, 'fid_dists': 0.0113, 'fid_psnr': 35.5053, 'fid_clip_img': 0.9987, 'fid_nima': 4.5401, 'fid_cnniqa': 0.6484, 'edit_lpips': 0.3264, 'edit_clip_orig': 0.2521, 'edit_clip_def': 0.2499, 'edit_clip_drop': 0.0022, 'edit_siglip_orig': 0.0912, 'edit_siglip_def': 0.0848, 'edit_siglip_drop': 0.0064, 'amp_dev': 0.00546, 'active_fraction': 0.5549}
+
+########## cat_03 (cat) ##########
+=== cat_03 / phase__human__gl16 ===
+{'image': 'cat_03', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a dog', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.01436, 'unreachable': False, 'radius': 1.3, 'total_seconds': 29.7, 'fid_lpips': 0.0787, 'fid_ssim': 0.9639, 'fid_dists': 0.0144, 'fid_psnr': 27.1721, 'fid_clip_img': 0.9971, 'fid_nima': 5.1813, 'fid_cnniqa': 0.6775, 'edit_lpips': 0.3075, 'edit_clip_orig': 0.2622, 'edit_clip_def': 0.2605, 'edit_clip_drop': 0.0017, 'edit_siglip_orig': 0.0853, 'edit_siglip_def': 0.08, 'edit_siglip_drop': 0.0053, 'amp_dev': 0.01481, 'active_fraction': 0.6238}
+
+########## dog_00 (dog) ##########
+=== dog_00 / phase__human__gl16 ===
+{'image': 'dog_00', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a cat', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.00634, 'unreachable': False, 'radius': 1.3, 'total_seconds': 29.8, 'fid_lpips': 0.0701, 'fid_ssim': 0.9825, 'fid_dists': 0.0063, 'fid_psnr': 36.1583, 'fid_clip_img': 0.9967, 'fid_nima': 4.7082, 'fid_cnniqa': 0.6931, 'edit_lpips': 0.253, 'edit_clip_orig': 0.2675, 'edit_clip_def': 0.2613, 'edit_clip_drop': 0.0062, 'edit_siglip_orig': 0.0695, 'edit_siglip_def': 0.0674, 'edit_siglip_drop': 0.0021, 'amp_dev': 0.00479, 'active_fraction': 0.5002}
+
+########## dog_01 (dog) ##########
+=== dog_01 / phase__human__gl16 ===
+{'image': 'dog_01', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a cat', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.00509, 'unreachable': False, 'radius': 1.3, 'total_seconds': 29.8, 'fid_lpips': 0.0393, 'fid_ssim': 0.9894, 'fid_dists': 0.0051, 'fid_psnr': 38.7813, 'fid_clip_img': 0.9969, 'fid_nima': 5.6324, 'fid_cnniqa': 0.6481, 'edit_lpips': 0.0591, 'edit_clip_orig': 0.2742, 'edit_clip_def': 0.2749, 'edit_clip_drop': -0.0007, 'edit_siglip_orig': 0.0908, 'edit_siglip_def': 0.0902, 'edit_siglip_drop': 0.0005, 'amp_dev': 0.00401, 'active_fraction': 0.4066}
+
+########## dog_02 (dog) ##########
+=== dog_02 / phase__human__gl16 ===
+{'image': 'dog_02', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a cat', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.00887, 'unreachable': False, 'radius': 1.3, 'total_seconds': 29.7, 'fid_lpips': 0.0494, 'fid_ssim': 0.9756, 'fid_dists': 0.0089, 'fid_psnr': 29.2891, 'fid_clip_img': 0.9979, 'fid_nima': 5.1185, 'fid_cnniqa': 0.6943, 'edit_lpips': 0.1698, 'edit_clip_orig': 0.2628, 'edit_clip_def': 0.2665, 'edit_clip_drop': -0.0037, 'edit_siglip_orig': 0.0796, 'edit_siglip_def': 0.0803, 'edit_siglip_drop': -0.0007, 'amp_dev': 0.0107, 'active_fraction': 0.6177}
+
+########## dog_03 (dog) ##########
+=== dog_03 / phase__human__gl16 ===
+{'image': 'dog_03', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a cat', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.00784, 'unreachable': False, 'radius': 1.3, 'total_seconds': 29.8, 'fid_lpips': 0.0559, 'fid_ssim': 0.983, 'fid_dists': 0.0078, 'fid_psnr': 34.2846, 'fid_clip_img': 0.9976, 'fid_nima': 5.2733, 'fid_cnniqa': 0.6609, 'edit_lpips': 0.3561, 'edit_clip_orig': 0.2573, 'edit_clip_def': 0.2527, 'edit_clip_drop': 0.0046, 'edit_siglip_orig': 0.0807, 'edit_siglip_def': 0.062, 'edit_siglip_drop': 0.0187, 'amp_dev': 0.00519, 'active_fraction': 0.4764}
+
+########## horse_00 (horse) ##########
+=== horse_00 / phase__human__gl16 ===
+{'image': 'horse_00', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a zebra', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.00987, 'unreachable': False, 'radius': 1.3, 'total_seconds': 29.7, 'fid_lpips': 0.1034, 'fid_ssim': 0.9759, 'fid_dists': 0.0099, 'fid_psnr': 35.5127, 'fid_clip_img': 0.9973, 'fid_nima': 5.9268, 'fid_cnniqa': 0.681, 'edit_lpips': 0.1739, 'edit_clip_orig': 0.306, 'edit_clip_def': 0.3232, 'edit_clip_drop': -0.0172, 'edit_siglip_orig': 0.119, 'edit_siglip_def': 0.1188, 'edit_siglip_drop': 0.0002, 'amp_dev': 0.00523, 'active_fraction': 0.4655}
+
+########## horse_01 (horse) ##########
+=== horse_01 / phase__human__gl16 ===
+{'image': 'horse_01', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a zebra', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.01763, 'unreachable': False, 'radius': 1.3, 'total_seconds': 29.7, 'fid_lpips': 0.1254, 'fid_ssim': 0.9612, 'fid_dists': 0.0176, 'fid_psnr': 28.0812, 'fid_clip_img': 0.998, 'fid_nima': 4.9326, 'fid_cnniqa': 0.6939, 'edit_lpips': 0.318, 'edit_clip_orig': 0.323, 'edit_clip_def': 0.321, 'edit_clip_drop': 0.0019, 'edit_siglip_orig': 0.1175, 'edit_siglip_def': 0.1189, 'edit_siglip_drop': -0.0014, 'amp_dev': 0.0118, 'active_fraction': 0.6331}
+
+########## horse_02 (horse) ##########
+=== horse_02 / phase__human__gl16 ===
+{'image': 'horse_02', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a zebra', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.01508, 'unreachable': False, 'radius': 1.3, 'total_seconds': 29.7, 'fid_lpips': 0.0921, 'fid_ssim': 0.9628, 'fid_dists': 0.0151, 'fid_psnr': 29.7414, 'fid_clip_img': 0.9973, 'fid_nima': 6.0598, 'fid_cnniqa': 0.71, 'edit_lpips': 0.2825, 'edit_clip_orig': 0.3079, 'edit_clip_def': 0.3172, 'edit_clip_drop': -0.0093, 'edit_siglip_orig': 0.1074, 'edit_siglip_def': 0.1102, 'edit_siglip_drop': -0.0028, 'amp_dev': 0.01345, 'active_fraction': 0.5906}
+
+########## horse_03 (horse) ##########
+=== horse_03 / phase__human__gl16 ===
+{'image': 'horse_03', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a zebra', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.01029, 'unreachable': False, 'radius': 1.3, 'total_seconds': 29.8, 'fid_lpips': 0.0783, 'fid_ssim': 0.9805, 'fid_dists': 0.0103, 'fid_psnr': 34.1043, 'fid_clip_img': 0.999, 'fid_nima': 5.174, 'fid_cnniqa': 0.7173, 'edit_lpips': 0.2036, 'edit_clip_orig': 0.3151, 'edit_clip_def': 0.3155, 'edit_clip_drop': -0.0004, 'edit_siglip_orig': 0.1182, 'edit_siglip_def': 0.1203, 'edit_siglip_drop': -0.0021, 'amp_dev': 0.00568, 'active_fraction': 0.4573}
+
+########## man_00 (man) ##########
+=== man_00 / phase__human__gl16 ===
+{'image': 'man_00', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'an old woman', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.00427, 'unreachable': False, 'radius': 1.3, 'total_seconds': 29.8, 'fid_lpips': 0.009, 'fid_ssim': 0.9982, 'fid_dists': 0.0043, 'fid_psnr': 45.0837, 'fid_clip_img': 0.9987, 'fid_nima': 4.5427, 'fid_cnniqa': 0.6735, 'edit_lpips': 0.141, 'edit_clip_orig': 0.2819, 'edit_clip_def': 0.2952, 'edit_clip_drop': -0.0133, 'edit_siglip_orig': 0.1079, 'edit_siglip_def': 0.1208, 'edit_siglip_drop': -0.0129, 'amp_dev': 0.00121, 'active_fraction': 0.279}
+
+########## man_01 (man) ##########
+=== man_01 / phase__human__gl16 ===
+{'image': 'man_01', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'an old woman', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.01718, 'unreachable': False, 'radius': 1.3, 'total_seconds': 29.8, 'fid_lpips': 0.0867, 'fid_ssim': 0.9721, 'fid_dists': 0.0172, 'fid_psnr': 28.7632, 'fid_clip_img': 0.9972, 'fid_nima': 5.0028, 'fid_cnniqa': 0.6482, 'edit_lpips': 0.2542, 'edit_clip_orig': 0.2814, 'edit_clip_def': 0.2683, 'edit_clip_drop': 0.0131, 'edit_siglip_orig': 0.1091, 'edit_siglip_def': 0.1069, 'edit_siglip_drop': 0.0022, 'amp_dev': 0.0145, 'active_fraction': 0.5691}
+
+########## man_02 (man) ##########
+=== man_02 / phase__human__gl16 ===
+{'image': 'man_02', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'an old woman', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.00998, 'unreachable': False, 'radius': 1.3, 'total_seconds': 29.8, 'fid_lpips': 0.0471, 'fid_ssim': 0.9752, 'fid_dists': 0.01, 'fid_psnr': 26.7868, 'fid_clip_img': 0.9985, 'fid_nima': 5.1117, 'fid_cnniqa': 0.6711, 'edit_lpips': 0.2253, 'edit_clip_orig': 0.2748, 'edit_clip_def': 0.2833, 'edit_clip_drop': -0.0085, 'edit_siglip_orig': 0.1256, 'edit_siglip_def': 0.1137, 'edit_siglip_drop': 0.012, 'amp_dev': 0.01011, 'active_fraction': 0.468}
+
+########## man_03 (man) ##########
+=== man_03 / phase__human__gl16 ===
+{'image': 'man_03', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'an old woman', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.0104, 'unreachable': False, 'radius': 1.3, 'total_seconds': 29.7, 'fid_lpips': 0.1602, 'fid_ssim': 0.953, 'fid_dists': 0.0104, 'fid_psnr': 28.923, 'fid_clip_img': 0.997, 'fid_nima': 5.6213, 'fid_cnniqa': 0.6935, 'edit_lpips': 0.3934, 'edit_clip_orig': 0.2729, 'edit_clip_def': 0.2892, 'edit_clip_drop': -0.0163, 'edit_siglip_orig': 0.101, 'edit_siglip_def': 0.1049, 'edit_siglip_drop': -0.0039, 'amp_dev': 0.01157, 'active_fraction': 0.6829}
+
+########## woman_00 (woman) ##########
+=== woman_00 / phase__human__gl16 ===
+{'image': 'woman_00', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a man', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.01472, 'unreachable': False, 'radius': 1.3, 'total_seconds': 29.8, 'fid_lpips': 0.0492, 'fid_ssim': 0.9845, 'fid_dists': 0.0147, 'fid_psnr': 33.8655, 'fid_clip_img': 0.9989, 'fid_nima': 4.8517, 'fid_cnniqa': 0.4964, 'edit_lpips': 0.1165, 'edit_clip_orig': 0.237, 'edit_clip_def': 0.2295, 'edit_clip_drop': 0.0074, 'edit_siglip_orig': 0.0488, 'edit_siglip_def': 0.0555, 'edit_siglip_drop': -0.0066, 'amp_dev': 0.00704, 'active_fraction': 0.4544}
+
+########## woman_01 (woman) ##########
+=== woman_01 / phase__human__gl16 ===
+{'image': 'woman_01', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a man', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.00568, 'unreachable': False, 'radius': 1.3, 'total_seconds': 29.8, 'fid_lpips': 0.0248, 'fid_ssim': 0.9961, 'fid_dists': 0.0057, 'fid_psnr': 45.3692, 'fid_clip_img': 0.9994, 'fid_nima': 3.4975, 'fid_cnniqa': 0.3213, 'edit_lpips': 0.1076, 'edit_clip_orig': 0.208, 'edit_clip_def': 0.1968, 'edit_clip_drop': 0.0112, 'edit_siglip_orig': 0.0388, 'edit_siglip_def': 0.0419, 'edit_siglip_drop': -0.0031, 'amp_dev': 0.00124, 'active_fraction': 0.3817}
+
+########## woman_02 (woman) ##########
+=== woman_02 / phase__human__gl16 ===
+{'image': 'woman_02', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a man', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.00538, 'unreachable': False, 'radius': 1.3, 'total_seconds': 29.8, 'fid_lpips': 0.0381, 'fid_ssim': 0.9912, 'fid_dists': 0.0054, 'fid_psnr': 38.3741, 'fid_clip_img': 0.9986, 'fid_nima': 4.1971, 'fid_cnniqa': 0.6784, 'edit_lpips': 0.0703, 'edit_clip_orig': 0.2026, 'edit_clip_def': 0.2049, 'edit_clip_drop': -0.0023, 'edit_siglip_orig': 0.0577, 'edit_siglip_def': 0.0668, 'edit_siglip_drop': -0.0091, 'amp_dev': 0.00291, 'active_fraction': 0.4311}
+
+########## woman_03 (woman) ##########
+=== woman_03 / phase__human__gl16 ===
+{'image': 'woman_03', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a man', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.01122, 'unreachable': False, 'radius': 1.3, 'total_seconds': 29.8, 'fid_lpips': 0.0415, 'fid_ssim': 0.988, 'fid_dists': 0.0112, 'fid_psnr': 38.773, 'fid_clip_img': 0.9985, 'fid_nima': 5.1795, 'fid_cnniqa': 0.6872, 'edit_lpips': 0.1374, 'edit_clip_orig': 0.2464, 'edit_clip_def': 0.2362, 'edit_clip_drop': 0.0102, 'edit_siglip_orig': 0.0748, 'edit_siglip_def': 0.0769, 'edit_siglip_drop': -0.002, 'amp_dev': 0.00277, 'active_fraction': 0.5233}
+
+表：runs/gl/h16/results.csv

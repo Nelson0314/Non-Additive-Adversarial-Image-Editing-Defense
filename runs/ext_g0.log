@@ -1,0 +1,49 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3552.38it/s]
+Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00,  7.03it/s]Loading pipeline components...:  67%|██████▋   | 4/6 [00:00<00:00,  7.14it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 10.53it/s]
+There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+
+########## bird_00 (bird) ##########
+=== bird_00 / photoguard_c ===
+  [photoguard_c] step    0  L=3.337976e+02  Linf01=0.0531  L2=1.000
+  [photoguard_c] step   20  L=2.715395e+02  Linf01=0.1044  L2=8.264
+  [photoguard_c] step   40  L=2.543200e+02  Linf01=0.1411  L2=12.372
+  [photoguard_c] step   60  L=2.417959e+02  Linf01=0.1894  L2=15.744
+  [photoguard_c] step   80  L=2.342026e+02  Linf01=0.1848  L2=16.000
+  [photoguard_c] step  100  L=2.300931e+02  Linf01=0.1902  L2=16.000
+  [photoguard_c] step  120  L=2.255432e+02  Linf01=0.2217  L2=16.000
+  [photoguard_c] step  140  L=2.186995e+02  Linf01=0.2452  L2=16.000
+  [photoguard_c] step  160  L=2.212990e+02  Linf01=0.2579  L2=16.000
+  [photoguard_c] step  180  L=2.077208e+02  Linf01=0.2644  L2=16.000
+  [photoguard_c] step  199  L=2.119128e+02  Linf01=0.2683  L2=16.000
+Loading pretrained model NIMA from /nfs/home/nelson0314/.cache/torch/hub/pyiqa/NIMA_InceptionV2_ava-b0c77c00.pth
+Loading pretrained model CNNIQA from /nfs/home/nelson0314/.cache/torch/hub/pyiqa/CNNIQA_koniq10k-e6f14c91.pth
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 10488.59it/s]
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 12407.52it/s]
+[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
+[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
+Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights:  77%|███████▋  | 316/408 [00:00<00:00, 3155.52it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 3104.30it/s]
+{'image': 'bird_00', 'condition': 'photoguard_c', 'stage1_seconds': 0.0, 'total_seconds': 6208.9, 'fid_lpips': 0.4173, 'fid_ssim': 0.9841, 'fid_dists': 0.0296, 'fid_psnr': 40.8943, 'fid_clip_img': 0.9873, 'fid_nima': 5.4799, 'fid_cnniqa': 0.7145, 'edit_lpips': 0.593, 'edit_clip_orig': 0.2715, 'edit_clip_def': 0.2914, 'edit_clip_drop': -0.0198, 'edit_siglip_orig': 0.106, 'edit_siglip_def': 0.0927, 'edit_siglip_drop': 0.0133}
+
+########## bird_01 (bird) ##########
+=== bird_01 / photoguard_c ===
+  [photoguard_c] step    0  L=2.776452e+02  Linf01=0.0372  L2=0.999
+  [photoguard_c] step   20  L=2.465175e+02  Linf01=0.1476  L2=9.928
+  [photoguard_c] step   40  L=2.349389e+02  Linf01=0.2253  L2=15.607
+  [photoguard_c] step   60  L=2.254190e+02  Linf01=0.2280  L2=16.000
+  [photoguard_c] step   80  L=2.124229e+02  Linf01=0.2383  L2=16.000
+  [photoguard_c] step  100  L=2.133664e+02  Linf01=0.2350  L2=16.000
+  [photoguard_c] step  120  L=2.112829e+02  Linf01=0.2674  L2=16.000
+  [photoguard_c] step  140  L=2.068582e+02  Linf01=0.2941  L2=16.000
+  [photoguard_c] step  160  L=1.940049e+02  Linf01=0.3241  L2=16.000
+  [photoguard_c] step  180  L=2.043702e+02  Linf01=0.3316  L2=15.999
+  [photoguard_c] step  199  L=1.978837e+02  Linf01=0.3456  L2=16.000
+{'image': 'bird_01', 'condition': 'photoguard_c', 'stage1_seconds': 0.0, 'total_seconds': 6203.8, 'fid_lpips': 0.2741, 'fid_ssim': 0.9935, 'fid_dists': 0.0165, 'fid_psnr': 40.8943, 'fid_clip_img': 0.9941, 'fid_nima': 4.9603, 'fid_cnniqa': 0.713, 'edit_lpips': 0.5596, 'edit_clip_orig': 0.2765, 'edit_clip_def': 0.2945, 'edit_clip_drop': -0.018, 'edit_siglip_orig': 0.1118, 'edit_siglip_def': 0.1071, 'edit_siglip_drop': 0.0048}
+
+表：runs/ext24/g0/results.csv

@@ -1,0 +1,415 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00, 16.77it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3097.40it/s]
+Loading pipeline components...:  67%|██████▋   | 4/6 [00:00<00:00, 10.72it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00,  9.92it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 10.48it/s]
+There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+
+########## bird_00 (bird) ##########
+=== bird_00 / apa_weak ===
+  [align_apa_native] step    0  loss=0.0375
+  [align_apa_native] step   20  loss=0.3067
+  [align_apa_native] step   40  loss=0.1008
+  [align_apa_native] step   60  loss=0.0164
+  [align_apa_native] step   80  loss=0.0088
+  [align_apa_native] step  100  loss=0.0101
+  [align_apa_native] step  120  loss=0.0133
+  [align_apa_native] step  140  loss=0.0055
+  [align_apa_native] step  160  loss=0.0243
+  [align_apa_native] step  180  loss=0.0250
+  [align_apa_native] step  199  loss=0.0252
+  [attack_native] iter   0  reward=-1.2615  R=-1.0000  fid_pen=0.2615  linf=0.040
+  [attack_native] iter   2  reward=-1.1407  R=-0.7689  fid_pen=0.3718  linf=0.120
+  [attack_native] iter   4  reward=-1.1132  R=-0.6274  fid_pen=0.4858  linf=0.200
+  [attack_native] iter   6  reward=-1.1003  R=-0.6034  fid_pen=0.4970  linf=0.280
+  [attack_native] iter   8  reward=-1.0913  R=-0.6226  fid_pen=0.4688  linf=0.360
+  [attack_native] iter   9  reward=-1.0893  R=-0.6253  fid_pen=0.4640  linf=0.400
+Loading pretrained model NIMA from /nfs/home/nelson0314/.cache/torch/hub/pyiqa/NIMA_InceptionV2_ava-b0c77c00.pth
+Loading pretrained model CNNIQA from /nfs/home/nelson0314/.cache/torch/hub/pyiqa/CNNIQA_koniq10k-e6f14c91.pth
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 23065.05it/s]
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 12851.70it/s]
+[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
+[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
+Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights:  78%|███████▊  | 318/408 [00:00<00:00, 3173.22it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 3267.15it/s]
+{'image': 'bird_00', 'condition': 'apa_weak', 'stage1_seconds': 47.0, 'total_seconds': 147.3, 'fid_lpips': 0.2142, 'fid_ssim': 0.8031, 'fid_dists': 0.171, 'fid_psnr': 20.0792, 'fid_clip_img': 0.9242, 'fid_nima': 4.8559, 'fid_cnniqa': 0.5928, 'edit_lpips': 0.4203, 'edit_clip_orig': 0.2715, 'edit_clip_def': 0.251, 'edit_clip_drop': 0.0205, 'edit_siglip_orig': 0.106, 'edit_siglip_def': 0.089, 'edit_siglip_drop': 0.017}
+=== bird_00 / mist ===
+  [mist] step    0  L=3.350138e+04  Linf01=0.0627  L2=64.326
+  [mist] step   20  L=1.694055e+04  Linf01=0.0627  L2=69.788
+  [mist] step   40  L=1.489500e+04  Linf01=0.0627  L2=75.817
+  [mist] step   60  L=9.239746e+03  Linf01=0.0627  L2=79.706
+  [mist] step   80  L=1.582426e+04  Linf01=0.0627  L2=82.676
+  [mist] step   99  L=1.447895e+04  Linf01=0.0627  L2=84.121
+{'image': 'bird_00', 'condition': 'mist', 'stage1_seconds': 0.0, 'total_seconds': 84.9, 'fid_lpips': 0.6709, 'fid_ssim': 0.7445, 'fid_dists': 0.1784, 'fid_psnr': 26.4791, 'fid_clip_img': 0.9243, 'fid_nima': 4.8564, 'fid_cnniqa': 0.715, 'edit_lpips': 0.7331, 'edit_clip_orig': 0.2715, 'edit_clip_def': 0.2601, 'edit_clip_drop': 0.0115, 'edit_siglip_orig': 0.106, 'edit_siglip_def': 0.063, 'edit_siglip_drop': 0.043}
+=== bird_00 / dia_r ===
+  [dia_r] step    0  L=1.090068e+02  Linf01=0.0020  L2=3.478
+  [dia_r] step   19  L=7.567141e+02  Linf01=0.0250  L2=16.916
+{'image': 'bird_00', 'condition': 'dia_r', 'stage1_seconds': 0.0, 'total_seconds': 149.5, 'fid_lpips': 0.3366, 'fid_ssim': 0.9786, 'fid_dists': 0.046, 'fid_psnr': 40.411, 'fid_clip_img': 0.9892, 'fid_nima': 5.4201, 'fid_cnniqa': 0.712, 'edit_lpips': 0.4877, 'edit_clip_orig': 0.2715, 'edit_clip_def': 0.2952, 'edit_clip_drop': -0.0236, 'edit_siglip_orig': 0.106, 'edit_siglip_def': 0.095, 'edit_siglip_drop': 0.011}
+
+########## bird_01 (bird) ##########
+=== bird_01 / apa_weak ===
+  [align_apa_native] step    0  loss=0.0498
+  [align_apa_native] step   20  loss=0.4541
+  [align_apa_native] step   40  loss=0.1522
+  [align_apa_native] step   60  loss=0.0183
+  [align_apa_native] step   80  loss=0.0111
+  [align_apa_native] step  100  loss=0.0124
+  [align_apa_native] step  120  loss=0.0157
+  [align_apa_native] step  140  loss=0.0070
+  [align_apa_native] step  160  loss=0.0310
+  [align_apa_native] step  180  loss=0.0288
+  [align_apa_native] step  199  loss=0.0342
+  [attack_native] iter   0  reward=-1.2646  R=-1.0000  fid_pen=0.2646  linf=0.040
+  [attack_native] iter   2  reward=-1.0831  R=-0.6700  fid_pen=0.4131  linf=0.120
+  [attack_native] iter   4  reward=-1.0244  R=-0.4920  fid_pen=0.5324  linf=0.200
+  [attack_native] iter   6  reward=-0.9972  R=-0.4238  fid_pen=0.5734  linf=0.280
+  [attack_native] iter   8  reward=-0.9981  R=-0.4309  fid_pen=0.5672  linf=0.360
+  [attack_native] iter   9  reward=-1.0050  R=-0.4299  fid_pen=0.5751  linf=0.400
+{'image': 'bird_01', 'condition': 'apa_weak', 'stage1_seconds': 46.9, 'total_seconds': 129.9, 'fid_lpips': 0.3343, 'fid_ssim': 0.6054, 'fid_dists': 0.2955, 'fid_psnr': 17.9713, 'fid_clip_img': 0.8711, 'fid_nima': 4.5112, 'fid_cnniqa': 0.6163, 'edit_lpips': 0.3589, 'edit_clip_orig': 0.2765, 'edit_clip_def': 0.2857, 'edit_clip_drop': -0.0091, 'edit_siglip_orig': 0.1118, 'edit_siglip_def': 0.1083, 'edit_siglip_drop': 0.0035}
+=== bird_01 / mist ===
+  [mist] step    0  L=3.130664e+04  Linf01=0.0627  L2=64.234
+  [mist] step   20  L=1.628712e+04  Linf01=0.0627  L2=71.783
+  [mist] step   40  L=1.418932e+04  Linf01=0.0627  L2=77.970
+  [mist] step   60  L=7.923792e+03  Linf01=0.0627  L2=81.380
+  [mist] step   80  L=1.508806e+04  Linf01=0.0627  L2=83.645
+  [mist] step   99  L=1.365152e+04  Linf01=0.0627  L2=84.902
+{'image': 'bird_01', 'condition': 'mist', 'stage1_seconds': 0.0, 'total_seconds': 85.1, 'fid_lpips': 0.5541, 'fid_ssim': 0.8551, 'fid_dists': 0.1199, 'fid_psnr': 26.3988, 'fid_clip_img': 0.9345, 'fid_nima': 4.7652, 'fid_cnniqa': 0.7212, 'edit_lpips': 0.6807, 'edit_clip_orig': 0.2765, 'edit_clip_def': 0.2758, 'edit_clip_drop': 0.0007, 'edit_siglip_orig': 0.1118, 'edit_siglip_def': 0.1032, 'edit_siglip_drop': 0.0087}
+=== bird_01 / dia_r ===
+  [dia_r] step    0  L=1.282315e+02  Linf01=0.0020  L2=3.477
+  [dia_r] step   19  L=5.143950e+02  Linf01=0.0250  L2=17.453
+{'image': 'bird_01', 'condition': 'dia_r', 'stage1_seconds': 0.0, 'total_seconds': 149.5, 'fid_lpips': 0.1746, 'fid_ssim': 0.9909, 'fid_dists': 0.0207, 'fid_psnr': 40.1391, 'fid_clip_img': 0.9926, 'fid_nima': 4.9512, 'fid_cnniqa': 0.7129, 'edit_lpips': 0.2553, 'edit_clip_orig': 0.2765, 'edit_clip_def': 0.2864, 'edit_clip_drop': -0.0099, 'edit_siglip_orig': 0.1118, 'edit_siglip_def': 0.1094, 'edit_siglip_drop': 0.0024}
+
+########## cat_00 (cat) ##########
+=== cat_00 / apa_weak ===
+  [align_apa_native] step    0  loss=0.0620
+  [align_apa_native] step   20  loss=0.4132
+  [align_apa_native] step   40  loss=0.1742
+  [align_apa_native] step   60  loss=0.0190
+  [align_apa_native] step   80  loss=0.0124
+  [align_apa_native] step  100  loss=0.0138
+  [align_apa_native] step  120  loss=0.0210
+  [align_apa_native] step  140  loss=0.0091
+  [align_apa_native] step  160  loss=0.0418
+  [align_apa_native] step  180  loss=0.0376
+  [align_apa_native] step  199  loss=0.0429
+  [attack_native] iter   0  reward=-1.2550  R=-1.0000  fid_pen=0.2550  linf=0.040
+  [attack_native] iter   2  reward=-1.0408  R=-0.6136  fid_pen=0.4272  linf=0.120
+  [attack_native] iter   4  reward=-0.9923  R=-0.4157  fid_pen=0.5767  linf=0.200
+  [attack_native] iter   6  reward=-0.9913  R=-0.3652  fid_pen=0.6261  linf=0.280
+  [attack_native] iter   8  reward=-0.9697  R=-0.3903  fid_pen=0.5794  linf=0.360
+  [attack_native] iter   9  reward=-0.9598  R=-0.4220  fid_pen=0.5378  linf=0.400
+{'image': 'cat_00', 'condition': 'apa_weak', 'stage1_seconds': 46.8, 'total_seconds': 130.0, 'fid_lpips': 0.328, 'fid_ssim': 0.4398, 'fid_dists': 0.2194, 'fid_psnr': 14.4181, 'fid_clip_img': 0.9376, 'fid_nima': 4.8799, 'fid_cnniqa': 0.606, 'edit_lpips': 0.4603, 'edit_clip_orig': 0.2452, 'edit_clip_def': 0.2521, 'edit_clip_drop': -0.007, 'edit_siglip_orig': 0.0621, 'edit_siglip_def': 0.0806, 'edit_siglip_drop': -0.0185}
+=== cat_00 / mist ===
+  [mist] step    0  L=2.890315e+04  Linf01=0.0627  L2=63.386
+  [mist] step   20  L=1.654114e+04  Linf01=0.0627  L2=75.155
+  [mist] step   40  L=1.431889e+04  Linf01=0.0627  L2=83.109
+  [mist] step   60  L=8.811186e+03  Linf01=0.0627  L2=86.091
+  [mist] step   80  L=1.611777e+04  Linf01=0.0627  L2=88.249
+  [mist] step   99  L=1.441078e+04  Linf01=0.0627  L2=89.287
+{'image': 'cat_00', 'condition': 'mist', 'stage1_seconds': 0.0, 'total_seconds': 88.0, 'fid_lpips': 0.3881, 'fid_ssim': 0.9108, 'fid_dists': 0.1109, 'fid_psnr': 25.9614, 'fid_clip_img': 0.9222, 'fid_nima': 4.54, 'fid_cnniqa': 0.7031, 'edit_lpips': 0.6125, 'edit_clip_orig': 0.2452, 'edit_clip_def': 0.2283, 'edit_clip_drop': 0.0169, 'edit_siglip_orig': 0.0621, 'edit_siglip_def': 0.0791, 'edit_siglip_drop': -0.017}
+=== cat_00 / dia_r ===
+  [dia_r] step    0  L=2.754537e+02  Linf01=0.0020  L2=3.459
+  [dia_r] step   19  L=7.280552e+02  Linf01=0.0250  L2=21.171
+{'image': 'cat_00', 'condition': 'dia_r', 'stage1_seconds': 0.0, 'total_seconds': 149.4, 'fid_lpips': 0.0819, 'fid_ssim': 0.993, 'fid_dists': 0.0192, 'fid_psnr': 38.4622, 'fid_clip_img': 0.9885, 'fid_nima': 4.8533, 'fid_cnniqa': 0.7197, 'edit_lpips': 0.3607, 'edit_clip_orig': 0.2452, 'edit_clip_def': 0.244, 'edit_clip_drop': 0.0012, 'edit_siglip_orig': 0.0621, 'edit_siglip_def': 0.0743, 'edit_siglip_drop': -0.0122}
+
+########## cat_02 (cat) ##########
+=== cat_02 / apa_weak ===
+  [align_apa_native] step    0  loss=0.0449
+  [align_apa_native] step   20  loss=0.4205
+  [align_apa_native] step   40  loss=0.1373
+  [align_apa_native] step   60  loss=0.0175
+  [align_apa_native] step   80  loss=0.0120
+  [align_apa_native] step  100  loss=0.0112
+  [align_apa_native] step  120  loss=0.0179
+  [align_apa_native] step  140  loss=0.0081
+  [align_apa_native] step  160  loss=0.0307
+  [align_apa_native] step  180  loss=0.0270
+  [align_apa_native] step  199  loss=0.0309
+  [attack_native] iter   0  reward=-1.2810  R=-1.0000  fid_pen=0.2810  linf=0.040
+  [attack_native] iter   2  reward=-1.0238  R=-0.6023  fid_pen=0.4215  linf=0.120
+  [attack_native] iter   4  reward=-0.9369  R=-0.3886  fid_pen=0.5483  linf=0.200
+  [attack_native] iter   6  reward=-0.9155  R=-0.3065  fid_pen=0.6090  linf=0.280
+  [attack_native] iter   8  reward=-0.9176  R=-0.2814  fid_pen=0.6362  linf=0.360
+  [attack_native] iter   9  reward=-0.9226  R=-0.2818  fid_pen=0.6409  linf=0.400
+{'image': 'cat_02', 'condition': 'apa_weak', 'stage1_seconds': 46.8, 'total_seconds': 129.8, 'fid_lpips': 0.383, 'fid_ssim': 0.5222, 'fid_dists': 0.3411, 'fid_psnr': 17.3982, 'fid_clip_img': 0.8698, 'fid_nima': 4.2328, 'fid_cnniqa': 0.5254, 'edit_lpips': 0.48, 'edit_clip_orig': 0.2521, 'edit_clip_def': 0.2536, 'edit_clip_drop': -0.0015, 'edit_siglip_orig': 0.0912, 'edit_siglip_def': 0.0895, 'edit_siglip_drop': 0.0017}
+=== cat_02 / mist ===
+  [mist] step    0  L=2.877616e+04  Linf01=0.0627  L2=64.270
+  [mist] step   20  L=1.467082e+04  Linf01=0.0627  L2=71.097
+  [mist] step   40  L=1.266518e+04  Linf01=0.0627  L2=76.919
+  [mist] step   60  L=6.114105e+03  Linf01=0.0627  L2=80.861
+  [mist] step   80  L=1.358376e+04  Linf01=0.0627  L2=83.501
+  [mist] step   99  L=1.224860e+04  Linf01=0.0627  L2=84.846
+{'image': 'cat_02', 'condition': 'mist', 'stage1_seconds': 0.0, 'total_seconds': 85.2, 'fid_lpips': 0.5391, 'fid_ssim': 0.8711, 'fid_dists': 0.1612, 'fid_psnr': 26.4045, 'fid_clip_img': 0.963, 'fid_nima': 4.2053, 'fid_cnniqa': 0.6672, 'edit_lpips': 0.7291, 'edit_clip_orig': 0.2521, 'edit_clip_def': 0.2491, 'edit_clip_drop': 0.003, 'edit_siglip_orig': 0.0912, 'edit_siglip_def': 0.0897, 'edit_siglip_drop': 0.0015}
+=== cat_02 / dia_r ===
+  [dia_r] step    0  L=1.305684e+02  Linf01=0.0020  L2=3.478
+  [dia_r] step   19  L=6.897014e+02  Linf01=0.0250  L2=18.243
+{'image': 'cat_02', 'condition': 'dia_r', 'stage1_seconds': 0.0, 'total_seconds': 149.5, 'fid_lpips': 0.1502, 'fid_ssim': 0.9926, 'fid_dists': 0.029, 'fid_psnr': 39.7551, 'fid_clip_img': 0.9894, 'fid_nima': 4.5311, 'fid_cnniqa': 0.6477, 'edit_lpips': 0.2749, 'edit_clip_orig': 0.2521, 'edit_clip_def': 0.2436, 'edit_clip_drop': 0.0085, 'edit_siglip_orig': 0.0912, 'edit_siglip_def': 0.0898, 'edit_siglip_drop': 0.0014}
+
+########## dog_00 (dog) ##########
+=== dog_00 / apa_weak ===
+  [align_apa_native] step    0  loss=0.0435
+  [align_apa_native] step   20  loss=0.3529
+  [align_apa_native] step   40  loss=0.1238
+  [align_apa_native] step   60  loss=0.0181
+  [align_apa_native] step   80  loss=0.0124
+  [align_apa_native] step  100  loss=0.0114
+  [align_apa_native] step  120  loss=0.0162
+  [align_apa_native] step  140  loss=0.0078
+  [align_apa_native] step  160  loss=0.0294
+  [align_apa_native] step  180  loss=0.0269
+  [align_apa_native] step  199  loss=0.0291
+  [attack_native] iter   0  reward=-1.2521  R=-1.0000  fid_pen=0.2521  linf=0.040
+  [attack_native] iter   2  reward=-1.1687  R=-0.9027  fid_pen=0.2660  linf=0.120
+  [attack_native] iter   4  reward=-1.1497  R=-0.7938  fid_pen=0.3559  linf=0.200
+  [attack_native] iter   6  reward=-1.1459  R=-0.7083  fid_pen=0.4375  linf=0.280
+  [attack_native] iter   8  reward=-1.1492  R=-0.6864  fid_pen=0.4628  linf=0.360
+  [attack_native] iter   9  reward=-1.1501  R=-0.7016  fid_pen=0.4484  linf=0.400
+{'image': 'dog_00', 'condition': 'apa_weak', 'stage1_seconds': 46.9, 'total_seconds': 130.7, 'fid_lpips': 0.2251, 'fid_ssim': 0.7314, 'fid_dists': 0.0883, 'fid_psnr': 20.1855, 'fid_clip_img': 0.9559, 'fid_nima': 4.4738, 'fid_cnniqa': 0.6113, 'edit_lpips': 0.318, 'edit_clip_orig': 0.2675, 'edit_clip_def': 0.2627, 'edit_clip_drop': 0.0047, 'edit_siglip_orig': 0.0695, 'edit_siglip_def': 0.073, 'edit_siglip_drop': -0.0035}
+=== dog_00 / mist ===
+  [mist] step    0  L=2.886878e+04  Linf01=0.0627  L2=63.877
+  [mist] step   20  L=1.322266e+04  Linf01=0.0627  L2=68.947
+  [mist] step   40  L=1.118331e+04  Linf01=0.0627  L2=73.964
+  [mist] step   60  L=5.113281e+03  Linf01=0.0627  L2=77.035
+  [mist] step   80  L=1.209665e+04  Linf01=0.0627  L2=79.512
+  [mist] step   99  L=1.074322e+04  Linf01=0.0627  L2=80.913
+{'image': 'dog_00', 'condition': 'mist', 'stage1_seconds': 0.0, 'total_seconds': 84.8, 'fid_lpips': 0.6008, 'fid_ssim': 0.7963, 'fid_dists': 0.167, 'fid_psnr': 26.8168, 'fid_clip_img': 0.9419, 'fid_nima': 3.8329, 'fid_cnniqa': 0.6872, 'edit_lpips': 0.7061, 'edit_clip_orig': 0.2675, 'edit_clip_def': 0.2481, 'edit_clip_drop': 0.0194, 'edit_siglip_orig': 0.0695, 'edit_siglip_def': 0.0926, 'edit_siglip_drop': -0.0231}
+=== dog_00 / dia_r ===
+  [dia_r] step    0  L=9.948614e+01  Linf01=0.0020  L2=3.478
+  [dia_r] step   19  L=7.463295e+02  Linf01=0.0250  L2=18.524
+{'image': 'dog_00', 'condition': 'dia_r', 'stage1_seconds': 0.0, 'total_seconds': 149.4, 'fid_lpips': 0.2383, 'fid_ssim': 0.985, 'fid_dists': 0.0317, 'fid_psnr': 39.6223, 'fid_clip_img': 0.9941, 'fid_nima': 4.5856, 'fid_cnniqa': 0.6891, 'edit_lpips': 0.4362, 'edit_clip_orig': 0.2675, 'edit_clip_def': 0.2529, 'edit_clip_drop': 0.0146, 'edit_siglip_orig': 0.0695, 'edit_siglip_def': 0.0813, 'edit_siglip_drop': -0.0118}
+
+########## dog_01 (dog) ##########
+=== dog_01 / apa_weak ===
+  [align_apa_native] step    0  loss=0.0448
+  [align_apa_native] step   20  loss=0.3418
+  [align_apa_native] step   40  loss=0.1197
+  [align_apa_native] step   60  loss=0.0174
+  [align_apa_native] step   80  loss=0.0092
+  [align_apa_native] step  100  loss=0.0116
+  [align_apa_native] step  120  loss=0.0159
+  [align_apa_native] step  140  loss=0.0071
+  [align_apa_native] step  160  loss=0.0283
+  [align_apa_native] step  180  loss=0.0247
+  [align_apa_native] step  199  loss=0.0268
+  [attack_native] iter   0  reward=-1.2424  R=-1.0000  fid_pen=0.2424  linf=0.040
+  [attack_native] iter   2  reward=-1.1330  R=-0.8294  fid_pen=0.3036  linf=0.120
+  [attack_native] iter   4  reward=-1.1019  R=-0.6942  fid_pen=0.4077  linf=0.200
+  [attack_native] iter   6  reward=-1.1000  R=-0.6218  fid_pen=0.4781  linf=0.280
+  [attack_native] iter   8  reward=-1.1047  R=-0.5994  fid_pen=0.5053  linf=0.360
+  [attack_native] iter   9  reward=-1.1092  R=-0.5964  fid_pen=0.5129  linf=0.400
+{'image': 'dog_01', 'condition': 'apa_weak', 'stage1_seconds': 46.9, 'total_seconds': 130.4, 'fid_lpips': 0.1826, 'fid_ssim': 0.7706, 'fid_dists': 0.1052, 'fid_psnr': 19.5516, 'fid_clip_img': 0.9747, 'fid_nima': 5.288, 'fid_cnniqa': 0.5279, 'edit_lpips': 0.1419, 'edit_clip_orig': 0.2742, 'edit_clip_def': 0.2703, 'edit_clip_drop': 0.0039, 'edit_siglip_orig': 0.0908, 'edit_siglip_def': 0.0932, 'edit_siglip_drop': -0.0025}
+=== dog_01 / mist ===
+  [mist] step    0  L=2.730815e+04  Linf01=0.0627  L2=63.886
+  [mist] step   20  L=1.280608e+04  Linf01=0.0627  L2=68.966
+  [mist] step   40  L=1.071039e+04  Linf01=0.0627  L2=73.591
+  [mist] step   60  L=4.164519e+03  Linf01=0.0627  L2=77.078
+  [mist] step   80  L=1.127587e+04  Linf01=0.0627  L2=79.696
+  [mist] step   99  L=1.003190e+04  Linf01=0.0627  L2=81.346
+{'image': 'dog_01', 'condition': 'mist', 'stage1_seconds': 0.0, 'total_seconds': 84.9, 'fid_lpips': 0.6098, 'fid_ssim': 0.7729, 'fid_dists': 0.1403, 'fid_psnr': 26.7704, 'fid_clip_img': 0.8595, 'fid_nima': 4.1286, 'fid_cnniqa': 0.6352, 'edit_lpips': 0.7862, 'edit_clip_orig': 0.2742, 'edit_clip_def': 0.2866, 'edit_clip_drop': -0.0124, 'edit_siglip_orig': 0.0908, 'edit_siglip_def': 0.0924, 'edit_siglip_drop': -0.0017}
+=== dog_01 / dia_r ===
+  [dia_r] step    0  L=7.404454e+01  Linf01=0.0020  L2=3.475
+  [dia_r] step   19  L=8.131470e+02  Linf01=0.0250  L2=16.552
+{'image': 'dog_01', 'condition': 'dia_r', 'stage1_seconds': 0.0, 'total_seconds': 149.3, 'fid_lpips': 0.2574, 'fid_ssim': 0.9844, 'fid_dists': 0.0229, 'fid_psnr': 40.5997, 'fid_clip_img': 0.9785, 'fid_nima': 5.6838, 'fid_cnniqa': 0.6346, 'edit_lpips': 0.2553, 'edit_clip_orig': 0.2742, 'edit_clip_def': 0.2731, 'edit_clip_drop': 0.0011, 'edit_siglip_orig': 0.0908, 'edit_siglip_def': 0.0855, 'edit_siglip_drop': 0.0052}
+
+########## horse_00 (horse) ##########
+=== horse_00 / apa_weak ===
+  [align_apa_native] step    0  loss=0.0330
+  [align_apa_native] step   20  loss=0.3363
+  [align_apa_native] step   40  loss=0.1052
+  [align_apa_native] step   60  loss=0.0150
+  [align_apa_native] step   80  loss=0.0087
+  [align_apa_native] step  100  loss=0.0075
+  [align_apa_native] step  120  loss=0.0104
+  [align_apa_native] step  140  loss=0.0061
+  [align_apa_native] step  160  loss=0.0224
+  [align_apa_native] step  180  loss=0.0199
+  [align_apa_native] step  199  loss=0.0210
+  [attack_native] iter   0  reward=-1.2566  R=-1.0000  fid_pen=0.2566  linf=0.040
+  [attack_native] iter   2  reward=-1.0508  R=-0.6474  fid_pen=0.4034  linf=0.120
+  [attack_native] iter   4  reward=-0.9957  R=-0.4198  fid_pen=0.5759  linf=0.200
+  [attack_native] iter   6  reward=-1.0018  R=-0.3376  fid_pen=0.6642  linf=0.280
+  [attack_native] iter   8  reward=-1.0240  R=-0.3288  fid_pen=0.6952  linf=0.360
+  [attack_native] iter   9  reward=-1.0310  R=-0.3410  fid_pen=0.6900  linf=0.400
+{'image': 'horse_00', 'condition': 'apa_weak', 'stage1_seconds': 46.8, 'total_seconds': 129.8, 'fid_lpips': 0.2293, 'fid_ssim': 0.7328, 'fid_dists': 0.162, 'fid_psnr': 16.8428, 'fid_clip_img': 0.9401, 'fid_nima': 5.146, 'fid_cnniqa': 0.5547, 'edit_lpips': 0.3569, 'edit_clip_orig': 0.306, 'edit_clip_def': 0.3141, 'edit_clip_drop': -0.0081, 'edit_siglip_orig': 0.119, 'edit_siglip_def': 0.1223, 'edit_siglip_drop': -0.0033}
+=== horse_00 / mist ===
+  [mist] step    0  L=2.775181e+04  Linf01=0.0627  L2=64.289
+  [mist] step   20  L=1.324913e+04  Linf01=0.0627  L2=68.730
+  [mist] step   40  L=1.121322e+04  Linf01=0.0627  L2=73.459
+  [mist] step   60  L=4.860641e+03  Linf01=0.0627  L2=77.040
+  [mist] step   80  L=1.160624e+04  Linf01=0.0627  L2=79.949
+  [mist] step   99  L=1.057133e+04  Linf01=0.0627  L2=81.715
+{'image': 'horse_00', 'condition': 'mist', 'stage1_seconds': 0.0, 'total_seconds': 84.7, 'fid_lpips': 0.6085, 'fid_ssim': 0.7178, 'fid_dists': 0.2064, 'fid_psnr': 26.7311, 'fid_clip_img': 0.8335, 'fid_nima': 4.796, 'fid_cnniqa': 0.6951, 'edit_lpips': 0.6802, 'edit_clip_orig': 0.306, 'edit_clip_def': 0.3008, 'edit_clip_drop': 0.0052, 'edit_siglip_orig': 0.119, 'edit_siglip_def': 0.1084, 'edit_siglip_drop': 0.0106}
+=== horse_00 / dia_r ===
+  [dia_r] step    0  L=1.040164e+02  Linf01=0.0020  L2=3.478
+  [dia_r] step   19  L=5.533041e+02  Linf01=0.0250  L2=17.435
+{'image': 'horse_00', 'condition': 'dia_r', 'stage1_seconds': 0.0, 'total_seconds': 149.2, 'fid_lpips': 0.2776, 'fid_ssim': 0.979, 'fid_dists': 0.0479, 'fid_psnr': 40.1483, 'fid_clip_img': 0.9381, 'fid_nima': 5.7708, 'fid_cnniqa': 0.6893, 'edit_lpips': 0.2491, 'edit_clip_orig': 0.306, 'edit_clip_def': 0.3103, 'edit_clip_drop': -0.0043, 'edit_siglip_orig': 0.119, 'edit_siglip_def': 0.1107, 'edit_siglip_drop': 0.0083}
+
+########## horse_01 (horse) ##########
+=== horse_01 / apa_weak ===
+  [align_apa_native] step    0  loss=0.0518
+  [align_apa_native] step   20  loss=0.3519
+  [align_apa_native] step   40  loss=0.1430
+  [align_apa_native] step   60  loss=0.0183
+  [align_apa_native] step   80  loss=0.0126
+  [align_apa_native] step  100  loss=0.0114
+  [align_apa_native] step  120  loss=0.0188
+  [align_apa_native] step  140  loss=0.0108
+  [align_apa_native] step  160  loss=0.0363
+  [align_apa_native] step  180  loss=0.0308
+  [align_apa_native] step  199  loss=0.0371
+  [attack_native] iter   0  reward=-1.2332  R=-1.0000  fid_pen=0.2332  linf=0.040
+  [attack_native] iter   2  reward=-0.9806  R=-0.6524  fid_pen=0.3283  linf=0.120
+  [attack_native] iter   4  reward=-0.8870  R=-0.3980  fid_pen=0.4890  linf=0.200
+  [attack_native] iter   6  reward=-0.8729  R=-0.2653  fid_pen=0.6077  linf=0.280
+  [attack_native] iter   8  reward=-0.8768  R=-0.2361  fid_pen=0.6407  linf=0.360
+  [attack_native] iter   9  reward=-0.8749  R=-0.2444  fid_pen=0.6305  linf=0.400
+{'image': 'horse_01', 'condition': 'apa_weak', 'stage1_seconds': 46.7, 'total_seconds': 129.5, 'fid_lpips': 0.3205, 'fid_ssim': 0.4559, 'fid_dists': 0.2883, 'fid_psnr': 15.0301, 'fid_clip_img': 0.9251, 'fid_nima': 4.3395, 'fid_cnniqa': 0.6419, 'edit_lpips': 0.4017, 'edit_clip_orig': 0.323, 'edit_clip_def': 0.327, 'edit_clip_drop': -0.004, 'edit_siglip_orig': 0.1175, 'edit_siglip_def': 0.1196, 'edit_siglip_drop': -0.0021}
+=== horse_01 / mist ===
+  [mist] step    0  L=2.792978e+04  Linf01=0.0627  L2=63.965
+  [mist] step   20  L=1.497002e+04  Linf01=0.0627  L2=72.821
+  [mist] step   40  L=1.275878e+04  Linf01=0.0627  L2=79.505
+  [mist] step   60  L=6.863497e+03  Linf01=0.0627  L2=82.569
+  [mist] step   80  L=1.414103e+04  Linf01=0.0627  L2=84.634
+  [mist] step   99  L=1.244944e+04  Linf01=0.0627  L2=85.735
+{'image': 'horse_01', 'condition': 'mist', 'stage1_seconds': 0.0, 'total_seconds': 84.8, 'fid_lpips': 0.4871, 'fid_ssim': 0.8614, 'fid_dists': 0.1475, 'fid_psnr': 26.314, 'fid_clip_img': 0.9181, 'fid_nima': 4.5044, 'fid_cnniqa': 0.705, 'edit_lpips': 0.6723, 'edit_clip_orig': 0.323, 'edit_clip_def': 0.3054, 'edit_clip_drop': 0.0175, 'edit_siglip_orig': 0.1175, 'edit_siglip_def': 0.1161, 'edit_siglip_drop': 0.0014}
+=== horse_01 / dia_r ===
+  [dia_r] step    0  L=2.104608e+02  Linf01=0.0020  L2=3.473
+  [dia_r] step   19  L=7.547041e+02  Linf01=0.0250  L2=19.763
+{'image': 'horse_01', 'condition': 'dia_r', 'stage1_seconds': 0.0, 'total_seconds': 149.2, 'fid_lpips': 0.1091, 'fid_ssim': 0.9897, 'fid_dists': 0.0269, 'fid_psnr': 39.0597, 'fid_clip_img': 0.9676, 'fid_nima': 4.8216, 'fid_cnniqa': 0.6896, 'edit_lpips': 0.235, 'edit_clip_orig': 0.323, 'edit_clip_def': 0.3283, 'edit_clip_drop': -0.0053, 'edit_siglip_orig': 0.1175, 'edit_siglip_def': 0.1183, 'edit_siglip_drop': -0.0008}
+
+########## man_00 (man) ##########
+=== man_00 / apa_weak ===
+  [align_apa_native] step    0  loss=0.0391
+  [align_apa_native] step   20  loss=0.2672
+  [align_apa_native] step   40  loss=0.1013
+  [align_apa_native] step   60  loss=0.0169
+  [align_apa_native] step   80  loss=0.0105
+  [align_apa_native] step  100  loss=0.0106
+  [align_apa_native] step  120  loss=0.0134
+  [align_apa_native] step  140  loss=0.0069
+  [align_apa_native] step  160  loss=0.0272
+  [align_apa_native] step  180  loss=0.0217
+  [align_apa_native] step  199  loss=0.0260
+  [attack_native] iter   0  reward=-1.2495  R=-1.0000  fid_pen=0.2495  linf=0.040
+  [attack_native] iter   2  reward=-1.1542  R=-0.8564  fid_pen=0.2978  linf=0.120
+  [attack_native] iter   4  reward=-1.1371  R=-0.7571  fid_pen=0.3800  linf=0.200
+  [attack_native] iter   6  reward=-1.1320  R=-0.7055  fid_pen=0.4265  linf=0.280
+  [attack_native] iter   8  reward=-1.1378  R=-0.7021  fid_pen=0.4357  linf=0.360
+  [attack_native] iter   9  reward=-1.1445  R=-0.7087  fid_pen=0.4358  linf=0.400
+{'image': 'man_00', 'condition': 'apa_weak', 'stage1_seconds': 46.9, 'total_seconds': 130.0, 'fid_lpips': 0.1256, 'fid_ssim': 0.9176, 'fid_dists': 0.0851, 'fid_psnr': 20.6714, 'fid_clip_img': 0.9791, 'fid_nima': 4.5151, 'fid_cnniqa': 0.5485, 'edit_lpips': 0.3096, 'edit_clip_orig': 0.2819, 'edit_clip_def': 0.3046, 'edit_clip_drop': -0.0227, 'edit_siglip_orig': 0.1079, 'edit_siglip_def': 0.1264, 'edit_siglip_drop': -0.0185}
+=== man_00 / mist ===
+  [mist] step    0  L=3.714640e+04  Linf01=0.0627  L2=64.110
+  [mist] step   20  L=1.782332e+04  Linf01=0.0627  L2=68.595
+  [mist] step   40  L=1.579294e+04  Linf01=0.0627  L2=74.436
+  [mist] step   60  L=1.020589e+04  Linf01=0.0627  L2=78.153
+  [mist] step   80  L=1.646152e+04  Linf01=0.0627  L2=81.097
+  [mist] step   99  L=1.520359e+04  Linf01=0.0627  L2=82.806
+{'image': 'man_00', 'condition': 'mist', 'stage1_seconds': 0.0, 'total_seconds': 84.8, 'fid_lpips': 0.6552, 'fid_ssim': 0.6978, 'fid_dists': 0.1887, 'fid_psnr': 26.616, 'fid_clip_img': 0.9057, 'fid_nima': 4.2833, 'fid_cnniqa': 0.6616, 'edit_lpips': 0.6295, 'edit_clip_orig': 0.2819, 'edit_clip_def': 0.2315, 'edit_clip_drop': 0.0504, 'edit_siglip_orig': 0.1079, 'edit_siglip_def': 0.0749, 'edit_siglip_drop': 0.0331}
+=== man_00 / dia_r ===
+  [dia_r] step    0  L=6.493208e+01  Linf01=0.0020  L2=3.477
+  [dia_r] step   19  L=5.846680e+02  Linf01=0.0250  L2=16.220
+{'image': 'man_00', 'condition': 'dia_r', 'stage1_seconds': 0.0, 'total_seconds': 149.4, 'fid_lpips': 0.3345, 'fid_ssim': 0.9772, 'fid_dists': 0.0586, 'fid_psnr': 40.7755, 'fid_clip_img': 0.9853, 'fid_nima': 4.4915, 'fid_cnniqa': 0.6755, 'edit_lpips': 0.3643, 'edit_clip_orig': 0.2819, 'edit_clip_def': 0.2977, 'edit_clip_drop': -0.0158, 'edit_siglip_orig': 0.1079, 'edit_siglip_def': 0.1086, 'edit_siglip_drop': -0.0007}
+
+########## man_01 (man) ##########
+=== man_01 / apa_weak ===
+  [align_apa_native] step    0  loss=0.0613
+  [align_apa_native] step   20  loss=0.3809
+  [align_apa_native] step   40  loss=0.1600
+  [align_apa_native] step   60  loss=0.0201
+  [align_apa_native] step   80  loss=0.0120
+  [align_apa_native] step  100  loss=0.0130
+  [align_apa_native] step  120  loss=0.0215
+  [align_apa_native] step  140  loss=0.0106
+  [align_apa_native] step  160  loss=0.0437
+  [align_apa_native] step  180  loss=0.0388
+  [align_apa_native] step  199  loss=0.0456
+  [attack_native] iter   0  reward=-1.2570  R=-1.0000  fid_pen=0.2570  linf=0.040
+  [attack_native] iter   2  reward=-1.1441  R=-0.7876  fid_pen=0.3565  linf=0.120
+  [attack_native] iter   4  reward=-1.1191  R=-0.6334  fid_pen=0.4858  linf=0.200
+  [attack_native] iter   6  reward=-1.1181  R=-0.5657  fid_pen=0.5524  linf=0.280
+  [attack_native] iter   8  reward=-1.1159  R=-0.5774  fid_pen=0.5385  linf=0.360
+  [attack_native] iter   9  reward=-1.1089  R=-0.6018  fid_pen=0.5071  linf=0.400
+{'image': 'man_01', 'condition': 'apa_weak', 'stage1_seconds': 46.8, 'total_seconds': 129.7, 'fid_lpips': 0.2376, 'fid_ssim': 0.6144, 'fid_dists': 0.1463, 'fid_psnr': 16.7828, 'fid_clip_img': 0.9383, 'fid_nima': 4.438, 'fid_cnniqa': 0.6099, 'edit_lpips': 0.2136, 'edit_clip_orig': 0.2814, 'edit_clip_def': 0.2792, 'edit_clip_drop': 0.0022, 'edit_siglip_orig': 0.1091, 'edit_siglip_def': 0.1088, 'edit_siglip_drop': 0.0004}
+=== man_01 / mist ===
+  [mist] step    0  L=2.579290e+04  Linf01=0.0627  L2=62.980
+  [mist] step   20  L=1.221187e+04  Linf01=0.0627  L2=70.719
+  [mist] step   40  L=1.001389e+04  Linf01=0.0627  L2=77.146
+  [mist] step   60  L=4.271767e+03  Linf01=0.0627  L2=80.293
+  [mist] step   80  L=1.173387e+04  Linf01=0.0627  L2=82.542
+  [mist] step   99  L=1.010773e+04  Linf01=0.0627  L2=83.628
+{'image': 'man_01', 'condition': 'mist', 'stage1_seconds': 0.0, 'total_seconds': 84.9, 'fid_lpips': 0.5007, 'fid_ssim': 0.8825, 'fid_dists': 0.1287, 'fid_psnr': 26.5302, 'fid_clip_img': 0.9101, 'fid_nima': 4.5534, 'fid_cnniqa': 0.6385, 'edit_lpips': 0.6196, 'edit_clip_orig': 0.2814, 'edit_clip_def': 0.2625, 'edit_clip_drop': 0.0189, 'edit_siglip_orig': 0.1091, 'edit_siglip_def': 0.1105, 'edit_siglip_drop': -0.0013}
+=== man_01 / dia_r ===
+  [dia_r] step    0  L=1.604514e+02  Linf01=0.0020  L2=3.471
+  [dia_r] step   19  L=6.785406e+02  Linf01=0.0250  L2=18.804
+{'image': 'man_01', 'condition': 'dia_r', 'stage1_seconds': 0.0, 'total_seconds': 149.4, 'fid_lpips': 0.1026, 'fid_ssim': 0.9926, 'fid_dists': 0.0198, 'fid_psnr': 39.4918, 'fid_clip_img': 0.9794, 'fid_nima': 5.0101, 'fid_cnniqa': 0.6505, 'edit_lpips': 0.1855, 'edit_clip_orig': 0.2814, 'edit_clip_def': 0.2754, 'edit_clip_drop': 0.006, 'edit_siglip_orig': 0.1091, 'edit_siglip_def': 0.108, 'edit_siglip_drop': 0.0011}
+
+########## woman_00 (woman) ##########
+=== woman_00 / apa_weak ===
+  [align_apa_native] step    0  loss=0.0592
+  [align_apa_native] step   20  loss=0.4059
+  [align_apa_native] step   40  loss=0.1586
+  [align_apa_native] step   60  loss=0.0178
+  [align_apa_native] step   80  loss=0.0113
+  [align_apa_native] step  100  loss=0.0121
+  [align_apa_native] step  120  loss=0.0187
+  [align_apa_native] step  140  loss=0.0095
+  [align_apa_native] step  160  loss=0.0383
+  [align_apa_native] step  180  loss=0.0331
+  [align_apa_native] step  199  loss=0.0389
+  [attack_native] iter   0  reward=-1.2521  R=-1.0000  fid_pen=0.2521  linf=0.040
+  [attack_native] iter   2  reward=-1.1901  R=-1.0242  fid_pen=0.1659  linf=0.120
+  [attack_native] iter   4  reward=-1.1923  R=-1.0195  fid_pen=0.1727  linf=0.200
+  [attack_native] iter   6  reward=-1.1928  R=-0.9781  fid_pen=0.2147  linf=0.280
+  [attack_native] iter   8  reward=-1.1973  R=-0.9491  fid_pen=0.2482  linf=0.360
+  [attack_native] iter   9  reward=-1.1929  R=-0.9475  fid_pen=0.2454  linf=0.400
+{'image': 'woman_00', 'condition': 'apa_weak', 'stage1_seconds': 46.8, 'total_seconds': 129.9, 'fid_lpips': 0.209, 'fid_ssim': 0.7659, 'fid_dists': 0.0978, 'fid_psnr': 21.5347, 'fid_clip_img': 0.9547, 'fid_nima': 4.5227, 'fid_cnniqa': 0.4344, 'edit_lpips': 0.1492, 'edit_clip_orig': 0.237, 'edit_clip_def': 0.2342, 'edit_clip_drop': 0.0028, 'edit_siglip_orig': 0.0488, 'edit_siglip_def': 0.0604, 'edit_siglip_drop': -0.0116}
+=== woman_00 / mist ===
+  [mist] step    0  L=2.925392e+04  Linf01=0.0627  L2=61.578
+  [mist] step   20  L=1.322652e+04  Linf01=0.0627  L2=68.410
+  [mist] step   40  L=1.133441e+04  Linf01=0.0627  L2=74.389
+  [mist] step   60  L=5.448116e+03  Linf01=0.0627  L2=77.500
+  [mist] step   80  L=1.269627e+04  Linf01=0.0627  L2=79.770
+  [mist] step   99  L=1.124758e+04  Linf01=0.0627  L2=80.990
+{'image': 'woman_00', 'condition': 'mist', 'stage1_seconds': 0.0, 'total_seconds': 84.8, 'fid_lpips': 0.5806, 'fid_ssim': 0.7817, 'fid_dists': 0.1395, 'fid_psnr': 26.8085, 'fid_clip_img': 0.8986, 'fid_nima': 4.2322, 'fid_cnniqa': 0.5554, 'edit_lpips': 0.6867, 'edit_clip_orig': 0.237, 'edit_clip_def': 0.2357, 'edit_clip_drop': 0.0013, 'edit_siglip_orig': 0.0488, 'edit_siglip_def': 0.064, 'edit_siglip_drop': -0.0151}
+=== woman_00 / dia_r ===
+  [dia_r] step    0  L=1.465517e+02  Linf01=0.0020  L2=3.467
+  [dia_r] step   19  L=5.468487e+02  Linf01=0.0250  L2=18.985
+{'image': 'woman_00', 'condition': 'dia_r', 'stage1_seconds': 0.0, 'total_seconds': 149.9, 'fid_lpips': 0.2578, 'fid_ssim': 0.9815, 'fid_dists': 0.0455, 'fid_psnr': 39.4086, 'fid_clip_img': 0.9909, 'fid_nima': 4.8474, 'fid_cnniqa': 0.5036, 'edit_lpips': 0.3336, 'edit_clip_orig': 0.237, 'edit_clip_def': 0.2411, 'edit_clip_drop': -0.0042, 'edit_siglip_orig': 0.0488, 'edit_siglip_def': 0.0432, 'edit_siglip_drop': 0.0057}
+
+########## woman_01 (woman) ##########
+=== woman_01 / apa_weak ===
+  [align_apa_native] step    0  loss=0.0339
+  [align_apa_native] step   20  loss=0.3396
+  [align_apa_native] step   40  loss=0.0967
+  [align_apa_native] step   60  loss=0.0146
+  [align_apa_native] step   80  loss=0.0087
+  [align_apa_native] step  100  loss=0.0080
+  [align_apa_native] step  120  loss=0.0112
+  [align_apa_native] step  140  loss=0.0069
+  [align_apa_native] step  160  loss=0.0198
+  [align_apa_native] step  180  loss=0.0195
+  [align_apa_native] step  199  loss=0.0215
+  [attack_native] iter   0  reward=-1.2519  R=-1.0000  fid_pen=0.2519  linf=0.040
+  [attack_native] iter   2  reward=-1.1954  R=-1.0178  fid_pen=0.1776  linf=0.120
+  [attack_native] iter   4  reward=-1.1931  R=-1.0165  fid_pen=0.1766  linf=0.200
+  [attack_native] iter   6  reward=-1.1839  R=-0.9891  fid_pen=0.1948  linf=0.280
+  [attack_native] iter   8  reward=-1.1755  R=-0.9667  fid_pen=0.2088  linf=0.360
+  [attack_native] iter   9  reward=-1.1751  R=-0.9664  fid_pen=0.2087  linf=0.400
+{'image': 'woman_01', 'condition': 'apa_weak', 'stage1_seconds': 46.8, 'total_seconds': 129.9, 'fid_lpips': 0.1263, 'fid_ssim': 0.9435, 'fid_dists': 0.0587, 'fid_psnr': 23.7421, 'fid_clip_img': 0.9763, 'fid_nima': 3.634, 'fid_cnniqa': 0.3217, 'edit_lpips': 0.1654, 'edit_clip_orig': 0.208, 'edit_clip_def': 0.2088, 'edit_clip_drop': -0.0008, 'edit_siglip_orig': 0.0388, 'edit_siglip_def': 0.0558, 'edit_siglip_drop': -0.0169}
+=== woman_01 / mist ===
+  [mist] step    0  L=4.752312e+04  Linf01=0.0627  L2=63.663
+  [mist] step   20  L=2.194248e+04  Linf01=0.0627  L2=69.368
+  [mist] step   40  L=1.968847e+04  Linf01=0.0627  L2=75.814
+  [mist] step   60  L=1.406573e+04  Linf01=0.0627  L2=79.759
+  [mist] step   80  L=2.034525e+04  Linf01=0.0627  L2=82.553
+  [mist] step   99  L=1.900074e+04  Linf01=0.0627  L2=84.042
+{'image': 'woman_01', 'condition': 'mist', 'stage1_seconds': 0.0, 'total_seconds': 85.0, 'fid_lpips': 0.6868, 'fid_ssim': 0.7412, 'fid_dists': 0.1813, 'fid_psnr': 26.4873, 'fid_clip_img': 0.8756, 'fid_nima': 4.1182, 'fid_cnniqa': 0.4534, 'edit_lpips': 0.6442, 'edit_clip_orig': 0.208, 'edit_clip_def': 0.2271, 'edit_clip_drop': -0.0191, 'edit_siglip_orig': 0.0388, 'edit_siglip_def': 0.0519, 'edit_siglip_drop': -0.0131}
+=== woman_01 / dia_r ===
+  [dia_r] step    0  L=1.033557e+02  Linf01=0.0020  L2=3.476
+  [dia_r] step   19  L=7.196125e+02  Linf01=0.0250  L2=17.989
+{'image': 'woman_01', 'condition': 'dia_r', 'stage1_seconds': 0.0, 'total_seconds': 149.5, 'fid_lpips': 0.4218, 'fid_ssim': 0.9791, 'fid_dists': 0.0526, 'fid_psnr': 39.8769, 'fid_clip_img': 0.9739, 'fid_nima': 3.7616, 'fid_cnniqa': 0.3495, 'edit_lpips': 0.4626, 'edit_clip_orig': 0.208, 'edit_clip_def': 0.2105, 'edit_clip_drop': -0.0024, 'edit_siglip_orig': 0.0388, 'edit_siglip_def': 0.0421, 'edit_siglip_drop': -0.0033}
+
+表：runs/ext24/g6/results.csv

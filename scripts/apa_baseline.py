@@ -54,7 +54,10 @@ TARGET_IMAGE = "data/targets/gray.png"
 
 # 評測設定。strength 0.55 由 DEC-022 定出——0.4 下有影像的未防禦編輯
 # 根本沒發生，分母不成立。換資料集時**必須重新確認未防禦的編輯有成功**。
-EDIT_STRENGTH = 0.55
+# 2026-08-17：0.55 下九張影像沒有一張服從 prompt（`runs/editsweep`），
+# 使用者的驗收條件是「一切實驗都必須在編輯成功的前提下」，故升到 0.8。
+# 人物另加頭部遮罩，否則 0.8 會把臉整個換掉。
+EDIT_STRENGTH = 0.8
 EDIT_GUIDANCE = 7.5
 EDIT_STEPS = 30
 EDIT_SEED = 20260812
@@ -77,11 +80,16 @@ def load_dataset(root: Path = None, prompt_index: int = 0) -> list:
     """
     if root is not None:
         spec = yaml.safe_load((root / "prompts.yaml").read_text(encoding="utf-8"))
-        return [{"name": img.stem, "class": spec[c]["content"], "path": img,
-                 "content": spec[c]["content"],
-                 "prompt": spec[c]["prompts"][prompt_index],
-                 "prompt_index": prompt_index}
-                for c in sorted(spec) for img in sorted((root / c).glob("*.png"))]
+        out = []
+        for c in sorted(spec):
+            for img in sorted((root / c).glob("*.png")):
+                hm = root / "headmasks" / f"{img.stem}.png"
+                out.append({"name": img.stem, "class": spec[c]["content"],
+                            "path": img, "content": spec[c]["content"],
+                            "prompt": spec[c]["prompts"][prompt_index],
+                            "prompt_index": prompt_index,
+                            "head_mask": hm if hm.exists() else None})
+        return out
     prov = json.loads((DATA_DIR / "provenance.json").read_text(encoding="utf-8"))
     prompts = yaml.safe_load((DATA_DIR / "prompts.yaml").read_text(encoding="utf-8"))
     out = []
@@ -140,6 +148,21 @@ def run_additive(sd, item, name: str, seed: int) -> dict:
             "stage1_seconds": 0.0}
 
 
+def head_keep(item, x01):
+    """讀出該影像的頭部保留遮罩 (1,1,H,W)，沒有就回 None。
+
+    只有人物有遮罩，動物沒有——動物在 0.8 下換場景／戴帽都成功且主體還在，
+    不需要保留區。遮罩存的是灰階 PNG，羽化過的邊要原樣用，二值化會在
+    混合處留下接縫。
+    """
+    p = item.get("head_mask")
+    if p is None:
+        return None
+    from src.utils.io import load_image_tensor
+    m = load_image_tensor(p, x01.device, size=x01.shape[-1])
+    return m[:, :1]
+
+
 def evaluate(sd, suite, aes, item, x_def):
     x01 = item["path01"]
     m = suite.pairwise(x01, x_def)
@@ -150,12 +173,14 @@ def evaluate(sd, suite, aes, item, x_def):
 
     noise = sd.sample_edit_noise(sd.encode_image(x01), seed=EDIT_SEED)
     emb, emb_u = sd.encode_text(item["prompt"]), sd.uncond_prompt()
+    keep = head_keep(item, x01)
     with torch.no_grad():
         edit_orig = sd.sdedit(x01, emb, noise, EDIT_STEPS, strength=EDIT_STRENGTH,
-                              guidance_scale=EDIT_GUIDANCE, emb_uncond=emb_u)
+                              guidance_scale=EDIT_GUIDANCE, emb_uncond=emb_u,
+                              keep01=keep)
         edit_def = sd.sdedit(x_def.clamp(0, 1), emb, noise, EDIT_STEPS,
                              strength=EDIT_STRENGTH, guidance_scale=EDIT_GUIDANCE,
-                             emb_uncond=emb_u)
+                             emb_uncond=emb_u, keep01=keep)
     so = suite.semantic(edit_orig, item["prompt"])
     sd_ = suite.semantic(edit_def, item["prompt"])
     return ({**{f"fid_{k}": round(v, 4) for k, v in fid.items()},

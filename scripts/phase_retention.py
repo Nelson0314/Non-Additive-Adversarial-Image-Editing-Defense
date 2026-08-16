@@ -46,7 +46,7 @@ import torch  # noqa: E402
 
 from apa_baseline import (  # noqa: E402
     EDIT_GUIDANCE, EDIT_SEED, EDIT_STEPS, EDIT_STRENGTH, MODEL_NAME,
-    RESOLUTION, load_dataset,
+    RESOLUTION, head_keep, load_dataset,
 )
 from src.metrics.suite import MetricSuite  # noqa: E402
 from src.models.sd import SDWrapper  # noqa: E402
@@ -155,7 +155,7 @@ def main() -> None:
         with torch.no_grad():
             return sd.sdedit(x01.clamp(0, 1), emb, noise, EDIT_STEPS,
                              strength=EDIT_STRENGTH, guidance_scale=EDIT_GUIDANCE,
-                             emb_uncond=emb_u)
+                             emb_uncond=emb_u, keep01=head_keep(item, x01))
 
     rows = []
     for cell in cells:

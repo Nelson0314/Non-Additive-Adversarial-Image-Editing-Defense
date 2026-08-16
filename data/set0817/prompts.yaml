@@ -1,62 +1,73 @@
-# 2026-08-17 的新資料集。使用者於當日提供九張影像取代先前的素材，
-# 先前的實驗結果全數作廢，本組為新起點。
+# 2026-08-17 的新資料集。使用者當日提供九張影像，先前的實驗結果全數作廢。
 #
-# prompts[0] 人物換衣物、動物戴帽子；prompts[1] 兩者皆換場景。
-# 本輪只跑 prompts[0]（--prompt-index 0）。
+# prompts[0] 是本輪實際使用的那一句，逐張由編輯成功掃描（runs/editsweep）
+# 挑出來：SDEdit strength 0.8 / guidance 7.5 下人眼判定有服從 prompt 的那一句。
+# 使用者裁定「能成功的就用原本的」，故 cat 與 shiba 維持戴帽，其餘七張改用
+# 換場景——換衣物那組的顏色即使開到 0.9 也被忽略，鸚鵡與浣熊戴不上帽子。
+# prompts[1] 是被換掉的那一句，留著備查。
 #
-# content 是防禦方選擇要保護的詞（Lo et al. 的 c_a），也是 apa_weak
-# 階段一 LoRA 的 class 名稱，故取單純的類別名詞而非整句 prompt。
-
-obama:
-  content: "man"
-  prompts:
-    - "a man wearing a red hooded sweatshirt"
-    - "a man standing on a snowy street"
-
-lebron:
-  content: "man"
-  prompts:
-    - "a man wearing a yellow raincoat"
-    - "a man standing on a sunny beach"
-
-ronaldo:
-  content: "man"
-  prompts:
-    - "a man wearing a blue denim jacket"
-    - "a man standing in a green forest"
-
-musk:
-  content: "man"
-  prompts:
-    - "a man wearing a green turtleneck sweater"
-    - "a man standing in a busy city street at night"
-
-trump:
-  content: "man"
-  prompts:
-    - "a man wearing a brown leather jacket"
-    - "a man standing in a golden wheat field"
-
-parrot:
-  content: "parrot"
-  prompts:
-    - "a parrot wearing a tiny straw hat"
-    - "a parrot perched on a branch in a rainforest"
+# 人物另有 headmasks/<影像>.png：strength 0.8 會把臉整個換掉，未防禦的編輯
+# 連身分都不剩。遮罩讓頭部在編輯中被保留（latent 混合，非 inpainting）。
 
 cat:
   content: "cat"
+  # 戴帽（0.8 下成功）
   prompts:
     - "a cat wearing a red party hat"
     - "a cat sitting on a snowy roof"
 
-raccoon:
-  content: "raccoon"
-  prompts:
-    - "a raccoon wearing a blue baseball cap"
-    - "a raccoon standing on a city sidewalk at night"
-
 shiba:
   content: "dog"
+  # 戴帽（0.8 下成功）
   prompts:
     - "a dog wearing a yellow knitted hat"
     - "a dog running on a sandy beach"
+
+parrot:
+  content: "parrot"
+  # 換場景（戴帽 0.9 仍失敗）
+  prompts:
+    - "a parrot perched on a branch in a rainforest"
+    - "a parrot wearing a tiny straw hat"
+
+raccoon:
+  content: "raccoon"
+  # 換場景（戴帽 0.9 仍失敗）
+  prompts:
+    - "a raccoon standing on a city sidewalk at night"
+    - "a raccoon wearing a blue baseball cap"
+
+obama:
+  content: "man"
+  # 換場景（換衣物顏色被忽略）
+  prompts:
+    - "a man standing on a snowy street"
+    - "a man wearing a red hooded sweatshirt"
+
+lebron:
+  content: "man"
+  # 換場景（換衣物顏色被忽略）
+  prompts:
+    - "a man standing on a sunny beach"
+    - "a man wearing a yellow raincoat"
+
+ronaldo:
+  content: "man"
+  # 換場景（換衣物顏色被忽略）
+  prompts:
+    - "a man standing in a green forest"
+    - "a man wearing a blue denim jacket"
+
+musk:
+  content: "man"
+  # 換場景（換衣物顏色被忽略）
+  prompts:
+    - "a man standing in a busy city street at night"
+    - "a man wearing a green turtleneck sweater"
+
+trump:
+  content: "man"
+  # 換場景（換衣物顏色被忽略）
+  prompts:
+    - "a man standing in a golden wheat field"
+    - "a man wearing a brown leather jacket"

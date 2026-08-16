@@ -657,6 +657,7 @@ class SDWrapper:
         guidance_scale: float = 1.0,
         emb_uncond: Optional[torch.Tensor] = None,
         step_hook: Optional[Callable[[int, torch.Tensor, torch.Tensor], None]] = None,
+        keep01: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         """可微分 SDEdit。
 
@@ -677,13 +678,26 @@ class SDWrapper:
         它**不能**改變 `z`：回傳值被忽略，簽名上就不提供修改的途徑。
         需要改 ε 的是防禦端的 `eps_hook`，那是另一件事、在另一條路徑上。
 
+        `keep01` (1,1,H,W) 給定時，值為 1 的區域在每一步都被換回**原圖在該
+        時刻的帶噪 latent**，於是那塊區域不被編輯。這是 latent 混合，不是
+        inpainting——UNet 仍是 4 通道的 stock 權重，威脅模型仍是 img2img。
+        存在的理由：strength 0.8 下 SDEdit 會把人臉整個換掉，未防禦的編輯
+        連身分都不剩，「防禦保護了什麼」就無從談起（使用者 2026-08-17 裁定
+        人臉要遮罩）。遮罩要羽化，硬邊會在混合處留下接縫。
+
         回傳 (1,3,H,W) [0,1]，計算圖保留。
         """
         abar = self.alphas_cumprod(x01.device)
         t0 = min(int(self.num_train_timesteps * strength), self.num_train_timesteps - 1)
 
-        z = self.encode_image(x01, use_ckpt=vae_ckpt)
-        z = abar[t0].sqrt() * z + (1 - abar[t0]).sqrt() * noise
+        z_src = self.encode_image(x01, use_ckpt=vae_ckpt)
+        z = abar[t0].sqrt() * z_src + (1 - abar[t0]).sqrt() * noise
+
+        keep = None
+        if keep01 is not None:
+            keep = torch.nn.functional.interpolate(
+                keep01.to(device=z.device, dtype=z.dtype),
+                size=z.shape[-2:], mode="area")
 
         ts = torch.linspace(t0, 0, num_steps + 1).round().long()
         for i in range(num_steps):
@@ -698,6 +712,10 @@ class SDWrapper:
             if step_hook is not None:
                 step_hook(i, t, pred_x0)
             z = abar[t_prev].sqrt() * pred_x0 + (1 - abar[t_prev]).sqrt() * eps
+            if keep is not None:
+                z_keep = (abar[t_prev].sqrt() * z_src
+                          + (1 - abar[t_prev]).sqrt() * noise)
+                z = keep * z_keep + (1.0 - keep) * z
 
         return self.decode_latent(z, use_ckpt=vae_ckpt)
 

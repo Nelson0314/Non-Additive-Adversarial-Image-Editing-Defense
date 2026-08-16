@@ -66,7 +66,7 @@ PHASE_RADIUS_LO = 0.05
 
 
 def build(name: str, seed: int, block: int = 32, r_min: float = 0.12,
-          quantile: float = 0.5):
+          quantile: float = 0.5, gl_iters: int = 0):
     """`block`／`r_min`／`quantile` 是相位算子的三個構造設定。
 
     預設值是 2026-08-13 的定案（`docs/MAINLINE.md` §4）。開放成參數是為了掃描
@@ -77,10 +77,12 @@ def build(name: str, seed: int, block: int = 32, r_min: float = 0.12,
         return AdditiveParam(radius=ADD_RADIUS_HI), ADD_RADIUS_LO, ADD_RADIUS_HI
     if name == "phase":
         return (PhaseParam(size=RESOLUTION, block=block, r_min=r_min,
-                           energy_quantile=quantile), PHASE_RADIUS_LO, math.pi)
+                           energy_quantile=quantile, gl_iters=gl_iters),
+                PHASE_RADIUS_LO, math.pi)
     if name == "phase_rand":
         return (RandomPhaseParam(size=RESOLUTION, block=block, r_min=r_min,
-                                 energy_quantile=quantile), PHASE_RADIUS_LO, math.pi)
+                                 energy_quantile=quantile, gl_iters=gl_iters),
+                PHASE_RADIUS_LO, math.pi)
     raise ValueError(f"未知條件 {name}")
 
 
@@ -104,6 +106,10 @@ def main() -> None:
     ap.add_argument("--r-min", type=float, default=0.12, help="徑向頻率閘的下限")
     ap.add_argument("--quantile", type=float, default=0.5,
                     help="紋理閘的梯度能量參考分位數")
+    ap.add_argument("--gl-iters", type=int, default=0,
+                    help="Griffin-Lim 迭代投影的輪數。>0 時把 STFT 一致性投影"
+                         "誤差壓下去，用來判別效果來自相位重排還是新造的能量"
+                         "（FND-040／049）。0 = 關閉，與既有批次逐位相同")
     ap.add_argument("--phase-radius", type=float, default=None,
                     help="覆寫人眼門檻的相位半徑（只在 --human-threshold 下有效）")
     ap.add_argument("--tag-suffix", type=str, default="",
@@ -138,7 +144,8 @@ def main() -> None:
                 print(f"=== {item['name']} / {tag} ===", flush=True)
                 t0 = time.time()
                 param, lo, hi = build(cond, args.seed, block=args.block,
-                                      r_min=args.r_min, quantile=args.quantile)
+                                      r_min=args.r_min, quantile=args.quantile,
+                                      gl_iters=args.gl_iters)
                 if budget == "human":
                     r_human = HUMAN_RADIUS[cond]
                     if args.phase_radius is not None and cond in ("phase", "phase_rand"):

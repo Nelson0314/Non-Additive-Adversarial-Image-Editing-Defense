@@ -50,8 +50,11 @@ resampling（Ding et al. 2020），人眼判紋理亦靠統計量，而 VAE enco
 在造新能量而不是重排相位，那會讓它退化成被紋理遮蔽的加性高頻噪聲
 （規格 §6 風險一）。實測 0.0065–0.0653，且與效果正相關 r = +0.449（FND-040）。
 
-**要壓低它有現成的辦法**：Griffin-Lim 的迭代投影。跑幾輪之後 `amp_dev` 應該
-下降，此時效果掉多少就直接回答了「效果來自相位重排還是來自新造的能量」。
+**要壓低它有現成的辦法，已於 2026-08-17 實作**：`gl_iters > 0` 時，前向在
+標準輸出之後再跑 `gl_iters` 輪 Griffin-Lim 迭代投影——每輪重新分析、把幅度
+換回原圖的、再合成。`gl_iters = 0`（預設）時整段不執行，行為與加這個選項
+之前逐位相同。跑幾輪之後 `amp_dev` 應該下降，此時效果掉多少就直接回答了
+「效果來自相位重排還是來自新造的能量」（FND-040）。
 
 參考文獻
 ────────────────────────────────────────────────────────────────────
@@ -162,15 +165,25 @@ def block_mean(t: torch.Tensor, block: int, hop: int) -> torch.Tensor:
     return F.unfold(t, kernel_size=block, stride=hop).mean(dim=1)
 
 
-def rephase_blocks(blocks: torch.Tensor, shift: torch.Tensor) -> torch.Tensor:
-    """對區塊做相位旋轉。`blocks` (..., n, n)，`shift` 可廣播到 (..., n, n//2+1)。
+def rotate_spectrum(spec: torch.Tensor, shift: torch.Tensor) -> torch.Tensor:
+    """對頻譜乘上單位模的複數。`shift` 可廣播到 `spec` 的形狀。
 
-    乘上單位模的複數而非拆 `abs`／`angle`：`|X * e^{i*theta}| = |X|` 是代數
-    恆等式，且 `angle` 在原點的梯度未定義。
+    乘上 `exp(i*theta)` 而非拆 `abs`／`angle` 再重組：`|X * e^{i*theta}| = |X|`
+    是代數恆等式，且 `angle` 在原點的梯度未定義。
     """
-    spec = torch.fft.rfft2(blocks, norm="ortho")
-    rot = torch.complex(torch.cos(shift), torch.sin(shift))
-    return torch.fft.irfft2(spec * rot, s=blocks.shape[-2:], norm="ortho")
+    return spec * torch.complex(torch.cos(shift), torch.sin(shift))
+
+
+def replace_magnitude(spec: torch.Tensor, target_mag: torch.Tensor,
+                      eps: float = 1e-12) -> torch.Tensor:
+    """保留 `spec` 的相位、把幅度換成 `target_mag`。Griffin-Lim 迭代的投影步。
+
+    寫成 `target_mag * spec / |spec|` 而非 `target_mag * exp(i*angle(spec))`：
+    後者在 `|spec| = 0` 處梯度未定義。除法的 `clamp_min` 使該處的極限為 0，
+    即「原本是零的係數維持為零」——這是有定義的合理取值，不是為了掩蓋
+    例外而加的保護。
+    """
+    return target_mag.to(spec.dtype) * (spec / spec.abs().clamp_min(eps))
 
 
 class PhaseResidual(ResidualModule):
@@ -193,6 +206,7 @@ class PhaseResidual(ResidualModule):
         energy_quantile: float = 0.5,
         init_std: float = 0.0,
         seed: Optional[int] = None,
+        gl_iters: int = 0,
     ):
         super().__init__()
         if block % 2 != 0:
@@ -202,6 +216,8 @@ class PhaseResidual(ResidualModule):
             raise ValueError(f"hop ({hop}) 大於 block ({block}) 會留下未覆蓋的像素")
         if not (0.0 < theta_max <= math.pi):
             raise ValueError(f"theta_max 必須落在 (0, pi]，收到 {theta_max}")
+        if gl_iters < 0:
+            raise ValueError(f"gl_iters 不可為負，收到 {gl_iters}")
 
         self.size = size
         self.block = block
@@ -210,6 +226,7 @@ class PhaseResidual(ResidualModule):
         self.r_min = r_min
         self.theta_max = theta_max
         self.energy_quantile = energy_quantile
+        self.gl_iters = gl_iters
 
         padded = size + 2 * self.pad
         if (padded - block) % hop != 0:
@@ -283,28 +300,24 @@ class PhaseResidual(ResidualModule):
         )
         return out[..., self.pad:self.pad + self.size, self.pad:self.pad + self.size]
 
-    def pixel_residual(self, x01: torch.Tensor) -> Optional[torch.Tensor]:
-        if not self.enabled:
-            return x01
-        if not self._gates_ready:
-            raise RuntimeError(
-                "prepare_gates() 未呼叫。閘必須由原圖算出並固定，"
-                "延後到第一次前向會讓它跟著防禦圖漂移"
-            )
-        b, c, h, w = x01.shape
-        if h != self.size or w != self.size:
-            raise ValueError(f"影像尺寸 {h}x{w} 與建構時的 size={self.size} 不符")
-
-        xp = F.pad(x01, (self.pad,) * 4, mode="reflect")
+    def analyze(self, x: torch.Tensor) -> torch.Tensor:
+        """(B,C,H,W) → 加窗區塊頻譜 (B,C,L,block,block//2+1)。STFT 的分析側。"""
+        b, c = x.shape[0], x.shape[1]
+        xp = F.pad(x, (self.pad,) * 4, mode="reflect")
         blocks = F.unfold(xp, kernel_size=self.block, stride=self.hop)
         blocks = blocks.view(b, c, self.block, self.block, self.n_blocks)
         blocks = blocks.permute(0, 1, 4, 2, 3)                       # (B,C,L,n,n)
+        return torch.fft.rfft2(blocks * self.window, norm="ortho")
 
-        win = self.window
-        shift = torch.clamp(self.theta, -self.theta_max, self.theta_max)
-        shift = (shift * self.gate()).unsqueeze(1)                   # (1,1,L,n,nb)
+    def synthesize(self, spec: torch.Tensor) -> torch.Tensor:
+        """區塊頻譜 → (B,C,size,size)。Griffin & Lim (1984) 的最小平方重建。
 
-        out = rephase_blocks(blocks * win, shift) * win
+        與 `analyze` 是一對：`synthesize(analyze(x)) == x`（NOLA 下的恆等），
+        整個模組只有這一條合成路徑，故主前向與 Griffin-Lim 迭代不可能分岔。
+        """
+        b, c = spec.shape[0], spec.shape[1]
+        out = torch.fft.irfft2(
+            spec, s=(self.block, self.block), norm="ortho") * self.window
         out = out.permute(0, 1, 3, 4, 2).reshape(
             b, c * self.block * self.block, self.n_blocks
         )
@@ -316,8 +329,34 @@ class PhaseResidual(ResidualModule):
         )
         folded = folded[..., self.pad:self.pad + self.size,
                         self.pad:self.pad + self.size]
-        norm = self._fold_norm(b).clamp_min(1e-8)
-        return folded / norm
+        return folded / self._fold_norm(b).clamp_min(1e-8)
+
+    def pixel_residual(self, x01: torch.Tensor) -> Optional[torch.Tensor]:
+        if not self.enabled:
+            return x01
+        if not self._gates_ready:
+            raise RuntimeError(
+                "prepare_gates() 未呼叫。閘必須由原圖算出並固定，"
+                "延後到第一次前向會讓它跟著防禦圖漂移"
+            )
+        h, w = x01.shape[-2:]
+        if h != self.size or w != self.size:
+            raise ValueError(f"影像尺寸 {h}x{w} 與建構時的 size={self.size} 不符")
+
+        shift = torch.clamp(self.theta, -self.theta_max, self.theta_max)
+        shift = (shift * self.gate()).unsqueeze(1)                   # (1,1,L,n,nb)
+
+        spec = self.analyze(x01)
+        x_def = self.synthesize(rotate_spectrum(spec, shift))
+
+        # Griffin-Lim 的迭代投影：反覆把幅度換回原圖的，逼近「相位被轉過、
+        # 幅度未變」那個一般不存在的訊號。gl_iters = 0 時整段不執行，
+        # 行為與加這個選項之前逐位相同。
+        target_mag = spec.abs()
+        for _ in range(self.gl_iters):
+            x_def = self.synthesize(
+                replace_magnitude(self.analyze(x_def), target_mag))
+        return x_def
 
     # ---- 診斷 ----
 
@@ -325,16 +364,8 @@ class PhaseResidual(ResidualModule):
     def amplitude_deviation(self, x01: torch.Tensor) -> float:
         """整張圖層級的局部幅度譜相對偏差。構造上應接近 0（模組 docstring）。"""
         x_def = self.pixel_residual(x01)
-
-        def spec(t):
-            tp = F.pad(t, (self.pad,) * 4, mode="reflect")
-            bl = F.unfold(tp, kernel_size=self.block, stride=self.hop)
-            bl = bl.view(
-                t.shape[0], t.shape[1], self.block, self.block, self.n_blocks
-            ).permute(0, 1, 4, 2, 3)
-            return torch.fft.rfft2(bl * self.window, norm="ortho").abs()
-
-        a, b = spec(x01), spec(x_def)
+        a = self.analyze(x01).abs()
+        b = self.analyze(x_def).abs()
         return float((a - b).norm() / a.norm().clamp_min(1e-12))
 
     def linf(self) -> float:

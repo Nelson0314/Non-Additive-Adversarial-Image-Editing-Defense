@@ -14,7 +14,8 @@ from src.residual.texture_rephase import (
     PhaseResidual,
     hann2d,
     radial_gate,
-    rephase_blocks,
+    replace_magnitude,
+    rotate_spectrum,
     texture_gate,
 )
 
@@ -60,11 +61,12 @@ def test_single_block_preserves_amplitude_exactly():
     blk = torch.rand(1, 1, 1, 16, 16, generator=g, dtype=torch.float64)
     gate = radial_gate(16, 0.25, blk.device, blk.dtype)
     shift = torch.rand(1, 1, 1, 16, 9, generator=g, dtype=torch.float64) * 2 - 1
-    out = rephase_blocks(blk, shift * gate)
 
-    a = torch.fft.rfft2(blk, norm="ortho").abs()
-    b = torch.fft.rfft2(out, norm="ortho").abs()
-    assert torch.allclose(a, b, atol=1e-12), float((a - b).abs().max())
+    a = torch.fft.rfft2(blk, norm="ortho")
+    out = torch.fft.irfft2(rotate_spectrum(a, shift * gate), s=(16, 16), norm="ortho")
+    b = torch.fft.rfft2(out, norm="ortho")
+    assert torch.allclose(a.abs(), b.abs(), atol=1e-12), \
+        float((a.abs() - b.abs()).abs().max())
 
 
 def test_gradient_reaches_theta():
@@ -146,3 +148,84 @@ def test_forward_before_prepare_gates_raises():
     m = PhaseResidual(size=64, block=16).to(torch.float64)
     with pytest.raises(RuntimeError, match="prepare_gates"):
         m.pixel_residual(x)
+
+
+# ---- Griffin-Lim 迭代投影（2026-08-17 新增）----
+
+
+def test_analyze_synthesize_round_trip_is_identity():
+    """`synthesize(analyze(x)) == x`。這是 Griffin & Lim (1984) 重建式的內容，
+    也是 gl_iters 迴圈每一輪的基底——它若不成立，迭代會漂走而不是收斂。"""
+    x = _image()
+    m = PhaseResidual(size=64, block=16).to(torch.float64)
+    m.prepare_gates(x)
+    out = m.synthesize(m.analyze(x))
+    assert torch.allclose(out, x, atol=1e-12), float((out - x).abs().max())
+
+
+def test_zero_gl_iters_is_bitwise_unchanged():
+    """預設 gl_iters=0 必須與加這個選項之前逐位相同，否則既有的 runs/ 不可比。"""
+    x = _image()
+    kw = dict(size=64, block=16, init_std=0.7, seed=11)
+    a = PhaseResidual(**kw).to(torch.float64)
+    b = PhaseResidual(**kw, gl_iters=0).to(torch.float64)
+    a.prepare_gates(x)
+    b.prepare_gates(x)
+    assert torch.equal(a.pixel_residual(x), b.pixel_residual(x))
+
+
+def test_gl_iters_reduce_amplitude_deviation():
+    """迭代投影的存在理由：把 STFT 一致性投影誤差壓下去。"""
+    x = _image()
+    kw = dict(size=64, block=16, init_std=1.0, seed=7)
+    base = PhaseResidual(**kw).to(torch.float64)
+    base.prepare_gates(x)
+    d0 = base.amplitude_deviation(x)
+
+    prev = d0
+    for n in (1, 3, 8):
+        m = PhaseResidual(**kw, gl_iters=n).to(torch.float64)
+        m.prepare_gates(x)
+        d = m.amplitude_deviation(x)
+        assert d < prev, f"gl_iters={n} 沒有降低偏差：{d} 不小於 {prev}"
+        prev = d
+    assert prev < 0.5 * d0, f"八輪只從 {d0} 降到 {prev}"
+
+
+def test_gl_iters_preserve_identity_at_theta_zero():
+    """theta=0 時任何輪數的迭代都不該動到影像——幅度本來就已經是原圖的。"""
+    x = _image()
+    for n in (0, 1, 5):
+        m = PhaseResidual(size=64, block=16, gl_iters=n).to(torch.float64)
+        m.prepare_gates(x)
+        out = m.pixel_residual(x)
+        assert torch.allclose(out, x, atol=1e-12), (n, float((out - x).abs().max()))
+
+
+def test_gradient_reaches_theta_through_gl_iters():
+    """迭代投影必須可微，否則這條臂無法用同一個 PGD 迴圈跑。"""
+    x = _image()
+    m = PhaseResidual(size=64, block=16, init_std=0.3, seed=2,
+                      gl_iters=3).to(torch.float64)
+    m.prepare_gates(x)
+    m.pixel_residual(x).pow(2).sum().backward()
+    assert m.theta.grad is not None
+    assert torch.isfinite(m.theta.grad).all()
+    assert float(m.theta.grad.abs().max()) > 0.0
+
+
+def test_replace_magnitude_keeps_phase_and_sets_magnitude():
+    g = torch.Generator().manual_seed(13)
+    spec = torch.complex(torch.randn(4, 5, generator=g, dtype=torch.float64),
+                         torch.randn(4, 5, generator=g, dtype=torch.float64))
+    target = torch.rand(4, 5, generator=g, dtype=torch.float64) + 0.5
+    out = replace_magnitude(spec, target)
+    assert torch.allclose(out.abs(), target, atol=1e-12)
+    assert torch.allclose(torch.angle(out), torch.angle(spec), atol=1e-12)
+
+
+def test_replace_magnitude_maps_zero_coefficients_to_zero():
+    """|spec| = 0 處取極限 0，而不是隨便給一個單位向量。"""
+    spec = torch.zeros(2, 3, dtype=torch.complex128)
+    out = replace_magnitude(spec, torch.ones(2, 3, dtype=torch.float64))
+    assert torch.equal(out, torch.zeros_like(out))

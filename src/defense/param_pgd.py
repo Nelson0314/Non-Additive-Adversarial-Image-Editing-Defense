@@ -90,23 +90,29 @@ class PhaseParam:
     構造上的天花板**，與加性的 ε 可以無限放大不同。天花板在哪由 `r_min`
     決定（實測：r_min=0.25 對應 DISTS 約 0.055，0.12 對應約 0.10）。
     達不到的預算點要標為 unreachable，不是 failed（與 FND-001 同型）。
+
+    `gl_iters > 0` 時每次 render 多跑幾輪 Griffin-Lim 迭代投影，把 STFT
+    一致性投影誤差壓下去。這是 FND-040 的判別實驗：效果若隨 `amp_dev` 一起
+    塌掉，代表它來自新造的能量而非相位重排。
     """
 
     name = "phase"
 
     def __init__(self, size: int = 512, block: int = 32, r_min: float = 0.12,
                  radius: float = math.pi, energy_quantile: float = 0.5,
-                 keep: Optional[torch.Tensor] = None):
+                 keep: Optional[torch.Tensor] = None, gl_iters: int = 0):
         self.size, self.block, self.r_min = size, block, r_min
         self.energy_quantile = energy_quantile
         self.radius = min(radius, math.pi)
         self.keep = keep
+        self.gl_iters = gl_iters
         self.module: Optional[PhaseResidual] = None
 
     def reset(self, x01: torch.Tensor, seed: int) -> None:
         self.module = PhaseResidual(
             size=self.size, block=self.block, r_min=self.r_min,
             theta_max=self.radius, energy_quantile=self.energy_quantile,
+            gl_iters=self.gl_iters,
         ).to(device=x01.device, dtype=x01.dtype)
         self.module.prepare_gates(x01, keep=self.keep)
 

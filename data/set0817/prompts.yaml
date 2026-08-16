@@ -1,0 +1,62 @@
+# 2026-08-17 的新資料集。使用者於當日提供九張影像取代先前的素材，
+# 先前的實驗結果全數作廢，本組為新起點。
+#
+# prompts[0] 人物換衣物、動物戴帽子；prompts[1] 兩者皆換場景。
+# 本輪只跑 prompts[0]（--prompt-index 0）。
+#
+# content 是防禦方選擇要保護的詞（Lo et al. 的 c_a），也是 apa_weak
+# 階段一 LoRA 的 class 名稱，故取單純的類別名詞而非整句 prompt。
+
+obama:
+  content: "man"
+  prompts:
+    - "a man wearing a red hooded sweatshirt"
+    - "a man standing on a snowy street"
+
+lebron:
+  content: "man"
+  prompts:
+    - "a man wearing a yellow raincoat"
+    - "a man standing on a sunny beach"
+
+ronaldo:
+  content: "man"
+  prompts:
+    - "a man wearing a blue denim jacket"
+    - "a man standing in a green forest"
+
+musk:
+  content: "man"
+  prompts:
+    - "a man wearing a green turtleneck sweater"
+    - "a man standing in a busy city street at night"
+
+trump:
+  content: "man"
+  prompts:
+    - "a man wearing a brown leather jacket"
+    - "a man standing in a golden wheat field"
+
+parrot:
+  content: "parrot"
+  prompts:
+    - "a parrot wearing a tiny straw hat"
+    - "a parrot perched on a branch in a rainforest"
+
+cat:
+  content: "cat"
+  prompts:
+    - "a cat wearing a red party hat"
+    - "a cat sitting on a snowy roof"
+
+raccoon:
+  content: "raccoon"
+  prompts:
+    - "a raccoon wearing a blue baseball cap"
+    - "a raccoon standing on a city sidewalk at night"
+
+shiba:
+  content: "dog"
+  prompts:
+    - "a dog wearing a yellow knitted hat"
+    - "a dog running on a sandy beach"

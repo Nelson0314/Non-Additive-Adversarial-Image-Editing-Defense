@@ -113,19 +113,33 @@ def img_tag(path: Optional[Path], side: int = 300, quality: int = 80,
 
 
 def grid(images: Sequence[str], cols: Sequence[tuple], side: int = 300,
-         zoom: Optional[int] = None, note: str = "") -> str:
-    """cols 是 (欄標題, suffix 或 None 代表原圖) 的序列。"""
+         zoom: Optional[int] = None, note: str = "",
+         prompts: Optional[Dict[str, str]] = None) -> str:
+    """cols 是 (欄標題, suffix 或 None 代表原圖) 的序列。
+
+    `table-layout: fixed` ＋ `<colgroup>`：影像欄一律等寬。auto 版面會依內容
+    決定欄寬，同一張 512² 的圖在不同欄位算出不同的偏好寬度，看起來就是某一欄
+    的圖特別大——那是版面的假象，不是影像真的比較大。
+
+    `prompts` 給定時，列標題附上該影像的編輯 prompt：對比圖要能單獨讀懂，
+    不能逼讀者回去查哪一張配哪一句。
+    """
     head = "".join(f"<th>{c[0]}</th>" for c in cols)
+    colgroup = ('<colgroup><col class="rowcol">'
+                + f'<col span="{len(cols)}" class="imgcol">' + "</colgroup>")
     rows = []
     for im in images:
         cells = []
         for _, suf in cols:
             p = find_png(im, "orig" if suf is None else suf)
             cells.append(f"<td>{img_tag(p, side=side, zoom=zoom)}</td>")
-        rows.append(f'<tr><th class="rowh">{im}</th>{"".join(cells)}</tr>')
+        pr = ""
+        if prompts and im in prompts:
+            pr = f'<span class="pr">{prompts[im]}</span>'
+        rows.append(f'<tr><th class="rowh">{im}{pr}</th>{"".join(cells)}</tr>')
     n = f'<p class="small">{note}</p>' if note else ""
-    return (f'{n}<div class="tw"><table class="imgs"><tr><th></th>{head}</tr>'
-            f'{"".join(rows)}</table></div>')
+    return (f'{n}<div class="tw"><table class="imgs">{colgroup}'
+            f'<tr><th></th>{head}</tr>{"".join(rows)}</table></div>')
 
 
 def table(headers: Sequence[str], rows: Sequence[Sequence[str]],
@@ -138,6 +152,19 @@ def table(headers: Sequence[str], rows: Sequence[Sequence[str]],
             f'<td{" class=n" if i >= right_from else ""}>{x}</td>'
             for i, x in enumerate(r)) + "</tr>")
     return f'<div class="tw"><table><tr>{h}</tr>{"".join(body)}</table></div>'
+
+
+def prompt_map(index: int = 0,
+               root: Path = Path("data/lo_aligned")) -> Dict[str, str]:
+    """影像名 → 該影像的編輯 prompt。與 `apa_baseline.load_dataset` 同一條規則：
+    影像名是 `<類別>_<編號>`，prompt 取 `prompts.yaml` 該類別的第 index 句。"""
+    import yaml
+    spec = yaml.safe_load((root / "prompts.yaml").read_text(encoding="utf-8"))
+    out: Dict[str, str] = {}
+    for cls in spec:
+        for img in sorted((root / cls).glob("*.png")):
+            out[img.stem] = spec[cls]["prompts"][index]
+    return out
 
 
 def pending(title: str, what: str) -> str:
@@ -178,6 +205,12 @@ def build(out: Path) -> str:
            "b4": by_image(rd("runs/gl/b4/results.csv"))}
 
     SHOW = ["man_00", "woman_01", "horse_01", "cat_00", "dog_01", "bird_03"]
+    # 每張影像的編輯 prompt。對比圖要能單獨讀懂，故列標題一併帶上。
+    # 取自 `data/lo_aligned/prompts.yaml` 而不是 CSV：`runs/phaseA_human` 是
+    # `--prompt-index` 加進去之前跑的，那份 CSV 沒有 prompt 欄。
+    PRAW, PRAW1 = prompt_map(0), prompt_map(1)
+    PR = {i: f"「{v}」" for i, v in PRAW.items()}
+    PR1 = {i: f"「{v}」" for i, v in PRAW1.items()}
 
     # ================================================== 0 摘要
     A('<nav class="toc"><strong>目次</strong>'
@@ -250,35 +283,42 @@ def build(out: Path) -> str:
       f'<code>photoguard_c</code> 每張約 1.9 小時，補這一格要單獨排一次。</p></div>')
 
     A("<h3>1.1 防禦圖：五個方法在各自的原生預算下長什麼樣</h3>")
-    pg_imgs = [i for i in SHOW if find_png(i, "photoguard_c__def")]
-    A(grid(pg_imgs or SHOW,
+    A('<p class="small">列標題的引號內是<strong>攻擊方的編輯 prompt</strong>'
+      '（<code>data/lo_aligned/prompts.yaml</code> 的第 0 句，「改掉指定內容」）。'
+      '防禦本身沒有看過它——損失是 encoder-targeted。</p>')
+    A(grid(SHOW,
            [("原圖", None), ("紋理重相位", "phase__human__def"),
             ("加性 δ", "add__human__def"), ("PhotoGuard-c", "photoguard_c__def"),
             ("Mist", "mist__def"), ("DIA-R", "dia_r__def"),
             ("APA 弱", "apa_weak__def")],
-           side=260,
+           side=260, prompts=PR,
            note="判準以人眼為主。Mist 與 APA 弱 baseline 的失真明顯較大，"
-                "數值上 DISTS 分別是相位的 3.2 倍與 3.6 倍。"))
+                "數值上 DISTS 分別是相位的 3.2 倍與 3.6 倍。"
+                "<code>bird_03</code> 的 PhotoGuard-c 標成缺圖："
+                "那一格連同 <code>bird_02</code> 都在 <code>ext24/g8</code> 裡，"
+                "機器重開時遺失，不是漏放。"))
 
     A("<h3>1.2 同一批防禦圖的中央 128 px 放大（僅供看紋理，不是觀看尺度）</h3>")
-    A(grid(pg_imgs[:3] or SHOW[:3],
+    A(grid(SHOW[:3],
            [("原圖", None), ("紋理重相位", "phase__human__def"),
             ("加性 δ", "add__human__def"), ("PhotoGuard-c", "photoguard_c__def"),
             ("Mist", "mist__def"), ("DIA-R", "dia_r__def")],
-           side=260, zoom=128,
+           side=260, zoom=128, prompts=PR,
            note="FND 已記載：3× 放大不是觀看尺度，曾據此誤判相位的失真較大。"
                 "這一列只用來看擾動落在哪裡，不用來裁定可接受與否。"))
 
     A("<h3>1.3 編輯結果：未防禦 vs 各方法</h3>")
-    A(grid(pg_imgs or SHOW,
-           [("未防禦的編輯", "phase__human__edit_orig"),
+    A(grid(SHOW,
+           [("原圖（未編輯）", None),
+            ("未防禦的編輯", "phase__human__edit_orig"),
             ("紋理重相位", "phase__human__edit_def"),
             ("加性 δ", "add__human__edit_def"),
             ("PhotoGuard-c", "photoguard_c__edit_def"),
             ("Mist", "mist__edit_def"), ("DIA-R", "dia_r__edit_def"),
             ("APA 弱", "apa_weak__edit_def")],
-           side=260,
-           note="效果的定義是 LPIPS(未防禦的編輯, 防禦後的編輯)，即第一欄與其餘欄的距離。"))
+           side=260, prompts=PR,
+           note="效果的定義是 LPIPS(未防禦的編輯, 防禦後的編輯)，即第二欄與其後各欄的距離。"
+                "第一欄是未經編輯的原圖，用來看編輯本身做了什麼。"))
 
     # ================================================== 2 操作點
     A('<h2 id="s2">2　三個操作點：需要人眼裁定</h2>')
@@ -307,17 +347,20 @@ def build(out: Path) -> str:
     A("<h3>2.1 三個操作點的防禦圖</h3>")
     A(grid(SHOW, [("原圖", None), ("定案 r0.12/θ1.30", "phase__human__def"),
                   ("r0.25/θ2.6", "phase__human__def@alt_r025"),
-                  ("r0.40/θπ", "phase__human__def@alt_r040")], side=300))
+                  ("r0.40/θπ", "phase__human__def@alt_r040")],
+           side=300, prompts=PR))
     A("<h3>2.2 中央 128 px 放大</h3>")
     A(grid(SHOW[:4], [("原圖", None), ("定案", "phase__human__def"),
                       ("r0.25/θ2.6", "phase__human__def@alt_r025"),
                       ("r0.40/θπ", "phase__human__def@alt_r040")],
-           side=300, zoom=128))
+           side=300, zoom=128, prompts=PR))
     A("<h3>2.3 三個操作點的編輯結果</h3>")
-    A(grid(SHOW, [("未防禦", "phase__human__edit_orig"),
+    A(grid(SHOW, [("原圖（未編輯）", None),
+                  ("未防禦的編輯", "phase__human__edit_orig"),
                   ("定案", "phase__human__edit_def"),
                   ("r0.25/θ2.6", "phase__human__edit_def@alt_r025"),
-                  ("r0.40/θπ", "phase__human__edit_def@alt_r040")], side=300))
+                  ("r0.40/θπ", "phase__human__edit_def@alt_r040")],
+           side=280, prompts=PR))
 
     # ================================================== 3 Griffin-Lim
     A('<h2 id="s3">3　Griffin-Lim 迭代投影：FND-040 的判別實驗</h2>')
@@ -367,18 +410,22 @@ def build(out: Path) -> str:
                   ("gl_iters 1", "phase__human__gl1__def"),
                   ("gl_iters 4", "phase__human__gl4__def"),
                   ("gl_iters 16", "phase__human__gl16__def")], side=280,
+           prompts=PR,
            note="θ 固定為 1.30。迭代輪數越多，擾動越小——這正是上表所說的混淆。"))
     A("<h3>3.3 中央 128 px 放大</h3>")
     A(grid(SHOW[:4], [("原圖", None), ("gl 0", "phase__human__def"),
                       ("gl 1", "phase__human__gl1__def"),
                       ("gl 4", "phase__human__gl4__def"),
-                      ("gl 16", "phase__human__gl16__def")], side=280, zoom=128))
+                      ("gl 16", "phase__human__gl16__def")],
+           side=280, zoom=128, prompts=PR))
     A("<h3>3.4 固定 θ 各臂的編輯結果</h3>")
-    A(grid(SHOW, [("未防禦", "phase__human__edit_orig"),
+    A(grid(SHOW, [("原圖（未編輯）", None),
+                  ("未防禦的編輯", "phase__human__edit_orig"),
                   ("gl 0", "phase__human__edit_def"),
                   ("gl 1", "phase__human__gl1__edit_def"),
                   ("gl 4", "phase__human__gl4__edit_def"),
-                  ("gl 16", "phase__human__gl16__edit_def")], side=280))
+                  ("gl 16", "phase__human__gl16__edit_def")],
+           side=260, prompts=PR))
 
     # ---- 預算對齊 ----
     A("<h3>3.5 預算對齊：逐圖把 θ 調到 DISTS 0.0434</h3>")
@@ -448,7 +495,8 @@ def build(out: Path) -> str:
                       ("gl4 @ 同目標", "phase__d0.0434__gl4__def"),
                       ("未防禦的編輯", "phase__d0.0434__edit_orig"),
                       ("gl0 的編輯", "phase__d0.0434__edit_def"),
-                      ("gl4 的編輯", "phase__d0.0434__gl4__edit_def")], side=250))
+                      ("gl4 的編輯", "phase__d0.0434__gl4__edit_def")],
+               side=250, prompts=PR))
 
     # ---- 判定 ----
     A("<h3>3.6 對 FND-040 的裁定</h3>")
@@ -545,11 +593,14 @@ def build(out: Path) -> str:
           f"對隨機相位 <strong>{r_r:.3f}</strong>、逐圖 {w_r}/{n_r}。"
           f"防禦本身沒有看過文字（損失是 encoder-targeted），"
           f"這一組測的是同一份防禦在另一種攻擊意圖下撐不撐得住。</p>")
-        A(grid(SHOW, [("原圖", None),
+        both = {i: (f"prompt 0：「{PRAW.get(i, '')}」<br>"
+                    f"prompt 1：「{PRAW1.get(i, '')}」") for i in SHOW}
+        A(grid(SHOW, [("原圖（未編輯）", None),
                       ("prompt 0 的編輯（未防禦）", "phase__human__edit_orig"),
                       ("prompt 0 防禦後", "phase__human__edit_def"),
                       ("prompt 1 的編輯（未防禦）", "phase__human__edit_orig@pidx1"),
-                      ("prompt 1 防禦後", "phase__human__edit_def@pidx1")], side=260))
+                      ("prompt 1 防禦後", "phase__human__edit_def@pidx1")],
+               side=260, prompts=both))
 
     # ================================================== 6 下一步
     A('<h2 id="s6">6　下一步</h2>')
@@ -599,11 +650,16 @@ table{border-collapse:collapse;font-size:14px;width:100%}
 th,td{border:1px solid var(--line);padding:6px 10px;text-align:left;vertical-align:top}
 th{background:var(--code);font-weight:600}
 td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+table.imgs{table-layout:fixed}
 table.imgs td,table.imgs th{padding:3px;text-align:center;vertical-align:middle}
 table.imgs th{font-size:12.5px;font-weight:600;line-height:1.35}
-table.imgs th.rowh{font-size:12px;color:var(--mut);white-space:nowrap;
-writing-mode:horizontal-tb;padding:3px 8px}
-table.imgs img{display:block;width:100%;height:auto;border-radius:3px}
+col.rowcol{width:158px}
+table.imgs th.rowh{font-size:12px;color:var(--mut);text-align:left;
+padding:3px 8px;font-weight:600}
+table.imgs th.rowh .pr{display:block;font-weight:400;font-size:11.5px;
+color:var(--mut);line-height:1.4;margin-top:2px;font-style:italic}
+table.imgs img{display:block;width:100%;aspect-ratio:1;object-fit:cover;
+border-radius:3px}
 .miss{aspect-ratio:1;display:grid;place-items:center;color:var(--mut);
 font-size:12px;background:var(--code);border-radius:3px}
 .box{border:1px solid var(--line);border-left:4px solid var(--acc);

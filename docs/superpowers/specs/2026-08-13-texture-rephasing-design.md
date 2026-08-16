@@ -108,7 +108,7 @@ baseline 的 targeted 形式同源。
 
 | 檔 | 狀態 | 內容 |
 |---|---|---|
-| `src/residual/texture_rephase.py` | 新增 | 算子本體，`site = "F"`（E／L／S／W 已佔用） |
+| `src/residual/texture_rephase.py` | 新增 | 算子本體，`name = "texture_rephase"` |
 | `src/baselines/encoder_target.py` | 新增 | 像素臂共用的 encoder-targeted 損失與 spec |
 | `scripts/phase_ablation.py` | 新增 | 像素臂驅動 |
 | `src/defense/apa_native_stage2.py` | 修改 | latent 臂：新增 latent 相位參數化分支 |

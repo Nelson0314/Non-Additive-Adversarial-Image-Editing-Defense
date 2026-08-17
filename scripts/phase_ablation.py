@@ -36,6 +36,9 @@ import torch  # noqa: E402
 from apa_baseline import (  # noqa: E402
     MODEL_NAME, RESOLUTION, TARGET_IMAGE, evaluate, load_dataset,
 )
+from src.baselines.alt_losses import (  # noqa: E402
+    make_clip_untargeted_loss, make_latent_untargeted_loss,
+)
 from src.baselines.encoder_target import make_encoder_target_loss  # noqa: E402
 from src.defense.param_pgd import (  # noqa: E402
     AdditiveParam, PhaseParam, RandomPhaseParam, fit_to_budget, run_param_pgd,
@@ -97,6 +100,11 @@ def main() -> None:
     ap.add_argument("--human-threshold", action="store_true",
                     help="不做預算對齊，直接用 HUMAN_RADIUS 的人眼門檻半徑")
     ap.add_argument("--target", type=Path, default=Path(TARGET_IMAGE))
+    ap.add_argument("--loss", choices=("encoder_target", "latent", "clip"),
+                    default="encoder_target",
+                    help="PGD 的損失。encoder_target 是主線（推向灰圖的 latent）；"
+                         "latent 與 clip 都是 untargeted，推離原圖自己。"
+                         "三者共用同一個迴圈、步數與種子，唯一變因是損失")
     ap.add_argument("--steps", type=int, default=100)
     ap.add_argument("--rounds", type=int, default=8)
     ap.add_argument("--seed", type=int, default=0)
@@ -124,7 +132,19 @@ def main() -> None:
     suite = MetricSuite(device=sd.device)
     aes = AestheticSuite(device=sd.device)
     y_target = load_image_tensor(args.target, sd.device, size=RESOLUTION)
-    loss_fn = make_encoder_target_loss(sd, y_target)
+
+    def make_loss(x01):
+        """依 --loss 建損失。
+
+        `encoder_target` 與影像無關（目標是固定的灰圖），另外兩個 untargeted
+        的要以**該張原圖**為參考，故一律做成逐圖建立。CLIP 那條每次會重新
+        載入視覺塔，成本在一張圖的總時間裡可以忽略。
+        """
+        if args.loss == "encoder_target":
+            return make_encoder_target_loss(sd, y_target)
+        if args.loss == "latent":
+            return make_latent_untargeted_loss(sd, x01)
+        return make_clip_untargeted_loss(sd.device, x01)
 
     def dists_of(a, b):
         return float(suite.pairwise(a.clamp(0, 1), b)["dists"])
@@ -137,7 +157,9 @@ def main() -> None:
     for item in dataset:
         item["path01"] = load_image_tensor(item["path"], sd.device, size=RESOLUTION)
         save_image(item["path01"], args.out / f"{item['name']}__orig.png")
-        print(f"\n########## {item['name']} ({item['class']}) ##########", flush=True)
+        print(f"\n########## {item['name']} ({item['class']}) "
+              f"[loss={args.loss}] ##########", flush=True)
+        loss_fn = make_loss(item["path01"])
 
         budgets = ["human"] if args.human_threshold else args.budgets
         for budget in budgets:
@@ -178,6 +200,7 @@ def main() -> None:
                     "prompt_index": args.prompt_index, "prompt": item["prompt"],
                     "block": args.block, "r_min": args.r_min,
                     "quantile": args.quantile, "target_image": str(args.target),
+                    "loss": args.loss,
                     "budget_target": budget,
                     "budget_mode": "human" if budget == "human" else "dists",
                     "budget_reached": round(float(fit["reached"]), 5),

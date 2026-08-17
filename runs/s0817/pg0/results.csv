@@ -1,0 +1,4 @@
+image,condition,stage1_seconds,total_seconds,fid_lpips,fid_ssim,fid_dists,fid_psnr,fid_clip_img,fid_nima,fid_cnniqa,edit_lpips,edit_clip_orig,edit_clip_def,edit_clip_drop,edit_siglip_orig,edit_siglip_def,edit_siglip_drop
+lebron_00,photoguard_c,0.0,6357.7,0.5053,0.9759,0.0919,40.8954,0.9718,5.2466,0.6854,0.4194,0.2768,0.3003,-0.0235,0.1101,0.1101,0.0
+obama_00,photoguard_c,0.0,7000.4,0.3295,0.9851,0.0404,40.8944,0.9907,5.0544,0.3887,0.4859,0.2285,0.2988,-0.0703,0.0819,0.1385,-0.0565
+ronaldo_00,photoguard_c,0.0,6590.2,0.4309,0.9815,0.05,40.8943,0.9794,5.6659,0.6428,0.5185,0.2816,0.3084,-0.0268,0.1014,0.0859,0.0155

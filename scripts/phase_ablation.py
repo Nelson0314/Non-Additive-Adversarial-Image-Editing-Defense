@@ -69,7 +69,7 @@ PHASE_RADIUS_LO = 0.05
 
 
 def build(name: str, seed: int, block: int = 32, r_min: float = 0.12,
-          quantile: float = 0.5, gl_iters: int = 0):
+          quantile: float = 0.5, gl_iters: int = 0, random_start: bool = False):
     """`block`／`r_min`／`quantile` 是相位算子的三個構造設定。
 
     預設值是 2026-08-13 的定案（`docs/MAINLINE.md` §4）。開放成參數是為了掃描
@@ -77,10 +77,12 @@ def build(name: str, seed: int, block: int = 32, r_min: float = 0.12,
     也就是改變擾動被允許出現的位置，不改變損失或更新規則。
     """
     if name == "add":
-        return AdditiveParam(radius=ADD_RADIUS_HI), ADD_RADIUS_LO, ADD_RADIUS_HI
+        return (AdditiveParam(radius=ADD_RADIUS_HI, random_start=random_start),
+                ADD_RADIUS_LO, ADD_RADIUS_HI)
     if name == "phase":
         return (PhaseParam(size=RESOLUTION, block=block, r_min=r_min,
-                           energy_quantile=quantile, gl_iters=gl_iters),
+                           energy_quantile=quantile, gl_iters=gl_iters,
+                           random_start=random_start),
                 PHASE_RADIUS_LO, math.pi)
     if name == "phase_rand":
         return (RandomPhaseParam(size=RESOLUTION, block=block, r_min=r_min,
@@ -168,9 +170,12 @@ def main() -> None:
                        else f"{cond}__d{budget:g}") + args.tag_suffix
                 print(f"=== {item['name']} / {tag} ===", flush=True)
                 t0 = time.time()
+                # untargeted 的損失在 φ = 0 處梯度為 0（或只剩捨入噪聲），
+                # 非隨機起點不可（`AdditiveParam.reset` 的 docstring）。
                 param, lo, hi = build(cond, args.seed, block=args.block,
                                       r_min=args.r_min, quantile=args.quantile,
-                                      gl_iters=args.gl_iters)
+                                      gl_iters=args.gl_iters,
+                                      random_start=args.loss != "encoder_target")
                 if budget == "human":
                     r_human = HUMAN_RADIUS[cond]
                     if args.phase_radius is not None and cond in ("phase", "phase_rand"):
@@ -201,6 +206,7 @@ def main() -> None:
                     "block": args.block, "r_min": args.r_min,
                     "quantile": args.quantile, "target_image": str(args.target),
                     "loss": args.loss,
+                    "random_start": args.loss != "encoder_target",
                     "budget_target": budget,
                     "budget_mode": "human" if budget == "human" else "dists",
                     "budget_reached": round(float(fit["reached"]), 5),

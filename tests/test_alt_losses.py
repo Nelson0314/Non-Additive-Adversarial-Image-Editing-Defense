@@ -103,3 +103,42 @@ def test_clip_輸出已正規化為單位向量():
     e = _embed_with_stub()
     out = e(torch.rand(1, 3, 64, 64))
     assert torch.allclose(out.norm(dim=-1), torch.ones(1), atol=1e-5)
+
+
+# ---- random start：untargeted 損失下不隨機起步就完全不動 ----
+
+def test_加性在零起點的_untargeted_梯度恰好為零():
+    """這是 2026-08-18 latent 批次整條 add 臂輸出 0 的根因，必須釘住。"""
+    sd = _FakeSD()
+    x = torch.rand(1, 3, 8, 8)
+    loss = make_latent_untargeted_loss(sd, x)
+    d = torch.zeros_like(x, requires_grad=True)
+    loss((x + d).clamp(0, 1)).backward()
+    assert float(d.grad.abs().max()) == 0.0
+    assert float(torch.sign(d.grad).abs().sum()) == 0.0
+
+
+def test_AdditiveParam_random_start_起點落在球內且非零():
+    from src.defense.param_pgd import AdditiveParam
+    x = torch.rand(1, 3, 8, 8)
+    p = AdditiveParam(radius=0.05, random_start=True)
+    p.reset(x, seed=0)
+    assert float(p.delta.abs().max()) <= 0.05 + 1e-6
+    assert float(p.delta.abs().max()) > 0.0
+
+
+def test_AdditiveParam_預設仍從零起步():
+    from src.defense.param_pgd import AdditiveParam
+    x = torch.rand(1, 3, 8, 8)
+    p = AdditiveParam(radius=0.05)
+    p.reset(x, seed=0)
+    assert float(p.delta.abs().max()) == 0.0
+
+
+def test_AdditiveParam_random_start_同種子可重現():
+    from src.defense.param_pgd import AdditiveParam
+    x = torch.rand(1, 3, 8, 8)
+    a, b = AdditiveParam(radius=0.05, random_start=True), AdditiveParam(radius=0.05, random_start=True)
+    a.reset(x, seed=7)
+    b.reset(x, seed=7)
+    assert torch.equal(a.delta, b.delta)

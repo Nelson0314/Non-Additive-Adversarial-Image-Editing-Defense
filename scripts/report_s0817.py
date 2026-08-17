@@ -16,7 +16,7 @@ import statistics as st
 from pathlib import Path
 from typing import Dict, List, Optional, Sequence
 
-RUN = Path("runs/s0817")
+RUN = Path("runs/s0817/merged")
 DATA = Path("data/set0817")
 
 COND = ["phase", "phase_rand", "add", "photoguard_c", "mist", "dia_r", "apa_weak"]
@@ -66,17 +66,22 @@ def rd(p: Path) -> List[dict]:
 
 
 def load_results() -> Dict[str, Dict[str, dict]]:
-    """condition -> image -> 該列。掃 runs/s0817 底下每一個分片。"""
+    """condition -> image -> 該列。只讀 `RUN` 這一個目錄。
+
+    先前是掃 `runs/s0817/*/results.csv` 把所有分片並起來。2026-08-17 之後
+    `merged/` 與各分片目錄不再同步——分片留著上一批 prompt 的 `edit_*` 與
+    編輯圖，`merged/` 才是重算過的——而排序後 `pg*`／`px` 排在 `merged` 之後，
+    會把新值覆寫回舊值，且不留任何症狀。改成只認一個目錄。
+    """
     out: Dict[str, Dict[str, dict]] = {}
-    for csvp in sorted(RUN.glob("*/results.csv")):
-        for r in rd(csvp):
-            out.setdefault(r["condition"], {})[r["image"]] = r
+    for r in rd(RUN / "results.csv"):
+        out.setdefault(r["condition"], {})[r["image"]] = r
     return out
 
 
 def load_retention() -> List[dict]:
     rows: List[dict] = []
-    for p in sorted(RUN.glob("**/retention_*.csv")):
+    for p in sorted(RUN.glob("retention_*.csv")):
         rows += rd(p)
     return rows
 
@@ -116,22 +121,18 @@ def img_tag(path: Optional[Path], side: int = 500, quality: int = 84) -> str:
 
 
 def find_png(image: str, suffix: str) -> Optional[Path]:
-    for d in sorted(RUN.glob("*/")):
-        p = d / f"{image}__{suffix}.png"
-        if p.exists():
-            return p
-    return None
+    p = RUN / f"{image}__{suffix}.png"
+    return p if p.exists() else None
 
 
 def find_png_any(image: str, suffix: str) -> Optional[Path]:
     """`__edit_orig` 是逐條件各存一份的，取先找到的那份。
 
-    兩支驅動（`phase_ablation` 與 `apa_baseline`）各自算出來的未防禦編輯，實測
-    最大差 1/255、只有 0.05% 的像素不同，是 8 位元捨入而不是不同的編輯結果。
+    同一張影像的各份未防禦編輯只差 8 位元捨入（實測最大 1/255、0.05% 的像素），
+    不是不同的編輯結果。
     """
-    for d in sorted(RUN.glob("*/")):
-        for p in sorted(d.glob(f"{image}__*__{suffix}.png")):
-            return p
+    for p in sorted(RUN.glob(f"{image}__*__{suffix}.png")):
+        return p
     return None
 
 

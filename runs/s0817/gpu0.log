@@ -1,64 +1,0 @@
-Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
-Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00, 17.06it/s]Loading pipeline components...:  83%|████████▎ | 5/6 [00:00<00:00, 23.04it/s]
-Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3403.62it/s]
-Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 15.35it/s]
-There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
-There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
-/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
-  warnings.warn(
-/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
-  warnings.warn(msg)
-
-########## lebron_00 (man) ##########
-=== lebron_00 / photoguard_c ===
-  [photoguard_c] step    0  L=6.758385e+02  Linf01=0.0358  L2=1.000
-  [photoguard_c] step   20  L=5.539556e+02  Linf01=0.1021  L2=7.682
-  [photoguard_c] step   40  L=4.899075e+02  Linf01=0.1215  L2=12.172
-  [photoguard_c] step   60  L=4.920686e+02  Linf01=0.1162  L2=15.952
-  [photoguard_c] step   80  L=5.009781e+02  Linf01=0.1000  L2=15.996
-  [photoguard_c] step  100  L=4.561435e+02  Linf01=0.1044  L2=15.996
-  [photoguard_c] step  120  L=4.585409e+02  Linf01=0.1069  L2=15.998
-  [photoguard_c] step  140  L=4.341903e+02  Linf01=0.1086  L2=15.995
-  [photoguard_c] step  160  L=4.503053e+02  Linf01=0.1107  L2=15.997
-  [photoguard_c] step  180  L=4.561179e+02  Linf01=0.1132  L2=15.995
-  [photoguard_c] step  199  L=4.637652e+02  Linf01=0.1145  L2=15.998
-Loading pretrained model NIMA from /nfs/home/nelson0314/.cache/torch/hub/pyiqa/NIMA_InceptionV2_ava-b0c77c00.pth
-Loading pretrained model CNNIQA from /nfs/home/nelson0314/.cache/torch/hub/pyiqa/CNNIQA_koniq10k-e6f14c91.pth
-Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 11209.90it/s]
-Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 9454.55it/s]
-[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
-[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
-Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights:  75%|███████▌  | 306/408 [00:00<00:00, 3057.12it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 3052.82it/s]
-{'image': 'lebron_00', 'condition': 'photoguard_c', 'stage1_seconds': 0.0, 'total_seconds': 6357.7, 'fid_lpips': 0.5053, 'fid_ssim': 0.9759, 'fid_dists': 0.0919, 'fid_psnr': 40.8954, 'fid_clip_img': 0.9718, 'fid_nima': 5.2466, 'fid_cnniqa': 0.6854, 'edit_lpips': 0.4194, 'edit_clip_orig': 0.2768, 'edit_clip_def': 0.3003, 'edit_clip_drop': -0.0235, 'edit_siglip_orig': 0.1101, 'edit_siglip_def': 0.1101, 'edit_siglip_drop': 0.0}
-
-########## obama_00 (man) ##########
-=== obama_00 / photoguard_c ===
-  [photoguard_c] step    0  L=4.728413e+02  Linf01=0.0311  L2=0.988
-  [photoguard_c] step   20  L=4.121529e+02  Linf01=0.1642  L2=8.549
-  [photoguard_c] step   40  L=3.533568e+02  Linf01=0.2129  L2=13.690
-  [photoguard_c] step   60  L=3.528367e+02  Linf01=0.2346  L2=16.000
-  [photoguard_c] step   80  L=3.613300e+02  Linf01=0.1739  L2=16.000
-  [photoguard_c] step  100  L=3.417180e+02  Linf01=0.1536  L2=16.000
-  [photoguard_c] step  120  L=3.523353e+02  Linf01=0.1467  L2=16.000
-  [photoguard_c] step  140  L=3.337887e+02  Linf01=0.1201  L2=16.000
-  [photoguard_c] step  160  L=3.333165e+02  Linf01=0.1333  L2=15.999
-  [photoguard_c] step  180  L=3.267918e+02  Linf01=0.1139  L2=16.000
-  [photoguard_c] step  199  L=3.127752e+02  Linf01=0.1249  L2=16.000
-{'image': 'obama_00', 'condition': 'photoguard_c', 'stage1_seconds': 0.0, 'total_seconds': 7000.4, 'fid_lpips': 0.3295, 'fid_ssim': 0.9851, 'fid_dists': 0.0404, 'fid_psnr': 40.8944, 'fid_clip_img': 0.9907, 'fid_nima': 5.0544, 'fid_cnniqa': 0.3887, 'edit_lpips': 0.4859, 'edit_clip_orig': 0.2285, 'edit_clip_def': 0.2988, 'edit_clip_drop': -0.0703, 'edit_siglip_orig': 0.0819, 'edit_siglip_def': 0.1385, 'edit_siglip_drop': -0.0565}
-
-########## ronaldo_00 (man) ##########
-=== ronaldo_00 / photoguard_c ===
-  [photoguard_c] step    0  L=4.600589e+02  Linf01=0.0615  L2=1.000
-  [photoguard_c] step   20  L=3.827521e+02  Linf01=0.1228  L2=9.107
-  [photoguard_c] step   40  L=3.241986e+02  Linf01=0.1448  L2=13.775
-  [photoguard_c] step   60  L=3.293436e+02  Linf01=0.1984  L2=16.000
-  [photoguard_c] step   80  L=3.242810e+02  Linf01=0.1908  L2=16.000
-  [photoguard_c] step  100  L=2.880500e+02  Linf01=0.1933  L2=16.000
-  [photoguard_c] step  120  L=3.135057e+02  Linf01=0.1861  L2=16.000
-  [photoguard_c] step  140  L=2.868516e+02  Linf01=0.1745  L2=16.000
-  [photoguard_c] step  160  L=2.808458e+02  Linf01=0.1654  L2=16.000
-  [photoguard_c] step  180  L=2.855189e+02  Linf01=0.1649  L2=16.000
-  [photoguard_c] step  199  L=2.869707e+02  Linf01=0.1786  L2=16.000
-{'image': 'ronaldo_00', 'condition': 'photoguard_c', 'stage1_seconds': 0.0, 'total_seconds': 6590.2, 'fid_lpips': 0.4309, 'fid_ssim': 0.9815, 'fid_dists': 0.05, 'fid_psnr': 40.8943, 'fid_clip_img': 0.9794, 'fid_nima': 5.6659, 'fid_cnniqa': 0.6428, 'edit_lpips': 0.5185, 'edit_clip_orig': 0.2816, 'edit_clip_def': 0.3084, 'edit_clip_drop': -0.0268, 'edit_siglip_orig': 0.1014, 'edit_siglip_def': 0.0859, 'edit_siglip_drop': 0.0155}
-
-表：runs/s0817/pg0/results.csv

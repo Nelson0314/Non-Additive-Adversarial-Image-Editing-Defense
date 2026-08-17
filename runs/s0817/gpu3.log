@@ -1,167 +1,0 @@
-Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]
-Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3302.15it/s]
-Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00, 10.94it/s]Loading pipeline components...:  67%|██████▋   | 4/6 [00:00<00:00, 13.79it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 15.75it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 14.74it/s]
-There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
-There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
-/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
-  warnings.warn(
-/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
-  warnings.warn(msg)
-
-########## cat_00 (cat) ##########
-=== cat_00 / apa_weak ===
-  [align_apa_native] step    0  loss=0.0191
-  [align_apa_native] step   20  loss=0.1516
-  [align_apa_native] step   40  loss=0.0548
-  [align_apa_native] step   60  loss=0.0086
-  [align_apa_native] step   80  loss=0.0048
-  [align_apa_native] step  100  loss=0.0043
-  [align_apa_native] step  120  loss=0.0060
-  [align_apa_native] step  140  loss=0.0048
-  [align_apa_native] step  160  loss=0.0117
-  [align_apa_native] step  180  loss=0.0106
-  [align_apa_native] step  199  loss=0.0117
-  [attack_native] iter   0  reward=-1.1502  R=-1.0000  fid_pen=0.1502  linf=0.040
-  [attack_native] iter   2  reward=-1.0932  R=-1.0440  fid_pen=0.0492  linf=0.120
-  [attack_native] iter   4  reward=-1.0869  R=-1.0546  fid_pen=0.0323  linf=0.200
-  [attack_native] iter   6  reward=-1.1084  R=-1.0441  fid_pen=0.0643  linf=0.280
-  [attack_native] iter   8  reward=-1.0951  R=-1.0329  fid_pen=0.0622  linf=0.360
-  [attack_native] iter   9  reward=-1.0852  R=-1.0218  fid_pen=0.0633  linf=0.400
-Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
-Loading pretrained model NIMA from /nfs/home/nelson0314/.cache/torch/hub/pyiqa/NIMA_InceptionV2_ava-b0c77c00.pth
-Loading pretrained model CNNIQA from /nfs/home/nelson0314/.cache/torch/hub/pyiqa/CNNIQA_koniq10k-e6f14c91.pth
-Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 9789.72it/s]
-Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 9090.84it/s]
-[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
-[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
-Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights:  76%|███████▌  | 310/408 [00:00<00:00, 3091.36it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 3029.02it/s]
-{'image': 'cat_00', 'condition': 'apa_weak', 'stage1_seconds': 46.8, 'total_seconds': 146.8, 'fid_lpips': 0.0686, 'fid_ssim': 0.9301, 'fid_dists': 0.0574, 'fid_psnr': 27.1503, 'fid_clip_img': 0.987, 'fid_nima': 5.425, 'fid_cnniqa': 0.6772, 'edit_lpips': 0.048, 'edit_clip_orig': 0.3509, 'edit_clip_def': 0.3571, 'edit_clip_drop': -0.0062, 'edit_siglip_orig': 0.1549, 'edit_siglip_def': 0.1537, 'edit_siglip_drop': 0.0012}
-=== cat_00 / mist ===
-  [mist] step    0  L=6.036438e+04  Linf01=0.0627  L2=51.939
-  [mist] step   20  L=2.805541e+04  Linf01=0.0627  L2=65.074
-  [mist] step   40  L=2.568091e+04  Linf01=0.0627  L2=73.585
-  [mist] step   60  L=2.048666e+04  Linf01=0.0627  L2=77.188
-  [mist] step   80  L=2.652814e+04  Linf01=0.0627  L2=79.587
-  [mist] step   99  L=2.528205e+04  Linf01=0.0627  L2=80.622
-{'image': 'cat_00', 'condition': 'mist', 'stage1_seconds': 0.0, 'total_seconds': 85.3, 'fid_lpips': 0.6186, 'fid_ssim': 0.8598, 'fid_dists': 0.19, 'fid_psnr': 26.8482, 'fid_clip_img': 0.9388, 'fid_nima': 5.0963, 'fid_cnniqa': 0.7116, 'edit_lpips': 0.5776, 'edit_clip_orig': 0.3509, 'edit_clip_def': 0.3236, 'edit_clip_drop': 0.0273, 'edit_siglip_orig': 0.1549, 'edit_siglip_def': 0.1355, 'edit_siglip_drop': 0.0195}
-=== cat_00 / dia_r ===
-  [dia_r] step    0  L=8.848396e+01  Linf01=0.0020  L2=2.818
-  [dia_r] step   19  L=5.001444e+02  Linf01=0.0250  L2=17.636
-{'image': 'cat_00', 'condition': 'dia_r', 'stage1_seconds': 0.0, 'total_seconds': 151.5, 'fid_lpips': 0.3357, 'fid_ssim': 0.9871, 'fid_dists': 0.0772, 'fid_psnr': 40.049, 'fid_clip_img': 0.9884, 'fid_nima': 5.4747, 'fid_cnniqa': 0.708, 'edit_lpips': 0.3855, 'edit_clip_orig': 0.3509, 'edit_clip_def': 0.3277, 'edit_clip_drop': 0.0232, 'edit_siglip_orig': 0.1549, 'edit_siglip_def': 0.1331, 'edit_siglip_drop': 0.0218}
-
-########## raccoon_00 (raccoon) ##########
-=== raccoon_00 / apa_weak ===
-  [align_apa_native] step    0  loss=0.0447
-  [align_apa_native] step   20  loss=0.3430
-  [align_apa_native] step   40  loss=0.1295
-  [align_apa_native] step   60  loss=0.0183
-  [align_apa_native] step   80  loss=0.0105
-  [align_apa_native] step  100  loss=0.0096
-  [align_apa_native] step  120  loss=0.0155
-  [align_apa_native] step  140  loss=0.0069
-  [align_apa_native] step  160  loss=0.0286
-  [align_apa_native] step  180  loss=0.0267
-  [align_apa_native] step  199  loss=0.0289
-  [attack_native] iter   0  reward=-1.2503  R=-1.0000  fid_pen=0.2503  linf=0.040
-  [attack_native] iter   2  reward=-1.0597  R=-0.6365  fid_pen=0.4233  linf=0.120
-  [attack_native] iter   4  reward=-1.0118  R=-0.4218  fid_pen=0.5900  linf=0.200
-  [attack_native] iter   6  reward=-1.0099  R=-0.3542  fid_pen=0.6557  linf=0.280
-  [attack_native] iter   8  reward=-1.0210  R=-0.3598  fid_pen=0.6611  linf=0.360
-  [attack_native] iter   9  reward=-1.0237  R=-0.3791  fid_pen=0.6446  linf=0.400
-{'image': 'raccoon_00', 'condition': 'apa_weak', 'stage1_seconds': 47.6, 'total_seconds': 132.0, 'fid_lpips': 0.2974, 'fid_ssim': 0.6006, 'fid_dists': 0.1959, 'fid_psnr': 16.33, 'fid_clip_img': 0.9488, 'fid_nima': 5.6156, 'fid_cnniqa': 0.6665, 'edit_lpips': 0.4325, 'edit_clip_orig': 0.3158, 'edit_clip_def': 0.339, 'edit_clip_drop': -0.0232, 'edit_siglip_orig': 0.1183, 'edit_siglip_def': 0.1563, 'edit_siglip_drop': -0.038}
-=== raccoon_00 / mist ===
-  [mist] step    0  L=2.619349e+04  Linf01=0.0627  L2=64.175
-  [mist] step   20  L=1.309468e+04  Linf01=0.0627  L2=70.868
-  [mist] step   40  L=1.101768e+04  Linf01=0.0627  L2=76.855
-  [mist] step   60  L=5.115560e+03  Linf01=0.0627  L2=80.411
-  [mist] step   80  L=1.225370e+04  Linf01=0.0627  L2=82.960
-  [mist] step   99  L=1.079066e+04  Linf01=0.0627  L2=84.197
-{'image': 'raccoon_00', 'condition': 'mist', 'stage1_seconds': 0.0, 'total_seconds': 86.0, 'fid_lpips': 0.5749, 'fid_ssim': 0.8194, 'fid_dists': 0.1395, 'fid_psnr': 26.4713, 'fid_clip_img': 0.95, 'fid_nima': 5.3766, 'fid_cnniqa': 0.71, 'edit_lpips': 0.6275, 'edit_clip_orig': 0.3158, 'edit_clip_def': 0.3369, 'edit_clip_drop': -0.0211, 'edit_siglip_orig': 0.1183, 'edit_siglip_def': 0.1692, 'edit_siglip_drop': -0.0508}
-=== raccoon_00 / dia_r ===
-  [dia_r] step    0  L=1.661064e+02  Linf01=0.0020  L2=3.477
-  [dia_r] step   19  L=6.840166e+02  Linf01=0.0250  L2=17.458
-{'image': 'raccoon_00', 'condition': 'dia_r', 'stage1_seconds': 0.0, 'total_seconds': 151.1, 'fid_lpips': 0.2064, 'fid_ssim': 0.9865, 'fid_dists': 0.0302, 'fid_psnr': 40.1369, 'fid_clip_img': 0.9878, 'fid_nima': 6.0258, 'fid_cnniqa': 0.7075, 'edit_lpips': 0.4295, 'edit_clip_orig': 0.3158, 'edit_clip_def': 0.3153, 'edit_clip_drop': 0.0004, 'edit_siglip_orig': 0.1183, 'edit_siglip_def': 0.1301, 'edit_siglip_drop': -0.0117}
-
-########## shiba_00 (dog) ##########
-=== shiba_00 / apa_weak ===
-  [align_apa_native] step    0  loss=0.0430
-  [align_apa_native] step   20  loss=0.3619
-  [align_apa_native] step   40  loss=0.1204
-  [align_apa_native] step   60  loss=0.0190
-  [align_apa_native] step   80  loss=0.0102
-  [align_apa_native] step  100  loss=0.0119
-  [align_apa_native] step  120  loss=0.0171
-  [align_apa_native] step  140  loss=0.0070
-  [align_apa_native] step  160  loss=0.0274
-  [align_apa_native] step  180  loss=0.0281
-  [align_apa_native] step  199  loss=0.0287
-  [attack_native] iter   0  reward=-1.2491  R=-1.0000  fid_pen=0.2491  linf=0.040
-  [attack_native] iter   2  reward=-1.0764  R=-0.7471  fid_pen=0.3292  linf=0.120
-  [attack_native] iter   4  reward=-1.0238  R=-0.5561  fid_pen=0.4677  linf=0.200
-  [attack_native] iter   6  reward=-1.0166  R=-0.4639  fid_pen=0.5527  linf=0.280
-  [attack_native] iter   8  reward=-1.0133  R=-0.4549  fid_pen=0.5585  linf=0.360
-  [attack_native] iter   9  reward=-1.0129  R=-0.4662  fid_pen=0.5467  linf=0.400
-{'image': 'shiba_00', 'condition': 'apa_weak', 'stage1_seconds': 47.7, 'total_seconds': 132.1, 'fid_lpips': 0.2092, 'fid_ssim': 0.7607, 'fid_dists': 0.1555, 'fid_psnr': 19.235, 'fid_clip_img': 0.9545, 'fid_nima': 5.4065, 'fid_cnniqa': 0.5398, 'edit_lpips': 0.1715, 'edit_clip_orig': 0.3384, 'edit_clip_def': 0.3472, 'edit_clip_drop': -0.0088, 'edit_siglip_orig': 0.1444, 'edit_siglip_def': 0.1139, 'edit_siglip_drop': 0.0305}
-=== shiba_00 / mist ===
-  [mist] step    0  L=3.150534e+04  Linf01=0.0627  L2=64.311
-  [mist] step   20  L=1.549373e+04  Linf01=0.0627  L2=70.273
-  [mist] step   40  L=1.349471e+04  Linf01=0.0627  L2=76.170
-  [mist] step   60  L=7.385523e+03  Linf01=0.0627  L2=80.002
-  [mist] step   80  L=1.429740e+04  Linf01=0.0627  L2=82.814
-  [mist] step   99  L=1.289585e+04  Linf01=0.0627  L2=84.425
-{'image': 'shiba_00', 'condition': 'mist', 'stage1_seconds': 0.0, 'total_seconds': 86.0, 'fid_lpips': 0.6415, 'fid_ssim': 0.7784, 'fid_dists': 0.1215, 'fid_psnr': 26.4477, 'fid_clip_img': 0.9583, 'fid_nima': 5.1821, 'fid_cnniqa': 0.712, 'edit_lpips': 0.6485, 'edit_clip_orig': 0.3384, 'edit_clip_def': 0.3757, 'edit_clip_drop': -0.0373, 'edit_siglip_orig': 0.1444, 'edit_siglip_def': 0.1566, 'edit_siglip_drop': -0.0122}
-=== shiba_00 / dia_r ===
-  [dia_r] step    0  L=9.230486e+01  Linf01=0.0020  L2=3.478
-  [dia_r] step   19  L=7.927110e+02  Linf01=0.0250  L2=17.205
-{'image': 'shiba_00', 'condition': 'dia_r', 'stage1_seconds': 0.0, 'total_seconds': 151.4, 'fid_lpips': 0.2528, 'fid_ssim': 0.9839, 'fid_dists': 0.0235, 'fid_psnr': 40.2637, 'fid_clip_img': 0.9846, 'fid_nima': 5.7078, 'fid_cnniqa': 0.7092, 'edit_lpips': 0.1535, 'edit_clip_orig': 0.3384, 'edit_clip_def': 0.347, 'edit_clip_drop': -0.0086, 'edit_siglip_orig': 0.1444, 'edit_siglip_def': 0.1334, 'edit_siglip_drop': 0.011}
-
-表：runs/s0817/ext3/results.csv
-Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
-Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  67%|██████▋   | 4/6 [00:00<00:00, 21.66it/s]
-Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3368.67it/s]
-Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 13.95it/s]
-There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
-There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
-/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
-  warnings.warn(
-/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
-  warnings.warn(msg)
-
-########## raccoon_00 (raccoon) ##########
-=== raccoon_00 / photoguard_c ===
-  [photoguard_c] step    0  L=3.481472e+02  Linf01=0.0211  L2=1.000
-  [photoguard_c] step   20  L=3.374634e+02  Linf01=0.1140  L2=6.784
-  [photoguard_c] step   40  L=3.152221e+02  Linf01=0.1635  L2=11.927
-  [photoguard_c] step   60  L=3.272121e+02  Linf01=0.2141  L2=16.000
-  [photoguard_c] step   80  L=2.951384e+02  Linf01=0.1957  L2=16.000
-  [photoguard_c] step  100  L=2.802432e+02  Linf01=0.1714  L2=16.000
-  [photoguard_c] step  120  L=2.961639e+02  Linf01=0.1536  L2=16.000
-  [photoguard_c] step  140  L=2.736676e+02  Linf01=0.1299  L2=16.000
-  [photoguard_c] step  160  L=2.752187e+02  Linf01=0.1292  L2=16.000
-  [photoguard_c] step  180  L=2.756451e+02  Linf01=0.1465  L2=16.000
-  [photoguard_c] step  199  L=2.626688e+02  Linf01=0.1271  L2=16.000
-Loading pretrained model NIMA from /nfs/home/nelson0314/.cache/torch/hub/pyiqa/NIMA_InceptionV2_ava-b0c77c00.pth
-Loading pretrained model CNNIQA from /nfs/home/nelson0314/.cache/torch/hub/pyiqa/CNNIQA_koniq10k-e6f14c91.pth
-Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 7318.04it/s]
-Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 10374.52it/s]
-[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
-[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
-Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights:  73%|███████▎  | 298/408 [00:00<00:00, 2976.63it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 2946.54it/s]
-{'image': 'raccoon_00', 'condition': 'photoguard_c', 'stage1_seconds': 0.0, 'total_seconds': 6389.0, 'fid_lpips': 0.3056, 'fid_ssim': 0.9849, 'fid_dists': 0.0271, 'fid_psnr': 40.8943, 'fid_clip_img': 0.9841, 'fid_nima': 6.0785, 'fid_cnniqa': 0.7065, 'edit_lpips': 0.4028, 'edit_clip_orig': 0.3158, 'edit_clip_def': 0.328, 'edit_clip_drop': -0.0122, 'edit_siglip_orig': 0.1183, 'edit_siglip_def': 0.1337, 'edit_siglip_drop': -0.0153}
-
-########## shiba_00 (dog) ##########
-=== shiba_00 / photoguard_c ===
-  [photoguard_c] step    0  L=2.753589e+02  Linf01=0.0401  L2=1.000
-  [photoguard_c] step   20  L=2.244790e+02  Linf01=0.1959  L2=7.647
-  [photoguard_c] step   40  L=2.168320e+02  Linf01=0.1894  L2=12.067
-  [photoguard_c] step   60  L=1.897713e+02  Linf01=0.2483  L2=15.462
-  [photoguard_c] step   80  L=1.919202e+02  Linf01=0.2396  L2=16.000
-  [photoguard_c] step  100  L=1.706269e+02  Linf01=0.2213  L2=16.000
-  [photoguard_c] step  120  L=1.919727e+02  Linf01=0.1953  L2=16.000
-  [photoguard_c] step  140  L=1.566837e+02  Linf01=0.1999  L2=16.000
-  [photoguard_c] step  160  L=1.644915e+02  Linf01=0.2049  L2=16.000
-  [photoguard_c] step  180  L=1.735942e+02  Linf01=0.2136  L2=16.000
-  [photoguard_c] step  199  L=1.589994e+02  Linf01=0.2036  L2=16.000
-{'image': 'shiba_00', 'condition': 'photoguard_c', 'stage1_seconds': 0.0, 'total_seconds': 6386.1, 'fid_lpips': 0.3815, 'fid_ssim': 0.9834, 'fid_dists': 0.0232, 'fid_psnr': 40.8943, 'fid_clip_img': 0.9964, 'fid_nima': 5.6333, 'fid_cnniqa': 0.7088, 'edit_lpips': 0.519, 'edit_clip_orig': 0.3384, 'edit_clip_def': 0.3447, 'edit_clip_drop': -0.0063, 'edit_siglip_orig': 0.1444, 'edit_siglip_def': 0.1338, 'edit_siglip_drop': 0.0106}
-
-表：runs/s0817/pg3/results.csv

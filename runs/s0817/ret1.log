@@ -1,0 +1,57 @@
+[32mActivated conda/uv virtual environment at [36m/venv/main[0m
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  17%|█▋        | 1/6 [00:00<00:00,  8.41it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 4283.29it/s]
+Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00,  7.65it/s]Loading pipeline components...:  83%|████████▎ | 5/6 [00:00<00:00, 16.06it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 16.49it/s]
+There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/venv/main/lib/python3.12/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/venv/main/lib/python3.12/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+=== musk_00 / add__human ===
+    identity=0.1336, blur1=0.1700, noise0.05=0.4792, quantize16=0.1713, jpeg75=0.0352, jpeg30=0.0971, crop_resize0.1=0.4216, jpeg_then_resize75=0.0755, adverse_cleaner=0.0744
+=== musk_00 / phase__human ===
+    identity=0.1712, blur1=0.2225, noise0.05=0.4813, quantize16=0.1912, jpeg75=0.0763, jpeg30=0.1170, crop_resize0.1=0.4371, jpeg_then_resize75=0.1040, adverse_cleaner=0.1672
+=== musk_00 / phase_rand__human ===
+    identity=0.0531, blur1=0.1905, noise0.05=0.4878, quantize16=0.1480, jpeg75=0.0526, jpeg30=0.1141, crop_resize0.1=0.4171, jpeg_then_resize75=0.0904, adverse_cleaner=0.0843
+=== parrot_00 / add__human ===
+    identity=0.3625, blur1=0.2361, noise0.05=0.6376, quantize16=0.4194, jpeg75=0.1026, jpeg30=0.3183, crop_resize0.1=0.5279, jpeg_then_resize75=0.1901, adverse_cleaner=0.1104
+=== parrot_00 / phase__human ===
+    identity=0.3381, blur1=0.2601, noise0.05=0.6354, quantize16=0.3695, jpeg75=0.2358, jpeg30=0.3156, crop_resize0.1=0.5215, jpeg_then_resize75=0.2037, adverse_cleaner=0.3160
+=== parrot_00 / phase_rand__human ===
+    分母塌陷：effect(identity) mean=0.1085 sd=0.1160，本格的 retention 不可用
+    identity=0.1085, blur1=0.2448, noise0.05=0.6327, quantize16=0.2973, jpeg75=0.0887, jpeg30=0.2761, crop_resize0.1=0.5112, jpeg_then_resize75=0.1876, adverse_cleaner=0.1194
+=== trump_00 / add__human ===
+    identity=0.2797, blur1=0.3684, noise0.05=0.5633, quantize16=0.3611, jpeg75=0.1288, jpeg30=0.2004, crop_resize0.1=0.5171, jpeg_then_resize75=0.1662, adverse_cleaner=0.1639
+=== trump_00 / phase__human ===
+    identity=0.3876, blur1=0.3888, noise0.05=0.5873, quantize16=0.4127, jpeg75=0.2702, jpeg30=0.2763, crop_resize0.1=0.5519, jpeg_then_resize75=0.2194, adverse_cleaner=0.3048
+=== trump_00 / phase_rand__human ===
+    identity=0.0842, blur1=0.3600, noise0.05=0.5683, quantize16=0.3226, jpeg75=0.1074, jpeg30=0.2287, crop_resize0.1=0.4993, jpeg_then_resize75=0.2380, adverse_cleaner=0.3805
+=== musk_00 / apa_weak ===
+    identity=0.0990, blur1=0.2067, noise0.05=0.4833, quantize16=0.2305, jpeg75=0.0999, jpeg30=0.1816, crop_resize0.1=0.4231, jpeg_then_resize75=0.1331, adverse_cleaner=0.1462
+=== musk_00 / mist ===
+    identity=0.5565, blur1=0.2730, noise0.05=0.5721, quantize16=0.5780, jpeg75=0.4640, jpeg30=0.2783, crop_resize0.1=0.5255, jpeg_then_resize75=0.2545, adverse_cleaner=0.4327
+=== musk_00 / dia_r ===
+    identity=0.2667, blur1=0.1562, noise0.05=0.4814, quantize16=0.2864, jpeg75=0.1182, jpeg30=0.0970, crop_resize0.1=0.4356, jpeg_then_resize75=0.0928, adverse_cleaner=0.0793
+=== parrot_00 / apa_weak ===
+    分母塌陷：effect(identity) mean=0.2140 sd=0.0894，本格的 retention 不可用
+    identity=0.2140, blur1=0.1928, noise0.05=0.6016, quantize16=0.4058, jpeg75=0.2028, jpeg30=0.2523, crop_resize0.1=0.5306, jpeg_then_resize75=0.1943, adverse_cleaner=0.1452
+=== parrot_00 / mist ===
+    identity=0.5918, blur1=0.3991, noise0.05=0.6647, quantize16=0.6092, jpeg75=0.5745, jpeg30=0.4384, crop_resize0.1=0.6096, jpeg_then_resize75=0.4087, adverse_cleaner=0.5371
+=== parrot_00 / dia_r ===
+    identity=0.4385, blur1=0.2462, noise0.05=0.6345, quantize16=0.4987, jpeg75=0.2878, jpeg30=0.3457, crop_resize0.1=0.5655, jpeg_then_resize75=0.2592, adverse_cleaner=0.1426
+=== trump_00 / apa_weak ===
+    identity=0.2573, blur1=0.3280, noise0.05=0.6097, quantize16=0.4067, jpeg75=0.2577, jpeg30=0.3881, crop_resize0.1=0.4843, jpeg_then_resize75=0.2970, adverse_cleaner=0.3411
+=== trump_00 / mist ===
+    identity=0.6112, blur1=0.4871, noise0.05=0.6364, quantize16=0.6043, jpeg75=0.5455, jpeg30=0.4355, crop_resize0.1=0.6271, jpeg_then_resize75=0.4667, adverse_cleaner=0.5727
+=== trump_00 / dia_r ===
+    identity=0.3876, blur1=0.3809, noise0.05=0.5689, quantize16=0.4389, jpeg75=0.2493, jpeg30=0.2092, crop_resize0.1=0.5511, jpeg_then_resize75=0.1679, adverse_cleaner=0.1405
+=== musk_00 / photoguard_c ===
+    identity=0.3102, blur1=0.2259, noise0.05=0.4756, quantize16=0.2989, jpeg75=0.1568, jpeg30=0.1110, crop_resize0.1=0.4404, jpeg_then_resize75=0.0990, adverse_cleaner=0.1058
+=== trump_00 / photoguard_c ===
+    identity=0.5440, blur1=0.4145, noise0.05=0.5706, quantize16=0.4745, jpeg75=0.3614, jpeg30=0.2408, crop_resize0.1=0.5988, jpeg_then_resize75=0.2543, adverse_cleaner=0.2628
+=== parrot_00 / photoguard_c ===
+    identity=0.4506, blur1=0.2511, noise0.05=0.6329, quantize16=0.4237, jpeg75=0.2605, jpeg30=0.3302, crop_resize0.1=0.5399, jpeg_then_resize75=0.1840, adverse_cleaner=0.1295
+
+表：runs/s0817/merged/retention_1.csv（189 列）

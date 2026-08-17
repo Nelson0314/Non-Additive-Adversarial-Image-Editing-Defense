@@ -1,0 +1,66 @@
+[32mActivated conda/uv virtual environment at [36m/venv/main[0m
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00, 17.10it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 4464.55it/s]
+Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 17.41it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 17.38it/s]
+There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/venv/main/lib/python3.12/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/venv/main/lib/python3.12/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+=== lebron_00 / add__human ===
+    分母塌陷：effect(identity) mean=0.3527 sd=0.1642，本格的 retention 不可用
+    identity=0.3527, blur1=0.4117, noise0.05=0.6393, quantize16=0.4625, jpeg75=0.2196, jpeg30=0.3911, crop_resize0.1=0.5362, jpeg_then_resize75=0.3501, adverse_cleaner=0.2624
+=== lebron_00 / phase__human ===
+    分母塌陷：effect(identity) mean=0.3905 sd=0.1611，本格的 retention 不可用
+    identity=0.3905, blur1=0.4311, noise0.05=0.6452, quantize16=0.4024, jpeg75=0.2623, jpeg30=0.4130, crop_resize0.1=0.5216, jpeg_then_resize75=0.3850, adverse_cleaner=0.3961
+=== lebron_00 / phase_rand__human ===
+    分母塌陷：effect(identity) mean=0.1369 sd=0.0768，本格的 retention 不可用
+    identity=0.1369, blur1=0.4222, noise0.05=0.6396, quantize16=0.4169, jpeg75=0.2211, jpeg30=0.3455, crop_resize0.1=0.5015, jpeg_then_resize75=0.3081, adverse_cleaner=0.2648
+=== obama_00 / add__human ===
+    identity=0.3097, blur1=0.2880, noise0.05=0.5476, quantize16=0.3764, jpeg75=0.2080, jpeg30=0.2794, crop_resize0.1=0.4823, jpeg_then_resize75=0.2190, adverse_cleaner=0.2126
+=== obama_00 / phase__human ===
+    identity=0.3229, blur1=0.3167, noise0.05=0.5570, quantize16=0.3749, jpeg75=0.2820, jpeg30=0.2941, crop_resize0.1=0.5158, jpeg_then_resize75=0.3031, adverse_cleaner=0.3146
+=== obama_00 / phase_rand__human ===
+    分母塌陷：effect(identity) mean=0.1830 sd=0.1265，本格的 retention 不可用
+    identity=0.1830, blur1=0.2949, noise0.05=0.5578, quantize16=0.3622, jpeg75=0.2194, jpeg30=0.2626, crop_resize0.1=0.4768, jpeg_then_resize75=0.2098, adverse_cleaner=0.2021
+=== ronaldo_00 / add__human ===
+    分母塌陷：effect(identity) mean=0.2601 sd=0.1494，本格的 retention 不可用
+    identity=0.2601, blur1=0.2983, noise0.05=0.5256, quantize16=0.3259, jpeg75=0.0679, jpeg30=0.1587, crop_resize0.1=0.5105, jpeg_then_resize75=0.1346, adverse_cleaner=0.1753
+=== ronaldo_00 / phase__human ===
+    identity=0.3994, blur1=0.4081, noise0.05=0.5370, quantize16=0.3472, jpeg75=0.1437, jpeg30=0.2349, crop_resize0.1=0.5502, jpeg_then_resize75=0.2433, adverse_cleaner=0.3319
+=== ronaldo_00 / phase_rand__human ===
+    分母塌陷：effect(identity) mean=0.0898 sd=0.0425，本格的 retention 不可用
+    identity=0.0898, blur1=0.2837, noise0.05=0.5397, quantize16=0.2599, jpeg75=0.1114, jpeg30=0.1796, crop_resize0.1=0.4885, jpeg_then_resize75=0.1505, adverse_cleaner=0.1329
+=== lebron_00 / apa_weak ===
+    分母塌陷：effect(identity) mean=0.2008 sd=0.1701，本格的 retention 不可用
+    identity=0.2008, blur1=0.4332, noise0.05=0.6493, quantize16=0.4201, jpeg75=0.3082, jpeg30=0.4255, crop_resize0.1=0.5405, jpeg_then_resize75=0.3882, adverse_cleaner=0.3800
+=== lebron_00 / mist ===
+    identity=0.5966, blur1=0.4351, noise0.05=0.6750, quantize16=0.6139, jpeg75=0.4586, jpeg30=0.3910, crop_resize0.1=0.5520, jpeg_then_resize75=0.3795, adverse_cleaner=0.4962
+=== lebron_00 / dia_r ===
+    分母塌陷：effect(identity) mean=0.3143 sd=0.1777，本格的 retention 不可用
+    identity=0.3143, blur1=0.3851, noise0.05=0.6416, quantize16=0.4681, jpeg75=0.1342, jpeg30=0.3026, crop_resize0.1=0.5244, jpeg_then_resize75=0.3199, adverse_cleaner=0.2366
+=== obama_00 / apa_weak ===
+    分母塌陷：effect(identity) mean=0.2375 sd=0.1518，本格的 retention 不可用
+    identity=0.2375, blur1=0.3273, noise0.05=0.6010, quantize16=0.3981, jpeg75=0.2492, jpeg30=0.3204, crop_resize0.1=0.5059, jpeg_then_resize75=0.2983, adverse_cleaner=0.3034
+=== obama_00 / mist ===
+    identity=0.5795, blur1=0.3779, noise0.05=0.6445, quantize16=0.6018, jpeg75=0.5273, jpeg30=0.3979, crop_resize0.1=0.5991, jpeg_then_resize75=0.3545, adverse_cleaner=0.5309
+=== obama_00 / dia_r ===
+    identity=0.3699, blur1=0.2832, noise0.05=0.5522, quantize16=0.4332, jpeg75=0.2898, jpeg30=0.2826, crop_resize0.1=0.5118, jpeg_then_resize75=0.2617, adverse_cleaner=0.2991
+=== ronaldo_00 / apa_weak ===
+    分母塌陷：effect(identity) mean=0.1671 sd=0.0618，本格的 retention 不可用
+    identity=0.1671, blur1=0.3869, noise0.05=0.5758, quantize16=0.3641, jpeg75=0.1896, jpeg30=0.3320, crop_resize0.1=0.4955, jpeg_then_resize75=0.2489, adverse_cleaner=0.2427
+=== ronaldo_00 / mist ===
+    identity=0.5901, blur1=0.4329, noise0.05=0.6216, quantize16=0.6030, jpeg75=0.5210, jpeg30=0.4311, crop_resize0.1=0.6028, jpeg_then_resize75=0.3761, adverse_cleaner=0.5525
+=== ronaldo_00 / dia_r ===
+    分母塌陷：effect(identity) mean=0.2884 sd=0.1283，本格的 retention 不可用
+    identity=0.2884, blur1=0.2734, noise0.05=0.5262, quantize16=0.4150, jpeg75=0.1590, jpeg30=0.1428, crop_resize0.1=0.5169, jpeg_then_resize75=0.1484, adverse_cleaner=0.1042
+=== lebron_00 / photoguard_c ===
+    identity=0.4556, blur1=0.4290, noise0.05=0.6460, quantize16=0.4264, jpeg75=0.2453, jpeg30=0.3198, crop_resize0.1=0.5398, jpeg_then_resize75=0.2866, adverse_cleaner=0.3103
+=== obama_00 / photoguard_c ===
+    identity=0.4773, blur1=0.3205, noise0.05=0.5508, quantize16=0.4424, jpeg75=0.3262, jpeg30=0.2692, crop_resize0.1=0.5336, jpeg_then_resize75=0.3159, adverse_cleaner=0.3273
+=== ronaldo_00 / photoguard_c ===
+    identity=0.4833, blur1=0.2883, noise0.05=0.5272, quantize16=0.3957, jpeg75=0.1762, jpeg30=0.1483, crop_resize0.1=0.5903, jpeg_then_resize75=0.1322, adverse_cleaner=0.2494
+
+表：runs/s0817/merged/retention_0.csv（189 列）

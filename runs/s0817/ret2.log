@@ -1,0 +1,60 @@
+[32mActivated conda/uv virtual environment at [36m/venv/main[0m
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  17%|█▋        | 1/6 [00:00<00:00,  8.50it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 4257.60it/s]
+Loading pipeline components...:  83%|████████▎ | 5/6 [00:00<00:00, 18.68it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 16.85it/s]
+There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/venv/main/lib/python3.12/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/venv/main/lib/python3.12/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+=== cat_00 / add__human ===
+    identity=0.1268, blur1=0.1354, noise0.05=0.5060, quantize16=0.0529, jpeg75=0.0329, jpeg30=0.0693, crop_resize0.1=0.3052, jpeg_then_resize75=0.0984, adverse_cleaner=0.0867
+=== cat_00 / phase__human ===
+    identity=0.2790, blur1=0.1849, noise0.05=0.5044, quantize16=0.2147, jpeg75=0.1045, jpeg30=0.0891, crop_resize0.1=0.3361, jpeg_then_resize75=0.1117, adverse_cleaner=0.2634
+=== cat_00 / phase_rand__human ===
+    分母塌陷：effect(identity) mean=0.0420 sd=0.0260，本格的 retention 不可用
+    identity=0.0420, blur1=0.1365, noise0.05=0.5012, quantize16=0.0643, jpeg75=0.0599, jpeg30=0.0838, crop_resize0.1=0.3270, jpeg_then_resize75=0.1089, adverse_cleaner=0.0854
+=== raccoon_00 / add__human ===
+    identity=0.3068, blur1=0.3874, noise0.05=0.5881, quantize16=0.2923, jpeg75=0.1037, jpeg30=0.1961, crop_resize0.1=0.4514, jpeg_then_resize75=0.3095, adverse_cleaner=0.1339
+=== raccoon_00 / phase__human ===
+    identity=0.5488, blur1=0.5639, noise0.05=0.5934, quantize16=0.5021, jpeg75=0.4401, jpeg30=0.3205, crop_resize0.1=0.5983, jpeg_then_resize75=0.4380, adverse_cleaner=0.5467
+=== raccoon_00 / phase_rand__human ===
+    identity=0.2067, blur1=0.4259, noise0.05=0.5782, quantize16=0.2071, jpeg75=0.2877, jpeg30=0.2742, crop_resize0.1=0.4743, jpeg_then_resize75=0.4019, adverse_cleaner=0.2169
+=== shiba_00 / add__human ===
+    identity=0.3198, blur1=0.4068, noise0.05=0.7113, quantize16=0.3831, jpeg75=0.1915, jpeg30=0.3091, crop_resize0.1=0.4345, jpeg_then_resize75=0.2653, adverse_cleaner=0.2317
+=== shiba_00 / phase__human ===
+    identity=0.4091, blur1=0.4266, noise0.05=0.7190, quantize16=0.3794, jpeg75=0.3104, jpeg30=0.2982, crop_resize0.1=0.4981, jpeg_then_resize75=0.3350, adverse_cleaner=0.3983
+=== shiba_00 / phase_rand__human ===
+    分母塌陷：effect(identity) mean=0.2102 sd=0.1082，本格的 retention 不可用
+    identity=0.2102, blur1=0.3873, noise0.05=0.7126, quantize16=0.3652, jpeg75=0.2202, jpeg30=0.3047, crop_resize0.1=0.4405, jpeg_then_resize75=0.3287, adverse_cleaner=0.2357
+=== cat_00 / apa_weak ===
+    分母塌陷：effect(identity) mean=0.0767 sd=0.0412，本格的 retention 不可用
+    identity=0.0767, blur1=0.1297, noise0.05=0.5154, quantize16=0.1072, jpeg75=0.0791, jpeg30=0.1078, crop_resize0.1=0.3195, jpeg_then_resize75=0.0969, adverse_cleaner=0.0767
+=== cat_00 / mist ===
+    identity=0.5773, blur1=0.2920, noise0.05=0.5758, quantize16=0.5964, jpeg75=0.4990, jpeg30=0.3233, crop_resize0.1=0.5854, jpeg_then_resize75=0.3671, adverse_cleaner=0.3707
+=== cat_00 / dia_r ===
+    identity=0.3852, blur1=0.1404, noise0.05=0.5040, quantize16=0.0697, jpeg75=0.1275, jpeg30=0.0813, crop_resize0.1=0.4091, jpeg_then_resize75=0.1240, adverse_cleaner=0.0962
+=== raccoon_00 / apa_weak ===
+    identity=0.3553, blur1=0.5196, noise0.05=0.6586, quantize16=0.3471, jpeg75=0.3714, jpeg30=0.4503, crop_resize0.1=0.5510, jpeg_then_resize75=0.4940, adverse_cleaner=0.4098
+=== raccoon_00 / mist ===
+    identity=0.6256, blur1=0.5662, noise0.05=0.6443, quantize16=0.6259, jpeg75=0.5603, jpeg30=0.4286, crop_resize0.1=0.6099, jpeg_then_resize75=0.5114, adverse_cleaner=0.5543
+=== raccoon_00 / dia_r ===
+    分母塌陷：effect(identity) mean=0.3307 sd=0.1106，本格的 retention 不可用
+    identity=0.3307, blur1=0.4351, noise0.05=0.5896, quantize16=0.4308, jpeg75=0.1887, jpeg30=0.2151, crop_resize0.1=0.5564, jpeg_then_resize75=0.3451, adverse_cleaner=0.1335
+=== shiba_00 / apa_weak ===
+    分母塌陷：effect(identity) mean=0.2669 sd=0.0918，本格的 retention 不可用
+    identity=0.2669, blur1=0.4408, noise0.05=0.7403, quantize16=0.3563, jpeg75=0.2942, jpeg30=0.3930, crop_resize0.1=0.4625, jpeg_then_resize75=0.3738, adverse_cleaner=0.3852
+=== shiba_00 / mist ===
+    identity=0.5957, blur1=0.4468, noise0.05=0.7300, quantize16=0.6599, jpeg75=0.5600, jpeg30=0.3766, crop_resize0.1=0.4759, jpeg_then_resize75=0.3869, adverse_cleaner=0.5629
+=== shiba_00 / dia_r ===
+    分母塌陷：effect(identity) mean=0.2643 sd=0.1705，本格的 retention 不可用
+    identity=0.2643, blur1=0.3663, noise0.05=0.7058, quantize16=0.4355, jpeg75=0.1680, jpeg30=0.2746, crop_resize0.1=0.4425, jpeg_then_resize75=0.2434, adverse_cleaner=0.2211
+=== cat_00 / photoguard_c ===
+    identity=0.4566, blur1=0.2238, noise0.05=0.5086, quantize16=0.3396, jpeg75=0.2481, jpeg30=0.0985, crop_resize0.1=0.4132, jpeg_then_resize75=0.1762, adverse_cleaner=0.1705
+=== raccoon_00 / photoguard_c ===
+    identity=0.4924, blur1=0.4316, noise0.05=0.6354, quantize16=0.4326, jpeg75=0.2801, jpeg30=0.1761, crop_resize0.1=0.5206, jpeg_then_resize75=0.3643, adverse_cleaner=0.3163
+=== shiba_00 / photoguard_c ===
+    identity=0.5208, blur1=0.4129, noise0.05=0.7013, quantize16=0.3908, jpeg75=0.2441, jpeg30=0.2622, crop_resize0.1=0.4424, jpeg_then_resize75=0.3515, adverse_cleaner=0.3945
+
+表：runs/s0817/merged/retention_2.csv（189 列）

@@ -1,0 +1,10 @@
+[pipeline] reeval 開始 2026-08-17 08:47:39
+  trump_00     dia_r              edit_lpips 0.3289 -> 0.3169  (2.9 s)
+  trump_00     photoguard_c       edit_lpips 0.6076 -> 0.5815  (2.9 s)
+
+重算完成：35 列 -> runs/s0817/merged/results.csv
+[pipeline] 三個淨化分片並行 2026-08-17 08:50:11
+[pipeline] 全部完成 2026-08-17 10:17:10
+ret0: 189 列
+ret1: 189 列
+ret2: 189 列

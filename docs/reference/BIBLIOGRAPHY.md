@@ -156,3 +156,24 @@ Hann 窗與 COLA／NOLA、實數 FFT 的共軛對稱都是標準性質。**這�
 `Spatially Transformed AE 的後續`（[arXiv:1804.07493](https://arxiv.org/abs/1804.07493)）。
 
 納入與否的理由在 `SURVEY.md` 與 `SOURCE_AUDIT.md`。
+
+**NatADiff**（ICLR 2026，[arXiv:2505.20934](https://arxiv.org/abs/2505.20934)）——
+Collins、Vice、French、Mian（Univ. of Western Australia）。攻擊**分類器**而非
+text-guided editing，故不是本專案的 baseline，但有兩點可引用。
+
+方法：用 SD1.5 生成 natural adversarial sample。在 classifier-free guidance 上多
+加一個指向真類與對抗類**交集**的方向 `v_{y∩ỹ} = ε_θ(x_t,t,y∩ỹ) − ε_θ(x_t,t)`，
+交集的條件是文字 prompt「`<ỹ 類名> and <y 類名>`」，不經過 victim classifier；
+再配上分類器增廣（對 `x̂_0` 套可微變換後平均 logits）與 time-travel sampling。
+`μ=0` 時退化成 AdvDiff。
+
+兩點可引用：
+
+1. **加性與非加性的 transferability 差距**。ResNet-50 surrogate 下 white-box ASR
+   都近 100%，但平均 ASR：PGD 17.6%、AutoAttack 18.4%、AdvDiff 45.7%、
+   NatADiff 68.2%。論文歸因於 ε-ball 擾動依賴的對抗口袋在不同架構間不對齊。
+2. **對淨化的抵抗**（附錄 M）。變換式淨化（裁切／旋轉／灰階多視角平均）對它
+   無實質削弱；DiffPure 只把平均 ASR 降 **7.9 個百分點**。adversarial training
+   的 ResNet／Inception 也沒有提供有意義的防護。
+
+成本 103.1 s/張（RTX 4090），對照 PGD 的 0.3 s。

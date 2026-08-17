@@ -55,7 +55,15 @@ from src.utils.io import load_image_tensor, write_csv  # noqa: E402
 
 # 七個既有算子 ＋ C&R 串接。強度沿用 `main_set` 與 `eval_sweep` 的既有值，
 # 不另立新數字——換了強度就不能與既有的 runs/ 比。
-def purifier_set(sd, seed: int):
+def purifier_set(sd, seed: int, only=None):
+    """`only` 給定時只保留這些標籤（`label()` 的輸出）。
+
+    分段跑用的：IMPRESS 每次呼叫是 1000 步 Adam，每步一次完整 VAE 自編碼的
+    前向與反向，實測佔一格 616 s 中的約 505 s（82%）。先跑其餘九個出結果、
+    IMPRESS 另外補跑，總機時不變但第一份報告早得多。
+
+    `identity` 不可排除——它是 `retention` 的分母，少了它整格算不出比值。
+    """
     cands = [
         purify_ops.Purifier("identity"),
         purify_ops.Purifier("blur", 1.0),
@@ -68,6 +76,16 @@ def purifier_set(sd, seed: int):
         purify_ops.Purifier("adverse_cleaner"),
         purify_ops.Purifier("impress", sd=sd, seed=seed),
     ]
+    if only is not None:
+        want = set(only)
+        if "identity" not in want:
+            raise ValueError("--purifiers 必須包含 identity，它是 retention 的分母")
+        names = {label(p) for p in cands}
+        unknown = want - names
+        if unknown:
+            raise ValueError(f"未知的淨化算子標籤：{sorted(unknown)}；可用：{sorted(names)}")
+        cands = [p for p in cands if label(p) in want]
+
     kept, skipped = [], []
     for p in cands:
         (kept if p.available else skipped).append(p)
@@ -109,6 +127,9 @@ def main() -> None:
     ap.add_argument("--run", type=Path, required=True)
     ap.add_argument("--data", type=Path, default=Path("data/lo_aligned"))
     ap.add_argument("--seeds", type=int, default=3)
+    ap.add_argument("--purifiers", nargs="+", default=None,
+                    help="只跑這些淨化算子（label() 的輸出，如 identity jpeg75）。"
+                         "必須含 identity。預設是全部十個。")
     ap.add_argument("--images", nargs="+", default=None,
                     help="只跑這些影像；用來把 cells 分片到多張卡上")
     ap.add_argument("--conditions", nargs="+", default=None,
@@ -143,7 +164,7 @@ def main() -> None:
 
     sd = SDWrapper(MODEL_NAME, dtype=torch.float32)
     suite = MetricSuite(device=sd.device)
-    purifiers = purifier_set(sd, seed=0)
+    purifiers = purifier_set(sd, seed=0, only=args.purifiers)
     seeds = [EDIT_SEED + k for k in range(args.seeds)]
 
     dataset = {d["name"]: d for d in load_dataset(args.data)}

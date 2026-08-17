@@ -48,3 +48,40 @@ def test_baseline_的列沒有_budget_欄位_檔名段就是條件名():
 def test_影像與條件原樣帶過():
     c = cell_of({"image": "woman_02", "condition": "dia_r"})
     assert (c["image"], c["condition"]) == ("woman_02", "dia_r")
+
+
+# ---- `--purifiers` 的子集選取（2026-08-17 新增）----
+#
+# IMPRESS 每次呼叫是 1000 步 Adam，佔一格淨化時間的約 82%。分段跑的前提是
+# 能可靠地選子集：選錯或漏掉分母，整格的 retention 會是錯的而不是缺的。
+
+import pytest  # noqa: E402
+
+from phase_retention import label, purifier_set  # noqa: E402
+
+FAST_NINE = ["identity", "blur1", "noise0.05", "quantize16", "jpeg75", "jpeg30",
+             "crop_resize0.1", "jpeg_then_resize75", "adverse_cleaner"]
+
+
+def test_不給_only_時維持既有的十個候選():
+    """既有批次不帶這個旗標，候選集合必須一字不差，否則 runs/ 不可比。"""
+    labels = [label(p) for p in purifier_set(None, seed=0)]
+    for name in FAST_NINE:
+        assert name in labels
+
+
+def test_only_只留下指定的算子():
+    kept = [label(p) for p in purifier_set(None, seed=0, only=FAST_NINE)]
+    assert kept == FAST_NINE
+
+
+def test_缺少_identity_直接報錯():
+    """identity 是 retention 的分母。少了它算出來的不是缺值而是錯值。"""
+    with pytest.raises(ValueError, match="identity"):
+        purifier_set(None, seed=0, only=["jpeg75", "blur1"])
+
+
+def test_未知的算子標籤直接報錯():
+    """打錯字若被靜默忽略，跑完才發現少一個算子——那是數小時的機時。"""
+    with pytest.raises(ValueError, match="未知的淨化算子標籤"):
+        purifier_set(None, seed=0, only=["identity", "jpeg_75"])

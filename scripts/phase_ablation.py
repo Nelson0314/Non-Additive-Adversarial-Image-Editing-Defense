@@ -112,6 +112,9 @@ def main() -> None:
                          "（FND-040／049）。0 = 關閉，與既有批次逐位相同")
     ap.add_argument("--phase-radius", type=float, default=None,
                     help="覆寫人眼門檻的相位半徑（只在 --human-threshold 下有效）")
+    ap.add_argument("--add-radius", type=float, default=None,
+                    help="覆寫人眼門檻的加性半徑 eps，單位是 [0,1]（只在 "
+                         "--human-threshold 下有效）。人眼門檻是 1.2/255 = 0.0047")
     ap.add_argument("--tag-suffix", type=str, default="",
                     help="附加在條件標籤後，讓同一個 --out 下的多組設定不互相覆寫檔名")
     args = ap.parse_args()
@@ -150,6 +153,8 @@ def main() -> None:
                     r_human = HUMAN_RADIUS[cond]
                     if args.phase_radius is not None and cond in ("phase", "phase_rand"):
                         r_human = args.phase_radius
+                    if args.add_radius is not None and cond == "add":
+                        r_human = args.add_radius
                     param.set_radius(r_human)
                     res = run_param_pgd(item["path01"], param, loss_fn,
                                         steps=args.steps, seed=args.seed)

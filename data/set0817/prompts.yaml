@@ -6,15 +6,18 @@
 # 換場景——換衣物那組的顏色即使開到 0.9 也被忽略，鸚鵡與浣熊戴不上帽子。
 # prompts[1] 是被換掉的那一句，留著備查。
 #
-# 人物另有 keepmasks/<影像>.png：strength 0.8 會把臉整個換掉，未防禦的編輯
-# 連身分都不剩。遮罩讓該區域在編輯中被保留（latent 混合，非 inpainting）。
-#
 # 2026-08-17 二次修訂（使用者裁定）：
-#   1. 人物遮罩由「只有頭」改為「臉與身體」，改由 scripts/draw_masks.py 手畫。
-#      人物那五句本來就是換場景，配上整個人的遮罩後，編輯只動得到背景。
+#
+#   1. **不做遮罩了。** strength 0.8 會把臉整個換掉，原本的作法是加頭部遮罩讓
+#      臉在 latent 混合中被保留；改為在 prompt 裡直接寫出本人姓名，讓模型自己
+#      把臉生成回同一個人。`data/set0817/headmasks/` 因此移除，`load_dataset`
+#      找不到遮罩就不做混合，威脅模型回到單純的 img2img。
 #   2. shiba 由戴帽改為換類別（狗 -> 貓），raccoon 由換場景改為換類別
 #      （浣熊 -> 熊貓）。cat 戴帽已確認成功，維持不動；parrot 未指定，維持。
-#      換過的 prompt 必須重新確認未防禦的編輯有成功（DEC-022）。
+#
+# 姓名與換類別都改動了 prompt，**必須重新確認未防禦的編輯有成功**（DEC-022）：
+# 人物那五句要確認臉還是同一個人且背景真的換掉，shiba／raccoon 要確認真的變成
+# 貓與熊貓。
 
 cat:
   content: "cat"
@@ -46,35 +49,35 @@ raccoon:
 
 obama:
   content: "man"
-  # 換場景（換衣物顏色被忽略）
+  # 換場景，prompt 裡寫出本人姓名（2026-08-17 使用者指定，取代頭部遮罩）
   prompts:
-    - "a man standing on a snowy street"
+    - "Barack Obama standing on a snowy street"
     - "a man wearing a red hooded sweatshirt"
 
 lebron:
   content: "man"
-  # 換場景（換衣物顏色被忽略）
+  # 換場景，prompt 裡寫出本人姓名（2026-08-17 使用者指定，取代頭部遮罩）
   prompts:
-    - "a man standing on a sunny beach"
+    - "LeBron James standing on a sunny beach"
     - "a man wearing a yellow raincoat"
 
 ronaldo:
   content: "man"
-  # 換場景（換衣物顏色被忽略）
+  # 換場景，prompt 裡寫出本人姓名（2026-08-17 使用者指定，取代頭部遮罩）
   prompts:
-    - "a man standing in a green forest"
+    - "Cristiano Ronaldo standing in a green forest"
     - "a man wearing a blue denim jacket"
 
 musk:
   content: "man"
-  # 換場景（換衣物顏色被忽略）
+  # 換場景，prompt 裡寫出本人姓名（2026-08-17 使用者指定，取代頭部遮罩）
   prompts:
-    - "a man standing in a busy city street at night"
+    - "Elon Musk standing in a busy city street at night"
     - "a man wearing a green turtleneck sweater"
 
 trump:
   content: "man"
-  # 換場景（換衣物顏色被忽略）
+  # 換場景，prompt 裡寫出本人姓名（2026-08-17 使用者指定，取代頭部遮罩）
   prompts:
-    - "a man standing in a golden wheat field"
+    - "Donald Trump standing in a golden wheat field"
     - "a man wearing a brown leather jacket"

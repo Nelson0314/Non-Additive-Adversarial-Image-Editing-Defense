@@ -56,7 +56,9 @@ TARGET_IMAGE = "data/targets/gray.png"
 # 根本沒發生，分母不成立。換資料集時**必須重新確認未防禦的編輯有成功**。
 # 2026-08-17：0.55 下九張影像沒有一張服從 prompt（`runs/editsweep`），
 # 使用者的驗收條件是「一切實驗都必須在編輯成功的前提下」，故升到 0.8。
-# 人物另加頭部遮罩，否則 0.8 會把臉整個換掉。
+# 0.8 會把臉整個換掉。原本的對策是加頭部遮罩，2026-08-17 使用者改為在 prompt
+# 裡寫出本人姓名讓模型自己生回同一個人，遮罩與 `data/set0817/headmasks/` 一併
+# 撤回；`load_dataset` 找不到遮罩就不做 latent 混合。
 EDIT_STRENGTH = 0.8
 EDIT_GUIDANCE = 7.5
 EDIT_STEPS = 30
@@ -83,12 +85,12 @@ def load_dataset(root: Path = None, prompt_index: int = 0) -> list:
         out = []
         for c in sorted(spec):
             for img in sorted((root / c).glob("*.png")):
-                hm = root / "keepmasks" / f"{img.stem}.png"
+                hm = root / "headmasks" / f"{img.stem}.png"
                 out.append({"name": img.stem, "class": spec[c]["content"],
                             "path": img, "content": spec[c]["content"],
                             "prompt": spec[c]["prompts"][prompt_index],
                             "prompt_index": prompt_index,
-                            "keep_mask": hm if hm.exists() else None})
+                            "head_mask": hm if hm.exists() else None})
         return out
     prov = json.loads((DATA_DIR / "provenance.json").read_text(encoding="utf-8"))
     prompts = yaml.safe_load((DATA_DIR / "prompts.yaml").read_text(encoding="utf-8"))
@@ -148,41 +150,19 @@ def run_additive(sd, item, name: str, seed: int) -> dict:
             "stage1_seconds": 0.0}
 
 
-def keep_region(item, x01):
-    """讀出該影像的保留遮罩 (1,1,H,W)，沒有就回 None。
+def head_keep(item, x01):
+    """讀出該影像的頭部保留遮罩 (1,1,H,W)，沒有就回 None。
 
-    2026-08-17 使用者裁定人物的流程是「整張圖加防禦 -> 遮罩蓋住臉與身體 ->
-    編輯只改背景」，故遮罩範圍是整個人而不是只有頭。遮罩由
-    `scripts/draw_masks.py` 手畫，存在 `<data>/keepmasks/`。
-
-    只有人物有遮罩，動物沒有——動物在 0.8 下換場景／戴帽／換類別都成功且
-    主體還在，不需要保留區。遮罩存的是灰階 PNG，羽化過的邊要原樣用，
-    二值化會在混合處留下接縫。
+    只有人物有遮罩，動物沒有——動物在 0.8 下換場景／戴帽都成功且主體還在，
+    不需要保留區。遮罩存的是灰階 PNG，羽化過的邊要原樣用，二值化會在
+    混合處留下接縫。
     """
-    p = item.get("keep_mask")
+    p = item.get("head_mask")
     if p is None:
         return None
     from src.utils.io import load_image_tensor
     m = load_image_tensor(p, x01.device, size=x01.shape[-1])
     return m[:, :1]
-
-
-def composite_keep(x_ref, x, keep):
-    """把保留區換成同一份參照，讓後續的 LPIPS 只反映遮罩外的差異。
-
-    為什麼需要：`sdedit(keep01=...)` 的保留區換回的是**輸入圖**在該時刻的
-    帶噪 latent，所以 `edit_orig` 的保留區裝的是原圖的人、`edit_def` 的保留區
-    裝的是防禦圖的人。兩者直接算 LPIPS 時，保留區貢獻的是防禦擾動本身而不是
-    「編輯被推開多少」。人物遮罩從只有頭擴大到整個人之後，這一塊佔的面積大到
-    足以主導讀數——失真越大的方法（Mist）位移量會被灌得越高，與它有沒有真的
-    抵抗編輯無關。
-
-    把兩條分支的保留區都換成同一份 `x_ref`，該區的差異歸零，剩下的就只有
-    遮罩外。`keep` 為 None（動物沒有遮罩）時原樣回傳。
-    """
-    if keep is None:
-        return x
-    return keep * x_ref + (1.0 - keep) * x
 
 
 def evaluate(sd, suite, aes, item, x_def):
@@ -195,7 +175,7 @@ def evaluate(sd, suite, aes, item, x_def):
 
     noise = sd.sample_edit_noise(sd.encode_image(x01), seed=EDIT_SEED)
     emb, emb_u = sd.encode_text(item["prompt"]), sd.uncond_prompt()
-    keep = keep_region(item, x01)
+    keep = head_keep(item, x01)
     with torch.no_grad():
         edit_orig = sd.sdedit(x01, emb, noise, EDIT_STEPS, strength=EDIT_STRENGTH,
                               guidance_scale=EDIT_GUIDANCE, emb_uncond=emb_u,
@@ -205,11 +185,8 @@ def evaluate(sd, suite, aes, item, x_def):
                              emb_uncond=emb_u, keep01=keep)
     so = suite.semantic(edit_orig, item["prompt"])
     sd_ = suite.semantic(edit_def, item["prompt"])
-    bg_o = composite_keep(x01, edit_orig, keep)
-    bg_d = composite_keep(x01, edit_def, keep)
     return ({**{f"fid_{k}": round(v, 4) for k, v in fid.items()},
              "edit_lpips": round(float(suite.pairwise(edit_orig, edit_def)["lpips"]), 4),
-             "edit_lpips_bg": round(float(suite.pairwise(bg_o, bg_d)["lpips"]), 4),
              "edit_clip_orig": round(so["clip"], 4),
              "edit_clip_def": round(sd_["clip"], 4),
              "edit_clip_drop": round(so["clip"] - sd_["clip"], 4),

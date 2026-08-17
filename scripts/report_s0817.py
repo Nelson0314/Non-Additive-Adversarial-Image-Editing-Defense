@@ -11,6 +11,7 @@ import argparse
 import base64
 import csv
 import io
+import ast
 import statistics as st
 from pathlib import Path
 from typing import Dict, List, Optional, Sequence
@@ -20,7 +21,7 @@ DATA = Path("data/set0817")
 
 COND = ["phase", "phase_rand", "add", "photoguard_c", "mist", "dia_r", "apa_weak"]
 LABEL = {
-    "phase": "紋理重相位 θ=π", "phase_rand": "隨機相位 θ=π", "add": "加性 δ",
+    "phase": "紋理重相位", "phase_rand": "隨機相位", "add": "加性 δ",
     "photoguard_c": "PhotoGuard-c", "mist": "Mist", "dia_r": "DIA-R",
     "apa_weak": "APA",
 }
@@ -34,6 +35,27 @@ PURIF = ["identity", "blur1", "noise0.05", "quantize16", "jpeg75", "jpeg30",
 
 
 # ---------------------------------------------------------------- 讀取
+
+
+def edit_settings() -> Dict[str, float]:
+    """從 `scripts/apa_baseline.py` 讀 SDEdit 的四個常數。
+
+    用 ast 讀而不是 import，是為了不把 torch 與 diffusers 拉進報告流程；用讀的
+    而不是抄一份，是因為抄過的那份曾經停在 strength 0.55 而實際跑的是 0.8。
+    """
+    src = (Path(__file__).resolve().parent / "apa_baseline.py").read_text(encoding="utf-8")
+    want = {"EDIT_STRENGTH", "EDIT_GUIDANCE", "EDIT_STEPS", "EDIT_SEED"}
+    out: Dict[str, float] = {}
+    for node in ast.parse(src).body:
+        if isinstance(node, ast.Assign) and len(node.targets) == 1:
+            t = node.targets[0]
+            if isinstance(t, ast.Name) and t.id in want:
+                out[t.id] = ast.literal_eval(node.value)
+    missing = want - out.keys()
+    if missing:
+        raise ValueError(f"apa_baseline.py 找不到常數：{sorted(missing)}")
+    return out
+
 
 
 def rd(p: Path) -> List[dict]:
@@ -81,7 +103,7 @@ def fmt(v: Optional[float], nd: int = 4) -> str:
 # ---------------------------------------------------------------- 影像
 
 
-def img_tag(path: Optional[Path], side: int = 260, quality: int = 82) -> str:
+def img_tag(path: Optional[Path], side: int = 340, quality: int = 84) -> str:
     if path is None or not path.exists():
         return '<div class="miss">—</div>'
     from PIL import Image
@@ -165,7 +187,7 @@ CSS = """
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--fg);line-height:1.7;font-size:15px;
 font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif}
-main{max-width:1240px;margin:0 auto;padding:34px 24px 100px}
+main{max-width:1560px;margin:0 auto;padding:34px 24px 100px}
 h1{font-size:26px;margin:0 0 4px}
 h2{font-size:20px;margin:44px 0 14px;padding-top:16px;border-top:2px solid var(--line)}
 h3{font-size:16px;margin:26px 0 10px;color:var(--mut)}
@@ -174,8 +196,9 @@ table{border-collapse:collapse;font-size:13.5px;width:100%}
 th,td{border:1px solid var(--line);padding:5px 9px;text-align:left}
 th{background:var(--code);font-weight:600}
 td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
-table.imgs{table-layout:fixed}
-col.rowcol{width:150px}
+table.imgs{table-layout:fixed;width:max-content;min-width:100%}
+table.imgs col{width:300px}
+col.rowcol{width:170px}
 table.imgs td,table.imgs th{padding:3px;text-align:center;vertical-align:top}
 table.imgs th{font-size:12.5px;line-height:1.3}
 table.imgs th.rowh{text-align:left;font-size:12px;color:var(--mut)}
@@ -200,6 +223,26 @@ text.ax{font-size:11px;fill:var(--mut);font-family:inherit}
 
 # ---------------------------------------------------------------- 主體
 
+def stamp_radius(res: Dict[str, Dict[str, dict]]) -> None:
+    """把實際跑出來的半徑寫進標籤。
+
+    半徑寫死在標籤裡曾經與實際設定不一致（2026-08-17：標成 θ=π 而實際是
+    人眼門檻，或反之）。標籤由資料決定就不會再漂。同一條件若各影像半徑不同，
+    直接報錯而不是取一個代表值——那代表分片設定不一致。
+    """
+    for cond, unit in (("phase", "θ"), ("phase_rand", "θ"), ("add", "ε")):
+        rows = res.get(cond)
+        if not rows:
+            continue
+        rad = {r["radius"] for r in rows.values() if r.get("radius")}
+        if len(rad) != 1:
+            raise ValueError(f"{cond} 的 radius 在各影像間不一致：{sorted(rad)}")
+        v = float(rad.pop())
+        shown = f"{v * 255:.1f}/255" if cond == "add" else f"{v:.2f}"
+        LABEL[cond] = f"{LABEL[cond]} {unit}={shown}"
+
+
+
 
 def build() -> str:
     import yaml
@@ -208,12 +251,16 @@ def build() -> str:
 
     res = load_results()
     imgs = sorted({i for m in res.values() for i in m})
+    stamp_radius(res)
     conds = [c for c in COND if c in res]
     P: List[str] = []
     A = P.append
 
+    es = edit_settings()
     A(f'<p class="meta">{DATA} · {len(imgs)} 張 · prompt 0 · '
-      f'SDEdit strength 0.55 / guidance 7.5 / 30 步 / seed 20260812</p>')
+      f'SDEdit strength {es["EDIT_STRENGTH"]:g} / '
+      f'guidance {es["EDIT_GUIDANCE"]:g} / '
+      f'{es["EDIT_STEPS"]} 步 / seed {es["EDIT_SEED"]}</p>')
 
     # ---------- 1 對比圖 ----------
     A('<h2>1　原圖與各方法的防禦圖</h2>')

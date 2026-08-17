@@ -5,7 +5,9 @@
 #   1. 七個條件的攻擊    apa_weak / mist / dia_r / photoguard_c / add / phase / phase_rand
 #   2. 上述防禦圖過十個淨化算子（含 jpeg->resize 串接）
 #
-# 相位的預算開滿：theta = pi（構造上的上限），phase_rand 同半徑。
+# 相位用人眼門檻 theta = 1.30（phase_ablation.HUMAN_RADIUS）。2026-08-17 使用者
+# 判定 theta = pi 失真過大而撤回。不要再加 --phase-radius——在 --human-threshold
+# 模式下 radius 就是預算本身，那個旗標會直接蓋掉人眼門檻。
 #
 # 用法： bash scripts/run_s0817.sh <stage> <gpu>
 #   stage ∈ px | ext1 ext2 ext3 | pg0 pg1 pg2 pg3 | ret0 ret1 ret2 ret3
@@ -36,11 +38,11 @@ P2="parrot_00 cat_00"
 P3="raccoon_00 shiba_00"
 
 case $STAGE in
-  # ---- 像素臂：add / phase / phase_rand，相位半徑開滿 ----
+  # ---- 像素臂：add / phase / phase_rand，各自用自己的人眼門檻半徑 ----
   px)
     $PY scripts/phase_ablation.py --out $ROOT/px --data $DATA \
         --conditions add phase phase_rand \
-        --human-threshold --phase-radius 3.14159265 ;;
+        --human-threshold ;;
 
   # ---- 三個已發表的便宜 baseline ----
   ext1) $PY scripts/apa_baseline.py --out $ROOT/ext1 --data $DATA \

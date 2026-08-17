@@ -11,14 +11,16 @@
 #
 # 遮罩已撤回（2026-08-17）：改為在 prompt 裡寫出本人姓名讓模型自己把臉生回同
 # 一個人。`data/set0817/headmasks/` 已刪，`load_dataset` 找不到遮罩就不做 latent
-# 混合，因此不再有 reeval 這一階段。
+# 混合。攻擊不讀 prompt（PGD 用 encoder-targeted 損失、APA 階段一用 class），
+# 所以改 prompt 時可以沿用既有的 `*__def.png`，只跑 reeval 與 ret*——那省下
+# photoguard_c 的 16.1 GPU 小時。
 #
 # IMPRESS 依使用者指示不跑。它是這組候選中唯一針對防護擾動設計的淨化方法，
 # 也是唯一的瓶頸（實測佔一格 616 s 裡的 505 s）。要補跑的話：
 #   phase_retention.py --purifiers identity impress --out <另一個檔>
 #
 # 用法： bash scripts/run_s0817.sh <stage> <gpu>
-#   stage ∈ px | ext | pg0..pg5 | merge | ret0..ret7
+#   stage ∈ px | ext | pg0..pg5 | merge | reeval | ret0..ret7
 #
 # 分片理由：photoguard_c 實測 6183 s/張，佔全批 94% 的機時，故它自己吃六張卡
 # （每片最多兩張影像，約 3.4 小時，是關鍵路徑）；其餘六個條件加起來只有
@@ -77,6 +79,10 @@ case $STAGE in
     $PY scripts/merge_runs.py --out $ROOT/merged \
         --src $ROOT/px $ROOT/ext \
               $ROOT/pg0 $ROOT/pg1 $ROOT/pg2 $ROOT/pg3 $ROOT/pg4 $ROOT/pg5 ;;
+
+  # ---- 重算評測：prompt 改了，但攻擊不讀 prompt，防禦圖沿用 ----
+  reeval)
+    $PY scripts/reeval_edits.py --run $ROOT/merged --data $DATA ;;
 
   # ---- 淨化：跑在已存的防禦圖上，不重跑攻擊。逐影像分片，一張卡一張圖 ----
   ret0) $PY scripts/phase_retention.py --run $ROOT/merged --data $DATA --seeds 3 \

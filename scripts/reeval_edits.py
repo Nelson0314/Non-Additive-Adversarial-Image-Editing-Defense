@@ -1,20 +1,25 @@
-"""用新的頭部遮罩重算編輯，不重跑攻擊。
+"""重算編輯評測，不重跑攻擊。
 
-2026-08-17：五張人物影像的頭部遮罩原本全部偏高，下巴與下顎露在遮罩外
-（見 `scripts/make_headmasks.py` 的紀錄）。遮罩只作用在編輯階段的 latent
-混合，攻擊本身不讀它，所以 `*__def.png` 完全不受影響——重跑攻擊只會把
-photoguard_c 的 6429 s/張再付一次，共 8.9 小時，換到逐位相同的防禦圖。
+攻擊完全不讀 prompt——`run_pgd` 走的是 encoder-targeted 損失，APA 階段一用的
+是 class（`man`／`dog`），編輯遮罩（若有）也只作用在編輯階段的 latent 混合。
+因此改 prompt 或改遮罩時 `*__def.png` 逐位不變，重跑攻擊只會把 photoguard_c
+的 6429 s/張再付一次（九張共 16.1 GPU 小時），換到同一批防禦圖。
 
-本腳本只做編輯這一段：讀既有的 `*__def.png`，用新遮罩重算 `edit_orig`
-與 `edit_def`，覆寫 `results.csv` 的 `edit_*` 六欄與兩張編輯圖。`fid_*`
-不動——它們量的是防禦圖對原圖，與遮罩無關。
+本腳本只做編輯這一段：讀既有的 `*__def.png`，重算 `edit_orig` 與 `edit_def`，
+覆寫 `results.csv` 的 `edit_*` 六欄與兩張編輯圖。`fid_*` 不動——它們量的是
+防禦圖對原圖，與 prompt 無關。
+
+用過兩次：
+    2026-08-17 (a) 頭部遮罩重畫後重算五張人物。
+    2026-08-17 (b) 遮罩整組撤回、人物 prompt 改為寫出本人姓名、shiba 與
+                   raccoon 改為換類別之後，重算全部九張。
 
 一個必須講明的差異：這裡的 `x_def` 是從 8 位元 PNG 讀回來的，原批次用的是
 攻擊當下的浮點張量。兩者相差一次量化。淨化階段（`phase_retention.py`）本來
 就是讀 PNG，所以重算後的 `edit_*` 與淨化階段同源，比原本更可比，不是更不可比。
 
-`edit_orig` 只與原圖和遮罩有關，與條件無關，故每張影像只算一次，再依各條件
-的檔名分別存出。
+`edit_orig` 只與原圖、prompt 和遮罩有關，與防禦條件無關，故每張影像只算一次，
+再依各條件的檔名分別存出。
 
     python scripts/reeval_edits.py --run runs/s0817/merged --data data/set0817
 """
@@ -61,13 +66,12 @@ def main() -> None:
     suite = MetricSuite(device=sd.device)
     dataset = {d["name"]: d for d in load_dataset(args.data, prompt_index=args.prompt_index)}
 
-    targets = args.images or [n for n, d in dataset.items() if d.get("head_mask")]
+    # 預設是 results.csv 裡出現過的每一張。先前寫死成「有遮罩的那幾張」，那是
+    # 上一次用途（重畫遮罩）的副產物；改 prompt 時每一張都要重算。
+    targets = args.images or sorted({r["image"] for r in rows})
     missing = [n for n in targets if n not in dataset]
     if missing:
         raise KeyError(f"資料集裡沒有這些影像：{missing}")
-    no_mask = [n for n in targets if not dataset[n].get("head_mask")]
-    if no_mask:
-        raise ValueError(f"這些影像沒有頭部遮罩，重算沒有意義：{no_mask}")
     print(f"重算 {len(targets)} 張影像的編輯：{' '.join(targets)}", flush=True)
 
     n_done = 0
@@ -76,9 +80,9 @@ def main() -> None:
         # `path01` 是由 apa_baseline.main／phase_ablation.main 事後掛上去的，
         # `load_dataset` 只給 `path`。本腳本不經過那兩個 main，故自己讀。
         x01 = load_image_tensor(item["path"], sd.device, size=RESOLUTION)
+        # 沒有遮罩時 keep 是 None，`sdedit` 就不做 latent 混合。2026-08-17
+        # 遮罩整組撤回之後這是正常狀態，不是漏讀。
         keep = head_keep(item, x01)
-        if keep is None:
-            raise ValueError(f"{name}：head_keep 回傳 None，遮罩沒有被讀到")
 
         emb, emb_u = sd.encode_text(item["prompt"]), sd.uncond_prompt()
         noise = sd.sample_edit_noise(sd.encode_image(x01), seed=EDIT_SEED)

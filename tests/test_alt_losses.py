@@ -55,3 +55,51 @@ def test_參考_latent_不帶梯度():
     y = torch.rand(1, 3, 8, 8, requires_grad=True)
     loss(y).backward()
     assert x.grad is None
+
+
+class _StubOut:
+    """本版 transformers 的 `get_image_features` 回傳形狀：特徵在 pooler_output。"""
+
+    def __init__(self, t):
+        self.pooler_output = t
+
+
+class _StubClip:
+    """記下收到的 pixel_values，回傳可預測的特徵。"""
+
+    def __init__(self):
+        self.seen = None
+
+    def get_image_features(self, pixel_values):
+        self.seen = pixel_values
+        return _StubOut(pixel_values.flatten(1)[:, :8])
+
+
+def _embed_with_stub():
+    from src.baselines.alt_losses import _ClipEmbed, CLIP_MEAN, CLIP_STD
+    e = _ClipEmbed.__new__(_ClipEmbed)
+    e.device = "cpu"
+    e.model = _StubClip()
+    e.mean = torch.tensor(CLIP_MEAN).view(1, 3, 1, 1)
+    e.std = torch.tensor(CLIP_STD).view(1, 3, 1, 1)
+    return e
+
+
+def test_clip_前處理縮到_224_並做正規化():
+    e = _embed_with_stub()
+    out = e(torch.rand(1, 3, 512, 512))
+    assert e.model.seen.shape == (1, 3, 224, 224)
+    assert out.shape == (1, 8)
+
+
+def test_clip_取的是_pooler_output_而不是回傳物件本身():
+    """壞掉時的症狀是 AttributeError，不是靜默錯誤——但仍要釘住這條路徑。"""
+    e = _embed_with_stub()
+    out = e(torch.rand(1, 3, 64, 64))
+    assert isinstance(out, torch.Tensor)
+
+
+def test_clip_輸出已正規化為單位向量():
+    e = _embed_with_stub()
+    out = e(torch.rand(1, 3, 64, 64))
+    assert torch.allclose(out.norm(dim=-1), torch.ones(1), atol=1e-5)

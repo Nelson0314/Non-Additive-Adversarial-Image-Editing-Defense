@@ -73,7 +73,13 @@ class _ClipEmbed:
         x = F.interpolate(x01, size=(CLIP_SIZE, CLIP_SIZE), mode="bicubic",
                           align_corners=False, antialias=True).clamp(0, 1)
         x = (x - self.mean) / self.std
-        f = self.model.get_image_features(pixel_values=x)
+        # 本版 transformers 的 `get_image_features` 回傳的是
+        # `BaseModelOutputWithPooling`，投影後的影像特徵在 `.pooler_output`
+        # 而不是 `.image_embeds`（`CLIPModel.get_image_features` 原始碼：
+        # `vision_outputs.pooler_output = self.visual_projection(pooled_output)`）。
+        # `src/metrics/aesthetic.py::clip_image_similarity` 走的是同一條路，
+        # 兩處必須一致，否則損失與指標會量到不同的東西。
+        f = self.model.get_image_features(pixel_values=x).pooler_output
         return f / f.norm(dim=-1, keepdim=True).clamp_min(1e-8)
 
 

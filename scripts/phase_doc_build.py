@@ -149,7 +149,7 @@ DIA_OP = """
 
   <rect class="bx" x="386" y="240" width="200" height="58" rx="6"/>
   <text class="tx" x="486" y="262" text-anchor="middle">頻率閘 m_ω（逐頻格）</text>
-  <text class="sm" x="486" y="280" text-anchor="middle">r &lt; 0.25 與兩端行取 0</text>
+  <text class="sm" x="486" y="280" text-anchor="middle">r &lt; 0.12 與兩端行取 0</text>
 
   <path class="ln" d="M63 176 V269 H150" marker-end="url(#ar)"/>
   <path class="ln" d="M350 269 H386" marker-end="url(#ar)"/>
@@ -283,7 +283,7 @@ BODY = f"""
 <tr><th>修改</th><th>要擋掉什麼</th></tr>
 <tr><td><b>切成 32×32 重疊區塊</b>，不是整張圖一次</td><td>把相位的作用範圍限制在區塊內。
 整張圖的低頻（＝物件在畫面中的位置）不進入參數</td></tr>
-<tr><td><b>徑向頻率閘</b> m<sub>ω</sub>：區塊內歸一化半徑 &lt; 0.25 的頻格凍結</td>
+<tr><td><b>徑向頻率閘</b> m<sub>ω</sub>：區塊內歸一化半徑 &lt; 0.12 的頻格凍結</td>
 <td>區塊內的低頻仍帶著該區塊的結構，動它會在重疊相加後留下接縫</td></tr>
 <tr><td><b>紋理閘</b> g<sub>b</sub>：邊緣與平坦區凍結</td>
 <td>邊緣動相位會產生鬼影；平坦區任何改動都直接可見。只留下 Galerne 意義下的微紋理區</td></tr>
@@ -371,9 +371,28 @@ BODY = f"""
 32×17 的複數格。每個區塊、每個頻格一個 θ，三通道共用，參數量
 1089 × 32 × 17 ≈ <b>5.9×10⁵</b>——與加性 δ 的 3×512×512 ≈ 7.9×10⁵ 同數量級。</p>
 
-<h3>4.3 徑向頻率閘 m<sub>ω</sub></h3>
+<h3>4.3 徑向頻率閘 m<sub>ω</sub>：轉的是哪些頻率</h3>
 
-{img("f7_radial_gate.png", "圖 7　左：半平面上每一格的歸一化半徑。中：r_min = 0.25 的閘，黑色是凍結的頻格。右：兩端行必須凍結的理由。")}
+<p>半徑以 Nyquist 為 1 歸一化。主線使用 <b>r<sub>min</sub> = 0.12</b>，
+在 32×32 的區塊上換算成：</p>
+
+<div class="tw"><table>
+<tr><th class="n">r<sub>min</sub></th><th class="n">最低被轉的頻格 k</th>
+<th class="n">cycles/pixel</th><th class="n">對應的紋理週期</th><th class="n">被轉的格數佔比</th></tr>
+<tr><td class="n"><b>0.12（主線）</b></td><td class="n">k ≥ 2</td><td class="n">0.060</td>
+<td class="n">16.7 px</td><td class="n">87.7%</td></tr>
+<tr><td class="n">0.25</td><td class="n">k ≥ 4</td><td class="n">0.125</td>
+<td class="n">8.0 px</td><td class="n">84.7%</td></tr>
+<tr><td class="n">0.40</td><td class="n">k ≥ 7</td><td class="n">0.200</td>
+<td class="n">5.0 px</td><td class="n">77.6%</td></tr>
+</table></div>
+
+<p>換句話說，主線凍結的是<b>週期長於約 17 像素</b>的成分（含 DC 與第一圈），
+其餘全部可轉。</p>
+
+{img("f7_radial_gate.png", "圖 7　左：半平面上每一格的歸一化半徑。中：主線 r_min = 0.12 的閘，黑色是凍結的頻格。右：兩端行必須凍結的理由。")}
+
+{img("f7b_rmin_compare.png", "圖 8　三個 r_min 的閘。三者差的格數不多（87.7% / 84.7% / 77.6%），但差的都是最低頻的那幾圈——那正是失真最貴的地方。FND-042 實測：r_min = 0.40 拿到主線 87% 的效果，只付 26% 的 DISTS 與 74% 的 LPIPS，且 PSNR 高 5.9 dB；效率排序在 DISTS、LPIPS、PSNR、SSIM 四個軸上完全一致。主線的 0.12 是照『可達的 DISTS 天花板最高』選的，不是效率上的操作點。")}
 
 <p>兩端行（<code>fx = 0</code> 與 <code>fx = N/2</code>）的處理值得單獨講，因為
 Galerne 不切塊、遇不到這個問題。這兩行的鏡像落在<b>被儲存的半平面之內</b>，
@@ -395,7 +414,7 @@ Galerne 不切塊、遇不到這個問題。這兩行的鏡像落在<b>被儲存
 隨影像內容差好幾個數量級，用固定常數會讓不同影像拿到不同的有效閘，而那個差異不會
 有症狀。</p>
 
-{img("f8_texture_gate.png", "圖 8　raccoon_00 的兩個因子與合成閘。coherence 在毛的走向一致處與石頭邊緣偏高；梯度能量在背景虛化處偏低。相乘之後留下的（黃色）是草叢與皮毛的雜亂紋理區。這張圖的有效面積佔比 active_fraction = 0.469。")}
+{img("f8_texture_gate.png", "圖 9　raccoon_00 的兩個因子與合成閘。coherence 在毛的走向一致處與石頭邊緣偏高；梯度能量在背景虛化處偏低。相乘之後留下的（黃色）是草叢與皮毛的雜亂紋理區。這張圖的有效面積佔比 active_fraction = 0.469。")}
 
 <div class="note">
 <b>閘取自原圖而非當前的防禦圖。</b>閘若跟著防禦圖漂移，g<sub>b</sub> 會變成優化目標的
@@ -403,6 +422,42 @@ Galerne 不切塊、遇不到這個問題。這兩行的鏡像落在<b>被儲存
 程式在第一次前向前強制呼叫 <code>prepare_gates()</code>，沒呼叫直接拋
 <code>RuntimeError</code>，不給預設值。
 </div>
+
+<h3>4.5 為什麼轉相位不會改變亮度</h3>
+
+<p>一個區塊的平均亮度就是它的 <b>DC 係數</b>（頻率 0 那一格）。相位旋轉之所以不動
+亮度，理由不是「相位與亮度無關」——恰恰相反，<b>轉 DC 會直接把亮度乘上 cos θ</b>。</p>
+
+<p>DC 是唯一不振盪的成分。對實數影像而言它必須是實數，所以乘上 e<sup>iθ</sup> 之後，
+<code>irfft</code> 只留下實部，等於把它乘上 cos θ。實測（32×32 的區塊）：</p>
+
+<div class="tw"><table>
+<tr><th class="n">θ</th><th class="n">只轉 DC 之後的區塊平均</th><th class="n">相對原值</th><th class="n">cos θ</th></tr>
+<tr><td class="n">0.65</td><td class="n">0.4038</td><td class="n">0.7961</td><td class="n">0.7961</td></tr>
+<tr><td class="n">1.30</td><td class="n">0.1357</td><td class="n">0.2675</td><td class="n">0.2675</td></tr>
+<tr><td class="n">π</td><td class="n">−0.5073</td><td class="n">−1.0000</td><td class="n">−1.0000</td></tr>
+</table></div>
+
+<p>θ = 1.30 會讓該塊只剩 26.75% 的亮度，θ = π 直接反相。<b>這正是 DC 必須凍結的理由。</b>
+徑向閘凍結它兩次：它的半徑是 0，小於任何 r<sub>min</sub>；而且它落在
+<code>fx = 0</code> 那一行，整行本來就取 0（§4.3）。</p>
+
+<p>凍結 DC、只轉其餘頻格：區塊平均的變化是 <b>2.2e-16</b>，即機器精度。</p>
+
+{img("f7c_brightness.png", "圖 10　左：轉 DC 時區塊平均隨 θ 走 cos 曲線（紅），與 cos θ 逐點重合；凍結 DC 時是一條平線（綠）。右：兩層凍結的說明。")}
+
+<p>整張圖的層級上，亮度不是<b>逐位</b>保留而是<b>近似</b>保留，理由與 §5.2 的
+一致性投影相同：重疊區塊各自轉相位後互相不一致，最小平方重建會做折衷。
+實測 raccoon_00：</p>
+
+<div class="tw"><table>
+<tr><th class="n">θ</th><th class="n">全圖平均（原圖 0.41893014）</th><th class="n">差</th></tr>
+<tr><td class="n">0.65</td><td class="n">0.41897276</td><td class="n">4.3e-5</td></tr>
+<tr><td class="n">1.30</td><td class="n">0.41899833</td><td class="n">6.8e-5</td></tr>
+<tr><td class="n">π</td><td class="n">0.41899475</td><td class="n">6.5e-5</td></tr>
+</table></div>
+
+<p>6.8e-5 相當於 8 位元灰階的 <b>0.017 級</b>，遠低於量化步階，肉眼與任何指標都測不到。</p>
 
 <h2 id="s5">5　恆等保證與已知的不精確之處</h2>
 
@@ -420,14 +475,14 @@ Griffin &amp; Lim 稱這種輸入為 modified STFT，而 §3.4 的重建式正�
 <div class="tw"><table>
 <tr><th class="n">θ</th><th class="n">PSNR (dB)</th><th class="n">L∞</th><th class="n">amp_dev</th></tr>
 <tr><td class="n">0</td><td class="n">—（4.8e-7）</td><td class="n">—</td><td class="n">1.3e-7</td></tr>
-<tr><td class="n">0.30</td><td class="n">41.98</td><td class="n">0.094</td><td class="n">0.0073</td></tr>
-<tr><td class="n">0.65</td><td class="n">34.81</td><td class="n">0.209</td><td class="n">0.0182</td></tr>
-<tr><td class="n"><b>1.30</b></td><td class="n"><b>27.69</b></td><td class="n"><b>0.499</b></td><td class="n"><b>0.0448</b></td></tr>
-<tr><td class="n">2.20</td><td class="n">22.28</td><td class="n">0.913</td><td class="n">0.0572</td></tr>
-<tr><td class="n">3.14</td><td class="n">19.77</td><td class="n">1.274</td><td class="n">0.0515</td></tr>
+<tr><td class="n">0.30</td><td class="n">40.15</td><td class="n">0.111</td><td class="n">0.0092</td></tr>
+<tr><td class="n">0.65</td><td class="n">33.01</td><td class="n">0.230</td><td class="n">0.0226</td></tr>
+<tr><td class="n"><b>1.30</b></td><td class="n"><b>25.95</b></td><td class="n"><b>0.516</b></td><td class="n"><b>0.0550</b></td></tr>
+<tr><td class="n">2.20</td><td class="n">20.60</td><td class="n">1.103</td><td class="n">0.0738</td></tr>
+<tr><td class="n">3.14</td><td class="n">18.10</td><td class="n">1.538</td><td class="n">0.0726</td></tr>
 </table></div>
 
-<p>偏差在 0.007–0.057 之間，遠低於一維示範的 0.18。若這個值變大，代表算子在<b>造新能量</b>
+<p>偏差在 0.009–0.074 之間，遠低於一維示範的 0.18。若這個值變大，代表算子在<b>造新能量</b>
 而不是重排相位，那會讓它退化成被紋理遮蔽的加性高頻噪聲——這是設計時列出的第一號風險，
 所以它是必報的診斷值而不是可選的。</p>
 
@@ -437,9 +492,9 @@ Griffin &amp; Lim 稱這種輸入為 modified STFT，而 §3.4 的重建式正�
 
 <div class="tw"><table>
 <tr><th class="n">gl_iters</th><th class="n">amp_dev</th><th class="n">PSNR (dB)</th></tr>
-<tr><td class="n">0（預設）</td><td class="n">0.0448</td><td class="n">27.69</td></tr>
-<tr><td class="n">1</td><td class="n">0.0243</td><td class="n">28.61</td></tr>
-<tr><td class="n">4</td><td class="n">0.0152</td><td class="n">30.31</td></tr>
+<tr><td class="n">0（預設）</td><td class="n">0.0550</td><td class="n">25.95</td></tr>
+<tr><td class="n">1</td><td class="n">0.0297</td><td class="n">27.01</td></tr>
+<tr><td class="n">4</td><td class="n">0.0184</td><td class="n">28.79</td></tr>
 </table></div>
 
 <p>偏差降低的同時失真也降低，兩個變因綁在一起——迭代投影不只壓掉不一致，它把整個擾動
@@ -487,20 +542,20 @@ Griffin &amp; Lim 稱這種輸入為 modified STFT，而 §3.4 的重建式正�
 
 <h3>6.3 θ 的大小換到什麼</h3>
 
-{img("f9_theta_sweep.png", "圖 9　raccoon_00 上的 θ 掃描（此處 θ 是隨機初始化後全部拉到同一絕對值，只為展示幅度效果）。上排是輸出，下排是殘差放大 8 倍。殘差不是均勻的噪聲——它精確地落在草叢與皮毛上，那正是紋理閘留下的區域。")}
+{img("f9_theta_sweep.png", "圖 11　raccoon_00 上的 θ 掃描（此處 θ 是隨機初始化後全部拉到同一絕對值，只為展示幅度效果）。上排是輸出，下排是殘差放大 8 倍。殘差不是均勻的噪聲——它精確地落在草叢與皮毛上，那正是紋理閘留下的區域。")}
 
-{img("f9b_crop.png", "圖 10　同一批的 96×96 放大。即使 θ = π，場景、物件位置、邊緣全部維持；改變的是草與毛的紋素排列。這與圖 1 下排的全域 RPN 形成對比——同樣是只轉相位，切塊加閘之後內容完全保住。")}
+{img("f9b_crop.png", "圖 12　同一批的 96×96 放大。即使 θ = π，場景、物件位置、邊緣全部維持；改變的是草與毛的紋素排列。這與圖 1 下排的全域 RPN 形成對比——同樣是只轉相位，切塊加閘之後內容完全保住。")}
 
-{img("f10_theta_curves.png", "圖 11　θ 與三個量的關係。PSNR 單調下降，L∞ 單調上升，amp_dev 在 θ≈2.2 之後反而回落——超過該點之後相位旋轉開始互相抵消。")}
+{img("f10_theta_curves.png", "圖 13　θ 與三個量的關係。PSNR 單調下降，L∞ 單調上升，amp_dev 在 θ≈2.2 之後反而回落——超過該點之後相位旋轉開始互相抵消。")}
 
 <h2 id="s7">7　真實資料上的樣子</h2>
 
 <p>以下取自 <code>runs/phaseA_human</code>：24 張影像、三個條件、同一個損失、同樣的步數與種子，
 <b>唯一變因是參數化</b>。預算是使用者以人眼裁定的門檻：θ = 1.30、ε = 1.2/255。</p>
 
-{img("f11_real_pipeline.png", "圖 12　cat_00 的完整一列。上排：原圖與三個條件的防禦圖，肉眼幾乎分不出。中排：殘差放大 10 倍——加性的幾乎看不見（它住在高頻），相位的則貼著紋理分布。下排：SDEdit 編輯的結果。未防禦的編輯把貓變成狗；加性防禦下編輯幾乎照常成功；紋理重相位下編輯被推得最遠。")}
+{img("f11_real_pipeline.png", "圖 14　cat_00 的完整一列。上排：原圖與三個條件的防禦圖，肉眼幾乎分不出。中排：殘差放大 10 倍——加性的幾乎看不見（它住在高頻），相位的則貼著紋理分布。下排：SDEdit 編輯的結果。未防禦的編輯把貓變成狗；加性防禦下編輯幾乎照常成功；紋理重相位下編輯被推得最遠。")}
 
-{img("f12_residual_spectrum.png", "圖 13　同一張圖的殘差徑向功率譜。加性擾動的能量集中在高頻末端，相位擾動的分布明顯較寬。這是「加性把能量放在 VAE 敏感、人眼不敏感的高頻」這個既有觀察（FND-026）的直接呈現。")}
+{img("f12_residual_spectrum.png", "圖 15　同一張圖的殘差徑向功率譜。加性擾動的能量集中在高頻末端，相位擾動的分布明顯較寬。這是「加性把能量放在 VAE 敏感、人眼不敏感的高頻」這個既有觀察（FND-026）的直接呈現。")}
 
 <h3>24 張的匯總</h3>
 
@@ -532,8 +587,8 @@ LPIPS 說相位比加性差 1.8 倍，DISTS 說差 8.3 倍，PSNR 說差 17 dB�
 <tr><th></th><th>加性 δ</th><th>紋理重相位</th></tr>
 <tr><td>作用方式</td><td>x + δ，δ 與 x 無關</td><td>把 x 自己的頻譜係數轉相位，係數大小由 x 決定</td></tr>
 <tr><td>θ / ε = 0</td><td>恆等</td><td>恆等（由重建式保證，非近似）</td></tr>
-<tr><td>能量落在哪</td><td>高頻（圖 13）</td><td>紋理區，跟著影像內容走（圖 12 中排）</td></tr>
-<tr><td>幅度譜</td><td>改變</td><td>區塊層級逐位保留，整張圖層級偏差 0.007–0.057</td></tr>
+<tr><td>能量落在哪</td><td>高頻（圖 15）</td><td>紋理區，跟著影像內容走（圖 14 中排）</td></tr>
+<tr><td>幅度譜</td><td>改變</td><td>區塊層級逐位保留，整張圖層級偏差 0.009–0.074</td></tr>
 <tr><td>參數量（512²）</td><td>7.9×10⁵</td><td>5.9×10⁵</td></tr>
 </table></div>
 
@@ -579,7 +634,7 @@ hop 寫成測試釘住。</p></details>
 <details><summary>二、Galerne 說相位隨機化不改變外觀，Oppenheim 說相位決定內容。本方法怎麼同時容納這兩句？</summary>
 <p>兩句都對，差別在尺度。相位的低頻分量攜帶結構與位置，高頻分量攜帶紋素擺放。
 本方法用三個手段把作用範圍限制在後者：切成 32×32 區塊（整張圖的低頻不入參）、
-徑向頻率閘（區塊內的低頻凍結）、紋理閘（邊緣與平坦區凍結）。圖 1 與圖 10 的對比
+徑向頻率閘（區塊內的低頻凍結）、紋理閘（邊緣與平坦區凍結）。圖 1 與圖 12 的對比
 就是這個限制的效果。</p></details>
 
 <details><summary>三、為什麼 <code>fx = 0</code> 與 <code>fx = N/2</code> 兩行要凍結？不凍結會怎樣？</summary>
@@ -587,11 +642,17 @@ hop 寫成測試釘住。</p></details>
 對 fy 共軛對稱。逐格施加獨立相位會破壞這個關係——輸出仍是實數，但那兩行的幅度不再
 保留，而且沒有任何症狀。代價是 17 行少掉 2 行。</p></details>
 
-<details><summary>四、<code>amplitude_deviation</code> 量的是什麼？為什麼它必須報？</summary>
+<details><summary>四、相位旋轉為什麼不會改變整體亮度？</summary>
+<p>亮度就是 DC 係數。轉 DC 會把該塊的平均乘上 cos θ——θ=1.30 剩 26.75%，θ=π 反相。
+徑向閘凍結 DC 兩次（半徑 0 &lt; r<sub>min</sub>，且它在 <code>fx=0</code> 那一整行）。
+凍結之後區塊平均的變化是 2.2e-16。整張圖的層級因為一致性投影會有 6.8e-5 的漂移，
+相當於 8 位元灰階的 0.017 級。</p></details>
+
+<details><summary>五、<code>amplitude_deviation</code> 量的是什麼？為什麼它必須報？</summary>
 <p>量的是「重建後的影像再分析一次，局部幅度譜相對於原圖的偏差」。逐區塊各自轉相位後
 的係數一般不是任何實影像的 STFT，最小平方重建會做折衷，折衷改動了係數。
 若這個值變大，代表算子在造新能量而不是重排相位，那會使它退化成被紋理遮蔽的加性高頻
-噪聲——也就是整個方法的主張失效。實測 0.007–0.057。</p></details>
+噪聲——也就是整個方法的主張失效。實測 0.009–0.074。</p></details>
 
 <h3>參考文獻</h3>
 

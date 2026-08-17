@@ -99,7 +99,7 @@ fig.savefig(OUT / "f6_window.png", bbox_inches="tight")
 plt.close(fig)
 
 # ---------------------------------------------------------------- F7 rfft2 與徑向閘
-for rmin, fname in ((0.25, "f7_radial_gate.png"),):
+for rmin, fname in ((0.12, "f7_radial_gate.png"),):
     m = radial_gate(B, rmin, "cpu", torch.float32).numpy()
     fy = np.fft.fftfreq(B) * 2
     fx = np.fft.rfftfreq(B) * 2
@@ -171,7 +171,7 @@ plt.close(fig)
 
 # ---------------------------------------------------------------- F9/F10 theta 掃描
 def run(img, theta, seed=0, gl=0):
-    mod = PhaseResidual(size=img.shape[-1], block=32, r_min=0.25,
+    mod = PhaseResidual(size=img.shape[-1], block=32, r_min=0.12,
                         theta_max=math.pi, init_std=1.0, seed=seed, gl_iters=gl)
     with torch.no_grad():
         mod.theta.copy_(torch.sign(mod.theta) * theta)   # 全部拉到 |theta| 相同
@@ -307,3 +307,70 @@ fig.tight_layout()
 fig.savefig(OUT / "f12_residual_spectrum.png", bbox_inches="tight")
 plt.close(fig)
 print("real-data figures done")
+
+# ---------------------------------------------------------------- F7b 三個 r_min
+fig, ax = plt.subplots(1, 3, figsize=(10.5, 3.0))
+for a, rmin in zip(ax, (0.12, 0.25, 0.40)):
+    m = radial_gate(B, rmin, "cpu", torch.float32).numpy()
+    a.imshow(np.fft.fftshift(m, axes=0), cmap="gray", aspect="auto")
+    kmin = int(np.ceil(rmin * (B // 2)))
+    per = 1.0 / (rmin * 0.5)
+    a.set_title(fr"$r_{{min}}$={rmin}   live {m.mean()*100:.0f}%"
+                "\n" f"lowest rotated bin k={kmin}, period {per:.1f} px",
+                fontsize=8)
+    a.set_xlabel("fx index 0..16")
+    a.set_ylabel("fy index (shifted)")
+fig.suptitle("radial gate at three settings — white is rotated, black is frozen",
+             fontsize=9)
+fig.tight_layout()
+fig.savefig(OUT / "f7b_rmin_compare.png", bbox_inches="tight")
+plt.close(fig)
+
+# ---------------------------------------------------------------- F7c 亮度
+rng = np.random.default_rng(0)
+blk = rng.random((32, 32)) * 0.5 + 0.25
+S = np.fft.rfft2(blk, norm="ortho")
+ths = np.linspace(0, np.pi, 60)
+mean_dc, mean_rest = [], []
+for t in ths:
+    S2 = S.copy()
+    S2[0, 0] *= np.exp(1j * t)
+    mean_dc.append(np.fft.irfft2(S2, s=(32, 32), norm="ortho").mean())
+    S3 = S.copy()
+    S3[1:, 1:] *= np.exp(1j * t)
+    mean_rest.append(np.fft.irfft2(S3, s=(32, 32), norm="ortho").mean())
+
+NOTE = "\n".join([
+    "DC is the only bin with no oscillation.",
+    "For a real image it must stay real, so",
+    "irfft keeps only the real part after the",
+    "rotation:   DC -> DC * cos(theta).",
+    "",
+    "theta = 1.30   ->  brightness x 0.267",
+    "theta = pi     ->  brightness x -1",
+    "",
+    "The radial gate freezes it twice over:",
+    "  r(0,0) = 0 < r_min       -> m = 0",
+    "  the whole fx = 0 column  -> m = 0",
+    "",
+    "With DC frozen the block mean is",
+    "preserved to 2.2e-16.",
+])
+fig, ax = plt.subplots(1, 2, figsize=(9.5, 3.2))
+ax[0].plot(ths, np.array(mean_dc) / blk.mean(), lw=2, color="#b91c1c",
+           label="rotate the DC bin too")
+ax[0].plot(ths, np.cos(ths), "--", lw=1.2, color="#111",
+           label=r"$\cos\theta$")
+ax[0].plot(ths, np.array(mean_rest) / blk.mean(), lw=2, color="#0d7377",
+           label="DC frozen (what the gate does)")
+ax[0].set_xlabel(r"$\theta$")
+ax[0].set_ylabel("block mean / original mean")
+ax[0].legend(fontsize=7.5)
+ax[0].grid(alpha=.25)
+ax[0].set_title("rotating DC scales brightness by exactly cos(theta)", fontsize=8.5)
+ax[1].axis("off")
+ax[1].text(0.0, 0.98, NOTE, fontsize=8, va="top", family="monospace")
+fig.tight_layout()
+fig.savefig(OUT / "f7c_brightness.png", bbox_inches="tight")
+plt.close(fig)
+print("gate/brightness figures done")

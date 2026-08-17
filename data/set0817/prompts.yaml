@@ -6,8 +6,15 @@
 # 換場景——換衣物那組的顏色即使開到 0.9 也被忽略，鸚鵡與浣熊戴不上帽子。
 # prompts[1] 是被換掉的那一句，留著備查。
 #
-# 人物另有 headmasks/<影像>.png：strength 0.8 會把臉整個換掉，未防禦的編輯
-# 連身分都不剩。遮罩讓頭部在編輯中被保留（latent 混合，非 inpainting）。
+# 人物另有 keepmasks/<影像>.png：strength 0.8 會把臉整個換掉，未防禦的編輯
+# 連身分都不剩。遮罩讓該區域在編輯中被保留（latent 混合，非 inpainting）。
+#
+# 2026-08-17 二次修訂（使用者裁定）：
+#   1. 人物遮罩由「只有頭」改為「臉與身體」，改由 scripts/draw_masks.py 手畫。
+#      人物那五句本來就是換場景，配上整個人的遮罩後，編輯只動得到背景。
+#   2. shiba 由戴帽改為換類別（狗 -> 貓），raccoon 由換場景改為換類別
+#      （浣熊 -> 熊貓）。cat 戴帽已確認成功，維持不動；parrot 未指定，維持。
+#      換過的 prompt 必須重新確認未防禦的編輯有成功（DEC-022）。
 
 cat:
   content: "cat"
@@ -18,10 +25,10 @@ cat:
 
 shiba:
   content: "dog"
-  # 戴帽（0.8 下成功）
+  # 換類別（2026-08-17 使用者指定：柴犬變貓）
   prompts:
+    - "a cat"
     - "a dog wearing a yellow knitted hat"
-    - "a dog running on a sandy beach"
 
 parrot:
   content: "parrot"
@@ -32,10 +39,10 @@ parrot:
 
 raccoon:
   content: "raccoon"
-  # 換場景（戴帽 0.9 仍失敗）
+  # 換類別（2026-08-17 使用者指定：浣熊變熊貓）
   prompts:
+    - "a panda"
     - "a raccoon standing on a city sidewalk at night"
-    - "a raccoon wearing a blue baseball cap"
 
 obama:
   content: "man"

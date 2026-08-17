@@ -34,7 +34,7 @@ import torch  # noqa: E402
 
 from apa_baseline import (  # noqa: E402
     EDIT_GUIDANCE, EDIT_SEED, EDIT_STEPS, EDIT_STRENGTH, MODEL_NAME,
-    RESOLUTION, head_keep, load_dataset,
+    RESOLUTION, composite_keep, keep_region, load_dataset,
 )
 from phase_retention import cell_of  # noqa: E402
 from src.metrics.suite import MetricSuite  # noqa: E402
@@ -61,11 +61,11 @@ def main() -> None:
     suite = MetricSuite(device=sd.device)
     dataset = {d["name"]: d for d in load_dataset(args.data, prompt_index=args.prompt_index)}
 
-    targets = args.images or [n for n, d in dataset.items() if d.get("head_mask")]
+    targets = args.images or [n for n, d in dataset.items() if d.get("keep_mask")]
     missing = [n for n in targets if n not in dataset]
     if missing:
         raise KeyError(f"資料集裡沒有這些影像：{missing}")
-    no_mask = [n for n in targets if not dataset[n].get("head_mask")]
+    no_mask = [n for n in targets if not dataset[n].get("keep_mask")]
     if no_mask:
         raise ValueError(f"這些影像沒有頭部遮罩，重算沒有意義：{no_mask}")
     print(f"重算 {len(targets)} 張影像的編輯：{' '.join(targets)}", flush=True)
@@ -76,9 +76,9 @@ def main() -> None:
         # `path01` 是由 apa_baseline.main／phase_ablation.main 事後掛上去的，
         # `load_dataset` 只給 `path`。本腳本不經過那兩個 main，故自己讀。
         x01 = load_image_tensor(item["path"], sd.device, size=RESOLUTION)
-        keep = head_keep(item, x01)
+        keep = keep_region(item, x01)
         if keep is None:
-            raise ValueError(f"{name}：head_keep 回傳 None，遮罩沒有被讀到")
+            raise ValueError(f"{name}：keep_region 回傳 None，遮罩沒有被讀到")
 
         emb, emb_u = sd.encode_text(item["prompt"]), sd.uncond_prompt()
         noise = sd.sample_edit_noise(sd.encode_image(x01), seed=EDIT_SEED)
@@ -108,6 +108,9 @@ def main() -> None:
             before = row.get("edit_lpips")
             row["edit_lpips"] = round(
                 float(suite.pairwise(edit_orig, edit_def)["lpips"]), 4)
+            row["edit_lpips_bg"] = round(float(suite.pairwise(
+                composite_keep(x01, edit_orig, keep),
+                composite_keep(x01, edit_def, keep))["lpips"]), 4)
             row["edit_clip_orig"] = round(so["clip"], 4)
             row["edit_clip_def"] = round(sdf["clip"], 4)
             row["edit_clip_drop"] = round(so["clip"] - sdf["clip"], 4)

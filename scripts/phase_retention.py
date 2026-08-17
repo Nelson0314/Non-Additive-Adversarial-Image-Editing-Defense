@@ -46,7 +46,7 @@ import torch  # noqa: E402
 
 from apa_baseline import (  # noqa: E402
     EDIT_GUIDANCE, EDIT_SEED, EDIT_STEPS, EDIT_STRENGTH, MODEL_NAME,
-    RESOLUTION, head_keep, load_dataset,
+    RESOLUTION, composite_keep, keep_region, load_dataset,
 )
 from src.metrics.suite import MetricSuite  # noqa: E402
 from src.models.sd import SDWrapper  # noqa: E402
@@ -176,7 +176,7 @@ def main() -> None:
         with torch.no_grad():
             return sd.sdedit(x01.clamp(0, 1), emb, noise, EDIT_STEPS,
                              strength=EDIT_STRENGTH, guidance_scale=EDIT_GUIDANCE,
-                             emb_uncond=emb_u, keep01=head_keep(item, x01))
+                             emb_uncond=emb_u, keep01=keep_region(item, x01))
 
     rows = []
     for cell in cells:
@@ -198,20 +198,30 @@ def main() -> None:
 
         print(f"=== {cell['image']} / {tag} ===", flush=True)
         t0 = time.time()
+        keep = keep_region(item, x01)
         effects: dict = {}
+        effects_bg: dict = {}
         for p in purifiers:
             name = label(p)
-            vals = []
+            vals, vals_bg = [], []
             x_pur = p.evaluate(x_def)
             for seed in seeds:
                 e = edit(x_pur, item, seed)
-                vals.append(float(
-                    suite.pairwise(edit_orig_cache[(cell["image"], seed)], e)["lpips"]))
+                eo = edit_orig_cache[(cell["image"], seed)]
+                vals.append(float(suite.pairwise(eo, e)["lpips"]))
+                # 遮罩外的位移量：保留區在兩條分支裡裝的是不同的圖（原圖的人
+                # 對防禦圖的人），直接算會把防禦擾動本身算成位移量。
+                vals_bg.append(float(suite.pairwise(
+                    composite_keep(x01, eo, keep),
+                    composite_keep(x01, e, keep))["lpips"]))
             effects[name] = vals
+            effects_bg[name] = vals_bg
 
         base = effects["identity"]
         base_mean = statistics.fmean(base)
         base_sd = statistics.stdev(base) if len(base) > 1 else float("nan")
+        base_bg = effects_bg["identity"]
+        base_bg_mean = statistics.fmean(base_bg)
         if cell["condition"] == "none":
             usable = True          # 地板只看絕對值，分母為 0 是構造使然
         else:
@@ -222,6 +232,8 @@ def main() -> None:
 
         for name, vals in effects.items():
             mean = statistics.fmean(vals)
+            vals_bg = effects_bg[name]
+            mean_bg = statistics.fmean(vals_bg)
             rows.append({
                 "image": cell["image"], "condition": cell["condition"],
                 "budget_target": cell["budget"], "purifier": name,
@@ -230,6 +242,12 @@ def main() -> None:
                 "effect_identity_mean": round(base_mean, 5),
                 "effect_identity_sd": round(base_sd, 5) if base_sd == base_sd else "",
                 "retention": round(mean / base_mean, 5) if base_mean > 0 else "",
+                "effect_bg_mean": round(mean_bg, 5),
+                "effect_bg_sd": (round(statistics.stdev(vals_bg), 5)
+                                 if len(vals_bg) > 1 else ""),
+                "effect_bg_identity_mean": round(base_bg_mean, 5),
+                "retention_bg": (round(mean_bg / base_bg_mean, 5)
+                                 if base_bg_mean > 0 else ""),
                 "usable": usable,
                 "seconds": round(time.time() - t0, 1),
             })

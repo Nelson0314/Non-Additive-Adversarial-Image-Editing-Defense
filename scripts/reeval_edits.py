@@ -73,7 +73,9 @@ def main() -> None:
     n_done = 0
     for name in targets:
         item = dataset[name]
-        x01 = item["path01"]
+        # `path01` 是由 apa_baseline.main／phase_ablation.main 事後掛上去的，
+        # `load_dataset` 只給 `path`。本腳本不經過那兩個 main，故自己讀。
+        x01 = load_image_tensor(item["path"], sd.device, size=RESOLUTION)
         keep = head_keep(item, x01)
         if keep is None:
             raise ValueError(f"{name}：head_keep 回傳 None，遮罩沒有被讀到")

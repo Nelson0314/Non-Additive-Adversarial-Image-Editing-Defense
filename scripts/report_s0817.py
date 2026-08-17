@@ -123,6 +123,18 @@ def find_png(image: str, suffix: str) -> Optional[Path]:
     return None
 
 
+def find_png_any(image: str, suffix: str) -> Optional[Path]:
+    """`__edit_orig` 是逐條件各存一份的，取先找到的那份。
+
+    兩支驅動（`phase_ablation` 與 `apa_baseline`）各自算出來的未防禦編輯，實測
+    最大差 1/255、只有 0.05% 的像素不同，是 8 位元捨入而不是不同的編輯結果。
+    """
+    for d in sorted(RUN.glob("*/")):
+        for p in sorted(d.glob(f"{image}__*__{suffix}.png")):
+            return p
+    return None
+
+
 # ---------------------------------------------------------------- 圖表
 
 
@@ -200,6 +212,7 @@ table.imgs{table-layout:fixed;width:max-content;min-width:100%}
 table.imgs col{width:470px}
 col.rowcol{width:190px}
 table.imgs td,table.imgs th{padding:3px;text-align:center;vertical-align:top}
+table.imgs tr.after td{padding-bottom:16px;border-bottom:2px solid var(--mut)}
 table.imgs th{font-size:14px;line-height:1.35}
 table.imgs th.rowh{text-align:left;font-size:13px;color:var(--mut)}
 table.imgs th.rowh .pr{display:block;font-weight:400;font-style:italic;
@@ -262,29 +275,40 @@ def build() -> str:
       f'guidance {es["EDIT_GUIDANCE"]:g} / '
       f'{es["EDIT_STEPS"]} 步 / seed {es["EDIT_SEED"]}</p>')
 
-    # ---------- 1 對比圖 ----------
-    A('<h2>1　原圖與各方法的防禦圖</h2>')
-    cols = [("原圖", None)] + [(LABEL[c], c) for c in conds]
+    # ---------- 1 編輯前後對比圖 ----------
+    A('<h2>1　編輯前後</h2>')
+    A('<p class="meta">每張影像兩列：上列是送進 SDEdit 之前的圖（原圖與各方法的'
+      '防禦圖），下列是同一張圖被 SDEdit 編輯之後的結果。第一欄的編輯後即未防禦'
+      '的編輯，是各方法位移量的參照。</p>')
+    cols = [("原圖 / 未防禦編輯", None)] + [(LABEL[c], c) for c in conds]
     colgroup = ('<colgroup><col class="rowcol">'
                 f'<col span="{len(cols)}"></colgroup>')
     head = "".join(f"<th>{t}</th>" for t, _ in cols)
     rows = []
     for im in imgs:
-        cells = []
+        before, after = [], []
         for _, c in cols:
             if c is None:
-                cells.append(f'<td>{img_tag(find_png(im, "orig"))}'
-                             f'<span class="cap">&nbsp;</span></td>')
+                before.append(f'<td>{img_tag(find_png(im, "orig"))}'
+                              f'<span class="cap">原圖</span></td>')
+                after.append(f'<td>{img_tag(find_png_any(im, "edit_orig"))}'
+                             f'<span class="cap">未防禦編輯</span></td>')
                 continue
             r = res.get(c, {}).get(im)
-            p = find_png(im, f"{tag_of(r)}__def") if r else None
-            cells.append(
-                f'<td>{img_tag(p)}<span class="cap">'
+            tag = tag_of(r) if r else None
+            before.append(
+                f'<td>{img_tag(find_png(im, f"{tag}__def") if tag else None)}'
+                f'<span class="cap">'
                 f'LPIPS {fmt(num(r, "fid_lpips"))}<br>'
                 f'DISTS {fmt(num(r, "fid_dists"))}</span></td>')
-        rows.append(f'<tr><th class="rowh">{im}'
-                    f'<span class="pr">「{prompts.get(im, "")}」</span></th>'
-                    f'{"".join(cells)}</tr>')
+            after.append(
+                f'<td>{img_tag(find_png(im, f"{tag}__edit_def") if tag else None)}'
+                f'<span class="cap">編輯 LPIPS '
+                f'{fmt(num(r, "edit_lpips"))}</span></td>')
+        rows.append(f'<tr><th class="rowh" rowspan="2">{im}'
+                    f'<span class="pr">「{prompts.get(im, "")}」</span>'
+                    f'<span class="pr">上：編輯前　下：編輯後</span></th>'
+                    f'{"".join(before)}</tr><tr class="after">{"".join(after)}</tr>')
     A(f'<div class="tw"><table class="imgs">{colgroup}'
       f'<tr><th></th>{head}</tr>{"".join(rows)}</table></div>')
 

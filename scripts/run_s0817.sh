@@ -10,7 +10,7 @@
 # 模式下 radius 就是預算本身，那個旗標會直接蓋掉人眼門檻。
 #
 # 用法： bash scripts/run_s0817.sh <stage> <gpu>
-#   stage ∈ px | ext1 ext2 ext3 | pg0 pg1 pg2 pg3 | ret0 ret1 ret2 ret3
+#   stage ∈ px | ext1 ext2 ext3 | pg0 pg1 pg2 pg3 | merge | reeval | ret0..ret3
 #
 # 分片理由：photoguard_c 實測 6183 s/張，佔全批 94% 的機時，故它自己吃四張卡；
 # 其餘六個條件加起來只有 428 s/張，塞在有空檔的卡上。
@@ -67,6 +67,10 @@ case $STAGE in
     $PY scripts/merge_runs.py --out $ROOT/merged \
         --src $ROOT/px $ROOT/ext1 $ROOT/ext2 $ROOT/ext3 \
               $ROOT/pg0 $ROOT/pg1 $ROOT/pg2 $ROOT/pg3 ;;
+
+  # ---- 用新的頭部遮罩重算五張人物的編輯（不重跑攻擊）----
+  reeval)
+    $PY scripts/reeval_edits.py --run $ROOT/merged --data $DATA ;;
 
   # ---- 淨化：跑在已存的防禦圖上，不重跑攻擊 ----
   ret0) $PY scripts/phase_retention.py --run $ROOT/merged --data $DATA --seeds 3 \

@@ -1,27 +1,47 @@
-# 2026-08-17 的新資料集。使用者當日提供九張影像，先前的實驗結果全數作廢。
+# 2026-08-17 建立、2026-08-18 改版的資料集。
 #
-# prompts[0] 是本輪實際使用的那一句，逐張由編輯成功掃描（runs/editsweep）
-# 挑出來：SDEdit strength 0.8 / guidance 7.5 下人眼判定有服從 prompt 的那一句。
-# 使用者裁定「能成功的就用原本的」，故 cat 與 shiba 維持戴帽，其餘七張改用
-# 換場景——換衣物那組的顏色即使開到 0.9 也被忽略，鸚鵡與浣熊戴不上帽子。
-# prompts[1] 是被換掉的那一句，留著備查。
+# prompts[0] 是本輪實際使用的那一句，prompts[1] 是被換掉的那一句，留著備查。
 #
-# 2026-08-17 二次修訂（使用者裁定）：
+# ---- 2026-08-18 改版（使用者裁定）----
 #
-#   1. **不做遮罩了。** strength 0.8 會把臉整個換掉，原本的作法是加頭部遮罩讓
-#      臉在 latent 混合中被保留；改為在 prompt 裡直接寫出本人姓名，讓模型自己
-#      把臉生成回同一個人。`data/set0817/headmasks/` 因此移除，`load_dataset`
-#      找不到遮罩就不做混合，威脅模型回到單純的 img2img。
-#   2. shiba 由戴帽改為換類別（狗 -> 貓），raccoon 由換場景改為換類別
-#      （浣熊 -> 熊貓）。cat 戴帽已確認成功，維持不動；parrot 未指定，維持。
+# 五張名人照（obama／lebron／ronaldo／musk／trump）整組移除，換成三張 CC0 的
+# 無名氏肖像，prompt 反過來把他們改成名人。理由見 runs/s0817_prompts 的分析：
+# 在 strength 0.8 下「換場景」這一類 prompt 幾乎不服從——LPIPS 對原圖有 0.41
+# 到 0.66（改很多），CLIP 對齊增益卻只有 ±0.01（沒有往 prompt 走）。會服從的
+# 是「加物件」（cat 戴帽，gain/LPIPS 0.33）與「換主體類別」（shiba 變貓 0.056、
+# raccoon 變熊貓 0.106）。無名氏改成名人屬於後者，是換身分而不是換背景。
 #
-# 姓名與換類別都改動了 prompt，**必須重新確認未防禦的編輯有成功**（DEC-022）：
-# 人物那五句要確認臉還是同一個人且背景真的換掉，shiba／raccoon 要確認真的變成
-# 貓與熊貓。
+# 換過 prompt 必須重新確認未防禦的編輯有成功（DEC-022）。
+#
+# ---- 遮罩 ----
+#
+# 不做遮罩。原本的作法是加頭部遮罩讓臉在 latent 混合中被保留，2026-08-17 整組
+# 撤回；`load_dataset` 找不到 headmasks/ 就不做混合，威脅模型是單純的 img2img。
+
+person_a:
+  content: "man"
+  # 換身分（無名氏 -> 名人）
+  prompts:
+    - "Barack Obama"
+    - "a man standing on a snowy street"
+
+person_b:
+  content: "man"
+  # 換身分（無名氏 -> 名人）
+  prompts:
+    - "Morgan Freeman"
+    - "a man standing in a busy city street at night"
+
+person_c:
+  content: "woman"
+  # 換身分（無名氏 -> 名人）
+  prompts:
+    - "Taylor Swift"
+    - "a woman standing in a green forest"
 
 cat:
   content: "cat"
-  # 戴帽（0.8 下成功）
+  # 加物件（0.8 下成功，gain/LPIPS 0.33 是全批最高）
   prompts:
     - "a cat wearing a red party hat"
     - "a cat sitting on a snowy roof"
@@ -33,13 +53,6 @@ shiba:
     - "a cat"
     - "a dog wearing a yellow knitted hat"
 
-parrot:
-  content: "parrot"
-  # 換場景（戴帽 0.9 仍失敗）
-  prompts:
-    - "a parrot perched on a branch in a rainforest"
-    - "a parrot wearing a tiny straw hat"
-
 raccoon:
   content: "raccoon"
   # 換類別（2026-08-17 使用者指定：浣熊變熊貓）
@@ -47,37 +60,9 @@ raccoon:
     - "a panda"
     - "a raccoon standing on a city sidewalk at night"
 
-obama:
-  content: "man"
-  # 換場景，prompt 裡寫出本人姓名（2026-08-17 使用者指定，取代頭部遮罩）
+parrot:
+  content: "parrot"
+  # 換場景（戴帽 0.9 仍失敗；換場景在 0.8 下服從得很弱，gain/LPIPS 0.049）
   prompts:
-    - "Barack Obama standing on a snowy street"
-    - "a man wearing a red hooded sweatshirt"
-
-lebron:
-  content: "man"
-  # 換場景，prompt 裡寫出本人姓名（2026-08-17 使用者指定，取代頭部遮罩）
-  prompts:
-    - "LeBron James standing on a sunny beach"
-    - "a man wearing a yellow raincoat"
-
-ronaldo:
-  content: "man"
-  # 換場景，prompt 裡寫出本人姓名（2026-08-17 使用者指定，取代頭部遮罩）
-  prompts:
-    - "Cristiano Ronaldo standing in a green forest"
-    - "a man wearing a blue denim jacket"
-
-musk:
-  content: "man"
-  # 換場景，prompt 裡寫出本人姓名（2026-08-17 使用者指定，取代頭部遮罩）
-  prompts:
-    - "Elon Musk standing in a busy city street at night"
-    - "a man wearing a green turtleneck sweater"
-
-trump:
-  content: "man"
-  # 換場景，prompt 裡寫出本人姓名（2026-08-17 使用者指定，取代頭部遮罩）
-  prompts:
-    - "Donald Trump standing in a golden wheat field"
-    - "a man wearing a brown leather jacket"
+    - "a parrot perched on a branch in a rainforest"
+    - "a parrot wearing a tiny straw hat"

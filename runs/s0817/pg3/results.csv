@@ -1,3 +1,0 @@
-image,condition,stage1_seconds,total_seconds,fid_lpips,fid_ssim,fid_dists,fid_psnr,fid_clip_img,fid_nima,fid_cnniqa,edit_lpips,edit_clip_orig,edit_clip_def,edit_clip_drop,edit_siglip_orig,edit_siglip_def,edit_siglip_drop
-raccoon_00,photoguard_c,0.0,6389.0,0.3056,0.9849,0.0271,40.8943,0.9841,6.0785,0.7065,0.4028,0.3158,0.328,-0.0122,0.1183,0.1337,-0.0153
-shiba_00,photoguard_c,0.0,6386.1,0.3815,0.9834,0.0232,40.8943,0.9964,5.6333,0.7088,0.519,0.3384,0.3447,-0.0063,0.1444,0.1338,0.0106

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 2026-08-17 的批次。九張影像、prompt 0。
+# 2026-08-18 的批次。七張影像、prompt 0。
 #
 # 只有兩組實驗：
 #   1. 七個條件的攻擊    apa_weak / mist / dia_r / photoguard_c / add / phase / phase_rand
@@ -20,12 +20,12 @@
 #   phase_retention.py --purifiers identity impress --out <另一個檔>
 #
 # 用法： bash scripts/run_s0817.sh <stage> <gpu>
-#   stage ∈ px | ext | pg0..pg5 | merge | reeval | ret0..ret7
+#   stage ∈ pxext | px | ext | pg0..pg6 | merge | reeval | ret0..ret6
 #
-# 分片理由：photoguard_c 實測 6183 s/張，佔全批 94% 的機時，故它自己吃六張卡
-# （每片最多兩張影像，約 3.4 小時，是關鍵路徑）；其餘六個條件加起來只有
-# 428 s/張，兩張卡就夠。同一個 --out 只允許一個寫入者——write_csv 每次呼叫
-# 整份覆寫。
+# 分片理由：photoguard_c 實測 6429 s/張，佔全批 94% 的機時。七張影像各吃一張
+# 卡（1.8 小時），其餘六個條件（合計 428 s/張）串在第八張卡上跑 pxext
+# （約 1.9 小時），兩條路徑等長。同一個 --out 只允許一個寫入者——write_csv
+# 每次呼叫整份覆寫。
 
 set -euo pipefail
 source "$HOME/env.sh" >/dev/null 2>&1 || true   # env.sh 會 cd 到舊 repo，故 cd 放它後面
@@ -41,74 +41,42 @@ mkdir -p $ROOT
 # 九個便宜算子。identity 是 retention 的分母，不能拿掉。
 FAST="identity blur1 noise0.05 quantize16 jpeg75 jpeg30 crop_resize0.1 jpeg_then_resize75 adverse_cleaner"
 
-# photoguard_c 的六片：2/2/2/1/1/1。
-P0="obama_00 lebron_00"
-P1="ronaldo_00 musk_00"
-P2="trump_00 parrot_00"
-P3="cat_00"
-P4="raccoon_00"
-P5="shiba_00"
+# photoguard_c：七張影像一張卡一張。
+IMGS="person_a_00 person_b_00 person_c_00 cat_00 shiba_00 raccoon_00 parrot_00"
 
 case $STAGE in
+  # ---- 像素臂與三個便宜 baseline 串在同一張卡上 ----
+  pxext)
+    bash "$0" px "$2"
+    bash "$0" ext "$2" ;;
+
   # ---- 像素臂：add / phase / phase_rand，各自用自己的人眼門檻半徑 ----
   px)
-    $PY scripts/phase_ablation.py --out $ROOT/px --data $DATA \
-        --conditions add phase phase_rand \
-        --human-threshold ;;
+    $PY scripts/phase_ablation.py --out $ROOT/px --data $DATA --conditions add phase phase_rand --human-threshold ;;
 
-  # ---- 三個便宜的已發表 baseline，九張一起 ----
-  ext) $PY scripts/apa_baseline.py --out $ROOT/ext --data $DATA \
-           --conditions apa_weak mist dia_r ;;
+  # ---- 三個便宜的已發表 baseline，七張一起 ----
+  ext) $PY scripts/apa_baseline.py --out $ROOT/ext --data $DATA --conditions apa_weak mist dia_r ;;
 
-  # ---- photoguard_c，六片 ----
-  pg0) $PY scripts/apa_baseline.py --out $ROOT/pg0 --data $DATA \
-           --conditions photoguard_c --images $P0 ;;
-  pg1) $PY scripts/apa_baseline.py --out $ROOT/pg1 --data $DATA \
-           --conditions photoguard_c --images $P1 ;;
-  pg2) $PY scripts/apa_baseline.py --out $ROOT/pg2 --data $DATA \
-           --conditions photoguard_c --images $P2 ;;
-  pg3) $PY scripts/apa_baseline.py --out $ROOT/pg3 --data $DATA \
-           --conditions photoguard_c --images $P3 ;;
-  pg4) $PY scripts/apa_baseline.py --out $ROOT/pg4 --data $DATA \
-           --conditions photoguard_c --images $P4 ;;
-  pg5) $PY scripts/apa_baseline.py --out $ROOT/pg5 --data $DATA \
-           --conditions photoguard_c --images $P5 ;;
+  # ---- photoguard_c，逐影像一片 ----
+  pg0|pg1|pg2|pg3|pg4|pg5|pg6)
+    IM=$(echo $IMGS | cut -d" " -f$(( ${STAGE#pg} + 1 )))
+    $PY scripts/apa_baseline.py --out $ROOT/$STAGE --data $DATA --conditions photoguard_c --images $IM ;;
 
   # ---- 合併，供淨化階段讀 ----
   merge)
     $PY scripts/merge_runs.py --out $ROOT/merged \
         --src $ROOT/px $ROOT/ext \
-              $ROOT/pg0 $ROOT/pg1 $ROOT/pg2 $ROOT/pg3 $ROOT/pg4 $ROOT/pg5 ;;
+              $ROOT/pg0 $ROOT/pg1 $ROOT/pg2 $ROOT/pg3 $ROOT/pg4 $ROOT/pg5 $ROOT/pg6 ;;
 
   # ---- 重算評測：prompt 改了，但攻擊不讀 prompt，防禦圖沿用 ----
   reeval)
     $PY scripts/reeval_edits.py --run $ROOT/merged --data $DATA ;;
 
   # ---- 淨化：跑在已存的防禦圖上，不重跑攻擊。逐影像分片，一張卡一張圖 ----
-  ret0) $PY scripts/phase_retention.py --run $ROOT/merged --data $DATA --seeds 3 \
-            --purifiers $FAST --images obama_00 \
-            --out $ROOT/merged/retention_0.csv ;;
-  ret1) $PY scripts/phase_retention.py --run $ROOT/merged --data $DATA --seeds 3 \
-            --purifiers $FAST --images lebron_00 \
-            --out $ROOT/merged/retention_1.csv ;;
-  ret2) $PY scripts/phase_retention.py --run $ROOT/merged --data $DATA --seeds 3 \
-            --purifiers $FAST --images ronaldo_00 \
-            --out $ROOT/merged/retention_2.csv ;;
-  ret3) $PY scripts/phase_retention.py --run $ROOT/merged --data $DATA --seeds 3 \
-            --purifiers $FAST --images musk_00 \
-            --out $ROOT/merged/retention_3.csv ;;
-  ret4) $PY scripts/phase_retention.py --run $ROOT/merged --data $DATA --seeds 3 \
-            --purifiers $FAST --images trump_00 \
-            --out $ROOT/merged/retention_4.csv ;;
-  ret5) $PY scripts/phase_retention.py --run $ROOT/merged --data $DATA --seeds 3 \
-            --purifiers $FAST --images parrot_00 \
-            --out $ROOT/merged/retention_5.csv ;;
-  ret6) $PY scripts/phase_retention.py --run $ROOT/merged --data $DATA --seeds 3 \
-            --purifiers $FAST --images cat_00 raccoon_00 \
-            --out $ROOT/merged/retention_6.csv ;;
-  ret7) $PY scripts/phase_retention.py --run $ROOT/merged --data $DATA --seeds 3 \
-            --purifiers $FAST --images shiba_00 \
-            --out $ROOT/merged/retention_7.csv ;;
+  ret0|ret1|ret2|ret3|ret4|ret5|ret6)
+    N=${STAGE#ret}
+    IM=$(echo $IMGS | cut -d" " -f$(( N + 1 )))
+    $PY scripts/phase_retention.py --run $ROOT/merged --data $DATA --seeds 3 --purifiers $FAST --images $IM --out $ROOT/merged/retention_$N.csv ;;
 
   *) echo "unknown stage $STAGE"; exit 1 ;;
 esac

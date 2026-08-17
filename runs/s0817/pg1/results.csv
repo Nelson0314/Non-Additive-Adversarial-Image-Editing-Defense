@@ -1,3 +1,0 @@
-image,condition,stage1_seconds,total_seconds,fid_lpips,fid_ssim,fid_dists,fid_psnr,fid_clip_img,fid_nima,fid_cnniqa,edit_lpips,edit_clip_orig,edit_clip_def,edit_clip_drop,edit_siglip_orig,edit_siglip_def,edit_siglip_drop
-musk_00,photoguard_c,0.0,6337.6,0.4538,0.9779,0.0668,40.8946,0.9686,5.2319,0.6653,0.3141,0.2144,0.2376,-0.0232,0.1041,0.1179,-0.0138
-trump_00,photoguard_c,0.0,6357.5,0.3983,0.9807,0.0411,40.8951,0.9865,5.0836,0.6043,0.6076,0.314,0.2846,0.0294,0.052,0.06,-0.0081

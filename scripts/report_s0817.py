@@ -103,7 +103,7 @@ def fmt(v: Optional[float], nd: int = 4) -> str:
 # ---------------------------------------------------------------- 影像
 
 
-def img_tag(path: Optional[Path], side: int = 340, quality: int = 84) -> str:
+def img_tag(path: Optional[Path], side: int = 500, quality: int = 84) -> str:
     if path is None or not path.exists():
         return '<div class="miss">—</div>'
     from PIL import Image
@@ -187,7 +187,7 @@ CSS = """
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--fg);line-height:1.7;font-size:15px;
 font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif}
-main{max-width:1560px;margin:0 auto;padding:34px 24px 100px}
+main{max-width:1900px;margin:0 auto;padding:34px 24px 100px}
 h1{font-size:26px;margin:0 0 4px}
 h2{font-size:20px;margin:44px 0 14px;padding-top:16px;border-top:2px solid var(--line)}
 h3{font-size:16px;margin:26px 0 10px;color:var(--mut)}
@@ -197,15 +197,15 @@ th,td{border:1px solid var(--line);padding:5px 9px;text-align:left}
 th{background:var(--code);font-weight:600}
 td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
 table.imgs{table-layout:fixed;width:max-content;min-width:100%}
-table.imgs col{width:300px}
-col.rowcol{width:170px}
+table.imgs col{width:470px}
+col.rowcol{width:190px}
 table.imgs td,table.imgs th{padding:3px;text-align:center;vertical-align:top}
-table.imgs th{font-size:12.5px;line-height:1.3}
-table.imgs th.rowh{text-align:left;font-size:12px;color:var(--mut)}
+table.imgs th{font-size:14px;line-height:1.35}
+table.imgs th.rowh{text-align:left;font-size:13px;color:var(--mut)}
 table.imgs th.rowh .pr{display:block;font-weight:400;font-style:italic;
-font-size:11.5px;margin-top:2px}
+font-size:12.5px;margin-top:2px}
 table.imgs img{display:block;width:100%;aspect-ratio:1;object-fit:cover;border-radius:3px}
-.cap{display:block;font-size:11px;font-variant-numeric:tabular-nums;
+.cap{display:block;font-size:13px;font-variant-numeric:tabular-nums;
 color:var(--mut);line-height:1.45;margin-top:3px}
 .miss{display:grid;place-items:center;aspect-ratio:1;background:var(--code);
 color:var(--mut);border-radius:3px}
@@ -350,6 +350,61 @@ def build() -> str:
                 [[im, p] + [fmt(byi[im].get(p, {}).get(c)) for c in conds]
                  for im in sorted(byi) for p in pur if p in byi[im]],
                 right_from=2))
+
+        # ---------- 4 retention ----------
+        A('<h2>4　retention 比值</h2>')
+        rt: Dict[str, Dict[str, List[float]]] = {}
+        bad: Dict[str, set] = {}
+        for r in ret:
+            if r["purifier"] != "identity":
+                rt.setdefault(r["purifier"], {}).setdefault(
+                    r["condition"], []).append(float(r["retention"]))
+            if r["usable"].strip().lower() in ("false", "0"):
+                bad.setdefault(r["condition"], set()).add(r["image"])
+        rpur = [x for x in pur if x != "identity"]
+        A("<h3>4.1 各淨化算子 × 各方法（9 張平均）</h3>")
+        A(table(["淨化算子"] + [LABEL[c] for c in conds],
+                [[x] + [fmt(st.fmean(rt[x][c]) if rt[x].get(c) else None, 3)
+                        for c in conds] for x in rpur]))
+        A("<h3>4.2 圖表</h3>")
+        A(bars(rpur, [(LABEL[c], COLOR[c],
+                       {x: (st.fmean(rt[x][c]) if rt[x].get(c) else None)
+                        for x in rpur}) for c in conds], bw=13, gap=22, nd=2))
+        A("<h3>4.3 分母塌陷（usable=False）的影像數</h3>")
+        A(table(["方法", "影像數", "全部"],
+                [[LABEL[c], str(len(bad.get(c, set()))), str(len(imgs))]
+                 for c in conds]))
+
+        # ---------- 5 逐格勝負 ----------
+        A('<h2>5　紋理重相位 vs 各方法的逐格勝負</h2>')
+        grid: Dict[tuple, Dict[str, float]] = {}
+        for r in ret:
+            grid.setdefault((r["image"], r["purifier"]), {})[
+                r["condition"]] = float(r["effect_mean"])
+
+        def duel(base: str, only_identity: bool) -> List[str]:
+            w = l = 0
+            ratios: List[float] = []
+            for (im, px), d in grid.items():
+                if (px == "identity") != only_identity:
+                    continue
+                if "phase" not in d or base not in d:
+                    continue
+                if d["phase"] > d[base]:
+                    w += 1
+                elif d["phase"] < d[base]:
+                    l += 1
+                if d[base]:
+                    ratios.append(d["phase"] / d[base])
+            if not ratios:
+                return ["—", "—"]
+            return [f"{w} / {l}", f"{st.fmean(ratios):.2f}"]
+
+        others = [c for c in conds if c != "phase"]
+        A("<h3>5.1 未淨化（identity，9 格）與淨化後（8 算子 × 9 影像 = 72 格）</h3>")
+        A(table(["對照方法", "未淨化 勝/敗", "未淨化 平均比",
+                 "淨化後 勝/敗", "淨化後 平均比"],
+                [[LABEL[c]] + duel(c, True) + duel(c, False) for c in others]))
     return "".join(P)
 
 

@@ -447,3 +447,54 @@ fig.tight_layout()
 fig.savefig(OUT / "f7d_radial_steps.png", bbox_inches="tight")
 plt.close(fig)
 print("gate step figures done")
+
+
+# ---------------------------------------------------------------- F7e/F7f 兩軸的意義
+# 32x17 這張表的每一格是什麼：把幾個代表性的基底畫成像素。
+yy_, xx_ = np.mgrid[0:B, 0:B]
+
+
+def _basis(u, v):
+    return np.cos(2 * np.pi * (u * yy_ + v * xx_) / B)
+
+
+picks = [(0, 0), (0, 1), (0, 4), (0, 16), (1, 0), (4, 0),
+         (16, 0), (4, 4), (8, 8), (28, 4), (24, 8), (2, 6)]
+fig, ax = plt.subplots(2, 6, figsize=(12.2, 5.4))
+for a, (u, v) in zip(ax.ravel(), picks):
+    a.imshow(_basis(u, v), cmap="gray", vmin=-1, vmax=1, interpolation="nearest")
+    a.set_xticks([]); a.set_yticks([])
+    us = u if u <= B // 2 else u - B
+    n = math.hypot(us, v)
+    t = f"row {u}, col {v}\n" + ("DC: flat, the block mean" if n == 0 else
+        f"period {B/n:.1f} px, {math.degrees(math.atan2(us, v)):+.0f} deg")
+    a.set_title(t, fontsize=7.5, pad=6)
+fig.suptitle("what a single bin of the 32x17 table is, in pixels", fontsize=9)
+fig.tight_layout(rect=[0, 0, 1, 0.95])
+fig.subplots_adjust(hspace=0.42)
+fig.savefig(OUT / "f7e_basis.png", bbox_inches="tight")
+plt.close(fig)
+
+lab = np.zeros((B, B // 2 + 1))
+for u in range(B):
+    for v in range(B // 2 + 1):
+        us = u if u <= B // 2 else u - B
+        lab[u, v] = math.hypot(us, v)
+fig, ax = plt.subplots(1, 2, figsize=(9.6, 3.4))
+i0 = ax[0].imshow(lab, cmap="viridis", aspect="auto")
+ax[0].set_title("cycles per block  sqrt(fy^2+fx^2)\nrow index as stored (0..31)",
+                fontsize=8)
+plt.colorbar(i0, ax=ax[0], fraction=0.046)
+i1 = ax[1].imshow(np.fft.fftshift(lab, axes=0), cmap="viridis", aspect="auto")
+ax[1].set_title("same table, rows shifted so 0 sits in the middle", fontsize=8)
+ax[1].set_yticks([0, 8, 16, 24, 31])
+ax[1].set_yticklabels(["-16", "-8", "0", "+8", "+15"])
+plt.colorbar(i1, ax=ax[1], fraction=0.046)
+for a in ax:
+    a.set_xlabel("col index (fx) 0..16")
+ax[0].set_ylabel("row index (fy) 0..31")
+ax[1].set_ylabel("fy in cycles per block")
+fig.tight_layout()
+fig.savefig(OUT / "f7f_index_map.png", bbox_inches="tight")
+plt.close(fig)
+print("axis-meaning figures done")

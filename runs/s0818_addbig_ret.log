@@ -1,0 +1,26 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  17%|█▋        | 1/6 [00:00<00:00,  9.05it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3528.88it/s]
+Loading pipeline components...:  50%|█████     | 3/6 [00:00<00:00, 10.94it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 17.19it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 15.31it/s]
+There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+=== cat_00 / add__human ===
+    identity=0.5099, blur1=0.2484, noise0.05=0.5298, quantize16=0.5106, jpeg75=0.3769, jpeg30=0.2105, crop_resize0.1=0.5228, jpeg_then_resize75=0.1632, adverse_cleaner=0.3186
+=== parrot_00 / add__human ===
+    identity=0.5458, blur1=0.3332, noise0.05=0.6276, quantize16=0.5667, jpeg75=0.5203, jpeg30=0.3938, crop_resize0.1=0.5782, jpeg_then_resize75=0.3618, adverse_cleaner=0.4466
+=== person_a_00 / add__human ===
+    identity=0.6685, blur1=0.4529, noise0.05=0.6217, quantize16=0.6921, jpeg75=0.6477, jpeg30=0.4230, crop_resize0.1=0.7291, jpeg_then_resize75=0.5467, adverse_cleaner=0.6519
+=== person_b_00 / add__human ===
+    identity=0.6927, blur1=0.4840, noise0.05=0.5217, quantize16=0.6734, jpeg75=0.4925, jpeg30=0.4288, crop_resize0.1=0.6267, jpeg_then_resize75=0.4573, adverse_cleaner=0.5599
+=== person_c_00 / add__human ===
+    identity=0.6213, blur1=0.3377, noise0.05=0.4796, quantize16=0.5947, jpeg75=0.3417, jpeg30=0.2989, crop_resize0.1=0.4876, jpeg_then_resize75=0.3006, adverse_cleaner=0.4823
+=== raccoon_00 / add__human ===
+    identity=0.6878, blur1=0.6254, noise0.05=0.6084, quantize16=0.6704, jpeg75=0.6061, jpeg30=0.5132, crop_resize0.1=0.6679, jpeg_then_resize75=0.5956, adverse_cleaner=0.6229
+=== shiba_00 / add__human ===
+    identity=0.7220, blur1=0.5922, noise0.05=0.7205, quantize16=0.7199, jpeg75=0.6230, jpeg30=0.4596, crop_resize0.1=0.6167, jpeg_then_resize75=0.4664, adverse_cleaner=0.6882
+
+表：runs/s0818_addbig/retention_0.csv（63 列）

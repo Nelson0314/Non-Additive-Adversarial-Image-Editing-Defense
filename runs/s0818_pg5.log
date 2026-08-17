@@ -1,0 +1,34 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3085.07it/s]
+Loading pipeline components...:  17%|█▋        | 1/6 [00:00<00:00,  5.49it/s]Loading pipeline components...:  50%|█████     | 3/6 [00:00<00:00,  8.50it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 14.48it/s]
+There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+
+########## raccoon_00 (raccoon) ##########
+=== raccoon_00 / photoguard_c ===
+  [photoguard_c] step    0  L=3.481472e+02  Linf01=0.0211  L2=1.000
+  [photoguard_c] step   20  L=3.368095e+02  Linf01=0.1156  L2=6.956
+  [photoguard_c] step   40  L=3.156155e+02  Linf01=0.1610  L2=11.909
+  [photoguard_c] step   60  L=3.266489e+02  Linf01=0.2009  L2=15.999
+  [photoguard_c] step   80  L=2.959993e+02  Linf01=0.1801  L2=16.000
+  [photoguard_c] step  100  L=2.817161e+02  Linf01=0.1532  L2=16.000
+  [photoguard_c] step  120  L=2.971839e+02  Linf01=0.1419  L2=16.000
+  [photoguard_c] step  140  L=2.763535e+02  Linf01=0.1407  L2=16.000
+  [photoguard_c] step  160  L=2.749416e+02  Linf01=0.1363  L2=16.000
+  [photoguard_c] step  180  L=2.753626e+02  Linf01=0.1384  L2=16.000
+  [photoguard_c] step  199  L=2.634788e+02  Linf01=0.1405  L2=16.000
+Loading pretrained model NIMA from /nfs/home/nelson0314/.cache/torch/hub/pyiqa/NIMA_InceptionV2_ava-b0c77c00.pth
+Loading pretrained model CNNIQA from /nfs/home/nelson0314/.cache/torch/hub/pyiqa/CNNIQA_koniq10k-e6f14c91.pth
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 8447.23it/s]
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 12188.29it/s]
+[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
+[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
+Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights:  78%|███████▊  | 319/408 [00:00<00:00, 3186.02it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 3105.87it/s]
+{'image': 'raccoon_00', 'condition': 'photoguard_c', 'stage1_seconds': 0.0, 'total_seconds': 6269.9, 'fid_lpips': 0.3039, 'fid_ssim': 0.9843, 'fid_dists': 0.0275, 'fid_psnr': 40.8943, 'fid_clip_img': 0.985, 'fid_nima': 6.0942, 'fid_cnniqa': 0.7065, 'edit_lpips': 0.5202, 'edit_clip_orig': 0.3069, 'edit_clip_def': 0.2948, 'edit_clip_drop': 0.0121, 'edit_siglip_orig': 0.1213, 'edit_siglip_def': 0.1193, 'edit_siglip_drop': 0.002}
+
+表：runs/s0817/pg5/results.csv

@@ -1,0 +1,47 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00, 16.78it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3555.68it/s]
+Loading pipeline components...:  67%|██████▋   | 4/6 [00:00<00:00, 13.71it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 15.54it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 15.30it/s]
+There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+
+########## cat_00 (cat) ##########
+=== cat_00 / add__human ===
+Loading pretrained model NIMA from /nfs/home/nelson0314/.cache/torch/hub/pyiqa/NIMA_InceptionV2_ava-b0c77c00.pth
+Loading pretrained model CNNIQA from /nfs/home/nelson0314/.cache/torch/hub/pyiqa/CNNIQA_koniq10k-e6f14c91.pth
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 10296.20it/s]
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 12101.44it/s]
+[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
+[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
+Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights:  77%|███████▋  | 316/408 [00:00<00:00, 3145.78it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 3109.06it/s]
+{'image': 'cat_00', 'condition': 'add', 'prompt_index': 0, 'prompt': 'a cat wearing a red party hat', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.15994, 'unreachable': False, 'radius': 0.06, 'total_seconds': 41.4, 'fid_lpips': 0.5205, 'fid_ssim': 0.9168, 'fid_dists': 0.1599, 'fid_psnr': 31.4992, 'fid_clip_img': 0.9683, 'fid_nima': 5.0357, 'fid_cnniqa': 0.7116, 'edit_lpips': 0.5068, 'edit_clip_orig': 0.3509, 'edit_clip_def': 0.326, 'edit_clip_drop': 0.0249, 'edit_siglip_orig': 0.1549, 'edit_siglip_def': 0.1459, 'edit_siglip_drop': 0.009}
+
+########## parrot_00 (parrot) ##########
+=== parrot_00 / add__human ===
+{'image': 'parrot_00', 'condition': 'add', 'prompt_index': 0, 'prompt': 'a parrot perched on a branch in a rainforest', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.10722, 'unreachable': False, 'radius': 0.06, 'total_seconds': 24.9, 'fid_lpips': 0.5984, 'fid_ssim': 0.8529, 'fid_dists': 0.1072, 'fid_psnr': 29.5663, 'fid_clip_img': 0.8793, 'fid_nima': 5.2815, 'fid_cnniqa': 0.7122, 'edit_lpips': 0.5635, 'edit_clip_orig': 0.2992, 'edit_clip_def': 0.3371, 'edit_clip_drop': -0.0379, 'edit_siglip_orig': 0.1067, 'edit_siglip_def': 0.1204, 'edit_siglip_drop': -0.0136}
+
+########## person_a_00 (man) ##########
+=== person_a_00 / add__human ===
+{'image': 'person_a_00', 'condition': 'add', 'prompt_index': 0, 'prompt': 'Barack Obama', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.12295, 'unreachable': False, 'radius': 0.06, 'total_seconds': 25.0, 'fid_lpips': 0.6144, 'fid_ssim': 0.8936, 'fid_dists': 0.123, 'fid_psnr': 29.5555, 'fid_clip_img': 0.9164, 'fid_nima': 4.7742, 'fid_cnniqa': 0.6523, 'edit_lpips': 0.7081, 'edit_clip_orig': 0.2651, 'edit_clip_def': 0.2716, 'edit_clip_drop': -0.0066, 'edit_siglip_orig': 0.1061, 'edit_siglip_def': 0.0898, 'edit_siglip_drop': 0.0163}
+
+########## person_b_00 (man) ##########
+=== person_b_00 / add__human ===
+{'image': 'person_b_00', 'condition': 'add', 'prompt_index': 0, 'prompt': 'Morgan Freeman', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.12007, 'unreachable': False, 'radius': 0.06, 'total_seconds': 25.2, 'fid_lpips': 0.5999, 'fid_ssim': 0.8785, 'fid_dists': 0.1201, 'fid_psnr': 29.9741, 'fid_clip_img': 0.8812, 'fid_nima': 3.8582, 'fid_cnniqa': 0.6373, 'edit_lpips': 0.6831, 'edit_clip_orig': 0.3042, 'edit_clip_def': 0.3478, 'edit_clip_drop': -0.0436, 'edit_siglip_orig': 0.1069, 'edit_siglip_def': 0.1343, 'edit_siglip_drop': -0.0275}
+
+########## person_c_00 (woman) ##########
+=== person_c_00 / add__human ===
+{'image': 'person_c_00', 'condition': 'add', 'prompt_index': 0, 'prompt': 'Taylor Swift', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.10442, 'unreachable': False, 'radius': 0.06, 'total_seconds': 25.4, 'fid_lpips': 0.5731, 'fid_ssim': 0.868, 'fid_dists': 0.1044, 'fid_psnr': 28.5224, 'fid_clip_img': 0.9023, 'fid_nima': 4.3809, 'fid_cnniqa': 0.6685, 'edit_lpips': 0.5927, 'edit_clip_orig': 0.2826, 'edit_clip_def': 0.2935, 'edit_clip_drop': -0.0109, 'edit_siglip_orig': 0.0977, 'edit_siglip_def': 0.098, 'edit_siglip_drop': -0.0004}
+
+########## raccoon_00 (raccoon) ##########
+=== raccoon_00 / add__human ===
+{'image': 'raccoon_00', 'condition': 'add', 'prompt_index': 0, 'prompt': 'a panda', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.10327, 'unreachable': False, 'radius': 0.06, 'total_seconds': 25.3, 'fid_lpips': 0.5655, 'fid_ssim': 0.8894, 'fid_dists': 0.1033, 'fid_psnr': 28.5531, 'fid_clip_img': 0.9476, 'fid_nima': 5.7959, 'fid_cnniqa': 0.7114, 'edit_lpips': 0.6284, 'edit_clip_orig': 0.3069, 'edit_clip_def': 0.3018, 'edit_clip_drop': 0.0052, 'edit_siglip_orig': 0.1213, 'edit_siglip_def': 0.1129, 'edit_siglip_drop': 0.0085}
+
+########## shiba_00 (dog) ##########
+=== shiba_00 / add__human ===
+{'image': 'shiba_00', 'condition': 'add', 'prompt_index': 0, 'prompt': 'a cat', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.08618, 'unreachable': False, 'radius': 0.06, 'total_seconds': 25.4, 'fid_lpips': 0.6058, 'fid_ssim': 0.8911, 'fid_dists': 0.0862, 'fid_psnr': 29.2714, 'fid_clip_img': 0.9793, 'fid_nima': 5.32, 'fid_cnniqa': 0.7074, 'edit_lpips': 0.729, 'edit_clip_orig': 0.2619, 'edit_clip_def': 0.2708, 'edit_clip_drop': -0.0089, 'edit_siglip_orig': 0.0881, 'edit_siglip_def': 0.0864, 'edit_siglip_drop': 0.0017}
+
+表：runs/s0818_addbig/results.csv

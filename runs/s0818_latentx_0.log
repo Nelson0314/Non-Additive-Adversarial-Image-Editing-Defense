@@ -1,0 +1,37 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  50%|█████     | 3/6 [00:00<00:00, 24.24it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3552.88it/s]
+Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 12.21it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 13.18it/s]
+There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+
+########## person_a_00 (man) [loss=latent] ##########
+=== person_a_00 / add__human ===
+Loading pretrained model NIMA from /nfs/home/nelson0314/.cache/torch/hub/pyiqa/NIMA_InceptionV2_ava-b0c77c00.pth
+Loading pretrained model CNNIQA from /nfs/home/nelson0314/.cache/torch/hub/pyiqa/CNNIQA_koniq10k-e6f14c91.pth
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 24453.72it/s]
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 12433.21it/s]
+[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
+[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
+Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights:  80%|███████▉  | 325/408 [00:00<00:00, 3217.09it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 3353.63it/s]
+{'image': 'person_a_00', 'condition': 'add', 'prompt_index': 0, 'prompt': 'Barack Obama', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'loss': 'latent', 'random_start': True, 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.0159, 'unreachable': False, 'radius': 0.00471, 'total_seconds': 42.6, 'fid_lpips': 0.1999, 'fid_ssim': 0.997, 'fid_dists': 0.0159, 'fid_psnr': 47.5693, 'fid_clip_img': 0.996, 'fid_nima': 5.3188, 'fid_cnniqa': 0.6389, 'edit_lpips': 0.37, 'edit_clip_orig': 0.2651, 'edit_clip_def': 0.2868, 'edit_clip_drop': -0.0218, 'edit_siglip_orig': 0.1061, 'edit_siglip_def': 0.1162, 'edit_siglip_drop': -0.01}
+=== person_a_00 / phase__human ===
+{'image': 'person_a_00', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'Barack Obama', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'loss': 'latent', 'random_start': True, 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.06735, 'unreachable': False, 'radius': 1.3, 'total_seconds': 25.6, 'fid_lpips': 0.2038, 'fid_ssim': 0.9514, 'fid_dists': 0.0673, 'fid_psnr': 30.9713, 'fid_clip_img': 0.9863, 'fid_nima': 5.0613, 'fid_cnniqa': 0.6185, 'edit_lpips': 0.3673, 'edit_clip_orig': 0.2651, 'edit_clip_def': 0.2767, 'edit_clip_drop': -0.0116, 'edit_siglip_orig': 0.1061, 'edit_siglip_def': 0.1102, 'edit_siglip_drop': -0.0041, 'amp_dev': 0.02118, 'active_fraction': 0.3846}
+
+########## person_b_00 (man) [loss=latent] ##########
+=== person_b_00 / add__human ===
+{'image': 'person_b_00', 'condition': 'add', 'prompt_index': 0, 'prompt': 'Morgan Freeman', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'loss': 'latent', 'random_start': True, 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.01123, 'unreachable': False, 'radius': 0.00471, 'total_seconds': 25.5, 'fid_lpips': 0.1605, 'fid_ssim': 0.9968, 'fid_dists': 0.0112, 'fid_psnr': 47.5833, 'fid_clip_img': 0.9966, 'fid_nima': 4.7503, 'fid_cnniqa': 0.6577, 'edit_lpips': 0.3663, 'edit_clip_orig': 0.3042, 'edit_clip_def': 0.307, 'edit_clip_drop': -0.0028, 'edit_siglip_orig': 0.1069, 'edit_siglip_def': 0.1167, 'edit_siglip_drop': -0.0099}
+=== person_b_00 / phase__human ===
+{'image': 'person_b_00', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'Morgan Freeman', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'loss': 'latent', 'random_start': True, 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.04934, 'unreachable': False, 'radius': 1.3, 'total_seconds': 25.8, 'fid_lpips': 0.2308, 'fid_ssim': 0.9492, 'fid_dists': 0.0493, 'fid_psnr': 34.0127, 'fid_clip_img': 0.9973, 'fid_nima': 4.4554, 'fid_cnniqa': 0.6263, 'edit_lpips': 0.2669, 'edit_clip_orig': 0.3042, 'edit_clip_def': 0.3026, 'edit_clip_drop': 0.0015, 'edit_siglip_orig': 0.1069, 'edit_siglip_def': 0.1216, 'edit_siglip_drop': -0.0147, 'amp_dev': 0.01628, 'active_fraction': 0.4646}
+
+########## person_c_00 (woman) [loss=latent] ##########
+=== person_c_00 / add__human ===
+{'image': 'person_c_00', 'condition': 'add', 'prompt_index': 0, 'prompt': 'Taylor Swift', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'loss': 'latent', 'random_start': True, 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.00897, 'unreachable': False, 'radius': 0.00471, 'total_seconds': 25.8, 'fid_lpips': 0.0858, 'fid_ssim': 0.9978, 'fid_dists': 0.009, 'fid_psnr': 47.4636, 'fid_clip_img': 0.9971, 'fid_nima': 5.0042, 'fid_cnniqa': 0.6506, 'edit_lpips': 0.1027, 'edit_clip_orig': 0.2826, 'edit_clip_def': 0.2824, 'edit_clip_drop': 0.0002, 'edit_siglip_orig': 0.0977, 'edit_siglip_def': 0.1016, 'edit_siglip_drop': -0.0039}
+=== person_c_00 / phase__human ===
+{'image': 'person_c_00', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'Taylor Swift', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'loss': 'latent', 'random_start': True, 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.07684, 'unreachable': False, 'radius': 1.3, 'total_seconds': 26.0, 'fid_lpips': 0.2503, 'fid_ssim': 0.8919, 'fid_dists': 0.0768, 'fid_psnr': 29.7682, 'fid_clip_img': 0.9871, 'fid_nima': 4.8015, 'fid_cnniqa': 0.6407, 'edit_lpips': 0.1137, 'edit_clip_orig': 0.2826, 'edit_clip_def': 0.2838, 'edit_clip_drop': -0.0012, 'edit_siglip_orig': 0.0977, 'edit_siglip_def': 0.1003, 'edit_siglip_drop': -0.0026, 'amp_dev': 0.05587, 'active_fraction': 0.563}
+
+表：runs/s0818_latent_0/results.csv

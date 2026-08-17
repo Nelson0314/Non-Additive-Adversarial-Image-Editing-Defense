@@ -1,0 +1,35 @@
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  17%|█▋        | 1/6 [00:00<00:00,  8.74it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3531.53it/s]
+Loading pipeline components...:  50%|█████     | 3/6 [00:00<00:00,  9.01it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 15.77it/s]
+There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+
+########## parrot_00 (parrot) [loss=clip] ##########
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 11329.65it/s]
+=== parrot_00 / add__human ===
+Loading pretrained model NIMA from /nfs/home/nelson0314/.cache/torch/hub/pyiqa/NIMA_InceptionV2_ava-b0c77c00.pth
+Loading pretrained model CNNIQA from /nfs/home/nelson0314/.cache/torch/hub/pyiqa/CNNIQA_koniq10k-e6f14c91.pth
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 14467.50it/s]
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 8890.69it/s]
+[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
+[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
+Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights:  66%|██████▋   | 271/408 [00:00<00:00, 2693.41it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 2670.31it/s]
+{'image': 'parrot_00', 'condition': 'add', 'prompt_index': 0, 'prompt': 'a parrot perched on a branch in a rainforest', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'loss': 'clip', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.02152, 'unreachable': False, 'radius': 0.00471, 'total_seconds': 31.6, 'fid_lpips': 0.1061, 'fid_ssim': 0.9947, 'fid_dists': 0.0215, 'fid_psnr': 48.5864, 'fid_clip_img': 0.3458, 'fid_nima': 5.5579, 'fid_cnniqa': 0.7005, 'edit_lpips': 0.0993, 'edit_clip_orig': 0.2992, 'edit_clip_def': 0.2975, 'edit_clip_drop': 0.0017, 'edit_siglip_orig': 0.1067, 'edit_siglip_def': 0.1063, 'edit_siglip_drop': 0.0004}
+=== parrot_00 / phase__human ===
+{'image': 'parrot_00', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a parrot perched on a branch in a rainforest', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'loss': 'clip', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.05619, 'unreachable': False, 'radius': 1.3, 'total_seconds': 14.7, 'fid_lpips': 0.0667, 'fid_ssim': 0.9672, 'fid_dists': 0.0562, 'fid_psnr': 33.7, 'fid_clip_img': 0.2978, 'fid_nima': 5.2212, 'fid_cnniqa': 0.6866, 'edit_lpips': 0.0398, 'edit_clip_orig': 0.2992, 'edit_clip_def': 0.2988, 'edit_clip_drop': 0.0005, 'edit_siglip_orig': 0.1067, 'edit_siglip_def': 0.1059, 'edit_siglip_drop': 0.0008, 'amp_dev': 0.01167, 'active_fraction': 0.3366}
+
+########## raccoon_00 (raccoon) [loss=clip] ##########
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 12628.28it/s]
+=== raccoon_00 / add__human ===
+{'image': 'raccoon_00', 'condition': 'add', 'prompt_index': 0, 'prompt': 'a panda', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'loss': 'clip', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.01865, 'unreachable': False, 'radius': 0.00471, 'total_seconds': 14.1, 'fid_lpips': 0.07, 'fid_ssim': 0.9968, 'fid_dists': 0.0186, 'fid_psnr': 47.6749, 'fid_clip_img': 0.4713, 'fid_nima': 6.0486, 'fid_cnniqa': 0.7063, 'edit_lpips': 0.0638, 'edit_clip_orig': 0.3069, 'edit_clip_def': 0.3074, 'edit_clip_drop': -0.0005, 'edit_siglip_orig': 0.1213, 'edit_siglip_def': 0.1209, 'edit_siglip_drop': 0.0004}
+=== raccoon_00 / phase__human ===
+{'image': 'raccoon_00', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a panda', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'loss': 'clip', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.05673, 'unreachable': False, 'radius': 1.3, 'total_seconds': 14.3, 'fid_lpips': 0.0872, 'fid_ssim': 0.9298, 'fid_dists': 0.0567, 'fid_psnr': 27.4587, 'fid_clip_img': 0.2256, 'fid_nima': 5.683, 'fid_cnniqa': 0.7034, 'edit_lpips': 0.1355, 'edit_clip_orig': 0.3069, 'edit_clip_def': 0.2984, 'edit_clip_drop': 0.0086, 'edit_siglip_orig': 0.1213, 'edit_siglip_def': 0.12, 'edit_siglip_drop': 0.0013, 'amp_dev': 0.04005, 'active_fraction': 0.4693}
+
+########## shiba_00 (dog) [loss=clip] ##########
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 11094.42it/s]
+=== shiba_00 / add__human ===

@@ -1,0 +1,20 @@
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00, 16.19it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3105.95it/s]
+Loading pipeline components...:  83%|████████▎ | 5/6 [00:00<00:00, 13.31it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 14.73it/s]
+There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+=== person_c_00 / add__human ===
+    分母塌陷：effect(identity) mean=0.0810 sd=0.0292，本格的 retention 不可用
+    identity=0.0810, blur1=0.1769, noise0.05=0.4260, quantize16=0.1515, jpeg75=0.0816, jpeg30=0.1391, crop_resize0.1=0.4191, jpeg_then_resize75=0.1326, adverse_cleaner=0.1138
+=== person_c_00 / phase__human ===
+    identity=0.1152, blur1=0.1995, noise0.05=0.4256, quantize16=0.1628, jpeg75=0.1173, jpeg30=0.1355, crop_resize0.1=0.4173, jpeg_then_resize75=0.1499, adverse_cleaner=0.1489
+=== cat_00 / add__human ===
+    identity=0.2669, blur1=0.1155, noise0.05=0.5038, quantize16=0.0472, jpeg75=0.0351, jpeg30=0.0587, crop_resize0.1=0.3868, jpeg_then_resize75=0.1052, adverse_cleaner=0.0735
+=== cat_00 / phase__human ===
+    identity=0.1739, blur1=0.1960, noise0.05=0.4997, quantize16=0.1140, jpeg75=0.0990, jpeg30=0.1032, crop_resize0.1=0.3245, jpeg_then_resize75=0.1244, adverse_cleaner=0.1727
+
+表：runs/s0818_latent/retention_1.csv（36 列）

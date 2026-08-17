@@ -1,0 +1,25 @@
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 2663.56it/s]
+Loading pipeline components...:  17%|█▋        | 1/6 [00:00<00:01,  4.85it/s]Loading pipeline components...:  50%|█████     | 3/6 [00:00<00:00,  9.96it/s]Loading pipeline components...:  83%|████████▎ | 5/6 [00:00<00:00, 12.57it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 13.01it/s]
+There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+=== shiba_00 / add__human ===
+    identity=0.3295, blur1=0.3933, noise0.05=0.7292, quantize16=0.4589, jpeg75=0.1165, jpeg30=0.2893, crop_resize0.1=0.5017, jpeg_then_resize75=0.3394, adverse_cleaner=0.2336
+=== shiba_00 / phase__human ===
+    identity=0.6285, blur1=0.5296, noise0.05=0.7403, quantize16=0.5842, jpeg75=0.3511, jpeg30=0.3708, crop_resize0.1=0.5895, jpeg_then_resize75=0.3986, adverse_cleaner=0.5427
+=== shiba_00 / phase_rand__human ===
+    identity=0.2752, blur1=0.4007, noise0.05=0.7255, quantize16=0.4435, jpeg75=0.2847, jpeg30=0.3347, crop_resize0.1=0.5110, jpeg_then_resize75=0.3415, adverse_cleaner=0.2686
+=== shiba_00 / apa_weak ===
+    identity=0.3595, blur1=0.4987, noise0.05=0.7482, quantize16=0.4658, jpeg75=0.3452, jpeg30=0.4334, crop_resize0.1=0.5416, jpeg_then_resize75=0.4228, adverse_cleaner=0.4504
+=== shiba_00 / mist ===
+    identity=0.7019, blur1=0.5624, noise0.05=0.7488, quantize16=0.7223, jpeg75=0.6515, jpeg30=0.4948, crop_resize0.1=0.6337, jpeg_then_resize75=0.5759, adverse_cleaner=0.6778
+=== shiba_00 / dia_r ===
+    identity=0.2917, blur1=0.3687, noise0.05=0.7149, quantize16=0.4795, jpeg75=0.1768, jpeg30=0.2457, crop_resize0.1=0.5254, jpeg_then_resize75=0.3152, adverse_cleaner=0.1756
+=== shiba_00 / photoguard_c ===
+    identity=0.6043, blur1=0.4061, noise0.05=0.7275, quantize16=0.5103, jpeg75=0.3067, jpeg30=0.3357, crop_resize0.1=0.5932, jpeg_then_resize75=0.3427, adverse_cleaner=0.4007
+
+表：runs/s0817/merged/retention_4.csv（63 列）

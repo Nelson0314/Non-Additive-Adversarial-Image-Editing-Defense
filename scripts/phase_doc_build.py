@@ -365,38 +365,61 @@ BODY = f"""
 
 {img("f6_window.png", "圖 6　左：32×32 的二維週期 Hann 窗。中：一條切面與 hop=16 的兩個鄰居。右：重疊網格上的 Σw²，處處大於零，NOLA 有充裕餘裕。取週期版而非對稱版，就是為了讓這條曲線不出現接近零的格。")}
 
-<h3>4.2 rfft2 的半平面</h3>
+<h3>4.2 一個區塊會被拆成幾個「紋路」</h3>
 
-<p>實數輸入的頻譜有共軛對稱性，<code>rfft2</code> 因此只存半平面：32×32 的區塊得到
-32×17 的複數格。每個區塊、每個頻格一個 θ，三通道共用，參數量
-1089 × 32 × 17 ≈ <b>5.9×10⁵</b>——與加性 δ 的 3×512×512 ≈ 7.9×10⁵ 同數量級。</p>
+<p>一個 32×32 的區塊做完 FFT，得到一張 <b>32×17 的表</b>。表上每一格代表一種紋路：
+方向不同、粗細不同。每格有兩個數字——<b>幅度</b>（這種紋路有多強）與<b>相位</b>
+（它擺在哪）。本方法只動後者。</p>
 
-<h3>4.3 徑向頻率閘 m<sub>ω</sub>：轉的是哪些頻率</h3>
+<p>為什麼是 17 不是 32：影像是實數，它的頻譜有一半是另一半的鏡像，存兩份是浪費。
+<code>rfft2</code> 只存一半。</p>
 
-<p>半徑以 Nyquist 為 1 歸一化。主線使用 <b>r<sub>min</sub> = 0.12</b>，
-在 32×32 的區塊上換算成：</p>
+<p>每格一個角度、RGB 三通道共用同一組，整張 512×512 的圖有 1089 個區塊，
+所以參數是 1089 × 32 × 17 ≈ <b>59 萬</b>。加性擾動是 3×512×512 ≈ 79 萬，
+兩者同一個量級。</p>
+
+<h3>4.3 第一個閘：哪些紋路可以轉</h3>
+
+<p>表上愈靠近左上角，紋路愈粗；愈往外，愈細。<b>太粗的不能轉</b>——粗紋路帶的是
+形狀與位置，動它就是在搬東西。細的才是紋理。</p>
+
+<p>界線用一個半徑 <code>r_min</code> 畫。主線用 0.12，換算成看得懂的單位：</p>
 
 <div class="tw"><table>
-<tr><th class="n">r<sub>min</sub></th><th class="n">最低被轉的頻格 k</th>
-<th class="n">cycles/pixel</th><th class="n">對應的紋理週期</th><th class="n">被轉的格數佔比</th></tr>
-<tr><td class="n"><b>0.12（主線）</b></td><td class="n">k ≥ 2</td><td class="n">0.060</td>
-<td class="n">16.7 px</td><td class="n">87.7%</td></tr>
-<tr><td class="n">0.25</td><td class="n">k ≥ 4</td><td class="n">0.125</td>
-<td class="n">8.0 px</td><td class="n">84.7%</td></tr>
-<tr><td class="n">0.40</td><td class="n">k ≥ 7</td><td class="n">0.200</td>
-<td class="n">5.0 px</td><td class="n">77.6%</td></tr>
+<tr><th class="n">r<sub>min</sub></th><th class="n">凍結多粗以上的紋路</th>
+<th class="n">可轉的格數</th></tr>
+<tr><td class="n"><b>0.12（主線）</b></td><td class="n">週期 <b>16.7 像素</b>以上</td>
+<td class="n">87.7%</td></tr>
+<tr><td class="n">0.25</td><td class="n">週期 8.0 像素以上</td><td class="n">84.7%</td></tr>
+<tr><td class="n">0.40</td><td class="n">週期 5.0 像素以上</td><td class="n">77.6%</td></tr>
 </table></div>
 
-<p>換句話說，主線凍結的是<b>週期長於約 17 像素</b>的成分（含 DC 與第一圈），
-其餘全部可轉。</p>
+<p>這個閘只有 <b>0 與 1</b>，沒有中間值，而且與影像內容無關——整批共用同一張表。</p>
 
-{img("f7_radial_gate.png", "圖 7　左：半平面上每一格的歸一化半徑。中：主線 r_min = 0.12 的閘，黑色是凍結的頻格。右：兩端行必須凍結的理由。")}
+{img("f7_radial_gate.png", "圖 7　左：表上每一格離中心多遠。中：主線的閘，黑色是不能轉的格。右：最左與最右兩整行為什麼也要凍。")}
 
-<h4>逐步：m<sub>ω</sub> 的每一格怎麼被定成 1 或 0</h4>
+<h4>一個熱圖看不出來的事</h4>
 
-<p>徑向閘是<b>二值</b>的，只有 0 與 1，而且完全由 <code>block</code> 與
-<code>r_min</code> 決定——與影像內容無關，整批共用同一張表。程式是
-<code>radial_gate()</code> 五行：</p>
+<p>544 格裡總共凍了 67 格，但拆開來看：</p>
+
+<div class="tw"><table>
+<tr><th>被誰凍的</th><th class="n">格數</th></tr>
+<tr><td>半徑門檻（太粗的紋路）</td><td class="n">6</td></tr>
+<tr><td>最左與最右兩整行</td><td class="n"><b>61</b></td></tr>
+</table></div>
+
+<p>也就是說，在主線設定下「凍結粗紋路」<b>幾乎沒做什麼事</b>。真正被拿掉的絕大多數，
+是為了讓輸出仍是實數、幅度仍然保留而必須放棄的那兩行。</p>
+
+<p>那兩行是 <code>fx = 0</code> 與 <code>fx = 16</code>。它們的鏡像剛好落在自己這半邊，
+所以它們自己就必須對稱。逐格亂轉會破壞這個對稱——輸出還是實數，但<b>那兩行的幅度
+不再保留</b>，而且不會有任何症狀。與其留一個只在兩行上失效的近似，不如整行不動。</p>
+
+{img("f7d_radial_steps.png", "圖 8　閘的三個步驟。左：每格離中心多遠，是連續值。中：套上半徑門檻，只有中心一小圈變黑。右：再把最左最右兩行清掉——黑色面積主要來自這一步。")}
+
+{img("f7b_rmin_compare.png", "圖 9　三個 r_min。差的格數不多，但差的都是最粗的那幾圈，那正是失真最貴的地方。FND-042 實測：r_min = 0.40 拿到主線 87% 的效果，只付 26% 的 DISTS 與 74% 的 LPIPS，PSNR 還高 5.9 dB。主線的 0.12 是照「可達的 DISTS 天花板最高」選的，不是效率上的操作點。")}
+
+<details><summary>展開：<code>radial_gate()</code> 的逐行過程與實際數值</summary>
 
 <pre>fy = torch.fft.fftfreq(block) * 2.0    # (32,)   [-1, 1)
 fx = torch.fft.rfftfreq(block) * 2.0   # (17,)   [0, 1]
@@ -405,208 +428,138 @@ m  = (r &gt;= r_min).to(dtype)
 m[:, 0] = 0.0
 m[:, -1] = 0.0</pre>
 
-<p>逐步展開（block = 32、r<sub>min</sub> = 0.12）：</p>
+<p>座標以 Nyquist 為 1。<code>fy = [0, 0.0625, 0.125, …, 0.9375, −1, …, −0.0625]</code>，
+<code>fx = [0, 0.0625, …, 1.0]</code>（17 個，只有非負）。r 矩陣的左上角 5×5：</p>
 
-<ol>
-<li><b>算兩個頻率軸。</b><code>fftfreq(32)</code> 給的是 cycles/sample，範圍
-[−0.5, 0.5)；乘 2 之後變成「以 Nyquist 為 1」的座標。實際數值：
-<code>fy = [0, 0.0625, 0.125, …, 0.9375, −1, −0.9375, …, −0.0625]</code>，
-<code>fx = [0, 0.0625, …, 1.0]</code>（17 個，只有非負，因為
-<code>rfft2</code> 只存半平面）。</li>
-
-<li><b>算每一格到原點的距離。</b>r 是 32×17 的矩陣。左上角 5×5 是：
 <pre>0.0000  0.0625  0.1250  0.1875  0.2500
 0.0625  0.0884  0.1398  0.1976  0.2577
 0.1250  0.1398  0.1768  0.2253  0.2795
 0.1875  0.1976  0.2253  0.2652  0.3125
-0.2500  0.2577  0.2795  0.3125  0.3536</pre></li>
+0.2500  0.2577  0.2795  0.3125  0.3536</pre>
 
-<li><b>硬門檻。</b><code>r &gt;= 0.12</code> 為 1，否則 0。這一步只擋掉
-<b>6 格</b>：(0,0)、(0,1)、(1,0)、(1,1)、(0,−1)、(−1,0) 那一小圈。
-r 是連續值但 m 是 0/1，<b>沒有過渡帶</b>——這是硬切，不是漸變。</li>
+<p>套 <code>r ≥ 0.12</code> 之後，被擋掉的只有 (0,0)、(0,1)、(1,0)、(1,1)、(0,−1)、(−1,0)
+這 6 格。r 是連續值但 m 是 0/1，<b>沒有過渡帶</b>。最低被轉的頻格是 k = 2，
+對應 0.060 cycles/pixel，也就是週期 16.7 像素。</p>
+</details>
 
-<li><b>把兩端行整行清零。</b><code>m[:, 0] = 0</code>（fx = 0）與
-<code>m[:, -1] = 0</code>（fx = N/2 = Nyquist）。這一步又擋掉 <b>61 格</b>，
-比門檻本身擋得多得多。理由是共軛對稱（見下段）。</li>
-</ol>
+<h3>4.4 第二個閘：哪些地方可以轉</h3>
 
-<p>最後：544 格裡凍結 67 格、可轉 <b>477 格（87.7%）</b>。</p>
+<p>每個區塊給一個 <b>0 到 1 的分數</b> g。分數愈高，那塊愈像紋理，愈可以動。</p>
 
-<div class="note">
-<b>值得記一下的數量關係。</b>在 r<sub>min</sub> = 0.12 這個設定下，
-<b>頻率門檻只凍結 6 格，共軛對稱那兩行凍結 61 格</b>。也就是說「凍結低頻」在
-主線設定下幾乎沒有實際作用，真正被擋掉的絕大多數是為了保住實數性與幅度而必須
-放棄的那兩行。要靠頻率門檻擋住低頻，得把 r<sub>min</sub> 拉到 0.25 以上
-（凍結 83 格）或 0.40（凍結 122 格）。
-</div>
+<p>要拿高分得同時通過兩關：</p>
 
-{img("f7d_radial_steps.png", "圖 8　徑向閘的三個步驟。左：每一格的半徑，是連續值。中：套 r ≥ 0.12，只有中心一小圈變黑。右：再把最左與最右兩整行清零——黑色面積主要來自這一步。")}
+<div class="tw"><table>
+<tr><th>關卡</th><th>擋掉什麼</th><th>為什麼</th></tr>
+<tr><td><b>方向要亂</b></td><td>邊緣（毛髮、輪廓線、屋簷）</td>
+<td>邊緣上的紋路方向一致，動它會出現鬼影</td></tr>
+<tr><td><b>要有東西</b></td><td>平坦區（虛化背景、天空）</td>
+<td>平坦的地方任何改動都直接看得見</td></tr>
+</table></div>
 
-{img("f7b_rmin_compare.png", "圖 9　三個 r_min 的閘。三者差的格數不多（87.7% / 84.7% / 77.6%），但差的都是最低頻的那幾圈——那正是失真最貴的地方。FND-042 實測：r_min = 0.40 拿到主線 87% 的效果，只付 26% 的 DISTS 與 74% 的 LPIPS，且 PSNR 高 5.9 dB；效率排序在 DISTS、LPIPS、PSNR、SSIM 四個軸上完全一致。主線的 0.12 是照『可達的 DISTS 天花板最高』選的，不是效率上的操作點。")}
-
-<p>兩端行（<code>fx = 0</code> 與 <code>fx = N/2</code>）的處理值得單獨講，因為
-Galerne 不切塊、遇不到這個問題。這兩行的鏡像落在<b>被儲存的半平面之內</b>，
-因此它們自身必須對 fy 共軛對稱。對它們逐格施加獨立相位會破壞這個關係——
-輸出仍然是實數，<b>但那兩行的幅度不再保留</b>，而且不會有任何症狀。
-代價是 17 行裡少掉 2 行；相對於一個只在兩行上失效的近似，這個代價是划算的。</p>
-
-<h3>4.4 紋理閘 g<sub>b</sub></h3>
-
-<p>逐區塊的純量，由<b>原圖</b>算一次後固定：</p>
-
-<div class="eq">g<sub>b</sub> = ( 1 − coherence² ) · clip( E / E<sub>ref</sub>, 0, 1 )</div>
-
-<p>coherence = (λ₁−λ₂)/(λ₁+λ₂) 取自結構張量的兩個特徵值（這個量與名稱見 Weickert, IJCV 1999）。
-邊緣的梯度方向一致，coherence ≈ 1，第一個因子把它壓成 0。平坦區梯度能量低，
-第二個因子把它壓成 0——那裡任何改動都直接可見，而 coherence 在該處是零除的雜訊。</p>
-
-<p>E<sub>ref</sub> 取<b>該影像自己的</b>梯度能量中位數而非固定常數：梯度能量的絕對值
-隨影像內容差好幾個數量級，用固定常數會讓不同影像拿到不同的有效閘，而那個差異不會
-有症狀。</p>
-
-{img("f8_texture_gate.png", "圖 10　raccoon_00 的兩個因子與合成閘。coherence 在毛的走向一致處與石頭邊緣偏高；梯度能量在背景虛化處偏低。相乘之後留下的（黃色）是草叢與皮毛的雜亂紋理區。這張圖的有效面積佔比 active_fraction = 0.469。")}
-
-<h4>逐步：g<sub>b</sub> 怎麼從影像算出來</h4>
+<p>兩關的分數相乘。任一關是 0，整塊就是 0。</p>
 
 <div class="note">
-<b>先更正一個容易誤會的地方：紋理閘不是 0 或 1，是 [0,1] 之間的連續值。</b>
-只有徑向閘是二值的。紋理閘算出來的是每個區塊的一個純量權重，
-raccoon_00 的 1089 個區塊裡平均值 0.469、最大 0.9999，有 29.7% 落在 0.05 以下。
-它作用的方式是<b>把該區塊的旋轉角度按比例縮小</b>，不是「這塊轉／那塊不轉」。
+<b>這個閘不是 0 或 1。</b>只有第一個閘（4.3）是二值的。這個是連續值：
+raccoon_00 的 1089 個區塊，平均 0.469、最大 0.9999，有 29.7% 落在 0.05 以下。
 </div>
+
+{img("f8_texture_gate.png", "圖 10　兩關的分數與相乘的結果。coherence 高的地方是邊緣，梯度能量低的地方是平坦區，兩者都被壓掉。留下來的黃色是草叢與皮毛。")}
+
+<h4>三個實際的區塊</h4>
+
+<div class="tw"><table>
+<tr><th>區塊</th><th class="n">方向亂不亂<br>(1 − coh²)</th>
+<th class="n">有沒有東西<br>(sat)</th><th class="n">相乘 = g</th><th>結果</th></tr>
+<tr><td>#405　鬍鬚</td><td class="n">0.167</td><td class="n">1.000</td>
+<td class="n"><b>0.167</b></td><td>方向太一致，第一關卡掉</td></tr>
+<tr><td>#94　虛化背景</td><td class="n">0.987</td><td class="n">0.0003</td>
+<td class="n"><b>0.000</b></td><td>沒東西可動，第二關卡掉</td></tr>
+<tr><td>#1001　草</td><td class="n">0.9999</td><td class="n">1.000</td>
+<td class="n"><b>1.000</b></td><td>兩關都過</td></tr>
+</table></div>
+
+<p>三塊走到 0 的路徑不同，這正是要兩個因子而不是一個的理由。</p>
+
+{img("f8b_gate_examples.png", "圖 11　三個區塊在原圖上的位置與各自的 32×32 內容。紅框是鬍鬚，紋路全部同一方向；藍框是虛化背景，幾乎沒有紋路；綠框是草，方向雜亂而且夠強。")}
+
+<p>這個閘由<b>原圖</b>算一次就固定，不跟著防禦圖走。若讓它跟著跑，最佳化會把擾動
+搬到閘自己放寬的地方，量到的就不是這個方法的效果。程式在第一次前向之前強制呼叫
+<code>prepare_gates()</code>，沒呼叫直接報錯。</p>
+
+<details><summary>展開：g 的完整算法與那三個區塊的中間值</summary>
 
 <ol>
-<li><b>轉成亮度。</b>三通道時取
-<code>0.299R + 0.587G + 0.114B</code>。結構張量要的是人眼看得到的那個梯度。
-（latent 是 4 通道且沒有亮度語意，那裡改取平均——套 RGB 權重會是憑空的假設。）</li>
-
-<li><b>算梯度。</b>3×3 Sobel 除以 8，反射填補：
-<code>gx = conv(lum, kx)</code>、<code>gy = conv(lum, ky)</code>。</li>
-
-<li><b>逐區塊平均三個外積項。</b>
-<code>J_xx = mean(gx²)</code>、<code>J_xy = mean(gx·gy)</code>、
-<code>J_yy = mean(gy²)</code>，平均的範圍就是 32×32 的區塊，走的是
-<code>block_mean()</code>——與遮罩閘同一個函式，兩者若用不同的填補或步幅就會落在
-不同的網格上而且沒有症狀。得到 1089 個 2×2 的對稱矩陣
-<code>J = [[J_xx, J_xy], [J_xy, J_yy]]</code>。</li>
-
-<li><b>取兩個特徵值。</b>2×2 對稱矩陣有封閉解：
+<li>RGB 轉亮度：<code>0.299R + 0.587G + 0.114B</code>。</li>
+<li>3×3 Sobel 除以 8，反射填補，得到 <code>gx</code>、<code>gy</code>。</li>
+<li>逐區塊平均三個外積項：<code>J_xx = mean(gx²)</code>、
+<code>J_xy = mean(gx·gy)</code>、<code>J_yy = mean(gy²)</code>。
+走的是 <code>block_mean()</code>，與遮罩閘同一個函式——兩者若用不同的填補或步幅
+就會落在不同網格上，而且沒有症狀。</li>
+<li>2×2 對稱矩陣的特徵值有封閉解：
 <div class="eq">λ<sub>1,2</sub> = ( tr ± √( (J_xx − J_yy)² + 4·J_xy² ) ) / 2，
-　tr = J_xx + J_yy</div>
-程式存的是 <code>disc = √( ((J_xx−J_yy)/2)² + J_xy² )</code>，
-所以 λ₁ − λ₂ = 2·disc、λ₁ + λ₂ = tr。</li>
-
-<li><b>算 coherence。</b>
-<code>coh = (λ₁−λ₂)/(λ₁+λ₂) = 2·disc / (tr + 1e-8)</code>。
-梯度方向一致（邊緣）時 λ₂ ≈ 0，coh → 1；方向雜亂（紋理）時 λ₁ ≈ λ₂，coh → 0。</li>
-
-<li><b>算能量飽和項。</b><code>E_ref</code> 取<b>該影像自己的</b> tr 中位數
-（<code>energy_quantile = 0.5</code>），然後
-<code>sat = clip(tr / E_ref, 0, 1)</code>。所以能量達到中位數以上的區塊 sat = 1，
-低於中位數的按比例遞減。raccoon_00 的 E_ref = 0.001943。</li>
-
-<li><b>相乘。</b><code>g = (1 − coh²) · sat</code>。
-兩個因子分工明確：第一個壓邊緣，第二個壓平坦區。</li>
-
-<li><b>固定住。</b><code>self.tex_gate = tex.detach()</code>。
-之後整個最佳化過程都不再重算。</li>
+　tr = J_xx + J_yy</div></li>
+<li><code>coh = (λ₁−λ₂)/(λ₁+λ₂)</code>。邊緣時 λ₂ ≈ 0，coh → 1；紋理時 λ₁ ≈ λ₂，coh → 0。
+這個量與名稱出自 Weickert (IJCV 1999)。</li>
+<li><code>sat = clip(tr / E_ref, 0, 1)</code>，<code>E_ref</code> 取<b>該影像自己的</b>
+tr 中位數。用固定常數會讓不同影像拿到不同的有效閘，而那個差異不會有症狀。
+raccoon_00 的 E_ref = 0.001943。</li>
+<li><code>g = (1 − coh²) · sat</code>，然後 <code>detach()</code>。</li>
 </ol>
-
-<h4>三個實際區塊的算式</h4>
 
 <div class="tw"><table>
 <tr><th>區塊</th><th class="n">J_xx</th><th class="n">J_xy</th><th class="n">J_yy</th>
-<th class="n">tr</th><th class="n">λ₁</th><th class="n">λ₂</th><th class="n">coh</th>
-<th class="n">1−coh²</th><th class="n">sat</th><th class="n">g</th></tr>
-<tr><td>#405 邊緣（鬍鬚）</td><td class="n">0.00113</td><td class="n">−0.00201</td>
+<th class="n">tr</th><th class="n">λ₁</th><th class="n">λ₂</th><th class="n">coh</th></tr>
+<tr><td>#405 鬍鬚</td><td class="n">0.00113</td><td class="n">−0.00201</td>
 <td class="n">0.02005</td><td class="n">0.02119</td><td class="n">0.02026</td>
-<td class="n">0.00092</td><td class="n">0.913</td><td class="n">0.167</td>
-<td class="n">1.000</td><td class="n"><b>0.167</b></td></tr>
-<tr><td>#94 平坦（虛化背景）</td><td class="n">0.0000004</td><td class="n">+0.0000001</td>
-<td class="n">0.0000006</td><td class="n">0.0000010</td><td class="n">0.0000006</td>
-<td class="n">0.0000004</td><td class="n">0.114</td><td class="n">0.987</td>
-<td class="n">0.0003</td><td class="n"><b>0.000</b></td></tr>
-<tr><td>#1001 紋理（草）</td><td class="n">0.00388</td><td class="n">−0.00004</td>
+<td class="n">0.00092</td><td class="n">0.913</td></tr>
+<tr><td>#94 背景</td><td class="n">4e-7</td><td class="n">+1e-7</td>
+<td class="n">6e-7</td><td class="n">1e-6</td><td class="n">6e-7</td>
+<td class="n">4e-7</td><td class="n">0.114</td></tr>
+<tr><td>#1001 草</td><td class="n">0.00388</td><td class="n">−0.00004</td>
 <td class="n">0.00386</td><td class="n">0.00774</td><td class="n">0.00391</td>
-<td class="n">0.00383</td><td class="n">0.010</td><td class="n">0.9999</td>
-<td class="n">1.000</td><td class="n"><b>1.000</b></td></tr>
+<td class="n">0.00383</td><td class="n">0.010</td></tr>
 </table></div>
+</details>
 
-<p>三個區塊各走到 0 的路徑不同：邊緣那塊被<b>第一個因子</b>壓掉（coh 0.913），
-平坦那塊被<b>第二個因子</b>壓掉（sat 0.0003），草那塊兩個因子都放行。</p>
+<h3>4.5 兩個閘合起來</h3>
 
-{img("f8b_gate_examples.png", "圖 11　三個區塊在原圖上的位置與各自的 32×32 內容。左紅框是鬍鬚——梯度全部同一方向；藍框是虛化背景——幾乎沒有梯度；右下綠框是草——梯度方向雜亂且能量足夠。")}
+<p>某一格實際被轉的角度是三個東西相乘：</p>
 
-<h3>4.5 兩個閘怎麼合起來，作用在什麼上</h3>
+<div class="eq">你學到的角度 θ　×　這塊的分數 g　×　這格能不能轉 m（0 或 1）</div>
 
-<p>合成閘是外積：</p>
+<p>最重要的一句：<b>閘乘在角度上，不是乘在係數上。</b></p>
 
-<pre>def gate(self):
-    return self.tex_gate[..., None, None] * self.freq_gate
-    #      (1, L, 1, 1)                     (32, 17)
-    #   -&gt; (1, L, 32, 17)
+<p>g = 0.3 的區塊仍然每一格都轉，只是轉 0.3θ。若改成乘在係數上，那就是直接把
+係數變小——幅度就改了，「只轉相位、幅度不動」這個整個方法賴以成立的性質立刻失效。</p>
 
-shift = torch.clamp(self.theta, -theta_max, theta_max)
-shift = (shift * self.gate()).unsqueeze(1)
-spec  = self.analyze(x01)
-x_def = self.synthesize(rotate_spectrum(spec, shift))</pre>
-
-<p>所以區塊 b、頻格 (u,v) 實際被轉的角度是</p>
-
-<div class="eq">θ<sub>b,u,v</sub> · g<sub>b</sub> · m<sub>u,v</sub></div>
-
-<p>三個要點：</p>
-
-<ul>
-<li><b>閘乘在角度上，不是乘在係數上。</b>g<sub>b</sub> = 0.3 的區塊仍然每一格都轉，
-只是只轉 0.3θ。這一點很重要——若閘乘在係數上就會直接改幅度，幅度保留的性質立刻失效。</li>
-<li><b>m = 0 的頻格轉 0 度，等於完全不動</b>，係數逐位保持原值。</li>
-<li><b>θ 是唯一的可學參數。</b>兩個閘都在 <code>prepare_gates()</code> 裡算完就
-<code>detach()</code>，梯度不會流回它們。</li>
-</ul>
-
-<div class="note">
-<b>閘取自原圖而非當前的防禦圖。</b>閘若跟著防禦圖漂移，g<sub>b</sub> 會變成優化目標的
-一部分——最佳化會把擾動搬到閘自己放寬的地方，那不是本方法要量的東西。
-程式在第一次前向前強制呼叫 <code>prepare_gates()</code>，沒呼叫直接拋
-<code>RuntimeError</code>，不給預設值。
-</div>
+<p>θ 是唯一要學的東西。兩個閘算完就固定，梯度不會流回去。</p>
 
 <h3>4.6 為什麼轉相位不會改變亮度</h3>
 
-<p>一個區塊的平均亮度就是它的 <b>DC 係數</b>（頻率 0 那一格）。相位旋轉之所以不動
-亮度，理由不是「相位與亮度無關」——恰恰相反，<b>轉 DC 會直接把亮度乘上 cos θ</b>。</p>
+<p>一塊的平均亮度，就是那張 32×17 的表<b>左上角第一格</b>的值。它叫 DC，是唯一
+「不振盪」的成分。</p>
 
-<p>DC 是唯一不振盪的成分。對實數影像而言它必須是實數，所以乘上 e<sup>iθ</sup> 之後，
-<code>irfft</code> 只留下實部，等於把它乘上 cos θ。實測（32×32 的區塊）：</p>
-
-<div class="tw"><table>
-<tr><th class="n">θ</th><th class="n">只轉 DC 之後的區塊平均</th><th class="n">相對原值</th><th class="n">cos θ</th></tr>
-<tr><td class="n">0.65</td><td class="n">0.4038</td><td class="n">0.7961</td><td class="n">0.7961</td></tr>
-<tr><td class="n">1.30</td><td class="n">0.1357</td><td class="n">0.2675</td><td class="n">0.2675</td></tr>
-<tr><td class="n">π</td><td class="n">−0.5073</td><td class="n">−1.0000</td><td class="n">−1.0000</td></tr>
-</table></div>
-
-<p>θ = 1.30 會讓該塊只剩 26.75% 的亮度，θ = π 直接反相。<b>這正是 DC 必須凍結的理由。</b>
-徑向閘凍結它兩次：它的半徑是 0，小於任何 r<sub>min</sub>；而且它落在
-<code>fx = 0</code> 那一行，整行本來就取 0（§4.3）。</p>
-
-<p>凍結 DC、只轉其餘頻格：區塊平均的變化是 <b>2.2e-16</b>，即機器精度。</p>
-
-{img("f7c_brightness.png", "圖 12　左：轉 DC 時區塊平均隨 θ 走 cos 曲線（紅），與 cos θ 逐點重合；凍結 DC 時是一條平線（綠）。右：兩層凍結的說明。")}
-
-<p>整張圖的層級上，亮度不是<b>逐位</b>保留而是<b>近似</b>保留，理由與 §5.2 的
-一致性投影相同：重疊區塊各自轉相位後互相不一致，最小平方重建會做折衷。
-實測 raccoon_00：</p>
+<p>亮度不變的理由不是「相位跟亮度無關」。<b>剛好相反：轉 DC 會直接把亮度乘上
+cos θ。</b></p>
 
 <div class="tw"><table>
-<tr><th class="n">θ</th><th class="n">全圖平均（原圖 0.41893014）</th><th class="n">差</th></tr>
-<tr><td class="n">0.65</td><td class="n">0.41897276</td><td class="n">4.3e-5</td></tr>
-<tr><td class="n">1.30</td><td class="n">0.41899833</td><td class="n">6.8e-5</td></tr>
-<tr><td class="n">π</td><td class="n">0.41899475</td><td class="n">6.5e-5</td></tr>
+<tr><th class="n">θ</th><th class="n">只轉 DC 之後，那塊剩多少亮度</th><th class="n">cos θ</th></tr>
+<tr><td class="n">0.65</td><td class="n">79.61%</td><td class="n">0.7961</td></tr>
+<tr><td class="n">1.30</td><td class="n">26.75%</td><td class="n">0.2675</td></tr>
+<tr><td class="n">π</td><td class="n">−100%（整塊反相）</td><td class="n">−1.0000</td></tr>
 </table></div>
 
-<p>6.8e-5 相當於 8 位元灰階的 <b>0.017 級</b>，遠低於量化步階，肉眼與任何指標都測不到。</p>
+<p>所以 DC 非凍不可。第一個閘凍它<b>兩次</b>：它離中心的距離是 0，比任何門檻都小；
+而且它就在 <code>fx = 0</code> 那一行，整行本來就清掉。</p>
+
+<p>凍住之後，只轉其他格：那塊的平均變化是 <b>2.2e-16</b>，機器精度。</p>
+
+{img("f7c_brightness.png", "圖 12　左：轉 DC 時亮度隨 θ 走 cos 曲線（紅），與 cos θ 逐點重合；凍住 DC 時是一條平線（綠）。右：兩層凍結的說明。")}
+
+<p>整張圖的層級上，亮度是<b>近似</b>保留而不是逐位保留，理由和 §5.2 一樣：
+重疊的區塊各轉各的，接回去時要折衷。實測 raccoon_00 在 θ = 1.30 下，
+全圖平均由 0.41893014 變成 0.41899833，差 <b>6.8e-5</b>——相當於 8 位元灰階的
+<b>0.017 級</b>，遠低於一個量化步階。</p>
 
 <h2 id="s5">5　恆等保證與已知的不精確之處</h2>
 

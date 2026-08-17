@@ -374,3 +374,76 @@ fig.tight_layout()
 fig.savefig(OUT / "f7c_brightness.png", bbox_inches="tight")
 plt.close(fig)
 print("gate/brightness figures done")
+
+
+# ---------------------------------------------------------------- F8b/F7d 閘的逐步
+# 三個代表性區塊的紋理閘算式，以及徑向閘的三個步驟。
+from matplotlib.patches import Rectangle  # noqa: E402
+
+HOP = 16
+PAD = 16
+ARR = np.asarray(Image.open(DATA / "raccoon" / "raccoon_00.png").convert("RGB")
+                 .resize((512, 512), Image.LANCZOS), np.float32) / 255
+lum = (0.299 * x[:, 0] + 0.587 * x[:, 1] + 0.114 * x[:, 2])[:, None]
+kx = torch.tensor([[-1., 0., 1.], [-2., 0., 2.], [-1., 0., 1.]]).view(1, 1, 3, 3) / 8
+ky = kx.transpose(-1, -2)
+import torch.nn.functional as Fn  # noqa: E402
+gx = Fn.conv2d(Fn.pad(lum, (1, 1, 1, 1), mode="reflect"), kx)
+gy = Fn.conv2d(Fn.pad(lum, (1, 1, 1, 1), mode="reflect"), ky)
+jxx, jxy, jyy = (block_mean(t, B, HOP) for t in (gx * gx, gx * gy, gy * gy))
+tr = jxx + jyy
+disc = torch.sqrt(torch.clamp(((jxx - jyy) * .5) ** 2 + jxy ** 2, min=0))
+coh = (2 * disc) / (tr + 1e-8)
+ref = torch.quantile(tr, 0.5, dim=1, keepdim=True).clamp_min(1e-8)
+sat = torch.clamp(tr / ref, 0, 1)
+g = (1 - coh ** 2) * sat
+side = int(math.sqrt(tr.shape[1]))
+HOP = 16
+PAD = 16
+picks = [(int(torch.argmax(coh[0] * (sat[0] > 0.5)).item()), "edge-like"),
+         (int(torch.argmin(tr[0]).item()), "flat"),
+         (int(torch.argmax(g[0]).item()), "texture-like")]
+
+fig = plt.figure(figsize=(12.0, 3.4))
+axm = fig.add_subplot(1, 4, 1)
+axm.imshow(ARR); axm.set_xticks([]); axm.set_yticks([])
+axm.set_title("raccoon_00 with the three example blocks", fontsize=8)
+cols = {"edge-like": "#b91c1c", "flat": "#2563a8", "texture-like": "#0d7377"}
+for k, (idx, tag) in enumerate(picks):
+    r, c = divmod(idx, side)
+    y0, x0 = r * HOP - PAD, c * HOP - PAD
+    axm.add_patch(Rectangle((x0, y0), B, B, fill=False, lw=2, edgecolor=cols[tag]))
+    a = fig.add_subplot(1, 4, k + 2)
+    crop = ARR[max(y0, 0):y0 + B, max(x0, 0):x0 + B]
+    a.imshow(crop, interpolation="nearest")
+    a.set_xticks([]); a.set_yticks([])
+    a.set_title(f"{tag}   block #{idx}\n"
+                f"coh={float(coh[0, idx]):.3f}  sat={float(sat[0, idx]):.3f}\n"
+                f"g = {1-float(coh[0,idx])**2:.3f} x {float(sat[0,idx]):.3f} "
+                f"= {float(g[0, idx]):.3f}", fontsize=7.5, color=cols[tag])
+fig.tight_layout()
+fig.savefig(OUT / "f8b_gate_examples.png", bbox_inches="tight")
+plt.close(fig)
+
+# 徑向閘的三步
+fy = np.fft.fftfreq(B) * 2
+fx = np.fft.rfftfreq(B) * 2
+r2 = np.sqrt(fy[:, None] ** 2 + fx[None, :] ** 2)
+step1 = np.fft.fftshift(r2, axes=0)
+step2 = np.fft.fftshift((r2 >= 0.12).astype(float), axes=0)
+m = radial_gate(B, 0.12, "cpu", torch.float32).numpy()
+step3 = np.fft.fftshift(m, axes=0)
+fig, ax = plt.subplots(1, 3, figsize=(10.5, 3.2))
+for a, (d, t, cm) in zip(ax, [(step1, "1. r = sqrt(fy^2 + fx^2)", "magma"),
+                              (step2, "2. m = (r >= 0.12)\nfrozen: 6 bins", "gray"),
+                              (step3, "3. m[:,0] = m[:,-1] = 0\nfrozen: 6 + 61 = 67 bins", "gray")]):
+    i = a.imshow(d, cmap=cm, aspect="auto")
+    a.set_title(t, fontsize=8)
+    a.set_xlabel("fx index 0..16"); a.set_ylabel("fy index (shifted)")
+    plt.colorbar(i, ax=a, fraction=0.046)
+fig.suptitle(f"radial gate, step by step (block 32 -> 32x17 = 544 bins, "
+             f"{int(m.sum())} live = {m.mean()*100:.1f}%)", fontsize=9)
+fig.tight_layout()
+fig.savefig(OUT / "f7d_radial_steps.png", bbox_inches="tight")
+plt.close(fig)
+print("gate step figures done")

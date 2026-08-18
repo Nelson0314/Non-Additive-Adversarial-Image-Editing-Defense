@@ -17,6 +17,8 @@ from pathlib import Path
 from typing import Dict, List, Optional, Sequence
 
 RUN = Path("runs/s0817/merged")
+# 淨化後的影像由 `hb5_purify_gallery.py` 產生，不參與任何統計，純供人眼。
+PURIFIED = Path("runs/s0817/purified")
 DATA = Path("data/set0817")
 
 COND = ["phase", "phase_rand", "add", "photoguard_c", "mist", "dia_r", "apa_weak"]
@@ -125,6 +127,12 @@ def find_png(image: str, suffix: str) -> Optional[Path]:
     return p if p.exists() else None
 
 
+def _pur(stem: str, kind: str) -> Optional[Path]:
+    """淨化圖庫的一張圖。`kind` 是 `pur`（淨化後的防禦圖）或 `edit`（它的編輯）。"""
+    p = PURIFIED / f"{stem}__{kind}.png"
+    return p if p.exists() else None
+
+
 def find_png_any(image: str, suffix: str) -> Optional[Path]:
     """`__edit_orig` 是逐條件各存一份的，取先找到的那份。
 
@@ -212,6 +220,10 @@ td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
 table.imgs{table-layout:fixed;width:max-content;min-width:100%}
 table.imgs col{width:470px}
 col.rowcol{width:190px}
+table.imgs.pur col{width:212px}
+col.prow{width:150px}
+table.imgs.pur img{margin-bottom:3px}
+table.imgs.pur th.rowh{font-size:11.5px;vertical-align:middle;text-align:left}
 table.imgs td,table.imgs th{padding:3px;text-align:center;vertical-align:top}
 table.imgs tr.after td{padding-bottom:16px;border-bottom:2px solid var(--mut)}
 table.imgs th{font-size:14px;line-height:1.35}
@@ -314,24 +326,8 @@ def build() -> str:
       f'<tr><th></th>{head}</tr>{"".join(rows)}</table></div>')
 
     # ---------- 2 LPIPS / DISTS ----------
-    A('<h2>2　LPIPS 與 DISTS</h2>')
-    A("<h3>2.1 逐影像</h3>")
-    A(table(["影像"] + [f"{LABEL[c]}<br>LPIPS" for c in conds]
-            + [f"{LABEL[c]}<br>DISTS" for c in conds],
-            [[im] + [fmt(num(res.get(c, {}).get(im), "fid_lpips")) for c in conds]
-             + [fmt(num(res.get(c, {}).get(im), "fid_dists")) for c in conds]
-             for im in imgs]))
-
-    A("<h3>2.2 LPIPS</h3>")
-    A(bars(imgs, [(LABEL[c], COLOR[c],
-                   {im: num(res.get(c, {}).get(im), "fid_lpips") for im in imgs})
-                  for c in conds]))
-    A("<h3>2.3 DISTS</h3>")
-    A(bars(imgs, [(LABEL[c], COLOR[c],
-                   {im: num(res.get(c, {}).get(im), "fid_dists") for im in imgs})
-                  for c in conds]))
-
-    A("<h3>2.4 平均</h3>")
+    # 逐影像的表與長條圖已於 2026-08-18 依使用者裁定移除，只留平均。
+    A('<h2>2　LPIPS 與 DISTS（七張平均）</h2>')
     def avg(c: str, k: str) -> Optional[float]:
         v = [num(res.get(c, {}).get(i), k) for i in imgs]
         v = [x for x in v if x is not None]
@@ -357,7 +353,7 @@ def build() -> str:
             per.setdefault(r["purifier"], {}).setdefault(
                 r["condition"], []).append(float(r["effect_mean"]))
         pur = [p for p in PURIF if p in per]
-        A("<h3>3.1 各淨化算子 × 各方法（9 張平均）</h3>")
+        A(f"<h3>3.1 各淨化算子 × 各方法（{len(imgs)} 張平均）</h3>")
         A(table(["淨化算子"] + [LABEL[c] for c in conds],
                 [[p] + [fmt(st.fmean(per[p][c]) if per[p].get(c) else None)
                         for c in conds] for p in pur]))
@@ -366,15 +362,6 @@ def build() -> str:
                       {p: (st.fmean(per[p][c]) if per[p].get(c) else None)
                        for p in pur}) for c in conds], bw=13, gap=22))
 
-        A("<h3>3.3 逐影像逐算子</h3>")
-        byi: Dict[str, Dict[str, Dict[str, float]]] = {}
-        for r in ret:
-            byi.setdefault(r["image"], {}).setdefault(
-                r["purifier"], {})[r["condition"]] = float(r["effect_mean"])
-        A(table(["影像", "淨化算子"] + [LABEL[c] for c in conds],
-                [[im, p] + [fmt(byi[im].get(p, {}).get(c)) for c in conds]
-                 for im in sorted(byi) for p in pur if p in byi[im]],
-                right_from=2))
 
         # ---------- 4 retention ----------
         A('<h2>4　retention 比值</h2>')
@@ -387,7 +374,7 @@ def build() -> str:
             if r["usable"].strip().lower() in ("false", "0"):
                 bad.setdefault(r["condition"], set()).add(r["image"])
         rpur = [x for x in pur if x != "identity"]
-        A("<h3>4.1 各淨化算子 × 各方法（9 張平均）</h3>")
+        A(f"<h3>4.1 各淨化算子 × 各方法（{len(imgs)} 張平均）</h3>")
         A(table(["淨化算子"] + [LABEL[c] for c in conds],
                 [[x] + [fmt(st.fmean(rt[x][c]) if rt[x].get(c) else None, 3)
                         for c in conds] for x in rpur]))
@@ -426,10 +413,40 @@ def build() -> str:
             return [f"{w} / {l}", f"{st.fmean(ratios):.2f}"]
 
         others = [c for c in conds if c != "phase"]
-        A("<h3>5.1 未淨化（identity，9 格）與淨化後（8 算子 × 9 影像 = 72 格）</h3>")
+        A(f"<h3>5.1 未淨化（identity，{len(imgs)} 格）與淨化後"
+          f"（{len(rpur)} 算子 × {len(imgs)} 影像 = {len(rpur) * len(imgs)} 格）</h3>")
         A(table(["對照方法", "未淨化 勝/敗", "未淨化 平均比",
                  "淨化後 勝/敗", "淨化後 平均比"],
                 [[LABEL[c]] + duel(c, True) + duel(c, False) for c in others]))
+
+        # ---------- 6 淨化後的影像 ----------
+        A('<h2>6　淨化後的防禦圖與編輯圖</h2>')
+        A('<p class="meta">每一格上排是淨化後的防禦圖、下排是它再被 SDEdit 編輯的'
+          '結果。這一節只跑 `EDIT_SEED` 一個種子（統計用的三個種子是為了估分母的'
+          '標準差，看圖不需要三份），故<b>不參與任何數字</b>，純供人眼。'
+          '產生器：`scripts/hb5_purify_gallery.py`。</p>')
+        if not PURIFIED.exists():
+            A('<p class="miss" style="aspect-ratio:auto;padding:26px">'
+              f'{PURIFIED} 不存在</p>')
+        else:
+            gcols = ('<colgroup><col class="prow">'
+                     f'<col span="{len(conds)}"></colgroup>')
+            ghead = "".join(f"<th>{LABEL[c]}</th>" for c in conds)
+            for im in imgs:
+                A(f'<h3>{im}</h3>')
+                grows = []
+                for pf in pur:
+                    cells = []
+                    for c in conds:
+                        stem = f"{im}__{c}__{pf}"
+                        cells.append(
+                            f'<td>{img_tag(_pur(stem, "pur"), side=200, quality=78)}'
+                            f'{img_tag(_pur(stem, "edit"), side=200, quality=78)}</td>')
+                    grows.append(f'<tr><th class="rowh">{pf}</th>'
+                                 f'{"".join(cells)}</tr>')
+                A(f'<div class="tw"><table class="imgs pur">{gcols}'
+                  f'<tr><th></th>{ghead}</tr>{"".join(grows)}</table></div>')
+
     return "".join(P)
 
 

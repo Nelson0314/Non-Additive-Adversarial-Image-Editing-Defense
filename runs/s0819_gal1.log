@@ -1,0 +1,21 @@
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  17%|█▋        | 1/6 [00:00<00:01,  3.58it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 2919.31it/s]
+Loading pipeline components...:  83%|████████▎ | 5/6 [00:00<00:00, 10.90it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00,  9.99it/s]
+There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+=== person_b_00 / add ===
+    9 個算子，48.0s
+=== person_b_00 / phase ===
+    9 個算子，48.2s
+=== person_b_00 / phase_rand ===
+    9 個算子，48.3s
+=== person_b_00 / apa_weak ===
+    9 個算子，48.5s
+=== person_b_00 / mist ===
+    9 個算子，48.5s
+=== person_b_00 / dia_r ===
+    9 個算子，48.3s
+=== person_b_00 / photoguard_c ===
+    9 個算子，48.3s
+
+126 張圖 → runs/s0817/purified

@@ -60,33 +60,13 @@ class AdditiveParam:
     name = "add"
 
     def __init__(self, radius: float = 16.0 / 255.0,
-                 keep: Optional[torch.Tensor] = None,
-                 random_start: bool = False):
+                 keep: Optional[torch.Tensor] = None):
         self.radius = radius
         self.keep = keep
-        self.random_start = random_start
         self.delta: Optional[torch.Tensor] = None
 
     def reset(self, x01: torch.Tensor, seed: int) -> None:
-        """`random_start` 時 δ ~ U(−r, r)，否則從 0 開始。
-
-        **untargeted 的損失必須用 random start。** 例如
-        `−‖E(x+δ) − E(x)‖²` 或 `cos(CLIP(x+δ), CLIP(x))`，在 δ = 0 處梯度
-        恰好是 0——那是損失的平滑極大值。`sign(0) = 0`，於是 δ 一步都不會動，
-        跑完 100 步輸出仍逐位等於原圖，而且**不會有任何錯誤訊息**：
-        results.csv 只是安靜地填上 LPIPS 0.0000、位移 0.0000。
-        2026-08-18 的 latent 損失批次即整條 add 臂如此。
-        targeted 的損失（推向灰圖）在 δ = 0 處梯度非零，故不受影響，
-        預設維持 False 讓既有批次逐位可重現。
-
-        隨機起點本來就是 PGD 的標準做法（Madry et al., ICLR 2018 §B）。
-        """
-        if not self.random_start:
-            self.delta = torch.zeros_like(x01, requires_grad=True)
-            return
-        g = torch.Generator(device="cpu").manual_seed(seed)
-        d = (torch.rand(x01.shape, generator=g) * 2.0 - 1.0) * self.radius
-        self.delta = d.to(device=x01.device, dtype=x01.dtype).requires_grad_(True)
+        self.delta = torch.zeros_like(x01, requires_grad=True)
 
     def render(self, x01: torch.Tensor) -> torch.Tensor:
         d = self.delta if self.keep is None else self.delta * self.keep.to(self.delta)
@@ -120,36 +100,21 @@ class PhaseParam:
 
     def __init__(self, size: int = 512, block: int = 32, r_min: float = 0.12,
                  radius: float = math.pi, energy_quantile: float = 0.5,
-                 keep: Optional[torch.Tensor] = None, gl_iters: int = 0,
-                 random_start: bool = False):
+                 keep: Optional[torch.Tensor] = None, gl_iters: int = 0):
         self.size, self.block, self.r_min = size, block, r_min
         self.energy_quantile = energy_quantile
         self.radius = min(radius, math.pi)
         self.keep = keep
         self.gl_iters = gl_iters
-        self.random_start = random_start
         self.module: Optional[PhaseResidual] = None
 
     def reset(self, x01: torch.Tensor, seed: int) -> None:
-        """`random_start` 時 θ ~ U(−r, r)，否則從 0 開始。
-
-        理由與 `AdditiveParam.reset` 同一條，但這一側的失效方式更難發現：
-        θ = 0 時輸出**不是**逐位等於原圖而是差 float32 的捨入（實測 4.8e-7），
-        於是 untargeted 損失的梯度是那個捨入噪聲，`sign()` 又把它放大成一整步。
-        結果是相位臂「動了」——由數值噪聲的正負號決定方向——而加性臂完全沒動。
-        兩臂在同一個損失下起跑條件不同，比較就不成立。
-        """
         self.module = PhaseResidual(
             size=self.size, block=self.block, r_min=self.r_min,
             theta_max=self.radius, energy_quantile=self.energy_quantile,
             gl_iters=self.gl_iters,
         ).to(device=x01.device, dtype=x01.dtype)
         self.module.prepare_gates(x01, keep=self.keep)
-        if self.random_start:
-            g = torch.Generator(device="cpu").manual_seed(seed)
-            t = (torch.rand(self.module.theta.shape, generator=g) * 2.0 - 1.0) * self.radius
-            with torch.no_grad():
-                self.module.theta.copy_(t.to(self.module.theta))
 
     def render(self, x01: torch.Tensor) -> torch.Tensor:
         return self.module.pixel_residual(x01).clamp(0.0, 1.0)

@@ -34,12 +34,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import torch  # noqa: E402
 
 from apa_baseline import (  # noqa: E402
-    EDIT_STRENGTH, MODEL_NAME, RESOLUTION, TARGET_IMAGE, evaluate, load_dataset,
+    MODEL_NAME, RESOLUTION, TARGET_IMAGE, evaluate, load_dataset,
 )
-from src.baselines.alt_losses import (  # noqa: E402
-    make_clip_untargeted_loss, make_latent_untargeted_loss,
-)
-from src.baselines.attn_loss import make_attn_loss  # noqa: E402
 from src.baselines.encoder_target import make_encoder_target_loss  # noqa: E402
 from src.defense.param_pgd import (  # noqa: E402
     AdditiveParam, PhaseParam, RandomPhaseParam, fit_to_budget, run_param_pgd,
@@ -70,7 +66,7 @@ PHASE_RADIUS_LO = 0.05
 
 
 def build(name: str, seed: int, block: int = 32, r_min: float = 0.12,
-          quantile: float = 0.5, gl_iters: int = 0, random_start: bool = False):
+          quantile: float = 0.5, gl_iters: int = 0):
     """`block`／`r_min`／`quantile` 是相位算子的三個構造設定。
 
     預設值是 2026-08-13 的定案（`docs/MAINLINE.md` §4）。開放成參數是為了掃描
@@ -78,12 +74,10 @@ def build(name: str, seed: int, block: int = 32, r_min: float = 0.12,
     也就是改變擾動被允許出現的位置，不改變損失或更新規則。
     """
     if name == "add":
-        return (AdditiveParam(radius=ADD_RADIUS_HI, random_start=random_start),
-                ADD_RADIUS_LO, ADD_RADIUS_HI)
+        return AdditiveParam(radius=ADD_RADIUS_HI), ADD_RADIUS_LO, ADD_RADIUS_HI
     if name == "phase":
         return (PhaseParam(size=RESOLUTION, block=block, r_min=r_min,
-                           energy_quantile=quantile, gl_iters=gl_iters,
-                           random_start=random_start),
+                           energy_quantile=quantile, gl_iters=gl_iters),
                 PHASE_RADIUS_LO, math.pi)
     if name == "phase_rand":
         return (RandomPhaseParam(size=RESOLUTION, block=block, r_min=r_min,
@@ -103,13 +97,6 @@ def main() -> None:
     ap.add_argument("--human-threshold", action="store_true",
                     help="不做預算對齊，直接用 HUMAN_RADIUS 的人眼門檻半徑")
     ap.add_argument("--target", type=Path, default=Path(TARGET_IMAGE))
-    ap.add_argument("--loss",
-                    choices=("encoder_target", "latent", "clip", "attn"),
-                    default="encoder_target",
-                    help="PGD 的損失。encoder_target 是主線（推向目標圖的 "
-                         "latent）；latent 與 clip 是 untargeted，推離原圖自己；"
-                         "attn 是 Lo et al. CVPR 2024 的注意力抑制（式 3/4/5）。"
-                         "四者共用同一個迴圈、步數與種子，唯一變因是損失")
     ap.add_argument("--steps", type=int, default=100)
     ap.add_argument("--rounds", type=int, default=8)
     ap.add_argument("--seed", type=int, default=0)
@@ -137,22 +124,7 @@ def main() -> None:
     suite = MetricSuite(device=sd.device)
     aes = AestheticSuite(device=sd.device)
     y_target = load_image_tensor(args.target, sd.device, size=RESOLUTION)
-
-    def make_loss(item, x01):
-        """依 --loss 建損失。
-
-        `encoder_target` 與影像無關（目標是固定的那張圖），其餘三個都要以
-        **該張原圖**為參考（`attn` 另外還要該影像的內容詞），故一律做成逐圖
-        建立。CLIP 那條每次會重新載入視覺塔，成本在一張圖的總時間裡可以忽略。
-        """
-        if args.loss == "encoder_target":
-            return make_encoder_target_loss(sd, y_target)
-        if args.loss == "latent":
-            return make_latent_untargeted_loss(sd, x01)
-        if args.loss == "attn":
-            return make_attn_loss(sd, item["content"], x01,
-                                  strength=EDIT_STRENGTH, seed=args.seed)
-        return make_clip_untargeted_loss(sd.device, x01)
+    loss_fn = make_encoder_target_loss(sd, y_target)
 
     def dists_of(a, b):
         return float(suite.pairwise(a.clamp(0, 1), b)["dists"])
@@ -165,9 +137,7 @@ def main() -> None:
     for item in dataset:
         item["path01"] = load_image_tensor(item["path"], sd.device, size=RESOLUTION)
         save_image(item["path01"], args.out / f"{item['name']}__orig.png")
-        print(f"\n########## {item['name']} ({item['class']}) "
-              f"[loss={args.loss}] ##########", flush=True)
-        loss_fn = make_loss(item, item["path01"])
+        print(f"\n########## {item['name']} ({item['class']}) ##########", flush=True)
 
         budgets = ["human"] if args.human_threshold else args.budgets
         for budget in budgets:
@@ -176,14 +146,9 @@ def main() -> None:
                        else f"{cond}__d{budget:g}") + args.tag_suffix
                 print(f"=== {item['name']} / {tag} ===", flush=True)
                 t0 = time.time()
-                # `latent` 與 `clip` 在 φ = 0 處梯度為 0（或只剩捨入噪聲），
-                # 非隨機起點不可（`AdditiveParam.reset` 的 docstring）。
-                # `attn` 量的不是與自身的距離，φ = 0 不是駐點，故與主線一樣
-                # 從 0 起步——起點相同才能把它與 encoder-target 直接對比。
                 param, lo, hi = build(cond, args.seed, block=args.block,
                                       r_min=args.r_min, quantile=args.quantile,
-                                      gl_iters=args.gl_iters,
-                                      random_start=args.loss in ("latent", "clip"))
+                                      gl_iters=args.gl_iters)
                 if budget == "human":
                     r_human = HUMAN_RADIUS[cond]
                     if args.phase_radius is not None and cond in ("phase", "phase_rand"):
@@ -213,8 +178,6 @@ def main() -> None:
                     "prompt_index": args.prompt_index, "prompt": item["prompt"],
                     "block": args.block, "r_min": args.r_min,
                     "quantile": args.quantile, "target_image": str(args.target),
-                    "loss": args.loss,
-                    "random_start": args.loss in ("latent", "clip"),
                     "budget_target": budget,
                     "budget_mode": "human" if budget == "human" else "dists",
                     "budget_reached": round(float(fit["reached"]), 5),

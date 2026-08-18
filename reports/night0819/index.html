@@ -307,7 +307,29 @@ DCT-Shield 的兩個原生變體。判準以人眼為主（<code>CLAUDE.md</code
 理由在本輪再次得到確認：<code>phase_rand</code> 有 <b>24/28 列</b>沒通過 3σ 閘
 （分母 <code>effect(identity)</code> 只有 0.1105，被自身的 seed 變異吃掉），
 而 <code>phase</code> 是 28/28 全過。分母塌陷時比值不可解讀（FND-037／056）。</p>
-<div class="scroll"><table class=""><thead><tr><th>條件</th><th>高頻佔比</th><th>identity</th><th>blur1</th><th>crop_resize0.1</th><th>jpeg75</th><th>淨增益均值</th></tr></thead><tbody><tr><td>紋理重相位 θ=1.30</td><td>0.226</td><td>0.4537</td><td>0.3667<br><span class='sub'>−地板 +0.0734</span></td><td>0.5261<br><span class='sub'>−地板 +0.0369</span></td><td>0.2697<br><span class='sub'>−地板 +0.1349</span></td><td><b>+0.0818</b></td></tr><tr><td>隨機相位 θ=1.30</td><td>0.185</td><td>0.1105</td><td>0.2982<br><span class='sub'>−地板 +0.0049</span></td><td>0.4914<br><span class='sub'>−地板 +0.0022</span></td><td>0.1602<br><span class='sub'>−地板 +0.0253</span></td><td><b>+0.0108</b></td></tr><tr><td><i>空白地板（無防禦）</i></td><td>—</td><td>0.0000</td><td>0.2933</td><td>0.4892</td><td>0.1348</td><td>—</td></tr></tbody></table></div>
+<div class="scroll"><table class=""><thead><tr><th>條件</th><th>高頻佔比</th><th>identity</th><th>blur1</th><th>crop_resize0.1</th><th>jpeg75</th><th>gridpure</th><th>淨增益均值</th></tr></thead><tbody><tr><td>DCT-Shield（Y-only）</td><td>0.923</td><td>0.6810</td><td>0.3524<br><span class='sub'>−地板 +0.0591</span></td><td>0.6303<br><span class='sub'>−地板 +0.1411</span></td><td>0.6533<br><span class='sub'>−地板 +0.5185</span></td><td>0.6084<br><span class='sub'>−地板 +0.3438</span></td><td><b>+0.2656</b></td></tr><tr><td>紋理重相位 θ=1.30</td><td>0.226</td><td>0.4537</td><td>0.3667<br><span class='sub'>−地板 +0.0734</span></td><td>0.5261<br><span class='sub'>−地板 +0.0369</span></td><td>0.2697<br><span class='sub'>−地板 +0.1349</span></td><td>0.3745<br><span class='sub'>−地板 +0.1100</span></td><td><b>+0.0888</b></td></tr><tr><td>DCT-Shield（base）</td><td>0.520</td><td>0.6673</td><td>0.3033<br><span class='sub'>−地板 +0.0100</span></td><td>0.6056<br><span class='sub'>−地板 +0.1165</span></td><td>0.1820<br><span class='sub'>−地板 +0.0471</span></td><td>0.3489<br><span class='sub'>−地板 +0.0844</span></td><td><b>+0.0645</b></td></tr><tr><td>隨機相位 θ=1.30</td><td>0.185</td><td>0.1105</td><td>0.2982<br><span class='sub'>−地板 +0.0049</span></td><td>0.4914<br><span class='sub'>−地板 +0.0022</span></td><td>0.1602<br><span class='sub'>−地板 +0.0253</span></td><td>0.2896<br><span class='sub'>−地板 +0.0251</span></td><td><b>+0.0144</b></td></tr><tr><td><i>空白地板（無防禦）</i></td><td>—</td><td>0.0000</td><td>0.2933</td><td>0.4892</td><td>0.1348</td><td>0.2645</td><td>—</td></tr></tbody></table></div>
+<div class="key">
+<p><b>紋理重相位勝過 DCT-Shield base，而失真只有它的三分之一</b>
+（淨增益 +0.0888 對 +0.0645；LPIPS 0.189 對 0.553）。</p>
+<p><b>但兩者對不同的算子強健，這是本輪最有價值的結構性發現。</b>
+高斯模糊上紋理重相位勝 <b>7.3 倍</b>（+0.0734 對 +0.0100）——DCT-Shield 有
+52% 的擾動能量在半 Nyquist 以上，模糊直接抹掉。JPEG 上反過來，DCT-Shield
+的 Y-only 拿到 +0.5185 而紋理重相位只有 +0.1349，因為它的擾動<b>對齊 JPEG 的
+量化格點</b>，重壓會保留而非消除它。</p>
+<p><b>因此第 5 節的預測必須收窄。</b>高頻佔比與淨增益不是單調關係：
+<code>dct_shield_y</code> 高頻佔比最高（0.923）卻在 JPEG 上最強。正確的敘述是
+<b>與淨化器本身格點的對齊程度</b>才是決定因素；頻率內容只在「與算子無關的
+通用擾動」這個前提下才有預測力。DEC-025 的動機要照此改寫。</p>
+<p><code>dct_shield_y</code> 的總分最高，但失真是紋理重相位的 <b>3.4 倍</b>
+（LPIPS 0.641 對 0.189）。這與 <code>mist</code> 是同一種不可比，
+<b>在預算對齊之前不得據此下優劣結論</b>。</p>
+</div>
+<p class="note">GrIDPure 具鑑別力：地板 0.2645，介於 <code>blur1</code>（0.2933）
+與 <code>jpeg75</code>（0.1348）之間，不像 FD-Pure 的地板佔比接近 100%。
+紋理重相位對隨機相位在該算子上是 4.4 倍。survey 曾預測「GrIDPure 的重疊網格
+與本方法的重疊區塊同尺度，可能特別有效地抹平區塊間的相位不一致」——就本輪的
+資料看，它確實比 <code>jpeg75</code> 更能壓低本方法的優勢（4.4 倍對 5.3 倍），
+但沒有翻轉結論。</p>
 
 <h2>7. 程式與文件的變更</h2>
 <div class="scroll"><table class=""><thead><tr><th>檔案</th><th>內容</th></tr></thead><tbody><tr><td><code>src/residual/spectral_split.py</code></td><td>PAD 第 3 節的幅度／相位交叉互換。用完整 <code>fft2</code> 而非 <code>rfft2</code>——後者的共軛對稱是隱含假設，壞掉不會有症狀</td></tr><tr><td><code>src/purify/freq_grid.py</code></td><td>GrIDPure 與 FD-Pure，建立在既有的 guided-diffusion 檢查點上</td></tr><tr><td><code>src/baselines/jpeg_codec.py</code></td><td>可微 JPEG 管線；量化表與 libjpeg 逐格對齊</td></tr><tr><td><code>src/baselines/dct_shield.py</code></td><td>DCT-Shield 的 Algorithm 1 與 <code>Parameterization</code> 實作</td></tr><tr><td><code>scripts/spectral_decompose.py</code></td><td>分解研究的驅動</td></tr><tr><td><code>scripts/spectral_report.py</code></td><td>分解結果的彙總</td></tr><tr><td><code>scripts/dct_shield_run.py</code></td><td>DCT-Shield 的攻擊與評測驅動</td></tr><tr><td><code>scripts/phase_retention.py</code></td><td>接上兩個新淨化算子</td></tr><tr><td><code>docs/DECISIONS.md</code></td><td>新增 DEC-025</td></tr><tr><td><code>docs/FINDINGS.md</code></td><td>新增 FND-057</td></tr><tr><td><code>docs/reference/SURVEY_2026-08-18_frequency.md</code></td><td>31 篇的頻域／相位／抗淨化文獻查證；FreqPure 條目已更正</td></tr></tbody></table></div>

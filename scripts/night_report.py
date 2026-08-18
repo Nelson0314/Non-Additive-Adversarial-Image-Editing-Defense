@@ -27,7 +27,8 @@ COND_LABEL = {
     "phase": "紋理重相位 θ=1.30", "phase_rand": "隨機相位 θ=1.30",
     "add": "加性 δ ε=1.2/255", "photoguard_c": "PhotoGuard-c",
     "mist": "Mist", "dia_r": "DIA-R", "apa_weak": "APA（弱 baseline）",
-    "dct_shield": "DCT-Shield（base）", "dct_shield_y": "DCT-Shield（Y-only）",
+    "dct_shield": "DCT-Shield（base, ε=1）", "dct_shield_y": "DCT-Shield（Y-only, ε=1）",
+    "dct_shield_aligned": "DCT-Shield（ε 對齊 DISTS 0.0349）",
     "none": "空白地板（無防禦）",
 }
 
@@ -154,6 +155,11 @@ def retention_section() -> str:
     # 相依不齊而跳過），第二趟補 gridpure。絕對位移量逐格獨立，合併無虞。
     ret = (rd("runs/freqret/ret_*.csv") + rd("runs/freqret/gret_*.csv")
            + rd("runs/freqret/dret_*.csv"))
+    # 預算對齊那批的 condition 欄與原生 ε=1 同名（都是 dct_shield），
+    # 直接合併會把兩個不同預算的結果平均在一起。讀進來時改名。
+    for r in rd("runs/freqret/aret_*.csv"):
+        r["condition"] = r["condition"] + "_aligned"
+        ret.append(r)
     flo = rd("runs/freqret/floor_*.csv") + rd("runs/freqret/gfloor_*.csv")
     if not ret:
         return "<p class='note'>（抗淨化批次尚未產出結果）</p>"
@@ -646,6 +652,11 @@ DCT-Shield 的兩個原生變體。判準以人眼為主（<code>CLAUDE.md</code
 
 <h2>9. 沒做完的事</h2>
 <ul>
+<li><b>預算對齊版本的抗淨化尚未併入本頁。</b>該批已在遠端啟動並持續執行，
+但 2026-08-19 03:20 起校內網路中斷（兩台 <code>ssh</code> 皆
+<code>Connection timed out</code>），結果尚未取回。批次以
+<code>setsid nohup</code> 啟動，不受連線中斷影響；連上之後重跑
+<code>python scripts/night_report.py</code> 即會自動併入第 6 節的表。</li>
 <li><b>BlurGuard 與 DiffusionGuard 未實作。</b>兩者都有公開程式碼，是 survey
 點名的另外兩個頻域／抗淨化 baseline。</li>
 <li><b><code>mist</code> 的預算對齊重測未做</b>（DEC-025 已記錄待辦）。</li>

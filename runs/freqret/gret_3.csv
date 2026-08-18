@@ -1,0 +1,5 @@
+image,condition,budget_target,purifier,effect_mean,effect_sd,effect_identity_mean,effect_identity_sd,retention,edit_strength,usable,seconds
+parrot_00,phase,human,identity,0.28924,0.08512,0.28924,0.08512,1.0,0.7,True,175.3
+parrot_00,phase,human,gridpure,0.22044,0.04796,0.28924,0.08512,0.76213,0.7,True,175.3
+parrot_00,phase_rand,human,identity,0.09351,0.06061,0.09351,0.06061,1.0,0.7,False,170.0
+parrot_00,phase_rand,human,gridpure,0.24076,0.03454,0.09351,0.06061,2.57475,0.7,False,170.0

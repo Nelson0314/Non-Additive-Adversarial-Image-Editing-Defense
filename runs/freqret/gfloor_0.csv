@@ -1,0 +1,5 @@
+image,condition,budget_target,purifier,effect_mean,effect_sd,effect_identity_mean,effect_identity_sd,retention,edit_strength,usable,seconds
+person_a_00,none,floor,identity,0.0,0.0,0.0,0.0,,0.7,True,168.6
+person_a_00,none,floor,gridpure,0.3249,0.04475,0.0,0.0,,0.7,True,168.6
+person_b_00,none,floor,identity,0.0,0.0,0.0,0.0,,0.7,True,163.0
+person_b_00,none,floor,gridpure,0.45041,0.06701,0.0,0.0,,0.7,True,163.0

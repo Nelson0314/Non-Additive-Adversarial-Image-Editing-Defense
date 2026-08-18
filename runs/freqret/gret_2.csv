@@ -1,0 +1,9 @@
+image,condition,budget_target,purifier,effect_mean,effect_sd,effect_identity_mean,effect_identity_sd,retention,edit_strength,usable,seconds
+raccoon_00,phase,human,identity,0.58819,0.02165,0.58819,0.02165,1.0,0.7,True,177.1
+raccoon_00,phase,human,gridpure,0.54296,0.05788,0.58819,0.02165,0.92311,0.7,True,177.1
+raccoon_00,phase_rand,human,identity,0.14686,0.08632,0.14686,0.08632,1.0,0.7,False,168.6
+raccoon_00,phase_rand,human,gridpure,0.2789,0.06451,0.14686,0.08632,1.89915,0.7,False,168.6
+shiba_00,phase,human,identity,0.60708,0.04696,0.60708,0.04696,1.0,0.7,True,170.4
+shiba_00,phase,human,gridpure,0.40082,0.09168,0.60708,0.04696,0.66024,0.7,True,170.4
+shiba_00,phase_rand,human,identity,0.09689,0.03818,0.09689,0.03818,1.0,0.7,False,170.2
+shiba_00,phase_rand,human,gridpure,0.2763,0.05849,0.09689,0.03818,2.8518,0.7,False,170.2

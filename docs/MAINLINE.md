@@ -1,5 +1,22 @@
 # 主線
 
+> **2026-08-19 改版：研究主軸已由「非加性 vs 加性」改為「頻域／相位方法及其
+> 抗淨化能力」。** 指導者指出紋理重相位保留幅度譜、只旋轉相位，本質是頻域的
+> 重參數化，不算狹義的非加性。四項裁決見 DEC-025：`mist` 的預算未對齊待重測；
+> 五個加性 baseline 本輪擱置不進比較表；新 baseline 改由頻域方法組成
+> （首個是 DCT-Shield，`src/baselines/dct_shield.py`）；淨化算子縮到
+> `blur`／`crop`／`jpeg`／`gridpure` ＋ `identity`（`freqpure` 見 FND-059 已排除）。
+>
+> 本輪新增的程式：`src/residual/spectral_split.py`（幅度／相位分解，FND-057）、
+> `src/purify/freq_grid.py`（GrIDPure 與 FD-Pure）、`src/baselines/jpeg_codec.py`
+> 與 `dct_shield.py`、`scripts/spectral_decompose.py`／`spectral_report.py`／
+> `dct_shield_run.py`／`radial_spectrum.py`／`night_report.py`。
+> 測試基準由 207 升到 **263 passed / 1 xfailed**。
+> 本輪報告：`reports/night0819/index.html`。
+>
+> 以下各節寫於 2026-08-13，**尚未依新主軸重寫**，讀時請以上面這段與
+> `DECISIONS.md`／`FINDINGS.md` 為準。
+
 2026-08-13 改版。判準與結論以 `FINDINGS.md`／`DECISIONS.md` 為準，本頁只回答
 三個問題：**主線是什麼、程式在哪、已知什麼**。
 

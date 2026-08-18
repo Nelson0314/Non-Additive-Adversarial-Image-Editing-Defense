@@ -152,7 +152,8 @@ def dct_section() -> str:
 def retention_section() -> str:
     # 兩趟：第一趟跑 blur/crop/jpeg（gridpure 因未設 DIFFPURE_CKPT 被標成
     # 相依不齊而跳過），第二趟補 gridpure。絕對位移量逐格獨立，合併無虞。
-    ret = rd("runs/freqret/ret_*.csv") + rd("runs/freqret/gret_*.csv")
+    ret = (rd("runs/freqret/ret_*.csv") + rd("runs/freqret/gret_*.csv")
+           + rd("runs/freqret/dret_*.csv"))
     flo = rd("runs/freqret/floor_*.csv") + rd("runs/freqret/gfloor_*.csv")
     if not ret:
         return "<p class='note'>（抗淨化批次尚未產出結果）</p>"
@@ -168,8 +169,13 @@ def retention_section() -> str:
     purs = [p for p in purs if any(p in d for d in by.values())]
 
     head = ["條件"] + purs + ["淨增益均值"]
-    rows = []
-    for c, d in sorted(by.items()):
+    rows, order = [], []
+    for c, d in by.items():
+        g = [mean(d.get(p, [])) - fmean[p] for p in purs
+             if p != "identity" and p in fmean and d.get(p)]
+        order.append((mean(g) if g else float("-inf"), c))
+    for _, c in sorted(order, reverse=True):
+        d = by[c]
         cells, gains = [], []
         for p in purs:
             m = mean(d.get(p, []))
@@ -378,6 +384,17 @@ OmniEdit 150 張，本專案用 7 張 512² 人像與動物）。要做 like-for
 更大的擾動。<b>該篇在這個比較裡把通道限制與品質因子混在一起</b>，要分開就得
 在同一個 <code>Q_alg</code> 上比。本輪照論文的設定跑，並在此註明這個混淆。</li>
 </ul>
+
+<h3>3.2 影像</h3>
+<p class="note">同一張圖（person_a_00）：原圖、紋理重相位的人眼門檻、
+DCT-Shield 的兩個原生變體。判準以人眼為主（<code>CLAUDE.md</code>），
+數值與人眼矛盾時以人眼為準。</p>
+<div class="grid">
+{img_tag("person_a_00__orig.png", "原圖")}
+{img_tag("person_a_00__phase__human__def.png", "紋理重相位 θ=1.30 · LPIPS 0.189")}
+{img_tag("person_a_00__dct_shield__def.png", "DCT-Shield base ε=1 · LPIPS 0.553")}
+{img_tag("person_a_00__dct_shield_y__def.png", "DCT-Shield Y-only ε=1 · LPIPS 0.641")}
+</div>
 
 <h2>4. 兩個新淨化算子</h2>
 <h3>4.1 「freqpure」這個名字指向的論文不可重現</h3>

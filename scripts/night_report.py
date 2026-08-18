@@ -168,7 +168,13 @@ def retention_section() -> str:
     purs = ["identity", "blur1", "crop_resize0.1", "jpeg75", "gridpure"]
     purs = [p for p in purs if any(p in d for d in by.values())]
 
-    head = ["條件"] + purs + ["淨增益均值"]
+    # 併入 FND-060 的高頻佔比，讓「高頻越多、淨化後掉越多」這個預測可以對讀
+    hi = defaultdict(list)
+    for r in rd("runs/spectral/radial.csv"):
+        hi[r["condition"]].append(fl(r, "hi_frac"))
+    hif = {k: mean(v) for k, v in hi.items()}
+
+    head = ["條件", "高頻佔比"] + purs + ["淨增益均值"]
     rows, order = [], []
     for c, d in by.items():
         g = [mean(d.get(p, [])) - fmean[p] for p in purs
@@ -189,10 +195,11 @@ def retention_section() -> str:
                 g = m - fm
                 gains.append(g)
                 cells.append(f"{m:.4f}<br><span class='sub'>−地板 {g:+.4f}</span>")
-        rows.append([cl(c)] + cells +
+        h = hif.get(c)
+        rows.append([cl(c), f"{h:.3f}" if h is not None else "—"] + cells +
                     [f"<b>{mean(gains):+.4f}</b>" if gains else "—"])
     if fmean:
-        rows.append(["<i>空白地板（無防禦）</i>"] +
+        rows.append(["<i>空白地板（無防禦）</i>", "—"] +
                     [f"{fmean.get(p, float('nan')):.4f}" if p != "identity" else "0.0000"
                      for p in purs] + ["—"])
     return table(head, rows)

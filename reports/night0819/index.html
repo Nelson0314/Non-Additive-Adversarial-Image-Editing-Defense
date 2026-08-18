@@ -303,6 +303,10 @@ DCT-Shield 的兩個原生變體。判準以人眼為主（<code>CLAUDE.md</code
 <code>blur1</code>＋<code>crop_resize0.1</code>＋<code>jpeg75</code>＋
 <code>gridpure</code>。空白地板（把<b>原圖</b>直接過同一個算子再編輯）同步跑，
 因為淨化後的絕對位移量會被算子自己的破壞支配（FND-043／056）。</p>
+<p class="note">主讀數是<b>扣掉地板的淨增益</b>，不是 <code>retention</code> 比值。
+理由在本輪再次得到確認：<code>phase_rand</code> 有 <b>24/28 列</b>沒通過 3σ 閘
+（分母 <code>effect(identity)</code> 只有 0.1105，被自身的 seed 變異吃掉），
+而 <code>phase</code> 是 28/28 全過。分母塌陷時比值不可解讀（FND-037／056）。</p>
 <div class="scroll"><table class=""><thead><tr><th>條件</th><th>identity</th><th>blur1</th><th>crop_resize0.1</th><th>jpeg75</th><th>淨增益均值</th></tr></thead><tbody><tr><td>紋理重相位 θ=1.30</td><td>0.4537</td><td>0.3667<br><span class='sub'>−地板 +0.0734</span></td><td>0.5261<br><span class='sub'>−地板 +0.0369</span></td><td>0.2697<br><span class='sub'>−地板 +0.1349</span></td><td><b>+0.0818</b></td></tr><tr><td>隨機相位 θ=1.30</td><td>0.1105</td><td>0.2982<br><span class='sub'>−地板 +0.0049</span></td><td>0.4914<br><span class='sub'>−地板 +0.0022</span></td><td>0.1602<br><span class='sub'>−地板 +0.0253</span></td><td><b>+0.0108</b></td></tr><tr><td><i>空白地板（無防禦）</i></td><td>0.0000</td><td>0.2933</td><td>0.4892</td><td>0.1348</td><td>—</td></tr></tbody></table></div>
 
 <h2>7. 程式與文件的變更</h2>

@@ -538,6 +538,10 @@ DCT-Shield 的兩個原生變體。判準以人眼為主（<code>CLAUDE.md</code
 <code>blur1</code>＋<code>crop_resize0.1</code>＋<code>jpeg75</code>＋
 <code>gridpure</code>。空白地板（把<b>原圖</b>直接過同一個算子再編輯）同步跑，
 因為淨化後的絕對位移量會被算子自己的破壞支配（FND-043／056）。</p>
+<p class="note">主讀數是<b>扣掉地板的淨增益</b>，不是 <code>retention</code> 比值。
+理由在本輪再次得到確認：<code>phase_rand</code> 有 <b>24/28 列</b>沒通過 3σ 閘
+（分母 <code>effect(identity)</code> 只有 0.1105，被自身的 seed 變異吃掉），
+而 <code>phase</code> 是 28/28 全過。分母塌陷時比值不可解讀（FND-037／056）。</p>
 {retention_section()}
 
 <h2>7. 程式與文件的變更</h2>

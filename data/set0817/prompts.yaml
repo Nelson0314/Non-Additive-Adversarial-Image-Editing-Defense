@@ -20,24 +20,26 @@
 
 person_a:
   content: "man"
-  # 換身分（無名氏 -> 名人）
+  # 換身分 + 加配件（2026-08-18 二次修訂）
   prompts:
+    - "Barack Obama wearing sunglasses"
     - "Barack Obama"
-    - "a man standing on a snowy street"
 
 person_b:
   content: "man"
-  # 換身分（無名氏 -> 名人）
+  # 換身分 + 加配件
   prompts:
+    - "Morgan Freeman wearing a red beanie"
     - "Morgan Freeman"
-    - "a man standing in a busy city street at night"
 
 person_c:
   content: "woman"
-  # 換身分（無名氏 -> 名人）
+  # 換身分 + 加配件。目標由 Taylor Swift 改為 Oprah Winfrey：來源是年輕、
+  # 淺膚、長髮的女性，與 Taylor Swift 本來就接近，編輯只是一小步，
+  # 七個條件的位移量全部落在 0.088-0.17（全批最低），防禦沒有東西可推開。
   prompts:
+    - "Oprah Winfrey wearing a blue baseball cap"
     - "Taylor Swift"
-    - "a woman standing in a green forest"
 
 cat:
   content: "cat"
@@ -55,14 +57,15 @@ shiba:
 
 raccoon:
   content: "raccoon"
-  # 換類別（2026-08-17 使用者指定：浣熊變熊貓）
+  # 換類別 + 加物件（2026-08-18：熊貓拿著一顆球）
   prompts:
+    - "a panda holding a ball"
     - "a panda"
-    - "a raccoon standing on a city sidewalk at night"
 
 parrot:
   content: "parrot"
-  # 換場景（戴帽 0.9 仍失敗；換場景在 0.8 下服從得很弱，gain/LPIPS 0.049）
+  # 換類別（2026-08-18：鸚鵡變公雞）。原本的換場景在 0.8 下服從得很弱，
+  # gain/LPIPS 只有 0.049，是全批倒數第二（FND-052）。
   prompts:
+    - "a rooster"
     - "a parrot perched on a branch in a rainforest"
-    - "a parrot wearing a tiny straw hat"

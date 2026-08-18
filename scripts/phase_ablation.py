@@ -34,7 +34,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import torch  # noqa: E402
 
 from apa_baseline import (  # noqa: E402
-    MODEL_NAME, RESOLUTION, TARGET_IMAGE, evaluate, load_dataset,
+    EDIT_STRENGTH, MODEL_NAME, RESOLUTION, TARGET_IMAGE, evaluate, load_dataset,
 )
 from src.baselines.encoder_target import make_encoder_target_loss  # noqa: E402
 from src.defense.param_pgd import (  # noqa: E402
@@ -115,6 +115,9 @@ def main() -> None:
     ap.add_argument("--add-radius", type=float, default=None,
                     help="覆寫人眼門檻的加性半徑 eps，單位是 [0,1]（只在 "
                          "--human-threshold 下有效）。人眼門檻是 1.2/255 = 0.0047")
+    ap.add_argument("--edit-strength", type=float, default=EDIT_STRENGTH,
+                    help="SDEdit 的 strength。像素臂的攻擊與強度無關，這個旗標"
+                         "只影響評測，供強度掃描使用")
     ap.add_argument("--tag-suffix", type=str, default="",
                     help="附加在條件標籤後，讓同一個 --out 下的多組設定不互相覆寫檔名")
     args = ap.parse_args()
@@ -168,7 +171,8 @@ def main() -> None:
                         rounds=args.rounds,
                     )
                     fit = res.history[-1]
-                metrics, eo, ed = evaluate(sd, suite, aes, item, res.x_def)
+                metrics, eo, ed = evaluate(sd, suite, aes, item, res.x_def,
+                                           strength=args.edit_strength)
                 for sub, img in (("def", res.x_def), ("edit_orig", eo),
                                  ("edit_def", ed)):
                     save_image(img, args.out / f"{item['name']}__{tag}__{sub}.png")

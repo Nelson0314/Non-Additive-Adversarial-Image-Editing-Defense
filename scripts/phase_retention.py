@@ -126,6 +126,8 @@ def main() -> None:
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--run", type=Path, required=True)
     ap.add_argument("--data", type=Path, default=Path("data/lo_aligned"))
+    ap.add_argument("--edit-strength", type=float, default=EDIT_STRENGTH,
+                    help="SDEdit 的 strength，供強度掃描使用")
     ap.add_argument("--seeds", type=int, default=3)
     ap.add_argument("--purifiers", nargs="+", default=None,
                     help="只跑這些淨化算子（label() 的輸出，如 identity jpeg75）。"
@@ -175,7 +177,8 @@ def main() -> None:
         emb, emb_u = sd.encode_text(item["prompt"]), sd.uncond_prompt()
         with torch.no_grad():
             return sd.sdedit(x01.clamp(0, 1), emb, noise, EDIT_STEPS,
-                             strength=EDIT_STRENGTH, guidance_scale=EDIT_GUIDANCE,
+                             strength=args.edit_strength,
+                             guidance_scale=EDIT_GUIDANCE,
                              emb_uncond=emb_u, keep01=head_keep(item, x01))
 
     rows = []
@@ -230,6 +233,7 @@ def main() -> None:
                 "effect_identity_mean": round(base_mean, 5),
                 "effect_identity_sd": round(base_sd, 5) if base_sd == base_sd else "",
                 "retention": round(mean / base_mean, 5) if base_mean > 0 else "",
+                "edit_strength": args.edit_strength,
                 "usable": usable,
                 "seconds": round(time.time() - t0, 1),
             })

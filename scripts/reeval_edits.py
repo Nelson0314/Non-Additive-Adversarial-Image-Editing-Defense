@@ -54,6 +54,9 @@ def main() -> None:
     ap.add_argument("--images", nargs="+", default=None,
                     help="預設是所有帶頭部遮罩的影像")
     ap.add_argument("--prompt-index", type=int, default=0)
+    ap.add_argument("--edit-strength", type=float, default=EDIT_STRENGTH,
+                    help="SDEdit 的 strength。攻擊不讀它，故同一批防禦圖可以在"
+                         "多個強度上重複評測")
     args = ap.parse_args()
 
     csv_path = args.run / "results.csv"
@@ -88,7 +91,8 @@ def main() -> None:
         noise = sd.sample_edit_noise(sd.encode_image(x01), seed=EDIT_SEED)
         with torch.no_grad():
             edit_orig = sd.sdedit(x01, emb, noise, EDIT_STEPS,
-                                  strength=EDIT_STRENGTH, guidance_scale=EDIT_GUIDANCE,
+                                  strength=args.edit_strength,
+                                  guidance_scale=EDIT_GUIDANCE,
                                   emb_uncond=emb_u, keep01=keep)
         so = suite.semantic(edit_orig, item["prompt"])
 
@@ -104,12 +108,13 @@ def main() -> None:
             x_def = load_image_tensor(def_png, sd.device, size=RESOLUTION)
             with torch.no_grad():
                 edit_def = sd.sdedit(x_def.clamp(0, 1), emb, noise, EDIT_STEPS,
-                                     strength=EDIT_STRENGTH,
+                                     strength=args.edit_strength,
                                      guidance_scale=EDIT_GUIDANCE,
                                      emb_uncond=emb_u, keep01=keep)
             sdf = suite.semantic(edit_def, item["prompt"])
 
             before = row.get("edit_lpips")
+            row["edit_strength"] = args.edit_strength
             row["edit_lpips"] = round(
                 float(suite.pairwise(edit_orig, edit_def)["lpips"]), 4)
             row["edit_clip_orig"] = round(so["clip"], 4)

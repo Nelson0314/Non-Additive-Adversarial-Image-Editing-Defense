@@ -131,12 +131,16 @@ def run_weak_baseline(sd, item, y_target, seed: int,
             "history": history}
 
 
-def run_additive(sd, item, name: str, seed: int) -> dict:
+def run_additive(sd, item, name: str, seed: int,
+                 strength: float = EDIT_STRENGTH) -> dict:
+    """`strength` 只有 photoguard_c 會用到——它的攻擊在指定的 img2img 強度上
+    最佳化（Salman et al. 的 diffusion attack）。其餘兩個加性方法與強度無關，
+    故同一組防禦圖可以在多個強度上重複評測。"""
     spec = {"photoguard_c": photoguard.SPEC, "mist": mist.SPEC,
             "dia_r": dia.SPEC_R}[name]
     kw = {}
     if name == "photoguard_c":
-        kw = {"mask": None, "strength": EDIT_STRENGTH}
+        kw = {"mask": None, "strength": strength}
     elif name == "mist":
         # fused mode 把兩次 VAE 編碼與一次完整 UNet 前向放在同一張圖上。
         kw = {"use_ckpt": True, "vae_ckpt": True,
@@ -165,7 +169,7 @@ def head_keep(item, x01):
     return m[:, :1]
 
 
-def evaluate(sd, suite, aes, item, x_def):
+def evaluate(sd, suite, aes, item, x_def, strength: float = EDIT_STRENGTH):
     x01 = item["path01"]
     m = suite.pairwise(x01, x_def)
     a = aes.measure(x_def)
@@ -177,15 +181,16 @@ def evaluate(sd, suite, aes, item, x_def):
     emb, emb_u = sd.encode_text(item["prompt"]), sd.uncond_prompt()
     keep = head_keep(item, x01)
     with torch.no_grad():
-        edit_orig = sd.sdedit(x01, emb, noise, EDIT_STEPS, strength=EDIT_STRENGTH,
+        edit_orig = sd.sdedit(x01, emb, noise, EDIT_STEPS, strength=strength,
                               guidance_scale=EDIT_GUIDANCE, emb_uncond=emb_u,
                               keep01=keep)
         edit_def = sd.sdedit(x_def.clamp(0, 1), emb, noise, EDIT_STEPS,
-                             strength=EDIT_STRENGTH, guidance_scale=EDIT_GUIDANCE,
+                             strength=strength, guidance_scale=EDIT_GUIDANCE,
                              emb_uncond=emb_u, keep01=keep)
     so = suite.semantic(edit_orig, item["prompt"])
     sd_ = suite.semantic(edit_def, item["prompt"])
     return ({**{f"fid_{k}": round(v, 4) for k, v in fid.items()},
+             "edit_strength": strength,
              "edit_lpips": round(float(suite.pairwise(edit_orig, edit_def)["lpips"]), 4),
              "edit_clip_orig": round(so["clip"], 4),
              "edit_clip_def": round(sd_["clip"], 4),
@@ -207,6 +212,10 @@ def main() -> None:
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--prompt-index", type=int, default=0,
                     help="用 prompts.yaml 的第幾個編輯 prompt（0 改內容、1 改場景）")
+    ap.add_argument("--edit-strength", type=float, default=EDIT_STRENGTH,
+                    help="SDEdit 的 strength。只有 photoguard_c 的攻擊會用到它；"
+                         "其餘條件的防禦圖與強度無關，故同一批可在多個強度上"
+                         "重複評測（reeval_edits.py 也有這個旗標）")
     args = ap.parse_args()
     args.out.mkdir(parents=True, exist_ok=True)
 
@@ -233,8 +242,10 @@ def main() -> None:
             res = (run_weak_baseline(sd, item, y_target, args.seed,
                                      PARAMETERIZATION[cond])
                    if cond in PARAMETERIZATION
-                   else run_additive(sd, item, cond, args.seed))
-            metrics, eo, ed = evaluate(sd, suite, aes, item, res["x_def"])
+                   else run_additive(sd, item, cond, args.seed,
+                                   strength=args.edit_strength))
+            metrics, eo, ed = evaluate(sd, suite, aes, item, res["x_def"],
+                                       strength=args.edit_strength)
             for tag, img in (("def", res["x_def"]), ("edit_orig", eo), ("edit_def", ed)):
                 save_image(img, args.out / f"{item['name']}__{cond}__{tag}.png")
             row = {"image": item["name"], "condition": cond,

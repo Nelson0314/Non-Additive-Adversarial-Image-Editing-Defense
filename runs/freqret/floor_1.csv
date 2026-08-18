@@ -1,0 +1,9 @@
+image,condition,budget_target,purifier,effect_mean,effect_sd,effect_identity_mean,effect_identity_sd,retention,edit_strength,usable,seconds
+cat_00,none,floor,identity,0.0,0.0,0.0,0.0,,0.7,True,63.1
+cat_00,none,floor,blur1,0.13831,0.028,0.0,0.0,,0.7,True,63.1
+cat_00,none,floor,jpeg75,0.04395,0.02857,0.0,0.0,,0.7,True,63.1
+cat_00,none,floor,crop_resize0.1,0.35224,0.03439,0.0,0.0,,0.7,True,63.1
+person_c_00,none,floor,identity,0.0,0.0,0.0,0.0,,0.7,True,63.2
+person_c_00,none,floor,blur1,0.28648,0.11446,0.0,0.0,,0.7,True,63.2
+person_c_00,none,floor,jpeg75,0.25622,0.04724,0.0,0.0,,0.7,True,63.2
+person_c_00,none,floor,crop_resize0.1,0.49257,0.05783,0.0,0.0,,0.7,True,63.2

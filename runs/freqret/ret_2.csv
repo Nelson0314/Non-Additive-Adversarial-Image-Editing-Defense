@@ -1,0 +1,17 @@
+image,condition,budget_target,purifier,effect_mean,effect_sd,effect_identity_mean,effect_identity_sd,retention,edit_strength,usable,seconds
+raccoon_00,phase,human,identity,0.58819,0.02165,0.58819,0.02165,1.0,0.7,True,66.2
+raccoon_00,phase,human,blur1,0.49366,0.10413,0.58819,0.02165,0.8393,0.7,True,66.2
+raccoon_00,phase,human,jpeg75,0.39866,0.1213,0.58819,0.02165,0.67779,0.7,True,66.2
+raccoon_00,phase,human,crop_resize0.1,0.58628,0.03362,0.58819,0.02165,0.99675,0.7,True,66.2
+raccoon_00,phase_rand,human,identity,0.14686,0.08632,0.14686,0.08632,1.0,0.7,False,66.2
+raccoon_00,phase_rand,human,blur1,0.37026,0.11282,0.14686,0.08632,2.52122,0.7,False,66.2
+raccoon_00,phase_rand,human,jpeg75,0.18456,0.07644,0.14686,0.08632,1.25673,0.7,False,66.2
+raccoon_00,phase_rand,human,crop_resize0.1,0.51082,0.05165,0.14686,0.08632,3.47833,0.7,False,66.2
+shiba_00,phase,human,identity,0.60708,0.04696,0.60708,0.04696,1.0,0.7,True,66.8
+shiba_00,phase,human,blur1,0.38576,0.10584,0.60708,0.04696,0.63543,0.7,True,66.8
+shiba_00,phase,human,jpeg75,0.29006,0.08739,0.60708,0.04696,0.47779,0.7,True,66.8
+shiba_00,phase,human,crop_resize0.1,0.52165,0.0778,0.60708,0.04696,0.85927,0.7,True,66.8
+shiba_00,phase_rand,human,identity,0.09689,0.03818,0.09689,0.03818,1.0,0.7,False,67.0
+shiba_00,phase_rand,human,blur1,0.25508,0.03315,0.09689,0.03818,2.63273,0.7,False,67.0
+shiba_00,phase_rand,human,jpeg75,0.11438,0.05339,0.09689,0.03818,1.18056,0.7,False,67.0
+shiba_00,phase_rand,human,crop_resize0.1,0.44471,0.01517,0.09689,0.03818,4.58994,0.7,False,67.0

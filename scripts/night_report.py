@@ -230,6 +230,26 @@ def radial_section() -> str:
                   "低頻佔比（&lt;⅛）", "擾動 RMS"], out)
 
 
+
+# ---------------------------------------------------------------- 預算對齊
+
+def aligned_section() -> str:
+    rows = rd("runs/dctshield/aligned_results.csv")
+    if not rows:
+        return "<p class='note'>（預算對齊批次尚未產出）</p>"
+    f = lambda k: mean(fl(r, k) for r in rows)          # noqa: E731
+    ph = rd("runs/spectral/dec_*.csv")
+    pf = [r for r in ph if r["condition"] == "phase" and r["variant"] == "full"]
+    return table(["條件", "DISTS", "LPIPS", "PSNR", "SSIM", "未淨化位移量↑"],
+                 [["紋理重相位 θ=1.30",
+                   "0.0349", "<b>0.1893</b>", "33.20", "<b>0.9630</b>",
+                   f'{mean(fl(r,"effect_mean") for r in pf):.4f}'],
+                  ["DCT-Shield（ε 搜到 DISTS 對齊）",
+                   f'{f("fid_dists"):.4f}', f'{f("fid_lpips"):.4f}',
+                   f'{f("fid_psnr"):.2f}', f'{f("fid_ssim"):.4f}',
+                   f'<b>{f("edit_lpips"):.4f}</b>']])
+
+
 # ---------------------------------------------------------------- 版面
 
 CSS = """
@@ -573,7 +593,36 @@ DCT-Shield 的兩個原生變體。判準以人眼為主（<code>CLAUDE.md</code
 資料看，它確實比 <code>jpeg75</code> 更能壓低本方法的優勢（4.4 倍對 5.3 倍），
 但沒有翻轉結論。</p>
 
-<h2>7. 程式與文件的變更</h2>
+<h2>7. 預算對齊之後：需要你用眼睛裁定的一項</h2>
+<p>第 3 節與第 6 節的 DCT-Shield 都跑在論文的原生 ε=1 上，失真是紋理重相位的
+三倍，比較不乾淨——與 <code>mist</code> 犯的是同一個毛病。本節用本專案共用的
+迴圈（<code>run_param_pgd</code> ＋ <code>encoder_target</code> 損失 ＋
+<code>fit_to_budget</code>）對 ε 二分搜尋，把最終 DISTS 釘在紋理重相位的
+0.0349 上。七張全部可達。</p>
+{aligned_section()}
+<div class="key">
+<p><b>四個保真指標分成兩派。</b>DISTS（構造上相同）與 PSNR（差 0.27 dB）說兩者
+打平；LPIPS（2.44 倍）與 SSIM 說 DCT-Shield 明顯較差。而它的位移量高
+<b>1.21 倍</b>。</p>
+<p><code>CLAUDE.md</code> 的規定是：<b>指標與人眼矛盾時以人眼為準並記錄</b>。
+這裡是指標與指標矛盾，同樣要靠眼睛。下面兩組圖是同一個 DISTS 上的並排，
+請你判斷哪一種失真可以接受。</p>
+<p>另外：ε 被搜到 0.266–1.5，<b>4/7 張落在 1 以下</b>。論文 §4.2 明訂
+<code>ε ≥ 1</code> 是抗 JPEG 的必要條件，所以那四張的抗 JPEG 保證已經失效——
+這一欄在報表上必須標成「已偏離論文」。</p>
+</div>
+<div class="grid">
+{img_tag("person_a_00__orig.png", "原圖")}
+{img_tag("person_a_00__phase__human__def.png", "紋理重相位 · DISTS 0.0349")}
+{img_tag("person_a_00__dcts_aligned.png", "DCT-Shield 對齊 · DISTS 0.0349")}
+</div>
+<div class="grid">
+{img_tag("cat_00__orig.png", "原圖")}
+{img_tag("cat_00__phase__human__def.png", "紋理重相位 · DISTS 0.0349")}
+{img_tag("cat_00__dcts_aligned.png", "DCT-Shield 對齊 · DISTS 0.0349")}
+</div>
+
+<h2>8. 程式與文件的變更</h2>
 {table(["檔案", "內容"],
        [["<code>src/residual/spectral_split.py</code>",
          "PAD 第 3 節的幅度／相位交叉互換。用完整 <code>fft2</code> 而非 "
@@ -595,11 +644,8 @@ DCT-Shield 的兩個原生變體。判準以人眼為主（<code>CLAUDE.md</code
 <p>測試由 <b>207 passed / 1 xfailed</b> 增加到 <b>263 passed / 1 xfailed</b>
 （新增 56 項）。<code>CLAUDE.md</code> 記載的基準 196 早已過時。</p>
 
-<h2>8. 沒做完的事</h2>
+<h2>9. 沒做完的事</h2>
 <ul>
-<li><b>DCT-Shield 的預算對齊版本未跑。</b><code>--mode aligned</code> 已實作
-（二分搜尋 ε 使 DISTS 等於相位臂），但 ε 會被搜到 1 以下，論文的抗 JPEG 條件
-因此失效，該列必須標註。這是與紋理重相位做同預算比較的唯一乾淨作法。</li>
 <li><b>BlurGuard 與 DiffusionGuard 未實作。</b>兩者都有公開程式碼，是 survey
 點名的另外兩個頻域／抗淨化 baseline。</li>
 <li><b><code>mist</code> 的預算對齊重測未做</b>（DEC-025 已記錄待辦）。</li>

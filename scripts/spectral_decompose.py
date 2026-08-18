@@ -66,21 +66,76 @@ from src.residual.spectral_split import (  # noqa: E402
 )
 from src.utils.io import load_image_tensor, write_csv  # noqa: E402
 
-VARIANTS = ("full", "amp", "pha")
+VARIANTS = ("full", "amp", "pha", "amp_s", "pha_s")
 
 
-def build_variants(x01: torch.Tensor, x_def: torch.Tensor) -> dict:
-    """回傳 {版本名: (影像, 夾取比例)}。分解在 float64 上做以免累積誤差。"""
+def _overflow(v: torch.Tensor) -> dict:
+    """夾取前超出 [0,1] 的程度。**只報「有幾成像素超出」會誤導**：自然照片
+    本來就有大量恰好落在 0 或 1 的飽和像素，任何擾動都會把它們推出界，於是
+    比例很高而幅度極小。故同時報超出量的平均與最大值。"""
+    over = (v - v.clamp(0.0, 1.0)).abs()
+    return {"clip_fraction": float((over > 0).double().mean()),
+            "clip_mean": float(over.mean()),
+            "clip_max": float(over.max())}
+
+
+def _match_distortion(x01: torch.Tensor, delta: torch.Tensor, target: float,
+                      suite, *, rounds: int = 12, hi: float = 4.0) -> tuple:
+    """把擾動縮放到 `DISTS(x01, clamp(x01 + s·delta)) = target`。
+
+    存在理由：交叉互換後的影像失真**高於**原始防禦圖（PAD 表 1 自己記過
+    這件事——分解版本的 L∞ 反而比完整對抗樣本大），故「哪個半邊位移量比較
+    大」在未對齊的失真上不可解讀。PAD 的處置是把重組樣本夾回同一個 L∞ 球
+    再測一次（該篇的 `Accuracy_com`）；本專案的預算軸是 DISTS（DEC-015），
+    故改對 DISTS 對齊。
+
+    單調性：`s` 增大時失真單調上升（夾取只會讓它更慢上升，不會反轉），
+    故二分搜尋有意義。達不到目標時回傳 `hi` 並標記 unreachable。
+    """
+    def at(s: float):
+        x = (x01 + s * delta).clamp(0.0, 1.0)
+        return x, float(suite.pairwise(x01, x)["dists"])
+
+    x_hi, d_hi = at(hi)
+    if d_hi < target:
+        return x_hi, hi, True                      # unreachable
+    lo, best, best_err = 0.0, x_hi, abs(d_hi - target)
+    best_s = hi
+    for _ in range(rounds):
+        mid = 0.5 * (lo + hi)
+        x_m, d_m = at(mid)
+        if abs(d_m - target) < best_err:
+            best, best_err, best_s = x_m, abs(d_m - target), mid
+        if d_m < target:
+            lo = mid
+        else:
+            hi = mid
+    return best, best_s, False
+
+
+def build_variants(x01: torch.Tensor, x_def: torch.Tensor, suite) -> dict:
+    """回傳 {版本名: (影像, 診斷 dict)}。分解在 float64 上做以免累積誤差。
+
+    五個版本：`full` 是防禦圖本身；`amp`／`pha` 是 PAD 的原始分解（失真未
+    對齊）；`amp_s`／`pha_s` 把同一個擾動縮放到與 `full` 相同的 DISTS。
+    """
     d = decompose(x01.double(), x_def.double())
     if d["imag_max"] > 1e-6:
         raise ValueError(
             f"逆轉換的虛部殘量 {d['imag_max']:.3e} 過大——輸入可能不是實數影像")
 
-    out = {"full": (x_def, 0.0)}
+    target = float(suite.pairwise(x01, x_def)["dists"])
+    out = {"full": (x_def, {"clip_fraction": 0.0, "clip_mean": 0.0,
+                            "clip_max": 0.0, "scale": 1.0, "unreachable": False})}
     for key, name in (("amp_only", "amp"), ("pha_only", "pha")):
         v = d[key]
-        clipped = float(((v < 0.0) | (v > 1.0)).double().mean())
-        out[name] = (v.clamp(0.0, 1.0).to(x_def), clipped)
+        diag = _overflow(v)
+        out[name] = (v.clamp(0.0, 1.0).to(x_def),
+                     {**diag, "scale": 1.0, "unreachable": False})
+        delta = v.to(x_def) - x01
+        x_s, s, unreach = _match_distortion(x01, delta, target, suite)
+        out[f"{name}_s"] = (x_s, {**_overflow(x01 + s * delta),
+                                  "scale": s, "unreachable": unreach})
     return out
 
 
@@ -142,10 +197,10 @@ def main() -> None:
 
         print(f"=== {cell['image']} / {cell['tag']} ===", flush=True)
         t0 = time.time()
-        variants = build_variants(x01, x_def)
+        variants = build_variants(x01, x_def, suite)
 
         for name in VARIANTS:
-            x_v, clipped = variants[name]
+            x_v, diag = variants[name]
             fid = suite.pairwise(x01, x_v)
             vals = []
             for seed in seeds:
@@ -168,7 +223,11 @@ def main() -> None:
                 "fid_linf": round(fid["linf"], 5),
                 "fid_rms": round(fid["rms"], 5),
                 "amp_dev": round(amplitude_deviation(x01.double(), x_v.double()), 6),
-                "clip_fraction": round(clipped, 6),
+                "clip_fraction": round(diag["clip_fraction"], 6),
+                "clip_mean": round(diag["clip_mean"], 8),
+                "clip_max": round(diag["clip_max"], 6),
+                "scale": round(diag["scale"], 5),
+                "unreachable": diag["unreachable"],
                 "edit_strength": args.edit_strength,
                 "seconds": round(time.time() - t0, 1),
             })

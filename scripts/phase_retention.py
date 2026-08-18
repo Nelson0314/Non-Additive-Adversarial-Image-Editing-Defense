@@ -53,6 +53,13 @@ from src.models.sd import SDWrapper  # noqa: E402
 from src.purify import ops as purify_ops  # noqa: E402
 from src.utils.io import load_image_tensor, write_csv  # noqa: E402
 
+# GrIDPure 與 FD-Pure 的超參數：**論文正文未載，以下為本專案指定**，理由與
+# 出處缺口見 `src/purify/freq_grid.py`。報表必須標註這三個值不是論文的。
+GRIDPURE_T = 10          # 論文只說 "small steps"，未給值
+GRIDPURE_GAMMA = 0.1     # 論文只說 "blending weight gamma"，未給值
+GRIDPURE_ITERS = 10      # 論文只說 "iterated multiple times"，未給值
+FDPURE_T_STAR = 150      # 論文正文未給；取 diffpure 的 ImageNet t，使兩者可比
+
 # 七個既有算子 ＋ C&R 串接。強度沿用 `main_set` 與 `eval_sweep` 的既有值，
 # 不另立新數字——換了強度就不能與既有的 runs/ 比。
 def purifier_set(sd, seed: int, only=None):
@@ -75,6 +82,14 @@ def purifier_set(sd, seed: int, only=None):
         purify_ops.Purifier("jpeg_then_resize", purify_ops.CR_JPEG_QUALITY),
         purify_ops.Purifier("adverse_cleaner"),
         purify_ops.Purifier("impress", sd=sd, seed=seed),
+        # DEC-025 的頻率輪新增。兩者的超參數論文正文未載，值在此明給並由
+        # `src/purify/freq_grid.py` 的模組 docstring 說明來源缺口：
+        #   gridpure  t=10（小步）、gamma=0.1、iters=10
+        #   fdpure    t_star=150，刻意等於 `diffpure` 的 ImageNet 設定，
+        #             使兩者的差異只來自頻域引導而不是噪聲量級
+        purify_ops.Purifier("gridpure", seed=seed, t=GRIDPURE_T,
+                            gamma=GRIDPURE_GAMMA, iters=GRIDPURE_ITERS),
+        purify_ops.Purifier("fdpure", seed=seed, t_star=FDPURE_T_STAR),
     ]
     if only is not None:
         want = set(only)

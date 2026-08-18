@@ -198,6 +198,31 @@ def retention_section() -> str:
     return table(head, rows)
 
 
+
+# ---------------------------------------------------------------- 徑向功率譜
+
+def radial_section() -> str:
+    rows = rd("runs/spectral/radial.csv")
+    if not rows:
+        return "<p class='note'>（尚未量測）</p>"
+    by = defaultdict(list)
+    for r in rows:
+        by[r["condition"]].append(r)
+    out = []
+    for c, g in sorted(by.items(),
+                       key=lambda kv: -mean(fl(r, "hi_frac") for r in kv[1])):
+        hi = mean(fl(r, "hi_frac") for r in g)
+        bar = int(round(hi * 40))
+        out.append([cl(c), str(len(g)),
+                    f'{mean(fl(r,"f50") for r in g):.3f}',
+                    f'<b>{hi:.3f}</b> <span class="sub">'
+                    f'{"█" * bar}{"·" * (40 - bar)}</span>',
+                    f'{mean(fl(r,"lo_frac") for r in g):.3f}',
+                    f'{mean(fl(r,"rms") for r in g):.5f}'])
+    return table(["條件", "張數", "中位頻率 f50", "高頻佔比（&gt;½ Nyquist）",
+                  "低頻佔比（&lt;⅛）", "擾動 RMS"], out)
+
+
 # ---------------------------------------------------------------- 版面
 
 CSS = """
@@ -435,14 +460,32 @@ DCT-Shield 的兩個原生變體。判準以人眼為主（<code>CLAUDE.md</code
 看起來合理的預設，故設為必填參數；本輪用 <code>t=10, γ=0.1, 10 次迭代</code>，
 這三個值是<b>本專案指定</b>而非論文的。單張 512² 實測 115 秒。</p>
 
-<h2>5. 抗淨化：五個算子</h2>
+<h2>5. 擾動的徑向功率譜</h2>
+<p>DEC-025 的動機是「既有防護擾動多為高頻，會被壓縮抹平」。這句話原先只有
+文獻依據（arXiv:2505.01267 測到擴散淨化對幅度譜與相位譜的破壞都隨頻率單調
+遞增），<b>本專案自己的條件從未量過</b>。</p>
+<p>作法：取擾動 <code>δ = x_def − x</code>，做二維 DFT，把功率
+<code>|F(δ)|²</code> 依到零頻的距離分箱。頻率以 Nyquist 為 1（角落可達 √2）。</p>
+{radial_section()}
+<div class="key">
+<p><b>動機成立，而且量級很大。</b>加性方法把 42%–65% 的擾動能量放在半 Nyquist
+以上，紋理重相位只有 <b>22.6%</b>。DCT-Shield 的 Y-only 變體是全批最高頻的
+（92.3%）——與它只動亮度、且 <code>Q_alg = 0.85</code> 讓高頻量化步長最大
+一致。</p>
+<p><b>這給出一個可檢定的預測</b>：高頻佔比越高的方法，在壓縮型淨化下應該
+掉得越多。第 6 節的抗淨化結果正是檢定它的資料。</p>
+<p><code>apa_weak</code> 是離群值（低頻佔比 0.807）：它的擾動是全域的低頻
+變化，PSNR 只有 20.98，屬於「把整張圖改掉」而非「加一層雜訊」。</p>
+</div>
+
+<h2>6. 抗淨化：五個算子</h2>
 <p>淨化算子集合 = <code>identity</code>（retention 的分母，不可拿掉）＋
 <code>blur1</code>＋<code>crop_resize0.1</code>＋<code>jpeg75</code>＋
 <code>gridpure</code>。空白地板（把<b>原圖</b>直接過同一個算子再編輯）同步跑，
 因為淨化後的絕對位移量會被算子自己的破壞支配（FND-043／056）。</p>
 {retention_section()}
 
-<h2>6. 程式與文件的變更</h2>
+<h2>7. 程式與文件的變更</h2>
 {table(["檔案", "內容"],
        [["<code>src/residual/spectral_split.py</code>",
          "PAD 第 3 節的幅度／相位交叉互換。用完整 <code>fft2</code> 而非 "
@@ -464,7 +507,7 @@ DCT-Shield 的兩個原生變體。判準以人眼為主（<code>CLAUDE.md</code
 <p>測試由 <b>207 passed / 1 xfailed</b> 增加到 <b>263 passed / 1 xfailed</b>
 （新增 56 項）。<code>CLAUDE.md</code> 記載的基準 196 早已過時。</p>
 
-<h2>7. 沒做完的事</h2>
+<h2>8. 沒做完的事</h2>
 <ul>
 <li><b>DCT-Shield 的預算對齊版本未跑。</b><code>--mode aligned</code> 已實作
 （二分搜尋 ε 使 DISTS 等於相位臂），但 ε 會被搜到 1 以下，論文的抗 JPEG 條件

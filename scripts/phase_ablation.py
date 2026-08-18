@@ -34,11 +34,12 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import torch  # noqa: E402
 
 from apa_baseline import (  # noqa: E402
-    MODEL_NAME, RESOLUTION, TARGET_IMAGE, evaluate, load_dataset,
+    EDIT_STRENGTH, MODEL_NAME, RESOLUTION, TARGET_IMAGE, evaluate, load_dataset,
 )
 from src.baselines.alt_losses import (  # noqa: E402
     make_clip_untargeted_loss, make_latent_untargeted_loss,
 )
+from src.baselines.attn_loss import make_attn_loss  # noqa: E402
 from src.baselines.encoder_target import make_encoder_target_loss  # noqa: E402
 from src.defense.param_pgd import (  # noqa: E402
     AdditiveParam, PhaseParam, RandomPhaseParam, fit_to_budget, run_param_pgd,
@@ -102,11 +103,13 @@ def main() -> None:
     ap.add_argument("--human-threshold", action="store_true",
                     help="不做預算對齊，直接用 HUMAN_RADIUS 的人眼門檻半徑")
     ap.add_argument("--target", type=Path, default=Path(TARGET_IMAGE))
-    ap.add_argument("--loss", choices=("encoder_target", "latent", "clip"),
+    ap.add_argument("--loss",
+                    choices=("encoder_target", "latent", "clip", "attn"),
                     default="encoder_target",
-                    help="PGD 的損失。encoder_target 是主線（推向灰圖的 latent）；"
-                         "latent 與 clip 都是 untargeted，推離原圖自己。"
-                         "三者共用同一個迴圈、步數與種子，唯一變因是損失")
+                    help="PGD 的損失。encoder_target 是主線（推向目標圖的 "
+                         "latent）；latent 與 clip 是 untargeted，推離原圖自己；"
+                         "attn 是 Lo et al. CVPR 2024 的注意力抑制（式 3/4/5）。"
+                         "四者共用同一個迴圈、步數與種子，唯一變因是損失")
     ap.add_argument("--steps", type=int, default=100)
     ap.add_argument("--rounds", type=int, default=8)
     ap.add_argument("--seed", type=int, default=0)
@@ -135,17 +138,20 @@ def main() -> None:
     aes = AestheticSuite(device=sd.device)
     y_target = load_image_tensor(args.target, sd.device, size=RESOLUTION)
 
-    def make_loss(x01):
+    def make_loss(item, x01):
         """依 --loss 建損失。
 
-        `encoder_target` 與影像無關（目標是固定的灰圖），另外兩個 untargeted
-        的要以**該張原圖**為參考，故一律做成逐圖建立。CLIP 那條每次會重新
-        載入視覺塔，成本在一張圖的總時間裡可以忽略。
+        `encoder_target` 與影像無關（目標是固定的那張圖），其餘三個都要以
+        **該張原圖**為參考（`attn` 另外還要該影像的內容詞），故一律做成逐圖
+        建立。CLIP 那條每次會重新載入視覺塔，成本在一張圖的總時間裡可以忽略。
         """
         if args.loss == "encoder_target":
             return make_encoder_target_loss(sd, y_target)
         if args.loss == "latent":
             return make_latent_untargeted_loss(sd, x01)
+        if args.loss == "attn":
+            return make_attn_loss(sd, item["content"], x01,
+                                  strength=EDIT_STRENGTH, seed=args.seed)
         return make_clip_untargeted_loss(sd.device, x01)
 
     def dists_of(a, b):
@@ -161,7 +167,7 @@ def main() -> None:
         save_image(item["path01"], args.out / f"{item['name']}__orig.png")
         print(f"\n########## {item['name']} ({item['class']}) "
               f"[loss={args.loss}] ##########", flush=True)
-        loss_fn = make_loss(item["path01"])
+        loss_fn = make_loss(item, item["path01"])
 
         budgets = ["human"] if args.human_threshold else args.budgets
         for budget in budgets:
@@ -170,12 +176,14 @@ def main() -> None:
                        else f"{cond}__d{budget:g}") + args.tag_suffix
                 print(f"=== {item['name']} / {tag} ===", flush=True)
                 t0 = time.time()
-                # untargeted 的損失在 φ = 0 處梯度為 0（或只剩捨入噪聲），
+                # `latent` 與 `clip` 在 φ = 0 處梯度為 0（或只剩捨入噪聲），
                 # 非隨機起點不可（`AdditiveParam.reset` 的 docstring）。
+                # `attn` 量的不是與自身的距離，φ = 0 不是駐點，故與主線一樣
+                # 從 0 起步——起點相同才能把它與 encoder-target 直接對比。
                 param, lo, hi = build(cond, args.seed, block=args.block,
                                       r_min=args.r_min, quantile=args.quantile,
                                       gl_iters=args.gl_iters,
-                                      random_start=args.loss != "encoder_target")
+                                      random_start=args.loss in ("latent", "clip"))
                 if budget == "human":
                     r_human = HUMAN_RADIUS[cond]
                     if args.phase_radius is not None and cond in ("phase", "phase_rand"):
@@ -206,7 +214,7 @@ def main() -> None:
                     "block": args.block, "r_min": args.r_min,
                     "quantile": args.quantile, "target_image": str(args.target),
                     "loss": args.loss,
-                    "random_start": args.loss != "encoder_target",
+                    "random_start": args.loss in ("latent", "clip"),
                     "budget_target": budget,
                     "budget_mode": "human" if budget == "human" else "dists",
                     "budget_reached": round(float(fit["reached"]), 5),

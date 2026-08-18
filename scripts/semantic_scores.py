@@ -42,9 +42,15 @@ def main() -> None:
     ap.add_argument("--data", type=Path, required=True)
     ap.add_argument("--out", type=Path, required=True)
     ap.add_argument("--prompt-index", type=int, default=0)
+    ap.add_argument("--images", nargs="+", default=None,
+                    help="只算這幾張影像，供分片用")
     args = ap.parse_args()
 
     files = sorted(args.gallery.glob("*__edit.png"))
+    if args.images:
+        want = set(args.images)
+        files = [f for f in files if STEM.match(f.name)
+                 and STEM.match(f.name)["image"] in want]
     if not files:
         raise FileNotFoundError(f"{args.gallery} 底下沒有 *__edit.png")
 
@@ -55,7 +61,10 @@ def main() -> None:
 
     # 原圖本身對 prompt 的分數：正規化用的基準線，每張影像只算一次。
     base = {}
+    need = {STEM.match(f.name)["image"] for f in files}
     for name, item in dataset.items():
+        if name not in need:
+            continue
         x01 = load_image_tensor(item["path"], device, size=RESOLUTION)
         s = suite.semantic(x01, item["prompt"])
         base[name] = (s["clip"], s["siglip"])

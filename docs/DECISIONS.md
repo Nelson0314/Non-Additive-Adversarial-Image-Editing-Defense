@@ -83,3 +83,26 @@
   屬於次要紀錄、不是判準來源。**工程與量測的教訓不降級**——硬體與程式犯過的
   錯留在 `DEFECTS.md`、`RUNBOOK.md` 與主線 `FINDINGS.md`（FND-015 分片重複、
   FND-026 DISTS 降採樣）
+
+## DEC-024 · 2026-08-18 的四項裁決：資料集、編輯強度、損失範圍、報告數目
+
+- **資料集**（使用者裁決）：五張名人照移除，換成三張 CC0 無名氏肖像
+  （`data/set0817/person_{a,b,c}`，Wikimedia Commons，出處記在 `_source/README.txt`），
+  **prompt 反過來把他們改成名人並加配件**。person_c 的目標由 Taylor Swift 改為
+  Oprah Winfrey——來源是年輕淺膚長髮的女性，與前者本來就近，七個條件的位移量
+  全落在 0.088–0.17（全批最低），防禦沒有東西可推開
+- **編輯強度**：先跑 **0.7** 一點。0.55 與 0.8 的攻擊除 photoguard_c 之外都可
+  沿用（其餘六個條件的防禦圖與強度無關），`run_s0817.sh <stage> <gpu> <strength>`
+  第三個位置參數即是
+- **替代損失全部撤回**：untargeted latent、untargeted CLIP、注意力抑制
+  （Lo et al. CVPR 2024 式 3/4/5）三者都測過，都不如主線的 targeted encoder
+  損失，使用者裁定退回主架構。程式已刪除，資料留在 `runs/s0818_*`，
+  **不進實驗報告**。方法學上的副產物見 FND-053
+- **報告只留兩份**：`reports/main`（主線實驗，含語意指標）與
+  `reports/phase-rand`（隨機相位的 retention 查證）。其餘報告目錄、根目錄的
+  `report_*.html`、`docs/TUTORIAL_PHASE.html` 與十支只為產那些頁面而存在的
+  腳本全部刪除。`runs/**/*.html` 保留——`.gitignore` 明文把它們列為判定依據，
+  屬於證據不是報告
+- **排版**：原始數據收進 `<details>`，結果用折線圖（淨化算子是有序的軸），
+  類別型平均用橫向長條
+

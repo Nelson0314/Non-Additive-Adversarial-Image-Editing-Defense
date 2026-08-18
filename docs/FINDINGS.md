@@ -1311,11 +1311,21 @@ PSNR／L∞／SSIM／VIF 全判加性低頻較好、只有 DISTS 與人眼一致
   `modified_from_paper` 必須為真
 - **`fit_to_budget` 全部可達**（`unreachable` 0/7），與 FND-058 記的失真地板
   （Q=0.95 時 DISTS 0.0022）一致
-- **一個資料保全上的教訓**：本批曾被兩組行程同時寫入同一個目錄（我掛的鏈式
-  等待與先前一個判斷條件失效的等待同時觸發），產出 14 列而非 7 列。七張逐位
-  一致（管線確定性、同 seed），故無汙染，去重即可。但這正是
-  `START_HERE.txt` §7 記的「同一個批次目錄只允許一個寫入者——不是鎖，是覆寫
-  語意」，**判斷「前一批是否結束」的條件必須只比對腳本路徑**：本輪原先用
-  `ps aux | grep -c "[p]hase_retention"`，而遠端有三個舊 session 留下的監控
-  shell 命令列含同一字串，使條件永遠不成立
+- **一個資料保全上的教訓：合併分片時 glob 匹配到了輸出目錄自己**。本批的
+  `results.csv` 一度有 14 列而非 7 列。合併指令是
+
+      head -1 runs/dctshield/al0/results.csv > runs/dctshield/aligned/results.csv
+      for f in runs/dctshield/al*/results.csv; do
+          tail -n +2 $f >> runs/dctshield/aligned/results.csv
+      done
+
+  `al*` 同時匹配 `al0`…`al3` **與輸出目錄 `aligned`**，故迴圈的最後一輪把
+  已經累積好的輸出再追加給自己一次。七張逐位一致（管線確定性、同 seed），
+  故無汙染，去重即可。**合併分片時輸出檔必須落在被匹配的路徑之外**，或先寫
+  到暫存檔再搬過去。原生 ε=1 那批用的是 `g*`，不匹配 `merged`，因此無事
+- **另一個教訓（與上一條無關）：判斷「前一批是否結束」的條件必須只比對腳本
+  路徑**。本輪原先用 `ps aux | grep -c "[p]hase_retention"`，而遠端有三個舊
+  session 留下的監控 shell，其命令列含同一字串，使條件永遠不成立，掛在它後面
+  的鏈式啟動因此從未觸發（逾時退出）。改用 `scripts/[p]hase_retention.py` 後
+  正常
 - **狀態**：成立（n=7）。抗淨化另跑，見 `runs/freqret/aret_*.csv`

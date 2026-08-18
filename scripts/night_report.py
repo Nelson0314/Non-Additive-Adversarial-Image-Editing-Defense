@@ -226,53 +226,101 @@ def radial_section() -> str:
 # ---------------------------------------------------------------- 版面
 
 CSS = """
-:root{--bg:#fbfaf7;--fg:#1a1a18;--mut:#5d5c56;--line:#ddd9cf;--card:#fff;
---acc:#7a4b1e;--pos:#1f6b3a;--neg:#96401f}
-:root:not([data-theme=light]){}
-@media(prefers-color-scheme:dark){:root:not([data-theme=light]){
---bg:#16150f;--fg:#eceade;--mut:#a09d90;--line:#33312a;--card:#1e1d16;
---acc:#d9a86a;--pos:#7fc79a;--neg:#e0906c}}
-:root[data-theme=dark]{--bg:#16150f;--fg:#eceade;--mut:#a09d90;--line:#33312a;
---card:#1e1d16;--acc:#d9a86a;--pos:#7fc79a;--neg:#e0906c}
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@500;600;700&family=IBM+Plex+Serif:wght@400;600&family=Noto+Sans+TC:wght@500;700&family=Noto+Serif+TC:wght@400;600&display=swap");
+
+/* 淺色為基準，完整定義每一個 token */
+:root{
+  --bg:#f6f6fa; --card:#ffffff; --fg:#14141c; --mut:#5a5a6b;
+  --line:#dcdce6; --rule:#c9c9d8;
+  --acc:#3d4fc4;      /* 靛藍：訊號、頻率 */
+  --acc2:#0f766e;     /* 青綠：正向結果 */
+  --neg:#b4413c;      /* 磚紅：否決 */
+  --bar:#c4c8ea;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#101018; --card:#191922; --fg:#e8e8f0; --mut:#9a9aad;
+    --line:#2c2c39; --rule:#3a3a4a;
+    --acc:#96a4ff; --acc2:#5ec5b3; --neg:#e08a80; --bar:#3b3f6b;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#101018; --card:#191922; --fg:#e8e8f0; --mut:#9a9aad;
+  --line:#2c2c39; --rule:#3a3a4a;
+  --acc:#96a4ff; --acc2:#5ec5b3; --neg:#e08a80; --bar:#3b3f6b;
+}
+
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--fg);
-font:16px/1.75 "Noto Serif CJK TC","Songti TC",Georgia,serif;
--webkit-font-smoothing:antialiased}
-.wrap{max-width:900px;margin:0 auto;padding:3rem 1.4rem 6rem}
-h1{font-size:2.1rem;line-height:1.25;margin:0 0 .3rem;letter-spacing:-.01em}
-.sub1{color:var(--mut);font-size:.95rem;margin:0 0 2.6rem}
-h2{font-size:1.45rem;margin:3.2rem 0 .9rem;padding-top:1.4rem;
-border-top:1px solid var(--line)}
-h3{font-size:1.1rem;margin:2rem 0 .6rem;color:var(--acc)}
-p,li{color:var(--fg)}
-.note{color:var(--mut);font-size:.92rem}
-code{font:0.88em/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;
-background:var(--card);border:1px solid var(--line);border-radius:3px;padding:.05em .35em}
-.scroll{overflow-x:auto;margin:1.1rem 0;border:1px solid var(--line);
-border-radius:6px;background:var(--card)}
-table{border-collapse:collapse;width:100%;font-size:.88rem;
-font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
-th,td{padding:.5rem .7rem;text-align:right;border-bottom:1px solid var(--line);
-white-space:nowrap}
-th:first-child,td:first-child{text-align:left;font-family:inherit;white-space:normal}
-thead th{background:transparent;color:var(--mut);font-weight:600;
-border-bottom:2px solid var(--line)}
+body{
+  margin:0; background:var(--bg); color:var(--fg);
+  font-family:"IBM Plex Serif","Noto Serif TC",Georgia,"Songti TC",serif;
+  font-size:16.5px; line-height:1.78;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:60rem;margin:0 auto;padding:4rem 1.5rem 7rem;
+  display:flex;flex-direction:column;gap:0}
+.head{display:flex;flex-direction:column;gap:.5rem;margin-bottom:3rem}
+h1,h2,h3,.eyebrow,th{
+  font-family:"IBM Plex Sans","Noto Sans TC",system-ui,sans-serif}
+.eyebrow{font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--acc);font-weight:600}
+h1{font-size:clamp(1.9rem,4vw,2.5rem);line-height:1.2;margin:0;
+  font-weight:700;letter-spacing:-.02em;text-wrap:balance}
+.sub1{color:var(--mut);font-size:.9rem;margin:0;
+  font-family:"IBM Plex Mono",ui-monospace,monospace}
+h2{font-size:1.35rem;font-weight:600;letter-spacing:-.01em;
+  margin:3.4rem 0 1rem;padding-top:1.6rem;position:relative;text-wrap:balance}
+h2::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--acc),var(--acc2) 55%,transparent)}
+h3{font-size:1.02rem;font-weight:600;margin:2.1rem 0 .5rem;color:var(--fg);
+  letter-spacing:.005em}
+h3::before{content:"";display:inline-block;width:.45rem;height:.45rem;
+  margin-right:.55rem;vertical-align:.12em;border-radius:1px;background:var(--acc)}
+p{margin:.9rem 0}
+ul{padding-left:1.15rem;margin:.9rem 0;display:flex;flex-direction:column;gap:.45rem}
+li::marker{color:var(--acc)}
+b,strong{font-weight:600}
+.note{color:var(--mut);font-size:.9rem}
+code,pre{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace}
+code{font-size:.86em;background:var(--card);border:1px solid var(--line);
+  border-radius:3px;padding:.06em .36em}
+pre{background:var(--card);border:1px solid var(--line);border-radius:5px;
+  padding:.9rem 1.1rem;overflow-x:auto;font-size:.85rem;line-height:1.65}
+pre code{background:none;border:none;padding:0}
+
+.scroll{overflow-x:auto;margin:1.2rem 0;border:1px solid var(--line);
+  border-radius:6px;background:var(--card)}
+table{border-collapse:collapse;width:100%;font-size:.85rem;
+  font-family:"IBM Plex Mono",ui-monospace,monospace;
+  font-variant-numeric:tabular-nums}
+th,td{padding:.52rem .75rem;text-align:right;border-bottom:1px solid var(--line);
+  white-space:nowrap}
+th:first-child,td:first-child{text-align:left;white-space:normal;
+  font-family:"IBM Plex Sans","Noto Sans TC",system-ui,sans-serif}
+thead th{font-size:.74rem;font-weight:600;letter-spacing:.04em;color:var(--mut);
+  border-bottom:1.5px solid var(--rule);text-transform:none}
 tbody tr:last-child td{border-bottom:none}
-.strong{color:var(--pos);font-weight:700}
-.sub{color:var(--mut);font-size:.82em}
-.grid{display:grid;gap:.9rem;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-margin:1.2rem 0}
-figure{margin:0}
-figure img{width:100%;display:block;border-radius:5px;border:1px solid var(--line)}
-figcaption{color:var(--mut);font-size:.8rem;margin-top:.35rem;text-align:center}
-.ph{border:1px dashed var(--line);border-radius:5px;padding:2rem .5rem;text-align:center}
-blockquote{margin:1.2rem 0;padding:.2rem 0 .2rem 1.1rem;
-border-left:3px solid var(--acc);color:var(--mut)}
-.key{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--acc);
-border-radius:5px;padding:1rem 1.2rem;margin:1.4rem 0}
-.key p{margin:.35rem 0}
-ul{padding-left:1.2rem}
-li{margin:.3rem 0}
+.strong{color:var(--acc2);font-weight:600}
+.sub{color:var(--bar);font-size:.8em;letter-spacing:-.06em}
+
+.grid{display:grid;gap:1rem;
+  grid-template-columns:repeat(auto-fit,minmax(11rem,1fr));margin:1.3rem 0}
+figure{margin:0;display:flex;flex-direction:column;gap:.4rem}
+figure img{width:100%;display:block;border-radius:4px;border:1px solid var(--line)}
+figcaption{color:var(--mut);font-size:.76rem;text-align:center;line-height:1.5;
+  font-family:"IBM Plex Sans","Noto Sans TC",system-ui,sans-serif}
+.ph{border:1px dashed var(--line);border-radius:4px;padding:2.2rem .5rem;
+  text-align:center}
+
+blockquote{margin:1.3rem 0;padding:.1rem 0 .1rem 1.2rem;
+  border-left:2px solid var(--rule);color:var(--mut)}
+.key{background:var(--card);border:1px solid var(--line);border-radius:6px;
+  padding:1.15rem 1.35rem;margin:1.5rem 0;
+  display:flex;flex-direction:column;gap:.55rem;
+  box-shadow:0 1px 2px rgb(20 20 28 / .04)}
+.key p{margin:0}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;
+  transition:none!important}}
 """
 
 
@@ -280,8 +328,11 @@ def build() -> str:
     t_full, t_ratio, n_img = decomp_sections()
     body = f"""
 <div class="wrap">
-<h1>頻域與相位防護：一夜的工作紀錄</h1>
-<p class="sub1">2026-08-19 · WACV 專案 · 分支 <code>claude/stage3-apa-attn</code></p>
+<header class="head">
+<p class="eyebrow">WACV · 頻域與相位防護</p>
+<h1>幅度、相位，與淨化</h1>
+<p class="sub1">2026-08-19 · 分支 claude/stage3-apa-attn · 7 影像 × 9 條件</p>
+</header>
 
 <div class="key">
 <p><b>一、重現 PAD（ICML 2023）第 3 節的幅度／相位分解。</b>結論分兩半：
@@ -340,6 +391,10 @@ L∞ 球再測一次。</p>
 <code>pha_s</code>。下表所有比較都用對齊過的版本。</p>
 <h3>2.4 未淨化的基準（完整防禦圖）</h3>
 {t_full}
+<p class="note">本表的保真度由存檔的 PNG 重算，故與 FND-055 有小幅差異
+（例：加性 δ 的 DISTS 此處 0.0073、該條 0.0090）。原因是 PNG 是 8 位元量化過
+的，而 FND-055 是在最佳化結束時的浮點張量上量的。**位移量不受影響**——
+編輯本來就是從存檔的 PNG 讀進去跑的。</p>
 <h3>2.5 主結果</h3>
 {t_ratio}
 <div class="key">
@@ -525,7 +580,7 @@ DCT-Shield 的兩個原生變體。判準以人眼為主（<code>CLAUDE.md</code
 </ul>
 </div>
 """
-    return ("<title>頻域與相位防護 · 夜間紀錄</title>\n"
+    return ("<title>幅度、相位，與淨化</title>\n"
             f"<style>{CSS}</style>\n{body}")
 
 

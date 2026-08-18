@@ -46,6 +46,10 @@ def main() -> None:
     ap.add_argument("--data", type=Path, default=Path("data/lo_aligned"))
     ap.add_argument("--images", nargs="+", default=None)
     ap.add_argument("--conditions", nargs="+", default=None)
+    ap.add_argument("--purifiers", nargs="+", default=None,
+                    help="只跑指定的淨化算子，與 phase_retention 同一組標籤")
+    ap.add_argument("--edit-strength", type=float, default=EDIT_STRENGTH,
+                    help="SDEdit 的 strength，須與該批 retention 用的一致")
     args = ap.parse_args()
     args.out.mkdir(parents=True, exist_ok=True)
 
@@ -66,7 +70,7 @@ def main() -> None:
         raise SystemExit("沒有符合條件的格")
 
     sd = SDWrapper(MODEL_NAME, dtype=torch.float32)
-    purifiers = purifier_set(sd, seed=0)
+    purifiers = purifier_set(sd, seed=0, only=args.purifiers)
     dataset = {d["name"]: d for d in load_dataset(args.data)}
 
     def edit(x01, item):
@@ -74,7 +78,8 @@ def main() -> None:
         emb, emb_u = sd.encode_text(item["prompt"]), sd.uncond_prompt()
         with torch.no_grad():
             return sd.sdedit(x01.clamp(0, 1), emb, noise, EDIT_STEPS,
-                             strength=EDIT_STRENGTH, guidance_scale=EDIT_GUIDANCE,
+                             strength=args.edit_strength,
+                             guidance_scale=EDIT_GUIDANCE,
                              emb_uncond=emb_u)
 
     n = 0

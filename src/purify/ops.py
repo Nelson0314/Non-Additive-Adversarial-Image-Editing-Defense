@@ -278,6 +278,9 @@ KINDS = (
     "diffpure",
     "resize_only",
     "jpeg_then_resize",
+    # DEC-025 的頻率輪新增：兩個針對相位／頻域設計的淨化器
+    "gridpure",
+    "fdpure",
 )
 
 # 原生可微（`forward` 走真實實作並提供真實梯度）的算子。其餘一律經
@@ -298,6 +301,8 @@ class Purifier:
     | `diffpure` | `ckpt`（`strength` 即 t，預設 150） |
     | `cnn_denoise_substitute` | `ckpt` |
     | `resize_only` | 無（降升取樣參數由 `src/purify/diffpure.py` 統一提供） |
+    | `gridpure` | `t`、`gamma`、`iters` **皆必填**（論文正文未載）、`ckpt` |
+    | `fdpure` | `t_star` **必填**（論文正文未載）、`d_a`、`d_p`、`delta`、`ckpt` |
     """
 
     def __init__(self, kind: str, strength: float = 0.0, seed: int = None, **options):
@@ -326,7 +331,7 @@ class Purifier:
         if self.kind == "impress":
             return has_impress_deps(self.options.get("sd"),
                                     self.options.get("backend", "lpips"))
-        if self.kind == "diffpure":
+        if self.kind in ("diffpure", "gridpure", "fdpure"):
             return _diffpure.has_diffpure_weights(self.options.get("ckpt"))
         if self.kind == "cnn_denoise_substitute":
             return has_cnn_denoise_weights(self.options.get("ckpt"))
@@ -362,6 +367,12 @@ class Purifier:
         if self.kind == "diffpure":
             t = int(self.strength) if self.strength else _diffpure.DIFFPURE_T_DEFAULT
             return diffpure_real(x, t=t, ckpt=self.options.get("ckpt"))
+        if self.kind == "gridpure":
+            from src.purify.freq_grid import gridpure_real
+            return gridpure_real(x, seed=self.seed, **self.options)
+        if self.kind == "fdpure":
+            from src.purify.freq_grid import fdpure_real
+            return fdpure_real(x, seed=self.seed, **self.options)
         return cnn_denoise_substitute_real(x, ckpt=self.options.get("ckpt"))
 
     def _run(self, x: torch.Tensor) -> torch.Tensor:

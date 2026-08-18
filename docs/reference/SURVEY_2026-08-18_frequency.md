@@ -394,6 +394,17 @@ DCT-Shield 一併納入，用來分離「頻譜形狀」與「相位重排」兩
 | 連結 | [CVF PDF](https://openaccess.thecvf.com/content/ICCV2025W/APAI/papers/Ju_FreqPure_a_High-frequency_Preservation_Diffusion-based_Purification_Method_for_Protective_Perturbation_ICCVW_2025_paper.pdf)（直接抓取回 403，內容由檢索摘要確認） |
 | 程式碼 | **未找到公開程式碼** |
 
+> **2026-08-19 更正（本節以下的描述有誤）。** 本條目自己註明內容「由檢索
+> 摘要確認」，即撰寫時未讀到原文。2026-08-19 取得 CVF PDF 全文後確認：
+> **FreqPure 不是逆向過程中的頻域介入，而是一條兩階段的訓練式管線**——
+> (1) 一個重建模組移除保護擾動造成的瑕疵；(2) 一個以低頻影像為條件的擴散
+> 模型合成高頻。它需要在 FFHQ 人臉資料上訓練，無公開程式碼，**無法在不
+> 訓練的前提下重現**。
+>
+> 下面描述的機制（逐時間步替換低頻幅度、投影低頻相位）實際上屬於 §2.4 的
+> **arXiv:2505.01267（FD-Pure）**，該篇訓練自由、Algorithm 1 完整。本專案
+> 實作的是後者，見 `src/purify/freq_grid.py`。
+
 **頻域上的具體運算**：在擴散逆向過程的**每一個時間步**介入：
 
 - **幅度譜**：把當前估計影像幅度譜的**低頻部分**替換成**對抗影像**的對應部分。

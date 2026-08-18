@@ -1,0 +1,325 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  67%|██████▋   | 4/6 [00:00<00:00, 30.02it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3034.30it/s]
+Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 14.34it/s]
+There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+
+########## cat_00 (cat) ##########
+=== cat_00 / add__human ===
+Loading pretrained model NIMA from /nfs/home/nelson0314/.cache/torch/hub/pyiqa/NIMA_InceptionV2_ava-b0c77c00.pth
+Loading pretrained model CNNIQA from /nfs/home/nelson0314/.cache/torch/hub/pyiqa/CNNIQA_koniq10k-e6f14c91.pth
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 9352.11it/s]
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 14394.77it/s]
+[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
+[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
+Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights:  87%|████████▋ | 356/408 [00:00<00:00, 3545.41it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 3285.95it/s]
+{'image': 'cat_00', 'condition': 'add', 'prompt_index': 0, 'prompt': 'a cat wearing a red party hat', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.00863, 'unreachable': False, 'radius': 0.00471, 'total_seconds': 41.7, 'fid_lpips': 0.0696, 'fid_ssim': 0.9987, 'fid_dists': 0.0086, 'fid_psnr': 51.1887, 'fid_clip_img': 0.9969, 'fid_nima': 5.5313, 'fid_cnniqa': 0.7052, 'edit_strength': 0.7, 'edit_lpips': 0.182, 'edit_clip_orig': 0.3703, 'edit_clip_def': 0.3582, 'edit_clip_drop': 0.0121, 'edit_siglip_orig': 0.1592, 'edit_siglip_def': 0.1588, 'edit_siglip_drop': 0.0003}
+=== cat_00 / phase__human ===
+{'image': 'cat_00', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a cat wearing a red party hat', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.04801, 'unreachable': False, 'radius': 1.3, 'total_seconds': 25.2, 'fid_lpips': 0.1263, 'fid_ssim': 0.9744, 'fid_dists': 0.048, 'fid_psnr': 34.984, 'fid_clip_img': 0.9951, 'fid_nima': 5.4336, 'fid_cnniqa': 0.6296, 'edit_strength': 0.7, 'edit_lpips': 0.2673, 'edit_clip_orig': 0.3703, 'edit_clip_def': 0.3499, 'edit_clip_drop': 0.0203, 'edit_siglip_orig': 0.1592, 'edit_siglip_def': 0.1453, 'edit_siglip_drop': 0.0138, 'amp_dev': 0.00847, 'active_fraction': 0.2933}
+=== cat_00 / phase_rand__human ===
+{'image': 'cat_00', 'condition': 'phase_rand', 'prompt_index': 0, 'prompt': 'a cat wearing a red party hat', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.05773, 'unreachable': False, 'radius': 1.3, 'total_seconds': 10.8, 'fid_lpips': 0.0423, 'fid_ssim': 0.9775, 'fid_dists': 0.0577, 'fid_psnr': 35.5952, 'fid_clip_img': 0.9943, 'fid_nima': 5.2554, 'fid_cnniqa': 0.6195, 'edit_strength': 0.7, 'edit_lpips': 0.0953, 'edit_clip_orig': 0.3703, 'edit_clip_def': 0.3263, 'edit_clip_drop': 0.044, 'edit_siglip_orig': 0.1592, 'edit_siglip_def': 0.1001, 'edit_siglip_drop': 0.059, 'amp_dev': 0.0087, 'active_fraction': 0.2933}
+
+########## parrot_00 (parrot) ##########
+=== parrot_00 / add__human ===
+{'image': 'parrot_00', 'condition': 'add', 'prompt_index': 0, 'prompt': 'a rooster', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.01512, 'unreachable': False, 'radius': 0.00471, 'total_seconds': 25.4, 'fid_lpips': 0.2493, 'fid_ssim': 0.9968, 'fid_dists': 0.0151, 'fid_psnr': 48.4222, 'fid_clip_img': 0.9835, 'fid_nima': 5.6645, 'fid_cnniqa': 0.7008, 'edit_strength': 0.7, 'edit_lpips': 0.1815, 'edit_clip_orig': 0.3174, 'edit_clip_def': 0.323, 'edit_clip_drop': -0.0057, 'edit_siglip_orig': 0.1113, 'edit_siglip_def': 0.1167, 'edit_siglip_drop': -0.0055}
+=== parrot_00 / phase__human ===
+{'image': 'parrot_00', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a rooster', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.02811, 'unreachable': False, 'radius': 1.3, 'total_seconds': 25.6, 'fid_lpips': 0.1012, 'fid_ssim': 0.9776, 'fid_dists': 0.0281, 'fid_psnr': 35.8217, 'fid_clip_img': 0.994, 'fid_nima': 5.458, 'fid_cnniqa': 0.6727, 'edit_strength': 0.7, 'edit_lpips': 0.1898, 'edit_clip_orig': 0.3174, 'edit_clip_def': 0.32, 'edit_clip_drop': -0.0026, 'edit_siglip_orig': 0.1113, 'edit_siglip_def': 0.1127, 'edit_siglip_drop': -0.0014, 'amp_dev': 0.00936, 'active_fraction': 0.3366}
+=== parrot_00 / phase_rand__human ===
+{'image': 'parrot_00', 'condition': 'phase_rand', 'prompt_index': 0, 'prompt': 'a rooster', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.03555, 'unreachable': False, 'radius': 1.3, 'total_seconds': 11.0, 'fid_lpips': 0.0485, 'fid_ssim': 0.9791, 'fid_dists': 0.0356, 'fid_psnr': 36.1002, 'fid_clip_img': 0.9943, 'fid_nima': 5.1678, 'fid_cnniqa': 0.6693, 'edit_strength': 0.7, 'edit_lpips': 0.0384, 'edit_clip_orig': 0.3174, 'edit_clip_def': 0.3154, 'edit_clip_drop': 0.002, 'edit_siglip_orig': 0.1113, 'edit_siglip_def': 0.1116, 'edit_siglip_drop': -0.0003, 'amp_dev': 0.0098, 'active_fraction': 0.3366}
+
+########## person_a_00 (man) ##########
+=== person_a_00 / add__human ===
+{'image': 'person_a_00', 'condition': 'add', 'prompt_index': 0, 'prompt': 'Barack Obama wearing sunglasses', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.00792, 'unreachable': False, 'radius': 0.00471, 'total_seconds': 25.6, 'fid_lpips': 0.2597, 'fid_ssim': 0.9975, 'fid_dists': 0.0079, 'fid_psnr': 47.7684, 'fid_clip_img': 0.9993, 'fid_nima': 5.3333, 'fid_cnniqa': 0.6426, 'edit_strength': 0.7, 'edit_lpips': 0.4384, 'edit_clip_orig': 0.3649, 'edit_clip_def': 0.3345, 'edit_clip_drop': 0.0303, 'edit_siglip_orig': 0.1501, 'edit_siglip_def': 0.1419, 'edit_siglip_drop': 0.0082}
+=== person_a_00 / phase__human ===
+{'image': 'person_a_00', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'Barack Obama wearing sunglasses', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.03698, 'unreachable': False, 'radius': 1.3, 'total_seconds': 25.8, 'fid_lpips': 0.2053, 'fid_ssim': 0.9742, 'fid_dists': 0.037, 'fid_psnr': 33.2708, 'fid_clip_img': 0.993, 'fid_nima': 4.8937, 'fid_cnniqa': 0.6193, 'edit_strength': 0.7, 'edit_lpips': 0.5828, 'edit_clip_orig': 0.3649, 'edit_clip_def': 0.3672, 'edit_clip_drop': -0.0023, 'edit_siglip_orig': 0.1501, 'edit_siglip_def': 0.1477, 'edit_siglip_drop': 0.0025, 'amp_dev': 0.01752, 'active_fraction': 0.3846}
+=== person_a_00 / phase_rand__human ===
+{'image': 'person_a_00', 'condition': 'phase_rand', 'prompt_index': 0, 'prompt': 'Barack Obama wearing sunglasses', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.04821, 'unreachable': False, 'radius': 1.3, 'total_seconds': 11.1, 'fid_lpips': 0.0666, 'fid_ssim': 0.9755, 'fid_dists': 0.0482, 'fid_psnr': 34.2234, 'fid_clip_img': 0.9964, 'fid_nima': 4.9944, 'fid_cnniqa': 0.5889, 'edit_strength': 0.7, 'edit_lpips': 0.0599, 'edit_clip_orig': 0.3649, 'edit_clip_def': 0.3634, 'edit_clip_drop': 0.0015, 'edit_siglip_orig': 0.1501, 'edit_siglip_def': 0.1507, 'edit_siglip_drop': -0.0006, 'amp_dev': 0.01558, 'active_fraction': 0.3846}
+
+########## person_b_00 (man) ##########
+=== person_b_00 / add__human ===
+{'image': 'person_b_00', 'condition': 'add', 'prompt_index': 0, 'prompt': 'Morgan Freeman wearing a red bow tie', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.01094, 'unreachable': False, 'radius': 0.00471, 'total_seconds': 25.5, 'fid_lpips': 0.2176, 'fid_ssim': 0.9972, 'fid_dists': 0.0109, 'fid_psnr': 47.7435, 'fid_clip_img': 0.9983, 'fid_nima': 4.7472, 'fid_cnniqa': 0.6578, 'edit_strength': 0.7, 'edit_lpips': 0.2835, 'edit_clip_orig': 0.3155, 'edit_clip_def': 0.3195, 'edit_clip_drop': -0.004, 'edit_siglip_orig': 0.1167, 'edit_siglip_def': 0.1284, 'edit_siglip_drop': -0.0116}
+=== person_b_00 / phase__human ===
+{'image': 'person_b_00', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'Morgan Freeman wearing a red bow tie', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.03266, 'unreachable': False, 'radius': 1.3, 'total_seconds': 25.7, 'fid_lpips': 0.2632, 'fid_ssim': 0.9681, 'fid_dists': 0.0327, 'fid_psnr': 35.8894, 'fid_clip_img': 0.998, 'fid_nima': 4.4749, 'fid_cnniqa': 0.6158, 'edit_strength': 0.7, 'edit_lpips': 0.5573, 'edit_clip_orig': 0.3155, 'edit_clip_def': 0.2747, 'edit_clip_drop': 0.0408, 'edit_siglip_orig': 0.1167, 'edit_siglip_def': 0.1121, 'edit_siglip_drop': 0.0046, 'amp_dev': 0.01344, 'active_fraction': 0.4646}
+=== person_b_00 / phase_rand__human ===
+{'image': 'person_b_00', 'condition': 'phase_rand', 'prompt_index': 0, 'prompt': 'Morgan Freeman wearing a red bow tie', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.03125, 'unreachable': False, 'radius': 1.3, 'total_seconds': 11.0, 'fid_lpips': 0.0678, 'fid_ssim': 0.9741, 'fid_dists': 0.0313, 'fid_psnr': 37.0088, 'fid_clip_img': 0.9989, 'fid_nima': 4.5748, 'fid_cnniqa': 0.6079, 'edit_strength': 0.7, 'edit_lpips': 0.0799, 'edit_clip_orig': 0.3155, 'edit_clip_def': 0.3317, 'edit_clip_drop': -0.0162, 'edit_siglip_orig': 0.1167, 'edit_siglip_def': 0.1193, 'edit_siglip_drop': -0.0025, 'amp_dev': 0.01272, 'active_fraction': 0.4646}
+
+########## person_c_00 (woman) ##########
+=== person_c_00 / add__human ===
+{'image': 'person_c_00', 'condition': 'add', 'prompt_index': 0, 'prompt': 'Oprah Winfrey wearing a blue baseball cap', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.00585, 'unreachable': False, 'radius': 0.00471, 'total_seconds': 25.6, 'fid_lpips': 0.1347, 'fid_ssim': 0.9981, 'fid_dists': 0.0059, 'fid_psnr': 47.3739, 'fid_clip_img': 0.9988, 'fid_nima': 5.0064, 'fid_cnniqa': 0.6581, 'edit_strength': 0.7, 'edit_lpips': 0.1785, 'edit_clip_orig': 0.3699, 'edit_clip_def': 0.3758, 'edit_clip_drop': -0.0059, 'edit_siglip_orig': 0.1492, 'edit_siglip_def': 0.1808, 'edit_siglip_drop': -0.0316}
+=== person_c_00 / phase__human ===
+{'image': 'person_c_00', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'Oprah Winfrey wearing a blue baseball cap', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.03975, 'unreachable': False, 'radius': 1.3, 'total_seconds': 25.8, 'fid_lpips': 0.1944, 'fid_ssim': 0.9444, 'fid_dists': 0.0398, 'fid_psnr': 32.722, 'fid_clip_img': 0.9955, 'fid_nima': 4.8173, 'fid_cnniqa': 0.652, 'edit_strength': 0.7, 'edit_lpips': 0.3299, 'edit_clip_orig': 0.3699, 'edit_clip_def': 0.37, 'edit_clip_drop': -0.0001, 'edit_siglip_orig': 0.1492, 'edit_siglip_def': 0.1432, 'edit_siglip_drop': 0.0059, 'amp_dev': 0.0452, 'active_fraction': 0.563}
+=== person_c_00 / phase_rand__human ===
+{'image': 'person_c_00', 'condition': 'phase_rand', 'prompt_index': 0, 'prompt': 'Oprah Winfrey wearing a blue baseball cap', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.04275, 'unreachable': False, 'radius': 1.3, 'total_seconds': 11.1, 'fid_lpips': 0.106, 'fid_ssim': 0.9478, 'fid_dists': 0.0428, 'fid_psnr': 32.936, 'fid_clip_img': 0.9967, 'fid_nima': 4.782, 'fid_cnniqa': 0.6602, 'edit_strength': 0.7, 'edit_lpips': 0.2046, 'edit_clip_orig': 0.3699, 'edit_clip_def': 0.3051, 'edit_clip_drop': 0.0648, 'edit_siglip_orig': 0.1492, 'edit_siglip_def': 0.0669, 'edit_siglip_drop': 0.0822, 'amp_dev': 0.0427, 'active_fraction': 0.563}
+
+########## raccoon_00 (raccoon) ##########
+=== raccoon_00 / add__human ===
+{'image': 'raccoon_00', 'condition': 'add', 'prompt_index': 0, 'prompt': 'a panda holding a ball', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.01179, 'unreachable': False, 'radius': 0.00471, 'total_seconds': 25.5, 'fid_lpips': 0.1419, 'fid_ssim': 0.9974, 'fid_dists': 0.0118, 'fid_psnr': 47.9257, 'fid_clip_img': 0.9943, 'fid_nima': 6.0664, 'fid_cnniqa': 0.7075, 'edit_strength': 0.7, 'edit_lpips': 0.212, 'edit_clip_orig': 0.3668, 'edit_clip_def': 0.371, 'edit_clip_drop': -0.0042, 'edit_siglip_orig': 0.1476, 'edit_siglip_def': 0.1507, 'edit_siglip_drop': -0.0032}
+=== raccoon_00 / phase__human ===
+{'image': 'raccoon_00', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a panda holding a ball', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.03211, 'unreachable': False, 'radius': 1.3, 'total_seconds': 25.7, 'fid_lpips': 0.2502, 'fid_ssim': 0.9423, 'fid_dists': 0.0321, 'fid_psnr': 28.2977, 'fid_clip_img': 0.9983, 'fid_nima': 5.8826, 'fid_cnniqa': 0.7308, 'edit_strength': 0.7, 'edit_lpips': 0.577, 'edit_clip_orig': 0.3668, 'edit_clip_def': 0.3029, 'edit_clip_drop': 0.0639, 'edit_siglip_orig': 0.1476, 'edit_siglip_def': 0.0918, 'edit_siglip_drop': 0.0558, 'amp_dev': 0.03779, 'active_fraction': 0.4693}
+=== raccoon_00 / phase_rand__human ===
+{'image': 'raccoon_00', 'condition': 'phase_rand', 'prompt_index': 0, 'prompt': 'a panda holding a ball', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.03669, 'unreachable': False, 'radius': 1.3, 'total_seconds': 11.0, 'fid_lpips': 0.0596, 'fid_ssim': 0.9562, 'fid_dists': 0.0367, 'fid_psnr': 29.5942, 'fid_clip_img': 0.9984, 'fid_nima': 5.8968, 'fid_cnniqa': 0.7077, 'edit_strength': 0.7, 'edit_lpips': 0.1482, 'edit_clip_orig': 0.3668, 'edit_clip_def': 0.3576, 'edit_clip_drop': 0.0092, 'edit_siglip_orig': 0.1476, 'edit_siglip_def': 0.1467, 'edit_siglip_drop': 0.0009, 'amp_dev': 0.03589, 'active_fraction': 0.4693}
+
+########## shiba_00 (dog) ##########
+=== shiba_00 / add__human ===
+{'image': 'shiba_00', 'condition': 'add', 'prompt_index': 0, 'prompt': 'a cat', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.00279, 'unreachable': False, 'radius': 0.00471, 'total_seconds': 25.5, 'fid_lpips': 0.2169, 'fid_ssim': 0.9974, 'fid_dists': 0.0028, 'fid_psnr': 47.7194, 'fid_clip_img': 0.9992, 'fid_nima': 5.6713, 'fid_cnniqa': 0.708, 'edit_strength': 0.7, 'edit_lpips': 0.3037, 'edit_clip_orig': 0.2648, 'edit_clip_def': 0.2804, 'edit_clip_drop': -0.0156, 'edit_siglip_orig': 0.0892, 'edit_siglip_def': 0.0899, 'edit_siglip_drop': -0.0007}
+=== shiba_00 / phase__human ===
+{'image': 'shiba_00', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a cat', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.02675, 'unreachable': False, 'radius': 1.3, 'total_seconds': 25.7, 'fid_lpips': 0.1842, 'fid_ssim': 0.9602, 'fid_dists': 0.0268, 'fid_psnr': 31.4284, 'fid_clip_img': 0.9983, 'fid_nima': 5.4448, 'fid_cnniqa': 0.6989, 'edit_strength': 0.7, 'edit_lpips': 0.598, 'edit_clip_orig': 0.2648, 'edit_clip_def': 0.2916, 'edit_clip_drop': -0.0268, 'edit_siglip_orig': 0.0892, 'edit_siglip_def': 0.0966, 'edit_siglip_drop': -0.0074, 'amp_dev': 0.02257, 'active_fraction': 0.4645}
+=== shiba_00 / phase_rand__human ===
+{'image': 'shiba_00', 'condition': 'phase_rand', 'prompt_index': 0, 'prompt': 'a cat', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.04078, 'unreachable': False, 'radius': 1.3, 'total_seconds': 11.0, 'fid_lpips': 0.0584, 'fid_ssim': 0.9639, 'fid_dists': 0.0408, 'fid_psnr': 32.182, 'fid_clip_img': 0.9979, 'fid_nima': 5.3538, 'fid_cnniqa': 0.673, 'edit_strength': 0.7, 'edit_lpips': 0.1412, 'edit_clip_orig': 0.2648, 'edit_clip_def': 0.2668, 'edit_clip_drop': -0.0021, 'edit_siglip_orig': 0.0892, 'edit_siglip_def': 0.0905, 'edit_siglip_drop': -0.0013, 'amp_dev': 0.02207, 'active_fraction': 0.4645}
+
+表：runs/s0817/px/results.csv
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  17%|█▋        | 1/6 [00:00<00:00,  8.67it/s]Loading pipeline components...:  50%|█████     | 3/6 [00:00<00:00, 14.31it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3067.26it/s]
+Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 15.36it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 14.64it/s]
+There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+
+########## cat_00 (cat) ##########
+=== cat_00 / apa_weak ===
+  [align_apa_native] step    0  loss=0.0191
+  [align_apa_native] step   20  loss=0.1516
+  [align_apa_native] step   40  loss=0.0548
+  [align_apa_native] step   60  loss=0.0086
+  [align_apa_native] step   80  loss=0.0048
+  [align_apa_native] step  100  loss=0.0043
+  [align_apa_native] step  120  loss=0.0060
+  [align_apa_native] step  140  loss=0.0048
+  [align_apa_native] step  160  loss=0.0117
+  [align_apa_native] step  180  loss=0.0106
+  [align_apa_native] step  199  loss=0.0117
+  [attack_native] iter   0  reward=-1.1502  R=-1.0000  fid_pen=0.1502  linf=0.040
+  [attack_native] iter   2  reward=-1.0932  R=-1.0440  fid_pen=0.0492  linf=0.120
+  [attack_native] iter   4  reward=-1.0869  R=-1.0546  fid_pen=0.0323  linf=0.200
+  [attack_native] iter   6  reward=-1.1084  R=-1.0441  fid_pen=0.0643  linf=0.280
+  [attack_native] iter   8  reward=-1.0951  R=-1.0329  fid_pen=0.0622  linf=0.360
+  [attack_native] iter   9  reward=-1.0852  R=-1.0218  fid_pen=0.0633  linf=0.400
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pretrained model NIMA from /nfs/home/nelson0314/.cache/torch/hub/pyiqa/NIMA_InceptionV2_ava-b0c77c00.pth
+Loading pretrained model CNNIQA from /nfs/home/nelson0314/.cache/torch/hub/pyiqa/CNNIQA_koniq10k-e6f14c91.pth
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 10663.67it/s]
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 17325.72it/s]
+[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
+[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
+Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights:  76%|███████▌  | 311/408 [00:00<00:00, 3094.82it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 3057.27it/s]
+{'image': 'cat_00', 'condition': 'apa_weak', 'stage1_seconds': 46.7, 'total_seconds': 146.6, 'fid_lpips': 0.0686, 'fid_ssim': 0.9301, 'fid_dists': 0.0574, 'fid_psnr': 27.1503, 'fid_clip_img': 0.987, 'fid_nima': 5.4249, 'fid_cnniqa': 0.6772, 'edit_strength': 0.7, 'edit_lpips': 0.084, 'edit_clip_orig': 0.3703, 'edit_clip_def': 0.3436, 'edit_clip_drop': 0.0266, 'edit_siglip_orig': 0.1592, 'edit_siglip_def': 0.1137, 'edit_siglip_drop': 0.0455}
+=== cat_00 / mist ===
+  [mist] step    0  L=6.036438e+04  Linf01=0.0627  L2=51.939
+  [mist] step   20  L=2.806048e+04  Linf01=0.0627  L2=65.099
+  [mist] step   40  L=2.557346e+04  Linf01=0.0627  L2=73.735
+  [mist] step   60  L=2.045929e+04  Linf01=0.0627  L2=77.149
+  [mist] step   80  L=2.654728e+04  Linf01=0.0627  L2=79.497
+  [mist] step   99  L=2.524948e+04  Linf01=0.0627  L2=80.604
+{'image': 'cat_00', 'condition': 'mist', 'stage1_seconds': 0.0, 'total_seconds': 84.2, 'fid_lpips': 0.6192, 'fid_ssim': 0.8597, 'fid_dists': 0.1864, 'fid_psnr': 26.85, 'fid_clip_img': 0.9371, 'fid_nima': 5.0813, 'fid_cnniqa': 0.7092, 'edit_strength': 0.7, 'edit_lpips': 0.6069, 'edit_clip_orig': 0.3703, 'edit_clip_def': 0.3122, 'edit_clip_drop': 0.0581, 'edit_siglip_orig': 0.1592, 'edit_siglip_def': 0.0804, 'edit_siglip_drop': 0.0788}
+=== cat_00 / dia_r ===
+  [dia_r] step    0  L=8.848396e+01  Linf01=0.0020  L2=2.818
+  [dia_r] step   19  L=3.713678e+02  Linf01=0.0250  L2=16.393
+{'image': 'cat_00', 'condition': 'dia_r', 'stage1_seconds': 0.0, 'total_seconds': 149.0, 'fid_lpips': 0.3183, 'fid_ssim': 0.9893, 'fid_dists': 0.0733, 'fid_psnr': 40.6836, 'fid_clip_img': 0.991, 'fid_nima': 5.4704, 'fid_cnniqa': 0.708, 'edit_strength': 0.7, 'edit_lpips': 0.3617, 'edit_clip_orig': 0.3703, 'edit_clip_def': 0.3301, 'edit_clip_drop': 0.0402, 'edit_siglip_orig': 0.1592, 'edit_siglip_def': 0.137, 'edit_siglip_drop': 0.0221}
+
+########## parrot_00 (parrot) ##########
+=== parrot_00 / apa_weak ===
+  [align_apa_native] step    0  loss=0.0345
+  [align_apa_native] step   20  loss=0.2752
+  [align_apa_native] step   40  loss=0.0905
+  [align_apa_native] step   60  loss=0.0143
+  [align_apa_native] step   80  loss=0.0083
+  [align_apa_native] step  100  loss=0.0094
+  [align_apa_native] step  120  loss=0.0134
+  [align_apa_native] step  140  loss=0.0061
+  [align_apa_native] step  160  loss=0.0239
+  [align_apa_native] step  180  loss=0.0210
+  [align_apa_native] step  199  loss=0.0223
+  [attack_native] iter   0  reward=-1.2474  R=-1.0000  fid_pen=0.2474  linf=0.040
+  [attack_native] iter   2  reward=-1.1996  R=-0.9902  fid_pen=0.2093  linf=0.120
+  [attack_native] iter   4  reward=-1.1751  R=-0.9723  fid_pen=0.2028  linf=0.200
+  [attack_native] iter   6  reward=-1.1679  R=-0.9460  fid_pen=0.2219  linf=0.280
+  [attack_native] iter   8  reward=-1.1608  R=-0.9318  fid_pen=0.2290  linf=0.360
+  [attack_native] iter   9  reward=-1.1578  R=-0.9297  fid_pen=0.2281  linf=0.400
+{'image': 'parrot_00', 'condition': 'apa_weak', 'stage1_seconds': 46.7, 'total_seconds': 129.8, 'fid_lpips': 0.1308, 'fid_ssim': 0.8766, 'fid_dists': 0.0603, 'fid_psnr': 22.1534, 'fid_clip_img': 0.9422, 'fid_nima': 5.2914, 'fid_cnniqa': 0.6367, 'edit_strength': 0.7, 'edit_lpips': 0.1281, 'edit_clip_orig': 0.3174, 'edit_clip_def': 0.3208, 'edit_clip_drop': -0.0034, 'edit_siglip_orig': 0.1113, 'edit_siglip_def': 0.114, 'edit_siglip_drop': -0.0028}
+=== parrot_00 / mist ===
+  [mist] step    0  L=4.607770e+04  Linf01=0.0627  L2=62.734
+  [mist] step   20  L=2.201362e+04  Linf01=0.0627  L2=69.553
+  [mist] step   40  L=1.977094e+04  Linf01=0.0627  L2=75.977
+  [mist] step   60  L=1.435698e+04  Linf01=0.0627  L2=79.570
+  [mist] step   80  L=2.041369e+04  Linf01=0.0627  L2=82.262
+  [mist] step   99  L=1.908025e+04  Linf01=0.0627  L2=83.723
+{'image': 'parrot_00', 'condition': 'mist', 'stage1_seconds': 0.0, 'total_seconds': 84.6, 'fid_lpips': 0.6611, 'fid_ssim': 0.7125, 'fid_dists': 0.142, 'fid_psnr': 26.5203, 'fid_clip_img': 0.856, 'fid_nima': 5.2666, 'fid_cnniqa': 0.7185, 'edit_strength': 0.7, 'edit_lpips': 0.576, 'edit_clip_orig': 0.3174, 'edit_clip_def': 0.3051, 'edit_clip_drop': 0.0123, 'edit_siglip_orig': 0.1113, 'edit_siglip_def': 0.1086, 'edit_siglip_drop': 0.0027}
+=== parrot_00 / dia_r ===
+  [dia_r] step    0  L=1.085629e+02  Linf01=0.0020  L2=3.450
+  [dia_r] step   19  L=7.864705e+02  Linf01=0.0250  L2=17.200
+{'image': 'parrot_00', 'condition': 'dia_r', 'stage1_seconds': 0.0, 'total_seconds': 149.1, 'fid_lpips': 0.3699, 'fid_ssim': 0.9749, 'fid_dists': 0.0594, 'fid_psnr': 40.2663, 'fid_clip_img': 0.9124, 'fid_nima': 5.5331, 'fid_cnniqa': 0.7024, 'edit_strength': 0.7, 'edit_lpips': 0.4835, 'edit_clip_orig': 0.3174, 'edit_clip_def': 0.2996, 'edit_clip_drop': 0.0177, 'edit_siglip_orig': 0.1113, 'edit_siglip_def': 0.1164, 'edit_siglip_drop': -0.0051}
+
+########## person_a_00 (man) ##########
+=== person_a_00 / apa_weak ===
+  [align_apa_native] step    0  loss=0.0401
+  [align_apa_native] step   20  loss=0.2786
+  [align_apa_native] step   40  loss=0.0982
+  [align_apa_native] step   60  loss=0.0188
+  [align_apa_native] step   80  loss=0.0105
+  [align_apa_native] step  100  loss=0.0112
+  [align_apa_native] step  120  loss=0.0153
+  [align_apa_native] step  140  loss=0.0096
+  [align_apa_native] step  160  loss=0.0237
+  [align_apa_native] step  180  loss=0.0223
+  [align_apa_native] step  199  loss=0.0238
+  [attack_native] iter   0  reward=-1.2406  R=-1.0000  fid_pen=0.2406  linf=0.040
+  [attack_native] iter   2  reward=-1.1782  R=-0.9486  fid_pen=0.2297  linf=0.120
+  [attack_native] iter   4  reward=-1.1685  R=-0.9116  fid_pen=0.2569  linf=0.200
+  [attack_native] iter   6  reward=-1.1714  R=-0.8842  fid_pen=0.2872  linf=0.280
+  [attack_native] iter   8  reward=-1.1643  R=-0.8860  fid_pen=0.2783  linf=0.360
+  [attack_native] iter   9  reward=-1.1597  R=-0.8943  fid_pen=0.2655  linf=0.400
+{'image': 'person_a_00', 'condition': 'apa_weak', 'stage1_seconds': 46.8, 'total_seconds': 129.6, 'fid_lpips': 0.1418, 'fid_ssim': 0.8818, 'fid_dists': 0.0697, 'fid_psnr': 22.0682, 'fid_clip_img': 0.9803, 'fid_nima': 5.1687, 'fid_cnniqa': 0.6044, 'edit_strength': 0.7, 'edit_lpips': 0.3098, 'edit_clip_orig': 0.3649, 'edit_clip_def': 0.3708, 'edit_clip_drop': -0.0059, 'edit_siglip_orig': 0.1501, 'edit_siglip_def': 0.1476, 'edit_siglip_drop': 0.0025}
+=== person_a_00 / mist ===
+  [mist] step    0  L=3.648615e+04  Linf01=0.0627  L2=62.818
+  [mist] step   20  L=1.644014e+04  Linf01=0.0627  L2=69.001
+  [mist] step   40  L=1.430142e+04  Linf01=0.0627  L2=75.012
+  [mist] step   60  L=8.681291e+03  Linf01=0.0627  L2=78.579
+  [mist] step   80  L=1.532950e+04  Linf01=0.0627  L2=81.205
+  [mist] step   99  L=1.399630e+04  Linf01=0.0627  L2=82.750
+{'image': 'person_a_00', 'condition': 'mist', 'stage1_seconds': 0.0, 'total_seconds': 84.8, 'fid_lpips': 0.6537, 'fid_ssim': 0.7873, 'fid_dists': 0.1919, 'fid_psnr': 26.6218, 'fid_clip_img': 0.8745, 'fid_nima': 4.6787, 'fid_cnniqa': 0.614, 'edit_strength': 0.7, 'edit_lpips': 0.7013, 'edit_clip_orig': 0.3649, 'edit_clip_def': 0.3339, 'edit_clip_drop': 0.031, 'edit_siglip_orig': 0.1501, 'edit_siglip_def': 0.151, 'edit_siglip_drop': -0.0009}
+=== person_a_00 / dia_r ===
+  [dia_r] step    0  L=9.904628e+01  Linf01=0.0020  L2=3.446
+  [dia_r] step   19  L=7.609937e+02  Linf01=0.0250  L2=16.117
+{'image': 'person_a_00', 'condition': 'dia_r', 'stage1_seconds': 0.0, 'total_seconds': 149.1, 'fid_lpips': 0.3189, 'fid_ssim': 0.986, 'fid_dists': 0.0411, 'fid_psnr': 40.831, 'fid_clip_img': 0.9886, 'fid_nima': 5.3174, 'fid_cnniqa': 0.6469, 'edit_strength': 0.7, 'edit_lpips': 0.3939, 'edit_clip_orig': 0.3649, 'edit_clip_def': 0.3686, 'edit_clip_drop': -0.0037, 'edit_siglip_orig': 0.1501, 'edit_siglip_def': 0.1453, 'edit_siglip_drop': 0.0048}
+
+########## person_b_00 (man) ##########
+=== person_b_00 / apa_weak ===
+  [align_apa_native] step    0  loss=0.0362
+  [align_apa_native] step   20  loss=0.3166
+  [align_apa_native] step   40  loss=0.0991
+  [align_apa_native] step   60  loss=0.0184
+  [align_apa_native] step   80  loss=0.0115
+  [align_apa_native] step  100  loss=0.0095
+  [align_apa_native] step  120  loss=0.0145
+  [align_apa_native] step  140  loss=0.0087
+  [align_apa_native] step  160  loss=0.0227
+  [align_apa_native] step  180  loss=0.0200
+  [align_apa_native] step  199  loss=0.0234
+  [attack_native] iter   0  reward=-1.2535  R=-1.0000  fid_pen=0.2535  linf=0.040
+  [attack_native] iter   2  reward=-1.0521  R=-0.6603  fid_pen=0.3917  linf=0.120
+  [attack_native] iter   4  reward=-1.0039  R=-0.4433  fid_pen=0.5606  linf=0.200
+  [attack_native] iter   6  reward=-1.0150  R=-0.3447  fid_pen=0.6704  linf=0.280
+  [attack_native] iter   8  reward=-1.0367  R=-0.3462  fid_pen=0.6905  linf=0.360
+  [attack_native] iter   9  reward=-1.0373  R=-0.3766  fid_pen=0.6607  linf=0.400
+{'image': 'person_b_00', 'condition': 'apa_weak', 'stage1_seconds': 46.7, 'total_seconds': 129.7, 'fid_lpips': 0.2372, 'fid_ssim': 0.7355, 'fid_dists': 0.1885, 'fid_psnr': 18.2348, 'fid_clip_img': 0.9702, 'fid_nima': 4.6485, 'fid_cnniqa': 0.5468, 'edit_strength': 0.7, 'edit_lpips': 0.3569, 'edit_clip_orig': 0.3155, 'edit_clip_def': 0.3078, 'edit_clip_drop': 0.0077, 'edit_siglip_orig': 0.1167, 'edit_siglip_def': 0.1575, 'edit_siglip_drop': -0.0407}
+=== person_b_00 / mist ===
+  [mist] step    0  L=2.894524e+04  Linf01=0.0627  L2=64.298
+  [mist] step   20  L=1.325727e+04  Linf01=0.0627  L2=68.379
+  [mist] step   40  L=1.142795e+04  Linf01=0.0627  L2=73.510
+  [mist] step   60  L=5.309686e+03  Linf01=0.0627  L2=77.191
+  [mist] step   80  L=1.223159e+04  Linf01=0.0627  L2=79.948
+  [mist] step   99  L=1.099969e+04  Linf01=0.0627  L2=81.643
+{'image': 'person_b_00', 'condition': 'mist', 'stage1_seconds': 0.0, 'total_seconds': 84.6, 'fid_lpips': 0.6183, 'fid_ssim': 0.7606, 'fid_dists': 0.2095, 'fid_psnr': 26.7388, 'fid_clip_img': 0.8518, 'fid_nima': 3.6156, 'fid_cnniqa': 0.635, 'edit_strength': 0.7, 'edit_lpips': 0.6582, 'edit_clip_orig': 0.3155, 'edit_clip_def': 0.3503, 'edit_clip_drop': -0.0348, 'edit_siglip_orig': 0.1167, 'edit_siglip_def': 0.1717, 'edit_siglip_drop': -0.055}
+=== person_b_00 / dia_r ===
+  [dia_r] step    0  L=1.085169e+02  Linf01=0.0020  L2=3.478
+  [dia_r] step   19  L=8.163943e+02  Linf01=0.0250  L2=17.246
+{'image': 'person_b_00', 'condition': 'dia_r', 'stage1_seconds': 0.0, 'total_seconds': 149.0, 'fid_lpips': 0.2817, 'fid_ssim': 0.983, 'fid_dists': 0.0465, 'fid_psnr': 40.2429, 'fid_clip_img': 0.9571, 'fid_nima': 4.5614, 'fid_cnniqa': 0.6527, 'edit_strength': 0.7, 'edit_lpips': 0.2879, 'edit_clip_orig': 0.3155, 'edit_clip_def': 0.3362, 'edit_clip_drop': -0.0207, 'edit_siglip_orig': 0.1167, 'edit_siglip_def': 0.1463, 'edit_siglip_drop': -0.0296}
+
+########## person_c_00 (woman) ##########
+=== person_c_00 / apa_weak ===
+  [align_apa_native] step    0  loss=0.0520
+  [align_apa_native] step   20  loss=0.4793
+  [align_apa_native] step   40  loss=0.1600
+  [align_apa_native] step   60  loss=0.0178
+  [align_apa_native] step   80  loss=0.0104
+  [align_apa_native] step  100  loss=0.0114
+  [align_apa_native] step  120  loss=0.0171
+  [align_apa_native] step  140  loss=0.0083
+  [align_apa_native] step  160  loss=0.0347
+  [align_apa_native] step  180  loss=0.0311
+  [align_apa_native] step  199  loss=0.0348
+  [attack_native] iter   0  reward=-1.2525  R=-1.0000  fid_pen=0.2525  linf=0.040
+  [attack_native] iter   2  reward=-1.2001  R=-0.9507  fid_pen=0.2493  linf=0.120
+  [attack_native] iter   4  reward=-1.1925  R=-0.9122  fid_pen=0.2804  linf=0.200
+  [attack_native] iter   6  reward=-1.1898  R=-0.9009  fid_pen=0.2890  linf=0.280
+  [attack_native] iter   8  reward=-1.1804  R=-0.9110  fid_pen=0.2694  linf=0.360
+  [attack_native] iter   9  reward=-1.1769  R=-0.9154  fid_pen=0.2615  linf=0.400
+{'image': 'person_c_00', 'condition': 'apa_weak', 'stage1_seconds': 46.7, 'total_seconds': 129.6, 'fid_lpips': 0.185, 'fid_ssim': 0.7482, 'fid_dists': 0.0838, 'fid_psnr': 21.6748, 'fid_clip_img': 0.9706, 'fid_nima': 4.8205, 'fid_cnniqa': 0.6352, 'edit_strength': 0.7, 'edit_lpips': 0.2751, 'edit_clip_orig': 0.3699, 'edit_clip_def': 0.3308, 'edit_clip_drop': 0.0391, 'edit_siglip_orig': 0.1492, 'edit_siglip_def': 0.1426, 'edit_siglip_drop': 0.0066}
+=== person_c_00 / mist ===
+  [mist] step    0  L=2.294087e+04  Linf01=0.0627  L2=61.923
+  [mist] step   20  L=9.165129e+03  Linf01=0.0627  L2=67.241
+  [mist] step   40  L=7.198289e+03  Linf01=0.0627  L2=72.668
+  [mist] step   60  L=6.609043e+02  Linf01=0.0627  L2=75.839
+  [mist] step   80  L=8.267021e+03  Linf01=0.0627  L2=78.214
+  [mist] step   99  L=7.126746e+03  Linf01=0.0627  L2=79.557
+{'image': 'person_c_00', 'condition': 'mist', 'stage1_seconds': 0.0, 'total_seconds': 84.9, 'fid_lpips': 0.5956, 'fid_ssim': 0.8092, 'fid_dists': 0.1743, 'fid_psnr': 26.9636, 'fid_clip_img': 0.8934, 'fid_nima': 4.5026, 'fid_cnniqa': 0.6417, 'edit_strength': 0.7, 'edit_lpips': 0.6569, 'edit_clip_orig': 0.3699, 'edit_clip_def': 0.3918, 'edit_clip_drop': -0.0218, 'edit_siglip_orig': 0.1492, 'edit_siglip_def': 0.1652, 'edit_siglip_drop': -0.016}
+=== person_c_00 / dia_r ===
+  [dia_r] step    0  L=7.790170e+01  Linf01=0.0020  L2=3.476
+  [dia_r] step   19  L=6.092484e+02  Linf01=0.0250  L2=17.444
+{'image': 'person_c_00', 'condition': 'dia_r', 'stage1_seconds': 0.0, 'total_seconds': 149.3, 'fid_lpips': 0.1832, 'fid_ssim': 0.9882, 'fid_dists': 0.0215, 'fid_psnr': 40.1437, 'fid_clip_img': 0.9813, 'fid_nima': 4.9836, 'fid_cnniqa': 0.6559, 'edit_strength': 0.7, 'edit_lpips': 0.1864, 'edit_clip_orig': 0.3699, 'edit_clip_def': 0.3887, 'edit_clip_drop': -0.0188, 'edit_siglip_orig': 0.1492, 'edit_siglip_def': 0.1713, 'edit_siglip_drop': -0.0221}
+
+########## raccoon_00 (raccoon) ##########
+=== raccoon_00 / apa_weak ===
+  [align_apa_native] step    0  loss=0.0447
+  [align_apa_native] step   20  loss=0.3430
+  [align_apa_native] step   40  loss=0.1295
+  [align_apa_native] step   60  loss=0.0183
+  [align_apa_native] step   80  loss=0.0105
+  [align_apa_native] step  100  loss=0.0096
+  [align_apa_native] step  120  loss=0.0155
+  [align_apa_native] step  140  loss=0.0069
+  [align_apa_native] step  160  loss=0.0286
+  [align_apa_native] step  180  loss=0.0267
+  [align_apa_native] step  199  loss=0.0289
+  [attack_native] iter   0  reward=-1.2503  R=-1.0000  fid_pen=0.2503  linf=0.040
+  [attack_native] iter   2  reward=-1.0597  R=-0.6365  fid_pen=0.4233  linf=0.120
+  [attack_native] iter   4  reward=-1.0118  R=-0.4218  fid_pen=0.5900  linf=0.200
+  [attack_native] iter   6  reward=-1.0099  R=-0.3542  fid_pen=0.6557  linf=0.280
+  [attack_native] iter   8  reward=-1.0210  R=-0.3598  fid_pen=0.6611  linf=0.360
+  [attack_native] iter   9  reward=-1.0237  R=-0.3791  fid_pen=0.6446  linf=0.400
+{'image': 'raccoon_00', 'condition': 'apa_weak', 'stage1_seconds': 46.7, 'total_seconds': 129.7, 'fid_lpips': 0.2974, 'fid_ssim': 0.6006, 'fid_dists': 0.1959, 'fid_psnr': 16.33, 'fid_clip_img': 0.9489, 'fid_nima': 5.6157, 'fid_cnniqa': 0.6665, 'edit_strength': 0.7, 'edit_lpips': 0.3201, 'edit_clip_orig': 0.3668, 'edit_clip_def': 0.3692, 'edit_clip_drop': -0.0024, 'edit_siglip_orig': 0.1476, 'edit_siglip_def': 0.1436, 'edit_siglip_drop': 0.004}
+=== raccoon_00 / mist ===
+  [mist] step    0  L=2.619349e+04  Linf01=0.0627  L2=64.175
+  [mist] step   20  L=1.310096e+04  Linf01=0.0627  L2=70.899
+  [mist] step   40  L=1.103488e+04  Linf01=0.0627  L2=76.927
+  [mist] step   60  L=5.109106e+03  Linf01=0.0627  L2=80.434
+  [mist] step   80  L=1.220685e+04  Linf01=0.0627  L2=82.938
+  [mist] step   99  L=1.081746e+04  Linf01=0.0627  L2=84.152
+{'image': 'raccoon_00', 'condition': 'mist', 'stage1_seconds': 0.0, 'total_seconds': 84.6, 'fid_lpips': 0.5746, 'fid_ssim': 0.8186, 'fid_dists': 0.1414, 'fid_psnr': 26.4759, 'fid_clip_img': 0.9518, 'fid_nima': 5.3046, 'fid_cnniqa': 0.7072, 'edit_strength': 0.7, 'edit_lpips': 0.6953, 'edit_clip_orig': 0.3668, 'edit_clip_def': 0.343, 'edit_clip_drop': 0.0238, 'edit_siglip_orig': 0.1476, 'edit_siglip_def': 0.1608, 'edit_siglip_drop': -0.0132}
+=== raccoon_00 / dia_r ===
+  [dia_r] step    0  L=1.661064e+02  Linf01=0.0020  L2=3.477
+  [dia_r] step   19  L=7.009736e+02  Linf01=0.0250  L2=17.593
+{'image': 'raccoon_00', 'condition': 'dia_r', 'stage1_seconds': 0.0, 'total_seconds': 149.1, 'fid_lpips': 0.22, 'fid_ssim': 0.9854, 'fid_dists': 0.0324, 'fid_psnr': 40.0701, 'fid_clip_img': 0.9829, 'fid_nima': 6.0541, 'fid_cnniqa': 0.7039, 'edit_strength': 0.7, 'edit_lpips': 0.4148, 'edit_clip_orig': 0.3668, 'edit_clip_def': 0.3464, 'edit_clip_drop': 0.0204, 'edit_siglip_orig': 0.1476, 'edit_siglip_def': 0.1433, 'edit_siglip_drop': 0.0042}
+
+########## shiba_00 (dog) ##########
+=== shiba_00 / apa_weak ===
+  [align_apa_native] step    0  loss=0.0430
+  [align_apa_native] step   20  loss=0.3619
+  [align_apa_native] step   40  loss=0.1204
+  [align_apa_native] step   60  loss=0.0190
+  [align_apa_native] step   80  loss=0.0102
+  [align_apa_native] step  100  loss=0.0119
+  [align_apa_native] step  120  loss=0.0171
+  [align_apa_native] step  140  loss=0.0070
+  [align_apa_native] step  160  loss=0.0274
+  [align_apa_native] step  180  loss=0.0281
+  [align_apa_native] step  199  loss=0.0287
+  [attack_native] iter   0  reward=-1.2491  R=-1.0000  fid_pen=0.2491  linf=0.040
+  [attack_native] iter   2  reward=-1.0764  R=-0.7471  fid_pen=0.3292  linf=0.120
+  [attack_native] iter   4  reward=-1.0238  R=-0.5561  fid_pen=0.4677  linf=0.200
+  [attack_native] iter   6  reward=-1.0166  R=-0.4639  fid_pen=0.5527  linf=0.280
+  [attack_native] iter   8  reward=-1.0133  R=-0.4549  fid_pen=0.5585  linf=0.360
+  [attack_native] iter   9  reward=-1.0129  R=-0.4662  fid_pen=0.5467  linf=0.400
+{'image': 'shiba_00', 'condition': 'apa_weak', 'stage1_seconds': 46.7, 'total_seconds': 129.5, 'fid_lpips': 0.2092, 'fid_ssim': 0.7607, 'fid_dists': 0.1555, 'fid_psnr': 19.235, 'fid_clip_img': 0.9545, 'fid_nima': 5.4067, 'fid_cnniqa': 0.5398, 'edit_strength': 0.7, 'edit_lpips': 0.3312, 'edit_clip_orig': 0.2648, 'edit_clip_def': 0.2693, 'edit_clip_drop': -0.0046, 'edit_siglip_orig': 0.0892, 'edit_siglip_def': 0.0928, 'edit_siglip_drop': -0.0036}
+=== shiba_00 / mist ===
+  [mist] step    0  L=3.150534e+04  Linf01=0.0627  L2=64.311
+  [mist] step   20  L=1.550618e+04  Linf01=0.0627  L2=70.244
+  [mist] step   40  L=1.347477e+04  Linf01=0.0627  L2=76.054
+  [mist] step   60  L=7.315214e+03  Linf01=0.0627  L2=79.923
+  [mist] step   80  L=1.424266e+04  Linf01=0.0627  L2=82.745
+  [mist] step   99  L=1.287219e+04  Linf01=0.0627  L2=84.250
+{'image': 'shiba_00', 'condition': 'mist', 'stage1_seconds': 0.0, 'total_seconds': 84.8, 'fid_lpips': 0.6413, 'fid_ssim': 0.7778, 'fid_dists': 0.1214, 'fid_psnr': 26.4658, 'fid_clip_img': 0.9596, 'fid_nima': 5.2004, 'fid_cnniqa': 0.7148, 'edit_strength': 0.7, 'edit_lpips': 0.6991, 'edit_clip_orig': 0.2648, 'edit_clip_def': 0.2664, 'edit_clip_drop': -0.0017, 'edit_siglip_orig': 0.0892, 'edit_siglip_def': 0.0814, 'edit_siglip_drop': 0.0078}
+=== shiba_00 / dia_r ===
+  [dia_r] step    0  L=9.230486e+01  Linf01=0.0020  L2=3.478
+  [dia_r] step   19  L=7.703254e+02  Linf01=0.0250  L2=16.999
+{'image': 'shiba_00', 'condition': 'dia_r', 'stage1_seconds': 0.0, 'total_seconds': 149.0, 'fid_lpips': 0.2616, 'fid_ssim': 0.984, 'fid_dists': 0.0257, 'fid_psnr': 40.3683, 'fid_clip_img': 0.9837, 'fid_nima': 5.6958, 'fid_cnniqa': 0.7099, 'edit_strength': 0.7, 'edit_lpips': 0.3781, 'edit_clip_orig': 0.2648, 'edit_clip_def': 0.2658, 'edit_clip_drop': -0.001, 'edit_siglip_orig': 0.0892, 'edit_siglip_def': 0.0877, 'edit_siglip_drop': 0.0015}
+
+表：runs/s0817/ext/results.csv

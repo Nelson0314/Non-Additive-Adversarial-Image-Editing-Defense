@@ -1,2 +1,2 @@
-image,condition,stage1_seconds,total_seconds,fid_lpips,fid_ssim,fid_dists,fid_psnr,fid_clip_img,fid_nima,fid_cnniqa,edit_lpips,edit_clip_orig,edit_clip_def,edit_clip_drop,edit_siglip_orig,edit_siglip_def,edit_siglip_drop
-cat_00,photoguard_c,0.0,6252.3,0.4082,0.987,0.0743,40.8971,0.99,5.3644,0.7048,0.4604,0.3509,0.3432,0.0077,0.1549,0.1378,0.0172
+image,condition,stage1_seconds,total_seconds,fid_lpips,fid_ssim,fid_dists,fid_psnr,fid_clip_img,fid_nima,fid_cnniqa,edit_strength,edit_lpips,edit_clip_orig,edit_clip_def,edit_clip_drop,edit_siglip_orig,edit_siglip_def,edit_siglip_drop
+cat_00,photoguard_c,0.0,6162.5,0.4005,0.9857,0.0743,40.8972,0.9938,5.3624,0.7045,0.7,0.4919,0.3703,0.3674,0.0029,0.1592,0.1315,0.0277

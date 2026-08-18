@@ -29,8 +29,11 @@ person_b:
   content: "man"
   # 換身分 + 加配件
   prompts:
+    # 紅毛帽在 0.55-0.9 五個強度上都沒生出來（模型改生紅圍巾／紅領），
+    # Morgan Freeman 的先驗是正裝，毛帽與它衝突。改成同樣紅色但與正裝相容的
+    # 領結，0.8 那組本來就已經在該位置生出紅色的東西。
+    - "Morgan Freeman wearing a red bow tie"
     - "Morgan Freeman wearing a red beanie"
-    - "Morgan Freeman"
 
 person_c:
   content: "woman"

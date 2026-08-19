@@ -171,12 +171,19 @@ def run_param_pgd(
     saturate_at: float = 0.25,
     seed: int = 0,
     log_every: int = 0,
+    transform: Optional[Callable[[torch.Tensor, int], torch.Tensor]] = None,
 ) -> ParamPGDResult:
     """共用迴圈。`loss_fn(x_def)` 回傳要**最小化**的純量。
 
     `saturate_at` 決定步長：`α = radius / (steps · saturate_at)`，即前四分之一
     的迭代就能走滿半徑，其餘用來在球面上調方向。兩個參數化共用同一個比例，
     故「誰先撞到約束」不會變成一個隱藏的變因。
+
+    `transform` 給定時，損失改在 `transform(x_def, step)` 上計算——用來把
+    可微分的淨化算子放進最佳化迴圈（`src/defense/purify_aware.py`）。
+    **回傳的 `x_def` 仍然是未經 transform 的防禦圖**：transform 是攻擊方會
+    做的事，不是我們交出去的東西。預設 `None`，行為與加入此參數之前逐位元
+    相同。
     """
     param.reset(x01, seed)
     ps = param.params()
@@ -189,7 +196,7 @@ def run_param_pgd(
 
     for i in range(steps):
         x_def = param.render(x01)
-        loss = loss_fn(x_def)
+        loss = loss_fn(x_def if transform is None else transform(x_def, i))
         grads = torch.autograd.grad(loss, ps)
         with torch.no_grad():
             for p, g in zip(ps, grads):
@@ -218,6 +225,7 @@ def fit_to_budget(
     seed: int = 0,
     rounds: int = 8,
     tol: float = 0.002,
+    transform: Optional[Callable[[torch.Tensor, int], torch.Tensor]] = None,
 ) -> ParamPGDResult:
     """對半徑二分搜尋，使最終迭代的失真落在 `target ± tol`。
 
@@ -226,7 +234,8 @@ def fit_to_budget(
     離目標很遠的結果，那會讓表格上的預算欄變成謊話。
     """
     param.set_radius(hi)
-    top = run_param_pgd(x01, param, loss_fn, steps=steps, seed=seed)
+    top = run_param_pgd(x01, param, loss_fn, steps=steps, seed=seed,
+                        transform=transform)
     d_top = distortion_fn(top.x_def, x01)
     if d_top < target - tol:
         top.history.append({"unreachable": True, "target": target,
@@ -237,7 +246,8 @@ def fit_to_budget(
     for _ in range(rounds):
         mid = 0.5 * (lo + hi)
         param.set_radius(mid)
-        res = run_param_pgd(x01, param, loss_fn, steps=steps, seed=seed)
+        res = run_param_pgd(x01, param, loss_fn, steps=steps, seed=seed,
+                            transform=transform)
         d = distortion_fn(res.x_def, x01)
         if abs(d - target) < best_err:
             best, best_err = res, abs(d - target)

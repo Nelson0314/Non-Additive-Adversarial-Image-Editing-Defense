@@ -232,6 +232,47 @@ def jpeg_decode(coef: Dict[str, torch.Tensor], quality: float, *,
     return x01.clamp(0.0, 1.0) if clamp else x01
 
 
+def quantize_ste(coef: torch.Tensor, table: torch.Tensor) -> torch.Tensor:
+    """量化，但 `round()` 走**直通估計**：前向是真的四捨五入，反向當恆等。
+
+    `q + (round(q) − q).detach()` 的前向值逐位元等於 `round(q)`，而反向的
+    導數是 `dq/d·`——`round` 那一項因為被 detach 而不參與。
+
+    存在理由：`jpeg_encode` 用的是真的 `torch.round`，梯度會被歸零，所以
+    它只能用在「α 是常數」的 DCT-Shield 上。要把 JPEG **放進最佳化迴圈**
+    （讓防禦擾動一開始就長在壓縮活得下來的地方，見 `src/defense/purify_aware.py`）
+    就需要一條梯度通得過的往返路徑。作法取自 DiffJPEG（Shin & Song, 2017），
+    MetaCloak-JPEG（arXiv:2604.18537）即以此把可微分 JPEG 放進最佳化。
+    """
+    q = coef / table
+    return q + (torch.round(q) - q).detach()
+
+
+def jpeg_roundtrip_ste(x01: torch.Tensor, quality: float) -> torch.Tensor:
+    """完全可微的 JPEG 往返。**前向值逐位元等於 `jpeg_roundtrip`**，差別只在
+    反向——`round()` 被當成恆等。
+
+    值域、色彩空間、次取樣、量化表全部與 `jpeg_encode`／`jpeg_decode` 共用，
+    故「可微版」與「真實版」不會因為實作分岔而量到不同的東西。
+    """
+    if x01.dim() != 4 or x01.shape[1] != 3:
+        raise ValueError(f"需要 (N,3,H,W)，收到 {tuple(x01.shape)}")
+    h, w = x01.shape[-2:]
+    if h % 16 or w % 16:
+        raise ValueError(f"4:2:0 需要高寬是 16 的倍數，收到 {h}×{w}")
+
+    q = normalize_quality(quality)
+    d = dct_matrix(x01.device, x01.dtype)
+    ycc = rgb_to_ycbcr(x01 * 255.0)
+    planes = (ycc[:, 0:1], subsample_420(ycc[:, 1:2]), subsample_420(ycc[:, 2:3]))
+
+    coef = {}
+    for name, plane in zip(CHANNEL_NAMES, planes):
+        tbl = quant_table(q, chroma=(name != "Y"), device=x01.device, dtype=x01.dtype)
+        coef[name] = quantize_ste(block_dct(plane - 128.0, d), tbl)
+    return jpeg_decode(coef, q)
+
+
 def jpeg_roundtrip(x01: torch.Tensor, quality: float) -> torch.Tensor:
     """`JPEG_D(JPEG_E(x))`。**這就是 DCT-Shield 在 δ=0 時的輸出**，也就是它的
     失真地板——與紋理重相位 θ=0 時逐位等於原圖不同。實測七張平均在

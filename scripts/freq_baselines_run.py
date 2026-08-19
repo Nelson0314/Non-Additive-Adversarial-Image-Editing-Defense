@@ -49,7 +49,7 @@ from apa_baseline import (  # noqa: E402
     RESOLUTION, head_keep, load_dataset,
 )
 from src.baselines.advdrop import (  # noqa: E402
-    PAPER_Q_MIN, PAPER_Q_SIZE, AdvDropParam, AdvDropSpec, run_advdrop,
+    PAPER_Q_MIN, AdvDropParam, AdvDropSpec, run_advdrop,
 )
 from src.baselines.blurguard import (  # noqa: E402
     SPEC_PAPER as BG_SPEC, BlurGuardParam, check_partition, run_blurguard,

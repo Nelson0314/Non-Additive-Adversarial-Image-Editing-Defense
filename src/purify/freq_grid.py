@@ -28,7 +28,6 @@ import math
 from typing import Optional
 
 import torch
-import torch.nn.functional as F
 
 from src.purify.diffpure import (
     DIFFPURE_RESOLUTION, _load_guided, resize_roundtrip,

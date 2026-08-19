@@ -287,3 +287,82 @@ git config user.email "nelson.weng20@gmail.com"
 4. 保真度全部照報，不挑選。沒有任何單一指標可以當加性與非加性的
    共用預算軸（FND-035）。
 5. 抗淨化要扣掉**空白地板**（§3.3）。地板佔比接近 1 的算子，該列不具鑑別力。
+
+---
+
+## 7. 2026-08-19 新增：頻率輪的批次
+
+DEC-025／026／027 之後，`scripts/run_s0819.sh` 是這一輪的具名工作表。
+本節記在 2026-08-19，當時**校內網路自 03:20 起中斷**，以下全部是照著程式寫的
+預期用法，**尚未在遠端實跑過**——第一次跑之前先用 `pull` 那一段自我檢查。
+
+### 7.1 先自我檢查
+
+```bash
+bash scripts/run_s0819.sh pull 0
+```
+
+它會列出三件事：中斷期間應該已經跑完的 `runs/freqret/aret_*.csv` 與
+`runs/dctshield/al*`（預算對齊版 DCT-Shield 及其抗淨化）、SAM 檢查點在不在、
+`segment_anything` 裝了沒。
+
+### 7.2 兩個必須先設好的環境變數
+
+```bash
+export DIFFPURE_CKPT=$HOME/thirdparty/diffpure/256x256_diffusion_uncond.pt
+export SAM_CKPT=$HOME/thirdparty/sam/sam_vit_h_4b8939.pth      # BlurGuard 用
+```
+
+**`DIFFPURE_CKPT` 沒設的後果是靜默的**：`gridpure` 與 `fdpure` 的
+`Purifier.available` 會回 False，`purifier_set` 把它們印一行「相依不齊，跳過」
+就繼續跑完整批。2026-08-19 的第一趟 retention 就是這樣少跑了 gridpure，事後
+才發現、只好補跑一輪。`run_s0819.sh` 已經把它寫進腳本裡，但手動下指令時要記得。
+
+**`SAM_CKPT` 沒設時 BlurGuard 會自己跳過並印出原因**，不會改用替代分割——
+它的每個模糊強度綁在一個語意區域上，換成格點或隨機分割量到的就不是那一篇
+（見 `src/baselines/blurguard.py` 的模組 docstring）。
+
+### 7.3 各段的用途
+
+| stage | 做什麼 | 需要 SAM |
+|---|---|---|
+| `advdrop` | AdvDrop 原生設定（逐區塊可學量化表） | 否 |
+| `blurguard` | BlurGuard 原生設定（逐區域模糊 ＋ 頻譜約束） | **是** |
+| `advdrop_al` | AdvDrop，ε 搜到 DISTS 0.0349 | 否 |
+| `blurguard_al` | BlurGuard，同上 | **是** |
+| `pa_jpeg` | 相位臂與加性對照，**把可微分 JPEG 放進最佳化迴圈**（DEC-027） | 否 |
+| `ret` | 上面所有目錄的抗淨化，五個算子 | 否 |
+| `merge` | 併分片並重跑報告 | 否 |
+
+### 7.4 `pa_jpeg` 的標籤
+
+該段跑出來的條件標籤會自動加上 `_pa`（`phase__human_pa` 等），**不會**與既有
+批次的同名條件混在一起。這是刻意的：針對淨化最佳化過的防禦圖與沒有的，不能
+平均在同一列上。
+
+### 7.5 成本估計
+
+以 s0817 的實測為基準（每步一次 VAE encode 前向加反向約 0.17 秒）：
+
+| 段 | 每張圖 | 七張圖 ÷ 四卡 |
+|---|---|---|
+| `advdrop`（40 步） | 約 20 秒 | 約 1 分鐘 |
+| `blurguard`（150 步，含每步一次徑向功率譜） | 約 60 秒 | 約 4 分鐘 |
+| `*_al`（`fit_to_budget` 最多 9 次 × 100 步） | 約 3 分鐘 | 約 10 分鐘 |
+| `pa_jpeg`（100 步，每步多一次 JPEG 往返） | 約 25 秒 | 約 2 分鐘 |
+| `ret`（每格 gridpure 115 秒是瓶頸） | — | 每個目錄約 25 分鐘 |
+
+`ret` 是唯一昂貴的一段，其餘加起來不到 20 分鐘。
+
+### 7.6 中斷期間留在遠端的東西
+
+2026-08-19 03:10 啟動了 `runs/dctshield/al*` 的抗淨化（`aret_*.csv`），
+03:20 網路斷線。該批以 `setsid nohup` 啟動，**不受連線中斷影響**，應已跑完。
+連上之後：
+
+```bash
+ls runs/freqret/aret_*.csv          # 應有四個分片
+```
+
+把它們取回本機的 `runs/freqret/` 之後重跑 `python scripts/night_report.py`，
+第 6 節的表會自動多出一列「DCT-Shield（ε 對齊 DISTS 0.0349）」，報告網址不變。

@@ -367,11 +367,13 @@ DCT-Shield 的兩個原生變體。判準以人眼為主（<code>CLAUDE.md</code
 
 <h2>9. 沒做完的事</h2>
 <ul>
-<li><b>預算對齊版本的抗淨化尚未併入本頁。</b>該批已在遠端啟動並持續執行，
-但 2026-08-19 03:20 起校內網路中斷（兩台 <code>ssh</code> 皆
-<code>Connection timed out</code>），結果尚未取回。批次以
-<code>setsid nohup</code> 啟動，不受連線中斷影響；連上之後重跑
-<code>python scripts/night_report.py</code> 即會自動併入第 6 節的表。</li>
+<li><b>預算對齊版本的抗淨化尚未併入本頁。</b>該批已在遠端啟動，但
+<b>2026-08-19 03:20 至 08:03 校內網路持續中斷</b>（兩個 port 皆
+<code>Connection timed out</code>，四輪重試共三十餘次全部失敗），結果無法取回。
+批次以 <code>setsid nohup</code> 啟動，不受連線中斷影響，資料應已存在
+<code>runs/freqret/aret_*.csv</code>。<b>補法</b>：連上 VPN 後把該檔取回
+<code>runs/freqret/</code>，重跑 <code>python scripts/night_report.py</code>，
+第 6 節的表會自動多出一列「DCT-Shield（ε 對齊 DISTS 0.0349）」，本頁網址不變。</li>
 <li><b>BlurGuard 與 DiffusionGuard 未實作。</b>兩者都有公開程式碼，是 survey
 點名的另外兩個頻域／抗淨化 baseline。</li>
 <li><b><code>mist</code> 的預算對齊重測未做</b>（DEC-025 已記錄待辦）。</li>

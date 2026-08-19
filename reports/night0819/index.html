@@ -415,8 +415,19 @@ min-max</b>：淨化算子固定、已知、可微，只是在複合函數上做
 
 <h2>9. 程式與文件的變更</h2>
 <div class="scroll"><table class=""><thead><tr><th>檔案</th><th>內容</th></tr></thead><tbody><tr><td><code>src/residual/spectral_split.py</code></td><td>PAD 第 3 節的幅度／相位交叉互換。用完整 <code>fft2</code> 而非 <code>rfft2</code>——後者的共軛對稱是隱含假設，壞掉不會有症狀</td></tr><tr><td><code>src/purify/freq_grid.py</code></td><td>GrIDPure 與 FD-Pure，建立在既有的 guided-diffusion 檢查點上</td></tr><tr><td><code>src/baselines/jpeg_codec.py</code></td><td>可微 JPEG 管線；量化表與 libjpeg 逐格對齊</td></tr><tr><td><code>src/baselines/dct_shield.py</code></td><td>DCT-Shield 的 Algorithm 1 與 <code>Parameterization</code> 實作</td></tr><tr><td><code>scripts/spectral_decompose.py</code></td><td>分解研究的驅動</td></tr><tr><td><code>scripts/spectral_report.py</code></td><td>分解結果的彙總</td></tr><tr><td><code>scripts/dct_shield_run.py</code></td><td>DCT-Shield 的攻擊與評測驅動</td></tr><tr><td><code>scripts/phase_retention.py</code></td><td>接上兩個新淨化算子</td></tr><tr><td><code>src/baselines/blurguard.py</code></td><td>BlurGuard：逐區域模糊 ＋ 以分箱功率剖面為約束學模糊強度</td></tr><tr><td><code>src/baselines/advdrop.py</code></td><td>AdvDrop：逐區塊逐頻格的可學量化表，靠丟資訊而非加東西</td></tr><tr><td><code>src/baselines/diffusionguard.py</code></td><td>DiffusionGuard 的早期時間步損失，移植到 img2img</td></tr><tr><td><code>src/defense/purify_aware.py</code></td><td>把可微分 JPEG 放進最佳化迴圈的課程排程與掛勾</td></tr><tr><td><code>scripts/freq_baselines_run.py</code></td><td>三個新對照組的驅動，原生設定與預算對齊兩種模式</td></tr><tr><td><code>scripts/run_s0819.sh</code></td><td>頻率輪的具名工作表；`docs/RUNBOOK.md` §7 是它的說明</td></tr><tr><td><code>docs/DECISIONS.md</code></td><td>新增 DEC-025、DEC-026、DEC-027</td></tr><tr><td><code>docs/FINDINGS.md</code></td><td>新增 FND-057</td></tr><tr><td><code>docs/reference/SURVEY_2026-08-18_frequency.md</code></td><td>31 篇的頻域／相位／抗淨化文獻查證；FreqPure 條目已更正</td></tr></tbody></table></div>
-<p>測試由 <b>207 passed / 1 xfailed</b> 增加到 <b>349 passed / 1 xfailed</b>
-（新增 142 項）。<code>CLAUDE.md</code> 記載的基準 196 早已過時。</p>
+<p>測試由 <b>207 passed / 1 xfailed</b> 增加到 <b>382 passed / 1 xfailed</b>
+（新增 175 項）。<code>CLAUDE.md</code> 記載的基準 196 早已過時。</p>
+<div class="key">
+<p><b>其中 33 項是補寫的迴歸測試，補的是本報告自己的數字。</b>第 2、5、6 節的
+頭條——幅度／相位的比值、徑向功率譜的高頻佔比、扣掉地板的淨增益——在寫進
+<code>FINDINGS.md</code> 時，產生它們的三段程式（<code>radial_spectrum.py</code>
+的分箱、<code>spectral_decompose.py</code> 的 DISTS 對齊搜尋、報告產生器的
+地板減法）<b>一項測試都沒有</b>。</p>
+<p>這三段寫錯都不會有症狀：半徑正規化錯了、二分搜尋沒收斂、地板減錯，
+表格照樣填滿、比值照樣有大有小。現在它們分別對<b>解析上已知的輸入</b>
+（單一餘弦只佔一個箱、棋盤格落在角落）、<b>搜尋的收斂性</b>、以及
+<b>合成 CSV 的已知答案</b>釘住。三段全部通過，<b>本報告的數字不受影響</b>。</p>
+</div>
 
 <h2>10. 沒做完的事</h2>
 <ul>

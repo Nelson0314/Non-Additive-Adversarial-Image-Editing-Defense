@@ -381,7 +381,18 @@ DCT-Shield 的兩個原生變體。判準以人眼為主（<code>CLAUDE.md</code
 <p>一個構造上的差異值得寫進 related work：<b>AdvDrop 沒有零點</b>。即使量化表
 壓到下界仍然丟資訊，輸出不等於原圖；紋理重相位在 <code>θ=0</code> 時逐位元
 還原。</p>
-<h3>8.3 把可微分 JPEG 放進最佳化迴圈</h3>
+<h3>8.3 DiffusionGuard：補上「為抗淨化而設計」這一類</h3>
+<p>前三項回答的是「會不會只是……」，這一項補的是另一個缺口：<b>現有的三個強
+baseline 沒有一個是為抗淨化設計的</b>，而主軸已經改成抗淨化。</p>
+<p>它的新意在<b>損失</b>——在<b>最高噪聲的那一個時間步</b>上，最大化 UNet 噪聲
+預測的 L2 範數，每次迭代重抽噪聲。擾動本身就是普通的像素加性。所以本專案把
+損失獨立出來，可以配上任何參數化，<b>包括相位臂</b>。</p>
+<p class="note"><b>這是移植不是重現，已標註。</b>原文的威脅模型是 inpainting，
+9 通道 UNet 讓影像與噪聲各佔一組通道；img2img 下影像只能經 SDEdit 的起始
+latent 以 <code>√ᾱ<sub>t₀</sub></code> 加權混入（strength 0.7 時是 0.287），
+梯度因此要穿過那個係數。而 mask-augmentation——原文兩個主要貢獻之一——在
+img2img 下沒有對應物，完全拿掉。<code>modified_from_paper</code> 被強制為真。</p>
+<h3>8.4 把可微分 JPEG 放進最佳化迴圈</h3>
 <p>本專案至今的抗淨化全是<b>事後量測</b>：先做防禦，再看過了淨化剩多少，擾動
 從來不知道自己會被壓縮。第 6 節顯示「知道」值多少——DCT-Shield 在 JPEG 下大勝
 而在模糊下崩掉，差別只在它的擾動長在 JPEG 的量化格點上。</p>
@@ -403,9 +414,9 @@ min-max</b>：淨化算子固定、已知、可微，只是在複合函數上做
 </div>
 
 <h2>9. 程式與文件的變更</h2>
-<div class="scroll"><table class=""><thead><tr><th>檔案</th><th>內容</th></tr></thead><tbody><tr><td><code>src/residual/spectral_split.py</code></td><td>PAD 第 3 節的幅度／相位交叉互換。用完整 <code>fft2</code> 而非 <code>rfft2</code>——後者的共軛對稱是隱含假設，壞掉不會有症狀</td></tr><tr><td><code>src/purify/freq_grid.py</code></td><td>GrIDPure 與 FD-Pure，建立在既有的 guided-diffusion 檢查點上</td></tr><tr><td><code>src/baselines/jpeg_codec.py</code></td><td>可微 JPEG 管線；量化表與 libjpeg 逐格對齊</td></tr><tr><td><code>src/baselines/dct_shield.py</code></td><td>DCT-Shield 的 Algorithm 1 與 <code>Parameterization</code> 實作</td></tr><tr><td><code>scripts/spectral_decompose.py</code></td><td>分解研究的驅動</td></tr><tr><td><code>scripts/spectral_report.py</code></td><td>分解結果的彙總</td></tr><tr><td><code>scripts/dct_shield_run.py</code></td><td>DCT-Shield 的攻擊與評測驅動</td></tr><tr><td><code>scripts/phase_retention.py</code></td><td>接上兩個新淨化算子</td></tr><tr><td><code>src/baselines/blurguard.py</code></td><td>BlurGuard：逐區域模糊 ＋ 以分箱功率剖面為約束學模糊強度</td></tr><tr><td><code>src/baselines/advdrop.py</code></td><td>AdvDrop：逐區塊逐頻格的可學量化表，靠丟資訊而非加東西</td></tr><tr><td><code>src/defense/purify_aware.py</code></td><td>把可微分 JPEG 放進最佳化迴圈的課程排程與掛勾</td></tr><tr><td><code>docs/DECISIONS.md</code></td><td>新增 DEC-025、DEC-026、DEC-027</td></tr><tr><td><code>docs/FINDINGS.md</code></td><td>新增 FND-057</td></tr><tr><td><code>docs/reference/SURVEY_2026-08-18_frequency.md</code></td><td>31 篇的頻域／相位／抗淨化文獻查證；FreqPure 條目已更正</td></tr></tbody></table></div>
-<p>測試由 <b>207 passed / 1 xfailed</b> 增加到 <b>324 passed / 1 xfailed</b>
-（新增 117 項）。<code>CLAUDE.md</code> 記載的基準 196 早已過時。</p>
+<div class="scroll"><table class=""><thead><tr><th>檔案</th><th>內容</th></tr></thead><tbody><tr><td><code>src/residual/spectral_split.py</code></td><td>PAD 第 3 節的幅度／相位交叉互換。用完整 <code>fft2</code> 而非 <code>rfft2</code>——後者的共軛對稱是隱含假設，壞掉不會有症狀</td></tr><tr><td><code>src/purify/freq_grid.py</code></td><td>GrIDPure 與 FD-Pure，建立在既有的 guided-diffusion 檢查點上</td></tr><tr><td><code>src/baselines/jpeg_codec.py</code></td><td>可微 JPEG 管線；量化表與 libjpeg 逐格對齊</td></tr><tr><td><code>src/baselines/dct_shield.py</code></td><td>DCT-Shield 的 Algorithm 1 與 <code>Parameterization</code> 實作</td></tr><tr><td><code>scripts/spectral_decompose.py</code></td><td>分解研究的驅動</td></tr><tr><td><code>scripts/spectral_report.py</code></td><td>分解結果的彙總</td></tr><tr><td><code>scripts/dct_shield_run.py</code></td><td>DCT-Shield 的攻擊與評測驅動</td></tr><tr><td><code>scripts/phase_retention.py</code></td><td>接上兩個新淨化算子</td></tr><tr><td><code>src/baselines/blurguard.py</code></td><td>BlurGuard：逐區域模糊 ＋ 以分箱功率剖面為約束學模糊強度</td></tr><tr><td><code>src/baselines/advdrop.py</code></td><td>AdvDrop：逐區塊逐頻格的可學量化表，靠丟資訊而非加東西</td></tr><tr><td><code>src/baselines/diffusionguard.py</code></td><td>DiffusionGuard 的早期時間步損失，移植到 img2img</td></tr><tr><td><code>src/defense/purify_aware.py</code></td><td>把可微分 JPEG 放進最佳化迴圈的課程排程與掛勾</td></tr><tr><td><code>scripts/freq_baselines_run.py</code></td><td>三個新對照組的驅動，原生設定與預算對齊兩種模式</td></tr><tr><td><code>scripts/run_s0819.sh</code></td><td>頻率輪的具名工作表；`docs/RUNBOOK.md` §7 是它的說明</td></tr><tr><td><code>docs/DECISIONS.md</code></td><td>新增 DEC-025、DEC-026、DEC-027</td></tr><tr><td><code>docs/FINDINGS.md</code></td><td>新增 FND-057</td></tr><tr><td><code>docs/reference/SURVEY_2026-08-18_frequency.md</code></td><td>31 篇的頻域／相位／抗淨化文獻查證；FreqPure 條目已更正</td></tr></tbody></table></div>
+<p>測試由 <b>207 passed / 1 xfailed</b> 增加到 <b>349 passed / 1 xfailed</b>
+（新增 142 項）。<code>CLAUDE.md</code> 記載的基準 196 早已過時。</p>
 
 <h2>10. 沒做完的事</h2>
 <ul>
@@ -416,9 +427,6 @@ min-max</b>：淨化算子固定、已知、可微，只是在複合函數上做
 <code>runs/freqret/aret_*.csv</code>。<b>補法</b>：連上 VPN 後把該檔取回
 <code>runs/freqret/</code>，重跑 <code>python scripts/night_report.py</code>，
 第 6 節的表會自動多出一列「DCT-Shield（ε 對齊 DISTS 0.0349）」，本頁網址不變。</li>
-<li><b>DiffusionGuard 未實作</b>（有公開程式碼）。它是 survey 點名的第三個
-baseline，也是唯一明確為抗淨化而設計的編輯防護；本專案現有的強 baseline
-沒有一個是。</li>
 <li><b>BlurGuard 需要 SAM 才能跑</b>：它的每個模糊強度綁在一個語意區域上，
 遮罩由 Segment Anything 產生。本專案<b>不提供替代分割</b>——用格點或隨機分割
 頂替會靜默改變方法。<code>segment_anything</code> 與檢查點要在遠端裝好。</li>

@@ -118,6 +118,11 @@ def main() -> None:
     ap.add_argument("--edit-strength", type=float, default=EDIT_STRENGTH,
                     help="SDEdit 的 strength。像素臂的攻擊與強度無關，這個旗標"
                          "只影響評測，供強度掃描使用")
+    ap.add_argument("--purify-aware", choices=("none", "jpeg"), default="none",
+                    help="DEC-027：把可微分 JPEG 放進最佳化迴圈的前向，讓擾動"
+                         "自己找壓縮活得下來的位置。品質沿 95→50 的課程排程。"
+                         "**改變的是防禦圖，不是評測**——交出去的仍是未經淨化的"
+                         "防禦圖，且條件標籤會加上 `_pa` 以免與既有批次混淆")
     ap.add_argument("--tag-suffix", type=str, default="",
                     help="附加在條件標籤後，讓同一個 --out 下的多組設定不互相覆寫檔名")
     args = ap.parse_args()
@@ -131,6 +136,15 @@ def main() -> None:
 
     def dists_of(a, b):
         return float(suite.pairwise(a.clamp(0, 1), b)["dists"])
+
+    transform = None
+    if args.purify_aware == "jpeg":
+        from src.defense.purify_aware import make_jpeg_transform
+
+        transform = make_jpeg_transform(args.steps)
+        args.tag_suffix = args.tag_suffix + "_pa"
+        print(f"[purify-aware] JPEG 課程排程進入最佳化迴圈，"
+              f"標籤加上 _pa（{args.steps} 步）", flush=True)
 
     dataset = load_dataset(args.data, prompt_index=args.prompt_index)
     if args.images:
@@ -160,7 +174,8 @@ def main() -> None:
                         r_human = args.add_radius
                     param.set_radius(r_human)
                     res = run_param_pgd(item["path01"], param, loss_fn,
-                                        steps=args.steps, seed=args.seed)
+                                        steps=args.steps, seed=args.seed,
+                                        transform=transform)
                     fit = {"unreachable": False, "target": r_human,
                            "reached": dists_of(res.x_def, item["path01"]),
                            "radius": param.radius}
@@ -168,7 +183,7 @@ def main() -> None:
                     res = fit_to_budget(
                         item["path01"], param, loss_fn, dists_of, budget,
                         lo=lo, hi=hi, steps=args.steps, seed=args.seed,
-                        rounds=args.rounds,
+                        rounds=args.rounds, transform=transform,
                     )
                     fit = res.history[-1]
                 metrics, eo, ed = evaluate(sd, suite, aes, item, res.x_def,

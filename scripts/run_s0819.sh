@@ -6,7 +6,7 @@
 #
 # 用法： bash scripts/run_s0819.sh <stage> <gpu> [strength]
 #   stage ∈ pull | advdrop | advdrop_al | blurguard | blurguard_al
-#           | pa_jpeg | ret | merge
+#           | diffguard | diffguard_al | pa_jpeg | ret | merge
 #   strength 預設 0.7（與 runs/s0817 的主線一致，見 DEC-024）
 #
 # 前置：
@@ -72,6 +72,12 @@ case $STAGE in
     $PY scripts/freq_baselines_run.py --out $ROOT/g$G --data $DATA \
       --conditions blurguard --mode paper --edit-strength $STRENGTH \
       $(sam_arg) --images $IMGS ;;
+
+  # DiffusionGuard：唯一明確為抗淨化設計的編輯防護。**這是 img2img 的移植，
+  # 不是原文的重現**（原文是 inpainting，遮罩增強完全拿掉），見模組 docstring。
+  # 每步一次 UNet 前向加反向，800 步，比其餘條件貴一個數量級。
+  diffguard)
+    $PY scripts/freq_baselines_run.py --out $ROOT/g$G --data $DATA       --conditions diffusionguard --mode paper --edit-strength $STRENGTH       --images $IMGS ;;
 
   # ---- 預算對齊到相位臂的 DISTS 0.0349 ----
   advdrop_al)

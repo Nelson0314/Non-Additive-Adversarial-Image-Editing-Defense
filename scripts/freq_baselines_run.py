@@ -55,19 +55,23 @@ from src.baselines.blurguard import (  # noqa: E402
     SPEC_PAPER as BG_SPEC, BlurGuardParam, check_partition, run_blurguard,
     sam_masks,
 )
+from src.baselines.diffusionguard import (  # noqa: E402
+    SPEC_PAPER as DG_SPEC, make_early_step_loss, run_diffusionguard,
+)
 from src.baselines.encoder_target import make_encoder_target_loss  # noqa: E402
-from src.defense.param_pgd import fit_to_budget  # noqa: E402
+from src.defense.param_pgd import AdditiveParam, fit_to_budget  # noqa: E402
 from src.defense.purify_aware import make_jpeg_transform  # noqa: E402
 from src.metrics.suite import MetricSuite  # noqa: E402
 from src.models.sd import SDWrapper  # noqa: E402
 from src.utils.io import load_image_tensor, write_csv  # noqa: E402
 
-CONDITIONS = ("advdrop", "blurguard")
+CONDITIONS = ("advdrop", "blurguard", "diffusionguard")
 # aligned 模式的搜尋區間。AdvDrop 的半徑是量化表上界（下界 5），BlurGuard 的
 # 是像素 L∞——兩者單位不同，故各有一組。
 SEARCH_RANGE = {
     "advdrop": (PAPER_Q_MIN + 1e-3, 60.0),
     "blurguard": (0.0, 0.25),
+    "diffusionguard": (0.0, 0.25),      # 像素 L∞，與 blurguard 同一把尺
 }
 
 
@@ -145,7 +149,12 @@ def main() -> None:
                      if cond == "blurguard" else None)
 
             if args.mode == "paper":
-                if cond == "advdrop":
+                if cond == "diffusionguard":
+                    res = run_diffusionguard(sd, x01, item["prompt"],
+                                             args.edit_strength, DG_SPEC,
+                                             seed=0, log_every=100)
+                    x_def, radius = res.x_def, DG_SPEC.eps_pixel01
+                elif cond == "advdrop":
                     spec = AdvDropSpec(
                         modified_from_paper=True,
                         modification_note=("損失由分類交叉熵改為 mean(latent²)"
@@ -157,11 +166,23 @@ def main() -> None:
                     x_def, radius = res.x_def, BG_SPEC.eps_pixel01
                 unreachable = False
             else:
-                param = (AdvDropParam() if cond == "advdrop"
-                         else BlurGuardParam(masks))
+                if cond == "advdrop":
+                    param = AdvDropParam()
+                elif cond == "blurguard":
+                    param = BlurGuardParam(masks)
+                else:
+                    param = AdditiveParam()
+                # DiffusionGuard 的新意在損失，不在參數化：對齊模式下它用
+                # 一般的加性 δ ＋ 它自己的早期時間步損失。其餘兩個條件用
+                # 本專案共用的 encoder-targeted 損失，以維持「唯一變因是
+                # 參數化」。
+                al_loss = (make_early_step_loss(sd, item["prompt"],
+                                                args.edit_strength, seed=0)
+                           if cond == "diffusionguard"
+                           else make_encoder_target_loss(sd, y_target))
                 lo, hi = SEARCH_RANGE[cond]
                 out = fit_to_budget(
-                    x01, param, make_encoder_target_loss(sd, y_target),
+                    x01, param, al_loss,
                     lambda a, b: suite.pairwise(b, a)["dists"],
                     target=args.budget, lo=lo, hi=hi, steps=args.steps, seed=0,
                     transform=transform)

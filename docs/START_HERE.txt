@@ -17,7 +17,7 @@
   FND-060   徑向功率譜：加性方法四到六成能量在半 Nyquist 以上，本方法兩成
 
 本輪報告：reports/night0819/index.html
-測試基準：349 passed / 1 xfailed（不是下面寫的 196，也不是 207）
+測試基準：382 passed / 1 xfailed（下面第八節寫的 196 是舊的）
 
 2026-08-19 下午追加（DEC-026／027）：四個對照組全部實作完成但**尚未上機**
   （校內網路 03:20 起中斷）。上機方式見 docs/RUNBOOK.md §7 與
@@ -169,7 +169,7 @@ DiffPure 權重在 $HOME/thirdparty/diffpure/256x256_diffusion_uncond.pt。
 
 本機 C:/Users/nelso/miniconda3/envs/wacv/python.exe（不是 base），
 只用於寫程式、跑 pytest、看報表。指令前加 PYTHONIOENCODING=utf-8。
-測試基準：196 passed / 1 xfailed。
+測試基準：382 passed / 1 xfailed（2026-08-19）。
 
 
 九、其餘文件在哪

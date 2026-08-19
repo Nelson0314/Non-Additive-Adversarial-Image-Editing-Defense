@@ -11,7 +11,7 @@
 > `src/purify/freq_grid.py`（GrIDPure 與 FD-Pure）、`src/baselines/jpeg_codec.py`
 > 與 `dct_shield.py`、`scripts/spectral_decompose.py`／`spectral_report.py`／
 > `dct_shield_run.py`／`radial_spectrum.py`／`night_report.py`。
-> 測試基準由 207 升到 **349 passed / 1 xfailed**。
+> 測試基準由 207 升到 **382 passed / 1 xfailed**。
 > 2026-08-19 下午再加四個對照組（DEC-026／027），全部實作完成但尚未上機：
 > `src/baselines/blurguard.py`、`advdrop.py`、`diffusionguard.py`、
 > `src/defense/purify_aware.py`、`scripts/freq_baselines_run.py`、

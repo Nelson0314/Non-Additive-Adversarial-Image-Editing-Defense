@@ -1,6 +1,19 @@
-# WACV — 白盒非加性抗文字編輯防禦
+# WACV — 白盒頻域／相位抗文字編輯防禦
 
 ## 研究範圍
+
+> **2026-08-18 改版，本節以下寫於 2026-07-30／08-13，尚未重寫。**
+> 指導者指出紋理重相位保留幅度譜、只旋轉相位，本質是頻域的重參數化，
+> **不算狹義的非加性**。主軸因此由「非加性 vs 加性」改為
+> **頻域／相位方法，及其抗淨化能力**。動機是既有防護擾動多為高頻，
+> 會被 JPEG、resize、模糊抹平——該動機已由 FND-060 用本專案自己的資料
+> 量到，但 FND-061 同時把它收窄成「決定性的是與淨化器格點的對齊，不是
+> 頻率高低」。
+>
+> **判準與現行主張以 `DECISIONS.md` 的 DEC-025／026／027 與
+> `FINDINGS.md` 的 FND-057…062 為準**，不是下面這張 08-13 的表。
+> 五個加性 baseline（`photoguard_c`／`mist`／`dia_r`／`add`／`apa_weak`）
+> 本輪擱置不進比較表；`mist` 的預算未對齊、待重測。
 
 唯一必要目標（使用者於 2026-07-30 明確界定，先前的發散方向已作廢）：
 
@@ -79,6 +92,25 @@ FND-023…034，不要重試。
 | 指標 | `src/metrics/suite.py`、`aesthetic.py` |
 | 淨化算子 | `src/purify/ops.py`（含 C&R 串接 `jpeg_then_resize`） |
 
+**2026-08-19 新增（頻率輪，DEC-026／027）**：
+
+| 用途 | 路徑 |
+|---|---|
+| 幅度／相位交叉互換（PAD 第 3 節） | `src/residual/spectral_split.py` |
+| GrIDPure 與 FD-Pure 淨化算子 | `src/purify/freq_grid.py` |
+| 可微分 JPEG 管線 | `src/baselines/jpeg_codec.py` |
+| DCT-Shield | `src/baselines/dct_shield.py` |
+| BlurGuard（**需要 SAM**） | `src/baselines/blurguard.py` |
+| AdvDrop | `src/baselines/advdrop.py` |
+| DiffusionGuard（img2img 移植，非重現） | `src/baselines/diffusionguard.py` |
+| 針對淨化最佳化（可微分 JPEG 進迴圈） | `src/defense/purify_aware.py` |
+| 三個對照組的驅動 | `scripts/freq_baselines_run.py` |
+| DCT-Shield 驅動 | `scripts/dct_shield_run.py` |
+| 分解研究驅動／彙總 | `scripts/spectral_decompose.py`、`spectral_report.py` |
+| 徑向功率譜 | `scripts/radial_spectrum.py` |
+| 報告產生器 | `scripts/night_report.py` |
+| 頻率輪的具名工作表 | `scripts/run_s0819.sh`（說明見 `RUNBOOK.md` §7） |
+
 `src/residual/base.py` 以「能力」而非型別對外表達：像素側實作 `pixel_residual`,
 去噪側實作 `eps_hook`。新增位置時提供其一即可，**不要依注入位置的名稱寫分支**。
 
@@ -101,7 +133,7 @@ FND-023…034，不要重試。
 ## 環境
 
 - 本機 Python：`C:/Users/nelso/miniconda3/envs/wacv/python.exe`（**不是 base**，base 沒有 pytest）。
-- 測試：`python -m pytest -q`，基準為 **196 passed / 1 xfailed**（2026-08-15 起）。
+- 測試：`python -m pytest -q`，基準為 **382 passed / 1 xfailed**（2026-08-19 起）。
   xfailed 是刻意釘住的 DIA-PT L1 起點缺陷（原始碼自身的問題，`strict=True`）。
 - **GPU 工作一律在 NYCU BASIC lab 跑**（兩台各 8 張 RTX 3090，home 目錄跨機同步）：
 

@@ -267,7 +267,7 @@ git config user.email "nelson.weng20@gmail.com"
 - **本機 RTX 2050 4 GB 跑不動本專案的 GPU 工作**，只用於寫程式、跑 pytest、看報表。
   指令前加 `PYTHONIOENCODING=utf-8`，否則印中文會炸。
 - Python 用 `C:/Users/nelso/miniconda3/envs/wacv/python.exe`（**不是 base**）。
-- 測試基準：**196 passed / 1 xfailed**。
+- 測試基準：**382 passed / 1 xfailed**（2026-08-19）。
 
 ---
 

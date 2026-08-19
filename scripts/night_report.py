@@ -628,7 +628,49 @@ DCT-Shield 的兩個原生變體。判準以人眼為主（<code>CLAUDE.md</code
 {img_tag("cat_00__dcts_aligned.png", "DCT-Shield 對齊 · DISTS 0.0349")}
 </div>
 
-<h2>8. 程式與文件的變更</h2>
+<h2>8. 上午追加：把四個「會不會只是……」全部配上對照組</h2>
+<p>第 2 節與第 6 節之後，紋理重相位的優勢還有四個平庸解釋沒被排除。本節把每一個
+都配上對照組並完成實作（DEC-026）。三者都<b>由公開原始碼逐行對照</b>，不是照
+摘要寫——過程中查到四項摘要層級看不到、照抄會量錯的事實。</p>
+{table(["平庸解釋", "對照組", "出處", "狀態"], [["只是頻域<b>加性</b>", "DCT-Shield", "arXiv:2504.17894", "已跑（第 3、6、7 節）"], ["只是<b>頻譜比較低頻</b>", "BlurGuard", "arXiv:2511.00143 · NeurIPS 2025", "已實作，待上機"], ["只是<b>非加性頻域操作</b>這個類別", "AdvDrop", "arXiv:2108.09034 · ICCV 2021", "已實作，待上機"], ["只是<b>同失真的隨機相位</b>", "phase_rand", "Galerne, TIP 2011", "已跑（第 6 節）"]])}
+<h3>8.1 BlurGuard：最急的一個</h3>
+<p>它只用一個後處理就換到抗淨化：對已求得的對抗雜訊做<b>逐區域</b>高斯模糊，
+而每個區域的模糊強度是<b>學出來</b>的——目標不是防禦效果，而是「把模糊過的
+<b>隨機</b>雜訊加上去之後，影像的分箱功率剖面不變」。該篇稱之為除了不可見
+之外還要<b>不可逆</b>：讓防禦圖的頻譜統計看起來像自然影像。</p>
+<p><b>它直接威脅第 5 節與第 6 節的解釋。</b>我們量到自己比較低頻、而且在模糊
+下勝 7.3 倍，最自然的解釋就是「低頻所以耐磨」。BlurGuard 證明光是把頻譜壓低
+就能買到抗淨化——若優勢僅止於此，它會與我們打平，那樣「切塊、轉相位、保留
+幅度」整套構造就沒有貢獻。</p>
+<h3>8.2 AdvDrop：方向相反的非加性頻域</h3>
+<p>它與本方法同屬非加性頻域，但**靠丟資訊**：每個區塊每個頻格各有一個
+<b>可學習的量化步長</b>，量化把係數壓粗、資訊就少了。本方法一點能量都不丟，
+只重排相位。它也修正了新穎性主張——「非加性的頻域操作」不是首創。</p>
+<p>一個構造上的差異值得寫進 related work：<b>AdvDrop 沒有零點</b>。即使量化表
+壓到下界仍然丟資訊，輸出不等於原圖；紋理重相位在 <code>θ=0</code> 時逐位元
+還原。</p>
+<h3>8.3 把可微分 JPEG 放進最佳化迴圈</h3>
+<p>本專案至今的抗淨化全是<b>事後量測</b>：先做防禦，再看過了淨化剩多少，擾動
+從來不知道自己會被壓縮。第 6 節顯示「知道」值多少——DCT-Shield 在 JPEG 下大勝
+而在模糊下崩掉，差別只在它的擾動長在 JPEG 的量化格點上。</p>
+<p>所以在共用的最佳化迴圈上加了一個可選掛勾，讓損失可以在「防禦圖過一次可微分
+JPEG 往返」之後計算，品質沿 95→50 的課程排程走（DEC-027）。<b>這不是
+min-max</b>：淨化算子固定、已知、可微，只是在複合函數上做一般的 PGD。預設關閉，
+且有回歸測試釘住關閉時的行為逐位元不變。</p>
+<div class="key">
+<p><b>寫程式時測試抓到的四件事，每一件照抄都會量錯而且不會有症狀：</b></p>
+<p>① BlurGuard 生效的超參數在 repo 的 hydra config 裡，<b>不是</b>函式簽章的
+預設——兩者對 <code>sigma_weighting</code> 的值不一致（10 對 10000）。</p>
+<p>② BlurGuard 的徑向分箱從<b>陣列中心</b>量半徑，而 FFT 沒有 fftshift，
+所以分箱是反過來的：直流落在最後一箱。</p>
+<p>③ AdvDrop 建了 Adam 但<b>從來沒有 step</b>，真正的更新是手寫的 sign 步；
+而且通道命名為 y/cb/cr，餵進去的是 R、G、B，<b>沒有色彩轉換</b>。</p>
+<p>④ <code>torch.round</code> <b>不是沒有梯度</b>——它有 <code>grad_fn</code>，
+只是導數恆為零。所以真實的 JPEG 往返會安靜地回傳全零梯度，最佳化一步都不動
+而且不報錯。這正是 DCT-Shield 必須把擾動加在量化之後的理由。</p>
+</div>
+
+<h2>9. 程式與文件的變更</h2>
 {table(["檔案", "內容"],
        [["<code>src/residual/spectral_split.py</code>",
          "PAD 第 3 節的幅度／相位交叉互換。用完整 <code>fft2</code> 而非 "
@@ -643,14 +685,20 @@ DCT-Shield 的兩個原生變體。判準以人眼為主（<code>CLAUDE.md</code
         ["<code>scripts/spectral_report.py</code>", "分解結果的彙總"],
         ["<code>scripts/dct_shield_run.py</code>", "DCT-Shield 的攻擊與評測驅動"],
         ["<code>scripts/phase_retention.py</code>", "接上兩個新淨化算子"],
-        ["<code>docs/DECISIONS.md</code>", "新增 DEC-025"],
+        ["<code>src/baselines/blurguard.py</code>",
+         "BlurGuard：逐區域模糊 ＋ 以分箱功率剖面為約束學模糊強度"],
+        ["<code>src/baselines/advdrop.py</code>",
+         "AdvDrop：逐區塊逐頻格的可學量化表，靠丟資訊而非加東西"],
+        ["<code>src/defense/purify_aware.py</code>",
+         "把可微分 JPEG 放進最佳化迴圈的課程排程與掛勾"],
+        ["<code>docs/DECISIONS.md</code>", "新增 DEC-025、DEC-026、DEC-027"],
         ["<code>docs/FINDINGS.md</code>", "新增 FND-057"],
         ["<code>docs/reference/SURVEY_2026-08-18_frequency.md</code>",
          "31 篇的頻域／相位／抗淨化文獻查證；FreqPure 條目已更正"]])}
-<p>測試由 <b>207 passed / 1 xfailed</b> 增加到 <b>263 passed / 1 xfailed</b>
-（新增 56 項）。<code>CLAUDE.md</code> 記載的基準 196 早已過時。</p>
+<p>測試由 <b>207 passed / 1 xfailed</b> 增加到 <b>324 passed / 1 xfailed</b>
+（新增 117 項）。<code>CLAUDE.md</code> 記載的基準 196 早已過時。</p>
 
-<h2>9. 沒做完的事</h2>
+<h2>10. 沒做完的事</h2>
 <ul>
 <li><b>預算對齊版本的抗淨化尚未併入本頁。</b>該批已在遠端啟動，但
 <b>2026-08-19 03:20 至 08:03 校內網路持續中斷</b>（兩個 port 皆
@@ -659,8 +707,12 @@ DCT-Shield 的兩個原生變體。判準以人眼為主（<code>CLAUDE.md</code
 <code>runs/freqret/aret_*.csv</code>。<b>補法</b>：連上 VPN 後把該檔取回
 <code>runs/freqret/</code>，重跑 <code>python scripts/night_report.py</code>，
 第 6 節的表會自動多出一列「DCT-Shield（ε 對齊 DISTS 0.0349）」，本頁網址不變。</li>
-<li><b>BlurGuard 與 DiffusionGuard 未實作。</b>兩者都有公開程式碼，是 survey
-點名的另外兩個頻域／抗淨化 baseline。</li>
+<li><b>DiffusionGuard 未實作</b>（有公開程式碼）。它是 survey 點名的第三個
+baseline，也是唯一明確為抗淨化而設計的編輯防護；本專案現有的強 baseline
+沒有一個是。</li>
+<li><b>BlurGuard 需要 SAM 才能跑</b>：它的每個模糊強度綁在一個語意區域上，
+遮罩由 Segment Anything 產生。本專案<b>不提供替代分割</b>——用格點或隨機分割
+頂替會靜默改變方法。<code>segment_anything</code> 與檢查點要在遠端裝好。</li>
 <li><b><code>mist</code> 的預算對齊重測未做</b>（DEC-025 已記錄待辦）。</li>
 <li><b>擾動的徑向功率譜未量。</b>「現有方法多為高頻擾動」這句動機目前只有
 文獻依據（arXiv:2505.01267 測到擴散淨化對幅度與相位的破壞都隨頻率單調遞增），

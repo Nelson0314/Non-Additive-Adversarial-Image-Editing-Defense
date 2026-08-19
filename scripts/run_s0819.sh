@@ -77,7 +77,7 @@ case $STAGE in
   # 不是原文的重現**（原文是 inpainting，遮罩增強完全拿掉），見模組 docstring。
   # 每步一次 UNet 前向加反向，800 步，比其餘條件貴一個數量級。
   diffguard)
-    $PY scripts/freq_baselines_run.py --out $ROOT/g$G --data $DATA       --conditions diffusionguard --mode paper --edit-strength $STRENGTH       --images $IMGS ;;
+    $PY scripts/freq_baselines_run.py --out $ROOT/g$G --data $DATA \n      --conditions diffusionguard --mode paper \n      --edit-strength $STRENGTH --images $IMGS ;;
 
   # ---- 預算對齊到相位臂的 DISTS 0.0349 ----
   advdrop_al)
@@ -89,6 +89,9 @@ case $STAGE in
     $PY scripts/freq_baselines_run.py --out $ROOT/al$G --data $DATA \
       --conditions blurguard --mode aligned --budget 0.0349 \
       --edit-strength $STRENGTH $(sam_arg) --images $IMGS ;;
+
+  diffguard_al)
+    $PY scripts/freq_baselines_run.py --out $ROOT/al$G --data $DATA \n      --conditions diffusionguard --mode aligned --budget 0.0349 \n      --edit-strength $STRENGTH --images $IMGS ;;
 
   # ---- DEC-027：把可微分 JPEG 放進最佳化迴圈 ----
   # 只跑相位臂與加性對照——這一段要回答的是「針對淨化最佳化能買到多少」，

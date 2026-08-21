@@ -1,0 +1,16 @@
+image,condition,displacement,acutance_ratio,matched_sigma,blur_control_lpips,blur_explained,sigma_reachable
+task_attr_mod_color_11699,dct_s0100,0.41813,0.0794,2.5071,0.33515,0.8015,True
+task_attr_mod_color_11699,pgx_g78,0.35474,0.0501,3.0771,0.38421,1.0831,True
+task_attr_mod_color_11699,phase_s0100,0.1377,0.5603,0.7532,0.08485,0.6162,True
+task_attr_mod_color_11699,phase_s1000,0.10912,0.6222,0.6699,0.06681,0.6123,True
+task_attr_mod_color_11699,q00_e10_r127,0.17594,0.526,0.8036,0.09482,0.5389,True
+task_env_weather_112463,dct_s0100,0.83532,0.2482,2.3081,0.23697,0.2837,True
+task_env_weather_112463,pgx_g78,0.44815,0.1594,3.0271,0.31252,0.6974,True
+task_env_weather_112463,phase_s0100,0.27564,0.8828,0.4868,0.008,0.029,True
+task_env_weather_112463,phase_s1000,0.2529,0.9279,0.4286,0.00298,0.0118,True
+task_env_weather_112463,q00_e10_r127,0.32542,0.7846,0.6381,0.02595,0.0797,True
+task_obj_add_13726,dct_s0100,0.7444,0.0214,4.8744,0.57413,0.7713,True
+task_obj_add_13726,pgx_g78,0.71685,0.0148,5.9931,0.61329,0.8555,True
+task_obj_add_13726,phase_s0100,0.3089,0.2218,1.303,0.28064,0.9085,True
+task_obj_add_13726,phase_s1000,0.26839,0.5031,0.7218,0.10993,0.4096,True
+task_obj_add_13726,q00_e10_r127,0.41001,0.2136,1.3333,0.2875,0.7012,True

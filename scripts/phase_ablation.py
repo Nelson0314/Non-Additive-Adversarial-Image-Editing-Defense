@@ -67,7 +67,8 @@ PHASE_RADIUS_LO = 0.05
 
 def build(name: str, seed: int, block: int = 32, r_min: float = 0.12,
           quantile: float = 0.5, gl_iters: int = 0, pixel_gate_sigma: float = 0.0,
-          gain_ratio: float = 0.0, r_max: float = float("inf")):
+          gain_ratio: float = 0.0, r_max: float = float("inf"),
+          gate_edge_power: float = 1.0):
     """`block`／`r_min`／`quantile` 是相位算子的三個構造設定。
 
     預設值是 現行定案（`docs/METHOD.md` §4）。開放成參數是為了掃描
@@ -80,7 +81,8 @@ def build(name: str, seed: int, block: int = 32, r_min: float = 0.12,
         return (PhaseParam(size=RESOLUTION, block=block, r_min=r_min,
                            r_max=r_max,
                            energy_quantile=quantile, gl_iters=gl_iters,
-                           pixel_gate_sigma=pixel_gate_sigma),
+                           pixel_gate_sigma=pixel_gate_sigma,
+                           gate_edge_power=gate_edge_power),
                 PHASE_RADIUS_LO, math.pi)
     if name in ("phase_gain", "gain_only"):
         # 2026-08-21 的改動一：幅度譜也可學。`gain_only` 把 theta 凍結在 0，
@@ -96,12 +98,14 @@ def build(name: str, seed: int, block: int = 32, r_min: float = 0.12,
                            energy_quantile=quantile, gl_iters=gl_iters,
                            pixel_gate_sigma=pixel_gate_sigma,
                            gain_ratio=gain_ratio,
-                           phase_on=(name == "phase_gain")),
+                           phase_on=(name == "phase_gain"),
+                           gate_edge_power=gate_edge_power),
                 PHASE_RADIUS_LO, 8.0)
     if name == "phase_rand":
         return (RandomPhaseParam(size=RESOLUTION, block=block, r_min=r_min,
                                  r_max=r_max,
-                                 energy_quantile=quantile, gl_iters=gl_iters),
+                                 energy_quantile=quantile, gl_iters=gl_iters,
+                                 gate_edge_power=gate_edge_power),
                 PHASE_RADIUS_LO, math.pi)
     raise ValueError(f"未知條件 {name}")
 
@@ -126,6 +130,10 @@ def main() -> None:
     ap.add_argument("--r-min", type=float, default=0.12, help="徑向頻率閘的下限")
     ap.add_argument("--quantile", type=float, default=0.5,
                     help="紋理閘的梯度能量參考分位數")
+    ap.add_argument("--gate-edge-power", type=float, default=1.0,
+                    help="紋理閘壓制邊緣那個因子的指數："
+                         "(1 - coherence^2) ** 本值。1.0 = 現行行為（逐位元"
+                         "相同），0 = 完全不壓制邊緣。本值無出處，是本專案指定")
     ap.add_argument("--gl-iters", type=int, default=0,
                     help="Griffin-Lim 迭代投影的輪數。>0 時把 STFT 一致性投影"
                          "誤差壓下去，用來判別效果來自相位重排還是新造的能量"
@@ -185,7 +193,8 @@ def main() -> None:
                 t0 = time.time()
                 param, lo, hi = build(cond, args.seed, block=args.block,
                                       r_min=args.r_min, quantile=args.quantile,
-                                      gl_iters=args.gl_iters)
+                                      gl_iters=args.gl_iters,
+                                      gate_edge_power=args.gate_edge_power)
                 if budget == "human":
                     r_human = HUMAN_RADIUS[cond]
                     if args.phase_radius is not None and cond in ("phase", "phase_rand"):

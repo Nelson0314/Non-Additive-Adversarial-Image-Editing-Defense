@@ -56,7 +56,7 @@ from src.baselines.advdrop import (
     PAPER_Q_INIT, AdvDropSpec, run_advdrop,
 )
 from src.baselines.dct_watermark import (  # noqa: E402
-    WatermarkSpec, run_dct_watermark,
+    PAPER_ADV_DIAGONALS, PAPER_MU, PAPER_TAU, DJSMASpec, run_djsma,
 )
 from src.baselines.dct_shield import (  # noqa: E402
     PAPER_DEFAULT_QUALITY, PAPER_EPS, PAPER_GAMMA, PAPER_STEPS,
@@ -82,6 +82,24 @@ ADVDROP_CONDS = ("advdrop",)
 WM_CONDS = ("dct_wm",)
 
 
+def defense_steps(args, cond: str) -> int:
+    """該條件實際用了幾步最佳化。
+
+    每個條件走的是不同的旗標（本方法 `--steps` 預設 100、DCT-Shield
+    `--dct-steps` 預設 1000、AdvDrop 50、浮水印 300），而頭對頭表把它們並排
+    在同一列上。**預算差十倍這件事此前沒有出現在任何欄位裡**，於是「誰比較
+    強」與「誰跑比較久」在報表上分不開。這個函式只做取值，不做判斷。
+    """
+    if cond in DCT_CONDS:
+        return int(args.dct_steps)
+    if cond in ADVDROP_CONDS:
+        return int(args.advdrop_steps)
+    if cond in WM_CONDS:
+        # DJSMA 是貪婪迭代，迭代上限就是 tau（同時是 l0 界）。
+        return int(args.wm_tau)
+    return int(args.steps)
+
+
 def _purify_transform(args):
     """`--purify-aware` 選到的可微分淨化算子。`none` 回傳 None（預設，
     行為與加入此旗標之前逐位元相同）。"""
@@ -104,14 +122,23 @@ def defend(ip2p, suite, cond, x01, args, loss_fn):
     那個 `E`。
     """
     if cond in WM_CONDS:
-        # **摘要重建，不是重現**（付費牆、無公開程式碼）。三個機制照摘要做，
-        # 全部超參數為本專案指定，見 `src/baselines/dct_watermark.py`。
-        spec = WatermarkSpec(
-            name=cond, q_embed=args.q_alg, q_attack=args.wm_q_attack,
-            block_frac=args.wm_block_frac, topk=args.wm_topk,
-            eps=args.wm_eps, steps=args.wm_steps)
-        res = run_dct_watermark(ip2p, x01, spec, loss_fn=loss_fn, log_every=0)
-        return res.x_def, spec.eps, False, True
+        # DJSMA（The Imaging Science Journal 2026）。無公開程式碼，由掃描 PDF
+        # 逐頁判讀後依 Algorithm 1 與式 (7)–(9) 實作。
+        #
+        # **顯著圖必須換掉**：論文的式 (8)(9) 需要類別 logits，而擴散編輯防護
+        # 沒有分類器。`saliency="grad"` 把 S± 換成本專案共用損失對該係數的
+        # 偏導，其餘（一次一個係數、±1、E345、tau／mu 的意義）不變。那不是
+        # 論文的方法，故 `modified_from_paper=True`。
+        spec = DJSMASpec(
+            name=cond, tau=args.wm_tau, mu=args.wm_mu,
+            diagonals=tuple(args.wm_diagonals), q_embed=args.wm_q_embed,
+            saliency="grad", modified_from_paper=True,
+            modification_note=(
+                "顯著圖由論文式 (8)(9) 的類別 logits 換成擴散編碼器目標損失"
+                "對係數的偏導；本威脅模型沒有分類器"))
+        res = run_djsma(x01, spec, loss_fn=loss_fn, log_every=0)
+        # 強度旋鈕是 tau（l0 界），不是某個 eps——DJSMA 是貪婪 JSMA 不是 PGD。
+        return res.x_def, float(spec.tau), False, True
 
     if cond in ADVDROP_CONDS:
         # AdvDrop（ICCV 2021）是唯一另一個明確的「非加性頻域」方法，也是本
@@ -165,7 +192,8 @@ def defend(ip2p, suite, cond, x01, args, loss_fn):
                           r_max=args.r_max,
                           quantile=args.quantile, gl_iters=args.gl_iters,
                           pixel_gate_sigma=args.pixel_gate_sigma,
-                          gain_ratio=args.gain_ratio)
+                          gain_ratio=args.gain_ratio,
+                          gate_edge_power=args.gate_edge_power)
     if args.radius is not None:
         param.set_radius(args.radius)
         res = run_param_pgd(x01, param, loss_fn, steps=args.steps,
@@ -183,7 +211,14 @@ def defend(ip2p, suite, cond, x01, args, loss_fn):
             bool(out.history[-1].get("unreachable", False)), False)
 
 
-def main() -> None:
+def build_parser() -> argparse.ArgumentParser:
+    """CLI 的定義。
+
+    與 `main()` 分開是為了讓測試能在不載入 IP2P 權重的情況下檢查旗標與
+    預設值。此前 parser 埋在 `main()` 裡，於是這支驅動的 import 破損了也
+    沒有任何測試會發現——`dct_wm` 那一支引用的 `WatermarkSpec` 早已改名為
+    `DJSMASpec`，而整個檔案在被修好之前根本 import 不進來。
+    """
     ap = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--out", type=Path, required=True)
@@ -212,7 +247,18 @@ def main() -> None:
                     help="徑向頻率閘的上界。預設無窮大即維持原本的高通行為。"
                          "穩健浮水印的標準作法是中頻帶嵌入——低頻可見、高頻"
                          "被壓縮與模糊抹掉；本模組原本只有下界，上界從未測過")
-    ap.add_argument("--quantile", type=float, default=0.5)
+    ap.add_argument("--quantile", type=float, default=0.5,
+                    help="紋理閘的梯度能量參考分位數。閘的第二個因子是 "
+                         "clamp(energy / 該分位數, 0, 1)，調低等於放行更多"
+                         "低能量的區塊；0 使該因子恆為 1，即閘全開。"
+                         "本值無出處，是本專案指定")
+    ap.add_argument("--gate-edge-power", type=float, default=1.0,
+                    help="紋理閘壓制邊緣那個因子的指數："
+                         "(1 - coherence^2) ** 本值。1.0 = 現行行為（逐位元"
+                         "相同），0 = 完全不壓制邊緣。邊緣是導向濾波、雙邊"
+                         "濾波、TV 去噪的不變集，把擾動趕出邊緣等於放棄那幾"
+                         "個算子底下唯一活得下來的位置。本值無出處，是本專案"
+                         "指定")
     ap.add_argument("--pixel-gate-sigma", type=float, default=0.0,
                     help="逐像素紋理閘的高斯 sigma（像素）。0 = 關閉，逐位元與"
                          "加這個選項之前相同。要能分辨鬍鬚與臉頰就必須遠小於 "
@@ -241,16 +287,19 @@ def main() -> None:
     ap.add_argument("--q-alg", type=float, default=PAPER_DEFAULT_QUALITY)
     ap.add_argument("--dct-steps", type=int, default=PAPER_STEPS)
     # AdvDrop
-    # DCT 對抗浮水印（摘要重建）
-    ap.add_argument("--wm-q-attack", type=int, default=75,
-                    help="迴圈內模擬的重壓品質。摘要未載，本專案指定")
-    ap.add_argument("--wm-block-frac", type=float, default=0.5,
-                    help="依顯著度保留多少比例的區塊。摘要未載")
-    ap.add_argument("--wm-topk", type=int, default=8,
-                    help="每個區塊最多改幾個係數（8×8 共 64）。摘要未載")
-    ap.add_argument("--wm-eps", type=float, default=2.0,
-                    help="delta 的逐元素上界，單位是量化階。摘要未載")
-    ap.add_argument("--wm-steps", type=int, default=300)
+    # DJSMA（DCT 反對角帶上的貪婪 JSMA）
+    ap.add_argument("--wm-tau", type=int, default=PAPER_TAU,
+                    help="迭代上限，同時是 l0 界。論文定案 1500")
+    ap.add_argument("--wm-mu", type=int, default=PAPER_MU,
+                    help="同一個係數最多改幾階，即 l∞ 界。論文定案 1")
+    ap.add_argument("--wm-diagonals", type=int, nargs="+",
+                    default=list(PAPER_ADV_DIAGONALS),
+                    help="對抗擾動落在哪幾條 8×8 反對角帶（1-based）。論文用"
+                         "第 3–5 條；第 6–8 條是它留給隱形浮水印的，本專案"
+                         "未實作浮水印那兩個階段")
+    ap.add_argument("--wm-q-embed", type=float, default=0.75,
+                    help="嵌入端的 JPEG 品質。**論文未載**——論文只說評測時"
+                         "再壓 Q=75。本值是本專案指定")
     ap.add_argument("--advdrop-eps", type=float, default=100.0,
                     help="量化表的可動上界 q_init+eps。論文掃 20/60/100")
     ap.add_argument("--advdrop-steps", type=int, default=50)
@@ -267,6 +316,11 @@ def main() -> None:
     ap.add_argument("--edit-seed", type=int, default=IP2P_SEED)
     ap.add_argument("--check-only", action="store_true",
                     help="只跑未防禦的編輯並報語意對齊，驗收 DEC-022 的前提")
+    return ap
+
+
+def main() -> None:
+    ap = build_parser()
     args = ap.parse_args()
     args.out.mkdir(parents=True, exist_ok=True)
 
@@ -353,13 +407,24 @@ def main() -> None:
                 "r_max": args.r_max,
                 "gl_iters": args.gl_iters,
                 "block": args.block,
+                # hop 目前恆為 block//2，但那是 `PhaseResidual` 的預設而不是
+                # 這裡的常數；不逐列記下的話，將來改動它會讓新舊列長得一樣。
+                "hop": args.block // 2,
+                # 紋理閘的兩個設定。兩者都是本專案指定、無出處的值，按
+                # CLAUDE.md 的規則必須是欄位而不是註解。此前只寫在 CLI 的
+                # 預設值裡，掃描它們的批次在報表上分不出來。
+                "quantile": args.quantile,
+                "gate_edge_power": args.gate_edge_power,
+                # 防禦端的 PGD 步數。**本方法預設 100，DCT-Shield 是 1000**
+                # （該篇 §5.4），頭對頭表上這個差異從未被控制過，故逐列記下。
+                "defense_steps": defense_steps(args, cond),
                 "loss": args.loss,
                 "gain_ratio": args.gain_ratio,
                 "purify_aware": args.purify_aware,
-                "wm_q_attack": args.wm_q_attack,
-                "wm_block_frac": args.wm_block_frac,
-                "wm_topk": args.wm_topk,
-                "wm_eps": args.wm_eps,
+                "wm_tau": args.wm_tau,
+                "wm_mu": args.wm_mu,
+                "wm_diagonals": "-".join(str(d) for d in args.wm_diagonals),
+                "wm_q_embed": args.wm_q_embed,
                 # 論文未載、本專案指定的三個推論參數逐列記下（DEC-031）
                 "edit_steps": args.edit_steps, "s_t": args.text_guidance,
                 "s_i": args.image_guidance, "edit_seed": args.edit_seed,

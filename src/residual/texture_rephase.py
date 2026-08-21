@@ -124,10 +124,11 @@ def texture_gate(
     hop: int,
     energy_quantile: float = 0.5,
     eps: float = 1e-8,
+    edge_power: float = 1.0,
 ) -> torch.Tensor:
     """逐區塊的紋理度 g in [0,1]，形狀 (B, L)。固定不可學。
 
-        g = (1 - coherence^2) * clamp(energy / energy_ref, 0, 1)
+        g = (1 - coherence^2)^edge_power * clamp(energy / energy_ref, 0, 1)
 
     `coherence = (l1 - l2)/(l1 + l2)` 取自結構張量（Foerstner & Guelch 1987、
     Bigun & Granlund 1987；coherence 這個量與名稱見 Weickert, IJCV 31, 1999）。
@@ -160,7 +161,7 @@ def texture_gate(
     disc = torch.sqrt(torch.clamp(((jxx - jyy) * 0.5) ** 2 + jxy ** 2, min=0.0))
     coh = (2.0 * disc) / (tr + eps)
     ref = torch.quantile(tr, energy_quantile, dim=1, keepdim=True).clamp_min(eps)
-    return (1.0 - coh ** 2) * torch.clamp(tr / ref, 0.0, 1.0)
+    return ((1.0 - coh ** 2) ** edge_power) * torch.clamp(tr / ref, 0.0, 1.0)
 
 
 def pixel_texture_mask(
@@ -168,10 +169,12 @@ def pixel_texture_mask(
     sigma: float,
     energy_quantile: float = 0.5,
     eps: float = 1e-8,
+    edge_power: float = 1.0,
 ) -> torch.Tensor:
     """逐**像素**的紋理度 m in [0,1]，形狀 (B,1,H,W)。
 
-    公式與 `texture_gate` 完全相同——`(1 - coherence^2) * clamp(energy/ref, 0, 1)`
+    公式與 `texture_gate` 完全相同——
+    `(1 - coherence^2)^edge_power * clamp(energy/ref, 0, 1)`
     ——差別只在把結構張量的區塊平均換成**高斯平滑**，於是解析度由「一格 32×32
     的區塊」變成「一個像素」。
 
@@ -213,7 +216,7 @@ def pixel_texture_mask(
     flat = tr.reshape(tr.shape[0], -1)
     ref = torch.quantile(flat, energy_quantile, dim=1).clamp_min(eps)
     ref = ref.view(-1, 1, 1, 1)
-    return (1.0 - coh ** 2) * torch.clamp(tr / ref, 0.0, 1.0)
+    return ((1.0 - coh ** 2) ** edge_power) * torch.clamp(tr / ref, 0.0, 1.0)
 
 
 def block_mean(t: torch.Tensor, block: int, hop: int) -> torch.Tensor:
@@ -272,6 +275,7 @@ class PhaseResidual(ResidualModule):
         gl_iters: int = 0,
         pixel_gate_sigma: float = 0.0,
         gain_max: float = 0.0,
+        gate_edge_power: float = 1.0,
     ):
         super().__init__()
         if block % 2 != 0:
@@ -283,6 +287,9 @@ class PhaseResidual(ResidualModule):
             raise ValueError(f"theta_max 必須落在 (0, pi]，收到 {theta_max}")
         if gl_iters < 0:
             raise ValueError(f"gl_iters 不可為負，收到 {gl_iters}")
+        if gate_edge_power < 0:
+            raise ValueError(
+                f"gate_edge_power 不可為負，收到 {gate_edge_power}")
 
         self.size = size
         self.block = block
@@ -292,6 +299,17 @@ class PhaseResidual(ResidualModule):
         self.r_max = r_max
         self.theta_max = theta_max
         self.energy_quantile = energy_quantile
+        # 紋理閘裡壓制邊緣那個因子的指數：`(1 - coherence^2) ** gate_edge_power`。
+        # **預設 1.0 逐位元等於加這個旋鈕之前**（`x ** 1.0` 在 float32／float64
+        # 上都是恆等，已由測試釘住）。0 表示完全不壓制邊緣，此時紋理閘退化成
+        # 只看梯度能量。
+        #
+        # 為什麼要它：邊緣（coherence 高）目前被設為 0，而邊緣正是導向濾波、
+        # 雙邊濾波、TV 去噪這一類算子的不變集——把擾動趕出邊緣，等於主動放棄
+        # 那幾個淨化算子底下唯一活得下來的位置。另一方面 DISTS 量的是紋理
+        # 統計量，把擾動全部集中在紋理區會使同一個 LPIPS 換到更高的 DISTS。
+        # 兩個理由指向同一個實驗：把這個指數放開。
+        self.gate_edge_power = gate_edge_power
         self.gl_iters = gl_iters
         # > 0 時在重疊相加之後再乘一層**逐像素**的紋理遮罩（見
         # `pixel_texture_mask`）。**預設 0 表示關閉**，此時整條路徑與加這個
@@ -364,13 +382,16 @@ class PhaseResidual(ResidualModule):
         self.window = hann2d(self.block, device, dtype)
         self.freq_gate = radial_gate(self.block, self.r_min, device, dtype,
                                      self.r_max)
-        tex = texture_gate(x01, self.block, self.hop, self.energy_quantile)
+        tex = texture_gate(x01, self.block, self.hop, self.energy_quantile,
+                           edge_power=self.gate_edge_power)
         if keep is not None:
             tex = tex * block_mean(keep.to(device=device, dtype=dtype),
                                    self.block, self.hop)
         self.tex_gate = tex.detach()
         if self.pixel_gate_sigma > 0:
-            m = pixel_texture_mask(x01, self.pixel_gate_sigma, self.energy_quantile)
+            m = pixel_texture_mask(x01, self.pixel_gate_sigma,
+                                   self.energy_quantile,
+                                   edge_power=self.gate_edge_power)
             if keep is not None:
                 m = m * keep.to(device=device, dtype=dtype)
             self.pixel_mask = m.detach()

@@ -140,3 +140,35 @@ def test_set_radius_clamps_phase_to_pi():
     assert p.module.theta_max == pytest.approx(math.pi), "相位仍須封頂在 pi"
     p.project()
     assert float(p.module.theta.abs().max()) <= math.pi + 1e-6
+
+
+def test_gate_edge_power_reaches_the_module_through_param():
+    """`PhaseParam` 是 `build()` 與 CLI 之間唯一的一層，旗標必須穿過它。
+
+    同型缺陷已發生過兩次（隨機起點只加在其中一條建構路徑；參數組由名稱
+    推導）。建構路徑漏接時不會拋錯，只會安靜地用預設值跑完。
+    """
+    x = _image()
+    lo = PhaseParam(size=64, block=16, r_min=0.12, radius=1.0,
+                    gate_edge_power=1.0)
+    hi = PhaseParam(size=64, block=16, r_min=0.12, radius=1.0,
+                    gate_edge_power=0.0)
+    lo.reset(x, seed=0)
+    hi.reset(x, seed=0)
+    assert lo.module.gate_edge_power == 1.0
+    assert hi.module.gate_edge_power == 0.0
+    assert hi.module.active_fraction() > lo.module.active_fraction()
+
+
+def test_random_phase_param_also_takes_gate_edge_power():
+    """`phase_rand` 是等失真對照組，閘設定必須與被比較的那一臂相同。"""
+    x = _image()
+    p = RandomPhaseParam(size=64, block=16, r_min=0.12, radius=1.0,
+                         gate_edge_power=0.0)
+    p.reset(x, seed=0)
+    assert p.module.gate_edge_power == 0.0
+
+
+def test_negative_gate_edge_power_is_rejected_at_param_level():
+    with pytest.raises(ValueError, match="gate_edge_power"):
+        PhaseParam(size=64, block=16, r_min=0.12, gate_edge_power=-1.0)

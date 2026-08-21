@@ -103,10 +103,16 @@ class PhaseParam:
                  radius: float = math.pi, energy_quantile: float = 0.5,
                  keep: Optional[torch.Tensor] = None, gl_iters: int = 0,
                  pixel_gate_sigma: float = 0.0, gain_ratio: float = 0.0,
-                 phase_on: bool = True):
+                 phase_on: bool = True, gate_edge_power: float = 1.0):
         self.size, self.block, self.r_min = size, block, r_min
         self.r_max = r_max
         self.energy_quantile = energy_quantile
+        # 紋理閘壓制邊緣那個因子的指數，預設 1.0 逐位元等於加它之前。
+        # 理由見 `PhaseResidual.__init__`。
+        if gate_edge_power < 0:
+            raise ValueError(
+                f"gate_edge_power 不可為負，收到 {gate_edge_power}")
+        self.gate_edge_power = gate_edge_power
         # **radius 本身不封頂**，封頂只發生在傳給 `theta_max` 的那一刻。
         # 2026-08-21 之前這裡是 `min(radius, pi)`，於是 `--radius 3.5` 與
         # `--radius 4.5` 其實跑的是同一個 theta_max = pi——sigma 掃描看到的
@@ -138,6 +144,7 @@ class PhaseParam:
             energy_quantile=self.energy_quantile,
             gl_iters=self.gl_iters, pixel_gate_sigma=self.pixel_gate_sigma,
             gain_max=self.radius * self.gain_ratio,
+            gate_edge_power=self.gate_edge_power,
         ).to(device=x01.device, dtype=x01.dtype)
         self.module.prepare_gates(x01, keep=self.keep)
 

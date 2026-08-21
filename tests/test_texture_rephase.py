@@ -229,3 +229,68 @@ def test_replace_magnitude_maps_zero_coefficients_to_zero():
     spec = torch.zeros(2, 3, dtype=torch.complex128)
     out = replace_magnitude(spec, torch.ones(2, 3, dtype=torch.float64))
     assert torch.equal(out, torch.zeros_like(out))
+
+
+# ---- 紋理閘的邊緣指數（`gate_edge_power`） ----
+
+def test_edge_power_default_is_bitwise_identity():
+    """預設 1.0 必須逐位元等於加這個旗標之前。
+
+    `(1 - coh**2) ** 1.0` 在 float32／float64 上都是恆等，故不需要分支。
+    這一條同時釘住那個恆等——它若在某個版本的 torch 上不再成立，SDEdit 那條
+    凍結的線就無法逐位重跑，而症狀只會是「數字微微不一樣」。
+    """
+    x = _image()
+    a = texture_gate(x, 16, 8)
+    b = texture_gate(x, 16, 8, edge_power=1.0)
+    assert torch.equal(a, b)
+
+
+def test_edge_power_zero_removes_edge_suppression():
+    """指數 0 時第一個因子恆為 1，閘退化成只看梯度能量。
+
+    邊緣是導向濾波、雙邊濾波、TV 去噪的不變集。現行的閘把邊緣設為 0，等於
+    主動放棄那幾個算子底下唯一活得下來的位置，故必須能關掉。
+    """
+    size, block = 64, 16
+    edge = torch.zeros(1, 3, size, size, dtype=torch.float64)
+    edge[..., size // 2:] = 1.0
+
+    suppressed = texture_gate(edge, block, block // 2)
+    released = texture_gate(edge, block, block // 2, edge_power=0.0)
+    assert float(suppressed.max()) < 0.2, float(suppressed.max())
+    assert float(released.max()) > 0.9, float(released.max())
+    # 只放行邊緣，不改變能量那一項：平坦區在兩者底下都應接近 0
+    assert float(released.min()) < 0.05, float(released.min())
+
+
+def test_edge_power_is_monotone_in_the_gate():
+    """指數越大壓得越狠。中間值必須落在兩端之間，不能只有 0/1 兩檔有效。"""
+    size, block = 64, 16
+    g = torch.Generator().manual_seed(11)
+    x = torch.rand(1, 3, size, size, generator=g, dtype=torch.float64)
+    x[..., : size // 2] = 0.0            # 一半平坦、一半雜訊，造出各種 coherence
+    means = [float(texture_gate(x, block, block // 2, edge_power=p).mean())
+             for p in (0.0, 0.5, 1.0, 2.0)]
+    assert means == sorted(means, reverse=True), means
+
+
+def test_edge_power_reaches_the_module_gate():
+    """旗標必須真的走到模組的閘上，而不是只存在建構子裡。
+
+    同型缺陷已發生過（DEF：參數組由名稱推導，新增位置時靜默落回預設）。
+    """
+    x = _image(size=64)
+    lo = PhaseResidual(size=64, block=16, r_min=0.12, theta_max=1.0,
+                       gate_edge_power=1.0).to(dtype=torch.float64)
+    hi = PhaseResidual(size=64, block=16, r_min=0.12, theta_max=1.0,
+                       gate_edge_power=0.0).to(dtype=torch.float64)
+    lo.prepare_gates(x)
+    hi.prepare_gates(x)
+    assert hi.active_fraction() > lo.active_fraction()
+
+
+def test_negative_edge_power_is_rejected():
+    with pytest.raises(ValueError, match="gate_edge_power"):
+        PhaseResidual(size=64, block=16, r_min=0.12, theta_max=1.0,
+                      gate_edge_power=-0.5)

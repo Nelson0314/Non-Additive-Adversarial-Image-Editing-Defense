@@ -124,6 +124,19 @@ def test_phase_ceiling_is_reported_as_unreachable():
 
 
 def test_set_radius_clamps_phase_to_pi():
+    """相位封頂在 pi，但**封的是 `theta_max` 不是 `radius`**。
+
+    2026-08-21 之前 `set_radius` 直接把 `self.radius` 夾到 pi，於是
+    `--radius 3.5` 與 `--radius 4.5` 跑的是同一組設定——sigma 掃描看到的
+    「theta >= 3 之後 DISTS 卡住」有一部分由此而來。加了可學增益之後
+    `radius` 還要driving `gain_max`，而增益沒有週期性、不該被 pi 夾，
+    故改成只在傳給 `theta_max` 時封頂。**不變的是相位仍然不會超過 pi。**
+    """
     p = PhaseParam(size=64, block=16)
     p.set_radius(10.0)
-    assert p.radius == pytest.approx(math.pi)
+    assert p.radius == pytest.approx(10.0), "radius 本身不再被封頂"
+    x = torch.rand(1, 3, 64, 64)
+    p.reset(x, seed=0)
+    assert p.module.theta_max == pytest.approx(math.pi), "相位仍須封頂在 pi"
+    p.project()
+    assert float(p.module.theta.abs().max()) <= math.pi + 1e-6

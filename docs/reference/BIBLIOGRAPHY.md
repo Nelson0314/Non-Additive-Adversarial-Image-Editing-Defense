@@ -86,6 +86,47 @@ Hann 窗與 COLA／NOLA、實數 FFT 的共軛對稱都是標準性質。**這�
 | **Countering Adversarial Images using Input Transformations** | crop-resize 等輸入變換的來源 | 僅引用 | [arXiv:1711.00117](https://arxiv.org/abs/1711.00117) |
 | **IPT-V2**（NTIRE 2023 相關） | CNN 去噪算子的替代對象，**權重未公開** | 缺權重，未實作 | [arXiv:2404.00633](https://arxiv.org/abs/2404.00633) |
 
+## 3b. 2026-08-21 新增：新威脅與穩健性基準
+
+本輪 survey 找到的，**尚未實作**。前三筆是威脅（會削弱我方主張），
+後三筆是評測協定或穩健性設計的來源。
+
+| 論文 | 為什麼記下來 | 連結 |
+|---|---|---|
+| **MANI-PURE** | 幅度自適應的噪聲注入淨化器。既有擴散淨化假設擾動在頻域均勻分布，它利用「擾動集中在高頻」做針對性淨化。**本方法的擾動偏低頻，理論上躲得掉——這是一個對我方有利的檢定，應主動測** | [arXiv:2509.25082](https://arxiv.org/pdf/2509.25082) |
+| **Breaking Watermarks in the Frequency Domain** | 以調變擴散攻擊頻域浮水印。本方法在頻域嵌入結構化訊號，屬同一個攻擊面 | [arXiv:2604.22220](https://arxiv.org/html/2604.22220v1) |
+| **Vanishing Watermarks** | 擴散編輯本身就會抹掉穩健的隱形浮水印。與本專案的威脅模型同型（攻擊方就是編輯器） | [arXiv:2602.20680](https://arxiv.org/html/2602.20680v1) |
+| **IP-Bench** | 影像保護方法的基準，涵蓋 image-to-video。評測協定值得對齊 | [arXiv:2603.26154](https://arxiv.org/pdf/2603.26154) |
+| **Towards Robust Protective Perturbation against DeepFake Face Swapping** | 換臉場景的穩健保護擾動 | [arXiv:2512.07228](https://arxiv.org/pdf/2512.07228) |
+| **CLR-Net**（Image Protection for Robust Cropping Localization and Recovery） | **專門對抗裁切**：嵌入擾動後可預測裁切遮罩並復原，另提細粒度可微分 JPEG 模擬器 FG-JPEG。本專案在 crop_resize 上的淨增益只留 13%，是三個算子裡最差的一格 | [arXiv:2206.02405](https://arxiv.org/abs/2206.02405) |
+
+### 穩健浮水印的工具箱（本輪認定為最值得挖的一條）
+
+浮水印領域二十年來解的就是「活過 JPEG、模糊、裁切、縮放」，與本專案目前
+卡住的地方是同一個問題。四個標準作法直接對得上我方的缺口：
+
+| 作法 | 對應本專案的哪一個缺口 |
+|---|---|
+| **中頻帶嵌入**（低頻可見、高頻被壓掉，故取中間） | `radial_gate` 只有下界 `r_min`、**沒有上界**，本質是高通。加 `r_max` 變成帶通從未測過 |
+| **冗餘／分塊重複嵌入** | crop_resize 只留 13% 淨增益，是「無冗餘、單點失效」的典型症狀 |
+| **近似平移不變的變換（DT-CWT）** | 對幾何變換天生穩健，可取代現在的 block FFT |
+| **同步模板** | 先估計並反轉幾何變形再解讀訊號 |
+
+來源：[Robust attack-aware spread spectrum watermarking in real scenes](https://www.sciencedirect.com/science/article/abs/pii/S0925231225007325)、
+[A Hybrid Robust Image Watermarking Method Based on DWT-DCT and SIFT](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8539292/)、
+[DWT-DCT-SVD with correction of main geometric attacks](https://www.sciencedirect.com/science/article/abs/pii/S0030402615012863)。
+
+### 對抗浮水印（DCT 域，與 DCT-Shield 同族）
+
+| 論文 | 內容 | 取得狀況 |
+|---|---|---|
+| **JPEG compression-resistant adversarial attack with invisible watermark embedding**（The Imaging Science Journal, 2026） | 把浮水印與對抗擾動**同時**嵌進 DCT 域；模擬 JPEG 重壓層 ＋ 直通估計讓梯度穿過量化係數；依**顯著圖**選位置；**嚴格限制被改動的係數個數** | **付費牆、無 arXiv、無公開程式碼**。摘要以外的細節查不到 | 
+| **IRAW**（Neural Networks, 2026-04-15） | 同族：DCT 域的雙功能（浮水印 ＋ 對抗）統一最佳化，跨域加密 | 付費牆、無公開程式碼 |
+
+**2026-08-21 判定**：前者無法逐行重現（`SOURCE_AUDIT` 的規矩是對照公開原始碼，
+不照摘要寫）。本專案改為實作它摘要明載的三個機制，全部標
+`modified_from_paper`，見 `src/baselines/dct_watermark.py`。
+
 ## 4. 抗淨化的防禦側
 
 | 論文 | 內容 | 連結 |

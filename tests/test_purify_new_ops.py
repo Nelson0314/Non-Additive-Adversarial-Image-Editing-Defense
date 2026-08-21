@@ -75,7 +75,7 @@ def test_相依缺席時_available_為假(tmp_path):
 
     2026-08-06 修正。before：`assert Purifier("diffpure").available is False`
     ——不傳 `ckpt`，於是 `diffpure_checkpoint_path` 退回環境變數
-    `DIFFPURE_CKPT`。本機沒裝所以通過，而在**已依 RUNBOOK §2.3 裝好
+    `DIFFPURE_CKPT`。本機沒裝所以通過，而在**已依 OPERATIONS 的遠端段 裝好
     DiffPure 的執行機上必定失敗**（實測於 basic-1）。那等於用測試把
     「環境不完整」釘成正確狀態，方向剛好相反。
 

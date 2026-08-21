@@ -61,6 +61,7 @@ from src.baselines.diffusionguard import (  # noqa: E402
 from src.baselines.encoder_target import make_encoder_target_loss  # noqa: E402
 from src.defense.param_pgd import AdditiveParam, fit_to_budget  # noqa: E402
 from src.defense.purify_aware import make_jpeg_transform  # noqa: E402
+from src.metrics.standard import standard_row  # noqa: E402
 from src.metrics.suite import MetricSuite  # noqa: E402
 from src.models.sd import SDWrapper  # noqa: E402
 from src.utils.io import load_image_tensor, write_csv  # noqa: E402
@@ -191,7 +192,8 @@ def main() -> None:
 
             fid = suite.pairwise(x01, x_def)
             e_def = edit(x_def, item, EDIT_SEED)
-            eff = float(suite.pairwise(e_orig, e_def)["lpips"])
+            prot = suite.pairwise(e_orig, e_def)
+            eff = float(prot["lpips"])
             tag = f"{cond}_pa" if args.purify_aware != "none" else cond
             vutils.save_image(x_def.clamp(0, 1),
                               args.out / f"{item['name']}__{tag}__def.png")
@@ -204,10 +206,9 @@ def main() -> None:
                 "mode": args.mode, "purify_aware": args.purify_aware,
                 "radius": round(radius, 6), "unreachable": unreachable,
                 "n_masks": len(masks) if masks else "",
-                "fid_lpips": round(fid["lpips"], 5),
-                "fid_dists": round(fid["dists"], 5),
-                "fid_psnr": round(fid["psnr"], 3),
-                "fid_ssim": round(fid["ssim"], 5),
+                # DEC-028 的統一指標清單，兩個半邊各五項。
+                **standard_row("fid_", fid),
+                **standard_row("edit_", prot),
                 "fid_linf": round(fid["linf"], 5),
                 "fid_rms": round(fid["rms"], 5),
                 "edit_lpips": round(eff, 5),

@@ -1,0 +1,3 @@
+model,eval_quality,n,shard,shards,tau,mu,q_embed,target,acc_clean_jpeg,acc_adv_jpeg,succ_rate,paper_acc_adv,paper_acc_watermarked,psnr_vs_orig,ssim_vs_orig,lpips_vs_orig,seconds_per_image
+vgg19,75,25,2,8,1500,1,0.75,least_likely,84.0,52.0,32.0,1.2,63.4,28.567,0.8079,0.2864,13.22
+vgg19,85,25,2,8,1500,1,0.75,least_likely,84.0,40.0,44.0,1.2,63.4,28.567,0.8079,0.2864,13.22

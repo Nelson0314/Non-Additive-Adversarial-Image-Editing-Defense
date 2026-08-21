@@ -1,81 +1,0 @@
-=== 預抓 SD v1.4 2026-08-02T13:12:21+00:00 ===
-Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
-Fetching 14 files:   0%|          | 0/14 [00:00<?, ?it/s]Fetching 14 files:  14%|█▍        | 2/14 [00:00<00:00, 13.15it/s]Fetching 14 files:  86%|████████▌ | 12/14 [00:04<00:00,  2.64it/s]Fetching 14 files:  93%|█████████▎| 13/14 [00:05<00:00,  2.42it/s]Fetching 14 files: 100%|██████████| 14/14 [00:17<00:00,  2.05s/it]Fetching 14 files: 100%|██████████| 14/14 [00:17<00:00,  1.24s/it]
-Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  17%|█▋        | 1/6 [00:00<00:00,  9.92it/s]
-Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 6101.67it/s]
-Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00,  8.15it/s]Loading pipeline components...:  83%|████████▎ | 5/6 [00:00<00:00, 14.66it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 15.58it/s]
-You have disabled the safety checker for <class 'diffusers.pipelines.stable_diffusion.pipeline_stable_diffusion.StableDiffusionPipeline'> by passing `safety_checker=None`. Ensure that you abide to the conditions of the Stable Diffusion license and do not expose unfiltered results in services or applications open to the public. Both the diffusers team and Hugging Face strongly recommend to keep the safety filter enabled in all public facing circumstances, disabling it only for use-cases that involve analyzing network behavior or auditing its results. For more information, please have a look at https://github.com/huggingface/diffusers/pull/254 .
-SD v1.4 就緒
-=== 測試 2026-08-02T13:12:45+00:00 ===
-
--- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-=========================== short test summary info ============================
-FAILED tests/test_chroma.py::test_極端值不產生NaN[de2000_map] - AssertionErro...
-1 failed, 251 passed, 2 skipped, 51 warnings in 67.42s (0:01:07)
-=== 計時探測 2026-08-02T13:13:54+00:00 ===
-[run] device=cuda sites=['C'] ranks=[32] steps=4
-[run] 影像 1 張：['car_00']
-[run] 訓練期淨化集 ['identity', 'blur', 'jpeg']
-
-[run] car_00__C__r32  prompt='a wrecked car after an accident'
-  step    0  loss=1.0000  L_def=1.0000  L_fid=0.0000  shift=0.0000  psnr=120.00  linf=0.0000  |g|=4.432e-05
-  step    3  loss=250.7913  L_def=0.8764  L_fid=249.9149  shift=0.1236  psnr=30.13  linf=0.4297  |g|=1.000e+00
-[run] car_00__C__r32 完成 29s peak=25119MB shift=0.1236 psnr=30.13 eff_rank=512.0
-
-` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
-Traceback (most recent call last):
-  File "/teamspace/studios/this_studio/WACV/scripts/run_defense.py", line 709, in <module>
-    main()
-  File "/teamspace/studios/this_studio/WACV/scripts/run_defense.py", line 625, in main
-    rows = evaluate(sd, suite, x01, res.x_def, cfg, prompt, cell)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/zeus/miniconda3/envs/cloudspace/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 120, in decorate_context
-    return func(*args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^
-  File "/teamspace/studios/this_studio/WACV/scripts/run_defense.py", line 201, in evaluate
-    _, row_tr = measure(x_def, noise_tr, y_orig_tr, "identity", 0.0, "train", x01)
-                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/teamspace/studios/this_studio/WACV/scripts/run_defense.py", line 186, in measure
-    **{f"edit_{k}": v for k, v in suite.full(y_ref, y_def, prompt=prompt).items()},
-                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/teamspace/studios/this_studio/WACV/src/metrics/suite.py", line 171, in full
-    for k, v in self.semantic(a, prompt).items():
-                ^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/zeus/miniconda3/envs/cloudspace/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 120, in decorate_context
-    return func(*args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^
-  File "/teamspace/studios/this_studio/WACV/src/metrics/suite.py", line 134, in semantic
-    self._ensure_vlm()
-  File "/teamspace/studios/this_studio/WACV/src/metrics/suite.py", line 82, in _ensure_vlm
-    self._siglip_proc = AutoProcessor.from_pretrained(SIGLIP_REPO)
-                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/zeus/miniconda3/envs/cloudspace/lib/python3.12/site-packages/transformers/models/auto/processing_auto.py", line 328, in from_pretrained
-    return processor_class.from_pretrained(
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/zeus/miniconda3/envs/cloudspace/lib/python3.12/site-packages/transformers/processing_utils.py", line 1722, in from_pretrained
-    args = cls._get_arguments_from_pretrained(pretrained_model_name_or_path, processor_dict, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/zeus/miniconda3/envs/cloudspace/lib/python3.12/site-packages/transformers/processing_utils.py", line 1847, in _get_arguments_from_pretrained
-    tokenizer = cls._load_tokenizer_from_pretrained(
-                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/zeus/miniconda3/envs/cloudspace/lib/python3.12/site-packages/transformers/processing_utils.py", line 1783, in _load_tokenizer_from_pretrained
-    tokenizer = auto_processor_class.from_pretrained(
-                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/zeus/miniconda3/envs/cloudspace/lib/python3.12/site-packages/transformers/models/auto/tokenization_auto.py", line 905, in from_pretrained
-    return tokenizer_class.from_pretrained(pretrained_model_name_or_path, *inputs, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/zeus/miniconda3/envs/cloudspace/lib/python3.12/site-packages/transformers/utils/import_utils.py", line 2170, in __getattribute__
-    requires_backends(cls, cls._backends)
-  File "/home/zeus/miniconda3/envs/cloudspace/lib/python3.12/site-packages/transformers/utils/import_utils.py", line 2156, in requires_backends
-    raise ImportError("".join(failed))
-ImportError: 
-SiglipTokenizer requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
-installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
-that match your environment. Please note that you may need to restart your runtime after installation.
-
-
-=== 計時探測（site C，512²）===
-直譯器 /home/zeus/miniconda3/envs/cloudspace/bin/python3
-    4 步（不評測）：優化   29.1 s   全程   35.1 s
-   12 步（不評測）：優化   86.8 s   全程   92.8 s
-run_defense.py 失敗（步數 4，評測 True）

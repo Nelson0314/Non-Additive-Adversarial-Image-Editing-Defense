@@ -1,0 +1,2 @@
+image,condition,attacker,instruction,task,radius,unreachable,pixel_gate_sigma,edit_steps,s_t,s_i,edit_seed,modified_from_paper,fid_lpips,fid_ssim,fid_psnr,fid_vif_p,fid_dists,edit_lpips,edit_ssim,edit_psnr,edit_vif_p,edit_dists,fid_linf,fid_rms,total_seconds
+task_attr_mod_color_22137,phase,instruct-pix2pix,turn the color of ring to be gray,,2.0,False,1.0,100,7.5,1.5,20260812,False,0.21585,0.97362,28.825,0.51477,0.07063,0.22446,0.87552,22.604,0.29398,0.19226,0.84549,0.03621,123.6

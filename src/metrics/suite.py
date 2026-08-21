@@ -12,7 +12,8 @@ LPIPS 與 pg_enc 幾乎相同，PSNR 卻相差 12.7 dB、L∞ 相差 28 倍。�
 | SSIM   | 結構   | 高者佳 | piq.ssim | ✓ |
 | VIFp   | 資訊   | 高者佳 | piq.vif_p | ✓ |
 | FSIM   | 特徵   | 高者佳 | piq.fsim | ✓ |
-| LPIPS  | 感知   | 低者佳 | piq.LPIPS (AlexNet) | ✓ |
+| LPIPS  | 感知   | 低者佳 | piq.LPIPS (**VGG16**) | ✓ |
+| FID    | 分布   | 低者佳 | piq.FID + Inception-V3 | |
 | DISTS  | 感知   | 低者佳 | piq.DISTS | |
 | 銳利度 | 頻域   | 趨近 1 | src.metrics.acutance | |
 | NIQE   | 無參考 | 低者佳 | pyiqa | |
@@ -37,6 +38,19 @@ CLIP 與 SigLIP 兩個語意指標都納入，是為了避免單一視覺語言�
 校準過的 logit），不可互相比較絕對值，只能各自比較組間差異。
 
 模型權重載入一次後常駐，`MetricSuite` 應在整個實驗中共用同一個實例。
+
+2026-08-19 更正一筆文件錯誤。before：上表的 LPIPS 一欄寫「piq.LPIPS
+(AlexNet)」。after：改為 VGG16。`piq.LPIPS.__init__` 的 `super().__init__`
+第一個位置參數就是 `"vgg16"`，本機實測也確認 `piq.LPIPS` 與官方
+`lpips(net='vgg')` 逐位相同（紋理重相位 0.1884 對 0.1884、mist 0.6234 對
+0.6234），而官方 `lpips(net='alex')` 在同一批影像上是 0.0285 與 0.4718。
+**兩者的比值逐條件由 1.32 變動到 17.98**，不是常數，故不可用單一係數換算。
+影響範圍只有文件與跨論文引用：本專案所有既有數字都是同一個 VGG16 版本量的，
+彼此可比；引用他人的 LPIPS 時必須確認 backbone，理由見
+`docs/reference/BASELINE_ALIGNMENT.md` §1.2。
+
+2026-08-19 新增 FID（第 12 項）。理由是使用者定案的指標清單含 FID，而它是
+**分布指標**：吃兩組影像而不是一對，故不能放進 `pairwise`，另立 `fid`。
 """
 
 from typing import Dict, Optional, Sequence
@@ -78,6 +92,7 @@ class MetricSuite:
         self._niqe = None
         self._clip = None
         self._siglip = None
+        self._inception = None
         if not lazy:
             self._ensure_niqe()
             self._ensure_vlm()
@@ -111,6 +126,21 @@ class MetricSuite:
             import pyiqa
 
             self._niqe = pyiqa.create_metric("niqe", device=self.device)
+
+    def _ensure_inception(self):
+        """FID 用的 Inception-V3。
+
+        `use_fid_inception=True` 取的是 FID 原論文那份權重（`pt_inception`），
+        不是 torchvision 的 ImageNet 分類權重——兩者的數值不可比，換了就與
+        文獻上任何一個 FID 數字都對不起來。`output_blocks=[3]` 是 2048 維的
+        pool3 特徵，即標準設定。
+        """
+        if self._inception is None:
+            from piq.feature_extractors import InceptionV3
+
+            self._inception = InceptionV3(
+                output_blocks=[3], resize_input=True, normalize_input=True,
+                requires_grad=False, use_fid_inception=True).to(self.device).eval()
 
     def _ensure_vlm(self):
         if self._clip is not None:
@@ -213,6 +243,46 @@ class MetricSuite:
             "rms": float((d ** 2).mean().sqrt()),
             "frac_gt_16_255": float((d > 16 / 255).float().mean()),
         }
+
+    # FID 的樣本數下限。**這不是技術下限而是可信度下限**：協方差矩陣是
+    # 2048×2048，樣本數遠小於維度時估計量有嚴重偏誤，小樣本 FID 會系統性
+    # 偏高且與樣本數強相關。DCT-Shield（arXiv:2504.17894）Table 1 用 150 張、
+    # Table 2 用 56 張。本專案的規定見 `docs/reference/BASELINE_ALIGNMENT.md`
+    # §6：n < 150 的批次一律留空，不得以小樣本 FID 充數。
+    FID_MIN_TRUSTED = 150
+
+    @torch.no_grad()
+    def fid(self, xs, ys, batch_size: int = 8) -> float:
+        """兩組影像之間的 FID。`xs`／`ys` 為 (N,3,H,W)、[0,1] 或其可迭代形式。
+
+        **與 `pairwise` 的差別是它吃分布不是吃一對。** 兩組的張數可以不同
+        （FID 比的是兩個高斯的距離），但每組至少要有 2 張，否則協方差無定義；
+        少於 `FID_MIN_TRUSTED` 時仍會算出來並不攔阻，是因為煙霧測試要跑得動，
+        **但報表端有責任留空**——把它藏成例外反而會讓小樣本數字悄悄進表。
+
+        `batch_size` 預設 8 是為了本機 4 GB 顯存的 512² 影像；遠端可調大。
+        """
+        feats = []
+        for group in (xs, ys):
+            if isinstance(group, torch.Tensor):
+                imgs = group if group.dim() == 4 else group.unsqueeze(0)
+            else:
+                imgs = torch.cat([g if g.dim() == 4 else g.unsqueeze(0)
+                                  for g in group], dim=0)
+            if imgs.shape[0] < 2:
+                raise ValueError(
+                    f"FID 每組至少需要 2 張影像，收到 {imgs.shape[0]} 張")
+            self._ensure_inception()
+            out = []
+            for i in range(0, imgs.shape[0], batch_size):
+                chunk = imgs[i:i + batch_size].to(self.device).float().clamp(0, 1)
+                f = self._inception(chunk)[0]
+                out.append(f.flatten(start_dim=1).cpu())
+            feats.append(torch.cat(out, dim=0))
+
+        import piq
+
+        return float(piq.FID()(feats[0], feats[1]))
 
     # NIQE 把影像切成 96×96 區塊統計，短邊小於此值時沒有任何完整區塊，
     # pyiqa 會以 [1,1,0,0] 的空張量進入 F.pad 而拋出 RuntimeError。

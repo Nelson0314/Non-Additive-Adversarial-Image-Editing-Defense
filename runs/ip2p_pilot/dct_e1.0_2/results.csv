@@ -1,0 +1,7 @@
+image,condition,attacker,instruction,task,radius,unreachable,edit_steps,s_t,s_i,edit_seed,modified_from_paper,fid_lpips,fid_ssim,fid_psnr,fid_vif_p,fid_dists,edit_lpips,edit_ssim,edit_psnr,edit_vif_p,edit_dists,fid_linf,fid_rms,total_seconds
+task_attr_mod_color_184837,dct_shield,instruct-pix2pix,turn the color of frame to pink,,1.0,False,100,7.5,1.5,20260812,False,0.34194,0.9266,28.98,0.5894,0.03485,0.51786,0.52336,16.607,0.27256,0.28911,0.32156,0.03556,390.4
+task_env_weather_133752,dct_shield,instruct-pix2pix,transform the setting to a rainy day,,1.0,False,100,7.5,1.5,20260812,False,0.55754,0.88851,29.705,0.50679,0.06463,0.73447,0.23118,11.639,0.03125,0.43269,0.25938,0.03272,392.4
+task_obj_add_13726,dct_shield,instruct-pix2pix,Add subscribe button,,1.0,False,100,7.5,1.5,20260812,False,0.3779,0.86321,29.194,0.51596,0.03621,0.72166,0.47292,14.198,0.26559,0.38393,0.28696,0.0347,389.6
+task_obj_add_692065,dct_shield,instruct-pix2pix,Add monk,,1.0,False,100,7.5,1.5,20260812,False,0.35502,0.94378,29.0,0.60711,0.01897,0.4015,0.52905,17.014,0.35306,0.27208,0.24779,0.03548,392.0
+task_obj_remove_509477,dct_shield,instruct-pix2pix,Remove the man with glasses,,1.0,False,100,7.5,1.5,20260812,False,0.3644,0.92176,28.731,0.58069,0.02503,0.43717,0.5936,17.461,0.30112,0.26154,0.2844,0.0366,394.6
+task_obj_swap_joint_mask_75733,dct_shield,instruct-pix2pix,Replace the snowy landscape with sea,,1.0,False,100,7.5,1.5,20260812,False,0.51921,0.82326,29.815,0.39674,0.05709,0.62377,0.58116,13.01,0.08505,0.34762,0.23048,0.0323,380.5

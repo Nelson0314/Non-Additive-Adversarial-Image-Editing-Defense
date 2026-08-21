@@ -707,9 +707,9 @@ min-max</b>：淨化算子固定、已知、可微，只是在複合函數上做
         ["<code>scripts/freq_baselines_run.py</code>",
          "三個新對照組的驅動，原生設定與預算對齊兩種模式"],
         ["<code>scripts/run_s0819.sh</code>",
-         "頻率輪的具名工作表；`docs/RUNBOOK.md` §7 是它的說明"],
+         "頻率輪的具名工作表；`docs/OPERATIONS.md` 是它的說明"],
         ["<code>docs/DECISIONS.md</code>", "新增 DEC-025、DEC-026、DEC-027"],
-        ["<code>docs/FINDINGS.md</code>", "新增 FND-057"],
+        ["<code>docs/RESULTS.md</code>", "新增 FND-057"],
         ["<code>docs/reference/SURVEY_2026-08-18_frequency.md</code>",
          "31 篇的頻域／相位／抗淨化文獻查證；FreqPure 條目已更正"]])}
 <p>測試由 <b>207 passed / 1 xfailed</b> 增加到 <b>382 passed / 1 xfailed</b>
@@ -717,7 +717,7 @@ min-max</b>：淨化算子固定、已知、可微，只是在複合函數上做
 <div class="key">
 <p><b>其中 33 項是補寫的迴歸測試，補的是本報告自己的數字。</b>第 2、5、6 節的
 頭條——幅度／相位的比值、徑向功率譜的高頻佔比、扣掉地板的淨增益——在寫進
-<code>FINDINGS.md</code> 時，產生它們的三段程式（<code>radial_spectrum.py</code>
+<code>RESULTS.md</code> 時，產生它們的三段程式（<code>radial_spectrum.py</code>
 的分箱、<code>spectral_decompose.py</code> 的 DISTS 對齊搜尋、報告產生器的
 地板減法）<b>一項測試都沒有</b>。</p>
 <p>這三段寫錯都不會有症狀：半徑正規化錯了、二分搜尋沒收斂、地板減錯，

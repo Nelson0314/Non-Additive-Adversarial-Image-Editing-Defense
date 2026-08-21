@@ -1,0 +1,6 @@
+image,condition,attacker,instruction,task,radius,unreachable,pixel_gate_sigma,edit_steps,s_t,s_i,edit_seed,modified_from_paper,fid_lpips,fid_ssim,fid_psnr,fid_vif_p,fid_dists,edit_lpips,edit_ssim,edit_psnr,edit_vif_p,edit_dists,fid_linf,fid_rms,total_seconds
+task_attr_mod_color_158070,dct_shield,instruct-pix2pix,turn the color of playing card to red,,1.0,False,0.0,100,7.5,1.5,20260812,False,0.44582,0.87308,29.403,0.54285,0.04026,0.51948,0.43662,12.272,0.15586,0.26534,0.25906,0.03387,567.4
+task_env_weather_137230,dct_shield,instruct-pix2pix,change the setting to a summer day,,1.0,False,0.0,100,7.5,1.5,20260812,False,0.44855,0.86442,29.475,0.52574,0.04682,0.65309,0.53401,14.467,0.2956,0.3231,0.2694,0.03359,569.2
+task_obj_add_362298,dct_shield,instruct-pix2pix,Add sweaty torso,,1.0,False,0.0,100,7.5,1.5,20260812,False,0.53481,0.86205,29.764,0.49585,0.05794,0.71402,0.2477,11.378,0.04157,0.40699,0.22344,0.03249,569.7
+task_obj_remove_284852,dct_shield,instruct-pix2pix,Remove khaki pants,,1.0,False,0.0,100,7.5,1.5,20260812,False,0.5308,0.75016,30.161,0.43667,0.08012,0.73657,0.41116,10.306,0.08253,0.32793,0.24267,0.03104,567.4
+task_obj_swap_joint_mask_671429,dct_shield,instruct-pix2pix,Replace the astronaut with man,,1.0,False,0.0,100,7.5,1.5,20260812,False,0.33313,0.92869,28.847,0.57375,0.03979,0.66433,0.36128,16.02,0.21848,0.34838,0.25805,0.03611,567.7

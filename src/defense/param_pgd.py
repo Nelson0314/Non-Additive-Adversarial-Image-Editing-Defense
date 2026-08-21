@@ -99,20 +99,45 @@ class PhaseParam:
     name = "phase"
 
     def __init__(self, size: int = 512, block: int = 32, r_min: float = 0.12,
+                 r_max: float = float("inf"),
                  radius: float = math.pi, energy_quantile: float = 0.5,
-                 keep: Optional[torch.Tensor] = None, gl_iters: int = 0):
+                 keep: Optional[torch.Tensor] = None, gl_iters: int = 0,
+                 pixel_gate_sigma: float = 0.0, gain_ratio: float = 0.0,
+                 phase_on: bool = True):
         self.size, self.block, self.r_min = size, block, r_min
+        self.r_max = r_max
         self.energy_quantile = energy_quantile
-        self.radius = min(radius, math.pi)
+        # **radius 本身不封頂**，封頂只發生在傳給 `theta_max` 的那一刻。
+        # 2026-08-21 之前這裡是 `min(radius, pi)`，於是 `--radius 3.5` 與
+        # `--radius 4.5` 其實跑的是同一個 theta_max = pi——sigma 掃描看到的
+        # 「theta >= 3 之後 DISTS 卡住」有一部分是這個夾取造成的，不全是相位
+        # 的週期性。增益沒有週期性，它的上界必須跟著 radius 走，故分開處理。
+        self.radius = radius
         self.keep = keep
         self.gl_iters = gl_iters
+        # > 0 時在重疊相加之後再乘一層逐像素紋理遮罩（2026-08-20）。
+        # 預設 0 = 關閉，此時逐位元與加這個選項之前相同。
+        self.pixel_gate_sigma = pixel_gate_sigma
+        # 幅度也可學（2026-08-21）。`gain_ratio` 把單一的強度旋鈕綁到兩個
+        # 參數上：`gain_max = radius * gain_ratio`。綁在一起是為了讓既有的
+        # 掃描與二分搜尋機制（`fit_to_budget`）不必改成二維搜尋。
+        # `phase_on = False` 時 theta 凍結在 0，即「純幅度」變體。
+        if gain_ratio < 0:
+            raise ValueError(f"gain_ratio 不可為負，收到 {gain_ratio}")
+        self.gain_ratio = gain_ratio
+        self.phase_on = phase_on
+        if not phase_on and gain_ratio <= 0:
+            raise ValueError("phase_on=False 且 gain_ratio=0 時沒有任何自由度")
         self.module: Optional[PhaseResidual] = None
 
     def reset(self, x01: torch.Tensor, seed: int) -> None:
         self.module = PhaseResidual(
             size=self.size, block=self.block, r_min=self.r_min,
-            theta_max=self.radius, energy_quantile=self.energy_quantile,
-            gl_iters=self.gl_iters,
+            r_max=self.r_max,
+            theta_max=min(self.radius, math.pi),
+            energy_quantile=self.energy_quantile,
+            gl_iters=self.gl_iters, pixel_gate_sigma=self.pixel_gate_sigma,
+            gain_max=self.radius * self.gain_ratio,
         ).to(device=x01.device, dtype=x01.dtype)
         self.module.prepare_gates(x01, keep=self.keep)
 
@@ -120,16 +145,26 @@ class PhaseParam:
         return self.module.pixel_residual(x01).clamp(0.0, 1.0)
 
     def params(self) -> List[torch.Tensor]:
-        return [self.module.theta]
+        out = [self.module.theta] if self.phase_on else []
+        if self.gain_ratio > 0:
+            out.append(self.module.gain)
+        return out
 
     @torch.no_grad()
     def project(self) -> None:
-        self.module.theta.clamp_(-self.radius, self.radius)
+        if self.phase_on:
+            t = min(self.radius, math.pi)
+            self.module.theta.clamp_(-t, t)
+        if self.gain_ratio > 0:
+            g = self.radius * self.gain_ratio
+            self.module.gain.clamp_(-g, g)
 
     def set_radius(self, r: float) -> None:
-        self.radius = min(r, math.pi)
+        # **相位封頂在 pi，增益不封頂**——相位是週期量，增益不是。
+        self.radius = r
         if self.module is not None:
-            self.module.theta_max = self.radius
+            self.module.theta_max = min(r, math.pi)
+            self.module.gain_max = r * self.gain_ratio
 
 
 class RandomPhaseParam(PhaseParam):
@@ -144,10 +179,11 @@ class RandomPhaseParam(PhaseParam):
     def reset(self, x01: torch.Tensor, seed: int) -> None:
         super().reset(x01, seed)
         gen = torch.Generator(device="cpu").manual_seed(seed)
-        init = torch.randn(self.module.theta.shape, generator=gen) * self.radius
+        r = min(self.radius, math.pi)
+        init = torch.randn(self.module.theta.shape, generator=gen) * r
         with torch.no_grad():
             self.module.theta.copy_(
-                init.clamp(-self.radius, self.radius).to(
+                init.clamp(-r, r).to(
                     device=x01.device, dtype=x01.dtype)
             )
 

@@ -1,51 +1,0 @@
-[probe] NVIDIA GeForce RTX 2050 4.0 GB torch 2.13.0+cu126
-Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
-Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  17%|█▋        | 1/6 [00:00<00:01,  4.34it/s]
-Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 4966.40it/s]
-Loading pipeline components...:  50%|█████     | 3/6 [00:00<00:00,  7.59it/s]Loading pipeline components...:  83%|████████▎ | 5/6 [00:00<00:00, 10.78it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00,  8.95it/s]
-C:\Users\nelso\miniconda3\envs\wacv\Lib\site-packages\torchvision\models\_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
-  warnings.warn(
-C:\Users\nelso\miniconda3\envs\wacv\Lib\site-packages\torchvision\models\_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
-  warnings.warn(msg)
-C:\WACV\src\defense\objective.py:463: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
-Consider using tensor.detach() first. (Triggered internally at C:\actions-runner\_work\pytorch\pytorch\torch\csrc\autograd\generated\python_variable_methods.cpp:823.)
-  "fid_linf_total": float((xd - xr).abs().max()),
-  [attn] step    0  loss=-0.9836  div=9.8360e-01  lpips=0.0000  psnr=120.00  |g|=1.192e-02
-  [attn] step    1  loss=-0.9858  div=9.8581e-01  lpips=0.0042  psnr=42.00  |g|=6.071e-03
-  [attn] step    2  loss=-0.9867  div=9.8671e-01  lpips=0.0111  psnr=38.02  |g|=8.116e-03
-[probe] size=256  arm=crossattn     65.02 s/step  peak=6094 MB
-  [enc] step    0  loss=0.4981  L_def=0.4981  psnr=120.00  |g|=7.992e-02
-  [enc] step    1  loss=0.4492  L_def=0.4492  psnr=41.97  |g|=7.008e-02
-  [enc] step    2  loss=0.4069  L_def=0.4069  psnr=37.59  |g|=3.629e-02
-[probe] size=256  arm=encoder       11.87 s/step  peak=4953 MB
-  step    0  loss=1.0000  L_def=1.0000  L_fid=0.0000  shift=0.0000  psnr=120.00  linf=0.0000  |g|=0.000e+00
-  step    1  loss=1.0000  L_def=1.0000  L_fid=0.0000  shift=0.0000  psnr=120.00  linf=0.0000  |g|=0.000e+00
-  step    2  loss=1.0000  L_def=1.0000  L_fid=0.0000  shift=0.0000  psnr=120.00  linf=0.0000  |g|=0.000e+00
-[probe] size=256  arm=untargeted   177.68 s/step  peak=5630 MB
-Traceback (most recent call last):
-  File "C:\WACV\scripts\l4_crossattn_probe.py", line 147, in <module>
-    main()
-  File "C:\WACV\scripts\l4_crossattn_probe.py", line 106, in main
-    ARMS[arm](sd, module, x01, cfg, loss_cfg,
-  File "C:\WACV\src\defense\optimize.py", line 841, in optimize_crossattn
-    l_fid, parts = obj.fidelity_term(x_def, x01, x_base=x_base0)
-                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\WACV\src\defense\objective.py", line 402, in fidelity_term
-    lpips = self._lpips(xd, xr)
-            ^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\nelso\miniconda3\envs\wacv\Lib\site-packages\torch\nn\modules\module.py", line 1778, in _wrapped_call_impl
-    return self._call_impl(*args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\nelso\miniconda3\envs\wacv\Lib\site-packages\torch\nn\modules\module.py", line 1789, in _call_impl
-    return forward_call(*args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\nelso\miniconda3\envs\wacv\Lib\site-packages\piq\perceptual.py", line 183, in forward
-    loss = torch.cat([(d * w.to(d)).mean(dim=[2, 3]) for d, w in zip(distances, self.weights)], dim=1).sum(dim=1)
-                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\nelso\miniconda3\envs\wacv\Lib\site-packages\piq\perceptual.py", line 183, in <listcomp>
-    loss = torch.cat([(d * w.to(d)).mean(dim=[2, 3]) for d, w in zip(distances, self.weights)], dim=1).sum(dim=1)
-                           ^^^^^^^
-torch.AcceleratorError: CUDA error: out of memory
-Search for `cudaErrorMemoryAllocation' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
-For more detailed error information, run with CUDA_LOG_FILE=stderr
-

@@ -1,0 +1,7 @@
+image,instruction,clip_orig,clip_edit,clip_gain,siglip_orig,siglip_edit,siglip_gain,pixel_lpips,edit_steps,s_t,s_i,edit_seed,seconds
+task_attr_mod_color_32648,turn the color of potion bottle to orange,0.34367,0.36439,0.02072,0.12153,0.15187,0.03034,0.53507,100,7.5,1.5,20260812,56.6
+task_env_weather_181583,change the setting to a stormy day,0.18212,0.19085,0.00873,0.00866,0.01658,0.00792,0.26938,100,7.5,1.5,20260812,37.9
+task_obj_add_340466,Add orange juice,0.17618,0.20072,0.02454,-0.09555,-0.0754,0.02015,0.22717,100,7.5,1.5,20260812,40.2
+task_obj_remove_10197,Remove gravel path,0.20251,0.30173,0.09922,0.01917,0.13307,0.1139,0.53434,100,7.5,1.5,20260812,40.5
+task_obj_remove_657585,Remove frisbee,0.25844,0.20445,-0.05399,0.097,-0.0244,-0.1214,0.25933,100,7.5,1.5,20260812,41.3
+task_obj_swap_rand_mask_298147,Replace the wizard's robe with red shirt,0.26983,0.26321,-0.00662,0.0482,0.04545,-0.00275,0.27563,100,7.5,1.5,20260812,41.5

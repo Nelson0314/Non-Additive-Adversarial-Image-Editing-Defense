@@ -1,0 +1,7 @@
+image,instruction,clip_orig,clip_edit,clip_gain,siglip_orig,siglip_edit,siglip_gain,pixel_lpips,edit_steps,s_t,s_i,edit_seed,seconds
+task_attr_mod_color_136767,turn the color of astronaut to pink,0.29604,0.33624,0.0402,0.08185,0.13611,0.05426,0.22051,100,7.5,1.5,20260812,63.5
+task_env_weather_112463,transform the setting to spring with blooming flowers,0.16526,0.22373,0.05847,-0.04809,0.01517,0.06326,0.37298,100,7.5,1.5,20260812,40.1
+task_env_weather_63722,change the setting to a snowy landscape,0.17419,0.21727,0.04308,0.00839,0.036,0.0276,0.21166,100,7.5,1.5,20260812,40.5
+task_obj_add_581286,Add sauce,0.21507,0.20711,-0.00796,0.05431,0.04929,-0.00503,0.10079,100,7.5,1.5,20260812,41.1
+task_obj_remove_380621,Remove iceberg,0.28664,0.2277,-0.05894,0.08821,0.03907,-0.04914,0.21375,100,7.5,1.5,20260812,41.5
+task_obj_swap_joint_mask_533428,Replace the samurai armor with red jacket,0.2567,0.25891,0.00221,0.04138,0.02649,-0.0149,0.55105,100,7.5,1.5,20260812,38.5

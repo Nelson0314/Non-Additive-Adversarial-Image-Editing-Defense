@@ -39,6 +39,7 @@ from typing import Callable, Optional, Sequence
 import torch
 
 from src.baselines.jpeg_codec import jpeg_roundtrip_ste
+from src.purify.ops import CROP_FRACTION_DIA, crop_resize, gaussian_blur
 
 # MetaCloak-JPEG 摘要載明的端點；衰減形狀為本專案指定（線性）
 CURRICULUM_Q_HI = 95
@@ -105,6 +106,47 @@ def make_eot_jpeg_transform(qualities: Sequence[int], seed: int = 0
     def transform(x01: torch.Tensor, step: int) -> torch.Tensor:
         i = int(torch.randint(len(qualities), (1,), generator=gen))
         return jpeg_roundtrip_ste(x01, qualities[i])
+
+    return transform
+
+
+def make_eot_ops_transform(qualities: Sequence[int] = (75,),
+                           blur_sigma: float = 1.0,
+                           crop_frac: float = CROP_FRACTION_DIA,
+                           seed: int = 0,
+                           ) -> Callable[[torch.Tensor, int], torch.Tensor]:
+    """**多算子**的 expectation-over-transformation：每步隨機抽一個淨化算子。
+
+    為什麼要它：2026-08-21 的縮小版量到紋理重相位在 JPEG 上淨增益 +0.1704
+    （勝 DCT-Shield 2.77 倍、逐圖 5/5），但在高斯模糊上打平、在裁切縮放上輸
+    （+0.0360 對 +0.1083、0/5）。「贏一個算子、輸兩個」在文獻上的標準解就是
+    把整組算子放進期望值裡。
+
+    **算子直接取自 `src/purify/ops.py`，不另寫一份。** `gaussian_blur` 與
+    `crop_resize` 本來就原生可微（`ops._DIFFERENTIABLE` 列著），複製一份只會
+    多一個「最佳化的對象和評測的對象悄悄不同」的錯誤來源。JPEG 不可微，走
+    `jpeg_roundtrip_ste` 的直通估計。
+
+    抽樣而非每步求平均：求平均要每步多算三次完整前向（VAE 編碼是主要成本），
+    抽樣把成本攤到步與步之間。**這與 `make_eot_jpeg_transform` 只抽品質不同，
+    也與 MetaCloak-JPEG 的課程排程不同，三者不可混在同一列報表上。**
+
+    `identity` 一定在候選裡——沒有它，最佳化會為了抗淨化而放棄未淨化時的
+    效果，那不是我們要的取捨。
+    """
+    if not qualities:
+        raise ValueError("qualities 不可為空")
+    ops: list = [
+        lambda z: z,
+        lambda z: gaussian_blur(z, blur_sigma),
+        lambda z: crop_resize(z, crop_frac),
+    ]
+    ops += [(lambda q: (lambda z: jpeg_roundtrip_ste(z, q)))(q) for q in qualities]
+    gen = torch.Generator(device="cpu").manual_seed(int(seed))
+
+    def transform(x01: torch.Tensor, step: int) -> torch.Tensor:
+        i = int(torch.randint(len(ops), (1,), generator=gen))
+        return ops[i](x01)
 
     return transform
 

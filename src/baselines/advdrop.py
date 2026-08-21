@@ -86,7 +86,9 @@ from typing import Callable, Dict, List, Optional
 
 import torch
 
-from src.baselines.jpeg_codec import block_dct, block_idct, dct_matrix
+from src.baselines.jpeg_codec import (
+    block_dct, block_idct, dct_matrix, rgb_to_ycbcr, ycbcr_to_rgb,
+)
 
 PAPER_BLOCK = 8
 PAPER_Q_SIZE = 10.0
@@ -96,6 +98,33 @@ PAPER_ALPHA_HI = 0.1
 PAPER_ALPHA_LO = 1e-20
 PAPER_STEP_SIZE = 1.0
 CHANNELS = ("r", "g", "b")          # 原始碼命名為 y/cb/cr，實際是 RGB
+
+# **色彩空間是 2026-08-21 新增的檢定變因，不是論文的旗標。**
+# 官方 `infod_sample.py` 把變數命名成 y/cb/cr，餵進去的卻是 images[:,:,:,0..2]
+# 也就是 R、G、B（08-19 逐行核對）。但論文 Figure 4 的管線圖與那組命名都指向
+# YCbCr。這個差別在 JPEG 防禦那一欄可能是決定性的——JPEG 對色度做 4:2:0
+# 下採樣，擾動若平均分布在 RGB 三通道，轉到 YCbCr 之後有一部分落在會被
+# 下採樣抹掉的色度上；若本來就只在 Y 上，就躲得掉。
+COLOR_SPACES = ("rgb", "ycbcr")
+
+# ---- 論文與官方程式碼不一致的地方（2026-08-21 由論文全文核出）----
+#
+# 論文正文 §3.1 與式 (7)：`q_init = 1`、約束是 `‖q − q_init‖∞ < ε`，
+# §4.3 掃 `ε ∈ {20, 60, 100}`，也就是量化表由 1 **往上長**到最多 101。
+# 官方 `infod_sample.py` 的簽章預設卻是 `q_size = 10`、`factor_range = [5, 10]`、
+# 初始值 `q_size`，即由 10 **往下走**到 5。兩者的可動區間差了一個數量級。
+#
+# 這不是移植錯誤，是那份 repo 的 demo 設定與論文實驗設定不同。故本檔同時支援：
+#
+#   程式碼模式（預設）  q ∈ [q_min, q_size]，初始 q_size —— 沿用 08-19 的逐行對照
+#   論文模式            q ∈ [q_init, q_init + eps]，初始 q_init —— 重現 Table 1／2
+#
+# 兩者的更新規則相同（sign 下降、步長 1、夾取），差別只有初始值與夾取範圍。
+# **報表必須寫明用的是哪一個**，兩者的數字不可混放同一欄。
+PAPER_Q_INIT = 1.0                  # 論文 §3.1「We set q_init = 1」
+PAPER_EPS_SWEEP = (20.0, 60.0, 100.0)   # 論文 §4.3 Table 1
+PAPER_UNTARGETED_STEPS = 50         # 論文 §4.3「untargeted ... 50」
+PAPER_TARGETED_STEPS = 500          # 同上，targeted
 
 
 def phi_diff(x: torch.Tensor, alpha: torch.Tensor) -> torch.Tensor:
@@ -124,21 +153,38 @@ def alpha_at(step: int, steps: int, *, hi: float = PAPER_ALPHA_HI,
 
 
 def quantize_drop(coef: torch.Tensor, q_table: torch.Tensor,
-                  alpha: torch.Tensor) -> torch.Tensor:
-    """`compression.quantize` ＋ `decompression.dequantize`：除、軟捨入、乘回。"""
+                  alpha: torch.Tensor, hard_round: bool = False) -> torch.Tensor:
+    """`compression.quantize` ＋ `decompression.dequantize`：除、捨入、乘回。
+
+    `hard_round=True` 用真正的 `torch.round`，**梯度處處為零**。這是論文
+    §4.5 的消融（它報 5.00±0.98%）：量化表完全不會動，剩下的成功率全部來自
+    `q_init` 本身造成的損傷。
+
+    注意這與「把 alpha 設得很小」**不是同一件事**——alpha=1e-20 時
+    `phi_diff` 的 k 約 46.7，逼近 round 但仍可微，梯度還在，攻擊照樣成立
+    （本專案實測成功率 1.000）。要重現那個 5% 必須用真正的 round。
+    """
+    if hard_round:
+        return torch.round(coef / q_table) * q_table
     return phi_diff(coef / q_table, alpha) * q_table
 
 
 def _channel_roundtrip(plane255: torch.Tensor, q_table: torch.Tensor,
-                       alpha: torch.Tensor, d: torch.Tensor) -> torch.Tensor:
+                       alpha: torch.Tensor, d: torch.Tensor,
+                       hard_round: bool = False) -> torch.Tensor:
     """單通道的 切塊 → −128 → DCT → 量化丟資訊 → IDCT → 拼回。"""
     coef = block_dct(plane255 - 128.0, d)
-    return block_idct(quantize_drop(coef, q_table, alpha), d) + 128.0
+    return block_idct(quantize_drop(coef, q_table, alpha, hard_round), d) + 128.0
 
 
 def render_advdrop(x01: torch.Tensor, q_tables: Dict[str, torch.Tensor],
-                   alpha: torch.Tensor) -> torch.Tensor:
-    """完整的前向。輸入輸出皆 `[0,1]`；內部在 `[0,255]` 上工作。"""
+                   alpha: torch.Tensor, color: str = "rgb",
+                   hard_round: bool = False) -> torch.Tensor:
+    """完整的前向。輸入輸出皆 `[0,1]`；內部在 `[0,255]` 上工作。
+
+    `color="ycbcr"` 是檢定用的變體：先轉 YCbCr 再逐通道量化，**不做 4:2:0
+    下採樣**（AdvDrop 本來就沒有那一步，加了會變成別的方法）。
+    """
     if x01.dim() != 4 or x01.shape[1] != 3:
         raise ValueError(f"需要 (N,3,H,W)，收到 {tuple(x01.shape)}")
     h, w = x01.shape[-2:]
@@ -146,11 +192,16 @@ def render_advdrop(x01: torch.Tensor, q_tables: Dict[str, torch.Tensor],
         raise ValueError(f"高寬必須是 {PAPER_BLOCK} 的倍數，收到 {h}×{w}")
     d = dct_matrix(x01.device, x01.dtype)
     x255 = x01 * 255.0
+    if color == "ycbcr":
+        x255 = rgb_to_ycbcr(x255)
     out = [
-        _channel_roundtrip(x255[:, i:i + 1], q_tables[c], alpha, d)
+        _channel_roundtrip(x255[:, i:i + 1], q_tables[c], alpha, d, hard_round)
         for i, c in enumerate(CHANNELS)
     ]
-    return (torch.cat(out, dim=1) / 255.0).clamp(0.0, 1.0)
+    y = torch.cat(out, dim=1)
+    if color == "ycbcr":
+        y = ycbcr_to_rgb(y)
+    return (y / 255.0).clamp(0.0, 1.0)
 
 
 def init_q_tables(x01: torch.Tensor, q_size: float = PAPER_Q_SIZE
@@ -172,11 +223,50 @@ class AdvDropSpec:
     step_size: float = PAPER_STEP_SIZE
     alpha_hi: float = PAPER_ALPHA_HI
     alpha_lo: float = PAPER_ALPHA_LO
+    # "rgb" = 官方程式碼實際做的；"ycbcr" = 變數命名與 Figure 4 指向的。
+    # 見 COLOR_SPACES 的說明。**ycbcr 必須標 modified_from_paper。**
+    color: str = "rgb"
+    # 論文 §4.5 的消融：用真正的 round（梯度為零）。**不是論文的方法本身**，
+    # 必須標 modified_from_paper。
+    hard_round: bool = False
+    # 論文模式：兩個同時給定時，可動區間變成 [q_init, q_init + eps]，
+    # 初始值是 q_init（見檔頭「論文與官方程式碼不一致的地方」）。
+    q_init: Optional[float] = None
+    eps: Optional[float] = None
     modified_from_paper: bool = False
     modification_note: str = ""
     source: str = "arXiv:2108.09034；超參數取自 infod_sample.py 的簽章預設"
 
+    @property
+    def paper_mode(self) -> bool:
+        return self.q_init is not None and self.eps is not None
+
+    def bounds(self) -> tuple:
+        """回傳 `(lo, hi, init)`。兩種模式的唯一差別就在這三個數。"""
+        if self.paper_mode:
+            return self.q_init, self.q_init + self.eps, self.q_init
+        return self.q_min, self.q_size, self.q_size
+
     def __post_init__(self):
+        if self.color not in COLOR_SPACES:
+            raise ValueError(f"未知色彩空間 {self.color}；可用 {COLOR_SPACES}")
+        if self.hard_round and not self.modified_from_paper:
+            raise ValueError(
+                f"{self.name}: hard_round 是 §4.5 的消融，不是論文的方法本身，"
+                "必須標 modified_from_paper 並寫明")
+        if self.color != "rgb" and not self.modified_from_paper:
+            raise ValueError(
+                f"{self.name}: color={self.color} 不是官方程式碼實際做的"
+                "（它在 RGB 上量化），必須標 modified_from_paper 並寫明")
+        if (self.q_init is None) != (self.eps is None):
+            raise ValueError(
+                f"{self.name}: q_init 與 eps 必須同時給定（論文模式）或同時省略"
+                "（程式碼模式）；只給一個時可動區間沒有定義")
+        if self.paper_mode:
+            if self.eps <= 0:
+                raise ValueError(f"{self.name}: eps={self.eps} 必須為正，"
+                                 "否則量化表沒有可動的區間")
+            return
         if self.q_min >= self.q_size:
             raise ValueError(
                 f"q_min={self.q_min} 不小於 q_size={self.q_size}，"
@@ -215,7 +305,8 @@ def run_advdrop(
         def loss_fn(x):
             return sd.encode_image(x).pow(2).mean()
 
-    q = init_q_tables(x01, spec.q_size)
+    lo, hi, init = spec.bounds()
+    q = init_q_tables(x01, init)
     history: List[Dict] = []
 
     for i in range(spec.steps):
@@ -224,13 +315,14 @@ def run_advdrop(
                          device=x01.device, dtype=x01.dtype)
         for t in q.values():
             t.requires_grad_(True)
-        x_adv = render_advdrop(x01, q, a)
+        x_adv = render_advdrop(x01, q, a, spec.color, spec.hard_round)
         loss = loss_fn(x_adv)
-        grads = torch.autograd.grad(loss, [q[c] for c in CHANNELS])
+        grads = torch.autograd.grad(loss, [q[c] for c in CHANNELS],
+                                    allow_unused=True, materialize_grads=True)
         with torch.no_grad():
             for c, g in zip(CHANNELS, grads):
                 q[c] = (q[c] - spec.step_size * torch.sign(g)).clamp(
-                    spec.q_min, spec.q_size).detach().requires_grad_(True)
+                    lo, hi).detach().requires_grad_(True)
         if log_every and (i % log_every == 0 or i == spec.steps - 1):
             history.append({"step": i, "loss": float(loss.detach()),
                             "alpha": float(a)})
@@ -239,7 +331,7 @@ def run_advdrop(
 
     with torch.no_grad():
         hard = torch.tensor(spec.alpha_lo, device=x01.device, dtype=x01.dtype)
-        x_def = render_advdrop(x01, q, hard).detach()
+        x_def = render_advdrop(x01, q, hard, spec.color, spec.hard_round).detach()
     return AdvDropResult(x_def, spec, history)
 
 

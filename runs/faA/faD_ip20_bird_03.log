@@ -1,53 +1,0 @@
-[launch] profile=ip20 gpu=5 out=/nfs/home/nelson0314/wacv_runs/faD_ip20_bird_03 images=bird_03
-[env] 載入 SDInpaintWrapper(runwayml/stable-diffusion-inpainting) dtype=torch.float32
-Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]An error occurred while trying to fetch /var/cache/huggingface/hub/models--runwayml--stable-diffusion-inpainting/snapshots/8a4288a76071f7280aedbdb3253bdb9e9d5d84bb/vae: Error no file named diffusion_pytorch_model.safetensors found in directory /var/cache/huggingface/hub/models--runwayml--stable-diffusion-inpainting/snapshots/8a4288a76071f7280aedbdb3253bdb9e9d5d84bb/vae.
-Defaulting to unsafe serialization. Pass `allow_pickle=False` to raise an error instead.
-An error occurred while trying to fetch /var/cache/huggingface/hub/models--runwayml--stable-diffusion-inpainting/snapshots/8a4288a76071f7280aedbdb3253bdb9e9d5d84bb/unet: Error no file named diffusion_pytorch_model.safetensors found in directory /var/cache/huggingface/hub/models--runwayml--stable-diffusion-inpainting/snapshots/8a4288a76071f7280aedbdb3253bdb9e9d5d84bb/unet.
-Defaulting to unsafe serialization. Pass `allow_pickle=False` to raise an error instead.
-Loading pipeline components...:  67%|██████▋   | 4/6 [00:00<00:00, 19.72it/s]
-Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 18286.81it/s]
-Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 14.95it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 15.70it/s]
-There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
-There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
-/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
-  warnings.warn(
-/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
-  warnings.warn(msg)
-[env] 影像 1 張：['bird_03']
-  [mask] bird_03 c_a='bird'（須在遮罩外） 涵蓋率=0.691  ← data/lo_masks/bird_03.png
-[目標] dists（感知項與停止判準）  w_pixel=0.15
-[A2] 可微調參數 95 組共 35715 個（解碼器全參數 49490179）
-[bird_03] 舊下限 VAE 來回 LPIPS 0.1146  DISTS 0.0268  PSNR 31.77 dB  銳利度比 0.9593
-[bird_03] 舊下限 生成路徑 LPIPS 0.1146  DISTS 0.0268  PSNR 31.77 dB  銳利度比 0.9593  兩者 LPIPS 差 2.98e-08
-[bird_03] A2 目標 dists≤0.0134  銳利度帶 |1−r|≤0.0500
-  [A1] step    0  loss=0.02904  lpips=0.1146  dists=0.0268  psnr=31.7653  acutance_ratio=0.9593
-  [A1] step   20  loss=0.00851  lpips=0.1513  dists=0.0060  psnr=31.1108  acutance_ratio=0.9406
-  [A1] step   40  loss=0.00572  lpips=0.1453  dists=0.0033  psnr=31.3883  acutance_ratio=0.9364
-  [A1] step   60  loss=0.00447  lpips=0.1373  dists=0.0022  psnr=31.7640  acutance_ratio=0.9280
-  [A1] step   80  loss=0.00451  lpips=0.1345  dists=0.0023  psnr=32.0391  acutance_ratio=0.9223
-  [A1] step  100  loss=0.00371  lpips=0.1308  dists=0.0016  psnr=32.2557  acutance_ratio=0.9198
-  [A1] step  120  loss=0.00340  lpips=0.1271  dists=0.0014  psnr=32.4517  acutance_ratio=0.9201
-  [A1] step  140  loss=0.00430  lpips=0.1248  dists=0.0023  psnr=32.5874  acutance_ratio=0.9179
-  [A1] step  160  loss=0.00389  lpips=0.1274  dists=0.0019  psnr=32.5968  acutance_ratio=0.9165
-  [A1] step  180  loss=0.00311  lpips=0.1266  dists=0.0011  psnr=32.6944  acutance_ratio=0.9161
-  [A1] step  200  loss=0.00309  lpips=0.1239  dists=0.0011  psnr=32.8147  acutance_ratio=0.9168
-  [A1] step    0  loss=0.02904  lpips=0.1146  dists=0.0268  psnr=31.7653  acutance_ratio=0.9593
-  [A1] step   20  loss=0.00895  lpips=0.1377  dists=0.0065  psnr=31.2732  acutance_ratio=0.9999
-  [A1] step   40  loss=0.00539  lpips=0.1376  dists=0.0030  psnr=31.2873  acutance_ratio=1.0283
-  [A1] step   60  loss=0.00462  lpips=0.1318  dists=0.0023  psnr=31.5253  acutance_ratio=1.0040
-  [A1] step   80  loss=0.00450  lpips=0.1306  dists=0.0023  psnr=31.7354  acutance_ratio=0.9519
-  [A1] step  100  loss=0.01447  lpips=0.1281  dists=0.0018  psnr=31.8288  acutance_ratio=0.9395  [不可行]
-  [A1] step  120  loss=0.00351  lpips=0.1274  dists=0.0013  psnr=31.6869  acutance_ratio=1.0457
-  [A1] step  140  loss=0.00400  lpips=0.1265  dists=0.0019  psnr=31.8725  acutance_ratio=0.9965
-  [A1] step  160  loss=0.00355  lpips=0.1271  dists=0.0014  psnr=31.8777  acutance_ratio=1.0232
-  [A1] step  180  loss=0.00345  lpips=0.1260  dists=0.0014  psnr=31.9761  acutance_ratio=1.0199
-  [A1] step  200  loss=0.00333  lpips=0.1246  dists=0.0013  psnr=32.0698  acutance_ratio=1.0139
-  [A2] step    0  loss=0.00333  lpips=0.1246  dists=0.0013  psnr=32.0698  acutance_ratio=1.0139
-  [A2] 第 0 步達到目標 dists≤0.0134（0.0013），停止
-[bird_03] A1 無約束 LPIPS 0.1266  DISTS 0.0011  PSNR 32.69 dB  銳利度比 0.9161
-[bird_03] A1 LPIPS 0.1246  DISTS 0.0013  PSNR 32.07 dB  銳利度比 1.0139
-[bird_03] A2 LPIPS 0.1246  DISTS 0.0013  PSNR 32.07 dB  銳利度比 1.0139
-[bird_03] latent 反應 DISTS 0.0087 → 0.0087（比 1.000）
-
-表：/nfs/home/nelson0314/wacv_runs/faD_ip20_bird_03/floor_ab.csv
-比對頁：/nfs/home/nelson0314/wacv_runs/faD_ip20_bird_03/compare.html

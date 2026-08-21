@@ -1,0 +1,10 @@
+eps,step_size,targeted,steps,n,succ_def,hard_quant,succ_none,succ_jpeg30,succ_bit6,lpips,seconds
+20.0,4.0,False,50,200,defended,False,0.88,0.065,0.825,0.04357,27.3
+20.0,6.0,False,50,200,defended,False,0.825,0.065,0.745,0.04559,26.7
+20.0,8.0,False,50,200,defended,False,0.655,0.035,0.535,0.04446,26.8
+60.0,4.0,False,50,200,defended,False,0.96,0.095,0.935,0.06432,26.9
+60.0,6.0,False,50,200,defended,False,0.995,0.16,0.985,0.09813,26.7
+60.0,8.0,False,50,200,defended,False,1.0,0.155,0.995,0.12194,28.3
+100.0,4.0,False,50,200,defended,False,0.96,0.085,0.93,0.06427,28.1
+100.0,6.0,False,50,200,defended,False,1.0,0.145,0.99,0.10336,27.2
+100.0,8.0,False,50,200,defended,False,1.0,0.185,0.995,0.13962,26.9

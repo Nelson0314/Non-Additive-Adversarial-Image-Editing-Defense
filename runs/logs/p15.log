@@ -1,28 +1,0 @@
-C:\Users\nelso\miniconda3\envs\wacv\Lib\site-packages\torchvision\models\_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
-  warnings.warn(
-C:\Users\nelso\miniconda3\envs\wacv\Lib\site-packages\torchvision\models\_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
-  warnings.warn(msg)
-Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
-Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 17149.86it/s]
-[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
-[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
-Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 7322.66it/s]
-  e29_edit_page/e29_C_lr0.3        car_00  Δniqe=-0.145  Δsiglip=+0.0074
-  e29_edit_page/e29_P_lr0.03       car_00  Δniqe=+0.369  Δsiglip=+0.0196
-  e29_edit_page/e29b_C_lr0.2       car_00  Δniqe=-0.093  Δsiglip=+0.0012
-  e29_edit_page/e29_C_lr0.3        car_01  Δniqe=+0.874  Δsiglip=-0.0678
-  e29_edit_page/e29_P_lr0.03       car_01  Δniqe=-0.163  Δsiglip=-0.0013
-  e29_edit_page/e29b_C_lr0.2       car_01  Δniqe=+0.560  Δsiglip=-0.0053
-  e29c_edit_page/e29c_C_tau0.10     car_00  Δniqe=-0.101  Δsiglip=-0.0071
-  e29c_edit_page/e29c_P_tau0.10     car_00  Δniqe=+1.582  Δsiglip=+0.0129
-
-頁面 / 臂                                        n   ΔSigLIP      Δ劣化 語意   劣化   ISR
-e29_edit_page / e29_C_lr0.3                   2   -0.0302   +0.365 否    否    否
-e29_edit_page / e29_P_lr0.03                  2   +0.0092   +0.103 否    否    否
-e29_edit_page / e29b_C_lr0.2                  2   -0.0021   +0.234 否    否    否
-e29c_edit_page / e29c_C_tau0.10               1   -0.0071   -0.101 否    否    否
-e29c_edit_page / e29c_P_tau0.10               1   +0.0129   +1.582 否    否    否
-
-[p15] 5 格中 ISR 成立 0 格（門檻 1.0）
-[p15] 寫出 C:\WACV\runs\p15_editpage_degrade\per_image.csv 與 C:\WACV\runs\p15_editpage_degrade\verdicts.csv
-[p15] 提醒：n=2 是判定的下限，且只有一個運作點、一個目標函數。這不取代 E31 網格。

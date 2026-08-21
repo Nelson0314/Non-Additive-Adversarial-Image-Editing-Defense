@@ -82,6 +82,16 @@ class DCTShieldSpec:
     gamma: float = PAPER_GAMMA
     steps: int = PAPER_STEPS
     channels: Tuple[str, ...] = CHANNEL_NAMES
+    # **不是論文的旗標**：論文正文與補充材料的 Algorithm 1 都沒有排除 DC。
+    # 加它是為了檢定一個重現落差的假設，用到就必須標 modified_from_paper。
+    #
+    # 2026-08-20 的診斷：本專案實作出的 δ 在**每個係數上都吃滿 ±1**
+    # （Y 通道 |δ| 中位 0.903、50.3% 超過 0.9），而 DC 是最飽和的位置
+    # （Y 1.02、Cb 1.13、Cr 0.96）。DC 是區塊的平均亮度／色度，整階平移
+    # 等於每個 8×8 區塊整體變亮或變色——平坦區的可見方格由此而來。
+    # 論文報的失真是 LPIPS 0.267，本專案量到 0.469（1.76 倍），而 PSNR
+    # 反而高 1.83 dB：能量更小卻更醜，指向擾動放錯位置。
+    skip_dc: bool = False
     modified_from_paper: bool = False
     modification_note: str = ""
     source: str = ""
@@ -94,6 +104,12 @@ class DCTShieldSpec:
             raise ValueError("channels 不可為空——那樣 δ 沒有任何自由度")
         if self.modified_from_paper and not self.modification_note:
             raise ValueError(f"{self.name} 標了 modified_from_paper 卻沒寫改了什麼")
+        if self.skip_dc and not self.modified_from_paper:
+            # skip_dc 不在論文裡。不強制標註的話，一個檢定用的變體會混進
+            # baseline 的表而看不出來。
+            raise ValueError(
+                f"{self.name}: skip_dc 不是論文的作法（Algorithm 1 沒有排除 "
+                "DC），必須標 modified_from_paper 並寫明")
         if self.eps < 1.0 and not self.modified_from_paper:
             raise ValueError(
                 f"{self.name}: eps={self.eps} < 1 會使論文 §4.2 的抗 JPEG 條件"
@@ -135,6 +151,11 @@ class DCTShieldResult:
     x_def: torch.Tensor
     spec: DCTShieldSpec
     history: List[Dict] = field(default_factory=list)
+    # 最終的 δ（量化單位、已 detach），逐通道 (N, hb, wb, 8, 8)。
+    # 2026-08-20 新增。由 `x_def` 反推 δ 得不到它——解碼含夾取與 4:2:0
+    # 重取樣，AC 的擾動會滲進反推出的 DC，那正是「排除 DC」這個假設沒辦法
+    # 由像素端驗證的原因。診斷「能量落在哪個係數」也需要它。
+    delta: Dict[str, torch.Tensor] = field(default_factory=dict)
 
 
 def _component_masks(mask: torch.Tensor,
@@ -193,6 +214,10 @@ def run_dct_shield(
             for c, g in zip(spec.channels, grads):
                 delta[c].sub_(torch.sign(g) * eta)                 # 行 11
                 delta[c].clamp_(-spec.eps, spec.eps)               # 行 12
+                if spec.skip_dc:
+                    # 每個區塊的 (0,0) 就是 DC。**論文沒有這一步**，見
+                    # `DCTShieldSpec.skip_dc` 的說明。
+                    delta[c][..., 0, 0] = 0.0
                 if masks is not None:
                     delta[c].mul_(masks[c])                        # 行 14
         if log_every and (i % log_every == 0 or i == spec.steps - 1):
@@ -207,7 +232,8 @@ def run_dct_shield(
     history.append({"saturated_fraction": {
         c: float((delta[c].abs() >= spec.eps - 1e-6).double().mean())
         for c in spec.channels}})
-    return DCTShieldResult(x_def, spec, history)
+    return DCTShieldResult(x_def, spec, history,
+                           {c: delta[c].detach() for c in spec.channels})
 
 
 class DCTShieldParam:

@@ -1,0 +1,7 @@
+image,condition,attacker,instruction,task,radius,unreachable,edit_steps,s_t,s_i,edit_seed,modified_from_paper,fid_lpips,fid_ssim,fid_psnr,fid_vif_p,fid_dists,edit_lpips,edit_ssim,edit_psnr,edit_vif_p,edit_dists,fid_linf,fid_rms,total_seconds
+task_attr_mod_color_32648,phase,instruct-pix2pix,turn the color of potion bottle to orange,,0.8,False,100,7.5,1.5,20260812,False,0.10399,0.99529,44.225,0.79865,0.02276,0.1076,0.93679,26.333,0.73425,0.08793,0.14554,0.00615,81.2
+task_env_weather_181583,phase,instruct-pix2pix,change the setting to a stormy day,,0.8,False,100,7.5,1.5,20260812,False,0.13904,0.97212,35.341,0.67861,0.02535,0.15433,0.89504,25.851,0.57244,0.09058,0.16338,0.0171,81.5
+task_obj_add_340466,phase,instruct-pix2pix,Add orange juice,,0.8,False,100,7.5,1.5,20260812,False,0.07499,0.98568,34.184,0.71219,0.0253,0.16112,0.87628,18.174,0.50637,0.10341,0.35821,0.01954,81.5
+task_obj_remove_10197,phase,instruct-pix2pix,Remove gravel path,,0.8,False,100,7.5,1.5,20260812,False,0.21233,0.9697,29.224,0.63773,0.02842,0.40364,0.47482,13.429,0.09416,0.2355,0.42624,0.03458,81.2
+task_obj_remove_657585,phase,instruct-pix2pix,Remove frisbee,,0.8,False,100,7.5,1.5,20260812,False,0.0536,0.99225,41.71,0.86461,0.01802,0.22718,0.84409,21.283,0.71907,0.1566,0.14043,0.00821,80.6
+task_obj_swap_rand_mask_298147,phase,instruct-pix2pix,Replace the wizard's robe with red shirt,,0.8,False,100,7.5,1.5,20260812,False,0.27187,0.94939,30.265,0.53729,0.06198,0.36727,0.67556,20.165,0.23774,0.15092,0.42353,0.03067,77.3

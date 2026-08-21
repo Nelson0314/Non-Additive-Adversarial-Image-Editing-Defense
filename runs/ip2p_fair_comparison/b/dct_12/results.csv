@@ -1,0 +1,6 @@
+image,condition,attacker,instruction,task,radius,unreachable,pixel_gate_sigma,edit_steps,s_t,s_i,edit_seed,modified_from_paper,fid_lpips,fid_ssim,fid_psnr,fid_vif_p,fid_dists,edit_lpips,edit_ssim,edit_psnr,edit_vif_p,edit_dists,fid_linf,fid_rms,total_seconds
+task_attr_mod_color_6205,dct_shield,instruct-pix2pix,turn the color of toolbox to red,,1.0,False,0.0,100,7.5,1.5,20260812,False,0.49888,0.84301,29.429,0.46778,0.05847,0.75424,0.19043,6.46,0.2517,0.75937,0.30489,0.03377,599.3
+task_env_weather_63722,dct_shield,instruct-pix2pix,change the setting to a snowy landscape,,1.0,False,0.0,100,7.5,1.5,20260812,False,0.45215,0.86315,29.576,0.51046,0.04662,0.66711,0.38434,12.932,0.05418,0.45341,0.28155,0.03321,596.5
+task_obj_add_692065,dct_shield,instruct-pix2pix,Add monk,,1.0,False,0.0,100,7.5,1.5,20260812,False,0.36197,0.94327,28.969,0.6051,0.01758,0.39182,0.56664,17.449,0.33534,0.26307,0.27832,0.03561,596.3
+task_obj_remove_657585,dct_shield,instruct-pix2pix,Remove frisbee,,1.0,False,0.0,100,7.5,1.5,20260812,False,0.61151,0.823,29.732,0.43349,0.08599,0.8498,0.29842,11.045,0.07235,0.36924,0.33952,0.03261,596.9
+task_obj_swap_rand_mask_417469,dct_shield,instruct-pix2pix,Replace the green flannel shirt with blue shirt,,1.0,False,0.0,100,7.5,1.5,20260812,False,0.45394,0.84631,29.381,0.49706,0.03999,0.76137,0.25079,9.543,0.06758,0.48502,0.27995,0.03396,597.3

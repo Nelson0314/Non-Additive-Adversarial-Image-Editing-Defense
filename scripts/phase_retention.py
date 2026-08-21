@@ -4,7 +4,7 @@
 `LPIPS(未防禦的編輯, 防禦後的編輯)`——與 `apa_baseline.evaluate` 的
 `edit_lpips` 同一個量，只是換了輸入的淨化算子。
 
-**分母塌陷時不可解讀**（`METRICS.md` §6）：`effect(identity)` 的多 seed 平均
+**分母塌陷時不可解讀**（`EVALUATION.md` §6）：`effect(identity)` 的多 seed 平均
 低於三倍標準差時，該列標 `usable=False` 並排除在任何統計之外。這不是保守，
 是 FND-009 記過的事——分母本身在雜訊裡時，比值沒有意義。
 
@@ -154,6 +154,14 @@ def main() -> None:
     ap.add_argument("--out", type=Path, default=None)
     ap.add_argument("--floor", action="store_true",
                     help="改跑空白地板：把原圖當防禦圖，量算子自己造成的位移")
+    ap.add_argument("--attacker", choices=("sd", "ip2p"), default="sd",
+                    help="編輯器。**主線（DEC-031）是 ip2p**；預設留 sd 是為了"
+                         "讓 SDEdit 那條凍結的線逐位可重跑。ip2p 時 "
+                         "--edit-strength 不適用，改由 --edit-steps／"
+                         "--text-guidance／--image-guidance 決定")
+    ap.add_argument("--edit-steps", type=int, default=None)
+    ap.add_argument("--text-guidance", type=float, default=None)
+    ap.add_argument("--image-guidance", type=float, default=None)
     args = ap.parse_args()
     out = args.out or (args.run / "retention.csv")
 
@@ -179,15 +187,37 @@ def main() -> None:
     if not cells:
         raise SystemExit(f"{args.run / 'results.csv'} 沒有符合條件的列")
 
-    sd = SDWrapper(MODEL_NAME, dtype=torch.float32)
+    if args.attacker == "ip2p":
+        from src.models.ip2p import (
+            IP2P_IMAGE_GUIDANCE, IP2P_SEED, IP2P_STEPS, IP2P_TEXT_GUIDANCE,
+            IP2PWrapper,
+        )
+
+        sd = IP2PWrapper(dtype=torch.float32)
+        ip2p_kw = {
+            "steps": args.edit_steps or IP2P_STEPS,
+            "s_t": args.text_guidance or IP2P_TEXT_GUIDANCE,
+            "s_i": args.image_guidance or IP2P_IMAGE_GUIDANCE,
+        }
+        # IP2P 的 seed 基準沿用它自己的常數，與 ip2p_run.py 一致；多 seed 時
+        # 逐一加 k。用 SDEdit 的 EDIT_SEED 會讓兩支腳本的第 0 個 seed 不同，
+        # 而「未淨化的位移量」在兩邊都要算，對不上就沒有共同的分母。
+        seed0 = IP2P_SEED
+    else:
+        sd = SDWrapper(MODEL_NAME, dtype=torch.float32)
+        ip2p_kw, seed0 = None, EDIT_SEED
     suite = MetricSuite(device=sd.device)
     purifiers = purifier_set(sd, seed=0, only=args.purifiers)
-    seeds = [EDIT_SEED + k for k in range(args.seeds)]
+    seeds = [seed0 + k for k in range(args.seeds)]
 
     dataset = {d["name"]: d for d in load_dataset(args.data)}
     edit_orig_cache: dict = {}
 
     def edit(x01, item, seed):
+        if ip2p_kw is not None:
+            # IP2P 沒有 strength 這個量：原圖是由第一層卷積直接拼進去的，
+            # 不是被噪聲稀釋的殘影。故此處不套用 --edit-strength。
+            return sd.edit(x01.clamp(0, 1), item["prompt"], seed=seed, **ip2p_kw)
         noise = sd.sample_edit_noise(sd.encode_image(x01), seed=seed)
         emb, emb_u = sd.encode_text(item["prompt"]), sd.uncond_prompt()
         with torch.no_grad():

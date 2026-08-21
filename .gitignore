@@ -5,52 +5,26 @@ refs/
 *.ckpt
 *.safetensors
 
-# 實驗輸出：預設不追蹤，但**結果本身要進版控**。
-# TWCC 容器會被刪除，runs/ 的數據與圖是唯一的證據來源，一律入庫。
+
+# runs/ 只保存**數值記錄**：CSV / JSON / log / txt / md。
 #
-# 2026-07-31 修正：原規則第三行為 `runs/*/**`，它會排除逐圖子目錄本身
-# （例如 runs/e15_S_tau0.05/car_00__S__r32/）。git 一旦排除某目錄就不再
-# 遞迴進入，後面的 `!runs/**/*.json` 因此永遠不會生效，導致 143 個
-# history.json / spectrum_rank.json 被靜默漏掉。改法是先用 `!runs/**/`
-# 把「所有層級的目錄」重新納入，讓 git 得以遞迴，再由副檔名決定檔案。
+# 影像與 HTML 不入版控：防禦圖能由已記錄的參數與種子重跑出來，屬於可重新
+# 產生的中間產物；量測結果（CSV）不可重現，一律保留。判定標準見
+# docs/DECISIONS.md。
+#
+# `!runs/**/` 這一行不可刪：git 一旦排除某個目錄就不再遞迴進入，後面依副檔名
+# 的例外規則會全部失效。曾因寫成 `runs/*/**` 而靜默漏掉 143 個結果檔。
+# **改動這個區塊之後必須用 `git status --porcelain --ignored` 確認沒有結果檔
+# 被排除。**
+# 例外：資料集本身入庫（data/ 不受此規則影響）。原圖是實驗的輸入，
+# 不是產物；重新下載依賴外部服務可用，故不視為可重新產生。
 runs/**
 !runs/**/
 !runs/**/*.csv
 !runs/**/*.json
 !runs/**/*.md
 !runs/**/*.log
-!runs/**/*.png
-# 2026-07-31 追加 *.html 與 *.txt：E20 的人眼比對頁
-# （runs/p1_iso_lpips_probe/compare.html）是使用者判定的依據，各腳本的
-# summary.txt / report.txt 是判定結果的可讀形式，兩者都是證據而非中間產物。
-!runs/**/*.html
 !runs/**/*.txt
-# 2026-08-04 追加 *.pt：`gate_suppress.py` 存下每一格的 φ（state_dict）。
-# 它不是中間產物——沿射線縮放位移場需要 φ 本身，只有防禦圖 PNG 的話
-# 就只能在影像空間做，而那對位移場是交叉淡入不是「更大的位移」。
-# 體積：位移場 32×32×2 約 8 KB，全秩像素殘差在 256² 約 786 KB。
-#（`gate_suppress.py` 與 `ray_scale.py` 都已於 2026-08-13 隨舊主線刪除，
-#  但 `runs/gate_suppress/` 的 *.pt 仍在庫裡，故這條規則保留。）
-#
-# 逐圖的 residual.npy 仍然排除：那是低秩外積展開後的結果，可由 φ 重算，
-# 且 e8 那一批單目錄就 24 MB。兩者的差別是「能不能重建解」而不是副檔名。
-!runs/**/*.pt
-
-# 2026-08-10 使用者裁決：**中間圖不入庫**，只留產出的圖、attention map 與殘差。
-#
-# 兩類被排除，兩類都可由已入庫的東西重建，故排除的是重複而不是證據：
-#
-#   x0_trace/    每個訓練格 3 張逐步去噪的 x0 預測。純診斷用，且要重看它
-#                只需重跑該格的前向。
-#   history.png  訓練曲線圖。**逐點的數值就在同目錄的 train.csv 裡**，
-#                圖只是它的一種畫法。
-#
-# 留下的界線在哪裡：`x_purified.png` **不排除**——它是 compare.html 的
-# 「淨化後」那一欄（`compare_page.py:50`），而判準以人眼為主、每一格都必須
-# 有影像可看（DESIGN §1.1）。`aligned_phi.png` 與 `baseline_phi0.png` 同樣
-# 留下：它們是 φ=0 的參照，DEC-016 的 A 段驗收正是拿它們對照。
-runs/**/x0_trace/
-runs/**/history.png
 
 # Python
 __pycache__/

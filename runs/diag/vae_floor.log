@@ -1,19 +1,0 @@
-Loading pipeline components...:   0%|          | 0/7 [00:00<?, ?it/s]
-Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 1996.47it/s]
-Loading pipeline components...:  14%|█▍        | 1/7 [00:00<00:01,  4.02it/s]Loading pipeline components...:  43%|████▎     | 3/7 [00:00<00:00,  8.92it/s]Loading pipeline components...:  71%|███████▏  | 5/7 [00:01<00:00,  2.34it/s]
-Loading weights:   0%|          | 0/517 [00:00<?, ?it/s][A
-Loading weights:  28%|██▊       | 146/517 [00:00<00:00, 1459.09it/s][A
-Loading weights:  56%|█████▋    | 292/517 [00:00<00:00, 1373.32it/s][A
-Loading weights:  84%|████████▍ | 434/517 [00:00<00:00, 1389.80it/s][ALoading weights: 100%|██████████| 517/517 [00:00<00:00, 1403.07it/s]
-Loading pipeline components...:  86%|████████▌ | 6/7 [00:02<00:00,  2.14it/s]Loading pipeline components...: 100%|██████████| 7/7 [00:02<00:00,  2.83it/s]
-There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
-There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
-/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
-  warnings.warn(
-/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
-  warnings.warn(msg)
-[bird_03] vae_roundtrip(bf16) lpips=0.0986 psnr=36.71 ssim=0.9872
-[cat_02] vae_roundtrip(bf16) lpips=0.2130 psnr=29.68 ssim=0.9528
-[dog_03] vae_roundtrip(bf16) lpips=0.0889 psnr=33.68 ssim=0.9845
-→ /nfs/home/nelson0314/wacv_runs/diag/vae_floor.csv
-[exit 0]

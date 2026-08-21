@@ -1,0 +1,20 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  17%|█▋        | 1/6 [00:00<00:00,  8.88it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 5555.26it/s]
+Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00,  7.93it/s]Loading pipeline components...:  83%|████████▎ | 5/6 [00:00<00:00, 14.92it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 15.79it/s]
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/venv/main/lib/python3.12/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/venv/main/lib/python3.12/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+IP2P 線：6 張、條件 ['phase']、steps=100 s_T=7.5 s_I=1.5 seed=20260812
+/venv/main/lib/python3.12/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,1.0]
+  warnings.warn(
+task_attr_mod_color_136767       phase          r=1.3000 dists=0.0662 lpips=0.1743 effect=0.2058 (76s)
+task_env_weather_112463          phase          r=1.3000 dists=0.0282 lpips=0.1762 effect=0.2875 (77s)
+task_env_weather_63722           phase          r=1.3000 dists=0.0554 lpips=0.1731 effect=0.2062 (77s)
+task_obj_add_581286              phase          r=1.3000 dists=0.0349 lpips=0.1226 effect=0.1389 (77s)
+task_obj_remove_380621           phase          r=1.3000 dists=0.0640 lpips=0.2371 effect=0.4038 (77s)
+task_obj_swap_joint_mask_533428  phase          r=1.3000 dists=0.0733 lpips=0.2578 effect=0.3073 (73s)
+
+表：runs/t0820/phase_t1.30_1/results.csv（6 列）

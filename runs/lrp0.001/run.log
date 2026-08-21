@@ -1,37 +1,0 @@
-[env] 載入 SDXLWrapper(stabilityai/stable-diffusion-xl-base-1.0) dtype=torch.bfloat16
-Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
-Loading pipeline components...:   0%|          | 0/7 [00:00<?, ?it/s]
-Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 2324.38it/s]
-Loading pipeline components...:  29%|██▊       | 2/7 [00:00<00:00,  6.42it/s]Loading pipeline components...:  43%|████▎     | 3/7 [00:00<00:00,  6.84it/s]
-Loading weights:   0%|          | 0/517 [00:00<?, ?it/s][A
-Loading weights:  44%|████▍     | 230/517 [00:00<00:00, 2290.52it/s][A
-Loading weights:  89%|████████▉ | 460/517 [00:00<00:00, 1854.96it/s][ALoading weights: 100%|██████████| 517/517 [00:00<00:00, 1965.76it/s]
-Loading pipeline components...:  57%|█████▋    | 4/7 [00:00<00:00,  3.74it/s]Loading pipeline components...:  86%|████████▌ | 6/7 [00:05<00:01,  1.39s/it]Loading pipeline components...: 100%|██████████| 7/7 [00:05<00:00,  1.21it/s]
-There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
-There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
-/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
-  warnings.warn(
-/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
-  warnings.warn(msg)
-[env] 影像 1 張：['bird_03']
-
-[preflight] 以下事項會影響本批的結果，請先處理：
-  - tau_acut 仍為 0.04，那是在 τ_lpips=0.05 的量級上由人眼判讀定出的絕對值；本輪訓練在 τ=0.35。需重新判讀後以 --tau-acut 指定（objective.py「門檻的適用範圍」）
-  - tau_chroma 仍為 0.8，同上，需重新判讀
-
-  [stop] 監看 edit_shift；約束：fid_pen_lpips, fid_pen_acut, fid_pen_chroma
-  [stage default] lr=0.001（lr.N2）上限 60 步
-/nfs/home/nelson0314/WACV/src/defense/objective.py:550: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
-Consider using tensor.detach() first. (Triggered internally at /__w/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:822.)
-  "fid_linf_total": float((xd - xr).abs().max()),
-  [default] step    0  loss=0.7179  L_def=0.7179  L_fid=0.0000  |g|=1.370e-01
-  [default] step   10  loss=0.7201  L_def=0.7201  L_fid=0.0000  |g|=8.046e-02
-  [default] step   20  loss=0.7184  L_def=0.7184  L_fid=0.0000  |g|=8.247e-02
-  [default] step   30  loss=0.7187  L_def=0.7187  L_fid=0.0000  |g|=1.777e-01
-  [default] step   40  loss=0.7186  L_def=0.7186  L_fid=0.0000  |g|=7.498e-02
-  [default] step   50  loss=0.7162  L_def=0.7162  L_fid=0.0000  |g|=8.828e-02
-  [default] step   59  loss=0.7191  L_def=0.7191  L_fid=0.0000  |g|=5.613e-02
-  [stop] 階段 default 用盡上限 60 步仍未達停止準則，該格不可用於跨條件比較
-
-[train] done=1 failed=0 skipped=0 resumed=0
-[exit 0]

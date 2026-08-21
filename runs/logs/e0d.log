@@ -1,28 +1,0 @@
-Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
-Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00, 15.85it/s]
-Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 8257.33it/s]
-Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 19.65it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 19.18it/s]
-[E0d] 影像 car_00，rank=4，steps=25
-/work/nelson0314/miniconda3/envs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
-  warnings.warn(
-/work/nelson0314/miniconda3/envs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
-  warnings.warn(msg)
-  step    0  loss=0.5000  L_def=0.5000  L_fid=0.0000  shift=0.0000  psnr=120.00  linf=0.0000  |g|=5.049e-10
-  step   24  loss=22.5546  L_def=0.1834  L_fid=22.3713  shift=0.3166  psnr=28.43  linf=0.2814  |g|=1.000e+00
-[E0d] site=P lr=0.05    loss     0.500 →    22.555 (min     0.163)  單調下降 33%  shift=0.3166  psnr=28.43
-  step    0  loss=0.5000  L_def=0.5000  L_fid=0.0000  shift=0.0000  psnr=120.00  linf=0.0000  |g|=5.049e-10
-  step   24  loss=6.1049  L_def=0.2602  L_fid=5.8447  shift=0.2398  psnr=33.81  linf=0.1174  |g|=1.000e+00
-[E0d] site=P lr=0.02    loss     0.500 →     6.105 (min     0.154)  單調下降 17%  shift=0.2398  psnr=33.81
-  step    0  loss=0.5000  L_def=0.5000  L_fid=0.0000  shift=0.0000  psnr=120.00  linf=0.0000  |g|=5.049e-10
-  step   24  loss=0.3306  L_def=0.3139  L_fid=0.0167  shift=0.1861  psnr=42.86  linf=0.0569  |g|=6.262e-02
-[E0d] site=P lr=0.008   loss     0.500 →     0.331 (min     0.136)  單調下降 33%  shift=0.1861  psnr=42.86
-  step    0  loss=0.5000  L_def=0.5000  L_fid=0.0000  shift=0.0000  psnr=120.00  linf=0.0000  |g|=5.049e-10
-  step   24  loss=0.4291  L_def=0.4275  L_fid=0.0015  shift=0.0725  psnr=54.00  linf=0.0144  |g|=5.194e-02
-[E0d] site=P lr=0.003   loss     0.500 →     0.429 (min     0.147)  單調下降 33%  shift=0.0725  psnr=54.00
-  step    0  loss=0.5000  L_def=0.5000  L_fid=0.0000  shift=0.0000  psnr=120.00  linf=0.0000  |g|=5.049e-10
-  step   24  loss=0.4808  L_def=0.4807  L_fid=0.0001  shift=0.0193  psnr=66.21  linf=0.0033  |g|=6.561e-02
-[E0d] site=P lr=0.001   loss     0.500 →     0.481 (min     0.159)  單調下降 33%  shift=0.0193  psnr=66.21
-  step    0  loss=7.2375  L_def=0.3990  L_fid=6.8385  shift=0.1010  psnr=19.61  linf=0.0000  |g|=1.581e-02
-  step   24  loss=65.3056  L_def=0.3519  L_fid=64.9537  shift=0.1481  psnr=19.63  linf=0.6409  |g|=1.000e+00
-[E0d] site=L lr=0.05    loss     7.237 →    65.306 (min     7.237)  單調下降 54%  shift=0.1481  psnr=19.63
-  step    0  loss=7.2375  L_def=0.3990  L_fid=6.8385  shift=0.1010  psnr=19.61  linf=0.0000  |g|=1.581e-02

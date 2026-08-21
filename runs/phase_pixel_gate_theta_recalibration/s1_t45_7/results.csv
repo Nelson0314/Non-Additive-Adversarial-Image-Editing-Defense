@@ -1,0 +1,2 @@
+image,condition,attacker,instruction,task,radius,unreachable,pixel_gate_sigma,edit_steps,s_t,s_i,edit_seed,modified_from_paper,fid_lpips,fid_ssim,fid_psnr,fid_vif_p,fid_dists,edit_lpips,edit_ssim,edit_psnr,edit_vif_p,edit_dists,fid_linf,fid_rms,total_seconds
+task_obj_add_583252,phase,instruct-pix2pix,Add person in red attire,,3.141593,False,1.0,100,7.5,1.5,20260812,False,0.24782,0.91501,26.127,0.5458,0.06911,0.34631,0.6307,17.122,0.43067,0.19006,0.77749,0.04939,126.8

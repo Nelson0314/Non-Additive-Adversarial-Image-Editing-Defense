@@ -1,20 +1,0 @@
-Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
-[run] device=cuda sites=['S'] ranks=[32] steps=30
-Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00, 19.70it/s]
-Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 8268.79it/s]
-Loading pipeline components...:  83%|████████▎ | 5/6 [00:00<00:00, 20.20it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 17.66it/s]
-/work/nelson0314/miniconda3/envs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
-  warnings.warn(
-/work/nelson0314/miniconda3/envs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
-  warnings.warn(msg)
-[run] 影像 1 張：['car_00']
-[run] 訓練期淨化集 ['identity', 'blur', 'jpeg']
-
-[run] car_00__S__r32  prompt='a wrecked car after an accident'
-  step    0  loss=0.5000  L_def=0.5000  L_fid=0.0000  shift=0.0000  psnr=116.81  linf=0.0000  |g|=7.544e-05
-  step   10  loss=0.1436  L_def=0.1355  L_fid=0.0081  shift=0.3645  psnr=36.93  linf=0.2078  |g|=1.704e-02
-  step   20  loss=0.3116  L_def=0.2925  L_fid=0.0191  shift=0.2075  psnr=32.91  linf=0.3728  |g|=5.345e-02
-  step   29  loss=0.2902  L_def=0.2642  L_fid=0.0260  shift=0.2358  psnr=31.34  linf=0.4824  |g|=1.364e-01
-[run] car_00__S__r32 完成 118s peak=10131MB shift=0.2358 psnr=31.34 eff_rank=512.0
-
-[run] 全部完成，共 1 格，122s

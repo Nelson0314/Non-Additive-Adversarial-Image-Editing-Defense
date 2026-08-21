@@ -1,4 +1,0 @@
-run,image,site,variant,n_paired,pert_lpips_opt,pert_lpips_rand,dsiglip_opt,dsiglip_rand,advantage_mean,advantage_sd,cohen_d,same_sign,n_for_power80
-runs/gate_suppress,horse_00,PF,,5,0.5352388620376587,0.5314388871192932,-0.05674,-0.04187,-0.01487,0.014,-1.062,4,6.9
-runs/gate_S,horse_00,S,grid_size=<未記錄>; warp_resample=<未記錄>,5,0.1077212542295456,0.10564441978931427,-0.00212,-0.00956,0.00744,0.03182,0.234,1,143.4
-runs/gate_S_g128b,horse_00,S,grid_size=128; warp_resample=bilinear,5,0.17829322814941406,0.18040069937705994,-0.0031,-0.01449,0.0114,0.01941,0.587,1,22.7

@@ -1,33 +1,0 @@
-[E0] device=cuda model=CompVis/stable-diffusion-v1-4 size=512
-[E0] GPU=Tesla V100-SXM2-32GB total=31.7 GB
-Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]
-Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 8291.48it/s]
-Loading pipeline components...:  17%|█▋        | 1/6 [00:00<00:00,  8.73it/s]Loading pipeline components...:  50%|█████     | 3/6 [00:00<00:00, 14.93it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 21.35it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 18.88it/s]
-[E0] k_inv= 5 n_edit= 5 u=1 v=1  peak=   9949.7 MB    4.491 s  grad=1
-[E0] k_inv= 5 n_edit=10 u=1 v=1  peak=   9950.0 MB    5.963 s  grad=1
-[E0] k_inv= 5 n_edit=20 u=1 v=1  peak=   9950.7 MB    8.997 s  grad=1
-[E0] k_inv= 5 n_edit=30 u=1 v=1  peak=   9951.3 MB   12.136 s  grad=1
-[E0] k_inv= 5 n_edit=50 u=1 v=1  peak=   9952.6 MB   18.190 s  grad=1
-[E0] k_inv=10 n_edit= 5 u=1 v=1  peak=   9950.4 MB    6.356 s  grad=1
-[E0] k_inv=10 n_edit=10 u=1 v=1  peak=   9950.7 MB    7.876 s  grad=1
-[E0] k_inv=10 n_edit=20 u=1 v=1  peak=   9951.3 MB   10.901 s  grad=1
-[E0] k_inv=10 n_edit=30 u=1 v=1  peak=   9952.0 MB   14.042 s  grad=1
-[E0] k_inv=10 n_edit=50 u=1 v=1  peak=   9953.3 MB   20.119 s  grad=1
-[E0] k_inv=20 n_edit= 5 u=1 v=1  peak=   9951.6 MB   10.168 s  grad=1
-[E0] k_inv=20 n_edit=10 u=1 v=1  peak=   9952.0 MB   11.685 s  grad=1
-[E0] k_inv=20 n_edit=20 u=1 v=1  peak=   9952.6 MB   14.825 s  grad=1
-[E0] k_inv=20 n_edit=30 u=1 v=1  peak=   9953.2 MB   17.971 s  grad=1
-[E0] k_inv=20 n_edit=50 u=1 v=1  peak=   9954.5 MB   23.990 s  grad=1
-[E0] k_inv=30 n_edit= 5 u=1 v=1  peak=   9952.9 MB   14.144 s  grad=1
-[E0] k_inv=30 n_edit=10 u=1 v=1  peak=   9953.2 MB   15.501 s  grad=1
-[E0] k_inv=30 n_edit=20 u=1 v=1  peak=   9953.9 MB   18.805 s  grad=1
-[E0] k_inv=30 n_edit=30 u=1 v=1  peak=   9954.5 MB   21.697 s  grad=1
-[E0] k_inv=30 n_edit=50 u=1 v=1  peak=   9955.8 MB   27.944 s  grad=1
-[E0] k_inv=50 n_edit= 5 u=1 v=1  peak=   9955.8 MB   21.761 s  grad=1
-[E0] k_inv=50 n_edit=10 u=1 v=1  peak=   9956.1 MB   23.431 s  grad=1
-[E0] k_inv=50 n_edit=20 u=1 v=1  peak=   9956.8 MB   26.321 s  grad=1
-[E0] k_inv=50 n_edit=30 u=1 v=1  peak=   9957.4 MB   29.466 s  grad=1
-[E0] k_inv=50 n_edit=50 u=1 v=1  peak=   9958.7 MB   35.738 s  grad=1
-
-[E0] 可行組合 25/25，結果寫入 runs/e0_vae/e0_cost.csv
-[E0] 最大可行組合 k_inv=50 n_edit=50 u=1 v=1 peak=9958.7 MB 35.738 s/iter

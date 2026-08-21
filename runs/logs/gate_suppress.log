@@ -1,34 +1,0 @@
-Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
-Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]
-Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3849.91it/s]
-Loading pipeline components...:  67%|██████▋   | 4/6 [00:00<00:00, 17.83it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 15.71it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 16.09it/s]
-C:\Users\nelso\miniconda3\envs\wacv\Lib\site-packages\torchvision\models\_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
-  warnings.warn(
-C:\Users\nelso\miniconda3\envs\wacv\Lib\site-packages\torchvision\models\_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
-  warnings.warn(msg)
-
-=== horse_00 / site PF / τ_lpips=0.55 / 'a zebra' / c_a='horse' ===
-  [約束] 只有 LPIPS：gamma_lpips=100.0 tau=0.55；acut/chroma/linf/psnr 全為 0
-C:\WACV\src\defense\objective.py:463: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
-Consider using tensor.detach() first. (Triggered internally at C:\actions-runner\_work\pytorch\pytorch\torch\csrc\autograd\generated\python_variable_methods.cpp:823.)
-  "fid_linf_total": float((xd - xr).abs().max()),
-  [attn] step    0  loss=-0.9847  div=9.8470e-01  lpips=0.0000  psnr=120.00  |g|=5.113e-02
-  [attn] step   10  loss=-0.9911  div=9.9105e-01  lpips=0.4078  psnr=29.75  |g|=1.292e-03
-  [attn] step   20  loss=-0.9925  div=9.9246e-01  lpips=0.4645  psnr=27.07  |g|=8.381e-04
-  [attn] step   30  loss=-0.9932  div=9.9317e-01  lpips=0.4918  psnr=25.96  |g|=7.045e-04
-  [attn] step   40  loss=-0.9936  div=9.9363e-01  lpips=0.5148  psnr=25.37  |g|=1.101e-03
-  [attn] step   50  loss=-0.9939  div=9.9389e-01  lpips=0.5280  psnr=24.96  |g|=8.914e-04
-  [attn] step   59  loss=-0.9942  div=9.9417e-01  lpips=0.5352  psnr=24.65  |g|=9.521e-04
-  [對照] 隨機擾動對到 LPIPS 0.5314（目標 0.5352）
-Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 27376.44it/s]
-[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
-[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
-Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights:  81%|████████  | 330/408 [00:00<00:00, 3168.71it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 3271.13it/s]
-  [PF/opt] 擾動 LPIPS 0.5352 / L∞ 0.3582   Δsiglip -0.05674 ± 0.02671   Δniqe +0.4355 ± 0.6074   語意失敗=True
-  [PF/opt] 編輯 LPIPS 0.5299  PSNR 17.85
-  [PF/rand] 擾動 LPIPS 0.5314 / L∞ 0.4542   Δsiglip -0.04187 ± 0.02495   Δniqe +2.7123 ± 1.5939   語意失敗=True
-  [PF/rand] 編輯 LPIPS 0.5465  PSNR 17.77
-  [PF] attn_div 9.8470e-01 → 9.9417e-01（60 步，3948s）
-
-=== horse_01 / site PF / τ_lpips=0.55 / 'a zebra' / c_a='horse' ===
-  [約束] 只有 LPIPS：gamma_lpips=100.0 tau=0.55；acut/chroma/linf/psnr 全為 0

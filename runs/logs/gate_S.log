@@ -1,35 +1,0 @@
-Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]
-Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3899.18it/s]
-Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00,  9.39it/s]Loading pipeline components...:  50%|█████     | 3/6 [00:00<00:00,  7.44it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 13.10it/s]
-C:\Users\nelso\miniconda3\envs\wacv\Lib\site-packages\torchvision\models\_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
-  warnings.warn(
-C:\Users\nelso\miniconda3\envs\wacv\Lib\site-packages\torchvision\models\_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
-  warnings.warn(msg)
-
-=== horse_00 / site S / τ_lpips=0.55 / 'a zebra' / c_a='horse' ===
-  [約束] 只有 LPIPS：gamma_lpips=100.0 tau=0.55；acut/chroma/linf/psnr 全為 0；lr=0.1　max_disp=8.0
-C:\WACV\src\defense\objective.py:319: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
-Consider using tensor.detach() first. (Triggered internally at C:\actions-runner\_work\pytorch\pytorch\torch\csrc\autograd\generated\python_variable_methods.cpp:823.)
-  "fid_linf_total": float((xd - xr).abs().max()),
-  [attn] step    0  loss=-0.9847  div=9.8470e-01  lpips=0.0000  psnr=120.00  |g|=1.258e-03
-  [attn] step   10  loss=-0.9876  div=9.8756e-01  lpips=0.0414  psnr=33.82  |g|=1.909e-04
-  [attn] step   20  loss=-0.9885  div=9.8854e-01  lpips=0.0659  psnr=31.28  |g|=3.560e-04
-  [attn] step   30  loss=-0.9891  div=9.8914e-01  lpips=0.0826  psnr=30.25  |g|=1.915e-04
-  [attn] step   40  loss=-0.9895  div=9.8952e-01  lpips=0.0932  psnr=29.77  |g|=1.413e-04
-  [attn] step   50  loss=-0.9898  div=9.8978e-01  lpips=0.0999  psnr=29.49  |g|=9.785e-05
-  [attn] step   59  loss=-0.9900  div=9.9004e-01  lpips=0.1077  psnr=29.24  |g|=1.651e-04
-  [位移] 平均 1.217 px　最大 5.386 px　p99 3.619 px　上界 8.0
-  [對照] 隨機擾動對到 LPIPS 0.1056（目標 0.1077）
-Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
-Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 41042.78it/s]
-[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
-[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
-Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights:  78%|███████▊  | 319/408 [00:00<00:00, 3125.58it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 3352.76it/s]
-  [S/opt] 擾動 LPIPS 0.1077 / L∞ 0.5439   Δsiglip -0.00212 ± 0.02459   Δniqe +0.2368 ± 1.0192   語意失敗=False
-  [S/opt] 編輯 LPIPS 0.3403  PSNR 21.36
-  [S/rand] 擾動 LPIPS 0.1056 / L∞ 0.0500   Δsiglip -0.00956 ± 0.02769   Δniqe -0.4642 ± 0.7707   語意失敗=False
-  [S/rand] 編輯 LPIPS 0.2975  PSNR 22.96
-  [S] attn_div 9.8470e-01 → 9.9004e-01（60 步，3604s）
-
-完成。C:\WACV\runs\gate_S\summary.csv
-讀法：semantic_fail 全為 False 且 Δsiglip 為正或接近零，即閘門未過——第二層在此威脅模型下不可答，見 docs/CONVERGENCE.md §3

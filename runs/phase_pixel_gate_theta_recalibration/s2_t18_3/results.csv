@@ -1,0 +1,2 @@
+image,condition,attacker,instruction,task,radius,unreachable,pixel_gate_sigma,edit_steps,s_t,s_i,edit_seed,modified_from_paper,fid_lpips,fid_ssim,fid_psnr,fid_vif_p,fid_dists,edit_lpips,edit_ssim,edit_psnr,edit_vif_p,edit_dists,fid_linf,fid_rms,total_seconds
+task_attr_mod_color_75937,phase,instruct-pix2pix,turn the color of eye to green,,1.8,False,2.0,100,7.5,1.5,20260812,False,0.21165,0.9808,34.775,0.74072,0.05012,0.21881,0.86281,25.161,0.43744,0.11867,0.51653,0.01825,123.9

@@ -1,63 +1,0 @@
-[run] device=cuda sites=['LA'] ranks=[4] steps=25
-Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
-Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]
-Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 7939.38it/s]
-Loading pipeline components...:  50%|█████     | 3/6 [00:00<00:00, 14.38it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 19.77it/s]
-/work/nelson0314/miniconda3/envs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
-  warnings.warn(
-/work/nelson0314/miniconda3/envs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
-  warnings.warn(msg)
-[run] 影像 6 張：['car_00', 'car_01', 'dog_00', 'dog_01', 'person_00', 'person_01']
-[run] 訓練期淨化集 ['identity', 'blur', 'jpeg']
-
-[run] car_00__LA__r4  prompt='a wrecked car after an accident'
-  step    0  loss=0.5000  L_def=0.5000  L_fid=0.0000  shift=0.0000  psnr=120.00  linf=0.0000  |g|=6.464e-11
-  step   10  loss=1.4906  L_def=0.1613  L_fid=1.3293  shift=0.3387  psnr=59.80  linf=0.0733  |g|=1.000e+00
-  step   20  loss=0.7109  L_def=0.3692  L_fid=0.3417  shift=0.1308  psnr=56.88  linf=0.0634  |g|=1.000e+00
-  step   24  loss=0.8567  L_def=0.4809  L_fid=0.3758  shift=0.0191  psnr=57.43  linf=0.0638  |g|=1.000e+00
-[run] car_00__LA__r4 完成 297s peak=10153MB shift=0.0191 psnr=57.43 eff_rank=512.0
-Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 32941.29it/s]
-[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
-[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
-Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 8530.70it/s]
-
-[run] car_01__LA__r4  prompt='a wrecked car after an accident'
-/work/nelson0314/miniconda3/envs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
-  warnings.warn(
-/work/nelson0314/miniconda3/envs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
-  warnings.warn(msg)
-  step    0  loss=0.5000  L_def=0.5000  L_fid=0.0000  shift=0.0000  psnr=120.00  linf=0.0000  |g|=4.320e-11
-  step   10  loss=2.3541  L_def=0.1745  L_fid=2.1796  shift=0.3255  psnr=54.27  linf=0.0818  |g|=1.000e+00
-  step   20  loss=0.3762  L_def=0.3757  L_fid=0.0004  shift=0.1243  psnr=55.28  linf=0.0555  |g|=1.445e-02
-  step   24  loss=0.6703  L_def=0.4769  L_fid=0.1934  shift=0.0231  psnr=55.68  linf=0.0619  |g|=1.000e+00
-[run] car_01__LA__r4 完成 297s peak=11512MB shift=0.0231 psnr=55.68 eff_rank=512.0
-
-[run] dog_00__LA__r4  prompt='a cat sitting on the grass'
-  step    0  loss=0.5000  L_def=0.5000  L_fid=0.0000  shift=0.0000  psnr=120.00  linf=0.0000  |g|=4.398e-11
-  step   10  loss=0.2029  L_def=0.2027  L_fid=0.0001  shift=0.2973  psnr=66.80  linf=0.0169  |g|=1.199e-03
-  step   20  loss=0.3238  L_def=0.3228  L_fid=0.0009  shift=0.1772  psnr=56.63  linf=0.0336  |g|=1.166e-02
-  step   24  loss=0.4896  L_def=0.4878  L_fid=0.0018  shift=0.0122  psnr=53.57  linf=0.0510  |g|=6.890e-03
-[run] dog_00__LA__r4 完成 298s peak=11513MB shift=0.0122 psnr=53.57 eff_rank=512.0
-
-[run] dog_01__LA__r4  prompt='a cat sitting on the grass'
-  step    0  loss=0.5000  L_def=0.5000  L_fid=0.0000  shift=0.0000  psnr=120.00  linf=0.0000  |g|=7.678e-11
-  step   10  loss=0.1825  L_def=0.1821  L_fid=0.0004  shift=0.3179  psnr=59.35  linf=0.0541  |g|=3.738e-03
-  step   20  loss=0.2847  L_def=0.2840  L_fid=0.0007  shift=0.2160  psnr=57.70  linf=0.0562  |g|=2.695e-02
-  step   24  loss=0.4832  L_def=0.4819  L_fid=0.0013  shift=0.0181  psnr=55.09  linf=0.0595  |g|=1.037e-01
-[run] dog_01__LA__r4 完成 297s peak=11513MB shift=0.0181 psnr=55.09 eff_rank=512.0
-
-[run] person_00__LA__r4  prompt='an elderly person with gray hair'
-  step    0  loss=0.5000  L_def=0.5000  L_fid=0.0000  shift=0.0000  psnr=120.00  linf=0.0000  |g|=4.222e-11
-  step   10  loss=0.2516  L_def=0.2514  L_fid=0.0002  shift=0.2486  psnr=63.21  linf=0.0352  |g|=1.992e-03
-  step   20  loss=0.3269  L_def=0.3267  L_fid=0.0002  shift=0.1733  psnr=62.48  linf=0.0402  |g|=1.010e-02
-  step   24  loss=1.2314  L_def=0.4865  L_fid=0.7449  shift=0.0135  psnr=59.17  linf=0.0674  |g|=1.000e+00
-[run] person_00__LA__r4 完成 297s peak=11513MB shift=0.0135 psnr=59.17 eff_rank=512.0
-
-[run] person_01__LA__r4  prompt='an elderly person with gray hair'
-  step    0  loss=0.5000  L_def=0.5000  L_fid=0.0000  shift=0.0000  psnr=120.00  linf=0.0000  |g|=4.386e-11
-  step   10  loss=0.3807  L_def=0.1540  L_fid=0.2266  shift=0.3460  psnr=54.83  linf=0.0623  |g|=1.000e+00
-  step   20  loss=0.2858  L_def=0.2832  L_fid=0.0026  shift=0.2168  psnr=53.41  linf=0.0510  |g|=1.286e-02
-  step   24  loss=0.5573  L_def=0.4772  L_fid=0.0801  shift=0.0228  psnr=53.77  linf=0.0608  |g|=1.000e+00
-[run] person_01__LA__r4 完成 298s peak=11513MB shift=0.0228 psnr=53.77 eff_rank=512.0
-
-[run] 全部完成，共 6 格，2186s

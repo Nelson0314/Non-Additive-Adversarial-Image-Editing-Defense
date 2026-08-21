@@ -1,196 +1,0 @@
-[env] 載入 SDXLWrapper(stabilityai/stable-diffusion-xl-base-1.0) dtype=torch.bfloat16
-Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
-Loading pipeline components...:   0%|          | 0/7 [00:00<?, ?it/s]
-Loading weights:   0%|          | 0/517 [00:00<?, ?it/s][A
-Loading weights:  30%|███       | 156/517 [00:00<00:00, 1558.22it/s][A
-Loading weights:  67%|██████▋   | 344/517 [00:00<00:00, 1709.59it/s][ALoading weights: 100%|██████████| 517/517 [00:00<00:00, 1750.97it/s]
-Loading pipeline components...:  29%|██▊       | 2/7 [00:00<00:01,  3.11it/s]
-Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 2550.24it/s]
-Loading pipeline components...:  43%|████▎     | 3/7 [00:00<00:01,  4.00it/s]Loading pipeline components...:  86%|████████▌ | 6/7 [00:02<00:00,  2.63it/s]Loading pipeline components...: 100%|██████████| 7/7 [00:02<00:00,  3.13it/s]
-There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
-There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
-/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
-  warnings.warn(
-/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
-  warnings.warn(msg)
-[env] 影像 3 張：['bird_03', 'cat_02', 'dog_03']
-[calib] 另載入 SDXLWrapper(stabilityai/stable-diffusion-xl-base-1.0) fp32 作為參考
-Loading pipeline components...:   0%|          | 0/7 [00:00<?, ?it/s]Loading pipeline components...:  14%|█▍        | 1/7 [00:00<00:00,  9.48it/s]
-Loading weights:   0%|          | 0/517 [00:00<?, ?it/s][A
-Loading weights:  28%|██▊       | 147/517 [00:00<00:00, 1465.57it/s][A
-Loading weights:  67%|██████▋   | 344/517 [00:00<00:00, 1737.79it/s][ALoading weights: 100%|██████████| 517/517 [00:00<00:00, 1701.26it/s]
-Loading pipeline components...:  29%|██▊       | 2/7 [00:00<00:01,  2.95it/s]
-Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 2437.86it/s]
-Loading pipeline components...:  43%|████▎     | 3/7 [00:00<00:01,  3.79it/s]Loading pipeline components...:  86%|████████▌ | 6/7 [00:02<00:00,  2.38it/s]Loading pipeline components...: 100%|██████████| 7/7 [00:02<00:00,  2.95it/s]
-There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
-There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
-Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 15444.35it/s]
-[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
-[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
-Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights:  89%|████████▊ | 362/408 [00:00<00:00, 3575.76it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 3581.44it/s]
-  [stage default] lr=0.0001（lr.N1）上限 12 步
-/nfs/home/nelson0314/WACV/src/defense/objective.py:550: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
-Consider using tensor.detach() first. (Triggered internally at /__w/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:822.)
-  "fid_linf_total": float((xd - xr).abs().max()),
-  [default] step    0  loss=0.9840  L_def=0.9840  L_fid=0.0000  |g|=2.383e-04
-  [default] step   10  loss=0.9840  L_def=0.9840  L_fid=0.0000  |g|=2.319e-04
-  [default] step   11  loss=0.9840  L_def=0.9840  L_fid=0.0000  |g|=1.198e-04
-  [stage default] lr=0.001（lr.N1）上限 12 步
-  [default] step    0  loss=0.9840  L_def=0.9840  L_fid=0.0000  |g|=2.388e-04
-  [default] step   10  loss=0.9840  L_def=0.9840  L_fid=0.0000  |g|=1.527e-04
-  [default] step   11  loss=0.9840  L_def=0.9840  L_fid=0.0000  |g|=1.718e-04
-  [stage default] lr=0.005（lr.N1）上限 12 步
-  [default] step    0  loss=0.9840  L_def=0.9840  L_fid=0.0000  |g|=2.378e-04
-  [default] step   10  loss=0.9840  L_def=0.9840  L_fid=0.0000  |g|=2.236e-04
-  [default] step   11  loss=0.9840  L_def=0.9840  L_fid=0.0000  |g|=1.424e-04
-  [stage default] lr=0.02（lr.N1）上限 12 步
-  [default] step    0  loss=0.9840  L_def=0.9840  L_fid=0.0000  |g|=2.380e-04
-  [default] step   10  loss=0.9840  L_def=0.9840  L_fid=0.0000  |g|=2.248e-04
-  [default] step   11  loss=0.9840  L_def=0.9840  L_fid=0.0000  |g|=1.594e-04
-  [stage default] lr=0.1（lr.N1）上限 12 步
-  [default] step    0  loss=0.9840  L_def=0.9840  L_fid=0.0000  |g|=2.383e-04
-  [default] step   10  loss=0.9840  L_def=0.9840  L_fid=0.0000  |g|=1.546e-04
-  [default] step   11  loss=0.9840  L_def=0.9840  L_fid=0.0000  |g|=1.074e-04
-  [stage default] lr=0.0001（lr.N2）上限 12 步
-  [default] step    0  loss=0.7424  L_def=0.7424  L_fid=0.0000  |g|=2.960e-01
-  [default] step   10  loss=0.6833  L_def=0.6833  L_fid=0.0000  |g|=1.427e-01
-  [default] step   11  loss=0.7350  L_def=0.7350  L_fid=0.0000  |g|=1.241e-01
-  [stage default] lr=0.001（lr.N2）上限 12 步
-  [default] step    0  loss=0.7424  L_def=0.7424  L_fid=0.0000  |g|=3.025e-01
-  [default] step   10  loss=0.6832  L_def=0.6832  L_fid=0.0000  |g|=1.092e-01
-  [default] step   11  loss=0.7324  L_def=0.7324  L_fid=0.0000  |g|=1.191e-01
-  [stage default] lr=0.005（lr.N2）上限 12 步
-  [default] step    0  loss=0.7424  L_def=0.7424  L_fid=0.0000  |g|=3.074e-01
-  [default] step   10  loss=0.6809  L_def=0.6809  L_fid=0.0000  |g|=8.032e-02
-  [default] step   11  loss=0.7414  L_def=0.7414  L_fid=0.0000  |g|=3.227e-01
-  [stage default] lr=0.02（lr.N2）上限 12 步
-  [default] step    0  loss=0.7424  L_def=0.7424  L_fid=0.0000  |g|=3.025e-01
-  [default] step   10  loss=0.6799  L_def=0.6799  L_fid=0.0000  |g|=8.032e-02
-  [default] step   11  loss=0.7369  L_def=0.7369  L_fid=0.0000  |g|=1.019e-01
-  [stage default] lr=0.1（lr.N2）上限 12 步
-  [default] step    0  loss=0.7424  L_def=0.7424  L_fid=0.0000  |g|=3.094e-01
-  [default] step   10  loss=0.6787  L_def=0.6787  L_fid=0.0000  |g|=8.202e-02
-  [default] step   11  loss=0.7360  L_def=0.7360  L_fid=0.0000  |g|=6.487e-02
-  [align] group=stage1 lr=0.0001（lr.N3_stage1）12 步
-  [align] step    0  loss=1383.0336  lpips=0.7325  psnr=19.57
-  [align] step   10  loss=571.0565  lpips=0.5019  psnr=22.46
-  [align] step   11  loss=544.6855  lpips=0.5089  psnr=21.95
-  [align] group=stage1 lr=0.001（lr.N3_stage1）12 步
-  [align] step    0  loss=1383.0336  lpips=0.7325  psnr=19.57
-  [align] step   10  loss=166.8673  lpips=0.2829  psnr=28.10
-  [align] step   11  loss=165.9355  lpips=0.2824  psnr=28.15
-  [align] group=stage1 lr=0.005（lr.N3_stage1）12 步
-  [align] step    0  loss=1383.0336  lpips=0.7325  psnr=19.57
-  [align] step   10  loss=1030.8534  lpips=0.5279  psnr=17.49
-  [align] step   11  loss=1051.9478  lpips=0.5768  psnr=17.73
-  [align] 還原第 1 步的 φ（loss=523.1533）；最後一步為 1051.9478
-  [align] group=stage1 lr=0.02（lr.N3_stage1）12 步
-  [align] step    0  loss=1383.0336  lpips=0.7325  psnr=19.57
-  [align] step   10  loss=4656.2686  lpips=0.8468  psnr=6.80
-  [align] step   11  loss=4652.7510  lpips=0.8521  psnr=6.85
-  [align] 還原第 1 步的 φ（loss=899.0117）；最後一步為 4652.7510
-  [align] group=stage1 lr=0.1（lr.N3_stage1）12 步
-  [align] step    0  loss=1383.0336  lpips=0.7325  psnr=19.57
-  [align] step   10  loss=4003.8789  lpips=0.8369  psnr=8.92
-  [align] step   11  loss=3783.5334  lpips=0.8207  psnr=8.85
-  [align] 還原第 0 步的 φ（loss=1383.0336）；最後一步為 3783.5334
-  [stage stage2] lr=0.0001（lr.N3_stage2）上限 12 步
-  [stage2] step    0  loss=0.0130  L_def=0.0130  L_fid=0.0000  |g|=4.458e-03
-  [stage2] step   10  loss=0.0111  L_def=0.0111  L_fid=0.0000  |g|=1.013e-03
-  [stage2] step   11  loss=0.0116  L_def=0.0116  L_fid=0.0000  |g|=1.828e-03
-  [stage stage2] lr=0.001（lr.N3_stage2）上限 12 步
-  [stage2] step    0  loss=0.0130  L_def=0.0130  L_fid=0.0000  |g|=4.522e-03
-  [stage2] step   10  loss=0.0109  L_def=0.0109  L_fid=0.0000  |g|=2.297e-03
-  [stage2] step   11  loss=0.0113  L_def=0.0113  L_fid=0.0000  |g|=1.716e-03
-  [stage stage2] lr=0.005（lr.N3_stage2）上限 12 步
-  [stage2] step    0  loss=0.0130  L_def=0.0130  L_fid=0.0000  |g|=4.496e-03
-  [stage2] step   10  loss=0.0108  L_def=0.0108  L_fid=0.0000  |g|=2.737e-03
-  [stage2] step   11  loss=0.0111  L_def=0.0111  L_fid=0.0000  |g|=1.959e-03
-  [stage stage2] lr=0.02（lr.N3_stage2）上限 12 步
-  [stage2] step    0  loss=0.0130  L_def=0.0130  L_fid=0.0000  |g|=4.544e-03
-  [stage2] step   10  loss=1.2372  L_def=0.0114  L_fid=1.2258  |g|=1.000e+00
-  [stage2] step   11  loss=0.8005  L_def=0.0118  L_fid=0.7887  |g|=1.000e+00
-  [stage stage2] lr=0.1（lr.N3_stage2）上限 12 步
-  [stage2] step    0  loss=0.0130  L_def=0.0130  L_fid=0.0000  |g|=4.494e-03
-  [stage2] step   10  loss=426.5396  L_def=0.1071  L_fid=426.4326  |g|=1.000e+00
-  [stage2] step   11  loss=287.6783  L_def=0.1162  L_fid=287.5621  |g|=1.000e+00
-
-[calib] 校準表寫入 runs/b1/calib/calibration.json
-{
-  "micro_bench": {
-    "vae_roundtrip": 0.6629887300077826,
-    "sdedit_50steps": 14.227225088980049
-  },
-  "precision_equiv": {
-    "dtype": "bfloat16",
-    "compared": true,
-    "rows": [
-      {
-        "op": "vae_roundtrip",
-        "dtype": "bfloat16",
-        "reference": "float32",
-        "max_abs": 0.19690388441085815,
-        "rel_l2": 0.008964276872575283,
-        "psnr": 45.7722843285702,
-        "note": ""
-      },
-      {
-        "op": "eps",
-        "dtype": "bfloat16",
-        "reference": "float32",
-        "max_abs": 1.8160710334777832,
-        "rel_l2": 0.12388662248849869,
-        "psnr": 23.346259787577345,
-        "note": ""
-      },
-      {
-        "op": "sdedit",
-        "dtype": "bfloat16",
-        "reference": "float32",
-        "max_abs": 0.4300035238265991,
-        "rel_l2": 0.022205505520105362,
-        "psnr": 37.790268122741345,
-        "note": ""
-      }
-    ]
-  },
-  "strength": {
-    "recommended": 0.8,
-    "mean_effect_siglip": {
-      "0.3": 0.013532156124711037,
-      "0.4": 0.01505270724495252,
-      "0.5": 0.014925443256894747,
-      "0.6": 0.0264937790731589,
-      "0.7": 0.07112056699891885,
-      "0.8": 0.08184106834232807
-    }
-  },
-  "editable": {
-    "threshold": 0.0,
-    "passed": [
-      "bird_03",
-      "cat_02",
-      "dog_03"
-    ],
-    "n_passed": 3,
-    "n_total": 3
-  },
-  "warp_reach": {
-    "min_lpips_at_bound": 0.39136943221092224,
-    "covers_train_tau": true
-  },
-  "calibration_keys": [
-    "lr.N1",
-    "lr.N2",
-    "lr.N3_stage1",
-    "lr.N3_stage2",
-    "precision_equiv.eps.rel_l2",
-    "precision_equiv.sdedit.rel_l2",
-    "precision_equiv.vae_roundtrip.rel_l2",
-    "stop_tol.edit_shift",
-    "stop_tol.shared_mass",
-    "strength.recommended",
-    "warp.min_lpips_at_bound"
-  ]
-}
-[exit 0]

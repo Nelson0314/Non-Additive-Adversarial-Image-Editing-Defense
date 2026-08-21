@@ -1,0 +1,63 @@
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  67%|██████▋   | 4/6 [00:00<00:00, 21.70it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3879.27it/s]
+Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 15.87it/s]
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+IP2P 線：8 張、條件 ['dct_shield']、steps=100 s_T=7.5 s_I=1.5 seed=20260812
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,1.0]
+  warnings.warn(
+    [dct_shield] step    0 loss 133.6177
+    [dct_shield] step  250 loss 67.8413
+    [dct_shield] step  500 loss 65.4434
+    [dct_shield] step  750 loss 63.7984
+    [dct_shield] step  999 loss 62.4755
+task_attr_mod_color_136767       dct_shield     r=1.0000 dists=0.0596 lpips=0.4244 effect=0.6310 (594s)
+    [dct_shield] step    0 loss 111.1863
+    [dct_shield] step  250 loss 56.8620
+    [dct_shield] step  500 loss 53.5590
+    [dct_shield] step  750 loss 51.8187
+    [dct_shield] step  999 loss 50.2702
+task_attr_mod_color_6205         dct_shield     r=1.0000 dists=0.0579 lpips=0.4994 effect=0.7530 (589s)
+    [dct_shield] step    0 loss 112.5153
+    [dct_shield] step  250 loss 44.7485
+    [dct_shield] step  500 loss 41.3288
+    [dct_shield] step  750 loss 38.9262
+    [dct_shield] step  999 loss 37.0245
+task_env_weather_181583          dct_shield     r=1.0000 dists=0.0443 lpips=0.5001 effect=0.7975 (591s)
+    [dct_shield] step    0 loss 102.4472
+    [dct_shield] step  250 loss 55.9660
+    [dct_shield] step  500 loss 54.0878
+    [dct_shield] step  750 loss 52.4174
+    [dct_shield] step  999 loss 50.9324
+task_obj_add_13726               dct_shield     r=1.0000 dists=0.0370 lpips=0.3784 effect=0.7006 (592s)
+    [dct_shield] step    0 loss 116.3667
+    [dct_shield] step  250 loss 42.2218
+    [dct_shield] step  500 loss 38.5959
+    [dct_shield] step  750 loss 35.7575
+    [dct_shield] step  999 loss 33.5664
+task_obj_add_581286              dct_shield     r=1.0000 dists=0.0740 lpips=0.5594 effect=0.7920 (591s)
+    [dct_shield] step    0 loss 109.7397
+    [dct_shield] step  250 loss 55.4969
+    [dct_shield] step  500 loss 52.6387
+    [dct_shield] step  750 loss 50.7066
+    [dct_shield] step  999 loss 49.0582
+task_obj_remove_257910           dct_shield     r=1.0000 dists=0.0573 lpips=0.5174 effect=0.7168 (587s)
+    [dct_shield] step    0 loss 113.4795
+    [dct_shield] step  250 loss 39.7451
+    [dct_shield] step  500 loss 37.2298
+    [dct_shield] step  750 loss 34.7886
+    [dct_shield] step  999 loss 33.2967
+task_obj_remove_657585           dct_shield     r=1.0000 dists=0.0871 lpips=0.6102 effect=0.8488 (590s)
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-0.9686274528503418,1.0]
+  warnings.warn(
+    [dct_shield] step    0 loss 140.8523
+    [dct_shield] step  250 loss 67.1165
+    [dct_shield] step  500 loss 63.8939
+    [dct_shield] step  750 loss 61.6359
+    [dct_shield] step  999 loss 59.8781
+task_obj_swap_joint_mask_75733   dct_shield     r=1.0000 dists=0.0573 lpips=0.5200 effect=0.6275 (593s)
+
+表：runs/fair0820/a_dct/e10_q95_1/results.csv（8 列）

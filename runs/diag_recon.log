@@ -1,68 +1,0 @@
-Loading pipeline components...:   0%|          | 0/7 [00:00<?, ?it/s]
-Loading weights:   0%|          | 0/517 [00:00<?, ?it/s][A
-Loading weights:  26%|██▌       | 134/517 [00:00<00:00, 1338.41it/s][A
-Loading weights:  52%|█████▏    | 268/517 [00:00<00:00, 1321.75it/s][A
-Loading weights:  78%|███████▊  | 401/517 [00:00<00:00, 1291.41it/s][ALoading weights: 100%|██████████| 517/517 [00:00<00:00, 1309.30it/s]
-Loading pipeline components...:  29%|██▊       | 2/7 [00:00<00:01,  2.66it/s]Loading pipeline components...:  43%|████▎     | 3/7 [00:00<00:01,  3.65it/s]
-Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][A
-Loading weights:  92%|█████████▏| 180/196 [00:00<00:00, 1776.58it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 1770.14it/s]
-Loading pipeline components...:  71%|███████▏  | 5/7 [00:01<00:00,  5.28it/s]Loading pipeline components...:  86%|████████▌ | 6/7 [00:02<00:00,  1.94it/s]Loading pipeline components...: 100%|██████████| 7/7 [00:02<00:00,  2.75it/s]
-There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
-There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
-/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
-  warnings.warn(
-/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
-  warnings.warn(msg)
-[bird_03] vae_roundtrip(bf16) lpips=0.0986 psnr=36.71 ssim=0.9872
-[cat_02] vae_roundtrip(bf16) lpips=0.2130 psnr=29.68 ssim=0.9528
-[dog_03] vae_roundtrip(bf16) lpips=0.0889 psnr=33.68 ssim=0.9845
-[bird_03] recon k_inv=10 t_max=999 exact=False lpips=0.7325 psnr=19.57
-[cat_02] recon k_inv=10 t_max=999 exact=False lpips=0.6736 psnr=18.96
-[dog_03] recon k_inv=10 t_max=999 exact=False lpips=0.6917 psnr=16.36
-[bird_03] recon k_inv=10 t_max=999 exact=True lpips=0.1237 psnr=36.28
-[cat_02] recon k_inv=10 t_max=999 exact=True lpips=0.2270 psnr=29.38
-[dog_03] recon k_inv=10 t_max=999 exact=True lpips=0.1017 psnr=33.21
-[bird_03] recon k_inv=10 t_max=500 exact=False lpips=0.2850 psnr=29.42
-[cat_02] recon k_inv=10 t_max=500 exact=False lpips=0.4345 psnr=25.06
-[dog_03] recon k_inv=10 t_max=500 exact=False lpips=0.2634 psnr=27.29
-[bird_03] recon k_inv=10 t_max=500 exact=True lpips=0.1160 psnr=36.34
-[cat_02] recon k_inv=10 t_max=500 exact=True lpips=0.2235 psnr=29.45
-[dog_03] recon k_inv=10 t_max=500 exact=True lpips=0.1016 psnr=33.18
-[bird_03] recon k_inv=10 t_max=300 exact=False lpips=0.1753 psnr=32.93
-[cat_02] recon k_inv=10 t_max=300 exact=False lpips=0.3220 psnr=27.48
-[dog_03] recon k_inv=10 t_max=300 exact=False lpips=0.1702 psnr=30.73
-[bird_03] recon k_inv=10 t_max=300 exact=True lpips=0.1094 psnr=36.40
-[cat_02] recon k_inv=10 t_max=300 exact=True lpips=0.2220 psnr=29.51
-[dog_03] recon k_inv=10 t_max=300 exact=True lpips=0.0986 psnr=33.32
-[bird_03] recon k_inv=10 t_max=200 exact=False lpips=0.1395 psnr=34.58
-[cat_02] recon k_inv=10 t_max=200 exact=False lpips=0.2846 psnr=28.41
-[dog_03] recon k_inv=10 t_max=200 exact=False lpips=0.1400 psnr=32.04
-[bird_03] recon k_inv=10 t_max=200 exact=True lpips=0.1092 psnr=36.45
-[cat_02] recon k_inv=10 t_max=200 exact=True lpips=0.2208 psnr=29.52
-[dog_03] recon k_inv=10 t_max=200 exact=True lpips=0.0976 psnr=33.36
-[bird_03] recon k_inv=20 t_max=999 exact=False lpips=0.5255 psnr=23.61
-[cat_02] recon k_inv=20 t_max=999 exact=False lpips=0.6101 psnr=21.18
-[dog_03] recon k_inv=20 t_max=999 exact=False lpips=0.5239 psnr=19.25
-[bird_03] recon k_inv=20 t_max=999 exact=True lpips=0.1601 psnr=35.56
-[cat_02] recon k_inv=20 t_max=999 exact=True lpips=0.2542 psnr=28.88
-[dog_03] recon k_inv=20 t_max=999 exact=True lpips=0.1308 psnr=32.41
-[bird_03] recon k_inv=20 t_max=500 exact=False lpips=0.1714 psnr=32.74
-[cat_02] recon k_inv=20 t_max=500 exact=False lpips=0.3262 psnr=27.21
-[dog_03] recon k_inv=20 t_max=500 exact=False lpips=0.1693 psnr=30.25
-[bird_03] recon k_inv=20 t_max=500 exact=True lpips=0.1639 psnr=35.41
-[cat_02] recon k_inv=20 t_max=500 exact=True lpips=0.2544 psnr=28.93
-[dog_03] recon k_inv=20 t_max=500 exact=True lpips=0.1401 psnr=32.16
-[bird_03] recon k_inv=20 t_max=300 exact=False lpips=0.1295 psnr=34.96
-[cat_02] recon k_inv=20 t_max=300 exact=False lpips=0.2675 psnr=28.64
-[dog_03] recon k_inv=20 t_max=300 exact=False lpips=0.1278 psnr=32.33
-[bird_03] recon k_inv=20 t_max=300 exact=True lpips=0.1492 psnr=35.62
-[cat_02] recon k_inv=20 t_max=300 exact=True lpips=0.2482 psnr=29.03
-[dog_03] recon k_inv=20 t_max=300 exact=True lpips=0.1341 psnr=32.36
-[bird_03] recon k_inv=20 t_max=200 exact=False lpips=0.1141 psnr=35.79
-[cat_02] recon k_inv=20 t_max=200 exact=False lpips=0.2440 psnr=29.14
-[dog_03] recon k_inv=20 t_max=200 exact=False lpips=0.1106 psnr=33.03
-[bird_03] recon k_inv=20 t_max=200 exact=True lpips=0.1393 psnr=35.75
-[cat_02] recon k_inv=20 t_max=200 exact=True lpips=0.2441 psnr=29.13
-[dog_03] recon k_inv=20 t_max=200 exact=True lpips=0.1257 psnr=32.61
-→ /nfs/home/nelson0314/wacv_runs/diag_recon/vae_floor.csv
-[exit 0]

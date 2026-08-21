@@ -1,168 +1,73 @@
 # WACV — 白盒頻域／相位抗文字編輯防禦
 
-## 研究範圍
+## 先讀文件
 
-> **2026-08-18 改版，本節以下寫於 2026-07-30／08-13，尚未重寫。**
-> 指導者指出紋理重相位保留幅度譜、只旋轉相位，本質是頻域的重參數化，
-> **不算狹義的非加性**。主軸因此由「非加性 vs 加性」改為
-> **頻域／相位方法，及其抗淨化能力**。動機是既有防護擾動多為高頻，
-> 會被 JPEG、resize、模糊抹平——該動機已由 FND-060 用本專案自己的資料
-> 量到，但 FND-061 同時把它收窄成「決定性的是與淨化器格點的對齊，不是
-> 頻率高低」。
->
-> **判準與現行主張以 `DECISIONS.md` 的 DEC-025／026／027 與
-> `FINDINGS.md` 的 FND-057…062 為準**，不是下面這張 08-13 的表。
-> 五個加性 baseline（`photoguard_c`／`mist`／`dia_r`／`add`／`apa_weak`）
-> 本輪擱置不進比較表；`mist` 的預算未對齊、待重測。
+`docs/INDEX.md` 是入口，列出每一份文件回答什麼、怎麼查。
 
-唯一必要目標（使用者於 2026-07-30 明確界定，先前的發散方向已作廢）：
-
-> 在白盒條件（已知攻擊方使用 stock Stable Diffusion）、外掛模組形式下，
-> 找出非加性方法，在**匹配人眼可辨失真**下，於**抵抗文字引導編輯**上
-> 勝過加性基準。
-
-明確不是重點：
-
-- **low rank 完全不深究。**
-- 架構不設限，只需維持外掛模組的形態。
-
-要多做 paper survey；不要在會失敗的方向持續深究。
-
-**2026-08-13 主張階層改版**（使用者定案）：
-
-| 層級 | 主張 | 讀數 |
-|---|---|---|
-| **主** | 非加性**更**抗淨化<br>**讀數已知有缺陷**：`retention` 比值被分母支配（r=−0.83，FND-037）。<br>DISTS 對齊下勝 9/10（FND-033，分母只差 7.7% 故可用）；人眼門檻下分母差 43%，比值不可解讀。<br>**改報淨化後的絕對位移量：勝加性 10/10**（FND-037） | `effect(purify(·))` |
-| **並列** | 防禦效果本身不輸：未淨化時的位移量不低於加性 baseline<br>**已成立**：人眼門檻上 1.55×、逐圖 22/24（FND-035）；五張圖 1.41×（FND-036）。<br>**但與原生預算的 `photoguard_c` 打平**（0.99×，FND-036） | `effect(·, identity)` |
-| 三 | 保真受控，報全部指標不挑選 | LPIPS／DISTS／PSNR／SSIM／NIQE／銳利度 |
-
-**不再追求語意抵抗。** CLIP-T 對齊掉幅仍照報，但不作為成敗判準——四個軸全部
-否證（FND-024／029／030），且 arXiv:2506.04394（ICIP 2025）獨立測到同一現象。
-
-**兩個讀數都要報**：`retention`（主）與 `effect(·, identity)`（並列）。對照組 R
-的定義是**同失真的加性隨機**；紋理重相位另有 `phase_rand`（同失真隨機相位）。
-`retention` 的分母塌陷時不可解讀——`phase_rand` 的 1.4–3.4 是分母只有三分之一
-造成的假象，不是它比較強（FND-033）。
-
-**判準以人眼為主、數值指標為輔。** `compare.html` 是主要產出物，每一格都必須
-有影像可看；指標與人眼矛盾時以人眼為準並記錄。
-
-## 正式方向：紋理重相位
-
-2026-08-13 使用者裁定。**專案範圍收斂到三個條件，沒有第四個**：
-
-| 條件 | 是什麼 |
+| 要知道什麼 | 讀哪份 |
 |---|---|
-| **弱 baseline** | 完全原生 APA，只把 reward 換成 targeted output（DEC-023） |
-| **強 baseline** | `photoguard_c`／`mist`／`dia_r` 三個已發表的加性方法 |
-| **紋理重相位** | **把影像切塊、只轉傅立葉相位**，`src/residual/texture_rephase.py` |
+| 目標與判準 | `docs/GOAL.md` |
+| 本方法的構造與旋鈕 | `docs/METHOD.md` |
+| 對照組 | `docs/BASELINES.md` |
+| 指標、資料、攻擊模型、對齊協定 | `docs/EVALUATION.md` |
+| 測得的事實 | `docs/RESULTS.md` |
+| 已定案的事項 | `docs/DECISIONS.md` |
+| 會靜默失效的坑 | `docs/DEFECTS.md` |
+| 環境與執行 | `docs/OPERATIONS.md` |
+| 外部文獻 | `docs/reference/INDEX.md` |
 
-`add`（加性 δ 走同一個 encoder-targeted 損失）與 `phase_rand`（同失真隨機相位，
-即 RPN）是紋理重相位消融的內部對照，不是獨立條件。
-
-紋理重相位的構造與定案參數見 `docs/MAINLINE.md` §4 與
-`docs/superpowers/specs/2026-08-13-texture-rephasing-design.md`。一句話：把影像
-切成重疊區塊做加窗 FFT，**只轉相位、幅度譜逐位保留**，再重疊相加回去；`θ=0`
-時輸出逐位元等於原圖。文獻依據是 Random Phase Noise（Galerne et al., TIP 2011）。
-
-**舊主線已刪除。** 2026-08-13 移除 `legacy/`（33 支腳本）、`docs/archive/`、
-`src/experiment/`、`src/data/`、`src/defense/` 的四支舊模組、`src/metrics/` 的五支、
-`src/residual/site_warp.py`／`site_embedding.py`、`src/models/attention.py`、
-`src/utils/` 的三支，以及 21 支對應測試。`runs/` **全部保留**——它是唯一的證據
-來源，實驗無法重跑。取回：`git checkout 6bb656280 -- <path>`。
-
-已測過並否決的方向（注意力抑制／分類器 CE／latent／CLIP 四種 reward、DISTS 進
-loss 的軟約束、Adam 更新規則、位移場、cross-attention 注入、分階段注入、
-amortized generator、顏色通道、紋理重相位搬進 latent）結論留在 FND-004、
-FND-023…034，不要重試。
-
-## 程式位置
-
-**完整清單見 `docs/MAINLINE.md` §3。** 六支腳本、35 支 src。最常用的：
-
-| 用途 | 路徑 |
-|---|---|
-| **紋理重相位算子** | **`src/residual/texture_rephase.py`** |
-| 參數化 PGD ＋ 預算對齊 | `src/defense/param_pgd.py` |
-| 像素臂消融驅動 | `scripts/phase_ablation.py` |
-| 失真掃描（定門檻） | `scripts/phase_distortion_sweep.py` |
-| 抗淨化 retention | `scripts/phase_retention.py` |
-| 弱／強 baseline 驅動 | `scripts/apa_baseline.py` |
-| 階段一／階段二 | `src/defense/apa_stage1.py`、`apa_native_stage2.py` |
-| 指標 | `src/metrics/suite.py`、`aesthetic.py` |
-| 淨化算子 | `src/purify/ops.py`（含 C&R 串接 `jpeg_then_resize`） |
-
-**2026-08-19 新增（頻率輪，DEC-026／027）**：
-
-| 用途 | 路徑 |
-|---|---|
-| 幅度／相位交叉互換（PAD 第 3 節） | `src/residual/spectral_split.py` |
-| GrIDPure 與 FD-Pure 淨化算子 | `src/purify/freq_grid.py` |
-| 可微分 JPEG 管線 | `src/baselines/jpeg_codec.py` |
-| DCT-Shield | `src/baselines/dct_shield.py` |
-| BlurGuard（**需要 SAM**） | `src/baselines/blurguard.py` |
-| AdvDrop | `src/baselines/advdrop.py` |
-| DiffusionGuard（img2img 移植，非重現） | `src/baselines/diffusionguard.py` |
-| 針對淨化最佳化（可微分 JPEG 進迴圈） | `src/defense/purify_aware.py` |
-| 三個對照組的驅動 | `scripts/freq_baselines_run.py` |
-| DCT-Shield 驅動 | `scripts/dct_shield_run.py` |
-| 分解研究驅動／彙總 | `scripts/spectral_decompose.py`、`spectral_report.py` |
-| 徑向功率譜 | `scripts/radial_spectrum.py` |
-| 報告產生器 | `scripts/night_report.py` |
-| 頻率輪的具名工作表 | `scripts/run_s0819.sh`（說明見 `RUNBOOK.md` §7） |
-
-`src/residual/base.py` 以「能力」而非型別對外表達：像素側實作 `pixel_residual`,
-去噪側實作 `eps_hook`。新增位置時提供其一即可，**不要依注入位置的名稱寫分支**。
-
-## 文件
-
-新 session 先讀 `docs/START_HERE.txt`，接著三份：
-
-| 檔 | 回答什麼 |
-|---|---|
-| `docs/MAINLINE.md` | 主線是什麼、程式在哪、已知什麼 |
-| `docs/FINDINGS.md`／`DECISIONS.md` | 測得的事實與裁決，**判準一律以這兩份為準** |
-
-外部論文的查證紀錄在 `docs/reference/`：`BIBLIOGRAPHY.md` 是全部文獻與網址的
-分類索引，`ROBUSTNESS_TESTS.md` 是三份抗淨化檢定協定的精確設定。
-**`docs/archive/` 已於 2026-08-13 刪除**，仍然載重的六條舊 FND
-（004／008／013／018／019／020）已逐字升到 `FINDINGS.md` 末段。
-編碼（`FND-`／`DEC-`／`MET-`／`DEF-`）每一筆自足、可單獨讀完，只用來互相
-指認，**不代表先後或依賴**。
-
-## 環境
-
-- 本機 Python：`C:/Users/nelso/miniconda3/envs/wacv/python.exe`（**不是 base**，base 沒有 pytest）。
-- 測試：`python -m pytest -q`，基準為 **382 passed / 1 xfailed**（2026-08-19 起）。
-  xfailed 是刻意釘住的 DIA-PT L1 起點缺陷（原始碼自身的問題，`strict=True`）。
-- **GPU 工作一律在 NYCU BASIC lab 跑**（兩台各 8 張 RTX 3090，home 目錄跨機同步）：
-
-      ssh -p 10101 nelson0314@server.basiclab.lab.nycu.edu.tw   # basic-1
-      ssh -p 10102 nelson0314@server.basiclab.lab.nycu.edu.tw   # basic-2
-      source ~/env.sh        # PATH／venv／HF_HOME，並 cd 到 repo
-
-  repo 在 `/nfs/home/nelson0314/WACV-s3`。金鑰認證已設好，**密碼與 token
-  不得寫入任何入庫檔案**。卡是多人共用，跑之前先看 `nvidia-smi`。
-- 本機 RTX 2050 4GB 跑不動本專案的 GPU 工作，只用於寫程式、跑 pytest、看報表。
-- 遠端也用 sparse-checkout。`git pull` 之後若某個頂層目錄沒出現，
-  先 `git sparse-checkout add <目錄>`。
-- 遠端 `git pull` 常因 `runs/` 未追蹤檔衝突而 abort，先把它們 `mv` 到
-  暫存目錄再 pull。
+**判準一律以 `DECISIONS.md` 與 `RESULTS.md` 為準**，不要憑對話記憶。
 
 ## 工作要求
 
-- 一律用繁體中文回答，客觀學術語氣；程式碼關鍵字、函式名、套件名維持英文。
+- 一律用**繁體中文**回答，客觀學術語氣；程式碼關鍵字、函式名、套件名維持英文。
   **commit message 用英文。**
 - 動手前先驗證假設（讀檔、跑指令），不要憑記憶猜 API。
+- 架構或實驗設計**先提計劃討論再寫程式**。
 - 修改論文方法要記 before/after：具體行號、原貌、原因。
-- 架構或實驗設計需先提計劃討論再寫程式。環境問題直接修掉，不用寫進報告。
 - 宣告完成前必須實際跑過並看到成功輸出；失敗就直說失敗。
+- **禁止用 try/except 或條件跳過來掩蓋症狀**，要找根本原因。
 - **未經明確授權不得把分支併入 main。**
-- 禁止用 try/except 或條件跳過來掩蓋症狀，要找根本原因。
+- 環境問題直接修掉，不用寫進報告。
+
+## 命名
+
+**目錄、檔案、實驗組、文件一律不含日期、流水號或順序詞**，要一眼看出在做什麼。
+
+| 不可以 | 應該寫成 |
+|---|---|
+| `runs/s0817`、`runs/t0820`、`runs/a5_gain` | `runs/sdedit_mainline`、`runs/ip2p_pilot`、`runs/phase_gain_sweep` |
+| `SURVEY_2026-08-18.md` | `SURVEY_FREQUENCY.md` |
+| 「第二輪的結果」「本輪」 | 「等失真錨點上的頭對頭結果」 |
+| 「2026-08-19 裁定」 | 直接寫現行作法與理由 |
+
+**文件內容不得有時間相依性。** 不寫「本輪」「先前」「稍後會補」，只寫現況、
+理由、以及查閱路徑。編碼（`FND-`／`DEC-`／`DEF-`）只用來互相指認，**不代表
+先後或依賴**；每一筆都要能單獨讀完。
+
+## 移植他人的方法
+
+- **逐行對照公開原始碼，不照摘要寫。** 查不到原始碼時，明確標為「摘要重建」
+  或由論文全文逐條實作，並在模組 docstring 寫清楚差別。
+- 查不到的參數設為必填或標 `modified_from_paper`，**不要填看起來合理的預設**。
+- 跑 baseline 時**用它自己的損失**；換成本專案的損失是消融，要分開列。
+- 每個未載的參數都要成為 CSV 的**欄位**，不是註解。
 
 ## 資料保全
 
-`runs/` 是唯一的證據來源，遠端機器不保證保留，實驗無法重跑。所有 CSV / JSON /
-log / PNG 一律入版控。`.gitignore` 的 `runs/` 區塊曾有一條 `runs/*/**` 讓 git
-停止遞迴而靜默漏掉 273 個檔案（見 commit `1942e38`）；改動該區塊時必須用
-`git status --porcelain --ignored` 確認沒有結果檔被排除。
+`runs/` 保存**數值記錄**：CSV / JSON / log / txt 一律入版控。
+
+**影像與 HTML 不入版控。** 防禦圖能由已記錄的參數與種子重跑出來；量測結果
+不可重現，一律保留。
+
+改動 `.gitignore` 的 `runs/` 區塊時，必須用 `git status --porcelain --ignored`
+確認沒有結果檔被排除。
+
+## 環境
+
+- 本機 Python：`C:/Users/nelso/miniconda3/envs/wacv/python.exe`（**不是 base**）。
+- 測試：`python -m pytest -q`，基準 **456 passed / 1 skipped / 1 xfailed**。
+  動任何東西前先跑一次確認。
+- GPU 工作一律在 NYCU BASIC lab 跑。連線方式、五個必知的坑、並行密度、
+  單張成本見 `docs/OPERATIONS.md`。
+- **密碼與 token 不得寫入任何入庫檔案。**

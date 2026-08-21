@@ -1,0 +1,2252 @@
+[
+  {
+    "output": "task_obj_add_441549/task_obj_add_441549.png",
+    "omni_edit_id": "task_obj_add_441549",
+    "task": "addition",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/89/src_img/image.jpg?Expires=1787157412&Signature=ZKaSukbqhFqDUIe3Ccba6qGurt0sgveMjs2DKov9Fmpok9sPeI6pnVdcw~o7ltDl3HnvL4QJJlTBHGP5IWVpvLqzsWjmBCNyZKoVM9AHTuZF31vOrk7a~SgpJz7F7-jnCr5b5gUHM04d7nNAMx9pdnCMjcKxkA-mhM0cbYrIzGaoDEZpUOEFVRztFi1BM0Imlc3A7aNgJXH3tZvK3lHtLrEXdfcwRULFrkjR1KftcmiVzbaIvAmuPrwHLFh7hjGbFLyPLFUoEKjL2qaQFvkJ0kJbLJ-832yHekNxV6k2tQr61AHPe~EUay5bNwqIgTQVeEecBSrogdaw7puwcb6PCQ__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "b7e1ed99f3122eb782fb56ba921ad94a46100c5fa5316b3c1e6b942ff17aca4d",
+    "source_size": [
+      1344,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 10
+  },
+  {
+    "output": "task_obj_add_850681/task_obj_add_850681.png",
+    "omni_edit_id": "task_obj_add_850681",
+    "task": "addition",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/111/src_img/image.jpg?Expires=1787157429&Signature=tL2XFIjPF97YgAiUo9ahif9FQ7RZp941HHr4DQ9U9D2nzPuVN1USJTEGq5EunpDt1QZMVwwIKzHwn-UVvBX7dFDj2ZVPl8~dllG50KkDm-nUZw7XI-~TRMCnmOnh3EmDQf2JmxDJ3TKT3TEz68y2GUR~mvRG~qW8-THxzkB7fnM9mENVDl8dqWfYK-sShmC-7pugerAkKuucg457Uqx8Wvrs-cwjLT6pjzkJmxjcDLaJwfM1TuAzUd80O1Usk9Q-oyc-jdrcy-WPtqg-KKnb7V1MNyb12sM1jLSFNRmTkHb8H-jgEj2RL832VcetEOSPgmSVKFfySZMLoQvts4WVNA__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "d5e0b1ea940497a2088d4e0af6f8a4a12267b6c10be76647690c7940d47de56e",
+    "source_size": [
+      1152,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_add_458919/task_obj_add_458919.png",
+    "omni_edit_id": "task_obj_add_458919",
+    "task": "addition",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/583/src_img/image.jpg?Expires=1787157509&Signature=asZaGqKUKFoX86ZvlQYzy3CHTAXDQZv7LgCYPkXBsSQPoWnN~jHqslFy6mQwoR0DhjdxI71f34F4oFlK~fQ~gV3C9T8jtLzhFuIPk-fUFNNsBE7OuYZcMDA1ylLYXX3HPRl6PM-In6Vbh1Pfamwx-ECX5W6HwdsB-RY~hS51rVso5~PTjNXEjHvkMXxD~jj5~nvcu0f2w0EudQW3skKmKCQwIOMCtZRhA6oWH64rvFgUOxjXSDA35Jy2HhC5cRrziSwSDGoTj4RtGwB0RTrUudjQx6WNW3uBItwWd5sUrgnpxZw-CUs8Pxx95PRg2-3R1EKLotxyhymAHYiwaRTFJw__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "7234d874b6d25704ab4f41443989a66687ae8ded9eee50099d73cf0bfe527b81",
+    "source_size": [
+      1344,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 9,
+    "pq_score": 10
+  },
+  {
+    "output": "task_obj_add_13726/task_obj_add_13726.png",
+    "omni_edit_id": "task_obj_add_13726",
+    "task": "addition",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/599/src_img/image.jpg?Expires=1787157509&Signature=b1uPJ8P6ZIa18NLsR5XbOXmT58iATtICoxFkJT1zzbxZ-6VWf-y4~l7xe5HpQEQLLFW~rfDLXZHlHSXvAS1PKBSl9AX5TBJ4tTVGwVFZt-E98-BJxOQIHZYnZrmgZz5QWK02fc89U-KuexBonLJe00ocF0y3Xi72MFsaFN7dWVeWVlxdYJUPMh6l3-z7GmasdekS9P5uHjzmLcGSZNRa-eRl7aAfbY3~~hl3VR2Knui6x6y7~J4PvxsHCy5o6~5X~Ovh8WDKAD6sFEpBxKID9DGlUDPpadm4v3hEVUQPT9NjNzLVNaPtWb4sLne0VNXAtwSOpuzLUTN2MPHRYi35Bg__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "41571c80d6b9c734cda3f5297bd610f9aa30a8ad6fc73718b02d2782f174d7e5",
+    "source_size": [
+      1344,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 10
+  },
+  {
+    "output": "task_obj_add_345721/task_obj_add_345721.png",
+    "omni_edit_id": "task_obj_add_345721",
+    "task": "addition",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/429/src_img/image.jpg?Expires=1787157485&Signature=wtjpHVWl3ZV1FW0GzZ6p4hb03sgnpFQJ-6tgJdiNXXe8wpj4PQqmanmq9N~IJ0G~SrZOFdSexU9yaDPSkkJpMc8ncqM68qaURP4vgKbVQVKw09msSfl8Ar5HfZbJ45ntoZaMJhnj12zMZj0gd9wYkj4-IqmaRFk8w3VC--JlHgJkpVs7NQdCdTiVXxzhpPYxIJRmuSP6Thc65~IlxIw8bchFzFv1VEsAwkuPvKU~cQxxh6-tkr6txgDUvhPjnLZfWunbIvRKF9yG-WTV-z0eWT6hYulstYgMxY5MNbaxNXHAZm2HUYktSwowWzc5ZN5IvFpSC4HdQAKbyRAOa~t5aQ__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "88e86ec6a4c855fbf7324a1ba3ec03b52c2d4418784720dae30c52f8c75f89d1",
+    "source_size": [
+      1344,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 10
+  },
+  {
+    "output": "task_obj_add_584511/task_obj_add_584511.png",
+    "omni_edit_id": "task_obj_add_584511",
+    "task": "addition",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/181/src_img/image.jpg?Expires=1787157429&Signature=IYb0dzFv8w0izr3np5mhFaNXYHHSpJk5zPhNxZG3d2-kwAodAtRjHaHzgX4J0MCHnel0zbqDhP0~14XOSooTJPQg3uW3v9ZinuL752m5bIITJXJnWeYEHI1WUWBJEvVI7u3CwpzT4lz-jip4I~PAQXV9SR9BMyVGsh0WLc470GyqNUjy3w-JN0cL3kV-B1tKRkoNhuqJPHoeBAyK4jmgQqP~5dE9HxpFH1FM8r4LdYym7fmu~I1jGrL9xowciN3AsbAPDtkB0l8wCOah-HOrTofispu9BGRtEFR2547kVXInEb-r1rxRc2XjDSU60TAdU6M73NbN81JO7~nLPTFi3A__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "227b436c067431841538df8c5346a78d574be23473917a96841b6090242e6433",
+    "source_size": [
+      1152,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_add_581286/task_obj_add_581286.png",
+    "omni_edit_id": "task_obj_add_581286",
+    "task": "addition",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/484/src_img/image.jpg?Expires=1787157486&Signature=frGrkDA6dWO~hEG1WmLDFPk4BNpNXTl3w3~sR8fXza4jV7j-NdNCM7OILNMT4xBWwRbk8JmlKg3-uMbzBE40JmUm2rvdgGC5FNyF~dOeQuMHbtrnL9sTF4LmHICLBgRxG17awOb~w6woetyPkIUewogJsOuRJeztAP~os3AgIQ7EiOjEFFo8QrTX3ae~~D2uOJjWO~cBPLlnaMsVOEzMiAJ0hJT1elRRdlkif7mlLtIhhlffMtiVGZUhX2av0GiIjIqfBDmEG5agzMXq34pkAjXSnmpank~yqH6pDRPwEKoIwvQuvT2u~3HRrpLBmuMXTKbEQMTOyv1lAcnsOjkvVg__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "655c5bdcb44cb90ddfce7d3e474ace6950af69453be41a100aaf6b60e250969c",
+    "source_size": [
+      1152,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_add_44802/task_obj_add_44802.png",
+    "omni_edit_id": "task_obj_add_44802",
+    "task": "addition",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/633/src_img/image.jpg?Expires=1787157533&Signature=nTqXQupenrjduu7bEZ-qJTQPVF6ZWd3Lbo9RwMO2ydtXqBVYKsLSdpz5D1O1zmSnF4xDvNyDW9qRzuJ9Ocx8AglgLr9FWUI-aJQVaonRSsyuQcLL0vdZgWII1xBQCPq53n9LcMUpBX8h2MrjoIu0PLWbMrxYOi3KeeLqTSd~CSvcM2oHgFFUJlj6pI9Bf9BX5mRiN2jfhQi2MmG9iiuC~CWsbPh1plldqvCmtib7Vft4OLWnXLomW0yfIjGQQ~LjUyQp0tOAs6sKspMtNj0Y~pbnOo8m7c3GMm-WHT0tTs01W6YDom~srIOh6znGQQuLyDAtgq~AR83Zk9WOMwrmYQ__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "5598f50af0050a4bda0179ab0128c177f4640b00b1d54b15e4381561d274a650",
+    "source_size": [
+      1152,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_add_371248/task_obj_add_371248.png",
+    "omni_edit_id": "task_obj_add_371248",
+    "task": "addition",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/483/src_img/image.jpg?Expires=1787157486&Signature=izM4MZJpmrWTAj7Y0ojV88a8u8qlSVhMO2Qjo1t-Els3z~n1ADbaJ9lmAwowlexGMfKIofMmxVQJHh1E9EScct3hjqDmL53E~-bG-zifWm-VYvrh5yswQlo3gcQqWKYLK48ABUItHHTfXswjV5GI1-hiUMKWK~bea3GulnlB3RZygBOoH4YQh3u5I9Edc-eMvlhNq4w5-1Ym-459Nk7adED4Q8XupQ2i8GcXdoNJ-uiBuEtqEKXRv9y85m1utuLI~9fC8NNzyoqL~LdAkFM9BCtMx8TKoL9CdDDB3rZ~BrNYMh49ebpCCIfbS1fEBxybTOD2uUjIqrInfMlaQW72OQ__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "698ab181afce380a86dff3e7c1424a1be5f326c8aed246193762b08f8cc9fd60",
+    "source_size": [
+      1344,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_add_531333/task_obj_add_531333.png",
+    "omni_edit_id": "task_obj_add_531333",
+    "task": "addition",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/170/src_img/image.jpg?Expires=1787157429&Signature=NU4BJuv6pBgKual0UV2qFLThSZ~R346m4qKQ33pQ1x9bd9~Z-bVR7naHSHY9aDfr5SnJ77XzlA-P~4e2n0CcNES4ZwFY~of0s87vvkQghC4Os1pYFdRiTtXry7W-u3pPGIJFAVubUG7AyNOmKbEePfS-pcO4jiNGKHrQMZFo3JPmbaTdpuBBlj8XEQInlIEYOGI5Wpm2cHMsaUd5fbcRbbaKVhDdYFi5fuoywhRZ3hb0laOxDpO~ei~PfMsM65L3fHPsfRHbnLVH8fY9AKs4gDcxCavORPrHobwtfALLrZUMU--9uvdjycVyUwWwVbDPQpsMdMT4MZYdWgps9dMmCw__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "1a1adca999f6c43ac865e463bece46f9f5a604b100f4c996123651777b1907f0",
+    "source_size": [
+      1344,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_add_40931/task_obj_add_40931.png",
+    "omni_edit_id": "task_obj_add_40931",
+    "task": "addition",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/155/src_img/image.jpg?Expires=1787157429&Signature=kImPjy7ntMROJfAk31Ns2BXPPnlL3swFs4I9-JFIIh36dlfxuRdrs6c68P21WbN1lawB7Y3zyMKFMMtV6UK5Gt9CtqVwfKF3zTdAwpPrAhBetfE4oMSRqOFXqqb5qDxk67JuSIFWNDvQkbGozI3icefsxDlB3-RsAiM4C~cHChLnSjpOx~pWqziUToJJpUx2pNOe-Exuo9wfkwm927juysFSLP4SLY2juXL0KMWQcEmNOh52T9q4iNwVrdBypdGJgUeHiQsQDDmipv0xMbI8Rgo4cOjVopp~sQPHLb2ym7Gq0C03rpDeKpU5~MWVQjtmF4lYbei~V9M6SxPUBz3bPg__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "d6b18642848943f66e261362cb1c3f8ad13dda3a7c149ef59dc7c10b86cc1249",
+    "source_size": [
+      1152,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_add_685213/task_obj_add_685213.png",
+    "omni_edit_id": "task_obj_add_685213",
+    "task": "addition",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/76/src_img/image.jpg?Expires=1787157412&Signature=CHMOW1-irTbjCKs3XrQNTR68Pv5vZqxxWwkfWoUyPJNSysz6Im4cbKRskDf8FFKXe8Iup99XzIViVEPHqEr~tmDaJ0nWoOOssQt~J4sCKKwElXzCLkSHFCHKJXLelQGNW~NdB6d4g2UAHeDqRU4zilTpzhN60iNKjvdqiyiP-rt7W18AgyxhR3C9swi0aC5vvuPA-MGz3yK~vsP~fGUeF1LJP1~28Xo9YJAAmIK8zAum3u-AXvPFbloqfOMd3ol7nUgPcX~3ieHQ5oUxROp0jEEOYPQJ9Q4pGjKNv7roLMXIv04D7qwzkGi5hk6RZ39WDJMnwD1hcylE-5-qX5nxRw__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "c9f17219be974238808e0325d9c9612a3b1b347c75946d5d37a80b6c29542e86",
+    "source_size": [
+      768,
+      1152
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_add_290491/task_obj_add_290491.png",
+    "omni_edit_id": "task_obj_add_290491",
+    "task": "addition",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/605/src_img/image.jpg?Expires=1787157533&Signature=oZXZtRL~lMH0LuXFy-xBw5SWE1AAT4A37Ri8xRrQ6X89gcEC9iPGQ0ip3iSFFYrEirJab97JrjRCFSupKy1q5cGea5LkI-fzPomhFO5aOx0oatlDP72CZLyqVTBFe8zADlxOKAfhr1ypRMiN0bLh2T09Zt-grdiYsb-SHsL5pUMVCc~LDpjwD7ljsOoimyv9F1g68T9mc2qO2bp0oKKC8WJb5716ceRVoDaH~pa-7X2lO7lLiEY-8rnTrazEOm9tbPstfovXQj8728U3uDamPysIRN5xvmIcNJQte6CwvHF2VroOONTsWR3CE9ZF8ZQR~qW9Y6sxInGoNvK9yT6jCQ__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "21a8df6464c404f1a1f8dd4e5a19a4cbbb56c2d8e0b0f216ab798de76658fa22",
+    "source_size": [
+      1152,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_add_583252/task_obj_add_583252.png",
+    "omni_edit_id": "task_obj_add_583252",
+    "task": "addition",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/124/src_img/image.jpg?Expires=1787157429&Signature=XGn0sVM7-YPHXO0gUcKW7O6SZ6ld5RUod259VjiiJ4aR9bZvusmteyOMsqoPm7-Yb6XDcgo1R-b7JR6iav4~ApONMq72v29g~vAOETy22LXY4yzPIYS03lfvPiWBsPWbzYpR1TFxmJWErvG4Thlr5hCvLNHvrDVEbqMAATzs2IA-72ug0z64g4jKv0xMAl~QhJG~UrchLScx83lRzP6HevrQ2N0acbdJaE8pzE8qp6-Xv~htuLJ9qopA3CrNKCTOmXWe7qk5XrIAUWBI3yxQ6GLYcff~wNcdHE18PehM7zduiQxRoKEFnwXxaVEnIIIDQIH~r~nXNAj-YkX~Le4HdQ__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "24122d320f64d896993d8a409e91d03420948e3db5e514e63d5b3f69e15db70b",
+    "source_size": [
+      1152,
+      864
+    ],
+    "crop_side": 864,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_add_239597/task_obj_add_239597.png",
+    "omni_edit_id": "task_obj_add_239597",
+    "task": "addition",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/598/src_img/image.jpg?Expires=1787157509&Signature=t94pqNyFkugu4gC1pAgTuEOEzQOa12jk135kCKVcFDOGhyp642svmKK5QmwJRkcNp-BivmO2fBbrBvthoiJQaofJw2BM5G882JLJP7TTfITNt4qDLoHqQPWIOnKGY9YznYntNC2Rgz05tBtEMBU9n8Drbhv8OnR-wEkX1xiAOiULMi7gWPAHWati2s6Px84qVpgnSJgZclS-J6ksM5cMx-jHROpfPYBayJfPaRWK5S3zw80AuewgItHpdDUTK-TxFGpIaGgxF-AuN7HLaq3zixo6k45B3yZnjnG0vmvU9AB1SY7DOlheUi-1T775KV3CJoqNulP3nuXPGygiVyMp8g__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "d7ba5ea67f64faaa9a5dd3e6008e4c6efa9a82b391006abecc8bd6d60ef3f71a",
+    "source_size": [
+      1344,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_add_362298/task_obj_add_362298.png",
+    "omni_edit_id": "task_obj_add_362298",
+    "task": "addition",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/201/src_img/image.jpg?Expires=1787157443&Signature=bcBdiNKmMu8fVRvdCIUaApOqf0fsGp6X7ixoDDXxXMJWQxefUUt4VaGNh~MbUyb2aGQi199nJis8oTsVJrgmn0Hzu8m-g2erZp5JkadyscObuT6NqXci6hrGn4nnnf4f~klulE6VZ5Vr03HxRQTxqAoBA81UIm2li852ZzzZCdflElt6BauyJU5PaQGhvXkefxP1zBv9mVGN2ax4yegM71QsbLxnAESEsbJhZIE911VZdLm0YowivaigDd01Wqpq91SQqbKfV9Z-LnrywE78XNIjjX8ARw19ys2It-SdqNWJ4~Fy2bngYwgM4ykZji~DK0iA9ACdVRRuNyTW15deGw__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "53946644c6c3bc4f864854e6be86bee6fa08723e818bb66c977d3312ee86ed80",
+    "source_size": [
+      1344,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_add_767982/task_obj_add_767982.png",
+    "omni_edit_id": "task_obj_add_767982",
+    "task": "addition",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/259/src_img/image.jpg?Expires=1787157443&Signature=NMa~-C9WPIsi-jozCxECZRInCHS2vakQOgdtWBYOaT2lSDELC0fb1YAVwXLitRRitYgcEuwzZ0omOQ9gNMSWUGFt3Zrw7Gfpe267f1toyvNXph4VhvvEyti-0PRbPUkWKWx5VdqL2u0zbA9ROdvXuoQPTr8VR0ORAgGCPWY9-9Z~saKWdqD44ElzMLarWez0pviXNaWNBwub2iC36-G7O8PeObyEt6sDG-zNsUPf0kyH36kJRXM5MZ4-6lvNjGC5NF4xodl-PNMepueHzIKJ5v2Gfqb2Es72xx5pjoSh9vrwp~LsOBpdFrxTPT~PgmBqMcd6fLECX7sX~ZPX2RSI9A__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "6b38cb6eb0ac27ceda42033165e99c811cbfdb740927d5bb7a5e2f7a8124184c",
+    "source_size": [
+      1152,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 10
+  },
+  {
+    "output": "task_obj_add_166344/task_obj_add_166344.png",
+    "omni_edit_id": "task_obj_add_166344",
+    "task": "addition",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/43/src_img/image.jpg?Expires=1787157412&Signature=Z6r2WF28hJehY9OFJTu4zACbayrGuWGJUW2UAQ6TiONIMxvhpvP92QBDO7Nrr0BAiGlNFW~Jl5bX3hTHucisKoR6US9HbdcC5~c5YAjMEPyhOmHbv--O-Ars33ySfi-RhXNWC7Pw~3wBBSWhLw~A54peqCubnv1rEjeiHcvy5oBL0SxBAdB4aSr7WM53xo~zk1XPHWEoEUqJgFylVeGxjXfu1HI4Ss65hdy0zldGAR7l2rs7~FOgSgbptNWYU0qr4l2Od8Ueuyg6estXJ-Yb2NHiCPK5Dz93SVFXqGNjoWFoxkP960c5VY-xh6czkE8eSAkt5Va04fQ8wdyGkWc39Q__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "866f369091ecdd6768a87db246003cab73d78086c6d75dc69c4c104745a5218d",
+    "source_size": [
+      1344,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_add_709390/task_obj_add_709390.png",
+    "omni_edit_id": "task_obj_add_709390",
+    "task": "addition",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/666/src_img/image.jpg?Expires=1787157534&Signature=hOWNbMpgQm9T3MIgf5l8tZtwcrFogtCgzvjepSbkArULdlIP2LKg32LtXANrwwHqyQtUv2pj0F3Dbp0qTGiBFfhe~gRvHSZ2T7FblGsd8Vdb3ei1BUhqq2aYYYURPOGvlkl2CJN~rlLuz1MxnKHBX2EH8UicworM9SXaOP5z2R7ob1bjEb-eaMDyVD7tkQkYKvEKVTvmSfGGuHGSgYMNtIXrZBuTqVeTGDyjEd~3TM0kFNbrzl7X7IxbqEuxxfZxZ5W7xi0~ABZiPPHTW9zcJxBJM0JnwbUlJd1FyAOvKvFbMHcfen4r9jGfpLPO-mvJoPZuL0GwZAiKRq03YCMfVg__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "49359195cedf62c8db41b85fbcd4717e20c285c38ffe46e9335a8007628a1398",
+    "source_size": [
+      1024,
+      1024
+    ],
+    "crop_side": 1024,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_add_340466/task_obj_add_340466.png",
+    "omni_edit_id": "task_obj_add_340466",
+    "task": "addition",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/192/src_img/image.jpg?Expires=1787157429&Signature=wgwAXZHgm~ZIdG13Sb-Oz4jkOqmd-1GuFEQsAzVSGjSvjWlyuRqpFBXoGCUbKV1ruqTf-t1DySUImrNR10r4d3O9Rz1Ttwgc3lzwCSaUWlA3B39V1EzgoOmNhNAekgvlfNSTpa6g8kX-Nq09pVQWai7q7Yl7qcbft5XJm7V4AhMH9K8hzTxv3f3fGd8n9sDNsckWzH1R9roqk30mxfSvvSdC6E7Eh1iDEd2qeDlvDXld5VhBQeGJf~qEYktlQliSdfRPsEnrOFOaz0U4cdoyqCdvz4yBHYCrPpQHLNpXekCJKVMVdLLoFiG5DJNA9mP5fiNUCdlZu40Hpp-02AiOXg__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "70d957a12b7e4295ccfe7324f25a55f6dc640a40fa2b75b7e1ea1bdb80466090",
+    "source_size": [
+      1344,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_add_630523/task_obj_add_630523.png",
+    "omni_edit_id": "task_obj_add_630523",
+    "task": "addition",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/621/src_img/image.jpg?Expires=1787157533&Signature=jJqhNiVioukEtJTuvH7NaSQ3PEqkUXIgsIgLQejNrYJO-q6G86eRLN9yqJlJceKSTm8hA0D05AQphtgxIEdqQ-xf0z5L0WRyt3K~5u65oZ6nnO145PxRN4lMcWZtZisa7axnrbgxLLv4z2Mh9cOctP2ymcZPb63sLPvXWpiMFk9VRyWaHg5AE9vlaLq9jVQqMm967NAlf~PErWYE6oLmUcLoCzsIkpmhw0Khw0IU3VuMcaBjHP8B6VEwVyZwimldWzla3QnR1DeIGsrgQGyiBbg016e3A~31UdVCfYsgoM7BDvJNn7EgYRGPwjLaiohCftvzSr8eY4TAfufNQ8EFDA__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "d35ee76dbdd9d858c04bc17b0aec4f286f0fea33bdc84b6fc221f5bfd0639e11",
+    "source_size": [
+      1152,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_add_697862/task_obj_add_697862.png",
+    "omni_edit_id": "task_obj_add_697862",
+    "task": "addition",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/27/src_img/image.jpg?Expires=1787157412&Signature=AjCYXqTK5IeaUB9~ax2smOAsMzFuTXbv022Xx1bXg7iOfz~pkG9Axh2KCMUnnjsTJgoaIF5vrnzLykEs5OxJyVWFODIWDxfXbMwMMHNXgHMIVEUT~Tc5Am1SiMEi0fSBkdGFcBhRnpZ-p~BLAAxlnrhfl2AKoTznFS0vQZpy4jBUoxj2vdndQ2lC1s3BVi0M5ajlPVAx12-TTO8CleV-6y8mPDVQc3yVbJ-xuZ~2pCVi2pYm~UwnmGqw6JlT3xz~9lXTEKoPEZA-qw~KESvrt7P6edOgcKFsXIlK57OGBipN892C3pUB2XKDHBP~4z-aYhR1wN15RP23d6vI3ZyYNg__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "98bfd636a380c0e0069932062d7447affffc09b3ab356451d2c079003be13b3f",
+    "source_size": [
+      768,
+      1152
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 10
+  },
+  {
+    "output": "task_obj_add_24380/task_obj_add_24380.png",
+    "omni_edit_id": "task_obj_add_24380",
+    "task": "addition",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/670/src_img/image.jpg?Expires=1787157534&Signature=jBzWGwlGqaHWoOr1cjN7I20H9C0O5OHuPojAfGKUOog6YmRsVlQyG9ujxaU9FuPk0XBjprcsKIlTygQz2xyGFpmzonYSMLPEVHhFPZQyTet-YYOz0Lz4YRrP1xykqKRWOXczMwusGgQQeQZJI1oA47fKt82W0je5AA2zREjtoXsnW9a53RRpzjEwLvo5U307c-cmv1E1jPTmcUWoyYkDnViRBKSmKcBBz2yihHUIHdFAYX6SzwDleU~eXcCbK0IHY13rG6mK0mMeqeJVtotgX0EjlLgqYwMEfQBuCe9ncnRECuRBq-VP6QULnM6uABVy1vVyl6cRFPjMoyAq8TXO5g__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "481ac425eb17165b7a706028edc382b37658d5040cf779a1afb73c9cedb09255",
+    "source_size": [
+      1344,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_add_375217/task_obj_add_375217.png",
+    "omni_edit_id": "task_obj_add_375217",
+    "task": "addition",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/266/src_img/image.jpg?Expires=1787157443&Signature=GPln1lkJxuaZCNECZRY9AjGr7izDGilJLmhP7GEE~4bNv-o5kkDWgXSYeQttLp82O8pn2B5z83oxLSb0vsLRBwAwE1CyC3laSTEHAZh6E0S9ftYtHeQrDP-hZsOFdNiPS3zp0nu5u9UrlFhdBjNdywKfQx9TnRfWK-4N2P-1xTVC5oobgr3A8pnF~kJkRniqKk3hBbfA4SpRuRH5xgTWeo8nNJ4IplqCfI3oXyZ4dVh5ccY3iUhcRWnn2ElrTVM5u-9BYLf6vvtxGiNFbu21tt7Unz5RmTpoh0M~GSz0G98NcXCJI3Ft0YV2HzxiNjl7ocY944vYoWwQIybDXQ0dpQ__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "cce3b8fa574015fb6576ff5ad5a5faa35f688ee414a46507df373dbf97896697",
+    "source_size": [
+      1152,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 9,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_add_726991/task_obj_add_726991.png",
+    "omni_edit_id": "task_obj_add_726991",
+    "task": "addition",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/481/src_img/image.jpg?Expires=1787157486&Signature=gDCAibUEusu0rj7cFYyAhaoj3adt4~YQRDZEPZPXJ9jX~yOBkisOU9gbXRJO0dE172-SC~trQ1drM07scYdw3YCiRX3Ne~BLNxKPoWmi4LWBA0jD1YDZOfbcJeYunTMCG3Ay4bKzYQpE-jLIgCFKF70hZN7--VQyKwH0Xd8hUUS8Emomz0-klHV6IEs52HaBC4pYg-7d4QmEj86qmszAEsh4q88GFB7wFMMqAFRlNc9rSHk6PmCEpM4rrZ18N~-5vLm6xVz4O1De1fNc7iWsX1uY4BvbAmse82ziB2AtX6QxNhr3-YF34IHtAXChGS7ppb0P-pT21sMIFBTbuOrCiQ__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "b11406c7b431f48aa06a458269c0b8a496550e80869aab2f65cb3551566766da",
+    "source_size": [
+      1152,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 10
+  },
+  {
+    "output": "task_obj_add_161232/task_obj_add_161232.png",
+    "omni_edit_id": "task_obj_add_161232",
+    "task": "addition",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/534/src_img/image.jpg?Expires=1787157509&Signature=PbzXeQ7xmcjRY8Sphme582Qe8q58dt8GqRHWdNKLVVmdVTbvKZ2XUFnrMvSELR2CR1~5x6cT6JC0kFL~9sgH3tFKDYopnzKdvsF2Pc~MSdPsnT2C7RdmpD1qmUQLQSDu7SEbtuVD2UDdpENWTZwYno5ZPFWfFIUwV564UD0WiQ~23lHYakAh9FxWCUxtSeq3PRHRu5ILrAOnJcfbRiEUIQ-ephrqewiNxn3o9VGPq64Xd5qAFpCjVNRKpAMJ-Cm4UVxE3S9UCEUlsC7oQySAYoK92fAAU9MffjcKSNEjAdS9PXJ7Qxd-RJqGJ8OWBVd3w-KmA2NjuV22BqykYpHpoA__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "d670bdd5112501c00ae1d1a73e5b51a1f8cf90b42ba62b617a4a26ebf055c72f",
+    "source_size": [
+      1344,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_add_39816/task_obj_add_39816.png",
+    "omni_edit_id": "task_obj_add_39816",
+    "task": "addition",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/411/src_img/image.jpg?Expires=1787157485&Signature=fNOxLHF5GlrhPk5pBENsscZoiIlzdKMfwnl7ralny~UMcC0T6LZBJUK3i9bJP4RW6IK~66~88NP9YjYL5eoY76LJ5nUPia~lyzG8qJv8rOOssYx9QVx1C-9-wR4~WdaszAm43vkW14JIdCMSXSek0-EsWnMYGD7eE-esEV5m5USinaRQ7Nih87o9LhkXsVbPm7X5LD4XZRzbmv-zQNT5XCk9sUHuctSPX~5ZSawHIOzfTQLHacb7nnzdZPen6f8eGSP39HaWyKx732qV1wENgviKRZRzS-VgndoxNb8Tvt0y1vNoF0HqlT9Azen48WMRpxRTi0a41lPlqUvmp7alpw__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "069100a0b5d038236937c9bd4201657a9ef33c8d2ee1ab5857991808af57cb00",
+    "source_size": [
+      1344,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_add_530461/task_obj_add_530461.png",
+    "omni_edit_id": "task_obj_add_530461",
+    "task": "addition",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/435/src_img/image.jpg?Expires=1787157486&Signature=HjIDLYcfSz8P8TU87m1EQJzZku6tfT1bM5fs7cJOFQYA7dZXlEiIit56escVmUSLXTgRTLtndmo8W9FYp0KlWL5d~4btI6TSvLPup93Wq5uDw4l5hKteZwCETAwmSk0ItoPkan19f67A-2V-k8RAIJgKXZ9r425cw5IaR-SbHG7Wcn984h0gq3I511WFwqq~o8sBtjztXf0OqS2QX7k3UOuAyV~ctBXFETWREoF03Tp5B3SWv-lSp3bnPZWCyEzDNbwofVZvn-dhM7ONsQlaU66o5tdC0-p4m-1OLcRWCAg4SUD3xYJkW8ATBCFJmDxnZNDVQjHbhuD6kEvFiImqqw__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "1b4bd385b50cd41efaa8b7b6d0bf957f656210f3446ad1d0faa9e0c5a57049c4",
+    "source_size": [
+      1152,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_add_669258/task_obj_add_669258.png",
+    "omni_edit_id": "task_obj_add_669258",
+    "task": "addition",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/326/src_img/image.jpg?Expires=1787157463&Signature=A3NQ~VljVBEtbC17NBJ8XHuVFjZSwYREfIKXjNmsxBajNp0uR5Cs9unkFI-1CuLAa7-bKCmHyeA5KlphpT60WbOPvOfw3RxW5iC0MXU9YFcVGuWgvcIAr-L~E~sE5nX1SQ4LYV29INvq3HiUmmiTZuXMIYFU2Bqgx9kuUT~TUKRze7lBbpy7xGIjLsbn8C8HXPnOyIt1NWqD5ocQWr0CzCblp6jki6OnwwKBd5tInwL6ybRk3reYqsGgy5~fdvW1t2z1wGSbfRN6pL~fhPOrX0J-tIOvnjUSz2spp7g3~H~HZkJItgDTeCKK0YowfVUtIysFCcRSRuFZ69aLtC1gEQ__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "a670040df87e1c9c382260c8e3bd687cc9b85d0f6070b280b215e74907ce8168",
+    "source_size": [
+      1152,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 9,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_add_692065/task_obj_add_692065.png",
+    "omni_edit_id": "task_obj_add_692065",
+    "task": "addition",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/251/src_img/image.jpg?Expires=1787157443&Signature=Ls2PndrNbulzqhDOPx2Ypsv17xUwibSpp62X-zQZwlh4Zl7~5zwZaA7YkOTLSjf-d53z16onU3oG6zjG7GZGQwHuVZI2B78dauSgH14xqn-vxnNbTh9tfXjcidvEW-8jb6Op5i~9V-KZZjL5O9kzLi13v6g1En3n1OPny12arYAC7GTbjf3fvPpRwSaVIw~8dq0vGC3TA6UKUAO-jrzEOmIMEhkJnh487d2snhINIrWqVuCEGDXEad91VkWoDqm2biCKY~tuqT7kvRv7AdBTeOPlFkQvPIg281Fgwd4uOJYSS00e2HmLXqVMPQf6XghDB1EDEWgv92RzFf6W2IEfMQ__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "3675e77311053eb36f1b07a671f174c46a0b08b861396484f4b64659f52b8168",
+    "source_size": [
+      864,
+      1152
+    ],
+    "crop_side": 864,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_remove_410264/task_obj_remove_410264.png",
+    "omni_edit_id": "task_obj_remove_410264",
+    "task": "removal",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/546/src_img/image.jpg?Expires=1787157509&Signature=qASxniy87ggvrEpYPVFKTmQaYD~tzY7WHHYkVXyNF4F7nHLxFMDwVoyJVaPe7mDwVKDDXMa6oIhDtmx8OxWmf~3trBzIqDnlx3KxLHcpaIqIBEicAA6OmYkz4GSRWf-gP9W4fEK3G~f8~6S5j6SceTaLE8AcZS2109w1nOUAZ7EXgLTxK8kFIxhXi8tve9Uu20tzXJPVILO1PM8Xc0foS30XKt7esYI8yTZMhzMUng22n5IuxvH17jl5ZSeukeDmwbTiBBYZ6-fN~uMmP~CyIvkx~dflxeO5lLIjV-tVEvCC8dC2jh2NgytP~1wBmPsqFFwVVUs8rAuGV8oKmQNIhA__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "c91bdef3b39d5cc3f88ee2e9ea27c60c9d2bdcb2fac7c85c1b97539cdd1289a0",
+    "source_size": [
+      1400,
+      730
+    ],
+    "crop_side": 730,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_remove_499725/task_obj_remove_499725.png",
+    "omni_edit_id": "task_obj_remove_499725",
+    "task": "removal",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/141/src_img/image.jpg?Expires=1787157429&Signature=Mz3p5K7cz5lfqA-8oaCAzgKd7MS3FXavJwcPjBPNaI43Ald4BJppGHO-k06R~bRcp6XRPOwbKBvAbLaZdYPVfhRUnfDv76fIg44R6of2C8Y7LbOZwLgugfX-CGYoFwZnUjyldK7Kt5gC2VxfuGcrHs5vmWf6qba~ZyA5SpWn5bQjlVUUahqBX6eQ3SwGLlDzKKH7K-GWtM9Cb4leliPGKMA6Yk9yNXvxRuhqkWTMWtdMd3jF6GmqY09DIzuLeY3WC3veFwh8kE97WYicbrs2bBz~IMxb7QI9m1-7nLvL8ta~wMfbNtD7-leTpBhsU70SjnPXiEb5StnqXqMytc8jFw__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "a1f3b9152cba9332139d06207fce8ae6d736e9fa826c7e49f8abc303afaf1d3a",
+    "source_size": [
+      1222,
+      640
+    ],
+    "crop_side": 640,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 10
+  },
+  {
+    "output": "task_obj_remove_380621/task_obj_remove_380621.png",
+    "omni_edit_id": "task_obj_remove_380621",
+    "task": "removal",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/417/src_img/image.jpg?Expires=1787157485&Signature=Jj0nw-odlQx6aaSquZeUVwSk3TWtR7NzISYCqgF~F8D3PrU~Tdq38rbmnFc4m4mQrnr-YfwLw5ICBZ2hJztbSruRIT0RbtjJ07ZaBWbOj4cmJLTj1JgnheBPVxpm5deXeou9pJKq0JkjZ7IC41wr1sM4~XfKxKKOHjHrnr4~l~uwtgTDvN9AXl-bo8hdz2JfUK0sCfv2IJQMrTW9lVrVPIJKrpMRACSOswthbwY9wYeus-~1HUyPT-Da3nHwyM56040Dw9ozmbIMsXK6QsH-ptDlOvT7KkRfSPZuuubBvhxC22dbZcUS-ZVXSQ1WqNt4Odqgus84lCl9QnbAirX99A__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "01bac2e14951128ff815a10b486aaa2e787de0502304b0076db3082ab710a2c2",
+    "source_size": [
+      1000,
+      629
+    ],
+    "crop_side": 629,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_remove_704852/task_obj_remove_704852.png",
+    "omni_edit_id": "task_obj_remove_704852",
+    "task": "removal",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/659/src_img/image.jpg?Expires=1787157534&Signature=DxKczUGzgNnDC7csupXb10gHNY0yTS98A7ui-hYuz3AvGfKo5kknHi3I5O4gr5xPEWIiQQvY0Cjp9dojyQMpmf7EcGaDZwEx3sjqeirwYJyXD5mmAhdyrELhBtX4cfGIWsS1xYAQw~RfIiByG2YuE2cCg~eFDJi~i5c~IH3OTgiy3SJVcPxHVDuNpwRRAI0QhL6WvSzIoqoGeBGCZMi2PZuVZ8Q-T-KXoxlBrOzQ1A~nz-PquCaCXhq5GXPRSWNW4KFoSd1ynMnxYX59JgnSWCBGrjG23x0U2IB1M4Fc~tfhKnK3udgBTEz8PmyayCgpMGwx9GVVf92bvsTpvTpk3w__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "7e4fe555b69ca607b9c97d520e20b81cf25004cdb3ecdd99fe10e5e7e8304832",
+    "source_size": [
+      1620,
+      1080
+    ],
+    "crop_side": 1080,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_remove_737102/task_obj_remove_737102.png",
+    "omni_edit_id": "task_obj_remove_737102",
+    "task": "removal",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/264/src_img/image.jpg?Expires=1787157443&Signature=c4iUa7~yjBYbyqNXhztDuDigP5tLiDmu~JeZo5-KyWgljaItMxTaM62U~MoqnQWf5n9PuvfWYi-i340Q9fFRsnx02y6PYwdukyO9xxndvktBm5rPFQlhOMcYoTI9xkKSm4VJa6u8CzFmOlWzV2lx0V7Tb6Td0srZzW1HePLgEuULnm6ImzjAMl0zG6~xZBIyWedWOwUhJDEiioUWlgl1JbZHLfm6ZwaZvgdaEYkFy3iHjALWi1LUOEseDSaSxk74bMjiZtpq54hb2l8aepPFGpzjXcJJe5ydJgbHimRfONcPxqa~av5uqT9gTDxcr1sk2mVD9pXGpzYVREQTfGR4Uw__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "b8ef64f7dbcbaead2da72cd6a9cee3eddf1b9bf66177655261f60c3f4323af94",
+    "source_size": [
+      1280,
+      820
+    ],
+    "crop_side": 820,
+    "output_size": 512,
+    "sc_score_1": 9,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_remove_271889/task_obj_remove_271889.png",
+    "omni_edit_id": "task_obj_remove_271889",
+    "task": "removal",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/456/src_img/image.jpg?Expires=1787157486&Signature=ZcdWcLC-2x-j5KkoQCk13joPYsGHUhZb4DpgOG4gF1Rwq1xcdPB1tKkbXOTKgpmYQZQMFjg61igl3VHCigL5q9KxQUreDytspUKrRVJNBXZCY7xo-mZiOiihoFzNJFB8hNYLk1Z-EWBb6ATmT85sx3~Vz53hgHq-DQxEwl6WkQPOZ2Tyu7f8NhvGbfbItWkUHxk3J7ilHyGxPZtp7uDJoakQT-l0zgrIdRks3Zy-BPShcdc1UvMygPNQKjaEVeO-zyaAnrEpNQNMIVASuypWFrTA8VigpQIggZx8QwWSWSPK-WymFDo6lJUUln2D1WXlHZKrZHvBrNjBHLMMxM4xqw__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "f2a34a2b12b3026fc17a6268d2c61ecd5bc8ec62a1ffc45476274471d2580466",
+    "source_size": [
+      1000,
+      563
+    ],
+    "crop_side": 563,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_remove_648479/task_obj_remove_648479.png",
+    "omni_edit_id": "task_obj_remove_648479",
+    "task": "removal",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/381/src_img/image.jpg?Expires=1787157463&Signature=PxBZZ1JmwoPPKk~qSx7zONBkCce5J~zN9kcU3gKqVPvJO2VB5ivbC9cqeQPI2KqXLEyUfFXgNBNqsLCbA2zKZ~Rxl9m0hAZJoFktvPjHBbSOQ3Napsp77p73CHOkyWKWDhOKA49frvZD1iQAAMEgkatjAuMg6X4BqeesT8LTThsoPSeQ-ATvFn6VX~zy7Hhi8ujqQwtY3oHkUFnJ5dgosEzZ32s8lAyzAOi90anU-pE84DrNbf0Ju~mdWvaj7f88RGNt1HyobNU~s8nsLkyshhRgdxe0az3yKfBkk7j-HRSYCvOv-WVnfLH4JjbngRDcfiG7cbh2yk-VLSLb-nWewQ__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "97f26233db1a0d70e3b2acbff2fa8a20713d68d409866d42b3c8b91abb735757",
+    "source_size": [
+      2592,
+      1944
+    ],
+    "crop_side": 1944,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 10
+  },
+  {
+    "output": "task_obj_remove_560476/task_obj_remove_560476.png",
+    "omni_edit_id": "task_obj_remove_560476",
+    "task": "removal",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/207/src_img/image.jpg?Expires=1787157443&Signature=juHF3UJvzXPalWPFDy2us5ILu5v3JqsO4z3DMrgKAgaaHuiAQh2reC9rdINF0PFVtGLhe2Vhnx2ALHKCyeVN-rBSx23JxpD8oW97LRZL3tZuZq8CCNbrmuy30nNdIJVJHtwn7sbFoNMkMUbou-784PFscuZV8LJQNTCUqofbwVbn-oxr84qSsxbQOHxvUwOfMu1nuaN2g7gzu2CmoTQkOhhPiqFk7YcDuN5KEQfRgid3O7Y5UWFH8tO61WqmPc1JLdZ3Lg4cxpFrz~QeUIqynIWpJpHc6CR3Txe7sp7V1j~SFaHg1FBPhbpzxaWsMAAjNWR5TiAeG5x10P6dCFbzSA__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "1101c5d553c0bb1b17609f3c3fe68d5fce474694457ca73b05e11ddaedc07226",
+    "source_size": [
+      4496,
+      3000
+    ],
+    "crop_side": 3000,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_remove_509477/task_obj_remove_509477.png",
+    "omni_edit_id": "task_obj_remove_509477",
+    "task": "removal",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/98/src_img/image.jpg?Expires=1787157412&Signature=CEFRhQefxPt-uPv-5fED~v2wB5bIhmAKErwJHcGQLooTYcrrRxXLeTuZzhRRajEPVSIrZzLFiqLEvAXm6d7q33F0wjA6FFrhLV9xyxG~nnYmMv6IYasKEuUZuIMAKOiB2W3HPUYJom0hKVLCVllPx6NogoYahyjNhNmF1nFGEkRqjKd~rtxlPlrgP55MiO7COvMdP5wWx817zFpjsz3NG~7pgj-xLD~ccxacqQpi9mjIImZMdlKS7S94xQodmYBYBHYZ21vq15ASpI5oYcLeIwj919svQh3eLDjP6sH~X-1~50xFD~OCwkWYDH~0scG7QQlm8YQcCNH5-hZDDUlttw__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "edd53d1d268b1afd4bbcc4313f55a5314e7045d6ba9c83dd7ad97982e257d3b3",
+    "source_size": [
+      1600,
+      900
+    ],
+    "crop_side": 900,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 10
+  },
+  {
+    "output": "task_obj_remove_606694/task_obj_remove_606694.png",
+    "omni_edit_id": "task_obj_remove_606694",
+    "task": "removal",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/122/src_img/image.jpg?Expires=1787157429&Signature=Lt0qoOjgo1yPe6tcoVileb03zF3n01fpV3RzY~FWYfAmNhWI9rAabPeqzQOjS6th0pHu6UJ82M8EfC9YFuKojIEvjIYWcTrW4OhTn00WN3pGl9kKYBj92-IgdWrsiTsX4Q~r7BU~8QjusUZP-2iDX5F79l2OyqumAIHJLdaODXv6NfiUZT01XcwLPYOvqEI-P0IeFLaqnOu2AiIikMWWBC-926gSCSUQXpo-saE2laraNH4jlKI-8PzuaipJBmimUxO7Vge0-jmQ04qRUI2FQI14fQ1hbG7~MfNPijKVil-pd~wRUP3oRI3ASB2B~H3cVhF2lWvcMO~Xvfvp4Lj-dg__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "60ae0d2a9da121114a57243b6949054994f113fc39fb56a05319f723ae3b801f",
+    "source_size": [
+      2048,
+      1536
+    ],
+    "crop_side": 1536,
+    "output_size": 512,
+    "sc_score_1": 9,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_remove_303082/task_obj_remove_303082.png",
+    "omni_edit_id": "task_obj_remove_303082",
+    "task": "removal",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/383/src_img/image.jpg?Expires=1787157463&Signature=ckR-2I9RBg7Gc7Zv~2HtUBCDC2eX-en9qg3aqUOyz5zYyTxjbocuQ~xO9I8OzwFxZE0TLpKgebrqhx2jbqJQL-2ErrKyNf93ZKzsmm19rXOmQl6gHkm7ES7QAHYxgwtGA1vXa8uWIUA7cYqRkVaRzWX3lUUFqjtAx767i-nmGFRdUYMf1PjnH~Grp6ECHUu8Z2kZ3crO~sO6cVeID8Qk49vkitgycDzF5kTT9bP4VCaboA3N1GJEtgxl-g55FQxf~EzuGMO-HmFSiQaIvfVUiEx~aKkLfTHkJq5MrVkNODTod6R55eKDJ0je-1tF7jcS8mP1wngslRMOQyHdHOHg-Q__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "52dacde08888cb448ed7515197b1d3dd4d6ed7aa140c0d9e82c4894b3f72d56a",
+    "source_size": [
+      2092,
+      1042
+    ],
+    "crop_side": 1042,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_remove_157386/task_obj_remove_157386.png",
+    "omni_edit_id": "task_obj_remove_157386",
+    "task": "removal",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/316/src_img/image.jpg?Expires=1787157463&Signature=NtV0oZsvvrEAwP9ZDWHm7JFM2Z8DEekpWnxNqr~Xqmi1gCTfRefJc5WVfMs53SOQ2ywIg5hsFq6gR4ib-GOyp7eeQPEwPmyuosCcJmvVEbyBeNjrL3iytOCRkmqcrn8wwY3zorgmBWtfxka-ef~G1KkOOPxff-bfyLBQEVu3BNEMer3j17opv4ui7GC~ShbThUsLSRBSKjm0rCQGwgJFAshcR65ggpLQOnQVyKZOTgWRfDB1KclNZwZH38Pej~fMxlan5aNOi8lXjhG2FQNuDs0eac3AsfOFqGs5EF2K8GksazyFpq4z5VMGytmnZuIc61ZCK8EPRm1RORVcbXfNbw__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "0f7993ab2c949dd2fcfdc481b66d01955e0469f666d077ebcce1f12e9b21d2c8",
+    "source_size": [
+      3360,
+      2100
+    ],
+    "crop_side": 2100,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_remove_869495/task_obj_remove_869495.png",
+    "omni_edit_id": "task_obj_remove_869495",
+    "task": "removal",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/243/src_img/image.jpg?Expires=1787157443&Signature=DGtCHmXlqXtlBIyHueAgyYW-wrxIkmHaehhRzvVXjYiUZeTPbsis2nUDnEXE8i125wrBaivrtEG89M3vyDsQSM2JRh5Oe6nT56fttT4OE~3bpbK9vngrQm3DGebQ8TyIrWyRw74mMGAJnwNKW71x68x3dnUGDv2rOaOuwYQ5h8VA-g~bsKxtOJ31Rl74HFVURIBeibm4YvntBbrs873jgrtvoedIiMiiqUaXxlMr1g7ey8t~H0SXAQ2qkqbaasL6Q2DOVH2hgLgMQL~e8lQdupVr1B3rxz3jp9EHW0rdhuSQiJVRmopQAfgZBwl1IPBxgszvZguycsmNW0PK0HDi5Q__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "e825630026010dc813fe7b25448bbce1643d8ebd7b49d7ad0b4ce7e8be2e1805",
+    "source_size": [
+      612,
+      612
+    ],
+    "crop_side": 612,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_remove_108877/task_obj_remove_108877.png",
+    "omni_edit_id": "task_obj_remove_108877",
+    "task": "removal",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/543/src_img/image.jpg?Expires=1787157509&Signature=AfDEHvslrJ10u5fKCCzvYDjo~SSM7XuqLI4zv1~r3cH~JNIwCg8Nm7lVFEp4cP2HHVa8RryAJ-zDBWH5Y6ycZ8Tz5pI8~KgNlGj8xbzdcA802Yl1YPk-6Ijj9vq7s~FeUypHWG60xz-6Sb1M81njQ0t5by~b8nRyu3yoqnYmhdnhlb1mkcmryqrVOxY8RzdxFEPVao7LKEr7x0KeCLFrBcnsuNzdLRlVEoZLSgqGSiKILLCRkwsUGEBzIFZlINP5JDPJSUFrZDdarLtyfDiVMlL5SPKfPfwufICPWRjOloxQxulVRohUKO2bSnNt7QubtbKioY5CPH74qJfILrApuA__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "529ce4e145f4cb648abd936976fae69ebc494017317961e18affdec755f7cfae",
+    "source_size": [
+      1080,
+      675
+    ],
+    "crop_side": 675,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_remove_197959/task_obj_remove_197959.png",
+    "omni_edit_id": "task_obj_remove_197959",
+    "task": "removal",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/547/src_img/image.jpg?Expires=1787157509&Signature=JeFrAGHw6WKstr7qapIx7akUFOYL8wbAvGghAEw37El1U5D0c~32eAx0vihcoTpStcJfbPDwLx-N4H2XoqZcsALIA1xFZWOpxKlD3NRXfvbCdg6M4fFTup2BFSC2wK2M4SoFbDNc6TWqDiktKItWHV0jymE0onhbjngzlDNjbl8AHrpdSxoocVd2Kcb7sliNSrsyZkClD5tXj6m5ll2kTHRGWx2kyfKqO0wxht~R6Ic75f-AdTw-qnk5azJ6o94LcvUslOeJg9gTpXJbI8DyBQVX3-p8ApAn2schBPsccOAIO--IMDjth3h5Q-9MiXAgWCVNrkV0gyqX1rSrmdET6Q__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "0b015b62e34f541b25cf8842f3d80c118841ac940e0a92f1778fe0e4b03e76df",
+    "source_size": [
+      980,
+      547
+    ],
+    "crop_side": 547,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_remove_483219/task_obj_remove_483219.png",
+    "omni_edit_id": "task_obj_remove_483219",
+    "task": "removal",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/611/src_img/image.jpg?Expires=1787157533&Signature=jtHqvHONCy4~d8lGzu4SCt~NcfIIxHevNM~LfQ17OcgDs1YtMldd46mezOvXH1zJN9OLxNw4D5MZLHuBIYIfBsnLjwdXdcLS8nQZcUewBjze57wrH4aLRK7YWF7OQEHjLLnMXA7f4ef5zQmkvIQ5dPK~C03Tn6n1UoK2Lqjlm9g7ELmzoShMNztKu4ViQp~auxnpxUmBJHMSWrMnnk~bNFJN9kob5ptEcDCZevRmIxvkBPPn~SsGiM5ZNrr6xu3Ils6avTbxoNlLHPDSP6X8f-CyJcakEBVfah8nvXfUmhlfPKW3ehRG-vq5Tz8EIB8dvdxAXVRXszx0IMqk~UaEYw__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "3cf444e3405e6ba7243d90b02d48a95038055ad8677bd666b044093278ef027c",
+    "source_size": [
+      1782,
+      961
+    ],
+    "crop_side": 961,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_remove_720199/task_obj_remove_720199.png",
+    "omni_edit_id": "task_obj_remove_720199",
+    "task": "removal",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/591/src_img/image.jpg?Expires=1787157509&Signature=Ruove1SxV2iFdNPxw~7B-fLQ3G9WLUqlbCauZTYGTEGi6QOyphwfw514q8nLyaey7DdPlTVAYl2-9pNR6ttDPx1PyI5bqHNtwM2Bd7Nt5qaqyfx-i9nrqzMZaUcuoN8vYZJYlFrljKMn~G4~zujmsKHW6Gg~37v4Rz68M1ahFEvUMXOxsTpOceADGiPOzHD37mSLux5t62mKZDQaKRLKkaqLsVH7aLpbgGjUiffsVlEXThfI5Tk8451k99VH1ECsupyr1Sbhip6sAKJLGtFiFeeKj5KKIaKOOtwkYO1SFWUroDoD-aZO5CdZ9epUqhEoNz4L5tpkRZ4JBUv4OXrwZQ__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "a30ecc895e9116bfb78b8bd24636fb24d3729e40ce97e3acd17ae4a7a895aeaf",
+    "source_size": [
+      4256,
+      2832
+    ],
+    "crop_side": 2832,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_remove_10197/task_obj_remove_10197.png",
+    "omni_edit_id": "task_obj_remove_10197",
+    "task": "removal",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/520/src_img/image.jpg?Expires=1787157509&Signature=TuvZlI~yP3sxYPNI3O6rsR0W4Z4MBsxpTXpw~4f6u0GKTCZ9naUlKxOpIdSBTscUrf~9wYz4hsMAm-CCgDzdDdCTByDJcCyPudOHqE2UB3Xrf7kjloDxBWU2yDk0jnGlsWvQMubF1F4Qr5OJx1CvRu3jqMAmLDihYdqZ-Sv4hO2KR5m2q6dEq5yT92zpHwdtsinu8eo54TGXIAjyi3KQfWXCvpBOo0B-5vN-6UJdfHLIhL-38WHbIJGAPbfUIHElTs1nljyxuR7npcjFpXIzjm5rRWCKfF~HkhLnpXpEJavAawAgBuVDXhj3s8Oupymz7Md0L6PobEJkVj3j9Nb2Ag__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "138e3bd4f365966561d519488ccb9bf12c807cc74db3255f1f4a0ae8650104b2",
+    "source_size": [
+      1800,
+      1133
+    ],
+    "crop_side": 1133,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_remove_899279/task_obj_remove_899279.png",
+    "omni_edit_id": "task_obj_remove_899279",
+    "task": "removal",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/250/src_img/image.jpg?Expires=1787157443&Signature=nOKI7FmcykPvPKgdA8TKpYc9NnmLNzGIAl43V8RPqcee8XJq6UU8zVT1sdnIyh6-nDBOLMu8VX6ifW29tYxzlCnPbzPZv7d7jSuKnVDK5H-TN3rSUQAd9u0-j3tODmxXcwC9PjJ6v2fzwJ-d0i-8hov3h5rhiFbYSMVX14sKKev-EtlvPfT~8yztlaDExyieVqRouJ9GauQjWFpI28aN2MHiMjmmLLxI2Uo3frWOWKccJGtkn~DSNfAlv3e8TEUmL3HkZAjZlvQV~dAAQkYoEFCXxzCzNrEGcRcX8~Kr0WrC~uQ30y-LcT1vaNvxFs5XZ9aDAeAh0FisKnc28UecFw__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "bc6f13a65695fbf1a5bc56160386e1838b07836f8ae4413927c1f7266cd847a9",
+    "source_size": [
+      2272,
+      1704
+    ],
+    "crop_side": 1704,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 10
+  },
+  {
+    "output": "task_obj_remove_571780/task_obj_remove_571780.png",
+    "omni_edit_id": "task_obj_remove_571780",
+    "task": "removal",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/272/src_img/image.jpg?Expires=1787157444&Signature=MwQaDPa-KTshymxXAr7PknBZZ-2dMPQdNK7Bq3GCnRP4p2O0loHKG1ahh7RpiObMZsggpE1x2dSjLmC-61wgPn3m1aZQeTT6j~QhMtEb54C~4JzVrnvvK1tFTYRX9JTf5kGye6Ylbrxg3yM5NYcb~Cdl4fv9fhxGSP7IG-XKiAQlBDB7j5W71eWyCgF0ay8DkCodae6F-2AX~pB3-nzPz2OlD0J-CRuqvcg95BMeUdLNaatWaMnLtK6xXsYfXlIHcFIopihW~yFQKV8hfVDC756cMQw6tCHnb4C0ZGiCuuFIqaQbJrkRTVxl4w~ID0D--vaOW74v~q6TIOeuljrxiA__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "96eeff5729869661b69527732af521135d56caff529d28e8e4323d1dba19ec79",
+    "source_size": [
+      1280,
+      1024
+    ],
+    "crop_side": 1024,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 10
+  },
+  {
+    "output": "task_obj_remove_388764/task_obj_remove_388764.png",
+    "omni_edit_id": "task_obj_remove_388764",
+    "task": "removal",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/664/src_img/image.jpg?Expires=1787157534&Signature=BhBXK5BNk3jJ35F5kOjpEWSw9qjOsNVLjLvdZlgAFK-vKlY8S2KKJTrF-M7muuEYcA0omZsIYtpU5GD6PqCeEX1N7IbJExYs2YW0w9Vyc64yOMM06-KEoIqgo8tDLr0ew5k46WP06we-nB5vrQvqFsPyZPH3Mii5BRzU4P5VUlYKnVPUwNADjtqmJwvxySYNKqOBrwWuNq6wHJS4wcpsrA1HeefwUBtWRcJPeDEBhGm07J97jPlu4PlOccV3X0HJBhao5VkugkkDN01H8lgm6MoPpPthR03-jLzu1TMLGazdZX1o2ySccMNzSVs2dS388sTPXAiyhiIkFGH6k-0Piw__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "0b6ed7d07c51ccc5ad094ab526b6bc66b37e7fdf636052fb8278d326ade47c6c",
+    "source_size": [
+      1200,
+      765
+    ],
+    "crop_side": 765,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_remove_2878/task_obj_remove_2878.png",
+    "omni_edit_id": "task_obj_remove_2878",
+    "task": "removal",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/526/src_img/image.jpg?Expires=1787157509&Signature=mG-1APx7aJ78lr25LyKERgdjMVQNqWiVHY8ktGgl~lkMNxK-dd6McuLqBpxgoFOZGCFSKK~0rQrss13MXzpfwHB1pdEX9nqEEoHJD81QaT-vxG6Ej9gOhNYRUDfVytVobFBhS2VcmSKQHEOAtSXGt9Ss-3MtisFD7cdw0hK6NPPcdHIXKCgtUrWAR7aTgXyytbX9NMFhYFbj0rP8aym8x3aWzk-h6cGR9EHdGcGup9RHwJ8qpAFG4MjAoKV1i~NkXn5HW5qIgRbDQMh23a-IIBn-Zj5dizQ0rtfVk9teiFuncD19w48-QbJKL3XbE2BflzaunsUE9Up80AWGB6m93w__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "c4f75f5d63598699bf0fcad86132297aad1d3ab8102ed5c9a2501d8f5ebc26d3",
+    "source_size": [
+      1800,
+      1000
+    ],
+    "crop_side": 1000,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_remove_385207/task_obj_remove_385207.png",
+    "omni_edit_id": "task_obj_remove_385207",
+    "task": "removal",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/588/src_img/image.jpg?Expires=1787157509&Signature=hu-hBu5Wi2t4Xye~0AhylvZWtHbUl32~DUTMr~M9y7Js5hHcGXqInhn0JzzW1QPQ61ibGbGdgOmXMpN6fHL2a~nriVhOxiBGtokU09eRIffcZbuzWomcmr3raLfGWEc9at8IS1WmWR5L26ZycM0WmEtZ8m~miZILRp4V~g-Yo24xAKArUM5xi0Ocl2wShGL~s~OAgK8PQ~TWjsD7YWk-r9efcH2tAN21csOXvZ03O-LiAisGi7yFlHFHJzQcGZY0GdbxWvEEnGS4gNpKB49p~tjdP42sBoFME108MGf5CCUW8Z9yW2neV-Mq~Bf6jCLbr4azt0fL3Hl6ytWzB~aUig__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "ebe450672e4374e686e45e317180be40873431f6aafbb153a845e06cd5406a76",
+    "source_size": [
+      964,
+      563
+    ],
+    "crop_side": 563,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_remove_166983/task_obj_remove_166983.png",
+    "omni_edit_id": "task_obj_remove_166983",
+    "task": "removal",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/459/src_img/image.jpg?Expires=1787157486&Signature=Km64PC7um4X91~fPRyEBzHR5WrI354YVLmVaE0AOdaEJQ18wRebMsik4gtJH1FG1RsdUp02gh-ulev7KLxXiIqCdqaMqkheNeNgjtlChDpcZL5XVYBwf1HqQJWa6vC2M4xInkdzVDKGAxuOl8hUT1OmqoJ9~4SLrbQeLreZ-7h-sKQPgbwMdy2nJY9rDp7C5ZfIadEzRsOjIvmkC3g438Sp-adtQ7AhK2hfP2TNo3tco3eOYx5CywACr9LQjeU03OiBLzXjt2-jO9IE20wJPDoOR5lIfz9cSwnaZjT3UuYpsS1GcPfUeogdZc3UDGt2FuEh7LQXk2CeMlO88rvuy4g__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "dd213a62fd9976927f3cee7de73fb31d3f584c9e6fcf458838bc915eba6b7085",
+    "source_size": [
+      1921,
+      1080
+    ],
+    "crop_side": 1080,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_remove_257910/task_obj_remove_257910.png",
+    "omni_edit_id": "task_obj_remove_257910",
+    "task": "removal",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/612/src_img/image.jpg?Expires=1787157533&Signature=eD6~E53C7gCMpFFJkR0MBCt~bIYNZidXpmkvHJJ4b1XFNi0g530zFuMFP8IdvJcsHKfZvhaeKosNWOEa6kADUTIVIIa4j4BwVSXOxAFNSum3TIvzrRcqbJfGJfIkoklzGQEgsDwzPzA06SgRFhDE9VusXezOJSbnYUQ-QVkRgL1JSZ4XA6rP3CKjl6q~xb44ICkalC~BR9TI3vGOIUav2oBuNryquoPTtt-MSqhwC4B~F9P1hVHjJEzSgIxe0VSCIQWfX0GM6mXhHin~n5ghF~Ps4sOQ3RmHAwUZHHLIdhOaZDTVuaqbV3Slv-umRaPDEqf~OQwsYCgS0MeQVL4gmw__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "ceb5220bce465b39a49f50bf50fcfc957e1204acf4e561e2b1cba5d56e95d4f4",
+    "source_size": [
+      1920,
+      1080
+    ],
+    "crop_side": 1080,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_remove_657585/task_obj_remove_657585.png",
+    "omni_edit_id": "task_obj_remove_657585",
+    "task": "removal",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/677/src_img/image.jpg?Expires=1787157534&Signature=r8n0zXJoSsUbQlQdxlBLID4rCCJYvkx0BTVoBFUAcdmVaiYNz0Qfc80W901Y9Nm39O6O0H3tE6CSwe5FdiedmHxYvCKx1eW-9Bs4sTnZvmW1c06gqrJhgyCAR5qvELl1UxxCZO2oAsB32S1LFJXm6Uv0VA6Wtllhsc1ilicsBP6~4xwiugH5TurQ5q4wM8DSu4A3ZMfOBSRUIHDyEJiLUdMS~IyV3ELjcTCw5~0i-P4dKPeVH83nw9v~S1aXhaVdxi9kA-6BBMViq7lyNmo1hI2yRUxxWoYI13b3FCjmo5N1DfmXSrS4csw8yGDcIG6-LvAillSv61TAQLbD6GZlNA__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "9927b104d259bfc884fa8592208dc1cea411400f01bf6dc2e0c754fb5fed1a71",
+    "source_size": [
+      3872,
+      2592
+    ],
+    "crop_side": 2592,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_remove_284852/task_obj_remove_284852.png",
+    "omni_edit_id": "task_obj_remove_284852",
+    "task": "removal",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/238/src_img/image.jpg?Expires=1787157443&Signature=TARAApDDa0SEvVR226ncDMPArPg9rPw3sjT5mzpogqkQbydARD-z7fMbOALINmHNwaOlvL81iwAx6v6D4aQ5fKPiA92xhOnGT2H9sqCHSYl5r6nm7nLi7jXf1I9uY3Wp~9mnt~Qi-C7QGo3AsZsgg67BJdTAstr2PytABTTIU1Uxu7AvXoYJhR6RY7aAu1PqGAXzsSpE9btx152-0NA5kOKEpbUplFtbqIhGLJJDKlCqiMMGtXMrBQ1kRqVwpIJmBDZumkf3s5TJpnFdP~2R~fft0S87Fd7Uzr4D~tZFjkHqb0jt8cwjfjbgwJxaVAZ9lC8zuDNypxuPFcuawhj60w__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "b295579520729a6a44ce9687ec87c159ae00a4d8f3ccb5de2d2346f3eb4174e4",
+    "source_size": [
+      1920,
+      1200
+    ],
+    "crop_side": 1200,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_remove_286801/task_obj_remove_286801.png",
+    "omni_edit_id": "task_obj_remove_286801",
+    "task": "removal",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/464/src_img/image.jpg?Expires=1787157486&Signature=meokaEFZNYxYWgGZvkKWpZ4Ew6dCB3tD1V~Xsyw9HaC8cBeN2J5fN8NcDjd291Z2kI1h3hudh2MCE~rhkww3VQz0oBVLJVaQVbozMN4F-i9QCKLiw9GIY4A-7g-zU0sT~GtmD8pjmTKzmfV7jAnU70e9RzZ1w-8-M7oN4vuclZC-F-bMda2wFKCJMryDJKfJB0Yvbr2LKl6-jowar8FMNqMdkB7A-84rmxGxU2mrV8JDQ9-XYIcBspfmqmTkjzmN2Qc7Z4xrtdjr1W63dtm9eGt8n2QJYMMXHQsDkTBacOJdVj4BGQa2K00L4x6tDwP1kJ7Q1GUofRyShIoDXV~lUg__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "88f98545f209c4c66db2f1dfb1c61e86ae3c4a15100f6d11ad4547075b1f6c84",
+    "source_size": [
+      1848,
+      1120
+    ],
+    "crop_side": 1120,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 10
+  },
+  {
+    "output": "task_obj_remove_228800/task_obj_remove_228800.png",
+    "omni_edit_id": "task_obj_remove_228800",
+    "task": "removal",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/359/src_img/image.jpg?Expires=1787157463&Signature=C-ttdGNdNn6jjH0WKH4md9e6-mUxCr7iSdkCTvSo4EjrB5vsVMVfTIrhVe58MZLSghblAiHKAiiCSS6CnyD5hnZe2icN-OWrw51K4RG05g4WK2FK-8jXy9vnwAhxLjGXG7NBvRdRVqQ96uRnEReoUvHzvgNzJ8nQer2QQ8FOGnHLIJfQBb1Tvy1qCf6pHzfojM97d4seeQ4nbwDDvtW-cx7SQBzxJx288ZltKK1STgCcUt0ZKR7Q9~T-qfbXut8m5oJu08sNbbL5RoIPCwO-~3MM3Exi2zEyyZk2afFsMH72jx-L1s9gOLrC3vs45-aDYgQjxfNDydMbV-kprQa0Ew__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "0cab651125765315b07a0c01703c1bc0cc98128b2ce75344eeacded08745d704",
+    "source_size": [
+      1200,
+      674
+    ],
+    "crop_side": 674,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 10
+  },
+  {
+    "output": "task_obj_remove_634326/task_obj_remove_634326.png",
+    "omni_edit_id": "task_obj_remove_634326",
+    "task": "removal",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/505/src_img/image.jpg?Expires=1787157509&Signature=I0yjdnL2A2JP1sdKh5g2L6gyaRuq9locJZ~l45DnN--4riVRmq7veZ6o~mfqQTFFo7a1YD8OnavC4bVkOlyhPoLQvu-Ffyepf4OMxQnc-i2mSl1q9jwT~pDqP7UVArnNEg2aldHbi01AdgfFXMZGJFpFxhMVQN1O96PdJl~PsviSdJtazJiJvDRGEcUKU3V4pyViXdheQGPrj12KIYFuGeO95c~mmPewF9nQi4dPV0GoH4hVCqIqJWD-sM5nqMyO0~0bV~qAw1yrubYal0G8Hc6dD6YegiPQEtE5UAKytmWZavsSOEvrO7UmR~1tLoC8F8iMyRFH-H2dpM3QbUeRiQ__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "715d453ed97a74be8f71dc7f5e675199fea9d8d5ff7b531f26a1bcf6eb965f2f",
+    "source_size": [
+      1024,
+      765
+    ],
+    "crop_side": 765,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_swap_rand_mask_116052/task_obj_swap_rand_mask_116052.png",
+    "omni_edit_id": "task_obj_swap_rand_mask_116052",
+    "task": "swap",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/369/src_img/image.jpg?Expires=1787157463&Signature=riwXkh2-ves25965b9cjhkkHyW23VpT7Tdxtnd4rtt-cBYzEt0EUc3SIaCmX22CFl9L3dRn0N3DBEZFnoPAfS~tKW6-NmLU6oTuLOtGfyA9JvHSdSxDVlHSkRicL2kAnkSG7jG10NinGBi4Oyl~XEdF6co4LIuN3dDAdEe~Ignev1V59yIs12BvQFoSFtUN3J5-tuS4OsSr1vtZn67t0GdrDKJeHviRVOabIh08rjFeknAf-AgUnkUvMAL9JNy~b8GFsM02P~xB6Kg3AK84vfj3HH7NS6-3ygDNgqBwjnu6ZWEd6neTHaV0057QQShWuZJHbeojzrIST8TRS4bL9Bg__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "6e86f15cb5e5843b16c2251a8aca5962c191da51585cc1e9742cefd5bcb0d818",
+    "source_size": [
+      1344,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 10
+  },
+  {
+    "output": "task_obj_swap_joint_mask_310537/task_obj_swap_joint_mask_310537.png",
+    "omni_edit_id": "task_obj_swap_joint_mask_310537",
+    "task": "swap",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/82/src_img/image.jpg?Expires=1787157412&Signature=KY2ScLwam8mDjlAXU4xPGL7VHMIfKOm1TnBM3QvdMsSqZ-SmsPy2KcfkE9ZNLmVCIUmnqi-w70klqQlNMaFlaFfiGT57q6pSeB8eo2PIbtIczNkJ64vBuRuDga9tNo2OwEa3~E7QCXecrYJX3Jr5NRT4DiY8ceo~w8FTdtR8Fi-Vc7geo1tRuC0Wqjn3iqFKnRLEN~tOqEVULAI6Ms5GVrZOlBbLtqv7aeM86GEl2pflXPqKhYCK7D0VDvo0iOwv8UZS4L1v4eQNML6NLqu2ixEeS-or3zXatiHoyR-wOeqps2Y2FegYNar1JNNrlwU9zRs8ypSDzl~w-HvmG2qq1Q__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "f549c016fa92a5f0f788382b0cc9b41c94f3a4802b16e26f3e4b8f38e4069344",
+    "source_size": [
+      1152,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_swap_joint_mask_276754/task_obj_swap_joint_mask_276754.png",
+    "omni_edit_id": "task_obj_swap_joint_mask_276754",
+    "task": "swap",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/586/src_img/image.jpg?Expires=1787157509&Signature=cei7tiwrsuxOI6BmM8FIIFIc4PZLcTdNqRXvxxx7FVwAZ9VWD7zeJ34SctJJTJSWR3c8nutZ1fdQoswFsPek82iDDgk6TdmkyuI99DwU1Zdk1ez4np32C8PypNhokyq2~iXDwcl-BAM7PwhVMcRoOumwEyyD4I532GnzVt~Htsj7tQmLXhMyQqOyNQ-LMAvuXQU0Fwi12S23CYKTZkx8Gf2W3ONa8lbweBJT8wqimvJ26rzgdXIXOOP~mL7G1Mb36t2VtxvS5HRaezeCAZCov9fGabUKc96oceBkgwPySXcUYOSUXOV6THTA5wc~Xt-bzXcLqPT5aU84muk2Yhex-Q__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "3808cc6dfeae43533b54fdddab03f4438bfb38f48be5c63abdd3b7ced286ce81",
+    "source_size": [
+      1344,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_swap_joint_mask_718058/task_obj_swap_joint_mask_718058.png",
+    "omni_edit_id": "task_obj_swap_joint_mask_718058",
+    "task": "swap",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/351/src_img/image.jpg?Expires=1787157463&Signature=OaItZSnkV23a0ftqOLs0Sep~HY-qq0x6XrCMpbkAZqukl0z~1MpKhXtaozGY3Y4YQlJbm05rZAf526PcpCiM9TGlydqmrgu-1k2RN5VkxMl-D0eId1bB1gLv3Id9UW07gt8lqWUCXe7RBa38kXaTHD3u3sOiuQVrqXFlX~i2OS5cxTfDkT5oY7f37SIVqopzT6BcpIeD7UZ~-1zk1TAZU~n5CxS~Vx4O43qGIggtvIB~jNGoDsA3E1fl1oEUeTtbw5BsWK1gz7iD-3pDQX5075bvIQer~vG00L5c6EWgeL4B5cmNV4fkumX1DwRjSRG-U5M4Cz21PZzfi8jjkK1JVg__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "956f4fde61a28a800642f472ab19af54fc8c18f945eeeb308cbf81f2ded769b2",
+    "source_size": [
+      1152,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_swap_rand_mask_268827/task_obj_swap_rand_mask_268827.png",
+    "omni_edit_id": "task_obj_swap_rand_mask_268827",
+    "task": "swap",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/413/src_img/image.jpg?Expires=1787157485&Signature=cW9qXphB0wXC7YgLbyVrgw-Ag8jMvAMYnczP2xzrvHBCap3Sia7sDZmASJUDsTlKAG8kR0LVri7V9OqjjZmGoBKUP5M31SyDsw46ilztivO2EP-dOGFTRJ6KURrXjDpM~PvoyiKrHzKYjK8opfljZ0lrh3pQUQ75m9RpbPuolJj077zWuhLtsTw8hwKiCnhP85Lx9eyj0yYxIEiYORkkokOGDKeofVb-n~ZcfOSZe47t53r1XYtZzIWrnLGLBLsLwRnlFUXGlfrMNo8MmRHA3jSj3IAWbhNIwhdO4nucnZIOQigAPKPJBI7ChNKBXM95VJSq2phGgfMmef~obliD6Q__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "8d6e56d2383427845df2976882cd5fee67a911c936932243b0f7b465f7026733",
+    "source_size": [
+      1344,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_swap_rand_mask_216136/task_obj_swap_rand_mask_216136.png",
+    "omni_edit_id": "task_obj_swap_rand_mask_216136",
+    "task": "swap",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/108/src_img/image.jpg?Expires=1787157429&Signature=G3YUc4gv7KTKtKi3JShA-a7KEYAPKg9LUCn-YmsS07wP7H36sjrhQf93sdZ3hZJTiFCQib21E2U7pnLFxvWPObmtEuQAoM-UeLh5QBRTxOQUDDSDW7lXeXxoBuNEVg5ORN7M30N7imiZaSRxY3nez4mBFKEDJLUceQpsiKUrGMk9fgeiZ9-Jgl4F9bg0pbHDC1LLA5TbukNY5mFNAj3isbq2ys8ftTo8FaxbKQZ5uih0bNHDFHPitwJfGRtMDIsN~YQ5P2iCOLO8JTNSi-qCEDViqBkK-ZPO33NRXvUk5lHcpTYvyy~OABTPWWVIT0mrkITn93Ke4KH1RxG~jOaS0A__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "d96aced73f9aceab1e56dd63655971fd068d79cfa748e1a06dbb6d04c8980490",
+    "source_size": [
+      1344,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_swap_joint_mask_337228/task_obj_swap_joint_mask_337228.png",
+    "omni_edit_id": "task_obj_swap_joint_mask_337228",
+    "task": "swap",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/597/src_img/image.jpg?Expires=1787157509&Signature=PdpFWLTqEwuf~FXKm0qqVd~i6qMoxsrjGM-TStDKJMFPWgbuS8yA7~NTvMzcjxChVVhDXJOsNij43LYd-a6u~MYC-LINxP7OQ41ojv2rRRnFOwyrEcC5xrcULdN07-sqWKTYnGt-4d09oJLSLN66EUXSgn8uvx-Ua4lZwO9sodpZ1-ODFQkUW9DBDEja~v0hkWHfACDoUPWSABsWFjOY7mAiT4241qph8EpiEpd4vPHEoRJv4i6O3Btin0T~UudG6piNd3t5FV~AuM4zRvX5AdrTrePbNayRG7SNBWKJ2689hNbt2VZs8WoEjNxtMzOZBkfE~fTd0vXE2U1kX--aXQ__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "06f195961bb2ad81e84b3fe4ee38e00eebce10ece5601adb936e2ce855e48e39",
+    "source_size": [
+      1344,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_swap_joint_mask_698465/task_obj_swap_joint_mask_698465.png",
+    "omni_edit_id": "task_obj_swap_joint_mask_698465",
+    "task": "swap",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/116/src_img/image.jpg?Expires=1787157429&Signature=lciLADnUx-Yb0OSOniyj~KMwiYgKF1B4z7rDQU-cRCPUj-sloKSHgTjyEALH94buAzJFcw8oYcPRYaWrI8pY6qyRA2dRAp7VcVTT4d-vz3Dvx3tLnDDvGauQuN8tMwCC~-wZJedao42dRaDqOf5TYfUWw7pz--ra87b6AIGwYqCdGvIdo7W115GhrIr6cL45MO2EAxG3fK-Jteh~JLwfMVmIBW7kgIPoGO1UWGi9BOiXprDj1xyY-PcUZQFKf5ei5S~i11pAnkqR5z5ckAdeit74LIvOOdp53-lE9vqcHgBBBtr9z40JDuYbjD6E9fv3nV3Y-oHQuqtuIXFToTCDXw__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "f9e589785bcfa344e0eea1c5180211eb6bb26b3b44f2c2aed96c1e5b7950bdea",
+    "source_size": [
+      1152,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_swap_rand_mask_315182/task_obj_swap_rand_mask_315182.png",
+    "omni_edit_id": "task_obj_swap_rand_mask_315182",
+    "task": "swap",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/129/src_img/image.jpg?Expires=1787157429&Signature=IrROb7sR2nHlrDhaW9XWWe8yaRCokAmG3wR8UsDFZRBo8Sslvt6k4TdE7GejbvvbaS3Mr-G7X3Tzs9IJDnXwi7qHxSWomlEgPrtW3pre8kuv4tUHCZNzbhkmcKp5-abPqcv0KAtZTi3nCH1v-VMpixKs9dgRcxMSD8uV8I6KzpA3IpZDr-Qx7Zsz~z1WllRg0XyaR3fO0qdnZvDe2THZptiBmtdRXvcGn4WCa7mXfN-c3WerJi0S0nhZpOd8crUoZFQFI1ziztGxgxpfzlKvG7ph6rLbqU1xZIPuD5M6TgK7TF8zGTI-xiMw5e4ZbrxCVU5J5qzeYrFFMkfmCe6Y2w__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "e49c26da74fd269d0ec2e4c4da0b0aab43ad9254150fe8d038a2d1b1738b9a3d",
+    "source_size": [
+      1152,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_swap_joint_mask_673207/task_obj_swap_joint_mask_673207.png",
+    "omni_edit_id": "task_obj_swap_joint_mask_673207",
+    "task": "swap",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/494/src_img/image.jpg?Expires=1787157486&Signature=hoyl3pIA81qmgXPU77IlPGnB0j~1Utt~3emVTDoAWYWJI2tIlV9PNlub3QeaAvRLNfCxvPB7mtIFDHjLew8u9MjT9iWxc5lKzM7-UO27YSCUMyG3wNbYxk3ebd3aQSUbTzDeZtN8-LJBfflar2HUyg7hhTzGutpr4fsO3jWKAkUj7eWaKKpRifsuwLcUKsOysQYN5EgMJP4z8QW41ftE-BhEikZFXoIL-5v7yvgBoVJx0OkmACb6hL490d0Q05xx3NCcrVVkYEw61hHdry5avgoW3m29oDKKkM6W9I6HLRIHaTymtSW1oGnfi7UUeYQwitTBkaNQDQP5kjwO~NLPPQ__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "e7c14533cb4452c449e54acbb47059f5d1588d7dab0f8d5c692e280c5b314cd8",
+    "source_size": [
+      1152,
+      864
+    ],
+    "crop_side": 864,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_swap_rand_mask_598617/task_obj_swap_rand_mask_598617.png",
+    "omni_edit_id": "task_obj_swap_rand_mask_598617",
+    "task": "swap",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/476/src_img/image.jpg?Expires=1787157486&Signature=wH6OpWiigwZdtDV3pyzrU4trH-6BNG1vLigTVSAmTGGLT4TAPqL9ZS2kTxOSvNR83kjRUjo-BAL6~oufd5YjhJYKZNPeyZLSjrOZq3CZWhTMdfzel4MgsJoAP9Oc0FY4wcNfcexkOth5ieEwhDo73LkHhfDGrBHa3atagNDa6vqjNv8jGd5BEMk~XjEooA2G99C6lP3yzVZ4HzB9WvNQRYymZtTzCBJD-KhWtJhb4fD5AxuvpSUeH~4HvGeWnfkaYBJNEyMTLgqs-Sn7IVEuA2iofGeo0wOXsgFYIiAsVS3J9wVp-QnPCWIeSXVg1tFSkjcAYXdgOBrVV78G3plFxw__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "6c7e7d0c3d8daeec66946c6b993d23d191dcaa1a7567375441982a169a9f739e",
+    "source_size": [
+      1152,
+      864
+    ],
+    "crop_side": 864,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_swap_joint_mask_356849/task_obj_swap_joint_mask_356849.png",
+    "omni_edit_id": "task_obj_swap_joint_mask_356849",
+    "task": "swap",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/631/src_img/image.jpg?Expires=1787157533&Signature=PjrB8-kIxAcyuAK-lOwIF-KzVx-~3MBe0BEqI74jqZfo9WRSSucuB3WNo6LmKHG9vnb9t2qs7PuwSNIGyr16QLExBLo969X6MRo-eZ2Kv9k6rikOKdmzSL-yZ8PcyrRNkUyNRCT10UTKwnl7fxfbaXFzjoB9lEe9VKLD-RqZ5il5WpzzcSnrf2KEFzQNQozQtORhcGDTzzYo1Ua90XXnkl6DkDu5mayd0NrAf~5eQLOlgljN3A-E6F58e8cmMr~7-qQVXIpTSBOu3nzi8OJa0QIzfeJdM6DAtz8ZvViP41YtImtRXFNktkFXBOPDADzcABV5HzYtice7Q-aQDV5rtg__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "81a1af5ff5da9e65cfa4db2a48b460642e2a2f016e181ea166a8327ebe1ede34",
+    "source_size": [
+      1344,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_swap_rand_mask_303550/task_obj_swap_rand_mask_303550.png",
+    "omni_edit_id": "task_obj_swap_rand_mask_303550",
+    "task": "swap",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/375/src_img/image.jpg?Expires=1787157463&Signature=pc0IiPxLdqt6AINrXyDfUprLkbQJSRlgpOxmtHMrTXSENo2~K2Wb3uaRZ7Za2VKxqSpna1l6rUDfmFEXALQHY4lIsyOonC8HYcDOwDwPHJaZWsBlxiQYYYLVq1sKUZiddwUiZ6ESlv1gY~YlKzPBkUZT844eYlIhgBEOKOQpNfsk1iiycD6RqBRz5lc8RqcPgh4NE2cCZfv-Ohddp5eEoOMwkIJ4Iqwvt6yldxb4vHqBrC43A6~zUNY9pvhSPySDaxKlTpl1Cz4DswOACUVIdt0SLJH~qMJvaLLDudpJ7GQ-ij44TTEjWmiXPl8JGT0lpQxW84YQXqZ18hmPueVNMA__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "4d460e95235b23c18053bb82b5728bcf9aceb997f03db2277cc31912c48b1563",
+    "source_size": [
+      1344,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_swap_joint_mask_75733/task_obj_swap_joint_mask_75733.png",
+    "omni_edit_id": "task_obj_swap_joint_mask_75733",
+    "task": "swap",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/452/src_img/image.jpg?Expires=1787157486&Signature=pPOsA-VfUWrnvusrn1TvCnrDwYoOHdSGwxMjjt4rnyOggss0fQTnK9nvPBI3plRzBLth5~dyuwy4MmVSdjJ3O1eLIOA3B9e0rhRC3vkuOnqpl7pkPEJ9msuK0uc6al9GKc4kSV5UTp~1fVBIV4U1tR4c6W91FH3mf2HalV0Dy7Z2CGTQ-SB9u0cA8HlGReLzEG~iGQrEwKudu7JF6RNYRTpmdviaModyA1den-xA9FbKWfW2DraXMFuhkKaGnbwonEHXxJNlP5mbTUilhDT7gLBSpy54zYKuA8pTFlohP0tKBxKYTfkvCraig7JRI4t~SjggZVXOb1HTplM~pDbS4g__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "616078a2ed0686c1f7ea3177dace5af0edd16fdd0915050d610dab30ed1a41a3",
+    "source_size": [
+      1152,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 9,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_swap_rand_mask_298147/task_obj_swap_rand_mask_298147.png",
+    "omni_edit_id": "task_obj_swap_rand_mask_298147",
+    "task": "swap",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/219/src_img/image.jpg?Expires=1787157443&Signature=lqEX1ETYVc4dLZEFb8QRw1gOnrga4gIyeuz-mFg8A03wbjjrWxAe-yTGfVegtw5sEiTD5oNV5HB2RpFvrWbPsTWB9sg5O3EI5jXp-qyIErJxksOMHiSzI1RciRJed6o-3lFt8m0GN6Q1sIQnX5M6ha3h6Er~M5-C9AKX5Drfhdj3v6MOQ8CPCY~2p45W8OxR4Dl8AVZk3mLQXE9pXBPzxiUYKsfZ2FaDxSPl4hPHdQw1YfR~kmyP-~byad2AT1DcftpC6Fln5xbYiuH-2uqb4a8GjymDYyYwx7JstF~0FiY6ZD2wSQA~5UFmipIxDikZ5QmEwLrLRWUmzYDOGg2tSg__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "b25137eed16e22dfb4a6e609280520b2ea9f684e21c1a6b3755787e8bc620a8e",
+    "source_size": [
+      1344,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_swap_joint_mask_533428/task_obj_swap_joint_mask_533428.png",
+    "omni_edit_id": "task_obj_swap_joint_mask_533428",
+    "task": "swap",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/293/src_img/image.jpg?Expires=1787157444&Signature=tAocl5rsettfdUy0usn0XKH6Xv2XzOR74-9lgWzVjipwMMkWqUN5rG-ShBDyuES8OHrSBWZj98wUggG6~40cChqcyT6WUDy96iKtoElkN~~RJyrCwlrIZTP8Yar-0yoimBfhvGoEP6IVzM12IKiCGpHC6gvw08zXhmKtnFhv5VE0fhBgHNyXtm9FHx~UllBmrPBCuPp5eLVh~ebpMUTrnrPdgAbh7nJ1rpV9w~ebeL8Ajo14tLekWjnA5Rj4fy7TqwthRoPnfNugrrmICSbS2ItOipfFwNvAXkHULqwU7v0VD5vvHO8BFNE1IGoUWa8ckNO~xg3eqbOfGNiMPP0YCA__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "46c73309f31961eb0abcc08fddb6d1c1edaf8bf5b4f0639e6189007e6ea1409b",
+    "source_size": [
+      1152,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_swap_rand_mask_417469/task_obj_swap_rand_mask_417469.png",
+    "omni_edit_id": "task_obj_swap_rand_mask_417469",
+    "task": "swap",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/109/src_img/image.jpg?Expires=1787157429&Signature=T69Py6FDFOdWZ4nC8LI23-J3mRJ80NgE~YaVr3YT2ELPyeGWQkIxMU16nhEYXYAZNqaBuCiAJi-XBGzECkHpazDUbEDCklvkEDLcJ03rzsYqoLIVzy5L7I48eEUbins90i~QU2MkiCuDJfn2Usje6yGtwRK2WVevPpCbRiqKrkd1XUCdTAeoFHnZnitKjhZ9m3flLFUD4NbiHtdFUbOkzd2HbpTIjFDLic80HSnMSkLpI330vTanZx~fiS3B3QRlf8yFZzHmzx3U3~CfG6saS9QtccaCg0IPMukplKYy247YzT5u8uXT8LS7vjqXrFq-XK8wZhkJ6iXyYdoUwCd0lA__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "a44c4705b7a7a22e52c1e79cf503a57e06a44ec9cf7afb64979a2752e5f884b6",
+    "source_size": [
+      1344,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_swap_rand_mask_660100/task_obj_swap_rand_mask_660100.png",
+    "omni_edit_id": "task_obj_swap_rand_mask_660100",
+    "task": "swap",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/396/src_img/image.jpg?Expires=1787157463&Signature=P3lrFe2RAhFqZvs6sIwELhV7CYV4mXdIDW-L9PWJGslC4RhFgPdU3BwvaNt1NZHnnDROGtibo9~fYzkj2UqoOfQxAsW6L6DxPvLnxoz7paE00Pj7ESFsHd~U34zRFO0hVkp1BNKwNaY4rWnreIKG44D3dIfWrj9AKVACkMIcRbkHg7NFgdeKbH2ysu-K5RTbGWX3h3dstfdK2ZlHnySsKKpcAxvNc5cd3GvMU9SMAAlLTsoPw~VBxyVBc0XirRqn3EBpkP3MwIYc9Yf2DJb-R~ZFvNY1S~iZDRfSE5YA9ANy3QcBd9zAoQYkPVjuibfu-e78SQf4cH4tacdK~o~9Hw__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "4871374e26881582d9f4884ff94f5b08d7620dcbdd51990bc242bd2710133504",
+    "source_size": [
+      1152,
+      864
+    ],
+    "crop_side": 864,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_swap_rand_mask_392115/task_obj_swap_rand_mask_392115.png",
+    "omni_edit_id": "task_obj_swap_rand_mask_392115",
+    "task": "swap",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/354/src_img/image.jpg?Expires=1787157463&Signature=LipxTg~3GHaYWmW2jkBmLt1hD1kB8UFmm4ogAw5RUPLxJMXxSBR-8n2616SrPpb-E~SHa6nr01XzhymImgD3rPJqMXA1VmRfIpfUJ~3z7ApK3QvpLpLOCK~neGtv6HVKhy4icgFIue4Sq10KqL8nlB0dTq6j1Alt-wkCRoerMsNFFFB~rcJFfAlRLpQAJmwfaRBCjk6c0xxUVq-AhGjJwcaQeGZ4LPzofAx7kU-Q3YRvvIUVdL5qp8EtZU2xJ52DSPxhN1Zc5tsT1~KhCbFwc9Pv~RNaMcbn0Bd~Qv2tTB2LehAlgKCugjwrD2CZgaSM22MAOl2dPGHTkaGorwdaSw__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "1f5adf36f04708d266c95f25cecf55fe111b7dba7cb4e1ab0906ecb11ef803b0",
+    "source_size": [
+      1344,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_swap_joint_mask_671429/task_obj_swap_joint_mask_671429.png",
+    "omni_edit_id": "task_obj_swap_joint_mask_671429",
+    "task": "swap",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/350/src_img/image.jpg?Expires=1787157463&Signature=OFSMCWf6J4duUcK2hot~Id3DrSULjwDg6FQ~7u5G5xQrp9xB46vg9sl0OtdOX06cYTWa6m2UfqA8kcCaFBorW~QMTw0OZb4Zlpo1eV6fieiQQ9hvQjbLVS9b19RHaz~N8Lmx~O7YczADMe6it8O9bweAICvRcYJOxTC2fSJEC6oyBlTYMUuAIRQp014bxVsNNBUeNKvqBUiSTk-qmtuGVivAQsXdpJQEP~XQWu5VdpumDwttlGwMAklFd3ORJIRZhDFBQQWLB9~AwT-WCfRFbw-y4jaFUF74v4rXQO8ymH9~wVb-h0qX8j8fs2INjJymLt-Gpimee1kglmhJCQgmfQ__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "192020a48b8c9d359199ee21701e9a81edcfaae757e80d890745f41fd317d41e",
+    "source_size": [
+      864,
+      1152
+    ],
+    "crop_side": 864,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_swap_rand_mask_11376/task_obj_swap_rand_mask_11376.png",
+    "omni_edit_id": "task_obj_swap_rand_mask_11376",
+    "task": "swap",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/523/src_img/image.jpg?Expires=1787157509&Signature=rHSzsi3JfWj-8NsGz9ik7BaExzL6~CtyWB0ebz3p~XdrJwihp~s2D196o82EsEOmVod7SRUOtpP~NlLnLUC7UC~e4MmxTKBLrwO-g5elMSErJw~IjP1Am3saDERS2XoTumgufz5TWjaz3beDHJUKd7ZW8np9BV2eUq4f1kLrsWRjNBW0476wJfA6Azk-g0ogp9kF5HjlU~63Rn8gWoDrU3diLpSsUTKzWraaPCHPqqhpJEwSGA~Dpe2NjWbCDAHZgTvea5rrsKlPv~Wr76t3qd1ZpxsWF-esL4pBoU~0YCwMovaxsb3KzfyQQaSFhfNDdvRnHyPkoOaSDcWJHm043w__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "1fb5766b34f4585cd670fecbb9aad110d88a2f576dae6b05b3c950cec2575aa5",
+    "source_size": [
+      1344,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 10
+  },
+  {
+    "output": "task_obj_swap_rand_mask_92564/task_obj_swap_rand_mask_92564.png",
+    "omni_edit_id": "task_obj_swap_rand_mask_92564",
+    "task": "swap",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/31/src_img/image.jpg?Expires=1787157412&Signature=OgyQ2uLT~Url795lafqRpXbkPH1qMNg1EyQe1i~NeN2tS0gTLe7np8IBvURWli5Ju4hZTfDs3Byqsk7TGmFgYj4OcOGP5ydAeZ-8Z4A0XNERik~tq0cUIpSXqGp1VSR4qtjwnj38YYrmt2JysqjXMU0lA5YiXER2pLSnc0IoCjbPqlfz1~cxOEm7brllNWcSwohkUuJ3u3A5n7qOgdONOVqvhalsMEvqdMb-UR7RGyTHwUemSvmG88jDhJ-1DL1LwUfEpVu5122cWiCICYNfdkzzuXTo7AfcE3ttFLdC-xmKXRAwjwqBZSkhIKcnIqSQLKZTJZgqAL-OKnSZXwDTrw__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "872e87a977585d3beb84a7d2dc05198174745d0e4e7832ab48631b1a141df3ce",
+    "source_size": [
+      1344,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_swap_rand_mask_401099/task_obj_swap_rand_mask_401099.png",
+    "omni_edit_id": "task_obj_swap_rand_mask_401099",
+    "task": "swap",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/97/src_img/image.jpg?Expires=1787157412&Signature=CUpllU31N8jkAeWQr5v0yHRGdEQRt8HLVLGrhE3XhLuWMKBC4fP5z7xit42Kt84n6fpVoi01SW7xnNV4afXqG9Th5WGwglwJA8FJs~VnHoEXknecCtVCPIranwmg3jXMLTsmzgEPg5VoI~DhN~Nk9SnmARR2YjK1~Cr4ZQiuswx-hscnr4xl-d6dNlc0UCHVyscQGRupyLo54vEQrZlYLjWNozk1poNvkNV27iOJB8yk3~WrK5-3sPupzesIdyzVNG4dyS0rrkgxaCDxjiYWLW8Gq-9-Zgd-Pu2hL57PQZxvevrxSIgPr539QocZE8mRpVoGETwZEcgWbCWGaPC7dQ__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "59fc223cf17cdf7451294e5022619224084c9647a77fc52f66777362a8802340",
+    "source_size": [
+      1344,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_swap_joint_mask_890199/task_obj_swap_joint_mask_890199.png",
+    "omni_edit_id": "task_obj_swap_joint_mask_890199",
+    "task": "swap",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/229/src_img/image.jpg?Expires=1787157443&Signature=JwQV2TLyrhHvMCq59zelunFvRe2-kVs2UnAOEsR8AJT3v48c0o7vT~i4ranVvcJlZbpRFMs8ugmltWtQFJ4Ys-ZV6Qug4fO0nhfq3bkwPEcXF9T-1sll5y5wCFxxxKpfXyXSReFY9zdB36jXviSgVXjmKXT2BoLsgp2fyqRmob~9SHOybmfQEfX5i-Qk03a0FFz0WA~Br1Ke7S6vQhfrDPgmF6nXoLUZLRor3bjf9K4aFPx9UNtwl6hiivq~8Qz8cN-zqVA1b5UXMcG7vCx0b7y7a37AzVadgnqEHQOF4~aMnDCrBSzvysezUFR1MRWYCjK8U9SMwrXjiwYW~zxO-w__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "f71d4af534c15cc1aa267d92eca78e089ef47f21061bab21aadd4439f0c33056",
+    "source_size": [
+      1152,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_swap_rand_mask_79926/task_obj_swap_rand_mask_79926.png",
+    "omni_edit_id": "task_obj_swap_rand_mask_79926",
+    "task": "swap",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/630/src_img/image.jpg?Expires=1787157533&Signature=STBRe1njSy7yYAGSNWnwcz-d9AUXiB9xdLEiWTvbUiTTgLqPq1Hz2O3gJKbE2zRaQjQpnY0EKOGSUAcAXdi~J1h42h3ysqpt0nf-HleCWU27QCD8EeM4ShDAcKRFwtpoy3Af-cmTVUwimCXB4uFvJ7aIUh7bl29J8m12XYw4BPqypfcoloXXDn9uBia4M~Ynv8KMRa2gL~mn6RcC5dBO5Gv6wkADZv~asEPAfcz-YbkuFAGVQG9YCJPXpYoMH43QMHlRCRE0kT9yoUOl5nUeJNhYWM9t8aL7X9iuFL3RvZlnz4Vbk-ywL52pnkHehI-OewUPMEHx7Fl2~XgvXKhDIw__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "07fe2a4359aa7079fc264282fd11f6a114c815caedb04440f2b6ff8c77c2f182",
+    "source_size": [
+      1344,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 10
+  },
+  {
+    "output": "task_obj_swap_rand_mask_373245/task_obj_swap_rand_mask_373245.png",
+    "omni_edit_id": "task_obj_swap_rand_mask_373245",
+    "task": "swap",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/430/src_img/image.jpg?Expires=1787157485&Signature=ra0LhACOGTtuK~-ASvr9A5Ye4rmH4bZOmAUzuiv1wF0aux2qdpTtYzh9pf2WqqbfIKpw-wUCq0I6Mi~xHRNqms0sGVmmO8zAsrS9~ruSGz1h3Hk7yK-QaS~JPbpqvBNVq1XvZ3PHiBUYntoEHlaF3jnOKuLQPvhphTLZ1nd350j3g2bqr5-Cp-AEjlEMEfSO5WtuX5aF2fWikPUo0qNfG1xiFYwkx6RFeSmPqczfuL-TKVgSpactKtYez2u1fOfa3PdnHOtmo01h0SWqW-2p2b-nQU2GjLcIFMzKt9Uj97hUejC-qRH1~PC6cuvDR6Ll3xx7zHvWDkpudsRPJseEuQ__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "f6b33232d78f625166beda38e27c5ff968eac6a9a57c592aae97282b9e5b1553",
+    "source_size": [
+      1344,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_swap_joint_mask_615817/task_obj_swap_joint_mask_615817.png",
+    "omni_edit_id": "task_obj_swap_joint_mask_615817",
+    "task": "swap",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/306/src_img/image.jpg?Expires=1787157463&Signature=nNAHT79-rPvltojMN~hv5~SBzkCNLJReLVZ2aAbyRe2EIQoj1WFvtycz7dowyxEtpaotCjMA56xc1oDkbr6TLfv-NiF9TWyNF6v5SUctL2Cxucxfc6XvApH5g7Y9hwkQc~BfGV4HvRTvnQFeyWGNm2S21bcqN24lT7aKh6KoQRjcKRMbz2dpy6aZfQ2yZpRGrL7VksYQEHJKIxzEmVdPozOEg~uWuTvMBi797u9IXoDfciVhHgaSdxuKfmUiWHGLI0xyQMkViRre8JATFtuN~6jwwopz7Rvwcmw9Ce418IOSmm9xiGSxnNEAMxRpXOBiGYd4k~azxmKvx1NpmY1wgw__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "d32da055b9a7ccd7d2c95add91cb5ebc2d5a0053b6169e03b297c2eca33e540d",
+    "source_size": [
+      1344,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_swap_rand_mask_683349/task_obj_swap_rand_mask_683349.png",
+    "omni_edit_id": "task_obj_swap_rand_mask_683349",
+    "task": "swap",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/103/src_img/image.jpg?Expires=1787157429&Signature=OW40elCPbFoyoWuZ2~fS-8U06JNIIXUiSMZkD4w2Su1j2cCWmurSJ121QdyIw3c4aBeukrYoDe~XoPNcAko8mfrWq3JVBhW9Sx5g9L-P0SAn36hVtUHwSXwv7B~U0hoXBdhrHH3OGQnileUsaPRmOhlWNiGJr-NTiXrUu80rBv53zVedyr~AJheJ-JpJgj~qD-F6ZACPOeDcSqjgw3x3vsWryc~QaSDzkp63apmrGtnFV6oDIKeLrZFv9PuFLe~nF9mrQb6HFhQyRmUxT2wHQjqgszlAjdDukvgTSK2sDPZHIPurkrE6SNMpEcK6fMTQaejRs4StW6~Nv3xN~sxy5A__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "546bcddd5e64f29378fd8090b165ffbde6c3b290ff0a580e421ee8b8b0ff2238",
+    "source_size": [
+      1024,
+      1024
+    ],
+    "crop_side": 1024,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_swap_joint_mask_474202/task_obj_swap_joint_mask_474202.png",
+    "omni_edit_id": "task_obj_swap_joint_mask_474202",
+    "task": "swap",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/403/src_img/image.jpg?Expires=1787157485&Signature=s6jKK6AwbbtdUnEeinYRxqSXxU9imahEUKCGmrAgLceKoJeRLcarFDkjvBOS4fdPMzQEF2vLRu4s4HiyCG3Ui1z3u1PwExnGrG6y2AQi0BGwFOJWnkgfB2rQ3qwZRHnQ4OU9J0tEje3IH1rMkyz9pTppmxB6es~rs6~WfzmN0aVPhxFtUn7npbxWITPanURQiGoksliUlIV~v1SDsdLHT-alZ2b8IW23dgGQVA1C0xeAzC1WSMNsWJgdDiS44JN79z9Knxx~5Kbg8HqnN67yZ-6kMWoqrFXpcdJtRHKsgRL03Wo1csoW1rD21p6AGfgc6jrQqu21MtwYokaAsPZhgg__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "7f826bab8446f2cc97da28f06b17f570cdabd154c65d1b92c7594334694097be",
+    "source_size": [
+      1344,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_obj_swap_joint_mask_476374/task_obj_swap_joint_mask_476374.png",
+    "omni_edit_id": "task_obj_swap_joint_mask_476374",
+    "task": "swap",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/113/src_img/image.jpg?Expires=1787157429&Signature=Cmx0Uf34756Y8KDzB8oqZ8dMMWCxmTMlEQy4pwh7DL3DFDR5yPUgotLhf5d6cyUOTuBSG-uwj~RhBaSAchGnJawLHIKkYGZSPzGmC9Rk12JHN9JxqDJlCxsCeKfv8TlZTlf~xvbmTrEZfJ085YRHPR2S1JvLBgDSLVt6UwOQfmkeioDzlUn60VZRxrT1pkDqNX~mAvoQ8fot15DJ7SDXRqjRNcMBdqsHXEAG7jPov~M7~~Jh7R~0Bq-r0hRxX3b9tdAUYgWA0ZDY~SrbAppoiCfxGR-AwbVgo9~PYNgAo9oW0owPTDe1y4-pBtqNdY~th7WO8u6vxCiik~Ck0GLe2w__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "ba4f9bdac8644e9e196e38e743ce11421da73fc7b5592be1359e5ddc5edd227f",
+    "source_size": [
+      1344,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_attr_mod_color_144146/task_attr_mod_color_144146.png",
+    "omni_edit_id": "task_attr_mod_color_144146",
+    "task": "attribute_modification",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/554/src_img/image.jpg?Expires=1787157509&Signature=SiDhYl0kcLfxtmBdf82xE-jvgRdoyvPy1dNpyySSvIkEJP4HvjfbihnGeORK54x-lDcqYLO6pSeokvnPjEnWrCraYrIns963ANwVIYmbwbA-T7E8M2JYthaCeNDzUzWNcPesoyXUbrj5WpX2BqXuPGbOVH7RpZShkqdXWN-hsxNO6nJJf5qdeR3Sbx7D7YGaOgE9cQ05E3QsMDDeFRcqBxSXhdDGYkakc~UhuBeC2sVYMNdwzkbJ2PQx3Zgf0D6CgVvjLtM53e5sVSqbHkpl3X5vC9MjmYLE5QzvVkgV1U2AWHwpqzRUTnuYdP9HUcoopiBzLVXiUoc2R~fxVA~83w__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "0d2c6854f7182c5da8ad3de02d54d8c5287c4aff041bcbbc4a9e558d0c81169a",
+    "source_size": [
+      1152,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_attr_mod_color_11699/task_attr_mod_color_11699.png",
+    "omni_edit_id": "task_attr_mod_color_11699",
+    "task": "attribute_modification",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/532/src_img/image.jpg?Expires=1787157509&Signature=KsOVz~d4AmMopXnvPlGHHiNQMl64PcAPGp6bFW8zYShVIO~rGWeJtJkhBBE5Rqrgv9HN8qo72nt1Tiy-TReA9N-oSJCXubngEj9IfESU5S8z1KYVtBd3t6FRU5k8KG-k09uwlqLsctCD3ampAkOt3VjlcAK1fpA4JvayxCfSShc0mZGb~e4CW0YxOKUFb9AU2GfYXHK7JwzRbCYt2sW2PF-x9hQLDdLpTHJ30qYMlesSzGT~7rBaZbmnVrLKJCTyB0JmpjMlaE~3mQYaw8ZwjTev-LnELSSqiJIq7TfwtNKhmxm3kBQSrpu6PNjh5Mnktzz3fclBQChMxsdbxQvpZQ__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "e28158402e53934ea6370c674f842c248b809b7bb9516b7c53b5b827304f6dd9",
+    "source_size": [
+      1024,
+      1024
+    ],
+    "crop_side": 1024,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 10
+  },
+  {
+    "output": "task_attr_mod_color_6205/task_attr_mod_color_6205.png",
+    "omni_edit_id": "task_attr_mod_color_6205",
+    "task": "attribute_modification",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/42/src_img/image.jpg?Expires=1787157412&Signature=Cj8BRthPVsfRanDUdcgefeIILRTTO6kRZbC57B6NNpXm-M9-iNAfBJa5qEg4OFyT1gaL4fLiW1NkPmQArcdK~b7N0a47tZcKKLpsazEGaextKB0qX80igriZfBxW2Z2VpexZpsX9YLwrpr9~t67A2iIpLmnrSAESfqLx5Uti8tBl3~NdkLcFz7wGXaRPE6yU6kjTVuWKOYojGvSXU0vGuu8xXn~loAF6tKWa5Sl0NW3gYazpCqFWYcD-twEUWRbzrnQiOztjGmw8q77wUVFyAXLiI5l4-mUOeEkjByJW7AybR-YtYQqZPF2TrLl0rl5Yk8TgpzJJrLIFzGyglVJhqg__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "b3c5af4c484446109c90bd0bd1cea801c48011354903b069c985f0dd8c5c8844",
+    "source_size": [
+      1024,
+      1024
+    ],
+    "crop_side": 1024,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 10
+  },
+  {
+    "output": "task_attr_mod_color_71985/task_attr_mod_color_71985.png",
+    "omni_edit_id": "task_attr_mod_color_71985",
+    "task": "attribute_modification",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/606/src_img/image.jpg?Expires=1787157533&Signature=ovFgNTkMooJyudWm0-2o-tcC1xPQMo6h4gd6yUoIn6rWrObNBGHnlmu9xm7UmwXX8DFshKOJqJGhiYil8aQd9qNdJqhoDuSvarTZNjk-H7RC9kV1CzQoh4TJfn2IIcwX4AhXl-wCSI9bJ~3AL79A0xLxoTKyPXO6ctXZt1mgOsVCwjUcEUna9Ypgytg-3NsfnitThW8yepJD9Ix9NrHwPrvyRwUYvgbuEiS225oabdbSkAwDuoRs6gSg-XNT319yTLAH6lT8Ulrw2k5fpeRrr45OGMLbLAE3~2Kv76D-3fARQpb2vD22DsP7DucEFXSBAvz6UPCE7j-HSLogdF8qOw__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "7ffdab4acf4495980ca5bf6a17ee12a9d6f2d82bfcc8614f16bfbaf9c5534413",
+    "source_size": [
+      1024,
+      1024
+    ],
+    "crop_side": 1024,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 10
+  },
+  {
+    "output": "task_attr_mod_color_174506/task_attr_mod_color_174506.png",
+    "omni_edit_id": "task_attr_mod_color_174506",
+    "task": "attribute_modification",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/368/src_img/image.jpg?Expires=1787157463&Signature=lD85pDXjoetT1M9udH1bmErX13kYxMTqJLalFhiylyCu4zJu7kb9X9BYv6krY5rpfWgHTbMegea5BF3kry5dxM~z8NKj8pYQdkT30~fAacS~Ct-c-nyDnDYtqCMspwCFkflF1JKKGNRV2VeOoY29Bjjjf7QIztArn~sG40huN2H647TfdqT-n6saUqgmttq~9qj-~Adcs-ZME9Ax6a4LOhwYegMvepEj87zs5qQIWKrU6ZYY4Et-XRGb3-KpbylF6KRBbxEd-sx-fYgDVtc6MPe~SXK-JMJVIwMhwQXgaq4b~rdEX3gZdaznxxFXnaH0e0vWp3xVnXLao1VpO67X7g__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "eee6919a96856dc5a3a4b1fec29a57f07159236584612305c6564c154144d038",
+    "source_size": [
+      1152,
+      864
+    ],
+    "crop_side": 864,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_attr_mod_color_30214/task_attr_mod_color_30214.png",
+    "omni_edit_id": "task_attr_mod_color_30214",
+    "task": "attribute_modification",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/239/src_img/image.jpg?Expires=1787157443&Signature=Cxzrex3jX-Tq~C9amzKrNhXTeADDMalm3tCQVpzPl-MYD25VM5SVvQW4-SHTlnHjUr1QSc-7pZPaZ-RZnltLqQwI0ymTr298e8cTgttnsWekIUWEjkHNhD8QDyjXHyUAA5Z3rZBZjyrtYlxPC~dhYv~z87rSkQP1Hm5dDz0cR6yR0iyZ5kRI64zkgc-AQ~dV7z2ff69NmmWpnWRo~Y~HzRGC7zhZUd~wsMBlGJ0VXsSilKiNDj3o6yYiUC6IyFXLPJ9BLOC7el8mriOuZw9jTXI0QhrK4ZLs4qx-5LltrER5EKe0MTBFI8ZjnNKDAPpSHNyMCfhlyrfN3RHVsan79w__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "553f8503255ce471c787afc33871c299878a72019aaf9afa11fe077ed2300f7f",
+    "source_size": [
+      1024,
+      1024
+    ],
+    "crop_side": 1024,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_attr_mod_color_121425/task_attr_mod_color_121425.png",
+    "omni_edit_id": "task_attr_mod_color_121425",
+    "task": "attribute_modification",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/164/src_img/image.jpg?Expires=1787157429&Signature=RYu7oovQ3ZaI5N-F8zQ0c0hcdYcB-bhTDt3csZ~RLBmx1KAdGToEk3wG0Oq2ZEOiaXtrs-qgj671V0ceSL-RipvBmzMJZ8fPLaV--gxWhb4HkBOL9EyWpA3icIWerKphyCEvmSYmYN2fSq8ThnnYuC0YEwTawS9N0Nwhq4cLrTb8SScpcPWU~id~2xFH-GtEDfcyTxwguEmaDOP5xJmhSd1R~USAOBFh3NgAM07O9chia0EnxPfHzTaWedwMgFPduqK0udPPgBbfkiwE36Bi-QbJXArdugJku~3i194xjKSxDSR23v53EVQ8IclKL1kOST5U8d0XFYQ-6PdYZACb0Q__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "76dca1bcdcda70cb55fda44161eb890cd08b295d601363bbafda4e5535ce56d3",
+    "source_size": [
+      1152,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 10
+  },
+  {
+    "output": "task_attr_mod_color_124169/task_attr_mod_color_124169.png",
+    "omni_edit_id": "task_attr_mod_color_124169",
+    "task": "attribute_modification",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/345/src_img/image.jpg?Expires=1787157463&Signature=F3Lcx255lHiCW~95EkzG0ANa~jdLtXxkmW1ZbpkV6bxy5XMk6zOzxKnYANARhIX8CyGN5yjP1eVasfh2STMIoWPdRoGn65M-yRlZUyXdgp~waSYP~SpNJcxiEh5rqb7u6TE2GDKWaQCcuDNesY2nQ8VzoCYOaNUCLSKvrzJkJoWCnT63rBVY~x9wvL0S01B~Q74P1JmLAbGHb~nXvVOTYN46-rrBGv3dGpnclpyyUKfkXYPn5UFMiGG1rDmxQtZfJO17I5TWYW6fTnEYSr-SQo~lJ99p-wHkgks9TpfBloYspi6SLWdOtOknoefdR9jPSOTv0fTF1-1fWquJ5TLLgg__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "b1bc5fac8ad3ef1119dfc66b0afc38a9d3c3381aa2af07080767acf23d4ca7bd",
+    "source_size": [
+      1152,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 10
+  },
+  {
+    "output": "task_attr_mod_color_75937/task_attr_mod_color_75937.png",
+    "omni_edit_id": "task_attr_mod_color_75937",
+    "task": "attribute_modification",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/349/src_img/image.jpg?Expires=1787157463&Signature=fw19GrYDQxKtL74xHekeiQL6~ZWojWvfyei4sXJBBLWVHgKA~dVbp5NlJ2WD72VmX5C5ST0adCJ5iVlo4xAVJq6sQArzakK93Wb7cxMDSWrKPwsUqmpJbODIyASu9jKEbXxgdJblVsU-9ybDLqLLlwUvq75h6UKkkNHsFK2nzFSanm~fciVauCBXAVsg-XsJbzld3YdfgL~x9nk6VrrezWQmLPU7Nis90-2kuWYobD12xG-6u77brtqGD-s1mOUP9Xxv4QRwUfp-ReyeGNM5fTu73Ju2hKGVKYomU5D4N00~0SNczw~wsbuuOKmzCLZeGQV7DWmHU3i2Avcqic0gcg__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "16ef4e1888bd3776fbd860de3a571ca2ee2754c64f396e03101ab2772aec920e",
+    "source_size": [
+      1024,
+      1024
+    ],
+    "crop_side": 1024,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 10
+  },
+  {
+    "output": "task_attr_mod_color_127061/task_attr_mod_color_127061.png",
+    "omni_edit_id": "task_attr_mod_color_127061",
+    "task": "attribute_modification",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/249/src_img/image.jpg?Expires=1787157443&Signature=WTCnXlKT6sxej~148jB5tOLW3QcP8BxNjgqI9ooCF4ynDjwqL03EjaLWnEeVmN9YAIuX~J~F8g7RzAy3CIybmnvBK~DWOx3WZVJ3gqOfdGDftWu-aAUMBhjZqU8nPwvfEnEwViFrY-LlZ7sw8NBiu33KEfQHfGp9R~0dZIInQLGUQrO9bVpz74L6WUGROQqIQDZ6zhQRTz8zkdJt0ljMydguVHEO-RC7IzRUGkkmTr7ppMyalx7mjcfnzqeYvlZdPLe0EbwtalPUcu46oqDdq0sV2eghLpO~jUf1JnOUMXijcuWadvEVrD3gzF1UtFGE0PAFYxBkUUS3HMQWSjRNAQ__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "d30adaba4f88bf3bffa0539379aba646899ed984f8eef58a316d24030bf03892",
+    "source_size": [
+      1152,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_attr_mod_color_136767/task_attr_mod_color_136767.png",
+    "omni_edit_id": "task_attr_mod_color_136767",
+    "task": "attribute_modification",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/565/src_img/image.jpg?Expires=1787157509&Signature=BwLcVBfvTbKO9lsq8oapi8-YF543YF434NKSe409zYZuZnkJXtO72paxeLWkkN3aYEw81BtOahQfZjgsJeyeU03Pl~g3e2hvDYF7aS8HQQ17Ce4ZbyMln5u1IqSC8407yjXgdeU8gda1u0q-1kRlQDCfHgPOO3QZuhN2aiwDxVRPlc4jgXZVEkf3Zo7TBX5KgrZTG8Gh1G52U5SXmMoVI0Rc8FGYcNcS4-qx7U9qUWiWvMQCl7VaLU0e7d7lDrnHwwcm~7kx~WU5S5h5wf-1hN~wnpcIIa69Nyy8owhk0aumEUTPA6LINqCnh8p5KNmFD~Np6JeLjs-bTkDQk4PedQ__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "2eb33d886dc1d58418f3aeeedc066ae20e05d2471027da0421eaa156a1a07cc2",
+    "source_size": [
+      1152,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 10
+  },
+  {
+    "output": "task_attr_mod_color_96137/task_attr_mod_color_96137.png",
+    "omni_edit_id": "task_attr_mod_color_96137",
+    "task": "attribute_modification",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/329/src_img/image.jpg?Expires=1787157463&Signature=t4Q6thOuppPVMdiqhgb9ZO9nDgRDMmg3Jv7Zyn~sFKypyOTeR4V64a47brJYr1LkP9y8sBqLD6NDhhtCThFEAbXYEgv61Kjq1nFzAcKOM5-H8CQfnlzWZWlWsfvDiRWP5AFZQXt3tnXo-vaeDnu36o0hP4lCosWkHmcWTbIo68zSqf3lncIgvXV5uA6i3Xyte~LQCD7ttIbi3L8AEjg-XtwDPEHDJ80l9oZKtPLpDONxJ6UuU~FKItfuU0lhC82FUdak6P3CLr69-1NzX29PTp1VGKjMqoM9qTPo59~-JVo22uRkEm9pxRbVtYLwacuHZBNWJV-pNo-hFHLUM72OZQ__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "e03545c8ab10f1765ecb5bab62de4fa0db07c3f3f83c39c51cd1bb07cac3dd88",
+    "source_size": [
+      1152,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 10
+  },
+  {
+    "output": "task_attr_mod_color_123744/task_attr_mod_color_123744.png",
+    "omni_edit_id": "task_attr_mod_color_123744",
+    "task": "attribute_modification",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/408/src_img/image.jpg?Expires=1787157485&Signature=KMCbQayX4XMV2ZYrvyu12VDfBgus7CAteD4rMyO9y-7uOuUvbqEByEwf0u9PsHIL~xMsSuGRJMY5tilNf706VrV8EtQ8-Ad1TKEFNrK~rFf0TO-aUNnIxB1FDako2YTgx94uhC8cAVO9yvkRhNRECHOT6-FZA2x7scwe7yA~maWIsPEqTBJNMvR-bGR-zWm5XBaOPBWqYDFCcBaEF5UCoRpbE6YVVFEEDF0HsD95i8SN6u7wuBZOxS1~rAgXo03tYww64ovEnDYbhkFHh-zFYZDpfIsbiD6KwX7WThkQQVsYVN2X5dElINni1esADkcPw5plwD22qnaRkV4yYR0IEA__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "4427742f1b102aabadf57c2d970d9dd8801244210c5e97882080995490278f42",
+    "source_size": [
+      1152,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 10
+  },
+  {
+    "output": "task_attr_mod_color_47418/task_attr_mod_color_47418.png",
+    "omni_edit_id": "task_attr_mod_color_47418",
+    "task": "attribute_modification",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/2/src_img/image.jpg?Expires=1787157412&Signature=qz72PNry~eczWR1O4E0YAu-sZb6u5oFkQWeXKwcZVZ1nHGJfpySxdeFoAKooIt5c6JEKzYwgS3n4hIMvNUy5RV3EF3ibmqmuqDs6nGUmj6cIDXMF8AtjJRwYvKWm2NmMYGQpT0UCUMToPjJTnCR9B5OSZ7OcBSd6W6tHFwycp0iZcEBRbFmAwKVnsuMEU~vSP-NNwqHWn1JfOQV9dc-4H5MUPiB~~JkOGb3TGixlvgyN-AJpn9VIJgQV9yzHhDKWkQdopRrk2ELKnmDqzPMPdWOkQgvi35bWg~y51MQtlTygPDMc2K-1cIgnA47s15oFWJHTAFFbtcMiwmweXlrYQg__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "6122866c67ea22cee9ffcadd18d4c5cfa7026a92599024486bcf946c089c7496",
+    "source_size": [
+      1024,
+      1024
+    ],
+    "crop_side": 1024,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 10
+  },
+  {
+    "output": "task_attr_mod_color_22137/task_attr_mod_color_22137.png",
+    "omni_edit_id": "task_attr_mod_color_22137",
+    "task": "attribute_modification",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/450/src_img/image.jpg?Expires=1787157486&Signature=VzEnoloI5dlgQVkW4R5WoJnE4-zhiV5Rx4pBzjO2h4~s7rY3huqHMTSnOcDgYszjPkHr2NQEpG6PG9sQyMEZuJOtcHMd1jt7~kxXiRT~m7knW--ssEwgKccq5-PoxApKmK3ED7fgq8-uUW8mNTvXo~Menx7h6JOxP55aNg~2qXlCNl31GCBiHF-N615OHGX-R5CizV1ptr6Rh4EOmwU0y4b0vP3SpRhemzSkPLm6Z~-~4uzu-GQtyGa3VZgeaiVMVu9Ok37JTXjeZQ~TAv~Mju-jdeeKw~7uv~nuDrA4Cy5LR0a77B42bGCgLlbUv~E-0T0GYTszsDcgFsHyhfLnig__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "5867c3e725eb60f18aa279f0c38abe755cea8617984c06307756413e06f10207",
+    "source_size": [
+      1024,
+      1024
+    ],
+    "crop_side": 1024,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 10
+  },
+  {
+    "output": "task_attr_mod_color_42929/task_attr_mod_color_42929.png",
+    "omni_edit_id": "task_attr_mod_color_42929",
+    "task": "attribute_modification",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/648/src_img/image.jpg?Expires=1787157533&Signature=MdeBn-TCKmcLywIZWjGhUO4TsPsoNoK6dDyDqrx6FD-iuMNoTc3YhJVT7dFunFSbFacAy1ZI5zQy~~9tj28ed5VYuf2DNoPpq6vPHgkAMICnx28gD1a9TnO9A1fKTtxfY1Y1dNzJ9eTUIMdd-B~bKT7pn3jf6TSoqHExJ9dufaz4YDV3XL-AGlONxFPat3mKuK6N7EXtDAfENlkLYtP~hvqomkLT4HdGEhlux0b8mxLwNqmnFZ7HcEshWpL2~yPRo8q9gFwbnGbTdqd5wMG14MRts5fauFbGa~cAwLgoy6-sQ~g8xEf364GVxePwklk7yDP~08L9aH6OnoiWka8WIw__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "d14ef4d2e58bfc0b42418ee73706e7068718315ef822b776e5dfc9cad913f067",
+    "source_size": [
+      1024,
+      1024
+    ],
+    "crop_side": 1024,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 10
+  },
+  {
+    "output": "task_attr_mod_color_175843/task_attr_mod_color_175843.png",
+    "omni_edit_id": "task_attr_mod_color_175843",
+    "task": "attribute_modification",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/125/src_img/image.jpg?Expires=1787157429&Signature=Bzzapee51vpUKASYUnYjQnh21t3CdzJZmvW4vNiBmUnm0ZbvovsIn~ZnW4diLCEpESJNHl1lWps2mY6xwflu7KkALy56wxUidSB9JeSyn5YGpwoW13L0U9ia4c1F-Qdsg0MY6zHIHswC~C1Lb6mAgrZun2IHK5bd4tuDCPZ9YlT8X2kyFOX6CDbW9NRsiIouzMSVaTRNjY2rasBq8sjh2AUpaK8jrWYROUgcZtHwV9udu-6rumZq1gMOLkwxFswkxpBiP~MJ7i2jHuOlLBDofeYjxtfrVpTXeleiSueJVx2SjteCpA3G43hWqV3t-URlHmP5P00o5bs81wv9300MfQ__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "121575266a7c9829b273c9273220a5c09307e2b28aec4da1b97b04b83c8f7079",
+    "source_size": [
+      1152,
+      864
+    ],
+    "crop_side": 864,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 10
+  },
+  {
+    "output": "task_attr_mod_color_41275/task_attr_mod_color_41275.png",
+    "omni_edit_id": "task_attr_mod_color_41275",
+    "task": "attribute_modification",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/132/src_img/image.jpg?Expires=1787157429&Signature=GmzKl-kOSXkL4xcGpbrbLDLkI5qm1S4kqjG8MHpXKm5Y7fp2mxUDAmo6cRQ~TxybTUhgSZg1Sztj2og7bBAQWd4WD2Jr8TI-S34IpFkscfIjZJ8d9RXjD7ML1fZIkv2R37xBxc~7rDbOiOi7XonFfRlx7kFJ4kWpmqFJg~84-S4plAifxjGWK-X1rxuC8-NIGj1~OdjQMyAEr3cKhsmxjEWf3X5znW3bI6YV7WrXDFU4I5qDsyS07q6sW8-x6hDL6GOt97UcgwfeNuPJzZ37kRCUDF8TQKfgyaUTYR0zVtp8YR~~oxsZiNKjfE~WdpvKqBf7v22oNwasWJQs3zuVMg__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "dcff4d13e82b998723e1e7bd8d48b50695ea82f993a53acb318dbef4cee1c71f",
+    "source_size": [
+      1024,
+      1024
+    ],
+    "crop_side": 1024,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 9
+  },
+  {
+    "output": "task_attr_mod_color_164237/task_attr_mod_color_164237.png",
+    "omni_edit_id": "task_attr_mod_color_164237",
+    "task": "attribute_modification",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/196/src_img/image.jpg?Expires=1787157429&Signature=FJOLpAywQE2sw83Qu4Q-TaYAeT~qq12u7-jrFngfkwhVutBJLT~ZE50o74wyjb0N51qrv664MpZ-bEQpsE9Owsh0Zx5V4gcDx0-7jS11nauPbn0-XIVgIhLzzCvpHRnIfetm~DjLYIIjwpKmkqTgccxcrqTm-1MTxYg--0muhNyQSaIv2Q4u6z7~Su1XlmjaeP-QZaQVnVAeFRUj~~YWbWxTn~oaWX84fKIF8ShVh1whRPEcGy2bVAMlUEDlwejyzdWwKBojwEn0RzBsKPvGbZ0mlDfP3ER~m6J1EQyun89qc~yGjprRWgWDXCOPQiHdEg0KoZ8oLt7rkLU-jtjXZg__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "050473492b1f7441b9b286c303b6d4c2a8f8cd4b5836d56b2b81d2edd7a9905d",
+    "source_size": [
+      1152,
+      864
+    ],
+    "crop_side": 864,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 10
+  },
+  {
+    "output": "task_attr_mod_color_158070/task_attr_mod_color_158070.png",
+    "omni_edit_id": "task_attr_mod_color_158070",
+    "task": "attribute_modification",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/432/src_img/image.jpg?Expires=1787157485&Signature=U-phRDqNo40iJDW54tiTk2ruLSquVEKMLGmZBgHIPOtCF4NfiKX9xKycOP2~NRbG~lPtvs5~4RVYwIJO3I~QqYZV7G6kKiH~1fsrvRoWEvhKwimlxRfoYMHs6vlL3S94m9L5BEtw6TC2baiVoD8SjNLITayEZAJsoSK2zpQ4tKleBbZfn7aa~GHYo1vK-5XvALJAEOyUjnQvrvDEBcZbdIPplDDorCF5rVz8nK8ugxTsYUlvPrbILYhB4QqUPPf4lO0ewI~mUUr~2mTwU2gmCkA5k3ET3JfLPo0Ly87GCV6AsDmPiLZdbEUoq~D6dFrNrmp9aJvbcTvYEmRKCFueDw__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "16751a8b39262a8bb8025dfbf260b9b957d4cd214f41d71f838562d157c57a30",
+    "source_size": [
+      1152,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 10
+  },
+  {
+    "output": "task_attr_mod_color_6065/task_attr_mod_color_6065.png",
+    "omni_edit_id": "task_attr_mod_color_6065",
+    "task": "attribute_modification",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/604/src_img/image.jpg?Expires=1787157533&Signature=KufArRYthaE~T9c-y6O88CyBU2BbJbw9x3ePpRJggScq3-6zulSz3VB0yY5yECqL71~oDJggjV9csfhQjtTgoMJCUJoGHpgmdIItpF3OV~Br23mmI09Zso7MFpWbHm1uNHn43J5T9bs2LUwrZ055aJgE3Yv3U6DIBWi1Fs9WICU8u33Zne12OZJ151c2nT8Xij3qrkxRcYeRTf8tCTRt2TXrFsHBWqCPn5UWEv3FswmtoyhIAxW6cikJWN6GNDTpj7Ft1kbuTglmabCwHkQkf2dsERpAVWQTCBjIGYKtEcoYJEjyElztxldJg3cf3KttyUC7yKEF23uhFEmz9DScuA__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "833eeb1b17e5490ba86092b72d485695cf2b5311cf61ed9c5d4502a157166e8f",
+    "source_size": [
+      1024,
+      1024
+    ],
+    "crop_side": 1024,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 10
+  },
+  {
+    "output": "task_attr_mod_color_229454/task_attr_mod_color_229454.png",
+    "omni_edit_id": "task_attr_mod_color_229454",
+    "task": "attribute_modification",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/451/src_img/image.jpg?Expires=1787157486&Signature=KcWtx4KZhjymWBdvTDouwU~xUXR1O7ia5Jl5YBCABf4ZzSJY5O7iM06CcGew0C1LL6Y1CITRvjThsCgi2facnq7C6937BE0I4GeYKr3VGljG~X1KRvH5tIwjE-~HewBmX6ttdGPJ~qPjPU8daTaeVCpIsdQHNw11g7ztepfArNCJ8d4Nigu3WLlDHAqEbVPgJapBG8JnEwRorKZKSbXqMkVfGXcxsj8IOHAL888rEOMN5hHX7nf37Gxc~ycCB-8kGsg75Ax1L9FNhid3t0DOqXhDv6xLujQxDzXsmidWPMoTRrte6cSJL9E442zSdJgQHoTiY1wcdRkeP4zOItfHnQ__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "2d0c312fe0dbb6cd2944c64cab6a6c86664b081a1191126fe3e48b44420a6bfc",
+    "source_size": [
+      1152,
+      864
+    ],
+    "crop_side": 864,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 10
+  },
+  {
+    "output": "task_attr_mod_color_59806/task_attr_mod_color_59806.png",
+    "omni_edit_id": "task_attr_mod_color_59806",
+    "task": "attribute_modification",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/85/src_img/image.jpg?Expires=1787157412&Signature=TFTHhzkPFTmBLNoWsyGAnqamCIiZ~XxznL234QAbTHLSpuhsx2YN3Lg485bcPrBYWnb-CJDaSKtqY4O26HaZgWw9co7u43I7QG7kO-JxCaQMUvfGS1HjJ6fQkXhfhWlVYRij5zJCgAgW1ieewUH9TwW45z8c6P19RA-OHfR5P6zsg0rcQ5Oply~8v2AWXO4gkFeEjYGB9BP5otjZl5qD5um2bwLFol6SIAPFVN7t5P0Mhn1qihseiEWZACSISZy5tx0WbzJDYZf2cmWIuz-g8MaA0eZ8rKqrTMYKAVvzeVWHApKlem3Y19pLTT~rOboT-dGc6m6HT-dX5KuqS8OvsA__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "2df71f2a306d93ec8767db287c07dfc39d24916afa9ca17c905e7a29b01aadcb",
+    "source_size": [
+      1024,
+      1024
+    ],
+    "crop_side": 1024,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 10
+  },
+  {
+    "output": "task_attr_mod_color_71564/task_attr_mod_color_71564.png",
+    "omni_edit_id": "task_attr_mod_color_71564",
+    "task": "attribute_modification",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/177/src_img/image.jpg?Expires=1787157429&Signature=eDou8ddEoVyEZ5LJNcO4oR2xUjRx4axNJnj0frV4-6anSowIZoQXiNWPxKF6axNCZz2I7ufKAxwmI8ycdUsCRAeI9sluMUFBqKJHJBQDrWhD40jia~DT2Rw2Ptj4v2nbj7BL6ONyEHuJqNqjH~4yezwd4fJp-C~RvZd35QZcma~13mztSzpKqrzgpWLnlrSWFVDikYlakvJbieI1Trd1V3O8PYjUyWqd~3c3QoAnOvlJQYCQfEXyZFW5oXO7W1LeNbCAz0YoxiociGn9kYz~PGyuB2KhgAijFuXvk3a2UaCvknKXbo-S4767pUUTPc7ewf07DSZiKMbaRD3mNB5mfQ__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "bf8b4b1f8c412b984c8d928c53a7a5efaefe9dfc7c6a1e1b90ef4f40dadaf85f",
+    "source_size": [
+      1024,
+      1024
+    ],
+    "crop_side": 1024,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 10
+  },
+  {
+    "output": "task_attr_mod_color_234404/task_attr_mod_color_234404.png",
+    "omni_edit_id": "task_attr_mod_color_234404",
+    "task": "attribute_modification",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/615/src_img/image.jpg?Expires=1787157533&Signature=B9Jy-n3TVSoSUK684TuCDFkhwcsoo5Z2evrMKa9IzBKOd~YxizTx4zMBotl~CO4oKorRmySzfQgkIUJ~ZwqT0qHr27YWaH008m0kDjb-3Psds~h8NAYBUAkFghrmBQPXWQCKl5QMn7AFxwZOu4n9JZUvS2oOgrBq6SXakuMmUO7CrKmWCOZt1rRn4~cTSfMxnJPvTqpGxbqyUkEureuFB6blZdWBubrWj9AyfNpmDFZUbo~0VWduNaFCtmSq62TSh1fs4u8wZMxnrkgIhZzutG1DYvHm5TYvoLpcCgPer7iG8ZXr6nprBUbn806mpTooduBg-0vt4iRl~UEYShCSLA__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "ec509b8bdcebe60e041dcfe22d2dd479d628557afafc87b737b5d51a9a39570a",
+    "source_size": [
+      1152,
+      864
+    ],
+    "crop_side": 864,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 10
+  },
+  {
+    "output": "task_attr_mod_color_32648/task_attr_mod_color_32648.png",
+    "omni_edit_id": "task_attr_mod_color_32648",
+    "task": "attribute_modification",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/651/src_img/image.jpg?Expires=1787157534&Signature=M5zjP39YQpJTenZKrICMZZnuJRBjGOJKg2ZLYs8ls7WiDsgxNcNB0~JPzOc4VV0eTblRYTizgMuVGdQaeolpqPIuk74JoZG6UTXfDjyGzbSXB4vfzpQ~Ty2I~Vt-soDaPZBI1zpRFFjk02exRMnQElsTb-wzXG2KmNlor7WHJqt56NZTtH5RgY22q-RDojEUlv~rvIOtQQHz~G0anEowl~a2pOqGNoKMW94eBOlUr~uzrTKhhWy2EkQFpOLwp4Zm0FYxkaW6QCFNHhytCVRxPUsK~ygR4zCI4KFQRKWF1B1EmtQAut7wQH32XnMuN-5VMeU50ZtYoRX~GfCp4T-UxQ__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "a62ea3841e61c7086de8f368d5f9c9ea5dde5731195c066e8779a613a2f62380",
+    "source_size": [
+      1024,
+      1024
+    ],
+    "crop_side": 1024,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 10
+  },
+  {
+    "output": "task_attr_mod_color_202962/task_attr_mod_color_202962.png",
+    "omni_edit_id": "task_attr_mod_color_202962",
+    "task": "attribute_modification",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/461/src_img/image.jpg?Expires=1787157486&Signature=cceTM4k~KuZ1ZXNeZYyAp8QUBgEcwNZgtaQnvoUPLFVM4MvtnwM7MDutEyKVm~AbOu~MhwLtoNxSHg34mf3n1vlPhxFhZhgkmwCI14RhcbUPpglOnujg6-95WoaFFPHPnxodWjp5FxqWwuO-7fRVpgK9cvfvcV7YvEx2QnhjhDXKLZgbaNMRLB-x-5JutoHSWkcSXz2hhvrO9Bz8mAg-oy7WFDGYeJj7a1Mpgf9JPkojEFX~ptVgzaxWxYbhsbc8H-40f03Zm76CZ90BM1~N-oAlcSzAMSW9x4LgcZmNbYQOyWDPS3zqRuH3T5THV4iGLn9gRs9VAxJLp1HIgCYM2A__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "63d1b58b762eff51b31cca3039414ccaae50ea8410dade345c8d22f967dd00fd",
+    "source_size": [
+      1152,
+      864
+    ],
+    "crop_side": 864,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 10
+  },
+  {
+    "output": "task_attr_mod_color_76641/task_attr_mod_color_76641.png",
+    "omni_edit_id": "task_attr_mod_color_76641",
+    "task": "attribute_modification",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/322/src_img/image.jpg?Expires=1787157463&Signature=YlTPMVr2Eueo9wdK5eO6JSbz6Tv4871qLxcTToXFz3pDEvOqJvTyE8KJ5SHm0YUHXp1-vZhHOFisFP-Wo1PnCzRKB~x0vRTy9pUb4ceug2Ytas4tiiJLSW8SCtnmT5dUCtlgElhKCZbKIr78JtHlI-upx9EE6MUlV2-lNCTAB4xWCZ75JWSpIAmVKiV6JXih2EOMlz3dg~BHBhughUPDX6PHRployhOxZ5sVRVinLmD~wTnlBnLm~EwWcLXl13ex-JtiCth~77jJ2g0Aw8456rjcHauip2PVWAyl~T3i-lPZD7QSkGVcYiVXaQMNaQcSUw0Gzm~l~xmNF4zbz0o~3w__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "2e7f87d92beb3180dfeef13423d99abee9a8168e86285fb95168308729e40a60",
+    "source_size": [
+      1024,
+      1024
+    ],
+    "crop_side": 1024,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 10
+  },
+  {
+    "output": "task_attr_mod_color_184837/task_attr_mod_color_184837.png",
+    "omni_edit_id": "task_attr_mod_color_184837",
+    "task": "attribute_modification",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/302/src_img/image.jpg?Expires=1787157463&Signature=F2CFnaKSRZYfqawVLdoVZ984jgHxTd3kzR73MFHmJ~PIMnE-w7F~k8BKR3RLYLzPuWtuSWB5mF45n7LaQ-LNzJ-oSyAd-qXoLPYZk20Xy8En7KJwhYoVAhxGd417EbeMy7pDmch3Np6wX-8UTuKdMvsmV10jEeFQqYNdb5Tfo2NWErvi9EjZvLC1IadASIQiNBwZs1F16H40ov-KXIu1xGCENrP6jn2BdBWJqRU61028mGcGbW7sLpIE8-nfNtKatj0CGNp1A6nfIB5xgXumRroQ5RLdeboyyu6F71LY2w87Y54cyBOFnPNZ9LRYMT~~RkSYH5cC3dRbWNWSGbgZ-Q__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "e33642d1767a6babc3155549dfe7800816009b7fd5ddd19664a82ad92b249440",
+    "source_size": [
+      1152,
+      864
+    ],
+    "crop_side": 864,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 10
+  },
+  {
+    "output": "task_attr_mod_color_126580/task_attr_mod_color_126580.png",
+    "omni_edit_id": "task_attr_mod_color_126580",
+    "task": "attribute_modification",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/152/src_img/image.jpg?Expires=1787157429&Signature=JZxLWgChhg3NChSi-FRg047HQuVpO6EmhlsdadyS35NQy6yWHdReSvOWDguW-5nNHvdrMBJxPPotvnWKS-Iel46oetAvMDpwO1SEfrjn-aa~mVP9kwVGz4rhu5-SyJ4SCQCw5fiE2g0d87GkhoGd5zw~2Cg8KWB8oBogRA~EiHZywWLK0s8PJXk~3kz0NL7gWhA4bAJECBl7GL-s6dxKloH6cGL3z6WFmRQwEBgpNlBLTZ83-grzCf8PpbXLbi7gMnjJD32tIH9hQdIXhuM3i7ravIYnvo9z0FtK7gxwAz6j8~jKUx53aJL9~OFLrzNH-nQZEJPS12pOrOuZ5p7WUw__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "a33bacd85918052284935fafb762b0e696f5476c17c0b1bd2589050d647e542d",
+    "source_size": [
+      1152,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 10
+  },
+  {
+    "output": "task_env_weather_262001/task_env_weather_262001.png",
+    "omni_edit_id": "task_env_weather_262001",
+    "task": "env",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/490/src_img/image.jpg?Expires=1787157486&Signature=FQWVP0-6x3DLj4jSfSBhNH3fTzzQTYoqUko4j0KyQIz-YdxHq8cuHA7WuxvC1Up93zGjAb~meV1oVd~QLEmNBx~t69x4TMNDd9skyvmUyKJT3mNCy5An~fmC0o03iGC-GaCJMe0rpV60TDPO8MVrLnUL7iBxPLv9iwm7NAEWWDJnMaoq-ppElasEmCqt3A6Q1HsgSMgqbf0IoKnMCWCixAZ7DMAWRUvL6zllFpLQbuRCq3K8yy5IwyTdXhxtDIxCTBoxBL7Y1pzHuozya3tHGnw3Iu~kfABDtCOgEF5tMnQFAR1ecsWbGq8UHjX85YowCQ3bDcl6lEUaEONDK-34GA__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "4c504110ea487d0df826625177153eeb0210386e2a048f31fb394601e7bebfec",
+    "source_size": [
+      1152,
+      864
+    ],
+    "crop_side": 864,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 10
+  },
+  {
+    "output": "task_env_weather_61151/task_env_weather_61151.png",
+    "omni_edit_id": "task_env_weather_61151",
+    "task": "env",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/564/src_img/image.jpg?Expires=1787157509&Signature=n0nXeJXs3awisenS-aX5M0Bq4M6f6P5NbExAHtX~ZtSA9D90B2RY1sloJ6t7bWOV3rRtFCeY0SMwRM6GKFT0KhPzzmP~bQ8rhrVm88Ka7NtkR8zjrb3mIMC8q5FMDpR6fX5~nW6qs48Nz~ZnPpP31PQU8yGAy~A6S~37f7aayc5ohtg8wHf9qkgFTGiMdreug1gyiNsaMrwI0Z5Tm1wOjmoF~oZ1l4VlEdFiEvu3vjmTGDSfmAB9fGuQGm1GYyQh~3k12HUa2IFtUqJPfBiDpDp-Heut8wk9gh~uARVzoMLtJwXHMA~M1BO10G4-PxqDgSf1K6GBl1wudABczRZaow__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "e4ec01a556be498fd8d9f9d4af7326022bd0338aa1de08143b719c5ac62ac629",
+    "source_size": [
+      1024,
+      1024
+    ],
+    "crop_side": 1024,
+    "output_size": 512,
+    "sc_score_1": 9,
+    "pq_score": 10
+  },
+  {
+    "output": "task_env_weather_70149/task_env_weather_70149.png",
+    "omni_edit_id": "task_env_weather_70149",
+    "task": "env",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/542/src_img/image.jpg?Expires=1787157509&Signature=kc45XF7ow6y-nmF3z0XDfCO2BG2MrlnPUH5u~gNJFWQCZ21BFRuXaLWIhoNLVAhkIJljiF61ot~rr2pPjJNI3s0nD~2Pj0OwwzJZ88T-JcfrkMvU4IjJ2yLNe~FgNSYjtAzU5zVbtjqT2e-QP~IymiF2Mz~Ukok12EFc0DhRqTS5dPNrchO9nuHiV2DPwWjhDFgRzxWPQ2vg~q0q70T-9uxc0z6qGZ5xnKtsd-OSqb-dn5rNDFWdi5OLuJ-HQXAZsiWE3sKaCy5hjWyGSxeZ6cjciepILTNsXdzO18ypzjd5O-rOkpg9bLX7RcK-pxB4Xge~1~8ilFCffn64JkbM9g__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "5b2e6f713c07235ec42d3b56c8346d03ccdbd3c0b3feb5935de19c425f405bfc",
+    "source_size": [
+      1024,
+      1024
+    ],
+    "crop_side": 1024,
+    "output_size": 512,
+    "sc_score_1": 9,
+    "pq_score": 10
+  },
+  {
+    "output": "task_env_weather_217577/task_env_weather_217577.png",
+    "omni_edit_id": "task_env_weather_217577",
+    "task": "env",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/623/src_img/image.jpg?Expires=1787157533&Signature=gF0ifTK~Zui2rW~7gil7BBTeL5l-2Hij41-BIVNH-897EO5oq6aF0EPD2Pl9RroIZUHa6GRn9miY0LnAKJJ8ZyBAHcu~OjRfZb6ZuuMn8VJYA5uPF8~mCZvfrL~KIzTapZWox3an6OZG1196YZgN1FVhxhusIkqPMoJ8rYNon6hkoYSzyjH9AWHbh0LpoHSSv1EqbYBeGZjL1N8SNLoQGrWicTa4l-VO772S9p36c0jdn6Eym7ZizCO875qlRi5WlmDBOg1beZeG5VJ1IvFOmpDziwE3PZHKsnfV5EHEJxt5ajIiT3fjDFvElLpnXXpTHBy2e7EPNcUJNg0u3HWK~w__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "28683611981028ef5a067a32540e9b33c4df1d8621ed42c1cf513ef2afdcdc06",
+    "source_size": [
+      1152,
+      864
+    ],
+    "crop_side": 864,
+    "output_size": 512,
+    "sc_score_1": 9,
+    "pq_score": 10
+  },
+  {
+    "output": "task_env_weather_165714/task_env_weather_165714.png",
+    "omni_edit_id": "task_env_weather_165714",
+    "task": "env",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/149/src_img/image.jpg?Expires=1787157429&Signature=KRPTKzqEvhLeMDnDCJVTJmrlOD3v5rQUTTuyvLCBtCzAw~floDs20IJVv2KArekQSAm~DriwqkxyvqMMJg5tBl1owDke5~df4ZPmuSlkr0gbYoP6y1nsa3pITjuLagjKwryHzdRkrlqk8FJmVwdfuPCDZVrGIotWanRYpy4ZYAg2dW9rMaXfvye3b-yWvbWD8GAJ4VCdo6sOap~j1ADEhZxjYW~BhjLAr525buYJufGaVoIaQbj-FIEdZQAIjRVwTwPGDRAoNZ2VNdsBBSYtUkppgKrf7Z-z3mIdJcgz8LsQqQzHJkx7oww8Ge2jtiUb5Vh6odReQGM9YdQdui-BVA__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "64165cd03208697d42c00ac361549d6ce91f22fa9fd20d5bc41ee572eeea60bf",
+    "source_size": [
+      1152,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 9,
+    "pq_score": 10
+  },
+  {
+    "output": "task_env_weather_193600/task_env_weather_193600.png",
+    "omni_edit_id": "task_env_weather_193600",
+    "task": "env",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/548/src_img/image.jpg?Expires=1787157509&Signature=PLpqgFy32iG1NjL1Wn2haCqs9ofaxowCgWc6q3HPjO8shyA5pmaqsozynCXRpKqnzi-REm0N7IqdOnDRBQ39l-hqOS0G1PFrp~ChLX4IV7DT7nxwykcis~qTnUT9D3kvDgU~dxXSZXoB~Cb9ouNj0JLN5VtPfDVvmpFohcZa~~ij80teKvhCU8kIyPxJdaNPtpK9awsJvqFIDwjwOVGLUvkgOmaAgQqkaVa~ssy1KNYgQzsaTQ8GlBPqDj0k056ilLx1mdPzNmb68INqRPvC3hERRKRql8oRp6~iTA1VRpCbhWgSGG3qK-8hGvs7qAOoY9FZD3OShwTk3rdsSZkNPg__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "ad70a98bf80b7fb47574fdc1dc587910ba1a844905e8d41099f62ba2c7048eb1",
+    "source_size": [
+      1152,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 10
+  },
+  {
+    "output": "task_env_weather_112463/task_env_weather_112463.png",
+    "omni_edit_id": "task_env_weather_112463",
+    "task": "env",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/183/src_img/image.jpg?Expires=1787157429&Signature=VFFXv2AH9HYZu0vskpihxd1tnf8Ij9wXfuoc3kkTan-nVxFiUKaQC-UTe1vM~dIquPjIhqtYYPENHA74ZR36F4NOy-7d59GoyJC7QU1-FaLwK3svs2c9VVyo0iIP10lKjEJUXq4ox-yiy-EZeYTv21ZR~KGitOFl1lCMsP6A-h-k~HBOXgSFyZZxYNPB2hvSHwQCddPyiqAqEL12Fmnk5Pzjd6l4oCEIHYCz1arZx6gH9Avjx6B3d5jqNkj2rXumYm9IbicpJ3sQrSJNQfPgpQJknozOViPmUy7DY5hS4UvbXwmKqCHvKXzsHVrbu6~X09xJF~Ie59IKaB8uTPpOVQ__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "e8480c831449099f756a7d8271e778732d090925c1e3823b5e41aca31706b754",
+    "source_size": [
+      1152,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 9,
+    "pq_score": 10
+  },
+  {
+    "output": "task_env_weather_195273/task_env_weather_195273.png",
+    "omni_edit_id": "task_env_weather_195273",
+    "task": "env",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/274/src_img/image.jpg?Expires=1787157444&Signature=ZLQXf4JFIUaMkEyr9U1E-DqUBDZHU79jAACQXFBTieC2EdEyANMctnLhcufYhyf1UazJt7EuW4jVusOk4LT8-1c4Tnu7s7~IQd1kUz2HWSbSkFUg64LcASOhyVqcEPOvR6sHSp4721RBNvr4gzwsbw2w8Tb89f3bYz2Bpk8qjJPSuLjwb~Ii4qwk-Tyep7ORjpmsnQKa1mGfHN2wbDLT7spgXUVktuaC9G3ubWq7fSq708WoML4qc6K6hYFHYIzYm17jiyHCeDhW3RzlRWM~GbXrfWksFI-7CtpkCy4jiN2GyxU8nmN1hebxx5~f0kfUpCJ7ur8ftDc4nyfyDmv8vg__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "44c7dde7c5db1e088b8d4a1042013f4629a0a1625093d791f73c976c962e7484",
+    "source_size": [
+      1152,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 10
+  },
+  {
+    "output": "task_env_weather_137030/task_env_weather_137030.png",
+    "omni_edit_id": "task_env_weather_137030",
+    "task": "env",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/510/src_img/image.jpg?Expires=1787157509&Signature=fbdac1-dMj9Vcz-DKcCzCk~dOReOvliyF3ABjWmQhIhlBMJ~B4vfPMxJDAixUNZaSOSW0hv-fFMAa03FkROK4AyZ8lh93Kwyvh8-ZST5Vns128t2kW2tsOwQfnvsWDOKFw0-7RTMtk27RjoazsWK31ScQugs4O3By6U2Y1fRQQKAmqMcH2ON1aNV~i5bspDTVgvJRACobppEsfkvNDlURoeQHll~lWCy9l8pEN8CsG0-FAUDdz7xJZBURbraSSCsjHrun32ZNRFR91L-fOjdmiSV9XauIde6cY-svH~eJW~w4erYjfS4MDgbAjHaqpFdOJU5T2PDx4XxUkX-2l2XnA__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "877aa5d0d9e5bc9e5213126e506bdfefda9774218b8b1430aad20aa02c174dad",
+    "source_size": [
+      1152,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 9,
+    "pq_score": 10
+  },
+  {
+    "output": "task_env_weather_86691/task_env_weather_86691.png",
+    "omni_edit_id": "task_env_weather_86691",
+    "task": "env",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/342/src_img/image.jpg?Expires=1787157463&Signature=gshDHTgXoP9X4uAzBiv5WhKbftdtlhotPrsd1MWw92A7rNDu55BjmetryCM72Y70nrJ3mHGgiie41bjeF7qJCNGbba5tTRVkDsgq8Bocxyh8vZcOnZnHJ-vV0SGYVkhn4gjwBBqbveedP47aHRUmyTN3P8ufKoOIi6sYAlEmCO57AKJiZ~RZjGVPat~oIFIGuwWWNtjBJfEiDCrFJAJjzq0eXWiWkhweL4tcFKzz8L7-5efgQ~z0YJChau3WC-g7KbiTVtPJyI5q1dw35DZiotKQkpEvJWGRJgMjaxNEzRVBVru1sYPlyXTaOpYVBDsxHClx-bMnj3oIokbpfmsFqQ__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "1ff3ad9982e6a45721be2cfd700552b67e1777cacc1915be421d9ea218f0c302",
+    "source_size": [
+      1024,
+      1024
+    ],
+    "crop_side": 1024,
+    "output_size": 512,
+    "sc_score_1": 9,
+    "pq_score": 10
+  },
+  {
+    "output": "task_env_weather_181583/task_env_weather_181583.png",
+    "omni_edit_id": "task_env_weather_181583",
+    "task": "env",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/253/src_img/image.jpg?Expires=1787157443&Signature=sBS9qbBoMXXRi96Zt2Fff6sxY~4iS4Bnu1kMNZGMx5BH1RxBbFT8AMvjmqh-LlKgyq4hJrFwVSpTE7M8-ZZKema3jiKuQUr9b1AZHOpukvQkprJWQEbihSoWTc4M08zvkBmrLh1av2lEmushuwF8FtMCj1m0JGXs3AfBtjCYN0kakroVP~1xOpHI-Jdt1IeCYzfmjpCz4qI~5ARYlBC6N13-X6OK~KFCGZeDDeo1gltkuxyP5Wn6PC9ZCpVRjPwDPKMpcwhQNLl0Cdeng2zP1khLlILdRHJh-TLiQrisg6d4yBrdA94luucdUm28Y6Z8sFEBAtr2qoijubCB6Ux5qQ__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "123a27b5fc629f79cf728169f72e4862bbb65c886e706d2de41847d270fecfbc",
+    "source_size": [
+      1152,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 9,
+    "pq_score": 10
+  },
+  {
+    "output": "task_env_weather_226185/task_env_weather_226185.png",
+    "omni_edit_id": "task_env_weather_226185",
+    "task": "env",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/667/src_img/image.jpg?Expires=1787157534&Signature=T4-C11Iq9dgCEA3MfHzfVI-0ZyQEhANVjh0HCvmZ4P-AowOcXq2jxIj6lMRnnYrvukb2rFP~O682Y4otVDiq3ZJHtMdf~gZ617mZ2s0FwYsvuZP5mJxn5WKgG1O5VCYWy9H2m30ijWF54mNJCL5pSw7QZ9Sk-59eLklJvsd5l74MK-LUc11DKgTIB-0l~ZDruw3I~xaFNv9F28j2K49bsEsJzbwayfVT2Kw~9mz-slTVFFye-YB0m8HrgfRIXaqwhEWiXc5m5MRw-4ITcJt3NzDpiZ6UIUAL-f~xutRHCOzsUB0X5oQ-GeljM7iIdikF3BqdjDLm8wDgFn-uXPTS9g__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "f39bb0076c3df974c00cc713fdd091974a8361e47a5bb13540cb70ba51d98f51",
+    "source_size": [
+      1152,
+      864
+    ],
+    "crop_side": 864,
+    "output_size": 512,
+    "sc_score_1": 9,
+    "pq_score": 10
+  },
+  {
+    "output": "task_env_weather_150522/task_env_weather_150522.png",
+    "omni_edit_id": "task_env_weather_150522",
+    "task": "env",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/233/src_img/image.jpg?Expires=1787157443&Signature=Pr8Kun~jZkYX4ZJ3PGRTdTuWwXqSENj0U57ScoiMZB0R0rHdfjCrAnndory1nblW9LfFkYFA70~E7juM4nfavLXY4xmBPr-KWtTf2EO~sUWO1Jp6AGolV-9k1KmvCrTOVlUMJq-qAYWigZW5AsHPjxl35L7P5PBZR7LkSsnDfXrgBfM80kLs6fojYzbIfCRvv5GSCWm3TBSYAfEe4uVBQuE0POJ5FtHFFCdJR6pXCM2fg1DcdnCzQvrimYg~bEzPC1vfEUr22Sb20NJrvzpxIZqZYmjVfSnvgtQ8R1cPhot7uuHIYUuzAIMC9UL9-0QDLN5PbRqaLKy~EvSeVtuWiw__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "6b81b87e0cbbb27517a2331356e0dd369f802659b330da36c11670fa8fe3713c",
+    "source_size": [
+      1152,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 9,
+    "pq_score": 10
+  },
+  {
+    "output": "task_env_weather_97868/task_env_weather_97868.png",
+    "omni_edit_id": "task_env_weather_97868",
+    "task": "env",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/135/src_img/image.jpg?Expires=1787157429&Signature=Zz7BuV~mKIqmdzLpPopvGIjEBFE2LKsntYLl5LRe3dLDN5KXOhlHk0srDqKAgmNXxyFc-JfQO4s3eLBz~NIHZSPam-RjMlCgKdkL4efnyS4409J9UzHCmmZ~JmcR41Is2zBd~-ymQPS6hABDRkScLPSYaxijLKkzYoQzzUkMyK4-WWseHNXU9ZoO5vvXDl1~bpeI6n2B7R4yCs6a1wsbliNN722gwuNENVm--g-6T9VLp4zuQVznTdEZmbiPY58c9mrXnVjK2i6d0pvWlKL0cOMVc6UXxyWCYqMQ0~K~vvwQQrtyL8zONaw8ICkWG~Nb96e489sBJlhHvE1uzQEYqA__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "c93242d45712ec58b7c9f75946647556bf73aed8e0962e41c177b7e1a69772ad",
+    "source_size": [
+      1024,
+      1024
+    ],
+    "crop_side": 1024,
+    "output_size": 512,
+    "sc_score_1": 9,
+    "pq_score": 10
+  },
+  {
+    "output": "task_env_weather_246440/task_env_weather_246440.png",
+    "omni_edit_id": "task_env_weather_246440",
+    "task": "env",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/471/src_img/image.jpg?Expires=1787157486&Signature=n~X9rTOj-LZWEFAg91NtoXUee39-mVwc0Qx~2nU6AYp7j74ex5xw81-Tq0cnJ3vedwLrP6ivZYcdgoy1AqtlkG9VW7oVGwNWrlzGRwquY-cGledfiFAa-4H4UFfyqlamzpov530OTvcJ1WG1bO8JQR5vS9K-tpm0WGPoKxhwdTGHoHQ4LqpAwSjcDafAlZZzfR3DM6VBboWd~FM1ysQJX3CAiEKjRnQ9kSGAaIsKLKjNhZ3d1lGbdrgUGlILQm-c2DLJLzjqmbZ7giCHF8ITFVH4wasgafUxWeOkf6XDM4rYO6dvGf04sXM~R1spbrpux1eKjlkbnJqeZzoOS96byw__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "4ad9a433869dbdaaeaa8e7b8ea2a75fa99914257ab653122d94e2153fdf85c0a",
+    "source_size": [
+      1152,
+      864
+    ],
+    "crop_side": 864,
+    "output_size": 512,
+    "sc_score_1": 9,
+    "pq_score": 10
+  },
+  {
+    "output": "task_env_weather_121086/task_env_weather_121086.png",
+    "omni_edit_id": "task_env_weather_121086",
+    "task": "env",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/162/src_img/image.jpg?Expires=1787157429&Signature=tPChWzXBm8y8kpiRBeqtxoXaP7FpX01kJUxMfrCfQKaddNoIYhv2XgfAr9Ey0CjxlUnCAc7RRu6SC6EAhHu56zwd3xWZvzV7q5H41F-Woi41mzmfYDtsAQ4nXJeNSUnKkXJo-XL4K2XzUA48gV~DeW5TeTs~dLhCfEuPLwLolIACrjJ4rHmdaFNcBwsRrLEFXxicO08EUGjO1zm8cAB~7KP7YQ1vXaPr3o17-fwfyQETgSTUKHos0fOc5JZ3esZihyV62w~lx~mB6VO07ZF5j2mlOuOhJQmFjKgM7yj0ZhijHSX173Ss9oL~SY1gGZlDlTONWhe0OF1hrIOrLVLMhA__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "920e8bbee4211a754d0a95c7ad032c804da651e190eed7405ca2c62ada634404",
+    "source_size": [
+      1152,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 10
+  },
+  {
+    "output": "task_env_weather_133752/task_env_weather_133752.png",
+    "omni_edit_id": "task_env_weather_133752",
+    "task": "env",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/121/src_img/image.jpg?Expires=1787157429&Signature=PqdD0AwlXj4VRauT-UQEeFkgaYCJWxPmbT-~I2A6eY6dJHxghhRtDp3IigWhZLLSx~QZHwojLgfc~WmZIgKKx1B~8dNzeKwORzxmhjl9X09eQCDM6sDSHMxD0Mdul8OL2MJL1xH~Caq9mw23JpsHHswNtoA-RjLY2bLLf7IdGZjhAlrDvhKtZDDdITfjk4H7dC0iOSw4fIIXNQJvSXHutw5wjM0w0Tvt7qLGJ7SgCInWH3FJGsGfburNDacYwN5UcRmQ3E-mxMqzo9KxobPFCwdza-X~Pnu6sYj7hthmXfoMkxTZi0QbDm2XRaOxbJPTH~1WoKRfN1HQ6~f-SVxfkQ__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "7d09fb5a5a3905445248e1ed37c8b1942280ab9a6299251c422348180b92d0d8",
+    "source_size": [
+      1152,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 9,
+    "pq_score": 10
+  },
+  {
+    "output": "task_env_weather_146611/task_env_weather_146611.png",
+    "omni_edit_id": "task_env_weather_146611",
+    "task": "env",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/13/src_img/image.jpg?Expires=1787157412&Signature=uIh3Bj4Jh1pQbQEHlG4~gAYfkhp-d-KAlypdfkWIN8Saj-ZBTCi4FRLarwDy4xuMKQdx-BlD0byBLlLOxn67nVHWGB-8gO6Xr40EWg2Bq8CpTsk6wNvQDdDTlh1ihlNAEaMR9Mw8dTuWgk~wrOv-D5NxU7VhwhnW7nVQ4fwp1xPqPQdJqgc2MXxR5zzLmh06kpx~gZA1RxqH~Nz4QW6TMrw8j7Cro18mzmr7PAGze~7MY-F-P0hD6ojr676ys4olfBJgupLSTXwoHhC~Rw5q9CrMzeHJADr9TL8RygVI5X4ZGZl3ElK3fwGYgKxoIT9j5supGbXU9~3SOR0qVPQS-g__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "a775d3d76999eb161357acd4487eb159be0cd17b3807721cc8f941a3d5f0cb64",
+    "source_size": [
+      1152,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 10
+  },
+  {
+    "output": "task_env_weather_85610/task_env_weather_85610.png",
+    "omni_edit_id": "task_env_weather_85610",
+    "task": "env",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/204/src_img/image.jpg?Expires=1787157443&Signature=DH9O52sgfuR7lASsAZ~Hi4vpPo1nbC2Q9JOITrot~b5x2T2UTwQyJ430CkyZNUvphYfctZFuL5cj-hVXfez~-T8ZVSFAPqpGUm29sIQkohTcS4sHUOvlYV~E4j2BxF2iQntqVa2knnBaf0-R40B2zJDaOX8iXcJGdNTE44qQCIE3H6M0nBT5m21Uxp3Ajc0MiXDWiJZybKBVn-O-90BvgNkgqOK3VqxRV3uO2DzShqR1IFAzoq9-R2mdgvTbhk0lW1ogV1wqyaZCoWT1K~MviYkbBBoN6iLARnLeyq6x0zZNBvpZe6wAAvXHaod2Fn0HctKIjWxpdkhRT96x7isUsg__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "c39dc479c40d6640274f5718fc96a903596e06c824aaea3eb935db824e6b2eac",
+    "source_size": [
+      1024,
+      1024
+    ],
+    "crop_side": 1024,
+    "output_size": 512,
+    "sc_score_1": 9,
+    "pq_score": 10
+  },
+  {
+    "output": "task_env_weather_116980/task_env_weather_116980.png",
+    "omni_edit_id": "task_env_weather_116980",
+    "task": "env",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/539/src_img/image.jpg?Expires=1787157509&Signature=wu9mojIYh~bQ5L3QhIjfZMXa1Iaq0VTkx-4lt4G3NHcr78bUiMzV-I~ceYMN~e7zzYyh4k3vJBAd0~VeDQKef3Qc3w~Qr4t9gRUWZ24SovYhCPD5r4uu5aHZaLBvJXM5yIM6GDjzVoN3sJBajkIfF3vtMkj65yUjDyVeDEGXs04BBYp3diAaKKAnF3wS6jjfS66Dl2rnAkscZOxJ3EtZ-WFpi1671OKk0WZUk6hMB-LyHp-GVfj85AFGasHLL95rpA0jqapFqYztCM2~wO0R4VG3pTIWNewlMtzhFYrymJj7W-9vapLR0Aq31pX7L9vlw2~Pt2u2Nd5gO21P93uGRg__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "fae8f6681156ce4e14a7c900f86523b2539fa8c113ac526f2f93cdf970368fcc",
+    "source_size": [
+      1152,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 9,
+    "pq_score": 10
+  },
+  {
+    "output": "task_env_weather_52051/task_env_weather_52051.png",
+    "omni_edit_id": "task_env_weather_52051",
+    "task": "env",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/626/src_img/image.jpg?Expires=1787157533&Signature=mL5jx2fobpML9b68UPB2SOSHRNLnucK5~ZGgVfdvUNPBxljDjM3XPehXQaJfSJaAwmRDEp50SEnC46C1Twf3cBsKullZZqM6n3wkspG7Hf7z2fBfJnwH-CNxEyAAYAH477agk7mvC50ZYLUvUpPKxwxV~oWCko6s112hN0Pad~4tfGTaqU3eFWUcTgBp6c9zPSVWIP~8VU0cOUYtLfpejG3ynMs41Px1FhwcMX~p8XnMefcZO1g3AsR63FXh8Nmupx7X922kSngFfbSDOFiHIJX1lvijCopB1LP8ZVXfMge1Iha8toxGJQWHkP7sDzQzEKSJOJ1Mcy71tfATHuG2fg__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "aaf2a0c00e47814412c0272dab7754ed48d5dcf00c6c204678833d82e0d48a80",
+    "source_size": [
+      1024,
+      1024
+    ],
+    "crop_side": 1024,
+    "output_size": 512,
+    "sc_score_1": 9,
+    "pq_score": 10
+  },
+  {
+    "output": "task_env_weather_39740/task_env_weather_39740.png",
+    "omni_edit_id": "task_env_weather_39740",
+    "task": "env",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/64/src_img/image.jpg?Expires=1787157412&Signature=alDAOZee~ZNmVzSzwcjBmeTm~3xyjKkAJnfKi~y9b9WKejcUb0ncJNSQzRDtKgpRbEyue6UO5uNVhCwKhEeYSNLr0eQ5jETLKpBDoCsi6zgo1mpqLxdJNCmeBerE5dHNtjqsF16P3FcSanUpzRPlzhHI8H3UkOv19cjzo4OwORStO7Mq0z2VSPzyq1K2SJcP8uG94Ojyqk~tiXMUEC2dylOlbHByQC6nVne0gUxXpvNnOgRFtrr3Sa2juCyv3RlQ7urRJ7mq6kLw774f68jVomqxw7J~FfVoM8OMsQ8oW0VgDVNPKChltDzxvWs4xPmZcJEsVOOqhtdVQCnTO2A7Fg__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "2a9cc2afd98bf946778da17ea5c1f3ecbb24a0752d051f053fb3df6625c799fd",
+    "source_size": [
+      1024,
+      1024
+    ],
+    "crop_side": 1024,
+    "output_size": 512,
+    "sc_score_1": 9,
+    "pq_score": 10
+  },
+  {
+    "output": "task_env_weather_63722/task_env_weather_63722.png",
+    "omni_edit_id": "task_env_weather_63722",
+    "task": "env",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/535/src_img/image.jpg?Expires=1787157509&Signature=uxQvPZhsxyfSd4iu3LfInOXq0Uny6r00eA9pzWBIvGQ1Ze6xL-ppSlTOL5yLHCN0IsatJDoZhkckqzttPUFjpDuPZLbmEUSInwvDLZmruoUHoXGtslxGDxhN8lfCR6OOcT4bfkyQtWQcsh8-vfvkyCXV04h9Y7iR-nUVBnYx~X~QI0FnXwrg8U1rf2LYWpbrAkMLKXSsEsc0sROBvmgv0fY29OwOg9tMfQmTavt5IFPMHBUBqwUTHSBeKsb7kxYXYRtVik-rc0N4g9BJihKMjACwmoWVcoak~bPSAVH2COUcJh8Xtx3HAae-Qt-38orMTVnA4mtC1ih00MhUybm-Dw__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "ef428957521561e8c26426c5ed21e5488a4ade849beac3ba7ec718a46ab3aa9b",
+    "source_size": [
+      1024,
+      1024
+    ],
+    "crop_side": 1024,
+    "output_size": 512,
+    "sc_score_1": 9,
+    "pq_score": 10
+  },
+  {
+    "output": "task_env_weather_126577/task_env_weather_126577.png",
+    "omni_edit_id": "task_env_weather_126577",
+    "task": "env",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/46/src_img/image.jpg?Expires=1787157412&Signature=E3Do7oIHblyshEXXVeS3QnShhP0wt~zhN2muNhrWDS7gflIhllegEkgL0i995qk1EqC3zvkRsEitoiD8f4IJQIrHbL7s27X5-Rqyf4rvhEdkYukUnh9gT1RKic1Jr5SA9ies8xWVyv3NOoY04Ej4M3Ib~hokfQGgbnIwDFiT82CZE1OGI2S0DayLVSFPGN61-gb6YUZLidcVCdXM99A-NPO0Eb5eXRe6hDpx5g361olUEeMOSAvxO~hGiH~KHIt0twvgtC4E06ydnBkg~wO-7HL44B80dmVxWzrdAS7c8XnC7-2fHqQDlrcHxZSx2UAzaWUuSIa9dUFKcgMS9VAfvA__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "500ca72b95bf1e9fbfd3de242c0842dac14b06356c1fd113d227d7248fd9aa1e",
+    "source_size": [
+      1152,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 9,
+    "pq_score": 10
+  },
+  {
+    "output": "task_env_weather_114555/task_env_weather_114555.png",
+    "omni_edit_id": "task_env_weather_114555",
+    "task": "env",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/194/src_img/image.jpg?Expires=1787157429&Signature=ZRbodfSNWEyod6sDHcWki8xUcyijdTfcgJKfibuBB1f1zLP6xViJSrDRa6GG~VRwAz2QU7-w3E1qJF37aoKTC7Dw0Wr35gQfXHEbhKso3OfVny7JUwujXO4VohxyI89IGugbf2j4R3KI0oYxb-e6sldlp81FJF6Z8ntVxUmCZNTLPM4ZBCRHtd-MRQQ9l3u2508aTZkNNP9nLfQmehYnYnWB~n-pRsqBtMfY7in5cUaZ~ogWqbh3okAMOIu4gZU3ism6JCyZ7J7g9QOrDn6uUzxJpyqMAAsouBdXqho3IkdvVGILWLQjalmjUUG2gA2wuKf0YG6bbuh7BZwq0mKx-A__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "3b3e50cd9fc8ad455d2bc2f75dfb3ee12320e65102716f458527639e0a589d3e",
+    "source_size": [
+      1152,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 9,
+    "pq_score": 10
+  },
+  {
+    "output": "task_env_weather_137230/task_env_weather_137230.png",
+    "omni_edit_id": "task_env_weather_137230",
+    "task": "env",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/550/src_img/image.jpg?Expires=1787157509&Signature=QLalqjEaY8j7OoQ6Q67oYg9Ye172Ybem~uURVPKPurkx7LKdaKicrgMfcKFipTh324QA8-9PMwygXtz-~yZqSF3E4q3bnyNRgd06r1fKHMrMl~MooFUEN3f-saBEJURKh9AxWsQ8PwDtnkunFEW1t8NODQzyKq-6E0duASnkJvD6eBrSAUVUQYttoi1D5N1ikiFCJA2peI5MqfAKITgP-~takrhAB4yJEIPlgFg0H0IlI9yG9d8N2C-nlVoSz8an4tYW6171EC62GtQZ81sHFRaaiVBIkQCdo9jnmsekShZDVQhnqIpSJlu8X1jcllHegXmcSUWMbDMHjGWLSruhzg__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "4a53efc5820c453ace844d0638e388a7cfdbffb20a81d7b9813cc4af0ca36972",
+    "source_size": [
+      1152,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 9,
+    "pq_score": 10
+  },
+  {
+    "output": "task_env_weather_9736/task_env_weather_9736.png",
+    "omni_edit_id": "task_env_weather_9736",
+    "task": "env",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/627/src_img/image.jpg?Expires=1787157533&Signature=A-3LioKDyLZ33EWoUqV3PYtHI4jaYzcVKbAepaiXPjQM269lRFLuPny4ODBYsajQfeqkXc-btrHPifdgx9bsQwZblOdnxyHRf9O1tMWJTZjMXcpqIVUBir2OVzoAKKCbMIUREmQsXIqiL-V7cIIK23j86PQdkRhSM33l-MP96n6EUSScxorRtnDncCtH~5Hl0bipvfYkzcZjpSUKrWzeWLJqgjljafhq2Oh5uBY3T2XPqRDBRVstflstH1dUA7teDFA5LRlDkoenlD3Q~W558zjq0Zdvy8Uc8oUZs20gb48gVzD4aNpAQ1jhPS3r8MzOVyaguGpKarM4ggn~O4NHNA__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "8c17c8360edc70323ff042f6a13bacca4b1dba87779a44c84503233e62fa06cd",
+    "source_size": [
+      1024,
+      1024
+    ],
+    "crop_side": 1024,
+    "output_size": 512,
+    "sc_score_1": 9,
+    "pq_score": 10
+  },
+  {
+    "output": "task_env_weather_59863/task_env_weather_59863.png",
+    "omni_edit_id": "task_env_weather_59863",
+    "task": "env",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/625/src_img/image.jpg?Expires=1787157533&Signature=CGmYfugvlMfJtRctByp8bivbexA8oPkik0caJYOEAOCKSlbfn5DMAqODxY1H-SqewLJ~20qsnsVYIXuGM2X8TaI5vf6JzeDu5yimKSWSz0QVLI1CtS4hFN9p7nCut-uX4wL7~0MMS8pL2eeTqbTj-n7Y1eKKCbnlCvZRN8WBnlxPksX1TGn6AoGcsDqe8kiboWQ4kf3iv3jHxnweefz3Fv~XH2VzrlnqxVspiv3ZD8OprgKS9IyVxJk-4OFRKIcgNoEFQxovFc19A-tJLsXOvNWZ-JiROfep4lWH5ynfzmoB-jmNmhHiOiRmPReG9gplbogbHDyTna220rutgg2uQw__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "75583e564cfa293f513dcbdd012bb1f8d6d419bd0c927dc37c04d5177637b6c5",
+    "source_size": [
+      1024,
+      1024
+    ],
+    "crop_side": 1024,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 10
+  },
+  {
+    "output": "task_env_weather_231482/task_env_weather_231482.png",
+    "omni_edit_id": "task_env_weather_231482",
+    "task": "env",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/487/src_img/image.jpg?Expires=1787157486&Signature=WJOK2vK2BCeybNSfko-GElGegtchlJ2rcsFl95Lo-3lhYW4jFO8G3T9~RB47Q7ZYs8v~kdk~paa-aoTR~VnkB7IESicDK5lMJrJOtBWYzLspAvQu767oMx-9eUov8gxaOJGhcN4SOuVKTrhJCD839JJ7mKmAkuKzBMpSm1BgtnJhdOKOA10KjPJlz4NxMkBYC5hOWxHSIYjy0BDnswHDQ7c8Qcy2BFkrmwymNg0MxtwQ-zihJ-QwN4bZvIoLkOvoslwbzAmfTBw5~RKCMU6g-bIV70jo0pOrR8hTck9VceDttx3QeQf4vsm3wqmQHPQj6cZMwjU94qDqIr-pHkp0Cw__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "29323a0b1c5aa105ac7d0587a8052f7fe57406bca2aabbb7e9d77320f7784450",
+    "source_size": [
+      1152,
+      864
+    ],
+    "crop_side": 864,
+    "output_size": 512,
+    "sc_score_1": 10,
+    "pq_score": 10
+  },
+  {
+    "output": "task_env_weather_132698/task_env_weather_132698.png",
+    "omni_edit_id": "task_env_weather_132698",
+    "task": "env",
+    "source_url": "https://datasets-server.huggingface.co/cached-assets/TIGER-Lab/OmniEdit-Filtered-1.2M/--/82455c6cd66db7f0e5bfce8d7a236441af59d6df/--/default/dev/66/src_img/image.jpg?Expires=1787157412&Signature=aW5pVT4goOYsGiWM5o0bJmRdASNI9VLofZ2MxUIOWODCOXkpsshm31v-9xst2P0fTIMJM8kw9Q~H5EFycyFpD906qmu9FcrJJoxYJ7b7-Oe3GF5tessOx0XbnxHvyAUpSI5vopt6VJuLW90PGfrNXJfbaOhGYRoh16AdIMS15DuIT4msthwbzxWEGG00tfnRj4sTEfrB5-q0-hnPhnlfdXQN-dTQsM2S6RXDK-wM1cRwWKiUmBjIrABDXAYOcdaAjNnMlKo2nMc9WMrFWzBTdBJeTkPkxcfwERyPvbPaOcEjVyqlUplnUsXG-1-qL3yRzDZZT~J06-xIUPVsLLkMUA__&Key-Pair-Id=K3C0L9WB6U5DUC",
+    "source_sha256": "6c757ef1dca3e34528174bc3d867a7e1d1b624b0d8ca8f674962be90380ac383",
+    "source_size": [
+      1152,
+      768
+    ],
+    "crop_side": 768,
+    "output_size": 512,
+    "sc_score_1": 9,
+    "pq_score": 10
+  }
+]

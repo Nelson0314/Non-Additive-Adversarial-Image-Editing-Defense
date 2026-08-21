@@ -93,17 +93,26 @@ def hann2d(n: int, device, dtype) -> torch.Tensor:
     return torch.outer(w, w)
 
 
-def radial_gate(block: int, r_min: float, device, dtype) -> torch.Tensor:
-    """(block, block//2+1) 的徑向頻率閘。
+def radial_gate(block: int, r_min: float, device, dtype,
+                r_max: float = float("inf")) -> torch.Tensor:
+    """(block, block//2+1) 的徑向頻率閘。**帶通**：`r_min <= r <= r_max`。
 
     低頻格帶著區塊的位置與結構，動它會在重疊相加後產生接縫，故歸一化半徑
     低於 `r_min` 的格取 0。`fx = 0` 與 `fx = block//2` 兩行一律取 0，理由見
     模組 docstring 第 3 點。
+
+    `r_max`（2026-08-21 新增，**預設無窮大即維持原本的高通行為**）：穩健
+    浮水印的標準作法是把訊號放在**中頻帶**——低頻改動可見、高頻被壓縮與
+    模糊抹掉。本模組原本只有下界，等於高通；上界從未測過。本專案在
+    crop_resize 上只留 13% 的淨增益、模糊上 24%，兩者都是高頻先被抹掉的
+    症狀，故補上這個旋鈕。
     """
+    if r_max <= r_min:
+        raise ValueError(f"r_max={r_max} 不大於 r_min={r_min}，通帶是空的")
     fy = torch.fft.fftfreq(block, device=device, dtype=dtype) * 2.0   # [-1, 1)
     fx = torch.fft.rfftfreq(block, device=device, dtype=dtype) * 2.0  # [0, 1]
     r = torch.sqrt(fy[:, None] ** 2 + fx[None, :] ** 2)
-    m = (r >= r_min).to(dtype)
+    m = ((r >= r_min) & (r <= r_max)).to(dtype)
     m[:, 0] = 0.0
     m[:, -1] = 0.0
     return m
@@ -151,6 +160,59 @@ def texture_gate(
     disc = torch.sqrt(torch.clamp(((jxx - jyy) * 0.5) ** 2 + jxy ** 2, min=0.0))
     coh = (2.0 * disc) / (tr + eps)
     ref = torch.quantile(tr, energy_quantile, dim=1, keepdim=True).clamp_min(eps)
+    return (1.0 - coh ** 2) * torch.clamp(tr / ref, 0.0, 1.0)
+
+
+def pixel_texture_mask(
+    x01: torch.Tensor,
+    sigma: float,
+    energy_quantile: float = 0.5,
+    eps: float = 1e-8,
+) -> torch.Tensor:
+    """逐**像素**的紋理度 m in [0,1]，形狀 (B,1,H,W)。
+
+    公式與 `texture_gate` 完全相同——`(1 - coherence^2) * clamp(energy/ref, 0, 1)`
+    ——差別只在把結構張量的區塊平均換成**高斯平滑**，於是解析度由「一格 32×32
+    的區塊」變成「一個像素」。
+
+    存在的理由（2026-08-20）：`texture_gate` 回傳的是每個區塊一個純量，而擾動
+    是逐像素可見的。一個 32×32 的區塊若同時蓋到鬍鬚（高紋理）與臉頰（平滑），
+    整塊拿到同一個高閘值，平滑的臉頰也被全強度旋轉相位——實測人臉會出現抹開
+    與波紋。模組原本的設計意圖（「平坦區任何改動都直接可見，靠第二個因子壓掉」）
+    是對的，逐區塊的解析度沒有兌現它。
+
+    `sigma` 是高斯的標準差，單位是像素。**本專案指定**，沒有出處：要能分辨
+    鬍鬚與臉頰就必須遠小於 block=32。此函式不設預設值，由呼叫端明給。
+    """
+    if sigma <= 0:
+        raise ValueError(f"sigma 必須為正，收到 {sigma}")
+    if x01.shape[1] == 3:
+        lum = (0.299 * x01[:, 0] + 0.587 * x01[:, 1] + 0.114 * x01[:, 2]).unsqueeze(1)
+    else:
+        lum = x01.mean(dim=1, keepdim=True)
+    kx = torch.tensor(
+        [[-1.0, 0.0, 1.0], [-2.0, 0.0, 2.0], [-1.0, 0.0, 1.0]],
+        device=x01.device, dtype=x01.dtype).view(1, 1, 3, 3) / 8.0
+    ky = kx.transpose(-1, -2)
+    gx = F.conv2d(F.pad(lum, (1, 1, 1, 1), mode="reflect"), kx)
+    gy = F.conv2d(F.pad(lum, (1, 1, 1, 1), mode="reflect"), ky)
+
+    rad = max(1, int(round(3.0 * sigma)))
+    coords = torch.arange(-rad, rad + 1, device=x01.device, dtype=x01.dtype)
+    k1 = torch.exp(-(coords ** 2) / (2.0 * sigma ** 2))
+    k1 = k1 / k1.sum()
+
+    def smooth(t):
+        t = F.conv2d(F.pad(t, (rad, rad, 0, 0), mode="reflect"), k1.view(1, 1, 1, -1))
+        return F.conv2d(F.pad(t, (0, 0, rad, rad), mode="reflect"), k1.view(1, 1, -1, 1))
+
+    jxx, jxy, jyy = (smooth(t) for t in (gx * gx, gx * gy, gy * gy))
+    tr = jxx + jyy
+    disc = torch.sqrt(torch.clamp(((jxx - jyy) * 0.5) ** 2 + jxy ** 2, min=0.0))
+    coh = (2.0 * disc) / (tr + eps)
+    flat = tr.reshape(tr.shape[0], -1)
+    ref = torch.quantile(flat, energy_quantile, dim=1).clamp_min(eps)
+    ref = ref.view(-1, 1, 1, 1)
     return (1.0 - coh ** 2) * torch.clamp(tr / ref, 0.0, 1.0)
 
 
@@ -202,11 +264,14 @@ class PhaseResidual(ResidualModule):
         block: int = 32,
         hop: Optional[int] = None,
         r_min: float = 0.25,
+        r_max: float = float("inf"),
         theta_max: float = math.pi,
         energy_quantile: float = 0.5,
         init_std: float = 0.0,
         seed: Optional[int] = None,
         gl_iters: int = 0,
+        pixel_gate_sigma: float = 0.0,
+        gain_max: float = 0.0,
     ):
         super().__init__()
         if block % 2 != 0:
@@ -224,9 +289,30 @@ class PhaseResidual(ResidualModule):
         self.hop = hop
         self.pad = block // 2
         self.r_min = r_min
+        self.r_max = r_max
         self.theta_max = theta_max
         self.energy_quantile = energy_quantile
         self.gl_iters = gl_iters
+        # > 0 時在重疊相加之後再乘一層**逐像素**的紋理遮罩（見
+        # `pixel_texture_mask`）。**預設 0 表示關閉**，此時整條路徑與加這個
+        # 選項之前逐位元相同——SDEdit 那條凍結的線必須能逐位重跑。
+        if pixel_gate_sigma < 0:
+            raise ValueError(f"pixel_gate_sigma 不可為負，收到 {pixel_gate_sigma}")
+        self.pixel_gate_sigma = pixel_gate_sigma
+        # > 0 時幅度譜也可學：spec' = |spec|·exp(g)·exp(i(phi + theta))。
+        # **預設 0 表示關閉**，此時整條路徑與加這個選項之前逐位元相同。
+        #
+        # 為什麼是**乘性**而不是加性：加一項 `+ a·exp(i·psi)` 等於在頻譜上做
+        # 加性擾動，換個座標寫而已，會放棄非加性的主張。乘性增益仍然是對
+        # 影像自己的能量做重參數化——平坦區 |spec| ~ 0，乘上 exp(g) 還是 0，
+        # 故它**不會**把擾動鋪到平坦背景（2026-08-21 已向使用者說明）。
+        #
+        # 它換到的是另外兩件事：g 沒有週期性，**失真的天花板被拆掉**（相位
+        # 加到 pi 就繞回去，這是 sigma=1 那條臂在 DISTS 0.049 卡住的原因）；
+        # 而且它動的是能量大小，卷積編碼器對這一維比對相位敏感。
+        if gain_max < 0:
+            raise ValueError(f"gain_max 不可為負，收到 {gain_max}")
+        self.gain_max = gain_max
 
         padded = size + 2 * self.pad
         if (padded - block) % hop != 0:
@@ -248,10 +334,14 @@ class PhaseResidual(ResidualModule):
         else:
             init = torch.zeros(1, self.n_blocks, *nbins)
         self.theta = nn.Parameter(init)
+        # 對數增益，與 theta 同形、同樣三通道共用。一律建立（讓 state_dict
+        # 穩定），但 gain_max = 0 時前向完全不碰它。
+        self.gain = nn.Parameter(torch.zeros(1, self.n_blocks, *nbins))
 
         self.register_buffer("window", torch.zeros(block, block), persistent=False)
         self.register_buffer("freq_gate", torch.zeros(*nbins), persistent=False)
         self.register_buffer("tex_gate", torch.zeros(1, self.n_blocks), persistent=False)
+        self.pixel_mask = None
         self._gates_ready = False
 
     # ---- 閘 ----
@@ -272,12 +362,20 @@ class PhaseResidual(ResidualModule):
         """
         device, dtype = x01.device, x01.dtype
         self.window = hann2d(self.block, device, dtype)
-        self.freq_gate = radial_gate(self.block, self.r_min, device, dtype)
+        self.freq_gate = radial_gate(self.block, self.r_min, device, dtype,
+                                     self.r_max)
         tex = texture_gate(x01, self.block, self.hop, self.energy_quantile)
         if keep is not None:
             tex = tex * block_mean(keep.to(device=device, dtype=dtype),
                                    self.block, self.hop)
         self.tex_gate = tex.detach()
+        if self.pixel_gate_sigma > 0:
+            m = pixel_texture_mask(x01, self.pixel_gate_sigma, self.energy_quantile)
+            if keep is not None:
+                m = m * keep.to(device=device, dtype=dtype)
+            self.pixel_mask = m.detach()
+        else:
+            self.pixel_mask = None
         self._gates_ready = True
 
     def gate(self) -> torch.Tensor:
@@ -347,22 +445,43 @@ class PhaseResidual(ResidualModule):
         shift = (shift * self.gate()).unsqueeze(1)                   # (1,1,L,n,nb)
 
         spec = self.analyze(x01)
-        x_def = self.synthesize(rotate_spectrum(spec, shift))
+        rot = rotate_spectrum(spec, shift)
+        if self.gain_max > 0:
+            # (1,L,n,nb) → (1,1,L,n,nb)，與 spec 的 (B,C,L,n,nb) 廣播。
+            # 套的是**同一個閘**：增益與相位被允許出現的位置完全一致，
+            # 這樣兩者的比較才是乾淨的「動什麼」而不是「動哪裡」。
+            g = torch.clamp(self.gain, -self.gain_max, self.gain_max)
+            rot = rot * torch.exp(g * self.gate()).unsqueeze(1)
+        x_def = self.synthesize(rot)
 
-        # Griffin-Lim 的迭代投影：反覆把幅度換回原圖的，逼近「相位被轉過、
-        # 幅度未變」那個一般不存在的訊號。gl_iters = 0 時整段不執行，
-        # 行為與加這個選項之前逐位相同。
-        target_mag = spec.abs()
+        # Griffin-Lim 的迭代投影：反覆把幅度換回**目標**幅度，逼近「相位被
+        # 轉過、幅度為目標值」那個一般不存在的訊號。gl_iters = 0 時整段不
+        # 執行，行為與加這個選項之前逐位相同。
+        #
+        # 增益開著時目標必須是**改過的**幅度 `rot.abs()`，用 `spec.abs()`
+        # 會把增益整個投影掉。關著時仍用 `spec.abs()`——它與 rot.abs() 在
+        # 浮點上未必逐位相同，而既有批次要能逐位重跑。
+        target_mag = rot.abs() if self.gain_max > 0 else spec.abs()
         for _ in range(self.gl_iters):
             x_def = self.synthesize(
                 replace_magnitude(self.analyze(x_def), target_mag))
+
+        if self.pixel_mask is not None:
+            # 逐像素混合：擾動只落在紋理遮罩允許的像素上。**這一步不改變
+            # 相位旋轉本身**，只限制它的效果被允許出現在哪裡——即模組
+            # docstring 原本就宣稱、但逐區塊的閘沒有兌現的那件事。
+            x_def = x01 + self.pixel_mask * (x_def - x01)
         return x_def
 
     # ---- 診斷 ----
 
     @torch.no_grad()
     def amplitude_deviation(self, x01: torch.Tensor) -> float:
-        """整張圖層級的局部幅度譜相對偏差。構造上應接近 0（模組 docstring）。"""
+        """整張圖層級的局部幅度譜相對偏差。
+
+        **只有 `gain_max == 0` 時構造上才應接近 0**（模組 docstring）。增益
+        開著時幅度是被刻意改動的，這個量會是有限值而非誤差，不可當診斷用。
+        """
         x_def = self.pixel_residual(x01)
         a = self.analyze(x01).abs()
         b = self.analyze(x_def).abs()

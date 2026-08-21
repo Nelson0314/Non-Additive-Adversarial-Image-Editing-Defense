@@ -1,4 +1,0 @@
-image_id,objective,target,w_pixel,band,gamma_acut,a2_reached,a2_stop_step,a1_best_step,free_best_step,path_minus_vae_lpips,resp_a1_dists,resp_a2_dists,resp_ratio,n_tunable,floor_lpips,floor_dists,floor_psnr,floor_acutance_ratio,free_lpips,free_dists,free_psnr,free_acutance_ratio,a1_lpips,a1_dists,a1_psnr,a1_acutance_ratio,a2_lpips,a2_dists,a2_psnr,a2_acutance_ratio
-horse_00,dists,0.0186,0.15,0.0944,1.0,True,0,160,100,0.0,0.0078,0.0078,1.0,35715,0.1581,0.0372,28.5298,0.9056,0.167,0.0024,28.9775,0.8112,0.1603,0.0017,28.735,0.9409,0.1603,0.0017,28.735,0.9409
-man_00,dists,0.0117,0.15,0.05,1.0,True,0,140,200,0.0,0.0098,0.0098,1.0,35715,0.0851,0.0234,33.8247,0.956,0.105,0.0019,34.5037,0.9358,0.1056,0.0025,33.8009,1.0344,0.1056,0.0025,33.8009,1.0344
-bird_03,dists,0.0134,0.15,0.05,1.0,True,0,200,180,-0.0,0.0087,0.0087,1.0,35715,0.1146,0.0268,31.7653,0.9593,0.1266,0.0011,32.6944,0.9161,0.1246,0.0013,32.0698,1.0139,0.1246,0.0013,32.0698,1.0139

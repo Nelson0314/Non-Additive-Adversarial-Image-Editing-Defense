@@ -91,10 +91,20 @@ def main() -> None:
     ap.add_argument("--target", type=Path, default=Path(TARGET_IMAGE))
     ap.add_argument("--steps", type=int, default=100)
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--attacker", choices=("sd", "ip2p"), default="sd",
+                    help="損失裡的 E 用誰的 VAE。**主線（DEC-031）是 ip2p**——"
+                         "θ 的門檻若用 SD 1.4 的編碼器定出來，擾動被推去的位置"
+                         "與實際攻擊方的編碼器不一致，門檻就不是主線的門檻。"
+                         "預設留 sd 是為了讓 SDEdit 那條凍結的線逐位可重跑")
     args = ap.parse_args()
     args.out.mkdir(parents=True, exist_ok=True)
 
-    sd = SDWrapper(MODEL_NAME, dtype=torch.float32)
+    if args.attacker == "ip2p":
+        from src.models.ip2p import IP2PWrapper
+
+        sd = IP2PWrapper(dtype=torch.float32)
+    else:
+        sd = SDWrapper(MODEL_NAME, dtype=torch.float32)
     suite = MetricSuite(device=sd.device)
     loss_fn = make_encoder_target_loss(
         sd, load_image_tensor(args.target, sd.device, size=RESOLUTION))
@@ -122,7 +132,7 @@ def main() -> None:
                 save_image(x_def, args.out / f"{item['name']}__{tag}__def.png")
 
                 row = {"image": item["name"], "condition": cond,
-                       "radius": round(radius, 5),
+                       "radius": round(radius, 5), "attacker": args.attacker,
                        "seconds": round(time.time() - t0, 1)}
                 row.update({k: round(v, 5) for k, v in suite.pairwise(x01, x_def).items()})
                 row.update({k: round(v, 5) for k, v in extra_metrics(x01, x_def).items()})

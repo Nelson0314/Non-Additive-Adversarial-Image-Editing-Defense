@@ -1,0 +1,43 @@
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 4459.29it/s]
+Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00,  9.72it/s]Loading pipeline components...:  67%|██████▋   | 4/6 [00:00<00:00, 13.34it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 15.06it/s]
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+IP2P 線：5 張、條件 ['dct_shield']、steps=100 s_T=7.5 s_I=1.5 seed=20260812
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,1.0]
+  warnings.warn(
+    [dct_shield] step    0 loss 114.3080
+    [dct_shield] step  250 loss 54.9050
+    [dct_shield] step  500 loss 52.3021
+    [dct_shield] step  750 loss 49.9970
+    [dct_shield] step  999 loss 48.4198
+task_attr_mod_color_76641        dct_shield     r=1.0000 dists=0.0482 lpips=0.5357 effect=0.7405 (567s)
+    [dct_shield] step    0 loss 107.1240
+    [dct_shield] step  250 loss 61.4296
+    [dct_shield] step  500 loss 59.0167
+    [dct_shield] step  750 loss 57.3342
+    [dct_shield] step  999 loss 55.8965
+task_env_weather_9736            dct_shield     r=1.0000 dists=0.0265 lpips=0.4287 effect=0.6709 (569s)
+    [dct_shield] step    0 loss 116.7065
+    [dct_shield] step  250 loss 55.1391
+    [dct_shield] step  500 loss 52.7748
+    [dct_shield] step  750 loss 51.0189
+    [dct_shield] step  999 loss 49.6423
+task_obj_add_767982              dct_shield     r=1.0000 dists=0.0624 lpips=0.5510 effect=0.7797 (569s)
+    [dct_shield] step    0 loss 105.4484
+    [dct_shield] step  250 loss 48.7499
+    [dct_shield] step  500 loss 44.8242
+    [dct_shield] step  750 loss 42.4471
+    [dct_shield] step  999 loss 40.6023
+task_obj_remove_869495           dct_shield     r=1.0000 dists=0.0379 lpips=0.3691 effect=0.7935 (567s)
+    [dct_shield] step    0 loss 129.4243
+    [dct_shield] step  250 loss 57.4437
+    [dct_shield] step  500 loss 54.8089
+    [dct_shield] step  750 loss 53.1417
+    [dct_shield] step  999 loss 51.6154
+task_obj_swap_rand_mask_79926    dct_shield     r=1.0000 dists=0.0624 lpips=0.5210 effect=0.7765 (568s)
+
+表：runs/fair0820/b/dct_14/results.csv（5 列）

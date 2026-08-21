@@ -66,10 +66,11 @@ PHASE_RADIUS_LO = 0.05
 
 
 def build(name: str, seed: int, block: int = 32, r_min: float = 0.12,
-          quantile: float = 0.5, gl_iters: int = 0):
+          quantile: float = 0.5, gl_iters: int = 0, pixel_gate_sigma: float = 0.0,
+          gain_ratio: float = 0.0, r_max: float = float("inf")):
     """`block`／`r_min`／`quantile` 是相位算子的三個構造設定。
 
-    預設值是 2026-08-13 的定案（`docs/MAINLINE.md` §4）。開放成參數是為了掃描
+    預設值是 現行定案（`docs/METHOD.md` §4）。開放成參數是為了掃描
     「約束落在哪個頻帶、哪些區塊」對效果與失真的取捨——三者都改變**閘**，
     也就是改變擾動被允許出現的位置，不改變損失或更新規則。
     """
@@ -77,10 +78,29 @@ def build(name: str, seed: int, block: int = 32, r_min: float = 0.12,
         return AdditiveParam(radius=ADD_RADIUS_HI), ADD_RADIUS_LO, ADD_RADIUS_HI
     if name == "phase":
         return (PhaseParam(size=RESOLUTION, block=block, r_min=r_min,
-                           energy_quantile=quantile, gl_iters=gl_iters),
+                           r_max=r_max,
+                           energy_quantile=quantile, gl_iters=gl_iters,
+                           pixel_gate_sigma=pixel_gate_sigma),
                 PHASE_RADIUS_LO, math.pi)
+    if name in ("phase_gain", "gain_only"):
+        # 2026-08-21 的改動一：幅度譜也可學。`gain_only` 把 theta 凍結在 0，
+        # 用來分辨「幅度單獨有沒有用」與「兩者是否相加」。
+        #
+        # **上界不是 pi**：相位是週期量所以封頂在 pi，增益不是，這正是加它的
+        # 主要理由。上界取 8.0 是本專案指定的掃描上限，沒有出處——超過那裡
+        # exp(8) ~ 3000 倍，影像早就毀了，掃上去只是浪費機時。
+        if gain_ratio <= 0:
+            raise ValueError(f"{name} 需要 gain_ratio > 0，收到 {gain_ratio}")
+        return (PhaseParam(size=RESOLUTION, block=block, r_min=r_min,
+                           r_max=r_max,
+                           energy_quantile=quantile, gl_iters=gl_iters,
+                           pixel_gate_sigma=pixel_gate_sigma,
+                           gain_ratio=gain_ratio,
+                           phase_on=(name == "phase_gain")),
+                PHASE_RADIUS_LO, 8.0)
     if name == "phase_rand":
         return (RandomPhaseParam(size=RESOLUTION, block=block, r_min=r_min,
+                                 r_max=r_max,
                                  energy_quantile=quantile, gl_iters=gl_iters),
                 PHASE_RADIUS_LO, math.pi)
     raise ValueError(f"未知條件 {name}")

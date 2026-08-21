@@ -1,0 +1,2 @@
+image,condition,attacker,instruction,task,radius,unreachable,pixel_gate_sigma,edit_steps,s_t,s_i,edit_seed,modified_from_paper,fid_lpips,fid_ssim,fid_psnr,fid_vif_p,fid_dists,edit_lpips,edit_ssim,edit_psnr,edit_vif_p,edit_dists,fid_linf,fid_rms,total_seconds
+task_obj_remove_410264,phase,instruct-pix2pix,Remove short hair,,3.141593,False,1.0,100,7.5,1.5,20260812,False,0.14527,0.98875,38.282,0.77791,0.01413,0.15824,0.94156,25.984,0.56517,0.06464,0.40834,0.01219,125.8

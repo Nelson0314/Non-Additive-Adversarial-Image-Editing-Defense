@@ -1,40 +1,0 @@
-Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
-Fetching 14 files:   0%|          | 0/14 [00:00<?, ?it/s]Fetching 14 files:  14%|█▍        | 2/14 [00:00<00:01,  8.96it/s]Fetching 14 files:  64%|██████▍   | 9/14 [00:00<00:00, 21.47it/s]Fetching 14 files:  79%|███████▊  | 11/14 [00:19<00:00, 21.47it/s]Fetching 14 files:  86%|████████▌ | 12/14 [01:23<00:18,  9.34s/it]Fetching 14 files:  93%|█████████▎| 13/14 [01:38<00:10, 10.13s/it]Fetching 14 files: 100%|██████████| 14/14 [02:10<00:00, 13.85s/it]Fetching 14 files: 100%|██████████| 14/14 [02:10<00:00,  9.34s/it]
-Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  50%|█████     | 3/6 [00:00<00:00, 27.34it/s]
-Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 4005.88it/s]
-Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 16.02it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 17.07it/s]
-There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
-There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
-/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
-  warnings.warn(
-/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
-  warnings.warn(msg)
-[bird_03] vae_roundtrip(fp32) lpips=0.1330 psnr=30.10 ssim=0.9254
-[cat_02] vae_roundtrip(fp32) lpips=0.2398 psnr=24.32 ssim=0.7788
-[dog_03] vae_roundtrip(fp32) lpips=0.1403 psnr=26.33 ssim=0.8735
-[bird_03] recon k_inv=10 t_max=999 exact=False lpips=0.5729 psnr=20.40
-[cat_02] recon k_inv=10 t_max=999 exact=False lpips=0.6958 psnr=18.71
-[dog_03] recon k_inv=10 t_max=999 exact=False lpips=0.6835 psnr=16.40
-[bird_03] recon k_inv=10 t_max=999 exact=True lpips=0.1330 psnr=30.10
-[cat_02] recon k_inv=10 t_max=999 exact=True lpips=0.2398 psnr=24.32
-[dog_03] recon k_inv=10 t_max=999 exact=True lpips=0.1403 psnr=26.33
-[bird_03] recon k_inv=10 t_max=500 exact=False lpips=0.2633 psnr=27.29
-[cat_02] recon k_inv=10 t_max=500 exact=False lpips=0.4709 psnr=22.06
-[dog_03] recon k_inv=10 t_max=500 exact=False lpips=0.2358 psnr=24.48
-[bird_03] recon k_inv=10 t_max=500 exact=True lpips=0.1330 psnr=30.10
-[cat_02] recon k_inv=10 t_max=500 exact=True lpips=0.2398 psnr=24.32
-[dog_03] recon k_inv=10 t_max=500 exact=True lpips=0.1403 psnr=26.33
-[bird_03] recon k_inv=10 t_max=300 exact=False lpips=0.1921 psnr=29.23
-[cat_02] recon k_inv=10 t_max=300 exact=False lpips=0.3074 psnr=24.16
-[dog_03] recon k_inv=10 t_max=300 exact=False lpips=0.1754 psnr=25.95
-[bird_03] recon k_inv=10 t_max=300 exact=True lpips=0.1330 psnr=30.10
-[cat_02] recon k_inv=10 t_max=300 exact=True lpips=0.2398 psnr=24.32
-[dog_03] recon k_inv=10 t_max=300 exact=True lpips=0.1403 psnr=26.33
-[bird_03] recon k_inv=10 t_max=200 exact=False lpips=0.1653 psnr=29.78
-[cat_02] recon k_inv=10 t_max=200 exact=False lpips=0.2701 psnr=24.43
-[dog_03] recon k_inv=10 t_max=200 exact=False lpips=0.1554 psnr=26.22
-[bird_03] recon k_inv=10 t_max=200 exact=True lpips=0.1330 psnr=30.10
-[cat_02] recon k_inv=10 t_max=200 exact=True lpips=0.2398 psnr=24.32
-[dog_03] recon k_inv=10 t_max=200 exact=True lpips=0.1403 psnr=26.33
-→ /nfs/home/nelson0314/wacv_runs/diag_v14/vae_floor.csv
-[exit 0]

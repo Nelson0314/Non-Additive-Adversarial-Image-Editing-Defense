@@ -1,0 +1,24 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 5443.65it/s]
+Loading pipeline components...:  17%|█▋        | 1/6 [00:00<00:00,  6.00it/s]Loading pipeline components...:  50%|█████     | 3/6 [00:00<00:00, 11.73it/s]Loading pipeline components...:  83%|████████▎ | 5/6 [00:00<00:00, 14.14it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 15.19it/s]
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/venv/main/lib/python3.12/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/venv/main/lib/python3.12/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+IP2P 線：6 張、條件 ['phase', 'dct_shield']、steps=100 s_T=7.5 s_I=1.5 seed=20260812
+/venv/main/lib/python3.12/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,1.0]
+  warnings.warn(
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 25072.97it/s]
+[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
+[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
+Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 4644.67it/s]
+task_attr_mod_color_32648        clip_gain=+0.0207 lpips=0.5351 (57s)
+task_env_weather_181583          clip_gain=+0.0087 lpips=0.2694 (38s)
+task_obj_add_340466              clip_gain=+0.0245 lpips=0.2272 (40s)
+task_obj_remove_10197            clip_gain=+0.0992 lpips=0.5343 (40s)
+task_obj_remove_657585           clip_gain=-0.0540 lpips=0.2593 (41s)
+task_obj_swap_rand_mask_298147   clip_gain=-0.0066 lpips=0.2756 (41s)
+
+表：runs/t0820/check_3/check.csv（6 列）

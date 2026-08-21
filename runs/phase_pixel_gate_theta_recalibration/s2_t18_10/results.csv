@@ -1,0 +1,2 @@
+image,condition,attacker,instruction,task,radius,unreachable,pixel_gate_sigma,edit_steps,s_t,s_i,edit_seed,modified_from_paper,fid_lpips,fid_ssim,fid_psnr,fid_vif_p,fid_dists,edit_lpips,edit_ssim,edit_psnr,edit_vif_p,edit_dists,fid_linf,fid_rms,total_seconds
+task_obj_remove_869495,phase,instruct-pix2pix,Remove child,,1.8,False,2.0,100,7.5,1.5,20260812,False,0.31179,0.87118,22.128,0.47431,0.06901,0.4149,0.53235,18.126,0.21979,0.12662,0.74774,0.07827,117.7

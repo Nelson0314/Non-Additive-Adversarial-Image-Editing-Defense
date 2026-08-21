@@ -1,26 +1,0 @@
-[run] device=cuda sites=['P', 'L'] ranks=[4] steps=20
-Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
-Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]
-Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 8549.66it/s]
-Loading pipeline components...:  50%|█████     | 3/6 [00:00<00:00, 17.50it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 19.54it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 19.20it/s]
-/work/nelson0314/miniconda3/envs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
-  warnings.warn(
-/work/nelson0314/miniconda3/envs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
-  warnings.warn(msg)
-[run] 影像 1 張：['car_00']
-[run] 訓練期淨化集 ['identity', 'blur', 'jpeg']
-
-[run] car_00__P__r4  prompt='a wrecked car after an accident'
-  step    0  loss=0.5000  L_def=0.5000  L_fid=0.0000  shift=0.0000  psnr=120.00  linf=0.0000  |g|=5.049e-10
-  step   10  loss=15.3246  L_def=0.1184  L_fid=15.2062  shift=0.3816  psnr=28.19  linf=0.2094  |g|=1.000e+00
-  step   19  loss=20.2313  L_def=0.1126  L_fid=20.1188  shift=0.3874  psnr=27.85  linf=0.2585  |g|=1.000e+00
-[run] car_00__P__r4 完成 78s peak=10131MB shift=0.3874 psnr=27.85 eff_rank=457.0
-
-[run] car_00__L__r4  prompt='a wrecked car after an accident'
-/work/nelson0314/miniconda3/envs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
-  warnings.warn(
-/work/nelson0314/miniconda3/envs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
-  warnings.warn(msg)
-  step    0  loss=101.2375  L_def=0.3990  L_fid=100.8385  shift=0.1010  psnr=19.61  linf=1.0000  |g|=1.581e-02
-  step   10  loss=85.8339  L_def=0.0972  L_fid=85.7367  shift=0.4028  psnr=20.62  linf=0.8595  |g|=1.000e+00
-  step   19  loss=76.1422  L_def=0.0786  L_fid=76.0636  shift=0.4214  psnr=20.17  linf=0.7575  |g|=1.000e+00

@@ -1,0 +1,33 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3275.64it/s]
+Loading pipeline components...:  17%|█▋        | 1/6 [00:00<00:00,  5.88it/s]Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00,  6.29it/s]Loading pipeline components...:  67%|██████▋   | 4/6 [00:00<00:00, 10.99it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 13.95it/s]
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+IP2P 線：19 張、條件 ['phase_rand']、steps=100 s_T=7.5 s_I=1.5 seed=20260812
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,1.0]
+  warnings.warn(
+task_attr_mod_color_123744       phase_rand     r=1.0800 dists=0.0387 lpips=0.0489 effect=0.0677 (46s)
+task_attr_mod_color_174506       phase_rand     r=1.0800 dists=0.0465 lpips=0.0723 effect=0.1306 (46s)
+task_attr_mod_color_32648        phase_rand     r=1.0800 dists=0.0322 lpips=0.0375 effect=0.0622 (46s)
+task_attr_mod_color_71985        phase_rand     r=1.0800 dists=0.0543 lpips=0.0740 effect=0.1027 (46s)
+task_env_weather_126577          phase_rand     r=1.0800 dists=0.0279 lpips=0.0494 effect=0.2656 (46s)
+task_env_weather_181583          phase_rand     r=1.0800 dists=0.0282 lpips=0.0492 effect=0.0952 (46s)
+task_env_weather_39740           phase_rand     r=1.0800 dists=0.0425 lpips=0.0771 effect=0.1516 (46s)
+task_env_weather_9736            phase_rand     r=1.0800 dists=0.0624 lpips=0.0753 effect=0.1210 (46s)
+task_obj_add_340466              phase_rand     r=1.0800 dists=0.0801 lpips=0.0851 effect=0.1817 (46s)
+task_obj_add_44802               phase_rand     r=1.0800 dists=0.0735 lpips=0.0706 effect=0.1408 (46s)
+task_obj_add_669258              phase_rand     r=1.0800 dists=0.0570 lpips=0.1236 effect=0.1692 (46s)
+task_obj_remove_10197            phase_rand     r=1.0800 dists=0.0382 lpips=0.0706 effect=0.1548 (46s)
+task_obj_remove_284852           phase_rand     r=1.0800 dists=0.0450 lpips=0.0509 effect=0.1063 (46s)
+task_obj_remove_483219           phase_rand     r=1.0800 dists=0.0747 lpips=0.0599 effect=0.1138 (46s)
+task_obj_remove_657585           phase_rand     r=1.0800 dists=0.0313 lpips=0.0387 effect=0.2016 (46s)
+task_obj_swap_joint_mask_337228  phase_rand     r=1.0800 dists=0.0672 lpips=0.0795 effect=0.1187 (46s)
+task_obj_swap_joint_mask_698465  phase_rand     r=1.0800 dists=0.0692 lpips=0.0654 effect=0.0937 (46s)
+task_obj_swap_rand_mask_298147   phase_rand     r=1.0800 dists=0.0772 lpips=0.1591 effect=0.2007 (46s)
+task_obj_swap_rand_mask_660100   phase_rand     r=1.0800 dists=0.0576 lpips=0.0834 effect=0.1307 (46s)
+
+表：runs/fair0820/b/phase_rand_1/results.csv（19 列）

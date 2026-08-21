@@ -1,0 +1,7 @@
+image,condition,attacker,instruction,task,radius,unreachable,edit_steps,s_t,s_i,edit_seed,modified_from_paper,fid_lpips,fid_ssim,fid_psnr,fid_vif_p,fid_dists,edit_lpips,edit_ssim,edit_psnr,edit_vif_p,edit_dists,fid_linf,fid_rms,total_seconds
+task_attr_mod_color_136767,phase,instruct-pix2pix,turn the color of astronaut to pink,,2.0,False,100,7.5,1.5,20260812,False,0.22288,0.92872,27.03,0.45787,0.10807,0.26098,0.74453,22.024,0.32109,0.17842,0.45803,0.04452,76.3
+task_env_weather_112463,phase,instruct-pix2pix,transform the setting to spring with blooming flowers,,2.0,False,100,7.5,1.5,20260812,False,0.23311,0.91592,29.431,0.53709,0.04985,0.33283,0.71418,20.351,0.24887,0.13879,0.37673,0.03376,77.2
+task_env_weather_63722,phase,instruct-pix2pix,change the setting to a snowy landscape,,2.0,False,100,7.5,1.5,20260812,False,0.21905,0.91776,24.455,0.43243,0.09426,0.25685,0.78616,20.459,0.28083,0.1334,0.61987,0.05988,77.8
+task_obj_add_581286,phase,instruct-pix2pix,Add sauce,,2.0,False,100,7.5,1.5,20260812,False,0.1722,0.95671,33.949,0.65406,0.061,0.18341,0.8714,26.47,0.58221,0.13633,0.46808,0.02007,77.8
+task_obj_remove_380621,phase,instruct-pix2pix,Remove iceberg,,2.0,False,100,7.5,1.5,20260812,False,0.29651,0.92393,26.696,0.53798,0.08236,0.50566,0.58255,13.594,0.20667,0.26297,0.7758,0.04626,77.7
+task_obj_swap_joint_mask_533428,phase,instruct-pix2pix,Replace the samurai armor with red jacket,,2.0,False,100,7.5,1.5,20260812,False,0.34345,0.87253,23.278,0.39808,0.11377,0.39376,0.55565,16.134,0.19645,0.19363,0.69965,0.06857,77.1

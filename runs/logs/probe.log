@@ -1,120 +1,0 @@
-Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
-[run] device=cuda sites=['C'] ranks=[32] steps=60
-Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]
-Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 11663.90it/s]
-Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00, 17.30it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 27.20it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 25.71it/s]
-/home/zeus/miniconda3/envs/cloudspace/lib/python3.12/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
-  warnings.warn(
-/home/zeus/miniconda3/envs/cloudspace/lib/python3.12/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
-  warnings.warn(msg)
-[run] 影像 2 張：['car_00', 'car_01']
-[run] 訓練期淨化集 ['identity', 'blur', 'jpeg']
-
-[run] car_00__C__r32  prompt='a wrecked car after an accident'
-/teamspace/studios/this_studio/WACV/src/defense/objective.py:342: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
-Consider using tensor.detach() first. (Triggered internally at /pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:835.)
-  "fid_linf_total": float((xd - xr).abs().max()),
-  step    0  loss=1.0000  L_def=1.0000  L_fid=0.0000  shift=0.0000  psnr=120.00  linf=0.0000  |g|=1.805e-06
-  step   10  loss=0.6157  L_def=0.5682  L_fid=0.0475  shift=0.4318  psnr=28.21  linf=0.6904  |g|=2.404e-02
-  step   20  loss=0.7154  L_def=0.6880  L_fid=0.0275  shift=0.3120  psnr=29.10  linf=0.4608  |g|=2.708e-02
-  step   30  loss=0.7083  L_def=0.6701  L_fid=0.0383  shift=0.3299  psnr=27.23  linf=0.7104  |g|=2.318e-02
-  step   40  loss=0.5937  L_def=0.5506  L_fid=0.0431  shift=0.4494  psnr=26.14  linf=0.6789  |g|=1.821e-02
-  step   50  loss=0.6478  L_def=0.6006  L_fid=0.0472  shift=0.3994  psnr=25.37  linf=0.8953  |g|=2.765e-02
-  step   59  loss=0.6341  L_def=0.5980  L_fid=0.0361  shift=0.4020  psnr=25.81  linf=0.7558  |g|=2.188e-02
-[run] car_00__C__r32 完成 147s peak=10320MB shift=0.4020 psnr=25.81 eff_rank=511.0
-
-[run] car_01__C__r32  prompt='a wrecked car after an accident'
-/home/zeus/miniconda3/envs/cloudspace/lib/python3.12/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
-  warnings.warn(
-/home/zeus/miniconda3/envs/cloudspace/lib/python3.12/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
-  warnings.warn(msg)
-  step    0  loss=1.0000  L_def=1.0000  L_fid=0.0000  shift=0.0000  psnr=120.00  linf=0.0000  |g|=2.138e-06
-  step   10  loss=0.6131  L_def=0.5704  L_fid=0.0427  shift=0.4296  psnr=36.07  linf=0.1097  |g|=3.240e-02
-  step   20  loss=0.6713  L_def=0.6465  L_fid=0.0248  shift=0.3535  psnr=36.69  linf=0.0985  |g|=3.180e-02
-  step   30  loss=0.6671  L_def=0.6310  L_fid=0.0361  shift=0.3690  psnr=36.28  linf=0.1234  |g|=1.460e-02
-  step   40  loss=0.5867  L_def=0.5499  L_fid=0.0367  shift=0.4501  psnr=35.47  linf=0.1529  |g|=1.304e-02
-  step   50  loss=0.6381  L_def=0.6036  L_fid=0.0345  shift=0.3964  psnr=34.77  linf=0.1579  |g|=1.165e-02
-  step   59  loss=0.6273  L_def=0.5950  L_fid=0.0323  shift=0.4050  psnr=34.30  linf=0.1706  |g|=1.738e-02
-[run] car_01__C__r32 完成 147s peak=10323MB shift=0.4050 psnr=34.30 eff_rank=512.0
-
-[run] 全部完成，共 2 格，301s
-[run] device=cuda sites=['C'] ranks=[32] steps=60
-Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  50%|█████     | 3/6 [00:00<00:00, 23.48it/s]
-Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 12104.42it/s]
-Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 25.62it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 25.26it/s]
-/home/zeus/miniconda3/envs/cloudspace/lib/python3.12/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
-  warnings.warn(
-/home/zeus/miniconda3/envs/cloudspace/lib/python3.12/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
-  warnings.warn(msg)
-[run] 影像 2 張：['car_00', 'car_01']
-[run] 訓練期淨化集 ['identity', 'blur', 'jpeg']
-
-[run] car_00__C__r32  prompt='a wrecked car after an accident'
-/teamspace/studios/this_studio/WACV/src/defense/objective.py:342: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
-Consider using tensor.detach() first. (Triggered internally at /pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:835.)
-  "fid_linf_total": float((xd - xr).abs().max()),
-  step    0  loss=1.0000  L_def=1.0000  L_fid=0.0000  shift=0.0000  psnr=120.00  linf=0.0000  |g|=1.805e-06
-  step   10  loss=0.6220  L_def=0.5957  L_fid=0.0264  shift=0.4043  psnr=27.47  linf=0.4668  |g|=2.722e-02
-  step   20  loss=0.7625  L_def=0.7175  L_fid=0.0451  shift=0.2825  psnr=25.29  linf=0.6275  |g|=4.663e-02
-  step   30  loss=0.7235  L_def=0.6774  L_fid=0.0462  shift=0.3226  psnr=24.49  linf=0.6353  |g|=6.326e-02
-  step   40  loss=0.5862  L_def=0.5496  L_fid=0.0366  shift=0.4504  psnr=24.42  linf=0.5529  |g|=1.659e-02
-  step   50  loss=0.6834  L_def=0.6481  L_fid=0.0353  shift=0.3519  psnr=24.12  linf=0.8730  |g|=3.106e-02
-  step   59  loss=0.7099  L_def=0.6652  L_fid=0.0447  shift=0.3348  psnr=23.85  linf=0.9529  |g|=6.380e-02
-[run] car_00__C__r32 完成 147s peak=10320MB shift=0.3348 psnr=23.85 eff_rank=511.3
-
-[run] car_01__C__r32  prompt='a wrecked car after an accident'
-/home/zeus/miniconda3/envs/cloudspace/lib/python3.12/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
-  warnings.warn(
-/home/zeus/miniconda3/envs/cloudspace/lib/python3.12/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
-  warnings.warn(msg)
-  step    0  loss=1.0000  L_def=1.0000  L_fid=0.0000  shift=0.0000  psnr=120.00  linf=0.0000  |g|=2.138e-06
-  step   10  loss=0.6801  L_def=0.5770  L_fid=0.1032  shift=0.4230  psnr=35.27  linf=0.1567  |g|=6.689e-01
-  step   20  loss=0.6195  L_def=0.5885  L_fid=0.0310  shift=0.4115  psnr=34.30  linf=0.1627  |g|=3.712e-02
-  step   30  loss=0.5996  L_def=0.5715  L_fid=0.0281  shift=0.4285  psnr=33.97  linf=0.1492  |g|=2.638e-02
-  step   40  loss=0.5393  L_def=0.5116  L_fid=0.0277  shift=0.4884  psnr=33.86  linf=0.2149  |g|=1.761e-02
-  step   50  loss=0.5887  L_def=0.5615  L_fid=0.0271  shift=0.4385  psnr=34.12  linf=0.1884  |g|=2.039e-02
-  step   59  loss=0.5890  L_def=0.5583  L_fid=0.0307  shift=0.4417  psnr=34.07  linf=0.2398  |g|=4.853e-02
-[run] car_01__C__r32 完成 147s peak=10323MB shift=0.4417 psnr=34.07 eff_rank=512.0
-
-[run] 全部完成，共 2 格，300s
-Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
-[run] device=cuda sites=['P'] ranks=[16] steps=60
-Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]
-Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 10647.92it/s]
-Loading pipeline components...:  50%|█████     | 3/6 [00:00<00:00, 20.73it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 25.49it/s]
-/home/zeus/miniconda3/envs/cloudspace/lib/python3.12/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
-  warnings.warn(
-/home/zeus/miniconda3/envs/cloudspace/lib/python3.12/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
-  warnings.warn(msg)
-[run] 影像 2 張：['car_00', 'car_01']
-[run] 訓練期淨化集 ['identity', 'blur', 'jpeg']
-
-[run] car_00__P__r16  prompt='a wrecked car after an accident'
-/teamspace/studios/this_studio/WACV/src/defense/objective.py:342: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
-Consider using tensor.detach() first. (Triggered internally at /pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:835.)
-  "fid_linf_total": float((xd - xr).abs().max()),
-  step    0  loss=1.0000  L_def=1.0000  L_fid=0.0000  shift=0.0000  psnr=120.00  linf=0.0000  |g|=0.000e+00
-  step   10  loss=0.6143  L_def=0.6096  L_fid=0.0047  shift=0.3904  psnr=48.80  linf=0.0338  |g|=1.317e-01
-  step   20  loss=0.7479  L_def=0.7278  L_fid=0.0201  shift=0.2722  psnr=41.92  linf=0.0599  |g|=9.270e-02
-  step   30  loss=0.6791  L_def=0.6520  L_fid=0.0271  shift=0.3480  psnr=39.22  linf=0.0958  |g|=6.797e-02
-  step   40  loss=0.6131  L_def=0.5839  L_fid=0.0292  shift=0.4161  psnr=38.01  linf=0.1198  |g|=3.275e-02
-  step   50  loss=0.6831  L_def=0.6482  L_fid=0.0349  shift=0.3518  psnr=36.81  linf=0.1208  |g|=4.263e-01
-  step   59  loss=0.6487  L_def=0.6085  L_fid=0.0402  shift=0.3915  psnr=35.85  linf=0.1828  |g|=1.739e-01
-[run] car_00__P__r16 完成 148s peak=10313MB shift=0.3915 psnr=35.85 eff_rank=389.3
-
-[run] car_01__P__r16  prompt='a wrecked car after an accident'
-/home/zeus/miniconda3/envs/cloudspace/lib/python3.12/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
-  warnings.warn(
-/home/zeus/miniconda3/envs/cloudspace/lib/python3.12/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
-  warnings.warn(msg)
-  step    0  loss=1.0000  L_def=1.0000  L_fid=0.0000  shift=0.0000  psnr=120.00  linf=0.0000  |g|=0.000e+00
-  step   10  loss=0.6135  L_def=0.6088  L_fid=0.0047  shift=0.3912  psnr=48.95  linf=0.0208  |g|=4.621e-02
-  step   20  loss=0.6593  L_def=0.6347  L_fid=0.0246  shift=0.3653  psnr=41.53  linf=0.0540  |g|=1.035e-01
-  step   30  loss=0.6507  L_def=0.6167  L_fid=0.0340  shift=0.3833  psnr=39.04  linf=0.0740  |g|=1.277e-01
-  step   40  loss=0.6156  L_def=0.5764  L_fid=0.0392  shift=0.4236  psnr=37.72  linf=0.0890  |g|=3.443e-02
-  step   50  loss=0.5956  L_def=0.5577  L_fid=0.0379  shift=0.4423  psnr=37.23  linf=0.0945  |g|=2.142e-01
-  step   59  loss=0.5882  L_def=0.5484  L_fid=0.0398  shift=0.4516  psnr=36.73  linf=0.1056  |g|=1.178e-01
-[run] car_01__P__r16 完成 148s peak=10319MB shift=0.4516 psnr=36.73 eff_rank=261.3
-
-[run] 全部完成，共 2 格，303s
-PROBE_DONE

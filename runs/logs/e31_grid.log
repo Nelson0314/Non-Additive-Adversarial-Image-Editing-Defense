@@ -1,5 +1,0 @@
-=== E31 R2 主網格開始 2026-08-03T02:52:27+08:00 ===
-LR_010=0.03  LR_028=0.1
-τ=0.10：tau_acut=0.0594 tau_chroma=1.2861
-τ=0.28：tau_acut=0.1648 tau_chroma=3.4009
-scripts/drivers/e31_grid.sh: line 77: /nonexistent: No such file or directory

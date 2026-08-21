@@ -1,0 +1,3 @@
+[23:36:53] 階段 C 開始，來源 runs/fair0820/b_merged，75 張
+[00:36:59] 縮小版開始，5 張：task_attr_mod_color_11699 task_env_weather_112463 task_obj_add_13726 task_obj_remove_10197 task_obj_swap_joint_mask_276754
+[00:49:44] 縮小版完成，60 列

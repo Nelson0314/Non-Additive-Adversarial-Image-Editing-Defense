@@ -1,27 +1,0 @@
-[E0] device=cuda model=CompVis/stable-diffusion-v1-4 size=512
-[E0] GPU=Tesla V100-SXM2-32GB total=31.7 GB
-Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
-Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  67%|██████▋   | 4/6 [00:00<00:00, 37.06it/s]
-Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 8685.97it/s]
-Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 19.20it/s]
-[E0] k_inv= 5 n_edit= 5 ckpt=0  peak=  31989.7 MB    3.368 s  grad=1
-[E0] k_inv= 5 n_edit=10 ckpt=0  OOM
-[E0] k_inv= 5 n_edit=20 ckpt=0  OOM
-[E0] k_inv=10 n_edit= 5 ckpt=0  OOM
-[E0] k_inv=10 n_edit=10 ckpt=0  OOM
-[E0] k_inv=10 n_edit=20 ckpt=0  OOM
-[E0] k_inv=20 n_edit= 5 ckpt=0  OOM
-[E0] k_inv=20 n_edit=10 ckpt=0  OOM
-[E0] k_inv=20 n_edit=20 ckpt=0  OOM
-[E0] k_inv= 5 n_edit= 5 ckpt=1  peak=  18665.4 MB    4.227 s  grad=1
-[E0] k_inv= 5 n_edit=10 ckpt=1  peak=  18664.8 MB    5.628 s  grad=1
-[E0] k_inv= 5 n_edit=20 ckpt=1  peak=  18665.4 MB    8.654 s  grad=1
-[E0] k_inv=10 n_edit= 5 ckpt=1  peak=  18665.1 MB    6.023 s  grad=1
-[E0] k_inv=10 n_edit=10 ckpt=1  peak=  18665.4 MB    7.503 s  grad=1
-[E0] k_inv=10 n_edit=20 ckpt=1  peak=  18666.0 MB   10.553 s  grad=1
-[E0] k_inv=20 n_edit= 5 ckpt=1  peak=  18666.3 MB    9.830 s  grad=1
-[E0] k_inv=20 n_edit=10 ckpt=1  peak=  18666.7 MB   11.329 s  grad=1
-[E0] k_inv=20 n_edit=20 ckpt=1  peak=  18667.3 MB   14.502 s  grad=1
-
-[E0] 可行組合 10/18，結果寫入 runs/e0/e0_cost.csv
-[E0] 最大可行組合 k_inv=20 n_edit=20 ckpt=1 peak=18667.3 MB 14.502 s/iter

@@ -1,0 +1,13 @@
+image,condition,budget_target,purifier,effect_mean,effect_sd,effect_identity_mean,effect_identity_sd,retention,edit_strength,usable,seconds
+task_env_weather_112463,dct_shield,native,identity,0.74556,0.11215,0.74556,0.11215,1.0,0.8,True,822.1
+task_env_weather_112463,dct_shield,native,blur1,0.2657,0.01355,0.74556,0.11215,0.35638,0.8,True,822.1
+task_env_weather_112463,dct_shield,native,jpeg75,0.14016,0.03332,0.74556,0.11215,0.18799,0.8,True,822.1
+task_env_weather_112463,dct_shield,native,crop_resize0.1,0.72456,0.19968,0.74556,0.11215,0.97182,0.8,True,822.1
+task_obj_swap_joint_mask_533428,dct_shield,native,identity,0.59309,0.00617,0.59309,0.00617,1.0,0.8,True,821.9
+task_obj_swap_joint_mask_533428,dct_shield,native,blur1,0.38554,0.03088,0.59309,0.00617,0.65005,0.8,True,821.9
+task_obj_swap_joint_mask_533428,dct_shield,native,jpeg75,0.32965,0.03149,0.59309,0.00617,0.55582,0.8,True,821.9
+task_obj_swap_joint_mask_533428,dct_shield,native,crop_resize0.1,0.60999,0.02133,0.59309,0.00617,1.02849,0.8,True,821.9
+task_obj_add_581286,dct_shield,native,identity,0.79806,0.02843,0.79806,0.02843,1.0,0.8,True,822.5
+task_obj_add_581286,dct_shield,native,blur1,0.20172,0.00097,0.79806,0.02843,0.25276,0.8,True,822.5
+task_obj_add_581286,dct_shield,native,jpeg75,0.11677,0.00151,0.79806,0.02843,0.14632,0.8,True,822.5
+task_obj_add_581286,dct_shield,native,crop_resize0.1,0.67753,0.01234,0.79806,0.02843,0.84897,0.8,True,822.5

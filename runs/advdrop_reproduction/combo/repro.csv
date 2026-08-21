@@ -1,0 +1,3 @@
+eps,step_size,targeted,steps,n,succ_def,hard_quant,succ_none,color,jpeg_subsampling,succ_jpeg30,succ_bit6,lpips,seconds
+100.0,8.0,False,50,200,defended,False,0.995,ycbcr,0,0.4,0.99,0.18241,27.1
+100.0,12.0,False,50,200,defended,False,0.995,ycbcr,0,0.515,0.99,0.23934,27.0

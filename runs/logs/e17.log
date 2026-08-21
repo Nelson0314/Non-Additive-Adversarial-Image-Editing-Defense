@@ -1,55 +1,0 @@
-Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
-Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00, 10.64it/s]
-Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][A
-Loading weights:  28%|██▊       | 54/196 [00:00<00:00, 534.41it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 1125.31it/s]
-Loading pipeline components...:  67%|██████▋   | 4/6 [00:00<00:00,  5.48it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:01<00:00,  3.90it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:01<00:00,  4.40it/s]
-/work/nelson0314/miniconda3/envs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
-  warnings.warn(
-/work/nelson0314/miniconda3/envs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
-  warnings.warn(msg)
-[e17] 6 張影像，latent_opt 400 步 lr=0.02
-/work/nelson0314/miniconda3/envs/wacv/lib/python3.11/site-packages/huggingface_hub/utils/_validators.py:205: UserWarning: The `local_dir_use_symlinks` argument is deprecated and ignored in `hf_hub_download`. Downloading to a local directory does not use symlinks anymore.
-  warnings.warn(
-An error occurred while trying to fetch cross-attention/asymmetric-autoencoder-kl-x-1-5: cross-attention/asymmetric-autoencoder-kl-x-1-5 does not appear to have a file named diffusion_pytorch_model.safetensors.
-Defaulting to unsafe serialization. Pass `allow_pickle=False` to raise an error instead.
-[e17] 載入 cross-attention/asymmetric-autoencoder-kl-x-1-5 用時 27s
-  car_00     roundtrip   lpips=0.1609 psnr=19.96 linf=1.0000
-  car_00     latent_opt  lpips=0.0860 psnr=22.86 linf=0.8716
-  car_00     asym_free   lpips=0.1420 psnr=20.32 linf=0.9725
-  car_00     asym_leak   lpips=0.4389 psnr=11.14 linf=0.6549
-  car_00 用時 130s
-  car_01     roundtrip   lpips=0.1744 psnr=22.75 linf=0.9380
-  car_01     latent_opt  lpips=0.0993 psnr=25.11 linf=0.8763
-  car_01     asym_free   lpips=0.1589 psnr=23.05 linf=0.9765
-  car_01     asym_leak   lpips=0.5422 psnr=11.29 linf=0.6549
-  car_01 用時 129s
-  dog_00     roundtrip   lpips=0.1440 psnr=30.69 linf=0.4225
-  dog_00     latent_opt  lpips=0.0816 psnr=31.87 linf=0.4881
-  dog_00     asym_free   lpips=0.1324 psnr=31.05 linf=0.4325
-  dog_00     asym_leak   lpips=0.6720 psnr=8.80 linf=0.6014
-  dog_00 用時 129s
-  dog_01     roundtrip   lpips=0.1563 psnr=28.48 linf=0.7889
-  dog_01     latent_opt  lpips=0.0785 psnr=30.05 linf=0.6470
-  dog_01     asym_free   lpips=0.1403 psnr=28.80 linf=0.7846
-  dog_01     asym_leak   lpips=0.6104 psnr=11.92 linf=0.6588
-  dog_01 用時 130s
-  person_00  roundtrip   lpips=0.0984 psnr=33.34 linf=0.3915
-  person_00  latent_opt  lpips=0.0459 psnr=34.87 linf=0.3132
-  person_00  asym_free   lpips=0.0878 psnr=34.07 linf=0.3540
-  person_00  asym_leak   lpips=0.6608 psnr=11.74 linf=0.6275
-  person_00 用時 130s
-  person_01  roundtrip   lpips=0.1264 psnr=29.86 linf=0.7019
-  person_01  latent_opt  lpips=0.0645 psnr=31.44 linf=0.5499
-  person_01  asym_free   lpips=0.1129 psnr=30.25 linf=0.5528
-  person_01  asym_leak   lpips=0.6936 psnr=12.97 linf=0.6588
-  person_01 用時 130s
-
-==============================================================
-平均（目標：LPIPS < 0.063，即加性像素位置實際運作的失真點）
-==============================================================
-  roundtrip   lpips=0.1434  psnr=27.51  相對現況=100.0%  未達標
-  latent_opt  lpips=0.0760  psnr=29.37  相對現況= 53.0%  未達標
-  asym_free   lpips=0.1291  psnr=27.92  相對現況= 90.0%  未達標
-  asym_leak   lpips=0.6030  psnr=11.31  相對現況=420.5%  未達標
-
-注意：asym_leak 是退化對照，其 decoder 可完整看到原圖，重建好是因為把原圖抄回來，不可當成可用結果。

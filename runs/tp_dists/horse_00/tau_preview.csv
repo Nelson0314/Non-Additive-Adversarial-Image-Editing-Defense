@@ -1,3 +1,0 @@
-image_id,tau,reachable,k,lpips,psnr,note,acut,dists,metric
-horse_00,0.0,True,0.0,0.1283,26.88,φ=0，即 VAE 重建下限,,,
-horse_00,0.0994,True,0.1875,0.0969,26.41,,0.8846,0.0969,dists

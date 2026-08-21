@@ -43,6 +43,7 @@ from src.baselines.dct_shield import (  # noqa: E402
 )
 from src.baselines.encoder_target import make_encoder_target_loss  # noqa: E402
 from src.defense.param_pgd import fit_to_budget  # noqa: E402
+from src.metrics.standard import standard_row  # noqa: E402
 from src.metrics.suite import MetricSuite  # noqa: E402
 from src.models.sd import SDWrapper  # noqa: E402
 from src.utils.io import load_image_tensor, write_csv  # noqa: E402
@@ -118,7 +119,8 @@ def main() -> None:
 
             fid = suite.pairwise(x01, x_def)
             e_def = edit(x_def, item, EDIT_SEED)
-            eff = float(suite.pairwise(e_orig, e_def)["lpips"])
+            prot = suite.pairwise(e_orig, e_def)
+            eff = float(prot["lpips"])
             vutils.save_image(x_def.clamp(0, 1),
                               args.out / f"{item['name']}__{cond}__def.png")
             vutils.save_image(e_def.clamp(0, 1),
@@ -129,13 +131,13 @@ def main() -> None:
                 "image": item["name"], "condition": cond, "budget_target": "",
                 "mode": args.mode, "q_alg": q, "radius": round(radius, 6),
                 "steps": args.steps, "unreachable": unreachable,
-                "fid_lpips": round(fid["lpips"], 5),
-                "fid_dists": round(fid["dists"], 5),
-                "fid_psnr": round(fid["psnr"], 3),
-                "fid_ssim": round(fid["ssim"], 5),
+                # 統一指標清單（DEC-028）：兩個半邊各報五項成對指標。
+                # `fid_` 是 fidelity，不是 FID——後者是分布指標，由
+                # `scripts/fid_batch.py` 另算成 `frechet` 欄。
+                **standard_row("fid_", fid),
+                **standard_row("edit_", prot),
                 "fid_linf": round(fid["linf"], 5),
                 "fid_rms": round(fid["rms"], 5),
-                "edit_lpips": round(eff, 5),
                 "edit_strength": args.edit_strength,
                 "total_seconds": round(time.time() - t0, 1),
             })

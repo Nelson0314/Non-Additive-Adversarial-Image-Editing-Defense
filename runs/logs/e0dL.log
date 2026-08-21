@@ -1,22 +1,0 @@
-Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
-Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00, 12.69it/s]
-Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 8347.55it/s]
-Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 20.05it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 18.95it/s]
-[E0d] 影像 car_00，rank=4，steps=20
-/work/nelson0314/miniconda3/envs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
-  warnings.warn(
-/work/nelson0314/miniconda3/envs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
-  warnings.warn(msg)
-  step    0  loss=0.8473  L_def=0.3990  L_fid=0.4482  shift=0.1010  psnr=120.00  linf=0.0000  |g|=2.470e-03
-  step   19  loss=8.3468  L_def=0.1439  L_fid=8.2029  shift=0.3561  psnr=45.80  linf=0.1375  |g|=1.000e+00
-[E0d] site=L lr=0.02    loss     0.847 →     8.347 (min     0.847)  單調下降 63%  shift=0.3561  psnr=45.80
-  step    0  loss=0.8473  L_def=0.3990  L_fid=0.4482  shift=0.1010  psnr=120.00  linf=0.0000  |g|=2.470e-03
-  step   19  loss=0.6223  L_def=0.1448  L_fid=0.4775  shift=0.3552  psnr=57.37  linf=0.0603  |g|=1.000e+00
-[E0d] site=L lr=0.008   loss     0.847 →     0.622 (min     0.594)  單調下降 58%  shift=0.3552  psnr=57.37
-  step    0  loss=0.8473  L_def=0.3990  L_fid=0.4482  shift=0.1010  psnr=120.00  linf=0.0000  |g|=2.470e-03
-  step   19  loss=0.5922  L_def=0.1448  L_fid=0.4474  shift=0.3552  psnr=63.93  linf=0.0353  |g|=2.408e-03
-[E0d] site=L lr=0.003   loss     0.847 →     0.592 (min     0.592)  單調下降 42%  shift=0.3552  psnr=63.93
-
-[E0d] 建議（判準：單調下降比例最高且 ratio_final_min ≈ 1）
-  site L: lr=0.02  單調 63%  ratio=9.852  shift=0.3561
-[E0d] 寫入 runs/e0d_L/lr_sweep.csv

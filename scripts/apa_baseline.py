@@ -38,6 +38,7 @@ from src.defense.apa_stage1 import align_apa_native  # noqa: E402
 from src.defense.apa_native_stage2 import NativeStage2Config, attack_native  # noqa: E402
 from src.utils.io import load_image_tensor, write_csv  # noqa: E402
 from src.metrics.aesthetic import AestheticSuite  # noqa: E402
+from src.metrics.standard import standard_row  # noqa: E402
 from src.metrics.suite import MetricSuite  # noqa: E402
 from src.models.sd import SDWrapper  # noqa: E402
 from src.residual.apa_port import (  # noqa: E402
@@ -189,9 +190,14 @@ def evaluate(sd, suite, aes, item, x_def, strength: float = EDIT_STRENGTH):
                              emb_uncond=emb_u, keep01=keep)
     so = suite.semantic(edit_orig, item["prompt"])
     sd_ = suite.semantic(edit_def, item["prompt"])
+    # DEC-028 的統一指標清單：兩個半邊都要五項成對指標。此前失真半邊缺
+    # VIFp、防禦半邊只有 LPIPS，於是本專案的表與 DCT-Shield（arXiv:2504.17894）
+    # Table 1 無法逐欄對照。`standard_row` 缺欄位會拋錯，不會靜默少報。
+    prot = suite.pairwise(edit_orig, edit_def)
     return ({**{f"fid_{k}": round(v, 4) for k, v in fid.items()},
+             **standard_row("fid_", m), **standard_row("edit_", prot),
              "edit_strength": strength,
-             "edit_lpips": round(float(suite.pairwise(edit_orig, edit_def)["lpips"]), 4),
+             "edit_lpips": round(float(prot["lpips"]), 4),
              "edit_clip_orig": round(so["clip"], 4),
              "edit_clip_def": round(sd_["clip"], 4),
              "edit_clip_drop": round(so["clip"] - sd_["clip"], 4),

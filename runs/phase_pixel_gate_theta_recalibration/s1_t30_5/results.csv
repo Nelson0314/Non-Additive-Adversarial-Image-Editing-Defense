@@ -1,0 +1,2 @@
+image,condition,attacker,instruction,task,radius,unreachable,pixel_gate_sigma,edit_steps,s_t,s_i,edit_seed,modified_from_paper,fid_lpips,fid_ssim,fid_psnr,fid_vif_p,fid_dists,edit_lpips,edit_ssim,edit_psnr,edit_vif_p,edit_dists,fid_linf,fid_rms,total_seconds
+task_env_weather_61151,phase,instruct-pix2pix,change the setting to a summer day,,3.0,False,1.0,100,7.5,1.5,20260812,False,0.31784,0.90012,25.155,0.45098,0.0558,0.44198,0.55413,17.215,0.18923,0.15027,0.86564,0.05524,122.1

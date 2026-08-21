@@ -32,7 +32,7 @@ x_def = OLA( irfft2( rfft2(w·P_b) · exp(i·g_b·m_ω·θ_b) ) · w ) / OLA(w²
 
 | 閘 | 是什麼 | 效果 |
 |---|---|---|
-| `g_b` 紋理閘 | 結構張量 coherence 導出的紋理度，`(1−coh²)·clamp(energy/ref)` | 邊緣（coherence 高）與平坦區（能量低）皆為 0 |
+| `g_b` 紋理閘 | 結構張量 coherence 導出的紋理度，`(1−coh²)^p·clamp(energy/ref)` | 邊緣（coherence 高）與平坦區（能量低）皆為 0 |
 | `m_ω` 徑向頻率閘 | 歸一化半徑落在 `[r_min, r_max]` 的頻格為 1 | 低頻帶著區塊的位置與結構，動它會在重疊相加後產生接縫 |
 
 ## 定案參數
@@ -43,7 +43,8 @@ x_def = OLA( irfft2( rfft2(w·P_b) · exp(i·g_b·m_ω·θ_b) ) · w ) / OLA(w²
 | `hop` | 16（`block/2`） | — |
 | `r_min` | 0.12 | 放行低頻已測，未淨化與抗淨化兩邊都較差 |
 | `r_max` | ∞（高通） | 帶通已實作，尚未定案 |
-| 紋理閘分位數 | 0.5 | — |
+| 紋理閘分位數 | 0.5 | 調低放行更多低能量區塊，待測 |
+| `gate_edge_power`（`p`） | 1.0 | 0 = 不壓制邊緣。邊緣是導向／雙邊／TV 濾波的不變集，待測 |
 | `θ_max` | 由強度旋鈕決定，**封頂在 π** | 相位是週期量 |
 | `gl_iters` | 0（關閉） | 開啟已測，降低可達上限 |
 | `pixel_gate_sigma` | 0（關閉） | 逐像素閘已測，同失真下防禦掉 16% |
@@ -58,6 +59,9 @@ x_def = OLA( irfft2( rfft2(w·P_b) · exp(i·g_b·m_ω·θ_b) ) · w ) / OLA(w²
 |---|---|---|
 | `--radius` | 強度。同時驅動 `θ_max`（封頂 π）與 `gain_max`（不封頂） | 主要旋鈕 |
 | `--r-min` / `--r-max` | 徑向頻率閘的下界與上界 | `r_max` 待測 |
+| `--quantile` | 紋理閘的能量參考分位數。0 = 該因子恆為 1 | 待測 |
+| `--gate-edge-power` | `(1−coh²)` 的指數。0 = 不壓制邊緣 | 待測 |
+| `--steps` | 防禦端的 PGD 步數。**DCT-Shield 走 `--dct-steps`，預設 1000** | 預算差十倍，待測 |
 | `--block` | 區塊大小 | 已否決 64 |
 | `--gain-ratio` | 可學幅度增益的上界對半徑的比例 | 待定案 |
 | `--gl-iters` | Griffin–Lim 迭代投影輪數 | 已否決 |

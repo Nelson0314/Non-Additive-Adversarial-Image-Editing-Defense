@@ -113,3 +113,40 @@
 
 - **症狀**：腳本的 `wait` 等不到任何背景工作，主控立刻結束。
 - **修正**：改用 here-string（`done <<< "$VAR"`）。
+
+## DEF · 主線驅動整支 import 不進來，而 456 條測試全過
+
+- **症狀**：`python -m pytest -q` 全數通過，但 `scripts/ip2p_run.py` 執行時
+  立刻 `ImportError`。全部 GPU 工作都被擋住。
+- **根因**：該檔引用 `WatermarkSpec` 與 `run_dct_watermark`，兩者早已改名為
+  `DJSMASpec` 與 `run_djsma`。**沒有任何測試 import 這支驅動**，於是重新命名
+  沒有在任何地方留下症狀。`dct_wm` 那一支還傳了 `topk`／`block_frac`／`eps`／
+  `steps` 四個 `DJSMASpec` 根本沒有的欄位。
+- **修正**：`dct_wm` 接到現行的 DJSMA 實作（`saliency="grad"`，因為本威脅模型
+  沒有分類器，故 `modified_from_paper` 為真）；parser 抽成 `build_parser()`
+  使 CLI 可在不載權重的情況下受測；新增一條測試 import `scripts/` 底下每一
+  支驅動。
+- **後果**：`runs/ip2p_fair_comparison/b1_wm` 的四個工作點由**已被取代的實作**
+  產生，現行程式重跑不出來。那批數字只能標為 superseded，不可進比較表。
+- **同型**：只有被 import 的程式碼會被測試保護。驅動腳本若只在遠端執行，
+  重新命名與簽名改動一律不會有症狀。
+
+## DEF · 只活在 CLI 預設值裡的設定，掃描之後在報表上分不出來
+
+- **症狀**：合併分片後，兩組不同設定的列長得一模一樣。
+- **根因**：`quantile`（紋理閘分位數）、`hop`、防禦端的 `steps` 三者只存在於
+  `argparse` 的預設值，沒有寫進 `results.csv`。這與 `r_min` 當初漏記是同一型。
+- **修正**：四個欄位（`quantile`／`hop`／`gate_edge_power`／`defense_steps`）
+  逐列寫出，並由 `tests/test_ip2p_run_columns.py` 以字面字串釘住。
+- **順帶查到**：本方法跑 100 步 PGD，DCT-Shield 跑 1000 步（該篇 §5.4）。
+  **頭對頭表把兩者並排而預算差十倍**，此前不在任何欄位裡。
+
+## DEF · `runs/ip2p_fair_comparison` 底下共存六個 CSV schema
+
+- **症狀**：跨批分析時，缺欄位的舊列與新列被併成同一個工作點。
+- **根因**：欄位一路加上來（26／27／30／32／33／37 欄），嚴格巢狀但沒有版本
+  標記。`.get(k, "")` 這種寫法會把兩組不同的設定靜默併掉。
+- **修正**：`scripts/distortion_axis_analysis.py` 帶一張明確的遷移表，寫出每個
+  欄位**還不存在時**批次必然用的值（欄位不存在 ⇒ 該功能未實作 ⇒ 只可能是關閉
+  的那個值），並對**未登記的欄位直接拋錯**而不是猜。
+- **規則**：新增旋鈕時同時加進 `SETTING_DEFAULTS`，否則跨批分析會拒絕執行。

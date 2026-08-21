@@ -85,17 +85,25 @@ SETTING_DEFAULTS = {
 SUPERSEDED_MARKERS = ("wm_topk", "wm_eps", "wm_block_frac", "wm_q_attack")
 
 
-def load_rows(root: Path, attacker: str) -> List[dict]:
+def load_rows(roots: Sequence[Path], attacker: str) -> List[dict]:
+    """多個批次根目錄一起讀。同一個工作點跨批次出現時會自然合併——分組鍵是
+    設定本身，不是目錄名。"""
     rows: List[dict] = []
-    for path in sorted(root.glob("*/*/results.csv")) + sorted(root.glob("*/results.csv")):
-        with path.open(encoding="utf-8") as fh:
-            for r in csv.DictReader(fh):
-                if r.get("attacker") != attacker:
-                    continue
-                r["__src"] = str(path.relative_to(root))
-                rows.append(r)
+    seen: set = set()
+    for root in roots:
+        paths = sorted(root.glob("*/*/results.csv")) + sorted(root.glob("*/results.csv"))
+        if not paths:
+            raise SystemExit(f"{root} 底下沒有 results.csv")
+        for path in paths:
+            with path.open(encoding="utf-8") as fh:
+                for r in csv.DictReader(fh):
+                    if r.get("attacker") != attacker:
+                        continue
+                    r["__src"] = str(path)
+                    rows.append(r)
+                    seen.add(root)
     if not rows:
-        raise SystemExit(f"{root} 底下沒有 attacker={attacker} 的列")
+        raise SystemExit(f"{list(map(str, roots))} 底下沒有 attacker={attacker} 的列")
     return rows
 
 
@@ -188,13 +196,15 @@ def fit(points: Sequence[dict], axis: str) -> dict:
 def main() -> None:
     ap = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--run", type=Path, required=True)
+    ap.add_argument("--run", type=Path, nargs="+", required=True,
+                    help="一個或多個批次根目錄。跨批次的工作點依設定合併")
     ap.add_argument("--out", type=Path, required=True)
     ap.add_argument("--attacker", default="instruct-pix2pix")
     args = ap.parse_args()
     args.out.mkdir(parents=True, exist_ok=True)
 
     points = work_points(load_rows(args.run, args.attacker))
+
     write_csv(args.out / "work_points.csv", [
         {**p, "method": _method(p["condition"]),
          **{f"ratio_{a}": round(p[EFFECT_KEY] / p[a], 4) for a in AXES}}

@@ -51,6 +51,7 @@ from apa_baseline import (  # noqa: E402
 from src.metrics.suite import MetricSuite  # noqa: E402
 from src.models.sd import SDWrapper  # noqa: E402
 from src.purify import ops as purify_ops  # noqa: E402
+from src.utils.artifacts import save_image  # noqa: E402
 from src.utils.io import load_image_tensor, write_csv  # noqa: E402
 
 # GrIDPure 與 FD-Pure 的超參數：**論文正文未載，以下為本專案指定**，理由與
@@ -144,6 +145,10 @@ def main() -> None:
     ap.add_argument("--edit-strength", type=float, default=EDIT_STRENGTH,
                     help="SDEdit 的 strength，供強度掃描使用")
     ap.add_argument("--seeds", type=int, default=3)
+    ap.add_argument("--gallery", type=Path, default=None,
+                    help="把每一格的「淨化後的防禦圖」與「淨化後的編輯」存成 "
+                         "PNG。抗淨化是本專案的主主張，而它至今沒有影像可看——"
+                         "本腳本原本把中間影像用完即棄。不影響任何數字。")
     ap.add_argument("--purifiers", nargs="+", default=None,
                     help="只跑這些淨化算子（label() 的輸出，如 identity jpeg75）。"
                          "必須含 identity。預設是全部十個。")
@@ -247,15 +252,34 @@ def main() -> None:
         print(f"=== {cell['image']} / {tag} ===", flush=True)
         t0 = time.time()
         effects: dict = {}
+        sims: dict = {}
         for p in purifiers:
             name = label(p)
             vals = []
             x_pur = p.evaluate(x_def)
+            if args.gallery is not None:
+                # 抗淨化是本專案的主主張，而它至今沒有任何影像可看——本函式
+                # 原本用完即棄。存的是同一條路徑上的兩張圖，不重算任何數字。
+                save_image(x_pur, args.gallery /
+                           f"{cell['image']}__{cell['tag']}__{name}__pur.png")
+            first = None
             for seed in seeds:
                 e = edit(x_pur, item, seed)
+                if seed == seeds[0]:
+                    first = e
+                    if args.gallery is not None:
+                        save_image(e, args.gallery /
+                                   f"{cell['image']}__{cell['tag']}__{name}__edit_def.png")
                 vals.append(float(
                     suite.pairwise(edit_orig_cache[(cell["image"], seed)], e)["lpips"]))
             effects[name] = vals
+            # 影像—影像的語意相似度。39 格人眼標記上 AUC 0.974、門檻 0.837 時
+            # 正確率 93.5%，勝過位移的 0.932（見 runs/obedience_audit/README.md）。
+            # **重用第一個種子已經算過的編輯**——編輯是這一格的主要成本，
+            # 為了多一個讀數再跑一次會讓整批時間翻倍。三個種子是為了估分母的
+            # 標準差，這一項不進統計故只取一個。
+            sims[name] = float(suite.image_similarity(
+                edit_orig_cache[(cell["image"], seeds[0])], first)["siglip"])
 
         base = effects["identity"]
         base_mean = statistics.fmean(base)
@@ -278,6 +302,11 @@ def main() -> None:
                 "effect_identity_mean": round(base_mean, 5),
                 "effect_identity_sd": round(base_sd, 5) if base_sd == base_sd else "",
                 "retention": round(mean / base_mean, 5) if base_mean > 0 else "",
+                # 經人眼標記驗證的防禦成功代理，門檻 0.837、低者為擋下。
+                # 與 effect_* 並列而非取代它：金標準仍是人眼，這一項的用途是
+                # 讓新工作點不必每一格都重看圖。
+                "siglip_sim": round(sims[name], 5),
+                "siglip_blocked": sims[name] < 0.837,
                 "edit_strength": args.edit_strength,
                 "usable": usable,
                 "seconds": round(time.time() - t0, 1),

@@ -361,6 +361,54 @@ class MetricSuite:
                 out[p][key] = float(v)
         return out
 
+    @torch.no_grad()
+    def image_similarity(self, a: torch.Tensor, b: torch.Tensor) -> Dict[str, float]:
+        """兩張影像在 CLIP／SigLIP 影像空間裡的餘弦相似度。
+
+        存在理由（2026-08-22）：`semantic` 量的是影像對**一句文字**的對齊，
+        而 OmniEdit 給的是**指令**不是描述，故那條路徑在本專案的服從率驗收上
+        近乎隨機（25 張上 15/25 為正）。這裡改量**兩張影像之間**的語意距離，
+        不需要任何 caption。
+
+        用途是回答「防禦後的編輯是不是變成了另一個場景」——25 張的視覺稽核
+        顯示，baseline 擋下的每一格都是模型重畫出不同內容，而不是溫和劣化。
+        相似度低即內容被換掉。
+
+        前處理與 `semantic_multi` 走同一段（同樣的 resize 與正規化），故兩者
+        的影像側不可能分岔。
+        """
+        self._ensure_vlm()
+        from torchvision.transforms.functional import resize
+
+        out: Dict[str, float] = {}
+        for key, model, proc in (
+            ("clip", self._clip, self._clip_proc),
+            ("siglip", self._siglip, self._siglip_proc),
+        ):
+            size = proc.image_processor.size
+            side = size.get("shortest_edge") or size["height"]
+            mean = torch.tensor(proc.image_processor.image_mean, device=self.device)
+            std = torch.tensor(proc.image_processor.image_std, device=self.device)
+            # 走完整前向再取 `image_embeds`，與 `semantic_multi` 同一條路徑。
+            # `get_image_features` 在本環境的 transformers 版本回傳的是
+            # `BaseModelOutputWithPooling` 而不是張量，且它少了投影層；
+            # 共用同一條前向也保證兩個方法的影像側不可能分岔。文字側餵一個
+            # 固定的空 prompt，其輸出不被使用。
+            tok = proc.tokenizer(
+                [""], return_tensors="pt",
+                padding="max_length" if key == "siglip" else True,
+                truncation=True,
+            ).to(self.device)
+            embs = []
+            for x in (a, b):
+                img = resize(x.to(self.device).float().clamp(0, 1),
+                             [side, side], antialias=True)
+                img = (img - mean[:, None, None]) / std[:, None, None]
+                e = model(pixel_values=img, **tok).image_embeds
+                embs.append(e / e.norm(dim=-1, keepdim=True))
+            out[key] = float((embs[0] * embs[1]).sum(-1).mean())
+        return out
+
     def semantic(self, x: torch.Tensor, prompt: str) -> Dict[str, float]:
         """影像與 prompt 的語意對齊。CLIP 取餘弦相似度、SigLIP 取其 logit。
 

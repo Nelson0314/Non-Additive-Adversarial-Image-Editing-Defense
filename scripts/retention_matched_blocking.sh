@@ -50,7 +50,13 @@ run() {
     > "$ROOT/$tag.log" 2>&1 &
 }
 # 空白地板：淨化算子自己造成的位移。不可省略，所有讀數都要扣掉它。
-run floor 0 runs/ip2p_pgd_steps/phase_s0100 phase --floor
+# **不可傳 `--conditions`**：`--floor` 產生的列 condition 恆為 `none`
+# （地板與條件無關，每張影像只需要一格），傳了會把自己的列全部濾掉。
+CUDA_VISIBLE_DEVICES=0 nohup $PY scripts/phase_retention.py \
+  --run runs/ip2p_pgd_steps/phase_s0100 --data data/omniedit150 --attacker ip2p \
+  --images $OBEYED --purifiers $OPS --floor \
+  --gallery "$ROOT/gallery" --out "$ROOT/floor.csv" \
+  > "$ROOT/floor.log" 2>&1 &
 run dct   1 runs/ip2p_pgd_steps/dct_s0100 dct_shield
 run add   2 runs/ip2p_parameterization_control/add_ln_e04 add
 run phase 3 runs/ip2p_reach_lpips_ext/pgx_g78 phase_gain

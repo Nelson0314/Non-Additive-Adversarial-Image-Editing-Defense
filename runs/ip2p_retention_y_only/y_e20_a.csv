@@ -47,3 +47,9 @@ task_env_weather_63722,dct_shield_y,native,jpeg75,0.27106,0.00125,0.50621,0.0064
 task_env_weather_63722,dct_shield_y,native,crop_resize0.1,0.57119,0.00639,0.50621,0.00647,1.12837,0.92647,False,0.8,True,411.6
 task_env_weather_63722,dct_shield_y,native,jpeg_then_resize75,0.22852,0.00136,0.50621,0.00647,0.45144,0.94328,False,0.8,True,411.6
 task_env_weather_63722,dct_shield_y,native,adverse_cleaner,0.4498,0.0036,0.50621,0.00647,0.88857,0.8733,False,0.8,True,411.6
+task_obj_add_40931,dct_shield_y,native,identity,0.51489,0.00301,0.51489,0.00301,1.0,0.78312,True,0.8,True,410.5
+task_obj_add_40931,dct_shield_y,native,blur1,0.20114,0.00927,0.51489,0.00301,0.39065,0.97228,False,0.8,True,410.5
+task_obj_add_40931,dct_shield_y,native,jpeg75,0.25472,0.00936,0.51489,0.00301,0.49472,0.8792,False,0.8,True,410.5
+task_obj_add_40931,dct_shield_y,native,crop_resize0.1,0.60136,0.00452,0.51489,0.00301,1.16794,0.85547,False,0.8,True,410.5
+task_obj_add_40931,dct_shield_y,native,jpeg_then_resize75,0.21464,0.00567,0.51489,0.00301,0.41686,0.95909,False,0.8,True,410.5
+task_obj_add_40931,dct_shield_y,native,adverse_cleaner,0.45848,0.0097,0.51489,0.00301,0.89045,0.72247,True,0.8,True,410.5

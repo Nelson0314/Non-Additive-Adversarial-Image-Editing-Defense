@@ -62,15 +62,28 @@ def main() -> None:
     ap = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--src", type=Path, required=True)
-    ap.add_argument("--labels", type=Path,
-                    default=Path("runs/obedience_audit/defense_success_visual.csv"))
+    ap.add_argument("--labels", type=Path, default=None,
+                    help="人眼判定的 CSV。給定時只算它列出的格子並報 AUC；"
+                         "不給時算 `--src` 底下**全部**格子，只寫 CSV 不報 AUC"
+                         "（沒有金標準就沒有可算的判別力）")
+    ap.add_argument("--images", nargs="+", default=None,
+                    help="只算這些影像。用來限制在「未防禦編輯確實執行了指令」"
+                         "的子集上")
     ap.add_argument("--data", type=Path, default=Path("data/omniedit150"))
     ap.add_argument("--out", type=Path, required=True)
     args = ap.parse_args()
 
-    labels = {(r["image"], r["condition"]): r["verdict"]
-              for r in csv.DictReader(args.labels.open(encoding="utf-8"))}
     found = discover(args.src)
+    if args.labels is not None:
+        labels = {(r["image"], r["condition"]): r["verdict"]
+                  for r in csv.DictReader(args.labels.open(encoding="utf-8"))}
+    else:
+        labels = {(img, cond): ""
+                  for img, by in found.items() for cond in by
+                  if cond != "__orig__"}
+    if args.images:
+        keep = set(args.images)
+        labels = {k: v for k, v in labels.items() if k[0] in keep}
     suite = MetricSuite(device=torch.device("cpu"))
     dev = torch.device("cpu")
 
@@ -110,6 +123,18 @@ def main() -> None:
     keys = [k for k in rows[0] if k not in ("image", "condition", "verdict")]
     pos = [r for r in rows if r["verdict"] == "blocked"]
     neg = [r for r in rows if r["verdict"] == "attack_succeeded"]
+    if not pos or not neg:
+        # 沒有金標準就不報判別力。此時本檔的用途是產出逐格的讀數表。
+        by_cond: Dict[str, List[dict]] = {}
+        for r in rows:
+            by_cond.setdefault(r["condition"], []).append(r)
+        print(f"\n{'條件':18s}{'n':>4s}{'SigLIP 均值':>13s}{'低於 0.837':>12s}")
+        for cond, rs in sorted(by_cond.items()):
+            b = sum(1 for r in rs if float(r["siglip_sim"]) < 0.837)
+            print(f"{cond:18s}{len(rs):4d}"
+                  f"{st.fmean(float(r['siglip_sim']) for r in rs):13.3f}"
+                  f"{b:>8d}/{len(rs)}")
+        return
     print(f"\n全部條件池化（擋下 n={len(pos)}、攻擊成功 n={len(neg)}）")
     print(f"{'讀數':22s}{'AUC':>8s}{'方向':>8s}{'擋下均值':>12s}{'成功均值':>12s}")
     scored = []

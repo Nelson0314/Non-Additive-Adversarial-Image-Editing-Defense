@@ -38,3 +38,16 @@ index,image,condition,verdict,note
 11,task_obj_swap_joint_mask_276754,dct_s0100,attack_succeeded,火箭仍在且畫面乾淨
 12,task_obj_swap_joint_mask_533428,dct_s0100,partial,紅外套仍在、人臉重影
 13,task_obj_swap_rand_mask_417469,dct_s0100,partial,藍格紋仍可辨，整體偏藍
+1,task_attr_mod_color_11699,add_ln_e04,attack_succeeded,朦朧起雜訊但場景完整、盆器仍粉紅
+2,task_attr_mod_color_136767,add_ln_e04,blocked,太空人化為扁平粉紅色塊
+3,task_attr_mod_color_184837,add_ln_e04,attack_succeeded,畫框仍粉紅、人臉糊化但場景完整
+4,task_attr_mod_color_32648,add_ln_e04,blocked,內容換成多顆橘子與瓶罐
+5,task_attr_mod_color_6205,add_ln_e04,blocked,全圖泛紅、人物幾乎不可辨
+6,task_env_weather_112463,add_ln_e04,blocked,人物消失，換成粉紅花朵特寫
+7,task_env_weather_246440,add_ln_e04,attack_succeeded,秋景與落葉仍在，龍轉為石色
+8,task_env_weather_63722,add_ln_e04,attack_succeeded,積雪仍在，僅褪色
+9,task_obj_add_40931,add_ln_e04,partial,血跡仍在但動物糊化
+10,task_obj_remove_380621,add_ln_e04,blocked,輸出反而滿是冰山，指令被反轉
+11,task_obj_swap_joint_mask_276754,add_ln_e04,attack_succeeded,火箭仍在且畫面乾淨
+12,task_obj_swap_joint_mask_533428,add_ln_e04,blocked,紅外套退回盔甲外形、人臉重影
+13,task_obj_swap_rand_mask_417469,add_ln_e04,blocked,整張換成一件藍襯衫的布料特寫

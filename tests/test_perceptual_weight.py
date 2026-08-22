@@ -153,3 +153,50 @@ def test_freq_weight_is_a_csv_column_and_a_cli_flag():
     ns2 = ip2p_run.build_parser().parse_args(
         ["--out", "x", "--freq-weight", "jpeg_luma"])
     assert ns2.freq_weight == "jpeg_luma"
+
+
+def test_weight_power_interpolates_between_binary_and_full_weighting():
+    """`w ** gamma`：gamma = 0 逐位元等於二值閘，gamma = 1 是完整的量化表定價。
+
+    存在理由：兩端都不是操作點。二值閘的位移／DISTS 只有 3.3–4.3；完整加權
+    把它拉到 8–14.5，但通帶有效容量掉到 0.544，要摸到會擋下的強度就得把半徑
+    推到 theta 封頂（pi）之外，那之後只有**增益**在長，PSNR 直接被打掉
+    （radius 8 時只剩 18.97）。中間值讓兩者可以取捨。
+    """
+    dev, dt = torch.device("cpu"), torch.float64
+    full = freq_weight("jpeg_luma", BLOCK, dev, dt)
+    assert torch.equal(freq_weight("jpeg_luma", BLOCK, dev, dt, power=0.0),
+                       torch.ones_like(full))
+    assert torch.equal(freq_weight("jpeg_luma", BLOCK, dev, dt, power=1.0), full)
+    half = freq_weight("jpeg_luma", BLOCK, dev, dt, power=0.5)
+    assert torch.allclose(half, full ** 0.5)
+    # 單調：gamma 越大，定價越低（放行越少）
+    assert float(full.mean()) < float(half.mean()) < 1.0
+
+
+def test_negative_weight_power_raises():
+    with pytest.raises(ValueError, match="power"):
+        freq_weight("jpeg_luma", BLOCK, torch.device("cpu"), torch.float64,
+                    power=-1.0)
+
+
+def test_weight_power_reaches_the_module_and_the_cli():
+    import sys
+    from pathlib import Path as _Path
+
+    root = _Path(__file__).resolve().parents[1]
+    sys.path.insert(0, str(root / "scripts"))
+    import ip2p_run
+
+    src = (root / "scripts" / "ip2p_run.py").read_text(encoding="utf-8")
+    assert '"freq_weight_power":' in src
+    ns = ip2p_run.build_parser().parse_args(["--out", "x"])
+    assert ns.freq_weight_power == 1.0
+
+    x = torch.rand(1, 3, 128, 128, dtype=torch.float64)
+    m = PhaseResidual(size=128, block=BLOCK, r_min=0.12,
+                      freq_weight="jpeg_luma",
+                      freq_weight_power=0.0).to(torch.float64)
+    m.prepare_gates(x)
+    band = radial_gate(BLOCK, 0.12, torch.device("cpu"), torch.float64)
+    assert torch.allclose(m.freq_gate, band)

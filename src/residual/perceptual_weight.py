@@ -102,13 +102,23 @@ FREQ_WEIGHTS: Dict[str, Callable[[int, object, object], torch.Tensor]] = {
 }
 
 
-def freq_weight(name: str, block: int, device, dtype) -> torch.Tensor:
+def freq_weight(name: str, block: int, device, dtype,
+                power: float = 1.0) -> torch.Tensor:
     """`(block, block//2+1)` 的知覺權重，值域 (0, 1]。
 
     名字打錯要拋錯而不是回退到 `binary`：靜默回退會讓一整批掃描跑成基準
     的重複，而報表上的 `freq_weight` 欄仍寫著它以為跑的那個名字。
+
+    `power` 是定價的力道：`w ** power`。0 使權重恆為 1，即退回二值閘；
+    1 是量化表的原始定價。**兩端都不是操作點**——二值閘的位移／DISTS 只有
+    3.3–4.3，完整加權把它拉到 8–14.5 但通帶有效容量掉到 0.544，要摸到會擋下
+    的強度就得把半徑推過 theta 的封頂（pi），之後只有增益在長而增益是振幅，
+    PSNR 直接被打掉。中間值讓效率與可達性可以取捨。本值無出處，是本專案指定。
     """
     if name not in FREQ_WEIGHTS:
         raise ValueError(
             f"未知的 freq_weight：{name!r}，可用的是 {sorted(FREQ_WEIGHTS)}")
-    return FREQ_WEIGHTS[name](block, device, dtype)
+    if power < 0:
+        raise ValueError(f"freq_weight 的 power 不可為負，收到 {power}")
+    w = FREQ_WEIGHTS[name](block, device, dtype)
+    return w if power == 1.0 else w ** power

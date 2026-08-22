@@ -283,6 +283,7 @@ class PhaseResidual(ResidualModule):
         gain_max: float = 0.0,
         gate_edge_power: float = 1.0,
         freq_weight: str = "binary",
+        freq_weight_power: float = 1.0,
     ):
         super().__init__()
         if block % 2 != 0:
@@ -305,6 +306,8 @@ class PhaseResidual(ResidualModule):
                 f"未知的 freq_weight：{freq_weight!r}，"
                 f"可用的是 {sorted(FREQ_WEIGHTS)}")
         self.freq_weight = freq_weight
+        # 定價的力道，0 = 退回二值閘。合法性由 `freq_weight()` 檢查。
+        self.freq_weight_power = freq_weight_power
 
         self.size = size
         self.block = block
@@ -399,7 +402,8 @@ class PhaseResidual(ResidualModule):
         # 頻格復活，尤其是 rfft2 共軛對稱依賴的 fx=0 與 fx=N/2 兩行。
         self.freq_gate = radial_gate(
             self.block, self.r_min, device, dtype, self.r_max
-        ) * perceptual_freq_weight(self.freq_weight, self.block, device, dtype)
+        ) * perceptual_freq_weight(self.freq_weight, self.block, device,
+                           dtype, self.freq_weight_power)
         tex = texture_gate(x01, self.block, self.hop, self.energy_quantile,
                            edge_power=self.gate_edge_power)
         if keep is not None:

@@ -197,7 +197,8 @@ def defend(ip2p, suite, cond, x01, args, loss_fn):
                           pixel_gate_sigma=args.pixel_gate_sigma,
                           gain_ratio=args.gain_ratio,
                           gate_edge_power=args.gate_edge_power,
-                          freq_weight=args.freq_weight)
+                          freq_weight=args.freq_weight,
+                          freq_weight_power=args.freq_weight_power)
     if args.radius is not None:
         param.set_radius(args.radius)
         res = run_param_pgd(x01, param, loss_fn, steps=args.steps,
@@ -272,6 +273,14 @@ def build_parser() -> argparse.ArgumentParser:
                          "開同一個價，而人眼對前者的敏感度高一個數量級；"
                          "RESULTS 已把 DCT-Shield 那 2 倍的失真效率優勢歸因給"
                          "JPEG 量化階的約束，並註明那不是加性本身帶來的")
+    ap.add_argument("--freq-weight-power", type=float, default=1.0,
+                    help="知覺定價的力道：權重取 power 次方。0 = 退回二值閘"
+                         "（逐位元等於 --freq-weight binary），1 = 量化表的"
+                         "原始定價。兩端都不是操作點：二值閘的位移／DISTS "
+                         "只有 3.3-4.3，完整加權拉到 8-14.5 但通帶有效容量"
+                         "掉到 0.544，要摸到會擋下的強度就得把半徑推過 theta "
+                         "的封頂，之後只有增益在長而增益是振幅。本值無出處，"
+                         "是本專案指定")
     ap.add_argument("--pixel-gate-sigma", type=float, default=0.0,
                     help="逐像素紋理閘的高斯 sigma（像素）。0 = 關閉，逐位元與"
                          "加這個選項之前相同。要能分辨鬍鬚與臉頰就必須遠小於 "
@@ -435,6 +444,7 @@ def main() -> None:
                 # 頻率閘的知覺權重。二值閘與加權閘跑出的列在其餘欄位上一模
                 # 一樣，不記下來就無法在合併之後分辨。
                 "freq_weight": args.freq_weight,
+                "freq_weight_power": args.freq_weight_power,
                 # 防禦端的 PGD 步數。**本方法預設 100，DCT-Shield 是 1000**
                 # （該篇 §5.4），頭對頭表上這個差異從未被控制過，故逐列記下。
                 "defense_steps": defense_steps(args, cond),

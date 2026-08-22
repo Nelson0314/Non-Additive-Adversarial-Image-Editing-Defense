@@ -1,0 +1,17 @@
+image,instruction,clip_orig,clip_edit,clip_gain,siglip_orig,siglip_edit,siglip_gain,pixel_lpips,edit_steps,s_t,s_i,edit_seed,seconds
+task_attr_mod_color_42929,turn the color of golden shield to gray,0.29866,0.30273,0.00406,0.10522,0.1165,0.01128,0.15133,100,7.5,1.5,20260812,31.6
+task_attr_mod_color_47418,turn the color of mushroom to gray,0.30362,0.30904,0.00542,0.08425,0.09826,0.01401,0.4417,100,7.5,1.5,20260812,21.4
+task_attr_mod_color_59806,turn the color of robot to be white,0.26515,0.25663,-0.00851,0.08497,0.10204,0.01707,0.20554,100,7.5,1.5,20260812,21.6
+task_attr_mod_color_6065,turn the color of lantern to red,0.27817,0.30437,0.02619,0.03971,0.08331,0.0436,0.315,100,7.5,1.5,20260812,21.8
+task_attr_mod_color_71564,turn the color of machine to be gray,0.22825,0.24596,0.0177,0.05729,0.06689,0.0096,0.17255,100,7.5,1.5,20260812,21.8
+task_attr_mod_color_71985,turn the color of piano to be gray,0.28155,0.28486,0.00331,0.07192,0.07841,0.00649,0.18426,100,7.5,1.5,20260812,21.8
+task_attr_mod_color_75937,turn the color of eye to green,0.19015,0.23901,0.04886,-0.02367,0.02731,0.05098,0.62837,100,7.5,1.5,20260812,21.8
+task_attr_mod_color_76641,turn the color of micrometer to blue,0.28897,0.30393,0.01496,0.11168,0.13868,0.027,0.14639,100,7.5,1.5,20260812,21.8
+task_attr_mod_color_96137,turn the color of robot companion to orange,0.25554,0.25948,0.00395,0.05359,0.06619,0.0126,0.17887,100,7.5,1.5,20260812,21.8
+task_env_weather_114555,change the setting to a misty scene,0.20291,0.22059,0.01769,0.00938,0.01487,0.00549,0.26202,100,7.5,1.5,20260812,21.9
+task_env_weather_116980,transform the setting to a foggy atmosphere,0.26881,0.29614,0.02733,0.08367,0.11792,0.03424,0.37865,100,7.5,1.5,20260812,21.9
+task_env_weather_121086,transform the setting to a foggy scene,0.21012,0.24218,0.03207,0.02983,0.06937,0.03954,0.20754,100,7.5,1.5,20260812,21.9
+task_env_weather_126577,change the setting to spring with blossoms,0.19959,0.25609,0.0565,0.01077,0.07764,0.06686,0.44641,100,7.5,1.5,20260812,21.8
+task_env_weather_132698,transform the setting to a winter scene,0.16763,0.17996,0.01233,0.00139,0.00896,0.00757,0.28493,100,7.5,1.5,20260812,21.9
+task_env_weather_137030,transform the setting to spring with blooming flowers,0.16465,0.22334,0.05869,-0.01862,0.04627,0.06489,0.6267,100,7.5,1.5,20260812,21.8
+task_env_weather_137230,change the setting to a summer day,0.20816,0.21334,0.00518,0.01532,0.01696,0.00164,0.13293,100,7.5,1.5,20260812,21.8

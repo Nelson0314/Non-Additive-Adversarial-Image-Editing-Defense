@@ -1,0 +1,14 @@
+image,instruction,clip_orig,clip_edit,clip_gain,siglip_orig,siglip_edit,siglip_gain,pixel_lpips,edit_steps,s_t,s_i,edit_seed,seconds
+task_obj_swap_rand_mask_116052,Replace the mountain path with ocean,0.24291,0.24335,0.00044,0.04446,0.04643,0.00197,0.25428,100,7.5,1.5,20260812,31.5
+task_obj_swap_rand_mask_216136,Replace the shimmering glass structures with tree stumps,0.24664,0.23491,-0.01173,0.06966,0.07289,0.00324,0.75141,100,7.5,1.5,20260812,20.8
+task_obj_swap_rand_mask_268827,Replace the knight armor with jacket,0.2475,0.23904,-0.00846,0.0677,0.06135,-0.00635,0.55993,100,7.5,1.5,20260812,21.0
+task_obj_swap_rand_mask_303550,Replace the steampunk jacket with silver jacket,0.24192,0.26367,0.02175,0.06875,0.11462,0.04587,0.61027,100,7.5,1.5,20260812,21.2
+task_obj_swap_rand_mask_315182,Replace the red leather jacket with black blazer,0.25129,0.26219,0.0109,0.10429,0.1014,-0.00289,0.71398,100,7.5,1.5,20260812,21.2
+task_obj_swap_rand_mask_373245,Replace the twilight glow with sky,0.29693,0.29001,-0.00692,0.09569,0.07851,-0.01718,0.67502,100,7.5,1.5,20260812,21.2
+task_obj_swap_rand_mask_392115,Replace the samurai warrior with woman,0.28184,0.25877,-0.02306,0.10636,0.14164,0.03528,0.12199,100,7.5,1.5,20260812,21.3
+task_obj_swap_rand_mask_401099,Replace the pizza box with clipboard,0.23404,0.2603,0.02626,0.05336,0.03454,-0.01882,0.39388,100,7.5,1.5,20260812,21.3
+task_obj_swap_rand_mask_598617,Replace the chameleon with body,0.3022,0.30109,-0.00111,0.11056,0.11305,0.00249,0.12871,100,7.5,1.5,20260812,21.3
+task_obj_swap_rand_mask_660100,Replace the hot dog with taco,0.26777,0.25632,-0.01145,0.10754,0.09815,-0.0094,0.22732,100,7.5,1.5,20260812,21.3
+task_obj_swap_rand_mask_683349,Replace the abstract sculpture with bronze statue,0.29921,0.30335,0.00414,0.09639,0.10393,0.00755,0.19428,100,7.5,1.5,20260812,21.3
+task_obj_swap_rand_mask_79926,Replace the Hawaiian shirt with blue dress,0.2581,0.25911,0.00101,0.04927,0.07875,0.02948,0.23258,100,7.5,1.5,20260812,21.3
+task_obj_swap_rand_mask_92564,Replace the wooden flooring with gray carpet,0.16069,0.25551,0.09482,-0.03368,0.0618,0.09548,0.59162,100,7.5,1.5,20260812,21.3

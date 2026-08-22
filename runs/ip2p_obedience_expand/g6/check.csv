@@ -1,0 +1,17 @@
+image,instruction,clip_orig,clip_edit,clip_gain,siglip_orig,siglip_edit,siglip_gain,pixel_lpips,edit_steps,s_t,s_i,edit_seed,seconds
+task_obj_remove_720199,Remove yellow machine,0.20059,0.22909,0.0285,-0.03503,-0.0157,0.01933,0.12742,100,7.5,1.5,20260812,31.2
+task_obj_remove_737102,Remove right person,0.18546,0.19607,0.01061,-0.02578,-0.00989,0.01589,0.22202,100,7.5,1.5,20260812,21.1
+task_obj_remove_869495,Remove child,0.23817,0.2476,0.00943,0.05483,0.05486,3e-05,0.2388,100,7.5,1.5,20260812,21.3
+task_obj_remove_899279,Remove moth's body,0.26369,0.26058,-0.00312,0.08907,0.08604,-0.00304,0.31639,100,7.5,1.5,20260812,21.5
+task_obj_swap_joint_mask_310537,Replace the desert buttes with layered mountain range,0.28534,0.28917,0.00383,0.11205,0.11408,0.00203,0.40187,100,7.5,1.5,20260812,21.6
+task_obj_swap_joint_mask_337228,Replace the silk sash with yellow shawl,0.21754,0.29188,0.07434,0.03773,0.07107,0.03334,0.76986,100,7.5,1.5,20260812,21.7
+task_obj_swap_joint_mask_356849,Replace the robot with glowing eyes with Yoda,0.28617,0.28038,-0.00579,0.11238,0.11611,0.00372,0.60326,100,7.5,1.5,20260812,21.7
+task_obj_swap_joint_mask_474202,Replace the wooden deck with stone floor,0.21751,0.25623,0.03872,0.05675,0.07076,0.01401,0.7573,100,7.5,1.5,20260812,21.8
+task_obj_swap_joint_mask_476374,Replace the pirate with eyepatch with man in military uniform,0.33088,0.2829,-0.04798,0.14067,0.16673,0.02606,0.57862,100,7.5,1.5,20260812,21.9
+task_obj_swap_joint_mask_615817,Replace the twilight skyline with sky,0.23576,0.2732,0.03744,0.05523,0.1014,0.04616,0.50866,100,7.5,1.5,20260812,21.9
+task_obj_swap_joint_mask_671429,Replace the astronaut with man,0.17632,0.17548,-0.00084,0.03833,0.06379,0.02546,0.17418,100,7.5,1.5,20260812,21.9
+task_obj_swap_joint_mask_673207,Replace the lighthouse with chimney,0.2794,0.28803,0.00864,0.08806,0.11538,0.02732,0.52899,100,7.5,1.5,20260812,21.9
+task_obj_swap_joint_mask_698465,Replace the snowball with grey furry centre,0.28819,0.2591,-0.02909,0.07475,0.08426,0.00952,0.33354,100,7.5,1.5,20260812,21.9
+task_obj_swap_joint_mask_718058,Replace the mechanical hand with right hand,0.23492,0.26395,0.02903,0.0256,0.07395,0.04835,0.54435,100,7.5,1.5,20260812,21.8
+task_obj_swap_joint_mask_890199,Replace the robot with man,0.26571,0.25289,-0.01283,0.0609,0.05913,-0.00177,0.07339,100,7.5,1.5,20260812,21.8
+task_obj_swap_rand_mask_11376,Replace the glass dome with house,0.25328,0.28166,0.02837,0.07269,0.10327,0.03059,0.33506,100,7.5,1.5,20260812,21.7

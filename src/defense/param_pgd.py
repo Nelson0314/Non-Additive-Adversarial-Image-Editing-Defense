@@ -99,6 +99,7 @@ class PhaseParam:
     name = "phase"
 
     def __init__(self, size: int = 512, block: int = 32, r_min: float = 0.12,
+                 hop: Optional[int] = None,
                  r_max: float = float("inf"),
                  radius: float = math.pi, energy_quantile: float = 0.5,
                  keep: Optional[torch.Tensor] = None, gl_iters: int = 0,
@@ -109,6 +110,9 @@ class PhaseParam:
                  gain_weight: str = "shared",
                  channels: str = "rgb"):
         self.size, self.block, self.r_min = size, block, r_min
+        # None = block//2，逐位元等於加這個參數之前。更小的 hop 讓每個
+        # 像素被更多區塊覆蓋，相鄰區塊獨立旋轉留下的接縫因此被平均掉。
+        self.hop = hop
         self.r_max = r_max
         self.energy_quantile = energy_quantile
         # 紋理閘壓制邊緣那個因子的指數，預設 1.0 逐位元等於加它之前。
@@ -148,7 +152,8 @@ class PhaseParam:
 
     def reset(self, x01: torch.Tensor, seed: int) -> None:
         self.module = PhaseResidual(
-            size=self.size, block=self.block, r_min=self.r_min,
+            size=self.size, block=self.block, hop=self.hop,
+            r_min=self.r_min,
             r_max=self.r_max,
             theta_max=min(self.radius, math.pi),
             energy_quantile=self.energy_quantile,

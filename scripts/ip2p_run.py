@@ -192,6 +192,7 @@ def defend(ip2p, suite, cond, x01, args, loss_fn):
             "不需要在這裡二分搜尋")
 
     param, lo, hi = build(cond, args.seed, block=args.block, r_min=args.r_min,
+                          hop=args.hop,
                           r_max=args.r_max,
                           quantile=args.quantile, gl_iters=args.gl_iters,
                           pixel_gate_sigma=args.pixel_gate_sigma,
@@ -249,6 +250,12 @@ def build_parser() -> argparse.ArgumentParser:
     ap.add_argument("--steps", type=int, default=100)
     ap.add_argument("--rounds", type=int, default=8)
     ap.add_argument("--block", type=int, default=32)
+    ap.add_argument("--hop", type=int, default=None,
+                    help="重疊步長。不給則取 block//2（逐位元等於加這個"
+                         "旗標之前）。更小的 hop 讓每個像素被更多區塊覆蓋，"
+                         "相鄰區塊各自獨立旋轉留下的接縫因此被平均掉——"
+                         "防禦圖的紋理偏粗就是那個接縫。NOLA 條件在 hop "
+                         "更小時只會更寬鬆，恆等保證不受影響")
     ap.add_argument("--r-min", type=float, default=0.12)
     ap.add_argument("--r-max", type=float, default=float("inf"),
                     help="徑向頻率閘的上界。預設無窮大即維持原本的高通行為。"
@@ -454,7 +461,7 @@ def main() -> None:
                 "block": args.block,
                 # hop 目前恆為 block//2，但那是 `PhaseResidual` 的預設而不是
                 # 這裡的常數；不逐列記下的話，將來改動它會讓新舊列長得一樣。
-                "hop": args.block // 2,
+                "hop": args.block // 2 if args.hop is None else args.hop,
                 # 紋理閘的兩個設定。兩者都是本專案指定、無出處的值，按
                 # CLAUDE.md 的規則必須是欄位而不是註解。此前只寫在 CLI 的
                 # 預設值裡，掃描它們的批次在報表上分不出來。

@@ -132,8 +132,23 @@ PURIFIERS = [
 ]
 
 
-def build(src: Path, images: Optional[List[str]], conditions: Optional[List[str]]
-          ) -> Tuple[List[dict], List[str]]:
+def purifier_set(scope: str):
+    """`scope` 選到的淨化算子清單。
+
+    `none` 給的是**條件對條件**的比較——多個方法的防禦圖與防禦後編輯並列，
+    淨化階既不是要看的東西，又讓頁面體積漲三倍。名字打錯要拋錯而不是回退到
+    `standard`：靜默回退會產出一份看起來正常、卻不是被要求的那一份頁面。
+    """
+    if scope == "none":
+        return []
+    if scope == "standard":
+        return list(PURIFIERS)
+    raise ValueError(
+        f"未知的 purifiers 範圍：{scope!r}，可用的是 none／standard")
+
+
+def build(src: Path, images: Optional[List[str]], conditions: Optional[List[str]],
+          scope: str = "standard") -> Tuple[List[dict], List[str]]:
     found = discover(src)
     if images:
         found = {k: v for k, v in found.items() if k in images}
@@ -141,7 +156,7 @@ def build(src: Path, images: Optional[List[str]], conditions: Optional[List[str]
         raise SystemExit(f"{src} 底下找不到可用的 PNG")
 
     purifiers = []
-    for name, make in PURIFIERS:
+    for name, make in purifier_set(scope):
         p = make()
         if not p.available:
             raise SystemExit(f"淨化算子 {name} 的相依不齊備，拒絕以缺格產出頁面")
@@ -470,7 +485,7 @@ def collect_metrics(run_roots: List[Path], conditions: List[str]) -> List[dict]:
     return out
 
 
-def main() -> None:
+def build_parser() -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--src", type=Path, required=True,
@@ -481,9 +496,18 @@ def main() -> None:
                     help="條件標籤即批次子目錄名，如 phase_s0100")
     ap.add_argument("--metrics-from", type=Path, nargs="*", default=[],
                     help="要撈數字的批次根目錄")
-    args = ap.parse_args()
+    ap.add_argument("--purifiers", choices=("standard", "none"),
+                    default="standard",
+                    help="standard = 四個淨化算子（預設，逐位元等於加這個旗標"
+                         "之前）；none = 只留防禦圖與防禦後編輯，用於條件對"
+                         "條件的比較")
+    return ap
 
-    cards, notes = build(args.src, args.images, args.conditions)
+
+def main() -> None:
+    args = build_parser().parse_args()
+
+    cards, notes = build(args.src, args.images, args.conditions, args.purifiers)
     conds = sorted({c for card in cards for c in card["conditions"]})
     metrics = collect_metrics(args.metrics_from, conds) if args.metrics_from else []
 

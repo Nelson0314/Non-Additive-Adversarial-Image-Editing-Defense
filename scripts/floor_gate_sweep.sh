@@ -24,20 +24,28 @@ IMGS="task_attr_mod_color_11699 task_attr_mod_color_136767 task_attr_mod_color_1
 
 COMMON="--data data/omniedit150 --conditions phase_gain --loss latent_norm --steps 1000 --quantile 0 --freq-weight jpeg_luma --freq-weight-power 0.25 --hop 8 --gain-ratio 1.0 --spectral-floor 0.04"
 
-# tag:floor_gate:radius:device
+# 卡號由參數給，**不寫死**：卡是多人共用的，寫死過一次就把八個 process 送到
+# 別人正在用的四張卡上。用法 `bash scripts/floor_gate_sweep.sh "4 5 6 7"`，
+# 每張卡放兩個。
+DEVS=(${1:-0 1 2 3})
+
+# tag:floor_gate:radius
 POINTS="
-comp_r09:complement:0.9:0
-comp_r15:complement:1.5:0
-comp_r20:complement:2.0:1
-comp_r24:complement:2.4:1
-wat_r09:watson:0.9:2
-wat_r15:watson:1.5:2
-wat_r20:watson:2.0:3
-wat_r24:watson:2.4:3
+comp_r09:complement:0.9
+comp_r15:complement:1.5
+comp_r20:complement:2.0
+comp_r24:complement:2.4
+wat_r09:watson:0.9
+wat_r15:watson:1.5
+wat_r20:watson:2.0
+wat_r24:watson:2.4
 "
 
+i=0
 for p in $POINTS; do
-  IFS=: read -r tag fg rad dev <<< "$p"
+  IFS=: read -r tag fg rad <<< "$p"
+  dev=${DEVS[$(( i / 2 % ${#DEVS[@]} ))]}
+  i=$(( i + 1 ))
   CUDA_VISIBLE_DEVICES="$dev" nohup "$PY" scripts/ip2p_run.py \
       --out "$OUT/$tag" --floor-gate "$fg" --radius "$rad" \
       --images $IMGS $COMMON > "$OUT/$tag.log" 2>&1 &

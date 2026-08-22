@@ -284,6 +284,7 @@ class PhaseResidual(ResidualModule):
         gate_edge_power: float = 1.0,
         freq_weight: str = "binary",
         freq_weight_power: float = 1.0,
+        gain_weight: str = "shared",
     ):
         super().__init__()
         if block % 2 != 0:
@@ -308,6 +309,14 @@ class PhaseResidual(ResidualModule):
         self.freq_weight = freq_weight
         # 定價的力道，0 = 退回二值閘。合法性由 `freq_weight()` 檢查。
         self.freq_weight_power = freq_weight_power
+        # 增益的閘。"shared" = 與相位同一個閘，逐位元等於加這個選項之前。
+        # "jnd" 另外乘上知覺權重，把振幅的創造推到人眼看不見的頻帶——那裡
+        # 相位無事可做（1/f^2 的功率譜使高頻幾乎沒有能量可以旋轉），而增益
+        # 造得出容量。逐帶的量測見 `runs/encoder_frequency_response`。
+        if gain_weight not in ("shared", "jnd"):
+            raise ValueError(
+                f"未知的 gain_weight：{gain_weight!r}，可用的是 shared／jnd")
+        self.gain_weight = gain_weight
 
         self.size = size
         self.block = block
@@ -379,6 +388,7 @@ class PhaseResidual(ResidualModule):
         self.register_buffer("tex_gate", torch.zeros(1, self.n_blocks), persistent=False)
         self.pixel_mask = None
         self._gates_ready = False
+        self._gain_freq = None
 
     # ---- 閘 ----
 
@@ -419,7 +429,17 @@ class PhaseResidual(ResidualModule):
             self.pixel_mask = m.detach()
         else:
             self.pixel_mask = None
+        if self.gain_weight == "jnd":
+            self._gain_freq = perceptual_freq_weight(
+                "jpeg_luma", self.block, device, dtype)
+        else:
+            self._gain_freq = None
         self._gates_ready = True
+
+    def gain_gate(self) -> torch.Tensor:
+        """增益被允許出現的位置。`shared` 時逐位元等於 `gate()`。"""
+        g = self.gate()
+        return g if self._gain_freq is None else g * self._gain_freq
 
     def gate(self) -> torch.Tensor:
         """(1, L, 1, 1) 與 (block, nbins) 廣播後的合成閘，供診斷與前向共用。"""
@@ -491,10 +511,11 @@ class PhaseResidual(ResidualModule):
         rot = rotate_spectrum(spec, shift)
         if self.gain_max > 0:
             # (1,L,n,nb) → (1,1,L,n,nb)，與 spec 的 (B,C,L,n,nb) 廣播。
-            # 套的是**同一個閘**：增益與相位被允許出現的位置完全一致，
-            # 這樣兩者的比較才是乾淨的「動什麼」而不是「動哪裡」。
+            # 閘由 `gain_weight` 決定。預設 `shared` 與相位同一個閘——那是
+            # 歸因期間的約束，讓兩者的比較是乾淨的「動什麼」而不是「動哪裡」。
+            # `jnd` 把增益的預算推到人眼看不見的頻帶，理由見 `__init__`。
             g = torch.clamp(self.gain, -self.gain_max, self.gain_max)
-            rot = rot * torch.exp(g * self.gate()).unsqueeze(1)
+            rot = rot * torch.exp(g * self.gain_gate()).unsqueeze(1)
         x_def = self.synthesize(rot)
 
         # Griffin-Lim 的迭代投影：反覆把幅度換回**目標**幅度，逼近「相位被

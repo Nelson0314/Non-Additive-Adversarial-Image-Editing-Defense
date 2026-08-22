@@ -198,7 +198,8 @@ def defend(ip2p, suite, cond, x01, args, loss_fn):
                           gain_ratio=args.gain_ratio,
                           gate_edge_power=args.gate_edge_power,
                           freq_weight=args.freq_weight,
-                          freq_weight_power=args.freq_weight_power)
+                          freq_weight_power=args.freq_weight_power,
+                          gain_weight=args.gain_weight)
     if args.radius is not None:
         param.set_radius(args.radius)
         res = run_param_pgd(x01, param, loss_fn, steps=args.steps,
@@ -281,6 +282,14 @@ def build_parser() -> argparse.ArgumentParser:
                          "掉到 0.544，要摸到會擋下的強度就得把半徑推過 theta "
                          "的封頂，之後只有增益在長而增益是振幅。本值無出處，"
                          "是本專案指定")
+    ap.add_argument("--gain-weight", choices=("shared", "jnd"),
+                    default="shared",
+                    help="增益的閘。shared = 與相位同一個閘（逐位元等於"
+                         "加這個旗標之前）；jnd 另乘知覺權重，把振幅的"
+                         "創造推到人眼看不見的頻帶。理由：自然影像的功率"
+                         "譜按 1/f^2 掉，高頻幾乎沒有能量可以旋轉，相位在"
+                         "那裡無事可做，而 exp(g)·|spec| 造得出容量。逐帶"
+                         "量測見 runs/encoder_frequency_response")
     ap.add_argument("--pixel-gate-sigma", type=float, default=0.0,
                     help="逐像素紋理閘的高斯 sigma（像素）。0 = 關閉，逐位元與"
                          "加這個選項之前相同。要能分辨鬍鬚與臉頰就必須遠小於 "
@@ -445,6 +454,7 @@ def main() -> None:
                 # 一樣，不記下來就無法在合併之後分辨。
                 "freq_weight": args.freq_weight,
                 "freq_weight_power": args.freq_weight_power,
+                "gain_weight": args.gain_weight,
                 # 防禦端的 PGD 步數。**本方法預設 100，DCT-Shield 是 1000**
                 # （該篇 §5.4），頭對頭表上這個差異從未被控制過，故逐列記下。
                 "defense_steps": defense_steps(args, cond),

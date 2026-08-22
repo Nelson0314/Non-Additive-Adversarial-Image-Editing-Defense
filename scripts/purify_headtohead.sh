@@ -61,7 +61,14 @@ for s in $SRC; do
   launch "$tag" "$run" object "$OBJECT" ""
 done
 
-# 空白地板：防禦圖就是原圖，與條件無關，故整批只跑一次。
-launch floor runs/ip2p_overlap_sweep/h08_r25 all "$ALL" "--floor"
+# 空白地板：防禦圖就是原圖，與條件無關，故只跑一份——但**仍要分片**。
+# 不分片的話它一個 process 要跑十三張，而其餘每個分片只跑三到五張；扣地板
+# 的表要等最慢的那一格，於是整批的完成時間由這一格決定（實測差四小時）。
+for shard in color scene object; do
+  case $shard in
+    color) imgs="$COLOR" ;; scene) imgs="$SCENE" ;; object) imgs="$OBJECT" ;;
+  esac
+  launch floor runs/ip2p_overlap_sweep/h08_r25 "$shard" "$imgs" "--floor"
+done
 
 echo "[purify] 全部送出（$(date)），共 $i 個 process"

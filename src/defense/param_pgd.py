@@ -109,7 +109,8 @@ class PhaseParam:
                  freq_weight_power: float = 1.0,
                  gain_weight: str = "shared",
                  channels: str = "rgb",
-                 spectral_floor: float = 0.0):
+                 spectral_floor: float = 0.0,
+                 floor_gate: str = "uniform"):
         self.size, self.block, self.r_min = size, block, r_min
         # None = block//2，逐位元等於加這個參數之前。更小的 hop 讓每個
         # 像素被更多區塊覆蓋，相鄰區塊獨立旋轉留下的接縫因此被平均掉。
@@ -129,6 +130,9 @@ class PhaseParam:
         self.gain_weight = gain_weight
         self.channels = channels
         self.spectral_floor = spectral_floor
+        # 加法項的價目表要不要隨區塊變。合法性由 `PhaseResidual` 檢查，
+        # 這裡只轉交。`uniform` 逐位元等於加這個旋鈕之前。
+        self.floor_gate = floor_gate
         # **radius 本身不封頂**，封頂只發生在傳給 `theta_max` 的那一刻。
         # 2026-08-21 之前這裡是 `min(radius, pi)`，於是 `--radius 3.5` 與
         # `--radius 4.5` 其實跑的是同一個 theta_max = pi——sigma 掃描看到的
@@ -167,6 +171,7 @@ class PhaseParam:
             gain_weight=self.gain_weight,
             channels=self.channels,
             spectral_floor=self.spectral_floor,
+            floor_gate=self.floor_gate,
         ).to(device=x01.device, dtype=x01.dtype)
         self.module.prepare_gates(x01, keep=self.keep)
 

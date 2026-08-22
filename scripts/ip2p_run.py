@@ -69,6 +69,7 @@ from src.defense.purify_aware import (  # noqa: E402
 )
 from src.defense.param_pgd import fit_to_budget, run_param_pgd  # noqa: E402
 from src.residual.perceptual_weight import FREQ_WEIGHTS  # noqa: E402
+from src.residual.texture_rephase import FLOOR_GATES  # noqa: E402
 from src.metrics.standard import (  # noqa: E402
     SIGLIP_BLOCKED_THRESHOLD, blocked_by_siglip, standard_row,
 )
@@ -202,7 +203,8 @@ def defend(ip2p, suite, cond, x01, args, loss_fn):
                           freq_weight_power=args.freq_weight_power,
                           gain_weight=args.gain_weight,
                           channels=args.phase_channels,
-                          spectral_floor=args.spectral_floor)
+                          spectral_floor=args.spectral_floor,
+                          floor_gate=args.floor_gate)
     if args.radius is not None:
         param.set_radius(args.radius)
         res = run_param_pgd(x01, param, loss_fn, steps=args.steps,
@@ -316,6 +318,13 @@ def build_parser() -> argparse.ArgumentParser:
                          "徑向帶通、不乘紋理閘，才進得去平坦區。"
                          "**開啟後方法不再是純粹的非加性重參數化**，"
                          "兩個設定都是主線、分開報（docs/METHOD.md）")
+    ap.add_argument("--floor-gate", choices=tuple(sorted(FLOOR_GATES)),
+                    default="uniform",
+                    help="加法項的價目表要不要隨區塊變。uniform（預設）只看"
+                         "頻格，跨區塊是常數——那正是 DCT-Shield 的形狀。"
+                         "complement 把加法限制在紋理閘的補集上（乘法那一半"
+                         "動不了的地方）；watson 換成 Watson (1993) 的亮度"
+                         "遮蔽 × 對比遮蔽。三者的**總預算相同**，改的是分配")
     ap.add_argument("--pixel-gate-sigma", type=float, default=0.0,
                     help="逐像素紋理閘的高斯 sigma（像素）。0 = 關閉，逐位元與"
                          "加這個選項之前相同。要能分辨鬍鬚與臉頰就必須遠小於 "
@@ -483,6 +492,9 @@ def main() -> None:
                 "gain_weight": args.gain_weight,
                 "phase_channels": args.phase_channels,
                 "spectral_floor": args.spectral_floor,
+                # 加法項的價目分配。三個變體的總預算相同，跑出來的列
+                # 在其餘欄位上一模一樣，不記下來合併之後就分不出來。
+                "floor_gate": args.floor_gate,
                 # 防禦端的 PGD 步數。**本方法預設 100，DCT-Shield 是 1000**
                 # （該篇 §5.4），頭對頭表上這個差異從未被控制過，故逐列記下。
                 "defense_steps": defense_steps(args, cond),

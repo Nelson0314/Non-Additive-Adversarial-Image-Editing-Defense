@@ -289,6 +289,70 @@ def replace_magnitude(spec: torch.Tensor, target_mag: torch.Tensor,
     return target_mag.to(spec.dtype) * (spec / spec.abs().clamp_min(eps))
 
 
+# Watson (1993) 的兩個常數。亮度遮蔽的指數 a_T = 0.649、對比遮蔽的指數
+# w = 0.7，兩者取自 Watson, "DCT quantization matrices visually optimized for
+# individual images", SPIE 1913:202-216, 1993，並依 Podilchuk & Zeng,
+# "Image-adaptive watermarking using visual models", IEEE JSAC 16(4):525-539,
+# 1998 的用法搬到浮水印式的預算分配上。**兩個值都不是本專案指定的。**
+WATSON_LUMINANCE_EXPONENT = 0.649
+WATSON_CONTRAST_EXPONENT = 0.7
+
+
+def _floor_price_complement(module, x01: torch.Tensor,
+                            base: torch.Tensor) -> torch.Tensor:
+    """加法項花在**乘法那一半可達量最少**的區塊上。
+
+    存在理由：相位與增益都是乘法，能改動的量正比於 `|spec|`——通帶內幾乎沒有
+    能量的區塊，強度開再大也動不了。加法項就是為了那些地方而存在的。均勻的
+    價目表把預算同時發給乘法已經在動的區塊，那既是重複投資，也正是
+    DCT-Shield 的形狀（逐係數的 eps·Q，跨區塊為常數）。
+
+    「可達量」取乘法那一半在該區塊上能碰到的幅度總量：
+
+        reach_b = || |S_b(w)| * g_b * m_w ||_2        （通帶內，逐區塊一個純量）
+
+    再取 `1 - reach_b / max_b reach_b`。除以最大值使它落在 [0, 1] 且無單位，
+    **不引入任何新的常數**。紋理閘與頻率閘都已經是固定的，故這個因子也固定，
+    不參與最佳化。
+    """
+    spec = module.analyze(x01)
+    mag = spec.abs().mean(dim=1)                       # (B, L, n, nb)
+    reach = (mag * module.gate()).flatten(2).norm(dim=2)   # (B, L)
+    w = 1.0 - reach / reach.max().clamp_min(1e-12)
+    return base[None, None] * w[..., None, None]
+
+
+def _floor_price_watson(module, x01: torch.Tensor,
+                        base: torch.Tensor) -> torch.Tensor:
+    """逐區塊逐頻格的知覺門檻：亮度遮蔽 × 對比遮蔽。
+
+        t_b(w)  = base(w) * floor * (DC_b / mean DC) ** a_T      亮度遮蔽
+        s_b(w)  = max( t_b(w), |S_b(w)| ** w * t_b(w) ** (1-w) ) 對比遮蔽
+
+    `base` 是 JPEG 亮度量化表，即 Watson 模型裡的 t_ij；DCT-Shield 的預算
+    只到這一層（逐係數 eps·Q，跨區塊為常數）。多出來的兩項把價目變成
+    **內容相依**——這是本方法與它在加法那一半上唯一的構造差異。
+
+    零支撐自動保住：`base = 0` 處 `t = 0`，而 `0 ** (1-w) = 0`。
+    """
+    spec = module.analyze(x01)
+    mag = spec.abs().mean(dim=1)                       # (B, L, n, nb)
+    dc = mag[..., 0, 0]                                # (B, L)
+    lum = (dc / dc.mean().clamp_min(1e-12)).clamp_min(1e-6)
+    lum = lum ** WATSON_LUMINANCE_EXPONENT
+    t = base[None, None] * lum[..., None, None] * module.spectral_floor
+    w = WATSON_CONTRAST_EXPONENT
+    s = torch.maximum(t, mag ** w * t ** (1.0 - w))
+    return s / module.spectral_floor
+
+
+FLOOR_GATES = {
+    "uniform": None,          # 預設，價目只看頻格。`_build_floor_price` 直接回傳 base
+    "complement": _floor_price_complement,
+    "watson": _floor_price_watson,
+}
+
+
 class PhaseResidual(ResidualModule):
     """紋理重相位。phi = theta，形狀 (1, L, block, block//2+1)，RGB 三通道共用。
 
@@ -319,6 +383,7 @@ class PhaseResidual(ResidualModule):
         gain_weight: str = "shared",
         channels: str = "rgb",
         spectral_floor: float = 0.0,
+        floor_gate: str = "uniform",
     ):
         super().__init__()
         if block % 2 != 0:
@@ -368,6 +433,15 @@ class PhaseResidual(ResidualModule):
             raise ValueError(
                 f"spectral_floor 不可為負，收到 {spectral_floor}")
         self.spectral_floor = spectral_floor
+        # 加法項的價目表要不要隨**區塊**變。`uniform`（預設）逐位元等於加這個
+        # 旋鈕之前：價目只看頻格，跨區塊是一個常數——而那正是 DCT-Shield 的
+        # 形狀（逐係數 ±eps·Q，Q 只看頻率）。兩個替代品各自對應一條可辯護的
+        # 差異，說明見 `FLOOR_GATES`。
+        if floor_gate not in FLOOR_GATES:
+            raise ValueError(
+                f"未知的 floor_gate：{floor_gate!r}，"
+                f"可用的是 {sorted(FLOOR_GATES)}")
+        self.floor_gate = floor_gate
 
         self.size = size
         self.block = block
@@ -484,17 +558,35 @@ class PhaseResidual(ResidualModule):
             self.pixel_mask = m.detach()
         else:
             self.pixel_mask = None
-        # 加法項的價目表：徑向帶通 × 知覺權重，**不含紋理閘**。
+        # 加法項的價目表。基底是徑向帶通 × 知覺權重（**不含相位那一半的
+        # 紋理閘**）；`floor_gate` 決定要不要再乘一層逐區塊的因子。
         self._floor_price = (
-            radial_gate(self.block, self.r_min, device, dtype, self.r_max)
-            * perceptual_freq_weight("jpeg_luma", self.block, device, dtype)
-        ) if self.spectral_floor > 0 else None
+            self._build_floor_price(x01, device, dtype)
+            if self.spectral_floor > 0 else None)
         if self.gain_weight == "jnd":
             self._gain_freq = perceptual_freq_weight(
                 "jpeg_luma", self.block, device, dtype)
         else:
             self._gain_freq = None
         self._gates_ready = True
+
+    def _build_floor_price(self, x01: torch.Tensor, device,
+                           dtype) -> torch.Tensor:
+        """加法項的價目表。`uniform` 回傳 (n, nb)，其餘回傳 (1, L, n, nb)。
+
+        三個變體的**總預算相同**：非均勻的價目表最後被縮放到與 `uniform`
+        同一個平均值。改動的因此是「預算花在哪裡」，不是「花多少」——否則
+        等失真的比較會退化成強度比較（先前有兩個結論就是這樣讀錯的）。
+        """
+        base = (radial_gate(self.block, self.r_min, device, dtype, self.r_max)
+                * perceptual_freq_weight("jpeg_luma", self.block, device, dtype))
+        if self.floor_gate == "uniform":
+            return base
+        price = FLOOR_GATES[self.floor_gate](self, x01, base)
+        # 同一個總預算：把平均值拉回 base 的平均值。兩者的零支撐相同
+        # （通帶外的格在每個變體裡都仍是零），故這個比值只重分配不加碼。
+        scale = base.mean() / price.mean().clamp_min(1e-12)
+        return (price * scale).detach()
 
     def floor_price(self) -> torch.Tensor:
         """加法項每個頻格值多少。徑向帶通 × `jpeg_luma` 權重（取一次方）。

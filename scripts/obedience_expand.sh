@@ -22,6 +22,14 @@ log() { echo "[$(date +%H:%M:%S)] $*" | tee -a $ROOT/log.txt; }
 
 LIST=$ROOT/rest_images.txt
 [ -s "$LIST" ] || { log "$LIST 不存在或是空的，中止"; exit 1; }
+# 影像清單常常是在 Windows 上產生再上傳的，會帶 CRLF。`tr '
+' ' '` 只換掉
+# LF，於是每個名字尾端掛著一個 CR，`--images` 一張都對不上而錯誤訊息是
+# 「底下沒有符合 --images 的影像」——看起來像清單錯了，其實是行尾。
+if grep -q $'' "$LIST"; then
+  log "清單帶 CRLF，就地去掉 CR"
+  tr -d '' < "$LIST" > "$LIST.tmp" && mv "$LIST.tmp" "$LIST"
+fi
 N=$(wc -l < $LIST)
 log "服從率篩選開始，$N 張，只跑未防禦編輯"
 

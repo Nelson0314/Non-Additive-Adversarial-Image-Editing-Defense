@@ -77,23 +77,32 @@ def draw_text(canvas: torch.Tensor, text: str, top: int, left: int,
         x += 4 * scale
 
 
-def tile_of(path: Path) -> torch.Tensor:
+def tile_of(path: Path, tile: int = TILE) -> torch.Tensor:
+    """讀一格。`tile == RESOLUTION` 時**不縮放**，逐位元就是原生 512。
+
+    縮放會把接縫與鱗片重影平均掉，而那正是判「單純劣化還是不可辨」時要看的
+    東西——`runs/obedience_audit` 的判定就是在原生解析度上做的。
+    """
     x = load_image_tensor(path, torch.device("cpu"), size=RESOLUTION)
-    return F.interpolate(x, size=(TILE, TILE), mode="area")[0]
+    if tile == RESOLUTION:
+        return x[0]
+    return F.interpolate(x, size=(tile, tile), mode="area")[0]
 
 
-def build_sheet(pairs: List[Tuple[int, Path, Path]]) -> torch.Tensor:
+def build_sheet(pairs: List[Tuple[int, Path, Path]],
+                tile: int = TILE) -> torch.Tensor:
     n = len(pairs)
-    h = n * (TILE + LABEL + PAD) + PAD
-    w = 2 * TILE + 3 * PAD
+    h = n * (tile + LABEL + PAD) + PAD
+    w = 2 * tile + 3 * PAD
     canvas = torch.full((3, h, w), BG)
     y = PAD
     for idx, left_path, right_path in pairs:
         draw_text(canvas, f"#{idx}", y + 4, PAD, scale=4)
         y += LABEL
-        canvas[:, y:y + TILE, PAD:PAD + TILE] = tile_of(left_path)
-        canvas[:, y:y + TILE, 2 * PAD + TILE:2 * PAD + 2 * TILE] = tile_of(right_path)
-        y += TILE + PAD
+        canvas[:, y:y + tile, PAD:PAD + tile] = tile_of(left_path, tile)
+        canvas[:, y:y + tile, 2 * PAD + tile:2 * PAD + 2 * tile] = tile_of(
+            right_path, tile)
+        y += tile + PAD
     return canvas
 
 
@@ -111,6 +120,10 @@ def main() -> None:
                     help="左右兩格各取哪一種：orig / def / edit_orig / edit_def")
     ap.add_argument("--out", type=Path, required=True, help="輸出檔名前綴")
     ap.add_argument("--rows", type=int, default=4)
+    ap.add_argument("--tile", type=int, default=TILE,
+                    help="每格邊長。給 512 即原生解析度不縮放——判"
+                         "「單純劣化還是不可辨」要看接縫與鱗片重影，"
+                         "縮放會把它們平均掉")
     ap.add_argument("--images", nargs="+", default=None,
                     help="只排這些影像。用來把對照張限制在「未防禦編輯確實"
                          "執行了指令」的子集上——攻擊本來就失敗的影像，兩張"
@@ -151,7 +164,7 @@ def main() -> None:
     for s in range(0, len(items), args.rows):
         chunk = items[s:s + args.rows]
         pairs = [(s + k + 1, lp, rp) for k, (_, lp, rp) in enumerate(chunk)]
-        sheet = build_sheet(pairs)
+        sheet = build_sheet(pairs, tile=args.tile)
         arr = (sheet.clamp(0, 1).permute(1, 2, 0) * 255).round().to(torch.uint8).numpy()
         out = args.out.with_name(f"{args.out.name}_{s // args.rows + 1:02d}.png")
         Image.fromarray(arr).save(out)

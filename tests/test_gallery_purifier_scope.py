@@ -67,3 +67,22 @@ def test_render_defaults_to_the_purification_copy():
               "conditions": {}}]
     assert gallery.render(cards, [], []) == gallery.render(
         cards, [], [], scope="standard")
+
+
+def test_title_can_be_overridden_per_page():
+    """一份批次拆成多頁時，各頁必須有自己的名字。
+
+    頁面體積超過 16 MB 就得拆（`main()` 會警告），而拆出來的每一頁若共用
+    同一個 `<title>`，在瀏覽器分頁與 Artifact 清單裡就分不出誰是誰。
+    """
+    cards = [{"image": "img", "box": [0, 0],
+              "stages": {"原圖": {"full": "", "zoom": ""}},
+              "conditions": {}}]
+    out = gallery.render(cards, [], [], scope="none", title="改色與天氣")
+    assert "<title>改色與天氣</title>" in out
+    assert "<h1>改色與天氣</h1>" in out
+    # 抬頭與說明不受影響：換的是名字，不是這一頁在回答什麼。
+    assert gallery.PAGE_COPY["none"]["eyebrow"] in out
+
+    ns = gallery.build_parser().parse_args(["--src", "a", "--out", "b"])
+    assert ns.title is None

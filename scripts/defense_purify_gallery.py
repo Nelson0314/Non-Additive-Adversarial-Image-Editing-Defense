@@ -342,16 +342,20 @@ PAGE_COPY = {
 
 
 def render(cards: List[dict], notes: List[str], metrics: List[dict],
-           scope: str = "standard") -> str:
+           scope: str = "standard", title: Optional[str] = None) -> str:
     if scope not in PAGE_COPY:
         raise ValueError(
             f"未知的 purifiers 範圍：{scope!r}，可用的是 {sorted(PAGE_COPY)}")
     copy = PAGE_COPY[scope]
+    # 一份批次拆成多頁時各頁要有自己的名字，否則在分頁列與清單裡分不出來。
+    # 換的只有名字，抬頭與說明仍由 scope 決定——那兩者講的是這一頁在回答
+    # 什麼，不隨拆頁改變。
+    name = title or copy["title"]
     # 用 replace 不用 format：`HTML_HEAD` 裡整段 CSS 都是大括號。
-    parts = [HTML_HEAD.replace("{title}", copy["title"]),
+    parts = [HTML_HEAD.replace("{title}", name),
              '<div class="wrap">', "<header>"]
     parts.append(f'<p class="eyebrow">{copy["eyebrow"]}</p>')
-    parts.append(f'<h1>{copy["title"]}</h1>')
+    parts.append(f'<h1>{name}</h1>')
     parts.append(f'<p class="lede">{copy["lede"]}</p>')
     parts.append("</header>")
 
@@ -526,6 +530,9 @@ def build_parser() -> argparse.ArgumentParser:
                     help="條件標籤即批次子目錄名，如 phase_s0100")
     ap.add_argument("--metrics-from", type=Path, nargs="*", default=[],
                     help="要撈數字的批次根目錄")
+    ap.add_argument("--title", default=None,
+                    help="頁面名稱。不給則由 --purifiers 的範圍決定。"
+                         "一份批次拆成多頁時各頁要有自己的名字")
     ap.add_argument("--purifiers", choices=("standard", "none"),
                     default="standard",
                     help="standard = 四個淨化算子（預設，逐位元等於加這個旗標"
@@ -542,8 +549,9 @@ def main() -> None:
     metrics = collect_metrics(args.metrics_from, conds) if args.metrics_from else []
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
-    args.out.write_text(render(cards, notes, metrics, args.purifiers),
-                        encoding="utf-8")
+    args.out.write_text(
+        render(cards, notes, metrics, args.purifiers, args.title),
+        encoding="utf-8")
     mb = args.out.stat().st_size / 1e6
     print(f"{args.out}  {mb:.1f} MB  影像 {len(cards)} 張 × 條件 {len(conds)} 個")
     if mb > 16:

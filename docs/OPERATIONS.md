@@ -42,8 +42,18 @@ Repo 在 `/nfs/home/nelson0314/WACV-s3`。虛擬環境由 `~/env.sh` 提供
 2. **卡是多人共用的**，跑之前先看 `nvidia-smi`。
 3. **`git pull` 常因 `runs/` 的未追蹤檔衝突而 abort**，先把它們 `mv` 到暫存
    目錄再 pull。
-4. **遠端也用 sparse-checkout**；`git pull` 之後若某個頂層目錄沒出現，先
-   `git sparse-checkout add <目錄>`。
+4. **遠端也用 sparse-checkout**，而且它的模式表是**白名單**（`/*` 之後
+   `!/runs/`，再逐一列出允許的 `runs/` 子目錄）。兩件事會因此發生：
+
+   - `git pull` 之後某個頂層目錄沒出現 → `git sparse-checkout add <目錄>`。
+   - **更危險的一種**：某個 `runs/` 子目錄原本是未追蹤的本機檔案，一旦它被
+     commit 進來，`git pull` 會把它變成「已追蹤但被 sparse 排除」，於是
+     **git 直接把那些檔案從工作區刪掉**。實測 `runs/ip2p_dct_band_extend/*/results.csv`
+     就是這樣消失的（PNG 未入版控故倖存），而後續讀那份 CSV 的批次才報錯。
+     檔案本身在 git 裡沒丟，`git sparse-checkout add` 就會回來。
+
+   **每次新增 `runs/` 子目錄並 commit 之後，先在遠端 `git sparse-checkout add`
+   那個目錄，再 pull。**
 5. **`pkill -f` 的樣式要用中括號寫法**（`[i]p2p_run`），否則會匹配到自己的
    ssh 連線並截斷輸出。
 

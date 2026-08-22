@@ -55,3 +55,18 @@ def test_outcome_script_uses_the_shared_constant_not_a_literal():
     src = (ROOT / "scripts" / "defense_outcome_metrics.py").read_text(
         encoding="utf-8")
     assert "SIGLIP_BLOCKED_THRESHOLD" in src
+
+
+DCT_REQUIRED = ("dct_q_alg", "dct_gamma")
+
+
+def test_dct_shield_quality_factor_is_a_column():
+    """`q_alg` 決定 DCT-Shield 的量化表，base 用 0.95、Y-only 用 0.85。
+
+    此前它只活在 CLI 預設值裡，於是兩個品質因子跑出的列在報表上長得一模
+    一樣——RESULTS 的 FND-058「Y-only 的比較混淆了品質因子」就是這個缺陷的
+    症狀。`gamma` 同理：它是論文 §5.4 的步長係數，換了不會有任何欄位改變。
+    """
+    src = (ROOT / "scripts" / "ip2p_run.py").read_text(encoding="utf-8")
+    for col in DCT_REQUIRED:
+        assert f'"{col}":' in src, col

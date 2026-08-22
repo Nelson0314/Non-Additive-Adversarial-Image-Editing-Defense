@@ -427,6 +427,12 @@ def main() -> None:
                 "loss": args.loss,
                 "gain_ratio": args.gain_ratio,
                 "purify_aware": args.purify_aware,
+                # DCT-Shield 的量化表由 `q_alg` 決定，base 是論文 §5.4 的
+                # 0.95、Y-only 是 §6.3 的 0.85。此前它只在 CLI 預設值裡，
+                # 兩個品質因子跑出的列在報表上分不出來（FND-058）。
+                # `gamma` 是 §5.4 的步長係數，同理。
+                "dct_q_alg": args.q_alg,
+                "dct_gamma": PAPER_GAMMA,
                 "wm_tau": args.wm_tau,
                 "wm_mu": args.wm_mu,
                 "wm_diagonals": "-".join(str(d) for d in args.wm_diagonals),

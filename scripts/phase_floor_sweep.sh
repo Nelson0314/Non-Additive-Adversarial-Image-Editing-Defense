@@ -26,16 +26,21 @@ IMGS="task_attr_mod_color_11699 task_attr_mod_color_136767 task_attr_mod_color_1
 
 COMMON="--data data/omniedit150 --conditions phase --gain-ratio 0 --radius 3.1416 --loss latent_norm --steps 1000 --quantile 0 --freq-weight jpeg_luma --freq-weight-power 0.25 --hop 8"
 
-# tag:spectral_floor:device
+DEVS=(${1:-0 1})
+
+# tag:spectral_floor
 POINTS="
-f050:0.05:0
-f060:0.06:0
-f080:0.08:1
-f100:0.10:1
+f050:0.05
+f060:0.06
+f080:0.08
+f100:0.10
 "
 
+i=0
 for p in $POINTS; do
-  IFS=: read -r tag fl dev <<< "$p"
+  IFS=: read -r tag fl <<< "$p"
+  dev=${DEVS[$(( i / 2 % ${#DEVS[@]} ))]}
+  i=$(( i + 1 ))
   CUDA_VISIBLE_DEVICES="$dev" nohup "$PY" scripts/ip2p_run.py \
       --out "$OUT/$tag" --spectral-floor "$fl" --images $IMGS $COMMON \
       > "$OUT/$tag.log" 2>&1 &

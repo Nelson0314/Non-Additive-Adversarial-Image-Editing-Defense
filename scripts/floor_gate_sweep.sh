@@ -15,6 +15,11 @@ set -uo pipefail
 ROOT=/nfs/home/nelson0314/WACV-s3
 PY="$HOME/venvs/wacv/bin/python"
 export PYTHONPATH="$ROOT" HF_HOME="$HOME/hf_cache" PYTHONIOENCODING=utf-8
+# 不 source ~/env.sh：它最後一行會把工作目錄換到舊的 ~/WACV（坑一）。
+# 但 DIFFPURE_CKPT 只寫在那裡，少了它 gridpure／fdpure 會被判為
+# 「相依不齊」而**靜默跳過**，報表上只剩一行提示。
+export DIFFPURE_CKPT="$HOME/thirdparty/diffpure/256x256_diffusion_uncond.pt"
+export TOKENIZERS_PARALLELISM=false
 cd "$ROOT"
 
 OUT=runs/ip2p_floor_gate

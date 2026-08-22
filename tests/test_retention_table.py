@@ -78,3 +78,27 @@ def test_usable為false的列被排除():
     ]
     keep, skipped = usable_rows(rows)
     assert skipped == 1 and len(keep) == 1
+
+
+def test_分批補跑時identity不會被重複計入():
+    """補跑某個算子時 `--purifiers` 必須帶上 identity（它是分母），於是同一格
+    會出現兩次。兩次的 seed 與輸入相同、數值也相同，重複計入只會讓 n_images
+    看起來變兩倍。"""
+    from retention_table import dedupe
+    rows = [
+        _row("ours_add_color.csv", "a", "phase_gain", "identity", 0.5),
+        _row("ours_add_color.csv", "a", "phase_gain", "identity", 0.5),
+        _row("ours_add_color.csv", "a", "phase_gain", "gridpure", 0.3),
+    ]
+    keep, dup = dedupe(rows)
+    assert dup == 1 and len(keep) == 2
+
+
+def test_不同標籤的同一格不算重複():
+    from retention_table import dedupe
+    rows = [
+        _row("ours_add_color.csv", "a", "phase_gain", "identity", 0.5),
+        _row("ours_nonadd_color.csv", "a", "phase_gain", "identity", 0.4),
+    ]
+    keep, dup = dedupe(rows)
+    assert dup == 0 and len(keep) == 2

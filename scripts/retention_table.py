@@ -75,6 +75,25 @@ def usable_rows(rows: List[dict]) -> Tuple[List[dict], int]:
     return keep, len(rows) - len(keep)
 
 
+def dedupe(rows: List[dict]) -> Tuple[List[dict], int]:
+    """同一格（標籤, 影像, 算子）只留一列。
+
+    需要它是因為分批補跑：`--purifiers` 必須含 `identity`（它是 retention
+    的分母），所以後來補跑某個算子時 identity 會再算一次。兩次的 seed 與
+    輸入相同、數值也相同，但重複計入會讓 `n_images` 變成兩倍而看起來像是
+    跑了更多張。
+    """
+    seen = set()
+    keep = []
+    for r in rows:
+        key = (tag_of(r["_file"]), r["image"], r["condition"], r["purifier"])
+        if key in seen:
+            continue
+        seen.add(key)
+        keep.append(r)
+    return keep, len(rows) - len(keep)
+
+
 def net_gain(rows: List[dict]) -> Tuple[List[dict], List[str]]:
     """逐（條件, 算子）的淨增益。回傳表格與被排除的格子說明。"""
     floor: Dict[Tuple[str, str], float] = {}
@@ -125,6 +144,7 @@ def main() -> None:
     if not rows:
         raise SystemExit(f"{args.src} 底下沒有 retention 的 CSV")
     rows, skipped = usable_rows(rows)
+    rows, duplicated = dedupe(rows)
     table, dropped = net_gain(rows)
     if not table:
         raise SystemExit("沒有可算的格子——地板那一批跑了嗎？")
@@ -135,7 +155,8 @@ def main() -> None:
     purs = sorted({r["purifier"] for r in table})
     conds = sorted({r["condition"] for r in table})
     by = {(r["condition"], r["purifier"]): r for r in table}
-    print(f"usable=False 排除 {skipped} 列；缺地板排除 {len(dropped)} 格")
+    print(f"usable=False 排除 {skipped} 列；重複 {duplicated} 列；"
+          f"缺地板排除 {len(dropped)} 格")
     head = f"{'條件':28s}" + "".join(f"{p:>18s}" for p in purs)
     print(head)
     print("-" * len(head))

@@ -322,6 +322,30 @@ def _floor_price_complement(module, x01: torch.Tensor,
     return base[None, None] * w[..., None, None]
 
 
+def _floor_price_complement_rank(module, x01: torch.Tensor,
+                                 base: torch.Tensor) -> torch.Tensor:
+    """同 `complement`，但用**名次**而不是「1 − reach/max」。
+
+    為什麼要這個變體：可達量的分布是重尾的，多數區塊都遠低於最大值，於是
+    `1 − reach / max reach` 對它們幾乎都等於 1，預算實際上只比均勻偏了一兩個
+    百分點（實測：可達量低的一半拿到 51.5%–62.3%，均勻是 50%）。名次轉換把
+    分布拉平，低的一半固定拿到 75%，**且仍然沒有引入任何自由參數**。
+
+        w_b = 1 − rank(reach_b) / (L − 1)
+
+    名次由小到大，最大的那一格恰為 0，與 `complement` 的邊界一致。
+    """
+    spec = module.analyze(x01)
+    mag = spec.abs().mean(dim=1)
+    reach = (mag * module.gate()).flatten(2).norm(dim=2)          # (B, L)
+    order = torch.argsort(reach, dim=1)
+    rank = torch.empty_like(order)
+    idx = torch.arange(reach.shape[1], device=reach.device)
+    rank.scatter_(1, order, idx.expand_as(order))
+    w = 1.0 - rank.to(base.dtype) / max(reach.shape[1] - 1, 1)
+    return base[None, None] * w[..., None, None]
+
+
 def _floor_price_watson(module, x01: torch.Tensor,
                         base: torch.Tensor) -> torch.Tensor:
     """逐區塊逐頻格的知覺門檻：亮度遮蔽 × 對比遮蔽。
@@ -349,6 +373,7 @@ def _floor_price_watson(module, x01: torch.Tensor,
 FLOOR_GATES = {
     "uniform": None,          # 預設，價目只看頻格。`_build_floor_price` 直接回傳 base
     "complement": _floor_price_complement,
+    "complement_rank": _floor_price_complement_rank,
     "watson": _floor_price_watson,
 }
 

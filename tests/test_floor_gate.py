@@ -145,3 +145,38 @@ def test_spectral_floor為零時不建價目表():
     m.prepare_gates(x)
     with pytest.raises(RuntimeError, match="沒有價目表"):
         m.floor_price()
+
+
+def test_complement_rank_低可達量的一半恰好拿到四分之三的預算():
+    """名次轉換的目的就是把重尾分布拉平：`1 − rank/(L−1)` 的前半段面積是
+    後半段的三倍，與影像內容無關。"""
+    x = _image()
+    m = _module("complement_rank")
+    m.prepare_gates(x)
+    per_block = m.floor_price().sum(dim=(-1, -2))[0]
+    spec = m.analyze(x)
+    reach = (spec.abs().mean(dim=1) * m.gate()).flatten(2).norm(dim=2)[0]
+    order = torch.argsort(reach)
+    half = len(order) // 2
+    lo = float(per_block[order[:half]].sum() / per_block.sum())
+    assert lo == pytest.approx(0.75, abs=0.02)
+
+
+def test_complement_rank_可達量最大的區塊拿到零():
+    x = _image()
+    m = _module("complement_rank")
+    m.prepare_gates(x)
+    spec = m.analyze(x)
+    reach = (spec.abs().mean(dim=1) * m.gate()).flatten(2).norm(dim=2)[0]
+    top = int(torch.argmax(reach))
+    assert float(m.floor_price()[0, top].abs().max()) == pytest.approx(0.0, abs=1e-12)
+
+
+def test_complement_rank_的總預算也與uniform相同():
+    x = _image()
+    ref = _module("uniform")
+    ref.prepare_gates(x)
+    m = _module("complement_rank")
+    m.prepare_gates(x)
+    assert float(m.floor_price().mean()) == pytest.approx(
+        float(ref.floor_price().mean()), rel=1e-9)

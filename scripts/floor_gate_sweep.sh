@@ -33,27 +33,29 @@ COMMON="--data data/omniedit150 --conditions phase_gain --loss latent_norm --ste
 # 別人正在用的四張卡上。用法 `bash scripts/floor_gate_sweep.sh "4 5 6 7"`，
 # 每張卡放兩個。
 DEVS=(${1:-0 1 2 3})
-
-# tag:floor_gate:radius
-POINTS="
-comp_r09:complement:0.9
-comp_r15:complement:1.5
-comp_r20:complement:2.0
-comp_r24:complement:2.4
-wat_r09:watson:0.9
-wat_r15:watson:1.5
-wat_r20:watson:2.0
-wat_r24:watson:2.4
-"
+# 要掃哪些價目分配。第二個參數給空白分隔的名字，預設是最早的兩個變體。
+GATES=(${2:-complement watson})
+# 半徑固定這四點：uniform 的同四點由 axis_necessity.sh 的 b_pg_* 提供，
+# 等失真的內插要有重疊的區間才成立。
+RADII=(0.9 1.5 2.0 2.4)
+# 名字的縮寫，讓輸出目錄一眼看得出是哪一個分配。
+abbrev() {
+  case "$1" in
+    complement) echo comp ;; complement_rank) echo rank ;;
+    watson) echo wat ;; uniform) echo unif ;; *) echo "$1" ;;
+  esac
+}
 
 i=0
-for p in $POINTS; do
-  IFS=: read -r tag fg rad <<< "$p"
+for fg in "${GATES[@]}"; do
+ for rad in "${RADII[@]}"; do
+  tag="$(abbrev "$fg")_r$(echo "$rad" | tr -d '.')"
   dev=${DEVS[$(( i / 2 % ${#DEVS[@]} ))]}
   i=$(( i + 1 ))
   CUDA_VISIBLE_DEVICES="$dev" nohup "$PY" scripts/ip2p_run.py \
       --out "$OUT/$tag" --floor-gate "$fg" --radius "$rad" \
       --images $IMGS $COMMON > "$OUT/$tag.log" 2>&1 &
   echo "[floor_gate] $tag gate=$fg radius=$rad dev=$dev pid=$!"
+ done
 done
 echo "[floor_gate] 全部送出（$(date)）"

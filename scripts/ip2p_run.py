@@ -68,6 +68,7 @@ from src.defense.purify_aware import (  # noqa: E402
     make_jpeg_transform,
 )
 from src.defense.param_pgd import fit_to_budget, run_param_pgd  # noqa: E402
+from src.residual.perceptual_weight import FREQ_WEIGHTS  # noqa: E402
 from src.metrics.standard import (  # noqa: E402
     SIGLIP_BLOCKED_THRESHOLD, blocked_by_siglip, standard_row,
 )
@@ -195,7 +196,8 @@ def defend(ip2p, suite, cond, x01, args, loss_fn):
                           quantile=args.quantile, gl_iters=args.gl_iters,
                           pixel_gate_sigma=args.pixel_gate_sigma,
                           gain_ratio=args.gain_ratio,
-                          gate_edge_power=args.gate_edge_power)
+                          gate_edge_power=args.gate_edge_power,
+                          freq_weight=args.freq_weight)
     if args.radius is not None:
         param.set_radius(args.radius)
         res = run_param_pgd(x01, param, loss_fn, steps=args.steps,
@@ -261,6 +263,15 @@ def build_parser() -> argparse.ArgumentParser:
                          "濾波、TV 去噪的不變集，把擾動趕出邊緣等於放棄那幾"
                          "個算子底下唯一活得下來的位置。本值無出處，是本專案"
                          "指定")
+    ap.add_argument("--freq-weight", choices=tuple(sorted(FREQ_WEIGHTS)),
+                    default="binary",
+                    help="頻率閘的知覺權重。binary = 二值帶通（逐位元等於加"
+                         "這個旗標之前）；jpeg_luma = ITU-T T.81 Annex K 的"
+                         "亮度量化表，雙線性內插到本模組的 rfft2 格點後正規"
+                         "化到最大值 1。存在的理由是二值閘對 r=0.15 與 r=0.9 "
+                         "開同一個價，而人眼對前者的敏感度高一個數量級；"
+                         "RESULTS 已把 DCT-Shield 那 2 倍的失真效率優勢歸因給"
+                         "JPEG 量化階的約束，並註明那不是加性本身帶來的")
     ap.add_argument("--pixel-gate-sigma", type=float, default=0.0,
                     help="逐像素紋理閘的高斯 sigma（像素）。0 = 關閉，逐位元與"
                          "加這個選項之前相同。要能分辨鬍鬚與臉頰就必須遠小於 "
@@ -421,6 +432,9 @@ def main() -> None:
                 # 預設值裡，掃描它們的批次在報表上分不出來。
                 "quantile": args.quantile,
                 "gate_edge_power": args.gate_edge_power,
+                # 頻率閘的知覺權重。二值閘與加權閘跑出的列在其餘欄位上一模
+                # 一樣，不記下來就無法在合併之後分辨。
+                "freq_weight": args.freq_weight,
                 # 防禦端的 PGD 步數。**本方法預設 100，DCT-Shield 是 1000**
                 # （該篇 §5.4），頭對頭表上這個差異從未被控制過，故逐列記下。
                 "defense_steps": defense_steps(args, cond),

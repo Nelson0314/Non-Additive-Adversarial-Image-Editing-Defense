@@ -103,7 +103,8 @@ class PhaseParam:
                  radius: float = math.pi, energy_quantile: float = 0.5,
                  keep: Optional[torch.Tensor] = None, gl_iters: int = 0,
                  pixel_gate_sigma: float = 0.0, gain_ratio: float = 0.0,
-                 phase_on: bool = True, gate_edge_power: float = 1.0):
+                 phase_on: bool = True, gate_edge_power: float = 1.0,
+                 freq_weight: str = "binary"):
         self.size, self.block, self.r_min = size, block, r_min
         self.r_max = r_max
         self.energy_quantile = energy_quantile
@@ -113,6 +114,9 @@ class PhaseParam:
             raise ValueError(
                 f"gate_edge_power 不可為負，收到 {gate_edge_power}")
         self.gate_edge_power = gate_edge_power
+        # 頻率閘的知覺權重。"binary" = 二值帶通，逐位元等於加它之前。
+        # 名字的合法性由 `PhaseResidual` 檢查，這裡只轉交。
+        self.freq_weight = freq_weight
         # **radius 本身不封頂**，封頂只發生在傳給 `theta_max` 的那一刻。
         # 2026-08-21 之前這裡是 `min(radius, pi)`，於是 `--radius 3.5` 與
         # `--radius 4.5` 其實跑的是同一個 theta_max = pi——sigma 掃描看到的
@@ -145,6 +149,7 @@ class PhaseParam:
             gl_iters=self.gl_iters, pixel_gate_sigma=self.pixel_gate_sigma,
             gain_max=self.radius * self.gain_ratio,
             gate_edge_power=self.gate_edge_power,
+            freq_weight=self.freq_weight,
         ).to(device=x01.device, dtype=x01.dtype)
         self.module.prepare_gates(x01, keep=self.keep)
 

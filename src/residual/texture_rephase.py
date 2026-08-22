@@ -93,6 +93,12 @@ def hann2d(n: int, device, dtype) -> torch.Tensor:
     return torch.outer(w, w)
 
 
+from src.residual.perceptual_weight import (
+    FREQ_WEIGHTS,
+    freq_weight as perceptual_freq_weight,
+)
+
+
 def radial_gate(block: int, r_min: float, device, dtype,
                 r_max: float = float("inf")) -> torch.Tensor:
     """(block, block//2+1) 的徑向頻率閘。**帶通**：`r_min <= r <= r_max`。
@@ -276,6 +282,7 @@ class PhaseResidual(ResidualModule):
         pixel_gate_sigma: float = 0.0,
         gain_max: float = 0.0,
         gate_edge_power: float = 1.0,
+        freq_weight: str = "binary",
     ):
         super().__init__()
         if block % 2 != 0:
@@ -290,6 +297,14 @@ class PhaseResidual(ResidualModule):
         if gate_edge_power < 0:
             raise ValueError(
                 f"gate_edge_power 不可為負，收到 {gate_edge_power}")
+        # 頻率閘的知覺權重。"binary" = 二值帶通，逐位元等於加這個選項之前。
+        # 名字打錯在這裡就拋錯（`freq_weight()` 會檢查），不等到 prepare_gates
+        # ——後者在防禦迴圈裡逐張呼叫，錯誤會被淹在批次輸出裡。
+        if freq_weight not in FREQ_WEIGHTS:
+            raise ValueError(
+                f"未知的 freq_weight：{freq_weight!r}，"
+                f"可用的是 {sorted(FREQ_WEIGHTS)}")
+        self.freq_weight = freq_weight
 
         self.size = size
         self.block = block
@@ -380,8 +395,11 @@ class PhaseResidual(ResidualModule):
         """
         device, dtype = x01.device, x01.dtype
         self.window = hann2d(self.block, device, dtype)
-        self.freq_gate = radial_gate(self.block, self.r_min, device, dtype,
-                                     self.r_max)
+        # 閘 = 帶通遮罩 x 知覺權重。相乘而不是相加：權重不得讓通帶外的
+        # 頻格復活，尤其是 rfft2 共軛對稱依賴的 fx=0 與 fx=N/2 兩行。
+        self.freq_gate = radial_gate(
+            self.block, self.r_min, device, dtype, self.r_max
+        ) * perceptual_freq_weight(self.freq_weight, self.block, device, dtype)
         tex = texture_gate(x01, self.block, self.hop, self.energy_quantile,
                            edge_power=self.gate_edge_power)
         if keep is not None:

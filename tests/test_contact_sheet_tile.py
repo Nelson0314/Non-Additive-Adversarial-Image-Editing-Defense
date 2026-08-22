@@ -46,7 +46,25 @@ def test_較小的格子確實縮放(png):
 
 def test_版面尺寸跟著格子走(png):
     a, b = png("a.png", 0.2), png("b.png", 0.8)
-    small = build_sheet([(1, a, b)], tile=TILE)
-    full = build_sheet([(1, a, b)], tile=RESOLUTION)
+    small = build_sheet([(1, [a, b])], tile=TILE)
+    full = build_sheet([(1, [a, b])], tile=RESOLUTION)
     assert full.shape[-1] > small.shape[-1]
     assert full.shape[-1] == 2 * RESOLUTION + 3 * 10
+
+
+def test_三欄的版面寬度多一格(png):
+    a, b, c = png("a.png", 0.2), png("b.png", 0.5), png("c.png", 0.8)
+    three = build_sheet([(1, [a, b, c])], tile=128)
+    assert three.shape[-1] == 3 * 128 + 4 * 10
+
+
+def test_欄數不一致時拋錯(png):
+    a, b, c = png("a.png", 0.2), png("b.png", 0.5), png("c.png", 0.8)
+    with pytest.raises(ValueError, match="欄數"):
+        build_sheet([(1, [a, b]), (2, [a, b, c])], tile=64)
+
+
+def test_少於兩欄時拋錯(png):
+    a = png("a.png", 0.2)
+    with pytest.raises(ValueError, match="至少兩欄"):
+        build_sheet([(1, [a])], tile=64)

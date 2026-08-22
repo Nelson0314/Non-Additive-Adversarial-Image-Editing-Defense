@@ -89,19 +89,31 @@ def tile_of(path: Path, tile: int = TILE) -> torch.Tensor:
     return F.interpolate(x, size=(tile, tile), mode="area")[0]
 
 
-def build_sheet(pairs: List[Tuple[int, Path, Path]],
+def build_sheet(rows: List[Tuple[int, List[Path]]],
                 tile: int = TILE) -> torch.Tensor:
-    n = len(pairs)
+    """每一列一組，欄數由該列給幾張圖決定（至少兩欄）。
+
+    三欄的用途是判「原圖還認得出來嗎」：原圖 → 未防禦的編輯 → 防禦後的編輯。
+    只有兩欄時看不出未防禦的編輯本來畫成什麼樣，而那是判準的參照點。
+    """
+    if not rows:
+        raise ValueError("沒有任何一列可排")
+    cols = len(rows[0][1])
+    if any(len(paths) != cols for _, paths in rows):
+        raise ValueError("每一列的欄數必須相同")
+    if cols < 2:
+        raise ValueError(f"至少兩欄，收到 {cols}")
+    n = len(rows)
     h = n * (tile + LABEL + PAD) + PAD
-    w = 2 * tile + 3 * PAD
+    w = cols * tile + (cols + 1) * PAD
     canvas = torch.full((3, h, w), BG)
     y = PAD
-    for idx, left_path, right_path in pairs:
+    for idx, paths in rows:
         draw_text(canvas, f"#{idx}", y + 4, PAD, scale=4)
         y += LABEL
-        canvas[:, y:y + tile, PAD:PAD + tile] = tile_of(left_path, tile)
-        canvas[:, y:y + tile, 2 * PAD + tile:2 * PAD + 2 * tile] = tile_of(
-            right_path, tile)
+        for c, path in enumerate(paths):
+            x0 = (c + 1) * PAD + c * tile
+            canvas[:, y:y + tile, x0:x0 + tile] = tile_of(path, tile)
         y += tile + PAD
     return canvas
 
@@ -116,8 +128,11 @@ def main() -> None:
                     help="右格改取另一個條件的同一張影像。用來在**同一個失真"
                          "水準**上把兩個方法的防禦圖並排——這是「擋下率高是不"
                          "是靠把照片弄爛換來的」唯一能判的方式")
-    ap.add_argument("--pair", nargs=2, default=["orig", "edit_orig"],
-                    help="左右兩格各取哪一種：orig / def / edit_orig / edit_def")
+    ap.add_argument("--pair", nargs="+", default=["orig", "edit_orig"],
+                    help="每一欄各取哪一種：orig / def / edit_orig / edit_def。"
+                         "兩欄是預設；三欄（orig edit_orig edit_def）才看得出"
+                         "未防禦的編輯本來畫成什麼樣，而那是「原圖還認得出來"
+                         "嗎」這個判準的參照點")
     ap.add_argument("--out", type=Path, required=True, help="輸出檔名前綴")
     ap.add_argument("--rows", type=int, default=4)
     ap.add_argument("--tile", type=int, default=TILE,
@@ -133,42 +148,51 @@ def main() -> None:
                          "左格取 orig 而 PNG 目錄裡沒有 __orig.png 時用它補上")
     args = ap.parse_args()
 
+    if len(args.pair) < 2:
+        raise SystemExit("--pair 至少要兩欄")
     found = discover(args.src)
-    left_kind, right_kind = args.pair
-    items: List[Tuple[str, Path, Path]] = []
+    items: List[Tuple[str, List[Path]]] = []
     for image in sorted(found):
         if args.images and image not in args.images:
             continue
         by_cond = found[image]
         kinds = by_cond.get(args.condition, {})
-        right_kinds = (by_cond.get(args.right_condition, {})
-                       if args.right_condition else kinds)
-        lp = kinds.get(left_kind)
-        rp = right_kinds.get(right_kind)
-        if lp is None and left_kind == "orig":
-            for c in by_cond.values():
-                if "orig" in c:
-                    lp = c["orig"]
-                    break
-            if lp is None and args.data is not None:
-                cand = args.data / image / f"{image}.png"
-                lp = cand if cand.exists() else None
-        if lp is None or rp is None:
-            print(f"  略過 {image}：缺 {left_kind if lp is None else right_kind}")
+        other = (by_cond.get(args.right_condition, {})
+                 if args.right_condition else kinds)
+        paths: List[Path] = []
+        missing = None
+        for col, kind in enumerate(args.pair):
+            src = kinds if col == 0 else other
+            path = src.get(kind)
+            if path is None and kind == "orig":
+                for c in by_cond.values():
+                    if "orig" in c:
+                        path = c["orig"]
+                        break
+                if path is None and args.data is not None:
+                    cand = args.data / image / f"{image}.png"
+                    path = cand if cand.exists() else None
+            if path is None:
+                missing = kind
+                break
+            paths.append(path)
+        if missing is not None:
+            print(f"  略過 {image}：缺 {missing}")
             continue
-        items.append((image, lp, rp))
+        items.append((image, paths))
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
     index_lines = []
     from PIL import Image
     for s in range(0, len(items), args.rows):
         chunk = items[s:s + args.rows]
-        pairs = [(s + k + 1, lp, rp) for k, (_, lp, rp) in enumerate(chunk)]
-        sheet = build_sheet(pairs, tile=args.tile)
+        sheet = build_sheet(
+            [(s + k + 1, paths) for k, (_, paths) in enumerate(chunk)],
+            tile=args.tile)
         arr = (sheet.clamp(0, 1).permute(1, 2, 0) * 255).round().to(torch.uint8).numpy()
         out = args.out.with_name(f"{args.out.name}_{s // args.rows + 1:02d}.png")
         Image.fromarray(arr).save(out)
-        for k, (image, _, _) in enumerate(chunk):
+        for k, (image, _) in enumerate(chunk):
             index_lines.append(f"{s + k + 1}\t{image}\t{out.name}")
         print(f"  {out}  {len(chunk)} 組")
     (args.out.with_name(args.out.name + "_index.tsv")).write_text(

@@ -108,7 +108,8 @@ class PhaseParam:
                  freq_weight: str = "binary",
                  freq_weight_power: float = 1.0,
                  gain_weight: str = "shared",
-                 channels: str = "rgb"):
+                 channels: str = "rgb",
+                 spectral_floor: float = 0.0):
         self.size, self.block, self.r_min = size, block, r_min
         # None = block//2，逐位元等於加這個參數之前。更小的 hop 讓每個
         # 像素被更多區塊覆蓋，相鄰區塊獨立旋轉留下的接縫因此被平均掉。
@@ -127,6 +128,7 @@ class PhaseParam:
         self.freq_weight_power = freq_weight_power
         self.gain_weight = gain_weight
         self.channels = channels
+        self.spectral_floor = spectral_floor
         # **radius 本身不封頂**，封頂只發生在傳給 `theta_max` 的那一刻。
         # 2026-08-21 之前這裡是 `min(radius, pi)`，於是 `--radius 3.5` 與
         # `--radius 4.5` 其實跑的是同一個 theta_max = pi——sigma 掃描看到的
@@ -164,6 +166,7 @@ class PhaseParam:
             freq_weight_power=self.freq_weight_power,
             gain_weight=self.gain_weight,
             channels=self.channels,
+            spectral_floor=self.spectral_floor,
         ).to(device=x01.device, dtype=x01.dtype)
         self.module.prepare_gates(x01, keep=self.keep)
 
@@ -174,6 +177,8 @@ class PhaseParam:
         out = [self.module.theta] if self.phase_on else []
         if self.gain_ratio > 0:
             out.append(self.module.gain)
+        if self.spectral_floor > 0:
+            out.append(self.module.floor)
         return out
 
     @torch.no_grad()
@@ -184,6 +189,10 @@ class PhaseParam:
         if self.gain_ratio > 0:
             g = self.radius * self.gain_ratio
             self.module.gain.clamp_(-g, g)
+        if self.spectral_floor > 0:
+            # 係數夾在 [-1, 1]，實際加上去的量是它乘價目表再乘
+            # `spectral_floor`。負值等於相位翻轉 pi，不需要另設相位參數。
+            self.module.floor.clamp_(-1.0, 1.0)
 
     def set_radius(self, r: float) -> None:
         # **相位封頂在 pi，增益不封頂**——相位是週期量，增益不是。

@@ -318,6 +318,7 @@ class PhaseResidual(ResidualModule):
         freq_weight_power: float = 1.0,
         gain_weight: str = "shared",
         channels: str = "rgb",
+        spectral_floor: float = 0.0,
     ):
         super().__init__()
         if block % 2 != 0:
@@ -357,6 +358,16 @@ class PhaseResidual(ResidualModule):
             raise ValueError(
                 f"未知的 channels：{channels!r}，可用的是 rgb／y")
         self.channels = channels
+        # 頻譜加性下限。相位與增益都是**乘法**，而平坦區的 |spec| 接近零，
+        # 乘任何東西還是接近零——13 張裡失敗的那幾張全是大面積平滑主體。
+        # 這一項在頻譜上**加**一個由 JPEG 亮度量化表定價的量，且**只乘徑向
+        # 帶通、不乘紋理閘**（紋理閘在平坦區就是零，乘了它等於沒加）。
+        # 0 = 關閉，逐位元等於加這個選項之前。代價：方法不再是純粹的非加性
+        # 重參數化，故兩個設定都是主線、分開報（`docs/METHOD.md`）。
+        if spectral_floor < 0:
+            raise ValueError(
+                f"spectral_floor 不可為負，收到 {spectral_floor}")
+        self.spectral_floor = spectral_floor
 
         self.size = size
         self.block = block
@@ -422,6 +433,9 @@ class PhaseResidual(ResidualModule):
         # 對數增益，與 theta 同形、同樣三通道共用。一律建立（讓 state_dict
         # 穩定），但 gain_max = 0 時前向完全不碰它。
         self.gain = nn.Parameter(torch.zeros(1, self.n_blocks, *nbins))
+        # 加性下限的係數。恆存在（形狀固定，state_dict 才不會分岔），
+        # 但 `spectral_floor == 0` 時前向完全不碰它。
+        self.floor = nn.Parameter(torch.zeros(1, self.n_blocks, *nbins))
 
         self.register_buffer("window", torch.zeros(block, block), persistent=False)
         self.register_buffer("freq_gate", torch.zeros(*nbins), persistent=False)
@@ -429,6 +443,7 @@ class PhaseResidual(ResidualModule):
         self.pixel_mask = None
         self._gates_ready = False
         self._gain_freq = None
+        self._floor_price = None
 
     # ---- 閘 ----
 
@@ -469,12 +484,28 @@ class PhaseResidual(ResidualModule):
             self.pixel_mask = m.detach()
         else:
             self.pixel_mask = None
+        # 加法項的價目表：徑向帶通 × 知覺權重，**不含紋理閘**。
+        self._floor_price = (
+            radial_gate(self.block, self.r_min, device, dtype, self.r_max)
+            * perceptual_freq_weight("jpeg_luma", self.block, device, dtype)
+        ) if self.spectral_floor > 0 else None
         if self.gain_weight == "jnd":
             self._gain_freq = perceptual_freq_weight(
                 "jpeg_luma", self.block, device, dtype)
         else:
             self._gain_freq = None
         self._gates_ready = True
+
+    def floor_price(self) -> torch.Tensor:
+        """加法項每個頻格值多少。徑向帶通 × `jpeg_luma` 權重（取一次方）。
+
+        相位與增益的閘取 `q ** 0.25`，這裡取原值：完整定價會把通帶有效容量
+        壓到 0.544，對**乘法**那一半太保守，而加法項本來就要集中到人眼看不見
+        的地方。
+        """
+        if self._floor_price is None:
+            raise RuntimeError("spectral_floor == 0 時沒有價目表")
+        return self._floor_price
 
     def gain_gate(self) -> torch.Tensor:
         """增益被允許出現的位置。`shared` 時逐位元等於 `gate()`。"""
@@ -568,6 +599,13 @@ class PhaseResidual(ResidualModule):
             # `jnd` 把增益的預算推到人眼看不見的頻帶，理由見 `__init__`。
             g = torch.clamp(self.gain, -self.gain_max, self.gain_max)
             rot = rot * torch.exp(g * self.gain_gate()).unsqueeze(1)
+        if self.spectral_floor > 0:
+            # 加在幅度上，方向沿用**已轉過的**相位。|rot| 為零時這一項也是
+            # 零——自然影像的高頻雖小但非零，故實務上有效；真正的零值區
+            # （合成的純色塊）動不了，這是構造上的邊界。
+            a = torch.clamp(self.floor, -1.0, 1.0)
+            added = (a * self.floor_price() * self.spectral_floor).unsqueeze(1)
+            rot = rot + added * (rot / (rot.abs() + 1e-12))
         x_def = self.synthesize(rot)
 
         # Griffin-Lim 的迭代投影：反覆把幅度換回**目標**幅度，逼近「相位被

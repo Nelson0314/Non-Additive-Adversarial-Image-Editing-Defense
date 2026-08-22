@@ -71,7 +71,8 @@ def build(name: str, seed: int, block: int = 32, r_min: float = 0.12,
           gain_ratio: float = 0.0, r_max: float = float("inf"),
           gate_edge_power: float = 1.0, freq_weight: str = "binary",
           freq_weight_power: float = 1.0,
-          gain_weight: str = "shared", channels: str = "rgb"):
+          gain_weight: str = "shared", channels: str = "rgb",
+          spectral_floor: float = 0.0):
     """`block`／`r_min`／`quantile` 是相位算子的三個構造設定。
 
     預設值是 現行定案（`docs/METHOD.md` §4）。開放成參數是為了掃描
@@ -89,7 +90,8 @@ def build(name: str, seed: int, block: int = 32, r_min: float = 0.12,
                            freq_weight=freq_weight,
                            freq_weight_power=freq_weight_power,
                            gain_weight=gain_weight,
-                           channels=channels),
+                           channels=channels,
+                           spectral_floor=spectral_floor),
                 PHASE_RADIUS_LO, math.pi)
     if name in ("phase_gain", "gain_only"):
         # 2026-08-21 的改動一：幅度譜也可學。`gain_only` 把 theta 凍結在 0，
@@ -110,7 +112,8 @@ def build(name: str, seed: int, block: int = 32, r_min: float = 0.12,
                            freq_weight=freq_weight,
                            freq_weight_power=freq_weight_power,
                            gain_weight=gain_weight,
-                           channels=channels),
+                           channels=channels,
+                           spectral_floor=spectral_floor),
                 PHASE_RADIUS_LO, 8.0)
     if name == "phase_rand":
         return (RandomPhaseParam(size=RESOLUTION, block=block, r_min=r_min,
@@ -120,7 +123,8 @@ def build(name: str, seed: int, block: int = 32, r_min: float = 0.12,
                                  freq_weight=freq_weight,
                                  freq_weight_power=freq_weight_power,
                                  gain_weight=gain_weight,
-                                 channels=channels),
+                                 channels=channels,
+                                 spectral_floor=spectral_floor),
                 PHASE_RADIUS_LO, math.pi)
     raise ValueError(f"未知條件 {name}")
 

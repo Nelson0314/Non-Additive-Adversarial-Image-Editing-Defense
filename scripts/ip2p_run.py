@@ -201,7 +201,8 @@ def defend(ip2p, suite, cond, x01, args, loss_fn):
                           freq_weight=args.freq_weight,
                           freq_weight_power=args.freq_weight_power,
                           gain_weight=args.gain_weight,
-                          channels=args.phase_channels)
+                          channels=args.phase_channels,
+                          spectral_floor=args.spectral_floor)
     if args.radius is not None:
         param.set_radius(args.radius)
         res = run_param_pgd(x01, param, loss_fn, steps=args.steps,
@@ -307,6 +308,14 @@ def build_parser() -> argparse.ArgumentParser:
                          "DCT-Shield 重現也記著「真正把失真砍半的是只動 Y "
                          "通道」，該篇的 Y-only 變體正是它在本失真帶內最好"
                          "的一格")
+    ap.add_argument("--spectral-floor", type=float, default=0.0,
+                    help="頻譜加性下限的強度。0 = 關閉（逐位元等於加"
+                         "這個旗標之前）。相位與增益都是乘法，平坦區的"
+                         "|spec| 接近零所以乘什麼都沒用；這一項在頻譜上"
+                         "**加**一個由 JPEG 亮度量化表定價的量，且只乘"
+                         "徑向帶通、不乘紋理閘，才進得去平坦區。"
+                         "**開啟後方法不再是純粹的非加性重參數化**，"
+                         "兩個設定都是主線、分開報（docs/METHOD.md）")
     ap.add_argument("--pixel-gate-sigma", type=float, default=0.0,
                     help="逐像素紋理閘的高斯 sigma（像素）。0 = 關閉，逐位元與"
                          "加這個選項之前相同。要能分辨鬍鬚與臉頰就必須遠小於 "
@@ -473,6 +482,7 @@ def main() -> None:
                 "freq_weight_power": args.freq_weight_power,
                 "gain_weight": args.gain_weight,
                 "phase_channels": args.phase_channels,
+                "spectral_floor": args.spectral_floor,
                 # 防禦端的 PGD 步數。**本方法預設 100，DCT-Shield 是 1000**
                 # （該篇 §5.4），頭對頭表上這個差異從未被控制過，故逐列記下。
                 "defense_steps": defense_steps(args, cond),

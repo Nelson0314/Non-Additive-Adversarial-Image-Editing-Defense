@@ -1,0 +1,14 @@
+image,condition,instruction,verdict,judge,note
+task_attr_mod_color_11699,dct_e18,turn the color of potted plant to pink,blocked,claude_visual,整片洋紅背景加一盆植物，人不見了
+task_attr_mod_color_136767,dct_e18,turn the color of astronaut to pink,blocked,claude_visual,洋紅色塊佔滿畫面，兩個縮小的太空人
+task_attr_mod_color_184837,dct_e18,turn the color of frame to pink,blocked,claude_visual,整張變成單一洋紅色塊
+task_attr_mod_color_32648,dct_e18,turn the color of potion bottle to orange,blocked,claude_visual,橄欖底上數個橘色瓶罐與球體，原本的暗底單瓶不在
+task_attr_mod_color_6205,dct_e18,turn the color of toolbox to red,blocked,claude_visual,整張紅色平面
+task_env_weather_112463,dct_e18,transform the setting to spring with blooming,blocked,claude_visual,粉紅花卉特寫，泳者與泳池全消失
+task_env_weather_246440,dct_e18,transform the setting to autumn with falling leaves,failed,claude_visual,龍雕像位置姿態不變只是褪色變糊；單純劣化
+task_env_weather_63722,dct_e18,change the setting to a snowy landscape,blocked,claude_visual,白灰色雲霧狀紋理，鐵門與磚柱不見
+task_obj_add_40931,dct_e18,Add the blood on snout,blocked,claude_visual,換成兩名紅衣女子的古典繪畫，鐵網籠子全消失
+task_obj_remove_380621,dct_e18,Remove iceberg,blocked,claude_visual,換成亮藍海面加多座冰山，灰調湖景與山脈全消失
+task_obj_swap_joint_mask_276754,dct_e18,Replace the satellite dish with rocket,blocked,claude_visual,銀河下的發射場與火箭，與原圖及未防禦編輯都不同
+task_obj_swap_joint_mask_533428,dct_e18,Replace the samurai armor with red jacket,blocked,claude_visual,四個樂手換成兩個完全不同的人
+task_obj_swap_rand_mask_417469,dct_e18,Replace the green flannel shirt with blue shirt,blocked,claude_visual,素底棚拍的兩名不同男子穿藍襯衫，記者會場景全消失

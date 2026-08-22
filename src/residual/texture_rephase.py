@@ -99,6 +99,38 @@ from src.residual.perceptual_weight import (
 )
 
 
+# BT.601 的亮度／色差矩陣。**反矩陣由 `torch.linalg.inv` 算出**，不用
+# JFIF 公布的那組常數：後者正逆各自四捨五入到小數第六位，往返只互逆到
+# 1.2e-6，而本模組要保住「theta = 0 時輸出逐位元等於原圖」這條構造保證。
+# `src/baselines/jpeg_codec.py` 沿用 JFIF 的常數是對的——那支在模擬 libjpeg，
+# 這裡不是。
+_RGB2YCC = torch.tensor([
+    [0.299, 0.587, 0.114],
+    [-0.168736, -0.331264, 0.5],
+    [0.5, -0.418688, -0.081312],
+], dtype=torch.float64)
+_YCC2RGB = torch.linalg.inv(_RGB2YCC)
+
+
+def luma_split(x01: torch.Tensor):
+    """(N,3,H,W) 的 RGB 拆成 (N,1,H,W) 的亮度與 (N,2,H,W) 的色差。
+
+    色差**不加 128 的偏移**：本模組不寫進 JPEG 位元流，偏移只會讓
+    `luma_join` 多一次加減而不影響任何結果。
+    """
+    if x01.shape[1] != 3:
+        raise ValueError(f"亮度拆分需要 3 通道，收到 {x01.shape[1]}")
+    m = _RGB2YCC.to(device=x01.device, dtype=x01.dtype)
+    ycc = torch.einsum("ij,njhw->nihw", m, x01)
+    return ycc[:, :1], ycc[:, 1:]
+
+
+def luma_join(y: torch.Tensor, chroma: torch.Tensor) -> torch.Tensor:
+    """`luma_split` 的逆，精確互逆到浮點精度。"""
+    m = _YCC2RGB.to(device=y.device, dtype=y.dtype)
+    return torch.einsum("ij,njhw->nihw", m, torch.cat([y, chroma], dim=1))
+
+
 def radial_gate(block: int, r_min: float, device, dtype,
                 r_max: float = float("inf")) -> torch.Tensor:
     """(block, block//2+1) 的徑向頻率閘。**帶通**：`r_min <= r <= r_max`。
@@ -285,6 +317,7 @@ class PhaseResidual(ResidualModule):
         freq_weight: str = "binary",
         freq_weight_power: float = 1.0,
         gain_weight: str = "shared",
+        channels: str = "rgb",
     ):
         super().__init__()
         if block % 2 != 0:
@@ -317,6 +350,13 @@ class PhaseResidual(ResidualModule):
             raise ValueError(
                 f"未知的 gain_weight：{gain_weight!r}，可用的是 shared／jnd")
         self.gain_weight = gain_weight
+        # 動哪些通道。"rgb" = 三個通道各自做同一件事（預設，逐位元等於加
+        # 這個選項之前）；"y" = 只動亮度，色差原樣送回。增益在色度上累積成
+        # 的全域色偏因此消失，而 RESULTS 記載「真正把失真砍半的是只動 Y 通道」。
+        if channels not in ("rgb", "y"):
+            raise ValueError(
+                f"未知的 channels：{channels!r}，可用的是 rgb／y")
+        self.channels = channels
 
         self.size = size
         self.block = block
@@ -493,6 +533,18 @@ class PhaseResidual(ResidualModule):
         return folded / self._fold_norm(b).clamp_min(1e-8)
 
     def pixel_residual(self, x01: torch.Tensor) -> Optional[torch.Tensor]:
+        """`channels = "y"` 時只在亮度上跑整條管線，色差原樣送回。
+
+        拆／併用的是精確互逆的矩陣（`luma_split`），故 `theta = 0` 的逐位元
+        恆等在這條路徑上仍然成立。閘由**亮度**算出——結構張量本來就取亮度
+        加權，兩條路徑因此拿到同一組閘。
+        """
+        if self.channels == "y":
+            y, chroma = luma_split(x01)
+            return luma_join(self._rephase(y), chroma)
+        return self._rephase(x01)
+
+    def _rephase(self, x01: torch.Tensor) -> Optional[torch.Tensor]:
         if not self.enabled:
             return x01
         if not self._gates_ready:

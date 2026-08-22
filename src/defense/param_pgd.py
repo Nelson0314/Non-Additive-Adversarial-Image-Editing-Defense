@@ -106,7 +106,8 @@ class PhaseParam:
                  phase_on: bool = True, gate_edge_power: float = 1.0,
                  freq_weight: str = "binary",
                  freq_weight_power: float = 1.0,
-                 gain_weight: str = "shared"):
+                 gain_weight: str = "shared",
+                 channels: str = "rgb"):
         self.size, self.block, self.r_min = size, block, r_min
         self.r_max = r_max
         self.energy_quantile = energy_quantile
@@ -121,6 +122,7 @@ class PhaseParam:
         self.freq_weight = freq_weight
         self.freq_weight_power = freq_weight_power
         self.gain_weight = gain_weight
+        self.channels = channels
         # **radius 本身不封頂**，封頂只發生在傳給 `theta_max` 的那一刻。
         # 2026-08-21 之前這裡是 `min(radius, pi)`，於是 `--radius 3.5` 與
         # `--radius 4.5` 其實跑的是同一個 theta_max = pi——sigma 掃描看到的
@@ -156,6 +158,7 @@ class PhaseParam:
             freq_weight=self.freq_weight,
             freq_weight_power=self.freq_weight_power,
             gain_weight=self.gain_weight,
+            channels=self.channels,
         ).to(device=x01.device, dtype=x01.dtype)
         self.module.prepare_gates(x01, keep=self.keep)
 

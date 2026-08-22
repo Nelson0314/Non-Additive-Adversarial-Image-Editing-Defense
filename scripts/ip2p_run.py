@@ -199,7 +199,8 @@ def defend(ip2p, suite, cond, x01, args, loss_fn):
                           gate_edge_power=args.gate_edge_power,
                           freq_weight=args.freq_weight,
                           freq_weight_power=args.freq_weight_power,
-                          gain_weight=args.gain_weight)
+                          gain_weight=args.gain_weight,
+                          channels=args.phase_channels)
     if args.radius is not None:
         param.set_radius(args.radius)
         res = run_param_pgd(x01, param, loss_fn, steps=args.steps,
@@ -290,6 +291,15 @@ def build_parser() -> argparse.ArgumentParser:
                          "譜按 1/f^2 掉，高頻幾乎沒有能量可以旋轉，相位在"
                          "那裡無事可做，而 exp(g)·|spec| 造得出容量。逐帶"
                          "量測見 runs/encoder_frequency_response")
+    ap.add_argument("--phase-channels", choices=("rgb", "y"),
+                    default="rgb",
+                    help="本算子動哪些通道。rgb = 三通道各自做同一件事"
+                         "（逐位元等於加這個旗標之前）；y = 只動亮度，"
+                         "色差原樣送回。理由：增益在色度上累積成全域色偏，"
+                         "而色偏屬於「單純劣化」不算擋下；RESULTS 的 "
+                         "DCT-Shield 重現也記著「真正把失真砍半的是只動 Y "
+                         "通道」，該篇的 Y-only 變體正是它在本失真帶內最好"
+                         "的一格")
     ap.add_argument("--pixel-gate-sigma", type=float, default=0.0,
                     help="逐像素紋理閘的高斯 sigma（像素）。0 = 關閉，逐位元與"
                          "加這個選項之前相同。要能分辨鬍鬚與臉頰就必須遠小於 "
@@ -455,6 +465,7 @@ def main() -> None:
                 "freq_weight": args.freq_weight,
                 "freq_weight_power": args.freq_weight_power,
                 "gain_weight": args.gain_weight,
+                "phase_channels": args.phase_channels,
                 # 防禦端的 PGD 步數。**本方法預設 100，DCT-Shield 是 1000**
                 # （該篇 §5.4），頭對頭表上這個差異從未被控制過，故逐列記下。
                 "defense_steps": defense_steps(args, cond),

@@ -38,3 +38,32 @@ def test_none_scope_yields_no_purifiers():
 def test_unknown_scope_raises_rather_than_falling_back():
     with pytest.raises(ValueError, match="purifiers"):
         gallery.purifier_set("blur_only")
+
+
+def test_page_copy_follows_the_scope():
+    """關掉淨化階之後，標題與說明也要跟著換。
+
+    原本的抬頭、標題與警告框整段都在講淨化（「同一張防禦圖走過四個淨化算子
+    之後還剩下什麼」「本頁回答淨化把擾動抹掉了多少」）。條件對條件的比較裡
+    那些話全部是錯的，而錯的說明比沒有說明更糟——讀的人會照它去解讀畫面。
+    """
+    cards = [{"image": "img", "box": [0, 0],
+              "stages": {"原圖": {"full": "", "zoom": ""}},
+              "conditions": {"a": {"防禦圖": {"full": "", "zoom": ""}}}}]
+    purify = gallery.render(cards, [], [], scope="standard")
+    compare = gallery.render(cards, [], [], scope="none")
+
+    assert "<title>擾動存活檢視台</title>" in purify
+    assert "淨化算子" in purify
+
+    assert "<title>擾動存活檢視台</title>" not in compare
+    assert "淨化" not in compare.split("</header>")[0]
+
+
+def test_render_defaults_to_the_purification_copy():
+    """預設值不變，逐位元等於加這個旗標之前。"""
+    cards = [{"image": "img", "box": [0, 0],
+              "stages": {"原圖": {"full": "", "zoom": ""}},
+              "conditions": {}}]
+    assert gallery.render(cards, [], []) == gallery.render(
+        cards, [], [], scope="standard")

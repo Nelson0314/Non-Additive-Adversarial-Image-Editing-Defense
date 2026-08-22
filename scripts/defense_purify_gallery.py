@@ -212,7 +212,7 @@ def build(src: Path, images: Optional[List[str]], conditions: Optional[List[str]
     return cards, notes
 
 
-HTML_HEAD = """<title>擾動存活檢視台</title>
+HTML_HEAD = """<title>{title}</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+TC:wght@400;500;600&display=swap">
@@ -309,23 +309,53 @@ th:first-child,td:first-child{text-align:left;
 """
 
 
-def render(cards: List[dict], notes: List[str], metrics: List[dict]) -> str:
-    parts = [HTML_HEAD, '<div class="wrap">', "<header>"]
-    parts.append('<p class="eyebrow">InstructPix2Pix · 25 張主線批次</p>')
-    parts.append("<h1>擾動存活檢視台</h1>")
-    parts.append(
-        '<p class="lede">同一張防禦圖走過四個淨化算子之後還剩下什麼。'
-        '切換是<strong>原地替換</strong>而不是並排——並排讓注意力花在移動視線上，'
-        '對低對比差異的敏感度差很多。右側 4× 裁切的位置由'
-        '<strong>原圖的梯度能量</strong>自動選，同一張圖的各版本取同一座標，'
-        '最近鄰放大。影像的環境底色固定為中性灰，不隨主題變動。</p>')
+# 版面的文案隨 `--purifiers` 的範圍換。錯的說明比沒有說明更糟：讀的人會
+# 照著它去解讀畫面，而兩種頁面要回答的根本不是同一個問題。
+_SHARED_LEDE = (
+    '切換是<strong>原地替換</strong>而不是並排——並排讓注意力花在移動視線上，'
+    '對低對比差異的敏感度差很多。右側 4× 裁切的位置由'
+    '<strong>原圖的梯度能量</strong>自動選，同一張圖的各版本取同一座標，'
+    '最近鄰放大。影像的環境底色固定為中性灰，不隨主題變動。')
+
+PAGE_COPY = {
+    "standard": {
+        "title": "擾動存活檢視台",
+        "eyebrow": "InstructPix2Pix · 主線批次",
+        "lede": "同一張防禦圖走過四個淨化算子之後還剩下什麼。" + _SHARED_LEDE,
+        "warn": ("<strong>本頁不能回答的事</strong><br>"
+                 "淨化後的<em>編輯</em>需要 GPU，不在本頁範圍。"
+                 "本頁回答「淨化把擾動抹掉了多少」，"
+                 "不回答「淨化之後防禦還有沒有效」——後者要看淨增益，"
+                 "而那必須扣掉空白地板。"),
+    },
+    "none": {
+        "title": "防禦條件對照台",
+        "eyebrow": "InstructPix2Pix · 人眼確認服從的影像",
+        "lede": "同一張原圖在各個防禦條件下，防禦圖付了多少可見失真、"
+                "以及攻擊方拿到的編輯輸出還能不能用。" + _SHARED_LEDE,
+        "warn": ("<strong>本頁不能回答的事</strong><br>"
+                 "各條件的強度<em>沒有</em>對齊到同一個失真——那要看數字，"
+                 "展開下方的指標表。本頁回答的是「同樣一張圖，"
+                 "各個方法把它變成什麼樣子」。"),
+    },
+}
+
+
+def render(cards: List[dict], notes: List[str], metrics: List[dict],
+           scope: str = "standard") -> str:
+    if scope not in PAGE_COPY:
+        raise ValueError(
+            f"未知的 purifiers 範圍：{scope!r}，可用的是 {sorted(PAGE_COPY)}")
+    copy = PAGE_COPY[scope]
+    # 用 replace 不用 format：`HTML_HEAD` 裡整段 CSS 都是大括號。
+    parts = [HTML_HEAD.replace("{title}", copy["title"]),
+             '<div class="wrap">', "<header>"]
+    parts.append(f'<p class="eyebrow">{copy["eyebrow"]}</p>')
+    parts.append(f'<h1>{copy["title"]}</h1>')
+    parts.append(f'<p class="lede">{copy["lede"]}</p>')
     parts.append("</header>")
 
-    parts.append('<div class="warn"><strong>本頁不能回答的事</strong><br>'
-                 '淨化後的<em>編輯</em>需要 GPU，不在本頁範圍。'
-                 '本頁回答「淨化把擾動抹掉了多少」，'
-                 '不回答「淨化之後防禦還有沒有效」——後者要看淨增益，'
-                 '而那必須扣掉空白地板。</div>')
+    parts.append(f'<div class="warn">{copy["warn"]}</div>')
     if notes:
         parts.append('<div class="warn"><strong>缺的格子</strong><br>'
                      + "<br>".join(notes) + "</div>")
@@ -512,7 +542,8 @@ def main() -> None:
     metrics = collect_metrics(args.metrics_from, conds) if args.metrics_from else []
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
-    args.out.write_text(render(cards, notes, metrics), encoding="utf-8")
+    args.out.write_text(render(cards, notes, metrics, args.purifiers),
+                        encoding="utf-8")
     mb = args.out.stat().st_size / 1e6
     print(f"{args.out}  {mb:.1f} MB  影像 {len(cards)} 張 × 條件 {len(conds)} 個")
     if mb > 16:

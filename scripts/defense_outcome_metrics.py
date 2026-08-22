@@ -62,6 +62,17 @@ def auc(pos: List[float], neg: List[float]) -> float:
     return sum((x > y) + 0.5 * (x == y) for x in pos for y in neg) / (len(pos) * len(neg))
 
 
+# 候選讀數的清單。明寫而不是從列的鍵推導：推導會讓新增一個純記錄用的欄位
+# 意外變成被評分的候選，而 AUC 那一段的輸出會多出一列看不出是什麼的東西。
+READOUTS = (
+    "displacement", "dists_displacement",
+    "drift", "dists_drift", "drift_ratio", "acutance",
+    "clip_sim", "siglip_sim",
+    "clip_to_orig", "siglip_to_orig",
+    "clip_to_orig_base", "siglip_to_orig_base", "siglip_to_orig_gain",
+)
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -107,6 +118,12 @@ def main() -> None:
         m_od = suite.pairwise(x, ed)      # 原圖 → 防禦後編輯
         m_dd = suite.pairwise(eo, ed)     # 兩張編輯之間
         sim = suite.image_similarity(eo, ed)
+        # 判準問的是「**原圖**還認得出來嗎」，故語意距離也要量原圖對防禦後
+        # 編輯這一對。`sim` 量的是兩張編輯之間，回答的是「防禦有沒有改變
+        # 輸出」，那是另一個問題。`*_base` 是原圖對未防禦編輯，用來扣掉
+        # 「這張圖本來就會被編輯推開多遠」——空白地板的語意版。
+        sim_od = suite.image_similarity(x, ed)
+        sim_oo = suite.image_similarity(x, eo)
 
         rows.append({
             "image": image, "condition": cond, "verdict": verdict,
@@ -118,15 +135,23 @@ def main() -> None:
             "acutance": round(m_dd["acutance_ratio"], 4),
             "clip_sim": round(sim["clip"], 5),
             "siglip_sim": round(sim["siglip"], 5),
+            "clip_to_orig": round(sim_od["clip"], 5),
+            "siglip_to_orig": round(sim_od["siglip"], 5),
+            "clip_to_orig_base": round(sim_oo["clip"], 5),
+            "siglip_to_orig_base": round(sim_oo["siglip"], 5),
+            "siglip_to_orig_gain": round(sim_oo["siglip"] - sim_od["siglip"], 5),
         })
         print(f"  {image[:32]:32s} {cond:14s} {verdict}", flush=True)
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
     write_csv(args.out, rows)
 
-    keys = [k for k in rows[0] if k not in ("image", "condition", "verdict")]
+    keys = [k for k in READOUTS if k in rows[0]]
+    # 兩套標記並存：舊的三分法用 `attack_succeeded`，可辨性判定用 `failed`。
+    # `partial`／`borderline` 兩邊都不算——它們是判定不下來的格子，塞進任何
+    # 一邊都會把門檻往那個方向拉。
     pos = [r for r in rows if r["verdict"] == "blocked"]
-    neg = [r for r in rows if r["verdict"] == "attack_succeeded"]
+    neg = [r for r in rows if r["verdict"] in ("attack_succeeded", "failed")]
     if not pos or not neg:
         # 沒有金標準就不報判別力。此時本檔的用途是產出逐格的讀數表。
         by_cond: Dict[str, List[dict]] = {}

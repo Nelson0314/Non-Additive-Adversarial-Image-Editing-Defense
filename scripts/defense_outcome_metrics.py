@@ -45,6 +45,10 @@ from typing import Dict, List
 import torch
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
+from src.metrics.standard import (  # noqa: E402
+    SIGLIP_BLOCKED_THRESHOLD, blocked_by_siglip,
+)
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from defense_purify_gallery import RESOLUTION, discover  # noqa: E402
@@ -128,9 +132,10 @@ def main() -> None:
         by_cond: Dict[str, List[dict]] = {}
         for r in rows:
             by_cond.setdefault(r["condition"], []).append(r)
-        print(f"\n{'條件':18s}{'n':>4s}{'SigLIP 均值':>13s}{'低於 0.837':>12s}")
+        head = f"低於 {SIGLIP_BLOCKED_THRESHOLD}"
+        print(f"\n{'條件':18s}{'n':>4s}{'SigLIP 均值':>13s}{head:>12s}")
         for cond, rs in sorted(by_cond.items()):
-            b = sum(1 for r in rs if float(r["siglip_sim"]) < 0.837)
+            b = sum(1 for r in rs if blocked_by_siglip(r["siglip_sim"]))
             print(f"{cond:18s}{len(rs):4d}"
                   f"{st.fmean(float(r['siglip_sim']) for r in rs):13.3f}"
                   f"{b:>8d}/{len(rs)}")

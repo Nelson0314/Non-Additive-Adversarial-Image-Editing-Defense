@@ -61,3 +61,23 @@ def standard_row(prefix: str, metrics: Dict[str, float]) -> Dict[str, float]:
     return {f"{prefix}{k}": round(float(metrics[k]),
                                   ROUNDING.get(k, DEFAULT_ROUNDING))
             for k in PAIRWISE_KEYS}
+
+
+# 擋下率的門檻。兩張編輯輸出在 SigLIP 影像空間的餘弦相似度低於此值即判為
+# 「攻擊方拿不到可用輸出」。**本值是本專案指定**：在 39 格人眼標記上取最高
+# 正確率定出（正確率 93.5%、零誤報、AUC 0.974），不是逐條件校準的，故它在
+# 高失真端偏保守。校準過程見 `scripts/defense_outcome_metrics.py`。
+#
+# 它逐列寫進 CSV（`siglip_blocked_threshold`），理由是門檻改動之後舊列仍要
+# 可解讀——只留一個常數的話，跨批次合併時 `blocked` 欄會混進兩種定義。
+SIGLIP_BLOCKED_THRESHOLD = 0.837
+
+
+def blocked_by_siglip(siglip_sim: float,
+                      threshold: float = SIGLIP_BLOCKED_THRESHOLD) -> bool:
+    """相似度**嚴格低於**門檻為擋下。
+
+    等號不算擋下：門檻是在候選值上取到的最高正確率點，把等號算進去會讓
+    校準時落在門檻上的那一格自己翻面。
+    """
+    return bool(float(siglip_sim) < threshold)

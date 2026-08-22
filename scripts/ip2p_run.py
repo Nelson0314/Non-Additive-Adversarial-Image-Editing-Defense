@@ -68,7 +68,9 @@ from src.defense.purify_aware import (  # noqa: E402
     make_jpeg_transform,
 )
 from src.defense.param_pgd import fit_to_budget, run_param_pgd  # noqa: E402
-from src.metrics.standard import standard_row  # noqa: E402
+from src.metrics.standard import (  # noqa: E402
+    SIGLIP_BLOCKED_THRESHOLD, blocked_by_siglip, standard_row,
+)
 from src.metrics.suite import MetricSuite  # noqa: E402
 from src.models.ip2p import (  # noqa: E402
     IP2P_IMAGE_GUIDANCE, IP2P_SEED, IP2P_STEPS, IP2P_TEXT_GUIDANCE, IP2PWrapper,
@@ -389,6 +391,10 @@ def main() -> None:
             fid = suite.pairwise(x01, x_def)
             e_def = edit(x_def, item)
             prot = suite.pairwise(e_orig, e_def)
+            # 主讀數：兩張編輯輸出在 SigLIP 影像空間的距離。低於門檻即
+            # 「攻擊方拿不到可用輸出」。在這裡算而不是事後補，是因為事後補
+            # 依賴防禦圖還留在磁碟上，而影像不入版控。
+            sim = suite.image_similarity(e_orig, e_def)
             for sub, img in (("def", x_def), ("edit_orig", e_orig),
                              ("edit_def", e_def)):
                 vutils.save_image(img.clamp(0, 1),
@@ -434,6 +440,13 @@ def main() -> None:
                 "fid_linf": round(fid["linf"], 5),
                 "fid_rms": round(fid["rms"], 5),
                 "edit_lpips": round(float(prot["lpips"]), 5),
+                # 擋下率的三欄。門檻逐列寫下的理由見
+                # `src.metrics.standard.SIGLIP_BLOCKED_THRESHOLD`：它是本專案
+                # 指定的值，改動之後舊列仍要可解讀。
+                "edit_clip_sim": round(float(sim["clip"]), 5),
+                "edit_siglip_sim": round(float(sim["siglip"]), 5),
+                "blocked": blocked_by_siglip(sim["siglip"]),
+                "siglip_blocked_threshold": SIGLIP_BLOCKED_THRESHOLD,
                 "total_seconds": round(time.time() - t1, 1),
             })
             write_csv(args.out / "results.csv", rows)

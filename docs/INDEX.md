@@ -15,6 +15,7 @@
 | [DECISIONS.md](DECISIONS.md) | 已裁決的事項與理由 | 想改變既定作法時 |
 | [DEFECTS.md](DEFECTS.md) | 已知缺陷與修正紀錄 | 遇到可疑行為時 |
 | [PENDING.md](PENDING.md) | **量過但尚未裁定**的事項與缺口 | 接手工作時；引用任何新數字之前 |
+| [RUN_QUEUE.md](RUN_QUEUE.md) | **待跑的批次**，依能改變結論的程度排序 | 要排機時時 |
 | [OPERATIONS.md](OPERATIONS.md) | 環境、遠端機器、執行與資料保全 | 要跑實驗時 |
 | [reference/](reference/) | 外部文獻的查證紀錄 | 要引用或移植別人的方法時 |
 

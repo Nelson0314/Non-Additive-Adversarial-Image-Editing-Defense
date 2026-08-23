@@ -16,7 +16,8 @@
 # 這一批把 q_alg 0.85 與 0.75 補齊，好在失真帶內取得可比的工作點；
 # 抗淨化另外跑。
 #
-# 用法：bash scripts/dct_antijpeg_configs.sh "0 1 2 3"
+# 用法：bash scripts/dct_antijpeg_configs.sh "0 1 2 3 4 5 6"
+# 七個點各佔一張卡，空卡少於七張時自動繞回（每卡多一個點就多約 2.1 小時）。
 set -uo pipefail
 ROOT=/nfs/home/nelson0314/WACV-s3
 PY="$HOME/venvs/wacv/bin/python"
@@ -48,7 +49,11 @@ base_q75_e14:dct_shield:0.75:1.4
 i=0
 for p in $POINTS; do
   IFS=: read -r tag cond q eps <<< "$p"
-  dev=${DEVS[$(( i / 2 % ${#DEVS[@]} ))]}
+  # **一格一張卡**（`i % N` 而不是 `i / 2 % N`）：這一批是決定論文重心的那
+  # 一格，而 DCT-Shield 的 1000 步 PGD 是全專案最貴的單位工作（約 575 秒／
+  # 張 × 13 張）。卡夠的話七個點各佔一張，關鍵路徑由約 4.2 小時降到約 2.1
+  # 小時；卡不夠時 `i % N` 自動繞回，密度與原本相同。
+  dev=${DEVS[$(( i % ${#DEVS[@]} ))]}
   i=$(( i + 1 ))
   CUDA_VISIBLE_DEVICES="$dev" nohup "$PY" scripts/ip2p_run.py \
       --out "$OUT/$tag" --conditions "$cond" --q-alg "$q" --eps "$eps" \

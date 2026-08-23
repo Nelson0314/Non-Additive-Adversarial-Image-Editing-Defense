@@ -54,5 +54,12 @@ for s in $SRC; do
   launch "$tag" "$run" scene  "$SCENE"  ""
   launch "$tag" "$run" object "$OBJECT" ""
 done
-launch floor runs/ip2p_overlap_sweep/h08_r25 all "$ALL" "--floor"
+# 空白地板與條件無關，只需一份——但**仍要分片**：不分片的話一個 process 要跑
+# 十三張，而其餘每片只跑三到五張，扣地板的表會被這一格決定完成時間。
+for shard in color scene object; do
+  case $shard in
+    color) imgs="$COLOR" ;; scene) imgs="$SCENE" ;; object) imgs="$OBJECT" ;;
+  esac
+  launch floor runs/ip2p_overlap_sweep/h08_r25 "$shard" "$imgs" "--floor"
+done
 echo "[gridpure] 全部送出（$(date)），共 $i 個 process"

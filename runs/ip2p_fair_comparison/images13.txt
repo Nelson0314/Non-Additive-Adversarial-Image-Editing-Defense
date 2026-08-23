@@ -1,0 +1,13 @@
+task_attr_mod_color_11699
+task_attr_mod_color_136767
+task_attr_mod_color_184837
+task_attr_mod_color_32648
+task_attr_mod_color_6205
+task_env_weather_112463
+task_env_weather_246440
+task_env_weather_63722
+task_obj_add_40931
+task_obj_remove_380621
+task_obj_swap_joint_mask_276754
+task_obj_swap_joint_mask_533428
+task_obj_swap_rand_mask_417469

@@ -38,6 +38,13 @@
    `docs/RESULTS.md` 早已記過同一件事（SDEdit 線上 `dct_shield_y` 在 jpeg75
    拿 +0.5185、本方法 +0.1349）並明寫「頭對頭表不可只放 base 變體」。
 
+   補這一格要**兩步**：`scripts/dct_antijpeg_configs.sh` 產生 q_alg 0.85／
+   0.75 的防禦圖，再由 `scripts/purify_antijpeg.sh "<卡號>" "<tag> ..."` 把
+   那些工作點當條件加進抗淨化。第一步只產生防禦圖，不做第二步的話 JPEG 那
+   一欄仍然是空的。第二步的輸出落在 `antijpeg/` 底下，地板沿用上一層的
+   `floor_*.csv` 不重跑；`retention_table.py --src runs/ip2p_purify_headtohead`
+   會遞迴走進 `antijpeg/` 與 `gridpure/`。
+
 ## 目前算得出來的（6 張，扣地板的淨增益）
 
 `net_gain_partial.csv`。`ours_add` 與 `dct_e18` 的未淨化位移幾乎相等

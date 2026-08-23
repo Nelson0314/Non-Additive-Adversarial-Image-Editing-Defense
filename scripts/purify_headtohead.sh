@@ -41,9 +41,23 @@ dct_e18:runs/ip2p_dct_band_extend/dct_e18
 dct_y_e14:runs/ip2p_dct_band_extend/dct_y_e14
 "
 
+# 卡號由參數給，**不寫死**：卡是多人共用的。十八個 process（五個條件 × 三片
+# ＋ 三片地板）每張卡放兩個，八張卡剛好放滿；先前寫死成 `i / 2`，索引會走到
+# 8，而機器只有 0–7。用法 `bash scripts/purify_headtohead.sh "0 1 2 3 4 5 6 7"`。
+DEVS=(${1:-0 1 2 3 4 5 6 7})
+# 要送哪一半。條件格與地板的完成度常常不同步——條件那 15 格已經 13/13，地板
+# 只到 6/13，整批重送等於白跑 15 個 process。
+#     all         條件格 ＋ 地板（預設）
+#     conditions  只送五個條件 × 三片
+#     floor       只送三片空白地板
+PARTS="${2:-all}"
+case "$PARTS" in all|conditions|floor) ;; *)
+  echo "用法：$0 \"<卡號>\" [all|conditions|floor]" >&2; exit 2 ;;
+esac
+
 i=0
 launch() {   # $1 tag  $2 run  $3 shard  $4 imgs  $5 extra
-  local dev=$(( i / 2 ))
+  local dev=${DEVS[$(( i / 2 % ${#DEVS[@]} ))]}
   i=$(( i + 1 ))
   CUDA_VISIBLE_DEVICES="$dev" nohup "$PY" scripts/phase_retention.py \
       --run "$2" --images $4 $COMMON $5 --out "$OUT/$1_$3.csv" \
@@ -52,6 +66,7 @@ launch() {   # $1 tag  $2 run  $3 shard  $4 imgs  $5 extra
 }
 
 for s in $SRC; do
+  [ "$PARTS" = floor ] && break
   IFS=: read -r tag run <<< "$s"
   if [ ! -f "$run/results.csv" ]; then
     echo "[purify] 跳過 $tag：$run/results.csv 不存在"; continue
@@ -65,6 +80,7 @@ done
 # 不分片的話它一個 process 要跑十三張，而其餘每個分片只跑三到五張；扣地板
 # 的表要等最慢的那一格，於是整批的完成時間由這一格決定（實測差四小時）。
 for shard in color scene object; do
+  [ "$PARTS" = conditions ] && break
   case $shard in
     color) imgs="$COLOR" ;; scene) imgs="$SCENE" ;; object) imgs="$OBJECT" ;;
   esac

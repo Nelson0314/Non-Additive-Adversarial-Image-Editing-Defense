@@ -66,7 +66,7 @@
 ## 環境
 
 - 本機 Python：`C:/Users/nelso/miniconda3/envs/wacv/python.exe`（**不是 base**）。
-- 測試：`python -m pytest -q`，基準 **456 passed / 1 skipped / 1 xfailed**。
+- 測試：`python -m pytest -q`，基準 **624 passed / 1 skipped / 1 xfailed**。
   動任何東西前先跑一次確認。
 - GPU 工作一律在 NYCU BASIC lab 跑。連線方式、五個必知的坑、並行密度、
   單張成本見 `docs/OPERATIONS.md`。

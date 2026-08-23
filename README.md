@@ -30,7 +30,7 @@ src/
   metrics/suite.py              指標
   models/ip2p.py, sd.py         攻擊模型
 scripts/                        驅動與分析
-tests/                          456 passed / 1 skipped / 1 xfailed
+tests/                          624 passed / 1 skipped / 1 xfailed
 runs/                           數值記錄（影像不入版控）
 docs/                           見上表
 data/                           資料集與 provenance

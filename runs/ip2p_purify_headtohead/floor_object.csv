@@ -1,0 +1,15 @@
+image,condition,budget_target,purifier,effect_mean,effect_sd,effect_identity_mean,effect_identity_sd,retention,siglip_sim,siglip_blocked,edit_strength,usable,seconds
+task_obj_add_40931,none,floor,identity,0.0,0.0,0.0,0.0,,1.0,False,0.8,True,1015.6
+task_obj_add_40931,none,floor,blur1,0.1733,0.00716,0.0,0.0,,0.95377,False,0.8,True,1015.6
+task_obj_add_40931,none,floor,jpeg75,0.09781,0.00467,0.0,0.0,,0.98709,False,0.8,True,1015.6
+task_obj_add_40931,none,floor,jpeg30,0.20226,0.01133,0.0,0.0,,0.94659,False,0.8,True,1015.6
+task_obj_add_40931,none,floor,crop_resize0.1,0.56782,0.00681,0.0,0.0,,0.91471,False,0.8,True,1015.6
+task_obj_add_40931,none,floor,jpeg_then_resize75,0.18179,0.0091,0.0,0.0,,0.96153,False,0.8,True,1015.6
+task_obj_add_40931,none,floor,adverse_cleaner,0.09799,0.00333,0.0,0.0,,0.98468,False,0.8,True,1015.6
+task_obj_remove_380621,none,floor,identity,0.0,0.0,0.0,0.0,,1.0,False,0.8,True,998.1
+task_obj_remove_380621,none,floor,blur1,0.26909,0.13533,0.0,0.0,,0.97373,False,0.8,True,998.1
+task_obj_remove_380621,none,floor,jpeg75,0.12295,0.01238,0.0,0.0,,0.99071,False,0.8,True,998.1
+task_obj_remove_380621,none,floor,jpeg30,0.30427,0.09509,0.0,0.0,,0.9652,False,0.8,True,998.1
+task_obj_remove_380621,none,floor,crop_resize0.1,0.52265,0.00588,0.0,0.0,,0.96388,False,0.8,True,998.1
+task_obj_remove_380621,none,floor,jpeg_then_resize75,0.2655,0.09403,0.0,0.0,,0.96814,False,0.8,True,998.1
+task_obj_remove_380621,none,floor,adverse_cleaner,0.21857,0.10215,0.0,0.0,,0.97441,False,0.8,True,998.1

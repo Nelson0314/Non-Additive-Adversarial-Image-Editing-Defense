@@ -136,7 +136,10 @@ def main() -> None:
                        purify_ops.Purifier("crop_resize",
                                            purify_ops.CROP_FRACTION_DIA),
                        purify_ops.Purifier("jpeg_then_resize",
-                                           purify_ops.CR_JPEG_QUALITY))}
+                                           purify_ops.CR_JPEG_QUALITY),
+                       # crop_resize 的兩個分解對照，見 src/purify/ops.py
+                       purify_ops.Purifier("resample_roundtrip", 410),
+                       purify_ops.Purifier("shift_only", 51))}
     unknown = set(args.purifiers) - set(made)
     if unknown:
         raise SystemExit(f"未知的算子：{sorted(unknown)}；可用 {sorted(made)}")

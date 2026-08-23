@@ -229,6 +229,61 @@ def crop_resize(
     return F.interpolate(cropped, size=(h, w), mode=mode, antialias=antialias).clamp(0, 1)
 
 
+
+# ---------------------------------------------------- crop_resize 的兩個分解對照
+
+# 中心裁切再縮放回原尺寸，其幾何效果是**以中心為不動點的放大**，不是平移：
+# 實測亮點由 64 搬到 16、由 448 搬到 496，而 256 不動，位移正比於到中心的距離。
+# 故 `crop_resize` 同時做了兩件事——重取樣（插值與混疊）與幾何放大——而下面
+# 兩個算子各自只做一件，用來判定殘差是被哪一件打掉的。
+#
+# **兩者都不是文獻裡的淨化算子**，是本專案為了歸因而設的對照，不得進入
+# 頭對頭的淨化器清單。
+
+
+def resample_roundtrip(
+    x: torch.Tensor,
+    inner: int = 410,
+    mode: str = CROP_INTERPOLATION,
+    antialias: bool = CROP_ANTIALIAS,
+) -> torch.Tensor:
+    """降到 `inner` 再升回原尺寸。**視野不變、幾何不變**，只有重取樣的損失。
+
+    `inner` 預設 410 使它與 `crop_resize(0.10)` 的取樣率相同（512 → 410），
+    差別只在後者換了視野而這一支沒有。兩者相減即幾何那一份。
+    """
+    if x.dim() != 4:
+        raise ValueError(f"需要 (B,C,H,W) 張量，收到 {tuple(x.shape)}")
+    h, w = x.shape[-2:]
+    if inner < 2 or inner > min(h, w):
+        raise ValueError(f"inner={inner} 超出 [2, {min(h, w)}]")
+    small = F.interpolate(x, size=(inner, inner), mode=mode, antialias=antialias)
+    return F.interpolate(small, size=(h, w), mode=mode,
+                         antialias=antialias).clamp(0, 1)
+
+
+def shift_only(x: torch.Tensor, pixels: int = 51) -> torch.Tensor:
+    """平移 `pixels` 像素，**不重取樣、不縮放**，邊界以反射填補。
+
+    位移取整數像素，故內容逐位元搬移、沒有插值損失——量到的純粹是「對位被
+    破壞」這一件事。預設 51 是 `crop_resize(0.10)` 在 512² 上裁掉的邊寬。
+
+    中心裁切本身**不含平移**（中心是不動點），所以這一支不是 `crop_resize`
+    的分解項；它回答的是另一個問題：攻擊方若不置中裁切，我們掉多少。
+    """
+    if x.dim() != 4:
+        raise ValueError(f"需要 (B,C,H,W) 張量，收到 {tuple(x.shape)}")
+    if pixels == 0:
+        return x
+    h, w = x.shape[-2:]
+    if abs(pixels) >= min(h, w):
+        raise ValueError(f"平移 {pixels} 超過影像尺寸 {h}×{w}")
+    k = abs(int(pixels))
+    padded = F.pad(x, (k, k, k, k), mode="reflect")
+    top = k + int(pixels)
+    left = k + int(pixels)
+    return padded[..., top:top + h, left:left + w]
+
 # ------------------------------------------------------------- CNN 去噪（替代）
 
 # DiffVax 只引 NTIRE 2023 挑戰賽報告、未指名模型；冠軍 IPTV2（Team Apply AI）的
@@ -281,11 +336,16 @@ KINDS = (
     # DEC-025 的頻率輪新增：兩個針對相位／頻域設計的淨化器
     "gridpure",
     "fdpure",
+    # crop_resize 的分解對照。**不是文獻裡的淨化算子**，只用於歸因，
+    # 不得進入頭對頭的淨化器清單（`phase_retention.purifier_set` 沒有它們）。
+    "resample_roundtrip",
+    "shift_only",
 )
 
 # 原生可微（`forward` 走真實實作並提供真實梯度）的算子。其餘一律經
 # `straight_through`：前向為真實輸出、反向視為恆等。
-_DIFFERENTIABLE = ("identity", "blur", "noise", "crop_resize", "resize_only")
+_DIFFERENTIABLE = ("identity", "blur", "noise", "crop_resize", "resize_only",
+                   "resample_roundtrip", "shift_only")
 
 
 class Purifier:
@@ -355,6 +415,11 @@ class Purifier:
             return crop_resize(x, frac)
         if self.kind == "resize_only":
             return resize_only(x)
+        if self.kind == "resample_roundtrip":
+            return resample_roundtrip(
+                x, int(self.strength) if self.strength else 410)
+        if self.kind == "shift_only":
+            return shift_only(x, int(self.strength) if self.strength else 51)
         if self.kind == "jpeg_then_resize":
             q = int(self.strength) if self.strength else CR_JPEG_QUALITY
             return jpeg_then_resize(x, quality=q)

@@ -111,3 +111,29 @@ def test_驅動的旗標認得這一支():
     args = build_parser().parse_args(["--out", "x", "--purify-aware",
                                       "eot_geometry"])
     assert args.purify_aware == "eot_geometry"
+
+
+def test_預設置中而不是隨機偏移():
+    """評測算子 ops.crop_resize 是置中的，而中心裁切的幾何效果是純放大、
+    淨平移為零。隨機化偏移等於要求一個評測不會考的平移不變性。"""
+    x = _x()
+    t = make_eot_geometry_transform(fractions=(0.10,), seed=0)
+    for i in range(4):
+        assert torch.equal(t(x, i), crop_resize(x, 0.10))
+
+
+def test_jitter開啟時偏移才隨機():
+    x = _x()
+    t = make_eot_geometry_transform(fractions=(0.10,), seed=0, jitter=True)
+    outs = [t(x, i) for i in range(6)]
+    assert any(not torch.equal(o, crop_resize(x, 0.10)) for o in outs)
+
+
+def test_中心裁切的不動點在中心():
+    """這是 jitter 預設關閉的理由，直接釘住幾何行為。"""
+    n = 512
+    p = torch.zeros(1, 3, n, n)
+    p[0, :, n // 2, n // 2] = 1.0
+    y = crop_resize(p, 0.10)[0, 0]
+    r, c = divmod(int(torch.argmax(y)), n)
+    assert (r, c) == (n // 2, n // 2)

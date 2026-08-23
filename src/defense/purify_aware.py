@@ -185,7 +185,7 @@ def random_crop_resize(x01: torch.Tensor, frac: float,
 
 
 def make_eot_geometry_transform(fractions: Sequence[float] = GEOMETRY_FRACTIONS,
-                                seed: int = 0,
+                                seed: int = 0, jitter: bool = False,
                                 ) -> Callable[[torch.Tensor, int], torch.Tensor]:
     """對**一族**裁切與縮放取期望值，而不是對一個固定的幾何。
 
@@ -203,6 +203,18 @@ def make_eot_geometry_transform(fractions: Sequence[float] = GEOMETRY_FRACTIONS,
 
     `0.0` 留在族內即 identity，理由與 `make_eot_ops_transform` 相同：沒有它，
     最佳化會為了抗淨化而放棄未淨化時的效果。
+
+    `jitter` 決定裁切窗置中還是隨機
+    ────────────────────────────────────────────────────────────────
+    **預設 False（置中），因為評測算子是置中的。** `ops.crop_resize` 的
+    `CROP_MODE = "center"`，而中心裁切再縮放的幾何效果是**以中心為不動點的
+    純放大**，淨平移為零——實測亮點 64 → 16、448 → 496、而 **256 不動**
+    （`runs/ip2p_residual_signature/crop_decomposition.csv`）。
+
+    所以這一族要撐開的是**放大倍率**，那由 `fractions` 提供；隨機化裁切偏移
+    等於再要求一個評測不會考的平移不變性，是把 EOT 的容量花在 nuisance 參數
+    上。`jitter=True` 保留給「攻擊方不置中裁切」那個更強的威脅模型，**它是
+    嚴格更難的目標，兩者不可混在同一列報表上**。
     """
     if not fractions:
         raise ValueError("fractions 不可為空")
@@ -213,7 +225,10 @@ def make_eot_geometry_transform(fractions: Sequence[float] = GEOMETRY_FRACTIONS,
 
     def transform(x01: torch.Tensor, step: int) -> torch.Tensor:
         i = int(torch.randint(len(fractions), (1,), generator=gen))
-        return random_crop_resize(x01, float(fractions[i]), gen)
+        frac = float(fractions[i])
+        if jitter:
+            return random_crop_resize(x01, frac, gen)
+        return crop_resize(x01, frac) if frac > 0 else x01
 
     return transform
 

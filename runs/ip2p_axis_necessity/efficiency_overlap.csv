@@ -1,0 +1,9 @@
+condition,window_lo,window_hi,n_in_window,points,slope_disp_per_dists,slope_disp_per_lpips,n_all,all_points
+dct_shield,0.077,0.132,3,dct_e14 dct_e18 dct_e22,7.045,1.3056,4,dct_e12 dct_e14 dct_e18 dct_e22
+dct_shield_y,0.077,0.132,0,,,,4,dct_y_e10 dct_y_e14 dct_y_e20 dct_y_e30
+gain_only_floor,0.077,0.132,2,b_gn_r15 b_gn_r24,5.747,1.3268,3,b_gn_r08 b_gn_r15 b_gn_r24
+gain_only_nonadditive,0.077,0.132,1,a_gn_r26,,,3,a_gn_r09 a_gn_r16 a_gn_r26
+phase_floor,0.077,0.132,2,b_ph_r18 b_ph_rpi,6.079,1.3183,3,b_ph_r08 b_ph_r18 b_ph_rpi
+phase_gain_floor,0.077,0.132,2,b_pg_r09 b_pg_r15,6.267,1.3255,4,b_pg_r09 b_pg_r15 b_pg_r20 b_pg_r24
+phase_gain_nonadditive,0.077,0.132,3,phase_r15 a_pg_r18 phase_r20,3.993,1.1902,7,a_pg_r11 phase_r15 a_pg_r18 phase_r20 a_pg_r25 phase_r25 a_pg_r30
+phase_nonadditive,0.077,0.132,1,a_ph_rpi,,,3,a_ph_r12 a_ph_r22 a_ph_rpi

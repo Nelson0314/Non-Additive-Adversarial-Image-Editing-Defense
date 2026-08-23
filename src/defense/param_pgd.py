@@ -156,8 +156,14 @@ class PhaseParam:
             raise ValueError(f"gain_ratio 不可為負，收到 {gain_ratio}")
         self.gain_ratio = gain_ratio
         self.phase_on = phase_on
-        if not phase_on and gain_ratio <= 0:
-            raise ValueError("phase_on=False 且 gain_ratio=0 時沒有任何自由度")
+        # 三個自由度：theta（相位）、gain（幅度）、floor（頻譜加性下限）。
+        # 三個全關才是真的沒有東西可學。**這道檢查原本只看前兩個**，是在加性
+        # 下限存在之前寫的，於是「相位與幅度都不動、只留下限」這一格被擋住
+        # ——而那正是加性裁決底下唯一沒跑過的對照。
+        if not phase_on and gain_ratio <= 0 and spectral_floor <= 0:
+            raise ValueError(
+                "phase_on=False、gain_ratio=0 且 spectral_floor=0 時"
+                "沒有任何自由度")
         self.module: Optional[PhaseResidual] = None
 
     def reset(self, x01: torch.Tensor, seed: int) -> None:

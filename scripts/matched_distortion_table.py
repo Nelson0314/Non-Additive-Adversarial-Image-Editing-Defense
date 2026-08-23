@@ -67,22 +67,31 @@ def group_key(row: dict, keys: Sequence[str]) -> str:
 
 
 def build_curves(rows: Sequence[dict], keys: Sequence[str], x_key: str,
-                 y_key: str, images: Sequence[str]
+                 y_key: str, images: Sequence[str],
+                 strength: str = "radius"
                  ) -> Dict[str, List[Tuple[float, float, float, int, dict]]]:
-    """每組一條曲線，點是 `(x, y, radius, n, 其餘量的平均)`，依 x 遞增。"""
+    """每組一條曲線，點是 `(x, y, 強度, n, 其餘量的平均)`，依 x 遞增。
+
+    `strength` 是哪一欄扮演強度旗鈕。預設 `radius`，但有幾批把 radius 固定住
+    改掃別的旗標——`floor_only` 掃 `spectral_floor`、`theta_budget` 掃自己那一
+    欄。那時整批的 radius 一模一樣，**用 radius 分桶會把整條曲線摺成一個點**，
+    而且不會有症狀（`n` 剛好變成張數的倍數，下面那道檢查才會叫）。
+    """
     buckets: Dict[Tuple[str, float], List[dict]] = {}
     keep = set(images)
     for r in rows:
         if r["image"] not in keep:
             continue
+        if strength not in r:
+            raise SystemExit(f"CSV 沒有 {strength} 這一欄，無法當強度旗鈕")
         buckets.setdefault(
-            (group_key(r, keys), round(float(r["radius"]), 6)), []).append(r)
+            (group_key(r, keys), round(float(r[strength]), 6)), []).append(r)
     curves: Dict[str, List[Tuple[float, float, float, int, dict]]] = {}
     for (g, rad), rs in buckets.items():
         if len(rs) != len(keep):
             raise SystemExit(
-                f"{g} radius={rad} 只有 {len(rs)} 張，交集是 {len(keep)} 張——"
-                "分片沒跑完就不要合併，張數不同的平均不可並排讀")
+                f"{g} {strength}={rad} 只有 {len(rs)} 張，交集是 {len(keep)} 張"
+                "——分片沒跑完就不要合併，張數不同的平均不可並排讀")
         extra = {k: statistics.fmean(float(r[k]) for r in rs)
                  for k in CARRIED if k != "blocked_rate"}
         extra["blocked_rate"] = statistics.fmean(
@@ -97,11 +106,12 @@ def build_curves(rows: Sequence[dict], keys: Sequence[str], x_key: str,
     return curves
 
 
-def common_images(rows: Sequence[dict], keys: Sequence[str]) -> List[str]:
-    """所有 (組, radius) 都跑到的影像。空集合直接拋錯，不靜默出空表。"""
+def common_images(rows: Sequence[dict], keys: Sequence[str],
+                  strength: str = "radius") -> List[str]:
+    """所有 (組, 強度) 都跑到的影像。空集合直接拋錯，不靜默出空表。"""
     per: Dict[Tuple[str, float], set] = {}
     for r in rows:
-        per.setdefault((group_key(r, keys), round(float(r["radius"]), 6)),
+        per.setdefault((group_key(r, keys), round(float(r[strength]), 6)),
                        set()).add(r["image"])
     inter = set.intersection(*per.values()) if per else set()
     if not inter:
@@ -125,6 +135,10 @@ def main() -> None:
                          "要求兩個錨點都報：等失真比效果、等效果比失真。"
                          "本支原本只做前者，於是「要付多少失真才追得平」這句"
                          "話一直是手算的")
+    ap.add_argument("--strength", default="radius",
+                    help="哪一欄是強度旗鈕。掃 --spectral-floor 或 "
+                         "--theta-budget 的批次要改成那一欄，否則整條曲線會被"
+                         "摺成一個點")
     ap.add_argument("--images", nargs="+", default=None)
     ap.add_argument("--out", type=Path, required=True)
     args = ap.parse_args()
@@ -132,14 +146,16 @@ def main() -> None:
         raise SystemExit("--anchor 與 --anchor-effect 至少要給一個")
 
     rows = load_rows(args.run)
-    images = args.images or common_images(rows, args.group_by)
-    curves = build_curves(rows, args.group_by, args.x, args.y, images)
+    images = args.images or common_images(rows, args.group_by, args.strength)
+    curves = build_curves(rows, args.group_by, args.x, args.y, images,
+                          args.strength)
 
     pts_out = []
     for g, pts in sorted(curves.items()):
         for x, y, rad, n, extra in pts:
             pts_out.append({
-                "group": g, "radius": rad, "n_images": n,
+                "group": g, "strength_key": args.strength, "strength": rad,
+                "n_images": n,
                 args.x: round(x, 5), args.y: round(y, 5),
                 **{k: round(v, 5) for k, v in extra.items()}})
     args.out.parent.mkdir(parents=True, exist_ok=True)
@@ -162,8 +178,8 @@ def main() -> None:
                        "crossings": ""}
                 if hit is not None:
                     row["value"] = round(hit["value"], 5)
-                    row["seg_lo_radius"] = hit["lo"][2]
-                    row["seg_hi_radius"] = hit["hi"][2]
+                    row["seg_lo_strength"] = hit["lo"][2]
+                    row["seg_hi_strength"] = hit["hi"][2]
                     row["crossings"] = hit["crossings"]
                 t = 0.0 if hit is None else hit["t"]
                 for k in CARRIED:
@@ -180,7 +196,8 @@ def main() -> None:
     for g, pts in sorted(curves.items()):
         print(f"— {g}")
         for x, y, rad, n, extra in pts:
-            print(f"    r={rad:<7g} {args.x}={x:.4f} {args.y}={y:.4f} "
+            print(f"    {args.strength}={rad:<7g} {args.x}={x:.4f} "
+                  f"{args.y}={y:.4f} "
                   f"psnr={extra['fid_psnr']:.2f} "
                   f"blocked={extra['blocked_rate'] * n:.0f}/{n}")
     print(f"\n{'錨在':>10s}{'值':>9s}  {'組':44s}{'回報的量':>11s}"

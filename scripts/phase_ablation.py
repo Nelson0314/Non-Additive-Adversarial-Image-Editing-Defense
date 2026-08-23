@@ -96,6 +96,35 @@ def build(name: str, seed: int, block: int = 32, r_min: float = 0.12,
                            floor_gate=floor_gate,
                            theta_budget=theta_budget),
                 PHASE_RADIUS_LO, math.pi)
+    if name == "floor_only":
+        # 相位與幅度都不動，只留頻譜加性下限。**強度旗鈕是 `--spectral-floor`
+        # 而不是 radius**——radius 在這一格上完全沒有作用（theta 凍結在 0，
+        # gain_max = radius × 0 = 0），CSV 上那一欄照樣寫出來但不可解讀。
+        #
+        # 為什麼要這一格：`DECISIONS.md` 撤回「不做加性項」時，唯一站得住的
+        # 理由是「非加性那一半買的是感知代價」，而那句話的證據是一次性探針裡
+        # `radius 0.1` 的近似（theta_max 與 gain_max 都還有 0.1，不是真的關掉），
+        # 且來自已刪除的程式。真正的「只有加性」從未在主線程式上跑過。
+        # 今日又量到 `--spectral-floor 0.04` 時加法項佔可用預算的 67.6%
+        # （`runs/ip2p_residual_signature/allowed_budget_gini.csv`），這一格
+        # 因此是整個加性裁決底下最該補的對照。
+        if spectral_floor <= 0:
+            raise ValueError(
+                f"floor_only 需要 spectral_floor > 0，收到 {spectral_floor}")
+        return (PhaseParam(size=RESOLUTION, block=block, r_min=r_min,
+                           hop=hop, r_max=r_max,
+                           energy_quantile=quantile, gl_iters=gl_iters,
+                           pixel_gate_sigma=pixel_gate_sigma,
+                           gain_ratio=0.0, phase_on=False,
+                           gate_edge_power=gate_edge_power,
+                           freq_weight=freq_weight,
+                           freq_weight_power=freq_weight_power,
+                           gain_weight=gain_weight,
+                           channels=channels,
+                           spectral_floor=spectral_floor,
+                           floor_gate=floor_gate,
+                           theta_budget=theta_budget),
+                PHASE_RADIUS_LO, math.pi)
     if name in ("phase_gain", "gain_only"):
         # 2026-08-21 的改動一：幅度譜也可學。`gain_only` 把 theta 凍結在 0，
         # 用來分辨「幅度單獨有沒有用」與「兩者是否相加」。

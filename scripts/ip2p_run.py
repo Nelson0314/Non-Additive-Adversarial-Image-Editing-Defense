@@ -80,7 +80,8 @@ from src.models.ip2p import (  # noqa: E402
 from src.utils.io import load_image_tensor, write_csv  # noqa: E402
 
 RESOLUTION = 512
-PHASE_CONDS = ("phase", "phase_rand", "add", "phase_gain", "gain_only")
+PHASE_CONDS = ("phase", "phase_rand", "add", "phase_gain", "gain_only",
+               "floor_only")
 DCT_CONDS = ("dct_shield", "dct_shield_y")
 ADVDROP_CONDS = ("advdrop",)
 WM_CONDS = ("dct_wm",)

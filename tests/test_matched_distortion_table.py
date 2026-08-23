@@ -116,3 +116,38 @@ def test_兩個錨點都沒給時拋錯():
                          capture_output=True, text=True)
     assert out.returncode != 0
     assert "至少要給一個" in (out.stdout + out.stderr)
+
+
+def _floor_row(image, floor, dists, disp):
+    """掃 --spectral-floor 的批次：radius 整批固定，強度在另一欄。"""
+    return {"image": image, "condition": "floor_only", "spectral_floor": str(floor),
+            "radius": "3.1416", "fid_dists": str(dists), "edit_lpips": str(disp),
+            "fid_psnr": "26.0", "fid_lpips": "0.4", "fid_ssim": "0.9",
+            "edit_clip_sim": "0.9"}
+
+
+def test_強度旗鈕不是radius時要能改欄():
+    rows = [_floor_row(i, f, d, y)
+            for i in ("a", "b")
+            for f, d, y in ((0.02, 0.06, 0.4), (0.08, 0.14, 0.7))]
+    got = build_curves(rows, ["condition"], "fid_dists", "edit_lpips",
+                       ["a", "b"], strength="spectral_floor")
+    assert len(got["condition=floor_only"]) == 2
+
+
+def test_用radius分桶會把整條曲線摺成一個點():
+    """radius 整批相同，所以以它分桶時四列會落進同一桶——張數對不上而拋錯，
+    這正是這道檢查存在的理由。"""
+    rows = [_floor_row(i, f, d, y)
+            for i in ("a", "b")
+            for f, d, y in ((0.02, 0.06, 0.4), (0.08, 0.14, 0.7))]
+    with pytest.raises(SystemExit, match="沒跑完"):
+        build_curves(rows, ["condition"], "fid_dists", "edit_lpips",
+                     ["a", "b"], strength="radius")
+
+
+def test_強度欄不存在時直接拋錯():
+    rows = [_floor_row("a", 0.02, 0.06, 0.4)]
+    with pytest.raises(SystemExit, match="沒有 theta_budget"):
+        build_curves(rows, ["condition"], "fid_dists", "edit_lpips", ["a"],
+                     strength="theta_budget")

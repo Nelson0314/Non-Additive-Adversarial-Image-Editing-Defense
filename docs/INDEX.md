@@ -14,6 +14,7 @@
 | [RESULTS.md](RESULTS.md) | 測得的事實。每一筆自足，含證據路徑 | 想知道某件事有沒有被測過 |
 | [DECISIONS.md](DECISIONS.md) | 已裁決的事項與理由 | 想改變既定作法時 |
 | [DEFECTS.md](DEFECTS.md) | 已知缺陷與修正紀錄 | 遇到可疑行為時 |
+| [PENDING.md](PENDING.md) | **量過但尚未裁定**的事項與缺口 | 接手工作時；引用任何新數字之前 |
 | [OPERATIONS.md](OPERATIONS.md) | 環境、遠端機器、執行與資料保全 | 要跑實驗時 |
 | [reference/](reference/) | 外部文獻的查證紀錄 | 要引用或移植別人的方法時 |
 
@@ -29,7 +30,8 @@
 → [EVALUATION.md](EVALUATION.md)；若涉及裁決則另見 [DECISIONS.md](DECISIONS.md)。
 
 **「這個方向試過了嗎？」**
-→ [RESULTS.md](RESULTS.md) 的「已否決的方向」一節。
+→ [RESULTS.md](RESULTS.md) 的「已否決的方向」一節；若是最近量的但還沒裁定，
+在 [PENDING.md](PENDING.md)。
 
 **「這篇論文我們讀過嗎？」**
 → [reference/BIBLIOGRAPHY.md](reference/BIBLIOGRAPHY.md) 是總索引，逐篇細節在

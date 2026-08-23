@@ -110,7 +110,8 @@ class PhaseParam:
                  gain_weight: str = "shared",
                  channels: str = "rgb",
                  spectral_floor: float = 0.0,
-                 floor_gate: str = "uniform"):
+                 floor_gate: str = "uniform",
+                 theta_budget: float = 0.0):
         self.size, self.block, self.r_min = size, block, r_min
         # None = block//2，逐位元等於加這個參數之前。更小的 hop 讓每個
         # 像素被更多區塊覆蓋，相鄰區塊獨立旋轉留下的接縫因此被平均掉。
@@ -133,6 +134,9 @@ class PhaseParam:
         # 加法項的價目表要不要隨區塊變。合法性由 `PhaseResidual` 檢查，
         # 這裡只轉交。`uniform` 逐位元等於加這個旋鈕之前。
         self.floor_gate = floor_gate
+        # 幅度相依的相位上限。合法性由 `PhaseResidual` 檢查，這裡只轉交。
+        # 0 = 關閉，逐位元等於加這個旗標之前。
+        self.theta_budget = theta_budget
         # **radius 本身不封頂**，封頂只發生在傳給 `theta_max` 的那一刻。
         # 2026-08-21 之前這裡是 `min(radius, pi)`，於是 `--radius 3.5` 與
         # `--radius 4.5` 其實跑的是同一個 theta_max = pi——sigma 掃描看到的
@@ -172,6 +176,7 @@ class PhaseParam:
             channels=self.channels,
             spectral_floor=self.spectral_floor,
             floor_gate=self.floor_gate,
+            theta_budget=self.theta_budget,
         ).to(device=x01.device, dtype=x01.dtype)
         self.module.prepare_gates(x01, keep=self.keep)
 
@@ -191,6 +196,13 @@ class PhaseParam:
         if self.phase_on:
             t = min(self.radius, math.pi)
             self.module.theta.clamp_(-t, t)
+            if self.module.theta_cap is not None:
+                # 幅度相依的上限也是可行集的一部分。**投影到可行集而不是只在
+                # 前向夾**：只在前向夾的話，被夾住的座標梯度是零，PGD 會把
+                # 參數推到界外再也回不來，而報表上看不出來。
+                cap = self.module.theta_cap
+                torch.minimum(self.module.theta, cap, out=self.module.theta)
+                torch.maximum(self.module.theta, -cap, out=self.module.theta)
         if self.gain_ratio > 0:
             g = self.radius * self.gain_ratio
             self.module.gain.clamp_(-g, g)

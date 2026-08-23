@@ -204,7 +204,8 @@ def defend(ip2p, suite, cond, x01, args, loss_fn):
                           gain_weight=args.gain_weight,
                           channels=args.phase_channels,
                           spectral_floor=args.spectral_floor,
-                          floor_gate=args.floor_gate)
+                          floor_gate=args.floor_gate,
+                          theta_budget=args.theta_budget)
     if args.radius is not None:
         param.set_radius(args.radius)
         res = run_param_pgd(x01, param, loss_fn, steps=args.steps,
@@ -318,6 +319,11 @@ def build_parser() -> argparse.ArgumentParser:
                          "徑向帶通、不乘紋理閘，才進得去平坦區。"
                          "**開啟後方法不再是純粹的非加性重參數化**，"
                          "兩個設定都是主線、分開報（docs/METHOD.md）")
+    ap.add_argument("--theta-budget", type=float, default=0.0,
+                    help="幅度相依的相位上限，單位與係數同（Perturbing the "
+                         "Phase, arXiv:2602.06577）：|theta| <= 2·arcsin("
+                         "eps/(2|X|))，2|X| <= eps 的頻格相位自由。0 = 關閉。"
+                         "它處理的是 FND-038——固定的 theta 不等於固定的失真")
     ap.add_argument("--floor-gate", choices=tuple(sorted(FLOOR_GATES)),
                     default="uniform",
                     help="加法項的價目表要不要隨區塊變。uniform（預設）只看"
@@ -495,6 +501,9 @@ def main() -> None:
                 # 加法項的價目分配。三個變體的總預算相同，跑出來的列
                 # 在其餘欄位上一模一樣，不記下來合併之後就分不出來。
                 "floor_gate": args.floor_gate,
+                # 幅度相依的相位上限。關著與開著跑出的列在其餘欄位上
+                # 一模一樣，不記下來合併之後就分不出來。
+                "theta_budget": args.theta_budget,
                 # 防禦端的 PGD 步數。**本方法預設 100，DCT-Shield 是 1000**
                 # （該篇 §5.4），頭對頭表上這個差異從未被控制過，故逐列記下。
                 "defense_steps": defense_steps(args, cond),

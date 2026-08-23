@@ -409,6 +409,7 @@ class PhaseResidual(ResidualModule):
         channels: str = "rgb",
         spectral_floor: float = 0.0,
         floor_gate: str = "uniform",
+        theta_budget: float = 0.0,
     ):
         super().__init__()
         if block % 2 != 0:
@@ -467,6 +468,22 @@ class PhaseResidual(ResidualModule):
                 f"未知的 floor_gate：{floor_gate!r}，"
                 f"可用的是 {sorted(FLOOR_GATES)}")
         self.floor_gate = floor_gate
+        # 幅度相依的相位上限（Perturbing the Phase, arXiv:2602.06577）。
+        #
+        # 把係數 X 的相位轉 theta，係數本身移動 `2|X|·sin(theta/2)`。要把那個
+        # 位移界在 eps 以內，相位就必須滿足
+        #
+        #     |theta| <= 2·arcsin( eps / (2|X|) )        （2|X| > eps）
+        #     相位自由                                   （2|X| <= eps）
+        #
+        # 這一條解決的是本專案記過的缺陷：**固定的 theta 不等於固定的失真**
+        # （FND-038，同一個 theta 在 24 張圖上 PSNR 由 23.15 漂到 39.54）。
+        # 上限由**原圖**的幅度算出並固定，與兩個閘同型，不參與最佳化。
+        #
+        # 0 = 關閉，逐位元等於加這個旋鈕之前。
+        if theta_budget < 0:
+            raise ValueError(f"theta_budget 不可為負，收到 {theta_budget}")
+        self.theta_budget = theta_budget
 
         self.size = size
         self.block = block
@@ -540,6 +557,7 @@ class PhaseResidual(ResidualModule):
         self.register_buffer("freq_gate", torch.zeros(*nbins), persistent=False)
         self.register_buffer("tex_gate", torch.zeros(1, self.n_blocks), persistent=False)
         self.pixel_mask = None
+        self.theta_cap = None
         self._gates_ready = False
         self._gain_freq = None
         self._floor_price = None
@@ -583,6 +601,14 @@ class PhaseResidual(ResidualModule):
             self.pixel_mask = m.detach()
         else:
             self.pixel_mask = None
+        # 幅度相依的相位上限。取通道平均的幅度：三個通道共用同一個 theta
+        # （見類別 docstring），上限也必須共用，否則最緊的那個通道會被放行。
+        if self.theta_budget > 0:
+            mag = self.analyze(x01).abs().mean(dim=1)          # (B, L, n, nb)
+            ratio = (self.theta_budget / (2.0 * mag).clamp_min(1e-12)).clamp(max=1.0)
+            self.theta_cap = (2.0 * torch.asin(ratio)).detach()
+        else:
+            self.theta_cap = None
         # 加法項的價目表。基底是徑向帶通 × 知覺權重（**不含相位那一半的
         # 紋理閘**）；`floor_gate` 決定要不要再乘一層逐區塊的因子。
         self._floor_price = (
@@ -705,6 +731,12 @@ class PhaseResidual(ResidualModule):
             raise ValueError(f"影像尺寸 {h}x{w} 與建構時的 size={self.size} 不符")
 
         shift = torch.clamp(self.theta, -self.theta_max, self.theta_max)
+        if self.theta_cap is not None:
+            # 與 `theta_max` 同型：前向與 `project()` 都夾一次。可行集由後者
+            # 維持，故這裡在實務上是恆等，留著是為了「沒呼叫 project 也不會
+            # 超出預算」。**夾的是參數本身而不是乘過閘之後的量**：閘只會把它
+            # 再縮小，故預算仍然被遵守，只是在閘小的地方留有餘裕。
+            shift = torch.clamp(shift, -self.theta_cap, self.theta_cap)
         shift = (shift * self.gate()).unsqueeze(1)                   # (1,1,L,n,nb)
 
         spec = self.analyze(x01)

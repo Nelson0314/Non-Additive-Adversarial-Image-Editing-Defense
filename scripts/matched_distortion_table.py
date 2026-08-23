@@ -118,11 +118,18 @@ def main() -> None:
                     help="哪些欄一起決定一條曲線")
     ap.add_argument("--x", default=DEFAULT_X)
     ap.add_argument("--y", default=DEFAULT_Y)
-    ap.add_argument("--anchor", type=float, nargs="+", required=True,
+    ap.add_argument("--anchor", type=float, nargs="+", default=[],
                     help="等失真錨點（--x 的值），可給多個")
+    ap.add_argument("--anchor-effect", type=float, nargs="+", default=[],
+                    help="等效果錨點（--y 的值），可給多個。協定（DEC-029）"
+                         "要求兩個錨點都報：等失真比效果、等效果比失真。"
+                         "本支原本只做前者，於是「要付多少失真才追得平」這句"
+                         "話一直是手算的")
     ap.add_argument("--images", nargs="+", default=None)
     ap.add_argument("--out", type=Path, required=True)
     args = ap.parse_args()
+    if not args.anchor and not args.anchor_effect:
+        raise SystemExit("--anchor 與 --anchor-effect 至少要給一個")
 
     rows = load_rows(args.run)
     images = args.images or common_images(rows, args.group_by)
@@ -139,27 +146,34 @@ def main() -> None:
     write_csv(args.out.with_name(args.out.stem + "_points.csv"), pts_out)
 
     table = []
-    for anchor in args.anchor:
-        for g, pts in sorted(curves.items()):
-            hit = interp_at([(x, y, r, n) for x, y, r, n, _ in pts], anchor,
-                            axis=0)
-            row = {"anchor_x": anchor, "group": g, "n_images": len(images),
-                   "out_of_range": hit is None,
-                   "x_min": round(pts[0][0], 5), "x_max": round(pts[-1][0], 5)}
-            if hit is None:
-                row[args.y] = ""
+    for axis, anchors, out_key in ((0, args.anchor, args.y),
+                                   (1, args.anchor_effect, args.x)):
+        for anchor in anchors:
+            for g, pts in sorted(curves.items()):
+                span = sorted(p[axis] for p in pts)
+                hit = interp_at([(x, y, r, n) for x, y, r, n, _ in pts], anchor,
+                                axis=axis)
+                row = {"anchor_axis": args.x if axis == 0 else args.y,
+                       "anchor_value": anchor, "reported": out_key,
+                       "group": g, "n_images": len(images),
+                       "out_of_range": hit is None,
+                       "axis_min": round(span[0], 5),
+                       "axis_max": round(span[-1], 5), "value": "",
+                       "crossings": ""}
+                if hit is not None:
+                    row["value"] = round(hit["value"], 5)
+                    row["seg_lo_radius"] = hit["lo"][2]
+                    row["seg_hi_radius"] = hit["hi"][2]
+                    row["crossings"] = hit["crossings"]
+                t = 0.0 if hit is None else hit["t"]
                 for k in CARRIED:
-                    row[k] = ""
-            else:
-                row[args.y] = round(hit["value"], 5)
-                t = hit["t"]
-                lo = next(p for p in pts if p[2] == hit["lo"][2])
-                hi = next(p for p in pts if p[2] == hit["hi"][2])
-                for k in CARRIED:
-                    row[k] = round(lo[4][k] + t * (hi[4][k] - lo[4][k]), 5)
-                row["seg_lo_radius"] = hit["lo"][2]
-                row["seg_hi_radius"] = hit["hi"][2]
-            table.append(row)
+                    if hit is None:
+                        row[k] = ""
+                    else:
+                        lo = next(p for p in pts if p[2] == hit["lo"][2])
+                        hi = next(p for p in pts if p[2] == hit["hi"][2])
+                        row[k] = round(lo[4][k] + t * (hi[4][k] - lo[4][k]), 5)
+                table.append(row)
     write_csv(args.out, table)
 
     print(f"共同影像 {len(images)} 張\n")
@@ -169,14 +183,15 @@ def main() -> None:
             print(f"    r={rad:<7g} {args.x}={x:.4f} {args.y}={y:.4f} "
                   f"psnr={extra['fid_psnr']:.2f} "
                   f"blocked={extra['blocked_rate'] * n:.0f}/{n}")
-    print(f"\n{'錨點':>8s}  {'組':46s}{args.y:>9s}{'PSNR':>8s}{'擋下':>8s}")
+    print(f"\n{'錨在':>10s}{'值':>9s}  {'組':44s}{'回報的量':>11s}"
+          f"{'PSNR':>8s}{'擋下':>8s}")
     for r in table:
+        head = f"{r['anchor_axis']:>10s}{r['anchor_value']:9.4f}  {r['group']:44s}"
         if r["out_of_range"]:
-            print(f"{r['anchor_x']:8.4f}  {r['group']:46s}"
-                  f"{'範圍外':>11s}（{r['x_min']:.4f}–{r['x_max']:.4f}）")
+            print(f"{head}{'範圍外':>13s}"
+                  f"（{r['axis_min']:.4f}–{r['axis_max']:.4f}）")
         else:
-            print(f"{r['anchor_x']:8.4f}  {r['group']:46s}{r[args.y]:9.4f}"
-                  f"{r['fid_psnr']:8.2f}"
+            print(f"{head}{r['value']:11.4f}{r['fid_psnr']:8.2f}"
                   f"{r['blocked_rate'] * r['n_images']:6.1f}/{r['n_images']}")
     print(f"\n寫出 {args.out}")
 

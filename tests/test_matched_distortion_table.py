@@ -89,3 +89,30 @@ def test_錨點落在範圍外不外插():
     hit = interp_at(pts, 0.10, axis=0)
     assert hit is not None
     assert hit["value"] == pytest.approx(0.45)
+
+
+def test_等效果錨點回報的是失真而不是效果():
+    """協定（DEC-029）要求兩個錨點都報：等失真比效果、等效果比失真。
+    依 y 內插時回傳的必須是 x。"""
+    from tradeoff_curve import interp_at
+    pts = [(0.05, 0.3, 1.0, 2), (0.15, 0.6, 2.0, 2)]
+    hit = interp_at(pts, 0.45, axis=1)
+    assert hit is not None
+    assert hit["value"] == pytest.approx(0.10)
+
+
+def test_等效果錨點一樣拒絕外插():
+    from tradeoff_curve import interp_at
+    pts = [(0.05, 0.3, 1.0, 2), (0.15, 0.6, 2.0, 2)]
+    assert interp_at(pts, 0.80, axis=1) is None
+    assert interp_at(pts, 0.10, axis=1) is None
+
+
+def test_兩個錨點都沒給時拋錯():
+    import subprocess, sys as _sys
+    from pathlib import Path as _Path
+    script = _Path(__file__).resolve().parent.parent / "scripts" / "matched_distortion_table.py"
+    out = subprocess.run([_sys.executable, str(script), "--run", ".", "--out", "x.csv"],
+                         capture_output=True, text=True)
+    assert out.returncode != 0
+    assert "至少要給一個" in (out.stdout + out.stderr)

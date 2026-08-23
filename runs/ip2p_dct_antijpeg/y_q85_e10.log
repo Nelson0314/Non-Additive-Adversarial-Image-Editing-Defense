@@ -1,0 +1,96 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3447.41it/s]
+Loading pipeline components...:  50%|█████     | 3/6 [00:00<00:00, 12.88it/s]Loading pipeline components...:  83%|████████▎ | 5/6 [00:00<00:00, 14.01it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 15.27it/s]
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+IP2P 線：13 張、條件 ['dct_shield_y']、steps=100 s_T=7.5 s_I=1.5 seed=20260812
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,1.0]
+  warnings.warn(
+    [dct_shield_y] step    0 loss 109.6247
+    [dct_shield_y] step  250 loss 58.4475
+    [dct_shield_y] step  500 loss 54.8026
+    [dct_shield_y] step  750 loss 52.2191
+    [dct_shield_y] step  999 loss 50.1500
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 9993.55it/s]
+[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
+[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
+Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights:  93%|█████████▎| 378/408 [00:00<00:00, 3768.73it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 3768.16it/s]
+task_attr_mod_color_11699        dct_shield_y   r=1.0000 dists=0.1185 lpips=0.5690 effect=0.5968 (401s)
+    [dct_shield_y] step    0 loss 134.2069
+    [dct_shield_y] step  250 loss 63.8138
+    [dct_shield_y] step  500 loss 60.7903
+    [dct_shield_y] step  750 loss 58.6372
+    [dct_shield_y] step  999 loss 56.8646
+task_attr_mod_color_136767       dct_shield_y   r=1.0000 dists=0.1124 lpips=0.5318 effect=0.6339 (386s)
+    [dct_shield_y] step    0 loss 106.3314
+    [dct_shield_y] step  250 loss 57.9228
+    [dct_shield_y] step  500 loss 55.6217
+    [dct_shield_y] step  750 loss 53.8010
+    [dct_shield_y] step  999 loss 51.8147
+task_attr_mod_color_184837       dct_shield_y   r=1.0000 dists=0.0702 lpips=0.4844 effect=0.7754 (387s)
+    [dct_shield_y] step    0 loss 171.0838
+    [dct_shield_y] step  250 loss 75.1244
+    [dct_shield_y] step  500 loss 70.0434
+    [dct_shield_y] step  750 loss 65.9844
+    [dct_shield_y] step  999 loss 61.3869
+task_attr_mod_color_32648        dct_shield_y   r=1.0000 dists=0.2164 lpips=0.6123 effect=0.6451 (391s)
+    [dct_shield_y] step    0 loss 113.1804
+    [dct_shield_y] step  250 loss 54.0592
+    [dct_shield_y] step  500 loss 51.3896
+    [dct_shield_y] step  750 loss 48.8649
+    [dct_shield_y] step  999 loss 46.5380
+task_attr_mod_color_6205         dct_shield_y   r=1.0000 dists=0.1279 lpips=0.6036 effect=0.7553 (391s)
+    [dct_shield_y] step    0 loss 121.9192
+    [dct_shield_y] step  250 loss 51.9318
+    [dct_shield_y] step  500 loss 49.5042
+    [dct_shield_y] step  750 loss 45.4180
+    [dct_shield_y] step  999 loss 43.4248
+task_env_weather_112463          dct_shield_y   r=1.0000 dists=0.0900 lpips=0.6437 effect=0.8878 (388s)
+    [dct_shield_y] step    0 loss 116.7862
+    [dct_shield_y] step  250 loss 68.3903
+    [dct_shield_y] step  500 loss 65.9497
+    [dct_shield_y] step  750 loss 64.0461
+    [dct_shield_y] step  999 loss 61.8808
+task_env_weather_246440          dct_shield_y   r=1.0000 dists=0.0515 lpips=0.3917 effect=0.5404 (391s)
+    [dct_shield_y] step    0 loss 95.7517
+    [dct_shield_y] step  250 loss 46.2938
+    [dct_shield_y] step  500 loss 42.5959
+    [dct_shield_y] step  750 loss 40.1953
+    [dct_shield_y] step  999 loss 38.2988
+task_env_weather_63722           dct_shield_y   r=1.0000 dists=0.0831 lpips=0.5559 effect=0.6833 (387s)
+    [dct_shield_y] step    0 loss 115.9055
+    [dct_shield_y] step  250 loss 61.4741
+    [dct_shield_y] step  500 loss 58.7038
+    [dct_shield_y] step  750 loss 56.6334
+    [dct_shield_y] step  999 loss 54.8285
+task_obj_add_40931               dct_shield_y   r=1.0000 dists=0.1066 lpips=0.5203 effect=0.6333 (391s)
+    [dct_shield_y] step    0 loss 105.3376
+    [dct_shield_y] step  250 loss 49.6873
+    [dct_shield_y] step  500 loss 45.5839
+    [dct_shield_y] step  750 loss 42.6624
+    [dct_shield_y] step  999 loss 40.5069
+task_obj_remove_380621           dct_shield_y   r=1.0000 dists=0.1222 lpips=0.6026 effect=0.7279 (391s)
+    [dct_shield_y] step    0 loss 137.4575
+    [dct_shield_y] step  250 loss 75.8565
+    [dct_shield_y] step  500 loss 73.0754
+    [dct_shield_y] step  750 loss 71.1048
+    [dct_shield_y] step  999 loss 69.2015
+task_obj_swap_joint_mask_276754  dct_shield_y   r=1.0000 dists=0.0916 lpips=0.4520 effect=0.6736 (391s)
+    [dct_shield_y] step    0 loss 109.6902
+    [dct_shield_y] step  250 loss 59.3489
+    [dct_shield_y] step  500 loss 56.5067
+    [dct_shield_y] step  750 loss 54.5423
+    [dct_shield_y] step  999 loss 52.5203
+task_obj_swap_joint_mask_533428  dct_shield_y   r=1.0000 dists=0.0724 lpips=0.4896 effect=0.6456 (391s)
+    [dct_shield_y] step    0 loss 123.1555
+    [dct_shield_y] step  250 loss 60.9416
+    [dct_shield_y] step  500 loss 57.9000
+    [dct_shield_y] step  750 loss 55.7316
+    [dct_shield_y] step  999 loss 53.7928
+task_obj_swap_rand_mask_417469   dct_shield_y   r=1.0000 dists=0.0924 lpips=0.5399 effect=0.7561 (390s)
+
+表：runs/ip2p_dct_antijpeg/y_q85_e10/results.csv（13 列）

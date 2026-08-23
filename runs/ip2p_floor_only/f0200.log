@@ -1,0 +1,81 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 4636.24it/s]
+Loading pipeline components...:  17%|█▋        | 1/6 [00:00<00:00,  6.34it/s]Loading pipeline components...:  83%|████████▎ | 5/6 [00:00<00:00, 16.62it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 14.43it/s]
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+IP2P 線：13 張、條件 ['floor_only']、steps=100 s_T=7.5 s_I=1.5 seed=20260812
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,1.0]
+  warnings.warn(
+[W823 23:12:02.680379609 CUDACachingAllocator.cpp:3933] memory allocation failed with OOM on device 0 while trying to allocate 134217728 bytes (free: 57737216, total: 25296044032).
+[W823 23:12:03.736083918 CUDACachingAllocator.cpp:3933] memory allocation failed with OOM on device 0 while trying to allocate 134217728 bytes (free: 70320128, total: 25296044032).
+Traceback (most recent call last):
+  File "/nfs/home/nelson0314/WACV-s3/scripts/ip2p_run.py", line 559, in <module>
+    main()
+  File "/nfs/home/nelson0314/WACV-s3/scripts/ip2p_run.py", line 466, in main
+    x_def, radius, unreachable, modified = defend(
+                                           ^^^^^^^
+  File "/nfs/home/nelson0314/WACV-s3/scripts/ip2p_run.py", line 214, in defend
+    res = run_param_pgd(x01, param, loss_fn, steps=args.steps,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/nfs/home/nelson0314/WACV-s3/src/defense/param_pgd.py", line 293, in run_param_pgd
+    loss = loss_fn(x_def if transform is None else transform(x_def, i))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/nfs/home/nelson0314/WACV-s3/scripts/ip2p_run.py", line 423, in loss_fn
+    return ip2p.encode_image(x01_).flatten().norm(p=2)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/nfs/home/nelson0314/WACV-s3/src/models/ip2p.py", line 157, in encode_image
+    return self.vae.encode(x).latent_dist.mean * self.scaling_factor
+           ^^^^^^^^^^^^^^^^^^
+  File "/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/utils/accelerate_utils.py", line 46, in wrapper
+    return method(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/models/autoencoders/autoencoder_kl.py", line 190, in encode
+    h = self._encode(x)
+        ^^^^^^^^^^^^^^^
+  File "/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/models/autoencoders/autoencoder_kl.py", line 164, in _encode
+    enc = self.encoder(x)
+          ^^^^^^^^^^^^^^^
+  File "/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1778, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1789, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/models/autoencoders/vae.py", line 167, in forward
+    sample = down_block(sample)
+             ^^^^^^^^^^^^^^^^^^
+  File "/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1778, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1789, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/models/unets/unet_2d_blocks.py", line 1442, in forward
+    hidden_states = resnet(hidden_states, temb=None)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1778, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1789, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/models/resnet.py", line 350, in forward
+    hidden_states = self.norm2(hidden_states)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1778, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1789, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torch/nn/modules/normalization.py", line 334, in forward
+    return F.group_norm(input, self.num_groups, self.weight, self.bias, self.eps)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torch/nn/functional.py", line 3042, in group_norm
+    return torch.group_norm(
+           ^^^^^^^^^^^^^^^^^
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 128.00 MiB. GPU 0 has a total capacity of 23.56 GiB of which 67.06 MiB is free. Process 10502 has 5.75 GiB memory in use. Including non-PyTorch memory, this process has 6.38 GiB memory in use. Process 10501 has 5.59 GiB memory in use. Process 10505 has 5.75 GiB memory in use. Of the allocated memory 5.63 GiB is allocated by PyTorch, and 440.86 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf)

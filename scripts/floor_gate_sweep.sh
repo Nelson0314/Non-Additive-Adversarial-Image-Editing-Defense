@@ -33,6 +33,20 @@ COMMON="--data data/omniedit150 --conditions phase_gain --loss latent_norm --ste
 # 別人正在用的四張卡上。用法 `bash scripts/floor_gate_sweep.sh "4 5 6 7"`，
 # 每張卡放兩個。
 DEVS=(${1:-0 1 2 3})
+
+# 每卡最多兩個 process（`docs/OPERATIONS.md`：每個約 9 GB，3090 是 24 GB，
+# 而卡是多人共用的）。**點數超過 卡數×2 時必須拒絕**，不可讓卡號公式繞回去
+# 疊加——實測 `i/2 % 卡數` 在 6 點配 2 卡時把 4 個 process 塞到同一張卡上，
+# 那一批六點掛掉四點，全部是 CUDA OOM。
+require_slots() {
+  local n_points="$1" n_devs="$2"
+  if [ "$n_points" -gt $(( n_devs * 2 )) ]; then
+    echo "錯誤：$n_points 個工作點需要至少 $(( (n_points + 1) / 2 )) 張卡，" >&2
+    echo "      只給了 $n_devs 張。每卡最多 2 個 process。" >&2
+    exit 2
+  fi
+}
+
 # 要掃哪些價目分配。第二個參數給空白分隔的名字，預設是最早的兩個變體。
 GATES=(${2:-complement watson})
 # 半徑固定這四點：uniform 的同四點由 axis_necessity.sh 的 b_pg_* 提供，
@@ -46,6 +60,7 @@ abbrev() {
   esac
 }
 
+require_slots "$(echo "$POINTS" | grep -c .)" "${#DEVS[@]}"
 i=0
 for fg in "${GATES[@]}"; do
  for rad in "${RADII[@]}"; do

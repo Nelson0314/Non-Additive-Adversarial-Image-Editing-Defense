@@ -30,6 +30,20 @@ COMMON="--data data/omniedit150 --conditions phase --gain-ratio 0 --spectral-flo
 
 DEVS=(${1:-0 1 2})
 
+# 每卡最多兩個 process（`docs/OPERATIONS.md`：每個約 9 GB，3090 是 24 GB，
+# 而卡是多人共用的）。**點數超過 卡數×2 時必須拒絕**，不可讓卡號公式繞回去
+# 疊加——實測 `i/2 % 卡數` 在 6 點配 2 卡時把 4 個 process 塞到同一張卡上，
+# 那一批六點掛掉四點，全部是 CUDA OOM。
+require_slots() {
+  local n_points="$1" n_devs="$2"
+  if [ "$n_points" -gt $(( n_devs * 2 )) ]; then
+    echo "錯誤：$n_points 個工作點需要至少 $(( (n_points + 1) / 2 )) 張卡，" >&2
+    echo "      只給了 $n_devs 張。每卡最多 2 個 process。" >&2
+    exit 2
+  fi
+}
+
+
 # tag:r_min:radius
 POINTS="
 rm20_r18:0.20:1.8
@@ -39,6 +53,7 @@ rm30_rpi:0.30:3.1416
 rm40_rpi:0.40:3.1416
 "
 
+require_slots "$(echo "$POINTS" | grep -c .)" "${#DEVS[@]}"
 i=0
 for p in $POINTS; do
   IFS=: read -r tag rmin rad <<< "$p"

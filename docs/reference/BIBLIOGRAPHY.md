@@ -196,6 +196,14 @@ Hann 窗與 COLA／NOLA、實數 FFT 的共軛對稱都是標準性質。**這�
 `HYPE-EDIT-1`（[arXiv:2602.00105](https://arxiv.org/pdf/2602.00105)）、
 `Spatially Transformed AE 的後續`（[arXiv:1804.07493](https://arxiv.org/abs/1804.07493)）。
 
+`The Purification Paradox: Dissecting and Exploiting Generative Vulnerability
+Bands in Diffusion Trajectories`（Kamble, Sao, Ramachandra；CVPRW 2026）
+——PDF 存於 `paper_pdfs/purification_paradox_kamble_2026.pdf`，**已讀原文全文**。
+**不納入，且標題會誤導**：其 "Band" 指反向軌跡上的**時間**區間而非頻帶，
+"purification" 指模型自己的去噪步驟吸收擾動而非攻擊方的淨化算子；威脅模型是
+攻擊 DDPM 生成過程以騙下游分類器，全文零次提及 JPEG／crop／protection／
+editing。判定與可用的一句類比見 `SURVEY_POSITIONING.md`。
+
 納入與否的理由在 `SURVEY.md` 與 `SOURCE_AUDIT.md`。
 
 **NatADiff**（ICLR 2026，[arXiv:2505.20934](https://arxiv.org/abs/2505.20934)）——

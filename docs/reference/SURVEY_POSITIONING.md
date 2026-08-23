@@ -236,7 +236,7 @@ crop-and-resize 有韌性但不做幾何 EOT**；除此之外查不到。**文�
 | **Diffusion-based Adversarial Purification from the Perspective of the Frequency Domain**（[arXiv:2505.01267](https://arxiv.org/abs/2505.01267)） | 量到擾動對**幅度譜與相位譜的破壞程度都隨頻率單調遞增** | 是「隨頻率」的一維剖面，沒有把破壞拆成不同**種類** | 專案既有紀錄（`SURVEY_FREQUENCY.md` §2.4） |
 | **MANI-Pure**（[arXiv:2509.25082](https://arxiv.org/abs/2509.25082)） | 指出既有擴散淨化假設擾動在頻域均勻分布，而實際上「集中在高頻、且各頻帶的幅度強度不均」，據此做幅度自適應注入 | 同上，是頻帶剖面 | 專案既有紀錄；本輪**只讀摘要**複驗 |
 | **AntiPure**（ICCV 2025，[arXiv:2509.13922](https://arxiv.org/abs/2509.13922)） | 形式化 anti-purification；Patch-wise Frequency Guidance ＋ Erroneous Timestep Guidance | 是方法不是診斷；仍以頻率為唯一軸 | 專案既有紀錄 |
-| **The Purification Paradox: Dissecting and Exploiting Generative Vulnerability Bands**（CVPRW 2026） | 標題指向「頻帶級的脆弱性剖析」 | — | **查不到**（CVF 連結回 HTTP 403，未取得內容。**不要在論文裡引用它的內容**，先確認能不能拿到） |
+| **The Purification Paradox: Dissecting and Exploiting Generative Vulnerability Bands in Diffusion Trajectories**（Kamble, Sao, Ramachandra；CVPRW 2026） | **不是競爭者**，標題誤導。「Band」指的是**反向軌跡上的時間區間**不是頻帶；「purification」指**模型自己的去噪步驟把擾動吸收掉**，不是攻擊方的淨化算子。威脅模型是攻擊 DDPM 的生成過程去騙下游分類器（MobileNetV2 ASR 71.4%），不是保護擾動。全文零次提及 JPEG／crop／protection／editing | 無重疊 | **讀原文全文**，PDF 存於 `paper_pdfs/purification_paradox_kamble_2026.pdf` |
 
 **結論**：既有的機制分析全部把「淨化把擾動破壞了多少」當成**一個沿頻率變化
 的純量**。本專案 `band_transfer.csv` 的三分法（能量／方向／對位）與那一欄
@@ -566,8 +566,16 @@ AntiPure 是方法不是診斷。**沒有人把破壞拆成種類，也沒有人
   **這是 related work 的必引，需要另尋管道取得。**
 - **Kutter (1998) 一系的自相關／tiling 自同步原文**：未取得。§1.3 的限制
   評語來自搜尋結果中的綜述轉述，**未核對原始出處**。
-- **The Purification Paradox（CVPRW 2026）**：CVF 連結回 HTTP 403，內容
-  完全未取得。這是候選 A 唯一可能的直接競爭者，**必須在提案定案前拿到**。
+- ~~**The Purification Paradox（CVPRW 2026）**~~：**已取得並讀完全文**，
+  判定**不是競爭者**（見第一節）。本輪憑標題把它列為候選 A 的直接競爭者是
+  錯的——"Vulnerability Band" 是反向軌跡上的**時間**區間而非頻帶。
+
+  唯一值得記的是一個**結構上的類比**（不是重疊）：該篇的 "purification
+  paradox" 是「局部敏感度高的時間步不必然造成有效攻擊，因為後續去噪會把
+  擾動吸收掉」；本專案量到的是「殘差能量存活率高不必然代表擾動還在，因為
+  方向被打散」（`band_transfer.csv`：JPEG 能量比 1 還大而餘弦剩 0.05）。
+  兩者都是「天真的局部量高估了最終效果」。可在 related work 用一句話帶過，
+  **不可寫成方法上的關聯**。
 - **EOLT（arXiv:2512.07228）的逐變換數字**：論文只給類別層結果，crop 與
   affine 的個別數字在取得的內容中沒有。是否有附錄未確認。
 - **EOLT 的程式碼**：未見發布。

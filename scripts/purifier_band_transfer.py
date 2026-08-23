@@ -121,10 +121,19 @@ def main() -> None:
     ap.add_argument("--purifiers", nargs="+",
                     default=["blur1", "jpeg75", "jpeg30", "crop_resize0.1",
                              "jpeg_then_resize75"])
+    ap.add_argument("--bands", type=float, nargs="+", default=None,
+                    help="帶的邊界，如 0 0.01 0.02 0.04。不給則用 BANDS。"
+                         "要驗證裁切的存活上界時最低那一段必須切細——預設的"
+                         "0.00–0.12 把上界（約 0.02）整個蓋掉了")
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--out", type=Path, required=True)
     args = ap.parse_args()
 
+    global BANDS
+    if args.bands:
+        if len(args.bands) < 2:
+            raise SystemExit("--bands 至少要給兩個邊界")
+        BANDS = tuple(zip(args.bands, args.bands[1:]))
     names: Sequence[str] = args.images or sorted(
         {r["image"] for r in csv.DictReader(
             args.verdict.open(encoding="utf-8"))})

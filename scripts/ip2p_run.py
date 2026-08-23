@@ -64,8 +64,8 @@ from src.baselines.dct_shield import (  # noqa: E402
 )
 from src.baselines.encoder_target import make_encoder_target_loss  # noqa: E402
 from src.defense.purify_aware import (  # noqa: E402
-    make_eot_jpeg_transform, make_eot_ops_transform, make_fixed_jpeg_transform,
-    make_jpeg_transform,
+    make_eot_geometry_transform, make_eot_jpeg_transform,
+    make_eot_ops_transform, make_fixed_jpeg_transform, make_jpeg_transform,
 )
 from src.defense.param_pgd import fit_to_budget, run_param_pgd  # noqa: E402
 from src.residual.perceptual_weight import FREQ_WEIGHTS  # noqa: E402
@@ -116,6 +116,8 @@ def _purify_transform(args):
         return make_fixed_jpeg_transform(75)
     if args.purify_aware == "eot_jpeg":
         return make_eot_jpeg_transform((95, 75, 50), seed=args.seed)
+    if args.purify_aware == "eot_geometry":
+        return make_eot_geometry_transform(seed=args.seed)
     return make_eot_ops_transform((75,), seed=args.seed)
 
 
@@ -337,11 +339,15 @@ def build_parser() -> argparse.ArgumentParser:
                          "加這個選項之前相同。要能分辨鬍鬚與臉頰就必須遠小於 "
                          "block=32；本值無出處，是本專案指定")
     ap.add_argument("--purify-aware",
-                    choices=("none", "curriculum", "fixed75", "eot_jpeg", "eot_ops"),
+                    choices=("none", "curriculum", "fixed75", "eot_jpeg",
+                             "eot_ops", "eot_geometry"),
                     default="none",
                     help="把可微分的淨化算子放進最佳化迴圈（改動三）。"
                          "curriculum = JPEG 品質 95→50 線性；fixed75 = 固定 75；"
                          "eot_jpeg = 每步抽一個品質；eot_ops = 每步抽一個算子"
+                         "（其中的裁切是**固定**的中心 0.10）；"
+                         "eot_geometry = 每步抽一個裁切比例**與位置**，這是"
+                         "唯一會產生對一族幾何的不變性的一支"
                          "（identity／模糊／裁切縮放／JPEG75）。"
                          "**回傳的防禦圖仍是未經算子處理的那一張**")
     ap.add_argument("--gain-ratio", type=float, default=0.0,

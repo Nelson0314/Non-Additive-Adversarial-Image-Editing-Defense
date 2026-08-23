@@ -39,7 +39,10 @@ from typing import Callable, Optional, Sequence
 import torch
 
 from src.baselines.jpeg_codec import jpeg_roundtrip_ste
-from src.purify.ops import CROP_FRACTION_DIA, crop_resize, gaussian_blur
+from src.purify.ops import (
+    CROP_ANTIALIAS, CROP_FRACTION_DIA, CROP_INTERPOLATION, crop_resize,
+    gaussian_blur,
+)
 
 # MetaCloak-JPEG 摘要載明的端點；衰減形狀為本專案指定（線性）
 CURRICULUM_Q_HI = 95
@@ -147,6 +150,70 @@ def make_eot_ops_transform(qualities: Sequence[int] = (75,),
     def transform(x01: torch.Tensor, step: int) -> torch.Tensor:
         i = int(torch.randint(len(ops), (1,), generator=gen))
         return ops[i](x01)
+
+    return transform
+
+
+# 隨機化幾何 EOT 的預設族。比例含 0（即 identity），使最佳化不必為了抗淨化
+# 而放棄未淨化時的效果；評測用的 0.10 落在族內，這是 EOT 成立的前提。
+# **這四個值與「偏移隨機而非置中」都是本專案指定的**，沒有出處。
+GEOMETRY_FRACTIONS = (0.0, 0.05, 0.10, 0.15)
+
+
+def random_crop_resize(x01: torch.Tensor, frac: float,
+                       gen: torch.Generator) -> torch.Tensor:
+    """隨機位置的裁切再縮放回原尺寸。插值設定與 `ops.crop_resize` 同一組常數。
+
+    與 `ops.crop_resize` 的差別只有**裁切窗的位置**：那一支是中心裁切，這裡
+    在合法範圍內均勻抽。位置對輸出不可微（抽的是整數索引），但那個梯度本來
+    就不需要——要學的是擾動，不是裁切窗。
+    """
+    if x01.dim() != 4:
+        raise ValueError(f"需要 (B,C,H,W) 張量，收到 {tuple(x01.shape)}")
+    h, w = x01.shape[-2:]
+    dh, dw = int(round(h * frac)), int(round(w * frac))
+    if dh == 0 and dw == 0:
+        return x01
+    if 2 * dh >= h or 2 * dw >= w:
+        raise ValueError(f"裁切比例 {frac} 對 {h}×{w} 過大")
+    top = int(torch.randint(2 * dh + 1, (1,), generator=gen))
+    left = int(torch.randint(2 * dw + 1, (1,), generator=gen))
+    cropped = x01[..., top:top + h - 2 * dh, left:left + w - 2 * dw]
+    return torch.nn.functional.interpolate(
+        cropped, size=(h, w), mode=CROP_INTERPOLATION,
+        antialias=CROP_ANTIALIAS).clamp(0, 1)
+
+
+def make_eot_geometry_transform(fractions: Sequence[float] = GEOMETRY_FRACTIONS,
+                                seed: int = 0,
+                                ) -> Callable[[torch.Tensor, int], torch.Tensor]:
+    """對**一族**裁切與縮放取期望值，而不是對一個固定的幾何。
+
+    為什麼這一支和 `make_eot_ops_transform` 不一樣
+    ────────────────────────────────────────────────────────────────
+    後者裡本來就有 `crop_resize`，但放進去的是**一個固定的幾何**（中心裁切、
+    比例恆為 0.10）。固定的變換可以被 co-adapt——最佳化只要學會那一個特定的
+    位移就行，不會產生對一族裁切的不變性。
+
+    量測支持這個區分（`runs/ip2p_residual_signature/band_transfer.csv`）：
+    裁切縮放留下 51–99% 的殘差能量，對**原網格**的餘弦是 0.000，但對**算子
+    自己搬過的同一擾動**是 0.995–0.996。擾動幾乎原封不動地通過了，只是被搬到
+    別的位置與尺度上。要對付的因此是**對位**，不是能量，也不是頻帶——沒有任何
+    一帶的方向存活率高於 0.02。
+
+    `0.0` 留在族內即 identity，理由與 `make_eot_ops_transform` 相同：沒有它，
+    最佳化會為了抗淨化而放棄未淨化時的效果。
+    """
+    if not fractions:
+        raise ValueError("fractions 不可為空")
+    for f in fractions:
+        if not 0.0 <= f < 0.5:
+            raise ValueError(f"裁切比例必須落在 [0, 0.5)，收到 {f}")
+    gen = torch.Generator(device="cpu").manual_seed(int(seed))
+
+    def transform(x01: torch.Tensor, step: int) -> torch.Tensor:
+        i = int(torch.randint(len(fractions), (1,), generator=gen))
+        return random_crop_resize(x01, float(fractions[i]), gen)
 
     return transform
 

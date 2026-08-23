@@ -9,6 +9,6 @@ task_env_weather_246440,dct_e18,transform the setting to autumn with falling lea
 task_env_weather_63722,dct_e18,change the setting to a snowy landscape,blocked,claude_visual,白灰色雲霧狀紋理，鐵門與磚柱不見
 task_obj_add_40931,dct_e18,Add the blood on snout,blocked,claude_visual,換成兩名紅衣女子的古典繪畫，鐵網籠子全消失
 task_obj_remove_380621,dct_e18,Remove iceberg,blocked,claude_visual,換成亮藍海面加多座冰山，灰調湖景與山脈全消失
-task_obj_swap_joint_mask_276754,dct_e18,Replace the satellite dish with rocket,blocked,claude_visual,銀河下的發射場與火箭，與原圖及未防禦編輯都不同
+task_obj_swap_joint_mask_276754,dct_e18,Replace the satellite dish with rocket,borderline,claude_visual,夜空下的發射塔與火箭。原圖是夜空下的發射場，主體換了但「夜間發射場」這個場景仍在，兩個方法在這一張上的輸出型態相同，故一併記為 borderline
 task_obj_swap_joint_mask_533428,dct_e18,Replace the samurai armor with red jacket,blocked,claude_visual,四個樂手換成兩個完全不同的人
 task_obj_swap_rand_mask_417469,dct_e18,Replace the green flannel shirt with blue shirt,blocked,claude_visual,素底棚拍的兩名不同男子穿藍襯衫，記者會場景全消失

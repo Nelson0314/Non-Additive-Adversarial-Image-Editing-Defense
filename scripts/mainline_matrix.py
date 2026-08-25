@@ -41,6 +41,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+import mainline_architecture as MA  # noqa: E402
 import mainline_charts as MC  # noqa: E402
 
 THUMB = 128          # 頁上顯示的起始邊長（CSS，可由滑桿改）
@@ -333,12 +334,13 @@ def main() -> None:
         "curve": MC.quality_curve(ch_tags, label, gain),
         "bar": MC.distortion_bar([t for t in order if t in fid], label, fid),
         "scatter": MC.tradeoff(ch_tags, label, fid, gain, "jpeg30"),
-        "pipe": MC.pipeline(),
+        "arch_ours": MA.ours(),
+        "arch_dct": MA.dct(),
     }
     out = TEMPLATE.format(
         tabs="".join(tabs), panels="".join(panels),
         t1=t1, t2=t2, t3=t3, warn=warn, dropped=dropped, thumb=args.thumb,
-        embed=args.embed, chart_css=MC.CHART_CSS, **charts,
+        embed=args.embed, chart_css=MC.CHART_CSS + MA.ARCH_CSS, **charts,
         ncond=len(tags), npur=len(purs), nimg=len(names))
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(out, encoding="utf-8")
@@ -422,6 +424,7 @@ body.showpur .cell img.p{{display:block}}
 .sec{{padding:26px 24px 8px;border-top:1px solid var(--line)}}
 .sec>h2{{margin:0 0 14px}}
 .sec>.chart{{max-width:860px}}
+.sec>.arch{{max-width:1060px;margin-bottom:26px}}
 section.tables{{padding:8px 24px 60px}}
 h2{{font-size:17px;margin:26px 0 4px}}
 .note{{color:var(--ink-3);font-size:12.5px;margin:0 0 10px;max-width:88ch}}
@@ -451,8 +454,9 @@ th .down{{color:var(--alt)}}
 </div></header>
 
 <section class="sec">
-<h2>攻防管線</h2>
-{pipe}
+<h2>兩個方法的網路圖</h2>
+{arch_ours}
+{arch_dct}
 </section>
 
 <section class="sec">

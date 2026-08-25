@@ -52,8 +52,45 @@ DEVS=(${1:-0 1 2 3 4 5 6 7})
 #     floor       只送三片空白地板
 PARTS="${2:-all}"
 case "$PARTS" in all|conditions|floor) ;; *)
-  echo "用法：$0 \"<卡號>\" [all|conditions|floor]" >&2; exit 2 ;;
+  echo "用法：$0 \"<卡號>\" [all|conditions|floor] [\"<分片>\"]" >&2; exit 2 ;;
 esac
+# 要跑哪幾片。分片名只能是 color / scene / object——`retention_table.py` 的
+# `tag_of()` 由檔名還原條件標籤，別的名字會拋錯。給子集是為了補跑：地板的
+# 三片完成度常常不同，重跑已經跑完的那一片不但白花機時，`write_csv` 還會把
+# 那一片既有的列整個蓋掉，中途再斷一次就比現在更少。
+SHARDS=(${3:-color scene object})
+for sh in "${SHARDS[@]}"; do
+  case "$sh" in color|scene|object) ;; *)
+    echo "錯誤：分片名只能是 color / scene / object，收到 $sh" >&2; exit 2 ;;
+  esac
+done
+
+# 每卡最多兩個 process（`docs/OPERATIONS.md`）。**launch 數超過 卡數×2 時
+# 必須拒絕**，不可讓卡號公式繞回去疊加——實測疊到四個就整批 CUDA OOM。
+require_slots() {
+  local n_points="$1" n_devs="$2"
+  if [ "$n_points" -gt $(( n_devs * 2 )) ]; then
+    echo "錯誤：$n_points 個 process 需要至少 $(( (n_points + 1) / 2 )) 張卡，" >&2
+    echo "      只給了 $n_devs 張。每卡最多 2 個 process。" >&2
+    exit 2
+  fi
+}
+
+# 條件格 = 有防禦圖的來源數 × 分片數；地板 = 分片數。
+n_src=0
+for s in $SRC; do
+  IFS=: read -r _ run <<< "$s"
+  [ -f "$run/results.csv" ] && n_src=$(( n_src + 1 ))
+done
+n_cond=0; n_floor=0
+[ "$PARTS" != floor ] && n_cond=$(( n_src * ${#SHARDS[@]} ))
+[ "$PARTS" != conditions ] && n_floor=${#SHARDS[@]}
+# **別人的卡一律不碰**。這一道是**強制**的，不是提醒——列印了卻不擋等於沒擋
+# （實測踩過兩次：一次只讀 nvidia-smi 的前三行，一次等待器印了空卡清單卻沒有
+# 依它決定要不要送）。任何一張指定的卡上有別人的 process 就直接拒絕啟動。
+bash scripts/free_cards.sh --assert "${DEVS[*]}" || exit 3
+
+require_slots "$(( n_cond + n_floor ))" "${#DEVS[@]}"
 
 i=0
 launch() {   # $1 tag  $2 run  $3 shard  $4 imgs  $5 extra
@@ -71,15 +108,18 @@ for s in $SRC; do
   if [ ! -f "$run/results.csv" ]; then
     echo "[purify] 跳過 $tag：$run/results.csv 不存在"; continue
   fi
-  launch "$tag" "$run" color  "$COLOR"  ""
-  launch "$tag" "$run" scene  "$SCENE"  ""
-  launch "$tag" "$run" object "$OBJECT" ""
+  for shard in "${SHARDS[@]}"; do
+    case $shard in
+      color) imgs="$COLOR" ;; scene) imgs="$SCENE" ;; object) imgs="$OBJECT" ;;
+    esac
+    launch "$tag" "$run" "$shard" "$imgs" ""
+  done
 done
 
 # 空白地板：防禦圖就是原圖，與條件無關，故只跑一份——但**仍要分片**。
 # 不分片的話它一個 process 要跑十三張，而其餘每個分片只跑三到五張；扣地板
 # 的表要等最慢的那一格，於是整批的完成時間由這一格決定（實測差四小時）。
-for shard in color scene object; do
+for shard in "${SHARDS[@]}"; do
   [ "$PARTS" = conditions ] && break
   case $shard in
     color) imgs="$COLOR" ;; scene) imgs="$SCENE" ;; object) imgs="$OBJECT" ;;

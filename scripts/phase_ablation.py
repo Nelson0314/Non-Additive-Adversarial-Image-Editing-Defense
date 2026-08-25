@@ -37,7 +37,9 @@ from apa_baseline import (  # noqa: E402
     EDIT_STRENGTH, MODEL_NAME, RESOLUTION, TARGET_IMAGE, evaluate, load_dataset,
 )
 from src.baselines.encoder_target import make_encoder_target_loss  # noqa: E402
-from src.defense.param_pgd import (  # noqa: E402
+from src.defense.param_pgd import (  # noqa: F401
+    ShadingParam, ShadingRandomParam,  # noqa: E402
+    WarpParam, WarpRandomParam, WarpRoundTripParam,  # noqa: E402
     AdditiveParam, PhaseParam, RandomPhaseParam, fit_to_budget, run_param_pgd,
 )
 from src.metrics.aesthetic import AestheticSuite  # noqa: E402
@@ -63,6 +65,22 @@ HUMAN_RADIUS = {"phase": 1.30, "phase_rand": 1.30, "add": 1.2 / 255.0}
 ADD_RADIUS_HI = 32.0 / 255.0
 ADD_RADIUS_LO = 0.5 / 255.0
 PHASE_RADIUS_LO = 0.05
+# 候選二的半徑界：粗網格上 log 增益的 L-infinity 界。0.30 時亮部最多變
+# exp(0.30) = 1.35 倍；再大就必然把亮部整片推到飽和，clamp 之後多出來的
+# 預算不會變成擾動，只會變成一塊死白。下界 0.02 對應 ±2% 的明暗變化。
+SHADING_RADIUS_LO = 0.02
+SHADING_RADIUS_HI = 0.30
+# WaNet 式三元對照的半徑界。**單位是最大位移像素數**，夾在 16x16 粗網格的
+# 係數上（上採樣會過衝）。上界 48 px 是本專案指定：本機量過的失真對照表
+# （`WarpParam` 的 docstring）在 24 px 就到 DISTS 0.16、PSNR 17.4，已經超出
+# 失真帶；留到 48 是為了讓 `warp_roundtrip` 也掃得到帶內——它的幾何幾乎抵消，
+# 同一個半徑上的失真遠低於單次 warp。下界 1 px 是取樣格點的量級，再小就只是
+# 內插誤差。
+WARP_RADIUS_LO = 1.0
+WARP_RADIUS_HI = 48.0
+# 粗網格邊長。16 是本專案指定，與本機量過的失真對照表同一個構造；
+# 換掉它那張表就作廢，故它是 CSV 的欄位（`warp_grid`）而不是註解。
+WARP_GRID = 16
 
 
 def build(name: str, seed: int, block: int = 32, r_min: float = 0.12,
@@ -73,7 +91,8 @@ def build(name: str, seed: int, block: int = 32, r_min: float = 0.12,
           freq_weight_power: float = 1.0,
           gain_weight: str = "shared", channels: str = "rgb",
           spectral_floor: float = 0.0, floor_gate: str = "uniform",
-          theta_budget: float = 0.0):
+          theta_budget: float = 0.0, warp_grid: int = WARP_GRID,
+          coarsen: int = 1):
     """`block`／`r_min`／`quantile` 是相位算子的三個構造設定。
 
     預設值是 現行定案（`docs/METHOD.md` §4）。開放成參數是為了掃描
@@ -82,6 +101,27 @@ def build(name: str, seed: int, block: int = 32, r_min: float = 0.12,
     """
     if name == "add":
         return AdditiveParam(radius=ADD_RADIUS_HI), ADD_RADIUS_LO, ADD_RADIUS_HI
+    if name in ("shading", "shading_rand"):
+        # 候選二：極低頻的乘性明暗場。**與相位算子的頻帶不相交**
+        # （r_min = 0.12 以上 對 f_n < 0.03 以下），所以它可以疊加而不是取代。
+        # 半徑是粗網格上 log 增益的 L-infinity 界：0.30 時亮部最多變 exp(0.3)
+        # = 1.35 倍。上界取 0.30 是因為再大就必然把亮部整片推到飽和，
+        # clamp 之後多出來的預算不會變成擾動，只會變成一塊死白。
+        cls = ShadingParam if name == "shading" else ShadingRandomParam
+        return cls(radius=SHADING_RADIUS_HI), SHADING_RADIUS_LO, SHADING_RADIUS_HI
+    if name in ("warp", "warp_rand", "warp_roundtrip"):
+        # WaNet 式三元對照（`runs/ip2p_warp/`）。三格共用同一個參數化，
+        # 差別只在最佳化與幾何：
+        #   warp            最佳化的位移場
+        #   warp_rand       同半徑的隨機場，不最佳化
+        #   warp_roundtrip  與 warp_rand **同一個**隨機場，先 f 再 −f
+        # `warp_rand` vs `warp_roundtrip` 問「幾何本身有沒有貢獻」，
+        # `warp` vs `warp_rand` 問「最佳化有沒有買到東西」（＝ FND-004）。
+        # 半徑的單位是最大位移像素數，強度旗鈕是 `--radius`。
+        cls = {"warp": WarpParam, "warp_rand": WarpRandomParam,
+               "warp_roundtrip": WarpRoundTripParam}[name]
+        return (cls(radius=WARP_RADIUS_HI, grid=warp_grid),
+                WARP_RADIUS_LO, WARP_RADIUS_HI)
     if name == "phase":
         return (PhaseParam(size=RESOLUTION, block=block, r_min=r_min,
                            hop=hop, r_max=r_max,
@@ -94,7 +134,8 @@ def build(name: str, seed: int, block: int = 32, r_min: float = 0.12,
                            channels=channels,
                            spectral_floor=spectral_floor,
                            floor_gate=floor_gate,
-                           theta_budget=theta_budget),
+                           theta_budget=theta_budget,
+                           coarsen=coarsen),
                 PHASE_RADIUS_LO, math.pi)
     if name == "floor_only":
         # 相位與幅度都不動，只留頻譜加性下限。**強度旗鈕是 `--spectral-floor`
@@ -123,7 +164,8 @@ def build(name: str, seed: int, block: int = 32, r_min: float = 0.12,
                            channels=channels,
                            spectral_floor=spectral_floor,
                            floor_gate=floor_gate,
-                           theta_budget=theta_budget),
+                           theta_budget=theta_budget,
+                           coarsen=coarsen),
                 PHASE_RADIUS_LO, math.pi)
     if name in ("phase_gain", "gain_only"):
         # 2026-08-21 的改動一：幅度譜也可學。`gain_only` 把 theta 凍結在 0，
@@ -147,7 +189,8 @@ def build(name: str, seed: int, block: int = 32, r_min: float = 0.12,
                            channels=channels,
                            spectral_floor=spectral_floor,
                            floor_gate=floor_gate,
-                           theta_budget=theta_budget),
+                           theta_budget=theta_budget,
+                           coarsen=coarsen),
                 PHASE_RADIUS_LO, 8.0)
     if name == "phase_rand":
         return (RandomPhaseParam(size=RESOLUTION, block=block, r_min=r_min,
@@ -160,7 +203,8 @@ def build(name: str, seed: int, block: int = 32, r_min: float = 0.12,
                                  channels=channels,
                                  spectral_floor=spectral_floor,
                                  floor_gate=floor_gate,
-                           theta_budget=theta_budget),
+                           theta_budget=theta_budget,
+                           coarsen=coarsen),
                 PHASE_RADIUS_LO, math.pi)
     raise ValueError(f"未知條件 {name}")
 

@@ -1,0 +1,32 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  17%|█▋        | 1/6 [00:00<00:00,  9.17it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 4093.57it/s]
+Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00,  6.07it/s]Loading pipeline components...:  83%|████████▎ | 5/6 [00:00<00:00, 13.59it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 13.88it/s]
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+IP2P 線：12 張、條件 ['phase', 'dct_shield']、steps=100 s_T=7.5 s_I=1.5 seed=20260812
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,1.0]
+  warnings.warn(
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 20259.88it/s]
+[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
+[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
+Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights:  78%|███████▊  | 318/408 [00:00<00:00, 3170.73it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 3186.63it/s]
+task_attr_mod_color_175843       clip_gain=+0.0367 lpips=0.2680 (78s)
+task_attr_mod_color_6065         clip_gain=+0.0262 lpips=0.3150 (68s)
+task_env_weather_132698          clip_gain=+0.0123 lpips=0.2849 (68s)
+task_env_weather_231482          clip_gain=+0.0198 lpips=0.2818 (68s)
+task_env_weather_97868           clip_gain=+0.0072 lpips=0.1767 (68s)
+task_obj_add_39816               clip_gain=+0.0174 lpips=0.1490 (68s)
+task_obj_add_685213              clip_gain=+0.0444 lpips=0.4132 (68s)
+task_obj_remove_228800           clip_gain=-0.0010 lpips=0.2766 (68s)
+task_obj_remove_499725           clip_gain=-0.0032 lpips=0.2102 (68s)
+task_obj_remove_899279           clip_gain=-0.0031 lpips=0.3164 (68s)
+task_obj_swap_joint_mask_718058  clip_gain=+0.0290 lpips=0.5444 (68s)
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-0.9372549057006836,1.0]
+  warnings.warn(
+task_obj_swap_rand_mask_401099   clip_gain=+0.0263 lpips=0.3939 (68s)
+
+表：runs/m0820/check_11/check.csv（12 列）

@@ -47,6 +47,11 @@ require_slots() {
 
 POINTS="g_r08:0.8 g_r18:1.8 g_rpi:3.1416"
 
+# **別人的卡一律不碰**。這一道是**強制**的，不是提醒——列印了卻不擋等於沒擋
+# （實測踩過兩次：一次只讀 nvidia-smi 的前三行，一次等待器印了空卡清單卻沒有
+# 依它決定要不要送）。任何一張指定的卡上有別人的 process 就直接拒絕啟動。
+bash scripts/free_cards.sh --assert "${DEVS[*]}" || exit 3
+
 require_slots "$(echo "$POINTS" | grep -c .)" "${#DEVS[@]}"
 i=0
 for p in $POINTS; do

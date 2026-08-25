@@ -1,0 +1,32 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][A
+Loading weights:  64%|██████▍   | 125/196 [00:00<00:00, 1233.02it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 1361.92it/s]
+Loading pipeline components...:  17%|█▋        | 1/6 [00:00<00:01,  3.66it/s]Loading pipeline components...:  67%|██████▋   | 4/6 [00:00<00:00, 12.61it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 12.08it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 10.91it/s]
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+IP2P 線：13 張、條件 ['shading_rand']、steps=100 s_T=7.5 s_I=1.5 seed=20260812
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,1.0]
+  warnings.warn(
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 18252.06it/s]
+[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
+[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
+Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights:  23%|██▎       | 93/408 [00:00<00:00, 928.25it/s]Loading weights:  46%|████▌     | 186/408 [00:00<00:00, 809.83it/s]Loading weights:  66%|██████▌   | 268/408 [00:00<00:00, 780.42it/s]Loading weights:  88%|████████▊ | 360/408 [00:00<00:00, 829.51it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 827.41it/s]
+task_attr_mod_color_11699        shading_rand   r=0.2000 dists=0.1590 lpips=0.1768 effect=0.1957 (62s)
+task_attr_mod_color_136767       shading_rand   r=0.2000 dists=0.0486 lpips=0.0466 effect=0.0932 (47s)
+task_attr_mod_color_184837       shading_rand   r=0.2000 dists=0.0618 lpips=0.0171 effect=0.0473 (47s)
+task_attr_mod_color_32648        shading_rand   r=0.2000 dists=0.0359 lpips=0.0234 effect=0.0364 (46s)
+task_attr_mod_color_6205         shading_rand   r=0.2000 dists=0.0926 lpips=0.1071 effect=0.1354 (47s)
+task_env_weather_112463          shading_rand   r=0.2000 dists=0.1095 lpips=0.1297 effect=0.2292 (47s)
+task_env_weather_246440          shading_rand   r=0.2000 dists=0.0300 lpips=0.0166 effect=0.1231 (47s)
+task_env_weather_63722           shading_rand   r=0.2000 dists=0.1306 lpips=0.1238 effect=0.1470 (47s)
+task_obj_add_40931               shading_rand   r=0.2000 dists=0.0380 lpips=0.0138 effect=0.0397 (46s)
+task_obj_remove_380621           shading_rand   r=0.2000 dists=0.1092 lpips=0.0620 effect=0.0975 (47s)
+task_obj_swap_joint_mask_276754  shading_rand   r=0.2000 dists=0.0346 lpips=0.0123 effect=0.0586 (47s)
+task_obj_swap_joint_mask_533428  shading_rand   r=0.2000 dists=0.0450 lpips=0.0380 effect=0.2587 (47s)
+task_obj_swap_rand_mask_417469   shading_rand   r=0.2000 dists=0.0295 lpips=0.0167 effect=0.0301 (47s)
+
+表：runs/ip2p_shading/rand_r020/results.csv（13 列）

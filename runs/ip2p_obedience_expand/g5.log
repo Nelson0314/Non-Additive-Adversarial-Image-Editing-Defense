@@ -1,0 +1,36 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3972.45it/s]
+Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00,  8.53it/s]Loading pipeline components...:  67%|██████▋   | 4/6 [00:00<00:00, 10.03it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 13.44it/s]
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+IP2P 線：16 張、條件 ['phase', 'dct_shield']、steps=100 s_T=7.5 s_I=1.5 seed=20260812
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,1.0]
+  warnings.warn(
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 13502.87it/s]
+[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
+[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
+Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights:  94%|█████████▎| 382/408 [00:00<00:00, 3814.05it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 3806.68it/s]
+task_obj_remove_271889           clip_gain=+0.0422 lpips=0.4217 (32s)
+task_obj_remove_284852           clip_gain=+0.0230 lpips=0.5186 (22s)
+task_obj_remove_286801           clip_gain=+0.0012 lpips=0.1859 (22s)
+task_obj_remove_2878             clip_gain=+0.0005 lpips=0.1470 (22s)
+task_obj_remove_303082           clip_gain=+0.0013 lpips=0.3128 (22s)
+task_obj_remove_385207           clip_gain=+0.0040 lpips=0.5985 (23s)
+task_obj_remove_388764           clip_gain=-0.0058 lpips=0.4502 (23s)
+task_obj_remove_410264           clip_gain=+0.0074 lpips=0.1280 (23s)
+task_obj_remove_483219           clip_gain=-0.0115 lpips=0.2208 (23s)
+task_obj_remove_499725           clip_gain=-0.0032 lpips=0.2102 (23s)
+task_obj_remove_560476           clip_gain=+0.0120 lpips=0.7376 (23s)
+task_obj_remove_571780           clip_gain=-0.0151 lpips=0.2269 (23s)
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,0.7176470756530762]
+  warnings.warn(
+task_obj_remove_606694           clip_gain=+0.0015 lpips=0.2824 (23s)
+task_obj_remove_634326           clip_gain=+0.0049 lpips=0.4736 (23s)
+task_obj_remove_648479           clip_gain=+0.0082 lpips=0.2195 (23s)
+task_obj_remove_704852           clip_gain=-0.0425 lpips=0.2342 (23s)
+
+表：runs/ip2p_obedience_expand/g5/check.csv（16 列）

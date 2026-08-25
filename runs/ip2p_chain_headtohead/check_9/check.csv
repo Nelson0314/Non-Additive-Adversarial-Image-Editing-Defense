@@ -1,0 +1,13 @@
+image,instruction,clip_orig,clip_edit,clip_gain,siglip_orig,siglip_edit,siglip_gain,pixel_lpips,edit_steps,s_t,s_i,edit_seed,seconds
+task_attr_mod_color_164237,turn the color of crystal tower to brown,0.27171,0.25872,-0.01299,0.09923,0.10638,0.00714,0.36173,100,7.5,1.5,20260812,77.2
+task_attr_mod_color_47418,turn the color of mushroom to gray,0.30362,0.30904,0.00542,0.08425,0.09826,0.01401,0.4417,100,7.5,1.5,20260812,67.3
+task_env_weather_121086,transform the setting to a foggy scene,0.21012,0.24218,0.03207,0.02983,0.06937,0.03954,0.20754,100,7.5,1.5,20260812,68.2
+task_env_weather_217577,change the setting to a foggy scene,0.19233,0.22716,0.03483,0.03081,0.03499,0.00418,0.41874,100,7.5,1.5,20260812,68.4
+task_env_weather_86691,transform the setting to spring with blooming flowers,0.2218,0.26211,0.04031,-0.00289,0.03989,0.04278,0.31354,100,7.5,1.5,20260812,68.3
+task_obj_add_371248,Add the dress,0.22014,0.2192,-0.00094,0.01206,0.0248,0.01274,0.1107,100,7.5,1.5,20260812,68.3
+task_obj_add_630523,Add small flower,0.21685,0.21222,-0.00464,0.01605,0.02185,0.0058,0.18711,100,7.5,1.5,20260812,68.4
+task_obj_remove_166983,Remove white buildings,0.23094,0.22592,-0.00502,0.04105,0.0406,-0.00045,0.21457,100,7.5,1.5,20260812,68.3
+task_obj_remove_410264,Remove short hair,0.20468,0.21208,0.0074,0.03662,0.05825,0.02163,0.12797,100,7.5,1.5,20260812,68.3
+task_obj_remove_737102,Remove right person,0.18546,0.19607,0.01061,-0.02578,-0.00989,0.01589,0.22202,100,7.5,1.5,20260812,68.4
+task_obj_swap_joint_mask_673207,Replace the lighthouse with chimney,0.2794,0.28803,0.00864,0.08806,0.11538,0.02732,0.52899,100,7.5,1.5,20260812,68.3
+task_obj_swap_rand_mask_373245,Replace the twilight glow with sky,0.29693,0.29001,-0.00692,0.09569,0.07851,-0.01718,0.67502,100,7.5,1.5,20260812,68.3

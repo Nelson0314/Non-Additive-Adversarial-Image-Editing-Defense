@@ -1,0 +1,33 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  17%|█▋        | 1/6 [00:00<00:00,  8.21it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 4015.55it/s]
+Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00,  7.33it/s]Loading pipeline components...:  83%|████████▎ | 5/6 [00:00<00:00, 15.75it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 16.09it/s]
+There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+[purify] 相依不齊，跳過：['gridpure']
+=== parrot_00 / phase__human ===
+    identity=0.2892, blur1=0.2735, jpeg75=0.1803, crop_resize0.1=0.4731
+=== parrot_00 / phase_rand__human ===
+    分母塌陷：effect(identity) mean=0.0935 sd=0.0606，本格的 retention 不可用
+    identity=0.0935, blur1=0.2422, jpeg75=0.1391, crop_resize0.1=0.4864
+
+表：runs/freqret/ret_3.csv（8 列）
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 4247.64it/s]
+Loading pipeline components...:  17%|█▋        | 1/6 [00:00<00:00,  6.08it/s]Loading pipeline components...:  50%|█████     | 3/6 [00:00<00:00,  9.41it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 16.05it/s]
+There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+[purify] 相依不齊，跳過：['gridpure']
+=== parrot_00 / floor ===
+    identity=0.0000, blur1=0.2376, jpeg75=0.0897, crop_resize0.1=0.4691
+
+表：runs/freqret/floor_3.csv（4 列）

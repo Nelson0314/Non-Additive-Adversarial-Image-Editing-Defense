@@ -66,8 +66,13 @@
 ## 環境
 
 - 本機 Python：`C:/Users/nelso/miniconda3/envs/wacv/python.exe`（**不是 base**）。
-- 測試：`python -m pytest -q`，基準 **624 passed / 1 skipped / 1 xfailed**。
+- 測試：`python -m pytest -q`，基準 **657 passed / 1 skipped / 1 xfailed**。
   動任何東西前先跑一次確認。
 - GPU 工作一律在 NYCU BASIC lab 跑。連線方式、五個必知的坑、並行密度、
   單張成本見 `docs/OPERATIONS.md`。
+- **卡是多人共用的：不可以把工作送到別人正在用的卡上。** 派工前一律跑
+  `bash scripts/free_cards.sh` 取空卡號，**不要自己讀 `nvidia-smi` 的
+  `memory.used`**——那看不出記憶體是誰的。沒有空卡就等，不要擠。
+  所有派工腳本已內建 `free_cards.sh --assert "${DEVS[*]}" || exit 3`，
+  指定的卡有別人就拒絕啟動；**手動送單一 process 時要自己先 `--assert`**。
 - **密碼與 token 不得寫入任何入庫檔案。**

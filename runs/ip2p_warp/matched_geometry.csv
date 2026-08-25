@@ -1,0 +1,7 @@
+anchor_axis,anchor_value,reported,group,n_images,out_of_range,axis_min,axis_max,value,crossings,seg_lo_strength,seg_hi_strength,fid_psnr,fid_lpips,fid_ssim,edit_clip_sim,blocked_rate
+fid_dists,0.1286,edit_lpips,condition=warp_rand,13,False,0.01552,0.18753,0.28528,1,4.0,6.0,17.7374,0.26675,0.55645,0.94494,0.08681
+fid_dists,0.1286,edit_lpips,condition=warp_roundtrip,13,False,0.0237,0.26645,0.26088,1,8.0,12.0,20.43747,0.2407,0.74102,0.9458,0.091
+fid_dists,0.0797,edit_lpips,condition=warp_rand,13,False,0.01552,0.18753,0.20488,1,3.0,4.0,19.52061,0.17602,0.69007,0.97251,0.0
+fid_dists,0.0797,edit_lpips,condition=warp_roundtrip,13,False,0.0237,0.26645,0.182,1,4.0,8.0,24.12716,0.15676,0.85659,0.971,0.04419
+fid_dists,0.04,edit_lpips,condition=warp_rand,13,False,0.01552,0.18753,0.12489,1,1.0,3.0,23.99407,0.09218,0.87005,0.98798,0.0
+fid_dists,0.04,edit_lpips,condition=warp_roundtrip,13,False,0.0237,0.26645,0.11559,1,4.0,8.0,28.00843,0.08807,0.95501,0.98722,0.00357

@@ -1,0 +1,6 @@
+image,tag,condition,block,permute_seed,effect_def_mean,effect_def_sd,effect_perm_mean,effect_perm_sd,retention,rms_def,rms_perm,dists_def,dists_perm,psnr_def,psnr_perm,usable,seconds
+task_attr_mod_color_11699,ours_add,phase_gain,32,0,0.60971,0.01402,0.39897,0.00143,0.65435,0.059718,0.057309,0.12411,0.139365,24.4779,24.8355,True,433.7
+task_attr_mod_color_136767,ours_add,phase_gain,32,0,0.60224,0.04565,0.38554,0.00297,0.64018,0.053808,0.047849,0.164012,0.124811,25.3831,26.4026,True,422.7
+task_attr_mod_color_184837,ours_add,phase_gain,32,0,0.76641,0.02047,0.41507,0.02359,0.54158,0.085201,0.079621,0.212056,0.159199,21.3912,21.9794,True,422.5
+task_attr_mod_color_32648,ours_add,phase_gain,32,0,0.51772,0.12111,0.38702,0.03737,0.74755,0.028011,0.025162,0.147415,0.120557,31.0533,31.9849,True,424.1
+task_attr_mod_color_6205,ours_add,phase_gain,32,0,0.72554,0.01246,0.42837,0.03374,0.59042,0.045151,0.04386,0.152462,0.136741,26.9067,27.1586,True,424.2

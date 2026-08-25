@@ -1,0 +1,11 @@
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+paper-scaled radii at 256^2: D_A=24.0 D_P=16.0
+   D_A    D_P |    lpips    dists    psnr | def_lpips
+  24.0   16.0 |   0.6403   0.5103   16.81 |   0.6401  (41s)
+  48.0   32.0 |   0.6009   0.4705   18.33 |   0.6019  (35s)
+  72.0   48.0 |   0.5655   0.4252   20.03 |   0.5664  (35s)
+  96.0   64.0 |   0.5017   0.3689   22.24 |   0.5083  (35s)
+ 144.0   96.0 |   0.3013   0.0987   29.87 |   0.3081  (35s)

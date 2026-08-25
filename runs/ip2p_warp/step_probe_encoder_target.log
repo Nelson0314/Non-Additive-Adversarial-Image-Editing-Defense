@@ -1,0 +1,42 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00, 15.20it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 4567.94it/s]
+Loading pipeline components...:  83%|████████▎ | 5/6 [00:00<00:00, 18.28it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 16.38it/s]
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+{'loss_name': 'encoder_target', 'radius': 3.0, 'alpha_px': 0.012, 'step': 0, 'loss': 0.9509, 'grad_absmean': '3.540e-04', 'grad_zero_frac': 0.0, 'c_absmean': 0.012, 'c_absmax': 0.012, 'pixel_absmean': 0.000531}
+{'loss_name': 'encoder_target', 'radius': 3.0, 'alpha_px': 0.012, 'step': 10, 'loss': 0.9377, 'grad_absmean': '3.216e-04', 'grad_zero_frac': 0.0, 'c_absmean': 0.08869, 'c_absmax': 0.132, 'pixel_absmean': 0.003001}
+{'loss_name': 'encoder_target', 'radius': 3.0, 'alpha_px': 0.012, 'step': 20, 'loss': 0.9285, 'grad_absmean': '3.007e-04', 'grad_zero_frac': 0.0, 'c_absmean': 0.15333, 'c_absmax': 0.252, 'pixel_absmean': 0.004758}
+{'loss_name': 'encoder_target', 'radius': 3.0, 'alpha_px': 0.012, 'step': 30, 'loss': 0.9223, 'grad_absmean': '2.890e-04', 'grad_zero_frac': 0.0, 'c_absmean': 0.21094, 'c_absmax': 0.372, 'pixel_absmean': 0.006091}
+{'loss_name': 'encoder_target', 'radius': 3.0, 'alpha_px': 0.012, 'step': 40, 'loss': 0.919, 'grad_absmean': '1.935e-04', 'grad_zero_frac': 0.0, 'c_absmean': 0.25744, 'c_absmax': 0.492, 'pixel_absmean': 0.007085}
+{'loss_name': 'encoder_target', 'radius': 3.0, 'alpha_px': 0.012, 'step': 50, 'loss': 0.9178, 'grad_absmean': '1.703e-04', 'grad_zero_frac': 0.0, 'c_absmean': 0.27853, 'c_absmax': 0.612, 'pixel_absmean': 0.007468}
+{'loss_name': 'encoder_target', 'radius': 3.0, 'alpha_px': 0.012, 'step': 59, 'loss': 0.9169, 'grad_absmean': '1.923e-04', 'grad_zero_frac': 0.0, 'c_absmean': 0.2873, 'c_absmax': 0.72, 'pixel_absmean': 0.007588}
+{'loss_name': 'encoder_target', 'radius': 3.0, 'alpha_px': 0.05, 'step': 0, 'loss': 0.9509, 'grad_absmean': '3.540e-04', 'grad_zero_frac': 0.0, 'c_absmean': 0.05, 'c_absmax': 0.05, 'pixel_absmean': 0.002194}
+{'loss_name': 'encoder_target', 'radius': 3.0, 'alpha_px': 0.05, 'step': 10, 'loss': 0.9189, 'grad_absmean': '2.030e-04', 'grad_zero_frac': 0.0, 'c_absmean': 0.29219, 'c_absmax': 0.55, 'pixel_absmean': 0.008042}
+{'loss_name': 'encoder_target', 'radius': 3.0, 'alpha_px': 0.05, 'step': 20, 'loss': 0.9159, 'grad_absmean': '2.007e-04', 'grad_zero_frac': 0.0, 'c_absmean': 0.33477, 'c_absmax': 1.05, 'pixel_absmean': 0.008951}
+{'loss_name': 'encoder_target', 'radius': 3.0, 'alpha_px': 0.05, 'step': 30, 'loss': 0.9149, 'grad_absmean': '2.153e-04', 'grad_zero_frac': 0.0, 'c_absmean': 0.34453, 'c_absmax': 1.55, 'pixel_absmean': 0.009096}
+{'loss_name': 'encoder_target', 'radius': 3.0, 'alpha_px': 0.05, 'step': 40, 'loss': 0.9143, 'grad_absmean': '2.063e-04', 'grad_zero_frac': 0.0, 'c_absmean': 0.35469, 'c_absmax': 2.05, 'pixel_absmean': 0.009467}
+{'loss_name': 'encoder_target', 'radius': 3.0, 'alpha_px': 0.05, 'step': 50, 'loss': 0.9136, 'grad_absmean': '2.013e-04', 'grad_zero_frac': 0.0, 'c_absmean': 0.36055, 'c_absmax': 2.55, 'pixel_absmean': 0.009627}
+{'loss_name': 'encoder_target', 'radius': 3.0, 'alpha_px': 0.05, 'step': 59, 'loss': 0.9129, 'grad_absmean': '2.075e-04', 'grad_zero_frac': 0.0, 'c_absmean': 0.36074, 'c_absmax': 3.0, 'pixel_absmean': 0.009802}
+{'loss_name': 'encoder_target', 'radius': 3.0, 'alpha_px': 0.125, 'step': 0, 'loss': 0.9509, 'grad_absmean': '3.540e-04', 'grad_zero_frac': 0.0, 'c_absmean': 0.125, 'c_absmax': 0.125, 'pixel_absmean': 0.005405}
+{'loss_name': 'encoder_target', 'radius': 3.0, 'alpha_px': 0.125, 'step': 10, 'loss': 0.9196, 'grad_absmean': '1.945e-04', 'grad_zero_frac': 0.0, 'c_absmean': 0.38721, 'c_absmax': 1.375, 'pixel_absmean': 0.011008}
+{'loss_name': 'encoder_target', 'radius': 3.0, 'alpha_px': 0.125, 'step': 20, 'loss': 0.916, 'grad_absmean': '2.315e-04', 'grad_zero_frac': 0.0, 'c_absmean': 0.42578, 'c_absmax': 2.625, 'pixel_absmean': 0.012757}
+{'loss_name': 'encoder_target', 'radius': 3.0, 'alpha_px': 0.125, 'step': 30, 'loss': 0.9136, 'grad_absmean': '2.238e-04', 'grad_zero_frac': 0.0, 'c_absmean': 0.4458, 'c_absmax': 3.0, 'pixel_absmean': 0.013365}
+{'loss_name': 'encoder_target', 'radius': 3.0, 'alpha_px': 0.125, 'step': 40, 'loss': 0.9132, 'grad_absmean': '2.026e-04', 'grad_zero_frac': 0.0, 'c_absmean': 0.47803, 'c_absmax': 3.0, 'pixel_absmean': 0.015216}
+{'loss_name': 'encoder_target', 'radius': 3.0, 'alpha_px': 0.125, 'step': 50, 'loss': 0.9119, 'grad_absmean': '1.795e-04', 'grad_zero_frac': 0.0, 'c_absmean': 0.50244, 'c_absmax': 3.0, 'pixel_absmean': 0.016291}
+{'loss_name': 'encoder_target', 'radius': 3.0, 'alpha_px': 0.125, 'step': 59, 'loss': 0.9125, 'grad_absmean': '2.479e-04', 'grad_zero_frac': 0.0, 'c_absmean': 0.49707, 'c_absmax': 3.0, 'pixel_absmean': 0.017539}
+{'loss_name': 'encoder_target', 'radius': 3.0, 'alpha_px': 0.25, 'step': 0, 'loss': 0.9509, 'grad_absmean': '3.540e-04', 'grad_zero_frac': 0.0, 'c_absmean': 0.25, 'c_absmax': 0.25, 'pixel_absmean': 0.010561}
+{'loss_name': 'encoder_target', 'radius': 3.0, 'alpha_px': 0.25, 'step': 10, 'loss': 0.9176, 'grad_absmean': '2.566e-04', 'grad_zero_frac': 0.0, 'c_absmean': 0.59668, 'c_absmax': 2.75, 'pixel_absmean': 0.021434}
+{'loss_name': 'encoder_target', 'radius': 3.0, 'alpha_px': 0.25, 'step': 20, 'loss': 0.9121, 'grad_absmean': '1.968e-04', 'grad_zero_frac': 0.0, 'c_absmean': 0.729, 'c_absmax': 3.0, 'pixel_absmean': 0.027741}
+{'loss_name': 'encoder_target', 'radius': 3.0, 'alpha_px': 0.25, 'step': 30, 'loss': 0.9084, 'grad_absmean': '1.963e-04', 'grad_zero_frac': 0.0, 'c_absmean': 0.85059, 'c_absmax': 3.0, 'pixel_absmean': 0.03116}
+{'loss_name': 'encoder_target', 'radius': 3.0, 'alpha_px': 0.25, 'step': 40, 'loss': 0.906, 'grad_absmean': '2.569e-04', 'grad_zero_frac': 0.0, 'c_absmean': 0.96338, 'c_absmax': 3.0, 'pixel_absmean': 0.03445}
+{'loss_name': 'encoder_target', 'radius': 3.0, 'alpha_px': 0.25, 'step': 50, 'loss': 0.9037, 'grad_absmean': '2.215e-04', 'grad_zero_frac': 0.0, 'c_absmean': 1.06445, 'c_absmax': 3.0, 'pixel_absmean': 0.037591}
+{'loss_name': 'encoder_target', 'radius': 3.0, 'alpha_px': 0.25, 'step': 59, 'loss': 0.9058, 'grad_absmean': '2.377e-04', 'grad_zero_frac': 0.0, 'c_absmean': 1.10645, 'c_absmax': 3.0, 'pixel_absmean': 0.039183}
+{'loss_name': 'encoder_target', 'radius': 3.0, 'alpha_px': 0.5, 'step': 0, 'loss': 0.9509, 'grad_absmean': '3.540e-04', 'grad_zero_frac': 0.0, 'c_absmean': 0.5, 'c_absmax': 0.5, 'pixel_absmean': 0.0203}
+{'loss_name': 'encoder_target', 'radius': 3.0, 'alpha_px': 0.5, 'step': 10, 'loss': 0.9143, 'grad_absmean': '1.732e-04', 'grad_zero_frac': 0.0, 'c_absmean': 1.36133, 'c_absmax': 3.0, 'pixel_absmean': 0.046081}
+{'loss_name': 'encoder_target', 'radius': 3.0, 'alpha_px': 0.5, 'step': 20, 'loss': 0.9076, 'grad_absmean': '1.805e-04', 'grad_zero_frac': 0.0, 'c_absmean': 1.60547, 'c_absmax': 3.0, 'pixel_absmean': 0.050968}
+{'loss_name': 'encoder_target', 'radius': 3.0, 'alpha_px': 0.5, 'step': 30, 'loss': 0.9017, 'grad_absmean': '1.710e-04', 'grad_zero_frac': 0.0, 'c_absmean': 1.73926, 'c_absmax': 3.0, 'pixel_absmean': 0.053306}
+{'loss_name': 'encoder_target', 'radius': 3.0, 'alpha_px': 0.5, 'step': 40, 'loss': 0.8978, 'grad_absmean': '1.502e-04', 'grad_zero_frac': 0.0, 'c_absmean': 1.7959, 'c_absmax': 3.0, 'pixel_absmean': 0.05261}
+{'loss_name': 'encoder_target', 'radius': 3.0, 'alpha_px': 0.5, 'step': 50, 'loss': 0.8986, 'grad_absmean': '1.776e-04', 'grad_zero_frac': 0.0, 'c_absmean': 1.81836, 'c_absmax': 3.0, 'pixel_absmean': 0.053669}
+{'loss_name': 'encoder_target', 'radius': 3.0, 'alpha_px': 0.5, 'step': 59, 'loss': 0.8963, 'grad_absmean': '1.649e-04', 'grad_zero_frac': 0.0, 'c_absmean': 1.80859, 'c_absmax': 3.0, 'pixel_absmean': 0.054574}
+
+表：runs/ip2p_warp/step_probe_encoder_target.csv

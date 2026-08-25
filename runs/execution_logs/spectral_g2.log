@@ -1,0 +1,39 @@
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  17%|█▋        | 1/6 [00:00<00:00,  8.81it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3248.38it/s]
+Loading pipeline components...:  50%|█████     | 3/6 [00:00<00:00,  8.64it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 15.46it/s]
+There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+=== raccoon_00 / add__human ===
+    位移量 {'full': 0.23051, 'amp': 0.12339, 'pha': 0.11187, 'amp_s': 0.2352, 'pha_s': 0.23949}
+=== raccoon_00 / phase__human ===
+    位移量 {'full': 0.58819, 'amp': 0.43681, 'pha': 0.591, 'amp_s': 0.30614, 'pha_s': 0.42526}
+=== raccoon_00 / phase_rand__human ===
+    位移量 {'full': 0.14686, 'amp': 0.32232, 'pha': 0.30907, 'amp_s': 0.2197, 'pha_s': 0.25037}
+=== shiba_00 / add__human ===
+    位移量 {'full': 0.19292, 'amp': 0.13907, 'pha': 0.14383, 'amp_s': 0.18065, 'pha_s': 0.17194}
+=== shiba_00 / phase__human ===
+    位移量 {'full': 0.60708, 'amp': 0.28095, 'pha': 0.44733, 'amp_s': 0.24875, 'pha_s': 0.35725}
+=== shiba_00 / phase_rand__human ===
+    位移量 {'full': 0.09689, 'amp': 0.20947, 'pha': 0.22165, 'amp_s': 0.21426, 'pha_s': 0.20801}
+=== raccoon_00 / apa_weak ===
+    位移量 {'full': 0.3393, 'amp': 0.51929, 'pha': 0.4743, 'amp_s': 0.47368, 'pha_s': 0.48762}
+=== raccoon_00 / mist ===
+    位移量 {'full': 0.65634, 'amp': 0.45727, 'pha': 0.57749, 'amp_s': 0.57374, 'pha_s': 0.6099}
+=== raccoon_00 / dia_r ===
+    位移量 {'full': 0.36769, 'amp': 0.32782, 'pha': 0.33756, 'amp_s': 0.37974, 'pha_s': 0.39607}
+=== shiba_00 / apa_weak ===
+    位移量 {'full': 0.26101, 'amp': 0.48211, 'pha': 0.39986, 'amp_s': 0.43567, 'pha_s': 0.42909}
+=== shiba_00 / mist ===
+    位移量 {'full': 0.7341, 'amp': 0.49449, 'pha': 0.50183, 'amp_s': 0.58561, 'pha_s': 0.63328}
+=== shiba_00 / dia_r ===
+    位移量 {'full': 0.27427, 'amp': 0.19219, 'pha': 0.20066, 'amp_s': 0.26774, 'pha_s': 0.2777}
+=== shiba_00 / photoguard_c ===
+    位移量 {'full': 0.46539, 'amp': 0.18532, 'pha': 0.18039, 'amp_s': 0.22833, 'pha_s': 0.23432}
+=== raccoon_00 / photoguard_c ===
+    位移量 {'full': 0.35587, 'amp': 0.29626, 'pha': 0.2851, 'amp_s': 0.35644, 'pha_s': 0.36055}
+
+表：runs/spectral/dec_2.csv（70 列）

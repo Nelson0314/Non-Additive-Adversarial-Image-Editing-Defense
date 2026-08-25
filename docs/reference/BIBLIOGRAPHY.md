@@ -121,11 +121,19 @@ Hann 窗與 COLA／NOLA、實數 FFT 的共軛對稱都是標準性質。**這�
 | 論文 | 內容 | 取得狀況 |
 |---|---|---|
 | **JPEG compression-resistant adversarial attack with invisible watermark embedding**（The Imaging Science Journal, 2026） | 把浮水印與對抗擾動**同時**嵌進 DCT 域；模擬 JPEG 重壓層 ＋ 直通估計讓梯度穿過量化係數；依**顯著圖**選位置；**嚴格限制被改動的係數個數** | **付費牆、無 arXiv、無公開程式碼**。摘要以外的細節查不到 | 
+| **Robust cross-image adversarial watermark with JPEG resistance**（CVIU 260:104459, 2025） | 擾動加在 **Y 通道 DCT 係數**上；可微分 JPEG（Shin 三次式）放進訓練迴圈；**訓練壓縮品質 q=35 遠低於評測的 Q=75**；跨影像 EMA 融合成通用浮水印。損失 `L_MSE(G(I_inv),G(I)) + λ/PSNR` **符號有誤**（該項會把浮水印推得更明顯），移植須標 `modified_from_paper` | **已取得全文**，`paper_pdfs/jpeg_watermark_lin_cviu.pdf`；程式碼 [fishlin20/JPEG-Watermark](http://github.com/fishlin20/JPEG-Watermark)（未查證）。細節見 `SURVEY_FREQUENCY.md` §1.13 |
 | **IRAW**（Neural Networks, 2026-04-15） | 同族：DCT 域的雙功能（浮水印 ＋ 對抗）統一最佳化，跨域加密 | 付費牆、無公開程式碼 |
 
 **2026-08-21 判定**：前者無法逐行重現（`SOURCE_AUDIT` 的規矩是對照公開原始碼，
 不照摘要寫）。本專案改為實作它摘要明載的三個機制，全部標
 `modified_from_paper`，見 `src/baselines/dct_watermark.py`。
+
+### 抗 JPEG 的對抗擾動最佳化技巧
+
+| 論文 | 內容 | 連結 |
+|---|---|---|
+| **JPEG-resistant Adversarial Images**（NIPS 2017 MLSec Workshop） | 可微分 JPEG 的原始出處，`round` 近似為 `⌊x⌉+(x−⌊x⌉)³`。**核心已實作**（本專案改用直通估計，前向更忠實）。**尚未採用它真正的貢獻——多品質集成**：對 q∈{25,50,75,∞} 以損失大小加權合併梯度，單一品質會過度特化 | [PDF](https://machine-learning-and-security.github.io/papers/mlsec17_paper_54.pdf)。細節見 `SURVEY_FREQUENCY.md` §1.15 |
+| **IAM: Interpolation Smoothing**（arXiv:2402.16586） | 每步先雙線性降到半解析度、在該解析度上走 sign 梯度、再升回原尺寸，使擾動天生無高頻。**沒有可借的損失**（Eq.2 就是特徵距離）；Algorithm 1 缺 ε 投影與 clamp。對本專案的價值是**半解析度參數化**，唯一指向 blur 欄的機制 | [arXiv:2402.16586](https://arxiv.org/abs/2402.16586)。細節見 `SURVEY_FREQUENCY.md` §1.14 |
 
 ## 4. 抗淨化的防禦側
 

@@ -1,0 +1,115 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  67%|██████▋   | 4/6 [00:00<00:00, 27.88it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3288.53it/s]
+Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 14.32it/s]
+There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+
+########## bird_00 (bird) ##########
+=== bird_00 / phase__d0.0434__gl1 ===
+Loading pretrained model NIMA from /nfs/home/nelson0314/.cache/torch/hub/pyiqa/NIMA_InceptionV2_ava-b0c77c00.pth
+Loading pretrained model CNNIQA from /nfs/home/nelson0314/.cache/torch/hub/pyiqa/CNNIQA_koniq10k-e6f14c91.pth
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 19879.64it/s]
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 20117.54it/s]
+[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
+[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
+Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights:  78%|███████▊  | 319/408 [00:00<00:00, 3186.44it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 3120.95it/s]
+{'image': 'bird_00', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a butterfly', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 0.0434, 'budget_mode': 'dists', 'budget_reached': 0.0437, 'unreachable': False, 'radius': 2.56192, 'total_seconds': 102.4, 'fid_lpips': 0.1926, 'fid_ssim': 0.9503, 'fid_dists': 0.0437, 'fid_psnr': 30.2328, 'fid_clip_img': 0.9917, 'fid_nima': 5.4474, 'fid_cnniqa': 0.7137, 'edit_lpips': 0.6079, 'edit_clip_orig': 0.2715, 'edit_clip_def': 0.2879, 'edit_clip_drop': -0.0163, 'edit_siglip_orig': 0.106, 'edit_siglip_def': 0.0884, 'edit_siglip_drop': 0.0176, 'amp_dev': 0.01678, 'active_fraction': 0.3902}
+
+########## bird_01 (bird) ##########
+=== bird_01 / phase__d0.0434__gl1 ===
+{'image': 'bird_01', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a butterfly', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 0.0434, 'budget_mode': 'dists', 'budget_reached': 0.04157, 'unreachable': False, 'radius': 1.20935, 'total_seconds': 71.9, 'fid_lpips': 0.2349, 'fid_ssim': 0.9573, 'fid_dists': 0.0416, 'fid_psnr': 31.2267, 'fid_clip_img': 0.9968, 'fid_nima': 5.0455, 'fid_cnniqa': 0.7271, 'edit_lpips': 0.5474, 'edit_clip_orig': 0.2765, 'edit_clip_def': 0.3079, 'edit_clip_drop': -0.0314, 'edit_siglip_orig': 0.1118, 'edit_siglip_def': 0.1072, 'edit_siglip_drop': 0.0046, 'amp_dev': 0.01526, 'active_fraction': 0.5692}
+
+########## bird_02 (bird) ##########
+=== bird_02 / phase__d0.0434__gl1 ===
+{'image': 'bird_02', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a butterfly', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 0.0434, 'budget_mode': 'dists', 'budget_reached': 0.04491, 'unreachable': False, 'radius': 2.36869, 'total_seconds': 57.2, 'fid_lpips': 0.4517, 'fid_ssim': 0.9213, 'fid_dists': 0.0449, 'fid_psnr': 31.0986, 'fid_clip_img': 0.9948, 'fid_nima': 4.4123, 'fid_cnniqa': 0.6059, 'edit_lpips': 0.6221, 'edit_clip_orig': 0.2817, 'edit_clip_def': 0.2571, 'edit_clip_drop': 0.0245, 'edit_siglip_orig': 0.109, 'edit_siglip_def': 0.1027, 'edit_siglip_drop': 0.0064, 'amp_dev': 0.0188, 'active_fraction': 0.6916}
+
+########## bird_03 (bird) ##########
+=== bird_03 / phase__d0.0434__gl1 ===
+{'image': 'bird_03', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a butterfly', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 0.0434, 'budget_mode': 'dists', 'budget_reached': 0.0273, 'unreachable': True, 'radius': 3.14159, 'total_seconds': 26.6, 'fid_lpips': 0.2346, 'fid_ssim': 0.9369, 'fid_dists': 0.0273, 'fid_psnr': 32.0043, 'fid_clip_img': 0.9947, 'fid_nima': 5.4192, 'fid_cnniqa': 0.7228, 'edit_lpips': 0.5939, 'edit_clip_orig': 0.2725, 'edit_clip_def': 0.2971, 'edit_clip_drop': -0.0246, 'edit_siglip_orig': 0.1038, 'edit_siglip_def': 0.1075, 'edit_siglip_drop': -0.0036, 'amp_dev': 0.01403, 'active_fraction': 0.4617}
+
+########## cat_00 (cat) ##########
+=== cat_00 / phase__d0.0434__gl1 ===
+{'image': 'cat_00', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a dog', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 0.0434, 'budget_mode': 'dists', 'budget_reached': 0.04365, 'unreachable': False, 'radius': 1.98225, 'total_seconds': 72.7, 'fid_lpips': 0.2801, 'fid_ssim': 0.8933, 'fid_dists': 0.0436, 'fid_psnr': 22.1279, 'fid_clip_img': 0.9891, 'fid_nima': 4.9277, 'fid_cnniqa': 0.7282, 'edit_lpips': 0.5731, 'edit_clip_orig': 0.2452, 'edit_clip_def': 0.2643, 'edit_clip_drop': -0.0191, 'edit_siglip_orig': 0.0621, 'edit_siglip_def': 0.0807, 'edit_siglip_drop': -0.0186, 'amp_dev': 0.04327, 'active_fraction': 0.5538}
+
+########## cat_01 (cat) ##########
+=== cat_01 / phase__d0.0434__gl1 ===
+{'image': 'cat_01', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a dog', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 0.0434, 'budget_mode': 'dists', 'budget_reached': 0.04295, 'unreachable': False, 'radius': 3.14159, 'total_seconds': 42.1, 'fid_lpips': 0.2293, 'fid_ssim': 0.9476, 'fid_dists': 0.043, 'fid_psnr': 30.8529, 'fid_clip_img': 0.9893, 'fid_nima': 5.4784, 'fid_cnniqa': 0.7181, 'edit_lpips': 0.5047, 'edit_clip_orig': 0.2601, 'edit_clip_def': 0.2811, 'edit_clip_drop': -0.021, 'edit_siglip_orig': 0.0917, 'edit_siglip_def': 0.0861, 'edit_siglip_drop': 0.0055, 'amp_dev': 0.01112, 'active_fraction': 0.4877}
+
+########## cat_02 (cat) ##########
+=== cat_02 / phase__d0.0434__gl1 ===
+{'image': 'cat_02', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a dog', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 0.0434, 'budget_mode': 'dists', 'budget_reached': 0.04466, 'unreachable': False, 'radius': 2.39285, 'total_seconds': 134.3, 'fid_lpips': 0.3863, 'fid_ssim': 0.9213, 'fid_dists': 0.0447, 'fid_psnr': 29.2059, 'fid_clip_img': 0.9958, 'fid_nima': 4.5332, 'fid_cnniqa': 0.6768, 'edit_lpips': 0.6168, 'edit_clip_orig': 0.2521, 'edit_clip_def': 0.2605, 'edit_clip_drop': -0.0084, 'edit_siglip_orig': 0.0912, 'edit_siglip_def': 0.0821, 'edit_siglip_drop': 0.0091, 'amp_dev': 0.02117, 'active_fraction': 0.5549}
+
+########## cat_03 (cat) ##########
+=== cat_03 / phase__d0.0434__gl1 ===
+{'image': 'cat_03', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a dog', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 0.0434, 'budget_mode': 'dists', 'budget_reached': 0.04421, 'unreachable': False, 'radius': 1.49918, 'total_seconds': 103.6, 'fid_lpips': 0.2913, 'fid_ssim': 0.9052, 'fid_dists': 0.0442, 'fid_psnr': 23.5244, 'fid_clip_img': 0.9962, 'fid_nima': 5.079, 'fid_cnniqa': 0.6877, 'edit_lpips': 0.5609, 'edit_clip_orig': 0.2622, 'edit_clip_def': 0.2693, 'edit_clip_drop': -0.007, 'edit_siglip_orig': 0.0853, 'edit_siglip_def': 0.0823, 'edit_siglip_drop': 0.0029, 'amp_dev': 0.04454, 'active_fraction': 0.6238}
+
+########## dog_00 (dog) ##########
+=== dog_00 / phase__d0.0434__gl1 ===
+{'image': 'dog_00', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a cat', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 0.0434, 'budget_mode': 'dists', 'budget_reached': 0.04148, 'unreachable': False, 'radius': 2.75514, 'total_seconds': 72.8, 'fid_lpips': 0.352, 'fid_ssim': 0.9173, 'fid_dists': 0.0415, 'fid_psnr': 30.0282, 'fid_clip_img': 0.9946, 'fid_nima': 4.788, 'fid_cnniqa': 0.6982, 'edit_lpips': 0.5624, 'edit_clip_orig': 0.2675, 'edit_clip_def': 0.2833, 'edit_clip_drop': -0.0158, 'edit_siglip_orig': 0.0695, 'edit_siglip_def': 0.0978, 'edit_siglip_drop': -0.0282, 'amp_dev': 0.01952, 'active_fraction': 0.5002}
+
+########## dog_01 (dog) ##########
+=== dog_01 / phase__d0.0434__gl1 ===
+{'image': 'dog_01', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a cat', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 0.0434, 'budget_mode': 'dists', 'budget_reached': 0.03681, 'unreachable': True, 'radius': 3.14159, 'total_seconds': 26.6, 'fid_lpips': 0.2673, 'fid_ssim': 0.9373, 'fid_dists': 0.0368, 'fid_psnr': 31.6676, 'fid_clip_img': 0.9948, 'fid_nima': 5.5378, 'fid_cnniqa': 0.6625, 'edit_lpips': 0.5424, 'edit_clip_orig': 0.2742, 'edit_clip_def': 0.2872, 'edit_clip_drop': -0.013, 'edit_siglip_orig': 0.0908, 'edit_siglip_def': 0.1015, 'edit_siglip_drop': -0.0107, 'amp_dev': 0.01881, 'active_fraction': 0.4066}
+
+########## dog_02 (dog) ##########
+=== dog_02 / phase__d0.0434__gl1 ===
+{'image': 'dog_02', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a cat', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 0.0434, 'budget_mode': 'dists', 'budget_reached': 0.04444, 'unreachable': False, 'radius': 2.36869, 'total_seconds': 57.4, 'fid_lpips': 0.2698, 'fid_ssim': 0.8674, 'fid_dists': 0.0444, 'fid_psnr': 22.447, 'fid_clip_img': 0.9966, 'fid_nima': 5.0646, 'fid_cnniqa': 0.7205, 'edit_lpips': 0.5165, 'edit_clip_orig': 0.2628, 'edit_clip_def': 0.2637, 'edit_clip_drop': -0.0009, 'edit_siglip_orig': 0.0796, 'edit_siglip_def': 0.0945, 'edit_siglip_drop': -0.0149, 'amp_dev': 0.04507, 'active_fraction': 0.6177}
+
+########## dog_03 (dog) ##########
+=== dog_03 / phase__d0.0434__gl1 ===
+{'image': 'dog_03', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a cat', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 0.0434, 'budget_mode': 'dists', 'budget_reached': 0.04499, 'unreachable': False, 'radius': 2.75514, 'total_seconds': 72.8, 'fid_lpips': 0.2848, 'fid_ssim': 0.9094, 'fid_dists': 0.045, 'fid_psnr': 27.5005, 'fid_clip_img': 0.9915, 'fid_nima': 5.0422, 'fid_cnniqa': 0.6749, 'edit_lpips': 0.5799, 'edit_clip_orig': 0.2573, 'edit_clip_def': 0.2879, 'edit_clip_drop': -0.0306, 'edit_siglip_orig': 0.0807, 'edit_siglip_def': 0.0956, 'edit_siglip_drop': -0.0149, 'amp_dev': 0.02197, 'active_fraction': 0.4764}
+
+########## horse_00 (horse) ##########
+=== horse_00 / phase__d0.0434__gl1 ===
+{'image': 'horse_00', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a zebra', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 0.0434, 'budget_mode': 'dists', 'budget_reached': 0.04526, 'unreachable': False, 'radius': 1.78902, 'total_seconds': 88.1, 'fid_lpips': 0.2437, 'fid_ssim': 0.9401, 'fid_dists': 0.0453, 'fid_psnr': 32.3087, 'fid_clip_img': 0.9966, 'fid_nima': 5.9337, 'fid_cnniqa': 0.6805, 'edit_lpips': 0.4525, 'edit_clip_orig': 0.306, 'edit_clip_def': 0.3101, 'edit_clip_drop': -0.0041, 'edit_siglip_orig': 0.119, 'edit_siglip_def': 0.1164, 'edit_siglip_drop': 0.0026, 'amp_dev': 0.01383, 'active_fraction': 0.4655}
+
+########## horse_01 (horse) ##########
+=== horse_01 / phase__d0.0434__gl1 ===
+{'image': 'horse_01', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a zebra', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 0.0434, 'budget_mode': 'dists', 'budget_reached': 0.04279, 'unreachable': False, 'radius': 1.20935, 'total_seconds': 72.8, 'fid_lpips': 0.2863, 'fid_ssim': 0.9371, 'fid_dists': 0.0428, 'fid_psnr': 26.1076, 'fid_clip_img': 0.9958, 'fid_nima': 4.8856, 'fid_cnniqa': 0.697, 'edit_lpips': 0.5136, 'edit_clip_orig': 0.323, 'edit_clip_def': 0.3209, 'edit_clip_drop': 0.0021, 'edit_siglip_orig': 0.1175, 'edit_siglip_def': 0.1189, 'edit_siglip_drop': -0.0014, 'amp_dev': 0.02808, 'active_fraction': 0.6331}
+
+########## horse_02 (horse) ##########
+=== horse_02 / phase__d0.0434__gl1 ===
+{'image': 'horse_02', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a zebra', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 0.0434, 'budget_mode': 'dists', 'budget_reached': 0.04189, 'unreachable': False, 'radius': 1.74071, 'total_seconds': 119.0, 'fid_lpips': 0.3559, 'fid_ssim': 0.8955, 'fid_dists': 0.0419, 'fid_psnr': 25.799, 'fid_clip_img': 0.9938, 'fid_nima': 6.0697, 'fid_cnniqa': 0.7094, 'edit_lpips': 0.5083, 'edit_clip_orig': 0.3079, 'edit_clip_def': 0.3161, 'edit_clip_drop': -0.0083, 'edit_siglip_orig': 0.1074, 'edit_siglip_def': 0.1162, 'edit_siglip_drop': -0.0088, 'amp_dev': 0.04038, 'active_fraction': 0.5906}
+
+########## horse_03 (horse) ##########
+=== horse_03 / phase__d0.0434__gl1 ===
+{'image': 'horse_03', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a zebra', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 0.0434, 'budget_mode': 'dists', 'budget_reached': 0.0449, 'unreachable': False, 'radius': 2.17547, 'total_seconds': 88.2, 'fid_lpips': 0.278, 'fid_ssim': 0.9268, 'fid_dists': 0.0449, 'fid_psnr': 28.9453, 'fid_clip_img': 0.9977, 'fid_nima': 5.1384, 'fid_cnniqa': 0.7189, 'edit_lpips': 0.4917, 'edit_clip_orig': 0.3151, 'edit_clip_def': 0.3144, 'edit_clip_drop': 0.0006, 'edit_siglip_orig': 0.1182, 'edit_siglip_def': 0.1197, 'edit_siglip_drop': -0.0015, 'amp_dev': 0.02063, 'active_fraction': 0.4573}
+
+########## man_00 (man) ##########
+=== man_00 / phase__d0.0434__gl1 ===
+{'image': 'man_00', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'an old woman', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 0.0434, 'budget_mode': 'dists', 'budget_reached': 0.03634, 'unreachable': True, 'radius': 3.14159, 'total_seconds': 26.6, 'fid_lpips': 0.1575, 'fid_ssim': 0.9786, 'fid_dists': 0.0363, 'fid_psnr': 36.5215, 'fid_clip_img': 0.9984, 'fid_nima': 4.4995, 'fid_cnniqa': 0.6802, 'edit_lpips': 0.4238, 'edit_clip_orig': 0.2819, 'edit_clip_def': 0.3104, 'edit_clip_drop': -0.0286, 'edit_siglip_orig': 0.1079, 'edit_siglip_def': 0.1336, 'edit_siglip_drop': -0.0257, 'amp_dev': 0.00702, 'active_fraction': 0.279}
+
+########## man_01 (man) ##########
+=== man_01 / phase__d0.0434__gl1 ===
+{'image': 'man_01', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'an old woman', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 0.0434, 'budget_mode': 'dists', 'budget_reached': 0.04379, 'unreachable': False, 'radius': 1.5958, 'total_seconds': 42.1, 'fid_lpips': 0.2595, 'fid_ssim': 0.9268, 'fid_dists': 0.0438, 'fid_psnr': 25.1918, 'fid_clip_img': 0.9913, 'fid_nima': 5.0857, 'fid_cnniqa': 0.6854, 'edit_lpips': 0.435, 'edit_clip_orig': 0.2814, 'edit_clip_def': 0.2687, 'edit_clip_drop': 0.0127, 'edit_siglip_orig': 0.1091, 'edit_siglip_def': 0.1189, 'edit_siglip_drop': -0.0098, 'amp_dev': 0.04227, 'active_fraction': 0.5691}
+
+########## man_02 (man) ##########
+=== man_02 / phase__d0.0434__gl1 ===
+{'image': 'man_02', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'an old woman', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 0.0434, 'budget_mode': 'dists', 'budget_reached': 0.04447, 'unreachable': False, 'radius': 1.88563, 'total_seconds': 103.6, 'fid_lpips': 0.217, 'fid_ssim': 0.9069, 'fid_dists': 0.0445, 'fid_psnr': 21.3832, 'fid_clip_img': 0.9952, 'fid_nima': 5.2069, 'fid_cnniqa': 0.6602, 'edit_lpips': 0.5147, 'edit_clip_orig': 0.2748, 'edit_clip_def': 0.297, 'edit_clip_drop': -0.0222, 'edit_siglip_orig': 0.1256, 'edit_siglip_def': 0.1074, 'edit_siglip_drop': 0.0182, 'amp_dev': 0.04076, 'active_fraction': 0.468}
+
+########## man_03 (man) ##########
+=== man_03 / phase__d0.0434__gl1 ===
+{'image': 'man_03', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'an old woman', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 0.0434, 'budget_mode': 'dists', 'budget_reached': 0.04471, 'unreachable': False, 'radius': 1.98225, 'total_seconds': 72.8, 'fid_lpips': 0.3945, 'fid_ssim': 0.8659, 'fid_dists': 0.0447, 'fid_psnr': 24.6583, 'fid_clip_img': 0.9931, 'fid_nima': 5.5629, 'fid_cnniqa': 0.7078, 'edit_lpips': 0.5645, 'edit_clip_orig': 0.2729, 'edit_clip_def': 0.2815, 'edit_clip_drop': -0.0086, 'edit_siglip_orig': 0.101, 'edit_siglip_def': 0.0908, 'edit_siglip_drop': 0.0102, 'amp_dev': 0.03515, 'active_fraction': 0.6829}
+
+########## woman_00 (woman) ##########
+=== woman_00 / phase__d0.0434__gl1 ===
+{'image': 'woman_00', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a man', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 0.0434, 'budget_mode': 'dists', 'budget_reached': 0.04304, 'unreachable': False, 'radius': 1.51126, 'total_seconds': 149.7, 'fid_lpips': 0.1907, 'fid_ssim': 0.9538, 'fid_dists': 0.043, 'fid_psnr': 29.372, 'fid_clip_img': 0.9966, 'fid_nima': 4.7409, 'fid_cnniqa': 0.5396, 'edit_lpips': 0.4542, 'edit_clip_orig': 0.237, 'edit_clip_def': 0.2321, 'edit_clip_drop': 0.0049, 'edit_siglip_orig': 0.0488, 'edit_siglip_def': 0.0625, 'edit_siglip_drop': -0.0137, 'amp_dev': 0.023, 'active_fraction': 0.4544}
+
+########## woman_01 (woman) ##########
+=== woman_01 / phase__d0.0434__gl1 ===
+{'image': 'woman_01', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a man', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 0.0434, 'budget_mode': 'dists', 'budget_reached': 0.03842, 'unreachable': True, 'radius': 3.14159, 'total_seconds': 26.7, 'fid_lpips': 0.1784, 'fid_ssim': 0.9771, 'fid_dists': 0.0384, 'fid_psnr': 37.7991, 'fid_clip_img': 0.9978, 'fid_nima': 3.4986, 'fid_cnniqa': 0.3275, 'edit_lpips': 0.428, 'edit_clip_orig': 0.208, 'edit_clip_def': 0.2155, 'edit_clip_drop': -0.0075, 'edit_siglip_orig': 0.0388, 'edit_siglip_def': 0.0288, 'edit_siglip_drop': 0.01, 'amp_dev': 0.00569, 'active_fraction': 0.3817}
+
+########## woman_02 (woman) ##########
+=== woman_02 / phase__d0.0434__gl1 ===
+{'image': 'woman_02', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a man', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 0.0434, 'budget_mode': 'dists', 'budget_reached': 0.04328, 'unreachable': False, 'radius': 2.85176, 'total_seconds': 103.7, 'fid_lpips': 0.2676, 'fid_ssim': 0.9504, 'fid_dists': 0.0433, 'fid_psnr': 31.3012, 'fid_clip_img': 0.9974, 'fid_nima': 4.1338, 'fid_cnniqa': 0.6638, 'edit_lpips': 0.4388, 'edit_clip_orig': 0.2026, 'edit_clip_def': 0.2441, 'edit_clip_drop': -0.0414, 'edit_siglip_orig': 0.0577, 'edit_siglip_def': 0.076, 'edit_siglip_drop': -0.0183, 'amp_dev': 0.01369, 'active_fraction': 0.4311}
+
+########## woman_03 (woman) ##########
+=== woman_03 / phase__d0.0434__gl1 ===
+{'image': 'woman_03', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a man', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 0.0434, 'budget_mode': 'dists', 'budget_reached': 0.04394, 'unreachable': False, 'radius': 2.17547, 'total_seconds': 88.2, 'fid_lpips': 0.1382, 'fid_ssim': 0.9641, 'fid_dists': 0.0439, 'fid_psnr': 34.2469, 'fid_clip_img': 0.9948, 'fid_nima': 4.8495, 'fid_cnniqa': 0.7006, 'edit_lpips': 0.4241, 'edit_clip_orig': 0.2464, 'edit_clip_def': 0.2435, 'edit_clip_drop': 0.0029, 'edit_siglip_orig': 0.0748, 'edit_siglip_def': 0.0875, 'edit_siglip_drop': -0.0126, 'amp_dev': 0.00966, 'active_fraction': 0.5233}
+
+表：runs/gl/b1/results.csv

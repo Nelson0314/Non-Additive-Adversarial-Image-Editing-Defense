@@ -1,0 +1,15 @@
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00, 16.75it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3682.43it/s]
+Loading pipeline components...:  83%|████████▎ | 5/6 [00:00<00:00, 12.89it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 15.44it/s]
+There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+=== raccoon_00 / dct_shield ===
+    identity=0.5577, blur1=0.4745, jpeg75=0.1672, crop_resize0.1=0.5760, gridpure=0.5248
+=== shiba_00 / dct_shield ===
+    identity=0.6994, blur1=0.3073, jpeg75=0.1572, crop_resize0.1=0.6249, gridpure=0.4624
+
+表：runs/freqret/aret_2.csv（10 列）

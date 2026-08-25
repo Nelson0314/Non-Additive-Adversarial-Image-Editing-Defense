@@ -1,0 +1,19 @@
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00, 16.02it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3556.76it/s]
+Loading pipeline components...:  67%|██████▋   | 4/6 [00:00<00:00, 11.81it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 14.76it/s]
+There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+=== person_c_00 / add__human ===
+    分母塌陷：effect(identity) mean=0.1521 sd=0.1477，本格的 retention 不可用
+    identity=0.1521, blur1=0.1795, noise0.05=0.4300, quantize16=0.1447, jpeg75=0.0724, jpeg30=0.1299, crop_resize0.1=0.3986, jpeg_then_resize75=0.1367, adverse_cleaner=0.0804
+=== person_c_00 / phase__human ===
+    分母塌陷：effect(identity) mean=0.2111 sd=0.1938，本格的 retention 不可用
+    identity=0.2111, blur1=0.1880, noise0.05=0.4338, quantize16=0.1578, jpeg75=0.0742, jpeg30=0.1205, crop_resize0.1=0.4010, jpeg_then_resize75=0.1549, adverse_cleaner=0.2116
+=== person_c_00 / phase_rand__human ===
+    identity=0.0606, blur1=0.1846, noise0.05=0.4272, quantize16=0.1371, jpeg75=0.1124, jpeg30=0.1476, crop_resize0.1=0.4270, jpeg_then_resize75=0.1403, adverse_cleaner=0.1197
+
+表：runs/s0818_tgtlebron/retention_2.csv（27 列）

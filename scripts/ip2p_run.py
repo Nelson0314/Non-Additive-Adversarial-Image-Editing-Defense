@@ -51,7 +51,7 @@ import torch  # noqa: E402
 import torchvision.utils as vutils  # noqa: E402
 
 from apa_baseline import load_dataset  # noqa: E402
-from phase_ablation import build  # noqa: E402
+from phase_ablation import WARP_GRID, build  # noqa: E402
 from src.baselines.advdrop import (
     PAPER_Q_INIT, AdvDropSpec, run_advdrop,
 )
@@ -63,6 +63,9 @@ from src.baselines.dct_shield import (  # noqa: E402
     DCTShieldSpec, run_dct_shield,
 )
 from src.baselines.encoder_target import make_encoder_target_loss  # noqa: E402
+from src.baselines.jpeg_codec import (  # noqa: E402
+    jpeg_roundtrip, jpeg_roundtrip_ste, normalize_quality,
+)
 from src.defense.purify_aware import (  # noqa: E402
     make_eot_geometry_transform, make_eot_jpeg_transform,
     make_eot_ops_transform, make_fixed_jpeg_transform, make_jpeg_transform,
@@ -81,9 +84,18 @@ from src.utils.io import load_image_tensor, write_csv  # noqa: E402
 
 RESOLUTION = 512
 PHASE_CONDS = ("phase", "phase_rand", "add", "phase_gain", "gain_only",
-               "floor_only")
+               "floor_only", "shading", "shading_rand",
+               # WaNet 式三元對照（`runs/ip2p_warp/`）。強度旗鈕是 `--radius`，
+               # 單位是最大位移像素數。三格的分工見 `phase_ablation.build`。
+               "warp", "warp_rand", "warp_roundtrip")
 DCT_CONDS = ("dct_shield", "dct_shield_y")
-ADVDROP_CONDS = ("advdrop",)
+# `advdrop_max` 不是最佳化的解，是 AdvDrop 在該 eps 下**可行集的邊界**：量化表
+# 整片推到 `q = 1 + eps`。存在的理由見 `runs/ip2p_advdrop_band/README.md`——
+# 最佳化收斂不到帶內（500 步只到 DISTS 0.0378），但天花板在 eps = 100 時是
+# 0.1414，正落在帶內。要回答「8×8 格點的非加性擾動抗不抗裁切」就用這一點，
+# 那個問題與最佳化收不收斂無關。**它不是 AdvDrop 這個方法本身**，
+# `modified_from_paper` 恆為真，報表上不可寫成 AdvDrop 的結果。
+ADVDROP_CONDS = ("advdrop", "advdrop_max")
 WM_CONDS = ("dct_wm",)
 
 
@@ -121,13 +133,67 @@ def _purify_transform(args):
     return make_eot_ops_transform((75,), seed=args.seed)
 
 
+def deliver_quality(args):
+    """`--deliver-jpeg` 換算成 1–100 的整數品質；0 代表關閉，回傳 `None`。
+
+    `normalize_quality` 同時吃論文式的小數（0.85）與整數（85），與
+    `--q-alg` 用同一條換算路徑，兩個旗標的 0.85 因此指同一張量化表。
+    """
+    if not args.deliver_jpeg:
+        return None
+    return normalize_quality(args.deliver_jpeg)
+
+
+def _forward_transform(args):
+    """最佳化迴圈的前向要套的變換。
+
+    **與已否決的 `--purify-aware` 差在交付什麼，不是差在迴圈裡看到什麼。**
+    `RESULTS.md` 否決過「針對淨化最佳化沒有改善抗淨化」——那三個變體
+    （fixed75／curriculum／多算子 EOT）把可微分 JPEG 放進 PGD 前向，但
+    **交出去的是未壓縮的圖**，於是最佳化找到的「壓縮活得下來的位置」在交付
+    的那一刻就被丟掉了：攻擊方拿到的是連續值，一被重新量化仍然散掉。
+
+    `--deliver-jpeg QD` 是另一件事：迴圈的前向套
+    `jpeg_roundtrip_ste(·, QD)`，而**交付與存檔的也是 `jpeg_roundtrip(·, QD)`
+    的輸出**（`defend()` 裡那一步）。輸出因此被約束在 QD 的量化格點上，
+    攻擊方以同品質或更高品質重壓時近似恆等——這正是 DCT-Shield 抗 JPEG 的
+    全部來源（它把 δ 直接加在量化後的整數係數上，見
+    `src/baselines/jpeg_codec.py` 的 docstring）。
+
+    兩者同時給時，順序是「先自壓、再讓攻擊方淨化」，與實際發生的順序一致。
+    `--deliver-jpeg 0` 且 `--purify-aware none` 時回傳 `None`，行為與加入這個
+    旗標之前逐位元相同。
+    """
+    purify = _purify_transform(args)
+    q = deliver_quality(args)
+    if q is None:
+        return purify
+    if purify is None:
+        def transform(x01, step):
+            return jpeg_roundtrip_ste(x01, q)
+        return transform
+
+    def transform(x01, step):
+        return purify(jpeg_roundtrip_ste(x01, q), step)
+    return transform
+
+
 def defend(ip2p, suite, cond, x01, args, loss_fn):
-    """回傳 `(x_def, radius, unreachable, modified_from_paper)`。
+    """回傳 `(x_def, radius, unreachable, modified_from_paper, extras)`。
 
     兩條路徑：相位／加性走本專案共用的 sign PGD；DCT-Shield 走它自己論文的
     Algorithm 1。**兩者都不因為換了攻擊方而改動**——改的只有 `loss_fn` 裡的
     那個 `E`。
+
+    `extras` 是要併進該列 CSV 的額外欄位，只有 `--deliver-jpeg` 開著時非空。
     """
+    if args.deliver_jpeg and cond not in PHASE_CONDS:
+        # 交付自壓是接在本方法的參數化後面的一步。套到 DCT-Shield 上等於把
+        # 別人的方法改掉一半（它自己就把 δ 加在量化係數上），套到 AdvDrop／
+        # 浮水印上則是換掉它們的輸出。**寧可拒絕，不要靜默照跑**。
+        raise SystemExit(
+            f"--deliver-jpeg 只接在本方法的參數化上，收到條件 {cond}。"
+            f"允許的條件：{' '.join(PHASE_CONDS)}")
     if cond in WM_CONDS:
         # DJSMA（The Imaging Science Journal 2026）。無公開程式碼，由掃描 PDF
         # 逐頁判讀後依 Algorithm 1 與式 (7)–(9) 實作。
@@ -145,7 +211,19 @@ def defend(ip2p, suite, cond, x01, args, loss_fn):
                 "對係數的偏導；本威脅模型沒有分類器"))
         res = run_djsma(x01, spec, loss_fn=loss_fn, log_every=0)
         # 強度旋鈕是 tau（l0 界），不是某個 eps——DJSMA 是貪婪 JSMA 不是 PGD。
-        return res.x_def, float(spec.tau), False, True
+        return res.x_def, float(spec.tau), False, True, {}
+
+    if cond == "advdrop_max":
+        # 不跑最佳化：直接把量化表整片推到上界，軟四捨五入的硬度取與最佳化
+        # 最後一步相同的 `PAPER_ALPHA_LO`。回傳的「radius」欄是 eps。
+        from src.baselines.advdrop import (  # noqa: E402
+            PAPER_ALPHA_LO, init_q_tables, render_advdrop,
+        )
+        q = init_q_tables(x01, PAPER_Q_INIT + args.advdrop_eps)
+        alpha = torch.tensor(PAPER_ALPHA_LO, device=x01.device, dtype=x01.dtype)
+        with torch.no_grad():
+            x_def = render_advdrop(x01, q, alpha, "rgb", False)
+        return x_def, float(args.advdrop_eps), False, True, {}
 
     if cond in ADVDROP_CONDS:
         # AdvDrop（ICCV 2021）是唯一另一個明確的「非加性頻域」方法，也是本
@@ -167,7 +245,7 @@ def defend(ip2p, suite, cond, x01, args, loss_fn):
                 f"{args.advdrop_step_size:g} 而非論文隱含的 1"),
             source="arXiv:2108.09034 §3.1／§4.3")
         res = run_advdrop(ip2p, x01, spec, loss_fn=loss_fn, log_every=0)
-        return res.x_def, spec.eps, False, True
+        return res.x_def, spec.eps, False, True, {}
 
     if cond in DCT_CONDS:
         if args.mode == "paper":
@@ -189,7 +267,7 @@ def defend(ip2p, suite, cond, x01, args, loss_fn):
             # 的方法換掉一半，那是消融不是 baseline。兩者都只經過 VAE 編碼器，
             # 換掉不會拋錯也看不出來，故在此明寫。
             res = run_dct_shield(ip2p, x01, spec, log_every=250)
-            return res.x_def, spec.eps, False, spec.modified_from_paper
+            return res.x_def, spec.eps, False, spec.modified_from_paper, {}
         raise SystemExit(
             "DCT-Shield 的預算對齊模式尚未接到 IP2P 線上。曲線協定（DEC-029）"
             "是掃 eps 畫取捨曲線，錨點由 tradeoff_curve.py 內插求得，"
@@ -208,22 +286,65 @@ def defend(ip2p, suite, cond, x01, args, loss_fn):
                           channels=args.phase_channels,
                           spectral_floor=args.spectral_floor,
                           floor_gate=args.floor_gate,
-                          theta_budget=args.theta_budget)
-    if args.radius is not None:
-        param.set_radius(args.radius)
-        res = run_param_pgd(x01, param, loss_fn, steps=args.steps,
-                            seed=args.seed,
-                            transform=_purify_transform(args))
-        return res.x_def, param.radius, False, False
+                          theta_budget=args.theta_budget,
+                          coarsen=args.coarsen,
+                          warp_grid=args.warp_grid)
+    q_deliver = deliver_quality(args)
 
     def dists_of(a, b):
         return float(suite.pairwise(b, a)["dists"])
 
-    out = fit_to_budget(x01, param, loss_fn, dists_of, args.budget,
-                        lo=lo, hi=hi, steps=args.steps, seed=args.seed,
-                        rounds=args.rounds)
-    return (out.x_def, out.radius,
-            bool(out.history[-1].get("unreachable", False)), False)
+    if args.radius is not None:
+        param.set_radius(args.radius)
+        res = run_param_pgd(x01, param, loss_fn, steps=args.steps,
+                            seed=args.seed,
+                            transform=_forward_transform(args))
+        x_raw, radius, unreachable = res.x_def, param.radius, False
+    else:
+        # **二分搜的失真要量在交付的圖上**，否則預算欄講的是一張沒有人會拿到
+        # 的圖。`transform` 在關閉交付自壓時維持 `None`，與加入這個旗標之前
+        # 逐位元相同——此前 `fit_to_budget` 從來沒有拿過 `--purify-aware` 的
+        # 算子，改成一律傳會靜默改掉既有的預算模式批次。
+        def budget_dists(a, b):
+            return dists_of(a if q_deliver is None
+                            else jpeg_roundtrip(a, q_deliver), b)
+
+        out = fit_to_budget(x01, param, loss_fn, budget_dists, args.budget,
+                            lo=lo, hi=hi, steps=args.steps, seed=args.seed,
+                            rounds=args.rounds,
+                            transform=(None if q_deliver is None
+                                       else _forward_transform(args)))
+        x_raw = out.x_def
+        radius = out.radius
+        unreachable = bool(out.history[-1].get("unreachable", False))
+
+    if q_deliver is None:
+        return x_raw, radius, unreachable, False, {}
+
+    # **交付的是壓縮後的圖**，不是最佳化直接吐出來的那張。這一步是本實驗與
+    # 已否決的 `--purify-aware` 唯一的差別，理由見 `_forward_transform`。
+    x_def = jpeg_roundtrip(x_raw, q_deliver)
+    d_raw = (x_raw - x01).detach()
+    d_del = (x_def - x01).detach()
+    # 第二個基準：把 JPEG 對**乾淨影像本身**的重建誤差扣掉。兩者在真實影像上
+    # 差 0.3% 以內（實測），並列是為了讓「保留率」不必先講清楚拿哪一張當基準
+    # 才能讀。
+    d_base = (x_def - jpeg_roundtrip(x01, q_deliver)).detach()
+    sq = float((d_raw * d_raw).sum())
+    n_raw, n_del = sq ** 0.5, float((d_del * d_del).sum()) ** 0.5
+    dot = float((d_del * d_raw).sum())
+    extras = {
+        # 交付殘差在「最佳化前擾動方向」上的分量。判準寫在
+        # `runs/ip2p_deliver_jpeg/README.md`：隨機擾動在 QD=0.75 下是 0.22，
+        # 沒有明顯高於它就代表最佳化沒有學會落在量化格點上。
+        "deliver_retention": round(dot / sq, 5) if sq > 0 else 0.0,
+        "deliver_cosine": round(dot / (n_raw * n_del), 5) if n_raw * n_del > 0 else 0.0,
+        "deliver_retention_base": (round(float((d_base * d_raw).sum()) / sq, 5)
+                                   if sq > 0 else 0.0),
+        "deliver_rms_raw": round(n_raw / d_raw.numel() ** 0.5, 6),
+        "deliver_rms_out": round(n_del / d_del.numel() ** 0.5, 6),
+    }
+    return x_def, radius, unreachable, False, extras
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -263,6 +384,12 @@ def build_parser() -> argparse.ArgumentParser:
                          "相鄰區塊各自獨立旋轉留下的接縫因此被平均掉——"
                          "防禦圖的紋理偏粗就是那個接縫。NOLA 條件在 hop "
                          "更小時只會更寬鬆，恆等保證不受影響")
+    ap.add_argument("--warp-grid", type=int, default=WARP_GRID,
+                    help="位移場的粗網格邊長（`warp`／`warp_rand`／"
+                         "`warp_roundtrip` 三格用）。16 是本專案指定，與本機"
+                         "量過的失真對照表同一個構造——換掉它那張表就作廢。"
+                         "**位移場刻意不是 stAdv 的逐像素稠密場＋TV 正則**，"
+                         "理由見 `WarpParam` 的 docstring")
     ap.add_argument("--r-min", type=float, default=0.12)
     ap.add_argument("--r-max", type=float, default=float("inf"),
                     help="徑向頻率閘的上界。預設無窮大即維持原本的高通行為。"
@@ -327,6 +454,18 @@ def build_parser() -> argparse.ArgumentParser:
                          "Phase, arXiv:2602.06577）：|theta| <= 2·arcsin("
                          "eps/(2|X|))，2|X| <= eps 的頻格相位自由。0 = 關閉。"
                          "它處理的是 FND-038——固定的 theta 不等於固定的失真")
+    ap.add_argument("--coarsen", type=int, default=1,
+                    help="三個空間場（theta／gain／floor）的視窗網格解析度"
+                         "倍率。**1 = 關閉，逐位元等於加這個旗標之前。** "
+                         "k > 1 時參數只存在 ceil(side/k) 見方的粗網格上，"
+                         "前向雙線性升取樣回逐視窗。理由：hop=8、block=32 下"
+                         "每個像素被 16 個視窗覆蓋，相鄰視窗的角度互相獨立時"
+                         "那 16 份貢獻不同調，重疊相加會在選定頻格之外攤出"
+                         "一層寬頻能量，而那正是 JPEG 最先丟掉的部分。"
+                         "動機取自 IAM（arXiv:2402.16586）的內插平滑，"
+                         "但**機制不同**：IAM 降的是影像解析度，本旗標平滑的"
+                         "是視窗網格上的角度，不改變視窗內的頻率成分"
+                         "（後者由 --r-min／--r-max 決定）")
     ap.add_argument("--floor-gate", choices=tuple(sorted(FLOOR_GATES)),
                     default="uniform",
                     help="加法項的價目表要不要隨區塊變。uniform（預設）只看"
@@ -350,6 +489,19 @@ def build_parser() -> argparse.ArgumentParser:
                          "唯一會產生對一族幾何的不變性的一支"
                          "（identity／模糊／裁切縮放／JPEG75）。"
                          "**回傳的防禦圖仍是未經算子處理的那一張**")
+    ap.add_argument("--deliver-jpeg", type=float, default=0.0,
+                    help="交付自壓的 JPEG 品質。**0 = 關閉，逐位元等於加這個"
+                         "旗標之前。** 吃論文式的小數（0.85）也吃整數（85），"
+                         "與 --q-alg 共用 normalize_quality。開著時做兩件事，"
+                         "缺一不可：(1) 最佳化迴圈的前向套 jpeg_roundtrip_ste"
+                         "（可微，前向值逐位元等於真實往返）；(2) **交付與存檔"
+                         "的是 jpeg_roundtrip 的輸出**，即壓縮過的圖。"
+                         "第二件事是本旗標與已否決的 --purify-aware 的唯一差別"
+                         "——那三個變體把 JPEG 放進迴圈卻交付未壓縮的圖，"
+                         "擾動一離開迴圈就不在量化格點上了。約束在格點上之後，"
+                         "攻擊方以同品質或更高品質重壓近似恆等，"
+                         "那正是 DCT-Shield 抗 JPEG 的全部來源。"
+                         "只接受本方法的參數化條件，其餘條件直接拒絕")
     ap.add_argument("--gain-ratio", type=float, default=0.0,
                     help="可學幅度增益的上界對半徑的比例：gain_max = radius × "
                          "此值。`phase_gain`／`gain_only` 兩個條件需要它 > 0。"
@@ -463,7 +615,7 @@ def main() -> None:
 
         for cond in args.conditions:
             t1 = time.time()
-            x_def, radius, unreachable, modified = defend(
+            x_def, radius, unreachable, modified, extras = defend(
                 ip2p, suite, cond, x01, args, loss_fn)
             fid = suite.pairwise(x01, x_def)
             e_def = edit(x_def, item)
@@ -511,12 +663,24 @@ def main() -> None:
                 # 幅度相依的相位上限。關著與開著跑出的列在其餘欄位上
                 # 一模一樣，不記下來合併之後就分不出來。
                 "theta_budget": args.theta_budget,
+                "coarsen": args.coarsen,
+                # 位移場的粗網格邊長。本專案指定、論文未載，按 CLAUDE.md
+                # 的規則必須是欄位而不是註解；換了它，本機量過的失真對照表
+                # 就不再適用於這些列。
+                "warp_grid": args.warp_grid,
                 # 防禦端的 PGD 步數。**本方法預設 100，DCT-Shield 是 1000**
                 # （該篇 §5.4），頭對頭表上這個差異從未被控制過，故逐列記下。
                 "defense_steps": defense_steps(args, cond),
                 "loss": args.loss,
                 "gain_ratio": args.gain_ratio,
                 "purify_aware": args.purify_aware,
+                # 交付自壓的品質。0 = 關閉。**這一欄不記下來，開著與關著跑出
+                # 的列在其餘欄位上一模一樣**，合併分片之後就分不出來——而它
+                # 決定了存檔的防禦圖在不在量化格點上，也就決定了抗淨化那一輪
+                # 讀到的是什麼。`extras` 的四欄（保留率、餘弦、兩個 RMS）只有
+                # 開著時才有。
+                "deliver_jpeg": args.deliver_jpeg,
+                **extras,
                 # DCT-Shield 的量化表由 `q_alg` 決定，base 是論文 §5.4 的
                 # 0.95、Y-only 是 §6.3 的 0.85。此前它只在 CLI 預設值裡，
                 # 兩個品質因子跑出的列在報表上分不出來（FND-058）。
@@ -546,9 +710,11 @@ def main() -> None:
                 "total_seconds": round(time.time() - t1, 1),
             })
             write_csv(args.out / "results.csv", rows)
+            keep = (f" keep={extras['deliver_retention']:.3f}"
+                    if "deliver_retention" in extras else "")
             print(f"{item['name']:32s} {cond:14s} r={radius:.4f} "
                   f"dists={fid['dists']:.4f} lpips={fid['lpips']:.4f} "
-                  f"effect={prot['lpips']:.4f} ({time.time() - t1:.0f}s)",
+                  f"effect={prot['lpips']:.4f}{keep} ({time.time() - t1:.0f}s)",
                   flush=True)
 
     out = args.out / ("check.csv" if args.check_only else "results.csv")

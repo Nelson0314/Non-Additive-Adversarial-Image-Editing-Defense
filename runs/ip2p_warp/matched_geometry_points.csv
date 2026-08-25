@@ -1,0 +1,13 @@
+group,strength_key,strength,n_images,fid_dists,edit_lpips,fid_psnr,fid_lpips,fid_ssim,edit_clip_sim,blocked_rate
+condition=warp_rand,radius,0.5,13,0.01552,0.06875,30.95646,0.03723,0.98007,0.99524,0.0
+condition=warp_rand,radius,1.0,13,0.02716,0.0988,25.48885,0.06489,0.92921,0.99292,0.0
+condition=warp_rand,radius,3.0,13,0.07766,0.20143,19.61031,0.1722,0.69655,0.97348,0.0
+condition=warp_rand,radius,4.0,13,0.10316,0.24455,18.48985,0.21996,0.61562,0.96126,0.0
+condition=warp_rand,radius,6.0,13,0.14825,0.31674,17.15631,0.30289,0.51075,0.93233,0.15385
+condition=warp_rand,radius,8.0,13,0.18753,0.37212,16.35838,0.36929,0.45037,0.91001,0.15385
+condition=warp_roundtrip,radius,1.0,13,0.0237,0.09091,33.27854,0.06091,0.98963,0.99116,0.0
+condition=warp_roundtrip,radius,0.5,13,0.02424,0.09233,33.351,0.06059,0.98985,0.9905,0.0
+condition=warp_roundtrip,radius,4.0,13,0.03651,0.10975,28.35008,0.08202,0.96367,0.98865,0.0
+condition=warp_roundtrip,radius,8.0,13,0.1117,0.23553,20.99862,0.21214,0.77725,0.95793,0.07692
+condition=warp_roundtrip,radius,12.0,13,0.20403,0.37405,17.93262,0.36822,0.57927,0.89165,0.15385
+condition=warp_roundtrip,radius,16.0,13,0.26645,0.46614,16.31685,0.46928,0.45848,0.77536,0.69231

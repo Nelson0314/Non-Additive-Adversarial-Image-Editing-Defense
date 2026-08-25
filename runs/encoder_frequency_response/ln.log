@@ -1,0 +1,58 @@
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3442.32it/s]
+Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00,  8.39it/s]Loading pipeline components...:  67%|██████▋   | 4/6 [00:00<00:00, 12.44it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 15.98it/s]
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+task_attr_mod_color_11699        r[0.000,0.177)  grad 0.061  dists 0.26770  move 68.54  ratio 256.0
+task_attr_mod_color_11699        r[0.177,0.354)  grad 0.322  dists 0.03518  move 29.19  ratio 829.8
+task_attr_mod_color_11699        r[0.354,0.530)  grad 0.192  dists 0.01393  move 22.22  ratio 1595.5
+task_attr_mod_color_11699        r[0.530,0.707)  grad 0.160  dists 0.00294  move 16.46  ratio 5604.2
+task_attr_mod_color_11699        r[0.707,0.884)  grad 0.155  dists 0.00027  move 12.31  ratio 45354.7
+task_attr_mod_color_11699        r[0.884,1.061)  grad 0.100  dists 0.00004  move 7.91  ratio 204890.1
+task_attr_mod_color_11699        r[1.061,1.237)  grad 0.009  dists 0.00000  move 1.76  ratio 1137840.8
+task_attr_mod_color_11699        r[1.237,1.414)  grad 0.000  dists 0.00000  move 0.20  ratio 1128033.2
+task_attr_mod_color_136767       r[0.000,0.177)  grad 0.072  dists 0.22099  move 62.16  ratio 281.3
+task_attr_mod_color_136767       r[0.177,0.354)  grad 0.500  dists 0.07090  move 38.47  ratio 542.6
+task_attr_mod_color_136767       r[0.354,0.530)  grad 0.274  dists 0.03216  move 28.68  ratio 891.9
+task_attr_mod_color_136767       r[0.530,0.707)  grad 0.075  dists 0.00584  move 21.28  ratio 3645.5
+task_attr_mod_color_136767       r[0.707,0.884)  grad 0.044  dists 0.00113  move 17.22  ratio 15296.2
+task_attr_mod_color_136767       r[0.884,1.061)  grad 0.032  dists 0.00008  move 8.97  ratio 109032.9
+task_attr_mod_color_136767       r[1.061,1.237)  grad 0.003  dists 0.00000  move 2.64  ratio 1386415.8
+task_attr_mod_color_136767       r[1.237,1.414)  grad 0.000  dists 0.00000  move 0.21  ratio 700711.4
+task_attr_mod_color_184837       r[0.000,0.177)  grad 0.070  dists 0.19998  move 59.79  ratio 299.0
+task_attr_mod_color_184837       r[0.177,0.354)  grad 0.314  dists 0.08846  move 39.71  ratio 448.8
+task_attr_mod_color_184837       r[0.354,0.530)  grad 0.231  dists 0.03839  move 30.33  ratio 790.0
+task_attr_mod_color_184837       r[0.530,0.707)  grad 0.160  dists 0.00419  move 24.15  ratio 5770.0
+task_attr_mod_color_184837       r[0.707,0.884)  grad 0.131  dists 0.00085  move 18.56  ratio 21797.9
+task_attr_mod_color_184837       r[0.884,1.061)  grad 0.084  dists 0.00012  move 9.74  ratio 81215.9
+task_attr_mod_color_184837       r[1.061,1.237)  grad 0.010  dists 0.00000  move 1.94  ratio 650018.1
+task_attr_mod_color_184837       r[1.237,1.414)  grad 0.001  dists 0.00000  move 0.41  ratio 1720467.2
+task_attr_mod_color_32648        r[0.000,0.177)  grad 0.068  dists 0.23525  move 50.51  ratio 214.7
+task_attr_mod_color_32648        r[0.177,0.354)  grad 0.474  dists 0.02095  move 25.12  ratio 1199.1
+task_attr_mod_color_32648        r[0.354,0.530)  grad 0.215  dists 0.00875  move 17.24  ratio 1971.3
+task_attr_mod_color_32648        r[0.530,0.707)  grad 0.123  dists 0.00191  move 13.65  ratio 7155.9
+task_attr_mod_color_32648        r[0.707,0.884)  grad 0.079  dists 0.00048  move 9.93  ratio 20753.5
+task_attr_mod_color_32648        r[0.884,1.061)  grad 0.037  dists 0.00005  move 6.45  ratio 122925.1
+task_attr_mod_color_32648        r[1.061,1.237)  grad 0.002  dists 0.00000  move 1.83  ratio 1056299.9
+task_attr_mod_color_32648        r[1.237,1.414)  grad 0.000  dists 0.00000  move 0.15  ratio 640892.8
+task_attr_mod_color_6205         r[0.000,0.177)  grad 0.059  dists 0.23420  move 67.39  ratio 287.7
+task_attr_mod_color_6205         r[0.177,0.354)  grad 0.281  dists 0.06123  move 33.57  ratio 548.2
+task_attr_mod_color_6205         r[0.354,0.530)  grad 0.201  dists 0.02235  move 23.17  ratio 1036.7
+task_attr_mod_color_6205         r[0.530,0.707)  grad 0.196  dists 0.00304  move 18.55  ratio 6097.8
+task_attr_mod_color_6205         r[0.707,0.884)  grad 0.151  dists 0.00029  move 12.74  ratio 43880.8
+task_attr_mod_color_6205         r[0.884,1.061)  grad 0.103  dists 0.00002  move 6.77  ratio 368845.1
+task_attr_mod_color_6205         r[1.061,1.237)  grad 0.007  dists 0.00000  move 0.97  ratio 908175.5
+task_attr_mod_color_6205         r[1.237,1.414)  grad 0.000  dists 0.00000  move 0.06  ratio 248480.2
+task_env_weather_112463          r[0.000,0.177)  grad 0.051  dists 0.24509  move 80.82  ratio 329.8
+task_env_weather_112463          r[0.177,0.354)  grad 0.272  dists 0.02783  move 32.88  ratio 1181.3
+task_env_weather_112463          r[0.354,0.530)  grad 0.230  dists 0.00589  move 18.09  ratio 3072.0
+task_env_weather_112463          r[0.530,0.707)  grad 0.209  dists 0.00044  move 10.81  ratio 24772.1
+task_env_weather_112463          r[0.707,0.884)  grad 0.146  dists 0.00005  move 6.73  ratio 134543.8
+task_env_weather_112463          r[0.884,1.061)  grad 0.081  dists 0.00000  move 2.61  ratio 568130.0
+task_env_weather_112463          r[1.061,1.237)  grad 0.010  dists 0.00000  move 0.55  ratio 1163790.1
+task_env_weather_112463          r[1.237,1.414)  grad 0.001  dists 0.00000  move 0.07  ratio 386756.3
+
+表：runs/encoder_frequency_response/latent_norm.csv（48 列）

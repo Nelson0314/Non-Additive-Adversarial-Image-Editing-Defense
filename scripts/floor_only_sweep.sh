@@ -57,6 +57,29 @@ f0140:0.140
 f0200:0.200
 "
 
+# 要跑哪幾點。第二個參數給空白分隔的 tag，預設全跑。給子集是為了補跑——
+# f0060 與 f0090 已經是 13/13，重跑它們白花機時，而四點配兩張卡剛好。
+WANT=(${2:-})
+if [ ${#WANT[@]} -gt 0 ]; then
+  SEL=""
+  for w in "${WANT[@]}"; do
+    line=$(echo "$POINTS" | grep -m1 "^${w}:" || true)
+    if [ -z "$line" ]; then
+      echo "錯誤：沒有 $w 這個工作點。可選：$(echo "$POINTS" | grep . | cut -d: -f1 | tr "
+" " ")" >&2
+      exit 2
+    fi
+    SEL="$SEL$line
+"
+  done
+  POINTS="$SEL"
+fi
+
+# **別人的卡一律不碰**。這一道是**強制**的，不是提醒——列印了卻不擋等於沒擋
+# （實測踩過兩次：一次只讀 nvidia-smi 的前三行，一次等待器印了空卡清單卻沒有
+# 依它決定要不要送）。任何一張指定的卡上有別人的 process 就直接拒絕啟動。
+bash scripts/free_cards.sh --assert "${DEVS[*]}" || exit 3
+
 require_slots "$(echo "$POINTS" | grep -c .)" "${#DEVS[@]}"
 i=0
 for p in $POINTS; do

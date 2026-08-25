@@ -344,6 +344,170 @@ DCT-Shield 一併納入，用來分離「頻譜形狀」與「相位重排」兩
 
 ---
 
+### 1.13 Robust cross-image adversarial watermark with JPEG resistance for defending against Deepfake models
+
+| 項目 | 內容 |
+|---|---|
+| 作者 | Zhiyu Lin, Hanbin Lin, Liqiang Lin, Shuwu Chen, Xiaolong Liu（福建農林大學） |
+| 發表 | Computer Vision and Image Understanding 260 (2025) 104459 |
+| 程式碼 | [github.com/fishlin20/JPEG-Watermark](http://github.com/fishlin20/JPEG-Watermark)（論文列出，內容未查證） |
+| 全文 | `paper_pdfs/jpeg_watermark_lin_cviu.pdf`（本地留存，逐節讀過） |
+
+**頻域上的具體運算**：擾動不是加在像素上，而是加在 **Y 通道的 DCT 係數**上
+（cb、cr 明確保持不變）。可微分 JPEG 編碼器 `En(·)` 把影像轉成中間 DCT 係數
+`y = En(I)`，擾動 `W` 直接加在 `y` 上，再由 `De(y + W)` 逆轉回像素域得到交付影像
+`I_inv`。`round()` 用的近似是 `x_approx = round(x) + (x − round(x))³`，出處是
+DiffJPEG（Shin & Song, 2017，見 1.15）。
+
+**損失（Eq. 3）**：
+
+    L = L_MSE(G(I_inv), G(I)) + λ · 1/L_D ,   L_D = PSNR(I_inv, I)
+
+第一項是 Deepfake 模型 `G` 在防禦圖與原圖上的輸出 MSE（要拉大），第二項是把
+PSNR 當可見度項。更新是 DCT 係數上的 PGD **上升**（Eq. 4）：
+`y_{t+1} = clip_{y,ε}{ y_t + α · sign(∇_y L) }`。
+
+**這條式子有一個號誤，移植前必須決定怎麼處理**：Eq. 4 在最大化 `L`，而 `L` 內含
+`+λ/PSNR`；最大化 `1/PSNR` 等於**最小化 PSNR**，也就是這一項會主動把浮水印推得
+更明顯，與它自稱的 imperceptibility 約束相反。可見度實際上只由 `clip_{y,ε}` 撐著。
+若實作本方法，該項必須標 `modified_from_paper`，且要逐行比對公開程式碼確認
+真正的號。
+
+**跨影像融合（Eq. 5、6）**：批內對 `n` 張影像的 sign 梯度取平均，批間用指數移動
+平均把各批的浮水印接起來：`W^{m+1} = β·W^m + (1−β)·w^m`。產物是**通用擾動**——
+一張浮水印貼到任意新臉上，不重訓。
+
+**超參數**：β = 0.50、λ = 0.05、α = 0.03；ε 依目標模型為 0.20（StarGAN）／
+0.18（AttGAN）／0.30（HiSD），迭代 T = 15／15／20。訓練資料 128 張分 16 批
+（batch 8），單一 epoch。影像統一 256×256。
+
+**訓練用的 JPEG 品質 q = 35**（Fig. 7 的取捨曲線選出），而評測的攻擊壓縮是
+**Q = 75**。也就是**訓練壓得比攻擊狠**。消融給出兩邊的代價：q < 30 防禦更強但
+防禦圖 PSNR < 30 dB；q > 50 則 PSNR > 32 dB 而抗壓縮變弱。
+
+**抗淨化測試**：只有 JPEG，掃 Q 值曲線（Fig. 4），主表固定 Q = 75。**沒有測
+blur、crop-resize 或任何幾何淨化。**
+
+**報的數字**（CelebA，StarGAN，`SR_mask` 為擋下率）：
+
+| 方法 | L2_mask（無壓縮） | SR_mask（無壓縮） | L2_mask（Q=75） | SR_mask（Q=75） |
+|---|---|---|---|---|
+| DISRUPTING (Ruiz 2020) | 1.236 | 100.0 | 0.007 | 1.8 |
+| CMUA | 0.215 | 100.0 | 0.008 | 0.4 |
+| SUA | 0.371 | 100.0 | 0.008 | 0.2 |
+| DF-RAP | 0.258 | 100.0 | 0.064 | 45.4 |
+| 本篇 | 0.489 | 100.0 | **0.097** | **76.4** |
+
+融合模組的消融：關掉融合則防禦圖 PSNR 22.76 dB、L2_mask 0.101、SR_mask 84.0%；
+開啟則 PSNR 30.10 dB、L2_mask 0.515、SR_mask 100.0%。
+
+**與本專案的關係**：這是**與量化交付同一族、但參數化不同**的一支。相同處：
+擾動只動 Y 通道、走 8×8 DCT、把可微分 JPEG 放進最佳化迴圈。相異處有三，都直接
+可測：
+
+1. **它把擾動參數化在 DCT 係數上**，我方是把擾動長在像素上、再用可微分 JPEG
+   往返把它壓回格點（`--deliver-jpeg`）。前者的 ε 球在係數域，後者在像素域。
+2. **訓練品質遠低於攻擊品質**（q = 35 訓練 / Q = 75 攻擊）。我方目前
+   `--deliver-jpeg 0.85` 是訓練品質**高於**多數攻擊品質，方向相反。這是現成旗標
+   就能掃的一刀。
+3. **通用擾動**（跨影像 EMA 融合）。本專案是逐圖最佳化，此路目前不在主線上。
+
+同時它也是一個誠實的參照點：即便是專門為抗 JPEG 設計的方法，Q = 75 就把擋下率
+從 100% 打到 76.4%，且**完全沒有 blur／crop 的數字**——與本專案量到的
+「JPEG 以外沒有防禦」一致，不是本專案獨有的失敗。
+
+---
+
+### 1.14 Improving the JPEG-resistance of Adversarial Attacks on Face Recognition by Interpolation Smoothing（IAM）
+
+| 項目 | 內容 |
+|---|---|
+| 作者 | Kefu Guo, Fengfan Zhou, Hefei Ling, Ping Li, Hui Liu（華中科技大學） |
+| arXiv | [arXiv:2402.16586](https://arxiv.org/abs/2402.16586) |
+| 程式碼 | 論文未列出 |
+
+**沒有可借的損失。** Eq. 1 把目標寫成含 JPEG 的形式
+`argmin_x' D(F(J(x_adv)), F(x_t))`，但真正拿去求導的 Eq. 2 是
+
+    L(x_adv, x_t) = ‖φ(F(x_adv)) − φ(F(x_t))‖₂²
+
+——單純的人臉特徵距離（φ 是正規化），**沒有 JPEG 項、沒有頻域項、沒有 TV 或
+平滑正則**。全部機制在 Algorithm 1。
+
+**具體運算**：每一次迭代
+1. 雙線性**降取樣** `x̃_{t−1} = I(x_{t−1}, f_inter)`，f_inter < 1；
+2. **在半解析度上**算 sign 梯度並走一步 `x̃_t = x̃_{t−1} − β · sign(∇_x̃ L)`；
+3. 雙線性**升取樣**回原尺寸 `x_t = I(x̃_t, 1/f_inter)`。
+
+擾動因此被限制在「半解析度可表示」的子空間裡，天生沒有高頻——而高頻正是 JPEG
+量化丟掉的部分。
+
+**超參數**：f_inter = 1/2、N_max = 10、β = 1.0、ε = 10（0–255 的 L∞）。f_inter
+的掃描峰值就在 1/2；`1/f_inter > 2` 之後 ASR 不穩且只是增加計算量。
+
+**兩個瑕疵，移植時必須寫進 docstring**：
+- Algorithm 1 **沒有投影回 ε 球、也沒有 clamp 到值域**，儘管 Eq. 1 寫了該約束。
+- 結論段寫「decrease the **low**-frequency signals」，與摘要與方法的 high-frequency
+  相反，是論文自身的筆誤。
+
+**抗淨化測試**：只有 JPEG，QF = 25／50／75（另有 10–90 的曲線）。無 blur、無 crop。
+
+**報的數字**（CelebA-HQ，IRSE50 為代理模型，黑箱 ASR，「基線 / 基線+IAM」）：
+QF = 50 時 BIM 對 IR152 是 31.1 / 49.0、DI 是 19.2 / 59.6；QF = 25 時 DI 對
+FaceNet 是 4.2 / 32.0。不壓縮時也有提升（BIM 對 IR152 40.3 / 56.3），即它並非
+只在壓縮下有效。
+
+**與本專案的關係**：這是「在 upsampling 上下功夫」的具體形式，是目前唯一指向
+**blur 欄**的未試機制——blur 是純低通，只用半解析度表示的擾動照理穿得過去。
+但它**救不了 crop**：crop-resize 的失效來自空間不對齊，不是頻率內容。
+
+移植不能照抄：本方法的擾動不是加性的，是窗化 FFT 上的相位旋轉，「把影像降解析度
+再走一步」對不上參數化。對應的作法是**把 θ 參數化在半解析度網格上、雙線性升取樣
+成全解析度的 θ**——動的是參數化，不是損失。
+
+---
+
+### 1.15 JPEG-resistant Adversarial Images（Shin & Song）
+
+| 項目 | 內容 |
+|---|---|
+| 作者 | Richard Shin, Dawn Song（UC Berkeley） |
+| 發表 | NIPS 2017 Workshop on Machine Learning and Computer Security |
+| 全文 | [mlsec17_paper_54.pdf](https://machine-learning-and-security.github.io/papers/mlsec17_paper_54.pdf) |
+| 狀態 | **核心已實作**：`src/baselines/jpeg_codec.py` 的 `quantize_ste`／`jpeg_roundtrip_ste` |
+
+**可微分 JPEG**：整條管線（色彩空間轉換、4:2:0 次取樣以 2×2 平均池化實作、
+8×8 DCT、量化表、解碼）都用可微分算子重寫，唯一不可微的 `round()` 用
+
+    ⌊x⌉_approx = ⌊x⌉ + (x − ⌊x⌉)³
+
+取代——處處有非零導數，最大誤差 0.125，發生在 n + 0.5。
+
+**與本專案實作的差別**：本專案用的是**直通估計**
+（`q + (round(q) − q).detach()`），前向值逐位元等於真的 `round`，反向當恆等。
+兩者都能通梯度，但直通估計在**前向值上更忠實**——這對本專案是必要的，因為
+`--deliver-jpeg` **交付的就是真的量化影像**，前向若與真實 JPEG 有 0.125 的偏差，
+最佳化看到的與交付出去的就不是同一張圖。故此處不改採論文的三次式。
+
+**本專案尚未採用的部分——多品質集成**。論文明說單一品質的最佳化會過度特化
+（Table 1 第 16 列：只對 q = 25 最佳化的攻擊不轉移）。它的作法是對
+q ∈ {25, 50, 75, ∞}（∞ 表示不壓縮）四個模型集成，梯度以損失大小加權：
+
+    Σᵢ ( 1 − exp(Lᵢ) / Σⱼ exp(Lⱼ) ) · ∇_{x'} Lᵢ ,   Lᵢ = ℓ(C(x), C(JPEG_diff(x', qᵢ)))
+
+損失小的那一項拿到較大的權重。標題的 691× 就是集成相對單一品質的差距
+（ε = 7/255，對 q = 25 的防禦，成功率 0.1% → 69.1%）。
+
+**設定**：ResNet-50、ILSVRC 2012 前 1000 張、224×224 單裁切；防禦端用真的 JPEG
+（非近似）評測。
+
+**與本專案的關係**：`--deliver-jpeg 0.85` 正是**單一品質**，論文預言的過度特化在
+本專案的資料上看得到——十張的淨增益從 jpeg75 的 0.4370 一路掉到 jpeg30 的 0.2087。
+可移植的一刀是把集成放在**損失**上（多個 q 加上一個不壓縮），交付仍只能落在單一
+格點（本方法交付的是真的量化影像，沒辦法同時落在多個格點）。
+
+---
+
 ## 第二節 抗淨化：淨化側與防禦側的攻防
 
 ### 2.1 DiffPure: Diffusion Models for Adversarial Purification
@@ -834,6 +998,9 @@ DCT／DWT 等實數變換無幅度／相位分解，記為「不適用」。
 | Perturbing the Phase（2026） | 逐像素複數相位 | **否**（相位旋轉） | **是**（逐點） | 未測 | 否（複數值資料、分類任務）；但**約束式可借用** |
 | Black-box phase attacks（JEI 2025） | 傅立葉相位 | 否 | 未查證 | 未查證 | 否 |
 | DDAP（IJCB 2024） | 未查證 | 未查證 | 未查證 | 未查證 | 否（anti-personalization） |
+| 跨影像抗 JPEG 浮水印（CVIU 2025） | JPEG 量化 DCT（僅 Y 通道） | 是（係數域 ε 球） | 不適用 | **只有 JPEG**（Q 曲線，主表 Q=75） | 否（GAN 人臉屬性編輯）；**訓練品質低於攻擊品質這一招可借用** |
+| IAM 內插平滑（arXiv:2402.16586） | 無（半解析度上做 PGD） | 是 | 不適用 | **只有 JPEG**（QF 25/50/75） | 否（人臉辨識）；**半解析度參數化可借用，是唯一指向 blur 的機制** |
+| JPEG-resistant Adversarial Images（MLSec 2017） | 可微分 JPEG（DCT 量化） | 是（ℓ∞） | 不適用 | **只有 JPEG**（q 25/50/75 與集成） | 否（ImageNet 分類）；**多品質集成尚未採用，可微分往返已實作** |
 | MetaCloak-JPEG（2026） | 可微分 JPEG（DCT 量化） | 是（ℓ∞ 8/255） | 不適用 | 9 個 JPEG 品質因子 | 否（DreamBooth 任務）；**最佳化技巧可借用** |
 | MetaCloak（CVPR 2024） | 無（變換取樣） | 是 | 不適用 | 變換取樣、Gaussian filtering | 否（DreamBooth 任務） |
 | 低頻臉部交換擾動（IJCNN 2025） | DWT 低頻 | 是（未完全查證） | 不適用 | 未查證 | 否（GAN face swap） |

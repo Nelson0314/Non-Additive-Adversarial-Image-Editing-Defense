@@ -1,0 +1,35 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00, 14.00it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 2974.18it/s]
+Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 14.80it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 14.71it/s]
+There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+
+########## musk_00 「a man wearing a green turtleneck sweater」 ##########
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 10494.73it/s]
+[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
+[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
+Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights:  68%|██████▊   | 278/408 [00:00<00:00, 2779.60it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 2631.21it/s]
+  s0.55_g7.5  CLIP 0.2198 -> 0.2261 (+0.0063)
+  s0.7_g7.5  CLIP 0.2198 -> 0.2377 (+0.0179)
+  s0.8_g7.5  CLIP 0.2198 -> 0.2380 (+0.0183)
+  s0.8_g12  CLIP 0.2198 -> 0.2453 (+0.0255)
+  s0.9_g12  CLIP 0.2198 -> 0.2603 (+0.0405)
+
+########## parrot_00 「a parrot wearing a tiny straw hat」 ##########
+  s0.55_g7.5  CLIP 0.2937 -> 0.3173 (+0.0237)
+  s0.7_g7.5  CLIP 0.2937 -> 0.3150 (+0.0213)
+  s0.8_g7.5  CLIP 0.2937 -> 0.3134 (+0.0197)
+  s0.8_g12  CLIP 0.2937 -> 0.3175 (+0.0238)
+  s0.9_g12  CLIP 0.2937 -> 0.3207 (+0.0270)
+
+########## trump_00 「a man wearing a brown leather jacket」 ##########
+  s0.55_g7.5  CLIP 0.2161 -> 0.2143 (-0.0018)
+  s0.7_g7.5  CLIP 0.2161 -> 0.2137 (-0.0025)
+  s0.8_g7.5  CLIP 0.2161 -> 0.2810 (+0.0649)
+  s0.8_g12  CLIP 0.2161 -> 0.2748 (+0.0587)
+  s0.9_g12  CLIP 0.2161 -> 0.2980 (+0.0818)

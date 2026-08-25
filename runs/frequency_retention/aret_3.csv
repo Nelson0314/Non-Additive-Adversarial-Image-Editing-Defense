@@ -1,0 +1,6 @@
+image,condition,budget_target,purifier,effect_mean,effect_sd,effect_identity_mean,effect_identity_sd,retention,edit_strength,usable,seconds
+parrot_00,dct_shield,native,identity,0.50216,0.03537,0.50216,0.03537,1.0,0.7,True,211.7
+parrot_00,dct_shield,native,blur1,0.22501,0.03898,0.50216,0.03537,0.44808,0.7,True,211.7
+parrot_00,dct_shield,native,jpeg75,0.11342,0.09595,0.50216,0.03537,0.22586,0.7,True,211.7
+parrot_00,dct_shield,native,crop_resize0.1,0.55672,0.03441,0.50216,0.03537,1.10863,0.7,True,211.7
+parrot_00,dct_shield,native,gridpure,0.2248,0.05644,0.50216,0.03537,0.44767,0.7,True,211.7

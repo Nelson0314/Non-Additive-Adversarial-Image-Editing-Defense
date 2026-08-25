@@ -1,0 +1,11 @@
+image,condition,budget_target,purifier,effect_mean,effect_sd,effect_identity_mean,effect_identity_sd,retention,siglip_sim,siglip_blocked,edit_strength,usable,seconds
+task_obj_add_40931,phase_gain,native,identity,0.7737,0.01217,0.7737,0.01217,1.0,0.67674,True,0.8,True,284.5
+task_obj_add_40931,phase_gain,native,gridpure,0.48401,0.01656,0.7737,0.01217,0.62558,0.76204,True,0.8,True,284.5
+task_obj_remove_380621,phase_gain,native,identity,0.74957,0.02833,0.74957,0.02833,1.0,0.72458,True,0.8,True,267.2
+task_obj_remove_380621,phase_gain,native,gridpure,0.49124,0.05038,0.74957,0.02833,0.65536,0.83909,False,0.8,True,267.2
+task_obj_swap_joint_mask_276754,phase_gain,native,identity,0.55317,0.17511,0.55317,0.17511,1.0,0.8403,False,0.8,True,267.0
+task_obj_swap_joint_mask_276754,phase_gain,native,gridpure,0.39575,0.13837,0.55317,0.17511,0.71543,0.89549,False,0.8,True,267.0
+task_obj_swap_joint_mask_533428,phase_gain,native,identity,0.64721,0.03203,0.64721,0.03203,1.0,0.61589,True,0.8,True,267.3
+task_obj_swap_joint_mask_533428,phase_gain,native,gridpure,0.5615,0.01805,0.64721,0.03203,0.86757,0.77767,True,0.8,True,267.3
+task_obj_swap_rand_mask_417469,phase_gain,native,identity,0.74482,0.06125,0.74482,0.06125,1.0,0.51198,True,0.8,True,266.9
+task_obj_swap_rand_mask_417469,phase_gain,native,gridpure,0.49229,0.00415,0.74482,0.06125,0.66095,0.75566,True,0.8,True,266.9

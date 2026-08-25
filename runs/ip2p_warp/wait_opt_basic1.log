@@ -1,0 +1,7 @@
+Mon Aug 24 07:09:03 PM CST 2026 [basic-1] 空卡 [6]，不足 2 張，等 240 秒
+Mon Aug 24 07:13:04 PM CST 2026 [basic-1] 取得空卡 [1 4]，送出 opt
+[warp] opt_r3 cond=warp radius=3 dev=1 pid=424260
+[warp] opt_r4 cond=warp radius=4 dev=1 pid=424264
+[warp] opt_r6 cond=warp radius=6 dev=4 pid=424268
+[warp] opt_r8 cond=warp radius=8 dev=4 pid=424272
+[warp] 全部送出（Mon Aug 24 07:13:04 PM CST 2026），共 4 個 process

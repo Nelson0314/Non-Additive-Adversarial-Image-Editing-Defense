@@ -1,0 +1,214 @@
+<title>量化交付頭對頭</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Serif:wght@400;600&display=swap">
+<style>
+:root{
+  --ink:#14101A; --ink-2:#4A4353; --ink-3:#736B7E;
+  --paper:#F1ECEF; --surface:#FCFAFB; --line:#DCD3D9; --line-2:#C6BAC3;
+  --accent:#B01455; --accent-soft:#F6E4EC; --alt:#0E6E78; --alt-soft:#E2F1F2;
+  --good:#15803D; --bad:#A61B1B; --warn:#8A5D00;
+  --shadow:0 1px 2px rgba(20,16,26,.06),0 8px 24px rgba(20,16,26,.05);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ink:#EDE7EC; --ink-2:#B3A9B6; --ink-3:#8A8090;
+    --paper:#131017; --surface:#1B1620; --line:#2E2733; --line-2:#443B4A;
+    --accent:#F2679F; --accent-soft:#39132A; --alt:#5FC7D0; --alt-soft:#0F2B2E;
+    --good:#5CC98A; --bad:#F08585; --warn:#E0AE4A;
+    --shadow:0 1px 2px rgba(0,0,0,.5),0 10px 28px rgba(0,0,0,.4);
+  }
+}
+:root[data-theme="dark"]{
+  --ink:#EDE7EC; --ink-2:#B3A9B6; --ink-3:#8A8090;
+  --paper:#131017; --surface:#1B1620; --line:#2E2733; --line-2:#443B4A;
+  --accent:#F2679F; --accent-soft:#39132A; --alt:#5FC7D0; --alt-soft:#0F2B2E;
+  --good:#5CC98A; --bad:#F08585; --warn:#E0AE4A;
+  --shadow:0 1px 2px rgba(0,0,0,.5),0 10px 28px rgba(0,0,0,.4);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:"IBM Plex Serif",Georgia,"Songti TC","Noto Serif TC",serif;
+  font-size:17px;line-height:1.72;-webkit-font-smoothing:antialiased}
+.mono{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace}
+h1,h2,h3,h4{font-family:Archivo,"Helvetica Neue",Arial,"PingFang TC","Noto Sans TC",sans-serif;
+  text-wrap:balance;letter-spacing:-.015em}
+.wrap{max-width:1200px;margin:0 auto;padding:0 24px}
+/* 對比圖那一節要放原生 512 的五欄（2600 px 以上），不能被 1200 卡住 */
+.figsec .wrap{max-width:2760px}
+.col{max-width:68ch}
+.lattice{background-image:radial-gradient(var(--line-2) 1px,transparent 1px);
+  background-size:12px 12px}
+header{border-bottom:1px solid var(--line);background:var(--surface)}
+header .wrap{padding:52px 24px 36px}
+.eyebrow{font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--accent);margin:0 0 14px}
+h1{font-size:clamp(34px,5.2vw,54px);line-height:1.06;font-weight:700;margin:0 0 18px}
+.lede{font-size:20px;line-height:1.6;color:var(--ink-2);margin:0;max-width:62ch}
+.meta{display:flex;flex-wrap:wrap;gap:8px 28px;margin-top:26px;
+  font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--ink-3)}
+.meta b{color:var(--ink-2);font-weight:500}
+section{padding:52px 0;border-bottom:1px solid var(--line)}
+h2{font-size:26px;font-weight:600;margin:0 0 6px}
+.sub{font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--ink-3);
+  margin:0 0 24px;letter-spacing:.02em}
+p{margin:0 0 16px}
+.scroll{overflow-x:auto;margin:20px 0;border:1px solid var(--line);border-radius:10px;
+  background:var(--surface);box-shadow:var(--shadow)}
+table{border-collapse:collapse;width:100%;font-family:"IBM Plex Mono",monospace;
+  font-size:13px;font-variant-numeric:tabular-nums;white-space:nowrap}
+th,td{padding:10px 13px;text-align:right;border-bottom:1px solid var(--line)}
+th{font-weight:600;font-size:11px;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--ink-3);background:var(--paper)}
+th:first-child,td:first-child{text-align:left;white-space:normal;min-width:210px}
+tbody tr:last-child td{border-bottom:none}
+tr.ours td:first-child{box-shadow:inset 3px 0 0 var(--accent);font-weight:600}
+tr.rival td:first-child{box-shadow:inset 3px 0 0 var(--alt)}
+td.best{color:var(--good);font-weight:600;background:var(--accent-soft)}
+tr.dim td{opacity:.55}
+.partial{font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--warn);
+  font-weight:500;white-space:nowrap}
+td.vnote{text-align:left;white-space:normal;min-width:280px;font-size:12px;
+  color:var(--ink-2);font-family:"IBM Plex Serif",serif;line-height:1.5}
+tr.rival td.best{background:var(--alt-soft)}
+caption{caption-side:bottom;text-align:left;padding:12px 13px;font-size:13.5px;
+  line-height:1.55;color:var(--ink-2);font-family:"IBM Plex Serif",serif;white-space:normal}
+.note{background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--accent);
+  border-radius:0 10px 10px 0;padding:18px 22px;margin:24px 0;max-width:74ch}
+.note h4{font-size:14px;margin:0 0 8px;color:var(--accent)}
+.note p{font-size:15px;line-height:1.6;color:var(--ink-2);margin:0 0 10px}
+.note p:last-child{margin:0}
+.note .eq{font-family:"IBM Plex Mono",monospace;font-size:13px;color:var(--ink);
+  background:var(--accent-soft);padding:10px 12px;border-radius:6px;
+  display:block;overflow-x:auto;white-space:pre}
+.strip{margin:0 0 34px;padding:0 0 26px;border-bottom:1px solid var(--line)}
+.strip:last-child{border-bottom:none}
+.strip-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin:0 0 12px}
+.strip-head .id{font-size:13px;font-weight:600;color:var(--ink-2)}
+.strip-head .prompt{font-size:14.5px;color:var(--accent);font-style:italic}
+.cond{margin:0 0 14px}
+.condname{font-family:Archivo,sans-serif;font-size:13px;font-weight:600;
+  color:var(--ink-3);margin:0 0 6px}
+/* 五欄並排、**影像維持原生尺寸不縮放**。`auto` 而不是 `1fr`：`1fr` 會把
+   512 的圖壓成欄寬，那正是判定會出錯的地方。 */
+.grid5{display:grid;grid-template-columns:repeat(5,auto);gap:10px;
+  justify-content:start}
+.cell{margin:0}
+.cell img{display:block;border-radius:6px;border:1px solid var(--line);
+  background:var(--paper);image-rendering:auto}
+.cell figcaption{font-family:"IBM Plex Mono",monospace;font-size:10.5px;
+  color:var(--ink-3);margin-top:5px}
+.cell:last-child img{border-color:var(--accent);border-width:2px}
+.figscroll{overflow-x:auto;padding-bottom:6px}
+footer{padding:38px 0 60px;color:var(--ink-3);font-size:13px}
+footer .wrap{display:flex;flex-wrap:wrap;gap:10px 30px}
+@media (max-width:620px){body{font-size:16px}}
+@media (prefers-reduced-motion:no-preference){
+  .cell img{transition:transform .18s ease}
+  .cell img:hover{transform:scale(1.02)}
+}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:3px}
+</style>
+
+<header class="lattice"><div class="wrap">
+  <p class="eyebrow">白盒抗文字編輯防禦 · 主線頭對頭</p>
+  <h1>量化交付頭對頭</h1>
+  <p class="lede">本方法（交付前先壓成 JPEG，讓擾動落在量化格點上）對 DCT-Shield
+    的原生與抗 JPEG 設定，九個淨化算子，全部用扣掉空白地板的淨增益比較。</p>
+  <div class="meta">
+    <span><b>資料</b> OmniEdit __NIMG__ 張，人眼確認服從</span>
+    <span><b>攻擊</b> InstructPix2Pix</span>
+    <span><b>比較</b> 淨增益（差值），不用比例</span>
+    <span><b>證據</b> runs/ip2p_mainline</span>
+  </div>
+</div></header>
+
+<section><div class="wrap">
+  <h2>防禦圖付了多少失真</h2>
+  <p class="sub">__NIMG__ 張平均 · 綠色是該欄最好的一格</p>
+  __FIDELITY__
+  <p class="col" style="font-size:14.5px;color:var(--ink-3)">
+    DISTS 是本專案的主要失真軸；LPIPS 與它對同一組影像的判定經常相反，故兩者
+    並列。L∞ 與 RMS 抓得到非加性方法上 LPIPS 會低估的那一部分。</p>
+</div></section>
+
+<section><div class="wrap">
+  <h2>編輯輸出被推開多少</h2>
+  <p class="sub">未淨化 · 位移五項 ＋ 兩個語意讀數</p>
+  __EDIT__
+  <div class="note">
+    <h4>語意指標比對的是什麼</h4>
+    <p><strong>兩張編輯輸出之間的影像—影像餘弦，完全沒有用到文字。</strong></p>
+    <span class="eq">edit_clip_sim   = cos( CLIP_image(未防禦的編輯),  CLIP_image(防禦後的編輯) )
+edit_siglip_sim = cos( SigLIP_image(同上兩張) )</span>
+    <p>模型是 <span class="mono">openai/clip-vit-base-patch32</span> 與
+      <span class="mono">google/siglip-base-patch16-224</span>。
+      <strong>數值越低代表防禦越成功</strong>——內容被換掉了。</p>
+    <p>影像對<em>文字</em>那條路已經棄用：OmniEdit 給的是<strong>指令</strong>不是
+      描述，那條路徑在本專案的服從率驗收上近乎隨機（25 張只有 15/25 為正）。
+      所以這兩欄<strong>不是</strong>拿編輯指令當文字端算出來的。</p>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <h2>抗淨化的淨增益</h2>
+  <p class="sub">扣掉空白地板 · 九個算子 · 綠色是該欄最好的一格</p>
+  __GAIN__
+  <div class="note">
+    <h4>為什麼是淨增益不是比例</h4>
+    <p>淨化算子<strong>自己</strong>就會把編輯推開。不扣掉那個空白地板，
+      「淨化後位移較大」無法排除「該算子本來就把編輯推得比較開」這個平庸解釋。</p>
+    <p>而比例（保留率）在分母塌陷時不可解讀——本專案量到保留率與分母的相關係數
+      是 −0.83／−0.900。本批有多個弱工作點，分母塌陷不是理論上的顧慮。</p>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <h2>人眼判定：淨增益的倍數不等於防禦成功</h2>
+  <p class="sub">逐張看過原生 512 的大圖 · 判準：原圖還認得出來嗎</p>
+  <div class="scroll"><table>
+    <thead><tr><th>淨化</th><th>條件</th><th>淨增益</th><th>擋下</th><th>邊緣</th>
+      <th>逐張</th></tr></thead>
+    <tbody>__VERDICT__</tbody>
+    <caption><b>這是本次實驗最重要的一件事。</b>重壓縮（jpeg50／jpeg30）上本方法的淨增益
+      贏 2.2–3.7 倍，但那個區間<b>兩邊都是 0/10</b>——編輯全部執行成功、場景全部可辨，
+      差的只是劣化程度。<b>唯一還有真正擋下的是 jpeg75，而那一格本方法輸</b>
+      （淨增益 0.4072 對 0.4533，擋下 0 對 2）。位移這個讀數把「變糊」與「重畫」算成
+      同一件事，在強淨化後兩邊都只剩劣化，倍數差是在雜訊層級上比出來的。</caption>
+  </table></div>
+  <div class="note">
+    <h4>判準</h4>
+    <p>模型把圖重畫成無關的場景、或整張變成噪紋，都算<strong>擋下</strong>；原圖仍認得
+      出來、只是變糊變髒的<strong>單純劣化不算</strong>——攻擊方還是拿得到可用的東西。</p>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <h2>編輯指令</h2>
+  <p class="sub">攻擊方餵給 InstructPix2Pix 的那一句話</p>
+  <div class="scroll"><table>
+    <thead><tr><th>#</th><th>影像</th><th>指令</th></tr></thead>
+    <tbody>__PROMPTS__</tbody>
+    <caption><b>指令的型態決定服從率</b>，這是選圖的主要判準。實測（25 張）：
+      改顏色 5/5、換物件 3/5、換場景 3/5、加物件 1/5、移除物件 1/5。
+      本批的十張全部經逐張人眼確認過「未防禦的編輯真的執行了指令」。</caption>
+  </table></div>
+</div></section>
+
+<section class="figsec"><div class="wrap">
+  <h2>逐張對比</h2>
+  <p class="sub">原圖 → 原圖的編輯 → 防禦圖 → 防禦圖被 __PURIFIER__ 淨化 → 淨化後的編輯</p>
+  <p class="col">最後一欄才是判「擋下與否」的那一格。判準是<strong>原圖還認得出來嗎</strong>
+    ——重畫成無關場景或整張變噪都算擋下，單純變糊變髒的「劣化」不算，因為攻擊方
+    還是拿得到可用的東西。第二欄是參照點：沒有它就看不出模型本來會把這張圖畫成什麼樣。</p>
+  <p class="col mono" style="font-size:13px;color:var(--ink-3)">
+    頁面上的圖為顯示而重新編碼；原生 512、不縮放的大圖在
+    runs/ip2p_mainline/sheets/。</p>
+  <div class="figscroll">__FIGURES__</div>
+</div></section>
+
+<footer><div class="wrap">
+  <span class="mono">runs/ip2p_mainline</span>
+  <span class="mono">runs/ip2p_mainline_purify</span>
+  <span>尚未進入 RESULTS.md 與 DECISIONS.md，等裁定</span>
+</div></footer>

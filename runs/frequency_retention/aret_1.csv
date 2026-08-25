@@ -1,0 +1,11 @@
+image,condition,budget_target,purifier,effect_mean,effect_sd,effect_identity_mean,effect_identity_sd,retention,edit_strength,usable,seconds
+cat_00,dct_shield,native,identity,0.35197,0.05836,0.35197,0.05836,1.0,0.7,True,211.1
+cat_00,dct_shield,native,blur1,0.14412,0.03242,0.35197,0.05836,0.40946,0.7,True,211.1
+cat_00,dct_shield,native,jpeg75,0.02596,0.00488,0.35197,0.05836,0.07376,0.7,True,211.1
+cat_00,dct_shield,native,crop_resize0.1,0.44703,0.05045,0.35197,0.05836,1.27007,0.7,True,211.1
+cat_00,dct_shield,native,gridpure,0.15496,0.04251,0.35197,0.05836,0.44025,0.7,True,211.1
+person_c_00,dct_shield,native,identity,0.53483,0.09003,0.53483,0.09003,1.0,0.7,True,203.9
+person_c_00,dct_shield,native,blur1,0.30743,0.11196,0.53483,0.09003,0.57482,0.7,True,203.9
+person_c_00,dct_shield,native,jpeg75,0.22844,0.07485,0.53483,0.09003,0.42712,0.7,True,203.9
+person_c_00,dct_shield,native,crop_resize0.1,0.51819,0.03292,0.53483,0.09003,0.96887,0.7,True,203.9
+person_c_00,dct_shield,native,gridpure,0.28521,0.07842,0.53483,0.09003,0.53326,0.7,True,203.9

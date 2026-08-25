@@ -49,11 +49,21 @@ DEVS=(${1:-0 1 2})
 # 工作點必填。沒有合理的預設——它取決於前半段量到的失真，猜一個等於偽造對齊。
 TAGS=(${2:-})
 if [ ${#TAGS[@]} -eq 0 ]; then
-  echo "用法：$0 \"<卡號>\" \"<tag1> <tag2> ...\"" >&2
+  echo "用法：$0 \"<卡號>\" \"<tag1> <tag2> ...\" [\"<分片>\"]" >&2
   echo "可選的 tag（先看它們的 fDISTS 再挑）：" >&2
   ls -1 "$SRCROOT" 2>/dev/null | sed 's/^/    /' >&2
   exit 2
 fi
+
+# 要跑哪幾片。分片名只能是 color / scene / object——`retention_table.py` 的
+# `tag_of()` 由檔名還原條件標籤，別的名字會拋錯。給子集是為了在卡不足時分兩
+# 批送：每一片自己寫一個檔，分開送與一起送的產物完全相同。
+SHARDS=(${3:-color scene object})
+for sh in "${SHARDS[@]}"; do
+  case "$sh" in color|scene|object) ;; *)
+    echo "錯誤：分片名只能是 color / scene / object，收到 $sh" >&2; exit 2 ;;
+  esac
+done
 
 # 十三張人眼確認服從的影像（runs/ip2p_fair_comparison/images13.txt），
 # 分片依任務族群切，不用流水號。
@@ -61,9 +71,19 @@ COLOR="task_attr_mod_color_11699 task_attr_mod_color_136767 task_attr_mod_color_
 SCENE="task_env_weather_112463 task_env_weather_246440 task_env_weather_63722"
 OBJECT="task_obj_add_40931 task_obj_remove_380621 task_obj_swap_joint_mask_276754 task_obj_swap_joint_mask_533428 task_obj_swap_rand_mask_417469"
 
-# 與 scripts/purify_headtohead.sh 同一組算子——換一組就不能跟現有的列並排。
-# impress 佔一格約 82% 的機時，兩支都另外補跑。
-PUR="identity blur1 jpeg75 jpeg30 crop_resize0.1 jpeg_then_resize75 adverse_cleaner gridpure"
+# 與 scripts/purify_headtohead.sh 現有的列同一組算子——換一組就不能並排。
+#
+# **這一批不含 gridpure，但那是排程上的取捨，不是它沒有地板。**
+# 遠端實測：五個條件的分片與重跑後的地板都**有** gridpure（驅動已 export
+# `DIFFPURE_CKPT`，早先「被判相依不齊而靜默跳過」的狀態已經不成立），只有
+# `floor_all.csv` 這個被中止的舊分片與 `ours_nonadd_scene.csv`（OOM 那一格）
+# 是七個。
+#
+# 這裡先不跑它的理由是機時：gridpure 是擴散式淨化，而這一批擋在決定論文重心
+# 的那一格前面（JPEG 頭對頭）。JPEG 那一欄不需要 gridpure。**跑完之後要用
+# `scripts/purify_gridpure.sh` 對新的 tag 補這一欄**，否則頭對頭表上新條件會
+# 缺一格而其他條件有。impress 同理，另外補跑。
+PUR="identity blur1 jpeg75 jpeg30 crop_resize0.1 jpeg_then_resize75 adverse_cleaner"
 COMMON="--data data/omniedit150 --attacker ip2p --seeds 3 --purifiers $PUR"
 
 # 前半段沒跑完的 tag 一律報錯，不跳過：那是打錯字或批次沒跑完，兩者都不該
@@ -96,6 +116,25 @@ fi
 NFLOOR=$(tail -q -n +2 "${FLOORS[@]}" | cut -d, -f1 | sort -u | wc -l)
 echo "[antijpeg] 地板現有 $NFLOOR/13 張（${#FLOORS[@]} 個分片）；不足的格子 retention_table.py 會排除並回報"
 
+# 每卡最多兩個 process（`docs/OPERATIONS.md`）。**launch 數超過 卡數×2 時
+# 必須拒絕**，不可讓卡號公式繞回去疊加——實測疊到四個就整批 CUDA OOM。
+require_slots() {
+  local n_points="$1" n_devs="$2"
+  if [ "$n_points" -gt $(( n_devs * 2 )) ]; then
+    echo "錯誤：$n_points 個 process 需要至少 $(( (n_points + 1) / 2 )) 張卡，" >&2
+    echo "      只給了 $n_devs 張。每卡最多 2 個 process。" >&2
+    exit 2
+  fi
+}
+
+# 一個 tag 三片。
+# **別人的卡一律不碰**。這一道是**強制**的，不是提醒——列印了卻不擋等於沒擋
+# （實測踩過兩次：一次只讀 nvidia-smi 的前三行，一次等待器印了空卡清單卻沒有
+# 依它決定要不要送）。任何一張指定的卡上有別人的 process 就直接拒絕啟動。
+bash scripts/free_cards.sh --assert "${DEVS[*]}" || exit 3
+
+require_slots "$(( ${#TAGS[@]} * ${#SHARDS[@]} ))" "${#DEVS[@]}"
+
 i=0
 launch() {   # $1 tag  $2 shard  $3 imgs
   local dev=${DEVS[$(( i / 2 % ${#DEVS[@]} ))]}
@@ -107,8 +146,11 @@ launch() {   # $1 tag  $2 shard  $3 imgs
 }
 
 for tag in "${TAGS[@]}"; do
-  launch "$tag" color  "$COLOR"
-  launch "$tag" scene  "$SCENE"
-  launch "$tag" object "$OBJECT"
+  for shard in "${SHARDS[@]}"; do
+    case $shard in
+      color) imgs="$COLOR" ;; scene) imgs="$SCENE" ;; object) imgs="$OBJECT" ;;
+    esac
+    launch "$tag" "$shard" "$imgs"
+  done
 done
 echo "[antijpeg] 全部送出（$(date)），共 $i 個 process"

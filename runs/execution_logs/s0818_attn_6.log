@@ -1,0 +1,27 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3213.11it/s]
+Loading pipeline components...:  17%|█▋        | 1/6 [00:00<00:00,  5.67it/s]Loading pipeline components...:  67%|██████▋   | 4/6 [00:00<00:00, 15.33it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 16.11it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 14.62it/s]
+There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+
+########## parrot_00 (parrot) [loss=attn] ##########
+=== parrot_00 / add__human ===
+Loading pretrained model NIMA from /nfs/home/nelson0314/.cache/torch/hub/pyiqa/NIMA_InceptionV2_ava-b0c77c00.pth
+Loading pretrained model CNNIQA from /nfs/home/nelson0314/.cache/torch/hub/pyiqa/CNNIQA_koniq10k-e6f14c91.pth
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 8593.03it/s]
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 9725.78it/s]
+[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
+[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
+Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights:  75%|███████▌  | 307/408 [00:00<00:00, 3052.53it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 3025.15it/s]
+{'image': 'parrot_00', 'condition': 'add', 'prompt_index': 0, 'prompt': 'a parrot perched on a branch in a rainforest', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'loss': 'attn', 'random_start': False, 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.01669, 'unreachable': False, 'radius': 0.00471, 'total_seconds': 68.7, 'fid_lpips': 0.175, 'fid_ssim': 0.9956, 'fid_dists': 0.0167, 'fid_psnr': 48.7164, 'fid_clip_img': 0.9728, 'fid_nima': 5.6319, 'fid_cnniqa': 0.7002, 'edit_lpips': 0.2828, 'edit_clip_orig': 0.2992, 'edit_clip_def': 0.2965, 'edit_clip_drop': 0.0027, 'edit_siglip_orig': 0.1067, 'edit_siglip_def': 0.0883, 'edit_siglip_drop': 0.0185}
+=== parrot_00 / phase__human ===
+{'image': 'parrot_00', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a parrot perched on a branch in a rainforest', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'loss': 'attn', 'random_start': False, 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.03816, 'unreachable': False, 'radius': 1.3, 'total_seconds': 48.4, 'fid_lpips': 0.0788, 'fid_ssim': 0.976, 'fid_dists': 0.0382, 'fid_psnr': 35.1886, 'fid_clip_img': 0.9937, 'fid_nima': 5.468, 'fid_cnniqa': 0.6668, 'edit_lpips': 0.0955, 'edit_clip_orig': 0.2992, 'edit_clip_def': 0.2979, 'edit_clip_drop': 0.0013, 'edit_siglip_orig': 0.1067, 'edit_siglip_def': 0.1079, 'edit_siglip_drop': -0.0012, 'amp_dev': 0.01006, 'active_fraction': 0.3366}
+=== parrot_00 / phase_rand__human ===
+{'image': 'parrot_00', 'condition': 'phase_rand', 'prompt_index': 0, 'prompt': 'a parrot perched on a branch in a rainforest', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'loss': 'attn', 'random_start': False, 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.03555, 'unreachable': False, 'radius': 1.3, 'total_seconds': 11.0, 'fid_lpips': 0.0485, 'fid_ssim': 0.9791, 'fid_dists': 0.0356, 'fid_psnr': 36.1002, 'fid_clip_img': 0.9943, 'fid_nima': 5.1678, 'fid_cnniqa': 0.6693, 'edit_lpips': 0.0427, 'edit_clip_orig': 0.2992, 'edit_clip_def': 0.2989, 'edit_clip_drop': 0.0004, 'edit_siglip_orig': 0.1067, 'edit_siglip_def': 0.1067, 'edit_siglip_drop': 0.0, 'amp_dev': 0.0098, 'active_fraction': 0.3366}
+
+表：runs/s0818_attn_6/results.csv

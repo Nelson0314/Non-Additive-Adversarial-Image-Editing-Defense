@@ -410,6 +410,7 @@ class PhaseResidual(ResidualModule):
         spectral_floor: float = 0.0,
         floor_gate: str = "uniform",
         theta_budget: float = 0.0,
+        coarsen: int = 1,
     ):
         super().__init__()
         if block % 2 != 0:
@@ -533,25 +534,55 @@ class PhaseResidual(ResidualModule):
                 f"邊緣會被靜默丟棄"
             )
         side = (padded - block) // hop + 1
+        self.side = side
         self.n_blocks = side * side
         self.padded = padded
 
+        # 三個空間場（theta／gain／floor）的**視窗網格解析度**。1 = 每個視窗
+        # 一組獨立參數，逐位元等於加這個旋鈕之前。k > 1 時參數只存在
+        # `ceil(side/k)` 見方的粗網格上，前向再雙線性升取樣回 `side` 見方。
+        #
+        # 為什麼：本方法的 hop = 8、block = 32，每個像素被 16 個視窗覆蓋。
+        # 相鄰視窗的旋轉角互相獨立時，那 16 份貢獻彼此不同調，重疊相加會在
+        # 選定的頻格之外攤出一層**寬頻**能量——那正是 JPEG 量化最先丟掉的
+        # 部分。強制相鄰視窗的角度平滑變化使那 16 份貢獻同調，能量回到被選中
+        # 的頻格上。
+        #
+        # **與 IAM（arXiv:2402.16586）的差別必須寫清楚。** IAM 是把**影像**
+        # 降解析度、在該解析度上走梯度、再升回去，於是擾動本身沒有高頻。本處
+        # 平滑的是**視窗網格上的旋轉角**，管的是擾動的空間包絡是否連續，
+        # 而不是視窗**內**的頻率成分（後者由徑向帶通 `r_min`／`r_max` 決定，
+        # 不受本旋鈕影響）。兩者的動機同源、機制不同，不可互相代稱。
+        if coarsen < 1 or coarsen != int(coarsen):
+            raise ValueError(f"coarsen 必須是 >= 1 的整數，收到 {coarsen}")
+        coarsen = int(coarsen)
+        if coarsen > 1 and theta_budget > 0:
+            # `theta_cap` 是逐（視窗, 頻格）由該處幅度算出的上限，形狀在
+            # **細**網格上；把它拿去夾粗網格的參數是拿兩個不同索引空間的東西
+            # 相比。與其靜默夾錯，不如拒絕。
+            raise ValueError(
+                "coarsen > 1 與 theta_budget > 0 不可同時使用："
+                "theta_cap 定義在細網格上，無法夾粗網格的參數")
+        self.coarsen = coarsen
+        self.side_c = -(-side // coarsen) if coarsen > 1 else side
+
         nbins = (block, block // 2 + 1)
+        n_param = self.side_c * self.side_c
         if init_std > 0:
             gen = torch.Generator(device="cpu")
             if seed is not None:
                 gen.manual_seed(seed)
-            init = torch.randn(1, self.n_blocks, *nbins, generator=gen) * init_std
+            init = torch.randn(1, n_param, *nbins, generator=gen) * init_std
             init = init.clamp(-theta_max, theta_max)
         else:
-            init = torch.zeros(1, self.n_blocks, *nbins)
+            init = torch.zeros(1, n_param, *nbins)
         self.theta = nn.Parameter(init)
         # 對數增益，與 theta 同形、同樣三通道共用。一律建立（讓 state_dict
         # 穩定），但 gain_max = 0 時前向完全不碰它。
-        self.gain = nn.Parameter(torch.zeros(1, self.n_blocks, *nbins))
+        self.gain = nn.Parameter(torch.zeros(1, n_param, *nbins))
         # 加性下限的係數。恆存在（形狀固定，state_dict 才不會分岔），
         # 但 `spectral_floor == 0` 時前向完全不碰它。
-        self.floor = nn.Parameter(torch.zeros(1, self.n_blocks, *nbins))
+        self.floor = nn.Parameter(torch.zeros(1, n_param, *nbins))
 
         self.register_buffer("window", torch.zeros(block, block), persistent=False)
         self.register_buffer("freq_gate", torch.zeros(*nbins), persistent=False)
@@ -706,6 +737,27 @@ class PhaseResidual(ResidualModule):
                         self.pad:self.pad + self.size]
         return folded / self._fold_norm(b).clamp_min(1e-8)
 
+    def expand(self, p: torch.Tensor) -> torch.Tensor:
+        """把粗網格上的空間場升取樣成逐視窗的場。`coarsen == 1` 時原樣回傳。
+
+        形狀 `(1, side_c*side_c, n, nb)` → `(1, side*side, n, nb)`。插值只作用
+        在**視窗的空間索引**上；頻格那兩維原封不動搬運，因為相鄰頻格之間沒有
+        「相鄰」的意義（它們是不同的基底函數，不是同一個場的取樣）。
+
+        `align_corners=True`：角落的粗網格點精確對到角落的細網格點，插值全部
+        落在四個鄰居的**凸包**內，不會外插。由此得到一條在 `project()` 上會用
+        到的性質——`|expand(p)| <= max|p|`，所以夾住粗網格的參數就等於夾住了
+        升取樣之後的每一個視窗，可行集不需要另外定義。這條由
+        `tests/test_coarsen.py` 釘住。
+        """
+        if self.coarsen == 1:
+            return p
+        b, _, n, nb = p.shape
+        grid = p.reshape(b, self.side_c, self.side_c, n * nb).permute(0, 3, 1, 2)
+        grid = F.interpolate(grid, size=(self.side, self.side),
+                             mode="bilinear", align_corners=True)
+        return grid.permute(0, 2, 3, 1).reshape(b, self.n_blocks, n, nb)
+
     def pixel_residual(self, x01: torch.Tensor) -> Optional[torch.Tensor]:
         """`channels = "y"` 時只在亮度上跑整條管線，色差原樣送回。
 
@@ -730,7 +782,11 @@ class PhaseResidual(ResidualModule):
         if h != self.size or w != self.size:
             raise ValueError(f"影像尺寸 {h}x{w} 與建構時的 size={self.size} 不符")
 
-        shift = torch.clamp(self.theta, -self.theta_max, self.theta_max)
+        # **先夾參數再升取樣**，與 `project()` 夾的是同一個東西。反過來做
+        # （先升取樣再夾）在數值上不同，而且會讓「可行集定義在參數上」這件事
+        # 失去意義。凸包性質保證夾過的粗網格升取樣後仍在界內。
+        shift = self.expand(
+            torch.clamp(self.theta, -self.theta_max, self.theta_max))
         if self.theta_cap is not None:
             # 與 `theta_max` 同型：前向與 `project()` 都夾一次。可行集由後者
             # 維持，故這裡在實務上是恆等，留著是為了「沒呼叫 project 也不會
@@ -746,13 +802,14 @@ class PhaseResidual(ResidualModule):
             # 閘由 `gain_weight` 決定。預設 `shared` 與相位同一個閘——那是
             # 歸因期間的約束，讓兩者的比較是乾淨的「動什麼」而不是「動哪裡」。
             # `jnd` 把增益的預算推到人眼看不見的頻帶，理由見 `__init__`。
-            g = torch.clamp(self.gain, -self.gain_max, self.gain_max)
+            g = self.expand(
+                torch.clamp(self.gain, -self.gain_max, self.gain_max))
             rot = rot * torch.exp(g * self.gain_gate()).unsqueeze(1)
         if self.spectral_floor > 0:
             # 加在幅度上，方向沿用**已轉過的**相位。|rot| 為零時這一項也是
             # 零——自然影像的高頻雖小但非零，故實務上有效；真正的零值區
             # （合成的純色塊）動不了，這是構造上的邊界。
-            a = torch.clamp(self.floor, -1.0, 1.0)
+            a = self.expand(torch.clamp(self.floor, -1.0, 1.0))
             added = (a * self.floor_price() * self.spectral_floor).unsqueeze(1)
             rot = rot + added * (rot / (rot.abs() + 1e-12))
         x_def = self.synthesize(rot)

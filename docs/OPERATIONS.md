@@ -9,7 +9,7 @@ base 沒有 pytest）。
 python -m pytest -q
 ```
 
-基準 **624 passed / 1 skipped / 1 xfailed**。
+基準 **657 passed / 1 skipped / 1 xfailed**。
 
 - 裝了 `lpips` 套件的機器會少一項（`test_impress_未安裝_lpips_套件時不得靜默
   改用他者` 只能在缺該套件時驗證）。遠端因 IMPRESS 的預設後端就是它而必定裝有。
@@ -39,7 +39,34 @@ Repo 在 `/nfs/home/nelson0314/WACV-s3`。虛擬環境由 `~/env.sh` 提供
 
 1. **先 `source ~/env.sh`，再 `cd` 到 repo。** `env.sh` 最後一行會把工作目錄
    換到舊的 `~/WACV`，順序相反時所有相對路徑指向錯的樹，而且不會報錯。
-2. **卡是多人共用的**，跑之前先看 `nvidia-smi`。
+2. **卡是多人共用的，不可以把工作送到別人正在用的卡上。**
+   派工前一律跑 `bash scripts/free_cards.sh` 取空卡號：
+
+   ```
+   bash scripts/free_cards.sh --verbose     # 看每張卡是誰的
+   DEVS=$(bash scripts/free_cards.sh)       # 直接拿去餵派工腳本
+   ```
+
+   **不要自己讀 `nvidia-smi --query-gpu=memory.used`**——它只給總量，看不出
+   那些記憶體是誰的。實際踩過一次：只看了輸出的前三行、把別人 16 GB 的工作
+   當成自己的殘留，把兩個 process 疊到別人正在用的卡上，那張卡變成四個
+   process。要看誰佔的得用 `--query-compute-apps=gpu_uuid,pid` 再跟自己的
+   pid 比對，那正是 `free_cards.sh` 在做的事。
+
+   判定「空」要兩個條件同時成立：卡上沒有別人的 compute app，且已用記憶體
+   低於約 1 GB。沒有空卡就等，不要擠。
+
+   **這一條已由程式強制，不只是規定。** 所有派工腳本（16 支，凡是有
+   `require_slots` 的都有）在啟動前會呼叫
+
+   ```
+   bash scripts/free_cards.sh --assert "${DEVS[*]}" || exit 3
+   ```
+
+   指定的卡只要有一張是別人的就**拒絕啟動**，回傳 3。**列印了卻不擋等於沒擋**
+   ——這一道是踩了第二次才加的：第一次是只讀 `nvidia-smi` 的前三行，第二次是
+   等待器**印了**空卡清單、清單是空的，但派工沒有依它決定要不要送，於是兩張
+   卡上各疊到一個別人的 process。手動送單一 process 時也要自己先 `--assert`。
 3. **`git pull` 常因 `runs/` 的未追蹤檔衝突而 abort**，先把它們 `mv` 到暫存
    目錄再 pull。
 4. **遠端也用 sparse-checkout**，而且它的模式表是**白名單**（`/*` 之後
@@ -79,6 +106,33 @@ ps -u $USER -o cmd | grep -c "[i]p2p_run"
 | `scripts/fid_batch.py` | 批次 FID，樣本數不足時拒絕輸出 |
 | `scripts/advdrop_repro.py`／`djsma_repro.py` | 對照組在自己威脅模型上的重現 |
 | `scripts/fetch_omniedit.py`／`fetch_imagenet_val.py` | 取資料並寫 provenance |
+
+### 抗淨化的派工
+
+一律讀**已存的**防禦圖，不重跑防禦。分片名只能是 `color`／`scene`／`object`
+——`retention_table.py` 的 `tag_of()` 由檔名還原條件標籤。全部吃「卡號」當第一
+個參數並有 `require_slots`（點數超過「卡數 × 2」直接拒絕）。
+
+| 腳本 | 跑什麼 | 輸出 |
+|---|---|---|
+| `purify_headtohead.sh "<卡>" [all\|conditions\|floor] ["<分片>"]` | 五個主條件與空白地板 | `runs/ip2p_purify_headtohead/` |
+| `purify_antijpeg.sh "<卡>" "<tag>" ["<分片>"]` | DCT-Shield §6.3 抗 JPEG 設定的工作點 | 同上 `antijpeg/` |
+| `purify_eot_geometry.sh "<卡>" "<tag>" ["<分片>"]` | 隨機化幾何 EOT 的工作點 | 同上 `eot_geometry/` |
+| `purify_gridpure.sh "<卡>"` | GrIDPure 那一欄的補跑（條件與地板一起） | 同上 `gridpure/` |
+| `residual_permute.sh "<卡>" ["<分片>"]` | 殘差區塊置換（H1 的判定實驗） | `runs/residual_permute/` |
+
+出表一律 `retention_table.py --src runs/ip2p_purify_headtohead`，它會遞迴走進
+子目錄、逐圖扣地板、缺地板的格子排除並回報。
+
+### 機制探針（**不跑 GPU**，可與批次並行）
+
+| 腳本 | 問什麼 | 輸出 |
+|---|---|---|
+| `free_cards.sh` | **派工前必跑**：列出真正空著的卡號 | 印到 stdout |
+| `residual_signature.py` | 殘差的指紋：集中度／頻帶／格點鎖定 | `runs/ip2p_residual_signature/` |
+| `residual_texture_alignment.py` | 殘差有沒有對準影像內容（等第相關） | `runs/residual_texture_alignment/` |
+| `purifier_band_transfer.py` | 淨化算子用哪一種方式破壞擾動 | `runs/ip2p_residual_signature/` |
+| `shading_field_cost.py` | 乘性明暗場對等 RMS 加性場的失真 | `runs/shading_field_cost/` |
 
 ### 分片與並行
 

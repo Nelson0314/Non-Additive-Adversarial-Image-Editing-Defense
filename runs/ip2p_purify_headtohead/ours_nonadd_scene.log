@@ -1,0 +1,53 @@
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  50%|█████     | 3/6 [00:00<00:00, 25.15it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3296.25it/s]
+Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00,  7.98it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00,  8.89it/s]
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,1.0]
+  warnings.warn(
+[W823 23:12:46.881618183 CUDACachingAllocator.cpp:3933] memory allocation failed with OOM on device 0 while trying to allocate 268435456 bytes (free: 19922944, total: 25296044032).
+=== task_env_weather_112463 / phase_gain ===
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 10125.27it/s]
+[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
+[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
+Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights:  74%|███████▍  | 301/408 [00:00<00:00, 2995.19it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 3097.91it/s]
+[W823 23:20:59.837549938 CUDACachingAllocator.cpp:3933] memory allocation failed with OOM on device 0 while trying to allocate 20971520 bytes (free: 19922944, total: 25296044032).
+[W823 23:20:59.837730481 CUDACachingAllocator.cpp:3933] memory allocation failed with OOM on device 0 while trying to allocate 20971520 bytes (free: 19922944, total: 25296044032).
+Traceback (most recent call last):
+  File "/nfs/home/nelson0314/WACV-s3/scripts/phase_retention.py", line 322, in <module>
+    main()
+  File "/nfs/home/nelson0314/WACV-s3/scripts/phase_retention.py", line 281, in main
+    sims[name] = float(suite.image_similarity(
+                       ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torch/utils/_contextlib.py", line 124, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/nfs/home/nelson0314/WACV-s3/src/metrics/suite.py", line 380, in image_similarity
+    self._ensure_vlm()
+  File "/nfs/home/nelson0314/WACV-s3/src/metrics/suite.py", line 153, in _ensure_vlm
+    self._siglip = AutoModel.from_pretrained(SIGLIP_REPO).to(self.device).eval()
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/transformers/modeling_utils.py", line 3849, in to
+    return super().to(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1383, in to
+    return self._apply(convert)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torch/nn/modules/module.py", line 933, in _apply
+    module._apply(fn)
+  File "/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torch/nn/modules/module.py", line 933, in _apply
+    module._apply(fn)
+  File "/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torch/nn/modules/module.py", line 933, in _apply
+    module._apply(fn)
+  [Previous line repeated 3 more times]
+  File "/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torch/nn/modules/module.py", line 964, in _apply
+    param_applied = fn(param)
+                    ^^^^^^^^^
+  File "/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1369, in convert
+    return t.to(
+           ^^^^^
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 20.00 MiB. GPU 0 has a total capacity of 23.56 GiB of which 19.00 MiB is free. Process 7909 has 5.64 GiB memory in use. Process 7908 has 5.80 GiB memory in use. Process 7892 has 6.30 GiB memory in use. Including non-PyTorch memory, this process has 5.78 GiB memory in use. Of the allocated memory 5.36 GiB is allocated by PyTorch, and 107.75 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf)

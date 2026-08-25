@@ -1,0 +1,40 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  17%|█▋        | 1/6 [00:00<00:00,  8.54it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3851.92it/s]
+Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00,  6.61it/s]Loading pipeline components...:  83%|████████▎ | 5/6 [00:00<00:00, 14.42it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 14.64it/s]
+There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+=== cat_00 / add__human ===
+    位移量 {'full': 0.15924, 'amp': 0.06943, 'pha': 0.05467, 'amp_s': 0.18283, 'pha_s': 0.17286}
+=== cat_00 / phase__human ===
+    位移量 {'full': 0.29429, 'amp': 0.2869, 'pha': 0.3588, 'amp_s': 0.13571, 'pha_s': 0.16511}
+=== cat_00 / phase_rand__human ===
+    位移量 {'full': 0.06025, 'amp': 0.20581, 'pha': 0.26429, 'amp_s': 0.09314, 'pha_s': 0.10838}
+=== person_c_00 / add__human ===
+    位移量 {'full': 0.1668, 'amp': 0.08827, 'pha': 0.09448, 'amp_s': 0.14486, 'pha_s': 0.1328}
+=== person_c_00 / phase__human ===
+    位移量 {'full': 0.29694, 'amp': 0.14903, 'pha': 0.15058, 'amp_s': 0.11285, 'pha_s': 0.10949}
+=== person_c_00 / phase_rand__human ===
+    位移量 {'full': 0.20763, 'amp': 0.19215, 'pha': 0.19669, 'amp_s': 0.0975, 'pha_s': 0.15564}
+=== cat_00 / apa_weak ===
+    位移量 {'full': 0.08152, 'amp': 0.34624, 'pha': 0.32405, 'amp_s': 0.20393, 'pha_s': 0.22614}
+=== cat_00 / mist ===
+    位移量 {'full': 0.62232, 'amp': 0.506, 'pha': 0.40605, 'amp_s': 0.54393, 'pha_s': 0.47701}
+=== cat_00 / dia_r ===
+    位移量 {'full': 0.37575, 'amp': 0.32911, 'pha': 0.27824, 'amp_s': 0.35131, 'pha_s': 0.33705}
+=== person_c_00 / apa_weak ===
+    位移量 {'full': 0.2508, 'amp': 0.3078, 'pha': 0.27958, 'amp_s': 0.26257, 'pha_s': 0.2853}
+=== person_c_00 / mist ===
+    位移量 {'full': 0.66205, 'amp': 0.42695, 'pha': 0.3616, 'amp_s': 0.48683, 'pha_s': 0.41222}
+=== person_c_00 / dia_r ===
+    位移量 {'full': 0.23305, 'amp': 0.18983, 'pha': 0.15528, 'amp_s': 0.2516, 'pha_s': 0.23979}
+=== person_c_00 / photoguard_c ===
+    位移量 {'full': 0.44608, 'amp': 0.23398, 'pha': 0.28413, 'amp_s': 0.30622, 'pha_s': 0.34851}
+=== cat_00 / photoguard_c ===
+    位移量 {'full': 0.50091, 'amp': 0.34739, 'pha': 0.3541, 'amp_s': 0.38625, 'pha_s': 0.43716}
+
+表：runs/spectral/dec_1.csv（70 列）

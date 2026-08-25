@@ -1,0 +1,5 @@
+image,condition,budget_target,mode,q_alg,radius,steps,unreachable,fid_lpips,fid_dists,fid_psnr,fid_ssim,fid_linf,fid_rms,edit_lpips,edit_strength,total_seconds
+cat_00,dct_shield,,paper,0.95,1.0,1000,False,0.54806,0.10616,30.854,0.8703,0.24019,0.02866,0.62469,0.7,149.5
+cat_00,dct_shield_y,,paper,0.85,1.0,1000,False,0.62091,0.15277,25.152,0.85334,0.40517,0.05526,0.65412,0.7,149.4
+person_c_00,dct_shield,,paper,0.95,1.0,1000,False,0.54925,0.04728,29.538,0.86862,0.24011,0.03335,0.51434,0.7,150.0
+person_c_00,dct_shield_y,,paper,0.85,1.0,1000,False,0.61845,0.1053,24.805,0.90741,0.39034,0.05751,0.55679,0.7,149.6

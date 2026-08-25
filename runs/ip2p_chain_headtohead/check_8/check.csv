@@ -1,0 +1,13 @@
+image,instruction,clip_orig,clip_edit,clip_gain,siglip_orig,siglip_edit,siglip_gain,pixel_lpips,edit_steps,s_t,s_i,edit_seed,seconds
+task_attr_mod_color_158070,turn the color of playing card to red,0.27622,0.29027,0.01405,0.058,0.08011,0.02212,0.38969,100,7.5,1.5,20260812,79.9
+task_attr_mod_color_42929,turn the color of golden shield to gray,0.29866,0.30273,0.00406,0.10522,0.1165,0.01128,0.15133,100,7.5,1.5,20260812,70.9
+task_env_weather_116980,transform the setting to a foggy atmosphere,0.26881,0.29614,0.02733,0.08367,0.11792,0.03424,0.37865,100,7.5,1.5,20260812,71.8
+task_env_weather_195273,transform the setting to fall with colorful leaves,0.19015,0.25496,0.06481,-0.02351,0.04313,0.06664,0.32004,100,7.5,1.5,20260812,72.1
+task_env_weather_85610,change the setting to a cloudy day,0.19593,0.19925,0.00332,-0.00499,0.01446,0.01945,0.33758,100,7.5,1.5,20260812,72.3
+task_obj_add_362298,Add sweaty torso,0.23335,0.23068,-0.00267,0.06354,0.06227,-0.00127,0.11219,100,7.5,1.5,20260812,72.3
+task_obj_add_584511,Add dog,0.19218,0.18664,-0.00554,0.01919,0.01726,-0.00193,0.15345,100,7.5,1.5,20260812,72.4
+task_obj_remove_157386,Remove flowers,0.23965,0.23788,-0.00177,0.029,0.02478,-0.00421,0.34363,100,7.5,1.5,20260812,72.2
+task_obj_remove_388764,Remove green chair,0.21555,0.20979,-0.00576,0.01707,0.01055,-0.00652,0.45018,100,7.5,1.5,20260812,72.3
+task_obj_remove_720199,Remove yellow machine,0.20059,0.22909,0.0285,-0.03503,-0.0157,0.01933,0.12742,100,7.5,1.5,20260812,72.3
+task_obj_swap_joint_mask_671429,Replace the astronaut with man,0.17632,0.17548,-0.00084,0.03833,0.06379,0.02546,0.17418,100,7.5,1.5,20260812,72.6
+task_obj_swap_rand_mask_315182,Replace the red leather jacket with black blazer,0.25129,0.26219,0.0109,0.10429,0.1014,-0.00289,0.71398,100,7.5,1.5,20260812,71.3

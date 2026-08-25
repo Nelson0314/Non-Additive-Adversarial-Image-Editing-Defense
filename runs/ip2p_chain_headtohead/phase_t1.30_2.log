@@ -1,0 +1,31 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00, 11.89it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3817.98it/s]
+Loading pipeline components...:  67%|██████▋   | 4/6 [00:00<00:00, 12.74it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 12.88it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 12.75it/s]
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+IP2P 線：13 張、條件 ['phase']、steps=100 s_T=7.5 s_I=1.5 seed=20260812
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,1.0]
+  warnings.warn(
+task_attr_mod_color_123744       phase          r=1.3000 dists=0.0398 lpips=0.1383 effect=0.1689 (125s)
+task_attr_mod_color_22137        phase          r=1.3000 dists=0.0869 lpips=0.2303 effect=0.2360 (124s)
+task_attr_mod_color_71985        phase          r=1.3000 dists=0.0375 lpips=0.1535 effect=0.1941 (124s)
+task_env_weather_137230          phase          r=1.3000 dists=0.0582 lpips=0.2349 effect=0.2713 (124s)
+task_env_weather_39740           phase          r=1.3000 dists=0.0509 lpips=0.3415 effect=0.3453 (124s)
+task_obj_add_166344              phase          r=1.3000 dists=0.0600 lpips=0.2316 effect=0.2678 (124s)
+task_obj_add_44802               phase          r=1.3000 dists=0.0665 lpips=0.2218 effect=0.3783 (124s)
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-0.8196078538894653,0.8901960849761963]
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-0.8584257364273071,1.0]
+  warnings.warn(
+task_obj_add_709390              phase          r=1.3000 dists=0.0777 lpips=0.4291 effect=0.3920 (124s)
+task_obj_remove_284852           phase          r=1.3000 dists=0.0473 lpips=0.1530 effect=0.2515 (124s)
+task_obj_remove_571780           phase          r=1.3000 dists=0.0481 lpips=0.2371 effect=0.3539 (123s)
+task_obj_swap_joint_mask_337228  phase          r=1.3000 dists=0.0590 lpips=0.1088 effect=0.3019 (123s)
+task_obj_swap_rand_mask_11376    phase          r=1.3000 dists=0.0612 lpips=0.3084 effect=0.4616 (124s)
+task_obj_swap_rand_mask_660100   phase          r=1.3000 dists=0.0616 lpips=0.2426 effect=0.2987 (123s)
+
+表：runs/m0820/phase_t1.30_2/results.csv（13 列）

@@ -1,0 +1,31 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  17%|█▋        | 1/6 [00:00<00:00,  8.69it/s]Loading pipeline components...:  67%|██████▋   | 4/6 [00:00<00:00, 18.76it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3146.18it/s]
+Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 14.56it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 14.66it/s]
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+IP2P 線：13 張、條件 ['phase_gain']、steps=100 s_T=7.5 s_I=1.5 seed=20260812
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,1.0]
+  warnings.warn(
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 10775.52it/s]
+[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
+[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
+Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights:  74%|███████▍  | 302/408 [00:00<00:00, 3017.49it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 2942.61it/s]
+task_attr_mod_color_11699        phase_gain     r=6.0000 dists=0.0801 lpips=0.3939 effect=0.4778 (183s)
+task_attr_mod_color_136767       phase_gain     r=6.0000 dists=0.1633 lpips=0.4573 effect=0.5786 (174s)
+task_attr_mod_color_184837       phase_gain     r=6.0000 dists=0.2025 lpips=0.5151 effect=0.7767 (174s)
+task_attr_mod_color_32648        phase_gain     r=6.0000 dists=0.0817 lpips=0.4906 effect=0.3860 (174s)
+task_attr_mod_color_6205         phase_gain     r=6.0000 dists=0.1270 lpips=0.4166 effect=0.5459 (174s)
+task_env_weather_112463          phase_gain     r=6.0000 dists=0.0571 lpips=0.5201 effect=0.8096 (173s)
+task_env_weather_246440          phase_gain     r=6.0000 dists=0.1500 lpips=0.4918 effect=0.6239 (173s)
+task_env_weather_63722           phase_gain     r=6.0000 dists=0.0878 lpips=0.4690 effect=0.5311 (173s)
+task_obj_add_40931               phase_gain     r=6.0000 dists=0.1340 lpips=0.5131 effect=0.6051 (174s)
+task_obj_remove_380621           phase_gain     r=6.0000 dists=0.0909 lpips=0.4496 effect=0.7168 (173s)
+task_obj_swap_joint_mask_276754  phase_gain     r=6.0000 dists=0.2069 lpips=0.4947 effect=0.6583 (173s)
+task_obj_swap_joint_mask_533428  phase_gain     r=6.0000 dists=0.1338 lpips=0.5317 effect=0.6411 (173s)
+task_obj_swap_rand_mask_417469   phase_gain     r=6.0000 dists=0.1037 lpips=0.5158 effect=0.7292 (173s)
+
+表：runs/ip2p_weight_plus_loss/wl_r60/results.csv（13 列）

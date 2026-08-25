@@ -1,0 +1,53 @@
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 19622.59it/s]
+[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
+[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
+Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights:  89%|████████▉ | 363/408 [00:00<00:00, 3627.01it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 3607.17it/s]
+  task_attr_mod_color_11699        dct_native     
+  task_attr_mod_color_11699        dct_native_y   
+  task_attr_mod_color_11699        ours_g025      
+  task_attr_mod_color_136767       dct_native     
+  task_attr_mod_color_136767       dct_native_y   
+  task_attr_mod_color_136767       ours_g025      
+  task_attr_mod_color_184837       dct_native     
+  task_attr_mod_color_184837       dct_native_y   
+  task_attr_mod_color_184837       ours_g025      
+  task_attr_mod_color_32648        dct_native     
+  task_attr_mod_color_32648        dct_native_y   
+  task_attr_mod_color_32648        ours_g025      
+  task_attr_mod_color_6205         dct_native     
+  task_attr_mod_color_6205         dct_native_y   
+  task_attr_mod_color_6205         ours_g025      
+  task_env_weather_112463          dct_native     
+  task_env_weather_112463          dct_native_y   
+  task_env_weather_112463          ours_g025      
+  task_env_weather_246440          dct_native     
+  task_env_weather_246440          dct_native_y   
+  task_env_weather_246440          ours_g025      
+  task_env_weather_63722           dct_native     
+  task_env_weather_63722           dct_native_y   
+  task_env_weather_63722           ours_g025      
+  task_obj_add_40931               dct_native     
+  task_obj_add_40931               dct_native_y   
+  task_obj_add_40931               ours_g025      
+  task_obj_remove_380621           dct_native     
+  task_obj_remove_380621           dct_native_y   
+  task_obj_remove_380621           ours_g025      
+  task_obj_swap_joint_mask_276754  dct_native     
+  task_obj_swap_joint_mask_276754  dct_native_y   
+  task_obj_swap_joint_mask_276754  ours_g025      
+  task_obj_swap_joint_mask_533428  dct_native     
+  task_obj_swap_joint_mask_533428  dct_native_y   
+  task_obj_swap_joint_mask_533428  ours_g025      
+  task_obj_swap_rand_mask_417469   dct_native     
+  task_obj_swap_rand_mask_417469   dct_native_y   
+  task_obj_swap_rand_mask_417469   ours_g025      
+
+條件                   n    SigLIP 均值    低於 0.837
+dct_native          13        0.727       8/13
+dct_native_y        13        0.682      11/13
+ours_g025           13        0.761      12/13

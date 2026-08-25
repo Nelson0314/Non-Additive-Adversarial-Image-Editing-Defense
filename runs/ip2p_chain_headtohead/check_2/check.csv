@@ -1,0 +1,14 @@
+image,instruction,clip_orig,clip_edit,clip_gain,siglip_orig,siglip_edit,siglip_gain,pixel_lpips,edit_steps,s_t,s_i,edit_seed,seconds
+task_attr_mod_color_123744,turn the color of cushion to be black,0.20786,0.2032,-0.00466,0.04883,0.05862,0.00979,0.23318,100,7.5,1.5,20260812,80.4
+task_attr_mod_color_22137,turn the color of ring to be gray,0.27425,0.28402,0.00977,0.03473,0.03556,0.00084,0.19206,100,7.5,1.5,20260812,71.1
+task_attr_mod_color_71985,turn the color of piano to be gray,0.28155,0.28486,0.00331,0.07192,0.07841,0.00649,0.18426,100,7.5,1.5,20260812,72.3
+task_env_weather_137230,change the setting to a summer day,0.20816,0.21334,0.00518,0.01532,0.01696,0.00164,0.13293,100,7.5,1.5,20260812,71.9
+task_env_weather_39740,change the setting to a misty scene,0.18731,0.25658,0.06927,-0.01427,0.03777,0.05204,0.38435,100,7.5,1.5,20260812,71.9
+task_obj_add_166344,Add mountain,0.193,0.19081,-0.00219,0.02169,0.02055,-0.00114,0.13985,100,7.5,1.5,20260812,72.1
+task_obj_add_44802,Add clouds,0.18556,0.25413,0.06857,-0.01423,0.07647,0.09069,0.41528,100,7.5,1.5,20260812,72.0
+task_obj_add_709390,Add glasses,0.19764,0.2411,0.04346,0.01802,0.08971,0.07169,0.19761,100,7.5,1.5,20260812,71.9
+task_obj_remove_284852,Remove khaki pants,0.23484,0.25785,0.02301,0.08027,0.07116,-0.00911,0.51863,100,7.5,1.5,20260812,72.0
+task_obj_remove_571780,Remove the house,0.22102,0.20591,-0.01511,0.01723,0.01847,0.00124,0.22689,100,7.5,1.5,20260812,72.1
+task_obj_swap_joint_mask_337228,Replace the silk sash with yellow shawl,0.21754,0.29188,0.07434,0.03773,0.07107,0.03334,0.76986,100,7.5,1.5,20260812,72.1
+task_obj_swap_rand_mask_11376,Replace the glass dome with house,0.25328,0.28166,0.02837,0.07269,0.10327,0.03059,0.33506,100,7.5,1.5,20260812,71.9
+task_obj_swap_rand_mask_660100,Replace the hot dog with taco,0.26777,0.25632,-0.01145,0.10754,0.09815,-0.0094,0.22732,100,7.5,1.5,20260812,70.9

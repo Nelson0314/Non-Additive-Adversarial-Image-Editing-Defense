@@ -77,9 +77,26 @@ def purifier_set(sd, seed: int, only=None):
         purify_ops.Purifier("blur", 1.0),
         purify_ops.Purifier("noise", 0.05, seed=seed),
         purify_ops.Purifier("quantize", 16),
+        # JPEG 掃四個品質而不是兩個。理由：DCT-Shield 的抗壓縮保證是**單向**的
+        # （補充材料 D.4，`Q_alg = q` 只在攻擊方品質 q' >= q 時有效），而本方法
+        # 的量化交付也有同一條界線。只有兩點看不出界線落在哪裡，四點才畫得出
+        # 「壓得越狠誰越有優勢」這條曲線。
+        purify_ops.Purifier("jpeg", 90),
         purify_ops.Purifier("jpeg", 75),
+        purify_ops.Purifier("jpeg", 50),
         purify_ops.Purifier("jpeg", 30),
+        # 交叉點落在 75 與 50 之間的一大段空白裡（十張的淨增益：本方法 r0.9
+        # 量化在 jpeg75 輸 0.4072 對 0.4533，到 jpeg50 反超成 0.2635 對 0.1197）。
+        # 只有四點畫不出交叉點在哪，也就無法主張「有效範圍更寬」。60／40／20
+        # 把格點補密。**它們在預設清單裡**，所以不帶 `--purifiers` 的呼叫會
+        # 多跑三個算子；所有派工腳本都明給 `--purifiers`，既有批次不受影響。
+        purify_ops.Purifier("jpeg", 60),
+        purify_ops.Purifier("jpeg", 40),
+        purify_ops.Purifier("jpeg", 20),
+        # 模糊與裁切各兩個強度，理由同上：一個點看不出斜率。
+        purify_ops.Purifier("blur", 2.0),
         purify_ops.Purifier("crop_resize", purify_ops.CROP_FRACTION_DIA),
+        purify_ops.Purifier("crop_resize", 0.15),
         purify_ops.Purifier("jpeg_then_resize", purify_ops.CR_JPEG_QUALITY),
         purify_ops.Purifier("adverse_cleaner"),
         purify_ops.Purifier("impress", sd=sd, seed=seed),

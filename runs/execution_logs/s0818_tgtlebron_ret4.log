@@ -1,0 +1,17 @@
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3498.39it/s]
+Loading pipeline components...:  50%|█████     | 3/6 [00:00<00:00, 13.99it/s]Loading pipeline components...:  83%|████████▎ | 5/6 [00:00<00:00, 12.43it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 14.92it/s]
+There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+=== shiba_00 / add__human ===
+    identity=0.4155, blur1=0.3985, noise0.05=0.7294, quantize16=0.4883, jpeg75=0.1352, jpeg30=0.2835, crop_resize0.1=0.5221, jpeg_then_resize75=0.3394, adverse_cleaner=0.1728
+=== shiba_00 / phase__human ===
+    identity=0.5939, blur1=0.4361, noise0.05=0.7311, quantize16=0.5774, jpeg75=0.3876, jpeg30=0.4174, crop_resize0.1=0.5426, jpeg_then_resize75=0.3862, adverse_cleaner=0.4334
+=== shiba_00 / phase_rand__human ===
+    identity=0.2752, blur1=0.4007, noise0.05=0.7255, quantize16=0.4435, jpeg75=0.2847, jpeg30=0.3347, crop_resize0.1=0.5110, jpeg_then_resize75=0.3415, adverse_cleaner=0.2686
+
+表：runs/s0818_tgtlebron/retention_4.csv（27 列）

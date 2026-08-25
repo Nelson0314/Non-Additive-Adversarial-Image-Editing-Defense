@@ -1,0 +1,14 @@
+image,instruction,clip_orig,clip_edit,clip_gain,siglip_orig,siglip_edit,siglip_gain,pixel_lpips,edit_steps,s_t,s_i,edit_seed,seconds
+task_attr_mod_color_121425,turn the color of LCD screen to be green,0.31873,0.34293,0.0242,0.09827,0.10227,0.004,0.21339,100,7.5,1.5,20260812,79.8
+task_attr_mod_color_202962,turn the color of a water bottle to brown,0.29699,0.26906,-0.02793,0.08873,0.10669,0.01796,0.25907,100,7.5,1.5,20260812,70.4
+task_attr_mod_color_71564,turn the color of machine to be gray,0.22825,0.24596,0.0177,0.05729,0.06689,0.0096,0.17255,100,7.5,1.5,20260812,72.1
+task_env_weather_137030,transform the setting to spring with blooming flowers,0.16465,0.22334,0.05869,-0.01862,0.04627,0.06489,0.6267,100,7.5,1.5,20260812,71.7
+task_env_weather_262001,change the setting to a snowy scene,0.17278,0.18385,0.01107,-0.0276,-0.01363,0.01397,0.29473,100,7.5,1.5,20260812,71.7
+task_obj_add_161232,Add mountain,0.17193,0.17775,0.00583,-0.00858,-0.01848,-0.00991,0.27349,100,7.5,1.5,20260812,72.0
+task_obj_add_441549,Add climbing gear,0.2378,0.25129,0.01349,0.04092,0.06404,0.02312,0.1301,100,7.5,1.5,20260812,71.9
+task_obj_add_697862,Add blimp,0.19117,0.20178,0.01061,-0.01001,0.04745,0.05746,0.15439,100,7.5,1.5,20260812,71.8
+task_obj_remove_271889,Remove flower vase,0.20272,0.24493,0.0422,0.01,0.04887,0.03886,0.42165,100,7.5,1.5,20260812,71.9
+task_obj_remove_560476,Remove peruvian flag,0.23685,0.2488,0.01195,0.06236,0.06896,0.00659,0.7376,100,7.5,1.5,20260812,72.1
+task_obj_swap_joint_mask_310537,Replace the desert buttes with layered mountain range,0.28534,0.28917,0.00383,0.11205,0.11408,0.00203,0.40187,100,7.5,1.5,20260812,72.1
+task_obj_swap_joint_mask_890199,Replace the robot with man,0.26571,0.25289,-0.01283,0.0609,0.05913,-0.00177,0.07339,100,7.5,1.5,20260812,72.0
+task_obj_swap_rand_mask_598617,Replace the chameleon with body,0.3022,0.30109,-0.00111,0.11056,0.11305,0.00249,0.12871,100,7.5,1.5,20260812,71.9

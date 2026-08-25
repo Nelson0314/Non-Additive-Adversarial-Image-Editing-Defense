@@ -1,0 +1,8 @@
+condition,radius,warp_grid,n_images,seed,fid_dists,fid_psnr,fid_lpips,effective_disp_px
+warp_roundtrip,2.0,16,13,0,0.02465,32.631,0.06083,0.1264
+warp_roundtrip,4.0,16,13,0,0.03651,28.35,0.08202,0.496
+warp_roundtrip,8.0,16,13,0,0.1117,20.998,0.21214,1.965
+warp_roundtrip,16.0,16,13,0,0.26645,16.317,0.46928,7.7387
+warp_roundtrip,24.0,16,13,0,0.32409,14.45,0.55784,16.5978
+warp_roundtrip,32.0,16,13,0,0.35466,13.355,0.59729,26.9574
+warp_roundtrip,48.0,16,13,0,0.37805,12.344,0.63644,46.8089

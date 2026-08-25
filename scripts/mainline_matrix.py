@@ -342,8 +342,8 @@ def main() -> None:
     ch_tags = chart_order
     charts = {
         "curve": MC.quality_curve(ch_tags, label, gain),
-        "bar": MC.distortion_bar(chart_order, label, fid, gain, "jpeg30"),
-        "scatter": MC.tradeoff(ch_tags, label, fid, gain, "jpeg30"),
+        "bar": MC.tradeoff_panels(chart_order, label, fid, gain),
+        "scatter": MC.distortion_bar(chart_order, label, fid),
         "arch_ours": MA.ours(),
         "arch_dct": MA.dct(),
     }
@@ -475,12 +475,16 @@ th .down{{color:var(--alt)}}
 </section>
 
 <section class="sec">
-<h2>各條件的失真高度</h2>
+<h2>失真換到多少效果</h2>
+<p class="note">橫軸是防禦圖的失真、縱軸是該淨化算子下的淨增益，同一族的點依
+失真連成一條線。<b>若優勢只是預算，兩族會落在同一條上升曲線上</b>；兩條線
+分開、而且其中一條整段在上面，才代表機制不同。點上的編號對應下方圖例。</p>
 {bar}
 </section>
 
 <section class="sec">
-<h2>失真與低品質存活的關係</h2>
+<h2>各條件的失真高度</h2>
+<p class="note">依失真由低到高排序，供上一張圖對照座標用。</p>
 {scatter}
 </section>
 

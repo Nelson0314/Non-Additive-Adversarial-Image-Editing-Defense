@@ -125,6 +125,95 @@ def distortion_bar(tags: Sequence[str], label: Dict[str, str],
     return "".join(out)
 
 
+def tradeoff_panels(tags: Sequence[str], label: Dict[str, str],
+                    fid: Dict[str, dict], gain: Dict[str, Dict[str, float]],
+                    purifiers: Sequence[str] = ("jpeg75", "jpeg50", "jpeg30")
+                    ) -> str:
+    """**失真 → 效果**，每個淨化算子一個小圖並排。
+
+    這是「贏是不是因為失真高」唯一能用**看**的方式回答的圖：橫軸是防禦圖的
+    失真、縱軸是該算子下的淨增益，同一族的點依失真連成一條線。若優勢只是
+    預算，兩族會落在同一條上升曲線上；**兩條線分開、而且其中一條整段在上面**，
+    才代表機制不同。
+
+    先前用的是「失真長條圖 ＋ 在旁邊印上淨增益」，那要用讀的比不出來——
+    兩個量各自成一欄數字，讀者得自己在腦裡配對。
+
+    點上的編號對應下方圖例，依失真由低到高。
+    """
+    pts = [(t, fid[t]["fid_dists"]) for t in tags if t in fid]
+    pts.sort(key=lambda r: r[1])
+    if len(pts) < 2:
+        return ""
+    idx = {t: i + 1 for i, (t, _) in enumerate(pts)}
+    PW, PH, PG = 296, 268, 22
+    L, R, T, B = 46, 12, 26, 40
+    LEGROW = 15
+    ncol = 2
+    legh = LEGROW * ((len(pts) + ncol - 1) // ncol) + 16
+    W = len(purifiers) * PW + (len(purifiers) - 1) * PG
+    H = PH + legh
+    xmax = max(v for _, v in pts) * 1.12
+    out = [f"<svg viewBox='0 0 {W} {H}' class='chart' role='img'>"]
+
+    for pi, pur in enumerate(purifiers):
+        ox = pi * (PW + PG)
+        vals = [(t, d, gain[t][pur]) for t, d in pts if pur in gain.get(t, {})]
+        if not vals:
+            continue
+        ymax = max(v for _, _, v in vals) * 1.2
+
+        def X(v, ox=ox):
+            return ox + L + (PW - L - R) * v / xmax
+
+        def Y(v):
+            return T + (PH - T - B) * (1 - v / ymax)
+
+        out.append(f"<text x='{ox + L + (PW - L - R) / 2:.0f}' y='{T - 10}'"
+                   f" class='ptl mid'>{html.escape(JPEG_TICK.get(pur, pur))}"
+                   "</text>")
+        for k in range(5):
+            yv = ymax * k / 4
+            out.append(f"<line x1='{X(0):.1f}' y1='{Y(yv):.1f}'"
+                       f" x2='{X(xmax):.1f}' y2='{Y(yv):.1f}' class='grid'/>")
+            out.append(f"<text x='{X(0) - 6:.1f}' y='{Y(yv) + 4:.1f}'"
+                       f" class='tick end'>{yv:.2f}</text>")
+        for k in (0, 1, 2, 3):
+            xv = xmax * k / 3
+            out.append(f"<text x='{X(xv):.1f}' y='{PH - B + 18}'"
+                       f" class='tick mid'>{xv:.2f}</text>")
+        out.append(_axis(X(0), T, X(xmax), PH - B))
+        for fam, sel, c in (("ours", True, "var(--s1)"),
+                            ("dct", False, "var(--r1)")):
+            fp = [v for v in vals if v[0].startswith("ours") is sel]
+            if len(fp) > 1:
+                out.append("<polyline points='"
+                           + " ".join(f"{X(d):.1f},{Y(g):.1f}" for _, d, g in fp)
+                           + f"' class='ln' style='stroke:{c}'/>")
+            for t, d, g in fp:
+                out.append(f"<circle cx='{X(d):.1f}' cy='{Y(g):.1f}' r='8.5'"
+                           f" style='fill:{c}'/>")
+                out.append(f"<text x='{X(d):.1f}' y='{Y(g) + 3.5:.1f}'"
+                           f" class='pnum mid'>{idx[t]}</text>")
+        out.append(f"<text x='{ox + L + (PW - L - R) / 2:.0f}'"
+                   f" y='{PH - B + 34}' class='axlab mid'>防禦圖 DISTS →</text>")
+
+    for i, (t, d) in enumerate(pts):
+        col, row = i % ncol, i // ncol
+        lx = col * (W / ncol) + 10
+        ly = PH + 14 + row * LEGROW
+        c = "var(--s1)" if t.startswith("ours") else "var(--r1)"
+        out.append(f"<circle cx='{lx + 7:.0f}' cy='{ly - 4}' r='8'"
+                   f" style='fill:{c}'/>")
+        out.append(f"<text x='{lx + 7:.0f}' y='{ly - 0.5}' class='pnum mid'>"
+                   f"{i + 1}</text>")
+        out.append(f"<text x='{lx + 22:.0f}' y='{ly}' class='leg'>"
+                   f"{html.escape(label.get(t, t))}"
+                   f"　DISTS {d:.4f}</text>")
+    out.append("</svg>")
+    return "".join(out)
+
+
 def tradeoff(tags: Sequence[str], label: Dict[str, str], fid: Dict[str, dict],
              gain: Dict[str, Dict[str, float]], purifier: str = "jpeg30") -> str:
     """失真對低品質淨增益的散布。
@@ -258,7 +347,9 @@ CHART_CSS = """
 .chart .ln.dash{stroke-width:1.4;stroke-dasharray:5 4;opacity:.6}
 .chart .tick{fill:var(--ink-3);font:11px ui-monospace,monospace}
 .chart .val{fill:var(--ink-2);font:11px ui-monospace,monospace}
-.chart .leg{fill:var(--ink-2);font:12px "IBM Plex Sans",sans-serif}
+.chart .leg{fill:var(--ink-2);font:11.5px "IBM Plex Sans",sans-serif}
+.chart .ptl{fill:var(--ink);font:600 12.5px "IBM Plex Sans",sans-serif}
+.chart .pnum{fill:#fff;font:600 10px ui-monospace,monospace}
 .chart .axlab{fill:var(--ink-3);font:11.5px "IBM Plex Sans",sans-serif}
 .chart .mid{text-anchor:middle}.chart .end{text-anchor:end}
 .chart .bx{fill:var(--surface);stroke:var(--line);stroke-width:1.2}

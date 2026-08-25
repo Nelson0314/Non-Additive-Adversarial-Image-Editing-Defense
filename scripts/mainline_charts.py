@@ -82,34 +82,45 @@ def quality_curve(tags: Sequence[str], label: Dict[str, str],
 
 
 def distortion_bar(tags: Sequence[str], label: Dict[str, str],
-                   fid: Dict[str, dict]) -> str:
-    """各條件的 DISTS。等失真對照畫成同一條虛線，一眼看出誰跟誰可比。"""
-    rows = [(t, fid[t]["fid_dists"]) for t in tags if t in fid]
+                   fid: Dict[str, dict],
+                   gain: Dict[str, Dict[str, float]] | None = None,
+                   pair: str = "jpeg30") -> str:
+    """各條件的 DISTS，**依失真由低到高排序**，右側同時標出抗淨化淨增益。
+
+    只畫失真的長條圖會誘導出一個錯的讀法——「我方的條都比較長，所以優勢是
+    用失真換的」。排序之後高度相近的條件就上下相鄰，右側的兩個數字可以直接
+    對讀；真正的判準是**同樣長度的條上，哪一邊的第二個數字大**。
+    """
+    rows = sorted(((t, fid[t]["fid_dists"]) for t in tags if t in fid),
+                  key=lambda r: r[1])
     if not rows:
         return ""
-    W = 760
+    W = 860
     BARH, GAP, L, T = 22, 9, 250, 16
     H = T + len(rows) * (BARH + GAP) + 34
     vmax = max(v for _, v in rows) * 1.12
     out = [f"<svg viewBox='0 0 {W} {H}' class='chart' role='img'>"]
     for k in range(5):
         v = vmax * k / 4
-        x = L + (W - L - 20) * v / vmax
+        x = L + (W - L - 250) * v / vmax
         out.append(f"<line x1='{x:.1f}' y1='{T}' x2='{x:.1f}' y2='{H - 30}'"
                    " class='grid'/>")
         out.append(f"<text x='{x:.1f}' y='{H - 14}' class='tick mid'>{v:.2f}</text>")
     for i, (t, v) in enumerate(rows):
         y0 = T + i * (BARH + GAP)
-        w = (W - L - 20) * v / vmax
-        c = _series_color(t, i if t.startswith("ours") else i - 3)
+        w = (W - L - 250) * v / vmax
+        c = "var(--s1)" if t.startswith("ours") else "var(--r1)"
         out.append(f"<rect x='{L}' y='{y0}' width='{w:.1f}' height='{BARH}'"
                    f" rx='3' style='fill:{c}'/>")
         out.append(f"<text x='{L - 9}' y='{y0 + BARH - 6}' class='tick end'>"
                    f"{html.escape(label.get(t, t))}</text>")
+        g = (gain or {}).get(t, {}).get(pair)
+        extra = ("" if g is None
+                 else f"　·　{JPEG_TICK.get(pair, pair)} 淨增益 {g:.4f}")
         out.append(f"<text x='{L + w + 7:.1f}' y='{y0 + BARH - 6}' class='val'>"
-                   f"{v:.4f}</text>")
-    out.append(f"<text x='{(L + W) / 2:.0f}' y='{H - 2}' class='axlab mid'>"
-               "DISTS（越低越不明顯）</text>")
+                   f"{v:.4f}{extra}</text>")
+    out.append(f"<text x='{L + (W - L - 250) / 2:.0f}' y='{H - 2}'"
+               " class='axlab mid'>DISTS（越低越不明顯）</text>")
     out.append("</svg>")
     return "".join(out)
 

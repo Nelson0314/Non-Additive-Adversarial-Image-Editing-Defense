@@ -256,6 +256,12 @@ def main() -> None:
     ap.add_argument("--quality", type=int, default=QUALITY)
     ap.add_argument("--no-purified", action="store_true",
                     help="不嵌入「淨化後的防禦圖」那一組，檔案小一半")
+    ap.add_argument("--chart-drop", nargs="*", default=[],
+                    help="**只**從圖表裡拿掉的條件。與 `--drop` 分開的理由："
+                         "逐張矩陣是被影像撐爆的，圖表不是——把回答得了"
+                         "「贏是不是因為失真高」的低失真條件從圖表上剪掉，"
+                         "等於把答案剪掉。抗淨化沒跑完的條件要放進這裡，"
+                         "六張與十張不可畫在同一組軸上。")
     ap.add_argument("--drop", nargs="*", default=[],
                     help="不放進報告頁的條件（**CSV 仍保留**）。用途是把族內"
                          "買不到東西的校準點拿掉：判準是「多付的失真沒有換到"
@@ -329,10 +335,14 @@ def main() -> None:
         dropped = (f"<p class='note'><b>本頁不列</b>：{names_d}。理由：{why}。"
                    "數值仍在 <span class='mono'>runs/ip2p_mainline/tables/"
                    "</span> 的 CSV 裡，沒有刪除。</p>")
-    ch_tags = [t for t in order if t in gain]
+    # **圖表用的是全部條件，不受 `--drop` 影響。** `--drop` 管的是逐張矩陣
+    # 與表格；圖表被剪掉低失真的那幾組時，「等失真下誰比較強」就看不出來了。
+    chart_order = [t for t in T["order"]
+                   if t in gain and t not in set(args.chart_drop)]
+    ch_tags = chart_order
     charts = {
         "curve": MC.quality_curve(ch_tags, label, gain),
-        "bar": MC.distortion_bar([t for t in order if t in fid], label, fid),
+        "bar": MC.distortion_bar(chart_order, label, fid, gain, "jpeg30"),
         "scatter": MC.tradeoff(ch_tags, label, fid, gain, "jpeg30"),
         "arch_ours": MA.ours(),
         "arch_dct": MA.dct(),

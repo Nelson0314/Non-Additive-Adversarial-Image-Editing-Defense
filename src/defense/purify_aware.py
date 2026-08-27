@@ -34,7 +34,7 @@ FND-061 給了一個很說明問題的對照：DCT-Shield 在 JPEG 下大勝紋�
 
 from __future__ import annotations
 
-from typing import Callable, Optional, Sequence
+from typing import Callable, Dict, List, Optional, Sequence
 
 import torch
 
@@ -237,3 +237,111 @@ def describe(transform: Optional[Callable]) -> str:
     """報表用的一行說明。`None` 代表沒有針對淨化最佳化。"""
     return "none" if transform is None else getattr(
         transform, "__qualname__", "custom").split(".")[0]
+
+
+# ---------------------------------------------------------------------------
+# 分階段訓練用的「依序輪替」算子序列
+# ---------------------------------------------------------------------------
+
+# 名稱 → (算子, 強度階)。**強度階只用於 `ramp`，不影響 `shuffle`／`cycle`。**
+# 算子一律取自 `src/purify/ops.py`，與評測用的是同一份程式——訓練時打的靶
+# 與評測時考的題若各寫一份，會悄悄變成兩件事。
+STAGE2_OPS: Dict[str, tuple] = {
+    "identity": (lambda z: z, 0),
+    "blur1": (lambda z: gaussian_blur(z, 1.0), 1),
+    "blur2": (lambda z: gaussian_blur(z, 2.0), 2),
+    "crop05": (lambda z: crop_resize(z, 0.05), 1),
+    "crop10": (lambda z: crop_resize(z, 0.10), 1),
+    "crop15": (lambda z: crop_resize(z, 0.15), 2),
+}
+
+STAGE2_ORDERS = ("shuffle", "cycle", "random")
+
+
+def resolve_stage2_ops(names: Sequence[str]) -> List[str]:
+    """檢查名稱合法並保持給定順序。**未知的名字直接拋錯，不靜默略過**。"""
+    if not names:
+        raise ValueError("算子清單不可為空")
+    unknown = [n for n in names if n not in STAGE2_OPS]
+    if unknown:
+        raise ValueError(
+            f"未知的淨化算子 {unknown}，可用的是 {sorted(STAGE2_OPS)}")
+    return list(names)
+
+
+def stage2_schedule(names: Sequence[str], steps: int, *, order: str = "shuffle",
+                    seed: int = 0, ramp: bool = False) -> List[str]:
+    """逐步要用哪一個算子，回傳長度為 `steps` 的名稱串。
+
+    **先把整條排程算出來再跑**，理由是它要能被測試逐項檢查，也要能寫進 log
+    ——「第幾步餵了什麼」若只存在於迴圈裡，事後就無法重建。
+
+    三種順序
+    ────────────────────────────────────────────────────────────────
+    | `random` | 每一步獨立抽一個。這是 `make_eot_ops_transform` 的作法 |
+    | `cycle` | 固定順序輪替，每一輪每個算子各一次 |
+    | `shuffle` | 每一輪把清單洗牌再依序走完（**預設**） |
+
+    `random` 的問題是短期內分布不均：只跑幾百步時，某個算子連著被抽到好幾次
+    而另一個一次都沒抽到，會直接把方向偏掉。`cycle` 修掉了覆蓋不均，但每一輪
+    的最後一個算子恆是「最後說話的那個」，配上 sign 更新（只看梯度方向、不看
+    大小）容易走成週期性的來回。`shuffle` 保留均勻覆蓋、拿掉固定的相位關係。
+
+    `ramp` 由弱到強
+    ────────────────────────────────────────────────────────────────
+    開啟時前半段只用強度階 ≤ 1 的算子，後半段用全部。動機是重模糊之下梯度
+    幾乎沒有訊號（`runs/phase_drift_diagnosis`：σ=2 時殘差能量只剩 3.3%），
+    先給輕的讓它有方向可循。**預設關閉**，關閉時與只有 `order` 的版本逐項相同。
+    """
+    if steps < 0:
+        raise ValueError(f"steps 不可為負，收到 {steps}")
+    if order not in STAGE2_ORDERS:
+        raise ValueError(f"未知的順序 {order!r}，可用的是 {STAGE2_ORDERS}")
+    pool_all = resolve_stage2_ops(names)
+    gen = torch.Generator(device="cpu").manual_seed(int(seed))
+
+    def pool_at(step: int) -> List[str]:
+        if not ramp or steps == 0:
+            return pool_all
+        if step * 2 >= steps:
+            return pool_all
+        weak = [n for n in pool_all if STAGE2_OPS[n][1] <= 1]
+        # 全部都是重算子時不能把池子清空，退回全池並照實記在 log。
+        return weak if weak else pool_all
+
+    out: List[str] = []
+    bag: List[str] = []
+    bag_pool: List[str] = []
+    for i in range(steps):
+        pool = pool_at(i)
+        if order == "random":
+            out.append(pool[int(torch.randint(len(pool), (1,), generator=gen))])
+            continue
+        if not bag or bag_pool != pool:
+            bag_pool = list(pool)
+            if order == "shuffle":
+                perm = torch.randperm(len(pool), generator=gen).tolist()
+                bag = [pool[j] for j in perm]
+            else:
+                bag = list(pool)
+        out.append(bag.pop(0))
+    return out
+
+
+def make_sequenced_ops_transform(names: Sequence[str], steps: int, *,
+                                 order: str = "shuffle", seed: int = 0,
+                                 ramp: bool = False):
+    """把 `stage2_schedule` 包成 `transform(x01, step)`。
+
+    `step` 是**階段二內部的步序**（由 0 起算），不是整體迭代數——階段一不套
+    任何算子，兩者的步序若混用會讓排程整段錯位。
+    """
+    plan = stage2_schedule(names, steps, order=order, seed=seed, ramp=ramp)
+
+    def transform(x01: torch.Tensor, step: int) -> torch.Tensor:
+        if not 0 <= step < len(plan):
+            raise ValueError(f"step={step} 超出階段二的 [0, {len(plan)})")
+        return STAGE2_OPS[plan[step]][0](x01)
+
+    transform.plan = plan          # 讓派工端能把排程寫進 log
+    return transform

@@ -1,0 +1,446 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 4189.30it/s]
+Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00, 11.77it/s]Loading pipeline components...:  83%|████████▎ | 5/6 [00:00<00:00, 16.82it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 15.81it/s]
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+IP2P 線：10 張、條件 ['warp']、steps=100 s_T=7.5 s_I=1.5 seed=20260812
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,1.0]
+  warnings.warn(
+    [warp] step    0 loss 110.951256 |p| 1.20219
+    [warp] step  100 loss 108.947060 |p| 1.24072
+    [warp] step  200 loss 108.804695 |p| 1.25253
+    [warp] step  300 loss 108.777687 |p| 1.25344
+    [warp] step  400 loss 108.773262 |p| 1.25442
+    [warp] step  500 loss 108.753395 |p| 1.25812
+    [warp] step  600 loss 108.751610 |p| 1.25773
+    [warp] step  700 loss 108.751633 |p| 1.25835
+    [warp] step  800 loss 108.750565 |p| 1.25842
+    [warp] step  900 loss 108.749794 |p| 1.25823
+    [warp] step 1000 loss 108.749428 |p| 1.25854
+    [warp] step 1100 loss 108.750496 |p| 1.25842
+    [warp] step 1200 loss 108.749550 |p| 1.25855
+    [warp] step 1300 loss 108.749855 |p| 1.25868
+    [warp] step 1400 loss 108.749306 |p| 1.25844
+    [warp] step 1500 loss 108.745842 |p| 1.26010
+    [warp] step 1600 loss 108.749016 |p| 1.25873
+    [warp] step 1700 loss 108.737747 |p| 1.26115
+    [warp] step 1800 loss 108.737686 |p| 1.26173
+    [warp] step 1900 loss 108.737709 |p| 1.26180
+    [warp] step 2000 loss 108.731781 |p| 1.26202
+    [warp] step 2100 loss 108.728622 |p| 1.26261
+    [warp] step 2200 loss 108.728516 |p| 1.26250
+    [warp] step 2300 loss 108.728325 |p| 1.26291
+    [warp] step 2400 loss 108.728462 |p| 1.26268
+    [warp] step 2500 loss 108.728455 |p| 1.26282
+    [warp] step 2600 loss 108.728432 |p| 1.26285
+    [warp] step 2700 loss 108.728287 |p| 1.26256
+    [warp] step 2800 loss 108.727982 |p| 1.26206
+    [warp] step 2900 loss 108.727814 |p| 1.26202
+    [warp] step 3000 loss 108.727982 |p| 1.26216
+    [warp] step 3100 loss 108.728035 |p| 1.26226
+    [warp] step 3200 loss 108.729813 |p| 1.26214
+    [warp] step 3300 loss 108.727844 |p| 1.26198
+    [warp] step 3400 loss 108.727890 |p| 1.26198
+    [warp] step 3500 loss 108.727943 |p| 1.26207
+    [warp] step 3600 loss 108.727776 |p| 1.26237
+    [warp] step 3700 loss 108.734169 |p| 1.26179
+    [warp] step 3800 loss 108.728142 |p| 1.26191
+    [warp] step 3900 loss 108.727875 |p| 1.26238
+    [warp] step 3999 loss 108.727966 |p| 1.26237
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,0.9584155082702637]
+  warnings.warn(
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 21156.24it/s]
+[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
+[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
+Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights:  83%|████████▎ | 338/408 [00:00<00:00, 3371.12it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 3369.67it/s]
+task_attr_mod_color_11699        warp           r=64.0000 dists=0.0297 lpips=0.1023 effect=0.1267 (1339s)
+    [warp] step    0 loss 137.580872 |p| 1.20196
+    [warp] step  100 loss 135.313217 |p| 1.29611
+    [warp] step  200 loss 134.921921 |p| 1.35287
+    [warp] step  300 loss 134.778183 |p| 1.38153
+    [warp] step  400 loss 134.736115 |p| 1.39026
+    [warp] step  500 loss 134.699036 |p| 1.39656
+    [warp] step  600 loss 134.690491 |p| 1.40043
+    [warp] step  700 loss 134.682983 |p| 1.40445
+    [warp] step  800 loss 134.648453 |p| 1.41025
+    [warp] step  900 loss 134.629410 |p| 1.41629
+    [warp] step 1000 loss 134.584732 |p| 1.42125
+    [warp] step 1100 loss 134.579895 |p| 1.42276
+    [warp] step 1200 loss 134.575165 |p| 1.42397
+    [warp] step 1300 loss 134.573654 |p| 1.42461
+    [warp] step 1400 loss 134.559250 |p| 1.42648
+    [warp] step 1500 loss 134.558640 |p| 1.42682
+    [warp] step 1600 loss 134.559052 |p| 1.42686
+    [warp] step 1700 loss 134.561447 |p| 1.42648
+    [warp] step 1800 loss 134.559860 |p| 1.42671
+    [warp] step 1900 loss 134.559952 |p| 1.42659
+    [warp] step 2000 loss 134.559891 |p| 1.42663
+    [warp] step 2100 loss 134.559998 |p| 1.42685
+    [warp] step 2200 loss 134.559494 |p| 1.42673
+    [warp] step 2300 loss 134.559906 |p| 1.42704
+    [warp] step 2400 loss 134.560501 |p| 1.42674
+    [warp] step 2500 loss 134.559845 |p| 1.42713
+    [warp] step 2600 loss 134.559814 |p| 1.42708
+    [warp] step 2700 loss 134.560074 |p| 1.42692
+    [warp] step 2800 loss 134.559601 |p| 1.42692
+    [warp] step 2900 loss 134.559753 |p| 1.42677
+    [warp] step 3000 loss 134.559601 |p| 1.42670
+    [warp] step 3100 loss 134.559814 |p| 1.42693
+    [warp] step 3200 loss 134.559570 |p| 1.42717
+    [warp] step 3300 loss 134.559814 |p| 1.42696
+    [warp] step 3400 loss 134.559860 |p| 1.42709
+    [warp] step 3500 loss 134.559723 |p| 1.42720
+    [warp] step 3600 loss 134.559586 |p| 1.42705
+    [warp] step 3700 loss 134.559692 |p| 1.42710
+    [warp] step 3800 loss 134.544754 |p| 1.42969
+    [warp] step 3900 loss 134.539917 |p| 1.43323
+    [warp] step 3999 loss 134.540054 |p| 1.43372
+task_attr_mod_color_136767       warp           r=64.0000 dists=0.0398 lpips=0.1003 effect=0.1309 (1344s)
+    [warp] step    0 loss 108.872208 |p| 1.20087
+    [warp] step  100 loss 106.747375 |p| 1.26115
+    [warp] step  200 loss 106.368690 |p| 1.29388
+    [warp] step  300 loss 106.280930 |p| 1.30177
+    [warp] step  400 loss 106.214211 |p| 1.30612
+    [warp] step  500 loss 106.183792 |p| 1.30829
+    [warp] step  600 loss 106.182465 |p| 1.30847
+    [warp] step  700 loss 106.181961 |p| 1.30747
+    [warp] step  800 loss 106.180481 |p| 1.30617
+    [warp] step  900 loss 106.175339 |p| 1.30655
+    [warp] step 1000 loss 106.177803 |p| 1.30686
+    [warp] step 1100 loss 106.175858 |p| 1.30660
+    [warp] step 1200 loss 106.174744 |p| 1.30662
+    [warp] step 1300 loss 106.174828 |p| 1.30668
+    [warp] step 1400 loss 106.174889 |p| 1.30644
+    [warp] step 1500 loss 106.155876 |p| 1.31106
+    [warp] step 1600 loss 106.135437 |p| 1.31297
+    [warp] step 1700 loss 106.130363 |p| 1.31323
+    [warp] step 1800 loss 106.133499 |p| 1.31313
+    [warp] step 1900 loss 106.132118 |p| 1.31342
+    [warp] step 2000 loss 106.130096 |p| 1.31265
+    [warp] step 2100 loss 106.129929 |p| 1.31259
+    [warp] step 2200 loss 106.126015 |p| 1.31206
+    [warp] step 2300 loss 106.125595 |p| 1.31199
+    [warp] step 2400 loss 106.126015 |p| 1.31195
+    [warp] step 2500 loss 106.125633 |p| 1.31238
+    [warp] step 2600 loss 106.124367 |p| 1.31317
+    [warp] step 2700 loss 106.124252 |p| 1.31281
+    [warp] step 2800 loss 106.124275 |p| 1.31279
+    [warp] step 2900 loss 106.124481 |p| 1.31301
+    [warp] step 3000 loss 106.124695 |p| 1.31283
+    [warp] step 3100 loss 106.124367 |p| 1.31303
+    [warp] step 3200 loss 106.124207 |p| 1.31299
+    [warp] step 3300 loss 106.124603 |p| 1.31331
+    [warp] step 3400 loss 106.124153 |p| 1.31306
+    [warp] step 3500 loss 106.123901 |p| 1.31327
+    [warp] step 3600 loss 106.123756 |p| 1.31296
+    [warp] step 3700 loss 106.123962 |p| 1.31318
+    [warp] step 3800 loss 106.123985 |p| 1.31298
+    [warp] step 3900 loss 106.124344 |p| 1.31322
+    [warp] step 3999 loss 106.123978 |p| 1.31377
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-0.9999397993087769,1.0]
+  warnings.warn(
+task_attr_mod_color_184837       warp           r=64.0000 dists=0.0685 lpips=0.1385 effect=0.1624 (1344s)
+    [warp] step    0 loss 171.921295 |p| 1.20164
+    [warp] step  100 loss 169.753784 |p| 1.27126
+    [warp] step  200 loss 169.574203 |p| 1.30528
+    [warp] step  300 loss 169.560318 |p| 1.30943
+    [warp] step  400 loss 169.555969 |p| 1.30828
+    [warp] step  500 loss 169.556091 |p| 1.30687
+    [warp] step  600 loss 169.549881 |p| 1.30674
+    [warp] step  700 loss 169.548004 |p| 1.30640
+    [warp] step  800 loss 169.547119 |p| 1.30636
+    [warp] step  900 loss 169.547089 |p| 1.30663
+    [warp] step 1000 loss 169.547363 |p| 1.30638
+    [warp] step 1100 loss 169.546997 |p| 1.30677
+    [warp] step 1200 loss 169.528137 |p| 1.30675
+    [warp] step 1300 loss 169.527634 |p| 1.30699
+    [warp] step 1400 loss 169.527695 |p| 1.30664
+    [warp] step 1500 loss 169.486237 |p| 1.30756
+    [warp] step 1600 loss 169.476471 |p| 1.31035
+    [warp] step 1700 loss 169.473846 |p| 1.31019
+    [warp] step 1800 loss 169.478577 |p| 1.31026
+    [warp] step 1900 loss 169.477020 |p| 1.31076
+    [warp] step 2000 loss 169.473495 |p| 1.31085
+    [warp] step 2100 loss 169.473236 |p| 1.31052
+    [warp] step 2200 loss 169.473053 |p| 1.31039
+    [warp] step 2300 loss 169.473465 |p| 1.31046
+    [warp] step 2400 loss 169.472824 |p| 1.31027
+    [warp] step 2500 loss 169.473190 |p| 1.31026
+    [warp] step 2600 loss 169.472946 |p| 1.31065
+    [warp] step 2700 loss 169.473541 |p| 1.31061
+    [warp] step 2800 loss 169.473434 |p| 1.31040
+    [warp] step 2900 loss 169.476959 |p| 1.31020
+    [warp] step 3000 loss 169.473709 |p| 1.31038
+    [warp] step 3100 loss 169.473099 |p| 1.31060
+    [warp] step 3200 loss 169.468948 |p| 1.30958
+    [warp] step 3300 loss 169.450363 |p| 1.31103
+    [warp] step 3400 loss 169.437454 |p| 1.31167
+    [warp] step 3500 loss 169.437454 |p| 1.31140
+    [warp] step 3600 loss 169.437164 |p| 1.31130
+    [warp] step 3700 loss 169.437592 |p| 1.31159
+    [warp] step 3800 loss 169.437469 |p| 1.31125
+    [warp] step 3900 loss 169.437286 |p| 1.31175
+    [warp] step 3999 loss 169.437271 |p| 1.31128
+task_attr_mod_color_32648        warp           r=64.0000 dists=0.0519 lpips=0.0754 effect=0.0852 (750s)
+    [warp] step    0 loss 114.373665 |p| 1.20297
+    [warp] step  100 loss 112.451897 |p| 1.26262
+    [warp] step  200 loss 112.232666 |p| 1.28094
+    [warp] step  300 loss 112.038048 |p| 1.30145
+    [warp] step  400 loss 111.885651 |p| 1.33160
+    [warp] step  500 loss 111.771812 |p| 1.33737
+    [warp] step  600 loss 111.730804 |p| 1.34240
+    [warp] step  700 loss 111.701263 |p| 1.35282
+    [warp] step  800 loss 111.679955 |p| 1.35718
+    [warp] step  900 loss 111.623825 |p| 1.37075
+    [warp] step 1000 loss 111.575394 |p| 1.38343
+    [warp] step 1100 loss 111.541985 |p| 1.39126
+    [warp] step 1200 loss 111.486038 |p| 1.39873
+    [warp] step 1300 loss 111.420479 |p| 1.40897
+    [warp] step 1400 loss 111.384354 |p| 1.41986
+    [warp] step 1500 loss 111.325943 |p| 1.43416
+    [warp] step 1600 loss 111.298851 |p| 1.44207
+    [warp] step 1700 loss 111.296898 |p| 1.44094
+    [warp] step 1800 loss 111.296394 |p| 1.44127
+    [warp] step 1900 loss 111.296249 |p| 1.44154
+    [warp] step 2000 loss 111.296234 |p| 1.44163
+    [warp] step 2100 loss 111.296478 |p| 1.44145
+    [warp] step 2200 loss 111.296280 |p| 1.44141
+    [warp] step 2300 loss 111.296425 |p| 1.44160
+    [warp] step 2400 loss 111.294685 |p| 1.44159
+    [warp] step 2500 loss 111.244041 |p| 1.44808
+    [warp] step 2600 loss 111.226486 |p| 1.45112
+    [warp] step 2700 loss 111.224884 |p| 1.45062
+    [warp] step 2800 loss 111.224831 |p| 1.45043
+    [warp] step 2900 loss 111.225349 |p| 1.45028
+    [warp] step 3000 loss 111.224770 |p| 1.44997
+    [warp] step 3100 loss 111.225052 |p| 1.45026
+    [warp] step 3200 loss 111.224686 |p| 1.45061
+    [warp] step 3300 loss 111.224854 |p| 1.45051
+    [warp] step 3400 loss 111.224693 |p| 1.45029
+    [warp] step 3500 loss 111.224617 |p| 1.45053
+    [warp] step 3600 loss 111.225479 |p| 1.45046
+    [warp] step 3700 loss 111.225029 |p| 1.45016
+    [warp] step 3800 loss 111.224960 |p| 1.45012
+    [warp] step 3900 loss 111.225113 |p| 1.45016
+    [warp] step 3999 loss 111.225159 |p| 1.45038
+task_attr_mod_color_6205         warp           r=64.0000 dists=0.0592 lpips=0.1179 effect=0.1448 (642s)
+    [warp] step    0 loss 124.291946 |p| 1.20274
+    [warp] step  100 loss 122.288826 |p| 1.28736
+    [warp] step  200 loss 121.777725 |p| 1.36939
+    [warp] step  300 loss 121.550522 |p| 1.41351
+    [warp] step  400 loss 121.412376 |p| 1.45233
+    [warp] step  500 loss 121.268410 |p| 1.47978
+    [warp] step  600 loss 121.159866 |p| 1.51831
+    [warp] step  700 loss 121.114388 |p| 1.53693
+    [warp] step  800 loss 121.103226 |p| 1.54575
+    [warp] step  900 loss 121.103142 |p| 1.54612
+    [warp] step 1000 loss 121.102974 |p| 1.54628
+    [warp] step 1100 loss 121.100792 |p| 1.54878
+    [warp] step 1200 loss 121.096169 |p| 1.55116
+    [warp] step 1300 loss 121.095612 |p| 1.55152
+    [warp] step 1400 loss 121.095741 |p| 1.55134
+    [warp] step 1500 loss 121.095535 |p| 1.55138
+    [warp] step 1600 loss 121.095589 |p| 1.55182
+    [warp] step 1700 loss 121.095352 |p| 1.55176
+    [warp] step 1800 loss 121.095566 |p| 1.55175
+    [warp] step 1900 loss 121.095604 |p| 1.55194
+    [warp] step 2000 loss 121.079964 |p| 1.55444
+    [warp] step 2100 loss 121.079239 |p| 1.55454
+    [warp] step 2200 loss 121.079086 |p| 1.55480
+    [warp] step 2300 loss 121.079094 |p| 1.55478
+    [warp] step 2400 loss 121.079124 |p| 1.55480
+    [warp] step 2500 loss 121.079185 |p| 1.55474
+    [warp] step 2600 loss 121.078995 |p| 1.55469
+    [warp] step 2700 loss 121.081367 |p| 1.55506
+    [warp] step 2800 loss 121.079971 |p| 1.55442
+    [warp] step 2900 loss 121.079689 |p| 1.55464
+    [warp] step 3000 loss 121.079803 |p| 1.55428
+    [warp] step 3100 loss 121.079742 |p| 1.55442
+    [warp] step 3200 loss 121.079727 |p| 1.55444
+    [warp] step 3300 loss 121.079887 |p| 1.55440
+    [warp] step 3400 loss 121.079872 |p| 1.55439
+    [warp] step 3500 loss 121.079994 |p| 1.55493
+    [warp] step 3600 loss 121.079788 |p| 1.55455
+    [warp] step 3700 loss 121.079948 |p| 1.55460
+    [warp] step 3800 loss 121.079735 |p| 1.55418
+    [warp] step 3900 loss 121.083565 |p| 1.55442
+    [warp] step 3999 loss 121.083244 |p| 1.55472
+task_env_weather_112463          warp           r=64.0000 dists=0.0619 lpips=0.1353 effect=0.2166 (642s)
+    [warp] step    0 loss 107.681816 |p| 1.20117
+    [warp] step  100 loss 105.539215 |p| 1.21947
+    [warp] step  200 loss 105.441422 |p| 1.22218
+    [warp] step  300 loss 105.398460 |p| 1.22293
+    [warp] step  400 loss 105.373619 |p| 1.22868
+    [warp] step  500 loss 105.353897 |p| 1.23054
+    [warp] step  600 loss 105.325005 |p| 1.23263
+    [warp] step  700 loss 105.303337 |p| 1.23910
+    [warp] step  800 loss 105.289543 |p| 1.24254
+    [warp] step  900 loss 105.283081 |p| 1.24598
+    [warp] step 1000 loss 105.275459 |p| 1.24700
+    [warp] step 1100 loss 105.271271 |p| 1.24931
+    [warp] step 1200 loss 105.272888 |p| 1.25338
+    [warp] step 1300 loss 105.259247 |p| 1.25281
+    [warp] step 1400 loss 105.234474 |p| 1.25431
+    [warp] step 1500 loss 105.219002 |p| 1.25680
+    [warp] step 1600 loss 105.217430 |p| 1.25916
+    [warp] step 1700 loss 105.215118 |p| 1.25997
+    [warp] step 1800 loss 105.215828 |p| 1.25993
+    [warp] step 1900 loss 105.216057 |p| 1.26014
+    [warp] step 2000 loss 105.215675 |p| 1.26021
+    [warp] step 2100 loss 105.215897 |p| 1.25999
+    [warp] step 2200 loss 105.215080 |p| 1.26055
+    [warp] step 2300 loss 105.212196 |p| 1.26101
+    [warp] step 2400 loss 105.212578 |p| 1.26105
+    [warp] step 2500 loss 105.212082 |p| 1.26082
+    [warp] step 2600 loss 105.212013 |p| 1.26100
+    [warp] step 2700 loss 105.212181 |p| 1.26096
+    [warp] step 2800 loss 105.213013 |p| 1.26107
+    [warp] step 2900 loss 105.212555 |p| 1.26116
+    [warp] step 3000 loss 105.213539 |p| 1.26116
+    [warp] step 3100 loss 105.213127 |p| 1.26145
+    [warp] step 3200 loss 105.212502 |p| 1.26137
+    [warp] step 3300 loss 105.211830 |p| 1.26159
+    [warp] step 3400 loss 105.212639 |p| 1.26142
+    [warp] step 3500 loss 105.218460 |p| 1.26172
+    [warp] step 3600 loss 105.188644 |p| 1.26263
+    [warp] step 3700 loss 105.184723 |p| 1.26134
+    [warp] step 3800 loss 105.181389 |p| 1.26010
+    [warp] step 3900 loss 105.182465 |p| 1.25980
+    [warp] step 3999 loss 105.177071 |p| 1.25910
+task_obj_remove_380621           warp           r=64.0000 dists=0.0942 lpips=0.1407 effect=0.1926 (642s)
+    [warp] step    0 loss 140.297623 |p| 1.20321
+    [warp] step  100 loss 137.917480 |p| 1.29204
+    [warp] step  200 loss 137.748596 |p| 1.30989
+    [warp] step  300 loss 137.576355 |p| 1.34977
+    [warp] step  400 loss 137.429108 |p| 1.41668
+    [warp] step  500 loss 137.352325 |p| 1.47451
+    [warp] step  600 loss 137.311935 |p| 1.49470
+    [warp] step  700 loss 137.301102 |p| 1.51996
+    [warp] step  800 loss 137.295242 |p| 1.55137
+    [warp] step  900 loss 137.283325 |p| 1.57329
+    [warp] step 1000 loss 137.265610 |p| 1.59470
+    [warp] step 1100 loss 137.243347 |p| 1.61372
+    [warp] step 1200 loss 137.243469 |p| 1.62566
+    [warp] step 1300 loss 137.222214 |p| 1.66007
+    [warp] step 1400 loss 137.216187 |p| 1.68429
+    [warp] step 1500 loss 137.220688 |p| 1.70178
+    [warp] step 1600 loss 137.214157 |p| 1.71421
+    [warp] step 1700 loss 137.208908 |p| 1.72606
+    [warp] step 1800 loss 137.202469 |p| 1.74513
+    [warp] step 1900 loss 137.200775 |p| 1.76415
+    [warp] step 2000 loss 137.200714 |p| 1.78358
+    [warp] step 2100 loss 137.197830 |p| 1.80205
+    [warp] step 2200 loss 137.134735 |p| 1.84661
+    [warp] step 2300 loss 137.119858 |p| 1.87169
+    [warp] step 2400 loss 137.116486 |p| 1.89372
+    [warp] step 2500 loss 137.117599 |p| 1.91385
+    [warp] step 2600 loss 137.117615 |p| 1.93145
+    [warp] step 2700 loss 137.116669 |p| 1.95090
+    [warp] step 2800 loss 137.113907 |p| 1.97023
+    [warp] step 2900 loss 137.114456 |p| 1.98783
+    [warp] step 3000 loss 137.113464 |p| 2.00329
+    [warp] step 3100 loss 137.114883 |p| 2.01810
+    [warp] step 3200 loss 137.115463 |p| 2.03268
+    [warp] step 3300 loss 137.115463 |p| 2.04685
+    [warp] step 3400 loss 137.111954 |p| 2.05922
+    [warp] step 3500 loss 137.108994 |p| 2.07164
+    [warp] step 3600 loss 137.104843 |p| 2.08079
+    [warp] step 3700 loss 137.102493 |p| 2.09292
+    [warp] step 3800 loss 137.105209 |p| 2.10953
+    [warp] step 3900 loss 137.102402 |p| 2.12662
+    [warp] step 3999 loss 137.101181 |p| 2.14346
+task_obj_swap_joint_mask_276754  warp           r=64.0000 dists=0.0745 lpips=0.1948 effect=0.1039 (641s)
+    [warp] step    0 loss 112.125404 |p| 1.20313
+    [warp] step  100 loss 109.884903 |p| 1.25923
+    [warp] step  200 loss 109.496956 |p| 1.27088
+    [warp] step  300 loss 109.346191 |p| 1.28429
+    [warp] step  400 loss 109.182037 |p| 1.30049
+    [warp] step  500 loss 109.150406 |p| 1.30277
+    [warp] step  600 loss 109.129700 |p| 1.30911
+    [warp] step  700 loss 109.116035 |p| 1.31944
+    [warp] step  800 loss 109.051582 |p| 1.33291
+    [warp] step  900 loss 109.006020 |p| 1.34082
+    [warp] step 1000 loss 108.967766 |p| 1.34267
+    [warp] step 1100 loss 108.967865 |p| 1.34292
+    [warp] step 1200 loss 108.967857 |p| 1.34305
+    [warp] step 1300 loss 108.967178 |p| 1.34269
+    [warp] step 1400 loss 108.967041 |p| 1.34269
+    [warp] step 1500 loss 108.967484 |p| 1.34316
+    [warp] step 1600 loss 108.967323 |p| 1.34332
+    [warp] step 1700 loss 108.967339 |p| 1.34279
+    [warp] step 1800 loss 108.966560 |p| 1.34241
+    [warp] step 1900 loss 108.968262 |p| 1.34326
+    [warp] step 2000 loss 108.962929 |p| 1.34253
+    [warp] step 2100 loss 108.963890 |p| 1.34287
+    [warp] step 2200 loss 108.964531 |p| 1.34256
+    [warp] step 2300 loss 108.964241 |p| 1.34253
+    [warp] step 2400 loss 108.963295 |p| 1.34270
+    [warp] step 2500 loss 108.964821 |p| 1.34279
+    [warp] step 2600 loss 108.963173 |p| 1.34274
+    [warp] step 2700 loss 108.963760 |p| 1.34260
+    [warp] step 2800 loss 108.963394 |p| 1.34266
+    [warp] step 2900 loss 108.962746 |p| 1.34266
+    [warp] step 3000 loss 108.963028 |p| 1.34242
+    [warp] step 3100 loss 108.963661 |p| 1.34248
+    [warp] step 3200 loss 108.963921 |p| 1.34249
+    [warp] step 3300 loss 108.962936 |p| 1.34232
+    [warp] step 3400 loss 108.961479 |p| 1.34269
+    [warp] step 3500 loss 108.961533 |p| 1.34267
+    [warp] step 3600 loss 108.965958 |p| 1.34372
+    [warp] step 3700 loss 108.963249 |p| 1.34239
+    [warp] step 3800 loss 108.961510 |p| 1.34222
+    [warp] step 3900 loss 108.962372 |p| 1.34200
+    [warp] step 3999 loss 108.960945 |p| 1.34212
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,0.9999957084655762]
+  warnings.warn(
+task_obj_swap_joint_mask_533428  warp           r=64.0000 dists=0.0579 lpips=0.1411 effect=0.2667 (642s)
+    [warp] step    0 loss 127.195465 |p| 1.20094
+    [warp] step  100 loss 124.784492 |p| 1.23949
+    [warp] step  200 loss 124.333046 |p| 1.25674
+    [warp] step  300 loss 124.181435 |p| 1.27473
+    [warp] step  400 loss 124.079887 |p| 1.28943
+    [warp] step  500 loss 124.031197 |p| 1.30049
+    [warp] step  600 loss 123.976723 |p| 1.31069
+    [warp] step  700 loss 123.955185 |p| 1.31548
+    [warp] step  800 loss 123.941811 |p| 1.31500
+    [warp] step  900 loss 123.930298 |p| 1.31878
+    [warp] step 1000 loss 123.881058 |p| 1.33486
+    [warp] step 1100 loss 123.776245 |p| 1.34476
+    [warp] step 1200 loss 123.765823 |p| 1.34593
+    [warp] step 1300 loss 123.766037 |p| 1.34625
+    [warp] step 1400 loss 123.765823 |p| 1.34642
+    [warp] step 1500 loss 123.766098 |p| 1.34641
+    [warp] step 1600 loss 123.765984 |p| 1.34639
+    [warp] step 1700 loss 123.765907 |p| 1.34633
+    [warp] step 1800 loss 123.765808 |p| 1.34636
+    [warp] step 1900 loss 123.766304 |p| 1.34632
+    [warp] step 2000 loss 123.765778 |p| 1.34633
+    [warp] step 2100 loss 123.765991 |p| 1.34641
+    [warp] step 2200 loss 123.769363 |p| 1.34603
+    [warp] step 2300 loss 123.766045 |p| 1.34582
+    [warp] step 2400 loss 123.766556 |p| 1.34602
+    [warp] step 2500 loss 123.765778 |p| 1.34585
+    [warp] step 2600 loss 123.764557 |p| 1.34857
+    [warp] step 2700 loss 123.730865 |p| 1.35258
+    [warp] step 2800 loss 123.717194 |p| 1.35819
+    [warp] step 2900 loss 123.691757 |p| 1.36026
+    [warp] step 3000 loss 123.675598 |p| 1.36401
+    [warp] step 3100 loss 123.674248 |p| 1.36450
+    [warp] step 3200 loss 123.674042 |p| 1.36466
+    [warp] step 3300 loss 123.673851 |p| 1.36480
+    [warp] step 3400 loss 123.673737 |p| 1.36495
+    [warp] step 3500 loss 123.674057 |p| 1.36481
+    [warp] step 3600 loss 123.674156 |p| 1.36479
+    [warp] step 3700 loss 123.673973 |p| 1.36500
+    [warp] step 3800 loss 123.678497 |p| 1.36489
+    [warp] step 3900 loss 123.667915 |p| 1.36524
+    [warp] step 3999 loss 123.661469 |p| 1.36667
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,0.9941967725753784]
+  warnings.warn(
+task_obj_swap_rand_mask_417469   warp           r=64.0000 dists=0.0394 lpips=0.1159 effect=0.1479 (641s)
+
+表：runs/ip2p_warp_hard/w_adam_rand/results.csv（10 列）

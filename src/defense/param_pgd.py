@@ -660,3 +660,148 @@ def fit_to_budget(
                          "reached": distortion_fn(best.x_def, x01),
                          "radius": best.radius})
     return best
+
+
+@dataclass
+class Stage2Result:
+    """階段二的結果。`x_def` 是**最後一個通過信賴域檢查的**參數畫出來的圖。"""
+
+    x_def: torch.Tensor
+    history: List[Dict] = field(default_factory=list)
+    reverts: int = 0
+    checks: int = 0
+    alpha_init: float = 0.0
+    alpha_final: float = 0.0
+    gain_stage1: float = 0.0
+    gain_final: float = 0.0
+    steps_run: int = 0
+    stopped_early: bool = False
+
+
+def _clone_params(ps: List[torch.Tensor]) -> List[torch.Tensor]:
+    return [p.detach().clone() for p in ps]
+
+
+@torch.no_grad()
+def _restore_params(ps: List[torch.Tensor], snap: List[torch.Tensor]) -> None:
+    for p, s in zip(ps, snap):
+        p.copy_(s)
+
+
+def run_stage2_pgd(
+    x01: torch.Tensor,
+    param: Parameterization,
+    loss_fn: Callable[[torch.Tensor], torch.Tensor],
+    *,
+    steps: int,
+    alpha: float,
+    transform: Callable[[torch.Tensor, int], torch.Tensor],
+    trust_frac: float = 0.95,
+    check_every: int = 20,
+    alpha_min_ratio: float = 1.0 / 32.0,
+    log_every: int = 0,
+) -> Stage2Result:
+    """接在 `run_param_pgd` 之後的第二段：在既有解附近找一個比較耐淨化的鄰居。
+
+    **不呼叫 `param.reset`**——階段一練出來的參數就是這一段的起點。這正是它
+    與 `--purify-aware` 的差別：那三個已否決的變體是從零開始在淨化底下練，
+    練出來的解在未淨化那一側掉了 10–25%（`docs/RESULTS.md`）；這裡是「已經
+    有一個好答案，只在它旁邊小幅度找一個更耐洗的鄰居，而且不准把原本的好處
+    賠掉」。
+
+    信賴域量的是「階段一買到的那一份」
+    ────────────────────────────────────────────────────────────────
+    直接比損失的絕對值不行：`latent_norm` 的值域與影像有關，而且可正可負，
+    比值沒有意義。這裡改比**增益**：
+
+        gain = L(原圖) − L(防禦圖)
+
+    `L(原圖)` 是同一條損失在未防禦影像上的值，對任何參數化都取得到
+    （θ=0／δ=0 時 `render` 就是原圖）。約束是
+
+        gain(現在) ≥ trust_frac × gain(階段一結束)
+
+    違反時把參數退回上一個通過檢查的快照、步長減半再繼續；步長掉到初始值的
+    `alpha_min_ratio` 以下就停。**回傳的一律是最後一個通過檢查的快照**，所以
+    交出去的解必定滿足約束。
+
+    只支援 sign 更新
+    ────────────────────────────────────────────────────────────────
+    Adam 有內部狀態（一階與二階動量），退回參數而不退回動量會讓步長的語意
+    斷掉，退回動量則要多存兩份與參數同大的張量。階段二本來就是小步微調，
+    不需要 Adam，故直接拒絕，不做一個半對的版本。
+    """
+    if steps <= 0:
+        raise ValueError(f"階段二的 steps 必須為正，收到 {steps}")
+    if not 0.0 < trust_frac <= 1.0:
+        raise ValueError(f"trust_frac 必須落在 (0, 1]，收到 {trust_frac}")
+    if check_every <= 0:
+        raise ValueError(f"check_every 必須為正，收到 {check_every}")
+
+    ps = param.params()
+    if not ps:
+        raise ValueError("這個參數化沒有可訓練的參數，階段二沒有意義")
+
+    with torch.no_grad():
+        l_init = float(loss_fn(x01))
+        l_stage1 = float(loss_fn(param.render(x01)))
+    gain1 = l_init - l_stage1
+    if gain1 <= 0.0:
+        # 階段一沒有買到任何東西。比例約束在這裡沒有意義，而且這件事本身
+        # 就是一個要查的缺陷——不可以靜默改用別的判準跑下去。
+        raise ValueError(
+            f"階段一的增益不為正（L(原圖)={l_init:.6f}、"
+            f"L(防禦圖)={l_stage1:.6f}），信賴域無從定義")
+
+    alpha0 = float(alpha)
+    alpha_cur = alpha0
+    best = _clone_params(ps)
+    history: List[Dict] = []
+    reverts = checks = 0
+    gain_last = gain1
+    stopped_early = False
+    steps_run = 0
+
+    for i in range(steps):
+        steps_run = i + 1
+        x_def = param.render(x01)
+        loss = loss_fn(transform(x_def, i))
+        grads = torch.autograd.grad(loss, ps)
+        with torch.no_grad():
+            for p, g in zip(ps, grads):
+                p.sub_(alpha_cur * torch.sign(g))
+        param.project()
+
+        due = ((i + 1) % check_every == 0) or (i == steps - 1)
+        if not due:
+            continue
+        checks += 1
+        with torch.no_grad():
+            gain_now = l_init - float(loss_fn(param.render(x01)))
+        ok = gain_now >= trust_frac * gain1
+        if ok:
+            best = _clone_params(ps)
+            gain_last = gain_now
+        else:
+            _restore_params(ps, best)
+            reverts += 1
+            alpha_cur *= 0.5
+        history.append({
+            "step": i, "alpha": alpha_cur, "gain": gain_now,
+            "gain_ratio": gain_now / gain1, "accepted": bool(ok),
+        })
+        if log_every:
+            print(f"    [stage2] step {i:4d} gain {gain_now:.6f}"
+                  f" ({gain_now / gain1:.3f}×) alpha {alpha_cur:.6f}"
+                  f" {'accept' if ok else 'REVERT'}", flush=True)
+        if alpha_cur < alpha0 * alpha_min_ratio:
+            stopped_early = True
+            break
+
+    _restore_params(ps, best)
+    with torch.no_grad():
+        x_def = param.render(x01).detach()
+    return Stage2Result(x_def=x_def, history=history, reverts=reverts,
+                        checks=checks, alpha_init=alpha0, alpha_final=alpha_cur,
+                        gain_stage1=gain1, gain_final=gain_last,
+                        steps_run=steps_run, stopped_early=stopped_early)

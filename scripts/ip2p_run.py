@@ -67,10 +67,13 @@ from src.baselines.jpeg_codec import (  # noqa: E402
     jpeg_roundtrip, jpeg_roundtrip_ste, normalize_quality,
 )
 from src.defense.purify_aware import (  # noqa: E402
-    make_eot_geometry_transform, make_eot_jpeg_transform,
-    make_eot_ops_transform, make_fixed_jpeg_transform, make_jpeg_transform,
+    STAGE2_OPS, STAGE2_ORDERS, make_eot_geometry_transform,
+    make_eot_jpeg_transform, make_eot_ops_transform, make_fixed_jpeg_transform,
+    make_jpeg_transform, make_sequenced_ops_transform,
 )
-from src.defense.param_pgd import fit_to_budget, run_param_pgd  # noqa: E402
+from src.defense.param_pgd import (  # noqa: E402
+    fit_to_budget, run_param_pgd, run_stage2_pgd,
+)
 from src.residual.perceptual_weight import FREQ_WEIGHTS  # noqa: E402
 from src.residual.texture_rephase import FLOOR_GATES  # noqa: E402
 from src.metrics.standard import (  # noqa: E402
@@ -105,6 +108,10 @@ DCT_NONADD_CONDS = ("dct_nonadd", "dct_nonadd_rand")
 # `modified_from_paper` 恆為真，報表上不可寫成 AdvDrop 的結果。
 ADVDROP_CONDS = ("advdrop", "advdrop_max")
 WM_CONDS = ("dct_wm",)
+# 不做最佳化的對照條件：參數是抽出來的、`params()` 是空的。分階段訓練
+# 沒有階段一的解可以接，故一律拒絕而不是靜默跳過階段二。
+NO_OPT_CONDS = ("phase_rand", "shading_rand", "warp_rand",
+                "dct_rotate_rand", "dct_nonadd_rand")
 
 
 def defense_steps(args, cond: str) -> int:
@@ -186,6 +193,53 @@ def _forward_transform(args):
     return transform
 
 
+def _stage1_alpha(args, param) -> float:
+    """階段一實際用的步長。**與 `run_param_pgd` 內的公式同一條**，寫兩次會在
+    改動時只改到一邊，而症狀只是「階段二的步長比例不是你以為的那個」。"""
+    if args.step_size is not None:
+        return float(args.step_size)
+    return param.radius / max(1.0, args.steps * args.saturate_at)
+
+
+def _run_stage2(x01, param, loss_fn, args):
+    """分階段訓練的第二段：在階段一的解附近找一個比較耐淨化的鄰居。
+
+    回傳 `(x_def, extras)`，`extras` 的每一欄都會寫進該列 CSV——信賴域退了
+    幾次、最後守住多少、步長掉到哪裡，這些不記下來的話「沒有改善」與「安全繩
+    一路咬著不放」在報表上長得一模一樣。
+    """
+    if args.update != "sign":
+        raise SystemExit(
+            f"--stage2-steps 只支援 sign 更新，收到 --update {args.update}。"
+            "理由見 param_pgd.run_stage2_pgd 的 docstring（退參數而不退 Adam "
+            "動量會讓步長的語意斷掉）。")
+    transform = make_sequenced_ops_transform(
+        args.stage2_ops, args.stage2_steps, order=args.stage2_order,
+        seed=args.seed, ramp=bool(args.stage2_ramp))
+    res = run_stage2_pgd(
+        x01, param, loss_fn,
+        steps=args.stage2_steps,
+        alpha=_stage1_alpha(args, param) * args.stage2_step_scale,
+        transform=transform,
+        trust_frac=args.stage2_trust,
+        check_every=args.stage2_check_every,
+        log_every=1)
+    extras = {
+        "stage2_reverts": res.reverts,
+        "stage2_checks": res.checks,
+        "stage2_steps_run": res.steps_run,
+        "stage2_alpha_init": round(res.alpha_init, 8),
+        "stage2_alpha_final": round(res.alpha_final, 8),
+        "stage2_gain_stage1": round(res.gain_stage1, 6),
+        "stage2_gain_final": round(res.gain_final, 6),
+        # 守住的比例。信賴域保證它 ≥ --stage2-trust；**低於門檻只可能出現在
+        # 「一次都沒通過檢查」那種情形**，屆時這一欄會等於 1.0（退回階段一）。
+        "stage2_gain_ratio": round(res.gain_final / res.gain_stage1, 6),
+        "stage2_stopped_early": int(res.stopped_early),
+    }
+    return res.x_def, extras
+
+
 def defend(ip2p, suite, cond, x01, args, loss_fn):
     """回傳 `(x_def, radius, unreachable, modified_from_paper, extras)`。
 
@@ -195,6 +249,18 @@ def defend(ip2p, suite, cond, x01, args, loss_fn):
 
     `extras` 是要併進該列 CSV 的額外欄位，只有 `--deliver-jpeg` 開著時非空。
     """
+    if args.stage2_steps and args.radius is None:
+        # 預算模式對半徑二分搜，每一輪都是一次完整的階段一。階段二要接在
+        # 「哪一輪」後面沒有唯一答案，而靜默只接在最後一輪會讓 CSV 的
+        # `radius` 欄講的是階段一的半徑、圖卻是階段二的——**寧可拒絕**。
+        raise SystemExit(
+            "--stage2-steps 不可與預算模式（不給 --radius）併用："
+            "二分搜的每一輪都是一次完整的階段一，階段二該接在哪一輪沒有定義。"
+            "請明給 --radius。")
+    if args.stage2_steps and cond in NO_OPT_CONDS:
+        raise SystemExit(
+            f"--stage2-steps 不可用於 {cond}：這個條件不做最佳化，"
+            "沒有階段一的解可以接。")
     if args.deliver_jpeg and cond in DCT_ROTATE_CONDS:
         # `dct_rotate` 的參數就作用在量化後的整數係數上，`render` 出來的已經
         # 是 QD 品質的壓縮圖（交付即參數）。再套一次 `--deliver-jpeg` 是壓兩次，
@@ -309,6 +375,7 @@ def defend(ip2p, suite, cond, x01, args, loss_fn):
                           warp_init_std=args.warp_init_std,
                           dct_mode=args.dct_mode)
     q_deliver = deliver_quality(args)
+    stage2_extras: dict = {}
 
     def dists_of(a, b):
         return float(suite.pairwise(b, a)["dists"])
@@ -322,6 +389,8 @@ def defend(ip2p, suite, cond, x01, args, loss_fn):
                             log_every=max(1, args.steps // 40),
                             transform=_forward_transform(args))
         x_raw, radius, unreachable = res.x_def, param.radius, False
+        if args.stage2_steps:
+            x_raw, stage2_extras = _run_stage2(x01, param, loss_fn, args)
     else:
         # **二分搜的失真要量在交付的圖上**，否則預算欄講的是一張沒有人會拿到
         # 的圖。`transform` 在關閉交付自壓時維持 `None`，與加入這個旗標之前
@@ -341,7 +410,7 @@ def defend(ip2p, suite, cond, x01, args, loss_fn):
         unreachable = bool(out.history[-1].get("unreachable", False))
 
     if q_deliver is None:
-        return x_raw, radius, unreachable, False, {}
+        return x_raw, radius, unreachable, False, dict(stage2_extras)
 
     # **交付的是壓縮後的圖**，不是最佳化直接吐出來的那張。這一步是本實驗與
     # 已否決的 `--purify-aware` 唯一的差別，理由見 `_forward_transform`。
@@ -366,6 +435,7 @@ def defend(ip2p, suite, cond, x01, args, loss_fn):
         "deliver_rms_raw": round(n_raw / d_raw.numel() ** 0.5, 6),
         "deliver_rms_out": round(n_del / d_del.numel() ** 0.5, 6),
     }
+    extras.update(stage2_extras)
     return x_def, radius, unreachable, False, extras
 
 
@@ -548,6 +618,29 @@ def build_parser() -> argparse.ArgumentParser:
                          "唯一會產生對一族幾何的不變性的一支"
                          "（identity／模糊／裁切縮放／JPEG75）。"
                          "**回傳的防禦圖仍是未經算子處理的那一張**")
+    # ---- 分階段訓練（階段二：在階段一的解附近做受約束的再最佳化）----
+    # **`--stage2-steps 0`（預設）時逐位元等於加這一組旗標之前**，由
+    # `tests/test_stage2_training.py` 釘住。與已否決的 `--purify-aware` 的
+    # 差別是「不從零開始」加上「不准把階段一的成果賠掉」，後者正是那批被否決
+    # 的直接病灶（未淨化強度掉 10–25%，見 `docs/RESULTS.md`）。
+    ap.add_argument("--stage2-steps", type=int, default=0,
+                    help="階段二的步數。0 = 關閉")
+    ap.add_argument("--stage2-ops", nargs="+",
+                    default=["identity", "blur1", "blur2",
+                             "crop05", "crop10", "crop15"],
+                    help=f"階段二輪替的淨化算子，可用：{sorted(STAGE2_OPS)}。"
+                         "identity 必須留著，否則最佳化會為了耐洗而放掉"
+                         "未淨化時的效果")
+    ap.add_argument("--stage2-order", choices=STAGE2_ORDERS, default="shuffle",
+                    help="算子的給法：每輪洗牌後依序走完／固定輪替／每步隨機")
+    ap.add_argument("--stage2-step-scale", type=float, default=0.2,
+                    help="階段二步長對階段一步長的比例")
+    ap.add_argument("--stage2-trust", type=float, default=0.95,
+                    help="信賴域：未淨化增益不得低於階段一終值的這個比例")
+    ap.add_argument("--stage2-check-every", type=int, default=20,
+                    help="每幾步檢查一次信賴域")
+    ap.add_argument("--stage2-ramp", type=int, default=0,
+                    help="1 = 前半段只用弱算子（由弱到強）。0 = 全程同一池")
     ap.add_argument("--deliver-jpeg", type=float, default=0.0,
                     help="交付自壓的 JPEG 品質。**0 = 關閉，逐位元等於加這個"
                          "旗標之前。** 吃論文式的小數（0.85）也吃整數（85），"
@@ -747,6 +840,17 @@ def main() -> None:
                 # 讀到的是什麼。`extras` 的四欄（保留率、餘弦、兩個 RMS）只有
                 # 開著時才有。
                 "deliver_jpeg": args.deliver_jpeg,
+                # 分階段訓練的設定。**每一個未載的參數都要成為欄位不是註解**
+                # ——關著時這些欄位仍然寫出來，合併分片後才分得出哪些列是
+                # 兩段式跑出來的。逐圖的結果欄（退了幾次、守住多少）在
+                # `extras` 裡，只有開著時才有。
+                "stage2_steps": args.stage2_steps,
+                "stage2_ops": " ".join(args.stage2_ops),
+                "stage2_order": args.stage2_order,
+                "stage2_step_scale": args.stage2_step_scale,
+                "stage2_trust": args.stage2_trust,
+                "stage2_check_every": args.stage2_check_every,
+                "stage2_ramp": args.stage2_ramp,
                 **extras,
                 # DCT-Shield 的量化表由 `q_alg` 決定，base 是論文 §5.4 的
                 # 0.95、Y-only 是 §6.3 的 0.85。此前它只在 CLI 預設值裡，

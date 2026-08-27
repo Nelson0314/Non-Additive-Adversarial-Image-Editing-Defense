@@ -62,10 +62,18 @@ BASE="--data data/omniedit150 --loss latent_norm --steps 1000 --quantile 0 \
 --freq-weight jpeg_luma --freq-weight-power 0.25 --hop 8 --spectral-floor 0.04 \
 --conditions phase_gain --gain-ratio 1.0 --radius 2.0 --manifold-t 100"
 
+# `fp_w1`／`fp_w4` 用的是 `raw` 相加，而**主損失在乾淨影像上約 70–80、不動點項
+# 已正規化成 1**，所以那兩個權重實際只佔約 1/70 與 4/70——實測它們與階段一
+# 幾乎逐格相同（DISTS 0.1246／0.1203 對 0.1267，位移 0.7166／0.7132 對 0.7159）。
+# `fp_b*` 改用 `--manifold-balance normalised`：兩項都由 1 起步，**權重 1 才是
+# 等權**，這才是真正在掃「迎合淨化器」與「破壞編輯」之間的取捨。
 POINTS="
 fp_w1:--manifold-weight~1.0
 fp_w4:--manifold-weight~4.0
 fp_only:--manifold-only
+fp_b025:--manifold-weight~0.25~--manifold-balance~normalised
+fp_b1:--manifold-weight~1.0~--manifold-balance~normalised
+fp_b4:--manifold-weight~4.0~--manifold-balance~normalised
 "
 
 DEVS=(${1:-})

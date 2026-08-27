@@ -38,17 +38,29 @@ export DIFFPURE_CKPT="$HOME/thirdparty/diffpure/256x256_diffusion_uncond.pt"
 export TOKENIZERS_PARALLELISM=false
 cd "$ROOT"
 
-SRC=runs/ip2p_mainline
-OUT=runs/ip2p_fixedpoint/diffusion
-GAL=runs/gallery_fixedpoint
+# 三個路徑可由環境變數覆寫，讓同一支也能量不動點項那一批的防禦圖。
+# **影像清單要跟著換**：那一批是三張的篩選批，十張的清單會找不到防禦圖。
+SRC="${SRC:-runs/ip2p_mainline}"
+OUT="${OUT:-runs/ip2p_fixedpoint/diffusion}"
+GAL="${GAL:-runs/gallery_fixedpoint}"
+LIST="${LIST:-}"
 mkdir -p "$OUT" "$GAL"
 
 [ -f "$DIFFPURE_CKPT" ] || {
   echo "錯誤：找不到 $DIFFPURE_CKPT。缺了它整個算子會被靜默跳過。" >&2; exit 3; }
 
-# 十張，依任務族群切兩片，不用流水號。
+# 十張，依任務族群切兩片，不用流水號。給了 `LIST` 就改用那份清單，
+# 並且**不分片**——篩選批只有三張，切開反而讓每個 process 都要重載一次模型。
 A="task_attr_mod_color_11699 task_attr_mod_color_136767 task_attr_mod_color_184837 task_attr_mod_color_32648 task_attr_mod_color_6205"
 B="task_env_weather_112463 task_obj_remove_380621 task_obj_swap_joint_mask_276754 task_obj_swap_joint_mask_533428 task_obj_swap_rand_mask_417469"
+SHARDS="color object"
+if [ -n "$LIST" ]; then
+  [ -f "$LIST" ] || { echo "錯誤：找不到 $LIST" >&2; exit 2; }
+  A=$(tr '
+' ' ' < "$LIST"); B=""; SHARDS="color"
+fi
+N_EXPECT=$(printf '%s
+' $A $B | grep -c .)
 
 # `identity` 不可省：它是 retention 的分母，也是「未淨化那一側」的讀數。
 PUR="${PUR:-identity gridpure}"
@@ -61,7 +73,9 @@ TAGS=(${2:-floor ours_pg_m ours_ph_q dct_aj85})
 
 bash scripts/free_cards.sh --assert "${DEVS[*]}" || exit 3
 
-n=$(( ${#TAGS[@]} * 2 ))
+n_sh=$(printf '%s
+' $SHARDS | grep -c .)
+n=$(( ${#TAGS[@]} * n_sh ))
 if [ "$n" -gt $(( ${#DEVS[@]} * 2 )) ]; then
   echo "錯誤：$n 個 process 需要至少 $(( (n + 1) / 2 )) 張卡，只給了 ${#DEVS[@]} 張" >&2
   echo "      每卡 3 個實測會 OOM（docs/OPERATIONS.md）" >&2
@@ -71,7 +85,7 @@ fi
 # 地板的防禦圖就是原圖，借任何一個已完成的目錄當影像來源即可。
 FLOOR_SRC=""
 for d in "$SRC"/*/; do
-  [ "$(ls -1 "$d"/*__def.png 2>/dev/null | wc -l)" -eq 10 ] && FLOOR_SRC="${d%/}" && break
+  [ "$(ls -1 "$d"/*__def.png 2>/dev/null | wc -l)" -eq "$N_EXPECT" ] && FLOOR_SRC="${d%/}" && break
 done
 
 i=0
@@ -82,9 +96,10 @@ for tag in "${TAGS[@]}"; do
   else
     run="$SRC/$tag"; extra=""
     n_def=$(ls -1 "$run"/*__def.png 2>/dev/null | wc -l)
-    [ "$n_def" -ne 10 ] && { echo "錯誤：$tag 只有 $n_def/10 張防禦圖" >&2; exit 3; }
+    [ "$n_def" -ne "$N_EXPECT" ] && {
+      echo "錯誤：$tag 只有 $n_def/$N_EXPECT 張防禦圖" >&2; exit 3; }
   fi
-  for sh in color object; do
+  for sh in $SHARDS; do
     case $sh in color) IM="$A" ;; object) IM="$B" ;; esac
     dev=${DEVS[$(( i / 2 % ${#DEVS[@]} ))]}
     i=$(( i + 1 ))

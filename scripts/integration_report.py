@@ -29,15 +29,40 @@
 
 from __future__ import annotations
 
+import argparse
 import csv
 import glob
 import os
 import statistics as st
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
+
+from compare_sheet import PanelPool, read_purify
 
 ROOT = Path(__file__).resolve().parents[1]
 BAND = (0.1286, 0.1447)          # 失真帶，docs/PENDING.md
+
+# 圖那一節要畫哪幾個條件。
+# `(tag, 檔名裡的條件段, 來源目錄, 標籤, 有沒有跑過抗淨化)`
+#
+# **`nd_plane_*` 那兩列的抗淨化整批沒跑**（P1 未通過，依事前判準不必往下走），
+# 所以它們在淨化那兩欄是空的，而且必須標明「沒跑」而不是留白——留白會被讀成
+# 「跑了但沒東西」。這正是本頁要示範的那種區別。
+PANEL_CONDS = [
+    ("ours_pg_m", "phase_gain", "runs/ip2p_mainline",
+     "相位＋增益 r2.0（重疊 STFT，不交付）", True),
+    ("ours_pg_q", "phase_gain", "runs/ip2p_mainline",
+     "相位＋增益 r0.9 ＋量化交付", True),
+    ("nd_plane_25", "dct_nonadd", "runs/ip2p_dct_nonadd",
+     "DCT 學習平面 θ2.5（浮點係數，不交付）", False),
+    ("nd_plane_25_qd", "dct_nonadd", "runs/ip2p_dct_nonadd",
+     "DCT 學習平面 θ2.5 ＋事後投影交付", False),
+    ("dct_aj85", "dct_shield_y", "runs/ip2p_mainline",
+     "DCT-Shield（§6.3 論文設定）", True),
+]
+
+PANEL_COLS = ["原圖", "防禦圖", "淨化後的防禦圖", "編輯（原圖）",
+              "編輯（防禦圖）", "編輯（淨化防禦圖）"]
 
 
 # ---------------------------------------------------------------------------
@@ -383,6 +408,100 @@ def architecture() -> str:
 
 
 # ---------------------------------------------------------------------------
+# 圖：六格比對
+# ---------------------------------------------------------------------------
+
+def _cell(pool: PanelPool, path: Optional[Path], missing: str = "") -> str:
+    """`missing` 只在檔案不存在時出現，用來分辨「沒有這一格」與「沒跑」。"""
+    cls = pool.cls(path) if path is not None else None
+    if cls:
+        return f'<div class="cellwrap"><div class="p {cls}"></div></div>'
+    lab = f'<span class="na">{_esc(missing)}</span>' if missing else ""
+    return f'<div class="cellwrap"><div class="p empty">{lab}</div></div>'
+
+
+def image_section(args, points: Dict[str, dict]) -> str:
+    """每一張影像一組六格。**十張全上，不挑圖。**"""
+    pool = PanelPool(args.quality)
+    gal = ROOT / args.gallery
+    purify_dir = ROOT / args.purify_dir
+    images = [ln.strip() for ln in
+              open(ROOT / args.images, encoding="utf-8") if ln.strip()]
+
+    per_image: Dict[str, Dict[str, dict]] = {}
+    for tag, _, src, _, _ in PANEL_CONDS:
+        p = ROOT / src / tag / "results.csv"
+        per_image[tag] = ({r["image"]: r for r in
+                           csv.DictReader(open(p, encoding="utf-8"))}
+                          if p.exists() else {})
+    pur = {tag: (read_purify(purify_dir, tag, args.purifier) if has else {})
+           for tag, _, _, _, has in PANEL_CONDS}
+    floor = read_purify(purify_dir, "floor", args.purifier)
+
+    out: List[str] = []
+    for img in images:
+        out.append(f'<h3 class="imgh">{_esc(img)}</h3>')
+        out.append('<div class="pgrid head">'
+                   + "".join(f"<span>{_esc(c)}</span>" for c in PANEL_COLS)
+                   + "</div>")
+        base = ROOT / "runs/ip2p_mainline/ours_pg_m"
+        orig = base / f"{img}__orig.png"
+        edit_orig = base / f"{img}__phase_gain__edit_orig.png"
+        fr = floor.get(img, {})
+        out.append(
+            '<div class="rowhead floorrow"><span class="ptag">空白地板'
+            f'（沒有防禦，只有 {_esc(args.purifier)}）</span>'
+            f'<span class="pnums">算子自己造成的位移 <b>'
+            f'{_fmt(fr.get("effect_mean"))}</b>　任何淨增益都要扣掉這一格'
+            "</span></div>")
+        out.append(
+            '<div class="pgrid">'
+            + _cell(pool, orig) + _cell(pool, None, "無防禦")
+            + _cell(pool, gal / "floor" / f"{img}__None__{args.purifier}__pur.png")
+            + _cell(pool, edit_orig) + _cell(pool, None, "無防禦")
+            + _cell(pool, gal / "floor" / f"{img}__None__{args.purifier}__edit_def.png")
+            + "</div>")
+
+        for tag, cond, src, label, has in PANEL_CONDS:
+            d = per_image[tag].get(img, {})
+            pr = pur[tag].get(img, {})
+            eff = pr.get("effect_mean")
+            net = None
+            if eff not in (None, "") and fr.get("effect_mean") not in (None, ""):
+                net = float(eff) - float(fr["effect_mean"])
+            tail = (f'　{_esc(args.purifier)} 位移 <b>{_fmt(eff)}</b>'
+                    f'　扣地板淨增益 <b>{_fmt(net)}</b>' if has
+                    else '　<span class="na">抗淨化整批沒跑</span>')
+            out.append(
+                f'<div class="rowhead"><span class="ptag">{_esc(label)}</span>'
+                f'<span class="pnums">DISTS <b>{_fmt(d.get("fid_dists"))}</b>'
+                f'　PSNR <b>{_fmt(d.get("fid_psnr"), "{:.2f}")}</b>'
+                f'　L∞ <b>{_fmt(d.get("fid_linf"))}</b>'
+                f'　未淨化位移 <b>{_fmt(d.get("edit_lpips"))}</b>{tail}</span></div>')
+            sd = ROOT / src / tag
+            miss = "" if has else "沒跑"
+            out.append(
+                '<div class="pgrid">'
+                + _cell(pool, orig)
+                + _cell(pool, sd / f"{img}__{cond}__def.png")
+                + _cell(pool, (gal / tag / f"{img}__{cond}__{args.purifier}__pur.png")
+                        if has else None, miss)
+                + _cell(pool, edit_orig)
+                + _cell(pool, sd / f"{img}__{cond}__edit_def.png")
+                + _cell(pool, (gal / tag / f"{img}__{cond}__{args.purifier}__edit_def.png")
+                        if has else None, miss)
+                + "</div>")
+    return "<style>" + pool.css() + "</style>" + "".join(out)
+
+
+def _fmt(v, spec="{:.4f}") -> str:
+    try:
+        return spec.format(float(v))
+    except (TypeError, ValueError):
+        return "—"
+
+
+# ---------------------------------------------------------------------------
 # 頁面
 # ---------------------------------------------------------------------------
 
@@ -453,13 +572,33 @@ td.num{font-variant-numeric:tabular-nums;text-align:right}
 .arch .agapt{fill:var(--mut);font-size:12.5px}
 .arch .agapt.bad{fill:var(--bad)}
 .arch .agapt.good{fill:var(--good)}
+.imgh{font-size:14px;margin:26px 0 6px;color:var(--mut);
+font-family:ui-monospace,Menlo,monospace}
+.pgrid{display:grid;grid-template-columns:repeat(6,1fr);gap:7px;margin:6px 0}
+.pgrid.head span{font-size:11.5px;color:var(--mut)}
+.cellwrap{display:flex;flex-direction:column}
+.p{aspect-ratio:1/1;background-size:cover;background-position:center;
+border-radius:6px;border:1px solid var(--line);display:flex;
+align-items:center;justify-content:center}
+.p.empty{background:repeating-linear-gradient(45deg,transparent,transparent 7px,
+var(--band) 7px,var(--band) 14px);border-style:dashed}
+.rowhead{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;
+margin:16px 0 0}
+.ptag{font-weight:600;font-size:14px}
+.pnums{color:var(--mut);font-size:12.5px;font-variant-numeric:tabular-nums}
+.pnums b{color:var(--fg);font-weight:600}
+.floorrow .ptag{color:var(--bad)}
+.na{color:var(--mut);font-size:11.5px}
 .foot{color:var(--mut);font-size:13px;margin-top:44px}
 code{font:13px ui-monospace,SFMono-Regular,Menlo,monospace;
 background:var(--band);padding:1px 5px;border-radius:4px}
 """
 
 
-def page(p: Dict[str, dict]) -> str:
+def page(p: Dict[str, dict], args) -> str:
+    panels = (image_section(args, p) if not args.no_images else
+              '<p class="lede">本次產生時關閉了影像面板（<code>--no-images</code>）'
+              '——那一節是人眼裁定的依據，關掉之後這一頁只剩指標。</p>')
     plane = [(p[t]["dists"], p[t]["disp"])
              for t in ("nd_plane_12", "nd_plane_18", "nd_plane_25", "nd_plane_31")]
     g11 = interpolate(plane, p["nd_gain_11"]["dists"])
@@ -467,7 +606,12 @@ def page(p: Dict[str, dict]) -> str:
 
     def row(tag, label, note=""):
         d = p[tag]
-        blocked = "—" if d.get("blocked") is None else f'{d["blocked"]}/10'
+        n = d.get("n", 10)
+        blocked = "—" if d.get("blocked") is None else f'{d["blocked"]}/{n}'
+        # **分母不可以寫死。** 還在跑的批次 n 小於十，寫成 x/10 會讓一個
+        # 未完成的讀數看起來像定案的（`docs/PENDING.md` 已記過同型的錯）。
+        if n != 10:
+            note = (note + "　" if note else "") + f"n={n}，還在跑"
         return (f"<tr><td>{_esc(label)}</td>"
                 f'<td class="num">{d["dists"]:.4f}</td>'
                 f'<td class="num">{d["psnr"]:.2f}</td>'
@@ -561,7 +705,22 @@ def page(p: Dict[str, dict]) -> str:
 {urows}
 </tbody></table>
 
-<h2>七、整併版的四條判準（跑之前就寫下）</h2>
+<h2>七、看得到的差別</h2>
+<p>指標會在這裡分岔，所以要有圖。淨增益量的是位移，而位移把「單純變糊變髒」
+與「模型把原圖丟掉重畫」算成同一件事——<strong>人眼只認後者</strong>。
+兩者已經差過一次：同一批上淨增益只差 1.14 倍，人眼判定是 5 擋下對 0。</p>
+<p>每一張影像的第一列是<strong>空白地板</strong>：沒有防禦、只有淨化。
+沒有它就無法排除「看起來被擋下，其實是算子自己把圖弄壞了」。
+淨化算子取 <code>{args.purifier}</code>，十張全上，不挑圖。</p>
+<p class="lede"><strong>DCT 學習平面那兩列在淨化欄是空的，標成「沒跑」。</strong>
+那一批的抗淨化整批沒有跑（P1 未通過，依事前判準不必往下走），
+留白會被讀成「跑了但沒東西」，兩者不是同一件事。</p>
+<p class="lede">面板是原生 512 不縮放、以品質 {args.quality} 的 JPEG 內嵌。防禦擾動的
+RMS 在 0.04–0.07、L∞ 在 0.3–0.7，遠高於該品質的量化雜訊，所以看得到的差異
+不是編碼造成的；要逐像素驗證失真請看 <code>runs/</code> 底下的原生 PNG。</p>
+{panels}
+
+<h2>八、整併版的四條判準（跑之前就寫下）</h2>
 {ustatus}
 <table><thead><tr><th>判準</th><th>內容</th></tr></thead><tbody>
 <tr><td>U1</td><td><strong>主判準。</strong>等失真下的未淨化位移要高於
@@ -592,10 +751,22 @@ rfft2 有 17 階。空間選擇性正是本方法對 DCT-Shield 的主要構造�
 
 
 def main() -> None:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--gallery", default="runs/gallery_mainline")
+    ap.add_argument("--purify-dir", default="runs/ip2p_mainline_purify")
+    ap.add_argument("--images", default="runs/ip2p_fair_comparison/images10.txt")
+    ap.add_argument("--purifier", default="jpeg30")
+    ap.add_argument("--quality", type=int, default=88)
+    ap.add_argument("--no-images", action="store_true",
+                    help="只出圖表與架構圖。**沒有影像的機器上才用**——"
+                         "少了那一節就少了人眼裁定的依據")
+    ap.add_argument("--out", default="report_integration.html")
+    args = ap.parse_args()
     p = load_points()
-    out = ROOT / "report_integration.html"
-    out.write_text(page(p), encoding="utf-8")
-    print(f"寫出 {out}（{out.stat().st_size / 1024:.0f} KB、{len(p)} 個工作點）")
+    out = ROOT / args.out
+    out.write_text(page(p, args), encoding="utf-8")
+    mb = out.stat().st_size / 1024 / 1024
+    print(f"寫出 {out}（{mb:.1f} MB、{len(p)} 個工作點）")
 
 
 if __name__ == "__main__":

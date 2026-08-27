@@ -60,7 +60,14 @@ IMGS=$(tr '\n' ' ' < runs/ip2p_fair_comparison/images10.txt)
 # 旋轉作用在量化的哪一側、以及交付什麼**。
 COMMON="--data data/omniedit150 --loss latent_norm --steps 1000 --dct-qd 0.85"
 
+# **theta 的第一次取值全部超出失真帶**：1.8 就已經是 DISTS 0.2014（帶的上緣
+# 是 0.1447），而我由浮點版外推的預測是 0.125——低估了 60%。原因是量化把
+# 通帶內 81% 的係數清成零，旋轉只能在剩下那些**大**係數之間搬能量，一動就是
+# 大動（L∞ 直接飽和到 1.0）。補兩個小角度把帶內的點補出來，否則等失真比較
+# 沒有可內插的區間，U1 既不能通過也不能否決。
 POINTS="
+du_plane_08:--conditions~dct_unified~--radius~0.8
+du_plane_11:--conditions~dct_unified~--radius~1.1
 du_plane_18:--conditions~dct_unified~--radius~1.8
 du_plane_22:--conditions~dct_unified~--radius~2.2
 du_plane_25:--conditions~dct_unified~--radius~2.5

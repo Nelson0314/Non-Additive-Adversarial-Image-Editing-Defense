@@ -34,6 +34,11 @@
 → [RESULTS.md](RESULTS.md) 的「已否決的方向」一節；若是最近量的但還沒裁定，
 在 [PENDING.md](PENDING.md)。
 
+**「別的領域怎麼讓訊號活過失真？」**
+→ [reference/SURVEY_NOISE_RESISTANCE.md](reference/SURVEY_NOISE_RESISTANCE.md)：
+穩健浮水印的工具箱，以及它為什麼有一半（同步、模板、不變域、處理增益）
+依賴一個防護擾動沒有的解碼端。
+
 **「這篇論文我們讀過嗎？」**
 → [reference/BIBLIOGRAPHY.md](reference/BIBLIOGRAPHY.md) 是總索引，逐篇細節在
 同目錄的其他檔。

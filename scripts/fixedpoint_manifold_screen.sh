@@ -81,6 +81,14 @@ ONLY="${2:-}"
 [ ${#DEVS[@]} -eq 0 ] || [ -z "${DEVS[0]}" ] && {
   echo "用法：$0 \"<卡號>\" [\"<tag> ...\"]" >&2; exit 2; }
 
+# **派工前先確認遠端的驅動認得這些旗鈕。** 本地改完忘了同步 `ip2p_run.py`
+# 已經發生過一次：三個點在 argparse 就被擋下，卡空跑了半小時才發現。
+for f in --manifold-weight --manifold-balance --manifold-only; do
+  grep -q -- "$f" scripts/ip2p_run.py || {
+    echo "錯誤：scripts/ip2p_run.py 不認得 $f，先把本機的改動同步上來" >&2
+    exit 2; }
+done
+
 bash scripts/free_cards.sh --assert "${DEVS[*]}" || exit 3
 
 selected() { [ -z "$ONLY" ] && return 0; for t in $ONLY; do [ "$t" = "$1" ] && return 0; done; return 1; }

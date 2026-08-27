@@ -9,6 +9,7 @@
 | [SURVEY_FREQUENCY.md](SURVEY_FREQUENCY.md) | 頻域／相位方法與抗淨化，逐篇的具體運算 |
 | [SURVEY_PHASE_PRIORART.md](SURVEY_PHASE_PRIORART.md) | 相位擾動的前例，新穎性主張的邊界 |
 | [SURVEY_NOISE_RESISTANCE.md](SURVEY_NOISE_RESISTANCE.md) | 穩健浮水印的工具箱，以及它為什麼有一半不能移植到防護擾動 |
+| [SURVEY_FRONTIER.md](SURVEY_FRONTIER.md) | 新穎性侵蝕的盤點、2026 的攻防前沿、以及不動點框架這個沒被佔走的定位 |
 | [SURVEY_GENERAL.md](SURVEY_GENERAL.md) | 早期的通論式 survey |
 | [ROBUSTNESS_TESTS.md](ROBUSTNESS_TESTS.md) | 三份抗淨化檢定協定的精確設定 |
 | [BASELINE_ALIGNMENT.md](BASELINE_ALIGNMENT.md) | 威脅模型不對齊時，文獻上的四種處理方式 |

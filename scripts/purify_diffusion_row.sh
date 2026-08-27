@@ -85,7 +85,7 @@ fi
 # 地板的防禦圖就是原圖，借任何一個已完成的目錄當影像來源即可。
 FLOOR_SRC=""
 for d in "$SRC"/*/; do
-  [ "$(ls -1 "$d"/*__def.png 2>/dev/null | wc -l)" -eq "$N_EXPECT" ] && FLOOR_SRC="${d%/}" && break
+  [ "$(ls -1 "$d"/*__def.png 2>/dev/null | wc -l)" -ge "$N_EXPECT" ] && FLOOR_SRC="${d%/}" && break
 done
 
 i=0
@@ -95,9 +95,12 @@ for tag in "${TAGS[@]}"; do
     [ -z "$run" ] && { echo "錯誤：地板需要一個已完成的防禦目錄當影像來源" >&2; exit 3; }
   else
     run="$SRC/$tag"; extra=""
-    n_def=$(ls -1 "$run"/*__def.png 2>/dev/null | wc -l)
-    [ "$n_def" -ne "$N_EXPECT" ] && {
-      echo "錯誤：$tag 只有 $n_def/$N_EXPECT 張防禦圖" >&2; exit 3; }
+    # **逐張檢查而不是數總數**：十張的目錄拿來跑三張的子集是合法的，
+    # 數總數會把它誤判成「防禦圖不齊」。要擋的是「這一張沒有防禦圖」。
+    for im in $A $B; do
+      ls "$run"/${im}__*__def.png >/dev/null 2>&1 || {
+        echo "錯誤：$tag 缺 $im 的防禦圖" >&2; exit 3; }
+    done
   fi
   for sh in $SHARDS; do
     case $sh in color) IM="$A" ;; object) IM="$B" ;; esac

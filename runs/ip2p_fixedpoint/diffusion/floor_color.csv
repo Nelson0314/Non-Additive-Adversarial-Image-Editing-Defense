@@ -1,0 +1,11 @@
+image,condition,budget_target,purifier,effect_mean,effect_sd,effect_identity_mean,effect_identity_sd,retention,siglip_sim,siglip_blocked,edit_strength,usable,seconds
+task_attr_mod_color_11699,none,floor,identity,0.0,0.0,0.0,0.0,,1.0,False,0.8,True,594.4
+task_attr_mod_color_11699,none,floor,gridpure,0.17389,0.00495,0.0,0.0,,0.981,False,0.8,True,594.4
+task_attr_mod_color_136767,none,floor,identity,0.0,0.0,0.0,0.0,,1.0,False,0.8,True,571.3
+task_attr_mod_color_136767,none,floor,gridpure,0.16934,0.03413,0.0,0.0,,0.96523,False,0.8,True,571.3
+task_attr_mod_color_184837,none,floor,identity,0.0,0.0,0.0,0.0,,1.0,False,0.8,True,571.4
+task_attr_mod_color_184837,none,floor,gridpure,0.13991,0.03855,0.0,0.0,,0.9708,False,0.8,True,571.4
+task_attr_mod_color_32648,none,floor,identity,0.0,0.0,0.0,0.0,,1.0,False,0.8,True,570.7
+task_attr_mod_color_32648,none,floor,gridpure,0.26751,0.00684,0.0,0.0,,0.93756,False,0.8,True,570.7
+task_attr_mod_color_6205,none,floor,identity,0.0,0.0,0.0,0.0,,1.0,False,0.8,True,570.9
+task_attr_mod_color_6205,none,floor,gridpure,0.19401,0.06648,0.0,0.0,,0.94918,False,0.8,True,570.9

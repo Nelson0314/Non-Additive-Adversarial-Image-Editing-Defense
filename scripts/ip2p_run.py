@@ -377,7 +377,8 @@ def defend(ip2p, suite, cond, x01, args, loss_fn):
                           dct_qd=args.dct_qd, dct_pairing=args.dct_pairing,
                           dct_gate=args.dct_gate,
                           warp_init_std=args.warp_init_std,
-                          dct_mode=args.dct_mode)
+                          dct_mode=args.dct_mode,
+                          dct_plane_weight=args.dct_plane_weight)
     q_deliver = deliver_quality(args)
     run_extras: dict = {}
 
@@ -650,6 +651,10 @@ def build_parser() -> argparse.ArgumentParser:
                     help="每幾步檢查一次信賴域")
     ap.add_argument("--stage2-ramp", type=int, default=0,
                     help="1 = 前半段只用弱算子（由弱到強）。0 = 全程同一池")
+    ap.add_argument("--dct-plane-weight", choices=("uniform", "priced"),
+                    default="uniform",
+                    help="整併版旋轉的目標方向要不要依 JPEG 量化表定價。"
+                         "uniform 逐位元等於加這個旗鈕之前")
     ap.add_argument("--deliver-jpeg", type=float, default=0.0,
                     help="交付自壓的 JPEG 品質。**0 = 關閉，逐位元等於加這個"
                          "旗標之前。** 吃論文式的小數（0.85）也吃整數（85），"
@@ -837,6 +842,7 @@ def main() -> None:
                 "dct_qd": args.dct_qd,
                 "dct_pairing": args.dct_pairing,
                 "dct_gate": args.dct_gate,
+                "dct_plane_weight": args.dct_plane_weight,
                 # 防禦端的 PGD 步數。**本方法預設 100，DCT-Shield 是 1000**
                 # （該篇 §5.4），頭對頭表上這個差異從未被控制過，故逐列記下。
                 "defense_steps": defense_steps(args, cond),

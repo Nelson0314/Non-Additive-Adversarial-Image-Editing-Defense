@@ -99,7 +99,7 @@ def build(name: str, seed: int, block: int = 32, r_min: float = 0.12,
           coarsen: int = 1,
           dct_qd: float = 0.85, dct_pairing: str = "transpose",
           dct_gate: str = "texture", warp_init_std: float = 0.0,
-          dct_mode: str = "plane"):
+          dct_mode: str = "plane", dct_plane_weight: str = "uniform"):
     """`block`／`r_min`／`quantile` 是相位算子的三個構造設定。
 
     預設值是 現行定案（`docs/METHOD.md` §4）。開放成參數是為了掃描
@@ -132,7 +132,8 @@ def build(name: str, seed: int, block: int = 32, r_min: float = 0.12,
                else DctUnifiedRandomParam)
         return (cls(radius=DCT_ROTATE_RADIUS_HI, qd=dct_qd,
                     r_min=r_min, gate=dct_gate,
-                    gate_edge_power=gate_edge_power),
+                    gate_edge_power=gate_edge_power,
+                    plane_weight=dct_plane_weight),
                 DCT_ROTATE_RADIUS_LO, DCT_ROTATE_RADIUS_HI)
     if name in ("dct_rotate", "dct_rotate_rand"):
         # DCT 域的保長配對旋轉（`runs/dct_phase_design/README.md`）。

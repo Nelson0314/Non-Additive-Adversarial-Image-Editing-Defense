@@ -61,7 +61,7 @@ from typing import Dict, List, Optional, Sequence
 import torch
 
 from src.baselines.jpeg_codec import (
-    CHANNEL_NAMES, jpeg_decode, jpeg_encode, normalize_quality,
+    CHANNEL_NAMES, jpeg_decode, jpeg_encode, normalize_quality, quant_table,
 )
 from src.defense.dct_nonadditive import band_indices, rotate_in_plane
 from src.defense.dct_rotation import block_texture_gate
@@ -88,6 +88,7 @@ class DctUnifiedParam:
         gate_edge_power: float = 1.0,
         channels: Sequence[str] = CHANNEL_NAMES,
         plane_init_std: float = 1.0,
+        plane_weight: str = "uniform",
     ):
         bad = set(channels) - set(CHANNEL_NAMES)
         if bad:
@@ -104,8 +105,16 @@ class DctUnifiedParam:
         self.gate = gate
         self.gate_sigma = float(gate_sigma)
         self.gate_edge_power = float(gate_edge_power)
+        if plane_weight not in ("uniform", "priced"):
+            raise ValueError(
+                f"未知的 plane_weight {plane_weight!r}，可用的是 uniform／priced")
         self.channels = tuple(channels)
         self.plane_init_std = float(plane_init_std)
+        # 旋轉的目標方向要不要依知覺定價加權。`uniform` 逐位元等於加這個
+        # 旗鈕之前。理由見 `runs/integration_design/README.md` 的動作天花板：
+        # 等殘差下 `priced` 的 DISTS 只有 `uniform` 的 0.69–0.73 倍。
+        self.plane_weight = plane_weight
+        self.weights: Dict[str, torch.Tensor] = {}
         self.alpha: Dict[str, torch.Tensor] = {}
         self.gates: Dict[str, torch.Tensor] = {}
         self.params_: Dict[str, Dict[str, torch.Tensor]] = {}
@@ -142,6 +151,18 @@ class DctUnifiedParam:
             if name not in self.channels:
                 continue
 
+            # 量化步長大＝該頻率人眼不敏感＝把能量搬去那裡便宜。這張表在
+            # 8×8 上是**原生的**，不必像 STFT 那一臂重採樣到 rfft2 格點。
+            if self.plane_weight == "priced":
+                tbl = quant_table(q, chroma=(name != "Y"),
+                                  device=a.device, dtype=a.dtype)
+                w = torch.tensor([float(tbl[u, v]) for u, v in self.idx],
+                                 device=a.device, dtype=a.dtype)
+                self.weights[name] = (w / w.mean()).detach()
+            else:
+                self.weights[name] = torch.ones(k, device=a.device,
+                                                dtype=a.dtype)
+
             def mk(shape):
                 t = torch.randn(shape, generator=g) * self.plane_init_std
                 return t.to(device=a.device, dtype=a.dtype).requires_grad_(True)
@@ -167,7 +188,11 @@ class DctUnifiedParam:
             p = self.params_[name]
             gt = self.gates[name][..., None]
             sub = a[..., rows, cols]
-            new = rotate_in_plane(sub, p["u"], p["v"], p["theta"] * gt)
+            # **定價乘在方向上、不乘在角度上**：角度是預算（由 radius 夾），
+            # 方向是「往哪裡搬」。乘在角度上會變成逐格的強度調整，那是另一件事。
+            pw = self.weights[name]
+            new = rotate_in_plane(sub, p["u"] * pw, p["v"] * pw,
+                                  p["theta"] * gt)
             r = a.clone()
             r[..., rows, cols] = new
             # 取整走直通估計：前向是真的 round，反向當恆等（DiffJPEG）。

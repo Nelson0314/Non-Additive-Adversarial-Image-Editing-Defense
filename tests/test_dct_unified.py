@@ -162,3 +162,45 @@ def test_deliver_jpeg_is_refused_on_the_unified_condition():
         ["--out", "o", "--data", "d", "--radius", "2.2", "--deliver-jpeg", "0.85"])
     with pytest.raises(SystemExit, match="交付品質請用 --dct-qd"):
         mod.defend(None, None, "dct_unified", _img(), args, lambda z: z.mean())
+
+
+def test_priced_plane_weight_is_off_by_default():
+    """預設 `uniform` 逐位元等於加這個旗鈕之前。"""
+    x = _img(8)
+    a = DctUnifiedParam(radius=1.1, qd=0.85)
+    b = DctUnifiedParam(radius=1.1, qd=0.85, plane_weight="uniform")
+    a.reset(x, 0); b.reset(x, 0)
+    with torch.no_grad():
+        for p in list(a.params_.values()) + list(b.params_.values()):
+            p["theta"].fill_(1.1)
+    assert torch.equal(a.render(x), b.render(x))
+
+
+def test_priced_plane_weight_changes_the_direction():
+    """定價乘在**方向**上，所以同一個角度下殘差不同、而且更便宜。"""
+    x = _img(9)
+    out = {}
+    for w in ("uniform", "priced"):
+        p = DctUnifiedParam(radius=1.1, qd=0.85, plane_weight=w)
+        p.reset(x, 0)
+        with torch.no_grad():
+            for q in p.params_.values():
+                q["theta"].fill_(1.1)
+        r = p.render(x) - jpeg_roundtrip(x, 0.85)
+        out[w] = (float(r.pow(2).mean().sqrt()), float(r.abs().max()))
+    assert out["priced"] != out["uniform"]
+    # 動作天花板量到定價的殘差較小、L-infinity 較低（同一個角度下）
+    assert out["priced"][1] < out["uniform"][1]
+
+
+def test_priced_keeps_the_theta_zero_identity():
+    """恆等的對象仍然是壓縮圖——定價不可以把這條構造性質弄壞。"""
+    x = _img(10)
+    p = DctUnifiedParam(radius=1.1, qd=0.85, plane_weight="priced")
+    p.reset(x, 0)
+    assert torch.equal(p.render(x), jpeg_roundtrip(x, 0.85))
+
+
+def test_unknown_plane_weight_raises():
+    with pytest.raises(ValueError, match="未知的 plane_weight"):
+        DctUnifiedParam(plane_weight="cheap")

@@ -44,6 +44,14 @@
 # 附近，夾住失真帶 0.1286–0.1447。**落在帶外的點不可用於等失真比較**，
 # 而 `matched_distortion_table.py` 拒絕外插——三點是為了確保帶內有得內插。
 #
+# `du_priced_*`：旋轉的**目標方向**依 JPEG 量化表定價（步長大＝人眼不敏感）。
+# 動作天花板（`scripts/dct_action_ceiling.py`，十張、純 CPU）在等殘差 RMS 下量到
+# 定價的 DISTS 只有均勻取向的 **0.69–0.73 倍**，而「限制在非零支撐上」反而是
+# **1.47–1.70 倍**（更貴）。**先前把飽和歸因於「能量被丟進空格子」是錯的**：
+# 最便宜的那一種恰恰把 80% 的能量放進原本是零的格子。決定價錢的是**目標頻率
+# 的知覺代價**，不是那一格原本是不是零。角度取得比均勻版大，因為定價在同一個
+# 角度下移動得較少（實測 RMS 0.047 對 0.087）。
+#
 # 用法：bash scripts/dct_unified_sweep.sh "<卡號>" ["<tag> ..."]
 set -uo pipefail
 ROOT=/nfs/home/nelson0314/WACV-s3
@@ -72,6 +80,9 @@ du_plane_18:--conditions~dct_unified~--radius~1.8
 du_plane_22:--conditions~dct_unified~--radius~2.2
 du_plane_25:--conditions~dct_unified~--radius~2.5
 du_rand_22:--conditions~dct_unified_rand~--radius~2.2
+du_priced_18:--conditions~dct_unified~--radius~1.8~--dct-plane-weight~priced
+du_priced_24:--conditions~dct_unified~--radius~2.4~--dct-plane-weight~priced
+du_priced_30:--conditions~dct_unified~--radius~3.0~--dct-plane-weight~priced
 "
 
 DEVS=(${1:-})

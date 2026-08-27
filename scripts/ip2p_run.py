@@ -74,6 +74,7 @@ from src.defense.purify_aware import (  # noqa: E402
 from src.defense.param_pgd import (  # noqa: E402
     fit_to_budget, run_param_pgd, run_stage2_pgd,
 )
+from src.defense.fixedpoint_loss import make_normalised_term  # noqa: E402
 from src.residual.perceptual_weight import FREQ_WEIGHTS  # noqa: E402
 from src.residual.texture_rephase import FLOOR_GATES  # noqa: E402
 from src.metrics.standard import (  # noqa: E402
@@ -651,6 +652,22 @@ def build_parser() -> argparse.ArgumentParser:
                     help="每幾步檢查一次信賴域")
     ap.add_argument("--stage2-ramp", type=int, default=0,
                     help="1 = 前半段只用弱算子（由弱到強）。0 = 全程同一池")
+    # ---- 不動點項（`runs/fixedpoint_framework/README.md` 第五節）----
+    # **`--manifold-weight 0` 且 `--manifold-only` 關著時逐位元等於加這組旗標
+    # 之前**，由 `tests/test_fixedpoint_loss.py` 釘住。
+    ap.add_argument("--manifold-weight", type=float, default=0.0,
+                    help="不動點項的權重。0 = 關閉。項本身已用乾淨影像上的值"
+                         "正規化，故起點恰為 1，權重可跨影像比較")
+    ap.add_argument("--manifold-t", type=int, default=100,
+                    help="不動點項抽樣的時間步上限（總共 1000 步）。取小段是"
+                         "為了對齊淨化器實際走的噪聲尺度")
+    ap.add_argument("--manifold-balance", choices=("raw", "normalised"),
+                    default="raw",
+                    help="raw = 直接相加（權重 1 實際只佔約 1/70）；"
+                         "normalised = 主項也除以乾淨影像上的值，兩項"
+                         "都由 1 起步，權重 1 才是等權")
+    ap.add_argument("--manifold-only", action="store_true",
+                    help="判準 F3 的歸因對照：只留不動點項、拿掉對抗項")
     ap.add_argument("--dct-plane-weight", choices=("uniform", "priced"),
                     default="uniform",
                     help="整併版旋轉的目標方向要不要依 JPEG 量化表定價。"
@@ -742,6 +759,40 @@ def main() -> None:
     else:
         loss_fn = make_encoder_target_loss(ip2p, y_target)
 
+    base_loss_fn = loss_fn
+
+    def wrap_manifold(x01):
+        """把不動點項接到防禦損失上。**逐圖重建**：正規化的分母是該張乾淨
+        影像上的殘差，換了影像就要重算，共用會讓權重的意義隨影像漂移。
+
+        `--manifold-only` 是判準 F3 要求的歸因對照：只留不動點項、拿掉對抗項，
+        用來分辨改善來自「迎合淨化器」還是來自失真型態改變。
+        """
+        term = make_normalised_term(
+            ip2p, x01, t_max=args.manifold_t, seed=args.seed)
+        # **兩項的量級差兩個數量級**：`latent_norm` 在乾淨影像上約 70–80，
+        # 不動點項已正規化成 1。`raw` 直接相加，於是權重 1 實際只佔約 1/70；
+        # `normalised` 把主項也除以它在乾淨影像上的值，兩項都由 1 起步，
+        # **權重 1 才真的是等權**。預設 `raw` 是為了讓先跑的批次維持可解讀。
+        base_ref = 1.0
+        if args.manifold_balance == "normalised":
+            with torch.no_grad():
+                base_ref = abs(float(base_loss_fn(x01)))
+            if not base_ref > 0:
+                raise SystemExit(
+                    "主損失在乾淨影像上為零，無法做等權正規化——"
+                    "**不可以靜默退回 raw**，那會讓權重的意義隨影像而變")
+
+        def fn(x_def):
+            fix = term(x_def)
+            if args.manifold_only:
+                return fix
+            return base_loss_fn(x_def) / base_ref + args.manifold_weight * fix
+
+        fn.term = term
+        fn.base_ref = base_ref
+        return fn
+
     def edit(x01, item):
         return ip2p.edit(x01, item["prompt"], seed=args.edit_seed,
                          steps=args.edit_steps, s_t=args.text_guidance,
@@ -779,10 +830,20 @@ def main() -> None:
                   f"({time.time() - t0:.0f}s)", flush=True)
             continue
 
+        # 不動點項的正規化分母逐圖算一次；關著時 `use_loss` 就是 `loss_fn`
+        # 本身，**呼叫路徑逐位元不變**。
+        use_loss = loss_fn
+        if args.manifold_weight or args.manifold_only:
+            use_loss = wrap_manifold(x01)
+            print(f"  不動點項：乾淨影像上的殘差 {use_loss.term.reference:.5f}"
+                  f"、主項基準 {use_loss.base_ref:.4f}"
+                  f"（權重 {args.manifold_weight}／{args.manifold_balance}"
+                  f"{'，只留這一項' if args.manifold_only else ''}）", flush=True)
+
         for cond in args.conditions:
             t1 = time.time()
             x_def, radius, unreachable, modified, extras = defend(
-                ip2p, suite, cond, x01, args, loss_fn)
+                ip2p, suite, cond, x01, args, use_loss)
             fid = suite.pairwise(x01, x_def)
             e_def = edit(x_def, item)
             prot = suite.pairwise(e_orig, e_def)
@@ -843,6 +904,12 @@ def main() -> None:
                 "dct_pairing": args.dct_pairing,
                 "dct_gate": args.dct_gate,
                 "dct_plane_weight": args.dct_plane_weight,
+                # 不動點項的設定。**關著時這些欄位仍然寫出來**，合併分片後才
+                # 分得出哪些列帶著它跑。
+                "manifold_weight": args.manifold_weight,
+                "manifold_t": args.manifold_t,
+                "manifold_only": int(args.manifold_only),
+                "manifold_balance": args.manifold_balance,
                 # 防禦端的 PGD 步數。**本方法預設 100，DCT-Shield 是 1000**
                 # （該篇 §5.4），頭對頭表上這個差異從未被控制過，故逐列記下。
                 "defense_steps": defense_steps(args, cond),

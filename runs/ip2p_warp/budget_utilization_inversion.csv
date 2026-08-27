@@ -1,0 +1,5 @@
+tag,radius_px,steps,n_images,observed_fid_dists,observed_fid_psnr,alpha_px_per_step,path_length_px,random_walk_sigma_px,equiv_sigma_gauss_px,equiv_amp_coherent_px,equiv_over_random_walk,budget_used_frac
+opt_r4,4.0,1000,13,0.0143,30.973,0.016,16.0,0.506,0.399,0.3913,0.788,0.0997
+opt_r8,8.0,1000,13,0.01698,29.819,0.032,32.0,1.0119,0.4737,0.4563,0.468,0.0592
+opt_r16,16.0,1000,13,0.02659,26.594,0.064,64.0,2.0239,0.7719,1.6153,0.381,0.0482
+opt_r24,24.0,1000,13,0.04953,23.387,0.096,96.0,3.0358,1.4223,7.2728,0.469,0.0593

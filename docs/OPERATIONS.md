@@ -9,7 +9,7 @@ base 沒有 pytest）。
 python -m pytest -q
 ```
 
-基準 **728 passed / 1 skipped / 1 xfailed**。
+基準 **739 passed / 1 skipped / 1 xfailed**。
 
 - 裝了 `lpips` 套件的機器會少一項（`test_impress_未安裝_lpips_套件時不得靜默
   改用他者` 只能在缺該套件時驗證）。遠端因 IMPRESS 的預設後端就是它而必定裝有。

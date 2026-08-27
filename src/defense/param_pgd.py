@@ -389,19 +389,36 @@ class WarpParam:
     name = "warp"
 
     def __init__(self, radius: float = 8.0, grid: int = 16,
-                 roundtrip: bool = False):
+                 roundtrip: bool = False, init_std: float = 0.0):
         if grid < 2:
             raise ValueError(f"grid 必須至少為 2，收到 {grid}")
         self.radius = radius
         self.grid = grid
         self.roundtrip = roundtrip
+        self.init_std = float(init_std)
         self.c: Optional[torch.Tensor] = None
 
     def reset(self, x01: torch.Tensor, seed: int) -> None:
-        # 通道 0 = x 方向位移，通道 1 = y 方向位移，單位都是像素。
-        self.c = torch.zeros(1, 2, self.grid, self.grid,
-                             device=x01.device, dtype=x01.dtype,
-                             requires_grad=True)
+        """通道 0 = x 方向位移，通道 1 = y 方向位移，單位都是像素。
+
+        **`init_std = 0` 時是全零起點，逐位元等於加這個參數之前。**
+
+        非零時用 `seed` 抽一個高斯起點。存在的理由是實測的病灶：
+        `runs/ip2p_warp/step_probe_latent_norm.csv` 量到 `latent_norm` 在
+        **零位移處有一個帶折點的局部極小**——梯度完全正常（absmean 3.4e−2、
+        零元素比例 0.0000）但每走一步損失都上升（105.95 → 110.07），於是
+        sign PGD 在 0 與 ±α 之間形成週期 2 的振盪、`|c|` 恆等於 α。
+        而 `reset` 的 `seed` 參數先前**收下了卻沒有使用**，所以沒有離開
+        折點的辦法。要問「這個損失對位移場行不行」就必須從折點以外起步，
+        否則量到的是 sign PGD 的性質而不是損失的性質。
+        """
+        g = torch.Generator(device="cpu").manual_seed(seed)
+        if self.init_std > 0:
+            init = torch.randn(1, 2, self.grid, self.grid, generator=g) * self.init_std
+            init = init.clamp(-self.radius, self.radius)
+        else:
+            init = torch.zeros(1, 2, self.grid, self.grid)
+        self.c = init.to(device=x01.device, dtype=x01.dtype).requires_grad_(True)
 
     @staticmethod
     def _base_grid(h: int, w: int, device, dtype) -> torch.Tensor:
@@ -522,6 +539,8 @@ def run_param_pgd(
     seed: int = 0,
     log_every: int = 0,
     transform: Optional[Callable[[torch.Tensor, int], torch.Tensor]] = None,
+    update: str = "sign",
+    step_size: Optional[float] = None,
 ) -> ParamPGDResult:
     """共用迴圈。`loss_fn(x_def)` 回傳要**最小化**的純量。
 
@@ -529,33 +548,63 @@ def run_param_pgd(
     的迭代就能走滿半徑，其餘用來在球面上調方向。兩個參數化共用同一個比例，
     故「誰先撞到約束」不會變成一個隱藏的變因。
 
+    **`step_size` 明給時直接取代那條公式。** 存在的理由是一個實測的混淆：
+    步長綁在半徑上，於是「放寬預算」同時「放大步長」，放寬預算不等於走得更遠，
+    它同時讓振盪的幅度變大（`runs/ip2p_warp/DIAGNOSIS.md`：隨機遊走比值隨半徑
+    由 0.84 掉到 0.40）。要問「不設預算會走到哪裡」就必須把兩者解耦。
+
+    **`update` 選 `adam` 時改用 Adam，`alpha` 當成 lr。** sign PGD 在**帶折點
+    的局部極小**上會形成週期 2 的振盪（同上文件第四節），那是更新規則的性質
+    不是損失的性質；要分辨兩者就需要一個不靠梯度符號的更新規則。
+    **`docs/GOAL.md` 把「Adam 更新規則」列在更早期已否決的方向裡，但那批的
+    證據已刪除、且是在相位參數化上做的**，與這裡的位移場不是同一件事；
+    使用者已就位移場的探索批次明確授權。報表上必須標明這一點，
+    **不可以拿本旗標的結果去推翻或恢復相位臂上的那個否決**。
+
+    `history` 逐筆多記一個 `param_absmean`（參數的絕對值平均），用來判定
+    「有沒有真的在走」——只看損失下降分不出走了多遠。
+
     `transform` 給定時，損失改在 `transform(x_def, step)` 上計算——用來把
     可微分的淨化算子放進最佳化迴圈（`src/defense/purify_aware.py`）。
     **回傳的 `x_def` 仍然是未經 transform 的防禦圖**：transform 是攻擊方會
     做的事，不是我們交出去的東西。預設 `None`，行為與加入此參數之前逐位元
     相同。
     """
+    if update not in ("sign", "adam"):
+        raise ValueError(f"未知的更新規則 {update!r}，可用的是 sign／adam")
+
     param.reset(x01, seed)
     ps = param.params()
-    alpha = param.radius / max(1.0, steps * saturate_at)
+    alpha = (param.radius / max(1.0, steps * saturate_at)
+             if step_size is None else float(step_size))
     history: List[Dict] = []
 
     if not ps:                                   # phase_rand：不最佳化
         with torch.no_grad():
             return ParamPGDResult(param.render(x01).detach(), param.radius, history)
 
+    opt = torch.optim.Adam(ps, lr=alpha) if update == "adam" else None
+
     for i in range(steps):
         x_def = param.render(x01)
         loss = loss_fn(x_def if transform is None else transform(x_def, i))
-        grads = torch.autograd.grad(loss, ps)
-        with torch.no_grad():
-            for p, g in zip(ps, grads):
-                p.sub_(alpha * torch.sign(g))
+        if opt is None:
+            grads = torch.autograd.grad(loss, ps)
+            with torch.no_grad():
+                for p, g in zip(ps, grads):
+                    p.sub_(alpha * torch.sign(g))
+        else:
+            opt.zero_grad(set_to_none=True)
+            loss.backward()
+            opt.step()
         param.project()
         if log_every and (i % log_every == 0 or i == steps - 1):
-            history.append({"step": i, "loss": float(loss.detach())})
-            print(f"    [{param.name}] step {i:3d} loss {float(loss.detach()):.6f}",
-                  flush=True)
+            mag = float(sum(float(p.detach().abs().sum()) for p in ps)
+                        / max(1, sum(p.numel() for p in ps)))
+            history.append({"step": i, "loss": float(loss.detach()),
+                            "param_absmean": mag})
+            print(f"    [{param.name}] step {i:4d} loss {float(loss.detach()):.6f}"
+                  f" |p| {mag:.5f}", flush=True)
 
     with torch.no_grad():
         x_def = param.render(x01).detach()

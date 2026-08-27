@@ -78,6 +78,10 @@ SHADING_RADIUS_HI = 0.30
 # 內插誤差。
 WARP_RADIUS_LO = 1.0
 WARP_RADIUS_HI = 48.0
+
+# 旋轉角上界的二分搜區間。上界封頂在 pi（`theta = pi` 是聯合翻號，再大繞回去）。
+DCT_ROTATE_RADIUS_LO = 0.2
+DCT_ROTATE_RADIUS_HI = math.pi
 # 粗網格邊長。16 是本專案指定，與本機量過的失真對照表同一個構造；
 # 換掉它那張表就作廢，故它是 CSV 的欄位（`warp_grid`）而不是註解。
 WARP_GRID = 16
@@ -92,7 +96,10 @@ def build(name: str, seed: int, block: int = 32, r_min: float = 0.12,
           gain_weight: str = "shared", channels: str = "rgb",
           spectral_floor: float = 0.0, floor_gate: str = "uniform",
           theta_budget: float = 0.0, warp_grid: int = WARP_GRID,
-          coarsen: int = 1):
+          coarsen: int = 1,
+          dct_qd: float = 0.85, dct_pairing: str = "transpose",
+          dct_gate: str = "texture", warp_init_std: float = 0.0,
+          dct_mode: str = "plane"):
     """`block`／`r_min`／`quantile` 是相位算子的三個構造設定。
 
     預設值是 現行定案（`docs/METHOD.md` §4）。開放成參數是為了掃描
@@ -101,6 +108,31 @@ def build(name: str, seed: int, block: int = 32, r_min: float = 0.12,
     """
     if name == "add":
         return AdditiveParam(radius=ADD_RADIUS_HI), ADD_RADIUS_LO, ADD_RADIUS_HI
+    if name in ("dct_nonadd", "dct_nonadd_rand"):
+        # DCT 域的**非加性**擾動（`src/defense/dct_nonadditive.py`）。
+        # 半徑即角度（plane／shared_plane）或 log 增益（gain）的上界。
+        # 帶內工作點未知，故二分搜區間取得寬：[0.1, pi]。
+        from src.defense.dct_nonadditive import (
+            DctNonAdditiveParam, DctNonAdditiveRandomParam)
+        cls = (DctNonAdditiveParam if name == "dct_nonadd"
+               else DctNonAdditiveRandomParam)
+        return (cls(radius=DCT_ROTATE_RADIUS_HI, mode=dct_mode,
+                    r_min=r_min, gate=dct_gate,
+                    gate_edge_power=gate_edge_power),
+                0.1, DCT_ROTATE_RADIUS_HI)
+    if name in ("dct_rotate", "dct_rotate_rand"):
+        # DCT 域的保長配對旋轉（`runs/dct_phase_design/README.md`）。
+        # 半徑就是旋轉角上界 theta_max，封頂在 pi——`theta = pi` 恰好是聯合
+        # 翻號，也就是 DCT 上的離散相位操作，再大只是繞回去。
+        # 帶內工作點實測在 theta 約 1.04–1.13（紋理閘、十張，`ceiling.csv`），
+        # 故二分搜的區間取 [0.2, pi]。
+        from src.defense.dct_rotation import (
+            DctRotationParam, DctRotationRandomParam)
+        cls = (DctRotationParam if name == "dct_rotate"
+               else DctRotationRandomParam)
+        return (cls(radius=DCT_ROTATE_RADIUS_HI, qd=dct_qd,
+                    pairing=dct_pairing, gate=dct_gate),
+                DCT_ROTATE_RADIUS_LO, DCT_ROTATE_RADIUS_HI)
     if name in ("shading", "shading_rand"):
         # 候選二：極低頻的乘性明暗場。**與相位算子的頻帶不相交**
         # （r_min = 0.12 以上 對 f_n < 0.03 以下），所以它可以疊加而不是取代。
@@ -120,7 +152,8 @@ def build(name: str, seed: int, block: int = 32, r_min: float = 0.12,
         # 半徑的單位是最大位移像素數，強度旗鈕是 `--radius`。
         cls = {"warp": WarpParam, "warp_rand": WarpRandomParam,
                "warp_roundtrip": WarpRoundTripParam}[name]
-        return (cls(radius=WARP_RADIUS_HI, grid=warp_grid),
+        kw = {"init_std": warp_init_std} if name == "warp" else {}
+        return (cls(radius=WARP_RADIUS_HI, grid=warp_grid, **kw),
                 WARP_RADIUS_LO, WARP_RADIUS_HI)
     if name == "phase":
         return (PhaseParam(size=RESOLUTION, block=block, r_min=r_min,

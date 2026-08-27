@@ -42,9 +42,12 @@ EDIT = ["edit_lpips", "edit_dists", "edit_psnr", "edit_ssim", "edit_vif_p",
 # 報表上的順序：本方法在前、對照組在後，同族相鄰。
 ORDER = ["ours_ph_q", "ours_pg_q", "ours_ph_q20", "ours_pg_q20",
          "ours_ph_n", "ours_pg_n", "ours_pg_m",
+         "ours_ph_qd60", "ours_ph_qd45", "ours_ph_qd35",
          "dct_native", "dct_aj85", "dct_aj75",
          "dct_aj85_eps1.5", "dct_aj85_eps2.2",
-         "dct_aj85_eps3.2", "dct_aj85_eps4.5"]
+         "dct_aj85_eps3.2", "dct_aj85_eps4.5",
+         "dct_aj50_eps0.22", "dct_aj50_eps0.40", "dct_aj50_eps0.65",
+         "dct_aj30_eps0.13", "dct_aj30_eps0.25", "dct_aj30_eps0.42"]
 LABEL = {
     "ours_ph_q": "本方法 純相位 ＋量化 r0.9",
     "ours_pg_q": "本方法 相位+增益 ＋量化 r0.9",
@@ -63,6 +66,20 @@ LABEL = {
     "dct_aj85_eps2.2": "DCT-Shield 預算匹配 eps2.2",
     "dct_aj85_eps3.2": "DCT-Shield 預算匹配 eps3.2",
     "dct_aj85_eps4.5": "DCT-Shield 預算匹配 eps4.5",
+    # 品質旗鈕包絡：兩邊各自把自己的壓縮品質旗鈕往下放，再逐一攻擊品質比較。
+    # **對手那六個的 eps 全部 < 1**，DCT-Shield §4.2 的抗 JPEG 條件因此失效
+    # （`DCTShieldSpec` 自動標 `modified_from_paper`）——那不是我們改的，是
+    # 「低 Q_alg 又要留在失真帶內」這個要求逼出來的，理由見
+    # `scripts/mainline_quality_envelope.sh` 的檔頭。
+    "ours_ph_qd60": "本方法 純相位 ＋量化 QD0.60 r0.9",
+    "ours_ph_qd45": "本方法 純相位 ＋量化 QD0.45 r0.9",
+    "ours_ph_qd35": "本方法 純相位 ＋量化 QD0.35 r0.9",
+    "dct_aj50_eps0.22": "DCT-Shield q0.50 eps0.22（eps<1）",
+    "dct_aj50_eps0.40": "DCT-Shield q0.50 eps0.40（eps<1）",
+    "dct_aj50_eps0.65": "DCT-Shield q0.50 eps0.65（eps<1）",
+    "dct_aj30_eps0.13": "DCT-Shield q0.30 eps0.13（eps<1）",
+    "dct_aj30_eps0.25": "DCT-Shield q0.30 eps0.25（eps<1）",
+    "dct_aj30_eps0.42": "DCT-Shield q0.30 eps0.42（eps<1）",
 }
 PUR_ORDER = ["identity", "jpeg90", "jpeg75", "jpeg50", "jpeg30",
              "blur1", "blur2", "crop_resize0.1", "crop_resize0.15"]

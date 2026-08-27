@@ -89,6 +89,14 @@ PHASE_CONDS = ("phase", "phase_rand", "add", "phase_gain", "gain_only",
                # 單位是最大位移像素數。三格的分工見 `phase_ablation.build`。
                "warp", "warp_rand", "warp_roundtrip")
 DCT_CONDS = ("dct_shield", "dct_shield_y")
+# DCT 域的保長配對旋轉（`runs/dct_phase_design/README.md`）。強度旗鈕是
+# `--radius`，單位是旋轉角的上界 theta_max。**它自己就交付壓縮圖**
+# （參數作用在量化後的整數係數上、解碼即輸出），故不可再疊 `--deliver-jpeg`。
+DCT_ROTATE_CONDS = ("dct_rotate", "dct_rotate_rand")
+# DCT 域的**非加性**擾動族（`src/defense/dct_nonadditive.py`）。與上面那一族的
+# 差別：旋轉的平面是**學出來的**，不是釘在兩個固定座標上。它作用在未量化的
+# 浮點係數上、輸出浮點影像，所以 `--deliver-jpeg` 是可以疊的獨立旗鈕。
+DCT_NONADD_CONDS = ("dct_nonadd", "dct_nonadd_rand")
 # `advdrop_max` 不是最佳化的解，是 AdvDrop 在該 eps 下**可行集的邊界**：量化表
 # 整片推到 `q = 1 + eps`。存在的理由見 `runs/ip2p_advdrop_band/README.md`——
 # 最佳化收斂不到帶內（500 步只到 DISTS 0.0378），但天花板在 eps = 100 時是
@@ -187,13 +195,20 @@ def defend(ip2p, suite, cond, x01, args, loss_fn):
 
     `extras` 是要併進該列 CSV 的額外欄位，只有 `--deliver-jpeg` 開著時非空。
     """
-    if args.deliver_jpeg and cond not in PHASE_CONDS:
+    if args.deliver_jpeg and cond in DCT_ROTATE_CONDS:
+        # `dct_rotate` 的參數就作用在量化後的整數係數上，`render` 出來的已經
+        # 是 QD 品質的壓縮圖（交付即參數）。再套一次 `--deliver-jpeg` 是壓兩次，
+        # 而且第二次的品質未必等於第一次，量出來的東西沒有意義。
+        raise SystemExit(
+            f"--deliver-jpeg 不可用於 {cond}：它自己就交付壓縮圖，"
+            "交付品質請用 --dct-qd 指定")
+    if args.deliver_jpeg and cond not in PHASE_CONDS + DCT_NONADD_CONDS:
         # 交付自壓是接在本方法的參數化後面的一步。套到 DCT-Shield 上等於把
         # 別人的方法改掉一半（它自己就把 δ 加在量化係數上），套到 AdvDrop／
         # 浮水印上則是換掉它們的輸出。**寧可拒絕，不要靜默照跑**。
         raise SystemExit(
             f"--deliver-jpeg 只接在本方法的參數化上，收到條件 {cond}。"
-            f"允許的條件：{' '.join(PHASE_CONDS)}")
+            f"允許的條件：{' '.join(PHASE_CONDS + DCT_NONADD_CONDS)}")
     if cond in WM_CONDS:
         # DJSMA（The Imaging Science Journal 2026）。無公開程式碼，由掃描 PDF
         # 逐頁判讀後依 Algorithm 1 與式 (7)–(9) 實作。
@@ -288,7 +303,11 @@ def defend(ip2p, suite, cond, x01, args, loss_fn):
                           floor_gate=args.floor_gate,
                           theta_budget=args.theta_budget,
                           coarsen=args.coarsen,
-                          warp_grid=args.warp_grid)
+                          warp_grid=args.warp_grid,
+                          dct_qd=args.dct_qd, dct_pairing=args.dct_pairing,
+                          dct_gate=args.dct_gate,
+                          warp_init_std=args.warp_init_std,
+                          dct_mode=args.dct_mode)
     q_deliver = deliver_quality(args)
 
     def dists_of(a, b):
@@ -298,6 +317,9 @@ def defend(ip2p, suite, cond, x01, args, loss_fn):
         param.set_radius(args.radius)
         res = run_param_pgd(x01, param, loss_fn, steps=args.steps,
                             seed=args.seed,
+                            saturate_at=args.saturate_at,
+                            update=args.update, step_size=args.step_size,
+                            log_every=max(1, args.steps // 40),
                             transform=_forward_transform(args))
         x_raw, radius, unreachable = res.x_def, param.radius, False
     else:
@@ -384,6 +406,43 @@ def build_parser() -> argparse.ArgumentParser:
                          "相鄰區塊各自獨立旋轉留下的接縫因此被平均掉——"
                          "防禦圖的紋理偏粗就是那個接縫。NOLA 條件在 hop "
                          "更小時只會更寬鬆，恆等保證不受影響")
+    ap.add_argument("--dct-mode", default="plane",
+                    choices=("plane", "shared_plane", "gain"),
+                    help="dct_nonadd 的非加性形式。plane = 逐區塊學一個二維"
+                         "平面與一個角度（保長）；shared_plane = 整張共用一個"
+                         "平面（參數量少兩個數量級）；gain = 逐係數乘 exp(g)"
+                         "（非加性但**不保長**，是非正交的對照點）")
+    ap.add_argument("--update", default="sign", choices=("sign", "adam"),
+                    help="PGD 的更新規則。sign 是本專案既有的 sign-PGD；"
+                         "adam 在**帶折點的局部極小**上不會像 sign 那樣形成"
+                         "週期 2 的振盪，用來分辨「損失不行」與「更新規則不行」。"
+                         "**GOAL.md 把 Adam 列在更早期已否決的方向裡**，但那批"
+                         "證據已刪除且是在相位參數化上做的；本旗標只為位移場的"
+                         "探索批次而加，結果不可用來推翻相位臂上的那個否決")
+    ap.add_argument("--step-size", type=float, default=None,
+                    help="直接指定步長，取代 radius/(steps·saturate_at)。"
+                         "不給時行為與加這個旗標之前逐位元相同。存在理由是"
+                         "步長綁在半徑上會讓「放寬預算」同時「放大步長」")
+    ap.add_argument("--saturate-at", type=float, default=0.25,
+                    help="步長公式的分母係數，見 run_param_pgd 的 docstring")
+    ap.add_argument("--warp-init-std", type=float, default=0.0,
+                    help="位移場的隨機起點標準差（px）。0 = 全零起點，逐位元"
+                         "等於加這個旗標之前。非零時由 --seed 決定抽樣。"
+                         "理由：latent_norm 對位移場在零位移處有帶折點的局部"
+                         "極小，從那裡起步量到的是 sign PGD 的性質")
+    ap.add_argument("--dct-qd", type=float, default=0.85,
+                    help="dct_rotate 的交付品質（參數作用在這個品質的量化"
+                         "係數上，解碼即輸出）。與 --q-alg／--deliver-jpeg "
+                         "走同一條 normalize_quality 換算")
+    ap.add_argument("--dct-pairing", default="transpose",
+                    choices=("transpose", "zigzag"),
+                    help="係數配對規則。transpose 的兩格徑向頻率相同、量化階"
+                         "幾乎相同，旋轉交換的是橫紋與直紋的方向；zigzag 的"
+                         "兩格頻率與價錢都不同，是**對照組**，用來檢定"
+                         "「保長只有在兩軸價錢相同時才有感知意義」這句話")
+    ap.add_argument("--dct-gate", default="texture", choices=("texture", "band"),
+                    help="dct_rotate 的閘。texture 走 pixel_texture_mask 再"
+                         "avg_pool 到編解碼器的 8×8 格點；band 是全開")
     ap.add_argument("--warp-grid", type=int, default=WARP_GRID,
                     help="位移場的粗網格邊長（`warp`／`warp_rand`／"
                          "`warp_roundtrip` 三格用）。16 是本專案指定，與本機"
@@ -668,6 +727,14 @@ def main() -> None:
                 # 的規則必須是欄位而不是註解；換了它，本機量過的失真對照表
                 # 就不再適用於這些列。
                 "warp_grid": args.warp_grid,
+                "update": args.update,
+                "step_size": args.step_size,
+                "saturate_at": args.saturate_at,
+                "warp_init_std": args.warp_init_std,
+                "dct_mode": args.dct_mode,
+                "dct_qd": args.dct_qd,
+                "dct_pairing": args.dct_pairing,
+                "dct_gate": args.dct_gate,
                 # 防禦端的 PGD 步數。**本方法預設 100，DCT-Shield 是 1000**
                 # （該篇 §5.4），頭對頭表上這個差異從未被控制過，故逐列記下。
                 "defense_steps": defense_steps(args, cond),

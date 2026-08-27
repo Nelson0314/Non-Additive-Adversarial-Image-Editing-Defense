@@ -1,0 +1,25 @@
+C:\Users\nelso\miniconda3\envs\wacv\Lib\site-packages\torchvision\models\_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+C:\Users\nelso\miniconda3\envs\wacv\Lib\site-packages\torchvision\models\_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+平面取法：aligned（天花板）
+
+  task_attr_mod_color_11699 完成
+  task_attr_mod_color_136767 完成
+  task_attr_mod_color_184837 完成
+  task_attr_mod_color_32648 完成
+  task_attr_mod_color_6205 完成
+  task_env_weather_112463 完成
+  task_obj_remove_380621 完成
+  task_obj_swap_joint_mask_276754 完成
+  task_obj_swap_joint_mask_533428 完成
+  task_obj_swap_rand_mask_417469 完成
+
+10 張 → runs\dct_nonadd\ceiling_aligned.csv
+失真帶 DISTS 0.1286–0.1447
+
+        plane / texture   0.10:0.0005  0.20:0.0021  0.40:0.0086  0.70:0.0289  1.10:0.0697  1.60:0.1253  2.20:0.1801  3.14:0.2313
+        plane / band      0.10:0.0035  0.20:0.0176  0.40:0.0696  0.70:0.1590  1.10:0.2644  1.60:0.3452  2.20:0.3422  3.14:0.3219
+
+夾取比例（帶內判讀用，N2 的門檻是 0.10）
+        plane  0.10:0.0067  0.20:0.0078  0.40:0.0104  0.70:0.0141  1.10:0.0177  1.60:0.0201  2.20:0.0216  3.14:0.0224

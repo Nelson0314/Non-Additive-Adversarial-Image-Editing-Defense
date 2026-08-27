@@ -1,0 +1,99 @@
+C:\Users\nelso\miniconda3\envs\wacv\Lib\site-packages\torchvision\models\_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+C:\Users\nelso\miniconda3\envs\wacv\Lib\site-packages\torchvision\models\_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+配對規則 transpose：28 對／區塊（共 64 格，DC 與徑向 < 0.12 已排除）
+  1/10 task_attr_mod_color_11699
+  2/10 task_attr_mod_color_136767
+  3/10 task_attr_mod_color_184837
+  4/10 task_attr_mod_color_32648
+  5/10 task_attr_mod_color_6205
+  6/10 task_env_weather_112463
+  7/10 task_obj_remove_380621
+  8/10 task_obj_swap_joint_mask_276754
+  9/10 task_obj_swap_joint_mask_533428
+  10/10 task_obj_swap_rand_mask_417469
+
+十張平均（交付品質 QD = 0.85，配對 transpose）
+變體          閘        sign        theta    DISTS    PSNR      RMS      零對比例   |δ|<=1
+pre_float   band     random      0.080  0.01283   42.08  0.00826       nan      nan
+pre_float   band     random      0.300  0.11973   31.91  0.02655       nan      nan
+pre_float   band     random      0.600  0.23117   26.16  0.05148       nan      nan
+pre_float   band     random      1.200  0.33773   20.60  0.09766       nan      nan
+pre_float   band     random      2.000  0.37506   17.16  0.14504       nan      nan
+pre_float   band     random      3.142  0.35407   15.71  0.17140       nan      nan
+pre_float   band     coherent    0.080  0.01433   42.12  0.00822       nan      nan
+pre_float   band     coherent    0.300  0.13038   31.96  0.02641       nan      nan
+pre_float   band     coherent    0.600  0.24376   26.20  0.05121       nan      nan
+pre_float   band     coherent    1.200  0.34144   20.64  0.09722       nan      nan
+pre_float   band     coherent    2.000  0.37333   17.19  0.14458       nan      nan
+pre_float   band     coherent    3.142  0.35407   15.71  0.17140       nan      nan
+pre_float   texture  random      0.080  0.00250   45.73  0.00557       nan      nan
+pre_float   texture  random      0.300  0.01621   37.70  0.01417       nan      nan
+pre_float   texture  random      0.600  0.05658   32.20  0.02688       nan      nan
+pre_float   texture  random      1.200  0.14098   26.55  0.05150       nan      nan
+pre_float   texture  random      2.000  0.21852   22.62  0.08077       nan      nan
+pre_float   texture  random      3.142  0.27999   19.80  0.11066       nan      nan
+pre_float   texture  coherent    0.080  0.00262   45.76  0.00555       nan      nan
+pre_float   texture  coherent    0.300  0.01729   37.76  0.01408       nan      nan
+pre_float   texture  coherent    0.600  0.06023   32.26  0.02668       nan      nan
+pre_float   texture  coherent    1.200  0.15283   26.61  0.05117       nan      nan
+pre_float   texture  coherent    2.000  0.23287   22.66  0.08042       nan      nan
+pre_float   texture  coherent    3.142  0.28669   19.82  0.11044       nan      nan
+pre_deliver band     random      0.080  0.01708   36.63  0.01539       nan      nan
+pre_deliver band     random      0.300  0.12198   30.99  0.02947       nan      nan
+pre_deliver band     random      0.600  0.23155   25.92  0.05291       nan      nan
+pre_deliver band     random      1.200  0.33773   20.55  0.09825       nan      nan
+pre_deliver band     random      2.000  0.37549   17.16  0.14505       nan      nan
+pre_deliver band     random      3.142  0.35386   15.72  0.17128       nan      nan
+pre_deliver band     coherent    0.080  0.01839   36.64  0.01537       nan      nan
+pre_deliver band     coherent    0.300  0.13171   31.03  0.02933       nan      nan
+pre_deliver band     coherent    0.600  0.24438   25.95  0.05266       nan      nan
+pre_deliver band     coherent    1.200  0.34182   20.58  0.09781       nan      nan
+pre_deliver band     coherent    2.000  0.37392   17.19  0.14460       nan      nan
+pre_deliver band     coherent    3.142  0.35386   15.72  0.17128       nan      nan
+pre_deliver texture  random      0.080  0.00800   37.39  0.01414       nan      nan
+pre_deliver texture  random      0.300  0.02027   34.87  0.01918       nan      nan
+pre_deliver texture  random      0.600  0.05938   31.21  0.02973       nan      nan
+pre_deliver texture  random      1.200  0.14183   26.29  0.05289       nan      nan
+pre_deliver texture  random      2.000  0.21843   22.53  0.08146       nan      nan
+pre_deliver texture  random      3.142  0.28034   19.78  0.11094       nan      nan
+pre_deliver texture  coherent    0.080  0.00793   37.40  0.01413       nan      nan
+pre_deliver texture  coherent    0.300  0.02131   34.90  0.01911       nan      nan
+pre_deliver texture  coherent    0.600  0.06316   31.25  0.02957       nan      nan
+pre_deliver texture  coherent    1.200  0.15372   26.34  0.05258       nan      nan
+pre_deliver texture  coherent    2.000  0.23321   22.57  0.08114       nan      nan
+pre_deliver texture  coherent    3.142  0.28700   19.80  0.11074       nan      nan
+post_int    band     random      0.080  0.01854   36.58  0.01547    0.7538   0.9896
+post_int    band     random      0.300  0.12842   30.58  0.03089    0.7538   0.9583
+post_int    band     random      0.600  0.24003   25.30  0.05678    0.7538   0.9274
+post_int    band     random      1.200  0.33925   20.18  0.10243    0.7538   0.8786
+post_int    band     random      2.000  0.37527   17.07  0.14648    0.7538   0.8637
+post_int    band     random      3.142  0.35386   15.72  0.17128    0.7538   0.8131
+post_int    band     coherent    0.080  0.02000   36.58  0.01546    0.7538   0.9896
+post_int    band     coherent    0.300  0.13801   30.59  0.03082    0.7538   0.9583
+post_int    band     coherent    0.600  0.25027   25.31  0.05665    0.7538   0.9274
+post_int    band     coherent    1.200  0.34345   20.19  0.10226    0.7538   0.8786
+post_int    band     coherent    2.000  0.37424   17.10  0.14605    0.7538   0.8637
+post_int    band     coherent    3.142  0.35386   15.72  0.17128    0.7538   0.8131
+post_int    texture  random      0.080  0.00800   37.40  0.01412    0.7538   0.9965
+post_int    texture  random      0.300  0.02180   34.67  0.01964    0.7538   0.9776
+post_int    texture  random      0.600  0.06387   30.78  0.03132    0.7538   0.9573
+post_int    texture  random      1.200  0.14906   25.84  0.05549    0.7538   0.9268
+post_int    texture  random      2.000  0.22398   22.25  0.08388    0.7538   0.8992
+post_int    texture  random      3.142  0.28272   19.62  0.11284    0.7538   0.8644
+post_int    texture  coherent    0.080  0.00811   37.40  0.01412    0.7538   0.9965
+post_int    texture  coherent    0.300  0.02349   34.68  0.01961    0.7538   0.9776
+post_int    texture  coherent    0.600  0.06873   30.80  0.03125    0.7538   0.9573
+post_int    texture  coherent    1.200  0.16188   25.86  0.05537    0.7538   0.9267
+post_int    texture  coherent    2.000  0.23796   22.26  0.08377    0.7538   0.8992
+post_int    texture  coherent    3.142  0.28854   19.62  0.11274    0.7538   0.8644
+
+失真帶 DISTS 0.1286–0.1447；`ours_ph_q` 是 0.0928。
+  pre_float    閘=band     theta=3.142 天花板 DISTS 0.35407 → 進得了帶
+  pre_float    閘=texture  theta=3.142 天花板 DISTS 0.28669 → 進得了帶
+  pre_deliver  閘=band     theta=3.142 天花板 DISTS 0.35386 → 進得了帶
+  pre_deliver  閘=texture  theta=3.142 天花板 DISTS 0.28700 → 進得了帶
+  post_int     閘=band     theta=3.142 天花板 DISTS 0.35386 → 進得了帶
+  post_int     閘=texture  theta=3.142 天花板 DISTS 0.28854 → 進得了帶
+表：runs\dct_phase_design\ceiling.csv（720 列）

@@ -35,3 +35,8 @@ __pycache__/
 # （固定 seed 的打散 + 固定查詢詞）。實際採用的影像在 data/_selected/
 # 與 data/lo_aligned/，兩者都入版控並帶出處紀錄。
 data/_raw/
+
+# 報告頁放在專案根目錄（`report_*.html`），但**不入版控**——理由與 runs/ 的
+# HTML 相同：它由已記錄的 CSV 與參數重新產生得出來，而 CSV 不可重現。
+# 影像一律以 data URI 內嵌，所以搬動目錄不會斷圖。
+/report_*.html

@@ -100,6 +100,10 @@ DCT_ROTATE_CONDS = ("dct_rotate", "dct_rotate_rand")
 # 差別：旋轉的平面是**學出來的**，不是釘在兩個固定座標上。它作用在未量化的
 # 浮點係數上、輸出浮點影像，所以 `--deliver-jpeg` 是可以疊的獨立旗鈕。
 DCT_NONADD_CONDS = ("dct_nonadd", "dct_nonadd_rand")
+# **整併版**：學出來的旋轉平面 ＋ 量化後的整數係數 ＋ 交付即參數
+# （`src/defense/dct_unified.py`）。與 `DCT_ROTATE_CONDS` 同樣**自己就
+# 交付壓縮圖**，故一樣不可再疊 `--deliver-jpeg`；交付品質用 `--dct-qd`。
+DCT_UNIFIED_CONDS = ("dct_unified", "dct_unified_rand")
 # `advdrop_max` 不是最佳化的解，是 AdvDrop 在該 eps 下**可行集的邊界**：量化表
 # 整片推到 `q = 1 + eps`。存在的理由見 `runs/ip2p_advdrop_band/README.md`——
 # 最佳化收斂不到帶內（500 步只到 DISTS 0.0378），但天花板在 eps = 100 時是
@@ -111,7 +115,7 @@ WM_CONDS = ("dct_wm",)
 # 不做最佳化的對照條件：參數是抽出來的、`params()` 是空的。分階段訓練
 # 沒有階段一的解可以接，故一律拒絕而不是靜默跳過階段二。
 NO_OPT_CONDS = ("phase_rand", "shading_rand", "warp_rand",
-                "dct_rotate_rand", "dct_nonadd_rand")
+                "dct_rotate_rand", "dct_nonadd_rand", "dct_unified_rand")
 
 
 def defense_steps(args, cond: str) -> int:
@@ -261,7 +265,7 @@ def defend(ip2p, suite, cond, x01, args, loss_fn):
         raise SystemExit(
             f"--stage2-steps 不可用於 {cond}：這個條件不做最佳化，"
             "沒有階段一的解可以接。")
-    if args.deliver_jpeg and cond in DCT_ROTATE_CONDS:
+    if args.deliver_jpeg and cond in DCT_ROTATE_CONDS + DCT_UNIFIED_CONDS:
         # `dct_rotate` 的參數就作用在量化後的整數係數上，`render` 出來的已經
         # 是 QD 品質的壓縮圖（交付即參數）。再套一次 `--deliver-jpeg` 是壓兩次，
         # 而且第二次的品質未必等於第一次，量出來的東西沒有意義。
@@ -375,7 +379,7 @@ def defend(ip2p, suite, cond, x01, args, loss_fn):
                           warp_init_std=args.warp_init_std,
                           dct_mode=args.dct_mode)
     q_deliver = deliver_quality(args)
-    stage2_extras: dict = {}
+    run_extras: dict = {}
 
     def dists_of(a, b):
         return float(suite.pairwise(b, a)["dists"])
@@ -390,7 +394,12 @@ def defend(ip2p, suite, cond, x01, args, loss_fn):
                             transform=_forward_transform(args))
         x_raw, radius, unreachable = res.x_def, param.radius, False
         if args.stage2_steps:
-            x_raw, stage2_extras = _run_stage2(x01, param, loss_fn, args)
+            x_raw, run_extras = _run_stage2(x01, param, loss_fn, args)
+        if cond in DCT_UNIFIED_CONDS:
+            # 交出去的整數位移長什麼樣。**`delta_within_1` 決定新穎性怎麼寫**
+            # ——比例高就代表我們動的幾乎全在 DCT-Shield 的 eps=1 球裡，論文
+            # 只能主張「約束不同」不能主張「動作不同」。
+            run_extras.update(param.delta_stats())
     else:
         # **二分搜的失真要量在交付的圖上**，否則預算欄講的是一張沒有人會拿到
         # 的圖。`transform` 在關閉交付自壓時維持 `None`，與加入這個旗標之前
@@ -410,7 +419,7 @@ def defend(ip2p, suite, cond, x01, args, loss_fn):
         unreachable = bool(out.history[-1].get("unreachable", False))
 
     if q_deliver is None:
-        return x_raw, radius, unreachable, False, dict(stage2_extras)
+        return x_raw, radius, unreachable, False, dict(run_extras)
 
     # **交付的是壓縮後的圖**，不是最佳化直接吐出來的那張。這一步是本實驗與
     # 已否決的 `--purify-aware` 唯一的差別，理由見 `_forward_transform`。
@@ -435,7 +444,7 @@ def defend(ip2p, suite, cond, x01, args, loss_fn):
         "deliver_rms_raw": round(n_raw / d_raw.numel() ** 0.5, 6),
         "deliver_rms_out": round(n_del / d_del.numel() ** 0.5, 6),
     }
-    extras.update(stage2_extras)
+    extras.update(run_extras)
     return x_def, radius, unreachable, False, extras
 
 

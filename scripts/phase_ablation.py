@@ -120,6 +120,20 @@ def build(name: str, seed: int, block: int = 32, r_min: float = 0.12,
                     r_min=r_min, gate=dct_gate,
                     gate_edge_power=gate_edge_power),
                 0.1, DCT_ROTATE_RADIUS_HI)
+    if name in ("dct_unified", "dct_unified_rand"):
+        # **整併版**：學出來的旋轉平面直接作用在量化後的整數係數上，交付即
+        # 參數（`src/defense/dct_unified.py`）。半徑即角度上界，封頂意義同下。
+        # 帶內工作點由 `nd_plane` 家族外推：浮點版 theta 2.5 是 DISTS 0.1285、
+        # 事後投影版是 0.1617，故三點取 1.8／2.2／2.5 夾住失真帶
+        # 0.1286–0.1447。二分搜區間沿用 [0.2, pi]。
+        from src.defense.dct_unified import (
+            DctUnifiedParam, DctUnifiedRandomParam)
+        cls = (DctUnifiedParam if name == "dct_unified"
+               else DctUnifiedRandomParam)
+        return (cls(radius=DCT_ROTATE_RADIUS_HI, qd=dct_qd,
+                    r_min=r_min, gate=dct_gate,
+                    gate_edge_power=gate_edge_power),
+                DCT_ROTATE_RADIUS_LO, DCT_ROTATE_RADIUS_HI)
     if name in ("dct_rotate", "dct_rotate_rand"):
         # DCT 域的保長配對旋轉（`runs/dct_phase_design/README.md`）。
         # 半徑就是旋轉角上界 theta_max，封頂在 pi——`theta = pi` 恰好是聯合

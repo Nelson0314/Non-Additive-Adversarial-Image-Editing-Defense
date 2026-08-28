@@ -224,6 +224,10 @@ def test_stage2_is_not_called_when_disabled():
 
     class FakeRes:
         x_def = torch.rand(1, 3, 8, 8)
+        history = []
+        stop_reason = "max_steps"
+        stopped_at = 0
+        best_eval = None
 
     def fake_pgd(*a, **k):
         called["yes"] = True
@@ -249,6 +253,10 @@ def test_stage2_is_called_when_enabled():
 
     class FakeRes:
         x_def = torch.rand(1, 3, 8, 8)
+        history = []
+        stop_reason = "max_steps"
+        stopped_at = 0
+        best_eval = None
 
     mod.run_param_pgd = lambda *a, **k: FakeRes()
     args = mod.build_parser().parse_args(
@@ -267,7 +275,8 @@ def test_stage2_is_called_when_enabled():
 def test_stage2_guards(extra, msg):
     mod = _load_runner()
     mod.run_param_pgd = lambda *a, **k: type("R", (), {
-        "x_def": torch.rand(1, 3, 8, 8)})()
+        "x_def": torch.rand(1, 3, 8, 8), "history": [],
+        "stop_reason": "max_steps", "stopped_at": 0, "best_eval": None})()
     args = mod.build_parser().parse_args(["--out", "o", "--data", "d"] + extra)
     with pytest.raises(SystemExit, match=msg):
         mod.defend(None, None, "phase", torch.rand(1, 3, 64, 64), args,

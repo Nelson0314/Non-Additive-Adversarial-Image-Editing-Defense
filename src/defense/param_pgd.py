@@ -527,6 +527,10 @@ class ParamPGDResult:
     x_def: torch.Tensor
     radius: float
     history: List[Dict] = field(default_factory=list)
+    # 走完全部步數是 "max_steps"，早停是 "early_stop"，不最佳化是 "no_params"。
+    stop_reason: str = "max_steps"
+    stopped_at: int = 0
+    best_eval: Optional[float] = None
 
 
 def run_param_pgd(
@@ -541,6 +545,10 @@ def run_param_pgd(
     transform: Optional[Callable[[torch.Tensor, int], torch.Tensor]] = None,
     update: str = "sign",
     step_size: Optional[float] = None,
+    eval_fn: Optional[Callable[[torch.Tensor], torch.Tensor]] = None,
+    eval_every: int = 0,
+    patience: int = 0,
+    min_delta: float = 0.0,
 ) -> ParamPGDResult:
     """共用迴圈。`loss_fn(x_def)` 回傳要**最小化**的純量。
 
@@ -560,6 +568,18 @@ def run_param_pgd(
     證據已刪除、且是在相位參數化上做的**，與這裡的位移場不是同一件事；
     使用者已就位移場的探索批次明確授權。報表上必須標明這一點，
     **不可以拿本旗標的結果去推翻或恢復相位臂上的那個否決**。
+
+    收斂與 early stop
+    ────────────────────────────────────────────────────────────────
+    `eval_fn` 給定時，每 `eval_every` 步用它評估一次並記進 `history` 的
+    `eval` 欄。**它必須是決定性的**——隨機目標（每步重抽 `(t, eps)`）的逐步
+    損失本來就會抖，那個抖動是取樣變異不是收斂訊號，拿它判收斂會判錯。
+    呼叫端的作法是用一組固定的抽樣建一個評估用的損失。
+
+    `patience > 0` 時開啟 early stop：連續 `patience` 次評估都沒有比**歷史
+    最佳**再低超過 `min_delta`（相對值）就停。停止的原因記在
+    `result.stop_reason`，`result.stopped_at` 是實際走完的步數——**沒有觸發
+    時兩者分別是 `"max_steps"` 與 `steps`**，報表上要分得出「跑完」與「早停」。
 
     `history` 逐筆多記一個 `param_absmean`（參數的絕對值平均），用來判定
     「有沒有真的在走」——只看損失下降分不出走了多遠。
@@ -581,9 +601,11 @@ def run_param_pgd(
 
     if not ps:                                   # phase_rand：不最佳化
         with torch.no_grad():
-            return ParamPGDResult(param.render(x01).detach(), param.radius, history)
+            return ParamPGDResult(param.render(x01).detach(), param.radius,
+                                  history, stop_reason="no_params", stopped_at=0)
 
     opt = torch.optim.Adam(ps, lr=alpha) if update == "adam" else None
+    best, since_best, stop_reason, stopped_at = None, 0, "max_steps", steps
 
     for i in range(steps):
         x_def = param.render(x01)
@@ -598,17 +620,43 @@ def run_param_pgd(
             loss.backward()
             opt.step()
         param.project()
-        if log_every and (i % log_every == 0 or i == steps - 1):
+        do_eval = bool(eval_fn) and eval_every and (
+            i % eval_every == 0 or i == steps - 1)
+        ev = None
+        if do_eval:
+            with torch.no_grad():
+                ev = float(eval_fn(param.render(x01)))
+        if log_every and (i % log_every == 0 or i == steps - 1) or do_eval:
             mag = float(sum(float(p.detach().abs().sum()) for p in ps)
                         / max(1, sum(p.numel() for p in ps)))
-            history.append({"step": i, "loss": float(loss.detach()),
-                            "param_absmean": mag})
+            rec = {"step": i, "loss": float(loss.detach()),
+                   "param_absmean": mag}
+            if ev is not None:
+                rec["eval"] = ev
+            history.append(rec)
             print(f"    [{param.name}] step {i:4d} loss {float(loss.detach()):.6f}"
-                  f" |p| {mag:.5f}", flush=True)
+                  f" |p| {mag:.5f}"
+                  + (f" eval {ev:.6f}" if ev is not None else ""), flush=True)
+        if ev is not None and patience > 0:
+            # **與歷史最佳比，不與上一次比**：逐次比較會被單次的雜訊帶著走，
+            # 一個偶然的小改善就把耐心歸零，early stop 因此永遠不觸發。
+            if best is None or ev < best * (1.0 - min_delta):
+                best, since_best = (ev if best is None else min(best, ev)), 0
+            else:
+                best = min(best, ev)
+                since_best += 1
+                if since_best >= patience:
+                    stop_reason, stopped_at = "early_stop", i + 1
+                    print(f"    [{param.name}] early stop at step {i}"
+                          f"（連續 {patience} 次評估未改善 > {min_delta:.4f}）",
+                          flush=True)
+                    break
 
     with torch.no_grad():
         x_def = param.render(x01).detach()
-    return ParamPGDResult(x_def, param.radius, history)
+    return ParamPGDResult(x_def, param.radius, history,
+                          stop_reason=stop_reason, stopped_at=stopped_at,
+                          best_eval=best)
 
 
 def fit_to_budget(

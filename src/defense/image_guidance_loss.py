@@ -131,6 +131,44 @@ def make_image_guidance_loss(
         a = abar[step].to(ref.dtype)
         return step, z_src.to(ref.dtype) * a.sqrt() + eps * (1.0 - a).sqrt()
 
+    def make_fixed(n_draws: int, eval_seed: int):
+        """回傳一個**決定性**的評估函數：抽樣一次就固定，之後每次呼叫都相同。
+
+        存在的理由是收斂判定。訓練用的損失每一步重抽 `(t, eps)`，逐步值本來
+        就會抖 0.16–0.61（實測），那是取樣變異不是參數在漂；拿它判收斂會判錯，
+        本專案已經犯過一次。評估必須把噪聲固定住，曲線才讀得出趨勢。
+        """
+        g2 = torch.Generator(device="cpu").manual_seed(int(eval_seed))
+        steps_fixed = [int(torch.randint(t_min - 1, t_max, (1,), generator=g2))
+                       for _ in range(n_draws)]
+        eps_fixed = [None] * n_draws
+
+        def fixed(x_def01: torch.Tensor) -> torch.Tensor:
+            z_img = ip2p.image_latents(x_def01)
+            total = None
+            for k, step in enumerate(steps_fixed):
+                if eps_fixed[k] is None:
+                    eps_fixed[k] = torch.randn(
+                        z_img.shape, generator=g2, dtype=torch.float32
+                    ).to(device=z_img.device, dtype=z_img.dtype)
+                eps = eps_fixed[k]
+                if zt_mode == "noise":
+                    z_t = eps
+                else:
+                    a = abar[step].to(z_img.dtype)
+                    z_t = z_src.to(z_img.dtype) * a.sqrt() + eps * (1.0 - a).sqrt()
+                tt = torch.tensor([step], device=device, dtype=torch.long)
+                emb = null_emb.to(z_t.dtype)
+                base = unet(torch.cat([z_t, torch.zeros_like(z_t)], dim=1), tt,
+                            encoder_hidden_states=emb).sample
+                cond = unet(torch.cat([z_t, z_img], dim=1), tt,
+                            encoder_hidden_states=emb).sample
+                term = (cond - base).pow(2).mean()
+                total = term if total is None else total + term
+            return total / len(steps_fixed)
+
+        return fixed
+
     def loss(x_def01: torch.Tensor) -> torch.Tensor:
         # 拼進 UNet 前 4 個新通道的影像條件：**不乘 scaling_factor**。
         z_img = ip2p.image_latents(x_def01)
@@ -150,4 +188,5 @@ def make_image_guidance_loss(
             total = term if total is None else total + term
         return total / samples
 
+    loss.make_fixed = make_fixed
     return loss

@@ -399,11 +399,26 @@ def defend(ip2p, suite, cond, x01, args, loss_fn):
         param.set_radius(args.radius)
         res = run_param_pgd(x01, param, loss_fn, steps=args.steps,
                             seed=args.seed,
+                            eval_fn=getattr(loss_fn, "_fixed_eval", None),
+                            eval_every=args.eval_every,
+                            patience=args.patience, min_delta=args.min_delta,
                             saturate_at=args.saturate_at,
                             update=args.update, step_size=args.step_size,
                             log_every=max(1, args.steps // 40),
                             transform=_forward_transform(args))
         x_raw, radius, unreachable = res.x_def, param.radius, False
+        # **收斂軌跡逐圖寫成一份 CSV**，不只留在 stdout 的 log 裡：判收斂看的
+        # 是 `eval` 那一欄，它必須能被重讀與畫圖。停止原因也逐列記下——
+        # 「跑滿步數」與「早停」在結果 CSV 上分不出來的話，就不知道那一格
+        # 到底收斂了沒有。
+        run_extras["stop_reason"] = res.stop_reason
+        run_extras["stopped_at"] = res.stopped_at
+        run_extras["best_eval"] = ("" if res.best_eval is None
+                                   else round(res.best_eval, 8))
+        if args.eval_every and res.history:
+            run_extras["_trace"] = [
+                {"condition": cond, "radius": round(param.radius, 4), **h}
+                for h in res.history]
         if args.stage2_steps:
             x_raw, run_extras = _run_stage2(x01, param, loss_fn, args)
         if cond in DCT_UNIFIED_CONDS:
@@ -504,6 +519,21 @@ def build_parser() -> argparse.ArgumentParser:
                          "因為它對齊的是淨化器實際走的噪聲尺度，兩者理由不同")
     ap.add_argument("--ig-samples", type=int, default=1,
                     help="每一步平均幾組 (t, eps)。代價線性增加")
+    # ---- 收斂與 early stop（所有損失共用）----
+    ap.add_argument("--eval-every", type=int, default=0,
+                    help="每幾步用一組**固定**的抽樣評估一次並寫進 trace.csv。"
+                         "0 = 關閉，逐位元等於加這個旗標之前。隨機目標的逐步"
+                         "損失是取樣變異不是收斂訊號，判收斂一律看這一欄")
+    ap.add_argument("--eval-draws", type=int, default=8,
+                    help="固定評估用幾組 (t, eps)。只影響評估的雜訊，不影響訓練")
+    ap.add_argument("--eval-seed", type=int, default=99991,
+                    help="固定評估的抽樣種子。與訓練的 --seed 分開，"
+                         "免得評估點正好是訓練走過的那幾個")
+    ap.add_argument("--patience", type=int, default=0,
+                    help="連續幾次評估沒有比歷史最佳改善超過 --min-delta 就"
+                         "停。0 = 不早停，跑滿 --steps")
+    ap.add_argument("--min-delta", type=float, default=0.002,
+                    help="早停的相對改善門檻。**這是收斂判準不是效果判準**")
     # 相位／加性
     ap.add_argument("--radius", type=float, default=None,
                     help="直接指定半徑（掃描曲線用）。不給則二分搜到 --budget")
@@ -840,12 +870,19 @@ def main() -> None:
         逐圖重建——用防禦圖當錨會讓取樣軌跡隨最佳化漂移，而且不會有症狀。
         """
         if args.loss != "image_guidance":
+            # `latent_norm`／`encoder_target` 本來就是決定性的，評估函數就是
+            # 它自己——對照組因此與新損失走**同一條**收斂判定，不是兩套標準。
+            if args.eval_every and not hasattr(loss_fn, "_fixed_eval"):
+                loss_fn._fixed_eval = loss_fn
             return loss_fn
-        return make_image_guidance_loss(
+        fn = make_image_guidance_loss(
             ip2p, zt_mode=args.ig_zt,
             x_clean=x01 if args.ig_zt == "diffuse_src" else None,
             t_min=args.ig_t_min, t_max=args.ig_t_max,
             samples=args.ig_samples, seed=args.seed)
+        if args.eval_every:
+            fn._fixed_eval = fn.make_fixed(args.eval_draws, args.eval_seed)
+        return fn
 
     def wrap_manifold(x01, base_loss_fn):
         """把不動點項接到防禦損失上。**逐圖重建**：正規化的分母是該張乾淨
@@ -884,7 +921,7 @@ def main() -> None:
                          steps=args.edit_steps, s_t=args.text_guidance,
                          s_i=args.image_guidance)
 
-    rows = []
+    rows, trace_rows = [], []
     for item in dataset:
         x01 = load_image_tensor(item["path"], ip2p.device, size=RESOLUTION)
         item["path01"] = x01
@@ -930,6 +967,8 @@ def main() -> None:
             t1 = time.time()
             x_def, radius, unreachable, modified, extras = defend(
                 ip2p, suite, cond, x01, args, use_loss)
+            for h in extras.pop("_trace", []):
+                trace_rows.append({"image": item["name"], **h})
             fid = suite.pairwise(x01, x_def)
             e_def = edit(x_def, item)
             prot = suite.pairwise(e_orig, e_def)
@@ -1060,6 +1099,11 @@ def main() -> None:
                 "total_seconds": round(time.time() - t1, 1),
             })
             write_csv(args.out / "results.csv", rows)
+            # 收斂軌跡累積後整份重寫。**不逐列 append**：欄位會隨條件變動
+            # （只有開了 --eval-every 的列有 `eval`），append 會讓後來多出來
+            # 的欄位靜默消失，而 CSV 看起來仍然完整。
+            if trace_rows:
+                write_csv(args.out / "trace.csv", trace_rows)
             keep = (f" keep={extras['deliver_retention']:.3f}"
                     if "deliver_retention" in extras else "")
             print(f"{item['name']:32s} {cond:14s} r={radius:.4f} "

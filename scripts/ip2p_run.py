@@ -147,7 +147,7 @@ def _purify_transform(args):
     if args.purify_aware == "fixed75":
         return make_fixed_jpeg_transform(75)
     if args.purify_aware == "eot_jpeg":
-        return make_eot_jpeg_transform((95, 75, 50), seed=args.seed)
+        return make_eot_jpeg_transform(tuple(args.eot_qualities), seed=args.seed)
     if args.purify_aware == "eot_geometry":
         return make_eot_geometry_transform(seed=args.seed)
     return make_eot_ops_transform((75,), seed=args.seed)
@@ -652,6 +652,15 @@ def build_parser() -> argparse.ArgumentParser:
                     help="每幾步檢查一次信賴域")
     ap.add_argument("--stage2-ramp", type=int, default=0,
                     help="1 = 前半段只用弱算子（由弱到強）。0 = 全程同一池")
+    # 多品質集成損失的品質集合（Shin & Song 2017：單一品質會過度特化）。
+    # **預設 (95, 75, 50) 逐位元等於加這個旗鈕之前。** 與 `--deliver-jpeg` 併用
+    # 時順序是「先自壓到交付格點、再讓攻擊方以抽到的品質壓一次」，也就是
+    # **集成放在損失上、交付仍是單一格點**——放到交付上就是已否決的
+    # `--purify-aware` 那三個變體。
+    ap.add_argument("--eot-qualities", type=int, nargs="+",
+                    default=[95, 75, 50],
+                    help="--purify-aware eot_jpeg 每步隨機抽的品質集合")
+
     # ---- 不動點項（`runs/fixedpoint_framework/README.md` 第五節）----
     # **`--manifold-weight 0` 且 `--manifold-only` 關著時逐位元等於加這組旗標
     # 之前**，由 `tests/test_fixedpoint_loss.py` 釘住。
@@ -916,6 +925,9 @@ def main() -> None:
                 "loss": args.loss,
                 "gain_ratio": args.gain_ratio,
                 "purify_aware": args.purify_aware,
+                # **未載的參數要成為欄位不是註解**：集成的品質集合決定了
+                # 這一列在哪一段壓縮上被訓練過，合併分片後必須分得出來。
+                "eot_qualities": " ".join(str(q) for q in args.eot_qualities),
                 # 交付自壓的品質。0 = 關閉。**這一欄不記下來，開著與關著跑出
                 # 的列在其餘欄位上一模一樣**，合併分片之後就分不出來——而它
                 # 決定了存檔的防禦圖在不在量化格點上，也就決定了抗淨化那一輪

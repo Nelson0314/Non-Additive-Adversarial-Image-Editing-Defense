@@ -275,8 +275,12 @@ def test_dispersion_conditions_are_registered():
     for name in ip2p_run.DISP_CONDS:
         assert name in ip2p_run.PHASE_CONDS, name
         param, lo, hi = build(name, 0, block=32, r_min=0.12, hop=8)
-        assert param.params() == [], "隨機對照不應該有可學參數"
         assert 0 < lo < hi
+        if name.endswith("_opt"):
+            # 可學那一支的參數要等 reset 之後才存在（形狀取決於影像尺寸）。
+            assert param.learnable and param.gate
+        else:
+            assert param.params() == [], "隨機對照不應該有可學參數"
 
 
 def test_band_and_phase_families_get_different_search_ranges():

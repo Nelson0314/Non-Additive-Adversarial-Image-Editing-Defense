@@ -116,11 +116,20 @@ def build(name: str, seed: int, block: int = 32, r_min: float = 0.12,
         # 逐頻格相位是弧度，故二分搜的區間分開給。
         from src.defense.dispersion import DispersionParam
         tail = name[len("disp_k"):]
+        # `_opt` 後綴＝**可學＋接上兩個閘**（`runs/ip2p_dispersion` 那一批是
+        # 隨機且不接閘，殘差因此是滿幅度尖峰、L∞ 0.98）。
+        learn = tail.endswith("_opt")
+        if learn:
+            tail = tail[:-4]
         n_bands = None if tail == "full" else int(tail)
         lo, hi = ((0.05, math.pi) if n_bands is None else (0.05, 16.0))
         return (DispersionParam(radius=hi, n_bands=n_bands, block=block,
                                 hop=hop if hop else block // 2, r_min=r_min,
-                                field_grid=disp_field_grid),
+                                field_grid=disp_field_grid,
+                                learnable=learn, gate=learn,
+                                energy_quantile=quantile,
+                                gate_edge_power=gate_edge_power,
+                                freq_weight_power=freq_weight_power),
                 lo, hi)
     if name in ("dct_nonadd", "dct_nonadd_rand"):
         # DCT 域的**非加性**擾動（`src/defense/dct_nonadditive.py`）。

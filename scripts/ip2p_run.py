@@ -94,7 +94,9 @@ RESOLUTION = 512
 # `disp_k1` 是古典位移場、`disp_kfull` 是逐頻格獨立的隨機相位。三者都是
 # **隨機、不最佳化**的對照，`params()` 為空，`run_param_pgd` 不更新任何東西。
 DISP_CONDS = ("disp_k1", "disp_k2", "disp_k3", "disp_k4", "disp_k8",
-              "disp_kfull")
+              "disp_kfull",
+              # `_opt` = 可學 ＋ 接上紋理閘與帶級知覺定價。
+              "disp_k1_opt", "disp_k2_opt", "disp_k4_opt", "disp_k8_opt")
 PHASE_CONDS = ("phase", "phase_rand", "add", "phase_gain", "gain_only",
                "floor_only", "shading", "shading_rand",) + DISP_CONDS + (
                # WaNet 式三元對照（`runs/ip2p_warp/`）。強度旗鈕是 `--radius`，

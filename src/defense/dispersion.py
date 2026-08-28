@@ -53,7 +53,10 @@ from typing import Optional, Tuple
 
 import torch
 
-from src.residual.texture_rephase import PhaseResidual, radial_gate
+from src.residual.perceptual_weight import freq_weight
+from src.residual.texture_rephase import (
+    PhaseResidual, radial_gate, texture_gate,
+)
 
 # 角落頻格的歸一化半徑是 sqrt(2)（fy 與 fx 各到 1），與
 # `scripts/encoder_frequency_response.py` 同一套座標。
@@ -251,8 +254,27 @@ def fold_fraction(disp: torch.Tensor) -> float:
     return float((det <= 0).to(torch.float32).mean())
 
 
+def band_price(block: int, bands: torch.Tensor, n_bands: int, device,
+               dtype=torch.float32, power: float = 0.25,
+               name: str = "jpeg_luma") -> torch.Tensor:
+    """每個頻帶一個知覺價錢：`q(ω)^power` 在該帶上的平均，形狀 `(K,)`。
+
+    **取帶內平均而不是逐格定價**，這是整個構造的關鍵取捨。逐格的
+    `q(ω)^0.25` 會逐格改變相位斜坡的斜率，做出來的東西就不再是「把這一帶
+    平移 u 像素」——那是本模組唯一的賣點。取帶平均之後，第 k 帶仍然是一個
+    純平移，只是幅度被它自己的價錢縮放過，於是**知覺定價與平移語意兩者都
+    保得住**。代價是定價的解析度只到帶，不到格。
+    """
+    q = freq_weight(name, block, device, dtype, power)
+    out = torch.zeros(n_bands, device=device, dtype=dtype)
+    for k in range(n_bands):
+        m = bands == k
+        out[k] = q[m].mean() if bool(m.any()) else 0.0
+    return out
+
+
 class DispersionParam:
-    """隨機的逐頻帶位移，**不最佳化**，只在 reset 時抽一次。
+    """逐頻帶位移。`learnable=True` 時 `u` 是 PGD 參數，否則抽一次就凍結。
 
     存在的理由是把色散度那條軸接進主線管線：`scripts/dispersion_probe.py`
     只寫 CSV、不存圖，而報告頁要的是防禦圖、淨化圖與編輯圖。介面與
@@ -268,13 +290,31 @@ class DispersionParam:
 
     def __init__(self, radius: float, n_bands: Optional[int] = None,
                  block: int = 32, hop: int = 8, r_min: float = 0.12,
-                 field_grid: int = 16):
+                 field_grid: int = 16, learnable: bool = False,
+                 gate: bool = False, energy_quantile: float = 0.0,
+                 gate_edge_power: float = 1.0,
+                 freq_weight_power: float = 0.25):
         if n_bands is not None and n_bands < 1:
             raise ValueError(f"n_bands 必須為正整數或 None，收到 {n_bands}")
+        if learnable and n_bands is None:
+            raise ValueError(
+                "learnable=True 需要有限的 n_bands：逐頻格獨立相位沒有『位移』"
+                "這個物件，那一格是相位族不是位移族")
         self.radius = float(radius)
         self.n_bands = n_bands
         self.block, self.hop, self.r_min = block, hop, r_min
         self.field_grid = field_grid
+        # 可學：`u` 由**零**起步（零位移即帶通恆等），走 sign PGD、夾在 ±radius。
+        self.learnable = bool(learnable)
+        # 兩個閘。`gate=False` 時逐位元等於加這組參數之前。
+        self.gate = bool(gate)
+        self.energy_quantile = energy_quantile
+        self.gate_edge_power = gate_edge_power
+        self.freq_weight_power = freq_weight_power
+        self._u = None
+        self._tex = None
+        self._price = None
+        self._bands = None
         self._op = None
         self._theta = None
         self._seed = 0
@@ -285,7 +325,24 @@ class DispersionParam:
         self._seed = int(seed)
         self._device, self._dtype = x01.device, x01.dtype
         self._op = make_operator(x01, self.block, self.hop, self.r_min)
-        self._build()
+        k = 1 if self.n_bands is None else self.n_bands
+        self._bands = band_index(self.block, k, self.r_min, x01.device,
+                                 dtype=x01.dtype)
+        if self.gate:
+            # **兩個閘都由原圖算一次就凍結**，與現行主線同一條規則：閘決定
+            # 擾動被允許出現在哪裡，不參與最佳化。
+            self._tex = texture_gate(
+                x01, self.block, self.hop,
+                energy_quantile=self.energy_quantile,
+                edge_power=self.gate_edge_power).reshape(-1).to(x01.dtype)
+            self._price = band_price(self.block, self._bands, k, x01.device,
+                                     x01.dtype, self.freq_weight_power)
+        if self.learnable:
+            self._u = torch.zeros(self._op.side ** 2, self.n_bands, 2,
+                                  device=x01.device, dtype=x01.dtype,
+                                  requires_grad=True)
+        else:
+            self._build()
 
     def _build(self) -> None:
         k = 1 if self.n_bands is None else self.n_bands
@@ -301,17 +358,30 @@ class DispersionParam:
                 self._device, grid=self.field_grid, dtype=self._dtype)
             self._theta = displacement_theta(self.block, bands, u)
 
+    def _scaled(self, u: torch.Tensor) -> torch.Tensor:
+        """套上兩個閘。紋理閘是逐視窗的純量、帶價是逐帶的純量，**兩者都不
+        隨頻格變**，所以第 k 帶在第 b 個視窗上仍然是一個純平移。"""
+        if not self.gate:
+            return u
+        return u * self._tex[:, None, None] * self._price[None, :, None]
+
     def render(self, x01: torch.Tensor) -> torch.Tensor:
         if self._op is None:
             raise RuntimeError("reset() 未呼叫")
-        return apply_theta(self._op, x01, self._theta)
+        if self.learnable:
+            theta = displacement_theta(self.block, self._bands,
+                                       self._scaled(self._u))
+        else:
+            theta = self._theta
+        return apply_theta(self._op, x01, theta)
 
     def params(self) -> list:
-        return []
+        return [self._u] if self.learnable else []
 
     @torch.no_grad()
     def project(self) -> None:
-        return None
+        if self.learnable:
+            self._u.clamp_(-self.radius, self.radius)
 
     def set_radius(self, r: float) -> None:
         """半徑改變要**重抽**：場的振幅是抽樣的尺度，不是事後夾的界。
@@ -321,5 +391,5 @@ class DispersionParam:
         只是重抽一個粗網格的隨機場再上採樣。
         """
         self.radius = float(r)
-        if self._op is not None:
+        if self._op is not None and not self.learnable:
             self._build()

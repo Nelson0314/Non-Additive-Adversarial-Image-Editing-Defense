@@ -1,0 +1,102 @@
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  50%|█████     | 3/6 [00:00<00:00, 12.09it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 2220.39it/s]
+Loading pipeline components...:  83%|████████▎ | 5/6 [00:00<00:00,  7.34it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00,  9.47it/s]
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+IP2P 線：2 張、條件 ['phase_gain']、steps=100 s_T=7.5 s_I=1.5 seed=20260812
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,1.0]
+  warnings.warn(
+    [phase] step    0 loss 105.950577 |p| 0.00877
+    [phase] step   25 loss 98.748894 |p| 0.15953
+    [phase] step   50 loss 93.713257 |p| 0.28182
+    [phase] step   75 loss 89.961632 |p| 0.38340
+    [phase] step  100 loss 87.083649 |p| 0.46882
+    [phase] step  125 loss 84.742050 |p| 0.54229
+    [phase] step  150 loss 82.782227 |p| 0.60687
+    [phase] step  175 loss 81.079979 |p| 0.66385
+    [phase] step  200 loss 79.509438 |p| 0.71530
+    [phase] step  225 loss 78.026245 |p| 0.76229
+    [phase] step  250 loss 76.667725 |p| 0.80461
+    [phase] step  275 loss 75.563507 |p| 0.83080
+    [phase] step  300 loss 74.537811 |p| 0.85295
+    [phase] step  325 loss 73.634666 |p| 0.87219
+    [phase] step  350 loss 72.720825 |p| 0.88957
+    [phase] step  375 loss 71.855698 |p| 0.90512
+    [phase] step  400 loss 71.131729 |p| 0.91919
+    [phase] step  425 loss 70.440346 |p| 0.93199
+    [phase] step  450 loss 69.738625 |p| 0.94408
+    [phase] step  475 loss 69.164322 |p| 0.95499
+    [phase] step  500 loss 68.641876 |p| 0.96532
+    [phase] step  525 loss 68.119560 |p| 0.97511
+    [phase] step  550 loss 67.610428 |p| 0.98457
+    [phase] step  575 loss 67.178833 |p| 0.99339
+    [phase] step  600 loss 66.734100 |p| 1.00198
+    [phase] step  625 loss 66.365631 |p| 1.01017
+    [phase] step  650 loss 65.933815 |p| 1.01813
+    [phase] step  675 loss 65.622513 |p| 1.02559
+    [phase] step  700 loss 65.303917 |p| 1.03278
+    [phase] step  725 loss 65.044769 |p| 1.03972
+    [phase] step  750 loss 64.766975 |p| 1.04645
+    [phase] step  775 loss 64.566345 |p| 1.05291
+    [phase] step  800 loss 64.286140 |p| 1.05937
+    [phase] step  825 loss 64.052223 |p| 1.06550
+    [phase] step  850 loss 63.825645 |p| 1.07146
+    [phase] step  875 loss 63.625057 |p| 1.07708
+    [phase] step  900 loss 63.450298 |p| 1.08274
+    [phase] step  925 loss 63.260544 |p| 1.08817
+    [phase] step  950 loss 63.040806 |p| 1.09364
+    [phase] step  975 loss 62.846249 |p| 1.09879
+    [phase] step  999 loss 62.693340 |p| 1.10362
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 18791.81it/s]
+[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
+[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
+Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights:  49%|████▊     | 198/408 [00:00<00:00, 1956.52it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 3449.50it/s]
+task_attr_mod_color_11699        phase_gain     r=2.5000 dists=0.0994 lpips=0.3152 effect=0.4737 (190s)
+    [phase] step    0 loss 133.485077 |p| 0.00877
+    [phase] step   25 loss 122.334076 |p| 0.17002
+    [phase] step   50 loss 114.917816 |p| 0.30594
+    [phase] step   75 loss 109.719360 |p| 0.41982
+    [phase] step  100 loss 105.708076 |p| 0.51769
+    [phase] step  125 loss 102.482941 |p| 0.60262
+    [phase] step  150 loss 99.838242 |p| 0.67502
+    [phase] step  175 loss 97.683891 |p| 0.73685
+    [phase] step  200 loss 95.852875 |p| 0.79123
+    [phase] step  225 loss 94.239380 |p| 0.83904
+    [phase] step  250 loss 92.782333 |p| 0.88226
+    [phase] step  275 loss 91.685272 |p| 0.91425
+    [phase] step  300 loss 90.795677 |p| 0.94125
+    [phase] step  325 loss 90.061012 |p| 0.96478
+    [phase] step  350 loss 89.421562 |p| 0.98590
+    [phase] step  375 loss 88.799309 |p| 1.00513
+    [phase] step  400 loss 88.322495 |p| 1.02276
+    [phase] step  425 loss 87.838943 |p| 1.03920
+    [phase] step  450 loss 87.409492 |p| 1.05431
+    [phase] step  475 loss 87.014870 |p| 1.06863
+    [phase] step  500 loss 86.640266 |p| 1.08208
+    [phase] step  525 loss 86.282753 |p| 1.09468
+    [phase] step  550 loss 86.007065 |p| 1.10665
+    [phase] step  575 loss 85.664505 |p| 1.11797
+    [phase] step  600 loss 85.360153 |p| 1.12883
+    [phase] step  625 loss 85.114204 |p| 1.13920
+    [phase] step  650 loss 84.835602 |p| 1.14910
+    [phase] step  675 loss 84.562225 |p| 1.15860
+    [phase] step  700 loss 84.355576 |p| 1.16766
+    [phase] step  725 loss 84.107628 |p| 1.17637
+    [phase] step  750 loss 83.874374 |p| 1.18473
+    [phase] step  775 loss 83.664207 |p| 1.19273
+    [phase] step  800 loss 83.432976 |p| 1.20068
+    [phase] step  825 loss 83.237450 |p| 1.20824
+    [phase] step  850 loss 83.069572 |p| 1.21555
+    [phase] step  875 loss 82.876930 |p| 1.22257
+    [phase] step  900 loss 82.719833 |p| 1.22933
+    [phase] step  925 loss 82.546661 |p| 1.23596
+    [phase] step  950 loss 82.374535 |p| 1.24235
+    [phase] step  975 loss 82.206932 |p| 1.24852
+    [phase] step  999 loss 82.053993 |p| 1.25425
+task_attr_mod_color_136767       phase_gain     r=2.5000 dists=0.1693 lpips=0.3852 effect=0.5605 (179s)
+
+表：runs/ip2p_image_guidance/ln_time_long/results.csv（2 列）

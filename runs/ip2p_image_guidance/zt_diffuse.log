@@ -1,0 +1,102 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00, 19.35it/s]Loading pipeline components...:  83%|████████▎ | 5/6 [00:00<00:00, 25.20it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 4527.54it/s]
+Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 16.71it/s]
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+IP2P 線：2 張、條件 ['phase_gain']、steps=100 s_T=7.5 s_I=1.5 seed=20260812
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,1.0]
+  warnings.warn(
+    [phase] step    0 loss 0.422059 |p| 0.04384
+    [phase] step    5 loss 0.069006 |p| 0.09784
+    [phase] step   10 loss 0.009890 |p| 0.15334
+    [phase] step   15 loss 0.004103 |p| 0.19171
+    [phase] step   20 loss 0.074459 |p| 0.23897
+    [phase] step   25 loss 0.055220 |p| 0.28150
+    [phase] step   30 loss 0.003350 |p| 0.32364
+    [phase] step   35 loss 0.016988 |p| 0.35955
+    [phase] step   40 loss 0.016497 |p| 0.40156
+    [phase] step   45 loss 0.056108 |p| 0.43114
+    [phase] step   50 loss 0.039489 |p| 0.46742
+    [phase] step   55 loss 0.012761 |p| 0.49640
+    [phase] step   60 loss 0.043599 |p| 0.54158
+    [phase] step   65 loss 0.033435 |p| 0.57025
+    [phase] step   70 loss 0.017630 |p| 0.60056
+    [phase] step   75 loss 0.030366 |p| 0.63454
+    [phase] step   80 loss 0.027668 |p| 0.66729
+    [phase] step   85 loss 0.002758 |p| 0.70052
+    [phase] step   90 loss 0.025188 |p| 0.73226
+    [phase] step   95 loss 0.019046 |p| 0.75891
+    [phase] step  100 loss 0.023668 |p| 0.78293
+    [phase] step  105 loss 0.015268 |p| 0.80845
+    [phase] step  110 loss 0.017414 |p| 0.83268
+    [phase] step  115 loss 0.019592 |p| 0.85013
+    [phase] step  120 loss 0.006603 |p| 0.87444
+    [phase] step  125 loss 0.000821 |p| 0.89235
+    [phase] step  130 loss 0.015845 |p| 0.91245
+    [phase] step  135 loss 0.002931 |p| 0.92644
+    [phase] step  140 loss 0.013619 |p| 0.94747
+    [phase] step  145 loss 0.008580 |p| 0.96163
+    [phase] step  150 loss 0.001051 |p| 0.97726
+    [phase] step  155 loss 0.001932 |p| 0.98920
+    [phase] step  160 loss 0.009639 |p| 1.00878
+    [phase] step  165 loss 0.009276 |p| 1.02626
+    [phase] step  170 loss 0.008435 |p| 1.04410
+    [phase] step  175 loss 0.009490 |p| 1.05817
+    [phase] step  180 loss 0.008932 |p| 1.07359
+    [phase] step  185 loss 0.011144 |p| 1.08545
+    [phase] step  190 loss 0.008326 |p| 1.09714
+    [phase] step  195 loss 0.003059 |p| 1.10814
+    [phase] step  199 loss 0.007354 |p| 1.12253
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 18723.73it/s]
+[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
+[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
+Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 5020.42it/s]
+task_attr_mod_color_11699        phase_gain     r=2.5000 dists=0.1234 lpips=0.3661 effect=0.4125 (265s)
+    [phase] step    0 loss 0.490872 |p| 0.04384
+    [phase] step    5 loss 0.066720 |p| 0.10019
+    [phase] step   10 loss 0.009923 |p| 0.14940
+    [phase] step   15 loss 0.005071 |p| 0.18738
+    [phase] step   20 loss 0.072264 |p| 0.23667
+    [phase] step   25 loss 0.058329 |p| 0.28080
+    [phase] step   30 loss 0.004124 |p| 0.32562
+    [phase] step   35 loss 0.013420 |p| 0.36440
+    [phase] step   40 loss 0.012459 |p| 0.40784
+    [phase] step   45 loss 0.050851 |p| 0.44116
+    [phase] step   50 loss 0.031506 |p| 0.47659
+    [phase] step   55 loss 0.010536 |p| 0.51025
+    [phase] step   60 loss 0.027651 |p| 0.55447
+    [phase] step   65 loss 0.025108 |p| 0.58581
+    [phase] step   70 loss 0.011509 |p| 0.61739
+    [phase] step   75 loss 0.018858 |p| 0.64925
+    [phase] step   80 loss 0.012988 |p| 0.68355
+    [phase] step   85 loss 0.003174 |p| 0.71652
+    [phase] step   90 loss 0.012402 |p| 0.74918
+    [phase] step   95 loss 0.007719 |p| 0.77401
+    [phase] step  100 loss 0.011056 |p| 0.79959
+    [phase] step  105 loss 0.005906 |p| 0.82449
+    [phase] step  110 loss 0.006018 |p| 0.84768
+    [phase] step  115 loss 0.009822 |p| 0.86603
+    [phase] step  120 loss 0.005409 |p| 0.88904
+    [phase] step  125 loss 0.001181 |p| 0.91014
+    [phase] step  130 loss 0.006416 |p| 0.92892
+    [phase] step  135 loss 0.003421 |p| 0.94358
+    [phase] step  140 loss 0.007031 |p| 0.96178
+    [phase] step  145 loss 0.004706 |p| 0.97682
+    [phase] step  150 loss 0.001510 |p| 0.99298
+    [phase] step  155 loss 0.002571 |p| 1.00977
+    [phase] step  160 loss 0.003764 |p| 1.02572
+    [phase] step  165 loss 0.002911 |p| 1.04213
+    [phase] step  170 loss 0.002758 |p| 1.05551
+    [phase] step  175 loss 0.002990 |p| 1.06816
+    [phase] step  180 loss 0.002614 |p| 1.08364
+    [phase] step  185 loss 0.003368 |p| 1.09271
+    [phase] step  190 loss 0.002831 |p| 1.10328
+    [phase] step  195 loss 0.003073 |p| 1.11606
+    [phase] step  199 loss 0.002456 |p| 1.12529
+task_attr_mod_color_136767       phase_gain     r=2.5000 dists=0.1902 lpips=0.3870 effect=0.4682 (256s)
+
+表：runs/ip2p_image_guidance/zt_diffuse/results.csv（2 列）

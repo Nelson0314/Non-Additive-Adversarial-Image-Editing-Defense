@@ -260,3 +260,54 @@ def test_random_field_rejects_negative_grid():
 
     with pytest.raises(ValueError, match="grid"):
         random_field(8, (1,), 1.0, 0, -1, "cpu")
+
+
+# ---- 接進主線管線 ----
+
+def test_dispersion_conditions_are_registered():
+    """`ip2p_run.py` 要認得這些條件，否則它們只活在探針裡、不存防禦圖。"""
+    import sys
+    from pathlib import Path
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
+    import ip2p_run
+    from phase_ablation import build
+
+    for name in ip2p_run.DISP_CONDS:
+        assert name in ip2p_run.PHASE_CONDS, name
+        param, lo, hi = build(name, 0, block=32, r_min=0.12, hop=8)
+        assert param.params() == [], "隨機對照不應該有可學參數"
+        assert 0 < lo < hi
+
+
+def test_band_and_phase_families_get_different_search_ranges():
+    """逐頻帶位移的半徑單位是**像素**、逐頻格相位是**弧度**，區間不可共用。"""
+    import sys
+    from pathlib import Path
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
+    from phase_ablation import build
+
+    _, _, hi_px = build("disp_k4", 0, block=32, r_min=0.12, hop=8)
+    _, _, hi_rad = build("disp_kfull", 0, block=32, r_min=0.12, hop=8)
+    assert hi_px == 16.0
+    assert hi_rad == pytest.approx(math.pi)
+
+
+def test_set_radius_resamples_the_field():
+    """半徑是抽樣的尺度不是事後夾的界，改了要重抽（同 `WarpRandomParam`）。"""
+    from src.defense.dispersion import DispersionParam
+
+    x = _img(9, ch=3).to(torch.float32)
+    p = DispersionParam(radius=1.0, n_bands=4, block=BLOCK, hop=HOP,
+                        r_min=R_MIN)
+    p.reset(x, 0)
+    small = float((p.render(x) - x).pow(2).mean().sqrt())
+    p.set_radius(4.0)
+    big = float((p.render(x) - x).pow(2).mean().sqrt())
+    assert big > small
+
+
+def test_dispersion_param_rejects_zero_bands():
+    from src.defense.dispersion import DispersionParam
+
+    with pytest.raises(ValueError, match="n_bands"):
+        DispersionParam(radius=1.0, n_bands=0)

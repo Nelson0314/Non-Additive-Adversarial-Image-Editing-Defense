@@ -48,6 +48,17 @@ THUMB = 128          # 頁上顯示的起始邊長（CSS，可由滑桿改）
 EMBED = 512          # 編輯輸出內嵌的畫素數：原生，放大不糊
 EMBED_PUR = 256      # 淨化後防禦圖內嵌的畫素數：脈絡用，壓小換檔案大小
 QUALITY = 72
+def ours_set(tables) -> set:
+    """哪些 tag 用主色。`tables.json` 有 `ours` 就用它，否則退回前綴慣例。
+
+    退回而不是拋錯，是為了讓舊的 `tables.json`（沒有這個鍵）仍然讀得動。
+    """
+    got = tables.get("ours")
+    if got:
+        return set(got)
+    return {t for t in tables.get("order", []) if t.startswith("ours")}
+
+
 PUR_LABEL = {
     "identity": "未淨化",
     "jpeg90": "JPEG 90", "jpeg75": "JPEG 75",
@@ -152,7 +163,7 @@ def build_panels(args, T, names, ds, tags):
                     img += f"<img class='p' src='{pu}' alt='' loading='lazy'>"
                 cells.append(f"<div class='cell' title='{html.escape(title)}'>"
                              f"{img}</div>")
-            cls = "ours" if t.startswith("ours") else "rival"
+            cls = "ours" if t in ours_set(T) else "rival"
             rows.append(f"<div class='rowlab {cls}'>"
                         f"{html.escape(label.get(t, t))}</div>" + "".join(cells))
 
@@ -190,7 +201,7 @@ def rank_ours(T, purs, n):
     """
     import statistics as _st
     gain = T["gain"]
-    cand = [t for t in T["order"] if t.startswith("ours") and t in gain]
+    cand = [t for t in T["order"] if t in ours_set(T) and t in gain]
     if n <= 0 or n >= len(cand):
         return cand, []
     scored = sorted(cand, key=lambda t: -_st.fmean(gain[t][p] for p in purs))
@@ -199,7 +210,7 @@ def rank_ours(T, purs, n):
             [t for t in cand if t not in keep])
 
 
-def render_table(rows_src, cols, labels, higher, extra_col=None):
+def render_table(rows_src, cols, labels, higher, extra_col=None, ours=()):
     """綠色標該欄最佳，欄名旁的箭頭標「對防禦有利的方向」。
 
     **箭頭與綠色由同一個 `higher` 集合推出**，所以兩者不可能各說各話——
@@ -218,7 +229,7 @@ def render_table(rows_src, cols, labels, higher, extra_col=None):
         out.append(f"<th>{extra_col} <span class='up'>↑</span></th>")
     out.append("</tr></thead><tbody>")
     for r in rows_src:
-        cls = "ours" if r["tag"].startswith("ours") else "rival"
+        cls = "ours" if r["tag"] in ours else "rival"
         out.append(f"<tr class='{cls}'><td class='name'>"
                    f"{html.escape(r['label'])}</td>")
         for k in cols:
@@ -232,7 +243,7 @@ def render_table(rows_src, cols, labels, higher, extra_col=None):
     return "".join(out)
 
 
-def main() -> None:
+def build_parser() -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--tables", type=Path, required=True)
@@ -273,8 +284,16 @@ def main() -> None:
                          "「缺」只會擠掉版面。**它們仍然留在下方三張表上**，"
                          "而且表三會標出缺的是哪幾列")
     ap.add_argument("--out", type=Path, required=True)
-    args = ap.parse_args()
+    return ap
 
+
+def build_context(args) -> dict:
+    """把資料組成給版面用的字典。**版面本身不在這裡。**
+
+    拆出來是為了讓別的實驗線能沿用同一組元件而換掉版面
+    （`scripts/dispersion_report.py`）。回傳的鍵是 `TEMPLATE` 的超集合，
+    多餘的鍵 `str.format` 會忽略。
+    """
     from apa_baseline import load_dataset
 
     T = json.loads((args.tables / "tables.json").read_text(encoding="utf-8"))
@@ -310,14 +329,16 @@ def main() -> None:
     # 表上要含**全部**條件，包括還沒跑抗淨化、因此不在矩陣裡的那幾個。
     fid_rows = [fid[t] for t in order if t in fid]
     edit_rows = [edit[t] for t in order if t in edit]
-    t1 = render_table(fid_rows, list(FID_LABEL), FID_LABEL, FID_HIGHER)
+    ours = ours_set(T)
+    t1 = render_table(fid_rows, list(FID_LABEL), FID_LABEL, FID_HIGHER,
+                      ours=ours)
     t2 = render_table(edit_rows, list(EDIT_LABEL), EDIT_LABEL, EDIT_HIGHER,
-                      extra_col="擋下")
+                      extra_col="擋下", ours=ours)
     g_rows = [{"tag": t, "label": label.get(t, t),
                **{p: gain[t].get(p) for p in purs}}
               for t in order if t in gain]
     t3 = render_table(g_rows, purs, {p: PUR_LABEL.get(p, p) for p in purs},
-                      set(purs))
+                      set(purs), ours=ours)
 
     missing = [label.get(t, t) for t in order if t in fid and t not in gain]
     warn = (f"<p class='warn'>抗淨化尚未跑完，表三缺：{'、'.join(missing)}。"
@@ -347,16 +368,24 @@ def main() -> None:
         "arch_ours": MA.ours(),
         "arch_dct": MA.dct(),
     }
-    out = TEMPLATE.format(
+    return dict(
         tabs="".join(tabs), panels="".join(panels),
         t1=t1, t2=t2, t3=t3, warn=warn, dropped=dropped, thumb=args.thumb,
         embed=args.embed, chart_css=MC.CHART_CSS + MA.ARCH_CSS, **charts,
         ncond=len(tags), npur=len(purs), nimg=len(names))
+
+
+def write_page(args, template: str, ctx: dict) -> None:
     args.out.parent.mkdir(parents=True, exist_ok=True)
-    args.out.write_text(out, encoding="utf-8")
+    args.out.write_text(template.format(**ctx), encoding="utf-8")
     mb = args.out.stat().st_size / 1048576
-    print(f"寫出 {args.out}（{mb:.1f} MB，{len(names)} 張 × {len(tags)} 條件 "
-          f"× {len(purs)} 算子，縮圖 {args.thumb} px）")
+    print(f"寫出 {args.out}（{mb:.1f} MB，{ctx['nimg']} 張 × {ctx['ncond']} 條件 "
+          f"× {ctx['npur']} 算子，縮圖 {args.thumb} px）")
+
+
+def main() -> None:
+    args = build_parser().parse_args()
+    write_page(args, TEMPLATE, build_context(args))
 
 
 TEMPLATE = """<title>量化交付對 DCT-Shield</title>

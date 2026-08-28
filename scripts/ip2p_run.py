@@ -90,8 +90,13 @@ from src.models.ip2p import (  # noqa: E402
 from src.utils.io import load_image_tensor, write_csv  # noqa: E402
 
 RESOLUTION = 512
+# 色散變形（`src/defense/dispersion.py`）：K 個頻帶各自一個隨機位移。
+# `disp_k1` 是古典位移場、`disp_kfull` 是逐頻格獨立的隨機相位。三者都是
+# **隨機、不最佳化**的對照，`params()` 為空，`run_param_pgd` 不更新任何東西。
+DISP_CONDS = ("disp_k1", "disp_k2", "disp_k3", "disp_k4", "disp_k8",
+              "disp_kfull")
 PHASE_CONDS = ("phase", "phase_rand", "add", "phase_gain", "gain_only",
-               "floor_only", "shading", "shading_rand",
+               "floor_only", "shading", "shading_rand",) + DISP_CONDS + (
                # WaNet 式三元對照（`runs/ip2p_warp/`）。強度旗鈕是 `--radius`，
                # 單位是最大位移像素數。三格的分工見 `phase_ablation.build`。
                "warp", "warp_rand", "warp_roundtrip")
@@ -363,6 +368,7 @@ def defend(ip2p, suite, cond, x01, args, loss_fn):
             "不需要在這裡二分搜尋")
 
     param, lo, hi = build(cond, args.seed, block=args.block, r_min=args.r_min,
+                          disp_field_grid=args.disp_field_grid,
                           hop=args.hop,
                           r_max=args.r_max,
                           quantile=args.quantile, gl_iters=args.gl_iters,
@@ -554,6 +560,11 @@ def build_parser() -> argparse.ArgumentParser:
                          "量過的失真對照表同一個構造——換掉它那張表就作廢。"
                          "**位移場刻意不是 stAdv 的逐像素稠密場＋TV 正則**，"
                          "理由見 `WarpParam` 的 docstring")
+    ap.add_argument("--disp-field-grid", type=int, default=16,
+                    help="色散變形那個場的空間粗糙度：先在 grid×grid 上抽再"
+                         "雙三次上採樣。**固定它，K 才是唯一的變因**——逐視窗"
+                         "獨立抽（0）會讓 K=1 在空間上也最粗，色散度的效果就"
+                         "與空間粗糙度混在一起。16 對齊 WarpParam 的粗網格")
     ap.add_argument("--r-min", type=float, default=0.12)
     ap.add_argument("--r-max", type=float, default=float("inf"),
                     help="徑向頻率閘的上界。預設無窮大即維持原本的高通行為。"
@@ -974,6 +985,7 @@ def main() -> None:
                 "step_size": args.step_size,
                 "saturate_at": args.saturate_at,
                 "warp_init_std": args.warp_init_std,
+                "disp_field_grid": args.disp_field_grid,
                 "dct_mode": args.dct_mode,
                 "dct_qd": args.dct_qd,
                 "dct_pairing": args.dct_pairing,

@@ -47,8 +47,16 @@ ORDER = ["ours_ph_q", "ours_pg_q", "ours_ph_q20", "ours_pg_q20",
          "dct_aj85_eps1.5", "dct_aj85_eps2.2",
          "dct_aj85_eps3.2", "dct_aj85_eps4.5",
          "dct_aj50_eps0.22", "dct_aj50_eps0.40", "dct_aj50_eps0.65",
-         "dct_aj30_eps0.13", "dct_aj30_eps0.25", "dct_aj30_eps0.42"]
+         "dct_aj30_eps0.13", "dct_aj30_eps0.25", "dct_aj30_eps0.42",
+         # 色散度那條軸（`runs/ip2p_dispersion`）。不在防禦目錄裡的 tag 會被
+         # 跳過，故加在這裡不影響主線那一批。
+         "d_k1", "d_k4", "d_kfull", "w_smooth", "w_fold"]
 LABEL = {
+    "d_k1": "逐頻帶位移 K=1",
+    "d_k4": "逐頻帶位移 K=4",
+    "d_kfull": "逐頻格獨立相位",
+    "w_smooth": "像素位移場 網格16",
+    "w_fold": "像素位移場 網格64",
     "ours_ph_q": "本方法 純相位 ＋量化 r0.9",
     "ours_pg_q": "本方法 相位+增益 ＋量化 r0.9",
     "ours_ph_q20": "本方法 純相位 ＋量化 r=pi",
@@ -102,6 +110,9 @@ def main() -> None:
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--defense", type=Path, required=True)
     ap.add_argument("--purify", type=Path, required=True)
+    ap.add_argument("--ours-tags", nargs="*", default=[],
+                    help="要以主色標示的 tag。不給時沿用「以 ours 開頭」這個"
+                         "慣例，主線那一批因此逐位元不變")
     ap.add_argument("--out", type=Path, required=True)
     args = ap.parse_args()
     args.out.mkdir(parents=True, exist_ok=True)
@@ -167,6 +178,10 @@ def main() -> None:
     (args.out / "tables.json").write_text(json.dumps({
         "fidelity": fid_rows, "edit": edit_rows,
         "gain": grid, "purifiers": PUR_ORDER, "order": ORDER, "label": LABEL,
+        # 哪些 tag 算「我方」。**寫進 JSON 而不是讓報告頁猜前綴**：色散度那
+        # 一批的 tag 不以 ours 開頭，靠前綴判會全部落到對照組的顏色。
+        "ours": sorted(set(args.ours_tags)
+                       | {t for t in ORDER if t.startswith("ours")}),
     }, ensure_ascii=False), encoding="utf-8")
 
     # ---- 印出來 --------------------------------------------------------

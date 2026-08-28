@@ -99,7 +99,8 @@ def build(name: str, seed: int, block: int = 32, r_min: float = 0.12,
           coarsen: int = 1,
           dct_qd: float = 0.85, dct_pairing: str = "transpose",
           dct_gate: str = "texture", warp_init_std: float = 0.0,
-          dct_mode: str = "plane", dct_plane_weight: str = "uniform"):
+          dct_mode: str = "plane", dct_plane_weight: str = "uniform",
+          disp_field_grid: int = 16):
     """`block`／`r_min`／`quantile` 是相位算子的三個構造設定。
 
     預設值是 現行定案（`docs/METHOD.md` §4）。開放成參數是為了掃描
@@ -108,6 +109,19 @@ def build(name: str, seed: int, block: int = 32, r_min: float = 0.12,
     """
     if name == "add":
         return AdditiveParam(radius=ADD_RADIUS_HI), ADD_RADIUS_LO, ADD_RADIUS_HI
+    if name.startswith("disp_k"):
+        # 色散變形（`src/defense/dispersion.py`）：K 個頻帶各自一個隨機位移。
+        # K=1 就是古典位移場、`disp_kfull` 是逐頻格獨立的隨機相位，也就是
+        # 現行家族的隨機對照。**兩族的半徑單位不同**——逐頻帶位移是像素、
+        # 逐頻格相位是弧度，故二分搜的區間分開給。
+        from src.defense.dispersion import DispersionParam
+        tail = name[len("disp_k"):]
+        n_bands = None if tail == "full" else int(tail)
+        lo, hi = ((0.05, math.pi) if n_bands is None else (0.05, 16.0))
+        return (DispersionParam(radius=hi, n_bands=n_bands, block=block,
+                                hop=hop if hop else block // 2, r_min=r_min,
+                                field_grid=disp_field_grid),
+                lo, hi)
     if name in ("dct_nonadd", "dct_nonadd_rand"):
         # DCT 域的**非加性**擾動（`src/defense/dct_nonadditive.py`）。
         # 半徑即角度（plane／shared_plane）或 log 增益（gain）的上界。

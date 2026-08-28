@@ -249,3 +249,77 @@ def fold_fraction(disp: torch.Tensor) -> float:
     dyy = dy[:, 1:, :-1] - dy[:, :-1, :-1]
     det = (1.0 + dxx) * (1.0 + dyy) - dxy * dyx
     return float((det <= 0).to(torch.float32).mean())
+
+
+class DispersionParam:
+    """隨機的逐頻帶位移，**不最佳化**，只在 reset 時抽一次。
+
+    存在的理由是把色散度那條軸接進主線管線：`scripts/dispersion_probe.py`
+    只寫 CSV、不存圖，而報告頁要的是防禦圖、淨化圖與編輯圖。介面與
+    `WarpRandomParam`／`RandomPhaseParam` 相同（`params()` 回傳空清單，
+    `run_param_pgd` 因此不會更新任何東西）。
+
+    `n_bands = None` 表示逐頻格獨立的隨機相位，也就是色散度的另一個端點
+    （即現行家族的隨機對照）。**兩者的半徑單位不同**——逐頻帶位移是像素，
+    逐頻格相位是弧度，故不可跨族比同一個 radius，一律在等失真上比。
+    """
+
+    name = "disp"
+
+    def __init__(self, radius: float, n_bands: Optional[int] = None,
+                 block: int = 32, hop: int = 8, r_min: float = 0.12,
+                 field_grid: int = 16):
+        if n_bands is not None and n_bands < 1:
+            raise ValueError(f"n_bands 必須為正整數或 None，收到 {n_bands}")
+        self.radius = float(radius)
+        self.n_bands = n_bands
+        self.block, self.hop, self.r_min = block, hop, r_min
+        self.field_grid = field_grid
+        self._op = None
+        self._theta = None
+        self._seed = 0
+        self._device = None
+        self._dtype = None
+
+    def reset(self, x01: torch.Tensor, seed: int) -> None:
+        self._seed = int(seed)
+        self._device, self._dtype = x01.device, x01.dtype
+        self._op = make_operator(x01, self.block, self.hop, self.r_min)
+        self._build()
+
+    def _build(self) -> None:
+        k = 1 if self.n_bands is None else self.n_bands
+        bands = band_index(self.block, k, self.r_min, self._device,
+                           dtype=self._dtype)
+        if self.n_bands is None:
+            self._theta = random_phase_theta(
+                self._op.side, self.block, self.radius, self._seed, bands,
+                self._device, grid=self.field_grid, dtype=self._dtype)
+        else:
+            u = random_displacements(
+                self._op.side, self.n_bands, self.radius, self._seed,
+                self._device, grid=self.field_grid, dtype=self._dtype)
+            self._theta = displacement_theta(self.block, bands, u)
+
+    def render(self, x01: torch.Tensor) -> torch.Tensor:
+        if self._op is None:
+            raise RuntimeError("reset() 未呼叫")
+        return apply_theta(self._op, x01, self._theta)
+
+    def params(self) -> list:
+        return []
+
+    @torch.no_grad()
+    def project(self) -> None:
+        return None
+
+    def set_radius(self, r: float) -> None:
+        """半徑改變要**重抽**：場的振幅是抽樣的尺度，不是事後夾的界。
+
+        與 `WarpRandomParam` 同一條理由——那邊也是在 `reset` 裡按半徑抽。
+        二分搜（`fit_to_budget`）會反覆呼叫這一支，故重建必須便宜，而這裡
+        只是重抽一個粗網格的隨機場再上採樣。
+        """
+        self.radius = float(r)
+        if self._op is not None:
+            self._build()

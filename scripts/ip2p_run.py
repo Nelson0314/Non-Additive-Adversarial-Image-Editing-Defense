@@ -75,6 +75,9 @@ from src.defense.param_pgd import (  # noqa: E402
     fit_to_budget, run_param_pgd, run_stage2_pgd,
 )
 from src.defense.fixedpoint_loss import make_normalised_term  # noqa: E402
+from src.defense.image_guidance_loss import (  # noqa: E402
+    ZT_MODES, make_image_guidance_loss,
+)
 from src.residual.perceptual_weight import FREQ_WEIGHTS  # noqa: E402
 from src.residual.texture_rephase import FLOOR_GATES  # noqa: E402
 from src.metrics.standard import (  # noqa: E402
@@ -467,13 +470,34 @@ def build_parser() -> argparse.ArgumentParser:
     ap.add_argument("--prompt-index", type=int, default=0,
                     help="OmniEdit 有 90 張帶兩條指令；預設一律取第 0 條")
     ap.add_argument("--target", type=Path, default=Path("data/targets/gray.png"))
-    ap.add_argument("--loss", choices=("encoder_target", "latent_norm"),
+    ap.add_argument("--loss",
+                    choices=("encoder_target", "latent_norm", "image_guidance"),
                     default="encoder_target",
                     help="encoder_target = ‖E(x_def) − E(y_target)‖²（本專案既有）；"
                          "latent_norm = ‖E(x_def)‖₂（DCT-Shield §4.2 的目標）。"
                          "後者只壓長度、單調且無方向要求，前者要同時對長度與"
                          "方向。2026-08-21 加這個旗標是為了把「輸給 DCT-Shield "
-                         "的部分是損失函數還是參數化」分開量")
+                         "的部分是損失函數還是參數化」分開量。"
+                         "image_guidance = ‖ε(z_t, E_img(x'), ∅) − ε(z_t, 0, ∅)‖²，"
+                         "即直接要求 IP2P 取樣式裡的影像引導項消失；"
+                         "latent_norm 是它的**逐點版本**（把影像條件推向零"
+                         "張量），本項只要求 UNet 的**反應**相同，可行集大得多。"
+                         "**這是本專案第一個讀 UNet 的損失**")
+    # ---- image_guidance 的四個設定（見 src/defense/image_guidance_loss.py）----
+    ap.add_argument("--ig-zt", choices=ZT_MODES, default=None,
+                    help="`z_t` 的抽法。**必填，沒有預設**：IP2P 由純噪聲"
+                         "起步，中間步的 z_t 分布依賴條件、無法解析，兩個"
+                         "候選都是近似（diffuse_src = 原圖 latent 的前向"
+                         "擴散；noise = 純噪聲）。按 CLAUDE.md「查不到的參數"
+                         "設為必填，不要填看起來合理的預設」")
+    ap.add_argument("--ig-t-min", type=int, default=1,
+                    help="抽樣時間步的下界（含）")
+    ap.add_argument("--ig-t-max", type=int, default=1000,
+                    help="抽樣時間步的上界（含）。預設涵蓋整個排程，因為"
+                         "影像條件在整條軌跡上都作用；不動點項那邊取小 t 是"
+                         "因為它對齊的是淨化器實際走的噪聲尺度，兩者理由不同")
+    ap.add_argument("--ig-samples", type=int, default=1,
+                    help="每一步平均幾組 (t, eps)。代價線性增加")
     # 相位／加性
     ap.add_argument("--radius", type=float, default=None,
                     help="直接指定半徑（掃描曲線用）。不給則二分搜到 --budget")
@@ -742,9 +766,34 @@ def build_parser() -> argparse.ArgumentParser:
     return ap
 
 
+def validate_loss_args(args) -> None:
+    """`--loss` 的相依旗標守門。**在載入權重之前**呼叫。
+
+    存在理由：`--ig-zt` 沒有預設值，而缺了它的失效方式是「跑完一整個工作點
+    才發現損失不是預期的那一個」。這一族的坑專案踩過——漏傳一支驅動讓三個
+    工作點在 argparse 被擋下、卡空轉半小時（`docs/OPERATIONS.md`）。守門要
+    擋在派工前面，不是印出來就算。
+    """
+    if args.loss != "image_guidance":
+        return
+    if args.ig_zt is None:
+        raise SystemExit(
+            "--loss image_guidance 必須同時給 --ig-zt。"
+            "**不可以填一個看起來合理的預設**：IP2P 由純噪聲起步，中間步的"
+            f" z_t 分布依賴條件、無法解析，{ZT_MODES} 兩者都只是近似。")
+    if not 1 <= args.ig_t_min <= args.ig_t_max:
+        raise SystemExit(
+            f"需要 1 <= --ig-t-min <= --ig-t-max，"
+            f"收到 {args.ig_t_min}／{args.ig_t_max}")
+    if args.ig_samples < 1:
+        raise SystemExit(f"--ig-samples 必須為正整數，收到 {args.ig_samples}")
+
+
 def main() -> None:
     ap = build_parser()
     args = ap.parse_args()
+    # **擋在載入 4 GB 權重之前**：缺旗標的失效方式是跑完才發現損失不對。
+    validate_loss_args(args)
     args.out.mkdir(parents=True, exist_ok=True)
 
     ip2p = IP2PWrapper(dtype=torch.float32)
@@ -765,12 +814,29 @@ def main() -> None:
         # 出來避免把 baseline 模組的預設綁進相位臂。
         def loss_fn(x01_):
             return ip2p.encode_image(x01_).flatten().norm(p=2)
+    elif args.loss == "image_guidance":
+        # 逐圖建立（見 `make_base_loss`），這裡不建，留 None 讓漏接當場拋錯
+        # 而不是靜默用到別的損失。
+        loss_fn = None
     else:
         loss_fn = make_encoder_target_loss(ip2p, y_target)
 
-    base_loss_fn = loss_fn
+    def make_base_loss(x01):
+        """逐圖取得主損失。
 
-    def wrap_manifold(x01):
+        `encoder_target` 與 `latent_norm` 與影像無關，回傳同一個物件，
+        **呼叫路徑逐位元不變**；`image_guidance` 的 `z_t` 錨在原圖上，必須
+        逐圖重建——用防禦圖當錨會讓取樣軌跡隨最佳化漂移，而且不會有症狀。
+        """
+        if args.loss != "image_guidance":
+            return loss_fn
+        return make_image_guidance_loss(
+            ip2p, zt_mode=args.ig_zt,
+            x_clean=x01 if args.ig_zt == "diffuse_src" else None,
+            t_min=args.ig_t_min, t_max=args.ig_t_max,
+            samples=args.ig_samples, seed=args.seed)
+
+    def wrap_manifold(x01, base_loss_fn):
         """把不動點項接到防禦損失上。**逐圖重建**：正規化的分母是該張乾淨
         影像上的殘差，換了影像就要重算，共用會讓權重的意義隨影像漂移。
 
@@ -839,11 +905,11 @@ def main() -> None:
                   f"({time.time() - t0:.0f}s)", flush=True)
             continue
 
-        # 不動點項的正規化分母逐圖算一次；關著時 `use_loss` 就是 `loss_fn`
+        # 不動點項的正規化分母逐圖算一次；關著時 `use_loss` 就是主損失
         # 本身，**呼叫路徑逐位元不變**。
-        use_loss = loss_fn
+        use_loss = make_base_loss(x01)
         if args.manifold_weight or args.manifold_only:
-            use_loss = wrap_manifold(x01)
+            use_loss = wrap_manifold(x01, use_loss)
             print(f"  不動點項：乾淨影像上的殘差 {use_loss.term.reference:.5f}"
                   f"、主項基準 {use_loss.base_ref:.4f}"
                   f"（權重 {args.manifold_weight}／{args.manifold_balance}"
@@ -923,6 +989,13 @@ def main() -> None:
                 # （該篇 §5.4），頭對頭表上這個差異從未被控制過，故逐列記下。
                 "defense_steps": defense_steps(args, cond),
                 "loss": args.loss,
+                # image_guidance 的四個設定。**別的損失底下也照樣寫出來**，
+                # 合併分片之後才分得出哪些列是它跑的；`ig_zt` 在別的損失底下
+                # 是 None，欄位留空即該列與這一支無關。
+                "ig_zt": args.ig_zt or "",
+                "ig_t_min": args.ig_t_min,
+                "ig_t_max": args.ig_t_max,
+                "ig_samples": args.ig_samples,
                 "gain_ratio": args.gain_ratio,
                 "purify_aware": args.purify_aware,
                 # **未載的參數要成為欄位不是註解**：集成的品質集合決定了

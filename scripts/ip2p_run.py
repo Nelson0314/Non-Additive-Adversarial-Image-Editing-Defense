@@ -534,8 +534,12 @@ def build_parser() -> argparse.ArgumentParser:
     ap.add_argument("--patience", type=int, default=0,
                     help="連續幾次評估沒有比歷史最佳改善超過 --min-delta 就"
                          "停。0 = 不早停，跑滿 --steps")
-    ap.add_argument("--min-delta", type=float, default=0.002,
-                    help="早停的相對改善門檻。**這是收斂判準不是效果判準**")
+    ap.add_argument("--min-delta", type=float, default=0.0002,
+                    help="早停的相對改善門檻（每次評估）。**這是收斂判準不是"
+                         "效果判準**。0.002 太大：實測 latent_norm 在第 6500 步"
+                         "仍以每 100 步 0.17% 單調下降、參數還在成長，卻因為"
+                         "構不到 0.2% 而被判定停滯。門檻必須小於曲線真正變平"
+                         "之前的改善率，否則停下來的是一條還在降的曲線")
     # 相位／加性
     ap.add_argument("--radius", type=float, default=None,
                     help="直接指定半徑（掃描曲線用）。不給則二分搜到 --budget")

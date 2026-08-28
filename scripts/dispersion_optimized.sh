@@ -34,7 +34,7 @@ RADIUS="${RADIUS:-8.0}"
 BASE="--data data/omniedit150 --loss latent_norm --quantile 0 \
 --freq-weight jpeg_luma --freq-weight-power 0.25 --hop 8 --block 32 \
 --radius $RADIUS --steps $STEPS \
---eval-every 100 --eval-draws 8 --patience 12 --min-delta 0.002"
+--eval-every 100 --eval-draws 8 --patience 15 --min-delta 0.0002"
 
 POINTS="d1_opt:disp_k1_opt d4_opt:disp_k4_opt d8_opt:disp_k8_opt"
 

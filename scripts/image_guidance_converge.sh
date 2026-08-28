@@ -8,7 +8,7 @@
 # 訓練用的損失每一步重抽 `(t, eps)`，逐步值本來就會抖（實測 0.16–0.61），那是
 # 取樣變異不是參數在漂。判收斂一律看 `trace.csv` 的 `eval` 欄——它用一組
 # **固定**的 8 抽樣（`--eval-seed` 與訓練的 `--seed` 分開）每 100 步評估一次。
-# `--patience 12 --min-delta 0.002` 表示連續 12 次評估（＝1200 步）都沒有比
+# `--patience 15 --min-delta 0.0002` 表示連續 12 次評估（＝1200 步）都沒有比
 # 歷史最佳再低 0.2% 就停。結果 CSV 的 `stop_reason` 分得出「跑滿」與「早停」。
 #
 # 五個工作點，一卡一個
@@ -36,7 +36,7 @@ IMGS=$(tr '\n' ' ' < runs/ip2p_fair_comparison/images10.txt)
 STEPS="${STEPS:-12000}"
 BASE="--data data/omniedit150 --conditions phase_gain --quantile 0 \
 --freq-weight jpeg_luma --freq-weight-power 0.25 --hop 8 --gain-ratio 1.0 \
---steps $STEPS --eval-every 100 --eval-draws 8 --patience 12 --min-delta 0.002"
+--steps $STEPS --eval-every 100 --eval-draws 8 --patience 15 --min-delta 0.0002"
 
 POINTS="
 ig_d21:--loss~image_guidance~--ig-zt~diffuse_src~--radius~2.1

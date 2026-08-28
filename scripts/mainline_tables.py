@@ -50,8 +50,13 @@ ORDER = ["ours_ph_q", "ours_pg_q", "ours_ph_q20", "ours_pg_q20",
          "dct_aj30_eps0.13", "dct_aj30_eps0.25", "dct_aj30_eps0.42",
          # 色散度那條軸（`runs/ip2p_dispersion`）。不在防禦目錄裡的 tag 會被
          # 跳過，故加在這裡不影響主線那一批。
-         "d_k1", "d_k4", "d_kfull", "w_smooth", "w_fold"]
+         "d_k1", "d_k4", "d_kfull", "w_smooth", "w_fold",
+         # 可學＋接閘那一批（`runs/ip2p_dispersion_opt`）。
+         "d1_opt", "d4_opt", "d8_opt"]
 LABEL = {
+    "d1_opt": "可學位移 K=1（接閘）",
+    "d4_opt": "可學位移 K=4（接閘）",
+    "d8_opt": "可學位移 K=8（接閘）",
     "d_k1": "逐頻帶位移 K=1",
     "d_k4": "逐頻帶位移 K=4",
     "d_kfull": "逐頻格獨立相位",

@@ -1,0 +1,52 @@
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  17%|█▋        | 1/6 [00:00<00:00,  8.60it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 2717.20it/s]
+Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00,  6.42it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 16.88it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 14.21it/s]
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,1.0]
+  warnings.warn(
+=== task_env_weather_112463 / disp_k8_opt ===
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 10768.08it/s]
+[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
+[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
+Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights:  72%|███████▏  | 292/408 [00:00<00:00, 2905.92it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 2899.67it/s]
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-0.9937964081764221,0.999870777130127]
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-0.9489037990570068,0.9804166555404663]
+  warnings.warn(
+    分母塌陷：effect(identity) mean=0.2567 sd=nan，本格的 retention 不可用
+    identity=0.2567, blur1=0.2829, jpeg90=0.2447, jpeg75=0.2832, jpeg50=0.3027, jpeg30=0.3575, blur2=0.3457, crop_resize0.1=0.5510, crop_resize0.15=0.6104
+=== task_obj_remove_380621 / disp_k8_opt ===
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-0.9999716281890869,0.8893692493438721]
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-0.9986503720283508,0.8511133193969727]
+  warnings.warn(
+    分母塌陷：effect(identity) mean=0.2073 sd=nan，本格的 retention 不可用
+    identity=0.2073, blur1=0.4483, jpeg90=0.2063, jpeg75=0.2144, jpeg50=0.2560, jpeg30=0.3207, blur2=0.3853, crop_resize0.1=0.5278, crop_resize0.15=0.5630
+=== task_obj_swap_joint_mask_276754 / disp_k8_opt ===
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,0.9860033988952637]
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,0.9002224206924438]
+  warnings.warn(
+    分母塌陷：effect(identity) mean=0.3039 sd=nan，本格的 retention 不可用
+    identity=0.3039, blur1=0.1912, jpeg90=0.2785, jpeg75=0.1934, jpeg50=0.1237, jpeg30=0.1110, blur2=0.2471, crop_resize0.1=0.5702, crop_resize0.15=0.4811
+=== task_obj_swap_joint_mask_533428 / disp_k8_opt ===
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-0.9999675750732422,0.998913049697876]
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-0.9962448477745056,0.9706070423126221]
+  warnings.warn(
+    分母塌陷：effect(identity) mean=0.3702 sd=nan，本格的 retention 不可用
+    identity=0.3702, blur1=0.3219, jpeg90=0.3697, jpeg75=0.3753, jpeg50=0.3897, jpeg30=0.4716, blur2=0.4002, crop_resize0.1=0.5678, crop_resize0.15=0.6127
+=== task_obj_swap_rand_mask_417469 / disp_k8_opt ===
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,0.8913930654525757]
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,0.8088517189025879]
+  warnings.warn(
+    分母塌陷：effect(identity) mean=0.1982 sd=nan，本格的 retention 不可用
+    identity=0.1982, blur1=0.2205, jpeg90=0.1812, jpeg75=0.1940, jpeg50=0.2333, jpeg30=0.2885, blur2=0.3526, crop_resize0.1=0.5785, crop_resize0.15=0.6318
+
+表：runs/ip2p_dispersion_opt_purify/d8_opt_object.csv（45 列）

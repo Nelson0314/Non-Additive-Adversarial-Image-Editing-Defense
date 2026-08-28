@@ -1,0 +1,27 @@
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  67%|██████▋   | 4/6 [00:00<00:00, 30.37it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3063.30it/s]
+Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 14.29it/s]
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+IP2P 線：1 張、條件 ['phase_gain']、steps=100 s_T=7.5 s_I=1.5 seed=20260812
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,1.0]
+  warnings.warn(
+    [phase] step    0 loss 0.422059 |p| 0.00877 eval 0.156305
+    [phase] step  100 loss 0.066062 |p| 0.19497 eval 0.078420
+    [phase] step  150 loss 0.002116 |p| 0.26226
+    [phase] step  200 loss 0.047649 |p| 0.33444 eval 0.046525
+    [phase] step  300 loss 0.001441 |p| 0.45096 eval 0.034332
+    [phase] step  400 loss 0.027904 |p| 0.56264 eval 0.025792
+    [phase] step  450 loss 0.023770 |p| 0.61503
+    [phase] step  500 loss 0.024872 |p| 0.66481 eval 0.019876
+    [phase] step  600 loss 0.016307 |p| 0.74534 eval 0.016554
+    [phase] step  700 loss 0.015129 |p| 0.81859 eval 0.014154
+    [phase] step  750 loss 0.002112 |p| 0.84951
+    [phase] step  800 loss 0.012020 |p| 0.88265 eval 0.012349
+    [phase] step  900 loss 0.000776 |p| 0.93589 eval 0.011232
+    [phase] step 1000 loss 0.003419 |p| 0.98499 eval 0.010302
+    [phase] step 1050 loss 0.010766 |p| 1.00784
+    [phase] step 1100 loss 0.010943 |p| 1.02912 eval 0.009543

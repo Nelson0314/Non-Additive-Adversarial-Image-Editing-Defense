@@ -1,0 +1,230 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3281.42it/s]
+Loading pipeline components...:  17%|█▋        | 1/6 [00:00<00:00,  5.78it/s]Loading pipeline components...:  50%|█████     | 3/6 [00:00<00:00, 10.99it/s]Loading pipeline components...:  83%|████████▎ | 5/6 [00:00<00:00, 13.76it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 14.66it/s]
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+IP2P 線：10 張、條件 ['phase_gain']、steps=100 s_T=7.5 s_I=1.5 seed=20260812
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,1.0]
+  warnings.warn(
+    [phase] step    0 loss 0.422059 |p| 0.00073 eval 0.157776
+    [phase] step  100 loss 0.099894 |p| 0.01970 eval 0.150206
+    [phase] step  200 loss 0.112834 |p| 0.03767 eval 0.142500
+    [phase] step  300 loss 0.002287 |p| 0.05322 eval 0.136946
+    [phase] step  400 loss 0.113450 |p| 0.06902 eval 0.130782
+    [phase] step  500 loss 0.105342 |p| 0.08412 eval 0.122797
+    [phase] step  600 loss 0.098706 |p| 0.09713 eval 0.115149
+    [phase] step  700 loss 0.053746 |p| 0.11031 eval 0.109537
+    [phase] step  800 loss 0.108695 |p| 0.12299 eval 0.103602
+    [phase] step  900 loss 0.001893 |p| 0.13504 eval 0.098250
+    [phase] step 1000 loss 0.017347 |p| 0.14662 eval 0.093460
+    [phase] step 1100 loss 0.077560 |p| 0.15813 eval 0.088841
+    [phase] step 1200 loss 0.109207 |p| 0.16898 eval 0.085209
+    [phase] step 1300 loss 0.098009 |p| 0.18000 eval 0.081157
+    [phase] step 1400 loss 0.016304 |p| 0.19058 eval 0.077684
+    [phase] step 1500 loss 0.068715 |p| 0.20138 eval 0.074425
+    [phase] step 1600 loss 0.080118 |p| 0.21193 eval 0.071573
+    [phase] step 1700 loss 0.099954 |p| 0.22199 eval 0.068884
+    [phase] step 1800 loss 0.053150 |p| 0.23204 eval 0.066233
+    [phase] step 1900 loss 0.010510 |p| 0.24214 eval 0.063772
+    [phase] step 2000 loss 0.021189 |p| 0.25204 eval 0.061460
+    [phase] step 2100 loss 0.028655 |p| 0.26202 eval 0.059157
+    [phase] step 2200 loss 0.007178 |p| 0.27191 eval 0.056811
+    [phase] step 2300 loss 0.078317 |p| 0.28051 eval 0.054880
+    [phase] step 2400 loss 0.001480 |p| 0.28938 eval 0.053173
+    [phase] step 2500 loss 0.051979 |p| 0.29838 eval 0.051388
+    [phase] step 2600 loss 0.030278 |p| 0.30661 eval 0.050052
+    [phase] step 2700 loss 0.021745 |p| 0.31469 eval 0.048840
+    [phase] step 2800 loss 0.069009 |p| 0.32325 eval 0.047438
+    [phase] step 2900 loss 0.009597 |p| 0.33090 eval 0.046524
+    [phase] step 3000 loss 0.026774 |p| 0.33962 eval 0.045063
+    [phase] step 3100 loss 0.028627 |p| 0.34789 eval 0.043981
+    [phase] step 3200 loss 0.057188 |p| 0.35640 eval 0.042806
+    [phase] step 3300 loss 0.001849 |p| 0.36392 eval 0.042001
+    [phase] step 3400 loss 0.024596 |p| 0.37167 eval 0.040949
+    [phase] step 3500 loss 0.038597 |p| 0.37999 eval 0.039925
+    [phase] step 3600 loss 0.004023 |p| 0.38784 eval 0.039008
+    [phase] step 3700 loss 0.043594 |p| 0.39560 eval 0.038063
+    [phase] step 3800 loss 0.015715 |p| 0.40360 eval 0.037196
+    [phase] step 3900 loss 0.004260 |p| 0.41133 eval 0.036191
+    [phase] step 4000 loss 0.010289 |p| 0.41859 eval 0.035429
+    [phase] step 4100 loss 0.002604 |p| 0.42574 eval 0.034771
+    [phase] step 4200 loss 0.034330 |p| 0.43274 eval 0.033989
+    [phase] step 4300 loss 0.010748 |p| 0.43995 eval 0.033301
+    [phase] step 4400 loss 0.035304 |p| 0.44731 eval 0.032594
+    [phase] step 4500 loss 0.002528 |p| 0.45444 eval 0.031929
+    [phase] step 4600 loss 0.035008 |p| 0.46140 eval 0.031379
+    [phase] step 4700 loss 0.034581 |p| 0.46851 eval 0.030762
+    [phase] step 4800 loss 0.038121 |p| 0.47577 eval 0.030167
+    [phase] step 4900 loss 0.035491 |p| 0.48268 eval 0.029595
+    [phase] step 5000 loss 0.002573 |p| 0.48951 eval 0.029144
+    [phase] step 5100 loss 0.013153 |p| 0.49610 eval 0.028666
+    [phase] step 5200 loss 0.030415 |p| 0.50299 eval 0.028017
+    [phase] step 5300 loss 0.001471 |p| 0.50995 eval 0.027432
+    [phase] step 5400 loss 0.031161 |p| 0.51663 eval 0.026837
+    [phase] step 5500 loss 0.002188 |p| 0.52251 eval 0.026492
+    [phase] step 5600 loss 0.029610 |p| 0.52886 eval 0.025969
+    [phase] step 5700 loss 0.005289 |p| 0.53434 eval 0.025620
+    [phase] step 5800 loss 0.008880 |p| 0.54037 eval 0.025226
+    [phase] step 5900 loss 0.027677 |p| 0.54593 eval 0.024857
+    [phase] step 6000 loss 0.006600 |p| 0.55180 eval 0.024504
+    [phase] step 6100 loss 0.012817 |p| 0.55746 eval 0.024178
+    [phase] step 6200 loss 0.026110 |p| 0.56358 eval 0.023720
+    [phase] step 6300 loss 0.026938 |p| 0.56951 eval 0.023359
+    [phase] step 6400 loss 0.026920 |p| 0.57495 eval 0.023000
+    [phase] step 6500 loss 0.006347 |p| 0.58060 eval 0.022659
+    [phase] step 6600 loss 0.024611 |p| 0.58618 eval 0.022295
+    [phase] step 6700 loss 0.009685 |p| 0.59189 eval 0.021975
+    [phase] step 6800 loss 0.001323 |p| 0.59716 eval 0.021650
+    [phase] step 6900 loss 0.015130 |p| 0.60283 eval 0.021322
+    [phase] step 7000 loss 0.001260 |p| 0.60782 eval 0.021155
+    [phase] step 7100 loss 0.004212 |p| 0.61270 eval 0.020906
+    [phase] step 7200 loss 0.021829 |p| 0.61795 eval 0.020547
+    [phase] step 7300 loss 0.018291 |p| 0.62305 eval 0.020239
+    [phase] step 7400 loss 0.019792 |p| 0.62810 eval 0.019926
+    [phase] step 7500 loss 0.001524 |p| 0.63277 eval 0.019747
+    [phase] step 7600 loss 0.007847 |p| 0.63765 eval 0.019512
+    [phase] step 7700 loss 0.015364 |p| 0.64216 eval 0.019285
+    [phase] step 7800 loss 0.003815 |p| 0.64705 eval 0.019076
+    [phase] step 7900 loss 0.021069 |p| 0.65193 eval 0.018798
+    [phase] step 8000 loss 0.013210 |p| 0.65667 eval 0.018569
+    [phase] step 8100 loss 0.021224 |p| 0.66103 eval 0.018370
+    [phase] step 8200 loss 0.021122 |p| 0.66570 eval 0.018120
+    [phase] step 8300 loss 0.017211 |p| 0.67026 eval 0.017927
+    [phase] step 8400 loss 0.020464 |p| 0.67461 eval 0.017726
+    [phase] step 8500 loss 0.004539 |p| 0.67868 eval 0.017580
+    [phase] step 8600 loss 0.018190 |p| 0.68316 eval 0.017383
+    [phase] step 8700 loss 0.011314 |p| 0.68767 eval 0.017216
+    [phase] step 8800 loss 0.006964 |p| 0.69203 eval 0.017068
+    [phase] step 8900 loss 0.018904 |p| 0.69606 eval 0.016856
+    [phase] step 9000 loss 0.007006 |p| 0.70022 eval 0.016729
+    [phase] step 9100 loss 0.019231 |p| 0.70462 eval 0.016541
+    [phase] step 9200 loss 0.018391 |p| 0.70852 eval 0.016396
+    [phase] step 9300 loss 0.015365 |p| 0.71247 eval 0.016257
+    [phase] step 9400 loss 0.001562 |p| 0.71668 eval 0.016103
+    [phase] step 9500 loss 0.015963 |p| 0.72061 eval 0.015967
+    [phase] step 9600 loss 0.006715 |p| 0.72434 eval 0.015846
+    [phase] step 9700 loss 0.001181 |p| 0.72819 eval 0.015757
+    [phase] step 9800 loss 0.016655 |p| 0.73208 eval 0.015550
+    [phase] step 9900 loss 0.013681 |p| 0.73593 eval 0.015414
+    [phase] step 10000 loss 0.006234 |p| 0.73967 eval 0.015303
+    [phase] step 10100 loss 0.015746 |p| 0.74337 eval 0.015168
+    [phase] step 10200 loss 0.014078 |p| 0.74719 eval 0.015062
+    [phase] step 10300 loss 0.012217 |p| 0.75079 eval 0.014939
+    [phase] step 10400 loss 0.018486 |p| 0.75453 eval 0.014822
+    [phase] step 10500 loss 0.002193 |p| 0.75810 eval 0.014697
+    [phase] step 10600 loss 0.020661 |p| 0.76159 eval 0.014589
+    [phase] step 10700 loss 0.008225 |p| 0.76517 eval 0.014476
+    [phase] step 10800 loss 0.012705 |p| 0.76850 eval 0.014371
+    [phase] step 10900 loss 0.012407 |p| 0.77203 eval 0.014290
+    [phase] step 11000 loss 0.015543 |p| 0.77541 eval 0.014172
+    [phase] step 11100 loss 0.008994 |p| 0.77914 eval 0.014093
+    [phase] step 11200 loss 0.012772 |p| 0.78246 eval 0.013981
+    [phase] step 11300 loss 0.008749 |p| 0.78570 eval 0.013901
+    [phase] step 11400 loss 0.014707 |p| 0.78896 eval 0.013784
+    [phase] step 11500 loss 0.000730 |p| 0.79217 eval 0.013716
+    [phase] step 11600 loss 0.011765 |p| 0.79561 eval 0.013614
+    [phase] step 11700 loss 0.011986 |p| 0.79860 eval 0.013550
+    [phase] step 11800 loss 0.017852 |p| 0.80183 eval 0.013424
+    [phase] step 11900 loss 0.008404 |p| 0.80482 eval 0.013352
+    [phase] step 11999 loss 0.014311 |p| 0.80786 eval 0.013274
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 10660.94it/s]
+[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
+[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
+Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights:  80%|███████▉  | 326/408 [00:00<00:00, 3258.14it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 3287.50it/s]
+task_attr_mod_color_11699        phase_gain     r=2.5000 dists=0.0769 lpips=0.2786 effect=0.3428 (5815s)
+    [phase] step    0 loss 0.490872 |p| 0.00073 eval 0.186222
+    [phase] step  100 loss 0.109973 |p| 0.01940 eval 0.171948
+    [phase] step  200 loss 0.129571 |p| 0.03700 eval 0.159186
+    [phase] step  300 loss 0.003431 |p| 0.05231 eval 0.148981
+    [phase] step  400 loss 0.127102 |p| 0.06682 eval 0.138067
+    [phase] step  500 loss 0.108086 |p| 0.08093 eval 0.127936
+    [phase] step  600 loss 0.114873 |p| 0.09392 eval 0.120467
+    [phase] step  700 loss 0.049887 |p| 0.10674 eval 0.113306
+    [phase] step  800 loss 0.118862 |p| 0.11919 eval 0.105682
+    [phase] step  900 loss 0.002460 |p| 0.13121 eval 0.099904
+    [phase] step 1000 loss 0.016716 |p| 0.14308 eval 0.094333
+    [phase] step 1100 loss 0.078587 |p| 0.15502 eval 0.089006
+    [phase] step 1200 loss 0.117583 |p| 0.16659 eval 0.084303
+    [phase] step 1300 loss 0.099778 |p| 0.17816 eval 0.079808
+    [phase] step 1400 loss 0.016947 |p| 0.18922 eval 0.075617
+    [phase] step 1500 loss 0.066579 |p| 0.20039 eval 0.071832
+    [phase] step 1600 loss 0.080815 |p| 0.21153 eval 0.068484
+    [phase] step 1700 loss 0.098173 |p| 0.22206 eval 0.065400
+    [phase] step 1800 loss 0.050771 |p| 0.23240 eval 0.062638
+    [phase] step 1900 loss 0.010971 |p| 0.24269 eval 0.059984
+    [phase] step 2000 loss 0.016690 |p| 0.25259 eval 0.057648
+    [phase] step 2100 loss 0.024599 |p| 0.26236 eval 0.055456
+    [phase] step 2200 loss 0.006784 |p| 0.27243 eval 0.053091
+    [phase] step 2300 loss 0.077577 |p| 0.28127 eval 0.051111
+    [phase] step 2400 loss 0.002378 |p| 0.29026 eval 0.049253
+    [phase] step 2500 loss 0.048852 |p| 0.29945 eval 0.047287
+    [phase] step 2600 loss 0.023945 |p| 0.30786 eval 0.045777
+    [phase] step 2700 loss 0.016433 |p| 0.31630 eval 0.044193
+    [phase] step 2800 loss 0.064992 |p| 0.32515 eval 0.042451
+    [phase] step 2900 loss 0.009912 |p| 0.33290 eval 0.041242
+    [phase] step 3000 loss 0.021693 |p| 0.34204 eval 0.039567
+    [phase] step 3100 loss 0.019561 |p| 0.35045 eval 0.038179
+    [phase] step 3200 loss 0.053008 |p| 0.35930 eval 0.036622
+    [phase] step 3300 loss 0.002446 |p| 0.36734 eval 0.035486
+    [phase] step 3400 loss 0.022941 |p| 0.37545 eval 0.034159
+    [phase] step 3500 loss 0.034148 |p| 0.38428 eval 0.032890
+    [phase] step 3600 loss 0.003893 |p| 0.39275 eval 0.031772
+    [phase] step 3700 loss 0.042283 |p| 0.40097 eval 0.030695
+    [phase] step 3800 loss 0.011095 |p| 0.40921 eval 0.029796
+    [phase] step 3900 loss 0.004916 |p| 0.41736 eval 0.028757
+    [phase] step 4000 loss 0.009083 |p| 0.42507 eval 0.027739
+    [phase] step 4100 loss 0.003008 |p| 0.43245 eval 0.027059
+    [phase] step 4200 loss 0.027565 |p| 0.44000 eval 0.026204
+    [phase] step 4300 loss 0.011031 |p| 0.44763 eval 0.025481
+    [phase] step 4400 loss 0.024836 |p| 0.45544 eval 0.024725
+    [phase] step 4500 loss 0.003133 |p| 0.46316 eval 0.024003
+    [phase] step 4600 loss 0.030822 |p| 0.47042 eval 0.023336
+    [phase] step 4700 loss 0.028355 |p| 0.47777 eval 0.022726
+    [phase] step 4800 loss 0.026679 |p| 0.48517 eval 0.022059
+    [phase] step 4900 loss 0.025994 |p| 0.49244 eval 0.021448
+    [phase] step 5000 loss 0.004231 |p| 0.49942 eval 0.020847
+    [phase] step 5100 loss 0.010458 |p| 0.50611 eval 0.020341
+    [phase] step 5200 loss 0.021124 |p| 0.51348 eval 0.019762
+    [phase] step 5300 loss 0.002255 |p| 0.52072 eval 0.019190
+    [phase] step 5400 loss 0.019679 |p| 0.52765 eval 0.018654
+    [phase] step 5500 loss 0.002705 |p| 0.53410 eval 0.018271
+    [phase] step 5600 loss 0.021645 |p| 0.54066 eval 0.017800
+    [phase] step 5700 loss 0.006562 |p| 0.54647 eval 0.017525
+    [phase] step 5800 loss 0.007737 |p| 0.55280 eval 0.017101
+    [phase] step 5900 loss 0.019925 |p| 0.55855 eval 0.016702
+    [phase] step 6000 loss 0.005822 |p| 0.56469 eval 0.016296
+    [phase] step 6100 loss 0.010203 |p| 0.57079 eval 0.015977
+    [phase] step 6200 loss 0.014164 |p| 0.57717 eval 0.015506
+    [phase] step 6300 loss 0.016533 |p| 0.58307 eval 0.015146
+    [phase] step 6400 loss 0.017501 |p| 0.58879 eval 0.014848
+    [phase] step 6500 loss 0.005544 |p| 0.59453 eval 0.014559
+    [phase] step 6600 loss 0.014347 |p| 0.60030 eval 0.014221
+    [phase] step 6700 loss 0.007893 |p| 0.60593 eval 0.013914
+    [phase] step 6800 loss 0.002065 |p| 0.61112 eval 0.013684
+    [phase] step 6900 loss 0.009565 |p| 0.61669 eval 0.013387
+    [phase] step 7000 loss 0.001751 |p| 0.62173 eval 0.013153
+    [phase] step 7100 loss 0.004970 |p| 0.62666 eval 0.012989
+    [phase] step 7200 loss 0.014240 |p| 0.63177 eval 0.012670
+    [phase] step 7300 loss 0.012608 |p| 0.63685 eval 0.012389
+    [phase] step 7400 loss 0.011992 |p| 0.64195 eval 0.012168
+    [phase] step 7500 loss 0.001849 |p| 0.64677 eval 0.012019
+    [phase] step 7600 loss 0.005228 |p| 0.65153 eval 0.011785
+    [phase] step 7700 loss 0.009161 |p| 0.65607 eval 0.011613
+    [phase] step 7800 loss 0.005210 |p| 0.66087 eval 0.011418
+    [phase] step 7900 loss 0.011851 |p| 0.66562 eval 0.011179
+    [phase] step 8000 loss 0.010178 |p| 0.67036 eval 0.011014
+    [phase] step 8100 loss 0.014120 |p| 0.67481 eval 0.010862
+    [phase] step 8200 loss 0.012736 |p| 0.67943 eval 0.010726
+    [phase] step 8300 loss 0.007781 |p| 0.68386 eval 0.010508
+    [phase] step 8400 loss 0.011662 |p| 0.68820 eval 0.010332
+    [phase] step 8500 loss 0.004373 |p| 0.69227 eval 0.010179
+    [phase] step 8600 loss 0.009902 |p| 0.69650 eval 0.010029
+    [phase] step 8700 loss 0.008199 |p| 0.70076 eval 0.009873
+    [phase] step 8800 loss 0.005600 |p| 0.70506 eval 0.009701
+    [phase] step 8900 loss 0.009463 |p| 0.70911 eval 0.009539
+    [phase] step 9000 loss 0.005150 |p| 0.71316 eval 0.009440
+    [phase] step 9100 loss 0.009473 |p| 0.71738 eval 0.009303

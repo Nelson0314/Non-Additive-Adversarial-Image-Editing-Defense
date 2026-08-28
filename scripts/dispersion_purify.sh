@@ -23,9 +23,10 @@ export PYTHONPATH="$ROOT" HF_HOME="$HOME/hf_cache" PYTHONIOENCODING=utf-8
 export TOKENIZERS_PARALLELISM=false
 cd "$ROOT" || { echo "錯誤：找不到 $ROOT" >&2; exit 2; }
 
-SRC=runs/ip2p_dispersion
-OUT=runs/ip2p_dispersion_purify
-GAL=runs/gallery_dispersion
+# 三者可由環境變數覆寫，供 `ip2p_dispersion_opt`（可學＋接閘那一批）重用。
+SRC="${SRC:-runs/ip2p_dispersion}"
+OUT="${OUT:-runs/ip2p_dispersion_purify}"
+GAL="${GAL:-runs/gallery_dispersion}"
 mkdir -p "$OUT" "$GAL"
 
 # 分片依任務族群切，不用流水號。十張：色五、景一、物四。

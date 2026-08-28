@@ -101,3 +101,21 @@ def test_summary_averages_over_images_before_interpolating():
     assert out[0]["latent_move"] == pytest.approx(15.0)
     assert out[0]["dists_lo"] == pytest.approx(0.05)
     assert out[0]["n_amps"] == 2
+
+
+# ---- 真讀數模式 ----
+
+def test_edit_readout_is_off_by_default():
+    """預設仍是純前向的探針，不跑編輯。"""
+    assert P.build_parser().parse_args([]).edit_pairs is None
+
+
+def test_pair_parsing():
+    assert P.parse_pairs(["disp_k1:4", "disp_kfull:3.14159"]) == [
+        ("disp_k1", 4.0), ("disp_kfull", 3.14159)]
+
+
+def test_pair_parsing_refuses_bad_format():
+    import pytest as _p
+    with _p.raises(SystemExit, match="COND:AMP"):
+        P.parse_pairs(["disp_k1"])

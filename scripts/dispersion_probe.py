@@ -64,13 +64,15 @@ RESOLUTION = 512
 # 三族的強度單位不同（像素／弧度／像素），**故不可跨族比同一個 amp**，
 # 一律在等失真的錨點上比。梯子取幾何級數以便內插。
 DEFAULT_AMPS = {
-    "disp": (0.05, 0.1, 0.25, 0.5, 1.0, 2.0),        # 每帶位移，像素
+    "disp": (0.05, 0.1, 0.25, 0.5, 1.0, 2.0, 4.0, 8.0, 16.0),   # 每帶位移，像素
     "phase": (0.1, 0.2, 0.4, 0.8, 1.6, math.pi),     # 逐頻格相位，弧度
     "warp": (0.25, 0.5, 1.0, 2.0, 4.0, 8.0),         # 單值位移場，像素
 }
-# 梯子刻意往下延伸得比「看起來夠用」更遠：等失真內插**拒絕外插**
+# 梯子兩端都刻意延伸得比「看起來夠用」更遠：等失真內插**拒絕外插**
 # （`DECISIONS.md`），任何一條曲線構不到錨點那一格就只能標 out_of_range。
-# 多跑兩個強度的代價只是幾次 VAE 前向。
+# 逐頻帶位移那一族尤其需要往上延伸——2 px 只走到 DISTS 0.034–0.079，而失真帶
+# 的下界是 0.1286，窄梯子會讓帶內那幾個錨點全部落空，而那正是要判的地方。
+# 多跑幾個強度的代價只是幾次 VAE 前向。
 
 # 粗網格邊長：16 是 `WarpParam` 的定案值（本機量過的失真對照表就是在它上面
 # 做的）；64 是 `ip2p_warp_hard` 走到失真帶的那一格，也是折疊會出現的那一格。
@@ -163,6 +165,62 @@ def build_summary(rows: Sequence[dict], anchors: Sequence[float]) -> List[dict]:
     return out
 
 
+def parse_pairs(items: Sequence[str]) -> List[tuple]:
+    """把 `cond:amp` 解析成 (條件, 振幅)。格式錯了當場拋錯，不猜。"""
+    out = []
+    for it in items:
+        if ":" not in it:
+            raise SystemExit(f"--edit-pairs 的格式是 COND:AMP，收到 {it!r}")
+        c, a = it.rsplit(":", 1)
+        out.append((c, float(a)))
+    return out
+
+
+def run_edit_readout(args, ip2p, suite, dataset) -> None:
+    """真讀數：每一格跑一次編輯，量 `edit_lpips`。
+
+    **原圖的編輯每張只跑一次**，所有條件共用——它與條件無關，重跑只是把
+    46.8 秒乘上條件數。
+    """
+    pairs = parse_pairs(args.edit_pairs)
+    rows: List[dict] = []
+    for item in dataset:
+        x = load_image_tensor(item["path"], ip2p.device, size=RESOLUTION)
+        e_orig = ip2p.edit(x, item["prompt"])
+        for cond, amp in pairs:
+            with torch.no_grad():
+                x_def, extras = render(cond, x, amp, args.seed, args.block,
+                                       args.hop, args.r_min, args.field_grid)
+                m = suite.pairwise(x, x_def)
+            e_def = ip2p.edit(x_def, item["prompt"])
+            prot = suite.pairwise(e_orig, e_def)
+            # **兩張編輯輸出之間**的相似度，與 `ip2p_run.py` 的 `edit_clip_sim`
+            # 逐字同義（該處是 `suite.image_similarity(e_orig, e_def)`）。
+            # 影像對文字的 `semantic()` 是另一個量，代理門檻 0.8445 配的不是它。
+            sim = suite.image_similarity(e_orig, e_def)
+            rows.append({
+                "image": item["name"],
+                "condition": cond,
+                "amp": amp,
+                "block": args.block, "hop": args.hop, "r_min": args.r_min,
+                "field_grid": args.field_grid, "seed": args.seed,
+                "dists": round(float(m["dists"]), 6),
+                "lpips": round(float(m["lpips"]), 6),
+                "psnr": round(float(m["psnr"]), 3),
+                "edit_lpips": round(float(prot["lpips"]), 5),
+                "edit_clip_sim": round(float(sim["clip"]), 5),
+                "edit_siglip_sim": round(float(sim["siglip"]), 5),
+                **extras,
+            })
+            write_csv(args.out / "edit_readout.csv", rows)
+            print(f"{item['name']:32s} {cond:12s} amp={amp:<8g} "
+                  f"dists={rows[-1]['dists']:.5f} "
+                  f"effect={rows[-1]['edit_lpips']:.4f} "
+                  f"clip={rows[-1]['edit_clip_sim']:.4f}", flush=True)
+    print("")
+    print("真讀數：{}（{} 列）".format(args.out / "edit_readout.csv", len(rows)))
+
+
 def build_parser() -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser(
         description=__doc__,
@@ -184,6 +242,15 @@ def build_parser() -> argparse.ArgumentParser:
                          "的效果就與空間粗糙度混在一起。16 對齊 WarpParam 的"
                          "粗網格，本專案量過的位移—失真對照表就在那個構造上")
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--edit-pairs", nargs="+", default=None, metavar="COND:AMP",
+                    help="給定時改跑**真讀數**：只渲染這些 (條件, 振幅) 組合，"
+                         "每一格跑一次編輯並量 edit_lpips。存在的理由是 "
+                         "latent_move 這個代理**與被測的那條軸混淆**——平滑的"
+                         "幾何搬移把 latent 推得很遠，但推到的是「一張平移過的"
+                         "自然影像」的 latent，編輯照樣成功。同一個失真錨點上"
+                         "`warp_rand` 的 latent 效率是全表最高的 660，真讀數卻"
+                         "只有 0.285（`runs/ip2p_warp/matched_geometry.csv`）。"
+                         "振幅由既有的 results.csv 挑成括住失真帶")
     ap.add_argument("--anchors", type=float, nargs="+",
                     default=[0.05, 0.10, 0.1286, 0.15],
                     help="等失真錨點。0.1286 是失真帶的下界")
@@ -209,6 +276,10 @@ def main() -> None:
         raise SystemExit(
             "--bands 必須含 1：K=1 是古典位移場，整條色散度軸的對照組。"
             "少了它，「K 越大越好」就沒有起點可比。")
+
+    if args.edit_pairs:
+        run_edit_readout(args, ip2p, suite, dataset)
+        return
 
     conds = dispersive_conditions(args.bands) + [
         "disp_kfull", "warp_smooth", "warp_fold"]

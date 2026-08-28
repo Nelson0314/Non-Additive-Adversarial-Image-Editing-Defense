@@ -15,8 +15,10 @@
 # 三個階段，順序不可顛倒
 # ────────────────────────────────────────────────────────────────────
 #   一、zt      `z_t` 的抽法沒有預設（IP2P 由純噪聲起步，中間步的分布依賴
-#               條件、無法解析）。兩個候選各跑一個便宜的點，選定之後才往下走。
-#   二、ig_r*   選定的抽法上掃三個半徑，供等失真內插。
+#               條件、無法解析）。兩個候選各跑一個便宜的點取失真水位與單步成本。
+#               `ln_time` 是同設定的 latent_norm 計時點，供階段三換算步數。
+#   二、ig_*    **兩個抽法都掃**，各三個半徑：預檢的效率差被失真水位混淆，
+#               分不出來，所以在等失真上比而不是先二選一。
 #   三、ln_ct   **同總機時**的 `latent_norm` 對照（判準 G3）。步數由
 #               `LN_STEPS` 指定，**沒有預設**——它必須由階段一量到的單步成本
 #               推出來，猜一個數字等於放棄這個對照。
@@ -30,7 +32,7 @@
 #
 # 用法：
 #   階段一  bash scripts/image_guidance_sweep.sh "<卡號>" "zt_diffuse zt_noise"
-#   階段二  IG_ZT=noise bash scripts/image_guidance_sweep.sh "<卡號>" "ig_r20 ig_r25 ig_r30"
+#   階段二  bash scripts/image_guidance_sweep.sh "<卡號>" "ig_d18 ig_d21 ig_d25 ig_n25 ig_n30 ig_n35"
 #   階段三  LN_STEPS=350 bash scripts/image_guidance_sweep.sh "<卡號>" "ln_ct"
 set -uo pipefail
 ROOT=/nfs/home/nelson0314/WACV-s3
@@ -66,29 +68,34 @@ grep -q "image_guidance" src/defense/image_guidance_loss.py 2>/dev/null || {
 
 selected() { [ -z "$ONLY" ] && return 0; for t in $ONLY; do [ "$t" = "$1" ] && return 0; done; return 1; }
 
-# 階段二與階段三各自需要一個**必須由量測決定**的值，缺了就拒絕啟動。
-needs_zt=0; needs_ln=0
-for t in ${ONLY:-ig_r25}; do
-  case "$t" in ig_r*) needs_zt=1;; ln_ct) needs_ln=1;; esac
+# `ln_ct` 是判準 G3 的**等總機時**對照，步數必須由 `ln_time` 與 `zt_*` 兩個
+# 計時點換算，缺了就拒絕啟動——猜一個數字等於放棄這個對照。
+needs_ln=0
+for t in ${ONLY:-ig_d25}; do
+  case "$t" in ln_ct) needs_ln=1;; esac
 done
-if [ "$needs_zt" = 1 ] && [ -z "${IG_ZT:-}" ]; then
-  echo "錯誤：階段二要先設 IG_ZT=diffuse_src 或 IG_ZT=noise。" >&2
-  echo "      這個選擇要由階段一（zt_*）的讀數決定，**不要猜一個預設**。" >&2
-  exit 2
-fi
 if [ "$needs_ln" = 1 ] && [ -z "${LN_STEPS:-}" ]; then
   echo "錯誤：ln_ct 要先設 LN_STEPS。它是判準 G3 的**等總機時**對照，" >&2
-  echo "      步數必須由 ig_r* 的 total_seconds 推出來。" >&2
+  echo "      步數要由 ln_time 與 zt_* 的 total_seconds 換算。" >&2
   exit 2
 fi
 
 # tag:額外旗標（~ 代表空白）:影像數（0 = 全部十張）
+#
+# `z_t` 的兩個抽法**都掃**：兩張圖的預檢裡 diffuse_src 的效率高 12%，但它同時
+# 落在較高的失真上（0.157 對 0.091），而效率本來就隨失真下降——那 12% 分不出
+# 是抽法的貢獻還是失真水位的貢獻。半徑各自選過，讓兩族都跨過失真帶
+# （0.1286–0.1447）：預檢在 r=2.5 上 diffuse_src 是 0.157、noise 是 0.091。
 POINTS="
 zt_diffuse:--loss~image_guidance~--ig-zt~diffuse_src~--steps~200~--radius~2.5:2
 zt_noise:--loss~image_guidance~--ig-zt~noise~--steps~200~--radius~2.5:2
-ig_r20:--loss~image_guidance~--ig-zt~ZT~--radius~2.0:0
-ig_r25:--loss~image_guidance~--ig-zt~ZT~--radius~2.5:0
-ig_r30:--loss~image_guidance~--ig-zt~ZT~--radius~3.0:0
+ln_time:--loss~latent_norm~--radius~2.5~--steps~200:2
+ig_d18:--loss~image_guidance~--ig-zt~diffuse_src~--radius~1.8:0
+ig_d21:--loss~image_guidance~--ig-zt~diffuse_src~--radius~2.1:0
+ig_d25:--loss~image_guidance~--ig-zt~diffuse_src~--radius~2.5:0
+ig_n25:--loss~image_guidance~--ig-zt~noise~--radius~2.5:0
+ig_n30:--loss~image_guidance~--ig-zt~noise~--radius~3.0:0
+ig_n35:--loss~image_guidance~--ig-zt~noise~--radius~3.5:0
 ln_ct:--loss~latent_norm~--radius~2.5~--steps~LNS:0
 "
 
@@ -106,7 +113,7 @@ i=0
 for p in $POINTS; do
   IFS=: read -r tag extra nimg <<< "$p"
   selected "$tag" || continue
-  args=$(echo "$extra" | tr '~' ' ' | sed "s/ZT/${IG_ZT:-noise}/; s/LNS/${LN_STEPS:-1000}/")
+  args=$(echo "$extra" | tr '~' ' ' | sed "s/LNS/${LN_STEPS:-1000}/")
   if [ "$nimg" = "0" ]; then imgs="$IMGS"; else imgs=$(echo $IMGS | cut -d' ' -f1-"$nimg"); fi
   dev=${DEVS[$(( i / 2 % ${#DEVS[@]} ))]}
   i=$(( i + 1 ))

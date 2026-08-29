@@ -233,6 +233,80 @@ def make_eot_geometry_transform(fractions: Sequence[float] = GEOMETRY_FRACTIONS,
     return transform
 
 
+# 「寬」EOT 的三個族。**每一族都是一個區間上的抽樣，不是一個固定值**——
+# `make_eot_ops_transform` 的模糊恆為 σ=1.0、裁切恆為中心 0.10，固定的變換
+# 會被 co-adapt（同樣的論證見 `make_eot_geometry_transform` 的 docstring，
+# 那裡只把它用在幾何上，這裡推廣到模糊與品質）。
+#
+# 端點的取法與量測範圍對齊：評測用的算子是 jpeg 30/50/75/90、blur σ1／σ2、
+# crop 10%／15%，三族都把評測點包在**內部**而不是端點上，否則等於只在邊界
+# 上取樣。**這些端點是本專案指定的，沒有出處。**
+BROAD_QUALITIES = (30, 50, 75, 90)
+BROAD_SIGMAS = (0.5, 1.0, 1.5, 2.0)
+BROAD_FRACTIONS = (0.05, 0.10, 0.15, 0.20)
+
+
+def make_eot_broad_transform(qualities: Sequence[int] = BROAD_QUALITIES,
+                             sigmas: Sequence[float] = BROAD_SIGMAS,
+                             fractions: Sequence[float] = BROAD_FRACTIONS,
+                             seed: int = 0,
+                             ) -> Callable[[torch.Tensor, int], torch.Tensor]:
+    """四類算子、每類再抽一個參數的 expectation-over-transformation。
+
+    與既有兩支的分工（三者不可混在同一列報表上）
+    ────────────────────────────────────────────────────────────────
+    | 支 | 抽什麼 | 不抽什麼 |
+    |---|---|---|
+    | `make_eot_jpeg_transform` | JPEG 品質 | 只有 JPEG |
+    | `make_eot_ops_transform` | 算子類別 | 模糊 σ 與裁切比例都是**固定**的 |
+    | 本支 | 算子類別**與**該類的參數 | — |
+
+    **兩層抽樣是刻意的**：先均勻抽類別，再在類別內均勻抽參數。直接把所有
+    (類別, 參數) 組合攤平成一個清單會讓類別的權重隨該類的參數個數改變——
+    JPEG 有四個品質、identity 只有一個，攤平之後 identity 的機率是 1/13 而
+    不是 1/4，於是「未淨化時的效果」被系統性地讓掉。這正是
+    `runs/ip2p_eot_geometry/README.md` 量到的那個代價（未淨化位移 −18~20%），
+    沒有理由再放大它。
+
+    `identity` 自成一類，理由與另外兩支相同：沒有它，最佳化會為了抗淨化而
+    放棄未淨化時的效果。
+
+    裁切走 `ops.crop_resize`（置中），與評測算子同一支程式；要換成隨機位置
+    請用 `make_eot_geometry_transform(jitter=True)`，那是嚴格更難的威脅模型。
+    """
+    if not qualities:
+        raise ValueError("qualities 不可為空")
+    if not sigmas:
+        raise ValueError("sigmas 不可為空")
+    if not fractions:
+        raise ValueError("fractions 不可為空")
+    for f in fractions:
+        if not 0.0 <= f < 0.5:
+            raise ValueError(f"裁切比例必須落在 [0, 0.5)，收到 {f}")
+    for sg in sigmas:
+        if sg <= 0:
+            raise ValueError(f"模糊 sigma 必須為正，收到 {sg}")
+    qs = tuple(int(q) for q in qualities)
+    sgs = tuple(float(sg) for sg in sigmas)
+    fracs = tuple(float(f) for f in fractions)
+    gen = torch.Generator(device="cpu").manual_seed(int(seed))
+
+    def pick(n: int) -> int:
+        return int(torch.randint(n, (1,), generator=gen))
+
+    def transform(x01: torch.Tensor, step: int) -> torch.Tensor:
+        kind = pick(4)
+        if kind == 0:
+            return x01
+        if kind == 1:
+            return jpeg_roundtrip_ste(x01, qs[pick(len(qs))])
+        if kind == 2:
+            return gaussian_blur(x01, sgs[pick(len(sgs))])
+        return crop_resize(x01, fracs[pick(len(fracs))])
+
+    return transform
+
+
 def describe(transform: Optional[Callable]) -> str:
     """報表用的一行說明。`None` 代表沒有針對淨化最佳化。"""
     return "none" if transform is None else getattr(

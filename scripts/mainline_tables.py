@@ -124,7 +124,12 @@ def main() -> None:
 
     # ---- 表一與表二：防禦失真、編輯位移 --------------------------------
     fid_rows, edit_rows, per_image = [], [], {}
-    for tag in ORDER:
+    # `ORDER` 只列了主線那一批的 tag。新批次的 tag 不在裡面時，前兩張表會
+    # **靜默地寫成空檔**（實際踩過：`ig_*` 四個工作點的失真表與位移表都是
+    # 2 bytes，報告上那兩節空白，第三張表卻正常，因為它走 `--ours-tags`）。
+    # 這裡把 `--ours-tags` 裡不在 `ORDER` 的補到尾端；不給旗標時順序不變。
+    tag_order = list(ORDER) + [t for t in args.ours_tags if t not in ORDER]
+    for tag in tag_order:
         p = args.defense / tag / "results.csv"
         if not p.exists():
             continue

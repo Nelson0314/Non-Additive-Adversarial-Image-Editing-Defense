@@ -199,7 +199,19 @@ def main(argv: List[str] | None = None) -> int:
     ap.add_argument("--data", type=Path, default=Path("data/omniedit150"))
     ap.add_argument("--out", type=Path, default=Path("runs/phase_drift_diagnosis"))
     ap.add_argument("--device", default="cpu")
+    # `CONDITIONS` 原本寫死成主線那四個 tag。要把同一份量測套到新批次時，
+    # 沒有旗標就只能改原始碼。兩個旗標成對給，不給時逐位元等於原本的行為。
+    ap.add_argument("--tags", nargs="*", default=[],
+                    help="要量的 tag（防禦圖在 <defended>/<tag>/ 底下）")
+    ap.add_argument("--conds", nargs="*", default=[],
+                    help="每個 tag 對應的 condition 欄，與 --tags 等長")
     args = ap.parse_args(argv)
+
+    conditions = dict(CONDITIONS)
+    if args.tags or args.conds:
+        if len(args.tags) != len(args.conds) or not args.tags:
+            ap.error("--tags 與 --conds 必須同時給且等長")
+        conditions = dict(zip(args.tags, args.conds))
 
     names = [ln.strip() for ln in args.images.read_text(encoding="utf-8").splitlines()
              if ln.strip()]
@@ -210,7 +222,7 @@ def main(argv: List[str] | None = None) -> int:
     phase_rows: List[Dict] = []
     resid_rows: List[Dict] = []
 
-    for tag, cond in CONDITIONS.items():
+    for tag, cond in conditions.items():
         for name in names:
             dpath = args.defended / tag / f"{name}__{cond}__def.png"
             if not dpath.exists():
@@ -246,7 +258,7 @@ def main(argv: List[str] | None = None) -> int:
 
     # ---- 摘要：全帶（以 |S| 加權）與殘差 ----
     summary = []
-    for tag in CONDITIONS:
+    for tag in conditions:
         for pname, _ in PURIFIERS:
             ph = [r for r in phase_rows
                   if r["condition"] == tag and r["purifier"] == pname]

@@ -549,6 +549,7 @@ def run_param_pgd(
     eval_every: int = 0,
     patience: int = 0,
     min_delta: float = 0.0,
+    deliver: Optional[Callable[[torch.Tensor], torch.Tensor]] = None,
 ) -> ParamPGDResult:
     """共用迴圈。`loss_fn(x_def)` 回傳要**最小化**的純量。
 
@@ -584,6 +585,14 @@ def run_param_pgd(
     `history` 逐筆多記一個 `param_absmean`（參數的絕對值平均），用來判定
     「有沒有真的在走」——只看損失下降分不出走了多遠。
 
+    `deliver` 給定時，`param.render(x01)` 的輸出先過它，**損失、評估與最後
+    回傳的圖三者用的都是過完的那一張**。用途是把「交出去的圖」上的約束
+    （例如像素域 L∞ 投影，`src/defense/linf_deliver.py`）變成最佳化真的看得到
+    的東西。三處都要套是重點：只套在損失上會讓 `eval` 判的是另一張圖的收斂，
+    只套在輸出上則是最佳化從未見過交付的形狀。與 `transform` 的分工是
+    **`deliver` 是我方交付前做的，`transform` 是攻擊方之後做的**，順序即
+    `transform(deliver(render))`。預設 `None`，行為與加入此參數之前逐位元相同。
+
     `transform` 給定時，損失改在 `transform(x_def, step)` 上計算——用來把
     可微分的淨化算子放進最佳化迴圈（`src/defense/purify_aware.py`）。
     **回傳的 `x_def` 仍然是未經 transform 的防禦圖**：transform 是攻擊方會
@@ -607,8 +616,12 @@ def run_param_pgd(
     opt = torch.optim.Adam(ps, lr=alpha) if update == "adam" else None
     best, since_best, stop_reason, stopped_at = None, 0, "max_steps", steps
 
+    def render() -> torch.Tensor:
+        out = param.render(x01)
+        return out if deliver is None else deliver(out)
+
     for i in range(steps):
-        x_def = param.render(x01)
+        x_def = render()
         loss = loss_fn(x_def if transform is None else transform(x_def, i))
         if opt is None:
             grads = torch.autograd.grad(loss, ps)
@@ -625,7 +638,7 @@ def run_param_pgd(
         ev = None
         if do_eval:
             with torch.no_grad():
-                ev = float(eval_fn(param.render(x01)))
+                ev = float(eval_fn(render()))
         if log_every and (i % log_every == 0 or i == steps - 1) or do_eval:
             mag = float(sum(float(p.detach().abs().sum()) for p in ps)
                         / max(1, sum(p.numel() for p in ps)))
@@ -653,7 +666,7 @@ def run_param_pgd(
                     break
 
     with torch.no_grad():
-        x_def = param.render(x01).detach()
+        x_def = render().detach()
     return ParamPGDResult(x_def, param.radius, history,
                           stop_reason=stop_reason, stopped_at=stopped_at,
                           best_eval=best)

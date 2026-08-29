@@ -67,10 +67,14 @@ from src.baselines.encoder_target import make_encoder_target_loss  # noqa: E402
 from src.baselines.jpeg_codec import (  # noqa: E402
     jpeg_roundtrip, jpeg_roundtrip_ste, normalize_quality,
 )
+from src.defense.linf_deliver import clamp_residual_ste  # noqa: E402
 from src.defense.purify_aware import (  # noqa: E402
+    BROAD_FRACTIONS,
+    BROAD_SIGMAS,
     STAGE2_OPS, STAGE2_ORDERS, make_eot_geometry_transform,
     make_eot_jpeg_transform, make_eot_ops_transform, make_fixed_jpeg_transform,
     make_jpeg_transform, make_sequenced_ops_transform,
+    make_eot_broad_transform,
 )
 from src.defense.param_pgd import (  # noqa: E402
     fit_to_budget, run_param_pgd, run_stage2_pgd,
@@ -161,6 +165,12 @@ def _purify_transform(args):
         return make_eot_jpeg_transform(tuple(args.eot_qualities), seed=args.seed)
     if args.purify_aware == "eot_geometry":
         return make_eot_geometry_transform(seed=args.seed)
+    if args.purify_aware == "eot_broad":
+        # 四類算子、每類再抽一個參數。`eot_ops` 的模糊與裁切是**固定值**，
+        # 固定的變換會被 co-adapt，那正是要撐開的東西。
+        return make_eot_broad_transform(
+            tuple(args.eot_qualities), tuple(args.eot_sigmas),
+            tuple(args.eot_fractions), seed=args.seed)
     return make_eot_ops_transform((75,), seed=args.seed)
 
 
@@ -207,6 +217,25 @@ def _forward_transform(args):
     def transform(x01, step):
         return purify(jpeg_roundtrip_ste(x01, q), step)
     return transform
+
+
+def _deliver_projection(args, x01):
+    """`--linf-deliver` 給定時回傳交付前要套的像素域 L∞ 投影，否則 `None`。
+
+    投影是**我方交付前**做的，套在 `param.render` 的輸出上；`--purify-aware`
+    是攻擊方之後做的，套在它後面。兩者的順序即 `transform(deliver(render))`，
+    與實際發生的順序一致。
+
+    走 STE 版：硬夾取在球外梯度為零，被夾住的座標拿不到訊號、再也回不來。
+    前向仍然是硬夾取，所以**交出去的圖真的滿足界限**。
+    """
+    if not args.linf_deliver:
+        return None
+
+    def deliver(x_def):
+        return clamp_residual_ste(x_def, x01, float(args.linf_deliver))
+
+    return deliver
 
 
 def _stage1_alpha(args, param) -> float:
@@ -411,6 +440,7 @@ def defend(ip2p, suite, cond, x01, args, loss_fn):
                             saturate_at=args.saturate_at,
                             update=args.update, step_size=args.step_size,
                             log_every=max(1, args.steps // 40),
+                            deliver=_deliver_projection(args, x01),
                             transform=_forward_transform(args))
         x_raw, radius, unreachable = res.x_def, param.radius, False
         # **收斂軌跡逐圖寫成一份 CSV**，不只留在 stdout 的 log 裡：判收斂看的
@@ -740,7 +770,7 @@ def build_parser() -> argparse.ArgumentParser:
                          "block=32；本值無出處，是本專案指定")
     ap.add_argument("--purify-aware",
                     choices=("none", "curriculum", "fixed75", "eot_jpeg",
-                             "eot_ops", "eot_geometry"),
+                             "eot_ops", "eot_geometry", "eot_broad"),
                     default="none",
                     help="把可微分的淨化算子放進最佳化迴圈（改動三）。"
                          "curriculum = JPEG 品質 95→50 線性；fixed75 = 固定 75；"
@@ -749,7 +779,27 @@ def build_parser() -> argparse.ArgumentParser:
                          "eot_geometry = 每步抽一個裁切比例**與位置**，這是"
                          "唯一會產生對一族幾何的不變性的一支"
                          "（identity／模糊／裁切縮放／JPEG75）。"
+                         "eot_broad = 先抽算子類別（identity／JPEG／模糊／"
+                         "裁切），再在該類的族內抽一個參數——eot_ops 的模糊 "
+                         "sigma 與裁切比例都是固定值，固定的變換會被 co-adapt。"
                          "**回傳的防禦圖仍是未經算子處理的那一張**")
+    # `eot_broad` 的兩個族。品質族沿用 `--eot-qualities`，故只需再加兩個。
+    # **預設值就是模組裡的預設**，不給旗標時與模組的行為一致。
+    ap.add_argument("--eot-sigmas", type=float, nargs="+",
+                    default=list(BROAD_SIGMAS),
+                    help="--purify-aware eot_broad 的高斯模糊 sigma 族")
+    ap.add_argument("--eot-fractions", type=float, nargs="+",
+                    default=list(BROAD_FRACTIONS),
+                    help="--purify-aware eot_broad 的裁切比例族")
+    # ---- 交付前的像素域 L∞ 投影 ----
+    # **0（預設）時逐位元等於加這個旗標之前。** 存在的理由是一個量到的縫：
+    # 最佳化只被約束在 θ 的半徑球上，像素域沒有約束，於是同樣的 DISTS 下解
+    # 可以是稀疏高振幅尖峰（`runs/ip2p_ig_converge` 實測 L∞ 0.79–0.93，主線
+    # 相位族在相近 DISTS 只有 0.42），而人眼看得到、DISTS 與 LPIPS 看不到。
+    ap.add_argument("--linf-deliver", type=float, default=0.0,
+                    help="交付前把像素域殘差夾到 [-eps, eps]（0–1 值域）。"
+                         "0 = 關閉。迴圈的前向套直通估計版、交付與存檔套真正的"
+                         "夾取，故最佳化的對象與交出去的對象是同一張圖")
     # ---- 分階段訓練（階段二：在階段一的解附近做受約束的再最佳化）----
     # **`--stage2-steps 0`（預設）時逐位元等於加這一組旗標之前**，由
     # `tests/test_stage2_training.py` 釘住。與已否決的 `--purify-aware` 的
@@ -886,11 +936,37 @@ def validate_loss_args(args) -> None:
         raise SystemExit(f"--ig-samples 必須為正整數，收到 {args.ig_samples}")
 
 
+def validate_deliver_args(args) -> None:
+    """`--linf-deliver` 的守門。**在載入權重之前**呼叫。
+
+    預算模式（不給 `--radius`）走 `fit_to_budget`，它內層自己呼叫
+    `run_param_pgd` 而**沒有把 `deliver` 傳下去**。靜默照跑的話，二分搜出來
+    的半徑講的是一張沒有投影的圖，存檔的卻是投影過的——預算欄會變成謊話。
+    **寧可拒絕**。
+    """
+    if not args.linf_deliver:
+        return
+    if not 0.0 < args.linf_deliver <= 1.0:
+        raise SystemExit(
+            f"--linf-deliver 必須落在 (0, 1]（影像值域 0–1），"
+            f"收到 {args.linf_deliver}")
+    if args.radius is None:
+        raise SystemExit(
+            "--linf-deliver 不可與預算模式併用：fit_to_budget 的內層迴圈"
+            "沒有這條投影，二分搜的失真會量在一張不會被交付的圖上。"
+            "請明給 --radius。")
+    if args.stage2_steps:
+        raise SystemExit(
+            "--linf-deliver 不可與 --stage2-steps 併用："
+            "階段二走 run_stage2_pgd，那一支同樣沒有這條投影。")
+
+
 def main() -> None:
     ap = build_parser()
     args = ap.parse_args()
     # **擋在載入 4 GB 權重之前**：缺旗標的失效方式是跑完才發現損失不對。
     validate_loss_args(args)
+    validate_deliver_args(args)
     args.out.mkdir(parents=True, exist_ok=True)
 
     ip2p = IP2PWrapper(dtype=torch.float32)
@@ -1128,6 +1204,11 @@ def main() -> None:
                 # **未載的參數要成為欄位不是註解**：集成的品質集合決定了
                 # 這一列在哪一段壓縮上被訓練過，合併分片後必須分得出來。
                 "eot_qualities": " ".join(str(q) for q in args.eot_qualities),
+                # eot_broad 的另外兩族，與交付前的 L∞ 投影。**關著時也寫出來**，
+                # 合併分片之後才分得出哪些列帶著它跑。
+                "eot_sigmas": " ".join(str(v) for v in args.eot_sigmas),
+                "eot_fractions": " ".join(str(v) for v in args.eot_fractions),
+                "linf_deliver": args.linf_deliver,
                 # 交付自壓的品質。0 = 關閉。**這一欄不記下來，開著與關著跑出
                 # 的列在其餘欄位上一模一樣**，合併分片之後就分不出來——而它
                 # 決定了存檔的防禦圖在不在量化格點上，也就決定了抗淨化那一輪

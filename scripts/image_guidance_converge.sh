@@ -19,7 +19,8 @@
 #
 #   ig_d21 / ig_d25   diffuse_src，r = 2.1 / 2.5
 #   ig_n30 / ig_n35   noise，r = 3.0 / 3.5
-#   ln_long           latent_norm 同步數，**當數據不當判準**
+#   ln_long           latent_norm，**同樣的固定步長**——對照組必須拿到同一套
+#                     收斂處理，否則會變成用收斂的方法比未收斂的對照
 #
 # 用法：bash scripts/image_guidance_converge.sh "<五個卡號>" ["<tag> ..."]
 set -uo pipefail
@@ -33,10 +34,18 @@ OUT=runs/ip2p_ig_converge
 mkdir -p "$OUT"
 IMGS=$(tr '\n' ' ' < runs/ip2p_fair_comparison/images10.txt)
 
-STEPS="${STEPS:-12000}"
+STEPS="${STEPS:-8000}"
+# **步長固定，不隨步數縮小。** 預設公式是 α = radius/(steps·0.25)，於是把
+# --steps 由 1000 拉到 12000 會讓 α 變成 1/12——「跑更多步」同時「每步走更
+# 小」，兩者互相抵銷。實測（`runs/ip2p_ig_stepsize/`，同影像、同工作點、
+# 同半徑）：固定 α=0.01 在第 1000 步就到 eval 0.0103，而綁定 α=0.00083 跑到
+# 第 12000 步才 0.0133；結果列是 DISTS 0.1480／位移 0.5624 對 0.0769／0.3428。
+# 0.01 正是 1000 步公式在 radius 2.5 下的值，屬於已知可用的量級。
+STEP_SIZE="${STEP_SIZE:-0.01}"
 BASE="--data data/omniedit150 --conditions phase_gain --quantile 0 \
 --freq-weight jpeg_luma --freq-weight-power 0.25 --hop 8 --gain-ratio 1.0 \
---steps $STEPS --eval-every 100 --eval-draws 8 --patience 15 --min-delta 0.0002"
+--steps $STEPS --step-size $STEP_SIZE \
+--eval-every 100 --eval-draws 8 --patience 15 --min-delta 0.0002"
 
 POINTS="
 ig_d21:--loss~image_guidance~--ig-zt~diffuse_src~--radius~2.1

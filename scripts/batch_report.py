@@ -269,8 +269,54 @@ def _arrow(pts) -> str:
     return f"<polyline class='e' points='{d}'/><polygon class='eh' points='{head}'/>"
 
 
-def pipeline() -> str:
-    """這一批實際跑的每一步運算。"""
+def pipeline_image_guidance() -> str:
+    """影像引導消除損失這一批實際跑的每一步運算。
+
+    參數化是現行主線的紋理重相位（相位＋幅度增益），**變的是損失讀哪裡**：
+    IP2P 取樣式裡影像引導是一個差，
+    `s_I · [ε(z_t, c_I, ∅) − ε(z_t, 0, ∅)]`，而影像無條件那一支用的就是
+    零影像 latent。這支損失直接要求那個差變小。
+    """
+    n = [_box(16, 44, 92, 48, "原圖 x", "3×512×512"),
+         _arrow([(108, 68), (140, 68)]),
+         _box(140, 44, 148, 48, "STFT ＋ 兩個閘",
+              "32×32 · hop 8 · jpeg_luma^0.25"),
+         _arrow([(288, 68), (320, 68)]),
+         "<polygon class='pm' points='330,44 442,44 430,92 318,92'/>",
+         "<text class='pt mid' x='380' y='73'>θ, g 可學</text>",
+         _arrow([(442, 68), (476, 68)]),
+         _box(476, 44, 120, 48, "重疊相加", "÷ OLA(w²)"),
+         _arrow([(596, 68), (628, 68)]),
+         _box(628, 44, 112, 48, "防禦圖 x′", "3×512×512", "n out"),
+         # 損失那一支
+         _box(628, 150, 112, 48, "VAE 編碼", "E_img(x′)"),
+         _arrow([(684, 92), (684, 150)]),
+         _box(476, 150, 120, 48, "抽 (t, ε)", "訓練每步重抽"),
+         _box(476, 226, 120, 48, "固定 8 組 (t, ε)", "評估用 · 決定性", "n alt"),
+         _box(300, 150, 148, 48, "UNet(z_t, E_img(x′))", "有影像條件"),
+         _box(300, 226, 148, 48, "UNet(z_t, 0)", "零影像 latent · 常數"),
+         _arrow([(628, 174), (448, 174)]),
+         _arrow([(476, 174), (476, 200), (448, 250)]),
+         _arrow([(476, 250), (448, 250)]),
+         "<circle class='op' cx='250' cy='200' r='15'/>",
+         "<text class='opt mid' x='250' y='206'>−</text>",
+         _arrow([(300, 174), (265, 190)]),
+         _arrow([(300, 250), (265, 210)]),
+         _box(80, 176, 140, 48, "‖·‖² → 最小化", "影像引導項消失", "n key"),
+         _arrow([(235, 200), (220, 200)]),
+         "<text class='el mid' x='150' y='245'>sign PGD · α=0.01 固定</text>",
+         _arrow([(150, 176), (150, 120), (380, 120), (380, 92)]),
+         # 評測那一支
+         _box(788, 44, 118, 48, "淨化算子 T", "9 個", "n alt"),
+         _arrow([(740, 68), (788, 68)]),
+         _box(788, 150, 118, 48, "IP2P 編輯", "s_T 7.5 · s_I 1.5", "n alt"),
+         _arrow([(847, 92), (847, 150)])]
+    return ("<svg viewBox='0 0 940 300' class='arch' role='img' "
+            "aria-label='本批的運算流程'>" + "".join(n) + "</svg>")
+
+
+def pipeline_dispersion() -> str:
+    """色散變形那一批實際跑的每一步運算。"""
     n = [_box(16, 44, 96, 48, "原圖 x", "3×512×512"),
          _arrow([(112, 68), (146, 68)]),
          _box(146, 44, 150, 48, "反射填補 ＋ unfold", "32×32 · hop 8 · 61²"),
@@ -301,6 +347,10 @@ def pipeline() -> str:
          _arrow([(847, 206), (847, 250)])]
     return ("<svg viewBox='0 0 940 316' class='arch' role='img' "
             "aria-label='本批的運算流程'>" + "".join(n) + "</svg>")
+
+
+PIPELINES = {"image_guidance": pipeline_image_guidance,
+             "dispersion": pipeline_dispersion}
 
 
 def table(rows, cols) -> str:
@@ -394,6 +444,10 @@ def main() -> None:
                     help="每個 tag 對應的 `--conditions` 名稱，順序同 --tags")
     ap.add_argument("--short", nargs="+", required=True,
                     help="圖上用的短標籤，順序同 --tags")
+    ap.add_argument("--pipeline", choices=sorted(PIPELINES), required=True,
+                    help="要畫哪一張運算流程圖。**畫錯的圖比沒有圖更糟**"
+                         "——它會把讀者對「這一批到底跑了什麼」的理解引到"
+                         "另一個方法上")
     ap.add_argument("--title", required=True)
     ap.add_argument("--subtitle", default="")
     ap.add_argument("--out", type=Path, required=True)
@@ -426,7 +480,7 @@ def main() -> None:
                  for t in TAGS if t in gain]
 
     out = TEMPLATE.format(
-        pipeline=pipeline(),
+        pipeline=PIPELINES[args.pipeline](),
         conv_chart=convergence_chart(conv),
         gain_chart=gain_chart(gain, purs),
         scatter=scatter_chart(fid, edit),

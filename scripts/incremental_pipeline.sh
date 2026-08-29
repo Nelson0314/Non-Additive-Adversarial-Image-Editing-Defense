@@ -18,6 +18,9 @@
 # 地板量的是**乾淨影像**過算子之後的編輯位移，與用哪個條件的防禦圖無關，
 # 所以直接沿用既有的（同一組十張、同一組算子、同樣一顆種子）。
 #
+# **執行中不可覆寫這個檔案。** bash 是邊讀邊執行的，換掉檔案內容會讓它跳到
+# 錯的位置。要改就先停、改完再啟動；或改寫到新檔名再切換。
+#
 # 用法：bash scripts/incremental_pipeline.sh "<淨化用的卡號>"
 set -uo pipefail
 ROOT=/nfs/home/nelson0314/WACV-s3
@@ -56,7 +59,7 @@ rebuild () {
       > /dev/null 2>&1
   "$PY" scripts/batch_report.py --tables "$TABLES" --convergence "$CONV" \
       --gallery "$GAL" --defense "$SRC" \
-      --tags "${TAGS[@]}" \
+      --pipeline image_guidance --tags "${TAGS[@]}" \
       --conds phase_gain phase_gain phase_gain phase_gain \
       --short "${SHORT[@]}" \
       --title "影像引導消除損失：四個工作點" \

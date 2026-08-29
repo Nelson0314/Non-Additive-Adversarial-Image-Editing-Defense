@@ -76,10 +76,20 @@ def main() -> None:
                 per_image.setdefault(r.get("image", ""), []).append((s, v))
             if not by_step:
                 continue
-            for s in sorted(by_step):
-                vs = sorted(by_step[s])
+            # **早停之後向前填補**：一張圖停了，它的損失就停在最終值，不是
+            # 從統計裡消失。少了這一步，中位數是在「還沒停的那幾張」上算的，
+            # 影像陸續退出時中位數會**往上跳**，畫出來是一條假的上升曲線。
+            steps = sorted(by_step)
+            last = {}
+            for s in steps:
+                for img, pts in per_image.items():
+                    hit = [v for st_, v in pts if st_ == s]
+                    if hit:
+                        last[img] = hit[0]
+                vs = sorted(last.values())
                 curve.append({
                     "tag": d.name, "step": s, "n_images": len(vs),
+                    "n_live": len(by_step[s]),
                     "eval_median": round(st.median(vs), 8),
                     "eval_min": round(vs[0], 8), "eval_max": round(vs[-1], 8),
                 })

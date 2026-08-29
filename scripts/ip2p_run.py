@@ -40,6 +40,7 @@
 from __future__ import annotations
 
 import argparse
+import csv
 import sys
 import time
 from pathlib import Path
@@ -977,6 +978,15 @@ def main() -> None:
                          s_i=args.image_guidance)
 
     rows, trace_rows = [], []
+    # **跳過的影像要把舊列帶回來。** 每張寫檔是整份重寫，只把這一輪跑過的
+    # 列寫出去會把先前的量測**截掉**——PNG 還在、數字沒了，而報表上只會看到
+    # 列數變少，不會拋錯。實際踩過一次（5 張防禦圖只剩 2 列）。
+    if args.skip_existing:
+        prev = args.out / "results.csv"
+        if prev.exists():
+            with prev.open(encoding="utf-8") as f:
+                rows.extend(csv.DictReader(f))
+            print(f"帶回 {len(rows)} 筆既有的列（--skip-existing）", flush=True)
     for item in dataset:
         x01 = load_image_tensor(item["path"], ip2p.device, size=RESOLUTION)
         item["path01"] = x01

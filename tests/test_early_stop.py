@@ -120,3 +120,73 @@ def test_deterministic_eval_is_deterministic():
     a, b = float(fixed(x)), float(fixed(x))
     assert a == b, "固定評估不可隨呼叫改變"
     assert float(fn(x)) != float(fn(x)), "訓練損失本來就該每次重抽"
+
+
+# ---- 權重保存與續跑 ----
+
+def test_weight_flags_default_off():
+    a = ip2p_run.build_parser().parse_args(["--out", "o"])
+    assert a.save_weights is False
+    assert a.resume_weights is None
+    assert a.skip_existing is False
+
+
+def test_weights_path_shape():
+    from pathlib import Path as P
+    assert ip2p_run.weights_path(P("r"), "img", "phase_gain").name == \
+        "img__phase_gain__w.pt"
+
+
+def test_resume_refuses_a_different_construction(tmp_path):
+    """形狀不合要拋錯。**不可靜默略過**——那會讓「續跑」載進去的是別的
+    構造的參數，而報表上看不出來。"""
+    import torch as T
+
+    T.save([T.zeros(3, 4)], tmp_path / "img__phase_gain__w.pt")
+
+    class P:
+        def params(self):
+            return [T.zeros(5, 6)]
+
+        def project(self):
+            pass
+
+    class A:
+        resume_weights = tmp_path
+        _cur_image = "img"
+
+    with pytest.raises(SystemExit, match="形狀"):
+        ip2p_run._load_weights(P(), None, A(), "phase_gain")
+
+
+def test_resume_reports_zero_when_no_file(tmp_path):
+    """沒有對應檔案就從零起步並記 0，不假裝續跑過。"""
+    class A:
+        resume_weights = tmp_path
+        _cur_image = "nothing"
+
+    assert ip2p_run._load_weights(None, None, A(), "phase_gain") == 0
+
+
+def test_resume_loads_and_projects(tmp_path):
+    import torch as T
+
+    T.save([T.full((2, 3), 0.5)], tmp_path / "img__phase_gain__w.pt")
+    tgt = T.zeros(2, 3)
+
+    class P:
+        projected = False
+
+        def params(self):
+            return [tgt]
+
+        def project(self):
+            P.projected = True
+
+    class A:
+        resume_weights = tmp_path
+        _cur_image = "img"
+
+    assert ip2p_run._load_weights(P(), None, A(), "phase_gain") == 1
+    assert float(tgt.abs().mean()) == pytest.approx(0.5)
+    assert P.projected, "載入之後必須投影回可行集"

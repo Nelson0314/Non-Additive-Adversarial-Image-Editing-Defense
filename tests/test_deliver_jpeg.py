@@ -108,7 +108,7 @@ def test_關閉時防禦圖逐位元等於加旗標之前的路徑():
     assert torch.equal(got, want.x_def)
     # 收斂欄位（停止原因／實走步數／最佳評估）一律寫出來，關著 --eval-every
     # 時 best_eval 是空字串。**沒有這三欄就分不出「跑滿」與「早停」。**
-    assert extras == {"stop_reason": want.stop_reason,
+    assert extras == {"resumed": 0, "stop_reason": want.stop_reason,
                       "stopped_at": want.stopped_at, "best_eval": ""}
     assert (radius, unreachable, modified) == (want.radius, False, False)
 
@@ -195,7 +195,7 @@ def test_保留率與品質都逐列寫進_CSV():
     x = _x()
     _, _, _, _, extras = ip2p_run.defend(
         None, None, "add", x, _args("--deliver-jpeg", "75"), _loss)
-    assert set(extras) == {"stop_reason", "stopped_at", "best_eval",
+    assert set(extras) == {"resumed", "stop_reason", "stopped_at", "best_eval",
                            "deliver_retention", "deliver_cosine",
                            "deliver_retention_base", "deliver_rms_raw",
                            "deliver_rms_out"}

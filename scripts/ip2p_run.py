@@ -399,6 +399,9 @@ def defend(ip2p, suite, cond, x01, args, loss_fn):
 
     if args.radius is not None:
         param.set_radius(args.radius)
+        resumed = 0
+        if args.resume_weights is not None:
+            resumed = _load_weights(param, x01, args, cond)
         res = run_param_pgd(x01, param, loss_fn, steps=args.steps,
                             seed=args.seed,
                             eval_fn=getattr(loss_fn, "_fixed_eval", None),
@@ -413,6 +416,10 @@ def defend(ip2p, suite, cond, x01, args, loss_fn):
         # 是 `eval` 那一欄，它必須能被重讀與畫圖。停止原因也逐列記下——
         # 「跑滿步數」與「早停」在結果 CSV 上分不出來的話，就不知道那一格
         # 到底收斂了沒有。
+        run_extras["resumed"] = resumed
+        if args.save_weights:
+            run_extras["_weights"] = [t.detach().cpu().clone()
+                                      for t in param.params()]
         run_extras["stop_reason"] = res.stop_reason
         run_extras["stopped_at"] = res.stopped_at
         run_extras["best_eval"] = ("" if res.best_eval is None
@@ -476,6 +483,36 @@ def defend(ip2p, suite, cond, x01, args, loss_fn):
     return x_def, radius, unreachable, False, extras
 
 
+def weights_path(root: Path, name: str, cond: str) -> Path:
+    return root / f"{name}__{cond}__w.pt"
+
+
+def _load_weights(param, x01, args, cond) -> int:
+    """把存下來的參數載回 `param`，回傳 1（載到）或 0（沒有對應檔）。
+
+    **形狀不合就拋錯，不靜默略過**：形狀不合代表這批的構造與存檔時不同
+    （換了 block／hop／K），那時「續跑」載進去的是別的東西。
+    """
+    src = weights_path(args.resume_weights, args._cur_image, cond)
+    if not src.exists():
+        return 0
+    saved = torch.load(src, map_location="cpu")
+    ps = param.params()
+    if len(saved) != len(ps):
+        raise SystemExit(
+            f"{src} 有 {len(saved)} 個張量，本次的參數化有 {len(ps)} 個"
+            "——構造不同，不可續跑")
+    with torch.no_grad():
+        for t, v in zip(ps, saved):
+            if tuple(t.shape) != tuple(v.shape):
+                raise SystemExit(
+                    f"{src} 的張量形狀 {tuple(v.shape)} 與本次的 "
+                    f"{tuple(t.shape)} 不符——構造不同，不可續跑")
+            t.copy_(v.to(device=t.device, dtype=t.dtype))
+    param.project()
+    return 1
+
+
 def build_parser() -> argparse.ArgumentParser:
     """CLI 的定義。
 
@@ -534,6 +571,18 @@ def build_parser() -> argparse.ArgumentParser:
     ap.add_argument("--patience", type=int, default=0,
                     help="連續幾次評估沒有比歷史最佳改善超過 --min-delta 就"
                          "停。0 = 不早停，跑滿 --steps")
+    ap.add_argument("--save-weights", action="store_true",
+                    help="把最佳化後的參數張量存成 `<影像>__<條件>__w.pt`。"
+                         "存的是參數本身不是防禦圖——防禦圖不可逆推回參數"
+                         "（重疊相加是有損投影，即 FND-049 的 amp_dev），"
+                         "沒存就只能從零重跑")
+    ap.add_argument("--resume-weights", type=Path, default=None,
+                    help="從這個目錄載入同名的 `__w.pt` 當**起點**續跑。"
+                         "找不到對應檔案的影像照常從零起步，並在 CSV 的 "
+                         "`resumed` 欄記 0，不靜默假裝續跑過")
+    ap.add_argument("--skip-existing", action="store_true",
+                    help="已經有 `__def.png` 的影像直接跳過。用於中途加旗標"
+                         "重啟時保住已完成的部分")
     ap.add_argument("--min-delta", type=float, default=0.0002,
                     help="早停的相對改善門檻（每次評估）。**這是收斂判準不是"
                          "效果判準**。0.002 太大：實測 latent_norm 在第 6500 步"
@@ -931,6 +980,14 @@ def main() -> None:
     for item in dataset:
         x01 = load_image_tensor(item["path"], ip2p.device, size=RESOLUTION)
         item["path01"] = x01
+        # `defend` 要靠它組出權重檔名。放在 args 上而不是多傳一層參數，
+        # 是為了不動 `defend` 的簽名（測試釘住了它）。
+        args._cur_image = item["name"]
+        if args.skip_existing and all(
+                (args.out / f"{item['name']}__{c}__def.png").exists()
+                for c in args.conditions):
+            print(f"{item['name']:32s} 已完成，跳過", flush=True)
+            continue
         t0 = time.time()
         e_orig = edit(x01, item)
         vutils.save_image(x01, args.out / f"{item['name']}__orig.png")
@@ -986,6 +1043,9 @@ def main() -> None:
                              ("edit_def", e_def)):
                 vutils.save_image(img.clamp(0, 1),
                                   args.out / f"{item['name']}__{cond}__{sub}.png")
+            w = extras.pop("_weights", None)
+            if w is not None:
+                torch.save(w, weights_path(args.out, item["name"], cond))
             rows.append({
                 "image": item["name"],
                 "condition": cond + ("_nodc" if args.skip_dc else ""),

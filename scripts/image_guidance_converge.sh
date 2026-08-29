@@ -45,7 +45,11 @@ STEP_SIZE="${STEP_SIZE:-0.01}"
 BASE="--data data/omniedit150 --conditions phase_gain --quantile 0 \
 --freq-weight jpeg_luma --freq-weight-power 0.25 --hop 8 --gain-ratio 1.0 \
 --steps $STEPS --step-size $STEP_SIZE \
---eval-every 100 --eval-draws 8 --patience 15 --min-delta 0.0002"
+--eval-every 100 --eval-draws 8 --patience 15 --min-delta 0.0002 \
+--save-weights --skip-existing"
+# `--save-weights`：存參數張量。**防禦圖不可逆推回參數**——重疊相加是有損
+# 投影（FND-049 的 amp_dev），沒存就只能從零重跑，後續要硬跑到收斂就接不下去。
+# `--skip-existing`：中途加旗標重啟時保住已完成的影像，只損失當下那一張。
 
 POINTS="
 ig_d21:--loss~image_guidance~--ig-zt~diffuse_src~--radius~2.1

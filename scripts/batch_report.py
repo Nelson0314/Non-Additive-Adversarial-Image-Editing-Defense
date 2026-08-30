@@ -372,9 +372,10 @@ def build_panels(args, gain, purs, names, ds):
         active = " active" if i == 0 else ""
         tabs.append(f"<button class='tab{active}' data-i='{i}'>"
                     f"#{i + 1:02d}</button>")
-        orig = thumb(args.defense / TAGS[0] / f"{nm}__orig.png", args.embed)
+        orig = thumb(args.defense / TAGS[0] / f"{nm}__orig.png", args.embed,
+                     args.embed_quality)
         eo = thumb(args.defense / TAGS[0] /
-                   f"{nm}__{COND[TAGS[0]]}__edit_orig.png", args.embed)
+                   f"{nm}__{COND[TAGS[0]]}__edit_orig.png", args.embed, args.embed_quality)
         cells = ["<div class='rowlab hdr'></div>"]
         cells += [f"<div class='colhdr'>{html.escape(PUR_LABEL.get(p, p))}</div>"
                   for p in purs]
@@ -388,15 +389,12 @@ def build_panels(args, gain, purs, names, ds):
                 if g is not None:
                     ttl += f" · 淨增益 {g:.4f}"
                 if p == "identity":
-                    e = thumb(args.defense / t / f"{nm}__{c}__edit_def.png",
-                              args.embed)
-                    pu = thumb(args.defense / t / f"{nm}__{c}__def.png",
-                               args.embed)
+                    e = thumb(args.defense / t / f"{nm}__{c}__edit_def.png", args.embed, args.embed_quality)
+                    pu = thumb(args.defense / t / f"{nm}__{c}__def.png", args.embed, args.embed_quality)
                 else:
                     e = thumb(args.gallery / t /
-                              f"{nm}__{c}__{p}__edit_def.png", args.embed)
-                    pu = thumb(args.gallery / t / f"{nm}__{c}__{p}__pur.png",
-                               args.embed)
+                              f"{nm}__{c}__{p}__edit_def.png", args.embed, args.embed_quality)
+                    pu = thumb(args.gallery / t / f"{nm}__{c}__{p}__pur.png", args.embed, args.embed_quality)
                 if not e:
                     # **畫成占位而不是略過**：跑到一半就出的報告要能一眼看出
                     # 哪幾格還沒有，格子少一個會讓整列對不齊。
@@ -437,6 +435,12 @@ def main() -> None:
                     default=Path("runs/ip2p_fair_comparison/images10.txt"))
     ap.add_argument("--embed", type=int, default=384,
                     help="影像**內嵌**的畫素數")
+    # 頁面要放上 Artifact 時整份不得超過 16 MB，而這一頁幾乎全是內嵌影像
+    # （384 px／q74 的十張 × 四條件 × 九算子是 24.7 MB）。降畫素或降品質都
+    # 能壓，**預設 74 逐位元等於加這個旗標之前**。
+    ap.add_argument("--embed-quality", type=int, default=74,
+                    help="內嵌 JPEG 的品質（1–95）。降它與降 --embed 都能縮小"
+                         "整頁；Artifact 的上限是 16 MB")
     ap.add_argument("--thumb", type=int, default=132,
                     help="頁上顯示的起始邊長，只是 CSS 的初值")
     ap.add_argument("--tags", nargs="+", required=True)

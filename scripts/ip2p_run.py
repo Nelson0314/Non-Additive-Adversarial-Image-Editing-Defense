@@ -596,6 +596,32 @@ def _load_weights(param, x01, args, cond) -> int:
     return 1
 
 
+def make_encoder_loss(ip2p, name: str, y_target):
+    """只讀編碼器的三個損失。`image_guidance` 回傳 None（逐圖建立）。
+
+    抽成函式而不是留在 `main` 裡，是為了讓 `latent_norm_max` 的**符號**測得到：
+    符號寫反不會拋錯也不會有症狀，它只會安靜地退化成 `latent_norm`，而報表上
+    的 `loss` 欄仍寫著 `latent_norm_max`。
+    """
+    if name == "latent_norm_max":
+        # **符號相反**：PGD 一律最小化，故推大模長要回傳負值。
+        # 不加上界——編碼器的輸入被 [0,1] 夾住，模長本來就有界。
+        def loss_fn(x01_):
+            return -ip2p.encode_image(x01_).flatten().norm(p=2)
+        return loss_fn
+    if name == "latent_norm":
+        # DCT-Shield §4.2 的目標。與 `make_latent_norm_loss` 同式，這裡直接寫
+        # 出來避免把 baseline 模組的預設綁進相位臂。
+        def loss_fn(x01_):
+            return ip2p.encode_image(x01_).flatten().norm(p=2)
+        return loss_fn
+    if name == "image_guidance":
+        # 逐圖建立（見 `make_base_loss`），這裡不建，留 None 讓漏接當場拋錯
+        # 而不是靜默用到別的損失。
+        return None
+    return make_encoder_target_loss(ip2p, y_target)
+
+
 def build_parser() -> argparse.ArgumentParser:
     """CLI 的定義。
 
@@ -614,7 +640,8 @@ def build_parser() -> argparse.ArgumentParser:
                     help="OmniEdit 有 90 張帶兩條指令；預設一律取第 0 條")
     ap.add_argument("--target", type=Path, default=Path("data/targets/gray.png"))
     ap.add_argument("--loss",
-                    choices=("encoder_target", "latent_norm", "image_guidance"),
+                    choices=("encoder_target", "latent_norm", "latent_norm_max",
+                             "image_guidance"),
                     default="encoder_target",
                     help="encoder_target = ‖E(x_def) − E(y_target)‖²（本專案既有）；"
                          "latent_norm = ‖E(x_def)‖₂（DCT-Shield §4.2 的目標）。"
@@ -625,7 +652,13 @@ def build_parser() -> argparse.ArgumentParser:
                          "即直接要求 IP2P 取樣式裡的影像引導項消失；"
                          "latent_norm 是它的**逐點版本**（把影像條件推向零"
                          "張量），本項只要求 UNet 的**反應**相同，可行集大得多。"
-                         "**這是本專案第一個讀 UNet 的損失**")
+                         "**這是本專案第一個讀 UNet 的損失**。"
+                         "latent_norm_max = **−**‖E(x_def)‖₂，也就是把 latent "
+                         "推**離**分布而不是壓到零。理由：IP2P 用 "
+                         "classifier-free guidance 訓練，訓練時本來就會隨機丟掉"
+                         "影像條件，所以 `c_I = 0` 是模型**受訓過**的狀態——零"
+                         "不是怪異的點，是最熟悉的那一點。模長遠大於正常值的"
+                         "條件則從未出現在訓練裡。**這個方向從未跑過**")
     # ---- image_guidance 的四個設定（見 src/defense/image_guidance_loss.py）----
     ap.add_argument("--ig-zt", choices=ZT_MODES, default=None,
                     help="`z_t` 的抽法。**必填，沒有預設**：IP2P 由純噪聲"
@@ -1074,17 +1107,7 @@ def main() -> None:
           f"s_I={args.image_guidance} seed={args.edit_seed}", flush=True)
 
     y_target = load_image_tensor(args.target, ip2p.device, size=RESOLUTION)
-    if args.loss == "latent_norm":
-        # DCT-Shield §4.2 的目標。與 `make_latent_norm_loss` 同式，這裡直接寫
-        # 出來避免把 baseline 模組的預設綁進相位臂。
-        def loss_fn(x01_):
-            return ip2p.encode_image(x01_).flatten().norm(p=2)
-    elif args.loss == "image_guidance":
-        # 逐圖建立（見 `make_base_loss`），這裡不建，留 None 讓漏接當場拋錯
-        # 而不是靜默用到別的損失。
-        loss_fn = None
-    else:
-        loss_fn = make_encoder_target_loss(ip2p, y_target)
+    loss_fn = make_encoder_loss(ip2p, args.loss, y_target)
 
     def make_base_loss(x01):
         """逐圖取得主損失。

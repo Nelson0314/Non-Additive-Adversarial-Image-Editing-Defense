@@ -267,3 +267,35 @@ def test_survival_weight_只收緊不放寬():
     a.prepare_gates(x); b.prepare_gates(x)
     assert torch.all(b.freq_gate <= a.freq_gate + 1e-15)
     assert float(b.freq_gate.sum()) < float(a.freq_gate.sum())
+
+
+# ------------------------------------------- latent_norm_max 的符號
+
+def test_latent_norm_max_是_latent_norm_的相反數():
+    """PGD 一律最小化，所以「把模長推大」必須回傳負值。
+
+    符號寫反不會拋錯、也不會有症狀——它只會安靜地變成 `latent_norm`，
+    而報表上的 `loss` 欄仍寫著 `latent_norm_max`。故釘住**產品程式碼**。
+    """
+    import scripts.ip2p_run as R
+
+    class FakeIP2P:
+        def encode_image(self, x):
+            return x * 2.0
+
+    fake = FakeIP2P()
+    x = torch.rand(1, 3, 8, 8, dtype=torch.float64)
+    want = float((x * 2.0).flatten().norm(p=2))
+
+    lo = R.make_encoder_loss(fake, "latent_norm", None)
+    hi = R.make_encoder_loss(fake, "latent_norm_max", None)
+    assert float(lo(x)) == pytest.approx(want)
+    assert float(hi(x)) == pytest.approx(-want)
+    assert R.make_encoder_loss(fake, "image_guidance", None) is None
+
+
+def test_latent_norm_max_在_argparse_的選項裡():
+    import scripts.ip2p_run as R
+    ap = R.build_parser()
+    action = next(a for a in ap._actions if a.dest == "loss")
+    assert "latent_norm_max" in action.choices

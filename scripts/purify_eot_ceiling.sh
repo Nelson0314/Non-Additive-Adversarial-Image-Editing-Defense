@@ -24,7 +24,7 @@ export TOKENIZERS_PARALLELISM=false
 cd "$ROOT" || { echo "錯誤：找不到 $ROOT" >&2; exit 2; }
 
 DEVS=(${1:-})
-[ ${#DEVS[@]} -lt 5 ] && { echo "用法：$0 \"<五個卡號>\"" >&2; exit 2; }
+[ ${#DEVS[@]} -lt 1 ] && { echo "用法：$0 \"<卡號>\" [\"<條件標籤...>\"] [nofloor]" >&2; exit 2; }
 bash scripts/free_cards.sh --assert "${DEVS[*]}" || exit 3
 
 SRC=runs/ip2p_eot_ceiling
@@ -33,7 +33,11 @@ mkdir -p "$OUT"
 IMGS="task_attr_mod_color_11699 task_attr_mod_color_6205"
 PUR="identity jpeg75 jpeg30 blur1 blur2 crop_resize0.1"
 COMMON="--data data/omniedit150 --attacker ip2p --seeds 3 --purifiers $PUR"
-TAGS="r25 r40 r80 r25_eot r40_eot r80_eot r160_eot floor04_eot surv_eot"
+# 卡是多人共用的，空卡數會變。第二個參數給條件子集就能分波送；
+# 第三個參數給 `nofloor` 表示地板已經跑過，不要重跑。
+TAGS="${2:-r25 r40 r80 r25_eot r40_eot r80_eot r160_eot floor04_eot surv_eot}"
+WANT_FLOOR=1
+[ "${3:-}" = "nofloor" ] && WANT_FLOOR=0
 
 # 只送有防禦圖的條件。缺的一律印出來，不靜默略過。
 GOOD=""
@@ -44,7 +48,7 @@ done
 [ -z "$GOOD" ] && { echo "錯誤：沒有任何條件有防禦圖" >&2; exit 2; }
 FIRST=$(echo $GOOD | awk '{print $1}')
 
-n=$(( $(echo $GOOD | wc -w) + 1 ))
+n=$(( $(echo $GOOD | wc -w) + WANT_FLOOR ))
 # 每卡最多 2 個 process（`docs/OPERATIONS.md`）。疊到 3 個實測整批 OOM。
 if [ "$n" -gt $(( ${#DEVS[@]} * 2 )) ]; then
   echo "錯誤：$n 個 process 需要至少 $(( (n + 1) / 2 )) 張卡，只給了 ${#DEVS[@]} 張。" >&2
@@ -66,7 +70,7 @@ launch() {              # $1 輸出標籤  $2 防禦圖來源  $3 額外旗標
 for t in $GOOD; do launch "$t" "$t"; done
 # 地板的 `--run` 指到第一個條件的目錄：`--floor` 把**原圖**當防禦圖，
 # 來源目錄只用來定位這一批的設定，不會讀到它的防禦圖。
-launch floor "$FIRST" --floor
+[ "$WANT_FLOOR" -eq 1 ] && launch floor "$FIRST" --floor
 
 sleep 25
 echo "啟動了 $(ps -u "$USER" -o cmd | grep -c '[p]hase_retention') 個 phase_retention process"

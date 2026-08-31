@@ -550,6 +550,7 @@ def run_param_pgd(
     patience: int = 0,
     min_delta: float = 0.0,
     deliver: Optional[Callable[[torch.Tensor], torch.Tensor]] = None,
+    step_hook: Optional[Callable[[int], None]] = None,
 ) -> ParamPGDResult:
     """共用迴圈。`loss_fn(x_def)` 回傳要**最小化**的純量。
 
@@ -584,6 +585,11 @@ def run_param_pgd(
 
     `history` 逐筆多記一個 `param_absmean`（參數的絕對值平均），用來判定
     「有沒有真的在走」——只看損失下降分不出走了多遠。
+
+    `step_hook(i)` 在每一步開始時呼叫，讓損失裡有排程的項知道現在第幾步
+    （例如退火中的權重）。**損失的簽名不變**——把步數塞進 `loss_fn` 會改到
+    每一條呼叫路徑，包含 `eval_fn`，而評估不該推進排程。預設 `None`，行為
+    與加入此參數之前逐位元相同。
 
     `deliver` 給定時，`param.render(x01)` 的輸出先過它，**損失、評估與最後
     回傳的圖三者用的都是過完的那一張**。用途是把「交出去的圖」上的約束
@@ -621,6 +627,8 @@ def run_param_pgd(
         return out if deliver is None else deliver(out)
 
     for i in range(steps):
+        if step_hook is not None:
+            step_hook(i)
         x_def = render()
         loss = loss_fn(x_def if transform is None else transform(x_def, i))
         if opt is None:

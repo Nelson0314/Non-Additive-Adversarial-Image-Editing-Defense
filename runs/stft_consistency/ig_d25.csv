@@ -1,0 +1,8 @@
+tag,image,amp_dev,phase_rho,resid_rms,resid_linf
+ig_d25,task_attr_mod_color_32648,0.152958,0.892284,0.023406,0.606265
+ig_d25,task_attr_mod_color_6205,0.100394,0.9113,0.066546,1.227597
+ig_d25,task_env_weather_112463,0.069994,0.92844,0.05277,0.762486
+ig_d25,task_obj_remove_380621,0.14989,0.884067,0.090203,1.471844
+ig_d25,task_obj_swap_joint_mask_276754,0.308609,0.858102,0.128044,1.08185
+ig_d25,task_obj_swap_joint_mask_533428,0.185488,0.866679,0.137589,1.191827
+ig_d25,task_obj_swap_rand_mask_417469,0.2584,0.830899,0.107043,1.276118

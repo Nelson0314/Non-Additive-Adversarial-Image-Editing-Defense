@@ -770,18 +770,24 @@ class PhaseResidual(ResidualModule):
             return luma_join(self._rephase(y), chroma)
         return self._rephase(x01)
 
-    def _rephase(self, x01: torch.Tensor) -> Optional[torch.Tensor]:
-        if not self.enabled:
-            return x01
-        if not self._gates_ready:
-            raise RuntimeError(
-                "prepare_gates() 未呼叫。閘必須由原圖算出並固定，"
-                "延後到第一次前向會讓它跟著防禦圖漂移"
-            )
-        h, w = x01.shape[-2:]
-        if h != self.size or w != self.size:
-            raise ValueError(f"影像尺寸 {h}x{w} 與建構時的 size={self.size} 不符")
+    def requested_spectrum(self, x01: torch.Tensor) -> torch.Tensor:
+        """最佳化**要求**的頻譜：相位轉過、增益乘過、下限加過，但**尚未經過
+        重疊相加**。
 
+        為什麼要把它抽出來
+        ────────────────────────────────────────────────────────────
+        `synthesize` 是一個投影。一組逐視窗的係數若互相矛盾——block 32、
+        hop 8 表示每個像素由 **16 個視窗**加總，而 `theta` 在每個視窗上是
+        自由的——就**不對應任何真實影像**，重疊相加只能給出最近的那一張。
+        要量那個投影誤差、或把它當懲罰項放進損失，需要的是投影**之前**的這個
+        張量，而 `_rephase` 只交出投影之後的影像。
+
+        實測（`runs/stft_consistency/`）：主線工作點的相對幅度偏差 0.175，
+        逐像素遮罩那批最高 0.480——要求的頻譜有 18–48% 交不出來，相位也丟掉
+        11–17%。投影前的像素值域是 1.09–6.03，而影像的合法值域是 0–1。
+
+        **只有一份實作**：`_rephase` 也走這一支，兩者不可能分岔。
+        """
         # **先夾參數再升取樣**，與 `project()` 夾的是同一個東西。反過來做
         # （先升取樣再夾）在數值上不同，而且會讓「可行集定義在參數上」這件事
         # 失去意義。凸包性質保證夾過的粗網格升取樣後仍在界內。
@@ -812,16 +818,36 @@ class PhaseResidual(ResidualModule):
             a = self.expand(torch.clamp(self.floor, -1.0, 1.0))
             added = (a * self.floor_price() * self.spectral_floor).unsqueeze(1)
             rot = rot + added * (rot / (rot.abs() + 1e-12))
+        return rot
+
+    def _rephase(self, x01: torch.Tensor) -> Optional[torch.Tensor]:
+        if not self.enabled:
+            return x01
+        if not self._gates_ready:
+            raise RuntimeError(
+                "prepare_gates() 未呼叫。閘必須由原圖算出並固定，"
+                "延後到第一次前向會讓它跟著防禦圖漂移"
+            )
+        h, w = x01.shape[-2:]
+        if h != self.size or w != self.size:
+            raise ValueError(f"影像尺寸 {h}x{w} 與建構時的 size={self.size} 不符")
+
+        rot = self.requested_spectrum(x01)
         x_def = self.synthesize(rot)
 
         # Griffin-Lim 的迭代投影：反覆把幅度換回**目標**幅度，逼近「相位被
         # 轉過、幅度為目標值」那個一般不存在的訊號。gl_iters = 0 時整段不
         # 執行，行為與加這個選項之前逐位相同。
         #
-        # 增益開著時目標必須是**改過的**幅度 `rot.abs()`，用 `spec.abs()`
-        # 會把增益整個投影掉。關著時仍用 `spec.abs()`——它與 rot.abs() 在
+        # 增益開著時目標必須是**改過的**幅度 `rot.abs()`，用原圖的幅度
+        # 會把增益整個投影掉。關著時仍用**原圖**的幅度——它與 rot.abs() 在
         # 浮點上未必逐位相同，而既有批次要能逐位重跑。
-        target_mag = rot.abs() if self.gain_max > 0 else spec.abs()
+        #
+        # `analyze(x01)` 在這裡重算一次。`requested_spectrum` 內部算過同一個
+        # 東西，但那是決定性的運算，重算逐位元相同；只有 `gl_iters > 0` 且
+        # 增益關著時才會走到，故不影響主線的成本。
+        target_mag = (rot.abs() if self.gain_max > 0
+                      else self.analyze(x01).abs()) if self.gl_iters else None
         for _ in range(self.gl_iters):
             x_def = self.synthesize(
                 replace_magnitude(self.analyze(x_def), target_mag))

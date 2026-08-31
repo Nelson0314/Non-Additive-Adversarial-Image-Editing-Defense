@@ -67,6 +67,9 @@ from src.baselines.encoder_target import make_encoder_target_loss  # noqa: E402
 from src.baselines.jpeg_codec import (  # noqa: E402
     jpeg_roundtrip, jpeg_roundtrip_ste, normalize_quality,
 )
+from src.defense.consistency_loss import (  # noqa: E402
+    make_consistency_term,
+)
 from src.defense.linf_deliver import clamp_residual_ste  # noqa: E402
 from src.defense.purify_aware import (  # noqa: E402
     BROAD_FRACTIONS,
@@ -236,6 +239,47 @@ def _deliver_projection(args, x01):
         return clamp_residual_ste(x_def, x01, float(args.linf_deliver))
 
     return deliver
+
+
+def _with_consistency(param, x01, args, loss_fn):
+    """`--consistency-weight` 給定時，在主損失上加一項一致性懲罰。
+
+    **評估函數也要包**。`run_param_pgd` 用 `loss_fn._fixed_eval` 判收斂，
+    不包的話判的是另一個量——訓練最小化 A、收斂判定看 B，早停會在錯的地方
+    觸發，而且不會有症狀。
+
+    只接在有 `module` 的參數化上（相位族）。接到 DCT-Shield 或加性上等於改掉
+    別人的方法，**寧可拒絕**。
+    """
+    if not args.consistency_weight:
+        return loss_fn
+    # **檢查屬性存不存在，不檢查它的值。** `PhaseParam.module` 在 `reset()`
+    # 之前是 `None`，而 `reset()` 在 `run_param_pgd` 內部才發生；讀它的值等於
+    # 在還沒建好的時候判它不合格。實際踩過：三個工作點全部被自己的守門擋下。
+    # 只有相位族有這個屬性（`AdditiveParam`／DCT／位移場都沒有），故它足以
+    # 擋掉「接到別人的方法上」。
+    if not hasattr(param, "module"):
+        raise SystemExit(
+            f"--consistency-weight 只接在本方法的相位參數化上，"
+            f"收到條件 {args.conditions}")
+
+    term = make_consistency_term(lambda: param.module, x01,
+                                 args.consistency_weight,
+                                 steps=args.steps,
+                                 decay_frac=args.consistency_decay)
+
+    def combined(x_def):
+        return loss_fn(x_def) + term(x_def)
+
+    # 排程的推進掛在**訓練迴圈**上，不掛在損失的呼叫上——評估也會呼叫損失，
+    # 讓它推進排程會使權重隨評估次數漂掉。
+    combined._advance = term.advance
+    base_eval = getattr(loss_fn, "_fixed_eval", None)
+    if base_eval is not None:
+        def combined_eval(x_def):
+            return base_eval(x_def) + term(x_def)
+        combined._fixed_eval = combined_eval
+    return combined
 
 
 def _stage1_alpha(args, param) -> float:
@@ -432,6 +476,7 @@ def defend(ip2p, suite, cond, x01, args, loss_fn):
         resumed = 0
         if args.resume_weights is not None:
             resumed = _load_weights(param, x01, args, cond)
+        loss_fn = _with_consistency(param, x01, args, loss_fn)
         res = run_param_pgd(x01, param, loss_fn, steps=args.steps,
                             seed=args.seed,
                             eval_fn=getattr(loss_fn, "_fixed_eval", None),
@@ -441,6 +486,7 @@ def defend(ip2p, suite, cond, x01, args, loss_fn):
                             update=args.update, step_size=args.step_size,
                             log_every=max(1, args.steps // 40),
                             deliver=_deliver_projection(args, x01),
+                            step_hook=getattr(loss_fn, "_advance", None),
                             transform=_forward_transform(args))
         x_raw, radius, unreachable = res.x_def, param.radius, False
         # **收斂軌跡逐圖寫成一份 CSV**，不只留在 stdout 的 log 裡：判收斂看的
@@ -796,6 +842,22 @@ def build_parser() -> argparse.ArgumentParser:
     # 最佳化只被約束在 θ 的半徑球上，像素域沒有約束，於是同樣的 DISTS 下解
     # 可以是稀疏高振幅尖峰（`runs/ip2p_ig_converge` 實測 L∞ 0.79–0.93，主線
     # 相位族在相近 DISTS 只有 0.42），而人眼看得到、DISTS 與 LPIPS 看不到。
+    # ---- 一致性懲罰 ----
+    # **0（預設）時逐位元等於加這個旗標之前。** 存在的理由是一個量到的事實：
+    # 最佳化要求的頻譜有 18–48% 的幅度是重疊相加交不出來的
+    # （`runs/stft_consistency/`），而投影前的像素值域是 1.09–6.03——要求的
+    # 那個東西根本不是一張影像，看到的刻紋就是投影誤差。
+    ap.add_argument("--consistency-weight", type=float, default=0.0,
+                    help="一致性懲罰的權重。損失加上 w × 相對幅度偏差，"
+                         "使同樣損失值的解裡偏好可實現的那些。0 = 關閉。"
+                         "與 --gl-iters 不同：那是在前向硬投影，這是軟偏好")
+    # 退火：**0（預設）時權重恆定，逐位元等於加這個旗標之前。**
+    # 固定權重會把失真封頂（`runs/arch_cons_matched`：w=0.30 的半徑拉 2.4 倍，
+    # DISTS 只由 0.0835 走到 0.1145，到不了基準線的 0.153），而重畫與否看起來
+    # 由失真水準決定。退火問的是「懲罰是不是只在早期需要」。
+    ap.add_argument("--consistency-decay", type=float, default=0.0,
+                    help="一致性權重線性歸零的位置佔總步數的比例。"
+                         "0.5 = 半程歸零，之後與不加懲罰相同。0 = 不退火")
     ap.add_argument("--linf-deliver", type=float, default=0.0,
                     help="交付前把像素域殘差夾到 [-eps, eps]（0–1 值域）。"
                          "0 = 關閉。迴圈的前向套直通估計版、交付與存檔套真正的"
@@ -1209,6 +1271,8 @@ def main() -> None:
                 "eot_sigmas": " ".join(str(v) for v in args.eot_sigmas),
                 "eot_fractions": " ".join(str(v) for v in args.eot_fractions),
                 "linf_deliver": args.linf_deliver,
+                "consistency_weight": args.consistency_weight,
+                "consistency_decay": args.consistency_decay,
                 # 交付自壓的品質。0 = 關閉。**這一欄不記下來，開著與關著跑出
                 # 的列在其餘欄位上一模一樣**，合併分片之後就分不出來——而它
                 # 決定了存檔的防禦圖在不在量化格點上，也就決定了抗淨化那一輪

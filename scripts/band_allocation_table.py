@@ -85,7 +85,7 @@ def main() -> None:
 
     missing = []
     print("扣空白地板的淨增益（逐影像相減後平均）")
-    print("條件".ljust(10) + "".join(p.rjust(11) for p in purs))
+    print("條件".ljust(10) + "".join(p.rjust(15) for p in purs))
     for tag in tags:
         cells = []
         for p in purs:
@@ -95,13 +95,13 @@ def main() -> None:
             n_have = sum(1 for k in data[tag] if k[1] == p)
             if len(diffs) < n_have:
                 missing.append(f"{tag}/{p}：{n_have - len(diffs)} 格缺地板")
-            cells.append(f"{st.mean(diffs):11.4f}" if diffs else " " * 11)
+            cells.append(f"{st.mean(diffs):15.4f}" if diffs else " " * 15)
         print(tag.ljust(10) + "".join(cells))
-    print("空白地板".ljust(8) + "".join(f"{floor_mean[p]:11.4f}" for p in purs))
+    print("空白地板".ljust(8) + "".join(f"{floor_mean[p]:15.4f}" for p in purs))
 
     print()
     print(f"佔可達範圍的比例（可達 = {LPIPS_CEILING} − 地板）")
-    print("條件".ljust(10) + "".join(p.rjust(11) for p in purs))
+    print("條件".ljust(10) + "".join(p.rjust(15) for p in purs))
     for tag in tags:
         cells = []
         for p in purs:
@@ -110,12 +110,12 @@ def main() -> None:
                      if pp == p and (img, p) in floor]
             room = LPIPS_CEILING - floor_mean[p]
             if not diffs or room <= 0:
-                cells.append(" " * 11)
+                cells.append(" " * 15)
             else:
-                cells.append(f"{100 * st.mean(diffs) / room:10.1f}%")
+                cells.append(f"{100 * st.mean(diffs) / room:14.1f}%")
         print(tag.ljust(10) + "".join(cells))
     print("可達範圍".ljust(8)
-          + "".join(f"{LPIPS_CEILING - floor_mean[p]:11.4f}" for p in purs))
+          + "".join(f"{LPIPS_CEILING - floor_mean[p]:15.4f}" for p in purs))
 
     if missing:
         print("\n缺格（已從平均排除）：")

@@ -1,150 +1,175 @@
-"""逐區塊的相位差熱力圖：防禦圖與淨化後的防禦圖，各自對**原圖**量。
+"""淨化算子把相位改動了多少：逐頻格的紋理閘加權平均 `|Δφ|`，畫成頻譜形狀的熱圖。
 
-要看的是什麼
+**不跑 GPU、不需要模型。** 只讀 `__orig.png`、`__def.png` 與淨化後的圖。
+
+量的是什麼
 ────────────────────────────────────────────────────────────────────
-把原圖的相位當成基準（相當於「原相位都是 0 度」），量防禦圖每一個區塊相對
-它偏了多少；再用同一條尺量 `p(防禦圖)` 相對**原圖**偏了多少。並排之後，
-一眼看得出淨化算子把那個偏移改成什麼樣子。
+分析基底與方法本身同一組：512² 切 32×32 加窗區塊、hop 8、Hann 窗、`rfft2`
+（`PhaseResidual.analyze`）。對第 `b` 個區塊、第 `ω` 個頻格：
 
-**這與 `phase_drift_diagnosis.py` 量的不是同一件事，兩者不可混用。**
+    Δφ_b(ω) = wrap( ∠S'_b(ω) − ∠S_b(ω) )        包回 (−π, π]
+    熱圖(ω) = Σ_b g_b·|Δφ_b(ω)| / Σ_b g_b        單位：弧度
 
-    本檔            angle(STFT(p(x_def))) − angle(STFT(x))
-    diagnosis       angle(STFT(p(x_def))) − angle(STFT(p(x)))
+`g_b` 是**紋理閘係數**（`texture_gate`，逐區塊一個純量，由原圖算出、不參與
+最佳化）。三個通道各自算完再平均。
 
-diagnosis 用「同一個算子也過一遍的原圖」當參照，扣掉了算子自己造成的相位
-變化，量的是**裝上去的偏移還剩多少**。本檔不扣，量的是**攻擊方拿到的那張圖
-相對真正的原圖偏了多少**——所以它把「防禦造成的」與「算子造成的」混在一起，
-那正是這張圖要呈現的東西，但引用數字時必須講明。
+顯示成完整的 32×32 平面而不是 `rfft2` 的半平面：`|Δφ|` 在共軛對稱下是偶函數
+（`φ(−ω) = −φ(ω)` ⇒ `Δφ(−ω) = −Δφ(ω)` ⇒ `|Δφ|` 相同），所以鏡射是**精確**的
+不是近似。再 `fftshift` 把直流放到中心，半徑即頻率、外圈是 Nyquist。
 
-量在哪裡
+三件讀圖之前必須知道的事
 ────────────────────────────────────────────────────────────────────
-本方法自己的分析域：32×32 區塊、hop 8、Hann 窗的加窗 STFT
-（`texture_rephase.analyze`），**不是全域 FFT**。每個區塊在通帶內以 `|S(原圖)|`
-為權重取 `|wrap(Δφ)|` 的平均——權重不可省，相位在幅度接近零的地方由捨入雜訊
-決定，不加權會讓平坦區的雜訊主導整張圖。
-
-色階固定在 0–π 且全圖共用，否則列與列、欄與欄之間的亮度不可比。
+1. **相位在幅度接近零的地方沒有意義。** 自然影像頻譜約 1/f，高頻的 `|S|` 很小，
+   那裡的 `∠S` 主要由數值噪聲決定，`|Δφ|` 會趨向「兩個獨立均勻角度之差的絕對
+   值」的期望 **π/2 ≈ 1.571**。所以外圈接近 1.571 讀成「本來就沒有訊號」，
+   不是「相位被改了很多」。圖上以虛線標出這條無資訊水平線。
+   權數用紋理閘是使用者指定的（逐區塊），它不解決逐頻格的這個問題。
+2. **`crop_resize` 之後區塊格點與原圖對不上。** 該算子是繞中心的純放大
+   1.2488×，同一個區塊索引在兩張圖上不是同一塊內容，逐區塊相減沒有意義。
+   該欄仍照畫並標註，不可與其餘欄並列解讀。
+3. 高斯模糊是**零相位濾波器**（頻域乘實正數），原理上不改相位；它拿走的是
+   幅度。若模糊欄的圖接近 0（低頻）而外圈接近 π/2，那正是「低頻相位活著、
+   高頻本來就沒有訊號」的樣子，不是模糊改了相位。
 
 用法：
-    python scripts/phase_shift_heatmap.py \
-        --defended <取回的防禦圖目錄> --out report_phase_shift_heatmap.png
+    python scripts/phase_shift_heatmap.py --src runs/ip2p_ig_loss \\
+        --cond ig_f08_eot --out phase_shift_ig_f08_eot.png
 """
 
 from __future__ import annotations
 
 import argparse
 import math
-import sys
 from pathlib import Path
-from typing import List, Sequence, Tuple
-
-import torch
-
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from typing import List, Optional
 
 import matplotlib
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt                       # noqa: E402
+import matplotlib.pyplot as plt          # noqa: E402
+import numpy as np                       # noqa: E402
+import torch                             # noqa: E402
+from PIL import Image                    # noqa: E402
 
-matplotlib.rcParams["font.sans-serif"] = ["Microsoft JhengHei", "Microsoft YaHei",
-                                          "PMingLiU", "DejaVu Sans"]
-matplotlib.rcParams["axes.unicode_minus"] = False
+from src.residual.texture_rephase import PhaseResidual, texture_gate  # noqa: E402
 
-from src.purify import ops as purify_ops              # noqa: E402
-from src.residual.texture_rephase import PhaseResidual  # noqa: E402
-from src.utils.io import load_image_tensor            # noqa: E402
-
-RESOLUTION = 512
 BLOCK, HOP = 32, 8
-BAND = (0.12, 1.05)          # 通帶：與 r_min 一致，排除低頻與 DC
-
-COLUMNS: Sequence[Tuple[str, purify_ops.Purifier]] = (
-    ("防禦圖（未淨化）", purify_ops.Purifier("identity")),
-    ("模糊 σ1", purify_ops.Purifier("blur", 1.0)),
-    ("模糊 σ2", purify_ops.Purifier("blur", 2.0)),
-    ("裁切 10%", purify_ops.Purifier("crop_resize", 0.10)),
-    ("JPEG 30", purify_ops.Purifier("jpeg", 30)),
-)
-
-
-def wrap(a: torch.Tensor) -> torch.Tensor:
-    """折回 (−π, π]。相位是週期量，直接相減再平均會被 ±π 的折返騙到。"""
-    return (a + math.pi) % (2 * math.pi) - math.pi
+OPS = ["identity", "jpeg75", "jpeg30", "blur1", "blur2", "crop_resize0.1"]
+OP_LABEL = {
+    "identity": "未淨化", "jpeg75": "JPEG 75", "jpeg30": "JPEG 30",
+    "blur1": "模糊 σ=1", "blur2": "模糊 σ=2",
+    "crop_resize0.1": "裁切縮放 10%（格點對不上）",
+}
+# 兩個獨立均勻角度之差的絕對值的期望值。外圈趨近它 = 該頻格本來就沒有訊號。
+NO_INFO = math.pi / 2
 
 
-def radial(block: int) -> torch.Tensor:
-    fy = torch.fft.fftfreq(block) * 2.0
-    fx = torch.fft.rfftfreq(block) * 2.0
-    return torch.sqrt(fy[:, None] ** 2 + fx[None, :] ** 2)
+def load01(path: Path) -> torch.Tensor:
+    img = Image.open(path).convert("RGB")
+    if img.size != (512, 512):
+        img = img.resize((512, 512), resample=Image.BICUBIC)
+    a = np.asarray(img).copy()
+    return torch.from_numpy(a).permute(2, 0, 1)[None].to(torch.float64) / 255.0
 
 
-def shift_map(analyzer: PhaseResidual, ref: torch.Tensor, cur: torch.Tensor,
-              mask: torch.Tensor) -> torch.Tensor:
-    """(side, side) 的逐區塊 |Δφ|，以 `|S(ref)|` 加權，值域 [0, π]。"""
-    s_ref, s_cur = analyzer.analyze(ref), analyzer.analyze(cur)
-    d = wrap(torch.angle(s_cur) - torch.angle(s_ref)).abs()
-    w = s_ref.abs() * mask
-    num = (w * d).sum(dim=(-2, -1))
-    den = w.sum(dim=(-2, -1)).clamp_min(1e-12)
-    per = (num / den).mean(dim=1)[0]                 # 通道平均 → (L,)
-    side = int(round(per.numel() ** 0.5))
-    return per.reshape(side, side)
+def gate_weighted_phase_shift(x: torch.Tensor, y: torch.Tensor) -> np.ndarray:
+    """回傳 `(BLOCK, BLOCK)` 的 fftshift 後熱圖，單位是弧度。"""
+    mod = PhaseResidual(size=512, block=BLOCK, hop=HOP).to(torch.float64)
+    # `analyze` 用 `self.window`，而窗是在 `prepare_gates` 裡才填的——不呼叫它
+    # 窗是全零，`analyze` 會**安靜地**回傳全零頻譜（不拋錯），熱圖看起來就是
+    # 一片乾淨的 0。必須先呼叫，且要用**原圖**（閘一律由原圖算出）。
+    mod.prepare_gates(x)
+    sx, sy = mod.analyze(x), mod.analyze(y)               # (1,3,L,32,17) 複數
+    d = torch.angle(sy) - torch.angle(sx)
+    # 包回 (−π, π]：相位是週期量，直接相減會把 −π+ε 與 π−ε 讀成差 2π。
+    d = torch.remainder(d + math.pi, 2 * math.pi) - math.pi
+    g = texture_gate(x, BLOCK, HOP, energy_quantile=0.0, edge_power=1.0)  # (1,L)
+    w = g[0].to(d.dtype)
+    num = (d.abs() * w[None, None, :, None, None]).sum(dim=2)   # (1,3,32,17)
+    half = (num / w.sum().clamp_min(1e-12)).mean(dim=1)[0]      # (32,17)
+
+    # 半平面補成整平面。`|Δφ|` 在共軛對稱下相同，故鏡射是精確的。
+    full = torch.zeros(BLOCK, BLOCK, dtype=half.dtype)
+    full[:, : BLOCK // 2 + 1] = half
+    for u in range(BLOCK):
+        for v in range(BLOCK // 2 + 1, BLOCK):
+            full[u, v] = half[(-u) % BLOCK, BLOCK - v]
+    return torch.fft.fftshift(full).numpy()
 
 
-def main(argv: List[str] | None = None) -> int:
-    ap = argparse.ArgumentParser(description=__doc__,
-                                 formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--defended", type=Path, required=True)
-    ap.add_argument("--tag", default="ours_ph_q")
-    ap.add_argument("--condition", default="phase")
-    ap.add_argument("--images", type=Path,
-                    default=Path("runs/ip2p_fair_comparison/images10.txt"))
-    ap.add_argument("--data", type=Path, default=Path("data/omniedit150"))
-    ap.add_argument("--cmap", default="inferno")
-    ap.add_argument("--out", type=Path, required=True)
-    args = ap.parse_args(argv)
+def panel(ax, m: np.ndarray, title: str, vmax: float, note: str = ""):
+    im = ax.imshow(m, cmap="magma", vmin=0.0, vmax=vmax, interpolation="nearest")
+    ax.set_title(title, fontsize=9, pad=4)
+    ax.set_xticks([]); ax.set_yticks([])
+    ax.text(0.5, -0.06, f"閘加權均值 {m.mean():.3f} rad{note}",
+            transform=ax.transAxes, ha="center", va="top", fontsize=7.5,
+            color="#444")
+    return im
 
-    names = [ln.strip() for ln in args.images.read_text(encoding="utf-8").splitlines()
-             if ln.strip()]
-    dev = torch.device("cpu")
-    analyzer = PhaseResidual(size=RESOLUTION, block=BLOCK, hop=HOP).to(dev)
-    r = radial(BLOCK)
-    mask = ((r >= BAND[0]) & (r < BAND[1])).to(torch.float32)
 
-    nrow, ncol = len(names), len(COLUMNS)
-    fig, axes = plt.subplots(nrow, ncol, figsize=(2.05 * ncol, 2.05 * nrow))
+def main() -> None:
+    ap = argparse.ArgumentParser(
+        description=__doc__,
+        formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--src", type=Path, default=Path("runs/ip2p_ig_loss"))
+    ap.add_argument("--cond", default="ig_f08_eot")
+    ap.add_argument("--images", nargs="+",
+                    default=["task_attr_mod_color_11699",
+                             "task_attr_mod_color_6205"])
+    ap.add_argument("--out", type=Path, default=Path("phase_shift.png"))
+    args = ap.parse_args()
+
+    gal = args.src / "purify" / f"gallery_{args.cond}"
+    rows = []
+    for img in args.images:
+        orig = args.src / args.cond / f"{img}__orig.png"
+        defended = args.src / args.cond / f"{img}__phase_gain__def.png"
+        if not (orig.exists() and defended.exists()):
+            raise SystemExit(f"缺 {orig} 或 {defended}")
+        x = load01(orig)
+        maps = [("防禦圖 對 原圖\n（注入了多少相位改動）",
+                 gate_weighted_phase_shift(x, load01(defended)))]
+        for op in OPS:
+            p = gal / f"{img}__phase_gain__{op}__pur.png"
+            if not p.exists():
+                raise SystemExit(f"缺 {p}")
+            maps.append((f"淨化({OP_LABEL[op]}) 對 原圖",
+                         gate_weighted_phase_shift(x, load01(p))))
+        rows.append((img, maps))
+
+    vmax = max(m.max() for _, ms in rows for _, m in ms)
+    ncol = len(rows[0][1])
+    fig, axes = plt.subplots(len(rows), ncol,
+                             figsize=(2.05 * ncol, 2.55 * len(rows) + 1.4))
+    axes = np.atleast_2d(axes)
     im = None
-    for i, name in enumerate(names):
-        x = load_image_tensor(args.data / name / f"{name}.png", dev, size=RESOLUTION)
-        x_def = load_image_tensor(
-            args.defended / args.tag / f"{name}__{args.condition}__def.png",
-            dev, size=RESOLUTION)
-        analyzer.prepare_gates(x)                    # Hann 窗在這裡才填進 buffer
-        for j, (label, pur) in enumerate(COLUMNS):
-            m = shift_map(analyzer, x, pur.evaluate(x_def), mask)
-            ax = axes[i][j]
-            im = ax.imshow(m.numpy(), cmap=args.cmap, vmin=0.0, vmax=math.pi)
-            ax.set_xticks([]); ax.set_yticks([])
-            ax.set_xlabel(f"{float(m.mean()):.2f}", fontsize=7.5, labelpad=1.5)
-            if i == 0:
-                ax.set_title(label, fontsize=9.5)
-            if j == 0:
-                ax.set_ylabel(name.replace("task_", "").replace("_", " ")[:20],
-                              fontsize=6.5)
-        print(f"  {name} 完成", flush=True)
+    for r, (img, maps) in enumerate(rows):
+        for c, (title, m) in enumerate(maps):
+            note = "" if c == 0 else ""
+            im = panel(axes[r][c], m, title if r == 0 else "", vmax, note)
+        axes[r][0].set_ylabel(img.replace("task_attr_mod_color_", "影像 "),
+                              fontsize=8)
 
     fig.suptitle(
-        "逐區塊相位差：以原圖為基準（相位視為 0），越亮偏得越多\n"
-        f"{args.tag}／十張／32×32 hop 8 STFT／通帶 r 由 {BAND[0]} 起／色階固定 0–π"
-        "　　每格下方數字是該格的平均值（弧度）",
-        fontsize=11)
-    cbar = fig.colorbar(im, ax=axes, fraction=0.015, pad=0.012)
-    cbar.set_ticks([0, math.pi / 2, math.pi])
-    cbar.set_ticklabels(["0", "π/2", "π"])
-    fig.savefig(args.out, dpi=150, bbox_inches="tight")
-    print(f"→ {args.out}（{args.out.stat().st_size / 1e6:.2f} MB）")
-    return 0
+        f"逐頻格的紋理閘加權平均 |Δφ|（弧度）　條件 {args.cond}\n"
+        f"直流在中心、外圈為 Nyquist；色階上限 {vmax:.2f}　"
+        f"π/2 = {NO_INFO:.3f} 是「該頻格本來就沒有訊號」的水平",
+        fontsize=10)
+    cbar = fig.colorbar(im, ax=axes, fraction=0.015, pad=0.01)
+    cbar.set_label("|Δφ|（弧度）", fontsize=8)
+    cbar.ax.axhline(NO_INFO, color="#00e5ff", lw=1.2, ls="--")
+    cbar.ax.text(1.6, NO_INFO, " π/2", va="center", fontsize=7,
+                 color="#00b8d4", transform=cbar.ax.get_yaxis_transform())
+
+    fig.text(0.01, 0.012,
+             "相位在幅度接近零處沒有意義：自然影像頻譜約 1/f，高頻的 |S| 很小，"
+             "∠S 由數值噪聲決定，|Δφ| 趨向 π/2≈1.571。外圈接近 π/2 讀成"
+             "「本來就沒有訊號」，不是「相位被改了很多」。\n"
+             "裁切縮放是繞中心的純放大 1.2488×，區塊格點與原圖對不上，"
+             "該欄不可與其餘欄並列解讀。高斯模糊是零相位濾波器，原理上不改相位。",
+             fontsize=7.5, color="#444", va="bottom")
+    fig.savefig(args.out, dpi=170, bbox_inches="tight", facecolor="white")
+    print(f"寫出 {args.out}（{args.out.stat().st_size / 1e6:.1f} MB）")
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    main()

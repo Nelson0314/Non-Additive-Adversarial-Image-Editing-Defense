@@ -12,7 +12,8 @@
 | **AdvDrop** | 對 DCT 係數施加**可學習的量化**，用丟資訊來攻擊 | `src/baselines/advdrop.py` | **部分**，九量中六 |
 | **DJSMA** | DCT 反對角帶上的貪婪 JSMA，一次改一個係數 ±1 | `src/baselines/dct_watermark.py` | 診斷通過，正式批未跑 |
 | **BlurGuard** | 對已求得的對抗雜訊做逐區域自適應高斯模糊，重塑頻譜 | `src/baselines/blurguard.py` | **未跑**（需要 SAM） |
-| **DiffusionGuard** | 抗淨化訴求的防護 | `src/baselines/diffusionguard.py` | **未跑**，且是移植非重現 |
+| **DiffusionGuard** | 只在最高噪聲步評估的防護 | `src/baselines/diffusionguard.py` | **未跑**，且是移植非重現 |
+| **EditShield** | 同樣打 IP2P，用 EOT（平滑／旋轉／中心裁切） | **未實作** | **未跑**——裁切欄唯一的直接對照，目前是缺口 |
 
 ### DCT-Shield
 
@@ -34,6 +35,70 @@ encoder-target 就不是那一篇了。
 
 **Y-only 變體**（`dct_shield_y`，論文 §6.3 的抗 JPEG 配置）在 JPEG 與
 GrIDPure 上遠強於 base 變體。頭對頭表上**不可只放 base 變體**。
+
+### EditShield —— 裁切欄唯一的直接對照，**尚未實作**
+
+Chen, Jin, Liu, Chen, Wang, Sun，**ECCV 2024**
+（[doi:10.1007/978-3-031-73036-8_8](https://dl.acm.org/doi/10.1007/978-3-031-73036-8_8)、
+arXiv:2311.12066）。
+
+**為什麼它是本專案最該補的對照組**：它與我們**攻擊模型完全相同**（打
+InstructPix2Pix 的指令式編輯），而且它處理裁切的方式正是我們試過又失敗的那一種
+——EOT。我們在 `runs/ip2p_eot_geom_purify/` 量到隨機化幾何 EOT 的裁切欄仍只有
+空白地板的 12–21%，卻沒有一個外部方法可以對照「別人做同一件事拿到多少」。
+
+已查證的設定（來自論文，非原始碼——**官方程式碼未查證，移植時必須標
+「摘要重建」或逐行對照後改標**）：
+
+| 項 | 值 |
+|---|---|
+| 預算 | `4/255`（論文掃 1/255–8/255，定案 4/255） |
+| EOT 的三個變換 | 高斯平滑（kernel 5、sigma 1.5）、旋轉 5°、中心裁切 |
+
+**兩件必須寫進報表的事**：
+
+1. **它的評測沒有扣空白地板。** 直接引用它報的數字與我們的淨增益**不可比**，
+   頭對頭時必須用我們自己的協定重跑它。
+2. 它的 EOT 含旋轉，我們的九個算子沒有旋轉。要嘛補上旋轉欄、要嘛在報表上
+   註明它的 EOT 族比我們評測的族大。
+
+### DiffusionGuard —— 目標移到最高噪聲步
+
+Choi, Lee, Jeong, Xie, Shin, Lee，**ICLR 2025**
+（[OpenReview](https://openreview.net/forum?id=9OfKxKoYNw)、arXiv:2410.05694、
+官方程式碼 [choi403/DiffusionGuard](https://github.com/choi403/DiffusionGuard)）。
+
+損失只在 `t = T`（最高噪聲）評估，理由是 inpainting 模型在最初幾步就決定粗
+結構。報告對 JPEG 與 **crop-and-resize** 的穩健性優於 PhotoGuard，預算 `6/255`。
+
+**威脅模型與我們不同，引用時必須註明**：它打的是**帶遮罩的 inpainting**
+（arXiv 標題已改為 "Malicious Diffusion-based **Inpainting**"），不是 IP2P 的
+指令式編輯；它另附一個自建的評測集 InpaintGuardBench。
+
+**它對本專案的價值不在當 baseline，在它的設計**：它是文獻上「把目標移到高 t
+就換到幾何與壓縮穩健性」的直接證據。與 **SimAC**（Wang et al., CVPR 2024，
+arXiv:2312.07865，量到低 t 梯度遠大於高 t）並排，兩者合起來指出 `t` 的取樣
+分佈支配了擾動落在哪個頻帶——見 [PENDING.md](PENDING.md) 的待跑清單。
+
+### AntiPure —— 把抗淨化寫成獨立目標
+
+Yang, Cao, Duan, He，**ICCV 2025**，正式標題是 *Towards Robust Defense against
+Customization via Protective Perturbation Resistant to Diffusion-based
+Purification*（arXiv:2509.13922）。
+
+目標函數不是最大化下游位移，而是**直接最大化淨化器對防禦圖的改動量**
+`max ‖Pure(x+δ) − (x+δ)‖`。兩個引導項：patch-wise 頻率引導（壓抑淨化器修改
+高頻）、錯誤 timestep 引導。
+
+**三個限制，決定它不能直接移植**：
+
+1. 它打的是**客製化**（DreamBooth 那一族），不是指令式編輯。
+2. 它的淨化器是**擴散式淨化**（GrIDPure），不是我們評測的模糊／裁切這種固定
+   線性算子。
+3. 它的頻率項假設**高頻載體還在**——模糊 σ2 下那個前提直接失效
+   （`H_{σ=2}(0.95π) ≈ 1.8×10⁻⁸`）。
+
+可移植的只有一項：把 `t` 的取樣範圍限制在**淨化器實際會用到的區間**內。
 
 ### AdvDrop
 

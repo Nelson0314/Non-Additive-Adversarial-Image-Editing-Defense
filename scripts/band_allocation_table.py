@@ -33,7 +33,9 @@ from pathlib import Path
 # 十張兩兩配對 45 對的中位數。**這是讀數的性質，不是判準。**
 LPIPS_CEILING = 0.772
 
-SHARDS = ("color", "object")
+# 分片名。`all` 用在影像少到切不動分片的批次（`runs/ip2p_eot_ceiling` 只有
+# 兩張），與 `retention_table.py` 的 `SHARDS` 同一組名字。
+SHARDS = ("color", "object", "scene", "all")
 PURIFIER_ORDER = ("identity", "jpeg75", "jpeg30", "blur1", "blur2",
                   "crop_resize0.1")
 

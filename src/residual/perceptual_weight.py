@@ -44,6 +44,7 @@ ITU-T T.81 (1992) Annex K, Table K.1，亮度量化表。這是該標準給的**
 
 from __future__ import annotations
 
+import math
 from typing import Callable, Dict
 
 import torch
@@ -122,3 +123,64 @@ def freq_weight(name: str, block: int, device, dtype,
         raise ValueError(f"freq_weight 的 power 不可為負，收到 {power}")
     w = FREQ_WEIGHTS[name](block, device, dtype)
     return w if power == 1.0 else w ** power
+
+
+# ---------------------------------------------------------------- 存活加權
+#
+# 為什麼要有這一層
+# ────────────────────────────────────────────────────────────────────
+# `jpeg_luma` 定價的是**人眼在該頻率看不看得見**，而量化階隨頻率遞增，
+# 所以它把預算往高頻推。但攻擊方會先淨化：高斯模糊在頻域乘的是實正數
+# `|H_σ(f)| = exp(-2π²σ²f²)`，把高頻的振幅整個拿掉。最佳化迴圈看不到這件事
+# ——它跑的是未淨化的前向——所以「哪一帶的擾動活得下來」必須寫進閘裡。
+#
+# 這一層只補**最佳化看不到的那一半**：期望存活振幅。編碼器對哪一帶敏感由
+# 最佳化自己找，不必也不應該把六張圖量到的敏感度曲線焊進方法。
+#
+#     w_surv(ω) = (1/(1+|S|)) · [ 1 + Σ_{σ∈S} |H_σ(ω)| ]
+#
+# 第一項的 1 是 identity（攻擊方不淨化），與 `eot_broad` 把 identity 當成一個
+# 類別的作法一致。`S` 由名字決定，逐個列出，不吃參數——填得進 CSV 才查得回來。
+#
+# 座標：`radial_gate` 用的歸一化半徑 1 = Nyquist，故 cycles/pixel = r / 2。
+#
+# **本值無出處，是本專案指定。** `|H_σ|` 是高斯核的解析傅立葉轉換，
+# `runs/fixedpoint_blur` 實測與它一致到小數第三位。
+
+def _blur_survival(block: int, device, dtype,
+                   sigmas: tuple) -> torch.Tensor:
+    fy = torch.fft.fftfreq(block, device=device, dtype=dtype) * 2.0
+    fx = torch.fft.rfftfreq(block, device=device, dtype=dtype) * 2.0
+    r = torch.sqrt(fy[:, None] ** 2 + fx[None, :] ** 2)
+    f = r / 2.0                                    # cycles/pixel
+    total = torch.ones_like(f)                     # identity 這一項
+    for s in sigmas:
+        total = total + torch.exp(-2.0 * (math.pi ** 2) * (s ** 2) * f ** 2)
+    return total / (1.0 + len(sigmas))
+
+
+def _surv_none(block: int, device, dtype) -> torch.Tensor:
+    """全 1。預設值，逐位元等於加這一層之前的行為。"""
+    return torch.ones(block, block // 2 + 1, device=device, dtype=dtype)
+
+
+SURVIVAL_WEIGHTS: Dict[str, Callable[[int, object, object], torch.Tensor]] = {
+    "none": _surv_none,
+    # 評測用的兩個模糊 σ。σ2 目前是最差的一欄（`runs/readout_ceiling`）。
+    "blur12": lambda b, d, t: _blur_survival(b, d, t, (1.0, 2.0)),
+    # 只押 σ1，用來分辨「往低頻搬」的收益是不是全部來自 σ2 那一項。
+    "blur1": lambda b, d, t: _blur_survival(b, d, t, (1.0,)),
+}
+
+
+def survival_weight(name: str, block: int, device, dtype) -> torch.Tensor:
+    """`(block, block//2+1)` 的期望存活振幅，值域 (0, 1]。
+
+    名字打錯要拋錯而不是回退到 `none`：靜默回退會讓一整批掃描跑成基準的
+    重複，而報表上的 `survival_weight` 欄仍寫著它以為跑的那個名字。
+    """
+    if name not in SURVIVAL_WEIGHTS:
+        raise ValueError(
+            f"未知的 survival_weight：{name!r}，"
+            f"可用的是 {sorted(SURVIVAL_WEIGHTS)}")
+    return SURVIVAL_WEIGHTS[name](block, device, dtype)

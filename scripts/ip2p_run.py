@@ -87,7 +87,10 @@ from src.defense.fixedpoint_loss import make_normalised_term  # noqa: E402
 from src.defense.image_guidance_loss import (  # noqa: E402
     ZT_MODES, make_image_guidance_loss,
 )
-from src.residual.perceptual_weight import FREQ_WEIGHTS  # noqa: E402
+from src.residual.perceptual_weight import (  # noqa: E402
+    FREQ_WEIGHTS,
+    SURVIVAL_WEIGHTS,
+)
 from src.residual.texture_rephase import FLOOR_GATES  # noqa: E402
 from src.metrics.standard import (  # noqa: E402
     SIGLIP_BLOCKED_THRESHOLD, blocked_by_siglip, standard_row,
@@ -455,6 +458,7 @@ def defend(ip2p, suite, cond, x01, args, loss_fn):
                           gate_edge_power=args.gate_edge_power,
                           freq_weight=args.freq_weight,
                           freq_weight_power=args.freq_weight_power,
+                          survival_weight=args.survival_weight,
                           gain_weight=args.gain_weight,
                           channels=args.phase_channels,
                           spectral_floor=args.spectral_floor,
@@ -763,6 +767,17 @@ def build_parser() -> argparse.ArgumentParser:
                          "掉到 0.544，要摸到會擋下的強度就得把半徑推過 theta "
                          "的封頂，之後只有增益在長而增益是振幅。本值無出處，"
                          "是本專案指定")
+    ap.add_argument("--survival-weight", default="none",
+                    choices=tuple(sorted(SURVIVAL_WEIGHTS)),
+                    help="期望存活振幅，乘在頻率閘上（預設 none = 全 1，"
+                         "逐位元等於加它之前）。"
+                         "`jpeg_luma` 定價的是人眼看不看得見，而量化階隨頻率"
+                         "遞增，所以它把預算往高頻推；但最佳化迴圈跑的是"
+                         "未淨化的前向，看不到「模糊會把高頻整個拿掉」。"
+                         "這一項只補最佳化看不到的那一半："
+                         "w = (1 + Σ_σ exp(-2π²σ²f²)) / (1 + |S|)。"
+                         "blur12 取 σ∈{1,2}（評測用的兩個），blur1 只取 σ=1。"
+                         "**編碼器對哪一帶敏感不寫進來**——那由最佳化自己找")
     ap.add_argument("--gain-weight", choices=("shared", "jnd"),
                     default="shared",
                     help="增益的閘。shared = 與相位同一個閘（逐位元等於"
@@ -1278,6 +1293,7 @@ def main() -> None:
                 # 一樣，不記下來就無法在合併之後分辨。
                 "freq_weight": args.freq_weight,
                 "freq_weight_power": args.freq_weight_power,
+                "survival_weight": args.survival_weight,
                 "gain_weight": args.gain_weight,
                 "phase_channels": args.phase_channels,
                 "spectral_floor": args.spectral_floor,

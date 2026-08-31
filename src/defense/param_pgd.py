@@ -107,6 +107,7 @@ class PhaseParam:
                  phase_on: bool = True, gate_edge_power: float = 1.0,
                  freq_weight: str = "binary",
                  freq_weight_power: float = 1.0,
+                 survival_weight: str = "none",
                  gain_weight: str = "shared",
                  channels: str = "rgb",
                  spectral_floor: float = 0.0,
@@ -129,6 +130,8 @@ class PhaseParam:
         # 名字的合法性由 `PhaseResidual` 檢查，這裡只轉交。
         self.freq_weight = freq_weight
         self.freq_weight_power = freq_weight_power
+        # 期望存活振幅。合法性由 `PhaseResidual` 檢查，這裡只轉交。
+        self.survival_weight = survival_weight
         self.gain_weight = gain_weight
         self.channels = channels
         self.spectral_floor = spectral_floor
@@ -182,6 +185,7 @@ class PhaseParam:
             gate_edge_power=self.gate_edge_power,
             freq_weight=self.freq_weight,
             freq_weight_power=self.freq_weight_power,
+            survival_weight=self.survival_weight,
             gain_weight=self.gain_weight,
             channels=self.channels,
             spectral_floor=self.spectral_floor,

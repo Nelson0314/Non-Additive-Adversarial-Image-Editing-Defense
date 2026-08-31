@@ -200,3 +200,70 @@ def test_weight_power_reaches_the_module_and_the_cli():
     m.prepare_gates(x)
     band = radial_gate(BLOCK, 0.12, torch.device("cpu"), torch.float64)
     assert torch.allclose(m.freq_gate, band)
+
+
+# ------------------------------------------------------------ 存活加權
+
+import math as _math
+
+from src.residual.perceptual_weight import SURVIVAL_WEIGHTS, survival_weight
+
+
+def test_survival_weight_none_逐位元為全一():
+    w = survival_weight("none", 32, "cpu", torch.float64)
+    assert torch.equal(w, torch.ones(32, 17, dtype=torch.float64))
+
+
+def test_survival_weight_未知名字要拋錯而不是回退():
+    with pytest.raises(ValueError, match="未知的 survival_weight"):
+        survival_weight("blur99", 32, "cpu", torch.float64)
+
+
+def test_survival_weight_DC_為一_因為模糊不動直流():
+    for name in SURVIVAL_WEIGHTS:
+        w = survival_weight(name, 32, "cpu", torch.float64)
+        assert w[0, 0].item() == pytest.approx(1.0)
+
+
+def test_survival_weight_對上高斯核的解析式():
+    """`(1 + Σ_σ exp(-2π²σ²f²)) / (1 + |S|)`，f = r/2 cycles/pixel。
+
+    取軸向 Nyquist（r = 1，f = 0.5）這一格手算對照。
+    """
+    w = survival_weight("blur12", 32, "cpu", torch.float64)
+    f = 0.5
+    want = (1.0
+            + _math.exp(-2 * _math.pi ** 2 * 1.0 ** 2 * f ** 2)
+            + _math.exp(-2 * _math.pi ** 2 * 2.0 ** 2 * f ** 2)) / 3.0
+    assert w[0, 16].item() == pytest.approx(want, rel=1e-12)
+
+
+def test_survival_weight_隨頻率單調遞減():
+    w = survival_weight("blur12", 32, "cpu", torch.float64)
+    row = w[0, :]                       # fy = 0，沿 fx 走
+    assert torch.all(row[1:] <= row[:-1] + 1e-15)
+
+
+def test_survival_weight_不破壞_theta_零的恆等():
+    """存活加權只縮放閘，閘只縮放 theta，theta = 0 時輸出仍逐位元等於原圖。"""
+    x = torch.rand(1, 3, 128, 128, dtype=torch.float64)
+    m = PhaseResidual(size=128, block=BLOCK, r_min=0.12,
+                      freq_weight="jpeg_luma", freq_weight_power=0.25,
+                      survival_weight="blur12").to(torch.float64)
+    m.prepare_gates(x)
+    with torch.no_grad():
+        m.theta.zero_()
+        out = m.pixel_residual(x)
+    assert float((out - x).abs().max()) < 1e-12
+
+
+def test_survival_weight_只收緊不放寬():
+    """存活加權的值域是 (0, 1]，故加權後的閘處處不高於未加權的。"""
+    x = torch.rand(1, 3, 128, 128, dtype=torch.float64)
+    kw = dict(size=128, block=BLOCK, r_min=0.12,
+              freq_weight="jpeg_luma", freq_weight_power=0.25)
+    a = PhaseResidual(survival_weight="none", **kw).to(torch.float64)
+    b = PhaseResidual(survival_weight="blur12", **kw).to(torch.float64)
+    a.prepare_gates(x); b.prepare_gates(x)
+    assert torch.all(b.freq_gate <= a.freq_gate + 1e-15)
+    assert float(b.freq_gate.sum()) < float(a.freq_gate.sum())

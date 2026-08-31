@@ -96,6 +96,8 @@ def hann2d(n: int, device, dtype) -> torch.Tensor:
 from src.residual.perceptual_weight import (
     FREQ_WEIGHTS,
     freq_weight as perceptual_freq_weight,
+    SURVIVAL_WEIGHTS,
+    survival_weight as expected_survival_weight,
 )
 
 
@@ -405,6 +407,7 @@ class PhaseResidual(ResidualModule):
         gate_edge_power: float = 1.0,
         freq_weight: str = "binary",
         freq_weight_power: float = 1.0,
+        survival_weight: str = "none",
         gain_weight: str = "shared",
         channels: str = "rgb",
         spectral_floor: float = 0.0,
@@ -435,6 +438,13 @@ class PhaseResidual(ResidualModule):
         self.freq_weight = freq_weight
         # 定價的力道，0 = 退回二值閘。合法性由 `freq_weight()` 檢查。
         self.freq_weight_power = freq_weight_power
+        # 期望存活振幅。"none" = 全 1，逐位元等於加這一層之前。名字打錯
+        # 在這裡就拋錯，理由同 `freq_weight`。
+        if survival_weight not in SURVIVAL_WEIGHTS:
+            raise ValueError(
+                f"未知的 survival_weight：{survival_weight!r}，"
+                f"可用的是 {sorted(SURVIVAL_WEIGHTS)}")
+        self.survival_weight = survival_weight
         # 增益的閘。"shared" = 與相位同一個閘，逐位元等於加這個選項之前。
         # "jnd" 另外乘上知覺權重，把振幅的創造推到人眼看不見的頻帶——那裡
         # 相位無事可做（1/f^2 的功率譜使高頻幾乎沒有能量可以旋轉），而增益
@@ -617,6 +627,11 @@ class PhaseResidual(ResidualModule):
             self.block, self.r_min, device, dtype, self.r_max
         ) * perceptual_freq_weight(self.freq_weight, self.block, device,
                            dtype, self.freq_weight_power)
+        # 期望存活振幅：最佳化迴圈跑的是未淨化的前向，看不到「模糊會把
+        # 高頻整個拿掉」，那一半必須寫進閘裡。none 時是全 1，逐位元等於
+        # 加這一層之前。
+        self.freq_gate = self.freq_gate * expected_survival_weight(
+            self.survival_weight, self.block, device, dtype)
         tex = texture_gate(x01, self.block, self.hop, self.energy_quantile,
                            edge_power=self.gate_edge_power)
         if keep is not None:

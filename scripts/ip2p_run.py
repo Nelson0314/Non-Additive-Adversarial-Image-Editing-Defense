@@ -863,6 +863,13 @@ def build_parser() -> argparse.ArgumentParser:
     # 固定權重會把失真封頂（`runs/arch_cons_matched`：w=0.30 的半徑拉 2.4 倍，
     # DISTS 只由 0.0835 走到 0.1145，到不了基準線的 0.153），而重畫與否看起來
     # 由失真水準決定。退火問的是「懲罰是不是只在早期需要」。
+    # 把舊損失按權重加進新損失。**0（預設）時逐位元等於加這個旗標之前。**
+    # 兩者實測互補：`latent_norm` 未淨化 0.6843 但 JPEG30 掉到地板底下
+    # （0.1232 對 0.2547），`image_guidance` 未淨化 0.5850 但 JPEG30 是
+    # 0.2604。舊項先除以它在乾淨影像上的值，故權重 1 真的是等權。
+    ap.add_argument("--latent-norm-weight", type=float, default=0.0,
+                    help="加到 --loss image_guidance 上的 latent_norm 權重"
+                         "（已正規化，1 = 等權）。0 = 關閉")
     ap.add_argument("--consistency-decay", type=float, default=0.0,
                     help="一致性權重線性歸零的位置佔總步數的比例。"
                          "0.5 = 半程歸零，之後與不加懲罰相同。0 = 不退火")
@@ -1084,7 +1091,50 @@ def main() -> None:
             samples=args.ig_samples, seed=args.seed)
         if args.eval_every:
             fn._fixed_eval = fn.make_fixed(args.eval_draws, args.eval_seed)
+        if args.latent_norm_weight:
+            fn = _blend_latent_norm(ip2p, x01, fn, args.latent_norm_weight)
         return fn
+
+    def _blend_latent_norm(ip2p, x01, ig_fn, weight):
+        """把舊損失按權重加到影像引導損失上。
+
+        為什麼值得試
+        ────────────────────────────────────────────────────────────
+        兩個損失實測是**互補**的，不是誰取代誰（同兩張影像、同設定、只換
+        `--loss`）：
+
+        | | 未淨化 | JPEG 75 | JPEG 30 | 模糊 σ1 |
+        |---|---|---|---|---|
+        | `latent_norm` | **0.6843** | 0.2691 | 0.1232（**低於地板**） | 0.2154 |
+        | `image_guidance` | 0.5850 | **0.4209** | **0.2604** | 0.1787 |
+
+        舊的未淨化最強但一被壓縮就塌，新的未淨化較弱但每一級 JPEG 都撐得住。
+        兩者從未加在一起過。
+
+        **兩項的量級差很多**：`latent_norm` 在乾淨影像上是 70–80，影像引導的
+        逐步值是 0.1–0.6。直接相加的話權重 1 實際只佔約 1/150。故把舊項除以
+        它在**乾淨影像**上的值先正規化，兩項都由 1 起步，**權重 1 才真的是
+        等權**——這與不動點項的 `normalised` 是同一個作法，理由也相同。
+
+        評估函數也要一起包，否則收斂判定判的是另一個量。
+        """
+        with torch.no_grad():
+            ref = float(ip2p.encode_image(x01).flatten().norm(p=2))
+        ref = ref if ref > 0 else 1.0
+
+        def ln(x_def):
+            return ip2p.encode_image(x_def).flatten().norm(p=2) / ref
+
+        def combined(x_def):
+            return ig_fn(x_def) + weight * ln(x_def)
+
+        base_eval = getattr(ig_fn, "_fixed_eval", None)
+        if base_eval is not None:
+            def combined_eval(x_def):
+                return base_eval(x_def) + weight * ln(x_def)
+            combined._fixed_eval = combined_eval
+        combined._latent_norm_ref = ref
+        return combined
 
     def wrap_manifold(x01, base_loss_fn):
         """把不動點項接到防禦損失上。**逐圖重建**：正規化的分母是該張乾淨
@@ -1282,6 +1332,7 @@ def main() -> None:
                 "linf_deliver": args.linf_deliver,
                 "consistency_weight": args.consistency_weight,
                 "consistency_decay": args.consistency_decay,
+                "latent_norm_weight": args.latent_norm_weight,
                 # 交付自壓的品質。0 = 關閉。**這一欄不記下來，開著與關著跑出
                 # 的列在其餘欄位上一模一樣**，合併分片之後就分不出來——而它
                 # 決定了存檔的防禦圖在不在量化格點上，也就決定了抗淨化那一輪

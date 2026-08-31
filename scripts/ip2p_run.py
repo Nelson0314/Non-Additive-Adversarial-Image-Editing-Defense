@@ -83,6 +83,9 @@ from src.defense.purify_aware import (  # noqa: E402
 from src.defense.param_pgd import (  # noqa: E402
     fit_to_budget, run_param_pgd, run_stage2_pgd,
 )
+from src.defense.stadv_flow import (  # noqa: E402
+    NEIGHBOURHOODS, flow_tv_loss,
+)
 from src.defense.fixedpoint_loss import make_normalised_term  # noqa: E402
 from src.defense.image_guidance_loss import (  # noqa: E402
     ZT_MODES, make_image_guidance_loss,
@@ -287,6 +290,51 @@ def _with_consistency(param, x01, args, loss_fn):
     return combined
 
 
+def _with_flow_tv(param, x01, args, loss_fn):
+    """`--flow-tau` 給定時，在主損失上加 stAdv 的流場總變差項。
+
+    總目標變成原文 §3.2 的 `argmin_f L_adv + τ·L_flow`
+    （`src/defense/stadv_flow.py`）。**`L_adv` 不是原文的那一個**：原文是
+    分類器 logits 上的 Carlini–Wagner 式，這裡是 `--loss` 選到的擴散模型損失，
+    故 τ 不可沿用原文的 0.05，它是 CSV 的欄位 `flow_tau`。
+
+    **正則項作用在上採樣後的稠密場上**（`param.flow_field`），不是粗網格
+    係數：原文的 `f` 就是逐像素的，而 `--warp-grid 512` 時上採樣退化成恆等，
+    兩者相同。
+
+    **評估函數也要包**（與 `_with_consistency` 同一條理由）：`run_param_pgd`
+    用 `loss_fn._fixed_eval` 判收斂，不包的話訓練最小化 `L_adv + τ·L_flow`
+    而收斂判定看 `L_adv`，早停會在錯的地方觸發，且沒有症狀。
+
+    只接在有 `flow_field` 的參數化上（位移場族）。接到相位或 DCT 上等於把
+    一個位移場的正則項加到不是位移場的東西上，**寧可拒絕**。
+    """
+    if not args.flow_tau:
+        return loss_fn
+    if not hasattr(param, "flow_field"):
+        raise SystemExit(
+            f"--flow-tau 只接在位移場參數化上（有 flow_field 的那一族），"
+            f"收到條件 {args.conditions}")
+
+    def term():
+        return args.flow_tau * flow_tv_loss(
+            param.flow_field(x01), eps=args.flow_eps,
+            neighbourhood=args.flow_neighbourhood)
+
+    def combined(x_def):
+        return loss_fn(x_def) + term()
+
+    advance = getattr(loss_fn, "_advance", None)
+    if advance is not None:
+        combined._advance = advance
+    base_eval = getattr(loss_fn, "_fixed_eval", None)
+    if base_eval is not None:
+        def combined_eval(x_def):
+            return base_eval(x_def) + term()
+        combined._fixed_eval = combined_eval
+    return combined
+
+
 def _stage1_alpha(args, param) -> float:
     """階段一實際用的步長。**與 `run_param_pgd` 內的公式同一條**，寫兩次會在
     改動時只改到一邊，而症狀只是「階段二的步長比例不是你以為的那個」。"""
@@ -463,6 +511,9 @@ def defend(ip2p, suite, cond, x01, args, loss_fn):
                           channels=args.phase_channels,
                           spectral_floor=args.spectral_floor,
                           floor_gate=args.floor_gate,
+                          floor_r_min=args.floor_r_min,
+                          floor_r_max=args.floor_r_max,
+                          floor_survival=args.floor_survival,
                           theta_budget=args.theta_budget,
                           coarsen=args.coarsen,
                           warp_grid=args.warp_grid,
@@ -473,6 +524,14 @@ def defend(ip2p, suite, cond, x01, args, loss_fn):
                           dct_plane_weight=args.dct_plane_weight)
     q_deliver = deliver_quality(args)
     run_extras: dict = {}
+    # **在兩條路徑分岔之前包**：預算模式（`fit_to_budget`）內層自己呼叫
+    # `run_param_pgd`，包在分岔之後那一支就會靜默少掉正則項，而報表上的
+    # `flow_tau` 仍然寫著一個非零值。`--flow-tau 0`（預設）時原樣回傳，
+    # 呼叫路徑逐位元不變。
+    loss_fn = _with_flow_tv(param, x01, args, loss_fn)
+    # 只有 `--flow-tau > 0` 的列是「加了原文沒有的 eps、且鄰域由我方指定」的
+    # 移植，那一欄必須說實話。
+    modified = bool(args.flow_tau)
 
     def dists_of(a, b):
         return float(suite.pairwise(b, a)["dists"])
@@ -507,6 +566,14 @@ def defend(ip2p, suite, cond, x01, args, loss_fn):
         run_extras["stopped_at"] = res.stopped_at
         run_extras["best_eval"] = ("" if res.best_eval is None
                                    else round(res.best_eval, 8))
+        if args.flow_tau:
+            # 最後那一個場的 `L_flow` 讀數（**未乘 τ**）。含 eps 帶進來的常數
+            # 偏移 `鄰居對數 × sqrt(eps)`，跨 eps 比較時要扣掉，見
+            # `src/defense/stadv_flow.py`。
+            with torch.no_grad():
+                run_extras["flow_loss"] = round(float(flow_tv_loss(
+                    param.flow_field(x01), eps=args.flow_eps,
+                    neighbourhood=args.flow_neighbourhood)), 6)
         if args.eval_every and res.history:
             run_extras["_trace"] = [
                 {"condition": cond, "radius": round(param.radius, 4), **h}
@@ -537,7 +604,7 @@ def defend(ip2p, suite, cond, x01, args, loss_fn):
         unreachable = bool(out.history[-1].get("unreachable", False))
 
     if q_deliver is None:
-        return x_raw, radius, unreachable, False, dict(run_extras)
+        return x_raw, radius, unreachable, modified, dict(run_extras)
 
     # **交付的是壓縮後的圖**，不是最佳化直接吐出來的那張。這一步是本實驗與
     # 已否決的 `--purify-aware` 唯一的差別，理由見 `_forward_transform`。
@@ -563,7 +630,7 @@ def defend(ip2p, suite, cond, x01, args, loss_fn):
         "deliver_rms_out": round(n_del / d_del.numel() ** 0.5, 6),
     }
     extras.update(run_extras)
-    return x_def, radius, unreachable, False, extras
+    return x_def, radius, unreachable, modified, extras
 
 
 def weights_path(root: Path, name: str, cond: str) -> Path:
@@ -702,8 +769,8 @@ def build_parser() -> argparse.ArgumentParser:
     ap.add_argument("--min-delta", type=float, default=0.0002,
                     help="早停的相對改善門檻（每次評估）。**這是收斂判準不是"
                          "效果判準**。0.002 太大：實測 latent_norm 在第 6500 步"
-                         "仍以每 100 步 0.17% 單調下降、參數還在成長，卻因為"
-                         "構不到 0.2% 而被判定停滯。門檻必須小於曲線真正變平"
+                         "仍以每 100 步 0.17%% 單調下降、參數還在成長，卻因為"
+                         "構不到 0.2%% 而被判定停滯。門檻必須小於曲線真正變平"
                          "之前的改善率，否則停下來的是一條還在降的曲線")
     # 相位／加性
     ap.add_argument("--radius", type=float, default=None,
@@ -724,8 +791,16 @@ def build_parser() -> argparse.ArgumentParser:
                          "平面與一個角度（保長）；shared_plane = 整張共用一個"
                          "平面（參數量少兩個數量級）；gain = 逐係數乘 exp(g)"
                          "（非加性但**不保長**，是非正交的對照點）")
-    ap.add_argument("--update", default="sign", choices=("sign", "adam"),
+    ap.add_argument("--update", default="sign",
+                    choices=("sign", "adam", "lbfgs"),
                     help="PGD 的更新規則。sign 是本專案既有的 sign-PGD；"
+                         "lbfgs 是 stAdv（arXiv:1801.02612）用的那一個"
+                         "（`torch.optim.LBFGS`，line search 換成 PyTorch "
+                         "唯一提供的 strong Wolfe，原文寫的是 backtracking，"
+                         "屬 modified_from_paper；原文未載明迭代次數，故"
+                         "**不寫死步數**：--steps 只是上限，實際停止由 "
+                         "--patience 的收斂判定決定）。約束的處理方式與"
+                         "代價見 run_param_pgd 的 docstring；"
                          "adam 在**帶折點的局部極小**上不會像 sign 那樣形成"
                          "週期 2 的振盪，用來分辨「損失不行」與「更新規則不行」。"
                          "**GOAL.md 把 Adam 列在更早期已否決的方向裡**，但那批"
@@ -761,6 +836,26 @@ def build_parser() -> argparse.ArgumentParser:
                          "量過的失真對照表同一個構造——換掉它那張表就作廢。"
                          "**位移場刻意不是 stAdv 的逐像素稠密場＋TV 正則**，"
                          "理由見 `WarpParam` 的 docstring")
+    # ---- stAdv（arXiv:1801.02612）的流場正則，見 src/defense/stadv_flow.py ----
+    ap.add_argument("--flow-tau", type=float, default=0.0,
+                    help="流場總變差項的權重 τ，總目標是 L_adv + τ·L_flow。"
+                         "0 = 關閉，逐位元等於加這一組旗標之前。**原文的 "
+                         "0.05 不可沿用**：那是在分類器 logits 的 CW 損失上"
+                         "網格搜尋（0.0005–0.05）得到的，本專案的 L_adv 是"
+                         "擴散模型上的損失，量級不同。只接在 warp 上")
+    ap.add_argument("--flow-eps", type=float, default=None,
+                    help="加在 L_flow 每一項根號**裡面**的常數。**原文的式子"
+                         "沒有這一項，故沒有預設值，開 --flow-tau 就必填**"
+                         "（CLAUDE.md：查不到的參數設為必填，不要填看起來"
+                         "合理的預設）。存在理由是 f ≡ 0 時 sqrt(0) 的梯度是"
+                         "NaN，而位移場的預設起點正是全零。代價是 L_flow 多"
+                         "一個常數偏移 `鄰居對數 × sqrt(eps)`")
+    ap.add_argument("--flow-neighbourhood", default=None,
+                    choices=tuple(sorted(NEIGHBOURHOODS)),
+                    help="L_flow 的鄰域 N(p)。**原文只寫 q ∈ N(p)、沒有寫是"
+                         "哪一種，故由本專案指定且沒有預設值**，開 --flow-tau "
+                         "就必填。right_down = 每對相鄰像素只算一次；four = "
+                         "四鄰域，恰為前者的兩倍；eight = 再加四條對角線")
     ap.add_argument("--disp-field-grid", type=int, default=16,
                     help="色散變形那個場的空間粗糙度：先在 grid×grid 上抽再"
                          "雙三次上採樣。**固定它，K 才是唯一的變因**——逐視窗"
@@ -860,6 +955,36 @@ def build_parser() -> argparse.ArgumentParser:
                          "complement 把加法限制在紋理閘的補集上（乘法那一半"
                          "動不了的地方）；watson 換成 Watson (1993) 的亮度"
                          "遮蔽 × 對比遮蔽。三者的**總預算相同**，改的是分配")
+    ap.add_argument("--floor-r-min", type=float, default=None,
+                    help="加法項**自己的**徑向帶下界。預設 None = 沿用 "
+                         "--r-min，逐位元等於加這個旗標之前。"
+                         "**--spectral-floor 0 時本旗標沒有作用**（價目表"
+                         "根本不會被建出來）")
+    ap.add_argument("--floor-r-max", type=float, default=None,
+                    help="加法項**自己的**徑向帶上界。預設 None = 沿用 "
+                         "--r-max，逐位元等於加這個旗標之前。"
+                         "存在的理由：乘性那一半（相位 exp(iθ)、增益 exp(g)）"
+                         "能改動的量正比於原圖自己的振幅 |S_b(ω)|，所以它得"
+                         "待在有能量的地方；加法項不受該限制。而高斯模糊在"
+                         "頻域乘 exp(-2π²σ²f²)，把高頻的振幅整個拿走——"
+                         "「編碼器對哪一帶敏感」與「哪一帶活得過模糊」方向"
+                         "相反。兩半共用一個帶通時壓低上界會連乘性那一半的"
+                         "未淨化強度一起削掉；分開之後乘性留在高頻、加性放到"
+                         "低頻，各買各的。**總預算不隨本旗標改變**——價目表"
+                         "會被縮放回同一個平均值，改的是花在哪裡不是花多少"
+                         "（見 PhaseResidual._build_floor_price）。"
+                         "**--spectral-floor 0 時本旗標沒有作用**")
+    ap.add_argument("--floor-survival", default="none",
+                    choices=tuple(sorted(SURVIVAL_WEIGHTS)),
+                    help="加法項**自己的**期望存活振幅，乘進價目表"
+                         "（預設 none = 全 1，逐位元等於加它之前）。"
+                         "--survival-weight 只乘在相位／增益的閘上，加法項的"
+                         "價目表看不到它，而加法項正是不受 |S_b(ω)| 限制、"
+                         "最適合被搬到活得過模糊的低頻的那一半。"
+                         "式子與 --survival-weight 相同："
+                         "w = (1 + Σ_σ exp(-2π²σ²f²)) / (1 + |S|)。"
+                         "**總預算不隨本旗標改變**，改的是分配。"
+                         "**--spectral-floor 0 時本旗標沒有作用**")
     ap.add_argument("--pixel-gate-sigma", type=float, default=0.0,
                     help="逐像素紋理閘的高斯 sigma（像素）。0 = 關閉，逐位元與"
                          "加這個選項之前相同。要能分辨鬍鬚與臉頰就必須遠小於 "
@@ -1086,12 +1211,76 @@ def validate_deliver_args(args) -> None:
             "階段二走 run_stage2_pgd，那一支同樣沒有這條投影。")
 
 
+def validate_flow_args(args) -> None:
+    """stAdv 流場正則的守門。**在載入權重之前**呼叫。
+
+    兩個參數是必填不是有預設：`eps` 原文的式子裡沒有、`neighbourhood` 原文
+    沒有寫是哪一種。填一個看起來合理的預設會讓報表上的 `flow_eps`／
+    `flow_neighbourhood` 兩欄看起來像論文給的值（CLAUDE.md「移植他人的方法」）。
+
+    只接 `warp`：`warp_rand`／`warp_roundtrip` 不最佳化（`params()` 為空、
+    `run_param_pgd` 直接回傳），對它們加一個正則項不會有任何作用，但
+    `flow_tau` 那一欄照樣寫著非零值——那是一列會騙人的紀錄。
+    """
+    if not args.flow_tau:
+        if args.flow_eps is not None or args.flow_neighbourhood is not None:
+            raise SystemExit(
+                "--flow-eps／--flow-neighbourhood 只有在 --flow-tau > 0 時"
+                "才有作用。給了其中之一卻沒開 τ，CSV 會寫著一組沒有被用到的"
+                "設定。請一併給 --flow-tau，或把這兩個旗標拿掉。")
+        return
+    if args.flow_tau < 0:
+        raise SystemExit(f"--flow-tau 不可為負，收到 {args.flow_tau}")
+    if args.flow_eps is None:
+        raise SystemExit(
+            "開了 --flow-tau 就必須明給 --flow-eps：原文的 L_flow 式子裡"
+            "沒有這個常數，它是本專案為了讓 f ≡ 0 處的梯度存在而加的"
+            "（modified_from_paper），不可以有預設值。")
+    if args.flow_eps <= 0:
+        raise SystemExit(
+            f"--flow-eps 必須為正，收到 {args.flow_eps}："
+            "填 0 等於把 f ≡ 0 處的 NaN 梯度放回來。")
+    if args.flow_neighbourhood is None:
+        raise SystemExit(
+            "開了 --flow-tau 就必須明給 --flow-neighbourhood：原文只寫 "
+            "q ∈ N(p)，沒有寫是四鄰域、八鄰域，還是只取右與下。三種選法差"
+            "一個倍率與一個方向偏好，故由本專案指定，不可以有預設值。")
+    bad = [c for c in args.conditions if c != "warp"]
+    if bad:
+        raise SystemExit(
+            f"--flow-tau 只接在 warp 這一格上，收到 {bad}："
+            "隨機與往返兩格不最佳化，加了正則項不會有任何作用，"
+            "CSV 卻會寫著一個非零的 flow_tau。")
+
+
+def validate_convergence_args(args) -> None:
+    """`--update lbfgs` 必須配上收斂判定。**在載入權重之前**呼叫。
+
+    stAdv 原文沒有載明 L-BFGS 的迭代次數，故本專案不寫死步數：`--steps` 只是
+    上限，實際停止由 `--eval-every` ＋ `--patience` 決定。兩者缺一時跑出來的
+    是「停在某個人挑的步數」，而報表上的 `stopped_at` 會被讀成收斂點——那是
+    一個沒有症狀的誤讀，**寧可拒絕**。
+
+    這是「如何量得準」不是「有沒有效」：判的是曲線平了沒有，不是方法成不成立。
+    """
+    if args.update != "lbfgs":
+        return
+    if not args.eval_every or not args.patience:
+        raise SystemExit(
+            "--update lbfgs 必須同時給 --eval-every 與 --patience："
+            "原文未載明迭代次數，本專案因此不寫死步數，--steps 只是上限，"
+            f"實際停止由收斂判定決定（收到 --eval-every {args.eval_every}、"
+            f"--patience {args.patience}）。")
+
+
 def main() -> None:
     ap = build_parser()
     args = ap.parse_args()
     # **擋在載入 4 GB 權重之前**：缺旗標的失效方式是跑完才發現損失不對。
     validate_loss_args(args)
     validate_deliver_args(args)
+    validate_flow_args(args)
+    validate_convergence_args(args)
     args.out.mkdir(parents=True, exist_ok=True)
 
     ip2p = IP2PWrapper(dtype=torch.float32)
@@ -1323,6 +1512,13 @@ def main() -> None:
                 # 加法項的價目分配。三個變體的總預算相同，跑出來的列
                 # 在其餘欄位上一模一樣，不記下來合併之後就分不出來。
                 "floor_gate": args.floor_gate,
+                # 加法項自己的頻帶與存活加權。三者都不改變加法項的總預算
+                # （價目表被縮放回同一個平均值），只改變它花在哪些頻格上，
+                # 所以開著與關著跑出的列在其餘欄位上一模一樣，不記下來
+                # 合併分片之後就分不出來。留空表示沿用 r_min／r_max。
+                "floor_r_min": args.floor_r_min,
+                "floor_r_max": args.floor_r_max,
+                "floor_survival": args.floor_survival,
                 # 幅度相依的相位上限。關著與開著跑出的列在其餘欄位上
                 # 一模一樣，不記下來合併之後就分不出來。
                 "theta_budget": args.theta_budget,
@@ -1331,6 +1527,14 @@ def main() -> None:
                 # 的規則必須是欄位而不是註解；換了它，本機量過的失真對照表
                 # 就不再適用於這些列。
                 "warp_grid": args.warp_grid,
+                # stAdv 的流場正則。**關著時三欄仍然寫出來**，合併分片之後
+                # 才分得出哪些列帶著它跑。`flow_eps` 是原文式子裡沒有的常數、
+                # `flow_neighbourhood` 是原文未載明而由本專案指定的選擇，
+                # 按 CLAUDE.md 兩者都必須是欄位而不是註解。關著時留空，
+                # 表示該列與這一支無關。
+                "flow_tau": args.flow_tau,
+                "flow_eps": "" if args.flow_eps is None else args.flow_eps,
+                "flow_neighbourhood": args.flow_neighbourhood or "",
                 "update": args.update,
                 "step_size": args.step_size,
                 "saturate_at": args.saturate_at,

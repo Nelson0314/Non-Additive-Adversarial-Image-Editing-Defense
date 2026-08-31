@@ -412,6 +412,9 @@ class PhaseResidual(ResidualModule):
         channels: str = "rgb",
         spectral_floor: float = 0.0,
         floor_gate: str = "uniform",
+        floor_r_min: Optional[float] = None,
+        floor_r_max: Optional[float] = None,
+        floor_survival: str = "none",
         theta_budget: float = 0.0,
         coarsen: int = 1,
     ):
@@ -479,6 +482,29 @@ class PhaseResidual(ResidualModule):
                 f"未知的 floor_gate：{floor_gate!r}，"
                 f"可用的是 {sorted(FLOOR_GATES)}")
         self.floor_gate = floor_gate
+        # 加法項**自己的**徑向帶。`None`（預設）表示沿用相位那一半的
+        # `r_min`／`r_max`，逐位元等於加這兩個旋鈕之前。
+        #
+        # 為什麼兩半要能分開：乘性那一半（相位 exp(i*theta) 與增益 exp(g)）
+        # 能改動的量正比於原圖自己的振幅 `|S_b(w)|`，所以它必須待在有能量的
+        # 地方；加法項不受該限制。而高斯模糊在頻域乘的是實正數
+        # `exp(-2*pi^2*sigma^2*f^2)`，把高頻的振幅整個拿走——「編碼器對哪一帶
+        # 敏感」與「哪一帶活得過模糊」方向相反。兩半共用一個帶通時，把上界
+        # 壓低會連乘性那一半的未淨化強度一起削掉。分開之後乘性可以留在高頻、
+        # 加性可以放到低頻，各買各的。
+        #
+        # 合法性（`r_max > r_min`）由 `radial_gate` 檢查，不在此重複。
+        self.floor_r_min = floor_r_min
+        self.floor_r_max = floor_r_max
+        # 加法項**自己的**期望存活振幅。`survival_weight` 只乘在相位／增益的
+        # 閘上（`prepare_gates`），加法項的價目表看不到它。`"none"`（預設）
+        # 是全 1，逐位元等於加這個旋鈕之前。名字打錯在這裡就拋錯，理由同
+        # `survival_weight`：靜默回退會讓一整批掃描跑成基準的重複。
+        if floor_survival not in SURVIVAL_WEIGHTS:
+            raise ValueError(
+                f"未知的 floor_survival：{floor_survival!r}，"
+                f"可用的是 {sorted(SURVIVAL_WEIGHTS)}")
+        self.floor_survival = floor_survival
         # 幅度相依的相位上限（Perturbing the Phase, arXiv:2602.06577）。
         #
         # 把係數 X 的相位轉 theta，係數本身移動 `2|X|·sin(theta/2)`。要把那個
@@ -671,22 +697,69 @@ class PhaseResidual(ResidualModule):
                            dtype) -> torch.Tensor:
         """加法項的價目表。`uniform` 回傳 (n, nb)，其餘回傳 (1, L, n, nb)。
 
-        三個變體的**總預算相同**：非均勻的價目表最後被縮放到與 `uniform`
-        同一個平均值。改動的因此是「預算花在哪裡」，不是「花多少」——否則
-        等失真的比較會退化成強度比較（先前有兩個結論就是這樣讀錯的）。
+        三層定價，由頻格到區塊：
+
+            徑向帶通（`floor_r_min`／`floor_r_max`，None 時沿用相位那一半的
+            `r_min`／`r_max`）
+          × `jpeg_luma` 知覺權重（取一次方，見 `floor_price`）
+          × 期望存活振幅（`floor_survival`，"none" 時全 1）
+          × 逐區塊的因子（`floor_gate`，"uniform" 時沒有這一層）
+
+        總預算正規化：**全部**縮放到同一個參考點
+        ────────────────────────────────────────────────────────────
+        參考點固定取「相位那一半的帶通 × `jpeg_luma`」的平均值，四個旋鈕
+        （`floor_gate`／`floor_r_min`／`floor_r_max`／`floor_survival`）
+        都不改變它。所以這四個旋鈕改的一律是「預算花在哪裡」，不是「花多少」。
+
+        **為什麼新的兩個旋鈕也要納入同一條正規化。** 本模組的等失真對齊是
+        對 `radius` 做二分搜尋，而 `radius` 只驅動 theta 與 gain，**碰不到
+        加法項**（加法項的強度旗鈕是 `spectral_floor`）。若把加法項的帶壓窄
+        或乘上一層 <= 1 的存活權重而不補回總量，加法項的預算就直接掉下去，
+        二分搜尋會抬高 `radius` 來補失真——於是同一列同時混進了「加性變少、
+        乘性變多」與「加性換了頻帶」兩件事，讀不出是哪一個在起作用。這正是
+        `floor_gate` 當初要正規化的同一個理由，故沿用同一條規則。
+
+        **代價要寫明。** `floor_gate` 的三個變體零支撐相同，比值只重分配；
+        新的徑向帶會**改變零支撐**，把同樣的 L1 總量壓進更少的頻格，每一格
+        的定價因此被抬高。這是刻意的：不抬高的話 `floor_r_max` 在中等值上
+        就等於一個關閉開關（block=32 的格點裡 `r <= 0.4` 只佔約 12%，而
+        `jpeg_luma` 在低頻又只有最大值的約 0.13），量到的會是「加法項被關掉」
+        而不是「加法項換了頻帶」。同時，L1 相等不等於 L2 相等，集中之後實際
+        失真會上升——那由量測協定的兩個失真軸照實回報，不在這裡預先修正。
+
+        參考帶為空（該帶通內一格都沒有）時**拋錯而不是回傳全零**：全零的
+        價目表會讓加法項悄悄失效，而 CSV 上 `spectral_floor` 那一欄照樣寫著
+        非零值。
         """
-        base = (radial_gate(self.block, self.r_min, device, dtype, self.r_max)
-                * perceptual_freq_weight("jpeg_luma", self.block, device, dtype))
-        if self.floor_gate == "uniform":
-            return base
-        price = FLOOR_GATES[self.floor_gate](self, x01, base)
-        # 同一個總預算：把平均值拉回 base 的平均值。兩者的零支撐相同
-        # （通帶外的格在每個變體裡都仍是零），故這個比值只重分配不加碼。
-        scale = base.mean() / price.mean().clamp_min(1e-12)
+        jpeg = perceptual_freq_weight("jpeg_luma", self.block, device, dtype)
+        # 參考點：相位那一半的帶通 × jpeg_luma。**不含存活加權、不含逐區塊
+        # 因子**，故四個旋鈕誰都動不了它。
+        ref = radial_gate(self.block, self.r_min, device, dtype, self.r_max) * jpeg
+        ref_mean = ref.mean()
+        if float(ref_mean) <= 0.0:
+            raise ValueError(
+                f"r_min={self.r_min}、r_max={self.r_max} 的帶通在 "
+                f"block={self.block} 的格點上是空的，加法項的總預算參考點為零")
+        # 加法項自己的帶。None 時取相位那一半的值，此時下面這一行與參考點
+        # 逐位元相同。
+        band = radial_gate(
+            self.block,
+            self.r_min if self.floor_r_min is None else self.floor_r_min,
+            device, dtype,
+            self.r_max if self.floor_r_max is None else self.floor_r_max)
+        # 存活加權："none" 時是全 1，乘上去逐位元不變（x * 1.0 == x）。
+        base = band * jpeg * expected_survival_weight(
+            self.floor_survival, self.block, device, dtype)
+        price = (base if self.floor_gate == "uniform"
+                 else FLOOR_GATES[self.floor_gate](self, x01, base))
+        # 四個旋鈕全預設時 price 與 ref 逐位元相同，於是 scale 恰為 1.0，
+        # 乘上去不改變任何一位——「預設關閉時逐位元等於現在」由此成立。
+        scale = ref_mean / price.mean().clamp_min(1e-12)
         return (price * scale).detach()
 
     def floor_price(self) -> torch.Tensor:
-        """加法項每個頻格值多少。徑向帶通 × `jpeg_luma` 權重（取一次方）。
+        """加法項每個頻格值多少。三層定價與總預算正規化見 `_build_floor_price`；
+        最裡面那一層是徑向帶通 × `jpeg_luma` 權重（取一次方）。
 
         相位與增益的閘取 `q ** 0.25`，這裡取原值：完整定價會把通帶有效容量
         壓到 0.544，對**乘法**那一半太保守，而加法項本來就要集中到人眼看不見

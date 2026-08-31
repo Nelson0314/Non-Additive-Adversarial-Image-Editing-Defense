@@ -112,6 +112,9 @@ class PhaseParam:
                  channels: str = "rgb",
                  spectral_floor: float = 0.0,
                  floor_gate: str = "uniform",
+                 floor_r_min: Optional[float] = None,
+                 floor_r_max: Optional[float] = None,
+                 floor_survival: str = "none",
                  theta_budget: float = 0.0,
                  coarsen: int = 1):
         self.size, self.block, self.r_min = size, block, r_min
@@ -138,6 +141,13 @@ class PhaseParam:
         # 加法項的價目表要不要隨區塊變。合法性由 `PhaseResidual` 檢查，
         # 這裡只轉交。`uniform` 逐位元等於加這個旋鈕之前。
         self.floor_gate = floor_gate
+        # 加法項自己的徑向帶與存活加權。`None`／`"none"` = 沿用相位那一半的
+        # 帶、不加存活權重，逐位元等於加這三個旋鈕之前。合法性由
+        # `PhaseResidual`（名字）與 `radial_gate`（上下界）檢查，這裡只轉交。
+        # `spectral_floor == 0` 時三者都沒有作用——價目表根本不會被建出來。
+        self.floor_r_min = floor_r_min
+        self.floor_r_max = floor_r_max
+        self.floor_survival = floor_survival
         # 幅度相依的相位上限。合法性由 `PhaseResidual` 檢查，這裡只轉交。
         # 0 = 關閉，逐位元等於加這個旗標之前。
         self.theta_budget = theta_budget
@@ -190,6 +200,9 @@ class PhaseParam:
             channels=self.channels,
             spectral_floor=self.spectral_floor,
             floor_gate=self.floor_gate,
+            floor_r_min=self.floor_r_min,
+            floor_r_max=self.floor_r_max,
+            floor_survival=self.floor_survival,
             theta_budget=self.theta_budget,
             coarsen=self.coarsen,
         ).to(device=x01.device, dtype=x01.dtype)
@@ -437,6 +450,18 @@ class WarpParam:
         return torch.nn.functional.interpolate(
             self.c, size=x01.shape[-2:], mode="bicubic", align_corners=False)
 
+    def flow_field(self, x01: torch.Tensor) -> torch.Tensor:
+        """上採樣後的稠密位移場 (1, 2, H, W)，單位是像素，**梯度接得回 `c`**。
+
+        存在的理由是 stAdv 的 `L_flow`（`src/defense/stadv_flow.py`）要作用在
+        **稠密場**上而不是粗網格係數上：原文的 `f` 就是逐像素的。
+        `grid == H` 時 `F.interpolate` 同尺寸輸出逐位元等於輸入（本機驗證），
+        上採樣退化成恆等，此時 `c` 自己就是原文的稠密場、參數量恰為 `2·H·W`。
+        `grid < H` 時它是粗網格經雙三次上採樣的場，正則項算的仍然是實際作用
+        在影像上的那一個。
+        """
+        return self._displacement(x01)
+
     def _sample(self, x01: torch.Tensor, d: torch.Tensor) -> torch.Tensor:
         h, w = x01.shape[-2:]
         base = self._base_grid(h, w, x01.device, x01.dtype)
@@ -575,6 +600,37 @@ def run_param_pgd(
     使用者已就位移場的探索批次明確授權。報表上必須標明這一點，
     **不可以拿本旗標的結果去推翻或恢復相位臂上的那個否決**。
 
+    `update = "lbfgs"`：stAdv 的最佳化器
+    ────────────────────────────────────────────────────────────────
+    stAdv（arXiv:1801.02612）用的是 **L-BFGS ＋ line search**。這裡走
+    `torch.optim.LBFGS(lr=alpha, max_iter=1, line_search_fn="strong_wolfe")`，
+    與另外兩條路徑的差別、以及三個必須知道的偏差：
+
+    - **原文寫的是 backtracking line search，PyTorch 只提供 strong Wolfe**
+      （`modified_from_paper`）。兩者都在同一條搜尋方向上找步長，但接受準則
+      不同：backtracking 只要求 Armijo 充分下降，strong Wolfe 另外要求曲率
+      條件，故每一步的 closure 評估次數較多。實際評估次數逐步記在 `history`
+      的 `closures` 欄。
+    - **`max_iter=1`**：一次 `opt.step(closure)` 就是一個 outer iteration。
+      不這麼設的話，`torch.optim.LBFGS` 預設在單次 `step` 內跑 20 個
+      iteration，投影與收斂評估就會每 20 步才發生一次，而報表上的「第幾步」
+      指的是別的東西。
+    - **約束（`project`）在每個 outer iteration 之後投影一次，不在 closure
+      裡投影。** closure 會被 line search 反覆呼叫；在裡面投影等於讓目標
+      函數沿搜尋方向出現不可微的折點，Wolfe 條件的前提（沿線的 `φ(t)` 與
+      `φ'(t)` 一致）就不成立，line search 會拿到互相矛盾的讀數。代價是
+      **投影確實會破壞 L-BFGS 的曲率對**：它內部記的是 `s = t·d`（自己算的
+      步長乘方向）而不是參數的實際變化量，被投影夾住時真實變化小於 `s`，
+      於是那一組 `(s, y)` 描述的曲率偏小。半徑沒有咬住時不發生此事；咬住時
+      `param_absmean` 會貼在半徑上，報表上看得出來。
+    - **`alpha` 在這條路徑上只是 line search 的起始試探步長**，不是實際步長：
+      strong Wolfe 會自己擴張或收縮。`steps` 開大時
+      `alpha = radius / (steps · saturate_at)` 會很小，那只影響第一次試探的
+      落點，不代表每一步走多遠。
+    - **原文未載明 L-BFGS 的迭代次數**，故這條路徑不寫死步數：`steps` 是
+      上限，實際停止由下面那組 `eval_fn` ＋ `patience` 的收斂判定決定，
+      停在第幾步與停止原因記在 `stopped_at`／`stop_reason`。
+
     收斂與 early stop
     ────────────────────────────────────────────────────────────────
     `eval_fn` 給定時，每 `eval_every` 步用它評估一次並記進 `history` 的
@@ -609,8 +665,9 @@ def run_param_pgd(
     做的事，不是我們交出去的東西。預設 `None`，行為與加入此參數之前逐位元
     相同。
     """
-    if update not in ("sign", "adam"):
-        raise ValueError(f"未知的更新規則 {update!r}，可用的是 sign／adam")
+    if update not in ("sign", "adam", "lbfgs"):
+        raise ValueError(
+            f"未知的更新規則 {update!r}，可用的是 sign／adam／lbfgs")
 
     param.reset(x01, seed)
     ps = param.params()
@@ -623,7 +680,16 @@ def run_param_pgd(
             return ParamPGDResult(param.render(x01).detach(), param.radius,
                                   history, stop_reason="no_params", stopped_at=0)
 
-    opt = torch.optim.Adam(ps, lr=alpha) if update == "adam" else None
+    if update == "adam":
+        opt = torch.optim.Adam(ps, lr=alpha)
+    elif update == "lbfgs":
+        # `max_iter=1`：一次 `opt.step(closure)` 恰好是**一個 outer iteration**，
+        # line search 在 closure 內部多次評估。這樣「一個 i 就是一步」的語意
+        # 與 sign／adam 相同，投影、評估、早停三者才能沿用同一段程式。
+        opt = torch.optim.LBFGS(ps, lr=alpha, max_iter=1,
+                                line_search_fn="strong_wolfe")
+    else:
+        opt = None
     best, since_best, stop_reason, stopped_at = None, 0, "max_steps", steps
 
     def render() -> torch.Tensor:
@@ -633,17 +699,38 @@ def run_param_pgd(
     for i in range(steps):
         if step_hook is not None:
             step_hook(i)
-        x_def = render()
-        loss = loss_fn(x_def if transform is None else transform(x_def, i))
-        if opt is None:
-            grads = torch.autograd.grad(loss, ps)
-            with torch.no_grad():
-                for p, g in zip(ps, grads):
-                    p.sub_(alpha * torch.sign(g))
+        closures = 0
+        if update == "lbfgs":
+            seen: List[float] = []
+
+            def closure():
+                opt.zero_grad(set_to_none=True)
+                x_def = render()
+                lo_ = loss_fn(x_def if transform is None
+                              else transform(x_def, i))
+                lo_.backward()
+                seen.append(float(lo_.detach()))
+                return lo_
+
+            opt.step(closure)
+            # 記的是**本次 outer iteration 起點**的損失，與 sign／adam 兩條
+            # 路徑相同（那兩條也是先算損失再更新）。line search 途中的評估
+            # 次數另記在 `closures`：L-BFGS 的一步不等價於一次前向後向，
+            # 不記下來就無法把它的代價與 sign／adam 並排。
+            loss_val, closures = seen[0], len(seen)
         else:
-            opt.zero_grad(set_to_none=True)
-            loss.backward()
-            opt.step()
+            x_def = render()
+            loss = loss_fn(x_def if transform is None else transform(x_def, i))
+            if opt is None:
+                grads = torch.autograd.grad(loss, ps)
+                with torch.no_grad():
+                    for p, g in zip(ps, grads):
+                        p.sub_(alpha * torch.sign(g))
+            else:
+                opt.zero_grad(set_to_none=True)
+                loss.backward()
+                opt.step()
+            loss_val = float(loss.detach())
         param.project()
         do_eval = bool(eval_fn) and eval_every and (
             i % eval_every == 0 or i == steps - 1)
@@ -654,12 +741,14 @@ def run_param_pgd(
         if log_every and (i % log_every == 0 or i == steps - 1) or do_eval:
             mag = float(sum(float(p.detach().abs().sum()) for p in ps)
                         / max(1, sum(p.numel() for p in ps)))
-            rec = {"step": i, "loss": float(loss.detach()),
+            rec = {"step": i, "loss": loss_val,
                    "param_absmean": mag}
+            if closures:
+                rec["closures"] = closures
             if ev is not None:
                 rec["eval"] = ev
             history.append(rec)
-            print(f"    [{param.name}] step {i:4d} loss {float(loss.detach()):.6f}"
+            print(f"    [{param.name}] step {i:4d} loss {loss_val:.6f}"
                   f" |p| {mag:.5f}"
                   + (f" eval {ev:.6f}" if ev is not None else ""), flush=True)
         if ev is not None and patience > 0:

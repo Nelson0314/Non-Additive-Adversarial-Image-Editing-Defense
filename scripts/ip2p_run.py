@@ -72,6 +72,7 @@ from src.defense.consistency_loss import (  # noqa: E402
 )
 from src.defense.linf_deliver import clamp_residual_ste  # noqa: E402
 from src.defense.purify_aware import (  # noqa: E402
+    BROAD_CLASSES,
     BROAD_FRACTIONS,
     BROAD_SIGMAS,
     STAGE2_OPS, STAGE2_ORDERS, make_eot_geometry_transform,
@@ -173,7 +174,8 @@ def _purify_transform(args):
         # 固定的變換會被 co-adapt，那正是要撐開的東西。
         return make_eot_broad_transform(
             tuple(args.eot_qualities), tuple(args.eot_sigmas),
-            tuple(args.eot_fractions), seed=args.seed)
+            tuple(args.eot_fractions), seed=args.seed,
+            classes=tuple(args.eot_classes))
     return make_eot_ops_transform((75,), seed=args.seed)
 
 
@@ -837,6 +839,12 @@ def build_parser() -> argparse.ArgumentParser:
     ap.add_argument("--eot-fractions", type=float, nargs="+",
                     default=list(BROAD_FRACTIONS),
                     help="--purify-aware eot_broad 的裁切比例族")
+    # 拿掉整個類別。裁切那兩欄是結構性不可贏的
+    # （`runs/ip2p_eot_geom_purify/README.md`），而每一步有四分之一的機率
+    # 被花在它上面。**預設含全部四類，不給時逐位元不變。**
+    ap.add_argument("--eot-classes", nargs="+", default=list(BROAD_CLASSES),
+                    choices=BROAD_CLASSES,
+                    help="--purify-aware eot_broad 抽的算子類別。必須含 identity")
     # ---- 交付前的像素域 L∞ 投影 ----
     # **0（預設）時逐位元等於加這個旗標之前。** 存在的理由是一個量到的縫：
     # 最佳化只被約束在 θ 的半徑球上，像素域沒有約束，於是同樣的 DISTS 下解
@@ -1270,6 +1278,7 @@ def main() -> None:
                 # 合併分片之後才分得出哪些列帶著它跑。
                 "eot_sigmas": " ".join(str(v) for v in args.eot_sigmas),
                 "eot_fractions": " ".join(str(v) for v in args.eot_fractions),
+                "eot_classes": " ".join(args.eot_classes),
                 "linf_deliver": args.linf_deliver,
                 "consistency_weight": args.consistency_weight,
                 "consistency_decay": args.consistency_decay,

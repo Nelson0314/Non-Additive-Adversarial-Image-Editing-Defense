@@ -246,10 +246,14 @@ BROAD_SIGMAS = (0.5, 1.0, 1.5, 2.0)
 BROAD_FRACTIONS = (0.05, 0.10, 0.15, 0.20)
 
 
+BROAD_CLASSES = ("identity", "jpeg", "blur", "crop")
+
+
 def make_eot_broad_transform(qualities: Sequence[int] = BROAD_QUALITIES,
                              sigmas: Sequence[float] = BROAD_SIGMAS,
                              fractions: Sequence[float] = BROAD_FRACTIONS,
                              seed: int = 0,
+                             classes: Sequence[str] = BROAD_CLASSES,
                              ) -> Callable[[torch.Tensor, int], torch.Tensor]:
     """四類算子、每類再抽一個參數的 expectation-over-transformation。
 
@@ -269,7 +273,13 @@ def make_eot_broad_transform(qualities: Sequence[int] = BROAD_QUALITIES,
     沒有理由再放大它。
 
     `identity` 自成一類，理由與另外兩支相同：沒有它，最佳化會為了抗淨化而
-    放棄未淨化時的效果。
+    放棄未淨化時的效果——故 `classes` 必須含它。
+
+    **`classes` 可以拿掉整個類別。** 存在的理由是一個量到的事實：裁切那兩欄
+    是結構性不可贏的（`runs/ip2p_eot_geom_purify/README.md`——唯一被指名可能
+    有效的隨機化幾何 EOT 實測仍在地板的五分之一以下），而每一步有四分之一的
+    機率被花在裁切上。拿掉它等於把那份取樣預算還給 JPEG 與模糊。
+    **預設含全部四類，不給旗標時逐位元不變。**
 
     裁切走 `ops.crop_resize`（置中），與評測算子同一支程式；要換成隨機位置
     請用 `make_eot_geometry_transform(jitter=True)`，那是嚴格更難的威脅模型。
@@ -286,21 +296,30 @@ def make_eot_broad_transform(qualities: Sequence[int] = BROAD_QUALITIES,
     for sg in sigmas:
         if sg <= 0:
             raise ValueError(f"模糊 sigma 必須為正，收到 {sg}")
+    if not classes:
+        raise ValueError("classes 不可為空")
+    unknown = [c for c in classes if c not in BROAD_CLASSES]
+    if unknown:
+        raise ValueError(f"未知的算子類別 {unknown}，可用的是 {BROAD_CLASSES}")
+    if "identity" not in classes:
+        # 沒有它，最佳化會為了抗淨化而放棄未淨化時的效果。三支 EOT 都守這一條。
+        raise ValueError("classes 必須含 identity")
     qs = tuple(int(q) for q in qualities)
     sgs = tuple(float(sg) for sg in sigmas)
     fracs = tuple(float(f) for f in fractions)
+    ks = tuple(classes)
     gen = torch.Generator(device="cpu").manual_seed(int(seed))
 
     def pick(n: int) -> int:
         return int(torch.randint(n, (1,), generator=gen))
 
     def transform(x01: torch.Tensor, step: int) -> torch.Tensor:
-        kind = pick(4)
-        if kind == 0:
+        kind = ks[pick(len(ks))]
+        if kind == "identity":
             return x01
-        if kind == 1:
+        if kind == "jpeg":
             return jpeg_roundtrip_ste(x01, qs[pick(len(qs))])
-        if kind == 2:
+        if kind == "blur":
             return gaussian_blur(x01, sgs[pick(len(sgs))])
         return crop_resize(x01, fracs[pick(len(fracs))])
 

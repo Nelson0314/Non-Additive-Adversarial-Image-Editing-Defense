@@ -72,3 +72,37 @@ def test_既有的_eot_ops_行為未變():
     a = [make_eot_ops_transform((75,), seed=0)(x, i) for i in range(10)]
     b = [make_eot_ops_transform((75,), seed=0)(x, i) for i in range(10)]
     assert all(torch.equal(p, q) for p, q in zip(a, b))
+
+
+def test_拿掉裁切之後三類各佔三分之一():
+    """裁切那兩欄結構性不可贏，把那四分之一的取樣預算還給其餘類別。"""
+    from src.defense.purify_aware import BROAD_CLASSES
+    t = make_eot_broad_transform(seed=0, classes=("identity", "jpeg", "blur"))
+    x = torch.rand(1, 3, 32, 32)
+    n_identity = sum(1 for i in range(600) if torch.equal(t(x, i), x))
+    assert 0.28 < n_identity / 600 < 0.39
+    assert BROAD_CLASSES == ("identity", "jpeg", "blur", "crop")
+
+
+def test_classes_預設含全部四類且行為不變():
+    x = torch.rand(1, 3, 32, 32)
+    a = [make_eot_broad_transform(seed=11)(x, i) for i in range(30)]
+    b = [make_eot_broad_transform(seed=11, classes=("identity", "jpeg", "blur",
+                                                    "crop"))(x, i)
+         for i in range(30)]
+    assert all(torch.equal(p, q) for p, q in zip(a, b))
+
+
+def test_classes_必須含_identity():
+    with pytest.raises(ValueError):
+        make_eot_broad_transform(classes=("jpeg", "blur"))
+
+
+def test_未知類別報錯而不是靜默略過():
+    with pytest.raises(ValueError):
+        make_eot_broad_transform(classes=("identity", "sharpen"))
+
+
+def test_空的_classes_報錯():
+    with pytest.raises(ValueError):
+        make_eot_broad_transform(classes=())

@@ -1,15 +1,22 @@
-"""抗淨化的頭對頭表：扣掉空白地板的**淨增益**。**不跑 GPU。**
+"""抗淨化的頭對頭表：總增益與淨增益並列。**不跑 GPU。**
 
-主讀數不是 `retention` 比值
+兩個絕對值，不換算成比例
 ────────────────────────────────────────────────────────────────────
+每一格報兩個絕對值：
+
+    總增益(條件, 算子) = effect(條件, 算子)                    ← CSV 的 `effect`
+    淨增益(條件, 算子) = effect(條件, 算子) − effect(地板, 算子)  ← CSV 的 `net_gain`
+
+其中「地板」那一格的防禦圖就是原圖本身，量到的是算子自己造成的位移，寫在
+CSV 的 `floor` 欄與表尾那一列，讀者看得到逐格的差額從哪裡來。
+
 比值 `effect(淨化)/effect(identity)` 被分母支配（條件層 r = −0.83、逐圖層
-−0.900，FND-037／039），而淨化算子自己就會把編輯推開五到九成（FND-043）。
-故主讀數取
+−0.900，FND-037／039），而淨化算子自己就會把編輯推開五到九成（FND-043），
+故它不是主讀數；`retention` 仍照報，但**必須與絕對位移一併看**。
 
-    淨增益(條件, 算子) = effect(條件, 算子) − effect(地板, 算子)
-
-其中「地板」那一格的防禦圖就是原圖本身，量到的是算子自己造成的位移。
-`retention` 仍照報，但**必須與絕對位移一併看**。
+位移的飽和值只作為讀表的參考，**不進任何算式**：主讀數 LPIPS 在兩張不相干的
+自然影像之間飽和於 0.772（`runs/readout_ceiling/`，45 對的中位數），所以 0.6
+附近的讀數已經接近這個量的上限。
 
 逐圖相減
 ────────────────────────────────────────────────────────────────────
@@ -22,7 +29,7 @@
 `resample_roundtrip`、`shift_only`、`jpeg_then_resize`）在
 `phase_retention.py` 裡走另一個參照：`effect = LPIPS(編輯(p(原圖)),
 編輯(p(防禦圖)))`。地板那一格的防禦圖就是原圖，兩側完全相同，故地板由構造
-為 0，**扣地板對這幾欄是恆等變換**。相減照做不特例化。
+為 0，**扣地板對這幾欄是恆等變換，總增益與淨增益相等**。相減照做不特例化。
 
 讀到非 0 的幾何地板一律拋錯：那份地板是舊參照（`編輯(原圖)`）量的，數字與
 新協定的 effect 不同基準，混在一張表裡看不出來。
@@ -52,6 +59,20 @@ FLOOR_CONDITION = "none"        # phase_retention.py --floor 寫下的條件名
 # 分片檔名是 `<tag>_<shard>.csv`。分片名是族群不是流水號（見
 # scripts/purify_headtohead.sh），列在這裡好把 tag 還原出來。
 SHARDS = ("color", "scene", "object", "all")
+
+# LPIPS 在不相干自然影像之間的飽和值（`runs/readout_ceiling/`，
+# 十張兩兩配對 45 對的中位數）。**只寫進表尾的說明，不進任何算式。**
+LPIPS_CEILING = 0.772
+
+FOOTNOTE = (
+    "位移是 LPIPS，在兩張不相干的自然影像之間飽和於 "
+    f"{LPIPS_CEILING}（runs/readout_ceiling/，45 對的中位數），"
+    "故 0.6 附近的讀數已接近這個量的上限；"
+    "該值只作為飽和值的參考，不進表上任何算式。"
+    "幾何類算子的參照是「同一個算子淨化過的原圖」"
+    "（purified_orig），空白地板由構造為 0，"
+    "總增益與淨增益相等。"
+)
 
 
 def tag_of(filename: str) -> str:
@@ -179,20 +200,35 @@ def main() -> None:
     by = {(r["condition"], r["purifier"]): r for r in table}
     print(f"usable=False 排除 {skipped} 列；重複 {duplicated} 列；"
           f"缺地板排除 {len(dropped)} 格")
-    head = f"{'條件':28s}" + "".join(f"{p:>18s}" for p in purs)
-    print(head)
-    print("-" * len(head))
-    for c in conds:
+
+    def show(title: str, field: str) -> None:
+        head = f"{'條件':28s}" + "".join(f"{q:>18s}" for q in purs)
+        print()
+        print(title)
+        print(head)
+        print("-" * len(head))
+        for c in conds:
+            cells = ""
+            for q in purs:
+                r = by.get((c, q))
+                cells += "" if r is None else f"{r[field]:+18.4f}"
+            print(f"{c:28s}{cells}")
+        # 表尾：空白地板的絕對值。兩張表逐格的差額就是從這裡來的。
         cells = ""
-        for p in purs:
-            r = by.get((c, p))
-            cells += "" if r is None else f"{r['net_gain']:+18.4f}"
-        print(f"{c:28s}{cells}")
-    print(f"\n地板（算子自己造成的位移）")
-    for p in purs:
-        vals = [by[(c, p)]["floor"] for c in conds if (c, p) in by]
-        if vals:
-            print(f"  {p:20s}{statistics.fmean(vals):8.4f}")
+        for q in purs:
+            vals = [by[(c, q)]["floor"] for c in conds if (c, q) in by]
+            cells += f"{statistics.fmean(vals):18.4f}" if vals else " " * 18
+        print(f"{'空白地板（算子自己造成的位移）':28s}{cells}")
+        # 兩種參照會出現在同一張表裡，沒有這一列就分不出哪一欄是哪一種。
+        cells = "".join(
+            ("purified_orig" if label_is_geometric(q) else "orig").rjust(18)
+            for q in purs)
+        print(f"{'參照':28s}{cells}")
+
+    show("總增益＝effect(算子)", "effect")
+    show("淨增益＝effect(算子) - 空白地板", "net_gain")
+    print()
+    print(FOOTNOTE)
     if dropped:
         print("\n被排除的格子：")
         for d in dropped[:20]:

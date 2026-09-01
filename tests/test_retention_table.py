@@ -102,3 +102,91 @@ def test_不同標籤的同一格不算重複():
     ]
     keep, dup = dedupe(rows)
     assert dup == 0 and len(keep) == 2
+
+
+# ------------------------------------------------ 出表：兩個絕對值並列
+
+def _h2h_src(tmp_path):
+    """blur1（非幾何，地板 0.2）與 crop_resize0.1（幾何，地板 0）各一格。"""
+    import csv as _csv
+    src = tmp_path / "h2h"
+    src.mkdir()
+    fields = ["image", "condition", "purifier", "effect_mean", "reference"]
+    rows = [
+        ("a", "none", "blur1", "0.2", "orig"),
+        ("a", "none", "crop_resize0.1", "0.0", "purified_orig"),
+        ("a", "phase_gain", "blur1", "0.5", "orig"),
+        ("a", "phase_gain", "crop_resize0.1", "0.36", "purified_orig"),
+    ]
+    with (src / "floor_all.csv").open("w", newline="", encoding="utf-8") as fh:
+        w = _csv.writer(fh)
+        w.writerow(fields)
+        for r in rows[:2]:
+            w.writerow(r)
+    with (src / "ours_all.csv").open("w", newline="", encoding="utf-8") as fh:
+        w = _csv.writer(fh)
+        w.writerow(fields)
+        for r in rows[2:]:
+            w.writerow(r)
+    return src
+
+
+def _h2h_out(tmp_path, monkeypatch, capsys):
+    import retention_table as rt
+    src = _h2h_src(tmp_path)
+    monkeypatch.setattr(sys, "argv",
+                        ["retention_table.py", "--src", str(src),
+                         "--out", str(tmp_path / "net_gain.csv")])
+    rt.main()
+    return capsys.readouterr().out
+
+
+def test_出表同時印出總增益與淨增益(tmp_path, monkeypatch, capsys):
+    out = _h2h_out(tmp_path, monkeypatch, capsys)
+    lines = out.splitlines()
+    assert len([ln for ln in lines if ln.startswith("總增益")]) == 1
+    assert len([ln for ln in lines if ln.startswith("淨增益")]) == 1
+    rows = [ln for ln in lines if ln.startswith("ours|phase_gain")]
+    assert len(rows) == 2
+    gross = [float(x) for x in rows[0].split()[1:]]
+    net = [float(x) for x in rows[1].split()[1:]]
+    # 欄序為 sorted(purifiers)：blur1、crop_resize0.1。
+    assert gross == pytest.approx([0.5, 0.36])
+    assert net == pytest.approx([0.3, 0.36])
+    assert net[1] == gross[1]                       # 幾何欄：地板 0，兩者相等
+    assert gross[0] - net[0] == pytest.approx(0.2)  # 非幾何欄：恰差一個地板
+
+
+def test_出表兩張表都印出地板與參照(tmp_path, monkeypatch, capsys):
+    out = _h2h_out(tmp_path, monkeypatch, capsys)
+    floors = [ln for ln in out.splitlines() if ln.startswith("空白地板")]
+    refs = [ln for ln in out.splitlines() if ln.startswith("參照")]
+    assert len(floors) == 2 and len(refs) == 2
+    for ln in floors:
+        assert [float(x) for x in ln.split()[1:]] == pytest.approx([0.2, 0.0])
+    for ln in refs:
+        assert ln.split()[1:] == ["orig", "purified_orig"]
+
+
+def test_出表不含佔比讀數(tmp_path, monkeypatch, capsys):
+    """主讀數是兩個絕對值，任何「佔可達範圍的比例」都不得回到表上。"""
+    out = _h2h_out(tmp_path, monkeypatch, capsys)
+    # 末尾那一行是寫出的檔案路徑（含 tmp_path），不屬於表的內容。
+    body = "\n".join(ln for ln in out.splitlines()
+                     if not ln.startswith("寫出"))
+    assert "可達" not in body and "%" not in body
+    assert "0.772" in body and "飽和" in body        # 只留飽和值的說明
+
+
+def test_出表在幾何地板非零時拋錯(tmp_path, monkeypatch):
+    import retention_table as rt
+    src = _h2h_src(tmp_path)
+    text = (src / "floor_all.csv").read_text(encoding="utf-8")
+    (src / "floor_all.csv").write_text(
+        text.replace("crop_resize0.1,0.0", "crop_resize0.1,0.5193"),
+        encoding="utf-8")
+    monkeypatch.setattr(sys, "argv",
+                        ["retention_table.py", "--src", str(src),
+                         "--out", str(tmp_path / "net_gain.csv")])
+    with pytest.raises(ValueError, match="舊參照"):
+        rt.main()

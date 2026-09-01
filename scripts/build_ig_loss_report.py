@@ -9,15 +9,19 @@
       │                                                              ▲
       └──淨化 T──▶ 淨化後的原圖 ──編輯──▶ **空白地板**（要扣掉的那一項）─┘
 
-主讀數是**扣掉地板的淨增益**：淨化算子自己就會把編輯推開，不扣掉它，
-「淨化後位移較大」無法排除「該算子本來就把編輯推得比較開」這個平庸解釋。
-所以地板那一欄一定要並排放在旁邊，不是放在附錄。
+每一格並列兩個絕對值：**總增益** `effect(p)` 與**淨增益**
+`effect(p) − 空白地板`。淨化算子自己就會把編輯推開，不扣掉它，「淨化後位移
+較大」無法排除「該算子本來就把編輯推得比較開」這個平庸解釋；地板的絕對值
+因此也列在兩張表的表尾，讀者看得到差額從哪裡來。
 
 **兩種參照並存，頁面上要標出來。** 幾何類算子（`src/purify/ops.py` 的
 `GEOMETRIC_KINDS`，本頁六欄裡是 `crop_resize0.1`）的 `effect` 取
-`LPIPS(編輯(p(原圖)), 編輯(p(防禦圖)))`，地板由構造為 0、可達範圍是整個
-0.772；其餘算子仍取 `LPIPS(編輯(原圖), 編輯(p(防禦圖)))`，地板非 0、可達
-範圍是 `0.772 − 地板`。讀到非 0 的幾何地板一律拋錯，那份地板是舊參照量的。
+`LPIPS(編輯(p(原圖)), 編輯(p(防禦圖)))`，空白地板由構造為 0，總增益與淨增益
+相等；其餘算子仍取 `LPIPS(編輯(原圖), 編輯(p(防禦圖)))`，地板非 0，兩者恰差
+一個地板。讀到非 0 的幾何地板一律拋錯，那份地板是舊參照量的。
+
+位移的飽和值只作為讀表的參考，**不進任何算式**：LPIPS 在兩張不相干的自然
+影像之間飽和於 0.772（`runs/readout_ceiling/`）。
 
 **擋下與否用眼睛判「重畫」對「劣化」**：模型重畫成無關的場景、或整張變成
 噪紋都算擋下；原圖仍認得出來、只是變糊變髒的單純劣化不算——攻擊方還是拿得到
@@ -83,7 +87,17 @@ COND_NOTE = {
 # 整條鏈只對這兩個條件展開——八個條件 × 六個算子會讓頁面沒有辦法讀。
 CHAIN_CONDS = ["ig_f08_eot", "ln_eot"]
 
-LPIPS_CEILING = 0.772          # runs/readout_ceiling/：45 對不相干影像的中位數
+# LPIPS 在兩張不相干自然影像之間的飽和值（runs/readout_ceiling/，45 對的
+# 中位數）。**只寫進頁面的說明文字，不進任何算式。**
+LPIPS_CEILING = 0.772
+FOOTNOTE = (
+    "位移是 LPIPS，在兩張不相干的自然影像之間飽和於 "
+    f"{LPIPS_CEILING}（<code>runs/readout_ceiling/</code>，45 對的中位數），"
+    "故 0.6 附近的讀數已接近這個量的上限；"
+    "該值只作為飽和值的參考，不進頁面上任何算式。"
+    "幾何類算子的參照是「同一個算子淨化過的原圖」"
+    "（purified_orig），空白地板由構造為 0，總增益與淨增益相等。"
+)
 THUMB = 384
 
 
@@ -216,9 +230,10 @@ figcaption b{color:var(--fg)}
 
     A("<h1>UNet 影像引導損失：防禦、淨化、編輯的逐格對照</h1>")
     A('<p class="lede">兩張影像、八個防禦條件、六個淨化算子。'
-      '主讀數是<b>扣掉空白地板</b>的位移淨增益——淨化算子自己就會把編輯推開，'
+      '每一格並列兩個絕對值：<b>總增益</b>（量到的位移本身）與'
+      '<b>淨增益</b>（再扣掉空白地板）——淨化算子自己就會把編輯推開，'
       '不扣掉它，「淨化後位移較大」無法排除「該算子本來就把編輯推得比較開」'
-      '這個平庸解釋。地板因此與每一格並排，不放附錄。</p>')
+      '這個平庸解釋。地板的絕對值列在兩張表的表尾，不放附錄。</p>')
     A('<div class="note"><b>擋下與否請用眼睛判。</b>'
       '模型重畫成無關的場景、或整張變成噪紋都算擋下；原圖仍認得出來、只是'
       '變糊變髒的<b>單純劣化不算</b>——攻擊方還是拿得到可用的東西。'
@@ -226,29 +241,31 @@ figcaption b{color:var(--fg)}
       '故本頁不放自動判定。</div>')
 
     # ---------------------------------------------------------- 數值總表
-    A("<h2>一、扣地板的淨增益</h2>")
-    A(f'<p class="lede">下表第二段是「佔可達範圍的比例」。主讀數 LPIPS 在兩張'
-      f'不相干的自然影像之間會飽和，十張兩兩配對（45 對）的中位數是 '
-      f'<b>{LPIPS_CEILING}</b>，所以每一欄的可達範圍是 '
-      f'<code>{LPIPS_CEILING} − 地板</code>，不是 {LPIPS_CEILING}。'
-      f'同一個絕對淨增益放在地板 0.11 的欄與地板 0.55 的欄，意義差很多。</p>')
+    A("<h2>一、總增益與淨增益</h2>")
+    A('<p class="lede">下面兩張表是同一組格子的兩個絕對讀數：'
+      '<code>總增益 = effect(算子)</code> 與 '
+      '<code>淨增益 = effect(算子) − 空白地板</code>。'
+      '兩張表吃同一組配對，表尾都列出空白地板的絕對值，逐格的差額就是它。</p>')
     A('<p class="lede"><b>兩種參照並存，欄頭已標出。</b>幾何類算子'
       '（本頁是<b>裁切縮放 10%</b>）的位移取 '
       '<code>LPIPS(編輯(算子(原圖)), 編輯(算子(防禦圖)))</code>：兩側吃同一個'
-      '算子，取景差異自行抵消，地板由構造為 0，可達範圍是整個 '
-      f'<code>{LPIPS_CEILING}</code>。其餘算子取 '
-      '<code>LPIPS(編輯(原圖), 編輯(算子(防禦圖)))</code>，地板非 0，'
-      f'可達範圍是 <code>{LPIPS_CEILING} − 地板</code>。'
-      '兩者的絕對值不可直接相減。</p>')
+      '算子，取景差異自行抵消，空白地板由構造為 0，'
+      '<b>總增益與淨增益相等</b>。其餘算子取 '
+      '<code>LPIPS(編輯(原圖), 編輯(算子(防禦圖)))</code>，空白地板非 0，'
+      '兩者恰差一個地板。不同參照的絕對值不可直接相減。</p>')
 
     fm = {op: st.mean([v for (i, o), v in floor.items() if o == op] or [0.0])
           for op in OPS}
-    # 可達範圍的分母：幾何類的地板為 0，故是整個天花板。
-    room = {op: LPIPS_CEILING - (0.0 if label_is_geometric(op) else fm[op])
-            for op in OPS}
-    for mode in ("abs", "frac"):
-        A("<h3>" + ("絕對淨增益" if mode == "abs" else "佔可達範圍的比例")
-          + "</h3><table><thead><tr><th>條件</th><th>DISTS</th>"
+    # 兩張表吃同一組配對（兩邊都有讀數的影像），逐格的差因此就是該格的地板；
+    # 缺地板的影像兩張表一起排除，不會只在其中一張裡消失。
+    def paired(cond, op):
+        return [(v, floor[(i, op)]) for (i, o), v in eff[cond].items()
+                if o == op and (i, op) in floor]
+
+    for title, value in (("總增益＝effect(算子)", lambda e, f: e),
+                         ("淨增益＝effect(算子) − 空白地板",
+                          lambda e, f: e - f)):
+        A(f"<h3>{title}</h3><table><thead><tr><th>條件</th><th>DISTS</th>"
           + "".join(f"<th>{OP_LABEL[o]}<br>"
                     f"<span style='font-weight:400;font-size:.85em'>"
                     f"{REF_LABEL[label_is_geometric(o)]}</span></th>"
@@ -261,22 +278,17 @@ figcaption b{color:var(--fg)}
             dists = st.mean([float(r["fid_dists"]) for r in d.values()]) if d else None
             cells = []
             for op in OPS:
-                diffs = [v - floor[(i, op)] for (i, o), v in eff[cond].items()
-                         if o == op and (i, op) in floor]
-                if not diffs:
-                    cells.append("<td>—</td>")
-                    continue
-                g = st.mean(diffs)
-                cells.append(f"<td>{g:.4f}</td>" if mode == "abs"
-                             else f"<td>{100 * g / room[op]:.1f}%</td>")
+                vals = paired(cond, op)
+                cells.append(
+                    f"<td>{st.mean([value(e, f) for e, f in vals]):.4f}</td>"
+                    if vals else "<td>—</td>")
             klass = ' class="hl"' if cond == "ig_f08_eot" else ""
             A(f"<tr{klass}><td>{cond}</td><td>{fmt(dists)}</td>"
               + "".join(cells) + "</tr>")
         A("<tr><td>空白地板（絕對位移）</td><td>—</td>"
-          + "".join(f"<td>{fm[o]:.4f}</td>" for o in OPS) + "</tr>")
-        A("<tr><td>可達範圍</td><td>—</td>"
-          + "".join(f"<td>{room[o]:.4f}</td>" for o in OPS)
+          + "".join(f"<td>{fm[o]:.4f}</td>" for o in OPS)
           + "</tr></tbody></table>")
+    A(f'<p class="lede">{FOOTNOTE}</p>')
 
     # ------------------------------------------------- 防禦圖本身（未淨化）
     A("<h2>二、防禦圖本身：原圖、交付圖、殘差</h2>")
@@ -326,14 +338,14 @@ figcaption b{color:var(--fg)}
             A(f"<h4>{cond}　<span style='font-weight:400'>"
               f"{html.escape(COND_NOTE.get(cond, ''))}</span></h4>")
             for op in OPS:
-                g = None
+                e = g = None
                 if (img, op) in eff.get(cond, {}) and (img, op) in floor:
-                    g = eff[cond][(img, op)] - floor[(img, op)]
-                pct = (f"（佔可達 {100 * g / room[op]:.1f}%）"
-                       if g is not None else "")
+                    e = eff[cond][(img, op)]
+                    g = e - floor[(img, op)]
                 A(f'<p class="meta">{OP_LABEL[op]}　'
-                  f'淨增益 <span class="gain">{fmt(g)}</span> {pct}　'
-                  f'地板 {fmt(fm[op])}　'
+                  f'總增益 <span class="gain">{fmt(e)}</span>　'
+                  f'淨增益 <span class="gain">{fmt(g)}</span>　'
+                  f'空白地板 {fmt(fm[op])}　'
                   f'{REF_LABEL[label_is_geometric(op)]}</p>')
                 A('<div class="row">')
                 # 幾何類算子的第四格不是「要扣掉的地板」而是「要比對的參照」
@@ -365,8 +377,8 @@ figcaption b{color:var(--fg)}
     A('<p class="lede" style="margin-top:3rem">'
       '兩張影像的規模只夠當探針。數值來源：'
       '<code>runs/ip2p_ig_loss/*/results.csv</code>（防禦端）與 '
-      '<code>runs/ip2p_ig_loss/purify/*_all.csv</code>（抗淨化，3 seed）。'
-      'LPIPS 天花板 0.772 出自 <code>runs/readout_ceiling/</code>。</p>')
+      '<code>runs/ip2p_ig_loss/purify/*_all.csv</code>（抗淨化，3 seed）。</p>')
+    A(f'<p class="lede">{FOOTNOTE}</p>')
 
     args.out.write_text("\n".join(P), encoding="utf-8")
     mb = args.out.stat().st_size / 1e6

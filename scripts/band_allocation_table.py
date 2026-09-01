@@ -1,27 +1,34 @@
-"""`runs/ip2p_band_allocation/purify` 的出表：扣地板的淨增益，並附可達比例。
+"""`runs/ip2p_band_allocation/purify` 的出表：總增益與淨增益並列。
 
 **不跑 GPU。** 只讀 `phase_retention.py` 寫出的 CSV。
 
 三件事寫在這裡而不是留給讀者：
 
-1. **扣空白地板。** 淨化算子自己就會把編輯推開（裁切 10% 的地板實測 0.515），
-   不扣掉它，「淨化後位移較大」無法排除「該算子本來就把編輯推得比較開」
-   這個平庸解釋（`docs/GOAL.md`）。逐（影像, 算子）配對相減，不是先平均再相減
-   ——後者會被缺格的影像污染。
+1. **兩個絕對值並列，不換算成比例。** 每一格報
 
-2. **附可達比例。** 主讀數 LPIPS 在兩張不相干的自然影像之間會飽和，十張兩兩
-   配對（45 對）的中位數是 **0.772**（`runs/readout_ceiling/`）。所以每一欄的
-   可達範圍是 `0.772 − 地板`，而不是 `0.772`。同一個絕對淨增益放在地板 0.05
-   的欄與地板 0.52 的欄，意義差很多。
+       總增益 = effect(p)              ← `phase_retention.py` 量到的位移本身
+       淨增益 = effect(p) − 空白地板
 
-   **幾何類算子的可達範圍是 `0.772`**（`src/purify/ops.py` 的
-   `GEOMETRIC_KINDS`）。那一類的參照是 `編輯(p(原圖))` 而不是 `編輯(原圖)`
-   （見 `scripts/phase_retention.py` 的 docstring），地板由構造為 0，
-   相減與相除都退化成恆等。讀到非 0 的幾何地板一律拋錯：那份地板是舊參照
-   量的，與新協定不可並列。
+   兩張表用同一組（影像, 算子）配對算，故逐格的差就是該格的地板。表尾另印
+   一列空白地板的絕對值，讀者看得到差額從哪裡來。
+
+2. **扣空白地板不可省略。** 淨化算子自己就會把編輯推開（裁切 10% 的地板實測
+   0.515），不扣掉它，「淨化後位移較大」無法排除「該算子本來就把編輯推得比較
+   開」這個平庸解釋（`docs/GOAL.md`）。逐（影像, 算子）配對相減，不是先平均
+   再相減——後者會被缺格的影像污染。
+
+   **幾何類算子（`src/purify/ops.py` 的 `GEOMETRIC_KINDS`）的地板由構造為
+   0**，總增益與淨增益因此相等。那一類的參照是 `編輯(p(原圖))` 而不是
+   `編輯(原圖)`（見 `scripts/phase_retention.py` 的 docstring），兩側吃同一個
+   算子，相減退化成恆等。讀到非 0 的幾何地板一律拋錯：那份地板是舊參照量的，
+   與新協定不可並列。
 
 3. **缺格照實報，不補值。** 任何條件或算子在某張影像上缺讀數，該格從平均裡
    排除並在末尾列出，不靜默略過。
+
+位移的飽和值只作為讀表的參考，**不進任何算式**：主讀數 LPIPS 在兩張不相干的
+自然影像之間飽和於 0.772（`runs/readout_ceiling/`，十張兩兩配對 45 對的
+中位數），所以 0.6 附近的讀數已經接近這個量的上限。
 
 用法：
     python scripts/band_allocation_table.py [--src runs/ip2p_band_allocation/purify]
@@ -41,7 +48,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from src.purify.ops import label_is_geometric  # noqa: E402
 
 # LPIPS 在不相干自然影像之間的飽和值。出處：`runs/readout_ceiling/README.md`，
-# 十張兩兩配對 45 對的中位數。**這是讀數的性質，不是判準。**
+# 十張兩兩配對 45 對的中位數。**只寫進表尾的說明，不進任何算式**：表上報的是
+# 總增益與淨增益兩個絕對值，不是佔某個範圍的比例。
 LPIPS_CEILING = 0.772
 
 # 分片名。`all` 用在影像少到切不動分片的批次（`runs/ip2p_eot_ceiling` 只有
@@ -49,6 +57,14 @@ LPIPS_CEILING = 0.772
 SHARDS = ("color", "object", "scene", "all")
 PURIFIER_ORDER = ("identity", "jpeg75", "jpeg30", "blur1", "blur2",
                   "crop_resize0.1")
+
+FOOTNOTE = (
+    "位移是 LPIPS，在兩張不相干的自然影像之間飽和於 "
+    f"{LPIPS_CEILING}（runs/readout_ceiling/，45 對的中位數），"
+    "故 0.6 附近的讀數已接近這個量的上限；該值只作為飽和值的參考，"
+    "不進表上任何算式。幾何類算子的參照是「同一個算子淨化過的原圖」"
+    "（purified_orig），空白地板由構造為 0，總增益與淨增益相等。"
+)
 
 
 def tag_of(name: str) -> str:
@@ -73,6 +89,16 @@ def read(src: Path) -> dict:
                     continue
                 out[tag][(r["image"], r["purifier"])] = v
     return out
+
+
+def paired(cells: dict, floor: dict, pur: str) -> list:
+    """該（條件, 算子）格裡兩邊都有讀數的 `(effect, 地板)`。
+
+    總增益與淨增益吃同一組配對，逐格的差因此就是該格的地板；缺地板的影像
+    兩張表一起排除，不是只在其中一張裡消失。
+    """
+    return [(v, floor[(img, pur)]) for (img, pp), v in cells.items()
+            if pp == pur and (img, pur) in floor]
 
 
 def main() -> None:
@@ -103,48 +129,40 @@ def main() -> None:
                     f"（`編輯(原圖)`）量的，與現行協定的 `編輯(p(原圖))` 不可"
                     f"並列——重跑 `phase_retention.py --floor`。")
 
-    # 可達範圍的分母。幾何類的地板為 0，故是整個 0.772；其餘扣掉地板。
-    room = {p: LPIPS_CEILING - (0.0 if label_is_geometric(p) else floor_mean[p])
-            for p in purs}
-
     missing = []
-    print("扣空白地板的淨增益（逐影像相減後平均）")
-    print("條件".ljust(10) + "".join(p.rjust(15) for p in purs))
     for tag in tags:
-        cells = []
         for p in purs:
-            diffs = [v - floor[(img, p)]
-                     for (img, pp), v in data[tag].items()
-                     if pp == p and (img, p) in floor]
             n_have = sum(1 for k in data[tag] if k[1] == p)
-            if len(diffs) < n_have:
-                missing.append(f"{tag}/{p}：{n_have - len(diffs)} 格缺地板")
-            cells.append(f"{st.mean(diffs):15.4f}" if diffs else " " * 15)
-        print(tag.ljust(10) + "".join(cells))
-    print("空白地板".ljust(8) + "".join(f"{floor_mean[p]:15.4f}" for p in purs))
+            n_pair = len(paired(data[tag], floor, p))
+            if n_pair < n_have:
+                missing.append(f"{tag}/{p}：{n_have - n_pair} 格缺地板")
+
+    def table(title: str, value) -> None:
+        print(title)
+        print("條件".ljust(10) + "".join(p.rjust(15) for p in purs))
+        for tag in tags:
+            cells = []
+            for p in purs:
+                vals = paired(data[tag], floor, p)
+                cells.append(f"{st.mean([value(e, f) for e, f in vals]):15.4f}"
+                             if vals else " " * 15)
+            print(tag.ljust(10) + "".join(cells))
+        print("空白地板".ljust(8)
+              + "".join(f"{floor_mean[p]:15.4f}" for p in purs))
+        print("參照".ljust(10)
+              + "".join(("purified_orig" if label_is_geometric(p) else "orig")
+                        .rjust(15) for p in purs))
+
+    table("總增益 = effect(p)（逐影像平均；配對同下表）", lambda e, f: e)
+    print()
+    table("淨增益 = effect(p) - 空白地板（逐影像相減後平均）",
+          lambda e, f: e - f)
 
     print()
-    print(f"佔可達範圍的比例（可達 = {LPIPS_CEILING} − 地板；"
-          f"幾何類的地板為 0，故可達 = {LPIPS_CEILING}）")
-    print("條件".ljust(10) + "".join(p.rjust(15) for p in purs))
-    for tag in tags:
-        cells = []
-        for p in purs:
-            diffs = [v - floor[(img, p)]
-                     for (img, pp), v in data[tag].items()
-                     if pp == p and (img, p) in floor]
-            if not diffs or room[p] <= 0:
-                cells.append(" " * 15)
-            else:
-                cells.append(f"{100 * st.mean(diffs) / room[p]:14.1f}%")
-        print(tag.ljust(10) + "".join(cells))
-    print("可達範圍".ljust(8) + "".join(f"{room[p]:15.4f}" for p in purs))
-    print("參照".ljust(10)
-          + "".join(("purified_orig" if label_is_geometric(p) else "orig").rjust(15)
-                    for p in purs))
+    print(FOOTNOTE)
 
     if missing:
-        print("\n缺格（已從平均排除）：")
+        print("\n缺格（已從兩張表一併排除）：")
         for m in sorted(set(missing)):
             print("  " + m)
 

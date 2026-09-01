@@ -355,19 +355,55 @@ def _band_src(tmp_path, crop_floor):
     return src
 
 
-def test_band_allocation_幾何欄的分母是整個天花板(tmp_path, monkeypatch, capsys):
+def _band_out(tmp_path, monkeypatch, capsys, crop_floor=0.0):
     import band_allocation_table as bat
 
-    src = _band_src(tmp_path, 0.0)
+    src = _band_src(tmp_path, crop_floor)
     monkeypatch.setattr(sys, "argv", ["band_allocation_table.py",
                                       "--src", str(src)])
     bat.main()
-    out = capsys.readouterr().out
-    room = [ln for ln in out.splitlines() if ln.startswith("可達範圍")][0]
+    return capsys.readouterr().out
+
+
+def test_band_allocation_總增益與淨增益並列(tmp_path, monkeypatch, capsys):
+    """兩個絕對值都要在表上，讀者才看得到差額。
+
+    `_band_src` 的資料：blur1 的 effect 0.3、地板 0.2（非幾何）；
+    crop_resize0.1 的 effect 0.3、地板 0（幾何）。
+    """
+    out = _band_out(tmp_path, monkeypatch, capsys)
+    lines = out.splitlines()
+    gross = [ln for ln in lines if ln.startswith("總增益")]
+    net = [ln for ln in lines if ln.startswith("淨增益")]
+    assert len(gross) == 1 and len(net) == 1
     # 欄序由 PURIFIER_ORDER 決定：blur1 在 crop_resize0.1 之前。
-    assert f"{bat.LPIPS_CEILING - 0.2:.4f}" in room     # 非幾何：扣地板
-    assert f"{bat.LPIPS_CEILING:.4f}" in room           # 幾何：不扣
-    assert "purified_orig" in out and "orig" in out
+    rows = [ln for ln in lines if ln.startswith("ours")]
+    assert len(rows) == 2                       # 兩張表各一列
+    assert rows[0].split() == ["ours", "0.3000", "0.3000"]   # 總增益
+    assert rows[1].split() == ["ours", "0.1000", "0.3000"]   # 淨增益
+    # 幾何欄：總增益與淨增益相等。非幾何欄：兩者恰差一個地板。
+    assert float(rows[0].split()[2]) == float(rows[1].split()[2])
+    assert (float(rows[0].split()[1]) - float(rows[1].split()[1])
+            == pytest.approx(0.2))
+
+
+def test_band_allocation_表尾有地板與參照(tmp_path, monkeypatch, capsys):
+    out = _band_out(tmp_path, monkeypatch, capsys)
+    floors = [ln for ln in out.splitlines() if ln.startswith("空白地板")]
+    refs = [ln for ln in out.splitlines() if ln.startswith("參照")]
+    assert len(floors) == 2 and len(refs) == 2      # 兩張表各印一列
+    for ln in floors:
+        assert ln.split()[1:] == ["0.2000", "0.0000"]
+    for ln in refs:
+        assert ln.split()[1:] == ["orig", "purified_orig"]
+
+
+def test_band_allocation_不出現佔比讀數(tmp_path, monkeypatch, capsys):
+    """主讀數是兩個絕對值。任何「佔可達範圍的比例」都不得回到表上。"""
+    out = _band_out(tmp_path, monkeypatch, capsys)
+    assert "可達" not in out and "%" not in out
+    # 飽和值只保留為表尾的一行說明，不進算式。
+    assert "0.772" in out and "飽和" in out
 
 
 def test_band_allocation_幾何地板非零就拋錯(tmp_path, monkeypatch):
@@ -378,3 +414,81 @@ def test_band_allocation_幾何地板非零就拋錯(tmp_path, monkeypatch):
                                       "--src", str(src)])
     with pytest.raises(SystemExit, match="舊參照"):
         bat.main()
+
+
+# ----------------------------------------------------- 報表頁（HTML）
+
+def _ig_src(tmp_path, crop_floor=0.0):
+    """只鋪 `purify/*_all.csv`；影像缺席時 `thumb()` 回 None，頁面照樣生得出來。"""
+    src = tmp_path / "ip2p_ig_loss"
+    gal = src / "purify"
+    gal.mkdir(parents=True)
+    fields = ["image", "condition", "purifier", "effect_mean", "reference"]
+
+    def dump(name, rows):
+        with (gal / name).open("w", newline="", encoding="utf-8") as fh:
+            w = csv.DictWriter(fh, fieldnames=fields)
+            w.writeheader()
+            for r in rows:
+                w.writerow(r)
+
+    def row(img, cond, pur, eff):
+        return {"image": img, "condition": cond, "purifier": pur,
+                "effect_mean": str(eff),
+                "reference": ("purified_orig" if label_is_geometric(pur)
+                              else "orig")}
+
+    dump("floor_all.csv", [row("a", "none", "blur1", 0.2),
+                           row("a", "none", "crop_resize0.1", crop_floor)])
+    dump("ig_f08_eot_all.csv", [row("a", "phase_gain", "blur1", 0.5),
+                                row("a", "phase_gain", "crop_resize0.1", 0.36)])
+    return src, gal
+
+
+def _ig_page(tmp_path, monkeypatch, crop_floor=0.0):
+    import build_ig_loss_report as rep
+
+    src, gal = _ig_src(tmp_path, crop_floor)
+    monkeypatch.setattr(rep, "SRC", src)
+    monkeypatch.setattr(rep, "GAL", gal)
+    out = tmp_path / "report.html"
+    monkeypatch.setattr(sys, "argv", ["build_ig_loss_report.py",
+                                      "--out", str(out)])
+    rep.main()
+    return out.read_text(encoding="utf-8")
+
+
+def test_報表頁同時給總增益與淨增益(tmp_path, monkeypatch):
+    page = _ig_page(tmp_path, monkeypatch)
+    assert "<h3>總增益＝effect(算子)</h3>" in page
+    assert "<h3>淨增益＝effect(算子) − 空白地板</h3>" in page
+    # blur1（非幾何，地板 0.2）：總 0.5、淨 0.3。
+    assert "<td>0.5000</td>" in page and "<td>0.3000</td>" in page
+    # crop_resize0.1（幾何，地板 0）：兩張表都是 0.3600。
+    assert page.count("<td>0.3600</td>") == 2
+
+
+def test_報表頁兩張表都印出地板列(tmp_path, monkeypatch):
+    page = _ig_page(tmp_path, monkeypatch)
+    assert page.count("<td>空白地板（絕對位移）</td>") == 2
+    assert "<td>0.2000</td>" in page
+
+
+def test_報表頁標出每一欄的參照(tmp_path, monkeypatch):
+    page = _ig_page(tmp_path, monkeypatch)
+    assert "參照＝編輯(算子(原圖))" in page          # 幾何
+    assert "參照＝編輯(原圖)" in page                # 其餘
+
+
+def test_報表頁不含佔比讀數(tmp_path, monkeypatch):
+    """`可達範圍` 那一段與 `…%` 的儲存格都不得回到頁面上。"""
+    page = _ig_page(tmp_path, monkeypatch)
+    assert "可達" not in page
+    assert "%</td>" not in page and "%）" not in page
+    # 飽和值只留為說明的一行，不進算式。
+    assert "飽和於 0.772" in page
+
+
+def test_報表頁在幾何地板非零時拋錯(tmp_path, monkeypatch):
+    with pytest.raises(SystemExit, match="舊參照"):
+        _ig_page(tmp_path, monkeypatch, crop_floor=0.5193)

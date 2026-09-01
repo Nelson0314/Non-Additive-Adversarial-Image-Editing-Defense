@@ -190,20 +190,29 @@ IP2P 是直接拼接。依賴前者那條通道的機制解釋在 IP2P 上不成
 幾何類
 effect(p)   = LPIPS( 編輯(p(原圖)), 編輯(p(防禦圖)) )
 空白地板    = 0（構造使然）                             --floor
-淨增益      = effect(p)                                 ← 主讀數
-可達範圍    = 0.772
+總增益      = effect(p)                                 ← 並列主讀數
+淨增益      = effect(p) − 空白地板 = effect(p)          ← 兩者相等
 
 其餘
 effect(p)   = LPIPS( 編輯(原圖),   編輯(p(防禦圖)) )
 空白地板    = LPIPS( 編輯(原圖),   編輯(p(原圖)) )      --floor
-淨增益      = effect(p) − 空白地板                      ← 主讀數
-可達範圍    = 0.772 − 空白地板
+總增益      = effect(p)                                 ← 並列主讀數
+淨增益      = effect(p) − 空白地板                      ← 兩者差一個地板
 
 保留率      = effect(p) / effect(identity)
 ```
 
+**報兩個絕對值，不換算成比例。** 總增益與淨增益並列在同一張（或兩張並排的）
+表上，表尾另印空白地板的絕對值——逐格的差額就是它，讀者不必回頭推算。位移
+在兩張不相干的自然影像之間飽和於 **0.772**（`runs/readout_ceiling/`，十張
+兩兩配對 45 對的中位數），這個值**只作為飽和值的參考**：知道它才不會把 0.6
+讀成「還有很多空間」。它**不進任何算式**，不用來當分母把讀數換算成百分比。
+出表程式見 `scripts/retention_table.py`、`scripts/band_allocation_table.py`、
+`scripts/build_ig_loss_report.py`。
+
 CSV 的 `reference` 欄逐列記下該列踩的是哪一種（`purified_orig` 或 `orig`）。
-兩種基準會出現在同一張表裡，沒有這一欄就分不出來。
+兩種基準會出現在同一張表裡，沒有這一欄就分不出來；出表程式把它印成表上的
+一列，每一欄用的是哪一種參照直接看得到。
 
 **幾何類**是 `src/purify/ops.py` 的 `GEOMETRIC_KINDS`：`crop_resize`、
 `resample_roundtrip`、`resize_only`、`shift_only`、`jpeg_then_resize`

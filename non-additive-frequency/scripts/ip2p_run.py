@@ -548,7 +548,8 @@ def defend(ip2p, suite, cond, x01, args, loss_fn):
                           color_pieces=args.color_pieces,
                           color_bound_mode=args.color_bound_mode,
                           color_grid=args.color_grid,
-                          color_luma_bins=args.color_luma_bins)
+                          color_luma_bins=args.color_luma_bins,
+                          color_rand_draw=args.color_rand_draw)
     q_deliver = deliver_quality(args)
     run_extras: dict = {}
     # **在兩條路徑分岔之前包**：預算模式（`fit_to_budget`）內層自己呼叫
@@ -836,6 +837,14 @@ def build_parser() -> argparse.ArgumentParser:
                          "場，對裁切精確等變。")
     ap.add_argument("--color-luma-bins", type=int, default=8,
                     help="color_grid 的亮度格數 D。沿亮度軸是 D 段的分段線性。")
+    ap.add_argument("--color-rand-draw", choices=("corner", "uniform"),
+                    default="corner",
+                    help="隨機對照怎麼抽。corner 抽盒子的角點，與 sign 更新"
+                         "的可達集合相同；uniform 抽盒內均勻。**預設 corner"
+                         "是刻意的**：曲線族的 64 個係數獨立均勻抽會互相"
+                         "抵消，同半徑下 DISTS 只到角點的三分之一，兩條曲線"
+                         "的失真範圍幾乎不重疊、等失真內插整片 "
+                         "out_of_range。")
     ap.add_argument("--radius", type=float, default=None,
                     help="直接指定半徑（掃描曲線用）。不給則二分搜到 --budget")
     ap.add_argument("--budget", type=float, default=0.0349, help="DISTS 預算")
@@ -1622,6 +1631,7 @@ def main() -> None:
                 "color_bound_mode": args.color_bound_mode,
                 "color_grid": args.color_grid,
                 "color_luma_bins": args.color_luma_bins,
+                "color_rand_draw": args.color_rand_draw,
                 "spectral_floor": args.spectral_floor,
                 # 加法項的價目分配。三個變體的總預算相同，跑出來的列
                 # 在其餘欄位上一模一樣，不記下來合併之後就分不出來。

@@ -104,14 +104,18 @@ def build_codefense(row: dict, run_dir: Path, image: str,
             raise ValueError(
                 f"{wpath} 存了 {len(tensors)} 個張量，色彩族只該有一個。")
 
+    extra = ({"draw": row.get("color_rand_draw") or "corner"}
+             if is_random else {})
     if cond.startswith("color_curve"):
         param = cls(radius=radius,
                     pieces=_int_field(row, "color_pieces", 64),
-                    bound_mode=row.get("color_bound_mode") or "symmetric")
+                    bound_mode=row.get("color_bound_mode") or "symmetric",
+                    **extra)
     else:
         param = cls(radius=radius,
                     grid=_int_field(row, "color_grid", 8),
-                    luma_bins=_int_field(row, "color_luma_bins", 8))
+                    luma_bins=_int_field(row, "color_luma_bins", 8),
+                    **extra)
 
     seed_field = row.get("defense_seed", "")
     if is_random and seed_field in ("", None):

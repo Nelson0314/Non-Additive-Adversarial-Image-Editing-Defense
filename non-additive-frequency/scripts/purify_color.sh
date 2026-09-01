@@ -46,7 +46,7 @@ COMMON="--data data/omniedit150 --attacker ip2p --seeds 3 --purifiers $PUR --cod
 # 五格，剛好一卡一個：網格族兩個強度、曲線族一個、一個同族的隨機對照、
 # 一個空白地板。隨機對照不可省——低自由度的參數化特別容易死在
 # 「與同失真隨機無法區分」（FND-004 的死法）。
-TAGS="${2:-grid_r010 grid_r020 curve_r3 grid_rand_r010}"
+TAGS="${2:-grid_r005 grid_r010 curve_r3 grid_rand_r005}"
 WANT_FLOOR=1
 [ "${3:-}" = "nofloor" ] && WANT_FLOOR=0
 

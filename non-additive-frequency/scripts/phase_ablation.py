@@ -121,7 +121,8 @@ def build(name: str, seed: int, block: int = 32, r_min: float = 0.12,
           dct_mode: str = "plane", dct_plane_weight: str = "uniform",
           disp_field_grid: int = 16,
           color_pieces: int = 64, color_bound_mode: str = "symmetric",
-          color_grid: int = 8, color_luma_bins: int = 8):
+          color_grid: int = 8, color_luma_bins: int = 8,
+          color_rand_draw: str = "corner"):
     """`block`／`r_min`／`quantile` 是相位算子的三個構造設定。
 
     預設值是 現行定案（`docs/METHOD.md` §4）。開放成參數是為了掃描
@@ -196,19 +197,21 @@ def build(name: str, seed: int, block: int = 32, r_min: float = 0.12,
         # 逐通道 K 段單調分段線性曲線，全域套用（`src/defense/color_param.py`）。
         # 對裁切**精確等變**，且輸出值域由構造落在 [0,1]、不需要 clamp——
         # 後者正是 `ShadingParam` 上不去的原因（亮部飽和的天花板）。
+        extra = {} if name == "color_curve" else {"draw": color_rand_draw}
         cls = (ColorCurveParam if name == "color_curve"
                else ColorCurveRandomParam)
         return (cls(radius=COLOR_CURVE_RADIUS_HI, pieces=color_pieces,
-                    bound_mode=color_bound_mode),
+                    bound_mode=color_bound_mode, **extra),
                 COLOR_CURVE_RADIUS_LO, COLOR_CURVE_RADIUS_HI)
     if name in ("color_grid", "color_grid_rand"):
         # 雙邊網格上的仿射色彩變換。空間 G×G × 亮度 D 格，頻寬由構造
         # `f_n ≲ G/H`（G=8、H=512 時 0.016，落在 `ShadingParam` 已量到的
         # 低頻帶內）。偏移項讓它在暗部也推得動，這是純乘性場沒有的自由度。
+        extra = {} if name == "color_grid" else {"draw": color_rand_draw}
         cls = (ColorGridParam if name == "color_grid"
                else ColorGridRandomParam)
         return (cls(radius=COLOR_GRID_RADIUS_HI, grid=color_grid,
-                    luma_bins=color_luma_bins),
+                    luma_bins=color_luma_bins, **extra),
                 COLOR_GRID_RADIUS_LO, COLOR_GRID_RADIUS_HI)
     if name in ("shading", "shading_rand"):
         # 候選二：極低頻的乘性明暗場。**與相位算子的頻帶不相交**

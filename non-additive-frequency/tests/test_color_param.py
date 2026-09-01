@@ -477,3 +477,60 @@ def test_curve_step_scale_is_the_box_width_not_the_radius():
 
     p.set_radius(0.0)
     assert step_scale_of(p) == 0.0        # 恆等時步長為零
+
+
+# ── 隨機對照的抽樣集合 ───────────────────────────────────────────────
+
+
+def test_random_controls_draw_from_the_corners_by_default(x):
+    """預設抽角點：sign 更新的可達集合就是角點，對照必須在同一個集合裡。
+
+    i.i.d. 均勻抽樣落在盒內部，曲線族 K 個係數的擾動互相抵消，同半徑下的
+    失真只到角點的三分之一，兩條曲線的失真範圍幾乎不重疊。
+    """
+    from src.defense.color_param import RAND_DRAWS
+
+    p = ColorCurveRandomParam(radius=1.0, pieces=16)
+    assert p.draw == "corner"
+    p.reset(x, 5)
+    lo, hi = p.bounds()
+    assert set(p.theta.unique().tolist()) <= {lo, hi}
+
+    g = ColorGridRandomParam(radius=0.1, grid=2, luma_bins=2)
+    g.reset(x, 5)
+    ident = g.identity_grid(g.a.device, g.a.dtype)
+    assert torch.allclose((g.a - ident).abs(), torch.full_like(g.a, 0.1))
+
+    assert RAND_DRAWS == ("corner", "uniform")
+
+
+def test_uniform_draw_stays_available_as_an_ablation(x):
+    p = ColorCurveRandomParam(radius=1.0, pieces=64, draw="uniform")
+    p.reset(x, 5)
+    lo, hi = p.bounds()
+    assert float(p.theta.min()) >= lo
+    assert float(p.theta.max()) <= hi
+    assert len(p.theta.unique()) > 2
+
+
+def test_random_controls_reject_an_unknown_draw():
+    with pytest.raises(ValueError, match="draw"):
+        ColorCurveRandomParam(radius=1.0, draw="gaussian")
+    with pytest.raises(ValueError, match="draw"):
+        ColorGridRandomParam(radius=0.1, draw="gaussian")
+
+
+def test_corner_draw_reaches_the_same_scale_as_the_optimiser(x):
+    """角點抽樣的殘差量級與「最佳化推到角落」同一個數量級。
+
+    這一條是等失真內插能不能成立的前提：對照的失真範圍要蓋到最佳化的範圍。
+    """
+    r = ColorCurveRandomParam(radius=3.0, pieces=64)
+    r.reset(x, 1)
+    u = ColorCurveRandomParam(radius=3.0, pieces=64, draw="uniform")
+    u.reset(x, 1)
+    corner_rms = float(((r.render(x) - x) ** 2).mean().sqrt())
+    uniform_rms = float(((u.render(x) - x) ** 2).mean().sqrt())
+    # 這張測試影像是均勻雜訊，比值 1.81；`runs/color_field_cost/`
+    # 在自然照片上量到的 DISTS 比值是 0.091 對 0.036（2.5 倍）。
+    assert corner_rms > 1.5 * uniform_rms

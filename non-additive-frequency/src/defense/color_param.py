@@ -192,23 +192,55 @@ class ColorCurveParam:
         return torch.stack(outs, 1) * (k / s)
 
 
+# 隨機對照怎麼抽。**預設是 `corner`，這是刻意的。**
+#
+# sign 更新把每個座標推到盒子的**角落**（`saturate_at = 0.25` 之後就停在
+# 那裡），所以最佳化的可達集合是角點，不是盒子內部。而 i.i.d. 均勻抽樣落在
+# 內部：曲線族 K=64 個係數的擾動彼此獨立、互相抵消，實測同一個半徑下均勻
+# 抽樣的 DISTS 只到角點的三分之一（r=3 時 0.036 對 0.091），兩條曲線的失真
+# 範圍幾乎不重疊，等失真內插整片 `out_of_range`。
+#
+# 「贏過同失真隨機」要有意義，對照就必須在**同一個可達集合**裡抽。
+# `uniform` 保留作為消融。逐列寫進 CSV 的 `color_rand_draw` 欄。
+RAND_DRAWS = ("corner", "uniform")
+
+
+def _draw(shape, lo, hi, draw: str, seed: int) -> torch.Tensor:
+    if draw not in RAND_DRAWS:
+        raise ValueError(f"draw 只能是 {RAND_DRAWS}，收到 {draw!r}")
+    gen = torch.Generator(device="cpu").manual_seed(seed)
+    u = torch.rand(shape, generator=gen)
+    if draw == "corner":
+        return torch.where(u < 0.5, torch.as_tensor(float(lo)),
+                           torch.as_tensor(float(hi)))
+    return lo + (hi - lo) * u
+
+
 class ColorCurveRandomParam(ColorCurveParam):
     """同半徑的隨機曲線，**不最佳化**，只在 reset 時抽一次。
 
     `位移場`（FND-004）的死法是「與同失真隨機對照無法區分」，而低自由度的
     參數化特別容易重蹈。`params()` 為空，`run_param_pgd` 不更新任何東西。
+
+    `draw` 見 `RAND_DRAWS` 上方的說明：預設抽角點，與 sign 更新的可達集合
+    相同。
     """
 
     name = "color_curve_rand"
 
+    def __init__(self, *args, draw: str = "corner", **kwargs):
+        super().__init__(*args, **kwargs)
+        if draw not in RAND_DRAWS:
+            raise ValueError(f"draw 只能是 {RAND_DRAWS}，收到 {draw!r}")
+        self.draw = draw
+
     def reset(self, x01: torch.Tensor, seed: int) -> None:
         super().reset(x01, seed)
         lo, hi = self.bounds()
-        gen = torch.Generator(device="cpu").manual_seed(seed)
-        u = torch.rand(self.theta.shape, generator=gen)
         with torch.no_grad():
-            self.theta.copy_((lo + (hi - lo) * u).to(
-                device=x01.device, dtype=x01.dtype))
+            self.theta.copy_(_draw(self.theta.shape, lo, hi, self.draw,
+                                   seed).to(device=x01.device,
+                                            dtype=x01.dtype))
 
     def params(self) -> List[torch.Tensor]:
         return []
@@ -316,16 +348,24 @@ class ColorGridParam:
 
 
 class ColorGridRandomParam(ColorGridParam):
-    """同半徑的隨機仿射網格，**不最佳化**。存在理由同 `ColorCurveRandomParam`。"""
+    """同半徑的隨機仿射網格，**不最佳化**。存在理由同 `ColorCurveRandomParam`。
+
+    偏移是對單位矩陣的，故盒是 `[−radius, +radius]`；`corner` 抽 ±radius。
+    """
 
     name = "color_grid_rand"
 
+    def __init__(self, *args, draw: str = "corner", **kwargs):
+        super().__init__(*args, **kwargs)
+        if draw not in RAND_DRAWS:
+            raise ValueError(f"draw 只能是 {RAND_DRAWS}，收到 {draw!r}")
+        self.draw = draw
+
     def reset(self, x01: torch.Tensor, seed: int) -> None:
         super().reset(x01, seed)
-        gen = torch.Generator(device="cpu").manual_seed(seed)
-        u = torch.rand(self.a.shape, generator=gen) * 2.0 - 1.0
+        d = _draw(self.a.shape, -self.radius, self.radius, self.draw, seed)
         with torch.no_grad():
-            self.a.add_((u * self.radius).to(device=x01.device, dtype=x01.dtype))
+            self.a.add_(d.to(device=x01.device, dtype=x01.dtype))
 
     def params(self) -> List[torch.Tensor]:
         return []

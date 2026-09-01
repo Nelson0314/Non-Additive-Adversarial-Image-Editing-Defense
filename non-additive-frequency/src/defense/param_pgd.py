@@ -37,6 +37,25 @@ import torch
 from src.residual.texture_rephase import PhaseResidual
 
 
+def step_scale_of(param) -> float:
+    """步長公式裡的「一個半徑有多大」。預設就是 `param.radius`。
+
+    **半徑的單位是逐族自訂的**，而步長公式假設它與參數張量同一個尺度。
+    對加性 δ、明暗場 `m`、雙邊網格 `A` 都成立（半徑就是參數的 L∞ 界），
+    但對 `ColorCurveParam` 不成立：它的半徑是**斜率剖面的動態範圍** `1 + r`，
+    而參數 `θ` 落在寬度只有 `(1+r)/K − 1/(K(1+r))` 的盒子裡。K=64、r=3 時
+    盒寬 0.059，而 `radius / (steps·0.25)` 給出的步長是 0.012——五步就撞到
+    邊界，之後只是在兩個角落之間彈跳。
+
+    參數化可以定義 `step_scale()` 回報自己的盒寬。沒有定義的照舊用
+    `radius`，故既有各族的軌跡**逐位元不變**。
+    """
+    scale = getattr(param, "step_scale", None)
+    if callable(scale):
+        return float(scale())
+    return float(param.radius)
+
+
 class Parameterization(Protocol):
     """φ 的容器。實作者只需回答四件事：怎麼畫、參數是誰、怎麼投影、半徑多大。"""
 
@@ -737,7 +756,7 @@ def run_param_pgd(
     if post_reset is not None:
         post_reset(param)
     ps = param.params()
-    alpha = (param.radius / max(1.0, steps * saturate_at)
+    alpha = (step_scale_of(param) / max(1.0, steps * saturate_at)
              if step_size is None else float(step_size))
     history: List[Dict] = []
 

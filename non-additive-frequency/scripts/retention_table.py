@@ -89,12 +89,15 @@ def tag_of(filename: str) -> str:
         f"{filename} 的分片名不在 {SHARDS} 裡，無法還原條件標籤")
 
 
+EFFECT_FIELD = "effect_mean"          # 由 --effect-field 覆寫
+
+
 def read_all(src: Path) -> List[dict]:
     rows: List[dict] = []
     for path in sorted(src.rglob("*.csv")):
         with path.open(encoding="utf-8") as fh:
             head = fh.readline()
-            if "purifier" not in head or "effect_mean" not in head:
+            if "purifier" not in head or EFFECT_FIELD not in head:
                 continue
         with path.open(encoding="utf-8") as fh:
             for r in csv.DictReader(fh):
@@ -132,7 +135,9 @@ def net_gain(rows: List[dict]) -> Tuple[List[dict], List[str]]:
     floor: Dict[Tuple[str, str], float] = {}
     for r in rows:
         if r["condition"] == FLOOR_CONDITION:
-            floor[(r["image"], r["purifier"])] = float(r["effect_mean"])
+            if r.get(EFFECT_FIELD, "") in ("", None):
+                continue
+            floor[(r["image"], r["purifier"])] = float(r[EFFECT_FIELD])
 
     # 幾何類的地板由構造為 0（同算子、同輸入、同種子的兩側）。非 0 表示這份
     # 地板是舊參照量的，兩種基準不可並列。
@@ -154,9 +159,16 @@ def net_gain(rows: List[dict]) -> Tuple[List[dict], List[str]]:
         if key not in floor:
             dropped.append(f"{cond}/{r['image']}/{r['purifier']}：缺地板")
             continue
+        if r.get(EFFECT_FIELD, "") in ("", None):
+            # 該條件沒有這個讀數（例如相位族沒有共防禦參照）。逐格記下，
+            # 不靜默略過也不補零。
+            dropped.append(
+                f"{cond}/{r['image']}/{r['purifier']}：{EFFECT_FIELD} 是空的"
+                f"（codefense_status={r.get('codefense_status', '?')}）")
+            continue
         buckets.setdefault((tag_of(r["_file"]) + "|" + cond,
                             r["purifier"]), []).append(
-            (r["image"], float(r["effect_mean"]), floor[key]))
+            (r["image"], float(r[EFFECT_FIELD]), floor[key]))
 
     out = []
     for (tag, pur), vals in sorted(buckets.items()):
@@ -179,7 +191,15 @@ def main() -> None:
         formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--src", type=Path, nargs="+", required=True)
     ap.add_argument("--out", type=Path, required=True)
+    ap.add_argument("--effect-field", default="effect_mean",
+                    help="用哪一欄當 effect。`effect_mean` 是現行參照；"
+                         "`effect_codefense_mean` 是共防禦參照 "
+                         "LPIPS(編輯(p(D(x))), p(D(編輯(x))))。**兩者並列不取代**，"
+                         "各跑一次得到兩張表。空字串的列（該條件沒有這個讀數）"
+                         "自動略過")
     args = ap.parse_args()
+    global EFFECT_FIELD
+    EFFECT_FIELD = args.effect_field
 
     rows: List[dict] = []
     for s in args.src:

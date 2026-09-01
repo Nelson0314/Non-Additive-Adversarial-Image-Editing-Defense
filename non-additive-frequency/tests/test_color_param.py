@@ -447,3 +447,33 @@ def test_codefense_reference_is_zero_when_nothing_is_applied(tmp_path):
     edit_orig = torch.rand(1, 3, 32, 32)
     ref = ops.Purifier("identity").evaluate(fn(edit_orig))
     assert float((ref - edit_orig).abs().max()) == 0.0
+
+
+# ── 步長的尺度 ───────────────────────────────────────────────────────
+
+
+def test_step_scale_defaults_to_radius_for_every_other_family():
+    """沒有定義 `step_scale()` 的參數化照舊用 `radius`，軌跡逐位元不變。"""
+    from src.defense.param_pgd import AdditiveParam, ShadingParam, step_scale_of
+
+    assert step_scale_of(AdditiveParam(radius=0.05)) == 0.05
+    assert step_scale_of(ShadingParam(radius=0.2)) == 0.2
+    assert step_scale_of(ColorGridParam(radius=0.1)) == 0.1
+
+
+def test_curve_step_scale_is_the_box_width_not_the_radius():
+    """曲線族的半徑是斜率剖面的動態範圍，與 `θ` 的尺度差兩個數量級。
+
+    K=64、r=3：盒是 [1/256, 4/64]，寬 0.0586；而 radius 是 3.0。用 radius
+    當步長尺度的話 sign 更新五步就撞到邊界，之後只在兩個角落之間彈跳。
+    """
+    from src.defense.param_pgd import step_scale_of
+
+    p = ColorCurveParam(radius=3.0, pieces=64)
+    lo, hi = p.bounds()
+    assert step_scale_of(p) == pytest.approx(hi - lo)
+    assert step_scale_of(p) == pytest.approx(4.0 / 64 - 1.0 / 256)
+    assert step_scale_of(p) < p.radius / 50
+
+    p.set_radius(0.0)
+    assert step_scale_of(p) == 0.0        # 恆等時步長為零

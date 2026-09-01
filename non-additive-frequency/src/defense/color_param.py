@@ -155,6 +155,16 @@ class ColorCurveParam:
     def set_radius(self, r: float) -> None:
         self.radius = r
 
+    def step_scale(self) -> float:
+        """步長公式要的是**盒寬**，不是半徑。
+
+        本族的半徑是斜率剖面的動態範圍 `1 + r`，與 `θ` 的尺度差兩個數量級：
+        K=64、r=3 時盒寬只有 0.059，而 `radius/(steps·0.25)` 會給 0.012。
+        沒有這一個掛鉤的話 sign 更新五步就撞到邊界。
+        """
+        lo, hi = self.bounds()
+        return hi - lo
+
     # ---- 構造 ----
 
     def bounds(self) -> Tuple[float, float]:

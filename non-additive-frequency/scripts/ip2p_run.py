@@ -81,7 +81,7 @@ from src.defense.purify_aware import (  # noqa: E402
     make_eot_broad_transform,
 )
 from src.defense.param_pgd import (  # noqa: E402
-    fit_to_budget, run_param_pgd, run_stage2_pgd,
+    fit_to_budget, run_param_pgd, run_stage2_pgd, step_scale_of,
 )
 from src.defense.stadv_flow import (  # noqa: E402
     NEIGHBOURHOODS, flow_tv_loss,
@@ -350,7 +350,7 @@ def _stage1_alpha(args, param) -> float:
     改動時只改到一邊，而症狀只是「階段二的步長比例不是你以為的那個」。"""
     if args.step_size is not None:
         return float(args.step_size)
-    return param.radius / max(1.0, args.steps * args.saturate_at)
+    return step_scale_of(param) / max(1.0, args.steps * args.saturate_at)
 
 
 def _run_stage2(x01, param, loss_fn, args):

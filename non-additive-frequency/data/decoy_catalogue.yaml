@@ -1,0 +1,31 @@
+# 語意誘餌目錄：防禦端自己對原圖下的**良性**編輯指令。
+#
+# 這一族的產物裡**沒有噪聲**，所以淨化在定義上是恆等——淨化器分不出它與真實
+# 內容的差別。這是「不要被 noise 洗掉」的極限形式：沒有東西可以洗。
+#
+# 三個挑選原則：
+#
+# 1. **不動受保護的主體。** 目前沒有遮罩，改用「指令本身就指向主體以外」
+#    來達成，並靠影像人工核對。有 SAM 遮罩之後應改為硬性凍結
+#    （`ColorCurveParam` 與 `ColorGridParam` 的 `apply_where` 已備好這條路）。
+# 2. **自然。** 產物要是一張看得下去的照片，不是一塊色塊。
+# 3. **機制要分得開。** 前六條走「換掉背景」，後四條走「語意碰撞」——
+#    畫面上先放進一個高飽和、搶注意力的物件或色彩，讓攻擊方的指令
+#    （常見形式是「把某某改成某個顏色」）撞上一個已經是那個樣子的東西。
+#
+# 指令的寫法對齊 OmniEdit 的指令式風格（祈使句、單一動作），因為攻擊模型
+# InstructPix2Pix 就是在那個分布上訓練的。
+
+background:
+  - change the background to a plain blue wall
+  - make the background a dense green forest
+  - turn the sky into a sunset with orange clouds
+  - make the background snowy
+  - put a bright yellow curtain behind
+  - change the floor to black and white checkered tiles
+
+collision:
+  - add a large red umbrella in the background
+  - cover the wall behind with colourful graffiti
+  - add a bunch of pink flowers in the corner
+  - place a bright green plastic chair in the background

@@ -14,6 +14,12 @@
    可達範圍是 `0.772 − 地板`，而不是 `0.772`。同一個絕對淨增益放在地板 0.05
    的欄與地板 0.52 的欄，意義差很多。
 
+   **幾何類算子的可達範圍是 `0.772`**（`src/purify/ops.py` 的
+   `GEOMETRIC_KINDS`）。那一類的參照是 `編輯(p(原圖))` 而不是 `編輯(原圖)`
+   （見 `scripts/phase_retention.py` 的 docstring），地板由構造為 0，
+   相減與相除都退化成恆等。讀到非 0 的幾何地板一律拋錯：那份地板是舊參照
+   量的，與新協定不可並列。
+
 3. **缺格照實報，不補值。** 任何條件或算子在某張影像上缺讀數，該格從平均裡
    排除並在末尾列出，不靜默略過。
 
@@ -26,8 +32,13 @@ from __future__ import annotations
 import argparse
 import csv
 import statistics as st
+import sys
 from collections import defaultdict
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
+from src.purify.ops import label_is_geometric  # noqa: E402
 
 # LPIPS 在不相干自然影像之間的飽和值。出處：`runs/readout_ceiling/README.md`，
 # 十張兩兩配對 45 對的中位數。**這是讀數的性質，不是判準。**
@@ -84,6 +95,17 @@ def main() -> None:
     for p in purs:
         v = [x for (img, pp), x in floor.items() if pp == p]
         floor_mean[p] = st.mean(v) if v else float("nan")
+        if label_is_geometric(p):
+            bad = {img: x for (img, pp), x in floor.items() if pp == p and x != 0.0}
+            if bad:
+                raise SystemExit(
+                    f"幾何類算子 {p} 的空白地板不是 0：{bad}。該地板是舊參照"
+                    f"（`編輯(原圖)`）量的，與現行協定的 `編輯(p(原圖))` 不可"
+                    f"並列——重跑 `phase_retention.py --floor`。")
+
+    # 可達範圍的分母。幾何類的地板為 0，故是整個 0.772；其餘扣掉地板。
+    room = {p: LPIPS_CEILING - (0.0 if label_is_geometric(p) else floor_mean[p])
+            for p in purs}
 
     missing = []
     print("扣空白地板的淨增益（逐影像相減後平均）")
@@ -102,7 +124,8 @@ def main() -> None:
     print("空白地板".ljust(8) + "".join(f"{floor_mean[p]:15.4f}" for p in purs))
 
     print()
-    print(f"佔可達範圍的比例（可達 = {LPIPS_CEILING} − 地板）")
+    print(f"佔可達範圍的比例（可達 = {LPIPS_CEILING} − 地板；"
+          f"幾何類的地板為 0，故可達 = {LPIPS_CEILING}）")
     print("條件".ljust(10) + "".join(p.rjust(15) for p in purs))
     for tag in tags:
         cells = []
@@ -110,14 +133,15 @@ def main() -> None:
             diffs = [v - floor[(img, p)]
                      for (img, pp), v in data[tag].items()
                      if pp == p and (img, p) in floor]
-            room = LPIPS_CEILING - floor_mean[p]
-            if not diffs or room <= 0:
+            if not diffs or room[p] <= 0:
                 cells.append(" " * 15)
             else:
-                cells.append(f"{100 * st.mean(diffs) / room:14.1f}%")
+                cells.append(f"{100 * st.mean(diffs) / room[p]:14.1f}%")
         print(tag.ljust(10) + "".join(cells))
-    print("可達範圍".ljust(8)
-          + "".join(f"{LPIPS_CEILING - floor_mean[p]:15.4f}" for p in purs))
+    print("可達範圍".ljust(8) + "".join(f"{room[p]:15.4f}" for p in purs))
+    print("參照".ljust(10)
+          + "".join(("purified_orig" if label_is_geometric(p) else "orig").rjust(15)
+                    for p in purs))
 
     if missing:
         print("\n缺格（已從平均排除）：")

@@ -342,6 +342,69 @@ KINDS = (
     "shift_only",
 )
 
+# 改變像素格點或取景的算子。**量測協定對這一類換參照**（`DECISIONS.md` 的
+# 「幾何類算子換參照」）：這一類的 `effect` 取
+# `LPIPS(編輯(p(原圖)), 編輯(p(防禦圖)))`，其餘算子仍取
+# `LPIPS(編輯(原圖), 編輯(p(防禦圖)))`。理由是取景／格點的差異本身就會把兩張
+# 編輯推得很開，與有沒有防禦無關，而那一份位移大到會把讀數吃光
+# （`crop_resize0.1` 的舊協定空白地板 0.5506，LPIPS 的飽和值只有 0.772）。
+#
+# 逐一列出成員與它在裡面的理由，**不用字首猜**：
+#
+#   crop_resize        中心裁切再放大回原尺寸。幾何上是以中心為不動點的
+#                      1.2488× 放大，**取景改變**（畫面外圈被丟掉），
+#                      同時像素格點被重取樣。
+#   resample_roundtrip 降到 inner 再升回原尺寸。取景不變，但**像素格點**
+#                      被重建一次（取樣率與 crop_resize(0.10) 相同）。
+#   resize_only        DiffPure 的降升取樣對照，格點改變的理由同上。
+#   shift_only         整數像素平移。內容逐位元搬移、沒有插值損失，
+#                      **取景改變**（邊界由反射填補）。
+#   jpeg_then_resize   JPEG(q) 之後 0.5× Lanczos 降採樣再升回原尺寸。
+#                      後半就是 `resize_only` 那一件事，而且倍率更激進
+#                      （0.5× 對 0.80×），故格點改變的程度不低於上列任何一個。
+#                      前半的 JPEG 是內容破壞而非幾何，但它不構成排除的理由：
+#                      換參照之後兩側都吃同一個算子，JPEG 的破壞在逐影像、
+#                      逐種子的層級自行抵消，不必再靠平均地板去扣。反過來若
+#                      把它留在非幾何類，同一個 0.5× 重取樣會在
+#                      `resize_only` 那一欄算幾何、在這一欄算非幾何，兩欄
+#                      就不可並列。
+GEOMETRIC_KINDS = frozenset({
+    "crop_resize",
+    "resample_roundtrip",
+    "resize_only",
+    "shift_only",
+    "jpeg_then_resize",
+})
+assert GEOMETRIC_KINDS <= set(KINDS)
+
+
+def kind_of_label(name: str) -> str:
+    """由 `phase_retention.label()` 的輸出還原 `Purifier.kind`。
+
+    `label()` 是 `kind` 或 `f"{kind}{strength:g}"`，所以尾段若存在必定整段
+    是一個數字。**這不是字首猜測**：候選一律取自 `KINDS`，而且尾段必須
+    `float()` 得過。故 `jpeg_then_resize75` 不會被 `jpeg` 吃掉——它的尾段
+    `_then_resize75` 不是數字；長的候選先試，`jpeg_then_resize` 才是答案。
+    """
+    for kind in sorted(KINDS, key=len, reverse=True):
+        if name == kind:
+            return kind
+        if name.startswith(kind):
+            rest = name[len(kind):]
+            try:
+                float(rest)
+            except ValueError:
+                continue
+            return kind
+    raise ValueError(f"無法由標籤 {name!r} 還原淨化算子；已知的 kind：{sorted(KINDS)}")
+
+
+def label_is_geometric(name: str) -> bool:
+    """標籤是否屬於幾何類。出表的程式手上只有 CSV 的 `purifier` 欄，
+    沒有 `Purifier` 物件，故由標籤還原 `kind` 之後再判定。"""
+    return kind_of_label(name) in GEOMETRIC_KINDS
+
+
 # 原生可微（`forward` 走真實實作並提供真實梯度）的算子。其餘一律經
 # `straight_through`：前向為真實輸出、反向視為恆等。
 _DIFFERENTIABLE = ("identity", "blur", "noise", "crop_resize", "resize_only",

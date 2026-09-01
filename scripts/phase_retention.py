@@ -4,6 +4,46 @@
 `LPIPS(未防禦的編輯, 防禦後的編輯)`——與 `apa_baseline.evaluate` 的
 `edit_lpips` 同一個量，只是換了輸入的淨化算子。
 
+## 參照依算子分兩種
+
+    effect(p) = LPIPS( 編輯(p(原圖)), 編輯(p(防禦圖)) )    幾何類
+    effect(p) = LPIPS( 編輯(原圖),    編輯(p(防禦圖)) )    其餘
+
+幾何類就是 `src/purify/ops.py` 的 `GEOMETRIC_KINDS`（`crop_resize`、
+`resample_roundtrip`、`resize_only`、`shift_only`、`jpeg_then_resize`），
+**判定用 `Purifier.kind`，不是 `label()` 的字串**——label 會把強度接在後面。
+
+幾何類換參照的理由是取景與像素格點：`crop_resize` 是繞中心的純放大
+1.2488×，它改的是取景，所以就算完全沒有防禦，`編輯(p(原圖))` 與 `編輯(原圖)`
+之間也會差很多——舊參照下的空白地板實測 0.5506，而 LPIPS 在兩張不相干的
+自然影像之間只飽和到 0.772（`runs/readout_ceiling/`）。讀數幾乎被取景差異
+吃光。換成同一個算子的兩側之後，取景差異兩邊相同、逐影像逐種子自行抵消。
+
+**其餘算子不換。** 它們的地板反映的是算子對影像內容的破壞（JPEG 的區塊
+假影、模糊抹掉的細節），那正是扣地板要扣掉的東西，不是取景造成的假象；
+換了參照會讓既有的 `runs/` 全部不可並列。
+
+`reference` 這一欄逐列記下該列用的是哪一種參照（`orig` 或 `purified_orig`）。
+兩種基準會出現在同一張表裡，**沒有這一欄就分不出來**。
+
+`retention` 欄在幾何類的列上，分子與分母（identity）踩的是不同的參照，
+要與 `reference` 欄一起讀。主讀數是扣地板的淨增益，不是這個比值。
+
+## 成本
+
+每張影像的編輯次數是
+
+    |種子| × (1 + |算子| + |幾何類算子|)
+
+前兩項是舊有的（參照一份、每個算子一份），第三項是新增的：**幾何類的參照
+不能跨算子共用**，每一個幾何算子各自要一份 `編輯(p(原圖))`。現行主組六個
+算子（identity／jpeg75／jpeg30／blur1／blur2／crop_resize0.1）裡只有
+`crop_resize0.1` 是幾何類，故三個種子下每張圖由 3 × (1 + 6) = 21 升到
+3 × (1 + 6 + 1) = 24，**+14%**。
+
+記憶體同步上升：參照快取跨格保留（同一張影像在多個條件下重用），多存的是
+`|影像| × |種子| × |幾何類算子|` 張 512²×3 的 fp32 張量，每張 3 MB。
+
 **分母塌陷時不可解讀**（`EVALUATION.md` §6）：`effect(identity)` 的多 seed 平均
 低於三倍標準差時，該列標 `usable=False` 並排除在任何統計之外。這不是保守，
 是 FND-009 記過的事——分母本身在雜訊裡時，比值沒有意義。
@@ -24,6 +64,11 @@
 
 該格的 `effect(identity)` 由構造為 0（同 seed、同輸入、SDEdit 是確定性的），
 故 `retention` 欄留空。**空白地板只看絕對值，不看比值。**
+
+**幾何類在 `--floor` 下恰為 0**：參照是 `編輯(p(原圖))`，而防禦圖就是原圖，
+兩側同算子、同輸入、同種子，位元相同。量到非 0 表示編輯不是確定性的或種子
+沒對齊，本腳本直接拋錯——那是量測本身壞了，不是一個小數字。扣地板的機制對
+幾何欄因此是恆等變換，非幾何欄照舊扣非 0 的地板。
 
 用法：
     python scripts/phase_retention.py --run runs/phaseA_full --seeds 3
@@ -51,6 +96,7 @@ from apa_baseline import (  # noqa: E402
 from src.metrics.suite import MetricSuite  # noqa: E402
 from src.models.sd import SDWrapper  # noqa: E402
 from src.purify import ops as purify_ops  # noqa: E402
+from src.purify.ops import GEOMETRIC_KINDS  # noqa: E402
 from src.utils.artifacts import save_image  # noqa: E402
 from src.utils.io import load_image_tensor, write_csv  # noqa: E402
 
@@ -233,7 +279,13 @@ def main() -> None:
     seeds = [seed0 + k for k in range(args.seeds)]
 
     dataset = {d["name"]: d for d in load_dataset(args.data)}
+    # 兩份參照快取，鍵的形狀不同，**不可合併**：
+    #   非幾何類  (影像, 種子)         內容 編輯(原圖)          ← 既有行為，未動
+    #   幾何類    (影像, 種子, 標籤)   內容 編輯(p(原圖))
+    # 幾何類的鍵含算子標籤，因為 `編輯(p(原圖))` 隨 p 而變，跨算子共用會把
+    # 別的算子的取景當成自己的參照。
     edit_orig_cache: dict = {}
+    edit_pur_orig_cache: dict = {}
 
     def edit(x01, item, seed):
         if ip2p_kw is not None:
@@ -266,12 +318,29 @@ def main() -> None:
             if key not in edit_orig_cache:
                 edit_orig_cache[key] = edit(x01, item, seed)
 
+        def reference(p, name: str, seed: int):
+            """該算子這一列要比對的參照編輯。
+
+            幾何類取 `編輯(p(原圖))`，其餘取 `編輯(原圖)`。判定走
+            `p.kind`：`label()` 會把強度接在後面（`crop_resize0.1`），
+            拿字串比對會在新增強度時默默失準。
+            """
+            if p.kind not in GEOMETRIC_KINDS:
+                return edit_orig_cache[(cell["image"], seed)]
+            key = (cell["image"], seed, name)
+            if key not in edit_pur_orig_cache:
+                edit_pur_orig_cache[key] = edit(p.evaluate(x01), item, seed)
+            return edit_pur_orig_cache[key]
+
         print(f"=== {cell['image']} / {tag} ===", flush=True)
         t0 = time.time()
         effects: dict = {}
         sims: dict = {}
+        refs: dict = {}
         for p in purifiers:
             name = label(p)
+            geometric = p.kind in GEOMETRIC_KINDS
+            refs[name] = "purified_orig" if geometric else "orig"
             vals = []
             x_pur = p.evaluate(x_def)
             if args.gallery is not None:
@@ -280,23 +349,32 @@ def main() -> None:
                 save_image(x_pur, args.gallery /
                            f"{cell['image']}__{cell['tag']}__{name}__pur.png")
             first = None
+            first_ref = None
             for seed in seeds:
+                ref = reference(p, name, seed)
                 e = edit(x_pur, item, seed)
                 if seed == seeds[0]:
-                    first = e
+                    first, first_ref = e, ref
                     if args.gallery is not None:
                         save_image(e, args.gallery /
                                    f"{cell['image']}__{cell['tag']}__{name}__edit_def.png")
-                vals.append(float(
-                    suite.pairwise(edit_orig_cache[(cell["image"], seed)], e)["lpips"]))
+                vals.append(float(suite.pairwise(ref, e)["lpips"]))
+            if args.floor and geometric and any(v != 0.0 for v in vals):
+                # 地板那一格的防禦圖就是原圖，幾何類的參照也是 `編輯(p(原圖))`，
+                # 兩側同算子、同輸入、同種子 → 位元相同 → LPIPS 恰為 0。
+                raise RuntimeError(
+                    f"{cell['image']} 的幾何類算子 {name} 在 --floor 下量到 "
+                    f"{vals}，應恰為 0。這表示編輯不是確定性的、或參照與量測"
+                    f"兩側的種子沒對齊——先修好那件事，不要解讀這批數字。")
             effects[name] = vals
             # 影像—影像的語意相似度。39 格人眼標記上 AUC 0.974、門檻 0.837 時
             # 正確率 93.5%，勝過位移的 0.932（見 runs/obedience_audit/README.md）。
             # **重用第一個種子已經算過的編輯**——編輯是這一格的主要成本，
             # 為了多一個讀數再跑一次會讓整批時間翻倍。三個種子是為了估分母的
             # 標準差，這一項不進統計故只取一個。
-            sims[name] = float(suite.image_similarity(
-                edit_orig_cache[(cell["image"], seeds[0])], first)["siglip"])
+            # 參照與 `effect` 用同一個（`first_ref`）：一邊換一邊不換會讓兩個
+            # 讀數指向不同的基準，而表上看不出來。
+            sims[name] = float(suite.image_similarity(first_ref, first)["siglip"])
 
         base = effects["identity"]
         base_mean = statistics.fmean(base)
@@ -314,6 +392,10 @@ def main() -> None:
             rows.append({
                 "image": cell["image"], "condition": cell["condition"],
                 "budget_target": cell["budget"], "purifier": name,
+                # 這一列的 effect 與 siglip_sim 踩的是哪一個參照。
+                # `orig` = 編輯(原圖)；`purified_orig` = 編輯(該算子(原圖))。
+                # 兩種基準會出現在同一張表裡，少了這一欄就分不出來。
+                "reference": refs[name],
                 "effect_mean": round(mean, 5),
                 "effect_sd": round(statistics.stdev(vals), 5) if len(vals) > 1 else "",
                 "effect_identity_mean": round(base_mean, 5),

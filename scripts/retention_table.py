@@ -16,6 +16,17 @@
 地板逐圖不同（同一個模糊在不同影像上推開的量差好幾倍），故相減在**逐圖**
 層級做，不是先各自平均再相減。缺地板的影像整格排除並回報，不靜默補零。
 
+幾何類算子的地板恆為 0
+────────────────────────────────────────────────────────────────────
+`src/purify/ops.py` 的 `GEOMETRIC_KINDS`（`crop_resize`、`resize_only`、
+`resample_roundtrip`、`shift_only`、`jpeg_then_resize`）在
+`phase_retention.py` 裡走另一個參照：`effect = LPIPS(編輯(p(原圖)),
+編輯(p(防禦圖)))`。地板那一格的防禦圖就是原圖，兩側完全相同，故地板由構造
+為 0，**扣地板對這幾欄是恆等變換**。相減照做不特例化。
+
+讀到非 0 的幾何地板一律拋錯：那份地板是舊參照（`編輯(原圖)`）量的，數字與
+新協定的 effect 不同基準，混在一張表裡看不出來。
+
 `usable = False` 的列（`effect(identity)` 低於三倍標準差）一律排除。
 
 用法：
@@ -34,6 +45,7 @@ from typing import Dict, List, Tuple
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
+from src.purify.ops import label_is_geometric  # noqa: E402
 from src.utils.io import write_csv  # noqa: E402
 
 FLOOR_CONDITION = "none"        # phase_retention.py --floor 寫下的條件名
@@ -100,6 +112,16 @@ def net_gain(rows: List[dict]) -> Tuple[List[dict], List[str]]:
     for r in rows:
         if r["condition"] == FLOOR_CONDITION:
             floor[(r["image"], r["purifier"])] = float(r["effect_mean"])
+
+    # 幾何類的地板由構造為 0（同算子、同輸入、同種子的兩側）。非 0 表示這份
+    # 地板是舊參照量的，兩種基準不可並列。
+    bad = {k: v for k, v in floor.items()
+           if v != 0.0 and label_is_geometric(k[1])}
+    if bad:
+        raise ValueError(
+            f"幾何類算子的空白地板不是 0：{sorted(bad.items())}。"
+            f"該地板是舊參照（`編輯(原圖)`）量的，與現行協定的 "
+            f"`編輯(p(原圖))` 不可並列——重跑 `phase_retention.py --floor`。")
 
     buckets: Dict[Tuple[str, str], List[Tuple[str, float, float]]] = {}
     dropped: List[str] = []

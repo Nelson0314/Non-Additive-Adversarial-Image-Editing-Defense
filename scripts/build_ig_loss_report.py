@@ -9,9 +9,15 @@
       │                                                              ▲
       └──淨化 T──▶ 淨化後的原圖 ──編輯──▶ **空白地板**（要扣掉的那一項）─┘
 
-主讀數是**扣掉地板的淨增益**：淨化算子自己就會把編輯推開（裁切 10% 的地板
-實測 0.55），不扣掉它，「淨化後位移較大」無法排除「該算子本來就把編輯推得
-比較開」這個平庸解釋。所以地板那一欄一定要並排放在旁邊，不是放在附錄。
+主讀數是**扣掉地板的淨增益**：淨化算子自己就會把編輯推開，不扣掉它，
+「淨化後位移較大」無法排除「該算子本來就把編輯推得比較開」這個平庸解釋。
+所以地板那一欄一定要並排放在旁邊，不是放在附錄。
+
+**兩種參照並存，頁面上要標出來。** 幾何類算子（`src/purify/ops.py` 的
+`GEOMETRIC_KINDS`，本頁六欄裡是 `crop_resize0.1`）的 `effect` 取
+`LPIPS(編輯(p(原圖)), 編輯(p(防禦圖)))`，地板由構造為 0、可達範圍是整個
+0.772；其餘算子仍取 `LPIPS(編輯(原圖), 編輯(p(防禦圖)))`，地板非 0、可達
+範圍是 `0.772 − 地板`。讀到非 0 的幾何地板一律拋錯，那份地板是舊參照量的。
 
 **擋下與否用眼睛判「重畫」對「劣化」**：模型重畫成無關的場景、或整張變成
 噪紋都算擋下；原圖仍認得出來、只是變糊變髒的單純劣化不算——攻擊方還是拿得到
@@ -33,12 +39,17 @@ import csv
 import html
 import io
 import statistics as st
+import sys
 from collections import defaultdict
 from pathlib import Path
 from typing import Dict, List, Optional
 
 import numpy as np
 from PIL import Image
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
+from src.purify.ops import label_is_geometric  # noqa: E402
 
 SRC = Path("runs/ip2p_ig_loss")
 GAL = SRC / "purify"
@@ -53,6 +64,9 @@ OP_LABEL = {
     "blur1": "高斯模糊 σ=1", "blur2": "高斯模糊 σ=2",
     "crop_resize0.1": "裁切縮放 10%",
 }
+# 每一欄用哪一種參照。`purified_orig` 就是 phase_retention.py 寫進 CSV
+# `reference` 欄的那個值，此處由算子本身推得，兩者必須一致。
+REF_LABEL = {True: "參照＝編輯(算子(原圖))", False: "參照＝編輯(原圖)"}
 # 每一格的順序固定：先看防禦強度（全部條件、未淨化），再逐算子看整條鏈。
 CONDS = ["ig_f08_eot", "ln_eot", "ig_r40_eot", "ig_blend_eot",
          "ig_eot", "ig_noeot", "ig_lot_eot", "ig_hit_eot"]
@@ -146,6 +160,13 @@ def main() -> None:
     floor = eff.get("floor", {})
     if not floor:
         raise SystemExit(f"{GAL} 沒有 floor_all.csv——扣地板不可省略")
+    bad = {k: v for k, v in floor.items()
+           if v != 0.0 and label_is_geometric(k[1])}
+    if bad:
+        raise SystemExit(
+            f"幾何類算子的空白地板不是 0：{sorted(bad.items())}。該地板是舊"
+            f"參照（`編輯(原圖)`）量的，與現行協定的 `編輯(p(原圖))` 不可"
+            f"並列——重跑 `phase_retention.py --floor`。")
 
     P: List[str] = []
     A = P.append
@@ -211,13 +232,27 @@ figcaption b{color:var(--fg)}
       f'<b>{LPIPS_CEILING}</b>，所以每一欄的可達範圍是 '
       f'<code>{LPIPS_CEILING} − 地板</code>，不是 {LPIPS_CEILING}。'
       f'同一個絕對淨增益放在地板 0.11 的欄與地板 0.55 的欄，意義差很多。</p>')
+    A('<p class="lede"><b>兩種參照並存，欄頭已標出。</b>幾何類算子'
+      '（本頁是<b>裁切縮放 10%</b>）的位移取 '
+      '<code>LPIPS(編輯(算子(原圖)), 編輯(算子(防禦圖)))</code>：兩側吃同一個'
+      '算子，取景差異自行抵消，地板由構造為 0，可達範圍是整個 '
+      f'<code>{LPIPS_CEILING}</code>。其餘算子取 '
+      '<code>LPIPS(編輯(原圖), 編輯(算子(防禦圖)))</code>，地板非 0，'
+      f'可達範圍是 <code>{LPIPS_CEILING} − 地板</code>。'
+      '兩者的絕對值不可直接相減。</p>')
 
     fm = {op: st.mean([v for (i, o), v in floor.items() if o == op] or [0.0])
           for op in OPS}
+    # 可達範圍的分母：幾何類的地板為 0，故是整個天花板。
+    room = {op: LPIPS_CEILING - (0.0 if label_is_geometric(op) else fm[op])
+            for op in OPS}
     for mode in ("abs", "frac"):
         A("<h3>" + ("絕對淨增益" if mode == "abs" else "佔可達範圍的比例")
           + "</h3><table><thead><tr><th>條件</th><th>DISTS</th>"
-          + "".join(f"<th>{OP_LABEL[o]}</th>" for o in OPS)
+          + "".join(f"<th>{OP_LABEL[o]}<br>"
+                    f"<span style='font-weight:400;font-size:.85em'>"
+                    f"{REF_LABEL[label_is_geometric(o)]}</span></th>"
+                    for o in OPS)
           + "</tr></thead><tbody>")
         for cond in CONDS:
             if cond not in eff:
@@ -232,16 +267,15 @@ figcaption b{color:var(--fg)}
                     cells.append("<td>—</td>")
                     continue
                 g = st.mean(diffs)
-                room = LPIPS_CEILING - fm[op]
                 cells.append(f"<td>{g:.4f}</td>" if mode == "abs"
-                             else f"<td>{100 * g / room:.1f}%</td>")
+                             else f"<td>{100 * g / room[op]:.1f}%</td>")
             klass = ' class="hl"' if cond == "ig_f08_eot" else ""
             A(f"<tr{klass}><td>{cond}</td><td>{fmt(dists)}</td>"
               + "".join(cells) + "</tr>")
         A("<tr><td>空白地板（絕對位移）</td><td>—</td>"
           + "".join(f"<td>{fm[o]:.4f}</td>" for o in OPS) + "</tr>")
         A("<tr><td>可達範圍</td><td>—</td>"
-          + "".join(f"<td>{LPIPS_CEILING - fm[o]:.4f}</td>" for o in OPS)
+          + "".join(f"<td>{room[o]:.4f}</td>" for o in OPS)
           + "</tr></tbody></table>")
 
     # ------------------------------------------------- 防禦圖本身（未淨化）
@@ -295,12 +329,19 @@ figcaption b{color:var(--fg)}
                 g = None
                 if (img, op) in eff.get(cond, {}) and (img, op) in floor:
                     g = eff[cond][(img, op)] - floor[(img, op)]
-                room = LPIPS_CEILING - fm[op]
-                pct = f"（佔可達 {100 * g / room:.1f}%）" if g is not None else ""
+                pct = (f"（佔可達 {100 * g / room[op]:.1f}%）"
+                       if g is not None else "")
                 A(f'<p class="meta">{OP_LABEL[op]}　'
                   f'淨增益 <span class="gain">{fmt(g)}</span> {pct}　'
-                  f'地板 {fmt(fm[op])}</p>')
+                  f'地板 {fmt(fm[op])}　'
+                  f'{REF_LABEL[label_is_geometric(op)]}</p>')
                 A('<div class="row">')
+                # 幾何類算子的第四格不是「要扣掉的地板」而是「要比對的參照」
+                # ——那一類的 effect 直接拿它與最後一格比。標籤必須跟著換，
+                # 否則同一張圖在兩種欄位下代表不同的東西而讀者看不出來。
+                fourth = ("編輯（淨化後的原圖）＝<b>參照</b>"
+                          if label_is_geometric(op)
+                          else "編輯（淨化後的原圖）＝<b>空白地板</b>")
                 panels = [
                     (GAL / "gallery_floor" / f"{img}__None__{op}__pur.png",
                      "淨化後的原圖"),
@@ -309,7 +350,7 @@ figcaption b{color:var(--fg)}
                     (SRC / cond / f"{img}__phase_gain__edit_orig.png",
                      "編輯（原圖，未淨化）"),
                     (GAL / "gallery_floor" / f"{img}__None__{op}__edit_def.png",
-                     "編輯（淨化後的原圖）＝<b>空白地板</b>"),
+                     fourth),
                     (GAL / f"gallery_{cond}" / f"{img}__phase_gain__{op}__edit_def.png",
                      "編輯（淨化後的防禦圖）＝<b>交出去的結果</b>"),
                 ]

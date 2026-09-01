@@ -1,0 +1,24 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  17%|█▋        | 1/6 [00:00<00:00,  9.68it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 4197.49it/s]
+Loading pipeline components...:  67%|██████▋   | 4/6 [00:00<00:00, 15.09it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 17.09it/s]
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+IP2P 線：8 張、條件 ['dct_wm']、steps=100 s_T=7.5 s_I=1.5 seed=20260812
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,1.0]
+  warnings.warn(
+task_attr_mod_color_136767       dct_wm         r=2.0000 dists=0.0622 lpips=0.3317 effect=0.3444 (153s)
+task_attr_mod_color_6205         dct_wm         r=2.0000 dists=0.0715 lpips=0.3838 effect=0.4095 (153s)
+task_env_weather_181583          dct_wm         r=2.0000 dists=0.0705 lpips=0.4460 effect=0.6628 (154s)
+task_obj_add_13726               dct_wm         r=2.0000 dists=0.0445 lpips=0.2762 effect=0.3326 (155s)
+task_obj_add_581286              dct_wm         r=2.0000 dists=0.0802 lpips=0.4662 effect=0.4741 (155s)
+task_obj_remove_257910           dct_wm         r=2.0000 dists=0.0824 lpips=0.3797 effect=0.3610 (154s)
+task_obj_remove_657585           dct_wm         r=2.0000 dists=0.1042 lpips=0.5181 effect=0.9056 (154s)
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-0.9686274528503418,1.0]
+  warnings.warn(
+task_obj_swap_joint_mask_75733   dct_wm         r=2.0000 dists=0.0648 lpips=0.4039 effect=0.4038 (156s)
+
+表：runs/fair0820/b1_wm/k64_1/results.csv（8 列）

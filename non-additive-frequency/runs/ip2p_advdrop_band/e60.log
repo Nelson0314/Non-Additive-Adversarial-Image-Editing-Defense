@@ -1,0 +1,31 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  17%|█▋        | 1/6 [00:00<00:01,  4.37it/s]Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00,  4.20it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3794.49it/s]
+Loading pipeline components...:  50%|█████     | 3/6 [00:00<00:00,  4.99it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 10.91it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00,  8.14it/s]
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+IP2P 線：13 張、條件 ['advdrop']、steps=100 s_T=7.5 s_I=1.5 seed=20260812
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,1.0]
+  warnings.warn(
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 14675.71it/s]
+[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
+[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
+Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights:  20%|██        | 83/408 [00:00<00:00, 828.04it/s]Loading weights:  55%|█████▍    | 223/408 [00:00<00:00, 1156.75it/s]Loading weights:  85%|████████▍ | 345/408 [00:00<00:00, 1183.82it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 1196.51it/s]
+task_attr_mod_color_11699        advdrop        r=60.0000 dists=0.0209 lpips=0.1022 effect=0.1229 (78s)
+task_attr_mod_color_136767       advdrop        r=60.0000 dists=0.0051 lpips=0.0437 effect=0.0731 (64s)
+task_attr_mod_color_184837       advdrop        r=60.0000 dists=0.0059 lpips=0.0319 effect=0.0516 (64s)
+task_attr_mod_color_32648        advdrop        r=60.0000 dists=0.0174 lpips=0.1129 effect=0.1098 (64s)
+task_attr_mod_color_6205         advdrop        r=60.0000 dists=0.0096 lpips=0.0657 effect=0.0693 (64s)
+task_env_weather_112463          advdrop        r=60.0000 dists=0.0121 lpips=0.0823 effect=0.1828 (64s)
+task_env_weather_246440          advdrop        r=60.0000 dists=0.0027 lpips=0.0160 effect=0.0985 (64s)
+task_env_weather_63722           advdrop        r=60.0000 dists=0.0192 lpips=0.1061 effect=0.1325 (64s)
+task_obj_add_40931               advdrop        r=60.0000 dists=0.0112 lpips=0.0762 effect=0.1033 (64s)
+task_obj_remove_380621           advdrop        r=60.0000 dists=0.0128 lpips=0.0950 effect=0.1348 (64s)
+task_obj_swap_joint_mask_276754  advdrop        r=60.0000 dists=0.0104 lpips=0.0604 effect=0.0466 (64s)
+task_obj_swap_joint_mask_533428  advdrop        r=60.0000 dists=0.0070 lpips=0.0715 effect=0.2487 (64s)
+task_obj_swap_rand_mask_417469   advdrop        r=60.0000 dists=0.0095 lpips=0.0657 effect=0.0826 (64s)
+
+表：runs/ip2p_advdrop_band/e60/results.csv（13 列）

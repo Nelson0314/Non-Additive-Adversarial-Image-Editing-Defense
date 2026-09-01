@@ -1,0 +1,9 @@
+image,condition,attacker,instruction,task,radius,unreachable,edit_steps,s_t,s_i,edit_seed,modified_from_paper,fid_lpips,fid_ssim,fid_psnr,fid_vif_p,fid_dists,edit_lpips,edit_ssim,edit_psnr,edit_vif_p,edit_dists,fid_linf,fid_rms,total_seconds
+task_attr_mod_color_136767,dct_shield_y,instruct-pix2pix,turn the color of astronaut to pink,,1.0,False,100,7.5,1.5,20260812,False,0.35161,0.97852,33.039,0.5165,0.0359,0.57526,0.36509,8.237,0.18571,0.34208,0.22468,0.02229,591.9
+task_attr_mod_color_6205,dct_shield_y,instruct-pix2pix,turn the color of toolbox to red,,1.0,False,100,7.5,1.5,20260812,False,0.44249,0.98281,32.586,0.46654,0.04214,0.57953,0.43125,9.504,0.38275,0.34856,0.24145,0.02348,592.8
+task_env_weather_181583,dct_shield_y,instruct-pix2pix,change the setting to a stormy day,,1.0,False,100,7.5,1.5,20260812,False,0.45145,0.98588,32.69,0.47982,0.01878,0.68227,0.61542,13.725,0.41487,0.35835,0.16346,0.0232,596.1
+task_obj_add_13726,dct_shield_y,instruct-pix2pix,Add subscribe button,,1.0,False,100,7.5,1.5,20260812,False,0.31031,0.98226,31.909,0.51037,0.01417,0.59757,0.55795,15.697,0.28412,0.29313,0.18005,0.02538,595.5
+task_obj_add_581286,dct_shield_y,instruct-pix2pix,Add sauce,,1.0,False,100,7.5,1.5,20260812,False,0.52158,0.98215,33.073,0.40827,0.04344,0.50424,0.75497,19.22,0.4478,0.262,0.17933,0.0222,595.2
+task_obj_remove_257910,dct_shield_y,instruct-pix2pix,Remove bracelet,,1.0,False,100,7.5,1.5,20260812,False,0.44751,0.97337,32.696,0.42272,0.02934,0.63677,0.39649,11.273,0.09094,0.29078,0.15562,0.02318,595.2
+task_obj_remove_657585,dct_shield_y,instruct-pix2pix,Remove frisbee,,1.0,False,100,7.5,1.5,20260812,False,0.55918,0.97914,33.225,0.43649,0.05075,0.78489,0.37948,12.39,0.11506,0.32903,0.24099,0.02181,594.4
+task_obj_swap_joint_mask_75733,dct_shield_y,instruct-pix2pix,Replace the snowy landscape with sea,,1.0,False,100,7.5,1.5,20260812,False,0.45527,0.98108,33.182,0.39893,0.02536,0.50564,0.72119,16.002,0.3265,0.27962,0.14662,0.02192,585.2

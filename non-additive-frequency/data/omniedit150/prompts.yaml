@@ -1,0 +1,878 @@
+# OmniEdit 抽樣（DEC-030）。scripts/fetch_omniedit.py 產生，勿手改。
+# dataset=TIGER-Lab/OmniEdit-Filtered-1.2M split=dev seed=0 per_task=30
+#
+# prompts 是 OmniEdit 的 **指令式** 編輯指令（給 InstructPix2Pix 用），
+# 不是 SDEdit 吃的描述式 caption。兩者不等價，見腳本 docstring。
+# content 一律留空——OmniEdit 沒有提供類別名詞，用得到它的只有 apa_weak。
+task_attr_mod_color_11699:
+  content: ''
+  prompts:
+  - turn the color of potted plant to pink
+  task: attribute_modification
+task_attr_mod_color_121425:
+  content: ''
+  prompts:
+  - turn the color of LCD screen to be green
+  task: attribute_modification
+task_attr_mod_color_123744:
+  content: ''
+  prompts:
+  - turn the color of cushion to be black
+  task: attribute_modification
+task_attr_mod_color_124169:
+  content: ''
+  prompts:
+  - turn the color of backpack to gray
+  task: attribute_modification
+task_attr_mod_color_126580:
+  content: ''
+  prompts:
+  - turn the color of a stone fountain to red
+  task: attribute_modification
+task_attr_mod_color_127061:
+  content: ''
+  prompts:
+  - turn the color of control panel to gray
+  task: attribute_modification
+task_attr_mod_color_136767:
+  content: ''
+  prompts:
+  - turn the color of astronaut to pink
+  task: attribute_modification
+task_attr_mod_color_144146:
+  content: ''
+  prompts:
+  - turn the color of book to be orange
+  task: attribute_modification
+task_attr_mod_color_158070:
+  content: ''
+  prompts:
+  - turn the color of playing card to red
+  task: attribute_modification
+task_attr_mod_color_164237:
+  content: ''
+  prompts:
+  - turn the color of crystal tower to brown
+  task: attribute_modification
+task_attr_mod_color_174506:
+  content: ''
+  prompts:
+  - turn the color of mushroom to gray
+  task: attribute_modification
+task_attr_mod_color_175843:
+  content: ''
+  prompts:
+  - turn the color of cap to be pink
+  task: attribute_modification
+task_attr_mod_color_184837:
+  content: ''
+  prompts:
+  - turn the color of frame to pink
+  task: attribute_modification
+task_attr_mod_color_202962:
+  content: ''
+  prompts:
+  - turn the color of a water bottle to brown
+  task: attribute_modification
+task_attr_mod_color_22137:
+  content: ''
+  prompts:
+  - turn the color of ring to be gray
+  task: attribute_modification
+task_attr_mod_color_229454:
+  content: ''
+  prompts:
+  - turn the color of cat to orange
+  task: attribute_modification
+task_attr_mod_color_234404:
+  content: ''
+  prompts:
+  - turn the color of grizzly bear to be white
+  task: attribute_modification
+task_attr_mod_color_30214:
+  content: ''
+  prompts:
+  - turn the color of glass of whiskey to green
+  task: attribute_modification
+task_attr_mod_color_32648:
+  content: ''
+  prompts:
+  - turn the color of potion bottle to orange
+  task: attribute_modification
+task_attr_mod_color_41275:
+  content: ''
+  prompts:
+  - turn the color of a studded backpack to purple
+  task: attribute_modification
+task_attr_mod_color_42929:
+  content: ''
+  prompts:
+  - turn the color of golden shield to gray
+  task: attribute_modification
+task_attr_mod_color_47418:
+  content: ''
+  prompts:
+  - turn the color of mushroom to gray
+  task: attribute_modification
+task_attr_mod_color_59806:
+  content: ''
+  prompts:
+  - turn the color of robot to be white
+  task: attribute_modification
+task_attr_mod_color_6065:
+  content: ''
+  prompts:
+  - turn the color of lantern to red
+  task: attribute_modification
+task_attr_mod_color_6205:
+  content: ''
+  prompts:
+  - turn the color of toolbox to red
+  task: attribute_modification
+task_attr_mod_color_71564:
+  content: ''
+  prompts:
+  - turn the color of machine to be gray
+  task: attribute_modification
+task_attr_mod_color_71985:
+  content: ''
+  prompts:
+  - turn the color of piano to be gray
+  task: attribute_modification
+task_attr_mod_color_75937:
+  content: ''
+  prompts:
+  - turn the color of eye to green
+  task: attribute_modification
+task_attr_mod_color_76641:
+  content: ''
+  prompts:
+  - turn the color of micrometer to blue
+  task: attribute_modification
+task_attr_mod_color_96137:
+  content: ''
+  prompts:
+  - turn the color of robot companion to orange
+  task: attribute_modification
+task_env_weather_112463:
+  content: ''
+  prompts:
+  - transform the setting to spring with blooming flowers
+  task: env
+task_env_weather_114555:
+  content: ''
+  prompts:
+  - change the setting to a misty scene
+  task: env
+task_env_weather_116980:
+  content: ''
+  prompts:
+  - transform the setting to a foggy atmosphere
+  task: env
+task_env_weather_121086:
+  content: ''
+  prompts:
+  - transform the setting to a foggy scene
+  task: env
+task_env_weather_126577:
+  content: ''
+  prompts:
+  - change the setting to spring with blossoms
+  task: env
+task_env_weather_132698:
+  content: ''
+  prompts:
+  - transform the setting to a winter scene
+  task: env
+task_env_weather_133752:
+  content: ''
+  prompts:
+  - transform the setting to a rainy day
+  task: env
+task_env_weather_137030:
+  content: ''
+  prompts:
+  - transform the setting to spring with blooming flowers
+  task: env
+task_env_weather_137230:
+  content: ''
+  prompts:
+  - change the setting to a summer day
+  task: env
+task_env_weather_146611:
+  content: ''
+  prompts:
+  - change the setting to spring with blooming trees
+  task: env
+task_env_weather_150522:
+  content: ''
+  prompts:
+  - change the setting to fall with colorful leaves
+  task: env
+task_env_weather_165714:
+  content: ''
+  prompts:
+  - change the setting to a foggy day
+  task: env
+task_env_weather_181583:
+  content: ''
+  prompts:
+  - change the setting to a stormy day
+  task: env
+task_env_weather_193600:
+  content: ''
+  prompts:
+  - change the setting to a snowy scene
+  task: env
+task_env_weather_195273:
+  content: ''
+  prompts:
+  - transform the setting to fall with colorful leaves
+  task: env
+task_env_weather_217577:
+  content: ''
+  prompts:
+  - change the setting to a foggy scene
+  task: env
+task_env_weather_226185:
+  content: ''
+  prompts:
+  - change the setting to spring with blooming flowers
+  task: env
+task_env_weather_231482:
+  content: ''
+  prompts:
+  - change the setting to a snowy scene
+  task: env
+task_env_weather_246440:
+  content: ''
+  prompts:
+  - transform the setting to autumn with falling leaves
+  task: env
+task_env_weather_262001:
+  content: ''
+  prompts:
+  - change the setting to a snowy scene
+  task: env
+task_env_weather_39740:
+  content: ''
+  prompts:
+  - change the setting to a misty scene
+  task: env
+task_env_weather_52051:
+  content: ''
+  prompts:
+  - change the setting to a snowy scene
+  task: env
+task_env_weather_59863:
+  content: ''
+  prompts:
+  - change the setting to a snowy scene
+  task: env
+task_env_weather_61151:
+  content: ''
+  prompts:
+  - change the setting to a summer day
+  task: env
+task_env_weather_63722:
+  content: ''
+  prompts:
+  - change the setting to a snowy landscape
+  task: env
+task_env_weather_70149:
+  content: ''
+  prompts:
+  - change the setting to a foggy scene
+  task: env
+task_env_weather_85610:
+  content: ''
+  prompts:
+  - change the setting to a cloudy day
+  task: env
+task_env_weather_86691:
+  content: ''
+  prompts:
+  - transform the setting to spring with blooming flowers
+  task: env
+task_env_weather_9736:
+  content: ''
+  prompts:
+  - transform the setting to a cloudy day
+  task: env
+task_env_weather_97868:
+  content: ''
+  prompts:
+  - change the setting to a cloudy day
+  task: env
+task_obj_add_13726:
+  content: ''
+  prompts:
+  - Add subscribe button
+  - Add a small red YouTube subscribe button in the bottom right corner.
+  task: addition
+task_obj_add_161232:
+  content: ''
+  prompts:
+  - Add mountain
+  - Add a small boat in the background water.
+  task: addition
+task_obj_add_166344:
+  content: ''
+  prompts:
+  - Add mountain
+  - Add a snow-capped mountain range in the background.
+  task: addition
+task_obj_add_239597:
+  content: ''
+  prompts:
+  - Add goalkeeper
+  - Add three soccer players, one jumping to head the ball and two others reacting
+    in the foreground.
+  task: addition
+task_obj_add_24380:
+  content: ''
+  prompts:
+  - Add flag
+  - Add a small American flag hanging from the pillar in the background.
+  task: addition
+task_obj_add_290491:
+  content: ''
+  prompts:
+  - Add woman
+  - Add a woman and a girl in pink clothes and pink curlers wearing funny pink glasses
+    in front of the wooden background.
+  task: addition
+task_obj_add_340466:
+  content: ''
+  prompts:
+  - Add orange juice
+  - Add a glass of orange juice on the small blue table.
+  task: addition
+task_obj_add_345721:
+  content: ''
+  prompts:
+  - Add sunset
+  - Add a vibrant sunset with orange, purple, and blue hues in the background sky.
+  task: addition
+task_obj_add_362298:
+  content: ''
+  prompts:
+  - Add sweaty torso
+  - Add sweat and muscle definition to the man lifting weights.
+  task: addition
+task_obj_add_371248:
+  content: ''
+  prompts:
+  - Add the dress
+  - Add a small girl with long dark hair wearing a dark cloak standing on the path
+    in the forest.
+  task: addition
+task_obj_add_375217:
+  content: ''
+  prompts:
+  - Add bush
+  - Add a small pond with a broken tree stump in the foreground.
+  task: addition
+task_obj_add_39816:
+  content: ''
+  prompts:
+  - Add palm trees
+  - Add three tall palm trees in the background.
+  task: addition
+task_obj_add_40931:
+  content: ''
+  prompts:
+  - Add the blood on snout
+  - Add a small amount of blood to the mink's mouth.
+  task: addition
+task_obj_add_441549:
+  content: ''
+  prompts:
+  - Add climbing gear
+  - Add two hikers, one helping the other climb a rock in the foreground.
+  task: addition
+task_obj_add_44802:
+  content: ''
+  prompts:
+  - Add clouds
+  - Add more clouds in the sky.
+  task: addition
+task_obj_add_458919:
+  content: ''
+  prompts:
+  - Add the person with a hat
+  - Add a small dog sitting next to the person in the foreground.
+  task: addition
+task_obj_add_530461:
+  content: ''
+  prompts:
+  - Add black costume
+  - Add a male ballet dancer in a dark velvet jacket and light tights, posing alongside
+    the ballerina.
+  task: addition
+task_obj_add_531333:
+  content: ''
+  prompts:
+  - Add grey hat
+  - Add a knitted gray beret on the woman's head.
+  task: addition
+task_obj_add_581286:
+  content: ''
+  prompts:
+  - Add sauce
+  - Add crushed peanuts and chili sauce to the small glass bowl of dipping sauce.
+  task: addition
+task_obj_add_583252:
+  content: ''
+  prompts:
+  - Add person in red attire
+  - Add a man with red hair and a red robe sitting behind the woman.
+  task: addition
+task_obj_add_584511:
+  content: ''
+  prompts:
+  - Add dog
+  - Add a small, fluffy, long-haired, white and brown Shih Tzu dog sitting on the
+    tiger-striped blanket in the foreground.
+  task: addition
+task_obj_add_630523:
+  content: ''
+  prompts:
+  - Add small flower
+  - Add a small, delicate purple flower to the top of the plant in the foreground.
+  task: addition
+task_obj_add_669258:
+  content: ''
+  prompts:
+  - Add person
+  - Add a person with a large brown beard in front of the Christmas tree.
+  task: addition
+task_obj_add_685213:
+  content: ''
+  prompts:
+  - Add yellow tag
+  - Add a star-shaped cutout to the center of the rusty metal sheet, decorated with
+    astrological symbols.
+  task: addition
+task_obj_add_692065:
+  content: ''
+  prompts:
+  - Add monk
+  - Add a statue of a bearded man wearing a dark robe and holding a staff in a golden
+    alcove.
+  task: addition
+task_obj_add_697862:
+  content: ''
+  prompts:
+  - Add blimp
+  - Add two caricature drawings of soldiers, one Japanese holding a rifle and one
+    Italian holding a knife, in the foreground on two separate sheets of paper.
+  task: addition
+task_obj_add_709390:
+  content: ''
+  prompts:
+  - Add glasses
+  - Add black-rimmed glasses to the boy.
+  task: addition
+task_obj_add_726991:
+  content: ''
+  prompts:
+  - Add stem
+  - Add a black and white jumping spider with green eyes in the foreground on the
+    web.
+  task: addition
+task_obj_add_767982:
+  content: ''
+  prompts:
+  - Add grape
+  - Add bunches of green grapes in the foreground, hanging from the top.
+  task: addition
+task_obj_add_850681:
+  content: ''
+  prompts:
+  - Add left carnation
+  - Add a single yellow tulip and two white carnations on the rusty railroad track.
+  task: addition
+task_obj_remove_10197:
+  content: ''
+  prompts:
+  - Remove gravel path
+  - Remove gray gravel to the ground surrounding the small building.
+  task: removal
+task_obj_remove_108877:
+  content: ''
+  prompts:
+  - Remove hunter's coat
+  - Remove a man in a brown coat and boots holding a knife in the foreground.
+  task: removal
+task_obj_remove_157386:
+  content: ''
+  prompts:
+  - Remove flowers
+  - Remove two small red flowers in the grass in the foreground.
+  task: removal
+task_obj_remove_166983:
+  content: ''
+  prompts:
+  - Remove white buildings
+  - Remove more white and beige color to the buildings along the cliff.
+  task: removal
+task_obj_remove_197959:
+  content: ''
+  prompts:
+  - Remove car
+  - Remove a gray car parked in the driveway of the house.
+  task: removal
+task_obj_remove_228800:
+  content: ''
+  prompts:
+  - Remove bear
+  - Remove a large brown bear standing in the shallow water.
+  task: removal
+task_obj_remove_257910:
+  content: ''
+  prompts:
+  - Remove bracelet
+  - Remove a thin, dark bracelet to the man's left wrist.
+  task: removal
+task_obj_remove_271889:
+  content: ''
+  prompts:
+  - Remove flower vase
+  - Remove a bouquet of yellow flowers in the center of the two coffee tables.
+  task: removal
+task_obj_remove_284852:
+  content: ''
+  prompts:
+  - Remove khaki pants
+  - Remove gray pants to the man.
+  task: removal
+task_obj_remove_286801:
+  content: ''
+  prompts:
+  - Remove red boat
+  - Remove a small red boat floating on the water in the foreground.
+  task: removal
+task_obj_remove_2878:
+  content: ''
+  prompts:
+  - Remove person
+  - Remove a person standing behind the loom, wearing a colorful sari, with their
+    hands on the loom.
+  task: removal
+task_obj_remove_303082:
+  content: ''
+  prompts:
+  - Remove red rock
+  - Remove a large, reddish-brown rocky hill behind the trees in the mid-ground.
+  task: removal
+task_obj_remove_380621:
+  content: ''
+  prompts:
+  - Remove iceberg
+  - Remove a light blue iceberg in the middle of the lake.
+  task: removal
+task_obj_remove_385207:
+  content: ''
+  prompts:
+  - Remove the flagpole
+  - Remove a fountain in the courtyard with water jets and a circular basin.
+  task: removal
+task_obj_remove_388764:
+  content: ''
+  prompts:
+  - Remove green chair
+  - Remove two dark green upholstered chairs with thin black legs to the dining table.
+  task: removal
+task_obj_remove_410264:
+  content: ''
+  prompts:
+  - Remove short hair
+  - Remove short hair to the person in the foreground.
+  task: removal
+task_obj_remove_483219:
+  content: ''
+  prompts:
+  - Remove the lamp
+  - Remove a silver gooseneck lamp to the desk.
+  task: removal
+task_obj_remove_499725:
+  content: ''
+  prompts:
+  - Remove the road
+  - Remove a "daytrip" watermark in the bottom right corner.
+  task: removal
+task_obj_remove_509477:
+  content: ''
+  prompts:
+  - Remove the man with glasses
+  - Remove a man wearing sunglasses and a black long-sleeved shirt in the background,
+    standing behind the woman in the floral dress.
+  task: removal
+task_obj_remove_560476:
+  content: ''
+  prompts:
+  - Remove peruvian flag
+  - Remove a peruvian flag standing in the background next to the banner.
+  task: removal
+task_obj_remove_571780:
+  content: ''
+  prompts:
+  - Remove the house
+  - Remove a small white house with a dark gray roof in the background behind the
+    rocks.
+  task: removal
+task_obj_remove_606694:
+  content: ''
+  prompts:
+  - Remove facial expression
+  - Remove a carved stone face with an open mouth and two eyes in the arch's center.
+  task: removal
+task_obj_remove_634326:
+  content: ''
+  prompts:
+  - Remove fence
+  - Remove a tall green hedge in the background behind the billboard and signpost.
+  task: removal
+task_obj_remove_648479:
+  content: ''
+  prompts:
+  - Remove dam
+  - Remove a large dam with spillways across the river.
+  task: removal
+task_obj_remove_657585:
+  content: ''
+  prompts:
+  - Remove frisbee
+  - Remove a white frisbee in front of the man.
+  task: removal
+task_obj_remove_704852:
+  content: ''
+  prompts:
+  - Remove truck
+  - Remove a blue toy truck on the floor next to the baby.
+  task: removal
+task_obj_remove_720199:
+  content: ''
+  prompts:
+  - Remove yellow machine
+  - Remove a white and orange traffic cone in the background near the building.
+  task: removal
+task_obj_remove_737102:
+  content: ''
+  prompts:
+  - Remove right person
+  - Remove three men walking on the sidewalk in front of the store.
+  task: removal
+task_obj_remove_869495:
+  content: ''
+  prompts:
+  - Remove child
+  - Remove a baby wearing a blue shirt and orange shorts crawling on the playground.
+  task: removal
+task_obj_remove_899279:
+  content: ''
+  prompts:
+  - Remove moth's body
+  - Remove a small, brown moth with patterned wings in the center of the wooden surface.
+  task: removal
+task_obj_swap_joint_mask_276754:
+  content: ''
+  prompts:
+  - Replace the satellite dish with rocket
+  - Swap the satellite dish with a space shuttle angled slightly upwards.
+  task: swap
+task_obj_swap_joint_mask_310537:
+  content: ''
+  prompts:
+  - Replace the desert buttes with layered mountain range
+  - Swap the desert buttes with a layered mountain range receding into the distance
+    with colorful hazy layers.
+  task: swap
+task_obj_swap_joint_mask_337228:
+  content: ''
+  prompts:
+  - Replace the silk sash with yellow shawl
+  - Swap the orange and red silk sash with a light yellow shawl draped over the right
+    shoulder.
+  task: swap
+task_obj_swap_joint_mask_356849:
+  content: ''
+  prompts:
+  - Replace the robot with glowing eyes with Yoda
+  - Swap the grey robot with glowing orange eyes with a bust of a clay-like Yoda wearing
+    a light robe.
+  task: swap
+task_obj_swap_joint_mask_474202:
+  content: ''
+  prompts:
+  - Replace the wooden deck with stone floor
+  - Swap the wooden deck with large stone tiles forming a realistic stone floor.
+  task: swap
+task_obj_swap_joint_mask_476374:
+  content: ''
+  prompts:
+  - Replace the pirate with eyepatch with man in military uniform
+  - Swap the pirate with an eyepatch and black pirate hat with a man in a tan military
+    uniform and matching hat.
+  task: swap
+task_obj_swap_joint_mask_533428:
+  content: ''
+  prompts:
+  - Replace the samurai armor with red jacket
+  - Swap the gold and blue samurai armor with casual jackets in various styles and
+    colors, such as a maroon quilted biker jacket, a grey waxed jacket, and blazers.
+  task: swap
+task_obj_swap_joint_mask_615817:
+  content: ''
+  prompts:
+  - Replace the twilight skyline with sky
+  - Swap the pink and purple twilight sky with a daytime sky featuring grey and white
+    cumulus clouds.
+  task: swap
+task_obj_swap_joint_mask_671429:
+  content: ''
+  prompts:
+  - Replace the astronaut with man
+  - Swap the astronaut in a spacesuit with a man in a suit and glasses, interacting
+    with an older man
+  task: swap
+task_obj_swap_joint_mask_673207:
+  content: ''
+  prompts:
+  - Replace the lighthouse with chimney
+  - Swap the red and white lighthouse with a triple-stacked brick chimney with a TV
+    antenna.
+  task: swap
+task_obj_swap_joint_mask_698465:
+  content: ''
+  prompts:
+  - Replace the snowball with grey furry centre
+  - Swap the snowball with a grey furry textured center surrounded by dried thistle
+    spikes.
+  task: swap
+task_obj_swap_joint_mask_718058:
+  content: ''
+  prompts:
+  - Replace the mechanical hand with right hand
+  - Swap the mechanical grey gloves with normal human right hands.
+  task: swap
+task_obj_swap_joint_mask_75733:
+  content: ''
+  prompts:
+  - Replace the snowy landscape with sea
+  - Swap the snowy beach with calm, dark blue sea.
+  task: swap
+task_obj_swap_joint_mask_890199:
+  content: ''
+  prompts:
+  - Replace the robot with man
+  - Swap the silver robot with a middle-aged Asian man wearing glasses and a light
+    tan suit while giving a speech.
+  task: swap
+task_obj_swap_rand_mask_11376:
+  content: ''
+  prompts:
+  - Replace the glass dome with house
+  - Swap the glass dome with a light yellow, two story Victorian style house with
+    a gray roof and porch.
+  task: swap
+task_obj_swap_rand_mask_116052:
+  content: ''
+  prompts:
+  - Replace the mountain path with ocean
+  - Swap the mountain path with a tranquil ocean with a rocky shoreline.
+  task: swap
+task_obj_swap_rand_mask_216136:
+  content: ''
+  prompts:
+  - Replace the shimmering glass structures with tree stumps
+  - Swap the shimmering glass structures with weathered, light brown tree stumps with
+    visible root systems.
+  task: swap
+task_obj_swap_rand_mask_268827:
+  content: ''
+  prompts:
+  - Replace the knight armor with jacket
+  - Swap the knight armor with a black leather jacket with a wide collar.
+  task: swap
+task_obj_swap_rand_mask_298147:
+  content: ''
+  prompts:
+  - Replace the wizard's robe with red shirt
+  - Swap the long red robe with a solid red, long-sleeved, collared shirt.
+  task: swap
+task_obj_swap_rand_mask_303550:
+  content: ''
+  prompts:
+  - Replace the steampunk jacket with silver jacket
+  - Swap the gold steampunk jacket and corset with a silver metallic jacket and a
+    grey hoodie.
+  task: swap
+task_obj_swap_rand_mask_315182:
+  content: ''
+  prompts:
+  - Replace the red leather jacket with black blazer
+  - Swap the red leather jacket with a dark navy blue blazer with a subtle, abstract
+    floral pattern in lighter blue and white hues.
+  task: swap
+task_obj_swap_rand_mask_373245:
+  content: ''
+  prompts:
+  - Replace the twilight glow with sky
+  - Swap the purple and orange twilight sky with a teal and light orange overcast
+    daytime sky
+  task: swap
+task_obj_swap_rand_mask_392115:
+  content: ''
+  prompts:
+  - Replace the samurai warrior with woman
+  - Swap the samurai warrior in armor with a young woman with short brown hair wearing
+    glasses and a beige coat.
+  task: swap
+task_obj_swap_rand_mask_401099:
+  content: ''
+  prompts:
+  - Replace the pizza box with clipboard
+  - Swap the open pizza box with a brown clipboard and pen being held and written
+    on.
+  task: swap
+task_obj_swap_rand_mask_417469:
+  content: ''
+  prompts:
+  - Replace the green flannel shirt with blue shirt
+  - Swap the green flannel shirt with a royal blue t-shirt that says "Spiritual Gangster"
+    in white text.
+  task: swap
+task_obj_swap_rand_mask_598617:
+  content: ''
+  prompts:
+  - Replace the chameleon with body
+  - Swap the chameleon with a dark brown butterfly with small white spots.
+  task: swap
+task_obj_swap_rand_mask_660100:
+  content: ''
+  prompts:
+  - Replace the hot dog with taco
+  - Swap the hot dog in a bun with two folded tacos with meat and other toppings visible.
+  task: swap
+task_obj_swap_rand_mask_683349:
+  content: ''
+  prompts:
+  - Replace the abstract sculpture with bronze statue
+  - Swap the abstract wooden sculpture with a bronze bust of Karl Marx with a cracked
+    appearance.
+  task: swap
+task_obj_swap_rand_mask_79926:
+  content: ''
+  prompts:
+  - Replace the Hawaiian shirt with blue dress
+  - Swap the red and yellow Hawaiian shirt with a light blue, ruffled, strapless,
+    knee-length dress with a coral flower embellishment.
+  task: swap
+task_obj_swap_rand_mask_92564:
+  content: ''
+  prompts:
+  - Replace the wooden flooring with gray carpet
+  - Swap the light brown wooden flooring with a solid gray carpet.
+  task: swap

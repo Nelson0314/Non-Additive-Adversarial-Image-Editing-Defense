@@ -1,0 +1,56 @@
+image,pixel_lpips,task,instruction
+task_env_weather_126577,0.44641,env_weather,change the setting to spring with blossoms
+task_attr_mod_color_47418,0.4417,attr_mod,turn the color of mushroom to gray
+task_obj_remove_271889,0.42165,obj_remove,Remove flower vase
+task_env_weather_217577,0.41874,env_weather,change the setting to a foggy scene
+task_obj_add_44802,0.41528,obj_add,Add clouds
+task_obj_add_685213,0.41317,obj_add,Add yellow tag
+task_obj_add_583252,0.40462,obj_add,Add person in red attire
+task_obj_swap_joint_mask_310537,0.40187,obj_swap,Replace the desert buttes with layered mountain range
+task_obj_swap_rand_mask_401099,0.39388,obj_swap,Replace the pizza box with clipboard
+task_attr_mod_color_158070,0.38969,attr_mod,turn the color of playing card to red
+task_obj_add_531333,0.3863,obj_add,Add grey hat
+task_env_weather_39740,0.38435,env_weather,change the setting to a misty scene
+task_attr_mod_color_174506,0.38316,attr_mod,turn the color of mushroom to gray
+task_env_weather_116980,0.37865,env_weather,transform the setting to a foggy atmosphere
+task_env_weather_70149,0.36724,env_weather,change the setting to a foggy scene
+task_env_weather_59863,0.36671,env_weather,change the setting to a snowy scene
+task_attr_mod_color_164237,0.36173,attr_mod,turn the color of crystal tower to brown
+task_env_weather_52051,0.3516,env_weather,change the setting to a snowy scene
+task_attr_mod_color_30214,0.34423,attr_mod,turn the color of glass of whiskey to green
+task_obj_remove_157386,0.34363,obj_remove,Remove flowers
+task_env_weather_85610,0.33758,env_weather,change the setting to a cloudy day
+task_obj_swap_rand_mask_11376,0.33506,obj_swap,Replace the glass dome with house
+task_obj_swap_joint_mask_698465,0.33354,obj_swap,Replace the snowball with grey furry centre
+task_env_weather_195273,0.32004,env_weather,transform the setting to fall with colorful leaves
+task_obj_remove_899279,0.31639,obj_remove,Remove moth's body
+task_attr_mod_color_6065,0.315,attr_mod,turn the color of lantern to red
+task_env_weather_86691,0.31354,env_weather,transform the setting to spring with blooming flowers
+task_obj_remove_303082,0.31279,obj_remove,Remove red rock
+task_env_weather_262001,0.29473,env_weather,change the setting to a snowy scene
+task_obj_add_345721,0.29252,obj_add,Add sunset
+task_obj_add_767982,0.28669,obj_add,Add grape
+task_env_weather_132698,0.28493,env_weather,transform the setting to a winter scene
+task_obj_remove_606694,0.28244,obj_remove,Remove facial expression
+task_env_weather_231482,0.28177,env_weather,change the setting to a snowy scene
+task_obj_remove_228800,0.27661,obj_remove,Remove bear
+task_obj_add_161232,0.27349,obj_add,Add mountain
+task_obj_add_290491,0.27312,obj_add,Add woman
+task_env_weather_226185,0.27136,env_weather,change the setting to spring with blooming flowers
+task_attr_mod_color_175843,0.26796,attr_mod,turn the color of cap to be pink
+task_env_weather_146611,0.26623,env_weather,change the setting to spring with blooming trees
+task_env_weather_114555,0.26202,env_weather,change the setting to a misty scene
+task_attr_mod_color_202962,0.25907,attr_mod,turn the color of a water bottle to brown
+task_obj_swap_rand_mask_116052,0.25428,obj_swap,Replace the mountain path with ocean
+task_attr_mod_color_229454,0.25356,attr_mod,turn the color of cat to orange
+task_obj_add_458919,0.24753,obj_add,Add the person with a hat
+task_attr_mod_color_126580,0.24003,attr_mod,turn the color of a stone fountain to red
+task_obj_remove_869495,0.2388,obj_remove,Remove child
+task_env_weather_61151,0.2366,env_weather,change the setting to a summer day
+task_obj_remove_704852,0.23421,obj_remove,Remove truck
+task_attr_mod_color_123744,0.23318,attr_mod,turn the color of cushion to be black
+task_obj_swap_rand_mask_79926,0.23258,obj_swap,Replace the Hawaiian shirt with blue dress
+task_obj_swap_rand_mask_660100,0.22732,obj_swap,Replace the hot dog with taco
+task_obj_remove_571780,0.22689,obj_remove,Remove the house
+task_obj_remove_737102,0.22202,obj_remove,Remove right person
+task_obj_remove_483219,0.22083,obj_remove,Remove the lamp

@@ -1,0 +1,11 @@
+# 每類兩個惡意編輯 prompt（對應 SPEC §2.4 兩種情境）。
+# 與 src/data/dataset.py 之 PLACEHOLDER_PROMPTS 一致，供真實 folder dataset 使用。
+dog:
+  - "a cat sitting on the grass"
+  - "a dog under heavy rain at night"
+car:
+  - "a wrecked car after an accident"
+  - "a car driving in a flooded street"
+person:
+  - "an elderly person with gray hair"
+  - "a person standing in a burning room"

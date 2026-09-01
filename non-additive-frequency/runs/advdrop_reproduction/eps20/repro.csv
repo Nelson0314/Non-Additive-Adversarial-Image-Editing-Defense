@@ -1,0 +1,6 @@
+eps,step_size,targeted,steps,n,succ_def,hard_quant,succ_none,color,jpeg_subsampling,succ_jpeg30,succ_bit6,lpips,seconds
+20.0,1.0,False,50,200,label,False,0.325,rgb,-1,0.135,0.26,0.01097,25.7
+20.0,2.0,False,50,200,label,False,0.685,rgb,-1,0.15,0.57,0.02622,25.8
+20.0,3.0,False,50,200,label,False,0.84,rgb,-1,0.175,0.77,0.03691,25.6
+20.0,4.0,False,50,200,label,False,0.875,rgb,-1,0.17,0.835,0.0433,25.6
+20.0,6.0,False,50,200,label,False,0.835,rgb,-1,0.165,0.75,0.04562,25.5

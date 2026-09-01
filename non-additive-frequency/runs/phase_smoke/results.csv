@@ -1,0 +1,4 @@
+image,condition,budget_target,budget_reached,unreachable,radius,total_seconds,fid_lpips,fid_ssim,fid_dists,fid_psnr,fid_clip_img,fid_nima,fid_cnniqa,edit_lpips,edit_clip_orig,edit_clip_def,edit_clip_drop,edit_siglip_orig,edit_siglip_def,edit_siglip_drop,amp_dev,active_fraction
+man_00,add,0.04,0.03815,False,0.00968,100.7,0.3424,0.9897,0.0381,43.2261,0.9922,4.718,0.6764,0.4919,0.2819,0.3074,-0.0256,0.1079,0.1196,-0.0117,,
+man_00,phase,0.04,0.04271,False,1.78902,87.6,0.1404,0.9825,0.0427,37.4529,0.9982,4.4196,0.6611,0.4302,0.2819,0.3174,-0.0355,0.1079,0.1328,-0.0249,0.0095,0.279
+man_00,phase_rand,0.04,0.04123,False,1.40257,11.4,0.0541,0.9851,0.0412,38.8822,0.9977,4.363,0.6239,0.2154,0.2819,0.3006,-0.0188,0.1079,0.1181,-0.0102,0.00787,0.279

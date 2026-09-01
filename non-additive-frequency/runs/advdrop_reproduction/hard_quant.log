@@ -1,0 +1,8 @@
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+200 張、cuda、資料來源 mrm8488/ImageNet1K-val
+eps=100 步長=4 未定向：無防禦 1.000　JPEG-30 0.470　Bit-6 0.995　LPIPS 0.1263　(55s)
+
+表：runs/advdrop_repro/hard_quant/repro.csv

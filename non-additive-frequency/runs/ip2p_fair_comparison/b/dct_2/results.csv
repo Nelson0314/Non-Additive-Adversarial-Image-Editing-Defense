@@ -1,0 +1,6 @@
+image,condition,attacker,instruction,task,radius,unreachable,pixel_gate_sigma,edit_steps,s_t,s_i,edit_seed,modified_from_paper,fid_lpips,fid_ssim,fid_psnr,fid_vif_p,fid_dists,edit_lpips,edit_ssim,edit_psnr,edit_vif_p,edit_dists,fid_linf,fid_rms,total_seconds
+task_attr_mod_color_126580,dct_shield,instruct-pix2pix,turn the color of a stone fountain to red,,1.0,False,0.0,100,7.5,1.5,20260812,False,0.39517,0.91936,29.13,0.56783,0.03592,0.68033,0.37081,10.676,0.17229,0.30217,0.26871,0.03495,599.3
+task_env_weather_126577,dct_shield,instruct-pix2pix,change the setting to spring with blossoms,,1.0,False,0.0,100,7.5,1.5,20260812,False,0.47255,0.93551,29.31,0.56318,0.03725,0.60684,0.44406,14.544,0.19692,0.30052,0.23381,0.03424,596.5
+task_obj_add_24380,dct_shield,instruct-pix2pix,Add flag,,1.0,False,0.0,100,7.5,1.5,20260812,False,0.48314,0.86652,29.718,0.52136,0.06149,0.73942,0.32816,10.181,0.08035,0.34286,0.23175,0.03267,595.8
+task_obj_remove_197959,dct_shield,instruct-pix2pix,Remove car,,1.0,False,0.0,100,7.5,1.5,20260812,False,0.48383,0.87523,29.645,0.52799,0.0435,0.69078,0.52231,17.073,0.10612,0.35662,0.22702,0.03294,597.2
+task_obj_swap_joint_mask_474202,dct_shield,instruct-pix2pix,Replace the wooden deck with stone floor,,1.0,False,0.0,100,7.5,1.5,20260812,False,0.43783,0.83161,29.262,0.4601,0.04252,0.52912,0.4622,14.328,0.09035,0.25101,0.30333,0.03443,598.5

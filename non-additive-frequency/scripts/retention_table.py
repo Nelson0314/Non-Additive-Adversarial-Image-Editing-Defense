@@ -1,0 +1,240 @@
+"""抗淨化的頭對頭表：總增益與淨增益並列。**不跑 GPU。**
+
+兩個絕對值，不換算成比例
+────────────────────────────────────────────────────────────────────
+每一格報兩個絕對值：
+
+    總增益(條件, 算子) = effect(條件, 算子)                    ← CSV 的 `effect`
+    淨增益(條件, 算子) = effect(條件, 算子) − effect(地板, 算子)  ← CSV 的 `net_gain`
+
+其中「地板」那一格的防禦圖就是原圖本身，量到的是算子自己造成的位移，寫在
+CSV 的 `floor` 欄與表尾那一列，讀者看得到逐格的差額從哪裡來。
+
+比值 `effect(淨化)/effect(identity)` 被分母支配（條件層 r = −0.83、逐圖層
+−0.900，FND-037／039），而淨化算子自己就會把編輯推開五到九成（FND-043），
+故它不是主讀數；`retention` 仍照報，但**必須與絕對位移一併看**。
+
+位移的飽和值只作為讀表的參考，**不進任何算式**：主讀數 LPIPS 在兩張不相干的
+自然影像之間飽和於 0.772（`runs/readout_ceiling/`，45 對的中位數），所以 0.6
+附近的讀數已經接近這個量的上限。
+
+逐圖相減
+────────────────────────────────────────────────────────────────────
+地板逐圖不同（同一個模糊在不同影像上推開的量差好幾倍），故相減在**逐圖**
+層級做，不是先各自平均再相減。缺地板的影像整格排除並回報，不靜默補零。
+
+幾何類算子的地板恆為 0
+────────────────────────────────────────────────────────────────────
+`src/purify/ops.py` 的 `GEOMETRIC_KINDS`（`crop_resize`、`resize_only`、
+`resample_roundtrip`、`shift_only`、`jpeg_then_resize`）在
+`phase_retention.py` 裡走另一個參照：`effect = LPIPS(編輯(p(原圖)),
+編輯(p(防禦圖)))`。地板那一格的防禦圖就是原圖，兩側完全相同，故地板由構造
+為 0，**扣地板對這幾欄是恆等變換，總增益與淨增益相等**。相減照做不特例化。
+
+讀到非 0 的幾何地板一律拋錯：那份地板是舊參照（`編輯(原圖)`）量的，數字與
+新協定的 effect 不同基準，混在一張表裡看不出來。
+
+`usable = False` 的列（`effect(identity)` 低於三倍標準差）一律排除。
+
+用法：
+    python scripts/retention_table.py --src runs/ip2p_purify_headtohead \
+        --out runs/ip2p_purify_headtohead/net_gain.csv
+"""
+
+from __future__ import annotations
+
+import argparse
+import csv
+import statistics
+import sys
+from pathlib import Path
+from typing import Dict, List, Tuple
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
+from src.purify.ops import label_is_geometric  # noqa: E402
+from src.utils.io import write_csv  # noqa: E402
+
+FLOOR_CONDITION = "none"        # phase_retention.py --floor 寫下的條件名
+# 分片檔名是 `<tag>_<shard>.csv`。分片名是族群不是流水號（見
+# scripts/purify_headtohead.sh），列在這裡好把 tag 還原出來。
+SHARDS = ("color", "scene", "object", "all")
+
+# LPIPS 在不相干自然影像之間的飽和值（`runs/readout_ceiling/`，
+# 十張兩兩配對 45 對的中位數）。**只寫進表尾的說明，不進任何算式。**
+LPIPS_CEILING = 0.772
+
+FOOTNOTE = (
+    "位移是 LPIPS，在兩張不相干的自然影像之間飽和於 "
+    f"{LPIPS_CEILING}（runs/readout_ceiling/，45 對的中位數），"
+    "故 0.6 附近的讀數已接近這個量的上限；"
+    "該值只作為飽和值的參考，不進表上任何算式。"
+    "幾何類算子的參照是「同一個算子淨化過的原圖」"
+    "（purified_orig），空白地板由構造為 0，"
+    "總增益與淨增益相等。"
+)
+
+
+def tag_of(filename: str) -> str:
+    """`ours_add_color.csv` → `ours_add`。
+
+    **不可用 `split("_")[0]`**：那會把 `ours_add` 與 `ours_nonadd` 併成
+    `ours`，而它們的 `condition` 欄都是 `phase_gain`，併起來不會有任何症狀。
+    """
+    stem = filename[:-4] if filename.endswith(".csv") else filename
+    for shard in SHARDS:
+        if stem.endswith("_" + shard):
+            return stem[: -len(shard) - 1]
+    raise ValueError(
+        f"{filename} 的分片名不在 {SHARDS} 裡，無法還原條件標籤")
+
+
+def read_all(src: Path) -> List[dict]:
+    rows: List[dict] = []
+    for path in sorted(src.rglob("*.csv")):
+        with path.open(encoding="utf-8") as fh:
+            head = fh.readline()
+            if "purifier" not in head or "effect_mean" not in head:
+                continue
+        with path.open(encoding="utf-8") as fh:
+            for r in csv.DictReader(fh):
+                r["_file"] = path.name
+                rows.append(r)
+    return rows
+
+
+def usable_rows(rows: List[dict]) -> Tuple[List[dict], int]:
+    keep = [r for r in rows if str(r.get("usable", "True")).lower() != "false"]
+    return keep, len(rows) - len(keep)
+
+
+def dedupe(rows: List[dict]) -> Tuple[List[dict], int]:
+    """同一格（標籤, 影像, 算子）只留一列。
+
+    需要它是因為分批補跑：`--purifiers` 必須含 `identity`（它是 retention
+    的分母），所以後來補跑某個算子時 identity 會再算一次。兩次的 seed 與
+    輸入相同、數值也相同，但重複計入會讓 `n_images` 變成兩倍而看起來像是
+    跑了更多張。
+    """
+    seen = set()
+    keep = []
+    for r in rows:
+        key = (tag_of(r["_file"]), r["image"], r["condition"], r["purifier"])
+        if key in seen:
+            continue
+        seen.add(key)
+        keep.append(r)
+    return keep, len(rows) - len(keep)
+
+
+def net_gain(rows: List[dict]) -> Tuple[List[dict], List[str]]:
+    """逐（條件, 算子）的淨增益。回傳表格與被排除的格子說明。"""
+    floor: Dict[Tuple[str, str], float] = {}
+    for r in rows:
+        if r["condition"] == FLOOR_CONDITION:
+            floor[(r["image"], r["purifier"])] = float(r["effect_mean"])
+
+    # 幾何類的地板由構造為 0（同算子、同輸入、同種子的兩側）。非 0 表示這份
+    # 地板是舊參照量的，兩種基準不可並列。
+    bad = {k: v for k, v in floor.items()
+           if v != 0.0 and label_is_geometric(k[1])}
+    if bad:
+        raise ValueError(
+            f"幾何類算子的空白地板不是 0：{sorted(bad.items())}。"
+            f"該地板是舊參照（`編輯(原圖)`）量的，與現行協定的 "
+            f"`編輯(p(原圖))` 不可並列——重跑 `phase_retention.py --floor`。")
+
+    buckets: Dict[Tuple[str, str], List[Tuple[str, float, float]]] = {}
+    dropped: List[str] = []
+    for r in rows:
+        cond = r["condition"]
+        if cond == FLOOR_CONDITION:
+            continue
+        key = (r["image"], r["purifier"])
+        if key not in floor:
+            dropped.append(f"{cond}/{r['image']}/{r['purifier']}：缺地板")
+            continue
+        buckets.setdefault((tag_of(r["_file"]) + "|" + cond,
+                            r["purifier"]), []).append(
+            (r["image"], float(r["effect_mean"]), floor[key]))
+
+    out = []
+    for (tag, pur), vals in sorted(buckets.items()):
+        gains = [e - f for _, e, f in vals]
+        out.append({
+            "condition": tag, "purifier": pur, "n_images": len(vals),
+            "effect": round(statistics.fmean(e for _, e, _ in vals), 5),
+            "floor": round(statistics.fmean(f for _, _, f in vals), 5),
+            "net_gain": round(statistics.fmean(gains), 5),
+            "net_gain_sd": round(
+                statistics.stdev(gains) if len(gains) > 1 else 0.0, 5),
+            "wins_over_floor": sum(1 for g in gains if g > 0),
+        })
+    return out, dropped
+
+
+def main() -> None:
+    ap = argparse.ArgumentParser(
+        description=__doc__,
+        formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--src", type=Path, nargs="+", required=True)
+    ap.add_argument("--out", type=Path, required=True)
+    args = ap.parse_args()
+
+    rows: List[dict] = []
+    for s in args.src:
+        rows.extend(read_all(s))
+    if not rows:
+        raise SystemExit(f"{args.src} 底下沒有 retention 的 CSV")
+    rows, skipped = usable_rows(rows)
+    rows, duplicated = dedupe(rows)
+    table, dropped = net_gain(rows)
+    if not table:
+        raise SystemExit("沒有可算的格子——地板那一批跑了嗎？")
+
+    args.out.parent.mkdir(parents=True, exist_ok=True)
+    write_csv(args.out, table)
+
+    purs = sorted({r["purifier"] for r in table})
+    conds = sorted({r["condition"] for r in table})
+    by = {(r["condition"], r["purifier"]): r for r in table}
+    print(f"usable=False 排除 {skipped} 列；重複 {duplicated} 列；"
+          f"缺地板排除 {len(dropped)} 格")
+
+    def show(title: str, field: str) -> None:
+        head = f"{'條件':28s}" + "".join(f"{q:>18s}" for q in purs)
+        print()
+        print(title)
+        print(head)
+        print("-" * len(head))
+        for c in conds:
+            cells = ""
+            for q in purs:
+                r = by.get((c, q))
+                cells += "" if r is None else f"{r[field]:+18.4f}"
+            print(f"{c:28s}{cells}")
+        # 表尾：空白地板的絕對值。兩張表逐格的差額就是從這裡來的。
+        cells = ""
+        for q in purs:
+            vals = [by[(c, q)]["floor"] for c in conds if (c, q) in by]
+            cells += f"{statistics.fmean(vals):18.4f}" if vals else " " * 18
+        print(f"{'空白地板（算子自己造成的位移）':28s}{cells}")
+        # 兩種參照會出現在同一張表裡，沒有這一列就分不出哪一欄是哪一種。
+        cells = "".join(
+            ("purified_orig" if label_is_geometric(q) else "orig").rjust(18)
+            for q in purs)
+        print(f"{'參照':28s}{cells}")
+
+    show("總增益＝effect(算子)", "effect")
+    show("淨增益＝effect(算子) - 空白地板", "net_gain")
+    print()
+    print(FOOTNOTE)
+    if dropped:
+        print("\n被排除的格子：")
+        for d in dropped[:20]:
+            print(f"  {d}")
+    print(f"\n寫出 {args.out}")
+
+
+if __name__ == "__main__":
+    main()

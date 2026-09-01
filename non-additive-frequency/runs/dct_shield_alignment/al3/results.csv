@@ -1,0 +1,2 @@
+image,condition,budget_target,mode,q_alg,radius,steps,unreachable,fid_lpips,fid_dists,fid_psnr,fid_ssim,fid_linf,fid_rms,edit_lpips,edit_strength,total_seconds
+parrot_00,dct_shield,,aligned,0.95,0.5625,1000,False,0.43819,0.03662,36.045,0.93957,0.17418,0.01577,0.46391,0.7,105.9

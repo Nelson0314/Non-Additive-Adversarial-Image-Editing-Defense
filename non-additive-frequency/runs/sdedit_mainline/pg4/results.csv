@@ -1,0 +1,2 @@
+image,condition,stage1_seconds,total_seconds,fid_lpips,fid_ssim,fid_dists,fid_psnr,fid_clip_img,fid_nima,fid_cnniqa,edit_strength,edit_lpips,edit_clip_orig,edit_clip_def,edit_clip_drop,edit_siglip_orig,edit_siglip_def,edit_siglip_drop
+shiba_00,photoguard_c,0.0,6271.0,0.3624,0.9851,0.02,40.8947,0.9944,5.6732,0.7093,0.7,0.4597,0.2648,0.2739,-0.0092,0.0892,0.091,-0.0017

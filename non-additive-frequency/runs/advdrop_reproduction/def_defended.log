@@ -1,0 +1,16 @@
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+200 張、cuda、資料來源 mrm8488/ImageNet1K-val
+eps=20 步長=4 未定向：無防禦 0.880　JPEG-30 0.065　Bit-6 0.825　LPIPS 0.0436　(27s)
+eps=20 步長=6 未定向：無防禦 0.825　JPEG-30 0.065　Bit-6 0.745　LPIPS 0.0456　(27s)
+eps=20 步長=8 未定向：無防禦 0.655　JPEG-30 0.035　Bit-6 0.535　LPIPS 0.0445　(27s)
+eps=60 步長=4 未定向：無防禦 0.960　JPEG-30 0.095　Bit-6 0.935　LPIPS 0.0643　(27s)
+eps=60 步長=6 未定向：無防禦 0.995　JPEG-30 0.160　Bit-6 0.985　LPIPS 0.0981　(27s)
+eps=60 步長=8 未定向：無防禦 1.000　JPEG-30 0.155　Bit-6 0.995　LPIPS 0.1219　(28s)
+eps=100 步長=4 未定向：無防禦 0.960　JPEG-30 0.085　Bit-6 0.930　LPIPS 0.0643　(28s)
+eps=100 步長=6 未定向：無防禦 1.000　JPEG-30 0.145　Bit-6 0.990　LPIPS 0.1034　(27s)
+eps=100 步長=8 未定向：無防禦 1.000　JPEG-30 0.185　Bit-6 0.995　LPIPS 0.1396　(27s)
+
+表：runs/advdrop_repro/def_defended/repro.csv

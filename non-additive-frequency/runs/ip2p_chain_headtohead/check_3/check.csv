@@ -1,0 +1,14 @@
+image,instruction,clip_orig,clip_edit,clip_gain,siglip_orig,siglip_edit,siglip_gain,pixel_lpips,edit_steps,s_t,s_i,edit_seed,seconds
+task_attr_mod_color_124169,turn the color of backpack to gray,0.28665,0.29803,0.01138,0.09318,0.10973,0.01655,0.1705,100,7.5,1.5,20260812,79.5
+task_attr_mod_color_229454,turn the color of cat to orange,0.28071,0.29645,0.01573,0.07605,0.08726,0.01122,0.25356,100,7.5,1.5,20260812,69.9
+task_attr_mod_color_75937,turn the color of eye to green,0.19015,0.23901,0.04886,-0.02367,0.02731,0.05098,0.62837,100,7.5,1.5,20260812,70.2
+task_env_weather_146611,change the setting to spring with blooming trees,0.18461,0.20961,0.025,0.00397,0.02504,0.02107,0.26623,100,7.5,1.5,20260812,70.2
+task_env_weather_52051,change the setting to a snowy scene,0.17026,0.18939,0.01913,-0.01859,-0.00516,0.01343,0.3516,100,7.5,1.5,20260812,70.3
+task_obj_add_239597,Add goalkeeper,0.24691,0.24934,0.00243,0.10167,0.10292,0.00125,0.1767,100,7.5,1.5,20260812,70.2
+task_obj_add_458919,Add the person with a hat,0.18884,0.18724,-0.0016,-0.07704,-0.07102,0.00602,0.24753,100,7.5,1.5,20260812,70.3
+task_obj_add_726991,Add stem,0.22241,0.22311,0.0007,0.0518,0.0495,-0.0023,0.09363,100,7.5,1.5,20260812,70.3
+task_obj_remove_286801,Remove red boat,0.22735,0.22851,0.00116,0.03518,0.04224,0.00706,0.1859,100,7.5,1.5,20260812,70.2
+task_obj_remove_606694,Remove facial expression,0.24489,0.24635,0.00146,0.03237,0.02199,-0.01038,0.28244,100,7.5,1.5,20260812,69.9
+task_obj_swap_joint_mask_356849,Replace the robot with glowing eyes with Yoda,0.28617,0.28038,-0.00579,0.11238,0.11611,0.00372,0.60326,100,7.5,1.5,20260812,70.2
+task_obj_swap_rand_mask_116052,Replace the mountain path with ocean,0.24291,0.24335,0.00044,0.04446,0.04643,0.00197,0.25428,100,7.5,1.5,20260812,70.2
+task_obj_swap_rand_mask_683349,Replace the abstract sculpture with bronze statue,0.29921,0.30335,0.00414,0.09639,0.10393,0.00755,0.19428,100,7.5,1.5,20260812,70.1

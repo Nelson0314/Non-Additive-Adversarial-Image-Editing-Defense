@@ -1,0 +1,421 @@
+"""主讀數：抗淨化的衰減率（retention），跑在像素臂已存的防禦圖上。
+
+規格 §4。`retention = effect(淨化) / effect(identity)`，`effect` 取
+`LPIPS(未防禦的編輯, 防禦後的編輯)`——與 `apa_baseline.evaluate` 的
+`edit_lpips` 同一個量，只是換了輸入的淨化算子。
+
+## 參照依算子分兩種
+
+    effect(p) = LPIPS( 編輯(p(原圖)), 編輯(p(防禦圖)) )    幾何類
+    effect(p) = LPIPS( 編輯(原圖),    編輯(p(防禦圖)) )    其餘
+
+幾何類就是 `src/purify/ops.py` 的 `GEOMETRIC_KINDS`（`crop_resize`、
+`resample_roundtrip`、`resize_only`、`shift_only`、`jpeg_then_resize`），
+**判定用 `Purifier.kind`，不是 `label()` 的字串**——label 會把強度接在後面。
+
+幾何類換參照的理由是取景與像素格點：`crop_resize` 是繞中心的純放大
+1.2488×，它改的是取景，所以就算完全沒有防禦，`編輯(p(原圖))` 與 `編輯(原圖)`
+之間也會差很多——舊參照下的空白地板實測 0.5506，而 LPIPS 在兩張不相干的
+自然影像之間只飽和到 0.772（`runs/readout_ceiling/`）。讀數幾乎被取景差異
+吃光。換成同一個算子的兩側之後，取景差異兩邊相同、逐影像逐種子自行抵消。
+
+**其餘算子不換。** 它們的地板反映的是算子對影像內容的破壞（JPEG 的區塊
+假影、模糊抹掉的細節），那正是扣地板要扣掉的東西，不是取景造成的假象；
+換了參照會讓既有的 `runs/` 全部不可並列。
+
+`reference` 這一欄逐列記下該列用的是哪一種參照（`orig` 或 `purified_orig`）。
+兩種基準會出現在同一張表裡，**沒有這一欄就分不出來**。
+
+`retention` 欄在幾何類的列上，分子與分母（identity）踩的是不同的參照，
+要與 `reference` 欄一起讀。主讀數是扣地板的淨增益，不是這個比值。
+
+## 成本
+
+每張影像的編輯次數是
+
+    |種子| × (1 + |算子| + |幾何類算子|)
+
+前兩項是舊有的（參照一份、每個算子一份），第三項是新增的：**幾何類的參照
+不能跨算子共用**，每一個幾何算子各自要一份 `編輯(p(原圖))`。現行主組六個
+算子（identity／jpeg75／jpeg30／blur1／blur2／crop_resize0.1）裡只有
+`crop_resize0.1` 是幾何類，故三個種子下每張圖由 3 × (1 + 6) = 21 升到
+3 × (1 + 6 + 1) = 24，**+14%**。
+
+記憶體同步上升：參照快取跨格保留（同一張影像在多個條件下重用），多存的是
+`|影像| × |種子| × |幾何類算子|` 張 512²×3 的 fp32 張量，每張 3 MB。
+
+**分母塌陷時不可解讀**（`EVALUATION.md` §6）：`effect(identity)` 的多 seed 平均
+低於三倍標準差時，該列標 `usable=False` 並排除在任何統計之外。這不是保守，
+是 FND-009 記過的事——分母本身在雜訊裡時，比值沒有意義。
+
+不重跑攻擊：像素臂已把 `*__def.png` 存下來，本腳本只讀圖。故換淨化算子集合
+或加 seed 都不需要重新訓練。
+
+## 空白地板（`--floor`）
+
+`--floor` 額外加一格 `condition = "none"`，其「防禦圖」就是**原圖本身**。
+量到的 `effect` 因此是
+
+    LPIPS( 編輯(原圖), 編輯(淨化(原圖)) )
+
+即**淨化算子自己造成的位移**，與有沒有防禦無關。沒有這一格，「淨化後某條件
+的絕對位移量比較大」就無法排除「該算子本來就把編輯推得比較開」這個平庸解釋
+——`crop_resize` 之後七個條件的絕對位移量收斂到 0.495–0.617 即是此現象。
+
+該格的 `effect(identity)` 由構造為 0（同 seed、同輸入、SDEdit 是確定性的），
+故 `retention` 欄留空。**空白地板只看絕對值，不看比值。**
+
+**幾何類在 `--floor` 下恰為 0**：參照是 `編輯(p(原圖))`，而防禦圖就是原圖，
+兩側同算子、同輸入、同種子，位元相同。量到非 0 表示編輯不是確定性的或種子
+沒對齊，本腳本直接拋錯——那是量測本身壞了，不是一個小數字。扣地板的機制對
+幾何欄因此是恆等變換，非幾何欄照舊扣非 0 的地板。
+
+用法：
+    python scripts/phase_retention.py --run runs/phaseA_full --seeds 3
+    python scripts/phase_retention.py --run runs/phaseA_human --floor         --images man_00 --out runs/floor.csv
+"""
+
+from __future__ import annotations
+
+import argparse
+import csv
+import statistics
+import sys
+import time
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+import torch  # noqa: E402
+
+from apa_baseline import (  # noqa: E402
+    EDIT_GUIDANCE, EDIT_SEED, EDIT_STEPS, EDIT_STRENGTH, MODEL_NAME,
+    RESOLUTION, head_keep, load_dataset,
+)
+from src.metrics.suite import MetricSuite  # noqa: E402
+from src.models.sd import SDWrapper  # noqa: E402
+from src.purify import ops as purify_ops  # noqa: E402
+from src.purify.ops import GEOMETRIC_KINDS  # noqa: E402
+from src.utils.artifacts import save_image  # noqa: E402
+from src.utils.io import load_image_tensor, write_csv  # noqa: E402
+
+# GrIDPure 與 FD-Pure 的超參數：**論文正文未載，以下為本專案指定**，理由與
+# 出處缺口見 `src/purify/freq_grid.py`。報表必須標註這三個值不是論文的。
+GRIDPURE_T = 10          # 論文只說 "small steps"，未給值
+GRIDPURE_GAMMA = 0.1     # 論文只說 "blending weight gamma"，未給值
+GRIDPURE_ITERS = 10      # 論文只說 "iterated multiple times"，未給值
+FDPURE_T_STAR = 150      # 論文正文未給；取 diffpure 的 ImageNet t，使兩者可比
+
+# 七個既有算子 ＋ C&R 串接。強度沿用 `main_set` 與 `eval_sweep` 的既有值，
+# 不另立新數字——換了強度就不能與既有的 runs/ 比。
+def purifier_set(sd, seed: int, only=None):
+    """`only` 給定時只保留這些標籤（`label()` 的輸出）。
+
+    分段跑用的：IMPRESS 每次呼叫是 1000 步 Adam，每步一次完整 VAE 自編碼的
+    前向與反向，實測佔一格 616 s 中的約 505 s（82%）。先跑其餘九個出結果、
+    IMPRESS 另外補跑，總機時不變但第一份報告早得多。
+
+    `identity` 不可排除——它是 `retention` 的分母，少了它整格算不出比值。
+    """
+    cands = [
+        purify_ops.Purifier("identity"),
+        purify_ops.Purifier("blur", 1.0),
+        purify_ops.Purifier("noise", 0.05, seed=seed),
+        purify_ops.Purifier("quantize", 16),
+        # JPEG 掃四個品質而不是兩個。理由：DCT-Shield 的抗壓縮保證是**單向**的
+        # （補充材料 D.4，`Q_alg = q` 只在攻擊方品質 q' >= q 時有效），而本方法
+        # 的量化交付也有同一條界線。只有兩點看不出界線落在哪裡，四點才畫得出
+        # 「壓得越狠誰越有優勢」這條曲線。
+        purify_ops.Purifier("jpeg", 90),
+        purify_ops.Purifier("jpeg", 75),
+        purify_ops.Purifier("jpeg", 50),
+        purify_ops.Purifier("jpeg", 30),
+        # 交叉點落在 75 與 50 之間的一大段空白裡（十張的淨增益：本方法 r0.9
+        # 量化在 jpeg75 輸 0.4072 對 0.4533，到 jpeg50 反超成 0.2635 對 0.1197）。
+        # 只有四點畫不出交叉點在哪，也就無法主張「有效範圍更寬」。60／40／20
+        # 把格點補密。**它們在預設清單裡**，所以不帶 `--purifiers` 的呼叫會
+        # 多跑三個算子；所有派工腳本都明給 `--purifiers`，既有批次不受影響。
+        purify_ops.Purifier("jpeg", 60),
+        purify_ops.Purifier("jpeg", 40),
+        purify_ops.Purifier("jpeg", 20),
+        # 模糊與裁切各兩個強度，理由同上：一個點看不出斜率。
+        purify_ops.Purifier("blur", 2.0),
+        purify_ops.Purifier("crop_resize", purify_ops.CROP_FRACTION_DIA),
+        purify_ops.Purifier("crop_resize", 0.15),
+        purify_ops.Purifier("jpeg_then_resize", purify_ops.CR_JPEG_QUALITY),
+        purify_ops.Purifier("adverse_cleaner"),
+        purify_ops.Purifier("impress", sd=sd, seed=seed),
+        # DEC-025 的頻率輪新增。兩者的超參數論文正文未載，值在此明給並由
+        # `src/purify/freq_grid.py` 的模組 docstring 說明來源缺口：
+        #   gridpure  t=10（小步）、gamma=0.1、iters=10
+        #   fdpure    t_star=150，刻意等於 `diffpure` 的 ImageNet 設定，
+        #             使兩者的差異只來自頻域引導而不是噪聲量級
+        purify_ops.Purifier("gridpure", seed=seed, t=GRIDPURE_T,
+                            gamma=GRIDPURE_GAMMA, iters=GRIDPURE_ITERS),
+        purify_ops.Purifier("fdpure", seed=seed, t_star=FDPURE_T_STAR),
+    ]
+    if only is not None:
+        want = set(only)
+        if "identity" not in want:
+            raise ValueError("--purifiers 必須包含 identity，它是 retention 的分母")
+        names = {label(p) for p in cands}
+        unknown = want - names
+        if unknown:
+            raise ValueError(f"未知的淨化算子標籤：{sorted(unknown)}；可用：{sorted(names)}")
+        cands = [p for p in cands if label(p) in want]
+
+    kept, skipped = [], []
+    for p in cands:
+        (kept if p.available else skipped).append(p)
+    if skipped:
+        print(f"[purify] 相依不齊，跳過：{[p.kind for p in skipped]}", flush=True)
+    return kept
+
+
+def cell_of(row: dict) -> dict:
+    """由 results.csv 的一列還原出防禦圖的檔名段（`tag`）。
+
+    三種來源的命名各不相同，**必須由列本身決定**，不能寫死一種：
+
+        phase_ablation 預算對齊   {image}__{cond}__d{budget:g}__def.png
+        phase_ablation 人眼門檻   {image}__{cond}__human__def.png
+        apa_baseline              {image}__{cond}__def.png
+
+    早先此處寫死成 `__d{budget:g}`，人眼批次與 baseline 批次都會在
+    `FileNotFoundError` 上停住。
+    """
+    cond, budget = row["condition"], row.get("budget_target", "")
+    if row.get("budget_mode") == "human" or budget == "human":
+        return {"image": row["image"], "condition": cond,
+                "budget": "human", "tag": f"{cond}__human"}
+    if budget:
+        return {"image": row["image"], "condition": cond, "budget": budget,
+                "tag": f"{cond}__d{float(budget):g}"}
+    return {"image": row["image"], "condition": cond, "budget": "native",
+            "tag": cond}
+
+
+def label(p) -> str:
+    return p.kind if not p.strength else f"{p.kind}{p.strength:g}"
+
+
+def main() -> None:
+    ap = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--run", type=Path, required=True)
+    ap.add_argument("--data", type=Path, default=Path("data/lo_aligned"))
+    ap.add_argument("--edit-strength", type=float, default=EDIT_STRENGTH,
+                    help="SDEdit 的 strength，供強度掃描使用")
+    ap.add_argument("--seeds", type=int, default=3)
+    ap.add_argument("--gallery", type=Path, default=None,
+                    help="把每一格的「淨化後的防禦圖」與「淨化後的編輯」存成 "
+                         "PNG。抗淨化是本專案的主主張，而它至今沒有影像可看——"
+                         "本腳本原本把中間影像用完即棄。不影響任何數字。")
+    ap.add_argument("--purifiers", nargs="+", default=None,
+                    help="只跑這些淨化算子（label() 的輸出，如 identity jpeg75）。"
+                         "必須含 identity。預設是全部十個。")
+    ap.add_argument("--images", nargs="+", default=None,
+                    help="只跑這些影像；用來把 cells 分片到多張卡上")
+    ap.add_argument("--conditions", nargs="+", default=None,
+                    help="只跑這些條件；同上")
+    ap.add_argument("--out", type=Path, default=None)
+    ap.add_argument("--floor", action="store_true",
+                    help="改跑空白地板：把原圖當防禦圖，量算子自己造成的位移")
+    ap.add_argument("--attacker", choices=("sd", "ip2p"), default="sd",
+                    help="編輯器。**主線（DEC-031）是 ip2p**；預設留 sd 是為了"
+                         "讓 SDEdit 那條凍結的線逐位可重跑。ip2p 時 "
+                         "--edit-strength 不適用，改由 --edit-steps／"
+                         "--text-guidance／--image-guidance 決定")
+    ap.add_argument("--edit-steps", type=int, default=None)
+    ap.add_argument("--text-guidance", type=float, default=None)
+    ap.add_argument("--image-guidance", type=float, default=None)
+    args = ap.parse_args()
+    out = args.out or (args.run / "retention.csv")
+
+    with (args.run / "results.csv").open(encoding="utf-8") as fh:
+        rows_in = list(csv.DictReader(fh))
+    if args.floor:
+        # 地板與條件無關，故每張影像只需要一格。`tag=None` 表示不讀防禦圖。
+        seen, cells = set(), []
+        for r in rows_in:
+            if r["image"] in seen:
+                continue
+            seen.add(r["image"])
+            cells.append({"image": r["image"], "condition": "none",
+                          "budget": "floor", "tag": None})
+    else:
+        cells = [cell_of(r) for r in rows_in]
+    if args.images:
+        keep = set(args.images)
+        cells = [c for c in cells if c["image"] in keep]
+    if args.conditions:
+        keep = set(args.conditions)
+        cells = [c for c in cells if c["condition"] in keep]
+    if not cells:
+        raise SystemExit(f"{args.run / 'results.csv'} 沒有符合條件的列")
+
+    if args.attacker == "ip2p":
+        from src.models.ip2p import (
+            IP2P_IMAGE_GUIDANCE, IP2P_SEED, IP2P_STEPS, IP2P_TEXT_GUIDANCE,
+            IP2PWrapper,
+        )
+
+        sd = IP2PWrapper(dtype=torch.float32)
+        ip2p_kw = {
+            "steps": args.edit_steps or IP2P_STEPS,
+            "s_t": args.text_guidance or IP2P_TEXT_GUIDANCE,
+            "s_i": args.image_guidance or IP2P_IMAGE_GUIDANCE,
+        }
+        # IP2P 的 seed 基準沿用它自己的常數，與 ip2p_run.py 一致；多 seed 時
+        # 逐一加 k。用 SDEdit 的 EDIT_SEED 會讓兩支腳本的第 0 個 seed 不同，
+        # 而「未淨化的位移量」在兩邊都要算，對不上就沒有共同的分母。
+        seed0 = IP2P_SEED
+    else:
+        sd = SDWrapper(MODEL_NAME, dtype=torch.float32)
+        ip2p_kw, seed0 = None, EDIT_SEED
+    suite = MetricSuite(device=sd.device)
+    purifiers = purifier_set(sd, seed=0, only=args.purifiers)
+    seeds = [seed0 + k for k in range(args.seeds)]
+
+    dataset = {d["name"]: d for d in load_dataset(args.data)}
+    # 兩份參照快取，鍵的形狀不同，**不可合併**：
+    #   非幾何類  (影像, 種子)         內容 編輯(原圖)          ← 既有行為，未動
+    #   幾何類    (影像, 種子, 標籤)   內容 編輯(p(原圖))
+    # 幾何類的鍵含算子標籤，因為 `編輯(p(原圖))` 隨 p 而變，跨算子共用會把
+    # 別的算子的取景當成自己的參照。
+    edit_orig_cache: dict = {}
+    edit_pur_orig_cache: dict = {}
+
+    def edit(x01, item, seed):
+        if ip2p_kw is not None:
+            # IP2P 沒有 strength 這個量：原圖是由第一層卷積直接拼進去的，
+            # 不是被噪聲稀釋的殘影。故此處不套用 --edit-strength。
+            return sd.edit(x01.clamp(0, 1), item["prompt"], seed=seed, **ip2p_kw)
+        noise = sd.sample_edit_noise(sd.encode_image(x01), seed=seed)
+        emb, emb_u = sd.encode_text(item["prompt"]), sd.uncond_prompt()
+        with torch.no_grad():
+            return sd.sdedit(x01.clamp(0, 1), emb, noise, EDIT_STEPS,
+                             strength=args.edit_strength,
+                             guidance_scale=EDIT_GUIDANCE,
+                             emb_uncond=emb_u, keep01=head_keep(item, x01))
+
+    rows = []
+    for cell in cells:
+        item = dataset[cell["image"]]
+        x01 = load_image_tensor(item["path"], sd.device, size=RESOLUTION)
+        tag = cell["tag"]
+        if tag is None:                       # 空白地板：防禦圖就是原圖
+            x_def, tag = x01, "floor"
+        else:
+            def_png = args.run / f"{cell['image']}__{tag}__def.png"
+            if not def_png.exists():
+                raise FileNotFoundError(f"缺少防禦圖 {def_png}")
+            x_def = load_image_tensor(def_png, sd.device, size=RESOLUTION)
+
+        for seed in seeds:
+            key = (cell["image"], seed)
+            if key not in edit_orig_cache:
+                edit_orig_cache[key] = edit(x01, item, seed)
+
+        def reference(p, name: str, seed: int):
+            """該算子這一列要比對的參照編輯。
+
+            幾何類取 `編輯(p(原圖))`，其餘取 `編輯(原圖)`。判定走
+            `p.kind`：`label()` 會把強度接在後面（`crop_resize0.1`），
+            拿字串比對會在新增強度時默默失準。
+            """
+            if p.kind not in GEOMETRIC_KINDS:
+                return edit_orig_cache[(cell["image"], seed)]
+            key = (cell["image"], seed, name)
+            if key not in edit_pur_orig_cache:
+                edit_pur_orig_cache[key] = edit(p.evaluate(x01), item, seed)
+            return edit_pur_orig_cache[key]
+
+        print(f"=== {cell['image']} / {tag} ===", flush=True)
+        t0 = time.time()
+        effects: dict = {}
+        sims: dict = {}
+        refs: dict = {}
+        for p in purifiers:
+            name = label(p)
+            geometric = p.kind in GEOMETRIC_KINDS
+            refs[name] = "purified_orig" if geometric else "orig"
+            vals = []
+            x_pur = p.evaluate(x_def)
+            if args.gallery is not None:
+                # 抗淨化是本專案的主主張，而它至今沒有任何影像可看——本函式
+                # 原本用完即棄。存的是同一條路徑上的兩張圖，不重算任何數字。
+                save_image(x_pur, args.gallery /
+                           f"{cell['image']}__{cell['tag']}__{name}__pur.png")
+            first = None
+            first_ref = None
+            for seed in seeds:
+                ref = reference(p, name, seed)
+                e = edit(x_pur, item, seed)
+                if seed == seeds[0]:
+                    first, first_ref = e, ref
+                    if args.gallery is not None:
+                        save_image(e, args.gallery /
+                                   f"{cell['image']}__{cell['tag']}__{name}__edit_def.png")
+                vals.append(float(suite.pairwise(ref, e)["lpips"]))
+            if args.floor and geometric and any(v != 0.0 for v in vals):
+                # 地板那一格的防禦圖就是原圖，幾何類的參照也是 `編輯(p(原圖))`，
+                # 兩側同算子、同輸入、同種子 → 位元相同 → LPIPS 恰為 0。
+                raise RuntimeError(
+                    f"{cell['image']} 的幾何類算子 {name} 在 --floor 下量到 "
+                    f"{vals}，應恰為 0。這表示編輯不是確定性的、或參照與量測"
+                    f"兩側的種子沒對齊——先修好那件事，不要解讀這批數字。")
+            effects[name] = vals
+            # 影像—影像的語意相似度。39 格人眼標記上 AUC 0.974、門檻 0.837 時
+            # 正確率 93.5%，勝過位移的 0.932（見 runs/obedience_audit/README.md）。
+            # **重用第一個種子已經算過的編輯**——編輯是這一格的主要成本，
+            # 為了多一個讀數再跑一次會讓整批時間翻倍。三個種子是為了估分母的
+            # 標準差，這一項不進統計故只取一個。
+            # 參照與 `effect` 用同一個（`first_ref`）：一邊換一邊不換會讓兩個
+            # 讀數指向不同的基準，而表上看不出來。
+            sims[name] = float(suite.image_similarity(first_ref, first)["siglip"])
+
+        base = effects["identity"]
+        base_mean = statistics.fmean(base)
+        base_sd = statistics.stdev(base) if len(base) > 1 else float("nan")
+        if cell["condition"] == "none":
+            usable = True          # 地板只看絕對值，分母為 0 是構造使然
+        else:
+            usable = bool(base_sd == base_sd and base_mean >= 3.0 * base_sd)
+        if not usable:
+            print(f"    分母塌陷：effect(identity) mean={base_mean:.4f} "
+                  f"sd={base_sd:.4f}，本格的 retention 不可用", flush=True)
+
+        for name, vals in effects.items():
+            mean = statistics.fmean(vals)
+            rows.append({
+                "image": cell["image"], "condition": cell["condition"],
+                "budget_target": cell["budget"], "purifier": name,
+                # 這一列的 effect 與 siglip_sim 踩的是哪一個參照。
+                # `orig` = 編輯(原圖)；`purified_orig` = 編輯(該算子(原圖))。
+                # 兩種基準會出現在同一張表裡，少了這一欄就分不出來。
+                "reference": refs[name],
+                "effect_mean": round(mean, 5),
+                "effect_sd": round(statistics.stdev(vals), 5) if len(vals) > 1 else "",
+                "effect_identity_mean": round(base_mean, 5),
+                "effect_identity_sd": round(base_sd, 5) if base_sd == base_sd else "",
+                "retention": round(mean / base_mean, 5) if base_mean > 0 else "",
+                # 經人眼標記驗證的防禦成功代理，門檻 0.837、低者為擋下。
+                # 與 effect_* 並列而非取代它：金標準仍是人眼，這一項的用途是
+                # 讓新工作點不必每一格都重看圖。
+                "siglip_sim": round(sims[name], 5),
+                "siglip_blocked": sims[name] < 0.837,
+                "edit_strength": args.edit_strength,
+                "usable": usable,
+                "seconds": round(time.time() - t0, 1),
+            })
+        write_csv(out, rows)
+        print(f"    {', '.join(f'{k}={statistics.fmean(v):.4f}' for k, v in effects.items())}",
+              flush=True)
+
+    print(f"\n表：{out}（{len(rows)} 列）")
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,5 @@
+image,condition,budget_target,purifier,effect_mean,effect_sd,effect_identity_mean,effect_identity_sd,retention,edit_strength,usable,seconds
+parrot_00,none,floor,identity,0.0,0.0,0.0,0.0,,0.7,True,65.6
+parrot_00,none,floor,blur1,0.23764,0.03261,0.0,0.0,,0.7,True,65.6
+parrot_00,none,floor,jpeg75,0.08965,0.06154,0.0,0.0,,0.7,True,65.6
+parrot_00,none,floor,crop_resize0.1,0.46908,0.01515,0.0,0.0,,0.7,True,65.6

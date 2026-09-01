@@ -1,0 +1,4 @@
+Mon Aug 24 07:51:51 PM CST 2026 卡3 空了，補送 rand 6 8 與 trip 12 16
+[warp] rand（warp_rand）半徑 6 8 依序跑 dev=3 pid=1114163
+[warp] trip（warp_roundtrip）半徑 12 16 依序跑 dev=3 pid=1114174
+[warp] 全部送出（Mon Aug 24 07:51:51 PM CST 2026），共 2 個 process

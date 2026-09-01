@@ -1,0 +1,7 @@
+condition,half,n_a,n_b,frechet,trusted
+dct_shield,fidelity,75,75,31.1,False
+dct_shield,protection,75,75,213.085,False
+phase,fidelity,75,75,26.716,False
+phase,protection,75,75,105.275,False
+phase_rand,fidelity,75,75,25.43,False
+phase_rand,protection,75,75,43.428,False

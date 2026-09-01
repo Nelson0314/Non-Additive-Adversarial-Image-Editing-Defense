@@ -1,0 +1,4 @@
+eps,step_size,targeted,steps,n,succ_def,hard_quant,succ_none,succ_jpeg30,succ_bit6,lpips,seconds
+100.0,4.0,False,50,200,label,False,0.955,0.205,0.925,0.06439,62.1
+100.0,6.0,False,50,200,label,False,1.0,0.235,0.995,0.10334,60.6
+100.0,8.0,False,50,200,label,False,1.0,0.29,1.0,0.13959,59.9

@@ -1,0 +1,47 @@
+# 第三方論文 PDF（本機參考用，不入庫）
+refs/
+
+# 模型權重
+*.ckpt
+*.safetensors
+
+
+# runs/ 只保存**數值記錄**：CSV / JSON / log / txt / md。
+#
+# 影像與 HTML 不入版控：防禦圖能由已記錄的參數與種子重跑出來，屬於可重新
+# 產生的中間產物；量測結果（CSV）不可重現，一律保留。判定標準見
+# docs/DECISIONS.md。
+#
+# `!runs/**/` 這一行不可刪：git 一旦排除某個目錄就不再遞迴進入，後面依副檔名
+# 的例外規則會全部失效。曾因寫成 `runs/*/**` 而靜默漏掉 143 個結果檔。
+# **改動這個區塊之後必須用 `git status --porcelain --ignored` 確認沒有結果檔
+# 被排除。**
+# 例外：資料集本身入庫（data/ 不受此規則影響）。原圖是實驗的輸入，
+# 不是產物；重新下載依賴外部服務可用，故不視為可重新產生。
+runs/**
+!runs/**/
+!runs/**/*.csv
+!runs/**/*.json
+!runs/**/*.md
+!runs/**/*.log
+!runs/**/*.txt
+
+# Python
+__pycache__/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# 資料集的候選池。29 MB，且完全可由 scripts/fetch_cc0_images.py 重新取得
+# （固定 seed 的打散 + 固定查詢詞）。實際採用的影像在 data/_selected/
+# 與 data/lo_aligned/，兩者都入版控並帶出處紀錄。
+data/_raw/
+
+# 報告頁放在專案根目錄（`report_*.html`），但**不入版控**——理由與 runs/ 的
+# HTML 相同：它由已記錄的 CSV 與參數重新產生得出來，而 CSV 不可重現。
+# 影像一律以 data URI 內嵌，所以搬動目錄不會斷圖。
+/report_*.html
+
+# 遠端影像的本機鏡像。報告頁要把防禦圖／編輯圖內嵌成 data URI，得先把 PNG
+# 從 GPU 機抓回來；它們與 runs/ 底下的影像同性質（可由已記錄的參數與種子
+# 重跑），故同樣不入版控。
+/_rep/

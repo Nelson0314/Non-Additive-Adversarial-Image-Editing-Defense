@@ -1,0 +1,32 @@
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][A
+Loading weights:  61%|██████    | 120/196 [00:00<00:00, 1193.55it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 1317.15it/s]
+Loading pipeline components...:  17%|█▋        | 1/6 [00:00<00:01,  3.44it/s]Loading pipeline components...:  50%|█████     | 3/6 [00:00<00:00,  7.90it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 13.27it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 10.74it/s]
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+IP2P 線：13 張、條件 ['shading']、steps=100 s_T=7.5 s_I=1.5 seed=20260812
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,1.0]
+  warnings.warn(
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 13488.47it/s]
+[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
+[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
+Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights:  75%|███████▌  | 306/408 [00:00<00:00, 3042.08it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 3097.07it/s]
+task_attr_mod_color_11699        shading        r=0.2000 dists=0.0463 lpips=0.0500 effect=0.0517 (361s)
+task_attr_mod_color_136767       shading        r=0.2000 dists=0.0518 lpips=0.0415 effect=0.0732 (368s)
+task_attr_mod_color_184837       shading        r=0.2000 dists=0.0405 lpips=0.0154 effect=0.0323 (355s)
+task_attr_mod_color_32648        shading        r=0.2000 dists=0.0245 lpips=0.0197 effect=0.0168 (170s)
+task_attr_mod_color_6205         shading        r=0.2000 dists=0.0425 lpips=0.0333 effect=0.1704 (170s)
+task_env_weather_112463          shading        r=0.2000 dists=0.0360 lpips=0.0401 effect=0.1890 (170s)
+task_env_weather_246440          shading        r=0.2000 dists=0.0294 lpips=0.0103 effect=0.1585 (170s)
+task_env_weather_63722           shading        r=0.2000 dists=0.0369 lpips=0.0291 effect=0.0572 (170s)
+task_obj_add_40931               shading        r=0.2000 dists=0.0322 lpips=0.0130 effect=0.0496 (170s)
+task_obj_remove_380621           shading        r=0.2000 dists=0.0766 lpips=0.0392 effect=0.0752 (170s)
+task_obj_swap_joint_mask_276754  shading        r=0.2000 dists=0.0422 lpips=0.0131 effect=0.2245 (170s)
+task_obj_swap_joint_mask_533428  shading        r=0.2000 dists=0.0244 lpips=0.0154 effect=0.4145 (170s)
+task_obj_swap_rand_mask_417469   shading        r=0.2000 dists=0.0232 lpips=0.0119 effect=0.0256 (170s)
+
+表：runs/ip2p_shading/opt_r020/results.csv（13 列）

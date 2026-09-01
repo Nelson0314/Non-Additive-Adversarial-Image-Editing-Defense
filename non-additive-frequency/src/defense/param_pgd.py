@@ -1,0 +1,1034 @@
+"""參數化 PGD：把「加性 δ」與「非加性算子的參數 φ」放在同一條迴圈上。
+
+存在理由
+────────────────────────────────────────────────────────────────────
+本專案至今每一次「加性 vs 非加性」的比較都同時換掉四五個東西（階段一、
+更新規則、約束形式、reward），於是差異無法歸因（FND-028／029）。這裡把
+損失、更新規則、步數、種子、預算對齊程序**全部固定**，唯一的變因是
+`Parameterization` 這一個介面的實作。
+
+    for i in 0..steps-1:
+        x_def ← param.render(x)
+        g     ← ∇_φ L(x_def)
+        φ     ← φ − α · sign(g)          # 兩邊同一條更新式
+        φ     ← param.project()          # 各自的約束形式
+
+更新規則取 sign 是為了對齊三個加性 baseline 中的四篇（`pgd.py` 的
+`UPDATE_RULES`），不是因為它最好——FND-029 已記載 sign 丟掉梯度大小會讓
+可見失真變差。此處要的是可歸因，不是最佳。
+
+預算對齊
+────────────────────────────────────────────────────────────────────
+`fit_to_budget` 對**半徑**二分搜尋，使**最終迭代**落在目標 DISTS 上。
+不沿迭代軌跡挑一格：那樣拿到的是一個還沒收斂的 φ，兩個條件各自停在不同
+的最佳化進度上，比較的就不只是參數化。sign 更新會把半徑用滿
+（FND-028 實測 `linf` 逐迭代恰為 `µ × iter`），故「半徑 → 最終失真」
+是單調的，二分搜尋有意義。
+"""
+
+from __future__ import annotations
+
+import math
+from dataclasses import dataclass, field
+from typing import Callable, Dict, List, Optional, Protocol
+
+import torch
+
+from src.residual.texture_rephase import PhaseResidual
+
+
+class Parameterization(Protocol):
+    """φ 的容器。實作者只需回答四件事：怎麼畫、參數是誰、怎麼投影、半徑多大。"""
+
+    name: str
+
+    def render(self, x01: torch.Tensor) -> torch.Tensor: ...
+    def params(self) -> List[torch.Tensor]: ...
+    def project(self) -> None: ...
+    def set_radius(self, r: float) -> None: ...
+    def reset(self, x01: torch.Tensor, seed: int) -> None: ...
+
+
+class AdditiveParam:
+    """φ = δ，`x_def = clamp(x + δ, 0, 1)`，L∞ 投影。加性對照組。
+
+    `keep` (1,1,H,W) 或 (1,3,H,W) 給定時，δ 先乘上它再加到影像上。
+    inpainting 下傳 `1 - mask`：重畫區的擾動被 `mask_latents` 歸零，
+    留在那裡只是白付失真。等價於 PhotoGuard-c 原始碼的 `grad * (1 - cur_mask)`。
+    """
+
+    name = "add"
+
+    def __init__(self, radius: float = 16.0 / 255.0,
+                 keep: Optional[torch.Tensor] = None):
+        self.radius = radius
+        self.keep = keep
+        self.delta: Optional[torch.Tensor] = None
+
+    def reset(self, x01: torch.Tensor, seed: int) -> None:
+        self.delta = torch.zeros_like(x01, requires_grad=True)
+
+    def render(self, x01: torch.Tensor) -> torch.Tensor:
+        d = self.delta if self.keep is None else self.delta * self.keep.to(self.delta)
+        return (x01 + d).clamp(0.0, 1.0)
+
+    def params(self) -> List[torch.Tensor]:
+        return [self.delta]
+
+    @torch.no_grad()
+    def project(self) -> None:
+        self.delta.clamp_(-self.radius, self.radius)
+
+    def set_radius(self, r: float) -> None:
+        self.radius = r
+
+
+class PhaseParam:
+    """φ = θ，`x_def = clamp(PhaseResidual(x), 0, 1)`，逐元素夾到 θ_max。
+
+    半徑就是 `theta_max`，其上界是 π——相位是週期量，**本參數化的失真有
+    構造上的天花板**，與加性的 ε 可以無限放大不同。天花板在哪由 `r_min`
+    決定（實測：r_min=0.25 對應 DISTS 約 0.055，0.12 對應約 0.10）。
+    達不到的預算點要標為 unreachable，不是 failed（與 FND-001 同型）。
+
+    `gl_iters > 0` 時每次 render 多跑幾輪 Griffin-Lim 迭代投影，把 STFT
+    一致性投影誤差壓下去。這是 FND-040 的判別實驗：效果若隨 `amp_dev` 一起
+    塌掉，代表它來自新造的能量而非相位重排。
+    """
+
+    name = "phase"
+
+    def __init__(self, size: int = 512, block: int = 32, r_min: float = 0.12,
+                 hop: Optional[int] = None,
+                 r_max: float = float("inf"),
+                 radius: float = math.pi, energy_quantile: float = 0.5,
+                 keep: Optional[torch.Tensor] = None, gl_iters: int = 0,
+                 pixel_gate_sigma: float = 0.0, gain_ratio: float = 0.0,
+                 phase_on: bool = True, gate_edge_power: float = 1.0,
+                 freq_weight: str = "binary",
+                 freq_weight_power: float = 1.0,
+                 survival_weight: str = "none",
+                 gain_weight: str = "shared",
+                 channels: str = "rgb",
+                 spectral_floor: float = 0.0,
+                 floor_gate: str = "uniform",
+                 floor_r_min: Optional[float] = None,
+                 floor_r_max: Optional[float] = None,
+                 floor_survival: str = "none",
+                 floor_envelope: str = "none",
+                 floor_envelope_k: int = 1,
+                 floor_envelope_scope: str = "floor",
+                 theta_budget: float = 0.0,
+                 coarsen: int = 1):
+        self.size, self.block, self.r_min = size, block, r_min
+        # None = block//2，逐位元等於加這個參數之前。更小的 hop 讓每個
+        # 像素被更多區塊覆蓋，相鄰區塊獨立旋轉留下的接縫因此被平均掉。
+        self.hop = hop
+        self.r_max = r_max
+        self.energy_quantile = energy_quantile
+        # 紋理閘壓制邊緣那個因子的指數，預設 1.0 逐位元等於加它之前。
+        # 理由見 `PhaseResidual.__init__`。
+        if gate_edge_power < 0:
+            raise ValueError(
+                f"gate_edge_power 不可為負，收到 {gate_edge_power}")
+        self.gate_edge_power = gate_edge_power
+        # 頻率閘的知覺權重。"binary" = 二值帶通，逐位元等於加它之前。
+        # 名字的合法性由 `PhaseResidual` 檢查，這裡只轉交。
+        self.freq_weight = freq_weight
+        self.freq_weight_power = freq_weight_power
+        # 期望存活振幅。合法性由 `PhaseResidual` 檢查，這裡只轉交。
+        self.survival_weight = survival_weight
+        self.gain_weight = gain_weight
+        self.channels = channels
+        self.spectral_floor = spectral_floor
+        # 加法項的價目表要不要隨區塊變。合法性由 `PhaseResidual` 檢查，
+        # 這裡只轉交。`uniform` 逐位元等於加這個旋鈕之前。
+        self.floor_gate = floor_gate
+        # 加法項自己的徑向帶與存活加權。`None`／`"none"` = 沿用相位那一半的
+        # 帶、不加存活權重，逐位元等於加這三個旋鈕之前。合法性由
+        # `PhaseResidual`（名字）與 `radial_gate`（上下界）檢查，這裡只轉交。
+        # `spectral_floor == 0` 時三者都沒有作用——價目表根本不會被建出來。
+        self.floor_r_min = floor_r_min
+        self.floor_r_max = floor_r_max
+        self.floor_survival = floor_survival
+        # 可學的空間包絡。三者的合法性（名字、K、與 spectral_floor 的相容性）
+        # 由 `PhaseResidual` 檢查，這裡只轉交。`"none"` = 關閉，逐位元等於加
+        # 這三個旋鈕之前。
+        self.floor_envelope = floor_envelope
+        self.floor_envelope_k = floor_envelope_k
+        self.floor_envelope_scope = floor_envelope_scope
+        # 幅度相依的相位上限。合法性由 `PhaseResidual` 檢查，這裡只轉交。
+        # 0 = 關閉，逐位元等於加這個旗標之前。
+        self.theta_budget = theta_budget
+        # 三個空間場的視窗網格解析度。1 = 逐位元等於加這個旋鈕之前。
+        # 合法性由 `PhaseResidual` 檢查，這裡只轉交。
+        self.coarsen = coarsen
+        # **radius 本身不封頂**，封頂只發生在傳給 `theta_max` 的那一刻。
+        # 2026-08-21 之前這裡是 `min(radius, pi)`，於是 `--radius 3.5` 與
+        # `--radius 4.5` 其實跑的是同一個 theta_max = pi——sigma 掃描看到的
+        # 「theta >= 3 之後 DISTS 卡住」有一部分是這個夾取造成的，不全是相位
+        # 的週期性。增益沒有週期性，它的上界必須跟著 radius 走，故分開處理。
+        self.radius = radius
+        self.keep = keep
+        self.gl_iters = gl_iters
+        # > 0 時在重疊相加之後再乘一層逐像素紋理遮罩（2026-08-20）。
+        # 預設 0 = 關閉，此時逐位元與加這個選項之前相同。
+        self.pixel_gate_sigma = pixel_gate_sigma
+        # 幅度也可學（2026-08-21）。`gain_ratio` 把單一的強度旋鈕綁到兩個
+        # 參數上：`gain_max = radius * gain_ratio`。綁在一起是為了讓既有的
+        # 掃描與二分搜尋機制（`fit_to_budget`）不必改成二維搜尋。
+        # `phase_on = False` 時 theta 凍結在 0，即「純幅度」變體。
+        if gain_ratio < 0:
+            raise ValueError(f"gain_ratio 不可為負，收到 {gain_ratio}")
+        self.gain_ratio = gain_ratio
+        self.phase_on = phase_on
+        # 三個自由度：theta（相位）、gain（幅度）、floor（頻譜加性下限）。
+        # 三個全關才是真的沒有東西可學。**這道檢查原本只看前兩個**，是在加性
+        # 下限存在之前寫的，於是「相位與幅度都不動、只留下限」這一格被擋住
+        # ——而那正是加性裁決底下唯一沒跑過的對照。
+        if not phase_on and gain_ratio <= 0 and spectral_floor <= 0:
+            raise ValueError(
+                "phase_on=False、gain_ratio=0 且 spectral_floor=0 時"
+                "沒有任何自由度")
+        self.module: Optional[PhaseResidual] = None
+
+    def reset(self, x01: torch.Tensor, seed: int) -> None:
+        self.module = PhaseResidual(
+            size=self.size, block=self.block, hop=self.hop,
+            r_min=self.r_min,
+            r_max=self.r_max,
+            theta_max=min(self.radius, math.pi),
+            energy_quantile=self.energy_quantile,
+            gl_iters=self.gl_iters, pixel_gate_sigma=self.pixel_gate_sigma,
+            gain_max=self.radius * self.gain_ratio,
+            gate_edge_power=self.gate_edge_power,
+            freq_weight=self.freq_weight,
+            freq_weight_power=self.freq_weight_power,
+            survival_weight=self.survival_weight,
+            gain_weight=self.gain_weight,
+            channels=self.channels,
+            spectral_floor=self.spectral_floor,
+            floor_gate=self.floor_gate,
+            floor_r_min=self.floor_r_min,
+            floor_r_max=self.floor_r_max,
+            floor_survival=self.floor_survival,
+            floor_envelope=self.floor_envelope,
+            floor_envelope_k=self.floor_envelope_k,
+            floor_envelope_scope=self.floor_envelope_scope,
+            theta_budget=self.theta_budget,
+            coarsen=self.coarsen,
+        ).to(device=x01.device, dtype=x01.dtype)
+        self.module.prepare_gates(x01, keep=self.keep)
+
+    def render(self, x01: torch.Tensor) -> torch.Tensor:
+        return self.module.pixel_residual(x01).clamp(0.0, 1.0)
+
+    def params(self) -> List[torch.Tensor]:
+        out = [self.module.theta] if self.phase_on else []
+        if self.gain_ratio > 0:
+            out.append(self.module.gain)
+        if self.spectral_floor > 0:
+            out.append(self.module.floor)
+        if self.floor_envelope != "none":
+            # 包絡的五個純量與 theta／gain／floor 走**同一條** PGD：同一個
+            # 更新規則、同一個步長、同一次投影。分開一個最佳化器等於再引入
+            # 一個沒有記錄的變因，而本迴圈的存在理由就是「唯一的變因是
+            # 參數化」（見模組 docstring）。
+            #
+            # **接在既有三者之後**：`_load_weights` 是按位置 zip 的，接在
+            # 後面才不會讓舊的 `__w.pt` 對錯位置。個數不同時那支會直接拋錯
+            # （「構造不同，不可續跑」），這是要的行為。
+            out += [self.module.env_center, self.module.env_sigma,
+                    self.module.env_fc, self.module.env_beta]
+        return out
+
+    @torch.no_grad()
+    def project(self) -> None:
+        if self.phase_on:
+            t = min(self.radius, math.pi)
+            self.module.theta.clamp_(-t, t)
+            if self.module.theta_cap is not None:
+                # 幅度相依的上限也是可行集的一部分。**投影到可行集而不是只在
+                # 前向夾**：只在前向夾的話，被夾住的座標梯度是零，PGD 會把
+                # 參數推到界外再也回不來，而報表上看不出來。
+                cap = self.module.theta_cap
+                torch.minimum(self.module.theta, cap, out=self.module.theta)
+                torch.maximum(self.module.theta, -cap, out=self.module.theta)
+        if self.gain_ratio > 0:
+            g = self.radius * self.gain_ratio
+            self.module.gain.clamp_(-g, g)
+        if self.spectral_floor > 0:
+            # 係數夾在 [-1, 1]，實際加上去的量是它乘價目表再乘
+            # `spectral_floor`。負值等於相位翻轉 pi，不需要另設相位參數。
+            self.module.floor.clamp_(-1.0, 1.0)
+        if self.floor_envelope != "none":
+            # **投影到可行集，不是只在前向夾。** 只在前向夾的話，被夾住的
+            # 座標梯度是零，sign-PGD 會把參數一路推到界外再也回不來，而
+            # 報表上看不出來（與 `theta_cap` 同一個理由）。
+            #
+            # 四個邊界全部由網格導出，見 `PhaseResidual.__init__`：
+            # 中心夾在影像內、sigma 夾在「一個視窗間距」到「影像對角線」、
+            # f_c 夾在「一個頻格」到「格點上的最大半徑」、beta 夾在 [0, 1]。
+            m = self.module
+            m.env_center.clamp_(-1.0, 1.0)
+            m.env_sigma.clamp_(m.sigma_min, m.sigma_max)
+            m.env_fc.clamp_(m.fc_min, m.fc_max)
+            m.env_beta.clamp_(0.0, 1.0)
+
+    def set_radius(self, r: float) -> None:
+        # **相位封頂在 pi，增益不封頂**——相位是週期量，增益不是。
+        self.radius = r
+        if self.module is not None:
+            self.module.theta_max = min(r, math.pi)
+            self.module.gain_max = r * self.gain_ratio
+
+    def envelope_state(self) -> dict:
+        """學出來的包絡參數，供 CSV 逐列記下。關閉時是空的 dict。
+
+        轉交而不是讓呼叫端伸手進 `self.module`：`module` 在 `reset()` 之前
+        是 `None`，而驅動腳本收結果的地方離 `reset()` 很遠。
+        """
+        return {} if self.module is None else self.module.envelope_state()
+
+
+class RandomPhaseParam(PhaseParam):
+    """同幅度的隨機相位，即 RPN 本身。**不最佳化**，只在 reset 時抽一次。
+
+    FND-004 與 FND-018 兩次都是被「贏不過同失真隨機」擋下來的。此對照組
+    自第一天存在，不是事後補的。
+    """
+
+    name = "phase_rand"
+
+    def reset(self, x01: torch.Tensor, seed: int) -> None:
+        super().reset(x01, seed)
+        gen = torch.Generator(device="cpu").manual_seed(seed)
+        r = min(self.radius, math.pi)
+        init = torch.randn(self.module.theta.shape, generator=gen) * r
+        with torch.no_grad():
+            self.module.theta.copy_(
+                init.clamp(-r, r).to(
+                    device=x01.device, dtype=x01.dtype)
+            )
+
+    def params(self) -> List[torch.Tensor]:
+        return []
+
+
+class ShadingParam:
+    """φ = m（粗網格），`x_def = clamp(x · exp(upsample(m)), 0, 1)`。
+
+    `docs/reference/SURVEY_ARCHITECTURE.md` 候選二：一個**極低頻的乘性增益
+    場**，是「明暗／照明」而不是「雜訊」。16×16 的係數雙三次上採樣到 512²，
+    帶寬 `f_n ≲ 0.03`——實測場的能量加權頻率半徑是 0.024–0.026
+    （`runs/shading_field_cost/`）。
+
+    它同時對準兩個失效機制，是三個候選裡唯一打兩個的：
+
+    - **模糊拿不走它的能量**，因為它的能量本來就不在模糊拿得走的地方
+      （σ=1 的高斯模糊對 `f_n < 0.03` 幾乎是恆等）。
+    - **裁切放大搬不動它**：`f_n ≲ 0.02` 是 1.2488× 放大之後唯一還與自己
+      正相關的帶（`runs/ip2p_residual_signature/crop_lowband.csv`）。
+
+    三個構造上的選擇，各有理由：
+
+    - **零初始化即恆等輸出**（`exp(0) = 1`），與相位 `θ = 0` 同性質。
+    - **單通道（消色差）**。逐通道的彩色明暗場會撞上已否決的 `顏色通道`；
+      彩色版只能當消融，且要主動引用該否決。
+    - **半徑夾在 `m` 本身**，不是夾在上採樣之後——雙三次會過衝，夾在粗網格上
+      預算才有定義；過衝造成的超出由輸出的 `clamp` 收掉。
+
+    參數量 256（16×16），比現行的 59 萬少三個數量級，sign PGD 直接適用。
+    """
+
+    name = "shading"
+
+    def __init__(self, radius: float = 0.10, grid: int = 16):
+        if grid < 2:
+            raise ValueError(f"grid 必須至少為 2，收到 {grid}")
+        self.radius = radius
+        self.grid = grid
+        self.m: Optional[torch.Tensor] = None
+
+    def reset(self, x01: torch.Tensor, seed: int) -> None:
+        self.m = torch.zeros(1, 1, self.grid, self.grid,
+                             device=x01.device, dtype=x01.dtype,
+                             requires_grad=True)
+
+    def render(self, x01: torch.Tensor) -> torch.Tensor:
+        m = torch.nn.functional.interpolate(
+            self.m, size=x01.shape[-2:], mode="bicubic", align_corners=False)
+        return (x01 * torch.exp(m)).clamp(0.0, 1.0)
+
+    def params(self) -> List[torch.Tensor]:
+        return [self.m]
+
+    @torch.no_grad()
+    def project(self) -> None:
+        self.m.clamp_(-self.radius, self.radius)
+
+    def set_radius(self, r: float) -> None:
+        self.radius = r
+
+
+class ShadingRandomParam(ShadingParam):
+    """同失真的隨機明暗場，**不最佳化**，只在 reset 時抽一次。
+
+    候選二第 6 點步驟 3 標為**必做**：`位移場`（FND-004）的死法正是
+    「與同失真隨機對照無法區分」，而低頻、低自由度的參數化特別容易重蹈覆轍。
+    這一格與 `phase_rand` 同性質，理由也相同。
+    """
+
+    name = "shading_rand"
+
+    def reset(self, x01: torch.Tensor, seed: int) -> None:
+        super().reset(x01, seed)
+        gen = torch.Generator(device="cpu").manual_seed(seed)
+        init = torch.randn(self.m.shape, generator=gen) * self.radius
+        with torch.no_grad():
+            self.m.copy_(init.clamp(-self.radius, self.radius).to(
+                device=x01.device, dtype=x01.dtype))
+
+    def params(self) -> List[torch.Tensor]:
+        return []
+
+
+class WarpParam:
+    """φ = c（粗網格上的位移量，單位是像素），`x_def = x ∘ (id + upsample(c))`。
+
+    **這是 WaNet 式三元對照的最佳化那一格**（`runs/ip2p_warp/`）。它問的是
+    `RESULTS.md` 的 FND-004（位移場與同失真隨機對照無法區分）是這一族方法的
+    通病，還是舊實作的問題。機制上的懷疑來自 WaNet（ICLR 2021,
+    arXiv:2102.10369）：沒有被專門訓練去區分位移場的網路，反應的不是位移場的
+    身份，而是**重取樣內插產生的像素級 artifact**；WaNet 必須額外加入 noise
+    mode（隨機 warp → 標正確類別）才逼得網路學會區分特定的場，而 IP2P 從未
+    受過這種訓練。三元對照（`warp` / `warp_rand` / `warp_roundtrip`）把
+    「幾何」與「內插 artifact」拆開量。
+
+    **與 stAdv（arXiv:1801.02612）刻意的偏離，必須知道**
+    ────────────────────────────────────────────────────────────────
+    stAdv 的位移場是**逐像素稠密**的，並以流場的總變差（TV）正則化維持
+    平滑。本類別改用 **16×16 粗網格＋雙三次上採樣**，沒有 TV 項——平滑性
+    由上採樣核直接保證，自由度由 512 降到 2·16²。
+
+    偏離的理由是**感知預算是在這個構造上量的**：本專案在本機量過同一構造
+    （6 張、16×16 粗網格上採樣）的失真—位移對照表，
+
+        最大位移 2 px → LPIPS 0.0229 / DISTS 0.0094 / PSNR 30.77
+                 4 px → 0.0550 / 0.0239 / 25.74
+                 8 px → 0.1205 / 0.0533 / 21.77
+                16 px → 0.2323 / 0.1091 / 18.79
+                24 px → 0.3191 / 0.1602 / 17.37
+
+    換成稠密場＋TV 之後這張表全部作廢，而本批要在既有的失真帶
+    （DISTS 0.1286 附近）上比較。**本類別因此不是 stAdv 的移植**，報表上
+    不可寫成 stAdv 的結果。
+
+    三個構造上的選擇，各有理由：
+
+    - **半徑的單位是「最大位移像素數」，且夾在粗網格的係數上**，不是夾在
+      上採樣之後。雙三次會過衝，夾在上採樣之後預算就沒有定義；與
+      `ShadingParam` 同一條理由。過衝造成的超出由 `padding_mode="border"`
+      與取樣本身收掉。
+    - **零位移逐位等於原圖**。用像素中心的基準網格配 `align_corners=False`：
+      `grid_sample` 的反正規化是 `((c + 1) · W − 1) / 2`，基準取
+      `c_i = (2i + 1)/W − 1` 時，邊長為 2 的冪（本專案是 512）的每一步在
+      float32 下都是精確的二進位分數，反正規化**恰好**回到整數 `i`，
+      雙線性權重是 0/1。實測 H = 64 與 512 逐位相等，H = 511／300 只到
+      1.5e−5／2.9e−5。**用 `align_corners=True` 配 `linspace` 做不到**
+      （512 上誤差 5.8e−5），那是一筆無償的失真地板。
+    - **`padding_mode="border"`**：邊界外取邊界值。用 `zeros` 會在邊緣造出
+      一圈黑框，那是位移場以外的東西。
+
+    `roundtrip=True` 時先施加 `+f` 再施加 `−f`。幾何幾乎回到原點，剩下的
+    **只有兩次重取樣的內插 artifact**——這一格就是 WaNet 的機制解釋在本專案
+    上的直接檢定。注意 `−f` 只是 `f` 的一階逆，殘餘幾何是 O(‖∇f‖·‖f‖)，
+    不是零；它在同一個半徑上的失真遠低於單次 warp，故等失真比較時要掃到
+    更大的半徑。
+    """
+
+    name = "warp"
+
+    def __init__(self, radius: float = 8.0, grid: int = 16,
+                 roundtrip: bool = False, init_std: float = 0.0):
+        if grid < 2:
+            raise ValueError(f"grid 必須至少為 2，收到 {grid}")
+        self.radius = radius
+        self.grid = grid
+        self.roundtrip = roundtrip
+        self.init_std = float(init_std)
+        self.c: Optional[torch.Tensor] = None
+
+    def reset(self, x01: torch.Tensor, seed: int) -> None:
+        """通道 0 = x 方向位移，通道 1 = y 方向位移，單位都是像素。
+
+        **`init_std = 0` 時是全零起點，逐位元等於加這個參數之前。**
+
+        非零時用 `seed` 抽一個高斯起點。存在的理由是實測的病灶：
+        `runs/ip2p_warp/step_probe_latent_norm.csv` 量到 `latent_norm` 在
+        **零位移處有一個帶折點的局部極小**——梯度完全正常（absmean 3.4e−2、
+        零元素比例 0.0000）但每走一步損失都上升（105.95 → 110.07），於是
+        sign PGD 在 0 與 ±α 之間形成週期 2 的振盪、`|c|` 恆等於 α。
+        而 `reset` 的 `seed` 參數先前**收下了卻沒有使用**，所以沒有離開
+        折點的辦法。要問「這個損失對位移場行不行」就必須從折點以外起步，
+        否則量到的是 sign PGD 的性質而不是損失的性質。
+        """
+        g = torch.Generator(device="cpu").manual_seed(seed)
+        if self.init_std > 0:
+            init = torch.randn(1, 2, self.grid, self.grid, generator=g) * self.init_std
+            init = init.clamp(-self.radius, self.radius)
+        else:
+            init = torch.zeros(1, 2, self.grid, self.grid)
+        self.c = init.to(device=x01.device, dtype=x01.dtype).requires_grad_(True)
+
+    @staticmethod
+    def _base_grid(h: int, w: int, device, dtype) -> torch.Tensor:
+        """像素中心的基準取樣網格。邊長為 2 的冪時零位移逐位等於恆等。"""
+        ys = (2 * torch.arange(h, device=device, dtype=dtype) + 1) / h - 1
+        xs = (2 * torch.arange(w, device=device, dtype=dtype) + 1) / w - 1
+        gy, gx = torch.meshgrid(ys, xs, indexing="ij")
+        return torch.stack((gx, gy), dim=-1).unsqueeze(0)
+
+    def _displacement(self, x01: torch.Tensor) -> torch.Tensor:
+        """粗網格係數雙三次上採樣到影像尺寸，(1, 2, H, W)，單位是像素。"""
+        return torch.nn.functional.interpolate(
+            self.c, size=x01.shape[-2:], mode="bicubic", align_corners=False)
+
+    def flow_field(self, x01: torch.Tensor) -> torch.Tensor:
+        """上採樣後的稠密位移場 (1, 2, H, W)，單位是像素，**梯度接得回 `c`**。
+
+        存在的理由是 stAdv 的 `L_flow`（`src/defense/stadv_flow.py`）要作用在
+        **稠密場**上而不是粗網格係數上：原文的 `f` 就是逐像素的。
+        `grid == H` 時 `F.interpolate` 同尺寸輸出逐位元等於輸入（本機驗證），
+        上採樣退化成恆等，此時 `c` 自己就是原文的稠密場、參數量恰為 `2·H·W`。
+        `grid < H` 時它是粗網格經雙三次上採樣的場，正則項算的仍然是實際作用
+        在影像上的那一個。
+        """
+        return self._displacement(x01)
+
+    def _sample(self, x01: torch.Tensor, d: torch.Tensor) -> torch.Tensor:
+        h, w = x01.shape[-2:]
+        base = self._base_grid(h, w, x01.device, x01.dtype)
+        # 像素 → 正規化座標：align_corners=False 下一個像素是 2/W。
+        off = torch.stack((d[:, 0] * (2.0 / w), d[:, 1] * (2.0 / h)), dim=-1)
+        return torch.nn.functional.grid_sample(
+            x01, base + off, mode="bilinear", padding_mode="border",
+            align_corners=False)
+
+    def render(self, x01: torch.Tensor) -> torch.Tensor:
+        d = self._displacement(x01)
+        y = self._sample(x01, d)
+        if self.roundtrip:
+            y = self._sample(y, -d)
+        return y.clamp(0.0, 1.0)
+
+    @torch.no_grad()
+    def effective_displacement(self, x01: torch.Tensor) -> torch.Tensor:
+        """整條 render 走完之後，每個像素**實際**被搬了多遠（像素，(1,2,H,W)）。
+
+        做法是把座標圖當成一張兩通道的影像，餵進**同一組**取樣算子，再減回
+        原座標。單次 warp 時這恆等於 `upsample(c)`；往返時它量的是殘餘幾何，
+        而那正是 `warp_roundtrip` 這一格唯一的汙染源——`−f` 只是 `f` 的一階
+        逆，殘餘量的量級是 `‖∇f‖·‖f‖ ≈ radius² / 粗網格間距`，radius 大時
+        不可忽略。**報表上必須把這個量寫出來**，否則「只剩內插 artifact」
+        是一句沒有證據的話。
+
+        邊界處 `padding_mode="border"` 會讓座標圖被夾住，那一圈的讀數偏小。
+        """
+        h, w = x01.shape[-2:]
+        ys = torch.arange(h, device=x01.device, dtype=x01.dtype)
+        xs = torch.arange(w, device=x01.device, dtype=x01.dtype)
+        gy, gx = torch.meshgrid(ys, xs, indexing="ij")
+        coords = torch.stack((gx, gy)).unsqueeze(0)
+        d = self._displacement(x01)
+        out = self._sample(coords, d)
+        if self.roundtrip:
+            out = self._sample(out, -d)
+        return out - coords
+
+    def params(self) -> List[torch.Tensor]:
+        return [self.c]
+
+    @torch.no_grad()
+    def project(self) -> None:
+        # **夾的是粗網格上的係數**，單位是像素。上採樣會過衝，夾在上採樣
+        # 之後預算就沒有定義。
+        self.c.clamp_(-self.radius, self.radius)
+
+    def set_radius(self, r: float) -> None:
+        self.radius = r
+
+
+class WarpRandomParam(WarpParam):
+    """同半徑的隨機位移場，**不最佳化**，只在 reset 時抽一次。
+
+    三元對照的第二格。與 `phase_rand`／`shading_rand` 同性質、同抽法
+    （`randn × radius` 再夾回 ±radius）：sign PGD 會把 L∞ 球用滿，故隨機
+    對照也取用滿的分布，否則「同半徑」在實質上不同。
+    """
+
+    name = "warp_rand"
+
+    def reset(self, x01: torch.Tensor, seed: int) -> None:
+        super().reset(x01, seed)
+        gen = torch.Generator(device="cpu").manual_seed(seed)
+        init = torch.randn(self.c.shape, generator=gen) * self.radius
+        with torch.no_grad():
+            self.c.copy_(init.clamp(-self.radius, self.radius).to(
+                device=x01.device, dtype=x01.dtype))
+
+    def params(self) -> List[torch.Tensor]:
+        return []
+
+
+class WarpRoundTripParam(WarpRandomParam):
+    """**與 `warp_rand` 用同一個隨機場**，先施加 `f` 再施加 `−f`。
+
+    三元對照的第三格。幾何幾乎回到原點，留下的主要是兩次雙線性重取樣的
+    內插 artifact。它與 `warp_rand` 的差就是「幾何本身有沒有貢獻」；
+    同種子同半徑下兩者抽到的 `c` 逐位相同（由 `tests/test_warp_param.py`
+    釘住），故這個差不含抽樣變異。
+    """
+
+    name = "warp_roundtrip"
+
+    def __init__(self, radius: float = 8.0, grid: int = 16):
+        super().__init__(radius=radius, grid=grid, roundtrip=True)
+
+@dataclass
+class ParamPGDResult:
+    x_def: torch.Tensor
+    radius: float
+    history: List[Dict] = field(default_factory=list)
+    # 走完全部步數是 "max_steps"，早停是 "early_stop"，不最佳化是 "no_params"。
+    stop_reason: str = "max_steps"
+    stopped_at: int = 0
+    best_eval: Optional[float] = None
+
+
+def run_param_pgd(
+    x01: torch.Tensor,
+    param: Parameterization,
+    loss_fn: Callable[[torch.Tensor], torch.Tensor],
+    *,
+    steps: int = 100,
+    saturate_at: float = 0.25,
+    seed: int = 0,
+    log_every: int = 0,
+    transform: Optional[Callable[[torch.Tensor, int], torch.Tensor]] = None,
+    update: str = "sign",
+    step_size: Optional[float] = None,
+    eval_fn: Optional[Callable[[torch.Tensor], torch.Tensor]] = None,
+    eval_every: int = 0,
+    patience: int = 0,
+    min_delta: float = 0.0,
+    deliver: Optional[Callable[[torch.Tensor], torch.Tensor]] = None,
+    step_hook: Optional[Callable[[int], None]] = None,
+    post_reset: Optional[Callable[[Parameterization], None]] = None,
+) -> ParamPGDResult:
+    """共用迴圈。`loss_fn(x_def)` 回傳要**最小化**的純量。
+
+    `saturate_at` 決定步長：`α = radius / (steps · saturate_at)`，即前四分之一
+    的迭代就能走滿半徑，其餘用來在球面上調方向。兩個參數化共用同一個比例，
+    故「誰先撞到約束」不會變成一個隱藏的變因。
+
+    **`step_size` 明給時直接取代那條公式。** 存在的理由是一個實測的混淆：
+    步長綁在半徑上，於是「放寬預算」同時「放大步長」，放寬預算不等於走得更遠，
+    它同時讓振盪的幅度變大（`runs/ip2p_warp/DIAGNOSIS.md`：隨機遊走比值隨半徑
+    由 0.84 掉到 0.40）。要問「不設預算會走到哪裡」就必須把兩者解耦。
+
+    **`update` 選 `adam` 時改用 Adam，`alpha` 當成 lr。** sign PGD 在**帶折點
+    的局部極小**上會形成週期 2 的振盪（同上文件第四節），那是更新規則的性質
+    不是損失的性質；要分辨兩者就需要一個不靠梯度符號的更新規則。
+    **`docs/GOAL.md` 把「Adam 更新規則」列在更早期已否決的方向裡，但那批的
+    證據已刪除、且是在相位參數化上做的**，與這裡的位移場不是同一件事；
+    使用者已就位移場的探索批次明確授權。報表上必須標明這一點，
+    **不可以拿本旗標的結果去推翻或恢復相位臂上的那個否決**。
+
+    `update = "lbfgs"`：stAdv 的最佳化器
+    ────────────────────────────────────────────────────────────────
+    stAdv（arXiv:1801.02612）用的是 **L-BFGS ＋ line search**。這裡走
+    `torch.optim.LBFGS(lr=alpha, max_iter=1, line_search_fn="strong_wolfe")`，
+    與另外兩條路徑的差別、以及三個必須知道的偏差：
+
+    - **原文寫的是 backtracking line search，PyTorch 只提供 strong Wolfe**
+      （`modified_from_paper`）。兩者都在同一條搜尋方向上找步長，但接受準則
+      不同：backtracking 只要求 Armijo 充分下降，strong Wolfe 另外要求曲率
+      條件，故每一步的 closure 評估次數較多。實際評估次數逐步記在 `history`
+      的 `closures` 欄。
+    - **`max_iter=1`**：一次 `opt.step(closure)` 就是一個 outer iteration。
+      不這麼設的話，`torch.optim.LBFGS` 預設在單次 `step` 內跑 20 個
+      iteration，投影與收斂評估就會每 20 步才發生一次，而報表上的「第幾步」
+      指的是別的東西。
+    - **約束（`project`）在每個 outer iteration 之後投影一次，不在 closure
+      裡投影。** closure 會被 line search 反覆呼叫；在裡面投影等於讓目標
+      函數沿搜尋方向出現不可微的折點，Wolfe 條件的前提（沿線的 `φ(t)` 與
+      `φ'(t)` 一致）就不成立，line search 會拿到互相矛盾的讀數。代價是
+      **投影確實會破壞 L-BFGS 的曲率對**：它內部記的是 `s = t·d`（自己算的
+      步長乘方向）而不是參數的實際變化量，被投影夾住時真實變化小於 `s`，
+      於是那一組 `(s, y)` 描述的曲率偏小。半徑沒有咬住時不發生此事；咬住時
+      `param_absmean` 會貼在半徑上，報表上看得出來。
+    - **`alpha` 在這條路徑上只是 line search 的起始試探步長**，不是實際步長：
+      strong Wolfe 會自己擴張或收縮。`steps` 開大時
+      `alpha = radius / (steps · saturate_at)` 會很小，那只影響第一次試探的
+      落點，不代表每一步走多遠。
+    - **原文未載明 L-BFGS 的迭代次數**，故這條路徑不寫死步數：`steps` 是
+      上限，實際停止由下面那組 `eval_fn` ＋ `patience` 的收斂判定決定，
+      停在第幾步與停止原因記在 `stopped_at`／`stop_reason`。
+
+    收斂與 early stop
+    ────────────────────────────────────────────────────────────────
+    `eval_fn` 給定時，每 `eval_every` 步用它評估一次並記進 `history` 的
+    `eval` 欄。**它必須是決定性的**——隨機目標（每步重抽 `(t, eps)`）的逐步
+    損失本來就會抖，那個抖動是取樣變異不是收斂訊號，拿它判收斂會判錯。
+    呼叫端的作法是用一組固定的抽樣建一個評估用的損失。
+
+    `patience > 0` 時開啟 early stop：連續 `patience` 次評估都沒有比**歷史
+    最佳**再低超過 `min_delta`（相對值）就停。停止的原因記在
+    `result.stop_reason`，`result.stopped_at` 是實際走完的步數——**沒有觸發
+    時兩者分別是 `"max_steps"` 與 `steps`**，報表上要分得出「跑完」與「早停」。
+
+    `history` 逐筆多記一個 `param_absmean`（參數的絕對值平均），用來判定
+    「有沒有真的在走」——只看損失下降分不出走了多遠。
+
+    `step_hook(i)` 在每一步開始時呼叫，讓損失裡有排程的項知道現在第幾步
+    （例如退火中的權重）。**損失的簽名不變**——把步數塞進 `loss_fn` 會改到
+    每一條呼叫路徑，包含 `eval_fn`，而評估不該推進排程。預設 `None`，行為
+    與加入此參數之前逐位元相同。
+
+    `deliver` 給定時，`param.render(x01)` 的輸出先過它，**損失、評估與最後
+    回傳的圖三者用的都是過完的那一張**。用途是把「交出去的圖」上的約束
+    （例如像素域 L∞ 投影，`src/defense/linf_deliver.py`）變成最佳化真的看得到
+    的東西。三處都要套是重點：只套在損失上會讓 `eval` 判的是另一張圖的收斂，
+    只套在輸出上則是最佳化從未見過交付的形狀。與 `transform` 的分工是
+    **`deliver` 是我方交付前做的，`transform` 是攻擊方之後做的**，順序即
+    `transform(deliver(render))`。預設 `None`，行為與加入此參數之前逐位元相同。
+
+    `transform` 給定時，損失改在 `transform(x_def, step)` 上計算——用來把
+    可微分的淨化算子放進最佳化迴圈（`src/defense/purify_aware.py`）。
+    **回傳的 `x_def` 仍然是未經 transform 的防禦圖**：transform 是攻擊方會
+    做的事，不是我們交出去的東西。預設 `None`，行為與加入此參數之前逐位元
+    相同。
+
+    `post_reset(param)` 在 `param.reset(x01, seed)` **之後、第一步之前**恰好
+    呼叫一次，用來把一組既有的參數值寫進去當起點（續跑）。
+
+    **它必須在這裡，不能由呼叫端在呼叫本函式之前做。** 兩個理由，兩個都會
+    靜默失效：
+
+    - **參數張量在 `reset()` 之前不存在。** `PhaseParam.module`、
+      `AdditiveParam.delta`、`ShadingParam.m`、`WarpParam.c` 在 `__init__`
+      裡全是 `None`，`params()` 要到 `reset()` 之後才拿得到張量；提前呼叫
+      會是 `AttributeError: 'NoneType' object has no attribute ...`。
+    - **`reset()` 會換掉張量本身，不是就地歸零。** 即使呼叫端自己先
+      `reset()` 再寫值，本函式開頭的這一次 `reset()` 也會建出一組全新的零
+      張量，寫進去的值就此消失——那不會拋錯、不會有症狀，跑完看起來一切
+      正常，但其實是從零開始練的。
+
+    預設 `None`，行為與加入此參數之前逐位元相同。
+    """
+    if update not in ("sign", "adam", "lbfgs"):
+        raise ValueError(
+            f"未知的更新規則 {update!r}，可用的是 sign／adam／lbfgs")
+
+    param.reset(x01, seed)
+    # **緊接在 `reset()` 之後**：張量此刻才存在，且此後不會再被換掉。
+    if post_reset is not None:
+        post_reset(param)
+    ps = param.params()
+    alpha = (param.radius / max(1.0, steps * saturate_at)
+             if step_size is None else float(step_size))
+    history: List[Dict] = []
+
+    if not ps:                                   # phase_rand：不最佳化
+        with torch.no_grad():
+            return ParamPGDResult(param.render(x01).detach(), param.radius,
+                                  history, stop_reason="no_params", stopped_at=0)
+
+    if update == "adam":
+        opt = torch.optim.Adam(ps, lr=alpha)
+    elif update == "lbfgs":
+        # `max_iter=1`：一次 `opt.step(closure)` 恰好是**一個 outer iteration**，
+        # line search 在 closure 內部多次評估。這樣「一個 i 就是一步」的語意
+        # 與 sign／adam 相同，投影、評估、早停三者才能沿用同一段程式。
+        opt = torch.optim.LBFGS(ps, lr=alpha, max_iter=1,
+                                line_search_fn="strong_wolfe")
+    else:
+        opt = None
+    best, since_best, stop_reason, stopped_at = None, 0, "max_steps", steps
+
+    def render() -> torch.Tensor:
+        out = param.render(x01)
+        return out if deliver is None else deliver(out)
+
+    for i in range(steps):
+        if step_hook is not None:
+            step_hook(i)
+        closures = 0
+        if update == "lbfgs":
+            seen: List[float] = []
+
+            def closure():
+                opt.zero_grad(set_to_none=True)
+                x_def = render()
+                lo_ = loss_fn(x_def if transform is None
+                              else transform(x_def, i))
+                lo_.backward()
+                seen.append(float(lo_.detach()))
+                return lo_
+
+            opt.step(closure)
+            # 記的是**本次 outer iteration 起點**的損失，與 sign／adam 兩條
+            # 路徑相同（那兩條也是先算損失再更新）。line search 途中的評估
+            # 次數另記在 `closures`：L-BFGS 的一步不等價於一次前向後向，
+            # 不記下來就無法把它的代價與 sign／adam 並排。
+            loss_val, closures = seen[0], len(seen)
+        else:
+            x_def = render()
+            loss = loss_fn(x_def if transform is None else transform(x_def, i))
+            if opt is None:
+                grads = torch.autograd.grad(loss, ps)
+                with torch.no_grad():
+                    for p, g in zip(ps, grads):
+                        p.sub_(alpha * torch.sign(g))
+            else:
+                opt.zero_grad(set_to_none=True)
+                loss.backward()
+                opt.step()
+            loss_val = float(loss.detach())
+        param.project()
+        do_eval = bool(eval_fn) and eval_every and (
+            i % eval_every == 0 or i == steps - 1)
+        ev = None
+        if do_eval:
+            with torch.no_grad():
+                ev = float(eval_fn(render()))
+        if log_every and (i % log_every == 0 or i == steps - 1) or do_eval:
+            mag = float(sum(float(p.detach().abs().sum()) for p in ps)
+                        / max(1, sum(p.numel() for p in ps)))
+            rec = {"step": i, "loss": loss_val,
+                   "param_absmean": mag}
+            if closures:
+                rec["closures"] = closures
+            if ev is not None:
+                rec["eval"] = ev
+            history.append(rec)
+            print(f"    [{param.name}] step {i:4d} loss {loss_val:.6f}"
+                  f" |p| {mag:.5f}"
+                  + (f" eval {ev:.6f}" if ev is not None else ""), flush=True)
+        if ev is not None and patience > 0:
+            # **與歷史最佳比，不與上一次比**：逐次比較會被單次的雜訊帶著走，
+            # 一個偶然的小改善就把耐心歸零，early stop 因此永遠不觸發。
+            if best is None or ev < best * (1.0 - min_delta):
+                best, since_best = (ev if best is None else min(best, ev)), 0
+            else:
+                best = min(best, ev)
+                since_best += 1
+                if since_best >= patience:
+                    stop_reason, stopped_at = "early_stop", i + 1
+                    print(f"    [{param.name}] early stop at step {i}"
+                          f"（連續 {patience} 次評估未改善 > {min_delta:.4f}）",
+                          flush=True)
+                    break
+
+    with torch.no_grad():
+        x_def = render().detach()
+    return ParamPGDResult(x_def, param.radius, history,
+                          stop_reason=stop_reason, stopped_at=stopped_at,
+                          best_eval=best)
+
+
+def fit_to_budget(
+    x01: torch.Tensor,
+    param: Parameterization,
+    loss_fn: Callable[[torch.Tensor], torch.Tensor],
+    distortion_fn: Callable[[torch.Tensor, torch.Tensor], float],
+    target: float,
+    *,
+    lo: float,
+    hi: float,
+    steps: int = 100,
+    seed: int = 0,
+    rounds: int = 8,
+    tol: float = 0.002,
+    transform: Optional[Callable[[torch.Tensor, int], torch.Tensor]] = None,
+) -> ParamPGDResult:
+    """對半徑二分搜尋，使最終迭代的失真落在 `target ± tol`。
+
+    先在 `hi` 上跑一次確認目標可達。不可達時回傳 `hi` 的結果並把達到的
+    失真寫在 `history` 裡，由呼叫端標成 unreachable——**不要**靜默回傳一個
+    離目標很遠的結果，那會讓表格上的預算欄變成謊話。
+    """
+    param.set_radius(hi)
+    top = run_param_pgd(x01, param, loss_fn, steps=steps, seed=seed,
+                        transform=transform)
+    d_top = distortion_fn(top.x_def, x01)
+    if d_top < target - tol:
+        top.history.append({"unreachable": True, "target": target,
+                            "reached": d_top, "radius": hi})
+        return top
+
+    best, best_err = top, abs(d_top - target)
+    for _ in range(rounds):
+        mid = 0.5 * (lo + hi)
+        param.set_radius(mid)
+        res = run_param_pgd(x01, param, loss_fn, steps=steps, seed=seed,
+                            transform=transform)
+        d = distortion_fn(res.x_def, x01)
+        if abs(d - target) < best_err:
+            best, best_err = res, abs(d - target)
+        if best_err <= tol:
+            break
+        if d < target:
+            lo = mid
+        else:
+            hi = mid
+    best.history.append({"unreachable": False, "target": target,
+                         "reached": distortion_fn(best.x_def, x01),
+                         "radius": best.radius})
+    return best
+
+
+@dataclass
+class Stage2Result:
+    """階段二的結果。`x_def` 是**最後一個通過信賴域檢查的**參數畫出來的圖。"""
+
+    x_def: torch.Tensor
+    history: List[Dict] = field(default_factory=list)
+    reverts: int = 0
+    checks: int = 0
+    alpha_init: float = 0.0
+    alpha_final: float = 0.0
+    gain_stage1: float = 0.0
+    gain_final: float = 0.0
+    steps_run: int = 0
+    stopped_early: bool = False
+
+
+def _clone_params(ps: List[torch.Tensor]) -> List[torch.Tensor]:
+    return [p.detach().clone() for p in ps]
+
+
+@torch.no_grad()
+def _restore_params(ps: List[torch.Tensor], snap: List[torch.Tensor]) -> None:
+    for p, s in zip(ps, snap):
+        p.copy_(s)
+
+
+def run_stage2_pgd(
+    x01: torch.Tensor,
+    param: Parameterization,
+    loss_fn: Callable[[torch.Tensor], torch.Tensor],
+    *,
+    steps: int,
+    alpha: float,
+    transform: Callable[[torch.Tensor, int], torch.Tensor],
+    trust_frac: float = 0.95,
+    check_every: int = 20,
+    alpha_min_ratio: float = 1.0 / 32.0,
+    log_every: int = 0,
+) -> Stage2Result:
+    """接在 `run_param_pgd` 之後的第二段：在既有解附近找一個比較耐淨化的鄰居。
+
+    **不呼叫 `param.reset`**——階段一練出來的參數就是這一段的起點。這正是它
+    與 `--purify-aware` 的差別：那三個已否決的變體是從零開始在淨化底下練，
+    練出來的解在未淨化那一側掉了 10–25%（`docs/RESULTS.md`）；這裡是「已經
+    有一個好答案，只在它旁邊小幅度找一個更耐洗的鄰居，而且不准把原本的好處
+    賠掉」。
+
+    信賴域量的是「階段一買到的那一份」
+    ────────────────────────────────────────────────────────────────
+    直接比損失的絕對值不行：`latent_norm` 的值域與影像有關，而且可正可負，
+    比值沒有意義。這裡改比**增益**：
+
+        gain = L(原圖) − L(防禦圖)
+
+    `L(原圖)` 是同一條損失在未防禦影像上的值，對任何參數化都取得到
+    （θ=0／δ=0 時 `render` 就是原圖）。約束是
+
+        gain(現在) ≥ trust_frac × gain(階段一結束)
+
+    違反時把參數退回上一個通過檢查的快照、步長減半再繼續；步長掉到初始值的
+    `alpha_min_ratio` 以下就停。**回傳的一律是最後一個通過檢查的快照**，所以
+    交出去的解必定滿足約束。
+
+    只支援 sign 更新
+    ────────────────────────────────────────────────────────────────
+    Adam 有內部狀態（一階與二階動量），退回參數而不退回動量會讓步長的語意
+    斷掉，退回動量則要多存兩份與參數同大的張量。階段二本來就是小步微調，
+    不需要 Adam，故直接拒絕，不做一個半對的版本。
+    """
+    if steps <= 0:
+        raise ValueError(f"階段二的 steps 必須為正，收到 {steps}")
+    if not 0.0 < trust_frac <= 1.0:
+        raise ValueError(f"trust_frac 必須落在 (0, 1]，收到 {trust_frac}")
+    if check_every <= 0:
+        raise ValueError(f"check_every 必須為正，收到 {check_every}")
+
+    ps = param.params()
+    if not ps:
+        raise ValueError("這個參數化沒有可訓練的參數，階段二沒有意義")
+
+    with torch.no_grad():
+        l_init = float(loss_fn(x01))
+        l_stage1 = float(loss_fn(param.render(x01)))
+    gain1 = l_init - l_stage1
+    if gain1 <= 0.0:
+        # 階段一沒有買到任何東西。比例約束在這裡沒有意義，而且這件事本身
+        # 就是一個要查的缺陷——不可以靜默改用別的判準跑下去。
+        raise ValueError(
+            f"階段一的增益不為正（L(原圖)={l_init:.6f}、"
+            f"L(防禦圖)={l_stage1:.6f}），信賴域無從定義")
+
+    alpha0 = float(alpha)
+    alpha_cur = alpha0
+    best = _clone_params(ps)
+    history: List[Dict] = []
+    reverts = checks = 0
+    gain_last = gain1
+    stopped_early = False
+    steps_run = 0
+
+    for i in range(steps):
+        steps_run = i + 1
+        x_def = param.render(x01)
+        loss = loss_fn(transform(x_def, i))
+        grads = torch.autograd.grad(loss, ps)
+        with torch.no_grad():
+            for p, g in zip(ps, grads):
+                p.sub_(alpha_cur * torch.sign(g))
+        param.project()
+
+        due = ((i + 1) % check_every == 0) or (i == steps - 1)
+        if not due:
+            continue
+        checks += 1
+        with torch.no_grad():
+            gain_now = l_init - float(loss_fn(param.render(x01)))
+        ok = gain_now >= trust_frac * gain1
+        if ok:
+            best = _clone_params(ps)
+            gain_last = gain_now
+        else:
+            _restore_params(ps, best)
+            reverts += 1
+            alpha_cur *= 0.5
+        history.append({
+            "step": i, "alpha": alpha_cur, "gain": gain_now,
+            "gain_ratio": gain_now / gain1, "accepted": bool(ok),
+        })
+        if log_every:
+            print(f"    [stage2] step {i:4d} gain {gain_now:.6f}"
+                  f" ({gain_now / gain1:.3f}×) alpha {alpha_cur:.6f}"
+                  f" {'accept' if ok else 'REVERT'}", flush=True)
+        if alpha_cur < alpha0 * alpha_min_ratio:
+            stopped_early = True
+            break
+
+    _restore_params(ps, best)
+    with torch.no_grad():
+        x_def = param.render(x01).detach()
+    return Stage2Result(x_def=x_def, history=history, reverts=reverts,
+                        checks=checks, alpha_init=alpha0, alpha_final=alpha_cur,
+                        gain_stage1=gain1, gain_final=gain_last,
+                        steps_run=steps_run, stopped_early=stopped_early)

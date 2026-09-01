@@ -1,0 +1,6 @@
+image,condition,reward_mode,fidelity_mode,update_rule,dists_lambda,stage1_seconds,total_seconds,fid_lpips,fid_ssim,fid_dists,fid_psnr,fid_clip_img,fid_nima,fid_cnniqa,edit_lpips,edit_clip_orig,edit_clip_def,edit_clip_drop,edit_siglip_orig,edit_siglip_def,edit_siglip_drop
+butterfly,M3_soft_adam_DDIM_lam0.5,attn,soft,adam,0.5,0.0,182.5,0.1965,0.827,0.0594,23.4447,0.9778,5.3698,0.5744,0.2895,0.31,0.312,-0.002,0.12,0.1165,0.0035
+butterfly,M3_soft_adam_DDIM_lam2,attn,soft,adam,2.0,0.0,184.1,0.1995,0.8254,0.0382,23.3484,0.9854,5.2733,0.5836,0.3428,0.31,0.3129,-0.0029,0.12,0.1176,0.0024
+butterfly,M3_soft_adam_DDIM_lam8,attn,soft,adam,8.0,0.0,187.8,0.196,0.826,0.0304,23.2936,0.9851,5.2659,0.5998,0.4299,0.31,0.3208,-0.0108,0.12,0.1358,-0.0158
+butterfly,M3_soft_adam_DDIM_lam32,attn,soft,adam,32.0,0.0,189.0,0.199,0.8253,0.031,23.2773,0.9846,5.3489,0.5906,0.4196,0.31,0.3249,-0.0149,0.12,0.1233,-0.0033
+butterfly,M3_soft_adam_DDIM_lam128,attn,soft,adam,128.0,0.0,189.2,0.2062,0.8219,0.0279,23.1604,0.9837,5.3167,0.6031,0.3856,0.31,0.3168,-0.0068,0.12,0.1088,0.0112

@@ -1,0 +1,20 @@
+  1/10 task_attr_mod_color_11699
+  2/10 task_attr_mod_color_136767
+  3/10 task_attr_mod_color_184837
+  4/10 task_attr_mod_color_32648
+  5/10 task_attr_mod_color_6205
+  6/10 task_env_weather_112463
+  7/10 task_obj_remove_380621
+  8/10 task_obj_swap_joint_mask_276754
+  9/10 task_obj_swap_joint_mask_533428
+  10/10 task_obj_swap_rand_mask_417469
+
+十張平均（交付品質 QD = 0.85）。對照：現行量化交付 qd85 是 0.9431，隨機擾動基準是 0.22。
+變體             theta      RMS  identity  q 95  q 85  q 75  q 50  q 30
+post_int       0.300  0.02768    1.0000  0.9854  0.9863  0.9998  0.9547  0.9062
+post_int       1.200  0.10207    1.0000  0.9881  0.9883  1.0110  0.9369  0.9066
+post_int       3.142  0.17146    1.0000  0.9902  0.9901  1.0048  0.9552  0.9257
+pre_deliver    0.300  0.02826    1.0000  0.9830  0.9880  1.0416  0.8710  0.8085
+pre_deliver    1.200  0.09805    1.0000  0.9882  0.9883  1.0066  0.9484  0.9191
+pre_deliver    3.142  0.17146    1.0000  0.9902  0.9901  1.0048  0.9552  0.9257
+表：runs\dct_phase_design\retention.csv（60 列）

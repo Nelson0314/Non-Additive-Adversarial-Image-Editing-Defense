@@ -1,0 +1,34 @@
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00, 15.92it/s]Loading pipeline components...:  67%|██████▋   | 4/6 [00:00<00:00, 17.16it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3120.88it/s]
+Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 11.76it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 12.77it/s]
+There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+
+########## person_c_00 (woman) ##########
+=== person_c_00 / photoguard_c ===
+  [photoguard_c] step    0  L=6.254566e+02  Linf01=0.0690  L2=0.995
+  [photoguard_c] step   20  L=5.460389e+02  Linf01=0.1216  L2=10.481
+  [photoguard_c] step   40  L=5.098670e+02  Linf01=0.1756  L2=15.970
+  [photoguard_c] step   60  L=5.119019e+02  Linf01=0.1796  L2=15.995
+  [photoguard_c] step   80  L=5.165769e+02  Linf01=0.1629  L2=15.994
+  [photoguard_c] step  100  L=4.960334e+02  Linf01=0.1795  L2=15.993
+  [photoguard_c] step  120  L=4.959150e+02  Linf01=0.1829  L2=15.994
+  [photoguard_c] step  140  L=4.840245e+02  Linf01=0.2000  L2=15.993
+  [photoguard_c] step  160  L=4.879443e+02  Linf01=0.2039  L2=15.993
+  [photoguard_c] step  180  L=4.924383e+02  Linf01=0.1885  L2=15.992
+  [photoguard_c] step  199  L=4.905101e+02  Linf01=0.1726  L2=15.988
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pretrained model NIMA from /nfs/home/nelson0314/.cache/torch/hub/pyiqa/NIMA_InceptionV2_ava-b0c77c00.pth
+Loading pretrained model CNNIQA from /nfs/home/nelson0314/.cache/torch/hub/pyiqa/CNNIQA_koniq10k-e6f14c91.pth
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 9853.46it/s]
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 11435.28it/s]
+[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
+[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
+Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights:  81%|████████▏ | 332/408 [00:00<00:00, 3317.17it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 3247.94it/s]
+{'image': 'person_c_00', 'condition': 'photoguard_c', 'stage1_seconds': 0.0, 'total_seconds': 6069.2, 'fid_lpips': 0.3005, 'fid_ssim': 0.9871, 'fid_dists': 0.0233, 'fid_psnr': 40.9006, 'fid_clip_img': 0.9901, 'fid_nima': 4.8862, 'fid_cnniqa': 0.6599, 'edit_strength': 0.7, 'edit_lpips': 0.505, 'edit_clip_orig': 0.3699, 'edit_clip_def': 0.3962, 'edit_clip_drop': -0.0262, 'edit_siglip_orig': 0.1492, 'edit_siglip_def': 0.1909, 'edit_siglip_drop': -0.0418}
+
+表：runs/s0817/pg2/results.csv

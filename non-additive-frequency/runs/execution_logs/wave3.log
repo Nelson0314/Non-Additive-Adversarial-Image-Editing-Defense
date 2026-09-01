@@ -1,0 +1,243 @@
+[wave3] 等待 'retention_floor'…（Sun Aug 16 04:07:57 AM CST 2026）
+[wave3] 開始（Sun Aug 16 04:32:58 AM CST 2026）
+=== r_min=0.25 theta=2.0 ===
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00, 14.09it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3648.08it/s]
+Loading pipeline components...:  67%|██████▋   | 4/6 [00:00<00:00, 12.97it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 15.57it/s]
+There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+
+########## bird_03 (bird) ##########
+=== bird_03 / phase__human ===
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pretrained model NIMA from /nfs/home/nelson0314/.cache/torch/hub/pyiqa/NIMA_InceptionV2_ava-b0c77c00.pth
+Loading pretrained model CNNIQA from /nfs/home/nelson0314/.cache/torch/hub/pyiqa/CNNIQA_koniq10k-e6f14c91.pth
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 13148.18it/s]
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 11649.87it/s]
+[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
+[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
+Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights:  80%|████████  | 327/408 [00:00<00:00, 3266.50it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 3206.77it/s]
+{'image': 'bird_03', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a butterfly', 'block': 32, 'r_min': 0.25, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.02255, 'unreachable': False, 'radius': 2.0, 'total_seconds': 41.9, 'fid_lpips': 0.1983, 'fid_ssim': 0.979, 'fid_dists': 0.0225, 'fid_psnr': 35.9006, 'fid_clip_img': 0.9986, 'fid_nima': 5.4149, 'fid_cnniqa': 0.7177, 'edit_lpips': 0.5729, 'edit_clip_orig': 0.2725, 'edit_clip_def': 0.2898, 'edit_clip_drop': -0.0173, 'edit_siglip_orig': 0.1038, 'edit_siglip_def': 0.104, 'edit_siglip_drop': -0.0001, 'amp_dev': 0.01355, 'active_fraction': 0.4617}
+
+########## cat_00 (cat) ##########
+=== cat_00 / phase__human ===
+{'image': 'cat_00', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a dog', 'block': 32, 'r_min': 0.25, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.05123, 'unreachable': False, 'radius': 2.0, 'total_seconds': 25.1, 'fid_lpips': 0.3275, 'fid_ssim': 0.8865, 'fid_dists': 0.0512, 'fid_psnr': 22.0442, 'fid_clip_img': 0.9913, 'fid_nima': 5.1166, 'fid_cnniqa': 0.7286, 'edit_lpips': 0.5949, 'edit_clip_orig': 0.2452, 'edit_clip_def': 0.263, 'edit_clip_drop': -0.0178, 'edit_siglip_orig': 0.0621, 'edit_siglip_def': 0.0796, 'edit_siglip_drop': -0.0175, 'amp_dev': 0.07153, 'active_fraction': 0.5538}
+
+########## horse_01 (horse) ##########
+=== horse_01 / phase__human ===
+{'image': 'horse_01', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a zebra', 'block': 32, 'r_min': 0.25, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.06955, 'unreachable': False, 'radius': 2.0, 'total_seconds': 25.4, 'fid_lpips': 0.4097, 'fid_ssim': 0.8975, 'fid_dists': 0.0696, 'fid_psnr': 24.0579, 'fid_clip_img': 0.9921, 'fid_nima': 4.884, 'fid_cnniqa': 0.7139, 'edit_lpips': 0.5927, 'edit_clip_orig': 0.323, 'edit_clip_def': 0.3092, 'edit_clip_drop': 0.0138, 'edit_siglip_orig': 0.1175, 'edit_siglip_def': 0.1048, 'edit_siglip_drop': 0.0127, 'amp_dev': 0.05515, 'active_fraction': 0.6331}
+
+########## man_00 (man) ##########
+=== man_00 / phase__human ===
+{'image': 'man_00', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'an old woman', 'block': 32, 'r_min': 0.25, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.01666, 'unreachable': False, 'radius': 2.0, 'total_seconds': 25.6, 'fid_lpips': 0.1258, 'fid_ssim': 0.9928, 'fid_dists': 0.0167, 'fid_psnr': 40.5192, 'fid_clip_img': 0.9991, 'fid_nima': 4.3841, 'fid_cnniqa': 0.6602, 'edit_lpips': 0.3577, 'edit_clip_orig': 0.2819, 'edit_clip_def': 0.2993, 'edit_clip_drop': -0.0175, 'edit_siglip_orig': 0.1079, 'edit_siglip_def': 0.1334, 'edit_siglip_drop': -0.0254, 'amp_dev': 0.00682, 'active_fraction': 0.279}
+
+########## woman_01 (woman) ##########
+=== woman_01 / phase__human ===
+{'image': 'woman_01', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a man', 'block': 32, 'r_min': 0.25, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.01385, 'unreachable': False, 'radius': 2.0, 'total_seconds': 25.7, 'fid_lpips': 0.1141, 'fid_ssim': 0.9944, 'fid_dists': 0.0138, 'fid_psnr': 43.8966, 'fid_clip_img': 0.9995, 'fid_nima': 3.5176, 'fid_cnniqa': 0.32, 'edit_lpips': 0.3486, 'edit_clip_orig': 0.208, 'edit_clip_def': 0.2199, 'edit_clip_drop': -0.0118, 'edit_siglip_orig': 0.0388, 'edit_siglip_def': 0.0326, 'edit_siglip_drop': 0.0062, 'amp_dev': 0.00383, 'active_fraction': 0.3817}
+
+表：runs/theta/r0.25_t2.0/results.csv
+=== r_min=0.25 theta=2.6 ===
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3479.82it/s]
+Loading pipeline components...:  17%|█▋        | 1/6 [00:00<00:00,  5.72it/s]Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00,  7.41it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 19.20it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 15.32it/s]
+There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+
+########## bird_03 (bird) ##########
+=== bird_03 / phase__human ===
+Loading pretrained model NIMA from /nfs/home/nelson0314/.cache/torch/hub/pyiqa/NIMA_InceptionV2_ava-b0c77c00.pth
+Loading pretrained model CNNIQA from /nfs/home/nelson0314/.cache/torch/hub/pyiqa/CNNIQA_koniq10k-e6f14c91.pth
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 8002.21it/s]
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 11077.49it/s]
+[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
+[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
+Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights:  79%|███████▊  | 321/408 [00:00<00:00, 3157.97it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 3138.67it/s]
+{'image': 'bird_03', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a butterfly', 'block': 32, 'r_min': 0.25, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.03258, 'unreachable': False, 'radius': 2.6, 'total_seconds': 42.1, 'fid_lpips': 0.2154, 'fid_ssim': 0.9728, 'fid_dists': 0.0326, 'fid_psnr': 34.6612, 'fid_clip_img': 0.9971, 'fid_nima': 5.3301, 'fid_cnniqa': 0.7104, 'edit_lpips': 0.5679, 'edit_clip_orig': 0.2725, 'edit_clip_def': 0.2966, 'edit_clip_drop': -0.0241, 'edit_siglip_orig': 0.1038, 'edit_siglip_def': 0.1073, 'edit_siglip_drop': -0.0034, 'amp_dev': 0.016, 'active_fraction': 0.4617}
+
+########## cat_00 (cat) ##########
+=== cat_00 / phase__human ===
+{'image': 'cat_00', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a dog', 'block': 32, 'r_min': 0.25, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.06516, 'unreachable': False, 'radius': 2.6, 'total_seconds': 25.3, 'fid_lpips': 0.3639, 'fid_ssim': 0.846, 'fid_dists': 0.0652, 'fid_psnr': 20.8693, 'fid_clip_img': 0.9876, 'fid_nima': 5.1673, 'fid_cnniqa': 0.7296, 'edit_lpips': 0.602, 'edit_clip_orig': 0.2452, 'edit_clip_def': 0.2643, 'edit_clip_drop': -0.0192, 'edit_siglip_orig': 0.0621, 'edit_siglip_def': 0.0799, 'edit_siglip_drop': -0.0178, 'amp_dev': 0.08464, 'active_fraction': 0.5538}
+
+########## horse_01 (horse) ##########
+=== horse_01 / phase__human ===
+{'image': 'horse_01', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a zebra', 'block': 32, 'r_min': 0.25, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.08801, 'unreachable': False, 'radius': 2.6, 'total_seconds': 25.5, 'fid_lpips': 0.4424, 'fid_ssim': 0.8653, 'fid_dists': 0.088, 'fid_psnr': 23.0225, 'fid_clip_img': 0.9863, 'fid_nima': 4.9235, 'fid_cnniqa': 0.7058, 'edit_lpips': 0.6608, 'edit_clip_orig': 0.323, 'edit_clip_def': 0.3123, 'edit_clip_drop': 0.0107, 'edit_siglip_orig': 0.1175, 'edit_siglip_def': 0.112, 'edit_siglip_drop': 0.0055, 'amp_dev': 0.06323, 'active_fraction': 0.6331}
+
+########## man_00 (man) ##########
+=== man_00 / phase__human ===
+{'image': 'man_00', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'an old woman', 'block': 32, 'r_min': 0.25, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.02194, 'unreachable': False, 'radius': 2.6, 'total_seconds': 25.6, 'fid_lpips': 0.1481, 'fid_ssim': 0.9906, 'fid_dists': 0.0219, 'fid_psnr': 39.2811, 'fid_clip_img': 0.9984, 'fid_nima': 4.3445, 'fid_cnniqa': 0.6483, 'edit_lpips': 0.3965, 'edit_clip_orig': 0.2819, 'edit_clip_def': 0.3123, 'edit_clip_drop': -0.0304, 'edit_siglip_orig': 0.1079, 'edit_siglip_def': 0.1338, 'edit_siglip_drop': -0.0258, 'amp_dev': 0.0078, 'active_fraction': 0.279}
+
+########## woman_01 (woman) ##########
+=== woman_01 / phase__human ===
+{'image': 'woman_01', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a man', 'block': 32, 'r_min': 0.25, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.01439, 'unreachable': False, 'radius': 2.6, 'total_seconds': 25.7, 'fid_lpips': 0.1338, 'fid_ssim': 0.993, 'fid_dists': 0.0144, 'fid_psnr': 42.8412, 'fid_clip_img': 0.9989, 'fid_nima': 3.5226, 'fid_cnniqa': 0.3236, 'edit_lpips': 0.3622, 'edit_clip_orig': 0.208, 'edit_clip_def': 0.2173, 'edit_clip_drop': -0.0093, 'edit_siglip_orig': 0.0388, 'edit_siglip_def': 0.0221, 'edit_siglip_drop': 0.0167, 'amp_dev': 0.00436, 'active_fraction': 0.3817}
+
+表：runs/theta/r0.25_t2.6/results.csv
+=== r_min=0.25 theta=3.14 ===
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3534.37it/s]
+Loading pipeline components...:  17%|█▋        | 1/6 [00:00<00:00,  5.38it/s]Loading pipeline components...:  50%|█████     | 3/6 [00:00<00:00, 10.13it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 16.86it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 14.09it/s]
+There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+
+########## bird_03 (bird) ##########
+=== bird_03 / phase__human ===
+Loading pretrained model NIMA from /nfs/home/nelson0314/.cache/torch/hub/pyiqa/NIMA_InceptionV2_ava-b0c77c00.pth
+Loading pretrained model CNNIQA from /nfs/home/nelson0314/.cache/torch/hub/pyiqa/CNNIQA_koniq10k-e6f14c91.pth
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 14459.23it/s]
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 16987.04it/s]
+[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
+[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
+Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights:  73%|███████▎  | 299/408 [00:00<00:00, 2974.68it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 2911.88it/s]
+{'image': 'bird_03', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a butterfly', 'block': 32, 'r_min': 0.25, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.03745, 'unreachable': False, 'radius': 3.14, 'total_seconds': 42.1, 'fid_lpips': 0.2253, 'fid_ssim': 0.9688, 'fid_dists': 0.0375, 'fid_psnr': 34.0903, 'fid_clip_img': 0.9962, 'fid_nima': 5.3565, 'fid_cnniqa': 0.7151, 'edit_lpips': 0.5793, 'edit_clip_orig': 0.2725, 'edit_clip_def': 0.3155, 'edit_clip_drop': -0.043, 'edit_siglip_orig': 0.1038, 'edit_siglip_def': 0.1089, 'edit_siglip_drop': -0.005, 'amp_dev': 0.01725, 'active_fraction': 0.4617}
+
+########## cat_00 (cat) ##########
+=== cat_00 / phase__human ===
+{'image': 'cat_00', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a dog', 'block': 32, 'r_min': 0.25, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.08109, 'unreachable': False, 'radius': 3.14, 'total_seconds': 25.3, 'fid_lpips': 0.3861, 'fid_ssim': 0.8195, 'fid_dists': 0.0811, 'fid_psnr': 20.2665, 'fid_clip_img': 0.9888, 'fid_nima': 5.0652, 'fid_cnniqa': 0.7274, 'edit_lpips': 0.6246, 'edit_clip_orig': 0.2452, 'edit_clip_def': 0.2533, 'edit_clip_drop': -0.0081, 'edit_siglip_orig': 0.0621, 'edit_siglip_def': 0.0757, 'edit_siglip_drop': -0.0136, 'amp_dev': 0.09277, 'active_fraction': 0.5538}
+
+########## horse_01 (horse) ##########
+=== horse_01 / phase__human ===
+{'image': 'horse_01', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a zebra', 'block': 32, 'r_min': 0.25, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.09586, 'unreachable': False, 'radius': 3.14, 'total_seconds': 25.5, 'fid_lpips': 0.4689, 'fid_ssim': 0.8437, 'fid_dists': 0.0959, 'fid_psnr': 22.4161, 'fid_clip_img': 0.9876, 'fid_nima': 4.9025, 'fid_cnniqa': 0.7059, 'edit_lpips': 0.6935, 'edit_clip_orig': 0.323, 'edit_clip_def': 0.3242, 'edit_clip_drop': -0.0012, 'edit_siglip_orig': 0.1175, 'edit_siglip_def': 0.1136, 'edit_siglip_drop': 0.0039, 'amp_dev': 0.06874, 'active_fraction': 0.6331}
+
+########## man_00 (man) ##########
+=== man_00 / phase__human ===
+{'image': 'man_00', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'an old woman', 'block': 32, 'r_min': 0.25, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.02756, 'unreachable': False, 'radius': 3.14, 'total_seconds': 25.7, 'fid_lpips': 0.1629, 'fid_ssim': 0.989, 'fid_dists': 0.0276, 'fid_psnr': 38.6571, 'fid_clip_img': 0.9985, 'fid_nima': 4.3115, 'fid_cnniqa': 0.6439, 'edit_lpips': 0.43, 'edit_clip_orig': 0.2819, 'edit_clip_def': 0.3103, 'edit_clip_drop': -0.0284, 'edit_siglip_orig': 0.1079, 'edit_siglip_def': 0.1261, 'edit_siglip_drop': -0.0182, 'amp_dev': 0.00861, 'active_fraction': 0.279}
+
+########## woman_01 (woman) ##########
+=== woman_01 / phase__human ===
+{'image': 'woman_01', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a man', 'block': 32, 'r_min': 0.25, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.01697, 'unreachable': False, 'radius': 3.14, 'total_seconds': 25.7, 'fid_lpips': 0.1476, 'fid_ssim': 0.9918, 'fid_dists': 0.017, 'fid_psnr': 42.0864, 'fid_clip_img': 0.9991, 'fid_nima': 3.5167, 'fid_cnniqa': 0.3258, 'edit_lpips': 0.3912, 'edit_clip_orig': 0.208, 'edit_clip_def': 0.2144, 'edit_clip_drop': -0.0064, 'edit_siglip_orig': 0.0388, 'edit_siglip_def': 0.0229, 'edit_siglip_drop': 0.0159, 'amp_dev': 0.00471, 'active_fraction': 0.3817}
+
+表：runs/theta/r0.25_t3.14/results.csv
+=== r_min=0.40 theta=2.0 ===
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3433.40it/s]
+Loading pipeline components...:  17%|█▋        | 1/6 [00:00<00:00,  5.70it/s]Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00,  7.36it/s]Loading pipeline components...:  83%|████████▎ | 5/6 [00:00<00:00, 15.86it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 15.17it/s]
+There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+
+########## bird_03 (bird) ##########
+=== bird_03 / phase__human ===
+Loading pretrained model NIMA from /nfs/home/nelson0314/.cache/torch/hub/pyiqa/NIMA_InceptionV2_ava-b0c77c00.pth
+Loading pretrained model CNNIQA from /nfs/home/nelson0314/.cache/torch/hub/pyiqa/CNNIQA_koniq10k-e6f14c91.pth
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 10083.31it/s]
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 11401.46it/s]
+[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
+[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
+Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights:  79%|███████▉  | 324/408 [00:00<00:00, 3210.74it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 3159.17it/s]
+{'image': 'bird_03', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a butterfly', 'block': 32, 'r_min': 0.4, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.00888, 'unreachable': False, 'radius': 2.0, 'total_seconds': 43.1, 'fid_lpips': 0.1651, 'fid_ssim': 0.9934, 'fid_dists': 0.0089, 'fid_psnr': 38.9046, 'fid_clip_img': 0.9991, 'fid_nima': 5.4724, 'fid_cnniqa': 0.7143, 'edit_lpips': 0.5718, 'edit_clip_orig': 0.2725, 'edit_clip_def': 0.2989, 'edit_clip_drop': -0.0264, 'edit_siglip_orig': 0.1038, 'edit_siglip_def': 0.1042, 'edit_siglip_drop': -0.0004, 'amp_dev': 0.00891, 'active_fraction': 0.4617}
+
+########## cat_00 (cat) ##########
+=== cat_00 / phase__human ===
+{'image': 'cat_00', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a dog', 'block': 32, 'r_min': 0.4, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.03081, 'unreachable': False, 'radius': 2.0, 'total_seconds': 25.3, 'fid_lpips': 0.2993, 'fid_ssim': 0.9226, 'fid_dists': 0.0308, 'fid_psnr': 22.8599, 'fid_clip_img': 0.9973, 'fid_nima': 4.8913, 'fid_cnniqa': 0.7273, 'edit_lpips': 0.5731, 'edit_clip_orig': 0.2452, 'edit_clip_def': 0.261, 'edit_clip_drop': -0.0158, 'edit_siglip_orig': 0.0621, 'edit_siglip_def': 0.0802, 'edit_siglip_drop': -0.0181, 'amp_dev': 0.06488, 'active_fraction': 0.5538}
+
+########## horse_01 (horse) ##########
+=== horse_01 / phase__human ===
+{'image': 'horse_01', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a zebra', 'block': 32, 'r_min': 0.4, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.03885, 'unreachable': False, 'radius': 2.0, 'total_seconds': 25.5, 'fid_lpips': 0.3866, 'fid_ssim': 0.9379, 'fid_dists': 0.0388, 'fid_psnr': 25.36, 'fid_clip_img': 0.997, 'fid_nima': 4.8055, 'fid_cnniqa': 0.7094, 'edit_lpips': 0.5997, 'edit_clip_orig': 0.323, 'edit_clip_def': 0.3211, 'edit_clip_drop': 0.0019, 'edit_siglip_orig': 0.1175, 'edit_siglip_def': 0.1101, 'edit_siglip_drop': 0.0074, 'amp_dev': 0.04568, 'active_fraction': 0.6331}
+
+########## man_00 (man) ##########
+=== man_00 / phase__human ===
+{'image': 'man_00', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'an old woman', 'block': 32, 'r_min': 0.4, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.00409, 'unreachable': False, 'radius': 2.0, 'total_seconds': 25.6, 'fid_lpips': 0.0925, 'fid_ssim': 0.9977, 'fid_dists': 0.0041, 'fid_psnr': 43.776, 'fid_clip_img': 0.9995, 'fid_nima': 4.4619, 'fid_cnniqa': 0.6593, 'edit_lpips': 0.3099, 'edit_clip_orig': 0.2819, 'edit_clip_def': 0.2967, 'edit_clip_drop': -0.0148, 'edit_siglip_orig': 0.1079, 'edit_siglip_def': 0.1252, 'edit_siglip_drop': -0.0173, 'amp_dev': 0.00425, 'active_fraction': 0.279}
+
+########## woman_01 (woman) ##########
+=== woman_01 / phase__human ===
+{'image': 'woman_01', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a man', 'block': 32, 'r_min': 0.4, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.00268, 'unreachable': False, 'radius': 2.0, 'total_seconds': 25.7, 'fid_lpips': 0.0599, 'fid_ssim': 0.999, 'fid_dists': 0.0027, 'fid_psnr': 49.1057, 'fid_clip_img': 0.9997, 'fid_nima': 3.5013, 'fid_cnniqa': 0.3205, 'edit_lpips': 0.2111, 'edit_clip_orig': 0.208, 'edit_clip_def': 0.2135, 'edit_clip_drop': -0.0055, 'edit_siglip_orig': 0.0388, 'edit_siglip_def': 0.0394, 'edit_siglip_drop': -0.0006, 'amp_dev': 0.00191, 'active_fraction': 0.3817}
+
+表：runs/theta/r0.40_t2.0/results.csv
+=== r_min=0.40 theta=2.6 ===
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  67%|██████▋   | 4/6 [00:00<00:00, 29.87it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3470.01it/s]
+Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 15.16it/s]
+There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+
+########## bird_03 (bird) ##########
+=== bird_03 / phase__human ===
+Loading pretrained model NIMA from /nfs/home/nelson0314/.cache/torch/hub/pyiqa/NIMA_InceptionV2_ava-b0c77c00.pth
+Loading pretrained model CNNIQA from /nfs/home/nelson0314/.cache/torch/hub/pyiqa/CNNIQA_koniq10k-e6f14c91.pth
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 20246.12it/s]
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 18724.15it/s]
+[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
+[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
+Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights:  77%|███████▋  | 314/408 [00:00<00:00, 3137.44it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 3110.27it/s]
+{'image': 'bird_03', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a butterfly', 'block': 32, 'r_min': 0.4, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.01135, 'unreachable': False, 'radius': 2.6, 'total_seconds': 42.3, 'fid_lpips': 0.1818, 'fid_ssim': 0.9916, 'fid_dists': 0.0114, 'fid_psnr': 37.7717, 'fid_clip_img': 0.9989, 'fid_nima': 5.4138, 'fid_cnniqa': 0.7102, 'edit_lpips': 0.564, 'edit_clip_orig': 0.2725, 'edit_clip_def': 0.2732, 'edit_clip_drop': -0.0007, 'edit_siglip_orig': 0.1038, 'edit_siglip_def': 0.0976, 'edit_siglip_drop': 0.0062, 'amp_dev': 0.01019, 'active_fraction': 0.4617}
+
+########## cat_00 (cat) ##########
+=== cat_00 / phase__human ===
+{'image': 'cat_00', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a dog', 'block': 32, 'r_min': 0.4, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.04048, 'unreachable': False, 'radius': 2.6, 'total_seconds': 25.3, 'fid_lpips': 0.3337, 'fid_ssim': 0.901, 'fid_dists': 0.0405, 'fid_psnr': 21.8332, 'fid_clip_img': 0.9951, 'fid_nima': 4.8303, 'fid_cnniqa': 0.7335, 'edit_lpips': 0.5788, 'edit_clip_orig': 0.2452, 'edit_clip_def': 0.2625, 'edit_clip_drop': -0.0173, 'edit_siglip_orig': 0.0621, 'edit_siglip_def': 0.0793, 'edit_siglip_drop': -0.0172, 'amp_dev': 0.075, 'active_fraction': 0.5538}
+
+########## horse_01 (horse) ##########
+=== horse_01 / phase__human ===
+{'image': 'horse_01', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a zebra', 'block': 32, 'r_min': 0.4, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.04775, 'unreachable': False, 'radius': 2.6, 'total_seconds': 25.5, 'fid_lpips': 0.4211, 'fid_ssim': 0.9202, 'fid_dists': 0.0478, 'fid_psnr': 24.3768, 'fid_clip_img': 0.9949, 'fid_nima': 4.787, 'fid_cnniqa': 0.7164, 'edit_lpips': 0.6617, 'edit_clip_orig': 0.323, 'edit_clip_def': 0.3347, 'edit_clip_drop': -0.0118, 'edit_siglip_orig': 0.1175, 'edit_siglip_def': 0.1165, 'edit_siglip_drop': 0.001, 'amp_dev': 0.05167, 'active_fraction': 0.6331}
+
+########## man_00 (man) ##########
+=== man_00 / phase__human ===
+{'image': 'man_00', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'an old woman', 'block': 32, 'r_min': 0.4, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.0051, 'unreachable': False, 'radius': 2.6, 'total_seconds': 25.6, 'fid_lpips': 0.1126, 'fid_ssim': 0.997, 'fid_dists': 0.0051, 'fid_psnr': 42.6085, 'fid_clip_img': 0.9995, 'fid_nima': 4.4303, 'fid_cnniqa': 0.6464, 'edit_lpips': 0.3243, 'edit_clip_orig': 0.2819, 'edit_clip_def': 0.2944, 'edit_clip_drop': -0.0126, 'edit_siglip_orig': 0.1079, 'edit_siglip_def': 0.1224, 'edit_siglip_drop': -0.0145, 'amp_dev': 0.00485, 'active_fraction': 0.279}
+
+########## woman_01 (woman) ##########
+=== woman_01 / phase__human ===
+{'image': 'woman_01', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a man', 'block': 32, 'r_min': 0.4, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.00287, 'unreachable': False, 'radius': 2.6, 'total_seconds': 25.7, 'fid_lpips': 0.0731, 'fid_ssim': 0.9987, 'fid_dists': 0.0029, 'fid_psnr': 47.9604, 'fid_clip_img': 0.9995, 'fid_nima': 3.4957, 'fid_cnniqa': 0.3202, 'edit_lpips': 0.2707, 'edit_clip_orig': 0.208, 'edit_clip_def': 0.2199, 'edit_clip_drop': -0.0118, 'edit_siglip_orig': 0.0388, 'edit_siglip_def': 0.0362, 'edit_siglip_drop': 0.0026, 'amp_dev': 0.00214, 'active_fraction': 0.3817}
+
+表：runs/theta/r0.40_t2.6/results.csv
+=== r_min=0.40 theta=3.14 ===
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  50%|█████     | 3/6 [00:00<00:00, 23.08it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3093.47it/s]
+Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 14.08it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 14.95it/s]
+There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+
+########## bird_03 (bird) ##########
+=== bird_03 / phase__human ===
+Loading pretrained model NIMA from /nfs/home/nelson0314/.cache/torch/hub/pyiqa/NIMA_InceptionV2_ava-b0c77c00.pth
+Loading pretrained model CNNIQA from /nfs/home/nelson0314/.cache/torch/hub/pyiqa/CNNIQA_koniq10k-e6f14c91.pth
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 18603.13it/s]
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 9768.01it/s]
+[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
+[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
+Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights:  81%|████████▏ | 332/408 [00:00<00:00, 3315.20it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 3232.38it/s]
+{'image': 'bird_03', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a butterfly', 'block': 32, 'r_min': 0.4, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.01291, 'unreachable': False, 'radius': 3.14, 'total_seconds': 42.2, 'fid_lpips': 0.1917, 'fid_ssim': 0.9904, 'fid_dists': 0.0129, 'fid_psnr': 37.1506, 'fid_clip_img': 0.9989, 'fid_nima': 5.4094, 'fid_cnniqa': 0.711, 'edit_lpips': 0.5807, 'edit_clip_orig': 0.2725, 'edit_clip_def': 0.2751, 'edit_clip_drop': -0.0026, 'edit_siglip_orig': 0.1038, 'edit_siglip_def': 0.1075, 'edit_siglip_drop': -0.0036, 'amp_dev': 0.01081, 'active_fraction': 0.4617}
+
+########## cat_00 (cat) ##########
+=== cat_00 / phase__human ===
+{'image': 'cat_00', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a dog', 'block': 32, 'r_min': 0.4, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.04922, 'unreachable': False, 'radius': 3.14, 'total_seconds': 25.3, 'fid_lpips': 0.3594, 'fid_ssim': 0.8825, 'fid_dists': 0.0492, 'fid_psnr': 21.1752, 'fid_clip_img': 0.9929, 'fid_nima': 4.8715, 'fid_cnniqa': 0.7267, 'edit_lpips': 0.5815, 'edit_clip_orig': 0.2452, 'edit_clip_def': 0.2675, 'edit_clip_drop': -0.0223, 'edit_siglip_orig': 0.0621, 'edit_siglip_def': 0.0816, 'edit_siglip_drop': -0.0194, 'amp_dev': 0.08236, 'active_fraction': 0.5538}
+
+########## horse_01 (horse) ##########
+=== horse_01 / phase__human ===
+{'image': 'horse_01', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a zebra', 'block': 32, 'r_min': 0.4, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.05417, 'unreachable': False, 'radius': 3.14, 'total_seconds': 25.5, 'fid_lpips': 0.4421, 'fid_ssim': 0.9086, 'fid_dists': 0.0542, 'fid_psnr': 23.8078, 'fid_clip_img': 0.9938, 'fid_nima': 4.7483, 'fid_cnniqa': 0.7088, 'edit_lpips': 0.6636, 'edit_clip_orig': 0.323, 'edit_clip_def': 0.3116, 'edit_clip_drop': 0.0114, 'edit_siglip_orig': 0.1175, 'edit_siglip_def': 0.1104, 'edit_siglip_drop': 0.0071, 'amp_dev': 0.05544, 'active_fraction': 0.6331}
+
+########## man_00 (man) ##########
+=== man_00 / phase__human ===
+{'image': 'man_00', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'an old woman', 'block': 32, 'r_min': 0.4, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.00621, 'unreachable': False, 'radius': 3.14, 'total_seconds': 25.6, 'fid_lpips': 0.1241, 'fid_ssim': 0.9964, 'fid_dists': 0.0062, 'fid_psnr': 41.7658, 'fid_clip_img': 0.9997, 'fid_nima': 4.4001, 'fid_cnniqa': 0.6373, 'edit_lpips': 0.3296, 'edit_clip_orig': 0.2819, 'edit_clip_def': 0.297, 'edit_clip_drop': -0.0151, 'edit_siglip_orig': 0.1079, 'edit_siglip_def': 0.1311, 'edit_siglip_drop': -0.0232, 'amp_dev': 0.0054, 'active_fraction': 0.279}
+
+########## woman_01 (woman) ##########
+=== woman_01 / phase__human ===
+{'image': 'woman_01', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a man', 'block': 32, 'r_min': 0.4, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.00256, 'unreachable': False, 'radius': 3.14, 'total_seconds': 25.7, 'fid_lpips': 0.0822, 'fid_ssim': 0.9985, 'fid_dists': 0.0026, 'fid_psnr': 47.3773, 'fid_clip_img': 0.9997, 'fid_nima': 3.4963, 'fid_cnniqa': 0.3183, 'edit_lpips': 0.2964, 'edit_clip_orig': 0.208, 'edit_clip_def': 0.2204, 'edit_clip_drop': -0.0124, 'edit_siglip_orig': 0.0388, 'edit_siglip_def': 0.0363, 'edit_siglip_drop': 0.0025, 'amp_dev': 0.00226, 'active_fraction': 0.3817}
+
+表：runs/theta/r0.40_t3.14/results.csv
+[wave3] 完成（Sun Aug 16 04:48:54 AM CST 2026）

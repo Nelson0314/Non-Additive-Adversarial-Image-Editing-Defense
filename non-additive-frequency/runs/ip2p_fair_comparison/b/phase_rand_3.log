@@ -1,0 +1,36 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00, 16.12it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3996.96it/s]
+Loading pipeline components...:  83%|████████▎ | 5/6 [00:00<00:00, 17.55it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 14.82it/s]
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+IP2P 線：18 張、條件 ['phase_rand']、steps=100 s_T=7.5 s_I=1.5 seed=20260812
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,1.0]
+  warnings.warn(
+task_attr_mod_color_136767       phase_rand     r=1.0800 dists=0.0829 lpips=0.0965 effect=0.1235 (70s)
+task_attr_mod_color_22137        phase_rand     r=1.0800 dists=0.0890 lpips=0.0741 effect=0.1256 (70s)
+task_attr_mod_color_59806        phase_rand     r=1.0800 dists=0.0630 lpips=0.0893 effect=0.1104 (70s)
+task_env_weather_112463          phase_rand     r=1.0800 dists=0.0282 lpips=0.0582 effect=0.1350 (70s)
+task_env_weather_137230          phase_rand     r=1.0800 dists=0.0609 lpips=0.0738 effect=0.1095 (70s)
+task_env_weather_226185          phase_rand     r=1.0800 dists=0.0466 lpips=0.0721 effect=0.1436 (70s)
+task_env_weather_63722           phase_rand     r=1.0800 dists=0.0814 lpips=0.0828 effect=0.1088 (70s)
+task_obj_add_166344              phase_rand     r=1.0800 dists=0.0710 lpips=0.0508 effect=0.0929 (70s)
+task_obj_add_375217              phase_rand     r=1.0800 dists=0.0265 lpips=0.0591 effect=0.1272 (70s)
+task_obj_add_581286              phase_rand     r=1.0800 dists=0.0281 lpips=0.0333 effect=0.0555 (70s)
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-0.8196078538894653,0.8901960849761963]
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-0.9801546335220337,1.0]
+  warnings.warn(
+task_obj_add_709390              phase_rand     r=1.0800 dists=0.0540 lpips=0.0636 effect=0.1440 (70s)
+task_obj_remove_197959           phase_rand     r=1.0800 dists=0.0432 lpips=0.0467 effect=0.1912 (70s)
+task_obj_remove_380621           phase_rand     r=1.0800 dists=0.0520 lpips=0.0647 effect=0.1069 (70s)
+task_obj_remove_571780           phase_rand     r=1.0800 dists=0.0566 lpips=0.0546 effect=0.1082 (70s)
+task_obj_remove_869495           phase_rand     r=1.0800 dists=0.0711 lpips=0.0922 effect=0.1795 (70s)
+task_obj_swap_joint_mask_533428  phase_rand     r=1.0800 dists=0.0662 lpips=0.0832 effect=0.1648 (70s)
+task_obj_swap_rand_mask_11376    phase_rand     r=1.0800 dists=0.0599 lpips=0.0649 effect=0.2421 (70s)
+task_obj_swap_rand_mask_392115   phase_rand     r=1.0800 dists=0.0453 lpips=0.0883 effect=0.1100 (70s)
+
+表：runs/fair0820/b/phase_rand_3/results.csv（18 列）

@@ -1,0 +1,40 @@
+image,condition,instruction,verdict,judge,note
+task_attr_mod_color_11699,ours_g025,turn the color of potted plant to pink,borderline,user_confirmed,牆整片洋紅、人幾乎溶掉，但盆栽加牆的構圖還在
+task_attr_mod_color_136767,ours_g025,turn the color of astronaut to pink,blocked,user_confirmed,變成一團洋紅塊狀物，頭盔裡換成別人的臉，另外多一顆頭盔
+task_attr_mod_color_184837,ours_g025,turn the color of frame to pink,failed,user_corrected,仍看得出是雕花框裡的人像。大幅改動不等於不可辨
+task_attr_mod_color_32648,ours_g025,turn the color of potion bottle to orange,failed,user_confirmed,橘色瓶子乾淨，指令達成
+task_attr_mod_color_6205,ours_g025,turn the color of toolbox to red,failed,user_confirmed,整片紅但兩個玩偶與工具箱清楚可辨
+task_env_weather_112463,ours_g025,transform the setting to spring with blooming,blocked,user_confirmed,泳者整個不見，變成粉紅花卉特寫
+task_env_weather_246440,ours_g025,transform the setting to autumn with falling leaves,failed,user_confirmed,雕像還在原位、姿態不變，只是變糊變米色
+task_env_weather_63722,ours_g025,change the setting to a snowy landscape,failed,user_confirmed,鐵門磚柱遠景都清楚，只是變成素描感
+task_obj_add_40931,ours_g025,Add the blood on snout,borderline,user_confirmed,主體沒了剩鐵網與毛絮加一團紅，原場景勉強推得出來
+task_obj_remove_380621,ours_g025,Remove iceberg,failed,user_corrected,山與雲換掉但仍看得出是水上的冰山。大幅改動不等於不可辨
+task_obj_swap_joint_mask_276754,ours_g025,Replace the satellite dish with rocket,blocked,user_confirmed,變成銀河底下的 UFO 與電波望遠鏡，與原圖及未防禦編輯都無關
+task_obj_swap_joint_mask_533428,ours_g025,Replace the samurai armor with red jacket,blocked,user_confirmed,四個樂手變成兩個完全不同的人
+task_obj_swap_rand_mask_417469,ours_g025,Replace the green flannel shirt with blue shirt,borderline,user_confirmed,整片藍霧，人與背板勉強看得出輪廓
+task_attr_mod_color_11699,dct_native,"turn the color of potted plant to pink",failed,user_listed_failures_only,使用者判定失敗
+task_attr_mod_color_136767,dct_native,"turn the color of astronaut to pink",blocked,user_listed_failures_only,使用者只列出失敗者，其餘記為 blocked
+task_attr_mod_color_184837,dct_native,"turn the color of frame to pink",failed,user_listed_failures_only,使用者判定失敗
+task_attr_mod_color_32648,dct_native,"turn the color of potion bottle to orange",blocked,user_listed_failures_only,使用者只列出失敗者，其餘記為 blocked
+task_attr_mod_color_6205,dct_native,"turn the color of toolbox to red",blocked,user_listed_failures_only,使用者只列出失敗者，其餘記為 blocked
+task_env_weather_112463,dct_native,"transform the setting to spring with blooming",blocked,user_listed_failures_only,使用者只列出失敗者，其餘記為 blocked
+task_env_weather_246440,dct_native,"transform the setting to autumn with falling leaves",failed,user_listed_failures_only,使用者判定失敗
+task_env_weather_63722,dct_native,"change the setting to a snowy landscape",failed,user_listed_failures_only,使用者判定失敗
+task_obj_add_40931,dct_native,"Add the blood on snout",blocked,user_listed_failures_only,使用者只列出失敗者，其餘記為 blocked
+task_obj_remove_380621,dct_native,"Remove iceberg",blocked,user_listed_failures_only,使用者只列出失敗者，其餘記為 blocked
+task_obj_swap_joint_mask_276754,dct_native,"Replace the satellite dish with rocket",blocked,user_listed_failures_only,使用者只列出失敗者，其餘記為 blocked
+task_obj_swap_joint_mask_533428,dct_native,"Replace the samurai armor with red jacket",blocked,user_listed_failures_only,使用者只列出失敗者，其餘記為 blocked
+task_obj_swap_rand_mask_417469,dct_native,"Replace the green flannel shirt with blue shirt",blocked,user_listed_failures_only,使用者只列出失敗者，其餘記為 blocked
+task_attr_mod_color_11699,dct_native_y,"turn the color of potted plant to pink",blocked,user_listed_failures_only,使用者只列出失敗者，其餘記為 blocked
+task_attr_mod_color_136767,dct_native_y,"turn the color of astronaut to pink",blocked,user_listed_failures_only,使用者只列出失敗者，其餘記為 blocked
+task_attr_mod_color_184837,dct_native_y,"turn the color of frame to pink",blocked,user_listed_failures_only,使用者只列出失敗者，其餘記為 blocked
+task_attr_mod_color_32648,dct_native_y,"turn the color of potion bottle to orange",blocked,user_listed_failures_only,使用者只列出失敗者，其餘記為 blocked
+task_attr_mod_color_6205,dct_native_y,"turn the color of toolbox to red",blocked,user_listed_failures_only,使用者只列出失敗者，其餘記為 blocked
+task_env_weather_112463,dct_native_y,"transform the setting to spring with blooming",blocked,user_listed_failures_only,使用者只列出失敗者，其餘記為 blocked
+task_env_weather_246440,dct_native_y,"transform the setting to autumn with falling leaves",failed,user_listed_failures_only,使用者判定失敗
+task_env_weather_63722,dct_native_y,"change the setting to a snowy landscape",blocked,user_listed_failures_only,使用者只列出失敗者，其餘記為 blocked
+task_obj_add_40931,dct_native_y,"Add the blood on snout",blocked,user_listed_failures_only,使用者只列出失敗者，其餘記為 blocked
+task_obj_remove_380621,dct_native_y,"Remove iceberg",blocked,user_listed_failures_only,使用者只列出失敗者，其餘記為 blocked
+task_obj_swap_joint_mask_276754,dct_native_y,"Replace the satellite dish with rocket",blocked,user_listed_failures_only,使用者只列出失敗者，其餘記為 blocked
+task_obj_swap_joint_mask_533428,dct_native_y,"Replace the samurai armor with red jacket",blocked,user_listed_failures_only,使用者只列出失敗者，其餘記為 blocked
+task_obj_swap_rand_mask_417469,dct_native_y,"Replace the green flannel shirt with blue shirt",blocked,user_listed_failures_only,使用者只列出失敗者，其餘記為 blocked

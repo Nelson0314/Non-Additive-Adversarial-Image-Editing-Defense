@@ -1,0 +1,44 @@
+[
+  {
+    "output": "panda.png",
+    "apa_id": "1",
+    "apa_class": "giant panda",
+    "apa_label": 388,
+    "source_url": "https://raw.githubusercontent.com/deep-kaixun/APA/main/images_un/1.png",
+    "source_repo": "https://github.com/deep-kaixun/APA",
+    "source_sha256": "82ecd7ef21b52903d926a0c9667dbcbe8385717d162877bce3907a6d8809ecfc",
+    "source_size": [
+      299,
+      299
+    ],
+    "output_size": 512
+  },
+  {
+    "output": "butterfly.png",
+    "apa_id": "3",
+    "apa_class": "gossamer-winged butterfly",
+    "apa_label": 326,
+    "source_url": "https://raw.githubusercontent.com/deep-kaixun/APA/main/images_un/3.png",
+    "source_repo": "https://github.com/deep-kaixun/APA",
+    "source_sha256": "576676886ee6b3aae23225e59127865f403aa4028e398dbaa48238ba91f57c2d",
+    "source_size": [
+      299,
+      299
+    ],
+    "output_size": 512
+  },
+  {
+    "output": "coot.png",
+    "apa_id": "4",
+    "apa_class": "American coot",
+    "apa_label": 137,
+    "source_url": "https://raw.githubusercontent.com/deep-kaixun/APA/main/images_un/4.png",
+    "source_repo": "https://github.com/deep-kaixun/APA",
+    "source_sha256": "cbf37b8bede726e89ae30518521e2e4c3299f5f5744586f04e78ab3e8bae867f",
+    "source_size": [
+      299,
+      299
+    ],
+    "output_size": 512
+  }
+]

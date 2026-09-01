@@ -1,0 +1,50 @@
+C:\Users\nelso\miniconda3\envs\wacv\Lib\site-packages\torchvision\models\_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+C:\Users\nelso\miniconda3\envs\wacv\Lib\site-packages\torchvision\models\_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+13 張、12 個量級、3 種場型
+C:\WACV-s3\scripts\warp_budget_utilization.py:137: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at C:\actions-runner\_work\pytorch\pytorch\torch\csrc\autograd\generated\python_variable_methods.cpp:823.)
+  per["c_absmean"].append(float(p.c.abs().mean()))
+{'field': 'corner', 'amp_px': 0.25, 'warp_grid': 16, 'n_images': 13, 'seed': 0, 'fid_dists': 0.01103, 'fid_psnr': 33.92, 'fid_lpips': 0.02472, 'effective_disp_px': 0.2872, 'c_absmean_px': 0.25}
+{'field': 'corner', 'amp_px': 0.5, 'warp_grid': 16, 'n_images': 13, 'seed': 0, 'fid_dists': 0.02257, 'fid_psnr': 28.262, 'fid_lpips': 0.05515, 'effective_disp_px': 0.5745, 'c_absmean_px': 0.5}
+{'field': 'corner', 'amp_px': 1.0, 'warp_grid': 16, 'n_images': 13, 'seed': 0, 'fid_dists': 0.03926, 'fid_psnr': 23.274, 'fid_lpips': 0.08623, 'effective_disp_px': 1.1486, 'c_absmean_px': 1.0}
+{'field': 'corner', 'amp_px': 1.5, 'warp_grid': 16, 'n_images': 13, 'seed': 0, 'fid_dists': 0.05748, 'fid_psnr': 21.14, 'fid_lpips': 0.12927, 'effective_disp_px': 1.722, 'c_absmean_px': 1.5}
+{'field': 'corner', 'amp_px': 2.0, 'warp_grid': 16, 'n_images': 13, 'seed': 0, 'fid_dists': 0.07608, 'fid_psnr': 19.787, 'fid_lpips': 0.16571, 'effective_disp_px': 2.2948, 'c_absmean_px': 2.0}
+{'field': 'corner', 'amp_px': 3.0, 'warp_grid': 16, 'n_images': 13, 'seed': 0, 'fid_dists': 0.10975, 'fid_psnr': 18.221, 'fid_lpips': 0.23311, 'effective_disp_px': 3.4385, 'c_absmean_px': 3.0}
+{'field': 'corner', 'amp_px': 4.0, 'warp_grid': 16, 'n_images': 13, 'seed': 0, 'fid_dists': 0.14024, 'fid_psnr': 17.267, 'fid_lpips': 0.29211, 'effective_disp_px': 4.5798, 'c_absmean_px': 4.0}
+{'field': 'corner', 'amp_px': 6.0, 'warp_grid': 16, 'n_images': 13, 'seed': 0, 'fid_dists': 0.19333, 'fid_psnr': 16.161, 'fid_lpips': 0.38392, 'effective_disp_px': 6.855, 'c_absmean_px': 6.0}
+{'field': 'corner', 'amp_px': 8.0, 'warp_grid': 16, 'n_images': 13, 'seed': 0, 'fid_dists': 0.23665, 'fid_psnr': 15.521, 'fid_lpips': 0.44727, 'effective_disp_px': 9.1209, 'c_absmean_px': 8.0}
+{'field': 'corner', 'amp_px': 12.0, 'warp_grid': 16, 'n_images': 13, 'seed': 0, 'fid_dists': 0.2892, 'fid_psnr': 14.687, 'fid_lpips': 0.5174, 'effective_disp_px': 13.628, 'c_absmean_px': 12.0}
+{'field': 'corner', 'amp_px': 16.0, 'warp_grid': 16, 'n_images': 13, 'seed': 0, 'fid_dists': 0.31204, 'fid_psnr': 14.08, 'fid_lpips': 0.54762, 'effective_disp_px': 18.108, 'c_absmean_px': 16.0}
+{'field': 'corner', 'amp_px': 24.0, 'warp_grid': 16, 'n_images': 13, 'seed': 0, 'fid_dists': 0.32828, 'fid_psnr': 13.252, 'fid_lpips': 0.58195, 'effective_disp_px': 26.997, 'c_absmean_px': 24.0}
+{'field': 'coherent', 'amp_px': 0.25, 'warp_grid': 16, 'n_images': 13, 'seed': 0, 'fid_dists': 0.00847, 'fid_psnr': 35.384, 'fid_lpips': 0.01754, 'effective_disp_px': 0.2497, 'c_absmean_px': 0.1768}
+{'field': 'coherent', 'amp_px': 0.5, 'warp_grid': 16, 'n_images': 13, 'seed': 0, 'fid_dists': 0.01878, 'fid_psnr': 29.714, 'fid_lpips': 0.05093, 'effective_disp_px': 0.4994, 'c_absmean_px': 0.3536}
+{'field': 'coherent', 'amp_px': 1.0, 'warp_grid': 16, 'n_images': 13, 'seed': 0, 'fid_dists': 0.02478, 'fid_psnr': 24.197, 'fid_lpips': 0.07775, 'effective_disp_px': 0.9988, 'c_absmean_px': 0.7071}
+{'field': 'coherent', 'amp_px': 1.5, 'warp_grid': 16, 'n_images': 13, 'seed': 0, 'fid_dists': 0.02515, 'fid_psnr': 21.277, 'fid_lpips': 0.0843, 'effective_disp_px': 1.4981, 'c_absmean_px': 1.0607}
+{'field': 'coherent', 'amp_px': 2.0, 'warp_grid': 16, 'n_images': 13, 'seed': 0, 'fid_dists': 0.03141, 'fid_psnr': 20.442, 'fid_lpips': 0.1371, 'effective_disp_px': 1.9967, 'c_absmean_px': 1.4142}
+{'field': 'coherent', 'amp_px': 3.0, 'warp_grid': 16, 'n_images': 13, 'seed': 0, 'fid_dists': 0.0247, 'fid_psnr': 18.271, 'fid_lpips': 0.16022, 'effective_disp_px': 2.9937, 'c_absmean_px': 2.1213}
+{'field': 'coherent', 'amp_px': 4.0, 'warp_grid': 16, 'n_images': 13, 'seed': 0, 'fid_dists': 0.03917, 'fid_psnr': 17.329, 'fid_lpips': 0.20816, 'effective_disp_px': 3.9894, 'c_absmean_px': 2.8284}
+{'field': 'coherent', 'amp_px': 6.0, 'warp_grid': 16, 'n_images': 13, 'seed': 0, 'fid_dists': 0.04223, 'fid_psnr': 16.144, 'fid_lpips': 0.26593, 'effective_disp_px': 5.9778, 'c_absmean_px': 4.2426}
+{'field': 'coherent', 'amp_px': 8.0, 'warp_grid': 16, 'n_images': 13, 'seed': 0, 'fid_dists': 0.0537, 'fid_psnr': 15.458, 'fid_lpips': 0.32025, 'effective_disp_px': 7.9619, 'c_absmean_px': 5.6569}
+{'field': 'coherent', 'amp_px': 12.0, 'warp_grid': 16, 'n_images': 13, 'seed': 0, 'fid_dists': 0.06775, 'fid_psnr': 14.61, 'fid_lpips': 0.38032, 'effective_disp_px': 11.9178, 'c_absmean_px': 8.4853}
+{'field': 'coherent', 'amp_px': 16.0, 'warp_grid': 16, 'n_images': 13, 'seed': 0, 'fid_dists': 0.07991, 'fid_psnr': 14.048, 'fid_lpips': 0.42249, 'effective_disp_px': 15.8568, 'c_absmean_px': 11.3137}
+{'field': 'coherent', 'amp_px': 24.0, 'warp_grid': 16, 'n_images': 13, 'seed': 0, 'fid_dists': 0.09822, 'fid_psnr': 13.045, 'fid_lpips': 0.47895, 'effective_disp_px': 23.6843, 'c_absmean_px': 16.9706}
+{'field': 'gauss', 'amp_px': 0.25, 'warp_grid': 16, 'n_images': 13, 'seed': 0, 'fid_dists': 0.00896, 'fid_psnr': 34.141, 'fid_lpips': 0.02148, 'effective_disp_px': 0.267, 'c_absmean_px': 0.198}
+{'field': 'gauss', 'amp_px': 0.5, 'warp_grid': 16, 'n_images': 13, 'seed': 0, 'fid_dists': 0.01792, 'fid_psnr': 28.528, 'fid_lpips': 0.0456, 'effective_disp_px': 0.5339, 'c_absmean_px': 0.3959}
+{'field': 'gauss', 'amp_px': 1.0, 'warp_grid': 16, 'n_images': 13, 'seed': 0, 'fid_dists': 0.03387, 'fid_psnr': 23.869, 'fid_lpips': 0.08264, 'effective_disp_px': 1.0672, 'c_absmean_px': 0.7919}
+{'field': 'gauss', 'amp_px': 1.5, 'warp_grid': 16, 'n_images': 13, 'seed': 0, 'fid_dists': 0.05241, 'fid_psnr': 21.68, 'fid_lpips': 0.11819, 'effective_disp_px': 1.5996, 'c_absmean_px': 1.1878}
+{'field': 'gauss', 'amp_px': 2.0, 'warp_grid': 16, 'n_images': 13, 'seed': 0, 'fid_dists': 0.07188, 'fid_psnr': 20.359, 'fid_lpips': 0.15203, 'effective_disp_px': 2.1313, 'c_absmean_px': 1.5838}
+{'field': 'gauss', 'amp_px': 3.0, 'warp_grid': 16, 'n_images': 13, 'seed': 0, 'fid_dists': 0.10731, 'fid_psnr': 18.748, 'fid_lpips': 0.21438, 'effective_disp_px': 3.1921, 'c_absmean_px': 2.3757}
+{'field': 'gauss', 'amp_px': 4.0, 'warp_grid': 16, 'n_images': 13, 'seed': 0, 'fid_dists': 0.13811, 'fid_psnr': 17.755, 'fid_lpips': 0.2692, 'effective_disp_px': 4.2497, 'c_absmean_px': 3.1676}
+{'field': 'gauss', 'amp_px': 6.0, 'warp_grid': 16, 'n_images': 13, 'seed': 0, 'fid_dists': 0.18878, 'fid_psnr': 16.519, 'fid_lpips': 0.35932, 'effective_disp_px': 6.3559, 'c_absmean_px': 4.7514}
+{'field': 'gauss', 'amp_px': 8.0, 'warp_grid': 16, 'n_images': 13, 'seed': 0, 'fid_dists': 0.22856, 'fid_psnr': 15.748, 'fid_lpips': 0.423, 'effective_disp_px': 8.4512, 'c_absmean_px': 6.3352}
+{'field': 'gauss', 'amp_px': 12.0, 'warp_grid': 16, 'n_images': 13, 'seed': 0, 'fid_dists': 0.27962, 'fid_psnr': 14.768, 'fid_lpips': 0.49606, 'effective_disp_px': 12.6147, 'c_absmean_px': 9.5028}
+{'field': 'gauss', 'amp_px': 16.0, 'warp_grid': 16, 'n_images': 13, 'seed': 0, 'fid_dists': 0.30659, 'fid_psnr': 14.159, 'fid_lpips': 0.53355, 'effective_disp_px': 16.7486, 'c_absmean_px': 12.6703}
+{'field': 'gauss', 'amp_px': 24.0, 'warp_grid': 16, 'n_images': 13, 'seed': 0, 'fid_dists': 0.33141, 'fid_psnr': 13.368, 'fid_lpips': 0.57262, 'effective_disp_px': 24.9282, 'c_absmean_px': 19.0055}
+{'tag': 'opt_r4', 'radius_px': 4.0, 'steps': 1000, 'n_images': 13, 'observed_fid_dists': 0.0143, 'observed_fid_psnr': 30.973, 'alpha_px_per_step': 0.016, 'path_length_px': 16.0, 'random_walk_sigma_px': 0.506, 'equiv_sigma_gauss_px': 0.399, 'equiv_amp_coherent_px': 0.3913, 'equiv_over_random_walk': 0.788, 'budget_used_frac': 0.0997}
+{'tag': 'opt_r8', 'radius_px': 8.0, 'steps': 1000, 'n_images': 13, 'observed_fid_dists': 0.01698, 'observed_fid_psnr': 29.819, 'alpha_px_per_step': 0.032, 'path_length_px': 32.0, 'random_walk_sigma_px': 1.0119, 'equiv_sigma_gauss_px': 0.4737, 'equiv_amp_coherent_px': 0.4563, 'equiv_over_random_walk': 0.468, 'budget_used_frac': 0.0592}
+{'tag': 'opt_r16', 'radius_px': 16.0, 'steps': 1000, 'n_images': 13, 'observed_fid_dists': 0.02659, 'observed_fid_psnr': 26.594, 'alpha_px_per_step': 0.064, 'path_length_px': 64.0, 'random_walk_sigma_px': 2.0239, 'equiv_sigma_gauss_px': 0.7719, 'equiv_amp_coherent_px': 1.6153, 'equiv_over_random_walk': 0.381, 'budget_used_frac': 0.0482}
+{'tag': 'opt_r24', 'radius_px': 24.0, 'steps': 1000, 'n_images': 13, 'observed_fid_dists': 0.04953, 'observed_fid_psnr': 23.387, 'alpha_px_per_step': 0.096, 'path_length_px': 96.0, 'random_walk_sigma_px': 3.0358, 'equiv_sigma_gauss_px': 1.4223, 'equiv_amp_coherent_px': 7.2728, 'equiv_over_random_walk': 0.469, 'budget_used_frac': 0.0593}
+
+表：runs\ip2p_warp\budget_utilization.csv、runs\ip2p_warp\budget_utilization_inversion.csv

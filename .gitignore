@@ -1,0 +1,28 @@
+# 子目錄各自另有 .gitignore，`runs/**` 那一組規則寫在
+# non-additive-frequency/.gitignore 裡（gitignore 的路徑樣式相對於它自己所在的
+# 目錄，所以那一組仍然只作用在該目錄的 runs/ 上）。
+# **改動任何 runs/ 規則之後必須用 `git status --porcelain --ignored` 確認沒有
+# 結果檔被排除**——曾因樣式寫錯而靜默漏掉 143 個結果檔。
+
+# 模型權重
+*.ckpt
+*.safetensors
+
+# 第三方論文 PDF（本機參考用）
+refs/
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ipynb_checkpoints/
+
+# 報告頁與它的影像鏡像。兩者都由已記錄的 CSV、參數與種子重新產生得出來，
+# 而 CSV 不可重現所以一律入庫。影像鏡像是從 GPU 機抓回來的防禦圖與淨化圖。
+/report_*.html
+**/report_*.html
+_rep/
+
+# 作業系統
+Thumbs.db
+.DS_Store

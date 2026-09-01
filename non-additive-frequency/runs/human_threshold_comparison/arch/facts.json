@@ -1,0 +1,15 @@
+{
+  "freq_gate_zeroed_bins": 67,
+  "freq_gate_total_bins": 544,
+  "active_fraction": 0.4764,
+  "n_blocks": 1089,
+  "grid_side": 33,
+  "identity_max_abs_err": 5.960464477539062e-07,
+  "amp_dev_theta130": 0.02357,
+  "demo_res_linf": 0.3081,
+  "block_mag_max_abs_diff": 4.76837158203125e-07,
+  "phase_res_linf": 0.3686,
+  "phase_res_rms": 0.03145,
+  "add_res_linf": 0.0039,
+  "add_res_rms": 0.00362
+}

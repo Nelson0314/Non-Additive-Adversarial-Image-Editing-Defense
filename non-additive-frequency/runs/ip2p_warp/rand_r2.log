@@ -1,0 +1,43 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00, 11.08it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3679.99it/s]
+Loading pipeline components...:  67%|██████▋   | 4/6 [00:00<00:00, 11.04it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 14.95it/s]
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+IP2P 線：13 張、條件 ['warp_rand']、steps=100 s_T=7.5 s_I=1.5 seed=20260812
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,1.0]
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,0.9572498798370361]
+  warnings.warn(
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 17673.69it/s]
+[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
+[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
+Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights:  97%|█████████▋| 394/408 [00:00<00:00, 3911.62it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 3969.02it/s]
+task_attr_mod_color_11699        warp_rand      r=2.0000 dists=0.0273 lpips=0.0992 effect=0.1217 (59s)
+task_attr_mod_color_136767       warp_rand      r=2.0000 dists=0.0285 lpips=0.0881 effect=0.1123 (47s)
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-0.9999026656150818,1.0]
+  warnings.warn(
+task_attr_mod_color_184837       warp_rand      r=2.0000 dists=0.0691 lpips=0.1303 effect=0.1551 (47s)
+task_attr_mod_color_32648        warp_rand      r=2.0000 dists=0.0434 lpips=0.0722 effect=0.0789 (47s)
+task_attr_mod_color_6205         warp_rand      r=2.0000 dists=0.0437 lpips=0.0961 effect=0.1271 (47s)
+task_env_weather_112463          warp_rand      r=2.0000 dists=0.0474 lpips=0.0985 effect=0.1648 (47s)
+task_env_weather_246440          warp_rand      r=2.0000 dists=0.0351 lpips=0.1176 effect=0.2835 (47s)
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-0.9995973706245422,0.9466360807418823]
+  warnings.warn(
+task_env_weather_63722           warp_rand      r=2.0000 dists=0.0863 lpips=0.1592 effect=0.1892 (47s)
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,0.9950405359268188]
+  warnings.warn(
+task_obj_add_40931               warp_rand      r=2.0000 dists=0.0629 lpips=0.1532 effect=0.1897 (47s)
+task_obj_remove_380621           warp_rand      r=2.0000 dists=0.0814 lpips=0.1319 effect=0.1812 (47s)
+task_obj_swap_joint_mask_276754  warp_rand      r=2.0000 dists=0.0616 lpips=0.1842 effect=0.1074 (47s)
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,0.9999682903289795]
+  warnings.warn(
+task_obj_swap_joint_mask_533428  warp_rand      r=2.0000 dists=0.0514 lpips=0.1279 effect=0.2030 (47s)
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,0.998721718788147]
+  warnings.warn(
+task_obj_swap_rand_mask_417469   warp_rand      r=2.0000 dists=0.0357 lpips=0.1018 effect=0.1321 (47s)
+
+表：runs/ip2p_warp/rand_r2/results.csv（13 列）

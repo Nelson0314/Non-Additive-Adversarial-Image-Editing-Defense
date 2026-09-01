@@ -1,0 +1,2 @@
+image,condition,stage1_seconds,total_seconds,fid_lpips,fid_ssim,fid_dists,fid_psnr,fid_clip_img,fid_nima,fid_cnniqa,edit_lpips,edit_clip_orig,edit_clip_def,edit_clip_drop,edit_siglip_orig,edit_siglip_def,edit_siglip_drop
+panda,nativeLoRA_BDIA,46.5,107.3,0.3378,0.7498,0.1877,24.7357,0.8709,4.3269,0.5512,0.172,0.2738,0.3098,-0.036,0.0558,0.1263,-0.0706

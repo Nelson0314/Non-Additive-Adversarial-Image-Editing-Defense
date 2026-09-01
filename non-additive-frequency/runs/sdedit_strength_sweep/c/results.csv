@@ -1,0 +1,16 @@
+image,prompt,strength,guidance,tag,clip_orig,clip_edit,clip_gain,siglip_orig,siglip_edit,siglip_gain,lpips_vs_orig
+cat_00,a cat wearing a red party hat,0.55,7.5,s0.55_g7.5,0.2577,0.2607,0.0029,0.0644,0.0485,-0.0159,0.1941
+cat_00,a cat wearing a red party hat,0.7,7.5,s0.7_g7.5,0.2577,0.3703,0.1125,0.0644,0.1592,0.0948,0.2422
+cat_00,a cat wearing a red party hat,0.8,7.5,s0.8_g7.5,0.2577,0.3509,0.0931,0.0644,0.1549,0.0906,0.2805
+cat_00,a cat wearing a red party hat,0.8,12.0,s0.8_g12,0.2577,0.3604,0.1027,0.0644,0.1443,0.0799,0.284
+cat_00,a cat wearing a red party hat,0.9,12.0,s0.9_g12,0.2577,0.3172,0.0594,0.0644,0.1486,0.0842,0.3366
+raccoon_00,a raccoon wearing a blue baseball cap,0.55,7.5,s0.55_g7.5,0.3185,0.334,0.0155,0.0871,0.0864,-0.0006,0.4248
+raccoon_00,a raccoon wearing a blue baseball cap,0.7,7.5,s0.7_g7.5,0.3185,0.341,0.0226,0.0871,0.0931,0.006,0.4847
+raccoon_00,a raccoon wearing a blue baseball cap,0.8,7.5,s0.8_g7.5,0.3185,0.3272,0.0087,0.0871,0.0838,-0.0033,0.5524
+raccoon_00,a raccoon wearing a blue baseball cap,0.8,12.0,s0.8_g12,0.3185,0.3393,0.0208,0.0871,0.0808,-0.0063,0.5668
+raccoon_00,a raccoon wearing a blue baseball cap,0.9,12.0,s0.9_g12,0.3185,0.3263,0.0078,0.0871,0.1019,0.0149,0.6846
+shiba_00,a dog wearing a yellow knitted hat,0.55,7.5,s0.55_g7.5,0.2234,0.2706,0.0472,0.0258,0.0754,0.0496,0.4413
+shiba_00,a dog wearing a yellow knitted hat,0.7,7.5,s0.7_g7.5,0.2234,0.33,0.1066,0.0258,0.1481,0.1223,0.5648
+shiba_00,a dog wearing a yellow knitted hat,0.8,7.5,s0.8_g7.5,0.2234,0.3384,0.115,0.0258,0.1444,0.1186,0.6063
+shiba_00,a dog wearing a yellow knitted hat,0.8,12.0,s0.8_g12,0.2234,0.3388,0.1154,0.0258,0.1436,0.1177,0.6165
+shiba_00,a dog wearing a yellow knitted hat,0.9,12.0,s0.9_g12,0.2234,0.3546,0.1312,0.0258,0.1369,0.111,0.6542

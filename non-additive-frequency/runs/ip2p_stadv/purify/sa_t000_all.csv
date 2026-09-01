@@ -1,0 +1,13 @@
+image,condition,budget_target,purifier,effect_mean,effect_sd,effect_identity_mean,effect_identity_sd,retention,siglip_sim,siglip_blocked,edit_strength,usable,seconds
+task_attr_mod_color_11699,warp,native,identity,0.44909,0.0255,0.44909,0.0255,1.0,0.72123,True,0.8,True,419.6
+task_attr_mod_color_11699,warp,native,blur1,0.37193,0.00459,0.44909,0.0255,0.82817,0.86148,False,0.8,True,419.6
+task_attr_mod_color_11699,warp,native,jpeg75,0.43768,0.00581,0.44909,0.0255,0.97459,0.82199,True,0.8,True,419.6
+task_attr_mod_color_11699,warp,native,jpeg30,0.47709,0.00099,0.44909,0.0255,1.06234,0.833,True,0.8,True,419.6
+task_attr_mod_color_11699,warp,native,blur2,0.38089,0.00733,0.44909,0.0255,0.84812,0.84623,False,0.8,True,419.6
+task_attr_mod_color_11699,warp,native,crop_resize0.1,0.58653,0.00266,0.44909,0.0255,1.30603,0.80532,True,0.8,True,419.6
+task_attr_mod_color_6205,warp,native,identity,0.8035,0.00816,0.8035,0.00816,1.0,0.4451,True,0.8,True,410.7
+task_attr_mod_color_6205,warp,native,blur1,0.72502,0.01859,0.8035,0.00816,0.90233,0.46077,True,0.8,True,410.7
+task_attr_mod_color_6205,warp,native,jpeg75,0.79903,0.01798,0.8035,0.00816,0.99444,0.4509,True,0.8,True,410.7
+task_attr_mod_color_6205,warp,native,jpeg30,0.77594,0.02163,0.8035,0.00816,0.9657,0.44721,True,0.8,True,410.7
+task_attr_mod_color_6205,warp,native,blur2,0.74995,0.02341,0.8035,0.00816,0.93335,0.44565,True,0.8,True,410.7
+task_attr_mod_color_6205,warp,native,crop_resize0.1,0.8012,0.01264,0.8035,0.00816,0.99713,0.45983,True,0.8,True,410.7

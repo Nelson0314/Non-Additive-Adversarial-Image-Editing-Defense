@@ -1,0 +1,11 @@
+# Shell scripts must stay LF or bash on Linux (cloud) fails on \r.
+*.sh text eol=lf
+
+# Experiment artifacts are produced on Linux (TWCC) and are evidence.
+# Pin them to LF on both sides so a Windows checkout does not silently
+# rewrite the bytes that came off the container.
+runs/**/*.csv  text eol=lf
+runs/**/*.json text eol=lf
+runs/**/*.log  text eol=lf
+runs/**/*.md   text eol=lf
+runs/**/*.png  binary

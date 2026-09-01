@@ -1,0 +1,5 @@
+image,condition,budget_target,purifier,effect_mean,effect_sd,effect_identity_mean,effect_identity_sd,retention,edit_strength,usable,seconds
+task_obj_swap_joint_mask_276754,phase,native,identity,0.20081,0.01056,0.20081,0.01056,1.0,0.8,True,562.3
+task_obj_swap_joint_mask_276754,phase,native,blur1,0.21641,0.05305,0.20081,0.01056,1.07767,0.8,True,562.3
+task_obj_swap_joint_mask_276754,phase,native,jpeg75,0.26684,0.1296,0.20081,0.01056,1.3288,0.8,True,562.3
+task_obj_swap_joint_mask_276754,phase,native,crop_resize0.1,0.39436,0.11907,0.20081,0.01056,1.96383,0.8,True,562.3

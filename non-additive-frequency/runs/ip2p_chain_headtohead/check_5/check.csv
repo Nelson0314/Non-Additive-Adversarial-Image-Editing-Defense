@@ -1,0 +1,14 @@
+image,instruction,clip_orig,clip_edit,clip_gain,siglip_orig,siglip_edit,siglip_gain,pixel_lpips,edit_steps,s_t,s_i,edit_seed,seconds
+task_attr_mod_color_127061,turn the color of control panel to gray,0.24557,0.24315,-0.00241,0.0458,0.04651,0.00071,0.13002,100,7.5,1.5,20260812,79.8
+task_attr_mod_color_30214,turn the color of glass of whiskey to green,0.26686,0.28937,0.02252,0.05918,0.09192,0.03273,0.34423,100,7.5,1.5,20260812,70.2
+task_attr_mod_color_96137,turn the color of robot companion to orange,0.25554,0.25948,0.00395,0.05359,0.06619,0.0126,0.17887,100,7.5,1.5,20260812,70.2
+task_env_weather_165714,change the setting to a foggy day,0.1925,0.20572,0.01322,0.01402,0.03223,0.01821,0.16572,100,7.5,1.5,20260812,70.6
+task_env_weather_61151,change the setting to a summer day,0.2169,0.21927,0.00238,0.02404,0.03703,0.01298,0.2366,100,7.5,1.5,20260812,70.6
+task_obj_add_290491,Add woman,0.19759,0.20011,0.00253,-0.03157,0.02639,0.05796,0.27312,100,7.5,1.5,20260812,70.4
+task_obj_add_531333,Add grey hat,0.2,0.24692,0.04692,0.03383,0.10832,0.07448,0.3863,100,7.5,1.5,20260812,70.5
+task_obj_add_850681,Add left carnation,0.21012,0.24136,0.03124,0.06757,0.08767,0.0201,0.63874,100,7.5,1.5,20260812,70.4
+task_obj_remove_303082,Remove red rock,0.24709,0.24838,0.00129,0.06718,0.05955,-0.00762,0.31279,100,7.5,1.5,20260812,70.5
+task_obj_remove_648479,Remove dam,0.27062,0.27883,0.0082,0.07546,0.07625,0.00079,0.21954,100,7.5,1.5,20260812,70.6
+task_obj_swap_joint_mask_476374,Replace the pirate with eyepatch with man in military uniform,0.33088,0.2829,-0.04798,0.14067,0.16673,0.02606,0.57862,100,7.5,1.5,20260812,70.6
+task_obj_swap_rand_mask_268827,Replace the knight armor with jacket,0.2475,0.23904,-0.00846,0.0677,0.06135,-0.00635,0.55993,100,7.5,1.5,20260812,70.4
+task_obj_swap_rand_mask_92564,Replace the wooden flooring with gray carpet,0.16069,0.25551,0.09482,-0.03368,0.0618,0.09548,0.59162,100,7.5,1.5,20260812,68.9

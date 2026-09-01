@@ -1,0 +1,388 @@
+# 步驟四：程式碼設計（含進度儀表板）
+
+> 2026-08-05。依 `ARCH_2026-08-05.md`。本文件只定介面與契約，不寫實作。
+
+---
+
+## 0. 一個在寫檔前就抓到的問題
+
+規劃中的 `runs/<批次>/calib/calibration.yaml` **會被 `.gitignore` 靜默排除**。
+實測：
+
+```
+$ git check-ignore -v runs/b1/calib/calibration.yaml
+.gitignore:16:runs/**    runs/b1/calib/calibration.yaml
+```
+
+`runs/` 區塊是「全部排除 + 逐副檔名放行」，放行清單為
+`.csv .json .md .log .png .html .txt .pt`，**沒有 `.yaml`**。
+這正是歷史上靜默漏掉 273 個檔案的同一個機制。
+
+**處置：校準表改用 `calibration.json`，不改 `.gitignore`。**
+JSON 已在放行清單內，且校準表沒有任何需要 YAML 的特性。改副檔名比改 `.gitignore` 風險低。
+
+已驗證放行的路徑：
+
+| 路徑 | 結果 |
+|---|---|
+| `runs/b1/progress.json` | ✅ 放行 |
+| `runs/b1/grid.csv` | ✅ 放行 |
+| `runs/b1/dashboard.html` | ✅ 放行 |
+| `runs/b1/N1/img0/phi.pt` | ✅ 放行 |
+| `runs/b1/env.json` | ✅ 放行 |
+| ~~`runs/b1/calib/calibration.yaml`~~ | ❌ 被排除 |
+
+**寫入任何新副檔名之前一律先跑 `git check-ignore -v`。** `git status --ignored` 抓不到——
+檔案還沒寫出來時掃描結果是空的。
+
+---
+
+## 1. 介面契約
+
+### 1.1 `src/utils/calibration.py`
+
+```python
+class Calibration:
+    """校準表。未校準的 context 一律拋出，不回傳預設值、不內插。"""
+
+    @classmethod
+    def load(cls, path: Path) -> "Calibration": ...
+
+    def get(self, key: str, context: dict) -> float | list | dict:
+        """context 與該鍵記錄的 calibrated_for 不符時 raise CalibrationMismatch。
+
+        比對方式是「context 的每一個鍵值都必須出現在 calibrated_for 中且相等」。
+        calibrated_for 有而 context 沒有的鍵視為不符——寧可誤報也不可誤用。
+        """
+
+    def put(self, key: str, value, context: dict) -> None: ...
+
+class CalibrationMismatch(RuntimeError):
+    """訊息必須同時列出要求的 context 與表中記錄的 calibrated_for，
+    否則使用者看到例外也不知道差在哪。"""
+```
+
+必須校準的鍵：`strength`、`lr.{N1,N2,N3_stage1,N3_stage2}`、`attn_norm`、
+`stop_tol.{edit_shift,attn_div}`、`precision_equiv`（fp16／bf16 對 fp32 的等價性驗證結果）。
+
+`context` 的必填欄位：`model`（例 `SDXL-1.0-base`）、`resolution`、`guidance`、`steps`、
+`gpu`（例 `V100-SXM2-32GB`）、`precision`（`fp32`／`fp16`／`bf16`）。
+**`gpu` 與 `precision` 在 context 內是必填**，這是「兩張卡不可混跑」的程式化保證。
+
+### 1.2 `src/residual/composite.py`
+
+```python
+class CompositeResidual(ResidualModule):
+    site = "composite"
+    def __init__(self, members: list[ResidualModule], names: list[str]): ...
+    # 能力：任一成員提供即提供；eps_hook 串接後依序套用
+    def param_groups(self) -> dict[str, list[torch.nn.Parameter]]:
+        """{names[i]: members[i] 的參數}。APA 用它分階段優化。"""
+```
+
+`ResidualModule.param_groups()` 的預設實作回傳 `{"default": list(self.parameters())}`。
+
+### 1.3 `src/residual/apa_port.py`
+
+```python
+def build_apa(sd, lora_rank: int, latent_shape, **kw) -> CompositeResidual:
+    """回傳 names = ["stage1", "stage2"] 的複合模組。
+
+    stage1 = WeightLoRA（SDXL UNet 的 cross-attention 線性層）
+    stage2 = LatentResidual（逐步 ε̂ 注入）
+    """
+```
+
+### 1.4 `src/baselines/`
+
+```python
+@dataclass(frozen=True)
+class BaselineSpec:
+    name: str
+    eps_inf: float
+    steps: int
+    step_size: float | None
+    needs_target_image: bool
+    needs_mask: bool
+    modified_from_paper: bool
+    modification_note: str          # modified_from_paper 為真時不得為空
+    source: str                     # arXiv 編號
+    loss_fn: Callable[..., torch.Tensor]
+
+REGISTRY: dict[str, BaselineSpec]
+
+def run_pgd(sd, x01, spec: BaselineSpec, **kw) -> torch.Tensor:
+    """共用 PGD 骨幹，回傳 delta。換 baseline = 換 spec.loss_fn。"""
+```
+
+建構時的驗證：`modified_from_paper and not modification_note` 直接拋出。
+
+### 1.5 `src/data/pie_bench.py`
+
+```python
+def load(root: Path) -> list[Sample]        # Sample: image, source_prompt, target_prompt, subtask, mask
+def stratified_pick(samples, n: int, seed: int) -> list[Sample]
+    """由不同子任務各取，n 不足以覆蓋 9 個子任務時取前 n 個子任務各 1 張。"""
+def filter_editable(samples, sd, threshold: float, seeds: int) -> list[Sample]
+    """只留未防禦編輯確實成功者。判定量為 SigLIP(編輯輸出, target) − SigLIP(原圖, target)。"""
+```
+
+`n` 是唯一的樣本數入口。**任何地方不得出現字面值 3。**
+
+### 1.6 `src/purify/ops.py` 新增算子
+
+`Purifier` 的 `kind` 擴充為
+`identity | blur | noise | jpeg | quantize | crop_resize | adverse_cleaner | cnn_denoise | impress | diffpure`。
+
+每個新算子都必須提供 `forward`（訓練）、`evaluate`（評測）、`differentiable` 屬性，
+並通過 `proxy_gap` 的量測。**不可微者一律走直通估計，且其代理與真實實作的差距必須記進報表**。
+
+---
+
+## 2. 進度儀表板
+
+給實驗 agent 監察用。**唯讀、不碰 GPU、不寫入批次目錄（除了它自己的 `dashboard.html`）。**
+
+### 2.1 真相來源
+
+| 層級 | 內容 |
+|---|---|
+| **真相** | 磁碟上的產物 + 每個 cell 目錄下的 `meta.json`（含 `config_hash`） |
+| **快取** | `runs/<批次>/progress.json` |
+
+`progress.json` 是快取不是真相。它遺失或損壞時，`dashboard.py --rebuild` 掃描產物重建。
+這條規則使「進度檔寫壞導致整批重跑」不可能發生。
+
+### 2.2 `progress.json` 結構
+
+```json
+{
+  "schema": 1,
+  "batch": "b1",
+  "created": "2026-08-05T12:00:00+08:00",
+  "updated": "2026-08-05T12:34:56+08:00",
+  "env": {
+    "gpu": "Tesla V100-SXM2-32GB", "precision": "fp16",
+    "torch": "2.x+cu118", "cuda": "11.8", "commit": "8e0ffbc", "spec_version": 1
+  },
+  "stages": {
+    "calib":    {"status": "done",    "total": 6,   "done": 6},
+    "train":    {"status": "running", "total": 27,  "done": 11, "failed": 1},
+    "rayscale": {"status": "pending", "total": 108, "done": 0},
+    "eval":     {"status": "pending", "total": 1080,"done": 0},
+    "report":   {"status": "pending", "total": 1,   "done": 0}
+  },
+  "cells": [
+    {
+      "id": "train/N1/pie_0007",
+      "stage": "train", "condition": "N1", "image": "pie_0007",
+      "tau": null, "purify": null, "seed": null,
+      "config_hash": "a3f19c7b21d4",
+      "status": "done", "started": "...", "finished": "...", "seconds": 412.6,
+      "error": null,
+      "artifacts": ["N1/pie_0007/phi.pt", "N1/pie_0007/train.csv"]
+    }
+  ],
+  "summary": {
+    "total": 1222, "done": 17, "running": 1, "failed": 1, "pending": 1203,
+    "elapsed_seconds": 5321, "eta_seconds": 27400
+  }
+}
+```
+
+`status` 五態：`pending | running | done | failed | skipped`。
+`skipped` 專供結構上不適用的格（例如 N3 在 τ = 0.05、0.10 上因 VAE 重建下限而不可能達成），
+**與 `failed` 分開**——把不適用算成失敗會讓儀表板永遠是紅的，讀者就不再看它。
+
+### 2.3 寫入契約
+
+```python
+# src/utils/progress.py
+class ProgressWriter:
+    def __init__(self, batch_dir: Path): ...
+    def begin(self, cell_id: str, meta: dict) -> None      # -> running
+    def finish(self, cell_id: str, seconds: float, artifacts: list[str]) -> None
+    def fail(self, cell_id: str, error: str) -> None
+    def skip(self, cell_id: str, reason: str) -> None
+```
+
+三條硬性規則：
+
+1. **原子寫入。** 先寫 `progress.json.tmp` 再 `os.replace()`。`os.replace` 在同一檔案系統上
+   是原子的（Windows 與 Linux 皆是），確保讀取端永遠不會讀到半份 JSON。
+2. **單一寫入者。** 以 `runs/<批次>/.writer.lock`（含 PID 與啟動時間）宣告。
+   本專案的硬規則本來就是 GPU 工作不可並行（實測兩個 GPU 工作互搶會把單張 SDEdit
+   由 222 s 拉長到 30 分鐘以上），故單一寫入者不是限制而是既有事實的落實。
+3. **每個 cell 同時寫自己的 `meta.json`。** 這是重建的依據，也是斷點續跑的判準。
+
+### 2.4 讀取端 `scripts/dashboard.py`
+
+```
+python scripts/dashboard.py <批次目錄> [選項]
+
+  --watch [秒]   輪詢並重印終端表格，預設 30 秒
+  --html         產生 <批次>/dashboard.html
+  --json         印出機器可讀的單行摘要（供 agent 解析）
+  --failed       只列失敗的格，附 error 全文
+  --rebuild      忽略 progress.json，掃描產物重建後印出
+```
+
+終端輸出的形式：
+
+```
+batch b1   gpu=V100-SXM2-32GB  precision=fp16  commit=8e0ffbc
+stage       total   done  run  fail  skip   pending   elapsed    eta
+calib           6      6    -     -     -         0     0:24:1        -
+train          27     11    1     1     -        14     1:28:4   1:52:0
+rayscale      108      0    -     -     -       108         -        -
+eval         1080      0    -     -     -      1080         -        -
+--------------------------------------------------------------------
+FAILED  train/N2/pie_0031   CalibrationMismatch: lr.N2 calibrated_for
+        {gpu: V100...} but context has {gpu: RTX-5090...}
+```
+
+**ETA 取同一 stage 已完成格的秒數中位數 × 剩餘格數**，不用平均——
+先驗實驗已見過同一設定在不同影像上耗時差數倍（一張 200 步仍在下降、另一張第 45 步就停住），
+平均會被離群值帶偏。
+
+`--json` 的輸出固定為單行，欄位為 `summary` 加上 `stages`，供實驗 agent 直接判斷是否該介入。
+
+### 2.5 給實驗 agent 的使用約定
+
+- 輪詢一律用 `--json`，不要解析終端表格。
+- 看到 `failed > 0` 時用 `--failed` 取完整錯誤，**不要自行重跑**——先回報。
+- `--watch` 只在人看的時候用。
+- 儀表板**不得**啟動或終止任何訓練行程。
+
+---
+
+## 3. 設定雜湊與斷點續跑
+
+```python
+# src/utils/cellid.py
+def config_hash(cfg: dict) -> str:
+    """sha256(canonical_json(cfg))[:12]。
+
+    canonical_json：鍵排序、浮點以 repr 輸出、不含 None 欄位。
+    """
+```
+
+`cfg` 必含：`spec_version`、`model`、`resolution`、`guidance`、`steps`、`strength`、
+`gpu`、`precision`、`condition`、`loss_params`、`lr`、`tau`、`purify`、`seed`、`image_id`。
+
+**「已完成」的判定是：產物存在 **且** 該 cell 的 `meta.json` 的 `config_hash` 等於當前設定的雜湊。**
+只看檔名會在改了設定卻沒改路徑時靜默沿用舊結果——那正是本專案重複十次的缺陷型態。
+
+`gpu` 與 `precision` 進雜湊，所以換卡會使全部格點的雜湊改變、自動視為未完成。
+這是刻意的：兩張卡的數值路徑不同，混跑會產生無法歸因的變因。
+
+---
+
+## 4. 產物落盤
+
+```
+runs/<批次>/
+  env.json                    卡別、精度、torch/cuda 版本、commit、spec_version
+  progress.json               進度快取
+  dashboard.html              儀表板渲染（可重複產生）
+  grid.csv                    每一格一列，全部指標
+  calib/
+    calibration.json          校準表（不是 .yaml，見 §0）
+    micro_bench.csv           §7 各項措施的實測倍率
+    precision_equiv.csv       fp16／bf16 對 fp32 的等價性驗證
+    strength_sweep.csv
+    editable_filter.csv       編輯有效性過濾的逐張結果
+  <條件>/<影像>/
+    meta.json                 config_hash 與設定全文
+    phi.pt                    最大 τ 的參數
+    phi_tau{τ}.pt             射線縮放後的參數
+    train.csv                 逐步的 loss 與監看量
+    history.png
+    x_def_tau{τ}.png
+    residual_tau{τ}.png       含放大倍率標註
+    x0_trace/                 逐去噪步的 x̂₀ 解碼影像（見 §4.1）
+      x0_step{j:03d}.png
+    attn/                     cross-attention map（見 §4.2）
+      tau{τ}_seed{k}_res{R}_layer{L}.png
+      tau{τ}_seed{k}_agg.png          跨層跨步聚合圖
+      attn_stats.csv                  逐層逐步的數值，供重繪
+    purify/<算子>_<強度>/
+      x_purified.png
+      edit_seed{k}.png
+      x0_trace/                       淨化後編輯的中間圖
+      attn/                           淨化後編輯的 attention map
+  control/<影像>/             φ=0 的同淨化對照，跨條件共用
+    x0_trace/, attn/          對照側的中間圖與 attention map
+    purify/<算子>_<強度>/edit_seed{k}.png
+  compare.html                人眼比對頁（主判準）
+  attention.html              attention map 對照頁
+```
+
+### 4.1 中間圖的留存規則
+
+spec §8.3 要求留存**全部**中間圖，不得只存最終結果：原圖、防禦生成的逐步 x̂₀、
+防禦圖、殘差視覺化（含放大倍率標註）、各淨化強度的淨化圖、兩側編輯結果。
+`src/utils/artifacts.py` 已提供 `save_x0_trace`、`save_residual`、`save_spectrum_plot`。
+
+**取樣規則**：x̂₀ 是 latent，每步都解碼成本不低（50 步 × VAE decode）。
+故逐步收集但**每 5 步解碼一張**，並固定包含第 0 步與最後一步。
+`--full-trace` 旗標可改為每步都存，供需要細看的個案使用。
+取樣間隔寫進 `meta.json`，報告不得把取樣後的軌跡當成完整軌跡引述。
+
+### 4.2 attention map 的留存規則
+
+**這是主判準的一部分，不是附屬產物。** 對比論文中 AdvPaint（self- 與 cross-attention 擾亂）、
+PromptFlare（cross-attention decoy）與本專案的 N1 都以 attention 為著力點，
+沒有 attention map 就無法說明「防禦是否真的讓那些層失效」。
+
+| 項目 | 規則 |
+|---|---|
+| 擷取方式 | `src/models/attention.py` 的 forward pre-hook，**不換 attention processor** |
+| 涵蓋範圍 | SDXL 的 **70 個 `attn2` 層**全部擷取；存圖時依解析度分組（64²、32²） |
+| 時間軸 | 逐去噪步擷取，**每 5 步存一張**，固定含第 0 步與最後一步 |
+| 兩側都要 | 防禦側與 φ=0 對照側**都要存**，否則無法比對 |
+| 淨化後 | 每個淨化算子的編輯路徑也要存，這是「淨化是否把 attention 擾亂洗掉」的直接證據 |
+| 聚合圖 | 另存跨層跨步的聚合圖（`aggregate_token_attention`），供快速判讀 |
+| 數值 | `attn_stats.csv` 存逐層逐步的統計量（質量、熵、散度），使圖可重繪、結論可重算 |
+
+**體積控制**：70 層 × 50 步 × 全部格點會產生極大量檔案。故：
+逐層原圖只在 **τ = 0.20（主表所在點）、seed 0** 這一組完整存；
+其餘格點只存聚合圖與 `attn_stats.csv`。
+完整存的那一組在 `meta.json` 標記 `attn_full=true`。此規則的理由是體積，
+**不是因為其餘格點不重要**——`attn_stats.csv` 在全部格點都有，數值結論不受影響。
+
+### `grid.csv` 欄位
+
+| 群組 | 欄位 |
+|---|---|
+| 識別 | `cell_id, config_hash, condition, image_id, subtask, tau, purify_kind, purify_strength, seed` |
+| 保真 | `fid_psnr, fid_lpips, fid_ssim, fid_linf, fid_fsim, fid_vifp, fid_dists, fid_niqe, acutance_ratio, rms, frac_gt_16_255` |
+| 抗編輯 | `edit_clip, edit_siglip, edit_psnr, edit_lpips, edit_ssim, edit_mse, edit_fsim, edit_vifp` |
+| 抗淨化 | `effect_abs, effect_control, retention, retention_usable` |
+| 診斷 | `steps_used, stop_reason, seconds, disp_mean_px, disp_max_px, proxy_gap` |
+| 標記 | `modified_from_paper, skipped_reason` |
+
+`retention_usable` 為布林：`effect(identity) < 3 × 量測標準差` 時為 `false`，
+該列的 `retention` 不進任何統計。這一欄的存在是為了讓先驗實驗那種 −43、−98 的數字
+在資料層就被標出，而不是等到報表階段才發現。
+
+---
+
+## 5. 測試清單
+
+| 測試 | 具體斷言 |
+|---|---|
+| `test_composite.py` | (a) 全成員 φ=0 時輸出與模組不存在**逐位元相同**；(b) `disable()` 後 LoRA 的 forward hook 由 `unet.named_modules()` 掃不到；(c) `param_groups()` 的兩組參數不相交且聯集等於 `parameters()` |
+| `test_calibration.py` | (a) context 不符時 raise 且訊息含雙方內容；(b) 缺 `gpu` 或 `precision` 欄位時 raise；(c) **不存在任何回退路徑**——以 `pytest.raises` 覆蓋全部未命中情形 |
+| `test_baselines.py` | (a) 五篇的 `eps_inf`／`steps` 與 `SURVEY` 表一致；(b) `modified_from_paper` 為真而 `modification_note` 為空時建構失敗；(c) 報表產生器對該列輸出加註 |
+| `test_ray_scale_budget.py` | 縮放後 `LPIPS(x_def, x)` 落在目標 τ 的 ±2% 內，對位移場與加性兩種參數化都成立 |
+| `test_shared_control.py` | 同一 `(影像, 淨化, 種子)` 的 φ=0 對照，跨兩個不同條件取到的檔案路徑相同且只被計算一次 |
+| `test_purify_new_ops.py` | 五個新算子的 `forward`／`evaluate` 前向差距等於回報的 `proxy_gap`；`differentiable` 為真者梯度非零 |
+| `test_scale_n.py` | `n` 由 3 改為 5 時全流程不需改動其他設定；以 `grep` 斷言原始碼中不存在字面值樣本數 |
+| `test_progress.py` | (a) 寫入期間持續讀取 `progress.json` 永遠可解析（原子性）；(b) 刪除 `progress.json` 後 `--rebuild` 產生相同內容；(c) `skipped` 不計入 `failed` |
+| `test_gitignore_paths.py` | 對全部規劃中的產物路徑跑 `git check-ignore`，任何一個被排除即失敗 |
+| `test_attn_capture.py` | (a) 在 SDXL 上掃出的 `attn2` 層數等於 **70**；(b) 防禦側與對照側的 map 形狀一致可相減；(c) 淨化後的路徑也產生 map；(d) `attn_stats.csv` 的列數等於「層數 × 取樣步數」 |
+| `test_artifacts_complete.py` | 一格跑完後，`x0_trace/`、`attn/`、`residual_*.png`、`x_purified.png`、`edit_seed*.png` 全部存在；缺任一項即失敗 |
+
+最後一支是把 §0 那個檢查變成迴歸測試。它把「歷史上靜默漏掉 273 個檔案」這件事
+從人工紀律變成程式保證。

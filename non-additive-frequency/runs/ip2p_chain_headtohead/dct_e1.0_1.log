@@ -1,0 +1,96 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00, 10.35it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3451.70it/s]
+Loading pipeline components...:  83%|████████▎ | 5/6 [00:00<00:00, 13.54it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 15.24it/s]
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+IP2P 線：13 張、條件 ['dct_shield']、steps=100 s_T=7.5 s_I=1.5 seed=20260812
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-0.9921568632125854,1.0]
+  warnings.warn(
+    [dct_shield] step    0 loss 124.7391
+    [dct_shield] step  250 loss 45.0917
+    [dct_shield] step  500 loss 41.1430
+    [dct_shield] step  750 loss 38.3869
+    [dct_shield] step  999 loss 36.4915
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,1.0]
+  warnings.warn(
+task_attr_mod_color_121425       dct_shield     r=1.0000 dists=0.1348 lpips=0.5844 effect=0.5090 (582s)
+    [dct_shield] step    0 loss 132.6254
+    [dct_shield] step  250 loss 49.2879
+    [dct_shield] step  500 loss 46.4344
+    [dct_shield] step  750 loss 44.6108
+    [dct_shield] step  999 loss 43.1572
+task_attr_mod_color_202962       dct_shield     r=1.0000 dists=0.0958 lpips=0.6196 effect=0.7172 (588s)
+    [dct_shield] step    0 loss 103.9553
+    [dct_shield] step  250 loss 59.2740
+    [dct_shield] step  500 loss 56.6622
+    [dct_shield] step  750 loss 55.0010
+    [dct_shield] step  999 loss 53.5245
+task_attr_mod_color_71564        dct_shield     r=1.0000 dists=0.0518 lpips=0.4240 effect=0.5961 (582s)
+    [dct_shield] step    0 loss 101.8557
+    [dct_shield] step  250 loss 64.5570
+    [dct_shield] step  500 loss 62.1415
+    [dct_shield] step  750 loss 60.5777
+    [dct_shield] step  999 loss 59.1659
+task_env_weather_137030          dct_shield     r=1.0000 dists=0.0461 lpips=0.3786 effect=0.8735 (582s)
+    [dct_shield] step    0 loss 104.1422
+    [dct_shield] step  250 loss 64.0387
+    [dct_shield] step  500 loss 61.2222
+    [dct_shield] step  750 loss 59.4973
+    [dct_shield] step  999 loss 57.8313
+task_env_weather_262001          dct_shield     r=1.0000 dists=0.0301 lpips=0.3763 effect=0.5441 (579s)
+    [dct_shield] step    0 loss 108.5382
+    [dct_shield] step  250 loss 53.8609
+    [dct_shield] step  500 loss 51.2903
+    [dct_shield] step  750 loss 49.4806
+    [dct_shield] step  999 loss 47.9738
+task_obj_add_161232              dct_shield     r=1.0000 dists=0.0489 lpips=0.4640 effect=0.5329 (583s)
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,0.9137254953384399]
+  warnings.warn(
+    [dct_shield] step    0 loss 139.5793
+    [dct_shield] step  250 loss 61.3327
+    [dct_shield] step  500 loss 57.6944
+    [dct_shield] step  750 loss 55.5487
+    [dct_shield] step  999 loss 53.7807
+task_obj_add_441549              dct_shield     r=1.0000 dists=0.0988 lpips=0.5759 effect=0.7273 (582s)
+    [dct_shield] step    0 loss 111.3407
+    [dct_shield] step  250 loss 65.9746
+    [dct_shield] step  500 loss 63.2822
+    [dct_shield] step  750 loss 61.4746
+    [dct_shield] step  999 loss 60.0538
+task_obj_add_697862              dct_shield     r=1.0000 dists=0.0843 lpips=0.4192 effect=0.5740 (582s)
+    [dct_shield] step    0 loss 123.9013
+    [dct_shield] step  250 loss 69.7483
+    [dct_shield] step  500 loss 66.8308
+    [dct_shield] step  750 loss 65.1397
+    [dct_shield] step  999 loss 63.7698
+task_obj_remove_271889           dct_shield     r=1.0000 dists=0.0728 lpips=0.4904 effect=0.6118 (579s)
+    [dct_shield] step    0 loss 122.6063
+    [dct_shield] step  250 loss 62.4760
+    [dct_shield] step  500 loss 59.3916
+    [dct_shield] step  750 loss 56.9592
+    [dct_shield] step  999 loss 55.2180
+task_obj_remove_560476           dct_shield     r=1.0000 dists=0.0667 lpips=0.5081 effect=0.7734 (579s)
+    [dct_shield] step    0 loss 132.9596
+    [dct_shield] step  250 loss 61.8025
+    [dct_shield] step  500 loss 57.7770
+    [dct_shield] step  750 loss 55.1251
+    [dct_shield] step  999 loss 52.8394
+task_obj_swap_joint_mask_310537  dct_shield     r=1.0000 dists=0.0730 lpips=0.5303 effect=0.6740 (581s)
+    [dct_shield] step    0 loss 123.2538
+    [dct_shield] step  250 loss 67.1197
+    [dct_shield] step  500 loss 64.7985
+    [dct_shield] step  750 loss 63.1045
+    [dct_shield] step  999 loss 61.3842
+task_obj_swap_joint_mask_890199  dct_shield     r=1.0000 dists=0.0471 lpips=0.4500 effect=0.5434 (580s)
+    [dct_shield] step    0 loss 125.0149
+    [dct_shield] step  250 loss 71.2733
+    [dct_shield] step  500 loss 68.8624
+    [dct_shield] step  750 loss 67.1379
+    [dct_shield] step  999 loss 65.4714
+task_obj_swap_rand_mask_598617   dct_shield     r=1.0000 dists=0.0362 lpips=0.3968 effect=0.4895 (575s)
+
+表：runs/m0820/dct_e1.0_1/results.csv（13 列）

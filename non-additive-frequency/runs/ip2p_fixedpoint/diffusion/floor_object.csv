@@ -1,0 +1,11 @@
+image,condition,budget_target,purifier,effect_mean,effect_sd,effect_identity_mean,effect_identity_sd,retention,siglip_sim,siglip_blocked,edit_strength,usable,seconds
+task_env_weather_112463,none,floor,identity,0.0,0.0,0.0,0.0,,1.0,False,0.8,True,594.2
+task_env_weather_112463,none,floor,gridpure,0.33821,0.18061,0.0,0.0,,0.88776,False,0.8,True,594.2
+task_obj_remove_380621,none,floor,identity,0.0,0.0,0.0,0.0,,1.0,False,0.8,True,571.1
+task_obj_remove_380621,none,floor,gridpure,0.29704,0.08456,0.0,0.0,,0.9382,False,0.8,True,571.1
+task_obj_swap_joint_mask_276754,none,floor,identity,0.0,0.0,0.0,0.0,,1.0,False,0.8,True,571.1
+task_obj_swap_joint_mask_276754,none,floor,gridpure,0.09123,0.0559,0.0,0.0,,0.96793,False,0.8,True,571.1
+task_obj_swap_joint_mask_533428,none,floor,identity,0.0,0.0,0.0,0.0,,1.0,False,0.8,True,570.6
+task_obj_swap_joint_mask_533428,none,floor,gridpure,0.38533,0.06682,0.0,0.0,,0.95871,False,0.8,True,570.6
+task_obj_swap_rand_mask_417469,none,floor,identity,0.0,0.0,0.0,0.0,,1.0,False,0.8,True,570.5
+task_obj_swap_rand_mask_417469,none,floor,gridpure,0.19027,0.00175,0.0,0.0,,0.92937,False,0.8,True,570.5

@@ -1,0 +1,2 @@
+image,condition,stage1_seconds,total_seconds,fid_lpips,fid_ssim,fid_dists,fid_psnr,fid_clip_img,fid_nima,fid_cnniqa,edit_lpips,edit_clip_orig,edit_clip_def,edit_clip_drop,edit_siglip_orig,edit_siglip_def,edit_siglip_drop
+butterfly,ourStage1_BDIA,0.0,185.9,0.2616,0.7886,0.1193,22.2963,0.9803,4.9617,0.5973,0.254,0.2684,0.2783,-0.0098,0.0562,0.0703,-0.0141

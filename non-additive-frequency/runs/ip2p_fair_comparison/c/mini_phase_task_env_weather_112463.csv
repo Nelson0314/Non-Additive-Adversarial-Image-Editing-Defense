@@ -1,0 +1,5 @@
+image,condition,budget_target,purifier,effect_mean,effect_sd,effect_identity_mean,effect_identity_sd,retention,edit_strength,usable,seconds
+task_env_weather_112463,phase,native,identity,0.25797,0.02353,0.25797,0.02353,1.0,0.8,True,583.3
+task_env_weather_112463,phase,native,blur1,0.26883,0.0287,0.25797,0.02353,1.04209,0.8,True,583.3
+task_env_weather_112463,phase,native,jpeg75,0.26469,0.01642,0.25797,0.02353,1.02605,0.8,True,583.3
+task_env_weather_112463,phase,native,crop_resize0.1,0.55742,0.00918,0.25797,0.02353,2.16078,0.8,True,583.3

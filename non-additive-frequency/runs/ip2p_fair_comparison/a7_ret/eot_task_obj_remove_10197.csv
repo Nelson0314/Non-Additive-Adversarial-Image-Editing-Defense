@@ -1,0 +1,5 @@
+image,condition,budget_target,purifier,effect_mean,effect_sd,effect_identity_mean,effect_identity_sd,retention,edit_strength,usable,seconds
+task_obj_remove_10197,phase,native,identity,0.45891,0.21135,0.45891,0.21135,1.0,0.8,False,882.6
+task_obj_remove_10197,phase,native,blur1,0.43203,0.12977,0.45891,0.21135,0.94142,0.8,False,882.6
+task_obj_remove_10197,phase,native,jpeg75,0.46523,0.197,0.45891,0.21135,1.01377,0.8,False,882.6
+task_obj_remove_10197,phase,native,crop_resize0.1,0.58549,0.0863,0.45891,0.21135,1.27582,0.8,False,882.6

@@ -1,0 +1,20 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  17%|█▋        | 1/6 [00:00<00:00,  7.81it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 7054.51it/s]
+Loading pipeline components...:  83%|████████▎ | 5/6 [00:00<00:00, 16.23it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 16.90it/s]
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/venv/main/lib/python3.12/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/venv/main/lib/python3.12/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+IP2P 線：6 張、條件 ['phase']、steps=100 s_T=7.5 s_I=1.5 seed=20260812
+/venv/main/lib/python3.12/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,1.0]
+  warnings.warn(
+task_attr_mod_color_32648        phase          r=1.3000 dists=0.0371 lpips=0.1590 effect=0.1688 (75s)
+task_env_weather_181583          phase          r=1.3000 dists=0.0326 lpips=0.2080 effect=0.5933 (77s)
+task_obj_add_340466              phase          r=1.3000 dists=0.0447 lpips=0.1158 effect=0.2210 (77s)
+task_obj_remove_10197            phase          r=1.3000 dists=0.0467 lpips=0.2680 effect=0.4458 (77s)
+task_obj_remove_657585           phase          r=1.3000 dists=0.0353 lpips=0.1022 effect=0.2610 (77s)
+task_obj_swap_rand_mask_298147   phase          r=1.3000 dists=0.0981 lpips=0.3427 effect=0.5824 (76s)
+
+表：runs/t0820/phase_t1.30_3/results.csv（6 列）

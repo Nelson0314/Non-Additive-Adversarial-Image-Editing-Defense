@@ -1,0 +1,35 @@
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00, 10.78it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3697.03it/s]
+Loading pipeline components...:  67%|██████▋   | 4/6 [00:00<00:00, 10.38it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 12.82it/s]
+There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+    [dct_shield] step    0 loss 98.7313
+    [dct_shield] step  250 loss 42.0126
+    [dct_shield] step  500 loss 39.1365
+    [dct_shield] step  750 loss 37.2528
+    [dct_shield] step  999 loss 35.7249
+raccoon_00     dct_shield     eps=1.0000 lpips=0.4941 dists=0.0473 effect=0.6408 (148s)
+    [dct_shield_y] step    0 loss 99.5452
+    [dct_shield_y] step  250 loss 43.7743
+    [dct_shield_y] step  500 loss 40.6189
+    [dct_shield_y] step  750 loss 36.7929
+    [dct_shield_y] step  999 loss 34.5114
+raccoon_00     dct_shield_y   eps=1.0000 lpips=0.6105 dists=0.0652 effect=0.6428 (148s)
+    [dct_shield] step    0 loss 108.0943
+    [dct_shield] step  250 loss 40.9001
+    [dct_shield] step  500 loss 38.2312
+    [dct_shield] step  750 loss 36.1126
+    [dct_shield] step  999 loss 34.4269
+shiba_00       dct_shield     eps=1.0000 lpips=0.5611 dists=0.0361 effect=0.7426 (148s)
+    [dct_shield_y] step    0 loss 109.0999
+    [dct_shield_y] step  250 loss 40.3739
+    [dct_shield_y] step  500 loss 36.8880
+    [dct_shield_y] step  750 loss 34.0035
+    [dct_shield_y] step  999 loss 31.6290
+shiba_00       dct_shield_y   eps=1.0000 lpips=0.6671 dists=0.0764 effect=0.7488 (148s)
+
+表：runs/dctshield/g2/results.csv（4 列）

@@ -1,0 +1,6 @@
+image,condition,attacker,instruction,task,radius,unreachable,pixel_gate_sigma,edit_steps,s_t,s_i,edit_seed,modified_from_paper,fid_lpips,fid_ssim,fid_psnr,fid_vif_p,fid_dists,edit_lpips,edit_ssim,edit_psnr,edit_vif_p,edit_dists,fid_linf,fid_rms,total_seconds
+task_attr_mod_color_22137,dct_shield,instruct-pix2pix,turn the color of ring to be gray,,1.0,False,0.0,100,7.5,1.5,20260812,False,0.54993,0.78467,30.234,0.34334,0.08121,0.54867,0.64541,16.452,0.01271,0.58886,0.22872,0.03078,599.2
+task_env_weather_195273,dct_shield,instruct-pix2pix,transform the setting to fall with colorful leaves,,1.0,False,0.0,100,7.5,1.5,20260812,False,0.31798,0.90896,29.013,0.58776,0.05714,0.70736,0.30677,9.767,0.08857,0.3704,0.29563,0.03543,596.4
+task_obj_add_44802,dct_shield,instruct-pix2pix,Add clouds,,1.0,False,0.0,100,7.5,1.5,20260812,False,0.40338,0.88218,29.135,0.54453,0.03582,0.567,0.54236,13.254,0.21663,0.32675,0.25574,0.03493,596.6
+task_obj_remove_388764,dct_shield,instruct-pix2pix,Remove green chair,,1.0,False,0.0,100,7.5,1.5,20260812,False,0.50517,0.87608,29.639,0.5168,0.06167,0.70216,0.39163,13.696,0.07045,0.59663,0.24507,0.03296,597.7
+task_obj_swap_rand_mask_11376,dct_shield,instruct-pix2pix,Replace the glass dome with house,,1.0,False,0.0,100,7.5,1.5,20260812,False,0.35455,0.88731,28.961,0.53973,0.03496,0.58843,0.40404,13.175,0.11983,0.3601,0.24386,0.03564,598.8

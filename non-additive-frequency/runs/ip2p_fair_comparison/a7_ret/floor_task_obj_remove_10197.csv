@@ -1,0 +1,5 @@
+image,condition,budget_target,purifier,effect_mean,effect_sd,effect_identity_mean,effect_identity_sd,retention,edit_strength,usable,seconds
+task_obj_remove_10197,none,floor,identity,0.0,0.0,0.0,0.0,,0.8,True,824.7
+task_obj_remove_10197,none,floor,blur1,0.42172,0.18307,0.0,0.0,,0.8,True,824.7
+task_obj_remove_10197,none,floor,jpeg75,0.13624,0.02148,0.0,0.0,,0.8,True,824.7
+task_obj_remove_10197,none,floor,crop_resize0.1,0.59354,0.13812,0.0,0.0,,0.8,True,824.7

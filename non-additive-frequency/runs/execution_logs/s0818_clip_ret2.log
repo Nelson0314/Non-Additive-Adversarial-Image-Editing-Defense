@@ -1,0 +1,22 @@
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  17%|█▋        | 1/6 [00:00<00:00,  8.44it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 2954.09it/s]
+Loading pipeline components...:  83%|████████▎ | 5/6 [00:00<00:00, 14.58it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 13.71it/s]
+There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+=== shiba_00 / add__human ===
+    分母塌陷：effect(identity) mean=0.0520 sd=0.0298，本格的 retention 不可用
+    identity=0.0520, blur1=0.3882, noise0.05=0.7357, quantize16=0.4264, jpeg75=0.1649, jpeg30=0.2599, crop_resize0.1=0.4918, jpeg_then_resize75=0.3244, adverse_cleaner=0.1985
+=== shiba_00 / phase__human ===
+    identity=0.2788, blur1=0.4017, noise0.05=0.7316, quantize16=0.4349, jpeg75=0.2766, jpeg30=0.3305, crop_resize0.1=0.4549, jpeg_then_resize75=0.3499, adverse_cleaner=0.2722
+=== raccoon_00 / add__human ===
+    分母塌陷：effect(identity) mean=0.1080 sd=0.0788，本格的 retention 不可用
+    identity=0.1080, blur1=0.4451, noise0.05=0.5937, quantize16=0.2450, jpeg75=0.1913, jpeg30=0.2882, crop_resize0.1=0.5220, jpeg_then_resize75=0.4100, adverse_cleaner=0.2108
+=== raccoon_00 / phase__human ===
+    分母塌陷：effect(identity) mean=0.2921 sd=0.1642，本格的 retention 不可用
+    identity=0.2921, blur1=0.4299, noise0.05=0.5919, quantize16=0.2585, jpeg75=0.3187, jpeg30=0.3238, crop_resize0.1=0.5139, jpeg_then_resize75=0.3570, adverse_cleaner=0.3116
+
+表：runs/s0818_clip/retention_2.csv（36 列）

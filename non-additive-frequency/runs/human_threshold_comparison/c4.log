@@ -1,0 +1,277 @@
+[hb5] s1_cheap gpu=4 :: /nfs/home/nelson0314/venvs/wacv/bin/python scripts/apa_baseline.py --out runs/hb5/g2 --data data/lo_aligned --conditions apa_weak mist dia_r --images man_02 woman_02 dog_03 horse_03 cat_01
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3191.42it/s]
+Loading pipeline components...:  50%|█████     | 3/6 [00:00<00:00, 14.88it/s]Loading pipeline components...:  83%|████████▎ | 5/6 [00:00<00:00, 14.53it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 14.54it/s]
+There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+
+########## cat_01 (cat) ##########
+=== cat_01 / apa_weak ===
+  [align_apa_native] step    0  loss=0.0524
+  [align_apa_native] step   20  loss=0.3571
+  [align_apa_native] step   40  loss=0.1389
+  [align_apa_native] step   60  loss=0.0186
+  [align_apa_native] step   80  loss=0.0104
+  [align_apa_native] step  100  loss=0.0159
+  [align_apa_native] step  120  loss=0.0214
+  [align_apa_native] step  140  loss=0.0099
+  [align_apa_native] step  160  loss=0.0357
+  [align_apa_native] step  180  loss=0.0321
+  [align_apa_native] step  199  loss=0.0342
+  [attack_native] iter   0  reward=-1.2561  R=-1.0000  fid_pen=0.2561  linf=0.040
+  [attack_native] iter   2  reward=-1.1836  R=-0.8987  fid_pen=0.2849  linf=0.120
+  [attack_native] iter   4  reward=-1.1662  R=-0.7999  fid_pen=0.3663  linf=0.200
+  [attack_native] iter   6  reward=-1.1666  R=-0.7546  fid_pen=0.4120  linf=0.280
+  [attack_native] iter   8  reward=-1.1653  R=-0.7630  fid_pen=0.4023  linf=0.360
+  [attack_native] iter   9  reward=-1.1603  R=-0.7772  fid_pen=0.3830  linf=0.400
+Loading pretrained model NIMA from /nfs/home/nelson0314/.cache/torch/hub/pyiqa/NIMA_InceptionV2_ava-b0c77c00.pth
+Loading pretrained model CNNIQA from /nfs/home/nelson0314/.cache/torch/hub/pyiqa/CNNIQA_koniq10k-e6f14c91.pth
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 8402.46it/s]
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 9550.89it/s]
+[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
+[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
+Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights:  81%|████████▏ | 332/408 [00:00<00:00, 3310.39it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 3168.76it/s]
+{'image': 'cat_01', 'condition': 'apa_weak', 'stage1_seconds': 46.6, 'total_seconds': 147.3, 'fid_lpips': 0.1614, 'fid_ssim': 0.8303, 'fid_dists': 0.1034, 'fid_psnr': 20.6563, 'fid_clip_img': 0.9173, 'fid_nima': 5.157, 'fid_cnniqa': 0.6287, 'edit_lpips': 0.2376, 'edit_clip_orig': 0.2601, 'edit_clip_def': 0.2602, 'edit_clip_drop': -0.0001, 'edit_siglip_orig': 0.0917, 'edit_siglip_def': 0.0927, 'edit_siglip_drop': -0.001}
+=== cat_01 / mist ===
+  [mist] step    0  L=3.770174e+04  Linf01=0.0627  L2=64.039
+  [mist] step   20  L=1.841334e+04  Linf01=0.0627  L2=71.708
+  [mist] step   40  L=1.586979e+04  Linf01=0.0627  L2=78.353
+  [mist] step   60  L=1.007448e+04  Linf01=0.0627  L2=81.663
+  [mist] step   80  L=1.707624e+04  Linf01=0.0627  L2=84.040
+  [mist] step   99  L=1.565096e+04  Linf01=0.0627  L2=85.516
+{'image': 'cat_01', 'condition': 'mist', 'stage1_seconds': 0.0, 'total_seconds': 85.1, 'fid_lpips': 0.6177, 'fid_ssim': 0.8251, 'fid_dists': 0.1483, 'fid_psnr': 26.3363, 'fid_clip_img': 0.9097, 'fid_nima': 4.6613, 'fid_cnniqa': 0.7224, 'edit_lpips': 0.7778, 'edit_clip_orig': 0.2601, 'edit_clip_def': 0.2464, 'edit_clip_drop': 0.0138, 'edit_siglip_orig': 0.0917, 'edit_siglip_def': 0.0967, 'edit_siglip_drop': -0.005}
+=== cat_01 / dia_r ===
+  [dia_r] step    0  L=1.062262e+02  Linf01=0.0020  L2=3.477
+  [dia_r] step   19  L=6.859218e+02  Linf01=0.0250  L2=16.408
+{'image': 'cat_01', 'condition': 'dia_r', 'stage1_seconds': 0.0, 'total_seconds': 150.3, 'fid_lpips': 0.2266, 'fid_ssim': 0.9903, 'fid_dists': 0.0165, 'fid_psnr': 40.6755, 'fid_clip_img': 0.9805, 'fid_nima': 5.4699, 'fid_cnniqa': 0.7055, 'edit_lpips': 0.3446, 'edit_clip_orig': 0.2601, 'edit_clip_def': 0.2604, 'edit_clip_drop': -0.0002, 'edit_siglip_orig': 0.0917, 'edit_siglip_def': 0.0877, 'edit_siglip_drop': 0.004}
+
+########## dog_03 (dog) ##########
+=== dog_03 / apa_weak ===
+  [align_apa_native] step    0  loss=0.0577
+  [align_apa_native] step   20  loss=0.3915
+  [align_apa_native] step   40  loss=0.1460
+  [align_apa_native] step   60  loss=0.0185
+  [align_apa_native] step   80  loss=0.0111
+  [align_apa_native] step  100  loss=0.0137
+  [align_apa_native] step  120  loss=0.0193
+  [align_apa_native] step  140  loss=0.0097
+  [align_apa_native] step  160  loss=0.0408
+  [align_apa_native] step  180  loss=0.0357
+  [align_apa_native] step  199  loss=0.0389
+  [attack_native] iter   0  reward=-1.2580  R=-1.0000  fid_pen=0.2580  linf=0.040
+  [attack_native] iter   2  reward=-1.1414  R=-0.7572  fid_pen=0.3842  linf=0.120
+  [attack_native] iter   4  reward=-1.1163  R=-0.5927  fid_pen=0.5236  linf=0.200
+  [attack_native] iter   6  reward=-1.1129  R=-0.5539  fid_pen=0.5590  linf=0.280
+  [attack_native] iter   8  reward=-1.1118  R=-0.5818  fid_pen=0.5299  linf=0.360
+  [attack_native] iter   9  reward=-1.1112  R=-0.6054  fid_pen=0.5058  linf=0.400
+{'image': 'dog_03', 'condition': 'apa_weak', 'stage1_seconds': 47.2, 'total_seconds': 131.0, 'fid_lpips': 0.2087, 'fid_ssim': 0.7171, 'fid_dists': 0.1277, 'fid_psnr': 18.211, 'fid_clip_img': 0.9671, 'fid_nima': 4.9282, 'fid_cnniqa': 0.571, 'edit_lpips': 0.4188, 'edit_clip_orig': 0.2573, 'edit_clip_def': 0.2568, 'edit_clip_drop': 0.0005, 'edit_siglip_orig': 0.0807, 'edit_siglip_def': 0.0725, 'edit_siglip_drop': 0.0082}
+=== dog_03 / mist ===
+  [mist] step    0  L=3.194466e+04  Linf01=0.0627  L2=63.975
+  [mist] step   20  L=1.551891e+04  Linf01=0.0627  L2=71.005
+  [mist] step   40  L=1.337130e+04  Linf01=0.0627  L2=77.230
+  [mist] step   60  L=7.335520e+03  Linf01=0.0627  L2=80.572
+  [mist] step   80  L=1.465144e+04  Linf01=0.0627  L2=82.801
+  [mist] step   99  L=1.310192e+04  Linf01=0.0627  L2=84.174
+{'image': 'dog_03', 'condition': 'mist', 'stage1_seconds': 0.0, 'total_seconds': 85.5, 'fid_lpips': 0.5646, 'fid_ssim': 0.854, 'fid_dists': 0.1204, 'fid_psnr': 26.4736, 'fid_clip_img': 0.9432, 'fid_nima': 4.6076, 'fid_cnniqa': 0.685, 'edit_lpips': 0.6659, 'edit_clip_orig': 0.2573, 'edit_clip_def': 0.2582, 'edit_clip_drop': -0.0009, 'edit_siglip_orig': 0.0807, 'edit_siglip_def': 0.0967, 'edit_siglip_drop': -0.016}
+=== dog_03 / dia_r ===
+  [dia_r] step    0  L=1.543938e+02  Linf01=0.0020  L2=3.477
+  [dia_r] step   19  L=8.014163e+02  Linf01=0.0250  L2=17.794
+{'image': 'dog_03', 'condition': 'dia_r', 'stage1_seconds': 0.0, 'total_seconds': 149.9, 'fid_lpips': 0.1817, 'fid_ssim': 0.9906, 'fid_dists': 0.0137, 'fid_psnr': 39.9713, 'fid_clip_img': 0.9716, 'fid_nima': 5.2152, 'fid_cnniqa': 0.6754, 'edit_lpips': 0.4599, 'edit_clip_orig': 0.2573, 'edit_clip_def': 0.27, 'edit_clip_drop': -0.0127, 'edit_siglip_orig': 0.0807, 'edit_siglip_def': 0.0882, 'edit_siglip_drop': -0.0075}
+
+########## horse_03 (horse) ##########
+=== horse_03 / apa_weak ===
+  [align_apa_native] step    0  loss=0.0463
+  [align_apa_native] step   20  loss=0.3414
+  [align_apa_native] step   40  loss=0.1221
+  [align_apa_native] step   60  loss=0.0182
+  [align_apa_native] step   80  loss=0.0088
+  [align_apa_native] step  100  loss=0.0115
+  [align_apa_native] step  120  loss=0.0175
+  [align_apa_native] step  140  loss=0.0087
+  [align_apa_native] step  160  loss=0.0318
+  [align_apa_native] step  180  loss=0.0285
+  [align_apa_native] step  199  loss=0.0319
+  [attack_native] iter   0  reward=-1.2560  R=-1.0000  fid_pen=0.2560  linf=0.040
+  [attack_native] iter   2  reward=-1.1601  R=-0.8500  fid_pen=0.3101  linf=0.120
+  [attack_native] iter   4  reward=-1.1376  R=-0.7299  fid_pen=0.4077  linf=0.200
+  [attack_native] iter   6  reward=-1.1466  R=-0.6535  fid_pen=0.4932  linf=0.280
+  [attack_native] iter   8  reward=-1.1491  R=-0.6549  fid_pen=0.4943  linf=0.360
+  [attack_native] iter   9  reward=-1.1390  R=-0.6835  fid_pen=0.4555  linf=0.400
+{'image': 'horse_03', 'condition': 'apa_weak', 'stage1_seconds': 47.1, 'total_seconds': 130.6, 'fid_lpips': 0.2071, 'fid_ssim': 0.7174, 'fid_dists': 0.1001, 'fid_psnr': 18.6063, 'fid_clip_img': 0.9481, 'fid_nima': 4.8172, 'fid_cnniqa': 0.6955, 'edit_lpips': 0.2328, 'edit_clip_orig': 0.3151, 'edit_clip_def': 0.3089, 'edit_clip_drop': 0.0061, 'edit_siglip_orig': 0.1182, 'edit_siglip_def': 0.1193, 'edit_siglip_drop': -0.0011}
+=== horse_03 / mist ===
+  [mist] step    0  L=2.840779e+04  Linf01=0.0627  L2=63.728
+  [mist] step   20  L=1.317049e+04  Linf01=0.0627  L2=69.834
+  [mist] step   40  L=1.125289e+04  Linf01=0.0627  L2=75.176
+  [mist] step   60  L=4.955243e+03  Linf01=0.0627  L2=78.604
+  [mist] step   80  L=1.229361e+04  Linf01=0.0627  L2=80.943
+  [mist] step   99  L=1.082919e+04  Linf01=0.0627  L2=82.428
+{'image': 'horse_03', 'condition': 'mist', 'stage1_seconds': 0.0, 'total_seconds': 85.4, 'fid_lpips': 0.5582, 'fid_ssim': 0.7862, 'fid_dists': 0.1441, 'fid_psnr': 26.6557, 'fid_clip_img': 0.8599, 'fid_nima': 4.6123, 'fid_cnniqa': 0.7054, 'edit_lpips': 0.641, 'edit_clip_orig': 0.3151, 'edit_clip_def': 0.3095, 'edit_clip_drop': 0.0056, 'edit_siglip_orig': 0.1182, 'edit_siglip_def': 0.1075, 'edit_siglip_drop': 0.0108}
+=== horse_03 / dia_r ===
+  [dia_r] step    0  L=1.502581e+02  Linf01=0.0020  L2=3.476
+  [dia_r] step   19  L=8.394824e+02  Linf01=0.0250  L2=18.838
+{'image': 'horse_03', 'condition': 'dia_r', 'stage1_seconds': 0.0, 'total_seconds': 149.6, 'fid_lpips': 0.1863, 'fid_ssim': 0.9842, 'fid_dists': 0.0355, 'fid_psnr': 39.4762, 'fid_clip_img': 0.967, 'fid_nima': 4.9743, 'fid_cnniqa': 0.6975, 'edit_lpips': 0.2085, 'edit_clip_orig': 0.3151, 'edit_clip_def': 0.3184, 'edit_clip_drop': -0.0034, 'edit_siglip_orig': 0.1182, 'edit_siglip_def': 0.1182, 'edit_siglip_drop': 0.0}
+
+########## man_02 (man) ##########
+=== man_02 / apa_weak ===
+  [align_apa_native] step    0  loss=0.0566
+  [align_apa_native] step   20  loss=0.3153
+  [align_apa_native] step   40  loss=0.1375
+  [align_apa_native] step   60  loss=0.0200
+  [align_apa_native] step   80  loss=0.0133
+  [align_apa_native] step  100  loss=0.0158
+  [align_apa_native] step  120  loss=0.0198
+  [align_apa_native] step  140  loss=0.0102
+  [align_apa_native] step  160  loss=0.0373
+  [align_apa_native] step  180  loss=0.0327
+  [align_apa_native] step  199  loss=0.0389
+  [attack_native] iter   0  reward=-1.2218  R=-1.0000  fid_pen=0.2218  linf=0.040
+  [attack_native] iter   2  reward=-1.0895  R=-0.7518  fid_pen=0.3377  linf=0.120
+  [attack_native] iter   4  reward=-1.0350  R=-0.5591  fid_pen=0.4759  linf=0.200
+  [attack_native] iter   6  reward=-1.0278  R=-0.4689  fid_pen=0.5589  linf=0.280
+  [attack_native] iter   8  reward=-1.0231  R=-0.4678  fid_pen=0.5554  linf=0.360
+  [attack_native] iter   9  reward=-1.0172  R=-0.4855  fid_pen=0.5317  linf=0.400
+{'image': 'man_02', 'condition': 'apa_weak', 'stage1_seconds': 47.0, 'total_seconds': 130.5, 'fid_lpips': 0.2428, 'fid_ssim': 0.6011, 'fid_dists': 0.1451, 'fid_psnr': 14.8021, 'fid_clip_img': 0.9524, 'fid_nima': 4.5882, 'fid_cnniqa': 0.6833, 'edit_lpips': 0.2803, 'edit_clip_orig': 0.2748, 'edit_clip_def': 0.2875, 'edit_clip_drop': -0.0127, 'edit_siglip_orig': 0.1256, 'edit_siglip_def': 0.1325, 'edit_siglip_drop': -0.0068}
+=== man_02 / mist ===
+  [mist] step    0  L=3.091356e+04  Linf01=0.0627  L2=63.453
+  [mist] step   20  L=1.764352e+04  Linf01=0.0627  L2=72.163
+  [mist] step   40  L=1.546108e+04  Linf01=0.0627  L2=79.537
+  [mist] step   60  L=1.010666e+04  Linf01=0.0627  L2=83.043
+  [mist] step   80  L=1.684897e+04  Linf01=0.0627  L2=85.395
+  [mist] step   99  L=1.523288e+04  Linf01=0.0627  L2=86.747
+{'image': 'man_02', 'condition': 'mist', 'stage1_seconds': 0.0, 'total_seconds': 85.3, 'fid_lpips': 0.4423, 'fid_ssim': 0.8511, 'fid_dists': 0.1057, 'fid_psnr': 26.2122, 'fid_clip_img': 0.9121, 'fid_nima': 5.2203, 'fid_cnniqa': 0.679, 'edit_lpips': 0.4559, 'edit_clip_orig': 0.2748, 'edit_clip_def': 0.289, 'edit_clip_drop': -0.0142, 'edit_siglip_orig': 0.1256, 'edit_siglip_def': 0.1243, 'edit_siglip_drop': 0.0013}
+=== man_02 / dia_r ===
+  [dia_r] step    0  L=3.035953e+02  Linf01=0.0020  L2=3.459
+  [dia_r] step   19  L=6.947917e+02  Linf01=0.0250  L2=19.131
+{'image': 'man_02', 'condition': 'dia_r', 'stage1_seconds': 0.0, 'total_seconds': 149.6, 'fid_lpips': 0.1245, 'fid_ssim': 0.989, 'fid_dists': 0.0216, 'fid_psnr': 39.342, 'fid_clip_img': 0.9866, 'fid_nima': 5.061, 'fid_cnniqa': 0.6675, 'edit_lpips': 0.2699, 'edit_clip_orig': 0.2748, 'edit_clip_def': 0.2828, 'edit_clip_drop': -0.008, 'edit_siglip_orig': 0.1256, 'edit_siglip_def': 0.13, 'edit_siglip_drop': -0.0043}
+
+########## woman_02 (woman) ##########
+=== woman_02 / apa_weak ===
+  [align_apa_native] step    0  loss=0.0418
+  [align_apa_native] step   20  loss=0.3298
+  [align_apa_native] step   40  loss=0.1201
+  [align_apa_native] step   60  loss=0.0153
+  [align_apa_native] step   80  loss=0.0086
+  [align_apa_native] step  100  loss=0.0102
+  [align_apa_native] step  120  loss=0.0137
+  [align_apa_native] step  140  loss=0.0083
+  [align_apa_native] step  160  loss=0.0294
+  [align_apa_native] step  180  loss=0.0249
+  [align_apa_native] step  199  loss=0.0283
+  [attack_native] iter   0  reward=-1.2415  R=-1.0000  fid_pen=0.2415  linf=0.040
+  [attack_native] iter   2  reward=-1.1830  R=-1.0140  fid_pen=0.1690  linf=0.120
+  [attack_native] iter   4  reward=-1.1758  R=-1.0182  fid_pen=0.1576  linf=0.200
+  [attack_native] iter   6  reward=-1.1734  R=-1.0041  fid_pen=0.1694  linf=0.280
+  [attack_native] iter   8  reward=-1.1636  R=-0.9756  fid_pen=0.1879  linf=0.360
+  [attack_native] iter   9  reward=-1.1615  R=-0.9627  fid_pen=0.1988  linf=0.400
+{'image': 'woman_02', 'condition': 'apa_weak', 'stage1_seconds': 47.0, 'total_seconds': 130.7, 'fid_lpips': 0.15, 'fid_ssim': 0.8646, 'fid_dists': 0.0715, 'fid_psnr': 22.6818, 'fid_clip_img': 0.989, 'fid_nima': 4.1366, 'fid_cnniqa': 0.6236, 'edit_lpips': 0.1108, 'edit_clip_orig': 0.2026, 'edit_clip_def': 0.2023, 'edit_clip_drop': 0.0003, 'edit_siglip_orig': 0.0577, 'edit_siglip_def': 0.0579, 'edit_siglip_drop': -0.0002}
+=== woman_02 / mist ===
+  [mist] step    0  L=3.964686e+04  Linf01=0.0627  L2=60.650
+  [mist] step   20  L=1.813594e+04  Linf01=0.0627  L2=68.298
+  [mist] step   40  L=1.598537e+04  Linf01=0.0627  L2=74.793
+  [mist] step   60  L=1.027351e+04  Linf01=0.0627  L2=78.239
+  [mist] step   80  L=1.696299e+04  Linf01=0.0627  L2=80.756
+  [mist] step   99  L=1.554610e+04  Linf01=0.0627  L2=82.095
+{'image': 'woman_02', 'condition': 'mist', 'stage1_seconds': 0.0, 'total_seconds': 85.5, 'fid_lpips': 0.624, 'fid_ssim': 0.7735, 'fid_dists': 0.1491, 'fid_psnr': 26.6909, 'fid_clip_img': 0.925, 'fid_nima': 3.8033, 'fid_cnniqa': 0.6695, 'edit_lpips': 0.6103, 'edit_clip_orig': 0.2026, 'edit_clip_def': 0.2175, 'edit_clip_drop': -0.0149, 'edit_siglip_orig': 0.0577, 'edit_siglip_def': 0.0664, 'edit_siglip_drop': -0.0087}
+=== woman_02 / dia_r ===
+  [dia_r] step    0  L=8.560558e+01  Linf01=0.0020  L2=3.468
+  [dia_r] step   19  L=7.331109e+02  Linf01=0.0250  L2=19.352
+{'image': 'woman_02', 'condition': 'dia_r', 'stage1_seconds': 0.0, 'total_seconds': 149.8, 'fid_lpips': 0.3277, 'fid_ssim': 0.9801, 'fid_dists': 0.0375, 'fid_psnr': 39.2425, 'fid_clip_img': 0.9873, 'fid_nima': 4.0831, 'fid_cnniqa': 0.6779, 'edit_lpips': 0.3717, 'edit_clip_orig': 0.2026, 'edit_clip_def': 0.2162, 'edit_clip_drop': -0.0136, 'edit_siglip_orig': 0.0577, 'edit_siglip_def': 0.0659, 'edit_siglip_drop': -0.0082}
+
+表：runs/hb5/g2/results.csv
+[hb5] s1_cheap 完成
+[hb5] merge1 gpu=4 :: /nfs/home/nelson0314/venvs/wacv/bin/python scripts/merge_runs.py --out runs/hb5 --src runs/hb5/g2 --src-pick runs/phaseA_human --images man_02 woman_02 dog_03 horse_03 cat_01
+併入 30 列、複製 120 張圖 → runs/hb5
+  條件 6：add, apa_weak, dia_r, mist, phase, phase_rand
+  影像 5：cat_01, dog_03, horse_03, man_02, woman_02
+[hb5] merge1 完成
+[hb5] s1_pgc_c gpu=4 :: /nfs/home/nelson0314/venvs/wacv/bin/python scripts/apa_baseline.py --out runs/hb5/g2p --data data/lo_aligned --conditions photoguard_c --images cat_01
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3300.84it/s]
+Loading pipeline components...:  50%|█████     | 3/6 [00:00<00:00, 13.09it/s]Loading pipeline components...:  83%|████████▎ | 5/6 [00:00<00:00, 12.20it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 14.79it/s]
+There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+
+########## cat_01 (cat) ##########
+=== cat_01 / photoguard_c ===
+  [photoguard_c] step    0  L=4.441956e+02  Linf01=0.0632  L2=1.000
+  [photoguard_c] step   20  L=3.773659e+02  Linf01=0.1690  L2=7.914
+  [photoguard_c] step   40  L=3.534716e+02  Linf01=0.3221  L2=12.326
+  [photoguard_c] step   60  L=3.203415e+02  Linf01=0.4567  L2=15.997
+  [photoguard_c] step   80  L=3.339466e+02  Linf01=0.5079  L2=15.996
+  [photoguard_c] step  100  L=3.143500e+02  Linf01=0.5264  L2=15.994
+  [photoguard_c] step  120  L=3.190054e+02  Linf01=0.5120  L2=15.998
+  [photoguard_c] step  140  L=3.067284e+02  Linf01=0.5134  L2=15.996
+  [photoguard_c] step  160  L=3.011074e+02  Linf01=0.4990  L2=15.997
+  [photoguard_c] step  180  L=3.127192e+02  Linf01=0.4717  L2=15.996
+  [photoguard_c] step  199  L=3.145477e+02  Linf01=0.4678  L2=15.997
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pretrained model NIMA from /nfs/home/nelson0314/.cache/torch/hub/pyiqa/NIMA_InceptionV2_ava-b0c77c00.pth
+Loading pretrained model CNNIQA from /nfs/home/nelson0314/.cache/torch/hub/pyiqa/CNNIQA_koniq10k-e6f14c91.pth
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 8772.67it/s]
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 22375.92it/s]
+[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
+[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
+Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights:  65%|██████▌   | 266/408 [00:00<00:00, 2636.75it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 2648.26it/s]
+{'image': 'cat_01', 'condition': 'photoguard_c', 'stage1_seconds': 0.0, 'total_seconds': 6285.6, 'fid_lpips': 0.2821, 'fid_ssim': 0.9889, 'fid_dists': 0.0144, 'fid_psnr': 40.896, 'fid_clip_img': 0.9872, 'fid_nima': 5.536, 'fid_cnniqa': 0.7109, 'edit_lpips': 0.5059, 'edit_clip_orig': 0.2601, 'edit_clip_def': 0.2596, 'edit_clip_drop': 0.0005, 'edit_siglip_orig': 0.0917, 'edit_siglip_def': 0.0921, 'edit_siglip_drop': -0.0005}
+
+表：runs/hb5/g2p/results.csv
+[hb5] s1_pgc_c 完成
+[hb5] s2_base_1 gpu=4 :: /nfs/home/nelson0314/venvs/wacv/bin/python scripts/phase_retention.py --run runs/hb5 --data data/lo_aligned --seeds 3 --images man_02 woman_02 dog_03 --conditions apa_weak mist dia_r --out runs/hb5/retention_b1.csv
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 4069.88it/s]
+Loading pipeline components...:  67%|██████▋   | 4/6 [00:00<00:00, 15.98it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 13.75it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 14.14it/s]
+There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+=== dog_03 / apa_weak ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    identity=0.3950, blur1=0.4554, noise0.05=0.5853, quantize16=0.4794, jpeg75=0.3963, jpeg30=0.4759, crop_resize0.1=0.5382, jpeg_then_resize75=0.4345, adverse_cleaner=0.4128, impress=0.4520
+=== dog_03 / mist ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    identity=0.6676, blur1=0.5303, noise0.05=0.6064, quantize16=0.6525, jpeg75=0.5702, jpeg30=0.5141, crop_resize0.1=0.6552, jpeg_then_resize75=0.4795, adverse_cleaner=0.6211, impress=0.5949
+=== dog_03 / dia_r ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    identity=0.4041, blur1=0.3702, noise0.05=0.5498, quantize16=0.4181, jpeg75=0.3162, jpeg30=0.3846, crop_resize0.1=0.5487, jpeg_then_resize75=0.3368, adverse_cleaner=0.3927, impress=0.4073
+=== man_02 / apa_weak ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    identity=0.3151, blur1=0.4257, noise0.05=0.5069, quantize16=0.3859, jpeg75=0.3297, jpeg30=0.4037, crop_resize0.1=0.5312, jpeg_then_resize75=0.4117, adverse_cleaner=0.3495, impress=0.3301
+=== man_02 / mist ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    identity=0.4663, blur1=0.4115, noise0.05=0.5295, quantize16=0.4725, jpeg75=0.4188, jpeg30=0.2788, crop_resize0.1=0.5788, jpeg_then_resize75=0.3388, adverse_cleaner=0.4310, impress=0.4187
+=== man_02 / dia_r ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    identity=0.2394, blur1=0.3738, noise0.05=0.3566, quantize16=0.2318, jpeg75=0.1935, jpeg30=0.2468, crop_resize0.1=0.5288, jpeg_then_resize75=0.3376, adverse_cleaner=0.2238, impress=0.2640
+=== woman_02 / apa_weak ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    identity=0.1050, blur1=0.2896, noise0.05=0.4439, quantize16=0.3217, jpeg75=0.1710, jpeg30=0.3365, crop_resize0.1=0.4280, jpeg_then_resize75=0.2115, adverse_cleaner=0.2344, impress=0.1789
+=== woman_02 / mist ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    identity=0.5934, blur1=0.4626, noise0.05=0.5570, quantize16=0.5695, jpeg75=0.5154, jpeg30=0.4087, crop_resize0.1=0.6156, jpeg_then_resize75=0.3831, adverse_cleaner=0.5161, impress=0.5317
+=== woman_02 / dia_r ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    identity=0.2865, blur1=0.2421, noise0.05=0.4104, quantize16=0.3158, jpeg75=0.1693, jpeg30=0.2930, crop_resize0.1=0.4542, jpeg_then_resize75=0.1811, adverse_cleaner=0.1996, impress=0.2592
+
+表：runs/hb5/retention_b1.csv（90 列）
+[hb5] s2_base_1 完成

@@ -1,0 +1,13 @@
+image,instruction,clip_orig,clip_edit,clip_gain,siglip_orig,siglip_edit,siglip_gain,pixel_lpips,edit_steps,s_t,s_i,edit_seed,seconds
+task_attr_mod_color_136767,turn the color of astronaut to pink,0.29604,0.33624,0.0402,0.08185,0.13611,0.05426,0.22051,100,7.5,1.5,20260812,79.9
+task_attr_mod_color_32648,turn the color of potion bottle to orange,0.34367,0.36439,0.02072,0.12153,0.15187,0.03034,0.53507,100,7.5,1.5,20260812,70.9
+task_env_weather_112463,transform the setting to spring with blooming flowers,0.16526,0.22373,0.05847,-0.04809,0.01517,0.06326,0.37298,100,7.5,1.5,20260812,72.1
+task_env_weather_181583,change the setting to a stormy day,0.18212,0.19085,0.00873,0.00866,0.01658,0.00792,0.26938,100,7.5,1.5,20260812,72.2
+task_env_weather_63722,change the setting to a snowy landscape,0.17419,0.21727,0.04308,0.00839,0.036,0.0276,0.21166,100,7.5,1.5,20260812,72.4
+task_obj_add_340466,Add orange juice,0.17618,0.20072,0.02454,-0.09555,-0.0754,0.02015,0.22717,100,7.5,1.5,20260812,72.4
+task_obj_add_581286,Add sauce,0.21507,0.20711,-0.00796,0.05431,0.04929,-0.00503,0.10079,100,7.5,1.5,20260812,72.4
+task_obj_remove_10197,Remove gravel path,0.20251,0.30173,0.09922,0.01917,0.13307,0.1139,0.53434,100,7.5,1.5,20260812,72.1
+task_obj_remove_380621,Remove iceberg,0.28664,0.2277,-0.05894,0.08821,0.03907,-0.04914,0.21375,100,7.5,1.5,20260812,72.3
+task_obj_remove_657585,Remove frisbee,0.25844,0.20445,-0.05399,0.097,-0.02439,-0.12139,0.25933,100,7.5,1.5,20260812,72.5
+task_obj_swap_joint_mask_533428,Replace the samurai armor with red jacket,0.2567,0.25891,0.00221,0.04138,0.02648,-0.0149,0.55105,100,7.5,1.5,20260812,72.8
+task_obj_swap_rand_mask_298147,Replace the wizard's robe with red shirt,0.26983,0.26321,-0.00662,0.0482,0.04545,-0.00275,0.27563,100,7.5,1.5,20260812,70.5

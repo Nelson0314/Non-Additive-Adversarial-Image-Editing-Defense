@@ -1,0 +1,17 @@
+image,instruction,clip_orig,clip_edit,clip_gain,siglip_orig,siglip_edit,siglip_gain,pixel_lpips,edit_steps,s_t,s_i,edit_seed,seconds
+task_attr_mod_color_121425,turn the color of LCD screen to be green,0.31873,0.34293,0.0242,0.09827,0.10227,0.004,0.21339,100,7.5,1.5,20260812,31.8
+task_attr_mod_color_123744,turn the color of cushion to be black,0.20786,0.2032,-0.00466,0.04883,0.05862,0.00979,0.23318,100,7.5,1.5,20260812,21.9
+task_attr_mod_color_124169,turn the color of backpack to gray,0.28665,0.29803,0.01138,0.09318,0.10973,0.01655,0.1705,100,7.5,1.5,20260812,22.1
+task_attr_mod_color_126580,turn the color of a stone fountain to red,0.26581,0.27688,0.01107,0.07112,0.09483,0.02371,0.24003,100,7.5,1.5,20260812,22.3
+task_attr_mod_color_127061,turn the color of control panel to gray,0.24557,0.24315,-0.00241,0.0458,0.04651,0.00071,0.13002,100,7.5,1.5,20260812,22.5
+task_attr_mod_color_144146,turn the color of book to be orange,0.2232,0.28531,0.06211,0.02428,0.11651,0.09223,0.45108,100,7.5,1.5,20260812,22.5
+task_attr_mod_color_158070,turn the color of playing card to red,0.27622,0.29027,0.01405,0.058,0.08011,0.02212,0.38969,100,7.5,1.5,20260812,22.7
+task_attr_mod_color_164237,turn the color of crystal tower to brown,0.27171,0.25872,-0.01299,0.09923,0.10638,0.00714,0.36173,100,7.5,1.5,20260812,22.8
+task_attr_mod_color_174506,turn the color of mushroom to gray,0.29331,0.31159,0.01828,0.05078,0.06675,0.01597,0.38316,100,7.5,1.5,20260812,22.9
+task_attr_mod_color_175843,turn the color of cap to be pink,0.22612,0.26285,0.03673,0.02322,0.0867,0.06348,0.26796,100,7.5,1.5,20260812,22.9
+task_attr_mod_color_202962,turn the color of a water bottle to brown,0.29699,0.26906,-0.02793,0.08873,0.10669,0.01796,0.25907,100,7.5,1.5,20260812,22.8
+task_attr_mod_color_22137,turn the color of ring to be gray,0.27425,0.28402,0.00977,0.03473,0.03556,0.00084,0.19206,100,7.5,1.5,20260812,22.7
+task_attr_mod_color_229454,turn the color of cat to orange,0.28071,0.29645,0.01573,0.07605,0.08726,0.01122,0.25356,100,7.5,1.5,20260812,22.6
+task_attr_mod_color_234404,turn the color of grizzly bear to be white,0.30797,0.30417,-0.0038,0.09986,0.12316,0.02331,0.17387,100,7.5,1.5,20260812,22.5
+task_attr_mod_color_30214,turn the color of glass of whiskey to green,0.26686,0.28937,0.02252,0.05918,0.09192,0.03273,0.34423,100,7.5,1.5,20260812,22.5
+task_attr_mod_color_41275,turn the color of a studded backpack to purple,0.28757,0.34656,0.059,0.12366,0.16009,0.03643,0.16232,100,7.5,1.5,20260812,22.5

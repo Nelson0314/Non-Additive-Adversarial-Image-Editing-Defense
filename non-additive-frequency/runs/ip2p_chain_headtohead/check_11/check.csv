@@ -1,0 +1,13 @@
+image,instruction,clip_orig,clip_edit,clip_gain,siglip_orig,siglip_edit,siglip_gain,pixel_lpips,edit_steps,s_t,s_i,edit_seed,seconds
+task_attr_mod_color_175843,turn the color of cap to be pink,0.22612,0.26285,0.03673,0.02322,0.0867,0.06348,0.26796,100,7.5,1.5,20260812,77.6
+task_attr_mod_color_6065,turn the color of lantern to red,0.27817,0.30437,0.02619,0.03971,0.08331,0.0436,0.315,100,7.5,1.5,20260812,67.9
+task_env_weather_132698,transform the setting to a winter scene,0.16763,0.17996,0.01233,0.00139,0.00896,0.00757,0.28493,100,7.5,1.5,20260812,68.2
+task_env_weather_231482,change the setting to a snowy scene,0.17499,0.19484,0.01985,-0.01134,0.00185,0.01319,0.28177,100,7.5,1.5,20260812,68.4
+task_env_weather_97868,change the setting to a cloudy day,0.18045,0.18761,0.00716,0.01334,0.0212,0.00786,0.17668,100,7.5,1.5,20260812,68.4
+task_obj_add_39816,Add palm trees,0.18574,0.20309,0.01735,-0.02571,0.00972,0.03543,0.14899,100,7.5,1.5,20260812,68.2
+task_obj_add_685213,Add yellow tag,0.19841,0.2428,0.04439,-0.01534,0.03288,0.04822,0.41317,100,7.5,1.5,20260812,68.3
+task_obj_remove_228800,Remove bear,0.26223,0.26119,-0.00105,0.07844,0.07991,0.00147,0.27661,100,7.5,1.5,20260812,68.5
+task_obj_remove_499725,Remove the road,0.18903,0.18588,-0.00315,0.00231,0.0094,0.00708,0.21024,100,7.5,1.5,20260812,68.3
+task_obj_remove_899279,Remove moth's body,0.26369,0.26058,-0.00312,0.08907,0.08604,-0.00304,0.31639,100,7.5,1.5,20260812,68.4
+task_obj_swap_joint_mask_718058,Replace the mechanical hand with right hand,0.23492,0.26395,0.02903,0.0256,0.07395,0.04835,0.54435,100,7.5,1.5,20260812,68.3
+task_obj_swap_rand_mask_401099,Replace the pizza box with clipboard,0.23404,0.2603,0.02626,0.05336,0.03454,-0.01882,0.39388,100,7.5,1.5,20260812,67.9

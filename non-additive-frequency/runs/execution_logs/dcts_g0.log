@@ -1,0 +1,36 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  17%|█▋        | 1/6 [00:00<00:00,  8.68it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3391.46it/s]
+Loading pipeline components...:  67%|██████▋   | 4/6 [00:00<00:00, 11.43it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 14.12it/s]
+There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+    [dct_shield] step    0 loss 125.4899
+    [dct_shield] step  250 loss 52.2605
+    [dct_shield] step  500 loss 49.3768
+    [dct_shield] step  750 loss 47.4561
+    [dct_shield] step  999 loss 46.0418
+person_a_00    dct_shield     eps=1.0000 lpips=0.5896 dists=0.0875 effect=0.7171 (150s)
+    [dct_shield_y] step    0 loss 126.9380
+    [dct_shield_y] step  250 loss 50.4376
+    [dct_shield_y] step  500 loss 46.4237
+    [dct_shield_y] step  750 loss 43.6189
+    [dct_shield_y] step  999 loss 41.6342
+person_a_00    dct_shield_y   eps=1.0000 lpips=0.6734 dists=0.1389 effect=0.7293 (151s)
+    [dct_shield] step    0 loss 99.9203
+    [dct_shield] step  250 loss 38.1074
+    [dct_shield] step  500 loss 34.4076
+    [dct_shield] step  750 loss 32.0506
+    [dct_shield] step  999 loss 30.4308
+person_b_00    dct_shield     eps=1.0000 lpips=0.5729 dists=0.0705 effect=0.7216 (151s)
+    [dct_shield_y] step    0 loss 101.4527
+    [dct_shield_y] step  250 loss 39.0892
+    [dct_shield_y] step  500 loss 34.8012
+    [dct_shield_y] step  750 loss 31.5220
+    [dct_shield_y] step  999 loss 29.3083
+person_b_00    dct_shield_y   eps=1.0000 lpips=0.6485 dists=0.1274 effect=0.7004 (151s)
+
+表：runs/dctshield/g0/results.csv（4 列）

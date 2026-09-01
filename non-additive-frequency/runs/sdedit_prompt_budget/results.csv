@@ -1,0 +1,6 @@
+image,prompt,strength,guidance,tag,clip_orig,clip_edit,clip_gain,siglip_orig,siglip_edit,siglip_gain,lpips_vs_orig
+person_b_00,Morgan Freeman wearing a red bow tie,0.55,7.5,s0.55_g7.5,0.126,0.2851,0.1592,-0.0653,0.0909,0.1562,0.5157
+person_b_00,Morgan Freeman wearing a red bow tie,0.7,7.5,s0.7_g7.5,0.126,0.3155,0.1895,-0.0653,0.1167,0.182,0.5998
+person_b_00,Morgan Freeman wearing a red bow tie,0.8,7.5,s0.8_g7.5,0.126,0.3258,0.1998,-0.0653,0.1801,0.2454,0.6411
+person_b_00,Morgan Freeman wearing a red bow tie,0.8,12.0,s0.8_g12,0.126,0.3228,0.1969,-0.0653,0.1634,0.2287,0.6667
+person_b_00,Morgan Freeman wearing a red bow tie,0.9,12.0,s0.9_g12,0.126,0.342,0.216,-0.0653,0.1442,0.2095,0.7148

@@ -1,0 +1,74 @@
+# 2026-08-17 建立、2026-08-18 改版的資料集。
+#
+# prompts[0] 是本輪實際使用的那一句，prompts[1] 是被換掉的那一句，留著備查。
+#
+# ---- 2026-08-18 改版（使用者裁定）----
+#
+# 五張名人照（obama／lebron／ronaldo／musk／trump）整組移除，換成三張 CC0 的
+# 無名氏肖像，prompt 反過來把他們改成名人。理由見 runs/s0817_prompts 的分析：
+# 在 strength 0.8 下「換場景」這一類 prompt 幾乎不服從——LPIPS 對原圖有 0.41
+# 到 0.66（改很多），CLIP 對齊增益卻只有 ±0.01（沒有往 prompt 走）。會服從的
+# 是「加物件」（cat 戴帽，gain/LPIPS 0.33）與「換主體類別」（shiba 變貓 0.056、
+# raccoon 變熊貓 0.106）。無名氏改成名人屬於後者，是換身分而不是換背景。
+#
+# 換過 prompt 必須重新確認未防禦的編輯有成功（DEC-022）。
+#
+# ---- 遮罩 ----
+#
+# 不做遮罩。原本的作法是加頭部遮罩讓臉在 latent 混合中被保留，2026-08-17 整組
+# 撤回；`load_dataset` 找不到 headmasks/ 就不做混合，威脅模型是單純的 img2img。
+
+person_a:
+  content: "man"
+  # 換身分 + 加配件（2026-08-18 二次修訂）
+  prompts:
+    - "Barack Obama wearing sunglasses"
+    - "Barack Obama"
+
+person_b:
+  content: "man"
+  # 換身分 + 加配件
+  prompts:
+    # 紅毛帽在 0.55-0.9 五個強度上都沒生出來（模型改生紅圍巾／紅領），
+    # Morgan Freeman 的先驗是正裝，毛帽與它衝突。改成同樣紅色但與正裝相容的
+    # 領結，0.8 那組本來就已經在該位置生出紅色的東西。
+    - "Morgan Freeman wearing a red bow tie"
+    - "Morgan Freeman wearing a red beanie"
+
+person_c:
+  content: "woman"
+  # 換身分 + 加配件。目標由 Taylor Swift 改為 Oprah Winfrey：來源是年輕、
+  # 淺膚、長髮的女性，與 Taylor Swift 本來就接近，編輯只是一小步，
+  # 七個條件的位移量全部落在 0.088-0.17（全批最低），防禦沒有東西可推開。
+  prompts:
+    - "Oprah Winfrey wearing a blue baseball cap"
+    - "Taylor Swift"
+
+cat:
+  content: "cat"
+  # 加物件（0.8 下成功，gain/LPIPS 0.33 是全批最高）
+  prompts:
+    - "a cat wearing a red party hat"
+    - "a cat sitting on a snowy roof"
+
+shiba:
+  content: "dog"
+  # 換類別（2026-08-17 使用者指定：柴犬變貓）
+  prompts:
+    - "a cat"
+    - "a dog wearing a yellow knitted hat"
+
+raccoon:
+  content: "raccoon"
+  # 換類別 + 加物件（2026-08-18：熊貓拿著一顆球）
+  prompts:
+    - "a panda holding a ball"
+    - "a panda"
+
+parrot:
+  content: "parrot"
+  # 換類別（2026-08-18：鸚鵡變公雞）。原本的換場景在 0.8 下服從得很弱，
+  # gain/LPIPS 只有 0.049，是全批倒數第二（FND-052）。
+  prompts:
+    - "a rooster"
+    - "a parrot perched on a branch in a rainforest"

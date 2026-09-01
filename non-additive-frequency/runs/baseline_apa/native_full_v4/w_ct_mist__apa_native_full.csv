@@ -1,0 +1,2 @@
+image,condition,stage1_seconds,total_seconds,fid_lpips,fid_ssim,fid_dists,fid_psnr,fid_clip_img,fid_nima,fid_cnniqa,edit_lpips,edit_clip_orig,edit_clip_def,edit_clip_drop,edit_siglip_orig,edit_siglip_def,edit_siglip_drop
+coot,mist,0.0,74.2,0.5257,0.8898,0.1728,26.5392,0.9395,4.1536,0.4646,0.6472,0.3225,0.2529,0.0697,0.0941,0.0763,0.0178

@@ -1,0 +1,2 @@
+image,condition,attacker,instruction,task,radius,unreachable,pixel_gate_sigma,edit_steps,s_t,s_i,edit_seed,modified_from_paper,fid_lpips,fid_ssim,fid_psnr,fid_vif_p,fid_dists,edit_lpips,edit_ssim,edit_psnr,edit_vif_p,edit_dists,fid_linf,fid_rms,total_seconds
+task_env_weather_150522,phase,instruct-pix2pix,change the setting to fall with colorful leaves,,2.0,False,1.0,100,7.5,1.5,20260812,False,0.24254,0.91717,20.448,0.44484,0.04456,0.39656,0.57283,15.717,0.15872,0.16612,0.96485,0.09497,121.1

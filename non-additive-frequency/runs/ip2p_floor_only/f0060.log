@@ -1,0 +1,31 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  50%|█████     | 3/6 [00:00<00:00, 25.56it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 5120.71it/s]
+Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 13.11it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 14.13it/s]
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+IP2P 線：13 張、條件 ['floor_only']、steps=100 s_T=7.5 s_I=1.5 seed=20260812
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,1.0]
+  warnings.warn(
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 22370.52it/s]
+[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
+[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
+Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights:  93%|█████████▎| 378/408 [00:00<00:00, 3777.81it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 3653.93it/s]
+task_attr_mod_color_11699        floor_only     r=2.0000 dists=0.0679 lpips=0.4838 effect=0.4485 (393s)
+task_attr_mod_color_136767       floor_only     r=2.0000 dists=0.0733 lpips=0.4475 effect=0.6220 (377s)
+task_attr_mod_color_184837       floor_only     r=2.0000 dists=0.0408 lpips=0.3943 effect=0.4945 (378s)
+task_attr_mod_color_32648        floor_only     r=2.0000 dists=0.1367 lpips=0.5566 effect=0.6242 (378s)
+task_attr_mod_color_6205         floor_only     r=2.0000 dists=0.0846 lpips=0.5199 effect=0.6554 (379s)
+task_env_weather_112463          floor_only     r=2.0000 dists=0.0471 lpips=0.5809 effect=0.8471 (378s)
+task_env_weather_246440          floor_only     r=2.0000 dists=0.0227 lpips=0.3145 effect=0.4644 (379s)
+task_env_weather_63722           floor_only     r=2.0000 dists=0.0449 lpips=0.4759 effect=0.5088 (379s)
+task_obj_add_40931               floor_only     r=2.0000 dists=0.0558 lpips=0.4536 effect=0.5221 (379s)
+task_obj_remove_380621           floor_only     r=2.0000 dists=0.0820 lpips=0.5191 effect=0.7047 (379s)
+task_obj_swap_joint_mask_276754  floor_only     r=2.0000 dists=0.0542 lpips=0.4345 effect=0.6519 (379s)
+task_obj_swap_joint_mask_533428  floor_only     r=2.0000 dists=0.0332 lpips=0.4211 effect=0.5479 (379s)
+task_obj_swap_rand_mask_417469   floor_only     r=2.0000 dists=0.0525 lpips=0.4666 effect=0.7712 (379s)
+
+表：runs/ip2p_floor_only/f0060/results.csv（13 列）

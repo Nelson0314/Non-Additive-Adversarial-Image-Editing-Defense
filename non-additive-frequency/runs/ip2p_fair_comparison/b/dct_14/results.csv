@@ -1,0 +1,6 @@
+image,condition,attacker,instruction,task,radius,unreachable,pixel_gate_sigma,edit_steps,s_t,s_i,edit_seed,modified_from_paper,fid_lpips,fid_ssim,fid_psnr,fid_vif_p,fid_dists,edit_lpips,edit_ssim,edit_psnr,edit_vif_p,edit_dists,fid_linf,fid_rms,total_seconds
+task_attr_mod_color_76641,dct_shield,instruct-pix2pix,turn the color of micrometer to blue,,1.0,False,0.0,100,7.5,1.5,20260812,False,0.53574,0.83874,29.791,0.44639,0.04822,0.74049,0.37816,8.328,0.08133,0.55152,0.23892,0.03239,567.0
+task_env_weather_9736,dct_shield,instruct-pix2pix,transform the setting to a cloudy day,,1.0,False,0.0,100,7.5,1.5,20260812,False,0.42868,0.90598,29.026,0.56127,0.02653,0.67087,0.35267,12.913,0.17584,0.41276,0.40521,0.03537,568.7
+task_obj_add_767982,dct_shield,instruct-pix2pix,Add grape,,1.0,False,0.0,100,7.5,1.5,20260812,False,0.55104,0.85001,29.47,0.4897,0.06238,0.77966,0.21448,7.963,0.05073,0.38172,0.29535,0.03361,569.1
+task_obj_remove_869495,dct_shield,instruct-pix2pix,Remove child,,1.0,False,0.0,100,7.5,1.5,20260812,False,0.36915,0.91286,29.052,0.55719,0.03794,0.79347,0.20726,11.637,0.03609,0.41045,0.24316,0.03527,567.3
+task_obj_swap_rand_mask_79926,dct_shield,instruct-pix2pix,Replace the Hawaiian shirt with blue dress,,1.0,False,0.0,100,7.5,1.5,20260812,False,0.52099,0.80764,29.497,0.42127,0.06236,0.77655,0.25763,8.24,0.04829,0.29842,0.26849,0.03351,568.0

@@ -1,0 +1,2 @@
+image,condition,stage1_seconds,total_seconds,fid_lpips,fid_ssim,fid_dists,fid_psnr,fid_clip_img,fid_nima,fid_cnniqa,edit_strength,edit_lpips,edit_clip_orig,edit_clip_def,edit_clip_drop,edit_siglip_orig,edit_siglip_def,edit_siglip_drop
+raccoon_00,photoguard_c,0.0,6252.2,0.2828,0.9849,0.0311,40.8943,0.9833,6.0209,0.7068,0.7,0.3259,0.3668,0.2944,0.0724,0.1476,0.0922,0.0553

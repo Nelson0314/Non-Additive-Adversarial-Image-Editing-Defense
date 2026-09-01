@@ -1,0 +1,2 @@
+condition,radius,warp_grid,n_images,seed,fid_dists,fid_psnr,fid_lpips,effective_disp_px
+warp_rand,0.5,16,13,0,0.01552,30.956,0.03723,0.4063

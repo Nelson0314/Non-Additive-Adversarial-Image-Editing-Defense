@@ -1,0 +1,9 @@
+anchor_axis,anchor_value,reported,group,n_images,out_of_range,axis_min,axis_max,value,crossings,fid_psnr,fid_lpips,fid_ssim,edit_clip_sim,blocked_rate,seg_lo_radius,seg_hi_radius
+edit_lpips,0.65,fid_dists,condition=dct_shield,13,True,0.6694,0.7078,,,,,,,,,
+edit_lpips,0.65,fid_dists,condition=gain_only,13,False,0.53292,0.67428,0.11304,1,26.58344,0.48946,0.93835,0.72604,0.71615,1.5,2.4
+edit_lpips,0.65,fid_dists,condition=phase,13,False,0.53326,0.70109,0.09557,1,26.89977,0.49662,0.93788,0.73004,0.75473,1.8,3.1416
+edit_lpips,0.65,fid_dists,condition=phase_gain,13,False,0.6022,0.70123,0.10515,1,26.78059,0.48899,0.94075,0.72033,0.76557,0.9,1.5
+edit_lpips,0.7,fid_dists,condition=dct_shield,13,False,0.6694,0.7078,0.09296,1,25.53089,0.53,0.75574,0.67761,0.84615,1.4,1.8
+edit_lpips,0.7,fid_dists,condition=gain_only,13,True,0.53292,0.67428,,,,,,,,,
+edit_lpips,0.7,fid_dists,condition=phase,13,False,0.53326,0.70109,0.12789,1,25.38903,0.52433,0.90935,0.6669,0.91948,1.8,3.1416
+edit_lpips,0.7,fid_dists,condition=phase_gain,13,False,0.6022,0.70123,0.14346,1,24.80088,0.5257,0.9085,0.67245,0.91938,1.5,2.0

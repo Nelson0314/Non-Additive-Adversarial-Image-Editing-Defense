@@ -1,0 +1,26 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 4179.65it/s]
+Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00, 10.71it/s]Loading pipeline components...:  67%|██████▋   | 4/6 [00:00<00:00, 12.56it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 13.57it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 13.04it/s]
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+IP2P 線：12 張、條件 ['phase']、steps=100 s_T=7.5 s_I=1.5 seed=20260812
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,1.0]
+  warnings.warn(
+task_attr_mod_color_164237       phase          r=1.3000 dists=0.0752 lpips=0.2325 effect=0.3471 (117s)
+task_attr_mod_color_47418        phase          r=1.3000 dists=0.0412 lpips=0.2793 effect=0.2999 (118s)
+task_env_weather_121086          phase          r=1.3000 dists=0.0524 lpips=0.2286 effect=0.1895 (118s)
+task_env_weather_217577          phase          r=1.3000 dists=0.0734 lpips=0.2001 effect=0.2333 (118s)
+task_env_weather_86691           phase          r=1.3000 dists=0.0437 lpips=0.2112 effect=0.2573 (118s)
+task_obj_add_371248              phase          r=1.3000 dists=0.0382 lpips=0.1130 effect=0.1580 (118s)
+task_obj_add_630523              phase          r=1.3000 dists=0.0417 lpips=0.2682 effect=0.2715 (118s)
+task_obj_remove_166983           phase          r=1.3000 dists=0.0614 lpips=0.3007 effect=0.3579 (117s)
+task_obj_remove_410264           phase          r=1.3000 dists=0.0242 lpips=0.1505 effect=0.1585 (118s)
+task_obj_remove_737102           phase          r=1.3000 dists=0.0664 lpips=0.1415 effect=0.2205 (118s)
+task_obj_swap_joint_mask_673207  phase          r=1.3000 dists=0.0648 lpips=0.1943 effect=0.5458 (118s)
+task_obj_swap_rand_mask_373245   phase          r=1.3000 dists=0.0489 lpips=0.1505 effect=0.2524 (118s)
+
+表：runs/m0820/phase_t1.30_9/results.csv（12 列）

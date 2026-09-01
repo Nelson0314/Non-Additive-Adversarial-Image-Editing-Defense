@@ -1,0 +1,16 @@
+image,prompt,strength,guidance,tag,clip_orig,clip_edit,clip_gain,siglip_orig,siglip_edit,siglip_gain,lpips_vs_orig
+cat_00,a cat sitting on a snowy roof,0.55,7.5,s0.55_g7.5,0.2049,0.2064,0.0016,0.0575,0.0546,-0.0028,0.1915
+cat_00,a cat sitting on a snowy roof,0.7,7.5,s0.7_g7.5,0.2049,0.2343,0.0294,0.0575,0.1141,0.0566,0.2467
+cat_00,a cat sitting on a snowy roof,0.8,7.5,s0.8_g7.5,0.2049,0.2441,0.0392,0.0575,0.1023,0.0448,0.2768
+cat_00,a cat sitting on a snowy roof,0.8,12.0,s0.8_g12,0.2049,0.2747,0.0698,0.0575,0.1004,0.043,0.2898
+cat_00,a cat sitting on a snowy roof,0.9,12.0,s0.9_g12,0.2049,0.2977,0.0928,0.0575,0.1178,0.0603,0.348
+raccoon_00,a raccoon standing on a city sidewalk at night,0.55,7.5,s0.55_g7.5,0.2986,0.3324,0.0338,0.0807,0.1117,0.031,0.4717
+raccoon_00,a raccoon standing on a city sidewalk at night,0.7,7.5,s0.7_g7.5,0.2986,0.3346,0.036,0.0807,0.1174,0.0367,0.5048
+raccoon_00,a raccoon standing on a city sidewalk at night,0.8,7.5,s0.8_g7.5,0.2986,0.3158,0.0172,0.0807,0.1183,0.0377,0.6021
+raccoon_00,a raccoon standing on a city sidewalk at night,0.8,12.0,s0.8_g12,0.2986,0.3151,0.0165,0.0807,0.1165,0.0359,0.6162
+raccoon_00,a raccoon standing on a city sidewalk at night,0.9,12.0,s0.9_g12,0.2986,0.3399,0.0412,0.0807,0.1665,0.0858,0.7004
+shiba_00,a dog running on a sandy beach,0.55,7.5,s0.55_g7.5,0.2417,0.3024,0.0607,0.0399,0.086,0.0461,0.491
+shiba_00,a dog running on a sandy beach,0.7,7.5,s0.7_g7.5,0.2417,0.3362,0.0945,0.0399,0.1288,0.0889,0.6108
+shiba_00,a dog running on a sandy beach,0.8,7.5,s0.8_g7.5,0.2417,0.3295,0.0877,0.0399,0.1276,0.0877,0.6607
+shiba_00,a dog running on a sandy beach,0.8,12.0,s0.8_g12,0.2417,0.3259,0.0841,0.0399,0.1336,0.0937,0.6788
+shiba_00,a dog running on a sandy beach,0.9,12.0,s0.9_g12,0.2417,0.3456,0.1038,0.0399,0.1358,0.0959,0.7433

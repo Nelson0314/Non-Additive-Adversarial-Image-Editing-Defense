@@ -1,0 +1,4 @@
+image,class,lora_train_seconds,lora_diverged,floor_ddim_lpips,floor_ddim_ssim,floor_ddim_dists,floor_ddim_psnr,lora_ddim_lpips,lora_ddim_ssim,lora_ddim_dists,lora_ddim_psnr,floor_bdia_lpips,floor_bdia_ssim,floor_bdia_dists,floor_bdia_psnr,lora_bdia_lpips,lora_bdia_ssim,lora_bdia_dists,lora_bdia_psnr
+panda,giant panda,46.7,False,0.23,0.81,0.1247,26.1918,0.2735,0.767,0.1761,23.2436,0.1783,0.8453,0.0608,27.4632,0.2154,0.8194,0.0879,26.3193
+butterfly,gossamer-winged butterfly,47.4,False,0.2526,0.7941,0.115,22.8604,0.2725,0.7677,0.1309,20.3226,0.1711,0.8604,0.0401,24.7387,0.2112,0.8187,0.0834,22.4653
+coot,American coot,47.5,False,0.4291,0.6033,0.2467,19.2211,0.2387,0.7907,0.1675,21.8758,0.1649,0.8616,0.0508,25.3397,0.1973,0.8299,0.0995,23.7822

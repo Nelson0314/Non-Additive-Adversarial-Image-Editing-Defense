@@ -1,0 +1,2 @@
+image,condition,attacker,instruction,task,radius,unreachable,pixel_gate_sigma,edit_steps,s_t,s_i,edit_seed,modified_from_paper,fid_lpips,fid_ssim,fid_psnr,fid_vif_p,fid_dists,edit_lpips,edit_ssim,edit_psnr,edit_vif_p,edit_dists,fid_linf,fid_rms,total_seconds
+task_obj_remove_157386,phase,instruct-pix2pix,Remove flowers,,3.141593,False,1.0,100,7.5,1.5,20260812,False,0.18079,0.94097,28.051,0.48698,0.05074,0.25519,0.82909,22.569,0.43044,0.16145,0.67059,0.03958,127.2

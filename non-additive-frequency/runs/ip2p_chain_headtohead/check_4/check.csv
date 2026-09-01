@@ -1,0 +1,14 @@
+image,instruction,clip_orig,clip_edit,clip_gain,siglip_orig,siglip_edit,siglip_gain,pixel_lpips,edit_steps,s_t,s_i,edit_seed,seconds
+task_attr_mod_color_126580,turn the color of a stone fountain to red,0.26581,0.27688,0.01107,0.07112,0.09483,0.02371,0.24003,100,7.5,1.5,20260812,79.7
+task_attr_mod_color_234404,turn the color of grizzly bear to be white,0.30797,0.30417,-0.0038,0.09986,0.12316,0.02331,0.17387,100,7.5,1.5,20260812,70.0
+task_attr_mod_color_76641,turn the color of micrometer to blue,0.28897,0.30393,0.01496,0.11168,0.13868,0.027,0.14639,100,7.5,1.5,20260812,70.4
+task_env_weather_150522,change the setting to fall with colorful leaves,0.16868,0.29352,0.12484,0.01331,0.08875,0.07545,0.57789,100,7.5,1.5,20260812,70.5
+task_env_weather_59863,change the setting to a snowy scene,0.2062,0.24709,0.04088,-0.0042,0.06581,0.07001,0.36671,100,7.5,1.5,20260812,70.6
+task_obj_add_24380,Add flag,0.16273,0.18643,0.0237,-0.00865,0.07351,0.08216,0.14478,100,7.5,1.5,20260812,70.5
+task_obj_add_530461,Add black costume,0.20382,0.19831,-0.0055,0.03579,0.0683,0.03251,0.17424,100,7.5,1.5,20260812,70.5
+task_obj_add_767982,Add grape,0.22252,0.24121,0.01869,0.01154,0.0646,0.05306,0.28669,100,7.5,1.5,20260812,70.5
+task_obj_remove_2878,Remove person,0.17364,0.17411,0.00046,-0.00338,1e-05,0.0034,0.14699,100,7.5,1.5,20260812,70.6
+task_obj_remove_634326,Remove fence,0.23276,0.23765,0.00489,0.0106,0.00702,-0.00358,0.47362,100,7.5,1.5,20260812,70.5
+task_obj_swap_joint_mask_474202,Replace the wooden deck with stone floor,0.21751,0.25623,0.03872,0.05675,0.07076,0.01401,0.7573,100,7.5,1.5,20260812,70.5
+task_obj_swap_rand_mask_216136,Replace the shimmering glass structures with tree stumps,0.24664,0.23491,-0.01173,0.06966,0.07289,0.00324,0.75141,100,7.5,1.5,20260812,70.4
+task_obj_swap_rand_mask_79926,Replace the Hawaiian shirt with blue dress,0.2581,0.25911,0.00101,0.04927,0.07875,0.02948,0.23258,100,7.5,1.5,20260812,69.1

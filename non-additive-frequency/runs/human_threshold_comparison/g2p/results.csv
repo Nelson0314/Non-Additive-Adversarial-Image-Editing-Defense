@@ -1,0 +1,2 @@
+image,condition,stage1_seconds,total_seconds,fid_lpips,fid_ssim,fid_dists,fid_psnr,fid_clip_img,fid_nima,fid_cnniqa,edit_lpips,edit_clip_orig,edit_clip_def,edit_clip_drop,edit_siglip_orig,edit_siglip_def,edit_siglip_drop
+cat_01,photoguard_c,0.0,6285.6,0.2821,0.9889,0.0144,40.896,0.9872,5.536,0.7109,0.5059,0.2601,0.2596,0.0005,0.0917,0.0921,-0.0005

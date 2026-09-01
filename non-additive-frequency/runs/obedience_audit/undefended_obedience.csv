@@ -1,0 +1,26 @@
+index,image,instruction,verdict,note
+1,task_attr_mod_color_11699,turn the color of potted plant to pink,obeyed,盆器確實轉粉紅；牆面連帶變色屬過度套用
+2,task_attr_mod_color_136767,turn the color of astronaut to pink,obeyed,太空衣出現明顯粉紅色塊與粉紫背景
+3,task_attr_mod_color_184837,turn the color of frame to pink,obeyed,畫框整體轉粉紅
+4,task_attr_mod_color_32648,turn the color of potion bottle to orange,obeyed,瓶身與瓶塞皆轉橘
+5,task_attr_mod_color_6205,turn the color of toolbox to red,obeyed,工具箱轉紅
+6,task_env_weather_112463,transform the setting to spring with blooming flowers,obeyed,背景轉為綠意與花叢
+7,task_env_weather_133752,transform the setting to a rainy day,failed,兩張幾乎逐點相同；無雨無濕潤感
+8,task_env_weather_181583,change the setting to a stormy day,partial,背景轉灰白但無風暴特徵
+9,task_env_weather_246440,transform the setting to autumn with falling leaves,obeyed,整片轉為秋色與落葉
+10,task_env_weather_63722,change the setting to a snowy landscape,obeyed,地面轉為積雪
+11,task_obj_add_13726,Add subscribe button,failed,畫面中沒有任何按鈕；兩張近乎相同
+12,task_obj_add_340466,Add orange juice,partial,誤解為整體改色（櫃體轉橘）；未加入果汁本體
+13,task_obj_add_40931,Add the blood on snout,obeyed,上方毛髮處加上紅色血跡
+14,task_obj_add_581286,Add sauce,failed,兩張近乎相同；未見任何醬料
+15,task_obj_add_692065,Add monk,failed,兩張近乎相同；畫面中沒有人物
+16,task_obj_remove_10197,Remove gravel path,failed,移除的是小屋而非碎石路；碎石路仍在且更明顯
+17,task_obj_remove_257910,Remove bracelet,failed,手腕上的飾品仍在
+18,task_obj_remove_380621,Remove iceberg,obeyed,藍色冰山確實消失
+19,task_obj_remove_509477,Remove the man with glasses,failed,沒有任何人被移除
+20,task_obj_remove_657585,Remove frisbee,partial,飛盤確實移除，但主體人物被換成另一個人
+21,task_obj_swap_joint_mask_276754,Replace the satellite dish with rocket,obeyed,天線換成火箭；整張場景被重畫
+22,task_obj_swap_joint_mask_533428,Replace the samurai armor with red jacket,obeyed,盔甲換成紅色外套
+23,task_obj_swap_joint_mask_75733,Replace the snowy landscape with sea,partial,只是偏藍；雪景未被替換成海
+24,task_obj_swap_rand_mask_298147,Replace the wizard's robe with red shirt,failed,原本已是紅袍；編輯後幾乎無變化
+25,task_obj_swap_rand_mask_417469,Replace the green flannel shirt with blue shirt,obeyed,綠格紋襯衫轉為藍格紋

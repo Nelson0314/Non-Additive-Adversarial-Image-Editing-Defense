@@ -1,0 +1,16 @@
+image,condition,budget_target,purifier,effect_mean,effect_sd,effect_identity_mean,effect_identity_sd,retention,siglip_sim,siglip_blocked,edit_strength,usable,seconds
+task_attr_mod_color_11699,phase_gain,native,identity,0.54512,0.00558,0.54512,0.00558,1.0,0.75989,True,0.8,True,708.6
+task_attr_mod_color_11699,phase_gain,native,blur1,0.30213,0.00734,0.54512,0.00558,0.55425,0.95105,False,0.8,True,708.6
+task_attr_mod_color_11699,phase_gain,native,blur2,0.33921,0.00506,0.54512,0.00558,0.62226,0.9019,False,0.8,True,708.6
+task_attr_mod_color_11699,phase_gain,native,crop_resize0.1,0.59129,0.00154,0.54512,0.00558,1.08469,0.84028,False,0.8,True,708.6
+task_attr_mod_color_11699,phase_gain,native,crop_resize0.15,0.64167,0.00294,0.54512,0.00558,1.1771,0.84165,False,0.8,True,708.6
+task_env_weather_112463,phase_gain,native,identity,0.68713,0.13111,0.68713,0.13111,1.0,0.57874,True,0.8,True,698.9
+task_env_weather_112463,phase_gain,native,blur1,0.36339,0.01299,0.68713,0.13111,0.52885,0.91035,False,0.8,True,698.9
+task_env_weather_112463,phase_gain,native,blur2,0.39479,0.07083,0.68713,0.13111,0.57456,0.92516,False,0.8,True,698.9
+task_env_weather_112463,phase_gain,native,crop_resize0.1,0.70903,0.24287,0.68713,0.13111,1.03187,0.83941,False,0.8,True,698.9
+task_env_weather_112463,phase_gain,native,crop_resize0.15,0.7458,0.23082,0.68713,0.13111,1.08539,0.85747,False,0.8,True,698.9
+task_obj_swap_joint_mask_276754,phase_gain,native,identity,0.55994,0.17397,0.55994,0.17397,1.0,0.85156,False,0.8,True,698.7
+task_obj_swap_joint_mask_276754,phase_gain,native,blur1,0.19223,0.04901,0.55994,0.17397,0.3433,0.92357,False,0.8,True,698.7
+task_obj_swap_joint_mask_276754,phase_gain,native,blur2,0.20786,0.05701,0.55994,0.17397,0.37122,0.91054,False,0.8,True,698.7
+task_obj_swap_joint_mask_276754,phase_gain,native,crop_resize0.1,0.47312,0.1989,0.55994,0.17397,0.84494,0.90777,False,0.8,True,698.7
+task_obj_swap_joint_mask_276754,phase_gain,native,crop_resize0.15,0.50573,0.21101,0.55994,0.17397,0.90318,0.90957,False,0.8,True,698.7

@@ -1,0 +1,8 @@
+condition,radius,n_images,x_key,x,y_key,y
+dct_shield,1.0,25,fid_lpips,0.45842,edit_lpips,0.65835
+dct_shield,2.0,25,fid_lpips,0.56636,edit_lpips,0.72106
+dct_shield,3.0,25,fid_lpips,0.62308,edit_lpips,0.72929
+phase,1.0,25,fid_lpips,0.17348,edit_lpips,0.25114
+phase,1.2,25,fid_lpips,0.19772,edit_lpips,0.26326
+phase,1.4,25,fid_lpips,0.21876,edit_lpips,0.29465
+phase,1.6,25,fid_lpips,0.2366,edit_lpips,0.31056

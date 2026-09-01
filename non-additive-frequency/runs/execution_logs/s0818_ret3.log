@@ -1,0 +1,28 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  50%|█████     | 3/6 [00:00<00:00, 15.97it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3489.90it/s]
+Loading pipeline components...:  83%|████████▎ | 5/6 [00:00<00:00, 13.49it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 15.02it/s]
+There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+=== cat_00 / add__human ===
+    identity=0.1261, blur1=0.1361, noise0.05=0.5056, quantize16=0.0559, jpeg75=0.0352, jpeg30=0.0695, crop_resize0.1=0.3053, jpeg_then_resize75=0.0990, adverse_cleaner=0.0877
+=== cat_00 / phase__human ===
+    identity=0.2800, blur1=0.1870, noise0.05=0.5070, quantize16=0.2148, jpeg75=0.1061, jpeg30=0.0822, crop_resize0.1=0.3362, jpeg_then_resize75=0.1105, adverse_cleaner=0.2649
+=== cat_00 / phase_rand__human ===
+    分母塌陷：effect(identity) mean=0.0420 sd=0.0260，本格的 retention 不可用
+    identity=0.0420, blur1=0.1365, noise0.05=0.5069, quantize16=0.0643, jpeg75=0.0599, jpeg30=0.0838, crop_resize0.1=0.3270, jpeg_then_resize75=0.1089, adverse_cleaner=0.0854
+=== cat_00 / apa_weak ===
+    分母塌陷：effect(identity) mean=0.0767 sd=0.0412，本格的 retention 不可用
+    identity=0.0767, blur1=0.1297, noise0.05=0.5169, quantize16=0.1072, jpeg75=0.0791, jpeg30=0.1078, crop_resize0.1=0.3195, jpeg_then_resize75=0.0969, adverse_cleaner=0.0767
+=== cat_00 / mist ===
+    identity=0.5775, blur1=0.2924, noise0.05=0.5736, quantize16=0.5963, jpeg75=0.4998, jpeg30=0.3313, crop_resize0.1=0.5890, jpeg_then_resize75=0.3607, adverse_cleaner=0.3687
+=== cat_00 / dia_r ===
+    identity=0.3888, blur1=0.1428, noise0.05=0.5199, quantize16=0.0741, jpeg75=0.1246, jpeg30=0.0925, crop_resize0.1=0.3977, jpeg_then_resize75=0.1188, adverse_cleaner=0.0952
+=== cat_00 / photoguard_c ===
+    identity=0.4547, blur1=0.2184, noise0.05=0.5120, quantize16=0.3410, jpeg75=0.2453, jpeg30=0.1071, crop_resize0.1=0.4172, jpeg_then_resize75=0.1661, adverse_cleaner=0.1697
+
+表：runs/s0817/merged/retention_3.csv（63 列）

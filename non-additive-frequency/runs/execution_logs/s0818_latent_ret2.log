@@ -1,0 +1,19 @@
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3537.55it/s]
+Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00,  9.43it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 16.01it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 14.96it/s]
+There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+=== shiba_00 / add__human ===
+    identity=0.3093, blur1=0.4031, noise0.05=0.7305, quantize16=0.4652, jpeg75=0.2138, jpeg30=0.2884, crop_resize0.1=0.5007, jpeg_then_resize75=0.3149, adverse_cleaner=0.1809
+=== shiba_00 / phase__human ===
+    identity=0.4046, blur1=0.4379, noise0.05=0.7544, quantize16=0.5240, jpeg75=0.3857, jpeg30=0.3747, crop_resize0.1=0.5484, jpeg_then_resize75=0.4112, adverse_cleaner=0.3931
+=== raccoon_00 / add__human ===
+    identity=0.4854, blur1=0.4403, noise0.05=0.5936, quantize16=0.4230, jpeg75=0.2470, jpeg30=0.2188, crop_resize0.1=0.5287, jpeg_then_resize75=0.3966, adverse_cleaner=0.2345
+=== raccoon_00 / phase__human ===
+    identity=0.2532, blur1=0.4694, noise0.05=0.5533, quantize16=0.3006, jpeg75=0.2540, jpeg30=0.2987, crop_resize0.1=0.5419, jpeg_then_resize75=0.4050, adverse_cleaner=0.2890
+
+表：runs/s0818_latent/retention_2.csv（36 列）

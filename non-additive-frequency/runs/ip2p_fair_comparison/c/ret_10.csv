@@ -1,0 +1,13 @@
+image,condition,budget_target,purifier,effect_mean,effect_sd,effect_identity_mean,effect_identity_sd,retention,edit_strength,usable,seconds
+task_attr_mod_color_42929,dct_shield,native,identity,0.6721,0.00803,0.6721,0.00803,1.0,0.8,True,886.0
+task_attr_mod_color_42929,dct_shield,native,blur1,0.30852,0.00447,0.6721,0.00803,0.45904,0.8,True,886.0
+task_attr_mod_color_42929,dct_shield,native,jpeg75,0.14531,0.004,0.6721,0.00803,0.2162,0.8,True,886.0
+task_attr_mod_color_42929,dct_shield,native,crop_resize0.1,0.53723,0.00349,0.6721,0.00803,0.79934,0.8,True,886.0
+task_obj_remove_720199,dct_shield,native,identity,0.75366,0.04979,0.75366,0.04979,1.0,0.8,True,885.9
+task_obj_remove_720199,dct_shield,native,blur1,0.36372,0.02048,0.75366,0.04979,0.48261,0.8,True,885.9
+task_obj_remove_720199,dct_shield,native,jpeg75,0.23212,0.01489,0.75366,0.04979,0.30799,0.8,True,885.9
+task_obj_remove_720199,dct_shield,native,crop_resize0.1,0.67202,0.01768,0.75366,0.04979,0.89168,0.8,True,885.9
+task_obj_add_362298,dct_shield,native,identity,0.72041,0.01378,0.72041,0.01378,1.0,0.8,True,886.0
+task_obj_add_362298,dct_shield,native,blur1,0.23279,0.00173,0.72041,0.01378,0.32314,0.8,True,886.0
+task_obj_add_362298,dct_shield,native,jpeg75,0.10989,0.00018,0.72041,0.01378,0.15253,0.8,True,886.0
+task_obj_add_362298,dct_shield,native,crop_resize0.1,0.62467,0.00221,0.72041,0.01378,0.86711,0.8,True,886.0

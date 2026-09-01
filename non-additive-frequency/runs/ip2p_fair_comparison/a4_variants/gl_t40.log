@@ -1,0 +1,40 @@
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00, 10.16it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 4207.59it/s]
+Loading pipeline components...:  67%|██████▋   | 4/6 [00:00<00:00,  9.68it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 14.24it/s]
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+IP2P 線：25 張、條件 ['phase']、steps=100 s_T=7.5 s_I=1.5 seed=20260812
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,1.0]
+  warnings.warn(
+task_attr_mod_color_11699        phase          r=3.1416 dists=0.0324 lpips=0.1184 effect=0.1399 (37s)
+task_attr_mod_color_136767       phase          r=3.1416 dists=0.0531 lpips=0.1678 effect=0.1968 (38s)
+task_attr_mod_color_184837       phase          r=3.1416 dists=0.0849 lpips=0.1891 effect=0.2359 (38s)
+task_attr_mod_color_32648        phase          r=3.1416 dists=0.0305 lpips=0.1912 effect=0.1904 (38s)
+task_attr_mod_color_6205         phase          r=3.1416 dists=0.0539 lpips=0.1089 effect=0.1291 (38s)
+task_env_weather_112463          phase          r=3.1416 dists=0.0291 lpips=0.1831 effect=0.2905 (38s)
+task_env_weather_133752          phase          r=3.1416 dists=0.0272 lpips=0.2121 effect=0.2402 (38s)
+task_env_weather_181583          phase          r=3.1416 dists=0.0310 lpips=0.2179 effect=0.2202 (38s)
+task_env_weather_246440          phase          r=3.1416 dists=0.0744 lpips=0.2487 effect=0.3805 (38s)
+task_env_weather_63722           phase          r=3.1416 dists=0.0595 lpips=0.1756 effect=0.2001 (38s)
+task_obj_add_13726               phase          r=3.1416 dists=0.0682 lpips=0.2319 effect=0.2923 (38s)
+task_obj_add_340466              phase          r=3.1416 dists=0.0429 lpips=0.1102 effect=0.2035 (38s)
+task_obj_add_40931               phase          r=3.1416 dists=0.0575 lpips=0.3399 effect=0.2973 (38s)
+task_obj_add_581286              phase          r=3.1416 dists=0.0296 lpips=0.1416 effect=0.1527 (38s)
+task_obj_add_692065              phase          r=3.1416 dists=0.0501 lpips=0.1668 effect=0.2024 (38s)
+task_obj_remove_10197            phase          r=3.1416 dists=0.0573 lpips=0.2896 effect=0.4221 (38s)
+task_obj_remove_257910           phase          r=3.1416 dists=0.0282 lpips=0.2405 effect=0.2288 (38s)
+task_obj_remove_380621           phase          r=3.1416 dists=0.0730 lpips=0.2596 effect=0.2904 (38s)
+task_obj_remove_509477           phase          r=3.1416 dists=0.0555 lpips=0.2510 effect=0.2536 (38s)
+task_obj_remove_657585           phase          r=3.1416 dists=0.0282 lpips=0.1312 effect=0.2622 (38s)
+task_obj_swap_joint_mask_276754  phase          r=3.1416 dists=0.0959 lpips=0.4030 effect=0.1814 (38s)
+task_obj_swap_joint_mask_533428  phase          r=3.1416 dists=0.0606 lpips=0.2536 effect=0.3456 (38s)
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-0.9686274528503418,1.0]
+  warnings.warn(
+task_obj_swap_joint_mask_75733   phase          r=3.1416 dists=0.0544 lpips=0.2812 effect=0.3387 (38s)
+task_obj_swap_rand_mask_298147   phase          r=3.1416 dists=0.1114 lpips=0.3679 effect=0.5238 (38s)
+task_obj_swap_rand_mask_417469   phase          r=3.1416 dists=0.0392 lpips=0.1972 effect=0.2202 (38s)
+
+表：runs/fair0820/a4_variants/gl_t40/results.csv（25 列）

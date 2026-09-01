@@ -1,0 +1,6 @@
+image,condition,prompt_index,prompt,block,r_min,quantile,target_image,budget_target,budget_mode,budget_reached,unreachable,radius,total_seconds,fid_lpips,fid_ssim,fid_dists,fid_psnr,fid_clip_img,fid_nima,fid_cnniqa,edit_lpips,edit_clip_orig,edit_clip_def,edit_clip_drop,edit_siglip_orig,edit_siglip_def,edit_siglip_drop,amp_dev,active_fraction
+bird_03,phase,0,a butterfly,32,0.4,0.5,data/targets/gray.png,human,human,0.0051,False,1.3,42.2,0.1278,0.9962,0.0051,41.3494,0.9992,5.5467,0.7191,0.5149,0.2725,0.3039,-0.0314,0.1038,0.1027,0.0012,0.00653,0.4617
+cat_00,phase,0,a dog,32,0.4,0.5,data/targets/gray.png,human,human,0.01903,False,1.3,25.3,0.2394,0.9557,0.019,25.0908,0.9977,4.8913,0.7293,0.5644,0.2452,0.2591,-0.0139,0.0621,0.0776,-0.0155,0.0469,0.5538
+horse_01,phase,0,a zebra,32,0.4,0.5,data/targets/gray.png,human,human,0.02844,False,1.3,25.5,0.3197,0.9636,0.0284,27.5725,0.9983,4.8707,0.7099,0.5427,0.323,0.3099,0.0131,0.1175,0.1042,0.0133,0.0342,0.6331
+man_00,phase,0,an old woman,32,0.4,0.5,data/targets/gray.png,human,human,0.00307,False,1.3,25.6,0.0614,0.9987,0.0031,46.2289,0.9993,4.5016,0.6629,0.3049,0.2819,0.296,-0.0142,0.1079,0.1223,-0.0143,0.00314,0.279
+woman_01,phase,0,a man,32,0.4,0.5,data/targets/gray.png,human,human,0.00215,False,1.3,25.7,0.0382,0.9994,0.0021,51.6872,0.9998,3.4995,0.3244,0.1548,0.208,0.2071,0.0009,0.0388,0.0515,-0.0127,0.00143,0.3817

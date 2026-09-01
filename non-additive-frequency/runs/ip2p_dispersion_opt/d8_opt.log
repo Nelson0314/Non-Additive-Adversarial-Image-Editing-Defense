@@ -1,0 +1,736 @@
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  17%|█▋        | 1/6 [00:00<00:00,  6.97it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3170.76it/s]
+Loading pipeline components...:  50%|█████     | 3/6 [00:00<00:00,  7.71it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 13.28it/s]
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+IP2P 線：10 張、條件 ['disp_k8_opt']、steps=100 s_T=7.5 s_I=1.5 seed=20260812
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,1.0]
+  warnings.warn(
+    [disp] step    0 loss 105.950577 |p| 0.00640 eval 105.882553
+    [disp] step  100 loss 102.635132 |p| 0.38919 eval 102.615028
+    [disp] step  125 loss 102.096687 |p| 0.46063
+    [disp] step  200 loss 100.701042 |p| 0.64386 eval 100.688965
+    [disp] step  250 loss 99.958740 |p| 0.74916
+    [disp] step  300 loss 99.322273 |p| 0.84305 eval 99.310722
+    [disp] step  375 loss 98.485069 |p| 0.97007
+    [disp] step  400 loss 98.222107 |p| 1.00934 eval 98.216164
+    [disp] step  500 loss 97.371918 |p| 1.15074 eval 97.365639
+    [disp] step  600 loss 96.733047 |p| 1.27322 eval 96.716537
+    [disp] step  625 loss 96.582260 |p| 1.30175
+    [disp] step  700 loss 96.200989 |p| 1.38243 eval 96.197029
+    [disp] step  750 loss 95.963547 |p| 1.43256
+    [disp] step  800 loss 95.747025 |p| 1.47910 eval 95.742493
+    [disp] step  875 loss 95.447166 |p| 1.54393
+    [disp] step  900 loss 95.354149 |p| 1.56480 eval 95.349785
+    [disp] step 1000 loss 94.994705 |p| 1.64331 eval 94.991417
+    [disp] step 1100 loss 94.691811 |p| 1.71351 eval 94.693901
+    [disp] step 1125 loss 94.626007 |p| 1.72995
+    [disp] step 1200 loss 94.439445 |p| 1.77658 eval 94.444023
+    [disp] step 1250 loss 94.331833 |p| 1.80593
+    [disp] step 1300 loss 94.261604 |p| 1.82402 eval 94.251961
+    [disp] step 1375 loss 94.140015 |p| 1.84777
+    [disp] step 1400 loss 94.108162 |p| 1.85474 eval 94.104301
+    [disp] step 1500 loss 93.970711 |p| 1.88089 eval 93.967293
+    [disp] step 1600 loss 93.838539 |p| 1.90353 eval 93.833160
+    [disp] step 1625 loss 93.803421 |p| 1.90877
+    [disp] step 1700 loss 93.712044 |p| 1.92382 eval 93.711876
+    [disp] step 1750 loss 93.639977 |p| 1.93341
+    [disp] step 1800 loss 93.590096 |p| 1.94214 eval 93.591942
+    [disp] step 1875 loss 93.516708 |p| 1.95450
+    [disp] step 1900 loss 93.490517 |p| 1.95834 eval 93.494278
+    [disp] step 2000 loss 93.393158 |p| 1.97290 eval 93.391640
+    [disp] step 2100 loss 93.297760 |p| 1.98672 eval 93.290161
+    [disp] step 2125 loss 93.274147 |p| 1.98999
+    [disp] step 2200 loss 93.217354 |p| 1.99934 eval 93.226990
+    [disp] step 2250 loss 93.185112 |p| 2.00541
+    [disp] step 2300 loss 93.148857 |p| 2.01123 eval 93.152153
+    [disp] step 2375 loss 93.111710 |p| 2.01932
+    [disp] step 2400 loss 93.089783 |p| 2.02200 eval 93.091743
+    [disp] step 2500 loss 93.035942 |p| 2.03156 eval 93.037498
+    [disp] step 2600 loss 92.988235 |p| 2.04047 eval 92.993286
+    [disp] step 2625 loss 92.984749 |p| 2.04251
+    [disp] step 2700 loss 92.950951 |p| 2.04810 eval 92.957581
+    [disp] step 2750 loss 92.931435 |p| 2.05185
+    [disp] step 2800 loss 92.915413 |p| 2.05559 eval 92.920204
+    [disp] step 2875 loss 92.895393 |p| 2.06041
+    [disp] step 2900 loss 92.883965 |p| 2.06182 eval 92.888214
+    [disp] step 3000 loss 92.860352 |p| 2.06702 eval 92.865593
+    [disp] step 3100 loss 92.841530 |p| 2.07153 eval 92.845810
+    [disp] step 3125 loss 92.841438 |p| 2.07264
+    [disp] step 3200 loss 92.826134 |p| 2.07553 eval 92.830925
+    [disp] step 3250 loss 92.819199 |p| 2.07737
+    [disp] step 3300 loss 92.815224 |p| 2.07920 eval 92.816391
+    [disp] step 3375 loss 92.800285 |p| 2.08251
+    [disp] step 3400 loss 92.791573 |p| 2.08355 eval 92.798500
+    [disp] step 3500 loss 92.778122 |p| 2.08726 eval 92.780983
+    [disp] step 3600 loss 92.761276 |p| 2.09047 eval 92.767715
+    [disp] step 3625 loss 92.765587 |p| 2.09115
+    [disp] step 3700 loss 92.748314 |p| 2.09316 eval 92.758308
+    [disp] step 3750 loss 92.744728 |p| 2.09449
+    [disp] step 3800 loss 92.736214 |p| 2.09581 eval 92.745628
+    [disp] step 3875 loss 92.738174 |p| 2.09779
+    [disp] step 3900 loss 92.723808 |p| 2.09833 eval 92.735100
+    [disp] step 4000 loss 92.714058 |p| 2.10072 eval 92.724182
+    [disp] step 4100 loss 92.705589 |p| 2.10279 eval 92.712021
+    [disp] step 4125 loss 92.709846 |p| 2.10327
+    [disp] step 4200 loss 92.698112 |p| 2.10463 eval 92.704514
+    [disp] step 4250 loss 92.695572 |p| 2.10541
+    [disp] step 4300 loss 92.690598 |p| 2.10630 eval 92.699417
+    [disp] step 4375 loss 92.694138 |p| 2.10764
+    [disp] step 4400 loss 92.687996 |p| 2.10800 eval 92.692917
+    [disp] step 4500 loss 92.678421 |p| 2.10954 eval 92.684921
+    [disp] step 4600 loss 92.670395 |p| 2.11101 eval 92.676727
+    [disp] early stop at step 4600（連續 15 次評估未改善 > 0.0002）
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 12656.63it/s]
+[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
+[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
+Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights:  78%|███████▊  | 319/408 [00:00<00:00, 3179.14it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 3117.10it/s]
+task_attr_mod_color_11699        disp_k8_opt    r=8.0000 dists=0.0637 lpips=0.1276 effect=0.1789 (766s)
+    [disp] step    0 loss 133.485077 |p| 0.00640 eval 133.377747
+    [disp] step  100 loss 128.135361 |p| 0.38727 eval 128.090164
+    [disp] step  125 loss 127.392296 |p| 0.45839
+    [disp] step  200 loss 125.652122 |p| 0.64266 eval 125.619804
+    [disp] step  250 loss 124.722771 |p| 0.74590
+    [disp] step  300 loss 123.958611 |p| 0.83798 eval 123.945778
+    [disp] step  375 loss 123.017525 |p| 0.95932
+    [disp] step  400 loss 122.742256 |p| 0.99597 eval 122.744766
+    [disp] step  500 loss 121.850441 |p| 1.12647 eval 121.850052
+    [disp] step  600 loss 121.163872 |p| 1.23834 eval 121.157784
+    [disp] step  625 loss 121.014320 |p| 1.26413
+    [disp] step  700 loss 120.607552 |p| 1.33672 eval 120.603195
+    [disp] step  750 loss 120.377701 |p| 1.38074
+    [disp] step  800 loss 120.181618 |p| 1.42156 eval 120.180923
+    [disp] step  875 loss 119.902931 |p| 1.47791
+    [disp] step  900 loss 119.822968 |p| 1.49596 eval 119.816917
+    [disp] step 1000 loss 119.500671 |p| 1.56376 eval 119.505188
+    [disp] step 1100 loss 119.225044 |p| 1.62570 eval 119.238983
+    [disp] step 1125 loss 119.172714 |p| 1.64017
+    [disp] step 1200 loss 119.003410 |p| 1.68105 eval 119.015358
+    [disp] step 1250 loss 118.905777 |p| 1.70714
+    [disp] step 1300 loss 118.824532 |p| 1.72411 eval 118.845825
+    [disp] step 1375 loss 118.747513 |p| 1.74645
+    [disp] step 1400 loss 118.693649 |p| 1.75336 eval 118.714508
+    [disp] step 1500 loss 118.592125 |p| 1.77772 eval 118.613419
+    [disp] step 1600 loss 118.510033 |p| 1.79893 eval 118.518120
+    [disp] step 1625 loss 118.501152 |p| 1.80363
+    [disp] step 1700 loss 118.422058 |p| 1.81780 eval 118.447456
+    [disp] step 1750 loss 118.387978 |p| 1.82629
+    [disp] step 1800 loss 118.356117 |p| 1.83395 eval 118.371040
+    [disp] step 1875 loss 118.321869 |p| 1.84428
+    [disp] step 1900 loss 118.293694 |p| 1.84751 eval 118.300011
+    [disp] step 2000 loss 118.244202 |p| 1.85926 eval 118.253693
+    [disp] step 2100 loss 118.200645 |p| 1.86952 eval 118.213028
+    [disp] step 2125 loss 118.202477 |p| 1.87175
+    [disp] step 2200 loss 118.172890 |p| 1.87807 eval 118.178185
+    [disp] step 2250 loss 118.157814 |p| 1.88177
+    [disp] step 2300 loss 118.141388 |p| 1.88525 eval 118.150482
+    [disp] step 2375 loss 118.132736 |p| 1.89004
+    [disp] step 2400 loss 118.120003 |p| 1.89166 eval 118.128151
+    [disp] step 2500 loss 118.101608 |p| 1.89761 eval 118.102875
+    [disp] step 2600 loss 118.082954 |p| 1.90281 eval 118.083130
+    [disp] step 2625 loss 118.081711 |p| 1.90388
+    [disp] step 2700 loss 118.067039 |p| 1.90735 eval 118.066414
+    [disp] step 2750 loss 118.052734 |p| 1.90939
+    [disp] step 2800 loss 118.048004 |p| 1.91147 eval 118.047195
+    [disp] step 2875 loss 118.036537 |p| 1.91453
+    [disp] step 2900 loss 118.027359 |p| 1.91547 eval 118.038437
+    [disp] step 3000 loss 118.013077 |p| 1.91889 eval 118.021240
+    [disp] step 3100 loss 117.994736 |p| 1.92226 eval 118.005798
+    [disp] step 3125 loss 118.005974 |p| 1.92302
+    [disp] step 3200 loss 117.989113 |p| 1.92530 eval 117.991676
+    [disp] step 3250 loss 117.978569 |p| 1.92667
+    [disp] step 3300 loss 117.971153 |p| 1.92805 eval 117.983650
+    [disp] step 3375 loss 117.975616 |p| 1.93000
+    [disp] step 3400 loss 117.959236 |p| 1.93068 eval 117.972786
+    [disp] step 3500 loss 117.950783 |p| 1.93275 eval 117.967346
+    [disp] step 3600 loss 117.946762 |p| 1.93434 eval 117.958984
+    [disp] step 3625 loss 117.958282 |p| 1.93460
+    [disp] step 3700 loss 117.943169 |p| 1.93577 eval 117.958176
+    [disp] step 3750 loss 117.942841 |p| 1.93663
+    [disp] step 3800 loss 117.937141 |p| 1.93745 eval 117.944389
+    [disp] step 3875 loss 117.940689 |p| 1.93867
+    [disp] step 3900 loss 117.919960 |p| 1.93914 eval 117.939682
+    [disp] step 4000 loss 117.917633 |p| 1.94045 eval 117.930336
+    [disp] early stop at step 4000（連續 15 次評估未改善 > 0.0002）
+task_attr_mod_color_136767       disp_k8_opt    r=8.0000 dists=0.0935 lpips=0.1402 effect=0.1865 (659s)
+    [disp] step    0 loss 105.163506 |p| 0.00640 eval 105.039825
+    [disp] step  100 loss 100.447098 |p| 0.34927 eval 100.421379
+    [disp] step  125 loss 99.743149 |p| 0.40830
+    [disp] step  200 loss 98.006569 |p| 0.55697 eval 97.971291
+    [disp] step  250 loss 97.055786 |p| 0.64012
+    [disp] step  300 loss 96.223785 |p| 0.71462 eval 96.210228
+    [disp] step  375 loss 95.157387 |p| 0.81074
+    [disp] step  400 loss 94.871750 |p| 0.83923 eval 94.857544
+    [disp] step  500 loss 93.882774 |p| 0.94017 eval 93.844398
+    [disp] step  600 loss 93.120598 |p| 1.02434 eval 93.125504
+    [disp] step  625 loss 92.969902 |p| 1.04310
+    [disp] step  700 loss 92.562553 |p| 1.09489 eval 92.571419
+    [disp] step  750 loss 92.326958 |p| 1.12620
+    [disp] step  800 loss 92.099327 |p| 1.15580 eval 92.093185
+    [disp] step  875 loss 91.785072 |p| 1.19628
+    [disp] step  900 loss 91.702347 |p| 1.20873 eval 91.675987
+    [disp] step 1000 loss 91.373917 |p| 1.25551 eval 91.364395
+    [disp] step 1100 loss 91.121536 |p| 1.29824 eval 91.063011
+    [disp] step 1125 loss 91.001183 |p| 1.30803
+    [disp] step 1200 loss 90.837341 |p| 1.33672 eval 90.818153
+    [disp] step 1250 loss 90.754135 |p| 1.35435
+    [disp] step 1300 loss 90.654388 |p| 1.36707 eval 90.625366
+    [disp] step 1375 loss 90.508873 |p| 1.38349
+    [disp] step 1400 loss 90.496841 |p| 1.38839 eval 90.488998
+    [disp] step 1500 loss 90.369461 |p| 1.40672 eval 90.355583
+    [disp] step 1600 loss 90.263695 |p| 1.42304 eval 90.245087
+    [disp] step 1625 loss 90.222626 |p| 1.42687
+    [disp] step 1700 loss 90.167259 |p| 1.43729 eval 90.151535
+    [disp] step 1750 loss 90.127312 |p| 1.44358
+    [disp] step 1800 loss 90.091560 |p| 1.44945 eval 90.079437
+    [disp] step 1875 loss 90.035637 |p| 1.45753
+    [disp] step 1900 loss 90.028976 |p| 1.46007 eval 90.022942
+    [disp] step 2000 loss 89.952530 |p| 1.47038 eval 89.961502
+    [disp] step 2100 loss 89.900887 |p| 1.48022 eval 89.876480
+    [disp] step 2125 loss 89.860550 |p| 1.48264
+    [disp] step 2200 loss 89.831451 |p| 1.48929 eval 89.820168
+    [disp] step 2250 loss 89.806923 |p| 1.49332
+    [disp] step 2300 loss 89.772133 |p| 1.49726 eval 89.776726
+    [disp] step 2375 loss 89.729675 |p| 1.50272
+    [disp] step 2400 loss 89.716362 |p| 1.50452 eval 89.721298
+    [disp] step 2500 loss 89.667198 |p| 1.51201 eval 89.655319
+    [disp] step 2600 loss 89.622192 |p| 1.51815 eval 89.613564
+    [disp] step 2625 loss 89.603630 |p| 1.51954
+    [disp] step 2700 loss 89.575035 |p| 1.52365 eval 89.563766
+    [disp] step 2750 loss 89.549103 |p| 1.52620
+    [disp] step 2800 loss 89.531891 |p| 1.52870 eval 89.525177
+    [disp] step 2875 loss 89.498947 |p| 1.53194
+    [disp] step 2900 loss 89.494781 |p| 1.53309 eval 89.486000
+    [disp] step 3000 loss 89.470734 |p| 1.53688 eval 89.454483
+    [disp] step 3100 loss 89.445816 |p| 1.54033 eval 89.434555
+    [disp] step 3125 loss 89.427315 |p| 1.54120
+    [disp] step 3200 loss 89.427116 |p| 1.54353 eval 89.411148
+    [disp] step 3250 loss 89.413719 |p| 1.54494
+    [disp] step 3300 loss 89.409042 |p| 1.54628 eval 89.384254
+    [disp] step 3375 loss 89.371880 |p| 1.54817
+    [disp] step 3400 loss 89.388519 |p| 1.54880 eval 89.371323
+    [disp] step 3500 loss 89.372520 |p| 1.55128 eval 89.353867
+    [disp] step 3600 loss 89.365791 |p| 1.55358 eval 89.328453
+    [disp] step 3625 loss 89.326256 |p| 1.55406
+    [disp] step 3700 loss 89.352104 |p| 1.55540 eval 89.318092
+    [disp] step 3750 loss 89.346268 |p| 1.55644
+    [disp] step 3800 loss 89.330673 |p| 1.55770 eval 89.314331
+    [disp] step 3875 loss 89.287605 |p| 1.55953
+    [disp] step 3900 loss 89.321114 |p| 1.56007 eval 89.280014
+    [disp] step 4000 loss 89.306305 |p| 1.56237 eval 89.269577
+    [disp] step 4100 loss 89.294037 |p| 1.56466 eval 89.249931
+    [disp] step 4125 loss 89.251389 |p| 1.56529
+    [disp] step 4200 loss 89.279388 |p| 1.56683 eval 89.237953
+    [disp] step 4250 loss 89.270950 |p| 1.56787
+    [disp] step 4300 loss 89.267136 |p| 1.56873 eval 89.228378
+    [disp] step 4375 loss 89.222923 |p| 1.56986
+    [disp] step 4400 loss 89.260101 |p| 1.57023 eval 89.220253
+    [disp] step 4500 loss 89.254532 |p| 1.57156 eval 89.214676
+    [disp] step 4600 loss 89.247032 |p| 1.57298 eval 89.205193
+    [disp] step 4625 loss 89.202843 |p| 1.57332
+    [disp] step 4700 loss 89.242386 |p| 1.57447 eval 89.193565
+    [disp] step 4750 loss 89.233604 |p| 1.57504
+    [disp] step 4800 loss 89.233902 |p| 1.57553 eval 89.188026
+    [disp] step 4875 loss 89.186104 |p| 1.57642
+    [disp] step 4900 loss 89.221512 |p| 1.57666 eval 89.185677
+    [disp] step 4999 loss 89.178566 |p| 1.57761 eval 89.218056
+task_attr_mod_color_184837       disp_k8_opt    r=8.0000 dists=0.1239 lpips=0.1407 effect=0.2364 (818s)
+    [disp] step    0 loss 166.294281 |p| 0.00640 eval 166.221405
+    [disp] step  100 loss 162.411148 |p| 0.40956 eval 162.386597
+    [disp] step  125 loss 161.753052 |p| 0.48557
+    [disp] step  200 loss 160.091614 |p| 0.68442 eval 160.072067
+    [disp] step  250 loss 159.202133 |p| 0.80055
+    [disp] step  300 loss 158.435089 |p| 0.90664 eval 158.418533
+    [disp] step  375 loss 157.464432 |p| 1.04759
+    [disp] step  400 loss 157.193527 |p| 1.09020 eval 157.174042
+    [disp] step  500 loss 156.273453 |p| 1.24096 eval 156.258072
+    [disp] step  600 loss 155.565323 |p| 1.36840 eval 155.562424
+    [disp] step  625 loss 155.412033 |p| 1.39754
+    [disp] step  700 loss 154.986755 |p| 1.48022 eval 154.979477
+    [disp] step  750 loss 154.729126 |p| 1.53080
+    [disp] step  800 loss 154.496414 |p| 1.57798 eval 154.491852
+    [disp] step  875 loss 154.192535 |p| 1.64331
+    [disp] step  900 loss 154.091980 |p| 1.66401 eval 154.091293
+    [disp] step 1000 loss 153.759048 |p| 1.74027 eval 153.759872
+    [disp] step 1100 loss 153.489319 |p| 1.80747 eval 153.488434
+    [disp] step 1125 loss 153.431168 |p| 1.82303
+    [disp] step 1200 loss 153.253052 |p| 1.86796 eval 153.254272
+    [disp] step 1250 loss 153.142746 |p| 1.89630
+    [disp] step 1300 loss 153.078232 |p| 1.91206 eval 153.077530
+    [disp] step 1375 loss 152.985260 |p| 1.93226
+    [disp] step 1400 loss 152.953110 |p| 1.93849 eval 152.957306
+    [disp] step 1500 loss 152.864059 |p| 1.96037 eval 152.861023
+    [disp] step 1600 loss 152.785706 |p| 1.97898 eval 152.790421
+    [disp] step 1625 loss 152.775513 |p| 1.98296
+    [disp] step 1700 loss 152.721176 |p| 1.99410 eval 152.722565
+    [disp] step 1750 loss 152.686188 |p| 2.00090
+    [disp] step 1800 loss 152.656174 |p| 2.00744 eval 152.655243
+    [disp] step 1875 loss 152.615265 |p| 2.01615
+    [disp] step 1900 loss 152.602310 |p| 2.01915 eval 152.602280
+    [disp] step 2000 loss 152.559036 |p| 2.02888 eval 152.559540
+    [disp] step 2100 loss 152.523941 |p| 2.03753 eval 152.523376
+    [disp] step 2125 loss 152.517212 |p| 2.03926
+    [disp] step 2200 loss 152.498383 |p| 2.04425 eval 152.498962
+    [disp] step 2250 loss 152.487610 |p| 2.04712
+    [disp] step 2300 loss 152.476364 |p| 2.04991 eval 152.477356
+    [disp] step 2375 loss 152.461914 |p| 2.05354
+    [disp] step 2400 loss 152.456223 |p| 2.05477 eval 152.456894
+    [disp] step 2500 loss 152.436752 |p| 2.05899 eval 152.436920
+    [disp] step 2600 loss 152.423737 |p| 2.06243 eval 152.423843
+    [disp] step 2625 loss 152.421021 |p| 2.06307
+    [disp] step 2700 loss 152.410553 |p| 2.06520 eval 152.410599
+    [disp] step 2750 loss 152.405670 |p| 2.06630
+    [disp] step 2800 loss 152.400940 |p| 2.06733 eval 152.401169
+    [disp] step 2875 loss 152.395569 |p| 2.06873
+    [disp] step 2900 loss 152.393768 |p| 2.06927 eval 152.394119
+    [disp] step 3000 loss 152.388046 |p| 2.07084 eval 152.388428
+    [disp] step 3100 loss 152.382294 |p| 2.07236 eval 152.383072
+    [disp] step 3125 loss 152.382172 |p| 2.07257
+    [disp] step 3200 loss 152.378220 |p| 2.07361 eval 152.379105
+    [disp] step 3250 loss 152.376404 |p| 2.07416
+    [disp] step 3300 loss 152.374298 |p| 2.07470 eval 152.375305
+    [disp] step 3375 loss 152.373077 |p| 2.07528
+    [disp] step 3400 loss 152.371185 |p| 2.07559 eval 152.372314
+    [disp] step 3500 loss 152.368057 |p| 2.07644 eval 152.368942
+    [disp] step 3600 loss 152.365265 |p| 2.07721 eval 152.366119
+    [disp] early stop at step 3600（連續 15 次評估未改善 > 0.0002）
+task_attr_mod_color_32648        disp_k8_opt    r=8.0000 dists=0.0534 lpips=0.1067 effect=0.1727 (595s)
+    [disp] step    0 loss 110.273308 |p| 0.00640 eval 110.183807
+    [disp] step  100 loss 106.706673 |p| 0.39864 eval 106.685471
+    [disp] step  125 loss 106.160156 |p| 0.47212
+    [disp] step  200 loss 104.805367 |p| 0.66454 eval 104.794960
+    [disp] step  250 loss 104.081802 |p| 0.77453
+    [disp] step  300 loss 103.476562 |p| 0.87349 eval 103.465508
+    [disp] step  375 loss 102.707924 |p| 1.00547
+    [disp] step  400 loss 102.480637 |p| 1.04607 eval 102.470062
+    [disp] step  500 loss 101.696472 |p| 1.19279 eval 101.710342
+    [disp] step  600 loss 101.118202 |p| 1.31997 eval 101.124153
+    [disp] step  625 loss 101.003860 |p| 1.34940
+    [disp] step  700 loss 100.626831 |p| 1.43229 eval 100.638496
+    [disp] step  750 loss 100.419815 |p| 1.48343
+    [disp] step  800 loss 100.226395 |p| 1.53157 eval 100.235870
+    [disp] step  875 loss 99.994606 |p| 1.59942
+    [disp] step  900 loss 99.898674 |p| 1.62098 eval 99.916809
+    [disp] step 1000 loss 99.599968 |p| 1.70242 eval 99.610458
+    [disp] step 1100 loss 99.353165 |p| 1.77700 eval 99.360435
+    [disp] step 1125 loss 99.303177 |p| 1.79445
+    [disp] step 1200 loss 99.121216 |p| 1.84526 eval 99.126755
+    [disp] step 1250 loss 99.016220 |p| 1.87702
+    [disp] step 1300 loss 98.931946 |p| 1.89486 eval 98.936073
+    [disp] step 1375 loss 98.852623 |p| 1.91692
+    [disp] step 1400 loss 98.813774 |p| 1.92343 eval 98.819351
+    [disp] step 1500 loss 98.720177 |p| 1.94694 eval 98.718872
+    [disp] step 1600 loss 98.650963 |p| 1.96737 eval 98.653160
+    [disp] step 1625 loss 98.639191 |p| 1.97194
+    [disp] step 1700 loss 98.602745 |p| 1.98464 eval 98.590439
+    [disp] step 1750 loss 98.577164 |p| 1.99272
+    [disp] step 1800 loss 98.553391 |p| 2.00032 eval 98.543221
+    [disp] step 1875 loss 98.494606 |p| 2.01150
+    [disp] step 1900 loss 98.490883 |p| 2.01477 eval 98.480270
+    [disp] step 2000 loss 98.447884 |p| 2.02648 eval 98.438385
+    [disp] step 2100 loss 98.404190 |p| 2.03775 eval 98.407387
+    [disp] step 2125 loss 98.398514 |p| 2.04044
+    [disp] step 2200 loss 98.383133 |p| 2.04739 eval 98.373856
+    [disp] step 2250 loss 98.371994 |p| 2.05157
+    [disp] step 2300 loss 98.360893 |p| 2.05548 eval 98.352417
+    [disp] step 2375 loss 98.338745 |p| 2.06110
+    [disp] step 2400 loss 98.336563 |p| 2.06274 eval 98.333466
+    [disp] step 2500 loss 98.316788 |p| 2.06935 eval 98.321716
+    [disp] step 2600 loss 98.302460 |p| 2.07453 eval 98.307106
+    [disp] step 2625 loss 98.300209 |p| 2.07598
+    [disp] step 2700 loss 98.282089 |p| 2.07952 eval 98.286034
+    [disp] step 2750 loss 98.274994 |p| 2.08167
+    [disp] step 2800 loss 98.267982 |p| 2.08361 eval 98.271278
+    [disp] step 2875 loss 98.264023 |p| 2.08651
+    [disp] step 2900 loss 98.254593 |p| 2.08729 eval 98.259781
+    [disp] step 3000 loss 98.244644 |p| 2.09076 eval 98.247566
+    [disp] step 3100 loss 98.233467 |p| 2.09402 eval 98.235916
+    [disp] step 3125 loss 98.231972 |p| 2.09485
+    [disp] step 3200 loss 98.222519 |p| 2.09716 eval 98.221817
+    [disp] step 3250 loss 98.216774 |p| 2.09874
+    [disp] step 3300 loss 98.211494 |p| 2.10044 eval 98.214828
+    [disp] step 3375 loss 98.211861 |p| 2.10283
+    [disp] step 3400 loss 98.204124 |p| 2.10338 eval 98.208824
+    [disp] step 3500 loss 98.198143 |p| 2.10566 eval 98.203873
+    [disp] step 3600 loss 98.193588 |p| 2.10769 eval 98.199547
+    [disp] step 3625 loss 98.198547 |p| 2.10828
+    [disp] step 3700 loss 98.189392 |p| 2.10954 eval 98.195457
+    [disp] step 3750 loss 98.187454 |p| 2.11039
+    [disp] step 3800 loss 98.185310 |p| 2.11125 eval 98.191521
+    [disp] step 3875 loss 98.187798 |p| 2.11264
+    [disp] step 3900 loss 98.180122 |p| 2.11292 eval 98.186501
+    [disp] step 4000 loss 98.174858 |p| 2.11445 eval 98.181580
+    [disp] step 4100 loss 98.170143 |p| 2.11574 eval 98.177254
+    [disp] step 4125 loss 98.176430 |p| 2.11613
+    [disp] step 4200 loss 98.166672 |p| 2.11678 eval 98.173920
+    [disp] early stop at step 4200（連續 15 次評估未改善 > 0.0002）
+task_attr_mod_color_6205         disp_k8_opt    r=8.0000 dists=0.0893 lpips=0.1007 effect=0.2439 (691s)
+    [disp] step    0 loss 121.520950 |p| 0.00640 eval 121.454567
+    [disp] step  100 loss 117.815025 |p| 0.41238 eval 117.785316
+    [disp] step  125 loss 117.137489 |p| 0.49029
+    [disp] step  200 loss 115.295425 |p| 0.69397 eval 115.276329
+    [disp] step  250 loss 114.247322 |p| 0.81167
+    [disp] step  300 loss 113.297653 |p| 0.91771 eval 113.284271
+    [disp] step  375 loss 112.095840 |p| 1.05595
+    [disp] step  400 loss 111.736610 |p| 1.09799 eval 111.727730
+    [disp] step  500 loss 110.482361 |p| 1.24984 eval 110.454475
+    [disp] step  600 loss 109.420921 |p| 1.37921 eval 109.389915
+    [disp] step  625 loss 109.185005 |p| 1.40875
+    [disp] step  700 loss 108.535118 |p| 1.49201 eval 108.504128
+    [disp] step  750 loss 108.142906 |p| 1.54286
+    [disp] step  800 loss 107.779297 |p| 1.58978 eval 107.802132
+    [disp] step  875 loss 107.317558 |p| 1.65491
+    [disp] step  900 loss 107.168655 |p| 1.67535 eval 107.198395
+    [disp] step 1000 loss 106.705177 |p| 1.74824 eval 106.675774
+    [disp] step 1100 loss 106.247536 |p| 1.81350 eval 106.256310
+    [disp] step 1125 loss 106.183441 |p| 1.82867
+    [disp] step 1200 loss 105.913490 |p| 1.87166 eval 105.883308
+    [disp] step 1250 loss 105.748878 |p| 1.89803
+    [disp] step 1300 loss 105.620377 |p| 1.91427 eval 105.644112
+    [disp] step 1375 loss 105.488808 |p| 1.93489
+    [disp] step 1400 loss 105.450264 |p| 1.94146 eval 105.471794
+    [disp] step 1500 loss 105.339745 |p| 1.96393 eval 105.309326
+    [disp] step 1600 loss 105.207588 |p| 1.98166 eval 105.208199
+    [disp] step 1625 loss 105.200508 |p| 1.98573
+    [disp] step 1700 loss 105.110565 |p| 1.99766 eval 105.110756
+    [disp] step 1750 loss 105.090759 |p| 2.00492
+    [disp] step 1800 loss 105.033432 |p| 2.01145 eval 105.054527
+    [disp] step 1875 loss 105.006149 |p| 2.02017
+    [disp] step 1900 loss 104.967972 |p| 2.02271 eval 104.967316
+    [disp] step 2000 loss 104.913971 |p| 2.03225 eval 104.923607
+    [disp] step 2100 loss 104.871033 |p| 2.04060 eval 104.892136
+    [disp] step 2125 loss 104.850403 |p| 2.04270
+    [disp] step 2200 loss 104.855431 |p| 2.04875 eval 104.811462
+    [disp] step 2250 loss 104.837074 |p| 2.05263
+    [disp] step 2300 loss 104.787598 |p| 2.05588 eval 104.800117
+    [disp] step 2375 loss 104.751709 |p| 2.05967
+    [disp] step 2400 loss 104.761864 |p| 2.06093 eval 104.747604
+    [disp] step 2500 loss 104.741295 |p| 2.06509 eval 104.728142
+    [disp] step 2600 loss 104.719864 |p| 2.06902 eval 104.713066
+    [disp] step 2625 loss 104.707458 |p| 2.06993
+    [disp] step 2700 loss 104.711258 |p| 2.07296 eval 104.692268
+    [disp] step 2750 loss 104.701759 |p| 2.07496
+    [disp] step 2800 loss 104.690094 |p| 2.07695 eval 104.673355
+    [disp] step 2875 loss 104.661087 |p| 2.07954
+    [disp] step 2900 loss 104.672501 |p| 2.08043 eval 104.657158
+    [disp] step 3000 loss 104.657104 |p| 2.08344 eval 104.643440
+    [disp] step 3100 loss 104.646049 |p| 2.08582 eval 104.633278
+    [disp] step 3125 loss 104.631432 |p| 2.08633
+    [disp] step 3200 loss 104.640640 |p| 2.08786 eval 104.625565
+    [disp] step 3250 loss 104.637650 |p| 2.08877
+    [disp] step 3300 loss 104.634727 |p| 2.08958 eval 104.619995
+    [disp] step 3375 loss 104.616447 |p| 2.09055
+    [disp] step 3400 loss 104.629524 |p| 2.09090 eval 104.615105
+    [disp] step 3500 loss 104.625092 |p| 2.09208 eval 104.610641
+    [disp] step 3600 loss 104.621277 |p| 2.09311 eval 104.606430
+    [disp] step 3625 loss 104.604721 |p| 2.09336
+    [disp] step 3700 loss 104.615669 |p| 2.09418 eval 104.600845
+    [disp] step 3750 loss 104.612694 |p| 2.09470
+    [disp] step 3800 loss 104.610825 |p| 2.09515 eval 104.596161
+    [disp] step 3875 loss 104.593727 |p| 2.09568
+    [disp] step 3900 loss 104.607956 |p| 2.09587 eval 104.592979
+    [disp] early stop at step 3900（連續 15 次評估未改善 > 0.0002）
+task_env_weather_112463          disp_k8_opt    r=8.0000 dists=0.0539 lpips=0.1711 effect=0.2564 (643s)
+    [disp] step    0 loss 104.030472 |p| 0.00640 eval 103.916122
+    [disp] step  100 loss 98.319702 |p| 0.38972 eval 98.280251
+    [disp] step  125 loss 97.395554 |p| 0.45730
+    [disp] step  200 loss 95.312111 |p| 0.62816 eval 95.286911
+    [disp] step  250 loss 94.346840 |p| 0.72357
+    [disp] step  300 loss 93.568703 |p| 0.80897 eval 93.553574
+    [disp] step  375 loss 92.652451 |p| 0.92321
+    [disp] step  400 loss 92.398003 |p| 0.95772 eval 92.393173
+    [disp] step  500 loss 91.562653 |p| 1.07773 eval 91.550522
+    [disp] step  600 loss 90.953537 |p| 1.17980 eval 90.943542
+    [disp] step  625 loss 90.820175 |p| 1.20310
+    [disp] step  700 loss 90.443642 |p| 1.26867 eval 90.446671
+    [disp] step  750 loss 90.235558 |p| 1.30904
+    [disp] step  800 loss 90.050430 |p| 1.34695 eval 90.050064
+    [disp] step  875 loss 89.799179 |p| 1.40000
+    [disp] step  900 loss 89.734207 |p| 1.41639 eval 89.723183
+    [disp] step 1000 loss 89.481339 |p| 1.47696 eval 89.465691
+    [disp] step 1100 loss 89.263466 |p| 1.53167 eval 89.241959
+    [disp] step 1125 loss 89.195709 |p| 1.54475
+    [disp] step 1200 loss 89.079674 |p| 1.58231 eval 89.061066
+    [disp] step 1250 loss 88.979027 |p| 1.60689
+    [disp] step 1300 loss 88.910568 |p| 1.62250 eval 88.907486
+    [disp] step 1375 loss 88.825226 |p| 1.64254
+    [disp] step 1400 loss 88.788345 |p| 1.64860 eval 88.784866
+    [disp] step 1500 loss 88.688728 |p| 1.66935 eval 88.678215
+    [disp] step 1600 loss 88.596855 |p| 1.68753 eval 88.588188
+    [disp] step 1625 loss 88.566025 |p| 1.69184
+    [disp] step 1700 loss 88.531044 |p| 1.70317 eval 88.514526
+    [disp] step 1750 loss 88.506378 |p| 1.71002
+    [disp] step 1800 loss 88.467979 |p| 1.71669 eval 88.449219
+    [disp] step 1875 loss 88.401466 |p| 1.72546
+    [disp] step 1900 loss 88.405724 |p| 1.72811 eval 88.390266
+    [disp] step 2000 loss 88.351814 |p| 1.73784 eval 88.350388
+    [disp] step 2100 loss 88.311714 |p| 1.74586 eval 88.309708
+    [disp] step 2125 loss 88.299721 |p| 1.74777
+    [disp] step 2200 loss 88.272148 |p| 1.75296 eval 88.273796
+    [disp] step 2250 loss 88.256073 |p| 1.75616
+    [disp] step 2300 loss 88.242523 |p| 1.75902 eval 88.244354
+    [disp] step 2375 loss 88.227654 |p| 1.76310
+    [disp] step 2400 loss 88.222847 |p| 1.76440 eval 88.222130
+    [disp] step 2500 loss 88.207962 |p| 1.76893 eval 88.204865
+    [disp] step 2600 loss 88.190910 |p| 1.77322 eval 88.191574
+    [disp] step 2625 loss 88.187614 |p| 1.77411
+    [disp] step 2700 loss 88.180870 |p| 1.77653 eval 88.178314
+    [disp] step 2750 loss 88.175705 |p| 1.77798
+    [disp] step 2800 loss 88.170792 |p| 1.77932 eval 88.168045
+    [disp] step 2875 loss 88.161743 |p| 1.78125
+    [disp] step 2900 loss 88.162239 |p| 1.78184 eval 88.159691
+    [disp] step 3000 loss 88.153137 |p| 1.78403 eval 88.150497
+    [disp] step 3100 loss 88.139885 |p| 1.78608 eval 88.147392
+    [disp] step 3125 loss 88.141289 |p| 1.78663
+    [disp] step 3200 loss 88.131798 |p| 1.78818 eval 88.130699
+    [disp] step 3250 loss 88.127190 |p| 1.78909
+    [disp] step 3300 loss 88.126678 |p| 1.78991 eval 88.121254
+    [disp] step 3375 loss 88.114624 |p| 1.79112
+    [disp] step 3400 loss 88.112801 |p| 1.79146 eval 88.112198
+    [disp] step 3500 loss 88.108040 |p| 1.79272 eval 88.107300
+    [disp] step 3600 loss 88.104599 |p| 1.79379 eval 88.101051
+    [disp] step 3625 loss 88.100182 |p| 1.79403
+    [disp] step 3700 loss 88.098892 |p| 1.79472 eval 88.096191
+    [disp] step 3750 loss 88.097763 |p| 1.79508
+    [disp] step 3800 loss 88.096153 |p| 1.79545 eval 88.093803
+    [disp] step 3875 loss 88.087082 |p| 1.79629
+    [disp] step 3900 loss 88.085823 |p| 1.79655 eval 88.084740
+    [disp] early stop at step 3900（連續 15 次評估未改善 > 0.0002）
+task_obj_remove_380621           disp_k8_opt    r=8.0000 dists=0.0847 lpips=0.1315 effect=0.2097 (643s)
+    [disp] step    0 loss 137.389923 |p| 0.00600 eval 137.204086
+    [disp] step  100 loss 124.743843 |p| 0.37476 eval 124.645660
+    [disp] step  125 loss 122.518303 |p| 0.43438
+    [disp] step  200 loss 118.189903 |p| 0.56843 eval 118.150848
+    [disp] step  250 loss 116.465813 |p| 0.63679
+    [disp] step  300 loss 115.266106 |p| 0.69386 eval 115.261078
+    [disp] step  375 loss 113.912849 |p| 0.76726
+    [disp] step  400 loss 113.538849 |p| 0.78909 eval 113.533531
+    [disp] step  500 loss 112.394310 |p| 0.86611 eval 112.385139
+    [disp] step  600 loss 111.551941 |p| 0.92959 eval 111.544914
+    [disp] step  625 loss 111.374329 |p| 0.94398
+    [disp] step  700 loss 110.901978 |p| 0.98336 eval 110.909630
+    [disp] step  750 loss 110.614670 |p| 1.00756
+    [disp] step  800 loss 110.330833 |p| 1.03053 eval 110.329605
+    [disp] step  875 loss 109.956200 |p| 1.06235
+    [disp] step  900 loss 109.821945 |p| 1.07232 eval 109.837959
+    [disp] step 1000 loss 109.421364 |p| 1.10950 eval 109.406555
+    [disp] step 1100 loss 109.044525 |p| 1.14312 eval 109.037086
+    [disp] step 1125 loss 108.948044 |p| 1.15106
+    [disp] step 1200 loss 108.671387 |p| 1.17393 eval 108.686218
+    [disp] step 1250 loss 108.485474 |p| 1.18867
+    [disp] step 1300 loss 108.314720 |p| 1.20075 eval 108.331886
+    [disp] step 1375 loss 108.111053 |p| 1.21788
+    [disp] step 1400 loss 107.994469 |p| 1.22369 eval 107.986137
+    [disp] step 1500 loss 107.453247 |p| 1.24659 eval 107.436768
+    [disp] step 1600 loss 107.154907 |p| 1.26658 eval 107.144440
+    [disp] step 1625 loss 107.109047 |p| 1.27103
+    [disp] step 1700 loss 106.925552 |p| 1.28368 eval 106.942261
+    [disp] step 1750 loss 106.814186 |p| 1.29151
+    [disp] step 1800 loss 106.720100 |p| 1.29946 eval 106.713531
+    [disp] step 1875 loss 106.563332 |p| 1.31067
+    [disp] step 1900 loss 106.485115 |p| 1.31433 eval 106.525459
+    [disp] step 2000 loss 106.317871 |p| 1.32876 eval 106.313622
+    [disp] step 2100 loss 106.141602 |p| 1.34232 eval 106.120926
+    [disp] step 2125 loss 106.105545 |p| 1.34568
+    [disp] step 2200 loss 105.946091 |p| 1.35557 eval 105.968025
+    [disp] step 2250 loss 105.900040 |p| 1.36197
+    [disp] step 2300 loss 105.807625 |p| 1.36821 eval 105.798546
+    [disp] step 2375 loss 105.671570 |p| 1.37763
+    [disp] step 2400 loss 105.626320 |p| 1.38081 eval 105.630295
+    [disp] step 2500 loss 105.427582 |p| 1.39349 eval 105.479874
+    [disp] step 2600 loss 105.275078 |p| 1.40597 eval 105.247803
+    [disp] step 2625 loss 105.218239 |p| 1.40886
+    [disp] step 2700 loss 105.070518 |p| 1.41757 eval 105.083611
+    [disp] step 2750 loss 104.989174 |p| 1.42305
+    [disp] step 2800 loss 104.932961 |p| 1.42843 eval 104.948929
+    [disp] step 2875 loss 104.859390 |p| 1.43610
+    [disp] step 2900 loss 104.806473 |p| 1.43858 eval 104.803329
+    [disp] step 3000 loss 104.684456 |p| 1.44786 eval 104.693527
+    [disp] step 3100 loss 104.572968 |p| 1.45728 eval 104.538162
+    [disp] step 3125 loss 104.525017 |p| 1.45953
+    [disp] step 3200 loss 104.428017 |p| 1.46630 eval 104.439713
+    [disp] step 3250 loss 104.390396 |p| 1.47061
+    [disp] step 3300 loss 104.321770 |p| 1.47500 eval 104.293999
+    [disp] step 3375 loss 104.168030 |p| 1.48166
+    [disp] step 3400 loss 104.124268 |p| 1.48379 eval 104.174171
+    [disp] step 3500 loss 103.974205 |p| 1.49261 eval 103.995026
+    [disp] step 3600 loss 103.774483 |p| 1.50186 eval 103.837700
+    [disp] step 3625 loss 103.784500 |p| 1.50399
+    [disp] step 3700 loss 103.629189 |p| 1.51055 eval 103.652229
+    [disp] step 3750 loss 103.579575 |p| 1.51521
+    [disp] step 3800 loss 103.459740 |p| 1.51958 eval 103.457649
+    [disp] step 3875 loss 103.370789 |p| 1.52627
+    [disp] step 3900 loss 103.318268 |p| 1.52842 eval 103.344376
+    [disp] step 4000 loss 103.189735 |p| 1.53676 eval 103.203125
+    [disp] step 4100 loss 103.059967 |p| 1.54502 eval 103.044403
+    [disp] step 4125 loss 103.013962 |p| 1.54711
+    [disp] step 4200 loss 102.963478 |p| 1.55305 eval 102.961914
+    [disp] step 4250 loss 102.912727 |p| 1.55678
+    [disp] step 4300 loss 102.828491 |p| 1.56055 eval 102.843849
+    [disp] step 4375 loss 102.781776 |p| 1.56620
+    [disp] step 4400 loss 102.716492 |p| 1.56808 eval 102.773941
+    [disp] step 4500 loss 102.648560 |p| 1.57544 eval 102.629646
+    [disp] step 4600 loss 102.475937 |p| 1.58241 eval 102.475731
+    [disp] step 4625 loss 102.446121 |p| 1.58438
+    [disp] step 4700 loss 102.401360 |p| 1.58973 eval 102.399673
+    [disp] step 4750 loss 102.328545 |p| 1.59316
+    [disp] step 4800 loss 102.284485 |p| 1.59671 eval 102.240326
+    [disp] step 4875 loss 102.183182 |p| 1.60195
+    [disp] step 4900 loss 102.169937 |p| 1.60381 eval 102.152405
+    [disp] step 4999 loss 102.067017 |p| 1.61050 eval 102.074280
+task_obj_swap_joint_mask_276754  disp_k8_opt    r=8.0000 dists=0.1334 lpips=0.3324 effect=0.3173 (817s)
+    [disp] step    0 loss 108.988068 |p| 0.00640 eval 108.853302
+    [disp] step  100 loss 102.845818 |p| 0.37803 eval 102.803658
+    [disp] step  125 loss 101.905075 |p| 0.43909
+    [disp] step  200 loss 99.720245 |p| 0.58886 eval 99.693802
+    [disp] step  250 loss 98.627419 |p| 0.66887
+    [disp] step  300 loss 97.707489 |p| 0.73683 eval 97.692856
+    [disp] step  375 loss 96.614357 |p| 0.82171
+    [disp] step  400 loss 96.305603 |p| 0.84672 eval 96.297798
+    [disp] step  500 loss 95.321236 |p| 0.93436 eval 95.318665
+    [disp] step  600 loss 94.573112 |p| 1.00680 eval 94.569458
+    [disp] step  625 loss 94.414574 |p| 1.02301
+    [disp] step  700 loss 93.962944 |p| 1.06913 eval 93.961151
+    [disp] step  750 loss 93.698936 |p| 1.09684
+    [disp] step  800 loss 93.461647 |p| 1.12279 eval 93.461403
+    [disp] step  875 loss 93.143776 |p| 1.15827
+    [disp] step  900 loss 93.034523 |p| 1.16936 eval 93.040619
+    [disp] step 1000 loss 92.652290 |p| 1.21146 eval 92.658188
+    [disp] step 1100 loss 92.327888 |p| 1.24893 eval 92.336319
+    [disp] step 1125 loss 92.269287 |p| 1.25753
+    [disp] step 1200 loss 92.031471 |p| 1.28315 eval 92.042542
+    [disp] step 1250 loss 91.914589 |p| 1.29865
+    [disp] step 1300 loss 91.802818 |p| 1.31098 eval 91.807312
+    [disp] step 1375 loss 91.700348 |p| 1.32609
+    [disp] step 1400 loss 91.662384 |p| 1.33070 eval 91.653198
+    [disp] step 1500 loss 91.536369 |p| 1.34705 eval 91.528580
+    [disp] step 1600 loss 91.426613 |p| 1.36170 eval 91.418747
+    [disp] step 1625 loss 91.392204 |p| 1.36524
+    [disp] step 1700 loss 91.332497 |p| 1.37492 eval 91.311638
+    [disp] step 1750 loss 91.291496 |p| 1.38040
+    [disp] step 1800 loss 91.249687 |p| 1.38568 eval 91.228249
+    [disp] step 1875 loss 91.170654 |p| 1.39318
+    [disp] step 1900 loss 91.173592 |p| 1.39561 eval 91.156815
+    [disp] step 2000 loss 91.107323 |p| 1.40458 eval 91.096115
+    [disp] step 2100 loss 91.055595 |p| 1.41200 eval 91.041588
+    [disp] step 2125 loss 91.030304 |p| 1.41380
+    [disp] step 2200 loss 91.005486 |p| 1.41901 eval 90.994499
+    [disp] step 2250 loss 90.979546 |p| 1.42219
+    [disp] step 2300 loss 90.971077 |p| 1.42527 eval 90.943275
+    [disp] step 2375 loss 90.909645 |p| 1.42970
+    [disp] step 2400 loss 90.911079 |p| 1.43102 eval 90.898087
+    [disp] step 2500 loss 90.859978 |p| 1.43666 eval 90.850624
+    [disp] step 2600 loss 90.807320 |p| 1.44307 eval 90.779938
+    [disp] step 2625 loss 90.762154 |p| 1.44473
+    [disp] step 2700 loss 90.744370 |p| 1.44921 eval 90.717567
+    [disp] step 2750 loss 90.721046 |p| 1.45190
+    [disp] step 2800 loss 90.690491 |p| 1.45454 eval 90.685242
+    [disp] step 2875 loss 90.651390 |p| 1.45831
+    [disp] step 2900 loss 90.653130 |p| 1.45950 eval 90.632568
+    [disp] step 3000 loss 90.602440 |p| 1.46358 eval 90.588577
+    [disp] step 3100 loss 90.570633 |p| 1.46789 eval 90.550644
+    [disp] step 3125 loss 90.541817 |p| 1.46880
+    [disp] step 3200 loss 90.535645 |p| 1.47153 eval 90.517906
+    [disp] step 3250 loss 90.521263 |p| 1.47292
+    [disp] step 3300 loss 90.514458 |p| 1.47401 eval 90.499466
+    [disp] step 3375 loss 90.488670 |p| 1.47545
+    [disp] step 3400 loss 90.502693 |p| 1.47584 eval 90.486694
+    [disp] step 3500 loss 90.488632 |p| 1.47768 eval 90.473076
+    [disp] step 3600 loss 90.473404 |p| 1.47979 eval 90.453987
+    [disp] step 3625 loss 90.448372 |p| 1.48031
+    [disp] step 3700 loss 90.442154 |p| 1.48204 eval 90.434143
+    [disp] step 3750 loss 90.440483 |p| 1.48364
+    [disp] step 3800 loss 90.423447 |p| 1.48527 eval 90.388763
+    [disp] step 3875 loss 90.375984 |p| 1.48716
+    [disp] step 3900 loss 90.387604 |p| 1.48784 eval 90.367317
+    [disp] step 4000 loss 90.368202 |p| 1.49019 eval 90.344704
+    [disp] step 4100 loss 90.337944 |p| 1.49256 eval 90.340897
+    [disp] step 4125 loss 90.330772 |p| 1.49320
+    [disp] step 4200 loss 90.328484 |p| 1.49500 eval 90.314705
+    [disp] step 4250 loss 90.328545 |p| 1.49619
+    [disp] step 4300 loss 90.308403 |p| 1.49722 eval 90.305267
+    [disp] step 4375 loss 90.284332 |p| 1.49875
+    [disp] step 4400 loss 90.306236 |p| 1.49934 eval 90.277649
+    [disp] step 4500 loss 90.279480 |p| 1.50221 eval 90.261253
+    [disp] step 4600 loss 90.248779 |p| 1.50528 eval 90.241516
+    [disp] step 4625 loss 90.233734 |p| 1.50598
+    [disp] step 4700 loss 90.209091 |p| 1.50767 eval 90.222260
+    [disp] step 4750 loss 90.216660 |p| 1.50884
+    [disp] step 4800 loss 90.210136 |p| 1.50983 eval 90.190605
+    [disp] step 4875 loss 90.191681 |p| 1.51173
+    [disp] step 4900 loss 90.189064 |p| 1.51237 eval 90.187141
+    [disp] step 4999 loss 90.164032 |p| 1.51509 eval 90.171371
+task_obj_swap_joint_mask_533428  disp_k8_opt    r=8.0000 dists=0.1020 lpips=0.1888 effect=0.3700 (819s)
+    [disp] step    0 loss 122.812920 |p| 0.00640 eval 122.697861
+    [disp] step  100 loss 117.863983 |p| 0.35977 eval 117.847450
+    [disp] step  125 loss 117.179207 |p| 0.41942
+    [disp] step  200 loss 115.600151 |p| 0.57021 eval 115.585243
+    [disp] step  250 loss 114.746323 |p| 0.65722
+    [disp] step  300 loss 114.010803 |p| 0.73561 eval 113.990570
+    [disp] step  375 loss 113.074272 |p| 0.83937
+    [disp] step  400 loss 112.799072 |p| 0.87146 eval 112.783218
+    [disp] step  500 loss 111.791641 |p| 0.98529 eval 111.799255
+    [disp] step  600 loss 111.029396 |p| 1.07991 eval 111.021378
+    [disp] step  625 loss 110.861427 |p| 1.10131
+    [disp] step  700 loss 110.402748 |p| 1.16190 eval 110.426079
+    [disp] step  750 loss 110.156860 |p| 1.19784
+    [disp] step  800 loss 109.928947 |p| 1.23063 eval 109.919556
+    [disp] step  875 loss 109.624893 |p| 1.27519
+    [disp] step  900 loss 109.539268 |p| 1.28884 eval 109.533646
+    [disp] step 1000 loss 109.222038 |p| 1.33893 eval 109.201378
+    [disp] step 1100 loss 108.937820 |p| 1.38365 eval 108.914879
+    [disp] step 1125 loss 108.857353 |p| 1.39372
+    [disp] step 1200 loss 108.717377 |p| 1.42295 eval 108.695236
+    [disp] step 1250 loss 108.617325 |p| 1.44074
+    [disp] step 1300 loss 108.546425 |p| 1.45355 eval 108.520226
+    [disp] step 1375 loss 108.426323 |p| 1.46999
+    [disp] step 1400 loss 108.427177 |p| 1.47497 eval 108.402710
+    [disp] step 1500 loss 108.324196 |p| 1.49305 eval 108.299393
+    [disp] step 1600 loss 108.250107 |p| 1.50762 eval 108.229866
+    [disp] step 1625 loss 108.215973 |p| 1.51074
+    [disp] step 1700 loss 108.193451 |p| 1.51931 eval 108.174576
+    [disp] step 1750 loss 108.164513 |p| 1.52485
+    [disp] step 1800 loss 108.138329 |p| 1.52983 eval 108.118454
+    [disp] step 1875 loss 108.086571 |p| 1.53661
+    [disp] step 1900 loss 108.096382 |p| 1.53867 eval 108.076645
+    [disp] step 2000 loss 108.052666 |p| 1.54649 eval 108.034691
+    [disp] step 2100 loss 108.020073 |p| 1.55317 eval 108.002739
+    [disp] step 2125 loss 107.996826 |p| 1.55456
+    [disp] step 2200 loss 107.996918 |p| 1.55838 eval 107.979546
+    [disp] step 2250 loss 107.987686 |p| 1.56053
+    [disp] step 2300 loss 107.979103 |p| 1.56256 eval 107.960815
+    [disp] step 2375 loss 107.949562 |p| 1.56523
+    [disp] step 2400 loss 107.963448 |p| 1.56614 eval 107.945175
+    [disp] step 2500 loss 107.941933 |p| 1.56953 eval 107.923370
+    [disp] step 2600 loss 107.928360 |p| 1.57231 eval 107.910599
+    [disp] step 2625 loss 107.907509 |p| 1.57287
+    [disp] step 2700 loss 107.917061 |p| 1.57446 eval 107.899818
+    [disp] step 2750 loss 107.912018 |p| 1.57545
+    [disp] step 2800 loss 107.908783 |p| 1.57631 eval 107.891647
+    [disp] step 2875 loss 107.886688 |p| 1.57743
+    [disp] step 2900 loss 107.902634 |p| 1.57782 eval 107.885155
+    [disp] step 3000 loss 107.897812 |p| 1.57904 eval 107.879913
+    [disp] step 3100 loss 107.878593 |p| 1.58108 eval 107.862976
+    [disp] step 3125 loss 107.861069 |p| 1.58145
+    [disp] step 3200 loss 107.870605 |p| 1.58256 eval 107.854805
+    [disp] step 3250 loss 107.854042 |p| 1.58348
+    [disp] step 3300 loss 107.850464 |p| 1.58418 eval 107.852798
+    [disp] step 3375 loss 107.848923 |p| 1.58499
+    [disp] step 3400 loss 107.844772 |p| 1.58531 eval 107.847717
+    [disp] step 3500 loss 107.840599 |p| 1.58625 eval 107.843758
+    [disp] step 3600 loss 107.836388 |p| 1.58708 eval 107.839981
+    [disp] step 3625 loss 107.839432 |p| 1.58720
+    [disp] step 3700 loss 107.834435 |p| 1.58765 eval 107.838188
+    [disp] step 3750 loss 107.833611 |p| 1.58790
+    [disp] step 3800 loss 107.832794 |p| 1.58811 eval 107.836815
+    [disp] step 3875 loss 107.836113 |p| 1.58832
+    [disp] step 3900 loss 107.831665 |p| 1.58845 eval 107.835884
+    [disp] step 4000 loss 107.830666 |p| 1.58877 eval 107.835030
+    [disp] early stop at step 4000（連續 15 次評估未改善 > 0.0002）
+task_obj_swap_rand_mask_417469   disp_k8_opt    r=8.0000 dists=0.0599 lpips=0.1487 effect=0.2011 (660s)
+
+表：runs/ip2p_dispersion_opt/d8_opt/results.csv（10 列）

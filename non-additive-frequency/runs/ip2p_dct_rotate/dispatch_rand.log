@@ -1,0 +1,1 @@
+[dct_rotate] dct_rot_rand11 dev=1 pid=4179255  --conditions dct_rotate_rand --radius 1.1 --dct-pairing transpose

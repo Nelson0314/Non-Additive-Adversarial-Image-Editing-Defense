@@ -1,0 +1,27 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3529.88it/s]
+Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00,  8.37it/s]Loading pipeline components...:  50%|█████     | 3/6 [00:00<00:00,  7.81it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 13.10it/s]
+There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+
+########## raccoon_00 (raccoon) [loss=attn] ##########
+=== raccoon_00 / add__human ===
+Loading pretrained model NIMA from /nfs/home/nelson0314/.cache/torch/hub/pyiqa/NIMA_InceptionV2_ava-b0c77c00.pth
+Loading pretrained model CNNIQA from /nfs/home/nelson0314/.cache/torch/hub/pyiqa/CNNIQA_koniq10k-e6f14c91.pth
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 11358.71it/s]
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 10587.44it/s]
+[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
+[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
+Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights:  82%|████████▏ | 334/408 [00:00<00:00, 3330.97it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 3217.86it/s]
+{'image': 'raccoon_00', 'condition': 'add', 'prompt_index': 0, 'prompt': 'a panda', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'loss': 'attn', 'random_start': False, 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.01205, 'unreachable': False, 'radius': 0.00471, 'total_seconds': 67.6, 'fid_lpips': 0.1212, 'fid_ssim': 0.9971, 'fid_dists': 0.0121, 'fid_psnr': 47.7121, 'fid_clip_img': 0.9945, 'fid_nima': 6.0516, 'fid_cnniqa': 0.7062, 'edit_lpips': 0.5717, 'edit_clip_orig': 0.3069, 'edit_clip_def': 0.2916, 'edit_clip_drop': 0.0153, 'edit_siglip_orig': 0.1213, 'edit_siglip_def': 0.1159, 'edit_siglip_drop': 0.0055}
+=== raccoon_00 / phase__human ===
+{'image': 'raccoon_00', 'condition': 'phase', 'prompt_index': 0, 'prompt': 'a panda', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'loss': 'attn', 'random_start': False, 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.04874, 'unreachable': False, 'radius': 1.3, 'total_seconds': 48.4, 'fid_lpips': 0.1765, 'fid_ssim': 0.9394, 'fid_dists': 0.0487, 'fid_psnr': 27.9527, 'fid_clip_img': 0.9972, 'fid_nima': 5.9034, 'fid_cnniqa': 0.7094, 'edit_lpips': 0.622, 'edit_clip_orig': 0.3069, 'edit_clip_def': 0.2981, 'edit_clip_drop': 0.0088, 'edit_siglip_orig': 0.1213, 'edit_siglip_def': 0.1193, 'edit_siglip_drop': 0.002, 'amp_dev': 0.03646, 'active_fraction': 0.4693}
+=== raccoon_00 / phase_rand__human ===
+{'image': 'raccoon_00', 'condition': 'phase_rand', 'prompt_index': 0, 'prompt': 'a panda', 'block': 32, 'r_min': 0.12, 'quantile': 0.5, 'target_image': 'data/targets/gray.png', 'loss': 'attn', 'random_start': False, 'budget_target': 'human', 'budget_mode': 'human', 'budget_reached': 0.03669, 'unreachable': False, 'radius': 1.3, 'total_seconds': 10.9, 'fid_lpips': 0.0596, 'fid_ssim': 0.9562, 'fid_dists': 0.0367, 'fid_psnr': 29.5942, 'fid_clip_img': 0.9984, 'fid_nima': 5.8968, 'fid_cnniqa': 0.7077, 'edit_lpips': 0.0615, 'edit_clip_orig': 0.3069, 'edit_clip_def': 0.3082, 'edit_clip_drop': -0.0013, 'edit_siglip_orig': 0.1213, 'edit_siglip_def': 0.1206, 'edit_siglip_drop': 0.0007, 'amp_dev': 0.03589, 'active_fraction': 0.4693}
+
+表：runs/s0818_attn_5/results.csv

@@ -1,0 +1,11 @@
+image,condition,budget_target,purifier,effect_mean,effect_sd,effect_identity_mean,effect_identity_sd,retention,edit_strength,usable,seconds
+raccoon_00,dct_shield,native,identity,0.55773,0.07324,0.55773,0.07324,1.0,0.7,True,207.3
+raccoon_00,dct_shield,native,blur1,0.47452,0.10784,0.55773,0.07324,0.85079,0.7,True,207.3
+raccoon_00,dct_shield,native,jpeg75,0.16715,0.07112,0.55773,0.07324,0.2997,0.7,True,207.3
+raccoon_00,dct_shield,native,crop_resize0.1,0.57596,0.03954,0.55773,0.07324,1.03267,0.7,True,207.3
+raccoon_00,dct_shield,native,gridpure,0.52476,0.05728,0.55773,0.07324,0.94088,0.7,True,207.3
+shiba_00,dct_shield,native,identity,0.69944,0.02707,0.69944,0.02707,1.0,0.7,True,201.0
+shiba_00,dct_shield,native,blur1,0.30727,0.09827,0.69944,0.02707,0.4393,0.7,True,201.0
+shiba_00,dct_shield,native,jpeg75,0.15725,0.09417,0.69944,0.02707,0.22482,0.7,True,201.0
+shiba_00,dct_shield,native,crop_resize0.1,0.62485,0.02137,0.69944,0.02707,0.89336,0.7,True,201.0
+shiba_00,dct_shield,native,gridpure,0.46236,0.04201,0.69944,0.02707,0.66104,0.7,True,201.0

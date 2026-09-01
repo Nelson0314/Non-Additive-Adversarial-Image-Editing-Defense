@@ -1,0 +1,87 @@
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3501.04it/s]
+Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00,  8.17it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 15.51it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 14.23it/s]
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+IP2P 線：12 張、條件 ['dct_shield_y']、steps=100 s_T=7.5 s_I=1.5 seed=20260812
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,1.0]
+  warnings.warn(
+    [dct_shield_y] step    0 loss 116.3667
+    [dct_shield_y] step  250 loss 54.8290
+    [dct_shield_y] step  500 loss 52.8054
+    [dct_shield_y] step  750 loss 51.1958
+    [dct_shield_y] step  999 loss 49.5812
+task_obj_add_581286              dct_shield_y   r=1.0000 dists=0.0429 lpips=0.5222 effect=0.5048 (172s)
+    [dct_shield_y] step    0 loss 115.2812
+    [dct_shield_y] step  250 loss 80.4911
+    [dct_shield_y] step  500 loss 80.0540
+    [dct_shield_y] step  750 loss 79.5571
+    [dct_shield_y] step  999 loss 78.9283
+task_obj_add_692065              dct_shield_y   r=1.0000 dists=0.0092 lpips=0.3025 effect=0.2871 (173s)
+    [dct_shield_y] step    0 loss 92.4249
+    [dct_shield_y] step  250 loss 65.7851
+    [dct_shield_y] step  500 loss 65.1484
+    [dct_shield_y] step  750 loss 64.5894
+    [dct_shield_y] step  999 loss 63.7857
+task_obj_remove_10197            dct_shield_y   r=1.0000 dists=0.0202 lpips=0.3032 effect=0.4675 (172s)
+    [dct_shield_y] step    0 loss 109.7397
+    [dct_shield_y] step  250 loss 66.3759
+    [dct_shield_y] step  500 loss 64.4681
+    [dct_shield_y] step  750 loss 62.9214
+    [dct_shield_y] step  999 loss 61.3067
+task_obj_remove_257910           dct_shield_y   r=1.0000 dists=0.0304 lpips=0.4481 effect=0.6418 (173s)
+    [dct_shield_y] step    0 loss 104.5586
+    [dct_shield_y] step  250 loss 62.3186
+    [dct_shield_y] step  500 loss 60.0893
+    [dct_shield_y] step  750 loss 58.7046
+    [dct_shield_y] step  999 loss 56.9981
+task_obj_remove_380621           dct_shield_y   r=1.0000 dists=0.0324 lpips=0.4395 effect=0.6598 (173s)
+    [dct_shield_y] step    0 loss 106.7685
+    [dct_shield_y] step  250 loss 79.1203
+    [dct_shield_y] step  500 loss 78.5476
+    [dct_shield_y] step  750 loss 78.1519
+    [dct_shield_y] step  999 loss 77.5597
+task_obj_remove_509477           dct_shield_y   r=1.0000 dists=0.0150 lpips=0.2774 effect=0.3043 (173s)
+    [dct_shield_y] step    0 loss 113.4795
+    [dct_shield_y] step  250 loss 51.7602
+    [dct_shield_y] step  500 loss 49.5113
+    [dct_shield_y] step  750 loss 47.7362
+    [dct_shield_y] step  999 loss 46.0222
+task_obj_remove_657585           dct_shield_y   r=1.0000 dists=0.0485 lpips=0.5575 effect=0.7930 (173s)
+    [dct_shield_y] step    0 loss 137.4309
+    [dct_shield_y] step  250 loss 88.5101
+    [dct_shield_y] step  500 loss 84.8920
+    [dct_shield_y] step  750 loss 83.2171
+    [dct_shield_y] step  999 loss 81.4957
+task_obj_swap_joint_mask_276754  dct_shield_y   r=1.0000 dists=0.0327 lpips=0.3333 effect=0.6054 (173s)
+    [dct_shield_y] step    0 loss 108.9757
+    [dct_shield_y] step  250 loss 76.5775
+    [dct_shield_y] step  500 loss 75.8696
+    [dct_shield_y] step  750 loss 75.1774
+    [dct_shield_y] step  999 loss 74.3919
+task_obj_swap_joint_mask_533428  dct_shield_y   r=1.0000 dists=0.0125 lpips=0.3202 effect=0.4864 (173s)
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-0.9686274528503418,1.0]
+  warnings.warn(
+    [dct_shield_y] step    0 loss 140.8523
+    [dct_shield_y] step  250 loss 79.5952
+    [dct_shield_y] step  500 loss 77.3123
+    [dct_shield_y] step  750 loss 75.4843
+    [dct_shield_y] step  999 loss 73.7169
+task_obj_swap_joint_mask_75733   dct_shield_y   r=1.0000 dists=0.0266 lpips=0.4535 effect=0.4828 (172s)
+    [dct_shield_y] step    0 loss 131.1158
+    [dct_shield_y] step  250 loss 94.4162
+    [dct_shield_y] step  500 loss 93.4819
+    [dct_shield_y] step  750 loss 92.7821
+    [dct_shield_y] step  999 loss 91.9795
+task_obj_swap_rand_mask_298147   dct_shield_y   r=1.0000 dists=0.0248 lpips=0.3354 effect=0.4584 (173s)
+    [dct_shield_y] step    0 loss 123.0653
+    [dct_shield_y] step  250 loss 76.6098
+    [dct_shield_y] step  500 loss 74.0690
+    [dct_shield_y] step  750 loss 72.7796
+    [dct_shield_y] step  999 loss 71.3492
+task_obj_swap_rand_mask_417469   dct_shield_y   r=1.0000 dists=0.0234 lpips=0.3830 effect=0.5785 (172s)
+
+表：runs/ip2p_dct_shield_y/y_e10_b/results.csv（12 列）

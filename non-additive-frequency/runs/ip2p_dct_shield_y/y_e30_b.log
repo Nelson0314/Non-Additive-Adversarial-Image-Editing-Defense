@@ -1,0 +1,88 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3288.85it/s]
+Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00, 11.25it/s]Loading pipeline components...:  67%|██████▋   | 4/6 [00:00<00:00, 13.27it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 14.69it/s]
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+IP2P 線：12 張、條件 ['dct_shield_y']、steps=100 s_T=7.5 s_I=1.5 seed=20260812
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,1.0]
+  warnings.warn(
+    [dct_shield_y] step    0 loss 116.3667
+    [dct_shield_y] step  250 loss 41.2186
+    [dct_shield_y] step  500 loss 38.5669
+    [dct_shield_y] step  750 loss 36.8821
+    [dct_shield_y] step  999 loss 35.4965
+task_obj_add_581286              dct_shield_y   r=3.0000 dists=0.1367 lpips=0.6607 effect=0.7655 (179s)
+    [dct_shield_y] step    0 loss 115.2812
+    [dct_shield_y] step  250 loss 61.7346
+    [dct_shield_y] step  500 loss 60.1279
+    [dct_shield_y] step  750 loss 59.0309
+    [dct_shield_y] step  999 loss 57.8759
+task_obj_add_692065              dct_shield_y   r=3.0000 dists=0.0417 lpips=0.4776 effect=0.4730 (179s)
+    [dct_shield_y] step    0 loss 92.4249
+    [dct_shield_y] step  250 loss 49.7677
+    [dct_shield_y] step  500 loss 46.8282
+    [dct_shield_y] step  750 loss 45.1349
+    [dct_shield_y] step  999 loss 43.8342
+task_obj_remove_10197            dct_shield_y   r=3.0000 dists=0.0617 lpips=0.4983 effect=0.5400 (179s)
+    [dct_shield_y] step    0 loss 109.7397
+    [dct_shield_y] step  250 loss 54.0374
+    [dct_shield_y] step  500 loss 51.3217
+    [dct_shield_y] step  750 loss 49.7714
+    [dct_shield_y] step  999 loss 48.5755
+task_obj_remove_257910           dct_shield_y   r=3.0000 dists=0.1074 lpips=0.5654 effect=0.7160 (179s)
+    [dct_shield_y] step    0 loss 104.5586
+    [dct_shield_y] step  250 loss 48.1135
+    [dct_shield_y] step  500 loss 45.1852
+    [dct_shield_y] step  750 loss 43.5240
+    [dct_shield_y] step  999 loss 42.3590
+task_obj_remove_380621           dct_shield_y   r=3.0000 dists=0.1123 lpips=0.5823 effect=0.7242 (179s)
+    [dct_shield_y] step    0 loss 106.7685
+    [dct_shield_y] step  250 loss 63.0133
+    [dct_shield_y] step  500 loss 61.3545
+    [dct_shield_y] step  750 loss 60.2765
+    [dct_shield_y] step  999 loss 59.2387
+task_obj_remove_509477           dct_shield_y   r=3.0000 dists=0.0658 lpips=0.4592 effect=0.5308 (179s)
+    [dct_shield_y] step    0 loss 113.4795
+    [dct_shield_y] step  250 loss 39.8580
+    [dct_shield_y] step  500 loss 36.9886
+    [dct_shield_y] step  750 loss 35.4475
+    [dct_shield_y] step  999 loss 34.3015
+task_obj_remove_657585           dct_shield_y   r=3.0000 dists=0.1489 lpips=0.6781 effect=0.8244 (180s)
+    [dct_shield_y] step    0 loss 137.4309
+    [dct_shield_y] step  250 loss 69.3314
+    [dct_shield_y] step  500 loss 65.9779
+    [dct_shield_y] step  750 loss 64.2759
+    [dct_shield_y] step  999 loss 63.0673
+task_obj_swap_joint_mask_276754  dct_shield_y   r=3.0000 dists=0.0799 lpips=0.4831 effect=0.7074 (181s)
+    [dct_shield_y] step    0 loss 108.9757
+    [dct_shield_y] step  250 loss 61.8554
+    [dct_shield_y] step  500 loss 60.1475
+    [dct_shield_y] step  750 loss 59.0404
+    [dct_shield_y] step  999 loss 58.0615
+task_obj_swap_joint_mask_533428  dct_shield_y   r=3.0000 dists=0.0620 lpips=0.4750 effect=0.6140 (180s)
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-0.9686274528503418,1.0]
+  warnings.warn(
+    [dct_shield_y] step    0 loss 140.8523
+    [dct_shield_y] step  250 loss 63.4669
+    [dct_shield_y] step  500 loss 60.5856
+    [dct_shield_y] step  750 loss 59.0582
+    [dct_shield_y] step  999 loss 57.9714
+task_obj_swap_joint_mask_75733   dct_shield_y   r=3.0000 dists=0.1191 lpips=0.5706 effect=0.6237 (180s)
+    [dct_shield_y] step    0 loss 131.1158
+    [dct_shield_y] step  250 loss 76.1579
+    [dct_shield_y] step  500 loss 74.0447
+    [dct_shield_y] step  750 loss 72.7812
+    [dct_shield_y] step  999 loss 71.5656
+task_obj_swap_rand_mask_298147   dct_shield_y   r=3.0000 dists=0.0960 lpips=0.4622 effect=0.8083 (181s)
+    [dct_shield_y] step    0 loss 123.0653
+    [dct_shield_y] step  250 loss 62.3068
+    [dct_shield_y] step  500 loss 60.3757
+    [dct_shield_y] step  750 loss 59.2053
+    [dct_shield_y] step  999 loss 58.0846
+task_obj_swap_rand_mask_417469   dct_shield_y   r=3.0000 dists=0.0755 lpips=0.5245 effect=0.7798 (181s)
+
+表：runs/ip2p_dct_shield_y/y_e30_b/results.csv（12 列）

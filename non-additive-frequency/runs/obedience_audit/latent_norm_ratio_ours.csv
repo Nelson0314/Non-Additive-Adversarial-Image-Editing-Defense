@@ -1,0 +1,14 @@
+image,condition,norm_orig,norm_def,norm_ratio,move_ratio
+task_attr_mod_color_11699,ours_g025,105.9506,63.8502,0.60264,0.60369
+task_attr_mod_color_136767,ours_g025,133.4851,83.606,0.62633,0.55152
+task_attr_mod_color_184837,ours_g025,105.1635,54.3843,0.51714,0.71756
+task_attr_mod_color_32648,ours_g025,166.2943,100.0767,0.6018,0.50904
+task_attr_mod_color_6205,ours_g025,110.2733,68.7981,0.62389,0.58543
+task_env_weather_112463,ours_g025,121.521,64.4292,0.53019,0.63404
+task_env_weather_246440,ours_g025,116.5706,50.6268,0.4343,0.74903
+task_env_weather_63722,ours_g025,93.0765,50.3842,0.54132,0.71475
+task_obj_add_40931,ours_g025,115.2873,64.0311,0.5554,0.63739
+task_obj_remove_380621,ours_g025,104.0305,59.1747,0.56882,0.64236
+task_obj_swap_joint_mask_276754,ours_g025,137.3899,67.7916,0.49342,0.65124
+task_obj_swap_joint_mask_533428,ours_g025,108.9881,54.6192,0.50115,0.68196
+task_obj_swap_rand_mask_417469,ours_g025,122.8129,67.1847,0.54705,0.64558

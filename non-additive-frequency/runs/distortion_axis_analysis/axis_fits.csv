@@ -1,0 +1,16 @@
+axis,n_points,slope_through_origin,x_min,x_max,slope_ols,intercept_ols,r2,method,window,x_cut_lo,x_cut_hi,cv_across_conditions,spread_ratio
+fid_lpips,6,1.3014,0.44093,0.62308,0.7131,0.29868,0.8435,dct_shield,all,0.0,,,
+fid_lpips,4,1.1995,0.19798,0.35227,1.1396,0.0172,0.9968,djsma,all,0.0,,,
+fid_lpips,5,1.5246,0.03704,0.13321,1.0379,0.04561,0.9519,phase_rand,all,0.0,,,
+fid_lpips,90,1.2715,0.04589,0.43035,1.0288,0.0654,0.9806,texture_rephase,all,0.0,,,
+fid_lpips,4,1.3242,,,,,,__across_methods__,all,0.0,,0.1059,1.271
+fid_dists,6,7.1635,0.04352,0.14682,1.2916,0.55728,0.8396,dct_shield,all,0.0,,,
+fid_dists,4,7.0757,0.02415,0.06734,4.0589,0.15118,0.994,djsma,all,0.0,,,
+fid_dists,5,2.0813,0.02665,0.09562,1.4727,0.04171,0.9772,phase_rand,all,0.0,,,
+fid_dists,90,3.4201,0.02209,0.1896,2.0327,0.14283,0.8398,texture_rephase,all,0.0,,,
+fid_dists,4,4.9352,,,,,,__across_methods__,all,0.0,,0.523,3.442
+fid_dists,4,12.7988,0.04352,0.05136,8.9173,0.1878,0.9989,dct_shield,overlap,0.04352,0.06734,,
+fid_dists,2,6.5977,0.04981,0.06734,,,,djsma,overlap,0.04352,0.06734,,
+fid_dists,2,2.3655,0.04772,0.05536,,,,phase_rand,overlap,0.04352,0.06734,,
+fid_dists,31,4.6983,0.04356,0.06393,3.081,0.08895,0.212,texture_rephase,overlap,0.04352,0.06734,,
+fid_dists,4,6.6151,,,,,,__across_methods__,overlap,0.04352,0.06734,0.6759,5.411

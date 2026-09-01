@@ -1,0 +1,2 @@
+image,condition,attacker,instruction,task,radius,unreachable,pixel_gate_sigma,edit_steps,s_t,s_i,edit_seed,modified_from_paper,fid_lpips,fid_ssim,fid_psnr,fid_vif_p,fid_dists,edit_lpips,edit_ssim,edit_psnr,edit_vif_p,edit_dists,fid_linf,fid_rms,total_seconds
+task_attr_mod_color_121425,phase,instruct-pix2pix,turn the color of LCD screen to be green,,1.3,False,3.0,100,7.5,1.5,20260812,False,0.01281,0.99934,52.065,0.97729,0.00886,0.01574,0.99741,41.83,0.92915,0.01201,0.13507,0.00249,124.4

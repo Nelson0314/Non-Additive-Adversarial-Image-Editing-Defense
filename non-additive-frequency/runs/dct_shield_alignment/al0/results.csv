@@ -1,0 +1,3 @@
+image,condition,budget_target,mode,q_alg,radius,steps,unreachable,fid_lpips,fid_dists,fid_psnr,fid_ssim,fid_linf,fid_rms,edit_lpips,edit_strength,total_seconds
+person_a_00,dct_shield,,aligned,0.95,0.625,1000,False,0.46954,0.03333,35.562,0.95316,0.17371,0.01667,0.60649,0.7,92.9
+person_b_00,dct_shield,,aligned,0.95,0.875,1000,False,0.48375,0.03303,33.186,0.91583,0.22073,0.02191,0.57863,0.7,93.1

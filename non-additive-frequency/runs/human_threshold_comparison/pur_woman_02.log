@@ -1,0 +1,40 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  17%|█▋        | 1/6 [00:00<00:00,  8.84it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3138.55it/s]
+Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00,  6.56it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 16.98it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 14.37it/s]
+There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+=== woman_02 / apa_weak ===
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    10 個算子，490.1s
+=== woman_02 / mist ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    10 個算子，493.6s
+=== woman_02 / dia_r ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    10 個算子，492.1s
+=== woman_02 / add ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    10 個算子，492.6s
+=== woman_02 / phase ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    10 個算子，492.9s
+=== woman_02 / phase_rand ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    10 個算子，492.0s
+=== woman_02 / photoguard_c ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    10 個算子，493.4s
+
+140 張圖 → runs/hb5/purified

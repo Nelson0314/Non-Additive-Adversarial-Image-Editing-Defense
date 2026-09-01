@@ -1,0 +1,40 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  67%|██████▋   | 4/6 [00:00<00:00, 33.00it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 4229.46it/s]
+Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 16.65it/s]
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+IP2P 線：16 張、條件 ['phase', 'dct_shield']、steps=100 s_T=7.5 s_I=1.5 seed=20260812
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,1.0]
+  warnings.warn(
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 17603.61it/s]
+[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
+[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
+Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights:  89%|████████▉ | 363/408 [00:00<00:00, 3624.91it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 3591.74it/s]
+task_env_weather_9736            clip_gain=+0.1068 lpips=0.6968 (32s)
+task_env_weather_97868           clip_gain=+0.0072 lpips=0.1767 (22s)
+task_obj_add_161232              clip_gain=+0.0058 lpips=0.2735 (22s)
+task_obj_add_166344              clip_gain=-0.0022 lpips=0.1399 (22s)
+task_obj_add_239597              clip_gain=+0.0024 lpips=0.1767 (22s)
+task_obj_add_24380               clip_gain=+0.0237 lpips=0.1448 (23s)
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,0.9058823585510254]
+  warnings.warn(
+task_obj_add_290491              clip_gain=+0.0025 lpips=0.2731 (23s)
+task_obj_add_345721              clip_gain=+0.0208 lpips=0.2925 (23s)
+task_obj_add_362298              clip_gain=-0.0027 lpips=0.1122 (23s)
+task_obj_add_371248              clip_gain=-0.0009 lpips=0.1107 (23s)
+task_obj_add_375217              clip_gain=+0.0034 lpips=0.2186 (23s)
+task_obj_add_39816               clip_gain=+0.0174 lpips=0.1490 (23s)
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,0.9137254953384399]
+  warnings.warn(
+task_obj_add_441549              clip_gain=+0.0135 lpips=0.1301 (23s)
+task_obj_add_44802               clip_gain=+0.0686 lpips=0.4153 (23s)
+task_obj_add_458919              clip_gain=-0.0016 lpips=0.2475 (23s)
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,0.9450980424880981]
+  warnings.warn(
+task_obj_add_530461              clip_gain=-0.0055 lpips=0.1742 (23s)
+
+表：runs/ip2p_obedience_expand/g3/check.csv（16 列）

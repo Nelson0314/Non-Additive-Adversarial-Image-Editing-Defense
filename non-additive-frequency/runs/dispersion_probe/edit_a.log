@@ -1,0 +1,65 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  17%|█▋        | 1/6 [00:00<00:00,  5.95it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 4750.50it/s]
+Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00,  5.28it/s]Loading pipeline components...:  67%|██████▋   | 4/6 [00:00<00:00,  9.30it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 10.55it/s]
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,1.0]
+  warnings.warn(
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 12581.74it/s]
+[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
+[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
+Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights:  22%|██▏       | 90/408 [00:00<00:00, 898.61it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 2991.57it/s]
+task_attr_mod_color_11699        disp_k1      amp=4        dists=0.05996 effect=0.1895 clip=0.9861
+task_attr_mod_color_11699        disp_k1      amp=8        dists=0.12715 effect=0.2939 clip=0.9701
+task_attr_mod_color_11699        disp_k4      amp=4        dists=0.11183 effect=0.2670 clip=0.9781
+task_attr_mod_color_11699        disp_k4      amp=8        dists=0.16287 effect=0.3480 clip=0.9640
+task_attr_mod_color_11699        disp_kfull   amp=1.6      dists=0.07516 effect=0.1717 clip=0.9943
+task_attr_mod_color_11699        disp_kfull   amp=3.14159  dists=0.17292 effect=0.3420 clip=0.9623
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,0.9619907140731812]
+  warnings.warn(
+task_attr_mod_color_11699        warp_smooth  amp=4        dists=0.06284 effect=0.1983 clip=0.9825
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,0.9631533622741699]
+  warnings.warn(
+task_attr_mod_color_11699        warp_smooth  amp=8        dists=0.14654 effect=0.3119 clip=0.9187
+task_attr_mod_color_136767       disp_k1      amp=4        dists=0.07214 effect=0.1791 clip=0.9951
+task_attr_mod_color_136767       disp_k1      amp=8        dists=0.16905 effect=0.2739 clip=0.9818
+task_attr_mod_color_136767       disp_k4      amp=4        dists=0.12731 effect=0.2588 clip=0.9916
+task_attr_mod_color_136767       disp_k4      amp=8        dists=0.18773 effect=0.3186 clip=0.9740
+task_attr_mod_color_136767       disp_kfull   amp=1.6      dists=0.09862 effect=0.1741 clip=0.9958
+task_attr_mod_color_136767       disp_kfull   amp=3.14159  dists=0.20442 effect=0.3285 clip=0.9729
+task_attr_mod_color_136767       warp_smooth  amp=4        dists=0.06331 effect=0.1895 clip=0.9947
+task_attr_mod_color_136767       warp_smooth  amp=8        dists=0.15157 effect=0.3215 clip=0.9839
+task_attr_mod_color_184837       disp_k1      amp=4        dists=0.10029 effect=0.2131 clip=0.9832
+task_attr_mod_color_184837       disp_k1      amp=8        dists=0.19773 effect=0.3226 clip=0.9732
+task_attr_mod_color_184837       disp_k4      amp=4        dists=0.15052 effect=0.3162 clip=0.9859
+task_attr_mod_color_184837       disp_k4      amp=8        dists=0.23306 effect=0.4068 clip=0.9722
+task_attr_mod_color_184837       disp_kfull   amp=1.6      dists=0.09367 effect=0.2121 clip=0.9853
+task_attr_mod_color_184837       disp_kfull   amp=3.14159  dists=0.24342 effect=0.4186 clip=0.9647
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-0.9999884366989136,1.0]
+  warnings.warn(
+task_attr_mod_color_184837       warp_smooth  amp=4        dists=0.11651 effect=0.2545 clip=0.9781
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-0.9997145533561707,1.0]
+  warnings.warn(
+task_attr_mod_color_184837       warp_smooth  amp=8        dists=0.18166 effect=0.3757 clip=0.9272
+task_attr_mod_color_32648        disp_k1      amp=4        dists=0.06018 effect=0.1319 clip=0.9903
+task_attr_mod_color_32648        disp_k1      amp=8        dists=0.12885 effect=0.2264 clip=0.9730
+task_attr_mod_color_32648        disp_k4      amp=4        dists=0.09448 effect=0.1729 clip=0.9750
+task_attr_mod_color_32648        disp_k4      amp=8        dists=0.13821 effect=0.2391 clip=0.9641
+task_attr_mod_color_32648        disp_kfull   amp=1.6      dists=0.04983 effect=0.1199 clip=0.9844
+task_attr_mod_color_32648        disp_kfull   amp=3.14159  dists=0.12599 effect=0.2480 clip=0.9096
+task_attr_mod_color_32648        warp_smooth  amp=4        dists=0.09163 effect=0.1403 clip=0.9862
+task_attr_mod_color_32648        warp_smooth  amp=8        dists=0.16853 effect=0.2476 clip=0.9741
+task_attr_mod_color_6205         disp_k1      amp=4        dists=0.07865 effect=0.1760 clip=0.9934
+task_attr_mod_color_6205         disp_k1      amp=8        dists=0.15043 effect=0.3362 clip=0.9688
+task_attr_mod_color_6205         disp_k4      amp=4        dists=0.11283 effect=0.2159 clip=0.9900
+task_attr_mod_color_6205         disp_k4      amp=8        dists=0.17546 effect=0.3725 clip=0.9638
+task_attr_mod_color_6205         disp_kfull   amp=1.6      dists=0.08264 effect=0.1244 clip=0.9962
+task_attr_mod_color_6205         disp_kfull   amp=3.14159  dists=0.17218 effect=0.3701 clip=0.9552
+task_attr_mod_color_6205         warp_smooth  amp=4        dists=0.09435 effect=0.2057 clip=0.9858
+task_attr_mod_color_6205         warp_smooth  amp=8        dists=0.17509 effect=0.4425 clip=0.9456
+
+真讀數：runs/dispersion_probe/edit_a/edit_readout.csv（40 列）

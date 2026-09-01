@@ -1,0 +1,2 @@
+image,condition,attacker,instruction,task,radius,unreachable,pixel_gate_sigma,edit_steps,s_t,s_i,edit_seed,modified_from_paper,fid_lpips,fid_ssim,fid_psnr,fid_vif_p,fid_dists,edit_lpips,edit_ssim,edit_psnr,edit_vif_p,edit_dists,fid_linf,fid_rms,total_seconds
+task_attr_mod_color_11699,phase,instruct-pix2pix,turn the color of potted plant to pink,,3.141593,False,2.0,100,7.5,1.5,20260812,False,0.08564,0.97052,28.91,0.69338,0.04084,0.11478,0.91352,23.171,0.50363,0.06006,0.57512,0.03585,123.1

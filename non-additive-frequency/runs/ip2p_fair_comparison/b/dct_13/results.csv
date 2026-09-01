@@ -1,0 +1,6 @@
+image,condition,attacker,instruction,task,radius,unreachable,pixel_gate_sigma,edit_steps,s_t,s_i,edit_seed,modified_from_paper,fid_lpips,fid_ssim,fid_psnr,fid_vif_p,fid_dists,edit_lpips,edit_ssim,edit_psnr,edit_vif_p,edit_dists,fid_linf,fid_rms,total_seconds
+task_attr_mod_color_71985,dct_shield,instruct-pix2pix,turn the color of piano to be gray,,1.0,False,0.0,100,7.5,1.5,20260812,False,0.47248,0.8656,29.616,0.50819,0.04569,0.78537,0.36178,12.092,0.08172,0.54837,0.24353,0.03305,585.2
+task_env_weather_85610,dct_shield,instruct-pix2pix,change the setting to a cloudy day,,1.0,False,0.0,100,7.5,1.5,20260812,False,0.3875,0.87723,28.996,0.54444,0.06516,0.53192,0.55182,15.542,0.38021,0.4313,0.2788,0.0355,585.5
+task_obj_add_709390,dct_shield,instruct-pix2pix,Add glasses,,1.0,False,0.0,100,7.5,1.5,20260812,False,0.56385,0.82987,29.809,0.4111,0.11529,0.7263,0.33712,10.334,0.03958,0.41127,0.19701,0.03233,585.8
+task_obj_remove_720199,dct_shield,instruct-pix2pix,Remove yellow machine,,1.0,False,0.0,100,7.5,1.5,20260812,False,0.53693,0.80951,29.747,0.41842,0.08768,0.80756,0.2008,9.165,0.03106,0.41386,0.2674,0.03256,585.5
+task_obj_swap_rand_mask_660100,dct_shield,instruct-pix2pix,Replace the hot dog with taco,,1.0,False,0.0,100,7.5,1.5,20260812,False,0.4998,0.90093,29.054,0.52688,0.04907,0.75215,0.14766,9.45,0.03377,0.3428,0.2542,0.03526,586.3

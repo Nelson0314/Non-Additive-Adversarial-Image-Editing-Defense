@@ -1,0 +1,50 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  17%|█▋        | 1/6 [00:00<00:00,  8.47it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3535.30it/s]
+Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00,  6.87it/s]Loading pipeline components...:  83%|████████▎ | 5/6 [00:00<00:00, 14.41it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 14.95it/s]
+There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+=== horse_01 / add__human ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    分母塌陷：effect(identity) mean=0.1929 sd=0.0818，本格的 retention 不可用
+    identity=0.1929, blur1=0.5050, noise0.05=0.3329, quantize16=0.2419, jpeg75=0.2879, jpeg30=0.3870, crop_resize0.1=0.5349, jpeg_then_resize75=0.4842, adverse_cleaner=0.2205, impress=0.3781
+=== horse_01 / phase__human ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    identity=0.6492, blur1=0.6201, noise0.05=0.4760, quantize16=0.5828, jpeg75=0.4910, jpeg30=0.4976, crop_resize0.1=0.6299, jpeg_then_resize75=0.5106, adverse_cleaner=0.6253, impress=0.5561
+=== horse_01 / phase_rand__human ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    identity=0.2574, blur1=0.5317, noise0.05=0.3910, quantize16=0.2631, jpeg75=0.3136, jpeg30=0.4540, crop_resize0.1=0.4905, jpeg_then_resize75=0.4753, adverse_cleaner=0.2917, impress=0.3707
+=== man_00 / add__human ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    分母塌陷：effect(identity) mean=0.3292 sd=0.1453，本格的 retention 不可用
+    identity=0.3292, blur1=0.2901, noise0.05=0.5324, quantize16=0.2877, jpeg75=0.1744, jpeg30=0.2516, crop_resize0.1=0.4750, jpeg_then_resize75=0.1907, adverse_cleaner=0.2142, impress=0.3181
+=== man_00 / phase__human ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    分母塌陷：effect(identity) mean=0.2630 sd=0.0962，本格的 retention 不可用
+    identity=0.2630, blur1=0.2974, noise0.05=0.5385, quantize16=0.3175, jpeg75=0.2017, jpeg30=0.2924, crop_resize0.1=0.4426, jpeg_then_resize75=0.2178, adverse_cleaner=0.2805, impress=0.3295
+=== man_00 / phase_rand__human ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    分母塌陷：effect(identity) mean=0.1330 sd=0.0716，本格的 retention 不可用
+    identity=0.1330, blur1=0.2708, noise0.05=0.5448, quantize16=0.2829, jpeg75=0.1848, jpeg30=0.2510, crop_resize0.1=0.4145, jpeg_then_resize75=0.2249, adverse_cleaner=0.2585, impress=0.3022
+
+表：runs/hb5/retention_arm2.csv（60 列）
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00, 14.31it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3746.64it/s]
+Loading pipeline components...:  83%|████████▎ | 5/6 [00:00<00:00, 12.79it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 15.51it/s]
+There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)

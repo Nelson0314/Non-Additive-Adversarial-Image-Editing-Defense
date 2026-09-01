@@ -1,0 +1,6 @@
+image,condition,attacker,instruction,task,radius,unreachable,pixel_gate_sigma,edit_steps,s_t,s_i,edit_seed,modified_from_paper,fid_lpips,fid_ssim,fid_psnr,fid_vif_p,fid_dists,edit_lpips,edit_ssim,edit_psnr,edit_vif_p,edit_dists,fid_linf,fid_rms,total_seconds
+task_attr_mod_color_123744,dct_shield,instruct-pix2pix,turn the color of cushion to be black,,1.0,False,0.0,100,7.5,1.5,20260812,False,0.41586,0.91287,29.251,0.54809,0.03215,0.64659,0.25017,9.652,0.08669,0.40353,0.23203,0.03447,573.1
+task_env_weather_116980,dct_shield,instruct-pix2pix,transform the setting to a foggy atmosphere,,1.0,False,0.0,100,7.5,1.5,20260812,False,0.41775,0.89918,29.05,0.5294,0.04075,0.61735,0.6113,15.009,0.36053,0.36087,0.27703,0.03528,571.2
+task_obj_add_166344,dct_shield,instruct-pix2pix,Add mountain,,1.0,False,0.0,100,7.5,1.5,20260812,False,0.49446,0.86286,29.361,0.50179,0.04793,0.54175,0.6682,17.87,0.19555,0.31756,0.22846,0.03404,570.6
+task_obj_remove_157386,dct_shield,instruct-pix2pix,Remove flowers,,1.0,False,0.0,100,7.5,1.5,20260812,False,0.40975,0.82851,28.948,0.49266,0.07855,0.75523,0.21984,7.706,0.04209,0.44789,0.27996,0.0357,571.7
+task_obj_swap_joint_mask_337228,dct_shield,instruct-pix2pix,Replace the silk sash with yellow shawl,,1.0,False,0.0,100,7.5,1.5,20260812,False,0.43778,0.80222,29.552,0.41724,0.07654,0.66751,0.43455,9.124,0.08128,0.29615,0.23725,0.0333,573.4

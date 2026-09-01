@@ -1,0 +1,57 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  50%|█████     | 3/6 [00:00<00:00, 25.52it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3837.96it/s]
+Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 16.19it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 17.12it/s]
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+IP2P 線：13 張、條件 ['dct_shield']、steps=100 s_T=7.5 s_I=1.5 seed=20260812
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,1.0]
+  warnings.warn(
+    [dct_shield] step    0 loss 107.0090
+    [dct_shield] step   99 loss 62.7746
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 12940.16it/s]
+[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
+[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
+Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights:  88%|████████▊ | 361/408 [00:00<00:00, 3605.92it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 3595.92it/s]
+task_attr_mod_color_11699        dct_shield     r=1.0000 dists=0.0463 lpips=0.4445 effect=0.4191 (48s)
+    [dct_shield] step    0 loss 133.6177
+    [dct_shield] step   99 loss 69.0332
+task_attr_mod_color_136767       dct_shield     r=1.0000 dists=0.0478 lpips=0.4026 effect=0.5758 (38s)
+    [dct_shield] step    0 loss 105.4397
+    [dct_shield] step   99 loss 65.9411
+task_attr_mod_color_184837       dct_shield     r=1.0000 dists=0.0294 lpips=0.3324 effect=0.4543 (39s)
+    [dct_shield] step    0 loss 168.6569
+    [dct_shield] step   99 loss 74.7435
+task_attr_mod_color_32648        dct_shield     r=1.0000 dists=0.0855 lpips=0.5705 effect=0.5728 (39s)
+    [dct_shield] step    0 loss 111.1863
+    [dct_shield] step   99 loss 58.1909
+task_attr_mod_color_6205         dct_shield     r=1.0000 dists=0.0539 lpips=0.4864 effect=0.6349 (39s)
+    [dct_shield] step    0 loss 121.9079
+    [dct_shield] step   99 loss 56.7216
+task_env_weather_112463          dct_shield     r=1.0000 dists=0.0318 lpips=0.5460 effect=0.8332 (39s)
+    [dct_shield] step    0 loss 116.5259
+    [dct_shield] step   99 loss 80.2844
+task_env_weather_246440          dct_shield     r=1.0000 dists=0.0159 lpips=0.2505 effect=0.4414 (39s)
+    [dct_shield] step    0 loss 93.5997
+    [dct_shield] step   99 loss 50.4133
+task_env_weather_63722           dct_shield     r=1.0000 dists=0.0369 lpips=0.4406 effect=0.4684 (39s)
+    [dct_shield] step    0 loss 115.2241
+    [dct_shield] step   99 loss 65.8562
+task_obj_add_40931               dct_shield     r=1.0000 dists=0.0467 lpips=0.4135 effect=0.4866 (39s)
+    [dct_shield] step    0 loss 104.5586
+    [dct_shield] step   99 loss 52.4915
+task_obj_remove_380621           dct_shield     r=1.0000 dists=0.0686 lpips=0.4962 effect=0.6887 (39s)
+    [dct_shield] step    0 loss 137.4309
+    [dct_shield] step   99 loss 74.7187
+task_obj_swap_joint_mask_276754  dct_shield     r=1.0000 dists=0.0635 lpips=0.3963 effect=0.6425 (39s)
+    [dct_shield] step    0 loss 108.9757
+    [dct_shield] step   99 loss 67.0442
+task_obj_swap_joint_mask_533428  dct_shield     r=1.0000 dists=0.0292 lpips=0.3798 effect=0.5482 (39s)
+    [dct_shield] step    0 loss 123.0653
+    [dct_shield] step   99 loss 67.5042
+task_obj_swap_rand_mask_417469   dct_shield     r=1.0000 dists=0.0346 lpips=0.4396 effect=0.7530 (39s)
+
+表：runs/ip2p_defense_gallery/dct_s0100/results.csv（13 列）

@@ -1,0 +1,23 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 4158.17it/s]
+Loading pipeline components...:  67%|██████▋   | 4/6 [00:00<00:00, 17.61it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 14.77it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 15.25it/s]
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+IP2P 線：9 張、條件 ['advdrop']、steps=100 s_T=7.5 s_I=1.5 seed=20260812
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,1.0]
+  warnings.warn(
+task_attr_mod_color_11699        advdrop        r=1600.0000 dists=0.0799 lpips=0.2833 effect=0.2772 (249s)
+task_attr_mod_color_32648        advdrop        r=1600.0000 dists=0.1201 lpips=0.3278 effect=0.2860 (307s)
+task_env_weather_133752          advdrop        r=1600.0000 dists=0.0807 lpips=0.2794 effect=0.2970 (461s)
+task_env_weather_63722           advdrop        r=1600.0000 dists=0.0761 lpips=0.2972 effect=0.2944 (468s)
+task_obj_add_40931               advdrop        r=1600.0000 dists=0.0706 lpips=0.2478 effect=0.2627 (465s)
+task_obj_remove_10197            advdrop        r=1600.0000 dists=0.0513 lpips=0.2305 effect=0.4116 (462s)
+task_obj_remove_509477           advdrop        r=1600.0000 dists=0.0172 lpips=0.1125 effect=0.1370 (465s)
+task_obj_swap_joint_mask_533428  advdrop        r=1600.0000 dists=0.0424 lpips=0.2078 effect=0.4682 (468s)
+task_obj_swap_rand_mask_417469   advdrop        r=1600.0000 dists=0.0559 lpips=0.2304 effect=0.2472 (469s)
+
+表：runs/fair0820/a3_advdrop/s1400_0/results.csv（9 列）

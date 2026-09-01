@@ -1,0 +1,5 @@
+anchor_axis,anchor_value,reported,group,n_images,out_of_range,axis_min,axis_max,value,crossings,seg_lo_strength,seg_hi_strength,fid_psnr,fid_lpips,fid_ssim,edit_clip_sim,blocked_rate
+fid_dists,0.09,edit_lpips,purify_aware=eot_geometry,13,False,0.05349,0.13833,0.51323,1,0.8,1.8,27.25068,0.48872,0.94579,0.86522,0.27871
+fid_dists,0.09,edit_lpips,purify_aware=none,13,False,0.04326,0.1286,0.64139,1,1.8,3.1416,27.15999,0.49184,0.94279,0.74092,0.72635
+fid_dists,0.128,edit_lpips,purify_aware=eot_geometry,13,False,0.05349,0.13833,0.57475,1,1.8,3.1416,25.43547,0.52473,0.9107,0.80024,0.36677
+fid_dists,0.128,edit_lpips,purify_aware=none,13,False,0.04326,0.1286,0.70017,1,1.8,3.1416,25.38398,0.52442,0.90925,0.66669,0.92003

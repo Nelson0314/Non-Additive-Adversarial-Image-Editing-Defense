@@ -1,0 +1,5 @@
+image,condition,budget_target,mode,q_alg,radius,steps,unreachable,fid_lpips,fid_dists,fid_psnr,fid_ssim,fid_linf,fid_rms,edit_lpips,edit_strength,total_seconds
+raccoon_00,dct_shield,,paper,0.95,1.0,1000,False,0.49412,0.04735,29.166,0.87444,0.2317,0.03481,0.64077,0.7,147.7
+raccoon_00,dct_shield_y,,paper,0.85,1.0,1000,False,0.61055,0.06517,23.88,0.92433,0.42716,0.06397,0.64285,0.7,147.9
+shiba_00,dct_shield,,paper,0.95,1.0,1000,False,0.56109,0.03607,29.494,0.84392,0.26138,0.03352,0.74259,0.7,148.3
+shiba_00,dct_shield_y,,paper,0.85,1.0,1000,False,0.66705,0.07638,24.236,0.90861,0.37935,0.06141,0.74884,0.7,147.7

@@ -1,0 +1,5 @@
+image,condition,reward_mode,fidelity_mode,update_rule,dists_lambda,stage1_seconds,total_seconds,fid_lpips,fid_ssim,fid_dists,fid_psnr,fid_clip_img,fid_nima,fid_cnniqa,edit_lpips,edit_clip_orig,edit_clip_def,edit_clip_drop,edit_siglip_orig,edit_siglip_def,edit_siglip_drop
+man_00,G_L_clip_native,clip,ball,sign,,45.3,117.2,0.1545,0.9191,0.0708,28.6283,0.5947,4.5108,0.6136,0.1984,0.2819,0.2876,-0.0058,0.1079,0.1145,-0.0066
+man_00,G_L_clip_ours,clip,soft,adam,8.0,45.9,119.6,0.1113,0.9482,0.0165,31.4623,0.788,4.7445,0.5953,0.1825,0.2819,0.2923,-0.0104,0.1079,0.1134,-0.0055
+man_00,G_Z_clip_native,clip,ball,sign,,0.0,171.0,0.1526,0.9148,0.0743,28.0177,0.5512,4.644,0.6073,0.1594,0.2819,0.282,-0.0001,0.1079,0.1154,-0.0074
+man_00,G_Z_clip_ours,clip,soft,adam,8.0,0.0,175.7,0.1068,0.9474,0.0156,31.3939,0.7746,4.6227,0.5482,0.1557,0.2819,0.2676,0.0142,0.1079,0.1123,-0.0043

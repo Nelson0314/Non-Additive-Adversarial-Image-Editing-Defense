@@ -1,0 +1,6 @@
+[envelope/defense] dct_aj50_eps0.22 dev=1 pid=3940085  --conditions dct_shield_y --q-alg 0.50 --eps 0.22 --dct-steps 1000
+[envelope/defense] dct_aj50_eps0.40 dev=1 pid=3940092  --conditions dct_shield_y --q-alg 0.50 --eps 0.40 --dct-steps 1000
+[envelope/defense] dct_aj50_eps0.65 dev=4 pid=3940099  --conditions dct_shield_y --q-alg 0.50 --eps 0.65 --dct-steps 1000
+[envelope/defense] dct_aj30_eps0.13 dev=4 pid=3940106  --conditions dct_shield_y --q-alg 0.30 --eps 0.13 --dct-steps 1000
+[envelope/defense] dct_aj30_eps0.25 dev=6 pid=3940113  --conditions dct_shield_y --q-alg 0.30 --eps 0.25 --dct-steps 1000
+[envelope/defense] dct_aj30_eps0.42 dev=6 pid=3940120  --conditions dct_shield_y --q-alg 0.30 --eps 0.42 --dct-steps 1000

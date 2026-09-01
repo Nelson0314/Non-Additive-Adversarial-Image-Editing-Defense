@@ -1,0 +1,6 @@
+image,condition,attacker,instruction,task,radius,unreachable,pixel_gate_sigma,edit_steps,s_t,s_i,edit_seed,modified_from_paper,fid_lpips,fid_ssim,fid_psnr,fid_vif_p,fid_dists,edit_lpips,edit_ssim,edit_psnr,edit_vif_p,edit_dists,fid_linf,fid_rms,total_seconds
+task_attr_mod_color_136767,dct_shield,instruct-pix2pix,turn the color of astronaut to pink,,1.0,False,0.0,100,7.5,1.5,20260812,False,0.42356,0.84849,29.693,0.51543,0.05652,0.6294,0.27806,7.43,0.02817,0.41953,0.25314,0.03276,585.3
+task_env_weather_133752,dct_shield,instruct-pix2pix,transform the setting to a rainy day,,1.0,False,0.0,100,7.5,1.5,20260812,False,0.5582,0.88789,29.708,0.50842,0.06406,0.73597,0.23233,11.75,0.03212,0.42357,0.29288,0.0327,585.4
+task_obj_add_340466,dct_shield,instruct-pix2pix,Add orange juice,,1.0,False,0.0,100,7.5,1.5,20260812,False,0.514,0.86448,29.531,0.50815,0.07076,0.72676,0.4052,10.62,0.14093,0.37018,0.24133,0.03338,586.1
+task_obj_remove_257910,dct_shield,instruct-pix2pix,Remove bracelet,,1.0,False,0.0,100,7.5,1.5,20260812,False,0.51771,0.80774,29.535,0.42124,0.05681,0.71641,0.2373,7.755,0.0403,0.34057,0.24434,0.03336,585.4
+task_obj_swap_joint_mask_533428,dct_shield,instruct-pix2pix,Replace the samurai armor with red jacket,,1.0,False,0.0,100,7.5,1.5,20260812,False,0.39345,0.90014,29.203,0.56576,0.03408,0.63292,0.32633,10.376,0.09532,0.28792,0.23528,0.03466,584.3

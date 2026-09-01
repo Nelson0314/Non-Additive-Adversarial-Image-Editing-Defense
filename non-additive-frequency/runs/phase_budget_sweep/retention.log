@@ -1,0 +1,161 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00, 19.69it/s]Loading pipeline components...:  67%|██████▋   | 4/6 [00:00<00:00, 14.38it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 4364.43it/s]
+Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 14.02it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 14.49it/s]
+There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+=== bird_03 / add__d0.04 ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    identity=0.5044, blur1=0.3418, noise0.05=0.5882, quantize16=0.4936, jpeg75=0.2681, jpeg30=0.3149, crop_resize0.1=0.5509, jpeg_then_resize75=0.2777, adverse_cleaner=0.4051, impress=0.4418
+=== bird_03 / phase__d0.04 ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    identity=0.5205, blur1=0.4211, noise0.05=0.5985, quantize16=0.4932, jpeg75=0.3510, jpeg30=0.3649, crop_resize0.1=0.5445, jpeg_then_resize75=0.3508, adverse_cleaner=0.4644, impress=0.4429
+=== bird_03 / phase_rand__d0.04 ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    identity=0.1584, blur1=0.3147, noise0.05=0.5765, quantize16=0.4091, jpeg75=0.2477, jpeg30=0.3279, crop_resize0.1=0.4541, jpeg_then_resize75=0.2535, adverse_cleaner=0.2981, impress=0.2795
+=== bird_03 / add__d0.075 ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    identity=0.6455, blur1=0.4025, noise0.05=0.6214, quantize16=0.5674, jpeg75=0.4611, jpeg30=0.3624, crop_resize0.1=0.6045, jpeg_then_resize75=0.3185, adverse_cleaner=0.5056, impress=0.5098
+=== bird_03 / phase__d0.075 ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    identity=0.5345, blur1=0.4265, noise0.05=0.6040, quantize16=0.4944, jpeg75=0.3582, jpeg30=0.3802, crop_resize0.1=0.5332, jpeg_then_resize75=0.3363, adverse_cleaner=0.4733, impress=0.4429
+=== bird_03 / phase_rand__d0.075 ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    identity=0.1771, blur1=0.3412, noise0.05=0.5911, quantize16=0.4193, jpeg75=0.2660, jpeg30=0.3402, crop_resize0.1=0.4618, jpeg_then_resize75=0.2901, adverse_cleaner=0.3476, impress=0.3055
+=== cat_02 / add__d0.04 ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    identity=0.6391, blur1=0.5217, noise0.05=0.3966, quantize16=0.5164, jpeg75=0.4443, jpeg30=0.4354, crop_resize0.1=0.5902, jpeg_then_resize75=0.4511, adverse_cleaner=0.5303, impress=0.5284
+=== cat_02 / phase__d0.04 ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    identity=0.5862, blur1=0.5499, noise0.05=0.4277, quantize16=0.5264, jpeg75=0.4667, jpeg30=0.4804, crop_resize0.1=0.5965, jpeg_then_resize75=0.5107, adverse_cleaner=0.5667, impress=0.5438
+=== cat_02 / phase_rand__d0.04 ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    分母塌陷：effect(identity) mean=0.2688 sd=0.1553，本格的 retention 不可用
+    identity=0.2688, blur1=0.4565, noise0.05=0.4137, quantize16=0.2282, jpeg75=0.2686, jpeg30=0.4297, crop_resize0.1=0.5032, jpeg_then_resize75=0.4689, adverse_cleaner=0.2811, impress=0.3673
+=== cat_02 / add__d0.075 ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    identity=0.7384, blur1=0.5840, noise0.05=0.5034, quantize16=0.6740, jpeg75=0.5125, jpeg30=0.5201, crop_resize0.1=0.6430, jpeg_then_resize75=0.5076, adverse_cleaner=0.6499, impress=0.5889
+=== cat_02 / phase__d0.075 ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    identity=0.6739, blur1=0.5992, noise0.05=0.4209, quantize16=0.5902, jpeg75=0.5602, jpeg30=0.5298, crop_resize0.1=0.6215, jpeg_then_resize75=0.5450, adverse_cleaner=0.6811, impress=0.5723
+=== cat_02 / phase_rand__d0.075 ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    identity=0.3580, blur1=0.4825, noise0.05=0.4526, quantize16=0.3660, jpeg75=0.3654, jpeg30=0.4153, crop_resize0.1=0.5063, jpeg_then_resize75=0.4571, adverse_cleaner=0.3520, impress=0.3769
+=== dog_03 / add__d0.04 ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    identity=0.6143, blur1=0.5042, noise0.05=0.5704, quantize16=0.5823, jpeg75=0.4944, jpeg30=0.4215, crop_resize0.1=0.6342, jpeg_then_resize75=0.4330, adverse_cleaner=0.5853, impress=0.5380
+=== dog_03 / phase__d0.04 ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    identity=0.5546, blur1=0.4918, noise0.05=0.5369, quantize16=0.5492, jpeg75=0.4627, jpeg30=0.4407, crop_resize0.1=0.6165, jpeg_then_resize75=0.4370, adverse_cleaner=0.5513, impress=0.5001
+=== dog_03 / phase_rand__d0.04 ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    identity=0.3019, blur1=0.3858, noise0.05=0.5517, quantize16=0.4176, jpeg75=0.3453, jpeg30=0.4208, crop_resize0.1=0.5267, jpeg_then_resize75=0.3955, adverse_cleaner=0.3568, impress=0.4201
+=== dog_03 / add__d0.075 ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    identity=0.6609, blur1=0.5592, noise0.05=0.5793, quantize16=0.6160, jpeg75=0.5620, jpeg30=0.4687, crop_resize0.1=0.6381, jpeg_then_resize75=0.4737, adverse_cleaner=0.5984, impress=0.5885
+=== dog_03 / phase__d0.075 ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    identity=0.5843, blur1=0.5299, noise0.05=0.5504, quantize16=0.5739, jpeg75=0.4837, jpeg30=0.4518, crop_resize0.1=0.6227, jpeg_then_resize75=0.4684, adverse_cleaner=0.5760, impress=0.5424
+=== dog_03 / phase_rand__d0.075 ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    identity=0.3370, blur1=0.4083, noise0.05=0.5448, quantize16=0.4486, jpeg75=0.3775, jpeg30=0.3973, crop_resize0.1=0.5285, jpeg_then_resize75=0.3918, adverse_cleaner=0.3547, impress=0.4221
+=== horse_00 / add__d0.04 ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    identity=0.3988, blur1=0.3461, noise0.05=0.4120, quantize16=0.3727, jpeg75=0.2321, jpeg30=0.3526, crop_resize0.1=0.4238, jpeg_then_resize75=0.2840, adverse_cleaner=0.2678, impress=0.4136
+=== horse_00 / phase__d0.04 ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    identity=0.4422, blur1=0.3673, noise0.05=0.4753, quantize16=0.3961, jpeg75=0.2733, jpeg30=0.3822, crop_resize0.1=0.4579, jpeg_then_resize75=0.3072, adverse_cleaner=0.4101, impress=0.4636
+=== horse_00 / phase_rand__d0.04 ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    identity=0.0849, blur1=0.3342, noise0.05=0.4117, quantize16=0.2116, jpeg75=0.2110, jpeg30=0.3456, crop_resize0.1=0.2839, jpeg_then_resize75=0.2911, adverse_cleaner=0.2252, impress=0.2661
+=== horse_00 / add__d0.075 ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    identity=0.5380, blur1=0.3949, noise0.05=0.5017, quantize16=0.5380, jpeg75=0.2814, jpeg30=0.3805, crop_resize0.1=0.5157, jpeg_then_resize75=0.3039, adverse_cleaner=0.3961, impress=0.4977
+=== horse_00 / phase__d0.075 ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    identity=0.4892, blur1=0.3950, noise0.05=0.4819, quantize16=0.4466, jpeg75=0.3057, jpeg30=0.3998, crop_resize0.1=0.4756, jpeg_then_resize75=0.3203, adverse_cleaner=0.4509, impress=0.4815
+=== horse_00 / phase_rand__d0.075 ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    identity=0.1133, blur1=0.3425, noise0.05=0.4180, quantize16=0.2295, jpeg75=0.2200, jpeg30=0.3719, crop_resize0.1=0.2919, jpeg_then_resize75=0.2950, adverse_cleaner=0.2564, impress=0.2836
+=== man_00 / add__d0.04 ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    identity=0.4854, blur1=0.3059, noise0.05=0.5406, quantize16=0.3592, jpeg75=0.2034, jpeg30=0.2865, crop_resize0.1=0.5352, jpeg_then_resize75=0.2043, adverse_cleaner=0.2686, impress=0.3161
+=== man_00 / phase__d0.04 ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    identity=0.2898, blur1=0.3046, noise0.05=0.5398, quantize16=0.3190, jpeg75=0.2043, jpeg30=0.2982, crop_resize0.1=0.4715, jpeg_then_resize75=0.2107, adverse_cleaner=0.2980, impress=0.3266
+=== man_00 / phase_rand__d0.04 ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    分母塌陷：effect(identity) mean=0.1438 sd=0.0828，本格的 retention 不可用
+    identity=0.1438, blur1=0.2719, noise0.05=0.5462, quantize16=0.2871, jpeg75=0.1801, jpeg30=0.2544, crop_resize0.1=0.4134, jpeg_then_resize75=0.1881, adverse_cleaner=0.2515, impress=0.2843
+=== man_00 / add__d0.075 ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    identity=0.5247, blur1=0.3146, noise0.05=0.5464, quantize16=0.4275, jpeg75=0.2571, jpeg30=0.2798, crop_resize0.1=0.5557, jpeg_then_resize75=0.2355, adverse_cleaner=0.3060, impress=0.3789
+=== man_00 / phase__d0.075 ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    identity=0.4220, blur1=0.3224, noise0.05=0.5525, quantize16=0.3477, jpeg75=0.2589, jpeg30=0.3218, crop_resize0.1=0.5382, jpeg_then_resize75=0.2728, adverse_cleaner=0.3647, impress=0.3268
+=== man_00 / phase_rand__d0.075 ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    分母塌陷：effect(identity) mean=0.1421 sd=0.0580，本格的 retention 不可用
+    identity=0.1421, blur1=0.2745, noise0.05=0.5510, quantize16=0.2938, jpeg75=0.2011, jpeg30=0.2589, crop_resize0.1=0.4132, jpeg_then_resize75=0.2195, adverse_cleaner=0.2616, impress=0.3279
+=== woman_03 / add__d0.04 ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    identity=0.4146, blur1=0.2589, noise0.05=0.4844, quantize16=0.4570, jpeg75=0.2470, jpeg30=0.2520, crop_resize0.1=0.4719, jpeg_then_resize75=0.1735, adverse_cleaner=0.2957, impress=0.4028
+=== woman_03 / phase__d0.04 ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    identity=0.4437, blur1=0.2631, noise0.05=0.4841, quantize16=0.3789, jpeg75=0.2040, jpeg30=0.2533, crop_resize0.1=0.3697, jpeg_then_resize75=0.1815, adverse_cleaner=0.3727, impress=0.3265
+=== woman_03 / phase_rand__d0.04 ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    分母塌陷：effect(identity) mean=0.0721 sd=0.0338，本格的 retention 不可用
+    identity=0.0721, blur1=0.2046, noise0.05=0.4933, quantize16=0.2906, jpeg75=0.1591, jpeg30=0.2373, crop_resize0.1=0.2768, jpeg_then_resize75=0.1760, adverse_cleaner=0.1377, impress=0.2005
+=== woman_03 / add__d0.075 ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    identity=0.4882, blur1=0.3201, noise0.05=0.5045, quantize16=0.4817, jpeg75=0.4187, jpeg30=0.3205, crop_resize0.1=0.4869, jpeg_then_resize75=0.2891, adverse_cleaner=0.3659, impress=0.4634
+=== woman_03 / phase__d0.075 ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    identity=0.4622, blur1=0.2957, noise0.05=0.4818, quantize16=0.3986, jpeg75=0.2639, jpeg30=0.2658, crop_resize0.1=0.3867, jpeg_then_resize75=0.2106, adverse_cleaner=0.3918, impress=0.3424
+=== woman_03 / phase_rand__d0.075 ===
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/lpips/weights/v0.1/vgg.pth
+    分母塌陷：effect(identity) mean=0.0853 sd=0.0335，本格的 retention 不可用
+    identity=0.0853, blur1=0.2170, noise0.05=0.4962, quantize16=0.3154, jpeg75=0.1801, jpeg30=0.2525, crop_resize0.1=0.2739, jpeg_then_resize75=0.1867, adverse_cleaner=0.1677, impress=0.1910
+
+表：runs/phaseA_full/retention.csv（360 列）

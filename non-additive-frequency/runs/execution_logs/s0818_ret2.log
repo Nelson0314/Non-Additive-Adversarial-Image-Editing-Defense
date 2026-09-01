@@ -1,0 +1,27 @@
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3213.02it/s]
+Loading pipeline components...:  17%|█▋        | 1/6 [00:00<00:00,  5.30it/s]Loading pipeline components...:  67%|██████▋   | 4/6 [00:00<00:00, 11.83it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 14.68it/s]
+There are modules in UNet2DConditionModel that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+=== person_c_00 / add__human ===
+    分母塌陷：effect(identity) mean=0.2030 sd=0.1629，本格的 retention 不可用
+    identity=0.2030, blur1=0.1839, noise0.05=0.4257, quantize16=0.1627, jpeg75=0.0873, jpeg30=0.1393, crop_resize0.1=0.3976, jpeg_then_resize75=0.1400, adverse_cleaner=0.2083
+=== person_c_00 / phase__human ===
+    分母塌陷：effect(identity) mean=0.2263 sd=0.1403，本格的 retention 不可用
+    identity=0.2263, blur1=0.2048, noise0.05=0.4278, quantize16=0.1935, jpeg75=0.2186, jpeg30=0.2106, crop_resize0.1=0.4053, jpeg_then_resize75=0.2427, adverse_cleaner=0.2299
+=== person_c_00 / phase_rand__human ===
+    identity=0.0606, blur1=0.1846, noise0.05=0.4272, quantize16=0.1371, jpeg75=0.1124, jpeg30=0.1476, crop_resize0.1=0.4270, jpeg_then_resize75=0.1403, adverse_cleaner=0.1197
+=== person_c_00 / apa_weak ===
+    identity=0.1346, blur1=0.2539, noise0.05=0.4997, quantize16=0.2334, jpeg75=0.1710, jpeg30=0.2567, crop_resize0.1=0.5020, jpeg_then_resize75=0.1899, adverse_cleaner=0.1817
+=== person_c_00 / mist ===
+    identity=0.6359, blur1=0.2764, noise0.05=0.5105, quantize16=0.5553, jpeg75=0.2961, jpeg30=0.2449, crop_resize0.1=0.5652, jpeg_then_resize75=0.2649, adverse_cleaner=0.3581
+=== person_c_00 / dia_r ===
+    identity=0.0949, blur1=0.1641, noise0.05=0.4285, quantize16=0.2158, jpeg75=0.0816, jpeg30=0.1215, crop_resize0.1=0.4431, jpeg_then_resize75=0.1229, adverse_cleaner=0.0997
+=== person_c_00 / photoguard_c ===
+    identity=0.4425, blur1=0.2174, noise0.05=0.4276, quantize16=0.2722, jpeg75=0.2223, jpeg30=0.1868, crop_resize0.1=0.4457, jpeg_then_resize75=0.2072, adverse_cleaner=0.3036
+
+表：runs/s0817/merged/retention_2.csv（63 列）

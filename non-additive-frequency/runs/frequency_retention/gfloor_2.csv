@@ -1,0 +1,5 @@
+image,condition,budget_target,purifier,effect_mean,effect_sd,effect_identity_mean,effect_identity_sd,retention,edit_strength,usable,seconds
+raccoon_00,none,floor,identity,0.0,0.0,0.0,0.0,,0.7,True,172.8
+raccoon_00,none,floor,gridpure,0.23217,0.02162,0.0,0.0,,0.7,True,172.8
+shiba_00,none,floor,identity,0.0,0.0,0.0,0.0,,0.7,True,167.9
+shiba_00,none,floor,gridpure,0.24926,0.0564,0.0,0.0,,0.7,True,167.9

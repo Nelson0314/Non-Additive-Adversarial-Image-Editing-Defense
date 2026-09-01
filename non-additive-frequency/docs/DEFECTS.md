@@ -162,3 +162,21 @@
 - **同型**：`.gitattributes` 已把 `*.sh` 釘成 `text eol=lf`，但**資料檔不在
   那條規則裡**。凡是從 Windows 上傳、又要餵進 shell 的純文字清單都有這個坑。
 
+
+## DEF · `PYTHONIOENCODING=utf-8` 會讓抓子行程輸出的測試變成 `TypeError`
+
+- **症狀**：`tests/test_matched_distortion_table.py::test_兩個錨點都沒給時拋錯`
+  失敗於 `TypeError: can only concatenate str (not "NoneType") to str`，
+  而同一份程式碼在沒設那個環境變數時 1141 條全過。訊息完全沒提到編碼。
+- **根因**：該測試用 `subprocess.run(..., capture_output=True, text=True)` 抓
+  驅動腳本的中文錯誤訊息。`PYTHONIOENCODING` 會被子行程繼承，於是子行程把
+  中文寫成 UTF-8；但 `subprocess` 的 `text=True` **不看 `PYTHONIOENCODING`**，
+  它用 `locale.getencoding()`（本機是 cp950）解碼，UTF-8 的中文位元組解不開。
+  讀取執行緒因此拋 `UnicodeDecodeError` 而死，`out.stderr` 變成 `None`，
+  下一行的字串相加才報錯。真正的例外只出現在 pytest 的 warning 區。
+- **修正**：跑測試時不要加 `PYTHONIOENCODING`。要根治的話是在那個
+  `subprocess.run` 明確給 `encoding="utf-8"`——目前**沒有改**，因為改了會讓
+  這條測試不再涵蓋「訊息以本地編碼寫出」的情形。
+- **同型**：任何用 `capture_output=True, text=True` 抓中文輸出的測試都有這個
+  坑。判斷方法是看 pytest 的 `PytestUnhandledThreadExceptionWarning`，
+  失敗訊息本身不會說是編碼問題。

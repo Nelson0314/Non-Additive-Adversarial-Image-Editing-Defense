@@ -1742,6 +1742,10 @@ def main() -> None:
                 "s_i": args.image_guidance, "edit_seed": args.edit_seed,
                 "modified_from_paper": modified,
                 **standard_row("fid_", fid),
+                # CIEDE2000 的平均色差。**`standard_row` 只取定案清單的五項**，
+                # 這一欄要自己接上去。色彩族沒有它就只剩結構度量，而 LPIPS 與
+                # DISTS 對全域色偏的懲罰偏輕，等失真對齊會系統性偏袒色彩方法。
+                "fid_deltaE00": round(fid["deltaE00"], 4),
                 **standard_row("edit_", prot),
                 "fid_linf": round(fid["linf"], 5),
                 "fid_rms": round(fid["rms"], 5),

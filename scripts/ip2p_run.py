@@ -399,6 +399,16 @@ def defend(ip2p, suite, cond, x01, args, loss_fn):
             "--stage2-steps 不可與預算模式（不給 --radius）併用："
             "二分搜的每一輪都是一次完整的階段一，階段二該接在哪一輪沒有定義。"
             "請明給 --radius。")
+    if args.resume_weights is not None and args.radius is None:
+        # 預算模式的每一輪二分搜都是一次完整的階段一，而且**每一輪的半徑都
+        # 不同**：同一組權重載進不同半徑的輪次，投影會把它們夾成不同的東西，
+        # 「續跑」指的是哪一輪沒有唯一答案。而此前這一支根本不呼叫
+        # `_load_weights`，`resumed` 欄也不會被寫出來——給了旗標卻整批從零
+        # 開始練，報表上完全看不出來。**寧可拒絕**。
+        raise SystemExit(
+            "--resume-weights 不可與預算模式（不給 --radius）併用："
+            "二分搜的每一輪都是一次完整的階段一、半徑各不相同，"
+            "續跑該接在哪一輪沒有定義。請明給 --radius。")
     if args.stage2_steps and cond in NO_OPT_CONDS:
         raise SystemExit(
             f"--stage2-steps 不可用於 {cond}：這個條件不做最佳化，"
@@ -538,11 +548,25 @@ def defend(ip2p, suite, cond, x01, args, loss_fn):
 
     if args.radius is not None:
         param.set_radius(args.radius)
-        resumed = 0
-        if args.resume_weights is not None:
-            resumed = _load_weights(param, x01, args, cond)
+        # **續跑的載入掛在 `run_param_pgd` 的 `post_reset` 上，不在這裡做。**
+        # 此處的參數張量還不存在——相位族的 `param.module` 要到 `reset()` 才
+        # 被建出來，`params()` 讀 `self.module.theta` 會是
+        # `AttributeError: 'NoneType' object has no attribute 'theta'`
+        # （實際發生過，整格沒有產出）；加性／明暗／位移場族的 `delta`／`m`／
+        # `c` 同樣是 `None`。而 `reset()` 又在 `run_param_pgd` 內部，它**換掉
+        # 張量本身**，所以就算在這裡先自己 `reset()` 再載，載進去的值也會被
+        # 那一次 `reset()` 清成零——不拋錯、不留症狀，跑完看起來正常但其實
+        # 是從零練的。掛在 `post_reset` 上是唯一同時滿足「張量已存在」與
+        # 「此後不會再被 reset 清掉」的時間點。
+        resumed_cell = [0]
+
+        def _resume_into(p):
+            resumed_cell[0] = _load_weights(p, x01, args, cond)
+
         loss_fn = _with_consistency(param, x01, args, loss_fn)
         res = run_param_pgd(x01, param, loss_fn, steps=args.steps,
+                            post_reset=(None if args.resume_weights is None
+                                        else _resume_into),
                             seed=args.seed,
                             eval_fn=getattr(loss_fn, "_fixed_eval", None),
                             eval_every=args.eval_every,
@@ -558,7 +582,7 @@ def defend(ip2p, suite, cond, x01, args, loss_fn):
         # 是 `eval` 那一欄，它必須能被重讀與畫圖。停止原因也逐列記下——
         # 「跑滿步數」與「早停」在結果 CSV 上分不出來的話，就不知道那一格
         # 到底收斂了沒有。
-        run_extras["resumed"] = resumed
+        run_extras["resumed"] = resumed_cell[0]
         if args.save_weights:
             run_extras["_weights"] = [t.detach().cpu().clone()
                                       for t in param.params()]

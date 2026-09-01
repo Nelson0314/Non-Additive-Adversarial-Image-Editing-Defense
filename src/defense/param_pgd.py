@@ -580,6 +580,7 @@ def run_param_pgd(
     min_delta: float = 0.0,
     deliver: Optional[Callable[[torch.Tensor], torch.Tensor]] = None,
     step_hook: Optional[Callable[[int], None]] = None,
+    post_reset: Optional[Callable[[Parameterization], None]] = None,
 ) -> ParamPGDResult:
     """共用迴圈。`loss_fn(x_def)` 回傳要**最小化**的純量。
 
@@ -664,12 +665,32 @@ def run_param_pgd(
     **回傳的 `x_def` 仍然是未經 transform 的防禦圖**：transform 是攻擊方會
     做的事，不是我們交出去的東西。預設 `None`，行為與加入此參數之前逐位元
     相同。
+
+    `post_reset(param)` 在 `param.reset(x01, seed)` **之後、第一步之前**恰好
+    呼叫一次，用來把一組既有的參數值寫進去當起點（續跑）。
+
+    **它必須在這裡，不能由呼叫端在呼叫本函式之前做。** 兩個理由，兩個都會
+    靜默失效：
+
+    - **參數張量在 `reset()` 之前不存在。** `PhaseParam.module`、
+      `AdditiveParam.delta`、`ShadingParam.m`、`WarpParam.c` 在 `__init__`
+      裡全是 `None`，`params()` 要到 `reset()` 之後才拿得到張量；提前呼叫
+      會是 `AttributeError: 'NoneType' object has no attribute ...`。
+    - **`reset()` 會換掉張量本身，不是就地歸零。** 即使呼叫端自己先
+      `reset()` 再寫值，本函式開頭的這一次 `reset()` 也會建出一組全新的零
+      張量，寫進去的值就此消失——那不會拋錯、不會有症狀，跑完看起來一切
+      正常，但其實是從零開始練的。
+
+    預設 `None`，行為與加入此參數之前逐位元相同。
     """
     if update not in ("sign", "adam", "lbfgs"):
         raise ValueError(
             f"未知的更新規則 {update!r}，可用的是 sign／adam／lbfgs")
 
     param.reset(x01, seed)
+    # **緊接在 `reset()` 之後**：張量此刻才存在，且此後不會再被換掉。
+    if post_reset is not None:
+        post_reset(param)
     ps = param.params()
     alpha = (param.radius / max(1.0, steps * saturate_at)
              if step_size is None else float(step_size))

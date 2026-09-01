@@ -302,6 +302,18 @@ def main() -> None:
     seeds = [seed0 + k for k in range(args.seeds)]
 
     dataset = {d["name"]: d for d in load_dataset(args.data)}
+    # **在開工之前就檢查**，不要跑到那一格才 KeyError。
+    #
+    # 實際踩過：`runs/ip2p_shading` 的十三張裡有三張已經不在
+    # `data/omniedit150`（資料集現為 147 張），五個 process 各自跑滿六張、
+    # 花了一小時，才在第七張同時以 `KeyError` 中止。防禦圖存在不代表資料集
+    # 裡還有那張影像——防禦圖不入版控、資料集入版控，兩者會分岔。
+    absent = sorted({c["image"] for c in cells} - set(dataset))
+    if absent:
+        raise SystemExit(
+            f"{args.data} 裡沒有這些影像：{absent}。"
+            f"資料集有 {len(dataset)} 張。防禦圖存在不代表資料集裡還有那張"
+            f"影像；用 --images 指定實際存在的那幾張，或補回資料集。")
     # 兩份參照快取，鍵的形狀不同，**不可合併**：
     #   非幾何類  (影像, 種子)         內容 編輯(原圖)          ← 既有行為，未動
     #   幾何類    (影像, 種子, 標籤)   內容 編輯(p(原圖))

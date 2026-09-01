@@ -18,7 +18,11 @@
 # 同失真隨機對照（`rand_*`）與最佳化的（`opt_*`）一起送，因為低頻低自由度的
 # 參數化特別容易死在「與同失真隨機無法區分」（FND-004 的死法）。
 #
-# 用法：bash scripts/purify_shading_field.sh "<卡號…>" [條件…] [nofloor]
+# 第四個參數可以覆寫影像清單，供補跑用（分批的結果放不同目錄，分析時把兩個
+# 目錄一起餵給 retention_table.py／purify_matched_table.py 即可；影像集合不相交
+# 就不會有重複的格）。
+#
+# 用法：bash scripts/purify_shading_field.sh "<卡號…>" [條件…] [nofloor] [影像…]
 set -uo pipefail
 ROOT=/nfs/home/nelson0314/WACV-s3
 PY="$HOME/venvs/wacv/bin/python"
@@ -32,11 +36,16 @@ DEVS=(${1:-})
 bash scripts/free_cards.sh --assert "${DEVS[*]}" || exit 3
 
 SRC=runs/ip2p_shading
-OUT=runs/ip2p_shading_purify
+OUT=${OUT_DIR:-runs/ip2p_shading_purify}
 mkdir -p "$OUT"
 
-# `runs/ip2p_shading` 的十三張，逐字沿用該批的清單，新舊才能逐圖相減。
-IMGS="task_attr_mod_color_11699 task_attr_mod_color_136767 task_attr_mod_color_184837 task_attr_mod_color_32648 task_attr_mod_color_6205 task_env_weather_112463 task_env_weather_246440 task_env_weather_63722 task_obj_add_40931 task_obj_remove_380621 task_obj_swap_joint_mask_276754 task_obj_swap_joint_mask_533428 task_obj_swap_rand_mask_417469"
+# `runs/ip2p_shading` 的十三張裡**還在資料集裡的那十張**。
+# 三張（`task_env_weather_246440`、`task_env_weather_63722`、
+# `task_obj_add_40931`）的防禦圖還在，但已經不在 `data/omniedit150`
+# （現為 147 張）。防禦圖不入版控、資料集入版控，兩者會分岔；
+# `phase_retention.py` 現在會在開工前就擋下這種清單。
+IMGS="task_attr_mod_color_11699 task_attr_mod_color_136767 task_attr_mod_color_184837 task_attr_mod_color_32648 task_attr_mod_color_6205 task_env_weather_112463 task_obj_remove_380621 task_obj_swap_joint_mask_276754 task_obj_swap_joint_mask_533428 task_obj_swap_rand_mask_417469"
+IMGS="${4:-$IMGS}"
 # 現行六算子協定，與 runs/ip2p_matched_headtohead 同一組。
 PUR="identity jpeg75 jpeg30 blur1 blur2 crop_resize0.1"
 COMMON="--data data/omniedit150 --attacker ip2p --seeds 3 --purifiers $PUR"

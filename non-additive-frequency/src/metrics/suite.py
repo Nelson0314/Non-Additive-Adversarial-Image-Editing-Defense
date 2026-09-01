@@ -80,6 +80,20 @@ HIGHER_IS_BETTER = {
 }
 
 
+def _delta_e00(a: torch.Tensor, b: torch.Tensor) -> float:
+    """兩張 (N,3,H,W)、[0,1] sRGB 影像的平均 CIEDE2000 色差。
+
+    sRGB → CIELAB 的轉換與色差公式都取自 `skimage.color`，不自行實作——
+    CIEDE2000 有六個分段條件與一個旋轉項，自己寫的版本很難驗。
+    回傳的是逐像素色差的平均，量綱是 ΔE 單位（1 約為剛可辨的差異）。
+    """
+    from skimage.color import deltaE_ciede2000, rgb2lab
+
+    x = a.detach().cpu().float().clamp(0, 1).permute(0, 2, 3, 1).numpy()
+    y = b.detach().cpu().float().clamp(0, 1).permute(0, 2, 3, 1).numpy()
+    return float(deltaE_ciede2000(rgb2lab(x), rgb2lab(y)).mean())
+
+
 class MetricSuite:
     """八項指標的統一介面。影像一律為 (N,3,H,W)、[0,1]。"""
 
@@ -242,6 +256,12 @@ class MetricSuite:
             "acutance_ratio": acutance(a, b)["acutance_ratio"],
             "rms": float((d ** 2).mean().sqrt()),
             "frac_gt_16_255": float((d > 16 / 255).float().mean()),
+            # CIEDE2000 的平均色差。**為色彩重映射的防禦而加**：LPIPS 與
+            # DISTS 都是結構／紋理度量，對全域色偏的懲罰偏輕，只用它們對齊
+            # 失真會系統性偏袒色彩方法。這一欄是那個偏誤的對照軸。
+            # 走 skimage 的 `deltaE_ciede2000`（實作已被廣泛驗證），
+            # 不自行實作該公式。
+            "deltaE00": _delta_e00(a, b),
         }
 
     # FID 的樣本數下限。**這不是技術下限而是可信度下限**：協方差矩陣是

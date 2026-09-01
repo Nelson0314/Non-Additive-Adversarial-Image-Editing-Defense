@@ -83,5 +83,13 @@ CSV 的 `reference` 欄逐列標出走的是哪一種。協定見
 
 注意力抑制、分類器交叉熵／latent／CLIP 三種 reward、DISTS 進 loss 的軟約束、
 Adam 更新規則、位移場、cross-attention 注入、分階段注入、amortized generator、
-顏色通道、紋理重相位搬進 latent、逐像素紋理閘、放行低頻（`r_min` 調低）、
+紋理重相位搬進 latent、逐像素紋理閘、放行低頻（`r_min` 調低）、
 Griffin–Lim 迭代投影、`block=64`、針對淨化最佳化。
+
+**`顏色通道` 已由使用者裁定解除，不再列為否決項。** 現行的色彩方向是一個
+**獨立的參數化族**（`src/defense/color_param.py` 的 `ColorCurveParam` 與
+`ColorGridParam`），不是把顏色接回相位算子；它的動機、構造與失真校準見該模組
+的 docstring 與 `runs/color_field_cost/`。同一裁定也解除了
+`docs/reference/SURVEY_ARCHITECTURE.md` 第二節對「色調曲線／色彩量化」的排除。
+該裁定另外取消了「失真要人眼可接受」這個前提：**可見的防禦是允許的**，
+條件是產物自然、且不動到受保護的主體。

@@ -117,7 +117,12 @@ DISP_CONDS = ("disp_k1", "disp_k2", "disp_k3", "disp_k4", "disp_k8",
               # `_opt` = 可學 ＋ 接上紋理閘與帶級知覺定價。
               "disp_k1_opt", "disp_k2_opt", "disp_k4_opt", "disp_k8_opt")
 PHASE_CONDS = ("phase", "phase_rand", "add", "phase_gain", "gain_only",
-               "floor_only", "shading", "shading_rand",) + DISP_CONDS + (
+               "floor_only", "shading", "shading_rand",
+               # 色彩重映射（`src/defense/color_param.py`）。強度旗鈕都是
+               # `--radius`，但**兩族的單位不同**：曲線族是斜率剖面的動態
+               # 範圍、網格族是仿射係數的 L∞ 偏移，不可互相換算。
+               "color_curve", "color_curve_rand",
+               "color_grid", "color_grid_rand",) + DISP_CONDS + (
                # WaNet 式三元對照（`runs/ip2p_warp/`）。強度旗鈕是 `--radius`，
                # 單位是最大位移像素數。三格的分工見 `phase_ablation.build`。
                "warp", "warp_rand", "warp_roundtrip")
@@ -145,6 +150,7 @@ WM_CONDS = ("dct_wm",)
 # 不做最佳化的對照條件：參數是抽出來的、`params()` 是空的。分階段訓練
 # 沒有階段一的解可以接，故一律拒絕而不是靜默跳過階段二。
 NO_OPT_CONDS = ("phase_rand", "shading_rand", "warp_rand",
+                "color_curve_rand", "color_grid_rand",
                 "dct_rotate_rand", "dct_nonadd_rand", "dct_unified_rand")
 
 
@@ -538,7 +544,11 @@ def defend(ip2p, suite, cond, x01, args, loss_fn):
                           dct_gate=args.dct_gate,
                           warp_init_std=args.warp_init_std,
                           dct_mode=args.dct_mode,
-                          dct_plane_weight=args.dct_plane_weight)
+                          dct_plane_weight=args.dct_plane_weight,
+                          color_pieces=args.color_pieces,
+                          color_bound_mode=args.color_bound_mode,
+                          color_grid=args.color_grid,
+                          color_luma_bins=args.color_luma_bins)
     q_deliver = deliver_quality(args)
     run_extras: dict = {}
     # **在兩條路徑分岔之前包**：預算模式（`fit_to_budget`）內層自己呼叫
@@ -811,6 +821,21 @@ def build_parser() -> argparse.ArgumentParser:
                          "構不到 0.2%% 而被判定停滯。門檻必須小於曲線真正變平"
                          "之前的改善率，否則停下來的是一條還在降的曲線")
     # 相位／加性
+    ap.add_argument("--color-pieces", type=int, default=64,
+                    help="color_curve 的分段數 K。AdvCF 的 ImageNet 設定是 64；"
+                         "它同時是曲線的自由度（3K）與亮度解析度。")
+    ap.add_argument("--color-bound-mode", choices=("symmetric", "advcf"),
+                    default="symmetric",
+                    help="color_curve 的投影盒。advcf 是原程式的 "
+                         "clamp(theta, 1/K, (1+r)/K)，下界等於初始值，故 sign "
+                         "更新在起點只有往上可行；symmetric 是本專案指定的對數"
+                         "對稱盒 [1/(K(1+r)), (1+r)/K]。**這一欄要進報表。**")
+    ap.add_argument("--color-grid", type=int, default=8,
+                    help="color_grid 的空間網格邊長 G。頻寬由它決定："
+                         "f_n <= G/H，G=8、H=512 時 0.016。G=1 時空間上是常數"
+                         "場，對裁切精確等變。")
+    ap.add_argument("--color-luma-bins", type=int, default=8,
+                    help="color_grid 的亮度格數 D。沿亮度軸是 D 段的分段線性。")
     ap.add_argument("--radius", type=float, default=None,
                     help="直接指定半徑（掃描曲線用）。不給則二分搜到 --budget")
     ap.add_argument("--budget", type=float, default=0.0349, help="DISTS 預算")
@@ -1584,6 +1609,19 @@ def main() -> None:
                 "survival_weight": args.survival_weight,
                 "gain_weight": args.gain_weight,
                 "phase_channels": args.phase_channels,
+                # 色彩重映射的四個設定。**關著時仍然寫出來**——同一批裡
+                # color_curve 與 color_grid 的列在其餘欄位上一模一樣，
+                # 不記下來合併分片之後就分不出來。`color_bound_mode` 另有
+                # 移植上的意義：advcf 是原程式的盒、symmetric 是本專案指定的。
+                # 防禦端的種子。**此前沒有任何一欄記它**，於是「不最佳化」
+                # 那一族（`*_rand`）的參數無法由 CSV 重建——它們的
+                # `params()` 是空的，`--save-weights` 存不到東西，只能靠
+                # 種子重抽。共防禦參照要重新套用同一個 D，缺這一欄就辦不到。
+                "defense_seed": args.seed,
+                "color_pieces": args.color_pieces,
+                "color_bound_mode": args.color_bound_mode,
+                "color_grid": args.color_grid,
+                "color_luma_bins": args.color_luma_bins,
                 "spectral_floor": args.spectral_floor,
                 # 加法項的價目分配。三個變體的總預算相同，跑出來的列
                 # 在其餘欄位上一模一樣，不記下來合併之後就分不出來。

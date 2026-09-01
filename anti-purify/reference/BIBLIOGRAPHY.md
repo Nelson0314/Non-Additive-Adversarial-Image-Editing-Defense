@@ -165,6 +165,17 @@ Hann 窗與 COLA／NOLA、實數 FFT 的共軛對稱都是標準性質。**這�
 | **PerC-AL**（CVPR 2020） | 以 CIEDE2000 感知色差取代 L∞ 當約束 | [arXiv:1911.02466](https://arxiv.org/abs/1911.02466) |
 | **Adversarial Perturbations Prevail in the Y-Channel** | **相反結論**：對抗能量集中在亮度而非色度 | [arXiv:2003.00883](https://arxiv.org/pdf/2003.00883) |
 | **Chroma Backdoor** | UV 通道的高頻小波注入 | [doi:10.3390/sym17071014](https://doi.org/10.3390/sym17071014) |
+| **AdvCF**（IEEE TIFS 2023；BMVC 2020 版題名 *Adversarial Color Enhancement*） | **逐通道 K 段分段線性單調色調曲線**，`F_θ(x_k) = Σ_{i<k} θ_i/θ_sum + (K·x_k−(k−1))·θ_k/θ_sum`；C&W 損失 ＋ PGD，ImageNet 設定 K=64、ε=16、100 步、α=1.0，投影為 `clip(θ, 1/K, ε/K)`。**報了對常見變換的存活率**（Inc3→Res50，圖 10）：JPEG q30 約 **75%**、3×3 中值濾波約 **78%**、resize&pad 約 **82%**、**灰階轉換僅約 18%** | [arXiv:2011.06690](https://arxiv.org/abs/2011.06690) ／ [repo](https://github.com/ZhengyuZhao/AdvCF)（`Journal_version/`） |
+| **Adversarial Color Film** | 相機端色片的**物理參數**攻擊，數位與實體皆測，強調可遷移性。與本專案的數位管線不在同一層，只作為「色彩自由度足以構成完整攻擊面」的旁證；venue **未查證** | [arXiv:2209.02430](https://arxiv.org/abs/2209.02430) |
+| **ColorFool**（CVPR 2020） | 黑盒、內容導向。只動 Lab 的 **a、b 兩個去相關通道，不動亮度 L**；先語意分割再按區域在人眼容忍的色域內改色 | [arXiv:1911.10891](https://arxiv.org/abs/1911.10891) |
+| **cAdv**（ICLR 2020，*Unrestricted Adversarial Examples via Semantic Manipulation*） | 以著色網路的錨點為參數產生顏色擾動。原文把它的抗 JPEG 與抗對抗訓練**歸因於擾動「大且空間平滑」**——與本專案「模糊砍高頻」的失效機制同一個軸 | [arXiv:1904.06347](https://arxiv.org/abs/1904.06347) |
+| **PAChroma／Uncolorable Examples**（APSIPA ASC 2025） | 色度受限擾動 ＋ Laplacian 濾波維持知覺品質，任務是**阻止 AI 上色**（非編輯防禦）。宣稱對壓縮等後處理穩健，**細節僅讀摘要** | [arXiv:2510.08979](https://arxiv.org/abs/2510.08979) |
+
+**這五筆與上表四筆的差別**：上表是 2026-08-13 顏色通道實驗查到的前例，全部把
+顏色當**不可見擾動的載體**；這五筆把顏色當**可見但不可疑（non-suspicious）的
+變換**，且 AdvCF 與 cAdv **明確報了對 JPEG／濾波／重取樣的存活率**，那正是
+本專案模糊與裁切兩欄輸掉的地方。仍然**沒有任何一筆的威脅模型是擴散編輯防禦**，
+四筆是分類器攻擊、一筆是上色防禦。
 
 ## 7. 對防護有效性的否定證據
 

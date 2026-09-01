@@ -294,6 +294,81 @@ CNN_DENOISE_SUBSTITUTE_CKPT = "gaussian_color_denoising_sigma50.pth"
 CNN_DENOISE_SIGMA = 50  # NTIRE 2023 挑戰賽的雜訊等級（[0,255] 尺度），非盲
 
 
+# ── 色彩類淨化算子 ────────────────────────────────────────────────────
+#
+# 為什麼要有這一族：色彩重映射的防禦（`src/defense/color_param.py`）繞開的是
+# 空間性的失效機制，它的代價是**多開了一個攻擊面**。AdvCF（arXiv:2011.06690）
+# 圖 10 量到色彩攻擊在 JPEG q30／中值濾波／resize&pad 上存活 75–82%，
+# 但**灰階轉換只剩約 18%**——那是它唯一的死穴，不測它主張就不成立。
+#
+# 四個算子涵蓋攻擊方在**沒有乾淨參照**時能做的全部色彩正規化：
+# 丟掉色度（grayscale）、對齊白平衡（gray_world）、對齊逐通道的動態範圍
+# （auto_levels）、對齊局部對比（clahe）。有參照的手段（直方圖匹配到原圖）
+# 不在威脅模型內——攻擊方拿到的就只有防禦圖。
+#
+# **這四個都不是幾何類**（不改取景也不改像素格點），故參照照舊，
+# 不進 `GEOMETRIC_KINDS`。
+
+
+def grayscale_real(x: torch.Tensor) -> torch.Tensor:
+    """ITU-R BT.601 亮度，複製回三通道。`strength` 未使用。
+
+    係數與 `src/defense/color_param.LUMA_WEIGHTS`、`src/metrics/acutance._luma`
+    同一組——三處若不一致，「防禦把能量放在哪個亮度上」與「淨化拿走哪個
+    亮度」講的就不是同一件事。
+    """
+    w = torch.tensor((0.299, 0.587, 0.114), device=x.device, dtype=x.dtype)
+    y = (x * w.view(1, 3, 1, 1)).sum(1, keepdim=True)
+    return y.expand(-1, 3, -1, -1).contiguous().clamp(0.0, 1.0)
+
+
+def gray_world_real(x: torch.Tensor) -> torch.Tensor:
+    """灰世界白平衡：逐通道增益，使三個通道的均值相等。
+
+    `gain_c = mean(x) / mean(x_c)`。分母夾在 `1e-6`：全黑通道的增益無定義，
+    這是數值邊界不是症狀掩蓋——原始碼裡不夾就是 inf 傳到整張圖。
+    """
+    m = x.mean(dim=(0, 2, 3), keepdim=True)
+    gain = m.mean() / m.clamp_min(1e-6)
+    return (x * gain).clamp(0.0, 1.0)
+
+
+def auto_levels_real(x: torch.Tensor, frac: float = 0.01) -> torch.Tensor:
+    """逐通道百分位拉伸：把 `frac` 與 `1 - frac` 分位映到 0 與 1。
+
+    `frac` 預設 0.01，**本專案指定**（無出處）；它是 `Purifier.strength`，
+    故逐列進 CSV。分母夾在 `1e-6`，理由同 `gray_world_real`。
+    """
+    n, c = x.shape[0], x.shape[1]
+    flat = x.reshape(n, c, -1)
+    q = torch.tensor([frac, 1.0 - frac], device=x.device, dtype=x.dtype)
+    lo, hi = torch.quantile(flat, q, dim=-1)          # 各 (N,C)
+    lo = lo.view(n, c, 1, 1)
+    hi = hi.view(n, c, 1, 1)
+    return ((x - lo) / (hi - lo).clamp_min(1e-6)).clamp(0.0, 1.0)
+
+
+def clahe_real(x: torch.Tensor, clip_limit: float = 2.0) -> torch.Tensor:
+    """CLAHE，作用在 Lab 的 L 通道上，8×8 tile。
+
+    `clip_limit` 是 `Purifier.strength`（預設 2.0，OpenCV 的預設值）。
+    走 OpenCV 故不可微，`Purifier.forward` 以直通估計接梯度。
+    """
+    import cv2
+    import numpy as np
+
+    out = []
+    for i in range(x.shape[0]):
+        arr = (x[i].permute(1, 2, 0).clamp(0, 1).cpu().numpy() * 255.0)
+        arr = arr.round().astype(np.uint8)
+        lab = cv2.cvtColor(arr, cv2.COLOR_RGB2LAB)
+        cl = cv2.createCLAHE(clipLimit=float(clip_limit), tileGridSize=(8, 8))
+        lab[:, :, 0] = cl.apply(lab[:, :, 0])
+        rgb = cv2.cvtColor(lab, cv2.COLOR_LAB2RGB).astype(np.float32) / 255.0
+        out.append(torch.from_numpy(rgb).permute(2, 0, 1))
+    return torch.stack(out).to(device=x.device, dtype=x.dtype)
+
+
 def has_cnn_denoise_weights(ckpt=None) -> bool:
     """替代去噪器的架構與權重是否到位。目前恆為 False。"""
     return False
@@ -340,6 +415,12 @@ KINDS = (
     # 不得進入頭對頭的淨化器清單（`phase_retention.purifier_set` 沒有它們）。
     "resample_roundtrip",
     "shift_only",
+    # 色彩類。針對色彩重映射防禦而加，見上方 `grayscale_real` 前的說明。
+    # 都不是幾何類，參照照舊。
+    "grayscale",
+    "gray_world",
+    "auto_levels",
+    "clahe",
 )
 
 # 改變像素格點或取景的算子。**量測協定對這一類換參照**（`DECISIONS.md` 的
@@ -408,7 +489,10 @@ def label_is_geometric(name: str) -> bool:
 # 原生可微（`forward` 走真實實作並提供真實梯度）的算子。其餘一律經
 # `straight_through`：前向為真實輸出、反向視為恆等。
 _DIFFERENTIABLE = ("identity", "blur", "noise", "crop_resize", "resize_only",
-                   "resample_roundtrip", "shift_only")
+                   "resample_roundtrip", "shift_only",
+                   # 三者都是逐點或逐通道的可微運算，原生有梯度。
+                   # `clahe` 走 OpenCV，不在此列，由直通估計接。
+                   "grayscale", "gray_world", "auto_levels")
 
 
 class Purifier:
@@ -486,6 +570,16 @@ class Purifier:
         if self.kind == "jpeg_then_resize":
             q = int(self.strength) if self.strength else CR_JPEG_QUALITY
             return jpeg_then_resize(x, quality=q)
+        if self.kind == "grayscale":
+            return grayscale_real(x)
+        if self.kind == "gray_world":
+            return gray_world_real(x)
+        if self.kind == "auto_levels":
+            frac = self.strength if self.strength else 0.01
+            return auto_levels_real(x, frac)
+        if self.kind == "clahe":
+            cl = self.strength if self.strength else 2.0
+            return clahe_real(x, cl)
         if self.kind == "adverse_cleaner":
             return adverse_cleaner_real(x)
         if self.kind == "impress":

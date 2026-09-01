@@ -42,6 +42,10 @@ from src.defense.param_pgd import (  # noqa: F401
     WarpParam, WarpRandomParam, WarpRoundTripParam,  # noqa: E402
     AdditiveParam, PhaseParam, RandomPhaseParam, fit_to_budget, run_param_pgd,
 )
+from src.defense.color_param import (  # noqa: F401,E402
+    ColorCurveParam, ColorCurveRandomParam,
+    ColorGridParam, ColorGridRandomParam,
+)
 from src.metrics.aesthetic import AestheticSuite  # noqa: E402
 from src.metrics.suite import MetricSuite  # noqa: E402
 from src.models.sd import SDWrapper  # noqa: E402
@@ -70,6 +74,17 @@ PHASE_RADIUS_LO = 0.05
 # 預算不會變成擾動，只會變成一塊死白。下界 0.02 對應 ±2% 的明暗變化。
 SHADING_RADIUS_LO = 0.02
 SHADING_RADIUS_HI = 0.30
+
+# 色彩重映射的兩個半徑區間。**兩族的單位不同，不可互相換算**：
+#   color_curve  斜率剖面的動態範圍 `1 + r`，r = 0 即恆等。
+#                上界取 3.0（動態範圍 4 倍）——AdvCF 原文的 ε = 16 對應 r = 15，
+#                那是分類器攻擊的預算，在本專案的失真軸上遠超可用範圍。
+#   color_grid   仿射係數對單位矩陣的 L∞ 偏移。上界取 0.30：偏移項 0.30 已是
+#                值域的三成，再大就整片壓進 clamp。
+COLOR_CURVE_RADIUS_LO = 0.05
+COLOR_CURVE_RADIUS_HI = 3.0
+COLOR_GRID_RADIUS_LO = 0.01
+COLOR_GRID_RADIUS_HI = 0.30
 # WaNet 式三元對照的半徑界。**單位是最大位移像素數**，夾在 16x16 粗網格的
 # 係數上（上採樣會過衝）。上界 48 px 是本專案指定：本機量過的失真對照表
 # （`WarpParam` 的 docstring）在 24 px 就到 DISTS 0.16、PSNR 17.4，已經超出
@@ -104,7 +119,9 @@ def build(name: str, seed: int, block: int = 32, r_min: float = 0.12,
           dct_qd: float = 0.85, dct_pairing: str = "transpose",
           dct_gate: str = "texture", warp_init_std: float = 0.0,
           dct_mode: str = "plane", dct_plane_weight: str = "uniform",
-          disp_field_grid: int = 16):
+          disp_field_grid: int = 16,
+          color_pieces: int = 64, color_bound_mode: str = "symmetric",
+          color_grid: int = 8, color_luma_bins: int = 8):
     """`block`／`r_min`／`quantile` 是相位算子的三個構造設定。
 
     預設值是 現行定案（`docs/METHOD.md` §4）。開放成參數是為了掃描
@@ -175,6 +192,24 @@ def build(name: str, seed: int, block: int = 32, r_min: float = 0.12,
         return (cls(radius=DCT_ROTATE_RADIUS_HI, qd=dct_qd,
                     pairing=dct_pairing, gate=dct_gate),
                 DCT_ROTATE_RADIUS_LO, DCT_ROTATE_RADIUS_HI)
+    if name in ("color_curve", "color_curve_rand"):
+        # 逐通道 K 段單調分段線性曲線，全域套用（`src/defense/color_param.py`）。
+        # 對裁切**精確等變**，且輸出值域由構造落在 [0,1]、不需要 clamp——
+        # 後者正是 `ShadingParam` 上不去的原因（亮部飽和的天花板）。
+        cls = (ColorCurveParam if name == "color_curve"
+               else ColorCurveRandomParam)
+        return (cls(radius=COLOR_CURVE_RADIUS_HI, pieces=color_pieces,
+                    bound_mode=color_bound_mode),
+                COLOR_CURVE_RADIUS_LO, COLOR_CURVE_RADIUS_HI)
+    if name in ("color_grid", "color_grid_rand"):
+        # 雙邊網格上的仿射色彩變換。空間 G×G × 亮度 D 格，頻寬由構造
+        # `f_n ≲ G/H`（G=8、H=512 時 0.016，落在 `ShadingParam` 已量到的
+        # 低頻帶內）。偏移項讓它在暗部也推得動，這是純乘性場沒有的自由度。
+        cls = (ColorGridParam if name == "color_grid"
+               else ColorGridRandomParam)
+        return (cls(radius=COLOR_GRID_RADIUS_HI, grid=color_grid,
+                    luma_bins=color_luma_bins),
+                COLOR_GRID_RADIUS_LO, COLOR_GRID_RADIUS_HI)
     if name in ("shading", "shading_rand"):
         # 候選二：極低頻的乘性明暗場。**與相位算子的頻帶不相交**
         # （r_min = 0.12 以上 對 f_n < 0.03 以下），所以它可以疊加而不是取代。

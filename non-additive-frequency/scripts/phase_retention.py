@@ -144,6 +144,13 @@ def purifier_set(sd, seed: int, only=None):
         purify_ops.Purifier("crop_resize", purify_ops.CROP_FRACTION_DIA),
         purify_ops.Purifier("crop_resize", 0.15),
         purify_ops.Purifier("jpeg_then_resize", purify_ops.CR_JPEG_QUALITY),
+        # 色彩類。針對色彩重映射防禦而加（`src/purify/ops.py` 的
+        # `grayscale_real` 前有完整說明）。AdvCF 圖 10 量到灰階是色彩攻擊
+        # 唯一的死穴（存活率由 75–82% 掉到約 18%），不測它主張就不成立。
+        purify_ops.Purifier("grayscale"),
+        purify_ops.Purifier("gray_world"),
+        purify_ops.Purifier("auto_levels", 0.01),
+        purify_ops.Purifier("clahe", 2.0),
         purify_ops.Purifier("adverse_cleaner"),
         purify_ops.Purifier("impress", sd=sd, seed=seed),
         # DEC-025 的頻率輪新增。兩者的超參數論文正文未載，值在此明給並由
@@ -227,6 +234,16 @@ def main() -> None:
                          "讓 SDEdit 那條凍結的線逐位可重跑。ip2p 時 "
                          "--edit-strength 不適用，改由 --edit-steps／"
                          "--text-guidance／--image-guidance 決定")
+    ap.add_argument("--codefense", action="store_true",
+                    help="另外量共防禦參照 effect_codefense = "
+                         "LPIPS(編輯(p(D(x))), p(D(編輯(x))))，與現行參照"
+                         "**並列**寫進同一列、不取代它。D 由 --weights-dir 的"
+                         "參數檔或 defense_seed 重建（`src/defense/codefense.py`）。"
+                         "非逐點的參數化（相位族）沒有這個物件，該列的"
+                         "codefense_status 記 not_applicable。"
+                         "右側不需要額外的編輯，故 GPU 成本近似為零")
+    ap.add_argument("--weights-dir", type=Path, default=None,
+                    help="共防禦參照重建 D 用的參數檔目錄。預設同 --run")
     ap.add_argument("--edit-steps", type=int, default=None)
     ap.add_argument("--text-guidance", type=float, default=None)
     ap.add_argument("--image-guidance", type=float, default=None)
@@ -243,9 +260,15 @@ def main() -> None:
                 continue
             seen.add(r["image"])
             cells.append({"image": r["image"], "condition": "none",
-                          "budget": "floor", "tag": None})
+                          "budget": "floor", "tag": None,
+                          "row": {"condition": "none"}})
     else:
-        cells = [cell_of(r) for r in rows_in]
+        cells = []
+        for r in rows_in:
+            c = cell_of(r)
+            # 共防禦參照要由這一列的設定欄重建 D，故整列帶著走。
+            c["row"] = r
+            cells.append(c)
     if args.images:
         keep = set(args.images)
         cells = [c for c in cells if c["image"] in keep]
@@ -332,9 +355,22 @@ def main() -> None:
                 edit_pur_orig_cache[key] = edit(p.evaluate(x01), item, seed)
             return edit_pur_orig_cache[key]
 
+        codef_fn, codef_status = None, ""
+        if args.codefense:
+            from src.defense.codefense import build_codefense
+
+            codef_fn, codef_status = build_codefense(
+                cell["row"], args.weights_dir or args.run, cell["image"],
+                sd.device, x01.dtype)
+
+        def codefense_reference(p, seed: int):
+            """`p(D(編輯(原圖)))`。不做任何額外的編輯。"""
+            return p.evaluate(codef_fn(edit_orig_cache[(cell["image"], seed)]))
+
         print(f"=== {cell['image']} / {tag} ===", flush=True)
         t0 = time.time()
         effects: dict = {}
+        codef: dict = {}
         sims: dict = {}
         refs: dict = {}
         for p in purifiers:
@@ -350,6 +386,7 @@ def main() -> None:
                            f"{cell['image']}__{cell['tag']}__{name}__pur.png")
             first = None
             first_ref = None
+            cvals = []
             for seed in seeds:
                 ref = reference(p, name, seed)
                 e = edit(x_pur, item, seed)
@@ -359,6 +396,10 @@ def main() -> None:
                         save_image(e, args.gallery /
                                    f"{cell['image']}__{cell['tag']}__{name}__edit_def.png")
                 vals.append(float(suite.pairwise(ref, e)["lpips"]))
+                if codef_fn is not None:
+                    cvals.append(float(suite.pairwise(
+                        codefense_reference(p, seed), e)["lpips"]))
+            codef[name] = cvals
             if args.floor and geometric and any(v != 0.0 for v in vals):
                 # 地板那一格的防禦圖就是原圖，幾何類的參照也是 `編輯(p(原圖))`，
                 # 兩側同算子、同輸入、同種子 → 位元相同 → LPIPS 恰為 0。
@@ -389,6 +430,7 @@ def main() -> None:
 
         for name, vals in effects.items():
             mean = statistics.fmean(vals)
+            cvals = codef.get(name, [])
             rows.append({
                 "image": cell["image"], "condition": cell["condition"],
                 "budget_target": cell["budget"], "purifier": name,
@@ -404,6 +446,18 @@ def main() -> None:
                 # 經人眼標記驗證的防禦成功代理，門檻 0.837、低者為擋下。
                 # 與 effect_* 並列而非取代它：金標準仍是人眼，這一項的用途是
                 # 讓新工作點不必每一格都重看圖。
+                # 共防禦參照。**與 effect_* 並列，不取代**——既有 runs/ 的
+                # 每一個數字都是舊參照量的，取代會讓新舊批次無法並列。
+                # `codefense_status` 記這一列的 D 是怎麼來的：
+                # exact（逐點映射，由參數重建）／identity（空白地板）／
+                # not_applicable（相位族沒有這個物件）。
+                "codefense_status": codef_status,
+                "reference_codefense": (
+                    "codefense_purified" if cvals else ""),
+                "effect_codefense_mean": (
+                    round(statistics.fmean(cvals), 5) if cvals else ""),
+                "effect_codefense_sd": (
+                    round(statistics.stdev(cvals), 5) if len(cvals) > 1 else ""),
                 "siglip_sim": round(sims[name], 5),
                 "siglip_blocked": sims[name] < 0.837,
                 "edit_strength": args.edit_strength,

@@ -467,7 +467,7 @@ sigma 1.5）、旋轉 5°、中心裁切。**官方程式碼未查證，移植�
 ### 本機
 
 - Python：`C:/Users/nelso/miniconda3/envs/wacv/python.exe`（**不是 base**）。
-- 測試：`python -m pytest -q`，基準 **1141 passed / 2 skipped / 1 xfailed**。
+- 測試：`python -m pytest -q`，基準 **1178 passed / 2 skipped / 1 xfailed**。
   動任何東西前先跑一次確認。
 - Python 指令是 `python` 不是 `python3`。
 - **Git Bash 裡不要用裸 `python`**，會卡到逾時；用 conda 的完整路徑。

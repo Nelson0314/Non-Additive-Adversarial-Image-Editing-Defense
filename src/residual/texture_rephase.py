@@ -380,6 +380,48 @@ FLOOR_GATES = {
 }
 
 
+# 可學的空間包絡（`floor_envelope`）。"none" = 關閉，前向完全不建立它，
+# 逐位元等於加這個旋鈕之前。"gauss" = 下面 `PhaseResidual.envelope()` 的
+# 高斯凸包 x 徑向低通。
+FLOOR_ENVELOPES = ("none", "gauss")
+
+# 包絡乘在哪一半上。"floor" = 只乘加法項的價目表（預設）；"all" = 連相位與
+# 增益的閘也乘。**兩者的總量處理不同**，見 `PhaseResidual.envelope()`。
+FLOOR_ENVELOPE_SCOPES = ("floor", "all")
+
+
+def window_centres(side: int, hop: int, size: int, device, dtype) -> torch.Tensor:
+    """每個分析視窗的中心在**正規化影像座標**上的位置，形狀 (side*side, 2)。
+
+    `analyze()` 對 `reflect` 填補過的影像做 `unfold(kernel=block, stride=hop)`，
+    第 (row, col) 個視窗在填補座標上的左上角是 `(row*hop, col*hop)`，中心是
+    `(row*hop + block/2, col*hop + block/2)`；扣掉 `pad = block//2` 之後，
+    **中心在原圖像素座標上恰為 `(row*hop, col*hop)`**。
+
+    正規化取 `u = 2*(row*hop)/size - 1`，於是四角是 (-1,-1) 與 (1,1)，
+    與 `torch.nn.functional.grid_sample` 的 `align_corners=True` 同一套座標。
+    回傳的列序與 `unfold` 的視窗序（row-major）相同——順序錯掉的話包絡會被
+    轉置，而輸出仍然是一張合法的影像，不會有任何症狀。
+    """
+    idx = torch.arange(side, device=device, dtype=dtype)
+    coord = 2.0 * (idx * hop) / size - 1.0                 # (side,)
+    yy = coord[:, None].expand(side, side).reshape(-1)
+    xx = coord[None, :].expand(side, side).reshape(-1)
+    return torch.stack([yy, xx], dim=-1)                   # (L, 2)
+
+
+def radial_radius(block: int, device, dtype) -> torch.Tensor:
+    """(block, block//2+1) 的歸一化徑向頻率 r。與 `radial_gate` 同一套座標。
+
+    抽成函式而不是在兩處各寫一次：`radial_gate` 與包絡的低通若用不同的
+    座標約定（例如一邊 [-1,1) 一邊 [-0.5,0.5)），低通的截止就會對到別的地方，
+    而輸出仍然是一張合法的影像。
+    """
+    fy = torch.fft.fftfreq(block, device=device, dtype=dtype) * 2.0
+    fx = torch.fft.rfftfreq(block, device=device, dtype=dtype) * 2.0
+    return torch.sqrt(fy[:, None] ** 2 + fx[None, :] ** 2)
+
+
 class PhaseResidual(ResidualModule):
     """紋理重相位。phi = theta，形狀 (1, L, block, block//2+1)，RGB 三通道共用。
 
@@ -415,6 +457,9 @@ class PhaseResidual(ResidualModule):
         floor_r_min: Optional[float] = None,
         floor_r_max: Optional[float] = None,
         floor_survival: str = "none",
+        floor_envelope: str = "none",
+        floor_envelope_k: int = 1,
+        floor_envelope_scope: str = "floor",
         theta_budget: float = 0.0,
         coarsen: int = 1,
     ):
@@ -505,6 +550,43 @@ class PhaseResidual(ResidualModule):
                 f"未知的 floor_survival：{floor_survival!r}，"
                 f"可用的是 {sorted(SURVIVAL_WEIGHTS)}")
         self.floor_survival = floor_survival
+        # 可學的**空間包絡**。本模組原本沒有任何空間定位的自由度：紋理閘會
+        # 定位但由原圖決定、不可學；`floor_survival` 已在**頻率**上做軟性
+        # 挑選，空間上仍是均勻的。
+        #
+        # 為什麼要它：裁切（`crop_resize0.1` 是繞中心放大 1.2488x，落在中央
+        # 80% 以內的才留下來）與模糊（頻域乘 `exp(-2*pi^2*sigma^2*f^2)`，
+        # 與擾動放在畫面哪裡無關，但空間上壓得越窄、頻譜攤得越寬，單位預算
+        # 下被拿走的**更多**）兩者的交集是「靠近中心的、大尺度的、平滑的
+        # 結構」。**空間定位是這個構造缺的那一個旋鈕**，而總量正規化之下
+        # 「集中」等價於「在少數位置上把振幅放大」。
+        #
+        # 五個純量與 theta／gain／floor 走同一條 PGD：K 組中心 `(cy, cx)`、
+        # K 個空間尺度 `s`、一個徑向低通截止 `f_c`、一個強度 `beta`。
+        # `beta = 0` 時包絡**逐位元**是 1（`(1-0) + 0*bump = 1.0`），故零初始化
+        # 即恆等，與 theta 的零初始化同性質。
+        if floor_envelope not in FLOOR_ENVELOPES:
+            raise ValueError(
+                f"未知的 floor_envelope：{floor_envelope!r}，"
+                f"可用的是 {list(FLOOR_ENVELOPES)}")
+        self.floor_envelope = floor_envelope
+        if floor_envelope_scope not in FLOOR_ENVELOPE_SCOPES:
+            raise ValueError(
+                f"未知的 floor_envelope_scope：{floor_envelope_scope!r}，"
+                f"可用的是 {list(FLOOR_ENVELOPE_SCOPES)}")
+        self.floor_envelope_scope = floor_envelope_scope
+        if floor_envelope_k < 1 or floor_envelope_k != int(floor_envelope_k):
+            raise ValueError(
+                f"floor_envelope_k 必須是 >= 1 的整數，收到 {floor_envelope_k}")
+        self.floor_envelope_k = int(floor_envelope_k)
+        # 只有加法項、卻沒有加法項可乘：包絡的梯度恆為零，跑出來的列與關著
+        # 的列一模一樣而 CSV 上 `floor_envelope` 那一欄照樣寫著 `gauss`。
+        # 拒絕啟動而不是靜默空轉。
+        if (floor_envelope != "none" and floor_envelope_scope == "floor"
+                and spectral_floor <= 0):
+            raise ValueError(
+                "floor_envelope_scope='floor' 需要 spectral_floor > 0，"
+                f"收到 {spectral_floor}——包絡會沒有東西可乘")
         # 幅度相依的相位上限（Perturbing the Phase, arXiv:2602.06577）。
         #
         # 把係數 X 的相位轉 theta，係數本身移動 `2|X|·sin(theta/2)`。要把那個
@@ -620,9 +702,40 @@ class PhaseResidual(ResidualModule):
         # 但 `spectral_floor == 0` 時前向完全不碰它。
         self.floor = nn.Parameter(torch.zeros(1, n_param, *nbins))
 
+        # ---- 可學的空間包絡：五個純量 ----
+        #
+        # **四個邊界全部由網格導出，沒有一個是憑感覺挑的常數。**
+        #
+        #   sigma_min = 2*hop/size   相鄰視窗在正規化座標上的間距。再窄就
+        #                            落在單一視窗上，總量正規化會把它放大成
+        #                            一個無界的尖峰，那不是「集中」是數值爆炸。
+        #   sigma_max = 2*sqrt(2)    正規化座標下影像的對角線長。此時最遠的
+        #                            角落仍有 exp(-1) = 0.368，再大只是更平。
+        #   fc_min    = 2/block      `fftfreq(block)*2` 的格點間距，即一格。
+        #   fc_max    = sqrt(2)      格點上存在的最大半徑（角落 (1,1)）。
+        #
+        # 初值同樣由座標導出：中心取影像中心 (0, 0)，`sigma = 1` 是影像
+        # 半寬、`f_c = 1` 是單軸的 Nyquist 半徑，`beta = 0` 即恆等。
+        self.sigma_min = 2.0 * hop / size
+        self.sigma_max = 2.0 * math.sqrt(2.0)
+        self.fc_min = 2.0 / block
+        self.fc_max = math.sqrt(2.0)
+        k = self.floor_envelope_k
+        # 一律建立（讓 `state_dict` 的形狀不隨旗標分岔），但
+        # `floor_envelope == "none"` 時前向完全不碰它們。
+        self.env_center = nn.Parameter(torch.zeros(k, 2))
+        self.env_sigma = nn.Parameter(torch.ones(k))
+        self.env_fc = nn.Parameter(torch.ones(1))
+        self.env_beta = nn.Parameter(torch.zeros(1))
+
         self.register_buffer("window", torch.zeros(block, block), persistent=False)
         self.register_buffer("freq_gate", torch.zeros(*nbins), persistent=False)
         self.register_buffer("tex_gate", torch.zeros(1, self.n_blocks), persistent=False)
+        # 包絡的兩張座標表。與 `window`／`freq_gate` 同型：形狀在建構時固定，
+        # 值在 `prepare_gates` 填（那時才知道 device 與 dtype）。
+        self.register_buffer("win_xy", torch.zeros(self.n_blocks, 2),
+                             persistent=False)
+        self.register_buffer("freq_r", torch.zeros(*nbins), persistent=False)
         self.pixel_mask = None
         self.theta_cap = None
         self._gates_ready = False
@@ -647,6 +760,12 @@ class PhaseResidual(ResidualModule):
         """
         device, dtype = x01.device, x01.dtype
         self.window = hann2d(self.block, device, dtype)
+        # 包絡的座標表。**無條件填**，與 `floor_envelope` 是否開啟無關：
+        # 它們只是網格，填了不會改變任何輸出，而只在開啟時才填會讓
+        # 「先建再改旗標」這條路徑拿到一張全零的座標表。
+        self.win_xy = window_centres(self.side, self.hop, self.size,
+                                     device, dtype)
+        self.freq_r = radial_radius(self.block, device, dtype)
         # 閘 = 帶通遮罩 x 知覺權重。相乘而不是相加：權重不得讓通帶外的
         # 頻格復活，尤其是 rfft2 共軛對稱依賴的 fx=0 與 fx=N/2 兩行。
         self.freq_gate = radial_gate(
@@ -769,6 +888,120 @@ class PhaseResidual(ResidualModule):
             raise RuntimeError("spectral_floor == 0 時沒有價目表")
         return self._floor_price
 
+    def envelope(self) -> torch.Tensor:
+        """(1, L, n, nb) 的可學空間包絡。**`beta = 0` 時逐位元是 1。**
+
+        構造
+        ────────────────────────────────────────────────────────────
+            S(l)   = 1 - prod_k [ 1 - exp( -|p_l - c_k|^2 / (2 s_k^2) ) ]
+            F(w)   = exp( -(r_w / f_c)^2 )
+            env    = [ (1-beta) + beta*S(l) ] * [ (1-beta) + beta*F(w) ]
+
+        `p_l` 是視窗 l 的中心（`window_centres`，正規化影像座標），`r_w` 是
+        頻格的歸一化徑向半徑（`radial_radius`，與 `radial_gate` 同座標）。
+
+        三個構造上的選擇，各有理由
+        ────────────────────────────────────────────────────────────
+        - **`beta` 是一個真的參數而不是常數。** 它讓「包絡恆為 1」成為可行集
+          裡的一個點，於是零初始化即恆等，PGD 自己決定要不要集中；也讓
+          「逐位元退回現況」可以直接在跑得起來的設定上釘住，不必靠樁。
+          `(1 - 0.0) + 0.0 * S = 1.0` 在 IEEE754 上是精確的，`x * 1.0 == x`
+          也是，故 `beta = 0` 的前向與加這個旋鈕之前**逐位元**相同。
+        - **K 個凸包取的是軟聯集 `1 - prod(1 - b_k)` 而不是相加。** 相加會
+          在重疊處超過 1，`beta` 的內插語意就壞了。K = 1 時**特判**直接取
+          `b_0`：`1 - (1 - b)` 在浮點上不等於 `b`（例如 b = 0.3 會變成
+          0.30000000000000004），特判是為了讓 K = 1 與「只有一個凸包」
+          這件事逐位元一致，不是為了效能。
+        - **空間與頻率兩個因子各自帶自己的 `(1-beta) + beta*(.)`**，不是先
+          相乘再內插。這樣 `beta` 同時是兩者的力道，且兩者都在 `beta = 0`
+          時精確退回 1；先乘再內插的話 `beta` 只有一個混合係數，中間狀態是
+          「一半的乘積」而不是「兩個一半的乘積」，那沒有可解釋的意義。
+
+        四個邊界（`sigma_min`／`sigma_max`／`fc_min`／`fc_max`）全部由網格
+        導出，見 `__init__`。**這裡與 `project()` 都夾一次**：可行集由後者
+        維持，前向這一次是為了「沒呼叫 project 也不會超出邊界」，與
+        `theta_cap` 的處理同型。
+        """
+        if self.floor_envelope == "none":
+            raise RuntimeError("floor_envelope == 'none' 時沒有包絡")
+        beta = self.env_beta.clamp(0.0, 1.0)                        # (1,)
+        c = self.env_center.clamp(-1.0, 1.0)                        # (K, 2)
+        s = self.env_sigma.clamp(self.sigma_min, self.sigma_max)    # (K,)
+        fc = self.env_fc.clamp(self.fc_min, self.fc_max)            # (1,)
+
+        d2 = ((self.win_xy[None] - c[:, None]) ** 2).sum(-1)        # (K, L)
+        bump = torch.exp(-d2 / (2.0 * s[:, None] ** 2))             # (K, L)
+        sp = bump[0] if self.floor_envelope_k == 1 else (
+            1.0 - torch.prod(1.0 - bump, dim=0))                    # (L,)
+        lp = torch.exp(-(self.freq_r / fc) ** 2)                    # (n, nb)
+
+        env_s = (1.0 - beta) + beta * sp                            # (L,)
+        env_f = (1.0 - beta) + beta * lp                            # (n, nb)
+        return env_s[None, :, None, None] * env_f[None, None]
+
+    def envelope_price(self, price: torch.Tensor,
+                       env: torch.Tensor) -> torch.Tensor:
+        """把包絡乘進加法項的價目表，**並把總預算縮放回原本的平均值**。
+
+        沿用 `_build_floor_price` 已經立下的那條規則：加法項的四個旋鈕
+        （`floor_gate`／`floor_r_min`／`floor_r_max`／`floor_survival`）都被
+        縮放回同一個參考平均值，所以它們改的一律是「預算花在哪裡」不是
+        「花多少」。理由在那裡寫得很完整：等失真對齊是對 `radius` 二分搜尋，
+        而 `radius` 只驅動 theta 與 gain、碰不到加法項；不補回總量的話，
+        加法項的預算直接掉下去，二分搜尋會抬高 `radius` 來補，同一列就同時
+        混進「加性變少乘性變多」與「加性換了位置」兩件事。
+
+        包絡與那四個旋鈕的差別是**它每一步都在動**，所以縮放必須在前向裡做
+        且可微，不能像價目表那樣預先算好。
+
+        **這正是「集中」在本構造裡的意思**：平均值固定，包絡把價目從別處
+        收回來堆到凸包底下，於是那一塊的每一格定價被抬高——使用者要的
+        「擾動超級大但只在一個位置」由這一條實現，不是由把 `spectral_floor`
+        調大實現。L1 相等不等於 L2 相等，集中之後實際失真會上升，那由量測
+        協定的兩個失真軸照實回報，不在這裡預先修正。
+
+        參考量取 `(price * ones_like(env)).mean()` 而不是 `price.mean()`：
+        `price` 在 `floor_gate = "uniform"` 時是 (n, nb)、其餘是 (1, L, n, nb)，
+        兩者的元素個數差 L 倍，浮點平均的求和順序因此不同，`beta = 0` 時
+        比值會落在 1 附近而不是精確的 1.0，逐位元恆等就破了。乘上
+        `ones_like` 之後兩個平均是在**形狀完全相同**的張量上算的，
+        `env` 全為 1 時兩者逐位元相等，比值精確為 1.0。
+        """
+        base = price * torch.ones_like(env)
+        pe = price * env
+        return pe * (base.mean() / pe.mean().clamp_min(1e-12))
+
+    @torch.no_grad()
+    def envelope_state(self) -> dict:
+        """學出來的五個純量，供 CSV 逐列記下。關閉時回傳空的 dict。
+
+        **這是結果不是旗標**：旗標（`floor_envelope`／`_k`／`_scope`）由
+        驅動腳本寫，這裡寫的是 PGD 把凸包放到了哪裡、收得多窄。沒有它就
+        只能從防禦圖用眼睛猜，而「包絡有沒有真的動」與「動了有沒有用」是
+        兩件事，前者必須是數字。
+
+        中心額外換算成像素座標：正規化座標讀不出「離主體多遠」，而裁切
+        （繞中心放大 1.2488x）與主體位置都是以像素講的。
+        """
+        if self.floor_envelope == "none":
+            return {}
+        c = self.env_center.clamp(-1.0, 1.0)
+        s = self.env_sigma.clamp(self.sigma_min, self.sigma_max)
+        out = {
+            "env_beta": round(float(self.env_beta.clamp(0.0, 1.0)), 6),
+            "env_fc": round(float(self.env_fc.clamp(self.fc_min, self.fc_max)), 6),
+        }
+        for k in range(self.floor_envelope_k):
+            cy, cx = float(c[k, 0]), float(c[k, 1])
+            out[f"env_cy{k}"] = round(cy, 6)
+            out[f"env_cx{k}"] = round(cx, 6)
+            out[f"env_sigma{k}"] = round(float(s[k]), 6)
+            # 正規化座標 u = 2*px/size - 1 的反解。
+            out[f"env_py{k}"] = round((cy + 1.0) * self.size / 2.0, 2)
+            out[f"env_px{k}"] = round((cx + 1.0) * self.size / 2.0, 2)
+            out[f"env_sigma_px{k}"] = round(float(s[k]) * self.size / 2.0, 2)
+        return out
+
     def gain_gate(self) -> torch.Tensor:
         """增益被允許出現的位置。`shared` 時逐位元等於 `gate()`。"""
         g = self.gate()
@@ -887,7 +1120,19 @@ class PhaseResidual(ResidualModule):
             # 超出預算」。**夾的是參數本身而不是乘過閘之後的量**：閘只會把它
             # 再縮小，故預算仍然被遵守，只是在閘小的地方留有餘裕。
             shift = torch.clamp(shift, -self.theta_cap, self.theta_cap)
-        shift = (shift * self.gate()).unsqueeze(1)                   # (1,1,L,n,nb)
+        # 可學的空間包絡。**`"none"` 時整段不執行**，連張量都不建，故逐位元
+        # 等於加這個旋鈕之前——這與 `coarsen == 1` 不呼叫 `F.interpolate`
+        # 是同一種關閉方式，測試也用同一種樁去釘。
+        env = self.envelope() if self.floor_envelope != "none" else None
+        # `scope == "all"` 時包絡也乘進相位／增益的閘。**這一半不做總量
+        # 正規化**：乘性那一半從來就沒有那條約定（`survival_weight` 也是直接
+        # 乘進 `freq_gate` 不補回總量），它的強度旋鈕是 `radius`，等失真對齊
+        # 的二分搜尋搜的正是 `radius`，所以總量由那裡負責。加法項不同——
+        # `radius` 碰不到它，故那一半必須自己守住總量（`envelope_price`）。
+        gate = self.gate()
+        if env is not None and self.floor_envelope_scope == "all":
+            gate = gate * env
+        shift = (shift * gate).unsqueeze(1)                          # (1,1,L,n,nb)
 
         spec = self.analyze(x01)
         rot = rotate_spectrum(spec, shift)
@@ -898,13 +1143,21 @@ class PhaseResidual(ResidualModule):
             # `jnd` 把增益的預算推到人眼看不見的頻帶，理由見 `__init__`。
             g = self.expand(
                 torch.clamp(self.gain, -self.gain_max, self.gain_max))
-            rot = rot * torch.exp(g * self.gain_gate()).unsqueeze(1)
+            gg = self.gain_gate()
+            if env is not None and self.floor_envelope_scope == "all":
+                gg = gg * env
+            rot = rot * torch.exp(g * gg).unsqueeze(1)
         if self.spectral_floor > 0:
             # 加在幅度上，方向沿用**已轉過的**相位。|rot| 為零時這一項也是
             # 零——自然影像的高頻雖小但非零，故實務上有效；真正的零值區
             # （合成的純色塊）動不了，這是構造上的邊界。
             a = self.expand(torch.clamp(self.floor, -1.0, 1.0))
-            added = (a * self.floor_price() * self.spectral_floor).unsqueeze(1)
+            price = self.floor_price()
+            if env is not None:
+                # **兩個 scope 都走這一條**：`"all"` 的意思是「連乘性那一半
+                # 也一起定位」，不是「加法項改為不正規化」。
+                price = self.envelope_price(price, env)
+            added = (a * price * self.spectral_floor).unsqueeze(1)
             rot = rot + added * (rot / (rot.abs() + 1e-12))
         return rot
 

@@ -115,6 +115,9 @@ class PhaseParam:
                  floor_r_min: Optional[float] = None,
                  floor_r_max: Optional[float] = None,
                  floor_survival: str = "none",
+                 floor_envelope: str = "none",
+                 floor_envelope_k: int = 1,
+                 floor_envelope_scope: str = "floor",
                  theta_budget: float = 0.0,
                  coarsen: int = 1):
         self.size, self.block, self.r_min = size, block, r_min
@@ -148,6 +151,12 @@ class PhaseParam:
         self.floor_r_min = floor_r_min
         self.floor_r_max = floor_r_max
         self.floor_survival = floor_survival
+        # 可學的空間包絡。三者的合法性（名字、K、與 spectral_floor 的相容性）
+        # 由 `PhaseResidual` 檢查，這裡只轉交。`"none"` = 關閉，逐位元等於加
+        # 這三個旋鈕之前。
+        self.floor_envelope = floor_envelope
+        self.floor_envelope_k = floor_envelope_k
+        self.floor_envelope_scope = floor_envelope_scope
         # 幅度相依的相位上限。合法性由 `PhaseResidual` 檢查，這裡只轉交。
         # 0 = 關閉，逐位元等於加這個旗標之前。
         self.theta_budget = theta_budget
@@ -203,6 +212,9 @@ class PhaseParam:
             floor_r_min=self.floor_r_min,
             floor_r_max=self.floor_r_max,
             floor_survival=self.floor_survival,
+            floor_envelope=self.floor_envelope,
+            floor_envelope_k=self.floor_envelope_k,
+            floor_envelope_scope=self.floor_envelope_scope,
             theta_budget=self.theta_budget,
             coarsen=self.coarsen,
         ).to(device=x01.device, dtype=x01.dtype)
@@ -217,6 +229,17 @@ class PhaseParam:
             out.append(self.module.gain)
         if self.spectral_floor > 0:
             out.append(self.module.floor)
+        if self.floor_envelope != "none":
+            # 包絡的五個純量與 theta／gain／floor 走**同一條** PGD：同一個
+            # 更新規則、同一個步長、同一次投影。分開一個最佳化器等於再引入
+            # 一個沒有記錄的變因，而本迴圈的存在理由就是「唯一的變因是
+            # 參數化」（見模組 docstring）。
+            #
+            # **接在既有三者之後**：`_load_weights` 是按位置 zip 的，接在
+            # 後面才不會讓舊的 `__w.pt` 對錯位置。個數不同時那支會直接拋錯
+            # （「構造不同，不可續跑」），這是要的行為。
+            out += [self.module.env_center, self.module.env_sigma,
+                    self.module.env_fc, self.module.env_beta]
         return out
 
     @torch.no_grad()
@@ -238,6 +261,19 @@ class PhaseParam:
             # 係數夾在 [-1, 1]，實際加上去的量是它乘價目表再乘
             # `spectral_floor`。負值等於相位翻轉 pi，不需要另設相位參數。
             self.module.floor.clamp_(-1.0, 1.0)
+        if self.floor_envelope != "none":
+            # **投影到可行集，不是只在前向夾。** 只在前向夾的話，被夾住的
+            # 座標梯度是零，sign-PGD 會把參數一路推到界外再也回不來，而
+            # 報表上看不出來（與 `theta_cap` 同一個理由）。
+            #
+            # 四個邊界全部由網格導出，見 `PhaseResidual.__init__`：
+            # 中心夾在影像內、sigma 夾在「一個視窗間距」到「影像對角線」、
+            # f_c 夾在「一個頻格」到「格點上的最大半徑」、beta 夾在 [0, 1]。
+            m = self.module
+            m.env_center.clamp_(-1.0, 1.0)
+            m.env_sigma.clamp_(m.sigma_min, m.sigma_max)
+            m.env_fc.clamp_(m.fc_min, m.fc_max)
+            m.env_beta.clamp_(0.0, 1.0)
 
     def set_radius(self, r: float) -> None:
         # **相位封頂在 pi，增益不封頂**——相位是週期量，增益不是。
@@ -245,6 +281,14 @@ class PhaseParam:
         if self.module is not None:
             self.module.theta_max = min(r, math.pi)
             self.module.gain_max = r * self.gain_ratio
+
+    def envelope_state(self) -> dict:
+        """學出來的包絡參數，供 CSV 逐列記下。關閉時是空的 dict。
+
+        轉交而不是讓呼叫端伸手進 `self.module`：`module` 在 `reset()` 之前
+        是 `None`，而驅動腳本收結果的地方離 `reset()` 很遠。
+        """
+        return {} if self.module is None else self.module.envelope_state()
 
 
 class RandomPhaseParam(PhaseParam):

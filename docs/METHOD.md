@@ -98,6 +98,9 @@ x_def = OLA( irfft2( rfft2(w·P_b) · exp(i·g_b·m_ω·θ_b) ) · w ) / OLA(w²
 | `--gl-iters` | Griffin–Lim 迭代投影輪數 | 已否決 |
 | `--pixel-gate-sigma` | 逐像素紋理閘的高斯 σ | 已否決 |
 | `--spectral-floor` | 頻譜加性下限的強度。0 = 關閉 | **主線之一**，0.04 |
+| `--floor-envelope` | 可學的**空間包絡**（`none`／`gauss`）。由 K 組中心、K 個尺度、一個徑向低通截止、一個強度 `beta` 參數化，五個純量與 `theta`／`gain`／`floor` 走同一條 PGD。總預算被縮放回同一個平均值，故它改的是「花在哪裡」不是「花多少」 | **待測**。`none` 逐位元等於加它之前 |
+| `--floor-envelope-k` | 包絡由幾個高斯凸包的軟聯集組成 | 待測 |
+| `--floor-envelope-scope` | 包絡乘在哪一半（`floor` 只乘加法項的價目表／`all` 連相位與增益的閘也乘） | 待測 |
 | `--loss` | `encoder_target` 或 `latent_norm` | **定案 `latent_norm`** |
 | `--freq-weight` | 頻率閘的知覺定價（`binary`／`jpeg_luma`） | **定案 `jpeg_luma`** |
 | `--freq-weight-power` | 定價力道 `w ** gamma`，0 = 退回二值閘 | 0.35 在帶內優於 0.25，**待補等失真掃描再定案** |
@@ -116,6 +119,10 @@ x_def = OLA( irfft2( rfft2(w·P_b) · exp(i·g_b·m_ω·θ_b) ) · w ) / OLA(w²
    LPIPS 錨點」的直接原因。可學幅度增益能拆掉這一條。
 3. **重疊相加會部分抵銷。** 相鄰區塊的相位各自獨立旋轉，方向不一致時在
    相加時互相抵銷；付出的失真留下了，淨效果被削掉一部分。
+
+**空間定位不在這三條裡，但原本也沒有。** 兩個閘都由原圖決定、不可學，
+`--floor-survival` 只在頻率上挑選。`--floor-envelope` 補的就是這一格：
+在總量固定之下決定擾動堆在畫面的哪裡、多大一塊、留多低的頻。
 
 ## 內部對照組
 

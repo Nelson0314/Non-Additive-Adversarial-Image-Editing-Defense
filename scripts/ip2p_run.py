@@ -94,7 +94,11 @@ from src.residual.perceptual_weight import (  # noqa: E402
     FREQ_WEIGHTS,
     SURVIVAL_WEIGHTS,
 )
-from src.residual.texture_rephase import FLOOR_GATES  # noqa: E402
+from src.residual.texture_rephase import (  # noqa: E402
+    FLOOR_ENVELOPES,
+    FLOOR_ENVELOPE_SCOPES,
+    FLOOR_GATES,
+)
 from src.metrics.standard import (  # noqa: E402
     SIGLIP_BLOCKED_THRESHOLD, blocked_by_siglip, standard_row,
 )
@@ -524,6 +528,9 @@ def defend(ip2p, suite, cond, x01, args, loss_fn):
                           floor_r_min=args.floor_r_min,
                           floor_r_max=args.floor_r_max,
                           floor_survival=args.floor_survival,
+                          floor_envelope=args.floor_envelope,
+                          floor_envelope_k=args.floor_envelope_k,
+                          floor_envelope_scope=args.floor_envelope_scope,
                           theta_budget=args.theta_budget,
                           coarsen=args.coarsen,
                           warp_grid=args.warp_grid,
@@ -586,6 +593,13 @@ def defend(ip2p, suite, cond, x01, args, loss_fn):
         if args.save_weights:
             run_extras["_weights"] = [t.detach().cpu().clone()
                                       for t in param.params()]
+        # 學出來的包絡參數。**這是結果不是設定**：旗標那三欄記的是「有沒有
+        # 開、幾個凸包、乘在哪一半」，這裡記的是 PGD 把凸包放到了哪裡、收得
+        # 多窄、beta 收到多少。關著時是空的 dict，欄位不出現。沒有它就只能
+        # 從防禦圖用眼睛猜，而「包絡有沒有真的動」與「動了有沒有用」是兩件
+        # 事，前者必須是數字。
+        if hasattr(param, "envelope_state"):
+            run_extras.update(param.envelope_state())
         run_extras["stop_reason"] = res.stop_reason
         run_extras["stopped_at"] = res.stopped_at
         run_extras["best_eval"] = ("" if res.best_eval is None
@@ -1009,6 +1023,44 @@ def build_parser() -> argparse.ArgumentParser:
                          "w = (1 + Σ_σ exp(-2π²σ²f²)) / (1 + |S|)。"
                          "**總預算不隨本旗標改變**，改的是分配。"
                          "**--spectral-floor 0 時本旗標沒有作用**")
+    ap.add_argument("--floor-envelope", default="none",
+                    choices=list(FLOOR_ENVELOPES),
+                    help="可學的**空間包絡**。none（預設）= 關閉，前向連張量"
+                         "都不建，逐位元等於加這個旗標之前；gauss = 由 K 組"
+                         "中心 (cy, cx)、K 個空間尺度 s、一個徑向低通截止 "
+                         "f_c、一個強度 beta 參數化的平滑窗，五個純量與 "
+                         "theta／gain／floor 走同一條 PGD。"
+                         "**本模組原本沒有任何可學的空間定位**：紋理閘會定位"
+                         "但由原圖決定、不可學，--floor-survival 已在頻率上"
+                         "做軟性挑選但空間上均勻。"
+                         "動機：裁切（crop_resize0.1 是繞中心放大 1.2488x，"
+                         "落在中央 80%% 以內的才留下）與模糊（頻域乘 "
+                         "exp(-2π²σ²f²)，與擾動放在哪裡無關，但空間上壓得越窄"
+                         "頻譜攤得越寬，單位預算下被拿走的更多）兩者的交集是"
+                         "「靠近中心的、大尺度的、平滑的結構」。"
+                         "**總預算不隨本旗標改變**——價目表會被縮放回同一個"
+                         "平均值（PhaseResidual.envelope_price），所以"
+                         "「集中」在這裡的意思是「同樣的總量堆到少數位置、"
+                         "那些位置的定價因此被抬高」。"
+                         "beta = 0 時包絡逐位元是 1，故零初始化即恆等")
+    ap.add_argument("--floor-envelope-k", type=int, default=1,
+                    help="包絡由幾個高斯凸包的**軟聯集**組成："
+                         "S = 1 - Π_k (1 - exp(-|p-c_k|²/(2 s_k²)))。"
+                         "1（預設）時特判直接取單一凸包，與「只有一個凸包」"
+                         "逐位元一致。取軟聯集而不是相加：相加會在重疊處"
+                         "超過 1，beta 的內插語意就壞了")
+    ap.add_argument("--floor-envelope-scope", default="floor",
+                    choices=list(FLOOR_ENVELOPE_SCOPES),
+                    help="包絡乘在哪一半上。floor（預設）= 只乘加法項的"
+                         "價目表——加法項是唯一能自由選擇放在哪裡的那一半"
+                         "（不受 |S_b(ω)| 限制），乘性那一半的位置已由紋理閘"
+                         "決定。all = 連相位與增益的閘也乘。"
+                         "**兩者的總量處理不同**：加法項一律做總量正規化"
+                         "（radius 碰不到它，不補回總量的話等失真對齊會把"
+                         "「加性變少」與「加性換位置」混在同一列）；乘性那"
+                         "一半不做，它的強度旋鈕就是被二分搜尋的 radius，"
+                         "而 --survival-weight 也是直接乘進 freq_gate 不補"
+                         "總量，兩者一致")
     ap.add_argument("--pixel-gate-sigma", type=float, default=0.0,
                     help="逐像素紋理閘的高斯 sigma（像素）。0 = 關閉，逐位元與"
                          "加這個選項之前相同。要能分辨鬍鬚與臉頰就必須遠小於 "
@@ -1543,6 +1595,15 @@ def main() -> None:
                 "floor_r_min": args.floor_r_min,
                 "floor_r_max": args.floor_r_max,
                 "floor_survival": args.floor_survival,
+                # 可學的空間包絡。**關著時三欄仍然寫出來**，合併分片之後
+                # 才分得出哪些列帶著它跑——三者都不改變加法項的總預算
+                # （價目表被縮放回同一個平均值），只改變它花在哪些位置與
+                # 哪些頻格上，所以開著與關著跑出的列在其餘欄位上一模一樣。
+                # 學出來的五個純量在 `extras`（`env_beta`／`env_fc`／
+                # `env_cy0` …），那是**結果**不是設定，只有開著時才有。
+                "floor_envelope": args.floor_envelope,
+                "floor_envelope_k": args.floor_envelope_k,
+                "floor_envelope_scope": args.floor_envelope_scope,
                 # 幅度相依的相位上限。關著與開著跑出的列在其餘欄位上
                 # 一模一樣，不記下來合併之後就分不出來。
                 "theta_budget": args.theta_budget,

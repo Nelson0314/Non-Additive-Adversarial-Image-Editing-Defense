@@ -56,7 +56,7 @@ EOT="--purify-aware~eot_broad~--eot-sigmas~0.5~1.0~2.0~3.0"
 BASE="--data data/omniedit150 --conditions phase_gain --quantile 0 \
 --freq-weight jpeg_luma --freq-weight-power 0.25 --hop 8 --gain-ratio 1.0 \
 --loss image_guidance --ig-zt diffuse_src --radius 2.5 --spectral-floor 0.08 \
---steps 1600 --step-size 0.01 --resume-weights runs/ip2p_split_band/sb_surv \
+--steps 6000 --step-size 0.01 --resume-weights runs/ip2p_split_band/sb_surv \
 --eval-every 400 --eval-draws 8 --patience 8 --min-delta 0.0002 \
 --save-weights --skip-existing"
 

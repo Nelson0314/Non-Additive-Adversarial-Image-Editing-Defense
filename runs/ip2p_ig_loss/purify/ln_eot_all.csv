@@ -1,0 +1,13 @@
+image,condition,budget_target,purifier,effect_mean,effect_sd,effect_identity_mean,effect_identity_sd,retention,siglip_sim,siglip_blocked,edit_strength,usable,seconds
+task_attr_mod_color_11699,phase_gain,native,identity,0.58468,0.00872,0.58468,0.00872,1.0,0.71824,True,0.8,True,901.2
+task_attr_mod_color_11699,phase_gain,native,blur1,0.38858,0.00301,0.58468,0.00872,0.66461,0.89216,False,0.8,True,901.2
+task_attr_mod_color_11699,phase_gain,native,jpeg75,0.47474,0.00503,0.58468,0.00872,0.81196,0.76564,True,0.8,True,901.2
+task_attr_mod_color_11699,phase_gain,native,jpeg30,0.42462,0.00195,0.58468,0.00872,0.72625,0.84149,False,0.8,True,901.2
+task_attr_mod_color_11699,phase_gain,native,blur2,0.40248,0.00271,0.58468,0.00872,0.68838,0.89499,False,0.8,True,901.2
+task_attr_mod_color_11699,phase_gain,native,crop_resize0.1,0.59287,0.00166,0.58468,0.00872,1.01401,0.86052,False,0.8,True,901.2
+task_attr_mod_color_6205,phase_gain,native,identity,0.63382,0.015,0.63382,0.015,1.0,0.7429,True,0.8,True,878.3
+task_attr_mod_color_6205,phase_gain,native,blur1,0.47029,0.02287,0.63382,0.015,0.742,0.84749,False,0.8,True,878.3
+task_attr_mod_color_6205,phase_gain,native,jpeg75,0.53717,0.01842,0.63382,0.015,0.84752,0.74405,True,0.8,True,878.3
+task_attr_mod_color_6205,phase_gain,native,jpeg30,0.46431,0.03398,0.63382,0.015,0.73255,0.81013,True,0.8,True,878.3
+task_attr_mod_color_6205,phase_gain,native,blur2,0.41156,0.07124,0.63382,0.015,0.64933,0.83822,False,0.8,True,878.3
+task_attr_mod_color_6205,phase_gain,native,crop_resize0.1,0.70384,0.01317,0.63382,0.015,1.11047,0.76445,True,0.8,True,878.3

@@ -50,9 +50,26 @@ colour_control:
 # 受保護主體的名稱。**這是防禦方本來就知道的東西**（威脅模型的前提是防護對象
 # 已知），不是從攻擊指令推出來的。用 `{object}` 的組會逐影像代入；沒有登記的
 # 影像會被跳過並印出理由，不猜。
+# 給多個名詞時 `subject_mask` 取**逐像素聯集**（各自過門檻再取最大），
+# 不是併成一句——實測「the toolbox and the two Mario figures」的核心面積
+# 0.266 反而小於單獨的「toolbox」0.457，CLIPSeg 對多物件片語的反應不可加。
 objects:
-  task_attr_mod_color_11699: potted plant
-  task_attr_mod_color_6205: toolbox
+  task_attr_mod_color_11699: [potted plant, person]
+  task_attr_mod_color_6205: [toolbox, Mario figure]
+
+# **描述式**的誘餌提示詞，給 inpainting 用（`scripts/decoy_inpaint.py`）。
+# 上面幾組是**指令式**的，給 IP2P 的整張圖編輯用，兩者不可互換：
+# inpainting 吃的是「這裡應該長什麼樣」，不是「把什麼改成什麼」。
+#
+# 六格的分工：前四格是同一個物件只換顏色（顏色碰撞的控制組，其中一格與
+# 攻擊指令同色），後兩格是物件碰撞（`{object}` 逐影像代入受保護主體）。
+inpaint_object:
+  - a large pink umbrella
+  - a large red umbrella
+  - a large blue umbrella
+  - a large grey umbrella
+  - another {object}
+  - two more {object} on the side
 
 # 物件碰撞：畫面上先放進**第二個同類物件**。
 #

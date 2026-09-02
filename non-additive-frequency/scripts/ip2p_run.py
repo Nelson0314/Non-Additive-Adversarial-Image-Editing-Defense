@@ -550,8 +550,35 @@ def defend(ip2p, suite, cond, x01, args, loss_fn):
                           color_grid=args.color_grid,
                           color_luma_bins=args.color_luma_bins,
                           color_rand_draw=args.color_rand_draw)
+    # 主體之外才動：把 `apply_where` 設成 `1 − 主體遮罩`，遮罩由 CLIPSeg 用
+    # 一句文字指出（`src/defense/subject_mask.py`）。文字是防禦方本來就知道的
+    # 主體名稱，不是攻擊指令。**只有支援 `apply_where` 的參數化吃得到這個
+    # 旗標**，其餘一律拋錯而不是靜默忽略——靜默忽略的症狀是「主體被改了但
+    # 報表上寫著有遮罩」。
+    run_extras: dict = {"subject_mask_text": ""}
+    if args.subject_mask is not None:
+        import yaml as _yaml
+
+        from src.defense.subject_mask import mask_stats, subject_mask
+
+        if not hasattr(param, "apply_where"):
+            raise SystemExit(
+                f"--subject-mask 用在 {cond} 上，但該參數化沒有 apply_where。"
+                f"支援的是色彩族（color_curve／color_grid）。")
+        spec = _yaml.safe_load(args.subject_mask.read_text(encoding="utf-8"))
+        texts = (spec.get("objects") or {}).get(args._cur_image)
+        if not texts:
+            raise SystemExit(
+                f"{args.subject_mask} 的 objects 裡沒有 {args._cur_image} 的"
+                f"主體名稱。**不猜**——沒有主體名稱就沒有「主體之外」這個概念。")
+        texts = [texts] if isinstance(texts, str) else list(texts)
+        m = subject_mask(x01, texts, threshold=args.subject_mask_threshold,
+                         dilate=args.subject_mask_dilate,
+                         feather=args.subject_mask_feather)
+        param.apply_where = (1.0 - m).to(x01)
+        run_extras["subject_mask_text"] = " | ".join(texts)
+        run_extras.update(mask_stats(m))
     q_deliver = deliver_quality(args)
-    run_extras: dict = {}
     # **在兩條路徑分岔之前包**：預算模式（`fit_to_budget`）內層自己呼叫
     # `run_param_pgd`，包在分岔之後那一支就會靜默少掉正則項，而報表上的
     # `flow_tau` 仍然寫著一個非零值。`--flow-tau 0`（預設）時原樣回傳，
@@ -837,6 +864,20 @@ def build_parser() -> argparse.ArgumentParser:
                          "場，對裁切精確等變。")
     ap.add_argument("--color-luma-bins", type=int, default=8,
                     help="color_grid 的亮度格數 D。沿亮度軸是 D 段的分段線性。")
+    ap.add_argument("--subject-mask", type=Path, default=None,
+                    help="含 `objects` 對照表的 YAML（如 "
+                         "data/decoy_catalogue.yaml）。給定時把擾動限制在"
+                         "**主體之外**：遮罩由 CLIPSeg 依該表登記的主體名稱"
+                         "產生，`apply_where = 1 − 遮罩`。主體名稱是防禦方"
+                         "本來就知道的，攻擊指令不是。只有色彩族支援。")
+    ap.add_argument("--subject-mask-threshold", type=float, default=0.30,
+                    help="CLIPSeg sigmoid 的門檻。**刻意取低**：漏掉主體的"
+                         "一部分比多保留一點背景嚴重得多")
+    ap.add_argument("--subject-mask-dilate", type=int, default=16,
+                    help="門檻之後往外膨脹的像素數")
+    ap.add_argument("--subject-mask-feather", type=int, default=24,
+                    help="膨脹之後往外羽化的像素數。**只往外**，故膨脹範圍內"
+                         "恆為 1、主體逐位元保留")
     ap.add_argument("--color-rand-draw", choices=("corner", "uniform"),
                     default="corner",
                     help="隨機對照怎麼抽。corner 抽盒子的角點，與 sign 更新"

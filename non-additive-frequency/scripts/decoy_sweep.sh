@@ -45,12 +45,14 @@ for dev in "${DEVS[@]}"; do
   done
   i=$(( i + 1 ))
   [ -z "$chunk" ] && continue
-  # **每張卡一個獨立的輸出目錄**：每寫一列是整份重寫 CSV，兩個 process
-  # 寫同一個目錄會互相蓋掉（`docs/OPERATIONS.md` 記過）。
-  sub="$OUT/dev$dev"
+  # **每張卡、每組各一個獨立的輸出目錄**：每寫一列是整份重寫 CSV。
+  # 同卡的兩個 process 會互相蓋掉（`docs/OPERATIONS.md` 記過），而**同一張卡
+  # 上先後跑兩組也會**——後跑的那一組會把前一組的 `results.csv` 整份重寫，
+  # 影像檔名不同所以圖還在、只有表沒了。實測踩過。
+  sub="$OUT/$(echo $DECOY_GROUPS | tr ' ' '-')_dev$dev"
   CUDA_VISIBLE_DEVICES="$dev" setsid nohup "$PY" scripts/semantic_decoy.py \
       --out "$sub" --images $chunk --groups $DECOY_GROUPS \
-      < /dev/null > "$OUT/dev$dev.log" 2>&1 &
+      < /dev/null > "$sub.log" 2>&1 &
   disown
   echo "[decoy] dev=$dev 影像：$chunk"
 done

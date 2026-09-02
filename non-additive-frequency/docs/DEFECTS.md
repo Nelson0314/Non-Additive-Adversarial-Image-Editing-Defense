@@ -22,6 +22,19 @@
 - **同型**：任何派工腳本都不可用 `GROUPS`、`UID`、`RANDOM`、`SECONDS`、
   `LINENO`、`PWD`、`OLDPWD`、`FUNCNAME`、`BASH*` 當變數名。
 
+## DEF · 同一張卡先後跑兩組誘餌，後一組把前一組的 results.csv 整份重寫
+
+- **症狀**：第二批（`colour_control`）跑起來之後，第一批二十列的
+  `runs/ip2p_decoy/dev5/results.csv` 只剩一列。影像檔還在（兩組的條件名不同、
+  檔名不撞），只有表沒了。
+- **根因**：輸出目錄只按卡號命名（`dev5`），而**每寫一列是整份重寫 CSV**。
+  已知的規則是「兩個 process 不可**同時**寫同一個目錄」，這一次是**先後**寫，
+  同樣會蓋掉。
+- **修正**：目錄名加上組名（`background-collision_dev5`／`colour_control_dev5`）。
+- **代價**：第一批的表由版控救回（`runs/` 的 CSV 一律入版控，正是為此）。
+- **同型**：任何「每寫一列重寫整份 CSV」的輸出目錄，命名都必須把**這一批的
+  全部變因**帶進去，不只是卡號。
+
 ## DEF · 補跑時整份工作點清單又送了一次，兩個 process 寫同一個目錄
 
 - **症狀**：`scripts/color_converge.sh` 只為了補跑兩個 `image_guidance` 格

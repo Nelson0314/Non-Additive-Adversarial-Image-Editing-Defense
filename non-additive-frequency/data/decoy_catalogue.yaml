@@ -29,3 +29,20 @@ collision:
   - cover the wall behind with colourful graffiti
   - add a bunch of pink flowers in the corner
   - place a bright green plastic chair in the background
+
+# 控制組：**同一個物件，只換顏色**。
+#
+# 為什麼需要它：第一批的四個 `collision` 誘餌在盆栽人上落在 0.310–0.330，
+# 彼此差不到 7%，於是「誘餌帶著指令要的那個顏色」與「只要放一個高飽和物件」
+# 這兩個解釋分不開。這一組把物件固定成雨傘、只讓顏色動，兩張影像的攻擊指令
+# 分別要 pink 與 red，所以每張圖都有一格是同色、四格是異色。
+#
+# 最後一條是多色版：若機制是顏色碰撞，它應該對**任何**顏色指令都有效，
+# 而不必事先知道指令要哪個顏色。
+colour_control:
+  - add a large pink umbrella in the background
+  - add a large red umbrella in the background
+  - add a large blue umbrella in the background
+  - add a large green umbrella in the background
+  - add a large grey umbrella in the background
+  - add a large multicoloured striped umbrella in the background

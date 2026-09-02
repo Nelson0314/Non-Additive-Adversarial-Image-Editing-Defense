@@ -74,6 +74,18 @@ FOOTNOTE = (
     "總增益與淨增益相等。"
 )
 
+# 共防禦參照的表尾不一樣：那個讀數的幾何地板**不是** 0（編輯與淨化算子不
+# 交換），只有 `p = identity` 且 `D = identity` 那一格才恰為 0。
+FOOTNOTE_CODEFENSE = (
+    "位移是 LPIPS，在兩張不相干的自然影像之間飽和於 "
+    f"{LPIPS_CEILING}（runs/readout_ceiling/，45 對的中位數），"
+    "故 0.6 附近的讀數已接近這個量的上限；"
+    "該值只作為飽和值的參考，不進表上任何算式。"
+    "本表的讀數是共防禦參照 LPIPS(編輯(p(D(x))), p(D(編輯(x))))；"
+    "**幾何類的空白地板不是 0**，因為編輯與淨化算子不交換——"
+    "由構造為 0 的只有 identity 那一格（D 與 p 都是恆等）。"
+)
+
 
 def tag_of(filename: str) -> str:
     """`ours_add_color.csv` → `ours_add`。
@@ -141,8 +153,15 @@ def net_gain(rows: List[dict]) -> Tuple[List[dict], List[str]]:
 
     # 幾何類的地板由構造為 0（同算子、同輸入、同種子的兩側）。非 0 表示這份
     # 地板是舊參照量的，兩種基準不可並列。
-    bad = {k: v for k, v in floor.items()
-           if v != 0.0 and label_is_geometric(k[1])}
+    #
+    # **這一條只對 `effect_mean` 成立。** 共防禦參照量的是
+    # `LPIPS(編輯(p(D(x))), p(D(編輯(x))))`，`D = identity` 的地板那一格是
+    # `LPIPS(編輯(p(x)), p(編輯(x)))`——編輯與淨化算子不交換，所以幾何類的
+    # 地板本來就不是 0，而那正是要扣掉的東西。對它套這條檢查會把正常的批次
+    # 判成舊參照。
+    bad = ({} if EFFECT_FIELD != "effect_mean" else
+           {k: v for k, v in floor.items()
+            if v != 0.0 and label_is_geometric(k[1])})
     if bad:
         raise ValueError(
             f"幾何類算子的空白地板不是 0：{sorted(bad.items())}。"
@@ -248,7 +267,7 @@ def main() -> None:
     show("總增益＝effect(算子)", "effect")
     show("淨增益＝effect(算子) - 空白地板", "net_gain")
     print()
-    print(FOOTNOTE)
+    print(FOOTNOTE if EFFECT_FIELD == "effect_mean" else FOOTNOTE_CODEFENSE)
     if dropped:
         print("\n被排除的格子：")
         for d in dropped[:20]:

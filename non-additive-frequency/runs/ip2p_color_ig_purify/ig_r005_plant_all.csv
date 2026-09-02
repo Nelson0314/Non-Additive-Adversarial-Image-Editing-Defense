@@ -1,0 +1,11 @@
+image,condition,budget_target,purifier,reference,effect_mean,effect_sd,effect_identity_mean,effect_identity_sd,retention,codefense_status,reference_codefense,effect_codefense_mean,effect_codefense_sd,siglip_sim,siglip_blocked,edit_strength,usable,seconds
+task_attr_mod_color_11699,color_grid,native,identity,orig,0.31736,0.00399,0.31736,0.00399,1.0,exact,codefense_purified,0.18226,0.01488,0.96395,False,0.8,True,739.7
+task_attr_mod_color_11699,color_grid,native,blur1,orig,0.35642,0.01341,0.31736,0.00399,1.12307,exact,codefense_purified,0.15942,0.01366,0.943,False,0.8,True,739.7
+task_attr_mod_color_11699,color_grid,native,jpeg75,orig,0.32654,0.01199,0.31736,0.00399,1.02894,exact,codefense_purified,0.19424,0.00881,0.95498,False,0.8,True,739.7
+task_attr_mod_color_11699,color_grid,native,jpeg30,orig,0.40975,0.02395,0.31736,0.00399,1.29112,exact,codefense_purified,0.25189,0.01326,0.93815,False,0.8,True,739.7
+task_attr_mod_color_11699,color_grid,native,blur2,orig,0.43409,0.01331,0.31736,0.00399,1.36782,exact,codefense_purified,0.15365,0.0157,0.89459,False,0.8,True,739.7
+task_attr_mod_color_11699,color_grid,native,crop_resize0.1,purified_orig,0.33013,0.02687,0.31736,0.00399,1.04024,exact,codefense_purified,0.1994,0.02122,0.96636,False,0.8,True,739.7
+task_attr_mod_color_11699,color_grid,native,grayscale,orig,0.33487,0.00355,0.31736,0.00399,1.05518,exact,codefense_purified,0.31403,0.02152,0.91367,False,0.8,True,739.7
+task_attr_mod_color_11699,color_grid,native,gray_world,orig,0.32129,0.00546,0.31736,0.00399,1.0124,exact,codefense_purified,0.21968,0.01971,0.96486,False,0.8,True,739.7
+task_attr_mod_color_11699,color_grid,native,auto_levels0.01,orig,0.31836,0.00597,0.31736,0.00399,1.00316,exact,codefense_purified,0.23346,0.05842,0.96309,False,0.8,True,739.7
+task_attr_mod_color_11699,color_grid,native,clahe2,orig,0.32794,0.0028,0.31736,0.00399,1.03334,exact,codefense_purified,0.23605,0.02762,0.94798,False,0.8,True,739.7

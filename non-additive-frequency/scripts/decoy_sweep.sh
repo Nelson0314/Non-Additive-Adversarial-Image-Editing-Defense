@@ -8,7 +8,7 @@
 #
 # **它可以與別的批次共用卡**，只要那張卡上的 process 不超過兩個。
 #
-# 用法：bash scripts/decoy_sweep.sh "<卡號…>" [組…]
+# 用法：bash scripts/decoy_sweep.sh "<卡號…>" [組…] [影像…]
 set -uo pipefail
 ROOT=/nfs/home/nelson0314/WACV-s3
 PY="$HOME/venvs/wacv/bin/python"
@@ -23,10 +23,14 @@ bash scripts/free_cards.sh --assert "${DEVS[*]}" || exit 3
 
 OUT=runs/ip2p_decoy
 mkdir -p "$OUT"
-GROUPS="${2:-background collision}"
+# **不可以叫 `GROUPS`。** 那是 bash 的內建陣列（當前使用者的群組 ID），
+# 指派會被**靜默忽略**，`$GROUPS` 展開成主要群組 ID。實測踩過：三個 process
+# 都以「目錄裡沒有這些組：['2068']」立刻死掉，而 2068 就是 `id -g`。
+# 同一類的名字還有 `UID`／`RANDOM`／`SECONDS`／`LINENO`／`PWD`。
+DECOY_GROUPS="${2:-background collision}"
 
-# 與 `scripts/color_sweep.sh` 逐字相同的六張，才能逐圖並列。
-IMGS=(task_attr_mod_color_11699 task_attr_mod_color_6205 task_env_weather_112463 task_obj_remove_380621 task_obj_swap_joint_mask_276754 task_obj_add_13726)
+# 預設兩張（盆栽人與瑪利歐）。第三個參數可以覆寫。
+IMGS=(${3:-task_attr_mod_color_11699 task_attr_mod_color_6205})
 
 # 每張卡分一段影像。分段而不是一卡一張，是因為每張影像自己的
 # `編輯(原圖)` 只算一次，同一個 process 內可以重用。
@@ -45,7 +49,7 @@ for dev in "${DEVS[@]}"; do
   # 寫同一個目錄會互相蓋掉（`docs/OPERATIONS.md` 記過）。
   sub="$OUT/dev$dev"
   CUDA_VISIBLE_DEVICES="$dev" setsid nohup "$PY" scripts/semantic_decoy.py \
-      --out "$sub" --images $chunk --groups $GROUPS \
+      --out "$sub" --images $chunk --groups $DECOY_GROUPS \
       < /dev/null > "$OUT/dev$dev.log" 2>&1 &
   disown
   echo "[decoy] dev=$dev 影像：$chunk"

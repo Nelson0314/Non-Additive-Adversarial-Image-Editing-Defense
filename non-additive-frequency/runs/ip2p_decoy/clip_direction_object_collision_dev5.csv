@@ -1,0 +1,7 @@
+image,condition,instruction,source_caption,target_caption,decoy_instruction,clip_dir_orig,clip_dir_def,delta,abs_in_orig,abs_out_orig,abs_gain_orig,abs_in_def,abs_out_def,abs_gain_def
+task_attr_mod_color_11699,decoy_object_collision_0,turn the color of potted plant to pink,a potted plant,a pink potted plant,add another potted plant in the background,0.29041,0.28414,-0.00626,0.24182,0.2923,0.05048,0.24009,0.2929,0.05281
+task_attr_mod_color_11699,decoy_object_collision_1,turn the color of potted plant to pink,a potted plant,a pink potted plant,add a second potted plant beside it,0.29041,0.29288,0.00247,0.24182,0.2923,0.05048,0.25289,0.30302,0.05013
+task_attr_mod_color_11699,decoy_object_collision_2,turn the color of potted plant to pink,a potted plant,a pink potted plant,place two more potted plants on the left side,0.29041,0.25496,-0.03545,0.24182,0.2923,0.05048,0.2418,0.27647,0.03467
+task_attr_mod_color_6205,decoy_object_collision_0,turn the color of toolbox to red,a toolbox,a red toolbox,add another toolbox in the background,0.14302,0.19955,0.05654,0.23349,0.22909,-0.0044,0.25171,0.27044,0.01874
+task_attr_mod_color_6205,decoy_object_collision_1,turn the color of toolbox to red,a toolbox,a red toolbox,add a second toolbox beside it,0.14302,0.18112,0.03811,0.23349,0.22909,-0.0044,0.24557,0.26022,0.01464
+task_attr_mod_color_6205,decoy_object_collision_2,turn the color of toolbox to red,a toolbox,a red toolbox,place two more toolboxs on the left side,0.14302,0.19205,0.04903,0.23349,0.22909,-0.0044,0.26312,0.31013,0.04701

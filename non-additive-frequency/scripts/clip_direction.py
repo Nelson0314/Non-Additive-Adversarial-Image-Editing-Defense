@@ -148,6 +148,15 @@ def main() -> None:
                            [src_cap, tgt_cap])
             d_orig = direction(ie[0], ie[1], te[0], te[1])
             d_def = direction(ie[2], ie[3], te[0], te[1])
+            # **絕對對齊**，用來拆掉方向讀數的一個混淆：若誘餌本身就把畫面
+            # 推向目標敘述（例如指令要粉紅、而誘餌就是一把粉紅傘），
+            # `I(編輯(x)) − I(x)` 剩下可走的粉紅方向本來就少，ΔD 會下降
+            # **即使編輯照樣成功**。`abs_in_def` 就是那一份預先的對齊量；
+            # `abs_out_def − abs_in_def` 才是編輯自己加上去的。
+            abs_out_orig = float((ie[1] * te[1]).sum())
+            abs_out_def = float((ie[3] * te[1]).sum())
+            abs_in_orig = float((ie[0] * te[1]).sum())
+            abs_in_def = float((ie[2] * te[1]).sum())
             rows.append({
                 "image": name, "condition": cond,
                 "instruction": r["instruction"],
@@ -156,6 +165,12 @@ def main() -> None:
                 "clip_dir_orig": round(d_orig, 5),
                 "clip_dir_def": round(d_def, 5),
                 "delta": round(d_def - d_orig, 5),
+                "abs_in_orig": round(abs_in_orig, 5),
+                "abs_out_orig": round(abs_out_orig, 5),
+                "abs_gain_orig": round(abs_out_orig - abs_in_orig, 5),
+                "abs_in_def": round(abs_in_def, 5),
+                "abs_out_def": round(abs_out_def, 5),
+                "abs_gain_def": round(abs_out_def - abs_in_def, 5),
             })
             print(f"{name[15:]:26s}{cond:28s}D(原圖)={d_orig:+.4f} "
                   f"D(防禦圖)={d_def:+.4f} Δ={d_def - d_orig:+.4f}", flush=True)

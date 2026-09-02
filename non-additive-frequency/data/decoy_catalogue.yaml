@@ -46,3 +46,21 @@ colour_control:
   - add a large green umbrella in the background
   - add a large grey umbrella in the background
   - add a large multicoloured striped umbrella in the background
+
+# 受保護主體的名稱。**這是防禦方本來就知道的東西**（威脅模型的前提是防護對象
+# 已知），不是從攻擊指令推出來的。用 `{object}` 的組會逐影像代入；沒有登記的
+# 影像會被跳過並印出理由，不猜。
+objects:
+  task_attr_mod_color_11699: potted plant
+  task_attr_mod_color_6205: toolbox
+
+# 物件碰撞：畫面上先放進**第二個同類物件**。
+#
+# 為什麼要這一組：`colour_control` 顯示顏色碰撞成立但**要事先知道指令要哪個
+# 顏色**（多色條紋那一格無效）。顏色是攻擊方選的，防禦方不知道；**物件不是**
+# ——威脅模型的前提就是防護對象已知。若「多一個同類物件」也能壓下指令，
+# 這條路就不需要知道指令。
+object_collision:
+  - add another {object} in the background
+  - add a second {object} beside it
+  - place two more {object}s on the left side

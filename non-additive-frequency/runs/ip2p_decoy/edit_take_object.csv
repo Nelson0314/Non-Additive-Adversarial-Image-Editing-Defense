@@ -1,0 +1,7 @@
+image,condition,decoy_instruction,fid_dists,edit_lpips,take_orig,take_def,take_ratio
+task_attr_mod_color_11699,decoy_object_collision_0,add another potted plant in the background,0.06466,0.12304,0.2819,0.22839,0.8102
+task_attr_mod_color_11699,decoy_object_collision_1,add a second potted plant beside it,0.17614,0.34621,0.2819,0.19984,0.7089
+task_attr_mod_color_11699,decoy_object_collision_2,place two more potted plants on the left side,0.22436,0.45915,0.2819,0.13368,0.4742
+task_attr_mod_color_6205,decoy_object_collision_0,add another toolbox in the background,0.13304,0.2716,0.23134,0.31132,1.3457
+task_attr_mod_color_6205,decoy_object_collision_1,add a second toolbox beside it,0.11246,0.21532,0.23134,0.25449,1.1001
+task_attr_mod_color_6205,decoy_object_collision_2,place two more toolboxs on the left side,0.36621,0.68372,0.23134,0.16795,0.726

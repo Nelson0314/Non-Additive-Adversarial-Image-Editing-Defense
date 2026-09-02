@@ -69,3 +69,40 @@ def test_direction_is_nan_when_the_edit_did_nothing():
     v = torch.tensor([1.0, 0.0, 0.0])
     out = direction(v, v, torch.zeros(3), torch.tensor([1.0, 0.0, 0.0]))
     assert out != out
+
+
+# ── 主體遮罩 ─────────────────────────────────────────────────────────
+
+
+def _mask(box, size=64, feather=8):
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
+    from decoy_masked import subject_mask
+
+    return subject_mask(box, size, feather, torch.device("cpu"), torch.float32)
+
+
+def test_subject_box_is_exactly_one_inside():
+    """羽化只往外：框內恆為 1，主體因此逐位元保留。"""
+    m = _mask([0.25, 0.25, 0.75, 0.75])
+    inner = m[..., 20:44, 20:44]
+    assert float(inner.min()) == 1.0
+
+
+def test_composite_leaves_the_subject_bitwise_untouched():
+    torch.manual_seed(0)
+    x = torch.rand(1, 3, 64, 64)
+    decoy = torch.rand(1, 3, 64, 64)
+    m = _mask([0.25, 0.25, 0.75, 0.75])
+    out = m * x + (1.0 - m) * decoy
+    inside = m >= 1.0
+    assert float(((out - x) * inside).abs().max()) == 0.0
+
+
+def test_far_outside_the_box_is_entirely_decoy():
+    m = _mask([0.4, 0.4, 0.6, 0.6], feather=4)
+    assert float(m[0, 0, 0, 0]) == 0.0
+
+
+def test_zero_feather_gives_a_hard_edge():
+    m = _mask([0.25, 0.25, 0.75, 0.75], feather=0)
+    assert set(m.unique().tolist()) <= {0.0, 1.0}

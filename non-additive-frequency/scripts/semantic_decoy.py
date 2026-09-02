@@ -11,8 +11,10 @@
 失敗？** 假說是語意碰撞與注意力誤導——指令說「把盆栽改成粉紅色」，而畫面上
 已經有一大塊粉紅色的東西。
 
-`data/decoy_catalogue.yaml` 是誘餌指令的目錄，分 `background` 與 `collision`
-兩組，挑選原則寫在該檔的檔頭。
+`data/decoy_catalogue.yaml` 是誘餌指令的目錄，挑選原則寫在該檔的檔頭。
+帶 `{object}` 的模板由同一份檔案的 `objects` 對照表逐影像代入——**受保護主體
+的名稱是防禦方本來就知道的**（威脅模型的前提），攻擊指令不是；沒有登記主體的
+影像會跳過該模板並印出理由。
 
 三件必須照實記的事
 ────────────────────────────────────────────────────────────────────
@@ -43,6 +45,7 @@ import argparse
 import sys
 import time
 from pathlib import Path
+from typing import Optional
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -65,18 +68,41 @@ RESOLUTION = 512
 DECOY_SEED = 20260902
 
 
-def catalogue(path: Path, groups) -> list:
+# 目錄裡不是誘餌組的鍵。`objects` 是「受保護主體叫什麼」的對照表，供帶
+# `{object}` 的模板逐影像代入。
+RESERVED_KEYS = ("objects",)
+
+
+def catalogue(path: Path, groups) -> tuple:
+    """→ (誘餌清單, 受保護主體對照表)。
+
+    帶 `{object}` 的模板**不在這裡代入**——同一個模板在不同影像上是不同的
+    指令，代入要等到知道是哪張影像。
+    """
     spec = yaml.safe_load(path.read_text(encoding="utf-8"))
-    unknown = set(groups) - set(spec)
+    available = [k for k in spec if k not in RESERVED_KEYS]
+    unknown = set(groups) - set(available)
     if unknown:
         raise SystemExit(
-            f"目錄裡沒有這些組：{sorted(unknown)}；有的是 {sorted(spec)}")
+            f"目錄裡沒有這些組：{sorted(unknown)}；有的是 {sorted(available)}")
     out = []
     for g in groups:
         for i, text in enumerate(spec[g]):
             out.append({"group": g, "index": i, "instruction": text,
                         "condition": f"decoy_{g}_{i}"})
-    return out
+    return out, dict(spec.get("objects") or {})
+
+
+def fill(template: str, name: str, objects: dict) -> Optional[str]:
+    """把 `{object}` 換成該影像的受保護主體。沒登記就回傳 None。
+
+    **主體的名稱來自 `objects` 對照表，不是從攻擊指令解析出來的。**
+    威脅模型的前提是防護對象已知；攻擊指令不是。
+    """
+    if "{object}" not in template:
+        return template
+    obj = objects.get(name)
+    return None if not obj else template.replace("{object}", obj)
 
 
 def main() -> None:
@@ -101,7 +127,7 @@ def main() -> None:
                          "預設沿用攻擊端的值，改動要進報表")
     args = ap.parse_args()
 
-    decoys = catalogue(args.catalogue, args.groups)
+    decoys, objects = catalogue(args.catalogue, args.groups)
     dataset = {d["name"]: d for d in load_dataset(args.data)}
     missing = [n for n in args.images if n not in dataset]
     if missing:
@@ -123,8 +149,13 @@ def main() -> None:
         for d in decoys:
             t0 = time.time()
             cond = d["condition"]
+            decoy_text = fill(d["instruction"], name, objects)
+            if decoy_text is None:
+                print(f"[skip] {name}／{cond}：模板要 {{object}} 而 objects "
+                      f"對照表裡沒有這張影像的主體", flush=True)
+                continue
             # 防禦端：良性編輯，自己的種子。
-            x_def = sd.edit(x01.clamp(0, 1), d["instruction"],
+            x_def = sd.edit(x01.clamp(0, 1), decoy_text,
                             seed=args.decoy_seed, steps=args.decoy_steps,
                             s_t=args.decoy_text_guidance,
                             s_i=args.decoy_image_guidance).clamp(0, 1)
@@ -144,7 +175,8 @@ def main() -> None:
                 "attacker": "instruct-pix2pix",
                 "instruction": item["prompt"], "task": item.get("class", ""),
                 "decoy_group": d["group"], "decoy_index": d["index"],
-                "decoy_instruction": d["instruction"],
+                "decoy_instruction": decoy_text,
+                "decoy_template": d["instruction"],
                 # 防禦端的四個設定。**全部是本專案指定、論文無出處**，
                 # 故是欄位不是註解。
                 "decoy_seed": args.decoy_seed,

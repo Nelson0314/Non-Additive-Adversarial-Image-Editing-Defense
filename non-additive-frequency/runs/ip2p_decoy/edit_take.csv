@@ -19,3 +19,15 @@ task_attr_mod_color_6205,decoy_collision_0,add a large red umbrella in the backg
 task_attr_mod_color_6205,decoy_collision_1,cover the wall behind with colourful graffiti,0.1933,0.33697,0.23134,0.25942,1.1213
 task_attr_mod_color_6205,decoy_collision_2,add a bunch of pink flowers in the corner,0.10946,0.21209,0.23134,0.19485,0.8423
 task_attr_mod_color_6205,decoy_collision_3,place a bright green plastic chair in the background,0.13641,0.22163,0.23134,0.59685,2.58
+task_attr_mod_color_11699,decoy_colour_control_0,add a large pink umbrella in the background,0.13998,0.0941,0.2819,0.10594,0.3758
+task_attr_mod_color_11699,decoy_colour_control_1,add a large red umbrella in the background,0.25923,0.34201,0.2819,0.09311,0.3303
+task_attr_mod_color_11699,decoy_colour_control_2,add a large blue umbrella in the background,0.07158,0.0702,0.2819,0.30372,1.0774
+task_attr_mod_color_11699,decoy_colour_control_3,add a large green umbrella in the background,0.08021,0.08045,0.2819,0.33253,1.1796
+task_attr_mod_color_11699,decoy_colour_control_4,add a large grey umbrella in the background,0.08272,0.09872,0.2819,0.18353,0.6511
+task_attr_mod_color_11699,decoy_colour_control_5,add a large multicoloured striped umbrella in the background,0.33156,0.55205,0.2819,0.1814,0.6435
+task_attr_mod_color_6205,decoy_colour_control_0,add a large pink umbrella in the background,0.11354,0.09912,0.23134,0.15189,0.6565
+task_attr_mod_color_6205,decoy_colour_control_1,add a large red umbrella in the background,0.36153,0.66817,0.23134,0.05545,0.2397
+task_attr_mod_color_6205,decoy_colour_control_2,add a large blue umbrella in the background,0.08045,0.14672,0.23134,0.3402,1.4706
+task_attr_mod_color_6205,decoy_colour_control_3,add a large green umbrella in the background,0.07583,0.13647,0.23134,0.33405,1.444
+task_attr_mod_color_6205,decoy_colour_control_4,add a large grey umbrella in the background,0.10844,0.21801,0.23134,0.3352,1.4489
+task_attr_mod_color_6205,decoy_colour_control_5,add a large multicoloured striped umbrella in the background,0.30781,0.58686,0.23134,0.28505,1.2321

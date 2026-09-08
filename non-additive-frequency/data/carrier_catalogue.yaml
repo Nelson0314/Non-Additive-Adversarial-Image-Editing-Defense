@@ -1,0 +1,50 @@
+# 衣物載體那一族的受保護主體登記。
+#
+# 為什麼與 `decoy_catalogue.yaml` 分開
+# ────────────────────────────────────────────────────────────────────
+# 誘餌族登記的是「畫面裡值得保護的東西」，含人本身（盆栽人那張登記的是
+# `[potted plant, person]`）。衣物載體族**結構上要求受保護主體與穿衣服的人
+# 是分開的兩個東西**——人被登記成主體時，衣服全部落在受保護核心內，合法
+# 載體是 0。兩份登記回答不同的問題，合成一份會讓其中一族靜默地沒有載體。
+#
+# 挑選與登記的依據
+# ────────────────────────────────────────────────────────────────────
+# 主體名詞是**看圖登記的顯著非人物件**，不是從攻擊指令推導的——威脅模型的
+# 前提是防護對象已知，攻擊指令不是。
+#
+# 候選由 ATR 人體解析篩出（`face >= 0.01` 且 `clothes >= 0.10`，147 張裡 42
+# 張），再逐張看圖挑出「有一個與人分開的物件」的那些。逐張量到的合法載體
+# 面積（衣物 ∩ 主體補集）記在下面，供派工前核對。
+#
+# 兩張登記了但不進批次的，理由一併留著：
+#   task_attr_mod_color_184837  picture frame → CLIPSeg 遮罩面積 0.999
+#                               （畫框環繞整張圖，整張都被判成主體）
+#   task_attr_mod_color_41275   backpack     → 合法載體只有 0.0096
+
+objects:
+  # 合法載體 0.3182
+  task_attr_mod_color_123744: [cushion]
+  # 0.1729
+  task_attr_mod_color_158070: [top hat, playing cards]
+  # 0.1582
+  task_env_weather_193600: [mobile phone]
+  # 0.1353
+  task_attr_mod_color_30214: [drinking glass]
+  # 0.1324
+  task_obj_swap_rand_mask_401099: [pizza]
+  # 0.1235
+  task_attr_mod_color_71985: [piano]
+  # 0.1176
+  task_obj_add_362298: [barbell]
+  # 0.1105
+  task_attr_mod_color_202962: [bottle]
+  # 0.1071
+  task_obj_remove_704852: [toy truck]
+  # 0.1003
+  task_obj_swap_rand_mask_417469: [mobile phone]
+  # 0.0888
+  task_obj_remove_657585: [frisbee]
+  # 0.0589
+  task_attr_mod_color_42929: [shield]
+  # 0.0861。與 `decoy_catalogue.yaml` 同一組名詞，讓既有的兩張批次可並列。
+  task_attr_mod_color_6205: [toolbox, Mario figure]

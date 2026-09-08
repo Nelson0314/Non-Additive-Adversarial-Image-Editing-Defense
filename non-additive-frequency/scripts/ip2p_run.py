@@ -49,9 +49,12 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import torch  # noqa: E402
+import torch.nn.functional as F  # noqa: E402
 import torchvision.utils as vutils  # noqa: E402
 
 from apa_baseline import load_dataset  # noqa: E402
+from dataclasses import replace  # noqa: E402
+
 from phase_ablation import WARP_GRID, build  # noqa: E402
 from src.baselines.advdrop import (
     PAPER_Q_INIT, AdvDropSpec, run_advdrop,
@@ -147,6 +150,22 @@ DCT_UNIFIED_CONDS = ("dct_unified", "dct_unified_rand")
 # `modified_from_paper` 恆為真，報表上不可寫成 AdvDrop 的結果。
 ADVDROP_CONDS = ("advdrop", "advdrop_max")
 WM_CONDS = ("dct_wm",)
+# 補丁載體（`src/defense/patch_param.py`）。此前這個元組在四處各展開一次，
+# 而 `DEFECTS.md` 記過同型的坑（政策謂詞散在多處，只改其中一部分不會報錯）。
+PATCH_CONDS = ("patch", "patch_rand")
+# `--deliver-jpeg` 放行的條件。**它是本方法自己的交付步驟**，故凡是本方法的
+# 參數化都該放行；`DCT_ROTATE_CONDS`／`DCT_UNIFIED_CONDS` 例外，因為那兩族
+# 自己就交付壓縮圖（上面另有一條守門），而別人的方法（DCT-Shield／AdvDrop／
+# 浮水印）不放行，理由見那條守門的註解。
+#
+# 補丁族此前不在清單裡，原因是這個守門寫在補丁族加進來之前，不是裁定。
+# 相位族已量到量化交付把 jpeg75 的存活由 0.362 拉到 0.493、jpeg30 由 0.146
+# 拉到 0.238、blur 由 0.118 拉到 0.188（`runs/ip2p_deliver_jpeg/README.md`），
+# 而補丁族正是現在唯一在身分讀數上有效、卻死在 JPEG 與低通的載體。
+#
+# **一個必須寫在報表上的代價**：JPEG 往返會壓到整張圖，含受保護的臉，
+# 於是「受保護主體逐位元不動」在這個組合下變成「受保護主體只被壓到 QD」。
+DELIVER_JPEG_CONDS = PHASE_CONDS + DCT_NONADD_CONDS + PATCH_CONDS
 # 不做最佳化的對照條件：參數是抽出來的、`params()` 是空的。分階段訓練
 # 沒有階段一的解可以接，故一律拒絕而不是靜默跳過階段二。
 NO_OPT_CONDS = ("phase_rand", "shading_rand", "warp_rand",
@@ -345,6 +364,285 @@ def _with_flow_tv(param, x01, args, loss_fn):
     return combined
 
 
+def _with_color_tv(param, x01, args, loss_fn):
+    """`--color-tv` 給定時，在主損失上加色彩場的空間總變差項。
+
+    為什麼需要它
+    ────────────────────────────────────────────────────────────
+    `runs/ip2p_color_hunt/README.md` 記到：把雙邊網格由 8×8 放大到 16×16 讓
+    等失真倍率由 1.09 走到 1.30，但**把防禦圖變成明顯不自然的東西**——
+    最佳化器拿到空間自由度之後就去畫高頻色彩噪點，臉部變形、彩虹斑塊。
+    那違反「產物自然」這個前提，也把這一族原本的賣點（平滑的全域色彩改動）
+    換掉了。
+
+    這一項要問的是：**能不能保住容量帶來的效率，同時把場壓回平滑。**
+    正則項作用在**網格係數本身**的空間差分上，因為那正是「色彩變換隨位置
+    變化的快慢」；作用在輸出影像上會連原圖本身的邊緣一起罰，那是另一回事。
+
+    亮度維（`luma_bins`）**不罰**：沿亮度變化是色調曲線的正常自由度
+    （暗部與亮部本來就該有不同的處理），罰它等於把雙邊網格降級回全域曲線。
+
+    **評估函數也要包**（與 `_with_flow_tv` 同一條理由）：不包的話訓練最小化
+    `L + λ·TV` 而收斂判定看 `L`，早停會在錯的地方觸發且沒有症狀。
+
+    只接在有 `a`（雙邊網格係數）的參數化上，其餘拒絕而不是靜默忽略。
+    """
+    if not args.color_tv and not args.color_tv_luma:
+        return loss_fn
+    if not hasattr(param, "identity_grid"):
+        raise SystemExit(
+            f"--color-tv 只接在雙邊網格參數化上（color_grid），"
+            f"收到條件 {args.conditions}")
+
+    def term():
+        a = param.a
+        if a is None:
+            return torch.zeros((), device=x01.device, dtype=x01.dtype)
+        # a 的形狀是 (1, 12, luma, gy, gx)。
+        out = torch.zeros((), device=x01.device, dtype=a.dtype)
+        if args.color_tv:
+            dy = (a[..., 1:, :] - a[..., :-1, :]).abs().mean()
+            dx = (a[..., :, 1:] - a[..., :, :-1]).abs().mean()
+            out = out + args.color_tv * (dy + dx)
+        if args.color_tv_luma:
+            # 沿**亮度**維的差分。實測空間平滑救不了「不自然」：產物上的
+            # 彩虹邊紋來自相鄰色調被映射到不同顏色，那是亮度維的自由度，
+            # 不是空間維的。罰它等於要求「色調曲線本身是平滑的」，而那正是
+            # 一個自然的調色該有的樣子。
+            out = out + args.color_tv_luma * (
+                a[..., 1:, :, :] - a[..., :-1, :, :]).abs().mean()
+        return out
+
+    def combined(x_def):
+        return loss_fn(x_def) + term()
+
+    advance = getattr(loss_fn, "_advance", None)
+    if advance is not None:
+        combined._advance = advance
+    base_eval = getattr(loss_fn, "_fixed_eval", None)
+    if base_eval is not None:
+        def combined_eval(x_def):
+            return base_eval(x_def) + term()
+        combined._fixed_eval = combined_eval
+    return combined
+
+
+def _with_patch_tv(param, x01, args, loss_fn):
+    """`--patch-tv` 給定時，在主損失上加補丁內容的總變差項。
+
+    三個「美化」旋鈕裡的第三個（另兩個是 `--patch-tile` 與 `--patch-alpha`，
+    它們改的是構造）。這一項要的是**柔和的色塊而不是逐像素噪點**：學出來的
+    補丁預設長得像雜訊，那讀起來是「這塊壞掉了」而不是「這裡有一個標記」。
+
+    作用在**可學張量本身**：平舖時那就是那一塊磚，故懲罰的是磚的內部結構，
+    與磚之間的接縫無關（接縫由重複造成，不是自由度）。
+
+    **評估函數也要包**（與 `_with_flow_tv` 同一條理由）：不包的話訓練最小化
+    `L + λ·TV` 而收斂判定看 `L`，早停會在錯的地方觸發且沒有症狀。
+    """
+    if not args.patch_tv:
+        return loss_fn
+    if not hasattr(param, "_field"):
+        raise SystemExit(
+            f"--patch-tv 只接在補丁參數化上，收到條件 {args.conditions}")
+
+    def term():
+        c = param.c
+        if c is None:
+            return torch.zeros((), device=x01.device, dtype=x01.dtype)
+        dy = (c[..., 1:, :] - c[..., :-1, :]).abs().mean()
+        dx = (c[..., :, 1:] - c[..., :, :-1]).abs().mean()
+        return args.patch_tv * (dy + dx)
+
+    def combined(x_def):
+        return loss_fn(x_def) + term()
+
+    advance = getattr(loss_fn, "_advance", None)
+    if advance is not None:
+        combined._advance = advance
+    base_eval = getattr(loss_fn, "_fixed_eval", None)
+    if base_eval is not None:
+        def combined_eval(x_def):
+            return base_eval(x_def) + term()
+        combined._fixed_eval = combined_eval
+    return combined
+
+
+def _subject_of(x01, texts, args):
+    """受保護主體。`face` 走 ATR 的 Face+Hair，`clipseg` 走登記的名詞。"""
+    if args.subject_source == "face":
+        from src.defense.carrier_mask import face_subject_mask
+
+        return face_subject_mask(x01, dilate=args.subject_mask_dilate,
+                                 feather=args.subject_mask_feather)
+    from src.defense.subject_mask import subject_mask
+
+    return subject_mask(x01, texts, threshold=args.subject_mask_threshold,
+                        dilate=args.subject_mask_dilate,
+                        feather=args.subject_mask_feather)
+
+
+def _carrier_of(x01, mask, args):
+    """載體，含四個貼合與融入的旗標。四者全為 0 時與原本逐位元相同。
+
+    順序是**吸附 → 挖掉臉框 → 內縮 → 往內羽化 → 分散**，每一步都只會讓權重
+    變小或不變，故「主體那一側恆為 0」的保證在任何組合下都成立。
+
+    挖掉臉框不是可選的：ATR 沒有「這一塊是皮膚不是衣服」的把關，特寫人像上
+    它會把臉頰與額頭整片標成 Upper-clothes（實測一張 0.6561），那時載體就是
+    人臉。MTCNN 的框是獨立於 ATR 的訊號。
+    """
+    from src.defense.carrier_mask import (MAX_AREA, MIN_AREA, carrier_mask,
+                                          erode_mask, exclude_boxes,
+                                          feather_inward, guided_refine,
+                                          lattice_support, scatter_support)
+
+    # `None` 代表沒給，沿用模組的定案值。**不要在 argparse 裡填那兩個常數**
+    # ——填了之後模組改預設而 CLI 沒改，兩處會靜默分岔。
+    c = carrier_mask(
+        x01, args.patch_carrier,
+        min_area=MIN_AREA if args.carrier_min_area is None
+        else args.carrier_min_area,
+        max_area=MAX_AREA if args.carrier_max_area is None
+        else args.carrier_max_area)
+    if args.carrier_refine:
+        c = (guided_refine(c, x01, args.carrier_refine, 1e-3) > 0.5).to(c.dtype)
+    from src.metrics.identity import face_boxes
+
+    c = exclude_boxes(c, face_boxes(x01), margin=8)
+    if args.carrier_erode:
+        c = erode_mask(c, args.carrier_erode)
+    if args.carrier_feather:
+        c = feather_inward(c, args.carrier_feather)
+    if args.carrier_ring:
+        # 環帶不與衣物載體相交——它問的是「緊貼臉的那一圈」，而那一圈多半
+        # 不是衣服。故它**取代**載體而不是與它相乘。
+        from src.defense.carrier_mask import ring_support
+
+        c = ring_support(mask.to(c.device), args.carrier_ring_inner,
+                         args.carrier_ring)
+    if args.carrier_lattice:
+        # 點陣與分散大斑互斥（上面的守門已擋），故這裡是 elif 的語意。
+        # 面積不由呼叫端指定，是 pitch 與 radius 的函數；實際拿到多少由
+        # `patch_area` 那一欄說話。
+        c = lattice_support(c * (mask.to(c.device) <= 0.0).to(c.dtype),
+                            args.carrier_lattice, args.carrier_dot_radius)
+    if args.carrier_scatter:
+        legal = c * (mask.to(c.device) <= 0.0).to(c.dtype)
+        # 種子走 `--seed`（防禦端的逐圖種子），不是 `--edit-seed`。
+        # 名字寫錯時是 AttributeError 而不是靜默失效，但仍會整批死掉。
+        c = scatter_support(legal, args.carrier_scatter, args.radius, args.seed)
+    if args.carrier_target_area:
+        # **在全部修整之後才對齊**：吸附、挖臉框、內縮、羽化每一步都會改變
+        # 面積，先對齊再修整的話交出去的面積不是報表上那個數字。
+        from src.defense.carrier_mask import match_area
+
+        c = match_area(c, mask, args.carrier_target_area,
+                       mode=args.carrier_match)
+    return c
+
+
+def attack_instruction(spec, image: str, category: str) -> str:
+    """由攻擊指令目錄取出某張影像、某一類的指令。
+
+    **目錄裡沒有該影像時拋錯。** 靜默沿用資料集自帶的句子會讓那一列的
+    `attack_category` 欄寫著新的類別、而實際跑的是舊指令。
+    """
+    rec = (spec.get("images") or {}).get(image)
+    if rec is None:
+        raise SystemExit(
+            f"{image} 沒有登記在攻擊指令目錄裡。**不沿用資料集自帶的句子**"
+            "——那會讓 attack_category 欄與實際跑的指令對不上。")
+    got = (rec.get("prompts") or {}).get(category)
+    if got is None:
+        raise SystemExit(f"{image} 的攻擊指令目錄裡沒有 {category} 這一類。")
+    return got
+
+
+def validate_attack_args(args) -> None:
+    """攻擊指令的守門。**在載入權重之前**呼叫。"""
+    if args.attack_category and args.attack_prompts is None:
+        raise SystemExit(
+            f"--attack-category {args.attack_category} 必須同時給 "
+            "--attack-prompts：沒有目錄檔時指令會靜默沿用資料集自帶的句子，"
+            "而報表上的 attack_category 欄仍然寫著新的類別。")
+    if args.attack_prompts is not None and not args.attack_category:
+        raise SystemExit("--attack-prompts 必須同時給 --attack-category。")
+    if args.attack_prompts is not None and not args.attack_prompts.exists():
+        raise SystemExit(f"找不到攻擊指令目錄 {args.attack_prompts}")
+
+
+def carrier_apply_where(carrier, mask):
+    """`載體 ∧ 主體補集`，供色彩族的 `apply_where` 用。
+
+    **只有這一份實作。** 同一條算式散在多處時，漏改其中一處的結果是行為不
+    一致而輸出看起來完全正常（`docs/DEFECTS.md` 的「政策謂詞散在多處」）。
+
+    交集的兩邊都是硬條件：載體大於 0.5、主體遮罩逐像素等於零（羽化帶不算）。
+    回傳的權重在主體上恆為 0，而 `w = 0` 的地方色彩族輸出**逐位元等於原圖**。
+    """
+    return ((carrier > 0.5) & (mask.to(carrier.device) <= 0.0)).to(mask.dtype)
+
+
+def _with_patch_tint(param, x01, args, loss_fn):
+    """`--patch-tint` 給定時，加一項「粗尺度上要像原本那件衣服」的懲罰。
+
+        λ · mean_over_support( ( blur_σ(c) − blur_σ(x) )² )
+
+    與 `--patch-tv` 針對的東西不同，兩者不可互相取代：tv 罰掉支撐內**所有**
+    局部變化，於是花紋本身也被壓平（實測平舖配 tv 0.3 只剩基準的 32%，而
+    兩者單獨用時是 86% 與 90%）。tint 只罰**低頻**——局部色調被拉向原本的
+    衣服，高頻的花紋結構完全不受懲罰。
+
+    模糊用**盒式平均**（`avg_pool2d` 加同尺寸的反射填充），不是高斯：σ 在
+    這裡的意義是「多大的鄰域算同一個色調」，盒式讓那個尺度直接可讀，而且
+    與 `--patch-tile` 的磚長可以並排比較。
+
+    **評估函數也要包**（與 `_with_patch_tv` 同一條理由）：不包的話訓練最小化
+    `L + λ·tint` 而收斂判定看 `L`，早停會在錯的地方觸發且沒有症狀。
+    """
+    if not args.patch_tint:
+        return loss_fn
+    if not hasattr(param, "_field"):
+        raise SystemExit(
+            f"--patch-tint 只接在補丁參數化上，收到條件 {args.conditions}")
+
+    # **與 `--patch-lowfreq` 共用同一個實作**：同一個 σ 在兩個旗標下必須指
+    # 同一個尺度，否則報表上兩者並排看起來像是可比的。
+    from src.defense.patch_param import box_blur
+
+    k = max(1, int(args.patch_tint_sigma))
+
+    def blur(t):
+        return box_blur(t, k)
+
+    target = blur(x01).detach()
+
+    def term():
+        c = param.c
+        if c is None:
+            return torch.zeros((), device=x01.device, dtype=x01.dtype)
+        # 平舖時 `c` 是一塊磚，要先攤成整張畫面才能與原圖對位。
+        field = param._field(x01)
+        sup = param.support.to(field.dtype)
+        d = (blur(field) - target) * sup
+        denom = sup.sum().clamp_min(1.0) * field.shape[1]
+        return args.patch_tint * (d.pow(2).sum() / denom)
+
+    def combined(x_def):
+        return loss_fn(x_def) + term()
+
+    advance = getattr(loss_fn, "_advance", None)
+    if advance is not None:
+        combined._advance = advance
+    base_eval = getattr(loss_fn, "_fixed_eval", None)
+    if base_eval is not None:
+        def combined_eval(x_def):
+            return base_eval(x_def) + term()
+        combined._fixed_eval = combined_eval
+    return combined
+
+
 def _stage1_alpha(args, param) -> float:
     """階段一實際用的步長。**與 `run_param_pgd` 內的公式同一條**，寫兩次會在
     改動時只改到一邊，而症狀只是「階段二的步長比例不是你以為的那個」。"""
@@ -430,13 +728,13 @@ def defend(ip2p, suite, cond, x01, args, loss_fn):
         raise SystemExit(
             f"--deliver-jpeg 不可用於 {cond}：它自己就交付壓縮圖，"
             "交付品質請用 --dct-qd 指定")
-    if args.deliver_jpeg and cond not in PHASE_CONDS + DCT_NONADD_CONDS:
+    if args.deliver_jpeg and cond not in DELIVER_JPEG_CONDS:
         # 交付自壓是接在本方法的參數化後面的一步。套到 DCT-Shield 上等於把
         # 別人的方法改掉一半（它自己就把 δ 加在量化係數上），套到 AdvDrop／
         # 浮水印上則是換掉它們的輸出。**寧可拒絕，不要靜默照跑**。
         raise SystemExit(
             f"--deliver-jpeg 只接在本方法的參數化上，收到條件 {cond}。"
-            f"允許的條件：{' '.join(PHASE_CONDS + DCT_NONADD_CONDS)}")
+            f"允許的條件：{' '.join(DELIVER_JPEG_CONDS)}")
     if cond in WM_CONDS:
         # DJSMA（The Imaging Science Journal 2026）。無公開程式碼，由掃描 PDF
         # 逐頁判讀後依 Algorithm 1 與式 (7)–(9) 實作。
@@ -505,11 +803,25 @@ def defend(ip2p, suite, cond, x01, args, loss_fn):
                 modified_from_paper=bool(notes),
                 modification_note="；".join(notes),
                 source="arXiv:2504.17894 補充材料 Algorithm 1")
-            # **不傳 loss_fn**：`run_dct_shield` 預設用的是該篇自己的損失
-            # `‖E(x')‖₂`（§4.2 末段）。傳我們的 encoder-target 進去等於把別人
-            # 的方法換掉一半，那是消融不是 baseline。兩者都只經過 VAE 編碼器，
-            # 換掉不會拋錯也看不出來，故在此明寫。
-            res = run_dct_shield(ip2p, x01, spec, log_every=250)
+            # `--dct-loss paper`（預設）**不傳 loss_fn**：`run_dct_shield`
+            # 用的是該篇自己的損失 `‖E(x')‖₂`（§4.2 末段）。傳別的損失進去
+            # 等於把那篇的方法換掉一半，那是**消融不是 baseline**——兩者都
+            # 只經過 VAE 編碼器，換掉不會拋錯也看不出來，故在此明寫，並在
+            # `dct_loss` 欄逐列記下跑的是哪一個。
+            #
+            # `--dct-loss project` 是刻意的消融：`runs/ig_probe/` 量到
+            # `image_guidance` 在同失真下比 `latent_norm` 多壓四成殘差，而
+            # DCT-Shield 的**參數化**是目前位移／失真比最好的一個。兩者從未
+            # 組合過。這一支一律標 `modified_from_paper`。
+            if args.dct_loss == "project":
+                spec = replace(
+                    spec, modified_from_paper=True,
+                    modification_note="；".join(
+                        notes + [f"損失換成本專案的 {args.loss}"
+                                 "（論文用 ‖E(x')‖₂），這是消融不是 baseline"]))
+            res = run_dct_shield(
+                ip2p, x01, spec, log_every=250,
+                loss_fn=None if args.dct_loss == "paper" else loss_fn)
             return res.x_def, spec.eps, False, spec.modified_from_paper, {}
         raise SystemExit(
             "DCT-Shield 的預算對齊模式尚未接到 IP2P 線上。曲線協定（DEC-029）"
@@ -549,33 +861,104 @@ def defend(ip2p, suite, cond, x01, args, loss_fn):
                           color_bound_mode=args.color_bound_mode,
                           color_grid=args.color_grid,
                           color_luma_bins=args.color_luma_bins,
-                          color_rand_draw=args.color_rand_draw)
+                          color_rand_draw=args.color_rand_draw,
+                          patch_placement=args.patch_placement,
+                          patch_count=args.patch_count,
+                          patch_crop_keep=args.patch_crop_keep,
+                          patch_init=args.patch_init,
+                          patch_tile=args.patch_tile,
+                          patch_res=args.patch_res,
+                          patch_palette=args.patch_palette,
+                          patch_palette_temp=args.patch_palette_temp,
+                          patch_seeds=args.patch_seeds,
+                          patch_seed_temp=args.patch_seed_temp,
+                          patch_polar=args.patch_polar,
+                          patch_polar_bins=args.patch_polar_bins,
+                          patch_alpha=args.patch_alpha,
+                          patch_lowfreq=args.patch_lowfreq,
+                          patch_chroma=args.patch_chroma)
     # 主體之外才動：把 `apply_where` 設成 `1 − 主體遮罩`，遮罩由 CLIPSeg 用
     # 一句文字指出（`src/defense/subject_mask.py`）。文字是防禦方本來就知道的
     # 主體名稱，不是攻擊指令。**只有支援 `apply_where` 的參數化吃得到這個
     # 旗標**，其餘一律拋錯而不是靜默忽略——靜默忽略的症狀是「主體被改了但
     # 報表上寫著有遮罩」。
     run_extras: dict = {"subject_mask_text": ""}
-    if args.subject_mask is not None:
+    if cond in PATCH_CONDS:
+        # 補丁**必須**知道主體在哪裡才放得下去，故遮罩不是選用的。
         import yaml as _yaml
 
         from src.defense.subject_mask import mask_stats, subject_mask
+
+        # `face` 來源的主體由 ATR 的 Face+Hair 直接給，**不需要名詞目錄**。
+        # 仍去查目錄的話，換一個目錄檔就會死在「objects 裡沒有這張影像」——
+        # 而那個錯誤訊息與真正的原因無關。
+        if args.subject_source == "face":
+            texts = []
+        else:
+            if args.subject_mask is None:
+                raise SystemExit(
+                    f"條件 {cond} 需要 --subject-mask：補丁要放在主體之外，"
+                    "沒有主體遮罩就不知道「之外」是哪裡。**不預設放中央**。")
+            spec = _yaml.safe_load(args.subject_mask.read_text(encoding="utf-8"))
+            texts = (spec.get("objects") or {}).get(args._cur_image)
+            if not texts:
+                raise SystemExit(
+                    f"{args.subject_mask} 的 objects 裡沒有 {args._cur_image} 的"
+                    "主體名稱。**不猜**。")
+            texts = [texts] if isinstance(texts, str) else list(texts)
+        m = _subject_of(x01, texts, args)
+        param.mask = m
+        run_extras["subject_mask_text"] = ("" if args.subject_source == "face"
+                                           else " | ".join(texts))
+        run_extras.update(mask_stats(m))
+        # 語意載體：把支撐再交集一層衣物區域。**在遮罩之後掛**，因為交集
+        # 的另一半就是遮罩的補集，而「主體逐位元不動」由 `reset` 裡的構造
+        # 保證（見 `src/defense/carrier_mask.py` 與 `PatchParam.reset`）。
+        if args.patch_carrier != "none":
+            from src.defense.carrier_mask import carrier_stats
+
+            c = _carrier_of(x01, m, args)
+            param.set_carrier(c, args.patch_carrier)
+            run_extras.update(carrier_stats(c))
+    # 補丁族在上面已經把遮罩用掉了（它用來決定補丁放哪裡，不是 apply_where），
+    # 故這一段只跑色彩族。兩個用途共用同一個旗標與同一組形狀參數，但意義不同。
+    wants_mask = (args.subject_mask is not None
+                  or args.subject_source == "face")
+    if wants_mask and cond not in PATCH_CONDS:
+        import yaml as _yaml
+
+        from src.defense.subject_mask import mask_stats
 
         if not hasattr(param, "apply_where"):
             raise SystemExit(
                 f"--subject-mask 用在 {cond} 上，但該參數化沒有 apply_where。"
                 f"支援的是色彩族（color_curve／color_grid）。")
-        spec = _yaml.safe_load(args.subject_mask.read_text(encoding="utf-8"))
-        texts = (spec.get("objects") or {}).get(args._cur_image)
-        if not texts:
-            raise SystemExit(
-                f"{args.subject_mask} 的 objects 裡沒有 {args._cur_image} 的"
-                f"主體名稱。**不猜**——沒有主體名稱就沒有「主體之外」這個概念。")
-        texts = [texts] if isinstance(texts, str) else list(texts)
-        m = subject_mask(x01, texts, threshold=args.subject_mask_threshold,
-                         dilate=args.subject_mask_dilate,
-                         feather=args.subject_mask_feather)
-        param.apply_where = (1.0 - m).to(x01)
+        # `face` 主體由 ATR 的 Face+Hair 直接給，不需要名詞目錄——與補丁族
+        # 共用 `_subject_of`，兩族的「受保護主體」因此是同一個物件而不是兩份
+        # 各自演化的實作。
+        if args.subject_source == "face":
+            texts = []
+        else:
+            spec = _yaml.safe_load(args.subject_mask.read_text(encoding="utf-8"))
+            texts = (spec.get("objects") or {}).get(args._cur_image)
+            if not texts:
+                raise SystemExit(
+                    f"{args.subject_mask} 的 objects 裡沒有 {args._cur_image} 的"
+                    f"主體名稱。**不猜**——沒有主體名稱就沒有「主體之外」"
+                    "這個概念。")
+            texts = [texts] if isinstance(texts, str) else list(texts)
+        m = _subject_of(x01, texts, args)
+        # 載體給定時，色彩重映射**只作用在衣服上**：
+        # `apply_where = 載體 ∧ 主體補集`。不給載體時維持原本的「主體之外」。
+        if args.patch_carrier != "none":
+            from src.defense.carrier_mask import carrier_stats
+
+            c = _carrier_of(x01, m, args)
+            param.apply_where = carrier_apply_where(c, m).to(x01)
+            run_extras.update(carrier_stats(c))
+            run_extras["patch_carrier"] = args.patch_carrier
+        else:
+            param.apply_where = (1.0 - m).to(x01)
         run_extras["subject_mask_text"] = " | ".join(texts)
         run_extras.update(mask_stats(m))
     q_deliver = deliver_quality(args)
@@ -584,6 +967,44 @@ def defend(ip2p, suite, cond, x01, args, loss_fn):
     # `flow_tau` 仍然寫著一個非零值。`--flow-tau 0`（預設）時原樣回傳，
     # 呼叫路徑逐位元不變。
     loss_fn = _with_flow_tv(param, x01, args, loss_fn)
+    loss_fn = _with_color_tv(param, x01, args, loss_fn)
+    loss_fn = _with_patch_tv(param, x01, args, loss_fn)
+    loss_fn = _with_patch_tint(param, x01, args, loss_fn)
+    if args.attn_weight:
+        # **加項不是取代**：單獨最佳化「注意力落在補丁上」可以靠把補丁變得
+        # 極端顯眼拿到高分，而那不保證人沒被改。
+        from src.defense.attention_loss import make_attention_term
+
+        # **檢查屬性存不存在，不檢查它的值**（`_with_consistency` 記過同一個
+        # 坑）。`PatchParam.support` 在 `reset()` 之前是 `None`，而 `reset()`
+        # 在 `run_param_pgd` 內部才發生——原本這裡寫的是
+        # `getattr(param, "support", None) is None`，於是 `attn` 那個臂
+        # **從來沒有跑起來過**：守門每次都在自己身上觸發。
+        if not hasattr(param, "support"):
+            raise SystemExit(
+                "--attn-weight 只接在補丁族的參數化上（要有 support），"
+                f"收到條件 {args.conditions}")
+        _attn_term = make_attention_term(
+            # 傳 callable 而不是值：支撐要到 `reset()` 之後才存在。
+            ip2p, region=lambda: (None if param.support is None
+                                  else param.support.to(x01.dtype)),
+            text_embeds=_attack_embeds(), weight=args.attn_weight,
+            zt_mode=args.ig_zt, x_clean=x01,
+            t_min=args.ig_t_min, t_max=args.ig_t_max, seed=args.seed)
+        _attn_base = loss_fn
+
+        def _with_attn(x_def):
+            return _attn_base(x_def) + _attn_term(x_def)
+
+        # 評估函數**不含**注意力項：收斂監看的是主損失，而注意力項每一步重抽
+        # 指令與 t，把它放進固定評估會讓那個評估不再決定性。
+        _fe = getattr(_attn_base, "_fixed_eval", None)
+        if _fe is not None:
+            _with_attn._fixed_eval = _fe
+        _adv = getattr(_attn_base, "_advance", None)
+        if _adv is not None:
+            _with_attn._advance = _adv
+        loss_fn = _with_attn
     # 只有 `--flow-tau > 0` 的列是「加了原文沒有的 eps、且鄰域由我方指定」的
     # 移植，那一欄必須說實話。
     modified = bool(args.flow_tau)
@@ -628,6 +1049,21 @@ def defend(ip2p, suite, cond, x01, args, loss_fn):
         # 「跑滿步數」與「早停」在結果 CSV 上分不出來的話，就不知道那一格
         # 到底收斂了沒有。
         run_extras["resumed"] = resumed_cell[0]
+        # **重播模式必須真的載到權重。** `--steps 0` 的用途是「同一張防禦圖
+        # 接不同的攻擊指令」——防禦與指令無關（`L_ig` 只吃空字串的文字嵌入），
+        # 重跑等於把同一個最佳化再算一次。但 `_load_weights` 找不到檔案時
+        # 回 0 而不拋錯，於是這一格會交出**未經最佳化的原圖**當防禦圖，
+        # 而 CSV 的每一欄看起來都正常。這是整批唯一會讓「沒有防禦」偽裝成
+        # 「防禦無效」的路徑，故擋在這裡。
+        if args.steps == 0 and not resumed_cell[0]:
+            raise SystemExit(
+                f"--steps 0 是重播模式，但 {args.resume_weights} 底下沒有 "
+                f"{args._cur_image} 的權重檔。這一格會交出未經最佳化的原圖，"
+                "而報表上看不出來。先確認防禦那一批已經跑完並存了 __w.pt。")
+        if hasattr(param, "content_stats"):
+            # 兩個約束都在夾取之前成立，夾取之後不一定。**量出來寫進 CSV**，
+            # 不靠 docstring 宣稱——夾取把它破壞掉時不會有任何症狀。
+            run_extras.update(param.content_stats(x01))
         if args.save_weights:
             run_extras["_weights"] = [t.detach().cpu().clone()
                                       for t in param.params()]
@@ -650,6 +1086,10 @@ def defend(ip2p, suite, cond, x01, args, loss_fn):
                 run_extras["flow_loss"] = round(float(flow_tv_loss(
                     param.flow_field(x01), eps=args.flow_eps,
                     neighbourhood=args.flow_neighbourhood)), 6)
+        if hasattr(param, "geometry"):
+            # 要求的面積與**拿到的**面積不一定相同（邊長取整到偶數），而位置
+            # 是搜出來的。故實際幾何逐列寫出，不從 radius 反推。
+            run_extras.update(param.geometry())
         if args.eval_every and res.history:
             run_extras["_trace"] = [
                 {"condition": cond, "radius": round(param.radius, 4), **h}
@@ -784,7 +1224,8 @@ def build_parser() -> argparse.ArgumentParser:
     ap.add_argument("--target", type=Path, default=Path("data/targets/gray.png"))
     ap.add_argument("--loss",
                     choices=("encoder_target", "latent_norm", "latent_norm_max",
-                             "image_guidance"),
+                             "image_guidance", "edit_divergence", "identity",
+                             "facelock"),
                     default="encoder_target",
                     help="encoder_target = ‖E(x_def) − E(y_target)‖²（本專案既有）；"
                          "latent_norm = ‖E(x_def)‖₂（DCT-Shield §4.2 的目標）。"
@@ -793,6 +1234,10 @@ def build_parser() -> argparse.ArgumentParser:
                          "的部分是損失函數還是參數化」分開量。"
                          "image_guidance = ‖ε(z_t, E_img(x'), ∅) − ε(z_t, 0, ∅)‖²，"
                          "即直接要求 IP2P 取樣式裡的影像引導項消失；"
+                         "edit_divergence = −‖x̂₀(z_t; x_def) − x̂₀(z_t; x)‖²，"
+                         "**直接以防禦效果為目標**：不指定要把條件推到哪裡，"
+                         "只要求模型建出來的東西離原圖的結果遠。文字條件仍取"
+                         "空字串——威脅模型的前提是攻擊指令未知。"
                          "latent_norm 是它的**逐點版本**（把影像條件推向零"
                          "張量），本項只要求 UNet 的**反應**相同，可行集大得多。"
                          "**這是本專案第一個讀 UNet 的損失**。"
@@ -801,7 +1246,14 @@ def build_parser() -> argparse.ArgumentParser:
                          "classifier-free guidance 訓練，訓練時本來就會隨機丟掉"
                          "影像條件，所以 `c_I = 0` 是模型**受訓過**的狀態——零"
                          "不是怪異的點，是最熟悉的那一點。模長遠大於正常值的"
-                         "條件則從未出現在訓練裡。**這個方向從未跑過**")
+                         "條件則從未出現在訓練裡。**這個方向從未跑過**。"
+                         "facelock = 身分損失接在 **VAE 的一次往返**上，"
+                         "不經過 UNet（arXiv:2411.16832）。判準（臉）與模組"
+                         "（走到哪裡）是兩個獨立的軸，本專案此前只填了對角線："
+                         "latent_norm 只走 VAE 但沒有臉，identity 有臉但走了"
+                         "UNet。**受保護主體在像素上凍結，故重建圖的臉只能經由"
+                         "VAE 的感受野被支撐內的內容影響**——這一批問的就是"
+                         "那件事做不做得到")
     # ---- image_guidance 的四個設定（見 src/defense/image_guidance_loss.py）----
     ap.add_argument("--ig-zt", choices=ZT_MODES, default=None,
                     help="`z_t` 的抽法。**必填，沒有預設**：IP2P 由純噪聲"
@@ -817,6 +1269,19 @@ def build_parser() -> argparse.ArgumentParser:
                          "因為它對齊的是淨化器實際走的噪聲尺度，兩者理由不同")
     ap.add_argument("--ig-samples", type=int, default=1,
                     help="每一步平均幾組 (t, eps)。代價線性增加")
+    ap.add_argument("--ig-weight", choices=("uniform", "subject"),
+                    default="uniform",
+                    help="影像引導殘差的空間平均要不要加權。uniform 是主線，"
+                         "與加上這個旗標之前逐位元相同。subject 只對**受保護"
+                         "主體的 latent token** 負責——`runs/ig_probe/"
+                         "by_region_*.csv` 量到原圖殘差的 64% 落在主體上而"
+                         "主體只佔 53% 的面積，均勻平均等於把預算平均花在"
+                         "整張畫面。這是消融")
+    ap.add_argument("--ig-weight-catalogue", type=Path,
+                    default=Path("data/decoy_catalogue.yaml"),
+                    help="`--ig-weight subject` 的主體名詞來源。與 "
+                         "--subject-mask 是**兩件事**：那個限制擾動長在哪裡，"
+                         "這個只改損失的權重，擾動仍可長在全圖")
     # ---- 收斂與 early stop（所有損失共用）----
     ap.add_argument("--eval-every", type=int, default=0,
                     help="每幾步用一組**固定**的抽樣評估一次並寫進 trace.csv。"
@@ -835,6 +1300,69 @@ def build_parser() -> argparse.ArgumentParser:
                          "存的是參數本身不是防禦圖——防禦圖不可逆推回參數"
                          "（重疊相加是有損投影，即 FND-049 的 amp_dev），"
                          "沒存就只能從零重跑")
+    ap.add_argument("--patch-lowfreq", type=int, default=0, metavar="SIGMA",
+                    help="把補丁內容的低頻**換成原圖的**（0 = 關）。σ 與 "
+                         "--patch-tint-sigma 同一個尺度、共用同一個盒式模糊。"
+                         "這是約束不是懲罰：不必調權重，也不與主損失搶預算。")
+    ap.add_argument("--patch-chroma", action="store_true",
+                    help="凍結亮度，只讓色度可學。BT.601 權重和為 1，故"
+                         "夾取之前 Y 逐位元等於原圖，褶皺與陰影完整保留。")
+    ap.add_argument("--carrier-min-area", type=float, default=None,
+                    metavar="A",
+                    help="載體面積下限。預設沿用 carrier_mask.MIN_AREA。")
+    ap.add_argument("--carrier-max-area", type=float, default=None,
+                    metavar="A",
+                    help="載體面積上限。預設沿用 carrier_mask.MAX_AREA（0.60）"
+                         "；--patch-carrier background 幾乎一定要放寬。")
+    ap.add_argument("--carrier-ring", type=int, default=0, metavar="OUTER",
+                    help="支撐換成緊貼受保護主體外緣的**環帶**，往外到 OUTER "
+                         "像素（0 = 關）。賭的是「碰到**對的** token」而不是"
+                         "「碰到所有 token」：VAE 是卷積的，臉部 token 的表示"
+                         "受鄰近像素影響，而臉本身凍結、緊貼它的那一圈沒有。")
+    ap.add_argument("--carrier-ring-inner", type=int, default=8, metavar="INNER",
+                    help="環帶與主體之間留的間隙。**不可為 0**：主體遮罩已經"
+                         "往外羽化過，貼著零邊界會讓支撐與羽化帶重疊，實際"
+                         "拿到的環帶比要求的窄而報表上看不出來。")
+    ap.add_argument("--prompt-eot", action="store_true",
+                    help="影像引導損失對**攻擊指令的分布**取期望，而不是只用"
+                         "空字串。取整份目錄裡所有句子去重，不是這張影像那三句"
+                         "——只取那三句等於偷看這一格的攻擊。")
+    ap.add_argument("--attn-weight", type=float, default=0.0, metavar="LAMBDA",
+                    help="加一項「把編輯指令的 cross-attention 吸到補丁上」"
+                         "（0 = 關）。這是**改道**而不是破壞：模型去改標記而"
+                         "不是改人。探索性質——「注意力落在哪裡」與「輸出被改"
+                         "在哪裡」的關聯本專案還沒量過（attention_probe.py）。")
+    ap.add_argument("--id-layout-weight", type=float, default=0.0,
+                    metavar="LAMBDA",
+                    help="--loss identity 的場景保持項權重（0 = 只毀身分）。"
+                         "要求「臉以外的場景與模型從原圖建出來的一樣」，產物"
+                         "因此是「同一個場景、換一張臉」而不是整張圖被毀。")
+    ap.add_argument("--id-box-margin", type=float, default=0.35,
+                    help="--loss identity 的裁臉框往外放寬多少（比例）。"
+                         "編輯後臉會移動，而框是由原圖算的固定框。")
+    ap.add_argument("--carrier-lattice", type=int, default=0, metavar="PITCH",
+                    help="把支撐換成**規則格點上的小圓斑**，間距 PITCH 像素"
+                         "（0 = 關）。SD 的 VAE 降採樣 8 倍，故 PITCH 8 時每一個"
+                         " latent 格恰好被碰到一次：token 覆蓋率 100% 而像素面積"
+                         "只有 π·r²/PITCH²。實測效果由 token 覆蓋率決定而不是"
+                         "像素面積，這是「攤平整張畫面」以外另一條達到滿覆蓋的"
+                         "路，而且產物是看得出來的規則點陣。")
+    ap.add_argument("--carrier-dot-radius", type=float, default=2.0,
+                    metavar="R",
+                    help="--carrier-lattice 的圓斑半徑（像素）。2·R 必須小於"
+                         " PITCH，否則圓斑相連、支撐退化成一整片。")
+    ap.add_argument("--carrier-match", choices=("erode", "scale"),
+                    default="erode",
+                    help="--carrier-target-area 用哪一種縮法。erode 把邊界往內"
+                         "縮（保留輪廓、一小塊全改）；scale 把整片權重乘上一個"
+                         "常數（形狀不變、一大片各改一點）。兩者的 mean(w) 相同"
+                         "而視覺與機制不同，故是兩個工作點不是一個。")
+    ap.add_argument("--carrier-target-area", type=float, default=0.0,
+                    metavar="A",
+                    help="把載體往內縮，使**合法面積**（載體 ∩ 主體補集，"
+                         "也就是 patch_area 記的那個量）恰好等於 A。"
+                         "0 = 不對齊。用途是讓「放在背景」與「放在衣服」"
+                         "同面積，否則等於同時動了位置與大小兩個變因。")
     ap.add_argument("--resume-weights", type=Path, default=None,
                     help="從這個目錄載入同名的 `__w.pt` 當**起點**續跑。"
                          "找不到對應檔案的影像照常從零起步，並在 CSV 的 "
@@ -862,6 +1390,134 @@ def build_parser() -> argparse.ArgumentParser:
                     help="color_grid 的空間網格邊長 G。頻寬由它決定："
                          "f_n <= G/H，G=8、H=512 時 0.016。G=1 時空間上是常數"
                          "場，對裁切精確等變。")
+    ap.add_argument("--patch-tile", type=int, default=0,
+                    help="只學一塊 N×N 的磚並整片重複。0（預設）= 不平舖。"
+                         "規則的重複本身就是「這是刻意放上去的標記」的視覺"
+                         "訊號，同時把參數量由 3·H·W 降到 3·N²")
+    ap.add_argument("--patch-res", type=int, default=1,
+                    help="補丁內容的參數化解析度倒數 S。1（預設）= 全解析度，"
+                         "呼叫路徑逐位元不變。S > 1 時只學 1/S 大小的張量再"
+                         "雙線性升取樣，於是內容**依構造**沒有細於 S 像素的"
+                         "分量——那正是模糊、重取樣與 JPEG 量化抹掉的東西。"
+                         "與 --patch-tile 是兩個獨立的軸：平舖給的是週期與"
+                         "冗餘（梳狀譜，諧波仍到 Nyquist），這一個給的是帶限。"
+                         "機制取自 IAM（arXiv:2402.16586），但那篇動的是更新"
+                         "步驟，此處動的是參數化本身")
+    ap.add_argument("--patch-palette", type=int, default=0,
+                    help="把補丁內容限制在 K 個可學顏色上。0（預設）= 關閉，"
+                         "呼叫路徑逐位元不變。逐像素的空間自由度完全保留，"
+                         "砍掉的只有**色彩的基數**——與 --patch-lowfreq（頻帶）"
+                         "、--patch-chroma（通道）正交。產物是幾個色塊構成的"
+                         "圖樣，像網版印刷而不像彩色雜訊")
+    ap.add_argument("--patch-palette-temp", type=float, default=0.05,
+                    help="調色盤指派的 softmax 溫度。越小越接近硬指派；"
+                         "0.05（預設）時最大與最小 logit 的機率比是 e^20")
+    ap.add_argument("--patch-seeds", type=int, default=0,
+                    help="把補丁內容換成 K 個可學種子點的 Voronoi 圖，一胞一色。"
+                         "0（預設）= 關閉。參數量是 5·K——K=64 時 320 個，比自由"
+                         "補丁少三個數量級，而產物依構造是多邊形色塊。"
+                         "移植自 arXiv:2606.17711。不可與 --patch-palette／"
+                         "--patch-tile／--patch-res 併用")
+    ap.add_argument("--patch-seed-temp", type=float, default=4e-4,
+                    help="Voronoi 胞邊界的柔軟度。越小邊界越硬")
+    ap.add_argument("--patch-polar", choices=("", "radial", "angular"),
+                    default="",
+                    help="把補丁內容換成只依一個極座標變數的一維剖面。"
+                         "radial（c = f(r)）對繞影像中心的**任意角度旋轉**逐點"
+                         "不變；angular（c = g(φ)）對**任意倍率的中心縮放**"
+                         "逐點不變（`crop_resize` 正是中心裁切再放大）。"
+                         "不變性對整個群成立，不是對某一個參數值——這是它與"
+                         "已否決的 log-periodic 候選的分界。參數量 3·bins。"
+                         "不可與 --patch-palette／--patch-seeds／--patch-tile／"
+                         "--patch-res 併用。讀數見 runs/polar_carrier/")
+    ap.add_argument("--patch-polar-bins", type=int, default=32,
+                    help="剖面的格數，**同時是不變性的頻寬上限**。格數太多時"
+                         "剖面本身是高頻的、場在取樣上混疊，重取樣會把它毀掉："
+                         "角度場對裁切的餘弦在 32 格是 0.997、256 格掉到 0.79。"
+                         "預設 32（參數量 96）")
+    ap.add_argument("--patch-alpha", type=float, default=1.0,
+                    help="標記的不透明度。1.0（預設）= 完全蓋掉；小於 1 時"
+                         "原圖從標記底下透出來，讀成疊上去的浮水印而不是破圖")
+    ap.add_argument("--patch-tv", type=float, default=0.0,
+                    help="補丁內容的總變差權重。0（預設）時呼叫路徑逐位元"
+                         "不變。壓住它就從逐像素噪點變成柔和色塊")
+    ap.add_argument("--patch-init", choices=("identity", "random"),
+                    default="identity",
+                    help="補丁內容的起點。identity 從原圖開始（第 0 步即恆等）；"
+                         "random 在支撐內抽噪聲。**--loss edit_divergence 必須用 "
+                         "random**：那個損失在 x_def=x 處值與梯度都恰為零，"
+                         "恆等起點是駐點，PGD 一步也走不動而且沒有症狀")
+    ap.add_argument("--patch-placement",
+                    choices=("far", "near", "complement", "crop_safe"),
+                    default="far",
+                    help="同尺寸有多個合法位置時挑哪一個：far 離主體重心最遠、"
+                         "near 最近、complement 整個補集、crop_safe 限制在裁切"
+                         "後仍留存的中央方框內並取最靠畫面中心者")
+    ap.add_argument("--patch-count", type=int, default=1,
+                    help="放幾塊同尺寸方塊（預設 1）。--radius 是**加起來**的"
+                         "面積，故兩塊時單塊面積減半——「一塊 4%」與「兩塊各 "
+                         "2%」在同一個總預算下可以直接對照。不可配 complement "
+                         "或載體，那兩者的支撐不是方塊")
+    ap.add_argument("--patch-crop-keep", type=float, default=0.8,
+                    help="crop_safe 的留存比例：裁切算子每邊裁掉多少之後中央"
+                         "還剩多少。0.8 對上 crop_resize0.1（每邊 10%）。"
+                         "**這個值要與要防的裁切算子對齊**，故是 CSV 欄位")
+    ap.add_argument("--attack-prompts", type=Path, default=None,
+                    help="三類攻擊指令的目錄（data/attack_prompts.yaml）。"
+                         "給定時覆寫資料集自帶的句子")
+    ap.add_argument("--attack-category", default="",
+                    choices=("", "clothing", "accessory", "background"),
+                    help="用目錄裡的哪一類：改變衣著或顏色／加上配件／"
+                         "變換背景與背景物品")
+    ap.add_argument("--subject-source", default="clipseg",
+                    choices=("clipseg", "face"),
+                    help="受保護主體怎麼來。clipseg（預設）依登記的名詞；"
+                         "face 由 ATR 的 Face+Hair 類別直接給——少一個模型、"
+                         "少一組文字，也少一個「文字反應溢出」的失效面")
+    ap.add_argument("--carrier-refine", type=int, default=0,
+                    help="導引濾波的半徑，把 ATR 的粗邊界吸附到影像真實的"
+                         "衣物邊緣。0（預設）時呼叫路徑逐位元不變")
+    ap.add_argument("--carrier-erode", type=int, default=0,
+                    help="載體邊界往**內**縮幾個像素，花紋永不溢出到皮膚或背景")
+    ap.add_argument("--carrier-feather", type=int, default=0,
+                    help="載體**往內**羽化幾個像素。支撐由 0/1 變成 [0,1] 的"
+                         "軟權重，花紋在邊緣淡入衣服而不是硬切。方向與 "
+                         "--subject-mask-feather 相反")
+    ap.add_argument("--carrier-scatter", type=int, default=0,
+                    help="不鋪滿載體，改成在載體內取 N 個分散斑塊，總面積由"
+                         " --radius 控。0（預設）= 鋪滿")
+    ap.add_argument("--patch-tint", type=float, default=0.0,
+                    help="把花紋的**局部色調**拉向原本那件衣服的權重。"
+                         "0（預設）時呼叫路徑逐位元不變。與 --patch-tv 針對"
+                         "不同的東西：tv 罰掉所有局部變化、花紋也被壓平，"
+                         "tint 只罰低頻、花紋的結構完全保留")
+    ap.add_argument("--patch-tint-sigma", type=int, default=16,
+                    help="--patch-tint 的鄰域邊長（像素）。「多大的範圍算同一"
+                         "個色調」。與 --patch-tile 的磚長可並排比較")
+    # **選項表由模組給，不在這裡另抄一份。** 抄一份的症狀是新增載體之後 CLI
+    # 說「invalid choice」，而錯誤訊息指向的是使用者而不是這一行。
+    from src.defense.carrier_mask import CARRIER_CLASSES as _CARRIERS
+
+    ap.add_argument("--patch-carrier",
+                    choices=("none",) + tuple(_CARRIERS),
+                    default="none",
+                    help="把支撐再交集一層**語意載體**（ATR 人體解析的衣物"
+                         "類別，`src/defense/carrier_mask.py`）。none（預設）時"
+                         "呼叫路徑逐位元不變。補集的支撐包含牆面與地板，花紋"
+                         "貼在牆上讀起來是一塊壞掉的區域；限制在衣物上則止於"
+                         "衣物輪廓，讀起來是布料印花。**只能配 "
+                         "--patch-placement complement**")
+    ap.add_argument("--color-tv", type=float, default=0.0,
+                    help="色彩網格係數的空間總變差權重。0（預設）時呼叫路徑"
+                         "逐位元不變。存在理由：容量放大會讓最佳化器去畫高頻"
+                         "色彩噪點，產物不自然；這一項把場壓回平滑。"
+                         "**只罰空間兩維，不罰亮度維**")
+    ap.add_argument("--color-tv-luma", type=float, default=0.0,
+                    help="色彩網格係數沿**亮度維**的總變差權重。0（預設）時"
+                         "呼叫路徑逐位元不變。與 --color-tv 針對不同的東西："
+                         "空間平滑管的是「顏色隨位置變化的快慢」，亮度平滑"
+                         "管的是「相鄰色調會不會被映射到差很多的顏色」，"
+                         "而後者才是產物上彩虹邊紋的來源")
     ap.add_argument("--color-luma-bins", type=int, default=8,
                     help="color_grid 的亮度格數 D。沿亮度軸是 D 段的分段線性。")
     ap.add_argument("--subject-mask", type=Path, default=None,
@@ -1280,6 +1936,11 @@ def build_parser() -> argparse.ArgumentParser:
     ap.add_argument("--mode", choices=("paper",), default="paper")
     ap.add_argument("--eps", type=float, default=PAPER_EPS)
     ap.add_argument("--q-alg", type=float, default=PAPER_DEFAULT_QUALITY)
+    ap.add_argument("--dct-loss", choices=("paper", "project"), default="paper",
+                    help="DCT-Shield 用哪個損失。paper（預設）是該篇自己的 "
+                         "‖E(x')‖₂，跑 baseline 必須用它。project 換成 "
+                         "--loss 指定的那一個，是**消融**，會強制標記 "
+                         "modified_from_paper")
     ap.add_argument("--dct-steps", type=int, default=PAPER_STEPS)
     # AdvDrop
     # DJSMA（DCT 反對角帶上的貪婪 JSMA）
@@ -1305,6 +1966,16 @@ def build_parser() -> argparse.ArgumentParser:
                     help="DCT-Shield 不動 DC 係數。**論文沒有這一步**，用來檢定"
                          "「失真比論文差 1.76 倍」是不是 DC 的整階平移造成的")
     # 攻擊方（論文未載，本專案指定）
+    ap.add_argument("--fl-w-latent", type=float, default=None,
+                    help="--loss facelock 的 latent 推離項權重。預設取官方 "
+                         "methods.py 的 0.2（論文正文只給符號、未給數值）")
+    ap.add_argument("--fl-w-lpips", type=float, default=None,
+                    help="--loss facelock 的重建圖 LPIPS 項權重。預設 1.0")
+    ap.add_argument("--fl-start-fr", type=float, default=None,
+                    help="--loss facelock 的身分項啟動比例。預設 0.35，"
+                         "**論文正文未載，只在官方程式碼裡**")
+    ap.add_argument("--fl-start-lpips", type=float, default=None,
+                    help="--loss facelock 的 LPIPS 項啟動比例。預設 0.25，同上")
     ap.add_argument("--edit-steps", type=int, default=IP2P_STEPS)
     ap.add_argument("--text-guidance", type=float, default=IP2P_TEXT_GUIDANCE)
     ap.add_argument("--image-guidance", type=float, default=IP2P_IMAGE_GUIDANCE)
@@ -1322,11 +1993,29 @@ def validate_loss_args(args) -> None:
     工作點在 argparse 被擋下、卡空轉半小時（`docs/OPERATIONS.md`）。守門要
     擋在派工前面，不是印出來就算。
     """
-    if args.loss != "image_guidance":
+    if args.loss not in ("image_guidance", "edit_divergence"):
+        # `--ig-weight` 只在讀 UNet 的兩個損失底下有意義。給了卻用在別的損失上，
+        # 靜默忽略的症狀是「報表上寫著 subject 而實際跑的是 uniform」。
+        if args.ig_weight != "uniform":
+            raise SystemExit(
+                f"--ig-weight {args.ig_weight} 只能配 --loss image_guidance "
+                f"或 edit_divergence，收到 --loss {args.loss}。")
         return
+    if (args.loss == "edit_divergence"
+            and any(c in PATCH_CONDS for c in args.conditions)
+            and args.patch_init != "random"):
+        raise SystemExit(
+            "--loss edit_divergence 配 patch 時必須給 --patch-init random："
+            "該損失是 −‖f(x_def) − f(x)‖²，在 x_def = x 處值與梯度**都恰為零**，"
+            "恆等起點是駐點。實測會安靜地一步都不走（loss -0.000000、"
+            "參數不動），而 trace 看起來只是「損失很小」。")
+    if args.ig_weight == "subject" and not args.ig_weight_catalogue.exists():
+        raise SystemExit(
+            f"--ig-weight subject 需要主體名詞目錄，找不到 "
+            f"{args.ig_weight_catalogue}")
     if args.ig_zt is None:
         raise SystemExit(
-            "--loss image_guidance 必須同時給 --ig-zt。"
+            f"--loss {args.loss} 必須同時給 --ig-zt。"
             "**不可以填一個看起來合理的預設**：IP2P 由純噪聲起步，中間步的"
             f" z_t 分布依賴條件、無法解析，{ZT_MODES} 兩者都只是近似。")
     if not 1 <= args.ig_t_min <= args.ig_t_max:
@@ -1335,6 +2024,254 @@ def validate_loss_args(args) -> None:
             f"收到 {args.ig_t_min}／{args.ig_t_max}")
     if args.ig_samples < 1:
         raise SystemExit(f"--ig-samples 必須為正整數，收到 {args.ig_samples}")
+
+
+def select_images(dataset, names, data_dir):
+    """依 `--images` 挑影像。**指名而資料集裡沒有的一律拋錯。**
+
+    選圖原本是集合交集，於是指名 150 張、資料集只有 147 張時少的那三張被
+    靜默丟掉，唯一的守門是「一張都不剩才拋錯」。印出來的那行寫的是實際張數，
+    沒有人會回頭跟要求的張數對照——`runs/ip2p_fair_comparison/images150.txt`
+    指名了三張不在 `data/omniedit150/` 底下的影像，而每一個用該清單跑的批次
+    都安靜地少跑三張。
+
+    回傳的順序照 `dataset`，不照 `names`：逐圖相減依賴的是名字不是位置，
+    但保持資料集自己的順序才與不給 `--images` 的批次可並列。
+    """
+    if names:
+        keep = list(dict.fromkeys(names))
+        have = {d["name"] for d in dataset}
+        missing = [n for n in keep if n not in have]
+        if missing:
+            raise SystemExit(
+                f"--images 指名了 {len(missing)} 張 {data_dir} 底下沒有的影像："
+                f"{missing}。**不靜默略過**——少跑幾張在報表上看不出來，"
+                "而張數會直接改變 FID 這類與樣本數相關的讀數。")
+        dataset = [d for d in dataset if d["name"] in set(keep)]
+    if not dataset:
+        raise SystemExit(f"{data_dir} 底下沒有符合 --images 的影像")
+    return dataset
+
+
+def validate_patch_args(args) -> None:
+    """補丁族的旗標守門。**在載入權重之前**呼叫。
+
+    為什麼不放在 `validate_loss_args` 裡：那一支在 `--loss` 不是
+    `image_guidance`／`edit_divergence` 時**提前 return**，於是補丁的守門在
+    別的損失底下整段跳過而不會有任何症狀。補丁的幾何與損失無關，兩者不該
+    共用一個入口。
+    """
+    is_patch = any(c in PATCH_CONDS for c in args.conditions)
+    # 補集補丁的面積由遮罩決定，`radius` 完全不使用；不給 --radius 會落進
+    # 預算模式，去二分搜尋一個不起作用的參數。實測會用滿 GPU 兩小時而
+    # **一步 PGD 的紀錄都沒有**，看起來像卡住而不是設定錯。
+    if is_patch and args.patch_placement == "complement" and args.radius is None:
+        raise SystemExit(
+            "--patch-placement complement 必須同時給 --radius："
+            "補集模式的面積由主體遮罩決定、radius 不使用，但不給它會落進"
+            "預算模式（二分搜尋 radius），那在這個組合下是在搜一個不起作用的"
+            "參數，只會空轉。給任意值即可，該值會被忽略並記在 CSV。")
+    # 載體只在補集模式下有意義。配矩形擺放模式時 `PatchParam.reset` 也會拋錯，
+    # 但擋在派工前面才省得下載入權重與排隊的時間；配非補丁條件時則根本沒有
+    # 支撐這個概念，靜默忽略的症狀是「報表寫著 clothes 而那一列與載體無關」。
+    if args.patch_count != 1:
+        if not is_patch:
+            raise SystemExit(
+                f"--patch-count {args.patch_count} 只接在補丁條件上，"
+                f"收到條件 {args.conditions}。")
+        if args.patch_count < 1:
+            raise SystemExit(
+                f"--patch-count 必須 >= 1，收到 {args.patch_count}。")
+        if args.patch_placement == "complement":
+            raise SystemExit(
+                "--patch-count 不能配 --patch-placement complement："
+                "補集是單一個不規則區域，「幾塊」在那個構造下沒有意義。")
+        if args.patch_carrier != "none":
+            raise SystemExit(
+                f"--patch-count 不能配 --patch-carrier {args.patch_carrier}："
+                "載體是不規則區域、方塊擺放是固定形狀，兩種支撐構造互斥。")
+    # 載體有兩個用途：補丁族拿它當**支撐**，色彩族拿它當 `apply_where`。
+    # 後者不需要 complement——那個旗標在色彩族上根本沒有意義。
+    if (args.patch_carrier != "none" and not is_patch
+            and args.subject_mask is None and args.subject_source != "face"):
+        raise SystemExit(
+            f"--patch-carrier {args.patch_carrier} 用在 {args.conditions} 上時"
+            "必須給 --subject-mask 或 --subject-source face：色彩族的載體是 "
+            "`apply_where = 載體 ∧ 主體補集`，那個交集要有主體遮罩才算得出來。"
+            "不給的話載體會被靜默忽略，而報表上的 patch_carrier 欄仍然寫著它。")
+    # ── 兩個內容約束只接在補丁族上 ──────────────────────────────────
+    # 色彩族沒有「補丁內容」這個物件，靜默忽略的症狀是 CSV 寫著 lowfreq 16
+    # 而實際跑的是完全自由的色彩場。
+    for flag, val in (("--patch-lowfreq", args.patch_lowfreq),
+                      ("--patch-chroma", args.patch_chroma),
+                      # `--patch-res` 的關閉值是 1 不是 0，故比較的是 `> 1`。
+                      ("--patch-res", args.patch_res > 1),
+                      ("--patch-palette", args.patch_palette),
+                      ("--patch-seeds", args.patch_seeds),
+                      ("--patch-polar", args.patch_polar)):
+        if val and not is_patch:
+            raise SystemExit(
+                f"{flag} 只接在補丁條件（patch／patch_rand）上，"
+                f"收到條件 {args.conditions}。")
+    if args.patch_seeds and args.patch_palette:
+        raise SystemExit(
+            "--patch-seeds 與 --patch-palette 不可同時給：Voronoi 本來就是"
+            "一胞一色，K 由 --patch-seeds 決定。同時給會讓 CSV 上兩欄都有值，"
+            "而實際只有一個生效。")
+    if args.patch_seeds and (args.patch_tile or args.patch_res > 1):
+        raise SystemExit(
+            "--patch-seeds 不可與 --patch-tile／--patch-res 併用："
+            "那兩個旋鈕作用在可學張量的空間解析度上，而 Voronoi 的可學張量"
+            "是座標不是場。")
+    if args.patch_polar and (args.patch_palette or args.patch_seeds
+                             or args.patch_tile or args.patch_res > 1):
+        raise SystemExit(
+            "--patch-polar 不可與 --patch-palette／--patch-seeds／"
+            "--patch-tile／--patch-res 併用：那些旋鈕作用在二維可學張量上，"
+            "而極座標參數化的可學張量是一條一維剖面。同時給的話 CSV 上兩欄"
+            "都有值，而實際只有一個生效。")
+    if args.patch_polar and args.patch_polar_bins < 8:
+        raise SystemExit(
+            f"--patch-polar-bins {args.patch_polar_bins} 太小（至少 8）。")
+    if args.patch_lowfreq and args.patch_tint:
+        raise SystemExit(
+            "--patch-lowfreq 與 --patch-tint 不可同時給：兩者針對的是**同一個**"
+            "低頻帶，一個用替換一個用懲罰。同時開的話「低頻誤差還剩多少」"
+            "是兩個機制的合成，拆不出各自的貢獻，而 CSV 上兩欄都有值、"
+            "看起來像是可以拆的。要比較就分成兩格跑。")
+    # ── 重播模式 ────────────────────────────────────────────────────
+    # `--steps 0` 不做任何最佳化，交出的就是載回來的那張防禦圖。沒有
+    # `--resume-weights` 時載不到東西，交出去的會是**原圖**，而 CSV 的每一欄
+    # 看起來都正常——那是「沒有防禦」偽裝成「防禦無效」。
+    if args.steps == 0 and args.resume_weights is None:
+        raise SystemExit(
+            "--steps 0 必須同時給 --resume-weights：零步最佳化交出的是載回來"
+            "的防禦圖，沒有來源就等於交出原圖，而報表上看不出來。")
+    # ── 載體的面積旗標 ──────────────────────────────────────────────
+    if args.carrier_target_area and args.patch_carrier == "none":
+        raise SystemExit(
+            "--carrier-target-area 要有載體才有意義：沒有載體時支撐就是主體"
+            "補集，面積由遮罩決定、縮不了。")
+    if args.carrier_target_area and not 0.0 < args.carrier_target_area <= 1.0:
+        raise SystemExit(
+            f"--carrier-target-area 必須落在 (0,1]，收到 {args.carrier_target_area}")
+    # 背景幾乎一定超過 `MAX_AREA`（實測十張全部）。擋在這裡而不是等
+    # `carrier_from_seg` 拋錯，是為了省下載入 4 GB 權重與排隊的時間。
+    # ── 環帶 ────────────────────────────────────────────────────────
+    if args.carrier_ring:
+        if not 0 < args.carrier_ring_inner < args.carrier_ring:
+            raise SystemExit(
+                f"需要 0 < --carrier-ring-inner < --carrier-ring，收到 "
+                f"{args.carrier_ring_inner} 與 {args.carrier_ring}。inner 為 0 "
+                "時支撐會與主體的羽化帶重疊，實際面積比要求的窄而看不出來。")
+        if args.subject_source != "face":
+            raise SystemExit(
+                "--carrier-ring 需要 --subject-source face：環帶是繞著**受保護"
+                "主體**長出來的，而那個主體由 ATR 的 Face+Hair 給。")
+        for flag, val in (("--carrier-lattice", args.carrier_lattice),
+                          ("--carrier-scatter", args.carrier_scatter),
+                          ("--carrier-target-area", args.carrier_target_area)):
+            if val:
+                raise SystemExit(
+                    f"--carrier-ring 不可與 {flag} 併用：環帶的形狀與面積由 "
+                    "inner／outer 決定，再套一層別的支撐會讓兩個構造疊起來，"
+                    "而 CSV 上兩欄都有值、看起來像是可以拆的。")
+    # ── identity 損失 ───────────────────────────────────────────────
+    if args.loss == "identity":
+        if args.subject_source != "face":
+            raise SystemExit(
+                "--loss identity 需要 --subject-source face：裁臉框由受保護"
+                "主體的遮罩算出來，而那個主體由 ATR 的 Face+Hair 給。")
+        if args.id_box_margin < 0:
+            raise SystemExit(
+                f"--id-box-margin 不可為負，收到 {args.id_box_margin}")
+        if args.id_layout_weight < 0:
+            raise SystemExit(
+                f"--id-layout-weight 不可為負，收到 {args.id_layout_weight}")
+    elif args.id_layout_weight or args.id_box_margin != 0.35:
+        raise SystemExit(
+            f"--id-layout-weight／--id-box-margin 只接在 --loss identity 上，"
+            f"收到 --loss {args.loss}。靜默忽略的症狀是 CSV 寫著一個權重而"
+            "實際跑的損失裡沒有那一項。")
+    # ── facelock 損失 ──────────────────────────────────────────────
+    _FL = (("--fl-w-latent", args.fl_w_latent), ("--fl-w-lpips", args.fl_w_lpips),
+           ("--fl-start-fr", args.fl_start_fr),
+           ("--fl-start-lpips", args.fl_start_lpips))
+    if args.loss == "facelock":
+        if args.subject_source != "face":
+            raise SystemExit(
+                "--loss facelock 需要 --subject-source face：裁臉框由受保護"
+                "主體的遮罩算出來，而那個主體由 ATR 的 Face+Hair 給。")
+        for flag, v in _FL:
+            if v is not None and v < 0:
+                raise SystemExit(f"{flag} 不可為負，收到 {v}")
+        for flag, v in _FL[2:]:
+            if v is not None and v > 1:
+                raise SystemExit(f"{flag} 必須落在 [0,1]，收到 {v}")
+    else:
+        for flag, v in _FL:
+            if v is not None:
+                raise SystemExit(
+                    f"{flag} 只接在 --loss facelock 上，收到 --loss {args.loss}。"
+                    "靜默忽略的症狀是 CSV 寫著一個權重而實際跑的損失裡沒有那一項。")
+    # ── 注意力項與指令 EOT ──────────────────────────────────────────
+    if args.attn_weight < 0:
+        raise SystemExit(f"--attn-weight 不可為負，收到 {args.attn_weight}")
+    if (args.attn_weight or args.prompt_eot) and not args.attack_prompts:
+        raise SystemExit(
+            "--attn-weight 與 --prompt-eot 都需要 --attack-prompts："
+            "兩者都要一組**可能的**攻擊指令當文字條件。")
+    if args.prompt_eot and args.loss != "image_guidance":
+        raise SystemExit(
+            f"--prompt-eot 目前只接在 --loss image_guidance 上，收到 "
+            f"{args.loss}。其餘損失沒有文字條件那一支，靜默忽略時 CSV 的 "
+            "prompt_eot 欄仍然寫著 1。")
+    if args.carrier_lattice:
+        if args.carrier_lattice < 2:
+            raise SystemExit(
+                f"--carrier-lattice 必須 >= 2，收到 {args.carrier_lattice}")
+        if 2.0 * args.carrier_dot_radius >= args.carrier_lattice:
+            raise SystemExit(
+                f"--carrier-dot-radius {args.carrier_dot_radius} 對 "
+                f"--carrier-lattice {args.carrier_lattice} 太大：圓斑會相連、"
+                "支撐退化成一整片，那就不是點陣了。要滿版請用 "
+                "--carrier-match scale。")
+        if args.carrier_scatter:
+            raise SystemExit(
+                "--carrier-lattice 與 --carrier-scatter 不可同時給："
+                "前者是很多個小點（位置由格點決定），後者是少數幾個大斑"
+                "（位置由最遠點取樣決定），兩種支撐構造互斥。同時給會先散成"
+                "大斑再打成點陣，而 CSV 上兩欄都有值、看起來像是可以拆的。")
+        if args.carrier_target_area:
+            raise SystemExit(
+                "--carrier-lattice 與 --carrier-target-area 不可同時給："
+                "點陣的面積是 pitch 與 radius 的函數，再對齊一次會把點陣"
+                "整片調淡（scale）或侵蝕掉（erode），兩者都會破壞"
+                "「每個 latent 格恰好被碰到一次」這個構造。")
+    if args.carrier_match == "scale" and not args.carrier_target_area:
+        raise SystemExit(
+            "--carrier-match scale 必須同時給 --carrier-target-area："
+            "縮放模式的整個作用就是把權重調到那個面積，沒有目標就等於沒有作用，"
+            "而 CSV 上仍然寫著 scale。")
+    if args.patch_carrier == "frame" and (args.carrier_max_area is None
+                                          or args.carrier_max_area < 1.0):
+        raise SystemExit(
+            "--patch-carrier frame 必須給 --carrier-max-area 1.0："
+            "整張畫面的面積恆為 1.0，而載體的面積上限本來是為了擋「解析器把整張"
+            "圖都算成衣服」——那道守門在這個載體上沒有意義，但要明寫出來，"
+            "不可以靜默放行。")
+    if args.patch_carrier == "background" and args.carrier_max_area is None:
+        raise SystemExit(
+            "--patch-carrier background 必須同時給 --carrier-max-area："
+            "背景的面積幾乎一定超過載體的預設上限 0.60，而那道守門本來是"
+            "為了擋「解析器把整張圖都算成衣服」。背景要放寬到 0.95 左右。")
+    if args.patch_carrier != "none" and is_patch:
+        if args.patch_placement != "complement":
+            raise SystemExit(
+                f"--patch-carrier {args.patch_carrier} 必須配 "
+                f"--patch-placement complement，收到 {args.patch_placement}："
+                "矩形擺放模式會把載體忽略掉，症狀是報表上寫著載體名稱而實際"
+                "跑的是一塊方塊。")
 
 
 def validate_deliver_args(args) -> None:
@@ -1429,6 +2366,8 @@ def main() -> None:
     args = ap.parse_args()
     # **擋在載入 4 GB 權重之前**：缺旗標的失效方式是跑完才發現損失不對。
     validate_loss_args(args)
+    validate_patch_args(args)
+    validate_attack_args(args)
     validate_deliver_args(args)
     validate_flow_args(args)
     validate_convergence_args(args)
@@ -1437,17 +2376,75 @@ def main() -> None:
     ip2p = IP2PWrapper(dtype=torch.float32)
     suite = MetricSuite(device=ip2p.device)
     dataset = load_dataset(args.data, prompt_index=args.prompt_index)
-    if args.images:
-        keep = set(args.images)
-        dataset = [d for d in dataset if d["name"] in keep]
-    if not dataset:
-        raise SystemExit(f"{args.data} 底下沒有符合 --images 的影像")
+    dataset = select_images(dataset, args.images, args.data)
+    # 三類攻擊指令。**就地覆寫 dataset 的 prompt**，於是下游（編輯、CSV 的
+    # instruction 欄）全部自動跟著換，不必逐處改。
+    if args.attack_category:
+        import yaml as _y
+        spec = _y.safe_load(args.attack_prompts.read_text(encoding="utf-8"))
+        for d in dataset:
+            d["prompt"] = attack_instruction(spec, d["name"], args.attack_category)
     print(f"IP2P 線：{len(dataset)} 張、條件 {args.conditions}、"
           f"steps={args.edit_steps} s_T={args.text_guidance} "
           f"s_I={args.image_guidance} seed={args.edit_seed}", flush=True)
 
     y_target = load_image_tensor(args.target, ip2p.device, size=RESOLUTION)
     loss_fn = make_encoder_loss(ip2p, args.loss, y_target)
+
+    def _ig_weight_mask(x01):
+        """`--ig-weight subject` 的權重遮罩，逐圖建一次。
+
+        回傳 None 代表均勻平均，**呼叫路徑逐位元不變**。
+
+        與 `--subject-mask` 的差別要講清楚：那一個把 `apply_where` 設成
+        `1 − 遮罩`，限制擾動只能長在主體之外；這一個完全不限制擾動長在哪裡，
+        只是把損失的空間平均改成加權平均。兩者可以並用，也可以只用其中一個，
+        故各自一個旗標、各自一個 CSV 欄位。
+        """
+        args._ig_weight_text = ""
+        if args.ig_weight == "uniform":
+            return None
+        import yaml as _yaml
+
+        from src.defense.subject_mask import subject_mask
+
+        spec = _yaml.safe_load(
+            args.ig_weight_catalogue.read_text(encoding="utf-8"))
+        texts = (spec.get("objects") or {}).get(args._cur_image)
+        if not texts:
+            raise SystemExit(
+                f"{args.ig_weight_catalogue} 的 objects 裡沒有 "
+                f"{args._cur_image} 的主體名稱。**不猜**——沒有主體名稱就沒有"
+                f"「只對主體負責」這個概念。")
+        texts = [texts] if isinstance(texts, str) else list(texts)
+        m = subject_mask(x01, texts, threshold=args.subject_mask_threshold,
+                         dilate=args.subject_mask_dilate,
+                         feather=args.subject_mask_feather)
+        args._ig_weight_text = " | ".join(texts)
+        return m.to(x01)
+
+    def _attack_embeds():
+        """目錄檔裡所有指令的文字嵌入，(K,L,D)。
+
+        **威脅模型沒有變**：這是一組**可能的**指令，不是這一格實際會被攻擊的
+        那一句（那一句到編輯那一步才進來）。故取整份目錄裡的所有句子去重，
+        不是這張影像那三句——只取那三句就等於偷看了這一格的攻擊。
+        """
+        import yaml as _y
+
+        spec = _y.safe_load(args.attack_prompts.read_text(encoding="utf-8"))
+        seen, texts = set(), []
+        for rec in (spec.get("images") or {}).values():
+            for t in (rec.get("prompts") or {}).values():
+                if t not in seen:
+                    seen.add(t)
+                    texts.append(t)
+        if not texts:
+            raise SystemExit(f"{args.attack_prompts} 裡沒有任何指令")
+        with torch.no_grad():
+            embs = [ip2p.pipe._encode_prompt(t, ip2p.device, 1, False, None)
+                    for t in texts]
+        return torch.cat([e[-1:] for e in embs], dim=0).detach()
 
     def make_base_loss(x01):
         """逐圖取得主損失。
@@ -1456,17 +2453,70 @@ def main() -> None:
         **呼叫路徑逐位元不變**；`image_guidance` 的 `z_t` 錨在原圖上，必須
         逐圖重建——用防禦圖當錨會讓取樣軌跡隨最佳化漂移，而且不會有症狀。
         """
-        if args.loss != "image_guidance":
+        if args.loss not in ("image_guidance", "edit_divergence"):
             # `latent_norm`／`encoder_target` 本來就是決定性的，評估函數就是
             # 它自己——對照組因此與新損失走**同一條**收斂判定，不是兩套標準。
             if args.eval_every and not hasattr(loss_fn, "_fixed_eval"):
                 loss_fn._fixed_eval = loss_fn
             return loss_fn
+        if args.loss == "identity":
+            from src.defense.carrier_mask import face_subject_mask
+            from src.defense.identity_loss import make_identity_loss
+
+            fm = face_subject_mask(x01, dilate=args.subject_mask_dilate,
+                                   feather=args.subject_mask_feather)
+            fn = make_identity_loss(
+                ip2p, zt_mode=args.ig_zt, x_clean=x01, face_mask=fm,
+                t_min=args.ig_t_min, t_max=args.ig_t_max,
+                samples=args.ig_samples, seed=args.seed,
+                box_margin=args.id_box_margin,
+                layout_weight=args.id_layout_weight)
+            if args.eval_every:
+                fn._fixed_eval = fn.make_fixed(args.eval_draws, args.eval_seed)
+            return fn
+        if args.loss == "facelock":
+            from src.defense.carrier_mask import face_subject_mask
+            from src.defense.facelock_loss import (FACELOCK_START_FR,
+                                                   FACELOCK_START_LPIPS,
+                                                   FACELOCK_W_LATENT,
+                                                   FACELOCK_W_LPIPS,
+                                                   make_facelock_loss)
+
+            fm = face_subject_mask(x01, dilate=args.subject_mask_dilate,
+                                   feather=args.subject_mask_feather)
+            fn = make_facelock_loss(
+                ip2p, x_clean=x01, face_mask=fm, steps=args.steps,
+                box_margin=args.id_box_margin,
+                w_latent=(FACELOCK_W_LATENT if args.fl_w_latent is None
+                          else args.fl_w_latent),
+                w_lpips=(FACELOCK_W_LPIPS if args.fl_w_lpips is None
+                         else args.fl_w_lpips),
+                start_fr=(FACELOCK_START_FR if args.fl_start_fr is None
+                          else args.fl_start_fr),
+                start_lpips=(FACELOCK_START_LPIPS if args.fl_start_lpips is None
+                             else args.fl_start_lpips))
+            # 這個損失是**決定性**的（沒有 z_t 抽樣），故評估函數就是它自己；
+            # 不包一層固定抽樣的話收斂判定會判到另一個量。
+            if args.eval_every:
+                fn._fixed_eval = fn
+            return fn
+        if args.loss == "edit_divergence":
+            from src.defense.edit_divergence_loss import make_edit_divergence_loss
+            fn = make_edit_divergence_loss(
+                ip2p, zt_mode=args.ig_zt, x_clean=x01,
+                t_min=args.ig_t_min, t_max=args.ig_t_max,
+                samples=args.ig_samples, seed=args.seed,
+                weight=_ig_weight_mask(x01))
+            if args.eval_every:
+                fn._fixed_eval = fn.make_fixed(args.eval_draws, args.eval_seed)
+            return fn
         fn = make_image_guidance_loss(
             ip2p, zt_mode=args.ig_zt,
             x_clean=x01 if args.ig_zt == "diffuse_src" else None,
             t_min=args.ig_t_min, t_max=args.ig_t_max,
-            samples=args.ig_samples, seed=args.seed)
+            samples=args.ig_samples, seed=args.seed,
+            weight=_ig_weight_mask(x01),
+            text_embeds=_attack_embeds() if args.prompt_eot else None)
         if args.eval_every:
             fn._fixed_eval = fn.make_fixed(args.eval_draws, args.eval_seed)
         if args.latent_norm_weight:
@@ -1733,6 +2783,74 @@ def main() -> None:
                 # 合併分片之後才分得出哪些列是它跑的；`ig_zt` 在別的損失底下
                 # 是 None，欄位留空即該列與這一支無關。
                 "ig_zt": args.ig_zt or "",
+                # 影像引導殘差的空間權重。只活在 argparse 預設值裡的設定，
+                # 合併分片之後在報表上分不出來（DEF「只活在 CLI 預設值裡的
+                # 設定」），故逐列寫出，主體名詞也一併寫出。
+                "patch_placement": args.patch_placement,
+                # 載體那三欄：**每一列都寫出來**，非補丁的列也寫。只在開著時
+                # 才有欄位會讓合併分片之後同一份表裡共存兩個 schema
+                # （DEF「共存六個 CSV schema」）。補丁那些列的 `patch_carrier`
+                # 會被 `param.geometry()` 從 `**extras` 覆蓋掉——那一份由實際
+                # 跑的物件給，兩者分岔時它才會說實話。
+                "patch_carrier": args.patch_carrier,
+                # 攻擊指令的三類與主體的來源。每一列都寫——只活在 CLI 預設值
+                # 裡的設定，合併分片之後在報表上分不出來。
+                "attack_category": args.attack_category,
+                "attack_prompts": ("" if args.attack_prompts is None
+                                   else str(args.attack_prompts)),
+                "subject_source": args.subject_source,
+                "carrier_refine": args.carrier_refine,
+                "carrier_erode": args.carrier_erode,
+                "carrier_feather": args.carrier_feather,
+                "carrier_scatter": args.carrier_scatter,
+                "carrier_ring": args.carrier_ring,
+                "carrier_ring_inner": args.carrier_ring_inner,
+                "prompt_eot": int(args.prompt_eot),
+                "attn_weight": args.attn_weight,
+                "id_layout_weight": args.id_layout_weight,
+                "id_box_margin": args.id_box_margin,
+                "carrier_lattice": args.carrier_lattice,
+                "carrier_dot_radius": args.carrier_dot_radius,
+                "patch_tint": args.patch_tint,
+                "patch_tint_sigma": args.patch_tint_sigma,
+                # 固定形狀浮水印的三個幾何。每一列都寫，非補丁的列也寫。
+                "patch_count": args.patch_count,
+                "patch_crop_keep": args.patch_crop_keep,
+                "patch_rects": "",
+                "carrier_area": "",
+                "carrier_source": "",
+                "patch_init": args.patch_init,
+                # `patch_lowfreq`／`patch_chroma` 由參數化物件在 geometry()
+                # 裡給（與 patch_carrier 同一條理由），這裡只記載體那三個。
+                "carrier_min_area": args.carrier_min_area,
+                "carrier_max_area": args.carrier_max_area,
+                "carrier_target_area": args.carrier_target_area,
+                "carrier_match": args.carrier_match,
+                "patch_tile": args.patch_tile,
+                "patch_res": args.patch_res,
+                "patch_palette": args.patch_palette,
+                "patch_palette_temp": args.patch_palette_temp,
+                "patch_seeds": args.patch_seeds,
+                "patch_seed_temp": args.patch_seed_temp,
+                "patch_polar": args.patch_polar,
+                "patch_polar_bins": args.patch_polar_bins,
+                # 四個都由 argparse 給，None 代表用了移植預設值；出表時要能
+                # 分出「用了預設」與「明給了同一個數」。
+                "fl_w_latent": ("" if args.fl_w_latent is None
+                                else args.fl_w_latent),
+                "fl_w_lpips": ("" if args.fl_w_lpips is None
+                               else args.fl_w_lpips),
+                "fl_start_fr": ("" if args.fl_start_fr is None
+                                else args.fl_start_fr),
+                "fl_start_lpips": ("" if args.fl_start_lpips is None
+                                   else args.fl_start_lpips),
+                "patch_alpha": args.patch_alpha,
+                "patch_tv": args.patch_tv,
+                "color_tv": args.color_tv,
+                "color_tv_luma": args.color_tv_luma,
+                "dct_loss": args.dct_loss,
+                "ig_weight": args.ig_weight,
+                "ig_weight_text": getattr(args, "_ig_weight_text", ""),
                 "ig_t_min": args.ig_t_min,
                 "ig_t_max": args.ig_t_max,
                 "ig_samples": args.ig_samples,

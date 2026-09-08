@@ -1,0 +1,58 @@
+cos,field,n,op,param,stage
+0.92966,radial,,rotate5.15,,construction
+0.19099,radial,,crop0.10,,construction
+0.59554,radial,,crop0.05,,construction
+0.07496,radial,,crop0.15,,construction
+0.99996,radial,,blur1.5,,construction
+0.86033,angular,,rotate5.15,,construction
+0.99978,angular,,crop0.10,,construction
+0.99979,angular,,crop0.05,,construction
+0.99978,angular,,crop0.15,,construction
+0.99988,angular,,blur1.5,,construction
+0.98578,radial,,rotate,1.0,width
+0.96414,radial,,rotate,2.5,width
+0.93152,radial,,rotate,5.0,width
+0.90253,radial,,rotate,7.5,width
+0.87665,radial,,rotate,10.0,width
+0.83322,radial,,rotate,15.0,width
+0.77245,radial,,rotate,25.0,width
+0.73106,radial,,rotate,45.0,width
+0.91872,radial,,crop,0.02,width
+0.59554,radial,,crop,0.05,width
+0.31365,radial,,crop,0.08,width
+0.19099,radial,,crop,0.1,width
+0.11735,radial,,crop,0.12,width
+0.07496,radial,,crop,0.15,width
+0.0078,radial,,crop,0.2,width
+-0.05211,radial,,crop,0.25,width
+0.97964,angular,,rotate,1.0,width
+0.94153,angular,,rotate,2.5,width
+0.86543,angular,,rotate,5.0,width
+0.77629,angular,,rotate,7.5,width
+0.67745,angular,,rotate,10.0,width
+0.46504,angular,,rotate,15.0,width
+0.07826,angular,,rotate,25.0,width
+-0.10571,angular,,rotate,45.0,width
+0.99979,angular,,crop,0.02,width
+0.99979,angular,,crop,0.05,width
+0.99979,angular,,crop,0.08,width
+0.99978,angular,,crop,0.1,width
+0.99978,angular,,crop,0.12,width
+0.99978,angular,,crop,0.15,width
+0.99977,angular,,crop,0.2,width
+0.99975,angular,,crop,0.25,width
+0.73184,res_s32 ◂ 對照,10,rotate10,,carrier
+0.53636,res_s32 ◂ 對照,10,crop_resize0.1,,carrier
+0.99424,res_s32 ◂ 對照,10,blur1.5,,carrier
+0.99804,res_s32 ◂ 對照,10,jpeg75,,carrier
+0.9976,res_s32 ◂ 對照,10,resize_only,,carrier
+0.82636,radial,10,rotate10,,carrier
+0.4799,radial,10,crop_resize0.1,,carrier
+0.99486,radial,10,blur1.5,,carrier
+0.9982,radial,10,jpeg75,,carrier
+0.9978,radial,10,resize_only,,carrier
+0.79898,angular,10,rotate10,,carrier
+0.60132,angular,10,crop_resize0.1,,carrier
+0.9946,angular,10,blur1.5,,carrier
+0.99833,angular,10,jpeg75,,carrier
+0.99773,angular,10,resize_only,,carrier

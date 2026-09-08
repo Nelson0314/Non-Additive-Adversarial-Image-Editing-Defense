@@ -1,0 +1,197 @@
+# 三類攻擊指令。**兩類完全固定，只有 clothing 的衣物名詞逐張變**——
+# 跨影像比較時不可以混進「句子寫法不同」這個變因。
+#
+# 目標色由量測決定（載體區飽和度加權的平均色相，取離 red/blue 較遠者），
+# 並寫成 `target_colour` 欄位而不是只埋在句子裡。
+#
+# 受保護主體不在這裡登記：它由 ATR 的 Face+Hair 類別直接給
+# （`src/defense/carrier_mask.py` 的 `face_subject_mask`），不需要文字。
+
+images:
+  task_obj_swap_joint_mask_533428:
+    garment: the jackets
+    carrier_area: 0.34292
+    carrier_hue: 0.4875
+    target_colour: red
+    prompts:
+      clothing: turn the jackets red
+      accessory: add a scarf to the person
+      background: change the background to a snowy street
+  task_env_weather_195273:
+    garment: the robe
+    carrier_area: 0.29293
+    carrier_hue: 0.5126
+    target_colour: red
+    prompts:
+      clothing: turn the robe red
+      accessory: add a scarf to the person
+      background: change the background to a snowy street
+  task_obj_remove_410264:
+    garment: the shirt
+    carrier_area: 0.264
+    carrier_hue: 0.6348
+    target_colour: red
+    prompts:
+      clothing: turn the shirt red
+      accessory: add a scarf to the person
+      background: change the background to a snowy street
+  task_obj_remove_284852:
+    garment: the shirt
+    carrier_area: 0.25875
+    carrier_hue: 0.1498
+    target_colour: blue
+    prompts:
+      clothing: turn the shirt blue
+      accessory: add a scarf to the person
+      background: change the background to a snowy street
+  task_env_weather_114555:
+    garment: the dress
+    carrier_area: 0.25615
+    carrier_hue: 0.1383
+    target_colour: blue
+    prompts:
+      clothing: turn the dress blue
+      accessory: add a scarf to the person
+      background: change the background to a snowy street
+  task_attr_mod_color_123744:
+    garment: the kimono
+    carrier_area: 0.25059
+    carrier_hue: 0.3237
+    target_colour: red
+    prompts:
+      clothing: turn the kimono red
+      accessory: add a scarf to the person
+      background: change the background to a snowy street
+  task_obj_swap_rand_mask_92564:
+    garment: the shirts
+    carrier_area: 0.23282
+    carrier_hue: 0.1732
+    target_colour: blue
+    prompts:
+      clothing: turn the shirts blue
+      accessory: add a scarf to the person
+      background: change the background to a snowy street
+  task_env_weather_70149:
+    garment: the kimono
+    carrier_area: 0.20802
+    carrier_hue: 0.6755
+    target_colour: red
+    prompts:
+      clothing: turn the kimono red
+      accessory: add a scarf to the person
+      background: change the background to a snowy street
+  task_obj_remove_509477:
+    garment: the outfits
+    carrier_area: 0.20703
+    carrier_hue: 0.5724
+    target_colour: red
+    prompts:
+      clothing: turn the outfits red
+      accessory: add a scarf to the person
+      background: change the background to a snowy street
+  task_obj_swap_rand_mask_303550:
+    garment: the jacket
+    carrier_area: 0.20459
+    carrier_hue: 0.4245
+    target_colour: red
+    prompts:
+      clothing: turn the jacket red
+      accessory: add a scarf to the person
+      background: change the background to a snowy street
+  task_obj_remove_720199:
+    garment: the uniform
+    carrier_area: 0.18766
+    carrier_hue: 0.1761
+    target_colour: blue
+    prompts:
+      clothing: turn the uniform blue
+      accessory: add a scarf to the person
+      background: change the background to a snowy street
+  task_env_weather_121086:
+    garment: the jacket
+    carrier_area: 0.175
+    carrier_hue: 0.5933
+    target_colour: red
+    prompts:
+      clothing: turn the jacket red
+      accessory: add a scarf to the person
+      background: change the background to a snowy street
+  task_env_weather_126577:
+    garment: the robe
+    carrier_area: 0.16963
+    carrier_hue: 0.5275
+    target_colour: red
+    prompts:
+      clothing: turn the robe red
+      accessory: add a scarf to the person
+      background: change the background to a snowy street
+  task_obj_swap_joint_mask_476374:
+    garment: the vest
+    carrier_area: 0.16952
+    carrier_hue: 0.1141
+    target_colour: blue
+    prompts:
+      clothing: turn the vest blue
+      accessory: add a scarf to the person
+      background: change the background to a snowy street
+  task_attr_mod_color_202962:
+    garment: the t-shirt
+    carrier_area: 0.14662
+    carrier_hue: 0.6163
+    target_colour: red
+    prompts:
+      clothing: turn the t-shirt red
+      accessory: add a scarf to the person
+      background: change the background to a snowy street
+  task_obj_remove_257910:
+    garment: the dress
+    carrier_area: 0.14578
+    carrier_hue: 0.7019
+    target_colour: red
+    prompts:
+      clothing: turn the dress red
+      accessory: add a scarf to the person
+      background: change the background to a snowy street
+  task_attr_mod_color_41275:
+    garment: the jacket
+    carrier_area: 0.13586
+    carrier_hue: 0.5539
+    target_colour: red
+    prompts:
+      clothing: turn the jacket red
+      accessory: add a scarf to the person
+      background: change the background to a snowy street
+  task_attr_mod_color_6205:
+    garment: the overalls
+    carrier_area: 0.13537
+    carrier_hue: 0.598
+    target_colour: red
+    prompts:
+      clothing: turn the overalls red
+      accessory: add a scarf to the person
+      background: change the background to a snowy street
+  task_obj_add_709390:
+    garment: the coat
+    carrier_area: 0.1279
+    carrier_hue: 0.7034
+    target_colour: red
+    prompts:
+      clothing: turn the coat red
+      accessory: add a scarf to the person
+      background: change the background to a snowy street
+  task_attr_mod_color_158070:
+    garment: the coat
+    carrier_area: 0.11573
+    carrier_hue: 0.7685
+    target_colour: red
+    prompts:
+      clothing: turn the coat red
+      accessory: add a scarf to the person
+      background: change the background to a snowy street
+dropped:
+  task_attr_mod_color_42929: ATR 把盾牌與金色臂鎧判成 Upper-clothes，載體覆蓋盾牌而不是衣服。沒有現成的獨立訊號能分辨「被舉著的剛體」與「衣服」，只能看圖排除。
+  task_env_weather_262001: 畫面裡是猴子。ATR 的有人守門與 MTCNN 的臉部偵測都放行了。
+flagged:
+  task_obj_remove_720199: 載體裡混著看不出是不是制服的暗色區塊。
+  task_obj_remove_704852: 玩具卡車有一部分被算進載體。
+  task_obj_remove_284852: 沙發扶手可能沾到載體邊緣。

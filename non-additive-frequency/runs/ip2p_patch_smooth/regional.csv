@@ -1,0 +1,6 @@
+image,label,condition,subject_text,mask_core_area,mask_mean,mask_soft_band,subject_mask_threshold,subject_mask_dilate,subject_mask_feather,disp_full,disp_subject,disp_background,dist_full,dist_subject,dist_background,edit_lpips_recorded,fid_dists_recorded,loss_trained
+task_attr_mod_color_6205,tv05,patch,toolbox | Mario figure,0.49099,0.56401,0.07301,0.3,16,24,0.35398,0.22769,0.51736,0.07641,0.00555,0.16807,0.35459,0.07872,image_guidance
+task_attr_mod_color_6205,tv20,patch,toolbox | Mario figure,0.49099,0.56401,0.07301,0.3,16,24,0.27815,0.15381,0.43901,0.06785,0.00389,0.15058,0.27828,0.08309,image_guidance
+task_attr_mod_color_6205,tv30,patch,toolbox | Mario figure,0.49099,0.56401,0.07301,0.3,16,24,0.2823,0.15289,0.44971,0.0671,0.0034,0.1495,0.28242,0.08091,image_guidance
+task_attr_mod_color_6205,a06_only,patch,toolbox | Mario figure,0.49099,0.56401,0.07301,0.3,16,24,0.38197,0.24592,0.55797,0.09463,0.00855,0.20599,0.38311,0.06527,image_guidance
+task_attr_mod_color_6205,sq1_a04_far,patch,toolbox | Mario figure,0.49099,0.56401,0.07301,0.3,16,24,0.36967,0.26326,0.50731,0.05041,0.00041,0.11509,0.37023,0.03819,image_guidance

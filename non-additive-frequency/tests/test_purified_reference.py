@@ -38,10 +38,18 @@ SEEDS = 2
 
 # --------------------------------------------------------------- 集合本身
 
-def test_幾何類就是改變格點或取景的那五個():
+def test_幾何類就是改變格點或取景的那六個():
+    """這個集合是判準，**不可以無聲擴張**：多一個成員就多一欄換了參照，
+    而既有的 `runs/` 是舊參照量的，數字仍然長得很正常、只是不再可比。
+    新增成員時要連同理由一起改這裡。
+
+    `rotate` 在裡面的理由（FaceLock 與 EditShield 的抗淨化欄）：繞中心旋轉
+    以雙線性重取樣，**像素格點改變**；四角離開原畫面、邊界補零，
+    **取景改變**。兩條與 `shift_only` 同型。
+    """
     assert GEOMETRIC_KINDS == {
         "crop_resize", "resample_roundtrip", "resize_only", "shift_only",
-        "jpeg_then_resize"}
+        "jpeg_then_resize", "rotate"}
 
 
 @pytest.mark.parametrize("kind", [

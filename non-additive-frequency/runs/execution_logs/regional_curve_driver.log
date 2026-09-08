@@ -1,0 +1,34 @@
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/462 [00:00<?, ?it/s]Loading weights:  74%|███████▍  | 344/462 [00:00<00:00, 3434.77it/s]Loading weights: 100%|██████████| 462/462 [00:00<00:00, 3440.19it/s]
+olor_11699                遮罩 ['potted plant', 'person']  {'mask_core_area': 0.44517, 'mask_mean': 0.52645, 'mask_soft_band': 0.08128}
+olor_11699                color_rand_r001/color_grid_rand位移 全0.0338 主體0.0166 背景0.0530  失真 主體0.0129  （記錄的全圖位移 0.03158）
+olor_11699                color_rand_r002/color_grid_rand位移 全0.0885 主體0.0419 背景0.1404  失真 主體0.0351  （記錄的全圖位移 0.08645）
+olor_11699                color_rand_r005/color_grid_rand位移 全0.2214 主體0.1254 背景0.3281  失真 主體0.1133  （記錄的全圖位移 0.22006）
+olor_11699                color_rand_r0083/color_grid_rand位移 全0.3068 主體0.1969 背景0.4290  失真 主體0.1898  （記錄的全圖位移 0.30584）
+olor_11699                color_rand_r010/color_grid_rand位移 全0.3379 主體0.2280 背景0.4601  失真 主體0.2241  （記錄的全圖位移 0.33734）
+olor_11699                color_rand_r020/color_grid_rand位移 全0.4509 主體0.3441 背景0.5698  失真 主體0.3613  （記錄的全圖位移 0.45081）
+olor_11699                color_rand_r030/color_grid_rand位移 全0.4504 主體0.3889 背景0.5187  失真 主體0.4334  （記錄的全圖位移 0.45023）
+olor_11699                color_rand_r040/color_grid_rand位移 全0.5769 主體0.5781 背景0.5756  失真 主體0.4822  （記錄的全圖位移 0.57665）
+olor_11699                color_ln_r002/color_grid  位移 全0.0668 主體0.0600 背景0.0744  失真 主體0.0651  （記錄的全圖位移 0.06515）
+olor_11699                color_ln_r005/color_grid  位移 全0.1724 主體0.1816 背景0.1622  失真 主體0.1627  （記錄的全圖位移 0.17128）
+olor_11699                color_curve_r05/color_curve位移 全0.0752 主體0.0745 背景0.0761  失真 主體0.0873  （記錄的全圖位移 0.07381）
+olor_11699                color_curve_r1/color_curve位移 全0.1264 主體0.1291 背景0.1235  失真 主體0.1353  （記錄的全圖位移 0.12549）
+olor_6205                 遮罩 ['toolbox', 'Mario figure']  {'mask_core_area': 0.49099, 'mask_mean': 0.56401, 'mask_soft_band': 0.07301}
+olor_6205                 color_rand_r001/color_grid_rand位移 全0.0208 主體0.0112 背景0.0333  失真 主體0.0115  （記錄的全圖位移 0.01855）
+olor_6205                 color_rand_r002/color_grid_rand位移 全0.0737 主體0.0411 背景0.1160  失真 主體0.0314  （記錄的全圖位移 0.07156）
+olor_6205                 color_rand_r005/color_grid_rand位移 全0.1873 主體0.1047 背景0.2941  失真 主體0.1072  （記錄的全圖位移 0.18574）
+olor_6205                 color_rand_r0083/color_grid_rand位移 全0.2792 主體0.1710 背景0.4192  失真 主體0.1921  （記錄的全圖位移 0.27768）
+olor_6205                 color_rand_r010/color_grid_rand位移 全0.2979 主體0.1903 背景0.4370  失真 主體0.2316  （記錄的全圖位移 0.2965）
+olor_6205                 color_rand_r020/color_grid_rand位移 全0.3873 主體0.2925 背景0.5099  失真 主體0.3970  （記錄的全圖位移 0.3857）
+olor_6205                 color_rand_r030/color_grid_rand位移 全0.4416 主體0.3525 背景0.5570  失真 主體0.4834  （記錄的全圖位移 0.4401）
+olor_6205                 color_rand_r040/color_grid_rand位移 全0.4741 主體0.3868 背景0.5869  失真 主體0.5350  （記錄的全圖位移 0.47266）
+olor_6205                 color_ln_r002/color_grid  位移 全0.1313 主體0.0718 背景0.2082  失真 主體0.0563  （記錄的全圖位移 0.12965）
+olor_6205                 color_ln_r005/color_grid  位移 全0.2026 主體0.1336 背景0.2918  失真 主體0.1270  （記錄的全圖位移 0.20186）
+olor_6205                 color_curve_r05/color_curve位移 全0.1715 主體0.1042 背景0.2586  失真 主體0.0750  （記錄的全圖位移 0.16917）
+olor_6205                 color_curve_r1/color_curve位移 全0.1990 主體0.1417 背景0.2730  失真 主體0.1227  （記錄的全圖位移 0.19693）
+
+寫出 runs/regional_displacement/random_curve.csv（24 列）

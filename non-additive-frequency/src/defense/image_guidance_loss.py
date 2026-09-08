@@ -75,6 +75,34 @@ from src.defense.fixedpoint_loss import _null_embedding, _scheduler_of
 # 兩個候選都是近似，沒有一個是「對的」，故並列而不設預設。
 ZT_MODES = ("diffuse_src", "noise")
 
+# `make_fixed` 回傳的評估函數用它區分「沒有給 weight」與「明確指定不加權」。
+# 沒有給時沿用建構時的 `weight`——收斂監看的必須是**正在被最佳化的那個量**，
+# 否則曲線走平不代表訓練走平。明確傳 `None` 才是全域均勻。
+_INHERIT = object()
+
+
+def _weighted_mean(sq: torch.Tensor,
+                   weight: Optional[torch.Tensor]) -> torch.Tensor:
+    """殘差平方圖的空間平均。`weight` 為 None 時就是 `.mean()`。
+
+    `weight` 是像素域的 (1,1,H,W) 軟遮罩，以 `adaptive_avg_pool2d` 降到 latent
+    解析度，於是每一格的值是該格落在區域內的面積比例。
+
+    **只有這一個實作**：訓練損失與固定評估共用它。兩邊各寫一份的話，其中一份
+    改了而另一份沒改時，`best_eval` 與被最佳化的量會悄悄變成兩個東西。
+    """
+    if weight is None:
+        return sq.mean()
+    import torch.nn.functional as F
+
+    w = F.adaptive_avg_pool2d(weight.to(sq), sq.shape[-2:])
+    denom = w.sum() * sq.shape[1]
+    if float(denom) <= 0.0:
+        raise ValueError(
+            "weight 降到 latent 解析度之後總和為 0：區域太小或全為零，"
+            "分區殘差沒有定義。")
+    return (sq * w).sum() / denom
+
 
 def make_image_guidance_loss(
     ip2p,
@@ -85,6 +113,8 @@ def make_image_guidance_loss(
     t_max: int = 1000,
     samples: int = 1,
     seed: int = 0,
+    weight: Optional[torch.Tensor] = None,
+    text_embeds: Optional[torch.Tensor] = None,
 ) -> Callable[[torch.Tensor], torch.Tensor]:
     """回傳 `loss(x_def01) -> 純量`，**要最小化**。
 
@@ -93,6 +123,28 @@ def make_image_guidance_loss(
     這一項越接近零。
 
     `samples > 1` 時每次呼叫平均多組 `(t, eps)`，代價線性增加。
+
+    `weight`：像素域的 (1,1,H,W) 軟遮罩，把殘差的空間平均改成加權平均。
+    `None`（預設）時逐位元等同原本的 `.mean()`。
+
+    為什麼會有這個參數：`runs/ig_probe/by_region_*.csv` 量到**原圖殘差的 64%
+    落在受保護主體自己的 latent token 上**，而主體只佔 53% 的面積。均勻平均
+    等於把預算平均花在整張畫面上，其中將近一半花在對「主體會不會被編輯」
+    影響較小的地方。把 `weight` 設成主體遮罩，就是要求最佳化只對那些 token
+    負責。**這是消融，不是預設**——`--ig-weight uniform` 仍是主線。
+
+    `text_embeds`：(K, L, D) 的一疊文字嵌入，每一步隨機抽一個當文字條件，
+    也就是對**攻擊指令的分布**取期望（EOT）。`None`（預設）時一律用空字串，
+    與此前逐位元相同。
+
+    為什麼這是一個方法而不是一個旋鈕：現行損失只見過空字串，於是它對「模型
+    會被要求做什麼」完全無知——它學到的是「讓影像條件在無文字的情況下失效」。
+    真正的攻擊一定帶著文字條件，而 UNet 的 cross-attention 會因文字而改變它
+    讀影像的方式。對一組**可能的**指令取期望，仍然不假設知道特定那一句
+    （威脅模型的前提未變），但讓防禦見過文字條件存在這件事。
+
+    **抽樣要與 `(t, ε)` 用同一個生成器**：各用一個的話「這一步用了哪一句」
+    與「這一步抽到哪個時間」會變成兩條獨立的序列，重跑時對不回去。
     """
     if zt_mode not in ZT_MODES:
         raise ValueError(f"未知的 zt_mode：{zt_mode!r}，必須是 {ZT_MODES}")
@@ -113,6 +165,24 @@ def make_image_guidance_loss(
         raise ValueError(f"t_max={t_max} 超出排程長度 {len(abar)}")
     null_emb = _null_embedding(ip2p)
     gen = torch.Generator(device="cpu").manual_seed(int(seed))
+    if text_embeds is not None:
+        if text_embeds.dim() != 3 or text_embeds.shape[0] < 1:
+            raise ValueError(
+                f"text_embeds 必須是 (K,L,D) 且 K>=1，收到 "
+                f"{tuple(text_embeds.shape)}")
+        if text_embeds.shape[1:] != null_emb.shape[1:]:
+            raise ValueError(
+                f"text_embeds 的形狀 {tuple(text_embeds.shape[1:])} 與空字串嵌入的 "
+                f"{tuple(null_emb.shape[1:])} 不合——兩者要能互換才是同一個位置的"
+                "條件。")
+        text_embeds = text_embeds.to(device=device).detach()
+
+    def _pick_emb(g, dtype):
+        """這一步的文字條件。`text_embeds` 為 None 時恆為空字串嵌入。"""
+        if text_embeds is None:
+            return null_emb.to(dtype)
+        k = int(torch.randint(text_embeds.shape[0], (1,), generator=g))
+        return text_embeds[k:k + 1].to(dtype)
 
     z_src = None
     if zt_mode == "diffuse_src":
@@ -137,13 +207,21 @@ def make_image_guidance_loss(
         存在的理由是收斂判定。訓練用的損失每一步重抽 `(t, eps)`，逐步值本來
         就會抖 0.16–0.61（實測），那是取樣變異不是參數在漂；拿它判收斂會判錯，
         本專案已經犯過一次。評估必須把噪聲固定住，曲線才讀得出趨勢。
+
+        回傳的函數接受第二個選用參數 `weight`：一張 (1,1,H,W) 的**像素域**
+        軟遮罩，會被降到 latent 解析度當空間權重，於是同一組固定抽樣可以
+        問「殘差落在畫面的哪一塊」。`weight=None` 時走 `.mean()`，
+        與加上這個參數之前**逐位元相同**（`tests/test_ig_regional_eval.py`
+        釘住）。共用同一條路徑而不另寫一份，是因為兩份各自抽樣就不是同一
+        條軸，而且看不出來。
         """
         g2 = torch.Generator(device="cpu").manual_seed(int(eval_seed))
         steps_fixed = [int(torch.randint(t_min - 1, t_max, (1,), generator=g2))
                        for _ in range(n_draws)]
         eps_fixed = [None] * n_draws
 
-        def fixed(x_def01: torch.Tensor) -> torch.Tensor:
+        def fixed(x_def01: torch.Tensor, eval_weight=_INHERIT) -> torch.Tensor:
+            w = weight if eval_weight is _INHERIT else eval_weight
             z_img = ip2p.image_latents(x_def01)
             total = None
             for k, step in enumerate(steps_fixed):
@@ -158,12 +236,12 @@ def make_image_guidance_loss(
                     a = abar[step].to(z_img.dtype)
                     z_t = z_src.to(z_img.dtype) * a.sqrt() + eps * (1.0 - a).sqrt()
                 tt = torch.tensor([step], device=device, dtype=torch.long)
-                emb = null_emb.to(z_t.dtype)
+                emb = _pick_emb(g2, z_t.dtype)
                 base = unet(torch.cat([z_t, torch.zeros_like(z_t)], dim=1), tt,
                             encoder_hidden_states=emb).sample
                 cond = unet(torch.cat([z_t, z_img], dim=1), tt,
                             encoder_hidden_states=emb).sample
-                term = (cond - base).pow(2).mean()
+                term = _weighted_mean((cond - base).pow(2), w)
                 total = term if total is None else total + term
             return total / len(steps_fixed)
 
@@ -176,7 +254,9 @@ def make_image_guidance_loss(
         for _ in range(samples):
             step, z_t = _sample_zt(z_img)
             tt = torch.tensor([step], device=device, dtype=torch.long)
-            emb = null_emb.to(z_t.dtype)
+            # **兩支共用同一個文字嵌入**：影像引導項的定義就是「同文字條件下，
+            # 有影像 vs 沒影像」的差。兩支用不同的文字會讓那個差混進文字的貢獻。
+            emb = _pick_emb(gen, z_t.dtype)
             with torch.no_grad():
                 # 無條件分支不依賴 x_def，是常數。影像 latent 補零、文字取
                 # 空字串——與管線第 898 行的 uncond 分支逐字相同。
@@ -184,7 +264,7 @@ def make_image_guidance_loss(
                             tt, encoder_hidden_states=emb).sample.detach()
             cond = unet(torch.cat([z_t, z_img], dim=1), tt,
                         encoder_hidden_states=emb).sample
-            term = (cond - base).pow(2).mean()
+            term = _weighted_mean((cond - base).pow(2), weight)
             total = term if total is None else total + term
         return total / samples
 

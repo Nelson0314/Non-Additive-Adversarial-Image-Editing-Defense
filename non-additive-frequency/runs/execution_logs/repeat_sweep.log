@@ -1,0 +1,326 @@
+########## repeat=16 delta=48
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3488.39it/s]
+Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00,  8.53it/s]Loading pipeline components...:  50%|█████     | 3/6 [00:00<00:00,  8.92it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 15.89it/s]
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+模型欄：已載入 IP2P（cuda）
+task_attr_mod_color_11699  失真 LPIPS=0.0488 DISTS=0.0121 PSNR=50.14
+    identity:0  位元正確率 1.0000
+    jpeg:75  位元正確率 1.0000
+    jpeg:30  位元正確率 1.0000
+    blur:1  位元正確率 1.0000
+    blur:2  位元正確率 0.9688
+    quantize:16  位元正確率 0.9219
+    vae_roundtrip:0  位元正確率 0.9375
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,1.0]
+  warnings.warn(
+    ip2p_edit:0  位元正確率 0.9688
+task_attr_mod_color_6205  失真 LPIPS=0.0401 DISTS=0.0081 PSNR=49.78
+    identity:0  位元正確率 1.0000
+    jpeg:75  位元正確率 1.0000
+    jpeg:30  位元正確率 1.0000
+    blur:1  位元正確率 1.0000
+    blur:2  位元正確率 0.9531
+    quantize:16  位元正確率 0.9688
+    vae_roundtrip:0  位元正確率 0.9531
+    ip2p_edit:0  位元正確率 0.9375
+
+寫出 runs/watermark_qim/rep16_d48.csv（16 列）
+########## repeat=16 delta=64
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 4083.79it/s]
+Loading pipeline components...:  17%|█▋        | 1/6 [00:00<00:00,  6.61it/s]Loading pipeline components...:  50%|█████     | 3/6 [00:00<00:00, 11.50it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 17.28it/s]
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+模型欄：已載入 IP2P（cuda）
+task_attr_mod_color_11699  失真 LPIPS=0.0650 DISTS=0.0202 PSNR=47.56
+    identity:0  位元正確率 1.0000
+    jpeg:75  位元正確率 1.0000
+    jpeg:30  位元正確率 1.0000
+    blur:1  位元正確率 1.0000
+    blur:2  位元正確率 0.9688
+    quantize:16  位元正確率 0.9531
+    vae_roundtrip:0  位元正確率 0.9375
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,1.0]
+  warnings.warn(
+    ip2p_edit:0  位元正確率 0.9375
+task_attr_mod_color_6205  失真 LPIPS=0.0539 DISTS=0.0131 PSNR=47.53
+    identity:0  位元正確率 1.0000
+    jpeg:75  位元正確率 1.0000
+    jpeg:30  位元正確率 1.0000
+    blur:1  位元正確率 1.0000
+    blur:2  位元正確率 0.9844
+    quantize:16  位元正確率 0.9688
+    vae_roundtrip:0  位元正確率 0.9844
+    ip2p_edit:0  位元正確率 0.9844
+
+寫出 runs/watermark_qim/rep16_d64.csv（16 列）
+########## repeat=32 delta=48
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3732.33it/s]
+Loading pipeline components...:  17%|█▋        | 1/6 [00:00<00:00,  6.41it/s]Loading pipeline components...:  50%|█████     | 3/6 [00:00<00:00, 12.60it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 18.97it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 16.26it/s]
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+模型欄：已載入 IP2P（cuda）
+task_attr_mod_color_11699  失真 LPIPS=0.0824 DISTS=0.0270 PSNR=46.73
+    identity:0  位元正確率 1.0000
+    jpeg:75  位元正確率 1.0000
+    jpeg:30  位元正確率 1.0000
+    blur:1  位元正確率 0.9844
+    blur:2  位元正確率 0.9219
+    quantize:16  位元正確率 0.8750
+    vae_roundtrip:0  位元正確率 0.8906
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,1.0]
+  warnings.warn(
+    ip2p_edit:0  位元正確率 0.8750
+task_attr_mod_color_6205  失真 LPIPS=0.0733 DISTS=0.0278 PSNR=46.79
+    identity:0  位元正確率 1.0000
+    jpeg:75  位元正確率 1.0000
+    jpeg:30  位元正確率 1.0000
+    blur:1  位元正確率 1.0000
+    blur:2  位元正確率 0.9844
+    quantize:16  位元正確率 0.9844
+    vae_roundtrip:0  位元正確率 0.9219
+    ip2p_edit:0  位元正確率 0.8906
+
+寫出 runs/watermark_qim/rep32_d48.csv（16 列）
+########## repeat=32 delta=64
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 5007.06it/s]
+Loading pipeline components...:  50%|█████     | 3/6 [00:00<00:00, 12.47it/s]Loading pipeline components...:  83%|████████▎ | 5/6 [00:00<00:00, 14.87it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 15.91it/s]
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+模型欄：已載入 IP2P（cuda）
+task_attr_mod_color_11699  失真 LPIPS=0.1042 DISTS=0.0404 PSNR=44.30
+    identity:0  位元正確率 1.0000
+    jpeg:75  位元正確率 1.0000
+    jpeg:30  位元正確率 1.0000
+    blur:1  位元正確率 0.9844
+    blur:2  位元正確率 0.9688
+    quantize:16  位元正確率 0.9062
+    vae_roundtrip:0  位元正確率 0.9688
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,1.0]
+  warnings.warn(
+    ip2p_edit:0  位元正確率 0.9219
+task_attr_mod_color_6205  失真 LPIPS=0.0959 DISTS=0.0397 PSNR=44.47
+    identity:0  位元正確率 1.0000
+    jpeg:75  位元正確率 1.0000
+    jpeg:30  位元正確率 1.0000
+    blur:1  位元正確率 1.0000
+    blur:2  位元正確率 1.0000
+    quantize:16  位元正確率 0.9844
+    vae_roundtrip:0  位元正確率 0.8906
+    ip2p_edit:0  位元正確率 0.8750
+
+寫出 runs/watermark_qim/rep32_d64.csv（16 列）
+########## repeat=64 delta=48
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3137.68it/s]
+Loading pipeline components...:  50%|█████     | 3/6 [00:00<00:00, 11.77it/s]Loading pipeline components...:  83%|████████▎ | 5/6 [00:00<00:00, 13.43it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 15.69it/s]
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+模型欄：已載入 IP2P（cuda）
+task_attr_mod_color_11699  失真 LPIPS=0.1261 DISTS=0.0474 PSNR=43.67
+    identity:0  位元正確率 1.0000
+    jpeg:75  位元正確率 1.0000
+    jpeg:30  位元正確率 1.0000
+    blur:1  位元正確率 1.0000
+    blur:2  位元正確率 0.9688
+    quantize:16  位元正確率 0.9062
+    vae_roundtrip:0  位元正確率 0.7969
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,1.0]
+  warnings.warn(
+    ip2p_edit:0  位元正確率 0.7969
+task_attr_mod_color_6205  失真 LPIPS=0.1188 DISTS=0.0485 PSNR=43.80
+    identity:0  位元正確率 1.0000
+    jpeg:75  位元正確率 1.0000
+    jpeg:30  位元正確率 1.0000
+    blur:1  位元正確率 1.0000
+    blur:2  位元正確率 1.0000
+    quantize:16  位元正確率 0.9844
+    vae_roundtrip:0  位元正確率 0.7812
+    ip2p_edit:0  位元正確率 0.7812
+
+寫出 runs/watermark_qim/rep64_d48.csv（16 列）
+########## repeat=64 delta=64
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  17%|█▋        | 1/6 [00:00<00:00,  9.78it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3722.77it/s]
+Loading pipeline components...:  50%|█████     | 3/6 [00:00<00:00, 12.38it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 18.81it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 16.85it/s]
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+模型欄：已載入 IP2P（cuda）
+task_attr_mod_color_11699  失真 LPIPS=0.1521 DISTS=0.0674 PSNR=41.35
+    identity:0  位元正確率 1.0000
+    jpeg:75  位元正確率 1.0000
+    jpeg:30  位元正確率 1.0000
+    blur:1  位元正確率 1.0000
+    blur:2  位元正確率 0.9844
+    quantize:16  位元正確率 0.9219
+    vae_roundtrip:0  位元正確率 0.7656
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,1.0]
+  warnings.warn(
+    ip2p_edit:0  位元正確率 0.7500
+task_attr_mod_color_6205  失真 LPIPS=0.1500 DISTS=0.0703 PSNR=41.42
+    identity:0  位元正確率 1.0000
+    jpeg:75  位元正確率 1.0000
+    jpeg:30  位元正確率 1.0000
+    blur:1  位元正確率 1.0000
+    blur:2  位元正確率 1.0000
+    quantize:16  位元正確率 0.9844
+    vae_roundtrip:0  位元正確率 0.7812
+    ip2p_edit:0  位元正確率 0.7031
+
+寫出 runs/watermark_qim/rep64_d64.csv（16 列）
+########## repeat=128 delta=48
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 4238.40it/s]
+Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00,  8.42it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 19.98it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 17.56it/s]
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+模型欄：已載入 IP2P（cuda）
+task_attr_mod_color_11699  失真 LPIPS=0.1595 DISTS=0.0725 PSNR=41.00
+    identity:0  位元正確率 1.0000
+    jpeg:75  位元正確率 1.0000
+    jpeg:30  位元正確率 0.8906
+    blur:1  位元正確率 1.0000
+    blur:2  位元正確率 1.0000
+    quantize:16  位元正確率 1.0000
+    vae_roundtrip:0  位元正確率 0.8438
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,1.0]
+  warnings.warn(
+    ip2p_edit:0  位元正確率 0.8281
+task_attr_mod_color_6205  失真 LPIPS=0.1574 DISTS=0.0737 PSNR=41.12
+    identity:0  位元正確率 1.0000
+    jpeg:75  位元正確率 1.0000
+    jpeg:30  位元正確率 0.7969
+    blur:1  位元正確率 1.0000
+    blur:2  位元正確率 1.0000
+    quantize:16  位元正確率 1.0000
+    vae_roundtrip:0  位元正確率 0.9219
+    ip2p_edit:0  位元正確率 0.9219
+
+寫出 runs/watermark_qim/rep128_d48.csv（16 列）
+########## repeat=128 delta=64
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 4276.27it/s]
+Loading pipeline components...:  50%|█████     | 3/6 [00:00<00:00, 18.77it/s]Loading pipeline components...:  83%|████████▎ | 5/6 [00:00<00:00, 17.40it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 17.24it/s]
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+模型欄：已載入 IP2P（cuda）
+task_attr_mod_color_11699  失真 LPIPS=0.1931 DISTS=0.0988 PSNR=38.48
+    identity:0  位元正確率 1.0000
+    jpeg:75  位元正確率 1.0000
+    jpeg:30  位元正確率 1.0000
+    blur:1  位元正確率 1.0000
+    blur:2  位元正確率 1.0000
+    quantize:16  位元正確率 1.0000
+    vae_roundtrip:0  位元正確率 0.8594
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,1.0]
+  warnings.warn(
+    ip2p_edit:0  位元正確率 0.8438
+task_attr_mod_color_6205  失真 LPIPS=0.1984 DISTS=0.1073 PSNR=38.61
+    identity:0  位元正確率 1.0000
+    jpeg:75  位元正確率 1.0000
+    jpeg:30  位元正確率 1.0000
+    blur:1  位元正確率 1.0000
+    blur:2  位元正確率 1.0000
+    quantize:16  位元正確率 1.0000
+    vae_roundtrip:0  位元正確率 0.9219
+    ip2p_edit:0  位元正確率 0.9375
+
+寫出 runs/watermark_qim/rep128_d64.csv（16 列）
+########## repeat=192 delta=48
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  17%|█▋        | 1/6 [00:00<00:00,  9.96it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3855.87it/s]
+Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00,  7.12it/s]Loading pipeline components...:  67%|██████▋   | 4/6 [00:00<00:00, 11.82it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 15.44it/s]
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+模型欄：已載入 IP2P（cuda）
+task_attr_mod_color_11699  失真 LPIPS=0.1886 DISTS=0.1008 PSNR=39.11
+    identity:0  位元正確率 1.0000
+    jpeg:75  位元正確率 1.0000
+    jpeg:30  位元正確率 1.0000
+    blur:1  位元正確率 1.0000
+    blur:2  位元正確率 1.0000
+    quantize:16  位元正確率 1.0000
+    vae_roundtrip:0  位元正確率 0.9219
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,1.0]
+  warnings.warn(
+    ip2p_edit:0  位元正確率 0.9375
+task_attr_mod_color_6205  失真 LPIPS=0.1865 DISTS=0.1010 PSNR=39.22
+    identity:0  位元正確率 1.0000
+    jpeg:75  位元正確率 1.0000
+    jpeg:30  位元正確率 1.0000
+    blur:1  位元正確率 1.0000
+    blur:2  位元正確率 1.0000
+    quantize:16  位元正確率 1.0000
+    vae_roundtrip:0  位元正確率 0.9375
+    ip2p_edit:0  位元正確率 0.9688
+
+寫出 runs/watermark_qim/rep192_d48.csv（16 列）
+########## repeat=192 delta=64
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00, 19.61it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3981.84it/s]
+Loading pipeline components...:  67%|██████▋   | 4/6 [00:00<00:00, 14.94it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 16.71it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 16.61it/s]
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+模型欄：已載入 IP2P（cuda）
+task_attr_mod_color_11699  失真 LPIPS=0.2185 DISTS=0.1242 PSNR=36.67
+    identity:0  位元正確率 1.0000
+    jpeg:75  位元正確率 1.0000
+    jpeg:30  位元正確率 1.0000
+    blur:1  位元正確率 1.0000
+    blur:2  位元正確率 1.0000
+    quantize:16  位元正確率 1.0000
+    vae_roundtrip:0  位元正確率 0.9219
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,1.0]
+  warnings.warn(
+    ip2p_edit:0  位元正確率 0.9375
+task_attr_mod_color_6205  失真 LPIPS=0.2281 DISTS=0.1300 PSNR=36.80
+    identity:0  位元正確率 1.0000
+    jpeg:75  位元正確率 1.0000
+    jpeg:30  位元正確率 1.0000
+    blur:1  位元正確率 1.0000
+    blur:2  位元正確率 1.0000
+    quantize:16  位元正確率 1.0000
+    vae_roundtrip:0  位元正確率 0.9219
+    ip2p_edit:0  位元正確率 0.9375
+
+寫出 runs/watermark_qim/rep192_d64.csv（16 列）

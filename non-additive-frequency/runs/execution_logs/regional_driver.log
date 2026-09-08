@@ -1,0 +1,46 @@
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/462 [00:00<?, ?it/s]Loading weights:  75%|███████▍  | 345/462 [00:00<00:00, 3448.53it/s]Loading weights: 100%|██████████| 462/462 [00:00<00:00, 3340.66it/s]
+olor_11699                遮罩 ['potted plant', 'person']  {'mask_core_area': 0.44517, 'mask_mean': 0.52645, 'mask_soft_band': 0.08128}
+olor_11699                phase_gain_r09/phase_gain 位移 全0.4383 主體0.4860 背景0.3854  失真 主體0.4125  （記錄的全圖位移 0.43967）
+olor_11699                phase_r09/phase           位移 全0.3984 主體0.4355 背景0.3572  失真 主體0.3782  （記錄的全圖位移 0.39995）
+olor_11699                dct_shield/dct_shield     位移 全0.6159 主體0.6704 背景0.5553  失真 主體0.4630  （記錄的全圖位移 0.61688）
+olor_11699                phase_ln_eot/phase_gain   位移 全0.5804 主體0.6449 背景0.5087  失真 主體0.4989  （記錄的全圖位移 0.58149）
+olor_11699                phase_ig_eot/phase_gain   位移 全0.5501 主體0.6177 背景0.4749  失真 主體0.4046  （記錄的全圖位移 0.55016）
+olor_11699                phase_ig_noeot/phase_gain 位移 全0.4672 主體0.5078 背景0.4221  失真 主體0.4270  （記錄的全圖位移 0.46807）
+olor_11699                shading_r020/shading      位移 全0.0534 主體0.0447 背景0.0632  失真 主體0.0324  （記錄的全圖位移 0.05171）
+olor_11699                color_curve_r3/color_curve位移 全0.2612 主體0.2679 背景0.2538  失真 主體0.2573  （記錄的全圖位移 0.26088）
+olor_11699                color_ln_r010_1000/color_grid位移 全0.2624 主體0.2780 背景0.2450  失真 主體0.2667  （記錄的全圖位移 0.26196）
+olor_11699                color_rand_r0083/color_grid_rand位移 全0.3068 主體0.1969 背景0.4290  失真 主體0.1898  （記錄的全圖位移 0.30584）
+olor_11699                color_rand_r010/color_grid_rand位移 全0.3379 主體0.2280 背景0.4601  失真 主體0.2241  （記錄的全圖位移 0.33734）
+olor_11699                color_rand_r020/color_grid_rand位移 全0.4509 主體0.3441 背景0.5698  失真 主體0.3613  （記錄的全圖位移 0.45081）
+olor_11699                color_ln_conv_plant/color_grid位移 全0.2762 主體0.2923 背景0.2583  失真 主體0.2845  （記錄的全圖位移 0.27589）
+olor_11699                color_ig_conv_plant/color_grid位移 全0.4547 主體0.4508 背景0.4590  失真 主體0.4330  （記錄的全圖位移 0.45564）
+olor_11699                color_ig_r005_plant/color_grid位移 全0.3138 主體0.2894 背景0.3410  失真 主體0.2822  （記錄的全圖位移 0.31387）
+olor_11699                color_ig_r020_plant/color_grid位移 全0.5658 主體0.5989 背景0.5290  失真 主體0.6136  （記錄的全圖位移 0.56657）
+olor_11699                color_masked_r010_plant/color_grid位移 全0.2881 主體0.1232 背景0.4715  失真 主體0.0649  （記錄的全圖位移 0.28794）
+olor_11699                color_masked_r020_plant/color_grid位移 全0.4956 主體0.4578 背景0.5377  失真 主體0.0904  （記錄的全圖位移 0.49561）
+olor_6205                 遮罩 ['toolbox', 'Mario figure']  {'mask_core_area': 0.49099, 'mask_mean': 0.56401, 'mask_soft_band': 0.07301}
+olor_6205                 phase_gain_r09/phase_gain 位移 全0.6435 主體0.5614 背景0.7499  失真 主體0.4520  （記錄的全圖位移 0.6439）
+olor_6205                 phase_r09/phase           位移 全0.6122 主體0.5286 背景0.7202  失真 主體0.4290  （記錄的全圖位移 0.61356）
+olor_6205                 dct_shield/dct_shield     位移 全0.7357 主體0.6619 背景0.8312  失真 主體0.5278  （記錄的全圖位移 0.73478）
+olor_6205                 phase_ln_eot/phase_gain   位移 全0.6480 主體0.5807 背景0.7351  失真 主體0.5040  （記錄的全圖位移 0.65017）
+olor_6205                 phase_ig_eot/phase_gain   位移 全0.4538 主體0.4133 背景0.5061  失真 主體0.3582  （記錄的全圖位移 0.45358）
+olor_6205                 phase_ig_noeot/phase_gain 位移 全0.5372 主體0.4866 背景0.6027  失真 主體0.3959  （記錄的全圖位移 0.53738）
+olor_6205                 shading_r020/shading      位移 全0.1722 主體0.0974 背景0.2689  失真 主體0.0263  （記錄的全圖位移 0.17042）
+olor_6205                 color_curve_r3/color_curve位移 全0.3501 主體0.2896 背景0.4283  失真 主體0.2702  （記錄的全圖位移 0.34874）
+olor_6205                 color_ln_r010_1000/color_grid位移 全0.2925 主體0.2191 背景0.3874  失真 主體0.2181  （記錄的全圖位移 0.29231）
+olor_6205                 color_rand_r0083/color_grid_rand位移 全0.2792 主體0.1710 背景0.4192  失真 主體0.1921  （記錄的全圖位移 0.27768）
+olor_6205                 color_rand_r010/color_grid_rand位移 全0.2979 主體0.1903 背景0.4370  失真 主體0.2316  （記錄的全圖位移 0.2965）
+olor_6205                 color_rand_r020/color_grid_rand位移 全0.3873 主體0.2925 背景0.5099  失真 主體0.3970  （記錄的全圖位移 0.3857）
+olor_6205                 color_ln_conv_mario/color_grid位移 全0.2976 主體0.2236 背景0.3934  失真 主體0.2203  （記錄的全圖位移 0.29749）
+olor_6205                 color_ig_conv_mario/color_grid位移 全0.4498 主體0.3540 背景0.5736  失真 主體0.4286  （記錄的全圖位移 0.44767）
+olor_6205                 color_ig_r005_mario/color_grid位移 全0.3180 主體0.2233 背景0.4405  失真 主體0.2355  （記錄的全圖位移 0.31599）
+olor_6205                 color_ig_r020_mario/color_grid位移 全0.5549 主體0.4749 背景0.6583  失真 主體0.5723  （記錄的全圖位移 0.55305）
+olor_6205                 color_masked_r010_mario/color_grid位移 全0.2569 主體0.0821 背景0.4832  失真 主體0.0430  （記錄的全圖位移 0.25549）
+olor_6205                 color_masked_r020_mario/color_grid位移 全0.3364 主體0.1252 背景0.6096  失真 主體0.0651  （記錄的全圖位移 0.33522）
+
+寫出 runs/regional_displacement/results.csv（36 列）

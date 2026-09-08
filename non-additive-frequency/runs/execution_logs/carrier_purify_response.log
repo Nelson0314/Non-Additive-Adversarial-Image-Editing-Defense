@@ -1,0 +1,147 @@
+10 張 × 12 形式 × 12 算子
+C:\image-immunization\non-additive-frequency\scripts\carrier_purify_response.py:166: UserWarning: The given NumPy array is not writable, and PyTorch does not support non-writable tensors. This means writing to this tensor will result in undefined behavior. You may want to copy the array to protect its data or make it writable before converting it to a tensor. This type of warning will be suppressed for the rest of this program. (Triggered internally at C:\actions-runner\_work\pytorch\pytorch\torch\csrc\utils\tensor_numpy.cpp:219.)
+  x = torch.from_numpy(arr).permute(2, 0, 1)[None].float() / 255.0
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/380 [00:00<?, ?it/s]Loading weights: 100%|██████████| 380/380 [00:00<00:00, 7793.74it/s]
+
+[task_attr_mod_color_123744] 主體 0.134 載體 0.276
+  free          支撐 0.251 RMS 0.1955 | jpeg75=0.87/+0.81 blur1.5=0.68/+0.73 rotate10=0.84/+0.40 resize_only=0.73/+0.77
+  res_s08       支撐 0.251 RMS 0.1647 | jpeg75=0.99/+0.99 blur1.5=0.95/+0.99 rotate10=0.99/+0.54 resize_only=0.99/+1.00
+  res_s16       支撐 0.251 RMS 0.1591 | jpeg75=1.00/+1.00 blur1.5=0.96/+0.99 rotate10=0.99/+0.58 resize_only=0.99/+1.00
+  res_s24       支撐 0.251 RMS 0.1547 | jpeg75=1.00/+1.00 blur1.5=0.96/+0.99 rotate10=0.99/+0.63 resize_only=0.99/+1.00
+  res_s32       支撐 0.251 RMS 0.1697 | jpeg75=1.00/+1.00 blur1.5=0.97/+0.99 rotate10=1.00/+0.69 resize_only=0.99/+1.00
+  res_s48       支撐 0.251 RMS 0.1511 | jpeg75=1.00/+1.00 blur1.5=0.97/+0.99 rotate10=1.00/+0.70 resize_only=0.99/+1.00
+  res_s64       支撐 0.251 RMS 0.1741 | jpeg75=1.00/+1.00 blur1.5=0.97/+0.99 rotate10=1.00/+0.78 resize_only=0.99/+1.00
+  res_s96       支撐 0.251 RMS 0.1591 | jpeg75=1.00/+1.00 blur1.5=0.97/+0.99 rotate10=1.00/+0.73 resize_only=0.99/+1.00
+  res_s128      支撐 0.251 RMS 0.1873 | jpeg75=1.00/+1.00 blur1.5=0.98/+0.99 rotate10=1.00/+0.79 resize_only=0.99/+1.00
+  palette_k08   支撐 0.251 RMS 0.1632 | jpeg75=1.00/+0.98 blur1.5=0.68/+0.74 rotate10=0.85/+0.34 resize_only=0.74/+0.78
+  voronoi_k24   支撐 0.251 RMS 0.1863 | jpeg75=0.99/+1.00 blur1.5=0.97/+0.99 rotate10=1.00/+0.68 resize_only=0.99/+1.00
+  voronoi_k64   支撐 0.251 RMS 0.1500 | jpeg75=1.00/+1.00 blur1.5=0.96/+0.99 rotate10=0.99/+0.56 resize_only=0.99/+1.00
+
+[task_attr_mod_color_202962] 主體 0.151 載體 0.170
+  free          支撐 0.147 RMS 0.1662 | jpeg75=0.89/+0.85 blur1.5=0.77/+0.79 rotate10=0.87/+0.60 resize_only=0.80/+0.82
+  res_s08       支撐 0.147 RMS 0.1427 | jpeg75=0.99/+1.00 blur1.5=0.97/+1.00 rotate10=0.99/+0.72 resize_only=1.00/+1.00
+  res_s16       支撐 0.147 RMS 0.1442 | jpeg75=0.99/+1.00 blur1.5=0.99/+1.00 rotate10=0.99/+0.81 resize_only=1.00/+1.00
+  res_s24       支撐 0.147 RMS 0.1546 | jpeg75=0.99/+1.00 blur1.5=0.99/+1.00 rotate10=1.00/+0.84 resize_only=1.00/+1.00
+  res_s32       支撐 0.147 RMS 0.1381 | jpeg75=0.99/+1.00 blur1.5=0.99/+1.00 rotate10=0.99/+0.85 resize_only=1.00/+1.00
+  res_s48       支撐 0.147 RMS 0.1552 | jpeg75=1.00/+1.00 blur1.5=0.99/+1.00 rotate10=1.00/+0.88 resize_only=1.00/+1.00
+  res_s64       支撐 0.147 RMS 0.1396 | jpeg75=1.00/+1.00 blur1.5=0.99/+1.00 rotate10=0.99/+0.90 resize_only=1.00/+1.00
+  res_s96       支撐 0.147 RMS 0.1290 | jpeg75=0.99/+1.00 blur1.5=0.99/+1.00 rotate10=0.99/+0.87 resize_only=1.00/+1.00
+  res_s128      支撐 0.147 RMS 0.1371 | jpeg75=1.00/+1.00 blur1.5=0.99/+1.00 rotate10=0.99/+0.92 resize_only=1.00/+1.00
+  palette_k08   支撐 0.147 RMS 0.0962 | jpeg75=1.00/+0.98 blur1.5=0.54/+0.60 rotate10=0.77/+0.30 resize_only=0.60/+0.66
+  voronoi_k24   支撐 0.147 RMS 0.0526 | jpeg75=1.00/+1.00 blur1.5=0.98/+1.00 rotate10=0.99/+0.74 resize_only=1.00/+1.00
+  voronoi_k64   支撐 0.147 RMS 0.0558 | jpeg75=1.00/+1.00 blur1.5=0.98/+1.00 rotate10=0.99/+0.78 resize_only=1.00/+1.00
+
+[task_env_weather_195273] 主體 0.128 載體 0.312
+  free          支撐 0.293 RMS 0.2274 | jpeg75=0.88/+0.83 blur1.5=0.64/+0.74 rotate10=0.85/+0.23 resize_only=0.74/+0.79
+  res_s08       支撐 0.293 RMS 0.1956 | jpeg75=0.99/+0.99 blur1.5=0.87/+0.96 rotate10=0.98/+0.31 resize_only=0.96/+0.98
+  res_s16       支撐 0.293 RMS 0.1957 | jpeg75=0.99/+1.00 blur1.5=0.88/+0.96 rotate10=0.98/+0.37 resize_only=0.96/+0.98
+  res_s24       支撐 0.293 RMS 0.1956 | jpeg75=0.99/+1.00 blur1.5=0.89/+0.96 rotate10=0.98/+0.43 resize_only=0.96/+0.98
+  res_s32       支撐 0.293 RMS 0.1958 | jpeg75=0.99/+1.00 blur1.5=0.89/+0.96 rotate10=0.98/+0.46 resize_only=0.96/+0.98
+  res_s48       支撐 0.293 RMS 0.2047 | jpeg75=0.99/+1.00 blur1.5=0.90/+0.96 rotate10=0.98/+0.50 resize_only=0.96/+0.99
+  res_s64       支撐 0.293 RMS 0.1873 | jpeg75=0.99/+1.00 blur1.5=0.88/+0.96 rotate10=0.98/+0.46 resize_only=0.96/+0.98
+  res_s96       支撐 0.293 RMS 0.1908 | jpeg75=0.99/+1.00 blur1.5=0.88/+0.96 rotate10=0.98/+0.47 resize_only=0.96/+0.98
+  res_s128      支撐 0.293 RMS 0.1982 | jpeg75=0.99/+1.00 blur1.5=0.89/+0.96 rotate10=0.98/+0.50 resize_only=0.96/+0.98
+  palette_k08   支撐 0.293 RMS 0.2176 | jpeg75=0.98/+0.97 blur1.5=0.63/+0.73 rotate10=0.85/+0.19 resize_only=0.73/+0.79
+  voronoi_k24   支撐 0.293 RMS 0.2190 | jpeg75=1.00/+1.00 blur1.5=0.91/+0.97 rotate10=0.98/+0.52 resize_only=0.97/+0.99
+  voronoi_k64   支撐 0.293 RMS 0.2079 | jpeg75=1.00/+1.00 blur1.5=0.90/+0.96 rotate10=0.98/+0.46 resize_only=0.96/+0.99
+
+[task_env_weather_70149] 主體 0.229 載體 0.251
+  free          支撐 0.208 RMS 0.1995 | jpeg75=0.90/+0.84 blur1.5=0.75/+0.78 rotate10=0.85/+0.49 resize_only=0.79/+0.81
+  res_s08       支撐 0.208 RMS 0.1760 | jpeg75=0.99/+0.99 blur1.5=0.96/+0.99 rotate10=0.97/+0.58 resize_only=0.99/+1.00
+  res_s16       支撐 0.208 RMS 0.1724 | jpeg75=1.00/+1.00 blur1.5=0.97/+0.99 rotate10=0.97/+0.61 resize_only=0.99/+1.00
+  res_s24       支撐 0.208 RMS 0.1697 | jpeg75=1.00/+1.00 blur1.5=0.97/+0.99 rotate10=0.95/+0.63 resize_only=0.99/+1.00
+  res_s32       支撐 0.208 RMS 0.1801 | jpeg75=1.00/+1.00 blur1.5=0.98/+0.99 rotate10=0.97/+0.71 resize_only=0.99/+1.00
+  res_s48       支撐 0.208 RMS 0.1592 | jpeg75=1.00/+1.00 blur1.5=0.97/+0.99 rotate10=0.96/+0.71 resize_only=0.99/+0.99
+  res_s64       支撐 0.208 RMS 0.1808 | jpeg75=1.00/+1.00 blur1.5=0.98/+0.99 rotate10=0.97/+0.78 resize_only=0.99/+1.00
+  res_s96       支撐 0.208 RMS 0.1992 | jpeg75=1.00/+1.00 blur1.5=0.98/+0.99 rotate10=0.95/+0.76 resize_only=0.99/+1.00
+  res_s128      支撐 0.208 RMS 0.1954 | jpeg75=1.00/+1.00 blur1.5=0.98/+0.99 rotate10=0.99/+0.75 resize_only=0.99/+1.00
+  palette_k08   支撐 0.208 RMS 0.1407 | jpeg75=1.00/+0.98 blur1.5=0.63/+0.68 rotate10=0.79/+0.28 resize_only=0.69/+0.73
+  voronoi_k24   支撐 0.208 RMS 0.1220 | jpeg75=1.00/+0.99 blur1.5=0.95/+0.98 rotate10=0.96/+0.50 resize_only=0.98/+0.99
+  voronoi_k64   支撐 0.208 RMS 0.1173 | jpeg75=1.00/+0.99 blur1.5=0.95/+0.98 rotate10=0.95/+0.56 resize_only=0.98/+0.99
+
+[task_obj_remove_257910] 主體 0.348 載體 0.152
+  free          支撐 0.146 RMS 0.1868 | jpeg75=0.91/+0.88 blur1.5=0.82/+0.84 rotate10=0.90/+0.66 resize_only=0.84/+0.86
+  res_s08       支撐 0.146 RMS 0.1698 | jpeg75=0.99/+1.00 blur1.5=0.98/+1.00 rotate10=0.99/+0.73 resize_only=1.00/+1.00
+  res_s16       支撐 0.146 RMS 0.1778 | jpeg75=0.99/+1.00 blur1.5=0.99/+1.00 rotate10=0.99/+0.78 resize_only=1.00/+1.00
+  res_s24       支撐 0.146 RMS 0.1782 | jpeg75=1.00/+1.00 blur1.5=0.99/+1.00 rotate10=1.00/+0.81 resize_only=1.00/+1.00
+  res_s32       支撐 0.146 RMS 0.1739 | jpeg75=0.99/+1.00 blur1.5=0.99/+1.00 rotate10=0.99/+0.80 resize_only=1.00/+1.00
+  res_s48       支撐 0.146 RMS 0.1856 | jpeg75=1.00/+1.00 blur1.5=1.00/+1.00 rotate10=0.99/+0.84 resize_only=1.00/+1.00
+  res_s64       支撐 0.146 RMS 0.1531 | jpeg75=1.00/+1.00 blur1.5=0.99/+1.00 rotate10=0.99/+0.85 resize_only=1.00/+1.00
+  res_s96       支撐 0.146 RMS 0.1780 | jpeg75=1.00/+1.00 blur1.5=0.99/+1.00 rotate10=1.00/+0.88 resize_only=1.00/+1.00
+  res_s128      支撐 0.146 RMS 0.0940 | jpeg75=0.99/+1.00 blur1.5=0.99/+1.00 rotate10=0.99/+0.85 resize_only=1.00/+1.00
+  palette_k08   支撐 0.146 RMS 0.0875 | jpeg75=0.97/+0.95 blur1.5=0.52/+0.59 rotate10=0.76/+0.22 resize_only=0.59/+0.65
+  voronoi_k24   支撐 0.146 RMS 0.1193 | jpeg75=1.00/+1.00 blur1.5=0.99/+1.00 rotate10=1.00/+0.75 resize_only=1.00/+1.00
+  voronoi_k64   支撐 0.146 RMS 0.0460 | jpeg75=0.99/+0.99 blur1.5=0.95/+0.98 rotate10=0.98/+0.42 resize_only=0.98/+0.99
+
+[task_obj_remove_284852] 主體 0.233 載體 0.327
+  free          支撐 0.259 RMS 0.2481 | jpeg75=0.92/+0.88 blur1.5=0.81/+0.83 rotate10=0.89/+0.58 resize_only=0.83/+0.85
+  res_s08       支撐 0.259 RMS 0.2270 | jpeg75=1.00/+1.00 blur1.5=0.97/+0.99 rotate10=0.99/+0.66 resize_only=1.00/+1.00
+  res_s16       支撐 0.259 RMS 0.2272 | jpeg75=1.00/+1.00 blur1.5=0.98/+1.00 rotate10=0.99/+0.70 resize_only=1.00/+1.00
+  res_s24       支撐 0.259 RMS 0.2262 | jpeg75=1.00/+1.00 blur1.5=0.98/+1.00 rotate10=0.99/+0.71 resize_only=1.00/+1.00
+  res_s32       支撐 0.259 RMS 0.2257 | jpeg75=1.00/+1.00 blur1.5=0.99/+1.00 rotate10=0.99/+0.75 resize_only=1.00/+1.00
+  res_s48       支撐 0.259 RMS 0.2138 | jpeg75=1.00/+1.00 blur1.5=0.99/+1.00 rotate10=0.99/+0.76 resize_only=1.00/+1.00
+  res_s64       支撐 0.259 RMS 0.1999 | jpeg75=1.00/+1.00 blur1.5=0.98/+1.00 rotate10=0.98/+0.76 resize_only=1.00/+1.00
+  res_s96       支撐 0.259 RMS 0.2455 | jpeg75=1.00/+1.00 blur1.5=0.99/+1.00 rotate10=0.99/+0.82 resize_only=1.00/+1.00
+  res_s128      支撐 0.259 RMS 0.2188 | jpeg75=1.00/+1.00 blur1.5=0.99/+1.00 rotate10=0.98/+0.80 resize_only=1.00/+1.00
+  palette_k08   支撐 0.259 RMS 0.2352 | jpeg75=0.99/+0.99 blur1.5=0.75/+0.78 rotate10=0.85/+0.46 resize_only=0.79/+0.81
+  voronoi_k24   支撐 0.259 RMS 0.2121 | jpeg75=1.00/+1.00 blur1.5=0.98/+0.99 rotate10=0.98/+0.64 resize_only=0.99/+1.00
+  voronoi_k64   支撐 0.259 RMS 0.2837 | jpeg75=1.00/+1.00 blur1.5=0.99/+1.00 rotate10=0.99/+0.70 resize_only=1.00/+1.00
+
+[task_obj_remove_410264] 主體 0.351 載體 0.320
+  free          支撐 0.264 RMS 0.2664 | jpeg75=0.93/+0.89 blur1.5=0.84/+0.85 rotate10=0.89/+0.69 resize_only=0.85/+0.87
+  res_s08       支撐 0.264 RMS 0.2396 | jpeg75=1.00/+1.00 blur1.5=0.98/+1.00 rotate10=0.98/+0.76 resize_only=1.00/+1.00
+  res_s16       支撐 0.264 RMS 0.2355 | jpeg75=1.00/+1.00 blur1.5=0.99/+1.00 rotate10=0.98/+0.78 resize_only=1.00/+1.00
+  res_s24       支撐 0.264 RMS 0.2441 | jpeg75=1.00/+1.00 blur1.5=0.99/+1.00 rotate10=0.97/+0.79 resize_only=1.00/+1.00
+  res_s32       支撐 0.264 RMS 0.2363 | jpeg75=1.00/+1.00 blur1.5=0.99/+1.00 rotate10=0.98/+0.83 resize_only=1.00/+1.00
+  res_s48       支撐 0.264 RMS 0.2325 | jpeg75=1.00/+1.00 blur1.5=1.00/+1.00 rotate10=0.97/+0.86 resize_only=1.00/+1.00
+  res_s64       支撐 0.264 RMS 0.2471 | jpeg75=1.00/+1.00 blur1.5=1.00/+1.00 rotate10=0.98/+0.89 resize_only=1.00/+1.00
+  res_s96       支撐 0.264 RMS 0.2744 | jpeg75=1.00/+1.00 blur1.5=1.00/+1.00 rotate10=0.96/+0.90 resize_only=1.00/+1.00
+  res_s128      支撐 0.264 RMS 0.2939 | jpeg75=1.00/+1.00 blur1.5=1.00/+1.00 rotate10=0.99/+0.89 resize_only=1.00/+1.00
+  palette_k08   支撐 0.264 RMS 0.1260 | jpeg75=1.02/+0.99 blur1.5=0.44/+0.51 rotate10=0.72/+0.19 resize_only=0.52/+0.59
+  voronoi_k24   支撐 0.264 RMS 0.0523 | jpeg75=1.00/+1.00 blur1.5=0.96/+0.99 rotate10=0.99/+0.33 resize_only=0.99/+0.99
+  voronoi_k64   支撐 0.264 RMS 0.0420 | jpeg75=1.00/+1.00 blur1.5=0.95/+0.99 rotate10=0.99/+0.21 resize_only=0.99/+0.99
+
+[task_obj_remove_509477] 主體 0.449 載體 0.329
+  free          支撐 0.207 RMS 0.1879 | jpeg75=0.87/+0.82 blur1.5=0.69/+0.74 rotate10=0.83/+0.32 resize_only=0.75/+0.78
+  res_s08       支撐 0.207 RMS 0.1590 | jpeg75=0.98/+0.99 blur1.5=0.93/+0.98 rotate10=0.97/+0.38 resize_only=0.98/+0.99
+  res_s16       支撐 0.207 RMS 0.1613 | jpeg75=0.99/+0.99 blur1.5=0.95/+0.98 rotate10=0.97/+0.43 resize_only=0.98/+0.99
+  res_s24       支撐 0.207 RMS 0.1631 | jpeg75=0.99/+0.99 blur1.5=0.95/+0.98 rotate10=0.97/+0.50 resize_only=0.98/+0.99
+  res_s32       支撐 0.207 RMS 0.1631 | jpeg75=0.99/+0.99 blur1.5=0.96/+0.98 rotate10=0.98/+0.53 resize_only=0.98/+0.99
+  res_s48       支撐 0.207 RMS 0.1536 | jpeg75=0.99/+0.99 blur1.5=0.95/+0.98 rotate10=0.96/+0.53 resize_only=0.98/+0.99
+  res_s64       支撐 0.207 RMS 0.1564 | jpeg75=0.99/+0.99 blur1.5=0.95/+0.98 rotate10=0.97/+0.60 resize_only=0.98/+0.99
+  res_s96       支撐 0.207 RMS 0.1634 | jpeg75=0.99/+0.99 blur1.5=0.96/+0.98 rotate10=0.97/+0.60 resize_only=0.98/+0.99
+  res_s128      支撐 0.207 RMS 0.1530 | jpeg75=0.99/+0.99 blur1.5=0.95/+0.98 rotate10=0.95/+0.55 resize_only=0.98/+0.99
+  palette_k08   支撐 0.207 RMS 0.1577 | jpeg75=0.94/+0.95 blur1.5=0.66/+0.72 rotate10=0.82/+0.20 resize_only=0.72/+0.77
+  voronoi_k24   支撐 0.207 RMS 0.1640 | jpeg75=0.99/+0.99 blur1.5=0.95/+0.98 rotate10=0.97/+0.51 resize_only=0.98/+0.99
+  voronoi_k64   支撐 0.207 RMS 0.1550 | jpeg75=0.99/+0.99 blur1.5=0.95/+0.98 rotate10=0.97/+0.42 resize_only=0.98/+0.99
+
+[task_obj_remove_720199] 主體 0.201 載體 0.215
+  free          支撐 0.188 RMS 0.2210 | jpeg75=0.92/+0.89 blur1.5=0.83/+0.85 rotate10=0.90/+0.65 resize_only=0.85/+0.87
+  res_s08       支撐 0.188 RMS 0.2015 | jpeg75=0.99/+1.00 blur1.5=0.98/+1.00 rotate10=0.98/+0.72 resize_only=1.00/+1.00
+  res_s16       支撐 0.188 RMS 0.2004 | jpeg75=0.99/+1.00 blur1.5=0.99/+1.00 rotate10=0.98/+0.76 resize_only=1.00/+1.00
+  res_s24       支撐 0.188 RMS 0.2058 | jpeg75=1.00/+1.00 blur1.5=0.99/+1.00 rotate10=0.99/+0.80 resize_only=1.00/+1.00
+  res_s32       支撐 0.188 RMS 0.2029 | jpeg75=1.00/+1.00 blur1.5=0.99/+1.00 rotate10=0.99/+0.80 resize_only=1.00/+1.00
+  res_s48       支撐 0.188 RMS 0.2021 | jpeg75=1.00/+1.00 blur1.5=0.99/+1.00 rotate10=0.99/+0.86 resize_only=1.00/+1.00
+  res_s64       支撐 0.188 RMS 0.2016 | jpeg75=1.00/+1.00 blur1.5=0.99/+1.00 rotate10=0.99/+0.84 resize_only=1.00/+1.00
+  res_s96       支撐 0.188 RMS 0.1844 | jpeg75=1.00/+1.00 blur1.5=0.99/+1.00 rotate10=1.00/+0.88 resize_only=1.00/+1.00
+  res_s128      支撐 0.188 RMS 0.1929 | jpeg75=1.00/+1.00 blur1.5=0.99/+1.00 rotate10=0.98/+0.83 resize_only=1.00/+1.00
+  palette_k08   支撐 0.188 RMS 0.0844 | jpeg75=1.02/+0.98 blur1.5=0.49/+0.56 rotate10=0.75/+0.21 resize_only=0.56/+0.63
+  voronoi_k24   支撐 0.188 RMS 0.0567 | jpeg75=1.00/+1.00 blur1.5=0.98/+0.99 rotate10=0.99/+0.72 resize_only=0.99/+1.00
+  voronoi_k64   支撐 0.188 RMS 0.0389 | jpeg75=1.01/+0.99 blur1.5=0.97/+0.99 rotate10=0.99/+0.64 resize_only=0.99/+0.99
+
+[task_obj_swap_joint_mask_533428] 主體 0.289 載體 0.381
+  free          支撐 0.343 RMS 0.2514 | jpeg75=0.89/+0.84 blur1.5=0.70/+0.76 rotate10=0.86/+0.41 resize_only=0.76/+0.80
+  res_s08       支撐 0.343 RMS 0.2180 | jpeg75=0.99/+0.99 blur1.5=0.92/+0.97 rotate10=0.98/+0.51 resize_only=0.98/+0.99
+  res_s16       支撐 0.343 RMS 0.2207 | jpeg75=0.99/+1.00 blur1.5=0.94/+0.98 rotate10=0.98/+0.58 resize_only=0.98/+0.99
+  res_s24       支撐 0.343 RMS 0.2267 | jpeg75=1.00/+1.00 blur1.5=0.94/+0.98 rotate10=0.98/+0.61 resize_only=0.98/+0.99
+  res_s32       支撐 0.343 RMS 0.2221 | jpeg75=1.00/+1.00 blur1.5=0.94/+0.98 rotate10=0.98/+0.64 resize_only=0.98/+0.99
+  res_s48       支撐 0.343 RMS 0.2304 | jpeg75=1.00/+1.00 blur1.5=0.95/+0.98 rotate10=0.98/+0.69 resize_only=0.98/+0.99
+  res_s64       支撐 0.343 RMS 0.2220 | jpeg75=1.00/+1.00 blur1.5=0.94/+0.98 rotate10=0.98/+0.71 resize_only=0.98/+0.99
+  res_s96       支撐 0.343 RMS 0.2126 | jpeg75=1.00/+1.00 blur1.5=0.94/+0.97 rotate10=0.99/+0.68 resize_only=0.98/+0.99
+  res_s128      支撐 0.343 RMS 0.2004 | jpeg75=1.00/+1.00 blur1.5=0.93/+0.97 rotate10=0.98/+0.64 resize_only=0.97/+0.99
+  palette_k08   支撐 0.343 RMS 0.1935 | jpeg75=1.00/+0.98 blur1.5=0.58/+0.68 rotate10=0.82/+0.18 resize_only=0.68/+0.74
+  voronoi_k24   支撐 0.343 RMS 0.1816 | jpeg75=1.00/+1.00 blur1.5=0.91/+0.96 rotate10=0.98/+0.48 resize_only=0.97/+0.98
+  voronoi_k64   支撐 0.343 RMS 0.1635 | jpeg75=1.00/+0.99 blur1.5=0.89/+0.96 rotate10=0.98/+0.45 resize_only=0.96/+0.98
+
+寫出 1440 列到 C:\image-immunization\non-additive-frequency\runs\carrier_purify_response\results.csv

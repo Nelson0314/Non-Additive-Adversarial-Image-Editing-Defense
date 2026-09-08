@@ -102,6 +102,12 @@ DCT_ROTATE_RADIUS_HI = math.pi
 WARP_GRID = 16
 
 
+# 補丁的「半徑」是面積比例。下界取 1%（512² 上邊長約 51），
+# 上界取 25%（邊長 256）——兩張目標影像的最大合法邊長只有 120 與 166，
+# 故實際跑得到的上界由遮罩決定，這裡只是預算模式的搜尋範圍。
+PATCH_AREA_LO, PATCH_AREA_HI = 0.01, 0.25
+
+
 def build(name: str, seed: int, block: int = 32, r_min: float = 0.12,
           hop=None,
           quantile: float = 0.5, gl_iters: int = 0, pixel_gate_sigma: float = 0.0,
@@ -122,7 +128,16 @@ def build(name: str, seed: int, block: int = 32, r_min: float = 0.12,
           disp_field_grid: int = 16,
           color_pieces: int = 64, color_bound_mode: str = "symmetric",
           color_grid: int = 8, color_luma_bins: int = 8,
-          color_rand_draw: str = "corner"):
+          color_rand_draw: str = "corner",
+          patch_placement: str = "far",
+          patch_init: str = "identity",
+          patch_tile: int = 0, patch_res: int = 1,
+          patch_palette: int = 0, patch_palette_temp: float = 0.05,
+          patch_seeds: int = 0, patch_seed_temp: float = 4e-4,
+          patch_polar: str = "", patch_polar_bins: int = 32,
+          patch_alpha: float = 1.0,
+          patch_count: int = 1, patch_crop_keep: float = 0.8,
+          patch_lowfreq: int = 0, patch_chroma: bool = False):
     """`block`／`r_min`／`quantile` 是相位算子的三個構造設定。
 
     預設值是 現行定案（`docs/METHOD.md` §4）。開放成參數是為了掃描
@@ -213,6 +228,41 @@ def build(name: str, seed: int, block: int = 32, r_min: float = 0.12,
         return (cls(radius=COLOR_GRID_RADIUS_HI, grid=color_grid,
                     luma_bins=color_luma_bins, **extra),
                 COLOR_GRID_RADIUS_LO, COLOR_GRID_RADIUS_HI)
+    if name in ("patch", "patch_rand"):
+        # 可見的對抗補丁（`src/defense/patch_param.py`）。radius 是**面積比例**
+        # 不是幅度；補丁內不設幅度上界，只夾在 [0,1]。遮罩由呼叫端在 reset
+        # 之前掛上——它逐圖不同，不能在這裡決定。
+        from src.defense.patch_param import (
+            PatchPaletteParam, PatchPaletteRandomParam, PatchParam,
+            PatchPolarParam, PatchPolarRandomParam, PatchRandomParam,
+            PatchVoronoiParam, PatchVoronoiRandomParam)
+        # 調色盤是**換參數化**不是換條件：它與 `tile`／`res`／載體／內容約束
+        # 全部正交，做成新的 `--conditions` 值就得在每一條補丁族的守門上再加
+        # 一個名字，而那正是 `docs/DEFECTS.md` 記過的「政策謂詞散在多處」。
+        kw = {}
+        if patch_polar:
+            # 極座標可分離的一維剖面（`PatchPolarParam`）。它與 Voronoi／調色盤
+            # 是三個互斥的參數化，故排在同一串 if/elif 上；守門在 `ip2p_run`。
+            cls = (PatchPolarParam if name == "patch" else PatchPolarRandomParam)
+            kw = {"polar": patch_polar, "bins": patch_polar_bins}
+        elif patch_seeds:
+            # Voronoi 自己就帶調色盤（一胞一色），故它排在 palette 前面判斷；
+            # 兩個旗標同時給時由 `ip2p_run` 的守門擋掉，不在這裡靜默取一個。
+            cls = (PatchVoronoiParam if name == "patch"
+                   else PatchVoronoiRandomParam)
+            kw = {"seeds": patch_seeds, "seed_temp": patch_seed_temp,
+                  "temp": patch_palette_temp}
+        elif patch_palette:
+            cls = PatchPaletteParam if name == "patch" else PatchPaletteRandomParam
+            kw = {"palette": patch_palette, "temp": patch_palette_temp}
+        else:
+            cls = PatchParam if name == "patch" else PatchRandomParam
+        return (cls(radius=PATCH_AREA_HI, placement=patch_placement,
+                    init=patch_init, tile=patch_tile, res=patch_res,
+                    alpha=patch_alpha,
+                    count=patch_count, crop_keep=patch_crop_keep,
+                    lowfreq=patch_lowfreq, chroma=patch_chroma, **kw),
+                PATCH_AREA_LO, PATCH_AREA_HI)
     if name in ("shading", "shading_rand"):
         # 候選二：極低頻的乘性明暗場。**與相位算子的頻帶不相交**
         # （r_min = 0.12 以上 對 f_n < 0.03 以下），所以它可以疊加而不是取代。

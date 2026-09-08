@@ -1,0 +1,208 @@
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 4493.51it/s]
+Loading pipeline components...:  17%|█▋        | 1/6 [00:00<00:00,  5.29it/s]Loading pipeline components...:  83%|████████▎ | 5/6 [00:00<00:00,  8.73it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00,  8.73it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00,  8.45it/s]
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+IP2P 線：3 張、條件 ['color_grid']、steps=100 s_T=7.5 s_I=1.5 seed=20260812
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,1.0]
+  warnings.warn(
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/462 [00:00<?, ?it/s]Loading weights: 100%|██████████| 462/462 [00:00<00:00, 5823.32it/s]
+Loading weights:   0%|          | 0/380 [00:00<?, ?it/s]Loading weights: 100%|██████████| 380/380 [00:00<00:00, 3904.42it/s]
+    [color_grid] step    0 loss 0.518631 |p| 0.25307 eval 0.184115
+    [color_grid] step  150 loss 0.002547 |p| 0.32426
+    [color_grid] step  200 loss 0.075606 |p| 0.33658 eval 0.086917
+    [color_grid] step  300 loss 0.002070 |p| 0.34790
+    [color_grid] step  400 loss 0.075821 |p| 0.35348 eval 0.084419
+    [color_grid] step  450 loss 0.215345 |p| 0.35635
+    [color_grid] step  600 loss 0.078524 |p| 0.36165 eval 0.083319
+    [color_grid] step  750 loss 0.002846 |p| 0.36602
+    [color_grid] step  800 loss 0.092571 |p| 0.36752 eval 0.082046
+    [color_grid] step  900 loss 0.001379 |p| 0.36942
+    [color_grid] step 1000 loss 0.008484 |p| 0.37087 eval 0.082297
+    [color_grid] step 1050 loss 0.045617 |p| 0.37231
+    [color_grid] step 1200 loss 0.132448 |p| 0.37375 eval 0.081178
+    [color_grid] step 1350 loss 0.001988 |p| 0.37506
+    [color_grid] step 1400 loss 0.011226 |p| 0.37562 eval 0.081079
+    [color_grid] step 1500 loss 0.076329 |p| 0.37573
+    [color_grid] step 1600 loss 0.093194 |p| 0.37612 eval 0.080589
+    [color_grid] step 1650 loss 0.137905 |p| 0.37642
+    [color_grid] step 1800 loss 0.050612 |p| 0.37692 eval 0.080930
+    [color_grid] step 1950 loss 0.037686 |p| 0.37733
+    [color_grid] step 2000 loss 0.013665 |p| 0.37729 eval 0.081018
+    [color_grid] step 2100 loss 0.020748 |p| 0.37742
+    [color_grid] step 2200 loss 0.006281 |p| 0.37805 eval 0.081225
+    [color_grid] step 2250 loss 0.054859 |p| 0.37796
+    [color_grid] step 2400 loss 0.001546 |p| 0.37798 eval 0.080765
+    [color_grid] step 2550 loss 0.003722 |p| 0.37830
+    [color_grid] step 2600 loss 0.025527 |p| 0.37863 eval 0.080369
+    [color_grid] step 2700 loss 0.017335 |p| 0.37861
+    [color_grid] step 2800 loss 0.163414 |p| 0.37896 eval 0.080356
+    [color_grid] step 2850 loss 0.075940 |p| 0.37873
+    [color_grid] step 3000 loss 0.024533 |p| 0.37977 eval 0.080204
+    [color_grid] step 3150 loss 0.114428 |p| 0.38082
+    [color_grid] step 3200 loss 0.145014 |p| 0.38092 eval 0.079775
+    [color_grid] step 3300 loss 0.002028 |p| 0.38085
+    [color_grid] step 3400 loss 0.019704 |p| 0.38105 eval 0.080422
+    [color_grid] step 3450 loss 0.009552 |p| 0.38173
+    [color_grid] step 3600 loss 0.004054 |p| 0.38204 eval 0.080471
+    [color_grid] step 3750 loss 0.038377 |p| 0.38171
+    [color_grid] step 3800 loss 0.018019 |p| 0.38156 eval 0.080167
+    [color_grid] step 3900 loss 0.004195 |p| 0.38178
+    [color_grid] step 4000 loss 0.009642 |p| 0.38187 eval 0.080142
+    [color_grid] step 4050 loss 0.119862 |p| 0.38200
+    [color_grid] step 4200 loss 0.055196 |p| 0.38227 eval 0.079996
+    [color_grid] step 4350 loss 0.143059 |p| 0.38308
+    [color_grid] step 4400 loss 0.048638 |p| 0.38290 eval 0.079804
+    [color_grid] step 4500 loss 0.002484 |p| 0.38334
+    [color_grid] step 4600 loss 0.093097 |p| 0.38252 eval 0.079706
+    [color_grid] step 4650 loss 0.040874 |p| 0.38266
+    [color_grid] step 4800 loss 0.087531 |p| 0.38265 eval 0.079562
+    [color_grid] step 4950 loss 0.001020 |p| 0.38221
+    [color_grid] step 5000 loss 0.003184 |p| 0.38222 eval 0.079712
+    [color_grid] step 5100 loss 0.017255 |p| 0.38251
+    [color_grid] step 5200 loss 0.057053 |p| 0.38280 eval 0.079665
+    [color_grid] step 5250 loss 0.001323 |p| 0.38275
+    [color_grid] step 5400 loss 0.178310 |p| 0.38342 eval 0.079427
+    [color_grid] step 5550 loss 0.023531 |p| 0.38333
+    [color_grid] step 5600 loss 0.099860 |p| 0.38363 eval 0.079439
+    [color_grid] step 5700 loss 0.008654 |p| 0.38237
+    [color_grid] step 5800 loss 0.012455 |p| 0.38282 eval 0.080608
+    [color_grid] step 5850 loss 0.002789 |p| 0.38318
+    [color_grid] step 5999 loss 0.203403 |p| 0.38420 eval 0.079937
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,1.0]
+  warnings.warn(
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 20711.84it/s]
+[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
+[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
+Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 4223.64it/s]
+task_attr_mod_color_123744       color_grid     r=0.6000 dists=0.2259 lpips=0.2597 effect=0.6531 (6193s)
+    [color_grid] step    0 loss 0.436796 |p| 0.25077 eval 0.157605
+    [color_grid] step  150 loss 0.003531 |p| 0.27124
+    [color_grid] step  200 loss 0.088710 |p| 0.27380 eval 0.118409
+    [color_grid] step  300 loss 0.003166 |p| 0.27584
+    [color_grid] step  400 loss 0.094229 |p| 0.27684 eval 0.117093
+    [color_grid] step  450 loss 0.372605 |p| 0.27750
+    [color_grid] step  600 loss 0.093467 |p| 0.27855 eval 0.116779
+    [color_grid] step  750 loss 0.006698 |p| 0.27935
+    [color_grid] step  800 loss 0.115289 |p| 0.27962 eval 0.116182
+    [color_grid] step  900 loss 0.002516 |p| 0.28000
+    [color_grid] step 1000 loss 0.015394 |p| 0.28059 eval 0.116205
+    [color_grid] step 1050 loss 0.057945 |p| 0.28093
+    [color_grid] step 1200 loss 0.155721 |p| 0.28131 eval 0.115593
+    [color_grid] step 1350 loss 0.003254 |p| 0.28164
+    [color_grid] step 1400 loss 0.014776 |p| 0.28184 eval 0.115636
+    [color_grid] step 1500 loss 0.090649 |p| 0.28199
+    [color_grid] step 1600 loss 0.123697 |p| 0.28203 eval 0.115375
+    [color_grid] step 1650 loss 0.197090 |p| 0.28222
+    [color_grid] step 1800 loss 0.070431 |p| 0.28230 eval 0.115278
+    [color_grid] step 1950 loss 0.049390 |p| 0.28274
+    [color_grid] step 2000 loss 0.025861 |p| 0.28281 eval 0.115370
+    [color_grid] step 2100 loss 0.031655 |p| 0.28300
+    [color_grid] step 2200 loss 0.009839 |p| 0.28297 eval 0.115252
+    [color_grid] step 2250 loss 0.074766 |p| 0.28310
+    [color_grid] step 2400 loss 0.002709 |p| 0.28281 eval 0.115118
+    [color_grid] step 2550 loss 0.005446 |p| 0.28289
+    [color_grid] step 2600 loss 0.039497 |p| 0.28303 eval 0.115073
+    [color_grid] step 2700 loss 0.027629 |p| 0.28314
+    [color_grid] step 2800 loss 0.236341 |p| 0.28352 eval 0.115004
+    [color_grid] step 2850 loss 0.092910 |p| 0.28348
+    [color_grid] step 3000 loss 0.041210 |p| 0.28361 eval 0.115136
+    [color_grid] step 3150 loss 0.157910 |p| 0.28375
+    [color_grid] step 3200 loss 0.203908 |p| 0.28377 eval 0.115017
+    [color_grid] step 3300 loss 0.003926 |p| 0.28381
+    [color_grid] step 3400 loss 0.033243 |p| 0.28389 eval 0.115111
+    [color_grid] step 3450 loss 0.014178 |p| 0.28387
+    [color_grid] step 3600 loss 0.006380 |p| 0.28391 eval 0.115131
+    [color_grid] step 3750 loss 0.053724 |p| 0.28405
+    [color_grid] step 3800 loss 0.023270 |p| 0.28391 eval 0.115275
+    [color_grid] step 3900 loss 0.008039 |p| 0.28409
+    [color_grid] step 4000 loss 0.018544 |p| 0.28422 eval 0.115271
+    [color_grid] step 4050 loss 0.152063 |p| 0.28428
+    [color_grid] step 4200 loss 0.093936 |p| 0.28450 eval 0.114953
+    [color_grid] step 4350 loss 0.206580 |p| 0.28447
+    [color_grid] step 4400 loss 0.067912 |p| 0.28423 eval 0.114952
+    [color_grid] step 4500 loss 0.004870 |p| 0.28432
+    [color_grid] step 4600 loss 0.123265 |p| 0.28440 eval 0.114971
+    [color_grid] step 4650 loss 0.056956 |p| 0.28437
+    [color_grid] step 4800 loss 0.110964 |p| 0.28457 eval 0.114850
+    [color_grid] step 4950 loss 0.002297 |p| 0.28420
+    [color_grid] step 5000 loss 0.005638 |p| 0.28441 eval 0.115037
+    [color_grid] step 5100 loss 0.023321 |p| 0.28423
+    [color_grid] step 5200 loss 0.080533 |p| 0.28438 eval 0.114900
+    [color_grid] step 5250 loss 0.002933 |p| 0.28436
+    [color_grid] step 5400 loss 0.284076 |p| 0.28450 eval 0.114780
+    [color_grid] step 5550 loss 0.035067 |p| 0.28440
+    [color_grid] step 5600 loss 0.130803 |p| 0.28458 eval 0.114748
+    [color_grid] step 5700 loss 0.013513 |p| 0.28449
+    [color_grid] step 5800 loss 0.015151 |p| 0.28448 eval 0.115474
+    [color_grid] step 5850 loss 0.005764 |p| 0.28443
+    [color_grid] step 5999 loss 0.385009 |p| 0.28471 eval 0.114941
+task_attr_mod_color_42929        color_grid     r=0.6000 dists=0.1038 lpips=0.0591 effect=0.0734 (6185s)
+    [color_grid] step    0 loss 0.413367 |p| 0.25114 eval 0.152446
+    [color_grid] step  150 loss 0.002497 |p| 0.28310
+    [color_grid] step  200 loss 0.086992 |p| 0.28858 eval 0.118880
+    [color_grid] step  300 loss 0.002149 |p| 0.29230
+    [color_grid] step  400 loss 0.094632 |p| 0.29530 eval 0.117431
+    [color_grid] step  450 loss 0.342832 |p| 0.29676
+    [color_grid] step  600 loss 0.089579 |p| 0.29870 eval 0.116913
+    [color_grid] step  750 loss 0.005086 |p| 0.29959
+    [color_grid] step  800 loss 0.111115 |p| 0.30029 eval 0.116395
+    [color_grid] step  900 loss 0.001450 |p| 0.30066
+    [color_grid] step 1000 loss 0.016630 |p| 0.30104 eval 0.116475
+    [color_grid] step 1050 loss 0.063668 |p| 0.30172
+    [color_grid] step 1200 loss 0.150934 |p| 0.30198 eval 0.116009
+    [color_grid] step 1350 loss 0.002667 |p| 0.30225
+    [color_grid] step 1400 loss 0.018559 |p| 0.30250 eval 0.115917
+    [color_grid] step 1500 loss 0.089676 |p| 0.30265
+    [color_grid] step 1600 loss 0.116860 |p| 0.30302 eval 0.115841
+    [color_grid] step 1650 loss 0.180810 |p| 0.30293
+    [color_grid] step 1800 loss 0.077019 |p| 0.30313 eval 0.115833
+    [color_grid] step 1950 loss 0.062477 |p| 0.30298
+    [color_grid] step 2000 loss 0.029443 |p| 0.30290 eval 0.115800
+    [color_grid] step 2100 loss 0.040640 |p| 0.30292
+    [color_grid] step 2200 loss 0.009209 |p| 0.30320 eval 0.115856
+    [color_grid] step 2250 loss 0.076918 |p| 0.30327
+    [color_grid] step 2400 loss 0.001509 |p| 0.30303 eval 0.115805
+    [color_grid] step 2550 loss 0.004627 |p| 0.30317
+    [color_grid] step 2600 loss 0.046896 |p| 0.30363 eval 0.115674
+    [color_grid] step 2700 loss 0.033927 |p| 0.30370
+    [color_grid] step 2800 loss 0.226025 |p| 0.30397 eval 0.115676
+    [color_grid] step 2850 loss 0.087833 |p| 0.30375
+    [color_grid] step 3000 loss 0.050082 |p| 0.30390 eval 0.115689
+    [color_grid] step 3150 loss 0.147411 |p| 0.30379
+    [color_grid] step 3200 loss 0.193667 |p| 0.30393 eval 0.115640
+    [color_grid] step 3300 loss 0.002361 |p| 0.30333
+    [color_grid] step 3400 loss 0.045037 |p| 0.30367 eval 0.115755
+    [color_grid] step 3450 loss 0.014379 |p| 0.30392
+    [color_grid] step 3600 loss 0.004115 |p| 0.30419 eval 0.115768
+    [color_grid] step 3750 loss 0.064855 |p| 0.30445
+    [color_grid] step 3800 loss 0.028636 |p| 0.30410 eval 0.115689
+    [color_grid] step 3900 loss 0.006406 |p| 0.30441
+    [color_grid] step 4000 loss 0.021174 |p| 0.30439 eval 0.115634
+    [color_grid] step 4050 loss 0.146104 |p| 0.30464
+    [color_grid] step 4200 loss 0.083443 |p| 0.30438 eval 0.115488
+    [color_grid] step 4350 loss 0.187586 |p| 0.30480
+    [color_grid] step 4400 loss 0.072235 |p| 0.30464 eval 0.115433
+    [color_grid] step 4500 loss 0.003654 |p| 0.30482
+    [color_grid] step 4600 loss 0.116163 |p| 0.30470 eval 0.115437
+    [color_grid] step 4650 loss 0.060838 |p| 0.30493
+    [color_grid] step 4800 loss 0.105791 |p| 0.30525 eval 0.115435
+    [color_grid] step 4950 loss 0.001317 |p| 0.30478
+    [color_grid] step 5000 loss 0.004379 |p| 0.30503 eval 0.115460
+    [color_grid] step 5100 loss 0.028375 |p| 0.30489
+    [color_grid] step 5200 loss 0.080126 |p| 0.30513 eval 0.115483
+    [color_grid] step 5250 loss 0.001502 |p| 0.30513
+    [color_grid] step 5400 loss 0.262229 |p| 0.30545 eval 0.115365
+    [color_grid] step 5550 loss 0.045663 |p| 0.30526
+    [color_grid] step 5600 loss 0.127201 |p| 0.30566 eval 0.115350
+    [color_grid] step 5700 loss 0.014585 |p| 0.30481
+    [color_grid] step 5800 loss 0.020170 |p| 0.30486 eval 0.115702
+    [color_grid] step 5850 loss 0.004052 |p| 0.30503
+    [color_grid] step 5999 loss 0.353183 |p| 0.30536 eval 0.115422
+task_attr_mod_color_71985        color_grid     r=0.6000 dists=0.1114 lpips=0.1217 effect=0.1530 (6140s)
+
+表：runs/ip2p_patch_tint_colour/cgrid_r060/results.csv（3 列）

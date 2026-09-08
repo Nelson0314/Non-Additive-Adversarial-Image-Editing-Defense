@@ -24,6 +24,7 @@
 # 用法：
 #     bash scripts/free_cards.sh              # 印出空卡號，空白分隔
 #     bash scripts/free_cards.sh --verbose    # 連每張卡的狀態一起印
+#     bash scripts/free_cards.sh --max-cards 8  # 超過五張，需使用者授意
 #     DEVS=$(bash scripts/free_cards.sh)      # 拿去餵派工腳本
 set -uo pipefail
 
@@ -31,12 +32,14 @@ MAX_USED=1024
 FOREIGN_MAX=512
 VERBOSE=0
 ASSERT=""
+MAX_CARDS=5
 while [ $# -gt 0 ]; do
   case "$1" in
     --max-used) MAX_USED="$2"; shift 2 ;;
     --foreign-max) FOREIGN_MAX="$2"; shift 2 ;;
     --verbose) VERBOSE=1; shift ;;
     --assert) ASSERT="$2"; shift 2 ;;
+    --max-cards) MAX_CARDS="$2"; shift 2 ;;
     *) echo "未知參數 $1" >&2; exit 2 ;;
   esac
 done
@@ -51,10 +54,18 @@ while IFS=, read -r idx uuid used; do
   uuid=$(echo "$uuid" | tr -d ' ')
   used=$(echo "$used" | tr -d ' MiB')
   same=$(echo "$APPS" | grep "$uuid" || true)
-  foreign=$(echo "$same" | awk -F', ' '{print $2}' | tr -d ' ' \
-            | grep -vcE "^(${MINE})$" || true)
-  mine=$(echo "$same" | awk -F', ' '{print $2}' | tr -d ' ' \
-         | grep -cE "^(${MINE})$" || true)
+  # **空輸入要當成零個，不是一個。** `echo ""` 會送出一個空行，而空行不匹配
+  # pid 樣式，於是 `grep -vc` 把它算成「別人 1 個」——沒有任何 compute app 的
+  # 卡在 --verbose 上看起來像是有人在用。判定本身看的是 fmem 所以是對的，
+  # 但印出來的東西與判定不一致，讀的人會不知道該信哪一個。
+  if [ -z "$same" ]; then
+    foreign=0; mine=0
+  else
+    foreign=$(echo "$same" | awk -F', ' '{print $2}' | tr -d ' ' \
+              | grep -vcE "^(${MINE})$" || true)
+    mine=$(echo "$same" | awk -F', ' '{print $2}' | tr -d ' ' \
+           | grep -cE "^(${MINE})$" || true)
+  fi
   # 別人**實際佔用**多少。判定看的是這個量，不是 process 的個數——一個只留
   # CUDA context 的 process 佔約 256 MiB，真的在算的至少幾 GB。
   fmem=$(echo "$same" | awk -F', ' -v m="^(${MINE})\$" \
@@ -73,6 +84,27 @@ while IFS=, read -r idx uuid used; do
 done < <(nvidia-smi --query-gpu=index,uuid,memory.used --format=csv,noheader)
 
 FREE="${FREE# }"
+
+# **一次最多五張卡。** 這是使用者定的規則（CLAUDE.md）：機器是多人共用的，
+# 把八張全佔滿會讓別人完全排不進來。**上限做在這裡而不是各派工腳本裡**——
+# 寫在文件或個別腳本上的規則遲早會有一支漏掉，而漏掉不會報錯。
+#
+# `--assert` 不受此限：那是在檢查「指定的卡是不是空的」，與取幾張無關。
+# 要用超過五張時給 `--max-cards N`，那必須是使用者明確授意。
+if [ -z "$ASSERT" ] && [ "$MAX_CARDS" -gt 0 ]; then
+  CAPPED=""
+  n=0
+  for c in $FREE; do
+    [ "$n" -ge "$MAX_CARDS" ] && break
+    CAPPED="$CAPPED $c"
+    n=$(( n + 1 ))
+  done
+  if [ "$(echo $FREE | wc -w)" -gt "$MAX_CARDS" ]; then
+    echo "（空卡有 $(echo $FREE | wc -w) 張，依規定只取 $MAX_CARDS 張；" \
+         "要更多請給 --max-cards 並確認使用者已授意）" >&2
+  fi
+  FREE="${CAPPED# }"
+fi
 
 # `--assert "<卡號>"`：**指定的卡只要有一張是別人的就拒絕啟動**，回傳 3。
 # 派工腳本一律呼叫這一個模式，不要只呼叫列印模式——列印了卻不擋，等於沒擋。

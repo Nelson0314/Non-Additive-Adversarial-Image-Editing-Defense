@@ -1,0 +1,8 @@
+image,condition,budget_target,purifier,reference,effect_mean,effect_sd,effect_identity_mean,effect_identity_sd,retention,codefense_status,reference_codefense,effect_codefense_mean,effect_codefense_sd,siglip_sim,siglip_blocked,edit_strength,usable,seconds
+task_obj_swap_rand_mask_417469,patch,native,identity,orig,0.39069,0.00904,0.39069,0.00904,1.0,,,,,0.757,True,0.8,True,1338.5
+task_obj_swap_rand_mask_417469,patch,native,blur1,orig,0.20679,0.00429,0.39069,0.00904,0.52928,,,,,0.87373,False,0.8,True,1338.5
+task_obj_swap_rand_mask_417469,patch,native,jpeg75,orig,0.32585,0.00731,0.39069,0.00904,0.83402,,,,,0.84133,False,0.8,True,1338.5
+task_obj_swap_rand_mask_417469,patch,native,jpeg30,orig,0.29897,0.00295,0.39069,0.00904,0.76522,,,,,0.87406,False,0.8,True,1338.5
+task_obj_swap_rand_mask_417469,patch,native,blur2,orig,0.34451,0.00143,0.39069,0.00904,0.88179,,,,,0.80465,True,0.8,True,1338.5
+task_obj_swap_rand_mask_417469,patch,native,crop_resize0.1,purified_orig,0.34635,0.27933,0.39069,0.00904,0.88651,,,,,0.83205,True,0.8,True,1338.5
+task_obj_swap_rand_mask_417469,patch,native,jpeg_then_resize75,purified_orig,0.09364,0.00408,0.39069,0.00904,0.23969,,,,,0.91809,False,0.8,True,1338.5

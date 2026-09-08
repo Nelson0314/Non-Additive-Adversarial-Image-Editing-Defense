@@ -1,0 +1,109 @@
+=== [2026-09-07 04:52:20] 色彩預算掃描：4 臂 × 6 張，10 個並行位 ===
+[colour] r06 r=0.60 task_attr_mod_color_123744 dev=1
+[colour] r06 r=0.60 task_attr_mod_color_202962 dev=2
+[colour] r06 r=0.60 task_env_weather_195273 dev=3
+[colour] r06 r=0.60 task_env_weather_70149 dev=4
+[colour] r06 r=0.60 task_obj_remove_257910 dev=5
+[colour] r06 r=0.60 task_obj_remove_284852 dev=1
+[colour] r12 r=1.20 task_attr_mod_color_123744 dev=2
+[colour] r12 r=1.20 task_attr_mod_color_202962 dev=3
+[colour] r12 r=1.20 task_env_weather_195273 dev=4
+[colour] r12 r=1.20 task_env_weather_70149 dev=5
+[colour] r12 r=1.20 task_obj_remove_257910 dev=1
+[colour] r12 r=1.20 task_obj_remove_284852 dev=2
+[colour] r20 r=2.00 task_attr_mod_color_123744 dev=3
+[colour] r20 r=2.00 task_attr_mod_color_202962 dev=4
+[colour] r20 r=2.00 task_env_weather_195273 dev=5
+[colour] r20 r=2.00 task_env_weather_70149 dev=1
+[colour] r20 r=2.00 task_obj_remove_257910 dev=2
+[colour] r20 r=2.00 task_obj_remove_284852 dev=3
+[colour] r20_rand r=2.00 task_attr_mod_color_123744 dev=4
+[colour] r20_rand r=2.00 task_attr_mod_color_202962 dev=5
+[colour] r20_rand r=2.00 task_env_weather_195273 dev=1
+[colour] r20_rand r=2.00 task_env_weather_70149 dev=2
+[colour] r20_rand r=2.00 task_obj_remove_257910 dev=3
+[colour] r20_rand r=2.00 task_obj_remove_284852 dev=4
+=== [2026-09-07 07:33:38] 收工，results 60 份 ===
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/380 [00:00<?, ?it/s]Loading weights:  80%|████████  | 304/380 [00:00<00:00, 3026.55it/s]Loading weights: 100%|██████████| 380/380 [00:00<00:00, 2975.89it/s]
+task_attr_mod_color_123744     r06_accessory_task_attr_mod_color_123744 id_orig=0.00202 id_def=-0.05469 臉=True iou_person=0.88626 iou_classes=0.39428(7 類)
+task_attr_mod_color_202962     r06_accessory_task_attr_mod_color_202962 id_orig=0.83854 id_def=0.90563 臉=True iou_person=0.93459 iou_classes=0.33372(7 類)
+task_env_weather_195273        r06_accessory_task_env_weather_195273 id_orig=-0.01849 id_def=0.12382 臉=True iou_person=0.91286 iou_classes=0.3618(4 類)
+task_env_weather_70149         r06_accessory_task_env_weather_70149 id_orig=0.95049 id_def=0.77137 臉=True iou_person=0.88465 iou_classes=0.31479(7 類)
+task_obj_remove_257910         r06_accessory_task_obj_remove_257910 id_orig=0.1509 id_def=0.23304 臉=True iou_person=0.95138 iou_classes=0.35846(6 類)
+task_obj_remove_284852         r06_accessory_task_obj_remove_284852 id_orig=0.5636 id_def=-0.02165 臉=True iou_person=0.66003 iou_classes=0.46044(5 類)
+task_attr_mod_color_123744     r06_background_task_attr_mod_color_123744 id_orig=0.8867 id_def=0.90486 臉=True iou_person=0.83587 iou_classes=0.15598(13 類)
+task_attr_mod_color_202962     r06_background_task_attr_mod_color_202962 id_orig=0.84716 id_def=0.84135 臉=True iou_person=0.93711 iou_classes=0.3694(9 類)
+task_env_weather_195273        r06_background_task_env_weather_195273 id_orig=0.91921 id_def=0.83386 臉=True iou_person=0.76541 iou_classes=0.27132(12 類)
+task_env_weather_70149         r06_background_task_env_weather_70149 id_orig=0.93106 id_def=0.75109 臉=True iou_person=0.00016 iou_classes=0.0(9 類)
+task_obj_remove_257910         r06_background_task_obj_remove_257910 id_orig=0.66048 id_def=0.72528 臉=True iou_person=0.96037 iou_classes=0.2772(10 類)
+task_obj_remove_284852         r06_background_task_obj_remove_284852 id_orig=0.9167 id_def= 臉=False iou_person=0.00105 iou_classes=0.00026(6 類)
+task_attr_mod_color_123744     r06_clothing_task_attr_mod_color_123744 id_orig=0.90754 id_def=0.83316 臉=True iou_person=0.81286 iou_classes=0.14701(12 類)
+task_attr_mod_color_202962     r06_clothing_task_attr_mod_color_202962 id_orig=0.86413 id_def=0.86516 臉=True iou_person=0.93423 iou_classes=0.38351(10 類)
+task_env_weather_195273        r06_clothing_task_env_weather_195273 id_orig=0.92152 id_def=0.90875 臉=True iou_person=0.69389 iou_classes=0.30393(8 類)
+task_env_weather_70149         r06_clothing_task_env_weather_70149 id_orig=0.94415 id_def=0.92941 臉=True iou_person=0.96423 iou_classes=0.29707(9 類)
+task_obj_remove_257910         r06_clothing_task_obj_remove_257910 id_orig=0.61457 id_def= 臉=False iou_person=0.97375 iou_classes=0.24577(13 類)
+task_obj_remove_284852         r06_clothing_task_obj_remove_284852 id_orig=0.92717 id_def=0.95645 臉=True iou_person=0.84227 iou_classes=0.45502(7 類)
+task_attr_mod_color_123744     r12_accessory_task_attr_mod_color_123744 id_orig=0.00202 id_def=-0.24372 臉=True iou_person=0.9 iou_classes=0.37626(7 類)
+task_attr_mod_color_202962     r12_accessory_task_attr_mod_color_202962 id_orig=0.83854 id_def=0.87445 臉=True iou_person=0.92048 iou_classes=0.28662(7 類)
+task_env_weather_195273        r12_accessory_task_env_weather_195273 id_orig=-0.01849 id_def=-0.14714 臉=True iou_person=0.84671 iou_classes=0.20797(5 類)
+task_env_weather_70149         r12_accessory_task_env_weather_70149 id_orig=0.95049 id_def=0.80539 臉=True iou_person=0.89706 iou_classes=0.40515(6 類)
+task_attr_mod_color_123744     r12_background_task_attr_mod_color_123744 id_orig=0.8867 id_def=0.90461 臉=True iou_person=0.86242 iou_classes=0.15928(13 類)
+task_attr_mod_color_202962     r12_background_task_attr_mod_color_202962 id_orig=0.84716 id_def=0.78847 臉=True iou_person=0.91548 iou_classes=0.29104(10 類)
+task_env_weather_195273        r12_background_task_env_weather_195273 id_orig=0.91921 id_def= 臉=False iou_person=0.67165 iou_classes=0.23379(13 類)
+task_env_weather_70149         r12_background_task_env_weather_70149 id_orig=0.93106 id_def=0.85129 臉=True iou_person=0.90916 iou_classes=0.21083(9 類)
+task_attr_mod_color_123744     r12_clothing_task_attr_mod_color_123744 id_orig=0.90754 id_def=0.87017 臉=True iou_person=0.86445 iou_classes=0.13867(14 類)
+task_attr_mod_color_202962     r12_clothing_task_attr_mod_color_202962 id_orig=0.86413 id_def=0.90135 臉=True iou_person=0.93179 iou_classes=0.39861(10 類)
+task_env_weather_195273        r12_clothing_task_env_weather_195273 id_orig=0.92152 id_def=0.90483 臉=True iou_person=0.58728 iou_classes=0.28597(8 類)
+task_env_weather_70149         r12_clothing_task_env_weather_70149 id_orig=0.94415 id_def=0.93262 臉=True iou_person=0.96872 iou_classes=0.30444(9 類)
+task_env_weather_195273        r20_accessory_task_env_weather_195273 id_orig=-0.01849 id_def=-0.09666 臉=True iou_person=0.84526 iou_classes=0.25145(4 類)
+task_env_weather_70149         r20_accessory_task_env_weather_70149 id_orig=0.95049 id_def=0.76597 臉=True iou_person=0.9029 iou_classes=0.40442(6 類)
+task_obj_remove_257910         r20_accessory_task_obj_remove_257910 id_orig=0.1509 id_def=0.07023 臉=True iou_person=0.93112 iou_classes=0.32949(5 類)
+task_obj_remove_284852         r20_accessory_task_obj_remove_284852 id_orig=0.5636 id_def=0.67338 臉=True iou_person=0.68429 iou_classes=0.50216(5 類)
+task_env_weather_195273        r20_background_task_env_weather_195273 id_orig=0.91921 id_def= 臉=False iou_person=0.77295 iou_classes=0.25236(12 類)
+task_env_weather_70149         r20_background_task_env_weather_70149 id_orig=0.93106 id_def=0.66221 臉=True iou_person=0.01424 iou_classes=0.00835(10 類)
+task_obj_remove_257910         r20_background_task_obj_remove_257910 id_orig=0.66048 id_def=0.66617 臉=True iou_person=0.9652 iou_classes=0.22231(10 類)
+task_obj_remove_284852         r20_background_task_obj_remove_284852 id_orig=0.9167 id_def=0.92855 臉=True iou_person=0.83636 iou_classes=0.34991(7 類)
+task_env_weather_195273        r20_clothing_task_env_weather_195273 id_orig=0.92152 id_def=0.90505 臉=True iou_person=0.66167 iou_classes=0.25926(9 類)
+task_env_weather_70149         r20_clothing_task_env_weather_70149 id_orig=0.94415 id_def=0.92677 臉=True iou_person=0.96258 iou_classes=0.30426(9 類)
+task_obj_remove_257910         r20_clothing_task_obj_remove_257910 id_orig=0.61457 id_def= 臉=False iou_person=0.98435 iou_classes=0.42836(9 類)
+task_obj_remove_284852         r20_clothing_task_obj_remove_284852 id_orig=0.92717 id_def=0.94936 臉=True iou_person=0.85891 iou_classes=0.46499(7 類)
+task_attr_mod_color_123744     r20_rand_accessory_task_attr_mod_color_123744 id_orig=0.00202 id_def=-0.05546 臉=True iou_person=0.91693 iou_classes=0.40767(7 類)
+task_attr_mod_color_202962     r20_rand_accessory_task_attr_mod_color_202962 id_orig=0.83854 id_def=0.86319 臉=True iou_person=0.94944 iou_classes=0.2451(9 類)
+task_env_weather_195273        r20_rand_accessory_task_env_weather_195273 id_orig=-0.01849 id_def=0.05269 臉=True iou_person=0.90537 iou_classes=0.17063(7 類)
+task_env_weather_70149         r20_rand_accessory_task_env_weather_70149 id_orig=0.95049 id_def=0.83015 臉=True iou_person=0.97554 iou_classes=0.42887(6 類)
+task_obj_remove_257910         r20_rand_accessory_task_obj_remove_257910 id_orig=0.1509 id_def=0.11391 臉=True iou_person=0.96188 iou_classes=0.35303(5 類)
+task_obj_remove_284852         r20_rand_accessory_task_obj_remove_284852 id_orig=0.5636 id_def=0.69233 臉=True iou_person=0.70172 iou_classes=0.31257(8 類)
+task_attr_mod_color_123744     r20_rand_background_task_attr_mod_color_123744 id_orig=0.8867 id_def=0.90448 臉=True iou_person=0.86966 iou_classes=0.17909(12 類)
+task_attr_mod_color_202962     r20_rand_background_task_attr_mod_color_202962 id_orig=0.84716 id_def=0.86222 臉=True iou_person=0.96527 iou_classes=0.37569(9 類)
+task_env_weather_195273        r20_rand_background_task_env_weather_195273 id_orig=0.91921 id_def=0.9286 臉=True iou_person=0.66589 iou_classes=0.21081(13 類)
+task_env_weather_70149         r20_rand_background_task_env_weather_70149 id_orig=0.93106 id_def=0.95353 臉=True iou_person=0.95682 iou_classes=0.3381(11 類)
+task_obj_remove_257910         r20_rand_background_task_obj_remove_257910 id_orig=0.66048 id_def=0.6849 臉=True iou_person=0.95948 iou_classes=0.25744(10 類)
+task_obj_remove_284852         r20_rand_background_task_obj_remove_284852 id_orig=0.9167 id_def=0.91949 臉=True iou_person=0.69264 iou_classes=0.29131(8 類)
+task_attr_mod_color_123744     r20_rand_clothing_task_attr_mod_color_123744 id_orig=0.90754 id_def=0.88977 臉=True iou_person=0.85168 iou_classes=0.14762(14 類)
+task_attr_mod_color_202962     r20_rand_clothing_task_attr_mod_color_202962 id_orig=0.86413 id_def=0.85674 臉=True iou_person=0.94874 iou_classes=0.45032(10 類)
+task_env_weather_195273        r20_rand_clothing_task_env_weather_195273 id_orig=0.92152 id_def=0.93036 臉=True iou_person=0.61582 iou_classes=0.32172(7 類)
+task_env_weather_70149         r20_rand_clothing_task_env_weather_70149 id_orig=0.94415 id_def=0.95586 臉=True iou_person=0.97196 iou_classes=0.26681(10 類)
+task_obj_remove_257910         r20_rand_clothing_task_obj_remove_257910 id_orig=0.61457 id_def=0.74797 臉=True iou_person=0.98577 iou_classes=0.42987(9 類)
+task_obj_remove_284852         r20_rand_clothing_task_obj_remove_284852 id_orig=0.92717 id_def=0.96046 臉=True iou_person=0.84166 iou_classes=0.37599(8 類)
+task_attr_mod_color_123744     r20_rand_accessory_task_attr_mod_color_123744 id_orig=0.00202 id_def=-0.05546 臉=True iou_person=0.91693 iou_classes=0.40767(7 類)
+task_attr_mod_color_202962     r20_rand_accessory_task_attr_mod_color_202962 id_orig=0.83854 id_def=0.86319 臉=True iou_person=0.94944 iou_classes=0.2451(9 類)
+task_env_weather_195273        r20_rand_accessory_task_env_weather_195273 id_orig=-0.01849 id_def=0.05269 臉=True iou_person=0.90537 iou_classes=0.17063(7 類)
+task_env_weather_70149         r20_rand_accessory_task_env_weather_70149 id_orig=0.95049 id_def=0.83015 臉=True iou_person=0.97554 iou_classes=0.42887(6 類)
+task_obj_remove_257910         r20_rand_accessory_task_obj_remove_257910 id_orig=0.1509 id_def=0.11391 臉=True iou_person=0.96188 iou_classes=0.35303(5 類)
+task_obj_remove_284852         r20_rand_accessory_task_obj_remove_284852 id_orig=0.5636 id_def=0.69233 臉=True iou_person=0.70172 iou_classes=0.31257(8 類)
+task_attr_mod_color_123744     r20_rand_background_task_attr_mod_color_123744 id_orig=0.8867 id_def=0.90448 臉=True iou_person=0.86966 iou_classes=0.17909(12 類)
+task_attr_mod_color_202962     r20_rand_background_task_attr_mod_color_202962 id_orig=0.84716 id_def=0.86222 臉=True iou_person=0.96527 iou_classes=0.37569(9 類)
+task_env_weather_195273        r20_rand_background_task_env_weather_195273 id_orig=0.91921 id_def=0.9286 臉=True iou_person=0.66589 iou_classes=0.21081(13 類)
+task_env_weather_70149         r20_rand_background_task_env_weather_70149 id_orig=0.93106 id_def=0.95353 臉=True iou_person=0.95682 iou_classes=0.3381(11 類)
+task_obj_remove_257910         r20_rand_background_task_obj_remove_257910 id_orig=0.66048 id_def=0.6849 臉=True iou_person=0.95948 iou_classes=0.25744(10 類)
+task_obj_remove_284852         r20_rand_background_task_obj_remove_284852 id_orig=0.9167 id_def=0.91949 臉=True iou_person=0.69264 iou_classes=0.29131(8 類)
+task_attr_mod_color_123744     r20_rand_clothing_task_attr_mod_color_123744 id_orig=0.90754 id_def=0.88977 臉=True iou_person=0.85168 iou_classes=0.14762(14 類)
+task_attr_mod_color_202962     r20_rand_clothing_task_attr_mod_color_202962 id_orig=0.86413 id_def=0.85674 臉=True iou_person=0.94874 iou_classes=0.45032(10 類)
+task_env_weather_195273        r20_rand_clothing_task_env_weather_195273 id_orig=0.92152 id_def=0.93036 臉=True iou_person=0.61582 iou_classes=0.32172(7 類)
+task_env_weather_70149         r20_rand_clothing_task_env_weather_70149 id_orig=0.94415 id_def=0.95586 臉=True iou_person=0.97196 iou_classes=0.26681(10 類)
+task_obj_remove_257910         r20_rand_clothing_task_obj_remove_257910 id_orig=0.61457 id_def=0.74797 臉=True iou_person=0.98577 iou_classes=0.42987(9 類)
+task_obj_remove_284852         r20_rand_clothing_task_obj_remove_284852 id_orig=0.92717 id_def=0.96046 臉=True iou_person=0.84166 iou_classes=0.37599(8 類)
+
+寫出 runs/ip2p_colour_budget/identity.csv（78 列）
+=== [2026-09-07 07:36:18] 身分讀數寫入 runs/ip2p_colour_budget/identity.csv ===

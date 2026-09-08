@@ -1,0 +1,20 @@
+一、場自己過算子（扣掉直流之後的餘弦；1.00 = 逐點不變）
+         場    旋轉 5.15°     裁切 10%     裁切 5%     裁切 15%     模糊 1.5
+    radial     0.9297      0.1910      0.5955      0.0750      1.0000 
+   angular     0.8603      0.9998      0.9998      0.9998      0.9999 
+
+二、峰寬（log-periodic 在這裡塌成一個尖峰；平的才算對整個群不變）
+    radial  rotate   0.986   0.964   0.932   0.903   0.877   0.833   0.772   0.731    (角度°: 1.0 2.5 5.0 7.5 10.0 15.0 25.0 45.0)
+    radial    crop   0.919   0.596   0.314   0.191   0.117   0.075   0.008  -0.052    (裁切比例: 0.02 0.05 0.08 0.1 0.12 0.15 0.2 0.25)
+   angular  rotate   0.980   0.942   0.865   0.776   0.677   0.465   0.078  -0.106    (角度°: 1.0 2.5 5.0 7.5 10.0 15.0 25.0 45.0)
+   angular    crop   1.000   1.000   1.000   1.000   1.000   1.000   1.000   1.000    (裁切比例: 0.02 0.05 0.08 0.1 0.12 0.15 0.2 0.25)
+
+三、貼到真實載體上（delta 的 align 中位）
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/380 [00:00<?, ?it/s]Loading weights: 100%|██████████| 380/380 [00:00<00:00, 4734.61it/s]
+                    RMS     rotate10  crop_resize      blur1.5       jpeg75  resize_only
+res_s32 ◂ 對照      0.188        +0.73        +0.54        +0.99        +1.00        +1.00
+radial            0.207        +0.83        +0.48        +0.99        +1.00        +1.00
+angular           0.196        +0.80        +0.60        +0.99        +1.00        +1.00
+
+寫出 57 列到 C:\image-immunization\non-additive-frequency\runs\polar_carrier\results.csv

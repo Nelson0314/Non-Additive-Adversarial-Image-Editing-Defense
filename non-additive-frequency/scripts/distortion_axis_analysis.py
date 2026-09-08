@@ -66,6 +66,74 @@ SETTING_DEFAULTS = {
     "quantile": "0.5",
     "gate_edge_power": "1.0",
     "loss": "encoder_target",
+    # 影像引導殘差的空間權重。這個旗標存在之前，全部批次都是均勻平均——
+    # 欄位不存在 ⇒ 該功能未實作 ⇒ 只可能是 uniform。
+    "ig_weight": "uniform",
+    "ig_weight_text": "",
+    # DCT-Shield 跑的是哪個損失。這個旗標存在之前一律是論文自己的 ‖E(x')‖₂。
+    "dct_loss": "paper",
+    # 色彩場的平滑正則。這個旗標存在之前一律沒有這一項。
+    "color_tv": "0.0",
+    "patch_placement": "far",
+    # 補丁的語意載體。這個旗標存在之前，支撐一律是主體補集或補集裡的方塊
+    # ——欄位不存在 ⇒ 該功能未實作 ⇒ 只可能是 none。
+    "patch_carrier": "none",
+    # 把花紋的局部色調拉向原本的衣服。旗標存在之前一律沒有這一項。
+    # 三類攻擊指令與主體來源。旗標存在之前一律沿用資料集自帶的句子、
+    # 主體一律由 CLIPSeg 依登記名詞給。
+    "attack_category": "",
+    "attack_prompts": "",
+    "subject_source": "clipseg",
+    # 載體的貼合與融入。旗標存在之前一律是 ATR 的硬邊界，不做任何處理。
+    "carrier_refine": "0",
+    "carrier_erode": "0",
+    "carrier_feather": "0",
+    "carrier_scatter": "0",
+    "patch_tint": "0.0",
+    "patch_tint_sigma": "16",
+    # 固定形狀浮水印。這個旗標存在之前一律是單一塊，且沒有裁切留存框的概念。
+    "patch_count": "1",
+    "patch_crop_keep": "0.8",
+    # 補丁的兩個內容**約束**（不是懲罰）。旗標存在之前一律沒有這兩項，
+    # 故欄位不存在 ⇒ 內容完全自由。
+    "patch_lowfreq": "0",
+    "patch_chroma": "0",
+    "patch_lowfreq_err": "",
+    "patch_luma_err": "",
+    # 載體的面積守門與面積對齊。旗標存在之前一律走模組的定案值、且不對齊。
+    "carrier_min_area": "",
+    "carrier_max_area": "",
+    "carrier_target_area": "0.0",
+    "carrier_match": "erode",
+    "carrier_ring": "0",
+    "carrier_ring_inner": "8",
+    "prompt_eot": "0",
+    "attn_weight": "0.0",
+    "id_layout_weight": "0.0",
+    "id_box_margin": "0.35",
+    "carrier_lattice": "0",
+    "carrier_dot_radius": "2.0",
+    "patch_rects": "",
+    "carrier_area": "",
+    "carrier_source": "",
+    "patch_init": "identity",
+    "patch_tile": "0",
+    # 帶限參數化。1 = 全解析度，即這個旗標還不存在時的行為。
+    "patch_res": "1",
+    # 有限調色盤。0 = 關閉，即這個旗標還不存在時的行為。
+    "patch_palette": "0",
+    "patch_palette_temp": "0.05",
+    "patch_palette_used": "",
+    # Voronoi 結構化圖樣。0 = 關閉，即這個旗標還不存在時的行為。
+    "patch_seeds": "0",
+    "patch_seed_temp": "0.0004",
+    "patch_alpha": "1.0",
+    "patch_tv": "0.0",
+    "patch_area": "",
+    "patch_side": "",
+    "patch_top": "",
+    "patch_left": "",
+    "color_tv_luma": "0.0",
     "gain_ratio": "0.0",
     "purify_aware": "none",
     "defense_steps": "",        # 空字串 = 未記錄，見下方的 note 欄

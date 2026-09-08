@@ -30,15 +30,64 @@ pool3 是 2048 維，樣本數低於維度時協方差矩陣退化。`fid_batch.
 **VIFp 是內容主導的，不可跨資料集比。** 實測：同一張圖上 PSNR 差 3 dB 而 VIFp
 幾乎不動（0.4824 vs 0.4817），但不同影像之間從 0.226 跳到 0.587。
 
-## 攻擊模型
+## 身分軸的指標：與文獻這一族的對照
+
+與本專案威脅模型同型的三篇（FaceLock CVPR 2025、Anti-DreamBooth ICCV 2023、
+FaceShield ICCV 2025）用的指標與本專案**大部分重疊但不完全一樣**。逐篇的
+精確定義見 `reference/SURVEY_IDENTITY_EDITING.md`，重算的程式是
+`scripts/literature_metrics.py`（只讀已存的影像，不佔卡）。
+
+| 文獻指標 | 定義 | 方向 | 本專案的欄位 |
+|---|---|---|---|
+| **FR**（FaceLock） | `cos(E(原圖), E(編輯輸出))` | ↓ | `id_def`（辨識器不同） |
+| **ISM**（Anti-DreamBooth） | 同上 | ↓ | 同上 |
+| **FDFR**（Anti-DreamBooth） | 編輯輸出裡偵測不到臉的比率 | ↑ | `face_found`（偵測器不同） |
+| **CLIP-I** | `cos(E_img(編輯), E_img(原圖))` | ↓ | `edit_clip_sim` |
+| **CLIP-S** | `cos(E_img(編輯)−E_img(原圖), E_txt(指令))` | ↓ | `MetricSuite.direction_similarity` |
+| **LPIPS／PSNR／SSIM** | 兩張編輯輸出之間 | ↑／↓／↓ | `edit_lpips`／`edit_psnr`／`edit_ssim` |
+
+六個裡有四個本專案每一格早就算好存在 `results.csv` 裡。
+
+### 三個辨識器，不是一個
+
+本專案原本只有 facenet 的 InceptionResnetV1（VGGFace2）＋ MTCNN。單一辨識器
+的結論可能是那個網路的特性——尤其 MTCNN **在人眼看得見的臉上會誤報**
+（`runs/ip2p_content_constraint/README.md`）。現在同時報三個：
+
+| 鍵 | 嵌入 ＋ 偵測／對齊 | 來源 |
+|---|---|---|
+| `facenet` | InceptionResnetV1(vggface2) ＋ MTCNN | 本專案既有，主欄 |
+| `cvlface` | AdaFace ViT-Base+KPRPE(WebFace4M) ＋ DFA | FaceLock |
+| `arcface` | ArcFace(buffalo_l) ＋ RetinaFace | Anti-DreamBooth／FaceShield |
+
+**三者的絕對值不可互比**，只比同一個辨識器內的組間差。單張的實測已看到
+幅度差五倍：`free` 相對未防禦編輯在 facenet 上掉 1.07、ArcFace 上掉 0.71、
+AdaFace 上只掉 0.20，而 `tint` 在 AdaFace 上**反而上升**。
+
+**缺相依時該欄留空並在 `<辨識器>_status` 欄寫明原因，不靜默跳過。**
+
+### CLIP-S 照報但不作判準
+
+FaceLock 自己指出這一族會誤導："overemphasize the presence of elements from
+the editing instructions, often prioritizing over-editing"。本專案的實測直接
+重現了那件事：`free` 把身分完全打掉（facenet 0.908 → −0.159），CLIP-S 卻由
+0.0618 **上升**到 0.0731。
+
+## 攻擊模型## 攻擊模型
 
 ### InstructPix2Pix（主線）
 
 `src/models/ip2p.py`。UNet 第一層卷積開 8 個輸入通道（4 噪聲 ＋ 4 影像），
 **未加噪的 `E(x)` 直接拼在噪聲 latent 旁**，生成由純噪聲起步。
 
-三個推論參數**論文未載，是本專案指定**，改動會讓新舊批次不可比：
-`steps=100`、`s_T=7.5`（文字）、`s_I=1.5`（影像）、`seed=20260812`。
+三個推論參數：`steps=100`、`s_T=7.5`（文字）、`s_I=1.5`（影像），另加
+`seed=20260812`。改動會讓新舊批次不可比。
+
+**這三個值不是本專案獨有的。** IP2P 原論文未載，但 FaceLock（CVPR 2025，
+攻擊模型與本專案相同）的官方 README 明給同樣三個值
+（`num_inference_steps=100`、`guidance_scale=7.5`、`image_guidance_scale=1.5`），
+故編輯側與那一篇天然對齊，頭對頭時不需要重跑對方的編輯。`seed` 仍是本專案
+指定的。查證見 `reference/SURVEY_IDENTITY_EDITING.md` §1。
 
 兩個容易補錯又不會報錯的地方，已由測試釘住：
 - 拼進 UNet 的影像 latent **不乘** `scaling_factor`（`encode_image` 有乘，
@@ -82,9 +131,14 @@ IP2P 是直接拼接。依賴前者那條通道的機制解釋在 IP2P 上不成
 | `crop_resize` | 每邊裁 10%，bicubic 升回 | 原生可微 |
 | `jpeg_then_resize` | C&R 串接 | 不可微 |
 | `noise`／`quantize` | — | — |
+| `rotate` | 隨機 ±10°，雙線性、補零 | 原生可微 |
 | `adverse_cleaner` | 導向濾波 | 直通估計 |
 | `impress` | 1000 步 Adam，佔一格約 82% 的時間 | 直通估計 |
 | `gridpure`／`fdpure` | 超參數**論文未載，本專案指定** | 直通估計 |
+
+`rotate` 的角度區間取自 FaceLock（"random rotation between (-10, 10) degrees"）；
+**插值核與邊界填補論文未載，是本專案指定**。EditShield 的 EOT 用 5°。
+它是先前唯一無法與外部方法對照的一欄。
 
 尚未對現行條件測過的：`noise`、`quantize`、`jpeg30`、`jpeg_then_resize`、
 `adverse_cleaner`、`impress`、`fdpure`。其中 **C&R 串接與 FD-Pure 針對性最強**。
@@ -215,8 +269,8 @@ CSV 的 `reference` 欄逐列記下該列踩的是哪一種（`purified_orig` �
 一列，每一欄用的是哪一種參照直接看得到。
 
 **幾何類**是 `src/purify/ops.py` 的 `GEOMETRIC_KINDS`：`crop_resize`、
-`resample_roundtrip`、`resize_only`、`shift_only`、`jpeg_then_resize`
-——改變像素格點或取景的那些。判定用 `Purifier.kind`，不是標籤字串。
+`resample_roundtrip`、`resize_only`、`shift_only`、`jpeg_then_resize`、
+`rotate`——改變像素格點或取景的那些。判定用 `Purifier.kind`，不是標籤字串。
 
 **為什麼只有幾何類換。** `crop_resize` 是繞中心的純放大 1.2488×，它改的是
 取景：就算完全沒有防禦，`編輯(p(原圖))` 與 `編輯(原圖)` 之間也會差很多

@@ -1,0 +1,483 @@
+影像 10 張、臂 9 個
+找到 270 格，缺 0 格（那些臂還沒跑完，不是錯誤）
+preflight 通過
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+Loaded pretrained aligner from pretrained_model/model.pt
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/timm/models/layers/__init__.py:49: FutureWarning: Importing from timm.models.layers is deprecated, please import via timm.layers
+  warnings.warn(f"Importing from {__name__} is deprecated, please import via timm.layers", FutureWarning)
+Loaded ViT model with KPRPE
+compatible keys in state_dict 283 / 283
+Check
+
+
+<All keys matched successfully>
+Loaded pretrained model from pretrained_model/model.pt
+Fatal Python error: Segmentation fault
+
+Current thread 0x000070fe529cf740 (most recent call first):
+  File "<frozen importlib._bootstrap>", line 241 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1241 in exec_module
+  File "<frozen importlib._bootstrap>", line 690 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1147 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1176 in _find_and_load
+  File "/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/onnxruntime/capi/_pybind_state.py", line 32 in <module>
+  File "<frozen importlib._bootstrap>", line 241 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 940 in exec_module
+  File "<frozen importlib._bootstrap>", line 690 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1147 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1176 in _find_and_load
+  File "/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/onnxruntime/__init__.py", line 26 in <module>
+  File "<frozen importlib._bootstrap>", line 241 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 940 in exec_module
+  File "<frozen importlib._bootstrap>", line 690 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1147 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1176 in _find_and_load
+  File "/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/insightface/__init__.py", line 8 in <module>
+  File "<frozen importlib._bootstrap>", line 241 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 940 in exec_module
+  File "<frozen importlib._bootstrap>", line 690 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1147 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1176 in _find_and_load
+  File "/nfs/home/nelson0314/WACV-s3/scripts/literature_metrics.py", line 216 in __init__
+  File "/nfs/home/nelson0314/WACV-s3/scripts/literature_metrics.py", line 278 in main
+  File "/nfs/home/nelson0314/WACV-s3/scripts/literature_metrics.py", line 342 in <module>
+
+Extension modules: numpy._core._multiarray_umath, numpy.linalg._umath_linalg, torch._C, torch._C._dynamo.autograd_compiler, torch._C._dynamo.eval_frame, torch._C._dynamo.guards, torch._C._dynamo.utils, torch._C._fft, torch._C._linalg, torch._C._nested, torch._C._nn, torch._C._sparse, torch._C._special, cuda.bindings._bindings.cydriver, cuda.bindings.cydriver, cuda.bindings.driver, cuda.bindings._bindings.cyruntime_ptds, cuda.bindings._bindings.cyruntime, cuda.bindings.cyruntime, cuda.bindings.runtime, PIL._imaging, PIL._imagingft, numpy.random._common, numpy.random.bit_generator, numpy.random._bounded_integers, numpy.random._pcg64, numpy.random._generator, numpy.random._mt19937, numpy.random._philox, numpy.random._sfc64, numpy.random.mtrand, yaml._yaml (total: 32)
+=== [2026-09-07 00:38:02] 寫入 runs/ip2p_content_constraint/literature_metrics.csv ===
+影像 10 張、臂 2 個
+找到 60 格，缺 0 格（那些臂還沒跑完，不是錯誤）
+preflight 通過
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+Loaded pretrained aligner from pretrained_model/model.pt
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/timm/models/layers/__init__.py:49: FutureWarning: Importing from timm.models.layers is deprecated, please import via timm.layers
+  warnings.warn(f"Importing from {__name__} is deprecated, please import via timm.layers", FutureWarning)
+Loaded ViT model with KPRPE
+compatible keys in state_dict 283 / 283
+Check
+
+
+<All keys matched successfully>
+Loaded pretrained model from pretrained_model/model.pt
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py:153: UserWarning: Specified provider 'CUDAExecutionProvider' is not in available provider names.Available providers: 'AzureExecutionProvider, CPUExecutionProvider'
+  warnings.warn(
+Applied providers: ['CPUExecutionProvider'], with options: {'CPUExecutionProvider': {}}
+find model: /nfs/home/nelson0314/.insightface/models/buffalo_l/1k3d68.onnx landmark_3d_68 ['None', 3, 192, 192] 0.0 1.0
+Applied providers: ['CPUExecutionProvider'], with options: {'CPUExecutionProvider': {}}
+find model: /nfs/home/nelson0314/.insightface/models/buffalo_l/2d106det.onnx landmark_2d_106 ['None', 3, 192, 192] 0.0 1.0
+Applied providers: ['CPUExecutionProvider'], with options: {'CPUExecutionProvider': {}}
+find model: /nfs/home/nelson0314/.insightface/models/buffalo_l/det_10g.onnx detection [1, 3, '?', '?'] 127.5 128.0
+Applied providers: ['CPUExecutionProvider'], with options: {'CPUExecutionProvider': {}}
+find model: /nfs/home/nelson0314/.insightface/models/buffalo_l/genderage.onnx genderage ['None', 3, 96, 96] 0.0 1.0
+Applied providers: ['CPUExecutionProvider'], with options: {'CPUExecutionProvider': {}}
+find model: /nfs/home/nelson0314/.insightface/models/buffalo_l/w600k_r50.onnx recognition ['None', 3, 112, 112] 127.5 127.5
+set det-size: (640, 640)
+[cvlface] 可用
+[arcface] 可用
+/nfs/home/nelson0314/hf_cache/minchul/cvlface_DFA_mobilenet/aligners/differentiable_face_aligner/aligner_helper.py:30: FutureWarning: `estimate` is deprecated since version 0.26 and will be removed in version 2.2. Please use `SimilarityTransform.from_estimate` class constructor instead.
+  tform.estimate(ldmk, reference_ldmk)
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/insightface/utils/face_align.py:23: FutureWarning: `estimate` is deprecated since version 0.26 and will be removed in version 2.2. Please use `SimilarityTransform.from_estimate` class constructor instead.
+  tform.estimate(lmk, dst)
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 15108.04it/s]
+[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
+[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
+Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights:  78%|███████▊  | 318/408 [00:00<00:00, 3150.48it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 3281.30it/s]
+  free_clothing_task_attr_mod_color_123744 task_attr_mod_color_123744     id_def=-0.15883 clip_s_def=0.07307
+/nfs/home/nelson0314/hf_cache/minchul/cvlface_DFA_mobilenet/aligners/differentiable_face_aligner/aligner_helper.py:30: FutureWarning: `estimate` is deprecated since version 0.26 and will be removed in version 2.2. Please use `SimilarityTransform.from_estimate` class constructor instead.
+  tform.estimate(ldmk, reference_ldmk)
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/insightface/utils/face_align.py:23: FutureWarning: `estimate` is deprecated since version 0.26 and will be removed in version 2.2. Please use `SimilarityTransform.from_estimate` class constructor instead.
+  tform.estimate(lmk, dst)
+  free_clothing_task_attr_mod_color_202962 task_attr_mod_color_202962     id_def=0.60371 clip_s_def=0.04924
+  free_clothing_task_env_weather_195273 task_env_weather_195273        id_def=0.8194 clip_s_def=0.10985
+  free_clothing_task_env_weather_70149 task_env_weather_70149         id_def=0.40591 clip_s_def=0.07989
+  free_clothing_task_obj_remove_257910 task_obj_remove_257910         id_def= clip_s_def=0.06375
+  free_clothing_task_obj_remove_284852 task_obj_remove_284852         id_def=0.16895 clip_s_def=0.03879
+  free_clothing_task_obj_remove_410264 task_obj_remove_410264         id_def=-0.00145 clip_s_def=0.09853
+  free_clothing_task_obj_remove_509477 task_obj_remove_509477         id_def=0.80494 clip_s_def=0.08095
+  free_clothing_task_obj_remove_720199 task_obj_remove_720199         id_def= clip_s_def=0.05906
+  free_clothing_task_obj_swap_joint_mask_533428 task_obj_swap_joint_mask_533428 id_def= clip_s_def=0.03112
+  free_accessory_task_attr_mod_color_123744 task_attr_mod_color_123744     id_def=-0.03568 clip_s_def=0.08971
+  free_accessory_task_attr_mod_color_202962 task_attr_mod_color_202962     id_def=0.00537 clip_s_def=0.03041
+  free_accessory_task_env_weather_195273 task_env_weather_195273        id_def=-0.04231 clip_s_def=0.06331
+  free_accessory_task_env_weather_70149 task_env_weather_70149         id_def=0.12567 clip_s_def=0.04535
+  free_accessory_task_obj_remove_257910 task_obj_remove_257910         id_def=-0.11677 clip_s_def=0.0992
+  free_accessory_task_obj_remove_284852 task_obj_remove_284852         id_def=-0.10365 clip_s_def=0.06299
+  free_accessory_task_obj_remove_410264 task_obj_remove_410264         id_def=-0.02177 clip_s_def=0.07767
+  free_accessory_task_obj_remove_509477 task_obj_remove_509477         id_def=0.62891 clip_s_def=0.07913
+  free_accessory_task_obj_remove_720199 task_obj_remove_720199         id_def=-0.05855 clip_s_def=0.07199
+  free_accessory_task_obj_swap_joint_mask_533428 task_obj_swap_joint_mask_533428 id_def=0.01891 clip_s_def=0.04965
+  free_background_task_attr_mod_color_123744 task_attr_mod_color_123744     id_def=0.88209 clip_s_def=0.06711
+  free_background_task_attr_mod_color_202962 task_attr_mod_color_202962     id_def=0.66118 clip_s_def=0.07335
+  free_background_task_env_weather_195273 task_env_weather_195273        id_def= clip_s_def=0.10359
+  free_background_task_env_weather_70149 task_env_weather_70149         id_def=0.90567 clip_s_def=0.06302
+  free_background_task_obj_remove_257910 task_obj_remove_257910         id_def=0.28185 clip_s_def=0.12667
+  free_background_task_obj_remove_284852 task_obj_remove_284852         id_def=0.88547 clip_s_def=0.1248
+  free_background_task_obj_remove_410264 task_obj_remove_410264         id_def=0.75278 clip_s_def=0.15746
+  free_background_task_obj_remove_509477 task_obj_remove_509477         id_def=0.90056 clip_s_def=0.09817
+  free_background_task_obj_remove_720199 task_obj_remove_720199         id_def=-0.09942 clip_s_def=0.15938
+  free_background_task_obj_swap_joint_mask_533428 task_obj_swap_joint_mask_533428 id_def=0.81219 clip_s_def=0.05052
+  tint_clothing_task_attr_mod_color_123744 task_attr_mod_color_123744     id_def=0.85225 clip_s_def=0.06188
+  tint_clothing_task_attr_mod_color_202962 task_attr_mod_color_202962     id_def=0.60934 clip_s_def=0.04366
+  tint_clothing_task_env_weather_195273 task_env_weather_195273        id_def=0.84916 clip_s_def=0.12931
+  tint_clothing_task_env_weather_70149 task_env_weather_70149         id_def=0.22831 clip_s_def=0.07661
+  tint_clothing_task_obj_remove_257910 task_obj_remove_257910         id_def= clip_s_def=0.05902
+  tint_clothing_task_obj_remove_284852 task_obj_remove_284852         id_def=0.45653 clip_s_def=0.04278
+  tint_clothing_task_obj_remove_410264 task_obj_remove_410264         id_def= clip_s_def=0.08765
+  tint_clothing_task_obj_remove_509477 task_obj_remove_509477         id_def=0.88966 clip_s_def=0.08965
+  tint_clothing_task_obj_remove_720199 task_obj_remove_720199         id_def=0.65051 clip_s_def=0.08083
+  tint_clothing_task_obj_swap_joint_mask_533428 task_obj_swap_joint_mask_533428 id_def=0.80854 clip_s_def=0.06033
+  tint_accessory_task_attr_mod_color_123744 task_attr_mod_color_123744     id_def=-0.29379 clip_s_def=0.07505
+  tint_accessory_task_attr_mod_color_202962 task_attr_mod_color_202962     id_def=0.1943 clip_s_def=0.06984
+  tint_accessory_task_env_weather_195273 task_env_weather_195273        id_def=0.16008 clip_s_def=0.05581
+  tint_accessory_task_env_weather_70149 task_env_weather_70149         id_def=0.27115 clip_s_def=0.04927
+  tint_accessory_task_obj_remove_257910 task_obj_remove_257910         id_def=-0.11137 clip_s_def=0.07451
+  tint_accessory_task_obj_remove_284852 task_obj_remove_284852         id_def=-0.05899 clip_s_def=0.05696
+  tint_accessory_task_obj_remove_410264 task_obj_remove_410264         id_def=-0.05402 clip_s_def=0.0682
+  tint_accessory_task_obj_remove_509477 task_obj_remove_509477         id_def=0.44853 clip_s_def=0.07098
+  tint_accessory_task_obj_remove_720199 task_obj_remove_720199         id_def=-0.07387 clip_s_def=0.05072
+  tint_accessory_task_obj_swap_joint_mask_533428 task_obj_swap_joint_mask_533428 id_def=0.32922 clip_s_def=0.03852
+  tint_background_task_attr_mod_color_123744 task_attr_mod_color_123744     id_def=0.85065 clip_s_def=0.06653
+  tint_background_task_attr_mod_color_202962 task_attr_mod_color_202962     id_def= clip_s_def=0.06989
+  tint_background_task_env_weather_195273 task_env_weather_195273        id_def= clip_s_def=0.09183
+  tint_background_task_env_weather_70149 task_env_weather_70149         id_def=0.88566 clip_s_def=0.08297
+  tint_background_task_obj_remove_257910 task_obj_remove_257910         id_def=0.41198 clip_s_def=0.15237
+  tint_background_task_obj_remove_284852 task_obj_remove_284852         id_def=0.90353 clip_s_def=0.05484
+  tint_background_task_obj_remove_410264 task_obj_remove_410264         id_def=0.86553 clip_s_def=0.06433
+  tint_background_task_obj_remove_509477 task_obj_remove_509477         id_def=0.90399 clip_s_def=0.11118
+  tint_background_task_obj_remove_720199 task_obj_remove_720199         id_def=0.01557 clip_s_def=0.13768
+  tint_background_task_obj_swap_joint_mask_533428 task_obj_swap_joint_mask_533428 id_def=0.82118 clip_s_def=0.05388
+[literature_metrics] 60 列寫入 runs/ip2p_content_constraint/literature_metrics.csv
+辨識器來源：
+  facenet   facenet-pytorch InceptionResnetV1(vggface2) + MTCNN（本專案既有）
+  cvlface   minchul/cvlface_adaface_vit_base_kprpe_webface4m + minchul/cvlface_DFA_mobilenet（FaceLock）
+  arcface   insightface ArcFace + RetinaFace（Anti-DreamBooth／FaceShield）
+=== [2026-09-07 00:51:03] 寫入 runs/ip2p_content_constraint/literature_metrics.csv ===
+影像 10 張、臂 9 個
+找到 270 格，缺 0 格（那些臂還沒跑完，不是錯誤）
+影像 10 張、臂 9 個
+找到 270 格，缺 0 格（那些臂還沒跑完，不是錯誤）
+preflight 通過
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+Loaded pretrained aligner from pretrained_model/model.pt
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/timm/models/layers/__init__.py:49: FutureWarning: Importing from timm.models.layers is deprecated, please import via timm.layers
+  warnings.warn(f"Importing from {__name__} is deprecated, please import via timm.layers", FutureWarning)
+Loaded ViT model with KPRPE
+compatible keys in state_dict 283 / 283
+Check
+
+
+<All keys matched successfully>
+Loaded pretrained model from pretrained_model/model.pt
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py:153: UserWarning: Specified provider 'CUDAExecutionProvider' is not in available provider names.Available providers: 'AzureExecutionProvider, CPUExecutionProvider'
+  warnings.warn(
+Applied providers: ['CPUExecutionProvider'], with options: {'CPUExecutionProvider': {}}
+find model: /nfs/home/nelson0314/.insightface/models/buffalo_l/1k3d68.onnx landmark_3d_68 ['None', 3, 192, 192] 0.0 1.0
+Applied providers: ['CPUExecutionProvider'], with options: {'CPUExecutionProvider': {}}
+find model: /nfs/home/nelson0314/.insightface/models/buffalo_l/2d106det.onnx landmark_2d_106 ['None', 3, 192, 192] 0.0 1.0
+Applied providers: ['CPUExecutionProvider'], with options: {'CPUExecutionProvider': {}}
+find model: /nfs/home/nelson0314/.insightface/models/buffalo_l/det_10g.onnx detection [1, 3, '?', '?'] 127.5 128.0
+Applied providers: ['CPUExecutionProvider'], with options: {'CPUExecutionProvider': {}}
+find model: /nfs/home/nelson0314/.insightface/models/buffalo_l/genderage.onnx genderage ['None', 3, 96, 96] 0.0 1.0
+Applied providers: ['CPUExecutionProvider'], with options: {'CPUExecutionProvider': {}}
+find model: /nfs/home/nelson0314/.insightface/models/buffalo_l/w600k_r50.onnx recognition ['None', 3, 112, 112] 127.5 127.5
+set det-size: (640, 640)
+[cvlface] 可用
+[arcface] 可用
+/nfs/home/nelson0314/hf_cache/minchul/cvlface_DFA_mobilenet/aligners/differentiable_face_aligner/aligner_helper.py:30: FutureWarning: `estimate` is deprecated since version 0.26 and will be removed in version 2.2. Please use `SimilarityTransform.from_estimate` class constructor instead.
+  tform.estimate(ldmk, reference_ldmk)
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/insightface/utils/face_align.py:23: FutureWarning: `estimate` is deprecated since version 0.26 and will be removed in version 2.2. Please use `SimilarityTransform.from_estimate` class constructor instead.
+  tform.estimate(lmk, dst)
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 18339.68it/s]
+[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
+[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
+Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights:  80%|███████▉  | 325/408 [00:00<00:00, 3222.38it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 3097.82it/s]
+  free_clothing_task_attr_mod_color_123744 task_attr_mod_color_123744     id_def=-0.15883 clip_s_def=0.07307
+/nfs/home/nelson0314/hf_cache/minchul/cvlface_DFA_mobilenet/aligners/differentiable_face_aligner/aligner_helper.py:30: FutureWarning: `estimate` is deprecated since version 0.26 and will be removed in version 2.2. Please use `SimilarityTransform.from_estimate` class constructor instead.
+  tform.estimate(ldmk, reference_ldmk)
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/insightface/utils/face_align.py:23: FutureWarning: `estimate` is deprecated since version 0.26 and will be removed in version 2.2. Please use `SimilarityTransform.from_estimate` class constructor instead.
+  tform.estimate(lmk, dst)
+  free_clothing_task_attr_mod_color_202962 task_attr_mod_color_202962     id_def=0.60371 clip_s_def=0.04924
+  free_clothing_task_env_weather_195273 task_env_weather_195273        id_def=0.8194 clip_s_def=0.10985
+  free_clothing_task_env_weather_70149 task_env_weather_70149         id_def=0.40591 clip_s_def=0.07989
+  free_clothing_task_obj_remove_257910 task_obj_remove_257910         id_def= clip_s_def=0.06375
+  free_clothing_task_obj_remove_284852 task_obj_remove_284852         id_def=0.16895 clip_s_def=0.03879
+  free_clothing_task_obj_remove_410264 task_obj_remove_410264         id_def=-0.00145 clip_s_def=0.09853
+  free_clothing_task_obj_remove_509477 task_obj_remove_509477         id_def=0.80494 clip_s_def=0.08095
+  free_clothing_task_obj_remove_720199 task_obj_remove_720199         id_def= clip_s_def=0.05906
+  free_clothing_task_obj_swap_joint_mask_533428 task_obj_swap_joint_mask_533428 id_def= clip_s_def=0.03112
+  free_accessory_task_attr_mod_color_123744 task_attr_mod_color_123744     id_def=-0.03568 clip_s_def=0.08971
+  free_accessory_task_attr_mod_color_202962 task_attr_mod_color_202962     id_def=0.00537 clip_s_def=0.03041
+  free_accessory_task_env_weather_195273 task_env_weather_195273        id_def=-0.04231 clip_s_def=0.06331
+  free_accessory_task_env_weather_70149 task_env_weather_70149         id_def=0.12567 clip_s_def=0.04535
+  free_accessory_task_obj_remove_257910 task_obj_remove_257910         id_def=-0.11677 clip_s_def=0.0992
+  free_accessory_task_obj_remove_284852 task_obj_remove_284852         id_def=-0.10365 clip_s_def=0.06299
+  free_accessory_task_obj_remove_410264 task_obj_remove_410264         id_def=-0.02177 clip_s_def=0.07767
+  free_accessory_task_obj_remove_509477 task_obj_remove_509477         id_def=0.62891 clip_s_def=0.07913
+  free_accessory_task_obj_remove_720199 task_obj_remove_720199         id_def=-0.05855 clip_s_def=0.07199
+  free_accessory_task_obj_swap_joint_mask_533428 task_obj_swap_joint_mask_533428 id_def=0.01891 clip_s_def=0.04965
+  free_background_task_attr_mod_color_123744 task_attr_mod_color_123744     id_def=0.88209 clip_s_def=0.06711
+  free_background_task_attr_mod_color_202962 task_attr_mod_color_202962     id_def=0.66118 clip_s_def=0.07335
+  free_background_task_env_weather_195273 task_env_weather_195273        id_def= clip_s_def=0.10359
+  free_background_task_env_weather_70149 task_env_weather_70149         id_def=0.90567 clip_s_def=0.06302
+  free_background_task_obj_remove_257910 task_obj_remove_257910         id_def=0.28185 clip_s_def=0.12667
+  free_background_task_obj_remove_284852 task_obj_remove_284852         id_def=0.88547 clip_s_def=0.1248
+  free_background_task_obj_remove_410264 task_obj_remove_410264         id_def=0.75278 clip_s_def=0.15746
+  free_background_task_obj_remove_509477 task_obj_remove_509477         id_def=0.90056 clip_s_def=0.09817
+  free_background_task_obj_remove_720199 task_obj_remove_720199         id_def=-0.09942 clip_s_def=0.15938
+  free_background_task_obj_swap_joint_mask_533428 task_obj_swap_joint_mask_533428 id_def=0.81219 clip_s_def=0.05052
+  tint_clothing_task_attr_mod_color_123744 task_attr_mod_color_123744     id_def=0.85225 clip_s_def=0.06188
+  tint_clothing_task_attr_mod_color_202962 task_attr_mod_color_202962     id_def=0.60934 clip_s_def=0.04366
+  tint_clothing_task_env_weather_195273 task_env_weather_195273        id_def=0.84916 clip_s_def=0.12931
+  tint_clothing_task_env_weather_70149 task_env_weather_70149         id_def=0.22831 clip_s_def=0.07661
+  tint_clothing_task_obj_remove_257910 task_obj_remove_257910         id_def= clip_s_def=0.05902
+  tint_clothing_task_obj_remove_284852 task_obj_remove_284852         id_def=0.45653 clip_s_def=0.04278
+  tint_clothing_task_obj_remove_410264 task_obj_remove_410264         id_def= clip_s_def=0.08765
+  tint_clothing_task_obj_remove_509477 task_obj_remove_509477         id_def=0.88966 clip_s_def=0.08965
+  tint_clothing_task_obj_remove_720199 task_obj_remove_720199         id_def=0.65051 clip_s_def=0.08083
+  tint_clothing_task_obj_swap_joint_mask_533428 task_obj_swap_joint_mask_533428 id_def=0.80854 clip_s_def=0.06033
+  tint_accessory_task_attr_mod_color_123744 task_attr_mod_color_123744     id_def=-0.29379 clip_s_def=0.07505
+  tint_accessory_task_attr_mod_color_202962 task_attr_mod_color_202962     id_def=0.1943 clip_s_def=0.06984
+  tint_accessory_task_env_weather_195273 task_env_weather_195273        id_def=0.16008 clip_s_def=0.05581
+  tint_accessory_task_env_weather_70149 task_env_weather_70149         id_def=0.27115 clip_s_def=0.04927
+  tint_accessory_task_obj_remove_257910 task_obj_remove_257910         id_def=-0.11137 clip_s_def=0.07451
+  tint_accessory_task_obj_remove_284852 task_obj_remove_284852         id_def=-0.05899 clip_s_def=0.05696
+  tint_accessory_task_obj_remove_410264 task_obj_remove_410264         id_def=-0.05402 clip_s_def=0.0682
+  tint_accessory_task_obj_remove_509477 task_obj_remove_509477         id_def=0.44853 clip_s_def=0.07098
+  tint_accessory_task_obj_remove_720199 task_obj_remove_720199         id_def=-0.07387 clip_s_def=0.05072
+  tint_accessory_task_obj_swap_joint_mask_533428 task_obj_swap_joint_mask_533428 id_def=0.32922 clip_s_def=0.03852
+  tint_background_task_attr_mod_color_123744 task_attr_mod_color_123744     id_def=0.85065 clip_s_def=0.06653
+  tint_background_task_attr_mod_color_202962 task_attr_mod_color_202962     id_def= clip_s_def=0.06989
+  tint_background_task_env_weather_195273 task_env_weather_195273        id_def= clip_s_def=0.09183
+  tint_background_task_env_weather_70149 task_env_weather_70149         id_def=0.88566 clip_s_def=0.08297
+  tint_background_task_obj_remove_257910 task_obj_remove_257910         id_def=0.41198 clip_s_def=0.15237
+  tint_background_task_obj_remove_284852 task_obj_remove_284852         id_def=0.90353 clip_s_def=0.05484
+  tint_background_task_obj_remove_410264 task_obj_remove_410264         id_def=0.86553 clip_s_def=0.06433
+  tint_background_task_obj_remove_509477 task_obj_remove_509477         id_def=0.90399 clip_s_def=0.11118
+  tint_background_task_obj_remove_720199 task_obj_remove_720199         id_def=0.01557 clip_s_def=0.13768
+  tint_background_task_obj_swap_joint_mask_533428 task_obj_swap_joint_mask_533428 id_def=0.82118 clip_s_def=0.05388
+  lowproj_clothing_task_attr_mod_color_123744 task_attr_mod_color_123744     id_def=0.29097 clip_s_def=0.08023
+  lowproj_clothing_task_attr_mod_color_202962 task_attr_mod_color_202962     id_def=0.59049 clip_s_def=0.04868
+  lowproj_clothing_task_env_weather_195273 task_env_weather_195273        id_def=0.82531 clip_s_def=0.11394
+  lowproj_clothing_task_env_weather_70149 task_env_weather_70149         id_def=0.87751 clip_s_def=0.10867
+  lowproj_clothing_task_obj_remove_257910 task_obj_remove_257910         id_def= clip_s_def=0.05449
+  lowproj_clothing_task_obj_remove_284852 task_obj_remove_284852         id_def=0.91811 clip_s_def=0.05729
+  lowproj_clothing_task_obj_remove_410264 task_obj_remove_410264         id_def=0.1907 clip_s_def=0.10224
+  lowproj_clothing_task_obj_remove_509477 task_obj_remove_509477         id_def=0.81809 clip_s_def=0.08703
+  lowproj_clothing_task_obj_remove_720199 task_obj_remove_720199         id_def= clip_s_def=0.06641
+  lowproj_clothing_task_obj_swap_joint_mask_533428 task_obj_swap_joint_mask_533428 id_def=0.76732 clip_s_def=0.06437
+  lowproj_accessory_task_attr_mod_color_123744 task_attr_mod_color_123744     id_def=-0.05899 clip_s_def=0.08867
+  lowproj_accessory_task_attr_mod_color_202962 task_attr_mod_color_202962     id_def=0.23323 clip_s_def=0.06474
+  lowproj_accessory_task_env_weather_195273 task_env_weather_195273        id_def=0.12329 clip_s_def=0.05363
+  lowproj_accessory_task_env_weather_70149 task_env_weather_70149         id_def=0.76155 clip_s_def=0.06059
+  lowproj_accessory_task_obj_remove_257910 task_obj_remove_257910         id_def=0.06633 clip_s_def=0.07709
+  lowproj_accessory_task_obj_remove_284852 task_obj_remove_284852         id_def=0.46641 clip_s_def=0.05363
+  lowproj_accessory_task_obj_remove_410264 task_obj_remove_410264         id_def=0.08295 clip_s_def=0.08374
+  lowproj_accessory_task_obj_remove_509477 task_obj_remove_509477         id_def=0.49135 clip_s_def=0.0727
+  lowproj_accessory_task_obj_remove_720199 task_obj_remove_720199         id_def=-0.05879 clip_s_def=0.07386
+  lowproj_accessory_task_obj_swap_joint_mask_533428 task_obj_swap_joint_mask_533428 id_def=0.64278 clip_s_def=0.04967
+  lowproj_background_task_attr_mod_color_123744 task_attr_mod_color_123744     id_def=0.86835 clip_s_def=0.05045
+  lowproj_background_task_attr_mod_color_202962 task_attr_mod_color_202962     id_def=0.48959 clip_s_def=0.09732
+  lowproj_background_task_env_weather_195273 task_env_weather_195273        id_def= clip_s_def=0.08667
+  lowproj_background_task_env_weather_70149 task_env_weather_70149         id_def=0.70966 clip_s_def=0.11567
+  lowproj_background_task_obj_remove_257910 task_obj_remove_257910         id_def=0.54624 clip_s_def=0.12932
+  lowproj_background_task_obj_remove_284852 task_obj_remove_284852         id_def=0.02773 clip_s_def=0.06454
+  lowproj_background_task_obj_remove_410264 task_obj_remove_410264         id_def=0.84183 clip_s_def=0.06226
+  lowproj_background_task_obj_remove_509477 task_obj_remove_509477         id_def=0.90903 clip_s_def=0.08741
+  lowproj_background_task_obj_remove_720199 task_obj_remove_720199         id_def=0.15939 clip_s_def=0.14687
+  lowproj_background_task_obj_swap_joint_mask_533428 task_obj_swap_joint_mask_533428 id_def=0.7844 clip_s_def=0.03767
+  chroma_clothing_task_attr_mod_color_123744 task_attr_mod_color_123744     id_def=0.85329 clip_s_def=0.07378
+  chroma_clothing_task_attr_mod_color_202962 task_attr_mod_color_202962     id_def=0.83616 clip_s_def=0.03931
+  chroma_clothing_task_env_weather_195273 task_env_weather_195273        id_def=0.87372 clip_s_def=0.1238
+  chroma_clothing_task_env_weather_70149 task_env_weather_70149         id_def=0.90061 clip_s_def=0.09503
+  chroma_clothing_task_obj_remove_257910 task_obj_remove_257910         id_def= clip_s_def=0.05658
+  chroma_clothing_task_obj_remove_284852 task_obj_remove_284852         id_def=0.91223 clip_s_def=0.05424
+  chroma_clothing_task_obj_remove_410264 task_obj_remove_410264         id_def= clip_s_def=0.08801
+  chroma_clothing_task_obj_remove_509477 task_obj_remove_509477         id_def=0.89045 clip_s_def=0.11103
+  chroma_clothing_task_obj_remove_720199 task_obj_remove_720199         id_def=-0.29602 clip_s_def=0.0745
+  chroma_clothing_task_obj_swap_joint_mask_533428 task_obj_swap_joint_mask_533428 id_def=0.84502 clip_s_def=0.06426
+  chroma_accessory_task_attr_mod_color_123744 task_attr_mod_color_123744     id_def=0.16345 clip_s_def=0.08062
+  chroma_accessory_task_attr_mod_color_202962 task_attr_mod_color_202962     id_def=0.64538 clip_s_def=0.10824
+  chroma_accessory_task_env_weather_195273 task_env_weather_195273        id_def=0.0851 clip_s_def=0.0537
+  chroma_accessory_task_env_weather_70149 task_env_weather_70149         id_def=0.80396 clip_s_def=0.06327
+  chroma_accessory_task_obj_remove_257910 task_obj_remove_257910         id_def=0.09755 clip_s_def=0.08516
+  chroma_accessory_task_obj_remove_284852 task_obj_remove_284852         id_def=0.50362 clip_s_def=0.06955
+  chroma_accessory_task_obj_remove_410264 task_obj_remove_410264         id_def=0.13103 clip_s_def=0.06926
+  chroma_accessory_task_obj_remove_509477 task_obj_remove_509477         id_def=0.67643 clip_s_def=0.09354
+  chroma_accessory_task_obj_remove_720199 task_obj_remove_720199         id_def=-0.04433 clip_s_def=0.05302
+  chroma_accessory_task_obj_swap_joint_mask_533428 task_obj_swap_joint_mask_533428 id_def=-0.26482 clip_s_def=0.01841
+  chroma_background_task_attr_mod_color_123744 task_attr_mod_color_123744     id_def=0.83057 clip_s_def=0.04816
+  chroma_background_task_attr_mod_color_202962 task_attr_mod_color_202962     id_def=0.86735 clip_s_def=0.09193
+  chroma_background_task_env_weather_195273 task_env_weather_195273        id_def=0.84404 clip_s_def=0.11827
+  chroma_background_task_env_weather_70149 task_env_weather_70149         id_def=0.91505 clip_s_def=0.07027
+  chroma_background_task_obj_remove_257910 task_obj_remove_257910         id_def=0.4814 clip_s_def=0.12662
+  chroma_background_task_obj_remove_284852 task_obj_remove_284852         id_def=0.92262 clip_s_def=0.0384
+  chroma_background_task_obj_remove_410264 task_obj_remove_410264         id_def=0.89527 clip_s_def=0.0584
+  chroma_background_task_obj_remove_509477 task_obj_remove_509477         id_def=0.90755 clip_s_def=0.07052
+  chroma_background_task_obj_remove_720199 task_obj_remove_720199         id_def=0.14421 clip_s_def=0.13968
+  chroma_background_task_obj_swap_joint_mask_533428 task_obj_swap_joint_mask_533428 id_def=0.86377 clip_s_def=0.06677
+  lowproj_tile_clothing_task_attr_mod_color_123744 task_attr_mod_color_123744     id_def=0.87626 clip_s_def=0.07194
+  lowproj_tile_clothing_task_attr_mod_color_202962 task_attr_mod_color_202962     id_def=0.85832 clip_s_def=0.02276
+  lowproj_tile_clothing_task_env_weather_195273 task_env_weather_195273        id_def=0.87191 clip_s_def=0.10127
+  lowproj_tile_clothing_task_env_weather_70149 task_env_weather_70149         id_def=0.94353 clip_s_def=0.04517
+  lowproj_tile_clothing_task_obj_remove_257910 task_obj_remove_257910         id_def= clip_s_def=0.04922
+  lowproj_tile_clothing_task_obj_remove_284852 task_obj_remove_284852         id_def=0.94484 clip_s_def=0.05466
+  lowproj_tile_clothing_task_obj_remove_410264 task_obj_remove_410264         id_def=0.92059 clip_s_def=0.07423
+  lowproj_tile_clothing_task_obj_remove_509477 task_obj_remove_509477         id_def=0.8344 clip_s_def=0.09993
+  lowproj_tile_clothing_task_obj_remove_720199 task_obj_remove_720199         id_def=0.61349 clip_s_def=0.1063
+  lowproj_tile_clothing_task_obj_swap_joint_mask_533428 task_obj_swap_joint_mask_533428 id_def=0.85568 clip_s_def=0.07648
+  lowproj_tile_accessory_task_attr_mod_color_123744 task_attr_mod_color_123744     id_def=0.17525 clip_s_def=0.07569
+  lowproj_tile_accessory_task_attr_mod_color_202962 task_attr_mod_color_202962     id_def=0.57581 clip_s_def=0.12285
+  lowproj_tile_accessory_task_env_weather_195273 task_env_weather_195273        id_def=0.2124 clip_s_def=0.0595
+  lowproj_tile_accessory_task_env_weather_70149 task_env_weather_70149         id_def=0.80936 clip_s_def=0.07238
+  lowproj_tile_accessory_task_obj_remove_257910 task_obj_remove_257910         id_def=-0.01098 clip_s_def=0.07957
+  lowproj_tile_accessory_task_obj_remove_284852 task_obj_remove_284852         id_def=0.59083 clip_s_def=0.0717
+  lowproj_tile_accessory_task_obj_remove_410264 task_obj_remove_410264         id_def=0.00498 clip_s_def=0.07726
+  lowproj_tile_accessory_task_obj_remove_509477 task_obj_remove_509477         id_def=0.43364 clip_s_def=0.06747
+  lowproj_tile_accessory_task_obj_remove_720199 task_obj_remove_720199         id_def=-0.07936 clip_s_def=0.05663
+  lowproj_tile_accessory_task_obj_swap_joint_mask_533428 task_obj_swap_joint_mask_533428 id_def=-0.03716 clip_s_def=0.04432
+  lowproj_tile_background_task_attr_mod_color_123744 task_attr_mod_color_123744     id_def=0.88984 clip_s_def=0.0613
+  lowproj_tile_background_task_attr_mod_color_202962 task_attr_mod_color_202962     id_def=0.86786 clip_s_def=0.09413
+  lowproj_tile_background_task_env_weather_195273 task_env_weather_195273        id_def= clip_s_def=0.11009
+  lowproj_tile_background_task_env_weather_70149 task_env_weather_70149         id_def=0.92184 clip_s_def=0.06123
+  lowproj_tile_background_task_obj_remove_257910 task_obj_remove_257910         id_def=0.67889 clip_s_def=0.10449
+  lowproj_tile_background_task_obj_remove_284852 task_obj_remove_284852         id_def=0.90366 clip_s_def=0.04886
+  lowproj_tile_background_task_obj_remove_410264 task_obj_remove_410264         id_def=0.87295 clip_s_def=0.11573
+  lowproj_tile_background_task_obj_remove_509477 task_obj_remove_509477         id_def=0.88574 clip_s_def=0.11601
+  lowproj_tile_background_task_obj_remove_720199 task_obj_remove_720199         id_def=0.16727 clip_s_def=0.17167
+  lowproj_tile_background_task_obj_swap_joint_mask_533428 task_obj_swap_joint_mask_533428 id_def=0.85996 clip_s_def=0.11568
+  rand_clothing_task_attr_mod_color_123744 task_attr_mod_color_123744     id_def=0.86488 clip_s_def=0.06812
+  rand_clothing_task_attr_mod_color_202962 task_attr_mod_color_202962     id_def=0.87453 clip_s_def=0.03821
+  rand_clothing_task_env_weather_195273 task_env_weather_195273        id_def=0.90489 clip_s_def=0.09304
+  rand_clothing_task_env_weather_70149 task_env_weather_70149         id_def=0.95753 clip_s_def=0.07629
+  rand_clothing_task_obj_remove_257910 task_obj_remove_257910         id_def=0.71374 clip_s_def=0.06169
+  rand_clothing_task_obj_remove_284852 task_obj_remove_284852         id_def=0.95863 clip_s_def=0.07733
+  rand_clothing_task_obj_remove_410264 task_obj_remove_410264         id_def=0.97731 clip_s_def=0.0503
+  rand_clothing_task_obj_remove_509477 task_obj_remove_509477         id_def=0.91946 clip_s_def=0.07985
+  rand_clothing_task_obj_remove_720199 task_obj_remove_720199         id_def=-0.01404 clip_s_def=0.09215
+  rand_clothing_task_obj_swap_joint_mask_533428 task_obj_swap_joint_mask_533428 id_def=0.8552 clip_s_def=0.04139
+  rand_accessory_task_attr_mod_color_123744 task_attr_mod_color_123744     id_def=-0.06415 clip_s_def=0.0744
+  rand_accessory_task_attr_mod_color_202962 task_attr_mod_color_202962     id_def=0.86052 clip_s_def=0.10466
+  rand_accessory_task_env_weather_195273 task_env_weather_195273        id_def=0.20044 clip_s_def=0.0475
+  rand_accessory_task_env_weather_70149 task_env_weather_70149         id_def=0.943 clip_s_def=0.06947
+  rand_accessory_task_obj_remove_257910 task_obj_remove_257910         id_def=0.1386 clip_s_def=0.09324
+  rand_accessory_task_obj_remove_284852 task_obj_remove_284852         id_def=0.57578 clip_s_def=0.10959
+  rand_accessory_task_obj_remove_410264 task_obj_remove_410264         id_def=0.02251 clip_s_def=0.08254
+  rand_accessory_task_obj_remove_509477 task_obj_remove_509477         id_def=0.58677 clip_s_def=0.08625
+  rand_accessory_task_obj_remove_720199 task_obj_remove_720199         id_def=-0.07428 clip_s_def=0.05571
+  rand_accessory_task_obj_swap_joint_mask_533428 task_obj_swap_joint_mask_533428 id_def=0.55979 clip_s_def=0.06276
+  rand_background_task_attr_mod_color_123744 task_attr_mod_color_123744     id_def=0.877 clip_s_def=0.0968
+  rand_background_task_attr_mod_color_202962 task_attr_mod_color_202962     id_def=0.80261 clip_s_def=0.09359
+  rand_background_task_env_weather_195273 task_env_weather_195273        id_def=0.85616 clip_s_def=0.1212
+  rand_background_task_env_weather_70149 task_env_weather_70149         id_def=0.95302 clip_s_def=0.10943
+  rand_background_task_obj_remove_257910 task_obj_remove_257910         id_def= clip_s_def=0.1014
+  rand_background_task_obj_remove_284852 task_obj_remove_284852         id_def=0.93428 clip_s_def=0.1799
+  rand_background_task_obj_remove_410264 task_obj_remove_410264         id_def=0.9456 clip_s_def=0.08436
+  rand_background_task_obj_remove_509477 task_obj_remove_509477         id_def=0.87915 clip_s_def=0.09996
+  rand_background_task_obj_remove_720199 task_obj_remove_720199         id_def=0.52855 clip_s_def=0.18792
+  rand_background_task_obj_swap_joint_mask_533428 task_obj_swap_joint_mask_533428 id_def=0.83417 clip_s_def=0.10342
+  pretty_clothing_task_attr_mod_color_123744 task_attr_mod_color_123744     id_def=0.88268 clip_s_def=0.02741
+  pretty_clothing_task_attr_mod_color_202962 task_attr_mod_color_202962     id_def=0.85062 clip_s_def=0.04531
+  pretty_clothing_task_env_weather_195273 task_env_weather_195273        id_def=0.85273 clip_s_def=0.0697
+  pretty_clothing_task_env_weather_70149 task_env_weather_70149         id_def=0.95163 clip_s_def=0.08217
+  pretty_clothing_task_obj_remove_257910 task_obj_remove_257910         id_def=0.66116 clip_s_def=0.07654
+  pretty_clothing_task_obj_remove_284852 task_obj_remove_284852         id_def=0.94456 clip_s_def=0.07004
+  pretty_clothing_task_obj_remove_410264 task_obj_remove_410264         id_def=0.93613 clip_s_def=0.06828
+  pretty_clothing_task_obj_remove_509477 task_obj_remove_509477         id_def=0.87278 clip_s_def=0.10669
+  pretty_clothing_task_obj_remove_720199 task_obj_remove_720199         id_def=0.63248 clip_s_def=0.1168
+  pretty_clothing_task_obj_swap_joint_mask_533428 task_obj_swap_joint_mask_533428 id_def=0.88341 clip_s_def=0.06857
+  pretty_accessory_task_attr_mod_color_123744 task_attr_mod_color_123744     id_def=0.12019 clip_s_def=0.08746
+  pretty_accessory_task_attr_mod_color_202962 task_attr_mod_color_202962     id_def=0.61926 clip_s_def=0.09971
+  pretty_accessory_task_env_weather_195273 task_env_weather_195273        id_def=0.00035 clip_s_def=0.05276
+  pretty_accessory_task_env_weather_70149 task_env_weather_70149         id_def=0.92409 clip_s_def=0.07008
+  pretty_accessory_task_obj_remove_257910 task_obj_remove_257910         id_def=0.07222 clip_s_def=0.07971
+  pretty_accessory_task_obj_remove_284852 task_obj_remove_284852         id_def=0.63449 clip_s_def=0.07926
+  pretty_accessory_task_obj_remove_410264 task_obj_remove_410264         id_def=0.32226 clip_s_def=0.07051
+  pretty_accessory_task_obj_remove_509477 task_obj_remove_509477         id_def=0.90332 clip_s_def=-0.01735
+  pretty_accessory_task_obj_remove_720199 task_obj_remove_720199         id_def=0.08036 clip_s_def=0.06909
+  pretty_accessory_task_obj_swap_joint_mask_533428 task_obj_swap_joint_mask_533428 id_def=0.7659 clip_s_def=0.07135
+  pretty_background_task_attr_mod_color_123744 task_attr_mod_color_123744     id_def=0.8763 clip_s_def=0.09751
+  pretty_background_task_attr_mod_color_202962 task_attr_mod_color_202962     id_def= clip_s_def=0.07342
+  pretty_background_task_env_weather_195273 task_env_weather_195273        id_def=0.91053 clip_s_def=0.07541
+  pretty_background_task_env_weather_70149 task_env_weather_70149         id_def=0.92604 clip_s_def=0.04474
+  pretty_background_task_obj_remove_257910 task_obj_remove_257910         id_def=0.04636 clip_s_def=0.14441
+  pretty_background_task_obj_remove_284852 task_obj_remove_284852         id_def=0.93108 clip_s_def=0.03753
+  pretty_background_task_obj_remove_410264 task_obj_remove_410264         id_def=0.97472 clip_s_def=0.05807
+  pretty_background_task_obj_remove_509477 task_obj_remove_509477         id_def=0.9142 clip_s_def=0.01996
+  pretty_background_task_obj_remove_720199 task_obj_remove_720199         id_def=0.07305 clip_s_def=0.14427
+  pretty_background_task_obj_swap_joint_mask_533428 task_obj_swap_joint_mask_533428 id_def=0.85332 clip_s_def=0.09087
+  identity_clothing_task_attr_mod_color_123744 task_attr_mod_color_123744     id_def=0.86279 clip_s_def=0.04093
+  identity_clothing_task_attr_mod_color_202962 task_attr_mod_color_202962     id_def=0.8911 clip_s_def=0.0568
+  identity_clothing_task_env_weather_195273 task_env_weather_195273        id_def=0.87548 clip_s_def=0.09173
+  identity_clothing_task_env_weather_70149 task_env_weather_70149         id_def=0.93198 clip_s_def=0.07236
+  identity_clothing_task_obj_remove_257910 task_obj_remove_257910         id_def= clip_s_def=0.04903
+  identity_clothing_task_obj_remove_284852 task_obj_remove_284852         id_def=0.90031 clip_s_def=0.06674
+  identity_clothing_task_obj_remove_410264 task_obj_remove_410264         id_def= clip_s_def=0.08759
+  identity_clothing_task_obj_remove_509477 task_obj_remove_509477         id_def=0.84157 clip_s_def=0.08575
+  identity_clothing_task_obj_remove_720199 task_obj_remove_720199         id_def= clip_s_def=0.06875
+  identity_clothing_task_obj_swap_joint_mask_533428 task_obj_swap_joint_mask_533428 id_def=0.71045 clip_s_def=0.06895
+  identity_accessory_task_attr_mod_color_123744 task_attr_mod_color_123744     id_def=0.25555 clip_s_def=0.08479
+  identity_accessory_task_attr_mod_color_202962 task_attr_mod_color_202962     id_def=0.16342 clip_s_def=0.07276
+  identity_accessory_task_env_weather_195273 task_env_weather_195273        id_def=0.14572 clip_s_def=0.06999
+  identity_accessory_task_env_weather_70149 task_env_weather_70149         id_def=0.76893 clip_s_def=0.07575
+  identity_accessory_task_obj_remove_257910 task_obj_remove_257910         id_def=0.14834 clip_s_def=0.09151
+  identity_accessory_task_obj_remove_284852 task_obj_remove_284852         id_def=0.45336 clip_s_def=0.08336
+  identity_accessory_task_obj_remove_410264 task_obj_remove_410264         id_def=0.04638 clip_s_def=0.10712
+  identity_accessory_task_obj_remove_509477 task_obj_remove_509477         id_def=0.89101 clip_s_def=0.04382
+  identity_accessory_task_obj_remove_720199 task_obj_remove_720199         id_def=-0.00251 clip_s_def=0.0802
+  identity_accessory_task_obj_swap_joint_mask_533428 task_obj_swap_joint_mask_533428 id_def=0.71899 clip_s_def=0.06711
+  identity_background_task_attr_mod_color_123744 task_attr_mod_color_123744     id_def=0.8115 clip_s_def=0.04809
+  identity_background_task_attr_mod_color_202962 task_attr_mod_color_202962     id_def=0.43032 clip_s_def=0.10292
+  identity_background_task_env_weather_195273 task_env_weather_195273        id_def=0.82294 clip_s_def=0.06843
+  identity_background_task_env_weather_70149 task_env_weather_70149         id_def=0.93219 clip_s_def=0.0684
+  identity_background_task_obj_remove_257910 task_obj_remove_257910         id_def=0.01132 clip_s_def=0.17963
+  identity_background_task_obj_remove_284852 task_obj_remove_284852         id_def=0.89803 clip_s_def=0.07246
+  identity_background_task_obj_remove_410264 task_obj_remove_410264         id_def=0.828 clip_s_def=0.09478
+  identity_background_task_obj_remove_509477 task_obj_remove_509477         id_def=0.87672 clip_s_def=0.09643
+  identity_background_task_obj_remove_720199 task_obj_remove_720199         id_def=0.49568 clip_s_def=0.17099
+  identity_background_task_obj_swap_joint_mask_533428 task_obj_swap_joint_mask_533428 id_def=0.67943 clip_s_def=0.05577
+  identity_layout_clothing_task_attr_mod_color_123744 task_attr_mod_color_123744     id_def=0.88724 clip_s_def=0.03229
+  identity_layout_clothing_task_attr_mod_color_202962 task_attr_mod_color_202962     id_def=0.88367 clip_s_def=0.06059
+  identity_layout_clothing_task_env_weather_195273 task_env_weather_195273        id_def= clip_s_def=0.08481
+  identity_layout_clothing_task_env_weather_70149 task_env_weather_70149         id_def=0.91805 clip_s_def=0.0976
+  identity_layout_clothing_task_obj_remove_257910 task_obj_remove_257910         id_def= clip_s_def=0.04107
+  identity_layout_clothing_task_obj_remove_284852 task_obj_remove_284852         id_def=0.90113 clip_s_def=0.0607
+  identity_layout_clothing_task_obj_remove_410264 task_obj_remove_410264         id_def= clip_s_def=0.09034
+  identity_layout_clothing_task_obj_remove_509477 task_obj_remove_509477         id_def=0.81395 clip_s_def=0.08485
+  identity_layout_clothing_task_obj_remove_720199 task_obj_remove_720199         id_def= clip_s_def=0.06934
+  identity_layout_clothing_task_obj_swap_joint_mask_533428 task_obj_swap_joint_mask_533428 id_def=0.30699 clip_s_def=0.02847
+  identity_layout_accessory_task_attr_mod_color_123744 task_attr_mod_color_123744     id_def=0.34799 clip_s_def=0.09133
+  identity_layout_accessory_task_attr_mod_color_202962 task_attr_mod_color_202962     id_def=0.17141 clip_s_def=0.06446
+  identity_layout_accessory_task_env_weather_195273 task_env_weather_195273        id_def=0.14501 clip_s_def=0.06319
+  identity_layout_accessory_task_env_weather_70149 task_env_weather_70149         id_def=0.84735 clip_s_def=0.08069
+  identity_layout_accessory_task_obj_remove_257910 task_obj_remove_257910         id_def=0.13534 clip_s_def=0.0907
+  identity_layout_accessory_task_obj_remove_284852 task_obj_remove_284852         id_def=0.46163 clip_s_def=0.07985
+  identity_layout_accessory_task_obj_remove_410264 task_obj_remove_410264         id_def=0.15256 clip_s_def=0.10149
+  identity_layout_accessory_task_obj_remove_509477 task_obj_remove_509477         id_def=0.83021 clip_s_def=0.03433
+  identity_layout_accessory_task_obj_remove_720199 task_obj_remove_720199         id_def=-0.0203 clip_s_def=0.07758
+  identity_layout_accessory_task_obj_swap_joint_mask_533428 task_obj_swap_joint_mask_533428 id_def=0.10006 clip_s_def=0.07134
+  identity_layout_background_task_attr_mod_color_123744 task_attr_mod_color_123744     id_def=0.83094 clip_s_def=0.05738
+  identity_layout_background_task_attr_mod_color_202962 task_attr_mod_color_202962     id_def= clip_s_def=0.08273
+  identity_layout_background_task_env_weather_195273 task_env_weather_195273        id_def=0.82861 clip_s_def=0.07303
+  identity_layout_background_task_env_weather_70149 task_env_weather_70149         id_def=0.93001 clip_s_def=0.07002
+  identity_layout_background_task_obj_remove_257910 task_obj_remove_257910         id_def=0.04569 clip_s_def=0.17336
+  identity_layout_background_task_obj_remove_284852 task_obj_remove_284852         id_def=0.90842 clip_s_def=0.07853
+  identity_layout_background_task_obj_remove_410264 task_obj_remove_410264         id_def=0.83558 clip_s_def=0.11338
+  identity_layout_background_task_obj_remove_509477 task_obj_remove_509477         id_def=0.84055 clip_s_def=0.09813
+  identity_layout_background_task_obj_remove_720199 task_obj_remove_720199         id_def=0.49468 clip_s_def=0.1678
+  identity_layout_background_task_obj_swap_joint_mask_533428 task_obj_swap_joint_mask_533428 id_def=0.83197 clip_s_def=0.06586
+[literature_metrics] 270 列寫入 runs/ip2p_content_constraint/literature_metrics.csv
+辨識器來源：
+  facenet   facenet-pytorch InceptionResnetV1(vggface2) + MTCNN（本專案既有）
+  cvlface   minchul/cvlface_adaface_vit_base_kprpe_webface4m + minchul/cvlface_DFA_mobilenet（FaceLock）
+  arcface   insightface ArcFace + RetinaFace（Anti-DreamBooth／FaceShield）
+=== [2026-09-07 01:38:37] 寫入 runs/ip2p_content_constraint/literature_metrics.csv ===

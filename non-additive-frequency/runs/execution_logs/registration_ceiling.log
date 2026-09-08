@@ -1,0 +1,74 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/380 [00:00<?, ?it/s]Loading weights: 100%|¢i¢i¢i¢i¢i¢i¢i¢i¢i¢i| 380/380 [00:00<00:00, 7785.67it/s]
+
+[task_attr_mod_color_123744]
+  free       rotate10=+0.40¡÷+0.47  crop_resi=+0.21¡÷+0.31  resize_on=+0.77¡÷+0.79  jpeg_then=+0.75¡÷+0.77  blur1.5=+0.73¡÷+0.75  jpeg75=+0.81¡÷+0.82
+  res_s08    rotate10=+0.54¡÷+0.59  crop_resi=+0.28¡÷+0.38  resize_on=+1.00¡÷+1.00  jpeg_then=+0.99¡÷+0.99  blur1.5=+0.99¡÷+0.99  jpeg75=+0.99¡÷+1.00
+  res_s32    rotate10=+0.69¡÷+0.78  crop_resi=+0.32¡÷+0.46  resize_on=+1.00¡÷+1.00  jpeg_then=+1.00¡÷+1.00  blur1.5=+0.99¡÷+0.99  jpeg75=+1.00¡÷+1.00
+  res_s128   rotate10=+0.79¡÷+0.90  crop_resi=+0.47¡÷+0.73  resize_on=+1.00¡÷+1.00  jpeg_then=+1.00¡÷+1.00  blur1.5=+0.99¡÷+1.00  jpeg75=+1.00¡÷+1.00
+  res_s512   rotate10=+0.81¡÷+0.89  crop_resi=+0.57¡÷+0.78  resize_on=+1.00¡÷+1.00  jpeg_then=+1.00¡÷+1.00  blur1.5=+0.99¡÷+1.00  jpeg75=+1.00¡÷+1.00
+
+[task_attr_mod_color_202962]
+  free       rotate10=+0.60¡÷+0.71  crop_resi=+0.43¡÷+0.65  resize_on=+0.82¡÷+0.84  jpeg_then=+0.80¡÷+0.83  blur1.5=+0.79¡÷+0.82  jpeg75=+0.85¡÷+0.87
+  res_s08    rotate10=+0.72¡÷+0.85  crop_resi=+0.54¡÷+0.76  resize_on=+1.00¡÷+1.00  jpeg_then=+1.00¡÷+1.00  blur1.5=+1.00¡÷+1.00  jpeg75=+1.00¡÷+1.00
+  res_s32    rotate10=+0.85¡÷+0.97  crop_resi=+0.55¡÷+0.87  resize_on=+1.00¡÷+1.00  jpeg_then=+1.00¡÷+1.00  blur1.5=+1.00¡÷+1.00  jpeg75=+1.00¡÷+1.00
+  res_s128   rotate10=+0.92¡÷+1.00  crop_resi=+0.75¡÷+0.99  resize_on=+1.00¡÷+1.00  jpeg_then=+1.00¡÷+1.00  blur1.5=+1.00¡÷+1.00  jpeg75=+1.00¡÷+1.00
+  res_s512   rotate10=+0.90¡÷+1.00  crop_resi=+0.70¡÷+0.99  resize_on=+1.00¡÷+1.00  jpeg_then=+1.00¡÷+1.00  blur1.5=+1.00¡÷+1.00  jpeg75=+1.00¡÷+1.00
+
+[task_env_weather_195273]
+  free       rotate10=+0.23¡÷+0.21  crop_resi=+0.14¡÷+0.16  resize_on=+0.79¡÷+0.76  jpeg_then=+0.77¡÷+0.75  blur1.5=+0.74¡÷+0.71  jpeg75=+0.83¡÷+0.82
+  res_s08    rotate10=+0.31¡÷+0.30  crop_resi=+0.16¡÷+0.21  resize_on=+0.98¡÷+0.98  jpeg_then=+0.98¡÷+0.98  blur1.5=+0.96¡÷+0.96  jpeg75=+0.99¡÷+0.99
+  res_s32    rotate10=+0.46¡÷+0.48  crop_resi=+0.22¡÷+0.30  resize_on=+0.98¡÷+0.98  jpeg_then=+0.99¡÷+0.99  blur1.5=+0.96¡÷+0.95  jpeg75=+1.00¡÷+1.00
+  res_s128   rotate10=+0.50¡÷+0.50  crop_resi=+0.36¡÷+0.42  resize_on=+0.98¡÷+0.98  jpeg_then=+0.99¡÷+0.99  blur1.5=+0.96¡÷+0.95  jpeg75=+1.00¡÷+1.00
+  res_s512   rotate10=+0.60¡÷+0.69  crop_resi=+0.49¡÷+0.64  resize_on=+0.99¡÷+0.99  jpeg_then=+0.99¡÷+0.99  blur1.5=+0.97¡÷+0.97  jpeg75=+1.00¡÷+1.00
+
+[task_env_weather_70149]
+  free       rotate10=+0.49¡÷+0.55  crop_resi=+0.38¡÷+0.46  resize_on=+0.81¡÷+0.81  jpeg_then=+0.80¡÷+0.79  blur1.5=+0.78¡÷+0.78  jpeg75=+0.84¡÷+0.84
+  res_s08    rotate10=+0.58¡÷+0.63  crop_resi=+0.46¡÷+0.57  resize_on=+1.00¡÷+1.00  jpeg_then=+0.99¡÷+0.99  blur1.5=+0.99¡÷+0.99  jpeg75=+0.99¡÷+1.00
+  res_s32    rotate10=+0.71¡÷+0.80  crop_resi=+0.53¡÷+0.69  resize_on=+1.00¡÷+1.00  jpeg_then=+0.99¡÷+1.00  blur1.5=+0.99¡÷+0.99  jpeg75=+1.00¡÷+1.00
+  res_s128   rotate10=+0.75¡÷+0.87  crop_resi=+0.67¡÷+0.88  resize_on=+1.00¡÷+1.00  jpeg_then=+1.00¡÷+1.00  blur1.5=+0.99¡÷+1.00  jpeg75=+1.00¡÷+1.00
+  res_s512   rotate10=+0.80¡÷+0.91  crop_resi=+0.66¡÷+0.85  resize_on=+1.00¡÷+1.00  jpeg_then=+1.00¡÷+1.00  blur1.5=+0.99¡÷+1.00  jpeg75=+1.00¡÷+1.00
+
+[task_obj_remove_257910]
+  free       rotate10=+0.66¡÷+0.71  crop_resi=+0.50¡÷+0.69  resize_on=+0.86¡÷+0.86  jpeg_then=+0.85¡÷+0.85  blur1.5=+0.84¡÷+0.84  jpeg75=+0.88¡÷+0.88
+  res_s08    rotate10=+0.73¡÷+0.79  crop_resi=+0.57¡÷+0.78  resize_on=+1.00¡÷+1.00  jpeg_then=+1.00¡÷+1.00  blur1.5=+1.00¡÷+1.00  jpeg75=+1.00¡÷+1.00
+  res_s32    rotate10=+0.80¡÷+0.86  crop_resi=+0.62¡÷+0.86  resize_on=+1.00¡÷+1.00  jpeg_then=+1.00¡÷+1.00  blur1.5=+1.00¡÷+1.00  jpeg75=+1.00¡÷+1.00
+  res_s128   rotate10=+0.85¡÷+0.94  crop_resi=+0.51¡÷+0.92  resize_on=+1.00¡÷+1.00  jpeg_then=+1.00¡÷+1.00  blur1.5=+1.00¡÷+1.00  jpeg75=+1.00¡÷+1.00
+  res_s512   rotate10=+0.89¡÷+0.96  crop_resi=+0.71¡÷+0.97  resize_on=+1.00¡÷+1.00  jpeg_then=+1.00¡÷+1.00  blur1.5=+1.00¡÷+1.00  jpeg75=+1.00¡÷+1.00
+
+[task_obj_remove_284852]
+  free       rotate10=+0.58¡÷+0.65  crop_resi=+0.46¡÷+0.56  resize_on=+0.85¡÷+0.86  jpeg_then=+0.84¡÷+0.85  blur1.5=+0.83¡÷+0.84  jpeg75=+0.88¡÷+0.88
+  res_s08    rotate10=+0.66¡÷+0.71  crop_resi=+0.52¡÷+0.63  resize_on=+1.00¡÷+1.00  jpeg_then=+1.00¡÷+1.00  blur1.5=+0.99¡÷+1.00  jpeg75=+1.00¡÷+1.00
+  res_s32    rotate10=+0.75¡÷+0.83  crop_resi=+0.56¡÷+0.68  resize_on=+1.00¡÷+1.00  jpeg_then=+1.00¡÷+1.00  blur1.5=+1.00¡÷+1.00  jpeg75=+1.00¡÷+1.00
+  res_s128   rotate10=+0.80¡÷+0.89  crop_resi=+0.64¡÷+0.76  resize_on=+1.00¡÷+1.00  jpeg_then=+1.00¡÷+1.00  blur1.5=+1.00¡÷+1.00  jpeg75=+1.00¡÷+1.00
+  res_s512   rotate10=+0.84¡÷+0.90  crop_resi=+0.73¡÷+0.86  resize_on=+1.00¡÷+1.00  jpeg_then=+1.00¡÷+1.00  blur1.5=+1.00¡÷+1.00  jpeg75=+1.00¡÷+1.00
+
+[task_obj_remove_410264]
+  free       rotate10=+0.69¡÷+0.72  crop_resi=+0.63¡÷+0.71  resize_on=+0.87¡÷+0.87  jpeg_then=+0.86¡÷+0.86  blur1.5=+0.85¡÷+0.85  jpeg75=+0.89¡÷+0.89
+  res_s08    rotate10=+0.76¡÷+0.80  crop_resi=+0.72¡÷+0.80  resize_on=+1.00¡÷+1.00  jpeg_then=+1.00¡÷+1.00  blur1.5=+1.00¡÷+1.00  jpeg75=+1.00¡÷+1.00
+  res_s32    rotate10=+0.83¡÷+0.88  crop_resi=+0.73¡÷+0.82  resize_on=+1.00¡÷+1.00  jpeg_then=+1.00¡÷+1.00  blur1.5=+1.00¡÷+1.00  jpeg75=+1.00¡÷+1.00
+  res_s128   rotate10=+0.89¡÷+0.95  crop_resi=+0.88¡÷+0.97  resize_on=+1.00¡÷+1.00  jpeg_then=+1.00¡÷+1.00  blur1.5=+1.00¡÷+1.00  jpeg75=+1.00¡÷+1.00
+  res_s512   rotate10=+0.90¡÷+0.95  crop_resi=+0.85¡÷+0.97  resize_on=+1.00¡÷+1.00  jpeg_then=+1.00¡÷+1.00  blur1.5=+1.00¡÷+1.00  jpeg75=+1.00¡÷+1.00
+
+[task_obj_remove_509477]
+  free       rotate10=+0.32¡÷+0.37  crop_resi=+0.19¡÷+0.26  resize_on=+0.78¡÷+0.79  jpeg_then=+0.76¡÷+0.77  blur1.5=+0.74¡÷+0.75  jpeg75=+0.82¡÷+0.83
+  res_s08    rotate10=+0.38¡÷+0.43  crop_resi=+0.23¡÷+0.37  resize_on=+0.99¡÷+0.99  jpeg_then=+0.99¡÷+0.99  blur1.5=+0.98¡÷+0.98  jpeg75=+0.99¡÷+0.99
+  res_s32    rotate10=+0.53¡÷+0.62  crop_resi=+0.25¡÷+0.36  resize_on=+0.99¡÷+0.99  jpeg_then=+0.99¡÷+0.99  blur1.5=+0.98¡÷+0.98  jpeg75=+0.99¡÷+1.00
+  res_s128   rotate10=+0.55¡÷+0.56  crop_resi=+0.36¡÷+0.55  resize_on=+0.99¡÷+0.99  jpeg_then=+0.99¡÷+0.99  blur1.5=+0.98¡÷+0.98  jpeg75=+0.99¡÷+1.00
+  res_s512   rotate10=+0.72¡÷+0.82  crop_resi=+0.56¡÷+0.74  resize_on=+0.99¡÷+1.00  jpeg_then=+0.99¡÷+1.00  blur1.5=+0.99¡÷+0.99  jpeg75=+1.00¡÷+1.00
+
+[task_obj_remove_720199]
+  free       rotate10=+0.65¡÷+0.73  crop_resi=+0.56¡÷+0.71  resize_on=+0.87¡÷+0.87  jpeg_then=+0.86¡÷+0.86  blur1.5=+0.85¡÷+0.85  jpeg75=+0.89¡÷+0.89
+  res_s08    rotate10=+0.72¡÷+0.82  crop_resi=+0.64¡÷+0.82  resize_on=+1.00¡÷+1.00  jpeg_then=+1.00¡÷+1.00  blur1.5=+1.00¡÷+1.00  jpeg75=+1.00¡÷+1.00
+  res_s32    rotate10=+0.80¡÷+0.91  crop_resi=+0.63¡÷+0.82  resize_on=+1.00¡÷+1.00  jpeg_then=+1.00¡÷+1.00  blur1.5=+1.00¡÷+1.00  jpeg75=+1.00¡÷+1.00
+  res_s128   rotate10=+0.83¡÷+0.97  crop_resi=+0.78¡÷+0.97  resize_on=+1.00¡÷+1.00  jpeg_then=+1.00¡÷+1.00  blur1.5=+1.00¡÷+1.00  jpeg75=+1.00¡÷+1.00
+  res_s512   rotate10=+0.86¡÷+0.98  crop_resi=+0.78¡÷+0.99  resize_on=+1.00¡÷+1.00  jpeg_then=+1.00¡÷+1.00  blur1.5=+1.00¡÷+1.00  jpeg75=+1.00¡÷+1.00
+
+[task_obj_swap_joint_mask_533428]
+  free       rotate10=+0.41¡÷+0.41  crop_resi=+0.32¡÷+0.35  resize_on=+0.80¡÷+0.79  jpeg_then=+0.78¡÷+0.78  blur1.5=+0.76¡÷+0.75  jpeg75=+0.84¡÷+0.83
+  res_s08    rotate10=+0.51¡÷+0.53  crop_resi=+0.39¡÷+0.46  resize_on=+0.99¡÷+0.99  jpeg_then=+0.99¡÷+0.99  blur1.5=+0.97¡÷+0.97  jpeg75=+0.99¡÷+1.00
+  res_s32    rotate10=+0.64¡÷+0.70  crop_resi=+0.47¡÷+0.60  resize_on=+0.99¡÷+0.99  jpeg_then=+0.99¡÷+0.99  blur1.5=+0.98¡÷+0.98  jpeg75=+1.00¡÷+1.00
+  res_s128   rotate10=+0.64¡÷+0.67  crop_resi=+0.55¡÷+0.61  resize_on=+0.99¡÷+0.98  jpeg_then=+0.99¡÷+0.99  blur1.5=+0.97¡÷+0.97  jpeg75=+1.00¡÷+1.00
+  res_s512   rotate10=+0.73¡÷+0.77  crop_resi=+0.63¡÷+0.73  resize_on=+0.99¡÷+0.99  jpeg_then=+0.99¡÷+0.99  blur1.5=+0.98¡÷+0.98  jpeg75=+1.00¡÷+1.00
+
+¼g¥X 300 ¦C¨ì C:\image-immunization\non-additive-frequency\runs\registration_ceiling\results.csv

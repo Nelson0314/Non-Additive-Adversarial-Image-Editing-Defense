@@ -7,6 +7,7 @@
 
 | 文件 | 回答什麼 | 什麼時候讀 |
 |---|---|---|
+| [DIRECTION.md](DIRECTION.md) | **研究方向的定義**：兩個載體、什麼算在方向上、下一步 | 決定要不要做某個實驗之前 |
 | [GOAL.md](GOAL.md) | 研究目標、成敗判準、明確不做的事 | 開始任何工作之前 |
 | [METHOD.md](METHOD.md) | 本方法（紋理重相位）的構造、參數、可調旋鈕 | 要改動方法時 |
 | [BASELINES.md](BASELINES.md) | 每個對照組是什麼、來源、重現狀態、程式位置 | 要加或比較對照組時 |
@@ -15,6 +16,7 @@
 | [DECISIONS.md](DECISIONS.md) | 已裁決的事項與理由 | 想改變既定作法時 |
 | [DEFECTS.md](DEFECTS.md) | 已知缺陷與修正紀錄 | 遇到可疑行為時 |
 | [PENDING.md](PENDING.md) | **量過但尚未裁定**的事項與缺口 | 接手工作時；引用任何新數字之前 |
+| [PIPELINE.md](PIPELINE.md) | **交付 pipeline**：威脅模型、四個階段、各階段的成本與量到的數字 | 要回答「這套東西怎麼真的用」時 |
 | [OPERATIONS.md](OPERATIONS.md) | 環境、遠端機器、執行與資料保全 | 要跑實驗時 |
 | [reference/](reference/) | 外部文獻的查證紀錄 | 要引用或移植別人的方法時 |
 | [superpowers/specs/perceptual-budget-design.md](superpowers/specs/perceptual-budget-design.md) | 頻率閘由二值改為知覺價目表的設計說明 | 要動頻率閘時 |

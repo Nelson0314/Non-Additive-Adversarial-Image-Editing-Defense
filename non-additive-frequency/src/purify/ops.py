@@ -284,6 +284,81 @@ def shift_only(x: torch.Tensor, pixels: int = 51) -> torch.Tensor:
     left = k + int(pixels)
     return padded[..., top:top + h, left:left + w]
 
+
+# FaceLock（CVPR 2025，arXiv:2411.16832）的抗淨化表把旋轉列為三個算子之一：
+# "Rotate denotes random rotation between (-10, 10) degrees"。EditShield
+# （ECCV 2024）的 EOT 族也含旋轉，角度是 5°。**本專案先前一個旋轉算子都沒有**，
+# 故那兩篇的旋轉欄無法對照（`docs/BASELINES.md` 已記為缺口）。
+ROTATE_DEGREES_FACELOCK = 10.0
+
+
+#: 角度小於此值時，512 px 影像的最遠角落位移不到 5 px，各處都在次像素量級，
+#: 旋轉與恆等映射在讀數上分不開。見 `rotate_angle` 的說明。
+ROTATE_DEGENERATE_DEGREES = 1.0
+
+
+#: 角度取**區間端點**而不是抽樣。FaceLock 原文寫的是
+#: "random rotation between (-10, 10)"，那是一個抽樣；單一 seed 抽出的角度
+#: 可能接近零（`seed=0` 抽到 −0.075°，512 px 影像最遠角落只位移 0.33 px），
+#: 於是那一欄量到的是恆等映射卻掛著 `rotate10` 的名字。
+#:
+#: **改成固定取 +degrees**：確定性、可重現、而且是該區間內最強的一個，
+#: 屬於 `SOURCE_AUDIT` 意義下的 `modified_from_paper`，出表時要標。
+ROTATE_FIXED = True
+
+
+def rotate_angle(degrees: float = ROTATE_DEGREES_FACELOCK,
+                 seed: int = None) -> float:
+    """實際會套用的角度。**不轉圖，只回報角度。**
+
+    `ROTATE_FIXED` 為真時直接回傳 `degrees`，不抽樣——見該常數的說明。
+
+    分出來是因為單一 seed 抽出的角度**可能接近零**：`degrees=10`、`seed=0`
+    抽到 −0.075°，512 px 影像最遠角落只位移 0.33 px，整張圖都在次像素量級。
+    那一格量到的是恆等映射，卻掛著 `rotate10` 的名字出現在表上——與
+    `identity` 欄並列時看不出異常，只看得到「旋轉不傷防禦」。
+
+    要在派工前擋下這種抽樣，必須先問得到角度而不必先轉一張圖。
+    """
+    if ROTATE_FIXED:
+        return float(degrees)
+    g = torch.Generator(device="cpu")
+    g.manual_seed(0 if seed is None else int(seed))
+    return float((torch.rand(1, generator=g).item() * 2.0 - 1.0) * degrees)
+
+
+def rotate_random(x: torch.Tensor, degrees: float = ROTATE_DEGREES_FACELOCK,
+                  seed: int = None) -> torch.Tensor:
+    """繞影像中心隨機旋轉 `U(−degrees, +degrees)`，雙線性重取樣、邊界補零。
+
+    **兩個設定是本專案指定的，論文沒有寫**：FaceLock 只給角度區間，未載插值
+    核與邊界填補方式。這裡取雙線性（與 `crop_resize`、`resize_only` 一致，
+    使幾何類算子彼此可比）與補零（旋轉後四角必然離開原畫面，補零是
+    `torchvision.RandomRotation` 的預設行為）。移植報表上必須標
+    `modified_from_paper`。
+
+    角度由 `seed` 決定，同 seed 必得同一個角度——抗淨化的兩側（防禦圖與
+    參照）要吃到**同一個**旋轉，否則量到的是兩個不同的取景。
+    """
+    if x.dim() != 4:
+        raise ValueError(f"需要 (B,C,H,W) 張量，收到 {tuple(x.shape)}")
+    angle = rotate_angle(degrees, seed)
+    # 0 度必須是**恆等映射**。`affine_grid` 產生的正規化座標即使在 0 度也不會
+    # 精確落在像素中心，`grid_sample` 會回傳一張帶插值誤差的圖——實測與原圖
+    # 差 1e-3 量級。「不旋轉」那一格不該帶進插值損失，故直接短路，
+    # 與 `gaussian_blur(sigma<=0)`、`shift_only(pixels==0)` 的處置一致。
+    if angle == 0.0:
+        return x
+    rad = math.radians(angle)
+    cos, sin = math.cos(rad), math.sin(rad)
+    # `affine_grid` 吃的是「輸出座標 → 輸入座標」的反向映射，故用 −angle 的
+    # 旋轉矩陣；正負號寫錯不會拋錯，只會轉到另一邊。
+    theta = torch.tensor([[cos, sin, 0.0], [-sin, cos, 0.0]],
+                         device=x.device, dtype=x.dtype)[None].expand(x.shape[0], -1, -1)
+    grid = F.affine_grid(theta, list(x.shape), align_corners=False)
+    return F.grid_sample(x, grid, mode="bilinear", padding_mode="zeros",
+                         align_corners=False)
+
 # ------------------------------------------------------------- CNN 去噪（替代）
 
 # DiffVax 只引 NTIRE 2023 挑戰賽報告、未指名模型；冠軍 IPTV2（Team Apply AI）的
@@ -415,6 +490,8 @@ KINDS = (
     # 不得進入頭對頭的淨化器清單（`phase_retention.purifier_set` 沒有它們）。
     "resample_roundtrip",
     "shift_only",
+    # FaceLock 與 EditShield 的旋轉欄。幾何類，見 `rotate_random`。
+    "rotate",
     # 色彩類。針對色彩重映射防禦而加，見上方 `grayscale_real` 前的說明。
     # 都不是幾何類，參照照舊。
     "grayscale",
@@ -455,6 +532,10 @@ GEOMETRIC_KINDS = frozenset({
     "resize_only",
     "shift_only",
     "jpeg_then_resize",
+    #   rotate             繞中心旋轉。像素格點被重取樣（雙線性），且四角離開
+    #                      原畫面、邊界補零，**取景改變**。理由與 shift_only
+    #                      同型，故同屬幾何類。
+    "rotate",
 })
 assert GEOMETRIC_KINDS <= set(KINDS)
 
@@ -489,7 +570,7 @@ def label_is_geometric(name: str) -> bool:
 # 原生可微（`forward` 走真實實作並提供真實梯度）的算子。其餘一律經
 # `straight_through`：前向為真實輸出、反向視為恆等。
 _DIFFERENTIABLE = ("identity", "blur", "noise", "crop_resize", "resize_only",
-                   "resample_roundtrip", "shift_only",
+                   "resample_roundtrip", "shift_only", "rotate",
                    # 三者都是逐點或逐通道的可微運算，原生有梯度。
                    # `clahe` 走 OpenCV，不在此列，由直通估計接。
                    "grayscale", "gray_world", "auto_levels")
@@ -567,6 +648,9 @@ class Purifier:
                 x, int(self.strength) if self.strength else 410)
         if self.kind == "shift_only":
             return shift_only(x, int(self.strength) if self.strength else 51)
+        if self.kind == "rotate":
+            deg = self.strength if self.strength else ROTATE_DEGREES_FACELOCK
+            return rotate_random(x, deg, seed=self.seed)
         if self.kind == "jpeg_then_resize":
             q = int(self.strength) if self.strength else CR_JPEG_QUALITY
             return jpeg_then_resize(x, quality=q)

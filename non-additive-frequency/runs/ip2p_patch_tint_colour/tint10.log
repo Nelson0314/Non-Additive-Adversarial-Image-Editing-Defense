@@ -1,0 +1,208 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00,  8.28it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 4198.67it/s]
+Loading pipeline components...:  67%|██████▋   | 4/6 [00:00<00:00,  6.59it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00,  8.84it/s]
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+IP2P 線：3 張、條件 ['patch']、steps=100 s_T=7.5 s_I=1.5 seed=20260812
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,1.0]
+  warnings.warn(
+Loading weights:   0%|          | 0/462 [00:00<?, ?it/s]Loading weights:  80%|███████▉  | 368/462 [00:00<00:00, 3679.01it/s]Loading weights: 100%|██████████| 462/462 [00:00<00:00, 4047.70it/s]
+Loading weights:   0%|          | 0/380 [00:00<?, ?it/s]Loading weights: 100%|██████████| 380/380 [00:00<00:00, 5552.16it/s]
+    [patch] step    0 loss 0.518631 |p| 0.45532 eval 0.178581
+    [patch] step  150 loss 0.002620 |p| 0.45428
+    [patch] step  200 loss 0.054811 |p| 0.45357 eval 0.060013
+    [patch] step  300 loss 0.001825 |p| 0.45422
+    [patch] step  400 loss 0.051980 |p| 0.45361 eval 0.052286
+    [patch] step  450 loss 0.092282 |p| 0.45341
+    [patch] step  600 loss 0.054085 |p| 0.45410 eval 0.049436
+    [patch] step  750 loss 0.003165 |p| 0.45380
+    [patch] step  800 loss 0.055165 |p| 0.45314 eval 0.042697
+    [patch] step  900 loss 0.001485 |p| 0.45382
+    [patch] step 1000 loss 0.007725 |p| 0.45340 eval 0.044054
+    [patch] step 1050 loss 0.032004 |p| 0.45305
+    [patch] step 1200 loss 0.067652 |p| 0.45318 eval 0.038329
+    [patch] step 1350 loss 0.002142 |p| 0.45368
+    [patch] step 1400 loss 0.010205 |p| 0.45351 eval 0.038767
+    [patch] step 1500 loss 0.041742 |p| 0.45307
+    [patch] step 1600 loss 0.046800 |p| 0.45318 eval 0.035565
+    [patch] step 1650 loss 0.055625 |p| 0.45351
+    [patch] step 1800 loss 0.028517 |p| 0.45317 eval 0.035421
+    [patch] step 1950 loss 0.021265 |p| 0.45302
+    [patch] step 2000 loss 0.010714 |p| 0.45312 eval 0.035194
+    [patch] step 2100 loss 0.012935 |p| 0.45271
+    [patch] step 2200 loss 0.005228 |p| 0.45280 eval 0.033663
+    [patch] step 2250 loss 0.027814 |p| 0.45292
+    [patch] step 2400 loss 0.001666 |p| 0.45374 eval 0.033040
+    [patch] step 2550 loss 0.003260 |p| 0.45374
+    [patch] step 2600 loss 0.017590 |p| 0.45363 eval 0.033750
+    [patch] step 2700 loss 0.011596 |p| 0.45354
+    [patch] step 2800 loss 0.051806 |p| 0.45348 eval 0.031719
+    [patch] step 2850 loss 0.037692 |p| 0.45359
+    [patch] step 3000 loss 0.013936 |p| 0.45360 eval 0.033365
+    [patch] step 3150 loss 0.043682 |p| 0.45362
+    [patch] step 3200 loss 0.048941 |p| 0.45295 eval 0.029710
+    [patch] step 3300 loss 0.001959 |p| 0.45390
+    [patch] step 3400 loss 0.013271 |p| 0.45352 eval 0.032391
+    [patch] step 3450 loss 0.007513 |p| 0.45275
+    [patch] step 3600 loss 0.003271 |p| 0.45344 eval 0.032302
+    [patch] step 3750 loss 0.019710 |p| 0.45256
+    [patch] step 3800 loss 0.011880 |p| 0.45303 eval 0.032120
+    [patch] step 3900 loss 0.003433 |p| 0.45333
+    [patch] step 4000 loss 0.008186 |p| 0.45352 eval 0.032102
+    [patch] step 4050 loss 0.046284 |p| 0.45328
+    [patch] step 4200 loss 0.028773 |p| 0.45360 eval 0.030313
+    [patch] step 4350 loss 0.050451 |p| 0.45266
+    [patch] step 4400 loss 0.024065 |p| 0.45283 eval 0.029546
+    [patch] step 4500 loss 0.002558 |p| 0.45340
+    [patch] step 4600 loss 0.040702 |p| 0.45314 eval 0.029578
+    [patch] step 4650 loss 0.020841 |p| 0.45347
+    [patch] step 4800 loss 0.036905 |p| 0.45284 eval 0.028932
+    [patch] step 4950 loss 0.001180 |p| 0.45405
+    [patch] step 5000 loss 0.002944 |p| 0.45288 eval 0.029441
+    [patch] step 5100 loss 0.010642 |p| 0.45361
+    [patch] step 5200 loss 0.026619 |p| 0.45326 eval 0.029322
+    [patch] step 5250 loss 0.001355 |p| 0.45388
+    [patch] step 5400 loss 0.052089 |p| 0.45319 eval 0.028292
+    [patch] step 5550 loss 0.017431 |p| 0.45373
+    [patch] step 5600 loss 0.035488 |p| 0.45335 eval 0.028839
+    [patch] step 5700 loss 0.007805 |p| 0.45377
+    [patch] step 5800 loss 0.009133 |p| 0.45408 eval 0.032507
+    [patch] step 5850 loss 0.002696 |p| 0.45384
+    [patch] step 5999 loss 0.048114 |p| 0.45374 eval 0.029289
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,1.0]
+  warnings.warn(
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 14734.13it/s]
+[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
+[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
+Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 4505.37it/s]
+task_attr_mod_color_123744       patch          r=0.0500 dists=0.1624 lpips=0.2978 effect=0.6696 (6184s)
+    [patch] step    0 loss 0.436796 |p| 0.31520 eval 0.148248
+    [patch] step  150 loss 0.002219 |p| 0.31585
+    [patch] step  200 loss 0.061113 |p| 0.31621 eval 0.081400
+    [patch] step  300 loss 0.001916 |p| 0.31583
+    [patch] step  400 loss 0.063014 |p| 0.31613 eval 0.078860
+    [patch] step  450 loss 0.205186 |p| 0.31617
+    [patch] step  600 loss 0.062974 |p| 0.31600 eval 0.078652
+    [patch] step  750 loss 0.003977 |p| 0.31599
+    [patch] step  800 loss 0.078261 |p| 0.31625 eval 0.076293
+    [patch] step  900 loss 0.001622 |p| 0.31587
+    [patch] step 1000 loss 0.011311 |p| 0.31604 eval 0.077153
+    [patch] step 1050 loss 0.039450 |p| 0.31617
+    [patch] step 1200 loss 0.104084 |p| 0.31615 eval 0.075768
+    [patch] step 1350 loss 0.001813 |p| 0.31585
+    [patch] step 1400 loss 0.012296 |p| 0.31609 eval 0.076189
+    [patch] step 1500 loss 0.058528 |p| 0.31622
+    [patch] step 1600 loss 0.080441 |p| 0.31621 eval 0.074817
+    [patch] step 1650 loss 0.131277 |p| 0.31607
+    [patch] step 1800 loss 0.044835 |p| 0.31615 eval 0.074616
+    [patch] step 1950 loss 0.031967 |p| 0.31618
+    [patch] step 2000 loss 0.019072 |p| 0.31610 eval 0.074840
+    [patch] step 2100 loss 0.020426 |p| 0.31624
+    [patch] step 2200 loss 0.006227 |p| 0.31611 eval 0.075274
+    [patch] step 2250 loss 0.049801 |p| 0.31616
+    [patch] step 2400 loss 0.001795 |p| 0.31588 eval 0.074924
+    [patch] step 2550 loss 0.003282 |p| 0.31588
+    [patch] step 2600 loss 0.025967 |p| 0.31609 eval 0.074963
+    [patch] step 2700 loss 0.020294 |p| 0.31604
+    [patch] step 2800 loss 0.152696 |p| 0.31613 eval 0.074454
+    [patch] step 2850 loss 0.059536 |p| 0.31608
+    [patch] step 3000 loss 0.027512 |p| 0.31606 eval 0.074541
+    [patch] step 3150 loss 0.103729 |p| 0.31608
+    [patch] step 3200 loss 0.132365 |p| 0.31626 eval 0.073679
+    [patch] step 3300 loss 0.002102 |p| 0.31584
+    [patch] step 3400 loss 0.021820 |p| 0.31609 eval 0.074429
+    [patch] step 3450 loss 0.009320 |p| 0.31617
+    [patch] step 3600 loss 0.003736 |p| 0.31599 eval 0.074432
+    [patch] step 3750 loss 0.035722 |p| 0.31630
+    [patch] step 3800 loss 0.017380 |p| 0.31615 eval 0.074644
+    [patch] step 3900 loss 0.004912 |p| 0.31607
+    [patch] step 4000 loss 0.014106 |p| 0.31604 eval 0.074548
+    [patch] step 4050 loss 0.101854 |p| 0.31617
+    [patch] step 4200 loss 0.063012 |p| 0.31603 eval 0.074186
+    [patch] step 4350 loss 0.131926 |p| 0.31628
+    [patch] step 4400 loss 0.042753 |p| 0.31625 eval 0.073368
+    [patch] step 4500 loss 0.002838 |p| 0.31596
+    [patch] step 4600 loss 0.082207 |p| 0.31616 eval 0.074152
+    [patch] step 4650 loss 0.036688 |p| 0.31614
+    [patch] step 4800 loss 0.074196 |p| 0.31624 eval 0.073033
+    [patch] step 4950 loss 0.001407 |p| 0.31579
+    [patch] step 5000 loss 0.003887 |p| 0.31604 eval 0.073369
+    [patch] step 5100 loss 0.016595 |p| 0.31601
+    [patch] step 5200 loss 0.050902 |p| 0.31614 eval 0.073478
+    [patch] step 5250 loss 0.001776 |p| 0.31581
+    [patch] step 5400 loss 0.167239 |p| 0.31614 eval 0.072788
+    [patch] step 5550 loss 0.023923 |p| 0.31602
+    [patch] step 5600 loss 0.085247 |p| 0.31614 eval 0.073258
+    [patch] step 5700 loss 0.009228 |p| 0.31588
+    [patch] step 5800 loss 0.010901 |p| 0.31591 eval 0.075126
+    [patch] step 5850 loss 0.003198 |p| 0.31593
+    [patch] step 5999 loss 0.192428 |p| 0.31597 eval 0.073838
+task_attr_mod_color_42929        patch          r=0.0500 dists=0.1015 lpips=0.0709 effect=0.2713 (6160s)
+    [patch] step    0 loss 0.413367 |p| 0.40990 eval 0.149257
+    [patch] step  150 loss 0.001814 |p| 0.40986
+    [patch] step  200 loss 0.059423 |p| 0.40982 eval 0.081342
+    [patch] step  300 loss 0.001442 |p| 0.40980
+    [patch] step  400 loss 0.064792 |p| 0.40980 eval 0.075404
+    [patch] step  450 loss 0.173073 |p| 0.40976
+    [patch] step  600 loss 0.057868 |p| 0.40979 eval 0.073489
+    [patch] step  750 loss 0.003320 |p| 0.40976
+    [patch] step  800 loss 0.073309 |p| 0.40978 eval 0.071429
+    [patch] step  900 loss 0.001057 |p| 0.40972
+    [patch] step 1000 loss 0.009669 |p| 0.40976 eval 0.072141
+    [patch] step 1050 loss 0.037962 |p| 0.40979
+    [patch] step 1200 loss 0.094218 |p| 0.40981 eval 0.069792
+    [patch] step 1350 loss 0.001685 |p| 0.40972
+    [patch] step 1400 loss 0.010216 |p| 0.40981 eval 0.071042
+    [patch] step 1500 loss 0.056579 |p| 0.40978
+    [patch] step 1600 loss 0.074549 |p| 0.40978 eval 0.069207
+    [patch] step 1650 loss 0.111909 |p| 0.40978
+    [patch] step 1800 loss 0.046060 |p| 0.40976 eval 0.069071
+    [patch] step 1950 loss 0.033825 |p| 0.40975
+    [patch] step 2000 loss 0.015493 |p| 0.40980 eval 0.069672
+    [patch] step 2100 loss 0.021063 |p| 0.40983
+    [patch] step 2200 loss 0.005392 |p| 0.40981 eval 0.069378
+    [patch] step 2250 loss 0.045929 |p| 0.40980
+    [patch] step 2400 loss 0.001186 |p| 0.40972 eval 0.069209
+    [patch] step 2550 loss 0.002859 |p| 0.40980
+    [patch] step 2600 loss 0.025171 |p| 0.40978 eval 0.068720
+    [patch] step 2700 loss 0.018764 |p| 0.40979
+    [patch] step 2800 loss 0.133937 |p| 0.40979 eval 0.068381
+    [patch] step 2850 loss 0.056512 |p| 0.40977
+    [patch] step 3000 loss 0.026677 |p| 0.40974 eval 0.068649
+    [patch] step 3150 loss 0.090826 |p| 0.40975
+    [patch] step 3200 loss 0.116212 |p| 0.40980 eval 0.067823
+    [patch] step 3300 loss 0.001640 |p| 0.40975
+    [patch] step 3400 loss 0.025184 |p| 0.40977 eval 0.068513
+    [patch] step 3450 loss 0.007990 |p| 0.40978
+    [patch] step 3600 loss 0.002647 |p| 0.40981 eval 0.069154
+    [patch] step 3750 loss 0.037114 |p| 0.40982
+    [patch] step 3800 loss 0.016049 |p| 0.40976 eval 0.069415
+    [patch] step 3900 loss 0.003955 |p| 0.40976
+    [patch] step 4000 loss 0.011057 |p| 0.40979 eval 0.069010
+    [patch] step 4050 loss 0.091480 |p| 0.40976
+    [patch] step 4200 loss 0.050400 |p| 0.40972 eval 0.068082
+    [patch] step 4350 loss 0.111272 |p| 0.40979
+    [patch] step 4400 loss 0.043375 |p| 0.40978 eval 0.067666
+    [patch] step 4500 loss 0.002214 |p| 0.40976
+    [patch] step 4600 loss 0.073321 |p| 0.40979 eval 0.067806
+    [patch] step 4650 loss 0.034127 |p| 0.40976
+    [patch] step 4800 loss 0.065061 |p| 0.40979 eval 0.067467
+    [patch] step 4950 loss 0.000900 |p| 0.40970
+    [patch] step 5000 loss 0.002945 |p| 0.40974 eval 0.068226
+    [patch] step 5100 loss 0.014676 |p| 0.40980
+    [patch] step 5200 loss 0.048636 |p| 0.40979 eval 0.067673
+    [patch] step 5250 loss 0.001111 |p| 0.40971
+    [patch] step 5400 loss 0.144030 |p| 0.40977 eval 0.067355
+    [patch] step 5550 loss 0.024858 |p| 0.40977
+    [patch] step 5600 loss 0.079498 |p| 0.40974 eval 0.067425
+    [patch] step 5700 loss 0.007886 |p| 0.40984
+    [patch] step 5800 loss 0.010710 |p| 0.40980 eval 0.069633
+    [patch] step 5850 loss 0.002503 |p| 0.40981
+    [patch] step 5999 loss 0.160562 |p| 0.40978 eval 0.068188
+task_attr_mod_color_71985        patch          r=0.0500 dists=0.0848 lpips=0.1377 effect=0.3766 (6150s)
+
+表：runs/ip2p_patch_tint_colour/tint10/results.csv（3 列）

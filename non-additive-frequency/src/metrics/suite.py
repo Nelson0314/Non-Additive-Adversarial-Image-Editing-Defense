@@ -429,6 +429,68 @@ class MetricSuite:
             out[key] = float((embs[0] * embs[1]).sum(-1).mean())
         return out
 
+    @torch.no_grad()
+    def direction_similarity(self, src: torch.Tensor, edit: torch.Tensor,
+                             instruction: str) -> Dict[str, float]:
+        """CLIP-S：編輯造成的**影像位移方向**與指令文字的餘弦。
+
+            CLIP-S = cos( E_img(編輯) − E_img(原圖), E_txt(指令) )
+
+        出處是 FaceLock（CVPR 2025）的 `evaluation/eval_clip_s.py`，逐行對照：
+        它取未正規化的 `get_image_features` 相減，再對文字嵌入取
+        `F.cosine_similarity`。**方向是「低者防禦強」**——指令沒被執行時，
+        位移方向就不指向指令。
+
+        它與既有的兩個語意讀數量的不是同一件事：
+
+            semantic            影像對一句**描述**的對齊。OmniEdit 給的是
+                                **指令**，那條路徑在服從率驗收上近乎隨機。
+            image_similarity    兩張編輯輸出之間的距離，不需要文字。
+            direction_similarity（本方法）
+                                位移**方向**對指令的對齊，需要指令但不需要
+                                描述——正好落在前兩者之間。
+
+        **FaceLock 自己指出這一族會誤導**："overemphasize the presence of
+        elements from the editing instructions, often prioritizing
+        over-editing"——編輯過頭的反而得高分。照報，不作判準
+        （`docs/reference/SURVEY_IDENTITY_EDITING.md` §1）。
+
+        前處理與 `semantic_multi`／`image_similarity` 走同一段，故三者的影像側
+        不可能分岔。SigLIP 一併回報：它的文字塔訓練目標不同（sigmoid 而非
+        對比餘弦），差異本身是可報的，但**不與 CLIP 的值互比絕對大小**。
+        """
+        self._ensure_vlm()
+        from torchvision.transforms.functional import resize
+
+        out: Dict[str, float] = {}
+        for key, model, proc in (
+            ("clip", self._clip, self._clip_proc),
+            ("siglip", self._siglip, self._siglip_proc),
+        ):
+            size = proc.image_processor.size
+            side = size.get("shortest_edge") or size["height"]
+            mean = torch.tensor(proc.image_processor.image_mean, device=self.device)
+            std = torch.tensor(proc.image_processor.image_std, device=self.device)
+            tok = proc.tokenizer(
+                [instruction], return_tensors="pt",
+                padding="max_length" if key == "siglip" else True,
+                truncation=True,
+            ).to(self.device)
+            embs = []
+            for x in (src, edit):
+                img = resize(x.to(self.device).float().clamp(0, 1),
+                             [side, side], antialias=True)
+                img = (img - mean[:, None, None]) / std[:, None, None]
+                embs.append(model(pixel_values=img, **tok))
+            # **相減前不正規化**，與 FaceLock 的 `eval_clip_s.py` 一致：
+            # 它對 `get_image_features` 的原始輸出相減。先正規化再相減會得到
+            # 另一個量（球面上的弦向量），數值不同。
+            delta = embs[1].image_embeds - embs[0].image_embeds
+            te = embs[0].text_embeds
+            out[key] = float(
+                torch.nn.functional.cosine_similarity(delta, te, dim=-1).mean())
+        return out
+
     def semantic(self, x: torch.Tensor, prompt: str) -> Dict[str, float]:
         """影像與 prompt 的語意對齊。CLIP 取餘弦相似度、SigLIP 取其 logit。
 

@@ -108,8 +108,11 @@ def test_關閉時防禦圖逐位元等於加旗標之前的路徑():
     assert torch.equal(got, want.x_def)
     # 收斂欄位（停止原因／實走步數／最佳評估）一律寫出來，關著 --eval-every
     # 時 best_eval 是空字串。**沒有這三欄就分不出「跑滿」與「早停」。**
+    # `subject_mask_text` 是主體遮罩那一階段加進 `run_extras` 的欄位，
+    # 沒開 `--subject-mask` 時為空字串。它恆存在，故列在這裡。
     assert extras == {"resumed": 0, "stop_reason": want.stop_reason,
-                      "stopped_at": want.stopped_at, "best_eval": ""}
+                      "stopped_at": want.stopped_at, "best_eval": "",
+                      "subject_mask_text": ""}
     assert (radius, unreachable, modified) == (want.radius, False, False)
 
 
@@ -196,6 +199,7 @@ def test_保留率與品質都逐列寫進_CSV():
     _, _, _, _, extras = ip2p_run.defend(
         None, None, "add", x, _args("--deliver-jpeg", "75"), _loss)
     assert set(extras) == {"resumed", "stop_reason", "stopped_at", "best_eval",
+                           "subject_mask_text",
                            "deliver_retention", "deliver_cosine",
                            "deliver_retention_base", "deliver_rms_raw",
                            "deliver_rms_out"}
@@ -222,3 +226,32 @@ def test_關閉時別的條件照樣跑得過守門():
     out, radius, unreachable, modified, extras = ip2p_run.defend(
         None, None, "advdrop_max", x, _args(), _loss)
     assert out.shape == x.shape and extras == {} and modified is True
+
+
+def test_補丁族在放行清單裡():
+    """補丁載體是本方法自己的參數化，`--deliver-jpeg` 該接得上去。
+
+    此前它不在清單裡，原因是這個守門寫在補丁族加進來之前，不是裁定
+    （`DELIVER_JPEG_CONDS` 的註解）。這一條把它釘住，免得日後有人「整理」
+    守門時又把它拿掉——那會靜默地讓整批派工在啟動時就死掉。
+
+    同時釘住**沒有**被放行的兩族：自己就交付壓縮圖的 `dct_rotate`／
+    `dct_unified`（另有一條守門），與別人的方法。
+    """
+    for cond in ("patch", "patch_rand"):
+        assert cond in ip2p_run.DELIVER_JPEG_CONDS, cond
+    for cond in ip2p_run.DCT_ROTATE_CONDS + ip2p_run.DCT_UNIFIED_CONDS:
+        assert cond not in ip2p_run.DELIVER_JPEG_CONDS, cond
+    for cond in ip2p_run.DCT_CONDS + ip2p_run.ADVDROP_CONDS + ip2p_run.WM_CONDS:
+        assert cond not in ip2p_run.DELIVER_JPEG_CONDS, cond
+
+
+def test_補丁條件的元組只有一份實作():
+    """`("patch", "patch_rand")` 此前在四處各展開一次。
+
+    `DEFECTS.md` 記過同型的坑：政策謂詞散在多處，只改其中一部分不會報錯，
+    而輸出看起來完全正常。這一條數原始碼裡還剩幾個字面量。
+    """
+    src = (ROOT / "scripts" / "ip2p_run.py").read_text(encoding="utf-8")
+    assert src.count('("patch", "patch_rand")') == 1, (
+        "補丁條件的元組應該只在 PATCH_CONDS 的定義處出現一次")

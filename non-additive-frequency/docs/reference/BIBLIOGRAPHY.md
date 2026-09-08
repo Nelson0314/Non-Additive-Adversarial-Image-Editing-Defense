@@ -135,6 +135,28 @@ Hann 窗與 COLA／NOLA、實數 FFT 的共軛對稱都是標準性質。**這�
 | **JPEG-resistant Adversarial Images**（NIPS 2017 MLSec Workshop） | 可微分 JPEG 的原始出處，`round` 近似為 `⌊x⌉+(x−⌊x⌉)³`。**核心已實作**（本專案改用直通估計，前向更忠實）。**尚未採用它真正的貢獻——多品質集成**：對 q∈{25,50,75,∞} 以損失大小加權合併梯度，單一品質會過度特化 | [PDF](https://machine-learning-and-security.github.io/papers/mlsec17_paper_54.pdf)。細節見 `SURVEY_FREQUENCY.md` §1.15 |
 | **IAM: Interpolation Smoothing**（arXiv:2402.16586） | 每步先雙線性降到半解析度、在該解析度上走 sign 梯度、再升回原尺寸，使擾動天生無高頻。**沒有可借的損失**（Eq.2 就是特徵距離）；Algorithm 1 缺 ε 投影與 clamp。對本專案的價值是**半解析度參數化**，唯一指向 blur 欄的機制 | [arXiv:2402.16586](https://arxiv.org/abs/2402.16586)。細節見 `SURVEY_FREQUENCY.md` §1.14 |
 
+## 3c. 與現行方向直接對照的兩篇
+
+| 論文 | 場景 | 狀態 | 連結 |
+|---|---|---|---|
+| **Watermark-embedded Adversarial Examples**（CVPR 2024，Zhu 等，LY Corporation） | 版權保護，img2img ＋ textual inversion | 已查證 | [CVF](https://openaccess.thecvf.com/content/CVPR2024/papers/Zhu_Watermark-embedded_Adversarial_Examples_for_Copyright_Protection_against_Diffusion_Models_CVPR_2024_paper.pdf) |
+| **Attention Attack**（ACM MM 2025，Trippodo 等） | 文字引導編輯的免疫 | 已查證 | [arXiv:2509.10359](https://arxiv.org/abs/2509.10359) |
+
+逐篇的比對見 [`SURVEY_WATERMARK_ATTENTION.md`](SURVEY_WATERMARK_ATTENTION.md)。
+
+## 3d. 身分保護 × 指令式編輯：與現行威脅模型同型的一族
+
+逐篇讀過內容（FaceLock 另逐行對照官方程式碼），指標的精確定義、抗淨化設定
+與可移植性見 [`SURVEY_IDENTITY_EDITING.md`](SURVEY_IDENTITY_EDITING.md)。
+
+| 論文 | 為什麼記下來 | 狀態 | 連結 |
+|---|---|---|---|
+| **FaceLock**（CVPR 2025） | **攻擊模型、三個推論參數、主讀數與本專案逐項相同**：打 IP2P、`steps=100`／`s_I=1.5`／`s_T=7.5`、量原圖與編輯輸出的人臉餘弦。損失只走 VAE 往返、100 步。另明確主張 CLIP 類與 SSIM/PSNR 會誤導 | 已查證原始碼，**待實作** | [arXiv:2411.16832](https://arxiv.org/abs/2411.16832) ／ [repo](https://github.com/taco-group/FaceLock) |
+| **Anti-DreamBooth**（ICCV 2023） | 現行身分指標的來源：**FDFR**（RetinaFace 偵測失敗率）與 **ISM**（ArcFace 對乾淨影像集平均嵌入的餘弦）。威脅模型是客製化不是編輯，故不是 baseline | 已查證 | [arXiv:2303.15433](https://arxiv.org/abs/2303.15433) |
+| **FaceShield**（ICCV 2025） | 兩個可借的機制：Sobel 選擇性模糊（壓可見度）、**PGD 迴圈內的 8×8 DCT 低通投影**（抗 JPEG）。後者與本專案的 `tint`／`lowproj` 同一個想法，但它把低頻化的理由寫成抗 JPEG 而非好看 | 已查證 | [arXiv:2412.09921](https://arxiv.org/abs/2412.09921) |
+
+**三篇的抗淨化都不可直接引用**：沒有空白地板、沒有等失真的隨機對照。
+
 ## 4. 抗淨化的防禦側
 
 | 論文 | 內容 | 連結 |

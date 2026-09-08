@@ -1,0 +1,8 @@
+image,condition,budget_target,purifier,reference,effect_mean,effect_sd,effect_identity_mean,effect_identity_sd,retention,codefense_status,reference_codefense,effect_codefense_mean,effect_codefense_sd,siglip_sim,siglip_blocked,edit_strength,usable,seconds
+task_attr_mod_color_71985,patch_rand,native,identity,orig,0.14805,0.00041,0.14805,0.00041,1.0,,,,,0.9199,False,0.8,True,624.9
+task_attr_mod_color_71985,patch_rand,native,blur1,orig,0.23794,0.00098,0.14805,0.00041,1.60722,,,,,0.93025,False,0.8,True,624.9
+task_attr_mod_color_71985,patch_rand,native,jpeg75,orig,0.20504,0.00075,0.14805,0.00041,1.38498,,,,,0.91918,False,0.8,True,624.9
+task_attr_mod_color_71985,patch_rand,native,jpeg30,orig,0.29174,0.00079,0.14805,0.00041,1.97061,,,,,0.9045,False,0.8,True,624.9
+task_attr_mod_color_71985,patch_rand,native,blur2,orig,0.36448,0.0034,0.14805,0.00041,2.46195,,,,,0.89876,False,0.8,True,624.9
+task_attr_mod_color_71985,patch_rand,native,crop_resize0.1,purified_orig,0.13168,0.00143,0.14805,0.00041,0.88946,,,,,0.93953,False,0.8,True,624.9
+task_attr_mod_color_71985,patch_rand,native,jpeg_then_resize75,purified_orig,0.1261,0.00161,0.14805,0.00041,0.85176,,,,,0.95863,False,0.8,True,624.9

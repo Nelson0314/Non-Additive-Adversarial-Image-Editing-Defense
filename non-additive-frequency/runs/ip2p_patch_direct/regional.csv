@@ -1,0 +1,12 @@
+image,label,condition,subject_text,mask_core_area,mask_mean,mask_soft_band,subject_mask_threshold,subject_mask_dilate,subject_mask_feather,disp_full,disp_subject,disp_background,dist_full,dist_subject,dist_background,edit_lpips_recorded,fid_dists_recorded,loss_trained
+task_attr_mod_color_11699,div_comp_subj,patch,potted plant | person,0.44517,0.52645,0.08128,0.3,16,24,0.6476,0.59444,0.7067,0.41261,0.07289,0.79028,0.64765,0.22722,edit_divergence
+task_attr_mod_color_11699,div_comp_uni,patch,potted plant | person,0.44517,0.52645,0.08128,0.3,16,24,0.53103,0.37719,0.70207,0.41604,0.06868,0.80221,0.53138,0.2492,edit_divergence
+task_attr_mod_color_11699,ig_comp_subj,patch,potted plant | person,0.44517,0.52645,0.08128,0.3,16,24,0.62785,0.59664,0.66254,0.40047,0.07001,0.76786,0.62933,0.225,image_guidance
+task_attr_mod_color_11699,div_a05_subj,patch,potted plant | person,0.44517,0.52645,0.08128,0.3,16,24,0.22561,0.18357,0.27234,0.06359,0.00395,0.12989,0.22659,0.06057,edit_divergence
+task_attr_mod_color_11699,a05_rand,patch_rand,potted plant | person,0.44517,0.52645,0.08128,0.3,16,24,0.06686,0.01078,0.12919,0.05801,0.00191,0.12037,0.06502,0.03641,image_guidance
+task_attr_mod_color_6205,div_comp_subj,patch,toolbox | Mario figure,0.49099,0.56401,0.07301,0.3,16,24,0.62767,0.45632,0.84933,0.38375,0.04587,0.82083,0.62826,0.17981,edit_divergence
+task_attr_mod_color_6205,div_comp_uni,patch,toolbox | Mario figure,0.49099,0.56401,0.07301,0.3,16,24,0.6046,0.43469,0.8244,0.37553,0.03857,0.81143,0.60536,0.19523,edit_divergence
+task_attr_mod_color_6205,ig_comp_subj,patch,toolbox | Mario figure,0.49099,0.56401,0.07301,0.3,16,24,0.70427,0.56962,0.87846,0.37689,0.04423,0.80723,0.70463,0.17485,image_guidance
+task_attr_mod_color_6205,div_a05_subj,patch,toolbox | Mario figure,0.49099,0.56401,0.07301,0.3,16,24,0.3335,0.22423,0.47486,0.06219,0.00091,0.14146,0.33242,0.04286,edit_divergence
+task_attr_mod_color_6205,div_a10_mario,patch,toolbox | Mario figure,0.49099,0.56401,0.07301,0.3,16,24,0.44373,0.31008,0.61662,0.11089,0.00624,0.24626,0.44449,0.07463,edit_divergence
+task_attr_mod_color_6205,a05_rand,patch_rand,toolbox | Mario figure,0.49099,0.56401,0.07301,0.3,16,24,0.18895,0.07124,0.34123,0.05727,0.00029,0.13097,0.18732,0.02946,image_guidance

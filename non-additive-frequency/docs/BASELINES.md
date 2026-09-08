@@ -14,6 +14,7 @@
 | **BlurGuard** | 對已求得的對抗雜訊做逐區域自適應高斯模糊，重塑頻譜 | `src/baselines/blurguard.py` | **未跑**（需要 SAM） |
 | **DiffusionGuard** | 只在最高噪聲步評估的防護 | `src/baselines/diffusionguard.py` | **未跑**，且是移植非重現 |
 | **EditShield** | 同樣打 IP2P，用 EOT（平滑／旋轉／中心裁切） | **未實作** | **未跑**——裁切欄唯一的直接對照，目前是缺口 |
+| **FaceLock** | 打 IP2P，把身分寫進損失。**攻擊模型與三個推論參數與本專案逐項相同** | **未實作**，有官方程式碼 | 設計見 [reference/BASELINE_IDENTITY_PLAN.md](reference/BASELINE_IDENTITY_PLAN.md) |
 
 ### DCT-Shield
 
@@ -136,6 +137,39 @@ l∞，定向成功即停。定案 `τ=1500`、`μ=1`，評測時再壓一次 JP
 **浮水印那兩個階段未實作**（J-UNIWARD ＋ STC ＋ RS 是一整套隱寫工具鏈，本專案
 不需要復原訊息）。後果是我們的 PSNR/SSIM 參照原圖，論文參照已嵌浮水印的影像，
 **參照點不同**。
+
+### FaceLock —— 攻擊模型與本專案逐項相同的那一篇
+
+Wang 等，**CVPR 2025**（[arXiv:2411.16832](https://arxiv.org/abs/2411.16832)、
+官方程式碼 [taco-group/FaceLock](https://github.com/taco-group/FaceLock)）。
+指標的精確定義與逐行程式碼對照見
+[reference/SURVEY_IDENTITY_EDITING.md](reference/SURVEY_IDENTITY_EDITING.md) §1，
+實驗設計見 [reference/BASELINE_IDENTITY_PLAN.md](reference/BASELINE_IDENTITY_PLAN.md)。
+
+**它與本專案重合的四項**：攻擊模型 InstructPix2Pix、推論參數
+`steps=100`／`s_I=1.5`／`s_T=7.5`、保護對象是臉的身分、主讀數是
+`cos(E(原圖), E(編輯輸出))`。三個推論參數逐項相同這件事推翻了
+`EVALUATION.md` 現行的說法（「論文未載，是本專案指定」）——那句話對 IP2P
+原論文成立，但 FaceLock 的官方 README 明給同樣三個值。
+
+**兩件必須寫進報表的事**：
+
+1. **預算論文與程式碼不一致**：論文正文 `eps=0.02`／`α=0.003`，官方程式碼
+   預設 `eps=0.03`／`α=0.01`。兩組都要跑，逐列記下用的是哪一組。
+2. **兩個損失項的啟動排程只在程式碼裡**（FR 在 35% 之後、LPIPS 在 25% 之後
+   才計入），論文正文沒有這一段。
+
+**它的抗淨化數字不可直接引用**：沒有空白地板、沒有等失真的隨機對照。
+
+### PhotoGuard 在 IP2P 線上要換變體
+
+本專案已實作的 `photoguard_c`（complex attack）整條綁在 `SDWrapper.sdedit`
+的取樣式上（`attack_forward` 已由我方改寫過一次）。接到 IP2P 線要再改寫一次
+取樣式，那是第二次「摘要重建」。
+
+改用 **encoder attack**（`photoguard_e`），三個理由：FaceLock 比較的就是它、
+它只打 VAE 編碼器故與攻擊方的取樣式無關、它是 PhotoGuard 論文本身的兩個變體
+之一。**兩者不可混在同一欄**，報表上分列 `photoguard_e` 與 `photoguard_c`。
 
 ## 像素加性方法（已實作，本輪擱置）
 

@@ -1,0 +1,11 @@
+Conclusion
+STP-Diff shows that gradient-based adversarial optimization over algebraic state spaces can reliably
+identify regulatory vulnerabilities in Boolean gene networks. Combining the algebraic rigor of Semi-
+Tensor Products with the scalability of implicit autodiff operators, we achieve:
+• Up to 1 637× measured speedupover explicit STP methods ( 1 637× at N= 15 , theoretical bound
+52 429×atN= 20);
+9
+STP-Diff: Differentiable Adversarial Discovery of Regulatory Vulnerabilities Khalil
+• Empirically validated predictions– the Rb-E2F vulnerability is corroborated by CRISPR-Cas9 data
+from 1000+ cancer cell lines;
+•Quantitative resilience metrics–ϵ critical provides a single-number measure of 

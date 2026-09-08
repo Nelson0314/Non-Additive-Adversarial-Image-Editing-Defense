@@ -1,0 +1,76 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 4184.10it/s]
+Loading pipeline components...:  67%|██████▋   | 4/6 [00:00<00:00, 15.16it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00,  9.13it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00,  9.92it/s]
+There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+IP2P 線：1 張、條件 ['patch']、steps=100 s_T=7.5 s_I=1.5 seed=20260812
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,1.0]
+  warnings.warn(
+Loading weights:   0%|          | 0/380 [00:00<?, ?it/s]Loading weights: 100%|██████████| 380/380 [00:00<00:00, 3973.60it/s]
+    [patch] step    0 loss 0.429858 |p| 0.43164 eval 0.142366
+    [patch] step  150 loss 0.003147 |p| 0.43149
+    [patch] step  200 loss 0.062911 |p| 0.43130 eval 0.092520
+    [patch] step  300 loss 0.002579 |p| 0.43154
+    [patch] step  400 loss 0.074641 |p| 0.43139 eval 0.091422
+    [patch] step  450 loss 0.273390 |p| 0.43137
+    [patch] step  600 loss 0.066710 |p| 0.43143 eval 0.090989
+    [patch] step  750 loss 0.004558 |p| 0.43146
+    [patch] step  800 loss 0.089102 |p| 0.43136 eval 0.089813
+    [patch] step  900 loss 0.002454 |p| 0.43158
+    [patch] step 1000 loss 0.011140 |p| 0.43145 eval 0.090071
+    [patch] step 1050 loss 0.039520 |p| 0.43135
+    [patch] step 1200 loss 0.126335 |p| 0.43134 eval 0.088728
+    [patch] step 1350 loss 0.003026 |p| 0.43156
+    [patch] step 1400 loss 0.010276 |p| 0.43139 eval 0.088959
+    [patch] step 1500 loss 0.067884 |p| 0.43135
+    [patch] step 1600 loss 0.099443 |p| 0.43138 eval 0.088280
+    [patch] step 1650 loss 0.154080 |p| 0.43144
+    [patch] step 1800 loss 0.050204 |p| 0.43141 eval 0.088661
+    [patch] step 1950 loss 0.032863 |p| 0.43137
+    [patch] step 2000 loss 0.014478 |p| 0.43140 eval 0.088843
+    [patch] step 2100 loss 0.019176 |p| 0.43139
+    [patch] step 2200 loss 0.006281 |p| 0.43144 eval 0.088834
+    [patch] step 2250 loss 0.053439 |p| 0.43136
+    [patch] step 2400 loss 0.002653 |p| 0.43157 eval 0.088185
+    [patch] step 2550 loss 0.003578 |p| 0.43147
+    [patch] step 2600 loss 0.025255 |p| 0.43141 eval 0.088419
+    [patch] step 2700 loss 0.017198 |p| 0.43139
+    [patch] step 2800 loss 0.189808 |p| 0.43136 eval 0.088168
+    [patch] step 2850 loss 0.068657 |p| 0.43141
+    [patch] step 3000 loss 0.025155 |p| 0.43138 eval 0.088597
+    [patch] step 3150 loss 0.128979 |p| 0.43142
+    [patch] step 3200 loss 0.161133 |p| 0.43135 eval 0.087753
+    [patch] step 3300 loss 0.002507 |p| 0.43152
+    [patch] step 3400 loss 0.023396 |p| 0.43144 eval 0.088608
+    [patch] step 3450 loss 0.008498 |p| 0.43141
+    [patch] step 3600 loss 0.004455 |p| 0.43150 eval 0.088693
+    [patch] step 3750 loss 0.039337 |p| 0.43133
+    [patch] step 3800 loss 0.014028 |p| 0.43137 eval 0.089210
+    [patch] step 3900 loss 0.003999 |p| 0.43156
+    [patch] step 4000 loss 0.010398 |p| 0.43141 eval 0.088692
+    [patch] step 4050 loss 0.123701 |p| 0.43135
+    [patch] step 4200 loss 0.063839 |p| 0.43147 eval 0.088168
+    [patch] step 4350 loss 0.164647 |p| 0.43135
+    [patch] step 4400 loss 0.049127 |p| 0.43137 eval 0.087950
+    [patch] step 4500 loss 0.003469 |p| 0.43153
+    [patch] step 4600 loss 0.093869 |p| 0.43139 eval 0.087923
+    [patch] step 4650 loss 0.038875 |p| 0.43137
+    [patch] step 4800 loss 0.085277 |p| 0.43134 eval 0.088088
+    [patch] step 4950 loss 0.002130 |p| 0.43159
+    [patch] step 5000 loss 0.004699 |p| 0.43146 eval 0.087878
+    [patch] step 5100 loss 0.014300 |p| 0.43144
+    [patch] step 5200 loss 0.055794 |p| 0.43139 eval 0.088327
+    [patch] early stop at step 5200（連續 10 次評估未改善 > 0.0002）
+/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,1.0]
+  warnings.warn(
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 11660.12it/s]
+[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
+[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
+Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights:  88%|████████▊ | 359/408 [00:00<00:00, 3583.95it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 3574.91it/s]
+task_obj_remove_284852           patch          r=0.0500 dists=0.0602 lpips=0.0763 effect=0.1737 (5374s)
+
+表：runs/ip2p_face_defence/background_pretty_task_obj_remove_284852/results.csv（1 列）

@@ -62,3 +62,40 @@ def test_solve_rejects_a_nonpositive_target():
         assert 'target_delta_e' in str(e)
     else:
         raise AssertionError('非正的目標色差必須拋錯')
+
+
+def test_support_weighted_delta_e_ignores_pixels_outside_the_support():
+    """支撐加權只看支撐內；支撐外改多少都不影響。"""
+    x = _image()
+    y = x.clone()
+    y[:, :, 32:] = 0.0
+    support = torch.zeros(1, 1, 64, 64)
+    support[:, :, :32] = 1.0
+    assert delta_e00(x, y, support) < 1e-6
+    assert delta_e00(x, y) > 1.0
+
+
+def test_support_weighting_raises_on_an_empty_support():
+    x = _image()
+    try:
+        delta_e00(x, x, torch.zeros(1, 1, 64, 64))
+    except ValueError as e:
+        assert 'support' in str(e)
+    else:
+        raise AssertionError('空支撐必須拋錯，回傳 0/0 是靜默失效')
+
+
+def test_solve_uses_the_support_weighted_anchor_when_given_one():
+    """同一個目標在支撐加權下解出的幅度**較小**——全圖平均的稀釋被拿掉了。"""
+    x = _image()
+    support = torch.zeros(1, 1, 64, 64)
+    support[:, :, :16] = 1.0
+    p = ChromaAffineParam(
+        target_mean=[60.0, 25.0, -20.0],
+        target_cov=[[80.0, 0.0, 0.0], [0.0, 40.0, 0.0], [0.0, 0.0, 40.0]],
+        support=support, radius=0.2, max_gain=1.0)
+    p.reset(x, seed=0)
+    whole = solve_amplitude(p, x, 3.0)
+    p.reset(x, seed=0)
+    weighted = solve_amplitude(p, x, 3.0, support=support)
+    assert weighted['amplitude'] < whole['amplitude']

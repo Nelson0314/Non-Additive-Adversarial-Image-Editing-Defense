@@ -55,3 +55,38 @@ def test_region_palette_without_regions_raises():
         assert 'regions' in str(e)
     else:
         raise AssertionError('region_palette 沒有 regions 必須拋錯')
+
+
+def test_collision_arm_records_its_objective_trace():
+    for name in ('collision_first', 'collision_last', 'collision_at_anchor',
+                 'collision_steps', 'collision_region_area',
+                 'collision_ring_area'):
+        assert name in COLUMNS
+
+
+def test_collision_arm_is_not_isometric():
+    """碰撞臂要容許收縮：奇異值恰為 1 時兩塊區域的均值差長度被保住，推不動。"""
+    x = torch.rand(1, 3, 64, 64)
+    p = build_param('collision', x, **_kwargs())
+    assert p.isometric is False
+    assert p.max_gain == 1.0
+
+
+def test_collision_region_differs_by_instruction_class():
+    from scripts.color_ceiling import collision_region
+    x = torch.rand(1, 3, 64, 64)
+    clothes = torch.zeros(1, 1, 64, 64)
+    clothes[:, :, 20:40, 10:30] = 1.0
+    got = collision_region(x, 'clothing', clothes)
+    assert torch.equal(got, clothes)
+
+
+def test_collision_region_rejects_an_unknown_class():
+    from scripts.color_ceiling import collision_region
+    x = torch.rand(1, 3, 64, 64)
+    try:
+        collision_region(x, 'nope', torch.ones(1, 1, 64, 64))
+    except ValueError as e:
+        assert 'nope' in str(e)
+    else:
+        raise AssertionError('未知的指令類必須拋錯，不得靜默走預設區域')

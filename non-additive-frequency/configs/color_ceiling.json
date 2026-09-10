@@ -45,13 +45,21 @@
   "library": {
     "path": "data/ncf_library.json",
     "sha256": "3f1af891264523591d3a4ef1df6878cb41b2ed518e7e2cf0e492161b72013888",
-    "class_weights": {"global_scene": 1.0},
-    "ade20k_classes": ["apparel"]
+    "class_weights": {
+      "global_scene": 1.0
+    },
+    "ade20k_classes": [
+      "apparel"
+    ]
   },
   "palette_id": "ade093_apparel_00",
   "palette_id_second": "ade093_apparel_04",
   "palette_note": "兩組都取自 ADE20K 的真實色彩分布庫，自然度靠它保證。第二組只有 region_palette 用（衣物的補集那一塊）；apparel_04 的 mean 是 [60.6, 8.9, 33.9]，與 apparel_00 的 [71.3, -5.9, 1.8] 在色度上分得開，兩塊區域才是兩個配色而不是同一個。",
-  "delta_e_targets": [6.3, 20.0, 30.0],
+  "delta_e_targets": [
+    6.3,
+    20.0,
+    30.0
+  ],
   "delta_e_note": "6.3 是 runs/objective_pilot/ 量到的現行工作點（frame 載體中位 ΔE00 6.31），20 與 30 是往上兩級。不可達的格子回報 delta_e_reached=0 與實際到得了的值，不補跑。",
   "rotation_deg": 90.0,
   "rotation_note": "色相旋轉角固定 90 度。真實照片上 0-135 度的 hf_ratio_rgb_total 是 0.966-0.980，180 度才到 1.062；但該上界隨影像內容而變（tests/test_chroma_rotation.py），所以逐列照量，不當保證。",
@@ -64,5 +72,15 @@
   "s_t": 7.5,
   "s_i": 1.5,
   "attack_steps": 100,
-  "eval_seeds": [17001, 27001, 47001]
+  "eval_seeds": [
+    17001,
+    27001,
+    47001
+  ],
+  "collision_steps": 300,
+  "collision_ring_width": 16,
+  "collision_update": "adam",
+  "collision_note": "collision 臂與 chroma_bounded 用同一個參數化（奇異值上界，容許收縮），兩者的差別只有目標函數。不用等距臂：全域仿射對兩塊區域均值差的作用是 M(mu_R - mu_E)，奇異值恰為 1 時那個差的長度被保住，推不動。",
+  "step_size_ratio": 0.02,
+  "momentum": 0.6
 }

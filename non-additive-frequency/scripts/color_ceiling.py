@@ -30,7 +30,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-ARMS = ('chroma_bounded', 'chroma_isometric', 'region_palette', 'undefended')
+ARMS = ('chroma_bounded', 'chroma_isometric', 'region_palette', 'collision',
+        'undefended')
 
 # CSV 的合約。欄名沿用 `runs/objective_pilot/` 的字彙，兩批才並列得起來。
 COLUMNS = [
@@ -45,6 +46,8 @@ COLUMNS = [
     'final_outside_support_max_abs', 'final_support_exact',
     'final_hf_below_reference', 'final_id_above_reference',
     'protected_max_abs', 'protected_pixels',
+    'collision_first', 'collision_last', 'collision_at_anchor',
+    'collision_steps', 'collision_region_area', 'collision_ring_area',
     'n_faces_orig', 'n_faces_edit_orig', 'n_faces_edit_def',
     'subject_box_iou_edit_orig', 'subject_box_iou_edit_def',
     'subject_id_orig', 'subject_id_def', 'subject_id_drop',
@@ -120,6 +123,12 @@ def build_param(arm, x01, *, support, target_mean, target_cov, blur_sigma,
         if not regions:
             raise ValueError('region_palette 需要 regions；缺了就不是這個臂')
         return RegionPaletteParam(regions, blur_sigma=blur_sigma, **common)
+    if arm == 'collision':
+        # **不是等距臂。** 同色碰撞要的是把兩塊區域的色度統計拉近，而全域仿射
+        # 對任意兩塊區域的均值差作用是 M(mu_R − mu_E)：奇異值恰為 1 時那個差的
+        # 長度被保住，梯度幾乎只剩 sigma 那一項；容許收縮（奇異值 ≤ 1）才推得動。
+        # 與 `chroma_bounded` 用同一個參數化，兩者的差別因此只有目標函數。
+        return ChromaAffineParam(target_mean, target_cov, **common)
     raise ValueError(f'未知的臂 {arm!r}；可用的是 {ARMS}')
 
 
@@ -132,6 +141,30 @@ def cells_of(spec):
                         'instruction': cls['instructions'][image],
                         'carrier': cls['carrier'], 'seed': spec['seed']})
     return out
+
+
+def collision_region(x01, cls, clothes, device=None):
+    """指令要改的那塊區域，逐指令類各一種取法。
+
+    `collision` 那條臂問的是「把這塊區域的顏色統計與周邊拉近，指令還定位得到
+    嗎」，所以區域必須對得上指令講的東西，不是對得上載體的支撐。
+
+    衣物：ATR 衣物遮罩本身。
+    配件：主體外緣的環帶——帽子會出現的地方。
+    背景：衣物與主體之外的一切。
+    """
+    import torch
+
+    from src.defense.carrier_mask import face_subject_mask, ring_support
+    if cls == 'clothing':
+        return clothes
+    face = face_subject_mask(x01, device=device)
+    if cls == 'accessory':
+        return ring_support(face, inner=8, outer=48)
+    if cls == 'background':
+        inside = torch.maximum(clothes, (face > 0.5).to(clothes.dtype))
+        return (1.0 - inside).clamp(0.0, 1.0)
+    raise ValueError(f'未知的指令類 {cls!r}；沒有對應的區域取法')
 
 
 def regions_of(x01, support_clothes):
@@ -164,7 +197,9 @@ def main():
         assert_free_cards()
 
     import torch
+    from src.defense.collision_loss import make_collision_loss, ring_of
     from src.defense.color_amplitude import solve_amplitude
+    from src.defense.param_pgd import run_param_pgd
     from src.defense.naturalness_gate import gate_row
     from src.defense.ncf_library import sha256
     from src.defense.ncf_runner import ncf_support
@@ -236,21 +271,49 @@ def main():
             # 那些格子的讀數必然一樣，重跑攻擊只是白燒機時。按幅度快取，列還是
             # 逐目標各一列（`delta_e_reached` 標明可不可達），只是不重算。
             by_amplitude = {}
+
+            # 建構、`reset` 與訓練都與 ΔE00 目標無關，所以只做一次；目標迴圈裡
+            # 變的只有幅度，那是事後的空間常數投影。碰撞臂的 300 步因此不會被
+            # 三個目標各跑一次。
+            regions = None
+            if arm == 'region_palette':
+                regions = [(w, m, c) for w, (m, c) in zip(
+                    regions_of(x, clothes), [(mean, cov), second])]
+            param = build_param(
+                arm, x, support=support, target_mean=mean, target_cov=cov,
+                blur_sigma=spec['blur_sigma'], regions=regions,
+                rotation_deg=spec['rotation_deg'] if arm == 'chroma_isometric' else None,
+                radius=spec['radius'], epsilon_lab=spec['epsilon_lab'])
+            # `reset` 先跑：任何在它之前設好的東西都會被抹掉，而且不拋錯。
+            param.reset(x, cell['seed'])
+            trained, closs = {}, None
+            if arm == 'collision':
+                region = collision_region(x, cell['class'], clothes,
+                                          device=device)
+                ring = ring_of(region, spec['collision_ring_width'])
+                closs = make_collision_loss(region, ring)
+                param.set_amplitude(1.0)
+                first = float(closs(param.render(x)))
+                run_param_pgd(x, param, closs,
+                              steps=spec['collision_steps'],
+                              update=spec['collision_update'],
+                              step_size=spec['step_size_ratio'] * float(param.radius),
+                              seed=cell['seed'], momentum=spec['momentum'])
+                last = float(closs(param.render(x)))
+                trained = {'collision_first': round(first, 6),
+                           'collision_last': round(last, 6),
+                           'collision_steps': spec['collision_steps'],
+                           'collision_region_area': round(float(region.mean()), 6),
+                           'collision_ring_area': round(float(ring.mean()), 6)}
+                print(f"  {tag} collision {first:.4f} -> {last:.4f}", flush=True)
+
             for target in sorted(spec['delta_e_targets']):
-                regions = None
-                if arm == 'region_palette':
-                    regions = [(w, m, c) for w, (m, c) in zip(
-                        regions_of(x, clothes), [(mean, cov), second])]
-                param = build_param(
-                    arm, x, support=support, target_mean=mean, target_cov=cov,
-                    blur_sigma=spec['blur_sigma'], regions=regions,
-                    rotation_deg=spec['rotation_deg'] if arm == 'chroma_isometric' else None,
-                    radius=spec['radius'], epsilon_lab=spec['epsilon_lab'])
-                # `reset` 先跑，幅度後解：任何在 reset 之前設的東西都會被抹掉。
-                param.reset(x, cell['seed'])
                 # 錨點取**支撐加權**的色差：全圖平均會被支撐面積稀釋，衣物載體
                 # 因此連 6.3 都到不了（量到 4.5–5.2），跟整圖濾鏡的 24 不可並列。
                 solved = solve_amplitude(param, x, target, support=support)
+                if closs is not None:
+                    trained['collision_at_anchor'] = round(
+                        float(closs(param.render(x))), 6)
                 x_def = param.render(x).detach()
                 diag = param.diagnostics(x)
                 final = {f'final{k[4:]}': v for k, v in
@@ -282,7 +345,7 @@ def main():
                         'input_dists': round(float(d['dists']), 5),
                         'protected_max_abs': protected,
                         'protected_pixels': n_zero,
-                        **final}
+                        **trained, **final}
                 print(f"  {name} a {base['amplitude']} dE_support "
                       f"{base['support_deltaE00']}"
                       f"{'' if solved['reached'] else '(未達標)'} dE_frame "

@@ -37,7 +37,9 @@ ARMS = ('chroma_bounded', 'chroma_isometric', 'region_palette', 'collision',
 COLUMNS = [
     'arm', 'image', 'class', 'instruction', 'carrier', 'seed', 'eval_seed',
     'delta_e_target', 'amplitude', 'delta_e_reached', 'support_deltaE00',
-    'rotation_deg', 'max_gain', 'isometric', 'blur_sigma', 'palette_id',
+    'rotation_deg', 'max_gain', 'isometric', 'blur_sigma',
+    'palette_id', 'palette_id_second',
+    'effective_gain_max', 'effective_gain_min',
     'edit_lpips',
     'input_psnr', 'input_dists',
     'final_psnr', 'final_dists', 'final_deltaE00',
@@ -316,6 +318,17 @@ def main():
                         float(closs(param.render(x))), 6)
                 x_def = param.render(x).detach()
                 diag = param.diagnostics(x)
+                # `isometric` 與 `rotation_deg` 記的是**插值前**的設定。幅度插值
+                # 之後真正作用的矩陣是 (1-a)·I + a·M，`a < 1` 時奇異值小於 1
+                # ——90 度旋轉在 a = 0.5 上是 0.707，那是收縮不是等距。有效增益
+                # 因此要單獨記一欄，否則欄位會誤述機制。
+                eff = getattr(param, 'effective_chroma_matrix', None)
+                if eff is None:
+                    gain_max = gain_min = ''
+                else:
+                    sv = torch.linalg.svdvals(eff())
+                    gain_max = round(float(sv.max()), 5)
+                    gain_min = round(float(sv.min()), 5)
                 final = {f'final{k[4:]}': v for k, v in
                          gate_row(x, x_def,
                                   support=None if whole_frame else support,
@@ -341,6 +354,9 @@ def main():
                         'isometric': diag.get('isometric', ''),
                         'blur_sigma': diag.get('blur_sigma', ''),
                         'palette_id': spec['palette_id'],
+                        'palette_id_second': spec['palette_id_second'],
+                        'effective_gain_max': gain_max,
+                        'effective_gain_min': gain_min,
                         'input_psnr': round(float(d['psnr']), 4),
                         'input_dists': round(float(d['dists']), 5),
                         'protected_max_abs': protected,

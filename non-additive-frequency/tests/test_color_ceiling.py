@@ -90,3 +90,27 @@ def test_collision_region_rejects_an_unknown_class():
         assert 'nope' in str(e)
     else:
         raise AssertionError('未知的指令類必須拋錯，不得靜默走預設區域')
+
+
+def test_columns_record_the_effective_gain_after_amplitude_interpolation():
+    """`isometric` 記的是插值前的設定，插值後的有效增益要另外記。
+
+    (1-a)·I + a·R(90度) 在 a = 0.5 上的奇異值是 0.707——那是收縮不是等距，
+    只看 `isometric=1` 會誤述機制。
+    """
+    for name in ('effective_gain_max', 'effective_gain_min', 'palette_id_second'):
+        assert name in COLUMNS
+
+
+def test_amplitude_interpolation_contracts_a_rotation():
+    from src.defense.lowfreq_color import ChromaAffineParam
+    x = torch.rand(1, 3, 64, 64)
+    p = ChromaAffineParam(
+        target_mean=[60.0, 25.0, -20.0],
+        target_cov=[[80.0, 0.0, 0.0], [0.0, 40.0, 0.0], [0.0, 0.0, 40.0]],
+        support=torch.ones(1, 1, 64, 64), radius=0.2, max_gain=1.0,
+        isometric=True, rotation_deg=90.0, amplitude=0.5)
+    p.reset(x, seed=0)
+    assert abs(float(torch.linalg.svdvals(p.chroma_matrix()).max()) - 1.0) < 1e-9
+    eff = float(torch.linalg.svdvals(p.effective_chroma_matrix()).max())
+    assert abs(eff - 0.7071) < 1e-3

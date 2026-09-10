@@ -40,7 +40,8 @@ sys.path.insert(0, str(ROOT))
 
 COLUMNS = [
     'image', 'class', 'instruction', 'carrier', 'arm', 'delta_e_target',
-    'amplitude', 'eval_seed', 'operator', 'kind', 'strength', 'geometric',
+    'amplitude', 'delta_e_reached', 'support_deltaE00',
+    'eval_seed', 'operator', 'kind', 'strength', 'geometric',
     'reference', 'effect', 'floor', 'total_gain', 'net_gain',
     'def_png', 'seconds',
 ]
@@ -79,15 +80,42 @@ def load_png(path, device):
     return torch.from_numpy(arr).permute(2, 0, 1)[None].to(device)
 
 
+# 缺了強度就會靜默變成別的算子：`blur`／`noise` 的 0 是恆等，
+# `crop_resize`／`rotate` 的 0 會被換成 ops.py 自己的非零預設，而 CSV 記的是
+# 設定裡的值——兩邊不一致時報表上看不出來。
+STRENGTH_REQUIRED = frozenset({
+    'blur', 'noise', 'jpeg', 'quantize', 'crop_resize', 'jpeg_then_resize',
+    'rotate', 'resample_roundtrip',
+})
+
+# 這些算子的輸出依賴隨機數。地板與 effect 要能相減，兩側必須吃同一個實現，
+# 所以 seed 必填。`rotate` 在 `ROTATE_FIXED` 下角度固定，仍要求 seed 是為了
+# 該常數被改掉時不會靜默失配。
+SEED_REQUIRED = frozenset({
+    'noise', 'shift_only', 'rotate', 'diffpure', 'gridpure', 'fdpure', 'impress',
+})
+
+
 def purifiers(spec):
-    """設定裡的算子清單 → `Purifier` 物件。相依不齊的**回報並跳過**，不靜默。"""
+    """設定裡的算子清單 → `Purifier` 物件。相依不齊的**回報並跳過**，不靜默。
+
+    缺強度或缺 seed 一律拋錯而不是用預設值：兩者都會讓量到的東西不是設定寫的
+    東西，而 CSV 上看不出來。
+    """
     from src.purify.ops import GEOMETRIC_KINDS, Purifier
     out = []
     for item in spec['operators']:
-        p = Purifier(item['kind'], strength=item.get('strength', 0.0),
+        kind = item['kind']
+        if kind in STRENGTH_REQUIRED and item.get('strength') is None:
+            raise SystemExit(f'{kind} 必須給 strength：缺了會靜默變成恆等或'
+                             f'換成 ops.py 的內建預設，而 CSV 記的是設定值')
+        if kind in SEED_REQUIRED and item.get('seed') is None:
+            raise SystemExit(f'{kind} 必須給 seed：原圖側與防禦圖側要吃同一個'
+                             f'隨機實現，地板才減得掉')
+        p = Purifier(kind, strength=item.get('strength', 0.0),
                      seed=item.get('seed'), **item.get('options', {}))
         if not p.available:
-            print(f"[purify] 相依不齊，跳過 {item['kind']}", flush=True)
+            print(f"[purify] 相依不齊，跳過 {kind}", flush=True)
             continue
         out.append((p, p.kind in GEOMETRIC_KINDS))
     if not out:
@@ -110,13 +138,18 @@ def rows_of(run_dir, wanted_arms, wanted_targets):
             if key in seen:
                 continue
             seen.add(key)
+            # 不可達的目標會解到同一個幅度（1.0），對應**逐位元相同**的防禦圖。
+            # 那些列因此是同一個工作點的多個名義標籤：`delta_e_reached` 與
+            # `amplitude` 一起帶進 CSV，跨目標彙總時才不會把同一張圖重複加權。
             target = float(r['delta_e_target'])
             png = (csv_path.parent /
                    f"{r['image']}__{r['class']}__{r['arm']}__dE{target:g}__def.png")
             cells.append({'image': r['image'], 'class': r['class'],
                           'instruction': r['instruction'], 'carrier': r['carrier'],
                           'arm': r['arm'], 'delta_e_target': r['delta_e_target'],
-                          'amplitude': r['amplitude'], 'png': png})
+                          'amplitude': r['amplitude'],
+                          'delta_e_reached': r['delta_e_reached'],
+                          'support_deltaE00': r['support_deltaE00'], 'png': png})
     return cells
 
 
@@ -195,7 +228,7 @@ def main():
                f"__dE{float(cell['delta_e_target']):g}")
 
         for seed in seeds:
-            ck = (cell['image'], cell['class'], seed)
+            ck = (cell['image'], cell['class'], cell['instruction'], seed)
             if ck not in clean_edit:
                 clean_edit[ck] = ip2p.edit(x, cell['instruction'], seed=seed,
                                            **edit_kw)
@@ -206,21 +239,20 @@ def main():
                 pd = op.evaluate(x_def)
                 ed = ip2p.edit(pd, cell['instruction'], seed=seed, **edit_kw)
 
+                # key 帶上 instruction 與算子的完整身分（含 seed 與 options）：
+                # 只用 (kind, strength) 的話，兩個同強度不同 seed 的 `noise`
+                # 會共用第一個的原圖參照，而防禦側各自重算，地板就減錯。
+                pk = (cell['image'], cell['class'], cell['instruction'], seed,
+                      op.kind, op.strength, op.seed,
+                      tuple(sorted((k, str(v)) for k, v in op.options.items())))
+                if pk not in purified_edit:
+                    purified_edit[pk] = ip2p.edit(
+                        op.evaluate(x), cell['instruction'], seed=seed, **edit_kw)
                 if geometric:
-                    pk = (cell['image'], cell['class'], seed, name)
-                    if pk not in purified_edit:
-                        purified_edit[pk] = ip2p.edit(
-                            op.evaluate(x), cell['instruction'], seed=seed,
-                            **edit_kw)
-                    ref, reference = purified_edit[pk], 'purified_orig'
-                    floor = 0.0
+                    # 兩側同算子、同輸入、同種子，地板由構造為 0。
+                    ref, reference, floor = purified_edit[pk], 'purified_orig', 0.0
                 else:
                     ref, reference = e_clean, 'orig'
-                    pk = (cell['image'], cell['class'], seed, name)
-                    if pk not in purified_edit:
-                        purified_edit[pk] = ip2p.edit(
-                            op.evaluate(x), cell['instruction'], seed=seed,
-                            **edit_kw)
                     floor = float(suite.pairwise(
                         e_clean, purified_edit[pk])['lpips'])
 
@@ -229,7 +261,10 @@ def main():
                     'image': cell['image'], 'class': cell['class'],
                     'instruction': cell['instruction'], 'carrier': cell['carrier'],
                     'arm': cell['arm'], 'delta_e_target': cell['delta_e_target'],
-                    'amplitude': cell['amplitude'], 'eval_seed': seed,
+                    'amplitude': cell['amplitude'],
+                    'delta_e_reached': cell['delta_e_reached'],
+                    'support_deltaE00': cell['support_deltaE00'],
+                    'eval_seed': seed,
                     'operator': name, 'kind': op.kind, 'strength': op.strength,
                     'geometric': int(geometric), 'reference': reference,
                     'effect': round(effect, 5), 'floor': round(floor, 5),

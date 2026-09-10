@@ -78,3 +78,47 @@ def test_zero_gradient_reports_zero_gain_instead_of_dividing_by_zero():
     p = _Stub()
     zero = [torch.zeros_like(p.theta)]
     assert first_order_gain(p, zero, x, rho=0.5) == (0., 0.)
+
+
+def test_value_spread_starts_every_draw_from_the_same_point():
+    """每個點都從起點出發，不是相關的隨機漫步。
+
+    `boundary_init` 是 `p.add_()`，不還原的話第 k 個點是
+    `project(p_{k-1} + u_k)`，量到的散布就不是可行集合上的獨立探測。
+    """
+    from scripts.gradient_diagnostics import value_spread
+
+    class _Rec(_Stub):
+        def __init__(self):
+            super().__init__(radius=1.0)
+            self.seen = []
+
+        def render(self, x01):
+            self.seen.append(self.theta.detach().abs().sum().item())
+            return x01 + self.theta
+
+    x = torch.zeros(1, 3, 8, 8)
+    p = _Rec()
+    value_spread(p, lambda y: y.sum(), x, draws_points=4, seed=0)
+    # 隨機漫步下絕對值總和會單調累積；每次從零起算則不會。
+    assert not all(b > a for a, b in zip(p.seen, p.seen[1:]))
+    assert torch.equal(p.theta.detach(), torch.zeros_like(p.theta))
+
+
+def test_value_spread_prefers_the_fixed_evaluation_when_given_one():
+    from scripts.gradient_diagnostics import value_spread
+    x = torch.zeros(1, 3, 8, 8)
+    p = _Stub(radius=1.0)
+    calls = {'sampled': 0, 'fixed': 0}
+
+    def sampled(y):
+        calls['sampled'] += 1
+        return y.sum()
+
+    def fixed(y):
+        calls['fixed'] += 1
+        return y.sum()
+
+    value_spread(p, sampled, x, draws_points=3, seed=0, fixed=fixed)
+    assert calls['fixed'] == 3
+    assert calls['sampled'] == 0

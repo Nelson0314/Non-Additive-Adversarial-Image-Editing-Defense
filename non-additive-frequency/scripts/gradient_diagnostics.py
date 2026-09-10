@@ -41,6 +41,7 @@ COLUMNS = [
     'a_carrier', 'a_relaxed', 'kappa', 'relax',
     'moved_carrier', 'moved_relaxed', 'rho_reached_carrier', 'rho_reached_relaxed',
     'value_spread', 'value_min', 'value_max', 'value_at_start',
+    'sampled', 'kappa_readable',
     'rho', 'radius', 'epsilon_lab', 'seconds',
 ]
 
@@ -108,8 +109,13 @@ def grad_stats(param, loss_fn, x01, draws):
 
 
 def first_order_gain(param, mean_grad, x01, rho):
-    """`A(ρ) = −∇L · h*`：把負梯度投影回可行集合、縮到**這一步的影像位移** ρ 之後
-    的一階下降。
+    """沿**投影後的負梯度**走到影像位移 ρ 時的一階下降 `−∇L · h`。
+
+    **這不是該位移下的最大一階下降。** 只搜尋一條 projected-gradient 路徑，
+    沒有對所有可行步求上界；而且 `project()` 先逐元素 clamp 再逐列縮放、
+    `render` 還含 SVD 裁切與非線性色彩轉換，位移對步長不保證單調，二分取到的
+    是一個可行解而不是恰好落在 ρ 上的最大解。`kappa` 因此讀作「兩邊各自沿自己
+    的負梯度、在同一個位移上拿到的一階下降之比」，不能推出集合的包含關係。
 
     縮放走影像位移而不是參數範數：兩個參數化的半徑在完全不同的座標裡，照參數
     範數縮等於比較兩個不同的東西。
@@ -160,17 +166,32 @@ def first_order_gain(param, mean_grad, x01, rho):
         return gain, moved
 
 
-def value_spread(param, loss_fn, x01, draws_points, seed):
-    """K 個隨機可達點上目標值的散布。梯度找不到，不代表集合裡沒有。"""
+def value_spread(param, loss_fn, x01, draws_points, seed, fixed=None):
+    """K 個隨機可達點上目標值的散布。梯度找不到，不代表集合裡沒有。
+
+    兩件事必須做對，否則量到的不是「集合上的散布」：
+
+    **每個點都從起點出發。** `boundary_init` 是 `p.add_()`，不還原的話跑出來的
+    是 `p_k = project(p_{k-1} + u_k)` 的相關隨機漫步，而不是可行集合上互相獨立
+    的探測點；投影還會再改變分布。
+
+    **用固定評估。** 帶抽樣的損失（`cfg_shift` 每次重抽 t、噪聲與指令）在不同
+    點上會配到不同的隨機條件，量到的散布就混進抽樣雜訊，指認不了顏色敏感度。
+    `fixed` 給了就走它（`StepwiseObjective.fixed`），沒有抽樣的損失兩者相同。
+    """
     import torch
     from src.defense.carrier_objectives import boundary_init
+    evaluate = fixed if fixed is not None else loss_fn
     with torch.no_grad():
         base = [p.detach().clone() for p in param.params()]
     values = []
     for k in range(draws_points):
+        with torch.no_grad():
+            for p, b in zip(param.params(), base):
+                p.data.copy_(b)
         boundary_init(param, x01, seed + k, draw='uniform')
         with torch.no_grad():
-            values.append(float(loss_fn(param.render(x01))))
+            values.append(float(evaluate(param.render(x01))))
     with torch.no_grad():
         for p, b in zip(param.params(), base):
             p.data.copy_(b)
@@ -265,8 +286,11 @@ def main():
                 made.append((label, p))
 
             carrier, relaxed = made[0][1], made[1][1]
+            fixed = getattr(loss_fn, 'fixed', None)
+            sampled = int(fixed is not None and fixed is not loss_fn)
+            evaluate = fixed if fixed is not None else loss_fn
             with torch.no_grad():
-                start = float(loss_fn(carrier.render(x)))
+                start = float(evaluate(carrier.render(x)))
             # ρ 取原本那個載體從**起點**走到自己邊界的位移的一半：這樣兩邊都
             # 到得了，kappa 才是「等位移下的一階下降之比」。基準若取對原圖的
             # 失真，ρ 會超出載體一步能走的範圍，兩邊都在自己的盒邊被夾死，
@@ -277,11 +301,17 @@ def main():
             with torch.no_grad():
                 rho = .5 * float((carrier.render(x) - start_render).norm())
             carrier.reset(x, spec['seed'])
-            g_mean, g_rms, mean_grad = grad_stats(carrier, loss_fn, x, args.draws)
-            _, _, relaxed_grad = grad_stats(relaxed, loss_fn, x, args.draws)
+            # g_mean 與 g_rms 要走**帶抽樣的**損失，抵銷才量得到。
+            g_mean, g_rms, _ = grad_stats(carrier, loss_fn, x, args.draws)
+            # 一階下降的方向兩邊都走**固定評估**：帶抽樣的損失其生成器會往前走，
+            # 兩側拿到的是不同的抽樣，kappa 就混進抽樣差異而不只是集合差異。
+            # 固定評估是決定性的，一次抽樣就夠。
+            _, _, mean_grad = grad_stats(carrier, evaluate, x, 1)
+            _, _, relaxed_grad = grad_stats(relaxed, evaluate, x, 1)
             a_c, moved_c = first_order_gain(carrier, mean_grad, x, rho)
             a_r, moved_r = first_order_gain(relaxed, relaxed_grad, x, rho)
-            lo, hi = value_spread(relaxed, loss_fn, x, args.points, spec['seed'])
+            lo, hi = value_spread(relaxed, loss_fn, x, args.points, spec['seed'],
+                                  fixed=fixed)
 
             row = {'image': cell['image'], 'class': cell['class'],
                    'instruction': cell['instruction'], 'carrier': cell['carrier'],
@@ -298,6 +328,12 @@ def main():
                    'rho_reached_relaxed': int(moved_r >= rho * .99),
                    'value_min': lo, 'value_max': hi, 'value_spread': hi - lo,
                    'value_at_start': start, 'rho': rho,
+                   # 抽樣抵銷這個指紋只對帶抽樣的損失有定義。沒有抽樣時
+                   # cancel_ratio 恆為 1，那是構造，不是「量過而沒有抵銷」。
+                   'sampled': sampled,
+                   # 兩邊都沒走到 ρ 時，a_* 是各自盒邊上的值，比值讀的是盒子
+                   # 大小之比而不是等位移下的一階下降之比。
+                   'kappa_readable': int(moved_c >= rho * .99 and moved_r >= rho * .99),
                    'radius': spec['radius'], 'epsilon_lab': spec['epsilon_lab'],
                    'seconds': round(time.time() - t_start, 1)}
             rows.append(row)

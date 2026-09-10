@@ -121,11 +121,12 @@
     },
     {
       "kind": "rotate",
-      "strength": 10
+      "strength": 10,
+      "seed": 90212
     },
     {
       "kind": "adverse_cleaner"
     }
   ],
-  "operators_note": "與 docs/EVALUATION.md 的算子表同一組設定。identity 不可排除，它是保留率的分母。gridpure／fdpure／impress 需要 diffpure 權重與 SD wrapper，相依不齊時腳本會回報並跳過。"
+  "operators_note": "與 docs/EVALUATION.md 的算子表同一組設定。identity 不可排除，它是保留率的分母。gridpure／fdpure／impress 需要 diffpure 權重與 SD wrapper，相依不齊時腳本會回報並跳過。 rotate 在 ROTATE_FIXED=True 下角度固定，seed 仍填是為了該常數被改掉時不會靜默失配；scripts/color_retention.py 對有隨機性的算子要求 seed 必填。"
 }

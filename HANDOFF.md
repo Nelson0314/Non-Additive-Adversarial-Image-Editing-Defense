@@ -1,224 +1,82 @@
-# 交接：整理之後的起點
+# 交接
 
-專案剛做過一次大整理。**這一份取代先前所有的交接文件。**
+程式與數值在 `non-additive-frequency/`。工作規則見該目錄的 `CLAUDE.md`。
 
-程式與數值在 `non-additive-frequency/`。遠端工作目錄
-`/nfs/home/nelson0314/WACV-s3`（basic-2 埠 10102、basic-1 埠 10101，home 跨機
-共用）。本機 Python `C:/Users/nelso/miniconda3/envs/wacv/python.exe`。
+## 現況
 
----
+遠端沒有本專案的行程，本機沒有背景工作。
 
-## 〇 現在的狀態
+測試基準：`python -m pytest -q --ignore=runs` → **1331 passed / 2 skipped /
+1 xfailed**。`--ignore=runs` 是必要的，`runs/ncf_cpu_test_tmp/pytest-of-nelso`
+被提權沙箱的 ACL 鎖住，會讓收集階段直接失敗。
 
-**所有實驗都已停止**——遠端行程逐一 kill 並回頭驗證過（`ps` 只剩 systemd 與
-一個閒置 shell，卡上唯一的 compute app 是別人的）。本機沒有背景工作。
+本機 Python `C:/Users/nelso/miniconda3/envs/wacv/python.exe`。
+遠端工作目錄 `/nfs/home/nelson0314/WACV-s3`（basic-1 埠 10101）。
 
-**下一步是重新診斷與改良，不是接著跑。**
+## 跑過什麼
 
----
+`runs/objective_pilot/`：五張人像 × 三類指令 = 15 格，四個臂
+（`latent_norm`、`latent_norm` 邊界起點、`cfg_shift`、同可達集合隨機對照）。
+設定、目錄、量測欄位與中位數在該目錄的 `README.md`。
 
-## 一 兩台機器現在都不能跑 GPU
+`runs/subject_anchored_readout/`：主體錨定身分讀數與盲評的聯結，
+含各讀數對人眼判定的 AUC。
 
-| | CUDA | 卡 |
-|---|---|---|
-| basic-2（埠 10102） | **壞掉** | 我的卡是空的 |
-| basic-1（埠 10101） | 正常 | **8 張全部是別人的** |
+`runs/lowfreq/`：1120 列，但全部是 `max_gain=1.0`、`T_distance=0`、未訓練，
+等於恆等映射，且只有代理讀數（`clip_margin`）。幅度那一軸沒有取樣過。
 
-basic-2 上 `torch.cuda.is_available()` 回 `False`，**連不設
-`CUDA_VISIBLE_DEVICES` 都是**。根因是 `nvidia-smi` 對 GPU 2 回報
-`Unable to determine the device handle for GPU2: 0000:1F:00.0: Unknown Error`
-——那張卡的硬體錯誤把新行程的 CUDA 初始化整台拖垮。既有行程（別人的
-pid 3844276）是故障前起來的，所以還活著。
+## 下一步：顏色族的天花板，卡在遠端怎麼放程式
 
-**要 root 才能修**：`sudo nvidia-smi -r -i 2`，或重啟 `nvidia-persistenced`。
-**這件事只能使用者處理。** 派工前一定要先確認 CUDA 是通的，否則工作會靜默
-掉回 CPU 然後死掉（已經發生過一次）。
+計畫 `docs/superpowers/plans/isometric-color-field.md`。程式與測試都寫完了
+（本機 1367 passed / 2 skipped / 1 xfailed），**批次還沒派**。
 
-`ssh` 另有一個坑：**短時間連開二十幾條 scp 會被 sshd 限流**，症狀是
-`banner exchange: Connection to UNKNOWN port -1: Connection timed out`
-（TCP 連得上、banner 交換前被丟掉），而且**每次重試都會延長封鎖**。
-推檔一律用單一連線的 `tar czf - -T - | ssh ... tar xzf -`，不要用多次 scp。
+派工 `scripts/color_ceiling.py --config configs/color_ceiling.json`，
+臂 × ΔE00 掃描，不訓練，約 2.6 GPU-hours（15 格 × 每格 30 次編輯 × 21 秒）。
+設定與量測欄位見 `non-additive-frequency/runs/color_ceiling/README.md`。
 
----
+**卡住的地方：遠端那棵樹與本機分岔了。** `/nfs/home/nelson0314/WACV-s3` 在
+commit `e907913fe`，目錄結構是舊的（`docs/` 在頂層，不在
+`non-additive-frequency/` 之下），約 150 支 `scripts/` 有未提交的修改，而
+`src/defense/naturalness_gate.py` 的內容與本機**不同**（遠端
+`8ac8306f…`、本機 `9cf17277…`）。把新檔案 rsync 上去會讓新程式跑在舊版的
+`gate_row`／`subject_identity_row` 上，讀數可能靜默不可並列。三個選項見下方
+「要決定的事」。
 
-## 二 整理做了什麼
+卡的狀態（basic-1）：1、5、6 三張沒有別人的 compute app 且記憶體 4 MiB。
 
-**分支 `cleanup`，兩個 commit。** 整理前的完整狀態存在快照 commit 裡，任何被
-移除的檔都能用 `git checkout <快照 sha> -- <path>` 拿回來。
+## 要決定的事
 
-| | 整理前 | 整理後 |
-|---|---|---|
-| `runs/` 目錄 | 185 | **23** ＋ `_archive/`（162） |
-| `scripts/` | 125 py ＋ 145 sh | **89 py ＋ 101 sh** |
-| `tests/` | 114 | **87** |
-| `src/` | 73 | **69** |
-| 測試 | 1582 passed | **1147 passed / 0 failed** |
+遠端怎麼放這批程式：
 
-**量測 CSV 一律沒有刪**，只移進 `runs/_archive/`（見那裡的 `README.md`）。
-理由是它們是那些方向被否定的證據本身，重跑要數百小時 GPU。
+1. **開新目錄**（建議）：從本機同步一份到 `/nfs/home/nelson0314/WACV-s4`，
+   完全不碰現有那棵樹。代價是多一份磁碟與一次環境確認。
+2. **只複製新檔案**到 WACV-s3：最省事，但新程式會跑在遠端舊版的支援模組上。
+3. **整棵同步**到 WACV-s3：覆蓋掉遠端那 150 支未提交的修改，難回復。
 
-**有 34 個死線的檔留著沒刪**，因為主線還在 import 它們（`ip2p_run.py` 直接
-import `phase_ablation`、`dct_shield`、`advdrop`、`stadv_flow`；`patch_param.py`
-import `color_param`；`param_pgd.py` import `texture_rephase`）。
-**要再清就得先重構主派工程式**，那是一件獨立的工作。
+## 兩個會靜默失效的環境事實
 
----
+- `IP2PWrapper(dtype=fp16)` 下 `resolve_precision` 讓 backbone 半精度而 VAE
+  留在 fp32，官方 pipeline 的 `edit()` 會在 `vae.encode` 拋 Half/float 不符；
+  `edit_differentiable` 自行處理故不受影響。要跑攻擊評測就用 fp32。
+- `pkill -f <樣式>` 會匹配到 ssh 遠端命令自己的 shell，把連線殺掉並回傳 127。
+  `[o]` 括號寫法只擋得住 grep 本身。改用
+  `ps -u $USER -o pid=,comm=,args= | awk '$2=="python" && /<樣式>/ {print $1}'`
+  取 pid 再殺，殺完回頭用 `nvidia-smi` 複驗。
 
-## 三 保留下來的方向
+## 三件寫成測試釘住的性質
 
-**主張在載體**：防禦以不同的方式進入影像，因而得到不同的抗淨化形狀，並且在
-「哪裡的失真是免費的」這個前提下把預算開大。
+1. `ReColorAdvParam.project()` **不是幂等的**：`clamp(0,1)` → CIELUV↔RGB 色域
+   往返 → L∞ 盒，最後一步會把點推回色域外。與原文 `project_params` 同序，不要修。
+2. **邊界初始化到不了盒角**：色域投影把格點邊緣拉回來，可達集合不是盒子。
+3. `run_param_pgd` 在讀 `params()` **之前**會先 `param.reset(x01, seed)`。
+   訓練前做的初始化會被抹掉，且不拋錯。
 
-**唯一有效的載體是衣物上的可見補丁。**
+## 使用者的裁定
 
-支撐由人體解析決定（ATR 衣物類 → 導向濾波 → 挖掉 MTCNN 臉框 → 侵蝕 3、往內
-羽化 8 → 扣掉受保護主體 ATR 11∪2），面積中位 0.225。支撐外逐位元等於原圖。
-
-損失是把 InstructPix2Pix 的影像引導項推成「沒有給影像」的狀態；sign-PGD、
-6000 步、步長 0.01、每 200 步以固定抽樣評估、patience 10。
-
----
-
-## 四 已經量到、可以直接用的事實
-
-### 4.1 主結果（n = 30，中位數）
-
-| | DISTS | 位移 | SigLIP | 擋下 | id 降幅 |
-|---|---|---|---|---|---|
-| 可見補丁 | 0.1871 | **0.5715** | 0.7871 | **22/30** | **0.2604** |
-| 同幾何隨機內容 | 0.1619 | 0.3151 | 0.9069 | 4/30 | 0.0082 |
-
-對隨機的倍率：位移 **1.81×**、擋下 **5.5×**。
-
-### 4.2 兩個方向的指標（仿 FaceLock，本機 CPU 從影像重算）
-
-| | 攻擊 | 防禦後 | |
-|---|---|---|---|
-| prompt 遵循度 CLIP-S | 0.0812 | 0.0743 | 降幅 **0.0069** |
-| 原圖差異度 LPIPS | 0.3126 | **0.6802** | **2.18×** |
-
-**防禦沒有讓模型不聽指令，它改變的是輸出長什麼樣子。**
-色彩族在 prompt 這一軸是**負的**（n = 18，−0.0053），即防禦後更聽指令。
-
-### 4.3 內容限制（美化）：一條單調的取捨
-
-| 支撐內的內容 | 失真 ↓ | 位移 ↑ | 擋下 | id 降幅 |
-|---|---|---|---|---|
-| 無限制 | 0.1871 | 0.5715 | 22/30 | 0.2604 |
-| 點陣 | 0.2699 | **0.5838** | 17/30 | 0.0311 |
-| 斑塊 | 0.1946 | 0.5475 | 21/30 | 0.1431 |
-| 低頻替換 | 0.1573 | 0.4495 | 17/30 | 0.1233 |
-| **低頻懲罰** | **0.1402** | 0.4409 | 14/30 | 0.1061 |
-| 低頻替換＋週期 | 0.1627 | 0.3869 | 6/30 | 0.0285 |
-| 凍結亮度 | 0.1272 | 0.3656 | 8/30 | 0.0478 |
-| 隨機（地板） | 0.1619 | 0.3151 | 4/30 | 0.0082 |
-
-**支撐類（點陣、斑塊）守得住效果但更顯眼；內容類（低頻、亮度）是拿效果換
-失真，而且單調。低頻懲罰最划算：失真降 25%，位移保住 77%。**
-
-### 4.4 抗淨化（2088 列，扣空白地板）
-
-保留率：導向濾波 0.81、裁切 0.67、JPEG90 0.63、JPEG75 0.54、JPEG60 0.44、
-模糊 σ1.5 0.21。對隨機的倍率：8 階量化 2.59×、導向濾波 2.32×、未淨化 1.82×。
-
-**旋轉那一欄作廢**：那批的角度是從 `U(−10°,+10°)` 抽的，抽到 −0.075°，
-512 px 影像最遠角落只位移 0.33 px——**量到的是恆等映射**。已改成固定取 10°
-（`src/purify/ops.py::ROTATE_FIXED`），**要重測**。
-
-### 4.5 量化交付
-
-交付前自己壓一次 JPEG，攻擊方再壓一次接近恆等。四個 JPEG 品質的保留率全部
-提升，Q90 由 0.625 到 **0.844**。擾動保留率 0.86（隨機基準 0.22）。
-
-### 4.6 純 CPU 量到的訊號存活（不需要 GPU）
-
-- **帶限解決低通、在 S=8 就飽和**：模糊 0.76 → 0.97，加粗到 S=128 沒再買到。
-- **多邊形分割用 320 個參數拿到同一件事**，RMS 還更小。
-- **幾何（旋轉、裁切）沒有被任何內容場解決**。上限由兩件事給：支撐邊界的
-  位移，以及 `δ = c − x` 裡那份 −x（S=512 時 δ 的高頻佔比 0.0325，與原圖
-  逐位數相同）。**取代式載體的擾動不可能比它取代掉的那塊影像更平滑。**
-- **極座標可分離場**是第一個對整個變換群成立的不變性（`g(φ)` 對裁切
-  0.02–0.25 全部 1.000），但貼到真實載體上只買到 +0.54 → +0.66。
-
----
-
-## 五 已經寫好但**從沒跑過**的兩件事
-
-兩個都推上遠端了，程式與測試齊備，卡一有就能送。
-
-**`--loss facelock`**（`src/defense/facelock_loss.py`，9 條測試）
-身分損失接在 **VAE 的一次往返**上，不經過 UNet。判準（臉）與模組（走到哪裡）
-是兩個獨立的軸，本專案此前只填了對角線——`latent_norm` 只走 VAE 但沒有臉，
-`identity` 有臉但走了 UNet（實測 8/25，明顯較差）。**這一格從沒跑過。**
-本專案特有的問題：臉在像素上是凍結的，所以重建圖的臉只能經由 **VAE 的感受野**
-被支撐內的內容影響——**這一批要問的就是那件事做不做得到**。
-
-**全圖色彩濾鏡**（不需改程式：不給 `--subject-mask`、`--subject-source` 留
-預設，`apply_where` 就是 `None`）。它**違反本專案的威脅模型**，不是候選方案，
-是歸因用的對照：色彩族的零效果裡，有多少是「不准碰主體」造成的。
-
-派工腳本 `scripts/facelock_colour_round.sh`（兩臂 `fl_patch`／`col_full`）。
-
----
-
-## 六 會靜默失效的坑（每一個都實際發生過）
-
-1. **Windows 上用 Python 改 `.sh` 會變 CRLF**，遠端 bash 直接語法錯誤。
-   守門：`tests/test_shell_line_endings.py`。
-2. **殺行程之後要回頭查行程不在了**，自己印的 `killed` 不是證據。
-   `pkill -f` 對 `setsid` 送出的行程無效，要用 PID。
-3. **比值型讀數的分母要盯著**（摩爾紋探針第一版方向完全相反）。
-4. **`*RandomParam` 的 `params()` 回傳空串列**，拿它複製隨機起點會複製零個張量。
-5. **`sync_check.sh` 的連線守門**：遠端 `md5sum` 碰到尚未存在的新檔會回非零，
-   曾被誤讀成「ssh 失敗」而拒絕推——正是新檔最需要被推的那一次。已修。
-6. **恆等起點可能是損失的駐點**（`color_curve` 176 格有 160 格一步沒動）。
-7. **隨機臂的可學張量形狀要走 `_content_shape`**，寫成 `x01.shape` 的話
-   `res`／`tile` 對它靜默失效，而 CSV 的欄位照樣寫著設定值。已修。
-8. **軟支撐不可以硬化成布林**，羽化帶會被整條算成滿的，掃描完全沒有作用而
-   每一列看起來都正常。已修。
-9. **隨機類淨化算子抽到接近零的參數** → 整欄變成第二個 identity。已修。
-10. **本機測試不要同時跑兩件重的事**，會被記憶體壓力殺掉。
-
----
-
-## 七 下個 session 要先讀什麼
-
-依序：
-
-1. **這一份** —— 現況、能用的事實、坑
-2. `non-additive-frequency/CLAUDE.md` —— 工作規則。**「訓練方法的實驗：不設
-   判準」那一條凌駕其餘所有規則**：不得自訂「有沒有效」的通過門檻，數與圖
-   擺出來為止，判斷由使用者做
-3. `non-additive-frequency/docs/DIRECTION.md` —— 方向的完整論證與逐項裁定
-4. `non-additive-frequency/docs/DEFECTS.md` —— 會靜默失效的坑，比第六節詳細
-
-要查某一批的數字，看該目錄自己的 `README.md`：
-
-| 想知道 | 看哪裡 |
-|---|---|
-| 主結果、四個讀數並列 | `runs/readout_parallel/` |
-| 逐圖的效果與地板 | `runs/ip2p_patch_breadth/` |
-| 內容限制（美化）那一族 | `runs/ip2p_content_constraint/` |
-| 抗淨化 | `runs/ip2p_purify_identity/`、`runs/ip2p_patch_carrier_purify/` |
-| 量化交付 | `runs/ip2p_deliver_jpeg_patch/` |
-| 淨化算子的頻率響應 | `runs/purifier_transfer/` |
-| 內容場的訊號存活 | `runs/carrier_purify_response/` |
-| 幾何項的上限 | `runs/registration_ceiling/` |
-| 極座標場 | `runs/polar_carrier/` |
-| 浮水印舉證層 | `runs/watermark_qim/` |
-| 已結案的方向為什麼被否定 | `runs/_archive/README.md` |
-
-**視覺化報告**（真實輸出影像、兩軸指標）：
-https://claude.ai/code/artifact/a374278d-ec93-475b-9843-6fc947776b30
-
----
-
-## 八 環境與規則（不要重新討論）
-
-- **GPU 工作一律送遠端，本機那張顯卡也不可以用。** 純 CPU 的後處理可以在本機。
-- **卡是多人共用的**：派工前跑 `bash scripts/free_cards.sh --assert`，沒有空卡
-  就等。**一次最多五張**，超過要使用者明確授意（`MAX_DEVS` 環境變數）。
-- **密碼與 token 不得寫入任何入庫檔案。**
-- **未經明確授權不得把分支併入 main。** 整理在 `cleanup` 分支上。
-- **禁止用 try/except 或條件跳過來掩蓋症狀。**
-- 一律繁體中文；commit message 用英文。
+1. 可見的防禦是允許的，只要不動主體、產物自然。
+2. 只接受兩種載體：整圖顏色濾鏡、衣物換色。
+3. 分工：衣物指令由衣物載體處理，頭部與背景指令由整圖濾鏡處理。
+4. 載體不得往高頻加東西（優先於其餘各項）。
+5. 畫面崩壞也算防禦成功——判準是攻擊者有沒有拿到一張可用的、認得出是同一個人
+   的、已完成指令的照片。
+6. 助手不做成敗判斷，只把數據與圖擺出來。

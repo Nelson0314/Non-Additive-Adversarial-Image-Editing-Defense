@@ -82,5 +82,50 @@
   "collision_update": "adam",
   "collision_note": "collision 臂與 chroma_bounded 用同一個參數化（奇異值上界，容許收縮），兩者的差別只有目標函數。不用等距臂：全域仿射對兩塊區域均值差的作用是 M(mu_R - mu_E)，奇異值恰為 1 時那個差的長度被保住，推不動。",
   "step_size_ratio": 0.02,
-  "momentum": 0.6
+  "momentum": 0.6,
+  "zt_mode": "diffuse_src",
+  "normalise": true,
+  "zt_note": "與 configs/objective_pilot.json 同值，cfg_shift 損失才可並列。normalise=true 會在損失裡除以影像條件的範數平方，該分母也有梯度，解讀 cfg_shift 的目標值時不可略過。",
+  "operators": [
+    {
+      "kind": "identity"
+    },
+    {
+      "kind": "jpeg",
+      "strength": 75
+    },
+    {
+      "kind": "jpeg",
+      "strength": 30
+    },
+    {
+      "kind": "blur",
+      "strength": 1.0
+    },
+    {
+      "kind": "noise",
+      "strength": 0.02,
+      "seed": 90211
+    },
+    {
+      "kind": "quantize",
+      "strength": 8
+    },
+    {
+      "kind": "crop_resize",
+      "strength": 0.1
+    },
+    {
+      "kind": "jpeg_then_resize",
+      "strength": 75
+    },
+    {
+      "kind": "rotate",
+      "strength": 10
+    },
+    {
+      "kind": "adverse_cleaner"
+    }
+  ],
+  "operators_note": "與 docs/EVALUATION.md 的算子表同一組設定。identity 不可排除，它是保留率的分母。gridpure／fdpure／impress 需要 diffpure 權重與 SD wrapper，相依不齊時腳本會回報並跳過。"
 }

@@ -23,6 +23,8 @@
 兩者都沿用 `NCFColorParam` 的來源統計、共變異數地板與 Monge–Kantorovitch
 轉移（`mk_matrix`），只換掉「映射作用在哪些維度、以及空間上怎麼混合」。
 """
+import math
+
 import torch
 
 from src.purify.ops import gaussian_blur
@@ -109,11 +111,31 @@ def _project_orthogonal(m):
 
     `_clamp_singular_values` 只設上界，而起點的 `T0_ab` 常常是收縮映射——
     色度被壓扁（去飽和），付了顏色位移卻換到比較小的色度變化。奇異值恰為 1
-    時色度梯度既不放大也不縮小，「不加高頻」由構造成立，而色相仍可轉到任意
-    角度，所以顏色位移不受「目標配色離來源有多遠」限制。
+    時色度梯度既不放大也不縮小，而色相仍可轉到任意角度，所以顏色位移不受
+    「目標配色離來源有多遠」限制。
+
+    **這個等距只在 Lab 的 (a,b) 平面上成立，不保證 RGB 的高通殘差不上升。**
+    Lab→RGB 是非線性的，同一個色度梯度轉到不同色相之後映進 RGB 的梯度可以變大，
+    而且變多少隨影像內容而異（`tests/test_chroma_rotation.py` 有反例與兩組
+    量到的形狀）。`hf_ratio_rgb_total` 每一批都要照量，不可推定。
     """
     u, _, vh = torch.linalg.svd(m)
     return u @ vh
+
+
+def _rotation_2x2(degrees, *, dtype, device):
+    """(a,b) 平面上的旋轉。奇異值恰為 1，且色度的長度逐點保持。
+
+    色相旋轉是這一族裡顏色位移最大的那個方向：轉 180 度把色度向量整個反向，
+    位移是色度長度的兩倍，而 Lab 色度平面上的梯度長度完全沒有被放大。
+
+    **RGB 的高通殘差比仍然要量。** Lab 的等距不轉譯成 RGB 的等距，實測在
+    180 度附近會超過 1（見 `_project_orthogonal` 與
+    `tests/test_chroma_rotation.py`）。角度是自變數，不是安全保證。
+    """
+    t = torch.as_tensor(float(degrees) * math.pi / 180., dtype=dtype, device=device)
+    c, s = torch.cos(t), torch.sin(t)
+    return torch.stack([torch.stack([c, -s]), torch.stack([s, c])])
 
 
 class ChromaAffineParam(NCFColorParam):
@@ -133,11 +155,15 @@ class ChromaAffineParam(NCFColorParam):
 
     def __init__(self, target_mean, target_cov, *, support, radius=.2,
                  cov_floor=1e-4, epsilon_lab=None, max_gain=1.0, gamut='soft',
-                 amplitude=1.0, isometric=False):
+                 amplitude=1.0, isometric=False, rotation_deg=None):
         if not (max_gain > 0):
             raise ValueError('max_gain must be positive')
         self.set_amplitude(amplitude)
         self.isometric = bool(isometric)
+        if rotation_deg is not None and not self.isometric:
+            raise ValueError('rotation_deg 只在 isometric 臂上有定義：非等距臂會'
+                             '再過一次奇異值上界，指定的角度不會逐字生效')
+        self.rotation_deg = None if rotation_deg is None else float(rotation_deg)
         if gamut not in ('soft', 'scale', 'clip'):
             raise ValueError("gamut 必須是 'soft'（平滑軟裁，預設）、"
                              "'scale'（整體縮放）或 'clip'（硬裁，供對照）")
@@ -153,8 +179,15 @@ class ChromaAffineParam(NCFColorParam):
         super().reset(x01, seed)
         # 母類建立的是 3x3 的增量；這裡換成 2x2，並把 T0 的色度子區塊
         # 先壓進增益上界內，讓起點本身就滿足「不放大色度對比」。
-        self.T0_ab = (_project_orthogonal(self.T0[1:, 1:]) if self.isometric
-                      else _clamp_singular_values(self.T0[1:, 1:], self.max_gain))
+        if self.rotation_deg is not None:
+            # 明確的色相旋轉。MK 的 T0 投影到 O(2) 之後通常只是很小的旋轉，
+            # 量不到「顏色推到極限」那個問題；旋轉角是那個極限的自變數。
+            self.T0_ab = _rotation_2x2(self.rotation_deg,
+                                       dtype=self.T0.dtype, device=self.T0.device)
+        elif self.isometric:
+            self.T0_ab = _project_orthogonal(self.T0[1:, 1:])
+        else:
+            self.T0_ab = _clamp_singular_values(self.T0[1:, 1:], self.max_gain)
         self.delta = torch.zeros_like(self.T0_ab).requires_grad_(True)
         self.u = None
 
@@ -242,6 +275,8 @@ class ChromaAffineParam(NCFColorParam):
         raw = self.raw_rgb(x)
         return {'name': self.name, 'max_gain': self.max_gain, 'gamut': self.gamut,
                 'amplitude': self.amplitude, 'isometric': int(self.isometric),
+                'rotation_deg': ('' if self.rotation_deg is None
+                                 else self.rotation_deg),
                 'gamut_scale': float(self.last_gamut_scale),
                 'clipping_fraction': float(((raw < 0) | (raw > 1)).double().mean()),
                 'clipping_max': float((raw - raw.clamp(0, 1)).abs().max()),

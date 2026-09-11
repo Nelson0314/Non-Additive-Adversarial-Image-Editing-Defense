@@ -144,3 +144,64 @@ def search_parameter(param, x01: torch.Tensor, loss: Callable,
                            sigma0=sigma0, seed=seed, start=start)
     evaluate(out.best)
     return out
+
+
+def evolution_search_batched(knobs: Sequence[Knob],
+                             evaluate_many: Callable[[List[Dict[str, float]]],
+                                                     List[float]],
+                             *, budget: int = 200, children: int = 6,
+                             sigma0: float = 0.3, seed: int = 0,
+                             start: Dict[str, float] = None) -> SearchResult:
+    """與 `evolution_search` 同一個演算法，但一代的子代**一次評估完**。
+
+    每次評估都要跑一趟完整的取樣鏈時，逐張送 GPU 餵不飽；`evaluate_many` 收一
+    整代的候選點、回傳同長度的分數，呼叫端就可以把它們併成一個 `edit_batch`。
+
+    **走的軌跡與 `evolution_search` 不同，不是同一個演算法的兩種寫法。** 這裡
+    一代的 lambda 個子代全部由**同一個**親代抽出（標準的 (1+lambda)），而
+    `evolution_search` 在一代之內就會即時換親代，後面的子代是繞著剛贏的那個點
+    抽的。後者收斂較快但相關性高，前者才併得起批次。兩者的 `seed` 不可互相
+    對照。
+    """
+    if budget < 1:
+        raise ValueError('budget 必須至少為 1')
+    if children < 1:
+        raise ValueError('children 必須至少為 1')
+    if not knobs:
+        raise ValueError('沒有可搜尋的旋鈕')
+    gen = torch.Generator().manual_seed(int(seed))
+    parent = {k.name: (k.clip(start[k.name]) if start and k.name in start
+                       else 0.5 * (k.lo + k.hi)) for k in knobs}
+    score = float(evaluate_many([parent])[0])
+    used = 1
+    history = [(0, dict(parent), score)]
+    sigma = {k.name: float(sigma0) * k.span for k in knobs}
+    step = 0
+    while used < budget:
+        step += 1
+        batch = []
+        while len(batch) < children and used + len(batch) < budget:
+            child = {}
+            for k in knobs:
+                noise = float(torch.randn(1, generator=gen)) * sigma[k.name]
+                child[k.name] = k.clip(parent[k.name] + noise)
+            batch.append(child)
+        if not batch:
+            break
+        scores = evaluate_many(batch)
+        if len(scores) != len(batch):
+            raise ValueError('evaluate_many 回傳的分數數量與候選點不符')
+        wins = 0
+        for child, s in zip(batch, scores):
+            s = float(s)
+            used += 1
+            history.append((step, dict(child), s))
+            if s < score:
+                parent, score = child, s
+                wins += 1
+        factor = 1.5 if wins / len(batch) > 0.2 else 0.75
+        for k in knobs:
+            sigma[k.name] = max(1e-4 * k.span,
+                                min(k.span, sigma[k.name] * factor))
+    return SearchResult(best=parent, best_score=score, evaluations=used,
+                        history=history)

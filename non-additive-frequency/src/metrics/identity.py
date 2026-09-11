@@ -157,3 +157,38 @@ def subject_identity_row(x_orig: torch.Tensor, edit_orig: torch.Tensor,
         "id_embed_weights": EMBED_WEIGHTS,
     })
     return row
+
+
+def anchored_identity(x_orig: torch.Tensor, edit_orig: torch.Tensor,
+                      edit_def: torch.Tensor, device=None) -> dict:
+    """身分讀數改用**固定框**，不再依賴在編輯輸出上重新偵測到臉。
+
+    `subject_identity_row` 取「與主體框重疊最多的偵測框」，偵測不到就記空值。
+    那個約定在當判準時會被鑽：把顏色推到偵測器失手，身分項就拿到最好的分數，
+    而人眼看過去那張臉還在、還認得出是同一個人。`runs/carrier_search_probe/`
+    的第一批裡 18 列有 10 列是這樣拿到 0 分的。
+
+    這裡改成直接在**原圖主體框的座標**上裁編輯輸出並取嵌入，偵測器不參與，
+    所以「偵測不到」不再是一個可以被最佳化的狀態。偵測式的讀數仍一併回報
+    （`*_detected`、`subject_box_iou_*`），兩者分開看得見。
+    """
+    subject = face_boxes(x_orig, device)
+    if not subject:
+        raise ValueError('原圖偵測不到臉，無法錨定主體；這一格不可用本讀數')
+    anchor = max(subject, key=lambda q: (q[2]-q[0])*(q[3]-q[1]))
+    e0 = embed_box(x_orig, anchor, device)
+
+    row = {'subject_anchor': '|'.join(str(round(float(v), 1)) for v in anchor)}
+    for name, y in (('edit_orig', edit_orig), ('edit_def', edit_def)):
+        row[f'subject_id_{name}'] = round(
+            float(similarity(e0, embed_box(y, anchor, device))), 5)
+        boxes = face_boxes(y, device)
+        best = max(boxes, key=lambda q: _iou(anchor, q)) if boxes else None
+        iou = _iou(anchor, best) if best is not None else 0.0
+        row[f'subject_box_iou_{name}'] = round(iou, 5)
+        sim = None if iou <= 0 else similarity(e0, embed_box(y, best, device))
+        row[f'subject_id_{name}_detected'] = '' if sim is None else round(sim, 5)
+    row['subject_id_drop'] = round(
+        row['subject_id_edit_orig'] - row['subject_id_edit_def'], 5)
+    row['id_embed_weights'] = EMBED_WEIGHTS
+    return row

@@ -2,291 +2,44 @@
 
 ## 指標
 
-統一清單，**每一份報表都報全部，不逐輪挑選**。程式在 `src/metrics/suite.py`，
-欄位名與方向在 `src/metrics/standard.py`（缺欄位時直接拋 `KeyError`）。
+程式在 `src/metrics/suite.py`，欄位名與方向在 `src/metrics/standard.py`。
 
-| 指標 | 保真（防禦圖 vs 原圖） | 防禦（編輯後 vs 未防禦編輯） |
-|---|---|---|
-| LPIPS | ↓ 越低越好 | ↑ 越高越好 |
-| FID | ↓ | ↑ |
-| SSIM | ↑ | ↓ |
-| PSNR | ↑ | ↓ |
-| VIFp | ↑ | ↓ |
-| DISTS | ↓ | ↑ |
-| CLIP / SigLIP | 語意對齊，**照報但不作判準** | |
-| HEval | 人眼判定，`compare.html` | |
+兩欄的意思：**保真**是防禦圖對原圖，**防禦**是編輯後對未防禦編輯。
 
-### 三個必須知道的陷阱
-
-**LPIPS 的 backbone 必須寫明。** `piq.LPIPS` 是 **VGG16**（已驗證與官方
-`lpips(net='vgg')` 逐位相同）。AlexNet 給出的值低很多，且**比值隨方法而變**
-（相位 5.31、DCT-Shield 2.41、加性 17.98），換 backbone 會改變勝負。
-
-**FID 低於 150 張不可信。** `MetricSuite.FID_MIN_TRUSTED = 150`。Inception
-pool3 是 2048 維，樣本數低於維度時協方差矩陣退化。`fid_batch.py` 會拒絕輸出，
-除非加 `--allow-small`（該列會標 `trusted=False`）。小樣本的 FID 只能用於同一
-批內的組間排序，絕對值不可與任何論文對照。
-
-**VIFp 是內容主導的，不可跨資料集比。** 實測：同一張圖上 PSNR 差 3 dB 而 VIFp
-幾乎不動（0.4824 vs 0.4817），但不同影像之間從 0.226 跳到 0.587。
-
-## 身分軸的指標：與文獻這一族的對照
-
-與本專案威脅模型同型的三篇（FaceLock CVPR 2025、Anti-DreamBooth ICCV 2023、
-FaceShield ICCV 2025）用的指標與本專案**大部分重疊但不完全一樣**。逐篇的
-精確定義見 `reference/SURVEY_IDENTITY_EDITING.md`，重算的程式是
-`scripts/literature_metrics.py`（只讀已存的影像，不佔卡）。
-
-| 文獻指標 | 定義 | 方向 | 本專案的欄位 |
+| | 指標 | 保真 | 防禦 |
 |---|---|---|---|
-| **FR**（FaceLock） | `cos(E(原圖), E(編輯輸出))` | ↓ | `id_def`（辨識器不同） |
-| **ISM**（Anti-DreamBooth） | 同上 | ↓ | 同上 |
-| **FDFR**（Anti-DreamBooth） | 編輯輸出裡偵測不到臉的比率 | ↑ | `face_found`（偵測器不同） |
-| **CLIP-I** | `cos(E_img(編輯), E_img(原圖))` | ↓ | `edit_clip_sim` |
-| **CLIP-S** | `cos(E_img(編輯)−E_img(原圖), E_txt(指令))` | ↓ | `MetricSuite.direction_similarity` |
-| **LPIPS／PSNR／SSIM** | 兩張編輯輸出之間 | ↑／↓／↓ | `edit_lpips`／`edit_psnr`／`edit_ssim` |
+| 感知 | LPIPS | ↓ | ↑ |
+| | DISTS | ↓ | ↑ |
+| | FID | ↓ | ↑ |
+| 訊號 | PSNR | ↑ | ↓ |
+| | SSIM | ↑ | ↓ |
+| | VIFp | ↑ | ↓ |
+| 色彩 | CIEDE2000 | ↓ | ↑ |
+| 語意 | CLIP / SigLIP | 照報，不作判準 | |
+| 身分 | 人臉餘弦 | ↑ | ↓ |
 
-六個裡有四個本專案每一格早就算好存在 `results.csv` 裡。
+## 淨化
 
-### 三個辨識器，不是一個
+算子在 `src/purify/ops.py`。`identity` 不可排除，它是保留率的分母。
 
-本專案原本只有 facenet 的 InceptionResnetV1（VGGFace2）＋ MTCNN。單一辨識器
-的結論可能是那個網路的特性——尤其 MTCNN **在人眼看得見的臉上會誤報**
-（`runs/ip2p_content_constraint/README.md`）。現在同時報三個：
-
-| 鍵 | 嵌入 ＋ 偵測／對齊 | 來源 |
-|---|---|---|
-| `facenet` | InceptionResnetV1(vggface2) ＋ MTCNN | 本專案既有，主欄 |
-| `cvlface` | AdaFace ViT-Base+KPRPE(WebFace4M) ＋ DFA | FaceLock |
-| `arcface` | ArcFace(buffalo_l) ＋ RetinaFace | Anti-DreamBooth／FaceShield |
-
-**三者的絕對值不可互比**，只比同一個辨識器內的組間差。單張的實測已看到
-幅度差五倍：`free` 相對未防禦編輯在 facenet 上掉 1.07、ArcFace 上掉 0.71、
-AdaFace 上只掉 0.20，而 `tint` 在 AdaFace 上**反而上升**。
-
-**缺相依時該欄留空並在 `<辨識器>_status` 欄寫明原因，不靜默跳過。**
-
-### CLIP-S 照報但不作判準
-
-FaceLock 自己指出這一族會誤導："overemphasize the presence of elements from
-the editing instructions, often prioritizing over-editing"。本專案的實測直接
-重現了那件事：`free` 把身分完全打掉（facenet 0.908 → −0.159），CLIP-S 卻由
-0.0618 **上升**到 0.0731。
-
-## 攻擊模型## 攻擊模型
-
-### InstructPix2Pix（主線）
-
-`src/models/ip2p.py`。UNet 第一層卷積開 8 個輸入通道（4 噪聲 ＋ 4 影像），
-**未加噪的 `E(x)` 直接拼在噪聲 latent 旁**，生成由純噪聲起步。
-
-三個推論參數：`steps=100`、`s_T=7.5`（文字）、`s_I=1.5`（影像），另加
-`seed=20260812`。改動會讓新舊批次不可比。
-
-**這三個值不是本專案獨有的。** IP2P 原論文未載，但 FaceLock（CVPR 2025，
-攻擊模型與本專案相同）的官方 README 明給同樣三個值
-（`num_inference_steps=100`、`guidance_scale=7.5`、`image_guidance_scale=1.5`），
-故編輯側與那一篇天然對齊，頭對頭時不需要重跑對方的編輯。`seed` 仍是本專案
-指定的。查證見 `reference/SURVEY_IDENTITY_EDITING.md` §1。
-
-兩個容易補錯又不會報錯的地方，已由測試釘住：
-- 拼進 UNet 的影像 latent **不乘** `scaling_factor`（`encode_image` 有乘，
-  `image_latents` 沒乘，差一個 0.18 的倍率）。
-- 載成一般 SD 1.5（UNet 4 通道）時影像條件會**靜默失效**，編輯退化成純文生圖。
-  `_check_channels()` 會拒絕繼續。
-
-### SDEdit（凍結）
-
-`src/models/sd.py`。`z_t = √ᾱ_t·E(x) + √(1−ᾱ_t)·ε`，strength 0.7 對應
-√ᾱ = 0.2873。這條線的結果保留在 `runs/sdedit_*`，不再新增。
-
-**兩者在運算上不是介面差異。** SDEdit 的原圖只以「被噪聲稀釋的殘影」進入，
-IP2P 是直接拼接。依賴前者那條通道的機制解釋在 IP2P 上不成立。
-
-## 資料集
-
-| 資料 | 內容 | 用途 |
-|---|---|---|
-| `data/omniedit150/` | OmniEdit dev split 的 150 張 `src_img`，五類任務各 30 張 | IP2P 主線 |
-| `data/lo_aligned/` | 六類真實照片各 4 張 | SDEdit 線（凍結） |
-| `data/apa_native/` | APA 官方三張 | APA 弱 baseline |
-| `data/imagenet_advdrop/` | ImageNet 驗證 200 張，只留已被正確分類者 | AdvDrop／DJSMA 的原生威脅模型 |
-| `data/targets/` | `gray.png` 等 targeted 目標 | 損失的目標影像 |
-
-**OmniEdit 必須分層取樣，不可取前 N 張**——dev split 依任務排序，取前 N 會整批
-落在同一類。`scripts/fetch_omniedit.py` 做這件事並寫出 `provenance.json`。
-
-**影像清單是巢狀的**：25 ⊂ 75 ⊂ 150，存在 `runs/ip2p_fair_comparison/images*.txt`。
-校準、正式表、抗淨化三個階段共用同一份，淨增益才能逐圖相減。
-
-## 淨化算子
-
-`src/purify/ops.py`。`identity` 不可排除，它是保留率的分母。
-
-| 算子 | 設定 | 可微 |
-|---|---|---|
-| `identity` | — | — |
-| `blur` | 高斯 σ=1.0 | 原生可微 |
-| `jpeg` | 品質 75 / 30 | 直通估計 |
-| `crop_resize` | 每邊裁 10%，bicubic 升回 | 原生可微 |
-| `jpeg_then_resize` | C&R 串接 | 不可微 |
-| `noise`／`quantize` | — | — |
-| `rotate` | 隨機 ±10°，雙線性、補零 | 原生可微 |
-| `adverse_cleaner` | 導向濾波 | 直通估計 |
-| `impress` | 1000 步 Adam，佔一格約 82% 的時間 | 直通估計 |
-| `gridpure`／`fdpure` | 超參數**論文未載，本專案指定** | 直通估計 |
-
-`rotate` 的角度區間取自 FaceLock（"random rotation between (-10, 10) degrees"）；
-**插值核與邊界填補論文未載，是本專案指定**。EditShield 的 EOT 用 5°。
-它是先前唯一無法與外部方法對照的一欄。
-
-尚未對現行條件測過的：`noise`、`quantize`、`jpeg30`、`jpeg_then_resize`、
-`adverse_cleaner`、`impress`、`fdpure`。其中 **C&R 串接與 FD-Pure 針對性最強**。
-
-## 工作點對齊
-
-兩個方法的強度參數單位不同（DCT-Shield 的 `ε` 是量化階、本方法的 `θ` 是相位
-半徑），**沒有任何一個軸天然對齊**。作法是掃描曲線 ＋ 內插錨點：
-
-1. 各自掃三到四個強度，得到 (失真, 防禦效果) 的取捨曲線。
-2. 在對方曲線上**線性內插**出失真相同之處，比防禦效果（等失真錨點）。
-3. 反過來內插出效果相同之處，比失真（等效果錨點）。
-4. **落在掃描範圍之外一律拒絕外插**，回報 `out_of_range`。
-
-程式：`scripts/tradeoff_curve.py`。回傳值會把所依據的兩個端點一併報出。
-
-**必須同時報兩個軸**（等 DISTS 與等 LPIPS）。實測 DISTS 與 LPIPS 對同一組
-影像的判定經常相反，只在單一軸上成立的結論不算數。
-
-## 防禦成功的讀數
-
-**主讀數是人眼判定，判準是「原圖還認得出來嗎」**：模型重畫成無關的場景、
-或整張變成噪紋，兩者都算擋下；原圖仍認得出來、只是變糊變髒的**單純劣化
-不算**——攻擊方還是拿得到可用的東西。標準案例是 `task_obj_remove_380621`
-（指令 `Remove iceberg`）：`dct_shield` 與加性 δ 都把灰調湖景重畫成亮藍
-海面加五座冰山，山雲灰水全消失。逐圖判定與
-理由記在 `runs/obedience_audit/defense_success_visual.csv` 的 `note` 欄。
-
-**代理讀數是 SigLIP 影像相似度**：兩張編輯輸出在 SigLIP 影像空間裡的餘弦
-相似度，低者為擋下。`MetricSuite.image_similarity`。
-
-| 門檻 0.837 | 39 格人眼標記上正確率 93.5%，零誤報，AUC 0.974 |
+| 算子 | 設定 |
 |---|---|
+| `identity` | — |
+| `blur` | 高斯 σ=1.0 |
+| `jpeg` | 品質 75 / 30 |
+| `crop_resize` | 每邊裁 10%，bicubic 升回 |
+| `jpeg_then_resize` | C&R 串接 |
+| `noise` / `quantize` | — |
+| `rotate` | 隨機 ±10°，雙線性、補零 |
+| `adverse_cleaner` | 導向濾波 |
+| `impress` | 1000 步 Adam |
+| `gridpure` / `fdpure` | 超參數論文未載，本專案指定 |
 
-它**不需要 caption**，這繞過了既有的障礙——`semantic` 量的是影像對一句
-**描述**的相符度，而 OmniEdit 給的是**指令**，那條路徑在服從率驗收上近乎
-隨機（25 張上 15/25 為正）。
-
-**代理已由 SigLIP 改為 CLIP。** 36 格人眼判定（三個條件 × 13 張、25 擋下
-11 失敗、判準是「原圖還認得出來嗎」）上：
-
-| 讀數 | AUC | 最佳門檻 | 正確率 |
-|---|---|---|---|
-| **`clip_sim`** | **0.945** | **0.8445** | **0.917** |
-| `displacement` | 0.924 | 0.5742 | 0.917 |
-| `siglip_sim` | 0.876 | 0.7619 | 0.833 |
-| `acutance` | 0.680 | — | — |
-
-**配對不是問題，編碼器才是**：同一對影像換成 CLIP 就分得開，而改量「原圖對
-防禦後編輯」反而較差（`clip_to_orig` 0.869）。三個條件的 CLIP 擋下群都在
-0.86 以下、失敗群幾乎都在 0.85 以上。
-
-`acutance` 曾在單一條件的 10 格上拿到 AUC 1.000，但**分離間距只有 0.0049**，
-擴到 36 格就垮到 0.680。小樣本的 AUC 1.000 要先看分離間距再相信。
-
-**證據**：`runs/obedience_audit/recognisability_verdict.csv`（判定）、
-`recognisability_readouts_all.csv`（讀數）。
-
-**SigLIP 原本的問題（保留紀錄）：** 它的門檻不是跨條件不變的。 把標記擴到 51 格（含本方法高強度那一組）之後
-逐條件拆開：
-
-| 條件 | 人眼擋下 | 代理抓到 | 擋下格的 SigLIP 中位 | 攻擊成功格的中位 |
-|---|---|---|---|---|
-| `dct_s0100` | 8/13 | 8 | 0.778 | 0.893 |
-| `add_ln_e04` | 8/13 | 7 | 0.746 | 0.864 |
-| 本方法高增益 | 11/12 | **7** | **0.834** | 0.933 |
-
-**條件內部的判別力是滿分**（AUC 皆 1.000），失效的是**跨條件的絕對門檻**：
-0.837 正好切在本方法擋下群的正中央。原因是 SigLIP 量的是「輸出有沒有變成
-另一個場景」而不是「輸出還能不能用」——baseline 擋下時模型重畫（相似度掉到
-0.75），本方法在劣化型態上停在 0.83。加第二項（`SigLIP 低 或 DISTS 位移
-> 0.327`）把全域正確率由 86.3% 拉到 90.2%，仍補不齊，不是解法。
-
-**後果**：代理只用於**條件內**排序（掃描時挑工作點、看哪一張被擋下），
-跨方法的擋下率一律人眼定案。
-
-三個使用上的限制：
-
-1. **它是代理，金標準仍是人眼。** 用途是讓新工作點不必每一格都重看圖。
-2. **門檻在高失真端偏保守**：高增益那組人眼判 12/13 非成功，門檻只標 8/13。
-   門檻是在全部 39 格取最高正確率定出的，不是逐條件校準。
-3. **位移續報但不作判準。** 同一條件內位移確實能分辨哪張被擋下
-   （AUC 0.88–1.00），但約一半可由單純模糊複製，且在裁切縮放那格會把均勻
-   色偏算成防禦。
-
-## 未防禦攻擊的服從率
-
-**位移只有在未防禦編輯確實執行了指令時才有意義。** 主線 25 張裡只有 13 張
-成立，判定記在 `runs/obedience_audit/undefended_obedience.csv`。依任務型態
-極不均：改顏色 5/5、換物件 3/5、換場景 3/5、**加物件 1/5**、**移除物件 1/5**。
-
-在那 8 張完全沒動的影像上，位移照樣量得到而且**比真有攻擊的 13 張更高**
-（本方法 0.2883 對 0.2556）。任何跨全批的平均都混進三分之一沒有攻擊可防的
-格子。
-
-## 抗淨化的讀數
-
-驅動：`scripts/phase_retention.py`，只讀已存下的防禦圖，不重跑攻擊。
-
-參照依算子分兩種，**只有幾何類換**：
+要看的比較是**淨增益**：
 
 ```
-幾何類
-effect(p)   = LPIPS( 編輯(p(原圖)), 編輯(p(防禦圖)) )
-空白地板    = 0（構造使然）                             --floor
-總增益      = effect(p)                                 ← 並列主讀數
-淨增益      = effect(p) − 空白地板 = effect(p)          ← 兩者相等
-
-其餘
-effect(p)   = LPIPS( 編輯(原圖),   編輯(p(防禦圖)) )
-空白地板    = LPIPS( 編輯(原圖),   編輯(p(原圖)) )      --floor
-總增益      = effect(p)                                 ← 並列主讀數
-淨增益      = effect(p) − 空白地板                      ← 兩者差一個地板
-
-保留率      = effect(p) / effect(identity)
+淨增益 = metrics(編輯(原圖), 編輯(防禦圖))
+       − metrics(編輯(淨化(原圖)), 編輯(淨化(防禦圖)))
 ```
 
-**報兩個絕對值，不換算成比例。** 總增益與淨增益並列在同一張（或兩張並排的）
-表上，表尾另印空白地板的絕對值——逐格的差額就是它，讀者不必回頭推算。位移
-在兩張不相干的自然影像之間飽和於 **0.772**（`runs/readout_ceiling/`，十張
-兩兩配對 45 對的中位數），這個值**只作為飽和值的參考**：知道它才不會把 0.6
-讀成「還有很多空間」。它**不進任何算式**，不用來當分母把讀數換算成百分比。
-出表程式見 `scripts/retention_table.py`、`scripts/band_allocation_table.py`、
-`scripts/build_ig_loss_report.py`。
-
-CSV 的 `reference` 欄逐列記下該列踩的是哪一種（`purified_orig` 或 `orig`）。
-兩種基準會出現在同一張表裡，沒有這一欄就分不出來；出表程式把它印成表上的
-一列，每一欄用的是哪一種參照直接看得到。
-
-**幾何類**是 `src/purify/ops.py` 的 `GEOMETRIC_KINDS`：`crop_resize`、
-`resample_roundtrip`、`resize_only`、`shift_only`、`jpeg_then_resize`、
-`rotate`——改變像素格點或取景的那些。判定用 `Purifier.kind`，不是標籤字串。
-
-**為什麼只有幾何類換。** `crop_resize` 是繞中心的純放大 1.2488×，它改的是
-取景：就算完全沒有防禦，`編輯(p(原圖))` 與 `編輯(原圖)` 之間也會差很多
-——舊參照下的空白地板實測 0.5506，而 LPIPS 在兩張不相干的自然影像之間只
-飽和到 0.772，讀數幾乎被取景差異吃光。換成同一個算子的兩側之後，取景差異
-在逐影像、逐種子的層級自行抵消。
-
-**其餘算子不換。** JPEG 的區塊假影、模糊抹掉的細節——它們的地板反映的是
-算子對**影像內容**的破壞，那正是扣地板要扣掉的東西，不是取景造成的假象。
-換掉參照既沒有必要（地板 0.07–0.32，離飽和值還很遠），又會讓既有的 `runs/`
-全部不可並列。
-
-`--floor` 那一格的「防禦圖」就是原圖本身。非幾何類量到的是**算子自己造成的
-位移**，它的 `effect(identity)` 由構造為 0，故保留率欄留空——**空白地板只看
-絕對值**。幾何類在 `--floor` 下兩側完全相同，`effect` 對每一個算子都恰為 0；
-量到非 0 表示編輯不是確定性的或種子沒對齊，`phase_retention.py` 直接拋錯。
-
-`effect(identity)` 的多 seed 平均低於三倍標準差時該列標 `usable=False`，
-排除在任何統計之外。
+驅動 `scripts/phase_retention.py`，只讀已存的防禦圖，不重跑攻擊。

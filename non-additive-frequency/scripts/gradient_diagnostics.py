@@ -1,7 +1,8 @@
 """為什麼最佳化在顏色載體上不值錢：把三個互斥的解釋分開量。
 
-`runs/objective_pilot/` 量到的事實是**最佳化幾乎不值錢**：整圖載體上隨機邊界
-的位移 0.3626，最佳化後 0.3098。三個解釋各自會留下不同的指紋，這支腳本量的
+`runs/objective_pilot/` 量到的事實是**最佳化幾乎不值錢**：整圖載體上投影後
+盒角的位移 0.3626，最佳化後 0.3098（兩者都在可達集合內部，見
+`carrier_objectives.box_corner_init`）。三個解釋各自會留下不同的指紋，這支腳本量的
 就是那些指紋，不跑攻擊、不做判定。
 
     (a) 起點就是駐點       g_mean 與 g_rms 同時近零
@@ -171,7 +172,7 @@ def value_spread(param, loss_fn, x01, draws_points, seed, fixed=None):
 
     兩件事必須做對，否則量到的不是「集合上的散布」：
 
-    **每個點都從起點出發。** `boundary_init` 是 `p.add_()`，不還原的話跑出來的
+    **每個點都從起點出發。** `box_corner_init` 是 `p.add_()`，不還原的話跑出來的
     是 `p_k = project(p_{k-1} + u_k)` 的相關隨機漫步，而不是可行集合上互相獨立
     的探測點；投影還會再改變分布。
 
@@ -180,7 +181,7 @@ def value_spread(param, loss_fn, x01, draws_points, seed, fixed=None):
     `fixed` 給了就走它（`StepwiseObjective.fixed`），沒有抽樣的損失兩者相同。
     """
     import torch
-    from src.defense.carrier_objectives import boundary_init
+    from src.defense.carrier_objectives import box_corner_init
     evaluate = fixed if fixed is not None else loss_fn
     with torch.no_grad():
         base = [p.detach().clone() for p in param.params()]
@@ -189,7 +190,7 @@ def value_spread(param, loss_fn, x01, draws_points, seed, fixed=None):
         with torch.no_grad():
             for p, b in zip(param.params(), base):
                 p.data.copy_(b)
-        boundary_init(param, x01, seed + k, draw='uniform')
+        box_corner_init(param, x01, seed + k, draw='uniform')
         with torch.no_grad():
             values.append(float(evaluate(param.render(x01))))
     with torch.no_grad():
@@ -221,7 +222,7 @@ def main():
         assert_free_cards()
 
     import torch
-    from src.defense.carrier_objectives import boundary_init, make_objective
+    from src.defense.carrier_objectives import box_corner_init, make_objective
     from src.defense.cfg_shift_loss import instruction_embeddings
     from src.defense.collision_loss import make_collision_loss, ring_of
     from src.defense.ncf_library import sha256
@@ -309,7 +310,7 @@ def main():
             # kappa 就退化成 1/relax（盒子大小之比），量到的是另一件事。
             with torch.no_grad():
                 start_render = carrier.render(x).detach().clone()
-            boundary_init(carrier, x, spec['seed'], draw='corner')
+            box_corner_init(carrier, x, spec['seed'], draw='corner')
             with torch.no_grad():
                 rho = .5 * float((carrier.render(x) - start_render).norm())
             carrier.reset(x, spec['seed'])

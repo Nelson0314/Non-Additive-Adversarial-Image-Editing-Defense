@@ -42,18 +42,18 @@ GATE_FIELDS = (
 
 
 @torch.no_grad()
-def boundary_render(param, x01: torch.Tensor, seed: int, *,
+def box_corner_render(param, x01: torch.Tensor, seed: int, *,
                     draw: str = "corner") -> torch.Tensor:
-    """把載體推到可達集合的邊界並渲染，**完全不最佳化**。
+    """把可學參數推到 ±radius 盒角、投影之後渲染，**完全不最佳化**。
 
-    這張圖回答的是「這個載體在它能走到最遠的地方長什麼樣」。最佳化只會落在
-    這個集合**裡面**，所以邊界圖不自然時，沒有任何目標函數能讓它自然——
-    這正是這道檢查可以擋在派工前面的理由。
+    這張圖回答的是「可學參數走到盒角時長什麼樣」。它**不是**可達集合的極端
+    點：顏色載體的顏色位移主要由 `T0` 與 `amplitude` 決定，兩者都不在
+    `delta` 的盒子裡（見 `carrier_objectives.box_corner_init`）。
     """
-    from src.defense.carrier_objectives import boundary_init
+    from src.defense.carrier_objectives import box_corner_init
 
     param.reset(x01, seed)
-    boundary_init(param, x01, seed, draw=draw)
+    box_corner_init(param, x01, seed, draw=draw)
     return param.render(x01).detach()
 
 

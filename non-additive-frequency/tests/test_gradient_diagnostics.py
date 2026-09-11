@@ -83,7 +83,7 @@ def test_zero_gradient_reports_zero_gain_instead_of_dividing_by_zero():
 def test_value_spread_starts_every_draw_from_the_same_point():
     """每個點都從起點出發，不是相關的隨機漫步。
 
-    `boundary_init` 是 `p.add_()`，不還原的話第 k 個點是
+    `box_corner_init` 是 `p.add_()`，不還原的話第 k 個點是
     `project(p_{k-1} + u_k)`，量到的散布就不是可行集合上的獨立探測。
     """
     from scripts.gradient_diagnostics import value_spread

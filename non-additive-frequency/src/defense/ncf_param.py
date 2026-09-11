@@ -81,6 +81,15 @@ class NCFColorParam:
     which is the right direction for an additive L-infinity ball and the wrong one
     here. The perturbation this project applies is not additive, so the optimizer
     inherited from that family is not automatically the right one.
+
+    `radius` and `epsilon_lab` bound the learnable `delta` **and nothing else**.
+    The colour displacement of this carrier comes almost entirely from `T0` (the
+    palette) and from the amplitude, neither of which either number touches. On
+    the whole-frame filter at amplitude 1, `delta = 0` already reaches dE00 8.2659
+    and 12.7213 on two registered images, and driving `delta` to the projected box
+    corner adds 0.0136 and 0.6133 — 0.2% and 4.6% of the displacement. The values
+    0.2 and 5 are inherited from NCF, whose objective was classifier
+    misclassification; they are not a bound on how strong this defence is.
     """
 
     name = 'ncf'

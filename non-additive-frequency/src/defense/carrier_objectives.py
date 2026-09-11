@@ -9,7 +9,7 @@
 
 隨機對照不是第五個目標函數，是**同一個載體不最佳化**：`freeze_as_control`
 把 `params()` 清空，`run_param_pgd` 於是一步都不走，防禦圖就是初始化那一張。
-配 `boundary_init` 時它抽的是**角點**，與 sign 更新的可達集合相同——
+配 `box_corner_init` 時它抽的是**角點**，與 sign 更新的可達集合相同——
 `color_param.RAND_DRAWS` 上方那段記著為什麼不能抽盒內均勻：低自由度的
 參數化上均勻抽樣互相抵消，失真只到角點的三分之一，兩條曲線不重疊，
 等失真內插整片 `out_of_range`，那不是「贏過隨機」是根本沒比到。
@@ -100,18 +100,21 @@ def make_objective(name: str, ip2p, *, x_clean: torch.Tensor,
     return StepwiseObjective(name, fn, fn.make_fixed(eval_draws, eval_seed))
 
 
-def boundary_init(param, x01: torch.Tensor, seed: int, *,
+def box_corner_init(param, x01: torch.Tensor, seed: int, *,
                   draw: str = "corner") -> None:
-    """把載體的起點移到可達集合的邊界上，就地修改 `param`。
+    """把可學參數移到 ±radius 盒角再投影，就地修改 `param`。
 
     做法：在 `reset` 之後對每個參數張量**加上**一組 ±radius 的角點抽樣，
     再交給 `param.project()` 執行該載體自己的約束。之所以是「加上」而不是
-    「設成」——兩個載體的 `reset` 都把參數放在自己約束的中心
-    （`NCFColorParam` 的 `delta`／`u` 是零，`ReColorAdvParam` 的 `grid` 是恆等
-    座標），所以加一組 ±radius 就精確落在盒角；換成別的載體時這個前提要重驗。
+    「設成」——兩個載體的 `reset` 都把可學參數放在盒心（`NCFColorParam` 的
+    `delta`／`u` 是零，`ReColorAdvParam` 的 `grid` 是恆等座標），所以加一組
+    ±radius 就精確落在盒角；換成別的載體時這個前提要重驗。
 
-    投影之後仍可能不在邊界上（`NCFColorParam` 的 `epsilon_lab` 是效果球，
-    會把角點拉回球面），那是該載體的可達集合本來就不是盒子，不是這一支失效。
+    **得到的點不是可達集合的邊界。** 顏色載體的可達集合不是盒子：`project()`
+    先夾 L∞ 盒、再過 `epsilon_lab` 的效果球與奇異值上界，角點會被拉回集合
+    內部；而真正決定顏色走多遠的是 `T0`（配色）與 `amplitude`，兩者都不在
+    `delta` 的盒子裡。引用這一支產生的對照時要照這個定義寫，不可寫成
+    「可達集合的邊界」。
     """
     if draw not in RAND_DRAWS:
         raise ValueError(f"draw 只能是 {RAND_DRAWS}，收到 {draw!r}")
@@ -131,7 +134,7 @@ def boundary_init(param, x01: torch.Tensor, seed: int, *,
     param.project()
 
 
-class BoundaryStartParam:
+class BoxCornerStartParam:
     """把邊界初始化搬進載體自己的 `reset`，其餘全部委派給內層。
 
     **為什麼不能在訓練前先做一次就好**：`run_param_pgd` 在讀 `params()` 之前
@@ -155,7 +158,7 @@ class BoundaryStartParam:
 
     def reset(self, x01: torch.Tensor, seed: int) -> None:
         self._inner.reset(x01, seed)
-        boundary_init(self._inner, x01, seed, draw=self._draw)
+        box_corner_init(self._inner, x01, seed, draw=self._draw)
 
     def params(self):
         return self._inner.params()
@@ -189,7 +192,7 @@ class FrozenParam:
 
 
 def freeze_as_control(param, *, draw: str = "corner") -> FrozenParam:
-    return FrozenParam(BoundaryStartParam(param, draw=draw))
+    return FrozenParam(BoxCornerStartParam(param, draw=draw))
 
 
 class WithRegulariser:

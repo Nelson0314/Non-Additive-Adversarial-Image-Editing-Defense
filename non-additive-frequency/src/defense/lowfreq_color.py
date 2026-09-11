@@ -60,6 +60,16 @@ def soft_gamut(rgb, knee=.06):
     所以它只會衰減梯度、不會放大——高通能量因此只可能持平或下降，而且這是
     逐點的保證，不依賴任何影像統計。值域收斂在 (0,1) 內，最後的 clamp 只是
     數值保險，不再是造邊的那一步。`knee` 是轉折的寬度：越小越接近硬裁。
+
+    **它在色域內就不是恆等。** `knee = 0.06` 下 `f(0) = 0.041589`、
+    `f(1) = 0.958411`，`[0,1]` 上 `|f(v) - v|` 的平均是 0.005919，最大 0.041589
+    出現在兩端；中段 `[0.2, 0.8]` 的最大偏離只有 0.002103。也就是說每張防禦圖
+    都額外付一份集中在黑白兩端、與顏色無關的色調壓縮，而高通殘差比有一部分
+    是這個壓縮買來的。
+
+    在影像上量得到：整圖濾鏡把 `amplitude` 設成 0（色度逐位元不動）之後，防禦圖
+    相對原圖的 dE00 仍有 0.0776 與 0.5149（兩張登記影像）。恆等設定不是恆等
+    輸出。改 `knee` 會讓既有批次不可並列，要改就整批重跑。
     """
     if not (knee > 0):
         raise ValueError('knee 必須為正，否則退化成硬裁')
@@ -271,15 +281,19 @@ class ChromaAffineParam(NCFColorParam):
 
     @torch.no_grad()
     def project(self):
+        """**不是幂等的，而且最後的 delta 可以超出 `radius`。**
+
+        順序是 L∞ 盒 → 效果球 → 奇異值上界，而最後一步作用在 `T0_ab + delta`
+        上，減回去之後不再保證落在盒內，`radius` 因此不是 `delta` 的硬上界；
+        `RegionPaletteParam.project` 有同構造下量到的數字。順序與原文
+        `project_params` 相同，改動要整批重跑。
+        """
         self.delta.clamp_(-self.radius, self.radius)
         if self.epsilon_lab is not None:
             sig = self.source_sigma[1:].to(self.delta)
             effect = (self.delta * sig[None, :]).norm(dim=1)
             self.delta.mul_(
                 (self.epsilon_lab / effect.clamp_min(1e-12)).clamp(max=1.)[:, None])
-        # 奇異值的約束作用在 `T0_ab + delta` 上，不是 `delta` 上，所以先合起來
-        # 投影再減回去。這一步搬到這裡而不是留在前向，理由見
-        # `_clamp_singular_values`。
         m = self.T0_ab + self.delta
         m = (_project_orthogonal(m) if self.isometric
              else _clamp_singular_values(m, self.max_gain))
@@ -426,6 +440,13 @@ class RegionPaletteParam:
 
     @torch.no_grad()
     def project(self):
+        """**不是幂等的，而且最後的 delta 可以超出 `radius`。**
+
+        與 `ChromaAffineParam.project` 同一個順序與同一個後果。實測：
+        `collision_region` 臂在真實影像上跑完無導數搜尋，收尾的 `|delta|`
+        最大是 0.214925，而 `radius` 是 0.2（CPU 與 CUDA 兩邊相同）。可行集合
+        比設定寫的盒子稍大。
+        """
         self.delta.clamp_(-self.radius, self.radius)
         if self.epsilon_lab is not None:
             sig = self.source_sigma[1:].to(self.delta)

@@ -31,7 +31,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 ARMS = ('chroma_bounded', 'chroma_isometric', 'region_palette', 'collision',
-        'undefended')
+        'collision_region', 'undefended')
 
 # CSV 的合約。欄名沿用 `runs/objective_pilot/` 的字彙，兩批才並列得起來。
 COLUMNS = [
@@ -41,6 +41,7 @@ COLUMNS = [
     'rotation_deg', 'max_gain', 'isometric', 'blur_sigma',
     'palette_id', 'palette_id_second',
     'effective_gain_max', 'effective_gain_min',
+    'rotation_solved', 'rotation_hf_at_solve', 'rotation_hf_monotone',
     'edit_lpips',
     'input_psnr', 'input_dists',
     'final_psnr', 'final_dists', 'final_deltaE00',
@@ -143,6 +144,20 @@ def build_param(arm, x01, *, support, target_mean, target_cov, blur_sigma,
         # 長度被保住，梯度幾乎只剩 sigma 那一項；容許收縮（奇異值 ≤ 1）才推得動。
         # 與 `chroma_bounded` 用同一個參數化，兩者的差別因此只有目標函數。
         return ChromaAffineParam(target_mean, target_cov, **common)
+    if arm == 'collision_region':
+        # 碰撞目標配上**能把兩塊區域分開搬**的參數化。
+        #
+        # 全域仿射推不動碰撞目標是構造上的：兩塊區域的均值差被同一個矩陣作用，
+        # 差本身幾乎不變。量到的正是這個——`collision` 與 `chroma_bounded` 的
+        # 讀數幾乎相同（位移 0.1877 對 0.1623、身分 0.9216 對 0.9113），
+        # 300 步只把目標降 6%（衣物）與 6%（配件）。
+        #
+        # `RegionPaletteParam` 的每塊區域各有自己的 2x2，所以它**可以**把區域
+        # 往環帶的方向搬而不動環帶。這一格是先前四個臂沒有覆蓋到的組合。
+        if not regions:
+            raise ValueError('collision_region 需要 regions；缺了就退化成'
+                             '全域仿射，而那正是推不動碰撞目標的那一個')
+        return RegionPaletteParam(regions, blur_sigma=blur_sigma, **common)
     raise ValueError(f'未知的臂 {arm!r}；可用的是 {ARMS}')
 
 
@@ -293,7 +308,8 @@ def main():
 
     import torch
     from src.defense.collision_loss import make_collision_loss, ring_of
-    from src.defense.color_amplitude import delta_e00, solve_amplitude
+    from src.defense.color_amplitude import (delta_e00, solve_amplitude,
+                                             solve_rotation)
     from src.defense.param_pgd import run_param_pgd
     from src.defense.naturalness_gate import gate_row
     from src.defense.ncf_library import sha256
@@ -353,6 +369,14 @@ def main():
             if arm == 'region_palette':
                 regions = [(w, m, c) for w, (m, c) in zip(
                     regions_of(x, clothes), [(mean, cov), second])]
+            elif arm == 'collision_region':
+                # 分區必須切在**碰撞目標關心的那塊**上，不是衣物／補集。
+                # 目標是把 `region` 的色度統計拉到 `ring` 那邊；參數化若切在
+                # 別的地方，它一樣搬不動那個差——那就退化成 `collision` 的老
+                # 問題，只是換了個形狀。
+                cr = collision_region(x, cell['region'], clothes, device=device)
+                regions = [(cr, mean, cov),
+                           ((1.0 - cr).clamp(0.0, 1.0), second[0], second[1])]
             param = build_param(
                 arm, x, support=support, target_mean=mean, target_cov=cov,
                 blur_sigma=spec['blur_sigma'], regions=regions,
@@ -360,8 +384,17 @@ def main():
                 radius=spec['radius'], epsilon_lab=spec['epsilon_lab'])
             # `reset` 先跑：任何在它之前設好的東西都會被抹掉，而且不拋錯。
             param.reset(x, cell['seed'])
+            rot = {}
+            if arm == 'chroma_isometric' and spec.get('rotation_adaptive'):
+                # 固定角度在某些影像上超出高頻約束、在另一些上白留射程：
+                # 實測同一組設定下逐圖的合法上限是 46.1／104.9／180.0 度。
+                # 改成逐圖解「高頻比仍 ≤ 1 的最大角度」。
+                rot = solve_rotation(param, x, limit=spec.get('hf_limit', 1.0))
+                param.reset(x, cell['seed'])
+                print(f"  {tag} {arm} 自適應角度 {rot['rotation_deg']} "
+                      f"hf {rot['hf_ratio']} 單調={rot['monotone']}", flush=True)
             trained, closs = {}, None
-            if arm == 'collision':
+            if arm in ('collision', 'collision_region'):
                 region = collision_region(x, cell['region'], clothes,
                                           device=device)
                 ring = ring_of(region, spec['collision_ring_width'])
@@ -442,6 +475,10 @@ def main():
                         'palette_id_second': spec['palette_id_second'],
                         'effective_gain_max': gain_max,
                         'effective_gain_min': gain_min,
+                        'rotation_solved': rot.get('rotation_deg', ''),
+                        'rotation_hf_at_solve': rot.get('hf_ratio', ''),
+                        'rotation_hf_monotone': ('' if not rot
+                                                 else int(rot['monotone'])),
                         'input_psnr': round(float(d['psnr']), 4),
                         'input_dists': round(float(d['dists']), 5),
                         'protected_max_abs': protected,

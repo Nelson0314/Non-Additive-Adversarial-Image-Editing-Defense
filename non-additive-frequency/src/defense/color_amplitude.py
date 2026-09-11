@@ -47,6 +47,70 @@ def delta_e00(a01: torch.Tensor, b01: torch.Tensor,
 
 
 @torch.no_grad()
+def solve_rotation(param, x01: torch.Tensor, *, lo: float = 0.0,
+                   hi: float = 180.0, iters: int = 8,
+                   limit: float = 1.0) -> dict:
+    """在「高頻殘差比不超過 `limit`」的前提下，解出最大的色相旋轉角。
+
+    為什麼要逐圖解而不是定一個角度
+    ────────────────────────────────────────────────────────────────
+    Lab 色度平面上的等距**不保證** RGB 的高通殘差不上升：Lab→RGB 是非線性的，
+    同一個色度梯度轉到不同色相之後映進 RGB 的梯度可以變大，而**變多少隨影像
+    內容而異**。實測在一張人像上 0–135 度都落在 0.966–0.980、180 度才到
+    1.062，但在均勻隨機圖上 30 度就 1.079、90 度峰值 1.338。
+    固定 90 度因此在某些影像上會違反約束（一批 45 格裡有 9 格超過 1，
+    最大 1.0597），在另一些影像上又白白留著射程沒用。
+
+    角度對高頻比**不是單調的**（隨機圖上 90 度是峰值、180 度反而回落），所以
+    這裡走**粗掃再細分**：先在等距的格點上找最後一個仍然合格的角度，再在它與
+    下一個格點之間二分。回傳的 `monotone` 記下粗掃時比值有沒有單調上升——
+    沒有的話，解到的是「第一段合格區間的右端」，不是全域最大的合格角度，
+    那是刻意的保守選擇，而且被記下來而不是藏起來。
+    """
+    from src.defense.lowfreq_color import highfreq_report
+
+    if not getattr(param, 'isometric', False):
+        raise ValueError('solve_rotation 只在等距臂上有定義：非等距臂會再過一次'
+                         '奇異值上界，解出來的角度不會逐字生效')
+    ratios, angles = [], []
+    for k in range(iters + 1):
+        a = lo + (hi - lo) * k / iters
+        param.rotation_deg = a
+        param.reset(x01, 0)
+        ratios.append(highfreq_report(x01, param.render(x01))['hf_ratio_rgb_total'])
+        angles.append(a)
+    monotone = all(b >= a - 1e-9 for a, b in zip(ratios, ratios[1:]))
+    ok = [k for k, r in enumerate(ratios) if r <= limit]
+    if not ok:
+        param.rotation_deg = angles[0]
+        param.reset(x01, 0)
+        return {'rotation_deg': angles[0], 'hf_ratio': ratios[0],
+                'reached_limit': False, 'monotone': monotone}
+    # 第一段合格區間的右端：從頭往後找到第一個不合格的格點。
+    last = 0
+    for k in range(len(ratios)):
+        if ratios[k] > limit:
+            break
+        last = k
+    a_lo = angles[last]
+    a_hi = angles[last + 1] if last + 1 < len(angles) else angles[last]
+    for _ in range(12):
+        mid = .5 * (a_lo + a_hi)
+        param.rotation_deg = mid
+        param.reset(x01, 0)
+        r = highfreq_report(x01, param.render(x01))['hf_ratio_rgb_total']
+        if r <= limit:
+            a_lo = mid
+        else:
+            a_hi = mid
+    param.rotation_deg = a_lo
+    param.reset(x01, 0)
+    got = highfreq_report(x01, param.render(x01))['hf_ratio_rgb_total']
+    return {'rotation_deg': round(a_lo, 3), 'hf_ratio': round(got, 5),
+            'reached_limit': True, 'monotone': monotone}
+
+
+@torch.no_grad()
 def solve_amplitude(param, x01: torch.Tensor, target_delta_e: float, *,
                     support: torch.Tensor = None,
                     lo: float = 0.0, hi: float = 1.0,

@@ -99,3 +99,36 @@ def test_solve_uses_the_support_weighted_anchor_when_given_one():
     p.reset(x, seed=0)
     weighted = solve_amplitude(p, x, 3.0, support=support)
     assert weighted['amplitude'] < whole['amplitude']
+
+
+def test_solve_rotation_requires_the_isometric_arm():
+    """非等距臂會再過一次奇異值上界，解出來的角度不會逐字生效。"""
+    from src.defense.color_amplitude import solve_rotation
+    x = _image()
+    p = _param()
+    p.reset(x, seed=0)
+    try:
+        solve_rotation(p, x)
+    except ValueError as e:
+        assert '等距臂' in str(e)
+    else:
+        raise AssertionError('非等距臂必須拋錯')
+
+
+def test_solve_rotation_returns_an_angle_within_the_limit():
+    from src.defense.color_amplitude import solve_rotation
+    from src.defense.lowfreq_color import ChromaAffineParam, highfreq_report
+    x = _image()
+    p = ChromaAffineParam(
+        target_mean=[60.0, 25.0, -20.0],
+        target_cov=[[80.0, 0.0, 0.0], [0.0, 40.0, 0.0], [0.0, 0.0, 40.0]],
+        support=torch.ones(1, 1, 64, 64), radius=0.2, max_gain=1.0,
+        isometric=True, rotation_deg=90.0)
+    p.reset(x, seed=0)
+    out = solve_rotation(p, x, limit=1.0)
+    assert 0.0 <= out['rotation_deg'] <= 180.0
+    assert 'monotone' in out
+    if out['reached_limit']:
+        p.rotation_deg = out['rotation_deg']
+        p.reset(x, seed=0)
+        assert highfreq_report(x, p.render(x))['hf_ratio_rgb_total'] <= 1.0 + 1e-6

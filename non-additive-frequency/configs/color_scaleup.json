@@ -205,7 +205,7 @@
   ],
   "delta_e_note": "6.3 是 runs/objective_pilot/ 量到的現行工作點，四個臂在它上面等失真、可並列。max_reach 是各臂自己的幅度 1.0，實際到了多遠看 support_deltaE00——**那不是等失真點**。先前的 30 在每一格都不可達，拿掉。",
   "rotation_deg": 90.0,
-  "rotation_note": "色相旋轉角固定 90 度。真實照片上 0-135 度的 hf_ratio_rgb_total 是 0.966-0.980，180 度才到 1.062；但該上界隨影像內容而變（tests/test_chroma_rotation.py），所以逐列照量，不當保證。",
+  "rotation_note": "旋轉角逐圖解：在高頻殘差比 ≤ hf_limit 的前提下取最大角度。固定 90 度在一批 45 格裡有 9 格超過 1（最大 1.0597），而逐圖量到的合法上限在 46.1 到 180.0 度之間——固定值同時做錯了兩個方向。高頻比對角度不是單調的，所以解法取第一段合格區間的右端，保守；rotation_hf_monotone 逐列記下粗掃時是否單調。",
   "blur_sigma": 24.0,
   "radius": 0.2,
   "epsilon_lab": 5,
@@ -272,5 +272,7 @@
   "operators_note": "與 docs/EVALUATION.md 的算子表同一組設定。identity 不可排除，它是保留率的分母。gridpure／fdpure／impress 需要 diffpure 權重與 SD wrapper，相依不齊時腳本會回報並跳過。 rotate 在 ROTATE_FIXED=True 下角度固定，seed 仍填是為了該常數被改掉時不會靜默失配；scripts/color_retention.py 對有隨機性的算子要求 seed 必填。",
   "scale_note": "20 張影像取自 data/attack_prompts.yaml（衣物名詞與目標色逐張登記），六個指令類：衣物改色、四種頭部配件、背景。變異的來源改成影像與指令而不是種子。六張影像是多人畫面（臉數 2–8），主體錨定取面積最大的那張臉。",
   "images_from": "data/attack_prompts.yaml",
-  "seeds_note": "單一攻擊種子。逐圖的變異（防禦後主體身分 0.135-0.853）比種子的變異大得多，所以預算放在影像與指令而不是種子。種子層的變異另由 undefended 臂在第二個種子上單獨量（scripts/color_ceiling.py --arms undefended --seeds ...）。"
+  "seeds_note": "單一攻擊種子。逐圖的變異（防禦後主體身分 0.135-0.853）比種子的變異大得多，所以預算放在影像與指令而不是種子。種子層的變異另由 undefended 臂在第二個種子上單獨量（scripts/color_ceiling.py --arms undefended --seeds ...）。",
+  "rotation_adaptive": true,
+  "hf_limit": 1.0
 }

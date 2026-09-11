@@ -1,28 +1,17 @@
-"""InstructPix2Pix 攻擊器（DEC-031 起的主線威脅模型）。
+"""兩者在運算上不是介面差異
 
-**為什麼換掉 SDEdit**：DCT-Shield（arXiv:2504.17894）§5.3 的編輯模型就是
-InstructPix2Pix，主線資料集也已改為 OmniEdit（DEC-030），其
-`edited_prompt_list` 是**指令式**的句子。指令餵給 SDEdit 會被 text encoder
-當成一句「要被畫出來的描述」，服從率不明，而 DEC-022 要求未防禦的編輯必須
-真的成功。與其自行改寫指令（等於捏造資料），使用者 2026-08-19 裁定**主線
-換成 IP2P**，SDEdit 那條線保留但凍結。
-
-兩者在運算上不是介面差異
 ────────────────────────────────────────────────────────────────────
     SDEdit    z_t = √ᾱ_t·E(x) + √(1−ᾱ_t)·ε，由 t 開始去噪。
               原圖只以「被噪聲稀釋的殘影」進入（strength 0.7 時 √ᾱ = 0.2873）。
     IP2P      UNet 第一層卷積多開 4 個輸入通道，把**未加噪的** E(x) 直接
               拼在噪聲 latent 旁；生成由**純噪聲**起步。
 
-FND-055 量到的機制（相位擾動貼著紋理分布、用得上那份殘存訊號，故 strength
-由 0.8 降到 0.7 時相位升 3% 而加性掉 18%）**在 IP2P 上不成立**——那條通道被
-換掉了。本方法在 IP2P 下是強是弱屬於待測，不得沿用 SDEdit 的結論。
-
 去噪迴圈直接用 diffusers 的官方管線
 ────────────────────────────────────────────────────────────────────
 `StableDiffusionInstructPix2PixPipeline`（diffusers 0.39.0）。**不自行重寫**：
-它是參考實作，攻擊方那一側越忠實越好，而本專案不需要對編輯過程取梯度
-（防禦的損失只經過 VAE 編碼器，見 `src/baselines/encoder_target.py`）。
+它是參考實作，推論入口 `edit()` 維持使用官方管線。任務損失另外使用
+`edit_differentiable()`：依同一套三分支與 scheduler 展開，僅截斷反向圖；
+舊的 VAE 損失呼叫端不受影響。
 
 逐行對照過的三個關鍵細節（`pipeline_stable_diffusion_instruct_pix2pix.py`）：
 
@@ -49,13 +38,6 @@ diffusion-based editing model」，沒有給步數、兩個導引尺度、排程
 故下面三個常數是**本專案指定**（取 diffusers 的預設值），任何用到它們的
 報表都必須把值寫進 CSV 並標明出處缺口。**不要靜默改動**——改了就與既有批次
 不可比。
-
-白盒的界線
-────────────────────────────────────────────────────────────────────
-防禦的損失是 `‖E(x_def) − E(y_target)‖²`，**只經過攻擊方的 VAE 編碼器**。
-換到 IP2P 之後，`E` 應該是 **IP2P 自己的 VAE**（白盒假設是攻擊方的模型已知），
-故本封裝提供與 `SDWrapper` 同名同語意的 `encode_image`／`decode_latent`，
-`make_encoder_target_loss(ip2p, y)` 不必改就能用。
 """
 
 from __future__ import annotations
@@ -95,7 +77,6 @@ class IP2PWrapper:
         if hasattr(self.pipe, "set_progress_bar_config"):
             self.pipe.set_progress_bar_config(disable=True)
         self.vae.to(self.vae_dtype)
-        # 攻擊方的模型全部凍結：本專案不訓練它，只當作已知的黑箱前向。
         for m in (self.unet, self.vae, self.text_encoder):
             m.requires_grad_(False)
             m.eval()
@@ -103,7 +84,17 @@ class IP2PWrapper:
 
     @staticmethod
     def _load_pipeline(model_name: str, dtype: torch.dtype):
+        from pathlib import Path
         from diffusers import StableDiffusionInstructPix2PixPipeline
+        from huggingface_hub import constants, hf_hub_download
+
+        # Offline diagnostics need the inference components, not every file in
+        # the Hub repository (including alternative multi-GB checkpoints).
+        # Resolve the cached index explicitly; component loading still raises
+        # for any missing required weight/config. No download or silent fallback.
+        if constants.HF_HUB_OFFLINE and not Path(model_name).is_dir():
+            index = hf_hub_download(model_name, 'model_index.json', local_files_only=True)
+            model_name = str(Path(index).parent)
 
         return StableDiffusionInstructPix2PixPipeline.from_pretrained(
             model_name, safety_checker=None, requires_safety_checker=False,
@@ -176,6 +167,117 @@ class IP2PWrapper:
         return self.encode_image(x01) / self.scaling_factor
 
     # ---- 攻擊 ----
+
+    def edit_differentiable(
+        self, x01: torch.Tensor, instruction: str, seed: int = IP2P_SEED,
+        steps: int = IP2P_STEPS, grad_steps: int = 2,
+        s_t: float = IP2P_TEXT_GUIDANCE, s_i: float = IP2P_IMAGE_GUIDANCE,
+        negative_prompt: Optional[str] = None, use_ckpt: bool = True,
+        sequential_cfg: bool = False,
+    ) -> torch.Tensor:
+        """沿實際 IP2P 軌跡生成，只對末端 ``grad_steps`` 次 UNet 呼叫反傳。"""
+        from copy import deepcopy
+
+        if x01.ndim != 4 or x01.shape[:2] != (1, 3):
+            raise ValueError('可微編輯需要單張 (1,3,H,W) RGB 影像')
+        if not isinstance(instruction, str) or not instruction.strip():
+            raise ValueError('instruction 必須是非空的真實編輯指令')
+        if not isinstance(steps, int) or steps < 1:
+            raise ValueError('steps 必須為正整數')
+        if not isinstance(grad_steps, int) or grad_steps < 1:
+            raise ValueError('grad_steps 必須為正整數')
+        if s_t <= 1 or s_i < 1:
+            raise ValueError('三分支 CFG 需要 s_t > 1 且 s_i >= 1')
+        factor = self.pipe.vae_scale_factor
+        if any(side % factor for side in x01.shape[-2:]):
+            raise ValueError('影像邊長必須可被 VAE 縮放倍率整除')
+        scheduler = deepcopy(self.pipe.scheduler)
+        scheduler.set_timesteps(steps, device=self.device)
+        if grad_steps > len(scheduler.timesteps):
+            raise ValueError('grad_steps 不得超過實際時間表長度')
+        with torch.no_grad():
+            embeds = self.pipe._encode_prompt(
+                instruction, self.device, 1, True, negative_prompt)
+        cond = (self.encode_image(x01.clamp(0, 1), use_ckpt=use_ckpt)
+                / self.scaling_factor).to(embeds.dtype)
+        gen = torch.Generator(device=self.device).manual_seed(int(seed))
+        z = torch.randn(cond.shape, device=self.device, dtype=embeds.dtype,
+                        generator=gen) * scheduler.init_noise_sigma
+        extra = self.pipe.prepare_extra_step_kwargs(gen, 0.0)
+        cut = len(scheduler.timesteps) - grad_steps
+        outer_grad = torch.is_grad_enabled()
+
+        def predict(a, t, text):
+            return self.unet(a, t, encoder_hidden_states=text, return_dict=False)[0]
+
+        for i, t in enumerate(scheduler.timesteps):
+            active = outer_grad and i >= cut
+            with torch.set_grad_enabled(active):
+                c = cond if active else cond.detach()
+                image_batch = torch.cat([c, c, torch.zeros_like(c)])
+                noise_batch = scheduler.scale_model_input(torch.cat([z] * 3), t)
+                model_input = torch.cat([noise_batch, image_batch], dim=1)
+                if sequential_cfg:
+                    # 分支各自 checkpoint，反傳重算時 UNet 的 batch 維度維持 1。
+                    branches = []
+                    for branch_input, branch_text in zip(model_input.chunk(3), embeds.chunk(3)):
+                        branches.append(ckpt.checkpoint(predict, branch_input, t, branch_text,
+                                                        use_reentrant=False)
+                                        if active and use_ckpt else
+                                        predict(branch_input, t, branch_text))
+                    text, image, uncond = branches
+                else:
+                    eps = (ckpt.checkpoint(predict, model_input, t, embeds,
+                                           use_reentrant=False)
+                           if active and use_ckpt else predict(model_input, t, embeds))
+                    text, image, uncond = eps.chunk(3)
+                guided = uncond + s_t * (text - image) + s_i * (image - uncond)
+                z = scheduler.step(guided, t, z, **extra, return_dict=False)[0]
+        return self.decode_latent(z, use_ckpt=use_ckpt).to(x01.dtype)
+
+    @torch.no_grad()
+    def edit_batch(self, images, instructions, seeds, steps: int = IP2P_STEPS,
+                   s_t: float = IP2P_TEXT_GUIDANCE, s_i: float = IP2P_IMAGE_GUIDANCE,
+                   negative_prompt: Optional[str] = None) -> torch.Tensor:
+        """一次編輯一批，回傳 (B,3,H,W) [0,1]，第 i 列等同 `edit(images[i], ...)`。
+
+        為什麼要批次
+        ────────────────────────────────────────────────────────────────
+        批次為 1 時 512² 的 UNet 遠遠餵不飽一張 3090：實測顯存只用到 24 GB 的
+        29%，平行單元大半在等。整批的成本幾乎與單張相同，所以吞吐量直接隨批次
+        大小上升。實驗設定完全不變——這是把卡餵飽，不是換實驗。
+
+        **每張圖各自一個 generator，不是整批共用一個。**
+        `diffusers` 拿到單一 generator 時會用同一條隨機序列依序抽整批的噪聲，
+        於是第 i 張拿到的噪聲取決於批次裡有幾張、排第幾個——同樣的
+        `(圖, 指令, 種子)` 在不同的批次組合下會得到不同的輸出，而報表上看不
+        出來。傳一串 generator 則讓第 i 張吃 `seeds[i]` 自己的序列，與逐張跑
+        逐位元相同。`tests/test_ip2p_batch.py` 釘住這一條。
+        """
+        import torch as _t
+        images = list(images)
+        instructions = list(instructions)
+        seeds = [int(v) for v in seeds]
+        if not images:
+            raise ValueError("空的批次：沒有要編輯的影像")
+        if not (len(images) == len(instructions) == len(seeds)):
+            raise ValueError(
+                f"三個清單長度必須相同，收到 影像 {len(images)}、"
+                f"指令 {len(instructions)}、種子 {len(seeds)}")
+        ref = images[0]
+        batch = _t.cat([y.to(self.device).clamp(0, 1) for y in images], dim=0)
+        gens = [_t.Generator(device=self.device).manual_seed(v) for v in seeds]
+        out = self.pipe(
+            prompt=instructions,
+            image=(batch * 2.0 - 1.0).to(self.vae.dtype),
+            num_inference_steps=steps,
+            guidance_scale=s_t,
+            image_guidance_scale=s_i,
+            negative_prompt=negative_prompt,
+            generator=gens,
+            output_type="pt",
+        )
+        return out.images.to(ref.dtype).clamp(0, 1)
 
     @torch.no_grad()
     def edit(self, x01: torch.Tensor, instruction: str, seed: int = IP2P_SEED,

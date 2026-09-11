@@ -51,10 +51,14 @@ COLUMNS = [
     'protected_max_abs', 'protected_pixels',
     'collision_first', 'collision_last', 'collision_at_anchor',
     'collision_steps', 'collision_region_area', 'collision_ring_area',
-    'n_faces_orig', 'n_faces_edit_orig', 'n_faces_edit_def',
     'subject_box_iou_edit_orig', 'subject_box_iou_edit_def',
+    # 語意：編輯輸出對指令句的對齊。`_orig` 是未防禦的那張、`_def` 是防禦後
+    # 的那張，`_drop` 是前者減後者。依 docs/EVALUATION.md，語意指標照報、
+    # 不作判準。欄名沿用既有的 `edit_clip_*`／`edit_siglip_*`。
+    'edit_clip_orig', 'edit_clip_def', 'edit_clip_drop',
+    'edit_siglip_orig', 'edit_siglip_def', 'edit_siglip_drop',
     'subject_id_orig', 'subject_id_def', 'subject_id_drop',
-    'id_embed_weights', 'seconds',
+    'id_embed_weights', 'attack_batch', 'attack_precision', 'seconds',
 ]
 
 
@@ -174,6 +178,27 @@ def collision_region(x01, region, clothes, device=None):
                      f'outside_subject')
 
 
+def semantic_row(suite, edit_orig, edit_def, instruction):
+    """兩張編輯輸出對**指令句**的語意對齊，CLIP 與 SigLIP 各一組。
+
+    問的是「指令有沒有被執行」——那是使用者判準的三個條件之一，而位移與身分
+    都答不了它：位移只說兩張圖差多少，身分只說主體還像不像。
+
+    影像前向一次、文字逐 prompt 前向，走的是 `MetricSuite.semantic_multi`，
+    與專案其他批次同一條路徑。依 `docs/EVALUATION.md`，語意指標**照報、
+    不作判準**。
+    """
+    out = {}
+    for name, y in (('orig', edit_orig), ('def', edit_def)):
+        scores = suite.semantic_multi(y, [instruction])[instruction]
+        for model in ('clip', 'siglip'):
+            out[f'edit_{model}_{name}'] = round(float(scores[model]), 5)
+    for model in ('clip', 'siglip'):
+        out[f'edit_{model}_drop'] = round(
+            out[f'edit_{model}_orig'] - out[f'edit_{model}_def'], 5)
+    return out
+
+
 def regions_of(x01, support_clothes):
     """衣物與其補集兩塊，供 `region_palette` 用。權重圖的邊由 blur_sigma 決定。"""
     return [support_clothes, (1.0 - support_clothes).clamp(0.0, 1.0)]
@@ -193,6 +218,15 @@ def main():
                     help='只跑前幾格，供冒煙測試')
     ap.add_argument('--device', default='cuda',
                     help="'cpu' 供冒煙測試；GPU 工作一律送遠端")
+    ap.add_argument('--batch', type=int, default=1,
+                    help='一次送幾張圖給攻擊模型。批次為 1 時 512² 的 UNet '
+                         '餵不飽一張 3090（顯存只用到 24 GB 的 29%），加大就是'
+                         '直接的吞吐量。每張圖各自一個 generator，所以輸出與'
+                         '逐張跑相同；操作點由 scripts/throughput_probe.py 量。')
+    ap.add_argument('--precision', default='',
+                    help="覆寫設定裡的 precision（fp32／bf16／fp16）。"
+                         "bf16 的骨幹與 VAE 同一種精度，不會有 fp16 那個 "
+                         "Half/float 不符的問題。")
     ap.add_argument('--no-attack', action='store_true',
                     help='只渲染與量外觀，不跑編輯；冒煙測試用')
     args = ap.parse_args()
@@ -219,12 +253,13 @@ def main():
         raise SystemExit(f'{args.out} 已存在且非空；換一個輸出目錄')
     args.out.mkdir(parents=True, exist_ok=True)
 
+    precision = args.precision or spec['precision']
     if args.no_attack:
         ip2p, device = None, torch.device(args.device)
     else:
         from src.models.ip2p import IP2PWrapper
         ip2p = IP2PWrapper(dtype={'fp16': torch.float16, 'fp32': torch.float32,
-                                  'bf16': torch.bfloat16}[spec['precision']])
+                                  'bf16': torch.bfloat16}[precision])
         device = ip2p.device
     suite = MetricSuite(device=device)
     entries = {r['id']: r for r in manifest['images']}
@@ -236,7 +271,8 @@ def main():
     todo = [c for k, c in enumerate(cells_of(spec)) if k % n == i - 1]
     if args.limit:
         todo = todo[:args.limit]
-    print(f'分片 {i}/{n}：{len(todo)} 格，臂 {arms}', flush=True)
+    print(f'分片 {i}/{n}：{len(todo)} 格，臂 {arms}，批次 {args.batch}'
+          f'，精度 {args.precision or spec["precision"]}', flush=True)
 
     for cell in todo:
         entry = entries[cell['image']]
@@ -251,37 +287,13 @@ def main():
         mean, cov = palette_of(spec, spec['palette_id'])
         second = palette_of(spec, spec['palette_id_second'])
 
-        # 未防禦的編輯：每個種子一次，所有臂與所有 ΔE00 共用同一張，省掉三分之二
-        # 的攻擊機時。fp32 下單次 100 步是 21 秒。
-        clean = {}
-        if not args.no_attack:
-            for eval_seed in spec['eval_seeds']:
-                clean[eval_seed] = ip2p.edit(
-                    x, cell['instruction'], seed=eval_seed,
-                    steps=spec['attack_steps'], s_t=spec['s_t'], s_i=spec['s_i'])
-                save_png(clean[eval_seed],
-                         args.out / f'{tag}__s{eval_seed}__clean_edit.png')
-
-        if 'undefended' in arms and not args.no_attack:
-            for eval_seed in spec['eval_seeds']:
-                e0 = clean[eval_seed]
-                read = subject_identity_row(x, e0, e0, device=device)
-                rows.append({'arm': 'undefended', **cell, 'eval_seed': eval_seed,
-                             **read, 'edit_lpips': 0.0,
-                             'seconds': round(time.time()-t_start, 1)})
-                print(f"  {tag} s{eval_seed} 未防禦：臉數 "
-                      f"{read['n_faces_edit_orig']} id {read['subject_id_orig']}",
-                      flush=True)
-
+        # ---- 第一階段：把這一格所有臂、所有目標的防禦圖先算完 ----
+        # 攻擊編輯不在這裡跑。批次為 1 時 512² 的 UNet 餵不飽一張 3090
+        # （實測顯存只用到 24 GB 的 29%），所以先把要編輯的東西收集起來，
+        # 第二階段一次送一批。實驗設定完全不變，變的只有送進 GPU 的方式。
+        pending = []
         for arm in [a for a in arms if a != 'undefended']:
-            # 不可達的目標會解到同一個幅度（1.0），渲染出**逐位元相同**的防禦圖。
-            # 那些格子的讀數必然一樣，重跑攻擊只是白燒機時。按幅度快取，列還是
-            # 逐目標各一列（`delta_e_reached` 標明可不可達），只是不重算。
             by_amplitude = {}
-
-            # 建構、`reset` 與訓練都與 ΔE00 目標無關，所以只做一次；目標迴圈裡
-            # 變的只有幅度，那是事後的空間常數投影。碰撞臂的 300 步因此不會被
-            # 三個目標各跑一次。
             regions = None
             if arm == 'region_palette':
                 regions = [(w, m, c) for w, (m, c) in zip(
@@ -318,7 +330,7 @@ def main():
                                  key=lambda v: float('inf') if v == 'max_reach'
                                  else float(v)):
                 if target == 'max_reach':
-                    # 各臂自己走得到的最遠處。不二分——先前那批的 dE00 30 在
+                    # 各臂自己走得到的最遠處。不二分——先前那批的 ΔE00 30 在
                     # 每一格都不可達，等於白跑一個目標；改成直接取幅度 1.0，
                     # 實際到了多遠由 `support_deltaE00` 記錄。**這個點不是
                     # 等失真錨點**，跨臂比較要用它旁邊那個 6.3 的點。
@@ -338,8 +350,7 @@ def main():
                 diag = param.diagnostics(x)
                 # `isometric` 與 `rotation_deg` 記的是**插值前**的設定。幅度插值
                 # 之後真正作用的矩陣是 (1-a)·I + a·M，`a < 1` 時奇異值小於 1
-                # ——90 度旋轉在 a = 0.5 上是 0.707，那是收縮不是等距。有效增益
-                # 因此要單獨記一欄，否則欄位會誤述機制。
+                # ——90 度旋轉在 a = 0.5 上是 0.707，那是收縮不是等距。
                 eff = getattr(param, 'effective_chroma_matrix', None)
                 if eff is None:
                     gain_max = gain_min = ''
@@ -353,8 +364,7 @@ def main():
                                   suite=suite, device=device).items()}
                 # 嚴格的受保護像素檢查：只看 w 恰為 0 的像素。
                 # `gate_outside_support_max_abs` 用 (1 - w) 加權，羽化帶上
-                # 0 < w < 1 就會非零，那是羽化不是違規；使用者的約束是
-                # 「w = 0 的像素逐位元不動」，兩者要分開量。
+                # 0 < w < 1 就會非零，那是羽化不是違規。
                 zero = (support <= 0).to(x_def.dtype)
                 n_zero = int(zero.sum().item())
                 protected = ('' if n_zero == 0 else
@@ -381,6 +391,10 @@ def main():
                         'input_dists': round(float(d['dists']), 5),
                         'protected_max_abs': protected,
                         'protected_pixels': n_zero,
+                        # 批次與精度進 CSV：它們不該改變數字，但「不該」要能
+                        # 被查核，而不是靠記憶。
+                        'attack_batch': args.batch,
+                        'attack_precision': precision,
                         **trained, **final}
                 print(f"  {name} a {base['amplitude']} dE_support "
                       f"{base['support_deltaE00']}"
@@ -391,37 +405,90 @@ def main():
                     rows.append({**base, 'eval_seed': '',
                                  'seconds': round(time.time()-t_start, 1)})
                     continue
-
+                # 不可達的目標會解到同一個幅度（1.0），渲染出**逐位元相同**的
+                # 防禦圖。那些列的讀數必然一樣，重跑攻擊只是白燒機時。
                 key = round(solved['amplitude'], 6)
-                cached = by_amplitude.get(key)
-                if cached is not None:
-                    print(f"    幅度 {key} 與前一個目標相同，防禦圖逐位元一樣，"
-                          f"沿用同一份攻擊讀數", flush=True)
-                    for read, lpips, eval_seed in cached:
-                        rows.append({**base, 'eval_seed': eval_seed,
-                                     'edit_lpips': lpips, **read,
-                                     'seconds': round(time.time()-t_start, 1)})
+                if key in by_amplitude:
+                    pending.append({'base': base, 'x_def': None, 'name': name,
+                                    'share': (arm, key)})
                     continue
+                by_amplitude[key] = True
+                pending.append({'base': base, 'x_def': x_def, 'name': name,
+                                'share': (arm, key)})
 
-                measured = []
-                for eval_seed in spec['eval_seeds']:
-                    ed = ip2p.edit(x_def, cell['instruction'], seed=eval_seed,
-                                   steps=spec['attack_steps'], s_t=spec['s_t'],
-                                   s_i=spec['s_i'])
-                    read = subject_identity_row(x, clean[eval_seed], ed,
-                                                device=device)
-                    lpips = round(
-                        float(suite.pairwise(clean[eval_seed], ed)['lpips']), 5)
-                    measured.append((read, lpips, eval_seed))
-                    rows.append({**base, 'eval_seed': eval_seed,
-                                 'edit_lpips': lpips, **read,
-                                 'seconds': round(time.time()-t_start, 1)})
-                    save_png(ed, args.out / f'{name}__s{eval_seed}__def_edit.png')
-                    print(f"    s{eval_seed} id {read['subject_id_def']} 臉 "
-                          f"{read['n_faces_edit_orig']}->{read['n_faces_edit_def']}"
-                          f" 位移 {lpips}", flush=True)
-                by_amplitude[key] = measured
+        if args.no_attack or not pending:
+            continue
 
+        # ---- 第二階段：把這一格的所有編輯併成幾個批次 ----
+        # 同一格的每一次編輯共用指令，只有影像與種子不同，正好是批次的形狀。
+        work = []
+        for eval_seed in spec['eval_seeds']:
+            work.append({'kind': 'clean', 'seed': eval_seed, 'image': x})
+        for item in pending:
+            if item['x_def'] is None:
+                continue
+            for eval_seed in spec['eval_seeds']:
+                work.append({'kind': 'def', 'seed': eval_seed,
+                             'image': item['x_def'], 'item': item})
+        done = []
+        for k in range(0, len(work), args.batch):
+            chunk = work[k:k + args.batch]
+            outs = ip2p.edit_batch([w['image'] for w in chunk],
+                                   [cell['instruction']] * len(chunk),
+                                   [w['seed'] for w in chunk],
+                                   steps=spec['attack_steps'],
+                                   s_t=spec['s_t'], s_i=spec['s_i'])
+            for w, y in zip(chunk, outs):
+                done.append((w, y[None]))
+        clean = {w['seed']: y for w, y in done if w['kind'] == 'clean'}
+        for eval_seed, y in clean.items():
+            save_png(y, args.out / f'{tag}__s{eval_seed}__clean_edit.png')
+
+        # ---- 第三階段：讀數 ----
+        if 'undefended' in arms:
+            for eval_seed in spec['eval_seeds']:
+                e0 = clean[eval_seed]
+                read = subject_identity_row(x, e0, e0, device=device)
+                for f in ('n_faces_orig', 'n_faces_edit_orig', 'n_faces_edit_def'):
+                    read.pop(f, None)
+                read.update(semantic_row(suite, e0, e0, cell['instruction']))
+                rows.append({'arm': 'undefended', **cell, 'eval_seed': eval_seed,
+                             **read, 'edit_lpips': 0.0,
+                             'seconds': round(time.time()-t_start, 1)})
+                print(f"  {tag} s{eval_seed} 未防禦：id {read['subject_id_orig']} "
+                      f"siglip {read['edit_siglip_orig']}", flush=True)
+
+        measured = {}
+        for w, ed in done:
+            if w['kind'] != 'def':
+                continue
+            item, eval_seed = w['item'], w['seed']
+            e0 = clean[eval_seed]
+            read = subject_identity_row(x, e0, ed, device=device)
+            # 臉數不進報表：主體位置上有沒有臉已經由 `subject_box_iou_edit_def`
+            # 與空的 `subject_id_def` 表達，而臉數會把旁人算進來。
+            for f in ('n_faces_orig', 'n_faces_edit_orig', 'n_faces_edit_def'):
+                read.pop(f, None)
+            read.update(semantic_row(suite, e0, ed, cell['instruction']))
+            lpips = round(float(suite.pairwise(e0, ed)['lpips']), 5)
+            measured[(item['share'], eval_seed)] = (read, lpips)
+            rows.append({**item['base'], 'eval_seed': eval_seed,
+                         'edit_lpips': lpips, **read,
+                         'seconds': round(time.time()-t_start, 1)})
+            save_png(ed, args.out / f"{item['name']}__s{eval_seed}__def_edit.png")
+            print(f"    {item['name']} s{eval_seed} id {read['subject_id_def']} "
+                  f"siglip {read['edit_siglip_orig']}->{read['edit_siglip_def']} "
+                  f"位移 {lpips}", flush=True)
+
+        # 共用同一張防禦圖的那些列：沿用同一份攻擊讀數，不重跑。
+        for item in pending:
+            if item['x_def'] is not None:
+                continue
+            for eval_seed in spec['eval_seeds']:
+                read, lpips = measured[(item['share'], eval_seed)]
+                rows.append({**item['base'], 'eval_seed': eval_seed,
+                             'edit_lpips': lpips, **read,
+                             'seconds': round(time.time()-t_start, 1)})
     suffix = '' if n == 1 else f'_shard{i}of{n}'
     write_csv(args.out / f'color_ceiling{suffix}.csv', rows)
     print(f'-> {args.out}  共 {len(rows)} 列，{time.time()-t_start:.0f} 秒', flush=True)

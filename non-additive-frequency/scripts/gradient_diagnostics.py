@@ -267,9 +267,14 @@ def main():
             else:
                 kw = dict(x_clean=x, seed=spec['seed'])
                 if name == 'cfg_shift':
+                    # `eval_draws = 1`：固定評估把 n 次抽樣**累加在同一張圖上**，
+                    # 帶梯度算時 n 次的 UNet 圖同時留著。預設的 8 在 512² fp32
+                    # 上會把 24 GB 的卡吃光（實測 OOM）。這裡只需要一個決定性的
+                    # 方向，一次抽樣就夠。
                     kw.update(zt_mode=spec['zt_mode'], s_t=spec['s_t'],
                               s_i=spec['s_i'], normalise=spec['normalise'],
-                              samples=1,
+                              samples=1, eval_draws=1,
+                              eval_seed=spec.get('eval_seed', 90001),
                               text_embeds=instruction_embeddings(
                                   ip2p, [c['instructions'][cell['image']]
                                          for c in spec['classes']]))

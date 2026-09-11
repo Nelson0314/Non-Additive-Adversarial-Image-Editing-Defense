@@ -12,14 +12,19 @@ def _kwargs(**extra):
     return base
 
 
-def test_columns_carry_the_four_readouts_and_the_appearance_group():
+def test_columns_carry_the_readouts_and_the_appearance_group():
     for name in ('arm', 'image', 'class', 'seed', 'eval_seed',
                  'delta_e_target', 'amplitude', 'delta_e_reached',
                  'edit_lpips',
                  'subject_id_def', 'subject_id_orig', 'subject_id_drop',
-                 'n_faces_edit_def', 'n_faces_edit_orig',
+                 'subject_box_iou_edit_def',
+                 # 語意取代了臉數：臉數只回答「畫面上有幾張臉」，會把旁人算
+                 # 進來，而主體位置上有沒有臉由 box_iou 與空的 id 表達。
+                 'edit_clip_orig', 'edit_clip_def', 'edit_clip_drop',
+                 'edit_siglip_orig', 'edit_siglip_def', 'edit_siglip_drop',
                  'input_psnr', 'input_dists', 'final_deltaE00',
-                 'final_hf_rgb_total', 'final_outside_support_max_abs'):
+                 'final_hf_rgb_total', 'final_outside_support_max_abs',
+                 'attack_batch', 'attack_precision'):
         assert name in COLUMNS
 
 
@@ -131,3 +136,13 @@ def test_amplitude_interpolation_contracts_a_rotation():
     assert abs(float(torch.linalg.svdvals(p.chroma_matrix()).max()) - 1.0) < 1e-9
     eff = float(torch.linalg.svdvals(p.effective_chroma_matrix()).max())
     assert abs(eff - 0.7071) < 1e-3
+
+
+def test_face_counts_are_not_reported():
+    """臉數不進報表。
+
+    它只回答「畫面上有幾張臉」，多人畫面上會把旁人算進來；主體位置上還有
+    沒有臉已經由 `subject_box_iou_edit_def` 與空的 `subject_id_def` 表達。
+    """
+    for name in ('n_faces_orig', 'n_faces_edit_orig', 'n_faces_edit_def'):
+        assert name not in COLUMNS

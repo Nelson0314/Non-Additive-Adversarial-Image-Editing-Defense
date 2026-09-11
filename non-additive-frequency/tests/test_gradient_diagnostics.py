@@ -122,3 +122,28 @@ def test_value_spread_prefers_the_fixed_evaluation_when_given_one():
     value_spread(p, sampled, x, draws_points=3, seed=0, fixed=fixed)
     assert calls['fixed'] == 3
     assert calls['sampled'] == 0
+
+
+def test_sampled_flag_is_measured_not_inferred_from_an_attribute():
+    """決定性的目標也可能有 `fixed` 屬性，屬性不能當成「有抽樣」的判準。
+
+    `StepwiseObjective` 在目標本身決定性時把 `fixed` 設成內層函式，物件與該
+    函式不是同一個，靠 `fixed is not loss_fn` 判斷就會把 `latent_norm` 誤標。
+    """
+    import torch as _t
+
+    class _Deterministic:
+        def __init__(self):
+            self.fixed = self._inner
+
+        @staticmethod
+        def _inner(y):
+            return y.sum()
+
+        def __call__(self, y):
+            return self._inner(y)
+
+    f = _Deterministic()
+    x = _t.full((1, 3, 4, 4), 0.5)
+    assert f.fixed is not f
+    assert float(f(x)) == float(f(x))

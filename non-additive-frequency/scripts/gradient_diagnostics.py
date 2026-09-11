@@ -292,8 +292,15 @@ def main():
 
             carrier, relaxed = made[0][1], made[1][1]
             fixed = getattr(loss_fn, 'fixed', None)
-            sampled = int(fixed is not None and fixed is not loss_fn)
             evaluate = fixed if fixed is not None else loss_fn
+            # 有沒有抽樣**用量的**，不用看有沒有 `fixed` 屬性：
+            # `StepwiseObjective` 在目標本身就是決定性時會把 `fixed` 設成同一個
+            # 內層函式，但物件本身不是那個函式，`fixed is not loss_fn` 因此對
+            # `latent_norm` 也成立，旗標就會把它誤標成有抽樣。同一點上連叫兩次
+            # 看值一不一樣才是這個問題的答案。
+            with torch.no_grad():
+                probe = carrier.render(x)
+                sampled = int(float(loss_fn(probe)) != float(loss_fn(probe)))
             with torch.no_grad():
                 start = float(evaluate(carrier.render(x)))
             # ρ 取原本那個載體從**起點**走到自己邊界的位移的一半：這樣兩邊都

@@ -168,6 +168,9 @@ def main():
     ap.add_argument('--seeds', default='')
     ap.add_argument('--shard', default='1/1')
     ap.add_argument('--device', default='cuda')
+    ap.add_argument('--save-images', action='store_true',
+                    help='把淨化圖與淨化後的編輯圖也存下來。專案規則要求防禦圖、'
+                         '淨化圖、編輯圖都要留下並呈現，只寫 CSV 看不到畫面。')
     args = ap.parse_args()
     if args.device != 'cpu':
         assert_free_cards()
@@ -256,6 +259,10 @@ def main():
                     floor = float(suite.pairwise(
                         e_clean, purified_edit[pk])['lpips'])
 
+                if args.save_images:
+                    save_png(pd, args.out / f'{tag}__{name}__purified.png')
+                    save_png(ed, args.out / f'{tag}__{name}__s{seed}__purified_edit.png')
+
                 effect = float(suite.pairwise(ref, ed)['lpips'])
                 rows.append({
                     'image': cell['image'], 'class': cell['class'],
@@ -280,6 +287,13 @@ def main():
     write_csv(args.out / f'color_retention{suffix}.csv', rows)
     print(f'-> {args.out}  共 {len(rows)} 列，{time.time()-t_start:.0f} 秒',
           flush=True)
+
+
+def save_png(x, path):
+    import numpy as np
+    from PIL import Image
+    arr = (x[0].clamp(0, 1).permute(1, 2, 0).cpu().numpy()*255).astype('uint8')
+    Image.fromarray(arr).save(path)
 
 
 def write_csv(path, rows):

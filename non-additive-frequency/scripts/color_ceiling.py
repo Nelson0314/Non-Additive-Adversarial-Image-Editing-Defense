@@ -57,6 +57,13 @@ COLUMNS = [
     # 不作判準。欄名沿用既有的 `edit_clip_*`／`edit_siglip_*`。
     'edit_clip_orig', 'edit_clip_def', 'edit_clip_drop',
     'edit_siglip_orig', 'edit_siglip_def', 'edit_siglip_drop',
+    # 方向性語意：相對原圖往指令的方向移動了多少。`clip_s_drop` 是防禦有沒有
+    # 把指令擋下來的直接讀數。
+    'clip_s_def', 'clip_s_drop', 'siglip_s_def', 'siglip_s_drop',
+    # 未防禦的攻擊本身成不成立。每一列都帶著同一格的這三個值，事後篩選不必
+    # 再 join 另一張表。不設門檻，切在哪裡由使用者決定。
+    'gate_attack_lpips', 'gate_clip_s', 'gate_siglip_s', 'gate_subject_id',
+    'attack_steps',
     'subject_id_orig', 'subject_id_def', 'subject_id_drop',
     'id_embed_weights', 'attack_batch', 'attack_precision', 'seconds',
 ]
@@ -178,6 +185,31 @@ def collision_region(x01, region, clothes, device=None):
                      f'outside_subject')
 
 
+def gate_row_attack(suite, x01, edit_orig, instruction, device=None):
+    """**未防禦的攻擊本身成不成立。** 每一格先問這個，再談防禦。
+
+    攻擊自己會以三種互相獨立的方式失敗，而三者在防禦讀數上長得一模一樣
+    （位移小、身分高），所以要分開量：
+
+        `gate_attack_lpips`  編輯有沒有動到東西  LPIPS(原圖, 未防禦編輯)
+        `gate_clip_s`        動的方向對不對      cos(ΔI, T(指令))
+        `gate_subject_id`    主體還在不在        主體錨定的人臉餘弦
+
+    沒動（模型忽略指令）、動錯方向（改了別的東西）、動對但把人毀了——三者
+    都讓那一格的防禦讀數失去意義，但原因不同，補救也不同。
+
+    **不設門檻。** 依 `CLAUDE.md`，助手不得自訂判斷成敗的門檻；這裡只把三個
+    數字逐列記下來，切在哪裡由使用者決定。每一列防禦讀數都帶著同一格的這三
+    個值，所以事後篩選不需要再去 join 另一張表。
+    """
+    out = {'gate_attack_lpips': round(
+        float(suite.pairwise(x01, edit_orig)['lpips']), 5)}
+    d = suite.direction_similarity(x01, edit_orig, instruction)
+    out['gate_clip_s'] = round(float(d['clip']), 5)
+    out['gate_siglip_s'] = round(float(d['siglip']), 5)
+    return out
+
+
 def semantic_row(suite, edit_orig, edit_def, instruction):
     """兩張編輯輸出對**指令句**的語意對齊，CLIP 與 SigLIP 各一組。
 
@@ -196,6 +228,24 @@ def semantic_row(suite, edit_orig, edit_def, instruction):
     for model in ('clip', 'siglip'):
         out[f'edit_{model}_drop'] = round(
             out[f'edit_{model}_orig'] - out[f'edit_{model}_def'], 5)
+    return out
+
+
+def direction_row(suite, x01, edit_def, instruction, gate):
+    """防禦側的方向性語意，與 `gate_clip_s` 是同一個量、同一條路徑。
+
+        clip_s_def  = cos( E_img(編輯(防禦圖)) − E_img(原圖), E_txt(指令) )
+        clip_s_drop = gate_clip_s − clip_s_def
+
+    `drop` 才是「防禦有沒有把指令擋下來」的直接讀數：`semantic_multi` 那組
+    量的是「輸出像不像指令描述的東西」，會被畫面整體的相似度帶著走；方向性
+    量的是「相對原圖往指令的方向移動了多少」，與指令是不是被執行對得更準。
+    """
+    d = suite.direction_similarity(x01, edit_def, instruction)
+    out = {'clip_s_def': round(float(d['clip']), 5),
+           'siglip_s_def': round(float(d['siglip']), 5)}
+    out['clip_s_drop'] = round(gate['gate_clip_s'] - out['clip_s_def'], 5)
+    out['siglip_s_drop'] = round(gate['gate_siglip_s'] - out['siglip_s_def'], 5)
     return out
 
 
@@ -223,6 +273,10 @@ def main():
                          '餵不飽一張 3090（顯存只用到 24 GB 的 29%），加大就是'
                          '直接的吞吐量。每張圖各自一個 generator，所以輸出與'
                          '逐張跑相同；操作點由 scripts/throughput_probe.py 量。')
+    ap.add_argument('--attack-steps', type=int, default=0,
+                    help='覆寫設定裡的 attack_steps。100 是**本專案指定的**'
+                         '（diffusers 的預設值），論文未載，所以降步數不偏離'
+                         '任何已發表的協定——但新舊批次仍不可並列，要先校準。')
     ap.add_argument('--precision', default='',
                     help="覆寫設定裡的 precision（fp32／bf16／fp16）。"
                          "bf16 的骨幹與 VAE 同一種精度，不會有 fp16 那個 "
@@ -254,6 +308,7 @@ def main():
     args.out.mkdir(parents=True, exist_ok=True)
 
     precision = args.precision or spec['precision']
+    attack_steps = args.attack_steps or spec['attack_steps']
     if args.no_attack:
         ip2p, device = None, torch.device(args.device)
     else:
@@ -436,7 +491,7 @@ def main():
             outs = ip2p.edit_batch([w['image'] for w in chunk],
                                    [cell['instruction']] * len(chunk),
                                    [w['seed'] for w in chunk],
-                                   steps=spec['attack_steps'],
+                                   steps=attack_steps,
                                    s_t=spec['s_t'], s_i=spec['s_i'])
             for w, y in zip(chunk, outs):
                 done.append((w, y[None]))
@@ -444,19 +499,27 @@ def main():
         for eval_seed, y in clean.items():
             save_png(y, args.out / f'{tag}__s{eval_seed}__clean_edit.png')
 
-        # ---- 第三階段：讀數 ----
-        if 'undefended' in arms:
-            for eval_seed in spec['eval_seeds']:
-                e0 = clean[eval_seed]
-                read = subject_identity_row(x, e0, e0, device=device)
+        # ---- 第三階段：先檢測攻擊本身，再談防禦 ----
+        # 每個種子一組守門讀數，之後這一格的每一列都帶著它。
+        gates = {}
+        for eval_seed in spec['eval_seeds']:
+            e0 = clean[eval_seed]
+            g = gate_row_attack(suite, x, e0, cell['instruction'], device=device)
+            idr = subject_identity_row(x, e0, e0, device=device)
+            g['gate_subject_id'] = idr['subject_id_orig']
+            g['attack_steps'] = attack_steps
+            gates[eval_seed] = g
+            print(f"  {tag} s{eval_seed} 攻擊守門：位移 {g['gate_attack_lpips']} "
+                  f"CLIP-S {g['gate_clip_s']} 主體 {g['gate_subject_id']}",
+                  flush=True)
+            if 'undefended' in arms:
+                read = dict(idr)
                 for f in ('n_faces_orig', 'n_faces_edit_orig', 'n_faces_edit_def'):
                     read.pop(f, None)
                 read.update(semantic_row(suite, e0, e0, cell['instruction']))
                 rows.append({'arm': 'undefended', **cell, 'eval_seed': eval_seed,
-                             **read, 'edit_lpips': 0.0,
+                             **read, **g, 'edit_lpips': 0.0,
                              'seconds': round(time.time()-t_start, 1)})
-                print(f"  {tag} s{eval_seed} 未防禦：id {read['subject_id_orig']} "
-                      f"siglip {read['edit_siglip_orig']}", flush=True)
 
         measured = {}
         for w, ed in done:
@@ -470,6 +533,9 @@ def main():
             for f in ('n_faces_orig', 'n_faces_edit_orig', 'n_faces_edit_def'):
                 read.pop(f, None)
             read.update(semantic_row(suite, e0, ed, cell['instruction']))
+            read.update(direction_row(suite, x, ed, cell['instruction'],
+                                      gates[eval_seed]))
+            read.update(gates[eval_seed])
             lpips = round(float(suite.pairwise(e0, ed)['lpips']), 5)
             measured[(item['share'], eval_seed)] = (read, lpips)
             rows.append({**item['base'], 'eval_seed': eval_seed,
@@ -477,7 +543,7 @@ def main():
                          'seconds': round(time.time()-t_start, 1)})
             save_png(ed, args.out / f"{item['name']}__s{eval_seed}__def_edit.png")
             print(f"    {item['name']} s{eval_seed} id {read['subject_id_def']} "
-                  f"siglip {read['edit_siglip_orig']}->{read['edit_siglip_def']} "
+                  f"CLIP-S {read['gate_clip_s']}->{read['clip_s_def']} "
                   f"位移 {lpips}", flush=True)
 
         # 共用同一張防禦圖的那些列：沿用同一份攻擊讀數，不重跑。

@@ -1,8 +1,5 @@
 """`src/models/ip2p.py` 的驗收 — 用替身管線，不下載 4 GB 權重。
 
-主線的攻擊模型由 SDEdit 換成 InstructPix2Pix（使用者 2026-08-19 裁定）。
-這一支要釘的是**三個補錯了也不會拋錯的地方**：
-
 1. 載成一般 SD 1.5（UNet 4 通道）時影像條件會靜默失效，編輯退化成純文生圖；
 2. 拼進 UNet 的影像 latent **不乘** `scaling_factor`，與 `encode_image` 差
    一個 0.18 的倍率；

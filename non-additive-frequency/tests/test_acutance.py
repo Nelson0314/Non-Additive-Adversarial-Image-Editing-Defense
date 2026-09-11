@@ -1,8 +1,3 @@
-"""銳利度保留率的行為測試。
-
-與 tiny-SD 相關的測試不同，這裡的命題全部是演算法層面的確定性行為，
-可以直接斷言數值方向：模糊必須降、加雜訊必須升、恆等必須為 1。
-"""
 
 import pytest
 import torch
@@ -53,12 +48,7 @@ def test_模糊越強保留率越低():
 
 
 def _smooth(size=64):
-    """中間調的平滑正弦圖樣。
-
-    不用 `_img()`：它的通道是 0/1 二值，加雜訊後 clamp 會削掉飽和平台，
-    邊緣對比下降的幅度大於雜訊帶來的增益，保留率反而小於 1。那是 clamp
-    的性質而非本指標的性質，用它測「加雜訊變銳」會測到錯的東西。
-    """
+    """中間調的平滑正弦圖樣。"""
     yy, xx = torch.meshgrid(torch.arange(size), torch.arange(size), indexing="ij")
     v = 0.5 + 0.18 * torch.sin(xx.float() / 6.0) * torch.cos(yy.float() / 7.0)
     return v.expand(3, size, size).unsqueeze(0).contiguous()

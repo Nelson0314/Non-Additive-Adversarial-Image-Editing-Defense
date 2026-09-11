@@ -7,21 +7,10 @@
 對比敏感度在中低頻達到峰值、往高頻單調衰減，故同一個振幅的擾動放在
 r = 0.15 與 r = 0.9 上，可見度差一個數量級。二值閘對兩者開同一個價。
 
-實測「每單位 DISTS 換到多少位移」（IP2P 線，13 張服從影像）：
-
     DCT-Shield          13.2
     加性 delta           6.8
     紋理重相位（低強度）  6.6
     紋理重相位（帶邊緣）  3.7
-
-`RESULTS.md` 已把 DCT-Shield 那 2 倍歸因給「JPEG 量化階的約束」，並註明
-**那不是加性本身帶來的**。量化表就是一張以感知門檻定價的價目表，故這裡把
-同一個約束搬進本方法的閘。
-
-**這不改參數化。** 仍是頻譜重參數化、非加性，`theta = 0` 的逐位元恆等仍
-成立（權重只縮放閘，閘只縮放 theta，theta = 0 時乘什麼都是 0）。
-`DECISIONS.md` 的「頻譜加性項不做」明文寫「閘的開度不受此限，兩者都只改變
-擾動被允許出現的位置，不改變參數化」。
 
 座標對應
 ────────────────────────────────────────────────────────────────────
@@ -84,11 +73,7 @@ def _bilinear(table: torch.Tensor, u: torch.Tensor,
 
 
 def _jpeg_luma(block: int, device, dtype) -> torch.Tensor:
-    """JPEG 亮度量化階，正規化到最大值 1。
-
-    量化階大 = 人眼在該頻率上看不見 = 允許較多擾動，方向與「權重越大越
-    放行」一致，不需要取倒數。
-    """
+    """JPEG 亮度量化階，正規化到最大值 1。"""
     fy = torch.fft.fftfreq(block, device=device, dtype=dtype) * 2.0   # [-1, 1)
     fx = torch.fft.rfftfreq(block, device=device, dtype=dtype) * 2.0  # [0, 1]
     u = (fy.abs() * 8.0).clamp(0.0, 7.0)[:, None].expand(block, block // 2 + 1)
@@ -109,12 +94,6 @@ def freq_weight(name: str, block: int, device, dtype,
 
     名字打錯要拋錯而不是回退到 `binary`：靜默回退會讓一整批掃描跑成基準
     的重複，而報表上的 `freq_weight` 欄仍寫著它以為跑的那個名字。
-
-    `power` 是定價的力道：`w ** power`。0 使權重恆為 1，即退回二值閘；
-    1 是量化表的原始定價。**兩端都不是操作點**——二值閘的位移／DISTS 只有
-    3.3–4.3，完整加權把它拉到 8–14.5 但通帶有效容量掉到 0.544，要摸到會擋下
-    的強度就得把半徑推過 theta 的封頂（pi），之後只有增益在長而增益是振幅，
-    PSNR 直接被打掉。中間值讓效率與可達性可以取捨。本值無出處，是本專案指定。
     """
     if name not in FREQ_WEIGHTS:
         raise ValueError(
@@ -124,28 +103,6 @@ def freq_weight(name: str, block: int, device, dtype,
     w = FREQ_WEIGHTS[name](block, device, dtype)
     return w if power == 1.0 else w ** power
 
-
-# ---------------------------------------------------------------- 存活加權
-#
-# 為什麼要有這一層
-# ────────────────────────────────────────────────────────────────────
-# `jpeg_luma` 定價的是**人眼在該頻率看不看得見**，而量化階隨頻率遞增，
-# 所以它把預算往高頻推。但攻擊方會先淨化：高斯模糊在頻域乘的是實正數
-# `|H_σ(f)| = exp(-2π²σ²f²)`，把高頻的振幅整個拿掉。最佳化迴圈看不到這件事
-# ——它跑的是未淨化的前向——所以「哪一帶的擾動活得下來」必須寫進閘裡。
-#
-# 這一層只補**最佳化看不到的那一半**：期望存活振幅。編碼器對哪一帶敏感由
-# 最佳化自己找，不必也不應該把六張圖量到的敏感度曲線焊進方法。
-#
-#     w_surv(ω) = (1/(1+|S|)) · [ 1 + Σ_{σ∈S} |H_σ(ω)| ]
-#
-# 第一項的 1 是 identity（攻擊方不淨化），與 `eot_broad` 把 identity 當成一個
-# 類別的作法一致。`S` 由名字決定，逐個列出，不吃參數——填得進 CSV 才查得回來。
-#
-# 座標：`radial_gate` 用的歸一化半徑 1 = Nyquist，故 cycles/pixel = r / 2。
-#
-# **本值無出處，是本專案指定。** `|H_σ|` 是高斯核的解析傅立葉轉換，
-# `runs/fixedpoint_blur` 實測與它一致到小數第三位。
 
 def _blur_survival(block: int, device, dtype,
                    sigmas: tuple) -> torch.Tensor:
@@ -166,7 +123,6 @@ def _surv_none(block: int, device, dtype) -> torch.Tensor:
 
 SURVIVAL_WEIGHTS: Dict[str, Callable[[int, object, object], torch.Tensor]] = {
     "none": _surv_none,
-    # 評測用的兩個模糊 σ。σ2 目前是最差的一欄（`runs/readout_ceiling`）。
     "blur12": lambda b, d, t: _blur_survival(b, d, t, (1.0, 2.0)),
     # 只押 σ1，用來分辨「往低頻搬」的收益是不是全部來自 σ2 那一項。
     "blur1": lambda b, d, t: _blur_survival(b, d, t, (1.0,)),

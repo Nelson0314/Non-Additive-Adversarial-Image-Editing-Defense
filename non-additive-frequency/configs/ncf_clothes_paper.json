@@ -1,0 +1,60 @@
+{
+  "paper": {
+    "source": "NCF NeurIPS 2022 sections 3.2-3.3 and 4.1, Eqs.4-11",
+    "eta": 50,
+    "K": 10,
+    "N": 15,
+    "epsilon": 0.2,
+    "alpha": 0.013333333333333334,
+    "momentum": 0.6,
+    "classes": 150,
+    "distributions_per_class": 20
+  },
+  "modified_from_paper": {
+    "loss": "L_IG divided by the image condition's own energy. The unnormalised form has a degenerate global minimum at 'erase the image': z_img -> 0 sends cond-base to zero exactly. Measured, see runs/ncf_ip2p/paper/.",
+    "library": "official 150_20_hist.npy, 150 ADE20K classes x 20 palettes; Lab moments taken analytically from the histogram weights",
+    "cov_floor": 0.0001,
+    "covariance_normalization": "population",
+    "statistics_support": "support region only, weighted by the soft support",
+    "rng": "step-indexed independent IG banks",
+    "selection": "fixed bank; best iterate retained",
+    "convergence": "200-step trace and 1000-step independent fixed bank; boundaries also measured; no pass threshold",
+    "resolution": "original RGB; no resize",
+    "region": "region = the validated ATR clothing carrier (guided filter 4, MTCNN face boxes cut out, erode 3, feather 8 inward). Candidates are restricted to ADE20K class 'apparel', which restores the paper's per-class matching for a region whose class is already known, so no segmenter is needed and no compatibility gate is applied.",
+    "epsilon_lab": "5.0 Lab units, bounding the standard deviation the perturbation adds to each output channel, on top of the paper's raw box. The raw box alone is scale-blind: T0[0,0]=0.065 with epsilon=0.2 lets the luminance mapping flip sign."
+  },
+  "search": {
+    "eta": 50,
+    "K": 10,
+    "N": 15,
+    "epsilon": 0.2,
+    "alpha": 0.013333333333333334,
+    "momentum": 0.6,
+    "cov_floor": 0.0001,
+    "seed": 0,
+    "eval_seed": 17001,
+    "independent_seed": 27001,
+    "train_seed": 37001,
+    "eval_draws": 8,
+    "trace_every": 200,
+    "convergence_every": 1000,
+    "score_every": 1,
+    "epsilon_lab": 5.0,
+    "max_lightness_shift": null,
+    "min_contrast_ratio": null
+  },
+  "library": "data/ncf_library.json",
+  "library_sha256": "3f1af891264523591d3a4ef1df6878cb41b2ed518e7e2cf0e492161b72013888",
+  "manifest": "data/ncf_manifest.json",
+  "manifest_sha256": "1d24e13a4081512624816726f056fb8c5426e6b096353e0c7c45cf459f755e2e",
+  "attack_prompts": "data/ncf_attack_prompts.yaml",
+  "attack_prompts_sha256": "a2a05997f5bb3998eb8d4bcaf2f7b60f31f4f74ea16df0f001c21a582e3eac6c",
+  "class_weights": {
+    "global_scene": 1.0
+  },
+  "region": "clothes",
+  "ade20k_classes": [
+    "apparel"
+  ],
+  "normalise_loss": true
+}

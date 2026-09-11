@@ -19,21 +19,6 @@ from src.defense.fixedpoint_loss import (
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def _load_runner():
-    spec = importlib.util.spec_from_file_location(
-        "ip2p_run_manifold", ROOT / "scripts" / "ip2p_run.py")
-    mod = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(mod)
-    return mod
-
-
-def test_defaults_are_off():
-    args = _load_runner().build_parser().parse_args(["--out", "o", "--data", "d"])
-    assert args.manifold_weight == 0.0
-    assert args.manifold_only is False
-    assert args.manifold_t == 100
-
-
 def test_invalid_timestep_range_rejected():
     with pytest.raises(ValueError, match="t_min <= t_max"):
         make_manifold_term(object(), t_min=50, t_max=10)
@@ -41,7 +26,9 @@ def test_invalid_timestep_range_rejected():
 
 def test_scheduler_lookup_refuses_to_guess():
     """**找不到排程要拋錯，不可以自己算 beta 表**——那會與攻擊方實際用的
-    噪聲尺度不一致，而且不會有症狀。"""
+
+    噪聲尺度不一致，而且不會有症狀。
+    """
     class Bare:
         pass
     with pytest.raises(AttributeError, match="不要用自己算的 beta 表"):

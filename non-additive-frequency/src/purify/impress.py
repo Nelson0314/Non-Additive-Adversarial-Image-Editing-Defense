@@ -1,17 +1,5 @@
 """IMPRESS 淨化算子（Cao et al., NeurIPS 2023，官方 repo `AAAAAAsuka/Impress`）。
 
-出處與參數查證見 `docs/_audit_purify.md` §2。摘要：
-
-- 損失：`MSE(D(E(x_pur)), x_pur) + α · max(LPIPS(x_pur, x_ptb) − L, 0)`
-  （論文 Eq. 4.1；程式 `impress.py` 第 13–17 行）。
-- 官方 `impress.py` 有三組「預設」（函式簽名／Glaze 情境／PhotoGuard 情境）。
-  本專案的威脅模型是編輯而非風格微調，依 `reference/SOURCE_AUDIT.md` §8 取
-  **PhotoGuard 情境**那一組：eps(L) 0.1、iters 1000、lr 0.005、α 0.01、σ 0.05、
-  值域 `[-1, 1]`。該組同時見於 README、`scripts/new/pg_mask_diff_test.sh`
-  與論文附錄 B，三者一致。
-- `model` 就是 SD 的 VAE（`glaze_pur.py` 第 52–60 行），且呼叫前已凍結參數。
-  故本模組要求傳入 `SDWrapper`，缺席時明確拋出。
-
 **與原始碼的差異（逐項列出，不得隱藏）**：
 
 1. 原始碼全程 `.half()`（fp16）。本專案的 `SDWrapper` 預設 fp32，本模組跟隨傳入
@@ -37,7 +25,6 @@ from __future__ import annotations
 import torch
 import torch.nn as nn
 
-# PhotoGuard 情境的預設值（`_audit_purify.md` §2.4 (C) 欄）
 PHOTOGUARD_PRESET = {
     "eps": 0.1,      # 論文的 L：LPIPS margin
     "iters": 1000,
@@ -58,9 +45,6 @@ def has_impress_deps(sd, backend: str = "lpips") -> bool:
     才由 `_make_lpips` 拋出——而 IMPRESS 那 285 格排在數小時機時之後，
     且連續失敗會在第 10 格中止整段。`has_diffpure_weights` 檢查檢查點與
     `guided_diffusion` 兩者是同一個理由。
-
-    2026-08-06 新增。before：`ops.Purifier.available` 對 `impress` 只回傳
-    `self.options.get("sd") is not None`，漏掉了預設後端所需的 `lpips` 套件。
     """
     if sd is None:
         return False

@@ -1,0 +1,81 @@
+{
+  "manifest": "data/ncf_manifest.json",
+  "images": [
+    "task_env_weather_70149",
+    "task_env_weather_121086",
+    "task_env_weather_126577",
+    "task_obj_remove_284852",
+    "task_obj_swap_rand_mask_315182"
+  ],
+  "classes": [
+    {
+      "name": "clothing",
+      "carrier": "clothes",
+      "instructions": {
+        "task_env_weather_70149": "turn the kimono red",
+        "task_env_weather_121086": "turn the jacket red",
+        "task_env_weather_126577": "turn the robe red",
+        "task_obj_remove_284852": "turn the shirt blue",
+        "task_obj_swap_rand_mask_315182": "turn the clothes blue"
+      }
+    },
+    {
+      "name": "accessory",
+      "carrier": "frame",
+      "instructions": {
+        "task_env_weather_70149": "put a hat on the person",
+        "task_env_weather_121086": "put a hat on the person",
+        "task_env_weather_126577": "put a hat on the person",
+        "task_obj_remove_284852": "put a hat on the person",
+        "task_obj_swap_rand_mask_315182": "put a hat on the person"
+      }
+    },
+    {
+      "name": "background",
+      "carrier": "frame",
+      "instructions": {
+        "task_env_weather_70149": "change the background to a snowy street",
+        "task_env_weather_121086": "change the background to a snowy street",
+        "task_env_weather_126577": "change the background to a snowy street",
+        "task_obj_remove_284852": "change the background to a snowy street",
+        "task_obj_swap_rand_mask_315182": "change the background to a snowy street"
+      }
+    }
+  ],
+  "carriers": {
+    "clothes": {
+      "kind": "ncf",
+      "library": "data/ncf_library.json",
+      "library_sha256": "3f1af891264523591d3a4ef1df6878cb41b2ed518e7e2cf0e492161b72013888",
+      "class_weights": {"global_scene": 1.0},
+      "ade20k_classes": ["apparel"],
+      "palette_id": "ade093_apparel_00",
+      "options": {"radius": 0.2, "epsilon_lab": 5, "whiten": true}
+    },
+    "frame": {
+      "kind": "recoloradv",
+      "smoothness_weight": 1.0,
+      "smoothness_note": "原文目標是對抗損失＋平滑正則；漏掉它會讓 LUT 相鄰頂點亂跳，hf_ratio_rgb_total 到 5.7-14.1、PSNR 掉到 9.6-11.9。與 configs/recolor_r05.json 同值。",
+      "radius_note": "0.06 是 ReColorAdvParam 自己的預設，也是原文 lp_bound 的量級。0.5 那一批的圖與數值在 runs/objective_pilot/_superseded_no_smoothness/，不重跑。",
+      "options": {"radius": 0.06, "resolution": [16, 32, 32]}
+    }
+  },
+  "precision": "fp32",
+  "precision_note": "fp16 下 resolve_precision 讓 backbone 半精度而 VAE 留在 fp32，官方 pipeline 的 edit() 會在 vae.encode 拋 Half/float 不符；攻擊評測必須走 edit()，故整支用 fp32。",
+  "seed": 0,
+  "zt_mode": "diffuse_src",
+  "normalise": true,
+  "loss_samples": 1,
+  "s_t": 7.5,
+  "s_i": 1.5,
+  "attack_steps": 100,
+  "eval_seeds": [17001, 27001, 47001],
+  "eval_draws": 8,
+  "eval_seed": 90001,
+  "rand_draw": "corner",
+  "update": "adam",
+  "step_size_ratio": 0.02,
+  "momentum": 0.6,
+  "steps": 1000,
+  "eval_every": 50
+}

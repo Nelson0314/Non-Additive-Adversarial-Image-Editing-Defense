@@ -11,15 +11,6 @@
 mask initialization；Adversarial T-shirt（ECCV 2020）則是把圖案當成印在布上的
 東西來建模。本模組只做「指出載體」這一半，**位置不最佳化**。
 
-為什麼不是 CLIPSeg
-────────────────────────────────────────────────────────────────────
-本專案的主體遮罩走 CLIPSeg（`subject_mask.py`），但逐件衣物用文字指不可靠：
-在 `task_attr_mod_color_6205` 上實測 `"blue overalls"` 拿到 0.2075（位置對、
-邊界鬆），而 `"the shirt"` 只有 0.0027——**等於失敗，而且沒有症狀**。
-有固定類別表的人體解析器才穩：同一張圖上
-Upper-clothes 0.0634、Pants 0.1682，邊界貼著衣物輪廓，工具箱與背景沒有被
-吃進來。該影像是塑像不是真人照片，這一點沒有讓 ATR 解析失效。
-
 模型與類別
 ────────────────────────────────────────────────────────────────────
 `mattmdjaga/segformer_b2_clothes`：SegFormer-B2 在 ATR 上微調，18 類。
@@ -59,14 +50,6 @@ CARRIER_CLASSES: Dict[str, Tuple[int, ...]] = {
     "clothes": (4, 5, 6, 7),
     "upper": (4, 7),
     "pants": (5, 6),
-    # ATR 的類別 0。**它問的是另一個問題**：花紋放在畫面裡「不是人」的地方，
-    # 效果與放在衣服上差多少。衣物載體與它在構造上只差類別集合，其餘
-    # （吸附、挖臉框、內縮、羽化、面積守門）逐字共用同一條路徑，故兩者的
-    # 差別只有「放在哪裡」這一個變因。
-    #
-    # 兩個必須明給的參數：背景常常超過 `MAX_AREA`（實測十張裡有九張），
-    # 故用它時 `max_area` 一定要放寬；而要與衣物**同面積**比較時，
-    # 面積由 `match_area` 事後縮到指定值，不是靠這裡的守門。
     "background": (0,),
     # **空的類別集合＝不由語意限制，整張畫面都可以放。** 存在理由是「同面積
     # 的花紋放在別的地方效果如何」這個對照：用 ATR 的背景類別再侵蝕到同面積
@@ -77,22 +60,12 @@ CARRIER_CLASSES: Dict[str, Tuple[int, ...]] = {
     "frame": (),
 }
 
-# ATR 的哪些類別算是「有人」的證據。臉是其中最可靠的一個，見 MIN_FACE。
 FACE_CLASS = 11
 
 # 本專案指定的預設值。改動要進 CSV。
 MIN_AREA = 0.01
 MAX_AREA = 0.60
 
-# 臉的面積下限。**這道守門不是可有可無的**：ATR 沒有「這張圖裡沒有人」這個
-# 輸出，它一定會把某些像素分到某一類，於是毛皮、菌傘、皮膚都會被標成
-# Upper-clothes。實測（`data/omniedit150` 的十三張）：
-#
-#     貓 clothes 0.5311 而 face 0.0002      蘑菇 0.3490 / 0.0000
-#     手掌 0.2929 / 0.0000                  真人 0.2858–0.4802 / 0.0225–0.1800
-#
-# 0.01 落在兩群之間、與兩邊都差一個數量級。**兩個已知的判錯**如實記下：
-# 太空人（face 0.0030，頭盔遮住臉）會被擋掉，猴子（face 0.0290）擋不掉。
 MIN_FACE = 0.01
 
 _MODEL = None
@@ -207,13 +180,7 @@ def erode_mask(m: torch.Tensor, radius: int) -> torch.Tensor:
 
 
 def feather_inward(m: torch.Tensor, width: int) -> torch.Tensor:
-    """往**內**羽化：邊界附近的權重由 1 線性降到 0，內部仍是 1。
-
-    **方向與 `subject_mask._feather` 相反。** 那一支往外羽化是為了「寧可多
-    保留一點主體」，面積變大；載體往外會讓花紋溢出衣物輪廓，故一律往內、
-    面積變小。作法是對硬遮罩做 `width` 次半徑 1 的侵蝕並累加，等價於一個由
-    邊界往內線性上升的距離場。
-    """
+    """往**內**羽化：邊界附近的權重由 1 線性降到 0，內部仍是 1。"""
     if width <= 0:
         return m
     acc = m.clone()
@@ -255,13 +222,6 @@ def ring_support(face_mask: torch.Tensor, inner: int, outer: int
                  ) -> torch.Tensor:
     """緊貼受保護主體外緣的**環帶**：往外 `inner` 到 `outer` 像素之間。
 
-    為什麼是這個形狀
-    ────────────────────────────────────────────────────────────────
-    覆蓋率那個規律（效果由碰到多少 latent token 決定）還有更細的一層：
-    **不是每個 token 都一樣重要**。VAE 是卷積的，臉部那些 token 的表示會受
-    鄰近像素影響；臉本身逐位元凍結，但緊貼著它的那一圈沒有。在那一圈放擾動，
-    對臉部 token 的影響遠大於同面積放在畫面遠處。
-
     點陣賭的是「碰到所有 token」，環帶賭的是「碰到**對的** token」。兩者
     互補：若環帶用 3–5% 的面積打得贏衣服上的 23%，這個方法的定位就從
     「大面積擾動」變成「精準的小標記」。
@@ -285,12 +245,6 @@ def ring_support(face_mask: torch.Tensor, inner: int, outer: int
 def lattice_support(carrier: torch.Tensor, pitch: int, radius: float
                     ) -> torch.Tensor:
     """規則格點上的小圓斑：間距 `pitch` 像素、半徑 `radius` 像素。
-
-    為什麼是這個形狀
-    ────────────────────────────────────────────────────────────────
-    實測到的規律是**效果由「碰到多少個 latent token」決定，不是由像素面積**：
-    同樣 23% 的面積，集中在衣服上與散成六塊都是 14/25（都碰到約 23% 的 token），
-    而權重攤平到整張畫面（碰到 100% 的 token）跳到 23/25。
 
     SD 的 VAE 降採樣 8 倍，故 `pitch = 8` 時每一個 latent 格恰好落進一個圓斑，
     **token 覆蓋率 100% 而像素面積只有 `π·radius²/pitch²`**（radius 2 時 19.6%）。
@@ -336,11 +290,6 @@ def scatter_support(carrier: torch.Tensor, count: int, area: float,
 
     為什麼要它：鋪滿整件衣服的花紋面積大、也最顯眼。把同樣的預算拆成幾塊
     分散的斑點，讀起來更接近「衣服上本來就有的圖案」。
-
-    中心點用**最遠點取樣**（先隨機取一點，之後每次取離已選點最遠的合法點），
-    故塊與塊之間盡量拉開；半徑由總面積與塊數反推。
-    **載體放不下要求的面積時拋錯**——安靜地縮小會讓 CSV 的面積欄與實際跑的
-    對不上。
     """
     if count < 1:
         raise ValueError(f"count 必須 >= 1，收到 {count}")
@@ -378,10 +327,6 @@ def scatter_support(carrier: torch.Tensor, count: int, area: float,
                 (((xx - cx) ** 2 + (yy - cy) ** 2) <= r * r).to(out.dtype))
         return out * keep
 
-    # **半徑要由實現面積反推，不能由公式直接算。** 圓斑靠近載體邊界時會被裁
-    # 掉一部分，用 `sqrt(area·HW/count/π)` 直接算會少很多——實測要求 4% 只拿到
-    # 1.7%，而 `--radius` 的意義因此在 scatter 模式下與其他模式不同，且是靜默
-    # 的。二分搜尋是合法的：實現面積對半徑單調不減。
     lo, hi = 0.5, float(max(h, w))
     for _ in range(24):
         mid = 0.5 * (lo + hi)
@@ -445,10 +390,6 @@ def _match_area_erode(carrier: torch.Tensor, mask: torch.Tensor, target: float
                       ) -> torch.Tensor:
     """把載體往內縮，使**合法面積**恰好等於 `target`。
 
-    為什麼需要它：要問「同樣大小的花紋放在背景與放在衣服上差多少」，兩邊的
-    面積必須一樣。背景的原始面積通常遠大於衣物（實測十張都是），不對齊就等於
-    同時動了「放在哪裡」與「放多大」兩個變因。
-
     構造是**逐級侵蝕加一層線性內插**：一級一級往內縮，停在第一個
     `area(r+1) < target <= area(r)` 的地方，再回傳 `(1−λ)·E_r + λ·E_{r+1}`，
     其中 `λ = (area(r) − target) / (area(r) − area(r+1))`。面積對 λ 是線性的，
@@ -457,15 +398,7 @@ def _match_area_erode(carrier: torch.Tensor, mask: torch.Tensor, target: float
     只用整數半徑會落在離散的階梯上——背景區域的周長很長，一級侵蝕就可能讓
     面積掉好幾個百分點，於是「對齊」實際上會差很多而報表上看不出來。
 
-    **逐級而不是對半徑二分搜尋**：`erode_mask(m, r)` 是邊長 `2r+1` 的最小池化，
-    半徑 256 就是 513×513 的核，單次就要好幾分鐘（實測跑不完）。而方形結構元素
-    的侵蝕可結合——`A ⊖ S_{2r+1} = ((A ⊖ S_3) ⊖ S_3) …` 共 r 次——故逐級累進與
-    直接給大半徑**結果相同而代價是線性的**，且順路拿到相鄰兩級不必重算。
-
     兩層都只會讓權重下降，故「主體那一側恆為 0」的保證不受影響。
-
-    **面積不足時拋錯**：目標大於載體本身的合法面積時無解，安靜地回傳一個
-    比較小的東西會讓對照組的面積欄與實際跑的對不上。
     """
     if not 0.0 < target <= 1.0:
         raise ValueError(f"target 必須落在 (0,1]，收到 {target}")
@@ -495,16 +428,7 @@ FACE_SUBJECT_CLASSES = (11, 2)          # Face, Hair
 
 def face_subject_mask(x01: torch.Tensor, dilate: int = 16, feather: int = 24,
                       device=None) -> torch.Tensor:
-    """(1,3,H,W) → (1,1,H,W)，1 = 受保護的臉與頭部。
-
-    為什麼不走 CLIPSeg：主體遮罩原本以文字指出物件，但「臉」正好是 ATR 的
-    一個類別，而我們已經為了載體在跑那個解析器。少一個模型、少一組文字、
-    也少一個「CLIPSeg 對某個名詞反應溢出」的失效面——實測 CLIPSeg 的
-    `"toolbox"` 溢出到整個人偶與牆面（核心 0.457）。
-
-    膨脹與**往外**羽化沿用 `subject_mask` 的參數與方向：這一側寧可多保留，
-    與載體的往內羽化正好相反。
-    """
+    """(1,3,H,W) → (1,1,H,W)，1 = 受保護的臉與頭部。"""
     from src.defense.subject_mask import _dilate, _feather
 
     seg = parse_atr(x01, device=device)

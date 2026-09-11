@@ -1,20 +1,5 @@
 """兩個針對性淨化算子：GrIDPure 與頻域淨化（FD-Pure）。
 
-DEC-025 把本輪的淨化算子縮到 `blur`／`crop`／`jpeg`／`freqpure`／`gridpure`。
-前三個 `ops.py` 已有，本檔補後兩個。兩者都建立在 `diffpure._load_guided`
-載入的同一個 guided-diffusion 256² 無條件檢查點上，不新增權重相依。
-
-**「freqpure」這個名字有陷阱，本檔用的不是那一篇。**
-────────────────────────────────────────────────────────────────────
-FreqPure（Ju, Xue, Lyu；ICCV 2025 Workshop APAI）**不是**逆向過程中的頻域
-介入，而是一條**兩階段的訓練式管線**：一個重建模組先移除保護擾動造成的
-瑕疵，再由一個以低頻影像為條件的擴散模型合成高頻。它需要在 FFHQ 人臉資料
-上訓練，且無公開程式碼（2026-08-19 查證），**不可能在無訓練的前提下重現**。
-
-`docs/reference/SURVEY_2026-08-18_frequency.md` §2.3 把「逐時間步替換低頻
-幅度、投影低頻相位」寫成 FreqPure 的作法，那是錯的——該條目自己註明內容
-「由檢索摘要確認」，即未讀原文。正確的歸屬是下面這一篇。
-
 本檔實作的是 **FD-Pure**（Pei, Ma, Sun, Xu, Huang, arXiv:2505.01267,
 "Diffusion-based Adversarial Purification from the Perspective of the
 Frequency Domain"）。它訓練自由、Algorithm 1 完整可實作，機制正是 survey
@@ -115,10 +100,7 @@ def gridpure_real(x01: torch.Tensor, *, t: int, gamma: float, iters: int,
                   ckpt=None, seed: Optional[int] = None,
                   grid: int = GRIDPURE_GRID,
                   stride: int = GRIDPURE_STRIDE) -> torch.Tensor:
-    """GrIDPure。`t`／`gamma`／`iters` **必填**——論文正文未載，見上方說明。
-
-    每一輪：切格 → 各格小步 SDEdit → 重疊處取平均合回 → 與上一輪混合。
-    """
+    """GrIDPure。`t`／`gamma`／`iters` **必填**——論文正文未載，見上方說明。"""
     if x01.dim() != 4:
         raise ValueError(f"需要 (B,C,H,W)，收到 {tuple(x01.shape)}")
     h, w = x01.shape[-2:]

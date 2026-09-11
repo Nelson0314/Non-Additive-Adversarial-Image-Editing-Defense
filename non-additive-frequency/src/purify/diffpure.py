@@ -1,7 +1,5 @@
 """DiffPure 淨化算子與其 resize 對照（Nie et al., ICML 2022，`NVlabs/DiffPure`）。
 
-出處與參數查證見 `docs/_audit_purify.md` §3。摘要：
-
 - 演算法：先一次加噪到 `t`（`x = x0·√ᾱ_{t-1} + e·√(1−ᾱ_{t-1})`），再逆向去噪回 0。
   guided 版逐步呼叫 `diffusion.p_sample(..., clip_denoised=True)`；SDE 版以
   `torchsde.sdeint_adjoint(..., method='euler')` 解 reverse-VP-SDE（論文主結果）。
@@ -10,11 +8,6 @@
 - 檢查點：ImageNet 用 guided-diffusion 的 `256x256_diffusion_uncond.pt`，
   **官方三個檢查點最高 256×256**，沒有 512² 或 1024² 的設定可依循。
 - 值域 `[-1, 1]`，形狀 `(B,C,H,W)`。
-
-**解析度裁決（`reference/SOURCE_AUDIT.md` §9 第 4 項）**：本專案在 1024² 下評測，
-作法為「降取樣到 256 → 淨化 → 升回原尺寸」，並**額外提供 `resize_only`**：
-同樣的降升取樣但不做擴散淨化，用來把 resize 本身的破壞力與擴散淨化分開。
-兩者共用本模組的 `resize_roundtrip`，故降升取樣參數必然一致。
 
 **我方指定的部分（DiffPure 原文與原始碼皆無 resize，故無來源可依循）**：
 插值方法 `bicubic`、降取樣開 antialias、每一段後 clamp 回 `[0,1]`。
@@ -74,18 +67,6 @@ def resize_params() -> dict:
     return {"size": DIFFPURE_RESOLUTION, "mode": RESIZE_MODE, "antialias": RESIZE_ANTIALIAS}
 
 
-# `NVlabs/DiffPure` 的 `configs/imagenet.yml` 的 `model:` 區塊，逐欄照抄
-# （2026-08-05 由 raw 檔核對）。這些值覆寫 `model_and_diffusion_defaults()`。
-# **不得憑 `256x256_diffusion_uncond.pt` 這個檔名推測參數**：guided-diffusion
-# 同一解析度有 `learn_sigma`／`attention_resolutions` 不同的多組設定，
-# 猜錯會讓 `load_state_dict` 以形狀不符中止（有症狀），或更糟——形狀碰巧
-# 相符而權重對應到別的層（無症狀）。
-#
-# 這組設定已與檢查點交叉核對（2026-08-05，不需下載即可驗證）：
-# `create_model_and_diffusion(**cfg)` 的 `state_dict` 共 552,814,086 個元素，
-# fp32 下 2,211,256,344 bytes；檢查點的 HTTP Content-Length 為 2,211,383,297，
-# 差 126,953 bytes 即 zip 容器與 pickle 的開銷（比值 0.99994）。
-# 由 `tests/test_purify_new_ops.py::test_DiffPure的設定與檢查點大小相符` 釘住。
 DIFFPURE_MODEL_CONFIG = {
     "attention_resolutions": "32,16,8",
     "class_cond": False,
@@ -181,9 +162,6 @@ def diffpure_real(x01: torch.Tensor, t: int = DIFFPURE_T_DEFAULT,
                   ckpt=None, sample_step: int = DIFFPURE_SAMPLE_STEP,
                   seed=None) -> torch.Tensor:
     """真實 DiffPure（guided 版）。輸入輸出 `(B,3,H,W)`、RGB、`[0,1]`。
-
-    逐行對應 `NVlabs/DiffPure` 的 `runners/diffpure_guided.py`
-    `GuidedDiffusion.image_editing_sample`（2026-08-05 由 raw 檔核對）：
 
         a = (1 - betas).cumprod(0)
         x = x0·√a[t-1] + e·√(1 − a[t-1])              # 一次加噪到 t

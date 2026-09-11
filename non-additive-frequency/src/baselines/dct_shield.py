@@ -1,9 +1,5 @@
 """DCT-Shield（Bala et al., ICCV 2025 Highlight）— 頻域加性 baseline。
 
-**這是別人論文的方法，不是我們的。** 官方 repo `SamsungLabs/dct-shield` 在
-2026-08-18 查證時是空的（GitHub API 回 `This repository is empty.`，零分支），
-故本檔由論文與補充材料重寫。每一個超參數都標出處。
-
 出處
 ────────────────────────────────────────────────────────────────────
 arXiv:2504.17894／ICCV 2025。補充材料 Algorithm 1 是唯一完整的偽碼，本檔
@@ -34,12 +30,6 @@ arXiv:2504.17894／ICCV 2025。補充材料 Algorithm 1 是唯一完整的偽碼
 1. **`ε ≥ 1` 是抗 JPEG 的必要條件，不是調參建議。** 論文 §4.2：擾動必須至少
    造成一個量化級的改變，否則攻擊方以相同品質重壓時會被四捨五入回原值。
    把 ε 降到 1 以下以對齊本專案的人眼門檻時，**該條件失效**，必須註明。
-
-2. **原生 ε=1 在本專案的人眼門檻上偏大。** 2026-08-19 本機實測（七張平均、
-   δ 撞滿 ±1 的隨機正負號、Q_alg=0.95）：LPIPS 0.4254、DISTS 0.0692、
-   PSNR 28.56、L∞ 0.225。對照紋理重相位的人眼門檻是 LPIPS 0.1893、
-   DISTS 0.0349。1000 步 × 步長線性衰減的累積量是 50，遠大於 ε=1，故實際
-   PGD 幾乎必然也撞滿邊界，該估計貼近真實。
 
 3. **δ=0 時輸出不是原圖**，而是 Q_alg 品質的 JPEG 壓縮圖（失真地板，
    `jpeg_codec.jpeg_roundtrip`）。與紋理重相位 θ=0 逐位等於原圖不同。
@@ -82,15 +72,6 @@ class DCTShieldSpec:
     gamma: float = PAPER_GAMMA
     steps: int = PAPER_STEPS
     channels: Tuple[str, ...] = CHANNEL_NAMES
-    # **不是論文的旗標**：論文正文與補充材料的 Algorithm 1 都沒有排除 DC。
-    # 加它是為了檢定一個重現落差的假設，用到就必須標 modified_from_paper。
-    #
-    # 2026-08-20 的診斷：本專案實作出的 δ 在**每個係數上都吃滿 ±1**
-    # （Y 通道 |δ| 中位 0.903、50.3% 超過 0.9），而 DC 是最飽和的位置
-    # （Y 1.02、Cb 1.13、Cr 0.96）。DC 是區塊的平均亮度／色度，整階平移
-    # 等於每個 8×8 區塊整體變亮或變色——平坦區的可見方格由此而來。
-    # 論文報的失真是 LPIPS 0.267，本專案量到 0.469（1.76 倍），而 PSNR
-    # 反而高 1.83 dB：能量更小卻更醜，指向擾動放錯位置。
     skip_dc: bool = False
     modified_from_paper: bool = False
     modification_note: str = ""
@@ -130,15 +111,7 @@ REGISTRY: Dict[str, DCTShieldSpec] = {s.name: s for s in (SPEC_BASE, SPEC_Y)}
 
 
 def make_latent_norm_loss(sd) -> Callable[[torch.Tensor], torch.Tensor]:
-    """論文 §4.2 的目標：`L(δ) = ‖E(x')‖₂`。
-
-    取 latent 全部元素的 L2 範數（不是均方、也不是平方），照論文寫法。
-    這與本專案共用的 `encoder_target`（推向 `gray.png` 的 latent）不同——
-    **跑 baseline 時必須用論文自己的損失**，否則量到的不是那篇。
-
-    在 δ=0 處梯度非零（latent 範數不是極值），不受 FND-053 的零梯度陷阱
-    影響，不需要 random start。
-    """
+    """論文 §4.2 的目標：`L(δ) = ‖E(x')‖₂`。"""
 
     def loss(x01: torch.Tensor) -> torch.Tensor:
         return sd.encode_image(x01).flatten().norm(p=2)
@@ -151,10 +124,6 @@ class DCTShieldResult:
     x_def: torch.Tensor
     spec: DCTShieldSpec
     history: List[Dict] = field(default_factory=list)
-    # 最終的 δ（量化單位、已 detach），逐通道 (N, hb, wb, 8, 8)。
-    # 2026-08-20 新增。由 `x_def` 反推 δ 得不到它——解碼含夾取與 4:2:0
-    # 重取樣，AC 的擾動會滲進反推出的 DC，那正是「排除 DC」這個假設沒辦法
-    # 由像素端驗證的原因。診斷「能量落在哪個係數」也需要它。
     delta: Dict[str, torch.Tensor] = field(default_factory=dict)
 
 
@@ -187,10 +156,6 @@ def run_dct_shield(
     log_every: int = 0,
 ) -> DCTShieldResult:
     """補充材料 Algorithm 1，逐行照抄。
-
-    `mask` 是論文的遮罩變體（只給 inpainting）。本專案的威脅模型只有
-    img2img（2026-08-15 起），故實務上一律為 None；保留是因為它在被重現的
-    演算法裡，靜默省略等於改了那篇論文。
 
     回傳的 `x_def` 是 `[0,1]`、已夾取。**存檔一律用 PNG**。
     """
@@ -250,10 +215,6 @@ class DCTShieldParam:
     | 步長 | `(1−i/N)γ`，論文行 6 | `radius/(steps·saturate_at)`，固定 |
     | 步數 | 1000（論文） | 100（共用） |
     | 用途 | 重現該篇 | 與相位臂做同預算比較 |
-
-    `radius` 即 ε。`set_radius` 讓 `fit_to_budget` 可以二分搜尋；**搜到 1
-    以下時抗 JPEG 的保證失效**，呼叫端要標註。實測失真地板（δ=0）在
-    Q_alg=0.95 時 DISTS 只有 0.0022，遠低於相位臂的 0.0349，故對齊可行。
     """
 
     name = "dct_shield"

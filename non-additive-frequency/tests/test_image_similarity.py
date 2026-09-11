@@ -42,11 +42,7 @@ def test_symmetric(suite):
 
 
 def test_a_shifted_copy_scores_higher_than_unrelated_noise(suite):
-    """判別力的下限：同一張圖的小幅改動必須比無關的另一張圖更相似。
-
-    這一條若失敗，這個量就分不出「內容被換掉」與「內容只是變髒」，
-    也就無法用來判定防禦有沒有擋下攻擊。
-    """
+    """判別力的下限：同一張圖的小幅改動必須比無關的另一張圖更相似。"""
     a = _img(3)
     near = (a * 0.9 + 0.05).clamp(0, 1)
     far = _img(99)

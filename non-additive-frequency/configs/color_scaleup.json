@@ -218,12 +218,8 @@
   "eval_seeds": [
     17001
   ],
-  "collision_steps": 300,
   "collision_ring_width": 16,
-  "collision_update": "adam",
   "collision_note": "collision 臂與 chroma_bounded 用同一個參數化（奇異值上界，容許收縮），兩者的差別只有目標函數。不用等距臂：全域仿射對兩塊區域均值差的作用是 M(mu_R - mu_E)，奇異值恰為 1 時那個差的長度被保住，推不動。",
-  "step_size_ratio": 0.02,
-  "momentum": 0.6,
   "zt_mode": "diffuse_src",
   "normalise": true,
   "zt_note": "與 configs/objective_pilot.json 同值，cfg_shift 損失才可並列。normalise=true 會在損失裡除以影像條件的範數平方，該分母也有梯度，解讀 cfg_shift 的目標值時不可略過。",
@@ -276,5 +272,9 @@
   "rotation_adaptive": true,
   "hf_limit": 1.0,
   "attack_batch_default": 9,
-  "steps_note": "50 步。100 是本專案指定的（diffusers 預設，論文未載）。校準在 3 格 27 列上比過：50 步與 100 步在位移與 clip_s_drop 上的臂排序完全相同、數值差約 2%；25 步把位移上 palette 與 bounded 的順序翻掉，且未防禦攻擊的 CLIP-S 由 0.1015 掉到 0.0818（攻擊本身變弱），故不用 25。與 100 步的既有批次仍不可逐列並列。"
+  "steps_note": "50 步。100 是本專案指定的（diffusers 預設，論文未載）。校準在 3 格 27 列上比過：50 步與 100 步在位移與 clip_s_drop 上的臂排序完全相同、數值差約 2%；25 步把位移上 palette 與 bounded 的順序翻掉，且未防禦攻擊的 CLIP-S 由 0.1015 掉到 0.0818（攻擊本身變弱），故不用 25。與 100 步的既有批次仍不可逐列並列。",
+  "search_budget": 24,
+  "search_children": 4,
+  "search_sigma0": 0.35,
+  "collision_budget": 200
 }

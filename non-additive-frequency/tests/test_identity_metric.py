@@ -55,7 +55,6 @@ def test_原圖沒有臉時整列都留空(monkeypatch):
 
 
 def test_門檻只是參照不進算式():
-    """`CLAUDE.md`：不得自訂用來判斷「有沒有效果」的判準。"""
     src = (ROOT/"src"/"metrics"/"identity.py").read_text(encoding="utf-8")
     assert "SAME_PERSON_REFERENCE" in src
     body = src.split("SAME_PERSON_REFERENCE = ")[1]

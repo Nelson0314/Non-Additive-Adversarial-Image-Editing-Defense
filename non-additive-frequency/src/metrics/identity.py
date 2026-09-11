@@ -1,39 +1,4 @@
-"""編輯後的輸出裡，還認不認得出那是誰。
-
-為什麼需要它
-────────────────────────────────────────────────────────────────────
-現行的主讀數是主體區位移（遮罩加權的 LPIPS），它量的是**像素變了多少**，
-量不到「還認不認得出來」。兩者會分歧，而且已經分歧過：
-`runs/ip2p_patch_carrier/` 的六格位移 0.14–0.27、對隨機 3.7 倍，看起來像
-有效的防禦，但拉圖看到受保護的工具箱照樣變成紅色。
-
-在「不管怎麼換，都看不出那個人是誰」這個目標下，該量的是身分本身。
-
-三個數，缺一不可
-────────────────────────────────────────────────────────────────────
-    id_orig    cos( E(原圖), E(編輯(原圖)) )      攻擊自己就已經動了多少身分
-    id_def     cos( E(原圖), E(編輯(防禦圖)) )    防禦要把它壓低
-    face_found 編輯輸出裡還偵測得到臉嗎
-
-**`id_orig` 不可省。** 實測它落在 0.77–0.96 而不是 1.0——編輯本身就會改變
-身分，不扣掉它就分不出「防禦壓低了身分」與「這個編輯本來就會把人改掉」。
-`face_found = False` 是最強的形式：輸出裡根本沒有人臉可比。
-
-本專案指定的元件（無論文出處，故逐列寫進 CSV）
-────────────────────────────────────────────────────────────────────
-- 偵測：MTCNN（`facenet-pytorch` 2.6.0 的實作）。
-- 嵌入：InceptionResnetV1，`pretrained="vggface2"`。
-- `margin=20`、`image_size=160` 是該套件範例的值，本模組原樣沿用。
-
-**判定門檻不在本模組裡。** VGGFace2 上「同一人」的餘弦門檻常見取 0.5–0.6，
-那只是參照；有沒有效果由使用者看數字與影像判斷（`CLAUDE.md` 的「不設判準」）。
-
-**這不是唯一的辨識器。** 單一網路的結論可能是那個網路的特性，故
-`scripts/literature_metrics.py` 另外報兩個文獻用的組合：AdaFace ViT+KPRPE ＋
-DFA 對齊器（FaceLock）與 ArcFace ＋ RetinaFace（Anti-DreamBooth／FaceShield）。
-**三者的絕對值不可互比**——實測同一組防禦圖在三個辨識器上的降幅差五倍。
-對照表見 `docs/EVALUATION.md` 的「身分軸的指標」。
-"""
+"""編輯後的輸出裡，還認不認得出那是誰。"""
 
 from __future__ import annotations
 
@@ -65,11 +30,6 @@ def _load(device):
 @torch.no_grad()
 def face_boxes(x01: torch.Tensor, device=None):
     """(1,3,H,W) → 偵測到的人臉框串列 `[(x0, y0, x1, y1), ...]`，沒有則空串列。
-
-    存在理由不在身分讀數，而在**載體的守門**：ATR 會把臉的皮膚判成
-    Upper-clothes（實測一張特寫上臉頰與額頭整片 0.4802，而 Face 類只有
-    0.0696），於是「衣物載體」變成人臉。MTCNN 的框是一個獨立於 ATR 的訊號，
-    兩者不一致正是那個失效的簽名。
 
     這裡用的偵測器與 `embed` 是同一個實例，不另外載一份。
     """
@@ -132,3 +92,68 @@ def identity_row(x_orig: torch.Tensor, edit_orig: torch.Tensor,
         "id_drop": "" if drop is None else round(drop, 5),
         "id_embed_weights": EMBED_WEIGHTS,
     }
+
+
+def _iou(a, b) -> float:
+    """兩個 `(x0, y0, x1, y1)` 框的 IoU。"""
+    x0, y0 = max(a[0], b[0]), max(a[1], b[1])
+    x1, y1 = min(a[2], b[2]), min(a[3], b[3])
+    inter = max(0.0, x1-x0) * max(0.0, y1-y0)
+    area = ((a[2]-a[0])*(a[3]-a[1])) + ((b[2]-b[0])*(b[3]-b[1])) - inter
+    return 0.0 if area <= 0 else inter/area
+
+
+@torch.no_grad()
+def embed_box(x01: torch.Tensor, box, device=None) -> torch.Tensor:
+    """(1,3,H,W) ＋ 一個框 → 該框的身分向量。
+
+    對齊與標準化逐行沿用 `MTCNN.extract`：同一個 `image_size`、`margin`、
+    `post_process`，差別只在框由呼叫端指定而不是取第一個。
+    """
+    from facenet_pytorch.models.mtcnn import fixed_image_standardization
+    from facenet_pytorch.models.utils.detect_face import extract_face
+    from PIL import Image
+
+    dev = device or x01.device
+    _, net = _load(dev)
+    arr = (x01[0].clamp(0, 1).permute(1, 2, 0).cpu().numpy() * 255)
+    face = extract_face(Image.fromarray(arr.astype("uint8")), list(box),
+                        DETECTOR_IMAGE_SIZE, DETECTOR_MARGIN, None)
+    return net(fixed_image_standardization(face)[None].to(dev))[0]
+
+
+@torch.no_grad()
+def subject_identity_row(x_orig: torch.Tensor, edit_orig: torch.Tensor,
+                         edit_def: torch.Tensor, device=None) -> dict:
+    """把身分讀數錨定在**原圖那一張臉**上，並一併報三張圖各有幾張臉。
+
+    與 `identity_row` 的差別只有一處：兩張編輯輸出的嵌入取「與原圖主體框
+    重疊最多的那一個框」，而不是面積最大的框。重疊為零時記 `None`——那是
+    「主體的位置上沒有臉了」，是一個讀數，不是錯誤，也不可用鄰近的臉頂替。
+    """
+    subject = face_boxes(x_orig, device)
+    if not subject:
+        raise ValueError("原圖偵測不到臉，無法錨定主體；這一格不可用本讀數")
+    anchor = max(subject, key=lambda q: (q[2]-q[0])*(q[3]-q[1]))
+    e0 = embed_box(x_orig, anchor, device)
+
+    row = {"n_faces_orig": len(subject)}
+    sims = {}
+    for name, y in (("edit_orig", edit_orig), ("edit_def", edit_def)):
+        boxes = face_boxes(y, device)
+        row[f"n_faces_{name}"] = len(boxes)
+        best = max(boxes, key=lambda q: _iou(anchor, q)) if boxes else None
+        iou = _iou(anchor, best) if best is not None else 0.0
+        row[f"subject_box_iou_{name}"] = round(iou, 5)
+        sims[name] = (None if iou <= 0
+                      else similarity(e0, embed_box(y, best, device)))
+
+    drop = (sims["edit_orig"] - sims["edit_def"]
+            if None not in sims.values() else None)
+    row.update({
+        "subject_id_orig": "" if sims["edit_orig"] is None else round(sims["edit_orig"], 5),
+        "subject_id_def": "" if sims["edit_def"] is None else round(sims["edit_def"], 5),
+        "subject_id_drop": "" if drop is None else round(drop, 5),
+        "id_embed_weights": EMBED_WEIGHTS,
+    })
+    return row

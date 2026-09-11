@@ -1,13 +1,5 @@
 """把「讓影像引導項消失」寫成損失。**探索性質。**
 
-為什麼是這一項
-────────────────────────────────────────────────────────────────────
-專案量到的三個不變量說：擋下率幾乎完全由位移決定（`RESULTS.md` 一節）、
-「每單位 LPIPS 換到多少位移」跨四個參數化的變異係數只有 0.108
-（`distortion_axis_analysis`）、位移在 0.70 飽和（`PENDING.md` 〇節）。
-合起來就是**在「損失只讀 VAE 編碼器」這個威脅面上，換參數化不是槓桿**。
-還沒被動過的是損失讀哪裡——本專案至今所有損失都只經過 VAE，從未碰過 UNet。
-
 機制：IP2P 的影像引導是一個差
 ────────────────────────────────────────────────────────────────────
 `pipeline_stable_diffusion_instruct_pix2pix.py:444-447`（已逐行核對）：
@@ -23,26 +15,12 @@
 由此確定兩件事：**影像無條件分支用的就是零影像 latent**，而且影像分支與
 無條件分支**共用同一組文字嵌入**（空字串），兩者的差只來自影像條件。
 
-於是現行的 `latent_norm`（把 ‖E(x')‖ 壓向零）可以精確地描述：它把影像條件
-**逐元素**推向 UNet 的無條件分支，影像引導項因此消失，IP2P 退化成純文生圖
-——這就是 `RESULTS.md` 記的「輸出即 prompt 被畫出來」。它一直是這個機制的
-逐點版本。
-
 本項是**函數版本**：不要求 E(x') = 0，只要求 UNet 對兩者的反應相同。
 
     L_ig(x') = E_{t, eps} || eps(z_t, E_img(x'), null) - eps(z_t, 0, null) ||^2
 
 `{x' : eps(z_t, E_img(x'), null) = eps(z_t, 0, null)}` 是 UNet 的一個等位集，
 比單點大得多，故同一個失真預算下更容易落進去。
-
-與已否決的三個 reward 的差別，必須主動聲明
-────────────────────────────────────────────────────────────────────
-分類器／latent／CLIP 三種 reward 已全數否決（`GOAL.md`），這是第四種，歷史
-基底率不利。差別有兩點且都可查：那三種都在 **SDEdit 線**上做的
-（`runs/sdedit_reward_clip`、`sdedit_reward_latent`），而**SDEdit 沒有影像
-引導分支**——它把原圖以「被噪聲稀釋的殘影」餵進去，沒有 `eps(z_t, c_I, ·)`
-這個物件；其次那三種量的是語意對齊，本項量的是條件通道的代數性質，不涉及
-任何語意空間。
 
 兩個實作上的坑
 ────────────────────────────────────────────────────────────────────
@@ -115,6 +93,8 @@ def make_image_guidance_loss(
     seed: int = 0,
     weight: Optional[torch.Tensor] = None,
     text_embeds: Optional[torch.Tensor] = None,
+    normalise: bool = False,
+    norm_eps: float = 1e-3,
 ) -> Callable[[torch.Tensor], torch.Tensor]:
     """回傳 `loss(x_def01) -> 純量`，**要最小化**。
 
@@ -126,12 +106,6 @@ def make_image_guidance_loss(
 
     `weight`：像素域的 (1,1,H,W) 軟遮罩，把殘差的空間平均改成加權平均。
     `None`（預設）時逐位元等同原本的 `.mean()`。
-
-    為什麼會有這個參數：`runs/ig_probe/by_region_*.csv` 量到**原圖殘差的 64%
-    落在受保護主體自己的 latent token 上**，而主體只佔 53% 的面積。均勻平均
-    等於把預算平均花在整張畫面上，其中將近一半花在對「主體會不會被編輯」
-    影響較小的地方。把 `weight` 設成主體遮罩，就是要求最佳化只對那些 token
-    負責。**這是消融，不是預設**——`--ig-weight uniform` 仍是主線。
 
     `text_embeds`：(K, L, D) 的一疊文字嵌入，每一步隨機抽一個當文字條件，
     也就是對**攻擊指令的分布**取期望（EOT）。`None`（預設）時一律用空字串，
@@ -184,6 +158,18 @@ def make_image_guidance_loss(
         k = int(torch.randint(text_embeds.shape[0], (1,), generator=g))
         return text_embeds[k:k + 1].to(dtype)
 
+    if norm_eps <= 0:
+        raise ValueError("norm_eps 必須為正，它是分母的下界守門")
+
+    def _scale(z_img: torch.Tensor) -> torch.Tensor:
+        """`normalise` 開著時的分母：影像條件自己的能量。
+
+        分母**不能** detach：detach 之後梯度看不到分母，縮小影像仍然有利。
+        """
+        if not normalise:
+            return z_img.new_tensor(1.0)
+        return z_img.pow(2).mean() + norm_eps
+
     z_src = None
     if zt_mode == "diffuse_src":
         with torch.no_grad():
@@ -204,10 +190,6 @@ def make_image_guidance_loss(
     def make_fixed(n_draws: int, eval_seed: int):
         """回傳一個**決定性**的評估函數：抽樣一次就固定，之後每次呼叫都相同。
 
-        存在的理由是收斂判定。訓練用的損失每一步重抽 `(t, eps)`，逐步值本來
-        就會抖 0.16–0.61（實測），那是取樣變異不是參數在漂；拿它判收斂會判錯，
-        本專案已經犯過一次。評估必須把噪聲固定住，曲線才讀得出趨勢。
-
         回傳的函數接受第二個選用參數 `weight`：一張 (1,1,H,W) 的**像素域**
         軟遮罩，會被降到 latent 解析度當空間權重，於是同一組固定抽樣可以
         問「殘差落在畫面的哪一塊」。`weight=None` 時走 `.mean()`，
@@ -218,6 +200,9 @@ def make_image_guidance_loss(
         g2 = torch.Generator(device="cpu").manual_seed(int(eval_seed))
         steps_fixed = [int(torch.randint(t_min - 1, t_max, (1,), generator=g2))
                        for _ in range(n_draws)]
+        # 建立時固定 prompt；噪聲待 latent 形狀已知後只產生一次並快取。
+        emb_dtype = null_emb.dtype if text_embeds is None else text_embeds.dtype
+        embeds_fixed = [_pick_emb(g2, emb_dtype) for _ in range(n_draws)]
         eps_fixed = [None] * n_draws
 
         def fixed(x_def01: torch.Tensor, eval_weight=_INHERIT) -> torch.Tensor:
@@ -236,12 +221,12 @@ def make_image_guidance_loss(
                     a = abar[step].to(z_img.dtype)
                     z_t = z_src.to(z_img.dtype) * a.sqrt() + eps * (1.0 - a).sqrt()
                 tt = torch.tensor([step], device=device, dtype=torch.long)
-                emb = _pick_emb(g2, z_t.dtype)
+                emb = embeds_fixed[k].to(z_t.dtype)
                 base = unet(torch.cat([z_t, torch.zeros_like(z_t)], dim=1), tt,
                             encoder_hidden_states=emb).sample
                 cond = unet(torch.cat([z_t, z_img], dim=1), tt,
                             encoder_hidden_states=emb).sample
-                term = _weighted_mean((cond - base).pow(2), w)
+                term = _weighted_mean((cond - base).pow(2), w) / _scale(z_img)
                 total = term if total is None else total + term
             return total / len(steps_fixed)
 
@@ -264,7 +249,7 @@ def make_image_guidance_loss(
                             tt, encoder_hidden_states=emb).sample.detach()
             cond = unet(torch.cat([z_t, z_img], dim=1), tt,
                         encoder_hidden_states=emb).sample
-            term = _weighted_mean((cond - base).pow(2), weight)
+            term = _weighted_mean((cond - base).pow(2), weight) / _scale(z_img)
             total = term if total is None else total + term
         return total / samples
 

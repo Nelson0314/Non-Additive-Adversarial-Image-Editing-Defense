@@ -1,8 +1,5 @@
 """`MetricSuite.semantic_multi`：一張影像對多個 prompt。
 
-2026-08-08 新增，動機是類別 margin 這個讀出量
-（`RESULTS_2026-08-08` §9）：
-
     margin(y) = SigLIP(y, 目標類) − SigLIP(y, 原類)
 
 本檔**不載入 CLIP／SigLIP 權重**。既有的 `test_suite_pairwise.py` 只碰
@@ -46,7 +43,9 @@ def test_空的prompt清單直接拋出(monkeypatch):
 
 def test_semantic_multi的回傳以prompt為鍵(monkeypatch):
     """margin 的算法是取兩個 prompt 的差，故鍵必須是 prompt 本身。
-    以位置索引回傳會讓呼叫端在 prompt 順序改變時取到錯的那一個而無症狀。"""
+
+    以位置索引回傳會讓呼叫端在 prompt 順序改變時取到錯的那一個而無症狀。
+    """
     s = MetricSuite()
     calls = []
 

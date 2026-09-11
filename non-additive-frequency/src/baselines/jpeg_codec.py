@@ -23,17 +23,10 @@ arXiv:2504.17894 §3.3 與 §4.2。論文把 JPEG 編碼寫成 `JPEG_E`、解碼
     scale = 200 - 2Q      (Q >= 50)
     table = clamp((base * scale + 50) / 100, 1, 255)    ← 整數除法
 
-`tests/test_jpeg_codec.py` 用 PIL 實際存一張 JPEG、把 `img.quantization`
-讀回來逐格比對，不是照抄公式就算數（實測八個品質全部逐格相同）。
-
 色度次取樣取 4:2:0（論文的參數量 `O(3HW/2)` 只有在 4:2:0 下才成立：
 `HW + 2·(HW/4) = 3HW/2`）。上取樣用 `bilinear` 且 `align_corners=False`
 ——這與 libjpeg 的 `h2v2_fancy_upsample` 是同一個濾波器：輸出像素落在輸入
 座標的 ±0.25 處，可分離的權重恰為 9/16、3/16、3/16、1/16。
-
-**往返不會逐位等於 PIL**：libjpeg 用整數近似 IDCT（islow）、PIL 會把輸出
-四捨五入成 uint8，而本檔走浮點。實測差在 32 dB 以上，遠優於兩者對原圖的
-重建誤差，足以抓出色彩矩陣／次取樣／量化表寫錯這類系統性錯誤。
 
 值域
 ────────────────────────────────────────────────────────────────────
@@ -127,8 +120,10 @@ def rgb_to_ycbcr(x255: torch.Tensor) -> torch.Tensor:
 
 def ycbcr_to_rgb(y255: torch.Tensor) -> torch.Tensor:
     """`rgb_to_ycbcr` 的逆。**不是精確互逆**：JFIF 公布的正逆常數各自四捨五入
+
     到小數第六位，兩者只互逆到 1.2e-6（`[0,255]` 上約 3e-4）。改用
-    `inv(forward)` 可以讓往返精確，但那樣就偏離 libjpeg 了。"""
+    `inv(forward)` 可以讓往返精確，但那樣就偏離 libjpeg 了。
+    """
     m = torch.tensor(_YCC2RGB, device=y255.device, dtype=y255.dtype)
     return torch.einsum("ij,njhw->nihw", m, y255 - _offset(y255))
 
@@ -250,6 +245,7 @@ def quantize_ste(coef: torch.Tensor, table: torch.Tensor) -> torch.Tensor:
 
 def jpeg_roundtrip_ste(x01: torch.Tensor, quality: float) -> torch.Tensor:
     """完全可微的 JPEG 往返。**前向值逐位元等於 `jpeg_roundtrip`**，差別只在
+
     反向——`round()` 被當成恆等。
 
     值域、色彩空間、次取樣、量化表全部與 `jpeg_encode`／`jpeg_decode` 共用，
@@ -274,9 +270,7 @@ def jpeg_roundtrip_ste(x01: torch.Tensor, quality: float) -> torch.Tensor:
 
 
 def jpeg_roundtrip(x01: torch.Tensor, quality: float) -> torch.Tensor:
-    """`JPEG_D(JPEG_E(x))`。**這就是 DCT-Shield 在 δ=0 時的輸出**，也就是它的
-    失真地板——與紋理重相位 θ=0 時逐位等於原圖不同。實測七張平均在
-    Q=0.95 上 DISTS 0.0022、LPIPS 0.0299、PSNR 42.25。"""
+    """`JPEG_D(JPEG_E(x))`。**這就是 DCT-Shield 在 δ=0 時的輸出**，也就是它的"""
     return jpeg_decode(jpeg_encode(x01, quality), quality)
 
 

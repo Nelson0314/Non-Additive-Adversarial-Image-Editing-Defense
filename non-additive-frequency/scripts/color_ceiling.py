@@ -31,7 +31,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 ARMS = ('chroma_bounded', 'chroma_isometric', 'region_palette', 'collision',
-        'collision_region', 'undefended')
+        'collision_region', 'search', 'undefended')
 
 # CSV 的合約。欄名沿用 `runs/objective_pilot/` 的字彙，兩批才並列得起來。
 COLUMNS = [
@@ -42,6 +42,8 @@ COLUMNS = [
     'palette_id', 'palette_id_second',
     'effective_gain_max', 'effective_gain_min',
     'rotation_solved', 'rotation_hf_at_solve', 'rotation_hf_monotone',
+    'search_budget', 'search_evaluations', 'search_score',
+    'search_rotation_deg', 'search_amplitude', 'search_objective',
     'edit_lpips',
     'input_psnr', 'input_dists',
     'final_psnr', 'final_dists', 'final_deltaE00',
@@ -144,6 +146,9 @@ def build_param(arm, x01, *, support, target_mean, target_cov, blur_sigma,
         # 長度被保住，梯度幾乎只剩 sigma 那一項；容許收縮（奇異值 ≤ 1）才推得動。
         # 與 `chroma_bounded` 用同一個參數化，兩者的差別因此只有目標函數。
         return ChromaAffineParam(target_mean, target_cov, **common)
+    if arm == 'search':
+        return ChromaAffineParam(target_mean, target_cov, isometric=True,
+                                 rotation_deg=rotation_deg, **common)
     if arm == 'collision_region':
         # 碰撞目標配上**能把兩塊區域分開搬**的參數化。
         #
@@ -223,6 +228,43 @@ def gate_row_attack(suite, x01, edit_orig, instruction, device=None):
     out['gate_clip_s'] = round(float(d['clip']), 5)
     out['gate_siglip_s'] = round(float(d['siglip']), 5)
     return out
+
+
+def search_objective(suite, x01, edit_orig, edit_def, instruction, device,
+                     weight_identity=1.0, weight_direction=1.0):
+    from src.metrics.identity import subject_identity_row
+    read = subject_identity_row(x01, edit_orig, edit_def, device=device)
+    ident = read['subject_id_def']
+    ident = 0.0 if ident in ('', 'nan') else float(ident)
+    d = suite.direction_similarity(x01, edit_def, instruction)
+    return weight_identity * ident + weight_direction * float(d['clip'])
+
+
+def run_search(ip2p, suite, param, x01, instruction, spec, device,
+               attack_steps, eval_seed, hf_limit):
+    from src.defense.color_search import Knob, apply_knobs, evolution_search
+    from src.defense.lowfreq_color import highfreq_report
+
+    knobs = [Knob('rotation_deg', 0.0, 180.0), Knob('amplitude', 0.05, 1.0)]
+    clean = ip2p.edit(x01, instruction, seed=eval_seed, steps=attack_steps,
+                      s_t=spec['s_t'], s_i=spec['s_i'])
+
+    def evaluate(values):
+        apply_knobs(param, values, x01, spec['seed'])
+        y = param.render(x01).detach()
+        if highfreq_report(x01, y)['hf_ratio_rgb_total'] > hf_limit:
+            return 1e3
+        ed = ip2p.edit(y, instruction, seed=eval_seed, steps=attack_steps,
+                       s_t=spec['s_t'], s_i=spec['s_i'])
+        return search_objective(suite, x01, clean, ed, instruction, device)
+
+    out = evolution_search(knobs, evaluate,
+                           budget=spec.get('search_budget', 24),
+                           children=spec.get('search_children', 4),
+                           sigma0=spec.get('search_sigma0', 0.35),
+                           seed=spec['seed'])
+    apply_knobs(param, out.best, x01, spec['seed'])
+    return out, clean
 
 
 def semantic_row(suite, edit_orig, edit_def, instruction):
@@ -310,7 +352,7 @@ def main():
     from src.defense.collision_loss import make_collision_loss, ring_of
     from src.defense.color_amplitude import (delta_e00, solve_amplitude,
                                              solve_rotation)
-    from src.defense.param_pgd import run_param_pgd
+    from src.defense.color_search import search_parameter
     from src.defense.naturalness_gate import gate_row
     from src.defense.ncf_library import sha256
     from src.defense.ncf_runner import ncf_support
@@ -394,6 +436,25 @@ def main():
                 print(f"  {tag} {arm} 自適應角度 {rot['rotation_deg']} "
                       f"hf {rot['hf_ratio']} 單調={rot['monotone']}", flush=True)
             trained, closs = {}, None
+            if arm == 'search':
+                if args.no_attack:
+                    raise SystemExit('search 臂的目標要跑真的編輯，不能用 --no-attack')
+                res, _ = run_search(ip2p, suite, param, x, cell['instruction'],
+                                    spec, device, attack_steps,
+                                    spec['eval_seeds'][0],
+                                    spec.get('hf_limit', 1.0))
+                trained = {'search_budget': spec.get('search_budget', 24),
+                           'search_evaluations': res.evaluations,
+                           'search_score': round(res.best_score, 6),
+                           'search_rotation_deg': round(
+                               res.best.get('rotation_deg', float('nan')), 3),
+                           'search_amplitude': round(
+                               res.best.get('amplitude', float('nan')), 5),
+                           'search_objective': 'subject_id_def+clip_s'}
+                print(f"  {tag} search {res.evaluations} 次評估 "
+                      f"最佳 {res.best_score:.4f} "
+                      f"角度 {trained['search_rotation_deg']} "
+                      f"幅度 {trained['search_amplitude']}", flush=True)
             if arm in ('collision', 'collision_region'):
                 region = collision_region(x, cell['region'], clothes,
                                           device=device)
@@ -401,23 +462,28 @@ def main():
                 closs = make_collision_loss(region, ring)
                 param.set_amplitude(1.0)
                 first = float(closs(param.render(x)))
-                run_param_pgd(x, param, closs,
-                              steps=spec['collision_steps'],
-                              update=spec['collision_update'],
-                              step_size=spec['step_size_ratio'] * float(param.radius),
-                              seed=cell['seed'], momentum=spec['momentum'])
-                last = float(closs(param.render(x)))
+                res = search_parameter(param, x, closs,
+                                       budget=spec['collision_budget'],
+                                       children=spec.get('search_children', 4),
+                                       sigma0=spec.get('search_sigma0', 0.35),
+                                       seed=cell['seed'])
+                last = float(res.best_score)
                 trained = {'collision_first': round(first, 6),
                            'collision_last': round(last, 6),
-                           'collision_steps': spec['collision_steps'],
+                           'collision_steps': res.evaluations,
                            'collision_region_area': round(float(region.mean()), 6),
                            'collision_ring_area': round(float(ring.mean()), 6)}
                 print(f"  {tag} collision {first:.4f} -> {last:.4f}", flush=True)
 
-            for target in sorted(spec['delta_e_targets'],
-                                 key=lambda v: float('inf') if v == 'max_reach'
-                                 else float(v)):
-                if target == 'max_reach':
+            targets = (['searched'] if arm == 'search'
+                       else sorted(spec['delta_e_targets'],
+                                   key=lambda v: float('inf')
+                                   if v == 'max_reach' else float(v)))
+            for target in targets:
+                if target == 'searched':
+                    solved = {'amplitude': param.amplitude, 'reached': True,
+                              'delta_e00': delta_e00(x, param.render(x), support)}
+                elif target == 'max_reach':
                     # 各臂自己走得到的最遠處。不二分——先前那批的 ΔE00 30 在
                     # 每一格都不可達，等於白跑一個目標；改成直接取幅度 1.0，
                     # 實際到了多遠由 `support_deltaE00` 記錄。**這個點不是

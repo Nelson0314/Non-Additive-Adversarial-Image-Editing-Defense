@@ -73,12 +73,6 @@ def test_可微性宣告():
 def test_相依缺席時_available_為假(tmp_path):
     """缺席必須由測試自己構造，不能靠「這台機器剛好沒裝」。
 
-    2026-08-06 修正。before：`assert Purifier("diffpure").available is False`
-    ——不傳 `ckpt`，於是 `diffpure_checkpoint_path` 退回環境變數
-    `DIFFPURE_CKPT`。本機沒裝所以通過，而在**已依 OPERATIONS 的遠端段 裝好
-    DiffPure 的執行機上必定失敗**（實測於 basic-1）。那等於用測試把
-    「環境不完整」釘成正確狀態，方向剛好相反。
-
     after：明給一個不存在的路徑。這樣測的是 `has_diffpure_weights` 的
     判定邏輯本身，兩種環境下結果相同。
     """
@@ -127,9 +121,10 @@ def test_crop_resize_比例過大時拋出():
 
 
 def test_diffpure_缺權重時拋出且訊息寫明缺什麼(monkeypatch):
-    """2026-08-05 起 `diffpure_real` 已實作（guided 版，逐行對應
-    `runners/diffpure_guided.py`），故缺的不再是程式而是 2.2 GB 的檢查點。
-    訊息必須指得到取得方式，否則接手的人只知道「不能跑」。"""
+    """    `runners/diffpure_guided.py`），故缺的不再是程式而是 2.2 GB 的檢查點。
+
+    訊息必須指得到取得方式，否則接手的人只知道「不能跑」。
+    """
     monkeypatch.delenv(dp.DIFFPURE_CKPT_ENV, raising=False)
     with pytest.raises(FileNotFoundError) as e:
         Purifier("diffpure", dp.DIFFPURE_T_DEFAULT).evaluate(_img(4))
@@ -183,7 +178,9 @@ def test_adverse_cleaner_參數與上游_16_行原碼一致():
 
 def test_adverse_cleaner_缺套件時拋出並寫明要裝什麼(monkeypatch):
     """把 `cv2.ximgproc` 從模組表上遮掉（設為 None 會使 import 拋 ImportError），
-    藉此在套件存在的環境中也能驗證缺套件的分支，不必 skip。"""
+
+    藉此在套件存在的環境中也能驗證缺套件的分支，不必 skip。
+    """
     import sys
 
     monkeypatch.setitem(sys.modules, "cv2.ximgproc", None)
@@ -218,10 +215,7 @@ class _StubDecoderOutput:
 
 
 class _StubVAE(nn.Module):
-    """替代 SD VAE 的最小重建模組（1×1 卷積），只用於驗證 IMPRESS 的介面與數值流程。
-
-    它不代表真實 VAE 的重建誤差，故不可用來下任何關於淨化強度的結論。
-    """
+    """替代 SD VAE 的最小重建模組（1×1 卷積），只用於驗證 IMPRESS 的介面與數值流程。"""
 
     def __init__(self):
         super().__init__()
@@ -395,6 +389,7 @@ def test_eval_sweep_含主組新算子與_resize_對照():
 
 def test_DiffPure的設定與檢查點大小相符():
     """`DIFFPURE_MODEL_CONFIG` 若與檢查點不配對，`load_state_dict` 會以
+
     形狀不符中止——那還算好的；更糟的是形狀碰巧相符而權重落到別的層，
     淨化照樣跑得完、輸出照樣是一張圖，只是那不是 DiffPure。
 
@@ -420,7 +415,9 @@ def test_DiffPure的設定與檢查點大小相符():
 
 def test_DiffPure缺權重或缺套件都算不可用(monkeypatch, tmp_path):
     """兩者都要檢查。只檢查其一時，缺的那一項會在跑到那一格才炸，
-    而那已經是數小時機時之後。"""
+
+    而那已經是數小時機時之後。
+    """
     from src.purify import diffpure as D
 
     monkeypatch.delenv(D.DIFFPURE_CKPT_ENV, raising=False)
@@ -439,7 +436,9 @@ def test_DiffPure缺權重或缺套件都算不可用(monkeypatch, tmp_path):
 
 def test_DiffPure的環境變數會被讀到(monkeypatch, tmp_path):
     """路徑不寫進入庫檔案：GPU 機器與本機的路徑不同，寫死會讓
-    「這批資料用的是哪份權重」隨機器而變。"""
+
+    「這批資料用的是哪份權重」隨機器而變。
+    """
     from src.purify import diffpure as D
 
     p = tmp_path / "ckpt.pt"
@@ -457,10 +456,6 @@ def test_DiffPure缺檔時的訊息指得到處置方式(monkeypatch):
     assert "fetch_diffpure.py" in str(e.value)
     assert D.DIFFPURE_CKPT_ENV in str(e.value)
 
-
-# ---------------------------------------------------------------------------
-# 半精度輸入（2026-08-06，段 0 於 GPU 上實測後補）
-# ---------------------------------------------------------------------------
 
 @pytest.mark.parametrize("kind,strength", [
     ("identity", 0.0), ("jpeg", 75), ("quantize", 32),

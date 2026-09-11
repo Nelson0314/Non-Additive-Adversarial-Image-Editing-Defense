@@ -36,9 +36,6 @@ GrIDPure 需要額外的擴散模型推論，成本遠高於上列各項，列�
 | IMPRESS | `impress` | 直通 | 真實 | 官方 repo，PhotoGuard 情境參數；需 SDWrapper 與 LPIPS 後端 |
 | DiffPure | `diffpure` | 直通 | 真實 | 官方 repo，t=150；**缺檢查點，目前拋出** |
 | （對照）resize only | `resize_only` | 可微 | 同 | DiffPure 降升取樣的必要對照，見 `src/purify/diffpure.py` |
-
-每個算子的逐項出處查證見 `docs/_audit_purify.md`，裁決見
-`docs/reference/SOURCE_AUDIT.md` §9。凡標「我方指定」者不得寫成原論文設定。
 """
 
 import io
@@ -94,14 +91,7 @@ def quantize_real(x: torch.Tensor, levels: int) -> torch.Tensor:
 
 
 def straight_through(x: torch.Tensor, hard: torch.Tensor) -> torch.Tensor:
-    """前向取 `hard`、反向視為對 `x` 的恆等映射。
-
-    寫法必須是 `hard.detach() + (x - x.detach())` 而不是常見的
-    `x + (hard - x).detach()`。兩者在實數上等價，在 float32 上不等價：
-    後者要算 `x + hard - x`，兩次捨入後不保證等於 `hard`，實測 JPEG 上
-    確實出現逐元素差異。前者的 `x - x.detach()` 逐元素精確為 0，故前向
-    位元等同於 `hard`。
-    """
+    """前向取 `hard`、反向視為對 `x` 的恆等映射。"""
     return hard.detach() + (x - x.detach())
 
 
@@ -133,13 +123,7 @@ def jpeg_real(x: torch.Tensor, quality: int) -> torch.Tensor:
 
 
 def jpeg_proxy(x: torch.Tensor, quality: int) -> torch.Tensor:
-    """JPEG 的直通估計：前向呼叫真實編解碼，反向視為恆等。
-
-    此代理的梯度是錯的，而非近似的：真實 JPEG 的區塊 DCT 量化在梯度
-    上與恆等映射毫無關係。採用它的理由是前向數值完全正確，優化過程看到的
-    是真實的 JPEG 輸出；代價是梯度方向只反映「淨化後的圖長什麼樣」而非
-    「淨化本身如何反應擾動」。此限制須在報告中明列。
-    """
+    """JPEG 的直通估計：前向呼叫真實編解碼，反向視為恆等。"""
     return straight_through(x, jpeg_real(x, quality))
 
 
@@ -195,8 +179,6 @@ def jpeg_then_resize(
 # DIA 補充材料 §B.2：`We cropped 10% of each image and then resized it to match
 # the model's input requirements.` 只有「10%」有來源。
 CROP_FRACTION_DIA = 0.10
-# 以下三項 DIA 全文未指定，為我方指定（`reference/SOURCE_AUDIT.md` §9 第 5 項）：
-# 中心裁切、每邊各裁 10%、bicubic 升回原尺寸。
 CROP_MODE = "center"
 CROP_INTERPOLATION = "bicubic"
 CROP_ANTIALIAS = True
@@ -229,16 +211,7 @@ def crop_resize(
     return F.interpolate(cropped, size=(h, w), mode=mode, antialias=antialias).clamp(0, 1)
 
 
-
 # ---------------------------------------------------- crop_resize 的兩個分解對照
-
-# 中心裁切再縮放回原尺寸，其幾何效果是**以中心為不動點的放大**，不是平移：
-# 實測亮點由 64 搬到 16、由 448 搬到 496，而 256 不動，位移正比於到中心的距離。
-# 故 `crop_resize` 同時做了兩件事——重取樣（插值與混疊）與幾何放大——而下面
-# 兩個算子各自只做一件，用來判定殘差是被哪一件打掉的。
-#
-# **兩者都不是文獻裡的淨化算子**，是本專案為了歸因而設的對照，不得進入
-# 頭對頭的淨化器清單。
 
 
 def resample_roundtrip(
@@ -265,9 +238,6 @@ def resample_roundtrip(
 def shift_only(x: torch.Tensor, pixels: int = 51) -> torch.Tensor:
     """平移 `pixels` 像素，**不重取樣、不縮放**，邊界以反射填補。
 
-    位移取整數像素，故內容逐位元搬移、沒有插值損失——量到的純粹是「對位被
-    破壞」這一件事。預設 51 是 `crop_resize(0.10)` 在 512² 上裁掉的邊寬。
-
     中心裁切本身**不含平移**（中心是不動點），所以這一支不是 `crop_resize`
     的分解項；它回答的是另一個問題：攻擊方若不置中裁切，我們掉多少。
     """
@@ -285,10 +255,6 @@ def shift_only(x: torch.Tensor, pixels: int = 51) -> torch.Tensor:
     return padded[..., top:top + h, left:left + w]
 
 
-# FaceLock（CVPR 2025，arXiv:2411.16832）的抗淨化表把旋轉列為三個算子之一：
-# "Rotate denotes random rotation between (-10, 10) degrees"。EditShield
-# （ECCV 2024）的 EOT 族也含旋轉，角度是 5°。**本專案先前一個旋轉算子都沒有**，
-# 故那兩篇的旋轉欄無法對照（`docs/BASELINES.md` 已記為缺口）。
 ROTATE_DEGREES_FACELOCK = 10.0
 
 
@@ -297,29 +263,12 @@ ROTATE_DEGREES_FACELOCK = 10.0
 ROTATE_DEGENERATE_DEGREES = 1.0
 
 
-#: 角度取**區間端點**而不是抽樣。FaceLock 原文寫的是
-#: "random rotation between (-10, 10)"，那是一個抽樣；單一 seed 抽出的角度
-#: 可能接近零（`seed=0` 抽到 −0.075°，512 px 影像最遠角落只位移 0.33 px），
-#: 於是那一欄量到的是恆等映射卻掛著 `rotate10` 的名字。
-#:
-#: **改成固定取 +degrees**：確定性、可重現、而且是該區間內最強的一個，
-#: 屬於 `SOURCE_AUDIT` 意義下的 `modified_from_paper`，出表時要標。
 ROTATE_FIXED = True
 
 
 def rotate_angle(degrees: float = ROTATE_DEGREES_FACELOCK,
                  seed: int = None) -> float:
-    """實際會套用的角度。**不轉圖，只回報角度。**
-
-    `ROTATE_FIXED` 為真時直接回傳 `degrees`，不抽樣——見該常數的說明。
-
-    分出來是因為單一 seed 抽出的角度**可能接近零**：`degrees=10`、`seed=0`
-    抽到 −0.075°，512 px 影像最遠角落只位移 0.33 px，整張圖都在次像素量級。
-    那一格量到的是恆等映射，卻掛著 `rotate10` 的名字出現在表上——與
-    `identity` 欄並列時看不出異常，只看得到「旋轉不傷防禦」。
-
-    要在派工前擋下這種抽樣，必須先問得到角度而不必先轉一張圖。
-    """
+    """實際會套用的角度。**不轉圖，只回報角度。**"""
     if ROTATE_FIXED:
         return float(degrees)
     g = torch.Generator(device="cpu")
@@ -336,17 +285,10 @@ def rotate_random(x: torch.Tensor, degrees: float = ROTATE_DEGREES_FACELOCK,
     使幾何類算子彼此可比）與補零（旋轉後四角必然離開原畫面，補零是
     `torchvision.RandomRotation` 的預設行為）。移植報表上必須標
     `modified_from_paper`。
-
-    角度由 `seed` 決定，同 seed 必得同一個角度——抗淨化的兩側（防禦圖與
-    參照）要吃到**同一個**旋轉，否則量到的是兩個不同的取景。
     """
     if x.dim() != 4:
         raise ValueError(f"需要 (B,C,H,W) 張量，收到 {tuple(x.shape)}")
     angle = rotate_angle(degrees, seed)
-    # 0 度必須是**恆等映射**。`affine_grid` 產生的正規化座標即使在 0 度也不會
-    # 精確落在像素中心，`grid_sample` 會回傳一張帶插值誤差的圖——實測與原圖
-    # 差 1e-3 量級。「不旋轉」那一格不該帶進插值損失，故直接短路，
-    # 與 `gaussian_blur(sigma<=0)`、`shift_only(pixels==0)` 的處置一致。
     if angle == 0.0:
         return x
     rad = math.radians(angle)
@@ -361,9 +303,6 @@ def rotate_random(x: torch.Tensor, degrees: float = ROTATE_DEGREES_FACELOCK,
 
 # ------------------------------------------------------------- CNN 去噪（替代）
 
-# DiffVax 只引 NTIRE 2023 挑戰賽報告、未指名模型；冠軍 IPTV2（Team Apply AI）的
-# 程式碼與權重皆未公開（`_audit_purify.md` §4.3）。依 `SOURCE_AUDIT` §9 第 3 項，
-# 改用公開的強去噪器替代，暫定 Restormer。**不得稱為 NTIRE 2023 冠軍模型。**
 CNN_DENOISE_SUBSTITUTE_ARCH = "Restormer (swz30/Restormer)"
 CNN_DENOISE_SUBSTITUTE_CKPT = "gaussian_color_denoising_sigma50.pth"
 CNN_DENOISE_SIGMA = 50  # NTIRE 2023 挑戰賽的雜訊等級（[0,255] 尺度），非盲
@@ -483,7 +422,6 @@ KINDS = (
     "diffpure",
     "resize_only",
     "jpeg_then_resize",
-    # DEC-025 的頻率輪新增：兩個針對相位／頻域設計的淨化器
     "gridpure",
     "fdpure",
     # crop_resize 的分解對照。**不是文獻裡的淨化算子**，只用於歸因，
@@ -500,32 +438,6 @@ KINDS = (
     "clahe",
 )
 
-# 改變像素格點或取景的算子。**量測協定對這一類換參照**（`DECISIONS.md` 的
-# 「幾何類算子換參照」）：這一類的 `effect` 取
-# `LPIPS(編輯(p(原圖)), 編輯(p(防禦圖)))`，其餘算子仍取
-# `LPIPS(編輯(原圖), 編輯(p(防禦圖)))`。理由是取景／格點的差異本身就會把兩張
-# 編輯推得很開，與有沒有防禦無關，而那一份位移大到會把讀數吃光
-# （`crop_resize0.1` 的舊協定空白地板 0.5506，LPIPS 的飽和值只有 0.772）。
-#
-# 逐一列出成員與它在裡面的理由，**不用字首猜**：
-#
-#   crop_resize        中心裁切再放大回原尺寸。幾何上是以中心為不動點的
-#                      1.2488× 放大，**取景改變**（畫面外圈被丟掉），
-#                      同時像素格點被重取樣。
-#   resample_roundtrip 降到 inner 再升回原尺寸。取景不變，但**像素格點**
-#                      被重建一次（取樣率與 crop_resize(0.10) 相同）。
-#   resize_only        DiffPure 的降升取樣對照，格點改變的理由同上。
-#   shift_only         整數像素平移。內容逐位元搬移、沒有插值損失，
-#                      **取景改變**（邊界由反射填補）。
-#   jpeg_then_resize   JPEG(q) 之後 0.5× Lanczos 降採樣再升回原尺寸。
-#                      後半就是 `resize_only` 那一件事，而且倍率更激進
-#                      （0.5× 對 0.80×），故格點改變的程度不低於上列任何一個。
-#                      前半的 JPEG 是內容破壞而非幾何，但它不構成排除的理由：
-#                      換參照之後兩側都吃同一個算子，JPEG 的破壞在逐影像、
-#                      逐種子的層級自行抵消，不必再靠平均地板去扣。反過來若
-#                      把它留在非幾何類，同一個 0.5× 重取樣會在
-#                      `resize_only` 那一欄算幾何、在這一欄算非幾何，兩欄
-#                      就不可並列。
 GEOMETRIC_KINDS = frozenset({
     "crop_resize",
     "resample_roundtrip",
@@ -563,7 +475,9 @@ def kind_of_label(name: str) -> str:
 
 def label_is_geometric(name: str) -> bool:
     """標籤是否屬於幾何類。出表的程式手上只有 CSV 的 `purifier` 欄，
-    沒有 `Purifier` 物件，故由標籤還原 `kind` 之後再判定。"""
+
+    沒有 `Purifier` 物件，故由標籤還原 `kind` 之後再判定。
+    """
     return kind_of_label(name) in GEOMETRIC_KINDS
 
 
@@ -604,10 +518,8 @@ class Purifier:
     @property
     def differentiable(self) -> bool:
         """代理是否提供了真實梯度。走直通估計者（jpeg、quantize、
-        adverse_cleaner、impress、diffpure）為 False。
 
-        `cnn_denoise_substitute` 也是 False：替代對象未定案、權重未到位，
-        在能實際跑之前不宣稱其梯度性質。
+        adverse_cleaner、impress、diffpure）為 False。
         """
         return self.kind in _DIFFERENTIABLE
 
@@ -684,12 +596,6 @@ class Purifier:
     def _run(self, x: torch.Tensor) -> torch.Tensor:
         """在 fp32 上執行算子，回傳時轉回輸入的 dtype。
 
-        **算子一律在 fp32 上做。** jpeg、quantize、crop_resize、
-        adverse_cleaner 與 CNN 去噪都要經 numpy 或 OpenCV，而那兩者沒有
-        bfloat16：`x.cpu().numpy()` 直接以
-        `TypeError: Got unsupported ScalarType BFloat16` 中止
-        （2026-08-06 於段 0 的 N3 stage2 實測）。
-
         只有生成路徑會餵進半精度：warp 的輸出沿用 `x01` 的 fp32，而 apa
         走 `decode(...)`，在 bf16 下產出的就是 bf16。也就是說這條路徑
         只有 N3 會踩到，N1／N2 不會——差異來自注入位置，不是來自算子。
@@ -742,9 +648,6 @@ def main_set(sd=None, seed: int = 0) -> List[Purifier]:
     - CNN 去噪：我方替代，非 NTIRE 2023 冠軍
     - IMPRESS：PhotoGuard 情境那組預設，需傳入 `sd`
     - DiffPure：t = 150（ImageNet）
-
-    `resize_only` **不在主組六個之內**，它是 DiffPure 解析度處置的對照
-    （`SOURCE_AUDIT` §9 第 4 項），列在 `eval_sweep` 中一併量測。
     """
     return [
         Purifier("jpeg", 75),

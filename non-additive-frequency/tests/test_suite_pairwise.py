@@ -1,9 +1,4 @@
-"""E31 Task 6：`MetricSuite.pairwise` 的兩個新欄位。
-
-與文獻的預算對比需要 RMS 這一軸。本專案在 τ=0.10 的實測是 LPIPS 0.0856、
-RMS 0.0319、L∞ 0.373——L∞ 是文獻 ε=16/255 的六倍而 LPIPS 是其三分之一，
-只報單一軸的對比會失真。
-"""
+"""E31 Task 6：`MetricSuite.pairwise` 的兩個新欄位。"""
 
 import torch
 
@@ -30,8 +25,6 @@ def test_完全相同時兩欄皆為零():
 
 
 def test_兩個新鍵都登記了方向():
-    # 報告與繪圖依 HIGHER_IS_BETTER 決定「較好」的方向；漏登記會讓新欄位
-    # 在報告端被當成「越高越好」而畫反。
     assert HIGHER_IS_BETTER["rms"] is False
     assert HIGHER_IS_BETTER["frac_gt_16_255"] is False
 
@@ -42,14 +35,7 @@ def test_兩個新鍵都登記了方向():
 
 
 def test_成對指標接受計算精度的張量():
-    """指標量的是影像，不是產生它的計算精度。
-
-    2026-08-06：走生成路徑的條件（N3／site apa）的 `x_def` 來自
-    `gen.generate`，dtype 是本批的計算精度；`entry.x01` 是 fp32。
-    `piq` 不做隱式轉型，混著餵會以
-    `RuntimeError: expected scalar type BFloat16 but found Float` 中止，
-    而該呼叫（`_finish_train` 的 `pairwise`）在整格訓練跑完之後才發生。
-    """
+    """指標量的是影像，不是產生它的計算精度。"""
     s = MetricSuite()
     a = torch.rand(1, 3, 64, 64)
     for dtype in (torch.float32, torch.float16, torch.bfloat16):

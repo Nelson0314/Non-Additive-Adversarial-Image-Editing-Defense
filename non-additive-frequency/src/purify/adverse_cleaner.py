@@ -1,7 +1,5 @@
 """Adverse Cleaner 淨化算子。
 
-出處與參數查證見 `docs/_audit_purify.md` §1。摘要：
-
 - DIA（ICCV 2025）參考文獻 [33] 指向 `lllyasviel/AdverseCleaner`，該 repo 已 404。
   演算法由兩個獨立鏡像（`shidoto/AdverseCleaner` 的 `clean.py`、
   `gogodr/AdverseCleanerExtension` 的 UI 預設值）交叉驗證，兩者七個參數一致。
@@ -35,7 +33,6 @@ from __future__ import annotations
 
 import torch
 
-# 以下七個常數全部來自 `clean.py`，不得調整（見 `_audit_purify.md` §1.3 表）
 BILATERAL_STEPS = 64
 BILATERAL_D = 5
 BILATERAL_SIGMA_COLOR = 8

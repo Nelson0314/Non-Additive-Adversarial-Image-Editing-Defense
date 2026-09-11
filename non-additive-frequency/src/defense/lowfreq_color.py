@@ -102,6 +102,18 @@ def gamut_scale(lab_l, ab_source, ab_mapped, tol=1e-4, iters=24):
 
 
 def _clamp_singular_values(m, max_gain):
+    """把奇異值夾進上界。**只在 `reset` 與 `project` 裡用，不在前向裡用。**
+
+    理由是這個運算會製造出會炸掉自己梯度的重根：兩個奇異值都超過上界時，
+    `clamp(max=g)` 把它們夾成**完全相等的 g**，而 SVD 的反向傳播含
+    `1/(s_i^2 - s_j^2)`，重根即除以零。實測 `RegionPaletteParam` 的一塊區域
+    T0 奇異值被夾成 1.000000/1.000000 之後，第一次 backward 就是 nan，訓練
+    目標由 87.66 直接變 nan。
+
+    約束因此改由 `project()` 在每步之後套用（那本來就是 PGD 的形狀），前向
+    只用 `T0 + delta`。未訓練的臂逐位元不變——它們的 `delta` 是零，而 `T0`
+    在 `reset` 裡已經投影過。
+    """
     u, s, vh = torch.linalg.svd(m)
     return (u * s.clamp(max=max_gain)) @ vh
 
@@ -214,12 +226,11 @@ class ChromaAffineParam(NCFColorParam):
         幅度作用在色度的位移上（`raw_rgb`），不作用在矩陣上，因為插值的另一端
         是恆等而不是零。含幅度的那個矩陣是 `effective_chroma_matrix`。
 
-        等距臂投影到 O(2)（奇異值恰為 1），其餘只夾奇異值上界。
+        **前向不投影。** 約束由 `project()` 在每步之後套用，理由見
+        `_clamp_singular_values`：在前向做 SVD 會讓重根的梯度變成 nan。
+        `reset` 已經把 `T0_ab` 投影過，`delta` 是零時因此逐位元等同投影後的值。
         """
-        m = self.T0_ab + self.delta
-        if self.isometric:
-            return _project_orthogonal(m)
-        return _clamp_singular_values(m, self.max_gain)
+        return self.T0_ab + self.delta
 
     def effective_chroma_matrix(self):
         """含幅度插值之後真正作用在色度上的 2x2。
@@ -261,11 +272,18 @@ class ChromaAffineParam(NCFColorParam):
     @torch.no_grad()
     def project(self):
         self.delta.clamp_(-self.radius, self.radius)
-        if self.epsilon_lab is None:
-            return
-        sig = self.source_sigma[1:].to(self.delta)
-        effect = (self.delta * sig[None, :]).norm(dim=1)
-        self.delta.mul_((self.epsilon_lab / effect.clamp_min(1e-12)).clamp(max=1.)[:, None])
+        if self.epsilon_lab is not None:
+            sig = self.source_sigma[1:].to(self.delta)
+            effect = (self.delta * sig[None, :]).norm(dim=1)
+            self.delta.mul_(
+                (self.epsilon_lab / effect.clamp_min(1e-12)).clamp(max=1.)[:, None])
+        # 奇異值的約束作用在 `T0_ab + delta` 上，不是 `delta` 上，所以先合起來
+        # 投影再減回去。這一步搬到這裡而不是留在前向，理由見
+        # `_clamp_singular_values`。
+        m = self.T0_ab + self.delta
+        m = (_project_orthogonal(m) if self.isometric
+             else _clamp_singular_values(m, self.max_gain))
+        self.delta.copy_(m - self.T0_ab)
 
     @torch.no_grad()
     def diagnostics(self, x):
@@ -384,7 +402,9 @@ class RegionPaletteParam:
         ab = lab[:, 1:] - self.source_mean[1:].to(lab)[None, :, None, None]
         out = torch.zeros_like(ab)
         for k in range(len(self.regions)):
-            m = _clamp_singular_values(self.T0[k] + self.delta[k], self.max_gain)
+            # 前向不投影，理由見 `_clamp_singular_values`；約束由 `project()`
+            # 在每步之後套用。
+            m = self.T0[k] + self.delta[k]
             mapped = torch.einsum('ij,bjhw->bihw', m, ab)
             mapped = mapped + self.target_means[k].to(mapped)[None, :, None, None]
             out = out + self.weights[:, k:k+1] * mapped
@@ -407,11 +427,14 @@ class RegionPaletteParam:
     @torch.no_grad()
     def project(self):
         self.delta.clamp_(-self.radius, self.radius)
-        if self.epsilon_lab is None:
-            return
-        sig = self.source_sigma[1:].to(self.delta)
-        effect = (self.delta * sig[None, None, :]).norm(dim=2)
-        self.delta.mul_((self.epsilon_lab / effect.clamp_min(1e-12)).clamp(max=1.)[..., None])
+        if self.epsilon_lab is not None:
+            sig = self.source_sigma[1:].to(self.delta)
+            effect = (self.delta * sig[None, None, :]).norm(dim=2)
+            self.delta.mul_(
+                (self.epsilon_lab / effect.clamp_min(1e-12)).clamp(max=1.)[..., None])
+        for k in range(len(self.T0)):
+            m = _clamp_singular_values(self.T0[k] + self.delta[k], self.max_gain)
+            self.delta[k].copy_(m - self.T0[k])
 
     def state_dict(self):
         return {'delta': self.delta.detach().clone()}

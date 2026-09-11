@@ -76,3 +76,60 @@ def test_isometric_flag_appears_in_diagnostics():
     p = _param(True)
     p.reset(x, seed=0)
     assert p.diagnostics(x)['isometric'] == 1
+
+
+def test_clamping_equal_singular_values_does_not_poison_the_gradient():
+    """夾取會製造重根，而 SVD 的反向傳播在重根上除以零。
+
+    兩個奇異值都超過上界時 `clamp(max=g)` 把它們夾成**完全相等**的 g；
+    SVD 的 backward 含 `1/(s_i^2 - s_j^2)`，於是第一次 backward 就是 nan。
+    實測 `RegionPaletteParam` 的一塊區域被夾成 1.000000/1.000000 之後，
+    碰撞目標由 87.66 直接變 nan。約束因此搬到 `project()`，前向不做 SVD。
+    """
+    from src.defense.lowfreq_color import RegionPaletteParam
+    x = _image()
+    r = torch.zeros(1, 1, 64, 64)
+    r[:, :, 16:48, 8:32] = 1.0
+    # blur_sigma 要小於影像尺寸，否則高斯核比圖還寬。
+    regions = [(r, [60.0, 25.0, -20.0],
+                [[80.0, 0.0, 0.0], [0.0, 40.0, 0.0], [0.0, 0.0, 40.0]]),
+               ((1 - r).clamp(0, 1), [45.0, -18.0, 30.0],
+                [[60.0, 0.0, 0.0], [0.0, 25.0, 0.0], [0.0, 0.0, 25.0]])]
+    p = RegionPaletteParam(regions, support=torch.ones(1, 1, 64, 64),
+                           blur_sigma=6.0, radius=0.2, epsilon_lab=5,
+                           max_gain=1.0, gamut='soft')
+    p.reset(x, seed=0)
+    p.render(x).pow(2).mean().backward()
+    g = p.delta.grad
+    assert g is not None
+    assert not bool(torch.isnan(g).any()), '前向做 SVD 會讓重根的梯度變成 nan'
+
+
+def test_projection_enforces_the_gain_bound_after_a_step():
+    """約束搬到 `project()` 之後，每一步之後仍然成立。"""
+    from src.defense.lowfreq_color import ChromaAffineParam
+    x = _image()
+    p = ChromaAffineParam(
+        target_mean=[60.0, 25.0, -20.0],
+        target_cov=[[80.0, 0.0, 0.0], [0.0, 40.0, 0.0], [0.0, 0.0, 40.0]],
+        support=torch.ones(1, 1, 64, 64), radius=0.5, max_gain=1.0)
+    p.reset(x, seed=0)
+    with torch.no_grad():
+        p.delta.add_(torch.full_like(p.delta, 0.4))
+    p.project()
+    s = torch.linalg.svdvals(p.chroma_matrix())
+    assert float(s.max()) <= 1.0 + 1e-6
+
+
+def test_untrained_render_is_unchanged_by_moving_the_projection():
+    """delta 為零時前向等同投影後的值——未訓練的臂逐位元不變。"""
+    from src.defense.lowfreq_color import ChromaAffineParam, _clamp_singular_values
+    x = _image()
+    p = ChromaAffineParam(
+        target_mean=[60.0, 25.0, -20.0],
+        target_cov=[[80.0, 0.0, 0.0], [0.0, 40.0, 0.0], [0.0, 0.0, 40.0]],
+        support=torch.ones(1, 1, 64, 64), radius=0.2, max_gain=1.0)
+    p.reset(x, seed=0)
+    assert torch.allclose(p.chroma_matrix(),
+                          _clamp_singular_values(p.chroma_matrix(), 1.0),
+                          atol=1e-9)

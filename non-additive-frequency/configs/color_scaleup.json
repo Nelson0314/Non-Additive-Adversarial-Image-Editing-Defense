@@ -209,12 +209,12 @@
   "blur_sigma": 24.0,
   "radius": 0.2,
   "epsilon_lab": 5,
-  "precision": "fp32",
-  "precision_note": "fp16 下 resolve_precision 讓 backbone 半精度而 VAE 留在 fp32，官方 pipeline 的 edit() 會在 vae.encode 拋 Half/float 不符；攻擊評測必須走 edit()，故整支用 fp32。",
+  "precision": "bf16",
+  "precision_note": "bf16。與 fp32 在 27 列上比過：位移／CLIP／SigLIP 差 ≤ 0.001，外觀欄恰好為 0（它們不經過攻擊模型），身分中位差 0.007；三個最大差都落在身分已經崩到 0.5 的列，那裡換一個種子也會動一樣多。像素差 0.13–0.37 是取樣軌跡分岔，不是誤差。",
   "seed": 0,
   "s_t": 7.5,
   "s_i": 1.5,
-  "attack_steps": 100,
+  "attack_steps": 50,
   "eval_seeds": [
     17001
   ],
@@ -274,5 +274,7 @@
   "images_from": "data/attack_prompts.yaml",
   "seeds_note": "單一攻擊種子。逐圖的變異（防禦後主體身分 0.135-0.853）比種子的變異大得多，所以預算放在影像與指令而不是種子。種子層的變異另由 undefended 臂在第二個種子上單獨量（scripts/color_ceiling.py --arms undefended --seeds ...）。",
   "rotation_adaptive": true,
-  "hf_limit": 1.0
+  "hf_limit": 1.0,
+  "attack_batch_default": 9,
+  "steps_note": "50 步。100 是本專案指定的（diffusers 預設，論文未載）。校準在 3 格 27 列上比過：50 步與 100 步在位移與 clip_s_drop 上的臂排序完全相同、數值差約 2%；25 步把位移上 palette 與 bounded 的順序翻掉，且未防禦攻擊的 CLIP-S 由 0.1015 掉到 0.0818（攻擊本身變弱），故不用 25。與 100 步的既有批次仍不可逐列並列。"
 }

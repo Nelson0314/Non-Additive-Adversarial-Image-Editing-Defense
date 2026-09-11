@@ -1,0 +1,276 @@
+{
+  "manifest": "data/scaleup_manifest.json",
+  "images": [
+    "task_attr_mod_color_123744",
+    "task_attr_mod_color_158070",
+    "task_attr_mod_color_202962",
+    "task_attr_mod_color_41275",
+    "task_attr_mod_color_6205",
+    "task_env_weather_114555",
+    "task_env_weather_121086",
+    "task_env_weather_126577",
+    "task_env_weather_195273",
+    "task_env_weather_70149",
+    "task_obj_add_709390",
+    "task_obj_remove_257910",
+    "task_obj_remove_284852",
+    "task_obj_remove_410264",
+    "task_obj_remove_509477",
+    "task_obj_remove_720199",
+    "task_obj_swap_joint_mask_476374",
+    "task_obj_swap_joint_mask_533428",
+    "task_obj_swap_rand_mask_303550",
+    "task_obj_swap_rand_mask_92564"
+  ],
+  "classes": [
+    {
+      "name": "clothing",
+      "carrier": "clothes",
+      "region": "clothes",
+      "instructions": {
+        "task_attr_mod_color_123744": "turn the kimono red",
+        "task_attr_mod_color_158070": "turn the coat red",
+        "task_attr_mod_color_202962": "turn the t-shirt red",
+        "task_attr_mod_color_41275": "turn the jacket red",
+        "task_attr_mod_color_6205": "turn the overalls red",
+        "task_env_weather_114555": "turn the dress blue",
+        "task_env_weather_121086": "turn the jacket red",
+        "task_env_weather_126577": "turn the robe red",
+        "task_env_weather_195273": "turn the robe red",
+        "task_env_weather_70149": "turn the kimono red",
+        "task_obj_add_709390": "turn the coat red",
+        "task_obj_remove_257910": "turn the dress red",
+        "task_obj_remove_284852": "turn the shirt blue",
+        "task_obj_remove_410264": "turn the shirt red",
+        "task_obj_remove_509477": "turn the outfits red",
+        "task_obj_remove_720199": "turn the uniform blue",
+        "task_obj_swap_joint_mask_476374": "turn the vest blue",
+        "task_obj_swap_joint_mask_533428": "turn the jackets red",
+        "task_obj_swap_rand_mask_303550": "turn the jacket red",
+        "task_obj_swap_rand_mask_92564": "turn the shirts blue"
+      }
+    },
+    {
+      "name": "hat",
+      "carrier": "frame",
+      "region": "head_ring",
+      "instructions": {
+        "task_attr_mod_color_123744": "put a hat on the person",
+        "task_attr_mod_color_158070": "put a hat on the person",
+        "task_attr_mod_color_202962": "put a hat on the person",
+        "task_attr_mod_color_41275": "put a hat on the person",
+        "task_attr_mod_color_6205": "put a hat on the person",
+        "task_env_weather_114555": "put a hat on the person",
+        "task_env_weather_121086": "put a hat on the person",
+        "task_env_weather_126577": "put a hat on the person",
+        "task_env_weather_195273": "put a hat on the person",
+        "task_env_weather_70149": "put a hat on the person",
+        "task_obj_add_709390": "put a hat on the person",
+        "task_obj_remove_257910": "put a hat on the person",
+        "task_obj_remove_284852": "put a hat on the person",
+        "task_obj_remove_410264": "put a hat on the person",
+        "task_obj_remove_509477": "put a hat on the person",
+        "task_obj_remove_720199": "put a hat on the person",
+        "task_obj_swap_joint_mask_476374": "put a hat on the person",
+        "task_obj_swap_joint_mask_533428": "put a hat on the person",
+        "task_obj_swap_rand_mask_303550": "put a hat on the person",
+        "task_obj_swap_rand_mask_92564": "put a hat on the person"
+      }
+    },
+    {
+      "name": "sunglasses",
+      "carrier": "frame",
+      "region": "head_ring",
+      "instructions": {
+        "task_attr_mod_color_123744": "add sunglasses to the person",
+        "task_attr_mod_color_158070": "add sunglasses to the person",
+        "task_attr_mod_color_202962": "add sunglasses to the person",
+        "task_attr_mod_color_41275": "add sunglasses to the person",
+        "task_attr_mod_color_6205": "add sunglasses to the person",
+        "task_env_weather_114555": "add sunglasses to the person",
+        "task_env_weather_121086": "add sunglasses to the person",
+        "task_env_weather_126577": "add sunglasses to the person",
+        "task_env_weather_195273": "add sunglasses to the person",
+        "task_env_weather_70149": "add sunglasses to the person",
+        "task_obj_add_709390": "add sunglasses to the person",
+        "task_obj_remove_257910": "add sunglasses to the person",
+        "task_obj_remove_284852": "add sunglasses to the person",
+        "task_obj_remove_410264": "add sunglasses to the person",
+        "task_obj_remove_509477": "add sunglasses to the person",
+        "task_obj_remove_720199": "add sunglasses to the person",
+        "task_obj_swap_joint_mask_476374": "add sunglasses to the person",
+        "task_obj_swap_joint_mask_533428": "add sunglasses to the person",
+        "task_obj_swap_rand_mask_303550": "add sunglasses to the person",
+        "task_obj_swap_rand_mask_92564": "add sunglasses to the person"
+      }
+    },
+    {
+      "name": "glasses",
+      "carrier": "frame",
+      "region": "head_ring",
+      "instructions": {
+        "task_attr_mod_color_123744": "put a pair of glasses on the person",
+        "task_attr_mod_color_158070": "put a pair of glasses on the person",
+        "task_attr_mod_color_202962": "put a pair of glasses on the person",
+        "task_attr_mod_color_41275": "put a pair of glasses on the person",
+        "task_attr_mod_color_6205": "put a pair of glasses on the person",
+        "task_env_weather_114555": "put a pair of glasses on the person",
+        "task_env_weather_121086": "put a pair of glasses on the person",
+        "task_env_weather_126577": "put a pair of glasses on the person",
+        "task_env_weather_195273": "put a pair of glasses on the person",
+        "task_env_weather_70149": "put a pair of glasses on the person",
+        "task_obj_add_709390": "put a pair of glasses on the person",
+        "task_obj_remove_257910": "put a pair of glasses on the person",
+        "task_obj_remove_284852": "put a pair of glasses on the person",
+        "task_obj_remove_410264": "put a pair of glasses on the person",
+        "task_obj_remove_509477": "put a pair of glasses on the person",
+        "task_obj_remove_720199": "put a pair of glasses on the person",
+        "task_obj_swap_joint_mask_476374": "put a pair of glasses on the person",
+        "task_obj_swap_joint_mask_533428": "put a pair of glasses on the person",
+        "task_obj_swap_rand_mask_303550": "put a pair of glasses on the person",
+        "task_obj_swap_rand_mask_92564": "put a pair of glasses on the person"
+      }
+    },
+    {
+      "name": "crown",
+      "carrier": "frame",
+      "region": "head_ring",
+      "instructions": {
+        "task_attr_mod_color_123744": "put a crown on the person's head",
+        "task_attr_mod_color_158070": "put a crown on the person's head",
+        "task_attr_mod_color_202962": "put a crown on the person's head",
+        "task_attr_mod_color_41275": "put a crown on the person's head",
+        "task_attr_mod_color_6205": "put a crown on the person's head",
+        "task_env_weather_114555": "put a crown on the person's head",
+        "task_env_weather_121086": "put a crown on the person's head",
+        "task_env_weather_126577": "put a crown on the person's head",
+        "task_env_weather_195273": "put a crown on the person's head",
+        "task_env_weather_70149": "put a crown on the person's head",
+        "task_obj_add_709390": "put a crown on the person's head",
+        "task_obj_remove_257910": "put a crown on the person's head",
+        "task_obj_remove_284852": "put a crown on the person's head",
+        "task_obj_remove_410264": "put a crown on the person's head",
+        "task_obj_remove_509477": "put a crown on the person's head",
+        "task_obj_remove_720199": "put a crown on the person's head",
+        "task_obj_swap_joint_mask_476374": "put a crown on the person's head",
+        "task_obj_swap_joint_mask_533428": "put a crown on the person's head",
+        "task_obj_swap_rand_mask_303550": "put a crown on the person's head",
+        "task_obj_swap_rand_mask_92564": "put a crown on the person's head"
+      }
+    },
+    {
+      "name": "background",
+      "carrier": "frame",
+      "region": "outside_subject",
+      "instructions": {
+        "task_attr_mod_color_123744": "change the background to a snowy street",
+        "task_attr_mod_color_158070": "change the background to a snowy street",
+        "task_attr_mod_color_202962": "change the background to a snowy street",
+        "task_attr_mod_color_41275": "change the background to a snowy street",
+        "task_attr_mod_color_6205": "change the background to a snowy street",
+        "task_env_weather_114555": "change the background to a snowy street",
+        "task_env_weather_121086": "change the background to a snowy street",
+        "task_env_weather_126577": "change the background to a snowy street",
+        "task_env_weather_195273": "change the background to a snowy street",
+        "task_env_weather_70149": "change the background to a snowy street",
+        "task_obj_add_709390": "change the background to a snowy street",
+        "task_obj_remove_257910": "change the background to a snowy street",
+        "task_obj_remove_284852": "change the background to a snowy street",
+        "task_obj_remove_410264": "change the background to a snowy street",
+        "task_obj_remove_509477": "change the background to a snowy street",
+        "task_obj_remove_720199": "change the background to a snowy street",
+        "task_obj_swap_joint_mask_476374": "change the background to a snowy street",
+        "task_obj_swap_joint_mask_533428": "change the background to a snowy street",
+        "task_obj_swap_rand_mask_303550": "change the background to a snowy street",
+        "task_obj_swap_rand_mask_92564": "change the background to a snowy street"
+      }
+    }
+  ],
+  "library": {
+    "path": "data/ncf_library.json",
+    "sha256": "3f1af891264523591d3a4ef1df6878cb41b2ed518e7e2cf0e492161b72013888",
+    "class_weights": {
+      "global_scene": 1.0
+    },
+    "ade20k_classes": [
+      "apparel"
+    ]
+  },
+  "palette_id": "ade093_apparel_00",
+  "palette_id_second": "ade093_apparel_04",
+  "palette_note": "兩組都取自 ADE20K 的真實色彩分布庫，自然度靠它保證。第二組只有 region_palette 用（衣物的補集那一塊）；apparel_04 的 mean 是 [60.6, 8.9, 33.9]，與 apparel_00 的 [71.3, -5.9, 1.8] 在色度上分得開，兩塊區域才是兩個配色而不是同一個。",
+  "delta_e_targets": [
+    6.3,
+    "max_reach"
+  ],
+  "delta_e_note": "6.3 是 runs/objective_pilot/ 量到的現行工作點，四個臂在它上面等失真、可並列。max_reach 是各臂自己的幅度 1.0，實際到了多遠看 support_deltaE00——**那不是等失真點**。先前的 30 在每一格都不可達，拿掉。",
+  "rotation_deg": 90.0,
+  "rotation_note": "色相旋轉角固定 90 度。真實照片上 0-135 度的 hf_ratio_rgb_total 是 0.966-0.980，180 度才到 1.062；但該上界隨影像內容而變（tests/test_chroma_rotation.py），所以逐列照量，不當保證。",
+  "blur_sigma": 24.0,
+  "radius": 0.2,
+  "epsilon_lab": 5,
+  "precision": "fp32",
+  "precision_note": "fp16 下 resolve_precision 讓 backbone 半精度而 VAE 留在 fp32，官方 pipeline 的 edit() 會在 vae.encode 拋 Half/float 不符；攻擊評測必須走 edit()，故整支用 fp32。",
+  "seed": 0,
+  "s_t": 7.5,
+  "s_i": 1.5,
+  "attack_steps": 100,
+  "eval_seeds": [
+    17001
+  ],
+  "collision_steps": 300,
+  "collision_ring_width": 16,
+  "collision_update": "adam",
+  "collision_note": "collision 臂與 chroma_bounded 用同一個參數化（奇異值上界，容許收縮），兩者的差別只有目標函數。不用等距臂：全域仿射對兩塊區域均值差的作用是 M(mu_R - mu_E)，奇異值恰為 1 時那個差的長度被保住，推不動。",
+  "step_size_ratio": 0.02,
+  "momentum": 0.6,
+  "zt_mode": "diffuse_src",
+  "normalise": true,
+  "zt_note": "與 configs/objective_pilot.json 同值，cfg_shift 損失才可並列。normalise=true 會在損失裡除以影像條件的範數平方，該分母也有梯度，解讀 cfg_shift 的目標值時不可略過。",
+  "operators": [
+    {
+      "kind": "identity"
+    },
+    {
+      "kind": "jpeg",
+      "strength": 75
+    },
+    {
+      "kind": "jpeg",
+      "strength": 30
+    },
+    {
+      "kind": "blur",
+      "strength": 1.0
+    },
+    {
+      "kind": "noise",
+      "strength": 0.02,
+      "seed": 90211
+    },
+    {
+      "kind": "quantize",
+      "strength": 8
+    },
+    {
+      "kind": "crop_resize",
+      "strength": 0.1
+    },
+    {
+      "kind": "jpeg_then_resize",
+      "strength": 75
+    },
+    {
+      "kind": "rotate",
+      "strength": 10,
+      "seed": 90212
+    },
+    {
+      "kind": "adverse_cleaner"
+    }
+  ],
+  "operators_note": "與 docs/EVALUATION.md 的算子表同一組設定。identity 不可排除，它是保留率的分母。gridpure／fdpure／impress 需要 diffpure 權重與 SD wrapper，相依不齊時腳本會回報並跳過。 rotate 在 ROTATE_FIXED=True 下角度固定，seed 仍填是為了該常數被改掉時不會靜默失配；scripts/color_retention.py 對有隨機性的算子要求 seed 必填。",
+  "scale_note": "20 張影像取自 data/attack_prompts.yaml（衣物名詞與目標色逐張登記），六個指令類：衣物改色、四種頭部配件、背景。變異的來源改成影像與指令而不是種子。六張影像是多人畫面（臉數 2–8），主體錨定取面積最大的那張臉。",
+  "images_from": "data/attack_prompts.yaml",
+  "seeds_note": "單一攻擊種子。逐圖的變異（防禦後主體身分 0.135-0.853）比種子的變異大得多，所以預算放在影像與指令而不是種子。種子層的變異另由 undefended 臂在第二個種子上單獨量（scripts/color_ceiling.py --arms undefended --seeds ...）。"
+}

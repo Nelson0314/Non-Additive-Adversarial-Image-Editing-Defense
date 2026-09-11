@@ -36,7 +36,8 @@ ARMS = ('chroma_bounded', 'chroma_isometric', 'region_palette', 'collision',
 # CSV 的合約。欄名沿用 `runs/objective_pilot/` 的字彙，兩批才並列得起來。
 COLUMNS = [
     'arm', 'image', 'class', 'instruction', 'carrier', 'seed', 'eval_seed',
-    'delta_e_target', 'amplitude', 'delta_e_reached', 'support_deltaE00',
+    'delta_e_target', 'region',
+    'amplitude', 'delta_e_reached', 'support_deltaE00',
     'rotation_deg', 'max_gain', 'isometric', 'blur_sigma',
     'palette_id', 'palette_id_second',
     'effective_gain_max', 'effective_gain_min',
@@ -141,32 +142,36 @@ def cells_of(spec):
         for cls in spec['classes']:
             out.append({'image': image, 'class': cls['name'],
                         'instruction': cls['instructions'][image],
-                        'carrier': cls['carrier'], 'seed': spec['seed']})
+                        'carrier': cls['carrier'],
+                        'region': cls.get('region', 'clothes'),
+                        'seed': spec['seed']})
     return out
 
 
-def collision_region(x01, cls, clothes, device=None):
-    """指令要改的那塊區域，逐指令類各一種取法。
+def collision_region(x01, region, clothes, device=None):
+    """指令要改的那塊區域。`region` 由設定逐類指定，不由類名推。
 
     `collision` 那條臂問的是「把這塊區域的顏色統計與周邊拉近，指令還定位得到
-    嗎」，所以區域必須對得上指令講的東西，不是對得上載體的支撐。
+    嗎」，所以區域必須對得上指令講的東西，不是對得上載體的支撐。指令類可以有
+    很多個（帽子、太陽眼鏡、皇冠……）卻共用同一塊區域，所以對應寫在設定裡。
 
-    衣物：ATR 衣物遮罩本身。
-    配件：主體外緣的環帶——帽子會出現的地方。
-    背景：衣物與主體之外的一切。
+    `clothes`：ATR 衣物遮罩本身。
+    `head_ring`：主體外緣的環帶——頭部配件會出現的地方。
+    `outside_subject`：衣物與主體之外的一切。
     """
     import torch
 
     from src.defense.carrier_mask import face_subject_mask, ring_support
-    if cls == 'clothing':
+    if region == 'clothes':
         return clothes
     face = face_subject_mask(x01, device=device)
-    if cls == 'accessory':
+    if region == 'head_ring':
         return ring_support(face, inner=8, outer=48)
-    if cls == 'background':
+    if region == 'outside_subject':
         inside = torch.maximum(clothes, (face > 0.5).to(clothes.dtype))
         return (1.0 - inside).clamp(0.0, 1.0)
-    raise ValueError(f'未知的指令類 {cls!r}；沒有對應的區域取法')
+    raise ValueError(f'未知的區域 {region!r}；可用的是 clothes／head_ring／'
+                     f'outside_subject')
 
 
 def regions_of(x01, support_clothes):
@@ -200,7 +205,7 @@ def main():
 
     import torch
     from src.defense.collision_loss import make_collision_loss, ring_of
-    from src.defense.color_amplitude import solve_amplitude
+    from src.defense.color_amplitude import delta_e00, solve_amplitude
     from src.defense.param_pgd import run_param_pgd
     from src.defense.naturalness_gate import gate_row
     from src.defense.ncf_library import sha256
@@ -290,7 +295,7 @@ def main():
             param.reset(x, cell['seed'])
             trained, closs = {}, None
             if arm == 'collision':
-                region = collision_region(x, cell['class'], clothes,
+                region = collision_region(x, cell['region'], clothes,
                                           device=device)
                 ring = ring_of(region, spec['collision_ring_width'])
                 closs = make_collision_loss(region, ring)
@@ -309,10 +314,23 @@ def main():
                            'collision_ring_area': round(float(ring.mean()), 6)}
                 print(f"  {tag} collision {first:.4f} -> {last:.4f}", flush=True)
 
-            for target in sorted(spec['delta_e_targets']):
-                # 錨點取**支撐加權**的色差：全圖平均會被支撐面積稀釋，衣物載體
-                # 因此連 6.3 都到不了（量到 4.5–5.2），跟整圖濾鏡的 24 不可並列。
-                solved = solve_amplitude(param, x, target, support=support)
+            for target in sorted(spec['delta_e_targets'],
+                                 key=lambda v: float('inf') if v == 'max_reach'
+                                 else float(v)):
+                if target == 'max_reach':
+                    # 各臂自己走得到的最遠處。不二分——先前那批的 dE00 30 在
+                    # 每一格都不可達，等於白跑一個目標；改成直接取幅度 1.0，
+                    # 實際到了多遠由 `support_deltaE00` 記錄。**這個點不是
+                    # 等失真錨點**，跨臂比較要用它旁邊那個 6.3 的點。
+                    param.set_amplitude(1.0)
+                    solved = {'amplitude': 1.0, 'reached': True,
+                              'delta_e00': delta_e00(x, param.render(x), support)}
+                else:
+                    # 錨點取**支撐加權**的色差：全圖平均會被支撐面積稀釋，衣物
+                    # 載體因此連 6.3 都到不了（量到 4.5–5.2），跟整圖濾鏡的 24
+                    # 不可並列。
+                    solved = solve_amplitude(param, x, float(target),
+                                             support=support)
                 if closs is not None:
                     trained['collision_at_anchor'] = round(
                         float(closs(param.render(x))), 6)
@@ -342,10 +360,12 @@ def main():
                 protected = ('' if n_zero == 0 else
                              float(((x_def - x).abs() * zero).max()))
                 d = suite.pairwise(x, x_def)
-                name = f'{tag}__{arm}__dE{target:g}'
+                label = target if isinstance(target, str) else f'{float(target):g}'
+                name = f'{tag}__{arm}__dE{label}'
                 save_png(x_def, args.out / f'{name}__def.png')
                 base = {'arm': arm, **cell,
                         'delta_e_target': target,
+                        'region': cell['region'],
                         'amplitude': round(solved['amplitude'], 5),
                         'delta_e_reached': int(solved['reached']),
                         'support_deltaE00': round(solved['delta_e00'], 4),

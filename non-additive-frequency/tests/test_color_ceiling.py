@@ -72,16 +72,20 @@ def test_collision_arm_is_not_isometric():
     assert p.max_gain == 1.0
 
 
-def test_collision_region_differs_by_instruction_class():
+def test_collision_region_takes_a_region_name_not_a_class_name():
+    """區域由設定逐類指定，不由類名推。
+
+    指令類可以有很多個（帽子、太陽眼鏡、皇冠……）卻共用同一塊區域，靠類名
+    硬判的話每加一個指令就要改程式，而且加錯了會靜默走到別的區域。
+    """
     from scripts.color_ceiling import collision_region
     x = torch.rand(1, 3, 64, 64)
     clothes = torch.zeros(1, 1, 64, 64)
     clothes[:, :, 20:40, 10:30] = 1.0
-    got = collision_region(x, 'clothing', clothes)
-    assert torch.equal(got, clothes)
+    assert torch.equal(collision_region(x, 'clothes', clothes), clothes)
 
 
-def test_collision_region_rejects_an_unknown_class():
+def test_collision_region_rejects_an_unknown_region():
     from scripts.color_ceiling import collision_region
     x = torch.rand(1, 3, 64, 64)
     try:
@@ -89,7 +93,20 @@ def test_collision_region_rejects_an_unknown_class():
     except ValueError as e:
         assert 'nope' in str(e)
     else:
-        raise AssertionError('未知的指令類必須拋錯，不得靜默走預設區域')
+        raise AssertionError('未知的區域必須拋錯，不得靜默走預設')
+
+
+def test_max_reach_target_is_a_recognised_value():
+    """`max_reach` 不是等失真錨點，是各臂自己的幅度 1.0。"""
+    import json
+    from pathlib import Path
+    spec = json.loads(Path('configs/color_scaleup.json').read_text(encoding='utf-8'))
+    assert 'max_reach' in spec['delta_e_targets']
+    assert 6.3 in spec['delta_e_targets']
+    assert len(spec['images']) == 20
+    assert len(spec['classes']) == 6
+    assert {c['region'] for c in spec['classes']} == {
+        'clothes', 'head_ring', 'outside_subject'}
 
 
 def test_columns_record_the_effective_gain_after_amplitude_interpolation():

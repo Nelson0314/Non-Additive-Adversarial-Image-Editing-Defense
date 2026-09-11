@@ -1,0 +1,118 @@
+{
+  "images": [
+    {
+      "id": "task_attr_mod_color_123744",
+      "path": "data/omniedit150/task_attr_mod_color_123744/task_attr_mod_color_123744.png",
+      "sha256": "786347f22e450a0deb1c8919fafcd1d9abf0a978002c65afad353baf4f180316"
+    },
+    {
+      "id": "task_attr_mod_color_158070",
+      "path": "data/omniedit150/task_attr_mod_color_158070/task_attr_mod_color_158070.png",
+      "sha256": "a237baf013ef7bdc85b9195264aa6c5585c5c7563d058912c7bad3fd7dffac8c"
+    },
+    {
+      "id": "task_attr_mod_color_202962",
+      "path": "data/omniedit150/task_attr_mod_color_202962/task_attr_mod_color_202962.png",
+      "sha256": "393a16d244612cbe9ab028e1e70e4e3836324e3a9314cbb6fb392e32c3ad8478"
+    },
+    {
+      "id": "task_attr_mod_color_41275",
+      "path": "data/omniedit150/task_attr_mod_color_41275/task_attr_mod_color_41275.png",
+      "sha256": "e60f94efd821294ba65e87500bb0f5e5b20bc282087ef815eba30f4482e5bdef"
+    },
+    {
+      "id": "task_attr_mod_color_6205",
+      "path": "data/omniedit150/task_attr_mod_color_6205/task_attr_mod_color_6205.png",
+      "sha256": "82e3f2c22379cb26a6272d67a632d4484c4f0a7c410430f2cdebb63c4cf94eb9"
+    },
+    {
+      "id": "task_env_weather_114555",
+      "path": "data/omniedit150/task_env_weather_114555/task_env_weather_114555.png",
+      "sha256": "0b2df91c0fd45683e63fbd534a9b908149514ee42f6811298caff66376fbb2ae"
+    },
+    {
+      "id": "task_env_weather_121086",
+      "path": "data/omniedit150/task_env_weather_121086/task_env_weather_121086.png",
+      "sha256": "51d8c7b934cafed509173a46c918fcc56cd62b163bc3675b2f85815e151cb260"
+    },
+    {
+      "id": "task_env_weather_126577",
+      "path": "data/omniedit150/task_env_weather_126577/task_env_weather_126577.png",
+      "sha256": "a8defb1649200519b276f7ba5175ed34fdb0828043287b37e7f5dc765bf3551c"
+    },
+    {
+      "id": "task_env_weather_195273",
+      "path": "data/omniedit150/task_env_weather_195273/task_env_weather_195273.png",
+      "sha256": "faa127e7808f7b9c1d28fe663c3e39eb5e9d24dea9cf9c354ee0de5487d4cc23"
+    },
+    {
+      "id": "task_env_weather_70149",
+      "path": "data/omniedit150/task_env_weather_70149/task_env_weather_70149.png",
+      "sha256": "15b6dfa829810a69db9b6dd3ff631884b8e60600cc1c2d8d4f6f6ec3f683af5c"
+    },
+    {
+      "id": "task_obj_add_709390",
+      "path": "data/omniedit150/task_obj_add_709390/task_obj_add_709390.png",
+      "sha256": "b631dfdb764fdf66e621a1ab7d7a502aacb027707e4cbe3b57913e7bf5a5ef94"
+    },
+    {
+      "id": "task_obj_remove_257910",
+      "path": "data/omniedit150/task_obj_remove_257910/task_obj_remove_257910.png",
+      "sha256": "6d9adb7396831faf78019c27cc83805f46f943dcc10eac02ef62313b643cf7cc"
+    },
+    {
+      "id": "task_obj_remove_284852",
+      "path": "data/omniedit150/task_obj_remove_284852/task_obj_remove_284852.png",
+      "sha256": "53a4b47eb5fa883de880cf9c00e44aec2f924bd7eb703d81b796dd06af259b69"
+    },
+    {
+      "id": "task_obj_remove_410264",
+      "path": "data/omniedit150/task_obj_remove_410264/task_obj_remove_410264.png",
+      "sha256": "3bb759b7ee7554684714e6ef3bdbd3fcd23cff7aca627095ce60749343561fe9"
+    },
+    {
+      "id": "task_obj_remove_509477",
+      "path": "data/omniedit150/task_obj_remove_509477/task_obj_remove_509477.png",
+      "sha256": "fd907f3c926e55b58ec0b098b71df69aa7651775c4f624a0bbcf0e6489e57e57"
+    },
+    {
+      "id": "task_obj_remove_720199",
+      "path": "data/omniedit150/task_obj_remove_720199/task_obj_remove_720199.png",
+      "sha256": "8a7b3cb5dffeb764a2a07cc1d862e8e7a228f62ab9e0a21a8fb5ce3da92901ad"
+    },
+    {
+      "id": "task_obj_swap_joint_mask_476374",
+      "path": "data/omniedit150/task_obj_swap_joint_mask_476374/task_obj_swap_joint_mask_476374.png",
+      "sha256": "78eb3ed1c33a86980a4e13e96e3128b49938e9e7d02d12db950b8acabfe814f6"
+    },
+    {
+      "id": "task_obj_swap_joint_mask_533428",
+      "path": "data/omniedit150/task_obj_swap_joint_mask_533428/task_obj_swap_joint_mask_533428.png",
+      "sha256": "a0aa618f032ede9659c649d3a43899fe30b8b1df8fca4ee2c33ed40b704f6984"
+    },
+    {
+      "id": "task_obj_swap_rand_mask_303550",
+      "path": "data/omniedit150/task_obj_swap_rand_mask_303550/task_obj_swap_rand_mask_303550.png",
+      "sha256": "52e5c922d5f389182aaabed6e3775d452114940b8a89d0c040e25767347121d3"
+    },
+    {
+      "id": "task_obj_swap_rand_mask_92564",
+      "path": "data/omniedit150/task_obj_swap_rand_mask_92564/task_obj_swap_rand_mask_92564.png",
+      "sha256": "2ce2978c6d47a7afc784883472c4571b859cbc381cb7c3692f90fb15ffeeb2db"
+    }
+  ],
+  "protected": {
+    "model": "mattmdjaga/segformer_b2_clothes",
+    "classes": [
+      11,
+      2
+    ],
+    "dilate": 0,
+    "feather": 0,
+    "hard_copy": "torch.where(P,x,render)",
+    "verify": "PNG uint8 exact equality"
+  },
+  "validation_role": "frozen config; no validation-driven selection of hyperparameters",
+  "source_hash_algorithm": "sha256",
+  "note": "20 張，取自 data/attack_prompts.yaml 已登記的影像（衣物名詞與目標色逐張登記）。data/ncf_manifest.json 的五張是它的子集。雜湊逐張重算。"
+}

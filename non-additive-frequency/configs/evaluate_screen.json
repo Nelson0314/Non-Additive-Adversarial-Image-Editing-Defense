@@ -1,0 +1,85 @@
+{
+  "manifest": "data/scaleup_manifest.json",
+  "images": [
+    "task_attr_mod_color_123744",
+    "task_env_weather_114555",
+    "task_env_weather_126577",
+    "task_env_weather_195273",
+    "task_obj_remove_509477"
+  ],
+  "role_note": "**指令只在這份設定裡出現。** 防禦圖由 scripts/immunise.py 產生，那一支拒絕讀入任何指令，所以這裡的每一句對防禦而言都是 held-out，不需要另外分訓練／測試指令。五類涵蓋換色、加配件、換背景、加另一種配件、整體風格轉換。",
+  "classes": [
+    {
+      "name": "clothing",
+      "instructions": {
+        "task_attr_mod_color_123744": "turn the kimono red",
+        "task_env_weather_114555": "turn the dress blue",
+        "task_env_weather_126577": "turn the robe red",
+        "task_env_weather_195273": "turn the robe red",
+        "task_obj_remove_509477": "turn the outfits red"
+      }
+    },
+    {
+      "name": "hat",
+      "instructions": {
+        "task_attr_mod_color_123744": "put a hat on the person",
+        "task_env_weather_114555": "put a hat on the person",
+        "task_env_weather_126577": "put a hat on the person",
+        "task_env_weather_195273": "put a hat on the person",
+        "task_obj_remove_509477": "put a hat on the person"
+      }
+    },
+    {
+      "name": "background",
+      "instructions": {
+        "task_attr_mod_color_123744": "change the background to a snowy street",
+        "task_env_weather_114555": "change the background to a snowy street",
+        "task_env_weather_126577": "change the background to a snowy street",
+        "task_env_weather_195273": "change the background to a snowy street",
+        "task_obj_remove_509477": "change the background to a snowy street"
+      }
+    },
+    {
+      "name": "glasses",
+      "instructions": {
+        "task_attr_mod_color_123744": "give the person sunglasses",
+        "task_env_weather_114555": "give the person sunglasses",
+        "task_env_weather_126577": "give the person sunglasses",
+        "task_env_weather_195273": "give the person sunglasses",
+        "task_obj_remove_509477": "give the person sunglasses"
+      }
+    },
+    {
+      "name": "restyle",
+      "instructions": {
+        "task_attr_mod_color_123744": "make it look like an oil painting",
+        "task_env_weather_114555": "make it look like an oil painting",
+        "task_env_weather_126577": "make it look like an oil painting",
+        "task_env_weather_195273": "make it look like an oil painting",
+        "task_obj_remove_509477": "make it look like an oil painting"
+      }
+    }
+  ],
+  "seeds": [
+    17001,
+    27001,
+    47001
+  ],
+  "seeds_note": "沿用前一批的回報種子，數字因此與 runs/carrier_search_facecap/ 在同一張表上可比。",
+  "precision": "bf16",
+  "attack_steps": 50,
+  "s_t": 7.5,
+  "s_i": 1.5,
+  "attack_batch_default": 9,
+  "arms": [
+    "undefended",
+    "immunised"
+  ],
+  "arms_note": "只跑 undefended 與 immunised。undefended 逐格逐種子照跑不省：種子層的攻擊失敗會讓整批讀數變成雜訊，它是每一格自己的分母。",
+  "purifiers": [
+    {
+      "kind": "identity"
+    }
+  ],
+  "purifiers_note": "只跑 identity：這一份是載體篩選用的設定，自變數是載體變體，把算力放在變體數量而不是淨化種類。幾何載體的抗淨化形狀與顏色不同（JPEG、模糊、裁切都不是 warp 的逆變換），那要在選定的操作點上用 configs/evaluate_heldout.json 的四道淨化另外量，不在這裡推定。"
+}

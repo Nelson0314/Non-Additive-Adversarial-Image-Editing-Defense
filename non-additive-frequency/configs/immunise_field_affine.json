@@ -1,0 +1,69 @@
+{
+  "manifest": "data/scaleup_manifest.json",
+  "images": [
+    "task_attr_mod_color_123744",
+    "task_env_weather_114555",
+    "task_env_weather_126577",
+    "task_env_weather_195273",
+    "task_obj_remove_509477"
+  ],
+  "images_note": "與 configs/immunise_field.json 同五張，兩批的數字並列得起來。",
+  "objective_note": "**這份設定裡不得出現任何指令。** scripts/immunise_field.py 載入 scripts/immunise.py 的 assert_no_instructions 遞迴檢查，含有 instruction 或 prompt 的鍵一律拒絕啟動。指令只存在於評估的設定檔。",
+  "free": {
+    "steps": 150,
+    "lr": 0.05,
+    "timesteps": 4,
+    "chain_steps": 6,
+    "grad_steps": 1,
+    "noise_seed": 0,
+    "log_every": 30,
+    "weights": {
+      "id": 1.0,
+      "enc": 0.5,
+      "cond": 1.0
+    }
+  },
+  "free_note": "與 configs/immunise_field.json 逐字相同的目標函數與權重。這一批唯一改變的是臉框內的自然度約束。",
+  "rationale": "configs/immunise_field.json 的 flow_16 在 task_env_weather_114555 上把鼻子局部拉長——那是 warp 的痕跡，不是另一張臉。原因是臉框內除了 16×16 網格的平滑以外沒有任何約束：32 px 的控制點間距讓臉框裡有五六個自由點，做得出局部隆起。人眼判定不自然的是**局部**的形變；臉整體換一個形狀讀起來只是另一個人。所以補的不是更小的預算，而是一道把臉框內的形變壓回仿射的約束，再讓仿射那一段走得更遠。face_rigid 那三檔測約束，coarse 那兩檔測用網格密度達成同一件事——粗網格在臉框裡只有兩三個控制點，近仿射是結構保證而不是靠約束壓。",
+  "variants": [
+    {
+      "name": "face_rigid_08",
+      "carrier": "flow",
+      "knobs": {"grid": 16, "taper": 16.0, "box": 64.0},
+      "caps": {"face_px": 8.0, "face_rigid_px": 0.75, "rigid_px": 1.0, "fold": 0.001, "det_floor": 0.5, "quantile": 0.99},
+      "lr": 0.2
+    },
+    {
+      "name": "face_rigid_16",
+      "carrier": "flow",
+      "knobs": {"grid": 16, "taper": 16.0, "box": 64.0},
+      "caps": {"face_px": 16.0, "face_rigid_px": 1.0, "rigid_px": 2.0, "fold": 0.001, "det_floor": 0.5, "quantile": 0.99},
+      "lr": 0.4
+    },
+    {
+      "name": "face_rigid_32",
+      "carrier": "flow",
+      "knobs": {"grid": 16, "taper": 16.0, "box": 64.0},
+      "caps": {"face_px": 32.0, "face_rigid_px": 1.5, "rigid_px": 3.0, "fold": 0.001, "det_floor": 0.5, "quantile": 0.99},
+      "lr": 0.8
+    },
+    {
+      "name": "coarse_16",
+      "carrier": "flow",
+      "knobs": {"grid": 6, "taper": 16.0, "box": 64.0},
+      "caps": {"face_px": 16.0, "rigid_px": 2.0, "fold": 0.001, "det_floor": 0.5, "quantile": 0.99},
+      "lr": 0.4
+    },
+    {
+      "name": "coarse_32",
+      "carrier": "flow",
+      "knobs": {"grid": 6, "taper": 16.0, "box": 64.0},
+      "caps": {"face_px": 32.0, "rigid_px": 3.0, "fold": 0.001, "det_floor": 0.5, "quantile": 0.99},
+      "lr": 0.8
+    }
+  ],
+  "variants_note": "face_rigid_* 保持 16×16 網格，加第四道約束：臉框內位移對最佳全域仿射的殘差 CVaR99。預算隨之開大（8／16／32 px），因為被限制的是形變的種類而不是幅度。coarse_* 改用 6×6 網格（512 px 上控制點間距 85 px，臉框裡只有兩三個點），近仿射是參數化的結構保證，不設 face_rigid。兩條路徑測同一個假設：不自然的是局部形變，不是整體形變。",
+  "precision": "bf16",
+  "s_i": 1.5,
+  "attack_steps": 50
+}

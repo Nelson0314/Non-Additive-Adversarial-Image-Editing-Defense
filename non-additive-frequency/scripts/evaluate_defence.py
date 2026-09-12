@@ -156,10 +156,13 @@ def main():
         x = load_image(src, device)
         frame = ncf_support(x, 'frame')
         face = face_subject_mask(x, device=device)
-        defended = {'undefended': x,
-                    'start': load_image(args.run / f'{image}__start.png', device),
-                    'immunised': load_image(args.run / f'{image}__immunised.png',
-                                            device)}
+        defended = {'undefended': x}
+        if 'start' in arms:
+            defended['start'] = load_image(
+                args.run / f'{image}__start.png', device)
+        if 'immunised' in arms:
+            defended['immunised'] = load_image(
+                args.run / f'{image}__immunised.png', device)
 
         niqe_x = suite.niqe(x)
         boxes = face_boxes(x, device)

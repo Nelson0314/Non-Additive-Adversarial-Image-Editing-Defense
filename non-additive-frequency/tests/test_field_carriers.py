@@ -249,7 +249,8 @@ def _guard():
 
 FIELD_CONFIGS = ('immunise_field.json', 'immunise_field_affine.json',
                  'immunise_field_objective.json',
-                 'immunise_field_eot.json')
+                 'immunise_field_eot.json',
+                 'immunise_field_margin.json')
 
 
 @pytest.mark.parametrize('name', FIELD_CONFIGS)
@@ -277,3 +278,30 @@ def test_位移場設定檔的每個變體都掛得上載體(name):
         c.reset(x)
         assert c.params()[0].requires_grad
         assert c.render(x).shape == x.shape
+
+
+def test_膨脹讓遮罩變大且不縮小():
+    from src.defense.geometry_field import dilate
+    m = torch.zeros(1, 1, 32, 32)
+    m[..., 14:18, 14:18] = 1.0
+    d = dilate(m, 4)
+    assert float(d.sum()) > float(m.sum())
+    assert float((d - m).clamp_max(0).abs().sum()) == 0.0
+    assert float(d[..., 10, 16]) == 1.0
+    assert float(d[..., 5, 16]) == 0.0
+
+
+def test_膨脹半徑為零是恆等():
+    from src.defense.geometry_field import dilate
+    m = torch.zeros(1, 1, 16, 16)
+    m[..., 4:8, 4:8] = 1.0
+    assert torch.equal(dilate(m, 0), m)
+
+
+def test_膨脹之後背景的支撐仍非空():
+    """`rigid_margin` 太大會把背景整個吃掉，那時約束沒有定義。"""
+    from src.defense.geometry_field import dilate
+    m = torch.zeros(1, 1, 64, 64)
+    m[..., 20:44, 20:44] = 1.0
+    assert float((1.0 - dilate(m, 8)).sum()) > 0.0
+    assert float((1.0 - dilate(m, 40)).sum()) == 0.0

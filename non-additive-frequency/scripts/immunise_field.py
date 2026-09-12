@@ -68,7 +68,7 @@ def main():
     from src.defense.delta_e_torch import cvar_from_map, delta_e00_torch
     from src.defense.eot import EOTObjective
     from src.defense.geometry_field import (FlowFieldParam, affine_residual,
-                                            det_jacobian)
+                                            det_jacobian, dilate)
     from src.defense.immunise import Cap, optimise_carrier
     from src.defense.instruction_free import FreeObjective
     from src.defense.lab_offset_field import CHANNELS, LabOffsetFieldParam
@@ -137,7 +137,6 @@ def main():
             raise ValueError(f'{image} 偵測不到臉，無法錨定身分項')
         box = max(boxes, key=lambda q: (q[2] - q[0]) * (q[3] - q[1]))
         anchor = box_mask(x, box)
-        outside = (1.0 - anchor).to(anchor)
         niqe_x = suite.niqe(x)
 
         cache = {}
@@ -192,6 +191,11 @@ def main():
                     box=float(knobs.get('box', 64.0)))
                 carrier.reset(x)
                 q = float(caps_spec.get('quantile', 0.99))
+                margin = float(caps_spec.get('rigid_margin', 0.0) or 0.0)
+                outside = (1.0 - dilate(anchor, margin)).to(anchor)
+                if float(outside.sum()) <= 0:
+                    raise SystemExit(
+                        f'{image} 的 rigid_margin {margin} 把背景整個吃掉了')
                 cell_caps = [
                     Cap('flow_face',
                         (lambda _y, c=carrier: cvar_from_map(

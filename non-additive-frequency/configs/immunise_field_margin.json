@@ -1,0 +1,69 @@
+{
+  "manifest": "data/scaleup_manifest.json",
+  "images": [
+    "task_attr_mod_color_123744",
+    "task_env_weather_114555",
+    "task_env_weather_126577",
+    "task_env_weather_195273",
+    "task_obj_remove_509477"
+  ],
+  "images_note": "與前四批同五張。",
+  "objective_note": "**這份設定裡不得出現任何指令。** scripts/immunise_field.py 載入 scripts/immunise.py 的 assert_no_instructions 遞迴檢查，含有 instruction 或 prompt 的鍵一律拒絕啟動。",
+  "rationale": "runs/field_affine/ 的 cap_reached 顯示綁住解的是背景剛性，不是臉框預算：face_rigid_16 允許臉框走 16 px，實際只走到 1.42–2.0，而 flow_rigid 貼死在 1.98–1.998 / 2。原因是背景那道約束的支撐直接取臉框的補集，把臉框外緣的過渡帶也算成背景。位移場是平滑的，臉要整體移動就必然拉動周圍一圈，而那一圈落在臉框外，於是背景約束把臉的移動一起擋掉——兩道約束互相打架。rigid_margin 把臉框向外膨脹再取補集，過渡帶兩邊都不管：它既不是要保直線的背景，也不是要保形狀的臉。",
+  "free": {
+    "steps": 150,
+    "lr": 0.05,
+    "timesteps": 4,
+    "chain_steps": 6,
+    "grad_steps": 1,
+    "noise_seed": 0,
+    "log_every": 30,
+    "weights": {
+      "id": 1.0,
+      "enc": 0.5,
+      "cond": 1.0
+    }
+  },
+  "free_note": "目標函數與前四批相同。自變數只有過渡帶的寬度與臉框內的仿射上限。",
+  "variants": [
+    {
+      "name": "margin_00",
+      "carrier": "flow",
+      "knobs": {"grid": 16, "taper": 16.0, "box": 64.0},
+      "caps": {"face_px": 16.0, "face_rigid_px": 1.0, "rigid_px": 2.0, "rigid_margin": 0.0, "fold": 0.001, "det_floor": 0.5, "quantile": 0.99},
+      "lr": 0.4
+    },
+    {
+      "name": "margin_32",
+      "carrier": "flow",
+      "knobs": {"grid": 16, "taper": 16.0, "box": 64.0},
+      "caps": {"face_px": 16.0, "face_rigid_px": 1.0, "rigid_px": 2.0, "rigid_margin": 32.0, "fold": 0.001, "det_floor": 0.5, "quantile": 0.99},
+      "lr": 0.4
+    },
+    {
+      "name": "margin_64",
+      "carrier": "flow",
+      "knobs": {"grid": 16, "taper": 16.0, "box": 64.0},
+      "caps": {"face_px": 16.0, "face_rigid_px": 1.0, "rigid_px": 2.0, "rigid_margin": 64.0, "fold": 0.001, "det_floor": 0.5, "quantile": 0.99},
+      "lr": 0.4
+    },
+    {
+      "name": "margin_64_loose",
+      "carrier": "flow",
+      "knobs": {"grid": 16, "taper": 16.0, "box": 64.0},
+      "caps": {"face_px": 32.0, "face_rigid_px": 2.0, "rigid_px": 2.0, "rigid_margin": 64.0, "fold": 0.001, "det_floor": 0.5, "quantile": 0.99},
+      "lr": 0.8
+    },
+    {
+      "name": "margin_64_norigid",
+      "carrier": "flow",
+      "knobs": {"grid": 16, "taper": 16.0, "box": 64.0},
+      "caps": {"face_px": 32.0, "rigid_px": 2.0, "rigid_margin": 64.0, "fold": 0.001, "det_floor": 0.5, "quantile": 0.99},
+      "lr": 0.8
+    }
+  ],
+  "variants_note": "margin_00 與 runs/field_affine/ 的 face_rigid_16 逐字相同，是這一批自己的對照——過渡帶寬度為零就是原來的作法。margin_32／margin_64 只加寬過渡帶，其餘不動，所以臉框預算用不用得掉可以直接歸因。margin_64_loose 在最寬的過渡帶上把臉框預算與臉內仿射上限一起放大，看放寬之後綁住的換成哪一道。margin_64_norigid 拿掉臉框內的仿射約束，只留過渡帶——它是 runs/field_affine/ 那個假設的對照：若它比 margin_64 強很多而圖一樣自然，代表臉框內的仿射約束買到的自然度不值那個防禦。",
+  "precision": "bf16",
+  "s_i": 1.5,
+  "attack_steps": 50
+}

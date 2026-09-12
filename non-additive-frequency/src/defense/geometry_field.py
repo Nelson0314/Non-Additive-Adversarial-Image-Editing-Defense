@@ -113,6 +113,27 @@ def affine_residual(flow: torch.Tensor, support: torch.Tensor) -> torch.Tensor:
     return residual.transpose(0, 1).reshape(1, 2, h, w)
 
 
+def dilate(mask: torch.Tensor, radius: float) -> torch.Tensor:
+    """把遮罩向外膨脹 `radius` 像素（方形結構元，可分離的最大值濾波）。
+
+    為什麼需要它
+    ────────────────────────────────────────────────────────────────
+    「背景的直線不可以被扭彎」這道約束，支撐若直接取臉框的補集，就會把**臉框
+    外緣的過渡帶**也算進背景。位移場是平滑的，臉要整體移動就必然拉動它周圍的
+    一圈；那一圈的位移本來就不可能是全域仿射的一部分，於是背景那道約束把臉的
+    移動一起擋掉。實測 `face_rigid_16` 允許臉框走 16 px，實際只走到 1.4–2.0，
+    而背景殘差貼死在上限。
+
+    膨脹之後補集裡只剩真正的背景，過渡帶兩邊都不管——它既不是要保直線的背景，
+    也不是要保形狀的臉。
+    """
+    if radius <= 0:
+        return mask
+    k = 2 * int(round(radius)) + 1
+    m = F.max_pool2d(mask, (1, k), stride=1, padding=(0, k // 2))
+    return F.max_pool2d(m, (k, 1), stride=1, padding=(k // 2, 0))
+
+
 class FlowFieldParam:
     """低頻取樣位移場。介面與 `CompositeParam` 對各段的要求一致。"""
 

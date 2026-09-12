@@ -248,7 +248,8 @@ def _guard():
 
 
 FIELD_CONFIGS = ('immunise_field.json', 'immunise_field_affine.json',
-                 'immunise_field_objective.json')
+                 'immunise_field_objective.json',
+                 'immunise_field_eot.json')
 
 
 @pytest.mark.parametrize('name', FIELD_CONFIGS)

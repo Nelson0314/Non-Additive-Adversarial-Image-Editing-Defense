@@ -66,6 +66,7 @@ def main():
     from src.defense.carrier_mask import face_subject_mask
     from src.defense.color_amplitude import delta_e00
     from src.defense.delta_e_torch import cvar_from_map, delta_e00_torch
+    from src.defense.eot import EOTObjective
     from src.defense.geometry_field import (FlowFieldParam, affine_residual,
                                             det_jacobian)
     from src.defense.immunise import Cap, optimise_carrier
@@ -151,7 +152,10 @@ def main():
             weights = dict(free.get('weights') or {}, **(variant.get('weights') or {}))
             chain = int(variant.get('chain_steps', free.get('chain_steps', 6)))
             grad = int(variant.get('grad_steps', free.get('grad_steps', 1)))
-            key = (tuple(sorted(weights.items())), chain, grad)
+            eot_spec = dict(free.get('eot') or {}, **(variant.get('eot') or {}))
+            key = (tuple(sorted(weights.items())), chain, grad,
+                   tuple(sorted(eot_spec.get('kinds') or [])),
+                   int(eot_spec.get('samples', 1)))
             if key in cache:
                 return cache[key]
             obj = FreeObjective(
@@ -162,6 +166,12 @@ def main():
             if any(weights.get(k) for k in ('enc_target', 'diffusion')):
                 obj = CombinedObjective(obj, MainstreamTerms(obj, x),
                                         dict(obj.weights, **weights))
+            if eot_spec.get('kinds'):
+                obj = EOTObjective(
+                    obj, kinds=list(eot_spec['kinds']),
+                    samples=int(eot_spec.get('samples', 1)),
+                    seed=int(eot_spec.get('seed', 0)), device=device,
+                    include_identity=bool(eot_spec.get('include_identity', True)))
             cache[key] = obj
             return obj
 
@@ -327,6 +337,8 @@ def main():
                           'chain_steps', free.get('chain_steps', 6))),
                       'grad_steps': int(variant.get(
                           'grad_steps', free.get('grad_steps', 1))),
+                      'eot': dict(free.get('eot') or {},
+                                  **(variant.get('eot') or {})),
                       'timesteps': [int(t) for t in objective.timesteps]},
                      ensure_ascii=False, indent=2), encoding='utf-8')
 

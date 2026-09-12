@@ -19,15 +19,44 @@ def _full(x):
     return torch.ones_like(x[:, :1])
 
 
-def test_單一控制點且重度模糊時退化成全域仿射():
+def test_單一控制點且重度模糊時整片場是空間常數():
+    """退化的性質是**空間常數**，不是與舊類別逐值相同。
+
+    `ChromaAffineParam.T0_ab` 取的是 3×3 MK 解的 a/b 子區塊，那不是 a/b 平面上
+    的 MK 解（見 `color_field` 的模組說明）。`ColorFieldParam` 已改成直接解 2D，
+    兩者因此不再逐值相同；舊類別只有 `scripts/color_ceiling.py` 在用，維持原樣
+    以便重現既有批次。
+    """
     x = _image()
     a = ColorFieldParam(MEAN, COV, support=_full(x), grid=1, sigma=64.0)
+    a.reset(x, 0)
+    m, t = a._maps(tuple(x.shape[-2:]))
+    assert torch.allclose(m, m[..., :1, :1].expand_as(m), atol=1e-12)
+    assert torch.allclose(t, t[..., :1, :1].expand_as(t), atol=1e-12)
+
+
+def test_鎖亮度時_T0_是_ab_平面上的_MK_解():
+    x = _image(3)
+    a = ColorFieldParam(MEAN, COV, support=_full(x), grid=1, sigma=64.0,
+                        lock_luminance=True)
+    a.reset(x, 0)
+    from src.defense.ncf_param import regularize_covariance, rgb_to_lab
+    lab = rgb_to_lab(x).double()[0].flatten(1)
+    centred = lab - lab.mean(1, keepdim=True)
+    src, _ = regularize_covariance(centred @ centred.T / lab.shape[1], 1e-4)
+    tgt, _ = regularize_covariance(
+        torch.as_tensor(COV, dtype=torch.float64), 1e-4)
+    mapped = a.T0 @ src[1:, 1:] @ a.T0.T
+    assert torch.allclose(mapped, tgt[1:, 1:], atol=1e-8)
+
+
+def test_舊的全域仿射取的是_3x3_解的子區塊():
+    """把差異釘住：不是兩邊都對，是舊的那一條在數學上不滿足 2D 的 MK 條件。"""
+    x = _image()
     b = ChromaAffineParam(MEAN, COV, support=_full(x), radius=0.2,
                           epsilon_lab=None, max_gain=1e9, gamut='soft')
-    a.reset(x, 0)
     b.reset(x, 0)
-    assert torch.allclose(a.T0, b.T0_ab, atol=1e-9)
-    assert torch.allclose(a.render(x), b.render(x), atol=1e-6)
+    assert torch.allclose(b.T0_ab, b.T0[1:, 1:], atol=1e-12)
 
 
 def test_鎖住亮度且未出色域時_L_通道幾乎不動():

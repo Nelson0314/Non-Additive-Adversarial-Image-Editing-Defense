@@ -46,6 +46,40 @@ def delta_e00(a01: torch.Tensor, b01: torch.Tensor,
     return float((deltaE_ciede2000(rgb2lab(x), rgb2lab(y)) * w).sum() / total)
 
 
+def cvar_e00(a01: torch.Tensor, b01: torch.Tensor,
+             support: torch.Tensor = None, q: float = 0.95) -> float:
+    """最差 `1−q` 比例像素的支撐加權平均色差。**量測路徑，走 skimage。**
+
+    與 `delta_e00` 用同一份逐像素色差，只換縮減方式。可微的那一份在
+    `delta_e_torch.cvar_torch`，兩者的差異由 `tests/test_delta_e_torch.py` 釘住。
+    """
+    import numpy as np
+    from skimage.color import deltaE_ciede2000, rgb2lab
+
+    x = a01.detach().cpu().float().clamp(0, 1).permute(0, 2, 3, 1).numpy()
+    y = b01.detach().cpu().float().clamp(0, 1).permute(0, 2, 3, 1).numpy()
+    d = deltaE_ciede2000(rgb2lab(x), rgb2lab(y)).ravel()
+    if support is None:
+        w = np.ones_like(d)
+    else:
+        w = support.detach().cpu().float()[:, 0].numpy().ravel()
+    total = float(w.sum())
+    if total <= 0:
+        raise ValueError('support 的總權重為零，尾端色差沒有定義')
+    order = np.argsort(d)
+    ds, ws = d[order], w[order]
+    keep = float((1.0 - q) * total)
+    cum = np.cumsum(ws[::-1])
+    idx = int(np.searchsorted(cum, keep))
+    idx = min(idx, len(ds) - 1)
+    take_d = ds[::-1][:idx + 1]
+    take_w = ws[::-1][:idx + 1].copy()
+    over = float(take_w.sum()) - keep
+    if over > 0:
+        take_w[-1] -= over
+    return float((take_d * take_w).sum() / keep)
+
+
 @torch.no_grad()
 def solve_rotation(param, x01: torch.Tensor, *, lo: float = 0.0,
                    hi: float = 180.0, iters: int = 8,

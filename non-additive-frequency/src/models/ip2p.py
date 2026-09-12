@@ -140,12 +140,21 @@ class IP2PWrapper:
         `make_encoder_target_loss(ip2p, y)` 不必改。**要拼進 UNet 的影像條件
         不能用這個**，見 `image_latents`。
         """
+        return self.posterior_mean(x01, use_ckpt=use_ckpt) * self.scaling_factor
+
+    def posterior_mean(self, x01: torch.Tensor, use_ckpt: bool = False) -> torch.Tensor:
+        """未乘 scaling_factor 的後驗平均，與官方管線第 877 行同義。
+
+        `image_latents` 先前是 `encode_image() / scaling_factor`，在 bf16 下那一
+        乘一除的捨入不會完全抵銷，拼進 UNet 的影像條件因此與官方推論有微小差異。
+        兩個入口改成共用這裡，`encode_image` 自己乘。
+        """
         x = (x01.to(self.device) * 2.0 - 1.0).to(self.vae.dtype)
         if use_ckpt:
             return ckpt.checkpoint(
-                lambda a: self.vae.encode(a).latent_dist.mean * self.scaling_factor,
+                lambda a: self.vae.encode(a).latent_dist.mean,
                 x, use_reentrant=False)
-        return self.vae.encode(x).latent_dist.mean * self.scaling_factor
+        return self.vae.encode(x).latent_dist.mean
 
     def decode_latent(self, z: torch.Tensor, use_ckpt: bool = False) -> torch.Tensor:
         z = z.to(self.vae.dtype)
@@ -162,9 +171,10 @@ class IP2PWrapper:
 
         存在的理由只有一個——把管線第 877 行那個容易看漏的細節寫成程式碼。
         `encode_image` 乘了、這裡沒乘，差一個 0.18 的倍率，補錯不會拋錯，
-        只會讓影像條件的強度整個跑掉。
+        只會讓影像條件的強度整個跑掉。**不要寫成 `encode_image() / scaling`**：
+        bf16 下那一乘一除不會完全抵銷。
         """
-        return self.encode_image(x01) / self.scaling_factor
+        return self.posterior_mean(x01)
 
     # ---- 攻擊 ----
 

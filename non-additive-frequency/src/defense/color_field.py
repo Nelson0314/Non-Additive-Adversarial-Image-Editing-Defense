@@ -14,6 +14,13 @@
 高頻要付的抗淨化代價由 `src/purify/` 的算子量出來，不由這個類別擋。
 `highfreq_report` 仍逐列報。
 
+鎖亮度時解的是 2D 的 MK，不是 3D 解的子矩陣
+────────────────────────────────────────────────────────────────────
+`mk_matrix(Σ_s, Σ_t)[1:, 1:]` **不是** a/b 平面上的 MK 解：一般情況下它不滿足
+`T Σ_s^ab Tᵀ = Σ_t^ab`。反例 `Σ_s = [[2,1,0],[1,2,0],[0,0,1]]`、`Σ_t = I`，
+子矩陣把 a 的變異映成 1.244 而不是 1.0。所以鎖亮度時先把共變異數切成 2×2，
+再對它解 MK。切出來的區塊仍然對稱正定，`regularize_covariance` 的下限照舊。
+
 亮度
 ────────────────────────────────────────────────────────────────────
 `lock_luminance` 為真時 L 逐像素照抄輸入，與顏色線先前的設定一致；為假時 L 也
@@ -91,10 +98,10 @@ class ColorFieldParam:
             (centred * wf) @ centred.T / total, self.cov_floor)
         target, _ = regularize_covariance(
             self._to_like(self.target_cov, source), self.cov_floor)
-        t0 = mk_matrix(source, target).to(lab.device)
         c = self.channels
         lo = 3 - c
-        self.T0 = t0[lo:, lo:].contiguous()
+        self.T0 = mk_matrix(source[lo:, lo:].contiguous(),
+                            target[lo:, lo:].contiguous()).to(lab.device)
         self.target_shift = self._to_like(self.target_mean, source)[lo:]
         g = self.grid
         self.delta = torch.zeros(1, c * c + c, g, g, dtype=torch.float64,

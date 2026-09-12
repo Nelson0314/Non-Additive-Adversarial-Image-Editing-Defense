@@ -160,7 +160,7 @@ def subject_identity_row(x_orig: torch.Tensor, edit_orig: torch.Tensor,
 
 
 def anchored_identity(x_orig: torch.Tensor, edit_orig: torch.Tensor,
-                      edit_def: torch.Tensor, device=None) -> dict:
+                      edit_def: torch.Tensor, device=None, out_box=None) -> dict:
     """身分讀數改用**固定框**，不再依賴在編輯輸出上重新偵測到臉。
 
     `subject_identity_row` 取「與主體框重疊最多的偵測框」，偵測不到就記空值。
@@ -169,7 +169,11 @@ def anchored_identity(x_orig: torch.Tensor, edit_orig: torch.Tensor,
     的第一批裡 18 列有 10 列是這樣拿到 0 分的。
 
     這裡改成直接在**原圖主體框的座標**上裁編輯輸出並取嵌入，偵測器不參與，
-    所以「偵測不到」不再是一個可以被最佳化的狀態。偵測式的讀數仍一併回報
+    所以「偵測不到」不再是一個可以被最佳化的狀態。
+
+    `out_box` 給輸出側用另一個座標。編輯前做過裁切或縮放時，輸出的像素座標與
+    原圖不再一致，沿用原框會把**座標錯位**算進身分下降，而且配對的分母消不掉它
+    （兩側的錯位不同）。參考嵌入永遠取自原圖的 `anchor`。偵測式的讀數仍一併回報
     （`*_detected`、`subject_box_iou_*`），兩者分開看得見。
     """
     subject = face_boxes(x_orig, device)
@@ -177,14 +181,16 @@ def anchored_identity(x_orig: torch.Tensor, edit_orig: torch.Tensor,
         raise ValueError('原圖偵測不到臉，無法錨定主體；這一格不可用本讀數')
     anchor = max(subject, key=lambda q: (q[2]-q[0])*(q[3]-q[1]))
     e0 = embed_box(x_orig, anchor, device)
+    target = anchor if out_box is None else out_box
 
-    row = {'subject_anchor': '|'.join(str(round(float(v), 1)) for v in anchor)}
+    row = {'subject_anchor': '|'.join(str(round(float(v), 1)) for v in anchor),
+           'subject_out_box': '|'.join(str(round(float(v), 1)) for v in target)}
     for name, y in (('edit_orig', edit_orig), ('edit_def', edit_def)):
         row[f'subject_id_{name}'] = round(
-            float(similarity(e0, embed_box(y, anchor, device))), 5)
+            float(similarity(e0, embed_box(y, target, device))), 5)
         boxes = face_boxes(y, device)
-        best = max(boxes, key=lambda q: _iou(anchor, q)) if boxes else None
-        iou = _iou(anchor, best) if best is not None else 0.0
+        best = max(boxes, key=lambda q: _iou(target, q)) if boxes else None
+        iou = _iou(target, best) if best is not None else 0.0
         row[f'subject_box_iou_{name}'] = round(iou, 5)
         sim = None if iou <= 0 else similarity(e0, embed_box(y, best, device))
         row[f'subject_id_{name}_detected'] = '' if sim is None else round(sim, 5)
@@ -192,3 +198,35 @@ def anchored_identity(x_orig: torch.Tensor, edit_orig: torch.Tensor,
         row['subject_id_edit_orig'] - row['subject_id_edit_def'], 5)
     row['id_embed_weights'] = EMBED_WEIGHTS
     return row
+
+
+def embed_box_differentiable(x01: torch.Tensor, box, device=None) -> torch.Tensor:
+    """與 `embed_box` 同一個框、同一個網路，但整條路徑保持可微。
+
+    `embed_box` 透過 PIL 的 `extract_face` 裁切與縮放，圖在那裡離開了計算圖，
+    所以它只能當讀數，不能當內層的損失。這裡用張量運算重做同一件事：
+    照 `facenet_pytorch.models.utils.detect_face.extract_face` 的算式擴框，
+    夾在影像邊界內，再用雙線性插值縮到 `DETECTOR_IMAGE_SIZE`，
+    最後套同一個 `(x*255 − 127.5) / 128` 標準化。
+
+    縮放用 `antialias=True`，與 PIL 的 `BILINEAR` 在縮小時的抗鋸齒行為對齊；
+    兩條路徑仍非逐值相同（PIL 先量化成 uint8、座標取整的細節也不同），所以
+    **回報一律走 `embed_box`**，這一條只給內層用。
+    """
+    dev = device or x01.device
+    _, net = _load(dev)
+    h, w = x01.shape[-2:]
+    x0, y0, x1, y1 = (float(v) for v in box)
+    mx = DETECTOR_MARGIN * (x1 - x0) / (DETECTOR_IMAGE_SIZE - DETECTOR_MARGIN)
+    my = DETECTOR_MARGIN * (y1 - y0) / (DETECTOR_IMAGE_SIZE - DETECTOR_MARGIN)
+    a = max(0, int(x0 - mx / 2))
+    b = max(0, int(y0 - my / 2))
+    c = min(w, int(x1 + mx / 2))
+    d = min(h, int(y1 + my / 2))
+    if c - a < 2 or d - b < 2:
+        raise ValueError(f'擴框之後的裁切區域退化：{(a, b, c, d)}')
+    crop = x01[..., b:d, a:c].to(dev)
+    face = torch.nn.functional.interpolate(
+        crop, size=(DETECTOR_IMAGE_SIZE, DETECTOR_IMAGE_SIZE),
+        mode='bilinear', align_corners=False, antialias=True)
+    return net((face * 255.0 - 127.5) / 128.0)[0]

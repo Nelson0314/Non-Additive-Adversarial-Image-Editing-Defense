@@ -60,6 +60,8 @@ COLUMNS = [
     'knob_face_palette', 'knob_clothes_palette', 'knob_lock_luminance',
     'knob_field_seed',
     'delta_e_cap', 'face_delta_e_cap',
+    'inner_steps', 'inner_lr', 'inner_latent_start', 'inner_latent_end',
+    'inner_amplitude_shrink',
     'search_budget', 'search_evaluations', 'search_score', 'search_children',
     'attack_steps', 'attack_batch', 'attack_precision', 'seconds',
 ]
@@ -71,6 +73,8 @@ TRACE_COLUMNS = [
     'clip_s_def',
     'niqe_def',
     'latent_l2', 'hf_rgb_total', 'niqe_input', 'niqe_original', 'rejected',
+    'inner_steps', 'inner_lr', 'inner_latent_start', 'inner_latent_end',
+    'inner_amplitude_shrink',
     'support_deltaE00', 'delta_e_cap', 'face_deltaE00', 'face_delta_e_cap',
     'knob_face_grid', 'knob_face_sigma', 'knob_face_scale',
     'knob_face_amplitude',
@@ -262,6 +266,7 @@ def main():
     from src.defense.color_amplitude import delta_e00
     from src.defense.color_search import evolution_search_batched
     from src.defense.criterion import criterion_score
+    from src.defense.inner_optimise import optimise_field
     from src.defense.lowfreq_color import highfreq_report
     from src.defense.ncf_library import sha256
     from src.defense.carrier_mask import face_subject_mask
@@ -345,6 +350,16 @@ def main():
         for s in report_seeds:
             save_png(clean[s], args.out / f'{tag}__s{s}__clean_edit.png')
 
+        inner = spec.get('inner', {})
+
+        def caps_for():
+            out = []
+            if de_cap > 0:
+                out.append((lambda y: delta_e00(x, y, frame), de_cap))
+            if face is not None and face_cap > 0:
+                out.append((lambda y: delta_e00(x, y, face), face_cap))
+            return out
+
         def build(values):
             return build_carrier(values, x, frame_support=frame,
                                  clothes_support=clothes,
@@ -361,9 +376,16 @@ def main():
 
         def evaluate_many(candidates):
             state['generation'] += 1
-            defended = []
+            defended, inner_rows = [], []
             for v in candidates:
-                defended.append(build(v).render(x).detach())
+                carrier = build(v)
+                if inner.get('steps'):
+                    inner_rows.append(optimise_field(
+                        carrier, x, ip2p, steps=int(inner['steps']),
+                        lr=float(inner.get('lr', 0.05)), caps=caps_for()))
+                else:
+                    inner_rows.append({})
+                defended.append(carrier.render(x).detach())
             images, seeds = [], []
             for y in defended:
                 for s in search_seeds:
@@ -408,6 +430,7 @@ def main():
                     'niqe_def': per_seed[0]['niqe_def'],
                     'latent_l2': round(float((z - z_orig).norm()), 4),
                     'hf_rgb_total': round(hf['hf_ratio_rgb_total'], 5),
+                    **inner_rows[j],
                     'niqe_input': round(niqe_y, 5),
                     'niqe_original': round(niqe_x, 5), 'rejected': rejected,
                     'support_deltaE00': round(de_y, 4), 'delta_e_cap': de_cap,
@@ -425,6 +448,11 @@ def main():
 
         for arm, values in (('searched', res.best), ('start', dict(START))):
             carrier = build(values)
+            inner_row = {}
+            if inner.get('steps') and arm == 'searched':
+                inner_row = optimise_field(
+                    carrier, x, ip2p, steps=int(inner['steps']),
+                    lr=float(inner.get('lr', 0.05)), caps=caps_for())
             x_def = carrier.render(x).detach()
             save_png(x_def, args.out / f'{tag}__{arm}__def.png')
             edited = edit_many([x_def] * len(report_seeds), cell['instruction'],
@@ -471,7 +499,7 @@ def main():
                     'attack_steps': steps, 'attack_batch': batch,
                     'attack_precision': precision,
                     'seconds': round(time.time() - t_start, 1),
-                    **describe(values), **read})
+                    **inner_row, **describe(values), **read})
 
         for s in report_seeds:
             read = readouts(suite, x, x, clean[s], clean[s],

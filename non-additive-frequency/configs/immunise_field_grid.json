@@ -1,0 +1,125 @@
+{
+  "manifest": "data/scaleup_manifest.json",
+  "images": [
+    "task_attr_mod_color_123744",
+    "task_env_weather_114555",
+    "task_env_weather_126577",
+    "task_env_weather_195273",
+    "task_obj_remove_509477"
+  ],
+  "images_note": "與前幾批同五張。",
+  "objective_note": "**這份設定裡不得出現任何指令。** scripts/immunise_field.py 載入 scripts/immunise.py 的 assert_no_instructions 遞迴檢查，含有 instruction 或 prompt 的鍵一律拒絕啟動。",
+  "rationale": "決定產物壞不壞的是控制網格的解析度，不是位移的大小。同一張影像（task_env_weather_114555）上，16×16 網格走 21.5 px 就把五官拉散，而 6×6 網格走 26.8 px 仍是一張自然的照片。機制是控制點間距與臉的尺度的比值：間距 32 px 時位移可以在一張臉之內變化，五官被相對拉扯；間距 85 px 時整張臉落在兩三個控制點之間，位移在臉的尺度上近乎一致，臉因此是被整體改形而不是被撕開。這一批把預算固定在 48 px，只掃網格，找那個比值的斷點。",
+  "mechanism_note": "512 px 上的控制點間距：grid 4 → 128 px、grid 5 → 102 px、grid 6 → 85 px、grid 8 → 64 px、grid 10 → 51 px。五張影像的臉框邊長不同，所以斷點要逐張看，不是一個全域的網格數。flow_px_max 與 subject_id_defended 逐列都報得出來。",
+  "free": {
+    "steps": 150,
+    "lr": 0.05,
+    "timesteps": 4,
+    "chain_steps": 6,
+    "grad_steps": 1,
+    "noise_seed": 0,
+    "log_every": 30,
+    "weights": {
+      "id": 1.0,
+      "enc": 0.5,
+      "cond": 1.0
+    }
+  },
+  "free_note": "目標函數與前幾批相同。",
+  "variants": [
+    {
+      "name": "grid_04",
+      "carrier": "flow",
+      "knobs": {
+        "grid": 4,
+        "taper": 16.0,
+        "box": 64.0
+      },
+      "caps": {
+        "face_px": 48.0,
+        "rigid_px": 3.0,
+        "rigid_margin": 64.0,
+        "fold": 0.001,
+        "det_floor": 0.5,
+        "quantile": 0.99
+      },
+      "lr": 1.2
+    },
+    {
+      "name": "grid_05",
+      "carrier": "flow",
+      "knobs": {
+        "grid": 5,
+        "taper": 16.0,
+        "box": 64.0
+      },
+      "caps": {
+        "face_px": 48.0,
+        "rigid_px": 3.0,
+        "rigid_margin": 64.0,
+        "fold": 0.001,
+        "det_floor": 0.5,
+        "quantile": 0.99
+      },
+      "lr": 1.2
+    },
+    {
+      "name": "grid_06",
+      "carrier": "flow",
+      "knobs": {
+        "grid": 6,
+        "taper": 16.0,
+        "box": 64.0
+      },
+      "caps": {
+        "face_px": 48.0,
+        "rigid_px": 3.0,
+        "rigid_margin": 64.0,
+        "fold": 0.001,
+        "det_floor": 0.5,
+        "quantile": 0.99
+      },
+      "lr": 1.2
+    },
+    {
+      "name": "grid_08",
+      "carrier": "flow",
+      "knobs": {
+        "grid": 8,
+        "taper": 16.0,
+        "box": 64.0
+      },
+      "caps": {
+        "face_px": 48.0,
+        "rigid_px": 3.0,
+        "rigid_margin": 64.0,
+        "fold": 0.001,
+        "det_floor": 0.5,
+        "quantile": 0.99
+      },
+      "lr": 1.2
+    },
+    {
+      "name": "grid_10",
+      "carrier": "flow",
+      "knobs": {
+        "grid": 10,
+        "taper": 16.0,
+        "box": 64.0
+      },
+      "caps": {
+        "face_px": 48.0,
+        "rigid_px": 3.0,
+        "rigid_margin": 64.0,
+        "fold": 0.001,
+        "det_floor": 0.5,
+        "quantile": 0.99
+      },
+      "lr": 1.2
+    }
+  ],
+  "variants_note": "grid_06 與 configs/immunise_field_coarse_margin.json 的 coarse_margin_48 逐字相同，是這一批自己的對照。其餘只改網格，預算、過渡帶、背景剛性、摺疊上限、學習率全部不動，所以差額可以直接歸因到網格。grid_10 的間距 51 px 已經接近臉框的尺度，預期會開始出現局部拉扯；grid_04 的間距 128 px 則可能連整張臉都動不太出差異，兩端都要有。",
+  "precision": "bf16",
+  "s_i": 1.5,
+  "attack_steps": 50
+}

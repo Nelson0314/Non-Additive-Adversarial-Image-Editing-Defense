@@ -73,6 +73,7 @@ def main():
             screen.setdefault(r['variant'], {})[
                 f"{r['arm']}|{r['purifier']}"] = {
                 'cells': int(r['cells']), 'penetrated': int(r['penetrated']),
+                'majority': int(r.get('majority') or 0),
                 'all_seeds': int(r['all_seeds']),
                 'criterion': num(r.get('criterion')),
                 'id_norm': num(r.get('id_norm')),

@@ -4,20 +4,53 @@
 
 ## 現況
 
-遠端 `basic-2` 上有三個行程在跑 `scripts/color_ceiling.py`
-（`--config configs/color_scaleup.json`，分片 1/3、2/3、3/3，卡 4、5、6），
-輸出在 `/nfs/home/nelson0314/WACV-s4/runs/color_scaleup_search/shard{i}of3`。
-每片 40 格、預期 440 列。本機沒有背景工作。
+遠端 `basic-2` 卡 0–4 在跑 `scripts/carrier_search.py --config configs/carrier_search_seeds.json`
+（兩顆搜尋種子的版本，`runs/carrier_search_twoseed/`），每格約 56 分鐘、每片 3 格，
+預計 11:20 前後收尾。本機沒有背景工作。
 
-測試基準：`python -m pytest -q --ignore=runs` → **193 passed / 1 skipped**。
-`--ignore=runs` 是必要的，`runs/ncf_cpu_test_tmp/pytest-of-nelso` 被提權沙箱的
-ACL 鎖住，會讓收集階段直接失敗。
+測試基準：`python -m pytest -q --ignore=runs` → **230 passed / 1 skipped**。
 
 本機 Python `C:/Users/nelso/miniconda3/envs/wacv/python.exe`。
-遠端工作目錄 `/nfs/home/nelson0314/WACV-s4`（basic-1 埠 10101、basic-2 埠 10102，
-home 跨機同步）。**遠端那棵樹是整棵同步過去的，不是 git 工作區**；改完本機要
-自己 `scp`，而且批次跑到一半不要同步（跑著的行程已把模組讀進記憶體，但下一次
-啟動就會換版本，兩批因此不可並列）。
+遠端工作目錄 `/nfs/home/nelson0314/WACV-s4`（basic-1 埠 10101、basic-2 埠 10102）。
+**遠端那棵樹是整棵同步過去的，不是 git 工作區**；改完本機要自己 `scp`。
+
+## 現行的做法
+
+`scripts/carrier_search.py`：(1+9) 演化策略在使用者判準上直接搜尋**載體的結構**，
+每個候選點跑一次真的編輯。載體是 `frame → clothes → face` 三段串接的空間變化
+顏色場（`src/defense/color_field.py`、`composite.py`），每段的控制點密度、帶寬、
+場振幅、幅度、配色（各自類別的 ADE20K 真實色彩分布）都是旋鈕。
+
+目標函數 `src/defense/criterion.py`：`softmin(id_norm, use_norm)`，逐格對同一格的
+未防禦攻擊正規化。**指令那一項照算照報但不進目標**——方向分數、終點對齊、對齊
+增益三種寫法都在圖上被推翻過（搜到的點被判成「指令沒完成」，而圖上指令完成得
+好好的）。
+
+約束：整圖 ΔE00 ≤ 16、**臉上** ΔE00 ≤ 16、防禦圖 NIQE ≤ 原圖 1.4 倍。高頻不設限，
+`hf_ratio` 照量照報。搜尋種子與回報種子不相交。
+
+## 量到什麼（15 格 × 3 回報種子）
+
+| 批次 | criterion 中位 | 身分中位 | 穿透格 |
+|---|---|---|---|
+| `carrier_search_fixed`（無 ΔE00 上限） | 0.134 | 0.109 | 多數，但產物是螢光假色（ΔE00 28–52） |
+| `carrier_search_de16`（全圖 ≤16，兩段） | 0.960 | 0.905 | 1/9 |
+| `carrier_search_face`（三段，臉沿用衣物配色） | 0.946 | 0.900 | 1/9 |
+| `carrier_search_palette`（三段＋膚色配色） | 0.916 | 0.879 | 4/15，但半數靠臉上局部超標 |
+| `carrier_search_facecap`（再加臉上 ≤16） | 0.923 | 0.894 | **2/15，兩格都是 `hat`** |
+| `start`（現行全域仿射，原地對照） | 0.994 | 0.916 | 0 |
+
+**在完整約束下有效，但命中率低。** 成功的樣子（`task_env_weather_126577 hat`）：
+防禦圖是一張帶冷色調的照片、整圖與臉上 ΔE00 都在 13 左右；編輯後帽子戴上了、
+畫面完全可用，但裡面是另一個人，身分 0.052。
+
+兩個結構性的教訓，都是**看圖**才發現的，讀數上看不出來：
+1. 無上限時搜尋把圖推成螢光假色，NIQE 攔不住（它量模糊與雜訊，不量顏色合理性）。
+2. 全圖上限會被面積稀釋：臉佔 5%，臉推成螢光粉綠、全圖 ΔE00 仍只有 13.6。
+   逐區上限是必要的。
+
+代理與判準的秩相關（判準修好之後，720 個候選點）：VAE latent 位移 **−0.63／−0.58**。
+可微內層（FaceLock／PhotoGuard encoder）因此有依據，尚未接上。
 
 ## 遠端的三棵樹
 

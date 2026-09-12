@@ -1,0 +1,70 @@
+{
+  "manifest": "data/scaleup_manifest.json",
+  "images": [
+    "task_attr_mod_color_123744",
+    "task_env_weather_114555",
+    "task_env_weather_126577",
+    "task_env_weather_195273",
+    "task_obj_remove_509477"
+  ],
+  "images_note": "與前幾批同五張。",
+  "objective_note": "**這份設定裡不得出現任何指令。** scripts/immunise_field.py 載入 scripts/immunise.py 的 assert_no_instructions 遞迴檢查，含有 instruction 或 prompt 的鍵一律拒絕啟動。",
+  "rationale": "把兩個各自量到有效的機制合起來。一、粗網格（6×6，512 px 上控制點間距 85 px）在**結構上**做不出局部隆起——runs/field_affine/ 的 coarse_32 在 task_env_weather_126577 上把臉框位移推到 29.5 px、代理身分項降到 0.528，而產物是一張自然的照片。二、過渡帶讓背景的剛性約束只管背景——同一批的 cap_reached 顯示背景殘差貼死在上限，而臉框預算遠遠用不完。兩者的瓶頸不同，所以合起來預期是相乘不是重複。",
+  "mechanism_note": "背景剛性擋掉多少，取決於臉佔畫面的比例。coarse_32 上 task_env_weather_126577（臉大）走到 29.5/32、id 0.528，而 task_env_weather_114555（臉小）只走到 5.4/32、id 0.952：臉越小，臉的移動溢出到臉框外的比例越大，被背景約束擋掉的就越多。過渡帶要修的正是這一項，所以逐張的 flow_px_max 要分開看，不能只看中位數。",
+  "free": {
+    "steps": 150,
+    "lr": 0.05,
+    "timesteps": 4,
+    "chain_steps": 6,
+    "grad_steps": 1,
+    "noise_seed": 0,
+    "log_every": 30,
+    "weights": {
+      "id": 1.0,
+      "enc": 0.5,
+      "cond": 1.0
+    }
+  },
+  "free_note": "目標函數與前幾批相同。",
+  "variants": [
+    {
+      "name": "coarse_margin_32",
+      "carrier": "flow",
+      "knobs": {"grid": 6, "taper": 16.0, "box": 64.0},
+      "caps": {"face_px": 32.0, "rigid_px": 3.0, "rigid_margin": 64.0, "fold": 0.001, "det_floor": 0.5, "quantile": 0.99},
+      "lr": 0.8
+    },
+    {
+      "name": "coarse_margin_48",
+      "carrier": "flow",
+      "knobs": {"grid": 6, "taper": 16.0, "box": 64.0},
+      "caps": {"face_px": 48.0, "rigid_px": 3.0, "rigid_margin": 64.0, "fold": 0.001, "det_floor": 0.5, "quantile": 0.99},
+      "lr": 1.2
+    },
+    {
+      "name": "coarse_margin_96",
+      "carrier": "flow",
+      "knobs": {"grid": 6, "taper": 16.0, "box": 64.0},
+      "caps": {"face_px": 96.0, "rigid_px": 3.0, "rigid_margin": 96.0, "fold": 0.001, "det_floor": 0.5, "quantile": 0.99},
+      "lr": 2.0
+    },
+    {
+      "name": "coarse_margin_48_tight",
+      "carrier": "flow",
+      "knobs": {"grid": 6, "taper": 16.0, "box": 64.0},
+      "caps": {"face_px": 48.0, "rigid_px": 1.5, "rigid_margin": 64.0, "fold": 0.001, "det_floor": 0.5, "quantile": 0.99},
+      "lr": 1.2
+    },
+    {
+      "name": "coarse_margin_00",
+      "carrier": "flow",
+      "knobs": {"grid": 6, "taper": 16.0, "box": 64.0},
+      "caps": {"face_px": 32.0, "rigid_px": 3.0, "rigid_margin": 0.0, "fold": 0.001, "det_floor": 0.5, "quantile": 0.99},
+      "lr": 0.8
+    }
+  ],
+  "variants_note": "coarse_margin_00 與 runs/field_affine/ 的 coarse_32 逐字相同，是這一批自己的對照——過渡帶寬度為零就是原來的作法。coarse_margin_32 只加過渡帶，所以差額可以直接歸因。48 與 96 把預算往上推，問粗網格的自然度能撐到多大的位移；96 那一檔連過渡帶一起加寬，否則預算開了也溢不出去。coarse_margin_48_tight 把背景剛性收緊一倍，測「過渡帶是不是只是變相放寬了背景」——若收緊之後成績不掉，那就不是。",
+  "precision": "bf16",
+  "s_i": 1.5,
+  "attack_steps": 50
+}

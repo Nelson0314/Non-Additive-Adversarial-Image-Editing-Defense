@@ -48,13 +48,18 @@ COLUMNS = [
     'siglip_s_orig', 'siglip_s_def', 'siglip_s_drop',
     'niqe_orig', 'niqe_def', 'niqe_input', 'niqe_original',
     'edit_lpips', 'input_psnr', 'input_dists', 'input_linf', 'input_lpips',
-    'support_deltaE00', 'hf_rgb_total', 'hf_lab_L', 'hf_lab_a', 'hf_lab_b',
+    'support_deltaE00', 'face_deltaE00', 'clothes_deltaE00',
+    'hf_rgb_total', 'hf_lab_L', 'hf_lab_a', 'hf_lab_b',
     'latent_l2', 'latent_norm_def', 'latent_norm_orig',
     'protected_max_abs', 'protected_pixels',
+    'knob_face_grid', 'knob_face_sigma', 'knob_face_scale',
+    'knob_face_amplitude',
     'knob_frame_grid', 'knob_frame_sigma', 'knob_frame_scale',
     'knob_frame_amplitude', 'knob_clothes_grid', 'knob_clothes_sigma',
-    'knob_clothes_scale', 'knob_clothes_amplitude', 'knob_lock_luminance',
+    'knob_clothes_scale', 'knob_clothes_amplitude',
+    'knob_face_palette', 'knob_clothes_palette', 'knob_lock_luminance',
     'knob_field_seed',
+    'delta_e_cap', 'face_delta_e_cap',
     'search_budget', 'search_evaluations', 'search_score', 'search_children',
     'attack_steps', 'attack_batch', 'attack_precision', 'seconds',
 ]
@@ -66,9 +71,13 @@ TRACE_COLUMNS = [
     'clip_s_def',
     'niqe_def',
     'latent_l2', 'hf_rgb_total', 'niqe_input', 'niqe_original', 'rejected',
+    'support_deltaE00', 'delta_e_cap', 'face_deltaE00', 'face_delta_e_cap',
+    'knob_face_grid', 'knob_face_sigma', 'knob_face_scale',
+    'knob_face_amplitude',
     'knob_frame_grid', 'knob_frame_sigma', 'knob_frame_scale',
     'knob_frame_amplitude', 'knob_clothes_grid', 'knob_clothes_sigma',
-    'knob_clothes_scale', 'knob_clothes_amplitude', 'knob_lock_luminance',
+    'knob_clothes_scale', 'knob_clothes_amplitude',
+    'knob_face_palette', 'knob_clothes_palette', 'knob_lock_luminance',
     'knob_field_seed',
 ]
 
@@ -114,13 +123,42 @@ def save_png(x, path):
 
 
 def palette_of(spec, palette_id):
-    from src.defense.ncf_library import NCFLibrary
-    lib = spec['library']
-    obj = NCFLibrary(ROOT / lib['path'], expected_sha256=lib['sha256'],
-                     required_classes=lib['class_weights'],
-                     ade20k_classes=lib.get('ade20k_classes'))
-    rec = next(r for r in obj.records if r['id'] == palette_id)
+    rec = next(r for r in _library(spec) if r['id'] == palette_id)
     return rec['mean'], rec['covariance']
+
+
+_LIB_CACHE = {}
+
+
+def _library(spec):
+    """整個雜湊驗過的色彩庫，不按類別過濾。
+
+    `NCFLibrary` 的 `ade20k_classes` 是為「一個區域只配它自己的語意類別」而設，
+    但這裡要讓搜尋在**多個類別**之間挑（臉配 `person`、衣物配 `apparel`），所以
+    過濾改在取用端做，雜湊與 Lab 單位的檢查仍走同一條路徑。
+    """
+    key = spec['library']['sha256']
+    if key not in _LIB_CACHE:
+        from src.defense.ncf_library import NCFLibrary
+        lib = spec['library']
+        obj = NCFLibrary(ROOT / lib['path'], expected_sha256=lib['sha256'],
+                         required_classes=lib['class_weights'],
+                         ade20k_classes=None)
+        _LIB_CACHE[key] = obj.records
+    return _LIB_CACHE[key]
+
+
+def palette_bank(spec, class_prefix):
+    """某個 ADE20K 類別底下的所有真實色彩分布，順序固定。
+
+    臉那一段要配的是 `ade013_person`：身分住在膚色上，而把膚色移到**另一個真實
+    的膚色分布**既是往身分下手，也天然自然——那是別人身上量到的顏色，不是憑空
+    造的。衣物配 `ade093_apparel`，與先前一致。
+    """
+    bank = [r for r in _library(spec) if r['id'].startswith(class_prefix)]
+    if not bank:
+        raise SystemExit(f'色彩庫裡沒有 {class_prefix} 開頭的分布')
+    return [(r['mean'], r['covariance']) for r in bank]
 
 
 def cells_of(spec):
@@ -211,18 +249,22 @@ def main():
     ap.add_argument('--batch', type=int, default=0)
     ap.add_argument('--budget', type=int, default=0)
     ap.add_argument('--precision', default='')
+    ap.add_argument('--delta-e-cap', type=float, default=0.0,
+                    help='覆寫設定裡的 delta_e_cap：防禦圖相對原圖的支撐加權 '
+                         'ΔE00 上限，超過的候選點直接退回。')
     args = ap.parse_args()
     if args.device != 'cpu':
         assert_free_cards()
 
     import torch
     from src.defense.carrier_search import (START, build_carrier, describe,
-                                            knob_list, spearman)
+                                            knob_list, pick, spearman)
     from src.defense.color_amplitude import delta_e00
     from src.defense.color_search import evolution_search_batched
     from src.defense.criterion import criterion_score
     from src.defense.lowfreq_color import highfreq_report
     from src.defense.ncf_library import sha256
+    from src.defense.carrier_mask import face_subject_mask
     from src.defense.ncf_runner import ncf_support
     from src.metrics.suite import MetricSuite
 
@@ -282,12 +324,17 @@ def main():
         tag = f"{cell['image']}__{cell['class']}"
         clothes = ncf_support(x, 'clothes')
         frame = ncf_support(x, 'frame')
+        face = (face_subject_mask(x, device=device)
+                if spec.get('face_stage', True) else None)
         frame_palette = palette_of(spec, spec['palette_id'])
-        clothes_palette = palette_of(spec, spec['palette_id_second'])
+        clothes_bank = palette_bank(spec, spec['clothes_palette_class'])
+        face_bank = palette_bank(spec, spec['face_palette_class'])
         with torch.no_grad():
             z_orig = ip2p.encode_image(x).float()
         niqe_x = suite.niqe(x)
         natural_cap = float(spec.get('naturalness_max_ratio', 1.4)) * niqe_x
+        de_cap = args.delta_e_cap or float(spec.get('delta_e_cap', 0) or 0)
+        face_cap = float(spec.get('face_delta_e_cap', 0) or 0) or de_cap
 
         all_seeds = search_seeds + report_seeds
         clean = dict(zip(all_seeds,
@@ -301,8 +348,12 @@ def main():
         def build(values):
             return build_carrier(values, x, frame_support=frame,
                                  clothes_support=clothes,
+                                 face_support=face,
                                  frame_palette=frame_palette,
-                                 clothes_palette=clothes_palette,
+                                 clothes_palette=pick(clothes_bank,
+                                                      values['clothes_palette']),
+                                 face_palette=pick(face_bank,
+                                                   values['face_palette']),
                                  radius=spec.get('radius'),
                                  max_gain=spec.get('max_gain'))
 
@@ -322,6 +373,9 @@ def main():
             scores = []
             for j, (v, y) in enumerate(zip(candidates, defended)):
                 niqe_y = suite.niqe(y)
+                de_y = delta_e00(x, y, frame)
+                de_face = (delta_e00(x, y, face) if face is not None
+                           else de_y)
                 per_seed, terms_sum = [], None
                 for m, s in enumerate(search_seeds):
                     ed = edited[j * len(search_seeds) + m]
@@ -330,7 +384,9 @@ def main():
                     per_seed.append(read)
                 terms = {k: sum(float(r[k]) for r in per_seed) / len(per_seed)
                          for k in ('id_norm', 'dir_norm', 'use_norm')}
-                rejected = int(niqe_y > natural_cap)
+                rejected = int(niqe_y > natural_cap
+                               or (de_cap > 0 and de_y > de_cap)
+                               or (face_cap > 0 and de_face > face_cap))
                 score = 1e3 if rejected else criterion_score(terms)
                 scores.append(score)
                 state['evaluation'] += 1
@@ -354,6 +410,9 @@ def main():
                     'hf_rgb_total': round(hf['hf_ratio_rgb_total'], 5),
                     'niqe_input': round(niqe_y, 5),
                     'niqe_original': round(niqe_x, 5), 'rejected': rejected,
+                    'support_deltaE00': round(de_y, 4), 'delta_e_cap': de_cap,
+                    'face_deltaE00': round(de_face, 4),
+                    'face_delta_e_cap': face_cap,
                     **describe(v)})
             return scores
 
@@ -391,6 +450,9 @@ def main():
                     'input_linf': round(appearance['linf'], 5),
                     'input_lpips': round(appearance['lpips'], 5),
                     'support_deltaE00': round(delta_e00(x, x_def, frame), 5),
+                    'face_deltaE00': ('' if face is None
+                                      else round(delta_e00(x, x_def, face), 5)),
+                    'clothes_deltaE00': round(delta_e00(x, x_def, clothes), 5),
                     'hf_rgb_total': round(hf['hf_ratio_rgb_total'], 5),
                     'hf_lab_L': round(hf['hf_ratio_lab_L'], 5),
                     'hf_lab_a': round(hf['hf_ratio_lab_a'], 5),
@@ -402,6 +464,7 @@ def main():
                     'latent_norm_orig': round(float(z_orig.norm()), 4),
                     'protected_max_abs': round(float(protected.max()), 8),
                     'protected_pixels': int(((1.0 - clothes) * (1.0 - frame) > 0).sum()),
+                    'delta_e_cap': de_cap, 'face_delta_e_cap': face_cap,
                     'search_budget': budget, 'search_children': children,
                     'search_evaluations': res.evaluations,
                     'search_score': round(res.best_score, 6),

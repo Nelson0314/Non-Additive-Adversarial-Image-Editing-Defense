@@ -93,3 +93,50 @@ def test_秩相關的邊界情形():
     assert spearman([1, 2, 3], [3, 2, 1]) == -1.0
     assert math.isnan(spearman([1, 2], [1, 2]))
     assert math.isnan(spearman([1, 1, 1], [1, 2, 3]))
+
+
+def test_有臉遮罩時串成三段且臉那一段只動臉():
+    x = _image(7)
+    frame, clothes = _supports(x)
+    face = torch.zeros_like(x[:, :1])
+    face[..., 4:20, 4:20] = 1.0
+    v = dict(START, face_grid=2.0, face_scale=0.8, face_amplitude=1.0,
+             frame_amplitude=0.05, clothes_amplitude=0.05, field_seed=11.0)
+    c = build_carrier(v, x, frame_support=frame, clothes_support=clothes,
+                      face_support=face, frame_palette=(MEAN, COV),
+                      clothes_palette=(SECOND, COV))
+    assert [s for s in c.tags] == ['frame', 'clothes', 'face']
+    assert c.stages[2].grid == 4
+    assert float(c.stages[2].delta.abs().max()) > 0
+
+
+def test_沒有臉遮罩時退化成兩段():
+    x = _image(8)
+    frame, clothes = _supports(x)
+    c = build_carrier(dict(START), x, frame_support=frame,
+                      clothes_support=clothes, frame_palette=(MEAN, COV),
+                      clothes_palette=(SECOND, COV))
+    assert c.tags == ['frame', 'clothes']
+
+
+def test_配色由旋鈕在庫裡挑且夾在範圍內():
+    from src.defense.carrier_search import pick
+    bank = [(f'mean{k}', f'cov{k}') for k in range(20)]
+    assert pick(bank, 0.0) == bank[0]
+    assert pick(bank, 3.4) == bank[3]
+    assert pick(bank, 19.6) == bank[19]
+    assert pick(bank, -5) == bank[0]
+    assert pick(bank, 99) == bank[19]
+
+
+def test_臉那一段吃自己的配色():
+    x = _image(9)
+    frame, clothes = _supports(x)
+    face = torch.zeros_like(x[:, :1])
+    face[..., 4:20, 4:20] = 1.0
+    v = dict(START, face_scale=0.0, face_amplitude=1.0)
+    skin = ([55.0, 12.0, 18.0], COV)
+    c = build_carrier(v, x, frame_support=frame, clothes_support=clothes,
+                      face_support=face, frame_palette=(MEAN, COV),
+                      clothes_palette=(SECOND, COV), face_palette=skin)
+    assert c.stages[2].target_mean.tolist() == skin[0]

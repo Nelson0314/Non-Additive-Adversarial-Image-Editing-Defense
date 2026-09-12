@@ -68,14 +68,15 @@
   "s_i": 1.5,
   "attack_steps": 50,
   "search_seeds": [
-    11001
+    11001,
+    21001
   ],
   "report_seeds": [
     17001,
     27001,
     47001
   ],
-  "seeds_note": "搜尋只看 search_seeds，回報只看 report_seeds，兩組不相交。前一批兩者同為 17001，search 臂的數字因此是 in-sample。單一搜尋種子是刻意的：回報種子上的落差就是種子過擬合的量。",
+  "seeds_note": "搜尋用兩顆種子取平均，回報用另外三顆。同一個載體在三個回報種子上的 criterion 量到 0.058／0.42／0.56，差一個數量級——單顆搜尋種子的排序本身就是雜訊。預算不變，所以候選點數減半，換排序的可靠度。",
   "search_budget": 240,
   "search_children": 9,
   "search_sigma0": 0.35,

@@ -235,6 +235,26 @@ ImageNet 分類器，跨一條決策邊界就算贏；對 50 步的 IP2P 編輯�
 - 用 heredoc 在遠端寫 `.sh` 之後要 `sed -i 's/\r$//'` 再 `bash -n`。
   巢狀 heredoc 裡的 `\\` 會被吃掉，續行會被折成一行——功能不受影響但要知道。
 
+## 檔案在哪
+
+| 東西 | 位置 |
+|---|---|
+| 兩份報告（可直接開） | `report_field.html`、`report_colour.html` |
+| 報告用的影像 | `_rep/field/`、`_rep/colour/` |
+| 全部防禦圖與編輯圖的鏡像 | `_rep/defended/`（214 張）、`_rep/edits/`（1125 張，identity・s17001） |
+| 每一批的數值記錄 | `non-additive-frequency/runs/field_*/`、`runs/field_*_eval/` 的 CSV |
+| 每一批的設計理由 | 各目錄的 `README.md` |
+
+`_rep/` 與 `report_*.html` 都在 `.gitignore` 裡——影像由已記錄的參數與種子重跑
+得出，CSV 不可重現所以一律入庫。**本 session 產生的 PNG 已從 `runs/` 刪除**
+（6.3 GB → 11 MB，399 個記錄檔全部保留），遠端 `/nfs/home/nelson0314/WACV-s4`
+仍有完整副本。先前 session 的影像沒有動。
+
+## 產生報告
+
+用 `.claude/skills/defence-report/`（skill）。它記了六塊結構、兩層讀數、
+建置指令、以及發佈的硬限制（總檔數 ≤ 256、單版 ≤ 64 MB、`files` 要 map 形式）。
+
 ## 報告
 
 - 兩種色差預算：https://claude.ai/code/artifact/95164c77-d3ad-478b-a502-64262285f686

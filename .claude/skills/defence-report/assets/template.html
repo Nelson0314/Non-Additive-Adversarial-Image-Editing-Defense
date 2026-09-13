@@ -1,0 +1,848 @@
+<title>網格間距與那張臉</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+<style>
+:root{
+  --paper:#f2f4f7; --surface:#ffffff; --sunk:#e7eaef;
+  --ink:#0f151c; --body:#2b3542; --muted:#5d6b7b; --line:#ccd4de;
+  --signal:#10559b; --signal-soft:#dce8f6;
+  --pass:#1c6a42; --edge:#8a5806; --fail:#9f2620;
+  --grid:#c3ccd8;
+  --shadow:0 1px 2px rgba(15,21,28,.06), 0 8px 24px rgba(15,21,28,.06);
+  --mono:"IBM Plex Mono",ui-monospace,"Cascadia Mono",Consolas,monospace;
+  --sans:"Archivo","Helvetica Neue",Arial,sans-serif;
+  --serif:"Source Serif 4",Georgia,"Songti TC","Noto Serif TC",serif;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#0d1218; --surface:#151d26; --sunk:#0a0f14;
+    --ink:#e8eef5; --body:#c2ccd8; --muted:#8695a6; --line:#26313d;
+    --signal:#5aa2ef; --signal-soft:#132a41;
+    --pass:#5fc08c; --edge:#d9a23c; --fail:#e8756c;
+    --grid:#243039;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0d1218; --surface:#151d26; --sunk:#0a0f14;
+  --ink:#e8eef5; --body:#c2ccd8; --muted:#8695a6; --line:#26313d;
+  --signal:#5aa2ef; --signal-soft:#132a41;
+  --pass:#5fc08c; --edge:#d9a23c; --fail:#e8756c;
+  --grid:#243039;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px rgba(0,0,0,.35);
+}
+
+*{box-sizing:border-box}
+body{
+  background:var(--paper); color:var(--body);
+  font-family:var(--serif); font-size:16.5px; line-height:1.66;
+  margin:0; padding:0;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1180px; margin:0 auto; padding:0 20px; padding-block:0 72px}
+
+h1,h2,h3,.label,.num,.pill,button,select{font-family:var(--sans)}
+h1{
+  font-size:clamp(28px,4.4vw,46px); line-height:1.08; margin:0;
+  font-weight:700; letter-spacing:-.022em; color:var(--ink);
+  text-wrap:balance;
+}
+h2{
+  font-size:clamp(19px,2.3vw,24px); font-weight:600; letter-spacing:-.012em;
+  color:var(--ink); margin:0; text-wrap:balance;
+}
+h3{font-size:14px; font-weight:600; letter-spacing:.06em; text-transform:uppercase;
+   color:var(--muted); margin:0}
+p{margin:0}
+a{color:var(--signal)}
+
+.label{
+  font-size:11.5px; font-weight:600; letter-spacing:.13em;
+  text-transform:uppercase; color:var(--muted);
+}
+.num{font-family:var(--mono); font-variant-numeric:tabular-nums}
+
+/* ---- masthead ---- */
+header{
+  border-bottom:1px solid var(--line);
+  background:
+    repeating-linear-gradient(0deg,transparent 0 31px,var(--grid) 31px 32px),
+    repeating-linear-gradient(90deg,transparent 0 31px,var(--grid) 31px 32px),
+    var(--surface);
+  background-blend-mode:normal;
+}
+header .wrap{padding-block:40px 34px}
+.eyebrow{display:flex; gap:10px; align-items:baseline; margin-bottom:14px}
+.lede{
+  font-size:clamp(17px,1.9vw,20px); line-height:1.58; margin-top:18px;
+  max-width:64ch; color:var(--body);
+}
+.lede b{color:var(--ink); font-weight:600}
+
+/* ---- headline figures ---- */
+.figs{display:flex; flex-wrap:wrap; gap:28px 44px; margin-top:26px}
+.fig{display:flex; flex-direction:column; gap:2px}
+.fig .v{font-family:var(--mono); font-size:27px; font-weight:600;
+        color:var(--ink); letter-spacing:-.02em; font-variant-numeric:tabular-nums}
+.fig .k{font-size:11.5px; font-weight:600; letter-spacing:.11em;
+        text-transform:uppercase; color:var(--muted); font-family:var(--sans)}
+
+section{margin-top:54px}
+.sechead{display:flex; align-items:baseline; gap:14px; flex-wrap:wrap;
+         border-bottom:1px solid var(--line); padding-bottom:10px; margin-bottom:22px}
+.sechead p{font-size:14.5px; color:var(--muted)}
+
+/* ---- ladder rail ---- */
+.rail{display:flex; gap:0; overflow-x:auto; border:1px solid var(--line);
+      border-radius:3px; background:var(--surface); box-shadow:var(--shadow)}
+.step{
+  flex:1 1 0; min-width:126px; border:0; border-left:1px solid var(--line);
+  background:transparent; color:var(--body); cursor:pointer;
+  padding:14px 14px 16px; text-align:left; display:flex; flex-direction:column;
+  gap:3px; transition:background .14s;
+}
+.step:first-child{border-left:0}
+.step:hover{background:var(--sunk)}
+.step[aria-pressed="true"]{background:var(--signal-soft)}
+.step[aria-pressed="true"] .sv{color:var(--signal)}
+.step .sn{font-size:12px; font-weight:600; letter-spacing:.08em;
+          text-transform:uppercase; color:var(--muted)}
+.step .sv{font-family:var(--mono); font-size:21px; font-weight:600;
+          color:var(--ink); font-variant-numeric:tabular-nums}
+.step .sd{font-size:12px; color:var(--muted); font-family:var(--sans)}
+.step:focus-visible{outline:2px solid var(--signal); outline-offset:-2px}
+
+/* ---- viewer ---- */
+.viewer{display:grid; grid-template-columns:minmax(0,1fr) 280px; gap:24px; margin-top:22px}
+@media (max-width:820px){.viewer{grid-template-columns:1fr}}
+
+.stage{background:var(--sunk); border:1px solid var(--line); border-radius:3px;
+       overflow:hidden; position:relative}
+.stage .frame{position:relative; aspect-ratio:1/1; max-width:100%;
+              display:grid; place-items:center; background:var(--sunk)}
+.stage img{position:absolute; inset:0; width:100%; height:100%;
+           object-fit:contain; display:block}
+#imgOrig{opacity:0; transition:opacity .1s}
+.mode-orig #imgOrig{opacity:1}
+.mode-diff #imgOrig{opacity:1; mix-blend-mode:difference}
+.mode-diff .frame{filter:brightness(5.5); background:#000}
+.stamp{position:absolute; left:10px; top:10px; z-index:3;
+       font-family:var(--mono); font-size:11.5px; font-weight:600;
+       letter-spacing:.08em; padding:4px 9px; border-radius:2px;
+       background:var(--ink); color:var(--paper); text-transform:uppercase}
+
+.controls{display:flex; gap:8px; flex-wrap:wrap; padding:10px;
+          border-top:1px solid var(--line); background:var(--surface)}
+.controls button{
+  font-size:12.5px; font-weight:600; letter-spacing:.04em; padding:7px 13px;
+  border:1px solid var(--line); border-radius:2px; background:var(--surface);
+  color:var(--body); cursor:pointer;
+}
+.controls button[aria-pressed="true"]{background:var(--ink); color:var(--paper);
+                                      border-color:var(--ink)}
+.controls button:focus-visible{outline:2px solid var(--signal); outline-offset:1px}
+.hint{font-size:12.5px; color:var(--muted); align-self:center; margin-left:auto;
+      font-family:var(--sans)}
+
+.side{display:flex; flex-direction:column; gap:16px; min-width:0}
+.thumbs{display:grid; grid-template-columns:repeat(5,1fr); gap:6px}
+@media (max-width:820px){.thumbs{grid-template-columns:repeat(5,1fr)}}
+.thumbs button{padding:0; border:1px solid var(--line); border-radius:2px;
+               background:var(--sunk); cursor:pointer; overflow:hidden;
+               aspect-ratio:1/1}
+.thumbs img{width:100%; height:100%; object-fit:cover; display:block}
+.thumbs button[aria-pressed="true"]{border-color:var(--signal);
+                                    box-shadow:0 0 0 2px var(--signal-soft)}
+.thumbs button:focus-visible{outline:2px solid var(--signal); outline-offset:1px}
+
+.readout{border:1px solid var(--line); border-radius:3px; background:var(--surface);
+         box-shadow:var(--shadow)}
+.readout .rh{padding:11px 14px; border-bottom:1px solid var(--line)}
+.rows{display:flex; flex-direction:column}
+.row{display:flex; justify-content:space-between; align-items:baseline; gap:12px;
+     padding:8px 14px; border-top:1px solid var(--line); font-size:13.5px}
+.row:first-child{border-top:0}
+.row .k{color:var(--muted); font-family:var(--sans); font-size:12.5px}
+.row .v{font-family:var(--mono); font-weight:500; color:var(--ink);
+        font-variant-numeric:tabular-nums}
+.v.pass{color:var(--pass)} .v.edge{color:var(--edge)} .v.fail{color:var(--fail)}
+
+.bar{height:5px; background:var(--sunk); border-radius:99px; overflow:hidden;
+     margin-top:5px; width:100%}
+.bar i{display:block; height:100%; background:var(--signal)}
+
+/* ---- prose ---- */
+.prose{max-width:66ch}
+.prose p + p{margin-top:14px}
+.prose b{color:var(--ink); font-weight:600}
+.cols{display:grid; grid-template-columns:repeat(auto-fit,minmax(270px,1fr)); gap:26px}
+
+.note{border-left:2px solid var(--signal); padding:2px 0 2px 16px;
+      color:var(--body); font-size:15.5px}
+
+/* ---- tables ---- */
+.tablewrap{overflow-x:auto; border:1px solid var(--line); border-radius:3px;
+           background:var(--surface); box-shadow:var(--shadow)}
+table{border-collapse:collapse; width:100%; font-size:13.5px; min-width:600px}
+th,td{padding:9px 13px; text-align:right; border-top:1px solid var(--line);
+      white-space:nowrap}
+th:first-child,td:first-child{text-align:left; white-space:normal}
+thead th{border-top:0; font-family:var(--sans); font-size:11.5px; font-weight:600;
+         letter-spacing:.09em; text-transform:uppercase; color:var(--muted)}
+tbody td{font-family:var(--mono); font-variant-numeric:tabular-nums; color:var(--ink)}
+tbody td:first-child{font-family:var(--sans); font-weight:500}
+tbody tr:hover{background:var(--sunk)}
+td.dim{color:var(--muted)}
+caption{caption-side:bottom; text-align:left; padding:10px 13px; font-size:13px;
+        color:var(--muted); font-family:var(--sans)}
+
+.pill{display:inline-block; font-size:11px; font-weight:600; letter-spacing:.07em;
+      text-transform:uppercase; padding:2px 7px; border-radius:2px;
+      border:1px solid currentColor}
+.pill.pass{color:var(--pass)} .pill.edge{color:var(--edge)} .pill.fail{color:var(--fail)}
+
+footer{margin-top:60px; padding-top:20px; border-top:1px solid var(--line);
+       font-size:13.5px; color:var(--muted)}
+
+/* ---- edited outputs ---- */
+.edits{margin-top:22px; border:1px solid var(--line); border-radius:3px;
+       background:var(--surface); box-shadow:var(--shadow); overflow:hidden}
+.edits .eh{display:flex; align-items:baseline; gap:12px; flex-wrap:wrap;
+           padding:12px 14px; border-bottom:1px solid var(--line)}
+.classbar{display:flex; gap:6px; flex-wrap:wrap; margin-left:auto}
+.classbar button{font-size:12px; font-weight:600; letter-spacing:.04em;
+                 padding:5px 11px; border:1px solid var(--line); border-radius:2px;
+                 background:var(--surface); color:var(--body); cursor:pointer;
+                 font-family:var(--sans)}
+.classbar button[aria-pressed="true"]{background:var(--ink); color:var(--paper);
+                                      border-color:var(--ink)}
+.classbar button:focus-visible{outline:2px solid var(--signal); outline-offset:1px}
+.pairs{display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--line)}
+@media (max-width:640px){.pairs{grid-template-columns:1fr}}
+.pane{background:var(--sunk); position:relative}
+.pane img{width:100%; aspect-ratio:1/1; object-fit:contain; display:block}
+.pane .cap{position:absolute; left:8px; top:8px; font-family:var(--mono);
+           font-size:11px; font-weight:600; letter-spacing:.07em; padding:3px 8px;
+           border-radius:2px; background:var(--ink); color:var(--paper)}
+.pane.def .cap{background:var(--signal); color:#fff}
+.instr{padding:10px 14px; font-size:13.5px; color:var(--muted);
+       border-top:1px solid var(--line); background:var(--surface)}
+.instr b{color:var(--ink); font-weight:600}
+.noedit{padding:16px 14px; font-size:14px; color:var(--muted)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<header>
+  <div class="wrap">
+    <div class="eyebrow">
+      <span class="label">影像免疫 · 載體替換</span>
+      <span class="label" style="color:var(--signal)">五張影像 · 三顆種子 · held-out 指令</span>
+    </div>
+    <h1>網格間距與那張臉</h1>
+    <p class="lede">
+      顏色載體上「自然」與「有效」直接對立，三個獨立量測都指向同一個根因。
+      換成低頻平滑的<b>取樣位移場</b>之後，防禦出現了——最強的設定在 25 格裡穿透
+      21 格，勝過顏色線的 18 格。但取捨沒有消失，只是換了一根軸：
+      <b>決定產物壞不壞的是控制網格的間距，不是位移的大小。</b>
+      同一張照片上，32 px 間距走 21.5 px 就把五官拉散，85 px 間距走 26.8 px
+      仍是一張自然的照片。<b>自然度那一關只能由眼睛判定</b>——三道自動門檻都已經
+      被最佳化鑽過，所以這一頁把圖和數字擺在一起，判斷留給你。
+    </p>
+    <div class="figs" id="figs"></div>
+  </div>
+</header>
+
+<div class="wrap">
+
+<section>
+  <div class="sechead">
+    <h2>25 個設定</h2>
+    <p>選一個，下面換圖。按住圖片可暫時切回原圖；「差異」把兩者相減後放大 5.5 倍。</p>
+  </div>
+  <div class="rail" id="rail" role="group" aria-label="預算檔位"></div>
+
+  <div class="viewer">
+    <div>
+      <div class="stage">
+        <div class="frame" id="frame">
+          <img id="imgDef" alt="防禦圖">
+          <img id="imgOrig" alt="原圖">
+          <span class="stamp" id="stamp">防禦圖</span>
+        </div>
+        <div class="controls">
+          <button id="mDef" aria-pressed="true">防禦圖</button>
+          <button id="mOrig" aria-pressed="false">原圖</button>
+          <button id="mDiff" aria-pressed="false">差異 ×5.5</button>
+          <span class="hint">按住圖片可暫時切回原圖</span>
+        </div>
+      </div>
+    </div>
+    <div class="side">
+      <div class="thumbs" id="thumbs" role="group" aria-label="影像"></div>
+      <div class="readout">
+        <div class="rh">
+          <h3>防禦圖本身</h3>
+          <p style="font-size:12.5px;color:var(--muted);margin-top:2px">攻擊尚未發生</p>
+        </div>
+        <div class="rows" id="roDef"></div>
+      </div>
+      <div class="readout">
+        <div class="rh">
+          <h3>編輯輸出</h3>
+          <p style="font-size:12.5px;color:var(--muted);margin-top:2px">25 格 · held-out 指令 · 無淨化</p>
+        </div>
+        <div class="rows" id="roEdit"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="edits" id="edits"></div>
+</section>
+
+<section>
+  <div class="sechead"><h2>四個機制，一條前緣</h2>
+    <p>每一步都是前一步的圖逼出來的，不是先想好的清單。</p></div>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>做了什麼</th><th>過半穿透</th><th>產物</th></tr></thead>
+      <tbody>
+        <tr><td>顏色載體（任何自然的設定）</td><td>0 / 25</td>
+            <td style="text-align:left;white-space:normal" class="dim">自然</td></tr>
+        <tr><td>顏色載體，推到判準上限</td><td>18 / 25</td>
+            <td style="text-align:left;white-space:normal" class="dim"><span class="pill fail">不是照片</span> 21% 的像素 ΔE00 &gt; 25</td></tr>
+        <tr><td>換成位移場（<span class="num">flow_16</span>）</td><td>11 / 25</td>
+            <td style="text-align:left;white-space:normal" class="dim">五張裡四張自然，一張的鼻子被局部拉長</td></tr>
+        <tr><td>加臉框內的仿射約束</td><td>0–1 / 25</td>
+            <td style="text-align:left;white-space:normal" class="dim">鼻子修好了，全部自然——但防禦一起沒了</td></tr>
+        <tr><td>拿掉它，加過渡帶與大預算</td><td><b>21 / 25</b></td>
+            <td style="text-align:left;white-space:normal" class="dim"><span class="pill fail">臉毀掉</span> 一張連臉都偵測不到</td></tr>
+        <tr><td>改用粗網格（<span class="num">grid_06</span>）</td><td>13 / 25</td>
+            <td style="text-align:left;white-space:normal" class="dim">四張自然，一張邊緣</td></tr>
+      </tbody>
+      <caption>過半規則、門檻 0.5。顏色線的 18/25 用的就是這個規則，兩條線因此可以並列。</caption>
+    </table>
+  </div>
+  <div class="cols prose" style="margin-top:26px">
+    <div>
+      <h3 style="margin-bottom:8px">臉內的仿射約束是開關不是旋鈕</h3>
+      <p>它把臉框內的位移壓回「該框內最佳的全域仿射」。過渡帶從 0 加寬到 64 px，
+      臉框位移中位只從 1.8 動到 2.0 px；把上限從 1.0 放寬到 2.0 px，位移剛好加倍；
+      <b>整個拿掉，位移直接跳到 17–21 px</b>。一個平滑的場要移動臉、又要接回背景，
+      那個接合就發生在框<b>內</b>——所以框外的過渡帶救不了它。</p>
+    </div>
+    <div>
+      <h3 style="margin-bottom:8px">決定壞不壞的是間距不是幅度</h3>
+      <p>同一張照片（<span class="num">114555</span>）：16×16 網格（間距 32 px）走
+      21.5 px，五官被拉散；6×6 網格（間距 85 px）走 26.8 px，是一張自然的照片。
+      間距小於臉的尺度時，位移可以在一張臉之內變化，五官被相對拉扯；
+      間距大於臉時，整張臉落在兩三個控制點之間，<b>被整體改形而不是被撕開</b>。</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="sechead">
+    <h2>網格掃描</h2>
+    <p>預算固定在 96 px，只改網格。512 px 上的控制點間距寫在括號裡。</p>
+  </div>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>網格</th><th>控制點間距</th><th>過半穿透</th><th>代理 id</th><th>產物</th></tr></thead>
+      <tbody>
+        <tr><td>grid_04</td><td>128 px</td><td>1 / 25</td><td>0.790</td>
+            <td style="text-align:left;white-space:normal" class="dim">自然。整張臉動不出差異</td></tr>
+        <tr><td>grid_05</td><td>102 px</td><td>9 / 25</td><td>0.700</td>
+            <td style="text-align:left;white-space:normal" class="dim">自然</td></tr>
+        <tr><td>grid_06</td><td>85 px</td><td><b>13 / 25</b></td><td>0.493</td>
+            <td style="text-align:left;white-space:normal" class="dim">四張自然，一張邊緣</td></tr>
+        <tr><td>grid_08</td><td>64 px</td><td>12 / 25</td><td>0.434</td>
+            <td style="text-align:left;white-space:normal" class="dim"><span class="pill fail">兩張明顯壞掉</span></td></tr>
+      </tbody>
+      <caption>
+        <span class="num">grid_08</span> 的代理讀數比 <span class="num">grid_06</span> 更強，
+        真編輯上卻沒有更強，而圖壞得多。<b>往更細的網格走買不到防禦，只買到壞掉的臉。</b>
+      </caption>
+    </table>
+  </div>
+</section>
+
+<section>
+  <div class="sechead"><h2>兩層讀數要分開看</h2></div>
+  <div class="cols prose">
+    <div>
+      <h3 style="margin-bottom:8px">防禦圖本身</h3>
+      <p>在<b>原圖主體框的固定座標</b>上量防禦圖相對原圖的人臉餘弦，偵測器不參與。
+      這一層回答「這張照片還是不是這個人」。位移場把臉推動之後，同一個座標的
+      裁切會取到稍微偏掉的區域——所以<b>這個數字同時是座標錯位的上界</b>。
+      旁邊的「偵測器重找臉」空白，代表防禦圖上已經偵測不到臉。</p>
+    </div>
+    <div>
+      <h3 style="margin-bottom:8px">編輯輸出</h3>
+      <p>攻擊者用 InstructPix2Pix 加一句<b>從未進入最佳化</b>的指令編輯之後，
+      判準三項的軟極小。分母是同一格的未防禦編輯，所以 1.0 代表防禦完全沒有作用。
+      指令那一項（<span class="num">dir_norm</span>）照算照報但不進軟極小——
+      三種寫法都在圖上被推翻過。</p>
+    </div>
+  </div>
+  <p class="note" style="margin-top:22px">
+    一個載體可能在第二層很強，只是因為第一層已經把照片毀了。
+    <span class="num">margin_64_norigid</span> 就是這樣：21/25，而它的防禦圖上
+    有一張偵測不到臉。
+  </p>
+</section>
+
+<section>
+  <div class="sechead">
+    <h2>EOT 與它訓練過的那一道</h2>
+    <p>四個變體同一批、同一次 GPU 條件，所以彼此可比。四道淨化的過半穿透。</p>
+  </div>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>變體</th><th>EOT</th><th>identity</th><th>jpeg</th><th>blur</th><th>crop&nbsp;+&nbsp;resize</th><th>產物</th></tr></thead>
+      <tbody>
+        <tr><td>coarse_eot_96_none</td><td style="text-align:left" class="dim">無（批內對照）</td>
+            <td>1</td><td>2</td><td>2</td><td>3</td>
+            <td style="text-align:left;white-space:normal" class="dim">114555 邊緣</td></tr>
+        <tr><td><b>coarse_eot_48_crop</b></td><td style="text-align:left" class="dim">裁切</td>
+            <td><b>6</b></td><td><b>6</b></td><td><b>7</b></td><td><b>7</b></td>
+            <td style="text-align:left;white-space:normal"><span class="pill pass">看過的三張都自然</span></td></tr>
+        <tr><td>coarse_eot_96_both</td><td style="text-align:left" class="dim">裁切＋模糊，成本兩倍</td>
+            <td>7</td><td>7</td><td>7</td><td>7</td>
+            <td style="text-align:left;white-space:normal" class="dim"><span class="pill fail">114555 壞</span></td></tr>
+        <tr><td>coarse_eot_96_crop</td><td style="text-align:left" class="dim">裁切</td>
+            <td>9</td><td>9</td><td>10</td><td><b>15</b></td>
+            <td style="text-align:left;white-space:normal" class="dim"><span class="pill fail">114555 壞</span></td></tr>
+      </tbody>
+      <caption>
+        <b>EOT 抽的算子族越窄，峰值越高且落在它訓練過的那一道</b>
+        （<span class="num">_crop</span> 在 crop 上 15、其餘 9–10，criterion 中位
+        0.454 對 0.812）；<b>族越寬，曲線越平但整體較低</b>
+        （<span class="num">_both</span> 四道齊平 7，而且四道都不超過
+        <span class="num">_crop</span>——多花一倍成本買不到東西）。
+      </caption>
+    </table>
+  </div>
+  <p class="note" style="margin-top:20px">
+    <span class="num">coarse_eot_48_crop</span> 是這一夜唯一同時滿足「產物自然」與
+    「四道淨化全部 ≥ 6」的設定。較小的預算讓粗網格守得住自然度，EOT 把強度補回來。
+  </p>
+</section>
+
+<section>
+  <div class="sechead"><h2>同一設定重跑不會得到同一個結果</h2></div>
+  <div class="prose">
+    <p>兩組設定各跑了三次，每次都在不同的批次裡，設定逐欄驗過相同
+    （<span class="num">knobs</span>／<span class="num">caps</span>／<span class="num">lr</span>／<span class="num">free</span>）：</p>
+  </div>
+  <div class="tablewrap" style="margin-top:16px">
+    <table>
+      <thead><tr><th>設定</th><th>三次獨立跑的過半穿透</th></tr></thead>
+      <tbody>
+        <tr><td>6×6 網格、96 px</td><td class="fail"><b>13、13、1</b></td></tr>
+        <tr><td>16×16 網格、8 px</td><td class="fail"><b>5、1、4</b></td></tr>
+      </tbody>
+      <caption>代理讀數也同向偏弱（0.493、0.497、0.653），所以不是評估端的雜訊，是解本身不同。</caption>
+    </table>
+  </div>
+  <div class="cols prose" style="margin-top:24px">
+    <div>
+      <h3 style="margin-bottom:8px">來源</h3>
+      <p>不是亂數種子——載體初始化是零場，每一次抽樣都走明確的
+      <span class="num">Generator</span> 與明確的種子。是 GPU kernel 的非決定性：
+      repo 裡沒有任何地方設決定性旗標，而 bf16 下的 conv 與 attention 會依當下的
+      負載選不同的演算法。</p>
+    </div>
+    <div>
+      <h3 style="margin-bottom:8px">後果</h3>
+      <p><b>任何「某設定是 N/25」的敘述都不可靠</b>，<b>跨批次的對照全部作廢</b>。
+      同一批次內的比較仍然有效，因為它們共用同一次的 GPU 條件——上面那張表就是。
+      所以<b>每一批都要自帶對照</b>，不可以借別批的。</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="sechead">
+    <h2>主流目標函數沒有勝過基準</h2>
+    <p>載體固定在 8 px 預算，自變數只有目標函數。</p>
+  </div>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>目標</th><th>出處</th><th>過半穿透</th></tr></thead>
+      <tbody>
+        <tr><td>obj_longchain</td><td style="text-align:left;white-space:normal" class="dim">取樣鏈 6→12 步、反傳 1→2</td><td>7 / 25</td></tr>
+        <tr><td>obj_diffusion</td><td style="text-align:left;white-space:normal" class="dim">AdvDM／Mist 的擴散訓練損失</td><td>6 / 25</td></tr>
+        <tr><td>obj_targeted</td><td style="text-align:left;white-space:normal" class="dim">PhotoGuard 的 targeted encoder attack</td><td>5 / 25</td></tr>
+        <tr><td>obj_baseline</td><td style="text-align:left;white-space:normal" class="dim">現行的 enc／cond／id</td><td>1 / 25</td></tr>
+        <tr><td>obj_all</td><td style="text-align:left;white-space:normal" class="dim">五項並存，權重不調</td><td>1 / 25</td></tr>
+      </tbody>
+      <caption>
+        <b>這張表讀不出排名。</b><span class="num">obj_baseline</span> 與第一批的
+        <span class="num">flow_08</span> 是同一個設定，那裡量到 5/25、這裡量到 1/25——
+        同設定的重跑差就是 1 對 5，與表上的全部差距同量級。
+      </caption>
+    </table>
+  </div>
+</section>
+
+<section>
+  <div class="sechead"><h2>同一設定重跑不會得到同一張圖</h2></div>
+  <div class="prose">
+    <p><span class="num">coarse_margin_96</span> 與 <span class="num">grid_06</span>
+    的設定逐欄相同，兩批之間沒有改過程式。<b>逐像素平均差 24.7 / 255</b>，
+    代理身分項 0.408 對 0.502，而我對這兩張的自然度判斷相反。</p>
+    <p>來源不是亂數種子——載體初始化是零場，每一次抽樣都走明確的
+    <span class="num">Generator</span> 與明確的種子。是 GPU kernel 的非決定性：
+    repo 裡沒有任何地方設決定性旗標，而 bf16 下的 conv 與 attention 會依當下的
+    負載選不同的演算法。</p>
+    <p><b>總計也會變，格數低的時候尤其明顯。</b>兩對同設定的獨立重跑：
+    <span class="num">coarse_margin_96</span> 對 <span class="num">grid_06</span>
+    是 13 對 13；<span class="num">flow_08</span> 對
+    <span class="num">obj_baseline</span> 是 <b>5 對 1</b>。格數低時格子擠在門檻
+    附近，重跑就會翻。所以個位數格數之間沒有順序可言，而
+    <b>0 對 21 這種差距是實的</b>。</p>
+  </div>
+</section>
+
+<section>
+  <div class="sechead">
+    <h2>全部設定</h2>
+    <p>穿透格以「格」為單位：一格是（影像, 指令類），三顆種子任一顆壓到 0.5 以下算穿透。</p>
+  </div>
+  <div class="tablewrap">
+    <table id="tbl">
+      <thead><tr>
+        <th>變體</th><th>臉框預算</th><th>穿透格</th><th>過半</th><th>三種子全中</th>
+        <th>criterion</th><th>id_norm</th><th>dir_norm</th><th>use_norm</th>
+        <th>防禦圖身分（中位）</th><th>PSNR</th>
+      </tr></thead>
+      <tbody></tbody>
+      <caption>
+        <span class="num">criterion</span> 是三項連言的軟極小，越小代表防禦越成功。
+        未防禦臂四個淨化全部是 1.000、0/25，攻擊本身成立。
+      </caption>
+    </table>
+  </div>
+</section>
+
+<section>
+  <div class="sechead"><h2>為什麼離開顏色</h2></div>
+  <div class="prose">
+    <p>三個互相獨立的量測指向同一個根因：<b>顏色載體的防禦力全部住在空間不均勻裡，
+    而空間不均勻正是人眼判定不自然的那個東西。</b></p>
+  </div>
+  <div class="tablewrap" style="margin-top:18px">
+    <table>
+      <thead><tr><th>來源</th><th>載體</th><th>自由度</th><th>色差</th><th>編輯輸出的身分降幅</th></tr></thead>
+      <tbody>
+        <tr><td>runs/color_scaleup_search</td><td>全域 Lab 仿射</td><td class="num">12</td><td class="num">ΔE 6.3</td><td class="num">−0.002 ～ +0.0043</td></tr>
+        <tr><td>runs/objective_pilot</td><td>CIELUV 3D LUT + 平滑正則</td><td class="num">16×32×32</td><td class="num">ΔE ≈ 6</td><td class="num">+0.0005 ～ +0.0077</td></tr>
+        <tr><td>runs/immunise_tv*</td><td>仿射場，掃位移場 TV 上限</td><td class="num">—</td><td class="num">ΔE 16</td><td class="dim num">TV 0.5 → +0.943；TV 2.0 → −0.440（不自然）</td></tr>
+      </tbody>
+      <caption>前兩列就是三篇參考論文共同的載體家族。它們驗證的對象是分類器，跨一條決策邊界就算贏。</caption>
+    </table>
+  </div>
+  <div class="cols prose" style="margin-top:26px">
+    <div>
+      <h3 style="margin-bottom:8px">結構上的理由</h3>
+      <p>全域顏色映射可逆、保住每一條邊與每一道梯度，<b>人臉幾何原封不動</b>，
+      而身分嵌入主要吃幾何與紋理。而且這類映射對擴散模型的 VAE 完全是
+      in-distribution——每一張調過色的照片都長這樣，防禦沒有地方可以躲。</p>
+    </div>
+    <div>
+      <h3 style="margin-bottom:8px">幾何為什麼不同</h3>
+      <p><b>「一張自然的照片」不約束那張臉長什麼形狀</b>：觀看者手上沒有原圖。
+      而平滑本身正是自然的來源——低頻位移場就是鏡頭畸變、輕微透視與視差在做的事。
+      於是平滑性與防禦力同向，不像顏色那樣反向。</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="sechead">
+    <h2>三道約束</h2>
+    <p>會讓 warp 露餡的東西都寫得成約束，而且都不在臉的中央。</p>
+  </div>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>名稱</th><th>量什麼</th><th>為什麼</th></tr></thead>
+      <tbody>
+        <tr><td>flow_face</td><td style="text-align:left;white-space:normal" class="dim">臉框內位移量的 CVaR99</td>
+            <td style="text-align:left;white-space:normal" class="dim">主要預算。身分住在臉上，預算就開在臉上</td></tr>
+        <tr><td>flow_rigid</td><td style="text-align:left;white-space:normal" class="dim">臉框外位移對最佳全域仿射的殘差</td>
+            <td style="text-align:left;white-space:normal" class="dim">全域仿射是換鏡頭換位置就會有的東西，直線仍是直線；露餡的是直線被扭彎</td></tr>
+        <tr><td>flow_fold</td><td style="text-align:left;white-space:normal" class="dim">det J 低於 0.5 的部分逐像素平均</td>
+            <td style="text-align:left;white-space:normal" class="dim">摺疊撕裂是 warp 唯一真正的人造痕跡。限制嚴重程度而不是面積</td></tr>
+      </tbody>
+      <caption>用 CVaR 不用最大值：最大值的梯度只落在單一像素上，而尾端的嚴重程度正是要限制的東西。</caption>
+    </table>
+  </div>
+</section>
+
+<footer>
+  <p>產生防禦圖的腳本讀到設定檔裡有任何 <span class="num">instruction</span> 或
+  <span class="num">prompt</span> 鍵就拒絕啟動，測試釘住這一條。
+  指令只存在於評估的設定檔，所以每一句對防禦而言都是 held-out。</p>
+  <p style="margin-top:10px">五張影像、三顆種子、單一初始化。零次攻擊成功時三顆種子的單側
+  95% 上界仍有 63%；要支持 ±10 個百分點的成功率敘述需要約 97 個獨立身分。
+  這些數字只夠當 pilot。</p>
+</footer>
+</div>
+
+<script src="data.js"></script>
+<script>
+(function(){
+  var D = window.FIELD || {images:[],variants:[],screen_keys:[]};
+  var BUDGET = {
+    flow_02:'2 px', flow_04:'4 px', flow_08:'8 px', flow_16:'16 px',
+    lab_field:'ΔE 16',
+    face_rigid_08:'8 px', face_rigid_16:'16 px', face_rigid_32:'32 px',
+    coarse_16:'16 px', coarse_32:'32 px',
+    margin_00:'16 px', margin_32:'16 px', margin_64:'16 px',
+    margin_64_loose:'32 px', margin_64_norigid:'32 px',
+    coarse_margin_00:'32 px', coarse_margin_32:'32 px',
+    coarse_margin_48:'48 px', coarse_margin_48_tight:'48 px',
+    coarse_margin_96:'96 px',
+    obj_baseline:'8 px', obj_targeted:'8 px', obj_diffusion:'8 px',
+    obj_all:'8 px', obj_longchain:'8 px',
+    eot_none:'8 px', eot_crop:'8 px', eot_both:'8 px', eot_crop_16:'16 px',
+    coarse_eot_96_none:'96 px', coarse_eot_96_crop:'96 px',
+    coarse_eot_96_both:'96 px', coarse_eot_48_crop:'48 px'};
+  var KIND = {
+    lab_field:'逐通道 Lab 位移',
+    coarse_16:'6×6 粗網格', coarse_32:'6×6 粗網格',
+    face_rigid_08:'臉內仿射約束', face_rigid_16:'臉內仿射約束',
+    face_rigid_32:'臉內仿射約束',
+    margin_00:'臉內仿射 · 過渡帶 0', margin_32:'臉內仿射 · 過渡帶 32',
+    margin_64:'臉內仿射 · 過渡帶 64',
+    margin_64_loose:'臉內仿射 · 過渡帶 64 · 預算放寬',
+    margin_64_norigid:'過渡帶 64 · 無臉內約束',
+    coarse_margin_00:'粗網格 · 過渡帶 0',
+    coarse_margin_32:'粗網格 · 過渡帶 64',
+    coarse_margin_48:'粗網格 · 過渡帶 64',
+    coarse_margin_48_tight:'粗網格 · 背景收緊一倍',
+    coarse_margin_96:'粗網格 · 過渡帶 96',
+    obj_baseline:'目標：基準', obj_targeted:'目標：targeted encoder',
+    obj_diffusion:'目標：擴散訓練損失', obj_all:'目標：五項並存',
+    obj_longchain:'目標：鏈 12 步',
+    eot_none:'EOT：無', eot_crop:'EOT：裁切',
+    eot_both:'EOT：裁切＋模糊', eot_crop_16:'EOT：裁切',
+    coarse_eot_96_none:'粗網格 · 無 EOT',
+    coarse_eot_96_crop:'粗網格 · EOT 裁切',
+    coarse_eot_96_both:'粗網格 · EOT 裁切＋模糊',
+    coarse_eot_48_crop:'粗網格 · EOT 裁切'};
+
+  D.variants.sort(function(a,b){
+    var sa=(a.screen||{})['immunised|identity']||{}, sb=(b.screen||{})['immunised|identity']||{};
+    return (sb.majority||0)-(sa.majority||0);
+  });
+  var state = {v:0, im:0, mode:'def', held:false};
+
+  function med(a){
+    var v=a.filter(function(x){return x!==null&&x!==undefined&&!isNaN(x)}).sort(function(p,q){return p-q});
+    if(!v.length) return null;
+    var m=Math.floor(v.length/2);
+    return v.length%2 ? v[m] : (v[m-1]+v[m])/2;
+  }
+  function f(x,n){return (x===null||x===undefined||isNaN(x))?'—':Number(x).toFixed(n===undefined?4:n)}
+  function screenOf(v){return (v.screen&&v.screen['immunised|identity'])||null}
+
+  /* headline figures */
+  (function(){
+    var best=null;
+    D.variants.forEach(function(v){
+      var s=screenOf(v); if(!s) return;
+      if(!best || s.penetrated>best.s.penetrated) best={v:v,s:s};
+    });
+    var ids=[]; D.variants.forEach(function(v){
+      Object.keys(v.defended||{}).forEach(function(k){
+        var d=v.defended[k]; if(d) ids.push(d.subject_id_defended);});
+    });
+    var el=document.getElementById('figs');
+    var nat=(D.variants.filter(function(v){return v.name==='grid_06'})[0]||{}).screen||{};
+    var natS=nat['immunised|identity'];
+    var rows=[
+      ['設定', String(D.variants.length)],
+      ['防禦圖', String(D.variants.reduce(function(a,v){return a+Object.keys(v.files).length},0))],
+      ['真編輯的評估列', String(D.variants.length*150)],
+      ['最強（臉已毀）', best? best.s.penetrated+' / '+best.s.cells : '—'],
+      ['最強且仍自然', natS? natS.penetrated+' / '+natS.cells : '—'],
+      ['顏色線（不是照片）', '18 / 25']
+    ];
+    el.innerHTML = rows.map(function(r){
+      return '<div class="fig"><span class="v">'+r[1]+'</span><span class="k">'+r[0]+'</span></div>';
+    }).join('');
+  })();
+
+  /* ladder rail */
+  var rail=document.getElementById('rail');
+  rail.innerHTML = D.variants.map(function(v,i){
+    var s=screenOf(v);
+    return '<button class="step" data-i="'+i+'" aria-pressed="'+(i===0)+'">'
+      +'<span class="sn">'+v.name+'</span>'
+      +'<span class="sv">'+(s? s.penetrated+'/'+s.cells : '—')+'</span>'
+      +'<span class="sd">'+(BUDGET[v.name]||'')+(KIND[v.name]?' · '+KIND[v.name]:'')+'</span>'
+      +'</button>';
+  }).join('');
+
+  /* thumbs */
+  var thumbs=document.getElementById('thumbs');
+  thumbs.innerHTML = D.images.map(function(im,i){
+    return '<button data-i="'+i+'" aria-pressed="'+(i===0)+'" title="'+im.id+'">'
+      +'<img src="'+im.src+'" alt="'+im.id+'"></button>';
+  }).join('');
+
+  var frame=document.getElementById('frame');
+  var imgDef=document.getElementById('imgDef'), imgOrig=document.getElementById('imgOrig');
+  var stamp=document.getElementById('stamp');
+  var btn={def:document.getElementById('mDef'), orig:document.getElementById('mOrig'),
+           diff:document.getElementById('mDiff')};
+
+  function render(){
+    var v=D.variants[state.v], im=D.images[state.im];
+    if(!v||!im) return;
+    imgDef.src = v.files[im.id] || '';
+    imgOrig.src = im.src;
+    var mode = state.held ? 'orig' : state.mode;
+    frame.parentElement.className = 'stage mode-'+mode;
+    stamp.textContent = mode==='orig' ? '原圖' : (mode==='diff' ? '差異 ×5.5' : v.name);
+
+    Array.prototype.forEach.call(rail.children,function(b,i){
+      b.setAttribute('aria-pressed', String(i===state.v));});
+    Array.prototype.forEach.call(thumbs.children,function(b,i){
+      b.setAttribute('aria-pressed', String(i===state.im));});
+    Object.keys(btn).forEach(function(k){
+      btn[k].setAttribute('aria-pressed', String(state.mode===k));});
+
+    var d=(v.defended||{})[im.id]||{};
+    var cls = d.subject_id_defended==null ? '' :
+      (d.subject_id_defended>=.92 ? 'pass' : d.subject_id_defended>=.75 ? 'edge' : 'fail');
+    document.getElementById('roDef').innerHTML =
+      row('錨定身分餘弦', f(d.subject_id_defended), cls)
+      + row('偵測器重找臉', f(d.subject_id_defended_detected))
+      + row('PSNR', f(d.psnr,2)+' dB')
+      + row('LPIPS', f(d.lpips))
+      + row('ΔE00', f(d.deltaE00,2))
+      + row('NIQE（防禦 / 原）', f(d.niqe_defended,2)+' / '+f(d.niqe_orig,2));
+
+    var s=screenOf(v);
+    document.getElementById('roEdit').innerHTML = s ? (
+      row('穿透格', s.penetrated+' / '+s.cells,
+          s.penetrated>=10?'pass':s.penetrated>=5?'edge':'fail')
+      + '<div class="row"><span class="k">穿透比例</span><span class="v">'
+      + Math.round(100*s.penetrated/s.cells)+'%</span></div>'
+      + '<div class="row" style="display:block"><div class="bar"><i style="width:'
+      + (100*s.penetrated/s.cells).toFixed(1)+'%"></i></div></div>'
+      + row('三顆裡過半', s.majority+' / '+s.cells)
+      + row('三顆種子全中', s.all_seeds+' / '+s.cells)
+      + row('criterion 中位', f(s.criterion))
+      + row('id_norm 中位', f(s.id_norm))
+      + row('dir_norm 中位', f(s.dir_norm))
+      + row('use_norm 中位', f(s.use_norm))
+      + row('軟極小取到 id 的列', s.argmin_id+' / '+(s.argmin_id+s.argmin_use))
+    ) : '<div class="row"><span class="k">尚無評估結果</span><span class="v">—</span></div>';
+
+    renderEdits();
+  }
+
+  var CLASS_LABEL = {clothing:'改衣服顏色', hat:'加帽子', background:'換背景',
+                     glasses:'加墨鏡', restyle:'轉成油畫'};
+  var CLASS_ORDER = ['clothing','hat','background','glasses','restyle'];
+  var editState = {cls:null};
+
+  function renderEdits(){
+    var host=document.getElementById('edits');
+    if(!host) return;
+    var v=D.variants[state.v], im=D.images[state.im];
+    var mine=(v&&v.edits&&v.edits[im.id])||null;
+    var clean=(D.clean_edits&&D.clean_edits[im.id])||null;
+    if(!mine){
+      var have=D.variants.filter(function(q){return q.edits&&Object.keys(q.edits).length})
+                         .map(function(q){return q.name});
+      host.innerHTML='<div class="noedit">這個設定沒有留編輯圖。留了的是：<span class="num">'
+        +(have.join('、')||'（無）')+'</span>。</div>';
+      return;
+    }
+    var classes=CLASS_ORDER.filter(function(c){return mine[c]});
+    if(classes.indexOf(editState.cls)<0) editState.cls=classes[0];
+    var c=editState.cls;
+    host.innerHTML=
+      '<div class="eh"><h3>攻擊之後</h3>'
+      +'<span style="font-size:12.5px;color:var(--muted);font-family:var(--sans)">'
+      +'淨化 '+D.edit_purifier+' · 種子 '+D.edit_seed+'</span>'
+      +'<div class="classbar">'+classes.map(function(k){
+          return '<button data-c="'+k+'" aria-pressed="'+(k===c)+'">'
+                 +(CLASS_LABEL[k]||k)+'</button>';}).join('')+'</div></div>'
+      +'<div class="pairs">'
+      +'<div class="pane"><span class="cap">未防禦</span><img alt="未防禦的編輯輸出" src="'
+      +((clean&&clean[c])||'')+'"></div>'
+      +'<div class="pane def"><span class="cap">'+v.name+'</span>'
+      +'<img alt="防禦後的編輯輸出" src="'+mine[c]+'"></div>'
+      +'</div>'
+      +'<div class="instr">左邊是攻擊者對<b>原圖</b>下這句指令拿到的結果，'
+      +'右邊是對<b>防禦圖</b>下同一句話拿到的。判準問的是右邊那張'
+      +'<b>可不可用、認不認得出是同一個人、指令有沒有做到</b>——三個條件是連言，'
+      +'任一條垮掉算防禦成功。編輯圖以有損 WebP 收（防禦圖無損），'
+      +'因為它要看的是編輯成不成功，不是逐像素的自然度。</div>';
+    host.querySelector('.classbar').addEventListener('click',function(e){
+      var b=e.target.closest('button'); if(!b) return;
+      editState.cls=b.dataset.c; renderEdits();
+    });
+  }
+
+  function row(k,v,cls){
+    return '<div class="row"><span class="k">'+k+'</span><span class="v'
+      +(cls?' '+cls:'')+'">'+v+'</span></div>';
+  }
+
+  rail.addEventListener('click',function(e){
+    var b=e.target.closest('.step'); if(!b) return;
+    state.v=+b.dataset.i; render();
+  });
+  thumbs.addEventListener('click',function(e){
+    var b=e.target.closest('button'); if(!b) return;
+    state.im=+b.dataset.i; render();
+  });
+  Object.keys(btn).forEach(function(k){
+    btn[k].addEventListener('click',function(){state.mode=k; render();});
+  });
+  ['mousedown','touchstart'].forEach(function(ev){
+    frame.addEventListener(ev,function(){state.held=true; render();},{passive:true});
+  });
+  ['mouseup','mouseleave','touchend','touchcancel'].forEach(function(ev){
+    frame.addEventListener(ev,function(){state.held=false; render();},{passive:true});
+  });
+  document.addEventListener('keydown',function(e){
+    if(e.key==='ArrowRight'){state.im=(state.im+1)%D.images.length; render();}
+    if(e.key==='ArrowLeft'){state.im=(state.im-1+D.images.length)%D.images.length; render();}
+    if(e.key==='ArrowDown'){state.v=(state.v+1)%D.variants.length; render();}
+    if(e.key==='ArrowUp'){state.v=(state.v-1+D.variants.length)%D.variants.length; render();}
+  });
+
+  /* table */
+  (function(){
+    var tb=document.querySelector('#tbl tbody');
+    tb.innerHTML = D.variants.map(function(v){
+      var s=screenOf(v)||{};
+      var ids=[],ps=[];
+      Object.keys(v.defended||{}).forEach(function(k){
+        var d=v.defended[k]; if(!d) return;
+        ids.push(d.subject_id_defended); ps.push(d.psnr);});
+      var mid=med(ids);
+      var cls = mid==null?'' : (mid>=.92?'pass':mid>=.75?'edge':'fail');
+      return '<tr><td>'+v.name+(KIND[v.name]?' <span class="pill">'+KIND[v.name]+'</span>':'')+'</td>'
+        +'<td>'+(BUDGET[v.name]||'—')+'</td>'
+        +'<td>'+(s.penetrated!=null? s.penetrated+' / '+s.cells : '—')+'</td>'
+        +'<td>'+(s.majority!=null? s.majority : '—')+'</td>'
+        +'<td class="dim">'+(s.all_seeds!=null? s.all_seeds : '—')+'</td>'
+        +'<td>'+f(s.criterion)+'</td><td>'+f(s.id_norm)+'</td>'
+        +'<td class="dim">'+f(s.dir_norm)+'</td><td class="dim">'+f(s.use_norm)+'</td>'
+        +'<td class="'+cls+'">'+f(mid)+'</td>'
+        +'<td class="dim">'+f(med(ps),2)+'</td></tr>';
+    }).join('');
+  })();
+
+  render();
+})();
+</script>

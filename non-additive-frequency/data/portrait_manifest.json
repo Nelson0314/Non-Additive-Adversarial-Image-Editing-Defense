@@ -1,0 +1,37 @@
+{
+  "images": [
+    {
+      "id": "task_obj_swap_rand_mask_268827",
+      "path": "data/omniedit150/task_obj_swap_rand_mask_268827/task_obj_swap_rand_mask_268827.png",
+      "sha256": "8519b98e8d3717cb441a76912db96e513bc08e0de5c2b355dc5c4bb0cb35bdc2"
+    },
+    {
+      "id": "task_obj_add_531333",
+      "path": "data/omniedit150/task_obj_add_531333/task_obj_add_531333.png",
+      "sha256": "e9b2281323d40d2cbe974bf304431e8199492c813b1d1d483cf08de24a02408c"
+    },
+    {
+      "id": "task_env_weather_121086",
+      "path": "data/omniedit150/task_env_weather_121086/task_env_weather_121086.png",
+      "sha256": "51d8c7b934cafed509173a46c918fcc56cd62b163bc3675b2f85815e151cb260"
+    },
+    {
+      "id": "task_obj_remove_410264",
+      "path": "data/omniedit150/task_obj_remove_410264/task_obj_remove_410264.png",
+      "sha256": "3bb759b7ee7554684714e6ef3bdbd3fcd23cff7aca627095ce60749343561fe9"
+    },
+    {
+      "id": "task_env_weather_112463",
+      "path": "data/omniedit150/task_env_weather_112463/task_env_weather_112463.png",
+      "sha256": "68436fc080955d08d7ecbcb3c87b126ffc3ba4bd633d937ee903c3626e07a8be"
+    },
+    {
+      "id": "task_obj_swap_rand_mask_79926",
+      "path": "data/omniedit150/task_obj_swap_rand_mask_79926/task_obj_swap_rand_mask_79926.png",
+      "sha256": "6359cfd6b1e1d87c460a5c498dd03494c5c344dbce4fb518bbc94006f5402d0c"
+    }
+  ],
+  "selection_note": "主體鮮明的人像，六張。由 scripts/select_subjects.py 排序、再逐張看圖選出。準則：單一清楚的臉、是照片不是插畫、臉佔畫面夠大讓載體動得到它。**偵測器會誤判，插畫旗標會漏**——task_env_weather_231482 是一盤香蕉而 MTCNN 給了 0.67 的臉框，task_attr_mod_color_175843 是 3D 卡通而顏色數與邊緣比都沒越界。所以那支腳本只出排序，選哪幾張由人看圖決定。",
+  "composition_note": "三男三女，膚色、年齡、背景與構圖各異：銀甲男性肖像、雪中金髮女性、林中光頭蓄鬚男性、女性專業人像、泳池邊泳者、紅毯女性。臉佔畫面從 0.107 到 0.286——幾何載體的控制點間距要與臉的尺度比，所以這個範圍要故意留寬。",
+  "excluded_note": "先前五張裡 task_env_weather_195273 是卡通武士，它的身分嵌入與自然度判斷都與照片不同族，混在同一批裡讀不出東西；task_attr_mod_color_123744 是藝妓，白妝與髮飾讓臉的邊界與一般人像不同。兩張都不在這一批。"
+}

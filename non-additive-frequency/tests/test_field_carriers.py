@@ -253,7 +253,8 @@ FIELD_CONFIGS = ('immunise_field.json', 'immunise_field_affine.json',
                  'immunise_field_margin.json',
                  'immunise_field_coarse_margin.json',
                  'immunise_field_grid.json',
-                 'immunise_field_coarse_eot.json')
+                 'immunise_field_coarse_eot.json',
+                 'immunise_field_whole.json')
 
 
 @pytest.mark.parametrize('name', FIELD_CONFIGS)
@@ -273,7 +274,10 @@ def test_位移場設定檔的每個變體都掛得上載體(name):
             c = FlowFieldParam(x, grid=int(knobs['grid']),
                                taper=float(knobs['taper']),
                                box=float(knobs['box']))
-            assert set(variant['caps']) >= {'face_px', 'rigid_px', 'fold'}
+            caps = set(variant['caps'])
+            assert (caps >= {'all_px', 'affine_all_px'}
+                    or caps >= {'face_px', 'rigid_px'}), variant['name']
+            assert 'fold' in caps
         else:
             c = LabOffsetFieldParam(x, grid=int(knobs['grid']),
                                     box=tuple(knobs['box']))
@@ -308,3 +312,53 @@ def test_膨脹之後背景的支撐仍非空():
     m[..., 20:44, 20:44] = 1.0
     assert float((1.0 - dilate(m, 8)).sum()) > 0.0
     assert float((1.0 - dilate(m, 40)).sum()) == 0.0
+
+
+def _flow_caps(caps_spec, n=64):
+    import importlib.util
+    import torch as _t
+    from src.defense.delta_e_torch import cvar_from_map
+    from src.defense.geometry_field import affine_residual, dilate
+    from src.defense.immunise import Cap
+    spec = importlib.util.spec_from_file_location(
+        'immunise_field_script', ROOT / 'scripts' / 'immunise_field.py')
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    x = _image(n)
+    carrier = FlowFieldParam(x, grid=4, taper=4.0)
+    carrier.reset(x)
+    anchor = torch.zeros(1, 1, n, n)
+    anchor[..., n // 4:3 * n // 4, n // 4:3 * n // 4] = 1.0
+    return mod.flow_caps(Cap, cvar_from_map, affine_residual, dilate, _t,
+                         carrier, caps_spec, anchor, 'test'), carrier
+
+
+def test_整幅模式不看臉框():
+    """整幅模式下臉沒有特殊待遇，三道約束都在整張圖上。"""
+    caps, _ = _flow_caps({'all_px': 8.0, 'affine_all_px': 2.0})
+    assert [c.name for c in caps] == ['flow_all', 'flow_affine_all', 'flow_fold']
+
+
+def test_分區模式仍然給出臉與背景兩道():
+    caps, _ = _flow_caps({'face_px': 8.0, 'rigid_px': 1.0})
+    assert [c.name for c in caps] == ['flow_face', 'flow_rigid', 'flow_fold']
+
+
+def test_整幅模式的位移上限量的是整張圖():
+    """臉框外推大的位移，分區模式的 flow_face 看不到，整幅模式看得到。"""
+    caps_all, carrier = _flow_caps({'all_px': 8.0, 'affine_all_px': 2.0})
+    with torch.no_grad():
+        carrier.theta[:, 0, 0, 0] = 30.0
+    whole = float(caps_all[0].hard(None))
+    caps_split, carrier2 = _flow_caps({'face_px': 8.0, 'rigid_px': 1.0})
+    with torch.no_grad():
+        carrier2.theta[:, 0, 0, 0] = 30.0
+    face = float(caps_split[0].hard(None))
+    assert whole > face
+
+
+def test_整幅模式不需要過渡帶也不會拒絕啟動():
+    """rigid_margin 只屬於分區模式；整幅模式沒有補集，不會有吃光背景的問題。"""
+    caps, _ = _flow_caps({'all_px': 8.0, 'affine_all_px': 2.0,
+                          'rigid_margin': 999.0})
+    assert len(caps) == 3

@@ -51,6 +51,78 @@ COLUMNS = [
 ]
 
 
+def flow_caps(Cap, cvar_from_map, affine_residual, dilate, torch,
+              carrier, caps_spec, anchor, image):
+    """位移場的約束組。兩種模式，由 `caps_spec` 裡有沒有 `all_px` 決定。
+
+    整幅（`all_px`）
+    ────────────────────────────────────────────────────────────────
+    整張圖一組約束，臉沒有任何特殊待遇：位移量的 CVaR99、對全域仿射的殘差、
+    以及摺疊量。
+
+    **為什麼要有這個模式。** 分區的那一組在構造上就把所有形變逼進臉框：
+    `flow_face` 給臉框內一個大預算，`flow_rigid` 要求臉框外對全域仿射的殘差
+    只有 1–3 px，也就是明文要求背景近乎剛體。求解器沒有別的地方可以放形變，
+    於是產物一律帶著「這張臉被動過」的局部痕跡——人眼第一眼抓到的就是它。
+    自然照片允許的是整張畫面的平滑形變（換鏡頭、換站位、輕微透視），
+    臉跟著變只是副作用，不會被單獨挑出來。
+
+    分區（`face_px` ＋ `rigid_px`）
+    ────────────────────────────────────────────────────────────────
+    `runs/field_*` 前七批用的那一組，保留下來是為了讓舊批次仍然重跑得出來。
+    `rigid_margin` 把臉框向外膨脹再取補集，讓過渡帶兩邊都不管；
+    `face_rigid_px` 另外限制臉框內對仿射的殘差。
+    """
+    q = float(caps_spec.get('quantile', 0.99))
+    fold = Cap('flow_fold',
+               (lambda _y, c=carrier: c.fold_measure(
+                   floor=float(caps_spec.get('det_floor', 0.5)))),
+               (lambda _y, c=carrier: float(c.fold_measure(
+                   floor=float(caps_spec.get('det_floor', 0.5))).detach())),
+               float(caps_spec.get('fold', 1e-3)))
+
+    def residual(support):
+        return (lambda _y, c=carrier: cvar_from_map(
+            affine_residual(c.flow(), support).pow(2)
+            .sum(1, keepdim=True).clamp_min(1e-12).sqrt(), support, q))
+
+    if caps_spec.get('all_px'):
+        whole = torch.ones_like(anchor)
+        soft = residual(whole)
+        return [
+            Cap('flow_all',
+                (lambda _y, c=carrier: cvar_from_map(c.magnitude(), whole, q)),
+                (lambda _y, c=carrier: float(
+                    cvar_from_map(c.magnitude(), whole, q).detach())),
+                float(caps_spec['all_px'])),
+            Cap('flow_affine_all', soft,
+                (lambda y, f=soft: float(f(y).detach())),
+                float(caps_spec['affine_all_px'])),
+            fold,
+        ]
+
+    margin = float(caps_spec.get('rigid_margin', 0.0) or 0.0)
+    outside = (1.0 - dilate(anchor, margin)).to(anchor)
+    if float(outside.sum()) <= 0:
+        raise SystemExit(f'{image} 的 rigid_margin {margin} 把背景整個吃掉了')
+    out_soft = residual(outside)
+    caps = [
+        Cap('flow_face',
+            (lambda _y, c=carrier: cvar_from_map(c.magnitude(), anchor, q)),
+            (lambda _y, c=carrier: float(
+                cvar_from_map(c.magnitude(), anchor, q).detach())),
+            float(caps_spec['face_px'])),
+        Cap('flow_rigid', out_soft, (lambda y, f=out_soft: float(f(y).detach())),
+            float(caps_spec['rigid_px'])),
+    ]
+    if float(caps_spec.get('face_rigid_px', 0) or 0) > 0:
+        in_soft = residual(anchor)
+        caps.append(Cap('flow_face_rigid', in_soft,
+                        (lambda y, f=in_soft: float(f(y).detach())),
+                        float(caps_spec['face_rigid_px'])))
+    return caps + [fold]
+
+
 def load_guard():
     spec = importlib.util.spec_from_file_location(
         'immunise_script', ROOT / 'scripts' / 'immunise.py')
@@ -190,51 +262,9 @@ def main():
                     taper=float(knobs.get('taper', 16.0)),
                     box=float(knobs.get('box', 64.0)))
                 carrier.reset(x)
-                q = float(caps_spec.get('quantile', 0.99))
-                margin = float(caps_spec.get('rigid_margin', 0.0) or 0.0)
-                outside = (1.0 - dilate(anchor, margin)).to(anchor)
-                if float(outside.sum()) <= 0:
-                    raise SystemExit(
-                        f'{image} 的 rigid_margin {margin} 把背景整個吃掉了')
-                cell_caps = [
-                    Cap('flow_face',
-                        (lambda _y, c=carrier: cvar_from_map(
-                            c.magnitude(), anchor, q)),
-                        (lambda _y, c=carrier: float(cvar_from_map(
-                            c.magnitude(), anchor, q).detach())),
-                        float(caps_spec['face_px'])),
-                    Cap('flow_rigid',
-                        (lambda _y, c=carrier: cvar_from_map(
-                            affine_residual(c.flow(), outside).pow(2)
-                            .sum(1, keepdim=True).clamp_min(1e-12).sqrt(),
-                            outside, q)),
-                        (lambda _y, c=carrier: float(cvar_from_map(
-                            affine_residual(c.flow(), outside).pow(2)
-                            .sum(1, keepdim=True).clamp_min(1e-12).sqrt(),
-                            outside, q).detach())),
-                        float(caps_spec['rigid_px'])),
-                ]
-                if float(caps_spec.get('face_rigid_px', 0) or 0) > 0:
-                    cell_caps.append(Cap(
-                        'flow_face_rigid',
-                        (lambda _y, c=carrier: cvar_from_map(
-                            affine_residual(c.flow(), anchor).pow(2)
-                            .sum(1, keepdim=True).clamp_min(1e-12).sqrt(),
-                            anchor, q)),
-                        (lambda _y, c=carrier: float(cvar_from_map(
-                            affine_residual(c.flow(), anchor).pow(2)
-                            .sum(1, keepdim=True).clamp_min(1e-12).sqrt(),
-                            anchor, q).detach())),
-                        float(caps_spec['face_rigid_px'])))
-                cell_caps += [
-                    Cap('flow_fold',
-                        (lambda _y, c=carrier: c.fold_measure(
-                            floor=float(caps_spec.get('det_floor', 0.5)))),
-                        (lambda _y, c=carrier: float(c.fold_measure(
-                            floor=float(caps_spec.get('det_floor', 0.5)))
-                            .detach())),
-                        float(caps_spec.get('fold', 1e-3))),
-                ]
+                cell_caps = flow_caps(Cap, cvar_from_map, affine_residual,
+                                      dilate, torch, carrier, caps_spec,
+                                      anchor, image)
             elif kind == 'lab_field':
                 carrier = LabOffsetFieldParam(
                     x, grid=int(knobs.get('grid', 8)), support=frame,

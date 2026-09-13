@@ -12,6 +12,16 @@
   這一層回答「攻擊者拿不拿得到可用的結果」。
 
 兩層分開報：一個載體可能在第二層很強，只是因為第一層已經把照片毀了。
+
+編輯後的圖
+────────────────────────────────────────────────────────────────────
+`--edits` 把 `scripts/evaluate_defence.py` 存下來的編輯輸出一起收進來：
+未防禦那一側（`*__clean_edit.png`，同一張原圖共用）與防禦那一側
+（`*__def_edit.png`，逐變體）。**判準說的「攻擊者拿不到可用的結果」只能在這裡
+看得到**——CSV 上的一個數字說不出輸出是崩壞、是換了一個人、還是指令根本沒做到。
+
+編輯圖以**有損** WebP 收（預設 q90），防禦圖維持無損：前者是看「編輯成不成功」，
+後者要逐像素判自然度。這件事寫在報告頁上，不藏。
 """
 import argparse
 import csv
@@ -47,6 +57,16 @@ def main():
                     help='scripts/field_readout.py 的輸出，可給多次')
     ap.add_argument('--screen', action='append', default=[], metavar='CSV',
                     help='scripts/summarise_screen.py --out 的輸出，可給多次')
+    ap.add_argument('--edits', action='append', default=[], metavar='DIR',
+                    help='含 <variant>/shard*/ 編輯圖的評估輸出根目錄，可給多次')
+    ap.add_argument('--edit-purifier', default='identity')
+    ap.add_argument('--edit-seed', default='17001')
+    ap.add_argument('--edit-quality', type=int, default=90,
+                    help='編輯圖的有損 WebP 品質；防禦圖一律無損')
+    ap.add_argument('--edit-variants', default='',
+                    help='逗號分隔；只收這幾個變體的編輯圖')
+    ap.add_argument('--edit-classes', default='',
+                    help='逗號分隔；只收這幾類指令的編輯圖')
     ap.add_argument('--manifest', type=Path,
                     default=ROOT / 'data' / 'scaleup_manifest.json')
     ap.add_argument('--out', type=Path, required=True)
@@ -82,6 +102,53 @@ def main():
                 'argmin_id': int(r['argmin_id']),
                 'argmin_use': int(r['argmin_use'])}
 
+    def collect_edits():
+        """回傳 (逐變體的防禦側編輯, 共用的未防禦側編輯)。
+
+        檔名合約來自 `scripts/evaluate_defence.py`：
+        `<image>__<class>__<purifier>__immunised__s<seed>__def_edit.png` 與
+        `<image>__<class>__<purifier>__s<seed>__clean_edit.png`。
+        未防禦那一側只與（影像, 指令類, 淨化, 種子）有關，所以跨變體共用一份。
+        """
+        from PIL import Image
+        tag = f'__{args.edit_purifier}__'
+        seed = f'__s{args.edit_seed}__'
+        want_v = {v.strip() for v in args.edit_variants.split(',') if v.strip()}
+        want_c = {c.strip() for c in args.edit_classes.split(',') if c.strip()}
+        per_variant, clean = {}, {}
+        for root in args.edits:
+            vroot = Path(root)
+            if not vroot.exists():
+                raise SystemExit(f'{vroot} 不存在')
+            for vdir in sorted(p for p in vroot.iterdir() if p.is_dir()):
+                if want_v and vdir.name not in want_v:
+                    continue
+                for png in sorted(vdir.rglob('*_edit.png')):
+                    name = png.name
+                    if tag not in name or seed not in name:
+                        continue
+                    head = name.split(tag)[0]
+                    image, _, cls = head.rpartition('__')
+                    if not image or (want_c and cls not in want_c):
+                        continue
+                    if name.endswith('__clean_edit.png'):
+                        store, key = clean, None
+                    elif name.endswith('__def_edit.png'):
+                        store, key = per_variant.setdefault(vdir.name, {}), None
+                    else:
+                        continue
+                    dest = img_dir / (
+                        f'edit_{"clean" if store is clean else vdir.name}'
+                        f'__{image}__{cls}.webp')
+                    if not dest.exists():
+                        Image.open(png).convert('RGB').save(
+                            dest, 'WEBP', quality=int(args.edit_quality),
+                            method=4)
+                    store.setdefault(image, {})[cls] = f'img/{dest.name}'
+        return per_variant, clean
+
+    edits_by_variant, clean_edits = collect_edits() if args.edits else ({}, {})
+
     images, variants = [], []
     seen_images = set()
     for entry in args.batch:
@@ -108,10 +175,14 @@ def main():
                 'name': vdir.name, 'batch': batch_name, 'files': files,
                 'defended': {im: defended.get((vdir.name, im))
                              for im in files},
+                'edits': edits_by_variant.get(vdir.name, {}),
                 'screen': screen.get(vdir.name, {})})
 
     images.sort(key=lambda r: r['id'])
     payload = {'images': images,
+               'clean_edits': clean_edits,
+               'edit_purifier': args.edit_purifier,
+               'edit_seed': args.edit_seed,
                'variants': variants,
                'screen_keys': sorted({k for v in variants
                                       for k in v['screen']})}
@@ -119,7 +190,9 @@ def main():
     (args.out / 'data.js').write_text(body, encoding='utf-8')
     print(f'寫出 {args.out / "data.js"}：'
           f'{len(images)} 張影像、{len(variants)} 個變體、'
-          f'{len(list(img_dir.glob("*.png")))} 個影像檔')
+          f'{len(list(img_dir.iterdir()))} 個影像檔'
+          f'（編輯圖 {sum(len(v) for m in edits_by_variant.values() for v in m.values())}'
+          f' + 未防禦 {sum(len(v) for v in clean_edits.values())}）')
 
 
 if __name__ == '__main__':

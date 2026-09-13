@@ -252,7 +252,8 @@ FIELD_CONFIGS = ('immunise_field.json', 'immunise_field_affine.json',
                  'immunise_field_eot.json',
                  'immunise_field_margin.json',
                  'immunise_field_coarse_margin.json',
-                 'immunise_field_grid.json')
+                 'immunise_field_grid.json',
+                 'immunise_field_coarse_eot.json')
 
 
 @pytest.mark.parametrize('name', FIELD_CONFIGS)

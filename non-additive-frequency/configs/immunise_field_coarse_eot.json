@@ -1,0 +1,130 @@
+{
+  "manifest": "data/scaleup_manifest.json",
+  "images": [
+    "task_attr_mod_color_123744",
+    "task_env_weather_114555",
+    "task_env_weather_126577",
+    "task_env_weather_195273",
+    "task_obj_remove_509477"
+  ],
+  "images_note": "與前幾批同五張。",
+  "objective_note": "**這份設定裡不得出現任何指令。** scripts/immunise_field.py 載入 scripts/immunise.py 的 assert_no_instructions 遞迴檢查，含有 instruction 或 prompt 的鍵一律拒絕啟動。",
+  "rationale": "把兩個各自有效、機制不同的東西疊起來。一、粗網格買自然度：runs/field_grid/ 量到 6×6 網格（間距 85 px）在 96 px 預算下過半穿透 13/25，五張裡四張是自然照片，而同樣預算下 16×16 網格的產物會壞。二、EOT 買格數：runs/field_eot/ 量到同一個載體、同一個預算下，eot_crop_16 相對 flow_16 在四道淨化上是 +6／+7／0／+5，id_norm 中位四道全部下降——四道同向且連續讀數同向，不是單一格數的翻動。但 eot_crop_16 用的是 16×16 網格，它的 task_env_weather_114555 鼻嘴區是壞的，所以那個獲益掛在一個產物會壞的載體上。兩者相加的前提是機制不衝突：粗網格限制位移的空間頻率，EOT 改的是目標的期望值，互不相干。",
+  "mechanism_note": "背景剛性擋掉多少，取決於臉佔畫面的比例。coarse_32 上 task_env_weather_126577（臉大）走到 29.5/32、id 0.528，而 task_env_weather_114555（臉小）只走到 5.4/32、id 0.952：臉越小，臉的移動溢出到臉框外的比例越大，被背景約束擋掉的就越多。過渡帶要修的正是這一項，所以逐張的 flow_px_max 要分開看，不能只看中位數。",
+  "free": {
+    "steps": 150,
+    "lr": 0.05,
+    "timesteps": 4,
+    "chain_steps": 6,
+    "grad_steps": 1,
+    "noise_seed": 0,
+    "log_every": 30,
+    "weights": {
+      "id": 1.0,
+      "enc": 0.5,
+      "cond": 1.0
+    }
+  },
+  "free_note": "目標函數與前幾批相同。",
+  "variants": [
+    {
+      "name": "coarse_eot_96_crop",
+      "carrier": "flow",
+      "knobs": {
+        "grid": 6,
+        "taper": 16.0,
+        "box": 64.0
+      },
+      "caps": {
+        "face_px": 96.0,
+        "rigid_px": 3.0,
+        "rigid_margin": 96.0,
+        "fold": 0.001,
+        "det_floor": 0.5,
+        "quantile": 0.99
+      },
+      "lr": 2.0,
+      "eot": {
+        "kinds": [
+          "crop_resize"
+        ],
+        "samples": 1,
+        "seed": 0
+      }
+    },
+    {
+      "name": "coarse_eot_96_both",
+      "carrier": "flow",
+      "knobs": {
+        "grid": 6,
+        "taper": 16.0,
+        "box": 64.0
+      },
+      "caps": {
+        "face_px": 96.0,
+        "rigid_px": 3.0,
+        "rigid_margin": 96.0,
+        "fold": 0.001,
+        "det_floor": 0.5,
+        "quantile": 0.99
+      },
+      "lr": 2.0,
+      "eot": {
+        "kinds": [
+          "crop_resize",
+          "blur"
+        ],
+        "samples": 2,
+        "seed": 0
+      }
+    },
+    {
+      "name": "coarse_eot_96_none",
+      "carrier": "flow",
+      "knobs": {
+        "grid": 6,
+        "taper": 16.0,
+        "box": 64.0
+      },
+      "caps": {
+        "face_px": 96.0,
+        "rigid_px": 3.0,
+        "rigid_margin": 96.0,
+        "fold": 0.001,
+        "det_floor": 0.5,
+        "quantile": 0.99
+      },
+      "lr": 2.0
+    },
+    {
+      "name": "coarse_eot_48_crop",
+      "carrier": "flow",
+      "knobs": {
+        "grid": 6,
+        "taper": 16.0,
+        "box": 64.0
+      },
+      "caps": {
+        "face_px": 48.0,
+        "rigid_px": 3.0,
+        "rigid_margin": 96.0,
+        "fold": 0.001,
+        "det_floor": 0.5,
+        "quantile": 0.99
+      },
+      "lr": 1.2,
+      "eot": {
+        "kinds": [
+          "crop_resize"
+        ],
+        "samples": 1,
+        "seed": 0
+      }
+    }
+  ],
+  "variants_note": "coarse_eot_96_none 與 runs/field_coarse_margin/ 的 coarse_margin_96、runs/field_grid/ 的 grid_06 設定逐欄相同——這是同一設定的**第三次**獨立跑，另外兩次的過半穿透都是 13/25，所以它同時是這一批的對照與重跑變異的第三個樣本。coarse_eot_96_crop 只加 EOT，差額可以直接歸因。coarse_eot_96_both 加模糊、樣本數 2，成本約兩倍。coarse_eot_48_crop 在較小的預算上問 EOT 的獲益會不會隨預算縮放——runs/field_coarse_margin/ 量到 48 px 只有 3/25。",
+  "precision": "bf16",
+  "s_i": 1.5,
+  "attack_steps": 50,
+  "honesty_note": "**EOT 之後那幾道淨化不再是完全未見的。** 抽的是隨機參數（裁切量在邊長的 2%–15%、模糊 σ 在 0.4–1.6），評估用的是固定的那幾組（DIA 的 10%、σ=1.0）——算子的族是看過的，具體的參數不是。JPEG 不進 EOT：它不可微。coarse_eot_96_none 那一格沒有 EOT，是這一批自己的對照。"
+}

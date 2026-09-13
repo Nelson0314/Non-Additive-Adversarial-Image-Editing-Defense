@@ -1,0 +1,11 @@
+variant,arm,purifier,rows,cells,penetrated,majority,all_seeds,criterion,id_norm,dir_norm,use_norm,argmin_id,argmin_use,control_lost,control_flat,subject_lost
+flow_02,immunised,identity,75,25,0,0,0,0.91475,0.96433,1.0,0.92018,31,44,0,6,0
+flow_02,undefended,identity,75,25,0,0,0,1.0,1.0,1.0,1.0,75,0,0,6,0
+flow_04,immunised,identity,75,25,1,0,0,0.86012,0.90127,1.0,0.91138,38,37,0,6,0
+flow_04,undefended,identity,75,25,0,0,0,1.0,1.0,1.0,1.0,75,0,0,6,0
+flow_08,immunised,identity,75,25,6,5,5,0.75361,0.74356,0.99498,0.87829,72,3,0,6,0
+flow_08,undefended,identity,75,25,0,0,0,1.0,1.0,1.0,1.0,75,0,0,6,0
+flow_16,immunised,identity,75,25,11,11,10,0.58413,0.58403,1.0,0.913,74,1,0,6,0
+flow_16,undefended,identity,75,25,0,0,0,1.0,1.0,1.0,1.0,75,0,0,6,0
+lab_field,immunised,identity,75,25,1,0,0,0.97645,0.97979,0.98774,0.98768,46,29,0,6,0
+lab_field,undefended,identity,75,25,0,0,0,1.0,1.0,1.0,1.0,75,0,0,6,0

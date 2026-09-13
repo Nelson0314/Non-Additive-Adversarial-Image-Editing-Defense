@@ -1,0 +1,46 @@
+arm,image,class,instruction,carrier,seed,eval_seed,n_faces_orig,n_faces_edit_orig,subject_box_iou_edit_orig,subject_id_orig,subject_id_def,subject_id_drop,id_embed_weights,seconds
+undefended,task_env_weather_70149,clothing,turn the kimono red,clothes,0,17001,1,1,0.94574,0.95062,0.95062,0.0,vggface2,22.8
+undefended,task_env_weather_70149,clothing,turn the kimono red,clothes,0,27001,1,1,0.9325,0.94431,0.94431,0.0,vggface2,44.9
+undefended,task_env_weather_70149,clothing,turn the kimono red,clothes,0,47001,1,1,0.95751,0.94133,0.94133,0.0,vggface2,67.2
+undefended,task_env_weather_70149,accessory,put a hat on the person,frame,0,17001,1,1,0.932,0.7884,0.7884,0.0,vggface2,89.7
+undefended,task_env_weather_70149,accessory,put a hat on the person,frame,0,27001,1,2,0.93818,0.44594,0.44594,0.0,vggface2,112.2
+undefended,task_env_weather_70149,accessory,put a hat on the person,frame,0,47001,1,2,0.87362,0.14588,0.14588,0.0,vggface2,134.9
+undefended,task_env_weather_70149,background,change the background to a snowy street,frame,0,17001,1,1,0.97397,0.93528,0.93528,0.0,vggface2,157.7
+undefended,task_env_weather_70149,background,change the background to a snowy street,frame,0,27001,1,1,0.95664,0.93053,0.93053,0.0,vggface2,180.5
+undefended,task_env_weather_70149,background,change the background to a snowy street,frame,0,47001,1,1,0.95616,0.94772,0.94772,0.0,vggface2,203.2
+undefended,task_env_weather_121086,clothing,turn the jacket red,clothes,0,17001,1,1,0.98194,0.98446,0.98446,0.0,vggface2,226.0
+undefended,task_env_weather_121086,clothing,turn the jacket red,clothes,0,27001,1,1,0.94135,0.96596,0.96596,0.0,vggface2,248.8
+undefended,task_env_weather_121086,clothing,turn the jacket red,clothes,0,47001,1,2,0.90612,0.97331,0.97331,0.0,vggface2,271.5
+undefended,task_env_weather_121086,accessory,put a hat on the person,frame,0,17001,1,1,0.92202,0.84831,0.84831,0.0,vggface2,294.2
+undefended,task_env_weather_121086,accessory,put a hat on the person,frame,0,27001,1,1,0.84347,0.74533,0.74533,0.0,vggface2,316.9
+undefended,task_env_weather_121086,accessory,put a hat on the person,frame,0,47001,1,2,0.86861,0.77787,0.77787,0.0,vggface2,339.7
+undefended,task_env_weather_121086,background,change the background to a snowy street,frame,0,17001,1,1,0.98218,0.98457,0.98457,0.0,vggface2,362.4
+undefended,task_env_weather_121086,background,change the background to a snowy street,frame,0,27001,1,1,0.85111,0.96478,0.96478,0.0,vggface2,385.1
+undefended,task_env_weather_121086,background,change the background to a snowy street,frame,0,47001,1,1,0.96838,0.97104,0.97104,0.0,vggface2,407.7
+undefended,task_env_weather_126577,clothing,turn the robe red,clothes,0,17001,1,1,0.96588,0.99149,0.99149,0.0,vggface2,430.4
+undefended,task_env_weather_126577,clothing,turn the robe red,clothes,0,27001,1,3,0.95847,0.99076,0.99076,0.0,vggface2,453.1
+undefended,task_env_weather_126577,clothing,turn the robe red,clothes,0,47001,1,1,0.93673,0.97584,0.97584,0.0,vggface2,475.7
+undefended,task_env_weather_126577,accessory,put a hat on the person,frame,0,17001,1,1,0.84511,0.90956,0.90956,0.0,vggface2,498.3
+undefended,task_env_weather_126577,accessory,put a hat on the person,frame,0,27001,1,1,0.90008,0.95093,0.95093,0.0,vggface2,520.8
+undefended,task_env_weather_126577,accessory,put a hat on the person,frame,0,47001,1,1,0.93877,0.89942,0.89942,0.0,vggface2,543.3
+undefended,task_env_weather_126577,background,change the background to a snowy street,frame,0,17001,1,1,0.93808,0.99531,0.99531,0.0,vggface2,566.1
+undefended,task_env_weather_126577,background,change the background to a snowy street,frame,0,27001,1,1,0.96478,0.99313,0.99313,0.0,vggface2,589.0
+undefended,task_env_weather_126577,background,change the background to a snowy street,frame,0,47001,1,1,0.96233,0.99138,0.99138,0.0,vggface2,612.0
+undefended,task_obj_remove_284852,clothing,turn the shirt blue,clothes,0,17001,1,1,0.96187,0.92687,0.92687,0.0,vggface2,634.9
+undefended,task_obj_remove_284852,clothing,turn the shirt blue,clothes,0,27001,1,1,0.95242,0.93018,0.93018,0.0,vggface2,657.9
+undefended,task_obj_remove_284852,clothing,turn the shirt blue,clothes,0,47001,1,1,0.95301,0.94093,0.94093,0.0,vggface2,680.9
+undefended,task_obj_remove_284852,accessory,put a hat on the person,frame,0,17001,1,1,0.82464,0.90056,0.90056,0.0,vggface2,703.8
+undefended,task_obj_remove_284852,accessory,put a hat on the person,frame,0,27001,1,1,0.83132,0.92112,0.92112,0.0,vggface2,726.8
+undefended,task_obj_remove_284852,accessory,put a hat on the person,frame,0,47001,1,2,0.9031,0.23155,0.23155,0.0,vggface2,749.8
+undefended,task_obj_remove_284852,background,change the background to a snowy street,frame,0,17001,1,1,0.93558,0.91953,0.91953,0.0,vggface2,772.8
+undefended,task_obj_remove_284852,background,change the background to a snowy street,frame,0,27001,1,1,0.83212,0.90747,0.90747,0.0,vggface2,795.9
+undefended,task_obj_remove_284852,background,change the background to a snowy street,frame,0,47001,1,1,0.89762,0.88516,0.88516,0.0,vggface2,818.9
+undefended,task_obj_swap_rand_mask_315182,clothing,turn the clothes blue,clothes,0,17001,1,1,0.92804,0.89765,0.89765,0.0,vggface2,842.0
+undefended,task_obj_swap_rand_mask_315182,clothing,turn the clothes blue,clothes,0,27001,1,1,0.92262,0.94087,0.94087,0.0,vggface2,865.1
+undefended,task_obj_swap_rand_mask_315182,clothing,turn the clothes blue,clothes,0,47001,1,1,0.90641,0.86741,0.86741,0.0,vggface2,888.1
+undefended,task_obj_swap_rand_mask_315182,accessory,put a hat on the person,frame,0,17001,1,1,0.9352,0.92276,0.92276,0.0,vggface2,911.1
+undefended,task_obj_swap_rand_mask_315182,accessory,put a hat on the person,frame,0,27001,1,1,0.94783,0.92426,0.92426,0.0,vggface2,934.0
+undefended,task_obj_swap_rand_mask_315182,accessory,put a hat on the person,frame,0,47001,1,1,0.89883,0.83668,0.83668,0.0,vggface2,956.8
+undefended,task_obj_swap_rand_mask_315182,background,change the background to a snowy street,frame,0,17001,1,1,0.95857,0.83611,0.83611,0.0,vggface2,979.6
+undefended,task_obj_swap_rand_mask_315182,background,change the background to a snowy street,frame,0,27001,1,1,0.96953,0.95203,0.95203,0.0,vggface2,1002.4
+undefended,task_obj_swap_rand_mask_315182,background,change the background to a snowy street,frame,0,47001,1,2,0.87974,0.91946,0.91946,0.0,vggface2,1025.2

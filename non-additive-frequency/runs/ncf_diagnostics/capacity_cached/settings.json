@@ -1,0 +1,36 @@
+{
+  "device": "cpu",
+  "unet_calls": 0,
+  "vae_calls": 0,
+  "threads": 4,
+  "regions": [
+    "clothes",
+    "frame"
+  ],
+  "epsilons": [
+    1.0,
+    5.0,
+    10.0,
+    20.0
+  ],
+  "raw_radius": 0.2,
+  "directions_per_palette": 530,
+  "proxy_grid_stride": 16,
+  "metric_selection": "all 20 T0 plus top 2 pre-gamut Lab proxy states per epsilon",
+  "frame_role": "attribution only; same apparel pool isolates support effect; not frame_paper pool",
+  "support_source": "clothes_paper saved support.pt; frame exactly all ones",
+  "resumed_measurements": [
+    "runs\\ncf_diagnostics\\capacity_scan\\task_env_weather_70149__clothes__measurements.csv"
+  ],
+  "resumed_groups": [
+    [
+      "task_env_weather_70149",
+      "clothes"
+    ]
+  ],
+  "reference_feature_cache": true,
+  "limitation": "finite sampled attainable envelope; not a DISTS/LPIPS upper bound",
+  "elapsed_seconds": 489.4731577000057,
+  "torch_version": "2.13.0+cu126",
+  "piq_version": "0.8.0"
+}

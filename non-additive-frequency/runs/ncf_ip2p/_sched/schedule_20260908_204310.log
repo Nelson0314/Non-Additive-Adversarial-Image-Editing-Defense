@@ -1,0 +1,14 @@
+2026-09-08T20:43:10+08:00 排程開始：10 個工作，MAX_DEVS=5，臂=[paper converged]
+2026-09-08T20:43:11+08:00 送出 pid=5718 dev=2 arm=paper img=task_env_weather_70149 log=runs/ncf_ip2p/paper/task_env_weather_70149.log
+2026-09-08T20:43:12+08:00 送出 pid=6153 dev=4 arm=paper img=task_env_weather_121086 log=runs/ncf_ip2p/paper/task_env_weather_121086.log
+2026-09-08T20:43:13+08:00 送出 pid=6591 dev=6 arm=paper img=task_env_weather_126577 log=runs/ncf_ip2p/paper/task_env_weather_126577.log
+2026-09-08T21:17:34+08:00 結束 pid=6153 dev=4 job=paper|task_env_weather_121086 exit=0
+2026-09-08T21:17:34+08:00 結束 pid=6591 dev=6 job=paper|task_env_weather_126577 exit=0
+2026-09-08T21:17:35+08:00 送出 pid=67774 dev=4 arm=paper img=task_obj_remove_284852 log=runs/ncf_ip2p/paper/task_obj_remove_284852.log
+2026-09-08T21:17:36+08:00 送出 pid=68240 dev=6 arm=paper img=task_obj_swap_rand_mask_315182 log=runs/ncf_ip2p/paper/task_obj_swap_rand_mask_315182.log
+2026-09-08T21:18:37+08:00 結束 pid=5718 dev=2 job=paper|task_env_weather_70149 exit=0
+2026-09-08T21:18:38+08:00 送出 pid=70476 dev=2 arm=converged img=task_env_weather_70149 log=runs/ncf_ip2p/converged/task_env_weather_70149.log
+2026-09-08T21:50:58+08:00 結束 pid=68240 dev=6 job=paper|task_obj_swap_rand_mask_315182 exit=0
+2026-09-08T21:50:59+08:00 送出 pid=129941 dev=6 arm=converged img=task_env_weather_121086 log=runs/ncf_ip2p/converged/task_env_weather_121086.log
+2026-09-08T21:51:59+08:00 結束 pid=67774 dev=4 job=paper|task_obj_remove_284852 exit=0
+2026-09-08T21:52:01+08:00 送出 pid=132162 dev=4 arm=converged img=task_env_weather_126577 log=runs/ncf_ip2p/converged/task_env_weather_126577.log

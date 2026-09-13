@@ -1,0 +1,13 @@
+{
+  "device": "cpu",
+  "dtype": "float32",
+  "unet_calls": 0,
+  "vae_encoder_calls": 15,
+  "vae_decoder_calls": 0,
+  "elapsed_seconds": 131.23044119999395,
+  "model_index": "C:\\Users\\nelso\\.cache\\huggingface\\hub\\models--timbrooks--instruct-pix2pix\\snapshots\\31519b5cb02a7fd89b906d88731cd4d6a7bbf88d\\model_index.json",
+  "model_index_sha256": "4ccaf9b31f00937caf1c61578c497b53d63131a830fc08f812b2b55d86c9855e",
+  "vae_weights_sha256": "a2b5134f4dbc140d9c11f11cba3233099e00af40f262f136c691fb7d38d2194c",
+  "source_capacity": "C:\\image-immunization\\non-additive-frequency\\runs\\ncf_diagnostics\\capacity_cached",
+  "conditioning": "VAE posterior mean, no scaling_factor"
+}

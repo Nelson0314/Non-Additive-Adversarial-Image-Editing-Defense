@@ -1,0 +1,607 @@
+...................................................................x.... [  6%]
+........................................................................ [ 12%]
+........................................................................ [ 18%]
+........................................................................ [ 24%]
+........................................................................ [ 30%]
+........................................................................ [ 36%]
+....................................F.........s......................... [ 42%]
+........................................................................ [ 48%]
+........................................................................ [ 54%]
+........................................................................ [ 60%]
+........................................................................ [ 66%]
+........................................................................ [ 72%]
+........................................................................ [ 79%]
+....................s................................................... [ 85%]
+........................................................................ [ 91%]
+........................................................................ [ 97%]
+................................                                         [100%]
+================================== FAILURES ===================================
+__________________ test_loss_is_positive_at_the_clean_image ___________________
+
+cls = <class 'diffusers.pipelines.stable_diffusion.pipeline_stable_diffusion_instruct_pix2pix.StableDiffusionInstructPix2PixPipeline'>
+pretrained_model_name = 'timbrooks/instruct-pix2pix'
+kwargs = {'safety_checker': None, 'requires_safety_checker': False}
+
+    @classmethod
+    @validate_hf_hub_args
+    def download(cls, pretrained_model_name, **kwargs) -> str | os.PathLike:
+        r"""
+        Download and cache a PyTorch diffusion pipeline from pretrained pipeline weights.
+    
+        Parameters:
+            pretrained_model_name (`str` or `os.PathLike`, *optional*):
+                A string, the *repository id* (for example `CompVis/ldm-text2im-large-256`) of a pretrained pipeline
+                hosted on the Hub.
+            custom_pipeline (`str`, *optional*):
+                Can be either:
+    
+                    - A string, the *repository id* (for example `CompVis/ldm-text2im-large-256`) of a pretrained
+                      pipeline hosted on the Hub. The repository must contain a file called `pipeline.py` that defines
+                      the custom pipeline.
+    
+                    - A string, the *file name* of a community pipeline hosted on GitHub under
+                      [Community](https://github.com/huggingface/diffusers/tree/main/examples/community). Valid file
+                      names must match the file name and not the pipeline script (`clip_guided_stable_diffusion`
+                      instead of `clip_guided_stable_diffusion.py`). Community pipelines are always loaded from the
+                      current `main` branch of GitHub.
+    
+                    - A path to a *directory* (`./my_pipeline_directory/`) containing a custom pipeline. The directory
+                      must contain a file called `pipeline.py` that defines the custom pipeline.
+    
+                > [!WARNING] > 🧪 This is an experimental feature and may change in the future.
+    
+                For more information on how to load and create custom pipelines, take a look at [How to contribute a
+                community pipeline](https://huggingface.co/docs/diffusers/main/en/using-diffusers/contribute_pipeline).
+    
+            force_download (`bool`, *optional*, defaults to `False`):
+                Whether or not to force the (re-)download of the model weights and configuration files, overriding the
+                cached versions if they exist.
+    
+            proxies (`Dict[str, str]`, *optional*):
+                A dictionary of proxy servers to use by protocol or endpoint, for example, `{'http': 'foo.bar:3128',
+                'http://hostname': 'foo.bar:4012'}`. The proxies are used on each request.
+            output_loading_info(`bool`, *optional*, defaults to `False`):
+                Whether or not to also return a dictionary containing missing keys, unexpected keys and error messages.
+            local_files_only (`bool`, *optional*, defaults to `False`):
+                Whether to only load local model weights and configuration files or not. If set to `True`, the model
+                won't be downloaded from the Hub.
+            token (`str` or *bool*, *optional*):
+                The token to use as HTTP bearer authorization for remote files. If `True`, the token generated from
+                `diffusers-cli login` (stored in `~/.huggingface`) is used.
+            revision (`str`, *optional*, defaults to `"main"`):
+                The specific model version to use. It can be a branch name, a tag name, a commit id, or any identifier
+                allowed by Git.
+            custom_revision (`str`, *optional*, defaults to `"main"`):
+                The specific model version to use. It can be a branch name, a tag name, or a commit id similar to
+                `revision` when loading a custom pipeline from the Hub. It can be a 🤗 Diffusers version when loading a
+                custom pipeline from GitHub, otherwise it defaults to `"main"` when loading from the Hub.
+            mirror (`str`, *optional*):
+                Mirror source to resolve accessibility issues if you're downloading a model in China. We do not
+                guarantee the timeliness or safety of the source, and you should refer to the mirror site for more
+                information.
+            variant (`str`, *optional*):
+                Load weights from a specified variant filename such as `"fp16"` or `"ema"`. This is ignored when
+                loading `from_flax`.
+            dduf_file(`str`, *optional*):
+                Load weights from the specified DDUF file.
+            use_safetensors (`bool`, *optional*, defaults to `None`):
+                If set to `None`, the safetensors weights are downloaded if they're available **and** if the
+                safetensors library is installed. If set to `True`, the model is forcibly loaded from safetensors
+                weights. If set to `False`, safetensors weights are not loaded.
+            use_onnx (`bool`, *optional*, defaults to `False`):
+                If set to `True`, ONNX weights will always be downloaded if present. If set to `False`, ONNX weights
+                will never be downloaded. By default `use_onnx` defaults to the `_is_onnx` class attribute which is
+                `False` for non-ONNX pipelines and `True` for ONNX pipelines. ONNX weights include both files ending
+                with `.onnx` and `.pb`.
+            trust_remote_code (`bool`, *optional*, defaults to `False`):
+                Whether or not to allow for custom pipelines and components defined on the Hub in their own files. This
+                option should only be set to `True` for repositories you trust and in which you have read the code, as
+                it will execute code present on the Hub on your local machine.
+            use_flashpack (`bool`, *optional*, defaults to `False`):
+                If set to `True`, FlashPack weights will always be downloaded if present. If set to `False`, FlashPack
+                weights will never be downloaded.
+    
+        Returns:
+            `os.PathLike`:
+                A path to the downloaded pipeline.
+    
+        > [!TIP] > To use private or [gated models](https://huggingface.co/docs/hub/models-gated#gated-models), log-in
+        with `hf > auth login
+    
+        """
+        cache_dir = kwargs.pop("cache_dir", None)
+        force_download = kwargs.pop("force_download", False)
+        proxies = kwargs.pop("proxies", None)
+        local_files_only = kwargs.pop("local_files_only", None)
+        token = kwargs.pop("token", None)
+        revision = kwargs.pop("revision", None)
+        from_flax = kwargs.pop("from_flax", False)
+        custom_pipeline = kwargs.pop("custom_pipeline", None)
+        custom_revision = kwargs.pop("custom_revision", None)
+        variant = kwargs.pop("variant", None)
+        use_safetensors = kwargs.pop("use_safetensors", None)
+        use_onnx = kwargs.pop("use_onnx", None)
+        load_connected_pipeline = kwargs.pop("load_connected_pipeline", False)
+        trust_remote_code = kwargs.pop("trust_remote_code", False)
+        dduf_file: dict[str, DDUFEntry] | None = kwargs.pop("dduf_file", None)
+        use_flashpack = kwargs.pop("use_flashpack", False)
+    
+        if dduf_file:
+            if custom_pipeline:
+                raise NotImplementedError("Custom pipelines are not supported with DDUF at the moment.")
+            if load_connected_pipeline:
+                raise NotImplementedError("Connected pipelines are not supported with DDUF at the moment.")
+            return _download_dduf_file(
+                pretrained_model_name=pretrained_model_name,
+                dduf_file=dduf_file,
+                pipeline_class_name=cls.__name__,
+                cache_dir=cache_dir,
+                proxies=proxies,
+                local_files_only=local_files_only,
+                token=token,
+                revision=revision,
+            )
+    
+        allow_pickle = True if (use_safetensors is None or use_safetensors is False) else False
+        use_safetensors = use_safetensors if use_safetensors is not None else True
+    
+        allow_patterns = None
+        ignore_patterns = None
+    
+        model_info_call_error: Exception | None = None
+        if not local_files_only:
+            try:
+>               info = model_info(pretrained_model_name, token=token, revision=revision)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:\Users\nelso\miniconda3\envs\wacv\Lib\site-packages\diffusers\pipelines\pipeline_utils.py:1644: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+C:\Users\nelso\miniconda3\envs\wacv\Lib\site-packages\huggingface_hub\utils\_validators.py:88: in _inner_fn
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+C:\Users\nelso\miniconda3\envs\wacv\Lib\site-packages\huggingface_hub\hf_api.py:3309: in model_info
+    r = get_session().get(path, headers=headers, timeout=timeout, params=params)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\nelso\miniconda3\envs\wacv\Lib\site-packages\httpx\_client.py:1053: in get
+    return self.request(
+C:\Users\nelso\miniconda3\envs\wacv\Lib\site-packages\httpx\_client.py:825: in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\nelso\miniconda3\envs\wacv\Lib\site-packages\httpx\_client.py:914: in send
+    response = self._send_handling_auth(
+C:\Users\nelso\miniconda3\envs\wacv\Lib\site-packages\httpx\_client.py:942: in _send_handling_auth
+    response = self._send_handling_redirects(
+C:\Users\nelso\miniconda3\envs\wacv\Lib\site-packages\httpx\_client.py:977: in _send_handling_redirects
+    hook(request)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+request = <Request('GET', 'https://huggingface.co/api/models/timbrooks/instruct-pix2pix')>
+
+    def hf_request_event_hook(request: httpx.Request) -> None:
+        """
+        Event hook that will be used to make HTTP requests to the Hugging Face Hub.
+    
+        What it does:
+        - Block requests if offline mode is enabled
+        - Add a request ID to the request headers
+        - Log the request if debug mode is enabled
+        """
+        if constants.is_offline_mode():
+>           raise OfflineModeIsEnabled(
+                f"Cannot reach {request.url}: offline mode is enabled. To disable it, please unset the `HF_HUB_OFFLINE` environment variable."
+            )
+E           huggingface_hub.errors.OfflineModeIsEnabled: Cannot reach https://huggingface.co/api/models/timbrooks/instruct-pix2pix: offline mode is enabled. To disable it, please unset the `HF_HUB_OFFLINE` environment variable.
+
+C:\Users\nelso\miniconda3\envs\wacv\Lib\site-packages\huggingface_hub\utils\_http.py:260: OfflineModeIsEnabled
+
+The above exception was the direct cause of the following exception:
+
+    @pytest.mark.skipif(not _HAS_WEIGHTS, reason="本機沒有 IP2P 權重")
+    def test_loss_is_positive_at_the_clean_image():  # pragma: no cover
+        """乾淨影像上的影像引導很強，故損失明顯為正——起點梯度不為零。
+    
+        這一條是與 FND-053（untargeted 損失在起點處梯度為零，且沒有症狀）
+        的對照：本項不能有那個失效。
+        """
+        from src.models.ip2p import IP2PWrapper
+    
+>       ip2p = IP2PWrapper(dtype=torch.float32)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_image_guidance_loss.py:140: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+src\models\ip2p.py:93: in __init__
+    else self._load_pipeline(model_name, self.backbone_dtype))
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src\models\ip2p.py:108: in _load_pipeline
+    return StableDiffusionInstructPix2PixPipeline.from_pretrained(
+C:\Users\nelso\miniconda3\envs\wacv\Lib\site-packages\huggingface_hub\utils\_validators.py:88: in _inner_fn
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+C:\Users\nelso\miniconda3\envs\wacv\Lib\site-packages\diffusers\pipelines\pipeline_utils.py:860: in from_pretrained
+    cached_folder = cls.download(
+C:\Users\nelso\miniconda3\envs\wacv\Lib\site-packages\huggingface_hub\utils\_validators.py:88: in _inner_fn
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+cls = <class 'diffusers.pipelines.stable_diffusion.pipeline_stable_diffusion_instruct_pix2pix.StableDiffusionInstructPix2PixPipeline'>
+pretrained_model_name = 'timbrooks/instruct-pix2pix'
+kwargs = {'safety_checker': None, 'requires_safety_checker': False}
+
+    @classmethod
+    @validate_hf_hub_args
+    def download(cls, pretrained_model_name, **kwargs) -> str | os.PathLike:
+        r"""
+        Download and cache a PyTorch diffusion pipeline from pretrained pipeline weights.
+    
+        Parameters:
+            pretrained_model_name (`str` or `os.PathLike`, *optional*):
+                A string, the *repository id* (for example `CompVis/ldm-text2im-large-256`) of a pretrained pipeline
+                hosted on the Hub.
+            custom_pipeline (`str`, *optional*):
+                Can be either:
+    
+                    - A string, the *repository id* (for example `CompVis/ldm-text2im-large-256`) of a pretrained
+                      pipeline hosted on the Hub. The repository must contain a file called `pipeline.py` that defines
+                      the custom pipeline.
+    
+                    - A string, the *file name* of a community pipeline hosted on GitHub under
+                      [Community](https://github.com/huggingface/diffusers/tree/main/examples/community). Valid file
+                      names must match the file name and not the pipeline script (`clip_guided_stable_diffusion`
+                      instead of `clip_guided_stable_diffusion.py`). Community pipelines are always loaded from the
+                      current `main` branch of GitHub.
+    
+                    - A path to a *directory* (`./my_pipeline_directory/`) containing a custom pipeline. The directory
+                      must contain a file called `pipeline.py` that defines the custom pipeline.
+    
+                > [!WARNING] > 🧪 This is an experimental feature and may change in the future.
+    
+                For more information on how to load and create custom pipelines, take a look at [How to contribute a
+                community pipeline](https://huggingface.co/docs/diffusers/main/en/using-diffusers/contribute_pipeline).
+    
+            force_download (`bool`, *optional*, defaults to `False`):
+                Whether or not to force the (re-)download of the model weights and configuration files, overriding the
+                cached versions if they exist.
+    
+            proxies (`Dict[str, str]`, *optional*):
+                A dictionary of proxy servers to use by protocol or endpoint, for example, `{'http': 'foo.bar:3128',
+                'http://hostname': 'foo.bar:4012'}`. The proxies are used on each request.
+            output_loading_info(`bool`, *optional*, defaults to `False`):
+                Whether or not to also return a dictionary containing missing keys, unexpected keys and error messages.
+            local_files_only (`bool`, *optional*, defaults to `False`):
+                Whether to only load local model weights and configuration files or not. If set to `True`, the model
+                won't be downloaded from the Hub.
+            token (`str` or *bool*, *optional*):
+                The token to use as HTTP bearer authorization for remote files. If `True`, the token generated from
+                `diffusers-cli login` (stored in `~/.huggingface`) is used.
+            revision (`str`, *optional*, defaults to `"main"`):
+                The specific model version to use. It can be a branch name, a tag name, a commit id, or any identifier
+                allowed by Git.
+            custom_revision (`str`, *optional*, defaults to `"main"`):
+                The specific model version to use. It can be a branch name, a tag name, or a commit id similar to
+                `revision` when loading a custom pipeline from the Hub. It can be a 🤗 Diffusers version when loading a
+                custom pipeline from GitHub, otherwise it defaults to `"main"` when loading from the Hub.
+            mirror (`str`, *optional*):
+                Mirror source to resolve accessibility issues if you're downloading a model in China. We do not
+                guarantee the timeliness or safety of the source, and you should refer to the mirror site for more
+                information.
+            variant (`str`, *optional*):
+                Load weights from a specified variant filename such as `"fp16"` or `"ema"`. This is ignored when
+                loading `from_flax`.
+            dduf_file(`str`, *optional*):
+                Load weights from the specified DDUF file.
+            use_safetensors (`bool`, *optional*, defaults to `None`):
+                If set to `None`, the safetensors weights are downloaded if they're available **and** if the
+                safetensors library is installed. If set to `True`, the model is forcibly loaded from safetensors
+                weights. If set to `False`, safetensors weights are not loaded.
+            use_onnx (`bool`, *optional*, defaults to `False`):
+                If set to `True`, ONNX weights will always be downloaded if present. If set to `False`, ONNX weights
+                will never be downloaded. By default `use_onnx` defaults to the `_is_onnx` class attribute which is
+                `False` for non-ONNX pipelines and `True` for ONNX pipelines. ONNX weights include both files ending
+                with `.onnx` and `.pb`.
+            trust_remote_code (`bool`, *optional*, defaults to `False`):
+                Whether or not to allow for custom pipelines and components defined on the Hub in their own files. This
+                option should only be set to `True` for repositories you trust and in which you have read the code, as
+                it will execute code present on the Hub on your local machine.
+            use_flashpack (`bool`, *optional*, defaults to `False`):
+                If set to `True`, FlashPack weights will always be downloaded if present. If set to `False`, FlashPack
+                weights will never be downloaded.
+    
+        Returns:
+            `os.PathLike`:
+                A path to the downloaded pipeline.
+    
+        > [!TIP] > To use private or [gated models](https://huggingface.co/docs/hub/models-gated#gated-models), log-in
+        with `hf > auth login
+    
+        """
+        cache_dir = kwargs.pop("cache_dir", None)
+        force_download = kwargs.pop("force_download", False)
+        proxies = kwargs.pop("proxies", None)
+        local_files_only = kwargs.pop("local_files_only", None)
+        token = kwargs.pop("token", None)
+        revision = kwargs.pop("revision", None)
+        from_flax = kwargs.pop("from_flax", False)
+        custom_pipeline = kwargs.pop("custom_pipeline", None)
+        custom_revision = kwargs.pop("custom_revision", None)
+        variant = kwargs.pop("variant", None)
+        use_safetensors = kwargs.pop("use_safetensors", None)
+        use_onnx = kwargs.pop("use_onnx", None)
+        load_connected_pipeline = kwargs.pop("load_connected_pipeline", False)
+        trust_remote_code = kwargs.pop("trust_remote_code", False)
+        dduf_file: dict[str, DDUFEntry] | None = kwargs.pop("dduf_file", None)
+        use_flashpack = kwargs.pop("use_flashpack", False)
+    
+        if dduf_file:
+            if custom_pipeline:
+                raise NotImplementedError("Custom pipelines are not supported with DDUF at the moment.")
+            if load_connected_pipeline:
+                raise NotImplementedError("Connected pipelines are not supported with DDUF at the moment.")
+            return _download_dduf_file(
+                pretrained_model_name=pretrained_model_name,
+                dduf_file=dduf_file,
+                pipeline_class_name=cls.__name__,
+                cache_dir=cache_dir,
+                proxies=proxies,
+                local_files_only=local_files_only,
+                token=token,
+                revision=revision,
+            )
+    
+        allow_pickle = True if (use_safetensors is None or use_safetensors is False) else False
+        use_safetensors = use_safetensors if use_safetensors is not None else True
+    
+        allow_patterns = None
+        ignore_patterns = None
+    
+        model_info_call_error: Exception | None = None
+        if not local_files_only:
+            try:
+                info = model_info(pretrained_model_name, token=token, revision=revision)
+            except (HfHubHTTPError, OfflineModeIsEnabled, requests.ConnectionError, httpx.NetworkError) as e:
+                logger.warning(f"Couldn't connect to the Hub: {e}.\nWill try to load from local cache.")
+                local_files_only = True
+                model_info_call_error = e  # save error to reraise it if model is not cached locally
+    
+        if not local_files_only:
+            config_file = hf_hub_download(
+                pretrained_model_name,
+                cls.config_name,
+                cache_dir=cache_dir,
+                revision=revision,
+                proxies=proxies,
+                force_download=force_download,
+                token=token,
+            )
+            config_dict = cls._dict_from_json_file(config_file)
+            ignore_filenames = config_dict.pop("_ignore_files", [])
+    
+            filenames = {sibling.rfilename for sibling in info.siblings}
+            if variant is not None and _check_legacy_sharding_variant_format(filenames=filenames, variant=variant):
+                warn_msg = (
+                    f"Warning: The repository contains sharded checkpoints for variant '{variant}' maybe in a deprecated format. "
+                    "Please check your files carefully:\n\n"
+                    "- Correct format example: diffusion_pytorch_model.fp16-00003-of-00003.safetensors\n"
+                    "- Deprecated format example: diffusion_pytorch_model-00001-of-00002.fp16.safetensors\n\n"
+                    "If you find any files in the deprecated format:\n"
+                    "1. Remove all existing checkpoint files for this variant.\n"
+                    "2. Re-obtain the correct files by running `save_pretrained()`.\n\n"
+                    "This will ensure you're using the most up-to-date and compatible checkpoint format."
+                )
+                logger.warning(warn_msg)
+    
+            filenames = set(filenames) - set(ignore_filenames)
+            if revision in DEPRECATED_REVISION_ARGS and version.parse(
+                version.parse(__version__).base_version
+            ) >= version.parse("0.22.0"):
+                warn_deprecated_model_variant(pretrained_model_name, token, variant, revision, filenames)
+    
+            custom_components, folder_names = _get_custom_components_and_folders(
+                pretrained_model_name, config_dict, filenames, variant
+            )
+            custom_class_name = None
+            if custom_pipeline is None and isinstance(config_dict["_class_name"], (list, tuple)):
+                custom_pipeline = config_dict["_class_name"][0]
+                custom_class_name = config_dict["_class_name"][1]
+    
+            load_pipe_from_hub = custom_pipeline is not None and f"{custom_pipeline}.py" in filenames
+    
+            # retrieve passed components that should not be downloaded
+            pipeline_class = _get_pipeline_class(
+                cls,
+                config_dict,
+                load_connected_pipeline=load_connected_pipeline,
+                custom_pipeline=custom_pipeline,
+                repo_id=pretrained_model_name if load_pipe_from_hub else None,
+                hub_revision=revision,
+                class_name=custom_class_name,
+                cache_dir=cache_dir,
+                revision=custom_revision,
+                trust_remote_code=trust_remote_code,
+            )
+            expected_components, _ = cls._get_signature_keys(pipeline_class)
+            passed_components = [k for k in expected_components if k in kwargs]
+    
+            # retrieve the names of the folders containing model weights
+            model_folder_names = {
+                os.path.split(f)[0] for f in filter_model_files(filenames) if os.path.split(f)[0] in folder_names
+            }
+            # retrieve all patterns that should not be downloaded and error out when needed
+            ignore_patterns = _get_ignore_patterns(
+                passed_components,
+                model_folder_names,
+                filenames,
+                use_safetensors,
+                from_flax,
+                allow_pickle,
+                use_onnx,
+                pipeline_class._is_onnx,
+                use_flashpack,
+                variant,
+            )
+    
+            model_filenames, variant_filenames = variant_compatible_siblings(
+                filenames, variant=variant, ignore_patterns=ignore_patterns
+            )
+    
+            # all filenames compatible with variant will be added
+            allow_patterns = list(model_filenames)
+    
+            # allow all patterns from non-model folders
+            # this enables downloading schedulers, tokenizers, ...
+            allow_patterns += [f"{k}/*" for k in folder_names if k not in model_folder_names]
+            # add custom component files
+            allow_patterns += [f"{k}/{f}.py" for k, f in custom_components.items()]
+            # add custom pipeline file
+            allow_patterns += [f"{custom_pipeline}.py"] if f"{custom_pipeline}.py" in filenames else []
+            # also allow downloading config.json files with the model
+            allow_patterns += [os.path.join(k, "config.json") for k in model_folder_names]
+            allow_patterns += [
+                SCHEDULER_CONFIG_NAME,
+                CONFIG_NAME,
+                cls.config_name,
+                CUSTOM_PIPELINE_FILE_NAME,
+            ]
+    
+            # Don't download any objects that are passed
+            allow_patterns = [
+                p for p in allow_patterns if not (len(p.split("/")) == 2 and p.split("/")[0] in passed_components)
+            ]
+    
+            # Repos with a flat, transformers-style layout host a component's files at the repo root instead of
+            # in a subfolder, where the folder-based allow patterns above miss its auxiliary files (root-hosted
+            # weights are already included via `model_filenames`, root `config.json` via `CONFIG_NAME`).
+            allow_patterns += TRANSFORMERS_COMPONENT_AUX_FILES
+    
+            if pipeline_class._load_connected_pipes:
+                allow_patterns.append("README.md")
+    
+            # Don't download index files of forbidden patterns either
+            ignore_patterns = ignore_patterns + [f"{i}.index.*json" for i in ignore_patterns]
+            re_ignore_pattern = [re.compile(fnmatch.translate(p)) for p in ignore_patterns]
+            re_allow_pattern = [re.compile(fnmatch.translate(p)) for p in allow_patterns]
+    
+            expected_files = [f for f in filenames if not any(p.match(f) for p in re_ignore_pattern)]
+            expected_files = [f for f in expected_files if any(p.match(f) for p in re_allow_pattern)]
+    
+            snapshot_folder = Path(config_file).parent
+            pipeline_is_cached = all((snapshot_folder / f).is_file() for f in expected_files)
+    
+            if pipeline_is_cached and not force_download:
+                # if the pipeline is cached, we can directly return it
+                # else call snapshot_download
+                return snapshot_folder
+    
+        user_agent = {"pipeline_class": cls.__name__}
+        if custom_pipeline is not None and not custom_pipeline.endswith(".py"):
+            user_agent["custom_pipeline"] = custom_pipeline
+    
+        # download all allow_patterns - ignore_patterns
+        try:
+            cached_folder = snapshot_download(
+                pretrained_model_name,
+                cache_dir=cache_dir,
+                proxies=proxies,
+                local_files_only=local_files_only,
+                token=token,
+                revision=revision,
+                allow_patterns=allow_patterns,
+                ignore_patterns=ignore_patterns,
+                user_agent=user_agent,
+            )
+    
+            cls_name = cls.load_config(os.path.join(cached_folder, "model_index.json")).get("_class_name", None)
+            cls_name = cls_name[4:] if isinstance(cls_name, str) and cls_name.startswith("Flax") else cls_name
+    
+            diffusers_module = importlib.import_module(__name__.split(".")[0])
+            pipeline_class = getattr(diffusers_module, cls_name, None) if isinstance(cls_name, str) else None
+    
+            if pipeline_class is not None and pipeline_class._load_connected_pipes:
+                modelcard = ModelCard.load(os.path.join(cached_folder, "README.md"))
+                connected_pipes = sum([getattr(modelcard.data, k, []) for k in CONNECTED_PIPES_KEYS], [])
+                for connected_pipe_repo_id in connected_pipes:
+                    download_kwargs = {
+                        "cache_dir": cache_dir,
+                        "force_download": force_download,
+                        "proxies": proxies,
+                        "local_files_only": local_files_only,
+                        "token": token,
+                        "variant": variant,
+                        "use_safetensors": use_safetensors,
+                    }
+                    DiffusionPipeline.download(connected_pipe_repo_id, **download_kwargs)
+    
+            return cached_folder
+    
+        except FileNotFoundError:
+            # Means we tried to load pipeline with `local_files_only=True` but the files have not been found in local cache.
+            # This can happen in two cases:
+            # 1. If the user passed `local_files_only=True`                    => we raise the error directly
+            # 2. If we forced `local_files_only=True` when `model_info` failed => we raise the initial error
+            if model_info_call_error is None:
+                # 1. user passed `local_files_only=True`
+                raise
+            else:
+                # 2. we forced `local_files_only=True` when `model_info` failed
+>               raise EnvironmentError(
+                    f"Cannot load model {pretrained_model_name}: model is not cached locally and an error occurred"
+                    " while trying to fetch metadata from the Hub. Please check out the root cause in the stacktrace"
+                    " above."
+                ) from model_info_call_error
+E               OSError: Cannot load model timbrooks/instruct-pix2pix: model is not cached locally and an error occurred while trying to fetch metadata from the Hub. Please check out the root cause in the stacktrace above.
+
+C:\Users\nelso\miniconda3\envs\wacv\Lib\site-packages\diffusers\pipelines\pipeline_utils.py:1830: OSError
+---------------------------- Captured stderr call -----------------------------
+Couldn't connect to the Hub: Cannot reach https://huggingface.co/api/models/timbrooks/instruct-pix2pix: offline mode is enabled. To disable it, please unset the `HF_HUB_OFFLINE` environment variable..
+Will try to load from local cache.
+------------------------------ Captured log call ------------------------------
+WARNING  diffusers.pipelines.pipeline_utils:pipeline_utils.py:1646 Couldn't connect to the Hub: Cannot reach https://huggingface.co/api/models/timbrooks/instruct-pix2pix: offline mode is enabled. To disable it, please unset the `HF_HUB_OFFLINE` environment variable..
+Will try to load from local cache.
+============================== warnings summary ===============================
+tests/test_carrier_shape.py::test_軟權重支撐真的在邊界混色
+  C:\image-immunization\non-additive-frequency\tests\test_carrier_shape.py:194: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+  Consider using tensor.detach() first. (Triggered internally at C:\actions-runner\_work\pytorch\pytorch\torch\csrc\autograd\generated\python_variable_methods.cpp:823.)
+    assert float(v.min()) > float(x[band.expand_as(x)].min())   # 被推向白
+
+tests/test_direction_similarity.py: 1 warning
+tests/test_displacement_decomposition.py: 1 warning
+tests/test_facelock_loss.py: 1 warning
+tests/test_image_similarity.py: 1 warning
+tests/test_ncf_cpu_diagnostics.py: 2 warnings
+tests/test_purify_new_ops.py: 2 warnings
+tests/test_regional_lpips.py: 1 warning
+tests/test_suite_fid.py: 1 warning
+tests/test_suite_pairwise.py: 4 warnings
+tests/test_suite_semantic.py: 3 warnings
+  C:\Users\nelso\miniconda3\envs\wacv\Lib\site-packages\torchvision\models\_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+    warnings.warn(
+
+tests/test_direction_similarity.py: 1 warning
+tests/test_displacement_decomposition.py: 1 warning
+tests/test_facelock_loss.py: 1 warning
+tests/test_image_similarity.py: 1 warning
+tests/test_ncf_cpu_diagnostics.py: 2 warnings
+tests/test_purify_new_ops.py: 2 warnings
+tests/test_regional_lpips.py: 1 warning
+tests/test_suite_fid.py: 1 warning
+tests/test_suite_pairwise.py: 4 warnings
+tests/test_suite_semantic.py: 3 warnings
+  C:\Users\nelso\miniconda3\envs\wacv\Lib\site-packages\torchvision\models\_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+    warnings.warn(msg)
+
+tests/test_suite_fid.py::test_同一組影像的FID為零
+  C:\Users\nelso\miniconda3\envs\wacv\Lib\site-packages\torchvision\models\_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=None`.
+    warnings.warn(msg)
+
+tests/test_suite_fid.py::test_同一組影像的FID為零
+  C:\Users\nelso\miniconda3\envs\wacv\Lib\site-packages\torchvision\models\inception.py:43: FutureWarning: The default weight initialization of inception_v3 will be changed in future releases of torchvision. If you wish to keep the old behavior (which leads to long initialization times due to scipy/scipy#11299), please set init_weights=True.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+SKIPPED [1] tests\test_images_list_integrity.py:108: 清單不在這棵樹裡
+SKIPPED [1] tests\test_purify_new_ops.py:264: 環境已安裝 lpips，無法在此驗證缺套件的分支
+XFAIL tests/test_baselines.py::test_DIA的L1起點在某些輸入下超出預算 - DIA 原始碼自身的缺陷，處置待裁決；見 SOURCE_AUDIT §11
+FAILED tests/test_image_guidance_loss.py::test_loss_is_positive_at_the_clean_image
+1 failed, 1180 passed, 2 skipped, 1 xfailed, 37 warnings in 145.10s (0:02:25)

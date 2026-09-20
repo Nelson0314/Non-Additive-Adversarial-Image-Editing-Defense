@@ -104,7 +104,22 @@ def main() -> None:
     parser.add_argument("--condition", default=None,
                         help="寫進 CSV 的條件名；預設取 --defended 的目錄名，"
                              "或未防禦時的 `undefended`")
+    parser.add_argument("--purifiers", nargs="+", default=None,
+                        help="要跑的算子，格式 kind 或 kind:strength。"
+                             "不給就跑 PURIFIERS 那七道。色彩類的四道"
+                             "（grayscale、gray_world、auto_levels、clahe）"
+                             "不在那七道裡，見 src/purify/ops.py 的說明："
+                             "顏色重映射的防禦繞開的是空間性的失效機制，"
+                             "代價是多開了一個攻擊面，不測它主張就不成立。")
     args = parser.parse_args()
+
+    purifiers = PURIFIERS
+    if args.purifiers:
+        parsed = []
+        for spec in args.purifiers:
+            kind, _, strength = spec.partition(":")
+            parsed.append((kind, float(strength) if strength else 0.0))
+        purifiers = tuple(parsed)
 
     if args.defended is not None:
         sources = defended_sources(args.defended)
@@ -116,7 +131,7 @@ def main() -> None:
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     args.out.mkdir(parents=True, exist_ok=True)
     rows = []
-    for kind, strength in PURIFIERS:
+    for kind, strength in purifiers:
         tag = label(kind, strength)
         purifier = Purifier(kind, strength)
         target = args.out / tag

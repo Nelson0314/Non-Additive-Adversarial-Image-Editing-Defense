@@ -1,0 +1,45 @@
+{
+  "manifest": "data/portraits_manifest.json",
+  "images": [
+    "woman_02"
+  ],
+  "rationale": "顏色線的現行操作點：AdvCF 的逐通道 64 段單調分段線性 tone curve（radius 5.0），用本專案不含指令的三項目標求解，ΔE00 ≤ 16。四自由度族的取樣探針要有一個同批的對照才讀得懂，這一臂與探針在同一張卡、同一批 ip2p 編輯裡跑完。",
+  "threat_model_note": "**這份設定裡不得出現指令。** scripts/paper_baseline.py 載入 scripts/immunise.py 的 assert_no_instructions 遞迴檢查。攻擊端的四句 ip2p 指令只在 scripts/edit_preflight.py 讀得到，求解端看不到。",
+  "victim": "resnet50",
+  "victim_note": "這一批不用分類器解，仍逐格記 clean_label／margin，讓欄位與顏色線其餘的批次對得起來。人像上的 margin 不具意義，照實記、不解讀。",
+  "free": {
+    "timesteps": 4,
+    "chain_steps": 6,
+    "grad_steps": 1,
+    "noise_seed": 0,
+    "resample": true,
+    "face_weight": 0.0,
+    "weights": {
+      "id": 1.0,
+      "enc": 0.5,
+      "cond": 0.0,
+      "sds": 1.0
+    }
+  },
+  "free_note": "cond 權重 0、sds 權重 1：梯度不穿過 UNet 的 SDS 近似取代 diffusion 項。求解端的 s_i 留在 FreeObjective 的預設 1.5，未跟著受害端的 1.8 改——受害端的 1.8 是編輯管線的設定（見 scripts/edit_preflight.py 的 IP2P_EDIT_IMAGE_GUIDANCE），求解端是另一件事，改它會讓這一臂與顏色線其餘批次不可比。",
+  "variants": [
+    {
+      "name": "curve_control",
+      "carrier": "advcf",
+      "options": {
+        "pieces": 64,
+        "radius": 5.0
+      },
+      "steps": 600,
+      "lr": 0.05,
+      "lr_final_ratio": 0.2,
+      "check_every": 10,
+      "probe_every": 25,
+      "deltae_cap": 16.0,
+      "patience": 30,
+      "min_delta": 0.0,
+      "settings_note": "600 步是上限，不是實跑步數：連續 30 次可行性檢查（每 10 步一次，即 300 步）沒有改善固定抽樣上的 eval_score 就停。實際停在第幾步寫在 free_stopped_step，有沒有被早停停掉寫在 free_early_stopped。早停盯的是 eval_score 而不是逐步損失——resample 開著時逐步損失是一個樣本的估計，拿它當停止訊號等於用雜訊決定步數。"
+    }
+  ],
+  "rerun_note": "補跑：原分片在第一張之後行程無聲消失（log 無 traceback、系統記憶體充足），這一張沒有產出。設定逐欄與原分片相同。"
+}

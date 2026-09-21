@@ -50,6 +50,7 @@ def fit_caps(carrier, x01, caps, tries: int = 14) -> float:
     """把各段幅度同乘一個係數，二分到所有上限同時成立，回傳那個係數。
 
     只在受約束最佳化一次都沒有走到可行點時當退路；正常情況下回傳 1.0。
+    零幅度必須可行才能建立二分區間；固定色盤等載體不保證零幅度是原圖。
     """
     live = [c for c in (caps or []) if c.value and c.value > 0]
     if not live:
@@ -63,6 +64,10 @@ def fit_caps(carrier, x01, caps, tries: int = 14) -> float:
 
     if feasible(1.0):
         return 1.0
+    if not feasible(0.0):
+        carrier.set_amplitude(base)
+        raise ValueError('amplitude=0 仍違反 cap，無法建立可行的二分區間；'
+                         '固定色盤的基底不一定是原圖，請檢查載體與 cap 的相容性')
     lo, hi = 0.0, 1.0
     for _ in range(tries):
         mid = 0.5 * (lo + hi)

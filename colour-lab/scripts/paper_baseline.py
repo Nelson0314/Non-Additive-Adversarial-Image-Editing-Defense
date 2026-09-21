@@ -1,11 +1,12 @@
 # 唯讀複製自主 repo：`non-additive-frequency/scripts/paper_baseline.py`
 #（本機 `C:/image-immunization/non-additive-frequency/`、遠端
 # `/nfs/home/nelson0314/WACV-s4/`）。主 repo 的那一份不得寫入。
-# lab 這一份與來源的差異只有兩處，都是為了接上早停：
+# lab 這一份另外接上實驗載體與早停：
 #   1. COLUMNS 多四欄 free_stopped_step / free_early_stopped /
 #      free_patience / free_min_delta（DictWriter 是 extrasaction='ignore'，
 #      不加欄位的話新讀數會被靜默丟掉）。
 #   2. optimise_carrier 多傳 patience 與 min_delta，值取自 variant。
+#   3. factory 包含 bounded_cast 等載體，CSV 保留 C_max / d_max 結構界。
 # 早停本身寫在 `src/defense/immunise.py::optimise_carrier`。
 """在論文自己的受害任務上重現三篇顏色攻擊，並把防禦圖存下來。
 
@@ -43,7 +44,7 @@ sys.path.insert(0, str(ROOT))
 
 COLUMNS = ['image', 'variant', 'carrier', 'victim', 'clean_label', 'clean_prob',
            'pred_label', 'pred_prob', 'true_prob', 'margin', 'flipped',
-           'steps', 'lr', 'radius', 'smoothness_weight',
+           'steps', 'lr', 'radius', 'C_max', 'd_max', 'smoothness_weight',
            'margin_start', 'margin_end', 'deltaE00', 'psnr', 'lpips',
            'linf', 'resample', 'face_weight', 'chain_steps', 'grad_steps',
            'timesteps', 'init_jitter', 'deltae_cap', 'deltae_floor',
@@ -103,6 +104,14 @@ def build_carrier(kind, x01, opts, spec, device):
                                pieces=int(opts.get('pieces', 64)),
                                bound_mode='advcf',
                                init_jitter=float(opts.get('init_jitter', 0.0)))
+    if kind == 'bounded_cast':
+        from src.defense.bounded_cast_curve import BoundedCastCurveParam
+        return BoundedCastCurveParam(
+            C_max=float(opts.get('C_max', 32.0)),
+            d_max=float(opts.get('d_max', 24.0)),
+            pieces=int(opts.get('pieces', 64)),
+            skin_width=float(opts.get('skin_width', 8.0)),
+            init_jitter=float(opts.get('init_jitter', 0.25)))
     if kind == 'skin_locus_curve':
         from src.defense.skin_locus_curve import SkinLocusCurveParam
         return SkinLocusCurveParam(
@@ -155,7 +164,7 @@ def build_carrier(kind, x01, opts, spec, device):
                              epsilon_lab=opts.get('epsilon_lab'),
                              whiten=bool(opts.get('whiten', False)))
     raise SystemExit(f'不認得的載體 {kind!r}；只有 recoloradv、advcf、'
-                     f'advcf_random、value_curve、channel_span_curve、lifted_curve、graded_curve、skin_locus_curve、ncf')
+                     f'advcf_random、bounded_cast、value_curve、channel_span_curve、lifted_curve、graded_curve、skin_locus_curve、ncf')
 
 
 def main():
@@ -400,13 +409,16 @@ def main():
                 **anchor, **rep, 'steps': variant.get('steps', 100),
                 'lr': variant.get('lr', 0.01),
                 'radius': variant.get('options', {}).get('radius'),
+                'C_max': getattr(carrier, 'C_max', None),
+                'd_max': getattr(carrier, 'd_max', None),
                 'smoothness_weight': weight,
                 'resample': bool(free.get('resample', False)),
                 'face_weight': float(free.get('face_weight', 0.0)),
                 'chain_steps': free.get('chain_steps'),
                 'grad_steps': free.get('grad_steps'),
                 'timesteps': free.get('timesteps'),
-                'init_jitter': variant.get('options', {}).get('init_jitter', 0.0),
+                'init_jitter': getattr(carrier, 'init_jitter',
+                                       variant.get('options', {}).get('init_jitter', 0.0)),
                 'deltae_cap': variant.get('deltae_cap', 0.0),
                 'deltae_floor': variant.get('deltae_floor', 0.0),
                 'use_identity': int(bool(free.get('use_identity', True))),

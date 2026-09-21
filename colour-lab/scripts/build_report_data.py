@@ -8,7 +8,6 @@
         --solve-root runs/amplitude_ladder \\
         --edits runs/amplitude_ladder_edits/displacement.csv \\
         --paired runs/amplitude_ladder_edits/paired.csv \\
-        --retention runs/purified_colour_edits/retention.csv \\
         --out runs/report/amplitude_ladder/data.js
 """
 
@@ -52,7 +51,6 @@ def main() -> None:
     parser.add_argument("--solve-root", type=Path, required=True)
     parser.add_argument("--edits", type=Path, required=True)
     parser.add_argument("--paired", type=Path, required=True)
-    parser.add_argument("--retention", type=Path, default=None)
     parser.add_argument("--band-retention", type=Path, default=None,
                         help="JPEG30／blur2 的 retention.csv，用來算淨化後的配對差")
     parser.add_argument("--second-paired", type=Path, default=None,
@@ -67,7 +65,6 @@ def main() -> None:
         solves += read(Path(path))
     disp = read(args.edits)
     paired = {r["condition"]: r for r in read(args.paired)}
-    retention = read(args.retention) if args.retention else []
 
     images = sorted({r["image"] for r in solves})
     rungs = [r for r in RUNGS if any(s["variant"] == r[0] for s in solves)]
@@ -140,35 +137,6 @@ def main() -> None:
             ],
         })
 
-    retention_table = None
-    if retention:
-        groups = {}
-        for row in retention:
-            groups.setdefault(row["purifier"], []).append(row)
-        retention_table = {
-            "caption": "現行操作點在四道色彩淨化下的留存（ip2p 32 格，兩側都淨化）",
-            "head": ["算子", "未淨化位移", "淨化後位移", "留存率", "淨增益"],
-            "rows": [],
-        }
-        order = ["gray_world", "clahe2", "auto_levels", "grayscale"]
-        for key in order:
-            rows = groups.get(key)
-            if not rows:
-                continue
-            ret = med([float(r["retained"]) for r in rows])
-            retention_table["rows"].append({
-                "cells": [
-                    key,
-                    f'{med([float(r["disp_plain"]) for r in rows]):.4f}',
-                    f'{med([float(r["disp_purified"]) for r in rows]):.4f}',
-                    f'{ret:.3f}',
-                    f'{med([float(r["net_gain"]) for r in rows]):+.4f}',
-                ],
-                "tones": [None, None, None,
-                          "fail" if ret < 0.7 else ("pass" if ret >= 0.94 else "edge"),
-                          None],
-            })
-
     control, top = rungs[0][0], rungs[-1][0]
     figures = [
         {"key": "現行操作點的位移", "value": f'{stats[control]["disp_ip2p"]:.4f}',
@@ -183,9 +151,6 @@ def main() -> None:
          "tone": "fail",
          "note": f'現行操作點是 {stats[control]["fidelity"]:.4f}。'
                  "防禦圖離原圖有多遠，數字大不是好事。"},
-        {"key": "灰階下的留存", "value": "0.500",
-         "tone": "signal",
-         "note": "另外三道色彩淨化 0.948–1.172。AdvCF 原文報的灰階存活率約 18%。"},
     ]
 
     band_table = None
@@ -258,7 +223,6 @@ def main() -> None:
                        for r, label, badge in rungs],
         "readout_fields": READOUT_FIELDS,
         "ladder_table": ladder_table,
-        "retention_table": retention_table,
         "per_image": per_image,
         "stats": stats,
     }
@@ -268,8 +232,8 @@ def main() -> None:
                    **payload}
         # 機制區的表用 `table_ref` 指名，這裡換成產生出來的那一份，
         # 敘事檔裡因此不會出現任何手抄的數字。
-        built = {"ladder": ladder_table, "retention": retention_table,
-                 "band": band_table, "no_cast": second_table}
+        built = {"ladder": ladder_table, "band": band_table,
+                 "no_cast": second_table}
         for block in payload.get("mechanism", []):
             ref = block.pop("table_ref", None)
             if ref and built.get(ref):

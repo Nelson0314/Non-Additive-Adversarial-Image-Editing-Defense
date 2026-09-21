@@ -54,6 +54,10 @@ def main() -> None:
     parser.add_argument("--edits", type=Path, required=True)
     parser.add_argument("--paired", type=Path, required=True)
     parser.add_argument("--retention", type=Path, default=None)
+    parser.add_argument("--band-retention", type=Path, default=None,
+                        help="JPEG30／blur2 的 retention.csv，用來算淨化後的配對差")
+    parser.add_argument("--second-paired", type=Path, default=None,
+                        help="另一批（例如禁止色偏那一族）的 paired.csv")
     parser.add_argument("--narrative", type=Path, default=None,
                         help="敘事字串的 JSON；與產生的數字合併成 window.REPORT")
     parser.add_argument("--out", type=Path, required=True)
@@ -194,6 +198,71 @@ def main() -> None:
          "note": "另外三道色彩淨化 0.948–1.172。AdvCF 原文報的灰階存活率約 18%。"},
     ]
 
+    band_table = None
+    if args.band_retention:
+        band = read(args.band_retention)
+        cells = {}
+        for row in band:
+            cells.setdefault(row["purifier"], {}).setdefault(row["condition"], {})[
+                (row["image"], row["prompt_index"])] = row
+        band_table = {
+            "caption": "淨化之後的驗收：ip2p 32 格，兩側都淨化，對照臂仍是同批的 cap16",
+            "head": ["淨化", "級別", "淨化後位移", "留存率", "配對差中位", "改善格數"],
+            "rows": [],
+        }
+        for op in ("jpeg30", "blur2"):
+            control = cells.get(op, {}).get("cap16")
+            if not control:
+                continue
+            for rung, label, _ in rungs:
+                table = cells[op].get(rung)
+                if not table:
+                    continue
+                keys = sorted(set(table) & set(control))
+                diffs = [float(table[k]["disp_purified"])
+                         - float(control[k]["disp_purified"]) for k in keys]
+                ret = med([float(table[k]["retained"]) for k in keys])
+                band_table["rows"].append({
+                    "control": rung == "cap16",
+                    "cells": [
+                        op, label,
+                        f'{med([float(table[k]["disp_purified"]) for k in keys]):.4f}',
+                        f"{ret:.3f}",
+                        "—" if rung == "cap16" else f"{med(diffs):+.4f}",
+                        "—" if rung == "cap16"
+                        else f'{sum(1 for d in diffs if d > 0)} / {len(keys)}',
+                    ],
+                    "tones": [None, None, None,
+                              "pass" if ret >= 0.9 else "edge", None, None],
+                })
+
+    second_table = None
+    if args.second_paired:
+        second = read(args.second_paired)
+        second_table = {
+            "caption": "禁止色偏之後還剩多少：ip2p 16 格、四張影像，對照臂是同批的 advcf_cap16",
+            "head": ["條件", "位移中位", "配對差中位", "改善格數", "匹配後配對差"],
+            "rows": [],
+        }
+        for row in second:
+            control = row["condition"] == "advcf_cap16"
+            second_table["rows"].append({
+                "control": control,
+                "cells": [
+                    row["condition"],
+                    f'{float(row["disp_lpips_self_median"]):.4f}',
+                    "—" if control else f'{float(row["disp_lpips_median"]):+.4f}',
+                    "—" if control
+                    else f'{row["disp_lpips_improved"]} / {row["cells"]}',
+                    "—" if control
+                    else f'{float(row["disp_lpips_matched_mean_median"]):+.4f}',
+                ],
+                "tones": [None, None,
+                          None if control
+                          else ("fail" if float(row["disp_lpips_median"]) < 0 else None),
+                          None, None],
+            })
+
     payload = {
         "figures": figures,
         "images": images,
@@ -211,7 +280,8 @@ def main() -> None:
                    **payload}
         # 機制區的表用 `table_ref` 指名，這裡換成產生出來的那一份，
         # 敘事檔裡因此不會出現任何手抄的數字。
-        built = {"ladder": ladder_table, "retention": retention_table}
+        built = {"ladder": ladder_table, "retention": retention_table,
+                 "band": band_table, "no_cast": second_table}
         for block in payload.get("mechanism", []):
             ref = block.pop("table_ref", None)
             if ref and built.get(ref):

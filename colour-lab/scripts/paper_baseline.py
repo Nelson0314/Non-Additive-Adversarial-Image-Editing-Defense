@@ -47,6 +47,7 @@ COLUMNS = ['image', 'variant', 'carrier', 'victim', 'clean_label', 'clean_prob',
            'margin_start', 'margin_end', 'deltaE00', 'psnr', 'lpips',
            'linf', 'resample', 'face_weight', 'chain_steps', 'grad_steps',
            'timesteps', 'init_jitter', 'deltae_cap', 'deltae_floor',
+           'use_identity',
            'w_out', 'w_tone',
            'free_cap_violations', 'free_caps_unprojected', 'free_lambda',
            'free_term_out', 'free_term_tone', 'free_term_enc_target',
@@ -249,8 +250,13 @@ def main():
                 from src.defense.instruction_free import FreeObjective
                 free = dict(spec['free'], **(variant.get('free') or {}))
                 target_name = str(free.get('target', 'grey'))
+                # `use_identity: false` 是**真的把 id 項拿掉**，不是把權重設成 0。
+                # `FreeObjective.terms` 只在 `id0 is not None` 時算 id，而 id0 由
+                # `box` 決定；權重歸零的話那條空指令取樣鏈照跑，白付一次 UNet。
+                use_identity = bool(free.get('use_identity', True))
                 objective = FreeObjective(
-                    ip2p, x, box=box, k=int(free['timesteps']),
+                    ip2p, x, box=(box if use_identity else None),
+                    k=int(free['timesteps']),
                     steps=int(spec.get('attack_steps', 50)),
                     seed=int(free['noise_seed']),
                     weights=dict(free.get('weights') or {}),
@@ -403,6 +409,7 @@ def main():
                 'init_jitter': variant.get('options', {}).get('init_jitter', 0.0),
                 'deltae_cap': variant.get('deltae_cap', 0.0),
                 'deltae_floor': variant.get('deltae_floor', 0.0),
+                'use_identity': int(bool(free.get('use_identity', True))),
                 'solver': variant.get('solver', 'adam'),
                 'w_out': (free.get('weights') or {}).get('out', 0.0),
                 'w_tone': (free.get('weights') or {}).get('tone', 0.0),

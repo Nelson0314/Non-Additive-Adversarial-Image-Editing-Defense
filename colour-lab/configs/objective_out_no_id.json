@@ -1,0 +1,140 @@
+{
+  "manifest": "data/portraits_manifest.json",
+  "images": [
+    "man_00",
+    "man_01",
+    "woman_00",
+    "woman_01"
+  ],
+  "rationale": "同一個載體、同一個 ΔE00 上限 16，只換目標函數。現行操作點的主項是 id＝空指令輸出上的人臉餘弦，而主讀數是編輯輸出的 LPIPS 位移；readout_terms.OutputDisplacement（weights.out）量的正是空指令輸出之間的 LPIPS，是最接近主讀數的那個項，顏色線一直把它的權重設成 0。它以 −w·out 進分數、不過 tanh，LPIPS 落在 [0,1] 不會飽和。id 是用 free.use_identity: false **整個拿掉**，不是把權重設成 0——FreeObjective.terms 只在 id0 不是 None 時算 id，而 id0 由 box 決定；權重歸零的話那條空指令取樣鏈照跑，白付一次 UNet。拿掉 id 之後剩下的 enc（PhotoGuard 的 encoder attack）＋ sds（AdvDM／Mist 擴散損失的 SDS 梯度版本，值與 diffusion 逐位元同一個函數）就是主流擴散攻擊那一族，out 疊在上面。sds 給 1.0 與 10.0 兩檔：1.0 是現行操作點的值，10.0 對應主 repo advcf_steps900 的 advdm_w10_900。init_jitter 0.25 是必要的不是可選的——id 拿掉之後 enc 與 out 在恆等點上都是差向量的範數，梯度精確為零，只剩 sds 推得動。operating_point_jittered 與 operating_point 的目標函數逐項相同、只差起點，用來把「起點的效果」與「目標函數的效果」分開。四張影像規模，格數照實報。",
+  "threat_model_note": "**這份設定裡不得出現指令。** scripts/paper_baseline.py 載入 scripts/immunise.py 的 assert_no_instructions 遞迴檢查。攻擊端的四句 ip2p 指令只在 scripts/edit_preflight.py 讀得到，求解端看不到。",
+  "victim": "resnet50",
+  "victim_note": "這一批不用分類器解，仍逐格記 clean_label／margin，讓欄位與顏色線其餘的批次對得起來。人像上的 margin 不具意義，照實記、不解讀。 拿掉 id 的兩臂 free_term_id 欄為空，照實留白。",
+  "free": {
+    "timesteps": 4,
+    "chain_steps": 6,
+    "grad_steps": 1,
+    "noise_seed": 0,
+    "resample": true,
+    "face_weight": 0.0,
+    "weights": {
+      "id": 1.0,
+      "enc": 0.5,
+      "cond": 0.0,
+      "sds": 1.0
+    }
+  },
+  "free_note": "cond 權重 0、sds 權重 1：梯度不穿過 UNet 的 SDS 近似取代 diffusion 項。求解端的 s_i 留在 FreeObjective 的預設 1.5，未跟著受害端的 1.8 改——受害端的 1.8 是編輯管線的設定（見 scripts/edit_preflight.py 的 IP2P_EDIT_IMAGE_GUIDANCE），求解端是另一件事，改它會讓這一臂與顏色線其餘批次不可比。",
+  "variants": [
+    {
+      "name": "operating_point",
+      "carrier": "advcf",
+      "options": {
+        "pieces": 64,
+        "radius": 5.0,
+        "init_jitter": 0.0
+      },
+      "steps": 600,
+      "lr": 0.05,
+      "lr_final_ratio": 0.2,
+      "check_every": 10,
+      "probe_every": 25,
+      "deltae_cap": 16.0,
+      "patience": 30,
+      "min_delta": 0.0,
+      "settings_note": "600 步是上限，不是實跑步數：連續 30 次可行性檢查（每 10 步一次，即 300 步）沒有改善固定抽樣上的 eval_score 就停。實際停在第幾步寫在 free_stopped_step，有沒有被早停停掉寫在 free_early_stopped。早停盯的是 eval_score 而不是逐步損失——resample 開著時逐步損失是一個樣本的估計，拿它當停止訊號等於用雜訊決定步數。",
+      "free": {
+        "weights": {
+          "id": 1.0,
+          "enc": 0.5,
+          "cond": 0.0,
+          "sds": 1.0,
+          "out": 0.0
+        },
+        "use_identity": true
+      }
+    },
+    {
+      "name": "operating_point_jittered",
+      "carrier": "advcf",
+      "options": {
+        "pieces": 64,
+        "radius": 5.0,
+        "init_jitter": 0.25
+      },
+      "steps": 600,
+      "lr": 0.05,
+      "lr_final_ratio": 0.2,
+      "check_every": 10,
+      "probe_every": 25,
+      "deltae_cap": 16.0,
+      "patience": 30,
+      "min_delta": 0.0,
+      "settings_note": "600 步是上限，不是實跑步數：連續 30 次可行性檢查（每 10 步一次，即 300 步）沒有改善固定抽樣上的 eval_score 就停。實際停在第幾步寫在 free_stopped_step，有沒有被早停停掉寫在 free_early_stopped。早停盯的是 eval_score 而不是逐步損失——resample 開著時逐步損失是一個樣本的估計，拿它當停止訊號等於用雜訊決定步數。",
+      "free": {
+        "weights": {
+          "id": 1.0,
+          "enc": 0.5,
+          "cond": 0.0,
+          "sds": 1.0,
+          "out": 0.0
+        },
+        "use_identity": true
+      }
+    },
+    {
+      "name": "out_no_id",
+      "carrier": "advcf",
+      "options": {
+        "pieces": 64,
+        "radius": 5.0,
+        "init_jitter": 0.25
+      },
+      "steps": 600,
+      "lr": 0.05,
+      "lr_final_ratio": 0.2,
+      "check_every": 10,
+      "probe_every": 25,
+      "deltae_cap": 16.0,
+      "patience": 30,
+      "min_delta": 0.0,
+      "settings_note": "600 步是上限，不是實跑步數：連續 30 次可行性檢查（每 10 步一次，即 300 步）沒有改善固定抽樣上的 eval_score 就停。實際停在第幾步寫在 free_stopped_step，有沒有被早停停掉寫在 free_early_stopped。早停盯的是 eval_score 而不是逐步損失——resample 開著時逐步損失是一個樣本的估計，拿它當停止訊號等於用雜訊決定步數。",
+      "free": {
+        "weights": {
+          "enc": 0.5,
+          "cond": 0.0,
+          "out": 2.0,
+          "sds": 1.0
+        },
+        "use_identity": false
+      }
+    },
+    {
+      "name": "out_no_id_diffusion10",
+      "carrier": "advcf",
+      "options": {
+        "pieces": 64,
+        "radius": 5.0,
+        "init_jitter": 0.25
+      },
+      "steps": 600,
+      "lr": 0.05,
+      "lr_final_ratio": 0.2,
+      "check_every": 10,
+      "probe_every": 25,
+      "deltae_cap": 16.0,
+      "patience": 30,
+      "min_delta": 0.0,
+      "settings_note": "600 步是上限，不是實跑步數：連續 30 次可行性檢查（每 10 步一次，即 300 步）沒有改善固定抽樣上的 eval_score 就停。實際停在第幾步寫在 free_stopped_step，有沒有被早停停掉寫在 free_early_stopped。早停盯的是 eval_score 而不是逐步損失——resample 開著時逐步損失是一個樣本的估計，拿它當停止訊號等於用雜訊決定步數。",
+      "free": {
+        "weights": {
+          "enc": 0.5,
+          "cond": 0.0,
+          "out": 2.0,
+          "sds": 10.0
+        },
+        "use_identity": false
+      }
+    }
+  ]
+}

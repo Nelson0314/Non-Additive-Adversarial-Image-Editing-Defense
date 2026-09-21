@@ -22,8 +22,44 @@
 逐張看圖的報告頁：<https://claude.ai/artifact/8vTCiLuz5T7XarYfvXzxsx>
 （四級 × 八張防禦圖、未防禦與防禦後的編輯對照、所有表、誠實區）。
 
-**正在跑**：`runs/no_cast_from_random_start/`（卡 2–5）——禁止色偏那一族改用
-`init_jitter 0.5`、重啟兩次重跑，因為上一批的 ΔE00 下限沒有達成。
+**排在遠端的佇列**（`nohup setsid`，不依賴任何本機 session；卡 2、4、5、6）。
+每張卡跑兩批的同一個分片，第一批完再接第二批，四張影像四個分片：
+
+1. `runs/objective_no_id/` ← `configs/objective_out_no_id.json`
+2. `runs/no_cast_from_random_start/` ← `configs/no_cast_from_random_start.json`
+
+`scripts/queue_shard.sh` 是每張卡的排隊，`scripts/queue_finish.sh` 等四片都解完
+（objective 16 個解、no_cast 8 個解）之後自己做編輯與彙整，產出
+`runs/objective_no_id_edits/paired.csv` 與 `runs/no_cast_random_edits/paired.csv`。
+求解行程全不在而格數沒滿時會印 `[ABORT]`。進度看 `logs/queue_*.log`。
+
+### 第一批：拿掉 id、打開 out（`configs/objective_out_no_id.json`）
+
+同一個載體、同一個 ΔE00 上限 16，只換目標函數。四個變體：
+
+| 變體 | id | enc | sds | out | init_jitter |
+|---|---|---|---|---|---|
+| `operating_point`（對照） | 1.0 | 0.5 | 1.0 | 0 | 0 |
+| `operating_point_jittered` | 1.0 | 0.5 | 1.0 | 0 | 0.25 |
+| `out_no_id` | **整個拿掉** | 0.5 | 1.0 | 2.0 | 0.25 |
+| `out_no_id_diffusion10` | **整個拿掉** | 0.5 | 10.0 | 2.0 | 0.25 |
+
+**`free.use_identity: false` 是真的把 id 項拿掉，不是把權重設成 0。**
+`FreeObjective.terms` 只在 `id0 is not None` 時算 id，而 `id0` 由 `box` 決定；
+權重歸零的話那條空指令取樣鏈照跑，白付一次 UNet。
+
+拿掉 id 之後剩下的 `enc`（PhotoGuard 的 encoder attack）＋ `sds`
+（AdvDM／Mist 擴散損失的 SDS 梯度版本，值與 `diffusion` 逐位元同一個函數）
+就是主流擴散攻擊那一族，`out` 疊在上面。`sds` 給 1.0 與 10.0 兩檔：1.0 是現行
+操作點的值，10.0 對應主 repo `advcf_steps900` 的 `advdm_w10_900`。
+
+**`init_jitter 0.25` 是必要的不是可選的**：id 拿掉之後 `enc` 與 `out` 在恆等點上
+都是差向量的範數、梯度精確為零，只剩 `sds` 推得動。`operating_point_jittered`
+與 `operating_point` 目標函數逐項相同、只差起點，用來把「起點的效果」與
+「目標函數的效果」分開。
+
+十步的 smoke test（`man_00`）確認四個變體都動得了：ΔE00 分別 14.67／7.22／
+10.14／12.29，拿掉 id 的兩臂沒有卡在恆等點。
 
 **沒有結論的方向**：目標函數那一臂（`configs/objective_out.json`，把
 `readout_terms.OutputDisplacement` 的權重從 0 打開）只解完兩格。它問的是

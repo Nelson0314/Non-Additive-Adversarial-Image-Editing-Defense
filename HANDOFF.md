@@ -1,291 +1,298 @@
 # 交接
 
-程式與數值在 `non-additive-frequency/`。工作規則見該目錄的 `CLAUDE.md`。
+程式與數值在 `non-additive-frequency/`，工作規則見該目錄的 `CLAUDE.md`。
 
-## 一句話現況
+**兩條線要分清楚：**
 
-**判準上的「防禦成功」有很大一部分是發布前就已經換了人，不是攻擊者的編輯失敗。**
-逐張拆開：`coarse_eot_48_crop` 的 6 個過半穿透格裡 **5 格**來自
-`task_env_weather_114555`，而那張的防禦圖身分是 **0.336**（編輯前已損失 0.664）；
-`grid_05` 的 9 格裡 5 格同樣來自它（0.389）。`criterion` 的軟極小幾乎總是取到
-`id_norm`，而發布圖本身已經換了人時，那個比值不需要編輯失敗就會掉下來。
+| | 主表（本檔的主題） | 顏色載體的改良實驗 |
+|---|---|---|
+| 問題 | 十二個免疫方法在同一條管線上誰推得動編輯 | 本專案自己的顏色方法要怎麼變強 |
+| 位置 | `non-additive-frequency/`（遠端 `WACV-s4`） | `colour-lab/`（遠端 `WACV-colour-lab`） |
+| 狀態 | **已完成，12 條件 × 64 格全齊** | 進行中，由另一個 session 負責 |
+| 交集 | 主表的 `colour_curve_ours` 是顏色線目前交付的操作點 | 有成果才會換掉主表那一列 |
 
-**所以「唯一自然且四道淨化全部 ≥ 6 的可交付點」這個說法已收回。**
+改良實驗**不得寫入主目錄**，主表的數字也不會因為它而改變。詳見「顏色載體的改良實驗」一節。
 
-其次，**「產物自然」與「防禦有效」在兩個載體上都是同一個取捨的兩面**：
-顏色線均勻（自然）→ 0/25、不均勻（18/25）→ 兩成像素 ΔE00 > 25；
-幾何線形變集中在臉框（11–21/25）→ 一眼看得出，攤到整個畫面（自然）→ 0–1/25。
-但這是**已測載體與現行評分下的經驗取捨**，還不能認定為威脅模型的真實極限——
-判準實際只有 `id_norm` 與 `use_norm` 在作用，指令完成度（`dir_norm`）因為量不準
-而退出，所以「阻止指令完成但保留自然輸入」這條路根本還沒被評估過。
+**貼片線的檔案不要動**：`src/defense/{material_patch,patch_canvas,print_patch,outside_terms}.py`、
+`scripts/{immunise_patch,patch_probe,print_probe}*`、`configs/immunise_patch*.json`、
+`runs/{patch_*,print_*,smiley_*,off_*,ok_*,universal}`。那兩個 session 已離線，
+但離線不等於放棄。
 
-報告頁：
-[位移場](https://claude.ai/code/artifact/cde9d5c2-f2af-48c9-815e-639adec4a344)
-· [顏色](https://claude.ai/code/artifact/1a67851c-9871-43cf-8485-77abcbffd59a)
-· 本機 `report_field.html`、`report_colour.html`
+---
 
-## 下一步的優先序（Codex 診斷，我已逐項驗證數字）
+## 現在的位置：主表已完成
 
-1. **先補評估，再補防禦。** 四項分開的盲評——發布圖自然度、發布圖是否同一人、
-   編輯是否完成、編輯結果是否可用。現有影像就夠做，不需要 GPU。
-   並且要多報一欄：**編輯後相對 clean edit 的「額外」身分損失**，
-   與編輯前已有的損失分開。
-2. **掃整幅仿射殘差**（固定 `all_px=32`，`affine_all_px ∈ {3,6,9,12,18,24,32}`
-   加一個拿掉該 cap 的診斷臂）。它是目前最明確又未經人眼校準的約束，
-   而且現行的 `whole_08/16/32` 同時動了三個變數，沒有隔離它。
-   **注意**：`affine_residual` 量的不只是背景彎曲，也量邊界接合——
-   `flow()` 把整個場乘上邊界為零的 taper，而非零的全域仿射位移不可能在整圈
-   邊界為零，所以「接回固定邊界」本身就會產生殘差。
-3. **條件式目標**：現行的 `id` 只壓低編輯輸出的餘弦，沒有要求發布圖仍保有身分，
-   所以「直接改變輸入的臉」是一條捷徑——上面的逐張拆解就是它被走通的證據。
-   改成「輸入身分約束 ＋ 編輯後損傷 margin」。
-4. **獨立全域變換 ＋ 受局部伸縮約束的殘差場**：目前把「可接受的整體變換」、
-   「邊界接合」、「真正的局部變形」混成一個量。
-5. **依表面形狀的 adversarial relighting**：物理一致的陰影是「空間不均勻但可能
-   自然」的自由度，而現行的 Lab field 是任意低頻色彩位移。
+十二個條件在同一組影像、同一條編輯管線上，防禦圖 → 防禦後編輯 → 七道淨化
+→ 淨化後編輯全部齊全，**零失敗，沒有破洞**。
 
-## 衣物支撐做過了，結論是結構性的
+| 階段 | 狀態 |
+|---|---|
+| 資料集 | 人像 8 張完成；動物 12 張缺 `prompts.yaml`，跑不了 |
+| 編輯管線 | 完成並定案 |
+| 防禦圖 | 完成。12 條件 × 8 張 |
+| 防禦後編輯 | 完成。12 條件 × 2 場景 × 32 格 |
+| 淨化與淨化後編輯 | 完成。12 條件 × 7 算子 × 2 場景 |
+| 位移讀數 | 完成。`runs/edit_defended/displacement.csv`，**768 列**（12 × 64） |
+| 淨增益 | 完成。`runs/edit_purified/retention.csv`，**5,376 列** |
+| **逐格看圖** | **還沒做。** 位移是數字，成立與否本專案的規矩是看圖 |
 
-`ncf_support(x, 'clothes')`：ATR 衣物類別經導向濾波貼回衣緣、扣掉 MTCNN 臉框、
-向內侵蝕與羽化。每一步只移走權重，**支撐外逐位元照抄原圖**
-（`protected_max_abs = 0.0`，189219 像素驗過）。
+兩張表的條件集合完全一致，沒有「有位移卻缺淨增益」的條件。
 
-`runs/color_scaleup_search/` 的 480 列，六個臂在支撐加權 ΔE00 6.3–8.6 上，
-身分降幅中位 **0.0004–0.0092**；`runs/color_ceiling/` 把它推到 ΔE00 18–20
-（整件衣服完全換色）仍在同一量級。
+---
 
-兩個理由，都不是實作問題：**臉不在支撐裡**（那是它保護得乾淨的原因，
-也是它動不到身分的原因）；**衣物類指令本身就是改色**，攻擊直接覆蓋防禦——
-那一批裡最無效的正是衣物類，防禦後與未防禦的編輯圖位移中位只有 0.02。
+## 編輯管線（定案，不要再改）
 
-## 新的資料集（尚未跑過任何實驗）
+`scripts/edit_preflight.py`。兩個場景共用種子 20260812、50 步、512²。
 
-`data/portrait_manifest.json` 六張主體鮮明的人像，由
-`scripts/select_subjects.py` 排序、逐張看圖選出。**偵測器會誤判、插畫旗標會漏**
-（`231482` 是一盤香蕉而 MTCNN 給了 0.67 的臉框；`175843` 是 3D 卡通而兩個旗標
-都沒越界），所以那支腳本只出排序。先前的插畫與藝妓兩張已排除。
-`configs/evaluate_portrait.json` 四類指令，**restyle 已移除**——它把整張圖重畫，
-防禦有沒有作用看不出來。
+| | ip2p | inpainting |
+|---|---|---|
+| 受害模型 | `timbrooks/instruct-pix2pix` | `runwayml/stable-diffusion-inpainting` |
+| 呼叫 | `IP2PWrapper.edit` | 官方 `StableDiffusionInpaintPipeline` |
+| guidance | `s_t` 7.5、**`s_i` 1.8** | 7.5 |
+| 遮罩 | 無 | dilate 4，白＝重繪 |
 
-**現有的全部數字都還是舊的五張。**
+**`s_i` 是 1.8 不是封裝預設的 1.5**，出處是 helmet 指令的 11 組設定掃描
+（`runs/ip2p_helmet_sweep/`，88 格逐格看圖）：1.5 在八張裡有三張多出第二個人、
+四張換臉；1.8 在三個 `s_t` 上都把這兩件事歸零；2.2 開始畫不出帽體。
+常數在 `scripts/edit_preflight.py` 的 `IP2P_EDIT_IMAGE_GUIDANCE`，
+**不要改 `src/models/ip2p.py` 的 1.5**（貼片線也在用）。
 
-## 全部設定的排名（過半規則、門檻 0.5、25 格）
+分母是未防禦的同設定臂：ip2p 用 `ip2p_si18`、inpaint 用 `inpaint_undefended`。
+`runs/edit_preflight/` 裡另外四個臂設定不同，**不可以當這一批的分母**。
 
-| 變體 | identity | jpeg | blur | crop | 產物 |
-|---|---|---|---|---|---|
-| `margin_64_norigid` | **21** | — | — | — | 臉毀掉，一張偵測不到臉 |
-| 顏色線（`runs/purify_heldout/`） | 18 | 18 | 15 | 16 | 不是照片，21% 像素 ΔE00 > 25 |
-| `eot_crop_16` | **17** | 13 | 11 | 14 | `114555` 鼻嘴壞掉 |
-| `coarse_margin_96` ／ `grid_06` | 13 ／ 13 | — | — | — | **四張自然，一張邊緣** |
-| `grid_08` | 12 | — | — | — | 兩張明顯壞掉 |
-| `flow_16` | 11 | 6 | 11 | 9 | 四張自然 |
-| `grid_05` | 9 | — | — | — | 自然 |
-| `obj_longchain` | 7 | — | — | — | 自然 |
-| `eot_both` | 5 | 5 | 6 | 6 | 自然 |
-| `flow_08` ／ `eot_none` ／ `obj_baseline`（同設定三次） | 5 ／ 4 ／ 1 | 5／1／— | 6／6／— | 2／1／— | 自然 |
-| `eot_crop` | 4 | 4 | 4 | 4 | 自然 |
-| `coarse_margin_48` | 3 | — | — | — | 自然 |
-| 其餘（含全部臉內仿射約束的） | 0–2 | — | — | — | 自然 |
+---
 
-## 五個機制，一條前緣
+## 主表的十二個條件
 
-每一步都是前一步的**圖**逼出來的，不是先想好的清單。
+「本專案」一列是 `colour_curve_ours`（AdvCF 那條單調分段線性 RGB tone curve，
+`pieces 64`、`radius 5.0`、900 步、`deltae_cap 16.0`），其餘十一列是外部方法。
 
-1. **顏色載體的防禦力全部住在空間不均勻裡**，而那正是人眼判定不自然的東西。
-2. **換成位移場**，防禦出現（`flow_16` 11/25），但預算推大會出現局部 warp。
-3. **臉框內的仿射約束修好了局部 warp，也一起關掉了防禦**——它是開關不是旋鈕：
-   過渡帶 0→64 px 只讓臉框位移從 1.8 動到 2.0；上限 1.0→2.0 讓位移剛好加倍；
-   整個拿掉直接跳到 17–21 px。一個平滑的場要移動臉又要接回背景，那個接合
-   發生在框**內**，框外的過渡帶救不了。
-4. **粗網格用結構取代約束**（有效）：間距 85 px 時整張臉落在兩三個控制點之間，
-   被整體改形而不是被撕開。同一張照片上 32 px 間距走 21.5 px 五官就散了，
-   85 px 間距走 26.8 px 仍是自然照片。**網格解析度有最佳值**——`grid_08`
-   （64 px 間距）代理更強、真編輯沒有更強（12 對 13），而圖壞得多。
-5. **EOT 抬最弱的那一道淨化**（有效）：8 px 上 crop 1→4／6、jpeg 1→4／5，
-   而 identity 與 blur 幾乎不動。16 px 上是 +6／+7／0／+5，但那一組的對照來自
-   別批，而同設定跨批的差可達 1 對 5，所以有一部分可能是批次差。
+### 失真（防禦圖對原圖，中位數）
 
-**主流目標函數沒有勝出**：PhotoGuard targeted encoder、AdvDM／Mist 擴散訓練
-損失、長鏈，全部落在重跑雜訊內（`runs/field_objective/README.md`）。
-
-## 第七批：兩個機制相加（已完成）
-
-`configs/immunise_field_coarse_eot.json`，四道淨化，四個變體同批因此彼此可比：
-
-| 變體 | EOT | identity | jpeg | blur | crop | 產物 |
-|---|---|---|---|---|---|---|
-| `coarse_eot_96_none` | 無（批內對照） | 1 | 2 | 2 | 3 | `114555` 邊緣 |
-| **`coarse_eot_48_crop`** | 裁切 | **6** | **6** | **7** | **7** | **看過的三張都自然** |
-| `coarse_eot_96_both` | 裁切＋模糊，兩倍成本 | 7 | 7 | 7 | 7 | `114555` 壞 |
-| `coarse_eot_96_crop` | 裁切 | 9 | 9 | 10 | **15** | `114555` 壞 |
-
-**EOT 抽的算子族越窄，峰值越高且落在它訓練過的那一道**（`_crop` 在 crop 上 15、
-其餘 9–10）；**族越寬，曲線越平但整體較低**（`_both` 齊平 7，四道都不超過
-`_crop`——多花一倍買不到東西）。
-
-## 為什麼離開顏色
-
-三個互相獨立的量測指向同一個根因：**顏色載體的防禦力全部住在空間不均勻裡，
-而空間不均勻正是人眼判定不自然的那個東西。**
-
-| 來源 | 載體 | 自由度 | 色差 | 編輯輸出的身分降幅 |
+| 條件 | PSNR | LPIPS | L∞ | 束縛種類 |
 |---|---|---|---|---|
-| `runs/color_scaleup_search/` | 全域 Lab 仿射 | 12 | ΔE 6.3 | −0.002 ～ +0.0043 |
-| `runs/objective_pilot/` | CIELUV 3D LUT + 平滑正則 | 16×32×32 | ΔE ≈ 6 | +0.0005 ～ +0.0077 |
-| `runs/immunise_tv*/` | 仿射場，掃位移場 TV 上限 | — | ΔE 16 | TV 0.5 → +0.943；TV 2.0 → −0.440（不自然） |
+| `colour_curve_ours` | 16.67 | 0.3367 | 0.341 | ΔE00 ≤ 16（整圖） |
+| `photoguard_c` | 40.90 | 0.4471 | 0.140 | L2 = 8 |
+| `dia_r` | 40.62 | 0.3539 | 0.025 | L∞ |
+| `dia_pt` | 37.47 | 0.4417 | 0.025 | L∞ |
+| `dayn` | 33.67 | 0.4810 | 0.030 | L∞（κ=0.06 於 `[-1,1]`） |
+| `dct_shield` | 29.84 | 0.5815 | 0.247 | 量化域 |
+| `mist` | 26.66 | 0.6574 | 0.063 | L∞ 16/255 |
+| `photoguard_linf` | 26.49 | 0.6746 | 0.063 | L∞ 16/255 |
+| `dct_shield_y` | 24.45 | 0.6584 | 0.408 | 量化域（Y） |
+| `sifm`／`danp` | 逐欄見 CSV | | | L∞ 0.03（`[0,1]`） |
+| `diffvax` | 34.71–38.00 | 0.030–0.056 | — | **無硬性預算** |
 
-前兩列就是三篇參考論文共同的載體家族（AdvCF 的分段線性 tone curve、
-NCF 的 Monge–Kantorovich 仿射、AdvColorFilm 的物理色片）。它們驗證的對象是
-ImageNet 分類器，跨一條決策邊界就算贏；對 50 步的 IP2P 編輯量到的是零。
+**束縛種類不同的列不可以直接比大小。** `eps` 欄也不可跨列比——`sifm`／`danp`
+的值域是 `[0,1]`、`dayn` 是 `[-1,1]`，`eps` 0.03 與 0.06 其實是同一個像素幅度。
+比預算一律看 `eps_pixel01`。
 
-新做的 `lab_field`（逐通道低頻 Lab 位移場，與顏色線同 ΔE 16 預算）四道淨化
-全部 0–3/25，再次確認這個上限。
+### 位移（主讀數，中位數）
 
-## 現行的做法
+`位移 = LPIPS(編輯(原圖), 編輯(防禦圖))`。
 
-| 腳本 | 角色 |
+| 條件 | ip2p 全圖／主體內 | inpaint 全圖／主體內 | blocked |
+|---|---|---|---|
+| `dct_shield_y` | 0.6411／0.6714 | 0.6287／0.6166 | 31/32、2/32 |
+| `mist` | 0.6378／0.6157 | 0.6406／0.6211 | 32/32、21/32 |
+| `dct_shield` | 0.6242／0.6543 | 0.5723／0.5342 | 29/32、5/32 |
+| `photoguard_linf` | 0.5444／0.5358 | 0.6281／0.6233 | 27/32、16/32 |
+| `danp` | 0.5419／0.4856 | 0.5070／0.4705 | 19/32、6/32 |
+| `sifm` | 0.5309／0.5006 | 0.5127／0.4651 | 19/32、9/32 |
+| `dayn` | 0.5101／0.4745 | 0.4915／0.4227 | 18/32、8/32 |
+| `dia_pt` | 0.5014／0.4547 | 0.4407／0.3838 | 19/32、4/32 |
+| `dia_r` | 0.3955／0.3213 | 0.3498／0.2246 | 7/32、1/32 |
+| `photoguard_c` | 0.3881／0.3446 | 0.4341／0.3664 | 7/32、1/32 |
+| `colour_curve_ours` | 0.3821／0.3867 | 0.4431／0.3317 | 3/32、4/32 |
+| `diffvax` | 0.0723／0.0629 | 0.3380／0.0348 | 0/32、8/32 |
+
+### 淨增益（保留率＝淨化後位移 ÷ 未淨化位移）
+
+| 條件 | jpeg80 | jpeg50 | jpeg30 | blur1 | blur2 | crop | rotate15 | 非幾何均 |
+|---|---|---|---|---|---|---|---|---|
+| `colour_curve_ours` | 1.018 | 1.045 | 1.065 | 0.980 | 0.996 | 1.053 | 0.906 | **1.021** |
+| `mist` | 0.920 | 0.768 | 0.668 | 0.734 | 0.579 | 0.969 | 0.872 | 0.734 |
+| `photoguard_linf` | 0.912 | 0.758 | 0.694 | 0.688 | 0.541 | 1.010 | 0.928 | 0.719 |
+| `dayn` | 0.833 | 0.717 | 0.648 | 0.681 | 0.507 | 0.912 | 0.850 | 0.677 |
+| `dia_pt` | 0.721 | 0.554 | 0.482 | 0.562 | 0.334 | 0.896 | 0.799 | 0.531 |
+| `dct_shield_y` | 1.016 | 0.476 | 0.363 | 0.408 | 0.197 | 0.911 | 0.822 | 0.492 |
+| `dia_r` | 0.674 | 0.522 | 0.453 | 0.478 | 0.224 | 0.864 | 0.753 | 0.470 |
+| `photoguard_c` | 0.677 | 0.517 | 0.470 | 0.429 | 0.252 | 0.964 | 0.859 | 0.469 |
+| `dct_shield` | 0.414 | 0.243 | 0.231 | 0.419 | 0.220 | 0.902 | 0.772 | 0.306 |
+| `diffvax` | 0.927 | 0.902 | 0.862 | 0.880 | 0.734 | 0.597 | 0.689 | 0.861 |
+
+`crop_resize0.1` 與 `rotate15` 是**幾何類**，取景本身被改掉，讀數同時含
+「防禦被洗掉」與「畫面被移動」，不與其餘五道混著平均。`sifm`／`danp` 的
+保留率在最後一次重算裡，逐欄見 CSV。
+
+**`diffvax` 的兩件事報表上分開標**：它是十二個條件裡**唯一需要遮罩**的
+（擾動只存在於重繪區之外，而 inpainting 的重繪區正好是主體之外，所以它的
+主體內／外分區與其他條件不是同一個幾何關係），而且**沒有硬性 `L∞` 預算**
+（輸出層是 1×1 Conv、無 activation），掛不上其餘條件的失真錨點——它的保真
+LPIPS 是 0.030–0.056，其他條件是 0.34–0.67，差 6 到 20 倍。它是前饋式免疫器，
+每張防禦圖不到 1 秒（`colour_curve_ours` 1740 秒、`photoguard_linf` 6481 秒）。
+接法見 `src/baselines/diffvax.py` 的「怎麼接進本專案的評測」與
+`scripts/defence_run.py` 的 `FEEDFORWARD_CONDITIONS`。
+
+**顏色曲線是唯一淨化後 `blocked` 反而上升的條件**（未淨化 7，七道之後 14–19），
+其餘全部下降。照報，不作判準。
+
+---
+
+## 已經量到的，不要重做
+
+1. **遮罩膨脹決定 inpainting 的成敗。** 16 px 在主體旁邊留一圈原始背景，
+   模型會順著它延伸；同一句指令在 16 px 下什麼都不出現，4 px 下場景畫得出來。
+2. **9 通道 inpainting 不可以在取樣迴圈裡逐步把遮罩外貼回。**
+   `tests/test_inpaint_chain.py` 釘住。
+3. **SD v1.4 的 img2img 不能當受害模型**（人被換掉，身分失去分母）。
+4. **遮住臉的配件指令不能用身分當讀數。**
+5. **CLIP 對齊增益會與看圖相反**，只當解釋。
+6. **CLIPSeg 遮罩中位 IoU 0.929 但 p10 只有 0.058**，失手時沒有症狀，
+   只有看圖攔得下來。主體內／外分區用的就是它的補集。
+7. **成本推估會低估。** 實測秒/圖：`colour_curve_ours` 約 1740（900 步）、
+   `photoguard_c` 6406、`photoguard_linf` 6481、`dayn` 485、`dct_shield` 159、
+   `mist` 78、`dia_pt` 69、`tdae` 13350。
+
+---
+
+## 這一輪新增的三個發現
+
+### 一、TDAE 在本專案的威脅模型下，照論文起點跑會交付原圖
+
+`L = ‖edit(x_adv) − y₀‖₂`，而 `y₀ = edit(x₀)` 用固定的編輯噪聲。論文
+Algorithm 1 第 1 行是 `δ_v ← 0`，於是 δ=0 時兩者逐位元相同、`L ≡ 0`；
+`‖v‖₂` 在零點的梯度是 0，`s`、`z`、`k` 跟著全為零，`g_FDM` 精確為零。
+CPU 實測：恆等起點 grad absmax **0.0**，離開恆等之後 0.132。遠端實跑 15 分鐘
+仍停在 `step 0  L=0.000000e+00`。
+
+改用 `uniform_linf` 隨機起點可以跑（四張 PSNR 26.12–27.07），但**使用者裁定
+不接受這個偏離**，整個條件連同結果移除。完整理由在
+`docs/reference/AUDIT_TDAE.md` §8。**這不是對該篇的評價**，是本專案的威脅模型
+（防禦方看不到指令 → 空 prompt → `y₀` 是無指令重建）與論文起點互相作用的結果。
+
+### 二、求解端在 900 步下也不可重現
+
+原本的紀錄是「求解端可重現、評估端不可」。顏色線的把關診斷量到：**同一份設定、
+同一顆種子、只是跑在不同卡上**，同一張 `man_00` 的全圖 ΔE00 是 15.93／15.70／
+12.51，LPIPS 是 0.3856／0.2403／0.2789。900 步、bf16 下這個結論要改寫。
+後果是所有配對比較的訊噪比被壓低，**批內對照臂比以前更必要**。
+
+### 三、濾鏡的色差與「整圖一致」都成立
+
+交付的八張 ΔE00 是 14.15–16.00，**0/8 超過上限**，六張貼著 16。映射的全域性
+直接從 PNG 反查驗證過：把「原圖某通道值」當鍵、「防禦圖同位置的該通道值」
+當值，八張 × 三通道 × 全部像素，**同一輸入色階的輸出寬度最大值是 0**。
+看起來局部劇烈是因為 64 段裡某幾段斜率很陡，而落在那個輸入區間的像素在畫面上
+通常聚在一起（膚色、頭髮、某件衣服）——這是全域曲線的正常後果。
+
+---
+
+## 不在主表裡的方法，以及為什麼
+
+| 方法 | 狀態 |
 |---|---|
-| `scripts/immunise.py` | 顏色載體的防禦圖。遞迴檢查設定檔，出現 `instruction`／`prompt` 鍵就拒絕啟動。 |
-| `scripts/immunise_field.py` | **位移場載體**的防禦圖。載入上一支的 `assert_no_instructions`，共用同一個檢查。 |
-| `scripts/evaluate_defence.py` | 唯讀評估。指令與淨化只在這裡。只載入 `arms` 裡列到的臂。 |
-| `scripts/field_readout.py` | 唯讀，**防禦圖本身**的身分與失真。不含指令。 |
-| `scripts/summarise_screen.py` | 彙整成可並列的表，含門檻掃描。 |
-| `scripts/build_field_report.py` | 產生看圖用的 `data.js` 與影像複本。 |
+| `uap_semantic` | **已徹底移除。** 它是通用擾動，要 10,000 組 image-prompt 訓練集（替代方案是已刪除的 `data/lo_aligned` 24 張，差 417 倍），且 `prepare`／`loss_fn` 刻意拋 `NotImplementedError`。模組、測試、腳本、審計文件四個檔已刪，報表腳本只留一行註解記錄移除理由 |
+| `tdae` | 裁定不進比較。依論文重建的模組仍在 `src/baselines/tdae.py`，理由見 `docs/reference/AUDIT_TDAE.md` §8：本專案的威脅模型（防禦方看不到指令 → 空 prompt → `y₀` 是無指令重建）與論文的 `δ_v ← 0` 起點相互作用，使 `L ≡ 0`、梯度精確為零。**那不是對該篇的評價** |
+| AdvCF | 裁定不當 baseline（分類器場景，與本專案的威脅模型無關）。它的 tone curve 參數化本身是本專案顏色線的載體，兩件事要分開 |
+| `colour_field` | 裁定整組移除，產物已刪。程式仍在 `src/defense/color_field.py`，因為 `carrier_search.py`、`lab_offset_field.py`、`tests/test_composite.py` 仍 import 它 |
 
-**載體**（`configs/immunise_field*.json`）：
+---
 
-- `FlowFieldParam`（`src/defense/geometry_field.py`）——`grid×grid×2` 控制點
-  雙三次上採樣成取樣座標的位移場，邊界 taper 漸縮為零。四道約束：
-  `flow_face`（臉框內位移 CVaR99）、`flow_rigid`（臉框外對最佳全域仿射的殘差，
-  支撐可用 `rigid_margin` 向外膨脹）、`flow_face_rigid`（臉框內同樣的殘差）、
-  `flow_fold`（`det J` 低於下界的部分）。
-- `LabOffsetFieldParam`（`src/defense/lab_offset_field.py`）——逐通道低頻 Lab
-  位移場。`delta` 直接就是位移，均勻性是參數化的性質。
+## 顏色載體的改良實驗（`colour-lab/`）：**不屬於主表**
 
-**目標函數**：`src/defense/instruction_free.py` 的 `enc`／`cond`／`id` 為基準；
-`src/defense/mainstream_terms.py` 另有 PhotoGuard 的 targeted encoder attack
-與 AdvDM／Mist 的擴散訓練損失；`src/defense/eot.py` 把攻擊者的前處理放進期望值。
-三者都不含文字、不含指令。
+主表是「十二個條件的外部比較」，這一條線是「本專案自己的顏色方法要怎麼變強」。
+兩者共用編輯管線與判定門檻，但**產物、目錄、結論完全分開**：改良實驗全部在
+`colour-lab/`（遠端 `/nfs/home/nelson0314/WACV-colour-lab/`），**不得寫入主目錄**；
+主表的任何數字都不會因為改良實驗而改變。
 
-## 量到什麼
+主表裡的 `colour_curve_ours` 是這條線**目前交付的操作點**（AdvCF tone curve、
+`pieces 64`、`radius 5.0`、900 步、`deltae_cap 16.0`）。改良實驗若有成果，才會換掉它；
+在那之前主表照現狀引用。
 
-### 判準（過半規則、門檻 0.5、25 格）
+**現況、所有數字、硬約束、程式與坑一律以 `colour-lab/HANDOFF.md` 為準**，
+文獻在 `colour-lab/docs/LITERATURE.md`。不要在這裡複述那條線的細節，
+兩份文件不同步過一次了。
 
-| 載體 | identity | jpeg | blur | crop | 防禦圖是自然照片？ |
-|---|---|---|---|---|---|
-| 顏色線（`runs/purify_heldout/`） | 18 | 18 | 15 | 16 | **否**（21% 像素 ΔE00 > 25） |
-| `flow_16` | 11 | 6 | 11 | 9 | 四張是、`114555` 否（鼻子局部拉長） |
-| `flow_08` | 5 | 5 | 6 | 2 | 是 |
-| `lab_field` | 0 | 0 | 1 | 1 | 是 |
-| `face_rigid_16` | 0 | — | — | — | 是 |
-| `face_rigid_32` | 0 | — | — | — | 是 |
+到目前為止那條線做完六批，沒有一批被裁定為可交付的改良。
 
-**顏色線的 18/25 用的是過半規則**，`summarise_screen.py` 的 `majority` 欄與它
-逐格相同，並列時看那一欄。門檻掃描（0.3–0.7）顯示排序穩定。
+---
 
-### 防禦圖本身的身分（`scripts/field_readout.py`）
+## 環境
 
-錨定在原圖主體框的固定座標，偵測器不參與。這一層回答「這張照片還是不是
-這個人」，同時是**錨定裁切錯位的上界**。
+- 遠端兩台：`ssh -p 10101`（basic-1，8 張卡）／`-p 10102`（basic-2，7 張卡），
+  `nelson0314@server.basiclab.lab.nycu.edu.tw`。**兩台都要查**，早先只查
+  basic-2 漏掉過 basic-1。
+- repo 在 `/nfs/home/nelson0314/WACV-s4`，實驗在
+  `/nfs/home/nelson0314/WACV-colour-lab`。home 跨機同步，兩台都看得到。
+- **先 `source ~/env.sh` 再 `cd`**（env.sh 會把工作目錄切走）。
+- `HF_HOME=/var/cache/huggingface`（機器本地，不是 NFS 那份）。
+- **所有運算送遠端。** 卡是多人共用：`bingo`、`chhsu0924`、`briankuo93`、
+  `cylin` 都在用。判定「空」要兩個條件同時成立：沒有別人的 compute app、
+  已用記憶體 < 1 GB。**全域上限五張。**
+- 本機 Python `C:/Users/nelso/miniconda3/envs/wacv/python.exe`。
 
-| 變體 | 範圍 |
-|---|---|
-| `flow_02` | 0.974–0.989 |
-| `flow_08` | 0.504–0.905 |
-| `flow_16` | 0.295–0.874 |
-| `face_rigid_*` | 0.977–0.997 |
-| `coarse_32` | 0.561–0.984（`126577` 是 0.561） |
+### 這一輪踩到的坑
 
-## 遠端佇列（`scripts/batch_queue.sh`／`scripts/queue_rest.sh`）
+1. **`nohup setsid ... &` 要把三個 fd 都導掉**，否則 ssh 掛著不返回，
+   重試迴圈會把同一個工作啟動多次。
+2. **CSV 的合併鍵是 `arm`**，每個臂一定要給不同的 `--suffix`。
+3. **改名時漏掉「結尾剛好是 `_colour`」這種寫法**，`arm` 欄指到不存在的目錄，
+   位移只算了一個條件就停住——而前一個條件已經寫進 CSV、版面照樣產出、
+   鏈也照樣印完成。**靜默失效的典型形狀。**
+4. **`pgrep -f` 會匹配到自己的 ssh 指令字串**，判定「有沒有在跑」要看真正的
+   python 行程（`ps -o args=` 配 `venvs/wacv/bin/python`）。
+5. **`--out` 目錄存在就拒絕啟動**（`paper_baseline.py`／`ip2p_helmet_sweep.py`），
+   所以 log 不要寫進輸出目錄，否則自己的 mkdir 會把自己擋掉。
+6. **報告頁單一版本上限 64 MB**。68 張版面在 256 px／品質 84 下是 63 MB，
+   已降到 208 px／76，約 36 MB。
 
-一支總排程，五張卡一次只服務一批，順序就是優先序。已跑完：補跑 → `margin`
-→ `coarse_margin` → `grid`。`objective` 在跑，`eot` 排最後。
-進度看 `runs/batch_queue.log` 與 `runs/queue_rest.log`。每批評估後檢查列數是不是
-150，不是就在 log 裡標出來——先前那次 OOM 失敗是靜默的，只在列數上看得出來。
+---
 
-**改一支正在跑的 `.sh` 沒有用**：`sed -i` 換的是新 inode，執行中的 bash 仍握著
-舊檔（`/proc/<pid>/fd/255` 會指向 NFS silly-rename 過的名字）。要換順序就得
-另寫一支等待前一支結束的腳本。
+## 待辦（依優先序）
 
-## 已經量掉、不要重做的路
+1. **逐格看圖。** 主表的 768 格從來沒有人逐格看過。位移與保留率都是數字，
+   而本專案的規矩是「成立與否看圖」。68 張版面已經產好（`runs/report/sheets/`），
+   掛在報告頁上。**這是主表最大的缺口。**
+2. **等失真錨點怎麼處理。** 十二個條件掛在四種不同的預算上——ΔE00（本專案）、
+   L2（`photoguard_c`）、L∞（多數）、量化域（`dct_shield`），而 `diffvax` 沒有硬性預算。
+   **排名不可直接比大小**，`eps` 欄也不可跨列比（值域不同）。比預算一律看 `eps_pixel01`。
+   使用者說先不管，但這是投稿時一定會被問的。
+3. **動物那一組的 `prompts.yaml`。** 12 張影像已備好，缺這個檔就跑不了 inpainting。
+   動物的 `content` 與編輯指令怎麼定是協定層決定，留給使用者。
+4. **報告頁要用現行帳號重發。** 現有連結是更早的帳號發布的，換帳號後開不了。
+   資料與版面都在遠端 `runs/report/`，重發即可。
 
-1. 全域仿射、全域 3D LUT、逐通道 Lab 位移場都沒有防禦效果。
-2. 指令進迴圈會高估防禦（舊路徑 2/15，拿掉後 1/25）。
-3. 「解完再縮」不是解受約束問題（1/25 → 18/25）。
-4. NIQE 不能當自然度門檻（逐張比值中位 1.054，有一張 0.837）。
-5. CVaR95 尾端上限解決不了自然度。
-6. TV 單獨不夠（`medium` 的 TV 比 `global` 低 21%，U16 反而更高、圖更糟）。
-7. 端點與 raw 越界的約束有效，飽和已不是不自然的來源。
-8. **臉框內的仿射約束買到自然度但買掉防禦**（見上）。
+### 清理狀態
 
-## 還沒試過的槓桿
+`__pycache__` 已全部清除。pytest 的暫存目錄（`non-additive-frequency/.tmp/`、
+`runs/ncf_cpu_test_tmp/`、根目錄的 `.tmp/`、`colour-lab/.pytest_tmp_*`）
+Windows ACL 拒絕存取，`takeown` 需要管理員權限才改得動擁有權，目前仍刪不掉。
+不影響任何測試或產出。
 
-| 槓桿 | 說明 |
-|---|---|
-| 指令完成那條腿 | `criterion.py` 明寫三種寫法都在圖上被推翻，`dir_norm` 因此不進目標函數。要一個量得準的 VQA 讀數。 |
-| 可用性讀數 | `use_norm` 用 NIQE，幾乎不綁。需要有參考的一組，且逐張對圖校準過才准進 `TERMS`。 |
-| 幾何 × 顏色串接 | `CompositeParam` 接得上，先各自量到底再談。 |
-| 受成像限制的局部 PSF | 空間變化的小幅散焦，人眼讀成景深。 |
-| 更大的樣本 | 見下。 |
-
-## 使用者要判斷的取捨
-
-**一、防禦圖的臉確實變了。** `coarse_margin` 一族的防禦圖身分餘弦是 0.46–0.98。
-硬約束寫的是「防禦後的照片本身必須仍是一張自然的照片」，沒有要求「還是同一
-個人」。這一條要由使用者看圖確認。
-
-**二、邊緣的兩張。** `grid_06` 的 `114555`（鼻頰有一片拉扯）與
-`coarse_margin_96` 的 `126577`（下半臉開始拉扯）決定 13/25 算不算數。
-
-## 實驗規模的限制
-
-5 張影像（其中 `195273` 是插畫）、3 顆種子、單一初始化。零次攻擊成功時三顆
-種子的單側 95% 上界仍有 63%。要支持 ±10 個百分點的成功率敘述需要約 97 個
-獨立身分，±5 點約 385。現在的數字只夠當 pilot。
-
-## 環境與陷阱
-
-- 遠端 `ssh -p 10102 nelson0314@server.basiclab.lab.nycu.edu.tw`（basic-2）、
-  `-p 10101`（basic-1）。Repo 在 `/nfs/home/nelson0314/WACV-s4`，
-  **整棵同步過去的，不是 git 工作區**，改完本機要自己 `scp`。
-- **先 `source ~/env.sh`，再 `cd` 到 repo**：`env.sh` 最後一行會換工作目錄。
-- 本機 Python `C:/Users/nelso/miniconda3/envs/wacv/python.exe`，
-  測試基準 `python -m pytest -q --ignore=runs` → **322 passed / 1 skipped**。
-- **殺一支排隊中的腳本不會帶走它已經啟動的子行程。** 踩過一次：兩個孤兒各佔
-  19.8 GiB 跑了 26 分鐘，把同卡上的評估擠到 CUDA OOM，兩個變體各只寫出 90 列
-  而不是 150，而批次腳本照樣印「篩選完成」。殺完要查
-  `ps -u $(whoami) -o pid,ppid,cmd | awk '$2==1'` 找孤兒，並用
-  `nvidia-smi --query-compute-apps` 確認卡真的空了。
-- **ssh 連線很不穩**，`Connection closed/reset`、`kex_exchange_identification`
-  常見，所有遠端呼叫都要寫重試迴圈。
-- 用 heredoc 在遠端寫 `.sh` 之後要 `sed -i 's/\r$//'` 再 `bash -n`。
-  巢狀 heredoc 裡的 `\\` 會被吃掉，續行會被折成一行——功能不受影響但要知道。
+---
 
 ## 檔案在哪
 
-| 東西 | 位置 |
+| 東西 | 路徑 |
 |---|---|
-| 兩份報告（可直接開） | `report_field.html`、`report_colour.html` |
-| 報告用的影像 | `_rep/field/`、`_rep/colour/` |
-| 全部防禦圖與編輯圖的鏡像 | `_rep/defended/`（214 張）、`_rep/edits/`（1125 張，identity・s17001） |
-| 每一批的數值記錄 | `non-additive-frequency/runs/field_*/`、`runs/field_*_eval/` 的 CSV |
-| 每一批的設計理由 | 各目錄的 `README.md` |
+| 編輯管線 | `scripts/edit_preflight.py` |
+| 防禦圖求解 | `scripts/defence_run.py` |
+| 位移讀數 | `scripts/edit_displacement.py` |
+| 淨化 | `scripts/purify_run.py` |
+| 淨增益 | `scripts/edit_retention.py` |
+| 版面與報告頁 | `scripts/build_main_report.py`、`build_main_report_page.py` |
+| helmet 掃描 | `scripts/ip2p_helmet_sweep.py`、`ip2p_helmet_contactsheet.py`、`ip2p_helmet_review.py` |
+| 顏色線整理成條件 | `scripts/immunise_as_condition.py` |
+| baseline 出處總表 | `docs/reference/BASELINE_PROVENANCE.md` |
+| 各 baseline 逐行查證 | `docs/reference/AUDIT_*.md` |
+| 指標與淨化的比較方式 | `docs/EVALUATION.md` |
 
-`_rep/` 與 `report_*.html` 都在 `.gitignore` 裡——影像由已記錄的參數與種子重跑
-得出，CSV 不可重現所以一律入庫。**本 session 產生的 PNG 已從 `runs/` 刪除**
-（6.3 GB → 11 MB，399 個記錄檔全部保留），遠端 `/nfs/home/nelson0314/WACV-s4`
-仍有完整副本。先前 session 的影像沒有動。
+## 報告頁
 
-## 產生報告
-
-用 `.claude/skills/defence-report/`（skill）。它記了六塊結構、兩層讀數、
-建置指令、以及發佈的硬限制（總檔數 ≤ 256、單版 ≤ 64 MB、`files` 要 map 形式）。
-
-## 報告
-
-- 兩種色差預算：https://claude.ai/code/artifact/95164c77-d3ad-478b-a502-64262285f686
-- 未見指令的防禦成績：https://claude.ai/code/artifact/1bbb2517-19d8-437a-acfb-0ab266aa5da2
-- 受約束求解的全部產物：https://claude.ai/code/artifact/7a747d0b-0793-4e14-a234-e5af70d5f600
-- 尾端上限的四檔：https://claude.ai/code/artifact/735dbe54-1967-41fc-93d8-289c3a3ddbbc
-- 均勻度與防禦強度：https://claude.ai/code/artifact/76350b7c-07b6-4a1a-8186-dcbf98a4e552
-- 色彩載體防禦講義（背景知識）：https://claude.ai/code/artifact/afb95ad3-d0ca-4e3b-952f-4afd3e0f4b8a
+- **主表（現行）** <https://claude.ai/artifact/8DF1HCnyHucxu6y9xJKK9p>
+- 四臂對照（inpainting 的決定性實驗）<https://claude.ai/artifact/15aEdYNof2jmrzpWNfrXkS>
+- 未防禦編輯預檢 <https://claude.ai/artifact/DKEP8fKM6EDY73tQDm7KJ7>
+- 提案資料集 <https://claude.ai/artifact/G9VdG9gbNqnrT7LzoUS3kb>
+- helmet 指令掃描 <https://claude.ai/artifact/K2vxzLCh57CMWNiiNRtFFC>
+- 顏色載體防禦讀數（舊 trio 資料，只當協定參照）<https://claude.ai/artifact/Xt1MofiTiodn4qWcpJSik5>

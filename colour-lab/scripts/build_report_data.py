@@ -6,7 +6,7 @@
 用法
     python scripts/build_report_data.py \\
         --solve-root runs/amplitude_ladder \\
-        --edits runs/amplitude_ladder_edits/displacement_colour_normalised.csv \\
+        --edits runs/amplitude_ladder_edits/displacement.csv \\
         --paired runs/amplitude_ladder_edits/paired.csv \\
         --retention runs/purified_colour_edits/retention.csv \\
         --out runs/report/amplitude_ladder/data.js
@@ -33,7 +33,6 @@ READOUT_FIELDS = [
     {"key": "psnr", "label": "PSNR"},
     {"key": "fidelity", "label": "保真 LPIPS"},
     {"key": "disp", "label": "位移中位"},
-    {"key": "disp_matched", "label": "匹配後"},
     {"key": "stopped", "label": "停在第幾步"},
 ]
 
@@ -90,9 +89,6 @@ def main() -> None:
                 "fidelity": f'{float(row["lpips"]):.4f}',
                 "disp": (f'{med([float(c["disp_lpips"]) for c in cells]):.4f}'
                          if cells else None),
-                "disp_matched": (
-                    f'{med([float(c["disp_lpips_matched_mean"]) for c in cells]):.4f}'
-                    if cells and "disp_lpips_matched_mean" in cells[0] else None),
                 "stopped": row.get("free_stopped_step", ""),
             }
         per_image[rung] = table
@@ -112,12 +108,9 @@ def main() -> None:
             "fidelity": med([float(r["lpips"]) for r in rows]),
             "disp_ip2p": med([float(d["disp_lpips"]) for d in ip2p]),
             "disp_inpaint": med([float(d["disp_lpips"]) for d in inpaint]),
-            "disp_matched": med([float(d["disp_lpips_matched_mean"]) for d in cells
-                                 if "disp_lpips_matched_mean" in d]),
             "paired_median": pair.get("disp_lpips_median", ""),
             "paired_improved": pair.get("disp_lpips_improved", ""),
             "paired_cells": pair.get("cells", ""),
-            "matched_paired": pair.get("disp_lpips_matched_mean_median", ""),
             "cells": len(cells),
         }
 
@@ -190,9 +183,6 @@ def main() -> None:
          "tone": "fail",
          "note": f'現行操作點是 {stats[control]["fidelity"]:.4f}。'
                  "防禦圖離原圖有多遠，數字大不是好事。"},
-        {"key": "色彩校正抹得掉的部分", "value": "42.5 %",
-         "note": "現行操作點的位移從 0.4329 掉到 0.2475。"
-                 "這是上界診斷不是攻擊——匹配要未防禦的編輯結果當參考。"},
         {"key": "灰階下的留存", "value": "0.500",
          "tone": "signal",
          "note": "另外三道色彩淨化 0.948–1.172。AdvCF 原文報的灰階存活率約 18%。"},
@@ -241,7 +231,7 @@ def main() -> None:
         second = read(args.second_paired)
         second_table = {
             "caption": "禁止色偏之後還剩多少：ip2p 16 格、四張影像，對照臂是同批的 advcf_cap16",
-            "head": ["條件", "位移中位", "配對差中位", "改善格數", "匹配後配對差"],
+            "head": ["條件", "位移中位", "配對差中位", "改善格數"],
             "rows": [],
         }
         for row in second:
@@ -254,13 +244,11 @@ def main() -> None:
                     "—" if control else f'{float(row["disp_lpips_median"]):+.4f}',
                     "—" if control
                     else f'{row["disp_lpips_improved"]} / {row["cells"]}',
-                    "—" if control
-                    else f'{float(row["disp_lpips_matched_mean_median"]):+.4f}',
                 ],
                 "tones": [None, None,
                           None if control
                           else ("fail" if float(row["disp_lpips_median"]) < 0 else None),
-                          None, None],
+                          None],
             })
 
     payload = {

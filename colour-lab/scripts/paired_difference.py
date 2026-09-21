@@ -31,7 +31,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 KEY = ("scenario", "image", "prompt_index")
 
 #: 預設要配對的欄位。有哪一欄就算哪一欄，缺的欄不報錯——不同批的欄位不一樣。
-COLUMNS = ("disp_lpips", "disp_lpips_matched_mean", "disp_dists",
+COLUMNS = ("disp_lpips", "disp_dists",
            "disp_lpips_subject", "disp_lpips_background")
 
 

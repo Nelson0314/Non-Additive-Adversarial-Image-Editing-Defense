@@ -84,8 +84,9 @@
 黑角算成主體。實測遮罩歸屬的改變量：`crop_resize0.1` 為全幅的 9.3%–13.6%、
 `rotate15` 為 11.1%–13.8%（`man_00`、`woman_02` 兩張）。
 
-**已交付的 `main_table/results/retention.csv` 那 1,536 列仍是舊遮罩算出來的**，重算需要
-LPIPS（`piq`）的一次完整重跑：
+`purified_mask()` 進版於 commit `47b4c18`。一份 `main_table/results/retention.csv`
+若未在該 commit 之後重跑過，那 1,536 列的分區兩欄就是用未變換的遮罩算的。
+重跑一次即更新，需要 LPIPS（`piq`）：
 
     python main_table/code/edit_retention.py \\
         --purified-root main_table/images/edit_purified \\

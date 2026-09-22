@@ -91,9 +91,26 @@ bash lab/scripts/readout.sh <GPU>
 | basic-2 | `style_filter_guided` | `lab/runs/logs/dispatch_b2_guided.log` |
 | basic-2 | `style_random`（已完成） | `lab/runs/logs/dispatch_style.log` |
 
-**鏈失敗會換一張卡重試**（最多八次）。已經踩過一次：`--assert` 通過之後、
-權重還沒載完的二十秒內，另一位使用者把同一張卡佔走 19.65 GiB，工作 OOM
-而死。那不是程式的錯，但排程器不重試的話那個臂會永遠停在那裡。
+**鏈失敗會換一張卡重試**（最多八次）。已經踩過兩次，同一張卡、同一個人：
+`--assert` 通過之後、權重還沒載完的二十秒內，另一位使用者把 basic-1 卡 5
+佔走 19.65 GiB，`style_low` OOM 而死。那不是程式的錯，但排程器不重試的話
+那個臂會永遠停在那裡。**單一個 `rc≠0` 因此是正常的形狀**，不是故障訊號；
+真正該回報的是 `[GIVE-UP]`（重試次數用完）與「全停了」。
+
+### 改遠端的腳本：一定要 staging ＋ mv，不可以就地覆寫
+
+`tar x` 是就地截斷後重寫，inode 不變。bash 是**邊讀邊執行**的，正在跑的
+排程器因此會讀到被換掉的內容——實測的症狀是
+`dispatch.sh: error reading input file: Stale file handle`，排程器當場死掉，
+而 log 上只有那一行。正確的做法是解到暫存目錄再 `mv`（同一個檔案系統上的
+rename 會給新 inode，正在跑的行程留在舊 inode 上）：
+
+```
+tar xzf ../lab.tgz -C .stage
+cd .stage && find lab -type f | while read -r f; do
+  mkdir -p "../$(dirname "$f")"; mv -f "$f" "../$f"
+done
+```
 
 ## 已經量到的
 

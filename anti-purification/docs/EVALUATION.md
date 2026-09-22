@@ -37,8 +37,8 @@
 
 ## 主表實跑的七道算子
 
-`results/retention.csv` 的 `purifier` 欄只有這七個值，強度由
-`code/purify_run.py` 的 `PURIFIERS` 指定：
+`main_table/results/retention.csv` 的 `purifier` 欄只有這七個值，強度由
+`main_table/code/purify_run.py` 的 `PURIFIERS` 指定：
 
 | `purifier` | 算子 | 強度 | 幾何類 |
 |---|---|---|---|
@@ -48,7 +48,7 @@
 | `rotate15` | 繞中心旋轉 | **15°，固定** | 是 |
 
 `identity` 不在這七個之內：保留率的分母是同一格的未淨化位移
-（`disp_plain`，取自 `results/displacement.csv`），不是 `identity` 那一列。
+（`disp_plain`，取自 `main_table/results/displacement.csv`），不是 `identity` 那一列。
 
 ### `rotate15` 的角度：三個來源寫的是三個值
 
@@ -56,7 +56,7 @@
 |---|---|
 | FaceLock 原值 `ROTATE_DEGREES_FACELOCK`（`src/purify/ops.py`） | 10.0 |
 | 本檔上一節的算子表，改正前的寫法 | 隨機 ±10° |
-| **實跑**：`code/purify_run.py` 的 `PURIFIERS` 給 `strength=15.0`，且 `src/purify/ops.py` 的 `ROTATE_FIXED = True` | **固定 15.0** |
+| **實跑**：`main_table/code/purify_run.py` 的 `PURIFIERS` 給 `strength=15.0`，且 `src/purify/ops.py` 的 `ROTATE_FIXED = True` | **固定 15.0** |
 
 實跑值與 FaceLock 原值不同，且不是隨機而是固定角度，**引用 `rotate15` 的任何
 讀數都要連這一點一起引用**。`src/purify/ops.py` 的函式名 `rotate_random` 在
@@ -68,15 +68,15 @@
 ### 幾何類的分區讀數：遮罩曾經沒有跟著變換
 
 `crop_resize0.1` 與 `rotate15` 改掉取景，淨化後的圖裡主體已不在原來的像素座標
-上。`code/edit_retention.py` 原本把遮罩載入一次後對七道算子重用，於是這兩道的
+上。`main_table/code/edit_retention.py` 原本把遮罩載入一次後對七道算子重用，於是這兩道的
 分區是用**未變換的遮罩**切出來的。
 
 | 範圍 | 狀態 |
 |---|---|
-| `results/retention.csv` 的 `disp_purified_subject`、`disp_purified_background` | 受影響，**1,536 列**（`crop_resize0.1` 768 ＋ `rotate15` 768） |
+| `main_table/results/retention.csv` 的 `disp_purified_subject`、`disp_purified_background` | 受影響，**1,536 列**（`crop_resize0.1` 768 ＋ `rotate15` 768） |
 | 同檔的 `disp_purified`、`net_gain`、`retained` | 不受影響，三者都由全圖 LPIPS 算，不吃遮罩 |
 | 非幾何的五道（`jpeg30/50/80`、`blur1/2`）的分區 | 不受影響，那些算子不動座標 |
-| `results/metrics_retention_union.csv` | 不受影響，該檔只有全圖 FSIM |
+| `main_table/results/metrics_retention_union.csv` | 不受影響，該檔只有全圖 FSIM |
 
 **程式已修**：`edit_retention.purified_mask()` 把主體遮罩送過與影像同一個
 `Purifier`（強度取自 `purify_run.PURIFIERS`，不另寫一組），插值後以 0.5 重新
@@ -84,10 +84,13 @@
 黑角算成主體。實測遮罩歸屬的改變量：`crop_resize0.1` 為全幅的 9.3%–13.6%、
 `rotate15` 為 11.1%–13.8%（`man_00`、`woman_02` 兩張）。
 
-**已交付的 `results/retention.csv` 那 1,536 列仍是舊遮罩算出來的**，重算需要
+**已交付的 `main_table/results/retention.csv` 那 1,536 列仍是舊遮罩算出來的**，重算需要
 LPIPS（`piq`）的一次完整重跑：
 
-    python code/edit_retention.py --purified-root images/edit_purified         --displacement results/displacement.csv --out results/retention.csv
+    python main_table/code/edit_retention.py \\
+        --purified-root main_table/images/edit_purified \\
+        --displacement main_table/results/displacement.csv \\
+        --out main_table/results/retention.csv
 
 引用那兩欄在幾何類上的值時要連這一點一起引用。
 

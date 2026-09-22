@@ -11,7 +11,7 @@
 | `results/` | 六張讀數 CSV 與十二張求解設定 CSV |
 | `code/` | 七支管線腳本與共用的路徑解析 `paths.py` |
 | `docs/` | 指向主線 `../docs/` 的查閱表（出處文件已合併，正本在那裡） |
-| `images/` | 逐格影像 11,848 張 |
+| `images/` | 逐格影像 11,848 張（版控範圍見 `.gitignore`） |
 | `tests/` | 十二個條件的規格釘樁（`pytest tests/`，不需 GPU） |
 
 ## 讀數
@@ -42,11 +42,12 @@
 
 **束縛種類不同的列不可直接比大小**，`eps` 與 `eps_pixel01` 兩欄都不可跨列比：
 十二列分成五種束縛（`linf`、`l2`、`dct_coeff_linf`、`delta_e00_cap`、`none`），
-逐列的單位見 `docs/BASELINE_PROVENANCE.md` §「`eps_pixel01` 欄的單位，逐列」，
-值域換算的逐篇出處見 `docs/SOURCE_AUDIT.md` §10。同檔的規則 1：引用一個數字
+逐列的單位見 `../docs/reference/BASELINE_PROVENANCE.md` §「`eps_pixel01` 欄的
+單位，逐列」，值域換算的逐篇出處見 `../docs/reference/SOURCE_AUDIT.md` §10。
+同檔的規則 1：引用一個數字
 就要連它的協定一起引用。
 
-`rotate15` 的角度、以及幾何類分區讀數的一個已知限制，見 `docs/EVALUATION.md`。
+`rotate15` 的角度、以及幾何類分區讀數的一個已知限制，見 `../docs/EVALUATION.md`。
 
 ## 程式
 

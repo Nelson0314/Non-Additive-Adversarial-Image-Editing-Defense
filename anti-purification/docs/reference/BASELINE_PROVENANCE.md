@@ -43,7 +43,7 @@
 
 ## `eps_pixel01` 欄的單位，逐列
 
-`results/defence_*.csv` 的 `eps_pixel01` 要**連同一列的 `norm` 欄一起讀**。
+`main_table/results/defence_*.csv` 的 `eps_pixel01` 要**連同一列的 `norm` 欄一起讀**。
 `norm` 記的是束縛種類，主表十二列分成五種：
 
 | `norm` | 條件 | 該列 `eps_pixel01` 量的是什麼 |
@@ -73,7 +73,7 @@
 | `promptflare` | `src/baselines/promptflare.py` | 同上 | 是 | 無 |
 | `diffusionguard` | `src/baselines/diffusionguard.py` | `tests/test_diffusionguard.py` | 否 | 無 |
 
-「防禦圖產物」查的是 `baselines/images/defence_portraits/` 與主線目錄的
+「防禦圖產物」查的是 `main_table/images/defence_portraits/` 與主線目錄的
 `runs/` 底下有無以這三個名字命名的目錄，三者皆無——**沒有產物就不可能有主表的
 64 格**。至於當初為何未跑，`HANDOFF.md` §「不在主表裡的方法，以及為什麼」只列
 `uap_semantic`、`tdae`、AdvCF、`colour_field` 四項，這三個不在其中；查過

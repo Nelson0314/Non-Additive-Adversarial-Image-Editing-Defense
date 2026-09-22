@@ -12,8 +12,8 @@
 求解欄位、讀數 CSV 的規模與鍵、以及協定欄位。它不重跑求解，也不判定任何條件
 的好壞——只確保重跑後寫出來的設定與已發布的主表是同一組。
 
-期望值全部抄自 `results/` 的現況，出處欄見 `docs/BASELINE_PROVENANCE.md`
-與 `docs/SOURCE_AUDIT.md` §10。
+期望值全部抄自 `results/` 的現況，出處欄見主線目錄的
+`../../docs/reference/BASELINE_PROVENANCE.md` 與 `../../docs/reference/SOURCE_AUDIT.md` §10。
 """
 
 from __future__ import annotations
@@ -32,7 +32,8 @@ E = 1.0 / 255.0
 
 #: 條件 → (eps, eps_pixel01, norm, steps, grad_reps, modified_from_paper)。
 #: `eps_pixel01` 為 None 表示該欄在 CSV 中是空的——束縛不是像素域的 L∞／L2，
-#: 逐列的單位見 `docs/BASELINE_PROVENANCE.md` §「`eps_pixel01` 欄的單位，逐列」。
+#: 逐列的單位見 `../../docs/reference/BASELINE_PROVENANCE.md`
+#: §「`eps_pixel01` 欄的單位，逐列」。
 SOLVER = {
     # 共用 PGD 骨幹的四列，與主線 `tests/test_baselines.py` 的 AUDIT 重疊。
     "photoguard_c":      (16.0,   8.0,     "l2",   200, 10, True),
@@ -50,7 +51,7 @@ SOLVER = {
     "diffvax":           (None,   None,    "none", 1, None, False),
 }
 
-#: `docs/SOURCE_AUDIT.md` §10 的值域對照表。三篇在 `[-1,1]` 上最佳化，
+#: `../../docs/reference/SOURCE_AUDIT.md` §10 的值域對照表。三篇在 `[-1,1]` 上最佳化，
 #: 換算方式逐篇不同：Mist 有乘 2、DIA 直接用。CSV 的 `eps_pixel01` 必須與此一致。
 VALUE_RANGE_TABLE = {
     "photoguard_c": 8.0,      # L2 半徑，非 L∞，不可與下列並排比大小

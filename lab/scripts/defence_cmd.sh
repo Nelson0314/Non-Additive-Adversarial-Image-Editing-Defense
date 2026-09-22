@@ -26,6 +26,9 @@ case "$ARM" in
         --data "$DATA" --style film --strength 0.6 --num-steps 20 --guidance 7.5 \
         --sigma 12.0 --frame-cap 16.0 --face-cap 8.0
     ;;
+  style_filter_guided)
+    exec "$PY" lab/code/style_filter_defence.py --arm style_filter_guided --out "$OUT"         --data "$DATA" --style film --strength 0.6 --num-steps 20 --guidance 7.5         --smoother guided --radius 32 --eps 0.01 --frame-cap 16.0 --face-cap 8.0
+    ;;
   # ---- 色調曲線：臉與背景不同預算 ----
   curve_dual_spatial)
     exec "$PY" lab/code/curve_budget_defence.py --arm curve_dual_spatial --out "$OUT" \

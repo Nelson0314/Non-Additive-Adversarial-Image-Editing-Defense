@@ -27,7 +27,7 @@ while true; do
 done
 
 echo "--- sentinel 逐臂 ---"
-for a in style_random style_low style_filter curve_dual_spatial curve_dual_chroma; do
+for a in style_random style_low style_filter style_filter_guided curve_dual_spatial curve_dual_chroma; do
   printf "%-20s %s/18\n" "$a" "$(ls -1 lab/runs/state/${a}.*.done 2>/dev/null | wc -l)"
 done
 echo "--- 租約 ---"; ls ~/lab_leases/ 2>/dev/null

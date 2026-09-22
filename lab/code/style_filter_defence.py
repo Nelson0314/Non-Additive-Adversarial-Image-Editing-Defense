@@ -19,11 +19,22 @@
 三件事因此在構造上成立：
 
 1. **身分與結構逐像素來自原圖。** 高頻完全沒有被重繪，`Δ_lf` 只帶低頻色彩。
-2. **沒有接縫。** `Δ_lf` 是高斯低通的結果、`w` 是 C¹ 的 smoothstep 場，
-   兩者相乘仍是平滑場；不存在硬邊。
+2. **沒有硬邊。** `Δ_lf` 是平滑場、`w` 是 C¹ 的 smoothstep 場，兩者相乘仍是
+   平滑場。
 3. **臉與背景吃不同的預算。** `a_face` 與 `a_bg` 各自由二分搜尋定出，
    分別對上人臉框內與整圖的 ΔE00 上限。兩者用同一個平滑場插值，
    所以「不同預算」不等於「兩塊不同的區域」。
+
+`--smoother` 的兩個值不是選項，是兩件不同的事
+────────────────────────────────────────────────────────────────────
+`gaussian` 在 `strength 0.6` 上會在主體輪廓外留下**一圈光暈**：那個 strength
+下 SDEdit 已經把髮型與輪廓換掉，`Δ` 因此含大量結構差異，高斯低通把它抹過
+輪廓。光暈不是硬接縫，但同樣是產物上看得出來的東西，逐張圖在
+`runs/defence/style_filter/` 可查。
+
+`guided` 用 guided filter，導引影像是原圖的亮度：平滑只發生在原圖的同質區
+內，跨過原圖的邊界時不平均，於是色彩的轉折落在**主體自己的輪廓上**。
+兩者其餘逐項相同，可以直接對照。
 
 與全域色調曲線的差別是**空間相依**：曲線是 `x → F(x)`，同一個輸入色階在任何
 位置都同一個輸出；這裡的位移場隨內容而變，容量高一個層級，而代價仍鎖在
@@ -96,6 +107,48 @@ def gaussian_blur(x: torch.Tensor, sigma: float) -> torch.Tensor:
     return torch.nn.functional.conv2d(pad, ky, groups=c)
 
 
+def box_filter(x: torch.Tensor, radius: int) -> torch.Tensor:
+    """可分離盒濾波，`reflect` 補邊。"""
+    k = 2 * radius + 1
+    c = x.shape[1]
+    ones = torch.ones(c, 1, 1, k, device=x.device, dtype=x.dtype) / k
+    pad = torch.nn.functional.pad(x, (radius, radius, 0, 0), mode="reflect")
+    out = torch.nn.functional.conv2d(pad, ones, groups=c)
+    ones = ones.view(c, 1, k, 1)
+    pad = torch.nn.functional.pad(out, (0, 0, radius, radius), mode="reflect")
+    return torch.nn.functional.conv2d(pad, ones, groups=c)
+
+
+def guided_filter(guide: torch.Tensor, src: torch.Tensor,
+                  radius: int, eps: float) -> torch.Tensor:
+    """He 等人的 guided filter，導引影像是**原圖的亮度**。
+
+    為什麼需要它：高斯低通會把 `Δ` 裡的**結構**差異抹過主體輪廓，於是
+    `strength 0.6` 下 SDEdit 換掉髮型的那一圈會在交付圖上變成一道光暈。
+    光暈不是硬接縫，但同樣是產物上看得出來的東西。
+
+    guided filter 讓平滑只發生在導引影像的同質區內，跨過原圖的邊界時不平均，
+    因此色彩的轉折落在**主體自己的輪廓上**，而不是輪廓外的一圈。
+    """
+    mean_i = box_filter(guide, radius)
+    mean_p = box_filter(src, radius)
+    corr_i = box_filter(guide * guide, radius)
+    corr_ip = box_filter(guide * src, radius)
+    var_i = (corr_i - mean_i * mean_i).clamp_min(0.0)
+    cov_ip = corr_ip - mean_i * mean_p
+    a = cov_ip / (var_i + eps)
+    b = mean_p - a * mean_i
+    return box_filter(a, radius) * guide + box_filter(b, radius)
+
+
+def smooth_delta(x: torch.Tensor, delta: torch.Tensor, args) -> torch.Tensor:
+    if args.smoother == "gaussian":
+        return gaussian_blur(delta, args.sigma)
+    guide = (x * torch.tensor([0.299, 0.587, 0.114], device=x.device,
+                              dtype=x.dtype).view(1, 3, 1, 1)).sum(1, keepdim=True)
+    return guided_filter(guide, delta, args.radius, args.eps)
+
+
 def quantise(x: torch.Tensor) -> torch.Tensor:
     """交付的是 PNG，所以可行性一律在量化後的影像上檢查。"""
     return (x.detach().clamp(0, 1) * 255).round() / 255
@@ -138,8 +191,17 @@ def main() -> None:
     ap.add_argument("--num-steps", type=int, default=20)
     ap.add_argument("--guidance", type=float, default=7.5)
     ap.add_argument("--seed", type=int, default=20260812)
+    ap.add_argument("--smoother", default="gaussian",
+                    choices=("gaussian", "guided"),
+                    help="怎麼把 Δ 變成只帶色彩的平滑場。gaussian 會在主體輪廓"
+                         "外留下一圈光暈（Δ 含結構差異時）；guided 只在原圖的"
+                         "同質區內平滑，轉折落在主體自己的輪廓上")
     ap.add_argument("--sigma", type=float, default=12.0,
-                    help="低通的 σ（像素）。σ 越大，交付的位移場越平滑")
+                    help="高斯低通的 σ（像素）。只有 --smoother gaussian 用得到")
+    ap.add_argument("--radius", type=int, default=32,
+                    help="guided filter 的半徑（像素）")
+    ap.add_argument("--eps", type=float, default=0.01,
+                    help="guided filter 的 eps。越小越貼著導引影像的邊")
     ap.add_argument("--frame-cap", type=float, default=16.0)
     ap.add_argument("--face-cap", type=float, default=8.0)
     ap.add_argument("--feather", type=float, default=0.35)
@@ -176,7 +238,7 @@ def main() -> None:
             raw = sd.sdedit(x, emb, noise, num_steps=args.num_steps,
                             strength=args.strength, guidance_scale=args.guidance,
                             emb_uncond=uncond).clamp(0, 1).float()
-            delta_lf = gaussian_blur(raw - x, args.sigma)
+            delta_lf = smooth_delta(x, raw - x, args)
 
             # 兩道上限交替二分：`a_face` 也會壓低整圖的色差，所以先臉後整圖、
             # 反覆三輪即可同時成立。單邊一次的寫法會讓後解的那一道把前一道
@@ -205,7 +267,9 @@ def main() -> None:
             "carrier": "sdedit_lowfreq_transfer", "carrier_model": CARRIER_MODEL,
             "style": args.style, "style_prompt": prompt,
             "strength": args.strength, "num_steps": args.num_steps,
-            "guidance": args.guidance, "seed": args.seed, "sigma": args.sigma,
+            "guidance": args.guidance, "seed": args.seed,
+            "smoother": args.smoother, "sigma": args.sigma,
+            "radius": args.radius, "eps": args.eps,
             "frame_cap": args.frame_cap, "face_cap": args.face_cap,
             "feather": args.feather, "max_scale": args.max_scale,
             "a_bg": round(a_bg, 5), "a_face": round(a_face, 5),

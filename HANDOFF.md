@@ -38,15 +38,19 @@
 
 兩張表的條件集合完全一致，沒有「有位移卻缺淨增益」的條件。
 
-### 已知缺陷：幾何類的淨增益還沒重算
+### 幾何類的淨增益是用哪一種遮罩算的
 
-`anti-purification/main_table/results/retention.csv` 裡**幾何類的 1,536 列
-（`crop_resize 0.1` 與 `rotate 15`）是用未變換的遮罩算的**——那兩道淨化把影像
-變形了，但主體內／外分區用的仍是原始遮罩，對不上。**程式已修，數字沒重算**，
-使用者裁定之後重跑，不急著送遠端。
+`crop_resize 0.1` 與 `rotate 15` 會把影像變形。**主體內／外的分區需要同樣被變形
+過的遮罩**，否則遮罩與它要切的影像不對位。
 
-在重算之前，這 1,536 列的 `disp_purified_subject` 與 `disp_purified_background`
-不可引用；全圖的那幾欄不受影響。報告頁引用的是同一份 CSV。
+`edit_retention.py` 的 `purified_mask()` 做這件事，**進版於 commit `199b7de`**。
+判準因此可以自己查：**一份 `retention.csv` 若沒有在 `199b7de` 之後重跑過，
+它的 `crop_resize 0.1` 與 `rotate 15` 共 1,536 列的
+`disp_purified_subject` 與 `disp_purified_background` 就是用未變換的遮罩算的。**
+全圖的那幾欄不受遮罩影響。
+
+`anti-purification/main_table/results/retention.csv` 現況是尚未重跑；
+報告頁引用的是同一份 CSV。使用者裁定之後再跑，不急著送遠端。
 
 ---
 

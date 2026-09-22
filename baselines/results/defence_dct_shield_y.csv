@@ -1,0 +1,9 @@
+image,class,condition,solver_prompt,solver_prompt_source,seed,eps,eps_pixel01,norm,steps,grad_reps,q_alg,pg_strength,modified_from_paper,modification_note,spec_source,total_seconds,fid_psnr,fid_lpips,fid_rms,fid_linf,fid_ssim,fid_vif_p,fid_dists,data_root
+man_00,man,dct_shield_y,,同 dct_shield,0,1.0,,dct_coeff_linf,1000,1,0.85,,False,,arXiv:2504.17894 補充材料 Algorithm 1,158.2,24.79,0.63202,0.057609,0.411523,0.85523,0.15959,0.16804,data/portraits
+man_01,man,dct_shield_y,,同 dct_shield,0,1.0,,dct_coeff_linf,1000,1,0.85,,False,,arXiv:2504.17894 補充材料 Algorithm 1,159.5,24.516,0.6918,0.059456,0.346776,0.8589,0.16628,0.16705,data/portraits
+man_02,man,dct_shield_y,,同 dct_shield,0,1.0,,dct_coeff_linf,1000,1,0.85,,False,,arXiv:2504.17894 補充材料 Algorithm 1,157.7,24.301,0.68473,0.060944,0.391031,0.86879,0.19702,0.15561,data/portraits
+man_03,man,dct_shield_y,,同 dct_shield,0,1.0,,dct_coeff_linf,1000,1,0.85,,False,,arXiv:2504.17894 補充材料 Algorithm 1,157.1,24.88,0.61298,0.057014,0.46416,0.87482,0.20396,0.12789,data/portraits
+woman_00,woman,dct_shield_y,,同 dct_shield,0,1.0,,dct_coeff_linf,1000,1,0.85,,False,,arXiv:2504.17894 補充材料 Algorithm 1,156.7,24.014,0.59689,0.062991,0.412009,0.86969,0.20571,0.11091,data/portraits
+woman_01,woman,dct_shield_y,,同 dct_shield,0,1.0,,dct_coeff_linf,1000,1,0.85,,False,,arXiv:2504.17894 補充材料 Algorithm 1,157.9,24.394,0.69212,0.060297,0.404027,0.86492,0.16859,0.15782,data/portraits
+woman_02,woman,dct_shield_y,,同 dct_shield,0,1.0,,dct_coeff_linf,1000,1,0.85,,False,,arXiv:2504.17894 補充材料 Algorithm 1,159.5,24.77,0.69704,0.057742,0.466056,0.85856,0.18119,0.1742,data/portraits
+woman_03,woman,dct_shield_y,,同 dct_shield,0,1.0,,dct_coeff_linf,1000,1,0.85,,False,,arXiv:2504.17894 補充材料 Algorithm 1,158.3,24.236,0.57691,0.061407,0.395186,0.86479,0.1738,0.14715,data/portraits

@@ -1,0 +1,9 @@
+image,class,condition,solver_prompt,solver_prompt_source,seed,eps,eps_pixel01,norm,steps,grad_reps,q_alg,pg_strength,modified_from_paper,modification_note,spec_source,total_seconds,fid_psnr,fid_lpips,fid_rms,fid_linf,fid_ssim,fid_vif_p,fid_dists,data_root
+man_00,man,dct_shield,,無文字條件：損失是 ‖E(x')‖₂，不經過 text encoder,0,1.0,,dct_coeff_linf,1000,1,0.95,,False,,arXiv:2504.17894 補充材料 Algorithm 1,158.8,30.315,0.55955,0.030497,0.243547,0.81509,0.35441,0.11373,data/portraits
+man_01,man,dct_shield,,無文字條件：損失是 ‖E(x')‖₂，不經過 text encoder,0,1.0,,dct_coeff_linf,1000,1,0.95,,False,,arXiv:2504.17894 補充材料 Algorithm 1,159.9,29.886,0.60336,0.032039,0.23581,0.79077,0.35878,0.10981,data/portraits
+man_02,man,dct_shield,,無文字條件：損失是 ‖E(x')‖₂，不經過 text encoder,0,1.0,,dct_coeff_linf,1000,1,0.95,,False,,arXiv:2504.17894 補充材料 Algorithm 1,158.9,29.785,0.605,0.032417,0.244769,0.80986,0.40757,0.08475,data/portraits
+man_03,man,dct_shield,,無文字條件：損失是 ‖E(x')‖₂，不經過 text encoder,0,1.0,,dct_coeff_linf,1000,1,0.95,,False,,arXiv:2504.17894 補充材料 Algorithm 1,159.6,30.17,0.54498,0.031008,0.271638,0.81782,0.40179,0.08718,data/portraits
+woman_00,woman,dct_shield,,無文字條件：損失是 ‖E(x')‖₂，不經過 text encoder,0,1.0,,dct_coeff_linf,1000,1,0.95,,False,,arXiv:2504.17894 補充材料 Algorithm 1,158.5,29.031,0.51819,0.035355,0.260441,0.80661,0.41287,0.04628,data/portraits
+woman_01,woman,dct_shield,,無文字條件：損失是 ‖E(x')‖₂，不經過 text encoder,0,1.0,,dct_coeff_linf,1000,1,0.95,,False,,arXiv:2504.17894 補充材料 Algorithm 1,157.3,29.949,0.60744,0.03181,0.251015,0.78964,0.35553,0.10002,data/portraits
+woman_02,woman,dct_shield,,無文字條件：損失是 ‖E(x')‖₂，不經過 text encoder,0,1.0,,dct_coeff_linf,1000,1,0.95,,False,,arXiv:2504.17894 補充材料 Algorithm 1,157.3,29.758,0.61863,0.032518,0.240035,0.77707,0.37542,0.11097,data/portraits
+woman_03,woman,dct_shield,,無文字條件：損失是 ‖E(x')‖₂，不經過 text encoder,0,1.0,,dct_coeff_linf,1000,1,0.95,,False,,arXiv:2504.17894 補充材料 Algorithm 1,157.5,29.643,0.5472,0.032949,0.248438,0.79345,0.36592,0.07664,data/portraits

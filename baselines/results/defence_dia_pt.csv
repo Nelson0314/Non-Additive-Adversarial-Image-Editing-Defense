@@ -1,0 +1,9 @@
+image,class,condition,solver_prompt,solver_prompt_source,seed,eps,eps_pixel01,norm,steps,grad_reps,q_alg,pg_strength,modified_from_paper,modification_note,spec_source,total_seconds,fid_psnr,fid_lpips,fid_rms,fid_linf,fid_ssim,fid_vif_p,fid_dists,data_root
+man_00,man,dia_pt,,同 dia_r,0,0.05,0.025,linf,20,1,,,False,,arXiv:2510.00778（ICCV 2025）；sohn1029/DIA,69.5,37.736,0.4577,0.012978,0.025,0.96577,0.55193,0.09545,data/portraits
+man_01,man,dia_pt,,同 dia_r,0,0.05,0.025,linf,20,1,,,False,,arXiv:2510.00778（ICCV 2025）；sohn1029/DIA,69.1,37.35,0.46827,0.013567,0.025,0.95915,0.56144,0.10058,data/portraits
+man_02,man,dia_pt,,同 dia_r,0,0.05,0.025,linf,20,1,,,False,,arXiv:2510.00778（ICCV 2025）；sohn1029/DIA,68.8,37.573,0.42567,0.013223,0.025,0.96158,0.60449,0.09951,data/portraits
+man_03,man,dia_pt,,同 dia_r,0,0.05,0.025,linf,20,1,,,False,,arXiv:2510.00778（ICCV 2025）；sohn1029/DIA,68.9,37.441,0.42183,0.013426,0.025,0.9621,0.58113,0.09214,data/portraits
+woman_00,woman,dia_pt,,同 dia_r,0,0.05,0.025,linf,20,1,,,False,,arXiv:2510.00778（ICCV 2025）；sohn1029/DIA,69.1,36.773,0.35016,0.0145,0.025,0.96052,0.59841,0.06985,data/portraits
+woman_01,woman,dia_pt,,同 dia_r,0,0.05,0.025,linf,20,1,,,False,,arXiv:2510.00778（ICCV 2025）；sohn1029/DIA,69.5,37.927,0.46964,0.012696,0.025,0.95979,0.55401,0.11013,data/portraits
+woman_02,woman,dia_pt,,同 dia_r,0,0.05,0.025,linf,20,1,,,False,,arXiv:2510.00778（ICCV 2025）；sohn1029/DIA,129.4,35.999,0.48976,0.01585,0.025,0.95153,0.55837,0.11097,data/portraits
+woman_03,woman,dia_pt,,同 dia_r,0,0.05,0.025,linf,20,1,,,False,,arXiv:2510.00778（ICCV 2025）；sohn1029/DIA,141.7,37.504,0.40779,0.013329,0.025,0.96234,0.59955,0.08332,data/portraits

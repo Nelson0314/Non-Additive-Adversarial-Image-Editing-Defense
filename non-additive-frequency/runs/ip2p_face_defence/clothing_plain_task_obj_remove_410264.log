@@ -1,84 +1,0 @@
-Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00, 17.70it/s]
-Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 4662.21it/s]
-Loading pipeline components...:  67%|██████▋   | 4/6 [00:00<00:00, 15.18it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00,  9.57it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 10.74it/s]
-There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
-/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
-  warnings.warn(
-/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
-  warnings.warn(msg)
-IP2P 線：1 張、條件 ['patch']、steps=100 s_T=7.5 s_I=1.5 seed=20260812
-/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,1.0]
-  warnings.warn(
-Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
-Loading weights:   0%|          | 0/380 [00:00<?, ?it/s]Loading weights:  98%|█████████▊| 371/380 [00:00<00:00, 3708.24it/s]Loading weights: 100%|██████████| 380/380 [00:00<00:00, 3767.40it/s]
-  0%|          | 0.00/107M [00:00<?, ?B/s]  0%|          | 320k/107M [00:00<00:34, 3.25MB/s]  1%|          | 1.19M/107M [00:00<00:19, 5.56MB/s]  3%|▎         | 2.97M/107M [00:00<00:10, 10.5MB/s]  5%|▍         | 5.27M/107M [00:00<00:06, 15.4MB/s]  6%|▋         | 6.79M/107M [00:00<00:07, 14.4MB/s]  8%|▊         | 8.20M/107M [00:00<00:07, 13.9MB/s]  9%|▉         | 9.56M/107M [00:00<00:07, 13.5MB/s] 10%|█         | 10.9M/107M [00:01<00:13, 7.18MB/s] 12%|█▏        | 12.4M/107M [00:01<00:11, 8.74MB/s] 13%|█▎        | 13.9M/107M [00:01<00:09, 10.2MB/s] 14%|█▍        | 15.2M/107M [00:01<00:08, 10.8MB/s] 15%|█▌        | 16.4M/107M [00:01<00:08, 11.2MB/s] 17%|█▋        | 17.7M/107M [00:01<00:08, 11.6MB/s] 18%|█▊        | 18.9M/107M [00:01<00:07, 11.9MB/s] 19%|█▉        | 20.2M/107M [00:01<00:07, 12.4MB/s] 20%|██        | 21.5M/107M [00:02<00:06, 12.8MB/s] 21%|██▏       | 22.9M/107M [00:02<00:06, 13.2MB/s] 23%|██▎       | 24.2M/107M [00:02<00:06, 13.4MB/s] 24%|██▍       | 25.6M/107M [00:02<00:06, 13.6MB/s] 25%|██▌       | 26.9M/107M [00:02<00:06, 13.7MB/s] 26%|██▋       | 28.2M/107M [00:02<00:05, 13.8MB/s] 28%|██▊       | 29.6M/107M [00:02<00:05, 13.9MB/s] 29%|██▉       | 30.9M/107M [00:03<00:11, 7.15MB/s] 30%|███       | 32.5M/107M [00:03<00:08, 8.75MB/s] 32%|███▏      | 34.1M/107M [00:03<00:07, 10.4MB/s] 33%|███▎      | 35.7M/107M [00:03<00:06, 11.9MB/s] 35%|███▍      | 37.3M/107M [00:03<00:05, 13.1MB/s] 36%|███▋      | 38.9M/107M [00:03<00:05, 14.0MB/s] 38%|███▊      | 40.4M/107M [00:03<00:05, 13.8MB/s] 39%|███▉      | 42.0M/107M [00:03<00:04, 14.6MB/s] 41%|████      | 43.6M/107M [00:03<00:04, 15.2MB/s] 42%|████▏     | 45.2M/107M [00:03<00:04, 15.6MB/s] 44%|████▍     | 46.8M/107M [00:04<00:03, 15.8MB/s] 45%|████▌     | 48.4M/107M [00:04<00:03, 16.0MB/s] 47%|████▋     | 50.0M/107M [00:04<00:03, 16.2MB/s] 48%|████▊     | 51.5M/107M [00:04<00:03, 15.5MB/s] 50%|████▉     | 53.3M/107M [00:04<00:03, 16.4MB/s] 52%|█████▏    | 55.0M/107M [00:04<00:03, 16.8MB/s] 53%|█████▎    | 56.6M/107M [00:04<00:03, 16.7MB/s] 55%|█████▍    | 58.2M/107M [00:04<00:03, 16.4MB/s] 56%|█████▌    | 59.8M/107M [00:04<00:02, 16.4MB/s] 58%|█████▊    | 61.4M/107M [00:05<00:03, 15.1MB/s] 59%|█████▉    | 62.9M/107M [00:05<00:02, 15.4MB/s] 60%|██████    | 64.5M/107M [00:05<00:02, 15.6MB/s] 62%|██████▏   | 66.1M/107M [00:05<00:02, 15.8MB/s] 63%|██████▎   | 67.7M/107M [00:05<00:02, 16.1MB/s] 65%|██████▍   | 69.2M/107M [00:05<00:02, 16.1MB/s] 66%|██████▋   | 70.8M/107M [00:05<00:02, 15.7MB/s] 68%|██████▊   | 72.3M/107M [00:05<00:02, 15.8MB/s] 69%|██████▉   | 73.9M/107M [00:05<00:02, 16.0MB/s] 71%|███████   | 75.5M/107M [00:05<00:02, 16.1MB/s] 72%|███████▏  | 77.1M/107M [00:06<00:01, 16.3MB/s] 74%|███████▎  | 78.6M/107M [00:06<00:01, 16.3MB/s] 75%|███████▌  | 80.2M/107M [00:06<00:01, 15.6MB/s] 77%|███████▋  | 81.8M/107M [00:06<00:01, 15.9MB/s] 78%|███████▊  | 83.4M/107M [00:06<00:01, 16.1MB/s] 80%|███████▉  | 85.0M/107M [00:06<00:01, 16.4MB/s] 81%|████████  | 86.6M/107M [00:06<00:01, 16.5MB/s] 83%|████████▎ | 88.2M/107M [00:06<00:01, 16.2MB/s] 84%|████████▍ | 89.7M/107M [00:06<00:01, 16.2MB/s] 86%|████████▌ | 91.3M/107M [00:06<00:01, 16.0MB/s] 87%|████████▋ | 92.8M/107M [00:07<00:00, 16.0MB/s] 89%|████████▊ | 94.5M/107M [00:07<00:00, 16.5MB/s] 90%|█████████ | 96.3M/107M [00:07<00:00, 17.0MB/s] 92%|█████████▏| 97.9M/107M [00:07<00:00, 16.9MB/s] 93%|█████████▎| 99.5M/107M [00:07<00:00, 16.7MB/s] 95%|█████████▍| 101M/107M [00:07<00:00, 15.7MB/s]  96%|█████████▌| 103M/107M [00:07<00:00, 15.9MB/s] 98%|█████████▊| 104M/107M [00:07<00:00, 15.8MB/s] 99%|█████████▉| 106M/107M [00:07<00:00, 15.8MB/s]100%|██████████| 107M/107M [00:07<00:00, 14.0MB/s]
-    [patch] step    0 loss 0.483610 |p| 0.78295 eval 0.108758
-    [patch] step  150 loss 0.000966 |p| 0.76636
-    [patch] step  200 loss 0.030733 |p| 0.76137 eval 0.042597
-    [patch] step  300 loss 0.000664 |p| 0.75151
-    [patch] step  400 loss 0.029823 |p| 0.74268 eval 0.031742
-    [patch] step  450 loss 0.060960 |p| 0.73828
-    [patch] step  600 loss 0.024027 |p| 0.72647 eval 0.025034
-    [patch] step  750 loss 0.001080 |p| 0.71781
-    [patch] step  800 loss 0.024418 |p| 0.71520 eval 0.020718
-    [patch] step  900 loss 0.000461 |p| 0.71039
-    [patch] step 1000 loss 0.002061 |p| 0.70653 eval 0.019414
-    [patch] step 1050 loss 0.011757 |p| 0.70488
-    [patch] step 1200 loss 0.025617 |p| 0.70034 eval 0.017086
-    [patch] step 1350 loss 0.000602 |p| 0.69637
-    [patch] step 1400 loss 0.002565 |p| 0.69536 eval 0.016658
-    [patch] step 1500 loss 0.015787 |p| 0.69346
-    [patch] step 1600 loss 0.018500 |p| 0.69178 eval 0.015567
-    [patch] step 1650 loss 0.026445 |p| 0.69103
-    [patch] step 1800 loss 0.011558 |p| 0.68902 eval 0.015411
-    [patch] step 1950 loss 0.009351 |p| 0.68724
-    [patch] step 2000 loss 0.002517 |p| 0.68663 eval 0.015030
-    [patch] step 2100 loss 0.004732 |p| 0.68580
-    [patch] step 2200 loss 0.000974 |p| 0.68480 eval 0.014800
-    [patch] step 2250 loss 0.012871 |p| 0.68430
-    [patch] step 2400 loss 0.000568 |p| 0.68324 eval 0.016939
-    [patch] step 2550 loss 0.000894 |p| 0.68212
-    [patch] step 2600 loss 0.005728 |p| 0.68189 eval 0.014665
-    [patch] step 2700 loss 0.003570 |p| 0.68119
-    [patch] step 2800 loss 0.024607 |p| 0.68067 eval 0.013940
-    [patch] step 2850 loss 0.014064 |p| 0.68039
-    [patch] step 3000 loss 0.005288 |p| 0.67978 eval 0.014089
-    [patch] step 3150 loss 0.020191 |p| 0.67911
-    [patch] step 3200 loss 0.026390 |p| 0.67905 eval 0.013673
-    [patch] step 3300 loss 0.000512 |p| 0.67856
-    [patch] step 3400 loss 0.006105 |p| 0.67823 eval 0.014009
-    [patch] step 3450 loss 0.001757 |p| 0.67810
-    [patch] step 3600 loss 0.000706 |p| 0.67752 eval 0.014261
-    [patch] step 3750 loss 0.010380 |p| 0.67708
-    [patch] step 3800 loss 0.003593 |p| 0.67691 eval 0.013769
-    [patch] step 3900 loss 0.001074 |p| 0.67655
-    [patch] step 4000 loss 0.002103 |p| 0.67629 eval 0.013632
-    [patch] step 4050 loss 0.018218 |p| 0.67622
-    [patch] step 4200 loss 0.010009 |p| 0.67572 eval 0.013088
-    [patch] step 4350 loss 0.022345 |p| 0.67543
-    [patch] step 4400 loss 0.010393 |p| 0.67529 eval 0.012937
-    [patch] step 4500 loss 0.000599 |p| 0.67511
-    [patch] step 4600 loss 0.015751 |p| 0.67494 eval 0.012945
-    [patch] step 4650 loss 0.009219 |p| 0.67482
-    [patch] step 4800 loss 0.016007 |p| 0.67453 eval 0.012624
-    [patch] step 4950 loss 0.000490 |p| 0.67409
-    [patch] step 5000 loss 0.000686 |p| 0.67409 eval 0.013117
-    [patch] step 5100 loss 0.002949 |p| 0.67390
-    [patch] step 5200 loss 0.010495 |p| 0.67378 eval 0.012759
-    [patch] step 5250 loss 0.000438 |p| 0.67361
-    [patch] step 5400 loss 0.023040 |p| 0.67350 eval 0.012243
-    [patch] step 5550 loss 0.006221 |p| 0.67312
-    [patch] step 5600 loss 0.017241 |p| 0.67320 eval 0.012394
-    [patch] step 5700 loss 0.001608 |p| 0.67297
-    [patch] step 5800 loss 0.002443 |p| 0.67279 eval 0.013388
-    [patch] step 5850 loss 0.000924 |p| 0.67269
-    [patch] step 5999 loss 0.019525 |p| 0.67241 eval 0.012383
-/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,1.0]
-  warnings.warn(
-Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 12325.53it/s]
-[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
-[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
-Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights:  81%|████████▏ | 332/408 [00:00<00:00, 3272.20it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 3281.40it/s]
-task_obj_remove_410264           patch          r=0.0500 dists=0.2289 lpips=0.2882 effect=0.6971 (3050s)
-
-表：runs/ip2p_face_defence/clothing_plain_task_obj_remove_410264/results.csv（1 列）

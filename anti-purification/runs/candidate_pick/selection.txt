@@ -1,0 +1,14 @@
+# 使用者挑選。人像四張待 EasyPortrait 篩完後追加。
+cat_001
+cat_006
+cat_034
+cat_036
+dog_000
+dog_010
+dog_011
+dog_018
+# bird 沿用助理建議（使用者未指定）
+bird_015
+bird_024
+bird_030
+bird_044

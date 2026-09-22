@@ -1,0 +1,5 @@
+image,variant,carrier,victim,clean_label,clean_prob,pred_label,pred_prob,true_prob,margin,flipped,steps,lr,radius,smoothness_weight,margin_start,margin_end,deltaE00,psnr,lpips,linf,seconds
+task_obj_swap_rand_mask_79926,trio_recoloradv_paper,recoloradv,resnet50,578,0.27871274948120117,614,0.24761520326137543,0.21699225902557373,-0.0,1,150,0.005,0.06,0.0,0.16149,-0.0,12.585,21.17,0.4434,1.0,229.2
+task_obj_swap_rand_mask_79926,trio_recoloradv_wide,recoloradv,resnet50,578,0.27871274948120117,903,0.8580635786056519,0.00709557393565774,-0.0,1,150,0.01,0.2,0.0,0.16149,-0.0,28.143,13.13,0.7484,1.0,223.6
+task_obj_swap_rand_mask_79926,trio_advcf_paper,advcf,resnet50,578,0.27871274948120117,775,0.28045591711997986,0.08052556961774826,-0.0,1,150,0.05,1.0,0.0,0.16148,-0.0,16.204,20.16,0.2512,0.1725,224.8
+task_obj_swap_rand_mask_79926,trio_ncf_paper_person,ncf,resnet50,578,0.27871274948120117,735,0.15588857233524323,0.14196144044399261,-0.0,1,150,0.01,0.2,0.0,0.2411,-0.0,17.749,15.61,0.266,0.4627,222.6

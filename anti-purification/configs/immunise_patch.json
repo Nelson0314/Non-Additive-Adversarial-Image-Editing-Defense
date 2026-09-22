@@ -1,0 +1,80 @@
+{
+  "manifest": "data/portrait_trio_manifest.json",
+  "images": [
+    "task_env_weather_121086"
+  ],
+  "images_note": "一張。另外兩張都被擋掉：task_obj_swap_rand_mask_79926 的衣物面積 0.0069 放不下貼片（適用性失敗）；task_obj_remove_410264 放得下，但它的未防禦編輯自己就換人（add_scarf 身分 0.204、add_hat 0.427），那兩格沒有分母。六張候選全部篩過，安全區內面積只有這兩張達得到 3%，所以現有資料裡沒有第三張。**n = 1，這一批是機制驗證不是成功率。**",
+  "attack_steps": 50,
+  "s_i": 1.5,
+  "patch": {
+    "kind": "upper",
+    "area": 0.03,
+    "blobs": 2,
+    "inset": 0.12,
+    "erode": 10,
+    "feather": 6,
+    "support_seed": 0,
+    "palette": 6,
+    "palette_mode": "print",
+    "chroma": 40.0,
+    "chroma_gain": 1.0,
+    "grid": 16,
+    "shade_radius": 12,
+    "logit_cap": 20.0,
+    "init_jitter": 8.0
+  },
+  "patch_note": "支撐＝衣物內部 ∩ 畫面 12–88% ∩ 排除臉框，往內侵蝕 10 px 再往內羽化 6 px。inset 取 0.12 是因為攻擊者每邊裁 10%，貼片完全落在安全區內。grid 16 在 512² 上給約 32 像素的特徵——單像素噪聲過不了 JPEG Q75 與 σ=1.0 模糊。init_jitter 8.0 是看圖挑的振幅：runs/patch_probe/ 的階梯上 ×1 與 ×3 讀起來像污漬，×8 才像印花。**這個挑選只看發布圖，沒有讀任何評估結果。**",
+  "palette_note": "print 模式保留衣物亮度、把彩度設成半徑 40 並讓色相繞一圈。garment 模式在這張藍外套上可用（色域夠寬），但在白襯衫上退化成零振幅，所以主臂用 print，garment 留一個臂做載體內的對照。",
+  "free": {
+    "timesteps": 4,
+    "chain_steps": 6,
+    "grad_steps": 1,
+    "noise_seed": 0,
+    "resample": false,
+    "face_weight": 0.0,
+    "weights": {
+      "id": 1.0,
+      "enc": 0.5,
+      "cond": 1.0
+    }
+  },
+  "free_note": "逐欄與 configs/advcf_anchor.json 的對照臂相同。**變的只有載體。**這樣貼片與先前每一個顏色臂、位移場臂才是頭對頭。checkpoint 與重啟一律走 FreeObjective.eval_score（固定驗證抽樣，與訓練重抽不重疊）。",
+  "caps_note": "不設 deltae_cap。這一族的預算由參數化本身限制（支撐面積、色盤凸包、logit_cap、grid 的空間帶寬），不是事後再縮。全域 ΔE00 在這個面積下本來就只有 0.2–0.7，拿它當上限沒有意義。",
+  "variants": [
+    {
+      "name": "patch_print",
+      "steps": 120,
+      "lr": 0.05,
+      "restarts": 1,
+      "seed": 0,
+      "probe_every": 10
+    },
+    {
+      "name": "patch_print_rand",
+      "solver": "random",
+      "seed": 0
+    },
+    {
+      "name": "patch_garment",
+      "steps": 120,
+      "lr": 0.05,
+      "restarts": 1,
+      "seed": 0,
+      "probe_every": 10,
+      "patch": {
+        "palette_mode": "garment",
+        "chroma_gain": 2.0
+      }
+    },
+    {
+      "name": "patch_garment_rand",
+      "solver": "random",
+      "seed": 0,
+      "patch": {
+        "palette_mode": "garment",
+        "chroma_gain": 2.0
+      }
+    }
+  ],
+  "variants_note": "兩個色盤模式各一組最佳化臂與隨機對照臂。**對照臂用同一個支撐、同一組色盤、同一個起點振幅、同一顆種子，只拿掉最佳化本身。**這一族的失真幾乎全部由支撐面積與色盤決定，而那兩者在兩臂之間逐欄相同，所以不需要（也不能）像曲線族那樣二分幅度去對齊 ΔE00。"
+}

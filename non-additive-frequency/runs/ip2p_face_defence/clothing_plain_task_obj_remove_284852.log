@@ -1,84 +1,0 @@
-Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
-Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  17%|█▋        | 1/6 [00:00<00:00,  9.47it/s]
-Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 4466.87it/s]
-Loading pipeline components...:  67%|██████▋   | 4/6 [00:00<00:00, 11.52it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 15.26it/s]
-There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
-/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
-  warnings.warn(
-/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
-  warnings.warn(msg)
-IP2P 線：1 張、條件 ['patch']、steps=100 s_T=7.5 s_I=1.5 seed=20260812
-/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,1.0]
-  warnings.warn(
-Loading weights:   0%|          | 0/380 [00:00<?, ?it/s]Loading weights:  85%|████████▍ | 322/380 [00:00<00:00, 3217.99it/s]Loading weights: 100%|██████████| 380/380 [00:00<00:00, 3325.58it/s]
-  0%|          | 0.00/107M [00:00<?, ?B/s]  0%|          | 272k/107M [00:00<00:40, 2.76MB/s]  1%|          | 992k/107M [00:00<00:23, 4.71MB/s]  1%|▏         | 1.41M/107M [00:00<00:25, 4.40MB/s]  3%|▎         | 3.41M/107M [00:00<00:10, 10.4MB/s]  4%|▍         | 4.45M/107M [00:00<00:10, 10.3MB/s]  5%|▌         | 5.47M/107M [00:00<00:10, 10.2MB/s]  6%|▌         | 6.47M/107M [00:00<00:10, 10.2MB/s]  7%|▋         | 7.60M/107M [00:00<00:09, 10.7MB/s]  8%|▊         | 9.03M/107M [00:00<00:08, 12.0MB/s] 10%|▉         | 10.2M/107M [00:01<00:10, 9.30MB/s] 10%|█         | 11.2M/107M [00:01<00:11, 9.03MB/s] 11%|█▏        | 12.1M/107M [00:01<00:12, 7.99MB/s] 12%|█▏        | 12.9M/107M [00:01<00:12, 7.73MB/s] 13%|█▎        | 13.7M/107M [00:01<00:13, 7.47MB/s] 14%|█▎        | 14.4M/107M [00:01<00:13, 7.40MB/s] 14%|█▍        | 15.2M/107M [00:01<00:13, 7.38MB/s] 15%|█▍        | 15.9M/107M [00:01<00:12, 7.55MB/s] 16%|█▌        | 16.7M/107M [00:02<00:12, 7.67MB/s] 16%|█▋        | 17.5M/107M [00:02<00:12, 7.76MB/s] 17%|█▋        | 18.2M/107M [00:02<00:11, 7.82MB/s] 18%|█▊        | 19.0M/107M [00:02<00:11, 7.80MB/s] 19%|█▊        | 19.8M/107M [00:02<00:11, 7.86MB/s] 19%|█▉        | 20.5M/107M [00:02<00:11, 7.92MB/s] 20%|█▉        | 21.3M/107M [00:02<00:12, 7.40MB/s] 21%|██        | 22.4M/107M [00:02<00:10, 8.52MB/s] 22%|██▏       | 23.2M/107M [00:02<00:10, 8.60MB/s] 23%|██▎       | 24.1M/107M [00:03<00:10, 8.49MB/s] 23%|██▎       | 24.9M/107M [00:03<00:10, 8.01MB/s] 24%|██▍       | 25.7M/107M [00:03<00:11, 7.63MB/s] 25%|██▍       | 26.4M/107M [00:03<00:11, 7.34MB/s] 25%|██▌       | 27.1M/107M [00:03<00:11, 7.31MB/s] 26%|██▌       | 27.8M/107M [00:03<00:11, 7.27MB/s] 27%|██▋       | 28.5M/107M [00:03<00:11, 7.33MB/s] 27%|██▋       | 29.2M/107M [00:03<00:11, 7.03MB/s] 28%|██▊       | 29.9M/107M [00:03<00:11, 7.02MB/s] 29%|██▊       | 30.6M/107M [00:04<00:11, 7.06MB/s] 29%|██▉       | 31.3M/107M [00:04<00:11, 7.10MB/s] 30%|██▉       | 32.0M/107M [00:04<00:11, 7.09MB/s] 31%|███       | 32.7M/107M [00:04<00:10, 7.31MB/s] 31%|███▏      | 33.4M/107M [00:04<00:10, 7.22MB/s] 32%|███▏      | 34.1M/107M [00:04<00:11, 6.87MB/s] 33%|███▎      | 34.9M/107M [00:04<00:10, 7.03MB/s] 33%|███▎      | 35.5M/107M [00:04<00:10, 6.99MB/s] 34%|███▍      | 36.3M/107M [00:04<00:10, 7.15MB/s] 35%|███▍      | 37.0M/107M [00:04<00:09, 7.31MB/s] 35%|███▌      | 37.7M/107M [00:05<00:09, 7.37MB/s] 36%|███▌      | 38.4M/107M [00:05<00:09, 7.34MB/s] 37%|███▋      | 39.2M/107M [00:05<00:09, 7.39MB/s] 37%|███▋      | 39.9M/107M [00:05<00:09, 7.46MB/s] 38%|███▊      | 40.6M/107M [00:05<00:09, 7.47MB/s] 39%|███▊      | 41.3M/107M [00:05<00:09, 7.37MB/s] 39%|███▉      | 42.0M/107M [00:05<00:09, 7.12MB/s] 40%|████      | 42.7M/107M [00:05<00:09, 7.11MB/s] 41%|████      | 43.4M/107M [00:05<00:09, 7.14MB/s] 41%|████▏     | 44.1M/107M [00:05<00:09, 7.25MB/s] 42%|████▏     | 44.9M/107M [00:06<00:08, 7.28MB/s] 43%|████▎     | 45.6M/107M [00:06<00:08, 7.36MB/s] 43%|████▎     | 46.3M/107M [00:06<00:08, 7.29MB/s] 44%|████▍     | 47.0M/107M [00:06<00:08, 7.36MB/s] 45%|████▍     | 47.7M/107M [00:06<00:08, 7.32MB/s] 45%|████▌     | 48.4M/107M [00:06<00:08, 7.14MB/s] 46%|████▌     | 49.1M/107M [00:06<00:08, 7.17MB/s] 47%|████▋     | 49.8M/107M [00:06<00:08, 7.23MB/s] 47%|████▋     | 50.5M/107M [00:06<00:08, 7.25MB/s] 48%|████▊     | 51.2M/107M [00:07<00:08, 7.09MB/s] 49%|████▊     | 51.9M/107M [00:07<00:08, 6.85MB/s] 49%|████▉     | 52.6M/107M [00:07<00:08, 6.48MB/s] 50%|████▉     | 53.2M/107M [00:07<00:08, 6.63MB/s] 51%|█████     | 54.0M/107M [00:07<00:07, 6.94MB/s] 51%|█████▏    | 54.7M/107M [00:07<00:07, 7.09MB/s] 52%|█████▏    | 55.4M/107M [00:07<00:07, 7.12MB/s] 53%|█████▎    | 56.1M/107M [00:07<00:07, 7.19MB/s] 53%|█████▎    | 56.8M/107M [00:07<00:07, 7.35MB/s] 54%|█████▍    | 57.6M/107M [00:07<00:06, 7.38MB/s] 55%|█████▍    | 58.3M/107M [00:08<00:06, 7.41MB/s] 55%|█████▌    | 59.1M/107M [00:08<00:06, 7.76MB/s] 56%|█████▋    | 60.2M/107M [00:08<00:05, 8.67MB/s] 57%|█████▋    | 61.2M/107M [00:08<00:05, 9.37MB/s] 58%|█████▊    | 62.3M/107M [00:08<00:04, 9.89MB/s] 59%|█████▉    | 63.2M/107M [00:08<00:04, 9.92MB/s] 60%|██████    | 64.3M/107M [00:08<00:04, 10.1MB/s] 61%|██████    | 65.4M/107M [00:08<00:04, 10.5MB/s] 62%|██████▏   | 66.4M/107M [00:08<00:04, 10.6MB/s] 63%|██████▎   | 67.4M/107M [00:08<00:04, 10.3MB/s] 64%|██████▍   | 68.5M/107M [00:09<00:03, 10.7MB/s] 65%|██████▌   | 69.6M/107M [00:09<00:03, 10.3MB/s] 66%|██████▌   | 70.7M/107M [00:09<00:03, 10.7MB/s] 67%|██████▋   | 71.7M/107M [00:09<00:03, 10.5MB/s] 68%|██████▊   | 72.8M/107M [00:09<00:03, 10.8MB/s] 69%|██████▉   | 73.9M/107M [00:09<00:03, 10.7MB/s] 70%|███████   | 75.0M/107M [00:09<00:03, 11.0MB/s] 71%|███████▏  | 76.1M/107M [00:09<00:02, 11.3MB/s] 72%|███████▏  | 77.2M/107M [00:09<00:02, 10.9MB/s] 73%|███████▎  | 78.3M/107M [00:10<00:02, 11.0MB/s] 74%|███████▍  | 79.4M/107M [00:10<00:02, 10.9MB/s] 75%|███████▌  | 80.5M/107M [00:10<00:02, 11.2MB/s] 77%|███████▋  | 81.7M/107M [00:10<00:02, 11.5MB/s] 78%|███████▊  | 82.9M/107M [00:10<00:02, 11.7MB/s] 79%|███████▉  | 84.1M/107M [00:10<00:01, 12.0MB/s] 80%|███████▉  | 85.3M/107M [00:10<00:01, 12.1MB/s] 81%|████████  | 86.5M/107M [00:10<00:01, 12.3MB/s] 82%|████████▏ | 87.7M/107M [00:10<00:01, 12.5MB/s] 83%|████████▎ | 88.9M/107M [00:10<00:01, 12.4MB/s] 84%|████████▍ | 90.2M/107M [00:11<00:01, 12.5MB/s] 86%|████████▌ | 91.4M/107M [00:11<00:01, 12.6MB/s] 87%|████████▋ | 92.6M/107M [00:11<00:01, 12.8MB/s] 88%|████████▊ | 93.9M/107M [00:11<00:01, 12.7MB/s] 89%|████████▉ | 95.1M/107M [00:11<00:00, 12.8MB/s] 90%|█████████ | 96.3M/107M [00:11<00:00, 12.6MB/s] 91%|█████████▏| 97.5M/107M [00:11<00:00, 12.5MB/s] 93%|█████████▎| 98.8M/107M [00:11<00:00, 12.5MB/s] 94%|█████████▎| 100M/107M [00:11<00:00, 12.7MB/s]  95%|█████████▍| 101M/107M [00:11<00:00, 12.8MB/s] 96%|█████████▌| 103M/107M [00:12<00:00, 13.0MB/s] 97%|█████████▋| 104M/107M [00:12<00:00, 12.8MB/s] 98%|█████████▊| 105M/107M [00:12<00:00, 13.0MB/s]100%|█████████▉| 106M/107M [00:12<00:00, 13.1MB/s]100%|██████████| 107M/107M [00:12<00:00, 9.04MB/s]
-    [patch] step    0 loss 0.429858 |p| 0.43163 eval 0.119628
-    [patch] step  150 loss 0.001637 |p| 0.42318
-    [patch] step  200 loss 0.028443 |p| 0.42112 eval 0.038048
-    [patch] step  300 loss 0.001175 |p| 0.41691
-    [patch] step  400 loss 0.029854 |p| 0.41294 eval 0.033334
-    [patch] step  450 loss 0.081440 |p| 0.41127
-    [patch] step  600 loss 0.026787 |p| 0.40658 eval 0.029904
-    [patch] step  750 loss 0.001598 |p| 0.40269
-    [patch] step  800 loss 0.030882 |p| 0.40158 eval 0.026694
-    [patch] step  900 loss 0.000876 |p| 0.39944
-    [patch] step 1000 loss 0.003613 |p| 0.39768 eval 0.025676
-    [patch] step 1050 loss 0.011663 |p| 0.39698
-    [patch] step 1200 loss 0.035490 |p| 0.39486 eval 0.023406
-    [patch] step 1350 loss 0.001104 |p| 0.39292
-    [patch] step 1400 loss 0.002782 |p| 0.39235 eval 0.023104
-    [patch] step 1500 loss 0.022978 |p| 0.39137
-    [patch] step 1600 loss 0.027887 |p| 0.39063 eval 0.022114
-    [patch] step 1650 loss 0.041640 |p| 0.39021
-    [patch] step 1800 loss 0.015388 |p| 0.38901 eval 0.021616
-    [patch] step 1950 loss 0.008860 |p| 0.38801
-    [patch] step 2000 loss 0.004859 |p| 0.38772 eval 0.021611
-    [patch] step 2100 loss 0.004344 |p| 0.38732
-    [patch] step 2200 loss 0.001652 |p| 0.38686 eval 0.021394
-    [patch] step 2250 loss 0.015483 |p| 0.38658
-    [patch] step 2400 loss 0.000865 |p| 0.38585 eval 0.021797
-    [patch] step 2550 loss 0.001096 |p| 0.38536
-    [patch] step 2600 loss 0.005628 |p| 0.38516 eval 0.020520
-    [patch] step 2700 loss 0.004465 |p| 0.38484
-    [patch] step 2800 loss 0.041044 |p| 0.38453 eval 0.019851
-    [patch] step 2850 loss 0.019364 |p| 0.38430
-    [patch] step 3000 loss 0.004518 |p| 0.38384 eval 0.020236
-    [patch] step 3150 loss 0.030643 |p| 0.38353
-    [patch] step 3200 loss 0.038257 |p| 0.38355 eval 0.019417
-    [patch] step 3300 loss 0.001040 |p| 0.38328
-    [patch] step 3400 loss 0.005919 |p| 0.38312 eval 0.019993
-    [patch] step 3450 loss 0.002206 |p| 0.38317
-    [patch] step 3600 loss 0.001578 |p| 0.38285 eval 0.020514
-    [patch] step 3750 loss 0.010236 |p| 0.38285
-    [patch] step 3800 loss 0.003930 |p| 0.38275 eval 0.020053
-    [patch] step 3900 loss 0.001554 |p| 0.38269
-    [patch] step 4000 loss 0.001822 |p| 0.38241 eval 0.020024
-    [patch] step 4050 loss 0.028401 |p| 0.38226
-    [patch] step 4200 loss 0.016875 |p| 0.38197 eval 0.019277
-    [patch] step 4350 loss 0.037343 |p| 0.38186
-    [patch] step 4400 loss 0.013830 |p| 0.38189 eval 0.019076
-    [patch] step 4500 loss 0.001234 |p| 0.38183
-    [patch] step 4600 loss 0.025048 |p| 0.38163 eval 0.018961
-    [patch] step 4650 loss 0.009738 |p| 0.38161
-    [patch] step 4800 loss 0.022117 |p| 0.38156 eval 0.018810
-    [patch] step 4950 loss 0.000704 |p| 0.38104
-    [patch] step 5000 loss 0.001270 |p| 0.38110 eval 0.019336
-    [patch] step 5100 loss 0.003452 |p| 0.38097
-    [patch] step 5200 loss 0.014441 |p| 0.38107 eval 0.018666
-    [patch] step 5250 loss 0.000831 |p| 0.38095
-    [patch] step 5400 loss 0.044848 |p| 0.38085 eval 0.018232
-    [patch] step 5550 loss 0.004820 |p| 0.38054
-    [patch] step 5600 loss 0.026660 |p| 0.38051 eval 0.018422
-    [patch] step 5700 loss 0.002120 |p| 0.38017
-    [patch] step 5800 loss 0.002742 |p| 0.38022 eval 0.020307
-    [patch] step 5850 loss 0.001243 |p| 0.38015
-    [patch] step 5999 loss 0.043492 |p| 0.37986 eval 0.018454
-/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,1.0]
-  warnings.warn(
-Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 17160.61it/s]
-[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
-[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
-Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights:  72%|███████▏  | 293/408 [00:00<00:00, 2924.36it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 3084.34it/s]
-task_obj_remove_284852           patch          r=0.0500 dists=0.1932 lpips=0.2843 effect=0.6737 (2909s)
-
-表：runs/ip2p_face_defence/clothing_plain_task_obj_remove_284852/results.csv（1 列）

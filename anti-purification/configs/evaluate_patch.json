@@ -1,0 +1,61 @@
+{
+  "manifest": "data/portrait_trio_manifest.json",
+  "images": [
+    "task_env_weather_121086"
+  ],
+  "role_note": "**指令只在這份設定裡出現。** 防禦圖由 scripts/immunise.py 產生，它拒絕讀入任何含 instruction 或 prompt 的鍵，所以這裡的每一句對防禦而言都是 held-out。",
+  "design_note": "要量的是判準的第三條腿（指令完成）。那條腿因為量不準而退出 src/defense/criterion.py 的 TERMS——CLIP 的三種寫法（方向分數、終點對齊、對齊增益）都在圖上被推翻過。要把它放回來，指令必須有一個**二值、看圖就能判**的完成條件，而且**未防禦的編輯必須真的把它做到**：未防禦那一格自己就失敗時，防禦有沒有效讀不出來。",
+  "independence_note": "三類都不要求改動臉。這是刻意的：指令完成與身分保留因此是兩個獨立的量，「阻止指令完成但保留自然輸入且仍是同一個人」這條路才問得出來。",
+  "classes": [
+    {
+      "name": "add_hat",
+      "kind": "加入原本沒有的物件",
+      "check_question": "Is the person wearing a hat?",
+      "check_expect": "yes",
+      "check_note": "三張原圖都沒有戴帽，未編輯時正確答案是 no。這一類的完成條件最接近二值，是校準讀數的主錨點。",
+      "instructions": {
+        "task_env_weather_121086": "put a hat on the person",
+        "task_obj_remove_410264": "put a hat on the person",
+        "task_obj_swap_rand_mask_79926": "put a hat on the person"
+      }
+    },
+    {
+      "name": "add_scarf",
+      "kind": "加入原本沒有的物件（與 add_hat 不同的身體部位與材質）",
+      "check_question": "Is the person wearing a scarf?",
+      "check_expect": "yes",
+      "check_note": "三張原圖都沒有圍巾，未編輯時正確答案是 no。取代先前的 replace_background：那一類在三張裡只有一張成立，task_obj_remove_410264 的散景與 task_obj_swap_rand_mask_79926 的圖樣牆兩種措辭下都沒有被重建，只加了雪點與冷色調（runs/instruction_calibration/human_labels.csv）。",
+      "instructions": {
+        "task_env_weather_121086": "put a scarf on the person",
+        "task_obj_remove_410264": "put a scarf on the person",
+        "task_obj_swap_rand_mask_79926": "put a scarf on the person"
+      },
+      "colour_free_note": "指令**不指定顏色**。第一版寫「put a red scarf on the person」，task_env_weather_121086 三顆種子全部不長圍巾，而是把臉與外套整片染紅（0/3，runs/instruction_calibration/）；同一個傾向也讓它的 garment_colour 掉一顆種子。根因是顏色詞在這張圖上觸發全域染色，不是「圍巾」這個物件做不到，所以拿掉顏色詞而不是換圖。加帽那一類本來就沒有顏色詞，三張都是 3/3。"
+    }
+  ],
+  "known_leak_note": "task_obj_swap_rand_mask_79926 的換色會外溢：洋裝變綠時背景牆也一起變綠（兩種措辭下都是）。這一格的完成度判定要問的是**衣物**的顏色，不是整張圖的色調，check_question 因此寫成 the person's clothing。",
+  "seeds": [
+    17001
+  ],
+  "seeds_note": "一顆種子。這是確認方向的規模，不是可以宣稱阻斷的規模。",
+  "precision": "bf16",
+  "attack_steps": 50,
+  "s_t": 7.5,
+  "s_i": 1.5,
+  "attack_batch_default": 2,
+  "arms": [
+    "immunised"
+  ],
+  "arms_note": "只跑 immunised。evaluate_defence.py 自己算的 clean 編輯就是每一格的逐種子未防禦對照，逐張存成 *__clean_edit.png。",
+  "purifiers": [
+    {
+      "kind": "identity"
+    }
+  ],
+  "purifiers_note": "只有 identity。四道淨化的完整版在 configs/evaluate_instruction_seeds.json。",
+  "cost_note": "1 張 × 2 類 × 1 顆種子 × (1 個 clean 對照 + 1 個 arm) × 1 道淨化 ＝ 每臂 2 列、4 次編輯。四個臂共 8 列。",
+  "prompt_note": "措辭一律用短句。長句在圖上被推翻過：put a wide-brimmed black hat on the person's head 在 s_t=7.5 下讓文字分支壓過影像分支，IP2P 把整張圖重新生成（runs/instruction_calibration/ 有逐張記錄）。短句是 runs/accessory/ 與 configs/evaluate_screen.json 用過的形式。",
+  "images_note": "一張。另外兩張被擋掉：task_obj_swap_rand_mask_79926 的衣物面積 0.0069 放不下貼片；task_obj_remove_410264 的未防禦編輯自己就換人（add_scarf 身分 0.204、add_hat 0.427），那些格沒有分母。n = 1。",
+  "classes_note": "不含 garment_colour。runs/advcf_anchor/README.md 記過：那一類問「衣服主要是什麼顏色」，而本專案的防禦本身就是調色，防禦圖已經把衣服推向目標顏色，VQA 不管編輯有沒有做成都答對——用顏色載體打顏色指令，指令腿的讀數失效。貼片就印在衣服上，這個失效模式只會更強。",
+  "scope_note": "**確認方向用的最小規模。** 攻擊者可挑種子與前處理，一顆種子一道淨化不足以宣稱任何一格被阻斷。要的是「最佳化臂有沒有比隨機對照臂推得開」這個訊號。"
+}

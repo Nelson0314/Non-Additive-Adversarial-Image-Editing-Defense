@@ -1,0 +1,64 @@
+{
+  "manifest": "data/portrait_trio_manifest.json",
+  "images": [
+    "task_env_weather_121086"
+  ],
+  "images_note": "單張探測。runs/plateau_probe/ 的二十個設定都掛在這一張人像上，另外兩張還沒跑。",
+  "role_note": "**指令只在這份設定裡出現。** 防禦圖由 scripts/plateau_probe.py 產生，那一支不讀任何含 instruction 或 prompt 的鍵，也不讀任何評估結果，所以這裡的每一句對防禦而言都是 held-out。",
+  "scope_note": "這一批只掛 identity 一道淨化、三顆種子，用途是先看得到編輯輸出。攻擊者可挑種子與前處理，所以**這一批不足以宣稱任何一格被完整阻斷**；要下那個結論得走 configs/evaluate_instruction_seeds.json 的四道淨化 × 九顆種子。",
+  "arms_note": "只跑 immunised。undefended 那一臂會與 scripts/evaluate_defence.py 自己算的 clean 編輯完全重覆（同一張原圖、同一道淨化、同一顆種子），而 clean 編輯逐張存成 *__clean_edit.png，就是這一批每一格自己的逐種子未防禦對照。",
+  "classes": [
+    {
+      "name": "add_hat",
+      "kind": "加入原本沒有的物件",
+      "check_question": "Is the person wearing a hat?",
+      "check_expect": "yes",
+      "check_note": "原圖沒有戴帽，未編輯時正確答案是 no。",
+      "instructions": {
+        "task_env_weather_121086": "put a hat on the person"
+      }
+    },
+    {
+      "name": "garment_colour",
+      "kind": "把一塊非臉部區域換色",
+      "check_question": "What is the dominant colour of the person's clothing?",
+      "check_expect": "per_image",
+      "instructions": {
+        "task_env_weather_121086": "turn the jacket red"
+      },
+      "expect": {
+        "task_env_weather_121086": "red"
+      }
+    },
+    {
+      "name": "add_scarf",
+      "kind": "加入原本沒有的物件（與 add_hat 不同的身體部位與材質）",
+      "check_question": "Is the person wearing a scarf?",
+      "check_expect": "yes",
+      "instructions": {
+        "task_env_weather_121086": "put a scarf on the person"
+      }
+    }
+  ],
+  "seeds": [
+    17001,
+    27001,
+    47001
+  ],
+  "seeds_note": "沿用既有三顆種子，數字因此與 runs/advcf_* 各批在同一張表上可比。",
+  "precision": "bf16",
+  "attack_steps": 50,
+  "s_t": 7.5,
+  "s_i": 1.5,
+  "attack_batch_default": 3,
+  "arms": [
+    "immunised"
+  ],
+  "purifiers": [
+    {
+      "kind": "identity"
+    }
+  ],
+  "purifiers_note": "只有 identity。四道淨化的完整版在 configs/evaluate_instruction_seeds.json。",
+  "cost_note": "1 張 × 3 類 × 3 顆種子 × (1 個 clean 對照 + 1 個 arm) × 1 道淨化 ＝ 每個設定 18 次編輯、9 列。二十個設定共 360 次編輯、180 列。"
+}

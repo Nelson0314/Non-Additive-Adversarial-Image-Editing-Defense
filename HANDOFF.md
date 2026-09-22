@@ -1,14 +1,14 @@
 # 交接
 
-程式與數值在 `non-additive-frequency/`，工作規則見該目錄的 `CLAUDE.md`。
+程式與數值在 `anti-purification/`，工作規則見該目錄的 `CLAUDE.md`。
 
 **兩條線要分清楚：**
 
 | | 主表（本檔的主題） | 顏色載體的改良實驗 |
 |---|---|---|
 | 問題 | 十二個免疫方法在同一條管線上誰推得動編輯 | 本專案自己的顏色方法要怎麼變強 |
-| 位置 | `non-additive-frequency/`（遠端 `WACV-s4`） | `colour-lab/`（遠端 `WACV-colour-lab`） |
-| 狀態 | **已完成，12 條件 × 64 格全齊** | 進行中，由另一個 session 負責 |
+| 位置 | `anti-purification/`（遠端 `image-immunization`） | **已刪除**，紀錄留在 `COLOUR_LINE.md` |
+| 狀態 | **已完成，12 條件 × 64 格全齊** | **已停止並移除**（使用者裁定） |
 | 交集 | 主表的 `colour_curve_ours` 是顏色線目前交付的操作點 | 有成果才會換掉主表那一列 |
 
 改良實驗**不得寫入主目錄**，主表的數字也不會因為它而改變。詳見「顏色載體的改良實驗」一節。
@@ -199,22 +199,22 @@ CPU 實測：恆等起點 grad absmax **0.0**，離開恆等之後 0.132。遠�
 
 ---
 
-## 顏色載體的改良實驗（`colour-lab/`）：**不屬於主表**
+## 顏色載體的改良實驗：**已停止並移除**
 
-主表是「十二個條件的外部比較」，這一條線是「本專案自己的顏色方法要怎麼變強」。
-兩者共用編輯管線與判定門檻，但**產物、目錄、結論完全分開**：改良實驗全部在
-`colour-lab/`（遠端 `/nfs/home/nelson0314/WACV-colour-lab/`），**不得寫入主目錄**；
-主表的任何數字都不會因為改良實驗而改變。
+主表是「十二個條件的外部比較」，那一條線是「本專案自己的顏色方法要怎麼變強」。
+兩者共用編輯管線與判定門檻，但產物、目錄、結論完全分開。
 
-主表裡的 `colour_curve_ours` 是這條線**目前交付的操作點**（AdvCF tone curve、
-`pieces 64`、`radius 5.0`、900 步、`deltae_cap 16.0`）。改良實驗若有成果，才會換掉它；
-在那之前主表照現狀引用。
+**該線已由使用者裁定停止，工作目錄（本機 `colour-lab/`、遠端
+`/nfs/home/nelson0314/WACV-colour-lab`）已整個刪除。** 完整紀錄——做過的每一批、
+所有數字、硬約束、被修正的說法、參考文獻、未完成的東西——在根目錄的
+**`COLOUR_LINE.md`**，另有四個報告頁網址列在該檔開頭。
 
-**現況、所有數字、硬約束、程式與坑一律以 `colour-lab/HANDOFF.md` 為準**，
-文獻在 `colour-lab/docs/LITERATURE.md`。不要在這裡複述那條線的細節，
-兩份文件不同步過一次了。
+主表裡的 `colour_curve_ours` 是那條線**最後交付的操作點**（AdvCF tone curve、
+`pieces 64`、`radius 5.0`、900 步、`deltae_cap 16.0`），基準載體
+`src/defense/color_param.py` 與目標函數、讀數腳本在本目錄都有各自的一份，
+**主表不受影響，照現狀引用**。
 
-到目前為止那條線做完六批，沒有一批被裁定為可交付的改良。
+做完九批，沒有一批被裁定為可交付的改良。
 
 ---
 
@@ -223,8 +223,8 @@ CPU 實測：恆等起點 grad absmax **0.0**，離開恆等之後 0.132。遠�
 - 遠端兩台：`ssh -p 10101`（basic-1，8 張卡）／`-p 10102`（basic-2，7 張卡），
   `nelson0314@server.basiclab.lab.nycu.edu.tw`。**兩台都要查**，早先只查
   basic-2 漏掉過 basic-1。
-- repo 在 `/nfs/home/nelson0314/WACV-s4`，實驗在
-  `/nfs/home/nelson0314/WACV-colour-lab`。home 跨機同步，兩台都看得到。
+- repo 在 `/nfs/home/nelson0314/image-immunization`。
+  home 跨機同步，兩台都看得到。
 - **先 `source ~/env.sh` 再 `cd`**（env.sh 會把工作目錄切走）。
 - `HF_HOME=/var/cache/huggingface`（機器本地，不是 NFS 那份）。
 - **所有運算送遠端。** 卡是多人共用：`bingo`、`chhsu0924`、`briankuo93`、
@@ -265,8 +265,8 @@ CPU 實測：恆等起點 grad absmax **0.0**，離開恆等之後 0.132。遠�
 
 ### 清理狀態
 
-`__pycache__` 已全部清除。pytest 的暫存目錄（`non-additive-frequency/.tmp/`、
-`runs/ncf_cpu_test_tmp/`、根目錄的 `.tmp/`、`colour-lab/.pytest_tmp_*`）
+`__pycache__` 已全部清除。pytest 的暫存目錄（`anti-purification/.tmp/`、
+`runs/ncf_cpu_test_tmp/`、根目錄的 `.tmp/` 與 `colour-lab/.pytest_tmp_*`）
 Windows ACL 拒絕存取，`takeown` 需要管理員權限才改得動擁有權，目前仍刪不掉。
 不影響任何測試或產出。
 

@@ -1,20 +1,0 @@
-Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
-Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]
-Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3799.61it/s]
-Loading pipeline components...:  50%|█████     | 3/6 [00:00<00:00, 13.83it/s]Loading pipeline components...:  83%|████████▎ | 5/6 [00:00<00:00, 15.98it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 17.07it/s]
-There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
-Loading weights:   0%|          | 0/462 [00:00<?, ?it/s]Loading weights:  72%|███████▏  | 333/462 [00:00<00:00, 3322.75it/s]Loading weights: 100%|██████████| 462/462 [00:00<00:00, 3260.41it/s]
-olor_11699              original/                 全 0.157929 (1.000×)  主體 0.192344 (1.000×)  背景 0.119670 (1.000×)
-olor_11699              dct_shield/dct_shield     全 0.017509 (0.111×)  主體 0.022828 (0.119×)  背景 0.011597 (0.097×)
-olor_11699              phase_gain_r09/phase_gain 全 0.039293 (0.249×)  主體 0.049923 (0.260×)  背景 0.027475 (0.230×)
-olor_11699              phase_ig_eot/phase_gain   全 0.007345 (0.047×)  主體 0.007523 (0.039×)  背景 0.007147 (0.060×)
-olor_11699              color_ln_r010_1000/color_grid全 0.090455 (0.573×)  主體 0.107169 (0.557×)  背景 0.071873 (0.601×)
-olor_11699              color_rand_r020/color_grid_rand全 0.075228 (0.476×)  主體 0.099505 (0.517×)  背景 0.048239 (0.403×)
-olor_6205               original/                 全 0.151307 (1.000×)  主體 0.171179 (1.000×)  背景 0.125600 (1.000×)
-olor_6205               dct_shield/dct_shield     全 0.007793 (0.052×)  主體 0.009039 (0.053×)  背景 0.006180 (0.049×)
-olor_6205               phase_gain_r09/phase_gain 全 0.032019 (0.212×)  主體 0.037157 (0.217×)  背景 0.025374 (0.202×)
-olor_6205               phase_ig_eot/phase_gain   全 0.007228 (0.048×)  主體 0.007666 (0.045×)  背景 0.006663 (0.053×)
-olor_6205               color_ln_r010_1000/color_grid全 0.097774 (0.646×)  主體 0.108674 (0.635×)  背景 0.083672 (0.666×)
-olor_6205               color_rand_r020/color_grid_rand全 0.068407 (0.452×)  主體 0.078486 (0.459×)  背景 0.055367 (0.441×)
-
-寫出 runs/ig_probe/by_region_shared.csv（12 列）

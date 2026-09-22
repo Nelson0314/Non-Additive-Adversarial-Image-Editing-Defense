@@ -1,45 +1,0 @@
-Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
-Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  17%|█▋        | 1/6 [00:00<00:00,  5.90it/s]
-Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 4777.61it/s]
-Loading pipeline components...:  50%|█████     | 3/6 [00:00<00:00,  8.71it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 15.08it/s]
-There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
-olor_11699                original                  L_ig=0.157929  ‖E‖=105.95
-olor_11699                phase_gain_r09/phase_gain L_ig=0.039293 (0.249× 原圖)  ‖E‖=62.90 (0.594×)  DISTS=0.06436 位移=0.43967
-olor_11699                phase_r09/phase           L_ig=0.045594 (0.289× 原圖)  ‖E‖=65.50 (0.618×)  DISTS=0.04229 位移=0.39995
-olor_11699                dct_shield/dct_shield     L_ig=0.017509 (0.111× 原圖)  ‖E‖=49.94 (0.471×)  DISTS=0.07488 位移=0.61688
-olor_11699                phase_ln_eot/phase_gain   L_ig=0.016139 (0.102× 原圖)  ‖E‖=54.04 (0.510×)  DISTS=0.21022 位移=0.58149
-olor_11699                phase_ig_eot/phase_gain   L_ig=0.007345 (0.047× 原圖)  ‖E‖=101.18 (0.955×)  DISTS=0.13542 位移=0.55016
-olor_11699                phase_ig_noeot/phase_gain L_ig=0.005830 (0.037× 原圖)  ‖E‖=96.23 (0.908×)  DISTS=0.13294 位移=0.46807
-olor_11699                shading_r020/shading      L_ig=0.139789 (0.885× 原圖)  ‖E‖=93.47 (0.882×)  DISTS=0.04627 位移=0.05171
-olor_11699                color_curve_r3/color_curveL_ig=0.094447 (0.598× 原圖)  ‖E‖=81.59 (0.770×)  DISTS=0.18151 位移=0.26088
-olor_11699                color_ln_r010_1000/color_gridL_ig=0.090455 (0.573× 原圖)  ‖E‖=72.34 (0.683×)  DISTS=0.16598 位移=0.26196
-olor_11699                color_rand_r0083/color_grid_randL_ig=0.111143 (0.704× 原圖)  ‖E‖=112.32 (1.060×)  DISTS=0.15548 位移=0.30584
-olor_11699                color_rand_r010/color_grid_randL_ig=0.103902 (0.658× 原圖)  ‖E‖=113.04 (1.067×)  DISTS=0.17584 位移=0.33734
-olor_11699                color_rand_r020/color_grid_randL_ig=0.075228 (0.476× 原圖)  ‖E‖=115.42 (1.089×)  DISTS=0.25548 位移=0.45081
-olor_11699                color_ln_conv_plant/color_gridL_ig=0.083903 (0.531× 原圖)  ‖E‖=70.64 (0.667×)  DISTS=0.17963 位移=0.27589
-olor_11699                color_ig_conv_plant/color_gridL_ig=0.024270 (0.154× 原圖)  ‖E‖=93.21 (0.880×)  DISTS=0.23755 位移=0.45564
-olor_11699                color_ig_r005_plant/color_gridL_ig=0.067544 (0.428× 原圖)  ‖E‖=101.33 (0.956×)  DISTS=0.14569 位移=0.31387
-olor_11699                color_ig_r020_plant/color_gridL_ig=0.002314 (0.015× 原圖)  ‖E‖=93.39 (0.881×)  DISTS=0.32682 位移=0.56657
-olor_11699                color_masked_r010_plant/color_gridL_ig=0.080181 (0.508× 原圖)  ‖E‖=102.15 (0.964×)  DISTS=0.13734 位移=0.28794
-olor_11699                color_masked_r020_plant/color_gridL_ig=0.064578 (0.409× 原圖)  ‖E‖=103.57 (0.978×)  DISTS=0.20608 位移=0.49561
-olor_6205                 original                  L_ig=0.151307  ‖E‖=110.27
-olor_6205                 phase_gain_r09/phase_gain L_ig=0.032019 (0.212× 原圖)  ‖E‖=58.06 (0.526×)  DISTS=0.10154 位移=0.6439
-olor_6205                 phase_r09/phase           L_ig=0.039798 (0.263× 原圖)  ‖E‖=62.45 (0.566×)  DISTS=0.06694 位移=0.61356
-olor_6205                 dct_shield/dct_shield     L_ig=0.007793 (0.052× 原圖)  ‖E‖=44.27 (0.401×)  DISTS=0.08594 位移=0.73478
-olor_6205                 phase_ln_eot/phase_gain   L_ig=0.023180 (0.153× 原圖)  ‖E‖=57.07 (0.517×)  DISTS=0.23984 位移=0.65017
-olor_6205                 phase_ig_eot/phase_gain   L_ig=0.007228 (0.048× 原圖)  ‖E‖=103.80 (0.941×)  DISTS=0.16701 位移=0.45358
-olor_6205                 phase_ig_noeot/phase_gain L_ig=0.005564 (0.037× 原圖)  ‖E‖=99.41 (0.901×)  DISTS=0.17269 位移=0.53738
-olor_6205                 shading_r020/shading      L_ig=0.139443 (0.922× 原圖)  ‖E‖=104.27 (0.946×)  DISTS=0.04254 位移=0.17042
-olor_6205                 color_curve_r3/color_curveL_ig=0.077369 (0.511× 原圖)  ‖E‖=87.82 (0.796×)  DISTS=0.16775 位移=0.34874
-olor_6205                 color_ln_r010_1000/color_gridL_ig=0.097774 (0.646× 原圖)  ‖E‖=84.72 (0.768×)  DISTS=0.15444 位移=0.29231
-olor_6205                 color_rand_r0083/color_grid_randL_ig=0.111897 (0.740× 原圖)  ‖E‖=115.63 (1.049×)  DISTS=0.11278 位移=0.27768
-olor_6205                 color_rand_r010/color_grid_randL_ig=0.103454 (0.684× 原圖)  ‖E‖=116.83 (1.059×)  DISTS=0.12929 位移=0.2965
-olor_6205                 color_rand_r020/color_grid_randL_ig=0.068407 (0.452× 原圖)  ‖E‖=123.25 (1.118×)  DISTS=0.20639 位移=0.3857
-olor_6205                 color_ln_conv_mario/color_gridL_ig=0.094135 (0.622× 原圖)  ‖E‖=83.86 (0.760×)  DISTS=0.15306 位移=0.29749
-olor_6205                 color_ig_conv_mario/color_gridL_ig=0.023078 (0.153× 原圖)  ‖E‖=104.91 (0.951×)  DISTS=0.22465 位移=0.44767
-olor_6205                 color_ig_r005_mario/color_gridL_ig=0.070145 (0.464× 原圖)  ‖E‖=105.37 (0.956×)  DISTS=0.11367 位移=0.31599
-olor_6205                 color_ig_r020_mario/color_gridL_ig=0.003505 (0.023× 原圖)  ‖E‖=106.15 (0.963×)  DISTS=0.31245 位移=0.55305
-olor_6205                 color_masked_r010_mario/color_gridL_ig=0.081110 (0.536× 原圖)  ‖E‖=108.83 (0.987×)  DISTS=0.10309 位移=0.25549
-olor_6205                 color_masked_r020_mario/color_gridL_ig=0.062638 (0.414× 原圖)  ‖E‖=113.05 (1.025×)  DISTS=0.14783 位移=0.33522
-
-寫出 runs/ig_probe/results.csv（38 列）

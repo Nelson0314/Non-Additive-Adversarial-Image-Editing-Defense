@@ -1,0 +1,57 @@
+{
+  "_note": "整圖濾鏡掃描用的攻擊指令與兩端描述句。指令是 InstructPix2Pix 的命令句；source/target 是描述句，供 CLIP/SigLIP 量『指令完成到什麼程度』。shared 的四句對五張圖通用（都是人像），per-image 的衣物句依各自的衣物改寫，與 data/ncf_attack_prompts.yaml 的 clothing 指令一致。",
+  "shared": {
+    "hat": {
+      "instruction": "put a hat on the person",
+      "source": "a person with an uncovered head",
+      "target": "a person wearing a hat"
+    },
+    "sunglasses": {
+      "instruction": "add sunglasses to the person",
+      "source": "a person without sunglasses",
+      "target": "a person wearing sunglasses"
+    },
+    "scarf": {
+      "instruction": "add a scarf to the person",
+      "source": "a person without a scarf",
+      "target": "a person wearing a scarf"
+    }
+  },
+  "images": {
+    "task_env_weather_70149": {
+      "clothing": {
+        "instruction": "turn the kimono red",
+        "source": "a person wearing a pale pink kimono",
+        "target": "a person wearing a red kimono"
+      }
+    },
+    "task_env_weather_121086": {
+      "clothing": {
+        "instruction": "turn the jacket red",
+        "source": "a person wearing a blue jacket",
+        "target": "a person wearing a red jacket"
+      }
+    },
+    "task_env_weather_126577": {
+      "clothing": {
+        "instruction": "turn the robe red",
+        "source": "a person wearing a pale grey robe",
+        "target": "a person wearing a red robe"
+      }
+    },
+    "task_obj_remove_284852": {
+      "clothing": {
+        "instruction": "turn the shirt blue",
+        "source": "a person wearing a white shirt",
+        "target": "a person wearing a blue shirt"
+      }
+    },
+    "task_obj_swap_rand_mask_315182": {
+      "clothing": {
+        "instruction": "turn the clothes blue",
+        "source": "a person wearing a red jacket",
+        "target": "a person wearing blue clothes"
+      }
+    }
+  }
+}

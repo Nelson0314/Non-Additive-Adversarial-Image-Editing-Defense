@@ -1,0 +1,86 @@
+{
+  "manifest": "data/imagenet_subset_manifest.json",
+  "images": null,
+  "images_note": "48 張 ImageNet 驗證影像，ResNet-50 原本分對且信心 ≥ 0.7（data/imagenet_subset_manifest.json）。**這一層刻意不用本專案的人像**：ResNet-50 對不屬於 ImageNet 任何類別的人像本來就沒有信心，煙霧測試量到乾淨margin 只有 +0.017，把那種預測翻掉證明不了攻擊有效。三篇的成功率分母都是「原本分對的影像」，重現必須用同一種輸入。第二層才換回三張人像。",
+  "objective_note": "**這份設定裡不得出現指令。** scripts/paper_baseline.py 載入 scripts/immunise.py 的 assert_no_instructions 遞迴檢查。",
+  "rationale": "要說「這三篇的方法移植到擴散編輯的場景失效」，必須先證明移植是對的。三篇打的都是 ImageNet 分類器、損失都是 C&W 的 logit margin。用它們自己的載體、自己的預算、自己的損失、自己的受害任務跑一次，攻擊成功率要落在論文宣稱的量級；做不到就是移植有問題，那時候第二層的零結果說明不了任何事。",
+  "gap_note": "既有的 runs/ncf_ip2p/、runs/chroma/ 這幾批**一張影像都沒有存**（本機與遠端都是 0 張 PNG），而事後從 CSV 讀到的是 ΔE00 25–30、PSNR 7–8，那不是三篇示例的樣子。而且 configs/recolor_paper.json 那一族帶著 instruction 與 target 鍵，屬於指令進迴圈的舊路徑（runs/carrier_search_probe/ 量到那條路徑會高估防禦，2/15 對拿掉後的 1/25）。所以那些數字不能代表這些載體。",
+  "victim": "resnet50",
+  "victim_note": "torchvision 的 IMAGENET1K_V1。三篇的受害模型清單不完全相同，ResNet-50 是三篇都涵蓋的一個。這是 modified_from_paper：論文報的是整個 ImageNet 驗證集，這裡是三張人像。",
+  "library": {
+    "path": "data/ncf_library.json",
+    "sha256": "3f1af891264523591d3a4ef1df6878cb41b2ed518e7e2cf0e492161b72013888",
+    "class_weights": {
+      "global_scene": 1.0
+    },
+    "ade20k_classes": null
+  },
+  "variants": [
+    {
+      "name": "recoloradv_paper",
+      "carrier": "recoloradv",
+      "paper": "Laidlaw & Feizi, Functional Adversarial Attacks, NeurIPS 2019",
+      "options": {
+        "resolution": [
+          16,
+          32,
+          32
+        ],
+        "radius": 0.06
+      },
+      "smoothness_weight": 0.05,
+      "steps": 100,
+      "lr": 0.005,
+      "settings_note": "CIELUV 3D 查表 16×32×32、逐通道 ε = 0.06、平滑正則 0.05，都是論文在 ImageNet 上的設定。"
+    },
+    {
+      "name": "recoloradv_smooth_high",
+      "carrier": "recoloradv",
+      "paper": "同上",
+      "options": {
+        "resolution": [
+          16,
+          32,
+          32
+        ],
+        "radius": 0.06
+      },
+      "smoothness_weight": 1.0,
+      "steps": 100,
+      "lr": 0.005,
+      "settings_note": "平滑權重改成 1.0，是 configs/recolor_paper.json 記的值。兩個值都跑，因為那份舊設定與論文不一致，哪一個才是操作點要用圖與成功率一起看。"
+    },
+    {
+      "name": "advcf_paper",
+      "carrier": "advcf",
+      "paper": "Zhao et al., Adversarial Color Filter, BMVC 2020 / TIFS 2023",
+      "options": {
+        "pieces": 64,
+        "radius": 1.0
+      },
+      "smoothness_weight": 0.0,
+      "steps": 200,
+      "lr": 0.05,
+      "settings_note": "K = 64 段、逐通道單調分段線性、bound_mode = advcf。這一族的自然度由參數化本身保證，沒有額外正則。 第一次跑 lr 0.01／100 步在 margin +9.58 上只推到 +3.91，沒有翻轉；分段線性曲線的參數尺度是 1/K = 1/64，步長要相應放大，改成 lr 0.05／200 步。這是最佳化設定的調整，不是預算或參數化的改動。"
+    },
+    {
+      "name": "ncf_paper_person",
+      "carrier": "ncf",
+      "paper": "Yuan et al., Natural Color Fool, NeurIPS 2022",
+      "options": {
+        "palette_class": "ade013_person",
+        "palette_index": 0,
+        "radius": 0.2,
+        "epsilon_lab": 5.0,
+        "whiten": true
+      },
+      "smoothness_weight": 0.0,
+      "steps": 100,
+      "lr": 0.01,
+      "settings_note": "官方 150_20_hist.zip 的 ADE20K person 類分布，radius 0.2 是論文的 ε。**modified_from_paper：論文逐分割類別各挑一組分布再按面積混合，那需要它們的 Swin-T UperNet；這裡是單一全域 MK 矩陣配一個指名的類別。** 這是三篇裡保真度缺口最大的一個，要寫進報告。"
+    }
+  ],
+  "variants_note": "四個臂涵蓋三篇。ReColorAdv 跑兩個平滑權重，因為 repo 裡舊設定記的值與論文不同。",
+  "readout_note": "主讀數是 flipped（top-1 有沒有被打掉）與 margin 的起訖值；並列 ΔE00、PSNR、LPIPS、L∞ 四個失真量，因為三篇的自然度主張要靠這些數字加上看圖才成立。**每一格都存防禦圖**——runs/ncf_ip2p/ 沒存圖是這條線最大的證據缺口。",
+  "next_layer_note": "這一批的 __defended.png 直接餵給 scripts/evaluate_defence.py 配 configs/evaluate_instruction.json，就是第二層：同一個檔案、換成 IP2P 當受害模型。"
+}

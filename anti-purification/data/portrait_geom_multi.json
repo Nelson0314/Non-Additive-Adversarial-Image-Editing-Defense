@@ -1,0 +1,46 @@
+{
+  "images": [
+    {
+      "id": "task_env_weather_114555",
+      "path": "data/omniedit150/task_env_weather_114555/task_env_weather_114555.png",
+      "sha256": "0b2df91c0fd45683e63fbd534a9b908149514ee42f6811298caff66376fbb2ae"
+    },
+    {
+      "id": "task_env_weather_262001",
+      "path": "data/omniedit150/task_env_weather_262001/task_env_weather_262001.png",
+      "sha256": "96de74414ac34e4e4d19ab16556d1e8eb346edee9068cbcaca95045f7aae01f1"
+    },
+    {
+      "id": "task_obj_remove_284852",
+      "path": "data/omniedit150/task_obj_remove_284852/task_obj_remove_284852.png",
+      "sha256": "53a4b47eb5fa883de880cf9c00e44aec2f924bd7eb703d81b796dd06af259b69"
+    },
+    {
+      "id": "task_attr_mod_color_42929",
+      "path": "data/omniedit150/task_attr_mod_color_42929/task_attr_mod_color_42929.png",
+      "sha256": "587c4d4b6f7d87765376304dd37a26dc5fd090d5a1f1d953d9f205a5d914abb4"
+    },
+    {
+      "id": "task_obj_swap_rand_mask_303550",
+      "path": "data/omniedit150/task_obj_swap_rand_mask_303550/task_obj_swap_rand_mask_303550.png",
+      "sha256": "52e5c922d5f389182aaabed6e3775d452114940b8a89d0c040e25767347121d3"
+    },
+    {
+      "id": "task_env_weather_195273",
+      "path": "data/omniedit150/task_env_weather_195273/task_env_weather_195273.png",
+      "sha256": "faa127e7808f7b9c1d28fe663c3e39eb5e9d24dea9cf9c354ee0de5487d4cc23"
+    },
+    {
+      "id": "task_obj_remove_410264",
+      "path": "data/omniedit150/task_obj_remove_410264/task_obj_remove_410264.png",
+      "sha256": "3bb759b7ee7554684714e6ef3bdbd3fcd23cff7aca627095ce60749343561fe9"
+    },
+    {
+      "id": "task_env_weather_121086",
+      "path": "data/omniedit150/task_env_weather_121086/task_env_weather_121086.png",
+      "sha256": "51d8c7b934cafed509173a46c918fcc56cd62b163bc3675b2f85815e151cb260"
+    }
+  ],
+  "selection_note": "一四九張掃過衣物安全區與內接最大圓，取放得下一個完整圓形貼片的。內接圓可達面積：410264 0.123、114555 0.111、284852 0.099、262001 0.087、42929 0.082、303550 0.073、195273 0.069、121086 0.095。**統一用 0.065**，八張都放得下，所以跨圖可比。",
+  "usage_note": "每一格都要先看 clean_edit 是否成立（指令做到了且仍是同一個人）；不成立就換種子，種子換過仍不成立就記成那一格的適用性失敗，不列入。"
+}

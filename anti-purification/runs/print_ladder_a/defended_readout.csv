@@ -1,0 +1,6 @@
+variant,image,subject_id_defended,subject_id_defended_detected,face_box_iou_defended,faces_orig,faces_defended,psnr,ssim,lpips,dists,deltaE00,linf,acutance_ratio,niqe_orig,niqe_defended
+matched_dE40,task_env_weather_121086,1.0,1.0,0.9996,1,1,17.15514,0.87737,0.15095,0.16832,5.43092,0.93725,1.28745,2.99638,2.82499
+span34_opt,task_env_weather_121086,1.0,1.0,0.99965,1,1,17.71583,0.87689,0.12711,0.14112,4.12803,0.98431,1.3053,2.99638,2.75655
+span34_rand,task_env_weather_121086,1.0,1.0,0.99962,1,1,19.71697,0.8952,0.11183,0.12803,3.22705,0.87059,1.18712,2.99638,2.85315
+span56_opt,task_env_weather_121086,1.0,1.0,0.99933,1,1,16.9769,0.86421,0.13276,0.15596,4.28057,0.98824,1.33627,2.99638,2.78993
+span56_rand,task_env_weather_121086,1.0,1.0,0.99964,1,1,17.45662,0.86961,0.11813,0.13398,3.80295,0.98431,1.31854,2.99638,2.73784

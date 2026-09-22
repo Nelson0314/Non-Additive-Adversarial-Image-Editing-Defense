@@ -1,9 +1,0 @@
-variant,arm,purifier,rows,cells,penetrated,majority,all_seeds,criterion,id_norm,dir_norm,use_norm,argmin_id,argmin_use,control_lost,control_flat,subject_lost
-grid_04,immunised,identity,75,25,1,1,0,0.84328,0.89542,1.0,0.9038,41,34,0,6,0
-grid_04,undefended,identity,75,25,0,0,0,1.0,1.0,1.0,1.0,75,0,0,6,0
-grid_05,immunised,identity,75,25,10,9,7,0.77687,0.77308,1.0,0.87573,65,10,0,6,0
-grid_05,undefended,identity,75,25,0,0,0,1.0,1.0,1.0,1.0,75,0,0,6,0
-grid_06,immunised,identity,75,25,14,13,9,0.50644,0.50641,0.92775,0.88701,60,15,0,6,0
-grid_06,undefended,identity,75,25,0,0,0,1.0,1.0,1.0,1.0,75,0,0,6,0
-grid_08,immunised,identity,75,25,14,12,9,0.5017,0.5015,1.0,0.91667,75,0,0,6,0
-grid_08,undefended,identity,75,25,0,0,0,1.0,1.0,1.0,1.0,75,0,0,6,0

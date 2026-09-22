@@ -1,6 +1,0 @@
-image,label,condition,face_found_orig,face_found_edit_orig,face_found_edit_def,id_orig,id_def,id_drop,id_embed_weights,iou_person,iou_classes,n_classes
-task_obj_remove_257910,clothing_plain,patch,True,True,False,0.61457,,,vggface2,0.71085,0.11403,10
-task_obj_remove_284852,clothing_plain,patch,True,True,True,0.92717,0.16895,0.75823,vggface2,0.63258,0.18006,7
-task_obj_remove_410264,clothing_plain,patch,True,True,True,0.97194,-0.00145,0.97339,vggface2,0.49998,0.07472,8
-task_obj_remove_509477,clothing_plain,patch,True,True,True,0.89955,0.80494,0.09461,vggface2,0.78808,0.30472,10
-task_obj_remove_720199,clothing_plain,patch,True,True,False,0.69671,,,vggface2,0.55243,0.0732,10

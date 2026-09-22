@@ -1,32 +1,0 @@
-Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  50%|█████     | 3/6 [00:00<00:00, 26.32it/s]
-Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 4080.59it/s]
-Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 16.37it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 17.35it/s]
-There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
-olor_11699                original                  L_ig=0.157929  ‖E‖=105.95
-olor_11699                color_rand_r001/color_grid_randL_ig=0.153631 (0.973× 原圖)  ‖E‖=106.28 (1.003×)  DISTS=0.01153 位移=0.03158
-olor_11699                color_rand_r002/color_grid_randL_ig=0.147770 (0.936× 原圖)  ‖E‖=106.90 (1.009×)  DISTS=0.03923 位移=0.08645
-olor_11699                color_rand_r005/color_grid_randL_ig=0.129599 (0.821× 原圖)  ‖E‖=109.51 (1.034×)  DISTS=0.10423 位移=0.22006
-olor_11699                color_rand_r0083/color_grid_randL_ig=0.111143 (0.704× 原圖)  ‖E‖=112.32 (1.060×)  DISTS=0.15548 位移=0.30584
-olor_11699                color_rand_r010/color_grid_randL_ig=0.103902 (0.658× 原圖)  ‖E‖=113.04 (1.067×)  DISTS=0.17584 位移=0.33734
-olor_11699                color_rand_r020/color_grid_randL_ig=0.075228 (0.476× 原圖)  ‖E‖=115.42 (1.089×)  DISTS=0.25548 位移=0.45081
-olor_11699                color_rand_r030/color_grid_randL_ig=0.058379 (0.370× 原圖)  ‖E‖=117.10 (1.105×)  DISTS=0.30793 位移=0.45023
-olor_11699                color_rand_r040/color_grid_randL_ig=0.047330 (0.300× 原圖)  ‖E‖=118.86 (1.122×)  DISTS=0.34144 位移=0.57665
-olor_11699                color_ln_r002/color_grid  L_ig=0.143227 (0.907× 原圖)  ‖E‖=95.05 (0.897×)  DISTS=0.03693 位移=0.06515
-olor_11699                color_ln_r005/color_grid  L_ig=0.115629 (0.732× 原圖)  ‖E‖=82.99 (0.783×)  DISTS=0.08504 位移=0.17128
-olor_11699                color_curve_r05/color_curveL_ig=0.140311 (0.888× 原圖)  ‖E‖=94.31 (0.890×)  DISTS=0.05273 位移=0.07381
-olor_11699                color_curve_r1/color_curveL_ig=0.125902 (0.797× 原圖)  ‖E‖=88.44 (0.835×)  DISTS=0.09185 位移=0.12549
-olor_6205                 original                  L_ig=0.151307  ‖E‖=110.27
-olor_6205                 color_rand_r001/color_grid_randL_ig=0.152650 (1.009× 原圖)  ‖E‖=110.56 (1.003×)  DISTS=0.00656 位移=0.01855
-olor_6205                 color_rand_r002/color_grid_randL_ig=0.149387 (0.987× 原圖)  ‖E‖=111.04 (1.007×)  DISTS=0.02053 位移=0.07156
-olor_6205                 color_rand_r005/color_grid_randL_ig=0.132405 (0.875× 原圖)  ‖E‖=113.22 (1.027×)  DISTS=0.07074 位移=0.18574
-olor_6205                 color_rand_r0083/color_grid_randL_ig=0.111897 (0.740× 原圖)  ‖E‖=115.63 (1.049×)  DISTS=0.11278 位移=0.27768
-olor_6205                 color_rand_r010/color_grid_randL_ig=0.103454 (0.684× 原圖)  ‖E‖=116.83 (1.059×)  DISTS=0.12929 位移=0.2965
-olor_6205                 color_rand_r020/color_grid_randL_ig=0.068407 (0.452× 原圖)  ‖E‖=123.25 (1.118×)  DISTS=0.20639 位移=0.3857
-olor_6205                 color_rand_r030/color_grid_randL_ig=0.049677 (0.328× 原圖)  ‖E‖=126.64 (1.148×)  DISTS=0.25355 位移=0.4401
-olor_6205                 color_rand_r040/color_grid_randL_ig=0.039080 (0.258× 原圖)  ‖E‖=128.57 (1.166×)  DISTS=0.2885 位移=0.47266
-olor_6205                 color_ln_r002/color_grid  L_ig=0.143692 (0.950× 原圖)  ‖E‖=102.27 (0.927×)  DISTS=0.03639 位移=0.12965
-olor_6205                 color_ln_r005/color_grid  L_ig=0.123470 (0.816× 原圖)  ‖E‖=93.50 (0.848×)  DISTS=0.08553 位移=0.20186
-olor_6205                 color_curve_r05/color_curveL_ig=0.131805 (0.871× 原圖)  ‖E‖=101.35 (0.919×)  DISTS=0.04743 位移=0.16917
-olor_6205                 color_curve_r1/color_curveL_ig=0.117438 (0.776× 原圖)  ‖E‖=97.09 (0.880×)  DISTS=0.08135 位移=0.19693
-
-寫出 runs/ig_probe/random_curve.csv（26 列）

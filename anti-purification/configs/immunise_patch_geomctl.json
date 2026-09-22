@@ -1,0 +1,62 @@
+{
+  "manifest": "data/portrait_trio_manifest.json",
+  "images": [
+    "task_obj_remove_410264"
+  ],
+  "image_note": "換成白襯衫那張。衣物安全區 0.325、內接最大圓 0.123，藍外套那張只有 0.237／0.095。一百四十九張掃過，衣物面積大到放得下一個完整圓形貼片的只有十五張，這是最大的一張。",
+  "carrier_note": "**非物件對照。** 支撐與面積逐欄等同笑臉那一批（disc、12%、同一張人像），只把圖案從「黃色圓形笑臉」換成不具物件語意的幾何印花（src/defense/print_patch.py 的固定幾何場）。這一批檢驗的是「同類競爭」那個解釋：若 add_hat 不再垮，垮的原因就是圖案的語意類別而不是支撐、面積或失真。",
+  "attack_steps": 50,
+  "s_i": 1.5,
+  "patch": {
+    "carrier": "print",
+    "support": "disc",
+    "area": 0.12,
+    "inset": 0.0,
+    "kind": "upper",
+    "erode": 6,
+    "feather": 2,
+    "face_margin": 8,
+    "blobs": 1,
+    "support_count": 1,
+    "print_colours": 3,
+    "print_archetype": "checks",
+    "print_tau": 0.15,
+    "print_chroma_max": 45.0,
+    "print_lightness_span": 78.0,
+    "keep_shading": true,
+    "shade_radius": 12
+  },
+  "free": {
+    "timesteps": 4,
+    "noise_seed": 20260915,
+    "chain_steps": 6,
+    "grad_steps": 6,
+    "resample": false,
+    "support_weight": 4.0,
+    "weights": {
+      "enc": 0.5,
+      "cond": 1.0,
+      "id": 1.0,
+      "outside": 40.0
+    },
+    "outside_margin": 16,
+    "outside_near_width": 48,
+    "outside_weight_far": 1.0,
+    "outside_weight_face": 2.0,
+    "outside_weight_near": 0.0
+  },
+  "variants": [
+    {
+      "name": "geom_rand",
+      "solver": "random",
+      "note": "幾何印花原樣，不最佳化。對上 smiley_start。"
+    },
+    {
+      "name": "geom_opt",
+      "steps": 150,
+      "lr": 0.05,
+      "objective": "outside",
+      "note": "同一個目標函數。對上 smiley_bounded／smiley_free。"
+    }
+  ]
+}

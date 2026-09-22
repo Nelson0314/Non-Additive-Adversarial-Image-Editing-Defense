@@ -1,0 +1,112 @@
+{
+  "manifest": "data/portrait_geom_multi.json",
+  "images": [
+    "task_env_weather_114555",
+    "task_env_weather_262001",
+    "task_obj_remove_284852",
+    "task_attr_mod_color_42929",
+    "task_obj_swap_rand_mask_303550",
+    "task_env_weather_195273",
+    "task_obj_remove_410264",
+    "task_env_weather_121086"
+  ],
+  "role_note": "**指令只在這份設定裡出現。** 防禦圖由 scripts/immunise.py 產生，它拒絕讀入任何含 instruction 或 prompt 的鍵，所以這裡的每一句對防禦而言都是 held-out。",
+  "design_note": "要量的是判準的第三條腿（指令完成）。那條腿因為量不準而退出 src/defense/criterion.py 的 TERMS——CLIP 的三種寫法（方向分數、終點對齊、對齊增益）都在圖上被推翻過。要把它放回來，指令必須有一個**二值、看圖就能判**的完成條件，而且**未防禦的編輯必須真的把它做到**：未防禦那一格自己就失敗時，防禦有沒有效讀不出來。",
+  "independence_note": "三類都不要求改動臉。這是刻意的：指令完成與身分保留因此是兩個獨立的量，「阻止指令完成但保留自然輸入且仍是同一個人」這條路才問得出來。",
+  "classes": [
+    {
+      "name": "add_hat",
+      "kind": "往人身上加物件",
+      "check_question": "Is the person wearing a hat?",
+      "check_expect": "yes",
+      "check_note": "八張原圖都沒有戴帽。",
+      "instructions": {
+        "task_env_weather_114555": "put a hat on the person",
+        "task_env_weather_262001": "put a hat on the person",
+        "task_obj_remove_284852": "put a hat on the person",
+        "task_attr_mod_color_42929": "put a hat on the person",
+        "task_obj_swap_rand_mask_303550": "put a hat on the person",
+        "task_env_weather_195273": "put a hat on the person",
+        "task_obj_remove_410264": "put a hat on the person",
+        "task_env_weather_121086": "put a hat on the person"
+      }
+    },
+    {
+      "name": "add_scarf",
+      "kind": "往人身上加物件",
+      "check_question": "Is the person wearing a scarf?",
+      "check_expect": "yes",
+      "check_note": "八張原圖都沒有圍巾。指令不指定顏色——顏色詞會觸發全域染色。",
+      "instructions": {
+        "task_env_weather_114555": "put a scarf on the person",
+        "task_env_weather_262001": "put a scarf on the person",
+        "task_obj_remove_284852": "put a scarf on the person",
+        "task_attr_mod_color_42929": "put a scarf on the person",
+        "task_obj_swap_rand_mask_303550": "put a scarf on the person",
+        "task_env_weather_195273": "put a scarf on the person",
+        "task_obj_remove_410264": "put a scarf on the person",
+        "task_env_weather_121086": "put a scarf on the person"
+      }
+    },
+    {
+      "name": "beach",
+      "kind": "把人放進新場景",
+      "check_question": "Is the person at a beach?",
+      "check_expect": "yes",
+      "check_note": "把人重新放進一個新場景，所以人整個被重畫。這是先前唯一鬆動過的非物件類。",
+      "instructions": {
+        "task_env_weather_114555": "put the person at a beach",
+        "task_env_weather_262001": "put the person at a beach",
+        "task_obj_remove_284852": "put the person at a beach",
+        "task_attr_mod_color_42929": "put the person at a beach",
+        "task_obj_swap_rand_mask_303550": "put the person at a beach",
+        "task_env_weather_195273": "put the person at a beach",
+        "task_obj_remove_410264": "put the person at a beach",
+        "task_env_weather_121086": "put the person at a beach"
+      }
+    },
+    {
+      "name": "suit",
+      "kind": "換掉衣著",
+      "check_question": "Is the person wearing a formal suit?",
+      "check_expect": "yes",
+      "check_note": "重畫上半身衣著，貼片正在那個區域裡。",
+      "instructions": {
+        "task_env_weather_114555": "make the person wear a formal suit",
+        "task_env_weather_262001": "make the person wear a formal suit",
+        "task_obj_remove_284852": "make the person wear a formal suit",
+        "task_attr_mod_color_42929": "make the person wear a formal suit",
+        "task_obj_swap_rand_mask_303550": "make the person wear a formal suit",
+        "task_env_weather_195273": "make the person wear a formal suit",
+        "task_obj_remove_410264": "make the person wear a formal suit",
+        "task_env_weather_121086": "make the person wear a formal suit"
+      }
+    }
+  ],
+  "known_leak_note": "task_obj_swap_rand_mask_79926 的換色會外溢：洋裝變綠時背景牆也一起變綠（兩種措辭下都是）。這一格的完成度判定要問的是**衣物**的顏色，不是整張圖的色調，check_question 因此寫成 the person's clothing。",
+  "seeds": [
+    5011,
+    17001
+  ],
+  "seeds_note": "兩顆種子。每一格各自看 clean_edit 是否成立，不成立的格沒有分母、不列入。",
+  "precision": "bf16",
+  "attack_steps": 50,
+  "s_t": 7.5,
+  "s_i": 1.5,
+  "attack_batch_default": 2,
+  "arms": [
+    "immunised"
+  ],
+  "arms_note": "只跑 immunised。evaluate_defence.py 自己算的 clean 編輯就是每一格的逐種子未防禦對照，逐張存成 *__clean_edit.png。",
+  "purifiers": [
+    {
+      "kind": "identity"
+    }
+  ],
+  "purifiers_note": "只有 identity。四道淨化的完整版在 configs/evaluate_instruction_seeds.json。",
+  "cost_note": "1 張 × 2 類 × 1 顆種子 × (1 個 clean 對照 + 1 個 arm) × 1 道淨化 ＝ 每臂 2 列、4 次編輯。四個臂共 8 列。",
+  "prompt_note": "措辭一律用短句。長句在圖上被推翻過：put a wide-brimmed black hat on the person's head 在 s_t=7.5 下讓文字分支壓過影像分支，IP2P 把整張圖重新生成（runs/instruction_calibration/ 有逐張記錄）。短句是 runs/accessory/ 與 configs/evaluate_screen.json 用過的形式。",
+  "images_note": "八張。衣物安全區都放得下 0.065 的圓形貼片。",
+  "classes_note": "四類全部會重畫人。先前量到的判準是「這個指令會不會把人重畫一次」，不重畫人的那四類（下雪／夜晚／油畫／加狗）九個臂全部無效，所以這一批不再跑它們。",
+  "scope_note": "**確認方向用的最小規模。** 攻擊者可挑種子與前處理，一顆種子一道淨化不足以宣稱任何一格被阻斷。要的是「最佳化臂有沒有比隨機對照臂推得開」這個訊號。"
+}

@@ -1,0 +1,37 @@
+image,class,kind,role,seed,file,question,expect,answer_raw,verdict
+task_env_weather_121086,add_hat,加入原本沒有的物件,original,,task_env_weather_121086__original.png,Is the person wearing a hat?,no,No,no
+task_env_weather_121086,add_hat,加入原本沒有的物件,clean_edit,17001,task_env_weather_121086__add_hat__s17001__clean_edit.png,Is the person wearing a hat?,yes,"Yes, the person is wearing a hat.",yes
+task_env_weather_121086,add_hat,加入原本沒有的物件,clean_edit,27001,task_env_weather_121086__add_hat__s27001__clean_edit.png,Is the person wearing a hat?,yes,"Yes, the person is wearing a hat.",yes
+task_env_weather_121086,add_hat,加入原本沒有的物件,clean_edit,47001,task_env_weather_121086__add_hat__s47001__clean_edit.png,Is the person wearing a hat?,yes,"Yes, the person is wearing a hat.",yes
+task_obj_remove_410264,add_hat,加入原本沒有的物件,original,,task_obj_remove_410264__original.png,Is the person wearing a hat?,no,No,no
+task_obj_remove_410264,add_hat,加入原本沒有的物件,clean_edit,17001,task_obj_remove_410264__add_hat__s17001__clean_edit.png,Is the person wearing a hat?,yes,Yes,yes
+task_obj_remove_410264,add_hat,加入原本沒有的物件,clean_edit,27001,task_obj_remove_410264__add_hat__s27001__clean_edit.png,Is the person wearing a hat?,yes,Yes,yes
+task_obj_remove_410264,add_hat,加入原本沒有的物件,clean_edit,47001,task_obj_remove_410264__add_hat__s47001__clean_edit.png,Is the person wearing a hat?,yes,"Yes, the person is wearing a hat.",yes
+task_obj_swap_rand_mask_79926,add_hat,加入原本沒有的物件,original,,task_obj_swap_rand_mask_79926__original.png,Is the person wearing a hat?,no,No,no
+task_obj_swap_rand_mask_79926,add_hat,加入原本沒有的物件,clean_edit,17001,task_obj_swap_rand_mask_79926__add_hat__s17001__clean_edit.png,Is the person wearing a hat?,yes,"Yes, the person is wearing a hat.",yes
+task_obj_swap_rand_mask_79926,add_hat,加入原本沒有的物件,clean_edit,27001,task_obj_swap_rand_mask_79926__add_hat__s27001__clean_edit.png,Is the person wearing a hat?,yes,"Yes, the person is wearing a hat.",yes
+task_obj_swap_rand_mask_79926,add_hat,加入原本沒有的物件,clean_edit,47001,task_obj_swap_rand_mask_79926__add_hat__s47001__clean_edit.png,Is the person wearing a hat?,yes,"Yes, the person is wearing a hat.",yes
+task_env_weather_121086,garment_colour,把一塊非臉部區域換色,original,,task_env_weather_121086__original.png,What is the dominant colour of the person's clothing?,,Blue,blue
+task_env_weather_121086,garment_colour,把一塊非臉部區域換色,clean_edit,17001,task_env_weather_121086__garment_colour__s17001__clean_edit.png,What is the dominant colour of the person's clothing?,red,Red,red
+task_env_weather_121086,garment_colour,把一塊非臉部區域換色,clean_edit,27001,task_env_weather_121086__garment_colour__s27001__clean_edit.png,What is the dominant colour of the person's clothing?,red,Red,red
+task_env_weather_121086,garment_colour,把一塊非臉部區域換色,clean_edit,47001,task_env_weather_121086__garment_colour__s47001__clean_edit.png,What is the dominant colour of the person's clothing?,red,Blue,blue
+task_obj_remove_410264,garment_colour,把一塊非臉部區域換色,original,,task_obj_remove_410264__original.png,What is the dominant colour of the person's clothing?,,White,white
+task_obj_remove_410264,garment_colour,把一塊非臉部區域換色,clean_edit,17001,task_obj_remove_410264__garment_colour__s17001__clean_edit.png,What is the dominant colour of the person's clothing?,red,Pink,pink
+task_obj_remove_410264,garment_colour,把一塊非臉部區域換色,clean_edit,27001,task_obj_remove_410264__garment_colour__s27001__clean_edit.png,What is the dominant colour of the person's clothing?,red,Pink,pink
+task_obj_remove_410264,garment_colour,把一塊非臉部區域換色,clean_edit,47001,task_obj_remove_410264__garment_colour__s47001__clean_edit.png,What is the dominant colour of the person's clothing?,red,Pink,pink
+task_obj_swap_rand_mask_79926,garment_colour,把一塊非臉部區域換色,original,,task_obj_swap_rand_mask_79926__original.png,What is the dominant colour of the person's clothing?,,Red,red
+task_obj_swap_rand_mask_79926,garment_colour,把一塊非臉部區域換色,clean_edit,17001,task_obj_swap_rand_mask_79926__garment_colour__s17001__clean_edit.png,What is the dominant colour of the person's clothing?,green,Green,green
+task_obj_swap_rand_mask_79926,garment_colour,把一塊非臉部區域換色,clean_edit,27001,task_obj_swap_rand_mask_79926__garment_colour__s27001__clean_edit.png,What is the dominant colour of the person's clothing?,green,Green,green
+task_obj_swap_rand_mask_79926,garment_colour,把一塊非臉部區域換色,clean_edit,47001,task_obj_swap_rand_mask_79926__garment_colour__s47001__clean_edit.png,What is the dominant colour of the person's clothing?,green,Green,green
+task_env_weather_121086,add_scarf,加入原本沒有的物件（與 add_hat 不同的身體部位與材質）,original,,task_env_weather_121086__original.png,Is the person wearing a scarf?,no,No,no
+task_env_weather_121086,add_scarf,加入原本沒有的物件（與 add_hat 不同的身體部位與材質）,clean_edit,17001,task_env_weather_121086__add_scarf__s17001__clean_edit.png,Is the person wearing a scarf?,yes,"Yes, a scarf.",yes
+task_env_weather_121086,add_scarf,加入原本沒有的物件（與 add_hat 不同的身體部位與材質）,clean_edit,27001,task_env_weather_121086__add_scarf__s27001__clean_edit.png,Is the person wearing a scarf?,yes,"Yes, the person is wearing a scarf.",yes
+task_env_weather_121086,add_scarf,加入原本沒有的物件（與 add_hat 不同的身體部位與材質）,clean_edit,47001,task_env_weather_121086__add_scarf__s47001__clean_edit.png,Is the person wearing a scarf?,yes,"Yes, the person is wearing a scarf.",yes
+task_obj_remove_410264,add_scarf,加入原本沒有的物件（與 add_hat 不同的身體部位與材質）,original,,task_obj_remove_410264__original.png,Is the person wearing a scarf?,no,No,no
+task_obj_remove_410264,add_scarf,加入原本沒有的物件（與 add_hat 不同的身體部位與材質）,clean_edit,17001,task_obj_remove_410264__add_scarf__s17001__clean_edit.png,Is the person wearing a scarf?,yes,"Yes, the person is wearing a scarf.",yes
+task_obj_remove_410264,add_scarf,加入原本沒有的物件（與 add_hat 不同的身體部位與材質）,clean_edit,27001,task_obj_remove_410264__add_scarf__s27001__clean_edit.png,Is the person wearing a scarf?,yes,"Yes, the person is wearing a scarf.",yes
+task_obj_remove_410264,add_scarf,加入原本沒有的物件（與 add_hat 不同的身體部位與材質）,clean_edit,47001,task_obj_remove_410264__add_scarf__s47001__clean_edit.png,Is the person wearing a scarf?,yes,Yes,yes
+task_obj_swap_rand_mask_79926,add_scarf,加入原本沒有的物件（與 add_hat 不同的身體部位與材質）,original,,task_obj_swap_rand_mask_79926__original.png,Is the person wearing a scarf?,no,No,no
+task_obj_swap_rand_mask_79926,add_scarf,加入原本沒有的物件（與 add_hat 不同的身體部位與材質）,clean_edit,17001,task_obj_swap_rand_mask_79926__add_scarf__s17001__clean_edit.png,Is the person wearing a scarf?,yes,"Yes, the person is wearing a scarf.",yes
+task_obj_swap_rand_mask_79926,add_scarf,加入原本沒有的物件（與 add_hat 不同的身體部位與材質）,clean_edit,27001,task_obj_swap_rand_mask_79926__add_scarf__s27001__clean_edit.png,Is the person wearing a scarf?,yes,"Yes, the person is wearing a scarf.",yes
+task_obj_swap_rand_mask_79926,add_scarf,加入原本沒有的物件（與 add_hat 不同的身體部位與材質）,clean_edit,47001,task_obj_swap_rand_mask_79926__add_scarf__s47001__clean_edit.png,Is the person wearing a scarf?,yes,"Yes, the person is wearing a scarf.",yes

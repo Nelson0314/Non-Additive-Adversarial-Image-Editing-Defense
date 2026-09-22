@@ -1,0 +1,26 @@
+{
+  "images": [
+    {
+      "id": "task_env_weather_121086",
+      "path": "data/omniedit150/task_env_weather_121086/task_env_weather_121086.png",
+      "sha256": "51d8c7b934cafed509173a46c918fcc56cd62b163bc3675b2f85815e151cb260"
+    },
+    {
+      "id": "task_obj_remove_410264",
+      "path": "data/omniedit150/task_obj_remove_410264/task_obj_remove_410264.png",
+      "sha256": "3bb759b7ee7554684714e6ef3bdbd3fcd23cff7aca627095ce60749343561fe9"
+    },
+    {
+      "id": "task_obj_swap_rand_mask_79926",
+      "path": "data/omniedit150/task_obj_swap_rand_mask_79926/task_obj_swap_rand_mask_79926.png",
+      "sha256": "6359cfd6b1e1d87c460a5c498dd03494c5c344dbce4fb518bbc94006f5402d0c"
+    }
+  ],
+  "selection_note": "三張，從 data/portrait_manifest.json 的六張逐張看圖選出，再依 runs/instruction_calibration/ 的看圖結果換過一張。這一組是為了量**指令完成度**那條腿而挑的，準則比先前多一條：三類指令的目標在原圖上都必須不成立，而且**未防禦的編輯要真的把它做到**，否則那一格量不出防禦。",
+  "chosen_note": "task_env_weather_121086 林中蓄鬚男性、正面、藍色刷毛外套、林地背景；task_obj_remove_410264 白襯衫女性、正面、明亮散景背景；task_obj_swap_rand_mask_79926 花洋裝女性、3/4 側臉、圖樣牆背景。三種膚色、三種衣物材質（刷毛、棉、印花布）、三種背景型態（林地、散景、圖樣牆）。三張都沒有戴帽也沒有圍巾。",
+  "face_scale_note": "臉框佔畫面 0.181 / 0.163 / 0.106。跨度比先前那一組（0.287 / 0.163 / 0.106）窄，這是換掉 task_obj_swap_rand_mask_268827 的代價。所以這一組對「臉很大」那一端沒有覆蓋，結論不要外推過去。",
+  "replaced_note": "task_obj_swap_rand_mask_268827（銀甲男性，臉框 0.287）被換掉，原因是加帽那一類在它身上不成立：兩種措辭下 IP2P 都把整個主體重新生成，銀甲男性變成金髮白人女性（runs/instruction_calibration/human_labels.csv 逐張記錄）。未防禦的編輯自己就把人換掉時，那一格的身分分母是雜訊，防禦有沒有效讀不出來。",
+  "excluded_note": "task_obj_add_531333 雪中金髮女性：臉被雪遮住大半。task_env_weather_112463 泳者：已戴泳帽泳鏡，加帽那一類的目標成立，而且赤裸上身沒有衣物可換色。task_obj_swap_rand_mask_268827 見上。",
+  "prior_exclusion_note": "更早五張主線裡的 task_env_weather_195273 是卡通武士（臉嵌入在插畫上沒有意義），task_attr_mod_color_123744 是藝妓白妝。兩張都不在這一組。",
+  "sample_size_note": "三張、三類、三顆種子＝九格。這是 pilot 規模，用來把指令完成度的讀數校準起來，不是用來支持成功率敘述——零次成功時三顆種子的單側 95% 上界仍有 63%，±10 個百分點需要約 97 個獨立身分。"
+}

@@ -1,0 +1,52 @@
+{
+  "manifest": "data/portrait_trio_manifest.json",
+  "images": ["task_env_weather_121086"],
+  "question_note": "這一批問的是**位置**而不是強度或目標函數。逐張看圖看到 `add_hat` 的帽子與 `add_scarf` 的圍巾都長在主體邊界上，而整件衣物的支撐把預算攤到胸腹——那裡沒有東西長出來。環帶把同樣的預算集中到邊界那一圈。",
+  "comparison_note": "`ring120_rand`（面積 0.172、ΔE00 約 28）對 `runs/print_full/` 的 `full_checks_rand`（面積 0.205、ΔE00 28.08）是乾淨的位置對照：同一個參數化、同一個原型、相近的失真，只有支撐放在哪裡不同。",
+  "attack_steps": 50,
+  "s_i": 1.5,
+  "patch": {
+    "carrier": "print",
+    "support": "ring",
+    "ring_inner": 8,
+    "ring_outer": 120,
+    "inset": 0.0,
+    "kind": "upper",
+    "erode": 2,
+    "feather": 4,
+    "face_margin": 0,
+    "area": 0.022,
+    "blobs": 2,
+    "print_colours": 3,
+    "print_archetype": "checks",
+    "print_tau": 0.15,
+    "print_chroma_max": 28.0,
+    "print_lightness_span": 78.0,
+    "keep_shading": true,
+    "shade_radius": 12
+  },
+  "free": {
+    "timesteps": 4,
+    "noise_seed": 20260915,
+    "chain_steps": 6,
+    "grad_steps": 6,
+    "resample": false,
+    "support_weight": 4.0,
+    "weights": {"enc": 0.5, "cond": 1.0, "id": 1.0, "outside": 40.0},
+    "outside_margin": 16,
+    "outside_near_width": 48,
+    "outside_weight_far": 1.0,
+    "outside_weight_face": 2.0,
+    "outside_weight_near": 0.0
+  },
+  "variants": [
+    {"name": "ring40_rand", "solver": "random",
+     "patch": {"ring_inner": 4, "ring_outer": 40},
+     "note": "窄環帶，面積 0.067。"},
+    {"name": "ring120_rand", "solver": "random",
+     "note": "寬環帶，面積 0.172。與 full_checks_rand 的位置對照。"},
+    {"name": "ring120_opt", "steps": 150, "lr": 0.05,
+     "objective": "outside",
+     "note": "寬環帶加支撐外位移目標。"}
+  ]
+}

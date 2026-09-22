@@ -1,0 +1,356 @@
+{
+  "manifest": "data/portrait_trio_manifest.json",
+  "images": [
+    "task_env_weather_121086",
+    "task_obj_remove_410264",
+    "task_obj_swap_rand_mask_79926"
+  ],
+  "images_note": "",
+  "objective_note": "**這份設定裡不得出現指令。** scripts/paper_baseline.py 載入 scripts/immunise.py 的 assert_no_instructions 遞迴檢查。指令只在 scripts/evaluate_defence.py 出現。",
+  "rationale": "載體、預算、解析度全部固定成 runs/paper_trio/ 的 trio_advcf_paper（AdvCF 的單調分段線性 tone curve，pieces 64、radius 1.0）。**只改目標函數與訓練方法**：每一步重抽噪聲與時刻、把範數往臉框加權、把梯度伸進取樣鏈更深、以及多次隨機重啟。載體家族不動。",
+  "control_note": "advcf_control 與 trio_advcf_paper 逐欄相同，放在同一批裡當批內對照。跨批對照在本專案不成立（同一份設定重跑的格數差到 13 對 1），所以每一批都要自帶對照。",
+  "victim": "resnet50",
+  "victim_note": "這一批不用分類器解，仍逐格記 clean_label／margin，讓欄位與前兩層對得起來。人像上的 margin 不具意義，照實記、不解讀。",
+  "library": {
+    "path": "data/ncf_library.json",
+    "sha256": "3f1af891264523591d3a4ef1df6878cb41b2ed518e7e2cf0e492161b72013888",
+    "class_weights": {
+      "global_scene": 1.0
+    },
+    "ade20k_classes": null
+  },
+  "free": {
+    "timesteps": 4,
+    "chain_steps": 6,
+    "grad_steps": 1,
+    "noise_seed": 0,
+    "resample": false,
+    "face_weight": 0.0,
+    "weights": {
+      "id": 1.0,
+      "enc": 0.5,
+      "cond": 1.0
+    }
+  },
+  "free_note": "這是對照臂的設定，逐欄與 runs/paper_trio/ 相同。其餘臂在自己的 free 區塊裡覆寫要改的鍵。",
+  "variants": [
+    {
+      "name": "advcf_control",
+      "carrier": "advcf",
+      "options": {
+        "pieces": 64,
+        "radius": 1.0
+      },
+      "steps": 150,
+      "lr": 0.05,
+      "probe_every": 25,
+      "settings_note": "trio_advcf_paper 的逐欄複製。它同時是批內對照與重跑變異的一次量測。"
+    },
+    {
+      "name": "advcf_expect",
+      "carrier": "advcf",
+      "options": {
+        "pieces": 64,
+        "radius": 1.0
+      },
+      "steps": 300,
+      "lr": 0.05,
+      "lr_final_ratio": 0.2,
+      "probe_every": 25,
+      "free": {
+        "resample": true
+      },
+      "settings_note": "每一次求值重抽噪聲與四個時刻。凍結單一抽樣等於用一個樣本估 E_{t,ε}，而評估抽的是 17001／27001／47001。步數加倍、學習率餘弦降到五分之一，因為隨機目標的梯度雜訊比較大。"
+    },
+    {
+      "name": "advcf_expect_deep",
+      "carrier": "advcf",
+      "options": {
+        "pieces": 64,
+        "radius": 1.0
+      },
+      "steps": 300,
+      "lr": 0.05,
+      "lr_final_ratio": 0.2,
+      "probe_every": 25,
+      "free": {
+        "resample": true,
+        "chain_steps": 10,
+        "grad_steps": 3
+      },
+      "settings_note": "id 項的梯度原本只穿過取樣鏈最後一次 UNet 呼叫。鏈長 6→10、反傳段 1→3，問的是那個截斷是不是 id 項推不動的原因。"
+    },
+    {
+      "name": "advcf_expect_face",
+      "carrier": "advcf",
+      "options": {
+        "pieces": 64,
+        "radius": 1.0
+      },
+      "steps": 300,
+      "lr": 0.05,
+      "lr_final_ratio": 0.2,
+      "probe_every": 25,
+      "free": {
+        "resample": true,
+        "face_weight": 8.0
+      },
+      "settings_note": "enc 與 cond 的範數在臉框的潛座標上加權 9 倍。全域 tone curve 沒有空間自由度，唯一能分配的是斜率放在哪一段色調；加權等於要求那個分配只認臉上出現的色調。"
+    },
+    {
+      "name": "advcf_expect_face_restart",
+      "carrier": "advcf",
+      "options": {
+        "pieces": 64,
+        "radius": 1.0,
+        "init_jitter": 0.5
+      },
+      "steps": 300,
+      "lr": 0.05,
+      "lr_final_ratio": 0.2,
+      "probe_every": 25,
+      "restarts": 3,
+      "seed": 17,
+      "free": {
+        "resample": true,
+        "face_weight": 8.0
+      },
+      "settings_note": "同 advcf_expect_face，另加三次隨機起點的重啟，交付固定驗證抽樣上分數最低的那一輪。起點必須真的不同，所以 init_jitter 0.5 把恆等曲線往可行盒裡的均勻抽樣插一半。"
+    },
+    {
+      "carrier": "advcf",
+      "options": {
+        "pieces": 64,
+        "radius": 1.0
+      },
+      "steps": 300,
+      "lr": 0.05,
+      "lr_final_ratio": 0.2,
+      "probe_every": 25,
+      "name": "advcf_expect_cond",
+      "free": {
+        "resample": true,
+        "weights": {
+          "id": 1.0,
+          "enc": 0.5,
+          "cond": 20.0
+        }
+      },
+      "settings_note": "cond 實測落在 0.018–0.056，tanh 之後在權重 1.0 下對分數的貢獻只有 −0.02 到 −0.06，而 id 項是 +0.92：三項名義上等重，實際上 cond 幾乎不參與。權重拉到 20 讓它與另外兩項同量級。分母是 ‖ε_orig‖，高噪聲時刻的 ε 範數很大，顏色造成的相對位移本來就小，這個比例不是 bug 而是尺度。"
+    },
+    {
+      "carrier": "advcf",
+      "options": {
+        "pieces": 64,
+        "radius": 1.0
+      },
+      "steps": 300,
+      "lr": 0.05,
+      "lr_final_ratio": 0.2,
+      "probe_every": 25,
+      "name": "advcf_expect_noid",
+      "free": {
+        "resample": true,
+        "weights": {
+          "id": 0.0,
+          "enc": 0.5,
+          "cond": 20.0
+        }
+      },
+      "settings_note": "id 項最小化 cos(embed(null_edit(x_def)), 原圖臉嵌入)，而null_edit 對臉嵌入近乎恆等映射，所以那一項實際要求的是「把發布圖的臉換成別人」。這一臂把它整個拿掉，只留下「模型讀這張圖會讀錯」。"
+    },
+    {
+      "carrier": "advcf",
+      "options": {
+        "pieces": 64,
+        "radius": 1.0
+      },
+      "steps": 300,
+      "lr": 0.05,
+      "lr_final_ratio": 0.2,
+      "probe_every": 25,
+      "name": "advcf_expect_face_cond",
+      "free": {
+        "resample": true,
+        "face_weight": 8.0,
+        "weights": {
+          "id": 1.0,
+          "enc": 0.5,
+          "cond": 20.0
+        }
+      },
+      "settings_note": "臉框加權與 cond 重配權一起上。兩者分別由 advcf_expect_face與 advcf_expect_cond 隔離，這一臂看的是疊加。"
+    },
+    {
+      "name": "advcf_control_repeat",
+      "carrier": "advcf",
+      "options": {
+        "pieces": 64,
+        "radius": 1.0
+      },
+      "steps": 150,
+      "lr": 0.05,
+      "probe_every": 25,
+      "settings_note": "與 advcf_control 逐欄相同的第二次求解。載體的起點與目標的抽樣都是確定量，所以兩者的差只來自 GPU kernel 的非決定性。沒有這個量，其餘各臂與對照的差說不出是不是重跑雜訊。"
+    },
+    {
+      "name": "advcf_expect_repeat",
+      "carrier": "advcf",
+      "options": {
+        "pieces": 64,
+        "radius": 1.0
+      },
+      "steps": 300,
+      "lr": 0.05,
+      "lr_final_ratio": 0.2,
+      "probe_every": 25,
+      "free": {
+        "resample": true
+      },
+      "settings_note": "與 advcf_expect 逐欄相同的第二次求解，但重抽本身帶亂數，FreeObjective 的 generator 以 noise_seed 起始且逐步前進，所以兩次的抽樣序列相同，差仍然只來自 kernel 的非決定性。與 advcf_control／advcf_control_repeat 的差並列，回答「重抽有沒有把重跑變異壓下來」。"
+    },
+    {
+      "carrier": "advcf",
+      "options": {
+        "pieces": 64,
+        "radius": 1.0,
+        "init_jitter": 0.5
+      },
+      "steps": 300,
+      "lr": 0.05,
+      "lr_final_ratio": 0.2,
+      "probe_every": 25,
+      "name": "advcf_expect_noid_jitter",
+      "free": {
+        "resample": true,
+        "weights": {
+          "id": 0.0,
+          "enc": 0.5,
+          "cond": 20.0
+        }
+      },
+      "settings_note": "id 項最小化 cos(embed(null_edit(x_def)), 原圖臉嵌入)，而null_edit 對臉嵌入近乎恆等映射，所以那一項實際要求的是「把發布圖的臉換成別人」。這一臂把它整個拿掉，只留下「模型讀這張圖會讀錯」。 起點必須離開恆等曲線。恆等處 x_def 與原圖逐位元相同，enc 與 cond 都是零向量的範數，torch.norm 在零點回傳零次梯度；id 權重歸零之後整個梯度在第 0 步就是零，Adam 一步都不會動（advcf_expect_noid 的 ΔE00 是 0.00）。init_jitter 0.5 把起點推離那個駐點。",
+      "seed": 17
+    },
+    {
+      "name": "advcf_expect_jitter",
+      "carrier": "advcf",
+      "options": {
+        "pieces": 64,
+        "radius": 1.0,
+        "init_jitter": 0.5
+      },
+      "steps": 300,
+      "lr": 0.05,
+      "lr_final_ratio": 0.2,
+      "probe_every": 25,
+      "free": {
+        "resample": true
+      },
+      "settings_note": "與 advcf_expect 只差起點。把「起點離開恆等」與「拿掉 id 項」分開，否則 advcf_expect_noid_jitter 與 advcf_expect 的差歸不到其中一個頭上。",
+      "seed": 17
+    },
+    {
+      "name": "advcf_radius_r05",
+      "carrier": "advcf",
+      "options": {
+        "pieces": 64,
+        "radius": 0.5
+      },
+      "steps": 150,
+      "lr": 0.05,
+      "probe_every": 25,
+      "settings_note": "與 advcf_control 只差半徑（0.5 對 1.0）。半徑是 AdvCF 這一族自己的預算旋鈕，改它不換參數化：單調分段線性曲線的構造在任何半徑下都做不出逐色格跳變，所以產物仍然是「整體調色、無斑點」，只是調得更重。要看的是這條預算曲線上格數與產物自然度各走到哪裡，落點由使用者看圖決定。"
+    },
+    {
+      "name": "advcf_radius_r20",
+      "carrier": "advcf",
+      "options": {
+        "pieces": 64,
+        "radius": 2.0
+      },
+      "steps": 150,
+      "lr": 0.05,
+      "probe_every": 25,
+      "settings_note": "與 advcf_control 只差半徑（2.0 對 1.0）。半徑是 AdvCF 這一族自己的預算旋鈕，改它不換參數化：單調分段線性曲線的構造在任何半徑下都做不出逐色格跳變，所以產物仍然是「整體調色、無斑點」，只是調得更重。要看的是這條預算曲線上格數與產物自然度各走到哪裡，落點由使用者看圖決定。"
+    },
+    {
+      "name": "advcf_radius_r30",
+      "carrier": "advcf",
+      "options": {
+        "pieces": 64,
+        "radius": 3.0
+      },
+      "steps": 150,
+      "lr": 0.05,
+      "probe_every": 25,
+      "settings_note": "與 advcf_control 只差半徑（3.0 對 1.0）。半徑是 AdvCF 這一族自己的預算旋鈕，改它不換參數化：單調分段線性曲線的構造在任何半徑下都做不出逐色格跳變，所以產物仍然是「整體調色、無斑點」，只是調得更重。要看的是這條預算曲線上格數與產物自然度各走到哪裡，落點由使用者看圖決定。"
+    },
+    {
+      "name": "advcf_radius_r50",
+      "carrier": "advcf",
+      "options": {
+        "pieces": 64,
+        "radius": 5.0
+      },
+      "steps": 150,
+      "lr": 0.05,
+      "probe_every": 25,
+      "settings_note": "與 advcf_control 只差半徑（5.0 對 1.0）。半徑是 AdvCF 這一族自己的預算旋鈕，改它不換參數化：單調分段線性曲線的構造在任何半徑下都做不出逐色格跳變，所以產物仍然是「整體調色、無斑點」，只是調得更重。要看的是這條預算曲線上格數與產物自然度各走到哪裡，落點由使用者看圖決定。"
+    },
+    {
+      "name": "advcf_deep_r20",
+      "carrier": "advcf",
+      "options": {
+        "pieces": 64,
+        "radius": 2.0
+      },
+      "steps": 300,
+      "lr": 0.05,
+      "lr_final_ratio": 0.2,
+      "probe_every": 25,
+      "free": {
+        "resample": true,
+        "chain_steps": 10,
+        "grad_steps": 3
+      },
+      "settings_note": "把 advcf_expect_deep 的目標函數與訓練方法搬到半徑 2.0 上。兩個槓桿分別隔離過：目標函數那一族十二個臂全部落在批內重跑帶內，半徑 2.0 以上才把 criterion 中位由 0.944 壓到 0.87–0.89。這一臂問的是兩者疊不疊加。advcf_expect_deep 在共同抽樣上的 probe 分數是那一族裡最好的。"
+    },
+    {
+      "name": "advcf_deep_r30",
+      "carrier": "advcf",
+      "options": {
+        "pieces": 64,
+        "radius": 3.0
+      },
+      "steps": 300,
+      "lr": 0.05,
+      "lr_final_ratio": 0.2,
+      "probe_every": 25,
+      "free": {
+        "resample": true,
+        "chain_steps": 10,
+        "grad_steps": 3
+      },
+      "settings_note": "把 advcf_expect_deep 的目標函數與訓練方法搬到半徑 3.0 上。兩個槓桿分別隔離過：目標函數那一族十二個臂全部落在批內重跑帶內，半徑 2.0 以上才把 criterion 中位由 0.944 壓到 0.87–0.89。這一臂問的是兩者疊不疊加。advcf_expect_deep 在共同抽樣上的 probe 分數是那一族裡最好的。"
+    },
+    {
+      "name": "advcf_face_r20",
+      "carrier": "advcf",
+      "options": {
+        "pieces": 64,
+        "radius": 2.0
+      },
+      "steps": 300,
+      "lr": 0.05,
+      "lr_final_ratio": 0.2,
+      "probe_every": 25,
+      "free": {
+        "resample": true,
+        "face_weight": 8.0
+      },
+      "settings_note": "把 advcf_expect_face 的目標函數與訓練方法搬到半徑 2.0 上。兩個槓桿分別隔離過：目標函數那一族十二個臂全部落在批內重跑帶內，半徑 2.0 以上才把 criterion 中位由 0.944 壓到 0.87–0.89。這一臂問的是兩者疊不疊加。advcf_expect_face 在共同抽樣上的 probe 分數是那一族裡最好的。"
+    }
+  ],
+  "selection_note": "checkpoint 與重啟的挑選一律走 FreeObjective.eval_score——一組與訓練重抽不重疊的固定 (噪聲, 時刻)。用逐步分數挑會挑到運氣好的那一次抽樣。free_curve 欄記的就是那個固定量測上的收斂曲線。"
+}

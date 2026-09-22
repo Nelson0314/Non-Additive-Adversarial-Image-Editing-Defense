@@ -1,0 +1,67 @@
+{
+  "manifest": "data/portrait_trio_manifest.json",
+  "images": ["task_env_weather_121086"],
+  "why_note": "前三批把面積從 2.4% 推到 20.5%、ΔE00 貼片推到 40，指令腿一次都沒垮。逐張看圖看得出原因：`add_hat` 的帽子長在頭上、`add_scarf` 的圍巾長在領口，兩者都落在支撐**外**——衣物載體在構造上碰不到那兩個位置。所以指令腿不是調參能垮的，剩下唯一可能被局部載體推動的是**生成出來的那張臉**。",
+  "design_note": "這一批把目標收斂到臉上。兩條路：`id_only` 直接壓 `null_edit(x_def)` 臉框的 ArcFace 餘弦（那一項先前恆在 0.964–0.973，但它一直是與 enc／cond 競爭的其中一項、權重 1.0）；`face_band` 則只獎勵支撐外**臉框那一帶**的輸出位移，遠場與近鄰環權重歸零。兩者都配失真對齊的隨機對照。",
+  "attack_steps": 50,
+  "s_i": 1.5,
+  "patch": {
+    "carrier": "print",
+    "support": "full",
+    "inset": 0.0,
+    "kind": "upper",
+    "erode": 10,
+    "feather": 6,
+    "face_margin": 12,
+    "area": 0.022,
+    "blobs": 2,
+    "print_colours": 3,
+    "print_archetype": "checks",
+    "print_tau": 0.15,
+    "print_chroma_max": 28.0,
+    "print_lightness_span": 78.0,
+    "keep_shading": true,
+    "shade_radius": 12
+  },
+  "free": {
+    "timesteps": 4,
+    "noise_seed": 20260915,
+    "chain_steps": 6,
+    "grad_steps": 6,
+    "resample": false,
+    "support_weight": 0.0,
+    "weights": {"enc": 0.0, "cond": 0.0, "id": 4.0},
+    "outside_margin": 16,
+    "outside_near_width": 48
+  },
+  "variants": [
+    {
+      "name": "id_only",
+      "steps": 250, "lr": 0.05, "lr_final_ratio": 0.2,
+      "objective": "free",
+      "free": {"weights": {"enc": 0.0, "cond": 0.0, "id": 4.0}},
+      "note": "只壓生成臉的身分。`id` 先前一直是三項之一、權重 1.0，這一臂把它變成唯一的項並把步數加到 250。"
+    },
+    {
+      "name": "face_band",
+      "steps": 250, "lr": 0.05, "lr_final_ratio": 0.2,
+      "objective": "outside",
+      "free": {
+        "weights": {"enc": 0.0, "cond": 0.0, "id": 1.0, "outside": 60.0},
+        "outside_weight_far": 0.0,
+        "outside_weight_face": 1.0,
+        "outside_weight_near": 0.0
+      },
+      "note": "只獎勵臉框那一帶的輸出位移。`outside` 是線性進分數的，不經 tanh，所以不吃梯度飽和那一刀。"
+    },
+    {
+      "name": "id_only_eot",
+      "steps": 250, "lr": 0.05, "lr_final_ratio": 0.2,
+      "objective": "free",
+      "free": {"resample": true, "weights": {"enc": 0.0, "cond": 0.0, "id": 4.0}},
+      "note": "同 `id_only` 但每次求值重抽噪聲與時刻。求解用的噪聲種子與評估用的 17001 不同，重抽是為了不讓解過擬合到單一抽樣。"
+    },
+    {"name": "face_rand", "solver": "random",
+     "note": "同支撐、同色盤、同原型，不最佳化。"}
+  ]
+}

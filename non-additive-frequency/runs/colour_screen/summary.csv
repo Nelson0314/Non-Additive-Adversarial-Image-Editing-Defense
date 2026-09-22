@@ -1,9 +1,0 @@
-variant,arm,purifier,rows,cells,penetrated,majority,all_seeds,criterion,id_norm,dir_norm,use_norm,argmin_id,argmin_use,control_lost,control_flat,subject_lost
-immunise_constrained,immunised,blur,75,25,18,15,15,0.15143,0.15143,0.83865,0.91098,72,3,0,6,0
-immunise_constrained,immunised,crop_resize,75,25,19,16,14,0.38636,0.38635,0.77686,0.97698,73,2,0,5,0
-immunise_constrained,immunised,identity,75,25,22,18,17,0.14426,0.14426,0.91446,0.97407,75,0,0,6,0
-immunise_constrained,immunised,jpeg,75,25,22,18,17,0.0982,0.0982,1.0,0.92194,75,0,0,5,0
-immunise_constrained,undefended,blur,75,25,0,0,0,1.0,1.0,1.0,1.0,75,0,0,6,0
-immunise_constrained,undefended,crop_resize,75,25,0,0,0,1.0,1.0,1.0,1.0,75,0,0,5,0
-immunise_constrained,undefended,identity,75,25,0,0,0,1.0,1.0,1.0,1.0,75,0,0,6,0
-immunise_constrained,undefended,jpeg,75,25,0,0,0,1.0,1.0,1.0,1.0,75,0,0,5,0

@@ -1,0 +1,103 @@
+{
+  "manifest": "data/portrait_trio_manifest.json",
+  "images": [
+    "task_env_weather_121086",
+    "task_obj_remove_410264",
+    "task_obj_swap_rand_mask_79926"
+  ],
+  "images_note": "",
+  "objective_note": "**這份設定裡不得出現指令。** scripts/paper_baseline.py 載入 scripts/immunise.py 的 assert_no_instructions 遞迴檢查。",
+  "rationale": "第二層：三篇的**載體與預算照它們的，目標函數換成本專案的無指令目標**（enc／cond／id）。要問的是「在我們的威脅模型下，這三個色彩參數化能做到什麼」。",
+  "why_swap_loss_note": "純粹的原樣移植在人像上沒有定義：ResNet-50 對不屬於 ImageNet 任何類別的人像沒有信心，煙霧測試量到乾淨 margin 只有 +0.017，用那個損失最佳化等於在雜訊上下降。第一層（runs/paper_baseline/）已經在 ImageNet 上證明載體本身能打穿分類器（ReColorAdv 48/48），這一層換掉的只有損失。docs/reference/BIBLIOGRAPHY.md 明寫「換損失是消融，要分開列」——這兩層就是分開列的兩層。",
+  "fairness_note": "換損失是**給這些方法最好的機會**，不是弱化它們：載體與預算是論文的，損失換成真正對準擴散編輯的那一個。如果在這個組合下仍然是零，那句「這一族的色彩載體在這個威脅模型下沒有作用」才說得出口。",
+  "victim": "resnet50",
+  "victim_note": "這一層不用分類器解，但仍逐格記 clean_label／margin，讓兩層的欄位對得起來。人像上的 margin 不具意義，照實記、不解讀。",
+  "library": {
+    "path": "data/ncf_library.json",
+    "sha256": "3f1af891264523591d3a4ef1df6878cb41b2ed518e7e2cf0e492161b72013888",
+    "class_weights": {
+      "global_scene": 1.0
+    },
+    "ade20k_classes": null
+  },
+  "free": {
+    "timesteps": 4,
+    "chain_steps": 6,
+    "grad_steps": 1,
+    "noise_seed": 0,
+    "weights": {
+      "id": 1.0,
+      "enc": 0.5,
+      "cond": 1.0
+    }
+  },
+  "free_note": "所以這一批與位移場載體的差別只有載體本身。",
+  "variants": [
+    {
+      "name": "trio_recoloradv_003",
+      "carrier": "recoloradv",
+      "paper": "Laidlaw & Feizi, NeurIPS 2019",
+      "options": {
+        "resolution": [
+          16,
+          32,
+          32
+        ],
+        "radius": 0.03
+      },
+      "steps": 150,
+      "lr": 0.003,
+      "settings_note": "ε 0.03，比論文的 0.06 更緊。ε 0.06 在本專案的目標函數下已經出現洋紅斑點（runs/paper_trio/），所以要往下取一點，看產物回到自然之後還剩多少效果。"
+    },
+    {
+      "name": "trio_recoloradv_paper",
+      "carrier": "recoloradv",
+      "paper": "Laidlaw & Feizi, NeurIPS 2019",
+      "options": {
+        "resolution": [
+          16,
+          32,
+          32
+        ],
+        "radius": 0.06
+      },
+      "steps": 150,
+      "lr": 0.005,
+      "settings_note": "預算與第一層的 recoloradv_paper 逐欄相同（16×32×32、ε 0.06）。步數 150。"
+    },
+    {
+      "name": "trio_recoloradv_wide",
+      "carrier": "recoloradv",
+      "paper": "同上，放寬預算",
+      "options": {
+        "resolution": [
+          16,
+          32,
+          32
+        ],
+        "radius": 0.2
+      },
+      "steps": 150,
+      "lr": 0.01,
+      "settings_note": "ε 從 0.06 放到 0.20。論文的預算下若是零，要能回答「是不是預算太小」；這一臂就是那個對照。產物會比論文的明顯，逐張看圖判。"
+    },
+    {
+      "name": "trio_advcf_paper",
+      "carrier": "advcf",
+      "paper": "Zhao et al., BMVC 2020 / TIFS 2023",
+      "options": {
+        "pieces": 64,
+        "radius": 1.0
+      },
+      "steps": 150,
+      "lr": 0.05,
+      "settings_note": "K = 64、bound_mode advcf、lr 0.05（第一層調出來的步長）。"
+    }
+  ],
+  "variants_note": "ReColorAdv 三個預算（ε 0.03／0.06／0.20）加 AdvCF。",
+  "readout_note": "這一批的 __defended.png 接著餵給 scripts/evaluate_defence.py 配 configs/evaluate_instruction.json（三張 × 三類 × 三顆種子 × 兩個 arm ＝ 每臂 54 列），再用 scripts/instruction_vqa.py --edits 量指令完成度。要並列的四個讀數是：發布圖身分、發布圖自然度（人看圖）、id_norm、指令完成度。",
+  "precision": "bf16",
+  "s_i": 1.5,
+  "attack_steps": 50,
+  "ncf_removed_note": "NCF 已移除。第一層量到我們的單一全域 MK 矩陣只到 17/48，論文的逐分割類別匹配需要 Swin-T UperNet 而我們沒有做；帶著這個保真度缺口的臂放在同一張表上會讓讀者以為那是 NCF 的成績。要恢復它得先補上分割與逐類別混合。"
+}

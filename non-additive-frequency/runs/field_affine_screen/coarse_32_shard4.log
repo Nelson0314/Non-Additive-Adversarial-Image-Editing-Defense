@@ -1,133 +1,0 @@
-Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
-Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]
-Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][A
-Loading weights:  74%|███████▍  | 145/196 [00:00<00:00, 1406.91it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 1488.04it/s]
-Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00,  5.61it/s]Loading pipeline components...:  50%|█████     | 3/6 [00:00<00:00,  6.52it/s]Loading pipeline components...:  83%|████████▎ | 5/6 [00:02<00:00,  1.80it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:06<00:00,  1.65s/it]Loading pipeline components...: 100%|██████████| 6/6 [00:06<00:00,  1.12s/it]
-There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
-/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
-  warnings.warn(
-/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
-  warnings.warn(msg)
-分片 4/5：5 格 × 3 種子 × 2 臂 × 1 淨化
-Loading weights:   0%|          | 0/380 [00:00<?, ?it/s]Loading weights:  81%|████████▏ | 309/380 [00:00<00:00, 3087.52it/s]Loading weights: 100%|██████████| 380/380 [00:00<00:00, 3142.06it/s]
-/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,1.0]
-  warnings.warn(
-[W913 05:04:50.442394483 CUDACachingAllocator.cpp:508] expandable_segments: memory mapping failed with OOM on device 0 while trying to map 20971520 bytes (free: 8060928, total: 25296044032).
-[W913 05:04:50.683466025 CUDACachingAllocator.cpp:508] expandable_segments: memory mapping failed with OOM on device 0 while trying to map 20971520 bytes (free: 10158080, total: 25296044032).
-[W913 05:04:50.699276440 CUDACachingAllocator.cpp:508] expandable_segments: memory mapping failed with OOM on device 0 while trying to map 20971520 bytes (free: 10158080, total: 25296044032).
-[W913 05:04:50.716260225 CUDACachingAllocator.cpp:508] expandable_segments: memory mapping failed with OOM on device 0 while trying to map 20971520 bytes (free: 10158080, total: 25296044032).
-[W913 05:04:50.732371159 CUDACachingAllocator.cpp:508] expandable_segments: memory mapping failed with OOM on device 0 while trying to map 20971520 bytes (free: 10158080, total: 25296044032).
-[W913 05:04:50.749271082 CUDACachingAllocator.cpp:508] expandable_segments: memory mapping failed with OOM on device 0 while trying to map 20971520 bytes (free: 10158080, total: 25296044032).
-[W913 05:04:50.766161585 CUDACachingAllocator.cpp:508] expandable_segments: memory mapping failed with OOM on device 0 while trying to map 20971520 bytes (free: 10158080, total: 25296044032).
-[W913 05:04:50.782362319 CUDACachingAllocator.cpp:508] expandable_segments: memory mapping failed with OOM on device 0 while trying to map 20971520 bytes (free: 10158080, total: 25296044032).
-[W913 05:04:50.798440351 CUDACachingAllocator.cpp:508] expandable_segments: memory mapping failed with OOM on device 0 while trying to map 20971520 bytes (free: 10158080, total: 25296044032).
-[W913 05:04:50.815302124 CUDACachingAllocator.cpp:508] expandable_segments: memory mapping failed with OOM on device 0 while trying to map 20971520 bytes (free: 10158080, total: 25296044032).
-[W913 05:04:50.831545795 CUDACachingAllocator.cpp:508] expandable_segments: memory mapping failed with OOM on device 0 while trying to map 20971520 bytes (free: 10158080, total: 25296044032).
-[W913 05:04:50.848433717 CUDACachingAllocator.cpp:508] expandable_segments: memory mapping failed with OOM on device 0 while trying to map 20971520 bytes (free: 10158080, total: 25296044032).
-[W913 05:04:50.865399573 CUDACachingAllocator.cpp:508] expandable_segments: memory mapping failed with OOM on device 0 while trying to map 20971520 bytes (free: 10158080, total: 25296044032).
-[W913 05:04:50.881302885 CUDACachingAllocator.cpp:508] expandable_segments: memory mapping failed with OOM on device 0 while trying to map 20971520 bytes (free: 10158080, total: 25296044032).
-[W913 05:04:50.897244932 CUDACachingAllocator.cpp:508] expandable_segments: memory mapping failed with OOM on device 0 while trying to map 20971520 bytes (free: 10158080, total: 25296044032).
-[W913 05:04:50.914187409 CUDACachingAllocator.cpp:508] expandable_segments: memory mapping failed with OOM on device 0 while trying to map 20971520 bytes (free: 10158080, total: 25296044032).
-[W913 05:04:50.930329416 CUDACachingAllocator.cpp:508] expandable_segments: memory mapping failed with OOM on device 0 while trying to map 20971520 bytes (free: 10158080, total: 25296044032).
-[W913 05:04:50.946323279 CUDACachingAllocator.cpp:508] expandable_segments: memory mapping failed with OOM on device 0 while trying to map 20971520 bytes (free: 10158080, total: 25296044032).
-[W913 05:04:50.961357179 CUDACachingAllocator.cpp:508] expandable_segments: memory mapping failed with OOM on device 0 while trying to map 20971520 bytes (free: 10158080, total: 25296044032).
-[W913 05:04:50.976445342 CUDACachingAllocator.cpp:508] expandable_segments: memory mapping failed with OOM on device 0 while trying to map 20971520 bytes (free: 10158080, total: 25296044032).
-[W913 05:04:50.991380355 CUDACachingAllocator.cpp:508] expandable_segments: memory mapping failed with OOM on device 0 while trying to map 20971520 bytes (free: 10158080, total: 25296044032).
-[W913 05:04:50.006414407 CUDACachingAllocator.cpp:508] expandable_segments: memory mapping failed with OOM on device 0 while trying to map 20971520 bytes (free: 10158080, total: 25296044032).
-[W913 05:04:50.020498944 CUDACachingAllocator.cpp:508] expandable_segments: memory mapping failed with OOM on device 0 while trying to map 20971520 bytes (free: 10158080, total: 25296044032).
-[W913 05:04:50.035318896 CUDACachingAllocator.cpp:508] expandable_segments: memory mapping failed with OOM on device 0 while trying to map 20971520 bytes (free: 10158080, total: 25296044032).
-[W913 05:04:50.050314698 CUDACachingAllocator.cpp:508] expandable_segments: memory mapping failed with OOM on device 0 while trying to map 20971520 bytes (free: 10158080, total: 25296044032).
-[W913 05:04:50.065434893 CUDACachingAllocator.cpp:508] expandable_segments: memory mapping failed with OOM on device 0 while trying to map 20971520 bytes (free: 10158080, total: 25296044032).
-[W913 05:04:50.080565780 CUDACachingAllocator.cpp:508] expandable_segments: memory mapping failed with OOM on device 0 while trying to map 20971520 bytes (free: 10158080, total: 25296044032).
-[W913 05:04:50.095369659 CUDACachingAllocator.cpp:508] expandable_segments: memory mapping failed with OOM on device 0 while trying to map 20971520 bytes (free: 10158080, total: 25296044032).
-[W913 05:04:50.110297478 CUDACachingAllocator.cpp:508] expandable_segments: memory mapping failed with OOM on device 0 while trying to map 20971520 bytes (free: 10158080, total: 25296044032).
-[W913 05:04:50.125304088 CUDACachingAllocator.cpp:508] expandable_segments: memory mapping failed with OOM on device 0 while trying to map 20971520 bytes (free: 10158080, total: 25296044032).
-[W913 05:04:50.141235531 CUDACachingAllocator.cpp:508] expandable_segments: memory mapping failed with OOM on device 0 while trying to map 20971520 bytes (free: 10158080, total: 25296044032).
-[W913 05:04:50.157298532 CUDACachingAllocator.cpp:508] expandable_segments: memory mapping failed with OOM on device 0 while trying to map 20971520 bytes (free: 10158080, total: 25296044032).
-[W913 05:04:50.174137423 CUDACachingAllocator.cpp:508] expandable_segments: memory mapping failed with OOM on device 0 while trying to map 20971520 bytes (free: 10158080, total: 25296044032).
-[W913 05:04:50.191287567 CUDACachingAllocator.cpp:508] expandable_segments: memory mapping failed with OOM on device 0 while trying to map 20971520 bytes (free: 10158080, total: 25296044032).
-[W913 05:04:50.211531290 CUDACachingAllocator.cpp:508] expandable_segments: memory mapping failed with OOM on device 0 while trying to map 20971520 bytes (free: 10158080, total: 25296044032).
-[W913 05:04:50.228376978 CUDACachingAllocator.cpp:508] expandable_segments: memory mapping failed with OOM on device 0 while trying to map 20971520 bytes (free: 10158080, total: 25296044032).
-[W913 05:04:50.244489715 CUDACachingAllocator.cpp:508] expandable_segments: memory mapping failed with OOM on device 0 while trying to map 20971520 bytes (free: 10158080, total: 25296044032).
-[W913 05:04:50.262333419 CUDACachingAllocator.cpp:508] expandable_segments: memory mapping failed with OOM on device 0 while trying to map 20971520 bytes (free: 10158080, total: 25296044032).
-[W913 05:04:50.278475273 CUDACachingAllocator.cpp:508] expandable_segments: memory mapping failed with OOM on device 0 while trying to map 20971520 bytes (free: 10158080, total: 25296044032).
-[W913 05:04:51.294449470 CUDACachingAllocator.cpp:508] expandable_segments: memory mapping failed with OOM on device 0 while trying to map 20971520 bytes (free: 10158080, total: 25296044032).
-[W913 05:04:51.315248721 CUDACachingAllocator.cpp:508] expandable_segments: memory mapping failed with OOM on device 0 while trying to map 20971520 bytes (free: 10158080, total: 25296044032).
-[W913 05:04:51.332260963 CUDACachingAllocator.cpp:508] expandable_segments: memory mapping failed with OOM on device 0 while trying to map 20971520 bytes (free: 10158080, total: 25296044032).
-[W913 05:04:51.348343999 CUDACachingAllocator.cpp:508] expandable_segments: memory mapping failed with OOM on device 0 while trying to map 20971520 bytes (free: 10158080, total: 25296044032).
-[W913 05:04:51.365818640 CUDACachingAllocator.cpp:508] expandable_segments: memory mapping failed with OOM on device 0 while trying to map 20971520 bytes (free: 10158080, total: 25296044032).
-[W913 05:04:51.382273905 CUDACachingAllocator.cpp:508] expandable_segments: memory mapping failed with OOM on device 0 while trying to map 20971520 bytes (free: 10158080, total: 25296044032).
-[W913 05:04:51.398506011 CUDACachingAllocator.cpp:508] expandable_segments: memory mapping failed with OOM on device 0 while trying to map 20971520 bytes (free: 10158080, total: 25296044032).
-[W913 05:04:51.414842595 CUDACachingAllocator.cpp:508] expandable_segments: memory mapping failed with OOM on device 0 while trying to map 20971520 bytes (free: 10158080, total: 25296044032).
-[W913 05:04:51.431416330 CUDACachingAllocator.cpp:508] expandable_segments: memory mapping failed with OOM on device 0 while trying to map 20971520 bytes (free: 10158080, total: 25296044032).
-[W913 05:04:51.448402214 CUDACachingAllocator.cpp:508] expandable_segments: memory mapping failed with OOM on device 0 while trying to map 20971520 bytes (free: 10158080, total: 25296044032).
-[W913 05:04:51.471023881 CUDACachingAllocator.cpp:508] expandable_segments: memory mapping failed with OOM on device 0 while trying to map 20971520 bytes (free: 10158080, total: 25296044032).
-[W913 05:04:51.487499565 CUDACachingAllocator.cpp:508] expandable_segments: memory mapping failed with OOM on device 0 while trying to map 20971520 bytes (free: 10158080, total: 25296044032).
-[W913 05:04:51.503260028 CUDACachingAllocator.cpp:508] expandable_segments: memory mapping failed with OOM on device 0 while trying to map 20971520 bytes (free: 10158080, total: 25296044032).
-[W913 05:04:51.523200840 CUDACachingAllocator.cpp:508] expandable_segments: memory mapping failed with OOM on device 0 while trying to map 20971520 bytes (free: 10158080, total: 25296044032).
-[W913 05:04:51.539187285 CUDACachingAllocator.cpp:508] expandable_segments: memory mapping failed with OOM on device 0 while trying to map 20971520 bytes (free: 10158080, total: 25296044032).
-[W913 05:04:51.556132979 CUDACachingAllocator.cpp:508] expandable_segments: memory mapping failed with OOM on device 0 while trying to map 20971520 bytes (free: 10158080, total: 25296044032).
-[W913 05:04:51.584380816 CUDACachingAllocator.cpp:508] expandable_segments: memory mapping failed with OOM on device 0 while trying to map 20971520 bytes (free: 10158080, total: 25296044032).
-[W913 05:04:51.634039909 CUDACachingAllocator.cpp:508] expandable_segments: memory mapping failed with OOM on device 0 while trying to map 20971520 bytes (free: 10158080, total: 25296044032).
-[W913 05:04:51.741834966 CUDACachingAllocator.cpp:508] expandable_segments: memory mapping failed with OOM on device 0 while trying to map 20971520 bytes (free: 10158080, total: 25296044032).
-Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 13628.43it/s]
-[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
-[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
-Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 4129.26it/s]
-[W913 05:05:05.593365936 CUDACachingAllocator.cpp:508] expandable_segments: memory mapping failed with OOM on device 0 while trying to map 20971520 bytes (free: 12255232, total: 25296044032).
-[W913 05:05:05.598228049 CUDACachingAllocator.cpp:508] expandable_segments: memory mapping failed with OOM on device 0 while trying to map 20971520 bytes (free: 20643840, total: 25296044032).
-Traceback (most recent call last):
-  File "/nfs/home/nelson0314/WACV-s4/scripts/evaluate_defence.py", line 253, in <module>
-    main()
-  File "/nfs/home/nelson0314/WACV-s4/scripts/evaluate_defence.py", line 189, in main
-    edits = dict(zip(seeds, edit_many([x_def] * len(seeds),
-                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/nfs/home/nelson0314/WACV-s4/scripts/evaluate_defence.py", line 143, in edit_many
-    b = ip2p.edit_batch(chunk_i, [instruction] * len(chunk_i), chunk_s,
-        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torch/utils/_contextlib.py", line 124, in decorate_context
-    return func(*args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^
-  File "/nfs/home/nelson0314/WACV-s4/src/models/ip2p.py", line 280, in edit_batch
-    out = self.pipe(
-          ^^^^^^^^^^
-  File "/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torch/utils/_contextlib.py", line 124, in decorate_context
-    return func(*args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^
-  File "/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/pipelines/stable_diffusion/pipeline_stable_diffusion_instruct_pix2pix.py", line 374, in __call__
-    image_latents = self.prepare_image_latents(
-                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/pipelines/stable_diffusion/pipeline_stable_diffusion_instruct_pix2pix.py", line 877, in prepare_image_latents
-    image_latents = retrieve_latents(self.vae.encode(image), sample_mode="argmax")
-                                     ^^^^^^^^^^^^^^^^^^^^^^
-  File "/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/utils/accelerate_utils.py", line 46, in wrapper
-    return method(self, *args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/models/autoencoders/autoencoder_kl.py", line 190, in encode
-    h = self._encode(x)
-        ^^^^^^^^^^^^^^^
-  File "/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/models/autoencoders/autoencoder_kl.py", line 164, in _encode
-    enc = self.encoder(x)
-          ^^^^^^^^^^^^^^^
-  File "/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1778, in _wrapped_call_impl
-    return self._call_impl(*args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1789, in _call_impl
-    return forward_call(*args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/models/autoencoders/vae.py", line 155, in forward
-    sample = self.conv_in(sample)
-             ^^^^^^^^^^^^^^^^^^^^
-  File "/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1778, in _wrapped_call_impl
-    return self._call_impl(*args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1789, in _call_impl
-    return forward_call(*args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torch/nn/modules/conv.py", line 565, in forward
-    return self._conv_forward(input, self.weight, self.bias)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torch/nn/modules/conv.py", line 560, in _conv_forward
-    return F.conv2d(
-           ^^^^^^^^^
-torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 192.00 MiB. GPU 0 has a total capacity of 23.56 GiB of which 179.69 MiB is free. Process 2574722 has 19.33 GiB memory in use. Including non-PyTorch memory, this process has 4.04 GiB memory in use. Of the allocated memory 3.67 GiB is allocated by PyTorch, and 26.73 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf)

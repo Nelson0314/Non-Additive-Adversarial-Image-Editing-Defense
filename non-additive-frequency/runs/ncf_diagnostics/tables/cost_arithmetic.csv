@@ -1,3 +1,0 @@
-region,seconds,hours,five_images_hours,provenance
-clothes,8151.52,2.264311111111111,11.321555555555557,"user supplied timings; no timing log in supplied repo; lower accounting excludes independent banks, duplicate trace scores, rendering/evaluation and IO"
-frame,8151.52,2.264311111111111,11.321555555555557,"user supplied timings; no timing log in supplied repo; lower accounting excludes independent banks, duplicate trace scores, rendering/evaluation and IO"

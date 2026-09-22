@@ -1,8 +1,0 @@
-image,condition,budget_target,purifier,reference,effect_mean,effect_sd,effect_identity_mean,effect_identity_sd,retention,codefense_status,reference_codefense,effect_codefense_mean,effect_codefense_sd,siglip_sim,siglip_blocked,edit_strength,usable,seconds
-task_env_weather_193600,none,floor,identity,orig,0.0,0.0,0.0,0.0,,,,,,1.0,False,0.8,True,590.4
-task_env_weather_193600,none,floor,blur1,orig,0.10818,0.00144,0.0,0.0,,,,,,0.96331,False,0.8,True,590.4
-task_env_weather_193600,none,floor,jpeg75,orig,0.05902,0.00202,0.0,0.0,,,,,,0.9974,False,0.8,True,590.4
-task_env_weather_193600,none,floor,jpeg30,orig,0.17576,0.00169,0.0,0.0,,,,,,0.98058,False,0.8,True,590.4
-task_env_weather_193600,none,floor,blur2,orig,0.25648,0.00538,0.0,0.0,,,,,,0.9276,False,0.8,True,590.4
-task_env_weather_193600,none,floor,crop_resize0.1,purified_orig,0.0,0.0,0.0,0.0,,,,,,1.0,False,0.8,True,590.4
-task_env_weather_193600,none,floor,jpeg_then_resize75,purified_orig,0.0,0.0,0.0,0.0,,,,,,1.0,False,0.8,True,590.4

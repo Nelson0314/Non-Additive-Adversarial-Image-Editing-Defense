@@ -9,7 +9,7 @@
 | 目錄 | 內容 |
 |---|---|
 | [`anti-purify/`](anti-purify/) | **現行階段。** 入口是 [`start.md`](anti-purify/start.md)；接在它之後的色彩重映射與語意誘餌在 [`COLOR_AND_DECOY.md`](anti-purify/COLOR_AND_DECOY.md)，文獻庫在 [`reference/`](anti-purify/reference/) |
-| [`non-additive-frequency/`](non-additive-frequency/) | **已告一段落。** 頻域／相位重參數化的完整程式、文件與數值記錄 |
+| [`anti-purification/`](anti-purification/) | **已告一段落。** 頻域／相位重參數化的完整程式、文件與數值記錄 |
 
 新的工作從 [`anti-purify/start.md`](anti-purify/start.md) 開始讀——它統整了做過
 什麼、什麼成立、量測協定、專案規定與機器使用，並逐處標出證據在封存目錄的哪裡。

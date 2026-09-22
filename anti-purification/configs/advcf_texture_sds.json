@@ -1,0 +1,143 @@
+{
+  "manifest": "data/portrait_trio_manifest.json",
+  "images": [
+    "task_env_weather_121086",
+    "task_obj_swap_rand_mask_79926"
+  ],
+  "images_note": "",
+  "objective_note": "**這份設定裡不得出現指令。** scripts/paper_baseline.py 載入 scripts/immunise.py 的 assert_no_instructions 遞迴檢查。指令只在 scripts/evaluate_defence.py 出現。",
+  "rationale": "修掉 runs/advcf_pilot/ 讀出來的三個根因，全部在 ΔE00 ≤ 16 的等失真錨點上，分母沿用 runs/advcf_pilot/pilot_free（同設定、同影像、同種子，不重解）。(1) 高頻紋理目標：pilot_mist_target 全場墊底（LPIPS 0.3394）的根因是目標選成中性灰——它的去噪行為低變異、接近平庸，把行為拉向平庸等於要求模型更容易還原這張圖。Mist 原論文的目標是一張高頻紋理圖。tex_photoguard 與 tex_mist 把 enc_target 與 diffusion_target 的目標換成程序化紋理，逐欄其餘與 pilot_photoguard／pilot_mist_target 相同，所以差別只有目標。(2) targeted out：pilot_out_fixed 是現在最好的臂（LPIPS 0.4090），而它是無目標的。encoder 那一側已經量到 targeted 贏過 untargeted，tex_out_target把同一個形狀搬到 out 上。(3) SDS 類梯度：sds_advdm 與 pilot_advdm 是同一個損失函數，只有梯度不同（不反傳穿過 UNet），所以量的是那個近似付出多少代價、省下多少時間。",
+  "control_note": "advcf_control 與 trio_advcf_paper 逐欄相同，放在同一批裡當批內對照。跨批對照在本專案不成立（同一份設定重跑的格數差到 13 對 1），所以每一批都要自帶對照。",
+  "victim": "resnet50",
+  "victim_note": "這一批不用分類器解，仍逐格記 clean_label／margin，讓欄位與前兩層對得起來。人像上的 margin 不具意義，照實記、不解讀。",
+  "library": {
+    "path": "data/ncf_library.json",
+    "sha256": "3f1af891264523591d3a4ef1df6878cb41b2ed518e7e2cf0e492161b72013888",
+    "class_weights": {
+      "global_scene": 1.0
+    },
+    "ade20k_classes": null
+  },
+  "free": {
+    "timesteps": 4,
+    "chain_steps": 6,
+    "grad_steps": 1,
+    "noise_seed": 0,
+    "resample": false,
+    "face_weight": 0.0,
+    "weights": {
+      "id": 1.0,
+      "enc": 0.5,
+      "cond": 1.0
+    }
+  },
+  "free_note": "這是對照臂的設定，逐欄與 runs/paper_trio/ 相同。其餘臂在自己的 free 區塊裡覆寫要改的鍵。",
+  "selection_note": "checkpoint 與重啟的挑選一律走 FreeObjective.eval_score——一組與訓練重抽不重疊的固定 (噪聲, 時刻)。用逐步分數挑會挑到運氣好的那一次抽樣。free_curve 欄記的就是那個固定量測上的收斂曲線。",
+  "anchor_note": "等失真錨點下半徑一律放到 5.0，讓色差上限而不是半徑成為唯一束縛。可行性檢查走量測路徑（skimage）、在量化後的 PNG 上做，最佳可行 checkpoint 由固定驗證抽樣的 eval_score 挑。",
+  "random_control_note": "隨機對照臂（`*_rand_*`）不呼叫 IP2P，也不跑任何最佳化步：`scripts/paper_baseline.py` 的 `solver: random` 直接抽一條曲線，再用 `src/defense/color_amplitude.fit_curve_jitter` 二分 `init_jitter` 對齊 ΔE00。`ColorCurveParam.render` 不看 `amplitude`，所以曲線族的幅度旋鈕是 `init_jitter` 而不是 `solve_amplitude` 用的那一個。 抽樣用低頻平滑剖面而不是逐段 i.i.d.：逐段獨立抽樣的偏差會互相抵銷，實測滿幅度只到 ΔE00 7.11／4.14／5.90，連 16 的錨點都搆不到，拿它當對照等於送分給最佳化。對抗解出來的曲線相鄰段高度相關，隨機對照要抽自同一類函數才公平。 隨機臂的半徑放到 80、分量數 5，理由是**平滑隨機曲線在色差上會飽和**：曲線帶 ×K/Σθ 正規化，斜率剖面整體縮放不改變曲線，只有形狀有效，而低頻形狀能造成的位移有上限。實測三顆種子的最大 ΔE00：半徑 5 只到 20.4／14.1／16.3，半徑 80 仍只到 23.7／16.8／21.9（3 分量）；5 分量在半徑 40 才到 35.2／21.7／32.7。逐段 i.i.d. 的 corner 抽樣更弱，只到 15.8／8.9／13.1——**有相關結構才推得動顏色**。給隨機臂較大的盒寬不是放水：比較一律在對齊後的 ΔE00 上做，盒寬只決定它搆不搆得到錨點。",
+  "variants": [
+    {
+      "carrier": "advcf",
+      "steps": 300,
+      "lr": 0.05,
+      "lr_final_ratio": 0.2,
+      "probe_every": 25,
+      "check_every": 10,
+      "deltae_cap": 16.0,
+      "options": {
+        "pieces": 64,
+        "radius": 5.0
+      },
+      "name": "tex_photoguard",
+      "free": {
+        "resample": true,
+        "target": "texture",
+        "weights": {
+          "id": 1.0,
+          "enc": 0.0,
+          "cond": 1.0,
+          "enc_target": 1.0
+        }
+      },
+      "settings_note": "與 pilot_photoguard 逐欄相同，只有目標從中性灰換成高頻紋理。enc_target 拉的是靜態的 VAE latent，理論上不該被目標的平庸害到，所以這一臂是紋理目標的對照組：它如果也動了，動的就不只是「去噪行為」那條路。"
+    },
+    {
+      "carrier": "advcf",
+      "steps": 300,
+      "lr": 0.05,
+      "lr_final_ratio": 0.2,
+      "probe_every": 25,
+      "check_every": 10,
+      "deltae_cap": 16.0,
+      "options": {
+        "pieces": 64,
+        "radius": 5.0
+      },
+      "name": "tex_mist",
+      "free": {
+        "resample": true,
+        "target": "texture",
+        "weights": {
+          "id": 1.0,
+          "enc": 0.5,
+          "cond": 0.0,
+          "diffusion_target": 1.0
+        }
+      },
+      "settings_note": "與 pilot_mist_target 逐欄相同，只有目標換成高頻紋理。這是本批要救的那一臂。"
+    },
+    {
+      "carrier": "advcf",
+      "steps": 300,
+      "lr": 0.05,
+      "lr_final_ratio": 0.2,
+      "probe_every": 25,
+      "check_every": 10,
+      "deltae_cap": 16.0,
+      "options": {
+        "pieces": 64,
+        "radius": 5.0
+      },
+      "name": "tex_out_target",
+      "free": {
+        "resample": true,
+        "target": "texture",
+        "weights": {
+          "id": 1.0,
+          "enc": 0.5,
+          "cond": 1.0,
+          "out_target": 2.0
+        }
+      },
+      "settings_note": "與 pilot_out_fixed 逐欄相同，只有 out 從無目標換成 targeted，權重照舊 2.0。目標側的 null_edit 跟著 objective.draws 重算，凍結目標側會讓差值變成噪聲差而不是影像差。"
+    },
+    {
+      "carrier": "advcf",
+      "steps": 300,
+      "lr": 0.05,
+      "lr_final_ratio": 0.2,
+      "probe_every": 25,
+      "check_every": 10,
+      "deltae_cap": 16.0,
+      "options": {
+        "pieces": 64,
+        "radius": 5.0
+      },
+      "name": "sds_advdm",
+      "free": {
+        "resample": true,
+        "weights": {
+          "id": 1.0,
+          "enc": 0.5,
+          "cond": 0.0,
+          "sds": 1.0
+        }
+      },
+      "settings_note": "與 pilot_advdm 逐欄相同，diffusion 換成 sds。損失函數不變，只有梯度是不穿過 UNet 的 SDS 近似，所以讀的是近似的代價與省下的時間（pilot_advdm 是 709 秒／圖）。"
+    }
+  ],
+  "target_note": "src/defense/mainstream_terms.py 的 texture_target：六層均勻雜訊，第 o 層的區塊邊長 2**o，最近鄰放大後等權相加，逐通道 min-max 正規化到 [0.05, 0.95]。三個性質是刻意的——可重現（固定種子、不讀外部素材）、不帶身分（沒有任何人臉或物件結構）、不隨影像內容變（只用到形狀）。最細的一層是逐像素雜訊，最粗的一層在 VAE 下採樣之後仍看得見，所以像素空間與潛空間兩邊都有結構。",
+  "sds_note": "src/defense/sds_terms.py 的 SDSDiffusion 回報的損失與 MainstreamTerms.diffusion 逐位元同一個函數，只有梯度是 SDS 近似，所以 free_term_sds 與free_term_diffusion 可以並排讀。w(t) 一律取 1，不加時刻權重——加了就不是同一個損失，比較會同時變兩件事。上卡前走 scripts/sds_sign_check.py，在真的 IP2P 上驗梯度方向：升方向要讓損失變大、降方向要變小，而且與完整反傳的梯度夾角要是正的。",
+  "denominator_note": "這一批不含 free 對照臂。批內對照在本專案是硬規則，但這四個臂與 runs/advcf_pilot/ 的六個臂是**同一批求解設定、同一組影像、同一顆評估種子**，差別只有各自那一個目標函數鍵，所以分母取 pilot_free。評估要與 runs/advcf_pilot_eval/pilot_free 用同一份 configs/evaluate_pilot.json。跨批的絕對數不可與別批並列。",
+  "dropped_note": "原本規劃的 tone 半徑掃描（r20／r50）已移除：另一個 session 用一個真的能做出零斜率平台的載體跑過 20 個設定 × 3 類 × 3 種子，結論是機制可達但在等發布圖身分下沒有買到穿透率，動得了讀數的格是把身分打到 0.62 換來的。不必再為那個機制調半徑。"
+}

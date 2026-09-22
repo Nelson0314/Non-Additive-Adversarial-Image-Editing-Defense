@@ -1,8 +1,0 @@
-image,condition,budget_target,purifier,reference,effect_mean,effect_sd,effect_identity_mean,effect_identity_sd,retention,codefense_status,reference_codefense,effect_codefense_mean,effect_codefense_sd,siglip_sim,siglip_blocked,edit_strength,usable,seconds
-task_obj_swap_rand_mask_401099,none,floor,identity,orig,0.0,0.0,0.0,0.0,,,,,,1.0,False,0.8,True,1334.1
-task_obj_swap_rand_mask_401099,none,floor,blur1,orig,0.27436,0.05985,0.0,0.0,,,,,,0.94899,False,0.8,True,1334.1
-task_obj_swap_rand_mask_401099,none,floor,jpeg75,orig,0.19636,0.07548,0.0,0.0,,,,,,0.93494,False,0.8,True,1334.1
-task_obj_swap_rand_mask_401099,none,floor,jpeg30,orig,0.3049,0.04688,0.0,0.0,,,,,,0.94038,False,0.8,True,1334.1
-task_obj_swap_rand_mask_401099,none,floor,blur2,orig,0.37355,0.04381,0.0,0.0,,,,,,0.93084,False,0.8,True,1334.1
-task_obj_swap_rand_mask_401099,none,floor,crop_resize0.1,purified_orig,0.0,0.0,0.0,0.0,,,,,,1.0,False,0.8,True,1334.1
-task_obj_swap_rand_mask_401099,none,floor,jpeg_then_resize75,purified_orig,0.0,0.0,0.0,0.0,,,,,,1.0,False,0.8,True,1334.1

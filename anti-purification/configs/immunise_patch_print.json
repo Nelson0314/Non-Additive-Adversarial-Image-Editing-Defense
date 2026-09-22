@@ -1,0 +1,91 @@
+{
+  "manifest": "data/portrait_trio_manifest.json",
+  "images": ["task_env_weather_121086"],
+  "carrier_note": "幾何印花貼片（src/defense/print_patch.py）。自然度由參數化保證：色盤在 CIELab 上彩度以 chroma_max 為結構上限，空間結構由固定的低階幾何波場張成，所以螢光散斑不在可行域裡。runs/patch_canvas/ 用 ε 綁住 L∞ 的作法失敗過——六臂 drift 全部頂滿 0.345、圖案變成螢光彩虹。",
+  "support_note": "支撐走 lattice 且 inset = 0：圓點跟著外套輪廓走而不是被 12%–88% 的裁切安全框切成矩形。矩形硬邊在圖上讀起來像貼上去的方形貼紙。**代價是放棄「攻擊者每邊裁 10% 也裁不到貼片」那個性質**，這一批的淨化只有 identity，所以先付得起；要宣稱抗裁切必須回到 inset 0.12。",
+  "area_note": "點陣在整件外套上給 13.5%–14.5% 的面積，先前 runs/patch_canvas/ 的散斑是 8%。面積與參數化兩個變因因此仍然沒有分開，print_scatter8 那一臂就是為了拆它：同一個目標、同一個載體，只把支撐換回舊的散斑與舊的面積。",
+  "attack_steps": 50,
+  "s_i": 1.5,
+  "patch": {
+    "carrier": "print",
+    "support": "lattice",
+    "support_pitch": 40,
+    "support_radius": 18.0,
+    "inset": 0.0,
+    "kind": "upper",
+    "erode": 10,
+    "feather": 6,
+    "face_margin": 12,
+    "area": 0.022,
+    "blobs": 2,
+    "print_colours": 3,
+    "print_archetype": "dots",
+    "print_tau": 0.15,
+    "print_chroma_max": 28.0,
+    "print_lightness_span": 34.0,
+    "keep_shading": true,
+    "shade_radius": 12
+  },
+  "free": {
+    "timesteps": 4,
+    "noise_seed": 20260915,
+    "chain_steps": 6,
+    "grad_steps": 6,
+    "resample": false,
+    "support_weight": 0.0,
+    "weights": {"enc": 0.5, "cond": 1.0, "id": 1.0}
+  },
+  "free_note": "grad_steps = chain_steps = 6，也就是短鏈**全程反傳**。runs/patch_canvas/ 那一批是 grad_steps = 1，只對最後一步反傳，而 id 與 out 兩項都走這條鏈——截斷梯度是那一批的已知嫌疑之一。",
+  "variants": [
+    {
+      "name": "print_rand",
+      "solver": "random",
+      "note": "同支撐、同色盤、同原型，完全不最佳化。這一批唯一乾淨的對照：失真幾乎全部由支撐與色盤決定，而那兩者在所有臂之間逐欄相同。"
+    },
+    {
+      "name": "print_free",
+      "steps": 120,
+      "lr": 0.05,
+      "objective": "free",
+      "free": {"support_weight": 4.0},
+      "note": "既有的 enc／cond／id，支撐加權。換載體不換目標，對得上 runs/patch_free/ 與 runs/patch_canvas/。"
+    },
+    {
+      "name": "print_outside",
+      "steps": 120,
+      "lr": 0.05,
+      "objective": "outside",
+      "free": {
+        "support_weight": 4.0,
+        "weights": {"enc": 0.5, "cond": 1.0, "id": 1.0, "outside": 40.0},
+        "outside_margin": 16,
+        "outside_near_width": 48,
+        "outside_weight_far": 1.0,
+        "outside_weight_face": 2.0,
+        "outside_weight_near": 0.0
+      },
+      "note": "新目標：只獎勵支撐**外**的輸出位移，臉框加倍。整張圖的 out 給了一條捷徑（把貼片自己改花就能推高讀數），這一項把那條捷徑拿掉。"
+    },
+    {
+      "name": "print_main",
+      "steps": 120,
+      "lr": 0.05,
+      "objective": "mainstream",
+      "free": {"weights": {"enc": 0.0, "cond": 0.0, "id": 0.0, "enc_target": 1.0, "diffusion": 1.0}},
+      "note": "PhotoGuard 的 enc_target 加 AdvDM 的 diffusion，用它們自己的損失。runs/patch_canvas/ 上這一組完全不動（−0.4%）。"
+    },
+    {
+      "name": "print_scatter8",
+      "steps": 120,
+      "lr": 0.05,
+      "objective": "outside",
+      "patch": {"support": "scatter", "inset": 0.12, "area": 0.08, "blobs": 2},
+      "free": {
+        "support_weight": 4.0,
+        "weights": {"enc": 0.5, "cond": 1.0, "id": 1.0, "outside": 40.0},
+        "outside_weight_face": 2.0
+      },
+      "note": "拆變因用：同目標、同載體參數化，只把支撐換回舊的散斑與 8% 面積。它與 print_outside 的差只有支撐。"
+    }
+  ]
+}

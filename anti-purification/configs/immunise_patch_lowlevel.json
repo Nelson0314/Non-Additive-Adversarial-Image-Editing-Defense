@@ -1,0 +1,112 @@
+{
+  "manifest": "data/portrait_trio_manifest.json",
+  "images": [
+    "task_obj_remove_410264"
+  ],
+  "image_note": "換成白襯衫那張。衣物安全區 0.325、內接最大圓 0.123，藍外套那張只有 0.237／0.095。一百四十九張掃過，衣物面積大到放得下一個完整圓形貼片的只有十五張，這是最大的一張。",
+  "carrier_note": "**語意 ＋ 低階干擾。** 載體固定成 `figure`（那一族裡把 add_hat 打垮、又讓 beach 鬆動到 0.68 的那一個），只改最佳化的可行域與目標，問低階擾動能不能把「不重畫人」的那三類也推動。",
+  "attack_steps": 50,
+  "s_i": 1.5,
+  "patch": {
+    "carrier": "target",
+    "support": "disc",
+    "area": 0.12,
+    "inset": 0.0,
+    "kind": "upper",
+    "erode": 6,
+    "feather": 2,
+    "face_margin": 8,
+    "blobs": 1,
+    "support_count": 1,
+    "keep_shading": true,
+    "shade_radius": 12,
+    "target_epsilon": 0.12,
+    "target": "data/patch_targets/figure.png"
+  },
+  "free": {
+    "timesteps": 4,
+    "noise_seed": 20260915,
+    "chain_steps": 6,
+    "grad_steps": 6,
+    "resample": false,
+    "support_weight": 4.0,
+    "weights": {
+      "enc": 0.5,
+      "cond": 1.0,
+      "id": 1.0,
+      "outside": 40.0
+    },
+    "outside_margin": 16,
+    "outside_near_width": 48,
+    "outside_weight_far": 1.0,
+    "outside_weight_face": 2.0,
+    "outside_weight_near": 0.0
+  },
+  "variants": [
+    {
+      "name": "fig_free_out",
+      "steps": 180,
+      "lr": 0.05,
+      "objective": "outside",
+      "patch": {
+        "target": "data/patch_targets/figure.png",
+        "target_mode": "free"
+      },
+      "note": "不受限 ＋ 支撐外位移。語意留著，紋理可以長成任何東西。"
+    },
+    {
+      "name": "fig_free_enc",
+      "steps": 180,
+      "lr": 0.05,
+      "objective": "free",
+      "patch": {
+        "target": "data/patch_targets/figure.png",
+        "target_mode": "free"
+      },
+      "free": {
+        "weights": {
+          "enc": 0.5,
+          "cond": 1.0,
+          "id": 1.0
+        }
+      },
+      "note": "不受限 ＋ 潛圖層的 enc／cond／id。這是 PhotoGuard 那一族的攻擊面疊在語意載體上。"
+    },
+    {
+      "name": "fig_far",
+      "steps": 180,
+      "lr": 0.05,
+      "objective": "outside",
+      "patch": {
+        "target": "data/patch_targets/figure.png",
+        "target_mode": "bounded",
+        "target_epsilon": 0.3
+      },
+      "free": {
+        "weights": {
+          "enc": 0.5,
+          "cond": 1.0,
+          "id": 1.0,
+          "outside": 80.0
+        },
+        "outside_weight_far": 4.0,
+        "outside_weight_face": 0.0,
+        "outside_weight_near": 0.0
+      },
+      "note": "只獎勵**遠場**位移、權重加倍，ε 放到 0.30。針對的是「不重畫人的指令」——它們改的是遠離胸口的全域光影。"
+    },
+    {
+      "name": "fig_eps30",
+      "steps": 180,
+      "lr": 0.05,
+      "objective": "outside",
+      "patch": {
+        "target": "data/patch_targets/figure.png",
+        "target_mode": "bounded",
+        "target_epsilon": 0.3
+      },
+      "note": "只把 ε 由 0.12 放到 0.30，其餘與 figure_opt 相同。拆「是可行域放寬還是目標換了」。"
+    }
+  ],
+  "design_note": "四個臂拆兩個變因。可行域：`bounded` 每像素最多離開目標圖 ε、`free` 不設限（起點仍是那張半身照，先前量過不受限最佳化不會把結構丟掉，只會在表面疊紋理）。目標：`outside` 是支撐外的輸出位移、`free` 是 enc／cond／id。"
+}

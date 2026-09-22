@@ -1,0 +1,4 @@
+variant,image,subject_id_defended,subject_id_defended_detected,face_box_iou_defended,faces_orig,faces_defended,psnr,ssim,lpips,dists,deltaE00,linf,acutance_ratio,niqe_orig,niqe_defended
+ring120_opt,task_env_weather_121086,1.0,1.0,0.99961,1,1,15.97285,0.88636,0.09802,0.13336,5.71006,0.91373,1.13631,2.99638,3.03183
+ring120_rand,task_env_weather_121086,1.0,1.0,0.99956,1,1,16.6599,0.88955,0.08695,0.12047,4.90908,0.91373,1.12463,2.99638,2.98779
+ring40_rand,task_env_weather_121086,1.0,1.0,0.99809,1,1,20.26429,0.9446,0.05004,0.07603,1.91544,1.0,1.08627,2.99638,2.85787

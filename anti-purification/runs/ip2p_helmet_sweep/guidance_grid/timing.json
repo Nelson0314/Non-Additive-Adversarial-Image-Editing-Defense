@@ -1,0 +1,8 @@
+{
+  "gpu": 4,
+  "gpus_used": 1,
+  "started_unix": 1789630430.491112,
+  "finished_unix": 1789631724.6250365,
+  "wall_seconds": 1294.1339247226715,
+  "generated_images": 88
+}

@@ -1,0 +1,82 @@
+{
+  "role_note": "未防禦編輯的逐張目視稽核結果。列出的 (影像, 指令類, 種子) 是**攻擊本身就不成立**的格，不得用來量防禦。",
+  "method_note": "稽核在 identity 那一道的 clean_edit 上做，每格九顆種子排成一張聯絡表逐張看。判兩件事：指令有沒有完成，以及輸出裡的人是不是還認得出是原圖那個人。排除的判定一律附理由。淨化那三道沿用同一組排除，因為排除的理由是攻擊本身的行為，不是淨化造成的。",
+  "why_note": "判準的身分項是 id_norm = 防禦後編輯的身分 ÷ **同一格未防禦編輯**的身分。未防禦那一張已經換成另一個人時，分母量的是別人，比值沒有意義；而那一格本來就不滿足「認得出是同一個人」，攻擊已經失敗，防禦有沒有作用讀不出來。",
+  "excluded": [
+    {
+      "image": "task_env_weather_121086",
+      "class": "add_hat",
+      "seeds": [
+        27001,
+        57001,
+        67001,
+        77001,
+        87001
+      ],
+      "reason": "帽子長出來了，但眼鏡被移除、臉型與鬍形改變，是另一個人。保留的 17001／47001／97001／107001 眼鏡與五官都在。"
+    },
+    {
+      "image": "task_env_weather_121086",
+      "class": "garment_colour",
+      "seeds": [
+        47001
+      ],
+      "reason": "外套仍是藍色，只有內搭偏紅，指令未完成。"
+    },
+    {
+      "image": "task_obj_remove_410264",
+      "class": "add_hat",
+      "seeds": [
+        17001,
+        27001,
+        47001,
+        57001,
+        77001,
+        87001,
+        97001
+      ],
+      "reason": "帽子長出來了，但膚色明顯變淺、眼鏡移除、五官換掉，是另一個人。保留的 67001／107001 眼鏡與本人都在。"
+    },
+    {
+      "image": "task_obj_remove_410264",
+      "class": "add_scarf",
+      "seeds": [
+        17001,
+        27001,
+        47001,
+        57001,
+        67001,
+        77001,
+        87001,
+        97001,
+        107001
+      ],
+      "reason": "**整格九顆全部換人**：原圖是短髮戴紅框眼鏡的黑人女性，九張輸出都是長髮、不同族裔、無眼鏡的另一個人。這一格量不到防禦。"
+    }
+  ],
+  "kept_with_caveat": [
+    {
+      "image": "task_obj_swap_rand_mask_79926",
+      "class": "garment_colour",
+      "note": "洋裝變綠，但背景牆也一起變綠——configs/evaluate_instruction.json 的 known_leak_note 已記。身分九顆全部保住，指令以衣物顏色判定，故保留。"
+    },
+    {
+      "image": "task_obj_swap_rand_mask_79926",
+      "class": "add_hat",
+      "note": "s107001 順帶把背景與洋裝去色。帽子在、人沒換，故保留。"
+    },
+    {
+      "image": "task_obj_remove_410264",
+      "class": "garment_colour",
+      "note": "指令在圖上完成了——九顆種子的白襯衫全部變成鮭紅——但 VQA 一致回答 pink，而 configs/evaluate_instruction.json 的 expect 寫的是 red，於是未防禦九列全部被判未完成。這是讀數措辭的假失敗，不是攻擊失敗。**這一格的指令完成度欄不可解讀**；身分與 criterion 兩欄不受影響，照常採用。"
+    }
+  ],
+  "totals": {
+    "rows_audited": 81,
+    "rows_kept": 59,
+    "cells_before": 9,
+    "cells_after": 8
+  },
+  "readout_caveat_note": "逐人表裡 task_obj_remove_410264 的「指令完成」欄受上面那個假失敗影響，分母只剩 add_hat 存活的兩顆種子有意義。另外兩張人像不受影響。",
+  "readout_invalid_note": "**garment_colour 這一類的指令完成度，在顏色載體上不可用。** 它問的是「衣服主要是什麼顏色」，而本專案的防禦本身就是整體調色：防禦圖已經把衣服推向目標顏色，VQA 不管編輯有沒有做成都答對，於是防禦被記成替攻擊者把指令做完了。實測 runs/advcf_anchor_vqa/anchor_de16_free：garment_colour 防禦後 26/26、同格未防禦只有 17/26——防禦不可能讓指令更容易完成。add_hat 與 add_scarf（加物件類）不受影響。**影響**：顏色載體的指令腿只剩 add_hat（15）＋ add_scarf（18）＝ 33 個配對，不是 59。先前各批記的指令完成度若含 garment_colour，同樣要打折。這與 task_obj_remove_410264 / garment_colour 的「鮭紅被判 pink」是不同問題：那個是措辭造成的假失敗，這個是防禦造成的假成功，方向相反且更嚴重。"
+}

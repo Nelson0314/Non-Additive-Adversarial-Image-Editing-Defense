@@ -1,0 +1,108 @@
+{
+  "manifest": "data/portrait_trio_manifest.json",
+  "images": [
+    "task_obj_remove_410264"
+  ],
+  "image_note": "換成白襯衫那張。衣物安全區 0.325、內接最大圓 0.123，藍外套那張只有 0.237／0.095。一百四十九張掃過，衣物面積大到放得下一個完整圓形貼片的只有十五張，這是最大的一張。",
+  "carrier_note": "**普適語意對照。** 支撐與面積逐欄等同笑臉那一批。問的是：能不能把貼片的語意推到一個「幾乎所有指令都會解析到」的東西。候選是**臉／人**——判準那一腿讀的是臉，而模型每一次重畫人像都要先決定「這是誰」，所以它不像帽子那樣只對一類指令在場。",
+  "attack_steps": 50,
+  "s_i": 1.5,
+  "patch": {
+    "carrier": "target",
+    "support": "disc",
+    "area": 0.12,
+    "inset": 0.0,
+    "kind": "upper",
+    "erode": 6,
+    "feather": 2,
+    "face_margin": 8,
+    "blobs": 1,
+    "support_count": 1,
+    "keep_shading": true,
+    "shade_radius": 12,
+    "target_epsilon": 0.12,
+    "target": "data/patch_targets/face.png"
+  },
+  "free": {
+    "timesteps": 4,
+    "noise_seed": 20260915,
+    "chain_steps": 6,
+    "grad_steps": 6,
+    "resample": false,
+    "support_weight": 4.0,
+    "weights": {
+      "enc": 0.5,
+      "cond": 1.0,
+      "id": 1.0,
+      "outside": 40.0
+    },
+    "outside_margin": 16,
+    "outside_near_width": 48,
+    "outside_weight_far": 1.0,
+    "outside_weight_face": 2.0,
+    "outside_weight_near": 0.0
+  },
+  "variants": [
+    {
+      "name": "face_rand",
+      "solver": "random",
+      "patch": {
+        "target": "data/patch_targets/face.png",
+        "target_mode": "bounded"
+      },
+      "note": "face 原樣貼上，不最佳化。"
+    },
+    {
+      "name": "face_opt",
+      "steps": 150,
+      "lr": 0.05,
+      "objective": "outside",
+      "patch": {
+        "target": "data/patch_targets/face.png",
+        "target_mode": "bounded"
+      },
+      "note": "face 受限最佳化 ε=0.12，與笑臉那一批同設定。"
+    },
+    {
+      "name": "figure_rand",
+      "solver": "random",
+      "patch": {
+        "target": "data/patch_targets/figure.png",
+        "target_mode": "bounded"
+      },
+      "note": "figure 原樣貼上，不最佳化。"
+    },
+    {
+      "name": "figure_opt",
+      "steps": 150,
+      "lr": 0.05,
+      "objective": "outside",
+      "patch": {
+        "target": "data/patch_targets/figure.png",
+        "target_mode": "bounded"
+      },
+      "note": "figure 受限最佳化 ε=0.12，與笑臉那一批同設定。"
+    },
+    {
+      "name": "montage_rand",
+      "solver": "random",
+      "patch": {
+        "target": "data/patch_targets/montage.png",
+        "target_mode": "bounded"
+      },
+      "note": "montage 原樣貼上，不最佳化。"
+    },
+    {
+      "name": "montage_opt",
+      "steps": 150,
+      "lr": 0.05,
+      "objective": "outside",
+      "patch": {
+        "target": "data/patch_targets/montage.png",
+        "target_mode": "bounded"
+      },
+      "note": "montage 受限最佳化 ε=0.12，與笑臉那一批同設定。"
+    }
+  ],
+  "hijack_note": "**必須驗臉框有沒有被搶走。** 印一張臉上去，若最大臉框變成印的那一張，發布圖本身就已經不是同一個人——那是防禦方自己把攻擊做完了，不是防禦（見 runs/decoy 那一族的教訓）。實測三種目標的最大臉框與原臉 IoU 都是 0.95+、發布圖身分 0.988–0.996，所以沒有被搶走。評估端要再驗一次 subject_anchor 與 subject_box_iou_edit_def。"
+}

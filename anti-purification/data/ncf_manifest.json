@@ -1,0 +1,97 @@
+{
+  "images": [
+    {
+      "id": "task_env_weather_70149",
+      "split": "development",
+      "path": "data/omniedit150/task_env_weather_70149/task_env_weather_70149.png",
+      "sha256": "15b6dfa829810a69db9b6dd3ff631884b8e60600cc1c2d8d4f6f6ec3f683af5c",
+      "size": [
+        512,
+        512
+      ],
+      "attack_prompts": {
+        "clothing": "turn the kimono red",
+        "accessory": "add a scarf to the person",
+        "background": "change the background to a snowy street"
+      },
+      "prompt_source": "data/attack_prompts.yaml"
+    },
+    {
+      "id": "task_env_weather_121086",
+      "split": "development",
+      "path": "data/omniedit150/task_env_weather_121086/task_env_weather_121086.png",
+      "sha256": "51d8c7b934cafed509173a46c918fcc56cd62b163bc3675b2f85815e151cb260",
+      "size": [
+        512,
+        512
+      ],
+      "attack_prompts": {
+        "clothing": "turn the jacket red",
+        "accessory": "add a scarf to the person",
+        "background": "change the background to a snowy street"
+      },
+      "prompt_source": "data/attack_prompts.yaml"
+    },
+    {
+      "id": "task_env_weather_126577",
+      "split": "development",
+      "path": "data/omniedit150/task_env_weather_126577/task_env_weather_126577.png",
+      "sha256": "a8defb1649200519b276f7ba5175ed34fdb0828043287b37e7f5dc765bf3551c",
+      "size": [
+        512,
+        512
+      ],
+      "attack_prompts": {
+        "clothing": "turn the robe red",
+        "accessory": "add a scarf to the person",
+        "background": "change the background to a snowy street"
+      },
+      "prompt_source": "data/attack_prompts.yaml"
+    },
+    {
+      "id": "task_obj_remove_284852",
+      "split": "validation",
+      "path": "data/omniedit150/task_obj_remove_284852/task_obj_remove_284852.png",
+      "sha256": "53a4b47eb5fa883de880cf9c00e44aec2f924bd7eb703d81b796dd06af259b69",
+      "size": [
+        512,
+        512
+      ],
+      "attack_prompts": {
+        "clothing": "turn the shirt blue",
+        "accessory": "add a scarf to the person",
+        "background": "change the background to a snowy street"
+      },
+      "prompt_source": "data/attack_prompts.yaml"
+    },
+    {
+      "id": "task_obj_swap_rand_mask_315182",
+      "split": "validation",
+      "path": "data/omniedit150/task_obj_swap_rand_mask_315182/task_obj_swap_rand_mask_315182.png",
+      "sha256": "d56db34c0385493694ccb1e5e31af9996ce890c7cc2423b29a149056e01094fe",
+      "size": [
+        512,
+        512
+      ],
+      "attack_prompts": {
+        "clothing": "turn the clothes blue",
+        "accessory": "add a scarf to the person",
+        "background": "change the background to a snowy street"
+      },
+      "prompt_source": "modified_from_paper: fixed generic clothing instruction"
+    }
+  ],
+  "protected": {
+    "model": "mattmdjaga/segformer_b2_clothes",
+    "classes": [
+      11,
+      2
+    ],
+    "dilate": 0,
+    "feather": 0,
+    "hard_copy": "torch.where(P,x,render)",
+    "verify": "PNG uint8 exact equality"
+  },
+  "validation_role": "frozen config; no validation-driven selection of hyperparameters",
+  "source_hash_algorithm": "sha256"
+}

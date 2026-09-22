@@ -1,0 +1,28 @@
+image,class,kind,instruction,seed,file,check_question,check_expect,human_completed,seconds
+task_obj_swap_rand_mask_268827,add_hat,加入原本沒有的物件,put a hat on the person,17001,task_obj_swap_rand_mask_268827__add_hat__s17001__clean_edit.png,Is the person wearing a hat?,yes,,3.8
+task_obj_swap_rand_mask_268827,add_hat,加入原本沒有的物件,put a hat on the person,27001,task_obj_swap_rand_mask_268827__add_hat__s27001__clean_edit.png,Is the person wearing a hat?,yes,,3.5
+task_obj_swap_rand_mask_268827,add_hat,加入原本沒有的物件,put a hat on the person,47001,task_obj_swap_rand_mask_268827__add_hat__s47001__clean_edit.png,Is the person wearing a hat?,yes,,3.5
+task_obj_swap_rand_mask_268827,garment_colour,把一塊非臉部區域換色,turn the armour red,17001,task_obj_swap_rand_mask_268827__garment_colour__s17001__clean_edit.png,What is the dominant colour of the person's clothing?,red,,3.5
+task_obj_swap_rand_mask_268827,garment_colour,把一塊非臉部區域換色,turn the armour red,27001,task_obj_swap_rand_mask_268827__garment_colour__s27001__clean_edit.png,What is the dominant colour of the person's clothing?,red,,3.5
+task_obj_swap_rand_mask_268827,garment_colour,把一塊非臉部區域換色,turn the armour red,47001,task_obj_swap_rand_mask_268827__garment_colour__s47001__clean_edit.png,What is the dominant colour of the person's clothing?,red,,3.5
+task_obj_swap_rand_mask_268827,replace_background,整個換掉場景,change the background to a snowy street,17001,task_obj_swap_rand_mask_268827__replace_background__s17001__clean_edit.png,Is the background a snowy street?,yes,,3.5
+task_obj_swap_rand_mask_268827,replace_background,整個換掉場景,change the background to a snowy street,27001,task_obj_swap_rand_mask_268827__replace_background__s27001__clean_edit.png,Is the background a snowy street?,yes,,3.5
+task_obj_swap_rand_mask_268827,replace_background,整個換掉場景,change the background to a snowy street,47001,task_obj_swap_rand_mask_268827__replace_background__s47001__clean_edit.png,Is the background a snowy street?,yes,,3.6
+task_obj_remove_410264,add_hat,加入原本沒有的物件,put a hat on the person,17001,task_obj_remove_410264__add_hat__s17001__clean_edit.png,Is the person wearing a hat?,yes,,3.6
+task_obj_remove_410264,add_hat,加入原本沒有的物件,put a hat on the person,27001,task_obj_remove_410264__add_hat__s27001__clean_edit.png,Is the person wearing a hat?,yes,,3.6
+task_obj_remove_410264,add_hat,加入原本沒有的物件,put a hat on the person,47001,task_obj_remove_410264__add_hat__s47001__clean_edit.png,Is the person wearing a hat?,yes,,3.6
+task_obj_remove_410264,garment_colour,把一塊非臉部區域換色,turn the shirt red,17001,task_obj_remove_410264__garment_colour__s17001__clean_edit.png,What is the dominant colour of the person's clothing?,red,,3.6
+task_obj_remove_410264,garment_colour,把一塊非臉部區域換色,turn the shirt red,27001,task_obj_remove_410264__garment_colour__s27001__clean_edit.png,What is the dominant colour of the person's clothing?,red,,3.6
+task_obj_remove_410264,garment_colour,把一塊非臉部區域換色,turn the shirt red,47001,task_obj_remove_410264__garment_colour__s47001__clean_edit.png,What is the dominant colour of the person's clothing?,red,,3.6
+task_obj_remove_410264,replace_background,整個換掉場景,change the background to a snowy street,17001,task_obj_remove_410264__replace_background__s17001__clean_edit.png,Is the background a snowy street?,yes,,3.6
+task_obj_remove_410264,replace_background,整個換掉場景,change the background to a snowy street,27001,task_obj_remove_410264__replace_background__s27001__clean_edit.png,Is the background a snowy street?,yes,,3.7
+task_obj_remove_410264,replace_background,整個換掉場景,change the background to a snowy street,47001,task_obj_remove_410264__replace_background__s47001__clean_edit.png,Is the background a snowy street?,yes,,3.6
+task_obj_swap_rand_mask_79926,add_hat,加入原本沒有的物件,put a hat on the person,17001,task_obj_swap_rand_mask_79926__add_hat__s17001__clean_edit.png,Is the person wearing a hat?,yes,,3.6
+task_obj_swap_rand_mask_79926,add_hat,加入原本沒有的物件,put a hat on the person,27001,task_obj_swap_rand_mask_79926__add_hat__s27001__clean_edit.png,Is the person wearing a hat?,yes,,3.6
+task_obj_swap_rand_mask_79926,add_hat,加入原本沒有的物件,put a hat on the person,47001,task_obj_swap_rand_mask_79926__add_hat__s47001__clean_edit.png,Is the person wearing a hat?,yes,,3.6
+task_obj_swap_rand_mask_79926,garment_colour,把一塊非臉部區域換色,turn the dress green,17001,task_obj_swap_rand_mask_79926__garment_colour__s17001__clean_edit.png,What is the dominant colour of the person's clothing?,green,,3.6
+task_obj_swap_rand_mask_79926,garment_colour,把一塊非臉部區域換色,turn the dress green,27001,task_obj_swap_rand_mask_79926__garment_colour__s27001__clean_edit.png,What is the dominant colour of the person's clothing?,green,,3.7
+task_obj_swap_rand_mask_79926,garment_colour,把一塊非臉部區域換色,turn the dress green,47001,task_obj_swap_rand_mask_79926__garment_colour__s47001__clean_edit.png,What is the dominant colour of the person's clothing?,green,,3.6
+task_obj_swap_rand_mask_79926,replace_background,整個換掉場景,change the background to a snowy street,17001,task_obj_swap_rand_mask_79926__replace_background__s17001__clean_edit.png,Is the background a snowy street?,yes,,3.7
+task_obj_swap_rand_mask_79926,replace_background,整個換掉場景,change the background to a snowy street,27001,task_obj_swap_rand_mask_79926__replace_background__s27001__clean_edit.png,Is the background a snowy street?,yes,,3.7
+task_obj_swap_rand_mask_79926,replace_background,整個換掉場景,change the background to a snowy street,47001,task_obj_swap_rand_mask_79926__replace_background__s47001__clean_edit.png,Is the background a snowy street?,yes,,3.7

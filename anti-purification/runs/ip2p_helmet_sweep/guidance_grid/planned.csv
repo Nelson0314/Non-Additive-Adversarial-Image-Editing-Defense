@@ -1,0 +1,89 @@
+cell,compare_to,changed_variable,s_t,s_i,instruction,negative_prompt,suffix,seed,steps,arm,image,prompt_index,status
+t75_i15,,baseline,7.5,1.5,Let the person wear a helmet,,_helmet_t75_i15,20260812,50,ip2p_helmet_t75_i15,man_00,2,planned
+t75_i15,,baseline,7.5,1.5,Let the person wear a helmet,,_helmet_t75_i15,20260812,50,ip2p_helmet_t75_i15,man_01,2,planned
+t75_i15,,baseline,7.5,1.5,Let the person wear a helmet,,_helmet_t75_i15,20260812,50,ip2p_helmet_t75_i15,man_02,2,planned
+t75_i15,,baseline,7.5,1.5,Let the person wear a helmet,,_helmet_t75_i15,20260812,50,ip2p_helmet_t75_i15,man_03,2,planned
+t75_i15,,baseline,7.5,1.5,Let the person wear a helmet,,_helmet_t75_i15,20260812,50,ip2p_helmet_t75_i15,woman_00,2,planned
+t75_i15,,baseline,7.5,1.5,Let the person wear a helmet,,_helmet_t75_i15,20260812,50,ip2p_helmet_t75_i15,woman_01,2,planned
+t75_i15,,baseline,7.5,1.5,Let the person wear a helmet,,_helmet_t75_i15,20260812,50,ip2p_helmet_t75_i15,woman_02,2,planned
+t75_i15,,baseline,7.5,1.5,Let the person wear a helmet,,_helmet_t75_i15,20260812,50,ip2p_helmet_t75_i15,woman_03,2,planned
+t75_i18,t75_i15,s_i,7.5,1.8,Let the person wear a helmet,,_helmet_t75_i18,20260812,50,ip2p_helmet_t75_i18,man_00,2,planned
+t75_i18,t75_i15,s_i,7.5,1.8,Let the person wear a helmet,,_helmet_t75_i18,20260812,50,ip2p_helmet_t75_i18,man_01,2,planned
+t75_i18,t75_i15,s_i,7.5,1.8,Let the person wear a helmet,,_helmet_t75_i18,20260812,50,ip2p_helmet_t75_i18,man_02,2,planned
+t75_i18,t75_i15,s_i,7.5,1.8,Let the person wear a helmet,,_helmet_t75_i18,20260812,50,ip2p_helmet_t75_i18,man_03,2,planned
+t75_i18,t75_i15,s_i,7.5,1.8,Let the person wear a helmet,,_helmet_t75_i18,20260812,50,ip2p_helmet_t75_i18,woman_00,2,planned
+t75_i18,t75_i15,s_i,7.5,1.8,Let the person wear a helmet,,_helmet_t75_i18,20260812,50,ip2p_helmet_t75_i18,woman_01,2,planned
+t75_i18,t75_i15,s_i,7.5,1.8,Let the person wear a helmet,,_helmet_t75_i18,20260812,50,ip2p_helmet_t75_i18,woman_02,2,planned
+t75_i18,t75_i15,s_i,7.5,1.8,Let the person wear a helmet,,_helmet_t75_i18,20260812,50,ip2p_helmet_t75_i18,woman_03,2,planned
+t75_i22,t75_i18,s_i,7.5,2.2,Let the person wear a helmet,,_helmet_t75_i22,20260812,50,ip2p_helmet_t75_i22,man_00,2,planned
+t75_i22,t75_i18,s_i,7.5,2.2,Let the person wear a helmet,,_helmet_t75_i22,20260812,50,ip2p_helmet_t75_i22,man_01,2,planned
+t75_i22,t75_i18,s_i,7.5,2.2,Let the person wear a helmet,,_helmet_t75_i22,20260812,50,ip2p_helmet_t75_i22,man_02,2,planned
+t75_i22,t75_i18,s_i,7.5,2.2,Let the person wear a helmet,,_helmet_t75_i22,20260812,50,ip2p_helmet_t75_i22,man_03,2,planned
+t75_i22,t75_i18,s_i,7.5,2.2,Let the person wear a helmet,,_helmet_t75_i22,20260812,50,ip2p_helmet_t75_i22,woman_00,2,planned
+t75_i22,t75_i18,s_i,7.5,2.2,Let the person wear a helmet,,_helmet_t75_i22,20260812,50,ip2p_helmet_t75_i22,woman_01,2,planned
+t75_i22,t75_i18,s_i,7.5,2.2,Let the person wear a helmet,,_helmet_t75_i22,20260812,50,ip2p_helmet_t75_i22,woman_02,2,planned
+t75_i22,t75_i18,s_i,7.5,2.2,Let the person wear a helmet,,_helmet_t75_i22,20260812,50,ip2p_helmet_t75_i22,woman_03,2,planned
+t60_i15,t75_i15,s_t,6.0,1.5,Let the person wear a helmet,,_helmet_t60_i15,20260812,50,ip2p_helmet_t60_i15,man_00,2,planned
+t60_i15,t75_i15,s_t,6.0,1.5,Let the person wear a helmet,,_helmet_t60_i15,20260812,50,ip2p_helmet_t60_i15,man_01,2,planned
+t60_i15,t75_i15,s_t,6.0,1.5,Let the person wear a helmet,,_helmet_t60_i15,20260812,50,ip2p_helmet_t60_i15,man_02,2,planned
+t60_i15,t75_i15,s_t,6.0,1.5,Let the person wear a helmet,,_helmet_t60_i15,20260812,50,ip2p_helmet_t60_i15,man_03,2,planned
+t60_i15,t75_i15,s_t,6.0,1.5,Let the person wear a helmet,,_helmet_t60_i15,20260812,50,ip2p_helmet_t60_i15,woman_00,2,planned
+t60_i15,t75_i15,s_t,6.0,1.5,Let the person wear a helmet,,_helmet_t60_i15,20260812,50,ip2p_helmet_t60_i15,woman_01,2,planned
+t60_i15,t75_i15,s_t,6.0,1.5,Let the person wear a helmet,,_helmet_t60_i15,20260812,50,ip2p_helmet_t60_i15,woman_02,2,planned
+t60_i15,t75_i15,s_t,6.0,1.5,Let the person wear a helmet,,_helmet_t60_i15,20260812,50,ip2p_helmet_t60_i15,woman_03,2,planned
+t60_i18,t60_i15,s_i,6.0,1.8,Let the person wear a helmet,,_helmet_t60_i18,20260812,50,ip2p_helmet_t60_i18,man_00,2,planned
+t60_i18,t60_i15,s_i,6.0,1.8,Let the person wear a helmet,,_helmet_t60_i18,20260812,50,ip2p_helmet_t60_i18,man_01,2,planned
+t60_i18,t60_i15,s_i,6.0,1.8,Let the person wear a helmet,,_helmet_t60_i18,20260812,50,ip2p_helmet_t60_i18,man_02,2,planned
+t60_i18,t60_i15,s_i,6.0,1.8,Let the person wear a helmet,,_helmet_t60_i18,20260812,50,ip2p_helmet_t60_i18,man_03,2,planned
+t60_i18,t60_i15,s_i,6.0,1.8,Let the person wear a helmet,,_helmet_t60_i18,20260812,50,ip2p_helmet_t60_i18,woman_00,2,planned
+t60_i18,t60_i15,s_i,6.0,1.8,Let the person wear a helmet,,_helmet_t60_i18,20260812,50,ip2p_helmet_t60_i18,woman_01,2,planned
+t60_i18,t60_i15,s_i,6.0,1.8,Let the person wear a helmet,,_helmet_t60_i18,20260812,50,ip2p_helmet_t60_i18,woman_02,2,planned
+t60_i18,t60_i15,s_i,6.0,1.8,Let the person wear a helmet,,_helmet_t60_i18,20260812,50,ip2p_helmet_t60_i18,woman_03,2,planned
+t60_i22,t60_i18,s_i,6.0,2.2,Let the person wear a helmet,,_helmet_t60_i22,20260812,50,ip2p_helmet_t60_i22,man_00,2,planned
+t60_i22,t60_i18,s_i,6.0,2.2,Let the person wear a helmet,,_helmet_t60_i22,20260812,50,ip2p_helmet_t60_i22,man_01,2,planned
+t60_i22,t60_i18,s_i,6.0,2.2,Let the person wear a helmet,,_helmet_t60_i22,20260812,50,ip2p_helmet_t60_i22,man_02,2,planned
+t60_i22,t60_i18,s_i,6.0,2.2,Let the person wear a helmet,,_helmet_t60_i22,20260812,50,ip2p_helmet_t60_i22,man_03,2,planned
+t60_i22,t60_i18,s_i,6.0,2.2,Let the person wear a helmet,,_helmet_t60_i22,20260812,50,ip2p_helmet_t60_i22,woman_00,2,planned
+t60_i22,t60_i18,s_i,6.0,2.2,Let the person wear a helmet,,_helmet_t60_i22,20260812,50,ip2p_helmet_t60_i22,woman_01,2,planned
+t60_i22,t60_i18,s_i,6.0,2.2,Let the person wear a helmet,,_helmet_t60_i22,20260812,50,ip2p_helmet_t60_i22,woman_02,2,planned
+t60_i22,t60_i18,s_i,6.0,2.2,Let the person wear a helmet,,_helmet_t60_i22,20260812,50,ip2p_helmet_t60_i22,woman_03,2,planned
+t50_i15,t60_i15,s_t,5.0,1.5,Let the person wear a helmet,,_helmet_t50_i15,20260812,50,ip2p_helmet_t50_i15,man_00,2,planned
+t50_i15,t60_i15,s_t,5.0,1.5,Let the person wear a helmet,,_helmet_t50_i15,20260812,50,ip2p_helmet_t50_i15,man_01,2,planned
+t50_i15,t60_i15,s_t,5.0,1.5,Let the person wear a helmet,,_helmet_t50_i15,20260812,50,ip2p_helmet_t50_i15,man_02,2,planned
+t50_i15,t60_i15,s_t,5.0,1.5,Let the person wear a helmet,,_helmet_t50_i15,20260812,50,ip2p_helmet_t50_i15,man_03,2,planned
+t50_i15,t60_i15,s_t,5.0,1.5,Let the person wear a helmet,,_helmet_t50_i15,20260812,50,ip2p_helmet_t50_i15,woman_00,2,planned
+t50_i15,t60_i15,s_t,5.0,1.5,Let the person wear a helmet,,_helmet_t50_i15,20260812,50,ip2p_helmet_t50_i15,woman_01,2,planned
+t50_i15,t60_i15,s_t,5.0,1.5,Let the person wear a helmet,,_helmet_t50_i15,20260812,50,ip2p_helmet_t50_i15,woman_02,2,planned
+t50_i15,t60_i15,s_t,5.0,1.5,Let the person wear a helmet,,_helmet_t50_i15,20260812,50,ip2p_helmet_t50_i15,woman_03,2,planned
+t50_i18,t50_i15,s_i,5.0,1.8,Let the person wear a helmet,,_helmet_t50_i18,20260812,50,ip2p_helmet_t50_i18,man_00,2,planned
+t50_i18,t50_i15,s_i,5.0,1.8,Let the person wear a helmet,,_helmet_t50_i18,20260812,50,ip2p_helmet_t50_i18,man_01,2,planned
+t50_i18,t50_i15,s_i,5.0,1.8,Let the person wear a helmet,,_helmet_t50_i18,20260812,50,ip2p_helmet_t50_i18,man_02,2,planned
+t50_i18,t50_i15,s_i,5.0,1.8,Let the person wear a helmet,,_helmet_t50_i18,20260812,50,ip2p_helmet_t50_i18,man_03,2,planned
+t50_i18,t50_i15,s_i,5.0,1.8,Let the person wear a helmet,,_helmet_t50_i18,20260812,50,ip2p_helmet_t50_i18,woman_00,2,planned
+t50_i18,t50_i15,s_i,5.0,1.8,Let the person wear a helmet,,_helmet_t50_i18,20260812,50,ip2p_helmet_t50_i18,woman_01,2,planned
+t50_i18,t50_i15,s_i,5.0,1.8,Let the person wear a helmet,,_helmet_t50_i18,20260812,50,ip2p_helmet_t50_i18,woman_02,2,planned
+t50_i18,t50_i15,s_i,5.0,1.8,Let the person wear a helmet,,_helmet_t50_i18,20260812,50,ip2p_helmet_t50_i18,woman_03,2,planned
+t50_i22,t50_i18,s_i,5.0,2.2,Let the person wear a helmet,,_helmet_t50_i22,20260812,50,ip2p_helmet_t50_i22,man_00,2,planned
+t50_i22,t50_i18,s_i,5.0,2.2,Let the person wear a helmet,,_helmet_t50_i22,20260812,50,ip2p_helmet_t50_i22,man_01,2,planned
+t50_i22,t50_i18,s_i,5.0,2.2,Let the person wear a helmet,,_helmet_t50_i22,20260812,50,ip2p_helmet_t50_i22,man_02,2,planned
+t50_i22,t50_i18,s_i,5.0,2.2,Let the person wear a helmet,,_helmet_t50_i22,20260812,50,ip2p_helmet_t50_i22,man_03,2,planned
+t50_i22,t50_i18,s_i,5.0,2.2,Let the person wear a helmet,,_helmet_t50_i22,20260812,50,ip2p_helmet_t50_i22,woman_00,2,planned
+t50_i22,t50_i18,s_i,5.0,2.2,Let the person wear a helmet,,_helmet_t50_i22,20260812,50,ip2p_helmet_t50_i22,woman_01,2,planned
+t50_i22,t50_i18,s_i,5.0,2.2,Let the person wear a helmet,,_helmet_t50_i22,20260812,50,ip2p_helmet_t50_i22,woman_02,2,planned
+t50_i22,t50_i18,s_i,5.0,2.2,Let the person wear a helmet,,_helmet_t50_i22,20260812,50,ip2p_helmet_t50_i22,woman_03,2,planned
+specific,t75_i15,instruction,7.5,1.5,Put a single open-face bicycle helmet on the person's head,,_helmet_specific,20260812,50,ip2p_helmet_specific,man_00,2,planned
+specific,t75_i15,instruction,7.5,1.5,Put a single open-face bicycle helmet on the person's head,,_helmet_specific,20260812,50,ip2p_helmet_specific,man_01,2,planned
+specific,t75_i15,instruction,7.5,1.5,Put a single open-face bicycle helmet on the person's head,,_helmet_specific,20260812,50,ip2p_helmet_specific,man_02,2,planned
+specific,t75_i15,instruction,7.5,1.5,Put a single open-face bicycle helmet on the person's head,,_helmet_specific,20260812,50,ip2p_helmet_specific,man_03,2,planned
+specific,t75_i15,instruction,7.5,1.5,Put a single open-face bicycle helmet on the person's head,,_helmet_specific,20260812,50,ip2p_helmet_specific,woman_00,2,planned
+specific,t75_i15,instruction,7.5,1.5,Put a single open-face bicycle helmet on the person's head,,_helmet_specific,20260812,50,ip2p_helmet_specific,woman_01,2,planned
+specific,t75_i15,instruction,7.5,1.5,Put a single open-face bicycle helmet on the person's head,,_helmet_specific,20260812,50,ip2p_helmet_specific,woman_02,2,planned
+specific,t75_i15,instruction,7.5,1.5,Put a single open-face bicycle helmet on the person's head,,_helmet_specific,20260812,50,ip2p_helmet_specific,woman_03,2,planned
+negative,t75_i15,negative_prompt,7.5,1.5,Let the person wear a helmet,"extra person, multiple people, extra face, duplicate face, different person",_helmet_negative,20260812,50,ip2p_helmet_negative,man_00,2,planned
+negative,t75_i15,negative_prompt,7.5,1.5,Let the person wear a helmet,"extra person, multiple people, extra face, duplicate face, different person",_helmet_negative,20260812,50,ip2p_helmet_negative,man_01,2,planned
+negative,t75_i15,negative_prompt,7.5,1.5,Let the person wear a helmet,"extra person, multiple people, extra face, duplicate face, different person",_helmet_negative,20260812,50,ip2p_helmet_negative,man_02,2,planned
+negative,t75_i15,negative_prompt,7.5,1.5,Let the person wear a helmet,"extra person, multiple people, extra face, duplicate face, different person",_helmet_negative,20260812,50,ip2p_helmet_negative,man_03,2,planned
+negative,t75_i15,negative_prompt,7.5,1.5,Let the person wear a helmet,"extra person, multiple people, extra face, duplicate face, different person",_helmet_negative,20260812,50,ip2p_helmet_negative,woman_00,2,planned
+negative,t75_i15,negative_prompt,7.5,1.5,Let the person wear a helmet,"extra person, multiple people, extra face, duplicate face, different person",_helmet_negative,20260812,50,ip2p_helmet_negative,woman_01,2,planned
+negative,t75_i15,negative_prompt,7.5,1.5,Let the person wear a helmet,"extra person, multiple people, extra face, duplicate face, different person",_helmet_negative,20260812,50,ip2p_helmet_negative,woman_02,2,planned
+negative,t75_i15,negative_prompt,7.5,1.5,Let the person wear a helmet,"extra person, multiple people, extra face, duplicate face, different person",_helmet_negative,20260812,50,ip2p_helmet_negative,woman_03,2,planned

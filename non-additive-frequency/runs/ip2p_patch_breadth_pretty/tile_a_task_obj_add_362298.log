@@ -1,84 +1,0 @@
-Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
-Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00, 11.03it/s]Loading pipeline components...:  83%|████████▎ | 5/6 [00:00<00:00, 17.89it/s]
-Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 3987.43it/s]
-Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00,  8.90it/s]
-There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
-/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
-  warnings.warn(
-/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
-  warnings.warn(msg)
-IP2P 線：1 張、條件 ['patch']、steps=100 s_T=7.5 s_I=1.5 seed=20260812
-/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,1.0]
-  warnings.warn(
-Loading weights:   0%|          | 0/462 [00:00<?, ?it/s]Loading weights:  69%|██████▉   | 319/462 [00:00<00:00, 3188.58it/s]Loading weights: 100%|██████████| 462/462 [00:00<00:00, 3223.33it/s]
-Loading weights:   0%|          | 0/380 [00:00<?, ?it/s]Loading weights:  78%|███████▊  | 298/380 [00:00<00:00, 2962.09it/s]Loading weights: 100%|██████████| 380/380 [00:00<00:00, 2926.12it/s]
-    [patch] step    0 loss 0.410038 |p| 0.29318 eval 0.163064
-    [patch] step  150 loss 0.001940 |p| 0.31376
-    [patch] step  200 loss 0.080609 |p| 0.32906 eval 0.099792
-    [patch] step  300 loss 0.001517 |p| 0.35353
-    [patch] step  400 loss 0.087896 |p| 0.37085 eval 0.095349
-    [patch] step  450 loss 0.218533 |p| 0.37739
-    [patch] step  600 loss 0.081157 |p| 0.39437 eval 0.094198
-    [patch] step  750 loss 0.003633 |p| 0.40530
-    [patch] step  800 loss 0.101328 |p| 0.40828 eval 0.093113
-    [patch] step  900 loss 0.001028 |p| 0.41436
-    [patch] step 1000 loss 0.014215 |p| 0.41783 eval 0.093069
-    [patch] step 1050 loss 0.055015 |p| 0.41936
-    [patch] step 1200 loss 0.128653 |p| 0.42568 eval 0.092337
-    [patch] step 1350 loss 0.001632 |p| 0.42974
-    [patch] step 1400 loss 0.013997 |p| 0.43082 eval 0.092186
-    [patch] step 1500 loss 0.080819 |p| 0.43291
-    [patch] step 1600 loss 0.113672 |p| 0.43479 eval 0.092037
-    [patch] step 1650 loss 0.154498 |p| 0.43689
-    [patch] step 1800 loss 0.061455 |p| 0.43854 eval 0.092079
-    [patch] step 1950 loss 0.041481 |p| 0.44091
-    [patch] step 2000 loss 0.020136 |p| 0.44116 eval 0.091917
-    [patch] step 2100 loss 0.030215 |p| 0.44169
-    [patch] step 2200 loss 0.006187 |p| 0.44225 eval 0.091806
-    [patch] step 2250 loss 0.065057 |p| 0.44259
-    [patch] step 2400 loss 0.001067 |p| 0.44386 eval 0.091935
-    [patch] step 2550 loss 0.003218 |p| 0.44455
-    [patch] step 2600 loss 0.036034 |p| 0.44534 eval 0.091529
-    [patch] step 2700 loss 0.024696 |p| 0.44525
-    [patch] step 2800 loss 0.192198 |p| 0.44555 eval 0.091421
-    [patch] step 2850 loss 0.076581 |p| 0.44571
-    [patch] step 3000 loss 0.032213 |p| 0.44603 eval 0.091738
-    [patch] step 3150 loss 0.130628 |p| 0.44675
-    [patch] step 3200 loss 0.160222 |p| 0.44740 eval 0.091420
-    [patch] step 3300 loss 0.001468 |p| 0.44787
-    [patch] step 3400 loss 0.034814 |p| 0.44766 eval 0.091467
-    [patch] step 3450 loss 0.010541 |p| 0.44781
-    [patch] step 3600 loss 0.003940 |p| 0.44909 eval 0.091532
-    [patch] step 3750 loss 0.051152 |p| 0.44931
-    [patch] step 3800 loss 0.021652 |p| 0.44928 eval 0.091570
-    [patch] step 3900 loss 0.004788 |p| 0.45041
-    [patch] step 4000 loss 0.013059 |p| 0.45057 eval 0.091480
-    [patch] step 4050 loss 0.122132 |p| 0.45058
-    [patch] step 4200 loss 0.079007 |p| 0.45069 eval 0.091343
-    [patch] step 4350 loss 0.165623 |p| 0.45172
-    [patch] step 4400 loss 0.062104 |p| 0.45233 eval 0.091209
-    [patch] step 4500 loss 0.002526 |p| 0.45241
-    [patch] step 4600 loss 0.111783 |p| 0.45276 eval 0.091366
-    [patch] step 4650 loss 0.052918 |p| 0.45290
-    [patch] step 4800 loss 0.097782 |p| 0.45272 eval 0.091285
-    [patch] step 4950 loss 0.000836 |p| 0.45308
-    [patch] step 5000 loss 0.003035 |p| 0.45271 eval 0.091563
-    [patch] step 5100 loss 0.017262 |p| 0.45302
-    [patch] step 5200 loss 0.072610 |p| 0.45345 eval 0.091240
-    [patch] step 5250 loss 0.000945 |p| 0.45370
-    [patch] step 5400 loss 0.193720 |p| 0.45369 eval 0.090897
-    [patch] step 5550 loss 0.031084 |p| 0.45252
-    [patch] step 5600 loss 0.107386 |p| 0.45233 eval 0.090968
-    [patch] step 5700 loss 0.011190 |p| 0.45316
-    [patch] step 5800 loss 0.014267 |p| 0.45343 eval 0.091315
-    [patch] step 5850 loss 0.002912 |p| 0.45378
-    [patch] step 5999 loss 0.217597 |p| 0.45307 eval 0.090945
-/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,1.0]
-  warnings.warn(
-Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 13712.05it/s]
-[transformers] Model config: bos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49406. This may result in unexpected behavior.
-[transformers] Model config: eos_token_id must be `None` or an integer within the vocabulary (between 0 and 31999), got 49407. This may result in unexpected behavior.
-Loading weights:   0%|          | 0/408 [00:00<?, ?it/s]Loading weights:  91%|█████████▏| 373/408 [00:00<00:00, 3722.45it/s]Loading weights: 100%|██████████| 408/408 [00:00<00:00, 3759.90it/s]
-task_obj_add_362298              patch          r=0.0500 dists=0.1249 lpips=0.1592 effect=0.2418 (2887s)
-
-表：runs/ip2p_patch_breadth_pretty/tile_a_task_obj_add_362298/results.csv（1 列）

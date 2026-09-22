@@ -1,8 +1,0 @@
-image,condition,budget_target,purifier,reference,effect_mean,effect_sd,effect_identity_mean,effect_identity_sd,retention,codefense_status,reference_codefense,effect_codefense_mean,effect_codefense_sd,siglip_sim,siglip_blocked,edit_strength,usable,seconds
-task_obj_remove_704852,patch,native,identity,orig,0.46837,0.02516,0.46837,0.02516,1.0,,,,,0.84467,False,0.8,True,1288.6
-task_obj_remove_704852,patch,native,blur1,orig,0.3464,0.11793,0.46837,0.02516,0.73958,,,,,0.61275,True,0.8,True,1288.6
-task_obj_remove_704852,patch,native,jpeg75,orig,0.44721,0.11332,0.46837,0.02516,0.95481,,,,,0.55917,True,0.8,True,1288.6
-task_obj_remove_704852,patch,native,jpeg30,orig,0.31171,0.11434,0.46837,0.02516,0.66551,,,,,0.89912,False,0.8,True,1288.6
-task_obj_remove_704852,patch,native,blur2,orig,0.44416,0.11177,0.46837,0.02516,0.9483,,,,,0.52624,True,0.8,True,1288.6
-task_obj_remove_704852,patch,native,crop_resize0.1,purified_orig,0.26128,0.04452,0.46837,0.02516,0.55785,,,,,0.7361,True,0.8,True,1288.6
-task_obj_remove_704852,patch,native,jpeg_then_resize75,purified_orig,0.2557,0.11262,0.46837,0.02516,0.54593,,,,,0.66571,True,0.8,True,1288.6

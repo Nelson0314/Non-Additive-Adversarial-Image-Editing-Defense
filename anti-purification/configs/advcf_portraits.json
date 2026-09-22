@@ -1,0 +1,79 @@
+{
+  "manifest": "data/portraits_manifest.json",
+  "images": [
+    "man_00",
+    "man_01",
+    "man_02",
+    "man_03",
+    "woman_00",
+    "woman_01",
+    "woman_02",
+    "woman_03"
+  ],
+  "images_note": "與其他 baseline 同一組八張（data/portraits），這樣顏色線才與外部方法並列。",
+  "objective_note": "**這份設定裡不得出現指令。** scripts/paper_baseline.py 載入 scripts/immunise.py 的 assert_no_instructions 遞迴檢查。指令只在 scripts/evaluate_defence.py 出現。",
+  "rationale": "主表的顏色線有兩列，載體同為 ColorCurveParam(bound_mode='advcf', pieces=64)。advcf_paper 是 AdvCF 論文的操作點（半徑 1.0、150 步、凍結抽樣），**沒有色差上限**，失真由半徑給多少算多少，故逐張把實際達到的 ΔE00 與 PSNR 報出來，否則這一列的預算是隱藏的。colour_curve_ours 是本專案宣告的操作點（configs/advcf_steps900.json 的 sds_advdm_900），失真由 deltae_cap 16.0 控制、半徑放到 5.0 讓色差上限成為唯一束縛。",
+  "selection_note": "**colour_curve_ours 是宣告的操作點，不是調校到最好的版本。** 它在十八組目標函數裡排第一，但與第二名差 0.006，小於批內重跑帶；而且排名隨步數翻——300 步的第一名是advdm_w10，900 步才換成 sds_advdm。引用時不得有「已調優」的措辭。",
+  "victim": "resnet50",
+  "victim_note": "這一批不用分類器解，仍逐格記 clean_label／margin，讓欄位與前兩層對得起來。人像上的 margin 不具意義，照實記、不解讀。",
+  "library": {
+    "path": "data/ncf_library.json",
+    "sha256": "3f1af891264523591d3a4ef1df6878cb41b2ed518e7e2cf0e492161b72013888",
+    "class_weights": {
+      "global_scene": 1.0
+    },
+    "ade20k_classes": null
+  },
+  "free": {
+    "timesteps": 4,
+    "chain_steps": 6,
+    "grad_steps": 1,
+    "noise_seed": 0,
+    "resample": false,
+    "face_weight": 0.0,
+    "weights": {
+      "id": 1.0,
+      "enc": 0.5,
+      "cond": 1.0
+    }
+  },
+  "free_note": "這是對照臂的設定，逐欄與 runs/paper_trio/ 相同。其餘臂在自己的 free 區塊裡覆寫要改的鍵。",
+  "variants": [
+    {
+      "name": "advcf_paper",
+      "carrier": "advcf",
+      "options": {
+        "pieces": 64,
+        "radius": 1.0
+      },
+      "steps": 150,
+      "lr": 0.05,
+      "probe_every": 25,
+      "settings_note": "AdvCF 論文的操作點，逐欄取自 configs/advcf_objective.json 的 advcf_control。無色差上限。"
+    },
+    {
+      "carrier": "advcf",
+      "steps": 900,
+      "lr": 0.05,
+      "lr_final_ratio": 0.2,
+      "probe_every": 50,
+      "check_every": 10,
+      "deltae_cap": 16.0,
+      "options": {
+        "pieces": 64,
+        "radius": 5.0
+      },
+      "name": "colour_curve_ours",
+      "free": {
+        "resample": true,
+        "weights": {
+          "id": 1.0,
+          "enc": 0.5,
+          "cond": 0.0,
+          "sds": 1.0
+        }
+      },
+      "settings_note": "本專案宣告的操作點，逐欄取自 configs/advcf_steps900.json 的 sds_advdm_900。"
+    }
+  ]
+}

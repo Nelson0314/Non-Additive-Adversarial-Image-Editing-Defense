@@ -1,4 +1,0 @@
-image,label,condition,latent_norm,ratio_to_original,fid_dists,edit_lpips
-task_attr_mod_color_6205,original,,110.2733,1.0,,
-task_attr_mod_color_6205,color_grid_ln_converged,color_grid,83.8624,0.7605,0.15306,0.29749
-task_attr_mod_color_6205,color_grid_ig,color_grid,104.9088,0.9514,0.22465,0.44767

@@ -1,0 +1,3 @@
+variant,image,subject_id_defended,subject_id_defended_detected,face_box_iou_defended,faces_orig,faces_defended,psnr,ssim,lpips,dists,deltaE00,linf,acutance_ratio,niqe_orig,niqe_defended
+face_band,task_env_weather_121086,1.0,1.0,0.99901,1,1,14.30045,0.84959,0.1196,0.14908,6.95677,1.0,1.12107,2.99638,3.08038
+id_only_eot,task_env_weather_121086,1.0,1.0,0.99843,1,1,15.46797,0.86158,0.09631,0.1404,5.77491,0.98431,1.11036,2.99638,3.1018

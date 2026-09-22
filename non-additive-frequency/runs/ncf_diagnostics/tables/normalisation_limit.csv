@@ -1,7 +1,0 @@
-scale,condition_energy,norm_eps,unnormalised,normalised,response_model
-1.0,0.25,0.001,1.0,3.9840637450199203,d=2*z; matches CPU stub regression test
-0.1,0.0025000000000000005,0.001,0.010000000000000002,2.857142857142857,d=2*z; matches CPU stub regression test
-0.01,2.5e-05,0.001,0.0001,0.0975609756097561,d=2*z; matches CPU stub regression test
-0.001,2.5e-07,0.001,1e-06,0.0009997500624843788,d=2*z; matches CPU stub regression test
-0.0001,2.5e-09,0.001,1e-08,9.9999750000625e-06,d=2*z; matches CPU stub regression test
-0.0,0.0,0.001,0.0,0.0,d=2*z; matches CPU stub regression test

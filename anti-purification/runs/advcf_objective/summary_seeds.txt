@@ -1,0 +1,164 @@
+變體          臂           淨化             列   格    穿透   過半    全種子  criterion       id      dir      use      argmin     對照失敗
+-------------------------------------------------------------------------------------------------------------------------
+advcf_controlimmunised   blur          81   9   6/9     1     0     0.9342   0.9568   1.0000   0.9715     58id 23u        0
+advcf_controlimmunised   crop_resize   81   9   6/9     1     0     0.9381   0.9305   1.0000   0.9941     69id 12u        3
+advcf_controlimmunised   identity      81   9   5/9     0     0     0.9435   0.9442   1.0000   0.9872     61id 20u        1
+advcf_controlimmunised   jpeg          81   9   6/9     0     0     0.9508   0.9615   1.0000   0.9894     58id 23u       10
+advcf_controlundefended  blur          81   9   0/9     0     0     1.0000   1.0000   1.0000   1.0000     81id  0u        0
+advcf_controlundefended  crop_resize   81   9   0/9     0     0     1.0000   1.0000   1.0000   1.0000     81id  0u        3
+advcf_controlundefended  identity      81   9   0/9     0     0     1.0000   1.0000   1.0000   1.0000     81id  0u        1
+advcf_controlundefended  jpeg          81   9   0/9     0     0     1.0000   1.0000   1.0000   1.0000     81id  0u       10
+advcf_control_repeatimmunised   blur          81   9   5/9     1     0     0.9268   0.9678   1.0000   0.9675     52id 29u        0
+advcf_control_repeatimmunised   crop_resize   81   9   6/9     1     0     0.9506   0.9406   1.0000   0.9939     66id 15u        3
+advcf_control_repeatimmunised   identity      81   9   5/9     0     0     0.9444   0.9548   1.0000   0.9787     59id 22u        1
+advcf_control_repeatimmunised   jpeg          81   9   5/9     0     0     0.9388   0.9608   1.0000   0.9941     58id 23u       10
+advcf_control_repeatundefended  blur          81   9   0/9     0     0     1.0000   1.0000   1.0000   1.0000     81id  0u        0
+advcf_control_repeatundefended  crop_resize   81   9   0/9     0     0     1.0000   1.0000   1.0000   1.0000     81id  0u        3
+advcf_control_repeatundefended  identity      81   9   0/9     0     0     1.0000   1.0000   1.0000   1.0000     81id  0u        1
+advcf_control_repeatundefended  jpeg          81   9   0/9     0     0     1.0000   1.0000   1.0000   1.0000     81id  0u       10
+advcf_deep_r20immunised   blur          81   9   4/9     1     1     0.9127   0.9298   1.0000   0.9995     72id  9u        0
+advcf_deep_r20immunised   crop_resize   81   9   5/9     1     0     0.9444   0.9353   1.0000   1.0000     77id  4u        3
+advcf_deep_r20immunised   identity      81   9   4/9     1     0     0.8999   0.8919   1.0000   1.0000     75id  6u        1
+advcf_deep_r20immunised   jpeg          81   9   4/9     1     0     0.9282   0.9255   1.0000   1.0000     73id  8u       10
+advcf_deep_r20undefended  blur          81   9   0/9     0     0     1.0000   1.0000   1.0000   1.0000     81id  0u        0
+advcf_deep_r20undefended  crop_resize   81   9   0/9     0     0     1.0000   1.0000   1.0000   1.0000     81id  0u        3
+advcf_deep_r20undefended  identity      81   9   0/9     0     0     1.0000   1.0000   1.0000   1.0000     81id  0u        1
+advcf_deep_r20undefended  jpeg          81   9   0/9     0     0     1.0000   1.0000   1.0000   1.0000     81id  0u       10
+advcf_deep_r30immunised   blur          81   9   3/9     1     0     0.8360   0.8305   1.0000   0.9940     73id  8u        0
+advcf_deep_r30immunised   crop_resize   81   9   4/9     2     0     0.8251   0.8286   1.0000   1.0000     72id  9u        3
+advcf_deep_r30immunised   identity      81   9   4/9     2     1     0.7315   0.7303   1.0000   0.9970     72id  9u        1
+advcf_deep_r30immunised   jpeg          81   9   4/9     1     0     0.8289   0.8239   1.0000   0.9805     71id 10u       10
+advcf_deep_r30undefended  blur          81   9   0/9     0     0     1.0000   1.0000   1.0000   1.0000     81id  0u        0
+advcf_deep_r30undefended  crop_resize   81   9   0/9     0     0     1.0000   1.0000   1.0000   1.0000     81id  0u        3
+advcf_deep_r30undefended  identity      81   9   0/9     0     0     1.0000   1.0000   1.0000   1.0000     81id  0u        1
+advcf_deep_r30undefended  jpeg          81   9   0/9     0     0     1.0000   1.0000   1.0000   1.0000     81id  0u       10
+advcf_face_r20immunised   blur          81   9   4/9     0     0     0.9709   0.9849   1.0000   0.9928     57id 24u        0
+advcf_face_r20immunised   crop_resize   81   9   4/9     0     0     0.9630   0.9654   0.9986   1.0000     62id 19u        3
+advcf_face_r20immunised   identity      81   9   3/9     1     0     0.9539   0.9831   0.9243   0.9911     53id 28u        1
+advcf_face_r20immunised   jpeg          81   9   3/9     1     0     0.9508   0.9804   1.0000   0.9682     46id 35u       10
+advcf_face_r20undefended  blur          81   9   0/9     0     0     1.0000   1.0000   1.0000   1.0000     81id  0u        0
+advcf_face_r20undefended  crop_resize   81   9   0/9     0     0     1.0000   1.0000   1.0000   1.0000     81id  0u        3
+advcf_face_r20undefended  identity      81   9   0/9     0     0     1.0000   1.0000   1.0000   1.0000     81id  0u        1
+advcf_face_r20undefended  jpeg          81   9   0/9     0     0     1.0000   1.0000   1.0000   1.0000     81id  0u       10
+advcf_radius_r20immunised   blur          81   9   6/9     1     1     0.8969   0.8943   1.0000   0.9768     68id 13u        0
+advcf_radius_r20immunised   crop_resize   81   9   6/9     1     0     0.8824   0.8796   1.0000   1.0000     72id  9u        3
+advcf_radius_r20immunised   identity      81   9   6/9     3     1     0.8765   0.8862   1.0000   0.9617     64id 17u        1
+advcf_radius_r20immunised   jpeg          81   9   5/9     2     1     0.9141   0.9246   1.0000   0.9584     59id 22u       10
+advcf_radius_r20undefended  blur          81   9   0/9     0     0     1.0000   1.0000   1.0000   1.0000     81id  0u        0
+advcf_radius_r20undefended  crop_resize   81   9   0/9     0     0     1.0000   1.0000   1.0000   1.0000     81id  0u        3
+advcf_radius_r20undefended  identity      81   9   0/9     0     0     1.0000   1.0000   1.0000   1.0000     81id  0u        1
+advcf_radius_r20undefended  jpeg          81   9   0/9     0     0     1.0000   1.0000   1.0000   1.0000     81id  0u       10
+advcf_radius_r30immunised   blur          81   9   5/9     1     1     0.8716   0.8714   1.0000   1.0000     74id  7u        0
+advcf_radius_r30immunised   crop_resize   81   9   6/9     1     0     0.7965   0.8574   0.9991   1.0000     75id  6u        3
+advcf_radius_r30immunised   identity      81   9   5/9     1     1     0.8861   0.8820   0.9544   1.0000     77id  4u        1
+advcf_radius_r30immunised   jpeg          81   9   5/9     1     1     0.8834   0.8773   1.0000   0.9875     69id 12u       10
+advcf_radius_r30undefended  blur          81   9   0/9     0     0     1.0000   1.0000   1.0000   1.0000     81id  0u        0
+advcf_radius_r30undefended  crop_resize   81   9   0/9     0     0     1.0000   1.0000   1.0000   1.0000     81id  0u        3
+advcf_radius_r30undefended  identity      81   9   0/9     0     0     1.0000   1.0000   1.0000   1.0000     81id  0u        1
+advcf_radius_r30undefended  jpeg          81   9   0/9     0     0     1.0000   1.0000   1.0000   1.0000     81id  0u       10
+advcf_radius_r50immunised   blur          81   9   6/9     1     1     0.8389   0.8353   0.9757   1.0000     77id  4u        0
+advcf_radius_r50immunised   crop_resize   81   9   6/9     4     0     0.7662   0.8248   1.0000   1.0000     77id  4u        3
+advcf_radius_r50immunised   identity      81   9   6/9     2     1     0.8709   0.8658   0.9544   1.0000     77id  4u        1
+advcf_radius_r50immunised   jpeg          81   9   6/9     1     0     0.8615   0.8585   1.0000   1.0000     73id  8u       10
+advcf_radius_r50undefended  blur          81   9   0/9     0     0     1.0000   1.0000   1.0000   1.0000     81id  0u        0
+advcf_radius_r50undefended  crop_resize   81   9   0/9     0     0     1.0000   1.0000   1.0000   1.0000     81id  0u        3
+advcf_radius_r50undefended  identity      81   9   0/9     0     0     1.0000   1.0000   1.0000   1.0000     81id  0u        1
+advcf_radius_r50undefended  jpeg          81   9   0/9     0     0     1.0000   1.0000   1.0000   1.0000     81id  0u       10
+
+門檻掃描（穿透格數）——格數對切點敏感，結論不可以只掛在一個門檻上
+變體          淨化               0.30    0.40    0.50    0.60    0.70
+-----------------------------------------------------------------
+advcf_controlblur                6       6       6       6       6
+advcf_controlcrop_resize         5       5       6       6       6
+advcf_controlidentity            3       4       5       5       5
+advcf_controljpeg                4       5       6       6       6
+advcf_control_repeatblur                5       5       5       6       6
+advcf_control_repeatcrop_resize         5       5       6       6       6
+advcf_control_repeatidentity            3       4       5       5       5
+advcf_control_repeatjpeg                4       5       5       6       6
+advcf_deep_r20blur                4       4       4       5       6
+advcf_deep_r20crop_resize         5       5       5       6       6
+advcf_deep_r20identity            4       4       4       4       4
+advcf_deep_r20jpeg                3       4       4       4       5
+advcf_deep_r30blur                2       3       3       4       5
+advcf_deep_r30crop_resize         3       3       4       6       6
+advcf_deep_r30identity            2       4       4       5       7
+advcf_deep_r30jpeg                2       3       4       4       4
+advcf_face_r20blur                3       3       4       4       4
+advcf_face_r20crop_resize         4       4       4       5       6
+advcf_face_r20identity            2       2       3       4       4
+advcf_face_r20jpeg                2       3       3       3       4
+advcf_radius_r20blur                6       6       6       6       6
+advcf_radius_r20crop_resize         4       5       6       6       6
+advcf_radius_r20identity            4       6       6       6       6
+advcf_radius_r20jpeg                4       5       5       6       6
+advcf_radius_r30blur                3       4       5       5       5
+advcf_radius_r30crop_resize         5       6       6       6       6
+advcf_radius_r30identity            4       4       5       5       6
+advcf_radius_r30jpeg                4       4       5       6       6
+advcf_radius_r50blur                4       5       6       6       6
+advcf_radius_r50crop_resize         6       6       6       6       6
+advcf_radius_r50identity            3       4       6       6       6
+advcf_radius_r50jpeg                4       5       6       6       6
+
+防禦圖本身（攻擊尚未發生）
+變體          影像                                  錨定身分    PSNR    LPIPS    ΔE00   NIQE 比
+advcf_controltask_env_weather_121086           0.9579   18.82   0.3945   24.66    0.983
+advcf_controltask_obj_remove_410264            0.9733   25.89   0.1713    8.53    0.974
+advcf_controltask_obj_swap_rand_mask_79926     0.9627   20.15   0.2560   16.38    1.007
+advcf_control_repeattask_env_weather_121086           0.9580   18.81   0.3943   24.68    0.979
+advcf_control_repeattask_obj_remove_410264            0.9821   26.25   0.1837   10.45    0.982
+advcf_control_repeattask_obj_swap_rand_mask_79926     0.9681   20.05   0.2533   16.28    1.011
+advcf_deep_r20task_env_weather_121086           0.9327   15.96   0.4978   30.11    0.966
+advcf_deep_r20task_obj_remove_410264            0.9830   22.57   0.2869   15.53    0.900
+advcf_deep_r20task_obj_swap_rand_mask_79926     0.9268   19.09   0.3007   19.23    0.989
+advcf_deep_r30task_env_weather_121086           0.8909   15.93   0.4629   27.09    1.004
+advcf_deep_r30task_obj_remove_410264            0.9714   21.51   0.3214   16.01    0.908
+advcf_deep_r30task_obj_swap_rand_mask_79926     0.8309   21.45   0.2684   15.17    0.966
+advcf_expecttask_env_weather_121086           0.9842   19.12   0.2497   20.40    0.982
+advcf_expecttask_obj_remove_410264            0.9905   24.03   0.2097   12.91    0.953
+advcf_expecttask_obj_swap_rand_mask_79926     0.9587   19.89   0.2613   16.73    1.010
+advcf_expect_condtask_env_weather_121086           0.9800   22.64   0.2642   15.40    0.998
+advcf_expect_condtask_obj_remove_410264            0.9955   25.27   0.1944   11.62    0.919
+advcf_expect_condtask_obj_swap_rand_mask_79926     0.9722   20.94   0.2277   15.23    1.009
+advcf_expect_deeptask_env_weather_121086           0.9547   19.03   0.3880   24.38    0.988
+advcf_expect_deeptask_obj_remove_410264            0.9882   27.78   0.1833   10.29    0.912
+advcf_expect_deeptask_obj_swap_rand_mask_79926     0.9545   22.50   0.2314   14.73    1.013
+advcf_expect_facetask_env_weather_121086           0.9888   19.54   0.1977   20.11    1.001
+advcf_expect_facetask_obj_remove_410264            0.9816   23.92   0.1747   11.06    0.963
+advcf_expect_facetask_obj_swap_rand_mask_79926     0.9892   21.11   0.2322   15.42    0.999
+advcf_expect_face_condtask_env_weather_121086           0.9796   22.78   0.2656   15.70    0.991
+advcf_expect_face_condtask_obj_remove_410264            0.9881   26.99   0.1986   10.86    0.954
+advcf_expect_face_condtask_obj_swap_rand_mask_79926     0.9814   23.11   0.2010   12.54    0.996
+advcf_expect_face_restarttask_env_weather_121086           0.9617   18.77   0.3892   24.75    0.992
+advcf_expect_face_restarttask_obj_remove_410264            0.9530   23.38   0.2311   12.99    0.935
+advcf_expect_face_restarttask_obj_swap_rand_mask_79926     0.9292   20.54   0.3975   22.69    0.984
+advcf_expect_jittertask_env_weather_121086           0.9589   18.78   0.3941   24.75    0.981
+advcf_expect_jittertask_obj_remove_410264            0.9694   23.43   0.2475   13.64    0.904
+advcf_expect_jittertask_obj_swap_rand_mask_79926     0.9705   19.85   0.2593   16.74    0.996
+advcf_expect_noidtask_env_weather_121086           1.0000   80.00   0.0000    0.00    1.000
+advcf_expect_noidtask_obj_remove_410264            1.0000   80.00   0.0000    0.00    1.000
+advcf_expect_noidtask_obj_swap_rand_mask_79926     1.0000   80.00   0.0000    0.00    1.000
+advcf_expect_noid_jittertask_env_weather_121086           0.9556   18.86   0.3929   24.61    0.982
+advcf_expect_noid_jittertask_obj_remove_410264            0.9885   25.21   0.1995   11.28    0.993
+advcf_expect_noid_jittertask_obj_swap_rand_mask_79926     0.9784   21.84   0.2105   13.23    0.990
+advcf_expect_repeattask_env_weather_121086           0.9842   19.12   0.2499   20.40    0.987
+advcf_expect_repeattask_obj_remove_410264            0.9906   24.06   0.2091   12.89    0.949
+advcf_expect_repeattask_obj_swap_rand_mask_79926     0.9717   20.08   0.2551   16.39    1.003
+advcf_face_r20task_env_weather_121086           0.9750   14.91   0.2730   27.08    0.972
+advcf_face_r20task_obj_remove_410264            0.8833   19.64   0.3092   16.65    0.912
+advcf_face_r20task_obj_swap_rand_mask_79926     0.9488   16.73   0.3351   21.67    0.994
+advcf_radius_r05task_env_weather_121086           0.9787   23.35   0.2490   18.24    0.991
+advcf_radius_r05task_obj_remove_410264            0.9948   31.03   0.0974    6.71    0.977
+advcf_radius_r05task_obj_swap_rand_mask_79926     0.9877   24.81   0.1514   10.98    1.000
+advcf_radius_r20task_env_weather_121086           0.9341   15.15   0.5104   30.85    0.969
+advcf_radius_r20task_obj_remove_410264            0.9725   23.54   0.3131   15.46    0.942
+advcf_radius_r20task_obj_swap_rand_mask_79926     0.9024   16.66   0.3582   21.85    1.027
+advcf_radius_r30task_env_weather_121086           0.9029   13.30   0.5651   34.40    0.962
+advcf_radius_r30task_obj_remove_410264            0.9671   21.34   0.3849   18.32    0.843
+advcf_radius_r30task_obj_swap_rand_mask_79926     0.8669   14.68   0.4070   24.72    1.005
+advcf_radius_r50task_env_weather_121086           0.8442   11.56   0.6204   37.99    0.971
+advcf_radius_r50task_obj_remove_410264            0.9245   15.80   0.4387   25.63    0.760
+advcf_radius_r50task_obj_swap_rand_mask_79926     0.8063   12.43   0.4570   27.70    1.004
+
+寫出 runs/advcf_objective/summary_seeds.csv（64 列）

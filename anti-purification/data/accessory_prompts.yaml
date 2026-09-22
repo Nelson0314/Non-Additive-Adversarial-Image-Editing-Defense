@@ -1,0 +1,19 @@
+# 攻擊指令：**只動頭部，不動衣服**。
+#
+# 為什麼要換掉「turn the kimono red」那一族
+# ────────────────────────────────────────────────────────────────────
+# 防禦的支撐在衣物上。用「把和服變紅」當攻擊，模型本來就必須改寫那塊區域，
+# 於是「花紋被保留下來」與「防禦成功」在讀數上完全分不開——實測 `runs/
+# three_readouts/` 四批 26 格，位移最高的格子全部是「指令照樣執行、花紋原封
+# 不動留著」，位移量到的是後者。
+#
+# 改成加配件的指令之後，衣物在有無防禦兩邊**都不該被改動**，那個混淆就消失。
+# 主讀數因此改成「支撐外的位移」：配件出現在頭部，那正是支撐外。
+#
+# 四句都是 InstructPix2Pix 的指令式句型（不是描述式 caption），與
+# `data/ncf_attack_prompts.yaml` 同型。
+prompts:
+  glasses: put a pair of glasses on the person
+  hat: put a hat on the person
+  sunglasses: add sunglasses to the person
+  crown: put a crown on the person's head

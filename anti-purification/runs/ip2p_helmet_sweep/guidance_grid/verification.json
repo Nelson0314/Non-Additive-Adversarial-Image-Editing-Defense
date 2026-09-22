@@ -1,0 +1,79 @@
+[
+  {
+    "cell": "t75_i15",
+    "rows_before": 0,
+    "rows_after": 8,
+    "new_rows": 8,
+    "unique_keys": 8
+  },
+  {
+    "cell": "t75_i18",
+    "rows_before": 8,
+    "rows_after": 16,
+    "new_rows": 8,
+    "unique_keys": 16
+  },
+  {
+    "cell": "t75_i22",
+    "rows_before": 16,
+    "rows_after": 24,
+    "new_rows": 8,
+    "unique_keys": 24
+  },
+  {
+    "cell": "t60_i15",
+    "rows_before": 24,
+    "rows_after": 32,
+    "new_rows": 8,
+    "unique_keys": 32
+  },
+  {
+    "cell": "t60_i18",
+    "rows_before": 32,
+    "rows_after": 40,
+    "new_rows": 8,
+    "unique_keys": 40
+  },
+  {
+    "cell": "t60_i22",
+    "rows_before": 40,
+    "rows_after": 48,
+    "new_rows": 8,
+    "unique_keys": 48
+  },
+  {
+    "cell": "t50_i15",
+    "rows_before": 48,
+    "rows_after": 56,
+    "new_rows": 8,
+    "unique_keys": 56
+  },
+  {
+    "cell": "t50_i18",
+    "rows_before": 56,
+    "rows_after": 64,
+    "new_rows": 8,
+    "unique_keys": 64
+  },
+  {
+    "cell": "t50_i22",
+    "rows_before": 64,
+    "rows_after": 72,
+    "new_rows": 8,
+    "unique_keys": 72
+  },
+  {
+    "cell": "specific",
+    "rows_before": 72,
+    "rows_after": 80,
+    "new_rows": 8,
+    "unique_keys": 80
+  },
+  {
+    "cell": "negative",
+    "rows_before": 80,
+    "rows_after": 88,
+    "new_rows": 8,
+    "unique_keys": 88
+  }
+]

@@ -1,0 +1,45 @@
+{
+  "images": [
+    {
+      "id": "man_00",
+      "path": "data/portraits/man/man_00.png",
+      "sha256": "69e64d6a79ec978de38013f798f6681fa627b6f6510420114b5cbb15d81d27db"
+    },
+    {
+      "id": "man_01",
+      "path": "data/portraits/man/man_01.png",
+      "sha256": "285d20a03d4c6e57d0ccf24b854f9718e7a58e64e09f7fb8f168ea5d1d4cea64"
+    },
+    {
+      "id": "man_02",
+      "path": "data/portraits/man/man_02.png",
+      "sha256": "d6285a0c7492bd32057df864e2c196fa388ab584df92aa039f928b87cacd5605"
+    },
+    {
+      "id": "man_03",
+      "path": "data/portraits/man/man_03.png",
+      "sha256": "25618f2c02cdacb2fa26e6083f5eba9e3811acedf3122111dacfcdd7a17cd6a2"
+    },
+    {
+      "id": "woman_00",
+      "path": "data/portraits/woman/woman_00.png",
+      "sha256": "9980efbf7c7681b594f05aa57cd29e57c56b274719b75c5b8c1163751ba5c2bc"
+    },
+    {
+      "id": "woman_01",
+      "path": "data/portraits/woman/woman_01.png",
+      "sha256": "ec9e2a33e7d75d389d27395f29371e53171fbf6a51cd37377b4c318de5b707d8"
+    },
+    {
+      "id": "woman_02",
+      "path": "data/portraits/woman/woman_02.png",
+      "sha256": "940f1230ef43efc4bd259d653f08729fa207456500d0dd746a41cff6bf362982"
+    },
+    {
+      "id": "woman_03",
+      "path": "data/portraits/woman/woman_03.png",
+      "sha256": "fbe19f503dde2cc58ca57ed2dd9978fdccce9ec490e9b1e245b8894d13ea54f2"
+    }
+  ],
+  "selection_note": "與 data/portraits 同一組八張（使用者指定，男女各四）。顏色方法走 manifest 取圖並逐張驗雜湊，故資料集換了就要重產這份檔。"
+}

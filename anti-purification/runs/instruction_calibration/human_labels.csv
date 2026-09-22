@@ -1,0 +1,28 @@
+prompt_version,image,class,seed,human_completed,human_subject_kept,human_note
+long,268827,add_hat,17001,yes,no,帽有三頂，但銀甲男性被換成金髮白人女性，主體整個重生成
+long,268827,garment_colour,17001,yes,yes,甲變紅，同一人，紅色略溢到唇與髮
+long,268827,replace_background,17001,yes,yes,雪街含城市燈光，同一人
+long,410264,add_hat,17001,yes,no,人整個消失，只剩兩頂浮空帽子
+long,410264,garment_colour,17001,yes,yes,襯衫變鮮紅，同一人，乾淨
+long,410264,replace_background,17001,no,yes,背景仍是原散景，只加了雪點與冷色調
+long,79926,add_hat,17001,yes,part,帽有，但髮色由棕轉金、洋裝由紅花轉黑白花
+long,79926,garment_colour,17001,part,yes,洋裝變綠但不是 solid，且背景牆一起變綠
+long,79926,replace_background,17001,no,yes,背景仍是 Emmys 圖樣牆
+short,268827,add_hat,17001,yes,no,仍被換成金髮白人女性；短句沒有修好這一格
+short,268827,garment_colour,17001,yes,yes,甲變紅，同一人
+short,268827,replace_background,17001,yes,yes,雪景，同一人
+short,410264,add_hat,17001,yes,part,帽有，同一人可辨，但眼鏡消失、膚色變淺
+short,410264,garment_colour,17001,yes,yes,襯衫變偏鮭紅，比長句版淡，同一人
+short,410264,replace_background,17001,no,yes,背景仍是原散景
+short,79926,add_hat,17001,yes,yes,帽有，同一人，洋裝與背景不變，乾淨
+short,79926,garment_colour,17001,part,yes,洋裝變綠但背景牆一起變綠，與長句版同一個外溢
+short,79926,replace_background,17001,no,yes,背景仍是 Emmys 圖樣牆
+trio,121086,add_hat,17001,yes,yes,帽有，同一人，眼鏡與背景不變，乾淨
+trio,121086,garment_colour,17001,yes,yes,外套變紅，同一人；背景樹木帶輕微紅調
+trio,121086,add_scarf,17001,yes,yes,紅圍巾有，同一人；**整張泛紅、藍外套也變紅**，色彩外溢最嚴重的一格
+trio,410264,add_hat,17001,yes,part,帽有，同一人可辨；眼鏡消失、膚色變淺
+trio,410264,garment_colour,17001,yes,yes,襯衫變偏鮭紅，同一人，背景不變
+trio,410264,add_scarf,17001,yes,yes,紅圍巾清楚，同一人，背景不變，最乾淨的一格
+trio,79926,add_hat,17001,yes,yes,帽有，同一人，洋裝與背景不變
+trio,79926,garment_colour,17001,yes,yes,洋裝變綠，同一人；**背景牆一起變綠**
+trio,79926,add_scarf,17001,yes,yes,紅圍巾包住頭與肩，同一人，背景不變

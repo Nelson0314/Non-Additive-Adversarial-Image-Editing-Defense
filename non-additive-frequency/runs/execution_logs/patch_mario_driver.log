@@ -1,58 +1,0 @@
-Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
-Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  67%|██████▋   | 4/6 [00:00<00:00, 23.00it/s]
-Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 4445.06it/s]
-Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 17.51it/s]
-There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
-/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:207: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
-  warnings.warn(
-/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/torchvision/models/_utils.py:222: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
-  warnings.warn(msg)
-Loading weights:   0%|          | 0/462 [00:00<?, ?it/s]Loading weights:  80%|███████▉  | 369/462 [00:00<00:00, 3685.79it/s]Loading weights: 100%|██████████| 462/462 [00:00<00:00, 3658.07it/s]
-
-task_attr_mod_color_6205  指令「turn the color of toolbox to red」
-  遮罩 ['toolbox', 'Mario figure'] {'mask_core_area': 0.49099, 'mask_mean': 0.56401, 'mask_soft_band': 0.07301}
-/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,1.0]
-  warnings.warn(
-  參照編輯完成（2 個算子）
-  最大合法邊長 s_max=166（佔全圖面積 0.105）
-  s1_near 與已排入的位置相同 (336, 0)，不重複跑
-/nfs/home/nelson0314/venvs/wacv/lib/python3.11/site-packages/diffusers/image_processor.py:724: FutureWarning: Passing `image` as torch tensor with value range in [-1,1] is deprecated. The expected value range for image tensor is [0,1] when passing as pytorch tensor or numpy Array. You passed `image` with value range [-1.0,1.0]
-  warnings.warn(
-  patch_noise_s1_far            identity        主體位移 0.0361  背景 0.2762  主體失真 0.0018  L_ig 0.749×
-  patch_noise_s1_far            crop_resize0.1  主體位移 0.0122  背景 0.2011  主體失真 0.0018  L_ig 0.749×
-  patch_noise_s0.7_far          identity        主體位移 0.0687  背景 0.3360  主體失真 0.0003  L_ig 0.870×
-  patch_noise_s0.7_far          crop_resize0.1  主體位移 0.0178  背景 0.2386  主體失真 0.0003  L_ig 0.870×
-  patch_noise_s0.7_near         identity        主體位移 0.0180  背景 0.1495  主體失真 0.0012  L_ig 0.844×
-  patch_noise_s0.7_near         crop_resize0.1  主體位移 0.0142  背景 0.2371  主體失真 0.0012  L_ig 0.844×
-  patch_noise_s0.5_far          identity        主體位移 0.0388  背景 0.1863  主體失真 0.0009  L_ig 0.948×
-  patch_noise_s0.5_far          crop_resize0.1  主體位移 0.0122  背景 0.1327  主體失真 0.0009  L_ig 0.948×
-  patch_noise_s0.5_near         identity        主體位移 0.0146  背景 0.0909  主體失真 0.0024  L_ig 0.907×
-  patch_noise_s0.5_near         crop_resize0.1  主體位移 0.0138  背景 0.1842  主體失真 0.0024  L_ig 0.907×
-  patch_noise_complement        identity        主體位移 0.1108  背景 0.8137  主體失真 0.0285  L_ig 0.417×
-  patch_noise_complement        crop_resize0.1  主體位移 0.0504  背景 0.6540  主體失真 0.0285  L_ig 0.417×
-  patch_gray_s1_far             identity        主體位移 0.0596  背景 0.3700  主體失真 0.0008  L_ig 0.836×
-  patch_gray_s1_far             crop_resize0.1  主體位移 0.0138  背景 0.2244  主體失真 0.0008  L_ig 0.836×
-  patch_gray_s0.7_far           identity        主體位移 0.0506  背景 0.2678  主體失真 0.0001  L_ig 0.928×
-  patch_gray_s0.7_far           crop_resize0.1  主體位移 0.0137  背景 0.2070  主體失真 0.0001  L_ig 0.928×
-  patch_gray_s0.7_near          identity        主體位移 0.0133  背景 0.1274  主體失真 0.0006  L_ig 0.907×
-  patch_gray_s0.7_near          crop_resize0.1  主體位移 0.0144  背景 0.2162  主體失真 0.0006  L_ig 0.907×
-  patch_gray_s0.5_far           identity        主體位移 0.0007  背景 0.0369  主體失真 0.0003  L_ig 0.977×
-  patch_gray_s0.5_far           crop_resize0.1  主體位移 0.0088  背景 0.1058  主體失真 0.0003  L_ig 0.977×
-  patch_gray_s0.5_near          identity        主體位移 0.0113  背景 0.0786  主體失真 0.0012  L_ig 0.946×
-  patch_gray_s0.5_near          crop_resize0.1  主體位移 0.0136  背景 0.1783  主體失真 0.0012  L_ig 0.946×
-  patch_gray_complement         identity        主體位移 0.0707  背景 0.6530  主體失真 0.0185  L_ig 0.553×
-  patch_gray_complement         crop_resize0.1  主體位移 0.0271  背景 0.5361  主體失真 0.0185  L_ig 0.553×
-  patch_photo_s1_far            identity        主體位移 0.0307  背景 0.2286  主體失真 0.0010  L_ig 0.830×
-  patch_photo_s1_far            crop_resize0.1  主體位移 0.0127  背景 0.2217  主體失真 0.0010  L_ig 0.830×
-  patch_photo_s0.7_far          identity        主體位移 0.0150  背景 0.1523  主體失真 0.0002  L_ig 0.916×
-  patch_photo_s0.7_far          crop_resize0.1  主體位移 0.0054  背景 0.1112  主體失真 0.0002  L_ig 0.916×
-  patch_photo_s0.7_near         identity        主體位移 0.0127  背景 0.1292  主體失真 0.0007  L_ig 0.890×
-  patch_photo_s0.7_near         crop_resize0.1  主體位移 0.0161  背景 0.2395  主體失真 0.0007  L_ig 0.890×
-  patch_photo_s0.5_far          identity        主體位移 0.0150  背景 0.1011  主體失真 0.0006  L_ig 0.965×
-  patch_photo_s0.5_far          crop_resize0.1  主體位移 0.0112  背景 0.1269  主體失真 0.0006  L_ig 0.965×
-  patch_photo_s0.5_near         identity        主體位移 0.0156  背景 0.0831  主體失真 0.0018  L_ig 0.921×
-  patch_photo_s0.5_near         crop_resize0.1  主體位移 0.0219  背景 0.2027  主體失真 0.0018  L_ig 0.921×
-  patch_photo_complement        identity        主體位移 0.0641  背景 0.7544  主體失真 0.0229  L_ig 0.536×
-  patch_photo_complement        crop_resize0.1  主體位移 0.0226  背景 0.5757  主體失真 0.0229  L_ig 0.536×
-
-寫出 runs/patch_probe/mario/results.csv（36 列）

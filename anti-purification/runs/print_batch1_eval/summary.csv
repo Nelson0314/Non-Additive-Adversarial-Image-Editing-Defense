@@ -1,0 +1,6 @@
+variant,arm,purifier,rows,cells,penetrated,majority,all_seeds,criterion,id_norm,dir_norm,use_norm,argmin_id,argmin_use,control_lost,control_flat,subject_lost
+print_free,immunised,identity,2,2,0,0,0,0.9509099999999999,0.953105,0.348235,0.949045,1,1,0,0,0
+print_main,immunised,identity,2,2,0,0,0,0.9573100000000001,0.9467749999999999,0.18996,1.0,2,0,0,0,0
+print_outside,immunised,identity,2,2,0,0,0,0.960935,0.954585,0.291435,1.0,2,0,0,0,0
+print_rand,immunised,identity,2,2,0,0,0,1.0,1.0,0.2276,1.0,2,0,0,0,0
+print_scatter8,immunised,identity,2,2,0,0,0,0.9613050000000001,0.9549099999999999,0.489295,0.999765,2,0,0,0,0

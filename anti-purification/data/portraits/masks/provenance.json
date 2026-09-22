@@ -1,0 +1,90 @@
+[
+  {
+    "name": "man_00",
+    "image": "data/portraits/man/man_00.png",
+    "mask": "data/portraits/masks/man_00.png",
+    "text": "man",
+    "model": "CIDAS/clipseg-rd64-refined",
+    "threshold": 0.3,
+    "dilate": 4,
+    "subject_area": 0.53084,
+    "repaint_area": 0.46916
+  },
+  {
+    "name": "man_01",
+    "image": "data/portraits/man/man_01.png",
+    "mask": "data/portraits/masks/man_01.png",
+    "text": "man",
+    "model": "CIDAS/clipseg-rd64-refined",
+    "threshold": 0.3,
+    "dilate": 4,
+    "subject_area": 0.61869,
+    "repaint_area": 0.38131
+  },
+  {
+    "name": "man_02",
+    "image": "data/portraits/man/man_02.png",
+    "mask": "data/portraits/masks/man_02.png",
+    "text": "man",
+    "model": "CIDAS/clipseg-rd64-refined",
+    "threshold": 0.3,
+    "dilate": 4,
+    "subject_area": 0.57143,
+    "repaint_area": 0.42857
+  },
+  {
+    "name": "man_03",
+    "image": "data/portraits/man/man_03.png",
+    "mask": "data/portraits/masks/man_03.png",
+    "text": "man",
+    "model": "CIDAS/clipseg-rd64-refined",
+    "threshold": 0.3,
+    "dilate": 4,
+    "subject_area": 0.42702,
+    "repaint_area": 0.57298
+  },
+  {
+    "name": "woman_00",
+    "image": "data/portraits/woman/woman_00.png",
+    "mask": "data/portraits/masks/woman_00.png",
+    "text": "woman",
+    "model": "CIDAS/clipseg-rd64-refined",
+    "threshold": 0.3,
+    "dilate": 4,
+    "subject_area": 0.48617,
+    "repaint_area": 0.51383
+  },
+  {
+    "name": "woman_01",
+    "image": "data/portraits/woman/woman_01.png",
+    "mask": "data/portraits/masks/woman_01.png",
+    "text": "woman",
+    "model": "CIDAS/clipseg-rd64-refined",
+    "threshold": 0.3,
+    "dilate": 4,
+    "subject_area": 0.58884,
+    "repaint_area": 0.41116
+  },
+  {
+    "name": "woman_02",
+    "image": "data/portraits/woman/woman_02.png",
+    "mask": "data/portraits/masks/woman_02.png",
+    "text": "woman",
+    "model": "CIDAS/clipseg-rd64-refined",
+    "threshold": 0.3,
+    "dilate": 4,
+    "subject_area": 0.57042,
+    "repaint_area": 0.42958
+  },
+  {
+    "name": "woman_03",
+    "image": "data/portraits/woman/woman_03.png",
+    "mask": "data/portraits/masks/woman_03.png",
+    "text": "woman",
+    "model": "CIDAS/clipseg-rd64-refined",
+    "threshold": 0.3,
+    "dilate": 4,
+    "subject_area": 0.47373,
+    "repaint_area": 0.52627
+  }
+]

@@ -1,0 +1,161 @@
+{
+  "manifest": "data/portrait_trio_manifest.json",
+  "images": [
+    "task_env_weather_121086",
+    "task_obj_swap_rand_mask_79926"
+  ],
+  "images_note": "",
+  "objective_note": "**這份設定裡不得出現指令。** scripts/paper_baseline.py 載入 scripts/immunise.py 的 assert_no_instructions 遞迴檢查。指令只在 scripts/evaluate_defence.py 出現。",
+  "rationale": "收斂檢查。runs/*/paper_baseline.csv 的 free_curve（固定驗證抽樣上的收斂曲線）顯示 300 步不是收斂點：advdm_w10 最後三分之一還降 0.045（總降的 16%）、pilot_out_fixed 降 0.061；而 pilot_free、sds_advdm 的末段是**上升**的。所以現行的臂間排名有一部分可能只是「誰在 300 步內走得比較快」。這一批把步數 300 → 900，其餘逐欄不動，回答兩件事：(1) 還在降的那幾組跑到底會到哪裡；(2) 末段上升的那幾組是不是真的到頂。",
+  "control_note": "advcf_control 與 trio_advcf_paper 逐欄相同，放在同一批裡當批內對照。跨批對照在本專案不成立（同一份設定重跑的格數差到 13 對 1），所以每一批都要自帶對照。",
+  "victim": "resnet50",
+  "victim_note": "這一批不用分類器解，仍逐格記 clean_label／margin，讓欄位與前兩層對得起來。人像上的 margin 不具意義，照實記、不解讀。",
+  "library": {
+    "path": "data/ncf_library.json",
+    "sha256": "3f1af891264523591d3a4ef1df6878cb41b2ed518e7e2cf0e492161b72013888",
+    "class_weights": {
+      "global_scene": 1.0
+    },
+    "ade20k_classes": null
+  },
+  "free": {
+    "timesteps": 4,
+    "chain_steps": 6,
+    "grad_steps": 1,
+    "noise_seed": 0,
+    "resample": false,
+    "face_weight": 0.0,
+    "weights": {
+      "id": 1.0,
+      "enc": 0.5,
+      "cond": 1.0
+    }
+  },
+  "free_note": "這是對照臂的設定，逐欄與 runs/paper_trio/ 相同。其餘臂在自己的 free 區塊裡覆寫要改的鍵。",
+  "selection_note": "checkpoint 與重啟的挑選一律走 FreeObjective.eval_score——一組與訓練重抽不重疊的固定 (噪聲, 時刻)。用逐步分數挑會挑到運氣好的那一次抽樣。free_curve 欄記的就是那個固定量測上的收斂曲線。",
+  "anchor_note": "等失真錨點下半徑一律放到 5.0，讓色差上限而不是半徑成為唯一束縛。可行性檢查走量測路徑（skimage）、在量化後的 PNG 上做，最佳可行 checkpoint 由固定驗證抽樣的 eval_score 挑。",
+  "random_control_note": "隨機對照臂（`*_rand_*`）不呼叫 IP2P，也不跑任何最佳化步：`scripts/paper_baseline.py` 的 `solver: random` 直接抽一條曲線，再用 `src/defense/color_amplitude.fit_curve_jitter` 二分 `init_jitter` 對齊 ΔE00。`ColorCurveParam.render` 不看 `amplitude`，所以曲線族的幅度旋鈕是 `init_jitter` 而不是 `solve_amplitude` 用的那一個。 抽樣用低頻平滑剖面而不是逐段 i.i.d.：逐段獨立抽樣的偏差會互相抵銷，實測滿幅度只到 ΔE00 7.11／4.14／5.90，連 16 的錨點都搆不到，拿它當對照等於送分給最佳化。對抗解出來的曲線相鄰段高度相關，隨機對照要抽自同一類函數才公平。 隨機臂的半徑放到 80、分量數 5，理由是**平滑隨機曲線在色差上會飽和**：曲線帶 ×K/Σθ 正規化，斜率剖面整體縮放不改變曲線，只有形狀有效，而低頻形狀能造成的位移有上限。實測三顆種子的最大 ΔE00：半徑 5 只到 20.4／14.1／16.3，半徑 80 仍只到 23.7／16.8／21.9（3 分量）；5 分量在半徑 40 才到 35.2／21.7／32.7。逐段 i.i.d. 的 corner 抽樣更弱，只到 15.8／8.9／13.1——**有相關結構才推得動顏色**。給隨機臂較大的盒寬不是放水：比較一律在對齊後的 ΔE00 上做，盒寬只決定它搆不搆得到錨點。",
+  "variants": [
+    {
+      "carrier": "advcf",
+      "steps": 900,
+      "lr": 0.05,
+      "lr_final_ratio": 0.2,
+      "probe_every": 50,
+      "check_every": 10,
+      "deltae_cap": 16.0,
+      "options": {
+        "pieces": 64,
+        "radius": 5.0
+      },
+      "name": "pilot_free_900",
+      "free": {
+        "resample": true,
+        "weights": {
+          "id": 1.0,
+          "enc": 0.5,
+          "cond": 1.0
+        }
+      },
+      "settings_note": "與 pilot_free 逐欄相同，只有 steps 300 → 900。分母。300 步版末段上升（+0.042／100 步）"
+    },
+    {
+      "carrier": "advcf",
+      "steps": 900,
+      "lr": 0.05,
+      "lr_final_ratio": 0.2,
+      "probe_every": 50,
+      "check_every": 10,
+      "deltae_cap": 16.0,
+      "options": {
+        "pieces": 64,
+        "radius": 5.0
+      },
+      "name": "pilot_advdm_900",
+      "free": {
+        "resample": true,
+        "weights": {
+          "id": 1.0,
+          "enc": 0.5,
+          "cond": 0.0,
+          "diffusion": 1.0
+        }
+      },
+      "settings_note": "與 pilot_advdm 逐欄相同，只有 steps 300 → 900。300 步版末段仍在降（−0.028／100 步）"
+    },
+    {
+      "carrier": "advcf",
+      "steps": 900,
+      "lr": 0.05,
+      "lr_final_ratio": 0.2,
+      "probe_every": 50,
+      "check_every": 10,
+      "deltae_cap": 16.0,
+      "options": {
+        "pieces": 64,
+        "radius": 5.0
+      },
+      "name": "advdm_w10_900",
+      "free": {
+        "resample": true,
+        "weights": {
+          "id": 1.0,
+          "enc": 0.5,
+          "cond": 0.0,
+          "diffusion": 10.0
+        }
+      },
+      "settings_note": "與 advdm_w10 逐欄相同，只有 steps 300 → 900。最強的一組。300 步版末段仍在降（−0.060／100 步）"
+    },
+    {
+      "carrier": "advcf",
+      "steps": 900,
+      "lr": 0.05,
+      "lr_final_ratio": 0.2,
+      "probe_every": 50,
+      "check_every": 10,
+      "deltae_cap": 16.0,
+      "options": {
+        "pieces": 64,
+        "radius": 5.0
+      },
+      "name": "sds_advdm_900",
+      "free": {
+        "resample": true,
+        "weights": {
+          "id": 1.0,
+          "enc": 0.5,
+          "cond": 0.0,
+          "sds": 1.0
+        }
+      },
+      "settings_note": "與 sds_advdm 逐欄相同，只有 steps 300 → 900。300 步版末段上升（+0.022／100 步）"
+    },
+    {
+      "carrier": "advcf",
+      "steps": 900,
+      "lr": 0.05,
+      "lr_final_ratio": 0.2,
+      "probe_every": 50,
+      "check_every": 10,
+      "deltae_cap": 16.0,
+      "options": {
+        "pieces": 64,
+        "radius": 5.0
+      },
+      "name": "pilot_out_fixed_900",
+      "free": {
+        "resample": true,
+        "weights": {
+          "id": 1.0,
+          "enc": 0.5,
+          "cond": 1.0,
+          "out": 2.0
+        }
+      },
+      "settings_note": "與 pilot_out_fixed 逐欄相同，只有 steps 300 → 900。300 步版降得最陡（−0.081／100 步）"
+    }
+  ],
+  "dropped_note": "原本規劃的 tone 半徑掃描（r20／r50）已移除：另一個 session 用一個真的能做出零斜率平台的載體跑過 20 個設定 × 3 類 × 3 種子，結論是機制可達但在等發布圖身分下沒有買到穿透率，動得了讀數的格是把身分打到 0.62 換來的。不必再為那個機制調半徑。",
+  "settings_note": "check_every 維持 10（可行 checkpoint 的粒度不變，90 次檢查）、probe_every 25 → 50（收斂曲線 18 個點）。lr 與 lr_final_ratio 不動：餘弦退火的 T_max 跟著 steps 走，所以 900 步版的學習率下降得比較慢，這本身就是「跑得更久」的一部分。"
+}

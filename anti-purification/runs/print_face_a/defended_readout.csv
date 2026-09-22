@@ -1,0 +1,3 @@
+variant,image,subject_id_defended,subject_id_defended_detected,face_box_iou_defended,faces_orig,faces_defended,psnr,ssim,lpips,dists,deltaE00,linf,acutance_ratio,niqe_orig,niqe_defended
+face_rand,task_env_weather_121086,1.0,1.0,0.99904,1,1,15.35649,0.86291,0.09743,0.13789,5.86185,0.99608,1.1104,2.99638,3.14669
+id_only,task_env_weather_121086,1.0,1.0,0.99839,1,1,15.90263,0.87468,0.08595,0.10937,5.45434,0.99608,1.11475,2.99638,3.0734

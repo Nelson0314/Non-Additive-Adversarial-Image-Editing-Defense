@@ -1,0 +1,203 @@
+{
+  "manifest": "data/portrait_trio_manifest.json",
+  "images": [
+    "task_env_weather_121086",
+    "task_obj_swap_rand_mask_79926"
+  ],
+  "images_note": "",
+  "objective_note": "**這份設定裡不得出現指令。** scripts/paper_baseline.py 載入 scripts/immunise.py 的 assert_no_instructions 遞迴檢查。指令只在 scripts/evaluate_defence.py 出現。",
+  "rationale": "把每一項調到「真的推得動載體」的尺度再比。runs/advcf_texture_sds/term_gradient_scale_converged.csv 在 tex_mist 的收斂解上逐項反傳，有效梯度範數是：id 0.379、enc 0.178、out 0.113、out_target 0.092、sds 0.073、cond 0.072、diffusion 0.036、diffusion_target 0.038、enc_target 0.020。**主流那一族在權重 1.0 下只有 id 的十分之一到二十分之一**，所以「這個目標函數沒有用」與「它的梯度比別項小一個數量級」在先前的讀數上長得一模一樣。這一批把它們各自乘到與 id 同一個量級再跑，回答的是前者還是後者。",
+  "control_note": "advcf_control 與 trio_advcf_paper 逐欄相同，放在同一批裡當批內對照。跨批對照在本專案不成立（同一份設定重跑的格數差到 13 對 1），所以每一批都要自帶對照。",
+  "victim": "resnet50",
+  "victim_note": "這一批不用分類器解，仍逐格記 clean_label／margin，讓欄位與前兩層對得起來。人像上的 margin 不具意義，照實記、不解讀。",
+  "library": {
+    "path": "data/ncf_library.json",
+    "sha256": "3f1af891264523591d3a4ef1df6878cb41b2ed518e7e2cf0e492161b72013888",
+    "class_weights": {
+      "global_scene": 1.0
+    },
+    "ade20k_classes": null
+  },
+  "free": {
+    "timesteps": 4,
+    "chain_steps": 6,
+    "grad_steps": 1,
+    "noise_seed": 0,
+    "resample": false,
+    "face_weight": 0.0,
+    "weights": {
+      "id": 1.0,
+      "enc": 0.5,
+      "cond": 1.0
+    }
+  },
+  "free_note": "這是對照臂的設定，逐欄與 runs/paper_trio/ 相同。其餘臂在自己的 free 區塊裡覆寫要改的鍵。",
+  "selection_note": "checkpoint 與重啟的挑選一律走 FreeObjective.eval_score——一組與訓練重抽不重疊的固定 (噪聲, 時刻)。用逐步分數挑會挑到運氣好的那一次抽樣。free_curve 欄記的就是那個固定量測上的收斂曲線。",
+  "anchor_note": "等失真錨點下半徑一律放到 5.0，讓色差上限而不是半徑成為唯一束縛。可行性檢查走量測路徑（skimage）、在量化後的 PNG 上做，最佳可行 checkpoint 由固定驗證抽樣的 eval_score 挑。",
+  "random_control_note": "隨機對照臂（`*_rand_*`）不呼叫 IP2P，也不跑任何最佳化步：`scripts/paper_baseline.py` 的 `solver: random` 直接抽一條曲線，再用 `src/defense/color_amplitude.fit_curve_jitter` 二分 `init_jitter` 對齊 ΔE00。`ColorCurveParam.render` 不看 `amplitude`，所以曲線族的幅度旋鈕是 `init_jitter` 而不是 `solve_amplitude` 用的那一個。 抽樣用低頻平滑剖面而不是逐段 i.i.d.：逐段獨立抽樣的偏差會互相抵銷，實測滿幅度只到 ΔE00 7.11／4.14／5.90，連 16 的錨點都搆不到，拿它當對照等於送分給最佳化。對抗解出來的曲線相鄰段高度相關，隨機對照要抽自同一類函數才公平。 隨機臂的半徑放到 80、分量數 5，理由是**平滑隨機曲線在色差上會飽和**：曲線帶 ×K/Σθ 正規化，斜率剖面整體縮放不改變曲線，只有形狀有效，而低頻形狀能造成的位移有上限。實測三顆種子的最大 ΔE00：半徑 5 只到 20.4／14.1／16.3，半徑 80 仍只到 23.7／16.8／21.9（3 分量）；5 分量在半徑 40 才到 35.2／21.7／32.7。逐段 i.i.d. 的 corner 抽樣更弱，只到 15.8／8.9／13.1——**有相關結構才推得動顏色**。給隨機臂較大的盒寬不是放水：比較一律在對齊後的 ΔE00 上做，盒寬只決定它搆不搆得到錨點。",
+  "variants": [
+    {
+      "carrier": "advcf",
+      "steps": 300,
+      "lr": 0.05,
+      "lr_final_ratio": 0.2,
+      "probe_every": 25,
+      "check_every": 10,
+      "deltae_cap": 16.0,
+      "options": {
+        "pieces": 64,
+        "radius": 5.0
+      },
+      "name": "photoguard_grey_scaled",
+      "free": {
+        "resample": true,
+        "target": "grey",
+        "enc_target_norm": "start",
+        "weights": {
+          "id": 1.0,
+          "enc": 0.0,
+          "cond": 1.0,
+          "enc_target": 8.0
+        }
+      },
+      "settings_note": "與 pilot_photoguard 逐欄相同，只有 enc_target 的正規化換成起點相對、權重 1.0 → 8.0。"
+    },
+    {
+      "carrier": "advcf",
+      "steps": 300,
+      "lr": 0.05,
+      "lr_final_ratio": 0.2,
+      "probe_every": 25,
+      "check_every": 10,
+      "deltae_cap": 16.0,
+      "options": {
+        "pieces": 64,
+        "radius": 5.0
+      },
+      "name": "photoguard_tex_scaled",
+      "free": {
+        "resample": true,
+        "target": "texture",
+        "enc_target_norm": "start",
+        "weights": {
+          "id": 1.0,
+          "enc": 0.0,
+          "cond": 1.0,
+          "enc_target": 8.0
+        }
+      },
+      "settings_note": "與 photoguard_grey_scaled 逐欄相同，**只有目標那一張圖不同**。這一對才是中性灰對高頻紋理的公平比較。"
+    },
+    {
+      "carrier": "advcf",
+      "steps": 300,
+      "lr": 0.05,
+      "lr_final_ratio": 0.2,
+      "probe_every": 25,
+      "check_every": 10,
+      "deltae_cap": 16.0,
+      "options": {
+        "pieces": 64,
+        "radius": 5.0
+      },
+      "name": "mist_tex_w10",
+      "free": {
+        "resample": true,
+        "target": "texture",
+        "weights": {
+          "id": 1.0,
+          "enc": 0.5,
+          "cond": 0.0,
+          "diffusion_target": 10.0
+        }
+      },
+      "settings_note": "與 tex_mist 逐欄相同，只有權重 1.0 → 10.0。"
+    },
+    {
+      "carrier": "advcf",
+      "steps": 300,
+      "lr": 0.05,
+      "lr_final_ratio": 0.2,
+      "probe_every": 25,
+      "check_every": 10,
+      "deltae_cap": 16.0,
+      "options": {
+        "pieces": 64,
+        "radius": 5.0
+      },
+      "name": "advdm_w10",
+      "free": {
+        "resample": true,
+        "weights": {
+          "id": 1.0,
+          "enc": 0.5,
+          "cond": 0.0,
+          "diffusion": 10.0
+        }
+      },
+      "settings_note": "與 pilot_advdm 逐欄相同，只有權重 1.0 → 10.0。"
+    },
+    {
+      "carrier": "advcf",
+      "steps": 300,
+      "lr": 0.05,
+      "lr_final_ratio": 0.2,
+      "probe_every": 25,
+      "check_every": 10,
+      "deltae_cap": 16.0,
+      "options": {
+        "pieces": 64,
+        "radius": 5.0
+      },
+      "name": "out_target_w8",
+      "free": {
+        "resample": true,
+        "target": "texture",
+        "weights": {
+          "id": 1.0,
+          "enc": 0.5,
+          "cond": 1.0,
+          "out_target": 8.0
+        }
+      },
+      "settings_note": "與 tex_out_target 逐欄相同，只有權重 2.0 → 8.0。"
+    },
+    {
+      "carrier": "advcf_random",
+      "name": "rand_a",
+      "options": {
+        "pieces": 64,
+        "radius": 80.0,
+        "init_jitter": 1.0,
+        "modes": 5
+      },
+      "solver": "random",
+      "seed": 101,
+      "deltae_cap": 16.0,
+      "steps": 0,
+      "lr": 0.0,
+      "settings_note": "隨機對照，抽樣種子 101，不經最佳化。"
+    },
+    {
+      "carrier": "advcf_random",
+      "name": "rand_b",
+      "options": {
+        "pieces": 64,
+        "radius": 80.0,
+        "init_jitter": 1.0,
+        "modes": 5
+      },
+      "solver": "random",
+      "seed": 202,
+      "deltae_cap": 16.0,
+      "steps": 0,
+      "lr": 0.0,
+      "settings_note": "隨機對照，抽樣種子 202，不經最佳化。"
+    }
+  ],
+  "denominator_note": "分母沿用 runs/advcf_pilot/pilot_free 與各自對應的 pilot 臂（pilot_photoguard／pilot_mist_target／pilot_advdm／pilot_out_fixed），同設定、同影像、同種子，不重解。評估與 runs/advcf_pilot_eval/ 用同一份configs/evaluate_pilot.json。",
+  "dropped_note": "原本規劃的 tone 半徑掃描（r20／r50）已移除：另一個 session 用一個真的能做出零斜率平台的載體跑過 20 個設定 × 3 類 × 3 種子，結論是機制可達但在等發布圖身分下沒有買到穿透率，動得了讀數的格是把身分打到 0.62 換來的。不必再為那個機制調半徑。",
+  "scale_note": "權重由收斂點的原始梯度範數反推：diffusion 0.0357 × 10 ≈ 0.357、diffusion_target 0.0379 × 10 ≈ 0.379、out_target 0.046 × 8 ≈ 0.368，都對到 id 的 0.379。enc_target 另外還要處理 tanh 飽和，見下。",
+  "enc_target_note": "enc_target 有兩個問題疊在一起。**一是量綱**：‖z − z_target‖ / ‖z_target‖ 的分母跟著目標換，中性灰上收在 1.26–1.29、高頻紋理上收在 1.69–1.97，兩張目標的數值不可並列。**二是飽和**：它以 +w·tanh(·) 進分數，tanh′ 在 1.7 只剩 0.12，87% 的梯度被吃掉，而紋理目標把它推得更深。enc_target_norm='start' 把分母換成原圖到目標的距離 ‖z_x − z_target‖，起點恆為 1.0、與目標尺度無關，tanh′ 從 0.42 出發。兩個 photoguard 臂都用 start 正規化與權重 8.0，**差別只有目標那一張圖**，所以它們是本專案第一次在同一個量綱上比中性灰與高頻紋理。",
+  "random_note": "runs/advcf_pilot/ 沒有隨機對照，所以那一批 +3.7% 的領先沒有雜訊地板。rand_a／rand_b 抽同一族的單調分段線性曲線（ColorCurveLowFreqRandom，五個餘弦分量、半徑 80），**完全不經最佳化**，只二分幅度把 ΔE00 對到同一個錨點。對抗臂比它多推開的那一段才歸得到最佳化頭上。兩條獨立抽樣才看得出隨機本身的散布。"
+}

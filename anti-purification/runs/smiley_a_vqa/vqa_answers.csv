@@ -1,0 +1,9 @@
+image,class,kind,role,arm,seed,file,question,expect,answer_raw,verdict
+task_obj_remove_410264,add_hat,加入原本沒有的物件,def_edit,immunised,17001,smiley_bounded/task_obj_remove_410264__add_hat__identity__immunised__s17001__def_edit.png,Is the person wearing a hat?,yes,Yes,yes
+task_obj_remove_410264,add_hat,加入原本沒有的物件,clean_edit,undefended,17001,smiley_bounded/task_obj_remove_410264__add_hat__identity__s17001__clean_edit.png,Is the person wearing a hat?,yes,Yes,yes
+task_obj_remove_410264,add_scarf,加入原本沒有的物件（與 add_hat 不同的身體部位與材質）,def_edit,immunised,17001,smiley_bounded/task_obj_remove_410264__add_scarf__identity__immunised__s17001__def_edit.png,Is the person wearing a scarf?,yes,"Yes, the person is wearing a scarf.",yes
+task_obj_remove_410264,add_scarf,加入原本沒有的物件（與 add_hat 不同的身體部位與材質）,clean_edit,undefended,17001,smiley_bounded/task_obj_remove_410264__add_scarf__identity__s17001__clean_edit.png,Is the person wearing a scarf?,yes,"Yes, the person is wearing a scarf.",yes
+task_obj_remove_410264,add_hat,加入原本沒有的物件,def_edit,immunised,17001,smiley_start/task_obj_remove_410264__add_hat__identity__immunised__s17001__def_edit.png,Is the person wearing a hat?,yes,"Yes, the person is wearing a hat.",yes
+task_obj_remove_410264,add_hat,加入原本沒有的物件,clean_edit,undefended,17001,smiley_start/task_obj_remove_410264__add_hat__identity__s17001__clean_edit.png,Is the person wearing a hat?,yes,Yes,yes
+task_obj_remove_410264,add_scarf,加入原本沒有的物件（與 add_hat 不同的身體部位與材質）,def_edit,immunised,17001,smiley_start/task_obj_remove_410264__add_scarf__identity__immunised__s17001__def_edit.png,Is the person wearing a scarf?,yes,"Yes, the person is wearing a scarf.",yes
+task_obj_remove_410264,add_scarf,加入原本沒有的物件（與 add_hat 不同的身體部位與材質）,clean_edit,undefended,17001,smiley_start/task_obj_remove_410264__add_scarf__identity__s17001__clean_edit.png,Is the person wearing a scarf?,yes,"Yes, the person is wearing a scarf.",yes

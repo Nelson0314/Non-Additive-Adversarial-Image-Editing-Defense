@@ -1,0 +1,127 @@
+{
+  "manifest": "data/portrait_trio_manifest.json",
+  "images": [
+    "task_env_weather_121086"
+  ],
+  "images_note": "一張。另外兩張被擋掉：task_obj_swap_rand_mask_79926 的衣物面積 0.0069 放不下貼片；task_obj_remove_410264 的未防禦編輯自己就換人（add_scarf 身分 0.204、add_hat 0.427）。**n = 1，這一批是確認方向不是成功率。**",
+  "attack_steps": 50,
+  "s_i": 1.5,
+  "patch": {
+    "carrier": "canvas",
+    "kind": "upper",
+    "area": 0.08,
+    "blobs": 2,
+    "inset": 0.12,
+    "erode": 10,
+    "feather": 6,
+    "support_seed": 0,
+    "pattern": "data/fabric_library/task_env_weather_114555__y384_x192.png",
+    "canvas_size": 32,
+    "epsilon": 0.35,
+    "shade_radius": 12,
+    "keep_shading": true,
+    "init_jitter": 0.0
+  },
+  "patch_note": "貼片是一張**獨立畫布**：先優化那張圖，再貼到衣服上算損失。起始畫布是 data/fabric_library/ 裡一塊實拍的織紋／珠飾圖樣（texture 0.590，該庫最高），所以起點本身就是一個現成的圖案而不是雜訊。epsilon 0.35 把畫布綁在圖樣的 L∞ 0.35 之內；keep_shading 保留原布料的明暗與織紋，貼上去像印在布上而不是貼紙。",
+  "area_note": "**面積 0.08 是這張影像的上限附近，不是任意挑的。** 六張候選人像全部篩過，這一張的安全區（衣物內部 ∩ 畫面 12–88% ∩ 排除臉框）只有 0.0953，第二大的 task_obj_remove_410264 是 0.1623 但那張未防禦編輯會換人。要再大就得放寬 inset 或 erode，那是放寬硬約束，沒有使用者點頭不做。",
+  "free": {
+    "timesteps": 4,
+    "chain_steps": 6,
+    "grad_steps": 1,
+    "noise_seed": 0,
+    "resample": false,
+    "face_weight": 0.0,
+    "support_weight": 0.0,
+    "weights": {
+      "id": 1.0,
+      "enc": 0.5,
+      "cond": 1.0
+    }
+  },
+  "free_note": "基準逐欄與 configs/advcf_anchor.json 的對照臂相同。各臂在自己的 free 區塊裡覆寫要改的鍵。",
+  "score_scale_note": "**跨臂不可比總分。** FreeObjective.score 用 enc／cond 的原值，CompositeObjective._compose 用 tanh(enc)／tanh(cond)，兩條路徑的分數尺度不同。canvas_free 與 canvas_sw 走前者，其餘走後者。比較一律看 free_term_enc／cond／id 三個逐項值與真編輯的位移，不看 free_score_end。",
+  "support_weight_note": "support_weight 把 enc／cond 的範數往貼片支撐在潛空間的投影加權（框內 1+w、框外 1）。動機是 runs/patch_free/ 量到的：現行 enc 是整張潛圖的範數比，貼片只動 8% 的像素，貢獻在分母裡被其餘 92% 沖掉，代理分數 120 步只動 1.9%，而同一個目標在全域曲線上動 40%–139%。實作在 src/defense/patch_canvas.py 的 SupportWeightedFree，**以子類別做，不改 src/defense/instruction_free.py**（那是另一條線的檔案）。",
+  "variants": [
+    {
+      "name": "canvas_free",
+      "objective": "free",
+      "steps": 100,
+      "lr": 0.05,
+      "restarts": 1,
+      "seed": 0,
+      "probe_every": 10
+    },
+    {
+      "name": "canvas_sw",
+      "objective": "free_support_weighted",
+      "steps": 100,
+      "lr": 0.05,
+      "restarts": 1,
+      "seed": 0,
+      "probe_every": 10,
+      "free": {
+        "support_weight": 8.0
+      }
+    },
+    {
+      "name": "canvas_out",
+      "objective": "out_displacement",
+      "steps": 100,
+      "lr": 0.05,
+      "restarts": 1,
+      "seed": 0,
+      "probe_every": 10,
+      "free": {
+        "weights": {
+          "id": 1.0,
+          "enc": 0.5,
+          "cond": 1.0,
+          "out": 1.0
+        }
+      }
+    },
+    {
+      "name": "canvas_main",
+      "objective": "mainstream_photoguard_advdm",
+      "steps": 100,
+      "lr": 0.05,
+      "restarts": 1,
+      "seed": 0,
+      "probe_every": 10,
+      "free": {
+        "weights": {
+          "id": 1.0,
+          "enc": 0.0,
+          "cond": 0.0,
+          "enc_target": 1.0,
+          "diffusion": 1.0
+        }
+      }
+    },
+    {
+      "name": "canvas_sw_out",
+      "objective": "support_weighted_plus_out",
+      "steps": 100,
+      "lr": 0.05,
+      "restarts": 1,
+      "seed": 0,
+      "probe_every": 10,
+      "free": {
+        "support_weight": 8.0,
+        "weights": {
+          "id": 1.0,
+          "enc": 0.5,
+          "cond": 1.0,
+          "out": 1.0
+        }
+      }
+    },
+    {
+      "name": "canvas_rand",
+      "objective": "none",
+      "solver": "random",
+      "seed": 0
+    }
+  ],
+  "variants_note": "五個目標函數加一個隨機對照。對照臂用**同一個支撐、同一張起始圖樣、同一顆種子**，只拿掉最佳化本身——起點就是那張圖樣原樣（epsilon 參數化下 tanh(0) = 0）。所以對照臂量的是「光是把這塊圖樣印上去」有多少效果，最佳化臂減掉它才是最佳化買到的。"
+}

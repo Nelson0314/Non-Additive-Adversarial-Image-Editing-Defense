@@ -1,47 +1,0 @@
-Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
-Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  17%|█▋        | 1/6 [00:00<00:00,  9.70it/s]
-Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 4267.39it/s]
-Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 18.38it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 17.58it/s]
-There are modules in AutoencoderKL that should be kept in float32: []. Casting directly with `to()` can lead to inconsistent results; set `torch_dtype` in `from_pretrained()` instead to keep these modules in float32.
-Loading weights:   0%|          | 0/462 [00:00<?, ?it/s]Loading weights:  65%|██████▌   | 302/462 [00:00<00:00, 2993.39it/s]Loading weights: 100%|██████████| 462/462 [00:00<00:00, 2883.35it/s]
-olor_11699              original/                 全 0.157929 (1.000×)  主體 0.192344 (1.000×)  背景 0.119670 (1.000×)
-olor_11699              color_masked_r020/color_grid全 0.064578 (0.409×)  主體 0.115320 (0.600×)  背景 0.008167 (0.068×)
-olor_11699              color_ig_r005/color_grid  全 0.067544 (0.428×)  主體 0.091457 (0.475×)  背景 0.040960 (0.342×)
-olor_11699              patch/patch_noise_s1_far  全 0.139017 (0.880×)  主體 0.176968 (0.920×)  背景 0.096826 (0.809×)
-olor_11699              patch/patch_noise_s1_far  全 0.139017 (0.880×)  主體 0.176968 (0.920×)  背景 0.096826 (0.809×)
-olor_11699              patch/patch_noise_s0.7_far全 0.149109 (0.944×)  主體 0.184791 (0.961×)  背景 0.109440 (0.915×)
-olor_11699              patch/patch_noise_s0.7_far全 0.149109 (0.944×)  主體 0.184791 (0.961×)  背景 0.109440 (0.915×)
-olor_11699              patch/patch_noise_s0.7_near全 0.146755 (0.929×)  主體 0.182817 (0.950×)  背景 0.106665 (0.891×)
-olor_11699              patch/patch_noise_s0.7_near全 0.146755 (0.929×)  主體 0.182817 (0.950×)  背景 0.106665 (0.891×)
-olor_11699              patch/patch_noise_s0.5_far全 0.152346 (0.965×)  主體 0.187419 (0.974×)  背景 0.113355 (0.947×)
-olor_11699              patch/patch_noise_s0.5_far全 0.152346 (0.965×)  主體 0.187419 (0.974×)  背景 0.113355 (0.947×)
-olor_11699              patch/patch_noise_s0.5_near全 0.149186 (0.945×)  主體 0.187083 (0.973×)  背景 0.107056 (0.895×)
-olor_11699              patch/patch_noise_s0.5_near全 0.149186 (0.945×)  主體 0.187083 (0.973×)  背景 0.107056 (0.895×)
-olor_11699              patch/patch_noise_complement全 0.068329 (0.433×)  主體 0.120449 (0.626×)  背景 0.010387 (0.087×)
-olor_11699              patch/patch_noise_complement全 0.068329 (0.433×)  主體 0.120449 (0.626×)  背景 0.010387 (0.087×)
-olor_11699              patch/patch_gray_s1_far   全 0.145735 (0.923×)  主體 0.183287 (0.953×)  背景 0.103989 (0.869×)
-olor_11699              patch/patch_gray_s1_far   全 0.145735 (0.923×)  主體 0.183287 (0.953×)  背景 0.103989 (0.869×)
-olor_11699              patch/patch_gray_s0.7_far 全 0.151383 (0.959×)  主體 0.186704 (0.971×)  背景 0.112117 (0.937×)
-olor_11699              patch/patch_gray_s0.7_far 全 0.151383 (0.959×)  主體 0.186704 (0.971×)  背景 0.112117 (0.937×)
-olor_11699              patch/patch_gray_s0.7_near全 0.151015 (0.956×)  主體 0.186179 (0.968×)  背景 0.111923 (0.935×)
-olor_11699              patch/patch_gray_s0.7_near全 0.151015 (0.956×)  主體 0.186179 (0.968×)  背景 0.111923 (0.935×)
-olor_11699              patch/patch_gray_s0.5_far 全 0.153637 (0.973×)  主體 0.187960 (0.977×)  背景 0.115480 (0.965×)
-olor_11699              patch/patch_gray_s0.5_far 全 0.153637 (0.973×)  主體 0.187960 (0.977×)  背景 0.115480 (0.965×)
-olor_11699              patch/patch_gray_s0.5_near全 0.153699 (0.973×)  主體 0.190332 (0.990×)  背景 0.112974 (0.944×)
-olor_11699              patch/patch_gray_s0.5_near全 0.153699 (0.973×)  主體 0.190332 (0.990×)  背景 0.112974 (0.944×)
-olor_11699              patch/patch_gray_complement全 0.088021 (0.557×)  主體 0.154759 (0.805×)  背景 0.013829 (0.116×)
-olor_11699              patch/patch_gray_complement全 0.088021 (0.557×)  主體 0.154759 (0.805×)  背景 0.013829 (0.116×)
-olor_11699              patch/patch_photo_s1_far  全 0.146735 (0.929×)  主體 0.183860 (0.956×)  背景 0.105463 (0.881×)
-olor_11699              patch/patch_photo_s1_far  全 0.146735 (0.929×)  主體 0.183860 (0.956×)  背景 0.105463 (0.881×)
-olor_11699              patch/patch_photo_s0.7_far全 0.151188 (0.957×)  主體 0.186561 (0.970×)  背景 0.111863 (0.935×)
-olor_11699              patch/patch_photo_s0.7_far全 0.151188 (0.957×)  主體 0.186561 (0.970×)  背景 0.111863 (0.935×)
-olor_11699              patch/patch_photo_s0.7_near全 0.151390 (0.959×)  主體 0.186544 (0.970×)  背景 0.112309 (0.938×)
-olor_11699              patch/patch_photo_s0.7_near全 0.151390 (0.959×)  主體 0.186544 (0.970×)  背景 0.112309 (0.938×)
-olor_11699              patch/patch_photo_s0.5_far全 0.153510 (0.972×)  主體 0.188236 (0.979×)  背景 0.114906 (0.960×)
-olor_11699              patch/patch_photo_s0.5_far全 0.153510 (0.972×)  主體 0.188236 (0.979×)  背景 0.114906 (0.960×)
-olor_11699              patch/patch_photo_s0.5_near全 0.153165 (0.970×)  主體 0.189492 (0.985×)  背景 0.112781 (0.942×)
-olor_11699              patch/patch_photo_s0.5_near全 0.153165 (0.970×)  主體 0.189492 (0.985×)  背景 0.112781 (0.942×)
-olor_11699              patch/patch_photo_complement全 0.083877 (0.531×)  主體 0.144369 (0.751×)  背景 0.016628 (0.139×)
-olor_11699              patch/patch_photo_complement全 0.083877 (0.531×)  主體 0.144369 (0.751×)  背景 0.016628 (0.139×)
-
-寫出 runs/ig_probe/by_region_plant.csv（39 列）

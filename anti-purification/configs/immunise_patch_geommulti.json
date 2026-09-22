@@ -1,0 +1,70 @@
+{
+  "manifest": "data/portrait_geom_multi.json",
+  "images": [
+    "task_env_weather_114555",
+    "task_env_weather_262001",
+    "task_obj_remove_284852",
+    "task_attr_mod_color_42929",
+    "task_obj_swap_rand_mask_303550",
+    "task_env_weather_195273",
+    "task_obj_remove_410264",
+    "task_env_weather_121086"
+  ],
+  "image_note": "換成白襯衫那張。衣物安全區 0.325、內接最大圓 0.123，藍外套那張只有 0.237／0.095。一百四十九張掃過，衣物面積大到放得下一個完整圓形貼片的只有十五張，這是最大的一張。",
+  "carrier_note": "幾何印花（無物件語意）＋ 支撐外位移目標。這一族先前在白襯衫上量到：**原樣貼上完全無效（add_hat 身分 0.955），最佳化之後垮掉（−0.12）**，而最佳化收斂到的解是一團更像實體物件的黑白塊狀圖案。這一批把它擴到八張人像，只用會重畫人的指令。",
+  "attack_steps": 50,
+  "s_i": 1.5,
+  "patch": {
+    "carrier": "print",
+    "support": "disc",
+    "area": 0.065,
+    "inset": 0.0,
+    "kind": "upper",
+    "erode": 6,
+    "feather": 2,
+    "face_margin": 8,
+    "blobs": 1,
+    "support_count": 1,
+    "print_colours": 3,
+    "print_archetype": "checks",
+    "print_tau": 0.15,
+    "print_chroma_max": 45.0,
+    "print_lightness_span": 78.0,
+    "keep_shading": true,
+    "shade_radius": 12
+  },
+  "free": {
+    "timesteps": 4,
+    "noise_seed": 20260915,
+    "chain_steps": 6,
+    "grad_steps": 6,
+    "resample": false,
+    "support_weight": 4.0,
+    "weights": {
+      "enc": 0.5,
+      "cond": 1.0,
+      "id": 1.0,
+      "outside": 40.0
+    },
+    "outside_margin": 16,
+    "outside_near_width": 48,
+    "outside_weight_far": 1.0,
+    "outside_weight_face": 2.0,
+    "outside_weight_near": 0.0
+  },
+  "variants": [
+    {
+      "name": "geom_rand",
+      "solver": "random",
+      "note": "幾何印花原樣，不最佳化。對上 smiley_start。"
+    },
+    {
+      "name": "geom_opt",
+      "steps": 150,
+      "lr": 0.05,
+      "objective": "outside",
+      "note": "同一個目標函數。對上 smiley_bounded／smiley_free。"
+    }
+  ],
+  "area_note": "面積統一 0.065。八張的內接最大圓是 0.069–0.123，取 0.065 讓每一張都放得下、跨圖可比。白襯衫先前那一批用的是 0.12，所以那個數字不與這一批同欄比較。"
+}

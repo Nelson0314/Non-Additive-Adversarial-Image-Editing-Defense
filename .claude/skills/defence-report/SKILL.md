@@ -6,7 +6,7 @@ description: 把防禦批次的產物與讀數做成逐張看圖的報告頁（A
 # 防禦批次的報告頁
 
 **自然度只能由使用者的眼睛判定**——NIQE、平均色差、CVaR 尾端三道自動門檻都被
-最佳化鑽過（見 `non-additive-frequency/docs/EVALUATION.md`）。所以這份報告的
+最佳化鑽過（見 `anti-purification/docs/EVALUATION.md`）。所以這份報告的
 工作是把**圖**和**數字**擺在同一個地方，讓判斷做得下去；它不替使用者下
 「成立／不成立」的結論。
 

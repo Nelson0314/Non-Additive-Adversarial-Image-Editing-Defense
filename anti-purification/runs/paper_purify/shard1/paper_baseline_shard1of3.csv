@@ -1,0 +1,5 @@
+image,variant,carrier,victim,clean_label,clean_prob,pred_label,pred_prob,true_prob,margin,flipped,steps,lr,radius,smoothness_weight,margin_start,margin_end,deltaE00,psnr,lpips,linf,seconds
+task_env_weather_121086,trio_recoloradv_003,recoloradv,resnet50,610,0.10905743390321732,0,0.6120020747184753,0.0024282890371978283,-0.0,1,150,0.003,0.03,0.0,0.01539,-0.0,7.149,20.97,0.2612,1.0,226.3
+task_env_weather_121086,trio_recoloradv_paper,recoloradv,resnet50,610,0.10905743390321732,0,0.07060573995113373,0.015155531466007233,-0.0,1,150,0.005,0.06,0.0,0.01539,-0.0,13.362,15.12,0.422,1.0,227.6
+task_env_weather_121086,trio_recoloradv_wide,recoloradv,resnet50,610,0.10905743390321732,863,0.1132795587182045,0.007214737124741077,-0.0,1,150,0.01,0.2,0.0,0.01539,-0.0,25.312,12.51,0.6497,1.0,229.9
+task_env_weather_121086,trio_advcf_paper,advcf,resnet50,610,0.10905743390321732,0,0.27533718943595886,0.01081524696201086,-0.0,1,150,0.05,1.0,0.0,0.01539,-0.0,24.69,18.81,0.3943,0.1725,225.0

@@ -1,0 +1,100 @@
+{
+  "manifest": "data/portrait_trio_manifest.json",
+  "images": [
+    "task_env_weather_121086",
+    "task_obj_remove_410264",
+    "task_obj_swap_rand_mask_79926"
+  ],
+  "role_note": "**指令只在這份設定裡出現。** 防禦圖由 scripts/immunise.py 產生，它拒絕讀入任何含 instruction 或 prompt 的鍵，所以這裡的每一句對防禦而言都是 held-out。",
+  "design_note": "要量的是判準的第三條腿（指令完成）。那條腿因為量不準而退出 src/defense/criterion.py 的 TERMS——CLIP 的三種寫法（方向分數、終點對齊、對齊增益）都在圖上被推翻過。要把它放回來，指令必須有一個**二值、看圖就能判**的完成條件，而且**未防禦的編輯必須真的把它做到**：未防禦那一格自己就失敗時，防禦有沒有效讀不出來。",
+  "independence_note": "三類都不要求改動臉。這是刻意的：指令完成與身分保留因此是兩個獨立的量，「阻止指令完成但保留自然輸入且仍是同一個人」這條路才問得出來。",
+  "classes": [
+    {
+      "name": "add_hat",
+      "kind": "加入原本沒有的物件",
+      "check_question": "Is the person wearing a hat?",
+      "check_expect": "yes",
+      "check_note": "三張原圖都沒有戴帽，未編輯時正確答案是 no。這一類的完成條件最接近二值，是校準讀數的主錨點。",
+      "instructions": {
+        "task_env_weather_121086": "put a hat on the person",
+        "task_obj_remove_410264": "put a hat on the person",
+        "task_obj_swap_rand_mask_79926": "put a hat on the person"
+      }
+    },
+    {
+      "name": "garment_colour",
+      "kind": "把一塊非臉部區域換色",
+      "check_question": "What is the dominant colour of the person's clothing?",
+      "check_expect": "per_image",
+      "check_note": "目標色逐張不同，因為要求換成某色時那個色在原圖上必須不存在。藍外套與白襯衫換紅；紅底花洋裝已經是紅的，換綠。",
+      "instructions": {
+        "task_env_weather_121086": "turn the jacket red",
+        "task_obj_remove_410264": "turn the shirt red",
+        "task_obj_swap_rand_mask_79926": "turn the dress green"
+      },
+      "expect": {
+        "task_env_weather_121086": "red",
+        "task_obj_remove_410264": "red",
+        "task_obj_swap_rand_mask_79926": "green"
+      }
+    },
+    {
+      "name": "add_scarf",
+      "kind": "加入原本沒有的物件（與 add_hat 不同的身體部位與材質）",
+      "check_question": "Is the person wearing a scarf?",
+      "check_expect": "yes",
+      "check_note": "三張原圖都沒有圍巾，未編輯時正確答案是 no。取代先前的 replace_background：那一類在三張裡只有一張成立，task_obj_remove_410264 的散景與 task_obj_swap_rand_mask_79926 的圖樣牆兩種措辭下都沒有被重建，只加了雪點與冷色調（runs/instruction_calibration/human_labels.csv）。",
+      "instructions": {
+        "task_env_weather_121086": "put a scarf on the person",
+        "task_obj_remove_410264": "put a scarf on the person",
+        "task_obj_swap_rand_mask_79926": "put a scarf on the person"
+      },
+      "colour_free_note": "指令**不指定顏色**。第一版寫「put a red scarf on the person」，task_env_weather_121086 三顆種子全部不長圍巾，而是把臉與外套整片染紅（0/3，runs/instruction_calibration/）；同一個傾向也讓它的 garment_colour 掉一顆種子。根因是顏色詞在這張圖上觸發全域染色，不是「圍巾」這個物件做不到，所以拿掉顏色詞而不是換圖。加帽那一類本來就沒有顏色詞，三張都是 3/3。"
+    }
+  ],
+  "classes_note": "先前 configs/evaluate_screen.json 的五類是 clothing／hat／background／glasses／restyle。restyle 移除（整張重畫，防禦有沒有作用看不出來）；glasses 移除（task_obj_remove_410264 與 task_env_weather_121086 原圖就戴著眼鏡，目標成立）；background 移除（見 add_scarf 的說明）。",
+  "diversity_caveat_note": "**三類裡有兩類是加配件，型態不如原設計分散。** 這是為了讓九格都量得出東西付的代價：runs/accessory/ 那批 104 次配件編輯全部長出配件，加入型是既有證據裡最可靠的一種；換色型三張成立；換場景型在這三張上只有一張成立。要恢復型態的分散度，需要一組背景可被 IP2P 重建的影像，那要另外挑。",
+  "known_leak_note": "task_obj_swap_rand_mask_79926 的換色會外溢：洋裝變綠時背景牆也一起變綠（兩種措辭下都是）。這一格的完成度判定要問的是**衣物**的顏色，不是整張圖的色調，check_question 因此寫成 the person's clothing。",
+  "seeds": [
+    17001,
+    27001,
+    47001,
+    57001,
+    67001,
+    77001,
+    87001,
+    97001,
+    107001
+  ],
+  "seeds_note": "九顆種子。前三顆與 configs/evaluate_instruction.json 相同，所以同一批防禦圖的三顆種子結果對得上；另外六顆是為了把過半那一欄的雜訊底壓下來。runs/advcf_objective/ 量到同一份設定解兩次、各自以三顆種子評估，過半格數差 ±1 格，而半徑 2.0 與 3.0 與對照的差只有 1–3 格，三顆種子撐不住那個比較。",
+  "precision": "bf16",
+  "attack_steps": 50,
+  "s_t": 7.5,
+  "s_i": 1.5,
+  "attack_batch_default": 9,
+  "arms": [
+    "undefended",
+    "immunised"
+  ],
+  "arms_note": "undefended 逐格逐種子照跑不省，它是每一格自己的分母；同設定跨批次的差可達 13 對 1，跨批對照全部作廢，每一批必須自帶對照。",
+  "purifiers": [
+    {
+      "kind": "identity"
+    },
+    {
+      "kind": "jpeg",
+      "quality": 75
+    },
+    {
+      "kind": "blur",
+      "sigma": 1.0
+    },
+    {
+      "kind": "crop_resize",
+      "fraction": 0.1
+    }
+  ],
+  "purifiers_note": "四道淨化，與 configs/evaluate_heldout.json 同參數（JPEG Q75、高斯 σ=1.0、每邊裁切 10%）。防禦圖在這裡唯讀。**crop_resize 的身分讀數先前踩過一個坑**：身分曾用未裁切原圖的錨定框去裁已裁切縮放的輸出，座標錯位混進身分下降；scripts/evaluate_defence.py 已加 map_box、metrics/identity.py 已加 out_box，這一批是修正後跑的。",
+  "cost_note": "3 張 × 3 類 × 9 顆種子 × 2 個 arm × 4 道淨化 ＝ 每臂 648 列。",
+  "prompt_note": "措辭一律用短句。長句在圖上被推翻過：put a wide-brimmed black hat on the person's head 在 s_t=7.5 下讓文字分支壓過影像分支，IP2P 把整張圖重新生成（runs/instruction_calibration/ 有逐張記錄）。短句是 runs/accessory/ 與 configs/evaluate_screen.json 用過的形式。"
+}

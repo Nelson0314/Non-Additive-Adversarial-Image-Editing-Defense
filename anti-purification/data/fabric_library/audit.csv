@@ -1,0 +1,190 @@
+image,verdict,detail,texture,cover,id
+task_attr_mod_color_11699,no_patch_cleared_gates,,,,
+task_attr_mod_color_121425,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_attr_mod_color_123744,kept,,0.15957,0.9626,task_attr_mod_color_123744__y320_x128
+task_attr_mod_color_123744,kept,,0.14845,0.9397,task_attr_mod_color_123744__y320_x64
+task_attr_mod_color_124169,no_clothing_carrier,臉的面積只有 0.0080，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_attr_mod_color_126580,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_attr_mod_color_127061,no_patch_cleared_gates,,,,
+task_attr_mod_color_136767,no_clothing_carrier,臉的面積只有 0.0030，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_attr_mod_color_144146,no_patch_cleared_gates,,,,
+task_attr_mod_color_158070,no_patch_cleared_gates,,,,
+task_attr_mod_color_164237,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_attr_mod_color_174506,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_attr_mod_color_175843,kept,,0.16937,0.9304,task_attr_mod_color_175843__y320_x192
+task_attr_mod_color_175843,kept,,0.14381,0.9327,task_attr_mod_color_175843__y384_x128
+task_attr_mod_color_175843,kept,,0.12773,1.0,task_attr_mod_color_175843__y384_x192
+task_attr_mod_color_184837,no_patch_cleared_gates,,,,
+task_attr_mod_color_202962,kept,,0.07498,0.9784,task_attr_mod_color_202962__y256_x256
+task_attr_mod_color_22137,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_attr_mod_color_229454,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_attr_mod_color_234404,no_clothing_carrier,臉的面積只有 0.0059，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_attr_mod_color_30214,no_patch_cleared_gates,,,,
+task_attr_mod_color_32648,no_clothing_carrier,臉的面積只有 0.0013，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_attr_mod_color_41275,kept,,0.22763,0.9303,task_attr_mod_color_41275__y320_x192
+task_attr_mod_color_41275,kept,,0.18477,0.9659,task_attr_mod_color_41275__y192_x192
+task_attr_mod_color_42929,kept,,0.10375,1.0,task_attr_mod_color_42929__y256_x256
+task_attr_mod_color_42929,kept,,0.10284,0.9528,task_attr_mod_color_42929__y192_x192
+task_attr_mod_color_42929,kept,,0.1014,0.9803,task_attr_mod_color_42929__y192_x256
+task_attr_mod_color_42929,kept,,0.10135,1.0,task_attr_mod_color_42929__y320_x256
+task_attr_mod_color_47418,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_attr_mod_color_59806,no_clothing_carrier,臉的面積只有 0.0021，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_attr_mod_color_6065,no_clothing_carrier,臉的面積只有 0.0001，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_attr_mod_color_6205,no_patch_cleared_gates,,,,
+task_attr_mod_color_71564,no_clothing_carrier,臉的面積只有 0.0002，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_attr_mod_color_71985,kept,,0.17794,0.9423,task_attr_mod_color_71985__y256_x0
+task_attr_mod_color_71985,kept,,0.15062,0.9415,task_attr_mod_color_71985__y256_x64
+task_attr_mod_color_71985,kept,,0.11494,0.9702,task_attr_mod_color_71985__y320_x64
+task_attr_mod_color_75937,no_clothing_carrier,臉的面積只有 0.0068，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_attr_mod_color_76641,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_attr_mod_color_96137,no_clothing_carrier,臉的面積只有 0.0005，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_env_weather_112463,no_patch_cleared_gates,,,,
+task_env_weather_114555,kept,,0.59006,1.0,task_env_weather_114555__y384_x192
+task_env_weather_114555,kept,,0.41159,1.0,task_env_weather_114555__y384_x128
+task_env_weather_114555,kept,,0.36141,0.9874,task_env_weather_114555__y384_x256
+task_env_weather_114555,kept,,0.20815,0.9788,task_env_weather_114555__y384_x64
+task_env_weather_116980,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_env_weather_121086,excluded_experiment_image,,,,
+task_env_weather_126577,excluded_experiment_image,,,,
+task_env_weather_132698,no_clothing_carrier,臉的面積只有 0.0069，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_env_weather_133752,no_clothing_carrier,臉的面積只有 0.0002，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_env_weather_137030,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_env_weather_137230,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_env_weather_146611,no_patch_cleared_gates,,,,
+task_env_weather_150522,no_clothing_carrier,臉的面積只有 0.0055，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_env_weather_165714,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_env_weather_181583,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_env_weather_193600,kept,,0.25713,0.9962,task_env_weather_193600__y320_x320
+task_env_weather_193600,kept,,0.18612,0.9463,task_env_weather_193600__y320_x256
+task_env_weather_195273,kept,,0.30533,1.0,task_env_weather_195273__y256_x192
+task_env_weather_195273,kept,,0.29966,0.9697,task_env_weather_195273__y192_x192
+task_env_weather_195273,kept,,0.27649,0.9737,task_env_weather_195273__y192_x256
+task_env_weather_195273,kept,,0.27351,0.9918,task_env_weather_195273__y256_x256
+task_env_weather_217577,no_clothing_carrier,臉的面積只有 0.0060，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_env_weather_226185,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_env_weather_231482,no_clothing_carrier,臉的面積只有 0.0001，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_env_weather_262001,kept,,0.23347,0.9623,task_env_weather_262001__y320_x256
+task_env_weather_262001,kept,,0.23327,0.9449,task_env_weather_262001__y320_x320
+task_env_weather_262001,kept,,0.19703,0.9504,task_env_weather_262001__y384_x320
+task_env_weather_39740,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_env_weather_52051,no_clothing_carrier,臉的面積只有 0.0039，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_env_weather_59863,no_patch_cleared_gates,,,,
+task_env_weather_61151,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_env_weather_70149,excluded_experiment_image,,,,
+task_env_weather_85610,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_env_weather_86691,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_env_weather_9736,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_env_weather_97868,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_obj_add_13726,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_obj_add_161232,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_obj_add_166344,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_obj_add_239597,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_obj_add_24380,kept,,0.10619,0.9385,task_obj_add_24380__y384_x192
+task_obj_add_290491,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_obj_add_340466,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_obj_add_345721,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_obj_add_362298,kept,,0.13228,0.9559,task_obj_add_362298__y256_x192
+task_obj_add_362298,kept,,0.11722,0.9209,task_obj_add_362298__y192_x192
+task_obj_add_371248,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_obj_add_375217,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_obj_add_39816,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_obj_add_441549,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_obj_add_44802,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_obj_add_458919,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_obj_add_530461,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_obj_add_531333,no_patch_cleared_gates,,,,
+task_obj_add_581286,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_obj_add_583252,kept,,0.06236,0.9442,task_obj_add_583252__y320_x192
+task_obj_add_583252,too_flat,,0.04739,0.9815,
+task_obj_add_584511,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_obj_add_630523,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_obj_add_669258,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_obj_add_685213,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_obj_add_692065,no_clothing_carrier,臉的面積只有 0.0004，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_obj_add_697862,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_obj_add_709390,kept,,0.51099,1.0,task_obj_add_709390__y384_x192
+task_obj_add_709390,kept,,0.37601,1.0,task_obj_add_709390__y384_x128
+task_obj_add_726991,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_obj_add_767982,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_obj_add_850681,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_obj_remove_10197,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_obj_remove_108877,no_clothing_carrier,臉的面積只有 0.0032，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_obj_remove_157386,no_clothing_carrier,臉的面積只有 0.0008，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_obj_remove_166983,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_obj_remove_197959,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_obj_remove_228800,no_clothing_carrier,臉的面積只有 0.0010，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_obj_remove_257910,kept,,0.23589,0.9906,task_obj_remove_257910__y384_x64
+task_obj_remove_257910,kept,,0.16284,0.9964,task_obj_remove_257910__y384_x128
+task_obj_remove_271889,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_obj_remove_284852,excluded_experiment_image,,,,
+task_obj_remove_286801,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_obj_remove_2878,no_patch_cleared_gates,,,,
+task_obj_remove_303082,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_obj_remove_380621,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_obj_remove_385207,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_obj_remove_388764,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_obj_remove_410264,kept,,0.2053,1.0,task_obj_remove_410264__y384_x128
+task_obj_remove_410264,kept,,0.18326,1.0,task_obj_remove_410264__y320_x128
+task_obj_remove_410264,kept,,0.16248,0.979,task_obj_remove_410264__y320_x64
+task_obj_remove_410264,kept,,0.14371,0.9564,task_obj_remove_410264__y320_x384
+task_obj_remove_483219,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_obj_remove_499725,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_obj_remove_509477,kept,,0.26859,0.9208,task_obj_remove_509477__y384_x0
+task_obj_remove_509477,kept,,0.22017,0.9923,task_obj_remove_509477__y320_x320
+task_obj_remove_509477,kept,,0.21843,0.9784,task_obj_remove_509477__y384_x128
+task_obj_remove_509477,kept,,0.20199,1.0,task_obj_remove_509477__y320_x128
+task_obj_remove_560476,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_obj_remove_571780,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_obj_remove_606694,no_clothing_carrier,臉的面積只有 0.0049，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_obj_remove_634326,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_obj_remove_648479,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_obj_remove_657585,no_patch_cleared_gates,,,,
+task_obj_remove_704852,no_patch_cleared_gates,,,,
+task_obj_remove_720199,kept,,0.12445,0.9857,task_obj_remove_720199__y320_x320
+task_obj_remove_720199,kept,,0.11781,0.9798,task_obj_remove_720199__y320_x256
+task_obj_remove_720199,kept,,0.08385,0.9733,task_obj_remove_720199__y320_x384
+task_obj_remove_720199,kept,,0.07367,0.9782,task_obj_remove_720199__y320_x192
+task_obj_remove_737102,no_clothing_carrier,臉的面積只有 0.0015，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_obj_remove_869495,no_clothing_carrier,"載體 'clothes' 的面積 0.0029 落在 [0.01, 0.6] 之外（類別 (4, 5, 6, 7) = ['Upper-clothes', 'Skirt', 'Pants', 'Dress']）。太小表示這張影像上沒有可用的",,,
+task_obj_remove_899279,no_clothing_carrier,臉的面積只有 0.0005，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_obj_swap_joint_mask_276754,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_obj_swap_joint_mask_310537,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_obj_swap_joint_mask_337228,kept,,0.2138,0.9714,task_obj_swap_joint_mask_337228__y320_x384
+task_obj_swap_joint_mask_337228,kept,,0.1969,0.9596,task_obj_swap_joint_mask_337228__y256_x384
+task_obj_swap_joint_mask_337228,kept,,0.13547,0.9258,task_obj_swap_joint_mask_337228__y256_x320
+task_obj_swap_joint_mask_337228,kept,,0.11128,0.9512,task_obj_swap_joint_mask_337228__y256_x256
+task_obj_swap_joint_mask_356849,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_obj_swap_joint_mask_474202,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_obj_swap_joint_mask_476374,kept,,0.22543,0.9628,task_obj_swap_joint_mask_476374__y384_x256
+task_obj_swap_joint_mask_476374,kept,,0.07732,0.9858,task_obj_swap_joint_mask_476374__y384_x320
+task_obj_swap_joint_mask_476374,kept,,0.07642,0.9783,task_obj_swap_joint_mask_476374__y256_x0
+task_obj_swap_joint_mask_533428,kept,,0.33497,0.9818,task_obj_swap_joint_mask_533428__y256_x128
+task_obj_swap_joint_mask_533428,kept,,0.32882,0.9339,task_obj_swap_joint_mask_533428__y256_x64
+task_obj_swap_joint_mask_533428,kept,,0.30248,0.9521,task_obj_swap_joint_mask_533428__y192_x64
+task_obj_swap_joint_mask_533428,kept,,0.28329,0.965,task_obj_swap_joint_mask_533428__y192_x128
+task_obj_swap_joint_mask_615817,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_obj_swap_joint_mask_671429,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_obj_swap_joint_mask_673207,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_obj_swap_joint_mask_698465,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_obj_swap_joint_mask_718058,no_patch_cleared_gates,,,,
+task_obj_swap_joint_mask_75733,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_obj_swap_joint_mask_890199,no_clothing_carrier,臉的面積只有 0.0003，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_obj_swap_rand_mask_11376,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_obj_swap_rand_mask_116052,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_obj_swap_rand_mask_216136,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_obj_swap_rand_mask_268827,no_patch_cleared_gates,,,,
+task_obj_swap_rand_mask_298147,no_clothing_carrier,臉的面積只有 0.0006，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_obj_swap_rand_mask_303550,kept,,0.21985,1.0,task_obj_swap_rand_mask_303550__y320_x0
+task_obj_swap_rand_mask_303550,kept,,0.19878,0.9238,task_obj_swap_rand_mask_303550__y320_x320
+task_obj_swap_rand_mask_303550,kept,,0.18871,0.9488,task_obj_swap_rand_mask_303550__y384_x320
+task_obj_swap_rand_mask_303550,kept,,0.14799,0.9822,task_obj_swap_rand_mask_303550__y320_x64
+task_obj_swap_rand_mask_315182,excluded_experiment_image,,,,
+task_obj_swap_rand_mask_373245,no_clothing_carrier,臉的面積只有 0.0097，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_obj_swap_rand_mask_392115,no_patch_cleared_gates,,,,
+task_obj_swap_rand_mask_401099,no_patch_cleared_gates,,,,
+task_obj_swap_rand_mask_417469,no_patch_cleared_gates,,,,
+task_obj_swap_rand_mask_598617,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_obj_swap_rand_mask_660100,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_obj_swap_rand_mask_683349,no_clothing_carrier,臉的面積只有 0.0000，低於 0.01：這張影像上很可能**沒有人**。ATR 沒有「沒有人」這個輸出，毛皮、菌傘、皮膚都會被標成 Upper-clothes（實測貓 0.5311、蘑菇 0.3490、手掌 0.2929），把那些當成衣,,,
+task_obj_swap_rand_mask_79926,no_patch_cleared_gates,,,,
+task_obj_swap_rand_mask_92564,no_patch_cleared_gates,,,,

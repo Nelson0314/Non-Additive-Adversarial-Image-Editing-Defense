@@ -1,0 +1,790 @@
+{
+ "provenance": {
+  "source": "DTD (Describable Textures Dataset), Cimpoi et al., CVPR 2014",
+  "source_url": "https://www.robots.ox.ac.uk/~vgg/data/dtd/",
+  "modified_from_paper": true,
+  "classes": [
+   "checkered",
+   "striped",
+   "banded",
+   "polka-dotted",
+   "dotted",
+   "honeycombed",
+   "grid",
+   "zigzagged",
+   "chequered",
+   "lined",
+   "woven",
+   "knitted",
+   "meshed",
+   "braided",
+   "interlaced"
+  ],
+  "naturalness_caveat": "DTD 的照片不全是衣服——checkered 裡有磁磚也有布。這個庫保證的是「真實世界中這種花紋長什麼樣」，不保證貼到衣服上自然；那要看圖判斷",
+  "why_this_source": "第一個庫（omniedit 衣物切塊）裡位移最高的一塊是插畫的粗菱格 .4769，而平滑素面只有 .18–.22。贏的是粗規則花紋這個性質，真實紡織品裡也有，只是第一個庫沒收到",
+  "selection": "每類依 regularity x contrast 排序取前 N；排序量不是效果門檻",
+  "gates": {
+   "min_contrast": 0.1,
+   "per_class": 6,
+   "size": 192
+  }
+ },
+ "fabrics": [
+  {
+   "id": "dtd_banded_banded_0090",
+   "dtd_class": "banded",
+   "source_stem": "banded_0090",
+   "size": 192,
+   "regularity": 1.0,
+   "contrast": 0.47113,
+   "rank_score": 0.47113
+  },
+  {
+   "id": "dtd_banded_banded_0009",
+   "dtd_class": "banded",
+   "source_stem": "banded_0009",
+   "size": 192,
+   "regularity": 0.99914,
+   "contrast": 0.45346,
+   "rank_score": 0.45306
+  },
+  {
+   "id": "dtd_banded_banded_0086",
+   "dtd_class": "banded",
+   "source_stem": "banded_0086",
+   "size": 192,
+   "regularity": 0.99994,
+   "contrast": 0.39909,
+   "rank_score": 0.39907
+  },
+  {
+   "id": "dtd_banded_banded_0083",
+   "dtd_class": "banded",
+   "source_stem": "banded_0083",
+   "size": 192,
+   "regularity": 0.99876,
+   "contrast": 0.37155,
+   "rank_score": 0.37109
+  },
+  {
+   "id": "dtd_banded_banded_0064",
+   "dtd_class": "banded",
+   "source_stem": "banded_0064",
+   "size": 192,
+   "regularity": 1.0,
+   "contrast": 0.36567,
+   "rank_score": 0.36567
+  },
+  {
+   "id": "dtd_banded_banded_0145",
+   "dtd_class": "banded",
+   "source_stem": "banded_0145",
+   "size": 192,
+   "regularity": 0.87963,
+   "contrast": 0.40965,
+   "rank_score": 0.36034
+  },
+  {
+   "id": "dtd_braided_braided_0137",
+   "dtd_class": "braided",
+   "source_stem": "braided_0137",
+   "size": 192,
+   "regularity": 0.86621,
+   "contrast": 0.28236,
+   "rank_score": 0.24458
+  },
+  {
+   "id": "dtd_braided_braided_0112",
+   "dtd_class": "braided",
+   "source_stem": "braided_0112",
+   "size": 192,
+   "regularity": 0.73837,
+   "contrast": 0.30016,
+   "rank_score": 0.22163
+  },
+  {
+   "id": "dtd_braided_braided_0124",
+   "dtd_class": "braided",
+   "source_stem": "braided_0124",
+   "size": 192,
+   "regularity": 0.89662,
+   "contrast": 0.21389,
+   "rank_score": 0.19177
+  },
+  {
+   "id": "dtd_braided_braided_0133",
+   "dtd_class": "braided",
+   "source_stem": "braided_0133",
+   "size": 192,
+   "regularity": 0.8783,
+   "contrast": 0.21601,
+   "rank_score": 0.18972
+  },
+  {
+   "id": "dtd_braided_braided_0064",
+   "dtd_class": "braided",
+   "source_stem": "braided_0064",
+   "size": 192,
+   "regularity": 0.9878,
+   "contrast": 0.191,
+   "rank_score": 0.18867
+  },
+  {
+   "id": "dtd_braided_braided_0177",
+   "dtd_class": "braided",
+   "source_stem": "braided_0177",
+   "size": 192,
+   "regularity": 0.66549,
+   "contrast": 0.28097,
+   "rank_score": 0.18698
+  },
+  {
+   "id": "dtd_chequered_chequered_0092",
+   "dtd_class": "chequered",
+   "source_stem": "chequered_0092",
+   "size": 192,
+   "regularity": 0.99992,
+   "contrast": 0.49139,
+   "rank_score": 0.49135
+  },
+  {
+   "id": "dtd_chequered_chequered_0109",
+   "dtd_class": "chequered",
+   "source_stem": "chequered_0109",
+   "size": 192,
+   "regularity": 0.99961,
+   "contrast": 0.45723,
+   "rank_score": 0.45705
+  },
+  {
+   "id": "dtd_chequered_chequered_0098",
+   "dtd_class": "chequered",
+   "source_stem": "chequered_0098",
+   "size": 192,
+   "regularity": 0.99847,
+   "contrast": 0.3968,
+   "rank_score": 0.3962
+  },
+  {
+   "id": "dtd_chequered_chequered_0192",
+   "dtd_class": "chequered",
+   "source_stem": "chequered_0192",
+   "size": 192,
+   "regularity": 0.85021,
+   "contrast": 0.4449,
+   "rank_score": 0.37825
+  },
+  {
+   "id": "dtd_chequered_chequered_0212",
+   "dtd_class": "chequered",
+   "source_stem": "chequered_0212",
+   "size": 192,
+   "regularity": 0.91196,
+   "contrast": 0.41014,
+   "rank_score": 0.37403
+  },
+  {
+   "id": "dtd_chequered_chequered_0088",
+   "dtd_class": "chequered",
+   "source_stem": "chequered_0088",
+   "size": 192,
+   "regularity": 0.98842,
+   "contrast": 0.37625,
+   "rank_score": 0.37189
+  },
+  {
+   "id": "dtd_dotted_dotted_0078",
+   "dtd_class": "dotted",
+   "source_stem": "dotted_0078",
+   "size": 192,
+   "regularity": 0.96198,
+   "contrast": 0.25658,
+   "rank_score": 0.24683
+  },
+  {
+   "id": "dtd_dotted_dotted_0126",
+   "dtd_class": "dotted",
+   "source_stem": "dotted_0126",
+   "size": 192,
+   "regularity": 0.8918,
+   "contrast": 0.24371,
+   "rank_score": 0.21734
+  },
+  {
+   "id": "dtd_dotted_dotted_0110",
+   "dtd_class": "dotted",
+   "source_stem": "dotted_0110",
+   "size": 192,
+   "regularity": 0.74982,
+   "contrast": 0.23023,
+   "rank_score": 0.17263
+  },
+  {
+   "id": "dtd_dotted_dotted_0118",
+   "dtd_class": "dotted",
+   "source_stem": "dotted_0118",
+   "size": 192,
+   "regularity": 0.64293,
+   "contrast": 0.25764,
+   "rank_score": 0.16565
+  },
+  {
+   "id": "dtd_dotted_dotted_0047",
+   "dtd_class": "dotted",
+   "source_stem": "dotted_0047",
+   "size": 192,
+   "regularity": 0.73535,
+   "contrast": 0.19528,
+   "rank_score": 0.1436
+  },
+  {
+   "id": "dtd_dotted_dotted_0204",
+   "dtd_class": "dotted",
+   "source_stem": "dotted_0204",
+   "size": 192,
+   "regularity": 0.54998,
+   "contrast": 0.25403,
+   "rank_score": 0.13971
+  },
+  {
+   "id": "dtd_grid_grid_0027",
+   "dtd_class": "grid",
+   "source_stem": "grid_0027",
+   "size": 192,
+   "regularity": 0.96334,
+   "contrast": 0.45921,
+   "rank_score": 0.44238
+  },
+  {
+   "id": "dtd_grid_grid_0056",
+   "dtd_class": "grid",
+   "source_stem": "grid_0056",
+   "size": 192,
+   "regularity": 0.91877,
+   "contrast": 0.43406,
+   "rank_score": 0.3988
+  },
+  {
+   "id": "dtd_grid_grid_0002",
+   "dtd_class": "grid",
+   "source_stem": "grid_0002",
+   "size": 192,
+   "regularity": 0.89415,
+   "contrast": 0.43623,
+   "rank_score": 0.39005
+  },
+  {
+   "id": "dtd_grid_grid_0057",
+   "dtd_class": "grid",
+   "source_stem": "grid_0057",
+   "size": 192,
+   "regularity": 0.89977,
+   "contrast": 0.42826,
+   "rank_score": 0.38533
+  },
+  {
+   "id": "dtd_grid_grid_0030",
+   "dtd_class": "grid",
+   "source_stem": "grid_0030",
+   "size": 192,
+   "regularity": 0.94009,
+   "contrast": 0.35759,
+   "rank_score": 0.33616
+  },
+  {
+   "id": "dtd_grid_grid_0065",
+   "dtd_class": "grid",
+   "source_stem": "grid_0065",
+   "size": 192,
+   "regularity": 0.97163,
+   "contrast": 0.30762,
+   "rank_score": 0.2989
+  },
+  {
+   "id": "dtd_honeycombed_honeycombed_0081",
+   "dtd_class": "honeycombed",
+   "source_stem": "honeycombed_0081",
+   "size": 192,
+   "regularity": 0.62238,
+   "contrast": 0.39395,
+   "rank_score": 0.24518
+  },
+  {
+   "id": "dtd_honeycombed_honeycombed_0098",
+   "dtd_class": "honeycombed",
+   "source_stem": "honeycombed_0098",
+   "size": 192,
+   "regularity": 0.9959,
+   "contrast": 0.22061,
+   "rank_score": 0.21971
+  },
+  {
+   "id": "dtd_honeycombed_honeycombed_0155",
+   "dtd_class": "honeycombed",
+   "source_stem": "honeycombed_0155",
+   "size": 192,
+   "regularity": 0.81253,
+   "contrast": 0.2634,
+   "rank_score": 0.21402
+  },
+  {
+   "id": "dtd_honeycombed_honeycombed_0172",
+   "dtd_class": "honeycombed",
+   "source_stem": "honeycombed_0172",
+   "size": 192,
+   "regularity": 0.71253,
+   "contrast": 0.29461,
+   "rank_score": 0.20992
+  },
+  {
+   "id": "dtd_honeycombed_honeycombed_0078",
+   "dtd_class": "honeycombed",
+   "source_stem": "honeycombed_0078",
+   "size": 192,
+   "regularity": 0.61366,
+   "contrast": 0.3353,
+   "rank_score": 0.20576
+  },
+  {
+   "id": "dtd_honeycombed_honeycombed_0085",
+   "dtd_class": "honeycombed",
+   "source_stem": "honeycombed_0085",
+   "size": 192,
+   "regularity": 0.63524,
+   "contrast": 0.29864,
+   "rank_score": 0.18971
+  },
+  {
+   "id": "dtd_interlaced_interlaced_0099",
+   "dtd_class": "interlaced",
+   "source_stem": "interlaced_0099",
+   "size": 192,
+   "regularity": 0.8467,
+   "contrast": 0.26226,
+   "rank_score": 0.22206
+  },
+  {
+   "id": "dtd_interlaced_interlaced_0105",
+   "dtd_class": "interlaced",
+   "source_stem": "interlaced_0105",
+   "size": 192,
+   "regularity": 0.68724,
+   "contrast": 0.31877,
+   "rank_score": 0.21907
+  },
+  {
+   "id": "dtd_interlaced_interlaced_0057",
+   "dtd_class": "interlaced",
+   "source_stem": "interlaced_0057",
+   "size": 192,
+   "regularity": 0.49876,
+   "contrast": 0.43293,
+   "rank_score": 0.21593
+  },
+  {
+   "id": "dtd_interlaced_interlaced_0184",
+   "dtd_class": "interlaced",
+   "source_stem": "interlaced_0184",
+   "size": 192,
+   "regularity": 0.83138,
+   "contrast": 0.2565,
+   "rank_score": 0.21325
+  },
+  {
+   "id": "dtd_interlaced_interlaced_0047",
+   "dtd_class": "interlaced",
+   "source_stem": "interlaced_0047",
+   "size": 192,
+   "regularity": 0.64475,
+   "contrast": 0.32777,
+   "rank_score": 0.21133
+  },
+  {
+   "id": "dtd_interlaced_interlaced_0172",
+   "dtd_class": "interlaced",
+   "source_stem": "interlaced_0172",
+   "size": 192,
+   "regularity": 0.76569,
+   "contrast": 0.26189,
+   "rank_score": 0.20053
+  },
+  {
+   "id": "dtd_knitted_knitted_0174",
+   "dtd_class": "knitted",
+   "source_stem": "knitted_0174",
+   "size": 192,
+   "regularity": 0.78407,
+   "contrast": 0.24251,
+   "rank_score": 0.19014
+  },
+  {
+   "id": "dtd_knitted_knitted_0098",
+   "dtd_class": "knitted",
+   "source_stem": "knitted_0098",
+   "size": 192,
+   "regularity": 0.65383,
+   "contrast": 0.22915,
+   "rank_score": 0.14982
+  },
+  {
+   "id": "dtd_knitted_knitted_0142",
+   "dtd_class": "knitted",
+   "source_stem": "knitted_0142",
+   "size": 192,
+   "regularity": 0.74503,
+   "contrast": 0.19166,
+   "rank_score": 0.14279
+  },
+  {
+   "id": "dtd_knitted_knitted_0135",
+   "dtd_class": "knitted",
+   "source_stem": "knitted_0135",
+   "size": 192,
+   "regularity": 0.69683,
+   "contrast": 0.2001,
+   "rank_score": 0.13943
+  },
+  {
+   "id": "dtd_knitted_knitted_0204",
+   "dtd_class": "knitted",
+   "source_stem": "knitted_0204",
+   "size": 192,
+   "regularity": 0.63443,
+   "contrast": 0.21467,
+   "rank_score": 0.13619
+  },
+  {
+   "id": "dtd_knitted_knitted_0183",
+   "dtd_class": "knitted",
+   "source_stem": "knitted_0183",
+   "size": 192,
+   "regularity": 0.59101,
+   "contrast": 0.2183,
+   "rank_score": 0.12902
+  },
+  {
+   "id": "dtd_lined_lined_0131",
+   "dtd_class": "lined",
+   "source_stem": "lined_0131",
+   "size": 192,
+   "regularity": 1.0,
+   "contrast": 0.32637,
+   "rank_score": 0.32637
+  },
+  {
+   "id": "dtd_lined_lined_0128",
+   "dtd_class": "lined",
+   "source_stem": "lined_0128",
+   "size": 192,
+   "regularity": 0.89619,
+   "contrast": 0.36219,
+   "rank_score": 0.32459
+  },
+  {
+   "id": "dtd_lined_lined_0135",
+   "dtd_class": "lined",
+   "source_stem": "lined_0135",
+   "size": 192,
+   "regularity": 0.96782,
+   "contrast": 0.33056,
+   "rank_score": 0.31992
+  },
+  {
+   "id": "dtd_lined_lined_0152",
+   "dtd_class": "lined",
+   "source_stem": "lined_0152",
+   "size": 192,
+   "regularity": 0.91038,
+   "contrast": 0.30909,
+   "rank_score": 0.28139
+  },
+  {
+   "id": "dtd_lined_lined_0124",
+   "dtd_class": "lined",
+   "source_stem": "lined_0124",
+   "size": 192,
+   "regularity": 0.90337,
+   "contrast": 0.29454,
+   "rank_score": 0.26608
+  },
+  {
+   "id": "dtd_lined_lined_0140",
+   "dtd_class": "lined",
+   "source_stem": "lined_0140",
+   "size": 192,
+   "regularity": 1.0,
+   "contrast": 0.26519,
+   "rank_score": 0.26519
+  },
+  {
+   "id": "dtd_meshed_meshed_0180",
+   "dtd_class": "meshed",
+   "source_stem": "meshed_0180",
+   "size": 192,
+   "regularity": 0.91525,
+   "contrast": 0.35868,
+   "rank_score": 0.32829
+  },
+  {
+   "id": "dtd_meshed_meshed_0169",
+   "dtd_class": "meshed",
+   "source_stem": "meshed_0169",
+   "size": 192,
+   "regularity": 0.80065,
+   "contrast": 0.33246,
+   "rank_score": 0.26618
+  },
+  {
+   "id": "dtd_meshed_meshed_0048",
+   "dtd_class": "meshed",
+   "source_stem": "meshed_0048",
+   "size": 192,
+   "regularity": 0.92793,
+   "contrast": 0.26807,
+   "rank_score": 0.24875
+  },
+  {
+   "id": "dtd_meshed_meshed_0131",
+   "dtd_class": "meshed",
+   "source_stem": "meshed_0131",
+   "size": 192,
+   "regularity": 0.77667,
+   "contrast": 0.31143,
+   "rank_score": 0.24187
+  },
+  {
+   "id": "dtd_meshed_meshed_0054",
+   "dtd_class": "meshed",
+   "source_stem": "meshed_0054",
+   "size": 192,
+   "regularity": 0.90283,
+   "contrast": 0.26095,
+   "rank_score": 0.23559
+  },
+  {
+   "id": "dtd_meshed_meshed_0106",
+   "dtd_class": "meshed",
+   "source_stem": "meshed_0106",
+   "size": 192,
+   "regularity": 0.7998,
+   "contrast": 0.29129,
+   "rank_score": 0.23297
+  },
+  {
+   "id": "dtd_polka-dotted_polka-dotted_0130",
+   "dtd_class": "polka-dotted",
+   "source_stem": "polka-dotted_0130",
+   "size": 192,
+   "regularity": 0.99765,
+   "contrast": 0.42807,
+   "rank_score": 0.42706
+  },
+  {
+   "id": "dtd_polka-dotted_polka-dotted_0215",
+   "dtd_class": "polka-dotted",
+   "source_stem": "polka-dotted_0215",
+   "size": 192,
+   "regularity": 0.97247,
+   "contrast": 0.40528,
+   "rank_score": 0.39413
+  },
+  {
+   "id": "dtd_polka-dotted_polka-dotted_0096",
+   "dtd_class": "polka-dotted",
+   "source_stem": "polka-dotted_0096",
+   "size": 192,
+   "regularity": 0.8777,
+   "contrast": 0.3528,
+   "rank_score": 0.30966
+  },
+  {
+   "id": "dtd_polka-dotted_polka-dotted_0065",
+   "dtd_class": "polka-dotted",
+   "source_stem": "polka-dotted_0065",
+   "size": 192,
+   "regularity": 0.93461,
+   "contrast": 0.28029,
+   "rank_score": 0.26197
+  },
+  {
+   "id": "dtd_polka-dotted_polka-dotted_0101",
+   "dtd_class": "polka-dotted",
+   "source_stem": "polka-dotted_0101",
+   "size": 192,
+   "regularity": 0.89424,
+   "contrast": 0.28314,
+   "rank_score": 0.2532
+  },
+  {
+   "id": "dtd_polka-dotted_polka-dotted_0138",
+   "dtd_class": "polka-dotted",
+   "source_stem": "polka-dotted_0138",
+   "size": 192,
+   "regularity": 0.78381,
+   "contrast": 0.28078,
+   "rank_score": 0.22008
+  },
+  {
+   "id": "dtd_striped_striped_0030",
+   "dtd_class": "striped",
+   "source_stem": "striped_0030",
+   "size": 192,
+   "regularity": 0.72241,
+   "contrast": 0.46628,
+   "rank_score": 0.33684
+  },
+  {
+   "id": "dtd_striped_striped_0005",
+   "dtd_class": "striped",
+   "source_stem": "striped_0005",
+   "size": 192,
+   "regularity": 0.80789,
+   "contrast": 0.366,
+   "rank_score": 0.29569
+  },
+  {
+   "id": "dtd_striped_striped_0114",
+   "dtd_class": "striped",
+   "source_stem": "striped_0114",
+   "size": 192,
+   "regularity": 0.83384,
+   "contrast": 0.32762,
+   "rank_score": 0.27318
+  },
+  {
+   "id": "dtd_striped_striped_0065",
+   "dtd_class": "striped",
+   "source_stem": "striped_0065",
+   "size": 192,
+   "regularity": 0.91775,
+   "contrast": 0.26936,
+   "rank_score": 0.2472
+  },
+  {
+   "id": "dtd_striped_striped_0111",
+   "dtd_class": "striped",
+   "source_stem": "striped_0111",
+   "size": 192,
+   "regularity": 0.8847,
+   "contrast": 0.2789,
+   "rank_score": 0.24675
+  },
+  {
+   "id": "dtd_striped_striped_0027",
+   "dtd_class": "striped",
+   "source_stem": "striped_0027",
+   "size": 192,
+   "regularity": 0.70309,
+   "contrast": 0.34812,
+   "rank_score": 0.24476
+  },
+  {
+   "id": "dtd_woven_woven_0094",
+   "dtd_class": "woven",
+   "source_stem": "woven_0094",
+   "size": 192,
+   "regularity": 0.92274,
+   "contrast": 0.29137,
+   "rank_score": 0.26886
+  },
+  {
+   "id": "dtd_woven_woven_0040",
+   "dtd_class": "woven",
+   "source_stem": "woven_0040",
+   "size": 192,
+   "regularity": 0.92583,
+   "contrast": 0.26971,
+   "rank_score": 0.24971
+  },
+  {
+   "id": "dtd_woven_woven_0031",
+   "dtd_class": "woven",
+   "source_stem": "woven_0031",
+   "size": 192,
+   "regularity": 0.92511,
+   "contrast": 0.2693,
+   "rank_score": 0.24913
+  },
+  {
+   "id": "dtd_woven_woven_0046",
+   "dtd_class": "woven",
+   "source_stem": "woven_0046",
+   "size": 192,
+   "regularity": 0.73193,
+   "contrast": 0.32816,
+   "rank_score": 0.24019
+  },
+  {
+   "id": "dtd_woven_woven_0099",
+   "dtd_class": "woven",
+   "source_stem": "woven_0099",
+   "size": 192,
+   "regularity": 0.9566,
+   "contrast": 0.23307,
+   "rank_score": 0.22295
+  },
+  {
+   "id": "dtd_woven_woven_0001",
+   "dtd_class": "woven",
+   "source_stem": "woven_0001",
+   "size": 192,
+   "regularity": 0.99999,
+   "contrast": 0.21952,
+   "rank_score": 0.21952
+  },
+  {
+   "id": "dtd_zigzagged_zigzagged_0054",
+   "dtd_class": "zigzagged",
+   "source_stem": "zigzagged_0054",
+   "size": 192,
+   "regularity": 0.99849,
+   "contrast": 0.48266,
+   "rank_score": 0.48193
+  },
+  {
+   "id": "dtd_zigzagged_zigzagged_0093",
+   "dtd_class": "zigzagged",
+   "source_stem": "zigzagged_0093",
+   "size": 192,
+   "regularity": 0.99972,
+   "contrast": 0.37694,
+   "rank_score": 0.37684
+  },
+  {
+   "id": "dtd_zigzagged_zigzagged_0079",
+   "dtd_class": "zigzagged",
+   "source_stem": "zigzagged_0079",
+   "size": 192,
+   "regularity": 0.82585,
+   "contrast": 0.4535,
+   "rank_score": 0.37452
+  },
+  {
+   "id": "dtd_zigzagged_zigzagged_0133",
+   "dtd_class": "zigzagged",
+   "source_stem": "zigzagged_0133",
+   "size": 192,
+   "regularity": 0.87469,
+   "contrast": 0.39745,
+   "rank_score": 0.34765
+  },
+  {
+   "id": "dtd_zigzagged_zigzagged_0087",
+   "dtd_class": "zigzagged",
+   "source_stem": "zigzagged_0087",
+   "size": 192,
+   "regularity": 0.8751,
+   "contrast": 0.39022,
+   "rank_score": 0.34148
+  },
+  {
+   "id": "dtd_zigzagged_zigzagged_0085",
+   "dtd_class": "zigzagged",
+   "source_stem": "zigzagged_0085",
+   "size": 192,
+   "regularity": 0.99469,
+   "contrast": 0.34052,
+   "rank_score": 0.33872
+  }
+ ]
+}

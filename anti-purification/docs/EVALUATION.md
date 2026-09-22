@@ -81,10 +81,21 @@
 **程式已修**：`edit_retention.purified_mask()` 把主體遮罩送過與影像同一個
 `Purifier`（強度取自 `purify_run.PURIFIERS`，不另寫一組），插值後以 0.5 重新
 二值化。順序是先翻極性再變換，使 `rotate` 補零的黑角落在背景側；反過來會把
-黑角算成主體。實測遮罩歸屬的改變量：`crop_resize0.1` 為全幅的 9.3%–13.6%、
-`rotate15` 為 11.1%–13.8%（`man_00`、`woman_02` 兩張）。
+黑角算成主體。
 
-`purified_mask()` 進版於 commit `47b4c18`。一份 `main_table/results/retention.csv`
+遮罩歸屬的改變量（`man_00`、`woman_02` 兩張，512²）：
+
+| 算子 | 與未變換遮罩相異的像素佔全幅 |
+|---|---|
+| `crop_resize0.1` | 13.6%、9.3% |
+| `rotate15` | 11.1%、13.8% |
+| `jpeg50`、`blur1` | 0.0%、0.0% |
+
+量法：載入 `main_table/images/masks/<圖>.png`，經 `subject_mask()` 翻極性並
+二值化得到基準遮罩，再送 `purified_mask()`，統計兩者相異的像素比例。不需模型，
+CPU 即可重現。非幾何的兩道列在表中作為對照：它們不動座標，改變量應為零。
+
+`purified_mask()` 進版於 commit `199b7de`。一份 `main_table/results/retention.csv`
 若未在該 commit 之後重跑過，那 1,536 列的分區兩欄就是用未變換的遮罩算的。
 重跑一次即更新，需要 LPIPS（`piq`）：
 

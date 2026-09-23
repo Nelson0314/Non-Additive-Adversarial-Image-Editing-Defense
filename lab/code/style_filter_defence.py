@@ -25,16 +25,25 @@
    分別對上人臉框內與整圖的 ΔE00 上限。兩者用同一個平滑場插值，
    所以「不同預算」不等於「兩塊不同的區域」。
 
-`--smoother` 的兩個值不是選項，是兩件不同的事
+`--smoother` 的三個值不是選項，是三件不同的事
 ────────────────────────────────────────────────────────────────────
 `gaussian` 在 `strength 0.6` 上會在主體輪廓外留下**一圈光暈**：那個 strength
 下 SDEdit 已經把髮型與輪廓換掉，`Δ` 因此含大量結構差異，高斯低通把它抹過
 輪廓。光暈不是硬接縫，但同樣是產物上看得出來的東西，逐張圖在
 `runs/defence/style_filter/` 可查。
 
-`guided` 用 guided filter，導引影像是原圖的亮度：平滑只發生在原圖的同質區
-內，跨過原圖的邊界時不平均，於是色彩的轉折落在**主體自己的輪廓上**。
-兩者其餘逐項相同，可以直接對照。
+`guided` 用單通道導引的 guided filter（導引＝原圖亮度）：平滑只發生在原圖的
+同質區內，跨過原圖的邊界時不平均，色彩的轉折因此落在**主體自己的輪廓上**。
+身分餘弦由 `gaussian` 的 0.66–0.97 升到 0.88–0.99，但髮際對亮天空那種軟邊
+仍有殘留輝光——單通道導引只約束了一個純量，跨通道的色彩混合仍是自由的。
+
+`affine` 解**三通道的局部仿射色彩轉移**：每個視窗解一個 3×3 矩陣加位移，
+使 `A·x + b` 最接近 SDEdit 的輸出，再把 `A`、`b` 平滑後套回原圖。輸出因此
+被限制成輸入的局部仿射函數——這正是 photorealistic style transfer 那一族
+（Luan 等的 photorealism prior、PhotoWCT 的平滑後處理）對「結構與身分遺失」
+的標準答案：輸出的邊只能是輸入的邊乘一個係數，不會長出新結構。
+
+三者其餘逐項相同，可以直接對照。
 
 與全域色調曲線的差別是**空間相依**：曲線是 `x → F(x)`，同一個輸入色階在任何
 位置都同一個輸出；這裡的位移場隨內容而變，容量高一個層級，而代價仍鎖在
@@ -141,12 +150,65 @@ def guided_filter(guide: torch.Tensor, src: torch.Tensor,
     return box_filter(a, radius) * guide + box_filter(b, radius)
 
 
+def guided_filter_colour(guide: torch.Tensor, src: torch.Tensor,
+                         radius: int, eps: float) -> torch.Tensor:
+    """**局部仿射色彩轉移**：在每個視窗裡解一個 3×3 矩陣 ＋ 位移，使
+    `A·x + b` 最接近 `src`，再把 `A`、`b` 盒濾波後套回 `x`。
+
+    這是 photorealistic style transfer 那一族對「身分／結構遺失」的標準答案：
+    輸出被限制成輸入的**局部仿射函數**，所以輸出的邊只能是輸入的邊乘一個係數
+    ——不會長出新的結構，也不會在主體輪廓外留下光暈。灰階導引的 guided filter
+    只約束了一個純量，跨通道的色彩混合仍是自由的；這一支把三個通道一起解，
+    才是那一族真正在用的形式。
+
+    3×3 對稱矩陣的反矩陣用閉式解，不走 `linalg.inv`：後者在 512² 個 3×3 上
+    既慢又會在近奇異的視窗上拋例外，而近奇異的視窗（純色天空）到處都是。
+    `eps` 就是那裡的 ridge。
+    """
+    mi = box_filter(guide, radius)                      # (1,3,H,W)
+    mp = box_filter(src, radius)                        # (1,3,H,W)
+    # 導引影像的共變異數，六個獨立分量
+    pairs = [(0, 0), (0, 1), (0, 2), (1, 1), (1, 2), (2, 2)]
+    cov = {}
+    for i, j in pairs:
+        cij = box_filter((guide[:, i:i + 1] * guide[:, j:j + 1]), radius)
+        cov[(i, j)] = cij - mi[:, i:i + 1] * mi[:, j:j + 1]
+        if i == j:
+            cov[(i, j)] = cov[(i, j)] + eps
+    c = lambda i, j: cov[(i, j)] if (i, j) in cov else cov[(j, i)]
+    # 伴隨矩陣
+    a00 = c(1, 1) * c(2, 2) - c(1, 2) * c(1, 2)
+    a01 = c(0, 2) * c(1, 2) - c(0, 1) * c(2, 2)
+    a02 = c(0, 1) * c(1, 2) - c(0, 2) * c(1, 1)
+    a11 = c(0, 0) * c(2, 2) - c(0, 2) * c(0, 2)
+    a12 = c(0, 1) * c(0, 2) - c(0, 0) * c(1, 2)
+    a22 = c(0, 0) * c(1, 1) - c(0, 1) * c(0, 1)
+    det = (c(0, 0) * a00 + c(0, 1) * a01 + c(0, 2) * a02)
+    det = torch.where(det.abs() < 1e-8, torch.full_like(det, 1e-8), det)
+    inv = [[a00, a01, a02], [a01, a11, a12], [a02, a12, a22]]
+
+    out = []
+    for k in range(3):
+        cip = [box_filter(guide[:, i:i + 1] * src[:, k:k + 1], radius)
+               - mi[:, i:i + 1] * mp[:, k:k + 1] for i in range(3)]
+        ak = [sum(inv[r][i] * cip[i] for i in range(3)) / det for r in range(3)]
+        bk = mp[:, k:k + 1] - sum(ak[i] * mi[:, i:i + 1] for i in range(3))
+        ak = [box_filter(t, radius) for t in ak]
+        bk = box_filter(bk, radius)
+        out.append(sum(ak[i] * guide[:, i:i + 1] for i in range(3)) + bk)
+    return torch.cat(out, 1)
+
+
 def smooth_delta(x: torch.Tensor, delta: torch.Tensor, args) -> torch.Tensor:
+    """把 `Δ` 變成只帶色彩的平滑場。三種做法不是選項，是三件不同的事。"""
     if args.smoother == "gaussian":
         return gaussian_blur(delta, args.sigma)
-    guide = (x * torch.tensor([0.299, 0.587, 0.114], device=x.device,
-                              dtype=x.dtype).view(1, 3, 1, 1)).sum(1, keepdim=True)
-    return guided_filter(guide, delta, args.radius, args.eps)
+    if args.smoother == "guided":
+        guide = (x * torch.tensor([0.299, 0.587, 0.114], device=x.device,
+                                  dtype=x.dtype).view(1, 3, 1, 1)).sum(1, keepdim=True)
+        return guided_filter(guide, delta, args.radius, args.eps)
+    # affine：解出 raw 對 x 的局部仿射色彩轉移，交付的位移是「轉移後 − 原圖」
+    return guided_filter_colour(x, x + delta, args.radius, args.eps) - x
 
 
 def quantise(x: torch.Tensor) -> torch.Tensor:
@@ -192,10 +254,11 @@ def main() -> None:
     ap.add_argument("--guidance", type=float, default=7.5)
     ap.add_argument("--seed", type=int, default=20260812)
     ap.add_argument("--smoother", default="gaussian",
-                    choices=("gaussian", "guided"),
+                    choices=("gaussian", "guided", "affine"),
                     help="怎麼把 Δ 變成只帶色彩的平滑場。gaussian 會在主體輪廓"
                          "外留下一圈光暈（Δ 含結構差異時）；guided 只在原圖的"
-                         "同質區內平滑，轉折落在主體自己的輪廓上")
+                         "同質區內平滑（單通道導引）；affine 解三通道的局部仿射"
+                         "色彩轉移，輸出被限制成輸入的局部仿射函數")
     ap.add_argument("--sigma", type=float, default=12.0,
                     help="高斯低通的 σ（像素）。只有 --smoother gaussian 用得到")
     ap.add_argument("--radius", type=int, default=32,

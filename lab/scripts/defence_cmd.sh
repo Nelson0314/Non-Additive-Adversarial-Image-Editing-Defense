@@ -29,6 +29,25 @@ case "$ARM" in
   style_filter_guided)
     exec "$PY" lab/code/style_filter_defence.py --arm style_filter_guided --out "$OUT"         --data "$DATA" --style film --strength 0.6 --num-steps 20 --guidance 7.5         --smoother guided --radius 32 --eps 0.01 --frame-cap 16.0 --face-cap 8.0
     ;;
+  # ---- 生成載體：局部仿射色彩轉移（身分由 photorealism prior 保證）----
+  style_affine)
+    exec "$PY" lab/code/style_filter_defence.py --arm style_affine --out "$OUT"         --data "$DATA" --style film --strength 0.6 --num-steps 20 --guidance 7.5         --smoother affine --radius 48 --eps 0.05 --frame-cap 16.0 --face-cap 8.0
+    ;;
+  # ---- 生成載體：只重繪一塊，受保護的那一塊逐位元保留 ----
+  inpaint_bg)
+    exec "$PY" lab/code/inpaint_region_defence.py --arm inpaint_bg --out "$OUT"         --data "$DATA" --region background --style film --steps 50 --guidance 7.5
+    ;;
+  inpaint_outside_face)
+    exec "$PY" lab/code/inpaint_region_defence.py --arm inpaint_outside_face         --out "$OUT" --data "$DATA" --region outside_face --style film         --steps 50 --guidance 7.5 --feather 0.35
+    ;;
+  # ---- spatial 那條線：從該張自己的膚色色調起步，另加彩度與同色上界 ----
+  curve_dual_spatial_anchored)
+    exec "$PY" lab/code/curve_budget_defence.py --arm curve_dual_spatial_anchored         --out "$OUT" --data "$DATA" --budget-mode spatial         --frame-cap 16.0 --face-cap 8.0 --band-tv-cap 2.0 --feather 0.35         --init skin_tone --init-strength 1.0 --skin-radius 12.0 --chroma-gain 1.15
+    ;;
+  # ---- 色度平面的全域扭曲（chroma 那條線的強化）----
+  ab_warp)
+    exec "$PY" lab/code/ab_warp_defence.py --arm ab_warp --out "$OUT"         --data "$DATA" --grid 7 --extent 90 --warp-radius 30 --pieces 16         --frame-cap 16.0 --face-cap 8.0 --skin-radius 12.0 --chroma-gain 1.15
+    ;;
   # ---- 色調曲線：臉與背景不同預算 ----
   curve_dual_spatial)
     exec "$PY" lab/code/curve_budget_defence.py --arm curve_dual_spatial --out "$OUT" \

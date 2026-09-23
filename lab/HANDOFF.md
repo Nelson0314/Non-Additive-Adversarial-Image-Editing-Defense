@@ -6,7 +6,7 @@
 設計與理由在 `docs/DESIGN.md`。任務界定在 `docs/BRIEF.md`。
 文獻與設計審查在 `docs/LITERATURE.md`、`docs/DESIGN_REVIEW.md`。
 
-## 六個臂
+## 十一個臂
 
 | 臂 | 線 | 載體 | 最佳化 |
 |---|---|---|---|
@@ -17,9 +17,27 @@
 | `curve_dual_spatial` | 分區 | 兩條色調曲線 ＋ 平滑混合場 | 900 步增廣 Lagrange |
 | `curve_dual_chroma` | 分區 | 單一全域色調曲線，兩道上限 | 900 步增廣 Lagrange |
 
+第二輪（依逐張看圖的三個方向，見 `docs/DESIGN.md` 的「第二輪」）：
+
+| 臂 | 線 | 載體 | 最佳化 |
+|---|---|---|---|
+| `ab_warp` | chroma 強化 | CIELAB `(a,b)` 平面的 RBF 位移場 ＋ 單調亮度曲線 | 900 步增廣 Lagrange |
+| `curve_dual_spatial_anchored` | spatial 自然度 | 同 `curve_dual_spatial`，但**從該張自己的膚色色調起步**，另加彩度與同色上界 | 900 步增廣 Lagrange |
+| `style_affine` | 身分遺失 | 局部仿射色彩轉移（photorealism prior） | 無 |
+| `inpaint_bg` | 身分遺失 | SD inpainting 只重繪主體之外，主體逐位元保留 | 無 |
+| `inpaint_outside_face` | 身分遺失 | 只保留臉，其餘全部重繪 | 無 |
+
 臂的參數全部定義在 `scripts/defence_cmd.sh` 的 `case`，**只有那一個地方**。
 
-## 現況：六個臂全部跑完，跨臂讀數已出
+## 現況：第一輪六個臂完成，第二輪五個臂在跑
+
+第二輪的五個臂 2026-09-23 22:30 起在 basic-2 卡 0／2／4／5／6 上跑（滿五張）。
+`ab_warp` 與 `curve_dual_spatial_anchored` 是 900 步求解（`ab_warp` 實測
+單張約 61 分鐘），其餘三個沒有最佳化、防禦圖幾秒一張。
+全部跑完之後要**重跑一次 `scripts/readout.sh`**，displacement 與 retention
+會把十一個臂一起算。
+
+### 第一輪：六個臂全部跑完，跨臂讀數已出
 
 `lab/results/displacement.csv`（384 列）與 `lab/results/retention.csv`（2,688 列）
 都已產出，sentinel 108/108，沒有 `[GIVE-UP]`。**還沒做的是逐格看圖**：

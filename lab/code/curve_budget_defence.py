@@ -80,6 +80,9 @@ paths.add_source_to_syspath()
 import torch  # noqa: E402
 import yaml  # noqa: E402
 
+from colour_support import (  # noqa: E402
+    apply_slopes, chroma_p95, skin_colour_support, skin_tone_slopes,
+)
 from src.defense.color_amplitude import delta_e00  # noqa: E402
 from src.defense.color_param import ColorCurveParam  # noqa: E402
 from src.defense.delta_e_torch import delta_e00_torch  # noqa: E402
@@ -255,6 +258,18 @@ def main() -> None:
                     help="過渡帶上位移場的 TV 上限（只有 spatial 用得到）")
     ap.add_argument("--feather", type=float, default=0.35,
                     help="過渡帶寬度，框半徑的倍數")
+    ap.add_argument("--init", default="identity",
+                    choices=("identity", "skin_tone"),
+                    help="最佳化的起點。skin_tone 用該張自己的膚色色調（整圖"
+                         "累積分布對到膚色區累積分布）當起點，而不是恆等")
+    ap.add_argument("--init-strength", type=float, default=1.0,
+                    help="起點在恆等與膚色色調之間的插值")
+    ap.add_argument("--skin-radius", type=float, default=0.0,
+                    help="> 0 時加一道 skin_colour 上限：原圖裡與膚色同色的"
+                         "像素（不限位置）的 ΔE00 不得超過 --face-cap")
+    ap.add_argument("--chroma-gain", type=float, default=0.0,
+                    help="> 0 時加一道彩度上限：輸出 C* 的 p95 不得超過原圖的"
+                         "p95 乘上這個倍率")
     ap.add_argument("--pieces", type=int, default=64)
     ap.add_argument("--radius", type=float, default=5.0)
     ap.add_argument("--steps", type=int, default=900)
@@ -287,6 +302,11 @@ def main() -> None:
         frame = torch.ones_like(x[:, :1])
         face = box_support(x, box)
 
+        skin = (skin_colour_support(x, face, args.skin_radius)
+                if args.skin_radius > 0 else None)
+        c95 = float(chroma_p95(x))
+        chroma_cap = c95 * args.chroma_gain if args.chroma_gain > 0 else 0.0
+
         if args.budget_mode == "spatial":
             field = smooth_field(x, box, args.feather)
             band = transition_band(field)
@@ -299,6 +319,15 @@ def main() -> None:
                                       bound_mode="advcf")
         carrier.reset(x, args.noise_seed)
 
+        init_clipped = ""
+        if args.init == "skin_tone":
+            # 起點用的膚色支撐一律是顏色定義的那一塊；沒有給 --skin-radius
+            # 時也要有一個，否則「膚色色調」沒有來源。
+            base = skin if skin is not None else skin_colour_support(x, face, 12.0)
+            slopes = skin_tone_slopes(x, base, args.pieces, args.init_strength)
+            clipped = [apply_slopes(stage, slopes) for stage in carrier.stages]
+            init_clipped = "|".join(f"{v:.4f}" for v in clipped)
+
         caps = [
             Cap("frame", lambda y: delta_e00_torch(x, y, frame),
                 lambda y: delta_e00(x, y, frame), args.frame_cap),
@@ -310,6 +339,14 @@ def main() -> None:
                 Cap("band_tv", lambda y: tv_offset(lab_offset(x, y), band),
                     lambda y: float(tv_offset(lab_offset(x, y), band)),
                     args.band_tv_cap))
+        if skin is not None:
+            caps.append(
+                Cap("skin_colour", lambda y: delta_e00_torch(x, y, skin),
+                    lambda y: delta_e00(x, y, skin), args.face_cap))
+        if chroma_cap > 0:
+            caps.append(
+                Cap("chroma_p95", lambda y: chroma_p95(y),
+                    lambda y: float(chroma_p95(y)), chroma_cap))
 
         objective = FreeObjective(
             ip2p, x, box=box, k=4, steps=args.attack_steps,
@@ -335,6 +372,16 @@ def main() -> None:
                 "face_cap": args.face_cap,
                 "band_tv_cap": args.band_tv_cap if args.budget_mode == "spatial" else "",
                 "feather": args.feather if args.budget_mode == "spatial" else "",
+                "init": args.init, "init_strength": args.init_strength,
+                "init_clipped_frac": init_clipped,
+                "skin_radius": args.skin_radius, "chroma_gain": args.chroma_gain,
+                "chroma_p95_orig": round(c95, 4),
+                "chroma_p95_cap": round(chroma_cap, 4) if chroma_cap else "",
+                "chroma_p95_out": round(float(chroma_p95(y)), 4),
+                "deltaE00_skin_colour": (round(float(delta_e00(x, y, skin)), 4)
+                                         if skin is not None else ""),
+                "skin_pixels_frac": (round(float(skin.mean()), 5)
+                                     if skin is not None else ""),
                 "solver_prompt": SOLVER_PROMPT[0],
                 "solver_prompt_source": SOLVER_PROMPT[1],
                 "deltaE00_frame": round(float(delta_e00(x, y, frame)), 4),

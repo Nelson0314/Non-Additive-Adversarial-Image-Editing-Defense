@@ -1,0 +1,921 @@
+<title>生成濾鏡與分區預算</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  color-scheme: light;
+  --paper:#f2f4f7; --card:#ffffff; --sunk:#e7ebf1;
+  --ink:#0f151c; --ink-2:#414d5c; --ink-3:#6d7b8c;
+  --line:#ccd5e0; --line-2:#dde4ec;
+  --signal:#10559b; --signal-soft:#e3edf8;
+  --gen:#8a4f14; --gen-soft:#f7ece1;
+  --curve:#0d6273; --curve-soft:#e0f0f3;
+  --pass:#1c6a42; --edge:#8a5806; --fail:#9f2620;
+  --on-signal:#ffffff;
+  --grid: rgba(16,85,155,.09);
+  --shadow: 0 1px 2px rgba(15,21,28,.06), 0 8px 24px -12px rgba(15,21,28,.18);
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --disp:"Archivo","Helvetica Neue",Arial,sans-serif;
+  --body:"Source Serif 4",Georgia,"Times New Roman",serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme: dark;
+    --paper:#0c1117; --card:#141b24; --sunk:#0a0f15;
+    --ink:#e8edf3; --ink-2:#a9b6c6; --ink-3:#7b8898;
+    --line:#2a3644; --line-2:#1e2833;
+    --signal:#6aaef0; --signal-soft:#16273a;
+    --gen:#dda264; --gen-soft:#2a1f12;
+    --curve:#5fc4d6; --curve-soft:#0f2a30;
+    --pass:#5fc78d; --edge:#e0b551; --fail:#f0827c;
+    --on-signal:#08121c;
+    --grid: rgba(106,174,240,.12);
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 10px 30px -14px rgba(0,0,0,.8);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --paper:#0c1117; --card:#141b24; --sunk:#0a0f15;
+  --ink:#e8edf3; --ink-2:#a9b6c6; --ink-3:#7b8898;
+  --line:#2a3644; --line-2:#1e2833;
+  --signal:#6aaef0; --signal-soft:#16273a;
+  --gen:#dda264; --gen-soft:#2a1f12;
+  --curve:#5fc4d6; --curve-soft:#0f2a30;
+  --pass:#5fc78d; --edge:#e0b551; --fail:#f0827c;
+  --on-signal:#08121c;
+  --grid: rgba(106,174,240,.12);
+  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 10px 30px -14px rgba(0,0,0,.8);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);
+  font-size:16px;line-height:1.62;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1240px;margin:0 auto;padding-inline:18px;padding-block:0 72px}
+h1,h2,h3,h4{font-family:var(--disp);font-weight:600;letter-spacing:-.012em;
+  text-wrap:balance;margin:0}
+h1{font-size:clamp(30px,5.2vw,48px);line-height:1.08;letter-spacing:-.025em}
+h2{font-size:clamp(20px,2.6vw,27px);line-height:1.2}
+h3{font-size:16px;line-height:1.3}
+p{margin:0 0 .9em}
+a{color:var(--signal)}
+code,.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+code{font-size:.88em;background:var(--sunk);padding:.1em .35em;border-radius:3px}
+.lede{font-size:clamp(17px,2vw,19px);color:var(--ink-2);max-width:66ch}
+.eyebrow{font-family:var(--disp);font-size:11px;font-weight:600;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--ink-3)}
+
+/* ---- header ---- */
+header.top{border-bottom:1px solid var(--line);
+  background:linear-gradient(var(--card),var(--card)) padding-box;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),
+    linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:32px 32px;background-position:center}
+header.top .wrap{padding-block:clamp(30px,6vw,56px) clamp(24px,4vw,38px)}
+.titleline{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:baseline}
+.stamp{font-family:var(--mono);font-size:11px;color:var(--ink-3);
+  border:1px solid var(--line);border-radius:999px;padding:3px 10px;background:var(--card)}
+
+/* ---- headline figures ---- */
+.figs{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);
+  border-radius:8px;overflow:hidden;margin-top:26px;
+  grid-template-columns:repeat(auto-fit,minmax(148px,1fr))}
+.fig{background:var(--card);padding:13px 15px 14px}
+.fig b{display:block;font-family:var(--mono);font-weight:600;font-size:22px;
+  line-height:1.15;letter-spacing:-.02em}
+.fig span{display:block;font-size:12.5px;color:var(--ink-3);margin-top:3px;line-height:1.35}
+
+/* ---- sections ---- */
+section{margin-top:clamp(40px,6vw,64px)}
+.sechead{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline;
+  border-bottom:2px solid var(--ink);padding-bottom:7px;margin-bottom:18px}
+.sechead p{margin:0;color:var(--ink-3);font-size:13.5px}
+
+/* ---- controls ---- */
+.controls{display:flex;flex-wrap:wrap;gap:14px 22px;align-items:flex-end;
+  background:var(--card);border:1px solid var(--line);border-radius:8px;
+  padding:13px 15px;margin-bottom:16px;box-shadow:var(--shadow)}
+.ctl{display:flex;flex-direction:column;gap:6px;min-width:0}
+.ctl>.eyebrow{font-size:10px}
+.seg{display:flex;flex-wrap:wrap;gap:4px}
+.seg button{font-family:var(--disp);font-size:12.5px;font-weight:500;
+  border:1px solid var(--line);background:var(--card);color:var(--ink-2);
+  padding:5px 11px;border-radius:5px;cursor:pointer;line-height:1.3}
+.seg button:hover{border-color:var(--signal);color:var(--signal)}
+.seg button[aria-pressed="true"]{background:var(--signal);border-color:var(--signal);
+  color:var(--on-signal);font-weight:600}
+.seg.imgsel button{font-family:var(--mono);font-size:11.5px;padding:5px 8px}
+button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--signal);
+  outline-offset:2px}
+.hint{font-size:12.5px;color:var(--ink-3);margin:0}
+
+/* ---- comparison deck ---- */
+.deck{display:grid;gap:12px;
+  grid-template-columns:repeat(auto-fill,minmax(178px,1fr))}
+.cell{background:var(--card);border:1px solid var(--line);border-radius:8px;
+  overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow)}
+.cell.is-ref{border-color:var(--ink-3);border-style:dashed}
+.cell .cap{display:flex;align-items:center;gap:6px;padding:7px 9px 6px;
+  border-bottom:1px solid var(--line-2);min-height:34px}
+.cell .cap b{font-family:var(--disp);font-size:12px;font-weight:600;
+  letter-spacing:-.005em;line-height:1.2}
+.dot{width:7px;height:7px;border-radius:2px;flex:none}
+.dot.gen{background:var(--gen)} .dot.curve{background:var(--curve)}
+.dot.ref{background:var(--ink-3)}
+.tile{width:100%;aspect-ratio:1;background-repeat:no-repeat;background-color:var(--sunk);
+  cursor:zoom-in;display:block;border:0;padding:0}
+.cell .read{display:grid;grid-template-columns:1fr auto;gap:1px 8px;
+  padding:7px 9px 9px;font-size:11.5px;color:var(--ink-3)}
+.cell .read i{font-style:normal}
+.cell .read b{font-family:var(--mono);font-weight:500;color:var(--ink);font-size:11.5px}
+.cell .read b.warn{color:var(--fail)} .cell .read b.ok{color:var(--pass)}
+.flag{font-family:var(--disp);font-size:10px;font-weight:600;letter-spacing:.06em;
+  text-transform:uppercase;padding:2px 6px;border-radius:3px;margin-left:auto;flex:none}
+.flag.blocked{background:var(--signal-soft);color:var(--signal)}
+.flag.swap{background:color-mix(in srgb,var(--fail) 14%,transparent);color:var(--fail)}
+
+/* ---- tables ---- */
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:8px;
+  background:var(--card);box-shadow:var(--shadow)}
+table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:620px}
+th,td{padding:7px 11px;text-align:right;border-bottom:1px solid var(--line-2);
+  white-space:nowrap}
+th{font-family:var(--disp);font-size:11px;font-weight:600;letter-spacing:.05em;
+  text-transform:uppercase;color:var(--ink-2);background:var(--sunk);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px);
+  background-size:8px 8px;position:sticky;top:0}
+th:first-child,td:first-child{text-align:left;font-family:var(--mono);font-size:12.5px}
+td{font-family:var(--mono);font-variant-numeric:tabular-nums}
+tr:last-child td{border-bottom:0}
+tr.ref td{color:var(--ink-3);font-style:italic;background:var(--sunk)}
+tr.ref td:first-child{font-style:normal}
+td.best{color:var(--pass);font-weight:600}
+caption{caption-side:bottom;text-align:left;padding:9px 11px;font-size:12.5px;
+  color:var(--ink-3);line-height:1.5}
+
+/* ---- charts ---- */
+.charts{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(310px,1fr))}
+.chart{background:var(--card);border:1px solid var(--line);border-radius:8px;
+  padding:14px 15px 12px;box-shadow:var(--shadow)}
+.chart h3{margin-bottom:2px}
+.chart .sub{font-size:12.5px;color:var(--ink-3);margin:0 0 10px}
+.chart svg{display:block;width:100%;height:auto;overflow:visible}
+.legend{display:flex;flex-wrap:wrap;gap:4px 12px;margin-top:9px;font-size:11.5px;
+  color:var(--ink-2)}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.legend i{width:11px;height:3px;border-radius:2px;display:inline-block}
+
+/* ---- prose blocks ---- */
+.note{border-left:3px solid var(--signal);background:var(--card);
+  padding:12px 15px;border-radius:0 6px 6px 0;margin:16px 0;font-size:14.5px;
+  border-top:1px solid var(--line);border-right:1px solid var(--line);
+  border-bottom:1px solid var(--line)}
+.note.warn{border-left-color:var(--edge)}
+.note p:last-child{margin-bottom:0}
+.cols{display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(285px,1fr))}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:8px;
+  padding:15px 17px;box-shadow:var(--shadow)}
+.panel h3{margin-bottom:6px}
+.panel p{font-size:14.5px;margin-bottom:.7em}
+.panel p:last-child{margin-bottom:0}
+.tag{font-family:var(--disp);font-size:10px;font-weight:600;letter-spacing:.09em;
+  text-transform:uppercase;padding:2px 7px;border-radius:3px;display:inline-block;
+  margin-bottom:8px}
+.tag.gen{background:var(--gen-soft);color:var(--gen)}
+.tag.curve{background:var(--curve-soft);color:var(--curve)}
+ul.tight{margin:0 0 .5em;padding-left:1.15em;font-size:14.5px}
+ul.tight li{margin-bottom:.35em}
+
+/* ---- lightbox ---- */
+dialog.lb{border:0;padding:0;background:transparent;max-width:100vw;max-height:100vh;
+  overscroll-behavior:contain}
+dialog.lb::backdrop{background:rgba(6,10,15,.88)}
+.lbbox{background:var(--card);border-radius:10px;overflow:hidden;
+  box-shadow:0 24px 70px -20px rgba(0,0,0,.7);max-width:min(96vw,560px)}
+.lbbox .lbhead{display:flex;gap:10px;align-items:center;padding:9px 12px;
+  border-bottom:1px solid var(--line)}
+.lbbox .lbhead b{font-family:var(--disp);font-size:13px}
+.lbbox .lbhead small{font-family:var(--mono);font-size:11px;color:var(--ink-3)}
+.lbbox .lbhead button{margin-left:auto;border:1px solid var(--line);background:var(--card);
+  color:var(--ink-2);border-radius:5px;padding:3px 9px;cursor:pointer;
+  font-family:var(--disp);font-size:12px}
+.lbtile{width:min(92vw,512px);height:min(92vw,512px);background-repeat:no-repeat;
+  background-color:var(--sunk);cursor:pointer}
+.lbfoot{padding:8px 12px 10px;font-size:12px;color:var(--ink-3);
+  border-top:1px solid var(--line)}
+footer{margin-top:54px;padding-top:18px;border-top:1px solid var(--line);
+  font-size:13px;color:var(--ink-3)}
+@media (prefers-reduced-motion:no-preference){
+  .cell,.chart,.panel{transition:border-color .15s ease}
+}
+@media (max-width:560px){
+  .deck{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
+}
+</style>
+
+<header class="top">
+<div class="wrap">
+  <p class="eyebrow">lab／六個臂 · 8 張人像 · 8 句指令 · 兩個受害模型</p>
+  <div class="titleline">
+    <h1>生成濾鏡與分區預算</h1>
+    <span class="stamp" id="stamp"></span>
+  </div>
+  <p class="lede" style="margin-top:14px">
+    兩條線放在同一條編輯管線上：<b>用現成生成模型做風格／顏色轉換</b>，以及
+    <b>把色偏預算拆給臉與背景而不留接縫</b>。六個臂各自跑完防禦圖 → 防禦後編輯 →
+    七道淨化 → 淨化後編輯，共 <span class="num">108</span> 個階段、零失敗。
+    這一頁把圖與數擺在一起；<b>自然度只能由眼睛判定</b>，本頁不代下「成立／不成立」。
+  </p>
+  <div class="figs" id="figs"></div>
+</div>
+</header>
+
+<main class="wrap">
+
+<!-- ============ 1. 防禦圖 ============ -->
+<section id="defence">
+  <div class="sechead">
+    <h2>防禦圖並列</h2>
+    <p>同一張照片、七種處理。按住任一格暫時切回原圖，點擊放大到 512×512 原尺寸。</p>
+  </div>
+  <div class="controls">
+    <div class="ctl" style="flex:1 1 320px">
+      <span class="eyebrow">照片</span>
+      <div class="seg imgsel" id="imgsel" role="group" aria-label="選擇照片"></div>
+    </div>
+    <div class="ctl">
+      <span class="eyebrow">副圖</span>
+      <div class="seg" id="auxsel" role="group" aria-label="選擇副圖"></div>
+    </div>
+  </div>
+  <p class="hint" id="auxhint"></p>
+  <div class="deck" id="deck-def" style="margin-top:10px"></div>
+  <div class="note warn">
+    <p><b>這一排不是等失真比較。</b> 六個臂掛在三種不同的預算上：兩個直接交付
+    SDEdit 輸出的臂<b>沒有任何失真上限</b>，<code>style_filter*</code> 綁在
+    <code>--max-scale 3.0</code>（整圖 ΔE00 只到 8.0–12.4，沒用滿 16），
+    兩個 <code>curve_*</code> 才是整圖 ΔE00 ≤ 16、臉框 ≤ 8。
+    主表的 <code>colour_curve_ours</code> 是 ΔE00 16、PSNR 16.67。</p>
+  </div>
+</section>
+
+<!-- ============ 2. 編輯結果 ============ -->
+<section id="edits">
+  <div class="sechead">
+    <h2>攻擊之後</h2>
+    <p>同一格的未防禦編輯與六個臂的防禦後編輯並排。位移＝LPIPS(編輯(原圖), 編輯(防禦圖))。</p>
+  </div>
+  <div class="controls">
+    <div class="ctl">
+      <span class="eyebrow">場景</span>
+      <div class="seg" id="scsel" role="group" aria-label="選擇場景"></div>
+    </div>
+    <div class="ctl">
+      <span class="eyebrow">淨化</span>
+      <div class="seg" id="pursel" role="group" aria-label="選擇淨化狀態"></div>
+    </div>
+    <div class="ctl" style="flex:1 1 380px">
+      <span class="eyebrow">指令</span>
+      <div class="seg" id="prsel" role="group" aria-label="選擇指令"></div>
+    </div>
+  </div>
+  <p class="hint" id="prompthint"></p>
+  <div class="deck" id="deck-edit" style="margin-top:10px"></div>
+  <div class="note">
+    <p><b>為什麼一定要看這一排。</b> CSV 上的一個位移數字說不出輸出是崩壞、是換了
+    一個人、還是指令根本沒做到。<span class="num" id="blockedline"></span></p>
+  </div>
+</section>
+
+<!-- ============ 3. 讀數 ============ -->
+<section id="numbers">
+  <div class="sechead">
+    <h2>兩層讀數</h2>
+    <p>防禦圖本身（這張照片還是不是這個人）與編輯輸出（攻擊者拿不拿得到可用結果）分開報。</p>
+  </div>
+  <div class="charts">
+    <div class="chart">
+      <h3>失真與位移不是各自獨立的</h3>
+      <p class="sub">橫軸 PSNR（對原圖，中位數；越右邊＝改得越少），縱軸 ip2p 全圖位移中位數。</p>
+      <div id="chart-scatter"></div>
+      <div class="legend"><span><i style="background:var(--gen)"></i>生成載體</span>
+        <span><i style="background:var(--curve)"></i>色調曲線</span>
+        <span><i style="background:var(--ink-3)"></i>主表 colour_curve_ours</span></div>
+    </div>
+    <div class="chart">
+      <h3>七道淨化之後還剩多少</h3>
+      <p class="sub">保留率＝淨化後位移 ÷ 未淨化位移，中位數。<b>1.0 以上代表淨化沒有把防禦洗掉。</b></p>
+      <div id="chart-ret"></div>
+      <div class="legend" id="retlegend"></div>
+    </div>
+    <div class="chart">
+      <h3>防禦圖本身還是不是這個人</h3>
+      <p class="sub">FaceNet 餘弦（防禦圖 vs 原圖），逐張。虛線是本專案「同一個人」的 0.55。</p>
+      <div id="chart-id"></div>
+      <div class="legend"><span><i style="background:var(--fail)"></i>低於 0.55</span>
+        <span><i style="background:var(--signal)"></i>0.55 以上</span></div>
+    </div>
+  </div>
+
+  <h3 style="margin:26px 0 9px">位移（中位數 LPIPS，全圖／主體內）</h3>
+  <div class="tablewrap"><table id="tbl-disp"></table></div>
+
+  <h3 style="margin:26px 0 9px">保留率（淨化後位移 ÷ 未淨化位移，中位數）</h3>
+  <div class="tablewrap"><table id="tbl-ret"></table></div>
+
+  <h3 style="margin:26px 0 9px">防禦圖的失真與約束（逐張，中位數）</h3>
+  <div class="tablewrap"><table id="tbl-fid"></table></div>
+</section>
+
+<!-- ============ 4. 機制 ============ -->
+<section id="mechanism">
+  <div class="sechead">
+    <h2>每一步是被前一步的圖逼出來的</h2>
+    <p>五個設計決定，各自對應一張看過的圖。</p>
+  </div>
+  <div class="cols">
+    <div class="panel">
+      <span class="tag gen">生成載體</span>
+      <h3>一、直接交付 SDEdit 的輸出會把人換掉</h3>
+      <p><code>strength 0.35</code> 下八張的 FaceNet 餘弦是 0.26–0.76，三張低於 0.55。
+      降到 0.15 仍有一張（<code>man_00</code> 0.441）在門檻下。</p>
+      <p>換人之後位移讀數會很高，但那個高<b>不是免疫</b>：分母（未防禦的編輯）保護的
+      是另一個人，分子分母已經不可比。失真那幾欄完全看不出這件事——
+      <code>style_random</code> 的 PSNR 是 22.6–25.4，比 <code>colour_curve_ours</code>
+      的 16.67 還「乾淨」。</p>
+    </div>
+    <div class="panel">
+      <span class="tag gen">生成載體</span>
+      <h3>二、把生成模型當濾鏡設計器，不當算圖器</h3>
+      <p>只取 SDEdit 輸出的<b>低頻色彩位移場</b>套回原圖，結構逐像素留在原圖：
+      <code>x_def = clamp(x + α(p)·G(SDEdit(x) − x))</code>。</p>
+      <p>同一批影像上，SDEdit 原始輸出的身分餘弦是 0.007–0.32，經低頻轉移交付的是
+      0.66–0.97。機制成立。</p>
+    </div>
+    <div class="panel">
+      <span class="tag gen">生成載體</span>
+      <h3>三、高斯低通留下一圈光暈，guided filter 把它收回輪廓</h3>
+      <p><code>strength 0.6</code> 下 SDEdit 已經把髮型與輪廓換掉，<code>Δ</code> 因此
+      含大量<b>結構</b>差異，高斯低通把它抹過主體輪廓。混合場本身沒有問題
+      （<code>__field.png</code> 是平滑橢圓，沒有硬邊）。</p>
+      <p>改用 guided filter（導引影像＝原圖亮度）之後身分餘弦由 0.66–0.97 升到
+      <b>0.88–0.99</b>，PSNR 全面上升。光暈大幅減少但<b>未完全消失</b>，
+      髮際對亮天空的軟邊仍有殘留輝光——上面那一排可以逐張看。</p>
+    </div>
+    <div class="panel">
+      <span class="tag curve">分區預算</span>
+      <h3>四、全域曲線做不到分區，除非預算改分在色度上</h3>
+      <p>全域曲線的定義就是「同一個輸入色階，任何位置同一個輸出」。給臉一道緊上限，
+      只會讓整條曲線被那道上限綁住，背景並不會因此拿到更多振幅。</p>
+      <p><code>curve_dual_chroma</code> 把預算分在<b>色度</b>上：壓低臉的色差實際發生
+      在臉的顏色所落到的那幾段曲線。<b>接縫在構造上不存在。</b>
+      代價看得到——<code>man_00</code> 整圖只到 ΔE00 7.44（臉那道把整條曲線綁住了），
+      其餘七張才到 12–16。</p>
+    </div>
+    <div class="panel">
+      <span class="tag curve">分區預算</span>
+      <h3>五、要真的分區就要兩條曲線，接縫當約束而不是當觀感</h3>
+      <p><code>curve_dual_spatial</code>：<code>y = w·F_face(x) + (1−w)·F_bg(x)</code>。
+      <code>w</code> 是固定的 C¹ smoothstep 場，不是可學參數——讓它可學等於把
+      「接縫該放哪裡」變成可最佳化的東西，而本專案三道自然度門檻都被最佳化鑽過。</p>
+      <p>接縫直接被定義成<b>過渡帶上位移場的 TV</b> 並當成一道硬約束（≤ 2.0）。
+      實測 <code>tv_band</code> 0.78–1.91，八張 <code>cap_violations</code> 全 0。
+      圖上看得出來：背景、頭髮、衣服整片洋紅，臉的膚色保住，過渡是漸變的。</p>
+    </div>
+    <div class="panel">
+      <span class="tag curve">分區預算</span>
+      <h3>分區的代價出現在主體內位移</h3>
+      <p><code>curve_dual_spatial</code> 的 ip2p 全圖位移 0.4540 高於
+      <code>colour_curve_ours</code> 的 0.3821，但<b>主體內</b> 0.3739 低於 0.3867；
+      inpaint 主體內 0.2971 低於 0.3317。</p>
+      <p>臉的預算被收緊，那一塊就推得少。這是分區預算本身的取捨，不是實作的缺陷。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 5. 誠實區 ============ -->
+<section id="honesty">
+  <div class="sechead">
+    <h2>誠實區</h2>
+    <p>這一頁哪些地方不能照字面讀。</p>
+  </div>
+  <div class="cols">
+    <div class="panel">
+      <h3>等失真錨點不存在</h3>
+      <p>六個臂掛在三種預算上，主表的十二個條件掛在五種。<b>排名不可直接比大小</b>，
+      <code>eps</code> 欄也不可跨列比。位移低的那幾臂同時失真也低。</p>
+    </div>
+    <div class="panel">
+      <h3><code>style_random</code> 的位移被污染</h3>
+      <p>八張裡三張的防禦圖已經不是同一個人，那幾格的分母保護的是另一個人。
+      數字照報，但不能當成「這個 strength 的免疫強度」。</p>
+    </div>
+    <div class="panel">
+      <h3>blocked 與位移不同向</h3>
+      <p><code>style_filter*</code> 的位移最低而 blocked 12–16/32，遠高於
+      <code>colour_curve_ours</code> 的 3–4/32。兩個量測的是不同的東西，兩欄都照報。
+      <code>blocked</code> 的門檻逐列寫進 CSV。</p>
+    </div>
+    <div class="panel">
+      <h3>主表那一列是<b>別批</b>的數字</h3>
+      <p>表上標「主表」的列來自 <code>anti-purification/main_table/</code>，
+      同一組影像、同一條編輯管線、同一顆種子，但<b>不是這一批跑出來的</b>。
+      本專案已量到同一份設定在不同卡上重跑會有差異，跨批對照要當參照不當對手。</p>
+    </div>
+    <div class="panel">
+      <h3>編輯圖是有損編碼</h3>
+      <p>防禦圖、混合場、SDEdit 原始輸出是<b>無損 WebP</b>（自然度要逐像素判）；
+      編輯圖與淨化後編輯圖是 q86 有損 WebP。這是為了讓整份報告落在發佈上限內，
+      共 39 張拼圖、38.3 MB。</p>
+    </div>
+    <div class="panel">
+      <h3>只放了 jpeg30 這一道淨化的圖</h3>
+      <p>七道算子的<b>數字</b>都在表上（2,688 列），但<b>圖</b>只收了 jpeg30
+      （非幾何類裡最強的一道）。其餘六道的逐格圖在遠端
+      <code>lab/runs/edit_purified/</code>。</p>
+    </div>
+    <div class="panel">
+      <h3>還沒做的</h3>
+      <p><code>style_opt</code>（對風格 embedding 做最佳化）沒有跑。設計審查建議把
+      embedding 限制在風格字典的凸包上、代理改用受害 UNet 的條件 ε-prediction 誤差；
+      成本估計全鏈 checkpoint、N=20、100 次更新約 25–70 分鐘／張。</p>
+      <p><code>metrics_union.py</code> 在 lab 上跑不起來（路徑寫死指向
+      <code>main_table/</code>），失真與美學的補充表暫時沒有。</p>
+    </div>
+    <div class="panel">
+      <h3>論文全文沒有取得</h3>
+      <p>Wang 等，<i>Style-controllable adversarial example generation via image
+      editing and prompt embedding optimization</i>, Neurocomputing 2026,
+      DOI <code>10.1016/j.neucom.2026.134591</code>。ScienceDirect 對非機構 IP 回 403，
+      非開放取用。本頁的設計依據是標題給出的兩個元件與本專案自己的量測，
+      <b>不是論文內文</b>。</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  防禦圖與混合場為無損 WebP，編輯圖為 q86 有損 WebP，每格原尺寸 512×512。
+  讀數來自 <code>lab/results/displacement.csv</code>（384 列）與
+  <code>lab/results/retention.csv</code>（2,688 列）。
+  受害模型 <code>timbrooks/instruct-pix2pix</code>（s<sub>t</sub> 7.5、s<sub>i</sub> 1.8）與
+  <code>runwayml/stable-diffusion-inpainting</code>（guidance 7.5、遮罩 dilate 4），
+  兩者種子 20260812、50 步、512²。
+</footer>
+</main>
+
+<dialog class="lb" id="lb">
+  <div class="lbbox">
+    <div class="lbhead"><b id="lbtitle"></b><small id="lbsub"></small>
+      <button type="button" id="lbclose">關閉</button></div>
+    <div class="lbtile" id="lbtile"></div>
+    <div class="lbfoot" id="lbfoot"></div>
+  </div>
+</dialog>
+
+<script src="data.js"></script>
+<script>
+(function(){
+const L = window.LAB;
+const IM = L.images, ARMS = L.arms;
+const LINE = {style_random:'gen',style_low:'gen',style_filter:'gen',
+  style_filter_guided:'gen',curve_dual_spatial:'curve',curve_dual_chroma:'curve'};
+const LABEL = {
+  original:'原圖', undefended:'未防禦',
+  style_random:'style_random', style_low:'style_low',
+  style_filter:'style_filter', style_filter_guided:'style_filter_guided',
+  curve_dual_spatial:'curve_dual_spatial', curve_dual_chroma:'curve_dual_chroma'};
+const SHORT = {
+  original:'原圖（未處理）', undefended:'未防禦的同設定臂',
+  style_random:'SDEdit 直接交付 · strength 0.35',
+  style_low:'SDEdit 直接交付 · strength 0.15',
+  style_filter:'生成低頻色彩場 · 高斯低通',
+  style_filter_guided:'生成低頻色彩場 · guided filter',
+  curve_dual_spatial:'兩條曲線 ＋ 平滑混合場',
+  curve_dual_chroma:'單一全域曲線 · 兩道上限'};
+
+let cur = {img:IM[0], aux:'def', sc:'ip2p', pur:'plain', pr:0};
+
+/* ---------- sprite helpers ---------- */
+function tileStyle(el, file, col, row, cols, rows, px){
+  el.style.backgroundImage = 'url("img/'+file+'")';
+  if(px){
+    el.style.backgroundSize = (cols*px)+'px '+(rows*px)+'px';
+    el.style.backgroundPosition = (-col*px)+'px '+(-row*px)+'px';
+  }else{
+    el.style.backgroundSize = (cols*100)+'% '+(rows*100)+'%';
+    el.style.backgroundPosition =
+      (cols>1 ? (col/(cols-1))*100 : 0)+'% '+(rows>1 ? (row/(rows-1))*100 : 0)+'%';
+  }
+}
+function defSprite(cond, aux){
+  const i = IM.indexOf(cur.img);
+  let file;
+  if(aux==='field') file = 'field_'+cond+'.webp';
+  else if(aux==='raw') file = 'sdedit_raw.webp';
+  else file = 'def_'+cond+'.webp';
+  return {file:file, col:i%4, row:Math.floor(i/4), cols:4, rows:2};
+}
+function editSprite(cond){
+  const i = IM.indexOf(cur.img);
+  return {file:'edit_'+cond+'_'+cur.sc+'_'+cur.pur+'.webp',
+          col:cur.pr, row:i, cols:4, rows:8};
+}
+
+/* ---------- segmented controls ---------- */
+function seg(host, items, get, set){
+  host.innerHTML='';
+  items.forEach(function(it){
+    const b=document.createElement('button');
+    b.type='button'; b.textContent=it.label; b.title=it.title||it.label;
+    b.setAttribute('aria-pressed', String(get()===it.value));
+    b.addEventListener('click', function(){ set(it.value); render(); });
+    host.appendChild(b);
+  });
+}
+
+/* ---------- decks ---------- */
+function cell(cond, sprite, caption, readouts, flags, isRef){
+  const d=document.createElement('div');
+  d.className='cell'+(isRef?' is-ref':'');
+  const cap=document.createElement('div'); cap.className='cap';
+  const dot=document.createElement('span');
+  dot.className='dot '+(isRef?'ref':LINE[cond]||'ref'); cap.appendChild(dot);
+  const b=document.createElement('b'); b.textContent=caption; cap.appendChild(b);
+  (flags||[]).forEach(function(f){
+    const s=document.createElement('span'); s.className='flag '+f.cls;
+    s.textContent=f.text; cap.appendChild(s);
+  });
+  d.appendChild(cap);
+  const t=document.createElement('button');
+  t.className='tile'; t.type='button';
+  t.setAttribute('aria-label','放大 '+caption);
+  tileStyle(t, sprite.file, sprite.col, sprite.row, sprite.cols, sprite.rows);
+  t.addEventListener('click', function(){ openLb(caption, sprite, readouts); });
+  if(cond!=='original'){
+    const orig = (sprite.cols===4 && sprite.rows===2)
+      ? {file:'def_original.webp',col:sprite.col,row:sprite.row,cols:4,rows:2}
+      : {file:'edit_undefended_'+cur.sc+'_'+cur.pur+'.webp',
+         col:sprite.col,row:sprite.row,cols:4,rows:8};
+    const hold=function(e){ e.preventDefault();
+      tileStyle(t, orig.file, orig.col, orig.row, orig.cols, orig.rows); };
+    const back=function(){ tileStyle(t, sprite.file, sprite.col, sprite.row,
+      sprite.cols, sprite.rows); };
+    t.addEventListener('pointerdown',hold); t.addEventListener('pointerup',back);
+    t.addEventListener('pointerleave',back); t.addEventListener('pointercancel',back);
+  }
+  d.appendChild(t);
+  const r=document.createElement('div'); r.className='read';
+  (readouts||[]).forEach(function(kv){
+    const i=document.createElement('i'); i.textContent=kv[0];
+    const v=document.createElement('b'); v.textContent=kv[1];
+    if(kv[2]) v.className=kv[2];
+    r.appendChild(i); r.appendChild(v);
+  });
+  d.appendChild(r);
+  return d;
+}
+function n(x,k){ return (x===null||x===undefined||x==='')?'—':Number(x).toFixed(k===undefined?3:k); }
+
+function renderDefence(){
+  const host=document.getElementById('deck-def'); host.innerHTML='';
+  const aux=cur.aux;
+  const conds = aux==='raw' ? ['original','style_filter']
+    : aux==='field' ? ['curve_dual_spatial','style_filter','style_filter_guided']
+    : ['original'].concat(ARMS);
+  conds.forEach(function(c){
+    const isOrig = c==='original';
+    const sp = defSprite(c, isOrig && aux!=='def' ? 'def' : aux);
+    let reads=[], flags=[];
+    if(!isOrig && aux==='def'){
+      const row=(L.defence[c]||{})[cur.img]||{};
+      if(row.id_cos!==undefined && row.id_cos!==''){
+        const v=Number(row.id_cos);
+        reads.push(['身分餘弦', n(v), v<0.55?'warn':'ok']);
+        if(v<0.55) flags.push({cls:'swap',text:'換人'});
+      }
+      if(row.id_cos_sdedit_raw!==undefined) reads.push(['SDEdit 原輸出', n(row.id_cos_sdedit_raw)]);
+      if(row.deltaE00_frame!==undefined) reads.push(['ΔE00 整圖', n(row.deltaE00_frame,2)]);
+      if(row.deltaE00_face_box!==undefined) reads.push(['ΔE00 臉框', n(row.deltaE00_face_box,2)]);
+      if(row.tv_band!==undefined && row.tv_band!=='') reads.push(['過渡帶 TV', n(row.tv_band,2)]);
+      reads.push(['PSNR', n(row.psnr,2)]);
+      if(row.lpips!==undefined) reads.push(['LPIPS', n(row.lpips)]);
+    }else if(aux==='field'){
+      reads.push(['α 場', '1 = 臉']);
+    }else if(aux==='raw' && !isOrig){
+      const row=(L.defence['style_filter']||{})[cur.img]||{};
+      reads.push(['身分餘弦', n(row.id_cos_sdedit_raw), 'warn']);
+    }
+    host.appendChild(cell(c, sp, LABEL[c]||c, reads, flags, isOrig));
+  });
+  document.getElementById('auxhint').textContent =
+    aux==='def' ? SHORT.original+' → 六個臂的交付圖。'
+    : aux==='field' ? 'α(p)：白＝臉那一側的振幅權重，黑＝背景那一側。這是固定的場，不是可學參數。'
+    : 'SDEdit 在 strength 0.6 下的原始輸出（style_filter 與 style_filter_guided 共用同一份）。左邊是原圖。';
+}
+
+function renderEdits(){
+  const host=document.getElementById('deck-edit'); host.innerHTML='';
+  const conds=['undefended'].concat(ARMS);
+  conds.forEach(function(c){
+    const sp=editSprite(c);
+    let reads=[], flags=[];
+    if(c!=='undefended'){
+      const d=(((L.disp[c]||{})[cur.sc]||{})[cur.img]||{})[String(cur.pr)];
+      if(d){
+        reads.push(['位移 全圖', n(d.full)]);
+        reads.push(['位移 主體內', n(d.subj)]);
+        if(d.blocked) flags.push({cls:'blocked',text:'blocked'});
+      }
+      if(cur.pur!=='plain'){
+        const r=(((L.retj[c]||{})[cur.sc]||{})[cur.img]||{})[String(cur.pr)];
+        if(r){
+          reads.push(['淨化後位移', n(r.purified)]);
+          reads.push(['保留率', n(r.ret,3), (r.ret!==null&&r.ret>=1)?'ok':'']);
+        }
+      }
+    }else{
+      reads.push(['角色', cur.pur==='plain'?'分母':'淨化後分母']);
+    }
+    host.appendChild(cell(c, sp, LABEL[c]||c, reads, flags, c==='undefended'));
+  });
+  const list=L.prompts[cur.sc];
+  let txt=list[cur.pr];
+  if(cur.sc==='inpaint') txt=txt.replace('{content}', cur.img.indexOf('man')===0?'man':'woman');
+  document.getElementById('prompthint').textContent =
+    '指令 p'+cur.pr+'：「'+txt+'」'+(cur.pur==='plain'?'':'　·　淨化：jpeg30');
+  let nb=0, tot=0;
+  ARMS.forEach(function(c){
+    const d=(((L.disp[c]||{})[cur.sc]||{})[cur.img]||{})[String(cur.pr)];
+    if(d){ tot++; if(d.blocked) nb++; }
+  });
+  document.getElementById('blockedline').textContent =
+    '這一格：六個臂裡有 '+nb+'/'+tot+' 個被 SigLIP 判為 blocked。';
+}
+
+/* ---------- lightbox ---------- */
+const lb=document.getElementById('lb');
+function openLb(title, sprite, reads){
+  document.getElementById('lbtitle').textContent=title;
+  document.getElementById('lbsub').textContent=cur.img+' · 512×512 原尺寸';
+  const t=document.getElementById('lbtile');
+  const px=Math.min(window.innerWidth*0.92, 512);
+  tileStyle(t, sprite.file, sprite.col, sprite.row, sprite.cols, sprite.rows, px);
+  document.getElementById('lbfoot').textContent =
+    (reads||[]).map(function(k){return k[0]+' '+k[1];}).join('　·　') || SHORT[title] || '';
+  if(!lb.open) lb.showModal();
+}
+document.getElementById('lbclose').addEventListener('click',function(){lb.close();});
+document.getElementById('lbtile').addEventListener('click',function(){lb.close();});
+lb.addEventListener('click',function(e){ if(e.target===lb) lb.close(); });
+
+/* ---------- tables ---------- */
+function tbl(el, head, rows, cap){
+  let h='<thead><tr>'+head.map(function(x){return '<th>'+x+'</th>';}).join('')+'</tr></thead><tbody>';
+  rows.forEach(function(r){
+    h+='<tr'+(r.ref?' class="ref"':'')+'>'+r.cells.map(function(c,i){
+      const cls=(r.best&&r.best.indexOf(i)>=0)?' class="best"':'';
+      return '<td'+cls+'>'+c+'</td>';}).join('')+'</tr>';
+  });
+  h+='</tbody>';
+  if(cap) h+='<caption>'+cap+'</caption>';
+  el.innerHTML=h;
+}
+function buildTables(){
+  const order=['curve_dual_spatial','curve_dual_chroma','style_random','style_filter',
+    'style_filter_guided','style_low'];
+  const dr=order.map(function(c){
+    const a=L.dispagg[c];
+    return {cells:[c, n(a.ip2p.full), n(a.ip2p.subj), a.ip2p.blocked+'/'+a.ip2p.n,
+      n(a.inpaint.full), n(a.inpaint.subj), a.inpaint.blocked+'/'+a.inpaint.n]};
+  });
+  const rc=L.reference.colour_curve_ours.disp;
+  dr.push({ref:true,cells:['colour_curve_ours（主表）', n(rc.ip2p.full), n(rc.ip2p.subj),
+    rc.ip2p.blocked+'/32', n(rc.inpaint.full), n(rc.inpaint.subj), rc.inpaint.blocked+'/32']});
+  const rd=L.reference.dct_shield_y.disp;
+  dr.push({ref:true,cells:['dct_shield_y（主表最高）', n(rd.ip2p.full), n(rd.ip2p.subj),
+    rd.ip2p.blocked+'/32', n(rd.inpaint.full), n(rd.inpaint.subj), rd.inpaint.blocked+'/32']});
+  tbl(document.getElementById('tbl-disp'),
+    ['條件','ip2p 全圖','ip2p 主體內','ip2p blocked','inpaint 全圖','inpaint 主體內','inpaint blocked'],
+    dr, '位移＝LPIPS(編輯(原圖), 編輯(防禦圖))，每格 8 影像 × 4 指令 ＝ 32。標「主表」的兩列來自另一批，同協定但不同批次。');
+
+  const purs=L.purifiers;
+  const ro=['style_filter_guided','style_filter','curve_dual_chroma','curve_dual_spatial',
+    'style_low','style_random'];
+  const rr=ro.map(function(c){
+    const a=L.retagg[c];
+    const cells=[c].concat(purs.map(function(p){return n(a[p]);})).concat([n(a.nongeo)]);
+    const best=[]; purs.forEach(function(p,i){ if(a[p]!==null&&a[p]>=1) best.push(i+1); });
+    if(a.nongeo>=1) best.push(purs.length+1);
+    return {cells:cells, best:best};
+  });
+  const rf=L.reference.colour_curve_ours.ret;
+  rr.push({ref:true,cells:['colour_curve_ours（主表）'].concat(purs.map(function(p){return n(rf[p]);})).concat([n(rf.nongeo)])});
+  const rv=L.reference.diffvax.ret;
+  rr.push({ref:true,cells:['diffvax（主表次高）'].concat(purs.map(function(p){return n(rv[p]);})).concat([n(rv.nongeo)])});
+  tbl(document.getElementById('tbl-ret'),
+    ['條件'].concat(purs).concat(['非幾何均']), rr,
+    'crop_resize0.1 與 rotate15 是幾何類——取景本身被改掉，讀數同時含「防禦被洗掉」與「畫面被移動」，不與其餘五道混著平均。綠色＝該欄 ≥ 1.0。');
+
+  const fo=['curve_dual_spatial','curve_dual_chroma','style_filter','style_filter_guided',
+    'style_random','style_low'];
+  const med=function(c,k){
+    const v=Object.keys(L.defence[c]).map(function(im){return L.defence[c][im][k];})
+      .filter(function(x){return typeof x==='number';});
+    if(!v.length) return null;
+    v.sort(function(a,b){return a-b;});
+    return v.length%2 ? v[(v.length-1)/2] : (v[v.length/2-1]+v[v.length/2])/2;
+  };
+  const rng=function(c,k){
+    const v=Object.keys(L.defence[c]).map(function(im){return L.defence[c][im][k];})
+      .filter(function(x){return typeof x==='number';});
+    if(!v.length) return '—';
+    return n(Math.min.apply(null,v),2)+'–'+n(Math.max.apply(null,v),2);
+  };
+  const BUD={curve_dual_spatial:'ΔE00 16 / 臉 8 ＋ 帶 TV ≤ 2',
+    curve_dual_chroma:'ΔE00 16 / 臉 8',
+    style_filter:'ΔE00 16 / 臉 8，α ≤ 3', style_filter_guided:'ΔE00 16 / 臉 8，α ≤ 3',
+    style_random:'無', style_low:'無'};
+  const fr=fo.map(function(c){
+    return {cells:[c, n(med(c,'psnr'),2), rng(c,'psnr'),
+      med(c,'deltaE00_frame')!==null?n(med(c,'deltaE00_frame'),2):'—',
+      med(c,'deltaE00_face_box')!==null?n(med(c,'deltaE00_face_box'),2):'—',
+      med(c,'id_cos')!==null?rng(c,'id_cos'):'—', BUD[c]]};
+  });
+  const cc=L.reference.colour_curve_ours;
+  fr.push({ref:true,cells:['colour_curve_ours（主表）', n(cc.psnr,2),'—','—','—','—',cc.budget]});
+  tbl(document.getElementById('tbl-fid'),
+    ['條件','PSNR 中位','PSNR 範圍','ΔE00 整圖','ΔE00 臉框','身分餘弦 範圍','預算'],
+    fr, '兩個直接交付 SDEdit 的臂沒有任何失真上限，所以它們的 PSNR 高不是「失真控制得好」，是「幾乎沒改」。身分餘弦低於 0.55 代表防禦圖上已經不是同一個人。');
+}
+
+/* ---------- charts ---------- */
+const NS='http://www.w3.org/2000/svg';
+function svg(w,h){ const s=document.createElementNS(NS,'svg');
+  s.setAttribute('viewBox','0 0 '+w+' '+h); s.setAttribute('role','img'); return s; }
+function el(tag,attrs,text){ const e=document.createElementNS(NS,tag);
+  for(const k in attrs) e.setAttribute(k,attrs[k]);
+  if(text!==undefined) e.textContent=text; return e; }
+
+function chartScatter(){
+  const W=430,H=270,P={l:46,r:14,t:12,b:38};
+  const s=svg(W,H);
+  const pts=ARMS.map(function(c){
+    const v=Object.keys(L.defence[c]).map(function(im){return L.defence[c][im].psnr;});
+    v.sort(function(a,b){return a-b;});
+    const p=v.length%2?v[(v.length-1)/2]:(v[v.length/2-1]+v[v.length/2])/2;
+    return {c:c, x:p, y:L.dispagg[c].ip2p.full, line:LINE[c]};
+  });
+  pts.push({c:'colour_curve_ours', x:L.reference.colour_curve_ours.psnr,
+    y:L.reference.colour_curve_ours.disp.ip2p.full, line:'ref'});
+  const xs=pts.map(function(p){return p.x;}), ys=pts.map(function(p){return p.y;});
+  const x0=Math.floor(Math.min.apply(null,xs))-2, x1=Math.ceil(Math.max.apply(null,xs))+2;
+  const y0=0.15, y1=0.50;
+  const X=function(v){return P.l+(v-x0)/(x1-x0)*(W-P.l-P.r);};
+  const Y=function(v){return H-P.b-(v-y0)/(y1-y0)*(H-P.t-P.b);};
+  for(let v=0.15; v<=0.501; v+=0.05){
+    s.appendChild(el('line',{x1:P.l,x2:W-P.r,y1:Y(v),y2:Y(v),
+      stroke:'var(--line-2)','stroke-width':1}));
+    s.appendChild(el('text',{x:P.l-7,y:Y(v)+4,'text-anchor':'end',
+      fill:'var(--ink-3)','font-size':10,'font-family':'var(--mono)'}, v.toFixed(2)));
+  }
+  for(let v=Math.ceil(x0/4)*4; v<=x1; v+=4){
+    s.appendChild(el('text',{x:X(v),y:H-P.b+15,'text-anchor':'middle',
+      fill:'var(--ink-3)','font-size':10,'font-family':'var(--mono)'}, String(v)));
+  }
+  s.appendChild(el('line',{x1:P.l,x2:W-P.r,y1:H-P.b,y2:H-P.b,stroke:'var(--line)','stroke-width':1}));
+  s.appendChild(el('text',{x:(P.l+W-P.r)/2,y:H-6,'text-anchor':'middle',
+    fill:'var(--ink-3)','font-size':10.5},'PSNR（dB，中位數）'));
+  pts.forEach(function(p){
+    const col = p.line==='gen'?'var(--gen)':p.line==='curve'?'var(--curve)':'var(--ink-3)';
+    s.appendChild(el('circle',{cx:X(p.x),cy:Y(p.y),r:p.line==='ref'?5:6,
+      fill:col,'fill-opacity':p.line==='ref'?0.35:0.85,stroke:col,'stroke-width':1.5}));
+    const left = X(p.x) > W*0.6;
+    s.appendChild(el('text',{x:X(p.x)+(left?-10:10),y:Y(p.y)+3.5,
+      'text-anchor':left?'end':'start',fill:'var(--ink-2)','font-size':10,
+      'font-family':'var(--mono)'}, p.c.replace('curve_dual_','c_').replace('style_','s_')));
+  });
+  document.getElementById('chart-scatter').appendChild(s);
+}
+
+function chartRet(){
+  const purs=L.purifiers, W=430,H=280,P={l:40,r:12,t:12,b:56};
+  const s=svg(W,H);
+  const y0=0.55,y1=1.30;
+  const X=function(i){return P.l+(i+0.5)/purs.length*(W-P.l-P.r);};
+  const Y=function(v){return H-P.b-(v-y0)/(y1-y0)*(H-P.t-P.b);};
+  for(let v=0.6; v<=1.301; v+=0.1){
+    const one=Math.abs(v-1)<1e-6;
+    s.appendChild(el('line',{x1:P.l,x2:W-P.r,y1:Y(v),y2:Y(v),
+      stroke:one?'var(--ink-3)':'var(--line-2)','stroke-width':one?1.4:1,
+      'stroke-dasharray':one?'':'2 3'}));
+    s.appendChild(el('text',{x:P.l-6,y:Y(v)+4,'text-anchor':'end',fill:'var(--ink-3)',
+      'font-size':10,'font-family':'var(--mono)'}, v.toFixed(1)));
+  }
+  purs.forEach(function(p,i){
+    const geo = p.indexOf('crop')===0 || p.indexOf('rotate')===0;
+    s.appendChild(el('text',{x:X(i),y:H-P.b+14,'text-anchor':'end',fill:geo?'var(--ink-3)':'var(--ink-2)',
+      'font-size':9.5,'font-family':'var(--mono)',
+      transform:'rotate(-40 '+X(i)+' '+(H-P.b+14)+')'}, p));
+  });
+  const order=['style_filter_guided','style_filter','curve_dual_chroma','curve_dual_spatial',
+    'style_low','style_random'];
+  const legend=document.getElementById('retlegend'); legend.innerHTML='';
+  order.concat(['colour_curve_ours']).forEach(function(c,k){
+    const isRef=c==='colour_curve_ours';
+    const a=isRef?L.reference.colour_curve_ours.ret:L.retagg[c];
+    const col=isRef?'var(--ink-3)':(LINE[c]==='gen'?'var(--gen)':'var(--curve)');
+    const dash=isRef?'4 3':(k%2? '':'6 3');
+    let d='';
+    purs.forEach(function(p,i){ if(a[p]===null||a[p]===undefined) return;
+      d += (d?'L':'M')+X(i)+' '+Y(Math.max(y0,Math.min(y1,a[p]))); });
+    s.appendChild(el('path',{d:d,fill:'none',stroke:col,'stroke-width':isRef?1.6:2,
+      'stroke-dasharray':dash,'stroke-linejoin':'round','stroke-opacity':isRef?0.9:0.95}));
+    purs.forEach(function(p,i){ if(a[p]===null||a[p]===undefined) return;
+      s.appendChild(el('circle',{cx:X(i),cy:Y(Math.max(y0,Math.min(y1,a[p]))),
+        r:isRef?2.2:2.8,fill:col})); });
+    const sp=document.createElement('span');
+    sp.innerHTML='<i style="background:'+col+(dash?';opacity:.75':'')+'"></i>'+
+      (isRef?'colour_curve_ours（主表）':c);
+    legend.appendChild(sp);
+  });
+  s.appendChild(el('text',{x:P.l,y:Y(1)-5,fill:'var(--ink-3)','font-size':9.5,
+    'font-family':'var(--mono)'},'1.00 ＝ 淨化沒洗掉任何防禦'));
+  document.getElementById('chart-ret').appendChild(s);
+}
+
+function chartId(){
+  const W=430, rowH=26, P={l:112,r:34,t:16,b:26};
+  const arms=['style_random','style_low','style_filter','style_filter_guided'];
+  const H=P.t+P.b+arms.length*rowH;
+  const s=svg(W,H);
+  const x0=0, x1=1;
+  const X=function(v){return P.l+(v-x0)/(x1-x0)*(W-P.l-P.r);};
+  [0,0.25,0.5,0.75,1].forEach(function(v){
+    s.appendChild(el('line',{x1:X(v),x2:X(v),y1:P.t-6,y2:H-P.b+2,
+      stroke:'var(--line-2)','stroke-width':1}));
+    s.appendChild(el('text',{x:X(v),y:H-P.b+15,'text-anchor':'middle',fill:'var(--ink-3)',
+      'font-size':10,'font-family':'var(--mono)'}, v.toFixed(2)));
+  });
+  s.appendChild(el('line',{x1:X(0.55),x2:X(0.55),y1:P.t-8,y2:H-P.b+2,
+    stroke:'var(--fail)','stroke-width':1.4,'stroke-dasharray':'4 3'}));
+  s.appendChild(el('text',{x:X(0.55),y:P.t-11,'text-anchor':'middle',fill:'var(--fail)',
+    'font-size':9.5,'font-family':'var(--mono)'},'0.55'));
+  arms.forEach(function(c,i){
+    const y=P.t+i*rowH+rowH/2;
+    s.appendChild(el('text',{x:P.l-8,y:y+3.5,'text-anchor':'end',fill:'var(--ink-2)',
+      'font-size':10,'font-family':'var(--mono)'}, c));
+    s.appendChild(el('line',{x1:X(0),x2:X(1),y1:y,y2:y,stroke:'var(--line-2)','stroke-width':1}));
+    IM.forEach(function(im){
+      const v=(L.defence[c][im]||{}).id_cos;
+      if(typeof v!=='number') return;
+      s.appendChild(el('circle',{cx:X(v),cy:y,r:4,
+        fill:v<0.55?'var(--fail)':'var(--signal)','fill-opacity':0.7,
+        stroke:v<0.55?'var(--fail)':'var(--signal)','stroke-width':1}));
+    });
+  });
+  document.getElementById('chart-id').appendChild(s);
+}
+
+/* ---------- headline figures ---------- */
+function figs(){
+  const host=document.getElementById('figs');
+  const best=L.retagg.style_filter_guided.nongeo;
+  const sp=L.dispagg.curve_dual_spatial.ip2p.full;
+  const items=[
+    ['6','個臂，各 8 張防禦圖'],
+    ['108','個階段，零失敗'],
+    ['384 / 2,688','位移列數／保留率列數'],
+    [n(sp), '最高 ip2p 位移（curve_dual_spatial，主表 0.3821）'],
+    [n(best), '最高非幾何保留率（style_filter_guided，主表 1.021）'],
+    ['0.88–0.99','guided 濾鏡的身分餘弦（直接交付 0.26–0.76）']];
+  host.innerHTML = items.map(function(it){
+    return '<div class="fig"><b>'+it[0]+'</b><span>'+it[1]+'</span></div>';}).join('');
+  document.getElementById('stamp').textContent =
+    '8 影像 · 4 指令 · 2 場景 · 7 道淨化';
+}
+
+/* ---------- wiring ---------- */
+function render(){
+  seg(document.getElementById('imgsel'), IM.map(function(x){return {value:x,label:x};}),
+    function(){return cur.img;}, function(v){cur.img=v;});
+  seg(document.getElementById('auxsel'),
+    [{value:'def',label:'防禦圖'},{value:'field',label:'α 場'},{value:'raw',label:'SDEdit 原輸出'}],
+    function(){return cur.aux;}, function(v){cur.aux=v;});
+  seg(document.getElementById('scsel'),
+    [{value:'ip2p',label:'ip2p'},{value:'inpaint',label:'inpainting'}],
+    function(){return cur.sc;}, function(v){cur.sc=v;});
+  seg(document.getElementById('pursel'),
+    [{value:'plain',label:'未淨化'},{value:'jpeg30',label:'jpeg30'}],
+    function(){return cur.pur;}, function(v){cur.pur=v;});
+  seg(document.getElementById('prsel'),
+    L.prompts[cur.sc].map(function(t,i){
+      return {value:i,label:'p'+i+'　'+t.replace('{content}','…').slice(0,26)};}),
+    function(){return cur.pr;}, function(v){cur.pr=v;});
+  renderDefence(); renderEdits();
+}
+document.addEventListener('keydown',function(e){
+  if(e.target.tagName==='BUTTON' && (e.key==='Enter'||e.key===' ')) return;
+  const i=IM.indexOf(cur.img);
+  if(e.key==='ArrowRight'){ cur.img=IM[(i+1)%IM.length]; render(); }
+  else if(e.key==='ArrowLeft'){ cur.img=IM[(i-1+IM.length)%IM.length]; render(); }
+});
+figs(); render(); buildTables(); chartScatter(); chartRet(); chartId();
+})();
+</script>

@@ -1,0 +1,114 @@
+{
+ "tile": 512,
+ "images": [
+  "man_00",
+  "man_01",
+  "man_02",
+  "man_03",
+  "woman_00",
+  "woman_01",
+  "woman_02",
+  "woman_03"
+ ],
+ "arms": [
+  "curve_dual_chroma",
+  "curve_dual_spatial",
+  "ab_warp",
+  "style_affine",
+  "inpaint_bg",
+  "inpaint_outside_face"
+ ],
+ "sheets": {
+  "original": {
+   "file": "def_original.webp",
+   "cols": 4,
+   "rows": 2,
+   "bytes": 1686086,
+   "missing": 0
+  },
+  "curve_dual_chroma": {
+   "file": "def_curve_dual_chroma.webp",
+   "cols": 4,
+   "rows": 2,
+   "bytes": 1870310,
+   "missing": 0
+  },
+  "curve_dual_spatial": {
+   "file": "def_curve_dual_spatial.webp",
+   "cols": 4,
+   "rows": 2,
+   "bytes": 1747818,
+   "missing": 0
+  },
+  "ab_warp": {
+   "file": "def_ab_warp.webp",
+   "cols": 4,
+   "rows": 2,
+   "bytes": 759166,
+   "missing": 4
+  },
+  "style_affine": {
+   "file": "def_style_affine.webp",
+   "cols": 4,
+   "rows": 2,
+   "bytes": 1867460,
+   "missing": 0
+  },
+  "inpaint_bg": {
+   "file": "def_inpaint_bg.webp",
+   "cols": 4,
+   "rows": 2,
+   "bytes": 2242354,
+   "missing": 0
+  },
+  "inpaint_outside_face": {
+   "file": "def_inpaint_outside_face.webp",
+   "cols": 4,
+   "rows": 2,
+   "bytes": 2514246,
+   "missing": 0
+  },
+  "aux/ab_warp/warp": {
+   "file": "aux_ab_warp_warp.webp",
+   "cols": 4,
+   "rows": 2,
+   "bytes": 171772,
+   "missing": 4
+  },
+  "aux/inpaint_bg/raw": {
+   "file": "aux_inpaint_bg_raw.webp",
+   "cols": 4,
+   "rows": 2,
+   "bytes": 2263802,
+   "missing": 0
+  },
+  "aux/inpaint_bg/field": {
+   "file": "aux_inpaint_bg_field.webp",
+   "cols": 4,
+   "rows": 2,
+   "bytes": 4678,
+   "missing": 0
+  },
+  "aux/inpaint_outside_face/raw": {
+   "file": "aux_inpaint_outside_face_raw.webp",
+   "cols": 4,
+   "rows": 2,
+   "bytes": 2526608,
+   "missing": 0
+  },
+  "aux/inpaint_outside_face/field": {
+   "file": "aux_inpaint_outside_face_field.webp",
+   "cols": 4,
+   "rows": 2,
+   "bytes": 45912,
+   "missing": 0
+  },
+  "aux/style_affine/field": {
+   "file": "aux_style_affine_field.webp",
+   "cols": 4,
+   "rows": 2,
+   "bytes": 43842,
+   "missing": 0
+  }
+ }
+}

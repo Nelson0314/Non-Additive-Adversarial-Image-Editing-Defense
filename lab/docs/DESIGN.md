@@ -235,6 +235,40 @@ PhotoWCT 的平滑後處理）對結構與身分遺失的標準答案：輸出�
 改的是主體**內**的頭髮與衣服，受害模型會保留那一塊，所以它在 inpaint 上
 有作用。兩個臂都跑、都照報，讀數要連這個幾何關係一起讀。
 
+### prompt 要描述場景，不可以描述媒材
+
+第一版的句子是 `a portrait of a {content}, vintage cross-processed film
+photograph, heavy grain, teal and orange colour grading`。結果 inpainting
+**照字面畫了一個實體相框**：`outside_face` 的重繪區變成一圈木頭邊框把臉框在
+中間，`background` 則因為沒有場景可畫，只糊出一圈灰白暈與暗角。
+
+原因很直接——inpainting 的 prompt 描述的是**整張結果影像**，而
+「vintage photograph」在模型眼裡是一張實體照片，不是一種色調。這與
+SDEdit 不同：SDEdit 的 prompt 是往既有影像上加條件，媒材詞會變成色調；
+inpainting 的 prompt 是「這一格應該是什麼」，媒材詞會變成物件。
+
+改成「主體在某個場景裡」，帶**季節、光線與顏色**，不出現任何媒材詞
+（photograph、film、vintage、portrait、frame）：
+
+| 鍵 | 句子 |
+|---|---|
+| `autumn` | a {content} outdoors in autumn, warm golden and amber foliage filling the background, soft late afternoon sunlight |
+| `winter` | a {content} outdoors in winter, snow-covered trees and a pale blue overcast sky behind them |
+| `teal` | a {content} standing in front of a deep teal painted wall, cool even lighting |
+| `sunset` | a {content} outdoors at sunset, an orange and magenta sky behind them |
+
+另加反向 prompt `picture frame, border, vignette, passe-partout, canvas edge,
+text, watermark, signature, collage, multiple people, second face,
+duplicate person`——前半擋相框，後半擋本專案早就量到的「模型照上下文補出
+第二個人」。
+
+主體要寫進句子裡，這是資料集 `prompts.yaml` 已經記下的同一條教訓：只描述
+填充物的片語會讓模型照上下文補出另一張人臉。
+
+交付取 `autumn`。三個季節在 `man_00` 與 `woman_01` 上都跑過，相框與灰白暈
+全部消失，產物是構圖合理的照片（秋天的金葉與橘色大衣、冬天的雪樹與毛領），
+保留區仍逐位元相同、身分餘弦 0.994–1.000。
+
 合成的邊界：`inpaint_bg` 沿主體輪廓硬合成（那裡原本就有一條邊，而且編輯管線
 自己就是這樣做的）；`inpaint_outside_face` 的邊界落在頭的中間，改用 C¹ 的
 smoothstep 場合成，送進 pipeline 的二值遮罩取該場的 0.5 等高線。

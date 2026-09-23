@@ -76,14 +76,36 @@ INPAINT_MODEL = "runwayml/stable-diffusion-inpainting"
 
 #: 防禦方自己選的風格句。**攻擊指令不會進到這裡**——那是攻擊方寫的。
 #: `{content}` 由該影像類別的 content 欄代入，那是防禦方選定要保護的詞。
+#:
+#: 句子要描述**場景**，不可以描述**媒材**
+#: ────────────────────────────────────────────────────────────────
+#: 第一版寫的是 `a portrait of a {content}, vintage cross-processed film
+#: photograph, heavy grain, teal and orange colour grading`。結果 inpainting
+#: 照字面畫了一個**實體相框**：`outside_face` 那一批的重繪區變成一圈木頭邊框
+#: 把臉框在中間，`background` 那一批則因為沒有場景可畫，只糊出一圈灰白暈與
+#: 暗角。原因很直接——inpainting 的 prompt 描述的是**整張結果影像**，
+#: 而「vintage photograph」在模型眼裡是一張實體照片，不是一種色調。
+#:
+#: 所以這裡的句子一律是「主體在某個場景裡」，帶季節、光線與顏色，
+#: **不出現任何媒材詞**（photograph、film、vintage、portrait、frame）。
+#: 主體要寫進句子裡：本專案已量到只描述填充物的片語會讓模型照上下文
+#: 補出另一張人臉。
 STYLE_PROMPTS = {
-    "film": "a portrait of a {content}, vintage cross-processed film photograph, "
-            "heavy grain, teal and orange colour grading",
-    "studio": "a portrait of a {content} on a plain deep blue studio backdrop, "
-              "soft rim light",
-    "paint": "a portrait of a {content} painted in thick oil brush strokes, "
-             "saturated pigments, canvas texture",
+    "autumn": "a {content} outdoors in autumn, warm golden and amber foliage "
+              "filling the background, soft late afternoon sunlight",
+    "winter": "a {content} outdoors in winter, snow-covered trees and a pale "
+              "blue overcast sky behind them",
+    "teal": "a {content} standing in front of a deep teal painted wall, "
+            "cool even lighting",
+    "sunset": "a {content} outdoors at sunset, an orange and magenta sky "
+              "behind them",
 }
+
+#: 反向 prompt。前兩項擋的是上面那個相框，後兩項擋的是本專案早就量到的
+#: 「模型照上下文補出第二個人」。
+NEGATIVE_PROMPT = ("picture frame, border, vignette, passe-partout, canvas edge, "
+                   "text, watermark, signature, collage, "
+                   "multiple people, second face, duplicate person")
 
 
 def load_items(root: Path, only):
@@ -111,7 +133,9 @@ def main() -> None:
     ap.add_argument("--images", nargs="+", default=None)
     ap.add_argument("--region", required=True,
                     choices=("background", "outside_face"))
-    ap.add_argument("--style", default="film", choices=sorted(STYLE_PROMPTS))
+    ap.add_argument("--style", default="autumn", choices=sorted(STYLE_PROMPTS))
+    ap.add_argument("--negative-prompt", default=NEGATIVE_PROMPT,
+                    help="反向 prompt。預設擋相框與第二個人，逐列寫進 CSV")
     ap.add_argument("--steps", type=int, default=50)
     ap.add_argument("--guidance", type=float, default=7.5)
     ap.add_argument("--seed", type=int, default=20260812)
@@ -150,6 +174,7 @@ def main() -> None:
         with torch.no_grad():
             gen = torch.Generator(device=device).manual_seed(int(args.seed))
             raw = victim.pipe(prompt=prompt, image=x, mask_image=repaint,
+                              negative_prompt=args.negative_prompt or None,
                               strength=1.0, num_inference_steps=args.steps,
                               guidance_scale=args.guidance, generator=gen,
                               output_type="pt").images.to(x.dtype)
@@ -169,6 +194,7 @@ def main() -> None:
             "image": item["name"], "class": item["class"], "arm": args.arm,
             "carrier": "inpaint_" + args.region, "carrier_model": INPAINT_MODEL,
             "region": args.region, "style": args.style, "style_prompt": prompt,
+            "negative_prompt": args.negative_prompt,
             "steps": args.steps, "guidance": args.guidance, "seed": args.seed,
             "feather": args.feather if args.region == "outside_face" else "",
             "budget": "none（重繪區是生成的，ΔE00 對它沒有意義）",

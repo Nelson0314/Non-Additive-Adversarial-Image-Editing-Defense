@@ -35,10 +35,10 @@ case "$ARM" in
     ;;
   # ---- 生成載體：只重繪一塊，受保護的那一塊逐位元保留 ----
   inpaint_bg)
-    exec "$PY" lab/code/inpaint_region_defence.py --arm inpaint_bg --out "$OUT"         --data "$DATA" --region background --style film --steps 50 --guidance 7.5
+    exec "$PY" lab/code/inpaint_region_defence.py --arm inpaint_bg --out "$OUT"         --data "$DATA" --region background --style autumn --steps 50 --guidance 7.5
     ;;
   inpaint_outside_face)
-    exec "$PY" lab/code/inpaint_region_defence.py --arm inpaint_outside_face         --out "$OUT" --data "$DATA" --region outside_face --style film         --steps 50 --guidance 7.5 --feather 0.35
+    exec "$PY" lab/code/inpaint_region_defence.py --arm inpaint_outside_face         --out "$OUT" --data "$DATA" --region outside_face --style autumn         --steps 50 --guidance 7.5 --feather 0.35
     ;;
   # ---- spatial 那條線：從該張自己的膚色色調起步，另加彩度與同色上界 ----
   curve_dual_spatial_anchored)

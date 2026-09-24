@@ -15,10 +15,40 @@
 
 ## 現況
 
-**現行六個臂，全部跑完整條鏈，讀數已出。** 臉框分區的四個臂已移除（見下）。遠端沒有在跑的工作，`~/lab_leases/` 為空。
+**第三輪（2026-09-25 夜間，使用者授權自主推進）已跑完並出讀數。** 遠端沒有在跑的工作。
 
 | 檔 | 列數 | 內容 |
 |---|---|---|
+| `results/displacement.csv` | 516 | 位移（新臂只有 ip2p） |
+| `results/retention.csv` | 3,612 | 保留率 |
+| `results/fidelity.csv` | 97 | 四個失真指標逐張（11 條件 ＋ 已退役兩臂） |
+| `results/fidelity_ab_prism.csv` | 8 | 隨機對照對齊用的 `ab_prism` 逐張 LPIPS |
+
+報告頁（v4）<https://claude.ai/artifact/VdWw6PoWtrQd2xTLc5Qyvt>
+
+### 第三輪的讀數（ip2p，平均，配對）
+
+| 比較 | 全圖 | 主體 | 淨化後非幾何 |
+|---|---|---|---|
+| `ab_prism` − `ab_warp`（32 格） | −0.080（2/32 較大） | −0.071（5/32） | −0.051（7/32） |
+| `ab_prism` − 同族隨機平均（24 格） | −0.029（8/24） | −0.013（12/24） | −0.016（5/24） |
+| `style_warp` − `ab_warp` | −0.258（0/32） | −0.200（0/32） | −0.230（0/32） |
+
+- `ab_prism` 的輸入 LPIPS 平均 0.239（`ab_warp` 0.301）。LPIPS 雙邊帶在這一族不可行，
+  改為上限，理由與量測見 `docs/DESIGN.md`「第三輪」。
+- 隨機對照 r1、r2 各 6 張、r3 5 張（`man_00`、`man_01` 抽不到合格候選）。
+- `style_warp` 的風格圖本身只差 ΔE00 6–10，擬合後交付 1.9–4.9，輸入 LPIPS 0.062。
+- 看圖：`ab_prism` 是全域調色，沒有看到色塊或臉框圈；背景偏青、深色衣物偏酒紅。
+  RGB 裁切比例最高 34%（`man_00`）。
+
+### 工作佇列
+
+`scripts/queue_worker.sh <佇列名> <工作>...`，兩台主機各跑一個 worker（`nohup setsid`），
+狀態在 `runs/queue/<佇列名>/`。工作種類：`pilot:`、`def:<臂>:<影像>`（單張分卡）、
+`gen:`（隨機對照一次產出）、`chain:<臂>`、`readout`。相依與放棄規則寫在檔頭。
+**`queue/prism2/gen_ab_prism_random_r1.done` 是手動標記的**（見同目錄 `.NOTE`）。
+
+---|---|---|
 | `results/displacement.csv` | 384 | 位移，6 臂 × 8 影像 × 4 指令 × 2 場景（inpaint 場景只當參考） |
 | `results/retention.csv` | 2,688 | 保留率，6 臂 × 7 算子 × 64 |
 | `results/fidelity.csv` | 64 | 四個失真指標逐張（6 臂 ＋ 已退役兩臂） |
@@ -33,7 +63,7 @@ blocked 12/32 對 3/32。其餘臂與失真分不開，表在報告頁「對原�
 
 ---
 
-## 六個現行的臂
+## 現行的臂（另加第三輪的 `ab_prism`、`ab_prism_random_r1..r3`、`style_warp`）
 
 | 臂 | 線 | 載體 | 最佳化 | 預算 |
 |---|---|---|---|---|

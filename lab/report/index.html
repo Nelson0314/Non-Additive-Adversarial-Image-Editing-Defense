@@ -205,7 +205,7 @@ footer{margin-top:54px;padding-top:18px;border-top:1px solid var(--line);
 
 <header class="top">
 <div class="wrap">
-  <p class="eyebrow">六個臂 · 8 張人像 · 4 句 ip2p 指令 · 七道淨化</p>
+  <p class="eyebrow">十一個條件 · 8 張人像 · 4 句 ip2p 指令 · 七道淨化</p>
   <div class="titleline">
     <h1>生成濾鏡與分區預算</h1>
     <span class="stamp" id="stamp"></span>
@@ -214,7 +214,8 @@ footer{margin-top:54px;padding-top:18px;border-top:1px solid var(--line);
     三條線放在同一條編輯管線上：<b>用現成生成模型做風格／顏色轉換</b>、
     <b>把色偏預算分在色度上的全域映射</b>、以及
     <b>不把受保護的那一塊送進模型</b>。
-    六個臂都跑完防禦圖 → 防禦後編輯 → 七道淨化 → 淨化後編輯。
+    所有條件都跑完防禦圖 → 防禦後編輯 → 七道淨化 → 淨化後編輯。第三輪新增以 <code>ab_warp</code> 為基礎的
+    <code>ab_prism</code>、它的同族隨機對照，以及備案 <code>style_warp</code>；結果見「對原先顏色線」一節。
     以臉框分區求解的四個臂產物有邊界，已移除。
     <b>主讀數只看 ip2p。</b> inpaint 場景用的遮罩是從原圖切出來的，攻擊者拿不到，
     那一欄只當參考。
@@ -343,12 +344,43 @@ footer{margin-top:54px;padding-top:18px;border-top:1px solid var(--line);
       <tr><td><code>style_affine</code></td><td class="num">0.385</td><td class="num">0.441</td><td class="num">0.448</td><td class="num">19</td><td class="num">+0.055 (24)</td><td class="num">+0.026 (20)</td><td class="num">+0.049 (23)</td><td class="num">+0.034 (21)</td><td class="num">1.017</td></tr>
       <tr><td><code>inpaint_bg</code></td><td class="num">0.310</td><td class="num">0.397</td><td class="num">0.173</td><td class="num">15</td><td class="num">+0.012 (15)</td><td class="num">−0.250 (4)</td><td class="num">0.000 (14)</td><td class="num">−0.069 (9)</td><td class="num">0.996</td></tr>
       <tr><td><code>inpaint_outside_face</code></td><td class="num">0.624</td><td class="num">0.649</td><td class="num">0.560</td><td class="num">27</td><td class="num">+0.264 (30)</td><td class="num">+0.138 (28)</td><td class="num">+0.248 (30)</td><td class="num">+0.174 (28)</td><td class="num">0.991</td></tr>
+      <tr><td><code>ab_prism</code></td><td class="num">0.239</td><td class="num">0.295</td><td class="num">0.253</td><td class="num">0/32</td><td class="num">−0.091 (10/32)</td><td class="num">−0.169 (1/32)</td><td class="num">−0.064 (13/32)</td><td class="num">−0.098 (6/32)</td><td class="num">1.142</td></tr>
+      <tr><td><code>ab_prism_random_r1 †</code></td><td class="num">0.245</td><td class="num">0.334</td><td class="num">0.258</td><td class="num">0/24</td><td class="num">−0.068 (8/24)</td><td class="num">−0.170 (1/24)</td><td class="num">−0.055 (9/24)</td><td class="num">−0.091 (3/24)</td><td class="num">1.094</td></tr>
+      <tr><td><code>ab_prism_random_r2 †</code></td><td class="num">0.246</td><td class="num">0.330</td><td class="num">0.289</td><td class="num">1/24</td><td class="num">−0.072 (7/24)</td><td class="num">−0.139 (1/24)</td><td class="num">−0.054 (8/24)</td><td class="num">−0.084 (5/24)</td><td class="num">1.106</td></tr>
+      <tr><td><code>ab_prism_random_r3 †</code></td><td class="num">0.246</td><td class="num">0.328</td><td class="num">0.266</td><td class="num">1/20</td><td class="num">−0.102 (4/20)</td><td class="num">−0.182 (1/20)</td><td class="num">−0.075 (5/20)</td><td class="num">−0.116 (1/20)</td><td class="num">1.123</td></tr>
+      <tr><td><code>style_warp</code></td><td class="num">0.062</td><td class="num">0.117</td><td class="num">0.124</td><td class="num">1/32</td><td class="num">−0.269 (0/32)</td><td class="num">−0.299 (0/32)</td><td class="num">−0.243 (0/32)</td><td class="num">−0.260 (0/32)</td><td class="num">1.341</td></tr>
     </tbody>
   </table></div>
   <div class="note">
     <p>本表為平均，其餘各表為中位數。輸入失真是防禦圖對原圖的 LPIPS（八張平均）。
     位移高於原先的兩個臂（<code>style_affine</code>、<code>inpaint_outside_face</code>）輸入失真也高；
     與原先同一級失真的 <code>style_opt</code>（0.339 對 0.337）各欄差值都在 ±0.013 內。</p>
+    <p>† 隨機對照只在有合格候選的影像上跑：r1、r2 各 6 張（缺 <code>man_00</code>、<code>man_01</code>），
+    r3 5 張（另缺 <code>man_03</code>），格數依此。</p>
+  </div>
+  <h3 style="margin:26px 0 9px">第三輪：以 <code>ab_warp</code> 為基礎（2026-09-25 夜間）</h3>
+  <div class="cols">
+    <div class="panel">
+      <h3><code>ab_prism</code> 對 <code>ab_warp</code></h3>
+      <p>全域三角式 Lab 映射（色度相依的單調亮度曲線 ＋ 亮度相依的色度相似變換，112 參數），
+      目標與上限同 <code>ab_warp</code>，輸入 LPIPS 以 <code>ab_warp</code> 的逐張值為上限。</p>
+      <p>實得輸入 LPIPS 平均 0.239（<code>ab_warp</code> 0.301）；卡住它的是臉框與同色兩道 ΔE00 8。
+      配對差：全圖 −0.080（2/32 格較大）、主體 −0.071（5/32）、淨化後非幾何 −0.051（7/32）。
+      兩者 LPIPS 相同的兩張：<code>man_00</code> 全圖 0.334 對 0.332、主體 0.283 對 0.283；
+      <code>man_01</code> 0.217 對 0.252、0.203 對 0.215。</p>
+    </div>
+    <div class="panel">
+      <h3><code>ab_prism</code> 對同族隨機</h3>
+      <p>隨機候選與最佳化解的逐張 LPIPS 差在 0.003 內。配對差（對三組隨機的平均）：
+      全圖 −0.029（8/24 格較大）、主體 −0.013（12/24）、淨化後非幾何 −0.016（5/24）。</p>
+      <p>在這一族裡，最佳化解的位移沒有高於同 LPIPS 的隨機抽樣。雙邊 LPIPS 帶原本不可行：
+      在四道色彩上限內，本族可達的 LPIPS 在 7/8 張低於 <code>ab_warp</code>（32,768 個候選量得）。</p>
+    </div>
+    <div class="panel">
+      <h3><code>style_warp</code>（備案）</h3>
+      <p>SDEdit 風格圖只當目標，擬合成 <code>ab_warp</code> 族的全域映射。風格圖本身與原圖只差
+      ΔE00 6.1–9.7，擬合後交付圖只剩 1.9–4.9，輸入 LPIPS 0.062，位移 0.117。</p>
+    </div>
   </div>
 </section>
 
@@ -545,8 +577,8 @@ PSNR 全距 = 20·log₁₀(rms 倍率)   ← 恆等式</pre>
 
 <footer>
   防禦圖與副圖為無損 WebP，編輯圖為 q70 有損 WebP，每格原尺寸 512×512。
-  讀數來自 <code>lab/results/</code> 的 <code>displacement.csv</code>（384 列）、
-  <code>retention.csv</code>（2,688 列）與 <code>fidelity.csv</code>（64 列，含已退役兩臂）。
+  讀數來自 <code>lab/results/</code> 的 <code>displacement.csv</code>（516 列）、
+  <code>retention.csv</code>（3,612 列）與 <code>fidelity.csv</code>（97 列，含已退役兩臂）。
   受害模型 <code>timbrooks/instruct-pix2pix</code>（s<sub>t</sub> 7.5、s<sub>i</sub> 1.8）與
   <code>runwayml/stable-diffusion-inpainting</code>（guidance 7.5、遮罩 dilate 4），
   兩者種子 20260812、50 步、512²。求解端不含攻擊指令。
@@ -1008,8 +1040,8 @@ function figs(){
   const ret=ARMS.reduce(function(a,b){
     return (L.retagg[b].nongeo||0)>(L.retagg[a].nongeo||0)?b:a;});
   const items=[
-    ['6','個臂，全部跑完'],
-    ['384 / 2,688 / 64','位移／保留率／失真列數'],
+    ['11','個條件（含三組隨機對照），全部跑完'],
+    ['516 / 3,612 / 97','位移／保留率／失真列數'],
     [n(L.dispagg[best].ip2p.full),'最高 ip2p 位移（'+best+'，無預算）'],
     [n(L.dispagg[budgeted].ip2p.subj),'有預算的臂裡最高 ip2p 主體內（'+budgeted+'，主表 0.3867）'],
     [n(L.retagg[ret].nongeo),'最高非幾何保留率（'+ret+'，主表 1.021）'],

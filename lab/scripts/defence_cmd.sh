@@ -59,6 +59,10 @@ case "$ARM" in
   ab_prism_random_r[1-5])
     exec "$PY" -B lab/code/ab_prism_random.py --out lab/runs/defence         --replicates 5 --max-candidates 4096 "${@:2}"
     ;;
+  # ---- 備案：生成模型只選風格，交付為 ab_warp 那一族的全域映射 ----
+  style_warp)
+    exec "$PY" -B lab/code/style_warp_defence.py --arm style_warp --out "$OUT"         --data "$DATA" --style-root lab/runs/defence/style_affine         --grid 7 --extent 90 --warp-radius 30 --pieces 16         --frame-cap 16.0 --face-cap 8.0 --skin-radius 12.0 --chroma-gain 1.15         --steps 400 --lr 0.02 "${@:2}"
+    ;;
   # ---- 色調曲線：單一全域曲線，預算分在色度 ----
   curve_dual_chroma)
     exec "$PY" lab/code/curve_budget_defence.py --arm curve_dual_chroma --out "$OUT" \

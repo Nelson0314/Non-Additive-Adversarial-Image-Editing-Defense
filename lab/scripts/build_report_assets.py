@@ -37,9 +37,11 @@ from PIL import Image
 TILE = 512
 IMAGES = ["man_00", "man_01", "man_02", "man_03",
           "woman_00", "woman_01", "woman_02", "woman_03"]
-ARMS = ["style_random", "style_low", "style_filter", "style_filter_guided",
-        "style_affine", "curve_dual_spatial", "curve_dual_spatial_anchored",
-        "curve_dual_chroma", "ab_warp", "inpaint_bg", "inpaint_outside_face"]
+#: **`style_random` 與 `style_low` 已退役**，逐格圖已刪，不在這一串裡。
+ARMS = ["style_filter", "style_filter_guided", "style_affine",
+        "curve_dual_spatial", "curve_dual_spatial_anchored",
+        "curve_dual_chroma", "ab_warp", "inpaint_bg", "inpaint_outside_face",
+        "style_opt"]
 SCENARIOS = ["ip2p", "inpaint"]
 PROMPTS = [0, 1, 2, 3]
 PURIFIER = "jpeg30"

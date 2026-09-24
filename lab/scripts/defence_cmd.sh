@@ -10,7 +10,10 @@ OUT="lab/runs/defence/$ARM"
 DATA="lab/data/portraits"
 
 case "$ARM" in
-  # ---- 生成載體：直接交付 SDEdit 的輸出 ----
+  # ---- 已退役：直接交付 SDEdit 的輸出 ----
+  # **這兩個臂已停止發展，逐格圖已刪**（見 lab/docs/DESIGN.md「已退役」一節）。
+  # 配方留著，因為它是「SDEdit 直接交付會換人」那個結論的產生方式，刪掉就
+  # 重現不了；防禦圖也留著（lab/runs/defence/ 各 8 張）當那個結論的證據。
   # 兩臂只差 strength，其餘逐項相同（同一顆噪聲、同一個風格、同樣 20 步）。
   style_random)
     exec "$PY" lab/code/style_defence.py --arm style_random --out "$OUT" \

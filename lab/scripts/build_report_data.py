@@ -26,10 +26,11 @@ IMAGES = ["man_00", "man_01", "man_02", "man_03",
           "woman_00", "woman_01", "woman_02", "woman_03"]
 
 #: 依 ip2p 全圖位移由強到弱；`pending` 的臂排在最後。
+#: **`style_random` 與 `style_low` 已退役**，不在這一串裡。理由見
+#: `lab/docs/DESIGN.md` 的「已退役：直接交付 SDEdit 輸出」。
 ARMS = ["inpaint_outside_face", "style_affine", "curve_dual_spatial",
         "curve_dual_spatial_anchored", "curve_dual_chroma", "ab_warp",
-        "inpaint_bg", "style_filter", "style_filter_guided",
-        "style_random", "style_low"]
+        "inpaint_bg", "style_filter", "style_filter_guided"]
 PENDING = ["style_opt"]
 PURIFIERS = ["jpeg80", "jpeg50", "jpeg30", "blur1", "blur2",
              "crop_resize0.1", "rotate15"]

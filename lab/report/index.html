@@ -205,24 +205,25 @@ footer{margin-top:54px;padding-top:18px;border-top:1px solid var(--line);
 
 <header class="top">
 <div class="wrap">
-  <p class="eyebrow">十二個臂 · 8 張人像 · 8 句指令 · 兩個受害模型 · 七道淨化</p>
+  <p class="eyebrow">六個臂 · 8 張人像 · 4 句 ip2p 指令 · 七道淨化</p>
   <div class="titleline">
     <h1>生成濾鏡與分區預算</h1>
     <span class="stamp" id="stamp"></span>
   </div>
   <p class="lede" style="margin-top:14px">
     三條線放在同一條編輯管線上：<b>用現成生成模型做風格／顏色轉換</b>、
-    <b>把色偏預算拆給臉與背景而不留接縫</b>、以及
-    <b>乾脆不把受保護的那一塊送進模型</b>。
-    十一個臂已經跑完防禦圖 → 防禦後編輯 → 七道淨化 → 淨化後編輯，
-    <span class="num">198</span> 個階段、零失敗；第十二個臂
-    <code>style_opt</code> 還在跑，它的列已經在表上，格子寫「還沒跑完」。
+    <b>把色偏預算分在色度上的全域映射</b>、以及
+    <b>不把受保護的那一塊送進模型</b>。
+    六個臂都跑完防禦圖 → 防禦後編輯 → 七道淨化 → 淨化後編輯。
+    以臉框分區求解的四個臂產物有邊界，已移除。
+    <b>主讀數只看 ip2p。</b> inpaint 場景用的遮罩是從原圖切出來的，攻擊者拿不到，
+    那一欄只當參考。
   </p>
   <div class="figs" id="figs"></div>
   <div class="note warn" style="margin-top:20px">
-    <p><b>這一頁不是等失真比較。</b> 十二個臂掛在<b>三種</b>預算上，而且
-    <b>四個臂根本沒有可縮的旋鈕</b>。防禦強度的排名與失真的排名分不開——
-    這正是主表那條線正在處理的問題，它對齊後的十列放在下面當參照。</p>
+    <p><b>這一頁不是等失真比較。</b> 六個臂掛在<b>三種</b>預算上，
+    三個臂沒有可縮的旋鈕。防禦強度的排名與失真的排名分不開。
+    唯一與原先顏色線落在同一級失真的是 <code>style_opt</code>，配對比較見「對原先顏色線」一節。</p>
   </div>
 </div>
 </header>
@@ -233,7 +234,7 @@ footer{margin-top:54px;padding-top:18px;border-top:1px solid var(--line);
 <section id="defence">
   <div class="sechead">
     <h2>防禦圖並列</h2>
-    <p>同一張照片、十三種處理。按住任一格暫時切回原圖，點擊放大到 512×512 原尺寸。方向鍵切換照片。</p>
+    <p>同一張照片、原圖加六種處理。按住任一格暫時切回原圖，點擊放大到 512×512 原尺寸。方向鍵切換照片。</p>
   </div>
   <div class="controls">
     <div class="ctl" style="flex:1 1 320px">
@@ -272,12 +273,11 @@ footer{margin-top:54px;padding-top:18px;border-top:1px solid var(--line);
   <p class="hint" id="prompthint"></p>
   <div class="deck" id="deck-edit" style="margin-top:10px"></div>
   <div class="note hit">
-    <p><b>一個事先寫下的預測，逐格命中。</b> 設計文件在跑之前就寫了：
-    <code>inpaint_bg</code> 只改主體之外，而 inpainting 受害模型重繪的區域<b>正好</b>
-    就是主體之外，所以它在 inpaint 場景上推不動任何東西。實測 inpaint 全圖與主體內
-    位移都是 <b class="num">0.0000</b>，64 格全部。切到 inpaint 場景可以逐格看到
-    防禦圖與未防禦圖的編輯結果完全一樣。這與主表 <code>diffvax</code> 是同一個幾何
-    關係。</p>
+    <p><b>inpaint 場景只當參考。</b> 攻擊端的遮罩取自資料集，是 CLIPSeg 在<b>原圖</b>上
+    切出的主體遮罩，與 <code>inpaint_bg</code> 防禦時的重繪區是同一張。攻擊者因此恰好把
+    防禦改過的整塊區域重繪掉，<code>inpaint_bg</code> 在該場景的位移是
+    <b class="num">0.0000</b>。<code>rotate15</code>、<code>crop_resize0.1</code> 之後的遮罩
+    也沒有跟著轉。之後的鏈只跑 ip2p。</p>
   </div>
 </section>
 
@@ -325,6 +325,33 @@ footer{margin-top:54px;padding-top:18px;border-top:1px solid var(--line);
   <div class="tablewrap"><table id="tbl-fid"></table></div>
 </section>
 
+<!-- ============ 對原先顏色線 ============ -->
+<section id="versus">
+  <div class="sechead">
+    <h2>對原先顏色線</h2>
+    <p>每個臂對 <code>colour_curve_ours</code> 逐格配對：同八張照片、同四句 ip2p 指令、同一份未防禦分母，共 32 格。
+    差值是「臂 − 原先」的平均，括號是臂較大的格數。<code>colour_curve_ours</code> 的讀數來自主表那一批。</p>
+  </div>
+  <div class="tablewrap"><table>
+    <thead><tr><th>臂</th><th>輸入失真 LPIPS</th><th>位移 全圖</th><th>位移 主體</th><th>blocked</th>
+      <th>Δ 全圖</th><th>Δ 主體</th><th>Δ 淨化後 非幾何</th><th>Δ 淨化後 幾何</th><th>保留率 非幾何</th></tr></thead>
+    <tbody>
+      <tr><td><code>colour_curve_ours</code></td><td class="num">0.337</td><td class="num">0.386</td><td class="num">0.422</td><td class="num">3</td><td>—</td><td>—</td><td>—</td><td>—</td><td class="num">1.034</td></tr>
+      <tr><td><code>style_opt</code></td><td class="num">0.339</td><td class="num">0.397</td><td class="num">0.409</td><td class="num">12</td><td class="num">+0.012 (19)</td><td class="num">−0.013 (17)</td><td class="num">+0.003 (17)</td><td class="num">+0.003 (17)</td><td class="num">1.014</td></tr>
+      <tr><td><code>curve_dual_chroma</code></td><td class="num">0.342</td><td class="num">0.409</td><td class="num">0.364</td><td class="num">6</td><td class="num">+0.023 (18)</td><td class="num">−0.058 (10)</td><td class="num">+0.008 (19)</td><td class="num">−0.037 (12)</td><td class="num">1.004</td></tr>
+      <tr><td><code>ab_warp</code></td><td class="num">0.301</td><td class="num">0.375</td><td class="num">0.324</td><td class="num">6</td><td class="num">−0.011 (18)</td><td class="num">−0.098 (7)</td><td class="num">−0.013 (16)</td><td class="num">−0.033 (12)</td><td class="num">1.039</td></tr>
+      <tr><td><code>style_affine</code></td><td class="num">0.385</td><td class="num">0.441</td><td class="num">0.448</td><td class="num">19</td><td class="num">+0.055 (24)</td><td class="num">+0.026 (20)</td><td class="num">+0.049 (23)</td><td class="num">+0.034 (21)</td><td class="num">1.017</td></tr>
+      <tr><td><code>inpaint_bg</code></td><td class="num">0.310</td><td class="num">0.397</td><td class="num">0.173</td><td class="num">15</td><td class="num">+0.012 (15)</td><td class="num">−0.250 (4)</td><td class="num">0.000 (14)</td><td class="num">−0.069 (9)</td><td class="num">0.996</td></tr>
+      <tr><td><code>inpaint_outside_face</code></td><td class="num">0.624</td><td class="num">0.649</td><td class="num">0.560</td><td class="num">27</td><td class="num">+0.264 (30)</td><td class="num">+0.138 (28)</td><td class="num">+0.248 (30)</td><td class="num">+0.174 (28)</td><td class="num">0.991</td></tr>
+    </tbody>
+  </table></div>
+  <div class="note">
+    <p>本表為平均，其餘各表為中位數。輸入失真是防禦圖對原圖的 LPIPS（八張平均）。
+    位移高於原先的兩個臂（<code>style_affine</code>、<code>inpaint_outside_face</code>）輸入失真也高；
+    與原先同一級失真的 <code>style_opt</code>（0.339 對 0.337）各欄差值都在 ±0.013 內。</p>
+  </div>
+</section>
+
 <!-- ============ 等失真 ============ -->
 <section id="anchor">
   <div class="sechead">
@@ -366,13 +393,12 @@ PSNR 全距 = 20·log₁₀(rms 倍率)   ← 恆等式</pre>
       必然，不是實作的缺陷。</p>
     </div>
     <div class="panel">
-      <h3>四個臂對齊不了</h3>
+      <h3>三個臂對齊不了</h3>
       <p><code>inpaint_bg</code> 與 <code>inpaint_outside_face</code> 的重繪區是<b>生成</b>
       出來的，那塊像素與原圖沒有對應關係，ΔE00 與 PSNR 在那裡量的是「換掉多少畫面」
       而不是「擾動多大」。</p>
       <p><code>style_affine</code> 的旋鈕是 guided filter 的 <code>radius</code>／
-      <code>eps</code>，<code>style_random</code>／<code>style_low</code> 的是 SDEdit 的
-      <code>strength</code>——都不是擾動幅度。</p>
+      <code>eps</code>，不是擾動幅度。</p>
       <p>主表那邊有一個同型的：<code>diffvax</code> 是前饋式，給
       <code>--eps-scale</code> 會直接停住。這幾個只能以「無預算」那一類並列。</p>
     </div>
@@ -386,7 +412,7 @@ PSNR 全距 = 20·log₁₀(rms 倍率)   ← 恆等式</pre>
 <section id="mechanism">
   <div class="sechead">
     <h2>每一步是被前一步的圖逼出來的</h2>
-    <p>三條線、九個設計決定，各自對應一張看過的圖。</p>
+    <p>三條線、七個設計決定，各自對應一張看過的圖。</p>
   </div>
   <div class="cols">
     <div class="panel">
@@ -403,9 +429,8 @@ PSNR 全距 = 20·log₁₀(rms 倍率)   ← 恆等式</pre>
       <h3>二、把生成模型當濾鏡設計器，不當算圖器</h3>
       <p>只取 SDEdit 輸出的<b>低頻色彩位移場</b>套回原圖，結構逐像素留在原圖。
       SDEdit 原始輸出的身分餘弦是 0.007–0.32，經轉移交付的是 0.66–0.97。</p>
-      <p>高斯低通會在主體輪廓外留下一圈<b>光暈</b>（<code>Δ</code> 含結構差異，
-      被抹過輪廓）；改用單通道 guided filter 之後身分升到 0.88–0.99，但髮際對亮天空的
-      軟邊仍有殘留輝光。</p>
+      <p>高斯低通與單通道 guided filter 兩個版本（<code>style_filter</code>、
+      <code>style_filter_guided</code>）以臉框分區求解，產物有邊界，已移除。</p>
     </div>
     <div class="panel">
       <span class="tag gen">生成濾鏡</span>
@@ -429,27 +454,7 @@ PSNR 全距 = 20·log₁₀(rms 倍率)   ← 恆等式</pre>
     </div>
     <div class="panel">
       <span class="tag curve">分區預算</span>
-      <h3>五、要真的分區就要兩條曲線，接縫當約束而不是當觀感</h3>
-      <p><code>curve_dual_spatial</code>：<code>y = w·F_face(x) + (1−w)·F_bg(x)</code>，
-      <code>w</code> 是固定的 C¹ smoothstep 場，不是可學參數——讓它可學等於把
-      「接縫該放哪裡」變成可最佳化的東西。</p>
-      <p>接縫直接被定義成<b>過渡帶上位移場的 TV</b> 並當成硬約束（≤ 2.0）。
-      實測 0.78–1.91，八張 <code>cap_violations</code> 全 0。</p>
-    </div>
-    <div class="panel">
-      <span class="tag curve">分區預算</span>
-      <h3>六、洋紅背景的根因是起點，不是臉的預算</h3>
-      <p>臉守住了，但背景被推到與原圖差很遠的顏色。恆等起點上，最佳化往哪走完全由
-      代理梯度決定，沒有理由落在「這張照片本來就有的顏色」附近。</p>
-      <p><code>curve_dual_spatial_anchored</code> 三個改動：起點改成<b>該張自己的
-      膚色色調</b>（整圖累積分布對到膚色區累積分布）、彩度 p95 上界 1.15×、
-      與原膚色<b>同色</b>的像素 ΔE00 ≤ 8（顏色定義的支撐，不是遮罩）。</p>
-      <p>後兩者是本專案已量到的「色偏只有兩種情形難看」的直接實作。
-      代價在表上：ip2p 全圖位移由 0.4540 降到 0.3854。</p>
-    </div>
-    <div class="panel">
-      <span class="tag curve">分區預算</span>
-      <h3>七、分膚色的正確軸是色相，不是通道強度</h3>
+      <h3>五、分膚色的正確軸是色相，不是通道強度</h3>
       <p><code>curve_dual_chroma</code> 的瓶頸在載體：逐 RGB 通道的曲線<b>分不開膚色與
       背景</b>，兩者在通道值上大量重疊。</p>
       <p><code>ab_warp</code> 把映射改到 CIELAB 的 <code>(a,b)</code> 平面（7×7 錨點的
@@ -461,7 +466,7 @@ PSNR 全距 = 20·log₁₀(rms 倍率)   ← 恆等式</pre>
     </div>
     <div class="panel">
       <span class="tag keep">不碰受保護區</span>
-      <h3>八、身分不是被保住，是根本沒被碰過</h3>
+      <h3>六、身分不是被保住，是根本沒被碰過</h3>
       <p>兩個 <code>inpaint_*</code> 把受保護的區域<b>完全不送進模型</b>，重繪只發生在
       它之外，最後逐位元合成回去。<code>kept_bitexact_frac</code> 逐張驗證，
       八張全部 <span class="num">1.0</span>，身分餘弦 0.9898–1.0000。</p>
@@ -469,7 +474,7 @@ PSNR 全距 = 20·log₁₀(rms 倍率)   ← 恆等式</pre>
     </div>
     <div class="panel">
       <span class="tag keep">不碰受保護區</span>
-      <h3>九、inpainting 的 prompt 要描述場景，不可以描述媒材</h3>
+      <h3>七、inpainting 的 prompt 要描述場景，不可以描述媒材</h3>
       <p>第一版寫 <code>vintage film photograph</code>，模型<b>照字面畫了一個實體相框</b>
       把臉框在中間；<code>background</code> 那批則只糊出灰白暈與暗角。</p>
       <p>原因：inpainting 的 prompt 描述的是<b>整張結果影像</b>，媒材詞會變成物件。
@@ -500,14 +505,9 @@ PSNR 全距 = 20·log₁₀(rms 倍率)   ← 恆等式</pre>
       而 <code>colour_curve_ours</code> 是 0.3367。<b>仍然不是等失真。</b></p>
     </div>
     <div class="panel">
-      <h3><code>style_random</code> 的位移被污染</h3>
-      <p>八張裡三張的防禦圖已經不是同一個人（<code>id_cos</code> 0.26–0.76），
-      那幾格的分母保護的是另一個人。數字照報，但不能當成「這個 strength 的免疫強度」。</p>
-    </div>
-    <div class="panel">
       <h3>blocked 與位移不同向</h3>
-      <p><code>style_filter*</code> 的位移最低而 blocked 12–16/32，遠高於
-      <code>colour_curve_ours</code> 的 3–4/32。兩個量測的是不同的東西，兩欄都照報，
+      <p><code>style_opt</code> 的 ip2p 位移與 <code>colour_curve_ours</code> 幾乎相同，
+      blocked 卻是 12/32 對 3/32。兩個量測的是不同的東西，兩欄都照報，
       門檻逐列寫進 CSV。</p>
     </div>
     <div class="panel">
@@ -531,14 +531,12 @@ PSNR 全距 = 20·log₁₀(rms 倍率)   ← 恆等式</pre>
     </div>
     <div class="panel">
       <h3>只放了 jpeg30 這一道淨化的圖</h3>
-      <p>七道算子的<b>數字</b>都在表上（4,928 列），但<b>圖</b>只收了 jpeg30
+      <p>七道算子的<b>數字</b>都在表上（2,688 列），但<b>圖</b>只收了 jpeg30
       （非幾何類裡最強的一道）。其餘六道的逐格圖在遠端
       <code>lab/runs/edit_purified/</code>。</p>
     </div>
     <div class="panel">
-      <h3>還沒跑完的</h3>
-      <p><code>style_opt</code>（風格由最佳化在字典凸包上選）還在跑，它的列已經在所有
-      表上、格子寫「還沒跑完」。跑完會就地更新這一頁，版面不會變。</p>
+      <h3>還沒有的</h3>
       <p><code>metrics_union.py</code> 在 lab 上跑不起來（路徑寫死指向
       <code>main_table/</code>），FSIM 與美學那幾張補充表暫時沒有。</p>
     </div>
@@ -547,8 +545,8 @@ PSNR 全距 = 20·log₁₀(rms 倍率)   ← 恆等式</pre>
 
 <footer>
   防禦圖與副圖為無損 WebP，編輯圖為 q70 有損 WebP，每格原尺寸 512×512。
-  讀數來自 <code>lab/results/</code> 的 <code>displacement.csv</code>（704 列）、
-  <code>retention.csv</code>（4,928 列）與 <code>fidelity.csv</code>（88 列）。
+  讀數來自 <code>lab/results/</code> 的 <code>displacement.csv</code>（384 列）、
+  <code>retention.csv</code>（2,688 列）與 <code>fidelity.csv</code>（64 列，含已退役兩臂）。
   受害模型 <code>timbrooks/instruct-pix2pix</code>（s<sub>t</sub> 7.5、s<sub>i</sub> 1.8）與
   <code>runwayml/stable-diffusion-inpainting</code>（guidance 7.5、遮罩 dilate 4），
   兩者種子 20260812、50 步、512²。求解端不含攻擊指令。
@@ -591,14 +589,14 @@ const SUB = {
   inpaint_bg:'只重繪主體之外',
   inpaint_outside_face:'只保留臉，其餘重繪'};
 const AUX = [
-  {v:'def', label:'防禦圖', arms:ALL, hint:'原圖 ＋ 十二個載體的交付圖。'},
-  {v:'field', label:'混合／振幅場', arms:['curve_dual_spatial','curve_dual_spatial_anchored','style_filter','style_filter_guided','style_affine','inpaint_bg','inpaint_outside_face'],
-   hint:'曲線與濾鏡臂：α(p)，臉那一側的振幅權重。inpaint 兩臂：白＝逐位元保留原圖。'},
+  {v:'def', label:'防禦圖', arms:ALL, hint:'原圖 ＋ 六個載體的交付圖。'},
+  {v:'field', label:'混合／振幅場', arms:['style_affine','style_opt','inpaint_bg','inpaint_outside_face'],
+   hint:'濾鏡臂：α(p)，臉那一側的振幅權重。inpaint 兩臂：白＝逐位元保留原圖。'},
   {v:'warp', label:'色度平面', arms:['ab_warp'],
    hint:'(a,b) 平面本身：底色是該點的顏色，越亮代表位移場在那裡推得越多。暗的那一塊是被上限釘住的膚色區。'},
   {v:'raw', label:'pipeline 原輸出', arms:['inpaint_bg','inpaint_outside_face'],
    hint:'inpainting pipeline 的輸出，還沒合成回保留區。'},
-  {v:'sdedit_raw', label:'SDEdit 原輸出', arms:['style_filter'],
+  {v:'sdedit_raw', label:'SDEdit 原輸出', arms:['style_affine'],
    hint:'strength 0.6 的 SDEdit 原始輸出——濾鏡臂只取它的顏色，不取它的結構。'}];
 
 let cur = {img:IM[0], aux:'def', sc:'ip2p', pur:'plain', pr:0};
@@ -803,7 +801,7 @@ function buildTables(){
   tbl(document.getElementById('tbl-disp'),
     ['條件','ip2p 全圖','ip2p 主體內','ip2p blocked','inpaint 全圖','inpaint 主體內','inpaint blocked'],
     dr, '每格 8 影像 × 4 指令 ＝ 32。<b>琥珀色的條件沒有失真上限</b>，不與其餘比大小。'+
-        '<code>inpaint_bg</code> 的 inpaint 兩欄是 0.0000——受害模型重繪的正好是它改的那一塊。'+
+        '<b>inpaint 三欄只當參考</b>：攻擊端遮罩取自原圖，<code>inpaint_bg</code> 的 0.0000 是遮罩與防禦重繪區相同造成的。'+
         '標「主表」的兩列來自另一批。');
 
   /* 保留率 */
@@ -1004,13 +1002,12 @@ function figs(){
   const ret=ARMS.reduce(function(a,b){
     return (L.retagg[b].nongeo||0)>(L.retagg[a].nongeo||0)?b:a;});
   const items=[
-    ['11 + 1','個臂已跑完／還在跑'],
-    ['198','個階段，零失敗'],
-    ['704 / 4,928 / 88','位移／保留率／失真列數'],
+    ['6','個臂，全部跑完'],
+    ['384 / 2,688 / 64','位移／保留率／失真列數'],
     [n(L.dispagg[best].ip2p.full),'最高 ip2p 位移（'+best+'，無預算）'],
     [n(L.dispagg[budgeted].ip2p.subj),'有預算的臂裡最高 ip2p 主體內（'+budgeted+'，主表 0.3867）'],
     [n(L.retagg[ret].nongeo),'最高非幾何保留率（'+ret+'，主表 1.021）'],
-    ['0.0000','inpaint_bg 在 inpaint 場景的位移（事先預測）']];
+    ['0.339 / 0.337','style_opt 與原先顏色線的輸入 LPIPS（同一級失真）']];
   document.getElementById('figs').innerHTML = items.map(function(it){
     return '<div class="fig"><b>'+it[0]+'</b><span>'+it[1]+'</span></div>';}).join('');
   document.getElementById('stamp').textContent='8 影像 · 4 指令 · 2 場景 · 7 道淨化';

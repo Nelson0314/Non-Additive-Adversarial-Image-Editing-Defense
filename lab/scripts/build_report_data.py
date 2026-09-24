@@ -29,9 +29,9 @@ IMAGES = ["man_00", "man_01", "man_02", "man_03",
 #: **`style_random` 與 `style_low` 已退役**，不在這一串裡。理由見
 #: `lab/docs/DESIGN.md` 的「已退役：直接交付 SDEdit 輸出」。
 #: 臉框長出空間權重場的四個臂已移除，理由見 DESIGN.md「已移除」一節。
-ARMS = ["inpaint_outside_face", "style_affine", "curve_dual_chroma", "ab_warp",
-        "inpaint_bg"]
-PENDING = ["style_opt"]
+ARMS = ["inpaint_outside_face", "style_affine", "curve_dual_chroma", "style_opt",
+        "inpaint_bg", "ab_warp"]
+PENDING = []
 PURIFIERS = ["jpeg80", "jpeg50", "jpeg30", "blur1", "blur2",
              "crop_resize0.1", "rotate15"]
 NONGEO = PURIFIERS[:5]

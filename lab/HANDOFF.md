@@ -15,27 +15,21 @@
 
 ## 現況
 
-**現行六個臂。** 五個跑完整條鏈，`style_opt` 在跑。臉框分區的四個臂已移除（見下）。
+**現行六個臂，全部跑完整條鏈，讀數已出。** 臉框分區的四個臂已移除（見下）。遠端沒有在跑的工作，`~/lab_leases/` 為空。
 
 | 檔 | 列數 | 內容 |
 |---|---|---|
-| `results/displacement.csv` | 448 | 位移，7 條件 × 8 影像 × 4 指令 × 2 場景（含已退役兩臂） |
-| `results/retention.csv` | 3,136 | 保留率，7 條件 × 7 算子 × 64 |
-| `results/fidelity.csv` | 56 | 四個失真指標逐張（LPIPS／ΔE00／PSNR／L∞／rms） |
+| `results/displacement.csv` | 384 | 位移，6 臂 × 8 影像 × 4 指令 × 2 場景（inpaint 場景只當參考） |
+| `results/retention.csv` | 2,688 | 保留率，6 臂 × 7 算子 × 64 |
+| `results/fidelity.csv` | 64 | 四個失真指標逐張（6 臂 ＋ 已退役兩臂） |
 
-報告頁（v2，十一臂）<https://claude.ai/artifact/VdWw6PoWtrQd2xTLc5Qyvt>
+報告頁（v3，六臂，含對 `colour_curve_ours` 的逐格配對表）<https://claude.ai/artifact/VdWw6PoWtrQd2xTLc5Qyvt>
 
-### 正在跑的東西
+### 對原先顏色線（ip2p，32 格配對，平均）
 
-遠端一支 `scripts/finish_batch.sh`（`nohup setsid`，log 在
-`runs/logs/finish_batch.log`）佔 basic-2 一張卡，依序做三件事：
-
-1. ~~十一臂讀數~~ **已完成**
-2. `style_opt` 的完整鏈（試跑已過 rc=0；防禦圖約 9 分鐘一張）
-3. **跨臂讀數**——只有 `style_opt` 的 sentinel 滿 18 才跑（掃 `edit_defended/` 底下現存的臂，移除的四臂已不在）
-
-第 3 步跑完之後**要重建報告頁**（見下「怎麼重建報告頁」）。
-注意移除之後臂數是 **6**。
+`style_opt` 是唯一與 `colour_curve_ours` 同一級失真的臂（輸入 LPIPS 0.339 對 0.337）：
+全圖位移 +0.012（19/32 格較大）、主體 −0.013（17/32）、淨化後非幾何與幾何各 +0.003，
+blocked 12/32 對 3/32。其餘臂與失真分不開，表在報告頁「對原先顏色線」一節。
 
 ---
 

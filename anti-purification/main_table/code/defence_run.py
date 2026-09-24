@@ -82,6 +82,7 @@ from __future__ import annotations
 import argparse
 import sys
 import time
+from dataclasses import replace
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -96,7 +97,8 @@ import yaml  # noqa: E402
 from src.baselines import danp, dayn, dia, diffvax, mist, photoguard, sifm  # noqa: E402
 from src.baselines.pgd import run_pgd  # noqa: E402
 from src.baselines.dct_shield import (  # noqa: E402
-    PAPER_DEFAULT_QUALITY, PAPER_EPS, PAPER_JPEG_FIG_QUALITY, PAPER_STEPS,
+    PAPER_DEFAULT_QUALITY, PAPER_EPS, PAPER_GAMMA, PAPER_JPEG_FIG_QUALITY,
+    PAPER_STEPS,
     DCTShieldSpec, run_dct_shield,
 )
 from src.metrics.standard import standard_row  # noqa: E402
@@ -242,7 +244,8 @@ def load_images(root: Path, names=None) -> list:
 
 def solve(sd, cond: str, x01: torch.Tensor, seed: int,
           content: str = "", immunizer=None,
-          mask01: "torch.Tensor | None" = None) -> tuple:
+          mask01: "torch.Tensor | None" = None,
+          eps_scale: float = 1.0) -> tuple:
     """回傳 (防禦圖, 這一格的設定欄位)。
 
     預算欄全部取自 spec，不是寫死的字面值。例外只有 `pg_strength`：那個數
@@ -250,7 +253,27 @@ def solve(sd, cond: str, x01: torch.Tensor, seed: int,
     數、哪一格是本專案的。
 
     `immunizer` 與 `mask01` 只有 `diffvax` 會用到，其餘條件收到也不看。
+
+    `eps_scale` 是**本專案指定的預算旋鈕**，把該篇的原生 `eps` 乘上一個倍率，
+    用來掃出「防禦圖失真 vs 防禦效果」的取捨曲線。`1.0` 以外的值一律把
+    `modified_from_paper` 設為真並寫進 `modification_note`——縮過預算的那一格
+    不是那篇論文的設定，論文的任何保證都不適用。
+
+    **步長跟著同一個倍率縮。** 只縮 `eps` 會讓第一步就撞上投影邊界，有效步數
+    變少，量到的就不只是預算的效果；`step_size / eps` 維持不變才是同一條軌跡
+    的縮放。DCT-Shield 的 `gamma` 同理。
+
+    原生值寫進 `eps_native` 欄，倍率寫進 `eps_scale` 欄，兩欄都留著，
+    縮過的那一批才能對回原生的那一批。
     """
+    if eps_scale <= 0:
+        raise SystemExit(f"--eps-scale 要是正數，收到 {eps_scale}")
+    if cond in FEEDFORWARD_CONDITIONS and eps_scale != 1.0:
+        raise SystemExit(
+            f"{cond} 是前饋式免疫，一次前向就出擾動，沒有 eps 這個旋鈕可以縮"
+            f"（`BaselineSpec` 的預算欄在它身上都沒有對應值）。"
+            "要掃它的失真只能換權重或改輸出層，不是這支腳本的事。")
+
     if cond in FEEDFORWARD_CONDITIONS:
         # 前饋式免疫：沒有迴圈、沒有 SD、沒有文字條件，一次前向就出擾動。
         # 遮罩的極性在本 repo 與官方一致（白＝重繪＝官方的 `mask_batch`），
@@ -261,6 +284,7 @@ def solve(sd, cond: str, x01: torch.Tensor, seed: int,
                 "遮罩在 <data>/masks/<影像>.png（白＝重繪）。")
         out = diffvax.immunise(immunizer, x01, mask01)
         cfg = {"eps": "", "eps_pixel01": "",
+               "eps_native": "", "eps_scale": 1.0,
                "norm": "none", "steps": 1, "grad_reps": "",
                "q_alg": "", "pg_strength": "",
                "modified_from_paper": False, "modification_note": "",
@@ -273,20 +297,46 @@ def solve(sd, cond: str, x01: torch.Tensor, seed: int,
         # DCT-Shield 的兩個臂只差作用通道與 JPEG 品質因子，其餘照論文
         # Algorithm 1（`--mode paper` 的路徑，見 ../scripts/dct_shield_run.py）。
         q = PAPER_JPEG_FIG_QUALITY if cond.endswith("_y") else PAPER_DEFAULT_QUALITY
+        eps = PAPER_EPS * eps_scale
+        note = ""
+        if eps_scale != 1.0:
+            note = (f"eps 由原生 {PAPER_EPS} 縮為 {eps:g}（×{eps_scale:g}），"
+                    f"gamma 同倍率由 {PAPER_GAMMA} 縮為 {PAPER_GAMMA * eps_scale:g}，"
+                    "為對齊防禦圖失真而掃描，非論文設定。"
+                    + ("eps < 1 使論文 §4.2 的抗 JPEG 條件失效：擾動不足以造成"
+                       "一個量化級的改變，攻擊方以相同品質重壓即可還原。"
+                       if eps < 1.0 else ""))
         spec = DCTShieldSpec(
-            name=cond, q_alg=q, eps=PAPER_EPS, steps=PAPER_STEPS,
+            name=cond, q_alg=q, eps=eps, gamma=PAPER_GAMMA * eps_scale,
+            steps=PAPER_STEPS,
             channels=("Y",) if cond.endswith("_y") else ("Y", "Cb", "Cr"),
-            modified_from_paper=False, modification_note="",
+            modified_from_paper=eps_scale != 1.0, modification_note=note,
             source="arXiv:2504.17894 補充材料 Algorithm 1")
         x_def = run_dct_shield(sd, x01, spec, log_every=250).x_def
         cfg = {"eps": spec.eps, "eps_pixel01": "",
+               "eps_native": PAPER_EPS, "eps_scale": eps_scale,
                "norm": "dct_coeff_linf", "steps": spec.steps, "grad_reps": 1,
                "q_alg": q, "pg_strength": "",
-               "modified_from_paper": False, "modification_note": "",
+               "modified_from_paper": spec.modified_from_paper,
+               "modification_note": spec.modification_note,
                "spec_source": spec.source}
         return x_def, cfg
 
-    spec = PGD_SPECS[cond]
+    native = PGD_SPECS[cond]
+    spec = native
+    if eps_scale != 1.0:
+        spec = replace(
+            native,
+            eps=native.eps * eps_scale,
+            eps_pixel01=native.eps_pixel01 * eps_scale,
+            step_size=(None if native.step_size is None
+                       else native.step_size * eps_scale),
+            modified_from_paper=True,
+            modification_note=(
+                (native.modification_note + "；" if native.modification_note else "")
+                + f"eps 由原生 {native.eps:g} 縮為 {native.eps * eps_scale:g}"
+                  f"（×{eps_scale:g}），step_size 同倍率縮放以維持 step_size/eps，"
+                  "為對齊防禦圖失真而掃描，非論文設定。"))
     kw = {}
     if cond.startswith("photoguard"):
         kw = {"mask": None, "strength": PG_STRENGTH}
@@ -323,6 +373,7 @@ def solve(sd, cond: str, x01: torch.Tensor, seed: int,
         kw = {"prompt": content, "use_ckpt": True}
     x_def = run_pgd(sd, x01, spec, seed=seed, **kw).x_adv01.detach()
     cfg = {"eps": spec.eps, "eps_pixel01": spec.eps_pixel01,
+           "eps_native": native.eps, "eps_scale": eps_scale,
            "norm": spec.norm, "steps": spec.steps, "grad_reps": spec.grad_reps,
            "q_alg": "", "pg_strength": PG_STRENGTH if cond.startswith("photoguard") else "",
            "modified_from_paper": spec.modified_from_paper,
@@ -339,6 +390,11 @@ def main() -> None:
     ap.add_argument("--images", nargs="+", default=None)
     ap.add_argument("--conditions", nargs="+", default=None)
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--eps-scale", type=float, default=1.0,
+                    help="把每個條件的原生 eps 乘上這個倍率（步長同倍率縮放）。"
+                         "1.0 以外的值會把該列標成 modified_from_paper，"
+                         "原生值留在 eps_native 欄。diffvax 沒有這個旋鈕，"
+                         "給了會直接停住。")
     ap.add_argument("--diffvax-ckpt", type=Path, default=DIFFVAX_CKPT,
                     help="DiffVax 官方權重（只有 --conditions 含 diffvax 時會讀）")
     ap.add_argument("--tag", default="",
@@ -392,7 +448,8 @@ def main() -> None:
             t0 = time.time()
             x_def, cfg = solve(sd, cond, x01, args.seed,
                                content=item.get("content", ""),
-                               immunizer=immunizer, mask01=mask01)
+                               immunizer=immunizer, mask01=mask01,
+                               eps_scale=args.eps_scale)
             secs = time.time() - t0
             save_image(x_def.clamp(0, 1), args.out / f"{item['name']}__{cond}__def.png")
             m = suite.pairwise(x01, x_def.clamp(0, 1))
@@ -412,7 +469,7 @@ def main() -> None:
             print(f"[DONE] {item['name']:12s} {cond:16s} "
                   f"psnr={m['psnr']:.3f} lpips={m['lpips']:.4f} "
                   f"rms={m['rms']:.5f} ({secs:.0f}s)", flush=True)
-    print(f"\n[ALLDONE] 表：{args.out / 'results.csv'}（{len(rows)} 列）", flush=True)
+    print(f"\n[ALLDONE] 表：{csv_path}（{len(rows)} 列）", flush=True)
 
 
 if __name__ == "__main__":

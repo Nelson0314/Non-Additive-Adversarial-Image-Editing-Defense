@@ -24,7 +24,8 @@
 | `results/metrics_displacement_union.csv` | 768 | 位移的 FSIM／MSE |
 | `results/metrics_retention_union.csv` | 5,376 | 淨化後位移的 FSIM |
 | `results/metrics_aesthetic_union.csv` | 104 | 七項無參考美學指標，含八張原圖的參照列 |
-| `results/defence_<方法>.csv` | 8 / 檔 | 防禦圖對原圖的失真與該方法的求解設定 |
+| `results/defence_<方法>.csv` | 8 / 檔 | 防禦圖對原圖的失真與該方法的求解設定（各篇原生預算） |
+| `results/aligned/defence_<方法>_aligned.csv` | 8 / 檔 | 同十個方法縮到同一個 LPIPS 錨點（0.3344）的求解結果，見該目錄的 `README.md` |
 
 十二個條件：`dct_shield_y`、`mist`、`dct_shield`、`photoguard_linf`、`danp`、
 `sifm`、`dayn`、`dia_pt`、`dia_r`、`photoguard_c`、`colour_curve_ours`、`diffvax`。

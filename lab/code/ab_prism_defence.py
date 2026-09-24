@@ -149,7 +149,7 @@ class AbPrismParam:
 
 def make_caps(x, face, distance, target, tolerance=0.0025,
               frame_cap=16.0, face_cap=8.0, skin_radius=12.0,
-              chroma_gain=1.15):
+              chroma_gain=1.15, lower=True):
     """Six AL inequalities; distance(y) is the frozen input LPIPS in production.
 
     Face support is used only for measurement / the fixed skin colour centre.
@@ -184,9 +184,13 @@ def make_caps(x, face, distance, target, tolerance=0.0025,
     caps.extend([
         Cap("chroma_p95", chroma_p95, lambda y: float(chroma_p95(y)), c95),
         Cap("input_lpips_upper", distance, lambda y: float(distance(y)), target + tolerance),
-        Cap("input_lpips_lower", lambda y: 2.0 * target - distance(y),
-            lambda y: 2.0 * target - float(distance(y)), target + tolerance),
     ])
+    # lower=False：只要求輸入 LPIPS 不超過參照臂。實測（2026-09-25 隨機候選
+    # 32,768 個）在四道色彩上限內，本族能達到的 LPIPS 在 7/8 張低於 ab_warp
+    # 的逐張值，雙邊帶因此不可行。
+    if lower:
+        caps.append(Cap("input_lpips_lower", lambda y: 2.0 * target - distance(y),
+                        lambda y: 2.0 * target - float(distance(y)), target + tolerance))
     return caps, supports
 
 
@@ -221,6 +225,8 @@ def parser():
     ap.add_argument("--lpips-targets", type=Path, default=Path("lab/results/fidelity.csv"))
     ap.add_argument("--lpips-reference", default="ab_warp")
     ap.add_argument("--lpips-tolerance", type=float, default=0.0025)
+    ap.add_argument("--no-lpips-lower", dest="lpips_lower", action="store_false",
+                    help="只保留 LPIPS 上限（不超過參照臂），不要求達到它")
     ap.add_argument("--steps", type=int, default=900)
     ap.add_argument("--lr", type=float, default=0.02)
     ap.add_argument("--lr-final-ratio", type=float, default=0.2)
@@ -280,7 +286,7 @@ def main():
         target = targets[item["name"]]
         caps, supports = make_caps(
             x, face, distance, target, args.lpips_tolerance, args.frame_cap,
-            args.face_cap, args.skin_radius, args.chroma_gain)
+            args.face_cap, args.skin_radius, args.chroma_gain, lower=args.lpips_lower)
         objective = FreeObjective(
             ip2p, x, box=box, k=4, steps=50, seed=args.noise_seed,
             weights={"id": 1.0, "enc": 0.5, "cond": 1.0}, chain_steps=6,

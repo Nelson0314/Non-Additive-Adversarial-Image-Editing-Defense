@@ -23,6 +23,14 @@ L=lab/runs
 # 攻擊者拿不到，而且幾何淨化後遮罩不跟著轉；使用者裁定不再跑。已經跑過的
 # inpaint 讀數與逐格圖留著當參考。
 SCENARIOS="ip2p"
+# 防禦圖不滿 8 張的臂（隨機對照在某些影像上抽不到合格候選）只編輯現有的影像。
+# 由 lab/runs/defence/<臂> 裡的防禦圖決定，不另外指定；讀數比較時只配對這些影像。
+IMGS=()
+NDEF=$(ls -1 "$L/defence/$ARM"/*__"$ARM"__def.png 2>/dev/null | wc -l)
+if [ "$NDEF" -gt 0 ] && [ "$NDEF" -lt 8 ]; then
+  IMGS=(--images $(ls -1 "$L/defence/$ARM"/*__"$ARM"__def.png | xargs -n1 basename | sed "s/__${ARM}__def.png//"))
+  echo "[SUBSET] $ARM 只有 $NDEF 張防禦圖：${IMGS[*]:1}"
+fi
 DATA=lab/data/portraits
 mkdir -p "$L/state"
 
@@ -42,7 +50,7 @@ step defence bash lab/scripts/defence_cmd.sh "$ARM" || exit 1
 for SC in $SCENARIOS; do
   step "edit_$SC" "$PY" lab/code/edit_preflight.py --data "$DATA" \
       --defended "$L/defence/$ARM" --out "$L/edit_defended/$ARM" \
-      --scenarios "$SC" --suffix "_$ARM" || exit 1
+      --scenarios "$SC" --suffix "_$ARM" "${IMGS[@]}" || exit 1
 done
 
 step purify "$PY" lab/code/purify_run.py --defended "$L/defence/$ARM" \
@@ -53,7 +61,7 @@ for PUR in jpeg50 crop_resize0.1 blur1 rotate15 jpeg30 jpeg80 blur2; do
     step "pedit_${PUR}_${SC}" "$PY" lab/code/edit_preflight.py --data "$DATA" \
         --defended "$L/purified/$ARM/$PUR" \
         --out "$L/edit_purified/$ARM/$PUR" --scenarios "$SC" \
-        --suffix "_${ARM}_${PUR}" || exit 1
+        --suffix "_${ARM}_${PUR}" "${IMGS[@]}" || exit 1
   done
 done
 

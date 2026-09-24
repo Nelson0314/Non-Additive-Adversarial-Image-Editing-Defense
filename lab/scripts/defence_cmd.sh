@@ -52,12 +52,14 @@ case "$ARM" in
         --lpips-targets lab/results/fidelity.csv --lpips-reference ab_warp \
         --lpips-tolerance 0.0025 --steps 900 --lr 0.02 --lr-final-ratio 0.2 \
         --rho 10 --lam-every 5 --check-every 10 --probe-every 50 \
-        --log-every 100 --noise-seed 0 "${@:2}"
+        --log-every 100 --noise-seed 0 --no-lpips-lower "${@:2}"
     ;;
   # ab_prism 的同函數族隨機對照（AB_WARP_NEXT.md 6.3）。一次呼叫產出 r1..r5，
   # 已完成的影像跳過；共用輸出根目錄，必須序列執行（queue_worker 的 gen 工作）。
+  # 隨機候選對齊的是 ab_prism 最佳化解實際達到的逐張 LPIPS（先量出來）。
   ab_prism_random_r[1-5])
-    exec "$PY" -B lab/code/ab_prism_random.py --out lab/runs/defence         --replicates 5 --max-candidates 4096 "${@:2}"
+    "$PY" lab/code/defence_fidelity.py --arms ab_prism         --out lab/results/fidelity_ab_prism.csv || exit 1
+    exec "$PY" -B lab/code/ab_prism_random.py --out lab/runs/defence         --lpips-targets lab/results/fidelity_ab_prism.csv --lpips-reference ab_prism         --replicates 3 --max-candidates 4096 "${@:2}"
     ;;
   # ---- 備案：生成模型只選風格，交付為 ab_warp 那一族的全域映射 ----
   style_warp)

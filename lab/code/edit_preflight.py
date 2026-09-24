@@ -217,11 +217,12 @@ def main() -> None:
 
     args.out.mkdir(parents=True, exist_ok=True)
     items, edits = load_items(args.data)
-    if args.defended is not None:
-        apply_defended(items, args.defended)
+    # 先依 --images 過濾再換防禦圖：子集執行時，目錄裡本來就沒有的影像不該被要求。
     if args.images:
         keep = set(args.images)
         items = [d for d in items if d["name"] in keep]
+    if args.defended is not None:
+        apply_defended(items, args.defended)
     if not items:
         raise SystemExit("沒有符合的影像")
     if args.instruction_set:

@@ -571,7 +571,8 @@ const ALL = ARMS.concat(PEND);
 const FAM = {style_random:'gen',style_low:'gen',style_filter:'gen',
   style_filter_guided:'gen',style_affine:'gen',style_opt:'gen',
   curve_dual_spatial:'curve',curve_dual_spatial_anchored:'curve',
-  curve_dual_chroma:'curve',ab_warp:'curve',
+  curve_dual_chroma:'curve',ab_warp:'curve',ab_prism:'curve',ab_prism_random_r1:'curve',
+  ab_prism_random_r2:'curve',ab_prism_random_r3:'curve',style_warp:'gen',
   inpaint_bg:'keep',inpaint_outside_face:'keep'};
 const NOBUDGET = {style_random:1,style_low:1,inpaint_bg:1,inpaint_outside_face:1};
 const SUB = {
@@ -586,13 +587,18 @@ const SUB = {
   curve_dual_spatial_anchored:'同上，起點改成該張自己的膚色色調',
   curve_dual_chroma:'單一全域曲線 · 預算分在色度',
   ab_warp:'(a,b) 平面的 RBF 位移場',
+  ab_prism:'色度相依亮度曲線 ＋ 亮度相依色度相似變換（全域）',
+  ab_prism_random_r1:'ab_prism 同族隨機抽樣（對照）',
+  ab_prism_random_r2:'ab_prism 同族隨機抽樣（對照）',
+  ab_prism_random_r3:'ab_prism 同族隨機抽樣（對照）',
+  style_warp:'SDEdit 風格擬合成 ab_warp 族全域映射',
   inpaint_bg:'只重繪主體之外',
   inpaint_outside_face:'只保留臉，其餘重繪'};
 const AUX = [
   {v:'def', label:'防禦圖', arms:ALL, hint:'原圖 ＋ 六個載體的交付圖。'},
   {v:'field', label:'混合／振幅場', arms:['style_affine','style_opt','inpaint_bg','inpaint_outside_face'],
    hint:'濾鏡臂：α(p)，臉那一側的振幅權重。inpaint 兩臂：白＝逐位元保留原圖。'},
-  {v:'warp', label:'色度平面', arms:['ab_warp'],
+  {v:'warp', label:'色度平面', arms:['ab_warp','style_warp'],
    hint:'(a,b) 平面本身：底色是該點的顏色，越亮代表位移場在那裡推得越多。暗的那一塊是被上限釘住的膚色區。'},
   {v:'raw', label:'pipeline 原輸出', arms:['inpaint_bg','inpaint_outside_face'],
    hint:'inpainting pipeline 的輸出，還沒合成回保留區。'},

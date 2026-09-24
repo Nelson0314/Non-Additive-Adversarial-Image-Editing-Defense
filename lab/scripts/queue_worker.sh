@@ -60,7 +60,10 @@ ready() {
   for j in "${JOBS[@]}"; do
     case "$kind" in
       def)     [[ "$j" == pilot:"$arm":* ]] && deps+=("$j") ;;
-      chain)   [[ "$j" == def:"$arm":* || "$j" == gen:* ]] && deps+=("$j") ;;
+      chain)   [[ "$j" == def:"$arm":* ]] && deps+=("$j")
+               # 只有 <前綴>_rN 形式的臂才相依於 gen；ab_prism 不能被 gen:ab_prism_random_* 匹配到
+               [[ "$arm" =~ _r[0-9]+$ && "$j" == gen:"${arm%_r[0-9]*}"_r* ]] && deps+=("$j") ;;
+      gen)     [[ "$j" == def:"${arm%_random_r[0-9]*}":* ]] && deps+=("$j") ;;
       readout) [[ "$j" == chain:* ]] && deps+=("$j") ;;
     esac
   done
@@ -111,7 +114,8 @@ run_job() {
              bash lab/scripts/defence_cmd.sh "$arm" --images "$img" --steps "$steps" ;;
     def)   DEF_OUT="lab/runs/defence_shards/$arm/$img" \
              bash lab/scripts/defence_cmd.sh "$arm" --images "$img" ;;
-    gen)   bash lab/scripts/defence_cmd.sh "$arm" || return 1
+    gen)   merge_shards "${arm%_random_r[0-9]*}" || return 1   # 量參照臂的 LPIPS 前要先併圖
+           bash lab/scripts/defence_cmd.sh "$arm" || return 1
            local pre=${arm%_r[0-9]*} d n
            for d in lab/runs/defence/"$pre"_r*; do
              n=$(ls -1 "$d"/*__"$(basename "$d")"__def.png 2>/dev/null | wc -l)
@@ -165,11 +169,12 @@ while true; do
     full && break
     [ -e "$LEASE/${HOST}-${c}" ] && continue
     bash scripts/free_cards.sh --assert "$c" >/dev/null 2>&1 || continue
-    # 別人的 compute app 不在記憶體門檻裡：有任何不是本使用者的 pid 就跳過
+    # 別人的 compute app：記憶體合計 < 1 GB 才疊（多卡訓練在每張卡留下的
+    # 約 256 MB context 可以疊，見記憶 gpu-cap-is-five-across-sessions）
     uuid=$(nvidia-smi -i "$c" --query-gpu=uuid --format=csv,noheader)
-    others=$(nvidia-smi --query-compute-apps=gpu_uuid,pid --format=csv,noheader \
-             | awk -F', ' -v u="$uuid" '$1==u{print $2}' | wc -l)
-    [ "$others" -eq 0 ] || continue
+    others=$(nvidia-smi --query-compute-apps=gpu_uuid,used_memory --format=csv,noheader,nounits \
+             | awk -F', ' -v u="$uuid" '$1==u{s+=$2} END{print s+0}')
+    [ "$others" -lt 1024 ] || continue
     job="${runnable[0]}"
     mkdir "$Q/$(key "$job").lock" 2>/dev/null || { runnable=("${runnable[@]:1}"); continue; }
     launch "$job" "$c"

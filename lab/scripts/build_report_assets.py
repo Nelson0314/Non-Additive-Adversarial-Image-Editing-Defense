@@ -41,7 +41,9 @@ IMAGES = ["man_00", "man_01", "man_02", "man_03",
 #: 臉框長出空間權重場的四個臂（`style_filter`、`style_filter_guided`、
 #: `curve_dual_spatial`、`curve_dual_spatial_anchored`）已移除，程式與結果皆刪。
 ARMS = ["style_affine", "curve_dual_chroma", "ab_warp", "inpaint_bg",
-        "inpaint_outside_face", "style_opt"]
+        "inpaint_outside_face", "style_opt", "ab_prism", "ab_prism_random_r1",
+        "ab_prism_random_r2", "ab_prism_random_r3",
+        "style_warp"]
 SCENARIOS = ["ip2p", "inpaint"]
 PROMPTS = [0, 1, 2, 3]
 PURIFIER = "jpeg30"
@@ -106,7 +108,7 @@ def main() -> None:
 
     # ---- 副圖（無損）：混合場、色度平面、pipeline 原輸出 ----
     aux = args.aux if args.aux is not None else [
-        f"{a}:field" for a in ARMS] + ["ab_warp:warp", "style_affine:sdedit_raw",
+        f"{a}:field" for a in ARMS] + ["ab_warp:warp", "style_warp:warp", "style_affine:sdedit_raw",
                                        "inpaint_bg:raw", "inpaint_outside_face:raw"]
     for spec in aux:
         arm, suffix = spec.split(":", 1)
@@ -133,6 +135,8 @@ def main() -> None:
         for scenario in SCENARIOS:
             for purified in (False, True):
                 d = edit_dir(cond, scenario, purified)
+                if cond != "undefended" and not d.is_dir():
+                    continue      # 2026-09-25 起的臂只跑 ip2p
                 paths = [d / f"{n}__p{p}.png" for n in IMAGES for p in PROMPTS]
                 tag = f"{PURIFIER}" if purified else "plain"
                 add(f"edit/{cond}/{scenario}/{tag}", sheet(

@@ -30,7 +30,8 @@ IMAGES = ["man_00", "man_01", "man_02", "man_03",
 #: `lab/docs/DESIGN.md` 的「已退役：直接交付 SDEdit 輸出」。
 #: 臉框長出空間權重場的四個臂已移除，理由見 DESIGN.md「已移除」一節。
 ARMS = ["inpaint_outside_face", "style_affine", "curve_dual_chroma", "style_opt",
-        "inpaint_bg", "ab_warp"]
+        "inpaint_bg", "ab_warp", "ab_prism", "ab_prism_random_r1",
+        "ab_prism_random_r2", "ab_prism_random_r3", "style_warp"]
 PENDING = []
 PURIFIERS = ["jpeg80", "jpeg50", "jpeg30", "blur1", "blur2",
              "crop_resize0.1", "rotate15"]
@@ -129,6 +130,10 @@ def main() -> None:
     for c in sorted(cells):
         row = {}
         for sc in ("ip2p", "inpaint"):
+            if sc not in cells[c]:      # 只跑 ip2p 的臂
+                row[sc] = {"full": None, "subj": None, "bg": None,
+                           "blocked": 0, "n": 0}
+                continue
             cs = [v for im in cells[c][sc].values() for v in im.values()]
             row[sc] = {"full": round(st.median(x["full"] for x in cs), 4),
                        "subj": round(st.median(x["subj"] for x in cs), 4),

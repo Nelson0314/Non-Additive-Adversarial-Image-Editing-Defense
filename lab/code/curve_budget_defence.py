@@ -1,4 +1,4 @@
-"""現行的色調曲線載體，但**臉與背景吃不同的色偏預算**，且不產生生硬接縫。
+"""現行的色調曲線載體，但**臉與背景吃不同的色偏預算**，映射仍然全域。
 
 問題
 ────────────────────────────────────────────────────────────────────
@@ -8,13 +8,9 @@ curve（`pieces 64`、`radius 5.0`、900 步、ΔE00 ≤ 16）。全域的意思
 **無法**把預算在臉與背景之間重新分配的原因：給臉一道較緊的上限，只會讓整條
 曲線被那道上限綁住，背景並不會因此拿到更多振幅。
 
-把預算分開，勢必要讓映射帶有空間相依性，而空間相依性正是接縫的來源。本檔
-用兩種互斥的方式處理這件事，各自成為一個臂。
-
-`chroma`：預算分在**色度**上，映射仍然全域
-────────────────────────────────────────────────────────────────────
-載體不變（單一全域曲線），只是上限分兩道：整圖 ΔE00 ≤ `--frame-cap`，人臉框
-內 ΔE00 ≤ `--face-cap`（較緊）。因為映射是全域的，「把臉的色偏壓下來」實際
+把預算分開而不引入空間相依性（空間相依性正是接縫的來源），做法是把預算
+分在**色度**上。載體不變（單一全域曲線），只是上限分兩道：整圖
+ΔE00 ≤ `--frame-cap`，人臉框內 ΔE00 ≤ `--face-cap`（較緊）。因為映射是全域的，「把臉的色偏壓下來」實際
 發生在**臉的顏色所落到的那幾段曲線**上；背景中恰好同色的像素一起被壓，
 其餘色階仍可用滿整圖的預算。
 
@@ -22,27 +18,7 @@ curve（`pieces 64`、`radius 5.0`、900 步、ΔE00 ≤ 16）。全域的意思
 逐像素反查驗證過這件事（同一輸入色階的輸出寬度最大值為 0）。
 代價是「臉」被定義成一組顏色而不是一塊區域。
 
-`spatial`：兩條曲線 ＋ 平滑混合場
-────────────────────────────────────────────────────────────────────
-
-    y = w·F_face(x) + (1 − w)·F_bg(x)
-
-`F_face` 與 `F_bg` 各自是一條單調分段線性曲線（同一族、同一個 `radius`），
-兩者各自求解；`w` 是由人臉框長出的**固定**權重場，不是可學參數。
-
-接縫的控制有三層，缺一層都會回到已知的失敗形狀（遮罩帶窄出斑塊、帶寬出臉霧）：
-
-1. **`w` 用 smoothstep，不是二值遮罩也不是高斯模糊的二值遮罩。** 橢圓距離
-   `d` 在 `[1, 1+feather]` 上以 `3t²−2t³` 由 1 降到 0，兩端一階導數為零，
-   故 `w` 是 C¹ 的，沒有任何硬邊。
-2. **過渡帶上的位移場 TV 有上限**（`--band-tv-cap`）。接縫的定義就是位移場在
-   過渡帶上的梯度，直接把它當一道約束。本專案已量到均勻度與防禦強度直接
-   對立，轉折落在位移場 TV 1.0 與 2.0 之間，故預設取 2.0。
-3. **兩條曲線的差本身沒有被獎勵。** 目標只看編輯端的代理，曲線差只是達成
-   手段；配上第 2 點，解會自動避開「兩條曲線在同一個輸入色階上差很多」的
-   區域——那正是過渡帶上 TV 的來源。
-
-求解端（兩個臂共用，與 `colour_curve_ours` 同一組設定）
+求解端（與 `colour_curve_ours` 同一組設定）
 ────────────────────────────────────────────────────────────────────
 `FreeObjective`（`src/defense/instruction_free.py`）：不含指令的目標，權重
 `id 1.0`／`enc 0.5`／`cond 1.0`，`timesteps 4`、`chain_steps 6`、
@@ -59,8 +35,8 @@ curve（`pieces 64`、`radius 5.0`、900 步、ΔE00 ≤ 16）。全域的意思
     {out}/results.csv                逐列寫入
 
 用法
-    python code/curve_budget_defence.py --arm curve_dual_spatial \\
-        --out lab/runs/defence/curve_dual_spatial --budget-mode spatial
+    python code/curve_budget_defence.py --arm curve_dual_chroma \\
+        --out lab/runs/defence/curve_dual_chroma
 """
 
 from __future__ import annotations
@@ -80,9 +56,7 @@ paths.add_source_to_syspath()
 import torch  # noqa: E402
 import yaml  # noqa: E402
 
-from colour_support import (  # noqa: E402
-    apply_slopes, chroma_p95, skin_colour_support, skin_tone_slopes,
-)
+from colour_support import chroma_p95, skin_colour_support  # noqa: E402
 from src.defense.color_amplitude import delta_e00  # noqa: E402
 from src.defense.color_param import ColorCurveParam  # noqa: E402
 from src.defense.delta_e_torch import delta_e00_torch  # noqa: E402
@@ -101,68 +75,6 @@ RESOLUTION = 512
 #: 求解端看到的文字條件。整條路徑不含文字，這一列只是為了讓 CSV 自己說得出
 #: 「防禦方看到了什麼」，與其餘條件的欄位對得起來。
 SOLVER_PROMPT = ("", "無文字條件：三個項都不經過 text encoder")
-
-
-# ---- 載體 ----
-
-class ColorCurveDual:
-    """兩條單調曲線 ＋ 固定的平滑混合場。`w = 1` 的地方完全由 `a` 決定。
-
-    `w` 不是參數。讓混合場可學會把「接縫該放哪裡」變成可最佳化的東西，
-    而最佳化會把它推到任何能換到分數的地方——本專案已量過三道自然度門檻
-    都被鑽過，可行域不是靠事後門檻守得住的。
-    """
-
-    name = "color_curve_dual"
-
-    def __init__(self, weight: torch.Tensor, radius: float = 5.0,
-                 pieces: int = 64, bound_mode: str = "advcf"):
-        self.a = ColorCurveParam(radius=radius, pieces=pieces,
-                                 bound_mode=bound_mode)
-        self.b = ColorCurveParam(radius=radius, pieces=pieces,
-                                 bound_mode=bound_mode)
-        self.weight = weight
-        self.radius = radius
-        self.pieces = pieces
-
-    def reset(self, x01: torch.Tensor, seed: int) -> None:
-        self.a.reset(x01, seed)
-        self.b.reset(x01, seed + 7919)
-
-    def render(self, x01: torch.Tensor) -> torch.Tensor:
-        w = self.weight.to(device=x01.device, dtype=x01.dtype)
-        return w * self.a.render(x01) + (1.0 - w) * self.b.render(x01)
-
-    def params(self):
-        return self.a.params() + self.b.params()
-
-    def project(self) -> None:
-        self.a.project()
-        self.b.project()
-
-    def state_dict(self):
-        return {"a": self.a.state_dict(), "b": self.b.state_dict()}
-
-    def load_state_dict(self, state):
-        self.a.load_state_dict(state["a"])
-        self.b.load_state_dict(state["b"])
-
-    @property
-    def stages(self):
-        return [self.a, self.b]
-
-    def set_amplitude(self, a):
-        if not isinstance(a, (list, tuple)):
-            a = [a, a]
-        self.a.set_amplitude(a[0])
-        self.b.set_amplitude(a[1])
-
-    def step_scale(self) -> float:
-        return self.a.step_scale()
-
-    def set_radius(self, r: float) -> None:
-        self.a.set_radius(r)
-        self.b.set_radius(r)
 
 
 # ---- 遮罩與權重場 ----
@@ -210,15 +122,6 @@ def smooth_field(x01: torch.Tensor, box, feather: float) -> torch.Tensor:
     return field.view(1, 1, h, w)
 
 
-def transition_band(field: torch.Tensor, lo: float = 0.05,
-                    hi: float = 0.95) -> torch.Tensor:
-    """過渡帶：`w` 既不是 0 也不是 1 的那一圈。接縫只可能長在這裡。"""
-    band = ((field > lo) & (field < hi)).to(field.dtype)
-    if float(band.sum()) < 16:
-        raise ValueError("過渡帶太窄，接縫的上限量不到；把 --feather 調大")
-    return band
-
-
 # ---- 資料 ----
 
 def load_images(root: Path, only):
@@ -249,21 +152,10 @@ def main() -> None:
     ap.add_argument("--out", type=Path, required=True)
     ap.add_argument("--data", type=Path, default=paths.PORTRAITS)
     ap.add_argument("--images", nargs="+", default=None)
-    ap.add_argument("--budget-mode", required=True, choices=("chroma", "spatial"))
     ap.add_argument("--frame-cap", type=float, default=16.0,
                     help="整圖 ΔE00 上限。與 colour_curve_ours 相同，不要改")
     ap.add_argument("--face-cap", type=float, default=8.0,
                     help="人臉框內 ΔE00 上限。比整圖緊，這就是「不同預算」")
-    ap.add_argument("--band-tv-cap", type=float, default=2.0,
-                    help="過渡帶上位移場的 TV 上限（只有 spatial 用得到）")
-    ap.add_argument("--feather", type=float, default=0.35,
-                    help="過渡帶寬度，框半徑的倍數")
-    ap.add_argument("--init", default="identity",
-                    choices=("identity", "skin_tone"),
-                    help="最佳化的起點。skin_tone 用該張自己的膚色色調（整圖"
-                         "累積分布對到膚色區累積分布）當起點，而不是恆等")
-    ap.add_argument("--init-strength", type=float, default=1.0,
-                    help="起點在恆等與膚色色調之間的插值")
     ap.add_argument("--skin-radius", type=float, default=0.0,
                     help="> 0 時加一道 skin_colour 上限：原圖裡與膚色同色的"
                          "像素（不限位置）的 ΔE00 不得超過 --face-cap")
@@ -307,26 +199,9 @@ def main() -> None:
         c95 = float(chroma_p95(x))
         chroma_cap = c95 * args.chroma_gain if args.chroma_gain > 0 else 0.0
 
-        if args.budget_mode == "spatial":
-            field = smooth_field(x, box, args.feather)
-            band = transition_band(field)
-            carrier = ColorCurveDual(field, radius=args.radius,
-                                     pieces=args.pieces, bound_mode="advcf")
-        else:
-            field = None
-            band = None
-            carrier = ColorCurveParam(radius=args.radius, pieces=args.pieces,
-                                      bound_mode="advcf")
+        carrier = ColorCurveParam(radius=args.radius, pieces=args.pieces,
+                                  bound_mode="advcf")
         carrier.reset(x, args.noise_seed)
-
-        init_clipped = ""
-        if args.init == "skin_tone":
-            # 起點用的膚色支撐一律是顏色定義的那一塊；沒有給 --skin-radius
-            # 時也要有一個，否則「膚色色調」沒有來源。
-            base = skin if skin is not None else skin_colour_support(x, face, 12.0)
-            slopes = skin_tone_slopes(x, base, args.pieces, args.init_strength)
-            clipped = [apply_slopes(stage, slopes) for stage in carrier.stages]
-            init_clipped = "|".join(f"{v:.4f}" for v in clipped)
 
         caps = [
             Cap("frame", lambda y: delta_e00_torch(x, y, frame),
@@ -334,11 +209,6 @@ def main() -> None:
             Cap("face_box", lambda y: delta_e00_torch(x, y, face),
                 lambda y: delta_e00(x, y, face), args.face_cap),
         ]
-        if args.budget_mode == "spatial" and args.band_tv_cap > 0:
-            caps.append(
-                Cap("band_tv", lambda y: tv_offset(lab_offset(x, y), band),
-                    lambda y: float(tv_offset(lab_offset(x, y), band)),
-                    args.band_tv_cap))
         if skin is not None:
             caps.append(
                 Cap("skin_colour", lambda y: delta_e00_torch(x, y, skin),
@@ -365,15 +235,11 @@ def main() -> None:
             offset = lab_offset(x, y)
             row = {
                 "image": item["name"], "class": item["class"], "arm": args.arm,
-                "budget_mode": args.budget_mode,
+                "budget_mode": "chroma",
                 "carrier": carrier.name, "pieces": args.pieces,
                 "radius": args.radius, "solver_steps": args.steps,
                 "lr": args.lr, "frame_cap": args.frame_cap,
                 "face_cap": args.face_cap,
-                "band_tv_cap": args.band_tv_cap if args.budget_mode == "spatial" else "",
-                "feather": args.feather if args.budget_mode == "spatial" else "",
-                "init": args.init, "init_strength": args.init_strength,
-                "init_clipped_frac": init_clipped,
                 "skin_radius": args.skin_radius, "chroma_gain": args.chroma_gain,
                 "chroma_p95_orig": round(c95, 4),
                 "chroma_p95_cap": round(chroma_cap, 4) if chroma_cap else "",
@@ -387,8 +253,6 @@ def main() -> None:
                 "deltaE00_frame": round(float(delta_e00(x, y, frame)), 4),
                 "deltaE00_face_box": round(float(delta_e00(x, y, face)), 4),
                 "tv_frame": round(float(tv_offset(offset, frame)), 5),
-                "tv_band": (round(float(tv_offset(offset, band)), 5)
-                            if band is not None else ""),
                 "psnr": round(float(10 * torch.log10(
                     1.0 / (y - x).pow(2).mean())), 4),
                 "linf": round(float((y - x).abs().max()), 5),
@@ -399,13 +263,10 @@ def main() -> None:
             }
         save_image(x, args.out / f"{item['name']}__orig.png")
         save_image(y, args.out / f"{item['name']}__{args.arm}__def.png")
-        if field is not None:
-            save_image(field.repeat(1, 3, 1, 1),
-                       args.out / f"{item['name']}__field.png")
         rows.append(row)
         write_rows(args.out / "results.csv", rows)
         print(f"[{args.arm}] {item['name']}  ΔE frame {row['deltaE00_frame']} "
-              f"face {row['deltaE00_face_box']}  TV band {row['tv_band']}  "
+              f"face {row['deltaE00_face_box']}  "
               f"score {row['free_score_start']} → {row['free_score_end']}  "
               f"違反 {row['free_cap_violations']}  {row['seconds']}s", flush=True)
     print(f"完成：{len(rows)} 張 → {args.out}", flush=True)

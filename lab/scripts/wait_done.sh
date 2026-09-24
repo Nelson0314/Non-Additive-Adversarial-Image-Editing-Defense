@@ -18,7 +18,7 @@ WANT="${1:-108}"
 POLL="${2:-600}"
 R=/nfs/home/nelson0314/image-immunization
 cd "$R" || exit 1
-ARMS="style_random style_low style_filter style_filter_guided curve_dual_spatial curve_dual_chroma"
+ARMS="inpaint_outside_face inpaint_bg style_affine style_opt curve_dual_chroma ab_warp"
 
 alive() {
   ps -u "$USER" -o args= | grep -cE "arm_chain.sh|dispatch.sh" || true

@@ -15,13 +15,13 @@
 
 ## 現況
 
-**十一個臂跑完整條鏈，跨臂讀數已出；第十二個臂 `style_opt` 在跑。**
+**現行六個臂。** 五個跑完整條鏈，`style_opt` 在跑。臉框分區的四個臂已移除（見下）。
 
 | 檔 | 列數 | 內容 |
 |---|---|---|
-| `results/displacement.csv` | 704 | 位移，11 臂 × 8 影像 × 4 指令 × 2 場景 |
-| `results/retention.csv` | 4,928 | 保留率，11 臂 × 7 算子 × 64 |
-| `results/fidelity.csv` | 88 | 四個失真指標逐張（LPIPS／ΔE00／PSNR／L∞／rms） |
+| `results/displacement.csv` | 448 | 位移，7 條件 × 8 影像 × 4 指令 × 2 場景（含已退役兩臂） |
+| `results/retention.csv` | 3,136 | 保留率，7 條件 × 7 算子 × 64 |
+| `results/fidelity.csv` | 56 | 四個失真指標逐張（LPIPS／ΔE00／PSNR／L∞／rms） |
 
 報告頁（v2，十一臂）<https://claude.ai/artifact/VdWw6PoWtrQd2xTLc5Qyvt>
 
@@ -32,29 +32,29 @@
 
 1. ~~十一臂讀數~~ **已完成**
 2. `style_opt` 的完整鏈（試跑已過 rc=0；防禦圖約 9 分鐘一張）
-3. **十二臂讀數**——只有 `style_opt` 的 sentinel 滿 18 才跑
+3. **跨臂讀數**——只有 `style_opt` 的 sentinel 滿 18 才跑（掃 `edit_defended/` 底下現存的臂，移除的四臂已不在）
 
 第 3 步跑完之後**要重建報告頁**（見下「怎麼重建報告頁」）。
-注意退役之後臂數是 **10**，不是 12。
+注意移除之後臂數是 **6**。
 
 ---
 
-## 十個現行的臂
+## 六個現行的臂
 
 | 臂 | 線 | 載體 | 最佳化 | 預算 |
 |---|---|---|---|---|
 | `inpaint_outside_face` | 不碰受保護區 | 只保留臉，其餘全部重繪 | 無 | **無** |
 | `inpaint_bg` | 不碰受保護區 | 只重繪主體之外 | 無 | **無** |
 | `style_affine` | 生成濾鏡 | 三通道局部仿射色彩轉移 | 無 | ΔE00 16／臉 8 |
-| `style_filter` | 生成濾鏡 | 低頻色彩場，高斯低通 | 無 | ΔE00 16／臉 8 |
-| `style_filter_guided` | 生成濾鏡 | 同上，單通道 guided filter | 無 | ΔE00 16／臉 8 |
 | `style_opt` | 生成濾鏡 | 風格由最佳化在字典凸包上選 | 60 步 | ΔE00 16／臉 8 |
-| `curve_dual_spatial` | 分區預算 | 兩條曲線 ＋ 平滑混合場 | 900 步 | ＋帶 TV ≤ 2 |
-| `curve_dual_spatial_anchored` | 分區預算 | 同上，起點改成該張自己的膚色色調 | 900 步 | ＋彩度、同色 |
 | `curve_dual_chroma` | 分區預算 | 單一全域曲線，預算分在色度 | 900 步 | ΔE00 16／臉 8 |
 | `ab_warp` | 分區預算 | CIELAB `(a,b)` 平面的 RBF 位移場 | 900 步 | ＋彩度、同色 |
 
 **臂的參數全部定義在 `scripts/defence_cmd.sh` 的 `case`，只有那一個地方。**
+
+**已移除**：`style_filter`、`style_filter_guided`、`curve_dual_spatial`、
+`curve_dual_spatial_anchored`（臉框長出空間權重場、臉與背景分開求解，產物有邊界）。
+程式與結果皆刪，使用者裁定。見 `docs/DESIGN.md`「已移除」一節。
 
 **已退役**：`style_random`、`style_low`（直接交付 SDEdit 輸出）。
 逐格圖已刪，防禦圖與配方留著。理由見 `docs/DESIGN.md`「已退役」一節。
@@ -147,7 +147,7 @@ python lab/scripts/build_report_data.py --out lab/report/data.js
 
 1. **逐格看圖。** 位移與保留率都是數字，而本專案的規矩是成立與否看圖。
    報告頁的兩個並列區就是為這件事做的，但 5,632 格沒有人逐格看過。
-2. **等失真對齊。** 十個臂掛在三種預算上，四個臂**沒有可縮的旋鈕**
+2. **等失真對齊。** 六個臂掛在三種預算上，四個臂**沒有可縮的旋鈕**
    （兩個 `inpaint_*` 的重繪區是生成的、`style_affine` 的旋鈕是濾波器半徑）。
    主表那條線已經把十個 baseline 對齊到 LPIPS 0.3344，它的編輯端還在排。
 3. **`metrics_union.py` 在 lab 上跑不起來**（路徑寫死指向 `main_table/`），

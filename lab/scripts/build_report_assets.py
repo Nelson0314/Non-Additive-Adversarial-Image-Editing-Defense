@@ -38,10 +38,10 @@ TILE = 512
 IMAGES = ["man_00", "man_01", "man_02", "man_03",
           "woman_00", "woman_01", "woman_02", "woman_03"]
 #: **`style_random` 與 `style_low` 已退役**，逐格圖已刪，不在這一串裡。
-ARMS = ["style_filter", "style_filter_guided", "style_affine",
-        "curve_dual_spatial", "curve_dual_spatial_anchored",
-        "curve_dual_chroma", "ab_warp", "inpaint_bg", "inpaint_outside_face",
-        "style_opt"]
+#: 臉框長出空間權重場的四個臂（`style_filter`、`style_filter_guided`、
+#: `curve_dual_spatial`、`curve_dual_spatial_anchored`）已移除，程式與結果皆刪。
+ARMS = ["style_affine", "curve_dual_chroma", "ab_warp", "inpaint_bg",
+        "inpaint_outside_face", "style_opt"]
 SCENARIOS = ["ip2p", "inpaint"]
 PROMPTS = [0, 1, 2, 3]
 PURIFIER = "jpeg30"
@@ -106,7 +106,7 @@ def main() -> None:
 
     # ---- 副圖（無損）：混合場、色度平面、pipeline 原輸出 ----
     aux = args.aux if args.aux is not None else [
-        f"{a}:field" for a in ARMS] + ["ab_warp:warp", "style_filter:sdedit_raw",
+        f"{a}:field" for a in ARMS] + ["ab_warp:warp", "style_affine:sdedit_raw",
                                        "inpaint_bg:raw", "inpaint_outside_face:raw"]
     for spec in aux:
         arm, suffix = spec.split(":", 1)

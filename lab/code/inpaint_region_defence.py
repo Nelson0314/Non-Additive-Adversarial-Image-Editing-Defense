@@ -31,7 +31,7 @@ inpaint 主體內位移 0.0348）。`outside_face` 改的是主體內的頭髮�
 而且這正是編輯管線自己在做的事（`edit = mask·raw + (1−mask)·x`）。
 
 `outside_face` 的邊界落在頭的中間，硬合成會是一條看得見的接縫。所以這一個
-用 C¹ 的 smoothstep 場合成（與 `curve_dual_spatial` 同一個場），送進 pipeline
+用 C¹ 的 smoothstep 場合成（`curve_budget_defence.smooth_field`），送進 pipeline
 的二值遮罩則取該場的 0.5 等高線。
 
 **沒有失真上限。** 重繪區是生成出來的，ΔE00 對它沒有意義；這一臂與兩個直接

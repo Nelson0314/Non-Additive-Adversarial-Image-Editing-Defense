@@ -19,6 +19,10 @@ export CUDA_DEVICE_ORDER=PCI_BUS_ID
 export PYTHONIOENCODING=utf-8
 
 L=lab/runs
+# 攻擊端只跑 ip2p（整張圖編輯）。inpaint 場景的遮罩是資料集由原圖切出的那一張，
+# 攻擊者拿不到，而且幾何淨化後遮罩不跟著轉；使用者裁定不再跑。已經跑過的
+# inpaint 讀數與逐格圖留著當參考。
+SCENARIOS="ip2p"
 DATA=lab/data/portraits
 mkdir -p "$L/state"
 
@@ -35,7 +39,7 @@ step() {
 
 step defence bash lab/scripts/defence_cmd.sh "$ARM" || exit 1
 
-for SC in ip2p inpaint; do
+for SC in $SCENARIOS; do
   step "edit_$SC" "$PY" lab/code/edit_preflight.py --data "$DATA" \
       --defended "$L/defence/$ARM" --out "$L/edit_defended/$ARM" \
       --scenarios "$SC" --suffix "_$ARM" || exit 1
@@ -45,7 +49,7 @@ step purify "$PY" lab/code/purify_run.py --defended "$L/defence/$ARM" \
     --out "$L/purified/$ARM" || exit 1
 
 for PUR in jpeg50 crop_resize0.1 blur1 rotate15 jpeg30 jpeg80 blur2; do
-  for SC in ip2p inpaint; do
+  for SC in $SCENARIOS; do
     step "pedit_${PUR}_${SC}" "$PY" lab/code/edit_preflight.py --data "$DATA" \
         --defended "$L/purified/$ARM/$PUR" \
         --out "$L/edit_purified/$ARM/$PUR" --scenarios "$SC" \

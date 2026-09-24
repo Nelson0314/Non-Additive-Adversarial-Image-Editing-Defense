@@ -14,7 +14,7 @@
 #
 # 用法：bash lab/scripts/wait_done.sh <期望的 sentinel 數> [輪詢秒數]
 set -uo pipefail
-WANT="${1:-108}"
+WANT="${1:-60}"
 POLL="${2:-600}"
 R=/nfs/home/nelson0314/image-immunization
 cd "$R" || exit 1
@@ -43,7 +43,7 @@ done
 
 echo "--- sentinel 逐臂 ---"
 for a in $ARMS; do
-  printf "%-22s %s/18\n" "$a" "$(ls -1 lab/runs/state/${a}.*.done 2>/dev/null | wc -l)"
+  printf "%-22s %s/10\n" "$a" "$(ls -1 lab/runs/state/${a}.*.done 2>/dev/null | wc -l)"
 done
 echo "--- 租約 ---"; ls ~/lab_leases/ 2>/dev/null
 echo "--- 最近的重試 ---"; grep -h "^\[RETRY\]\|^\[REGAIN\]" lab/runs/logs/*.log 2>/dev/null | tail -5

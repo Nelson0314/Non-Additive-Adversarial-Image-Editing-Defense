@@ -406,3 +406,18 @@ smoothstep 場與過渡帶 TV 上限都沒有消除產物上看得出的邊界�
 | `defence_cmd.sh` 的四個 `case`、兩支報告腳本的 `ARMS` | **已移除** |
 
 `style_affine` 與 `style_opt` 同樣以臉框長出的平滑場分配預算，**使用者裁定保留**。
+
+
+---
+
+# 攻擊端只跑 ip2p
+
+inpaint 場景（含七道淨化後的編輯）的遮罩取自 `data/portraits/masks/`：
+CLIPSeg 以類別名在**原圖**上切出的主體遮罩，外擴後反轉為重繪區。兩個問題：
+
+1. 攻擊者拿不到這張遮罩。它與 `inpaint_bg` 防禦時的重繪區是同一張，攻擊者
+   因此恰好把防禦改過的整塊區域重繪掉，`inpaint_bg` 在該場景的位移為 0.000。
+2. `rotate15`、`crop_resize0.1` 之後，影像已經轉動或裁切，遮罩仍是原圖那一張。
+
+使用者裁定：**之後的鏈只跑 ip2p**（`arm_chain.sh` 的 `SCENARIOS`）。已經跑過
+的 inpaint 讀數與逐格圖不刪，當參考，判讀以看圖為主。

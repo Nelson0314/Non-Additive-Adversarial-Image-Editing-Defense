@@ -70,9 +70,14 @@ bash scripts/readout.sh <GPU>               # 跨臂讀數（displacement + rete
 python code/defence_fidelity.py --out results/fidelity.csv   # 四個失真指標
 ```
 
-鏈的四個階段：`defence` → `edit_ip2p`／`edit_inpaint` → `purify` →
-`pedit_<算子>_<場景>` × 14，共 **18 個 sentinel**，寫在 `runs/state/`，
-**只在該階段 rc=0 時才寫**。重跑會跳過已完成的階段。
+鏈的四個階段：`defence` → `edit_ip2p` → `purify` → `pedit_<算子>_ip2p` × 7，
+共 **10 個 sentinel**，寫在 `runs/state/`，**只在該階段 rc=0 時才寫**。
+重跑會跳過已完成的階段。
+
+**攻擊端只跑 ip2p。** inpaint 場景的遮罩是資料集由原圖切出的那一張（與
+`inpaint_bg` 防禦用的同一張），攻擊者拿不到，幾何淨化後也不跟著轉；使用者
+裁定不再跑。已跑過的 inpaint 讀數（每臂 8 個 sentinel）與逐格圖**留著當參考**，
+`inpaint_bg` 在 inpaint 場景的位移 0.000 就是遮罩相同造成的。
 
 ### 實測成本
 

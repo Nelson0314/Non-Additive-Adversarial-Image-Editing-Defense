@@ -38,7 +38,8 @@ TILE = 512
 IMAGES = ["man_00", "man_01", "man_02", "man_03",
           "woman_00", "woman_01", "woman_02", "woman_03"]
 ARMS = ["style_random", "style_low", "style_filter", "style_filter_guided",
-        "curve_dual_spatial", "curve_dual_chroma"]
+        "style_affine", "curve_dual_spatial", "curve_dual_spatial_anchored",
+        "curve_dual_chroma", "ab_warp", "inpaint_bg", "inpaint_outside_face"]
 SCENARIOS = ["ip2p", "inpaint"]
 PROMPTS = [0, 1, 2, 3]
 PURIFIER = "jpeg30"
@@ -73,9 +74,16 @@ def main() -> None:
     ap.add_argument("--root", type=Path, default=Path("lab/runs"))
     ap.add_argument("--out", type=Path, default=Path("lab/report/img"))
     ap.add_argument("--quality", type=int, default=86)
+    ap.add_argument("--arms", nargs="+", default=None,
+                    help="要收的臂。預設是 ARMS 常數那一串")
+    ap.add_argument("--aux", nargs="*", default=None,
+                    help="`<臂>:<後綴>`，收該臂的副圖（field、warp、raw…）")
     args = ap.parse_args()
 
     R = args.root
+    global ARMS
+    if args.arms:
+        ARMS = list(args.arms)
     manifest = {"tile": TILE, "images": IMAGES, "arms": ARMS,
                 "scenarios": SCENARIOS, "prompts": PROMPTS,
                 "purifier": PURIFIER, "sheets": {}}
@@ -94,16 +102,17 @@ def main() -> None:
             [R / "defence" / arm / f"{n}__{arm}__def.png" for n in IMAGES],
             4, args.out / f"def_{arm}.webp", lossless=True))
 
-    # ---- 混合場與 SDEdit 原始輸出（無損）----
-    for arm in ("curve_dual_spatial", "style_filter", "style_filter_guided"):
-        paths = [R / "defence" / arm / f"{n}__field.png" for n in IMAGES]
+    # ---- 副圖（無損）：混合場、色度平面、pipeline 原輸出 ----
+    aux = args.aux if args.aux is not None else [
+        f"{a}:field" for a in ARMS] + ["ab_warp:warp", "style_filter:sdedit_raw",
+                                       "inpaint_bg:raw", "inpaint_outside_face:raw"]
+    for spec in aux:
+        arm, suffix = spec.split(":", 1)
+        paths = [R / "defence" / arm / f"{n}__{suffix}.png" for n in IMAGES]
         if all(p.is_file() for p in paths):
-            add(f"field/{arm}", sheet(paths, 4, args.out / f"field_{arm}.webp",
-                                      lossless=True))
-    raws = [R / "defence" / "style_filter" / f"{n}__sdedit_raw.png" for n in IMAGES]
-    if all(p.is_file() for p in raws):
-        add("sdedit_raw", sheet(raws, 4, args.out / "sdedit_raw.webp",
-                                lossless=True))
+            add(f"aux/{arm}/{suffix}",
+                sheet(paths, 4, args.out / f"aux_{arm}_{suffix}.webp",
+                      lossless=True))
 
     # ---- 編輯圖（有損）----
     def edit_dir(cond, scenario, purified):

@@ -6,11 +6,11 @@
   --paper:#f2f4f7; --card:#ffffff; --sunk:#e7ebf1;
   --ink:#0f151c; --ink-2:#414d5c; --ink-3:#6d7b8c;
   --line:#ccd5e0; --line-2:#dde4ec;
-  --signal:#10559b; --signal-soft:#e3edf8;
+  --signal:#10559b; --signal-soft:#e3edf8; --on-signal:#ffffff;
   --gen:#8a4f14; --gen-soft:#f7ece1;
   --curve:#0d6273; --curve-soft:#e0f0f3;
+  --keep:#5b3a86; --keep-soft:#efe8f7;
   --pass:#1c6a42; --edge:#8a5806; --fail:#9f2620;
-  --on-signal:#ffffff;
   --grid: rgba(16,85,155,.09);
   --shadow: 0 1px 2px rgba(15,21,28,.06), 0 8px 24px -12px rgba(15,21,28,.18);
   --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
@@ -23,11 +23,11 @@
     --paper:#0c1117; --card:#141b24; --sunk:#0a0f15;
     --ink:#e8edf3; --ink-2:#a9b6c6; --ink-3:#7b8898;
     --line:#2a3644; --line-2:#1e2833;
-    --signal:#6aaef0; --signal-soft:#16273a;
+    --signal:#6aaef0; --signal-soft:#16273a; --on-signal:#08121c;
     --gen:#dda264; --gen-soft:#2a1f12;
     --curve:#5fc4d6; --curve-soft:#0f2a30;
+    --keep:#b294dd; --keep-soft:#221a33;
     --pass:#5fc78d; --edge:#e0b551; --fail:#f0827c;
-    --on-signal:#08121c;
     --grid: rgba(106,174,240,.12);
     --shadow: 0 1px 2px rgba(0,0,0,.4), 0 10px 30px -14px rgba(0,0,0,.8);
   }
@@ -37,11 +37,11 @@
   --paper:#0c1117; --card:#141b24; --sunk:#0a0f15;
   --ink:#e8edf3; --ink-2:#a9b6c6; --ink-3:#7b8898;
   --line:#2a3644; --line-2:#1e2833;
-  --signal:#6aaef0; --signal-soft:#16273a;
+  --signal:#6aaef0; --signal-soft:#16273a; --on-signal:#08121c;
   --gen:#dda264; --gen-soft:#2a1f12;
   --curve:#5fc4d6; --curve-soft:#0f2a30;
+  --keep:#b294dd; --keep-soft:#221a33;
   --pass:#5fc78d; --edge:#e0b551; --fail:#f0827c;
-  --on-signal:#08121c;
   --grid: rgba(106,174,240,.12);
   --shadow: 0 1px 2px rgba(0,0,0,.4), 0 10px 30px -14px rgba(0,0,0,.8);
 }
@@ -62,9 +62,7 @@ code{font-size:.88em;background:var(--sunk);padding:.1em .35em;border-radius:3px
 .eyebrow{font-family:var(--disp);font-size:11px;font-weight:600;letter-spacing:.14em;
   text-transform:uppercase;color:var(--ink-3)}
 
-/* ---- header ---- */
-header.top{border-bottom:1px solid var(--line);
-  background:linear-gradient(var(--card),var(--card)) padding-box;
+header.top{border-bottom:1px solid var(--line);background:var(--card);
   background-image:linear-gradient(var(--grid) 1px,transparent 1px),
     linear-gradient(90deg,var(--grid) 1px,transparent 1px);
   background-size:32px 32px;background-position:center}
@@ -72,23 +70,19 @@ header.top .wrap{padding-block:clamp(30px,6vw,56px) clamp(24px,4vw,38px)}
 .titleline{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:baseline}
 .stamp{font-family:var(--mono);font-size:11px;color:var(--ink-3);
   border:1px solid var(--line);border-radius:999px;padding:3px 10px;background:var(--card)}
-
-/* ---- headline figures ---- */
 .figs{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);
   border-radius:8px;overflow:hidden;margin-top:26px;
-  grid-template-columns:repeat(auto-fit,minmax(148px,1fr))}
+  grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
 .fig{background:var(--card);padding:13px 15px 14px}
-.fig b{display:block;font-family:var(--mono);font-weight:600;font-size:22px;
+.fig b{display:block;font-family:var(--mono);font-weight:600;font-size:21px;
   line-height:1.15;letter-spacing:-.02em}
 .fig span{display:block;font-size:12.5px;color:var(--ink-3);margin-top:3px;line-height:1.35}
 
-/* ---- sections ---- */
 section{margin-top:clamp(40px,6vw,64px)}
 .sechead{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline;
   border-bottom:2px solid var(--ink);padding-bottom:7px;margin-bottom:18px}
 .sechead p{margin:0;color:var(--ink-3);font-size:13.5px}
 
-/* ---- controls ---- */
 .controls{display:flex;flex-wrap:wrap;gap:14px 22px;align-items:flex-end;
   background:var(--card);border:1px solid var(--line);border-radius:8px;
   padding:13px 15px;margin-bottom:16px;box-shadow:var(--shadow)}
@@ -106,21 +100,22 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--signal);
   outline-offset:2px}
 .hint{font-size:12.5px;color:var(--ink-3);margin:0}
 
-/* ---- comparison deck ---- */
-.deck{display:grid;gap:12px;
-  grid-template-columns:repeat(auto-fill,minmax(178px,1fr))}
+.deck{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(172px,1fr))}
 .cell{background:var(--card);border:1px solid var(--line);border-radius:8px;
   overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow)}
 .cell.is-ref{border-color:var(--ink-3);border-style:dashed}
+.cell.is-pending{opacity:.72}
 .cell .cap{display:flex;align-items:center;gap:6px;padding:7px 9px 6px;
   border-bottom:1px solid var(--line-2);min-height:34px}
-.cell .cap b{font-family:var(--disp);font-size:12px;font-weight:600;
-  letter-spacing:-.005em;line-height:1.2}
+.cell .cap b{font-family:var(--disp);font-size:11.5px;font-weight:600;line-height:1.2}
 .dot{width:7px;height:7px;border-radius:2px;flex:none}
 .dot.gen{background:var(--gen)} .dot.curve{background:var(--curve)}
-.dot.ref{background:var(--ink-3)}
+.dot.keep{background:var(--keep)} .dot.ref{background:var(--ink-3)}
 .tile{width:100%;aspect-ratio:1;background-repeat:no-repeat;background-color:var(--sunk);
   cursor:zoom-in;display:block;border:0;padding:0}
+.pending{width:100%;aspect-ratio:1;background:var(--sunk);display:flex;
+  align-items:center;justify-content:center;text-align:center;
+  font-family:var(--mono);font-size:11.5px;color:var(--ink-3);padding:14px}
 .cell .read{display:grid;grid-template-columns:1fr auto;gap:1px 8px;
   padding:7px 9px 9px;font-size:11.5px;color:var(--ink-3)}
 .cell .read i{font-style:normal}
@@ -130,11 +125,12 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--signal);
   text-transform:uppercase;padding:2px 6px;border-radius:3px;margin-left:auto;flex:none}
 .flag.blocked{background:var(--signal-soft);color:var(--signal)}
 .flag.swap{background:color-mix(in srgb,var(--fail) 14%,transparent);color:var(--fail)}
+.flag.nobudget{background:color-mix(in srgb,var(--edge) 16%,transparent);color:var(--edge)}
+.flag.zero{background:color-mix(in srgb,var(--fail) 16%,transparent);color:var(--fail)}
 
-/* ---- tables ---- */
 .tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:8px;
   background:var(--card);box-shadow:var(--shadow)}
-table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:620px}
+table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:640px}
 th,td{padding:7px 11px;text-align:right;border-bottom:1px solid var(--line-2);
   white-space:nowrap}
 th{font-family:var(--disp);font-size:11px;font-weight:600;letter-spacing:.05em;
@@ -144,13 +140,14 @@ th{font-family:var(--disp);font-size:11px;font-weight:600;letter-spacing:.05em;
 th:first-child,td:first-child{text-align:left;font-family:var(--mono);font-size:12.5px}
 td{font-family:var(--mono);font-variant-numeric:tabular-nums}
 tr:last-child td{border-bottom:0}
-tr.ref td{color:var(--ink-3);font-style:italic;background:var(--sunk)}
-tr.ref td:first-child{font-style:normal}
+tr.ref td{color:var(--ink-3);background:var(--sunk)}
+tr.pend td{color:var(--ink-3);font-style:italic}
+tr.pend td:first-child{font-style:normal}
 td.best{color:var(--pass);font-weight:600}
+td.nb{color:var(--edge)}
 caption{caption-side:bottom;text-align:left;padding:9px 11px;font-size:12.5px;
   color:var(--ink-3);line-height:1.5}
 
-/* ---- charts ---- */
 .charts{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(310px,1fr))}
 .chart{background:var(--card);border:1px solid var(--line);border-radius:8px;
   padding:14px 15px 12px;box-shadow:var(--shadow)}
@@ -162,12 +159,12 @@ caption{caption-side:bottom;text-align:left;padding:9px 11px;font-size:12.5px;
 .legend span{display:inline-flex;align-items:center;gap:5px}
 .legend i{width:11px;height:3px;border-radius:2px;display:inline-block}
 
-/* ---- prose blocks ---- */
 .note{border-left:3px solid var(--signal);background:var(--card);
   padding:12px 15px;border-radius:0 6px 6px 0;margin:16px 0;font-size:14.5px;
   border-top:1px solid var(--line);border-right:1px solid var(--line);
   border-bottom:1px solid var(--line)}
 .note.warn{border-left-color:var(--edge)}
+.note.hit{border-left-color:var(--pass)}
 .note p:last-child{margin-bottom:0}
 .cols{display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(285px,1fr))}
 .panel{background:var(--card);border:1px solid var(--line);border-radius:8px;
@@ -180,20 +177,21 @@ caption{caption-side:bottom;text-align:left;padding:9px 11px;font-size:12.5px;
   margin-bottom:8px}
 .tag.gen{background:var(--gen-soft);color:var(--gen)}
 .tag.curve{background:var(--curve-soft);color:var(--curve)}
-ul.tight{margin:0 0 .5em;padding-left:1.15em;font-size:14.5px}
-ul.tight li{margin-bottom:.35em}
+.tag.keep{background:var(--keep-soft);color:var(--keep)}
+pre.eq{font-family:var(--mono);font-size:12.5px;background:var(--sunk);
+  padding:10px 12px;border-radius:6px;overflow-x:auto;margin:0 0 .8em;
+  border:1px solid var(--line-2)}
 
-/* ---- lightbox ---- */
 dialog.lb{border:0;padding:0;background:transparent;max-width:100vw;max-height:100vh;
   overscroll-behavior:contain}
 dialog.lb::backdrop{background:rgba(6,10,15,.88)}
 .lbbox{background:var(--card);border-radius:10px;overflow:hidden;
   box-shadow:0 24px 70px -20px rgba(0,0,0,.7);max-width:min(96vw,560px)}
-.lbbox .lbhead{display:flex;gap:10px;align-items:center;padding:9px 12px;
+.lbhead{display:flex;gap:10px;align-items:center;padding:9px 12px;
   border-bottom:1px solid var(--line)}
-.lbbox .lbhead b{font-family:var(--disp);font-size:13px}
-.lbbox .lbhead small{font-family:var(--mono);font-size:11px;color:var(--ink-3)}
-.lbbox .lbhead button{margin-left:auto;border:1px solid var(--line);background:var(--card);
+.lbhead b{font-family:var(--disp);font-size:13px}
+.lbhead small{font-family:var(--mono);font-size:11px;color:var(--ink-3)}
+.lbhead button{margin-left:auto;border:1px solid var(--line);background:var(--card);
   color:var(--ink-2);border-radius:5px;padding:3px 9px;cursor:pointer;
   font-family:var(--disp);font-size:12px}
 .lbtile{width:min(92vw,512px);height:min(92vw,512px);background-repeat:no-repeat;
@@ -202,38 +200,40 @@ dialog.lb::backdrop{background:rgba(6,10,15,.88)}
   border-top:1px solid var(--line)}
 footer{margin-top:54px;padding-top:18px;border-top:1px solid var(--line);
   font-size:13px;color:var(--ink-3)}
-@media (prefers-reduced-motion:no-preference){
-  .cell,.chart,.panel{transition:border-color .15s ease}
-}
-@media (max-width:560px){
-  .deck{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
-}
+@media (max-width:560px){.deck{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}}
 </style>
 
 <header class="top">
 <div class="wrap">
-  <p class="eyebrow">lab／六個臂 · 8 張人像 · 8 句指令 · 兩個受害模型</p>
+  <p class="eyebrow">十二個臂 · 8 張人像 · 8 句指令 · 兩個受害模型 · 七道淨化</p>
   <div class="titleline">
     <h1>生成濾鏡與分區預算</h1>
     <span class="stamp" id="stamp"></span>
   </div>
   <p class="lede" style="margin-top:14px">
-    兩條線放在同一條編輯管線上：<b>用現成生成模型做風格／顏色轉換</b>，以及
-    <b>把色偏預算拆給臉與背景而不留接縫</b>。六個臂各自跑完防禦圖 → 防禦後編輯 →
-    七道淨化 → 淨化後編輯，共 <span class="num">108</span> 個階段、零失敗。
-    這一頁把圖與數擺在一起；<b>自然度只能由眼睛判定</b>，本頁不代下「成立／不成立」。
+    三條線放在同一條編輯管線上：<b>用現成生成模型做風格／顏色轉換</b>、
+    <b>把色偏預算拆給臉與背景而不留接縫</b>、以及
+    <b>乾脆不把受保護的那一塊送進模型</b>。
+    十一個臂已經跑完防禦圖 → 防禦後編輯 → 七道淨化 → 淨化後編輯，
+    <span class="num">198</span> 個階段、零失敗；第十二個臂
+    <code>style_opt</code> 還在跑，它的列已經在表上，格子寫「還沒跑完」。
   </p>
   <div class="figs" id="figs"></div>
+  <div class="note warn" style="margin-top:20px">
+    <p><b>這一頁不是等失真比較。</b> 十二個臂掛在<b>三種</b>預算上，而且
+    <b>四個臂根本沒有可縮的旋鈕</b>。防禦強度的排名與失真的排名分不開——
+    這正是主表那條線正在處理的問題，它對齊後的十列放在下面當參照。</p>
+  </div>
 </div>
 </header>
 
 <main class="wrap">
 
-<!-- ============ 1. 防禦圖 ============ -->
+<!-- ============ 防禦圖 ============ -->
 <section id="defence">
   <div class="sechead">
     <h2>防禦圖並列</h2>
-    <p>同一張照片、七種處理。按住任一格暫時切回原圖，點擊放大到 512×512 原尺寸。</p>
+    <p>同一張照片、十三種處理。按住任一格暫時切回原圖，點擊放大到 512×512 原尺寸。方向鍵切換照片。</p>
   </div>
   <div class="controls">
     <div class="ctl" style="flex:1 1 320px">
@@ -241,26 +241,19 @@ footer{margin-top:54px;padding-top:18px;border-top:1px solid var(--line);
       <div class="seg imgsel" id="imgsel" role="group" aria-label="選擇照片"></div>
     </div>
     <div class="ctl">
-      <span class="eyebrow">副圖</span>
+      <span class="eyebrow">看哪一層</span>
       <div class="seg" id="auxsel" role="group" aria-label="選擇副圖"></div>
     </div>
   </div>
   <p class="hint" id="auxhint"></p>
   <div class="deck" id="deck-def" style="margin-top:10px"></div>
-  <div class="note warn">
-    <p><b>這一排不是等失真比較。</b> 六個臂掛在三種不同的預算上：兩個直接交付
-    SDEdit 輸出的臂<b>沒有任何失真上限</b>，<code>style_filter*</code> 綁在
-    <code>--max-scale 3.0</code>（整圖 ΔE00 只到 8.0–12.4，沒用滿 16），
-    兩個 <code>curve_*</code> 才是整圖 ΔE00 ≤ 16、臉框 ≤ 8。
-    主表的 <code>colour_curve_ours</code> 是 ΔE00 16、PSNR 16.67。</p>
-  </div>
 </section>
 
-<!-- ============ 2. 編輯結果 ============ -->
+<!-- ============ 編輯結果 ============ -->
 <section id="edits">
   <div class="sechead">
     <h2>攻擊之後</h2>
-    <p>同一格的未防禦編輯與六個臂的防禦後編輯並排。位移＝LPIPS(編輯(原圖), 編輯(防禦圖))。</p>
+    <p>同一格的未防禦編輯與各臂的防禦後編輯並排。位移＝LPIPS(編輯(原圖), 編輯(防禦圖))。</p>
   </div>
   <div class="controls">
     <div class="ctl">
@@ -278,39 +271,47 @@ footer{margin-top:54px;padding-top:18px;border-top:1px solid var(--line);
   </div>
   <p class="hint" id="prompthint"></p>
   <div class="deck" id="deck-edit" style="margin-top:10px"></div>
-  <div class="note">
-    <p><b>為什麼一定要看這一排。</b> CSV 上的一個位移數字說不出輸出是崩壞、是換了
-    一個人、還是指令根本沒做到。<span class="num" id="blockedline"></span></p>
+  <div class="note hit">
+    <p><b>一個事先寫下的預測，逐格命中。</b> 設計文件在跑之前就寫了：
+    <code>inpaint_bg</code> 只改主體之外，而 inpainting 受害模型重繪的區域<b>正好</b>
+    就是主體之外，所以它在 inpaint 場景上推不動任何東西。實測 inpaint 全圖與主體內
+    位移都是 <b class="num">0.0000</b>，64 格全部。切到 inpaint 場景可以逐格看到
+    防禦圖與未防禦圖的編輯結果完全一樣。這與主表 <code>diffvax</code> 是同一個幾何
+    關係。</p>
   </div>
 </section>
 
-<!-- ============ 3. 讀數 ============ -->
+<!-- ============ 讀數 ============ -->
 <section id="numbers">
   <div class="sechead">
-    <h2>兩層讀數</h2>
-    <p>防禦圖本身（這張照片還是不是這個人）與編輯輸出（攻擊者拿不拿得到可用結果）分開報。</p>
+    <h2>三層讀數</h2>
+    <p>防禦圖本身的失真、編輯輸出的位移、淨化之後還剩多少。三層分開報。</p>
   </div>
   <div class="charts">
     <div class="chart">
-      <h3>失真與位移不是各自獨立的</h3>
-      <p class="sub">橫軸 PSNR（對原圖，中位數；越右邊＝改得越少），縱軸 ip2p 全圖位移中位數。</p>
+      <h3>失真與位移分不開</h3>
+      <p class="sub">橫軸 LPIPS（防禦圖對原圖，中位數），縱軸 ip2p 全圖位移中位數。虛線是主表的等失真錨 0.3344。</p>
       <div id="chart-scatter"></div>
-      <div class="legend"><span><i style="background:var(--gen)"></i>生成載體</span>
-        <span><i style="background:var(--curve)"></i>色調曲線</span>
+      <div class="legend"><span><i style="background:var(--gen)"></i>生成濾鏡</span>
+        <span><i style="background:var(--curve)"></i>色調／色度映射</span>
+        <span><i style="background:var(--keep)"></i>只重繪一塊</span>
         <span><i style="background:var(--ink-3)"></i>主表 colour_curve_ours</span></div>
     </div>
     <div class="chart">
       <h3>七道淨化之後還剩多少</h3>
-      <p class="sub">保留率＝淨化後位移 ÷ 未淨化位移，中位數。<b>1.0 以上代表淨化沒有把防禦洗掉。</b></p>
+      <p class="sub">保留率＝淨化後位移 ÷ 未淨化位移，中位數。<b>1.0 以上代表淨化沒把防禦洗掉。</b></p>
       <div id="chart-ret"></div>
       <div class="legend" id="retlegend"></div>
     </div>
     <div class="chart">
-      <h3>防禦圖本身還是不是這個人</h3>
-      <p class="sub">FaceNet 餘弦（防禦圖 vs 原圖），逐張。虛線是本專案「同一個人」的 0.55。</p>
-      <div id="chart-id"></div>
-      <div class="legend"><span><i style="background:var(--fail)"></i>低於 0.55</span>
-        <span><i style="background:var(--signal)"></i>0.55 以上</span></div>
+      <h3>預算寫在哪個域，決定 PSNR 散不散</h3>
+      <p class="sub">橫軸是同一個臂內、只換照片的 rms 倍率；縱軸是該臂的 PSNR 全距。兩者是同一個量
+        （<span class="num">PSNR 全距 = 20·log₁₀(rms 倍率)</span>），所以點必然落在線上——
+        <b>有資訊的是點落在線上的哪裡</b>。</p>
+      <div id="chart-rms"></div>
+      <div class="legend"><span><i style="background:var(--signal)"></i>像素域 L2／L∞（主表對齊後）</span>
+        <span><i style="background:var(--edge)"></i>量化／DCT 係數域</span>
+        <span><i style="background:var(--fail)"></i>ΔE00 或無預算（本頁）</span></div>
     </div>
   </div>
 
@@ -320,77 +321,166 @@ footer{margin-top:54px;padding-top:18px;border-top:1px solid var(--line);
   <h3 style="margin:26px 0 9px">保留率（淨化後位移 ÷ 未淨化位移，中位數）</h3>
   <div class="tablewrap"><table id="tbl-ret"></table></div>
 
-  <h3 style="margin:26px 0 9px">防禦圖的失真與約束（逐張，中位數）</h3>
+  <h3 style="margin:26px 0 9px">防禦圖的失真，四個指標一起報</h3>
   <div class="tablewrap"><table id="tbl-fid"></table></div>
 </section>
 
-<!-- ============ 4. 機制 ============ -->
+<!-- ============ 等失真 ============ -->
+<section id="anchor">
+  <div class="sechead">
+    <h2>等失真比較為什麼還沒有</h2>
+    <p>一個量過的限制，以及它對這一頁的直接後果。</p>
+  </div>
+
+  <div class="cols">
+    <div class="panel">
+      <h3>沒有哪一個失真指標鎖得住其他</h3>
+      <p>主表那條線把十個 baseline 的原生 <code>eps</code> 縮到 LPIPS 都對上
+      <code>colour_curve_ours</code> 的 0.3344。錨收到 <span class="num">1.11×</span>
+      之後，<b>PSNR 仍然散 <span class="num">8.33 dB</span></b>、ΔE00 散 2.96×。</p>
+      <p>本頁這一側從另一個錨量到同一件事：貼著 ΔE00 16 上限的六格，錨只有
+      <span class="num">1.009×</span>，PSNR 散 <span class="num">8.98 dB</span>。</p>
+      <p><b>所以「等失真」一定要指名等哪一個指標，並把其餘三個的離散度一起報。</b>
+      單報一個就等於沒有錨。</p>
+    </div>
+    <div class="panel">
+      <h3>PSNR 散不散，由求解時綁的約束寫在哪個域決定</h3>
+      <pre class="eq">PSNR = −20·log₁₀(rms)
+PSNR 全距 = 20·log₁₀(rms 倍率)   ← 恆等式</pre>
+      <p>所以「PSNR 散多少」與「rms 散多少」是同一個問題，<b>逐臂對數字是重述不是
+      驗證</b>。有證據力的是分界落在哪裡：</p>
+      <p><b>像素域 L2／L∞</b>（PGD 撞邊界）rms 倍率 1.00–1.10，PSNR 全距 0.01–0.85 dB。
+      <b>量化／DCT 係數域</b> 1.65、1.96 → 4.36、5.87 dB。
+      <b>ΔE00</b>（本頁全部的臂）1.38–4.48 → 2.81–13.03 dB。</p>
+      <p>分界乾淨、沒有中間值。所以不在載體的形狀，在<b>預算寫在哪個域</b>：
+      係數域與知覺域的預算都不約束 pixel rms。</p>
+    </div>
+    <div class="panel">
+      <h3>「求解時綁的約束」不是「事後對齊用的錨」</h3>
+      <p>主表那十列是在 LPIPS 上對齊的，而它們同條件內的 PSNR 仍然一致——夾住 rms 的是
+      <b>求解端的 L∞／L2</b>，LPIPS 只是事後用來決定倍率的目標，沒有進損失、
+      沒有約束任何東西。</p>
+      <p>正確的說法是：<b>求解時綁 rms 類約束的方法，同條件內 PSNR 自然一致；
+      綁知覺類約束的方法不會。</b> 不是「在 rms 類的錨上對齊 PSNR 就會跟著」。</p>
+      <p>本頁的臂全部在求解時綁 ΔE00，所以它們的 PSNR 隨影像內容散開是預算種類的
+      必然，不是實作的缺陷。</p>
+    </div>
+    <div class="panel">
+      <h3>四個臂對齊不了</h3>
+      <p><code>inpaint_bg</code> 與 <code>inpaint_outside_face</code> 的重繪區是<b>生成</b>
+      出來的，那塊像素與原圖沒有對應關係，ΔE00 與 PSNR 在那裡量的是「換掉多少畫面」
+      而不是「擾動多大」。</p>
+      <p><code>style_affine</code> 的旋鈕是 guided filter 的 <code>radius</code>／
+      <code>eps</code>，<code>style_random</code>／<code>style_low</code> 的是 SDEdit 的
+      <code>strength</code>——都不是擾動幅度。</p>
+      <p>主表那邊有一個同型的：<code>diffvax</code> 是前饋式，給
+      <code>--eps-scale</code> 會直接停住。這幾個只能以「無預算」那一類並列。</p>
+    </div>
+  </div>
+
+  <h3 style="margin:26px 0 9px">主表對齊後的十列（<b>另一批的數字</b>，只當參照）</h3>
+  <div class="tablewrap"><table id="tbl-aligned"></table></div>
+</section>
+
+<!-- ============ 機制 ============ -->
 <section id="mechanism">
   <div class="sechead">
     <h2>每一步是被前一步的圖逼出來的</h2>
-    <p>五個設計決定，各自對應一張看過的圖。</p>
+    <p>三條線、九個設計決定，各自對應一張看過的圖。</p>
   </div>
   <div class="cols">
     <div class="panel">
-      <span class="tag gen">生成載體</span>
+      <span class="tag gen">生成濾鏡</span>
       <h3>一、直接交付 SDEdit 的輸出會把人換掉</h3>
-      <p><code>strength 0.35</code> 下八張的 FaceNet 餘弦是 0.26–0.76，三張低於 0.55。
-      降到 0.15 仍有一張（<code>man_00</code> 0.441）在門檻下。</p>
-      <p>換人之後位移讀數會很高，但那個高<b>不是免疫</b>：分母（未防禦的編輯）保護的
-      是另一個人，分子分母已經不可比。失真那幾欄完全看不出這件事——
-      <code>style_random</code> 的 PSNR 是 22.6–25.4，比 <code>colour_curve_ours</code>
-      的 16.67 還「乾淨」。</p>
+      <p><code>strength 0.35</code> 下八張的 FaceNet 餘弦是 0.26–0.76，三張低於 0.55；
+      降到 0.15 仍有一張在門檻下。換人之後位移很高，但那個高<b>不是免疫</b>——
+      分母保護的是另一個人。</p>
+      <p>失真那幾欄完全看不出這件事：<code>style_random</code> 的 PSNR 是 22.6–25.4，
+      比 <code>colour_curve_ours</code> 的 16.67 還「乾淨」。</p>
     </div>
     <div class="panel">
-      <span class="tag gen">生成載體</span>
+      <span class="tag gen">生成濾鏡</span>
       <h3>二、把生成模型當濾鏡設計器，不當算圖器</h3>
-      <p>只取 SDEdit 輸出的<b>低頻色彩位移場</b>套回原圖，結構逐像素留在原圖：
-      <code>x_def = clamp(x + α(p)·G(SDEdit(x) − x))</code>。</p>
-      <p>同一批影像上，SDEdit 原始輸出的身分餘弦是 0.007–0.32，經低頻轉移交付的是
-      0.66–0.97。機制成立。</p>
+      <p>只取 SDEdit 輸出的<b>低頻色彩位移場</b>套回原圖，結構逐像素留在原圖。
+      SDEdit 原始輸出的身分餘弦是 0.007–0.32，經轉移交付的是 0.66–0.97。</p>
+      <p>高斯低通會在主體輪廓外留下一圈<b>光暈</b>（<code>Δ</code> 含結構差異，
+      被抹過輪廓）；改用單通道 guided filter 之後身分升到 0.88–0.99，但髮際對亮天空的
+      軟邊仍有殘留輝光。</p>
     </div>
     <div class="panel">
-      <span class="tag gen">生成載體</span>
-      <h3>三、高斯低通留下一圈光暈，guided filter 把它收回輪廓</h3>
-      <p><code>strength 0.6</code> 下 SDEdit 已經把髮型與輪廓換掉，<code>Δ</code> 因此
-      含大量<b>結構</b>差異，高斯低通把它抹過主體輪廓。混合場本身沒有問題
-      （<code>__field.png</code> 是平滑橢圓，沒有硬邊）。</p>
-      <p>改用 guided filter（導引影像＝原圖亮度）之後身分餘弦由 0.66–0.97 升到
-      <b>0.88–0.99</b>，PSNR 全面上升。光暈大幅減少但<b>未完全消失</b>，
-      髮際對亮天空的軟邊仍有殘留輝光——上面那一排可以逐張看。</p>
+      <span class="tag gen">生成濾鏡</span>
+      <h3>三、photorealism prior 才是那一族的正解</h3>
+      <p><code>style_affine</code> 解<b>三通道的局部仿射色彩轉移</b>：每個視窗解一個
+      3×3 矩陣加位移，使 <code>A·x + b</code> 最接近 SDEdit 的輸出。輸出因此被限制成
+      輸入的局部仿射函數——邊只能是輸入的邊乘一個係數，不會長出新結構。</p>
+      <p>單通道導引只約束了一個純量，跨通道的色彩混合仍自由；三通道一起解才是
+      Luan 等的 photorealism prior 與 PhotoWCT 平滑後處理在做的事。</p>
+      <p>正則化階梯上<b>兩個方向同時變好</b>：radius/eps 由 24/0.005 到 48/0.05，
+      身分由 0.679 升到 0.762，能用掉的整圖預算也從 10.44 升到 11.40。</p>
     </div>
     <div class="panel">
       <span class="tag curve">分區預算</span>
       <h3>四、全域曲線做不到分區，除非預算改分在色度上</h3>
       <p>全域曲線的定義就是「同一個輸入色階，任何位置同一個輸出」。給臉一道緊上限，
-      只會讓整條曲線被那道上限綁住，背景並不會因此拿到更多振幅。</p>
-      <p><code>curve_dual_chroma</code> 把預算分在<b>色度</b>上：壓低臉的色差實際發生
-      在臉的顏色所落到的那幾段曲線。<b>接縫在構造上不存在。</b>
-      代價看得到——<code>man_00</code> 整圖只到 ΔE00 7.44（臉那道把整條曲線綁住了），
-      其餘七張才到 12–16。</p>
+      只會讓整條曲線被那道上限綁住。</p>
+      <p><code>curve_dual_chroma</code> 把預算分在<b>色度</b>上，
+      <b>接縫在構造上不存在</b>。代價看得到——<code>man_00</code> 整圖只到 ΔE00 7.44
+      （臉那道把整條曲線綁住了），其餘七張才到 12–16。</p>
     </div>
     <div class="panel">
       <span class="tag curve">分區預算</span>
       <h3>五、要真的分區就要兩條曲線，接縫當約束而不是當觀感</h3>
-      <p><code>curve_dual_spatial</code>：<code>y = w·F_face(x) + (1−w)·F_bg(x)</code>。
+      <p><code>curve_dual_spatial</code>：<code>y = w·F_face(x) + (1−w)·F_bg(x)</code>，
       <code>w</code> 是固定的 C¹ smoothstep 場，不是可學參數——讓它可學等於把
-      「接縫該放哪裡」變成可最佳化的東西，而本專案三道自然度門檻都被最佳化鑽過。</p>
-      <p>接縫直接被定義成<b>過渡帶上位移場的 TV</b> 並當成一道硬約束（≤ 2.0）。
-      實測 <code>tv_band</code> 0.78–1.91，八張 <code>cap_violations</code> 全 0。
-      圖上看得出來：背景、頭髮、衣服整片洋紅，臉的膚色保住，過渡是漸變的。</p>
+      「接縫該放哪裡」變成可最佳化的東西。</p>
+      <p>接縫直接被定義成<b>過渡帶上位移場的 TV</b> 並當成硬約束（≤ 2.0）。
+      實測 0.78–1.91，八張 <code>cap_violations</code> 全 0。</p>
     </div>
     <div class="panel">
       <span class="tag curve">分區預算</span>
-      <h3>分區的代價出現在主體內位移</h3>
-      <p><code>curve_dual_spatial</code> 的 ip2p 全圖位移 0.4540 高於
-      <code>colour_curve_ours</code> 的 0.3821，但<b>主體內</b> 0.3739 低於 0.3867；
-      inpaint 主體內 0.2971 低於 0.3317。</p>
-      <p>臉的預算被收緊，那一塊就推得少。這是分區預算本身的取捨，不是實作的缺陷。</p>
+      <h3>六、洋紅背景的根因是起點，不是臉的預算</h3>
+      <p>臉守住了，但背景被推到與原圖差很遠的顏色。恆等起點上，最佳化往哪走完全由
+      代理梯度決定，沒有理由落在「這張照片本來就有的顏色」附近。</p>
+      <p><code>curve_dual_spatial_anchored</code> 三個改動：起點改成<b>該張自己的
+      膚色色調</b>（整圖累積分布對到膚色區累積分布）、彩度 p95 上界 1.15×、
+      與原膚色<b>同色</b>的像素 ΔE00 ≤ 8（顏色定義的支撐，不是遮罩）。</p>
+      <p>後兩者是本專案已量到的「色偏只有兩種情形難看」的直接實作。
+      代價在表上：ip2p 全圖位移由 0.4540 降到 0.3854。</p>
+    </div>
+    <div class="panel">
+      <span class="tag curve">分區預算</span>
+      <h3>七、分膚色的正確軸是色相，不是通道強度</h3>
+      <p><code>curve_dual_chroma</code> 的瓶頸在載體：逐 RGB 通道的曲線<b>分不開膚色與
+      背景</b>，兩者在通道值上大量重疊。</p>
+      <p><code>ab_warp</code> 把映射改到 CIELAB 的 <code>(a,b)</code> 平面（7×7 錨點的
+      RBF 位移場 ＋ 單調亮度曲線）。膚色在那裡是一塊緊緻區域，臉那道上限只釘住它附近
+      的錨點。<b>映射仍然全域，接縫在構造上不存在。</b></p>
+      <p><code>man_00</code> 的可用預算由 ΔE00 7.44 升到 11.77，整體 LPIPS 也比
+      <code>curve_dual_chroma</code> 低（0.283 對 0.318）。切到「色度平面」那一層
+      可以看到位移場避開了哪一塊。</p>
+    </div>
+    <div class="panel">
+      <span class="tag keep">不碰受保護區</span>
+      <h3>八、身分不是被保住，是根本沒被碰過</h3>
+      <p>兩個 <code>inpaint_*</code> 把受保護的區域<b>完全不送進模型</b>，重繪只發生在
+      它之外，最後逐位元合成回去。<code>kept_bitexact_frac</code> 逐張驗證，
+      八張全部 <span class="num">1.0</span>，身分餘弦 0.9898–1.0000。</p>
+      <p><b>那一欄不是 1.0 就代表合成寫錯了</b>，它存在就是為了讓那件事有症狀。</p>
+    </div>
+    <div class="panel">
+      <span class="tag keep">不碰受保護區</span>
+      <h3>九、inpainting 的 prompt 要描述場景，不可以描述媒材</h3>
+      <p>第一版寫 <code>vintage film photograph</code>，模型<b>照字面畫了一個實體相框</b>
+      把臉框在中間；<code>background</code> 那批則只糊出灰白暈與暗角。</p>
+      <p>原因：inpainting 的 prompt 描述的是<b>整張結果影像</b>，媒材詞會變成物件。
+      這與 SDEdit 相反——SDEdit 是往既有影像上加條件，媒材詞會變成色調。</p>
+      <p>改成「主體在某個場景裡」帶季節、光線與顏色（交付用 <code>autumn</code>），
+      加反向 prompt 擋相框與第二個人。那一批整個作廢重跑。</p>
     </div>
   </div>
 </section>
 
-<!-- ============ 5. 誠實區 ============ -->
+<!-- ============ 誠實區 ============ -->
 <section id="honesty">
   <div class="sechead">
     <h2>誠實區</h2>
@@ -398,65 +488,70 @@ footer{margin-top:54px;padding-top:18px;border-top:1px solid var(--line);
   </div>
   <div class="cols">
     <div class="panel">
-      <h3>等失真錨點不存在</h3>
-      <p>六個臂掛在三種預算上，主表的十二個條件掛在五種。<b>排名不可直接比大小</b>，
-      <code>eps</code> 欄也不可跨列比。位移低的那幾臂同時失真也低。</p>
+      <h3>最強的那個臂沒有預算</h3>
+      <p><code>inpaint_outside_face</code> 的位移是全頁最高（ip2p 0.6684／0.5747），
+      但它的 LPIPS 是 0.655（<b>比錨高 96%</b>）、PSNR 8.38、ΔE00 31.97。
+      它改掉了 74–91% 的畫面。<b>把它和有 ΔE00 上限的臂比大小是錯的。</b></p>
+    </div>
+    <div class="panel">
+      <h3>有預算的臂裡最強的是 <code>style_affine</code></h3>
+      <p>ip2p 主體內 0.4668，高於 <code>colour_curve_ours</code> 的 0.3867；
+      blocked 19/32、21/32。但它的 LPIPS 0.420 也比錨高 26%，
+      而 <code>colour_curve_ours</code> 是 0.3367。<b>仍然不是等失真。</b></p>
     </div>
     <div class="panel">
       <h3><code>style_random</code> 的位移被污染</h3>
-      <p>八張裡三張的防禦圖已經不是同一個人，那幾格的分母保護的是另一個人。
-      數字照報，但不能當成「這個 strength 的免疫強度」。</p>
+      <p>八張裡三張的防禦圖已經不是同一個人（<code>id_cos</code> 0.26–0.76），
+      那幾格的分母保護的是另一個人。數字照報，但不能當成「這個 strength 的免疫強度」。</p>
     </div>
     <div class="panel">
       <h3>blocked 與位移不同向</h3>
       <p><code>style_filter*</code> 的位移最低而 blocked 12–16/32，遠高於
-      <code>colour_curve_ours</code> 的 3–4/32。兩個量測的是不同的東西，兩欄都照報。
-      <code>blocked</code> 的門檻逐列寫進 CSV。</p>
+      <code>colour_curve_ours</code> 的 3–4/32。兩個量測的是不同的東西，兩欄都照報，
+      門檻逐列寫進 CSV。</p>
     </div>
     <div class="panel">
-      <h3>主表那一列是<b>別批</b>的數字</h3>
-      <p>表上標「主表」的列來自 <code>anti-purification/main_table/</code>，
-      同一組影像、同一條編輯管線、同一顆種子，但<b>不是這一批跑出來的</b>。
-      本專案已量到同一份設定在不同卡上重跑會有差異，跨批對照要當參照不當對手。</p>
+      <h3>主表那幾列是<b>別批</b>的數字</h3>
+      <p>標「主表」的列來自 <code>anti-purification/main_table/</code>，同一組影像、
+      同一條管線、同一顆種子，但<b>不是這一批跑出來的</b>。本專案已量到同一份設定在
+      不同卡上重跑會有差異，跨批對照要當參照不當對手。</p>
+      <p>對齊後那十列的協定：八張人像、種子 20260812、<code>piq.LPIPS()</code> VGG，
+      倍率是各篇原生 <code>eps</code> 的倍數而步長同倍率縮放。
+      <b>它的編輯端還沒重跑</b>，所以那一組還不能拿來比防禦效果。</p>
+    </div>
+    <div class="panel">
+      <h3><code>dct_shield</code> 兩臂的對齊有副作用</h3>
+      <p>它們的 <code>eps</code> 被降到 1 以下，該篇 §4.2 的抗 JPEG 條件因此明確失效。
+      引用那兩列時要一起帶。</p>
     </div>
     <div class="panel">
       <h3>編輯圖是有損編碼</h3>
-      <p>防禦圖、混合場、SDEdit 原始輸出是<b>無損 WebP</b>（自然度要逐像素判）；
-      編輯圖與淨化後編輯圖是 q86 有損 WebP。這是為了讓整份報告落在發佈上限內，
-      共 39 張拼圖、38.3 MB。</p>
+      <p>防禦圖、混合場、色度平面、pipeline 原輸出是<b>無損 WebP</b>（自然度要逐像素
+      判）；編輯圖與淨化後編輯圖是 q70 有損 WebP。這是為了讓整份報告落在發佈上限內。</p>
     </div>
     <div class="panel">
       <h3>只放了 jpeg30 這一道淨化的圖</h3>
-      <p>七道算子的<b>數字</b>都在表上（2,688 列），但<b>圖</b>只收了 jpeg30
+      <p>七道算子的<b>數字</b>都在表上（4,928 列），但<b>圖</b>只收了 jpeg30
       （非幾何類裡最強的一道）。其餘六道的逐格圖在遠端
       <code>lab/runs/edit_purified/</code>。</p>
     </div>
     <div class="panel">
-      <h3>還沒做的</h3>
-      <p><code>style_opt</code>（對風格 embedding 做最佳化）沒有跑。設計審查建議把
-      embedding 限制在風格字典的凸包上、代理改用受害 UNet 的條件 ε-prediction 誤差；
-      成本估計全鏈 checkpoint、N=20、100 次更新約 25–70 分鐘／張。</p>
+      <h3>還沒跑完的</h3>
+      <p><code>style_opt</code>（風格由最佳化在字典凸包上選）還在跑，它的列已經在所有
+      表上、格子寫「還沒跑完」。跑完會就地更新這一頁，版面不會變。</p>
       <p><code>metrics_union.py</code> 在 lab 上跑不起來（路徑寫死指向
-      <code>main_table/</code>），失真與美學的補充表暫時沒有。</p>
-    </div>
-    <div class="panel">
-      <h3>論文全文沒有取得</h3>
-      <p>Wang 等，<i>Style-controllable adversarial example generation via image
-      editing and prompt embedding optimization</i>, Neurocomputing 2026,
-      DOI <code>10.1016/j.neucom.2026.134591</code>。ScienceDirect 對非機構 IP 回 403，
-      非開放取用。本頁的設計依據是標題給出的兩個元件與本專案自己的量測，
-      <b>不是論文內文</b>。</p>
+      <code>main_table/</code>），FSIM 與美學那幾張補充表暫時沒有。</p>
     </div>
   </div>
 </section>
 
 <footer>
-  防禦圖與混合場為無損 WebP，編輯圖為 q86 有損 WebP，每格原尺寸 512×512。
-  讀數來自 <code>lab/results/displacement.csv</code>（384 列）與
-  <code>lab/results/retention.csv</code>（2,688 列）。
+  防禦圖與副圖為無損 WebP，編輯圖為 q70 有損 WebP，每格原尺寸 512×512。
+  讀數來自 <code>lab/results/</code> 的 <code>displacement.csv</code>（704 列）、
+  <code>retention.csv</code>（4,928 列）與 <code>fidelity.csv</code>（88 列）。
   受害模型 <code>timbrooks/instruct-pix2pix</code>（s<sub>t</sub> 7.5、s<sub>i</sub> 1.8）與
   <code>runwayml/stable-diffusion-inpainting</code>（guidance 7.5、遮罩 dilate 4），
-  兩者種子 20260812、50 步、512²。
+  兩者種子 20260812、50 步、512²。求解端不含攻擊指令。
 </footer>
 </main>
 
@@ -473,154 +568,175 @@ footer{margin-top:54px;padding-top:18px;border-top:1px solid var(--line);
 <script>
 (function(){
 const L = window.LAB;
-const IM = L.images, ARMS = L.arms;
-const LINE = {style_random:'gen',style_low:'gen',style_filter:'gen',
-  style_filter_guided:'gen',curve_dual_spatial:'curve',curve_dual_chroma:'curve'};
-const LABEL = {
-  original:'原圖', undefended:'未防禦',
-  style_random:'style_random', style_low:'style_low',
-  style_filter:'style_filter', style_filter_guided:'style_filter_guided',
-  curve_dual_spatial:'curve_dual_spatial', curve_dual_chroma:'curve_dual_chroma'};
-const SHORT = {
-  original:'原圖（未處理）', undefended:'未防禦的同設定臂',
+const IM = L.images, ARMS = L.arms, PEND = L.pending || [];
+const ALL = ARMS.concat(PEND);
+const FAM = {style_random:'gen',style_low:'gen',style_filter:'gen',
+  style_filter_guided:'gen',style_affine:'gen',style_opt:'gen',
+  curve_dual_spatial:'curve',curve_dual_spatial_anchored:'curve',
+  curve_dual_chroma:'curve',ab_warp:'curve',
+  inpaint_bg:'keep',inpaint_outside_face:'keep'};
+const NOBUDGET = {style_random:1,style_low:1,inpaint_bg:1,inpaint_outside_face:1};
+const SUB = {
+  original:'未處理', undefended:'未防禦的同設定臂',
   style_random:'SDEdit 直接交付 · strength 0.35',
   style_low:'SDEdit 直接交付 · strength 0.15',
   style_filter:'生成低頻色彩場 · 高斯低通',
-  style_filter_guided:'生成低頻色彩場 · guided filter',
+  style_filter_guided:'生成低頻色彩場 · 單通道 guided filter',
+  style_affine:'三通道局部仿射色彩轉移',
+  style_opt:'風格由最佳化在字典凸包上選',
   curve_dual_spatial:'兩條曲線 ＋ 平滑混合場',
-  curve_dual_chroma:'單一全域曲線 · 兩道上限'};
+  curve_dual_spatial_anchored:'同上，起點改成該張自己的膚色色調',
+  curve_dual_chroma:'單一全域曲線 · 預算分在色度',
+  ab_warp:'(a,b) 平面的 RBF 位移場',
+  inpaint_bg:'只重繪主體之外',
+  inpaint_outside_face:'只保留臉，其餘重繪'};
+const AUX = [
+  {v:'def', label:'防禦圖', arms:ALL, hint:'原圖 ＋ 十二個載體的交付圖。'},
+  {v:'field', label:'混合／振幅場', arms:['curve_dual_spatial','curve_dual_spatial_anchored','style_filter','style_filter_guided','style_affine','inpaint_bg','inpaint_outside_face'],
+   hint:'曲線與濾鏡臂：α(p)，臉那一側的振幅權重。inpaint 兩臂：白＝逐位元保留原圖。'},
+  {v:'warp', label:'色度平面', arms:['ab_warp'],
+   hint:'(a,b) 平面本身：底色是該點的顏色，越亮代表位移場在那裡推得越多。暗的那一塊是被上限釘住的膚色區。'},
+  {v:'raw', label:'pipeline 原輸出', arms:['inpaint_bg','inpaint_outside_face'],
+   hint:'inpainting pipeline 的輸出，還沒合成回保留區。'},
+  {v:'sdedit_raw', label:'SDEdit 原輸出', arms:['style_filter'],
+   hint:'strength 0.6 的 SDEdit 原始輸出——濾鏡臂只取它的顏色，不取它的結構。'}];
 
 let cur = {img:IM[0], aux:'def', sc:'ip2p', pur:'plain', pr:0};
+const done = function(a){ return PEND.indexOf(a)<0; };
 
-/* ---------- sprite helpers ---------- */
 function tileStyle(el, file, col, row, cols, rows, px){
   el.style.backgroundImage = 'url("img/'+file+'")';
-  if(px){
-    el.style.backgroundSize = (cols*px)+'px '+(rows*px)+'px';
-    el.style.backgroundPosition = (-col*px)+'px '+(-row*px)+'px';
-  }else{
-    el.style.backgroundSize = (cols*100)+'% '+(rows*100)+'%';
-    el.style.backgroundPosition =
-      (cols>1 ? (col/(cols-1))*100 : 0)+'% '+(rows>1 ? (row/(rows-1))*100 : 0)+'%';
-  }
+  if(px){ el.style.backgroundSize=(cols*px)+'px '+(rows*px)+'px';
+          el.style.backgroundPosition=(-col*px)+'px '+(-row*px)+'px'; }
+  else { el.style.backgroundSize=(cols*100)+'% '+(rows*100)+'%';
+         el.style.backgroundPosition=(cols>1?(col/(cols-1))*100:0)+'% '+
+                                     (rows>1?(row/(rows-1))*100:0)+'%'; }
 }
-function defSprite(cond, aux){
-  const i = IM.indexOf(cur.img);
+function defSprite(cond){
+  const i=IM.indexOf(cur.img), a=cur.aux;
   let file;
-  if(aux==='field') file = 'field_'+cond+'.webp';
-  else if(aux==='raw') file = 'sdedit_raw.webp';
-  else file = 'def_'+cond+'.webp';
+  if(cond==='original') file='def_original.webp';
+  else if(a==='def') file='def_'+cond+'.webp';
+  else file='aux_'+cond+'_'+(a==='warp'?'warp':a==='raw'?'raw':a==='sdedit_raw'?'sdedit_raw':'field')+'.webp';
   return {file:file, col:i%4, row:Math.floor(i/4), cols:4, rows:2};
 }
 function editSprite(cond){
-  const i = IM.indexOf(cur.img);
+  const i=IM.indexOf(cur.img);
   return {file:'edit_'+cond+'_'+cur.sc+'_'+cur.pur+'.webp',
           col:cur.pr, row:i, cols:4, rows:8};
 }
+function n(x,k){ return (x===null||x===undefined||x==='')?'—':Number(x).toFixed(k===undefined?3:k); }
 
-/* ---------- segmented controls ---------- */
 function seg(host, items, get, set){
   host.innerHTML='';
   items.forEach(function(it){
     const b=document.createElement('button');
-    b.type='button'; b.textContent=it.label; b.title=it.title||it.label;
+    b.type='button'; b.textContent=it.label;
     b.setAttribute('aria-pressed', String(get()===it.value));
     b.addEventListener('click', function(){ set(it.value); render(); });
     host.appendChild(b);
   });
 }
 
-/* ---------- decks ---------- */
-function cell(cond, sprite, caption, readouts, flags, isRef){
+function cell(cond, sprite, caption, reads, flags, kind){
   const d=document.createElement('div');
-  d.className='cell'+(isRef?' is-ref':'');
+  d.className='cell'+(kind==='ref'?' is-ref':'')+(kind==='pending'?' is-pending':'');
   const cap=document.createElement('div'); cap.className='cap';
   const dot=document.createElement('span');
-  dot.className='dot '+(isRef?'ref':LINE[cond]||'ref'); cap.appendChild(dot);
+  dot.className='dot '+(kind==='ref'?'ref':(FAM[cond]||'ref')); cap.appendChild(dot);
   const b=document.createElement('b'); b.textContent=caption; cap.appendChild(b);
   (flags||[]).forEach(function(f){
     const s=document.createElement('span'); s.className='flag '+f.cls;
     s.textContent=f.text; cap.appendChild(s);
   });
   d.appendChild(cap);
-  const t=document.createElement('button');
-  t.className='tile'; t.type='button';
-  t.setAttribute('aria-label','放大 '+caption);
-  tileStyle(t, sprite.file, sprite.col, sprite.row, sprite.cols, sprite.rows);
-  t.addEventListener('click', function(){ openLb(caption, sprite, readouts); });
-  if(cond!=='original'){
-    const orig = (sprite.cols===4 && sprite.rows===2)
-      ? {file:'def_original.webp',col:sprite.col,row:sprite.row,cols:4,rows:2}
-      : {file:'edit_undefended_'+cur.sc+'_'+cur.pur+'.webp',
-         col:sprite.col,row:sprite.row,cols:4,rows:8};
-    const hold=function(e){ e.preventDefault();
-      tileStyle(t, orig.file, orig.col, orig.row, orig.cols, orig.rows); };
-    const back=function(){ tileStyle(t, sprite.file, sprite.col, sprite.row,
-      sprite.cols, sprite.rows); };
-    t.addEventListener('pointerdown',hold); t.addEventListener('pointerup',back);
-    t.addEventListener('pointerleave',back); t.addEventListener('pointercancel',back);
+  if(kind==='pending'){
+    const ph=document.createElement('div'); ph.className='pending';
+    ph.textContent='還沒跑完'; d.appendChild(ph);
+  }else{
+    const t=document.createElement('button');
+    t.className='tile'; t.type='button';
+    t.setAttribute('aria-label','放大 '+caption);
+    tileStyle(t, sprite.file, sprite.col, sprite.row, sprite.cols, sprite.rows);
+    t.addEventListener('click', function(){ openLb(caption, sprite, reads); });
+    if(kind!=='ref'){
+      const o = (sprite.rows===2)
+        ? {file:'def_original.webp',col:sprite.col,row:sprite.row,cols:4,rows:2}
+        : {file:'edit_undefended_'+cur.sc+'_'+cur.pur+'.webp',
+           col:sprite.col,row:sprite.row,cols:4,rows:8};
+      const hold=function(e){ e.preventDefault();
+        tileStyle(t,o.file,o.col,o.row,o.cols,o.rows); };
+      const back=function(){ tileStyle(t,sprite.file,sprite.col,sprite.row,
+        sprite.cols,sprite.rows); };
+      t.addEventListener('pointerdown',hold); t.addEventListener('pointerup',back);
+      t.addEventListener('pointerleave',back); t.addEventListener('pointercancel',back);
+    }
+    d.appendChild(t);
   }
-  d.appendChild(t);
-  const r=document.createElement('div'); r.className='read';
-  (readouts||[]).forEach(function(kv){
+  const rd=document.createElement('div'); rd.className='read';
+  (reads||[]).forEach(function(kv){
     const i=document.createElement('i'); i.textContent=kv[0];
     const v=document.createElement('b'); v.textContent=kv[1];
     if(kv[2]) v.className=kv[2];
-    r.appendChild(i); r.appendChild(v);
+    rd.appendChild(i); rd.appendChild(v);
   });
-  d.appendChild(r);
+  d.appendChild(rd);
   return d;
 }
-function n(x,k){ return (x===null||x===undefined||x==='')?'—':Number(x).toFixed(k===undefined?3:k); }
 
 function renderDefence(){
   const host=document.getElementById('deck-def'); host.innerHTML='';
-  const aux=cur.aux;
-  const conds = aux==='raw' ? ['original','style_filter']
-    : aux==='field' ? ['curve_dual_spatial','style_filter','style_filter_guided']
-    : ['original'].concat(ARMS);
+  const spec=AUX.filter(function(a){return a.v===cur.aux;})[0];
+  const conds=['original'].concat(spec.arms);
   conds.forEach(function(c){
-    const isOrig = c==='original';
-    const sp = defSprite(c, isOrig && aux!=='def' ? 'def' : aux);
-    let reads=[], flags=[];
-    if(!isOrig && aux==='def'){
-      const row=(L.defence[c]||{})[cur.img]||{};
-      if(row.id_cos!==undefined && row.id_cos!==''){
-        const v=Number(row.id_cos);
+    if(c==='original'){
+      host.appendChild(cell(c, defSprite(c), '原圖', [['角色','對照']], [], 'ref'));
+      return;
+    }
+    if(!done(c)){ host.appendChild(cell(c, null, c, [], [], 'pending')); return; }
+    const reads=[], flags=[];
+    const f=(L.fid[c]||{})[cur.img]||{};
+    const r=(L.defence[c]||{})[cur.img]||{};
+    if(NOBUDGET[c]) flags.push({cls:'nobudget',text:'無預算'});
+    if(cur.aux==='def'){
+      if(f.lpips!==undefined){
+        reads.push(['LPIPS', n(f.lpips,4)]);
+        reads.push(['vs 錨', (f.lpips_vs_anchor>=0?'+':'')+(f.lpips_vs_anchor*100).toFixed(1)+'%']);
+      }
+      if(f.deltaE00!==undefined) reads.push(['ΔE00 整圖', n(f.deltaE00,2)]);
+      if(r.deltaE00_face_box!==undefined && r.deltaE00_face_box!=='')
+        reads.push([NOBUDGET[c]?'ΔE00 臉框（沒動）':'ΔE00 臉框', n(r.deltaE00_face_box,2)]);
+      if(r.id_cos!==undefined && r.id_cos!==''){
+        const v=Number(r.id_cos);
         reads.push(['身分餘弦', n(v), v<0.55?'warn':'ok']);
         if(v<0.55) flags.push({cls:'swap',text:'換人'});
       }
-      if(row.id_cos_sdedit_raw!==undefined) reads.push(['SDEdit 原輸出', n(row.id_cos_sdedit_raw)]);
-      if(row.deltaE00_frame!==undefined) reads.push(['ΔE00 整圖', n(row.deltaE00_frame,2)]);
-      if(row.deltaE00_face_box!==undefined) reads.push(['ΔE00 臉框', n(row.deltaE00_face_box,2)]);
-      if(row.tv_band!==undefined && row.tv_band!=='') reads.push(['過渡帶 TV', n(row.tv_band,2)]);
-      reads.push(['PSNR', n(row.psnr,2)]);
-      if(row.lpips!==undefined) reads.push(['LPIPS', n(row.lpips)]);
-    }else if(aux==='field'){
-      reads.push(['α 場', '1 = 臉']);
-    }else if(aux==='raw' && !isOrig){
-      const row=(L.defence['style_filter']||{})[cur.img]||{};
-      reads.push(['身分餘弦', n(row.id_cos_sdedit_raw), 'warn']);
+      if(r.kept_bitexact_frac!==undefined)
+        reads.push(['保留逐位元', n(r.kept_bitexact_frac,3),
+                    Number(r.kept_bitexact_frac)>=1?'ok':'warn']);
+      if(f.psnr!==undefined) reads.push(['PSNR', n(f.psnr,2)]);
+    }else{
+      reads.push(['層', spec.label]);
     }
-    host.appendChild(cell(c, sp, LABEL[c]||c, reads, flags, isOrig));
+    host.appendChild(cell(c, defSprite(c), c, reads, flags, 'arm'));
   });
-  document.getElementById('auxhint').textContent =
-    aux==='def' ? SHORT.original+' → 六個臂的交付圖。'
-    : aux==='field' ? 'α(p)：白＝臉那一側的振幅權重，黑＝背景那一側。這是固定的場，不是可學參數。'
-    : 'SDEdit 在 strength 0.6 下的原始輸出（style_filter 與 style_filter_guided 共用同一份）。左邊是原圖。';
+  document.getElementById('auxhint').textContent=spec.hint;
 }
 
 function renderEdits(){
   const host=document.getElementById('deck-edit'); host.innerHTML='';
-  const conds=['undefended'].concat(ARMS);
-  conds.forEach(function(c){
-    const sp=editSprite(c);
-    let reads=[], flags=[];
+  ['undefended'].concat(ALL).forEach(function(c){
+    if(c!=='undefended' && !done(c)){
+      host.appendChild(cell(c,null,c,[],[],'pending')); return;
+    }
+    const reads=[], flags=[];
     if(c!=='undefended'){
+      if(NOBUDGET[c]) flags.push({cls:'nobudget',text:'無預算'});
       const d=(((L.disp[c]||{})[cur.sc]||{})[cur.img]||{})[String(cur.pr)];
       if(d){
         reads.push(['位移 全圖', n(d.full)]);
         reads.push(['位移 主體內', n(d.subj)]);
+        if(d.full===0 && d.subj===0) flags.push({cls:'zero',text:'零位移'});
         if(d.blocked) flags.push({cls:'blocked',text:'blocked'});
       }
       if(cur.pur!=='plain'){
@@ -630,172 +746,169 @@ function renderEdits(){
           reads.push(['保留率', n(r.ret,3), (r.ret!==null&&r.ret>=1)?'ok':'']);
         }
       }
-    }else{
-      reads.push(['角色', cur.pur==='plain'?'分母':'淨化後分母']);
-    }
-    host.appendChild(cell(c, sp, LABEL[c]||c, reads, flags, c==='undefended'));
+    }else reads.push(['角色', cur.pur==='plain'?'分母':'淨化後分母']);
+    host.appendChild(cell(c, editSprite(c), c==='undefended'?'未防禦':c,
+                          reads, flags, c==='undefended'?'ref':'arm'));
   });
-  const list=L.prompts[cur.sc];
-  let txt=list[cur.pr];
+  let txt=L.prompts[cur.sc][cur.pr];
   if(cur.sc==='inpaint') txt=txt.replace('{content}', cur.img.indexOf('man')===0?'man':'woman');
   document.getElementById('prompthint').textContent =
     '指令 p'+cur.pr+'：「'+txt+'」'+(cur.pur==='plain'?'':'　·　淨化：jpeg30');
-  let nb=0, tot=0;
-  ARMS.forEach(function(c){
-    const d=(((L.disp[c]||{})[cur.sc]||{})[cur.img]||{})[String(cur.pr)];
-    if(d){ tot++; if(d.blocked) nb++; }
-  });
-  document.getElementById('blockedline').textContent =
-    '這一格：六個臂裡有 '+nb+'/'+tot+' 個被 SigLIP 判為 blocked。';
 }
 
-/* ---------- lightbox ---------- */
 const lb=document.getElementById('lb');
-function openLb(title, sprite, reads){
+function openLb(title, sp, reads){
   document.getElementById('lbtitle').textContent=title;
   document.getElementById('lbsub').textContent=cur.img+' · 512×512 原尺寸';
-  const t=document.getElementById('lbtile');
-  const px=Math.min(window.innerWidth*0.92, 512);
-  tileStyle(t, sprite.file, sprite.col, sprite.row, sprite.cols, sprite.rows, px);
+  tileStyle(document.getElementById('lbtile'), sp.file, sp.col, sp.row,
+            sp.cols, sp.rows, Math.min(window.innerWidth*0.92,512));
   document.getElementById('lbfoot').textContent =
-    (reads||[]).map(function(k){return k[0]+' '+k[1];}).join('　·　') || SHORT[title] || '';
+    (reads||[]).map(function(k){return k[0]+' '+k[1];}).join('　·　') || SUB[title] || '';
   if(!lb.open) lb.showModal();
 }
 document.getElementById('lbclose').addEventListener('click',function(){lb.close();});
 document.getElementById('lbtile').addEventListener('click',function(){lb.close();});
 lb.addEventListener('click',function(e){ if(e.target===lb) lb.close(); });
 
-/* ---------- tables ---------- */
+/* ---------- 表 ---------- */
 function tbl(el, head, rows, cap){
   let h='<thead><tr>'+head.map(function(x){return '<th>'+x+'</th>';}).join('')+'</tr></thead><tbody>';
   rows.forEach(function(r){
-    h+='<tr'+(r.ref?' class="ref"':'')+'>'+r.cells.map(function(c,i){
-      const cls=(r.best&&r.best.indexOf(i)>=0)?' class="best"':'';
-      return '<td'+cls+'>'+c+'</td>';}).join('')+'</tr>';
+    const cls=r.ref?' class="ref"':(r.pend?' class="pend"':'');
+    h+='<tr'+cls+'>'+r.cells.map(function(c,i){
+      let k=''; if(r.best&&r.best.indexOf(i)>=0) k=' class="best"';
+      if(r.nb&&r.nb.indexOf(i)>=0) k=' class="nb"';
+      return '<td'+k+'>'+c+'</td>';}).join('')+'</tr>';
   });
-  h+='</tbody>';
-  if(cap) h+='<caption>'+cap+'</caption>';
+  h+='</tbody>'; if(cap) h+='<caption>'+cap+'</caption>';
   el.innerHTML=h;
 }
+function armRow(c, cells){ return {cells:[c].concat(cells), nb:NOBUDGET[c]?[0]:[]}; }
+
 function buildTables(){
-  const order=['curve_dual_spatial','curve_dual_chroma','style_random','style_filter',
-    'style_filter_guided','style_low'];
-  const dr=order.map(function(c){
+  /* 位移 */
+  const dr=[];
+  ARMS.forEach(function(c){
     const a=L.dispagg[c];
-    return {cells:[c, n(a.ip2p.full), n(a.ip2p.subj), a.ip2p.blocked+'/'+a.ip2p.n,
-      n(a.inpaint.full), n(a.inpaint.subj), a.inpaint.blocked+'/'+a.inpaint.n]};
+    dr.push(armRow(c,[n(a.ip2p.full),n(a.ip2p.subj),a.ip2p.blocked+'/'+a.ip2p.n,
+      n(a.inpaint.full),n(a.inpaint.subj),a.inpaint.blocked+'/'+a.inpaint.n]));
   });
+  PEND.forEach(function(c){ dr.push({pend:true,cells:[c,'還沒跑完','','','','','']}); });
   const rc=L.reference.colour_curve_ours.disp;
-  dr.push({ref:true,cells:['colour_curve_ours（主表）', n(rc.ip2p.full), n(rc.ip2p.subj),
-    rc.ip2p.blocked+'/32', n(rc.inpaint.full), n(rc.inpaint.subj), rc.inpaint.blocked+'/32']});
+  dr.push({ref:true,cells:['colour_curve_ours（主表）',n(rc.ip2p.full),n(rc.ip2p.subj),
+    rc.ip2p.blocked+'/32',n(rc.inpaint.full),n(rc.inpaint.subj),rc.inpaint.blocked+'/32']});
   const rd=L.reference.dct_shield_y.disp;
-  dr.push({ref:true,cells:['dct_shield_y（主表最高）', n(rd.ip2p.full), n(rd.ip2p.subj),
-    rd.ip2p.blocked+'/32', n(rd.inpaint.full), n(rd.inpaint.subj), rd.inpaint.blocked+'/32']});
+  dr.push({ref:true,cells:['dct_shield_y（主表最高）',n(rd.ip2p.full),n(rd.ip2p.subj),
+    rd.ip2p.blocked+'/32',n(rd.inpaint.full),n(rd.inpaint.subj),rd.inpaint.blocked+'/32']});
   tbl(document.getElementById('tbl-disp'),
     ['條件','ip2p 全圖','ip2p 主體內','ip2p blocked','inpaint 全圖','inpaint 主體內','inpaint blocked'],
-    dr, '位移＝LPIPS(編輯(原圖), 編輯(防禦圖))，每格 8 影像 × 4 指令 ＝ 32。標「主表」的兩列來自另一批，同協定但不同批次。');
+    dr, '每格 8 影像 × 4 指令 ＝ 32。<b>琥珀色的條件沒有失真上限</b>，不與其餘比大小。'+
+        '<code>inpaint_bg</code> 的 inpaint 兩欄是 0.0000——受害模型重繪的正好是它改的那一塊。'+
+        '標「主表」的兩列來自另一批。');
 
+  /* 保留率 */
   const purs=L.purifiers;
-  const ro=['style_filter_guided','style_filter','curve_dual_chroma','curve_dual_spatial',
-    'style_low','style_random'];
-  const rr=ro.map(function(c){
-    const a=L.retagg[c];
-    const cells=[c].concat(purs.map(function(p){return n(a[p]);})).concat([n(a.nongeo)]);
-    const best=[]; purs.forEach(function(p,i){ if(a[p]!==null&&a[p]>=1) best.push(i+1); });
-    if(a.nongeo>=1) best.push(purs.length+1);
-    return {cells:cells, best:best};
-  });
+  const rr=[];
+  ARMS.slice().sort(function(a,b){return (L.retagg[b].nongeo||0)-(L.retagg[a].nongeo||0);})
+    .forEach(function(c){
+      const a=L.retagg[c];
+      const best=[]; purs.forEach(function(p,i){ if(a[p]!==null&&a[p]>=1) best.push(i+1); });
+      if(a.nongeo>=1) best.push(purs.length+1);
+      const row=armRow(c, purs.map(function(p){return n(a[p]);}).concat([n(a.nongeo)]));
+      row.best=best; rr.push(row);
+    });
+  PEND.forEach(function(c){
+    rr.push({pend:true,cells:[c,'還沒跑完'].concat(purs.slice(1).map(function(){return '';})).concat([''])}); });
   const rf=L.reference.colour_curve_ours.ret;
   rr.push({ref:true,cells:['colour_curve_ours（主表）'].concat(purs.map(function(p){return n(rf[p]);})).concat([n(rf.nongeo)])});
   const rv=L.reference.diffvax.ret;
   rr.push({ref:true,cells:['diffvax（主表次高）'].concat(purs.map(function(p){return n(rv[p]);})).concat([n(rv.nongeo)])});
-  tbl(document.getElementById('tbl-ret'),
-    ['條件'].concat(purs).concat(['非幾何均']), rr,
-    'crop_resize0.1 與 rotate15 是幾何類——取景本身被改掉，讀數同時含「防禦被洗掉」與「畫面被移動」，不與其餘五道混著平均。綠色＝該欄 ≥ 1.0。');
+  tbl(document.getElementById('tbl-ret'), ['條件'].concat(purs).concat(['非幾何均']), rr,
+    'crop_resize0.1 與 rotate15 是幾何類——取景本身被改掉，讀數同時含「防禦被洗掉」與'+
+    '「畫面被移動」，不與其餘五道混著平均。綠色＝該欄 ≥ 1.0。');
 
-  const fo=['curve_dual_spatial','curve_dual_chroma','style_filter','style_filter_guided',
-    'style_random','style_low'];
-  const med=function(c,k){
-    const v=Object.keys(L.defence[c]).map(function(im){return L.defence[c][im][k];})
-      .filter(function(x){return typeof x==='number';});
-    if(!v.length) return null;
-    v.sort(function(a,b){return a-b;});
-    return v.length%2 ? v[(v.length-1)/2] : (v[v.length/2-1]+v[v.length/2])/2;
-  };
-  const rng=function(c,k){
-    const v=Object.keys(L.defence[c]).map(function(im){return L.defence[c][im][k];})
-      .filter(function(x){return typeof x==='number';});
-    if(!v.length) return '—';
-    return n(Math.min.apply(null,v),2)+'–'+n(Math.max.apply(null,v),2);
-  };
-  const BUD={curve_dual_spatial:'ΔE00 16 / 臉 8 ＋ 帶 TV ≤ 2',
-    curve_dual_chroma:'ΔE00 16 / 臉 8',
-    style_filter:'ΔE00 16 / 臉 8，α ≤ 3', style_filter_guided:'ΔE00 16 / 臉 8，α ≤ 3',
-    style_random:'無', style_low:'無'};
-  const fr=fo.map(function(c){
-    return {cells:[c, n(med(c,'psnr'),2), rng(c,'psnr'),
-      med(c,'deltaE00_frame')!==null?n(med(c,'deltaE00_frame'),2):'—',
-      med(c,'deltaE00_face_box')!==null?n(med(c,'deltaE00_face_box'),2):'—',
-      med(c,'id_cos')!==null?rng(c,'id_cos'):'—', BUD[c]]};
+  /* 失真 */
+  const fr=[];
+  ARMS.forEach(function(c){
+    const f=L.fagg[c]; if(!f) return;
+    fr.push(armRow(c,[n(f.lpips,4),
+      ((f.lpips/L.anchor-1)>=0?'+':'')+((f.lpips/L.anchor-1)*100).toFixed(1)+'%',
+      n(f.deltaE00,2), n(f.psnr,2), n(f.linf,3),
+      n(f.rms_ratio,2)+'×', n(f.psnr_range,2)+' dB', f.budget]));
   });
+  PEND.forEach(function(c){ fr.push({pend:true,cells:[c,'還沒跑完','','','','','','']}); });
   const cc=L.reference.colour_curve_ours;
-  fr.push({ref:true,cells:['colour_curve_ours（主表）', n(cc.psnr,2),'—','—','—','—',cc.budget]});
+  fr.push({ref:true,cells:['colour_curve_ours（主表）',n(cc.lpips,4),
+    ((cc.lpips/L.anchor-1)*100).toFixed(1)+'%','—',n(cc.psnr,2),'—','—','—','ΔE00 16（整圖）']});
   tbl(document.getElementById('tbl-fid'),
-    ['條件','PSNR 中位','PSNR 範圍','ΔE00 整圖','ΔE00 臉框','身分餘弦 範圍','預算'],
-    fr, '兩個直接交付 SDEdit 的臂沒有任何失真上限，所以它們的 PSNR 高不是「失真控制得好」，是「幾乎沒改」。身分餘弦低於 0.55 代表防禦圖上已經不是同一個人。');
+    ['條件','LPIPS','vs 錨 0.3344','ΔE00','PSNR','L∞','rms 倍率','PSNR 全距','求解時綁的約束'],
+    fr, '前五欄是八張的中位數。<b>rms 倍率與 PSNR 全距是同一個量的兩種寫法</b>'+
+        '（<code>PSNR 全距 = 20·log₁₀(rms 倍率)</code>，恆等式），並列是為了讓上一節的'+
+        '分界可以直接讀，不是兩個獨立的讀數。');
+
+  /* 對齊 */
+  const ar=L.reference.aligned.map(function(r){
+    return {cells:[r.c, r.s.toFixed(3), r.l.toFixed(4),
+      ((r.l/L.anchor-1)>=0?'+':'')+((r.l/L.anchor-1)*100).toFixed(1)+'%',
+      r.d.toFixed(3), r.p.toFixed(2), r.rms.toFixed(2)+'×'],
+      nb: r.rms>=1.3?[6]:[]};
+  });
+  tbl(document.getElementById('tbl-aligned'),
+    ['條件','eps 倍率','對齊後 LPIPS','vs 錨','ΔE00','PSNR','同條件 rms 倍率'],
+    ar, '<b>另一批的數字</b>：主表那條線把各篇原生 eps 縮到 LPIPS 對上 0.3344，'+
+        '步長同倍率縮放。倍率跨十三倍（0.073–0.969），那一欄本身就是讀數。'+
+        '最後一欄琥珀色的兩列是<b>量化／DCT 係數域</b>的預算——它們是十列裡唯一兩個'+
+        '沒把 pixel rms 夾住的。<b>那一組的編輯端還沒重跑</b>，所以還不能比防禦效果。');
 }
 
-/* ---------- charts ---------- */
+/* ---------- 圖 ---------- */
 const NS='http://www.w3.org/2000/svg';
 function svg(w,h){ const s=document.createElementNS(NS,'svg');
   s.setAttribute('viewBox','0 0 '+w+' '+h); s.setAttribute('role','img'); return s; }
-function el(tag,attrs,text){ const e=document.createElementNS(NS,tag);
-  for(const k in attrs) e.setAttribute(k,attrs[k]);
-  if(text!==undefined) e.textContent=text; return e; }
+function el(t,a,x){ const e=document.createElementNS(NS,t);
+  for(const k in a) e.setAttribute(k,a[k]); if(x!==undefined) e.textContent=x; return e; }
+function colOf(c){ const f=FAM[c];
+  return f==='gen'?'var(--gen)':f==='curve'?'var(--curve)':f==='keep'?'var(--keep)':'var(--ink-3)'; }
 
 function chartScatter(){
-  const W=430,H=270,P={l:46,r:14,t:12,b:38};
+  const W=430,H=290,P={l:44,r:16,t:12,b:40};
   const s=svg(W,H);
-  const pts=ARMS.map(function(c){
-    const v=Object.keys(L.defence[c]).map(function(im){return L.defence[c][im].psnr;});
-    v.sort(function(a,b){return a-b;});
-    const p=v.length%2?v[(v.length-1)/2]:(v[v.length/2-1]+v[v.length/2])/2;
-    return {c:c, x:p, y:L.dispagg[c].ip2p.full, line:LINE[c]};
-  });
-  pts.push({c:'colour_curve_ours', x:L.reference.colour_curve_ours.psnr,
-    y:L.reference.colour_curve_ours.disp.ip2p.full, line:'ref'});
-  const xs=pts.map(function(p){return p.x;}), ys=pts.map(function(p){return p.y;});
-  const x0=Math.floor(Math.min.apply(null,xs))-2, x1=Math.ceil(Math.max.apply(null,xs))+2;
-  const y0=0.15, y1=0.50;
+  const pts=ARMS.filter(function(c){return L.fagg[c];}).map(function(c){
+    return {c:c,x:L.fagg[c].lpips,y:L.dispagg[c].ip2p.full};});
+  pts.push({c:'colour_curve_ours',x:L.reference.colour_curve_ours.lpips,
+            y:L.reference.colour_curve_ours.disp.ip2p.full,ref:1});
+  const x0=0.15,x1=0.70,y0=0.15,y1=0.72;
   const X=function(v){return P.l+(v-x0)/(x1-x0)*(W-P.l-P.r);};
   const Y=function(v){return H-P.b-(v-y0)/(y1-y0)*(H-P.t-P.b);};
-  for(let v=0.15; v<=0.501; v+=0.05){
-    s.appendChild(el('line',{x1:P.l,x2:W-P.r,y1:Y(v),y2:Y(v),
-      stroke:'var(--line-2)','stroke-width':1}));
-    s.appendChild(el('text',{x:P.l-7,y:Y(v)+4,'text-anchor':'end',
-      fill:'var(--ink-3)','font-size':10,'font-family':'var(--mono)'}, v.toFixed(2)));
+  for(let v=0.2; v<=0.701; v+=0.1){
+    s.appendChild(el('line',{x1:P.l,x2:W-P.r,y1:Y(v),y2:Y(v),stroke:'var(--line-2)','stroke-width':1}));
+    s.appendChild(el('text',{x:P.l-7,y:Y(v)+4,'text-anchor':'end',fill:'var(--ink-3)',
+      'font-size':10,'font-family':'var(--mono)'}, v.toFixed(1)));
+    s.appendChild(el('text',{x:X(v),y:H-P.b+15,'text-anchor':'middle',fill:'var(--ink-3)',
+      'font-size':10,'font-family':'var(--mono)'}, v.toFixed(1)));
   }
-  for(let v=Math.ceil(x0/4)*4; v<=x1; v+=4){
-    s.appendChild(el('text',{x:X(v),y:H-P.b+15,'text-anchor':'middle',
-      fill:'var(--ink-3)','font-size':10,'font-family':'var(--mono)'}, String(v)));
-  }
+  s.appendChild(el('line',{x1:X(L.anchor),x2:X(L.anchor),y1:P.t,y2:H-P.b,
+    stroke:'var(--ink-3)','stroke-width':1.3,'stroke-dasharray':'4 3'}));
+  s.appendChild(el('text',{x:X(L.anchor)+4,y:P.t+10,fill:'var(--ink-3)','font-size':9.5,
+    'font-family':'var(--mono)'},'錨 0.3344'));
   s.appendChild(el('line',{x1:P.l,x2:W-P.r,y1:H-P.b,y2:H-P.b,stroke:'var(--line)','stroke-width':1}));
-  s.appendChild(el('text',{x:(P.l+W-P.r)/2,y:H-6,'text-anchor':'middle',
-    fill:'var(--ink-3)','font-size':10.5},'PSNR（dB，中位數）'));
+  s.appendChild(el('text',{x:(P.l+W-P.r)/2,y:H-6,'text-anchor':'middle',fill:'var(--ink-3)',
+    'font-size':10.5},'LPIPS（防禦圖對原圖，中位數）'));
   pts.forEach(function(p){
-    const col = p.line==='gen'?'var(--gen)':p.line==='curve'?'var(--curve)':'var(--ink-3)';
-    s.appendChild(el('circle',{cx:X(p.x),cy:Y(p.y),r:p.line==='ref'?5:6,
-      fill:col,'fill-opacity':p.line==='ref'?0.35:0.85,stroke:col,'stroke-width':1.5}));
-    const left = X(p.x) > W*0.6;
-    s.appendChild(el('text',{x:X(p.x)+(left?-10:10),y:Y(p.y)+3.5,
-      'text-anchor':left?'end':'start',fill:'var(--ink-2)','font-size':10,
-      'font-family':'var(--mono)'}, p.c.replace('curve_dual_','c_').replace('style_','s_')));
+    const col=p.ref?'var(--ink-3)':colOf(p.c);
+    s.appendChild(el('circle',{cx:X(p.x),cy:Y(p.y),r:p.ref?5:6,fill:col,
+      'fill-opacity':p.ref?0.35:0.85,stroke:col,'stroke-width':1.5}));
+    const left=X(p.x)>W*0.62;
+    s.appendChild(el('text',{x:X(p.x)+(left?-9:9),y:Y(p.y)+3.5,
+      'text-anchor':left?'end':'start',fill:'var(--ink-2)','font-size':9,
+      'font-family':'var(--mono)'},
+      p.c.replace('curve_dual_','c_').replace('style_','s_').replace('inpaint_','i_')));
   });
   document.getElementById('chart-scatter').appendChild(s);
 }
 
 function chartRet(){
-  const purs=L.purifiers, W=430,H=280,P={l:40,r:12,t:12,b:56};
+  const purs=L.purifiers, W=430,H=290,P={l:40,r:12,t:12,b:60};
   const s=svg(W,H);
   const y0=0.55,y1=1.30;
   const X=function(i){return P.l+(i+0.5)/purs.length*(W-P.l-P.r);};
@@ -809,113 +922,123 @@ function chartRet(){
       'font-size':10,'font-family':'var(--mono)'}, v.toFixed(1)));
   }
   purs.forEach(function(p,i){
-    const geo = p.indexOf('crop')===0 || p.indexOf('rotate')===0;
-    s.appendChild(el('text',{x:X(i),y:H-P.b+14,'text-anchor':'end',fill:geo?'var(--ink-3)':'var(--ink-2)',
-      'font-size':9.5,'font-family':'var(--mono)',
+    const geo=p.indexOf('crop')===0||p.indexOf('rotate')===0;
+    s.appendChild(el('text',{x:X(i),y:H-P.b+14,'text-anchor':'end',
+      fill:geo?'var(--ink-3)':'var(--ink-2)','font-size':9.5,'font-family':'var(--mono)',
       transform:'rotate(-40 '+X(i)+' '+(H-P.b+14)+')'}, p));
   });
-  const order=['style_filter_guided','style_filter','curve_dual_chroma','curve_dual_spatial',
-    'style_low','style_random'];
   const legend=document.getElementById('retlegend'); legend.innerHTML='';
+  const order=ARMS.slice().sort(function(a,b){return (L.retagg[b].nongeo||0)-(L.retagg[a].nongeo||0);});
   order.concat(['colour_curve_ours']).forEach(function(c,k){
     const isRef=c==='colour_curve_ours';
     const a=isRef?L.reference.colour_curve_ours.ret:L.retagg[c];
-    const col=isRef?'var(--ink-3)':(LINE[c]==='gen'?'var(--gen)':'var(--curve)');
-    const dash=isRef?'4 3':(k%2? '':'6 3');
+    const col=isRef?'var(--ink-3)':colOf(c);
+    const dash=isRef?'4 3':(k%3===1?'6 3':(k%3===2?'2 2':''));
     let d='';
     purs.forEach(function(p,i){ if(a[p]===null||a[p]===undefined) return;
-      d += (d?'L':'M')+X(i)+' '+Y(Math.max(y0,Math.min(y1,a[p]))); });
-    s.appendChild(el('path',{d:d,fill:'none',stroke:col,'stroke-width':isRef?1.6:2,
-      'stroke-dasharray':dash,'stroke-linejoin':'round','stroke-opacity':isRef?0.9:0.95}));
-    purs.forEach(function(p,i){ if(a[p]===null||a[p]===undefined) return;
-      s.appendChild(el('circle',{cx:X(i),cy:Y(Math.max(y0,Math.min(y1,a[p]))),
-        r:isRef?2.2:2.8,fill:col})); });
+      d+=(d?'L':'M')+X(i)+' '+Y(Math.max(y0,Math.min(y1,a[p]))); });
+    s.appendChild(el('path',{d:d,fill:'none',stroke:col,'stroke-width':isRef?1.6:1.8,
+      'stroke-dasharray':dash,'stroke-linejoin':'round','stroke-opacity':isRef?0.9:0.9}));
     const sp=document.createElement('span');
-    sp.innerHTML='<i style="background:'+col+(dash?';opacity:.75':'')+'"></i>'+
+    sp.innerHTML='<i style="background:'+col+(dash?';opacity:.7':'')+'"></i>'+
       (isRef?'colour_curve_ours（主表）':c);
     legend.appendChild(sp);
   });
-  s.appendChild(el('text',{x:P.l,y:Y(1)-5,fill:'var(--ink-3)','font-size':9.5,
-    'font-family':'var(--mono)'},'1.00 ＝ 淨化沒洗掉任何防禦'));
   document.getElementById('chart-ret').appendChild(s);
 }
 
-function chartId(){
-  const W=430, rowH=26, P={l:112,r:34,t:16,b:26};
-  const arms=['style_random','style_low','style_filter','style_filter_guided'];
-  const H=P.t+P.b+arms.length*rowH;
+function chartRms(){
+  const W=430,H=290,P={l:44,r:16,t:14,b:40};
   const s=svg(W,H);
-  const x0=0, x1=1;
+  const x0=1.0,x1=4.8,y0=0,y1=14;
   const X=function(v){return P.l+(v-x0)/(x1-x0)*(W-P.l-P.r);};
-  [0,0.25,0.5,0.75,1].forEach(function(v){
-    s.appendChild(el('line',{x1:X(v),x2:X(v),y1:P.t-6,y2:H-P.b+2,
-      stroke:'var(--line-2)','stroke-width':1}));
+  const Y=function(v){return H-P.b-(v-y0)/(y1-y0)*(H-P.t-P.b);};
+  for(let v=0; v<=14.1; v+=2){
+    s.appendChild(el('line',{x1:P.l,x2:W-P.r,y1:Y(v),y2:Y(v),stroke:'var(--line-2)','stroke-width':1}));
+    s.appendChild(el('text',{x:P.l-7,y:Y(v)+4,'text-anchor':'end',fill:'var(--ink-3)',
+      'font-size':10,'font-family':'var(--mono)'}, String(v)));
+  }
+  for(let v=1; v<=4.81; v+=1){
     s.appendChild(el('text',{x:X(v),y:H-P.b+15,'text-anchor':'middle',fill:'var(--ink-3)',
-      'font-size':10,'font-family':'var(--mono)'}, v.toFixed(2)));
+      'font-size':10,'font-family':'var(--mono)'}, v.toFixed(0)+'×'));
+  }
+  // 恆等式那條線
+  let d='';
+  for(let v=x0; v<=x1; v+=0.05){ const y=20*Math.log10(v);
+    if(y<=y1) d+=(d?'L':'M')+X(v)+' '+Y(y); }
+  s.appendChild(el('path',{d:d,fill:'none',stroke:'var(--ink-3)','stroke-width':1.2,
+    'stroke-dasharray':'3 3'}));
+  s.appendChild(el('text',{x:X(3.4),y:Y(20*Math.log10(3.4))-7,fill:'var(--ink-3)',
+    'font-size':9.5,'font-family':'var(--mono)'},'20·log₁₀(rms 倍率)'));
+  s.appendChild(el('text',{x:(P.l+W-P.r)/2,y:H-6,'text-anchor':'middle',fill:'var(--ink-3)',
+    'font-size':10.5},'同一個臂、只換照片的 rms 倍率'));
+  s.appendChild(el('text',{x:P.l-34,y:P.t+2,fill:'var(--ink-3)','font-size':10.5,
+    transform:'rotate(-90 '+(P.l-34)+' '+(P.t+2)+')'},'PSNR 全距 (dB)'));
+  const pts=[];
+  L.reference.aligned.forEach(function(r){
+    pts.push({x:r.rms,y:20*Math.log10(r.rms),c:r.c,
+      col:r.rms>=1.3?'var(--edge)':'var(--signal)'});
   });
-  s.appendChild(el('line',{x1:X(0.55),x2:X(0.55),y1:P.t-8,y2:H-P.b+2,
-    stroke:'var(--fail)','stroke-width':1.4,'stroke-dasharray':'4 3'}));
-  s.appendChild(el('text',{x:X(0.55),y:P.t-11,'text-anchor':'middle',fill:'var(--fail)',
-    'font-size':9.5,'font-family':'var(--mono)'},'0.55'));
-  arms.forEach(function(c,i){
-    const y=P.t+i*rowH+rowH/2;
-    s.appendChild(el('text',{x:P.l-8,y:y+3.5,'text-anchor':'end',fill:'var(--ink-2)',
-      'font-size':10,'font-family':'var(--mono)'}, c));
-    s.appendChild(el('line',{x1:X(0),x2:X(1),y1:y,y2:y,stroke:'var(--line-2)','stroke-width':1}));
-    IM.forEach(function(im){
-      const v=(L.defence[c][im]||{}).id_cos;
-      if(typeof v!=='number') return;
-      s.appendChild(el('circle',{cx:X(v),cy:y,r:4,
-        fill:v<0.55?'var(--fail)':'var(--signal)','fill-opacity':0.7,
-        stroke:v<0.55?'var(--fail)':'var(--signal)','stroke-width':1}));
-    });
+  ARMS.forEach(function(c){ const f=L.fagg[c]; if(!f) return;
+    pts.push({x:f.rms_ratio,y:f.psnr_range,c:c,col:'var(--fail)'}); });
+  pts.forEach(function(p){
+    s.appendChild(el('circle',{cx:X(Math.min(p.x,x1)),cy:Y(Math.min(p.y,y1)),r:4.5,
+      fill:p.col,'fill-opacity':0.75,stroke:p.col,'stroke-width':1.2}));
   });
-  document.getElementById('chart-id').appendChild(s);
+  ['ab_warp','inpaint_bg','dct_shield_y','photoguard_c'].forEach(function(name){
+    const p=pts.filter(function(q){return q.c===name;})[0]; if(!p) return;
+    const left=X(p.x)>W*0.6;
+    s.appendChild(el('text',{x:X(Math.min(p.x,x1))+(left?-8:8),y:Y(Math.min(p.y,y1))+3.5,
+      'text-anchor':left?'end':'start',fill:'var(--ink-2)','font-size':9,
+      'font-family':'var(--mono)'}, name));
+  });
+  document.getElementById('chart-rms').appendChild(s);
 }
 
-/* ---------- headline figures ---------- */
+/* ---------- 頭條 ---------- */
 function figs(){
-  const host=document.getElementById('figs');
-  const best=L.retagg.style_filter_guided.nongeo;
-  const sp=L.dispagg.curve_dual_spatial.ip2p.full;
+  const best=ARMS.reduce(function(a,b){
+    return L.dispagg[b].ip2p.full>L.dispagg[a].ip2p.full?b:a;});
+  const budgeted=ARMS.filter(function(c){return !NOBUDGET[c];}).reduce(function(a,b){
+    return L.dispagg[b].ip2p.subj>L.dispagg[a].ip2p.subj?b:a;});
+  const ret=ARMS.reduce(function(a,b){
+    return (L.retagg[b].nongeo||0)>(L.retagg[a].nongeo||0)?b:a;});
   const items=[
-    ['6','個臂，各 8 張防禦圖'],
-    ['108','個階段，零失敗'],
-    ['384 / 2,688','位移列數／保留率列數'],
-    [n(sp), '最高 ip2p 位移（curve_dual_spatial，主表 0.3821）'],
-    [n(best), '最高非幾何保留率（style_filter_guided，主表 1.021）'],
-    ['0.88–0.99','guided 濾鏡的身分餘弦（直接交付 0.26–0.76）']];
-  host.innerHTML = items.map(function(it){
+    ['11 + 1','個臂已跑完／還在跑'],
+    ['198','個階段，零失敗'],
+    ['704 / 4,928 / 88','位移／保留率／失真列數'],
+    [n(L.dispagg[best].ip2p.full),'最高 ip2p 位移（'+best+'，無預算）'],
+    [n(L.dispagg[budgeted].ip2p.subj),'有預算的臂裡最高 ip2p 主體內（'+budgeted+'，主表 0.3867）'],
+    [n(L.retagg[ret].nongeo),'最高非幾何保留率（'+ret+'，主表 1.021）'],
+    ['0.0000','inpaint_bg 在 inpaint 場景的位移（事先預測）']];
+  document.getElementById('figs').innerHTML = items.map(function(it){
     return '<div class="fig"><b>'+it[0]+'</b><span>'+it[1]+'</span></div>';}).join('');
-  document.getElementById('stamp').textContent =
-    '8 影像 · 4 指令 · 2 場景 · 7 道淨化';
+  document.getElementById('stamp').textContent='8 影像 · 4 指令 · 2 場景 · 7 道淨化';
 }
 
-/* ---------- wiring ---------- */
 function render(){
   seg(document.getElementById('imgsel'), IM.map(function(x){return {value:x,label:x};}),
-    function(){return cur.img;}, function(v){cur.img=v;});
-  seg(document.getElementById('auxsel'),
-    [{value:'def',label:'防禦圖'},{value:'field',label:'α 場'},{value:'raw',label:'SDEdit 原輸出'}],
-    function(){return cur.aux;}, function(v){cur.aux=v;});
+      function(){return cur.img;}, function(v){cur.img=v;});
+  seg(document.getElementById('auxsel'), AUX.map(function(a){return {value:a.v,label:a.label};}),
+      function(){return cur.aux;}, function(v){cur.aux=v;});
   seg(document.getElementById('scsel'),
-    [{value:'ip2p',label:'ip2p'},{value:'inpaint',label:'inpainting'}],
-    function(){return cur.sc;}, function(v){cur.sc=v;});
+      [{value:'ip2p',label:'ip2p'},{value:'inpaint',label:'inpainting'}],
+      function(){return cur.sc;}, function(v){cur.sc=v;});
   seg(document.getElementById('pursel'),
-    [{value:'plain',label:'未淨化'},{value:'jpeg30',label:'jpeg30'}],
-    function(){return cur.pur;}, function(v){cur.pur=v;});
+      [{value:'plain',label:'未淨化'},{value:'jpeg30',label:'jpeg30'}],
+      function(){return cur.pur;}, function(v){cur.pur=v;});
   seg(document.getElementById('prsel'),
-    L.prompts[cur.sc].map(function(t,i){
-      return {value:i,label:'p'+i+'　'+t.replace('{content}','…').slice(0,26)};}),
-    function(){return cur.pr;}, function(v){cur.pr=v;});
+      L.prompts[cur.sc].map(function(t,i){
+        return {value:i,label:'p'+i+'　'+t.replace('{content}','…').slice(0,24)};}),
+      function(){return cur.pr;}, function(v){cur.pr=v;});
   renderDefence(); renderEdits();
 }
 document.addEventListener('keydown',function(e){
-  if(e.target.tagName==='BUTTON' && (e.key==='Enter'||e.key===' ')) return;
+  if(e.target.tagName==='BUTTON') return;
   const i=IM.indexOf(cur.img);
   if(e.key==='ArrowRight'){ cur.img=IM[(i+1)%IM.length]; render(); }
   else if(e.key==='ArrowLeft'){ cur.img=IM[(i-1+IM.length)%IM.length]; render(); }
 });
-figs(); render(); buildTables(); chartScatter(); chartRet(); chartId();
+figs(); render(); buildTables(); chartScatter(); chartRet(); chartRms();
 })();
 </script>

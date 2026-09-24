@@ -33,6 +33,10 @@ case "$ARM" in
   style_affine)
     exec "$PY" lab/code/style_filter_defence.py --arm style_affine --out "$OUT"         --data "$DATA" --style film --strength 0.6 --num-steps 20 --guidance 7.5         --smoother affine --radius 48 --eps 0.05 --frame-cap 16.0 --face-cap 8.0
     ;;
+  # ---- 生成載體：風格由最佳化在字典凸包上選，交付仍是局部仿射色彩轉移 ----
+  style_opt)
+    exec "$PY" lab/code/style_opt_defence.py --arm style_opt --out "$OUT"         --data "$DATA" --strength 0.6 --num-steps 10 --guidance 7.5         --radius 48 --eps 0.05 --max-scale 3.0         --frame-cap 16.0 --face-cap 8.0 --skin-radius 12.0 --chroma-gain 1.15         --steps 60 --lr 0.08
+    ;;
   # ---- 生成載體：只重繪一塊，受保護的那一塊逐位元保留 ----
   inpaint_bg)
     exec "$PY" lab/code/inpaint_region_defence.py --arm inpaint_bg --out "$OUT"         --data "$DATA" --region background --style autumn --steps 50 --guidance 7.5

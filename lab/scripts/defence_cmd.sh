@@ -6,7 +6,8 @@
 #        產出寫到 lab/runs/defence/<臂名>/
 set -uo pipefail
 ARM="$1"
-OUT="lab/runs/defence/$ARM"
+# DEF_OUT 讓分片執行把輸出寫到各自的目錄（results.csv 每寫一列就整份重寫，不可共用）。
+OUT="${DEF_OUT:-lab/runs/defence/$ARM}"
 DATA="lab/data/portraits"
 
 case "$ARM" in
@@ -41,6 +42,22 @@ case "$ARM" in
   # ---- 色度平面的全域扭曲（chroma 那條線的強化）----
   ab_warp)
     exec "$PY" lab/code/ab_warp_defence.py --arm ab_warp --out "$OUT"         --data "$DATA" --grid 7 --extent 90 --warp-radius 30 --pieces 16         --frame-cap 16.0 --face-cap 8.0 --skin-radius 12.0 --chroma-gain 1.15
+    ;;
+  # Global monotone Lab coupling, calibrated to each ab_warp input LPIPS.
+  ab_prism)
+    exec "$PY" -B lab/code/ab_prism_defence.py --arm ab_prism --out "$OUT" \
+        --data "$DATA" --grid 5 --extent 90 --slope-span 1.5 \
+        --angle-degrees 12 --chroma-span 1.25 --bias-radius 20 --init-std 0.03 \
+        --frame-cap 16 --face-cap 8 --skin-radius 12 --chroma-gain 1.15 \
+        --lpips-targets lab/results/fidelity.csv --lpips-reference ab_warp \
+        --lpips-tolerance 0.0025 --steps 900 --lr 0.02 --lr-final-ratio 0.2 \
+        --rho 10 --lam-every 5 --check-every 10 --probe-every 50 \
+        --log-every 100 --noise-seed 0 "${@:2}"
+    ;;
+  # ab_prism 的同函數族隨機對照（AB_WARP_NEXT.md 6.3）。一次呼叫產出 r1..r5，
+  # 已完成的影像跳過；共用輸出根目錄，必須序列執行（queue_worker 的 gen 工作）。
+  ab_prism_random_r[1-5])
+    exec "$PY" -B lab/code/ab_prism_random.py --out lab/runs/defence         --replicates 5 --max-candidates 4096 "${@:2}"
     ;;
   # ---- 色調曲線：單一全域曲線，預算分在色度 ----
   curve_dual_chroma)

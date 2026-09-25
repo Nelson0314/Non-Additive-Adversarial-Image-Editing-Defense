@@ -1,0 +1,134 @@
+<title>Warp 額度預覽</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  color-scheme: light;
+  --paper:#f2f4f7; --card:#ffffff; --sunk:#e7ebf1;
+  --ink:#0f151c; --ink-2:#414d5c; --ink-3:#6d7b8c;
+  --line:#ccd5e0; --signal:#10559b; --on-signal:#ffffff; --warn:#8a5806;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  --disp:"Archivo","Helvetica Neue",Arial,sans-serif;
+  --body:"Source Serif 4",Georgia,serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme: dark;
+    --paper:#0c1117; --card:#141b24; --sunk:#0a0f15;
+    --ink:#e8edf3; --ink-2:#a9b6c6; --ink-3:#7b8898;
+    --line:#2a3644; --signal:#6aaef0; --on-signal:#08121c; --warn:#e0b551;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --paper:#0c1117; --card:#141b24; --sunk:#0a0f15;
+  --ink:#e8edf3; --ink-2:#a9b6c6; --ink-3:#7b8898;
+  --line:#2a3644; --signal:#6aaef0; --on-signal:#08121c; --warn:#e0b551;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.6}
+.wrap{max-width:1500px;margin:0 auto;padding-inline:16px;padding-block:28px 64px}
+h1,h2,h3{font-family:var(--disp);font-weight:600;letter-spacing:-.01em;text-wrap:balance;margin:0}
+h1{font-size:clamp(26px,4vw,38px)}
+p{margin:0 0 .8em;max-width:78ch}
+code,.num{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:.9em}
+.lede{color:var(--ink-2);margin-top:10px}
+.controls{display:flex;flex-wrap:wrap;gap:6px;margin:18px 0 8px}
+.controls button{font-family:var(--disp);font-size:13px;border:1px solid var(--line);background:var(--card);
+  color:var(--ink-2);padding:5px 11px;border-radius:5px;cursor:pointer}
+.controls button[aria-pressed="true"]{background:var(--signal);border-color:var(--signal);color:var(--on-signal)}
+button:focus-visible{outline:2px solid var(--signal);outline-offset:2px}
+.hint{font-size:13px;color:var(--ink-3)}
+.row{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));margin-top:12px}
+figure{margin:0;background:var(--card);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+figure img{display:block;width:100%;aspect-ratio:1;object-fit:cover;background:var(--sunk);cursor:zoom-in}
+figcaption{padding:7px 9px 9px;font-size:12.5px;color:var(--ink-3)}
+figcaption b{display:block;font-family:var(--disp);font-size:13px;color:var(--ink)}
+figcaption .num{color:var(--ink-2)}
+.warn{color:var(--warn)}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--card);margin-top:22px}
+table{border-collapse:collapse;width:100%;font-size:13px;min-width:720px}
+th,td{padding:6px 10px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap;font-family:var(--mono)}
+th{font-family:var(--disp);font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-2);background:var(--sunk)}
+th:first-child,td:first-child{text-align:left}
+dialog{border:0;padding:0;background:transparent;max-width:100vw;max-height:100vh}
+dialog::backdrop{background:rgba(6,10,15,.88)}
+dialog img{display:block;width:min(94vw,512px);height:auto}
+dialog p{color:#e8edf3;font-family:var(--mono);font-size:12px;margin:6px 0 0}
+</style>
+
+<main class="wrap">
+  <h1>Warp 額度預覽</h1>
+  <p class="lede">
+    <code>ab_warp</code> 族（CIELAB <code>(a,b)</code> 平面的全域 RBF 位移），<b>不做最佳化</b>。
+    每張影像抽一個固定方向（色相旋轉 ＋ 色度平移，膚色附近的錨點衰減），各額度只改幅度，
+    以二分搜尋推到該級的<b>同色（膚色）ΔE00 上限</b>。同一列從左到右是同一個調色往外推。
+  </p>
+  <p class="hint">
+    額度沿膚色這一軸開：預覽實測，整圖上限在任何一級都碰不到，先卡住的都是膚色。
+    整圖 ΔE00、臉框 ΔE00 與彩度 p95 倍率照報，不設上限。「現行 <code>ab_warp</code>」是最佳化後的交付圖
+    （整圖 16、臉框 8、同色 8、彩度 1.15×），方向與本頁的隨機方向不同，只當參照。
+    彩度倍率超過 1.15（現行上限）時標成琥珀色。標「幅度已到上限」的格子是位移推到 400 Lab 仍未碰到
+    該級的同色上限，色域已經撐到頭，與前一級近似。點圖放大到 512×512，方向鍵切換影像。
+  </p>
+  <div class="controls" id="sel" role="group" aria-label="選擇影像"></div>
+  <div class="row" id="row"></div>
+  <div class="tablewrap"><table id="tbl"></table></div>
+</main>
+<dialog id="lb"><img id="lbimg" alt=""><p id="lbcap"></p></dialog>
+
+<script src="data.js"></script>
+<script>
+(function(){
+const D = window.BUDGET, IM = D.images, LV = D.levels;
+let cur = IM[0];
+const lb = document.getElementById('lb');
+function fig(src, title, lines, warn){
+  const f = document.createElement('figure');
+  const img = document.createElement('img');
+  img.src = src; img.alt = title; img.loading = 'lazy';
+  img.addEventListener('click', function(){
+    document.getElementById('lbimg').src = src;
+    document.getElementById('lbcap').textContent = cur + ' · ' + title + ' · ' + lines.join(' · ');
+    lb.showModal();
+  });
+  const c = document.createElement('figcaption');
+  c.innerHTML = '<b>' + title + '</b>' + lines.map(function(l){
+    return '<span class="num' + (warn && l.indexOf('彩度') === 0 ? ' warn' : '') + '">' + l + '</span>';
+  }).join('<br>');
+  f.appendChild(img); f.appendChild(c); return f;
+}
+lb.addEventListener('click', function(){ lb.close(); });
+function render(){
+  const sel = document.getElementById('sel'); sel.innerHTML = '';
+  IM.forEach(function(n){
+    const b = document.createElement('button'); b.type = 'button'; b.textContent = n;
+    b.setAttribute('aria-pressed', String(n === cur));
+    b.addEventListener('click', function(){ cur = n; render(); });
+    sel.appendChild(b);
+  });
+  const row = document.getElementById('row'); row.innerHTML = '';
+  row.appendChild(fig('img/' + cur + '__orig.webp', '原圖', ['—']));
+  const w = D.abwarp[cur];
+  row.appendChild(fig('img/' + cur + '__ab_warp.webp', '現行 ab_warp（最佳化）',
+    ['整圖 ΔE00 ' + w.frame.toFixed(2), '臉框 ' + w.face.toFixed(2) + ' · 同色 ' + w.skin.toFixed(2)]));
+  LV.forEach(function(lv){
+    const r = D.rows[cur][lv];
+    row.appendChild(fig('img/' + cur + '__' + lv + '.webp', '同色 ≤ ' + r.skin_cap,
+      ['整圖 ΔE00 ' + r.frame.toFixed(2), '臉框 ' + r.face.toFixed(2) + ' · 同色 ' + r.skin.toFixed(2),
+       '彩度 ' + r.chroma.toFixed(2) + '× · PSNR ' + r.psnr.toFixed(1)]
+       .concat(r.binding === 's_max' ? ['幅度已到上限 400，未達此級'] : []), r.chroma > 1.15));
+  });
+  let h = '<thead><tr><th>影像</th>' + LV.map(function(lv){ return '<th>同色 ≤ ' + D.rows[IM[0]][lv].skin_cap + '：整圖</th>'; }).join('') + '</tr></thead><tbody>';
+  IM.forEach(function(n){
+    h += '<tr><td>' + n + '</td>' + LV.map(function(lv){ return '<td>' + D.rows[n][lv].frame.toFixed(2) + '</td>'; }).join('') + '</tr>';
+  });
+  document.getElementById('tbl').innerHTML = h + '</tbody><caption></caption>';
+}
+document.addEventListener('keydown', function(e){
+  const i = IM.indexOf(cur);
+  if(e.key === 'ArrowRight'){ cur = IM[(i + 1) % IM.length]; render(); }
+  if(e.key === 'ArrowLeft'){ cur = IM[(i - 1 + IM.length) % IM.length]; render(); }
+});
+render();
+})();
+</script>

@@ -15,16 +15,31 @@
 
 ## 現況
 
-**第三輪（2026-09-25 夜間，使用者授權自主推進）已跑完並出讀數。** 遠端沒有在跑的工作。
+**第四輪（2026-09-25 下午）已跑完並出讀數。** 遠端沒有在跑的工作。報告頁 v5
+<https://claude.ai/artifact/VdWw6PoWtrQd2xTLc5Qyvt>；額度預覽頁
+<https://claude.ai/artifact/QPA2zfCfp5TEHxJ7WTjodR>。
 
 | 檔 | 列數 | 內容 |
 |---|---|---|
-| `results/displacement.csv` | 516 | 位移（新臂只有 ip2p） |
-| `results/retention.csv` | 3,612 | 保留率 |
-| `results/fidelity.csv` | 97 | 四個失真指標逐張（11 條件 ＋ 已退役兩臂） |
-| `results/fidelity_ab_prism.csv` | 8 | 隨機對照對齊用的 `ab_prism` 逐張 LPIPS |
+| `results/displacement.csv` | 612 | 位移（2026-09-25 起的臂只有 ip2p） |
+| `results/retention.csv` | 4,284 | 保留率 |
+| `results/fidelity.csv` | 121 | 失真指標（14 條件 ＋ 已退役兩臂） |
 
-報告頁（v4）<https://claude.ai/artifact/VdWw6PoWtrQd2xTLc5Qyvt>
+### 第四輪的讀數（ip2p，32 格配對，平均）
+
+| 臂 | 輸入 LPIPS | 全圖 | 主體 | 對原先顏色線 全圖／主體 |
+|---|---|---|---|---|
+| `ab_warp_s16` | 0.503 | 0.539 | 0.475 | +0.154（28/32）／+0.053（24/32） |
+| `ab_warp_s12` | 0.466 | 0.514 | 0.445 | +0.129（27/32）／+0.023（22/32） |
+| `ab_warp_ch` | 0.299 | 0.358 | 0.313 | −0.028（16/32）／−0.109（4/32） |
+| `ab_warp`（參照） | 0.301 | 0.375 | 0.324 | −0.011（18/32）／−0.098（7/32） |
+
+- s12／s16：同色額度 12／16（使用者看預覽後定），有預算的臂裡位移最高；輸入 LPIPS 也最高。
+- `ab_warp_ch`：分通道 Lab 位移上限（a*＋、b*＋ ≤ 4；a*－ ≤ 15；b*－ ≤ 25；|ΔL*| ≤ 15），
+  使用者看圖後指出紅／粉／洋紅／黃／暖黃難看。8 張都轉冷調；與 `ab_warp` 同一級失真，
+  位移略低（全圖 −0.017、主體 −0.011，11/32）。依據見 `docs/DESIGN.md`「分通道預算」。
+- 2026-09-25 使用者一次性允許 basic-2 超出 lab 四卡上限（`LAB_CAP`／`LAB_MYCAP`），
+  之後預設值不變。
 
 ### 第三輪的讀數（ip2p，平均，配對）
 

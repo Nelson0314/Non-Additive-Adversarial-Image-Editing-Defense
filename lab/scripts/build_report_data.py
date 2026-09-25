@@ -31,7 +31,8 @@ IMAGES = ["man_00", "man_01", "man_02", "man_03",
 #: 臉框長出空間權重場的四個臂已移除，理由見 DESIGN.md「已移除」一節。
 ARMS = ["inpaint_outside_face", "style_affine", "curve_dual_chroma", "style_opt",
         "inpaint_bg", "ab_warp", "ab_prism", "ab_prism_random_r1",
-        "ab_prism_random_r2", "ab_prism_random_r3", "style_warp"]
+        "ab_prism_random_r2", "ab_prism_random_r3", "style_warp", "ab_warp_s12",
+        "ab_warp_s16", "ab_warp_ch"]
 PENDING = []
 PURIFIERS = ["jpeg80", "jpeg50", "jpeg30", "blur1", "blur2",
              "crop_resize0.1", "rotate15"]

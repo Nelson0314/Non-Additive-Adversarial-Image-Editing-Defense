@@ -26,8 +26,9 @@ cd "$R" || { echo "[FATAL] 進不去 $R" >&2; exit 1; }
 
 HOST=$(hostname)
 LEASE=$HOME/lab_leases
-CAP=5          # 兩個 session 合計
-MYCAP=4        # lab 自己最多四張，留一張給另一個 session
+CAP=${LAB_CAP:-5}      # 兩個 session 合計
+MYCAP=${LAB_MYCAP:-4}  # lab 自己最多四張，留一張給另一個 session
+# LAB_CAP／LAB_MYCAP 只在使用者明確允許時覆寫（2026-09-25 一次：basic-2 兩張空卡）
 POLL=120
 MAXFAIL=3
 Q=lab/runs/queue/$QNAME

@@ -42,7 +42,7 @@ IMAGES = ["man_00", "man_01", "man_02", "man_03",
 #: `curve_dual_spatial`、`curve_dual_spatial_anchored`）已移除，程式與結果皆刪。
 ARMS = ["style_affine", "curve_dual_chroma", "ab_warp", "inpaint_bg",
         "inpaint_outside_face", "style_opt", "ab_prism", "ab_prism_random_r1",
-        "ab_prism_random_r2", "ab_prism_random_r3",
+        "ab_prism_random_r2", "ab_prism_random_r3", "ab_warp_s12", "ab_warp_s16", "ab_warp_ch",
         "style_warp"]
 SCENARIOS = ["ip2p", "inpaint"]
 PROMPTS = [0, 1, 2, 3]
@@ -108,7 +108,7 @@ def main() -> None:
 
     # ---- 副圖（無損）：混合場、色度平面、pipeline 原輸出 ----
     aux = args.aux if args.aux is not None else [
-        f"{a}:field" for a in ARMS] + ["ab_warp:warp", "style_warp:warp", "style_affine:sdedit_raw",
+        f"{a}:field" for a in ARMS] + ["ab_warp:warp", "style_warp:warp", "ab_warp_s12:warp", "ab_warp_s16:warp", "ab_warp_ch:warp", "style_affine:sdedit_raw",
                                        "inpaint_bg:raw", "inpaint_outside_face:raw"]
     for spec in aux:
         arm, suffix = spec.split(":", 1)

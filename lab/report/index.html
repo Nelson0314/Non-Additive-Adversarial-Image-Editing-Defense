@@ -205,7 +205,7 @@ footer{margin-top:54px;padding-top:18px;border-top:1px solid var(--line);
 
 <header class="top">
 <div class="wrap">
-  <p class="eyebrow">十一個條件 · 8 張人像 · 4 句 ip2p 指令 · 七道淨化</p>
+  <p class="eyebrow">十四個條件 · 8 張人像 · 4 句 ip2p 指令 · 七道淨化</p>
   <div class="titleline">
     <h1>生成濾鏡與分區預算</h1>
     <span class="stamp" id="stamp"></span>
@@ -344,6 +344,9 @@ footer{margin-top:54px;padding-top:18px;border-top:1px solid var(--line);
       <tr><td><code>style_affine</code></td><td class="num">0.385</td><td class="num">0.441</td><td class="num">0.448</td><td class="num">19</td><td class="num">+0.055 (24)</td><td class="num">+0.026 (20)</td><td class="num">+0.049 (23)</td><td class="num">+0.034 (21)</td><td class="num">1.017</td></tr>
       <tr><td><code>inpaint_bg</code></td><td class="num">0.310</td><td class="num">0.397</td><td class="num">0.173</td><td class="num">15</td><td class="num">+0.012 (15)</td><td class="num">−0.250 (4)</td><td class="num">0.000 (14)</td><td class="num">−0.069 (9)</td><td class="num">0.996</td></tr>
       <tr><td><code>inpaint_outside_face</code></td><td class="num">0.624</td><td class="num">0.649</td><td class="num">0.560</td><td class="num">27</td><td class="num">+0.264 (30)</td><td class="num">+0.138 (28)</td><td class="num">+0.248 (30)</td><td class="num">+0.174 (28)</td><td class="num">0.991</td></tr>
+      <tr><td><code>ab_warp_s16</code></td><td class="num">0.503</td><td class="num">0.539</td><td class="num">0.475</td><td class="num">10/32</td><td class="num">+0.154 (28/32)</td><td class="num">+0.053 (24/32)</td><td class="num">+0.141 (28/32)</td><td class="num">+0.112 (27/32)</td><td class="num">1.005</td></tr>
+      <tr><td><code>ab_warp_s12</code></td><td class="num">0.466</td><td class="num">0.514</td><td class="num">0.445</td><td class="num">11/32</td><td class="num">+0.129 (27/32)</td><td class="num">+0.023 (22/32)</td><td class="num">+0.122 (26/32)</td><td class="num">+0.086 (24/32)</td><td class="num">1.015</td></tr>
+      <tr><td><code>ab_warp_ch</code></td><td class="num">0.299</td><td class="num">0.358</td><td class="num">0.313</td><td class="num">5/32</td><td class="num">−0.028 (16/32)</td><td class="num">−0.109 (4/32)</td><td class="num">−0.010 (15/32)</td><td class="num">−0.043 (8/32)</td><td class="num">1.085</td></tr>
       <tr><td><code>ab_prism</code></td><td class="num">0.239</td><td class="num">0.295</td><td class="num">0.253</td><td class="num">0/32</td><td class="num">−0.091 (10/32)</td><td class="num">−0.169 (1/32)</td><td class="num">−0.064 (13/32)</td><td class="num">−0.098 (6/32)</td><td class="num">1.142</td></tr>
       <tr><td><code>ab_prism_random_r1 †</code></td><td class="num">0.245</td><td class="num">0.334</td><td class="num">0.258</td><td class="num">0/24</td><td class="num">−0.068 (8/24)</td><td class="num">−0.170 (1/24)</td><td class="num">−0.055 (9/24)</td><td class="num">−0.091 (3/24)</td><td class="num">1.094</td></tr>
       <tr><td><code>ab_prism_random_r2 †</code></td><td class="num">0.246</td><td class="num">0.330</td><td class="num">0.289</td><td class="num">1/24</td><td class="num">−0.072 (7/24)</td><td class="num">−0.139 (1/24)</td><td class="num">−0.054 (8/24)</td><td class="num">−0.084 (5/24)</td><td class="num">1.106</td></tr>
@@ -357,6 +360,25 @@ footer{margin-top:54px;padding-top:18px;border-top:1px solid var(--line);
     與原先同一級失真的 <code>style_opt</code>（0.339 對 0.337）各欄差值都在 ±0.013 內。</p>
     <p>† 隨機對照只在有合格候選的影像上跑：r1、r2 各 6 張（缺 <code>man_00</code>、<code>man_01</code>），
     r3 5 張（另缺 <code>man_03</code>），格數依此。</p>
+  </div>
+  <h3 style="margin:26px 0 9px">第四輪：放寬額度與分通道預算（2026-09-25 下午）</h3>
+  <div class="cols">
+    <div class="panel">
+      <h3><code>ab_warp_s12</code>／<code>ab_warp_s16</code></h3>
+      <p>沿用 <code>ab_warp</code> 的目標與求解，臉框與同色 ΔE00 上限開到 12／16（使用者看無最佳化預覽後定），
+      整圖 32、位移半徑 80、彩度 p95 ≤ 2.0×。</p>
+      <p>對 <code>ab_warp</code> 的配對差：s12 全圖 +0.139（32/32）、主體 +0.122（31/32）；
+      s16 全圖 +0.164（32/32）、主體 +0.151（31/32）。輸入 LPIPS 平均 0.466／0.503（<code>ab_warp</code> 0.301）。
+      對 <code>style_affine</code>：s16 全圖 +0.099（27/32）、主體 +0.027（18/32）。</p>
+    </div>
+    <div class="panel">
+      <h3><code>ab_warp_ch</code>：分通道預算</h3>
+      <p>在 s16 之上對逐像素 Lab 位移加 p95 上限：a*＋（紅／粉／洋紅）≤ 4、b*＋（黃／暖黃）≤ 4、
+      a*－（綠／青）≤ 15、b*－（藍）≤ 25、|ΔL*| ≤ 15。依據：偏藍的變化最易被歸給光源
+      （Winkler et al. 2015；Pearce et al. 2014），紅黃兩側緊鄰膚色（Zeng &amp; Luo）。</p>
+      <p>8 張都轉為冷調；卡住的是 a*－、b*－ 與同色。輸入 LPIPS 0.299，與 <code>ab_warp</code>（0.301）同一級；
+      配對差全圖 −0.017（11/32）、主體 −0.011（11/32）。</p>
+    </div>
   </div>
   <h3 style="margin:26px 0 9px">第三輪：以 <code>ab_warp</code> 為基礎（2026-09-25 夜間）</h3>
   <div class="cols">
@@ -577,8 +599,8 @@ PSNR 全距 = 20·log₁₀(rms 倍率)   ← 恆等式</pre>
 
 <footer>
   防禦圖與副圖為無損 WebP，編輯圖為 q70 有損 WebP，每格原尺寸 512×512。
-  讀數來自 <code>lab/results/</code> 的 <code>displacement.csv</code>（516 列）、
-  <code>retention.csv</code>（3,612 列）與 <code>fidelity.csv</code>（97 列，含已退役兩臂）。
+  讀數來自 <code>lab/results/</code> 的 <code>displacement.csv</code>（612 列）、
+  <code>retention.csv</code>（4,284 列）與 <code>fidelity.csv</code>（121 列，含已退役兩臂）。
   受害模型 <code>timbrooks/instruct-pix2pix</code>（s<sub>t</sub> 7.5、s<sub>i</sub> 1.8）與
   <code>runwayml/stable-diffusion-inpainting</code>（guidance 7.5、遮罩 dilate 4），
   兩者種子 20260812、50 步、512²。求解端不含攻擊指令。
@@ -603,7 +625,7 @@ const ALL = ARMS.concat(PEND);
 const FAM = {style_random:'gen',style_low:'gen',style_filter:'gen',
   style_filter_guided:'gen',style_affine:'gen',style_opt:'gen',
   curve_dual_spatial:'curve',curve_dual_spatial_anchored:'curve',
-  curve_dual_chroma:'curve',ab_warp:'curve',ab_prism:'curve',ab_prism_random_r1:'curve',
+  curve_dual_chroma:'curve',ab_warp:'curve',ab_warp_s12:'curve',ab_warp_s16:'curve',ab_warp_ch:'curve',ab_prism:'curve',ab_prism_random_r1:'curve',
   ab_prism_random_r2:'curve',ab_prism_random_r3:'curve',style_warp:'gen',
   inpaint_bg:'keep',inpaint_outside_face:'keep'};
 const NOBUDGET = {style_random:1,style_low:1,inpaint_bg:1,inpaint_outside_face:1};
@@ -619,6 +641,9 @@ const SUB = {
   curve_dual_spatial_anchored:'同上，起點改成該張自己的膚色色調',
   curve_dual_chroma:'單一全域曲線 · 預算分在色度',
   ab_warp:'(a,b) 平面的 RBF 位移場',
+  ab_warp_s12:'ab_warp，臉框／同色 ΔE00 12',
+  ab_warp_s16:'ab_warp，臉框／同色 ΔE00 16',
+  ab_warp_ch:'ab_warp s16 ＋ 分通道 Lab 位移上限',
   ab_prism:'色度相依亮度曲線 ＋ 亮度相依色度相似變換（全域）',
   ab_prism_random_r1:'ab_prism 同族隨機抽樣（對照）',
   ab_prism_random_r2:'ab_prism 同族隨機抽樣（對照）',
@@ -630,7 +655,7 @@ const AUX = [
   {v:'def', label:'防禦圖', arms:ALL, hint:'原圖 ＋ 六個載體的交付圖。'},
   {v:'field', label:'混合／振幅場', arms:['style_affine','style_opt','inpaint_bg','inpaint_outside_face'],
    hint:'濾鏡臂：α(p)，臉那一側的振幅權重。inpaint 兩臂：白＝逐位元保留原圖。'},
-  {v:'warp', label:'色度平面', arms:['ab_warp','style_warp'],
+  {v:'warp', label:'色度平面', arms:['ab_warp','ab_warp_s12','ab_warp_s16','ab_warp_ch','style_warp'],
    hint:'(a,b) 平面本身：底色是該點的顏色，越亮代表位移場在那裡推得越多。暗的那一塊是被上限釘住的膚色區。'},
   {v:'raw', label:'pipeline 原輸出', arms:['inpaint_bg','inpaint_outside_face'],
    hint:'inpainting pipeline 的輸出，還沒合成回保留區。'},
@@ -1040,8 +1065,8 @@ function figs(){
   const ret=ARMS.reduce(function(a,b){
     return (L.retagg[b].nongeo||0)>(L.retagg[a].nongeo||0)?b:a;});
   const items=[
-    ['11','個條件（含三組隨機對照），全部跑完'],
-    ['516 / 3,612 / 97','位移／保留率／失真列數'],
+    ['14','個條件（含三組隨機對照），全部跑完'],
+    ['612 / 4,284 / 121','位移／保留率／失真列數'],
     [n(L.dispagg[best].ip2p.full),'最高 ip2p 位移（'+best+'，無預算）'],
     [n(L.dispagg[budgeted].ip2p.subj),'有預算的臂裡最高 ip2p 主體內（'+budgeted+'，主表 0.3867）'],
     [n(L.retagg[ret].nongeo),'最高非幾何保留率（'+ret+'，主表 1.021）'],

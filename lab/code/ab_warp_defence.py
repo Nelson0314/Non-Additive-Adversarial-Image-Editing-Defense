@@ -202,6 +202,24 @@ class AbWarpParam:
         return out.clamp(0, 1).to(x01.dtype)
 
 
+# ---- 分通道預算 ----
+
+#: (名稱, Lab 通道, 方向)。方向 +1 量正向位移、−1 量負向、0 量絕對值。
+#: 依據：偏藍的改動最容易被歸給光源（Winkler et al. 2015, Curr. Biol.;
+#: Pearce et al. 2014, PLoS One），而紅／粉／洋紅／黃／暖黃落在膚色所在或
+#: 緊鄰的象限（偏好膚色中心 a*b* ≈ (21, 24)，Zeng & Luo），與膚色記憶色衝突。
+CHANNEL_CAPS = (("a_pos", 1, 1), ("a_neg", 1, -1), ("b_pos", 2, 1),
+                ("b_neg", 2, -1), ("l_abs", 0, 0))
+
+
+def channel_shift_p95(x01, y01, channel, sign, q=0.95):
+    """逐像素 Lab 位移在某通道、某方向的 p95。沒有往該方向動的像素記 0。"""
+    d = rgb_to_lab(y01.clamp(0, 1).float()) - rgb_to_lab(x01.clamp(0, 1).float())
+    v = d[:, channel].reshape(-1)
+    v = v.abs() if sign == 0 else torch.relu(sign * v)
+    return torch.quantile(v, q)
+
+
 # ---- 視覺化 ----
 
 
@@ -239,6 +257,9 @@ def main() -> None:
     ap.add_argument("--chroma-gain", type=float, default=1.15,
                     help="輸出彩度 p95 相對原圖的上限倍率。高飽和是本專案量到的"
                          "兩種難看情形之一")
+    for name, _, _ in CHANNEL_CAPS:
+        ap.add_argument(f"--{name.replace('_', '-')}-cap", type=float, default=0.0,
+                        help=f"> 0 時加一道上限：逐像素 Lab 位移 {name} 的 p95")
     ap.add_argument("--steps", type=int, default=900)
     ap.add_argument("--lr", type=float, default=0.02,
                     help="兩組參數都是無量綱原始量，可行域寬度都是 2，共用一個 lr")
@@ -285,6 +306,10 @@ def main() -> None:
                 lambda y: delta_e00(x, y, face), args.face_cap),
             Cap("skin_colour", lambda y: delta_e00_torch(x, y, skin),
                 lambda y: delta_e00(x, y, skin), args.face_cap),
+            *[Cap(f"shift_{n}", lambda y, c=c, sg=sg: channel_shift_p95(x, y, c, sg),
+                  lambda y, c=c, sg=sg: float(channel_shift_p95(x, y, c, sg)),
+                  getattr(args, f"{n}_cap"))
+              for n, c, sg in CHANNEL_CAPS if getattr(args, f"{n}_cap") > 0],
             Cap("chroma_p95", lambda y: chroma_p95(y),
                 lambda y: float(chroma_p95(y)), chroma_cap),
         ]
@@ -314,6 +339,9 @@ def main() -> None:
                 "chroma_p95_cap": round(chroma_cap, 4),
                 "chroma_p95_out": round(float(chroma_p95(y)), 4),
                 "skin_pixels_frac": round(float(skin.mean()), 5),
+                **{f"shift_{n}_p95": round(float(channel_shift_p95(x, y, c, sg)), 4)
+                   for n, c, sg in CHANNEL_CAPS},
+                **{f"shift_{n}_cap": getattr(args, f"{n}_cap") for n, _, _ in CHANNEL_CAPS},
                 "solver_prompt": SOLVER_PROMPT[0],
                 "solver_prompt_source": SOLVER_PROMPT[1],
                 "deltaE00_frame": round(float(delta_e00(x, y, frame)), 4),

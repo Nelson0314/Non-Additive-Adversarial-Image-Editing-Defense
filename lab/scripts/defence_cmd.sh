@@ -65,6 +65,18 @@ case "$ARM" in
   style_warp)
     exec "$PY" -B lab/code/style_warp_defence.py --arm style_warp --out "$OUT"         --data "$DATA" --style-root lab/runs/defence/style_affine         --grid 7 --extent 90 --warp-radius 30 --pieces 16         --frame-cap 16.0 --face-cap 8.0 --skin-radius 12.0 --chroma-gain 1.15         --steps 400 --lr 0.02 "${@:2}"
     ;;
+  # ---- ab_warp 放寬額度（2026-09-25 使用者看預覽後定：同色 12–16 可接受）----
+  # 臉框與同色上限同值（--face-cap 兩道共用）；整圖放到 32（預覽中碰不到）；
+  # 位移半徑 30 → 80，否則推不到新額度；彩度 p95 上限 2.0×（預覽 12 級最高 1.98×）。
+  ab_warp_s12|ab_warp_s16)
+    exec "$PY" lab/code/ab_warp_defence.py --arm "$ARM" --out "$OUT"         --data "$DATA" --grid 7 --extent 90 --warp-radius 80 --pieces 16         --frame-cap 32.0 --face-cap "${ARM#ab_warp_s}" --skin-radius 12.0         --chroma-gain 2.0 "${@:2}"
+    ;;
+  # ---- ab_warp 分通道預算（2026-09-25）：紅／粉／洋紅（a*＋）與黃／暖黃（b*＋）緊，
+  # 綠／青（a*－）與藍（b*－）寬。上限是逐像素 Lab 位移的 p95。同色 16。
+  # 依據見 lab/docs/DESIGN.md「分通道預算」。
+  ab_warp_ch)
+    exec "$PY" lab/code/ab_warp_defence.py --arm "$ARM" --out "$OUT"         --data "$DATA" --grid 7 --extent 90 --warp-radius 80 --pieces 16         --frame-cap 32.0 --face-cap 16 --skin-radius 12.0 --chroma-gain 2.0         --a-pos-cap 4 --a-neg-cap 15 --b-pos-cap 4 --b-neg-cap 25 --l-abs-cap 15         "${@:2}"
+    ;;
   # ---- 色調曲線：單一全域曲線，預算分在色度 ----
   curve_dual_chroma)
     exec "$PY" lab/code/curve_budget_defence.py --arm curve_dual_chroma --out "$OUT" \

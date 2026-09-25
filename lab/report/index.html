@@ -143,7 +143,7 @@ tr:last-child td{border-bottom:0}
 tr.ref td{color:var(--ink-3);background:var(--sunk)}
 tr.pend td{color:var(--ink-3);font-style:italic}
 tr.pend td:first-child{font-style:normal}
-td.best{color:var(--pass);font-weight:600}
+td b{font-weight:700;color:var(--ink)}
 td.nb{color:var(--edge)}
 caption{caption-side:bottom;text-align:left;padding:9px 11px;font-size:12.5px;
   color:var(--ink-3);line-height:1.5}
@@ -205,27 +205,7 @@ footer{margin-top:54px;padding-top:18px;border-top:1px solid var(--line);
 
 <header class="top">
 <div class="wrap">
-  <p class="eyebrow">十四個條件 · 8 張人像 · 4 句 ip2p 指令 · 七道淨化</p>
-  <div class="titleline">
-    <h1>生成濾鏡與分區預算</h1>
-    <span class="stamp" id="stamp"></span>
-  </div>
-  <p class="lede" style="margin-top:14px">
-    三條線放在同一條編輯管線上：<b>用現成生成模型做風格／顏色轉換</b>、
-    <b>把色偏預算分在色度上的全域映射</b>、以及
-    <b>不把受保護的那一塊送進模型</b>。
-    所有條件都跑完防禦圖 → 防禦後編輯 → 七道淨化 → 淨化後編輯。第三輪新增以 <code>ab_warp</code> 為基礎的
-    <code>ab_prism</code>、它的同族隨機對照，以及備案 <code>style_warp</code>；結果見「對原先顏色線」一節。
-    以臉框分區求解的四個臂產物有邊界，已移除。
-    <b>主讀數只看 ip2p。</b> inpaint 場景用的遮罩是從原圖切出來的，攻擊者拿不到，
-    那一欄只當參考。
-  </p>
-  <div class="figs" id="figs"></div>
-  <div class="note warn" style="margin-top:20px">
-    <p><b>這一頁不是等失真比較。</b> 六個臂掛在<b>三種</b>預算上，
-    三個臂沒有可縮的旋鈕。防禦強度的排名與失真的排名分不開。
-    唯一與原先顏色線落在同一級失真的是 <code>style_opt</code>，配對比較見「對原先顏色線」一節。</p>
-  </div>
+  <div class="titleline"><h1>生成濾鏡與分區預算</h1></div>
 </div>
 </header>
 
@@ -235,7 +215,6 @@ footer{margin-top:54px;padding-top:18px;border-top:1px solid var(--line);
 <section id="defence">
   <div class="sechead">
     <h2>防禦圖並列</h2>
-    <p>同一張照片、原圖加六種處理。按住任一格暫時切回原圖，點擊放大到 512×512 原尺寸。方向鍵切換照片。</p>
   </div>
   <div class="controls">
     <div class="ctl" style="flex:1 1 320px">
@@ -247,7 +226,7 @@ footer{margin-top:54px;padding-top:18px;border-top:1px solid var(--line);
       <div class="seg" id="auxsel" role="group" aria-label="選擇副圖"></div>
     </div>
   </div>
-  <p class="hint" id="auxhint"></p>
+  <p class="hint" id="auxhint" hidden></p>
   <div class="deck" id="deck-def" style="margin-top:10px"></div>
 </section>
 
@@ -255,7 +234,6 @@ footer{margin-top:54px;padding-top:18px;border-top:1px solid var(--line);
 <section id="edits">
   <div class="sechead">
     <h2>攻擊之後</h2>
-    <p>同一格的未防禦編輯與各臂的防禦後編輯並排。位移＝LPIPS(編輯(原圖), 編輯(防禦圖))。</p>
   </div>
   <div class="controls">
     <div class="ctl">
@@ -273,25 +251,16 @@ footer{margin-top:54px;padding-top:18px;border-top:1px solid var(--line);
   </div>
   <p class="hint" id="prompthint"></p>
   <div class="deck" id="deck-edit" style="margin-top:10px"></div>
-  <div class="note hit">
-    <p><b>inpaint 場景只當參考。</b> 攻擊端的遮罩取自資料集，是 CLIPSeg 在<b>原圖</b>上
-    切出的主體遮罩，與 <code>inpaint_bg</code> 防禦時的重繪區是同一張。攻擊者因此恰好把
-    防禦改過的整塊區域重繪掉，<code>inpaint_bg</code> 在該場景的位移是
-    <b class="num">0.0000</b>。<code>rotate15</code>、<code>crop_resize0.1</code> 之後的遮罩
-    也沒有跟著轉。之後的鏈只跑 ip2p。</p>
-  </div>
 </section>
 
 <!-- ============ 讀數 ============ -->
 <section id="numbers">
   <div class="sechead">
-    <h2>三層讀數</h2>
-    <p>防禦圖本身的失真、編輯輸出的位移、淨化之後還剩多少。三層分開報。</p>
+    <h2>讀數</h2>
   </div>
   <div class="charts">
     <div class="chart">
-      <h3>失真與位移分不開</h3>
-      <p class="sub">橫軸 LPIPS（防禦圖對原圖，中位數），縱軸 ip2p 全圖位移中位數。虛線是主表的等失真錨 0.3344。</p>
+      <h3>輸入 LPIPS 對 ip2p 全圖位移</h3>
       <div id="chart-scatter"></div>
       <div class="legend"><span><i style="background:var(--gen)"></i>生成濾鏡</span>
         <span><i style="background:var(--curve)"></i>色調／色度映射</span>
@@ -299,16 +268,12 @@ footer{margin-top:54px;padding-top:18px;border-top:1px solid var(--line);
         <span><i style="background:var(--ink-3)"></i>主表 colour_curve_ours</span></div>
     </div>
     <div class="chart">
-      <h3>七道淨化之後還剩多少</h3>
-      <p class="sub">保留率＝淨化後位移 ÷ 未淨化位移，中位數。<b>1.0 以上代表淨化沒把防禦洗掉。</b></p>
+      <h3>七道淨化的保留率</h3>
       <div id="chart-ret"></div>
       <div class="legend" id="retlegend"></div>
     </div>
     <div class="chart">
-      <h3>預算寫在哪個域，決定 PSNR 散不散</h3>
-      <p class="sub">橫軸是同一個臂內、只換照片的 rms 倍率；縱軸是該臂的 PSNR 全距。兩者是同一個量
-        （<span class="num">PSNR 全距 = 20·log₁₀(rms 倍率)</span>），所以點必然落在線上——
-        <b>有資訊的是點落在線上的哪裡</b>。</p>
+      <h3>rms 倍率對 PSNR 全距</h3>
       <div id="chart-rms"></div>
       <div class="legend"><span><i style="background:var(--signal)"></i>像素域 L2／L∞（主表對齊後）</span>
         <span><i style="background:var(--edge)"></i>量化／DCT 係數域</span>
@@ -316,295 +281,48 @@ footer{margin-top:54px;padding-top:18px;border-top:1px solid var(--line);
     </div>
   </div>
 
-  <h3 style="margin:26px 0 9px">位移（中位數 LPIPS，全圖／主體內）</h3>
+  <h3 style="margin:26px 0 9px">位移（中位數）</h3>
   <div class="tablewrap"><table id="tbl-disp"></table></div>
 
-  <h3 style="margin:26px 0 9px">保留率（淨化後位移 ÷ 未淨化位移，中位數）</h3>
+  <h3 style="margin:26px 0 9px">保留率（中位數）</h3>
   <div class="tablewrap"><table id="tbl-ret"></table></div>
 
-  <h3 style="margin:26px 0 9px">防禦圖的失真，四個指標一起報</h3>
+  <h3 style="margin:26px 0 9px">防禦圖失真（中位數）</h3>
   <div class="tablewrap"><table id="tbl-fid"></table></div>
 </section>
 
 <!-- ============ 對原先顏色線 ============ -->
 <section id="versus">
-  <div class="sechead">
-    <h2>對原先顏色線</h2>
-    <p>每個臂對 <code>colour_curve_ours</code> 逐格配對：同八張照片、同四句 ip2p 指令、同一份未防禦分母，共 32 格。
-    差值是「臂 − 原先」的平均，括號是臂較大的格數。<code>colour_curve_ours</code> 的讀數來自主表那一批。</p>
-  </div>
-  <div class="tablewrap"><table>
-    <thead><tr><th>臂</th><th>輸入失真 LPIPS</th><th>位移 全圖</th><th>位移 主體</th><th>blocked</th>
-      <th>Δ 全圖</th><th>Δ 主體</th><th>Δ 淨化後 非幾何</th><th>Δ 淨化後 幾何</th><th>保留率 非幾何</th></tr></thead>
+  <div class="sechead"><h2>對 colour_curve_ours 逐格配對（ip2p，平均）</h2></div>
+  <div class="tablewrap"><table class="auto">
+    <thead><tr><th>條件</th><th>輸入 LPIPS ↓</th><th>位移 全圖 ↑</th><th>位移 主體 ↑</th><th>blocked ↑</th>
+      <th>Δ 全圖 ↑</th><th>Δ 主體 ↑</th><th>Δ 淨化後 非幾何 ↑</th><th>Δ 淨化後 幾何 ↑</th><th>保留率 非幾何 ↑</th></tr></thead>
     <tbody>
-      <tr><td><code>colour_curve_ours</code></td><td class="num">0.337</td><td class="num">0.386</td><td class="num">0.422</td><td class="num">3</td><td>—</td><td>—</td><td>—</td><td>—</td><td class="num">1.034</td></tr>
-      <tr><td><code>style_opt</code></td><td class="num">0.339</td><td class="num">0.397</td><td class="num">0.409</td><td class="num">12</td><td class="num">+0.012 (19)</td><td class="num">−0.013 (17)</td><td class="num">+0.003 (17)</td><td class="num">+0.003 (17)</td><td class="num">1.014</td></tr>
-      <tr><td><code>curve_dual_chroma</code></td><td class="num">0.342</td><td class="num">0.409</td><td class="num">0.364</td><td class="num">6</td><td class="num">+0.023 (18)</td><td class="num">−0.058 (10)</td><td class="num">+0.008 (19)</td><td class="num">−0.037 (12)</td><td class="num">1.004</td></tr>
-      <tr><td><code>ab_warp</code></td><td class="num">0.301</td><td class="num">0.375</td><td class="num">0.324</td><td class="num">6</td><td class="num">−0.011 (18)</td><td class="num">−0.098 (7)</td><td class="num">−0.013 (16)</td><td class="num">−0.033 (12)</td><td class="num">1.039</td></tr>
-      <tr><td><code>style_affine</code></td><td class="num">0.385</td><td class="num">0.441</td><td class="num">0.448</td><td class="num">19</td><td class="num">+0.055 (24)</td><td class="num">+0.026 (20)</td><td class="num">+0.049 (23)</td><td class="num">+0.034 (21)</td><td class="num">1.017</td></tr>
-      <tr><td><code>inpaint_bg</code></td><td class="num">0.310</td><td class="num">0.397</td><td class="num">0.173</td><td class="num">15</td><td class="num">+0.012 (15)</td><td class="num">−0.250 (4)</td><td class="num">0.000 (14)</td><td class="num">−0.069 (9)</td><td class="num">0.996</td></tr>
-      <tr><td><code>inpaint_outside_face</code></td><td class="num">0.624</td><td class="num">0.649</td><td class="num">0.560</td><td class="num">27</td><td class="num">+0.264 (30)</td><td class="num">+0.138 (28)</td><td class="num">+0.248 (30)</td><td class="num">+0.174 (28)</td><td class="num">0.991</td></tr>
+      <tr><td><code>colour_curve_ours</code></td><td class="num">0.337</td><td class="num">0.386</td><td class="num">0.422</td><td class="num">3/32</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">1.034</td></tr>
       <tr><td><code>ab_warp_s16</code></td><td class="num">0.503</td><td class="num">0.539</td><td class="num">0.475</td><td class="num">10/32</td><td class="num">+0.154 (28/32)</td><td class="num">+0.053 (24/32)</td><td class="num">+0.141 (28/32)</td><td class="num">+0.112 (27/32)</td><td class="num">1.005</td></tr>
       <tr><td><code>ab_warp_s12</code></td><td class="num">0.466</td><td class="num">0.514</td><td class="num">0.445</td><td class="num">11/32</td><td class="num">+0.129 (27/32)</td><td class="num">+0.023 (22/32)</td><td class="num">+0.122 (26/32)</td><td class="num">+0.086 (24/32)</td><td class="num">1.015</td></tr>
       <tr><td><code>ab_warp_ch</code></td><td class="num">0.299</td><td class="num">0.358</td><td class="num">0.313</td><td class="num">5/32</td><td class="num">−0.028 (16/32)</td><td class="num">−0.109 (4/32)</td><td class="num">−0.010 (15/32)</td><td class="num">−0.043 (8/32)</td><td class="num">1.085</td></tr>
+      <tr><td><code>ab_warp</code></td><td class="num">0.301</td><td class="num">0.375</td><td class="num">0.324</td><td class="num">6/32</td><td class="num">−0.011 (18/32)</td><td class="num">−0.098 (7/32)</td><td class="num">−0.013 (16/32)</td><td class="num">−0.033 (12/32)</td><td class="num">1.039</td></tr>
+      <tr><td><code>curve_dual_chroma</code></td><td class="num">0.342</td><td class="num">0.409</td><td class="num">0.364</td><td class="num">6/32</td><td class="num">+0.023 (18/32)</td><td class="num">−0.058 (10/32)</td><td class="num">+0.008 (19/32)</td><td class="num">−0.037 (12/32)</td><td class="num">1.004</td></tr>
       <tr><td><code>ab_prism</code></td><td class="num">0.239</td><td class="num">0.295</td><td class="num">0.253</td><td class="num">0/32</td><td class="num">−0.091 (10/32)</td><td class="num">−0.169 (1/32)</td><td class="num">−0.064 (13/32)</td><td class="num">−0.098 (6/32)</td><td class="num">1.142</td></tr>
-      <tr><td><code>ab_prism_random_r1 †</code></td><td class="num">0.245</td><td class="num">0.334</td><td class="num">0.258</td><td class="num">0/24</td><td class="num">−0.068 (8/24)</td><td class="num">−0.170 (1/24)</td><td class="num">−0.055 (9/24)</td><td class="num">−0.091 (3/24)</td><td class="num">1.094</td></tr>
-      <tr><td><code>ab_prism_random_r2 †</code></td><td class="num">0.246</td><td class="num">0.330</td><td class="num">0.289</td><td class="num">1/24</td><td class="num">−0.072 (7/24)</td><td class="num">−0.139 (1/24)</td><td class="num">−0.054 (8/24)</td><td class="num">−0.084 (5/24)</td><td class="num">1.106</td></tr>
-      <tr><td><code>ab_prism_random_r3 †</code></td><td class="num">0.246</td><td class="num">0.328</td><td class="num">0.266</td><td class="num">1/20</td><td class="num">−0.102 (4/20)</td><td class="num">−0.182 (1/20)</td><td class="num">−0.075 (5/20)</td><td class="num">−0.116 (1/20)</td><td class="num">1.123</td></tr>
       <tr><td><code>style_warp</code></td><td class="num">0.062</td><td class="num">0.117</td><td class="num">0.124</td><td class="num">1/32</td><td class="num">−0.269 (0/32)</td><td class="num">−0.299 (0/32)</td><td class="num">−0.243 (0/32)</td><td class="num">−0.260 (0/32)</td><td class="num">1.341</td></tr>
+      <tr><td><code>inpaint_bg</code></td><td class="num">0.310</td><td class="num">0.397</td><td class="num">0.173</td><td class="num">15/32</td><td class="num">+0.012 (15/32)</td><td class="num">−0.250 (4/32)</td><td class="num">0.000 (14/32)</td><td class="num">−0.069 (9/32)</td><td class="num">0.996</td></tr>
+      <tr><td><code>inpaint_outside_face</code></td><td class="num">0.624</td><td class="num">0.649</td><td class="num">0.560</td><td class="num">27/32</td><td class="num">+0.264 (30/32)</td><td class="num">+0.138 (28/32)</td><td class="num">+0.248 (30/32)</td><td class="num">+0.174 (28/32)</td><td class="num">0.991</td></tr>
     </tbody>
   </table></div>
-  <div class="note">
-    <p>本表為平均，其餘各表為中位數。輸入失真是防禦圖對原圖的 LPIPS（八張平均）。
-    位移高於原先的兩個臂（<code>style_affine</code>、<code>inpaint_outside_face</code>）輸入失真也高；
-    與原先同一級失真的 <code>style_opt</code>（0.339 對 0.337）各欄差值都在 ±0.013 內。</p>
-    <p>† 隨機對照只在有合格候選的影像上跑：r1、r2 各 6 張（缺 <code>man_00</code>、<code>man_01</code>），
-    r3 5 張（另缺 <code>man_03</code>），格數依此。</p>
-  </div>
-  <h3 style="margin:26px 0 9px">第四輪：放寬額度與分通道預算（2026-09-25 下午）</h3>
-  <div class="cols">
-    <div class="panel">
-      <h3><code>ab_warp_s12</code>／<code>ab_warp_s16</code></h3>
-      <p>沿用 <code>ab_warp</code> 的目標與求解，臉框與同色 ΔE00 上限開到 12／16（使用者看無最佳化預覽後定），
-      整圖 32、位移半徑 80、彩度 p95 ≤ 2.0×。</p>
-      <p>對 <code>ab_warp</code> 的配對差：s12 全圖 +0.139（32/32）、主體 +0.122（31/32）；
-      s16 全圖 +0.164（32/32）、主體 +0.151（31/32）。輸入 LPIPS 平均 0.466／0.503（<code>ab_warp</code> 0.301）。
-      對 <code>style_affine</code>：s16 全圖 +0.099（27/32）、主體 +0.027（18/32）。</p>
-    </div>
-    <div class="panel">
-      <h3><code>ab_warp_ch</code>：分通道預算</h3>
-      <p>在 s16 之上對逐像素 Lab 位移加 p95 上限：a*＋（紅／粉／洋紅）≤ 4、b*＋（黃／暖黃）≤ 4、
-      a*－（綠／青）≤ 15、b*－（藍）≤ 25、|ΔL*| ≤ 15。依據：偏藍的變化最易被歸給光源
-      （Winkler et al. 2015；Pearce et al. 2014），紅黃兩側緊鄰膚色（Zeng &amp; Luo）。</p>
-      <p>8 張都轉為冷調；卡住的是 a*－、b*－ 與同色。輸入 LPIPS 0.299，與 <code>ab_warp</code>（0.301）同一級；
-      配對差全圖 −0.017（11/32）、主體 −0.011（11/32）。</p>
-    </div>
-  </div>
-  <h3 style="margin:26px 0 9px">第三輪：以 <code>ab_warp</code> 為基礎（2026-09-25 夜間）</h3>
-  <div class="cols">
-    <div class="panel">
-      <h3><code>ab_prism</code> 對 <code>ab_warp</code></h3>
-      <p>全域三角式 Lab 映射（色度相依的單調亮度曲線 ＋ 亮度相依的色度相似變換，112 參數），
-      目標與上限同 <code>ab_warp</code>，輸入 LPIPS 以 <code>ab_warp</code> 的逐張值為上限。</p>
-      <p>實得輸入 LPIPS 平均 0.239（<code>ab_warp</code> 0.301）；卡住它的是臉框與同色兩道 ΔE00 8。
-      配對差：全圖 −0.080（2/32 格較大）、主體 −0.071（5/32）、淨化後非幾何 −0.051（7/32）。
-      兩者 LPIPS 相同的兩張：<code>man_00</code> 全圖 0.334 對 0.332、主體 0.283 對 0.283；
-      <code>man_01</code> 0.217 對 0.252、0.203 對 0.215。</p>
-    </div>
-    <div class="panel">
-      <h3><code>ab_prism</code> 對同族隨機</h3>
-      <p>隨機候選與最佳化解的逐張 LPIPS 差在 0.003 內。配對差（對三組隨機的平均）：
-      全圖 −0.029（8/24 格較大）、主體 −0.013（12/24）、淨化後非幾何 −0.016（5/24）。</p>
-      <p>在這一族裡，最佳化解的位移沒有高於同 LPIPS 的隨機抽樣。雙邊 LPIPS 帶原本不可行：
-      在四道色彩上限內，本族可達的 LPIPS 在 7/8 張低於 <code>ab_warp</code>（32,768 個候選量得）。</p>
-    </div>
-    <div class="panel">
-      <h3><code>style_warp</code>（備案）</h3>
-      <p>SDEdit 風格圖只當目標，擬合成 <code>ab_warp</code> 族的全域映射。風格圖本身與原圖只差
-      ΔE00 6.1–9.7，擬合後交付圖只剩 1.9–4.9，輸入 LPIPS 0.062，位移 0.117。</p>
-    </div>
-  </div>
 </section>
 
 <!-- ============ 等失真 ============ -->
 <section id="anchor">
-  <div class="sechead">
-    <h2>等失真比較為什麼還沒有</h2>
-    <p>一個量過的限制，以及它對這一頁的直接後果。</p>
-  </div>
-
-  <div class="cols">
-    <div class="panel">
-      <h3>沒有哪一個失真指標鎖得住其他</h3>
-      <p>主表那條線把十個 baseline 的原生 <code>eps</code> 縮到 LPIPS 都對上
-      <code>colour_curve_ours</code> 的 0.3344。錨收到 <span class="num">1.11×</span>
-      之後，<b>PSNR 仍然散 <span class="num">8.33 dB</span></b>、ΔE00 散 2.96×。</p>
-      <p>本頁這一側從另一個錨量到同一件事：貼著 ΔE00 16 上限的六格，錨只有
-      <span class="num">1.009×</span>，PSNR 散 <span class="num">8.98 dB</span>。</p>
-      <p><b>所以「等失真」一定要指名等哪一個指標，並把其餘三個的離散度一起報。</b>
-      單報一個就等於沒有錨。</p>
-    </div>
-    <div class="panel">
-      <h3>PSNR 散不散，由求解時綁的約束寫在哪個域決定</h3>
-      <pre class="eq">PSNR = −20·log₁₀(rms)
-PSNR 全距 = 20·log₁₀(rms 倍率)   ← 恆等式</pre>
-      <p>所以「PSNR 散多少」與「rms 散多少」是同一個問題，<b>逐臂對數字是重述不是
-      驗證</b>。有證據力的是分界落在哪裡：</p>
-      <p><b>像素域 L2／L∞</b>（PGD 撞邊界）rms 倍率 1.00–1.10，PSNR 全距 0.01–0.85 dB。
-      <b>量化／DCT 係數域</b> 1.65、1.96 → 4.36、5.87 dB。
-      <b>ΔE00</b>（本頁全部的臂）1.38–4.48 → 2.81–13.03 dB。</p>
-      <p>分界乾淨、沒有中間值。所以不在載體的形狀，在<b>預算寫在哪個域</b>：
-      係數域與知覺域的預算都不約束 pixel rms。</p>
-    </div>
-    <div class="panel">
-      <h3>「求解時綁的約束」不是「事後對齊用的錨」</h3>
-      <p>主表那十列是在 LPIPS 上對齊的，而它們同條件內的 PSNR 仍然一致——夾住 rms 的是
-      <b>求解端的 L∞／L2</b>，LPIPS 只是事後用來決定倍率的目標，沒有進損失、
-      沒有約束任何東西。</p>
-      <p>正確的說法是：<b>求解時綁 rms 類約束的方法，同條件內 PSNR 自然一致；
-      綁知覺類約束的方法不會。</b> 不是「在 rms 類的錨上對齊 PSNR 就會跟著」。</p>
-      <p>本頁的臂全部在求解時綁 ΔE00，所以它們的 PSNR 隨影像內容散開是預算種類的
-      必然，不是實作的缺陷。</p>
-    </div>
-    <div class="panel">
-      <h3>三個臂對齊不了</h3>
-      <p><code>inpaint_bg</code> 與 <code>inpaint_outside_face</code> 的重繪區是<b>生成</b>
-      出來的，那塊像素與原圖沒有對應關係，ΔE00 與 PSNR 在那裡量的是「換掉多少畫面」
-      而不是「擾動多大」。</p>
-      <p><code>style_affine</code> 的旋鈕是 guided filter 的 <code>radius</code>／
-      <code>eps</code>，不是擾動幅度。</p>
-      <p>主表那邊有一個同型的：<code>diffvax</code> 是前饋式，給
-      <code>--eps-scale</code> 會直接停住。這幾個只能以「無預算」那一類並列。</p>
-    </div>
-  </div>
-
-  <h3 style="margin:26px 0 9px">主表對齊後的十列（<b>另一批的數字</b>，只當參照）</h3>
+  <div class="sechead"><h2>主表等失真對齊</h2></div>
   <div class="tablewrap"><table id="tbl-aligned"></table></div>
 </section>
 
-<!-- ============ 機制 ============ -->
-<section id="mechanism">
-  <div class="sechead">
-    <h2>每一步是被前一步的圖逼出來的</h2>
-    <p>三條線、七個設計決定，各自對應一張看過的圖。</p>
-  </div>
-  <div class="cols">
-    <div class="panel">
-      <span class="tag gen">生成濾鏡</span>
-      <h3>一、直接交付 SDEdit 的輸出會把人換掉</h3>
-      <p><code>strength 0.35</code> 下八張的 FaceNet 餘弦是 0.26–0.76，三張低於 0.55；
-      降到 0.15 仍有一張在門檻下。換人之後位移很高，但那個高<b>不是免疫</b>——
-      分母保護的是另一個人。</p>
-      <p>失真那幾欄完全看不出這件事：<code>style_random</code> 的 PSNR 是 22.6–25.4，
-      比 <code>colour_curve_ours</code> 的 16.67 還「乾淨」。</p>
-    </div>
-    <div class="panel">
-      <span class="tag gen">生成濾鏡</span>
-      <h3>二、把生成模型當濾鏡設計器，不當算圖器</h3>
-      <p>只取 SDEdit 輸出的<b>低頻色彩位移場</b>套回原圖，結構逐像素留在原圖。
-      SDEdit 原始輸出的身分餘弦是 0.007–0.32，經轉移交付的是 0.66–0.97。</p>
-      <p>高斯低通與單通道 guided filter 兩個版本（<code>style_filter</code>、
-      <code>style_filter_guided</code>）以臉框分區求解，產物有邊界，已移除。</p>
-    </div>
-    <div class="panel">
-      <span class="tag gen">生成濾鏡</span>
-      <h3>三、photorealism prior 才是那一族的正解</h3>
-      <p><code>style_affine</code> 解<b>三通道的局部仿射色彩轉移</b>：每個視窗解一個
-      3×3 矩陣加位移，使 <code>A·x + b</code> 最接近 SDEdit 的輸出。輸出因此被限制成
-      輸入的局部仿射函數——邊只能是輸入的邊乘一個係數，不會長出新結構。</p>
-      <p>單通道導引只約束了一個純量，跨通道的色彩混合仍自由；三通道一起解才是
-      Luan 等的 photorealism prior 與 PhotoWCT 平滑後處理在做的事。</p>
-      <p>正則化階梯上<b>兩個方向同時變好</b>：radius/eps 由 24/0.005 到 48/0.05，
-      身分由 0.679 升到 0.762，能用掉的整圖預算也從 10.44 升到 11.40。</p>
-    </div>
-    <div class="panel">
-      <span class="tag curve">分區預算</span>
-      <h3>四、全域曲線做不到分區，除非預算改分在色度上</h3>
-      <p>全域曲線的定義就是「同一個輸入色階，任何位置同一個輸出」。給臉一道緊上限，
-      只會讓整條曲線被那道上限綁住。</p>
-      <p><code>curve_dual_chroma</code> 把預算分在<b>色度</b>上，
-      <b>接縫在構造上不存在</b>。代價看得到——<code>man_00</code> 整圖只到 ΔE00 7.44
-      （臉那道把整條曲線綁住了），其餘七張才到 12–16。</p>
-    </div>
-    <div class="panel">
-      <span class="tag curve">分區預算</span>
-      <h3>五、分膚色的正確軸是色相，不是通道強度</h3>
-      <p><code>curve_dual_chroma</code> 的瓶頸在載體：逐 RGB 通道的曲線<b>分不開膚色與
-      背景</b>，兩者在通道值上大量重疊。</p>
-      <p><code>ab_warp</code> 把映射改到 CIELAB 的 <code>(a,b)</code> 平面（7×7 錨點的
-      RBF 位移場 ＋ 單調亮度曲線）。膚色在那裡是一塊緊緻區域，臉那道上限只釘住它附近
-      的錨點。<b>映射仍然全域，接縫在構造上不存在。</b></p>
-      <p><code>man_00</code> 的可用預算由 ΔE00 7.44 升到 11.77，整體 LPIPS 也比
-      <code>curve_dual_chroma</code> 低（0.283 對 0.318）。切到「色度平面」那一層
-      可以看到位移場避開了哪一塊。</p>
-    </div>
-    <div class="panel">
-      <span class="tag keep">不碰受保護區</span>
-      <h3>六、身分不是被保住，是根本沒被碰過</h3>
-      <p>兩個 <code>inpaint_*</code> 把受保護的區域<b>完全不送進模型</b>，重繪只發生在
-      它之外，最後逐位元合成回去。<code>kept_bitexact_frac</code> 逐張驗證，
-      八張全部 <span class="num">1.0</span>，身分餘弦 0.9898–1.0000。</p>
-      <p><b>那一欄不是 1.0 就代表合成寫錯了</b>，它存在就是為了讓那件事有症狀。</p>
-    </div>
-    <div class="panel">
-      <span class="tag keep">不碰受保護區</span>
-      <h3>七、inpainting 的 prompt 要描述場景，不可以描述媒材</h3>
-      <p>第一版寫 <code>vintage film photograph</code>，模型<b>照字面畫了一個實體相框</b>
-      把臉框在中間；<code>background</code> 那批則只糊出灰白暈與暗角。</p>
-      <p>原因：inpainting 的 prompt 描述的是<b>整張結果影像</b>，媒材詞會變成物件。
-      這與 SDEdit 相反——SDEdit 是往既有影像上加條件，媒材詞會變成色調。</p>
-      <p>改成「主體在某個場景裡」帶季節、光線與顏色（交付用 <code>autumn</code>），
-      加反向 prompt 擋相框與第二個人。那一批整個作廢重跑。</p>
-    </div>
-  </div>
-</section>
 
-<!-- ============ 誠實區 ============ -->
-<section id="honesty">
-  <div class="sechead">
-    <h2>誠實區</h2>
-    <p>這一頁哪些地方不能照字面讀。</p>
-  </div>
-  <div class="cols">
-    <div class="panel">
-      <h3>最強的那個臂沒有預算</h3>
-      <p><code>inpaint_outside_face</code> 的位移是全頁最高（ip2p 0.6684／0.5747），
-      但它的 LPIPS 是 0.655（<b>比錨高 96%</b>）、PSNR 8.38、ΔE00 31.97。
-      它改掉了 74–91% 的畫面。<b>把它和有 ΔE00 上限的臂比大小是錯的。</b></p>
-    </div>
-    <div class="panel">
-      <h3>有預算的臂裡最強的是 <code>style_affine</code></h3>
-      <p>ip2p 主體內 0.4668，高於 <code>colour_curve_ours</code> 的 0.3867；
-      blocked 19/32、21/32。但它的 LPIPS 0.420 也比錨高 26%，
-      而 <code>colour_curve_ours</code> 是 0.3367。<b>仍然不是等失真。</b></p>
-    </div>
-    <div class="panel">
-      <h3>blocked 與位移不同向</h3>
-      <p><code>style_opt</code> 的 ip2p 位移與 <code>colour_curve_ours</code> 幾乎相同，
-      blocked 卻是 12/32 對 3/32。兩個量測的是不同的東西，兩欄都照報，
-      門檻逐列寫進 CSV。</p>
-    </div>
-    <div class="panel">
-      <h3>主表那幾列是<b>別批</b>的數字</h3>
-      <p>標「主表」的列來自 <code>anti-purification/main_table/</code>，同一組影像、
-      同一條管線、同一顆種子，但<b>不是這一批跑出來的</b>。本專案已量到同一份設定在
-      不同卡上重跑會有差異，跨批對照要當參照不當對手。</p>
-      <p>對齊後那十列的協定：八張人像、種子 20260812、<code>piq.LPIPS()</code> VGG，
-      倍率是各篇原生 <code>eps</code> 的倍數而步長同倍率縮放。
-      <b>它的編輯端還沒重跑</b>，所以那一組還不能拿來比防禦效果。</p>
-    </div>
-    <div class="panel">
-      <h3><code>dct_shield</code> 兩臂的對齊有副作用</h3>
-      <p>它們的 <code>eps</code> 被降到 1 以下，該篇 §4.2 的抗 JPEG 條件因此明確失效。
-      引用那兩列時要一起帶。</p>
-    </div>
-    <div class="panel">
-      <h3>編輯圖是有損編碼</h3>
-      <p>防禦圖、混合場、色度平面、pipeline 原輸出是<b>無損 WebP</b>（自然度要逐像素
-      判）；編輯圖與淨化後編輯圖是 q70 有損 WebP。這是為了讓整份報告落在發佈上限內。</p>
-    </div>
-    <div class="panel">
-      <h3>只放了 jpeg30 這一道淨化的圖</h3>
-      <p>七道算子的<b>數字</b>都在表上（2,688 列），但<b>圖</b>只收了 jpeg30
-      （非幾何類裡最強的一道）。其餘六道的逐格圖在遠端
-      <code>lab/runs/edit_purified/</code>。</p>
-    </div>
-    <div class="panel">
-      <h3>還沒有的</h3>
-      <p><code>metrics_union.py</code> 在 lab 上跑不起來（路徑寫死指向
-      <code>main_table/</code>），FSIM 與美學那幾張補充表暫時沒有。</p>
-    </div>
-  </div>
-</section>
 
-<footer>
-  防禦圖與副圖為無損 WebP，編輯圖為 q70 有損 WebP，每格原尺寸 512×512。
-  讀數來自 <code>lab/results/</code> 的 <code>displacement.csv</code>（612 列）、
-  <code>retention.csv</code>（4,284 列）與 <code>fidelity.csv</code>（121 列，含已退役兩臂）。
-  受害模型 <code>timbrooks/instruct-pix2pix</code>（s<sub>t</sub> 7.5、s<sub>i</sub> 1.8）與
-  <code>runwayml/stable-diffusion-inpainting</code>（guidance 7.5、遮罩 dilate 4），
-  兩者種子 20260812、50 步、512²。求解端不含攻擊指令。
-</footer>
+
+
+
 </main>
 
 <dialog class="lb" id="lb">
@@ -653,14 +371,12 @@ const SUB = {
   inpaint_outside_face:'只保留臉，其餘重繪'};
 const AUX = [
   {v:'def', label:'防禦圖', arms:ALL, hint:'原圖 ＋ 六個載體的交付圖。'},
-  {v:'field', label:'混合／振幅場', arms:['style_affine','style_opt','inpaint_bg','inpaint_outside_face'],
+  {v:'field', label:'混合場', arms:['inpaint_bg','inpaint_outside_face'],
    hint:'濾鏡臂：α(p)，臉那一側的振幅權重。inpaint 兩臂：白＝逐位元保留原圖。'},
   {v:'warp', label:'色度平面', arms:['ab_warp','ab_warp_s12','ab_warp_s16','ab_warp_ch','style_warp'],
    hint:'(a,b) 平面本身：底色是該點的顏色，越亮代表位移場在那裡推得越多。暗的那一塊是被上限釘住的膚色區。'},
   {v:'raw', label:'pipeline 原輸出', arms:['inpaint_bg','inpaint_outside_face'],
-   hint:'inpainting pipeline 的輸出，還沒合成回保留區。'},
-  {v:'sdedit_raw', label:'SDEdit 原輸出', arms:['style_affine'],
-   hint:'strength 0.6 的 SDEdit 原始輸出——濾鏡臂只取它的顏色，不取它的結構。'}];
+   hint:'inpainting pipeline 的輸出，還沒合成回保留區。'}];
 
 let cur = {img:IM[0], aux:'def', sc:'ip2p', pur:'plain', pr:0};
 const done = function(a){ return PEND.indexOf(a)<0; };
@@ -758,7 +474,6 @@ function renderDefence(){
     const reads=[], flags=[];
     const f=(L.fid[c]||{})[cur.img]||{};
     const r=(L.defence[c]||{})[cur.img]||{};
-    if(NOBUDGET[c]) flags.push({cls:'nobudget',text:'無預算'});
     if(cur.aux==='def'){
       if(f.lpips!==undefined){
         reads.push(['LPIPS', n(f.lpips,4)]);
@@ -766,7 +481,7 @@ function renderDefence(){
       }
       if(f.deltaE00!==undefined) reads.push(['ΔE00 整圖', n(f.deltaE00,2)]);
       if(r.deltaE00_face_box!==undefined && r.deltaE00_face_box!=='')
-        reads.push([NOBUDGET[c]?'ΔE00 臉框（沒動）':'ΔE00 臉框', n(r.deltaE00_face_box,2)]);
+        reads.push(['ΔE00 臉框', n(r.deltaE00_face_box,2)]);
       if(r.id_cos!==undefined && r.id_cos!==''){
         const v=Number(r.id_cos);
         reads.push(['身分餘弦', n(v), v<0.55?'warn':'ok']);
@@ -792,8 +507,7 @@ function renderEdits(){
     }
     const reads=[], flags=[];
     if(c!=='undefended'){
-      if(NOBUDGET[c]) flags.push({cls:'nobudget',text:'無預算'});
-      const d=(((L.disp[c]||{})[cur.sc]||{})[cur.img]||{})[String(cur.pr)];
+        const d=(((L.disp[c]||{})[cur.sc]||{})[cur.img]||{})[String(cur.pr)];
       if(d){
         reads.push(['位移 全圖', n(d.full)]);
         reads.push(['位移 主體內', n(d.subj)]);
@@ -832,19 +546,32 @@ document.getElementById('lbtile').addEventListener('click',function(){lb.close()
 lb.addEventListener('click',function(e){ if(e.target===lb) lb.close(); });
 
 /* ---------- 表 ---------- */
-function tbl(el, head, rows, cap){
+function tbl(el, head, rows){
   let h='<thead><tr>'+head.map(function(x){return '<th>'+x+'</th>';}).join('')+'</tr></thead><tbody>';
   rows.forEach(function(r){
-    const cls=r.ref?' class="ref"':(r.pend?' class="pend"':'');
-    h+='<tr'+cls+'>'+r.cells.map(function(c,i){
-      let k=''; if(r.best&&r.best.indexOf(i)>=0) k=' class="best"';
-      if(r.nb&&r.nb.indexOf(i)>=0) k=' class="nb"';
-      return '<td'+k+'>'+c+'</td>';}).join('')+'</tr>';
+    h+='<tr'+(r.ref?' class="ref"':'')+'>'+r.cells.map(function(c){return '<td>'+c+'</td>';}).join('')+'</tr>';
   });
-  h+='</tbody>'; if(cap) h+='<caption>'+cap+'</caption>';
-  el.innerHTML=h;
+  el.innerHTML=h+'</tbody>';
+  markBest(el);
 }
-function armRow(c, cells){ return {cells:[c].concat(cells), nb:NOBUDGET[c]?[0]:[]}; }
+/* 欄名帶 ↑／↓ 的欄，最好的值加粗（同值並列都加粗）。 */
+function markBest(table){
+  const ths=table.querySelectorAll('thead th');
+  ths.forEach(function(th, i){
+    const t=th.textContent, dir=t.indexOf('↑')>=0?1:(t.indexOf('↓')>=0?-1:0);
+    if(!dir) return;
+    const cells=[];
+    table.querySelectorAll('tbody tr').forEach(function(tr){
+      const td=tr.children[i]; if(!td) return;
+      const m=td.textContent.replace(/−/g,'-').match(/[-+]?\d+(\.\d+)?/);
+      if(m) cells.push([td, parseFloat(m[0])]);
+    });
+    if(!cells.length) return;
+    const best=cells.reduce(function(b,c){return dir*c[1]>dir*b?c[1]:b;}, cells[0][1]);
+    cells.forEach(function(c){ if(c[1]===best) c[0].innerHTML='<b>'+c[0].innerHTML+'</b>'; });
+  });
+}
+function armRow(c, cells){ return {cells:[c].concat(cells)}; }
 
 function buildTables(){
   /* 位移 */
@@ -859,13 +586,11 @@ function buildTables(){
   dr.push({ref:true,cells:['colour_curve_ours（主表）',n(rc.ip2p.full),n(rc.ip2p.subj),
     rc.ip2p.blocked+'/32',n(rc.inpaint.full),n(rc.inpaint.subj),rc.inpaint.blocked+'/32']});
   const rd=L.reference.dct_shield_y.disp;
-  dr.push({ref:true,cells:['dct_shield_y（主表最高）',n(rd.ip2p.full),n(rd.ip2p.subj),
+  dr.push({ref:true,cells:['dct_shield_y（主表）',n(rd.ip2p.full),n(rd.ip2p.subj),
     rd.ip2p.blocked+'/32',n(rd.inpaint.full),n(rd.inpaint.subj),rd.inpaint.blocked+'/32']});
   tbl(document.getElementById('tbl-disp'),
-    ['條件','ip2p 全圖','ip2p 主體內','ip2p blocked','inpaint 全圖','inpaint 主體內','inpaint blocked'],
-    dr, '每格 8 影像 × 4 指令 ＝ 32。<b>琥珀色的條件沒有失真上限</b>，不與其餘比大小。'+
-        '<b>inpaint 三欄只當參考</b>：攻擊端遮罩取自原圖，<code>inpaint_bg</code> 的 0.0000 是遮罩與防禦重繪區相同造成的。'+
-        '標「主表」的兩列來自另一批。');
+    ['條件','ip2p 全圖 ↑','ip2p 主體內 ↑','ip2p blocked ↑','inpaint 全圖 ↑','inpaint 主體內 ↑','inpaint blocked ↑'],
+    dr);
 
   /* 保留率 */
   const purs=L.purifiers;
@@ -873,20 +598,15 @@ function buildTables(){
   ARMS.slice().sort(function(a,b){return (L.retagg[b].nongeo||0)-(L.retagg[a].nongeo||0);})
     .forEach(function(c){
       const a=L.retagg[c];
-      const best=[]; purs.forEach(function(p,i){ if(a[p]!==null&&a[p]>=1) best.push(i+1); });
-      if(a.nongeo>=1) best.push(purs.length+1);
-      const row=armRow(c, purs.map(function(p){return n(a[p]);}).concat([n(a.nongeo)]));
-      row.best=best; rr.push(row);
+      rr.push(armRow(c, purs.map(function(p){return n(a[p]);}).concat([n(a.nongeo)])));
     });
   PEND.forEach(function(c){
     rr.push({pend:true,cells:[c,'還沒跑完'].concat(purs.slice(1).map(function(){return '';})).concat([''])}); });
   const rf=L.reference.colour_curve_ours.ret;
   rr.push({ref:true,cells:['colour_curve_ours（主表）'].concat(purs.map(function(p){return n(rf[p]);})).concat([n(rf.nongeo)])});
   const rv=L.reference.diffvax.ret;
-  rr.push({ref:true,cells:['diffvax（主表次高）'].concat(purs.map(function(p){return n(rv[p]);})).concat([n(rv.nongeo)])});
-  tbl(document.getElementById('tbl-ret'), ['條件'].concat(purs).concat(['非幾何均']), rr,
-    'crop_resize0.1 與 rotate15 是幾何類——取景本身被改掉，讀數同時含「防禦被洗掉」與'+
-    '「畫面被移動」，不與其餘五道混著平均。綠色＝該欄 ≥ 1.0。');
+  rr.push({ref:true,cells:['diffvax（主表）'].concat(purs.map(function(p){return n(rv[p]);})).concat([n(rv.nongeo)])});
+  tbl(document.getElementById('tbl-ret'), ['條件'].concat(purs.map(function(p){return p+' ↑';})).concat(['非幾何均 ↑']), rr);
 
   /* 失真 */
   const fr=[];
@@ -902,24 +622,18 @@ function buildTables(){
   fr.push({ref:true,cells:['colour_curve_ours（主表）',n(cc.lpips,4),
     ((cc.lpips/L.anchor-1)*100).toFixed(1)+'%','—',n(cc.psnr,2),'—','—','—','ΔE00 16（整圖）']});
   tbl(document.getElementById('tbl-fid'),
-    ['條件','LPIPS','vs 錨 0.3344','ΔE00','PSNR','L∞','rms 倍率','PSNR 全距','求解時綁的約束'],
-    fr, '前五欄是八張的中位數。<b>rms 倍率與 PSNR 全距是同一個量的兩種寫法</b>'+
-        '（<code>PSNR 全距 = 20·log₁₀(rms 倍率)</code>，恆等式），並列是為了讓上一節的'+
-        '分界可以直接讀，不是兩個獨立的讀數。');
+    ['條件','LPIPS ↓','vs 錨 0.3344 ↓','ΔE00 ↓','PSNR ↑','L∞ ↓','rms 倍率 ↓','PSNR 全距 ↓','求解時綁的約束'],
+    fr);
 
   /* 對齊 */
   const ar=L.reference.aligned.map(function(r){
     return {cells:[r.c, r.s.toFixed(3), r.l.toFixed(4),
       ((r.l/L.anchor-1)>=0?'+':'')+((r.l/L.anchor-1)*100).toFixed(1)+'%',
-      r.d.toFixed(3), r.p.toFixed(2), r.rms.toFixed(2)+'×'],
-      nb: r.rms>=1.3?[6]:[]};
+      r.d.toFixed(3), r.p.toFixed(2), r.rms.toFixed(2)+'×']};
   });
   tbl(document.getElementById('tbl-aligned'),
-    ['條件','eps 倍率','對齊後 LPIPS','vs 錨','ΔE00','PSNR','同條件 rms 倍率'],
-    ar, '<b>另一批的數字</b>：主表那條線把各篇原生 eps 縮到 LPIPS 對上 0.3344，'+
-        '步長同倍率縮放。倍率跨十三倍（0.073–0.969），那一欄本身就是讀數。'+
-        '最後一欄琥珀色的兩列是<b>量化／DCT 係數域</b>的預算——它們是十列裡唯一兩個'+
-        '沒把 pixel rms 夾住的。<b>那一組的編輯端還沒重跑</b>，所以還不能比防禦效果。');
+    ['條件','eps 倍率','對齊後 LPIPS ↓','vs 錨 ↓','ΔE00 ↓','PSNR ↑','同條件 rms 倍率 ↓'],
+    ar);
 }
 
 /* ---------- 圖 ---------- */
@@ -1099,6 +813,6 @@ document.addEventListener('keydown',function(e){
   if(e.key==='ArrowRight'){ cur.img=IM[(i+1)%IM.length]; render(); }
   else if(e.key==='ArrowLeft'){ cur.img=IM[(i-1+IM.length)%IM.length]; render(); }
 });
-figs(); render(); buildTables(); chartScatter(); chartRet(); chartRms();
+render(); buildTables(); document.querySelectorAll('table.auto').forEach(markBest); chartScatter(); chartRet(); chartRms();
 })();
 </script>

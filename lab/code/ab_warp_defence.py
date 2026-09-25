@@ -272,6 +272,14 @@ def main() -> None:
     ap.add_argument("--attack-steps", type=int, default=50)
     ap.add_argument("--s-i", type=float, default=1.5)
     ap.add_argument("--noise-seed", type=int, default=0)
+    ap.add_argument("--objective", default="free", choices=("free", "comm"),
+                    help="free：現行 FreeObjective；comm：等變殘差（comm_objective.py）")
+    ap.add_argument("--init", default="zero", choices=("zero", "random"),
+                    help="random：w_raw ~ N(0, init_std²) 後投影、th_raw ~ U(−init_std, init_std)")
+    ap.add_argument("--init-std", type=float, default=0.1)
+    ap.add_argument("--lpips-ref-arm", default="",
+                    help="非空時加一道逐張輸入 LPIPS 上限：該臂防禦圖對原圖的 piq LPIPS ＋ 容差")
+    ap.add_argument("--lpips-tolerance", type=float, default=0.0025)
     args = ap.parse_args()
 
     args.out.mkdir(parents=True, exist_ok=True)
@@ -298,6 +306,14 @@ def main() -> None:
                               warp_radius=args.warp_radius, pieces=args.pieces,
                               l_radius=args.l_radius)
         carrier.reset(x, args.noise_seed)
+        if args.init == "random":
+            g = torch.Generator(device="cpu").manual_seed(args.noise_seed)
+            with torch.no_grad():
+                carrier.w_raw.copy_((args.init_std * torch.randn(
+                    carrier.w_raw.shape, generator=g)).to(device))
+                carrier.th_raw.copy_(((torch.rand(carrier.th_raw.shape, generator=g) * 2 - 1)
+                                      * args.init_std).to(device))
+            carrier.project()
 
         caps = [
             Cap("frame", lambda y: delta_e00_torch(x, y, frame),
@@ -314,16 +330,50 @@ def main() -> None:
                 lambda y: float(chroma_p95(y)), chroma_cap),
         ]
 
-        objective = FreeObjective(
+        extra = {"objective": args.objective, "init": args.init,
+                 "init_std": args.init_std if args.init == "random" else ""}
+        lp = None
+        if args.lpips_ref_arm or args.objective == "comm":
+            import piq
+            lp = piq.LPIPS().to(device).eval()
+            lp.requires_grad_(False)
+        if args.lpips_ref_arm:
+            import hashlib
+            ref_png = Path("lab/runs/defence") / args.lpips_ref_arm /                 f"{item['name']}__{args.lpips_ref_arm}__def.png"
+            with torch.no_grad():
+                t_i = float(lp(load_image_tensor(ref_png, device, size=RESOLUTION), x).mean())
+            caps.append(Cap("input_lpips", lambda y: lp(y, x).mean(),
+                            lambda y: float(lp(y, x).mean()), t_i + args.lpips_tolerance))
+            extra.update(lpips_ref_arm=args.lpips_ref_arm, lpips_ref=round(t_i, 6),
+                         lpips_ref_sha256=hashlib.sha256(ref_png.read_bytes()).hexdigest())
+
+        free = FreeObjective(
             ip2p, x, box=box, k=4, steps=args.attack_steps, seed=args.noise_seed,
             weights={"id": 1.0, "enc": 0.5, "cond": 1.0},
             chain_steps=6, grad_steps=1, s_i=args.s_i, resample=True)
+        from comm_objective import CommObjective, align_weight, assert_nonzero_grad
+        diag = CommObjective(free, carrier, x, lp) if lp is not None else None
+        if args.objective == "comm":
+            objective = CommObjective(free, carrier, x, lp)
+            assert_nonzero_grad(carrier, lambda: objective.eval_terms(carrier.render(x))["comm"])
+            extra.update({k: round(v, 6) for k, v in
+                          align_weight(objective, free, carrier, x).items()})
+        else:
+            objective = free
+        if diag is not None:
+            with torch.no_grad():
+                extra["comm_val_start"] = round(float(diag.eval_terms(carrier.render(x))["comm"]), 6)
 
         stats = optimise_carrier(
             carrier, x, objective, steps=args.steps, lr=args.lr, caps=caps,
             rho=args.rho, lam_every=args.lam_every, check_every=args.check_every,
             log_every=args.log_every, lr_final_ratio=args.lr_final_ratio,
             probe_every=args.probe_every)
+        if diag is not None:
+            with torch.no_grad():
+                yq = quantise(carrier.render(x))
+                extra["comm_val_end"] = round(float(diag.eval_terms(yq)["comm"]), 6)
+                extra["lpips_out"] = round(float(lp(yq, x).mean()), 6)
 
         with torch.no_grad():
             y = quantise(carrier.render(x))
@@ -354,10 +404,12 @@ def main() -> None:
                 "psnr": round(float(10 * torch.log10(1.0 / (y - x).pow(2).mean())), 4),
                 "linf": round(float((y - x).abs().max()), 5),
                 "seconds": round(time.time() - started, 1),
+                **extra,
                 **{k: v for k, v in stats.items()},
             }
         save_image(x, args.out / f"{item['name']}__orig.png")
         save_image(y, args.out / f"{item['name']}__{args.arm}__def.png")
+        torch.save(carrier.state_dict(), args.out / f"{item['name']}__carrier.pt")
         save_image(warp_picture(carrier, device),
                    args.out / f"{item['name']}__warp.png")
         rows.append(row)

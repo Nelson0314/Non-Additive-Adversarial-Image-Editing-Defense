@@ -13,6 +13,14 @@
 #                              並為產滿 8 張的 <臂前綴>* 目錄寫 defence sentinel
 #                              chain 工作相依於全部 gen
 #   readout                    跨臂讀數。相依：全部 chain
+#   seed:<臂>:<種子>            該臂（或 undefended）以指定評估種子重跑 ip2p 未淨化編輯，
+#                              輸出 lab/runs/edit_seeds/<臂>/seed<種子>/（不碰主種子分母）
+#   ptfit                      回推各臂的全域映射 T̂（passthrough_readout.py fit）
+#   ptbase                     非防禦性改動的底線（passthrough_readout.py baseline）
+#   ptread:<種子|main>          穿透分離讀數。相依：ptfit，及同種子的全部 seed 工作
+#   vqa                        指令完成度與編輯後身分（edit_vqa.py，VQA_ARMS／VQA_SEEDS）
+#   fid                        失真指標（defence_fidelity.py，FID_ARMS）
+# 跨佇列的相依以 lab/runs/state/ 的 sentinel 與輸出目錄判定（見 ready 的末段）。
 #
 # 狀態寫在 lab/runs/queue/<佇列名>/：<工作>.lock（mkdir，跨機原子）、
 # <工作>.done、<工作>.fails。失敗的工作解鎖重試，同一工作失敗 3 次即停住，
@@ -66,6 +74,8 @@ ready() {
                [[ "$arm" =~ _r[0-9]+$ && "$j" == gen:"${arm%_r[0-9]*}"_r* ]] && deps+=("$j") ;;
       gen)     [[ "$j" == def:"${arm%_random_r[0-9]*}":* ]] && deps+=("$j") ;;
       readout) [[ "$j" == chain:* ]] && deps+=("$j") ;;
+      ptread)  [[ "$j" == ptfit ]] && deps+=("$j")
+               [[ "$arm" != main && "$j" == seed:*:"$arm" ]] && deps+=("$j") ;;
     esac
   done
   local r
@@ -76,6 +86,18 @@ ready() {
     [ "$r" -eq 2 ] && return 2
     return 1
   done
+  # 跨佇列的相依以檔案判定：上游佇列寫下的 sentinel 或輸出目錄存在才可派。
+  case "$kind" in
+    seed)   [ "$arm" = undefended ] || [ -e "lab/runs/state/$arm.defence.done" ] || return 1 ;;
+    ptfit)  for a in ${PT_ARMS:-}; do [ -e "lab/runs/state/$a.defence.done" ] || return 1; done ;;
+    ptread) if [ "$arm" = main ]; then
+              for a in ${PT_ARMS:-}; do [ -e "lab/runs/state/$a.edit_ip2p.done" ] || return 1; done
+            fi ;;
+    vqa)    for a in ${VQA_ARMS:-}; do for sd in ${VQA_SEEDS:-}; do
+              [ -e "lab/runs/edit_seeds/$a/seed$sd/preflight.csv" ] || return 1; done; done
+            for a in ${VQA_ARMS:-}; do [ "$a" = undefended ] || [ -e "lab/runs/state/$a.edit_ip2p.done" ] || return 1; done ;;
+    readout|fid) for a in ${WAIT_ARMS:-}; do [ -e "lab/runs/state/$a.pedit_blur2_ip2p.done" ] || return 1; done ;;
+  esac
   return 0
 }
 
@@ -111,7 +133,7 @@ run_job() {
   "$PY" -c "import torch,sys; sys.exit(0 if torch.cuda.is_available() else 1)" \
     || { log FATAL "卡 $gpu 上 torch.cuda.is_available() 為假"; return 1; }
   case "$kind" in
-    pilot) DEF_OUT="lab/runs/defence_pilot/$arm" \
+    pilot) DEF_OUT="lab/runs/defence_pilot/$arm/$img" \
              bash lab/scripts/defence_cmd.sh "$arm" --images "$img" --steps "$steps" ;;
     def)   DEF_OUT="lab/runs/defence_shards/$arm/$img" \
              bash lab/scripts/defence_cmd.sh "$arm" --images "$img" ;;
@@ -120,10 +142,26 @@ run_job() {
            local pre=${arm%_r[0-9]*} d n
            for d in lab/runs/defence/"$pre"_r*; do
              n=$(ls -1 "$d"/*__"$(basename "$d")"__def.png 2>/dev/null | wc -l)
-             [ "$n" -eq 8 ] && touch "lab/runs/state/$(basename "$d").defence.done"
+             [ "$n" -ge 1 ] && touch "lab/runs/state/$(basename "$d").defence.done"   # 不滿 8 張時鏈以子集執行
            done ;;
     chain) merge_shards "$arm" && bash lab/scripts/arm_chain.sh "$gpu" "$arm" ;;
     readout) bash lab/scripts/readout.sh "$gpu" ;;
+    seed)  local extra=() sfx="_$arm" n
+           if [ "$arm" != undefended ]; then
+             extra=(--defended "lab/runs/defence/$arm")
+             n=$(ls -1 lab/runs/defence/"$arm"/*__"$arm"__def.png | wc -l)
+             [ "$n" -lt 8 ] && extra+=(--images $(ls -1 lab/runs/defence/"$arm"/*__"$arm"__def.png                                    | xargs -n1 basename | sed "s/__${arm}__def.png//"))
+           fi
+           "$PY" lab/code/edit_preflight.py --data lab/data/portraits --scenarios ip2p                --seed "$img" --suffix "$sfx" "${extra[@]}"                --out "lab/runs/edit_seeds/$arm/seed$img" ;;
+    ptfit) "$PY" lab/code/passthrough_readout.py fit ${PT_ARMS:+--arms $PT_ARMS} ;;
+    ptbase) "$PY" lab/code/passthrough_readout.py baseline ;;
+    vqa)   "$PY" lab/code/edit_vqa.py --arms $VQA_ARMS --out "lab/results/passthrough/vqa_$QNAME.csv" ;;
+    fid)   "$PY" lab/code/defence_fidelity.py --arms $FID_ARMS --out lab/results/fidelity.csv ;;
+    ptread) if [ "$arm" = main ]; then
+              "$PY" lab/code/passthrough_readout.py readout ${PT_ARMS:+--arms $PT_ARMS}
+            else
+              "$PY" lab/code/passthrough_readout.py readout --seed "$arm" ${PT_SEED_ARMS:+--arms $PT_SEED_ARMS}
+            fi ;;
     *) log FATAL "未知的工作：$job"; return 2 ;;
   esac
 }

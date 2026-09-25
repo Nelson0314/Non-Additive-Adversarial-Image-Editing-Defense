@@ -77,6 +77,25 @@ case "$ARM" in
   ab_warp_ch)
     exec "$PY" lab/code/ab_warp_defence.py --arm "$ARM" --out "$OUT"         --data "$DATA" --grid 7 --extent 90 --warp-radius 80 --pieces 16         --frame-cap 32.0 --face-cap 16 --skin-radius 12.0 --chroma-gain 2.0         --a-pos-cap 4 --a-neg-cap 15 --b-pos-cap 4 --b-neg-cap 25 --l-abs-cap 15         "${@:2}"
     ;;
+  # ---- 等變殘差目標（docs/NEXT_PLAN.md 方向二）：ab_warp_ch 的載體與上限，
+  # 非恆等起點（種子 0），再加逐張輸入 LPIPS ≤ ab_warp_ch 防禦圖 ＋ 0.0025。
+  # _comm 用 comm 目標，_free 用現行 FreeObjective，其餘逐項相同。
+  ab_warp_ch_comm|ab_warp_ch_free)
+    exec "$PY" lab/code/ab_warp_defence.py --arm "$ARM" --out "$OUT" \
+        --data "$DATA" --grid 7 --extent 90 --warp-radius 80 --pieces 16 \
+        --frame-cap 32.0 --face-cap 16 --skin-radius 12.0 --chroma-gain 2.0 \
+        --a-pos-cap 4 --a-neg-cap 15 --b-pos-cap 4 --b-neg-cap 25 --l-abs-cap 15 \
+        --objective "${ARM#ab_warp_ch_}" --init random --init-std 0.1 \
+        --lpips-ref-arm ab_warp_ch --lpips-tolerance 0.0025 --noise-seed 0 \
+        "${@:2}"
+    ;;
+  # ---- 同族隨機對照（NEXT_PLAN.md B4）：對齊最佳化臂逐張實際 LPIPS ± 0.0025。
+  # 一次產出 r1..r3；由 queue_worker 的 gen 工作序列執行。
+  ab_warp_ch_comm_random_r[1-3]|ab_warp_ch_free_random_r[1-3])
+    ref="${ARM%_random_r[0-9]*}"
+    exec "$PY" -B lab/code/ab_warp_random.py --ref-arm "$ref" \
+        --prefix "${ref}_random" --replicates 3 --max-candidates 4096 "${@:2}"
+    ;;
   # ---- 色調曲線：單一全域曲線，預算分在色度 ----
   curve_dual_chroma)
     exec "$PY" lab/code/curve_budget_defence.py --arm curve_dual_chroma --out "$OUT" \

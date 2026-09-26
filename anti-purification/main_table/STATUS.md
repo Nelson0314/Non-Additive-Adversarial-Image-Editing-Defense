@@ -74,10 +74,11 @@ Share 選單開分享）。內容是編輯輸出矩陣（4 照片 × 4 指令 ×
 格式是使用者指定的：不放說明文字，只有圖與數字；每欄最佳值粗體、欄名以 ↑／↓ 標
 方向；與十個對齊 baseline 中位數差兩倍以上的值標紅並附倍率。
 
-素材不在版控（影像不入庫），重建方式：從遠端 `runs/eps_aligned/`、
-`runs/edit_defended_aligned/`、`runs/defence_portraits/` 轉 WebP（防禦圖與原圖無損、
-編輯圖 q90），`data.js` 由 `results/` 的 CSV 產生。單一版本上限 64 MB、
-整個 artifact 上限 256 個檔。
+頁面原始檔是 `report/aligned_matrix.html`（自足，CSS 與 JS 內嵌，只外部引用
+`data.js` 與 `img/`）。**影像不入版控**，重建方式與檔名式樣寫在
+`code/report_matrix_data.py` 的 docstring；那一支也負責產生 `data.js`，
+跑過一次確認它逐欄重現已發佈的版本。單一版本上限 64 MB、整個 artifact
+上限 256 個檔；更新時只傳改動的檔，沒傳的會保留。
 
 另有一份較早的版本 <https://claude.ai/artifact/3XXgCxBMtrjH62VEkXuEBH>，
 版面與資料都被上面那一份取代，兩者的影像檔名不同，未刪除。

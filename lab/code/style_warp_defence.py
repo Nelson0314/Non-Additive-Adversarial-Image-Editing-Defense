@@ -21,7 +21,7 @@ SDEdit 改掉的結構細節。
 交付，推得動多少」。風格圖取自 `style_affine` 已產出的 `__sdedit_raw.png`
 （`film`、strength 0.6、20 步、CFG 7.5），不重跑擴散模型。
 
-產出（版面與 `defence_run.py` 相同）
+產出（lab 各臂共用的版面：`<影像>__<臂>__def.png`）
 ────────────────────────────────────────────────────────────────────
     {out}/{image}__orig.png
     {out}/{image}__{arm}__def.png

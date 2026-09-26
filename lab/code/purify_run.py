@@ -6,7 +6,7 @@
 再送進編輯模型。所以它讀的是已經寫成 8 位元 PNG 的防禦圖，不重跑攻擊——
 重跑攻擊只會把 `photoguard_c` 的 6400 秒/張再付一次，換到同一批防禦圖。
 
-輸出的版面刻意與 `defence_run.py` 相同（`<名稱>__def.png`），
+輸出的版面刻意與防禦程式相同（`<名稱>__def.png`），
 `code/edit_preflight.py --defended <目錄>` 不必改就能吃。
 
 算子與設定
@@ -100,7 +100,7 @@ def main() -> None:
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     source = parser.add_mutually_exclusive_group(required=True)
     source.add_argument("--defended", type=Path,
-                        help="防禦圖目錄（`defence_run.py` 的輸出）")
+                        help="防禦圖目錄（防禦程式的輸出）")
     source.add_argument("--data", type=Path,
                         help="資料集根目錄，淨化未防禦的原圖")
     parser.add_argument("--out", type=Path, required=True)

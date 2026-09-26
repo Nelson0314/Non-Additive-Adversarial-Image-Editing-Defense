@@ -1,7 +1,7 @@
 """Global, triangular Lab colour map with hue-conditioned monotone lightness.
 
 The carrier and constraints import only tensor utilities. Model construction is
-confined to main(). See lab/docs/AB_WARP_NEXT.md for the experimental protocol.
+confined to main(). Design summary in lab/docs/DESIGN.md (ab_prism).
 """
 
 from __future__ import annotations

@@ -1,0 +1,833 @@
+arm,image,prompt_index,seed,question,answer_raw,verdict,expect,id_edit
+original,man_00,0,,Is the person wearing sunglasses?,No,no,no,
+original,man_00,1,,Is the person wearing a police uniform?,No,no,no,
+original,man_00,2,,Is the person wearing a helmet?,No,no,no,
+original,man_00,3,,Is the person wearing a bow tie?,No,no,no,
+original,man_01,0,,Is the person wearing sunglasses?,No,no,no,
+original,man_01,1,,Is the person wearing a police uniform?,No,no,no,
+original,man_01,2,,Is the person wearing a helmet?,No,no,no,
+original,man_01,3,,Is the person wearing a bow tie?,No,no,no,
+original,man_02,0,,Is the person wearing sunglasses?,No,no,no,
+original,man_02,1,,Is the person wearing a police uniform?,No,no,no,
+original,man_02,2,,Is the person wearing a helmet?,No,no,no,
+original,man_02,3,,Is the person wearing a bow tie?,No,no,no,
+original,man_03,0,,Is the person wearing sunglasses?,No,no,no,
+original,man_03,1,,Is the person wearing a police uniform?,No,no,no,
+original,man_03,2,,Is the person wearing a helmet?,No,no,no,
+original,man_03,3,,Is the person wearing a bow tie?,No,no,no,
+original,woman_00,0,,Is the person wearing sunglasses?,No,no,no,
+original,woman_00,1,,Is the person wearing a police uniform?,No,no,no,
+original,woman_00,2,,Is the person wearing a helmet?,No,no,no,
+original,woman_00,3,,Is the person wearing a bow tie?,No,no,no,
+original,woman_01,0,,Is the person wearing sunglasses?,No,no,no,
+original,woman_01,1,,Is the person wearing a police uniform?,No,no,no,
+original,woman_01,2,,Is the person wearing a helmet?,No,no,no,
+original,woman_01,3,,Is the person wearing a bow tie?,No,no,no,
+original,woman_02,0,,Is the person wearing sunglasses?,No,no,no,
+original,woman_02,1,,Is the person wearing a police uniform?,No,no,no,
+original,woman_02,2,,Is the person wearing a helmet?,No,no,no,
+original,woman_02,3,,Is the person wearing a bow tie?,No,no,no,
+original,woman_03,0,,Is the person wearing sunglasses?,No,no,no,
+original,woman_03,1,,Is the person wearing a police uniform?,No,no,no,
+original,woman_03,2,,Is the person wearing a helmet?,No,no,no,
+original,woman_03,3,,Is the person wearing a bow tie?,No,no,no,
+undefended,man_00,0,20260812,Is the person wearing sunglasses?,Yes,yes,yes,0.7521
+undefended,man_00,1,20260812,Is the person wearing a police uniform?,Yes,yes,yes,0.2038
+undefended,man_00,2,20260812,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.5331
+undefended,man_00,3,20260812,Is the person wearing a bow tie?,Yes,yes,yes,0.9356
+undefended,man_01,0,20260812,Is the person wearing sunglasses?,Yes,yes,yes,0.8076
+undefended,man_01,1,20260812,Is the person wearing a police uniform?,Yes,yes,yes,0.9539
+undefended,man_01,2,20260812,Is the person wearing a helmet?,No,no,yes,0.8932
+undefended,man_01,3,20260812,Is the person wearing a bow tie?,Yes,yes,yes,0.9553
+undefended,man_02,0,20260812,Is the person wearing sunglasses?,Yes,yes,yes,0.7266
+undefended,man_02,1,20260812,Is the person wearing a police uniform?,Yes,yes,yes,0.8438
+undefended,man_02,2,20260812,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.7657
+undefended,man_02,3,20260812,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.8636
+undefended,man_03,0,20260812,Is the person wearing sunglasses?,Yes,yes,yes,0.6627
+undefended,man_03,1,20260812,Is the person wearing a police uniform?,"Yes, the person is wearing a police uniform.",yes,yes,0.8066
+undefended,man_03,2,20260812,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.9355
+undefended,man_03,3,20260812,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.8646
+undefended,woman_00,0,20260812,Is the person wearing sunglasses?,Yes,yes,yes,0.791
+undefended,woman_00,1,20260812,Is the person wearing a police uniform?,Yes,yes,yes,0.8866
+undefended,woman_00,2,20260812,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.7978
+undefended,woman_00,3,20260812,Is the person wearing a bow tie?,Yes,yes,yes,0.8937
+undefended,woman_01,0,20260812,Is the person wearing sunglasses?,Yes,yes,yes,0.801
+undefended,woman_01,1,20260812,Is the person wearing a police uniform?,Yes,yes,yes,0.9615
+undefended,woman_01,2,20260812,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.9418
+undefended,woman_01,3,20260812,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.934
+undefended,woman_02,0,20260812,Is the person wearing sunglasses?,Yes,yes,yes,0.7597
+undefended,woman_02,1,20260812,Is the person wearing a police uniform?,Yes,yes,yes,0.9116
+undefended,woman_02,2,20260812,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.8261
+undefended,woman_02,3,20260812,Is the person wearing a bow tie?,Yes,yes,yes,0.9157
+undefended,woman_03,0,20260812,Is the person wearing sunglasses?,Yes,yes,yes,0.7208
+undefended,woman_03,1,20260812,Is the person wearing a police uniform?,Yes,yes,yes,0.8818
+undefended,woman_03,2,20260812,Is the person wearing a helmet?,Yes,yes,yes,0.8435
+undefended,woman_03,3,20260812,Is the person wearing a bow tie?,Yes,yes,yes,0.8701
+ab_warp,man_00,0,20260812,Is the person wearing sunglasses?,Yes,yes,yes,0.6685
+ab_warp,man_00,1,20260812,Is the person wearing a police uniform?,Yes,yes,yes,0.1854
+ab_warp,man_00,2,20260812,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,-0.0493
+ab_warp,man_00,3,20260812,Is the person wearing a bow tie?,Yes,yes,yes,0.9015
+ab_warp,man_01,0,20260812,Is the person wearing sunglasses?,Yes,yes,yes,0.7955
+ab_warp,man_01,1,20260812,Is the person wearing a police uniform?,Yes,yes,yes,0.9276
+ab_warp,man_01,2,20260812,Is the person wearing a helmet?,No,no,yes,0.8111
+ab_warp,man_01,3,20260812,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.9297
+ab_warp,man_02,0,20260812,Is the person wearing sunglasses?,Yes,yes,yes,0.7061
+ab_warp,man_02,1,20260812,Is the person wearing a police uniform?,Yes,yes,yes,0.7724
+ab_warp,man_02,2,20260812,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.7321
+ab_warp,man_02,3,20260812,Is the person wearing a bow tie?,Yes,yes,yes,0.8272
+ab_warp,man_03,0,20260812,Is the person wearing sunglasses?,Yes,yes,yes,0.6742
+ab_warp,man_03,1,20260812,Is the person wearing a police uniform?,Yes,yes,yes,0.7354
+ab_warp,man_03,2,20260812,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.8333
+ab_warp,man_03,3,20260812,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.8533
+ab_warp,woman_00,0,20260812,Is the person wearing sunglasses?,Yes,yes,yes,0.7651
+ab_warp,woman_00,1,20260812,Is the person wearing a police uniform?,Yes,yes,yes,0.531
+ab_warp,woman_00,2,20260812,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,-0.0244
+ab_warp,woman_00,3,20260812,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.8112
+ab_warp,woman_01,0,20260812,Is the person wearing sunglasses?,Yes,yes,yes,0.7551
+ab_warp,woman_01,1,20260812,Is the person wearing a police uniform?,Yes,yes,yes,0.9297
+ab_warp,woman_01,2,20260812,Is the person wearing a helmet?,Yes,yes,yes,0.9186
+ab_warp,woman_01,3,20260812,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.9142
+ab_warp,woman_02,0,20260812,Is the person wearing sunglasses?,Yes,yes,yes,0.7655
+ab_warp,woman_02,1,20260812,Is the person wearing a police uniform?,Yes,yes,yes,0.8719
+ab_warp,woman_02,2,20260812,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.6596
+ab_warp,woman_02,3,20260812,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.8791
+ab_warp,woman_03,0,20260812,Is the person wearing sunglasses?,Yes,yes,yes,0.6328
+ab_warp,woman_03,1,20260812,Is the person wearing a police uniform?,Yes,yes,yes,0.8167
+ab_warp,woman_03,2,20260812,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.7199
+ab_warp,woman_03,3,20260812,Is the person wearing a bow tie?,Yes,yes,yes,0.8053
+ab_warp_ch,man_00,0,20260812,Is the person wearing sunglasses?,Yes,yes,yes,0.6837
+ab_warp_ch,man_00,1,20260812,Is the person wearing a police uniform?,Yes,yes,yes,0.1821
+ab_warp_ch,man_00,2,20260812,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.028
+ab_warp_ch,man_00,3,20260812,Is the person wearing a bow tie?,Yes,yes,yes,0.8874
+ab_warp_ch,man_01,0,20260812,Is the person wearing sunglasses?,Yes,yes,yes,0.7749
+ab_warp_ch,man_01,1,20260812,Is the person wearing a police uniform?,Yes,yes,yes,0.9379
+ab_warp_ch,man_01,2,20260812,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.7591
+ab_warp_ch,man_01,3,20260812,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.9277
+ab_warp_ch,man_02,0,20260812,Is the person wearing sunglasses?,Yes,yes,yes,0.7073
+ab_warp_ch,man_02,1,20260812,Is the person wearing a police uniform?,Yes,yes,yes,0.8142
+ab_warp_ch,man_02,2,20260812,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.7511
+ab_warp_ch,man_02,3,20260812,Is the person wearing a bow tie?,Yes,yes,yes,0.8591
+ab_warp_ch,man_03,0,20260812,Is the person wearing sunglasses?,Yes,yes,yes,0.7084
+ab_warp_ch,man_03,1,20260812,Is the person wearing a police uniform?,Yes,yes,yes,0.8344
+ab_warp_ch,man_03,2,20260812,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.9173
+ab_warp_ch,man_03,3,20260812,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.871
+ab_warp_ch,woman_00,0,20260812,Is the person wearing sunglasses?,Yes,yes,yes,0.7629
+ab_warp_ch,woman_00,1,20260812,Is the person wearing a police uniform?,Yes,yes,yes,0.5968
+ab_warp_ch,woman_00,2,20260812,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,-0.05
+ab_warp_ch,woman_00,3,20260812,Is the person wearing a bow tie?,Yes,yes,yes,0.8855
+ab_warp_ch,woman_01,0,20260812,Is the person wearing sunglasses?,Yes,yes,yes,0.8256
+ab_warp_ch,woman_01,1,20260812,Is the person wearing a police uniform?,Yes,yes,yes,0.9494
+ab_warp_ch,woman_01,2,20260812,Is the person wearing a helmet?,Yes,yes,yes,0.8771
+ab_warp_ch,woman_01,3,20260812,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.897
+ab_warp_ch,woman_02,0,20260812,Is the person wearing sunglasses?,Yes,yes,yes,0.7228
+ab_warp_ch,woman_02,1,20260812,Is the person wearing a police uniform?,"Yes, the person is wearing a police uniform.",yes,yes,0.8634
+ab_warp_ch,woman_02,2,20260812,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.5745
+ab_warp_ch,woman_02,3,20260812,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.8797
+ab_warp_ch,woman_03,0,20260812,Is the person wearing sunglasses?,Yes,yes,yes,0.634
+ab_warp_ch,woman_03,1,20260812,Is the person wearing a police uniform?,Yes,yes,yes,0.812
+ab_warp_ch,woman_03,2,20260812,Is the person wearing a helmet?,Yes,yes,yes,0.7129
+ab_warp_ch,woman_03,3,20260812,Is the person wearing a bow tie?,Yes,yes,yes,0.8153
+ab_warp_s16,man_00,0,20260812,Is the person wearing sunglasses?,Yes,yes,yes,0.6901
+ab_warp_s16,man_00,1,20260812,Is the person wearing a police uniform?,Yes,yes,yes,0.2188
+ab_warp_s16,man_00,2,20260812,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.1267
+ab_warp_s16,man_00,3,20260812,Is the person wearing a bow tie?,No,no,yes,0.8653
+ab_warp_s16,man_01,0,20260812,Is the person wearing sunglasses?,Yes,yes,yes,0.801
+ab_warp_s16,man_01,1,20260812,Is the person wearing a police uniform?,Yes,yes,yes,0.9136
+ab_warp_s16,man_01,2,20260812,Is the person wearing a helmet?,Yes,yes,yes,0.8483
+ab_warp_s16,man_01,3,20260812,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.9251
+ab_warp_s16,man_02,0,20260812,Is the person wearing sunglasses?,Yes,yes,yes,0.667
+ab_warp_s16,man_02,1,20260812,Is the person wearing a police uniform?,"Yes, the person is wearing a police uniform.",yes,yes,0.7832
+ab_warp_s16,man_02,2,20260812,Is the person wearing a helmet?,Yes,yes,yes,0.7163
+ab_warp_s16,man_02,3,20260812,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.8115
+ab_warp_s16,man_03,0,20260812,Is the person wearing sunglasses?,Yes,yes,yes,0.7111
+ab_warp_s16,man_03,1,20260812,Is the person wearing a police uniform?,Yes,yes,yes,0.8788
+ab_warp_s16,man_03,2,20260812,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.9169
+ab_warp_s16,man_03,3,20260812,Is the person wearing a bow tie?,Yes,yes,yes,0.8462
+ab_warp_s16,woman_00,0,20260812,Is the person wearing sunglasses?,Yes,yes,yes,0.7562
+ab_warp_s16,woman_00,1,20260812,Is the person wearing a police uniform?,Yes,yes,yes,0.5297
+ab_warp_s16,woman_00,2,20260812,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,-0.0711
+ab_warp_s16,woman_00,3,20260812,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.7656
+ab_warp_s16,woman_01,0,20260812,Is the person wearing sunglasses?,Yes,yes,yes,0.6814
+ab_warp_s16,woman_01,1,20260812,Is the person wearing a police uniform?,Yes,yes,yes,0.8397
+ab_warp_s16,woman_01,2,20260812,Is the person wearing a helmet?,Yes,yes,yes,-0.0205
+ab_warp_s16,woman_01,3,20260812,Is the person wearing a bow tie?,Yes,yes,yes,0.8677
+ab_warp_s16,woman_02,0,20260812,Is the person wearing sunglasses?,Yes,yes,yes,0.6939
+ab_warp_s16,woman_02,1,20260812,Is the person wearing a police uniform?,Yes,yes,yes,0.8438
+ab_warp_s16,woman_02,2,20260812,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.5749
+ab_warp_s16,woman_02,3,20260812,Is the person wearing a bow tie?,Yes,yes,yes,0.8251
+ab_warp_s16,woman_03,0,20260812,Is the person wearing sunglasses?,Yes,yes,yes,0.685
+ab_warp_s16,woman_03,1,20260812,Is the person wearing a police uniform?,Yes,yes,yes,0.8053
+ab_warp_s16,woman_03,2,20260812,Is the person wearing a helmet?,Yes,yes,yes,0.7649
+ab_warp_s16,woman_03,3,20260812,Is the person wearing a bow tie?,Yes,yes,yes,0.8307
+ab_prism,man_00,0,20260812,Is the person wearing sunglasses?,Yes,yes,yes,0.7729
+ab_prism,man_00,1,20260812,Is the person wearing a police uniform?,Yes,yes,yes,0.4365
+ab_prism,man_00,2,20260812,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.0605
+ab_prism,man_00,3,20260812,Is the person wearing a bow tie?,Yes,yes,yes,0.9277
+ab_prism,man_01,0,20260812,Is the person wearing sunglasses?,Yes,yes,yes,0.8019
+ab_prism,man_01,1,20260812,Is the person wearing a police uniform?,Yes,yes,yes,0.9358
+ab_prism,man_01,2,20260812,Is the person wearing a helmet?,No,no,yes,0.855
+ab_prism,man_01,3,20260812,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.9383
+ab_prism,man_02,0,20260812,Is the person wearing sunglasses?,Yes,yes,yes,0.7449
+ab_prism,man_02,1,20260812,Is the person wearing a police uniform?,Yes,yes,yes,0.8179
+ab_prism,man_02,2,20260812,Is the person wearing a helmet?,Yes,yes,yes,0.763
+ab_prism,man_02,3,20260812,Is the person wearing a bow tie?,Yes,yes,yes,0.8642
+ab_prism,man_03,0,20260812,Is the person wearing sunglasses?,Yes,yes,yes,0.6428
+ab_prism,man_03,1,20260812,Is the person wearing a police uniform?,Yes,yes,yes,0.6999
+ab_prism,man_03,2,20260812,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.9132
+ab_prism,man_03,3,20260812,Is the person wearing a bow tie?,Yes,yes,yes,0.7915
+ab_prism,woman_00,0,20260812,Is the person wearing sunglasses?,Yes,yes,yes,0.7681
+ab_prism,woman_00,1,20260812,Is the person wearing a police uniform?,Yes,yes,yes,0.6809
+ab_prism,woman_00,2,20260812,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.6547
+ab_prism,woman_00,3,20260812,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.8737
+ab_prism,woman_01,0,20260812,Is the person wearing sunglasses?,Yes,yes,yes,0.8102
+ab_prism,woman_01,1,20260812,Is the person wearing a police uniform?,Yes,yes,yes,0.9456
+ab_prism,woman_01,2,20260812,Is the person wearing a helmet?,No,no,yes,0.855
+ab_prism,woman_01,3,20260812,Is the person wearing a bow tie?,Yes,yes,yes,0.719
+ab_prism,woman_02,0,20260812,Is the person wearing sunglasses?,Yes,yes,yes,0.7668
+ab_prism,woman_02,1,20260812,Is the person wearing a police uniform?,Yes,yes,yes,0.8765
+ab_prism,woman_02,2,20260812,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.8194
+ab_prism,woman_02,3,20260812,Is the person wearing a bow tie?,Yes,yes,yes,0.8951
+ab_prism,woman_03,0,20260812,Is the person wearing sunglasses?,Yes,yes,yes,0.6951
+ab_prism,woman_03,1,20260812,Is the person wearing a police uniform?,Yes,yes,yes,0.8647
+ab_prism,woman_03,2,20260812,Is the person wearing a helmet?,Yes,yes,yes,0.8083
+ab_prism,woman_03,3,20260812,Is the person wearing a bow tie?,Yes,yes,yes,0.8597
+undefended,man_00,0,20260813,Is the person wearing sunglasses?,Yes,yes,yes,0.7958
+undefended,man_00,1,20260813,Is the person wearing a police uniform?,Yes,yes,yes,0.845
+undefended,man_00,2,20260813,Is the person wearing a helmet?,Yes,yes,yes,0.7684
+undefended,man_00,3,20260813,Is the person wearing a bow tie?,Yes,yes,yes,0.9378
+undefended,man_01,0,20260813,Is the person wearing sunglasses?,Yes,yes,yes,0.8129
+undefended,man_01,1,20260813,Is the person wearing a police uniform?,Yes,yes,yes,0.952
+undefended,man_01,2,20260813,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.8893
+undefended,man_01,3,20260813,Is the person wearing a bow tie?,Yes,yes,yes,0.9532
+undefended,man_02,0,20260813,Is the person wearing sunglasses?,Yes,yes,yes,0.7277
+undefended,man_02,1,20260813,Is the person wearing a police uniform?,Yes,yes,yes,0.8602
+undefended,man_02,2,20260813,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.7738
+undefended,man_02,3,20260813,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.8579
+undefended,man_03,0,20260813,Is the person wearing sunglasses?,Yes,yes,yes,0.7323
+undefended,man_03,1,20260813,Is the person wearing a police uniform?,Yes,yes,yes,0.5046
+undefended,man_03,2,20260813,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.933
+undefended,man_03,3,20260813,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.8903
+undefended,woman_00,0,20260813,Is the person wearing sunglasses?,Yes,yes,yes,0.7695
+undefended,woman_00,1,20260813,Is the person wearing a police uniform?,Yes,yes,yes,0.8661
+undefended,woman_00,2,20260813,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.9017
+undefended,woman_00,3,20260813,Is the person wearing a bow tie?,Yes,yes,yes,0.9007
+undefended,woman_01,0,20260813,Is the person wearing sunglasses?,Yes,yes,yes,0.7909
+undefended,woman_01,1,20260813,Is the person wearing a police uniform?,Yes,yes,yes,0.9586
+undefended,woman_01,2,20260813,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.9363
+undefended,woman_01,3,20260813,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.9371
+undefended,woman_02,0,20260813,Is the person wearing sunglasses?,Yes,yes,yes,0.7921
+undefended,woman_02,1,20260813,Is the person wearing a police uniform?,Yes,yes,yes,0.9022
+undefended,woman_02,2,20260813,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.7107
+undefended,woman_02,3,20260813,Is the person wearing a bow tie?,Yes,yes,yes,0.919
+undefended,woman_03,0,20260813,Is the person wearing sunglasses?,Yes,yes,yes,0.7055
+undefended,woman_03,1,20260813,Is the person wearing a police uniform?,Yes,yes,yes,0.8899
+undefended,woman_03,2,20260813,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.064
+undefended,woman_03,3,20260813,Is the person wearing a bow tie?,Yes,yes,yes,0.893
+ab_warp,man_00,0,20260813,Is the person wearing sunglasses?,Yes,yes,yes,0.7199
+ab_warp,man_00,1,20260813,Is the person wearing a police uniform?,Yes,yes,yes,0.7938
+ab_warp,man_00,2,20260813,Is the person wearing a helmet?,Yes,yes,yes,0.5393
+ab_warp,man_00,3,20260813,Is the person wearing a bow tie?,Yes,yes,yes,0.8836
+ab_warp,man_01,0,20260813,Is the person wearing sunglasses?,Yes,yes,yes,0.7677
+ab_warp,man_01,1,20260813,Is the person wearing a police uniform?,Yes,yes,yes,0.9283
+ab_warp,man_01,2,20260813,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.7935
+ab_warp,man_01,3,20260813,Is the person wearing a bow tie?,Yes,yes,yes,0.9319
+ab_warp,man_02,0,20260813,Is the person wearing sunglasses?,Yes,yes,yes,0.7063
+ab_warp,man_02,1,20260813,Is the person wearing a police uniform?,Yes,yes,yes,0.8114
+ab_warp,man_02,2,20260813,Is the person wearing a helmet?,Yes,yes,yes,0.702
+ab_warp,man_02,3,20260813,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.825
+ab_warp,man_03,0,20260813,Is the person wearing sunglasses?,Yes,yes,yes,0.7102
+ab_warp,man_03,1,20260813,Is the person wearing a police uniform?,Yes,yes,yes,0.4452
+ab_warp,man_03,2,20260813,Is the person wearing a helmet?,Yes,yes,yes,0.9068
+ab_warp,man_03,3,20260813,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.8638
+ab_warp,woman_00,0,20260813,Is the person wearing sunglasses?,Yes,yes,yes,0.7615
+ab_warp,woman_00,1,20260813,Is the person wearing a police uniform?,Yes,yes,yes,0.8712
+ab_warp,woman_00,2,20260813,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.0865
+ab_warp,woman_00,3,20260813,Is the person wearing a bow tie?,Yes,yes,yes,0.8383
+ab_warp,woman_01,0,20260813,Is the person wearing sunglasses?,Yes,yes,yes,0.7222
+ab_warp,woman_01,1,20260813,Is the person wearing a police uniform?,Yes,yes,yes,0.9194
+ab_warp,woman_01,2,20260813,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.9201
+ab_warp,woman_01,3,20260813,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.9049
+ab_warp,woman_02,0,20260813,Is the person wearing sunglasses?,Yes,yes,yes,0.74
+ab_warp,woman_02,1,20260813,Is the person wearing a police uniform?,Yes,yes,yes,0.8772
+ab_warp,woman_02,2,20260813,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.2741
+ab_warp,woman_02,3,20260813,Is the person wearing a bow tie?,Yes,yes,yes,0.8695
+ab_warp,woman_03,0,20260813,Is the person wearing sunglasses?,Yes,yes,yes,0.5988
+ab_warp,woman_03,1,20260813,Is the person wearing a police uniform?,Yes,yes,yes,0.8165
+ab_warp,woman_03,2,20260813,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.5801
+ab_warp,woman_03,3,20260813,Is the person wearing a bow tie?,Yes,yes,yes,0.8099
+ab_warp_ch,man_00,0,20260813,Is the person wearing sunglasses?,Yes,yes,yes,0.7167
+ab_warp_ch,man_00,1,20260813,Is the person wearing a police uniform?,Yes,yes,yes,0.0859
+ab_warp_ch,man_00,2,20260813,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.009
+ab_warp_ch,man_00,3,20260813,Is the person wearing a bow tie?,Yes,yes,yes,0.8904
+ab_warp_ch,man_01,0,20260813,Is the person wearing sunglasses?,Yes,yes,yes,0.7549
+ab_warp_ch,man_01,1,20260813,Is the person wearing a police uniform?,Yes,yes,yes,0.9361
+ab_warp_ch,man_01,2,20260813,Is the person wearing a helmet?,Yes,yes,yes,0.7533
+ab_warp_ch,man_01,3,20260813,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.9383
+ab_warp_ch,man_02,0,20260813,Is the person wearing sunglasses?,Yes,yes,yes,0.7315
+ab_warp_ch,man_02,1,20260813,Is the person wearing a police uniform?,Yes,yes,yes,0.8216
+ab_warp_ch,man_02,2,20260813,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.7142
+ab_warp_ch,man_02,3,20260813,Is the person wearing a bow tie?,Yes,yes,yes,0.8486
+ab_warp_ch,man_03,0,20260813,Is the person wearing sunglasses?,Yes,yes,yes,0.7387
+ab_warp_ch,man_03,1,20260813,Is the person wearing a police uniform?,"Yes, the person is wearing a police uniform.",yes,yes,0.4851
+ab_warp_ch,man_03,2,20260813,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.9214
+ab_warp_ch,man_03,3,20260813,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.8903
+ab_warp_ch,woman_00,0,20260813,Is the person wearing sunglasses?,Yes,yes,yes,0.7563
+ab_warp_ch,woman_00,1,20260813,Is the person wearing a police uniform?,Yes,yes,yes,0.8827
+ab_warp_ch,woman_00,2,20260813,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.105
+ab_warp_ch,woman_00,3,20260813,Is the person wearing a bow tie?,Yes,yes,yes,0.8681
+ab_warp_ch,woman_01,0,20260813,Is the person wearing sunglasses?,Yes,yes,yes,0.8238
+ab_warp_ch,woman_01,1,20260813,Is the person wearing a police uniform?,Yes,yes,yes,0.9488
+ab_warp_ch,woman_01,2,20260813,Is the person wearing a helmet?,No,no,yes,0.9377
+ab_warp_ch,woman_01,3,20260813,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.933
+ab_warp_ch,woman_02,0,20260813,Is the person wearing sunglasses?,Yes,yes,yes,0.7561
+ab_warp_ch,woman_02,1,20260813,Is the person wearing a police uniform?,"Yes, the person is wearing a police uniform.",yes,yes,0.8629
+ab_warp_ch,woman_02,2,20260813,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.4096
+ab_warp_ch,woman_02,3,20260813,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.8745
+ab_warp_ch,woman_03,0,20260813,Is the person wearing sunglasses?,Yes,yes,yes,0.648
+ab_warp_ch,woman_03,1,20260813,Is the person wearing a police uniform?,Yes,yes,yes,0.8215
+ab_warp_ch,woman_03,2,20260813,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.2234
+ab_warp_ch,woman_03,3,20260813,Is the person wearing a bow tie?,Yes,yes,yes,0.8184
+ab_warp_s16,man_00,0,20260813,Is the person wearing sunglasses?,Yes,yes,yes,0.7224
+ab_warp_s16,man_00,1,20260813,Is the person wearing a police uniform?,Yes,yes,yes,0.06
+ab_warp_s16,man_00,2,20260813,Is the person wearing a helmet?,Yes,yes,yes,0.0582
+ab_warp_s16,man_00,3,20260813,Is the person wearing a bow tie?,Yes,yes,yes,0.8556
+ab_warp_s16,man_01,0,20260813,Is the person wearing sunglasses?,Yes,yes,yes,0.794
+ab_warp_s16,man_01,1,20260813,Is the person wearing a police uniform?,Yes,yes,yes,0.9123
+ab_warp_s16,man_01,2,20260813,Is the person wearing a helmet?,Yes,yes,yes,0.8118
+ab_warp_s16,man_01,3,20260813,Is the person wearing a bow tie?,Yes,yes,yes,0.9247
+ab_warp_s16,man_02,0,20260813,Is the person wearing sunglasses?,Yes,yes,yes,0.6816
+ab_warp_s16,man_02,1,20260813,Is the person wearing a police uniform?,Yes,yes,yes,0.7001
+ab_warp_s16,man_02,2,20260813,Is the person wearing a helmet?,Yes,yes,yes,0.7332
+ab_warp_s16,man_02,3,20260813,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.6662
+ab_warp_s16,man_03,0,20260813,Is the person wearing sunglasses?,Yes,yes,yes,0.727
+ab_warp_s16,man_03,1,20260813,Is the person wearing a police uniform?,Yes,yes,yes,0.4829
+ab_warp_s16,man_03,2,20260813,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.8522
+ab_warp_s16,man_03,3,20260813,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.8761
+ab_warp_s16,woman_00,0,20260813,Is the person wearing sunglasses?,Yes,yes,yes,0.7421
+ab_warp_s16,woman_00,1,20260813,Is the person wearing a police uniform?,Yes,yes,yes,0.8529
+ab_warp_s16,woman_00,2,20260813,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,-0.0485
+ab_warp_s16,woman_00,3,20260813,Is the person wearing a bow tie?,Yes,yes,yes,0.8356
+ab_warp_s16,woman_01,0,20260813,Is the person wearing sunglasses?,Yes,yes,yes,0.7104
+ab_warp_s16,woman_01,1,20260813,Is the person wearing a police uniform?,Yes,yes,yes,0.8774
+ab_warp_s16,woman_01,2,20260813,Is the person wearing a helmet?,Yes,yes,yes,0.8451
+ab_warp_s16,woman_01,3,20260813,Is the person wearing a bow tie?,Yes,yes,yes,0.8638
+ab_warp_s16,woman_02,0,20260813,Is the person wearing sunglasses?,Yes,yes,yes,0.689
+ab_warp_s16,woman_02,1,20260813,Is the person wearing a police uniform?,Yes,yes,yes,0.8414
+ab_warp_s16,woman_02,2,20260813,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.0433
+ab_warp_s16,woman_02,3,20260813,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.8285
+ab_warp_s16,woman_03,0,20260813,Is the person wearing sunglasses?,Yes,yes,yes,0.68
+ab_warp_s16,woman_03,1,20260813,Is the person wearing a police uniform?,Yes,yes,yes,0.839
+ab_warp_s16,woman_03,2,20260813,Is the person wearing a helmet?,Yes,yes,yes,0.7949
+ab_warp_s16,woman_03,3,20260813,Is the person wearing a bow tie?,Yes,yes,yes,0.8518
+ab_prism,man_00,0,20260813,Is the person wearing sunglasses?,Yes,yes,yes,0.7622
+ab_prism,man_00,1,20260813,Is the person wearing a police uniform?,Yes,yes,yes,0.0811
+ab_prism,man_00,2,20260813,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,-0.048
+ab_prism,man_00,3,20260813,Is the person wearing a bow tie?,Yes,yes,yes,0.9032
+ab_prism,man_01,0,20260813,Is the person wearing sunglasses?,Yes,yes,yes,0.7975
+ab_prism,man_01,1,20260813,Is the person wearing a police uniform?,Yes,yes,yes,0.9339
+ab_prism,man_01,2,20260813,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.8472
+ab_prism,man_01,3,20260813,Is the person wearing a bow tie?,Yes,yes,yes,0.9412
+ab_prism,man_02,0,20260813,Is the person wearing sunglasses?,Yes,yes,yes,0.7467
+ab_prism,man_02,1,20260813,Is the person wearing a police uniform?,Yes,yes,yes,0.8487
+ab_prism,man_02,2,20260813,Is the person wearing a helmet?,Yes,yes,yes,0.7641
+ab_prism,man_02,3,20260813,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.858
+ab_prism,man_03,0,20260813,Is the person wearing sunglasses?,Yes,yes,yes,0.7165
+ab_prism,man_03,1,20260813,Is the person wearing a police uniform?,Yes,yes,yes,0.4692
+ab_prism,man_03,2,20260813,Is the person wearing a helmet?,Yes,yes,yes,0.9113
+ab_prism,man_03,3,20260813,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.8565
+ab_prism,woman_00,0,20260813,Is the person wearing sunglasses?,Yes,yes,yes,0.7257
+ab_prism,woman_00,1,20260813,Is the person wearing a police uniform?,Yes,yes,yes,0.8904
+ab_prism,woman_00,2,20260813,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.8761
+ab_prism,woman_00,3,20260813,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.8859
+ab_prism,woman_01,0,20260813,Is the person wearing sunglasses?,Yes,yes,yes,0.801
+ab_prism,woman_01,1,20260813,Is the person wearing a police uniform?,Yes,yes,yes,0.9479
+ab_prism,woman_01,2,20260813,Is the person wearing a helmet?,No,no,yes,0.9373
+ab_prism,woman_01,3,20260813,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.932
+ab_prism,woman_02,0,20260813,Is the person wearing sunglasses?,Yes,yes,yes,0.7713
+ab_prism,woman_02,1,20260813,Is the person wearing a police uniform?,Yes,yes,yes,0.8882
+ab_prism,woman_02,2,20260813,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.6558
+ab_prism,woman_02,3,20260813,Is the person wearing a bow tie?,Yes,yes,yes,0.8934
+ab_prism,woman_03,0,20260813,Is the person wearing sunglasses?,Yes,yes,yes,0.691
+ab_prism,woman_03,1,20260813,Is the person wearing a police uniform?,Yes,yes,yes,0.8679
+ab_prism,woman_03,2,20260813,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.7721
+ab_prism,woman_03,3,20260813,Is the person wearing a bow tie?,Yes,yes,yes,0.8687
+undefended,man_00,0,20260814,Is the person wearing sunglasses?,Yes,yes,yes,0.7328
+undefended,man_00,1,20260814,Is the person wearing a police uniform?,Yes,yes,yes,0.6854
+undefended,man_00,2,20260814,Is the person wearing a helmet?,Yes,yes,yes,0.7282
+undefended,man_00,3,20260814,Is the person wearing a bow tie?,Yes,yes,yes,0.9366
+undefended,man_01,0,20260814,Is the person wearing sunglasses?,Yes,yes,yes,0.7894
+undefended,man_01,1,20260814,Is the person wearing a police uniform?,Yes,yes,yes,0.9574
+undefended,man_01,2,20260814,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.8954
+undefended,man_01,3,20260814,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.9548
+undefended,man_02,0,20260814,Is the person wearing sunglasses?,Yes,yes,yes,0.7613
+undefended,man_02,1,20260814,Is the person wearing a police uniform?,Yes,yes,yes,0.8613
+undefended,man_02,2,20260814,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.7762
+undefended,man_02,3,20260814,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.8763
+undefended,man_03,0,20260814,Is the person wearing sunglasses?,Yes,yes,yes,0.7471
+undefended,man_03,1,20260814,Is the person wearing a police uniform?,"Yes, the person is wearing a police uniform.",yes,yes,0.562
+undefended,man_03,2,20260814,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.9361
+undefended,man_03,3,20260814,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.8916
+undefended,woman_00,0,20260814,Is the person wearing sunglasses?,Yes,yes,yes,0.7923
+undefended,woman_00,1,20260814,Is the person wearing a police uniform?,Yes,yes,yes,0.8824
+undefended,woman_00,2,20260814,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.89
+undefended,woman_00,3,20260814,Is the person wearing a bow tie?,Yes,yes,yes,0.9011
+undefended,woman_01,0,20260814,Is the person wearing sunglasses?,Yes,yes,yes,0.8162
+undefended,woman_01,1,20260814,Is the person wearing a police uniform?,Yes,yes,yes,0.9557
+undefended,woman_01,2,20260814,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.897
+undefended,woman_01,3,20260814,Is the person wearing a bow tie?,Yes,yes,yes,0.9072
+undefended,woman_02,0,20260814,Is the person wearing sunglasses?,Yes,yes,yes,0.8079
+undefended,woman_02,1,20260814,Is the person wearing a police uniform?,Yes,yes,yes,0.9095
+undefended,woman_02,2,20260814,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.749
+undefended,woman_02,3,20260814,Is the person wearing a bow tie?,Yes,yes,yes,0.9068
+undefended,woman_03,0,20260814,Is the person wearing sunglasses?,Yes,yes,yes,0.7066
+undefended,woman_03,1,20260814,Is the person wearing a police uniform?,Yes,yes,yes,0.8891
+undefended,woman_03,2,20260814,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.7765
+undefended,woman_03,3,20260814,Is the person wearing a bow tie?,Yes,yes,yes,0.8883
+ab_warp,man_00,0,20260814,Is the person wearing sunglasses?,Yes,yes,yes,0.6614
+ab_warp,man_00,1,20260814,Is the person wearing a police uniform?,Yes,yes,yes,0.2022
+ab_warp,man_00,2,20260814,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.0328
+ab_warp,man_00,3,20260814,Is the person wearing a bow tie?,Yes,yes,yes,0.8613
+ab_warp,man_01,0,20260814,Is the person wearing sunglasses?,Yes,yes,yes,0.7781
+ab_warp,man_01,1,20260814,Is the person wearing a police uniform?,Yes,yes,yes,0.9298
+ab_warp,man_01,2,20260814,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.8267
+ab_warp,man_01,3,20260814,Is the person wearing a bow tie?,Yes,yes,yes,0.9315
+ab_warp,man_02,0,20260814,Is the person wearing sunglasses?,Yes,yes,yes,0.7261
+ab_warp,man_02,1,20260814,Is the person wearing a police uniform?,"Yes, the person is wearing a police uniform.",yes,yes,0.8044
+ab_warp,man_02,2,20260814,Is the person wearing a helmet?,Yes,yes,yes,0.7337
+ab_warp,man_02,3,20260814,Is the person wearing a bow tie?,Yes,yes,yes,0.8183
+ab_warp,man_03,0,20260814,Is the person wearing sunglasses?,Yes,yes,yes,0.6902
+ab_warp,man_03,1,20260814,Is the person wearing a police uniform?,"Yes, the person is wearing a police uniform.",yes,yes,0.4949
+ab_warp,man_03,2,20260814,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.6214
+ab_warp,man_03,3,20260814,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.8859
+ab_warp,woman_00,0,20260814,Is the person wearing sunglasses?,Yes,yes,yes,0.7758
+ab_warp,woman_00,1,20260814,Is the person wearing a police uniform?,Yes,yes,yes,0.872
+ab_warp,woman_00,2,20260814,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,-0.0331
+ab_warp,woman_00,3,20260814,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.8367
+ab_warp,woman_01,0,20260814,Is the person wearing sunglasses?,Yes,yes,yes,0.7644
+ab_warp,woman_01,1,20260814,Is the person wearing a police uniform?,Yes,yes,yes,0.9065
+ab_warp,woman_01,2,20260814,Is the person wearing a helmet?,Yes,yes,yes,0.0282
+ab_warp,woman_01,3,20260814,Is the person wearing a bow tie?,Yes,yes,yes,0.8932
+ab_warp,woman_02,0,20260814,Is the person wearing sunglasses?,Yes,yes,yes,0.7578
+ab_warp,woman_02,1,20260814,Is the person wearing a police uniform?,Yes,yes,yes,0.8863
+ab_warp,woman_02,2,20260814,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.212
+ab_warp,woman_02,3,20260814,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.5375
+ab_warp,woman_03,0,20260814,Is the person wearing sunglasses?,Yes,yes,yes,0.6002
+ab_warp,woman_03,1,20260814,Is the person wearing a police uniform?,Yes,yes,yes,0.8173
+ab_warp,woman_03,2,20260814,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.2813
+ab_warp,woman_03,3,20260814,Is the person wearing a bow tie?,Yes,yes,yes,0.8203
+ab_warp_ch,man_00,0,20260814,Is the person wearing sunglasses?,Yes,yes,yes,0.6274
+ab_warp_ch,man_00,1,20260814,Is the person wearing a police uniform?,Yes,yes,yes,0.2858
+ab_warp_ch,man_00,2,20260814,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,-0.0137
+ab_warp_ch,man_00,3,20260814,Is the person wearing a bow tie?,Yes,yes,yes,0.8855
+ab_warp_ch,man_01,0,20260814,Is the person wearing sunglasses?,Yes,yes,yes,0.7616
+ab_warp_ch,man_01,1,20260814,Is the person wearing a police uniform?,Yes,yes,yes,0.9403
+ab_warp_ch,man_01,2,20260814,Is the person wearing a helmet?,Yes,yes,yes,0.8283
+ab_warp_ch,man_01,3,20260814,Is the person wearing a bow tie?,Yes,yes,yes,0.9344
+ab_warp_ch,man_02,0,20260814,Is the person wearing sunglasses?,Yes,yes,yes,0.7574
+ab_warp_ch,man_02,1,20260814,Is the person wearing a police uniform?,"Yes, the person is wearing a police uniform.",yes,yes,0.7866
+ab_warp_ch,man_02,2,20260814,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.7397
+ab_warp_ch,man_02,3,20260814,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.8465
+ab_warp_ch,man_03,0,20260814,Is the person wearing sunglasses?,Yes,yes,yes,0.7312
+ab_warp_ch,man_03,1,20260814,Is the person wearing a police uniform?,"Yes, the person is wearing a police uniform.",yes,yes,0.4987
+ab_warp_ch,man_03,2,20260814,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.9187
+ab_warp_ch,man_03,3,20260814,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.8835
+ab_warp_ch,woman_00,0,20260814,Is the person wearing sunglasses?,Yes,yes,yes,0.7736
+ab_warp_ch,woman_00,1,20260814,Is the person wearing a police uniform?,Yes,yes,yes,0.8871
+ab_warp_ch,woman_00,2,20260814,Is the person wearing a helmet?,No,no,yes,0.8606
+ab_warp_ch,woman_00,3,20260814,Is the person wearing a bow tie?,Yes,yes,yes,0.8909
+ab_warp_ch,woman_01,0,20260814,Is the person wearing sunglasses?,Yes,yes,yes,0.8371
+ab_warp_ch,woman_01,1,20260814,Is the person wearing a police uniform?,Yes,yes,yes,0.8419
+ab_warp_ch,woman_01,2,20260814,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.0451
+ab_warp_ch,woman_01,3,20260814,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.814
+ab_warp_ch,woman_02,0,20260814,Is the person wearing sunglasses?,Yes,yes,yes,0.7569
+ab_warp_ch,woman_02,1,20260814,Is the person wearing a police uniform?,"Yes, the person is wearing a police uniform.",yes,yes,0.748
+ab_warp_ch,woman_02,2,20260814,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.3421
+ab_warp_ch,woman_02,3,20260814,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.8555
+ab_warp_ch,woman_03,0,20260814,Is the person wearing sunglasses?,Yes,yes,yes,0.6509
+ab_warp_ch,woman_03,1,20260814,Is the person wearing a police uniform?,Yes,yes,yes,0.8305
+ab_warp_ch,woman_03,2,20260814,Is the person wearing a helmet?,Yes,yes,yes,0.1958
+ab_warp_ch,woman_03,3,20260814,Is the person wearing a bow tie?,Yes,yes,yes,0.816
+ab_warp_s16,man_00,0,20260814,Is the person wearing sunglasses?,Yes,yes,yes,0.6997
+ab_warp_s16,man_00,1,20260814,Is the person wearing a police uniform?,Yes,yes,yes,0.0618
+ab_warp_s16,man_00,2,20260814,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.1674
+ab_warp_s16,man_00,3,20260814,Is the person wearing a bow tie?,Yes,yes,yes,0.5328
+ab_warp_s16,man_01,0,20260814,Is the person wearing sunglasses?,Yes,yes,yes,0.7605
+ab_warp_s16,man_01,1,20260814,Is the person wearing a police uniform?,Yes,yes,yes,0.92
+ab_warp_s16,man_01,2,20260814,Is the person wearing a helmet?,No,no,yes,0.8296
+ab_warp_s16,man_01,3,20260814,Is the person wearing a bow tie?,Yes,yes,yes,0.9225
+ab_warp_s16,man_02,0,20260814,Is the person wearing sunglasses?,Yes,yes,yes,0.6939
+ab_warp_s16,man_02,1,20260814,Is the person wearing a police uniform?,"Yes, the person is wearing a police uniform.",yes,yes,0.2232
+ab_warp_s16,man_02,2,20260814,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.7344
+ab_warp_s16,man_02,3,20260814,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.8187
+ab_warp_s16,man_03,0,20260814,Is the person wearing sunglasses?,Yes,yes,yes,0.7278
+ab_warp_s16,man_03,1,20260814,Is the person wearing a police uniform?,Yes,yes,yes,0.5077
+ab_warp_s16,man_03,2,20260814,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.8992
+ab_warp_s16,man_03,3,20260814,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.8951
+ab_warp_s16,woman_00,0,20260814,Is the person wearing sunglasses?,Yes,yes,yes,0.7551
+ab_warp_s16,woman_00,1,20260814,Is the person wearing a police uniform?,Yes,yes,yes,0.8345
+ab_warp_s16,woman_00,2,20260814,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,-0.0938
+ab_warp_s16,woman_00,3,20260814,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.7626
+ab_warp_s16,woman_01,0,20260814,Is the person wearing sunglasses?,Yes,yes,yes,0.7423
+ab_warp_s16,woman_01,1,20260814,Is the person wearing a police uniform?,Yes,yes,yes,
+ab_warp_s16,woman_01,2,20260814,Is the person wearing a helmet?,Yes,yes,yes,0.0753
+ab_warp_s16,woman_01,3,20260814,Is the person wearing a bow tie?,Yes,yes,yes,0.8669
+ab_warp_s16,woman_02,0,20260814,Is the person wearing sunglasses?,Yes,yes,yes,0.7203
+ab_warp_s16,woman_02,1,20260814,Is the person wearing a police uniform?,"Yes, the person is wearing a police uniform.",yes,yes,0.8289
+ab_warp_s16,woman_02,2,20260814,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.418
+ab_warp_s16,woman_02,3,20260814,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.4529
+ab_warp_s16,woman_03,0,20260814,Is the person wearing sunglasses?,Yes,yes,yes,0.6431
+ab_warp_s16,woman_03,1,20260814,Is the person wearing a police uniform?,Yes,yes,yes,0.8228
+ab_warp_s16,woman_03,2,20260814,Is the person wearing a helmet?,Yes,yes,yes,0.7782
+ab_warp_s16,woman_03,3,20260814,Is the person wearing a bow tie?,Yes,yes,yes,0.8331
+ab_prism,man_00,0,20260814,Is the person wearing sunglasses?,Yes,yes,yes,0.7319
+ab_prism,man_00,1,20260814,Is the person wearing a police uniform?,Yes,yes,yes,0.8037
+ab_prism,man_00,2,20260814,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.0002
+ab_prism,man_00,3,20260814,Is the person wearing a bow tie?,Yes,yes,yes,0.8956
+ab_prism,man_01,0,20260814,Is the person wearing sunglasses?,Yes,yes,yes,0.7923
+ab_prism,man_01,1,20260814,Is the person wearing a police uniform?,Yes,yes,yes,0.9412
+ab_prism,man_01,2,20260814,Is the person wearing a helmet?,No,no,yes,0.8456
+ab_prism,man_01,3,20260814,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.9382
+ab_prism,man_02,0,20260814,Is the person wearing sunglasses?,Yes,yes,yes,0.7658
+ab_prism,man_02,1,20260814,Is the person wearing a police uniform?,Yes,yes,yes,0.8455
+ab_prism,man_02,2,20260814,Is the person wearing a helmet?,Yes,yes,yes,0.7485
+ab_prism,man_02,3,20260814,Is the person wearing a bow tie?,Yes,yes,yes,0.8625
+ab_prism,man_03,0,20260814,Is the person wearing sunglasses?,Yes,yes,yes,0.7035
+ab_prism,man_03,1,20260814,Is the person wearing a police uniform?,Yes,yes,yes,0.5274
+ab_prism,man_03,2,20260814,Is the person wearing a helmet?,Yes,yes,yes,0.9137
+ab_prism,man_03,3,20260814,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.864
+ab_prism,woman_00,0,20260814,Is the person wearing sunglasses?,Yes,yes,yes,0.7824
+ab_prism,woman_00,1,20260814,Is the person wearing a police uniform?,Yes,yes,yes,0.8684
+ab_prism,woman_00,2,20260814,Is the person wearing a helmet?,No,no,yes,0.8742
+ab_prism,woman_00,3,20260814,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.8662
+ab_prism,woman_01,0,20260814,Is the person wearing sunglasses?,Yes,yes,yes,0.8132
+ab_prism,woman_01,1,20260814,Is the person wearing a police uniform?,Yes,yes,yes,0.7562
+ab_prism,woman_01,2,20260814,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.0178
+ab_prism,woman_01,3,20260814,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.8142
+ab_prism,woman_02,0,20260814,Is the person wearing sunglasses?,Yes,yes,yes,0.7782
+ab_prism,woman_02,1,20260814,Is the person wearing a police uniform?,Yes,yes,yes,0.8845
+ab_prism,woman_02,2,20260814,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.5009
+ab_prism,woman_02,3,20260814,Is the person wearing a bow tie?,Yes,yes,yes,0.8864
+ab_prism,woman_03,0,20260814,Is the person wearing sunglasses?,Yes,yes,yes,0.6516
+ab_prism,woman_03,1,20260814,Is the person wearing a police uniform?,Yes,yes,yes,0.8549
+ab_prism,woman_03,2,20260814,Is the person wearing a helmet?,Yes,yes,yes,0.8409
+ab_prism,woman_03,3,20260814,Is the person wearing a bow tie?,Yes,yes,yes,0.8597
+undefended,man_00,0,20260815,Is the person wearing sunglasses?,Yes,yes,yes,0.7348
+undefended,man_00,1,20260815,Is the person wearing a police uniform?,Yes,yes,yes,0.8289
+undefended,man_00,2,20260815,Is the person wearing a helmet?,Yes,yes,yes,0.9066
+undefended,man_00,3,20260815,Is the person wearing a bow tie?,Yes,yes,yes,0.9319
+undefended,man_01,0,20260815,Is the person wearing sunglasses?,Yes,yes,yes,0.8331
+undefended,man_01,1,20260815,Is the person wearing a police uniform?,Yes,yes,yes,0.9549
+undefended,man_01,2,20260815,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.9118
+undefended,man_01,3,20260815,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.9598
+undefended,man_02,0,20260815,Is the person wearing sunglasses?,Yes,yes,yes,0.7702
+undefended,man_02,1,20260815,Is the person wearing a police uniform?,Yes,yes,yes,0.865
+undefended,man_02,2,20260815,Is the person wearing a helmet?,Yes,yes,yes,0.7438
+undefended,man_02,3,20260815,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.8695
+undefended,man_03,0,20260815,Is the person wearing sunglasses?,Yes,yes,yes,0.6901
+undefended,man_03,1,20260815,Is the person wearing a police uniform?,Yes,yes,yes,0.8361
+undefended,man_03,2,20260815,Is the person wearing a helmet?,Yes,yes,yes,0.9367
+undefended,man_03,3,20260815,Is the person wearing a bow tie?,Yes,yes,yes,0.8234
+undefended,woman_00,0,20260815,Is the person wearing sunglasses?,Yes,yes,yes,0.7833
+undefended,woman_00,1,20260815,Is the person wearing a police uniform?,Yes,yes,yes,0.8898
+undefended,woman_00,2,20260815,Is the person wearing a helmet?,No,no,yes,0.8985
+undefended,woman_00,3,20260815,Is the person wearing a bow tie?,Yes,yes,yes,0.9052
+undefended,woman_01,0,20260815,Is the person wearing sunglasses?,Yes,yes,yes,0.8314
+undefended,woman_01,1,20260815,Is the person wearing a police uniform?,Yes,yes,yes,0.9606
+undefended,woman_01,2,20260815,Is the person wearing a helmet?,No,no,yes,0.9504
+undefended,woman_01,3,20260815,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.8953
+undefended,woman_02,0,20260815,Is the person wearing sunglasses?,Yes,yes,yes,0.7862
+undefended,woman_02,1,20260815,Is the person wearing a police uniform?,Yes,yes,yes,0.921
+undefended,woman_02,2,20260815,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.8279
+undefended,woman_02,3,20260815,Is the person wearing a bow tie?,Yes,yes,yes,0.9196
+undefended,woman_03,0,20260815,Is the person wearing sunglasses?,Yes,yes,yes,0.7501
+undefended,woman_03,1,20260815,Is the person wearing a police uniform?,Yes,yes,yes,0.8774
+undefended,woman_03,2,20260815,Is the person wearing a helmet?,Yes,yes,yes,0.8102
+undefended,woman_03,3,20260815,Is the person wearing a bow tie?,Yes,yes,yes,0.8889
+ab_warp,man_00,0,20260815,Is the person wearing sunglasses?,Yes,yes,yes,0.7108
+ab_warp,man_00,1,20260815,Is the person wearing a police uniform?,Yes,yes,yes,0.2944
+ab_warp,man_00,2,20260815,Is the person wearing a helmet?,Yes,yes,yes,0.8672
+ab_warp,man_00,3,20260815,Is the person wearing a bow tie?,Yes,yes,yes,0.9048
+ab_warp,man_01,0,20260815,Is the person wearing sunglasses?,Yes,yes,yes,0.8118
+ab_warp,man_01,1,20260815,Is the person wearing a police uniform?,Yes,yes,yes,0.9278
+ab_warp,man_01,2,20260815,Is the person wearing a helmet?,Yes,yes,yes,0.8295
+ab_warp,man_01,3,20260815,Is the person wearing a bow tie?,Yes,yes,yes,0.93
+ab_warp,man_02,0,20260815,Is the person wearing sunglasses?,Yes,yes,yes,0.7252
+ab_warp,man_02,1,20260815,Is the person wearing a police uniform?,"Yes, the person is wearing a police uniform.",yes,yes,0.5855
+ab_warp,man_02,2,20260815,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.1102
+ab_warp,man_02,3,20260815,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.8275
+ab_warp,man_03,0,20260815,Is the person wearing sunglasses?,Yes,yes,yes,0.7076
+ab_warp,man_03,1,20260815,Is the person wearing a police uniform?,Yes,yes,yes,0.5479
+ab_warp,man_03,2,20260815,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.9001
+ab_warp,man_03,3,20260815,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.7861
+ab_warp,woman_00,0,20260815,Is the person wearing sunglasses?,Yes,yes,yes,0.7729
+ab_warp,woman_00,1,20260815,Is the person wearing a police uniform?,No,no,yes,0.8808
+ab_warp,woman_00,2,20260815,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.6256
+ab_warp,woman_00,3,20260815,Is the person wearing a bow tie?,Yes,yes,yes,0.8754
+ab_warp,woman_01,0,20260815,Is the person wearing sunglasses?,Yes,yes,yes,0.7937
+ab_warp,woman_01,1,20260815,Is the person wearing a police uniform?,Yes,yes,yes,0.9245
+ab_warp,woman_01,2,20260815,Is the person wearing a helmet?,No,no,yes,0.9125
+ab_warp,woman_01,3,20260815,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.912
+ab_warp,woman_02,0,20260815,Is the person wearing sunglasses?,Yes,yes,yes,0.7812
+ab_warp,woman_02,1,20260815,Is the person wearing a police uniform?,Yes,yes,yes,0.8816
+ab_warp,woman_02,2,20260815,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.3596
+ab_warp,woman_02,3,20260815,Is the person wearing a bow tie?,Yes,yes,yes,0.8807
+ab_warp,woman_03,0,20260815,Is the person wearing sunglasses?,Yes,yes,yes,0.6666
+ab_warp,woman_03,1,20260815,Is the person wearing a police uniform?,Yes,yes,yes,0.8164
+ab_warp,woman_03,2,20260815,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.1719
+ab_warp,woman_03,3,20260815,Is the person wearing a bow tie?,Yes,yes,yes,0.8174
+ab_warp_ch,man_00,0,20260815,Is the person wearing sunglasses?,Yes,yes,yes,0.6848
+ab_warp_ch,man_00,1,20260815,Is the person wearing a police uniform?,Yes,yes,yes,0.4645
+ab_warp_ch,man_00,2,20260815,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.2919
+ab_warp_ch,man_00,3,20260815,Is the person wearing a bow tie?,Yes,yes,yes,0.8877
+ab_warp_ch,man_01,0,20260815,Is the person wearing sunglasses?,Yes,yes,yes,0.8192
+ab_warp_ch,man_01,1,20260815,Is the person wearing a police uniform?,Yes,yes,yes,0.9355
+ab_warp_ch,man_01,2,20260815,Is the person wearing a helmet?,Yes,yes,yes,0.9022
+ab_warp_ch,man_01,3,20260815,Is the person wearing a bow tie?,Yes,yes,yes,0.9364
+ab_warp_ch,man_02,0,20260815,Is the person wearing sunglasses?,Yes,yes,yes,0.7548
+ab_warp_ch,man_02,1,20260815,Is the person wearing a police uniform?,"Yes, the person is wearing a police uniform.",yes,yes,0.5358
+ab_warp_ch,man_02,2,20260815,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.1373
+ab_warp_ch,man_02,3,20260815,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.8549
+ab_warp_ch,man_03,0,20260815,Is the person wearing sunglasses?,Yes,yes,yes,0.7138
+ab_warp_ch,man_03,1,20260815,Is the person wearing a police uniform?,Yes,yes,yes,0.5908
+ab_warp_ch,man_03,2,20260815,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.9249
+ab_warp_ch,man_03,3,20260815,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.8109
+ab_warp_ch,woman_00,0,20260815,Is the person wearing sunglasses?,Yes,yes,yes,0.7624
+ab_warp_ch,woman_00,1,20260815,Is the person wearing a police uniform?,Yes,yes,yes,0.8764
+ab_warp_ch,woman_00,2,20260815,Is the person wearing a helmet?,Yes,yes,yes,0.853
+ab_warp_ch,woman_00,3,20260815,Is the person wearing a bow tie?,Yes,yes,yes,0.8914
+ab_warp_ch,woman_01,0,20260815,Is the person wearing sunglasses?,Yes,yes,yes,0.8319
+ab_warp_ch,woman_01,1,20260815,Is the person wearing a police uniform?,Yes,yes,yes,0.952
+ab_warp_ch,woman_01,2,20260815,Is the person wearing a helmet?,No,no,yes,0.9193
+ab_warp_ch,woman_01,3,20260815,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.9276
+ab_warp_ch,woman_02,0,20260815,Is the person wearing sunglasses?,Yes,yes,yes,0.7565
+ab_warp_ch,woman_02,1,20260815,Is the person wearing a police uniform?,"Yes, the person is wearing a police uniform.",yes,yes,0.8632
+ab_warp_ch,woman_02,2,20260815,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.0745
+ab_warp_ch,woman_02,3,20260815,Is the person wearing a bow tie?,Yes,yes,yes,0.8642
+ab_warp_ch,woman_03,0,20260815,Is the person wearing sunglasses?,Yes,yes,yes,0.6699
+ab_warp_ch,woman_03,1,20260815,Is the person wearing a police uniform?,Yes,yes,yes,0.8003
+ab_warp_ch,woman_03,2,20260815,Is the person wearing a helmet?,Yes,yes,yes,0.0378
+ab_warp_ch,woman_03,3,20260815,Is the person wearing a bow tie?,Yes,yes,yes,0.8177
+ab_warp_s16,man_00,0,20260815,Is the person wearing sunglasses?,Yes,yes,yes,0.718
+ab_warp_s16,man_00,1,20260815,Is the person wearing a police uniform?,Yes,yes,yes,0.4545
+ab_warp_s16,man_00,2,20260815,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.0737
+ab_warp_s16,man_00,3,20260815,Is the person wearing a bow tie?,Yes,yes,yes,0.8649
+ab_warp_s16,man_01,0,20260815,Is the person wearing sunglasses?,Yes,yes,yes,0.7958
+ab_warp_s16,man_01,1,20260815,Is the person wearing a police uniform?,Yes,yes,yes,0.9153
+ab_warp_s16,man_01,2,20260815,Is the person wearing a helmet?,Yes,yes,yes,0.8444
+ab_warp_s16,man_01,3,20260815,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.9236
+ab_warp_s16,man_02,0,20260815,Is the person wearing sunglasses?,Yes,yes,yes,0.6756
+ab_warp_s16,man_02,1,20260815,Is the person wearing a police uniform?,"Yes, the person is wearing a police uniform.",yes,yes,0.4724
+ab_warp_s16,man_02,2,20260815,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,-0.1388
+ab_warp_s16,man_02,3,20260815,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.7832
+ab_warp_s16,man_03,0,20260815,Is the person wearing sunglasses?,Yes,yes,yes,0.7275
+ab_warp_s16,man_03,1,20260815,Is the person wearing a police uniform?,"Yes, the person is wearing a police uniform.",yes,yes,0.5357
+ab_warp_s16,man_03,2,20260815,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.9109
+ab_warp_s16,man_03,3,20260815,Is the person wearing a bow tie?,Yes,yes,yes,0.8261
+ab_warp_s16,woman_00,0,20260815,Is the person wearing sunglasses?,Yes,yes,yes,0.7472
+ab_warp_s16,woman_00,1,20260815,Is the person wearing a police uniform?,Yes,yes,yes,0.8491
+ab_warp_s16,woman_00,2,20260815,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.008
+ab_warp_s16,woman_00,3,20260815,Is the person wearing a bow tie?,Yes,yes,yes,0.8322
+ab_warp_s16,woman_01,0,20260815,Is the person wearing sunglasses?,Yes,yes,yes,0.7396
+ab_warp_s16,woman_01,1,20260815,Is the person wearing a police uniform?,Yes,yes,yes,0.8525
+ab_warp_s16,woman_01,2,20260815,Is the person wearing a helmet?,Yes,yes,yes,0.6653
+ab_warp_s16,woman_01,3,20260815,Is the person wearing a bow tie?,Yes,yes,yes,0.8788
+ab_warp_s16,woman_02,0,20260815,Is the person wearing sunglasses?,Yes,yes,yes,0.7395
+ab_warp_s16,woman_02,1,20260815,Is the person wearing a police uniform?,Yes,yes,yes,0.8527
+ab_warp_s16,woman_02,2,20260815,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.0071
+ab_warp_s16,woman_02,3,20260815,Is the person wearing a bow tie?,Yes,yes,yes,0.8363
+ab_warp_s16,woman_03,0,20260815,Is the person wearing sunglasses?,Yes,yes,yes,0.7106
+ab_warp_s16,woman_03,1,20260815,Is the person wearing a police uniform?,Yes,yes,yes,0.8201
+ab_warp_s16,woman_03,2,20260815,Is the person wearing a helmet?,Yes,yes,yes,0.7839
+ab_warp_s16,woman_03,3,20260815,Is the person wearing a bow tie?,Yes,yes,yes,0.8245
+ab_prism,man_00,0,20260815,Is the person wearing sunglasses?,Yes,yes,yes,0.6916
+ab_prism,man_00,1,20260815,Is the person wearing a police uniform?,Yes,yes,yes,0.5452
+ab_prism,man_00,2,20260815,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.1058
+ab_prism,man_00,3,20260815,Is the person wearing a bow tie?,Yes,yes,yes,0.9365
+ab_prism,man_01,0,20260815,Is the person wearing sunglasses?,Yes,yes,yes,0.8107
+ab_prism,man_01,1,20260815,Is the person wearing a police uniform?,Yes,yes,yes,0.9377
+ab_prism,man_01,2,20260815,Is the person wearing a helmet?,Yes,yes,yes,0.8475
+ab_prism,man_01,3,20260815,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.936
+ab_prism,man_02,0,20260815,Is the person wearing sunglasses?,Yes,yes,yes,0.764
+ab_prism,man_02,1,20260815,Is the person wearing a police uniform?,Yes,yes,yes,0.6021
+ab_prism,man_02,2,20260815,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.089
+ab_prism,man_02,3,20260815,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.8508
+ab_prism,man_03,0,20260815,Is the person wearing sunglasses?,Yes,yes,yes,0.6973
+ab_prism,man_03,1,20260815,Is the person wearing a police uniform?,Yes,yes,yes,0.4214
+ab_prism,man_03,2,20260815,Is the person wearing a helmet?,Yes,yes,yes,0.9151
+ab_prism,man_03,3,20260815,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.8042
+ab_prism,woman_00,0,20260815,Is the person wearing sunglasses?,Yes,yes,yes,0.7634
+ab_prism,woman_00,1,20260815,Is the person wearing a police uniform?,No,no,yes,0.883
+ab_prism,woman_00,2,20260815,Is the person wearing a helmet?,No,no,yes,0.8797
+ab_prism,woman_00,3,20260815,Is the person wearing a bow tie?,Yes,yes,yes,0.8769
+ab_prism,woman_01,0,20260815,Is the person wearing sunglasses?,Yes,yes,yes,0.8335
+ab_prism,woman_01,1,20260815,Is the person wearing a police uniform?,Yes,yes,yes,0.9525
+ab_prism,woman_01,2,20260815,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.8668
+ab_prism,woman_01,3,20260815,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.8824
+ab_prism,woman_02,0,20260815,Is the person wearing sunglasses?,Yes,yes,yes,0.7925
+ab_prism,woman_02,1,20260815,Is the person wearing a police uniform?,Yes,yes,yes,0.8804
+ab_prism,woman_02,2,20260815,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.6992
+ab_prism,woman_02,3,20260815,Is the person wearing a bow tie?,Yes,yes,yes,0.89
+ab_prism,woman_03,0,20260815,Is the person wearing sunglasses?,Yes,yes,yes,0.7159
+ab_prism,woman_03,1,20260815,Is the person wearing a police uniform?,Yes,yes,yes,0.8497
+ab_prism,woman_03,2,20260815,Is the person wearing a helmet?,Yes,yes,yes,0.832
+ab_prism,woman_03,3,20260815,Is the person wearing a bow tie?,Yes,yes,yes,0.8627
+undefended,man_00,0,20260816,Is the person wearing sunglasses?,Yes,yes,yes,0.7769
+undefended,man_00,1,20260816,Is the person wearing a police uniform?,Yes,yes,yes,0.5446
+undefended,man_00,2,20260816,Is the person wearing a helmet?,Yes,yes,yes,0.8708
+undefended,man_00,3,20260816,Is the person wearing a bow tie?,Yes,yes,yes,0.9295
+undefended,man_01,0,20260816,Is the person wearing sunglasses?,Yes,yes,yes,0.7769
+undefended,man_01,1,20260816,Is the person wearing a police uniform?,Yes,yes,yes,0.9486
+undefended,man_01,2,20260816,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.8801
+undefended,man_01,3,20260816,Is the person wearing a bow tie?,Yes,yes,yes,0.952
+undefended,man_02,0,20260816,Is the person wearing sunglasses?,Yes,yes,yes,0.7358
+undefended,man_02,1,20260816,Is the person wearing a police uniform?,Yes,yes,yes,0.8725
+undefended,man_02,2,20260816,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.7693
+undefended,man_02,3,20260816,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.8702
+undefended,man_03,0,20260816,Is the person wearing sunglasses?,Yes,yes,yes,0.7204
+undefended,man_03,1,20260816,Is the person wearing a police uniform?,Yes,yes,yes,0.6043
+undefended,man_03,2,20260816,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.9371
+undefended,man_03,3,20260816,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.6807
+undefended,woman_00,0,20260816,Is the person wearing sunglasses?,Yes,yes,yes,0.7752
+undefended,woman_00,1,20260816,Is the person wearing a police uniform?,Yes,yes,yes,0.8727
+undefended,woman_00,2,20260816,Is the person wearing a helmet?,"Yes, on their head.",yes,yes,0.8815
+undefended,woman_00,3,20260816,Is the person wearing a bow tie?,Yes,yes,yes,0.8925
+undefended,woman_01,0,20260816,Is the person wearing sunglasses?,Yes,yes,yes,0.827
+undefended,woman_01,1,20260816,Is the person wearing a police uniform?,Yes,yes,yes,0.9657
+undefended,woman_01,2,20260816,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.9287
+undefended,woman_01,3,20260816,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.9457
+undefended,woman_02,0,20260816,Is the person wearing sunglasses?,Yes,yes,yes,0.8039
+undefended,woman_02,1,20260816,Is the person wearing a police uniform?,Yes,yes,yes,0.9091
+undefended,woman_02,2,20260816,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.6955
+undefended,woman_02,3,20260816,Is the person wearing a bow tie?,Yes,yes,yes,0.9125
+undefended,woman_03,0,20260816,Is the person wearing sunglasses?,Yes,yes,yes,0.7149
+undefended,woman_03,1,20260816,Is the person wearing a police uniform?,Yes,yes,yes,0.8846
+undefended,woman_03,2,20260816,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.8303
+undefended,woman_03,3,20260816,Is the person wearing a bow tie?,Yes,yes,yes,0.8896
+ab_warp,man_00,0,20260816,Is the person wearing sunglasses?,Yes,yes,yes,0.7157
+ab_warp,man_00,1,20260816,Is the person wearing a police uniform?,Yes,yes,yes,0.3624
+ab_warp,man_00,2,20260816,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.7294
+ab_warp,man_00,3,20260816,Is the person wearing a bow tie?,Yes,yes,yes,0.8855
+ab_warp,man_01,0,20260816,Is the person wearing sunglasses?,Yes,yes,yes,0.7664
+ab_warp,man_01,1,20260816,Is the person wearing a police uniform?,Yes,yes,yes,0.9219
+ab_warp,man_01,2,20260816,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.7975
+ab_warp,man_01,3,20260816,Is the person wearing a bow tie?,Yes,yes,yes,0.9263
+ab_warp,man_02,0,20260816,Is the person wearing sunglasses?,Yes,yes,yes,0.6959
+ab_warp,man_02,1,20260816,Is the person wearing a police uniform?,"Yes, the person is wearing a police uniform.",yes,yes,0.8312
+ab_warp,man_02,2,20260816,Is the person wearing a helmet?,Yes,yes,yes,0.7139
+ab_warp,man_02,3,20260816,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.8395
+ab_warp,man_03,0,20260816,Is the person wearing sunglasses?,Yes,yes,yes,0.7162
+ab_warp,man_03,1,20260816,Is the person wearing a police uniform?,Yes,yes,yes,0.5821
+ab_warp,man_03,2,20260816,Is the person wearing a helmet?,Yes,yes,yes,0.9198
+ab_warp,man_03,3,20260816,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.8601
+ab_warp,woman_00,0,20260816,Is the person wearing sunglasses?,Yes,yes,yes,0.7534
+ab_warp,woman_00,1,20260816,Is the person wearing a police uniform?,Yes,yes,yes,0.8658
+ab_warp,woman_00,2,20260816,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,-0.0215
+ab_warp,woman_00,3,20260816,Is the person wearing a bow tie?,Yes,yes,yes,0.8543
+ab_warp,woman_01,0,20260816,Is the person wearing sunglasses?,Yes,yes,yes,0.7534
+ab_warp,woman_01,1,20260816,Is the person wearing a police uniform?,Yes,yes,yes,0.9251
+ab_warp,woman_01,2,20260816,Is the person wearing a helmet?,Yes,yes,yes,0.9051
+ab_warp,woman_01,3,20260816,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.9204
+ab_warp,woman_02,0,20260816,Is the person wearing sunglasses?,Yes,yes,yes,0.7309
+ab_warp,woman_02,1,20260816,Is the person wearing a police uniform?,Yes,yes,yes,0.8479
+ab_warp,woman_02,2,20260816,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.4918
+ab_warp,woman_02,3,20260816,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.8573
+ab_warp,woman_03,0,20260816,Is the person wearing sunglasses?,Yes,yes,yes,0.5883
+ab_warp,woman_03,1,20260816,Is the person wearing a police uniform?,Yes,yes,yes,0.8153
+ab_warp,woman_03,2,20260816,Is the person wearing a helmet?,Yes,yes,yes,0.7789
+ab_warp,woman_03,3,20260816,Is the person wearing a bow tie?,Yes,yes,yes,0.8215
+ab_warp_ch,man_00,0,20260816,Is the person wearing sunglasses?,Yes,yes,yes,0.7156
+ab_warp_ch,man_00,1,20260816,Is the person wearing a police uniform?,Yes,yes,yes,0.3882
+ab_warp_ch,man_00,2,20260816,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.7418
+ab_warp_ch,man_00,3,20260816,Is the person wearing a bow tie?,Yes,yes,yes,0.8841
+ab_warp_ch,man_01,0,20260816,Is the person wearing sunglasses?,Yes,yes,yes,0.7589
+ab_warp_ch,man_01,1,20260816,Is the person wearing a police uniform?,Yes,yes,yes,0.9299
+ab_warp_ch,man_01,2,20260816,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.0331
+ab_warp_ch,man_01,3,20260816,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.9312
+ab_warp_ch,man_02,0,20260816,Is the person wearing sunglasses?,Yes,yes,yes,0.7396
+ab_warp_ch,man_02,1,20260816,Is the person wearing a police uniform?,Yes,yes,yes,0.8529
+ab_warp_ch,man_02,2,20260816,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.72
+ab_warp_ch,man_02,3,20260816,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.856
+ab_warp_ch,man_03,0,20260816,Is the person wearing sunglasses?,Yes,yes,yes,0.7579
+ab_warp_ch,man_03,1,20260816,Is the person wearing a police uniform?,Yes,yes,yes,0.5707
+ab_warp_ch,man_03,2,20260816,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.9209
+ab_warp_ch,man_03,3,20260816,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.8603
+ab_warp_ch,woman_00,0,20260816,Is the person wearing sunglasses?,Yes,yes,yes,0.7664
+ab_warp_ch,woman_00,1,20260816,Is the person wearing a police uniform?,Yes,yes,yes,0.852
+ab_warp_ch,woman_00,2,20260816,Is the person wearing a helmet?,No,no,yes,0.8671
+ab_warp_ch,woman_00,3,20260816,Is the person wearing a bow tie?,Yes,yes,yes,0.8914
+ab_warp_ch,woman_01,0,20260816,Is the person wearing sunglasses?,Yes,yes,yes,0.8355
+ab_warp_ch,woman_01,1,20260816,Is the person wearing a police uniform?,Yes,yes,yes,0.8263
+ab_warp_ch,woman_01,2,20260816,Is the person wearing a helmet?,No,no,yes,0.9017
+ab_warp_ch,woman_01,3,20260816,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.8697
+ab_warp_ch,woman_02,0,20260816,Is the person wearing sunglasses?,Yes,yes,yes,0.7327
+ab_warp_ch,woman_02,1,20260816,Is the person wearing a police uniform?,"Yes, the person is wearing a police uniform.",yes,yes,0.8617
+ab_warp_ch,woman_02,2,20260816,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.5379
+ab_warp_ch,woman_02,3,20260816,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.8778
+ab_warp_ch,woman_03,0,20260816,Is the person wearing sunglasses?,Yes,yes,yes,0.628
+ab_warp_ch,woman_03,1,20260816,Is the person wearing a police uniform?,Yes,yes,yes,0.8114
+ab_warp_ch,woman_03,2,20260816,Is the person wearing a helmet?,Yes,yes,yes,0.7544
+ab_warp_ch,woman_03,3,20260816,Is the person wearing a bow tie?,Yes,yes,yes,0.8224
+ab_warp_s16,man_00,0,20260816,Is the person wearing sunglasses?,Yes,yes,yes,0.6581
+ab_warp_s16,man_00,1,20260816,Is the person wearing a police uniform?,Yes,yes,yes,
+ab_warp_s16,man_00,2,20260816,Is the person wearing a helmet?,No,no,yes,0.7308
+ab_warp_s16,man_00,3,20260816,Is the person wearing a bow tie?,Yes,yes,yes,0.6898
+ab_warp_s16,man_01,0,20260816,Is the person wearing sunglasses?,Yes,yes,yes,0.7714
+ab_warp_s16,man_01,1,20260816,Is the person wearing a police uniform?,Yes,yes,yes,0.9145
+ab_warp_s16,man_01,2,20260816,Is the person wearing a helmet?,Yes,yes,yes,0.8296
+ab_warp_s16,man_01,3,20260816,Is the person wearing a bow tie?,Yes,yes,yes,0.9222
+ab_warp_s16,man_02,0,20260816,Is the person wearing sunglasses?,Yes,yes,yes,0.6808
+ab_warp_s16,man_02,1,20260816,Is the person wearing a police uniform?,"Yes, the person is wearing a police uniform.",yes,yes,0.5632
+ab_warp_s16,man_02,2,20260816,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.7417
+ab_warp_s16,man_02,3,20260816,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.8164
+ab_warp_s16,man_03,0,20260816,Is the person wearing sunglasses?,Yes,yes,yes,0.7618
+ab_warp_s16,man_03,1,20260816,Is the person wearing a police uniform?,Yes,yes,yes,0.573
+ab_warp_s16,man_03,2,20260816,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.9233
+ab_warp_s16,man_03,3,20260816,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.8729
+ab_warp_s16,woman_00,0,20260816,Is the person wearing sunglasses?,Yes,yes,yes,0.716
+ab_warp_s16,woman_00,1,20260816,Is the person wearing a police uniform?,Yes,yes,yes,0.4656
+ab_warp_s16,woman_00,2,20260816,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,-0.0404
+ab_warp_s16,woman_00,3,20260816,Is the person wearing a bow tie?,Yes,yes,yes,0.8303
+ab_warp_s16,woman_01,0,20260816,Is the person wearing sunglasses?,Yes,yes,yes,0.7436
+ab_warp_s16,woman_01,1,20260816,Is the person wearing a police uniform?,Yes,yes,yes,0.8164
+ab_warp_s16,woman_01,2,20260816,Is the person wearing a helmet?,Yes,yes,yes,0.6315
+ab_warp_s16,woman_01,3,20260816,Is the person wearing a bow tie?,Yes,yes,yes,0.8551
+ab_warp_s16,woman_02,0,20260816,Is the person wearing sunglasses?,Yes,yes,yes,0.6409
+ab_warp_s16,woman_02,1,20260816,Is the person wearing a police uniform?,"Yes, the person is wearing a police uniform.",yes,yes,0.8193
+ab_warp_s16,woman_02,2,20260816,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.4231
+ab_warp_s16,woman_02,3,20260816,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.8277
+ab_warp_s16,woman_03,0,20260816,Is the person wearing sunglasses?,Yes,yes,yes,0.6473
+ab_warp_s16,woman_03,1,20260816,Is the person wearing a police uniform?,Yes,yes,yes,0.8111
+ab_warp_s16,woman_03,2,20260816,Is the person wearing a helmet?,Yes,yes,yes,0.7394
+ab_warp_s16,woman_03,3,20260816,Is the person wearing a bow tie?,Yes,yes,yes,0.8451
+ab_prism,man_00,0,20260816,Is the person wearing sunglasses?,Yes,yes,yes,0.6989
+ab_prism,man_00,1,20260816,Is the person wearing a police uniform?,Yes,yes,yes,0.6934
+ab_prism,man_00,2,20260816,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.7226
+ab_prism,man_00,3,20260816,Is the person wearing a bow tie?,Yes,yes,yes,0.931
+ab_prism,man_01,0,20260816,Is the person wearing sunglasses?,Yes,yes,yes,0.7788
+ab_prism,man_01,1,20260816,Is the person wearing a police uniform?,Yes,yes,yes,0.9294
+ab_prism,man_01,2,20260816,Is the person wearing a helmet?,No,no,yes,0.8304
+ab_prism,man_01,3,20260816,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.9302
+ab_prism,man_02,0,20260816,Is the person wearing sunglasses?,Yes,yes,yes,0.7604
+ab_prism,man_02,1,20260816,Is the person wearing a police uniform?,Yes,yes,yes,0.8638
+ab_prism,man_02,2,20260816,Is the person wearing a helmet?,Yes,yes,yes,0.7748
+ab_prism,man_02,3,20260816,Is the person wearing a bow tie?,Yes,yes,yes,0.8709
+ab_prism,man_03,0,20260816,Is the person wearing sunglasses?,Yes,yes,yes,0.71
+ab_prism,man_03,1,20260816,Is the person wearing a police uniform?,Yes,yes,yes,0.5423
+ab_prism,man_03,2,20260816,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.9211
+ab_prism,man_03,3,20260816,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.6665
+ab_prism,woman_00,0,20260816,Is the person wearing sunglasses?,Yes,yes,yes,0.7472
+ab_prism,woman_00,1,20260816,Is the person wearing a police uniform?,Yes,yes,yes,0.8701
+ab_prism,woman_00,2,20260816,Is the person wearing a helmet?,No,no,yes,0.8723
+ab_prism,woman_00,3,20260816,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.8666
+ab_prism,woman_01,0,20260816,Is the person wearing sunglasses?,Yes,yes,yes,0.815
+ab_prism,woman_01,1,20260816,Is the person wearing a police uniform?,Yes,yes,yes,0.8422
+ab_prism,woman_01,2,20260816,Is the person wearing a helmet?,Yes,yes,yes,0.8792
+ab_prism,woman_01,3,20260816,Is the person wearing a bow tie?,"Yes, the person is wearing a bow tie.",yes,yes,0.8305
+ab_prism,woman_02,0,20260816,Is the person wearing sunglasses?,Yes,yes,yes,0.7916
+ab_prism,woman_02,1,20260816,Is the person wearing a police uniform?,Yes,yes,yes,0.8869
+ab_prism,woman_02,2,20260816,Is the person wearing a helmet?,"Yes, the person is wearing a helmet.",yes,yes,0.708
+ab_prism,woman_02,3,20260816,Is the person wearing a bow tie?,Yes,yes,yes,0.8941
+ab_prism,woman_03,0,20260816,Is the person wearing sunglasses?,Yes,yes,yes,0.6792
+ab_prism,woman_03,1,20260816,Is the person wearing a police uniform?,Yes,yes,yes,0.8631
+ab_prism,woman_03,2,20260816,Is the person wearing a helmet?,Yes,yes,yes,0.8168
+ab_prism,woman_03,3,20260816,Is the person wearing a bow tie?,Yes,yes,yes,0.8674

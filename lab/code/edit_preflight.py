@@ -108,7 +108,7 @@ def load_items(root: Path):
 
 
 def defended_image(directory: Path, name: str) -> Path:
-    """`defence_run.py` 寫出來的是 `<名稱>__<條件>__def.png`，條件名在中間。
+    """防禦程式寫出來的是 `<名稱>__<條件>__def.png`，條件名在中間。
 
     兩種寫法都收（有些條件沒有中段），但**同一張只能對到一個檔案**：對到兩個
     就是目錄裡混了兩個條件的產物，那時候拿哪一張都是錯的。

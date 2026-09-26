@@ -13,3 +13,4 @@ images/
 # 要在這裡收回某個子目錄的話，上面那行必須寫成 `images/*`：被排除的目錄
 # 底下的檔案無法再用 `!` 收回，寫 `images/` 會連 `!images/masks/` 一起
 # 失效，且不會有任何錯誤訊息（`git check-ignore -v <路徑>` 可驗）。
+.pytest_cache/

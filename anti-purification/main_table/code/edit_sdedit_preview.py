@@ -1,21 +1,36 @@
-"""SDEdit（stock SD img2img）在主表資料集上的 strength 預覽——第三個編輯器的
-前置檢查，跑全表之前先看未防禦編輯有沒有把人換掉。
+"""SDEdit（stock SD img2img）在主表資料集上的編輯——跨編輯器遷移的第三個編輯器。
 
-為什麼要有這一支
+協定：strength 0.5、guidance 7.5、50 步，不加任何遮罩
 ────────────────────────────────────────────────────────────────────
-主表現有兩個場景（ip2p、inpaint）都不是 SD img2img——`edit_preflight.py`
-docstring 記過 SD v1.4 img2img 在 strength 0.6／0.8 下把人換掉
-（FaceNet 對原圖中位數 0.120／0.029，同一人門檻 0.55）。跨編輯器遷移要新增
-SDEdit 當第三個編輯器，strength 是這裡才出現的新自由度，**在跑全表 736 格
-之前**要先在小樣本上看過未防禦編輯的圖與身分讀數，再決定用哪個值——這是
-使用者與上一位接手者都定下的規矩，本腳本只做這一步，不跑全表。
+這組值取自 PhotoGuard 官方 repo 的 `demo_simple_attack_img2img.ipynb` cell 12
+（`pipe_img2img(...)` 那次呼叫），逐行稽核見 `docs/reference/
+AUDIT_PROMPTFLARE_PHOTOGUARD.md` §5.1「編輯（評估）階段設定」：
+strength=0.5、guidance_scale=7.5、num_inference_steps=50。同一份稽核也記了
+一個不一致：論文附錄 Table 8 給的是 100 步，notebook 實際跑的是 50 步——這裡
+採 notebook 的值，因為那是官方**實際執行**用來產生 demo 結果的設定，不是
+論文表格；100 步的版本也可能有效，只是沒有一份文獻同時給出「0.5 配 100 步」
+這個特定組合。inpainting demo cell 用的是另一組（strength 0.7、100 步），
+不適用於這裡的 img2img/SDEdit 場景。
 
-只跑未防禦編輯（沒有防禦圖介入），因為要看的是「這個編輯器本身在這個
-strength 下站不站得住」，防禦的影響是下一步的事。
+採用這一組理由是**它是文獻自己用來展示「SDEdit 可以怎麼編輯一張圖」的設定，
+不是本專案為了通過某個身分門檻反推出來的**。
+
+**不加遮罩，使用者 2026-09-27 裁定。** 在 4 張影像 × 4 個 strength 的預覽中
+（`results/sdedit_preview.csv`），strength 0.3–0.6 的 id_orig 全部低於
+`edit_preflight.py` 記的 0.55 同一人門檻。`SDWrapper.sdedit()` 的 `keep01`
+遮罩參數可以緩解這件事，但 PhotoGuard 等文獻本身展示 SDEdit 時也沒有這樣做
+——對這個威脅模型，身分被大幅改動是 SDEdit 這一類攻擊本來就有的性質，不是
+要修的缺陷。要不要遮罩因此不是本腳本的決定，本腳本沿用文獻沒有遮罩的做法。
+
+跨 SD 1.x／2.x 的「統一」：`SDWrapper` 只讀 `self.pipe` 的 unet／
+text_encoder／tokenizer，不寫死任何維度，同一個類別餵不同的 `--model` 即可，
+不需要另一個 wrapper（FLUX 是流匹配架構，不共用這條路徑，見
+`edit_flux_preview.py`）。
 
 用法（遠端，需要一張卡）
     HF_HOME=/var/cache/huggingface CUDA_VISIBLE_DEVICES=<卡> \\
-        python code/edit_sdedit_preview.py --out images/sdedit_preview
+        python code/edit_sdedit_preview.py --model stabilityai/stable-diffusion-2-1 \\
+            --out images/sdedit_preview_sd21
 """
 
 from __future__ import annotations
@@ -38,18 +53,11 @@ from src.models.sd import SDWrapper  # noqa: E402
 from src.utils.artifacts import save_image  # noqa: E402
 from src.utils.io import load_image_tensor, write_csv  # noqa: E402
 
-#: `runwayml/stable-diffusion-v1-5`：SD 1.x 家族的標準基準權重。專案內另一條
-#: 舊線（`scripts/baseline_run.py`）用過 `CompVis/stable-diffusion-v1-4`，
-#: 兩者 UNet 架構相同，這裡選 1.5 是因為它是目前 SD 1.x 實驗的通用預設，
-#: 不是因為 1.4 不能用。
-MODEL_NAME = "runwayml/stable-diffusion-v1-5"
 RESOLUTION = 512
 EDIT_SEED = 20260812   # 與 ip2p/inpaint 兩個場景共用同一顆種子
-EDIT_STEPS = 50        # 與 edit_preflight.py 的兩個場景對齊
-EDIT_GUIDANCE = 7.5    # 見 sd.py `_eps_cfg`：w=1 時 SDEdit 退化成加噪再去噪
-#: 要掃的 strength。0.55／0.8 已由 `edit_preflight.py` 記過的實測結果排除
-#: 在「兩者都要」的候選之外（0.55 不服從 prompt、0.8 換人），這裡改掃中段。
-STRENGTHS = (0.3, 0.4, 0.5, 0.6)
+EDIT_STEPS = 50        # PhotoGuard demo cell 1，同時與本專案兩個場景對齊
+EDIT_GUIDANCE = 7.5    # 同上；見 sd.py `_eps_cfg`：w=1 時 SDEdit 會退化成加噪再去噪
+EDIT_STRENGTH = 0.5    # 同上，見上方協定說明
 
 
 def main() -> None:
@@ -58,11 +66,15 @@ def main() -> None:
         formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--data", type=Path, default=paths.PORTRAITS)
     ap.add_argument("--out", type=Path, default=paths.IMAGES / "sdedit_preview")
+    ap.add_argument("--model", default="runwayml/stable-diffusion-v1-5",
+                    help="任何 SD 1.x／2.x 的 diffusers checkpoint 名稱；"
+                         "SDWrapper 不寫死維度，換這個參數就是換模型家族")
     ap.add_argument("--images", nargs="+", default=None,
                     help="預設每個類別取第一張")
     ap.add_argument("--instruction-indices", nargs="+", type=int, default=[0, 1],
                     help="`prompts.yaml` 的 edits.ip2p 底下要用哪幾條，預設前兩條")
-    ap.add_argument("--strengths", nargs="+", type=float, default=list(STRENGTHS))
+    ap.add_argument("--strengths", nargs="+", type=float, default=[EDIT_STRENGTH],
+                    help="預設用已定案的協定值 0.5；只在需要重新檢視時才覆寫")
     args = ap.parse_args()
 
     items, edits = load_items(args.data)
@@ -76,7 +88,7 @@ def main() -> None:
     print(f"影像 {[t['name'] for t in targets]}，指令索引 "
           f"{args.instruction_indices}，strength {args.strengths}", flush=True)
 
-    sd = SDWrapper(MODEL_NAME, dtype=torch.float32)
+    sd = SDWrapper(args.model, dtype=torch.float32)
     args.out.mkdir(parents=True, exist_ok=True)
     rows = []
 
@@ -98,7 +110,7 @@ def main() -> None:
                 save_image(edit, out_png)
                 row = {
                     "image": item["name"], "prompt_index": pi, "prompt": prompt,
-                    "strength": strength, "model": MODEL_NAME,
+                    "strength": strength, "model": args.model,
                     "guidance_scale": EDIT_GUIDANCE, "steps": EDIT_STEPS,
                     "seed": EDIT_SEED, "png": out_png.as_posix(), **idr,
                 }
@@ -107,7 +119,8 @@ def main() -> None:
                       f"id_orig={idr['id_orig']}  arcface_orig={idr['arcface_orig']}"
                       f"  ({time.time() - t0:.1f}s)", flush=True)
 
-    out_csv = paths.RESULTS / "sdedit_preview.csv"
+    model_tag = args.model.rsplit("/", 1)[-1].replace(".", "_")
+    out_csv = paths.RESULTS / f"sdedit_preview_{model_tag}.csv"
     write_csv(out_csv, rows)
     print(f"\n完成：{len(rows)} 格 -> {out_csv}")
 

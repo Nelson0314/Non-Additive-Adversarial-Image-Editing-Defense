@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="zh-Hant">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>編輯器樣張</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  --paper:#f2f4f7; --surface:#ffffff; --sunk:#e7eaef;
+  --ink:#0f151c; --body:#2b3542; --muted:#5d6b7b; --line:#ccd4de;
+  --signal:#10559b; --warn:#9f6a10; --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+  --sans:"Archivo","Helvetica Neue",Arial,sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#0d1218; --surface:#151d26; --sunk:#0a0f14;
+    --ink:#e8eef5; --body:#c2ccd8; --muted:#8695a6; --line:#26313d;
+    --signal:#5aa2ef; --warn:#e0a94f;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0d1218; --surface:#151d26; --sunk:#0a0f14;
+  --ink:#e8eef5; --body:#c2ccd8; --muted:#8695a6; --line:#26313d;
+  --signal:#5aa2ef; --warn:#e0a94f;
+}
+*{box-sizing:border-box}
+body{background:var(--paper); color:var(--body); margin:0; padding:20px 16px 64px;
+     font-family:var(--sans); font-size:14px}
+h1{font-family:var(--sans); font-size:15px; font-weight:600; margin:0 0 4px}
+p.sub{font-family:var(--mono); font-size:12px; color:var(--muted); margin:0 0 20px}
+h2{font-family:var(--sans); font-size:12px; font-weight:600; letter-spacing:.08em;
+   text-transform:uppercase; color:var(--muted); margin:30px 2px 10px}
+.row{display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+     gap:10px}
+figure{margin:0; background:var(--surface); border:1px solid var(--line);
+       border-radius:4px; overflow:hidden}
+figure img{width:100%; display:block; background:var(--sunk); aspect-ratio:1/1;
+           object-fit:cover}
+figcaption{padding:8px 10px; font-family:var(--mono); font-size:11.5px;
+           color:var(--ink); line-height:1.5}
+figcaption .prompt{color:var(--body); font-family:var(--sans); font-size:11.5px;
+                    display:block; margin-bottom:3px}
+figcaption .id{display:block}
+figcaption .id.low{color:var(--warn); font-weight:600}
+.note{font-family:var(--mono); font-size:11.5px; color:var(--muted); margin:8px 2px 0}
+</style>
+
+<h1>編輯器樣張</h1>
+<p class="sub">未防禦編輯，strength/guidance 見各張標註，id_orig 是 FaceNet 對原圖相似度（門檻 0.55）</p>
+
+<h2>原圖</h2>
+<div class="row">
+  <figure><img src="img/orig_man_00.png"><figcaption>man_00</figcaption></figure>
+  <figure><img src="img/orig_woman_00.png"><figcaption>woman_00</figcaption></figure>
+</div>
+
+<h2>SD 2.1（sd2-community/stable-diffusion-2-1——錯的 checkpoint，v-prediction 誤當 epsilon 算，僅作對照）</h2>
+<div class="row">
+  <figure><img src="img/sd21_man_00_p0.png">
+    <figcaption><span class="prompt">Let the person wear sunglasses</span>
+    <span class="id low">man_00 · id_orig 未偵測到臉</span></figcaption></figure>
+  <figure><img src="img/sd21_man_00_p1.png">
+    <figcaption><span class="prompt">Let the person wear a police suit</span>
+    <span class="id low">man_00 · id_orig 未偵測到臉</span></figcaption></figure>
+  <figure><img src="img/sd21_woman_00_p0.png">
+    <figcaption><span class="prompt">Let the person wear sunglasses</span>
+    <span class="id low">woman_00 · id_orig 0.1483</span></figcaption></figure>
+  <figure><img src="img/sd21_woman_00_p1.png">
+    <figcaption><span class="prompt">Let the person wear a police suit</span>
+    <span class="id low">woman_00 · id_orig 0.1797</span></figcaption></figure>
+</div>
+
+<h2>SD 2.1-base（sd2-community/stable-diffusion-2-1-base，epsilon-prediction，strength 0.5, guidance 7.5, 50 步, 512×512）</h2>
+<div class="row">
+  <figure><img src="img/sd21base_man_00_p0.png">
+    <figcaption><span class="prompt">Let the person wear sunglasses</span>
+    <span class="id low">man_00 · id_orig 0.0939</span></figcaption></figure>
+  <figure><img src="img/sd21base_man_00_p1.png">
+    <figcaption><span class="prompt">Let the person wear a police suit</span>
+    <span class="id low">man_00 · id_orig −0.0894</span></figcaption></figure>
+  <figure><img src="img/sd21base_woman_00_p0.png">
+    <figcaption><span class="prompt">Let the person wear sunglasses</span>
+    <span class="id low">woman_00 · id_orig 0.1468</span></figcaption></figure>
+  <figure><img src="img/sd21base_woman_00_p1.png">
+    <figcaption><span class="prompt">Let the person wear a police suit</span>
+    <span class="id low">woman_00 · id_orig 0.2853</span></figcaption></figure>
+</div>
+
+<h2>FLUX.1-Kontext-dev（4-bit NF4，guidance 3.5, 28 步, 1024×1024——套件強制，見報告說明）</h2>
+<div class="row">
+  <figure><img src="img/flux_man_00_p0.png">
+    <figcaption><span class="prompt">Let the person wear sunglasses</span>
+    <span class="id">man_00 · id_orig 0.655</span></figcaption></figure>
+  <figure><img src="img/flux_man_00_p1.png">
+    <figcaption><span class="prompt">Let the person wear a police suit</span>
+    <span class="id">man_00 · id_orig 0.5908</span></figcaption></figure>
+  <figure><img src="img/flux_woman_00_p0.png">
+    <figcaption><span class="prompt">Let the person wear sunglasses</span>
+    <span class="id low">woman_00 · id_orig 0.5131</span></figcaption></figure>
+  <figure><img src="img/flux_woman_00_p1.png">
+    <figcaption><span class="prompt">Let the person wear a police suit</span>
+    <span class="id">woman_00 · id_orig 0.8436</span></figcaption></figure>
+</div>
+<p class="note">紅字＝低於 0.55 同一人門檻或 FaceNet 偵測不到臉。</p>
+</html>

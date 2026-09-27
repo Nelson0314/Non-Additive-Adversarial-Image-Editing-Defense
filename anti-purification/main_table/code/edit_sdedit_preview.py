@@ -27,10 +27,23 @@ text_encoder／tokenizer，不寫死任何維度，同一個類別餵不同的 `
 不需要另一個 wrapper（FLUX 是流匹配架構，不共用這條路徑，見
 `edit_flux_preview.py`）。
 
+**SD 2.x 只能用 epsilon-prediction 的權重。** `stabilityai/stable-diffusion-2-1`
+已從 Hub 下架，社群鏡像 `sd2-community/stable-diffusion-2-1` 復刻的是原始的
+768-v checkpoint——`scheduler.config.prediction_type == "v_prediction"`、
+UNet 原生 768×768。`SDWrapper._eps`／`sdedit`／`denoise` 的 DDIM 遞迴全部
+假設模型輸出 ε（`pred_x0 = (z - sqrt(1-ᾱ)·eps) / sqrt(ᾱ)`），對 v-prediction
+模型直接套這條公式會把輸出當成錯的量在算，2026-09-27 實測整批臉部特徵消失、
+`identity_row` 偵測不到臉，不是 strength 或遮罩的問題。**必須用
+`sd2-community/stable-diffusion-2-1-base`**（`prediction_type == "epsilon"`、
+原生 512×512，同一個社群帳號的另一個 repo）。換掉 checkpoint 之後同一組協定
+（strength 0.5、guidance 7.5、50 步）跑出來的 id_orig 落在 −0.09–0.29，
+與 SD 1.5 在同一組指令下的量級一致（見 `results/sdedit_preview.csv`），不再
+是整批偵測不到臉。
+
 用法（遠端，需要一張卡）
     HF_HOME=/var/cache/huggingface CUDA_VISIBLE_DEVICES=<卡> \\
-        python code/edit_sdedit_preview.py --model stabilityai/stable-diffusion-2-1 \\
-            --out images/sdedit_preview_sd21
+        python code/edit_sdedit_preview.py --model sd2-community/stable-diffusion-2-1-base \\
+            --out images/sdedit_preview_sd21base
 """
 
 from __future__ import annotations

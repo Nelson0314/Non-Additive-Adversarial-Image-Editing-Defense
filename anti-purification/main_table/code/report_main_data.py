@@ -48,6 +48,22 @@ METRICS = [
     ("siglip_pair", "SigLIP", "down", 4),
 ]
 
+#: FLUX 全表沒有 disp_fsim／disp_vmaf(還沒算),多一欄 id_orig(FaceNet，
+#: FLUX 自己讀數才有的東西，ip2p/inpaint 那張表沒有可比欄位)。
+FLUX_METRICS = [
+    ("disp_lpips_full", "LPIPS", "up", 4),
+    ("disp_lpips_subject", "LPIPS 主體", "up", 4),
+    ("disp_lpips_background", "LPIPS 背景", "up", 4),
+    ("disp_dists", "DISTS", "up", 4),
+    ("disp_rms", "rms", "up", 4),
+    ("disp_linf", "L inf", "up", 4),
+    ("disp_ssim", "SSIM", "down", 4),
+    ("disp_psnr", "PSNR", "down", 2),
+    ("disp_vif_p", "VIFp", "down", 4),
+    ("clip_pair", "CLIP", "down", 4),
+    ("siglip_pair", "SigLIP", "down", 4),
+]
+
 AESTHETIC = [
     ("aes_laion", "LAION Aesthetic", "up"),
     ("aes_nima", "NIMA", "up"),
@@ -190,6 +206,39 @@ def build_data() -> dict:
             "images": NAMES,
             "rows": aes_by_image,
         },
+        "flux": build_flux(),
+    }
+
+
+def build_flux() -> dict:
+    """FLUX 全表(`edit_flux_preview.py --arm`)的讀數，獨立一節。
+
+    協定跟 ip2p/inpaint 不同(guidance 3.5、1024×1024、無 strength)，數字
+    不放進同一張聚合表——理由與「三組資料的關係」同一套：協定不同的位移
+    不能直接比大小，見 `main_table/README.md`。
+    """
+    disp = load("displacement_flux.csv")
+
+    def agg(cond):
+        sel = [r for r in disp if r["condition"] == cond]
+        out = {k: mean(sel, k) for k, _, _, _ in FLUX_METRICS}
+        idr = load(f"flux_full_{cond}.csv")
+        out["id_orig"] = mean(idr, "id_orig", 4)
+        out["blocked"] = sum(1 for r in sel if r["blocked"] == "True")
+        out["cells"] = len(sel)
+        out["name"] = cond
+        return out
+
+    methods = [agg(c) for c in CONDITIONS]
+    order = [m["name"] for m in sorted(methods, key=lambda x: -(x["disp_lpips_full"] or 0))]
+    median_keys = [k for k, _, _, _ in FLUX_METRICS] + ["id_orig"]
+    median = {k: round(st.median([m[k] for m in methods if m[k] is not None]), 5)
+              for k in median_keys if any(m[k] is not None for m in methods)}
+    return {
+        "metrics": [{"key": k, "label": l, "dir": d, "dp": p} for k, l, d, p in FLUX_METRICS],
+        "methods": methods,
+        "order": order,
+        "median": median,
     }
 
 
@@ -238,6 +287,18 @@ def build_images(out: Path) -> None:
                     raise SystemExit(f"缺編輯圖: {src}")
                 to_webp(src, img_dir / f"e_{scenario}{pi}_{cond}_{name}.webp")
                 n += 1
+
+    # FLUX 全表:重用 report/flux_full/img/ 已經轉好的縮圖(同一批來源，
+    # 已經是 webp)，只搬 p0 那組，加 flux_ 前綴避免跟上面的檔名混在一起。
+    import shutil
+    flux_src = paths.BASELINES / "report" / "flux_full" / "img"
+    for name in NAMES:
+        for cond in ["undefended"] + CONDITIONS:
+            src = flux_src / f"{cond}_{name}_p0.webp"
+            if not src.is_file():
+                raise SystemExit(f"缺 FLUX 縮圖(先跑過 report/flux_full 那份嗎?): {src}")
+            shutil.copy(src, img_dir / f"flux_{cond}_{name}_p0.webp")
+            n += 1
     print(f"[IMAGES] {n} 張 -> {img_dir}", flush=True)
 
 

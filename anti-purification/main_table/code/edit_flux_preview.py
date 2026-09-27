@@ -100,6 +100,12 @@ def main() -> None:
                     help="`prompts.yaml` 的 edits.ip2p 底下要用哪幾條,預設前兩條")
     ap.add_argument("--steps", type=int, default=EDIT_STEPS)
     ap.add_argument("--guidance", type=float, default=EDIT_GUIDANCE)
+    ap.add_argument("--true-cfg-scale", type=float, default=1.0,
+                    help="真正的雙分支 CFG。FluxKontextPipeline 只在 >1 且有給"
+                         "negative_prompt 時才會啟用，否則沿用蒸餾過的 guidance_scale")
+    ap.add_argument("--negative-prompt", default=None,
+                    help="配合 --true-cfg-scale>1 使用，往「不要偏離原圖」推，"
+                         "不要提被要求改的那個部位，否則會跟正面指令互相抵銷")
     args = ap.parse_args()
 
     items, edits = load_items(args.data)
@@ -132,9 +138,13 @@ def main() -> None:
             prompt = instructions[pi]
             t0 = time.time()
             gen = torch.Generator(device=device).manual_seed(EDIT_SEED)
-            out = pipe(image=x_pil, prompt=prompt, height=RESOLUTION, width=RESOLUTION,
-                      guidance_scale=args.guidance, num_inference_steps=args.steps,
-                      generator=gen).images[0]
+            call_kw = dict(image=x_pil, prompt=prompt, height=RESOLUTION, width=RESOLUTION,
+                          guidance_scale=args.guidance, num_inference_steps=args.steps,
+                          generator=gen)
+            if args.negative_prompt:
+                call_kw["negative_prompt"] = args.negative_prompt
+                call_kw["true_cfg_scale"] = args.true_cfg_scale
+            out = pipe(**call_kw).images[0]
             dt = time.time() - t0
             edit = to_tensor(out, device)
             idr = identity_row(x01, edit)
@@ -143,6 +153,8 @@ def main() -> None:
             row = {
                 "image": item["name"], "prompt_index": pi, "prompt": prompt,
                 "model": MODEL_NAME, "guidance_scale": args.guidance,
+                "true_cfg_scale": args.true_cfg_scale if args.negative_prompt else "",
+                "negative_prompt": args.negative_prompt or "",
                 "steps": args.steps, "seed": EDIT_SEED, "seconds": round(dt, 1),
                 "png": out_png.as_posix(), **idr,
             }

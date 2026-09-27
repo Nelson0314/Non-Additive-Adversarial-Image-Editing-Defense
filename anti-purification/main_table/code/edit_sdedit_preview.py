@@ -88,6 +88,9 @@ def main() -> None:
                     help="`prompts.yaml` 的 edits.ip2p 底下要用哪幾條，預設前兩條")
     ap.add_argument("--strengths", nargs="+", type=float, default=[EDIT_STRENGTH],
                     help="預設用已定案的協定值 0.5；只在需要重新檢視時才覆寫")
+    ap.add_argument("--guidances", nargs="+", type=float, default=[EDIT_GUIDANCE],
+                    help="協定值 7.5 之外，這裡是唯一能單獨掃 guidance_scale 的入口"
+                         "（過去只跟 strength 一起用固定 7.5，沒有單獨掃過）")
     args = ap.parse_args()
 
     items, edits = load_items(args.data)
@@ -112,25 +115,26 @@ def main() -> None:
             emb, emb_u = sd.encode_text(prompt), sd.uncond_prompt()
             noise = sd.sample_edit_noise(sd.encode_image(x01), seed=EDIT_SEED)
             for strength in args.strengths:
-                t0 = time.time()
-                with torch.no_grad():
-                    edit = sd.sdedit(x01, emb, noise, EDIT_STEPS,
-                                     strength=strength,
-                                     guidance_scale=EDIT_GUIDANCE,
-                                     emb_uncond=emb_u)
-                idr = identity_row(x01, edit)
-                out_png = args.out / f"{item['name']}__p{pi}__s{strength}.png"
-                save_image(edit, out_png)
-                row = {
-                    "image": item["name"], "prompt_index": pi, "prompt": prompt,
-                    "strength": strength, "model": args.model,
-                    "guidance_scale": EDIT_GUIDANCE, "steps": EDIT_STEPS,
-                    "seed": EDIT_SEED, "png": out_png.as_posix(), **idr,
-                }
-                rows.append(row)
-                print(f"  {item['name']:10s} p{pi} strength={strength}  "
-                      f"id_orig={idr['id_orig']}  arcface_orig={idr['arcface_orig']}"
-                      f"  ({time.time() - t0:.1f}s)", flush=True)
+                for guidance in args.guidances:
+                    t0 = time.time()
+                    with torch.no_grad():
+                        edit = sd.sdedit(x01, emb, noise, EDIT_STEPS,
+                                         strength=strength,
+                                         guidance_scale=guidance,
+                                         emb_uncond=emb_u)
+                    idr = identity_row(x01, edit)
+                    out_png = args.out / f"{item['name']}__p{pi}__s{strength}__g{guidance}.png"
+                    save_image(edit, out_png)
+                    row = {
+                        "image": item["name"], "prompt_index": pi, "prompt": prompt,
+                        "strength": strength, "model": args.model,
+                        "guidance_scale": guidance, "steps": EDIT_STEPS,
+                        "seed": EDIT_SEED, "png": out_png.as_posix(), **idr,
+                    }
+                    rows.append(row)
+                    print(f"  {item['name']:10s} p{pi} strength={strength} guidance={guidance}  "
+                          f"id_orig={idr['id_orig']}  arcface_orig={idr['arcface_orig']}"
+                          f"  ({time.time() - t0:.1f}s)", flush=True)
 
     # 檔名同時掛 model 與 --out 的目錄名：只掛 model 時，同一個模型跑兩次
     # 不同 --out（例如先掃 0.5 再掃 0.2/0.3）會共用同一個檔名、後者覆寫前者

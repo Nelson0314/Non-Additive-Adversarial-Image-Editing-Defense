@@ -103,5 +103,24 @@ figcaption .id.low{color:var(--warn); font-weight:600}
     <figcaption><span class="prompt">Let the person wear a police suit</span>
     <span class="id">woman_00 · id_orig 0.8436</span></figcaption></figure>
 </div>
-<p class="note">紅字＝低於 0.55 同一人門檻或 FaceNet 偵測不到臉。</p>
+<h2>SD 2.1-base，strength 降到 0.2（其餘協定不變）</h2>
+<div class="row">
+  <figure><img src="img/sd21base_s02_man_00_p0.png">
+    <figcaption><span class="prompt">Let the person wear sunglasses（沒出現墨鏡）</span>
+    <span class="id low">man_00 · id_orig 0.2979</span></figcaption></figure>
+  <figure><img src="img/sd21base_s02_woman_00_p1.png">
+    <figcaption><span class="prompt">Let the person wear a police suit（指令完全沒被執行，等於沒編輯）</span>
+    <span class="id">woman_00 · id_orig 0.6372</span></figcaption></figure>
+</div>
+
+<h2>FLUX，guidance 降到 2.0（其餘協定不變，對照上面 guidance 3.5 的版本）</h2>
+<div class="row">
+  <figure><img src="img/fluxg2_man_00_p0.png">
+    <figcaption><span class="prompt">Let the person wear sunglasses</span>
+    <span class="id">man_00 · id_orig 0.6046（3.5 時是 0.655，肉眼看不出差異）</span></figcaption></figure>
+  <figure><img src="img/fluxg2_woman_00_p1.png">
+    <figcaption><span class="prompt">Let the person wear a police suit</span>
+    <span class="id">woman_00 · id_orig 0.8066（3.5 時是 0.8436，肉眼看不出差異）</span></figcaption></figure>
+</div>
+<p class="note">紅字＝低於 0.55 同一人門檻或 FaceNet 偵測不到臉。man_00 的原圖是川普本人，不是無名測試對象——他那幾格的身分讀數要連這件事一起看。</p>
 </html>

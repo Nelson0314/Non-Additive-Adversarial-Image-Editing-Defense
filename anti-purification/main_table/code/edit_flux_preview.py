@@ -145,7 +145,19 @@ def main() -> None:
               else [next(i for i in items if i["name"] == n) for n in args.images])
 
     if args.arm != "undefended":
-        defended_dir = args.defended or (paths.IMAGES / "defence_portraits" / args.arm)
+        if args.defended:
+            defended_dir = args.defended
+        else:
+            # main_table/images/ 是 gitignored，遠端從沒同步過；防禦圖在那裡
+            # 找不到時退到主線目錄的 runs/（搬動前的位置），與
+            # passthrough_readout.py 的 _first_dir() 同一個查找順序。
+            candidates = [paths.IMAGES / "defence_portraits",
+                         paths.SOURCE_HOME / "runs" / "defence_portraits"]
+            defended_root = next((c for c in candidates if c.is_dir()), None)
+            if defended_root is None:
+                raise SystemExit("找不到防禦圖目錄，找過：" +
+                                 "、".join(str(c) for c in candidates))
+            defended_dir = defended_root / args.arm
         for item in targets:
             item["path"] = defended_image(defended_dir, item["name"])
 

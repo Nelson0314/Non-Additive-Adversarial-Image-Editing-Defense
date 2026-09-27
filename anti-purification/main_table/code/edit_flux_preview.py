@@ -8,16 +8,21 @@
 
 硬體:transformer 12B,bf16 全精度單這一個元件就約 22.2 GiB,3090 的 24GB
 放不下(還要留活化與 CUDA 開銷的空間)。這裡對 transformer 與 T5 文字編碼器
-都做 4-bit(NF4)量化,兩者量化後的權重量級落在 10–14GB,3090 上跑得動。
+都做 4-bit(NF4)量化。**實測**(2026-09-27,RTX 3090,4 格):載入
+956.8s(多數是首次下載約 24GB 權重,權重快取後應該快得多，未重跑驗證)、
+載入完 VRAM 11.43GB、單格生成後峰值 14.13GB，28 步在 1024×1024 下單格
+185 秒。三者都在 24GB 卡上跑得動，沒有 OOM。
 
 授權:`black-forest-labs/FLUX.1-Kontext-dev` 是 gated repo,需要
 `~/.hf_token` 且該帳號已在 huggingface.co 上點過同意授權——這件事只有
-使用者能做,腳本這裡假設它已完成,沒完成會在載入階段直接看到
-`GatedRepoError`。
+使用者能做。2026-09-27 已完成。
 
-解析度:`FluxKontextPipeline` 預設會把輸入與輸出放大到約 1024×1024
-(`max_area`)。這裡明給 `height=width=512`,跳過那個自動放大,維持跟
-`edit_sdedit_preview.py` 同一個解析度才能互相比較。
+解析度:`FluxKontextPipeline` **不接受**縮到 512×512。程式碼裡明給了
+`height=width=512`，但實測 log 印出「Generation height and width have
+been adjusted to 1024 and 1024 to fit the model requirements」——參數
+被套件自己蓋掉了。也就是說 FLUX 這一臂**沒有**跟 `edit_sdedit_preview.py`
+同一個解析度，兩者的位移／保真讀數不能直接並排比較解析度效應，這件事
+要在報告裡標明，不是程式錯誤。
 
 用法(遠端,需要一張卡,首次會下載約 24GB 權重)
     HF_HOME=/var/cache/huggingface CUDA_VISIBLE_DEVICES=<卡> \\

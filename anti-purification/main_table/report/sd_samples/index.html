@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="zh-Hant">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SD 樣張</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  --paper:#f2f4f7; --surface:#ffffff; --sunk:#e7eaef;
+  --ink:#0f151c; --body:#2b3542; --muted:#5d6b7b; --line:#ccd4de;
+  --signal:#10559b; --warn:#9f6a10;
+  --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+  --sans:"Archivo","Helvetica Neue",Arial,sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#0d1218; --surface:#151d26; --sunk:#0a0f14;
+    --ink:#e8eef5; --body:#c2ccd8; --muted:#8695a6; --line:#26313d;
+    --signal:#5aa2ef; --warn:#e0a94f;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0d1218; --surface:#151d26; --sunk:#0a0f14;
+  --ink:#e8eef5; --body:#c2ccd8; --muted:#8695a6; --line:#26313d;
+  --signal:#5aa2ef; --warn:#e0a94f;
+}
+*{box-sizing:border-box}
+body{background:var(--paper); color:var(--body); margin:0; padding:20px 16px 64px;
+     font-family:var(--sans); font-size:14px}
+h2{font-family:var(--sans); font-size:12px; font-weight:600; letter-spacing:.08em;
+   text-transform:uppercase; color:var(--muted); margin:28px 2px 8px}
+.row{display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:10px;
+     margin-bottom:6px}
+figure{margin:0; background:var(--surface); border:1px solid var(--line);
+       border-radius:4px; overflow:hidden}
+figure img{width:100%; display:block; background:var(--sunk); aspect-ratio:1/1;
+           object-fit:cover}
+figcaption{padding:7px 9px; font-family:var(--mono); font-size:11px;
+           color:var(--ink); line-height:1.5}
+figcaption .prompt{color:var(--body); font-family:var(--sans); font-size:11px; display:block}
+figcaption .id{display:block; font-variant-numeric:tabular-nums}
+figcaption .id.low{color:var(--warn); font-weight:600}
+</style>
+
+<h2>原圖</h2>
+<div class="row" style="grid-template-columns:repeat(2,minmax(140px,180px))">
+  <figure><img src="img/orig_man_00.webp"><figcaption>man_00</figcaption></figure>
+  <figure><img src="img/orig_woman_00.webp"><figcaption>woman_00</figcaption></figure>
+</div>
+
+<h2>SD 1.5(runwayml/stable-diffusion-v1-5,guidance 7.5,50 步)</h2>
+<div id="sd15"></div>
+
+<h2>SD 2.1-base(sd2-community/stable-diffusion-2-1-base,guidance 7.5,50 步)</h2>
+<div id="sd21b"></div>
+
+<script>
+var DATA = {
+  sd15: {
+    "0.3": {man_00_p0:0.3033, man_00_p1:0.2540, woman_00_p0:0.3092, woman_00_p1:0.5230},
+    "0.4": {man_00_p0:0.2089, man_00_p1:0.3378, woman_00_p0:0.3561, woman_00_p1:0.3406},
+    "0.5": {man_00_p0:0.1686, man_00_p1:0.1259, woman_00_p0:0.3219, woman_00_p1:0.3148},
+    "0.6": {man_00_p0:-0.0086, man_00_p1:0.1168, woman_00_p0:-0.1111, woman_00_p1:0.3785}
+  },
+  sd21b: {
+    "0.2": {man_00_p0:0.2979, man_00_p1:0.2622, woman_00_p0:0.5709, woman_00_p1:0.6372},
+    "0.3": {man_00_p0:0.2092, man_00_p1:0.1317, woman_00_p0:0.3527, woman_00_p1:0.5587},
+    "0.5": {man_00_p0:0.0939, man_00_p1:-0.0894, woman_00_p0:0.1468, woman_00_p1:0.2853}
+  }
+};
+var PROMPTS = {p0: "Let the person wear sunglasses", p1: "Let the person wear a police suit"};
+var CELLS = [["man_00","p0"], ["man_00","p1"], ["woman_00","p0"], ["woman_00","p1"]];
+
+function f(x){ return x.toFixed(4); }
+
+function render(mount, tag, strengths) {
+  var html = "";
+  strengths.forEach(function(s){
+    html += '<div class="row">';
+    CELLS.forEach(function(c){
+      var nm = c[0], pi = c[1];
+      var idv = DATA[tag][s][nm + "_" + pi];
+      html += '<figure><img loading="lazy" src="img/' + tag + '_' + nm + '_' + pi + '_s' + s + '.webp">' +
+        '<figcaption><span class="prompt">strength ' + s + ' · ' + PROMPTS[pi] + '</span>' +
+        '<span class="id' + (idv < 0.55 ? ' low' : '') + '">' + nm + ' id_orig ' + f(idv) + '</span>' +
+        '</figcaption></figure>';
+    });
+    html += '</div>';
+  });
+  document.getElementById(mount).innerHTML = html;
+}
+render("sd15", "sd15", ["0.3","0.4","0.5","0.6"]);
+render("sd21b", "sd21b", ["0.2","0.3","0.5"]);
+</script>
+</html>

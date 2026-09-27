@@ -132,8 +132,12 @@ def main() -> None:
                       f"id_orig={idr['id_orig']}  arcface_orig={idr['arcface_orig']}"
                       f"  ({time.time() - t0:.1f}s)", flush=True)
 
+    # 檔名同時掛 model 與 --out 的目錄名：只掛 model 時，同一個模型跑兩次
+    # 不同 --out（例如先掃 0.5 再掃 0.2/0.3）會共用同一個檔名、後者覆寫前者
+    # 而不自知——2026-09-27 的 SD 2.1-base 0.5 那批就這樣被蓋掉了，圖還在
+    # （存在各自的 --out 目錄），CSV 沒了。
     model_tag = args.model.rsplit("/", 1)[-1].replace(".", "_")
-    out_csv = paths.RESULTS / f"sdedit_preview_{model_tag}.csv"
+    out_csv = paths.RESULTS / f"sdedit_preview_{model_tag}_{args.out.name}.csv"
     write_csv(out_csv, rows)
     print(f"\n完成：{len(rows)} 格 -> {out_csv}")
 

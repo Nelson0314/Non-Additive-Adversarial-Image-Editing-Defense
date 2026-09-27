@@ -24,14 +24,23 @@ been adjusted to 1024 and 1024 to fit the model requirements」——參數
 同一個解析度，兩者的位移／保真讀數不能直接並排比較解析度效應，這件事
 要在報告裡標明，不是程式錯誤。
 
+全表:`--arm undefended` 跑分母(8 影像 × 4 指令 = 32 格),`--arm <條件>` 跑該
+條件的防禦圖(同樣 32 格,`--defended` 預設用 `--arm` 去 `images/defence_portraits/
+<條件>/` 找)。12 條件 + 分母 = 13 個 arm、416 格,單格 83–185 秒（視卡上其他人
+負載），每個 arm 只載入一次模型。CSV 逐格 append 並 flush，中斷重跑會跳過
+已經做完的 (image, prompt_index)，不必整個 arm 重來。
+
 用法(遠端,需要一張卡,首次會下載約 24GB 權重)
     HF_HOME=/var/cache/huggingface CUDA_VISIBLE_DEVICES=<卡> \\
-        python code/edit_flux_preview.py --out images/flux_preview
+        python code/edit_flux_preview.py --arm undefended
+    HF_HOME=/var/cache/huggingface CUDA_VISIBLE_DEVICES=<卡> \\
+        python code/edit_flux_preview.py --arm mist
 """
 
 from __future__ import annotations
 
 import argparse
+import csv
 import sys
 import time
 from pathlib import Path
@@ -46,9 +55,9 @@ import numpy as np  # noqa: E402
 import torch  # noqa: E402
 from PIL import Image  # noqa: E402
 
-from edit_preflight import identity_row, load_items  # noqa: E402
+from edit_preflight import defended_image, identity_row, load_items  # noqa: E402
 from src.utils.artifacts import save_image  # noqa: E402
-from src.utils.io import load_image_tensor, write_csv  # noqa: E402
+from src.utils.io import load_image_tensor  # noqa: E402
 
 MODEL_NAME = "black-forest-labs/FLUX.1-Kontext-dev"
 RESOLUTION = 512
@@ -88,16 +97,34 @@ def load_pipeline():
     return pipe
 
 
+FIELDS = ["arm", "image", "prompt_index", "prompt", "model", "guidance_scale",
+         "true_cfg_scale", "negative_prompt", "steps", "seed", "seconds", "png",
+         "id_orig", "arcface_orig", "face_found_orig", "face_found_edit"]
+
+
+def load_done(csv_path: Path) -> set:
+    if not csv_path.is_file():
+        return set()
+    with csv_path.open(encoding="utf-8", newline="") as stream:
+        return {(r["image"], r["prompt_index"]) for r in csv.DictReader(stream)}
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(
         description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--data", type=Path, default=paths.PORTRAITS)
-    ap.add_argument("--out", type=Path, default=paths.IMAGES / "flux_preview")
+    ap.add_argument("--arm", required=True,
+                    help="`undefended` 跑原圖，其餘視為 main_table 的條件名，"
+                         "去 images/defence_portraits/<條件>/ 找防禦圖")
+    ap.add_argument("--defended", type=Path, default=None,
+                    help="覆寫防禦圖目錄，預設由 --arm 推")
+    ap.add_argument("--out", type=Path, default=None,
+                    help="預設 images/flux_full/<arm>/")
     ap.add_argument("--images", nargs="+", default=None,
-                    help="預設每個類別取第一張")
-    ap.add_argument("--instruction-indices", nargs="+", type=int, default=[0, 1],
-                    help="`prompts.yaml` 的 edits.ip2p 底下要用哪幾條,預設前兩條")
+                    help="預設全部 8 張")
+    ap.add_argument("--instruction-indices", nargs="+", type=int, default=[0, 1, 2, 3],
+                    help="`prompts.yaml` 的 edits.ip2p 底下要用哪幾條，預設全部 4 條")
     ap.add_argument("--steps", type=int, default=EDIT_STEPS)
     ap.add_argument("--guidance", type=float, default=EDIT_GUIDANCE)
     ap.add_argument("--true-cfg-scale", type=float, default=1.0,
@@ -108,17 +135,30 @@ def main() -> None:
                          "不要提被要求改的那個部位，否則會跟正面指令互相抵銷")
     args = ap.parse_args()
 
+    out_dir = args.out or (paths.IMAGES / "flux_full" / args.arm)
+    out_csv = paths.RESULTS / f"flux_full_{args.arm}.csv"
+    out_dir.mkdir(parents=True, exist_ok=True)
+
     items, edits = load_items(args.data)
     instructions = edits["ip2p"]
-    by_class = {}
-    for item in items:
-        by_class.setdefault(item["class"], item)
-    targets = ([by_class[c] for c in sorted(by_class)] if args.images is None
+    targets = (sorted(items, key=lambda i: i["name"]) if args.images is None
               else [next(i for i in items if i["name"] == n) for n in args.images])
 
-    print(f"影像 {[t['name'] for t in targets]}，指令索引 "
-          f"{args.instruction_indices}，steps={args.steps} guidance={args.guidance}",
+    if args.arm != "undefended":
+        defended_dir = args.defended or (paths.IMAGES / "defence_portraits" / args.arm)
+        for item in targets:
+            item["path"] = defended_image(defended_dir, item["name"])
+
+    done = load_done(out_csv)
+    todo = [(item, pi) for item in targets for pi in args.instruction_indices
+           if (item["name"], str(pi)) not in done]
+    print(f"arm={args.arm} 影像={[t['name'] for t in targets]} "
+          f"指令索引={args.instruction_indices} steps={args.steps} "
+          f"guidance={args.guidance} -- 已完成 {len(done)} 格，待做 {len(todo)} 格",
           flush=True)
+    if not todo:
+        print("全部完成，無需載入模型", flush=True)
+        return
 
     t_load = time.time()
     pipe = load_pipeline()
@@ -128,13 +168,20 @@ def main() -> None:
               f"reserved={torch.cuda.memory_reserved()/1e9:.2f}GB", flush=True)
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
-    args.out.mkdir(parents=True, exist_ok=True)
-    rows = []
+    new_file = not out_csv.is_file()
+    out_csv.parent.mkdir(parents=True, exist_ok=True)
+    with out_csv.open("a", encoding="utf-8", newline="") as stream:
+        writer = csv.DictWriter(stream, fieldnames=FIELDS)
+        if new_file:
+            writer.writeheader()
 
-    for item in targets:
-        x01 = load_image_tensor(item["path"], device, size=RESOLUTION)
-        x_pil = to_pil(x01)
-        for pi in args.instruction_indices:
+        cache = {}
+        for item, pi in todo:
+            name = item["name"]
+            if name not in cache:
+                x01 = load_image_tensor(item["path"], device, size=RESOLUTION)
+                cache[name] = (x01, to_pil(x01))
+            x01, x_pil = cache[name]
             prompt = instructions[pi]
             t0 = time.time()
             gen = torch.Generator(device=device).manual_seed(EDIT_SEED)
@@ -148,26 +195,22 @@ def main() -> None:
             dt = time.time() - t0
             edit = to_tensor(out, device)
             idr = identity_row(x01, edit)
-            out_png = args.out / f"{item['name']}__p{pi}.png"
+            out_png = out_dir / f"{name}__p{pi}.png"
             save_image(edit, out_png)
             row = {
-                "image": item["name"], "prompt_index": pi, "prompt": prompt,
+                "arm": args.arm, "image": name, "prompt_index": pi, "prompt": prompt,
                 "model": MODEL_NAME, "guidance_scale": args.guidance,
                 "true_cfg_scale": args.true_cfg_scale if args.negative_prompt else "",
                 "negative_prompt": args.negative_prompt or "",
                 "steps": args.steps, "seed": EDIT_SEED, "seconds": round(dt, 1),
                 "png": out_png.as_posix(), **idr,
             }
-            rows.append(row)
-            print(f"  {item['name']:10s} p{pi}  id_orig={idr['id_orig']}  "
+            writer.writerow(row)
+            stream.flush()
+            print(f"  {name:10s} p{pi}  id_orig={idr['id_orig']}  "
                   f"arcface_orig={idr['arcface_orig']}  ({dt:.1f}s)", flush=True)
-            if torch.cuda.is_available():
-                print(f"    [VRAM peak] {torch.cuda.max_memory_allocated()/1e9:.2f}GB",
-                      flush=True)
 
-    out_csv = paths.RESULTS / "flux_preview.csv"
-    write_csv(out_csv, rows)
-    print(f"\n完成：{len(rows)} 格 -> {out_csv}")
+    print(f"\n完成：arm={args.arm} -> {out_csv}")
 
 
 if __name__ == "__main__":

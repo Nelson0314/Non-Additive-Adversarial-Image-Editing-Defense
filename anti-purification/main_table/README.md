@@ -38,6 +38,7 @@
 | `results/flux_full_<arm>.csv` | 32 / 檔，13 檔(分母 + 12 條件) | FLUX.1-Kontext 編輯輸出的 id_orig／arcface_orig，guidance 3.5、1024×1024 |
 | `results/displacement_flux.csv` | 384 | FLUX 全表的位移，欄位與 `displacement.csv` 同組 |
 | `results/sdedit_preview*.csv`、`sdedit_preview_stable-diffusion-*.csv` | 各數格到數十格 | SD 1.5／2.1-base 在不同 strength／guidance 下的小樣本探索，SDEdit 這條線最終被放棄，原因與資料見 STATUS.md |
+| `results/sd_family_sdxl_ip2p_grid.csv`、`sd_family_sdxl_ip2p_all8.csv` | 72、192 | SDXL-InstructPix2Pix（`diffusers/sdxl-instructpix2pix-768`）的 guidance × image guidance 探索，768×768、30 步，見 STATUS.md「SDXL-InstructPix2Pix」 |
 | `results/flux_preview*.csv` | 各 4 格 | FLUX guidance／true-CFG 小樣本探索 |
 
 十二個條件：`dct_shield_y`、`mist`、`dct_shield`、`photoguard_linf`、`danp`、
@@ -90,6 +91,7 @@
 | 腳本 | 做什麼 |
 |---|---|
 | `edit_sdedit_preview.py` | SD 1.x／2.x 的 SDEdit 小樣本，`--strengths`／`--guidances`／`--model` 三個維度都能單獨掃 |
+| `edit_sd_family_preview.py` | SD 1.4／1.5 以外的 SD 系列編輯器（`--editor sdxl-ip2p`／`sdxl-img2img`／`sd3-img2img`）的參數網格，CSV 可續跑，另產一張對照圖 |
 | `edit_flux_preview.py` | FLUX.1-Kontext 全表(`--arm undefended`／`--arm <條件>`，每個 arm 32 格，CSV 逐格 append 可續跑) |
 | `edit_displacement_flux.py` | FLUX 全表的位移，欄位對齊 `displacement.csv` |
 | `flux_full_queue_a.sh` | 依序跑一串 arm 用的排隊腳本，一張卡一份 |

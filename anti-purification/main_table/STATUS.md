@@ -102,6 +102,27 @@
 資料與圖見 `report/editor_check/`、`report/sd_samples/`，過程記在
 commit 記錄(`git log --oneline -- main_table/code/edit_sdedit_preview.py`)。
 
+### 九、SDXL-InstructPix2Pix（SD 系列的指令式編輯器）
+`code/edit_sd_family_preview.py --editor sdxl-ip2p`，權重
+`diffusers/sdxl-instructpix2pix-768`（SDXL 骨幹，以 InstructPix2Pix 的資料重新
+訓練，原生 768×768），30 步、種子 20260812，指令逐字取 `edits.ip2p`、不加遮罩，
+與 ip2p 場景相同。只跑未防禦原圖。
+
+- 2 張影像（每類第一張）× 4 指令 × guidance {3, 5, 7.5} × image guidance
+  {1.2, 1.5, 2.0}：`results/sd_family_sdxl_ip2p_grid.csv`。
+- 8 張影像 × 4 指令 × guidance {5, 7.5} × image guidance {1.5, 1.8, 2.0}：
+  `results/sd_family_sdxl_ip2p_all8.csv`。1.8 是主表 ip2p 的 image guidance。
+
+`g7.5_ig1.8` 的 id_orig 中位數（8 張，FaceNet）：墨鏡 0.67、警察制服 0.91、
+安全帽 0.91、領結 0.91；≥ 0.55 的格數依序 4、8、7、8／8。墨鏡一欄偏低的格子，
+對照圖上眼睛被鏡片遮住，man_01、man_02 兩格臉型也被改動。同一組的對照圖目視：
+墨鏡 8/8、領結 8/8 畫出配件；警察制服約 5/8、安全帽約 5/8（未畫出的多為只改衣服
+顏色，或畫成耳機），man_02 的安全帽那格整張臉被重繪（id −0.089）。所有格子都有
+共同的全域改動：背景轉灰、衣服色調偏移、主體周圍有一圈亮暈。
+
+對照圖在遠端 `main_table/images/sd_family/<批次>/`（`sheet*.jpg`），不入版控。
+這一支與 ip2p（512×512、SD 1.5 骨幹）解析度與骨幹都不同，數字不可與主表直接比。
+
 ## 報告頁
 
 五份報告的清單與各自協定見 `README.md`「報告頁」一節，這裡只記已發布的

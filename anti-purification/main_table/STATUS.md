@@ -66,35 +66,72 @@
 一節、`EVALUATION.md` 的 `rotate15` 角度三來源不一致。
 正本都在主線目錄的 `../docs/`，本目錄的 `docs/README.md` 是指標。
 
+### 七、VMAF 進指標聯集
+`code/metrics_union.py --stage vmaf`，對 fidelity／displacement／retention 三種
+既有配對(6,240 格)各補一欄，`results/metrics_vmaf_union.csv` 的 `pairing` 欄
+分三種。餵法：單幀直接餵給 `libvmaf`——在 5 對影像上驗證過，跟「複製成 5 幀
+的靜止序列」逐位元同分(`integer_motion` 兩種餵法每一幀都是 0)，故不用另外
+拼影片。同一輪順手修掉一個既有 bug：`displacement.csv` 記的影像路徑是搬動
+前的相對路徑(開頭 `runs/`)，`stage_displacement`／`stage_vmaf` 現在都用
+`resolve_png()` 轉。
+
+### 八、跨編輯器遷移：FLUX 全表完成，SDEdit(SD 1.x／2.x)收線
+**FLUX.1-Kontext-dev**：`code/edit_flux_preview.py --arm <undefended|條件>`，
+13 個 arm(分母 + 12 條件)× 32 格 = 416 格全部跑完，4-bit NF4 量化
+(transformer + T5)單卡 3090 可跑，載入後 VRAM 11.4GB、峰值 14.1GB。
+`FluxKontextPipeline` 會把 512×512 的請求蓋成 1024×1024(`_auto_resize`)，
+故這一支跟 ip2p/inpaint 不是同一個解析度，數字不可直接比。位移(384 格，
+`code/edit_displacement_flux.py`)已補進 `report/main/` 的 FLUX 一節。
+
+**SDEdit(SD 1.x／2.x)：已收線，不再繼續**。過程：
+1. SD 2.x 一度整批身分讀數壞掉(`identity_row` 連臉都偵測不到)——根因是
+   `sd2-community/stable-diffusion-2-1` 復刻的是 768-v(v-prediction)
+   checkpoint，但 `SDWrapper` 的 DDIM 遞迴全部假設 ε-prediction。換成
+   `sd2-community/stable-diffusion-2-1-base`(epsilon-prediction、原生 512)
+   後恢復正常，跟 SD 1.5 同一個量級。
+2. 恢復正常後，strength(0.2–0.6)、guidance_scale(3.0–10.0，獨立掃過)、
+   checkpoint 三個維度都掃過：身分保留與指令服從**沒有交集**——能保住身分
+   的值指令視覺上沒有被執行(墨鏡／警察制服都沒出現)，指令被執行的值身分
+   已經崩了。查過主表引用的兩篇人臉專門論文(FaceLock、DiffusionGuard)，
+   兩篇的受害模型分別是 IP2P 與 SD inpainting，**都不是純 SDEdit**——這是
+   兩篇論文存在的理由之一，沒有「不加遮罩的 SDEdit 打人像、效果正常」這種
+   文獻可以借。
+3. 使用者裁定：不加臉部遮罩、不改指令措辭(要跟 ip2p 場景逐字一致)。三個
+   參數維度都撐不住之後，SDEdit 這條線收掉，不再嘗試。
+
+資料與圖見 `report/editor_check/`、`report/sd_samples/`，過程記在
+commit 記錄(`git log --oneline -- main_table/code/edit_sdedit_preview.py`)。
+
 ## 報告頁
 
-<https://claude.ai/artifact/NcyZMLGorwD5Pgrc3sYCqc>（私人；要給別人看要從頁面的
-Share 選單開分享）。內容是編輯輸出矩陣（4 照片 × 4 指令 × 12 欄）、防禦圖矩陣
-（4 照片 × 11 方法，每張標 LPIPS）、失真與位移指標表、保留率表。
-格式是使用者指定的：不放說明文字，只有圖與數字；每欄最佳值粗體、欄名以 ↑／↓ 標
-方向；與十個對齊 baseline 中位數差兩倍以上的值標紅並附倍率。
+五份報告的清單與各自協定見 `README.md`「報告頁」一節，這裡只記已發布的
+artifact 連結(全部私人，要給別人看從頁面 Share 選單開分享)：
 
-頁面原始檔是 `report/aligned_matrix.html`（自足，CSS 與 JS 內嵌，只外部引用
-`data.js` 與 `img/`）。**影像不入版控**，重建方式與檔名式樣寫在
-`code/report_matrix_data.py` 的 docstring；那一支也負責產生 `data.js`，
-跑過一次確認它逐欄重現已發佈的版本。單一版本上限 64 MB、整個 artifact
-上限 256 個檔；更新時只傳改動的檔，沒傳的會保留。
+| 報告 | 連結 |
+|---|---|
+| `report/main/` 主表 | <https://claude.ai/artifact/Qdde7nZt2uqewfTtrTTuLg> |
+| `report/aligned_matrix.html` 等失真臂 | <https://claude.ai/artifact/NcyZMLGorwD5Pgrc3sYCqc> |
+| `report/flux_full/` FLUX 全表樣張 | <https://claude.ai/artifact/4qhUdyt7wXV2eLLs115wFr> |
+| `report/editor_check/` 編輯器樣張 | <https://claude.ai/artifact/1ryd73pLkmaiKgtaxYNcSz> |
+| `report/sd_samples/` SD 樣張 | <https://claude.ai/artifact/XBaQ9pzrXhhrCsVDHjs1QQ> |
 
-另有一份較早的版本 <https://claude.ai/artifact/3XXgCxBMtrjH62VEkXuEBH>，
+單一版本上限 64 MB、整個 artifact 上限 256 個檔；更新時只傳改動的檔，
+沒傳的會保留。**影像不入版控**，各報告的縮圖怎麼產生見對應腳本的 docstring
+或 `README.md`。
+
+等失真臂另有一份更早的版本 <https://claude.ai/artifact/3XXgCxBMtrjH62VEkXuEBH>，
 版面與資料都被上面那一份取代，兩者的影像檔名不同，未刪除。
 
 ## 接下來
 
-使用者列的三件事，順序與理由在 `../../HANDOFF.md` 之外另記於助理記憶
-（`main-table-next-three-jobs`）：
+原先列的三件事(VMAF、跨編輯器遷移)都已經做到能做的邊界，沒有指定中的
+待辦。以下是還沒做、但沒人要求要做的可能方向，僅供參考，不代表應該做：
 
-1. **VMAF 進指標聯集。** 不重跑任何求解或編輯，吃已落地的 PNG，接進
-   `code/metrics_union.py` 當第五個 stage。成本在 `libvmaf`／ffmpeg 這個新外部相依，
-   以及決定單張圖怎麼餵（VMAF 原生吃序列與時序特徵，複製成靜止序列與只取
-   frame-level 兩種選法的數字不一樣，協定要寫明）。
-2. **跨編輯器遷移**（SDEdit on SD 1.x／2.x，之後 FLUX）。`src/models/sd.py` 的
-   `SDWrapper` 已有需要的元件，缺一個 img2img 取樣迴圈與一條新的未防禦對照臂；
-   strength 是新的自由度，要先定再跑全表。FLUX 的門檻是硬體（權重載入超過 24 GB）。
+- 等失真臂、穿透拆解目前都只涵蓋 ip2p/inpaint，沒有 FLUX 對應版本。
+- 資料集擴充的成本已經量過：每多一張影像，主表本體(12 條件的防禦＋編輯＋
+  淨化重編)約 6.4 GPU 小時(4.08 小時是 `defence_<條件>.csv` 的實測值，
+  2.31 小時是編輯生成的估算)，FLUX 全表再加約 1.2 GPU 小時(52 格 ×
+  83.76 秒，實測)。換算方式見助理記憶 `main-table-per-image-gpu-cost`。
 
 ## 規矩
 

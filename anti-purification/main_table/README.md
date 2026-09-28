@@ -7,15 +7,17 @@
 
 | 路徑 | 內容 |
 |---|---|
-| `report/` | 已發布報告頁的原始檔 `index.html`，自足（內嵌資料、資產對照、CSS、JS） |
-| `results/` | 六張讀數 CSV 與十二張求解設定 CSV |
-| `code/` | 七支管線腳本與共用的路徑解析 `paths.py` |
+| `report/` | 五份報告頁的原始檔，每份自足（見下方「報告頁」一節逐份列出） |
+| `results/` | 主讀數、`metrics_*_union` 聯集、`aligned/` 等失真臂、跨編輯器探索的讀數，共 40 張 CSV |
+| `code/` | 管線腳本與共用的路徑解析 `paths.py`（詳見「程式」一節） |
 | `docs/` | 指向主線 `../docs/` 的查閱表（出處文件已合併，正本在那裡） |
-| `images/` | 逐格影像 11,848 張（版控範圍見 `.gitignore`） |
+| `images/` | 逐格影像（版控範圍見 `.gitignore`，只有 CSV 進版控） |
 | `tests/` | 十二個條件的規格釘樁（`pytest tests/`，不需 GPU） |
 | `STATUS.md` | 建立進度、三組資料的關係、接續指引 |
 
 ## 讀數
+
+主讀數(12 條件、ip2p/inpaint 兩場景，原生預算)：
 
 | 檔 | 列數 | 內容 |
 |---|---|---|
@@ -25,8 +27,18 @@
 | `results/metrics_displacement_union.csv` | 768 | 位移的 FSIM／MSE |
 | `results/metrics_retention_union.csv` | 5,376 | 淨化後位移的 FSIM |
 | `results/metrics_aesthetic_union.csv` | 104 | 七項無參考美學指標，含八張原圖的參照列 |
+| `results/metrics_vmaf_union.csv` | 6,240 | VMAF(`libvmaf`，單幀餵法，`pairing` 欄分 fidelity/displacement/retention 三種配對) |
 | `results/defence_<方法>.csv` | 8 / 檔 | 防禦圖對原圖的失真與該方法的求解設定（各篇原生預算） |
 | `results/aligned/defence_<方法>_aligned.csv` | 8 / 檔 | 同十個方法縮到同一個 LPIPS 錨點（0.3344）的求解結果，見該目錄的 `README.md` |
+
+跨編輯器探索(FLUX 全表 + SDEdit 診斷，協定與主讀數不同，見 STATUS.md「跨編輯器遷移」)：
+
+| 檔 | 列數 | 內容 |
+|---|---|---|
+| `results/flux_full_<arm>.csv` | 32 / 檔，13 檔(分母 + 12 條件) | FLUX.1-Kontext 編輯輸出的 id_orig／arcface_orig，guidance 3.5、1024×1024 |
+| `results/displacement_flux.csv` | 384 | FLUX 全表的位移，欄位與 `displacement.csv` 同組 |
+| `results/sdedit_preview*.csv`、`sdedit_preview_stable-diffusion-*.csv` | 各數格到數十格 | SD 1.5／2.1-base 在不同 strength／guidance 下的小樣本探索，SDEdit 這條線最終被放棄，原因與資料見 STATUS.md |
+| `results/flux_preview*.csv` | 各 4 格 | FLUX guidance／true-CFG 小樣本探索 |
 
 十二個條件：`dct_shield_y`、`mist`、`dct_shield`、`photoguard_linf`、`danp`、
 `sifm`、`dayn`、`dia_pt`、`dia_r`、`photoguard_c`、`colour_curve_ours`、`diffvax`。
@@ -53,7 +65,7 @@
 
 ## 程式
 
-`code/` 的七支腳本是複本，執行時需要主線目錄的 `src/` 套件與資料集。
+`code/` 的腳本執行時需要主線目錄的 `src/` 套件與資料集。
 `code/paths.py` 把搬動切斷的兩件事接回去：影像與 CSV 走 `main_table/` 內部
 路徑，`src.*` 與 `data/portraits`、`data/targets` 走主線目錄。主線目錄依序找
 上一層（併進主線之後主線就是上一層）、`../anti-purification` 與曾用名
@@ -71,8 +83,19 @@
 
 流程順序：`edit_preflight` → `defence_run`（外部十一條件）與
 `immunise_as_condition`（顏色那一列）→ `edit_displacement` → `purify_run` →
-`edit_retention` → `metrics_union`（四個 stage）。報告頁的排版腳本
-（`report_figures`、`report_data`、`report_page`）不在 `code/`，見「報告頁」一節。
+`edit_retention` → `metrics_union`（五個 stage，含 VMAF）。
+
+跨編輯器探索另外幾支，讀寫的目錄版面跟上面這條主線不同，互相獨立：
+
+| 腳本 | 做什麼 |
+|---|---|
+| `edit_sdedit_preview.py` | SD 1.x／2.x 的 SDEdit 小樣本，`--strengths`／`--guidances`／`--model` 三個維度都能單獨掃 |
+| `edit_flux_preview.py` | FLUX.1-Kontext 全表(`--arm undefended`／`--arm <條件>`，每個 arm 32 格，CSV 逐格 append 可續跑) |
+| `edit_displacement_flux.py` | FLUX 全表的位移，欄位對齊 `displacement.csv` |
+| `flux_full_queue_a.sh` | 依序跑一串 arm 用的排隊腳本，一張卡一份 |
+| `report_main_data.py` | 產生 `report/main/` 的 `data.js` 與縮圖(原生 12 條件主表 + FLUX 一節) |
+| `report_matrix_data.py` | 產生 `report/aligned_matrix.html` 的 `data.js`(等失真臂) |
+| `passthrough_readout.py` | 穿透拆解，見 `results/PASSTHROUGH.md` |
 
 ## 影像原檔
 
@@ -95,11 +118,17 @@
 
 ## 報告頁
 
-`report/index.html` 是已發布頁面的原始檔，**自足**：完整資料在
-`<script id="payload">`、136 筆資產對照在 `<script id="assets">`，CSS 與 JS 全部
-內嵌。頁面的影像走資產 URL（`/_blob/<id>`），那些 URL **只在已發布的 artifact
-內解析**，所以本機直接開 `index.html` 看不到圖。
+`report/` 底下五個資料夾各是一份**自足**的報告：資料與影像都在同一個目錄裡
+（相對路徑引用 `data.js` 與 `img/`，或直接內嵌），本機直接雙擊 `index.html`
+就能看，不像舊版那樣依賴已發布 artifact 才能解析影像 URL。
 
-頁面用的 136 張載體圖（128 張逐格圖 ＋ 8 張防禦圖條）存在 artifact 的資產庫，
-本機沒有副本；排出它們的 `report_figures.py` 已刪，要重造得重寫排版腳本，
-來源影像則都在 `images/`。
+| 目錄 | 內容 | 產生方式 |
+|---|---|---|
+| `report/main/` | **主表**，原生預算 12 條件：防禦圖矩陣、編輯矩陣、VMAF 圖表、fidelity／displacement／retention 三張指標表、美術指標真圖對照、FLUX 獨立一節 | `code/report_main_data.py --out report/main` |
+| `report/aligned_matrix.html`(+`data.js`、`img/`，與 `report/main/` 同一層) | **等失真臂**，10 條件縮到同一 LPIPS 錨點 + colour_curve_ours | `code/report_matrix_data.py --out report/data.js`(影像另外手動轉，見該檔 docstring) |
+| `report/flux_full/` | FLUX 全表樣張，4 影像 × 4 指令 × 13 arm，每格標 id_orig | 手動組的縮圖 + inline data，來源見 `images/flux_full/` |
+| `report/editor_check/` | SD 1.5／SD 2.1(含修正前的 v-prediction 版本，留作對照)／FLUX 在同一組指令下的實際輸出，判斷編輯器本身有沒有站得住 | 手動組 |
+| `report/sd_samples/` | SD 1.5(strength 0.3–0.6)與 SD 2.1-base(0.2／0.3／0.5)並排，判斷指令有沒有被執行 | 手動組 |
+
+五份的協定各不相同（原生預算 vs 等失真 vs FLUX 自己的 guidance/解析度），
+**引用數字時連同來源報告與協定一起引用**，不要跨報告直接比大小。

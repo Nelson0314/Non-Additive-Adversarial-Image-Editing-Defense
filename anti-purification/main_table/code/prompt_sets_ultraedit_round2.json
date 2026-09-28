@@ -1,0 +1,5 @@
+{
+  "add": ["Add sunglasses to the person", "Add a police suit to the person", "Add a helmet to the person", "Add a bowtie to the person"],
+  "add_noun": ["Add sunglasses to the person", "Add a police uniform to the person", "Add a helmet to the person", "Add a bow tie to the person"],
+  "placed": ["Put sunglasses on the person's eyes", "Dress the person in a police uniform", "Put a helmet on the person's head", "Put a bow tie on the person's collar"]
+}

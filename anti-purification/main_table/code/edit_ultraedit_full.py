@@ -1,0 +1,186 @@
+"""UltraEdit（SD3）全表：分母 + 12 條件，未淨化與七道淨化算子，ip2p 場景的四條指令。
+
+輸入（全部沿用主表已產好的影像，不重跑防禦、不重跑淨化）
+────────────────────────────────────────────────────────────────────
+- 分母、未淨化：`data/portraits/<類>/<圖>.png`。
+- 條件、未淨化：`runs/defence_portraits/<條件>/<圖>__<條件>__def.png`，與 FLUX 全表同一份。
+- 淨化後（分母與條件皆同）：`runs/edit_purified/<條件>/<算子>/ip2p_<條件>_<算子>/<圖>__orig.png`，
+  即主表 ip2p 那一格**實際送進編輯器的那張圖**（`edit_preflight.py` 存下的輸入）。
+  用它而不是重跑 `purify_run.py`，兩個編輯器吃到的是逐位元相同的輸入。
+
+編輯器與協定
+────────────────────────────────────────────────────────────────────
+`BleachNick/SD3_UltraEdit_freeform`（管線見 `ultraedit_sd3_pipeline.py`），512×512，
+50 步，`negative_prompt=""`，種子 20260812。指令句型與 guidance 由參數給定，
+逐列寫進 CSV；選定的值與選法見 STATUS.md「UltraEdit」一節。
+
+輸出版面刻意與主表相同，`edit_displacement.py`／`edit_retention.py` 不改就能讀：
+
+| 格 | 路徑（相對 `--root`） |
+|---|---|
+| 分母、未淨化 | `edit_preflight/ultraedit_undefended/<圖>__p<N>.png` |
+| 條件、未淨化 | `edit_defended/<條件>/ultraedit_<條件>/<圖>__p<N>.png`，同層 `preflight.csv` |
+| 淨化後 | `edit_purified/<條件或 undefended>/<算子>/ip2p_<條件>_<算子>/<圖>__p<N>.png` |
+
+淨化後那一層的中段仍寫 `ip2p`，因為 `edit_retention.cell()` 以場景名組路徑，
+而這裡的「場景」是指令來源 `edits.ip2p`，不是編輯器。
+
+逐格 CSV：`results/ultraedit_full/<arm>.csv`（每個 arm 一檔，兩張卡寫不同的檔），
+含 id_orig／arcface_orig（參考圖是乾淨原圖）。可續跑：已在 CSV 且 PNG 存在的格略過。
+
+用法（遠端 repo 根目錄，一張卡一份）
+    CUDA_VISIBLE_DEVICES=<卡> python main_table/code/edit_ultraedit_full.py \\
+        --arms undefended mist dct_shield ... --variant verbatim --guidance 2.5 --image-guidance 1.5
+"""
+
+from __future__ import annotations
+
+import argparse
+import csv
+import json
+import sys
+import time
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+import paths  # noqa: E402
+
+paths.add_source_to_syspath()
+
+import torch  # noqa: E402
+
+from edit_preflight import defended_image, identity_row, load_items  # noqa: E402
+from edit_sd_family_preview import EDITORS, load_pipeline, to_pil, to_tensor  # noqa: E402
+from purify_run import PURIFIERS, label  # noqa: E402
+from src.utils.io import load_image_tensor  # noqa: E402
+
+EDITOR = "sd3-ultraedit"
+RES = 512
+EDIT_SEED = 20260812
+STEPS = 50
+UNDEFENDED = "undefended"
+OPERATORS = [label(k, s) for k, s in PURIFIERS if k != "identity"]
+CONDITIONS = ["dct_shield_y", "mist", "dct_shield", "photoguard_linf", "danp", "sifm",
+              "dayn", "dia_pt", "dia_r", "photoguard_c", "colour_curve_ours", "diffvax"]
+
+FIELDS = ["arm", "purifier", "image", "prompt_index", "variant", "prompt", "model",
+          "guidance_scale", "image_guidance_scale", "steps", "seed", "seconds",
+          "input_png", "png", "id_orig", "arcface_orig", "face_found_orig", "face_found_edit"]
+
+
+def input_png(arm: str, purifier: str, item: dict) -> Path:
+    runs = paths.SOURCE_HOME / "runs"
+    if purifier != "none":
+        path = (runs / "edit_purified" / arm / purifier / f"ip2p_{arm}_{purifier}"
+                / f"{item['name']}__orig.png")
+        if not path.is_file():
+            raise SystemExit(f"找不到淨化後的輸入：{path}")
+        return path
+    if arm == UNDEFENDED:
+        return Path(item["path"])
+    return defended_image(runs / "defence_portraits" / arm, item["name"])
+
+
+def output_png(root: Path, arm: str, purifier: str, name: str, pi: int) -> Path:
+    if purifier != "none":
+        d = root / "edit_purified" / arm / purifier / f"ip2p_{arm}_{purifier}"
+    elif arm == UNDEFENDED:
+        d = root / "edit_preflight" / "ultraedit_undefended"
+    else:
+        d = root / "edit_defended" / arm / f"ultraedit_{arm}"
+    d.mkdir(parents=True, exist_ok=True)
+    return d / f"{name}__p{pi}.png"
+
+
+def write_preflight(root: Path, arm: str, targets: list, prompts: list) -> None:
+    """`edit_displacement.py` 從每個條件目錄的 preflight.csv 列舉格子。"""
+    path = root / "edit_defended" / arm / "preflight.csv"
+    with path.open("w", encoding="utf-8", newline="") as stream:
+        writer = csv.DictWriter(stream, fieldnames=["scenario", "arm", "image",
+                                                    "prompt_index", "prompt"])
+        writer.writeheader()
+        for item in targets:
+            for pi, prompt in enumerate(prompts):
+                writer.writerow({"scenario": "ip2p", "arm": f"ultraedit_{arm}",
+                                 "image": item["name"], "prompt_index": pi,
+                                 "prompt": prompt})
+
+
+def main() -> None:
+    ap = argparse.ArgumentParser(description=__doc__,
+                                 formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--arms", nargs="+", required=True,
+                    help=f"`{UNDEFENDED}` 或 12 條件之一：{' '.join(CONDITIONS)}")
+    ap.add_argument("--purifiers", nargs="+", default=["none"] + OPERATORS)
+    ap.add_argument("--variant", default="verbatim")
+    ap.add_argument("--prompt-sets", type=Path,
+                    default=Path(__file__).resolve().parent / "prompt_sets_ultraedit.json")
+    ap.add_argument("--guidance", type=float, required=True)
+    ap.add_argument("--image-guidance", type=float, required=True)
+    ap.add_argument("--root", type=Path, default=paths.IMAGES / "ultraedit_full")
+    args = ap.parse_args()
+
+    bad = [a for a in args.arms if a != UNDEFENDED and a not in CONDITIONS]
+    bad += [p for p in args.purifiers if p != "none" and p not in OPERATORS]
+    if bad:
+        raise SystemExit(f"未知的 arm／算子：{bad}")
+
+    items, _ = load_items(paths.PORTRAITS)
+    targets = sorted(items, key=lambda i: i["name"])
+    prompts = json.loads(args.prompt_sets.read_text(encoding="utf-8"))[args.variant]
+    spec = EDITORS[EDITOR]
+
+    pipe = load_pipeline(EDITOR)
+    device = pipe.device
+    refs = {i["name"]: load_image_tensor(i["path"], device, size=RES) for i in targets}
+
+    for arm in args.arms:
+        out_csv = paths.RESULTS / "ultraedit_full" / f"{arm}.csv"
+        out_csv.parent.mkdir(parents=True, exist_ok=True)
+        rows = []
+        if out_csv.is_file():
+            with out_csv.open(encoding="utf-8", newline="") as stream:
+                rows = [r for r in csv.DictReader(stream) if Path(r["png"]).is_file()]
+        done = {(r["purifier"], r["image"], int(r["prompt_index"])) for r in rows}
+        t_arm = time.time()
+        for purifier in args.purifiers:
+            for item in targets:
+                src = input_png(arm, purifier, item)
+                x_pil = to_pil(load_image_tensor(src, device, size=RES))
+                for pi, prompt in enumerate(prompts):
+                    if (purifier, item["name"], pi) in done:
+                        continue
+                    t0 = time.time()
+                    with torch.no_grad():
+                        out = pipe(prompt=prompt, image=x_pil, num_inference_steps=STEPS,
+                                   guidance_scale=args.guidance,
+                                   image_guidance_scale=args.image_guidance,
+                                   height=RES, width=RES, **spec["call_kw"],
+                                   generator=torch.Generator(device=device)
+                                   .manual_seed(EDIT_SEED)).images[0]
+                    dt = time.time() - t0
+                    png = output_png(args.root, arm, purifier, item["name"], pi)
+                    out.save(png)
+                    idr = identity_row(refs[item["name"]], to_tensor(out, device))
+                    rows.append({
+                        "arm": arm, "purifier": purifier, "image": item["name"],
+                        "prompt_index": pi, "variant": args.variant, "prompt": prompt,
+                        "model": spec["repo"], "guidance_scale": args.guidance,
+                        "image_guidance_scale": args.image_guidance, "steps": STEPS,
+                        "seed": EDIT_SEED, "seconds": round(dt, 1),
+                        "input_png": src.as_posix(), "png": png.as_posix(), **idr})
+                    with out_csv.open("w", encoding="utf-8", newline="") as stream:
+                        writer = csv.DictWriter(stream, fieldnames=FIELDS)
+                        writer.writeheader()
+                        writer.writerows(rows)
+            print(f"[DONE] {arm:18s} {purifier:14s} 累計 {len(rows)} 格  "
+                  f"({time.time() - t_arm:.0f}s)", flush=True)
+        if arm != UNDEFENDED:
+            write_preflight(args.root, arm, targets, prompts)
+        print(f"[ARM] {arm} -> {out_csv}", flush=True)
+    print("[ALLDONE]", flush=True)
+
+
+if __name__ == "__main__":
+    main()

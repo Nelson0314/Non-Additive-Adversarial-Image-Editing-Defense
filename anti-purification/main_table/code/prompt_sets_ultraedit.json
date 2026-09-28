@@ -1,0 +1,8 @@
+{
+  "verbatim": ["Let the person wear sunglasses", "Let the person wear a police suit", "Let the person wear a helmet", "Let the person wear a bowtie"],
+  "add": ["Add sunglasses to the person", "Add a police suit to the person", "Add a helmet to the person", "Add a bowtie to the person"],
+  "whatif": ["What if the person wears sunglasses?", "What if the person wears a police suit?", "What if the person wears a helmet?", "What if the person wears a bowtie?"],
+  "make": ["Make the person wear sunglasses", "Make the person wear a police suit", "Make the person wear a helmet", "Make the person wear a bowtie"],
+  "put": ["Put sunglasses on the person", "Put a police suit on the person", "Put a helmet on the person", "Put a bowtie on the person"],
+  "keep": ["Let the person wear sunglasses, keep the face unchanged", "Let the person wear a police suit, keep the face unchanged", "Let the person wear a helmet, keep the face unchanged", "Let the person wear a bowtie, keep the face unchanged"]
+}

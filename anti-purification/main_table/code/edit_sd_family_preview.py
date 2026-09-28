@@ -11,12 +11,21 @@ SDEdit（SD 1.5／2.1-base）三個參數維度都沒有交集，見 STATUS.md�
   與 ip2p 場景的祈使句逐字相容。旋鈕是 `guidance_scale`（文字）與
   `image_guidance_scale`（原圖）。模型卡的範例值 guidance 3.0、image
   guidance 1.5、30 步是本腳本的預設值。
+- `sd3-ultraedit`：`BleachNick/SD3_UltraEdit_freeform`，UltraEdit（arXiv:2407.05282）
+  以 SD3-medium 為骨幹訓練的指令式編輯器，自由形式（不需遮罩）版本，512×512。
+  管線不在官方 diffusers，移植自作者的 fork，見 `ultraedit_sd3_pipeline.py`。
+  作者 README 的範例值是 guidance 7.5、image guidance 1.5、50 步、
+  `negative_prompt=""`。
 - `sdxl-img2img`、`sd3-img2img`：SDEdit（img2img），旋鈕是 `strength` 與
   `guidance_scale`，原生 1024×1024。不是指令式編輯器，祈使句只能當成描述。
 
 指令與種子沿用 ip2p 場景（`prompts.yaml` 的 `edits.ip2p`，逐字不改，不加遮罩），
 種子與 ip2p/inpaint 共用 20260812。身分讀數是 `edit_preflight.identity_row`，
 參考圖是 512×512 的原圖，編輯結果以原生解析度直接送進去（與 FLUX 那一支相同）。
+
+指令句型（`--prompt-sets`）：JSON 檔，`{句型名: [四條指令]}`，四條依序對應
+`edits.ip2p` 的四個配件。不給時只有一個句型 `verbatim`，即 `edits.ip2p` 原文。
+句型是與參數並列的一個網格維度，逐列記在 `variant` 欄。
 
 每一批輸出一張 CSV（`results/sd_family_<--out 目錄名>.csv`，每格寫完整份重寫，
 可續跑）與一張對照圖 `<--out>/sheet.jpg`（列 = 參數組合，欄 = 影像 × 指令，
@@ -33,6 +42,7 @@ from __future__ import annotations
 import argparse
 import csv
 import itertools
+import json
 import sys
 import time
 from pathlib import Path
@@ -55,11 +65,13 @@ EDIT_SEED = 20260812
 
 EDITORS = {
     "sdxl-ip2p": dict(repo="diffusers/sdxl-instructpix2pix-768", kind="ip2p", res=768),
+    "sd3-ultraedit": dict(repo="BleachNick/SD3_UltraEdit_freeform", kind="ip2p", res=512,
+                          call_kw=dict(negative_prompt="")),
     "sdxl-img2img": dict(repo="stabilityai/stable-diffusion-xl-base-1.0", kind="img2img", res=1024),
     "sd3-img2img": dict(repo="stabilityai/stable-diffusion-3-medium-diffusers", kind="img2img", res=1024),
 }
 
-FIELDS = ["editor", "model", "image", "prompt_index", "prompt", "resolution", "steps",
+FIELDS = ["editor", "model", "variant", "image", "prompt_index", "prompt", "resolution", "steps",
           "guidance_scale", "image_guidance_scale", "strength", "seed", "seconds", "png",
           "id_orig", "arcface_orig", "face_found_orig", "face_found_edit"]
 
@@ -78,6 +90,8 @@ def load_pipeline(editor: str):
     spec = EDITORS[editor]
     if editor == "sdxl-ip2p":
         from diffusers import StableDiffusionXLInstructPix2PixPipeline as Pipe
+    elif editor == "sd3-ultraedit":
+        from ultraedit_sd3_pipeline import StableDiffusion3InstructPix2PixPipeline as Pipe
     elif editor == "sdxl-img2img":
         from diffusers import StableDiffusionXLImg2ImgPipeline as Pipe
     else:
@@ -87,16 +101,19 @@ def load_pipeline(editor: str):
     return pipe.to("cuda" if torch.cuda.is_available() else "cpu")
 
 
-def settings(args, kind: str) -> list[dict]:
+def settings(args, kind: str, variants: list[str]) -> list[dict]:
     if kind == "ip2p":
-        return [dict(guidance_scale=g, image_guidance_scale=ig, strength="")
-                for g, ig in itertools.product(args.guidances, args.image_guidances)]
-    return [dict(guidance_scale=g, image_guidance_scale="", strength=s)
-            for s, g in itertools.product(args.strengths, args.guidances)]
+        return [dict(variant=v, guidance_scale=g, image_guidance_scale=ig, strength="")
+                for v, g, ig in itertools.product(variants, args.guidances,
+                                                  args.image_guidances)]
+    return [dict(variant=v, guidance_scale=g, image_guidance_scale="", strength=s)
+            for v, s, g in itertools.product(variants, args.strengths, args.guidances)]
 
 
 def tag(s: dict) -> str:
-    parts = [f"g{s['guidance_scale']}"]
+    """`verbatim` 不進標籤，句型維度加進來之前的檔名與 CSV 才對得上。"""
+    parts = [] if s.get("variant", "verbatim") == "verbatim" else [s["variant"]]
+    parts.append(f"g{s['guidance_scale']}")
     if s["image_guidance_scale"] != "":
         parts.append(f"ig{s['image_guidance_scale']}")
     if s["strength"] != "":
@@ -164,17 +181,24 @@ def main() -> None:
                     help="只有指令式編輯器（sdxl-ip2p）用得到")
     ap.add_argument("--strengths", nargs="+", type=float, default=[0.5],
                     help="只有 img2img 用得到")
+    ap.add_argument("--prompt-sets", type=Path, default=None,
+                    help="JSON：{句型名: [四條指令]}；不給時只用 edits.ip2p 原文")
     args = ap.parse_args()
 
     spec = EDITORS[args.editor]
     items, edits = load_items(args.data)
-    instructions = edits["ip2p"]
+    prompt_sets = {"verbatim": edits["ip2p"]}
+    if args.prompt_sets is not None:
+        prompt_sets = json.loads(args.prompt_sets.read_text(encoding="utf-8"))
+        bad = {k: len(v) for k, v in prompt_sets.items() if len(v) != len(edits["ip2p"])}
+        if bad:
+            raise SystemExit(f"每個句型要剛好 {len(edits['ip2p'])} 條指令：{bad}")
     by_class = {}
     for item in items:
         by_class.setdefault(item["class"], item)
     targets = ([by_class[c] for c in sorted(by_class)] if args.images is None
                else [next(i for i in items if i["name"] == n) for n in args.images])
-    grid = settings(args, spec["kind"])
+    grid = settings(args, spec["kind"], list(prompt_sets))
     cols = [(t["name"], pi) for t in targets for pi in args.instruction_indices]
 
     out_dir = args.out
@@ -182,8 +206,10 @@ def main() -> None:
     out_csv = paths.RESULTS / f"sd_family_{out_dir.name}.csv"
     rows = load_rows(out_csv)
     for r in rows:
-        r["_tag"] = tag({k: (r[k] if r[k] == "" else float(r[k]))
-                         for k in ("guidance_scale", "image_guidance_scale", "strength")})
+        r["variant"] = r.get("variant") or "verbatim"
+        r["_tag"] = tag({"variant": r["variant"],
+                         **{k: (r[k] if r[k] == "" else float(r[k]))
+                            for k in ("guidance_scale", "image_guidance_scale", "strength")}})
     done = {(r["image"], int(r["prompt_index"]), r["_tag"]) for r in rows}
     print(f"editor {args.editor}，影像 {[t['name'] for t in targets]}，指令 "
           f"{args.instruction_indices}，{len(grid)} 組參數，已完成 {len(done)} 格", flush=True)
@@ -202,10 +228,11 @@ def main() -> None:
             if key in done:
                 continue
             x_ref, x_pil = originals[name]
-            prompt = instructions[pi]
+            prompt = prompt_sets[s["variant"]][pi]
             kw = dict(prompt=prompt, image=x_pil, num_inference_steps=args.steps,
                       guidance_scale=s["guidance_scale"],
                       generator=torch.Generator(device=device).manual_seed(EDIT_SEED))
+            kw.update(spec.get("call_kw", {}))
             if spec["kind"] == "ip2p":
                 kw.update(image_guidance_scale=s["image_guidance_scale"],
                           height=spec["res"], width=spec["res"])
@@ -218,14 +245,15 @@ def main() -> None:
             png = out_dir / f"{name}__p{pi}__{tag(s)}.png"
             out.save(png)
             idr = identity_row(x_ref, to_tensor(out, device))
-            row = {"editor": args.editor, "model": spec["repo"], "image": name,
+            row = {"editor": args.editor, "model": spec["repo"],
+                   "variant": s["variant"], "image": name,
                    "prompt_index": pi, "prompt": prompt, "resolution": spec["res"],
                    "steps": args.steps, **{k: s[k] for k in
                    ("guidance_scale", "image_guidance_scale", "strength")},
                    "seed": EDIT_SEED, "seconds": round(dt, 1), "png": png.as_posix(), **idr}
             rows.append({**row, "_tag": tag(s)})
             write_rows(out_csv, [{k: r[k] for k in FIELDS} for r in rows])
-            print(f"  {name:10s} p{pi} {tag(s):16s} id_orig={idr['id_orig']}  "
+            print(f"  {name:10s} p{pi} {tag(s):24s} id_orig={idr['id_orig']}  "
                   f"arcface_orig={idr['arcface_orig']}  ({dt:.1f}s)", flush=True)
 
     sheet = contact_sheet(out_dir, {n: p for n, (_, p) in originals.items()}, cols, grid, rows)

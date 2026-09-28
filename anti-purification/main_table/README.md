@@ -118,9 +118,11 @@
 
 ## 報告頁
 
-`report/` 底下五個資料夾各是一份**自足**的報告：資料與影像都在同一個目錄裡
-（相對路徑引用 `data.js` 與 `img/`，或直接內嵌），本機直接雙擊 `index.html`
-就能看，不像舊版那樣依賴已發布 artifact 才能解析影像 URL。
+`report/` 底下五份報告中，四份（`main/`、`flux_full/`、`editor_check/`、
+`sd_samples/`）資料與影像都在同一個目錄裡（相對路徑引用 `data.js` 與
+`img/`，或直接內嵌），本機直接雙擊 `index.html` 就能看。**`aligned_matrix.html`
+是例外**：`data.js` 本機有（見 STATUS.md），但 `img/` 只在已發布的 artifact
+裡，本機開只看得到表格看不到圖。
 
 | 目錄 | 內容 | 產生方式 |
 |---|---|---|

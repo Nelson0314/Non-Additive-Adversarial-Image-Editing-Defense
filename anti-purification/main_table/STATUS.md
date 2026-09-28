@@ -119,6 +119,14 @@ artifact 連結(全部私人，要給別人看從頁面 Share 選單開分享)�
 沒傳的會保留。**影像不入版控**，各報告的縮圖怎麼產生見對應腳本的 docstring
 或 `README.md`。
 
+**`report/aligned_matrix.html` 的 `data.js` 本機原本沒有**(產生它的
+`cf62540` commit本身就沒帶，只有已發佈的 artifact 有)，已在這一輪補上
+(`code/report_matrix_data.py --out report/data.js`)。**`img/` 仍然沒有本機
+副本**——重建需要連遠端抓 `runs/defence_portraits`／`runs/eps_aligned`
+等來源影像並轉 WebP，步驟見該腳本 docstring 的「重建整個報告頁」，這一輪
+沒有做。也就是說這份報告目前**本機只看得到表格，看不到圖**，跟其餘四份
+不同；要看圖仍要開已發布的 artifact 連結。
+
 等失真臂另有一份更早的版本 <https://claude.ai/artifact/3XXgCxBMtrjH62VEkXuEBH>，
 版面與資料都被上面那一份取代，兩者的影像檔名不同，未刪除。
 

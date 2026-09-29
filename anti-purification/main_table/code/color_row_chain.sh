@@ -12,10 +12,11 @@ set -uo pipefail
 mode=$1; card=$2
 source "$HOME/env.sh" >/dev/null 2>&1
 cd "$HOME/image-immunization" || exit 1
-bash scripts/free_cards.sh --assert "$card" || { echo "CARD $card NOT FREE"; exit 3; }
-lease="$HOME/lab_leases/$(hostname)-$card"
-echo "$(hostname) $$ color_row_$mode" > "$lease"
-trap 'rm -f "$lease"' EXIT
+source lab/scripts/gpu_lease.sh
+lease_acquire "$card" "color_row_$mode" "${LAB_CAP:-5}" || { echo "CARD $card NOT FREE OR CAP REACHED"; exit 3; }
+trap 'lease_release "$card"' EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
 export CUDA_VISIBLE_DEVICES=$card TOKENIZERS_PARALLELISM=false \
        PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True PYTHONIOENCODING=utf-8
 C=main_table/code

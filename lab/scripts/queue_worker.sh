@@ -25,6 +25,7 @@ cd "$R" || { echo "[FATAL] 進不去 $R" >&2; exit 1; }
 
 HOST=$(hostname)
 LEASE=$HOME/lab_leases
+source lab/scripts/gpu_lease.sh
 CAP=${LAB_CAP:-5}      # 兩個 session 合計
 MYCAP=${LAB_MYCAP:-4}  # lab 自己最多四張，留一張給另一個 session
 # LAB_CAP／LAB_MYCAP 只在使用者明確允許時覆寫（2026-09-25 一次：basic-2 兩張空卡）
@@ -41,16 +42,9 @@ validate_job() { "$PY" lab/code/validate_job.py "$1" --fid-arms ${FID_ARMS:-}; }
 done_() { [ -e "$Q/$(key "$1").done" ] && validate_job "$1" >/dev/null 2>&1; }
 dead() { [ -e "$Q/$(key "$1").GIVEUP" ]; }
 
-reap() {
-  for f in "$LEASE"/*; do
-    [ -e "$f" ] || continue
-    read -r h p _ < "$f" 2>/dev/null || continue
-    [ "$h" = "$HOST" ] || continue
-    ps -p "$p" > /dev/null 2>&1 || { log REAP "$(basename "$f") pid $p"; rm -f "$f"; }
-  done
-}
-held() { ls -1 "$LEASE" 2>/dev/null | wc -l; }
-mine() { grep -l " q_" "$LEASE"/* 2>/dev/null | wc -l; }
+reap() { lease_reap; }
+held() { lease_count; }
+mine() { lease_group_count q_; }
 full() { [ "$(held)" -ge "$CAP" ] || [ "$(mine)" -ge "$MYCAP" ]; }
 
 # 相依是否滿足：0＝可派、1＝還不能、2＝永遠不能（上游放棄）
@@ -127,11 +121,13 @@ run_job() {
 
 launch() {
   local job="$1" gpu="$2" k; k=$(key "$job")
-  local lease="$LEASE/${HOST}-${gpu}"
-  echo "$HOST $$ q_$QNAME" > "$lease"
   (
-    trap 'rm -f "$lease"' EXIT
-    echo "$HOST $BASHPID q_$QNAME" > "$lease"
+    lease_acquire "$gpu" "q_$QNAME" "$CAP" q_ "$MYCAP" || {
+      rmdir "$Q/$k.lock"; exit 4;
+    }
+    trap 'lease_release "$gpu"; rmdir "$Q/$k.lock"' EXIT
+    trap 'exit 130' INT
+    trap 'exit 143' TERM
     log START "$job gpu=$gpu"
     run_job "$job" "$gpu" > "$LOGDIR/$k.log" 2>&1 < /dev/null
     rc=$?
@@ -147,7 +143,6 @@ launch() {
         touch "$Q/$k.GIVEUP"; log GIVE-UP "$job"
       fi
     fi
-    rmdir "$Q/$k.lock"
   ) &
   sleep 20
 }
@@ -174,14 +169,6 @@ while true; do
   for c in $(bash scripts/free_cards.sh 2>/dev/null); do
     [ "${#runnable[@]}" -eq 0 ] && break
     full && break
-    [ -e "$LEASE/${HOST}-${c}" ] && continue
-    bash scripts/free_cards.sh --assert "$c" >/dev/null 2>&1 || continue
-    # 別人的 compute app：記憶體合計 < 1 GB 才疊（多卡訓練在每張卡留下的
-    # 約 256 MB context 可以疊，見記憶 gpu-cap-is-five-across-sessions）
-    uuid=$(nvidia-smi -i "$c" --query-gpu=uuid --format=csv,noheader)
-    others=$(nvidia-smi --query-compute-apps=gpu_uuid,used_memory --format=csv,noheader,nounits \
-             | awk -F', ' -v u="$uuid" '$1==u{s+=$2} END{print s+0}')
-    [ "$others" -lt 1024 ] || continue
     job="${runnable[0]}"
     mkdir "$Q/$(key "$job").lock" 2>/dev/null || { runnable=("${runnable[@]:1}"); continue; }
     launch "$job" "$c"

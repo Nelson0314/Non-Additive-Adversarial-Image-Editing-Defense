@@ -56,7 +56,7 @@ def load_image_tensor(path: Path, device, size: Optional[int] = None
 
     img = Image.open(path).convert("RGB")
     x = T.ToTensor()(img).unsqueeze(0).to(device)
-    if size is not None and x.shape[-1] != size:
+    if size is not None and x.shape[-2:] != (size, size):
         x = F.interpolate(x, size=(size, size), mode="bicubic",
                           antialias=True).clamp(0, 1)
     return x

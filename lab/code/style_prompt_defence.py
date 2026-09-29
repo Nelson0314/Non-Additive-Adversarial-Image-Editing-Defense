@@ -592,6 +592,16 @@ def optimise(args, ip2p, ed, x_ref, e_txt, ids, x0_ref, id_cos, id_cos_diff, tau
     return best, last, extra
 
 
+def select_result(best, last, policy):
+    """選點政策與限制判定分別記錄；last 不代表符合限制。"""
+    selected = last if policy == "last" or best is None else best
+    if selected is None:
+        raise ValueError("最佳化沒有可選取的更新")
+    feasible = int(selected[2]["feasible"])
+    return selected, {"selection_policy": policy, "selected_feasible": feasible,
+                      "feasible": feasible}
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", type=Path, required=True)
@@ -724,16 +734,16 @@ def main() -> None:
                     best, last, extra = optimise(
                         args, ip2p, ed, x_ref, e_txt, ids, x0_ref, id_cos, id_cos_diff, tau, lp,
                         trace, tag, bg=bg, face=face if args.col_face_only else None, x_orig=x)
-                    if args.select == "last":  # 論文：固定步數，取最後一步
-                        best = last
-                    u, yd, rec = best if best is not None else last
-                    save_image(yd, args.out / f"{tag}__{'def' if best else 'def_infeasible'}.png")
+                    (u, yd, rec), selection = select_result(best, last, args.select)
+                    # last 政策仍輸出所選的最後一步，限制判定由 selection 記錄。
+                    suffix = "def" if args.select == "last" or best is not None else "def_infeasible"
+                    save_image(yd, args.out / f"{tag}__{suffix}.png")
                     row.update(extra)
                     row.update({
                         "updates": args.updates, "lr": args.lr, "delta_rms_cap": args.delta_rms_cap,
                         "a_perc": args.a_perc, "a_adv": args.a_adv, "a_prompt": args.a_prompt,
                         "a_id": args.a_id, "w_enc": args.w_enc, "tau": round(tau, 5),
-                        "feasible": int(best is not None), "chosen_update": u,
+                        **selection, "chosen_update": u,
                         "last_update": last[0], "stop": last[2].get("stop", ""),
                         "id_def": rec["id_cos"],
                         "lpips_def_x": round(float(lp(yd, x).mean()), 5),

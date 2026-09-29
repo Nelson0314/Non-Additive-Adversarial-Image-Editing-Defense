@@ -195,6 +195,11 @@ artifact 連結(全部私人，要給別人看從頁面 Share 選單開分享)�
 | 報告 | 連結 |
 |---|---|
 | `report/main/` 主表 | <https://claude.ai/artifact/Qdde7nZt2uqewfTtrTTuLg> |
+
+**主表 artifact 目前發布的是舊顏色列（`colour_curve_ours`）的版本**（內容同 commit `0dd243b` 的 `report/main/`，
+artifact 的 Version 6）；repo 的 `report/main/` 與讀數 CSV 已是 `color` 版（artifact 的 Version 5，另含跨攻擊模型總表
+與 FLUX 縮圖尺寸修正）。使用者指示先發布舊版，`color` 的結果保留待用；要換成 `color` 版，重建
+`code/report_main_data.py --out report/main` 後發布即可。
 | `report/aligned_matrix.html` 等失真臂 | <https://claude.ai/artifact/NcyZMLGorwD5Pgrc3sYCqc> |
 | `report/flux_full/` FLUX 全表樣張 | <https://claude.ai/artifact/4qhUdyt7wXV2eLLs115wFr> |
 | `report/editor_check/` 編輯器樣張 | <https://claude.ai/artifact/1ryd73pLkmaiKgtaxYNcSz> |

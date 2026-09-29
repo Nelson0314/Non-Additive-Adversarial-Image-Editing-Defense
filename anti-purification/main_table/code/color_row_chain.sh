@@ -13,7 +13,8 @@ mode=$1; card=$2
 source "$HOME/env.sh" >/dev/null 2>&1
 cd "$HOME/image-immunization" || exit 1
 source lab/scripts/gpu_lease.sh
-lease_acquire "$card" "color_row_$mode" "${LAB_CAP:-5}" || { echo "CARD $card NOT FREE OR CAP REACHED"; exit 3; }
+gpu_policy_init || exit $?
+lease_acquire "$card" "color_row_$mode" "$(gpu_global_cap)" || { echo "CARD $card NOT FREE OR CAP REACHED"; exit 3; }
 trap 'lease_release "$card"' EXIT
 trap 'exit 130' INT
 trap 'exit 143' TERM

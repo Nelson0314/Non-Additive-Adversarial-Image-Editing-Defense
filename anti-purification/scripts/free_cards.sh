@@ -24,7 +24,7 @@
 # 用法：
 #     bash scripts/free_cards.sh              # 印出空卡號，空白分隔
 #     bash scripts/free_cards.sh --verbose    # 連每張卡的狀態一起印
-#     bash scripts/free_cards.sh --max-cards 8  # 超過五張，需使用者授意
+#     bash scripts/free_cards.sh --max-cards 8  # 僅限制候選清單；派工仍須取得全局租約
 #     DEVS=$(bash scripts/free_cards.sh)      # 拿去餵派工腳本
 set -uo pipefail
 
@@ -32,7 +32,11 @@ MAX_USED=1024
 FOREIGN_MAX=512
 VERBOSE=0
 ASSERT=""
-MAX_CARDS=5
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+POLICY="$SCRIPT_DIR/../../lab/scripts/gpu_policy.sh"
+[ -f "$POLICY" ] || POLICY="$SCRIPT_DIR/../lab/scripts/gpu_policy.sh"
+source "$POLICY" || exit 1
+MAX_CARDS=$(gpu_global_cap) || exit $?
 while [ $# -gt 0 ]; do
   case "$1" in
     --max-used) MAX_USED="$2"; shift 2 ;;
@@ -85,12 +89,8 @@ done < <(nvidia-smi --query-gpu=index,uuid,memory.used --format=csv,noheader)
 
 FREE="${FREE# }"
 
-# **一次最多五張卡。** 這是使用者定的規則（CLAUDE.md）：機器是多人共用的，
-# 把八張全佔滿會讓別人完全排不進來。**上限做在這裡而不是各派工腳本裡**——
-# 寫在文件或個別腳本上的規則遲早會有一支漏掉，而漏掉不會報錯。
-#
-# `--assert` 不受此限：那是在檢查「指定的卡是不是空的」，與取幾張無關。
-# 要用超過五張時給 `--max-cards N`，那必須是使用者明確授意。
+# 候選清單不等於取卡；全局容量由 lab/scripts/gpu_lease.sh 在取租約時驗證。
+# `--assert` 只檢查指定卡是否空閒，不保留卡，也不核准額外容量。
 if [ -z "$ASSERT" ] && [ "$MAX_CARDS" -gt 0 ]; then
   CAPPED=""
   n=0
@@ -100,8 +100,7 @@ if [ -z "$ASSERT" ] && [ "$MAX_CARDS" -gt 0 ]; then
     n=$(( n + 1 ))
   done
   if [ "$(echo $FREE | wc -w)" -gt "$MAX_CARDS" ]; then
-    echo "（空卡有 $(echo $FREE | wc -w) 張，依規定只取 $MAX_CARDS 張；" \
-         "要更多請給 --max-cards 並確認使用者已授意）" >&2
+    echo "（空卡有 $(echo $FREE | wc -w) 張，候選清單只列 $MAX_CARDS 張；派工須另取全局租約）" >&2
   fi
   FREE="${CAPPED# }"
 fi

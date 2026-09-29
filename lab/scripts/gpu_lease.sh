@@ -2,6 +2,7 @@
 # 共用 NFS 租約；檢查、取卡、擁有者驗證與釋放都在同一個 mkdir 鎖內。
 LEASE=${LEASE:-$HOME/lab_leases}
 LEASE_HOST=${LEASE_HOST:-$(hostname)}
+source "$(dirname "${BASH_SOURCE[0]}")/gpu_policy.sh"
 
 lease_locked() (
   mkdir -p "$LEASE" || exit 1
@@ -72,6 +73,9 @@ lease_card_available() {
 lease_acquire_locked() {
   local gpu=$1 name=$2 owner=$3 token=$4 cap=$5 prefix=$6 group_cap=$7
   lease_reap_locked
+  local global_cap
+  global_cap=$(gpu_global_cap) || return $?
+  [ "$cap" -le "$global_cap" ] || cap=$global_cap
   [ ! -e "$LEASE/$LEASE_HOST-$gpu" ] || return 4
   [ "$(lease_count)" -lt "$cap" ] || return 4
   if [ -n "$prefix" ]; then

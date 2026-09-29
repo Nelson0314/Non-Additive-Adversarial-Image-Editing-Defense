@@ -1,11 +1,14 @@
 #!/usr/bin/env bash
 # style_prompt 的一輪實驗：讀工作清單（每行「名稱 影像 風格 其餘參數」），在 CAP 張卡內派最佳化；
 # 每份一跑完就送主種子編輯、重算讀數。用法：bash lab/scripts/style_prompt_round.sh <輪名> <清單檔> [CAP]
-cd ~/image-immunization
 source ~/env.sh >/dev/null 2>&1
-R=$1; SPEC=$2; CAP=${3:-6}; OPT_CAP=${4:-$((CAP - 1))}
+cd ~/image-immunization || exit 1
+source lab/scripts/gpu_lease.sh
+gpu_policy_init "${3:-}" || exit $?
+R=$1; SPEC=$2; CAP=$(gpu_global_cap); OPT_CAP=${4:-$((CAP > 1 ? CAP - 1 : 1))}
+gpu_valid_cap "$OPT_CAP" || { echo "OPT_CAP must be a positive integer" >&2; exit 2; }
 O=lab/runs/$R; E=lab/runs/${R}_edit; L=lab/runs/logs
-mkdir -p "$O" "$E"
+mkdir -p "$O" "$E" "$L"
 BASE="--data lab/data/portraits --s-i 2.0 --tf32"
 
 declare -A IMG STY ARG
@@ -15,23 +18,19 @@ while read -r name img sty rest; do
   IMG[$name]=${img//+/ }; STY[$name]=$sty; ARG[$name]=$rest; JOBS="$JOBS $name"  # 影像欄可用 + 串多張
 done < "$SPEC"
 
-mine() { cat ~/lab_leases/* 2>/dev/null | awk '$3 ~ /^style_prompt_/' | wc -l; }
-try_launch() {  # try_launch <上限> <名稱> <指令>；以 flock 讓各排程的取卡依序進行，避免兩個 run_on_card 同時選到同一張卡
+try_launch() {  # Shared lease acquisition enforces the global limit atomically.
   local cap=$1 name=$2; shift 2
-  exec 9> ~/.style_prompt_launch.lock
-  flock 9
-  if [ "$(mine)" -ge "$cap" ]; then flock -u 9; return 1; fi
-  nohup setsid bash lab/scripts/run_on_card.sh "$name" bash -c "$*" > "$L/$name.log" 2>&1 < /dev/null 9>&- &
+  [ "$(lease_count)" -lt "$cap" ] || return 1
+  LAB_CAP= nohup setsid bash lab/scripts/run_on_card.sh --limit "$cap" "$name" bash -c "$*" > "$L/$name.log" 2>&1 < /dev/null &
   local ok=1
   for i in $(seq 1 40); do
-    grep -q " $name\$" ~/lab_leases/* 2>/dev/null && { echo "$(date +%H:%M:%S) launched $name"; sleep 3; ok=0; break; }
-    grep -q "沒有空卡" "$L/$name.log" 2>/dev/null && break
+    lease_running "$name" && { echo "$(date +%H:%M:%S) launched $name"; sleep 3; ok=0; break; }
+    grep -q "\[FATAL\]" "$L/$name.log" 2>/dev/null && break
     sleep 1
   done
-  flock -u 9
   return $ok
 }
-running() { grep -q " $1\$" ~/lab_leases/* 2>/dev/null; }
+running() { lease_running "$1"; }
 
 declare -A OPT EDT
 for j in $JOBS; do  # 接手：已在跑或已跑完的最佳化不重派，已有編輯結果的不重編
@@ -44,7 +43,7 @@ while true; do
     [ -n "${EDT[$j]:-}" ] && continue
     [ -n "${OPT[$j]:-}" ] && [ -e "$O/$j/results.csv" ] && ! running "${R}_opt_$j" || continue
     if ls "$O/$j/"*__def.png >/dev/null 2>&1; then
-      try_launch "$CAP" "${R}_edit_$j" "\"\$PY\" lab/code/edit_preflight.py --data lab/data/portraits --defended $O/$j --out $E/${j}_${STY[$j]} --scenarios ip2p --suffix _${R}_$j --images ${IMG[$j]}" && EDT[$j]=1
+      try_launch "$(gpu_global_cap)" "${R}_edit_$j" "\"\$PY\" lab/code/edit_preflight.py --data lab/data/portraits --defended $O/$j --out $E/${j}_${STY[$j]} --scenarios ip2p --suffix _${R}_$j --images ${IMG[$j]}" && EDT[$j]=1
     else
       echo "$(date +%H:%M:%S) $j: no feasible defence image"; EDT[$j]=none
     fi

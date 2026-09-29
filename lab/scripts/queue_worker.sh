@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 共用工作佇列的 worker。每台主機各跑一個，依租約目錄計五卡總數。
+# 共用工作佇列的 worker。依全部租約計算全局卡數，容量政策見 gpu_policy.sh。
 #
 # 用法（遠端）：nohup setsid bash lab/scripts/queue_worker.sh <佇列名> <工作>... &
 #
@@ -26,9 +26,9 @@ cd "$R" || { echo "[FATAL] 進不去 $R" >&2; exit 1; }
 HOST=$(hostname)
 LEASE=$HOME/lab_leases
 source lab/scripts/gpu_lease.sh
-CAP=${LAB_CAP:-5}      # 兩個 session 合計
-MYCAP=${LAB_MYCAP:-4}  # lab 自己最多四張，留一張給另一個 session
-# LAB_CAP／LAB_MYCAP 只在使用者明確允許時覆寫（2026-09-25 一次：basic-2 兩張空卡）
+gpu_policy_init || exit $?
+MYCAP=${LAB_MYCAP:-$(gpu_global_cap)}  # 可另外降低 queue 類工作的合計限制。
+gpu_valid_cap "$MYCAP" || { echo "[FATAL] LAB_MYCAP 必須是正整數" >&2; exit 2; }
 POLL=120
 MAXFAIL=3
 Q=lab/runs/queue/$QNAME
@@ -45,7 +45,7 @@ dead() { [ -e "$Q/$(key "$1").GIVEUP" ]; }
 reap() { lease_reap; }
 held() { lease_count; }
 mine() { lease_group_count q_; }
-full() { [ "$(held)" -ge "$CAP" ] || [ "$(mine)" -ge "$MYCAP" ]; }
+full() { [ "$(held)" -ge "$(gpu_global_cap)" ] || [ "$(mine)" -ge "$MYCAP" ]; }
 
 # 相依是否滿足：0＝可派、1＝還不能、2＝永遠不能（上游放棄）
 ready() {
@@ -122,7 +122,7 @@ run_job() {
 launch() {
   local job="$1" gpu="$2" k; k=$(key "$job")
   (
-    lease_acquire "$gpu" "q_$QNAME" "$CAP" q_ "$MYCAP" || {
+    lease_acquire "$gpu" "q_$QNAME" "$(gpu_global_cap)" q_ "$MYCAP" || {
       rmdir "$Q/$k.lock"; exit 4;
     }
     trap 'lease_release "$gpu"; rmdir "$Q/$k.lock"' EXIT

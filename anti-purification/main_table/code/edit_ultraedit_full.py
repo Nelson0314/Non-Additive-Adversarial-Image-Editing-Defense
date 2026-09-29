@@ -26,7 +26,7 @@
 而這裡的「場景」是指令來源 `edits.ip2p`，不是編輯器。
 
 逐格 CSV：`results/ultraedit_full/<arm>.csv`（每個 arm 一檔，兩張卡寫不同的檔），
-含 id_orig／arcface_orig（參考圖是乾淨原圖）。可續跑：已在 CSV 且 PNG 存在的格略過。
+含 id_orig／arcface_orig（參考圖是乾淨原圖）。續跑須通過協定摘要、輸入雜湊與 PNG 檢查。
 
 用法（遠端 repo 根目錄，一張卡一份）
     CUDA_VISIBLE_DEVICES=<卡> python main_table/code/edit_ultraedit_full.py \\
@@ -54,6 +54,7 @@ from edit_preflight import defended_image, identity_row, load_items  # noqa: E40
 from edit_sd_family_preview import EDITORS, load_pipeline, to_pil, to_tensor  # noqa: E402
 from purify_run import PURIFIERS, label  # noqa: E402
 from src.utils.io import load_image_tensor  # noqa: E402
+from resume_state import file_digest, load_resume_rows, protocol_digest, write_rows_atomic  # noqa: E402
 
 EDITOR = "sd3-ultraedit"
 RES = 512
@@ -67,7 +68,8 @@ CONDITIONS = ["dct_shield_y", "mist", "dct_shield", "photoguard_linf", "danp", "
 
 FIELDS = ["arm", "purifier", "image", "prompt_index", "variant", "prompt", "model",
           "guidance_scale", "image_guidance_scale", "steps", "seed", "seconds",
-          "input_png", "png", "id_orig", "arcface_orig", "face_found_orig", "face_found_edit"]
+          "input_png", "png", "id_orig", "arcface_orig", "face_found_orig", "face_found_edit",
+          "protocol_id", "input_sha256", "reference_png", "reference_sha256"]
 
 
 def input_png(arm: str, purifier: str, item: dict) -> Path:
@@ -120,6 +122,8 @@ def main() -> None:
     ap.add_argument("--guidance", type=float, required=True)
     ap.add_argument("--image-guidance", type=float, required=True)
     ap.add_argument("--root", type=Path, default=paths.IMAGES / "ultraedit_full")
+    ap.add_argument("--results", type=Path, default=paths.RESULTS / "ultraedit_full",
+                    help="不同協定須使用獨立結果目錄與 --root")
     args = ap.parse_args()
 
     bad = [a for a in args.arms if a != UNDEFENDED and a not in CONDITIONS]
@@ -127,31 +131,57 @@ def main() -> None:
     if bad:
         raise SystemExit(f"未知的 arm／算子：{bad}")
 
+    if len(set(args.arms)) != len(args.arms) or len(set(args.purifiers)) != len(args.purifiers):
+        ap.error("--arms 與 --purifiers 不得重複")
+
     items, _ = load_items(paths.PORTRAITS)
     targets = sorted(items, key=lambda i: i["name"])
     prompts = json.loads(args.prompt_sets.read_text(encoding="utf-8"))[args.variant]
+    if not targets or not prompts:
+        ap.error("影像或指令集合為空")
     spec = EDITORS[EDITOR]
 
-    pipe = load_pipeline(EDITOR)
-    device = pipe.device
-    refs = {i["name"]: load_image_tensor(i["path"], device, size=RES) for i in targets}
-
+    states = {}
     for arm in args.arms:
-        out_csv = paths.RESULTS / "ultraedit_full" / f"{arm}.csv"
+        out_csv = args.results / f"{arm}.csv"
         out_csv.parent.mkdir(parents=True, exist_ok=True)
-        rows = []
-        if out_csv.is_file():
-            with out_csv.open(encoding="utf-8", newline="") as stream:
-                rows = [r for r in csv.DictReader(stream) if Path(r["png"]).is_file()]
+        protocol_id = protocol_digest({
+            "editor": EDITOR, "model": spec["repo"], "call_kw": spec["call_kw"],
+            "arm": arm, "resolution": RES, "steps": STEPS, "seed": EDIT_SEED,
+            "precision": "float16", "variant": args.variant, "prompts": prompts,
+            "guidance": args.guidance, "image_guidance": args.image_guidance,
+            "data": str(paths.PORTRAITS.resolve()), "source": str(paths.SOURCE_HOME.resolve()),
+            "output": str(args.root.resolve()),
+        })
+        rows = load_resume_rows(out_csv, FIELDS, protocol_id,
+                                ("arm", "purifier", "image", "prompt_index"))
         done = {(r["purifier"], r["image"], int(r["prompt_index"])) for r in rows}
+        for purifier in args.purifiers:
+            for item in targets:
+                input_png(arm, purifier, item)  # 全部輸入在載入模型前驗收。
+                for pi in range(len(prompts)):
+                    png = output_png(args.root, arm, purifier, item["name"], pi)
+                    if (purifier, item["name"], pi) not in done and png.exists():
+                        raise FileExistsError(f"未登錄的既有產物：{png}；請使用新的輸出目錄")
+        states[arm] = (out_csv, protocol_id, rows, done)
+
+    pipe = None
+    for arm in args.arms:
+        out_csv, protocol_id, rows, done = states[arm]
         t_arm = time.time()
         for purifier in args.purifiers:
             for item in targets:
+                pending = [(pi, prompt) for pi, prompt in enumerate(prompts)
+                           if (purifier, item["name"], pi) not in done]
+                if not pending:
+                    continue
+                if pipe is None:
+                    pipe = load_pipeline(EDITOR)
+                    device = pipe.device
+                    refs = {i["name"]: load_image_tensor(i["path"], device, size=RES) for i in targets}
                 src = input_png(arm, purifier, item)
                 x_pil = to_pil(load_image_tensor(src, device, size=RES))
-                for pi, prompt in enumerate(prompts):
-                    if (purifier, item["name"], pi) in done:
-                        continue
+                for pi, prompt in pending:
                     t0 = time.time()
                     with torch.no_grad():
                         out = pipe(prompt=prompt, image=x_pil, num_inference_steps=STEPS,
@@ -170,14 +200,16 @@ def main() -> None:
                         "model": spec["repo"], "guidance_scale": args.guidance,
                         "image_guidance_scale": args.image_guidance, "steps": STEPS,
                         "seed": EDIT_SEED, "seconds": round(dt, 1),
-                        "input_png": src.as_posix(), "png": png.as_posix(), **idr})
-                    with out_csv.open("w", encoding="utf-8", newline="") as stream:
-                        writer = csv.DictWriter(stream, fieldnames=FIELDS)
-                        writer.writeheader()
-                        writer.writerows(rows)
+                        "input_png": src.as_posix(), "png": png.as_posix(), **idr,
+                        "protocol_id": protocol_id, "input_sha256": file_digest(src),
+                        "reference_png": item["path"].as_posix(),
+                        "reference_sha256": file_digest(item["path"])})
+                    write_rows_atomic(out_csv, FIELDS, rows)
+                    done.add((purifier, item["name"], pi))
             print(f"[DONE] {arm:18s} {purifier:14s} 累計 {len(rows)} 格  "
                   f"({time.time() - t_arm:.0f}s)", flush=True)
-        if arm != UNDEFENDED:
+        if arm != UNDEFENDED and all(("none", item["name"], pi) in done
+                                     for item in targets for pi in range(len(prompts))):
             write_preflight(args.root, arm, targets, prompts)
         print(f"[ARM] {arm} -> {out_csv}", flush=True)
     print("[ALLDONE]", flush=True)

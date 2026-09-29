@@ -28,7 +28,7 @@ been adjusted to 1024 and 1024 to fit the model requirements」——參數
 條件的防禦圖(同樣 32 格,`--defended` 預設用 `--arm` 去 `images/defence_portraits/
 <條件>/` 找)。12 條件 + 分母 = 13 個 arm、416 格,單格 83–185 秒（視卡上其他人
 負載），每個 arm 只載入一次模型。CSV 逐格 append 並 flush，中斷重跑會跳過
-已經做完的 (image, prompt_index)，不必整個 arm 重來。
+已經完成且協定摘要、輸入雜湊與 PNG 均一致的格，不必整個 arm 重來。
 
 用法(遠端,需要一張卡,首次會下載約 24GB 權重)
     HF_HOME=/var/cache/huggingface CUDA_VISIBLE_DEVICES=<卡> \\
@@ -58,6 +58,7 @@ from PIL import Image  # noqa: E402
 from edit_preflight import defended_image, identity_row, load_items  # noqa: E402
 from src.utils.artifacts import save_image  # noqa: E402
 from src.utils.io import load_image_tensor  # noqa: E402
+from resume_state import file_digest, load_resume_rows, protocol_digest  # noqa: E402
 
 MODEL_NAME = "black-forest-labs/FLUX.1-Kontext-dev"
 RESOLUTION = 512
@@ -99,14 +100,13 @@ def load_pipeline():
 
 FIELDS = ["arm", "image", "prompt_index", "prompt", "model", "guidance_scale",
          "true_cfg_scale", "negative_prompt", "steps", "seed", "seconds", "png",
-         "id_orig", "arcface_orig", "face_found_orig", "face_found_edit"]
+         "id_orig", "arcface_orig", "face_found_orig", "face_found_edit",
+         "protocol_id", "input_png", "input_sha256"]
 
 
-def load_done(csv_path: Path) -> set:
-    if not csv_path.is_file():
-        return set()
-    with csv_path.open(encoding="utf-8", newline="") as stream:
-        return {(r["image"], r["prompt_index"]) for r in csv.DictReader(stream)}
+def load_done(csv_path: Path, protocol_id: str) -> set:
+    rows = load_resume_rows(csv_path, FIELDS, protocol_id, ("arm", "image", "prompt_index"))
+    return {(r["image"], r["prompt_index"]) for r in rows}
 
 
 def main() -> None:
@@ -121,6 +121,8 @@ def main() -> None:
                     help="覆寫防禦圖目錄，預設由 --arm 推")
     ap.add_argument("--out", type=Path, default=None,
                     help="預設 images/flux_full/<arm>/")
+    ap.add_argument("--out-csv", type=Path, default=None,
+                    help="不同協定須使用獨立 CSV 與 --out")
     ap.add_argument("--images", nargs="+", default=None,
                     help="預設全部 8 張")
     ap.add_argument("--instruction-indices", nargs="+", type=int, default=[0, 1, 2, 3],
@@ -136,13 +138,20 @@ def main() -> None:
     args = ap.parse_args()
 
     out_dir = args.out or (paths.IMAGES / "flux_full" / args.arm)
-    out_csv = paths.RESULTS / f"flux_full_{args.arm}.csv"
+    out_csv = args.out_csv or paths.RESULTS / f"flux_full_{args.arm}.csv"
     out_dir.mkdir(parents=True, exist_ok=True)
 
     items, edits = load_items(args.data)
     instructions = edits["ip2p"]
+    if (len(set(args.instruction_indices)) != len(args.instruction_indices)
+            or any(pi < 0 or pi >= len(instructions) for pi in args.instruction_indices)):
+        ap.error("--instruction-indices 必須是不重複的有效索引")
+    if args.images and len(set(args.images)) != len(args.images):
+        ap.error("--images 不得重複")
     targets = (sorted(items, key=lambda i: i["name"]) if args.images is None
               else [next(i for i in items if i["name"] == n) for n in args.images])
+    if not targets:
+        ap.error("沒有符合的影像")
 
     if args.arm != "undefended":
         if args.defended:
@@ -161,7 +170,16 @@ def main() -> None:
         for item in targets:
             item["path"] = defended_image(defended_dir, item["name"])
 
-    done = load_done(out_csv)
+    protocol_id = protocol_digest({
+        "editor": "flux-kontext", "model": MODEL_NAME, "arm": args.arm,
+        "resolution": RESOLUTION, "seed": EDIT_SEED, "steps": args.steps,
+        "guidance": args.guidance, "true_cfg_scale": args.true_cfg_scale,
+        "negative_prompt": args.negative_prompt, "precision": "bfloat16-nf4",
+        "prompts": instructions, "data": str(args.data.resolve()),
+        "defended": str(defended_dir.resolve()) if args.arm != "undefended" else None,
+        "output": str(out_dir.resolve()),
+    })
+    done = load_done(out_csv, protocol_id)
     todo = [(item, pi) for item in targets for pi in args.instruction_indices
            if (item["name"], str(pi)) not in done]
     print(f"arm={args.arm} 影像={[t['name'] for t in targets]} "
@@ -171,6 +189,10 @@ def main() -> None:
     if not todo:
         print("全部完成，無需載入模型", flush=True)
         return
+    for item, pi in todo:
+        png = out_dir / f"{item['name']}__p{pi}.png"
+        if png.exists():
+            raise FileExistsError(f"未登錄的既有產物：{png}；請使用新的輸出目錄")
 
     t_load = time.time()
     pipe = load_pipeline()
@@ -216,6 +238,8 @@ def main() -> None:
                 "negative_prompt": args.negative_prompt or "",
                 "steps": args.steps, "seed": EDIT_SEED, "seconds": round(dt, 1),
                 "png": out_png.as_posix(), **idr,
+                "protocol_id": protocol_id, "input_png": item["path"].as_posix(),
+                "input_sha256": file_digest(item["path"]),
             }
             writer.writerow(row)
             stream.flush()

@@ -3,7 +3,8 @@
 與 `report_matrix_data.py`(等失真臂、11 條件)是兩份不同的資料，理由與協定
 差異見 `main_table/README.md` 的「三組資料的關係」。這一支對應
 `results/displacement.csv`、`results/defence_<條件>.csv`、`results/retention.csv`
-三張主讀數 CSV，外加 `metrics_*_union.csv` 四張(含新加的 `metrics_vmaf_union.csv`)。
+三張主讀數 CSV，外加 `metrics_*_union.csv` 四張(含新加的 `metrics_vmaf_union.csv`)，以及
+FLUX 與 UltraEdit（SD3）兩個跨編輯器的獨立一節。
 
 縮圖直接從本機 `images/` 讀,轉 WebP 存進 `<報告目錄>/img/`(不經過遠端)。
 
@@ -63,6 +64,11 @@ FLUX_METRICS = [
     ("clip_pair", "CLIP", "down", 4),
     ("siglip_pair", "SigLIP", "down", 4),
 ]
+
+#: UltraEdit 全表：同一組位移欄位，另有 id_orig 與淨化後保留率。
+ULTRA_PROMPTS = ["0", "1", "2", "3"]
+ULTRA_STRIP_COLS = ["undefended"] + CONDITIONS
+ULTRA_THUMB = 208
 
 AESTHETIC = [
     ("aes_laion", "LAION Aesthetic", "up"),
@@ -207,6 +213,7 @@ def build_data() -> dict:
             "rows": aes_by_image,
         },
         "flux": build_flux(),
+        "ultra": build_ultraedit(),
     }
 
 
@@ -239,6 +246,54 @@ def build_flux() -> dict:
         "methods": methods,
         "order": order,
         "median": median,
+    }
+
+
+def build_ultraedit() -> dict:
+    """UltraEdit（SD3）全表（`edit_ultraedit_full.py`）的讀數，獨立一節。
+
+    協定：`add` 句型、guidance 2.5、image guidance 1.5、512×512、50 步，與
+    ip2p/inpaint/FLUX 都不同，數字不放進同一張聚合表。位移與保留率由
+    `edit_displacement.py`／`edit_retention.py` 原樣算出，欄位與主表同一組。
+    """
+    disp = load("displacement_ultraedit.csv")
+    ret = load("retention_ultraedit.csv")
+    edits = {c: load(f"ultraedit_full/{c}.csv") for c in ["undefended"] + CONDITIONS}
+
+    def retained(cond, purifier=None):
+        v = [float(r["retained"]) for r in ret
+             if r["condition"] == cond and r["retained"]
+             and (purifier is None or r["purifier"] == purifier)]
+        return round(st.mean(v), 4) if v else None
+
+    def agg(cond):
+        sel = [r for r in disp if r["condition"] == cond]
+        out = {k: mean(sel, k) for k, _, _, _ in FLUX_METRICS}
+        plain = [r for r in edits[cond] if r["purifier"] == "none"]
+        out["id_orig"] = mean(plain, "id_orig", 4)
+        out["blocked"] = sum(1 for r in sel if r["blocked"] == "True")
+        out["cells"] = len(sel)
+        out["ret"] = retained(cond)
+        out["ret_p"] = {p: retained(cond, p) for p in PURIFIERS}
+        out["name"] = cond
+        return out
+
+    methods = [agg(c) for c in CONDITIONS]
+    base = [r for r in edits["undefended"] if r["purifier"] == "none"]
+    order = [m["name"] for m in sorted(methods, key=lambda x: -(x["disp_lpips_full"] or 0))]
+    median_keys = [k for k, _, _, _ in FLUX_METRICS] + ["id_orig", "ret"]
+    median = {k: round(st.median([m[k] for m in methods if m[k] is not None]), 5)
+              for k in median_keys if any(m[k] is not None for m in methods)}
+    prompts = {r["prompt_index"]: r["prompt"] for r in base}
+    return {
+        "metrics": [{"key": k, "label": l, "dir": d, "dp": p} for k, l, d, p in FLUX_METRICS],
+        "methods": methods,
+        "order": order,
+        "median": median,
+        "undefended_id_orig": mean(base, "id_orig", 4),
+        "prompts": [prompts[i] for i in ULTRA_PROMPTS],
+        "prompt_index": ULTRA_PROMPTS,
+        "strip_cols": ULTRA_STRIP_COLS,
     }
 
 
@@ -298,6 +353,24 @@ def build_images(out: Path) -> None:
             if not src.is_file():
                 raise SystemExit(f"缺 FLUX 縮圖(先跑過 report/flux_full 那份嗎?): {src}")
             shutil.copy(src, img_dir / f"flux_{cond}_{name}_p0.webp")
+            n += 1
+    # UltraEdit 全表：從本機 images/ultraedit_full/ 轉（遠端產物拉回來的同一版面）。
+    # 每列（影像 × 指令）拼成一張橫條，欄序為 ULTRA_STRIP_COLS，頁面以 CSS 位移取格：
+    # 已發布的 artifact 每版上限 511 個檔，逐格一檔會超過。
+    from PIL import Image
+    ultra = paths.IMAGES / "ultraedit_full"
+    for name in NAMES:
+        for pi in ULTRA_PROMPTS:
+            strip = Image.new("RGB", (ULTRA_THUMB * len(ULTRA_STRIP_COLS), ULTRA_THUMB))
+            for k, cond in enumerate(ULTRA_STRIP_COLS):
+                src = (ultra / "edit_preflight" / "ultraedit_undefended" if cond == "undefended"
+                       else ultra / "edit_defended" / cond / f"ultraedit_{cond}") / f"{name}__p{pi}.png"
+                if not src.is_file():
+                    raise SystemExit(f"缺 UltraEdit 編輯圖: {src}")
+                with Image.open(src) as im:
+                    strip.paste(im.convert("RGB").resize((ULTRA_THUMB, ULTRA_THUMB), Image.LANCZOS),
+                                (k * ULTRA_THUMB, 0))
+            strip.save(img_dir / f"ultra_{name}_p{pi}.webp", "WEBP", quality=82, method=6)
             n += 1
     print(f"[IMAGES] {n} 張 -> {img_dir}", flush=True)
 

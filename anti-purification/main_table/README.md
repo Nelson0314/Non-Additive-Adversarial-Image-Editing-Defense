@@ -39,6 +39,9 @@
 | `results/displacement_flux.csv` | 384 | FLUX 全表的位移，欄位與 `displacement.csv` 同組 |
 | `results/sdedit_preview*.csv`、`sdedit_preview_stable-diffusion-*.csv` | 各數格到數十格 | SD 1.5／2.1-base 在不同 strength／guidance 下的小樣本探索，SDEdit 這條線最終被放棄，原因與資料見 STATUS.md |
 | `results/sd_family_sdxl_ip2p_grid.csv`、`sd_family_sdxl_ip2p_all8.csv` | 72、192 | SDXL-InstructPix2Pix（`diffusers/sdxl-instructpix2pix-768`）的 guidance × image guidance 探索，768×768、30 步，見 STATUS.md「SDXL-InstructPix2Pix」 |
+| `results/ultraedit_full/<arm>.csv` | 256 / 檔，13 檔 | UltraEdit（SD3）全表的逐格編輯，未淨化 + 7 道算子，id_orig／arcface_orig；協定見 STATUS.md「UltraEdit」 |
+| `results/displacement_ultraedit.csv`、`retention_ultraedit.csv` | 384、2,688 | UltraEdit 全表的位移與保留率，由 `edit_displacement.py`／`edit_retention.py` 原樣算出 |
+| `results/sd_family_*.csv`、`sd_family_offtarget_*.csv` | 數十至兩百格 | SDXL-IP2P 與 UltraEdit 的參數／句型掃描，及指令以外改動的讀數（背景／主體 ΔE00、LPIPS） |
 | `results/flux_preview*.csv` | 各 4 格 | FLUX guidance／true-CFG 小樣本探索 |
 
 十二個條件：`dct_shield_y`、`mist`、`dct_shield`、`photoguard_linf`、`danp`、
@@ -91,7 +94,10 @@
 | 腳本 | 做什麼 |
 |---|---|
 | `edit_sdedit_preview.py` | SD 1.x／2.x 的 SDEdit 小樣本，`--strengths`／`--guidances`／`--model` 三個維度都能單獨掃 |
-| `edit_sd_family_preview.py` | SD 1.4／1.5 以外的 SD 系列編輯器（`--editor sdxl-ip2p`／`sdxl-img2img`／`sd3-img2img`）的參數網格，CSV 可續跑，另產一張對照圖 |
+| `edit_sd_family_preview.py` | SD 1.4／1.5 以外的 SD 系列編輯器（`--editor sdxl-ip2p`／`sd3-ultraedit`／`sdxl-img2img`／`sd3-img2img`）的參數與句型（`--prompt-sets`）網格，CSV 可續跑，另產一張對照圖 |
+| `ultraedit_sd3_pipeline.py` | UltraEdit 的 SD3 指令式編輯管線，移植自作者的 diffusers fork |
+| `sd_family_offtarget_readout.py` | 編輯結果對原圖的背景／主體 ΔE00 與整張 LPIPS（指令以外的改動） |
+| `edit_ultraedit_full.py` | UltraEdit 全表（13 arm × 未淨化與 7 道算子），輸出沿用主表版面 |
 | `edit_flux_preview.py` | FLUX.1-Kontext 全表(`--arm undefended`／`--arm <條件>`，每個 arm 32 格，CSV 逐格 append 可續跑) |
 | `edit_displacement_flux.py` | FLUX 全表的位移，欄位對齊 `displacement.csv` |
 | `flux_full_queue_a.sh` | 依序跑一串 arm 用的排隊腳本，一張卡一份 |
@@ -128,7 +134,7 @@
 
 | 目錄 | 內容 | 產生方式 |
 |---|---|---|
-| `report/main/` | **主表**，原生預算 12 條件：防禦圖矩陣、編輯矩陣、VMAF 圖表、fidelity／displacement／retention 三張指標表、美術指標真圖對照、FLUX 獨立一節 | `code/report_main_data.py --out report/main` |
+| `report/main/` | **主表**，原生預算 12 條件：防禦圖矩陣、編輯矩陣、VMAF 圖表、fidelity／displacement／retention 三張指標表、美術指標真圖對照、FLUX 與 UltraEdit（SD3）各一節 | `code/report_main_data.py --out report/main` |
 | `report/aligned_matrix.html`(+`data.js`、`img/`，與 `report/main/` 同一層) | **等失真臂**，10 條件縮到同一 LPIPS 錨點 + colour_curve_ours | `code/report_matrix_data.py --out report/data.js`(影像另外手動轉，見該檔 docstring) |
 | `report/flux_full/` | FLUX 全表樣張，4 影像 × 4 指令 × 13 arm，每格標 id_orig | 手動組的縮圖 + inline data，來源見 `images/flux_full/` |
 | `report/editor_check/` | SD 1.5／SD 2.1(含修正前的 v-prediction 版本，留作對照)／FLUX 在同一組指令下的實際輸出，判斷編輯器本身有沒有站得住 | 手動組 |

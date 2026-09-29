@@ -101,6 +101,10 @@ svg.bars .title{font-family:var(--sans); font-size:11.5px; font-weight:600;
              font-variant-numeric:tabular-nums}
 .ae-imglabel{font-family:var(--sans); font-size:11px; font-weight:600; color:var(--ink);
              width:64px; flex:0 0 auto; padding-top:36px}
+#ultragrid td{padding:2px; border-bottom:0; width:108px; min-width:108px}
+#ultragrid .sp{width:104px; height:104px; border-radius:2px; background-repeat:no-repeat;
+  background-size:1352px 104px; background-color:var(--sunk)}
+.note{font-family:var(--sans); font-size:12px; color:var(--muted); margin:4px 0 10px}
 </style>
 
 <h2>defence images · fid LPIPS / VMAF</h2>
@@ -134,6 +138,16 @@ svg.bars .title{font-family:var(--sans); font-size:11.5px; font-weight:600;
 </div>
 <div class="scroll"><table id="tflux"></table></div>
 <div class="scroll"><table id="fluxgrid"></table></div>
+
+<h2>UltraEdit (SD3) · "Add … to the person", guidance 2.5, image guidance 1.5, 512×512, 50 steps(協定與 ip2p/inpaint/FLUX 不同，不可直接比較)</h2>
+<p class="note" id="ultra-note"></p>
+<div class="chartwrap">
+  <svg class="bars" id="chart-ultra-id" viewBox="0 0 480 300"></svg>
+  <svg class="bars" id="chart-ultra-lpips" viewBox="0 0 480 300"></svg>
+</div>
+<div class="scroll"><table id="tultra"></table></div>
+<div class="scroll"><table id="tultraret"></table></div>
+<div class="scroll"><table id="ultragrid"></table></div>
 
 <script src="data.js"></script>
 <script>
@@ -346,6 +360,49 @@ svg.bars .title{font-family:var(--sans); font-size:11.5px; font-weight:600;
     }).join('') + '</tr>';
   }).join('') + '</tbody>';
   document.getElementById('fluxgrid').innerHTML = fhead + fbody;
+
+  /* UltraEdit 全表 */
+  var U = D.ultra;
+  var byNameUltra = {}; U.methods.forEach(function(m){ byNameUltra[m.name] = m; });
+  document.getElementById('ultra-note').textContent =
+    'undefended id_orig ' + f(U.undefended_id_orig, 3) +
+    '(FaceNet, edit(original) vs original). displacement = edit(original) vs edit(defended); ' +
+    'retained = displacement after purification / displacement without purification, 7 operators.';
+  barChart('chart-ultra-id', 'id_orig(FaceNet, edit(defended) vs 原圖)', 'id_orig', 3,
+          '', U.order, byNameUltra);
+  barChart('chart-ultra-lpips', 'displacement LPIPS(edit(undefended) vs edit(defended))',
+          'disp_lpips_full', 3, '', U.order, byNameUltra);
+  metricTable('tultra', U.metrics.map(function(m){
+    return {key:m.key, label:m.label, dir:m.dir, dp:m.dp, ref:'x'};
+  }).concat([{key:'id_orig', label:'id_orig', dir:'up', dp:3, ref:'x'},
+             {key:'blocked', label:'blocked', dir:'up', dp:0}]),
+    U.order, byNameUltra);
+  U.methods.forEach(function(m){
+    D.purifiers.forEach(function(p){ m['__ret_' + p] = (m.ret_p || {})[p]; });
+  });
+  metricTable('tultraret', [{key:'ret', label:'retained', dir:'up', dp:4}]
+    .concat(D.purifiers.map(function(p){ return {key:'__ret_' + p, label:p, dir:'up', dp:4}; })),
+    U.order, byNameUltra);
+
+  var ultraCols = ['undefended'].concat(U.order);
+  var uhead = '<thead><tr><th class="rh corner"></th>' + ultraCols.map(function(c){
+    return '<th class="mh' + (c === 'colour_curve_ours' ? ' ours' : '') + '">' + c + '</th>';
+  }).join('') + '</tr></thead>';
+  var urows = [];
+  U.prompt_index.forEach(function(pi, k){
+    D.names.forEach(function(nm){ urows.push({nm:nm, pi:pi, prompt:U.prompts[k]}); });
+  });
+  var ubody = '<tbody>' + urows.map(function(r){
+    var rh = '<th class="rh"><div class="rl">' +
+      '<img src="img/orig_' + r.nm + '.webp" alt="">' +
+      '<span class="t"><b>' + r.nm + '</b>' + r.prompt + '</span></div></th>';
+    return '<tr>' + rh + ultraCols.map(function(c){
+      var k = U.strip_cols.indexOf(c);
+      return '<td><div class="sp" style="background-image:url(img/ultra_' + r.nm + '_p' + r.pi +
+        '.webp);background-position:-' + (k * 104) + 'px 0"></div></td>';
+    }).join('') + '</tr>';
+  }).join('') + '</tbody>';
+  document.getElementById('ultragrid').innerHTML = uhead + ubody;
 })();
 </script>
 </html>

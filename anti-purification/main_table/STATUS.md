@@ -123,6 +123,49 @@ commit 記錄(`git log --oneline -- main_table/code/edit_sdedit_preview.py`)。
 對照圖在遠端 `main_table/images/sd_family/<批次>/`（`sheet*.jpg`），不入版控。
 這一支與 ip2p（512×512、SD 1.5 骨幹）解析度與骨幹都不同，數字不可與主表直接比。
 
+**指令以外的改動**（`code/sd_family_offtarget_readout.py`：背景區與主體區對原圖的
+平均 ΔE00、整張 LPIPS，背景區 = `data/portraits/masks/`）。主表 ip2p 未防禦編輯
+（g7.5、ig1.8、512×512、50 步）背景 2.90、主體 8.39、LPIPS 0.196；SDXL-IP2P
+g7.5／ig1.8 背景 25.8、主體 26.3、LPIPS 0.507；image guidance 推到 4.0（g3）背景
+仍 21.1、主體降到 12.8。空指令、g3／ig4 的輸出同樣把白背景換成灰色或紋理、加
+亮暈；VAE 編碼再解碼的背景 ΔE00 為 0.5–0.8。背景改動因此來自 checkpoint 本身
+的輸出分佈，不隨 guidance 消失。讀數：`results/sd_family_offtarget_*.csv`，
+參照列 `results/sd_family_offtarget_ip2p_si18_reference.csv`。
+
+### 十、UltraEdit（SD3）：參數與句型的選定，及全表
+`code/edit_sd_family_preview.py --editor sd3-ultraedit`，權重
+`BleachNick/SD3_UltraEdit_freeform`（UltraEdit，arXiv:2407.05282，SD3-medium 骨幹、
+不需遮罩的版本，512×512）。官方 diffusers 沒有它的管線，`code/ultraedit_sd3_pipeline.py`
+移植自作者的 fork，只改 import。作者 README 的範例值是 g7.5、ig1.5、50 步、
+`negative_prompt=""`，此外沒有指令寫法的說明；論文列的指令是祈使句
+（Add／Change／Replace／Remove／Transform 等九類）。
+
+選定過程（2–4 張影像，讀數見 `results/sd_family_*ultraedit*.csv` 與對應的
+`sd_family_offtarget_*.csv`）：
+1. g7.5：領結乾淨；墨鏡那格 man_00 整張臉被換（id 約 0.01），woman_00 嘴唇與頭頂
+   的花被改。
+2. g 2.5／4／5.5 × ig 1.5／2.5：g 越低指令以外的改動越少；ig 2.5 反而提高對比。
+3. g2.5／ig1.5 下六種句型（原文 `Let the person wear …`、`Add … to the person`、
+   `What if the person wears …?`、`Make …`、`Put … on …`、原文加
+   `, keep the face unchanged`，`code/prompt_sets_ultraedit.json`）：背景 ΔE00
+   2.21–2.34、LPIPS 0.169–0.180，差距小於影像間的差距；四條指令的執行情況相同。
+   `police suit` 在六種句型下都沒有被執行。
+4. 換名詞（`police uniform`、`bow tie`）與指明部位的句型，g2.5 與 g4
+   （`code/prompt_sets_ultraedit_round2.json`）：g4 下制服只在兩張女性影像局部
+   出現，墨鏡那格的換臉加重（man_00 id 0.09–0.13），背景與主體改動增加。
+
+全表採 `add` 句型（`Add sunglasses／a police suit／a helmet／a bowtie to the person`）、
+g2.5、ig1.5、50 步：g2.5 下各句型之中它的背景 ΔE00、主體 ΔE00、LPIPS 三項都最低
+（2.21／4.80／0.169，4 張影像）。這一組的背景改動低於主表 ip2p 的 2.90。
+
+全表：`code/edit_ultraedit_full.py`，分母 + 12 條件 × （未淨化 + 7 道淨化算子）
+× 8 影像 × 4 指令 ＝ 3,328 格，單卡每格 7.4 秒（含身分讀數）。輸入沿用主表已產好
+的防禦圖與淨化後輸入（`runs/edit_purified/.../<圖>__orig.png`，即主表 ip2p 實際送進
+編輯器的那張），不重跑防禦與淨化。位移與保留率由 `edit_displacement.py`、
+`edit_retention.py` 原樣算出（逐條件算，最後合併）：`results/ultraedit_full/<arm>.csv`
+（逐格編輯與身分讀數）、`results/displacement_ultraedit.csv`、
+`results/retention_ultraedit.csv`。報告頁 `report/main/` 有獨立一節。
+
 ## 報告頁
 
 五份報告的清單與各自協定見 `README.md`「報告頁」一節，這裡只記已發布的

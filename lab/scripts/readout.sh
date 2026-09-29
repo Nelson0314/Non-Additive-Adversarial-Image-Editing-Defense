@@ -18,11 +18,15 @@ echo "[START] $(date -Is) displacement"
 "$PY" lab/code/edit_displacement.py \
     --defended-root "$L/edit_defended" --preflight "$L/edit_preflight" \
     --data "$DATA" --out lab/results/displacement.csv
-echo "[EXIT] $(date -Is) displacement rc=$?"
+rc=$?
+echo "[EXIT] $(date -Is) displacement rc=$rc"
+[ "$rc" -eq 0 ] || exit "$rc"
 
 echo "[START] $(date -Is) retention"
 "$PY" lab/code/edit_retention.py \
     --purified-root "$L/edit_purified" --displacement lab/results/displacement.csv \
     --data "$DATA" --out lab/results/retention.csv
-echo "[EXIT] $(date -Is) retention rc=$?"
+rc=$?
+echo "[EXIT] $(date -Is) retention rc=$rc"
+[ "$rc" -eq 0 ] || exit "$rc"
 echo "[READOUT-DONE] $(date -Is)"

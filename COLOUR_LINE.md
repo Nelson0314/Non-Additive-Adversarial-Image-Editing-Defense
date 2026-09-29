@@ -517,7 +517,7 @@ NIMA-AVA ＋ CNNIQA ＋ CLIP 影像餘弦，68 張：
 
 另：**先 `source ~/env.sh` 再 `cd`**（env.sh 會把工作目錄切走）；卡「空」要
 沒有別人的 compute app **且**已用記憶體 < 1 GB，程式化判定用 `memory.used < 1500 MiB`；
-**最多五張卡，且與其他 session 共用同一組**。
+**全局卡數由使用者逐次授權；未說明或說明不清時預設 6 張，所有 session、主機與排程合計**。
 
 # 八、參考文獻
 

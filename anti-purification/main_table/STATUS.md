@@ -77,8 +77,8 @@ b*＋ ≤ 4、b*－ ≤ 25、|ΔL*| ≤ 15）、臉框與膚色 ΔE00 ≤ 16、�
 
 ## 規矩
 
-- **GPU 一律送遠端**。卡數由使用者逐次指定，沒說就是 1 張；兩個 session 合計上限 5 張，超過要使用者明確同意。
-  派工前看 `~/lab_leases/`（`<主機> <pid> <名稱>`，兩台共用）並用
+- **GPU 一律送遠端**。全局可用卡數由使用者逐次授權；未說明或說明不清時預設 6 張，所有 session、主機與排程合計。
+  派工前看 `~/lab_leases/`（`<主機> <pid> <名稱> <擁有者 token>`，兩台共用）並用
   `nvidia-smi --query-compute-apps=gpu_uuid,pid,used_memory` 複驗；`scripts/free_cards.sh` 只擋別人佔用
   超過 512 MiB 的卡（別人單一行程在每張卡上各留約 256 MiB 的 context 可放行，使用者裁定）。
   啟動腳本要在 `free_cards.sh --assert` 失敗時中止。

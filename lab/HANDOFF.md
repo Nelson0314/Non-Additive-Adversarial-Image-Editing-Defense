@@ -31,7 +31,7 @@ lab 分兩條線，各由一個 session 負責：
 - 臂的參數只定義在 `scripts/defence_cmd.sh`。
 - **工作佇列** `scripts/queue_worker.sh <佇列名> <工作>...`，兩台主機各起一個 worker：
   ```
-  cd ~/image-immunization && bash -c 'LAB_CAP=5 LAB_MYCAP=4 nohup setsid bash lab/scripts/queue_worker.sh <佇列> <工作...> > lab/runs/logs/queue_<佇列>_$(hostname).log 2>&1 < /dev/null & disown'
+  cd ~/image-immunization && bash -c 'nohup setsid bash lab/scripts/queue_worker.sh <佇列> <工作...> > lab/runs/logs/queue_<佇列>_$(hostname).log 2>&1 < /dev/null & disown'
   ```
   注意 `cd` 要在 `bash -c` 之外，否則會跟著背景程序走。工作種類（相依寫在檔頭）：
   `def:<臂>:<影像>`（單張防禦圖，分卡平行）、`chain:<臂>`（併分片 → `arm_chain.sh`，只跑 ip2p）、
@@ -44,9 +44,15 @@ lab 分兩條線，各由一個 session 負責：
   32 格編輯約 8 分鐘。
 ## 規矩（踩過才寫的）
 
-- **卡**：判定空卡要同時看 `scripts/free_cards.sh`、租約目錄 `~/lab_leases/`（格式 `<主機> <pid> <名稱>`，
-  兩台共用）與別人 compute app 的顯存合計 < 1 GB。上限是兩個 session 合計 5 張、lab 自己 4 張；
-  超過需要使用者明確授權。
+- **卡**：判定空卡要同時看 `scripts/free_cards.sh`、租約目錄 `~/lab_leases/`（格式 `<主機> <pid> <名稱> <擁有者 token>`，
+  兩台共用）與別人 compute app 的顯存合計 < 1 GB。全局卡數由使用者逐次授權；未說明或說明不清時預設 6 張，
+  所有 session、主機與排程合計，包含非 style 工作。
+  預設值只定義在 `scripts/gpu_policy.sh`；`LAB_CAP=N`、`run_on_card.sh --cap N` 或
+  `style_prompt_round.sh <輪名> <清單> N` 可設定明確授權值，CLI 參數優先。
+  明確授權寫入共用的 `~/lab_leases/.capacity`，所有入口在取卡時重新讀取。
+  該授權維持至下一次設定；以 `LAB_CAP=default` 清除明確授權、回到共用預設值。
+  `LAB_MYCAP` 與 style 的第四個參數只能進一步限制派工，不增加全局授權。
+  候選卡清單不代表已取卡；queue、color chain 與單次派工共用 `scripts/gpu_lease.sh` 的原子取卡流程。
 - **遠端腳本不可就地覆寫**：先解到 `.stage/` 再 `mv`（跑著的 bash 邊讀邊執行，截斷同一個 inode
   會死於 Stale file handle）。Windows 寫出的 `.sh` 要確認是 LF。
 - **取卡函式的紀錄一律寫 stderr**：`$(...)` 會收走 stdout，卡號變成一串字，torch 靜默退回 CPU。

@@ -243,7 +243,7 @@ CPU 實測：恆等起點 grad absmax **0.0**，離開恆等之後 0.132。遠�
 - `HF_HOME=/var/cache/huggingface`（機器本地，不是 NFS 那份）。
 - **所有運算送遠端。** 卡是多人共用：`bingo`、`chhsu0924`、`briankuo93`、
   `cylin` 都在用。判定「空」要兩個條件同時成立：沒有別人的 compute app、
-  已用記憶體 < 1 GB。**全域上限五張。**
+  已用記憶體 < 1 GB。**全局卡數由使用者逐次授權；未說明或說明不清時預設 6 張，所有 session、主機與排程合計。**
 - 本機 Python `C:/Users/nelso/miniconda3/envs/wacv/python.exe`。
 
 ### 這一輪踩到的坑

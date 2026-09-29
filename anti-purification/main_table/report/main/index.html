@@ -107,6 +107,10 @@ svg.bars .title{font-family:var(--sans); font-size:11.5px; font-weight:600;
 .note{font-family:var(--sans); font-size:12px; color:var(--muted); margin:4px 0 10px}
 </style>
 
+<h2>cross-editor summary · displacement LPIPS(edit(defended) vs edit(undefended)) and identity after edit</h2>
+<p class="note">四欄的解析度、步數、guidance 各不相同（ip2p／inpaint 512×512、50 步；FLUX 1024×1024、guidance 3.5；UltraEdit 512×512、guidance 2.5／image guidance 1.5），並列供對照。身分為 FaceNet（編輯結果 vs 原圖）。</p>
+<div class="scroll"><table id="txeditor"></table></div>
+
 <h2>defence images · fid LPIPS / VMAF</h2>
 <div class="scroll"><table id="dgrid"></table></div>
 
@@ -160,6 +164,19 @@ svg.bars .title{font-family:var(--sans); font-size:11.5px; font-weight:600;
     if (x === null || x === undefined || isNaN(x)) return '—';
     return Number(x).toFixed(dp);
   }
+
+  /* 跨攻擊模型總表 */
+  (function(){
+    var X = D.xeditor;
+    var cols = [['fid_lpips','防禦圖 LPIPS',3],['ip2p','ip2p',3],['inpaint','inpaint',3],
+                ['flux','FLUX',3],['ultra','UltraEdit',3],['flux_id','身分 FLUX',3],['ultra_id','身分 UltraEdit',3]];
+    var h = '<thead><tr><th>condition</th>' + cols.map(function(c){ return '<th>' + c[1] + '</th>'; }).join('') + '</tr></thead>';
+    var b = '<tbody>' + X.map(function(m){
+      return '<tr' + (m.name === 'color' ? ' class="ours"' : '') + '><th>' + m.name + '</th>' +
+        cols.map(function(c){ return '<td>' + f(m[c[0]], c[2]) + '</td>'; }).join('') + '</tr>';
+    }).join('') + '</tbody>';
+    document.getElementById('txeditor').innerHTML = h + b;
+  })();
 
   /* 防禦圖矩陣 */
   var dhead = '<thead><tr><th class="rh corner"></th>' + D.order.map(function(c){

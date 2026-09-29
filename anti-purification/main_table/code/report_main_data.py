@@ -191,7 +191,8 @@ def build_data() -> dict:
     aes_by_image = {}
     for name in NAMES:
         per_metric = {}
-        rows = [r for r in aes if r["image"] == name]
+        rows = [r for r in aes if r["image"] == name
+                and r["condition"] in CONDITIONS + ["original"]]
         for key, label, direction in AESTHETIC:
             entries = [{"condition": r["condition"], "value": round(float(r[key]), 4)}
                       for r in rows if r.get(key, "") != ""]
@@ -214,6 +215,7 @@ def build_data() -> dict:
         },
         "flux": build_flux(),
         "ultra": build_ultraedit(),
+        "xeditor": build_xeditor(),
     }
 
 
@@ -295,6 +297,42 @@ def build_ultraedit() -> dict:
         "prompt_index": ULTRA_PROMPTS,
         "strip_cols": ULTRA_STRIP_COLS,
     }
+
+
+def build_xeditor() -> list:
+    """同一方法在四個攻擊模型上的位移（LPIPS，全圖）與編輯後身分，逐條件一列。
+
+    四欄的協定各不相同（解析度、步數、guidance），並列只供對照，不是同一把尺。
+    """
+    def disp_mean(rows, cond, scenario=None):
+        v = [float(r["disp_lpips_full"]) for r in rows if r["condition"] == cond
+             and (scenario is None or r["scenario"] == scenario)]
+        return round(st.mean(v), 4) if v else None
+
+    main = load("displacement.csv")
+    flux = load("displacement_flux.csv")
+    ultra = load("displacement_ultraedit.csv")
+    out = []
+    for cond in CONDITIONS:
+        fl = load(f"flux_full_{cond}.csv")
+        ue = [r for r in load(f"ultraedit_full/{cond}.csv") if r["purifier"] == "none"]
+        out.append({
+            "name": cond,
+            "fid_lpips": mean(load(f"defence_{cond}.csv"), "fid_lpips", 4),
+            "ip2p": disp_mean(main, cond, "ip2p"),
+            "inpaint": disp_mean(main, cond, "inpaint"),
+            "flux": disp_mean(flux, cond),
+            "ultra": disp_mean(ultra, cond),
+            "flux_id": mean(fl, "id_orig", 4),
+            "ultra_id": mean(ue, "id_orig", 4),
+        })
+    out.sort(key=lambda m: -(m["ip2p"] or 0))
+    base_fl = load("flux_full_undefended.csv")
+    base_ue = [r for r in load("ultraedit_full/undefended.csv") if r["purifier"] == "none"]
+    out.append({"name": "undefended", "fid_lpips": None, "ip2p": None, "inpaint": None,
+                "flux": None, "ultra": None, "flux_id": mean(base_fl, "id_orig", 4),
+                "ultra_id": mean(base_ue, "id_orig", 4)})
+    return out
 
 
 def to_webp(src: Path, dst: Path, size: int = 220) -> None:

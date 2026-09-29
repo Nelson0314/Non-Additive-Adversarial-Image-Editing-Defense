@@ -72,8 +72,6 @@ b*＋ ≤ 4、b*－ ≤ 25、|ΔL*| ≤ 15）、臉框與膚色 ΔE00 ≤ 16、�
 - `metrics_union.py` 讀 `main_table/images/` 的版面；遠端沒有這個版面，要在本機跑（本機 `python` 缺 `piq`，
   用 `C:\Users\nelso\miniconda3\envs\wacv\python.exe`；它固定用 CPU），或在遠端先把 `runs/` 的對應目錄
   連結進 `main_table/images/`。
-- 已發布的 artifact：主表 <https://claude.ai/artifact/Qdde7nZt2uqewfTtrTTuLg>（發布內容是舊顏色列版本），
-  等失真臂 <https://claude.ai/artifact/NcyZMLGorwD5Pgrc3sYCqc>。報告原始檔已自 repo 移除。
 
 ## 規矩
 

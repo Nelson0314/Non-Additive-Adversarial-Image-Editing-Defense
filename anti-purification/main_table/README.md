@@ -1,19 +1,18 @@
 # 主表：十二個免疫方法在同一條編輯管線上的比較
 
-這個目錄是主表的交付面：**報告頁、讀數、逐格影像、產生它們的程式、以及每個
-數字的出處**。建立進度、三組資料的關係與接續指引在 `STATUS.md`。
+這個目錄是主表的交付面：**讀數、逐格影像、產生它們的程式、以及每個數字的出處**。
+現況、各資料組的關係與接續指引在 `STATUS.md`。
 
 ## 目錄
 
 | 路徑 | 內容 |
 |---|---|
-| `report/` | 五份報告頁的原始檔，每份自足（見下方「報告頁」一節逐份列出） |
-| `results/` | 主讀數、`metrics_*_union` 聯集、`aligned/` 等失真臂、跨編輯器探索的讀數，共 40 張 CSV |
+| `results/` | 主讀數、`metrics_*_union` 聯集、`aligned/` 等失真臂、跨編輯器的讀數 |
 | `code/` | 管線腳本與共用的路徑解析 `paths.py`（詳見「程式」一節） |
 | `docs/` | 指向主線 `../docs/` 的查閱表（出處文件已合併，正本在那裡） |
-| `images/` | 逐格影像（版控範圍見 `.gitignore`，只有 CSV 進版控） |
+| `images/` | 逐格影像的本機部分鏡像（不入版控；遠端位置見 STATUS.md「遠端」） |
 | `tests/` | 十二個條件的規格釘樁（`pytest tests/`，不需 GPU） |
-| `STATUS.md` | 建立進度、三組資料的關係、接續指引 |
+| `STATUS.md` | 現況、資料組的關係、接續指引 |
 
 ## 讀數
 
@@ -31,23 +30,23 @@
 | `results/defence_<方法>.csv` | 8 / 檔 | 防禦圖對原圖的失真與該方法的求解設定（各篇原生預算） |
 | `results/aligned/defence_<方法>_aligned.csv` | 8 / 檔 | 同十個方法縮到同一個 LPIPS 錨點（0.3344）的求解結果，見該目錄的 `README.md` |
 
-跨編輯器探索(FLUX 全表 + SDEdit 診斷，協定與主讀數不同，見 STATUS.md「跨編輯器遷移」)：
+跨編輯器（協定與主讀數不同，見 STATUS.md「跨編輯器」）：
 
 | 檔 | 列數 | 內容 |
 |---|---|---|
 | `results/flux_full_<arm>.csv` | 32 / 檔，13 檔(分母 + 12 條件) | FLUX.1-Kontext 編輯輸出的 id_orig／arcface_orig，guidance 3.5、1024×1024 |
 | `results/displacement_flux.csv` | 384 | FLUX 全表的位移，欄位與 `displacement.csv` 同組 |
 | `results/sdedit_preview*.csv`、`sdedit_preview_stable-diffusion-*.csv` | 各數格到數十格 | SD 1.5／2.1-base 在不同 strength／guidance 下的小樣本探索，SDEdit 這條線最終被放棄，原因與資料見 STATUS.md |
-| `results/sd_family_sdxl_ip2p_grid.csv`、`sd_family_sdxl_ip2p_all8.csv` | 72、192 | SDXL-InstructPix2Pix（`diffusers/sdxl-instructpix2pix-768`）的 guidance × image guidance 探索，768×768、30 步，見 STATUS.md「SDXL-InstructPix2Pix」 |
-| `results/ultraedit_full/<arm>.csv` | 256 / 檔，13 檔 | UltraEdit（SD3）全表的逐格編輯，未淨化 + 7 道算子，id_orig／arcface_orig；協定見 STATUS.md「UltraEdit」 |
+| `results/ultraedit_full/<arm>.csv` | 256 / 檔，13 檔 | UltraEdit（SD3）全表的逐格編輯，未淨化 + 7 道算子，id_orig／arcface_orig |
 | `results/displacement_ultraedit.csv`、`retention_ultraedit.csv` | 384、2,688 | UltraEdit 全表的位移與保留率，由 `edit_displacement.py`／`edit_retention.py` 原樣算出 |
-| `results/sd_family_*.csv`、`sd_family_offtarget_*.csv` | 數十至兩百格 | SDXL-IP2P 與 UltraEdit 的參數／句型掃描，及指令以外改動的讀數（背景／主體 ΔE00、LPIPS） |
+| `results/sd_family_*.csv`、`sd_family_offtarget_*.csv` | 數十至兩百格 | SDXL-IP2P 與 UltraEdit 的參數／句型掃描（未防禦影像），及指令以外改動的讀數（背景／主體 ΔE00、LPIPS）；`sd_family_offtarget_ip2p_si18_reference.csv` 是主表 ip2p 的對照 |
+| `results/passthrough.csv` | 704 | 穿透拆解（ip2p，原生 12 條件 + 等失真 10 條件），見 `results/PASSTHROUGH.md` |
 | `results/flux_preview*.csv` | 各 4 格 | FLUX guidance／true-CFG 小樣本探索 |
 
 十二個條件：`dct_shield_y`、`mist`、`dct_shield`、`photoguard_linf`、`danp`、
 `sifm`、`dayn`、`dia_pt`、`dia_r`、`photoguard_c`、`color`、`diffvax`。
-顏色那一列原為 `colour_curve_ours`，已由 lab 的現行方法 `color` 取代（見 STATUS.md「顏色列換成 `color`」）；
-等失真臂仍以舊顏色列的 0.3344 為錨點，未重新對齊。
+顏色那一列原為 `colour_curve_ours`（數值留在 commit `0dd243b`），現為 lab 的現行方法 `color`；
+等失真臂仍以舊顏色列的 0.3344 為錨點（見 STATUS.md）。
 每個條件 8 影像 × 4 指令 × 2 場景 ＝ 64 格。
 
 ## 協定
@@ -100,18 +99,16 @@
 | `ultraedit_sd3_pipeline.py` | UltraEdit 的 SD3 指令式編輯管線，移植自作者的 diffusers fork |
 | `sd_family_offtarget_readout.py` | 編輯結果對原圖的背景／主體 ΔE00 與整張 LPIPS（指令以外的改動） |
 | `edit_ultraedit_full.py` | UltraEdit 全表（13 arm × 未淨化與 7 道算子），輸出沿用主表版面 |
+| `color_row_chain.sh` | `color` 取代顏色列的整條鏈：`main` 模式跑匯入、編輯、淨化、淨化後重編與 UltraEdit，`flux` 模式跑 FLUX |
 | `edit_flux_preview.py` | FLUX.1-Kontext 全表(`--arm undefended`／`--arm <條件>`，每個 arm 32 格，CSV 逐格 append 可續跑) |
 | `edit_displacement_flux.py` | FLUX 全表的位移，欄位對齊 `displacement.csv` |
 | `flux_full_queue_a.sh` | 依序跑一串 arm 用的排隊腳本，一張卡一份 |
-| `report_main_data.py` | 產生 `report/main/` 的 `data.js` 與縮圖(原生 12 條件主表 + FLUX 一節) |
-| `report_matrix_data.py` | 產生 `report/aligned_matrix.html` 的 `data.js`(等失真臂) |
 | `passthrough_readout.py` | 穿透拆解，見 `results/PASSTHROUGH.md` |
 
 ## 影像原檔
 
-逐格原檔是 **512×512 RGB PNG**，全部在 `images/`，共 11,848 張。主表用到的是
-其中 6,768 格，其餘是其他臂與逐條件各存一份的 `__orig` 副本（96 張，內容同一
-組 8 張原圖）。
+主表的逐格原檔是 **512×512 RGB PNG**（FLUX 為 1024×1024），版面如下（相對於本機 `images/`；
+遠端對應主線 `runs/` 的同名目錄）。
 
 | 用途 | 格數 | 路徑式樣 |
 |---|---|---|
@@ -125,22 +122,3 @@
 
 原圖與遮罩在主線目錄另有一份：`../data/portraits/` 底下的
 `man/`、`woman/`、`masks/`。`images/masks/` 與該處的 `masks/` 八張逐位元相同。
-
-## 報告頁
-
-`report/` 底下五份報告中，四份（`main/`、`flux_full/`、`editor_check/`、
-`sd_samples/`）資料與影像都在同一個目錄裡（相對路徑引用 `data.js` 與
-`img/`，或直接內嵌），本機直接雙擊 `index.html` 就能看。**`aligned_matrix.html`
-是例外**：`data.js` 本機有（見 STATUS.md），但 `img/` 只在已發布的 artifact
-裡，本機開只看得到表格看不到圖。
-
-| 目錄 | 內容 | 產生方式 |
-|---|---|---|
-| `report/main/` | **主表**，原生預算 12 條件：防禦圖矩陣、編輯矩陣、VMAF 圖表、fidelity／displacement／retention 三張指標表、美術指標真圖對照、FLUX 與 UltraEdit（SD3）各一節 | `code/report_main_data.py --out report/main` |
-| `report/aligned_matrix.html`(+`data.js`、`img/`，與 `report/main/` 同一層) | **等失真臂**，10 條件縮到同一 LPIPS 錨點 + colour_curve_ours | `code/report_matrix_data.py --out report/data.js`(影像另外手動轉，見該檔 docstring) |
-| `report/flux_full/` | FLUX 全表樣張，4 影像 × 4 指令 × 13 arm，每格標 id_orig | 手動組的縮圖 + inline data，來源見 `images/flux_full/` |
-| `report/editor_check/` | SD 1.5／SD 2.1(含修正前的 v-prediction 版本，留作對照)／FLUX 在同一組指令下的實際輸出，判斷編輯器本身有沒有站得住 | 手動組 |
-| `report/sd_samples/` | SD 1.5(strength 0.3–0.6)與 SD 2.1-base(0.2／0.3／0.5)並排，判斷指令有沒有被執行 | 手動組 |
-
-五份的協定各不相同（原生預算 vs 等失真 vs FLUX 自己的 guidance/解析度），
-**引用數字時連同來源報告與協定一起引用**，不要跨報告直接比大小。

@@ -9,9 +9,9 @@
 | 問題 | 十二個免疫方法在同一條管線上誰推得動編輯 | 本專案自己的顏色方法要怎麼變強 |
 | 位置 | `anti-purification/`（遠端 `image-immunization`） | **已刪除**，紀錄留在 `COLOUR_LINE.md` |
 | 狀態 | **已完成，12 條件 × 64 格全齊** | **已停止並移除**（使用者裁定） |
-| 交集 | 主表的 `colour_curve_ours` 是顏色線目前交付的操作點 | 有成果才會換掉主表那一列 |
+| 交集 | 主表的顏色列已換成 lab 的現行方法 `color`（使用者指示；舊列 `colour_curve_ours` 留在 commit `0dd243b`） | 見 `anti-purification/main_table/STATUS.md` |
 
-改良實驗**不得寫入主目錄**，主表的數字也不會因為它而改變。詳見「顏色載體的改良實驗」一節。
+改良實驗**不得寫入主目錄**；主表的數字只在使用者指示時更換（顏色列已依指示換成 `color`）。詳見「顏色載體的改良實驗」一節。
 
 **貼片線的檔案不要動**：`src/defense/{material_patch,patch_canvas,print_patch,outside_terms}.py`、
 `scripts/{immunise_patch,patch_probe,print_probe}*`、`configs/immunise_patch*.json`、
@@ -49,8 +49,8 @@
 `disp_purified_subject` 與 `disp_purified_background` 就是用未變換的遮罩算的。**
 全圖的那幾欄不受遮罩影響。
 
-`anti-purification/main_table/results/retention.csv` 現況是尚未重跑；
-報告頁引用的是同一份 CSV。使用者裁定之後再跑，不急著送遠端。
+`anti-purification/main_table/results/retention.csv` 中 `color` 以外的 11 個條件尚未重跑；
+`color` 列與 UltraEdit 的保留率是在 `199b7de` 之後算的。使用者裁定之後再跑，不急著送遠端。
 
 ---
 

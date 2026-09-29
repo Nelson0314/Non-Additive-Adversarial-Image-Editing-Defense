@@ -1,5 +1,7 @@
 # 穿透拆解：位移裡有多少是防禦端的改動原樣穿過編輯器
 
+> 本文的顏色列數字屬於舊顏色方法 `colour_curve_ours`（對應 commit `0dd243b` 的 `passthrough.csv`）。現行 `passthrough.csv` 的顏色列已換成 `color`，本文未改寫。
+
 `results/displacement.csv` 的位移 `D = LPIPS(edit(x), edit(x_def))` 把兩件事算在
 一起：防禦圖的改動**原樣穿過**編輯器所造成的差異，以及編輯器真的被推離原本輸出的
 部分。這份讀數把兩者分開。

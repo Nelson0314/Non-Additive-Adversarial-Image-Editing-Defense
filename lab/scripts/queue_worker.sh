@@ -37,7 +37,8 @@ mkdir -p "$LEASE" "$Q" "$LOGDIR" lab/runs/state
 log() { echo "[$1] $(date -Is) host=$HOST ${*:2}" >&2; }
 
 key() { echo "$1" | tr ':/' '__'; }
-done_() { [ -e "$Q/$(key "$1").done" ]; }
+validate_job() { "$PY" lab/code/validate_job.py "$1" --fid-arms ${FID_ARMS:-}; }
+done_() { [ -e "$Q/$(key "$1").done" ] && validate_job "$1" >/dev/null 2>&1; }
 dead() { [ -e "$Q/$(key "$1").GIVEUP" ]; }
 
 reap() {
@@ -84,7 +85,7 @@ merge_shards() {
   local arm="$1" src="lab/runs/defence_shards/$1" dst="lab/runs/defence/$1"
   [ -d "$src" ] || return 0
   mkdir -p "$dst"
-  cp -f "$src"/*/*.png "$dst"/
+  cp -f "$src"/*/*.png "$dst"/ || return $?
   "$PY" - "$src" "$dst/results.csv" <<'EOF'
 import csv, sys
 from pathlib import Path
@@ -96,6 +97,7 @@ with open(sys.argv[2], "w", newline="", encoding="utf-8") as fh:
     w = csv.DictWriter(fh, fieldnames=keys); w.writeheader(); w.writerows(rows)
 print(f"merged {len(rows)} rows", file=sys.stderr)
 EOF
+  [ "$?" -eq 0 ] || return 1
   local n; n=$(ls -1 "$dst"/*__"$arm"__def.png 2>/dev/null | wc -l)
   [ "$n" -eq 8 ] || { log FATAL "merge $arm 只有 $n 張防禦圖"; return 1; }
   touch "lab/runs/state/$arm.defence.done"
@@ -133,6 +135,10 @@ launch() {
     log START "$job gpu=$gpu"
     run_job "$job" "$gpu" > "$LOGDIR/$k.log" 2>&1 < /dev/null
     rc=$?
+    if [ "$rc" -eq 0 ]; then
+      validate_job "$job" >> "$LOGDIR/$k.log" 2>&1
+      rc=$?
+    fi
     log EXIT "$job gpu=$gpu rc=$rc"
     if [ "$rc" -eq 0 ]; then touch "$Q/$k.done"
     else
@@ -146,6 +152,11 @@ launch() {
   sleep 20
 }
 
+for job in "${JOBS[@]}"; do
+  if [ "$job" = fid ] && [ -z "${FID_ARMS:-}" ]; then
+    log FATAL "fid 工作必須明確指定 FID_ARMS"; exit 2
+  fi
+done
 log WORKER-START "佇列 $QNAME 工作 ${#JOBS[@]} 個"
 while true; do
   reap
@@ -180,3 +191,6 @@ while true; do
 done
 wait
 log WORKER-EXIT "全部子工作結束"
+for job in "${JOBS[@]}"; do
+  done_ "$job" || { log FATAL "工作未完成或驗收失敗：$job"; exit 1; }
+done

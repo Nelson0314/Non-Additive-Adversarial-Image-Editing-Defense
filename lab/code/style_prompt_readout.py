@@ -42,6 +42,28 @@ def edits(directory: Path, images=None):
     return out
 
 
+def read_groups(root, ref_root, styles, strengths, images=None):
+    """先核對每個指定組別，避免空讀數覆寫既有 CSV。"""
+    groups = []
+    for style in styles:
+        ref_dir = ref_root / f"ref_{style}"
+        ref = edits(ref_dir, images)
+        if not ref:
+            raise SystemExit(f"沒有符合的參照編輯格：{ref_dir}；images={sorted(images or [])}")
+        for strength in ["ref", *strengths]:
+            directory = ref_dir if strength == "ref" else root / f"{strength}_{style}"
+            cur = ref if strength == "ref" else edits(directory, images)
+            if not cur:
+                raise SystemExit(f"沒有符合的編輯格：{directory}；images={sorted(images or [])}")
+            missing = sorted(set(cur) - set(ref))
+            if missing:
+                raise SystemExit(f"{ref_dir} 缺少 {directory} 的參照格：{missing}")
+            groups.append((style, strength, ref, cur))
+    if not groups:
+        raise SystemExit(f"沒有指定的讀數組別：{root}")
+    return groups
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--edits", type=Path, required=True)
@@ -54,6 +76,8 @@ def main() -> None:
     ap.add_argument("--images", nargs="+", default=None)
     args = ap.parse_args()
     images = set(args.images) if args.images else None
+    groups = read_groups(args.edits, args.ref_edits or args.edits,
+                         args.styles, args.strengths, images)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     regional = RegionalLPIPS(piq.LPIPS().to(device))
@@ -64,30 +88,23 @@ def main() -> None:
         return load_image_tensor(Path(p), device, size=RESOLUTION)
 
     rows = []
-    for style in args.styles:
-        ref = edits((args.ref_edits or args.edits) / f"ref_{style}", images)
-        for strength in ["ref", *args.strengths]:
-            cur = ref if strength == "ref" else edits(args.edits / f"{strength}_{style}", images)
-            if not cur:
-                continue
-            if not set(cur) <= set(ref):
-                raise SystemExit(f"{strength}_{style} 有 ref_{style} 沒有的格子")
-            for (name, k), (path, prompt, inp) in sorted(cur.items()):
-                mask = subject_mask(load(args.data / "masks" / f"{name}.png")[:, :1])
-                e = load(path)
-                with torch.no_grad():
-                    u = load(args.undefended / f"{name}__p{k}.png")
-                    d = split_displacement(regional, u, e, mask)
-                    c = split_displacement(regional, load(inp), e, mask)
-                    c0 = split_displacement(regional, load(args.data / name.split("_")[0] / f"{name}.png"), u, mask)
-                    row = {"style": style, "strength": strength, "image": name, "prompt_index": k,
-                           "prompt": prompt, **{f"D_{a}": round(float(v), 5) for a, v in d.items()},
-                           **{f"C_{a}": round(float(v), 5) for a, v in c.items()},
-                           **{f"C_undef_{a}": round(float(v), 5) for a, v in c0.items()}}
-                    if strength != "ref":
-                        p = split_displacement(regional, load(ref[(name, k)][0]), e, mask)
-                        row.update({f"D_pair_{a}": round(float(v), 5) for a, v in p.items()})
-                rows.append(row)
+    for style, strength, ref, cur in groups:
+        for (name, k), (path, prompt, inp) in sorted(cur.items()):
+            mask = subject_mask(load(args.data / "masks" / f"{name}.png")[:, :1])
+            e = load(path)
+            with torch.no_grad():
+                u = load(args.undefended / f"{name}__p{k}.png")
+                d = split_displacement(regional, u, e, mask)
+                c = split_displacement(regional, load(inp), e, mask)
+                c0 = split_displacement(regional, load(args.data / name.split("_")[0] / f"{name}.png"), u, mask)
+                row = {"style": style, "strength": strength, "image": name, "prompt_index": k,
+                       "prompt": prompt, **{f"D_{a}": round(float(v), 5) for a, v in d.items()},
+                       **{f"C_{a}": round(float(v), 5) for a, v in c.items()},
+                       **{f"C_undef_{a}": round(float(v), 5) for a, v in c0.items()}}
+                if strength != "ref":
+                    p = split_displacement(regional, load(ref[(name, k)][0]), e, mask)
+                    row.update({f"D_pair_{a}": round(float(v), 5) for a, v in p.items()})
+            rows.append(row)
     args.out.parent.mkdir(parents=True, exist_ok=True)
     write_rows(args.out, rows)
 

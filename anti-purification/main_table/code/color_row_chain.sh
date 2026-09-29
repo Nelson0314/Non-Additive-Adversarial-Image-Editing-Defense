@@ -22,6 +22,18 @@ C=main_table/code
 S=runs/state_color
 mkdir -p "$S"
 step() { echo "[STEP] $(date -Is) $*"; }
+edit_stage() {
+  local defended=$1 out=$2 scenario=$3 suffix=$4 rc
+  "$PY" "$C/check_edit_complete.py" --data data/portraits --defended "$defended" \
+      --out "$out" --scenario "$scenario" --suffix "$suffix"
+  rc=$?
+  [ "$rc" -eq 0 ] && return 0
+  [ "$rc" -eq 1 ] || return "$rc"
+  "$PY" "$C/edit_preflight.py" --data data/portraits --defended "$defended" \
+      --out "$out" --scenarios "$scenario" --suffix "$suffix" --require-new-arm || return $?
+  "$PY" "$C/check_edit_complete.py" --data data/portraits --defended "$defended" \
+      --out "$out" --scenario "$scenario" --suffix "$suffix"
+}
 
 if [ "$mode" = main ]; then
   if [ ! -f "$S/import.done" ]; then
@@ -37,10 +49,8 @@ if [ "$mode" = main ]; then
     touch "$S/import.done"
   fi
   for SC in ip2p inpaint; do
-    [ -d "runs/edit_defended/color/${SC}_color" ] && continue
     step "防禦後編輯 $SC"
-    "$PY" $C/edit_preflight.py --data data/portraits --defended runs/defence_portraits/color \
-        --out runs/edit_defended/color --scenarios $SC --suffix _color --require-new-arm || exit 1
+    edit_stage runs/defence_portraits/color runs/edit_defended/color "$SC" _color || exit $?
   done
   if [ ! -f runs/purified/color/purified.csv ]; then
     step "淨化"
@@ -48,11 +58,9 @@ if [ "$mode" = main ]; then
   fi
   for PUR in jpeg50 crop_resize0.1 blur1 rotate15 jpeg30 jpeg80 blur2; do
     for SC in ip2p inpaint; do
-      [ -d "runs/edit_purified/color/$PUR/${SC}_color_$PUR" ] && continue
       step "淨化後編輯 $PUR $SC"
-      "$PY" $C/edit_preflight.py --data data/portraits --defended "runs/purified/color/$PUR" \
-          --out "runs/edit_purified/color/$PUR" --scenarios $SC \
-          --suffix "_color_$PUR" --require-new-arm || exit 1
+      edit_stage "runs/purified/color/$PUR" "runs/edit_purified/color/$PUR" \
+          "$SC" "_color_$PUR" || exit $?
     done
   done
   touch "$S/main_edits.done"

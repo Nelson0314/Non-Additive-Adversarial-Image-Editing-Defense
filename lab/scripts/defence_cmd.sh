@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 臂名 → 產防禦圖的指令。現行只有 color（參數定義在 lab/code/color_defence.py）。
+# 臂名 → 產防禦圖的指令。保留 color 與三個 simple 條件（參數定義在 lab/code/color_defence.py）。
 #
 # 用法：bash lab/scripts/defence_cmd.sh color [額外參數…]
 #        產出寫到 lab/runs/defence/color/；DEF_OUT 可覆寫（分片執行用，
@@ -15,13 +15,6 @@ case "$ARM" in
   color_simple)         exec "${C[@]}" --caps simple "${@:2}" ;;
   color_simple_xattn)   exec "${C[@]}" --caps simple --objective xattn "${@:2}" ;;
   color_simple_skinbox) exec "${C[@]}" --caps simple --box skin "${@:2}" ;;
-  color_xattn)          exec "${C[@]}" --objective xattn "${@:2}" ;;
-  # DAYN 式主體區域注意力抑制：600 步、lr 0.01 → 0.001、乘子每 10 步更新
-  color_simple_dayn)    exec "${C[@]}" --caps simple --objective dayn --steps 600 --lr 0.01 \
-                          --lr-final-ratio 0.1 --lam-every 10 "${@:2}" ;;
-  # 同上，載體換成耦合的 3D Lab 映射（Lut3D）
-  color_lut3d_dayn)     exec "${C[@]}" --caps simple --carrier lut3d --objective dayn --steps 600 --lr 0.01 \
-                          --lr-final-ratio 0.1 --lam-every 10 "${@:2}" ;;
   *)
     echo "未知的臂：$ARM" >&2; exit 2 ;;
 esac

@@ -42,8 +42,6 @@ import paths  # noqa: E402
 paths.add_source_to_syspath()
 
 import torch  # noqa: E402
-import torch.nn.functional as F  # noqa: E402
-import torch.utils.checkpoint as ckpt  # noqa: E402
 import yaml  # noqa: E402
 
 from src.defense.color_amplitude import delta_e00  # noqa: E402
@@ -154,69 +152,6 @@ class ColorMap:
         moved = (ab + self.displacement(ab)).reshape(n, h, wd, 2).permute(0, 3, 1, 2)
         L2 = 100.0 * self.lightness((lab[:, 0] / 100.0).clamp(0, 1)).unsqueeze(1)
         return lab_to_rgb(torch.cat([L2, moved], 1)).clamp(0, 1).to(x01.dtype)
-
-
-class Lut3D(ColorMap):
-    """耦合的 3D Lab 映射：錨點放在 (L, a, b) 空間，每個錨點帶 (ΔL, Δa, Δb) 位移。
-
-    L 取 `l_levels` 層（0–100 均分，σ_L 為層距），(a, b) 同 `ColorMap`（7×7、±90、σ 30）；權重為
-    兩個方向高斯核的乘積再做單位分割，像素位移是錨點位移的凸組合。仍為全域映射（只依像素自身顏色）。
-    亮度另保留單調曲線（`l_radius` 決定其最大偏離），錨點的 ΔL 由方框限制在 ±`dl_max`，合計不超過兩者之和。
-    """
-
-    name = "lut3d"
-
-    def __init__(self, l_levels=5, dl_max=5.0, **kw):
-        super().__init__(**kw)
-        ab = self.anchors
-        lv = torch.linspace(0.0, 100.0, int(l_levels))
-        self.sigma_l = float(100.0 / max(int(l_levels) - 1, 1))
-        self.anchors3 = torch.cat([lv.repeat_interleave(ab.shape[0]).unsqueeze(1), ab.repeat(len(lv), 1)], 1)
-        self.anchors = self.anchors3[:, 1:]          # (a,b) 座標，供 skin_scaled_box 與 set_box 使用
-        self.dl_max = float(dl_max)
-
-    def reset(self, x01, seed):
-        dev = x01.device
-        self.anchors3 = self.anchors3.to(dev, torch.float32)
-        self.anchors = self.anchors3[:, 1:]
-        self.w_raw = torch.zeros((self.anchors3.shape[0], 3), device=dev, requires_grad=True)  # (ΔL, Δa, Δb)／warp_radius
-        self.th_raw = torch.zeros((self.pieces,), device=dev, requires_grad=True)
-
-    @torch.no_grad()
-    def project(self):
-        self.w_raw[:, 1:].mul_((1.0 / self.w_raw[:, 1:].norm(dim=-1, keepdim=True).clamp_min(1e-9)).clamp(max=1.0))
-        if self.box is not None:
-            b = self.box.to(self.w_raw.device) / self.warp_radius
-            self.w_raw[:, 1].copy_(torch.maximum(torch.minimum(self.w_raw[:, 1], b[:, 1]), b[:, 0]))
-            self.w_raw[:, 2].copy_(torch.maximum(torch.minimum(self.w_raw[:, 2], b[:, 3]), b[:, 2]))
-        self.w_raw[:, 0].clamp_(-self.dl_max / self.warp_radius, self.dl_max / self.warp_radius)
-        self.th_raw.clamp_(-1.0, 1.0)
-
-    def displacement3(self, lab):
-        """`lab` (N,3) → (N,3) 位移。"""
-        dl = (lab[:, :1] - self.anchors3[:, 0].unsqueeze(0)).pow(2) / (2.0 * self.sigma_l ** 2)
-        dab = torch.cdist(lab[:, 1:], self.anchors3[:, 1:]).pow(2) / (2.0 * self.sigma ** 2)
-        phi = torch.softmax(-(dl + dab), dim=-1)
-        return phi @ (self.warp_radius * self.w_raw)
-
-    def displacement(self, ab):
-        """視覺化用：L = 70 的切面上 (a,b) 的位移。"""
-        lab = torch.cat([torch.full_like(ab[:, :1], 70.0), ab], 1)
-        return self.displacement3(lab)[:, 1:]
-
-    @property
-    def w(self):
-        return self.warp_radius * self.w_raw[:, 1:]
-
-    def render(self, x01):
-        lab = rgb_to_lab(x01.clamp(0, 1).float())
-        n, _, h, wd = lab.shape
-        flat = lab.permute(0, 2, 3, 1).reshape(-1, 3)
-        d = self.displacement3(flat)
-        L2 = 100.0 * self.lightness((flat[:, 0] / 100.0).clamp(0, 1)) + d[:, 0]
-        out = torch.cat([L2.clamp(0, 100).unsqueeze(1), flat[:, 1:] + d[:, 1:]], 1)
-        out = out.reshape(n, h, wd, 3).permute(0, 3, 1, 2)
-        return lab_to_rgb(out).clamp(0, 1).to(x01.dtype)
 
 
 def warp_picture(carrier, device):
@@ -376,137 +311,6 @@ class XAttnScore:
         return self.w * self.eval_terms(y)["xattn"]
 
 
-class RegionAttnScore:
-    """DAYN（Lo et al., CVPR 2024）式的區域交叉注意力抑制，最小化。
-
-        S(y)  = Σ_l bicubic_64( mean_heads Σ_{類別詞 token} A_l(y) )        全部 attn2 層；77 個 token 一起 softmax
-        M     = 1[ S̄(x) > mean(S̄(x)) ]                                    S̄：原圖在 10 個 timestep 上的平均，固定
-        J(y)  = mean_t ‖M ⊙ S_t(y)‖₁ / B                                   B：原圖在固定抽樣上的同一個量（常數）
-
-    z_t 由 y 的 VAE 後驗平均加噪，影像條件為未縮放的後驗平均，文字只有類別詞。
-    每次更新在 t = round(linspace(0, 999, 10)) 各抽一組新噪聲；每個 UNet 呼叫以 checkpoint 包起來，
-    只保留輸入，反傳時重算。
-    """
-
-    def __init__(self, ip2p, x01, class_word, seed, k=10):
-        from diffusers.models.attention_processor import AttnProcessor
-
-        self.ip2p, self.dev = ip2p, ip2p.device
-        self.dtype = ip2p.unet.dtype
-        self.text = encode_class(ip2p, class_word).to(self.dtype)
-        word = ip2p.pipe.tokenizer(class_word, add_special_tokens=False).input_ids
-        self.tok = list(range(1, 1 + len(word)))
-        self.eot = 1 + len(word)
-        self.ts = torch.linspace(0, ip2p.pipe.scheduler.config.num_train_timesteps - 1, k).round().long().to(self.dev)
-        self.abar = ip2p.pipe.scheduler.alphas_cumprod.to(self.dev).float()
-        self.maps, self.capturing, self.layers = [], False, 0
-        for name, m in ip2p.unet.named_modules():
-            if name.endswith("attn2"):
-                m.set_processor(AttnProcessor())
-                m.get_attention_scores = self._wrap(m.get_attention_scores)
-                self.layers += 1
-        self.gen = torch.Generator(device=self.dev).manual_seed(int(seed))
-        with torch.no_grad():
-            post = ip2p.posterior_mean(x01).float()
-            self.z_x, self.c_x = post * ip2p.scaling_factor, post
-            g = torch.Generator(device=self.dev).manual_seed(90000)
-            self.val = [self._noise(g)]
-            s_bar = torch.stack([self._s(self.z_x, self.c_x, t, e)[0] for t, e in zip(self.ts, self.val[0])]).mean(0)
-            self.mask = (s_bar > s_bar.mean()).float()
-            if float(self.mask.sum()) < 16:
-                raise RuntimeError("類別詞注意力遮罩幾乎為空")
-            self.B = float(self._region(self.z_x, self.c_x, self.val[0]))
-        if not self.B > 1e-8:
-            raise RuntimeError(f"參考注意力量 B = {self.B}")
-
-    def _wrap(self, orig):
-        def scores(query, key, attention_mask=None):
-            p = orig(query, key, attention_mask)
-            if self.capturing:
-                self.maps.append(p)
-            return p
-        return scores
-
-    def _noise(self, g):
-        return [torch.randn(self.z_x.shape, generator=g, device=self.dev) for _ in range(len(self.ts))]
-
-    def _s_inner(self, zt, c, t):
-        """回傳 (S, 特殊 token 質量圖)，皆為 64×64。"""
-        self.maps, self.capturing = [], True
-        try:
-            self.ip2p.unet(torch.cat([zt, c], 1).to(self.dtype), t, encoder_hidden_states=self.text, return_dict=False)
-        finally:
-            self.capturing = False
-        side = zt.shape[-1]
-        s = sp = 0
-        for p in self.maps:
-            hw = p.shape[1]
-            r = int(round(hw ** 0.5))
-            heads = p.shape[0]
-            m = p[..., self.tok].float().sum(-1).reshape(heads, 1, r, r).mean(0, keepdim=True)
-            q = p[..., [0, self.eot]].float().sum(-1).reshape(heads, 1, r, r).mean(0, keepdim=True)
-            s = s + F.interpolate(m, size=(side, side), mode="bicubic", align_corners=False)
-            sp = sp + F.interpolate(q, size=(side, side), mode="bicubic", align_corners=False)
-        self.maps = []
-        return torch.stack([s[0, 0], sp[0, 0]])
-
-    def _s(self, z, c, t, eps, grad=False):
-        ab = self.abar[t]
-        zt = ab.sqrt() * z + (1 - ab).sqrt() * eps
-        tt = t.view(1)
-        if grad:
-            return ckpt.checkpoint(self._s_inner, zt, c, tt, use_reentrant=False)
-        return self._s_inner(zt, c, tt)
-
-    def _region(self, z, c, noises, grad=False):
-        vals = [(self.mask * self._s(z, c, t, e, grad)[0]).sum() for t, e in zip(self.ts, noises)]
-        return torch.stack(vals).mean()
-
-    def _post(self, y):
-        post = self.ip2p.posterior_mean(y, use_ckpt=True).float()
-        return post * self.ip2p.scaling_factor, post
-
-    def terms(self, y):
-        z, c = self._post(y)
-        return {"dayn": self._region(z, c, self._noise(self.gen), grad=True) / self.B}
-
-    def score(self, y):
-        return self.terms(y)["dayn"]
-
-    def eval_terms(self, y):
-        z, c = self._post(y)
-        return {"dayn": self._region(z, c, self.val[0], grad=torch.is_grad_enabled()) / self.B}
-
-    def eval_score(self, y):
-        return self.eval_terms(y)["dayn"]
-
-    @torch.no_grad()
-    def gate(self, y, seed, n=8):
-        """保留抽樣上的配對比值：Σ‖M⊙S(y)‖ ／ Σ‖M⊙S(x)‖（整體與逐 timestep），以及遮罩內特殊 token 質量的比值。"""
-        z, c = self._post(y)
-        g = torch.Generator(device=self.dev).manual_seed(int(seed))
-        num = torch.zeros(len(self.ts), device=self.dev)
-        den = torch.zeros_like(num)
-        sp_y = sp_x = 0.0
-        for _ in range(n):
-            for i, (t, e) in enumerate(zip(self.ts, self._noise(g))):
-                a, b = self._s(z, c, t, e), self._s(self.z_x, self.c_x, t, e)
-                num[i] += (self.mask * a[0]).sum()
-                den[i] += (self.mask * b[0]).sum()
-                sp_y += float((self.mask * a[1]).sum())
-                sp_x += float((self.mask * b[1]).sum())
-        per_t = (num / den).tolist()
-        return {"ratio": float(num.sum() / den.sum()), "per_t": [round(v, 4) for v in per_t],
-                "t_le_07": sum(v <= 0.7 for v in per_t), "special_ratio": sp_y / max(sp_x, 1e-12)}
-
-
-def encode_class(ip2p, word):
-    tok = ip2p.pipe.tokenizer(word, padding="max_length", max_length=ip2p.pipe.tokenizer.model_max_length,
-                              truncation=True, return_tensors="pt")
-    with torch.no_grad():
-        return ip2p.text_encoder(tok.input_ids.to(ip2p.device))[0]
-
-
 def _grad_norm(carrier, fn):
     for p in carrier.params():
         p.grad = None
@@ -565,16 +369,15 @@ def main() -> None:
     ap.add_argument("--lr", type=float, default=0.02)
     ap.add_argument("--noise-seed", type=int, default=0)
     ap.add_argument("--arm", default=ARM, help="產出檔名與 CSV 的臂名")
-    ap.add_argument("--objective", default="comm", choices=("comm", "xattn", "dayn"),
-                    help="comm：等變殘差；xattn：降低攻擊端對類別詞（man／woman）的整圖交叉注意力；"
-                         "dayn：DAYN 式的主體區域交叉注意力抑制（RegionAttnScore）")
+    ap.add_argument("--objective", default="comm", choices=("comm", "xattn"),
+                    help="comm：等變殘差；xattn：降低攻擊端對類別詞（man／woman）的整圖交叉注意力")
     ap.add_argument("--lr-final-ratio", type=float, default=0.2)
     ap.add_argument("--lam-every", type=int, default=5)
     ap.add_argument("--caps", default="full", choices=("full", "simple"),
                     help="full：現行 15 道上限；simple：五個方向的色偏上限改為錨點方框（構造保證）、"
                          "亮度斜率範圍 1.35（|ΔL| ≤ 15），只保留膚色同色 ΔE00 ≤ 16 與暖色（a*＋、b*＋）逐像素最大值 3 道")
-    ap.add_argument("--carrier", default="ab", choices=("ab", "lut3d"),
-                    help="ab：(a,b) RBF 位移 ＋ 亮度曲線；lut3d：(L,a,b) 耦合位移（Lut3D），亮度曲線偏離 ≤ 10、錨點 ΔL ≤ 5")
+    ap.add_argument("--carrier", default="ab", choices=("ab",),
+                    help="ab：(a,b) RBF 位移 ＋ 亮度曲線")
     ap.add_argument("--box", default="uniform", choices=("uniform", "skin"),
                     help="simple 的方框：uniform 各錨點相同；skin 冷色方向依離膚色中心距離放大到 2 倍")
     args = ap.parse_args()
@@ -607,11 +410,7 @@ def main() -> None:
 
         simple = args.caps == "simple"
         # simple：斜率範圍 1.35 使 |F(L) − L| ≤ 0.15（任意 16 段單調曲線的最壞情形）
-        if args.carrier == "lut3d":
-            # 斜率範圍 1.22 使曲線偏離 ≤ 0.10，加上錨點 ΔL ≤ 5，|ΔL| ≤ 15
-            carrier = Lut3D(l_radius=0.22, dl_max=5.0)
-        else:
-            carrier = ColorMap(l_radius=0.35 if simple else 0.6)
+        carrier = ColorMap(l_radius=0.35 if simple else 0.6)
         carrier.reset(x, args.noise_seed)
         g = torch.Generator(device="cpu").manual_seed(args.noise_seed)
         with torch.no_grad():  # 非恆等起點：恆等映射下 comm 與其梯度皆為 0
@@ -640,20 +439,15 @@ def main() -> None:
         if simple:
             # 方框只管映射本身；轉回 RGB 的色域裁切仍可能產生暖色位移，暖色兩個方向保留逐像素最大值
             caps = [c for c in caps if c.name in ("skin_colour", "shift_a_pos_max", "shift_b_pos_max")]
-            if args.objective in ("xattn", "dayn"):
+            if args.objective == "xattn":
                 # 注意力目標的權重把解推到暖色上限邊界，量化後超出 0.4–0.5；訓練端留 0.5 餘量，可行性仍以 4 檢查
                 caps = [c._replace(soft=lambda y, f=c.soft: f(y) + 0.5) if c.name.startswith("shift_") else c
                         for c in caps]
 
-        if args.objective != "dayn":
-            free = FreeObjective(ip2p, x, box=box, k=4, steps=50, seed=args.noise_seed,
-                                 weights={"id": 1.0, "enc": 0.5, "cond": 1.0},
-                                 chain_steps=6, grad_steps=1, s_i=1.5, resample=True)
-        if args.objective == "dayn":
-            objective = RegionAttnScore(ip2p, x, item["class"], args.noise_seed)
-            extra = {"class_word": item["class"], "dayn_B": round(objective.B, 6),
-                     "dayn_mask_frac": round(float(objective.mask.mean()), 4), "dayn_layers": objective.layers}
-        elif args.objective == "comm":
+        free = FreeObjective(ip2p, x, box=box, k=4, steps=50, seed=args.noise_seed,
+                             weights={"id": 1.0, "enc": 0.5, "cond": 1.0},
+                             chain_steps=6, grad_steps=1, s_i=1.5, resample=True)
+        if args.objective == "comm":
             objective = CommObjective(free, carrier, x, lp)
             extra = {k: round(v, 6) for k, v in align_weight(objective, free, carrier, x).items()}
         else:
@@ -693,15 +487,6 @@ def main() -> None:
                 "psnr": round(float(10 * torch.log10(1.0 / (y - x).pow(2).mean())), 4),
                 "seconds": round(time.time() - started, 1), **extra, **stats,
             }
-        if args.objective == "dayn":
-            # 送編輯前的關卡：兩組各 80 次的保留抽樣（8 組噪聲 × 10 個 timestep），與訓練抽樣不重疊
-            for tag, sd in (("gate_a", 91000), ("gate_b", 92000)):
-                gt = objective.gate(y, sd)
-                row.update({f"{tag}_ratio": round(gt["ratio"], 4), f"{tag}_t_le_07": gt["t_le_07"],
-                            f"{tag}_per_t": " ".join(str(v) for v in gt["per_t"]),
-                            f"{tag}_special_ratio": round(gt["special_ratio"], 4)})
-            row["gate_pass"] = int(row["gate_a_ratio"] <= 0.5 and row["gate_a_t_le_07"] >= 8
-                                   and row["gate_b_ratio"] <= 0.5)
         save_image(x, args.out / f"{name}__orig.png")
         save_image(y, args.out / f"{name}__{args.arm}__def.png")
         torch.save(carrier.state_dict(), args.out / f"{name}__carrier.pt")

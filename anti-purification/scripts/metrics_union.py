@@ -181,10 +181,7 @@ def stage_aesthetic(device) -> None:
     import pyiqa
     models = {}
     for column, name, _ in AESTHETIC:
-        try:
-            models[column] = pyiqa.create_metric(name, device=device)
-        except Exception as error:  # noqa: BLE001
-            print(f"[SKIP] {name}：{type(error).__name__} {error}", flush=True)
+        models[column] = pyiqa.create_metric(name, device=device)
 
     root = Path("runs/defence_portraits")
     targets = []
@@ -205,8 +202,7 @@ def stage_aesthetic(device) -> None:
         row = {"condition": condition, "image": name, "png": path.as_posix()}
         with torch.no_grad():
             for column, _, _ in AESTHETIC:
-                model = models.get(column)
-                row[column] = round(float(model(x)), 5) if model else ""
+                row[column] = round(float(models[column](x)), 5)
         rows.append(row)
         if i % 16 == 0:
             print(f"[{i}/{len(targets)}]", flush=True)

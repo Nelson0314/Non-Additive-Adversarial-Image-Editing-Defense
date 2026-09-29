@@ -58,17 +58,12 @@ NR_METRICS = ["niqe", "brisque", "clipiqa", "musiq", "topiq_nr"]
 
 
 def _nr_suite(device):
-    """pyiqa 的無參考指標。逐個建立，缺哪個就跳過並在標準輸出寫明——
-    **不靜默略過**，缺欄位與讀數為零在 CSV 上長得一樣。"""
+    """建立全部必要的無參考指標；失敗時保留原始例外與 traceback。"""
     import pyiqa
 
     out = {}
     for name in NR_METRICS:
-        try:
-            out[name] = pyiqa.create_metric(name, device=device)
-        except Exception as e:  # noqa: BLE001
-            print(f"[readout_panel] 無參考指標 {name} 建立失敗，本批不報此欄："
-                  f"{type(e).__name__}: {e}")
+        out[name] = pyiqa.create_metric(name, device=device)
     return out
 
 

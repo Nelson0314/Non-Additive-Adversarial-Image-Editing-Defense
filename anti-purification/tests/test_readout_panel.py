@@ -75,15 +75,14 @@ def test_餘弦是內積且已正規化的嵌入落在正負一之間():
     assert arcface.similarity(a, -a) == pytest.approx(-1.0)
 
 
-def test_無參考指標建立失敗不會靜默消失(capsys):
-    """`_nr_suite` 對建立失敗的指標必須印出原因。缺欄位與讀數為零在 CSV 上
-    長得一樣，所以失敗必須看得見。"""
+def test_無參考指標建立失敗使階段失敗(monkeypatch):
+    """必要指標無法建立時不得輸出缺欄的成功結果。"""
+    import types
+
+    def fail(name, **kwargs):
+        raise RuntimeError(f"無法載入 {name}")
+
+    monkeypatch.setitem(sys.modules, "pyiqa", types.SimpleNamespace(create_metric=fail))
     panel = _panel()
-    real = panel.NR_METRICS
-    try:
-        panel.NR_METRICS = ["這個指標不存在"]
-        suite = panel._nr_suite("cpu")
-    finally:
-        panel.NR_METRICS = real
-    assert suite == {}
-    assert "這個指標不存在" in capsys.readouterr().out
+    with pytest.raises(RuntimeError, match="無法載入 niqe"):
+        panel._nr_suite("cpu")

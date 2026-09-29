@@ -1,0 +1,109 @@
+"""`style_prompt` 試跑的攻擊端讀數。
+
+每格三張編輯：U = edit(x)（未防禦分母）、E_ref = edit(x_ref)、E_def = edit(x_def)。
+`D` = LPIPS(U, E)，`D_pair` = LPIPS(E_ref, E_def)：後者只量最佳化在風格之上多出的部分，
+不是扣穿透的 `D_T`。全圖／主體／背景三欄，與 `edit_displacement.py` 同一個 LPIPS 與遮罩。
+"""
+
+from __future__ import annotations
+
+import argparse
+import csv
+import statistics
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+import paths  # noqa: E402
+
+paths.add_source_to_syspath()
+
+import piq  # noqa: E402
+import torch  # noqa: E402
+
+from color_defence import write_rows  # noqa: E402
+from edit_displacement import subject_mask  # noqa: E402
+from src.metrics.regional import RegionalLPIPS, split_displacement  # noqa: E402
+from src.utils.io import load_image_tensor  # noqa: E402
+
+RESOLUTION = 512
+
+
+def edits(directory: Path, images=None):
+    out = {}
+    for path in sorted(directory.rglob("preflight.csv")):
+        with path.open(encoding="utf-8", newline="") as fh:
+            for r in csv.DictReader(fh):
+                if r["scenario"] == "ip2p" and (not images or r["image"] in images):
+                    out[(r["image"], r["prompt_index"])] = (
+                        path.parent / r["arm"] / f"{r['image']}__p{r['prompt_index']}.png", r["prompt"],
+                        r["input_png"])
+    return out
+
+
+def main() -> None:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--edits", type=Path, required=True)
+    ap.add_argument("--styles", nargs="+", required=True)
+    ap.add_argument("--strengths", nargs="+", default=["capped", "uncapped"])
+    ap.add_argument("--undefended", type=Path, default=Path("runs/edit_preflight/ip2p_si18"))
+    ap.add_argument("--data", type=Path, default=Path("lab/data/portraits"))
+    ap.add_argument("--out", type=Path, required=True)
+    ap.add_argument("--ref-edits", type=Path, default=None, help="ref_<style> 所在的根目錄，預設同 --edits")
+    ap.add_argument("--images", nargs="+", default=None)
+    args = ap.parse_args()
+    images = set(args.images) if args.images else None
+
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    regional = RegionalLPIPS(piq.LPIPS().to(device))
+
+    def load(p):
+        if not Path(p).is_file():
+            raise SystemExit(f"找不到 {p}")
+        return load_image_tensor(Path(p), device, size=RESOLUTION)
+
+    rows = []
+    for style in args.styles:
+        ref = edits((args.ref_edits or args.edits) / f"ref_{style}", images)
+        for strength in ["ref", *args.strengths]:
+            cur = ref if strength == "ref" else edits(args.edits / f"{strength}_{style}", images)
+            if not cur:
+                continue
+            if not set(cur) <= set(ref):
+                raise SystemExit(f"{strength}_{style} 有 ref_{style} 沒有的格子")
+            for (name, k), (path, prompt, inp) in sorted(cur.items()):
+                mask = subject_mask(load(args.data / "masks" / f"{name}.png")[:, :1])
+                e = load(path)
+                with torch.no_grad():
+                    u = load(args.undefended / f"{name}__p{k}.png")
+                    d = split_displacement(regional, u, e, mask)
+                    c = split_displacement(regional, load(inp), e, mask)
+                    c0 = split_displacement(regional, load(args.data / name.split("_")[0] / f"{name}.png"), u, mask)
+                    row = {"style": style, "strength": strength, "image": name, "prompt_index": k,
+                           "prompt": prompt, **{f"D_{a}": round(float(v), 5) for a, v in d.items()},
+                           **{f"C_{a}": round(float(v), 5) for a, v in c.items()},
+                           **{f"C_undef_{a}": round(float(v), 5) for a, v in c0.items()}}
+                    if strength != "ref":
+                        p = split_displacement(regional, load(ref[(name, k)][0]), e, mask)
+                        row.update({f"D_pair_{a}": round(float(v), 5) for a, v in p.items()})
+                rows.append(row)
+    args.out.parent.mkdir(parents=True, exist_ok=True)
+    write_rows(args.out, rows)
+
+    keys = [k for k in rows[0] if k.startswith(("D_", "C_"))]
+    keys += [k for k in rows[-1] if k.startswith("D_pair_")]
+    print(f"{'style':<11}{'strength':<10}" + "".join(f"{k:>18}" for k in keys))
+    for style in args.styles:
+        for strength in ["ref", *args.strengths]:
+            sel = [r for r in rows if r["style"] == style and r["strength"] == strength]
+            if not sel:
+                continue
+            print(f"{style:<11}{strength:<16}n={len(sel):<3}" + "".join(
+                f"{statistics.mean(r[k] for r in sel):>18.4f}" if k in sel[0] else f"{'':>18}"
+                for k in keys))
+    print(f"{len(rows)} 列 -> {args.out}")
+
+
+if __name__ == "__main__":
+    main()

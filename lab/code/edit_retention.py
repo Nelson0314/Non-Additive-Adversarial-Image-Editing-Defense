@@ -105,6 +105,7 @@ def main() -> None:
     parser.add_argument("--data", type=Path, default=paths.IMAGES,
                         help="只用底下的 masks/，搬進 baselines 的那一份")
     parser.add_argument("--out", type=Path, required=True)
+    parser.add_argument("--conditions", nargs="+", default=None, help="只算這些臂（預設為淨化目錄下全部）")
     args = parser.parse_args()
 
     base = {}
@@ -115,6 +116,8 @@ def main() -> None:
     conditions = sorted(d.name for d in args.purified_root.iterdir()
                         if d.is_dir() and not d.name.startswith("_")
                         and d.name != UNDEFENDED)
+    if args.conditions:
+        conditions = [c for c in conditions if c in set(args.conditions)]
     if not conditions:
         raise SystemExit(f"{args.purified_root} 底下沒有任何條件目錄")
 

@@ -44,7 +44,7 @@ paths.add_source_to_syspath()
 
 import torch  # noqa: E402
 
-from curve_budget_defence import write_rows  # noqa: E402
+from color_defence import write_rows  # noqa: E402
 from src.defense.color_amplitude import delta_e00  # noqa: E402
 from src.utils.io import load_image_tensor  # noqa: E402
 

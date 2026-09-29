@@ -166,6 +166,27 @@ g2.5、ig1.5、50 步：g2.5 下各句型之中它的背景 ΔE00、主體 ΔE00
 （逐格編輯與身分讀數）、`results/displacement_ultraedit.csv`、
 `results/retention_ultraedit.csv`。報告頁 `report/main/` 有獨立一節。
 
+### 十一、顏色列換成 `color`
+主表的顏色那一列由 `colour_curve_ours` 換成 lab 的現行方法 `color`（`lab/code/color_defence.py`，
+預設參數；該檔唯讀，未複製修改）。防禦圖直接取 lab 已產出的
+`lab/runs/defence/color/<圖>__color__def.png`，經 `immunise_as_condition.py --variant color`
+整理成主表版面並重算保真欄（`results/defence_color.csv`）；之後每一步與原顏色列的鏈相同：
+ip2p／inpaint 編輯、7 道淨化與淨化後重編、FLUX 全表、UltraEdit 全表
+（`code/color_row_chain.sh`，basic-1 與 basic-2 各一卡）。讀數以原腳本只算 `color`，再替換進
+`displacement.csv`、`retention.csv`、`displacement_flux.csv`、`displacement_ultraedit.csv`、
+`retention_ultraedit.csv`、`passthrough.csv`；`metrics_*_union.csv` 整張重算後濾掉舊列。
+舊顏色列的逐條件 CSV 已自工作樹移除，數值留在版控歷史。
+
+防禦圖對原圖的 LPIPS：`color` 8 張平均 0.2317，舊顏色列 0.3344。量法相同（兩邊都是
+`piq.LPIPS`，lab 求解端記的 `lpips_out` 與此處重算值一致）。差距來自上限的組成：舊顏色列只有
+整圖平均 ΔE00 ≤ 16（8 張實測 14.1–16.0，皆頂到）；`color` 另有逐像素 Lab 位移上限
+（a*＋ ≤ 4、a*－ ≤ 15、b*＋ ≤ 4、b*－ ≤ 25、|ΔL*| ≤ 15）、臉框與膚色 ΔE00 ≤ 16、彩度 p95、
+對原圖 LPIPS 上限，以及色度位移場半徑 80。8 張中 a*－ 有 6 張頂到 15、位移場半徑有 6 張頂到 80，
+整圖平均 ΔE00 落在 9.0–13.8（上限 32 未頂到）。
+
+**等失真臂未重新對齊**：其錨點 0.3344 取自舊顏色列，使用者指示不處理預算，`results/aligned/`
+與 `report/aligned_matrix.html` 維持原狀。
+
 ## 報告頁
 
 五份報告的清單與各自協定見 `README.md`「報告頁」一節，這裡只記已發布的

@@ -27,7 +27,7 @@ import paths  # noqa: E402
 
 CONDITIONS = ["dct_shield_y", "mist", "dct_shield", "photoguard_linf", "danp",
               "sifm", "dayn", "dia_pt", "dia_r", "photoguard_c",
-              "colour_curve_ours", "diffvax"]
+              "color", "diffvax"]
 
 NAMES = ["man_00", "man_01", "woman_00", "woman_01"]
 CELLS = [("ip2p", "0"), ("ip2p", "1"), ("inpaint", "1"), ("inpaint", "3")]
@@ -345,14 +345,19 @@ def build_images(out: Path) -> None:
 
     # FLUX 全表:重用 report/flux_full/img/ 已經轉好的縮圖(同一批來源，
     # 已經是 webp)，只搬 p0 那組，加 flux_ 前綴避免跟上面的檔名混在一起。
+    # 那份報告之後才加進來的條件(color)沒有現成縮圖，改從 images/flux_full/ 轉。
     import shutil
     flux_src = paths.BASELINES / "report" / "flux_full" / "img"
     for name in NAMES:
         for cond in ["undefended"] + CONDITIONS:
             src = flux_src / f"{cond}_{name}_p0.webp"
-            if not src.is_file():
-                raise SystemExit(f"缺 FLUX 縮圖(先跑過 report/flux_full 那份嗎?): {src}")
-            shutil.copy(src, img_dir / f"flux_{cond}_{name}_p0.webp")
+            png = root / "flux_full" / cond / f"{name}__p0.png"
+            if src.is_file():
+                shutil.copy(src, img_dir / f"flux_{cond}_{name}_p0.webp")
+            elif png.is_file():
+                to_webp(png, img_dir / f"flux_{cond}_{name}_p0.webp")
+            else:
+                raise SystemExit(f"缺 FLUX 縮圖與原圖: {src}、{png}")
             n += 1
     # UltraEdit 全表：從本機 images/ultraedit_full/ 轉（遠端產物拉回來的同一版面）。
     # 每列（影像 × 指令）拼成一張橫條，欄序為 ULTRA_STRIP_COLS，頁面以 CSS 位移取格：

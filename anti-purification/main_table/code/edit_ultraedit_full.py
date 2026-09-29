@@ -62,7 +62,8 @@ STEPS = 50
 UNDEFENDED = "undefended"
 OPERATORS = [label(k, s) for k, s in PURIFIERS if k != "identity"]
 CONDITIONS = ["dct_shield_y", "mist", "dct_shield", "photoguard_linf", "danp", "sifm",
-              "dayn", "dia_pt", "dia_r", "photoguard_c", "colour_curve_ours", "diffvax"]
+              "dayn", "dia_pt", "dia_r", "photoguard_c", "colour_curve_ours", "diffvax",
+              "color"]
 
 FIELDS = ["arm", "purifier", "image", "prompt_index", "variant", "prompt", "model",
           "guidance_scale", "image_guidance_scale", "steps", "seed", "seconds",

@@ -49,18 +49,18 @@ tr.ours th, tr.ours td{background:var(--signal-soft)}
    font-variant-numeric:tabular-nums; margin-top:1px}
 td.hot{color:var(--fail); font-weight:600}
 
-#grid, #dgrid{border-collapse:separate; border-spacing:0}
-#grid th.mh, #dgrid th.mh{position:sticky; top:0; z-index:3; background:var(--sunk); color:var(--ink);
+#grid, #dgrid, #fluxgrid, #ultragrid{border-collapse:separate; border-spacing:0}
+#grid th.mh, #dgrid th.mh, #fluxgrid th.mh, #ultragrid th.mh{position:sticky; top:0; z-index:3; background:var(--sunk); color:var(--ink);
             font-family:var(--sans); font-size:11.5px; font-weight:600; letter-spacing:.04em;
             text-align:center; padding:7px 4px; border-bottom:1px solid var(--line)}
-#grid th.mh.ours, #dgrid th.mh.ours{background:var(--signal-soft); color:var(--signal)}
-#grid th.rh, #dgrid th.rh{position:sticky; left:0; z-index:2; background:var(--surface);
+#grid th.mh.ours, #dgrid th.mh.ours, #fluxgrid th.mh.ours, #ultragrid th.mh.ours{background:var(--signal-soft); color:var(--signal)}
+#grid th.rh, #dgrid th.rh, #fluxgrid th.rh, #ultragrid th.rh{position:sticky; left:0; z-index:2; background:var(--surface);
             border-right:1px solid var(--line); padding:6px 8px; text-align:left;
             vertical-align:top}
-#grid th.rh.corner, #dgrid th.rh.corner{z-index:4; top:0; background:var(--sunk)}
-#grid td, #dgrid td{padding:2px; border-bottom:0; text-align:center;
+#grid th.rh.corner, #dgrid th.rh.corner, #fluxgrid th.rh.corner, #ultragrid th.rh.corner{z-index:4; top:0; background:var(--sunk)}
+#grid td, #dgrid td, #fluxgrid td{padding:2px; border-bottom:0; text-align:center;
                     width:108px; min-width:108px}
-#grid img.cell, #dgrid img.cell{width:104px; min-width:104px; height:104px;
+#grid img.cell, #dgrid img.cell, #fluxgrid img.cell{width:104px; min-width:104px; height:104px;
   min-height:104px; object-fit:contain; display:block; border-radius:2px;
   background:var(--sunk)}
 #dgrid .lp{font-family:var(--mono); font-size:11px; color:var(--ink);
@@ -163,7 +163,7 @@ svg.bars .title{font-family:var(--sans); font-size:11.5px; font-weight:600;
 
   /* 防禦圖矩陣 */
   var dhead = '<thead><tr><th class="rh corner"></th>' + D.order.map(function(c){
-    return '<th class="mh' + (c === 'colour_curve_ours' ? ' ours' : '') + '">' + c + '</th>';
+    return '<th class="mh' + (c === 'color' ? ' ours' : '') + '">' + c + '</th>';
   }).join('') + '</tr></thead>';
   var dbody = '<tbody>' + D.names.map(function(nm){
     var rh = '<th class="rh"><div class="rl">' +
@@ -181,7 +181,7 @@ svg.bars .title{font-family:var(--sans); font-size:11.5px; font-weight:600;
 
   /* 編輯矩陣 */
   var head = '<thead><tr><th class="rh corner"></th>' + COLS.map(function(c){
-    return '<th class="mh' + (c === 'colour_curve_ours' ? ' ours' : '') + '">' + c + '</th>';
+    return '<th class="mh' + (c === 'color' ? ' ours' : '') + '">' + c + '</th>';
   }).join('') + '</tr></thead>';
   var body = '<tbody>' + D.cells.map(function(cell){
     var tag = cell.scenario + cell.pi;
@@ -214,7 +214,7 @@ svg.bars .title{font-family:var(--sans); font-size:11.5px; font-weight:600;
       return '<th>' + c.label + ' <span class="dir">' + (arrow[c.dir] || '') + '</span></th>';
     }).join('') + '</tr></thead>';
     var b = '<tbody>' + ms.map(function(m){
-      return '<tr' + (m.name === 'colour_curve_ours' ? ' class="ours"' : '') + '>' +
+      return '<tr' + (m.name === 'color' ? ' class="ours"' : '') + '>' +
         '<th>' + m.name + '</th>' + cols.map(function(c){
           var v = m[c.key];
           var isBest = (v !== null && v !== undefined && best[c.key] !== undefined &&
@@ -270,7 +270,7 @@ svg.bars .title{font-family:var(--sans); font-size:11.5px; font-weight:600;
     return {key:'__ret_' + p, label:p, dir:'up', dp:4};
   })));
 
-  /* 圖表:水平長條,依 order 排序,colour_curve_ours 標色 */
+  /* 圖表:水平長條,依 order 排序,color 標色 */
   function barChart(svgId, title, key, dp, unit, order, byNameArg) {
     order = order || D.order; byNameArg = byNameArg || byName;
     var svg = document.getElementById(svgId);
@@ -292,7 +292,7 @@ svg.bars .title{font-family:var(--sans); font-size:11.5px; font-weight:600;
       var v = m[key];
       var w = (v === null || v === undefined) ? 0 : (v / vmax) * innerW;
       var barY = y + rh * 0.22, barH = rh * 0.56;
-      var isOurs = m.name === 'colour_curve_ours';
+      var isOurs = m.name === 'color';
       parts.push('<text class="lbl" x="' + (padL - 8) + '" y="' + (y + rh * 0.64) + '">' +
         m.name + '</text>');
       parts.push('<rect class="bar' + (isOurs ? ' ours' : '') + '" x="' + padL + '" y="' + barY +
@@ -317,7 +317,7 @@ svg.bars .title{font-family:var(--sans); font-size:11.5px; font-weight:600;
       var row = '<div class="ae-row"><div class="ae-imglabel">' + name + '</div>';
       entries.forEach(function(e){
         var isOrig = e.condition === 'original';
-        var isOurs = e.condition === 'colour_curve_ours';
+        var isOurs = e.condition === 'color';
         var src = isOrig ? 'img/orig_' + name + '.webp'
                           : 'img/def_' + e.condition + '_' + name + '.webp';
         row += '<div class="ae-cell"><img src="' + src + '" loading="lazy" alt="">' +
@@ -348,7 +348,7 @@ svg.bars .title{font-family:var(--sans); font-size:11.5px; font-weight:600;
 
   var fluxCols = ['undefended'].concat(F.order);
   var fhead = '<thead><tr><th class="rh corner"></th>' + fluxCols.map(function(c){
-    return '<th class="mh' + (c === 'colour_curve_ours' ? ' ours' : '') + '">' + c + '</th>';
+    return '<th class="mh' + (c === 'color' ? ' ours' : '') + '">' + c + '</th>';
   }).join('') + '</tr></thead>';
   var fbody = '<tbody>' + D.names.map(function(nm){
     var rh = '<th class="rh"><div class="rl">' +
@@ -386,7 +386,7 @@ svg.bars .title{font-family:var(--sans); font-size:11.5px; font-weight:600;
 
   var ultraCols = ['undefended'].concat(U.order);
   var uhead = '<thead><tr><th class="rh corner"></th>' + ultraCols.map(function(c){
-    return '<th class="mh' + (c === 'colour_curve_ours' ? ' ours' : '') + '">' + c + '</th>';
+    return '<th class="mh' + (c === 'color' ? ' ours' : '') + '">' + c + '</th>';
   }).join('') + '</tr></thead>';
   var urows = [];
   U.prompt_index.forEach(function(pi, k){

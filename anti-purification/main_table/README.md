@@ -45,7 +45,9 @@
 | `results/flux_preview*.csv` | 各 4 格 | FLUX guidance／true-CFG 小樣本探索 |
 
 十二個條件：`dct_shield_y`、`mist`、`dct_shield`、`photoguard_linf`、`danp`、
-`sifm`、`dayn`、`dia_pt`、`dia_r`、`photoguard_c`、`colour_curve_ours`、`diffvax`。
+`sifm`、`dayn`、`dia_pt`、`dia_r`、`photoguard_c`、`color`、`diffvax`。
+顏色那一列原為 `colour_curve_ours`，已由 lab 的現行方法 `color` 取代（見 STATUS.md「顏色列換成 `color`」）；
+等失真臂仍以舊顏色列的 0.3344 為錨點，未重新對齊。
 每個條件 8 影像 × 4 指令 × 2 場景 ＝ 64 格。
 
 ## 協定

@@ -21,14 +21,14 @@ CONDITIONS = {
 def dispatch(tmp_path, arm, extra=(), output=None):
     stub = tmp_path / "capture-python"
     stub.write_text('#!/usr/bin/env bash\n'
-                    f'[ "$2" = immunization_color.conditions ] && exec {sys.executable} "$@"\n'
+                    f'[ "$2" = immunization_color.conditions ] && exec "{Path(sys.executable).as_posix()}" "$@"\n'
                     'printf "%s\\n" "$@"\n', newline="\n")
     stub.chmod(0o755)
     env = dict(os.environ, PY=stub.as_posix())
     env.pop("DEF_OUT", None)
     if output is not None:
         env["DEF_OUT"] = output
-    return subprocess.run([shutil.which("bash"), str(ROOT / "scripts/generate_condition.sh"), arm, *extra],
+    return subprocess.run([shutil.which("bash"), (ROOT / "scripts/generate_condition.sh").as_posix(), arm, *extra],
                           env=env, capture_output=True, text=True, encoding="utf-8", timeout=10)
 
 

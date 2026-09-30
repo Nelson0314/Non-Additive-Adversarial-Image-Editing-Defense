@@ -52,7 +52,7 @@ def test_fidelity_requires_explicit_arms(tmp_path):
 
 def depends(tmp_path, job, jobs, **environment):
     env = dict(os.environ, **environment)
-    return subprocess.run([shutil.which("bash"), str(SCRIPTS / "queue_depends.sh"), job, *jobs],
+    return subprocess.run([shutil.which("bash"), (SCRIPTS / "queue_depends.sh").as_posix(), job, *jobs],
                           env=env, capture_output=True, text=True, encoding="utf-8", timeout=15)
 
 
@@ -88,7 +88,7 @@ def test_readout_waits_for_external_condition_sentinels(tmp_path):
 def test_fid_queue_requires_explicit_arms(tmp_path):
     env = dict(os.environ)
     env.pop("FID_ARMS", None)
-    result = subprocess.run([shutil.which("bash"), str(SCRIPTS / "run_queue.sh"), "test", "fid"],
+    result = subprocess.run([shutil.which("bash"), (SCRIPTS / "run_queue.sh").as_posix(), "test", "fid"],
                             env=env, capture_output=True, text=True, encoding="utf-8", timeout=15)
     assert result.returncode == 2
     assert "FID_ARMS" in result.stderr

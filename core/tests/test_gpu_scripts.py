@@ -7,6 +7,7 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
+import sys
 import time
 
 import pytest
@@ -155,7 +156,7 @@ def test_card_check_failure_creates_no_lease(tmp_path):
 
 def test_free_cards_excludes_foreign_memory_and_asserts(tmp_path):
     env, _ = stub_env(tmp_path)
-    run = lambda *a: subprocess.run([BASH, str(SCRIPTS / "free_cards.sh"), *a], env=env,
+    run = lambda *a: subprocess.run([BASH, (SCRIPTS / "free_cards.sh").as_posix(), *a], env=env,
                                     capture_output=True, text=True, encoding="utf-8", timeout=15)
     listed = run()
     assert listed.returncode == 0, listed.stderr
@@ -171,20 +172,21 @@ def test_command_exit_releases_owned_lease(tmp_path, command_rc):
     env, leases = stub_env(tmp_path)
     work = tmp_path / "work"
     work.mkdir()
+    record = f"import os, pathlib; pathlib.Path('where').write_text(os.getcwd()); raise SystemExit({command_rc})"
     result = subprocess.run(
-        [BASH, str(SCRIPTS / "run_with_gpu_lease.sh"), "--work-dir", str(work), "test",
-         "bash", "-c", f'pwd > where; exit {command_rc}'],
+        [BASH, (SCRIPTS / "run_with_gpu_lease.sh").as_posix(), "--work-dir", work.as_posix(), "test",
+         Path(sys.executable).as_posix(), "-c", record],
         env=env, capture_output=True, text=True, encoding="utf-8", timeout=15)
     assert result.returncode == command_rc, result.stderr
     assert "[CARD]" in result.stderr and "gpu=0" in result.stderr
-    assert (work / "where").read_text().strip() == str(work)
+    assert Path((work / "where").read_text()).resolve() == work.resolve()
     assert not [p for p in leases.iterdir() if not p.name.startswith(".")]
     assert not (leases / ".guard").exists()
 
 
 def test_missing_workdir_is_rejected(tmp_path):
     env, _ = stub_env(tmp_path)
-    result = subprocess.run([BASH, str(SCRIPTS / "run_with_gpu_lease.sh"), "test", "true"],
+    result = subprocess.run([BASH, (SCRIPTS / "run_with_gpu_lease.sh").as_posix(), "test", "true"],
                             env=env, capture_output=True, text=True, encoding="utf-8", timeout=15)
     assert result.returncode == 2
     assert "--work-dir" in result.stderr
@@ -205,11 +207,11 @@ def run_queue(tmp_path, jobs, validator_body, depends_body=None):
     tools.mkdir()
     runner = write_tool(tools / "runner", 'echo "$2" > "done_$1"; echo "$1" >> order\n')
     validator = write_tool(tools / "validator", validator_body)
-    command = [BASH, str(SCRIPTS / "queue_worker.sh"), "--work-dir", str(work),
-               "--state-dir", str(tmp_path / "state"), "--log-dir", str(tmp_path / "logs"),
-               "--runner", str(runner), "--validator", str(validator)]
+    command = [BASH, (SCRIPTS / "queue_worker.sh").as_posix(), "--work-dir", work.as_posix(),
+               "--state-dir", (tmp_path / "state").as_posix(), "--log-dir", (tmp_path / "logs").as_posix(),
+               "--runner", runner.as_posix(), "--validator", validator.as_posix()]
     if depends_body is not None:
-        command += ["--depends", str(write_tool(tools / "depends", depends_body))]
+        command += ["--depends", write_tool(tools / "depends", depends_body).as_posix()]
     result = subprocess.run(command + ["test", *jobs], env=env, capture_output=True, text=True,
                             encoding="utf-8", timeout=60)
     return result, work, leases
@@ -251,8 +253,8 @@ def test_invalid_dependency_status_stops_worker(tmp_path):
 
 def test_queue_requires_injected_validator(tmp_path):
     env, _ = stub_env(tmp_path)
-    result = subprocess.run([BASH, str(SCRIPTS / "queue_worker.sh"), "--work-dir", str(tmp_path),
-                             "--state-dir", str(tmp_path / "s"), "--log-dir", str(tmp_path / "l"),
+    result = subprocess.run([BASH, (SCRIPTS / "queue_worker.sh").as_posix(), "--work-dir", tmp_path.as_posix(),
+                             "--state-dir", (tmp_path / "s").as_posix(), "--log-dir", (tmp_path / "l").as_posix(),
                              "--runner", "true", "test", "job"],
                             env=env, capture_output=True, text=True, encoding="utf-8", timeout=15)
     assert result.returncode == 2
@@ -278,10 +280,10 @@ def trial_project(tmp_path):
     stubs.mkdir()
     write_tool(stubs / "ssh", 'echo "$@" >> "$SSH_LOG"\n')
     env = dict(os.environ, PATH=str(stubs) + os.pathsep + os.environ["PATH"],
-               SSH_LOG=str(tmp_path / "ssh.log"))
+               SSH_LOG=(tmp_path / "ssh.log").as_posix())
     env.pop("TRIAL_REMOTE", None)
     env.pop("TRIAL_REMOTE_ROOT", None)
-    run = lambda *a, **e: subprocess.run([BASH, str(project / "vendor/scripts/trial.sh"), *a],
+    run = lambda *a, **e: subprocess.run([BASH, (project / "vendor/scripts/trial.sh").as_posix(), *a],
                                          env=dict(env, **e), capture_output=True, text=True,
                                          encoding="utf-8", timeout=15)
     return project, run, git

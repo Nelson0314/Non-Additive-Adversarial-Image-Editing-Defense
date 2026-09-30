@@ -17,7 +17,7 @@ def test_readout_propagates_stage_failure(tmp_path, displacement, retention, exp
                     encoding="utf-8", newline="\n")
     stub.chmod(0o755)
     env = dict(os.environ, PY=stub.as_posix())
-    result = subprocess.run([shutil.which("bash"), str(script), "0"], env=env,
+    result = subprocess.run([shutil.which("bash"), script.as_posix(), "0"], env=env,
                             capture_output=True, text=True)
     assert result.returncode == expected, result.stderr
     assert ("[READOUT-DONE]" in result.stdout) == (expected == 0)

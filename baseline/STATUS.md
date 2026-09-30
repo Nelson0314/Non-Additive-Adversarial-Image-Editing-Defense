@@ -26,7 +26,7 @@
 `import_defense_artifacts --variant color` 整理成主表版面並重算保真欄；ip2p／inpaint 編輯、7 道淨化與
 淨化後重編、FLUX、UltraEdit 都重跑過（`scripts/evaluate_color_condition.sh`），讀數以同一程式只算 `color`
 後替換進各聚合 CSV，`results/additional_metrics/` 整張重算。
-舊顏色列 `color_curve`（CSV 識別值原為 `colour_curve_ours`，第 7 項改名）的數值留在 commit `0dd243b`。
+舊顏色列 `color_curve`（CSV 識別值原為 `colour_curve_ours`）的數值留在 commit `0dd243b`。
 
 `color` 的防禦圖 LPIPS 是 0.2317（8 張平均），舊顏色列是 0.3344，量法相同（`piq.LPIPS`）。差距來自上限的
 組成：舊顏色列只有整圖平均 ΔE00 ≤ 16（8 張皆頂到）；`color` 另有逐像素 Lab 位移上限（a*＋ ≤ 4、a*－ ≤ 15、
@@ -59,14 +59,18 @@ b*＋ ≤ 4、b*－ ≤ 25、|ΔL*| ≤ 15）、臉框與膚色 ΔE00 ≤ 16、�
   `disp_purified_subject`／`disp_purified_background` 原以未變換的遮罩算出，已用 `purified_mask()` 重算並寫回
   （2,814 個值改變，最大絕對變化 0.10288）。重算時其餘欄與非幾何算子的分區欄逐值與原表相同。更正前的數值見
   commit `228c59b` 的 `baseline/results/retention.csv`。
-  `results/aligned/retention.csv` 的分區欄未重算，當時所用程式是否含 `purified_mask()` 未查證。
+- **等失真臂的幾何淨化分區欄未重算**：`results/aligned/retention.csv` 中 `crop_resize0.1`、`rotate15` 的 1,280 列
+  （10 個條件 × 2 道 × 64 格）的 `disp_purified_subject`／`disp_purified_background` 沒有以 `purified_mask()` 重算，
+  產生該表的程式是否已對遮罩做幾何變換未查證；數值維持原表。引用這兩欄前須先重算。同表的全圖欄
+  （`disp_purified`、`net_gain`、`retained`）不使用遮罩，不受此影響。
 - **SD 2.x 只能用 epsilon-prediction 權重**：`sd2-community/stable-diffusion-2-1` 是 v-prediction，`SDWrapper`
   的 DDIM 遞迴假設 ε-prediction，要用 `sd2-community/stable-diffusion-2-1-base`。
 
 ## 遠端
 
-- 影像產物位於 `artifacts/`（見 `README.md`「影像產物」）。遠端版面的切換屬重整第 10 項；切換前的舊位置與新目錄的對照
-  記錄於 `archive/migration/RESTRUCTURE_LOG.md`。
+- 遠端 `~/image-immunization/baseline` 為本專案（GitHub `main` 的 clone，以 `git pull` 同步）；影像產物位於 `artifacts/`
+  （見 `README.md`「影像產物」）。舊位置與新目錄的對照記錄於 `archive/migration/RESTRUCTURE_LOG.md` 第 10 項。
+- `requirements.lock` 未入庫；由遠端執行環境以 `vendor/scripts/freeze_env.py` 產生。
 - HF 權重在各機的 `/var/cache/huggingface`，兩台不同：FLUX 只在 basic-2，UltraEdit 只在 basic-1，ip2p 與
   SD-inpainting 兩台都有。機器相關設定以 `ENV_FILE` 交給 `scripts/env.sh`。
 - `measure_additional_metrics` 讀 `artifacts/` 的版面與 CSV 中的影像路徑；無 GPU 亦可執行（固定使用 CPU）。
@@ -74,12 +78,11 @@ b*＋ ≤ 4、b*－ ≤ 25、|ΔL*| ≤ 15）、臉框與膚色 ΔE00 ≤ 16、�
 ## 規矩
 
 - **GPU 一律送遠端**。全局可用卡數由使用者逐次授權；未說明或說明不清時預設 6 張，所有 session、主機與排程合計。
-  取卡一律經 `vendor/scripts/`（`run_with_gpu_lease.sh`、`gpu_lease.sh`），租約目錄 `~/lab_leases/`
+  取卡一律經 `vendor/scripts/`（`run_with_gpu_lease.sh`、`gpu_lease.sh`），租約目錄 `~/gpu_leases/`
   （`<主機> <pid> <名稱> <擁有者 token>`，兩台共用）；`free_cards.sh` 只擋別人佔用超過 512 MiB 的卡
   （別人單一行程在每張卡上各留約 256 MiB 的 context 可放行，使用者裁定）。
 - **不設判準**：數據與圖擺出來為止，不下「成立／不成立」「值得／不值得」的結論，指標本身也一樣。
 - 報數字寫描述性名稱（編輯結果 LPIPS、防禦圖 LPIPS），不用 D、D_T 這類代號；引用數字連協定一起引用
   （`docs/reference/BASELINE_PROVENANCE.md` 規則 1）。
 - 本專案範圍只到 `baseline/`；`vendor/` 不就地修改，修正回到 `core/` 後重新匯出。
-- 命名不含日期、流水號或順序詞；文件不寫時間相依的字眼；commit message 用英文；Windows 寫出的 `.sh`
-  上傳前去掉 CRLF。
+- 共通規則（命名、書面用語、commit、LF）見根目錄 `CLAUDE.md`。

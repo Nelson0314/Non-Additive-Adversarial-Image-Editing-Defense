@@ -11,6 +11,7 @@
     python archive/migration/restructure_result_layout.py --check            # 只列出將改動的檔案與格數
     python archive/migration/restructure_result_layout.py                    # 執行
     python archive/migration/restructure_result_layout.py --remote-commands  # 印出遠端指令
+    python archive/migration/restructure_result_layout.py --paths-only baseline/artifacts  # 遠端：只改寫路徑欄
 """
 from __future__ import annotations
 
@@ -87,7 +88,8 @@ def rewrite(path: Path, prefixes: dict):
         for cell in row:
             value = cell
             for old, replacement in prefixes.items():
-                if value.startswith(old):
+                # 變因與原名稱相同時新路徑也以舊前綴開頭；已是新形式者不再改寫，重跑不會多套一層。
+                if value.startswith(old) and not value.startswith(replacement):
                     value = replacement + value[len(old):]
                     break
             changed += value != cell
@@ -115,7 +117,9 @@ def remote_commands() -> None:
           "ln -sfn ../../purified_edits/undefended artifacts/aligned/purified_edits/undefended")
     for (editor, name), variable in SWEEPS.items():
         old, new = f"artifacts/sweeps/{editor}/{name}", f"artifacts/sweeps/{editor}/{variable}/{name}"
-        print(f"[ ! -e {old} ] || {{ mkdir -p artifacts/sweeps/{editor}/{variable} && mv {old} {new}; }}")
+        # 變因與原名稱相同時（例如 ultraedit/image_guidance），目的目錄在原目錄之內，須先改成暫存名稱。
+        print(f"[ ! -d {old} ] || [ -d {new} ] || {{ mv {old} {old}.moving && "
+              f"mkdir -p artifacts/sweeps/{editor}/{variable} && mv {old}.moving {new}; }}")
 
 
 def main() -> None:
@@ -123,11 +127,13 @@ def main() -> None:
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--check", action="store_true")
     parser.add_argument("--remote-commands", action="store_true")
+    parser.add_argument("--paths-only", nargs="+", type=Path, default=None,
+                        help="不移動檔案，只改寫這些目錄下 CSV 的路徑欄（遠端 artifacts 用）")
     args = parser.parse_args()
     if args.remote_commands:
         remote_commands()
         return
-    planned = moves()
+    planned = [] if args.paths_only else moves()
     for source, target in planned:
         print(f"{source.relative_to(REPO)} → {target.relative_to(REPO)}")
     if not args.check:
@@ -136,13 +142,14 @@ def main() -> None:
             subprocess.run(["git", "-C", str(REPO), "mv", str(source), str(target)], check=True)
     prefixes = artifact_prefixes()
     total = 0
-    for path in sorted((REPO / "baseline/results").rglob("*.csv")):
+    roots = [r.resolve() for r in args.paths_only] if args.paths_only else [REPO / "baseline/results"]
+    for path in sorted(p for root in roots for p in root.rglob("*.csv")):
         result = rewrite(path, prefixes)
         if result is None:
             continue
         data, changed = result
         total += changed
-        print(f"{path.relative_to(REPO)}：{changed} 格")
+        print(f"{path.relative_to(REPO) if path.is_relative_to(REPO) else path}：{changed} 格")
         if not args.check:
             path.write_bytes(data)
     print(f"路徑格合計 {total}")

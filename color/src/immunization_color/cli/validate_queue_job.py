@@ -1,8 +1,15 @@
-"""CPU 驗收 queue 產物的列數、鍵集合與必要欄位。"""
+"""CPU 驗收 color 佇列工作的產物：列數、鍵集合與必要欄位。
+
+路徑相對 `--project`（預設 color 專案根），版面與 `immunization_color.layout` 相同。
+"""
 import argparse
 import csv
 import math
 from pathlib import Path
+
+import yaml
+
+from immunization_color import layout
 
 PURIFIERS = ("jpeg50", "crop_resize0.1", "blur1", "rotate15", "jpeg30", "jpeg80", "blur2")
 KEY = ("condition", "scenario", "image", "prompt_index")
@@ -57,10 +64,13 @@ def defense_names(root, arm):
     return names
 
 
-def edit_keys(lab, condition, directory, suffix):
-    import yaml
-    spec = yaml.safe_load((lab / "data/portraits/prompts.yaml").read_text(encoding="utf-8"))
-    names = defense_names(lab / "runs/defence" / condition, condition)
+def relative(path: Path) -> Path:
+    return path.relative_to(layout.PROJECT)
+
+
+def edit_keys(project, condition, directory, suffix):
+    spec = yaml.safe_load((project / relative(layout.PORTRAITS) / "prompts.yaml").read_text(encoding="utf-8"))
+    names = defense_names(project / relative(layout.DEFENSES) / condition, condition)
     rows = read_rows(directory / "preflight.csv", ("scenario", "image", "prompt_index", "arm"))
     scenarios = {"ip2p"} | {r["scenario"] for r in rows}
     expected = {(condition, scenario, name, str(pi)) for scenario in scenarios
@@ -76,37 +86,40 @@ def edit_keys(lab, condition, directory, suffix):
     return expected
 
 
-def validate_job(lab, job, fid_arms=()):
+def validate_job(project, job, fid_arms=()):
     parts = job.split(":")
     kind = parts[0]
-    runs = lab / "runs"
+    defended_edits = project / relative(layout.DEFENDED_EDITS)
+    results = project / relative(layout.RESULTS)
     if kind in ("pilot", "def"):
         _, arm, image, *_ = parts
-        directory = runs / ("defence_pilot" if kind == "pilot" else "defence_shards") / arm / image
+        shards = layout.DEFENSE_PILOTS if kind == "pilot" else layout.DEFENSE_SHARDS
+        directory = project / relative(shards) / arm / image
         names = defense_names(directory, arm)
         if names != {image}:
             raise ValueError(f"{directory}: 影像集合不符 {image}")
         validate_table(directory / "results.csv", ("image",), {(image,)})
     elif kind == "chain":
         arm = parts[1]
-        edit_keys(lab, arm, runs / "edit_defended" / arm, f"_{arm}")
+        edit_keys(project, arm, defended_edits / arm, f"_{arm}")
         for purifier in PURIFIERS:
-            edit_keys(lab, arm, runs / "edit_purified" / arm / purifier, f"_{arm}_{purifier}")
+            edit_keys(project, arm, project / relative(layout.PURIFIED_EDITS) / arm / purifier,
+                      f"_{arm}_{purifier}")
     elif kind == "readout":
-        directories = sorted(d for d in (runs / "edit_defended").iterdir()
+        directories = sorted(d for d in defended_edits.iterdir()
                              if d.is_dir() and not d.name.startswith("_"))
         if not directories:
             raise ValueError("沒有可驗收的防禦後編輯")
         expected = set()
         for directory in directories:
-            expected |= edit_keys(lab, directory.name, directory, f"_{directory.name}")
-        displacement = validate_table(lab / "results/displacement.csv", KEY, expected,
+            expected |= edit_keys(project, directory.name, directory, f"_{directory.name}")
+        displacement = validate_table(results / "displacement.csv", KEY, expected,
                                       DISPLACEMENT, ("blocked", "defended_png", "undefended_png"))
         for row in displacement:
             artifact(Path(row["defended_png"]))
             artifact(Path(row["undefended_png"]))
         retention_keys = {(*key, purifier) for key in expected for purifier in PURIFIERS}
-        rows = validate_table(lab / "results/retention.csv", (*KEY, "purifier"), retention_keys,
+        rows = validate_table(results / "retention.csv", (*KEY, "purifier"), retention_keys,
                               RETENTION, ("blocked", "geometric"))
         for row in rows:
             if "retained" not in row or (float(row["disp_plain"]) != 0 and
@@ -116,8 +129,8 @@ def validate_job(lab, job, fid_arms=()):
         if not fid_arms:
             raise ValueError("fid 工作必須明確指定 FID_ARMS")
         expected = {(arm, name) for arm in fid_arms
-                    for name in defense_names(runs / "defence" / arm, arm)}
-        validate_table(lab / "results/fidelity.csv", ("arm", "image"), expected,
+                    for name in defense_names(project / relative(layout.DEFENSES) / arm, arm)}
+        validate_table(results / "fidelity.csv", ("arm", "image"), expected,
                        ("lpips", "lpips_vs_anchor", "deltaE00", "psnr", "linf", "rms", "anchor_lpips"))
     else:
         raise ValueError(f"未知工作：{job}")
@@ -126,10 +139,10 @@ def validate_job(lab, job, fid_arms=()):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("job")
-    parser.add_argument("--lab", type=Path, default=Path("lab"))
+    parser.add_argument("--project", type=Path, default=layout.PROJECT)
     parser.add_argument("--fid-arms", nargs="*", default=[])
     args = parser.parse_args()
-    validate_job(args.lab, args.job, args.fid_arms)
+    validate_job(args.project, args.job, args.fid_arms)
 
 
 if __name__ == "__main__":

@@ -1,5 +1,4 @@
 import csv
-import importlib.util
 import os
 from pathlib import Path
 import shutil
@@ -7,10 +6,9 @@ import subprocess
 
 import pytest
 
-path = Path(__file__).parents[1] / "code/validate_job.py"
-spec = importlib.util.spec_from_file_location("validate_job_test", path)
-validation = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(validation)
+from immunization_color.cli import validate_queue_job as validation
+
+SCRIPTS = Path(__file__).resolve().parents[1] / "scripts"
 
 
 def write_table(path, rows):
@@ -52,29 +50,45 @@ def test_fidelity_requires_explicit_arms(tmp_path):
         validation.validate_job(tmp_path, "fid")
 
 
-@pytest.mark.parametrize("validation_rc,done", [(0, True), (9, False)])
-def test_zero_process_exit_still_requires_output_validation(tmp_path, validation_rc, done):
-    script = (Path(__file__).parents[1] / "scripts/queue_worker.sh").read_text(encoding="utf-8")
-    launch = script[script.index("launch() {"):script.index('\nfor job in "${JOBS[@]}"')]
-    queue, logs, leases = tmp_path / "queue", tmp_path / "logs", tmp_path / "leases"
-    queue.mkdir()
-    logs.mkdir()
-    leases.mkdir()
-    (queue / "readout.lock").mkdir()
-    env = dict(os.environ, Q=queue.as_posix(), LOGDIR=logs.as_posix(), LEASE=leases.as_posix(),
-               HOST="test", QNAME="test", CAP="2", MYCAP="2", MAXFAIL="3")
-    stubs = f'''key() {{ echo "$1"; }}
-lease_acquire() {{ return 0; }}
-lease_release() {{ return 0; }}
-gpu_global_cap() {{ echo 2; }}
-log() {{ :; }}
-sleep() {{ :; }}
-run_job() {{ return 0; }}
-validate_job() {{ return {validation_rc}; }}
-'''
-    result = subprocess.run([shutil.which("bash"), "-c", stubs + launch + '\nlaunch readout 0\nwait\n'],
-                            env=env, capture_output=True, text=True, encoding="utf-8", timeout=15)
+def depends(tmp_path, job, jobs, **environment):
+    env = dict(os.environ, **environment)
+    return subprocess.run([shutil.which("bash"), str(SCRIPTS / "queue_depends.sh"), job, *jobs],
+                          env=env, capture_output=True, text=True, encoding="utf-8", timeout=15)
+
+
+JOBS = ["pilot:color:man_00:10", "def:color:man_00", "def:color_simple:man_00",
+        "chain:color", "chain:color_simple", "readout", "fid"]
+
+
+@pytest.mark.parametrize("job,expected", [
+    ("def:color:man_00", ["pilot:color:man_00:10"]),
+    ("chain:color", ["def:color:man_00"]),
+    ("readout", ["chain:color", "chain:color_simple"]),
+    ("fid", []),
+    ("pilot:color:man_00:10", []),
+])
+def test_queue_dependencies_follow_job_grammar(tmp_path, job, expected):
+    result = depends(tmp_path, job, JOBS)
     assert result.returncode == 0, result.stderr
-    assert (queue / "readout.done").exists() == done
-    assert (queue / "readout.fails").exists() != done
-    assert not (queue / "readout.lock").exists()
+    assert result.stdout.split() == expected
+
+
+def test_readout_waits_for_external_condition_sentinels(tmp_path):
+    state = SCRIPTS.parent / "runtime/state"
+    sentinel = state / "queue_test_arm.pedit_blur2_ip2p.done"
+    assert depends(tmp_path, "readout", JOBS, WAIT_ARMS="queue_test_arm").returncode == 1
+    state.mkdir(parents=True, exist_ok=True)
+    try:
+        sentinel.touch()
+        assert depends(tmp_path, "fid", JOBS, WAIT_ARMS="queue_test_arm").returncode == 0
+    finally:
+        sentinel.unlink()
+
+
+def test_fid_queue_requires_explicit_arms(tmp_path):
+    env = dict(os.environ)
+    env.pop("FID_ARMS", None)
+    result = subprocess.run([shutil.which("bash"), str(SCRIPTS / "run_queue.sh"), "test", "fid"],
+                            env=env, capture_output=True, text=True, encoding="utf-8", timeout=15)
+    assert result.returncode == 2
+    assert "FID_ARMS" in result.stderr

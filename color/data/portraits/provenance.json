@@ -1,0 +1,178 @@
+[
+  {
+    "output": "man/man_00.png",
+    "source": "127.jpg",
+    "source_sha256": "a43c44a9dd4f24e4aaa2f4efbc735ffcb8512cdc82372251abb12fa4b493bd9b",
+    "source_size": [
+      1200,
+      800
+    ],
+    "face_box": [
+      495.0,
+      181.2,
+      775.8,
+      561.5
+    ],
+    "crop_xywh": [
+      235,
+      0,
+      800,
+      800
+    ],
+    "output_size": 512
+  },
+  {
+    "output": "man/man_01.png",
+    "source": "150.jpg",
+    "source_sha256": "450bece8661876234460c36aa9beab0abc654d41038a77259ea2db26422bcf5b",
+    "source_size": [
+      1077,
+      808
+    ],
+    "face_box": [
+      401.7,
+      102.1,
+      695.1,
+      469.4
+    ],
+    "crop_xywh": [
+      144,
+      0,
+      808,
+      808
+    ],
+    "output_size": 512
+  },
+  {
+    "output": "man/man_02.png",
+    "source": "177.jpg",
+    "source_sha256": "3fd7a0fe4189625e3ade5588292c915ed152b684d16fad2fcff665606af12685",
+    "source_size": [
+      800,
+      600
+    ],
+    "face_box": [
+      344.9,
+      77.3,
+      473.2,
+      256.4
+    ],
+    "crop_xywh": [
+      109,
+      0,
+      600,
+      600
+    ],
+    "output_size": 512
+  },
+  {
+    "output": "man/man_03.png",
+    "source": "214.jpg",
+    "source_sha256": "7b6f8e969e088b7b772d447703043a8d2d1c628ece61897f4bf1ac89c64226a6",
+    "source_size": [
+      945,
+      888
+    ],
+    "face_box": [
+      363.0,
+      245.9,
+      580.7,
+      526.3
+    ],
+    "crop_xywh": [
+      28,
+      0,
+      888,
+      888
+    ],
+    "output_size": 512
+  },
+  {
+    "output": "woman/woman_00.png",
+    "source": "159.jpg",
+    "source_sha256": "6585c35e5ea9b17823828e4e5883595782cd1d0ee084e895521c2c152c4d9bdb",
+    "source_size": [
+      1068,
+      1425
+    ],
+    "face_box": [
+      379.7,
+      405.6,
+      649.3,
+      778.0
+    ],
+    "crop_xywh": [
+      0,
+      250,
+      1068,
+      1068
+    ],
+    "output_size": 512
+  },
+  {
+    "output": "woman/woman_01.png",
+    "source": "165.jpg",
+    "source_sha256": "d8e57a370b52d53e992f182f87031c9c6b5925f6f4bec88216fb88230ab2584b",
+    "source_size": [
+      1536,
+      1025
+    ],
+    "face_box": [
+      703.9,
+      114.1,
+      1109.3,
+      730.4
+    ],
+    "crop_xywh": [
+      394,
+      0,
+      1025,
+      1025
+    ],
+    "output_size": 512
+  },
+  {
+    "output": "woman/woman_02.png",
+    "source": "171.jpg",
+    "source_sha256": "2d8bfd5bf6dde370e98630816f808a1c8ef667bda5882b20a3db4e6093a6a1b7",
+    "source_size": [
+      1000,
+      563
+    ],
+    "face_box": [
+      445.0,
+      51.5,
+      609.7,
+      274.4
+    ],
+    "crop_xywh": [
+      246,
+      0,
+      563,
+      563
+    ],
+    "output_size": 512
+  },
+  {
+    "output": "woman/woman_03.png",
+    "source": "380.jpg",
+    "source_sha256": "deb44e4fafe1cfbc11df6b9c475665d866dc4b9da2a7f8d4f565354e567afd91",
+    "source_size": [
+      1536,
+      1060
+    ],
+    "face_box": [
+      646.1,
+      179.5,
+      882.3,
+      489.1
+    ],
+    "crop_xywh": [
+      234,
+      0,
+      1060,
+      1060
+    ],
+    "output_size": 512
+  }
+]

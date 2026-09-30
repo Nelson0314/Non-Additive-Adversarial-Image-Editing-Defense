@@ -27,26 +27,19 @@
 **都在量化後的 PNG 上算**，因為交付的就是 PNG。
 
 用法
-    python lab/code/defence_fidelity.py --out lab/results/fidelity.csv
+    python -m immunization_color.cli.measure_defense_fidelity --out results/fidelity.csv
 """
 
 from __future__ import annotations
 
 import argparse
-import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+import torch
 
-import paths  # noqa: E402
-
-paths.add_source_to_syspath()
-
-import torch  # noqa: E402
-
-from color_defence import write_rows  # noqa: E402
-from src.defense.color_amplitude import delta_e00  # noqa: E402
-from src.utils.io import load_image_tensor  # noqa: E402
+from immunization_color import layout
+from immunization_core.color.difference import delta_e00
+from immunization_core.io import load_image_tensor, write_sorted_csv
 
 RESOLUTION = 512
 
@@ -73,8 +66,8 @@ def pairs(arm_dir: Path, arm: str):
 def main() -> None:
     ap = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--root", type=Path, default=Path("lab/runs/defence"))
-    ap.add_argument("--out", type=Path, default=Path("lab/results/fidelity.csv"))
+    ap.add_argument("--root", type=Path, default=layout.DEFENSES)
+    ap.add_argument("--out", type=Path, default=layout.RESULTS / "fidelity.csv")
     ap.add_argument("--arms", nargs="+", default=None)
     args = ap.parse_args()
 
@@ -113,7 +106,7 @@ def main() -> None:
                 "anchor_lpips": ANCHOR_LPIPS,
                 "anchor_source": "主表 colour_curve_ours 原生設定的八張平均（另一批）",
             })
-            write_rows(args.out, rows)
+            write_sorted_csv(args.out, rows)
         sub = [r for r in rows if r["arm"] == arm]
         med = lambda k: sorted(r[k] for r in sub)[len(sub) // 2]
         print(f"{arm:30s} n={len(sub)}  LPIPS {med('lpips'):.4f} "

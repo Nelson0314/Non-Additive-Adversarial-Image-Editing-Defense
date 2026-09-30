@@ -749,3 +749,14 @@ for p in baseline color style; do (cd "$p" && export ENV_FILE=~/env.sh && source
 git add core/requirements.lock baseline/requirements.lock color/requirements.lock style/requirements.lock
 git commit -m "Lock the remote execution environment for each project"
 ```
+
+## 驗收修正後的遠端操作（協調端）
+
+- 遠端同步至 `73eb706`；style 四組（`r11`、`r13`、`cls_p_noedit`、`cls_p_snow`）的 `artifacts/defenses`、`artifacts/edits` 與 `runtime/logs` 已刪除。
+- `restructure_result_layout.py --remote-commands` 產生的搬移已執行，`aligned/purified_edits/undefended` 重建為 `../../purified_edits/undefended`；`--paths-only --check` 回傳 0（artifacts 內 CSV 路徑格 0 處需改）。
+- `rename_csv_columns.py` 改寫 artifacts 內 36 份表，`--check` 回傳 0。
+- `requirements.lock`：遠端 `~/venvs/wacv`（Python 3.11.15、torch 2.13.0+cu126、CUDA 12.6）以 `uv pip freeze` 產生，四份內容相同（106 個套件），三個專案 `--check` 回傳 0。
+- color 既有階段標記未補寫（`immunization_color.stages write`），下次執行 chain 會依新摘要重跑。
+- Windows 本機測試（`73eb706`）：baseline 82、color 47 passed；core 234 passed、4 failed，style 16 passed、4 failed。
+  core 的 4 項為 `run_trial_lifecycle.sh` 測試：`TRIAL_REMOTE_ROOT` 只接受 `/` 開頭，Windows 暫存路徑為 `C:/…`（3 項），以及建立符號連結需要 Windows 權限（WinError 1314，1 項）。
+  style 的 4 項為 `test_job_runner.py`，`run_style_prompt_jobs.sh` 在 120 秒逾時內未結束。遠端（Linux）未執行這兩組測試。

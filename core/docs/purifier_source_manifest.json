@@ -1,0 +1,35 @@
+{
+  "source_commit": "51d58bf2757a691ec4d8c54a983efb74ac41bac8",
+  "copies": [
+    {
+      "source": "anti-purification/src/purify/ops.py",
+      "destination": "core/src/immunization_core/purifiers/operators.py",
+      "source_sha256": "d24f1e61cb12495ec20fc9d424dc59b1114d628f802dcbf1b774fd4a5e557f05"
+    },
+    {
+      "source": "anti-purification/src/purify/diffpure.py",
+      "destination": "core/src/immunization_core/purifiers/diffpure.py",
+      "source_sha256": "21cbff82d17d76b3eb111d95a9b5bdd7eb62223a6b31c6287582caba359da04a"
+    },
+    {
+      "source": "anti-purification/src/purify/impress.py",
+      "destination": "core/src/immunization_core/purifiers/impress.py",
+      "source_sha256": "979762a0d5a722f3bfc2c220a1c979524e631affb16dc6110527633b419653b8"
+    },
+    {
+      "source": "anti-purification/src/purify/adverse_cleaner.py",
+      "destination": "core/src/immunization_core/purifiers/adverse_cleaner.py",
+      "source_sha256": "613378783688001e8c6b1ff0b34715c98d424527bd3c14d7c5ca66278f94c499"
+    },
+    {
+      "source": "anti-purification/tests/test_purify_cr.py",
+      "destination": "core/tests/test_purify_cr.py",
+      "source_sha256": "bf53655e56c338cdd3a42a28e8451b3704eba96278ebbd740c6ed9d3704209dc"
+    },
+    {
+      "source": "anti-purification/tests/test_purify_new_ops.py",
+      "destination": "core/tests/test_purify_new_ops.py",
+      "source_sha256": "0dfe771b594e2f03cbae36041f632c0964cd6b458713388b04c070a29b8aff40"
+    }
+  ]
+}

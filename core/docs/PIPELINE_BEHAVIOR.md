@@ -37,4 +37,4 @@
 
 後續 pipelines 實作須驗證：只有子集防禦圖時可執行；防禦圖歧義與缺檔拒絕；條件過濾只處理指定條件；crop／rotate 後遮罩位置及黑角極性正確；未指定條件時的掃描集合不變；配對缺側拒絕；空區域與零分母維持原行為；既有輸出鍵、順序及精度保持一致。
 
-本階段僅完成差異盤點與底層模型／指標套件。`pipelines` 的實作、淨化模組、產物 layout、共用最佳化與 GPU 租約工具列入第 3 項後續子項。
+淨化階段已建立 `pipelines.purification`，沿用相同 registry 與運算；主體極性與 `purified_mask()` 原樣抽至 `pipelines.masks`。已提供顯式產物根目錄。編輯、displacement 與 retention 主流程、共用最佳化、GPU 租約工具仍屬後續子項；原呼叫端未切換。

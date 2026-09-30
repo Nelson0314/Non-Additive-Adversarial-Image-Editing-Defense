@@ -1,0 +1,23 @@
+# 換行基準：所有文字檔在索引與工作目錄一律 LF（Windows 簽出亦同），
+# 使 vendor.lock.json 的 SHA-256 與 shell 腳本在各平台一致。
+* text=auto eol=lf
+
+# 二進位：影像、PDF、壓縮檔與權重不做換行轉換與文字 diff。
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.avif binary
+*.bmp binary
+*.tif binary
+*.tiff binary
+*.pdf binary
+*.zip binary
+*.gz binary
+*.npy binary
+*.npz binary
+*.pt binary
+*.pth binary
+*.ckpt binary
+*.safetensors binary

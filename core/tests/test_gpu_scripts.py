@@ -184,6 +184,47 @@ def test_command_exit_releases_owned_lease(tmp_path, command_rc):
     assert not (leases / ".guard").exists()
 
 
+def project_env(tmp_path):
+    """專案 scripts/env.sh 的形式：設定路徑，並在 ENV_FILE 有值時 source 機器設定。"""
+    env_file = tmp_path / "project/scripts/env.sh"
+    env_file.parent.mkdir(parents=True)
+    env_file.write_text('export PROJECT_ENV_LOADED=1\n'
+                        'if [ -n "${ENV_FILE:-}" ]; then source "$ENV_FILE" || return 1; fi\n',
+                        newline="\n")
+    return env_file
+
+
+def test_env_file_that_sources_env_file_does_not_recurse(tmp_path):
+    env, leases = stub_env(tmp_path)
+    env.pop("ENV_FILE", None)
+    work = tmp_path / "work"
+    work.mkdir()
+    result = subprocess.run(
+        [BASH, (SCRIPTS / "run_with_gpu_lease.sh").as_posix(), "--work-dir", work.as_posix(),
+         "--env-file", project_env(tmp_path).as_posix(), "test",
+         "bash", "-c", 'echo "$PROJECT_ENV_LOADED" > loaded'],
+        env=env, capture_output=True, text=True, encoding="utf-8", timeout=15)
+    assert result.returncode == 0, result.stderr
+    assert (work / "loaded").read_text().strip() == "1"
+    assert not [p for p in leases.iterdir() if not p.name.startswith(".")]
+
+
+def test_env_file_keeps_caller_machine_settings(tmp_path):
+    env, _ = stub_env(tmp_path)
+    machine = tmp_path / "machine.sh"
+    machine.write_text("export MACHINE_LOADED=1\n", newline="\n")
+    env["ENV_FILE"] = machine.as_posix()
+    work = tmp_path / "work"
+    work.mkdir()
+    result = subprocess.run(
+        [BASH, (SCRIPTS / "run_with_gpu_lease.sh").as_posix(), "--work-dir", work.as_posix(),
+         "--env-file", project_env(tmp_path).as_posix(), "test",
+         "bash", "-c", 'echo "$PROJECT_ENV_LOADED $MACHINE_LOADED" > loaded'],
+        env=env, capture_output=True, text=True, encoding="utf-8", timeout=15)
+    assert result.returncode == 0, result.stderr
+    assert (work / "loaded").read_text().split() == ["1", "1"]
+
+
 def test_missing_workdir_is_rejected(tmp_path):
     env, _ = stub_env(tmp_path)
     result = subprocess.run([BASH, (SCRIPTS / "run_with_gpu_lease.sh").as_posix(), "test", "true"],
@@ -262,6 +303,24 @@ def test_invalid_dependency_status_stops_worker(tmp_path):
     assert result.returncode == 2
     assert "相依指令" in result.stderr
     assert not (work / "order").exists()
+
+
+def test_queue_env_file_that_sources_env_file_does_not_recurse(tmp_path):
+    env, _ = stub_env(tmp_path, POLL="0.05", LAUNCH_GAP="0", MAXFAIL="1")
+    env.pop("ENV_FILE", None)
+    work, tools = tmp_path / "work", tmp_path / "tools"
+    work.mkdir()
+    tools.mkdir()
+    runner = write_tool(tools / "runner", 'echo "$PROJECT_ENV_LOADED" > "done_$1"\n')
+    validator = write_tool(tools / "validator", '[ "$(cat "done_$1")" = 1 ]\n')
+    result = subprocess.run(
+        [BASH, (SCRIPTS / "queue_worker.sh").as_posix(), "--work-dir", work.as_posix(),
+         "--state-dir", (tmp_path / "state").as_posix(), "--log-dir", (tmp_path / "logs").as_posix(),
+         "--runner", runner.as_posix(), "--validator", validator.as_posix(),
+         "--env-file", project_env(tmp_path).as_posix(), "test", "only"],
+        env=env, capture_output=True, text=True, encoding="utf-8", timeout=30)
+    assert result.returncode == 0, result.stderr
+    assert (tmp_path / "state/only.done").exists()
 
 
 def test_queue_requires_injected_validator(tmp_path):

@@ -3,7 +3,8 @@
 #   防禦圖 → 防禦後編輯 → 淨化（七道）→ 淨化後編輯（七道）
 #
 # 每一階段跑完寫一個完成標記到 runtime/state/，重跑時已完成的階段直接略過；
-# 標記只在 rc=0 時才寫，中途中止的階段下次會重跑。
+# 標記只在 rc=0 時才寫，中途中止的階段下次會重跑。全部完成時寫 <條件>.chain.done。
+# 七道淨化取自 immunization_core 的協定正本（purifiers/protocol.json）。
 #
 # 用法：bash scripts/evaluate_condition.sh <GPU> <條件名>
 set -uo pipefail
@@ -29,6 +30,8 @@ if [ "$NDEF" -gt 0 ] && [ "$NDEF" -lt 8 ]; then
 fi
 DATA=data/portraits
 CLI=immunization_color.cli
+PURIFIERS=$("$PY" -m immunization_core.purifiers.protocol --exclude-identity) \
+  || { echo "[FATAL] 無法讀取淨化協定" >&2; exit 1; }
 mkdir -p "$S"
 
 step() {
@@ -53,7 +56,7 @@ done
 step purify "$PY" -m $CLI.apply_purifiers --defended "$A/defenses/$ARM" \
     --out "$A/purified/$ARM" || exit 1
 
-for PUR in jpeg50 crop_resize0.1 blur1 rotate15 jpeg30 jpeg80 blur2; do
+for PUR in $PURIFIERS; do
   for SC in $SCENARIOS; do
     step "pedit_${PUR}_${SC}" "$PY" -m $CLI.run_edits --data "$DATA" \
         --defended "$A/purified/$ARM/$PUR" \
@@ -62,4 +65,5 @@ for PUR in jpeg50 crop_resize0.1 blur1 rotate15 jpeg30 jpeg80 blur2; do
   done
 done
 
+touch "$S/${ARM}.chain.done"
 echo "[ARM-DONE] $(date -Is) $ARM gpu=$GPU"

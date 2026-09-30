@@ -1,21 +1,17 @@
 #!/usr/bin/env bash
-# 條件名 → 產防禦圖的指令。保留 color 與三個 simple 條件（參數定義在 immunization_color）。
+# 條件名 → 產防禦圖的指令；條件與參數的正本為 configs/conditions.yaml。
 #
-# 用法：bash scripts/generate_condition.sh color [額外參數…]
+# 用法：bash scripts/generate_condition.sh <條件名> [額外參數…]
 #        產出寫到 artifacts/defenses/<條件>/；DEF_OUT 可覆寫（分片執行用，
 #        results.csv 每寫一列就整份重寫，不可共用目錄）。額外參數附在指令最後。
 # 於 color 專案根執行；PY 由 scripts/env.sh 設定。
 set -uo pipefail
+source "$(dirname "${BASH_SOURCE[0]}")/env.sh" || exit 1
+cd "$COLOR_ROOT" || exit 1
 ARM="$1"
 OUT="${DEF_OUT:-artifacts/defenses/$ARM}"
-C=("$PY" -m immunization_color.cli.generate_color_defenses --arm "$ARM" --out "$OUT" --data data/portraits)
-case "$ARM" in
-  color)                exec "${C[@]}" "${@:2}" ;;
-  # 實驗條件：simple＝色偏上限改為錨點方框、只留膚色同色上限；xattn＝降低對類別詞的注意力；
-  # skinbox＝冷色方向的方框依離膚色中心的距離放大到 2 倍
-  color_simple)         exec "${C[@]}" --caps simple "${@:2}" ;;
-  color_simple_xattn)   exec "${C[@]}" --caps simple --objective xattn "${@:2}" ;;
-  color_simple_skinbox) exec "${C[@]}" --caps simple --box skin "${@:2}" ;;
-  *)
-    echo "未知的條件：$ARM" >&2; exit 2 ;;
-esac
+EXTRA_TEXT=$("$PY" -m immunization_color.conditions "$ARM") || exit $?
+EXTRA=()
+[ -z "$EXTRA_TEXT" ] || mapfile -t EXTRA <<< "$EXTRA_TEXT"
+exec "$PY" -m immunization_color.cli.generate_color_defenses --arm "$ARM" --out "$OUT" \
+  --data data/portraits "${EXTRA[@]}" "${@:2}"

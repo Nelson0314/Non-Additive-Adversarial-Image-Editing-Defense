@@ -7,6 +7,7 @@
 | 路徑 | 內容 |
 |---|---|
 | `src/immunization_style/` | `method.py`（生成器、載體、目標、選點）、`cli/`（命令列入口）、`layout.py`（預設目錄） |
+| `configs/styles.yaml` | 風格指令的唯一正本 |
 | `scripts/` | `run_style_prompt_jobs.sh`（一輪實驗的排程）、`env.sh` |
 | `data/portraits/` | 原圖、`masks/`、`prompts.yaml` |
 | `results/` | `defenses/<輪名>/<工作>/`（`results.csv`、`trace.csv`）、`edits/<輪名>/`（逐工作 `preflight.csv`、`readout_<風格>.csv`） |

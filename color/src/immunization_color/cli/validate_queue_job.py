@@ -10,8 +10,9 @@ from pathlib import Path
 import yaml
 
 from immunization_color import layout
+from immunization_core.purifiers.protocol import purifier_labels
 
-PURIFIERS = ("jpeg50", "crop_resize0.1", "blur1", "rotate15", "jpeg30", "jpeg80", "blur2")
+PURIFIERS = tuple(purifier_labels(include_identity=False))
 KEY = ("condition", "scenario", "image", "prompt_index")
 DISPLACEMENT = ("disp_lpips", "disp_ssim", "disp_psnr", "disp_vif_p", "disp_dists",
                 "disp_rms", "disp_linf", "disp_lpips_full", "disp_lpips_subject",

@@ -1,0 +1,83 @@
+# baseline 防禦條件的唯一正本。檔中順序即主表列序。
+#
+# solver：pgd（spec 為 immunization_baseline.attacks 下的 `模組.屬性`）、dct_shield、
+#         feedforward（前饋式免疫器）、imported（由其他專案產出，經 import_defense_artifacts 匯入）。
+# main_table：是否為主表的十二個條件；false 者只保留既有結果。
+# solver_prompt：求解端實際使用的文字條件；`content` 表示逐類別取資料集 prompts.yaml 的 content。
+#               常數值必須與攻擊模組持有的值相同（generate_defenses 啟動時檢查）。
+# solver_prompt_source：寫入 CSV 的出處說明。
+conditions:
+  dct_shield_y:
+    solver: dct_shield
+    main_table: true
+    channels: [Y]
+    jpeg_quality: figure
+    solver_prompt: ""
+    solver_prompt_source: "同 dct_shield"
+  mist:
+    solver: pgd
+    spec: mist.SPEC
+    main_table: true
+    solver_prompt: "a painting"
+    solver_prompt_source: "mist_v3.py 恆定 'a painting'（mist.py:54-55）"
+  dct_shield:
+    solver: dct_shield
+    main_table: true
+    channels: [Y, Cb, Cr]
+    jpeg_quality: default
+    solver_prompt: ""
+    solver_prompt_source: "無文字條件：損失是 ‖E(x')‖₂，不經過 text encoder"
+  photoguard_linf:
+    solver: pgd
+    spec: photoguard.SPEC_PAPER_LINF
+    main_table: true
+    solver_prompt: ""
+    solver_prompt_source: "同 photoguard_c，兩臂只差約束種類"
+  danp:
+    solver: pgd
+    spec: danp.SPEC_PAPER
+    main_table: true
+    solver_prompt: content
+  sifm:
+    solver: pgd
+    spec: sifm.SPEC_PAPER
+    main_table: true
+    solver_prompt: content
+  dayn:
+    solver: pgd
+    spec: dayn.SPEC_PAPER
+    main_table: true
+    solver_prompt: content
+  dia_pt:
+    solver: pgd
+    spec: dia.SPEC_PT
+    main_table: true
+    solver_prompt: ""
+    solver_prompt_source: "同 dia_r"
+  dia_r:
+    solver: pgd
+    spec: dia.SPEC_R
+    main_table: true
+    solver_prompt: ""
+    solver_prompt_source: "attack_setting.json：三分支皆空字串（dia.py:62,228-229）"
+  photoguard_c:
+    solver: pgd
+    spec: photoguard.SPEC
+    main_table: true
+    solver_prompt: ""
+    solver_prompt_source: "官方 notebook cell 10：prompt=\"\"（photoguard.py:114,122-125）"
+  color:
+    solver: imported
+    main_table: true
+    source: "color 專案的 color 條件，經 import_defense_artifacts --variant color 匯入"
+  diffvax:
+    solver: feedforward
+    main_table: true
+    solver_prompt: ""
+    solver_prompt_source: "無文字條件：推論端只有 immunizer 的一次前向，prompt 只在訓練時進 L_edit（diffvax.py::immunise）"
+  color_curve:
+    solver: imported
+    main_table: false
+    source: "舊顏色列（CSV 識別值原為 colour_curve_ours），數值留在 commit 0dd243b；等失真臂的錨點"
+
+content_prompt_source: "prompts.yaml 的逐類別 content（文字條件由防禦方選，不從攻擊指令推；見 dayn.py 的「c_a 怎麼定位」）"

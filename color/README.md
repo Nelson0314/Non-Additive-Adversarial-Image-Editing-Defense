@@ -7,6 +7,7 @@
 | 路徑 | 內容 |
 |---|---|
 | `src/immunization_color/` | `method.py`（載體、目標、支撐）、`cli/`（命令列入口）、`layout.py`（預設目錄） |
+| `configs/conditions.yaml` | 防禦條件與其參數的唯一正本 |
 | `scripts/` | `generate_condition.sh`（條件 → 防禦圖指令）、`evaluate_condition.sh`（單卡完整鏈）、`measure_condition_results.sh`（跨條件讀數）、`run_queue.sh` 與 `queue_*.sh`（工作佇列）、`env.sh` |
 | `data/` | `portraits/`（原圖、`masks/`、`prompts.yaml`）、`color_lpips_ref.csv`（逐張 LPIPS 上限參考） |
 | `results/` | `displacement.csv`、`retention.csv`、`fidelity.csv`（`color`）；`variants/<條件>/`（三個 simple 條件）；`defenses/`、`defense_shards/`、`defended_edits/`、`purified/`、`purified_edits/`（逐條件的求解與編輯紀錄） |
@@ -25,7 +26,7 @@
 | `color_simple_skinbox` | 同上；冷色方向的方框隨離膚色中心的距離放大到 2 倍 |
 | `color_simple_xattn` | 同 `color_simple`；目標改為攻擊端對類別詞的交叉注意力 |
 
-條件的參數只定義在 `scripts/generate_condition.sh`。
+條件與其參數的唯一正本為 `configs/conditions.yaml`；`scripts/generate_condition.sh` 經 `python -m immunization_color.conditions` 讀取。七道淨化取自 core 的 `purifiers/protocol.json`。
 
 ## 執行
 

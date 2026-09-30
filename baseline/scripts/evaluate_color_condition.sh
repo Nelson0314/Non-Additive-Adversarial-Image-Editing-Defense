@@ -24,6 +24,8 @@ export CUDA_VISIBLE_DEVICES=$card TOKENIZERS_PARALLELISM=false \
 CLI=immunization_baseline.cli
 A=artifacts
 S=runtime/color_condition
+PURIFIERS=$("$PY" -m immunization_core.purifiers.protocol --exclude-identity) \
+  || { echo "[FATAL] 無法讀取淨化協定" >&2; exit 1; }
 mkdir -p "$S"
 step() { echo "[STEP] $(date -Is) $*"; }
 edit_stage() {
@@ -62,7 +64,7 @@ if [ "$mode" = main ]; then
     step "淨化"
     "$PY" -m $CLI.apply_purifiers --defended $A/defenses/color --out $A/purified/color || exit 1
   fi
-  for PUR in jpeg50 crop_resize0.1 blur1 rotate15 jpeg30 jpeg80 blur2; do
+  for PUR in $PURIFIERS; do
     for SC in ip2p inpaint; do
       step "淨化後編輯 $PUR $SC"
       edit_stage "$A/purified/color/$PUR" "$A/purified_edits/color/$PUR" \

@@ -3,6 +3,7 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
+import sys
 
 import pytest
 
@@ -19,7 +20,9 @@ CONDITIONS = {
 
 def dispatch(tmp_path, arm, extra=(), output=None):
     stub = tmp_path / "capture-python"
-    stub.write_text('#!/usr/bin/env bash\nprintf "%s\\n" "$@"\n', newline="\n")
+    stub.write_text('#!/usr/bin/env bash\n'
+                    f'[ "$2" = immunization_color.conditions ] && exec {sys.executable} "$@"\n'
+                    'printf "%s\\n" "$@"\n', newline="\n")
     stub.chmod(0o755)
     env = dict(os.environ, PY=stub.as_posix())
     env.pop("DEF_OUT", None)
@@ -41,6 +44,11 @@ def test_retained_commands_preserve_arguments_and_overrides(tmp_path, arm, overr
         "--out", output or f"artifacts/defenses/{arm}", "--data", "data/portraits",
         *CONDITIONS[arm], *extra,
     ]
+
+
+def test_registry_file_matches_the_recorded_conditions():
+    from immunization_color.conditions import CONDITIONS as REGISTRY
+    assert REGISTRY == CONDITIONS
 
 
 @pytest.mark.parametrize("arm", ["color_xattn", "color_simple_dayn", "color_lut3d_dayn"])

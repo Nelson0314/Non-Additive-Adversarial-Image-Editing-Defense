@@ -8,6 +8,7 @@
 |---|---|
 | `src/immunization_baseline/` | `cli/`（命令列入口）、`attacks/`（baseline 攻擊實作）、`editors.py`、`layout.py`（預設目錄）、`resume_state.py`、`third_party/ultraedit/` |
 | `scripts/` | shell 入口：`evaluate_color_condition.sh`、`run_flux_conditions.sh`，以及共用環境 `env.sh` |
+| `configs/conditions.yaml` | 防禦條件的唯一正本：求解族、spec、求解端文字條件、是否屬主表 |
 | `configs/prompts/` | UltraEdit 指令句型 |
 | `data/` | `portraits/`（原圖、`masks/` 重繪遮罩、`prompts.yaml`）、`targets/`（Mist 目標影像） |
 | `results/` | 全部 CSV，入版控 |

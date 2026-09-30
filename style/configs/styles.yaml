@@ -1,0 +1,14 @@
+# style 的風格指令（防禦方的生成條件）唯一正本：風格名 → ip2p 指令。
+styles:
+  noedit: "make no edit"
+  cool_grade: "apply subtle cool cinematic grading"
+  overcast: "use soft cool overcast lighting"
+  bluegreen: "apply a muted blue-green photographic look"
+  winter: "make it winter"
+  winter_day: "make it look like a cold winter day"
+  # SPA 論文 §4.2 的五句風格指令
+  p_noedit: "Make no edit."
+  p_snow: "Add some snow."
+  p_light: "Add some light."
+  p_night: "Make it at night."
+  p_fog: "Make it in fog."

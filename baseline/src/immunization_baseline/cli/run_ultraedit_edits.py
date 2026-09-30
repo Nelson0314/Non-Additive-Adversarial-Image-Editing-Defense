@@ -41,7 +41,7 @@ import json
 import time
 from pathlib import Path
 
-from immunization_baseline import layout  # noqa: E402
+from immunization_baseline import conditions, layout  # noqa: E402
 
 import torch  # noqa: E402
 
@@ -57,9 +57,8 @@ EDIT_SEED = 20260812
 STEPS = 50
 UNDEFENDED = "undefended"
 OPERATORS = [label(k, s) for k, s in PURIFIERS if k != "identity"]
-CONDITIONS = ["dct_shield_y", "mist", "dct_shield", "photoguard_linf", "danp", "sifm",
-              "dayn", "dia_pt", "dia_r", "photoguard_c", "color_curve", "diffvax",
-              "color"]
+#: 可用的條件：configs/conditions.yaml 的全部條件（含非主表的 color_curve）。
+CONDITIONS = list(conditions.CONDITIONS)
 
 FIELDS = ["arm", "purifier", "image", "prompt_index", "variant", "prompt", "model",
           "guidance_scale", "image_guidance_scale", "steps", "seed", "seconds",
@@ -109,7 +108,7 @@ def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--arms", nargs="+", required=True,
-                    help=f"`{UNDEFENDED}` 或 12 條件之一：{' '.join(CONDITIONS)}")
+                    help=f"`{UNDEFENDED}` 或 configs/conditions.yaml 的條件之一：{' '.join(CONDITIONS)}")
     ap.add_argument("--purifiers", nargs="+", default=["none"] + OPERATORS)
     ap.add_argument("--variant", default="verbatim")
     ap.add_argument("--prompt-sets", type=Path,

@@ -9,6 +9,7 @@ import time
 
 import torch
 import torch.nn.functional as F
+import yaml
 import torch.utils.checkpoint as ckpt
 
 from immunization_core.color.shift import channel_shift_p95
@@ -20,22 +21,14 @@ from immunization_core.optimization.attention import (
 )
 from immunization_core.optimization.carrier import quantize
 from immunization_core.optimization.instruction_free import FreeObjective
+from immunization_style import layout
+
+STYLES_FILE = layout.PROJECT / "configs" / "styles.yaml"
 
 RESOLUTION = 512
-STYLES = {
-    "noedit": "make no edit",
-    "cool_grade": "apply subtle cool cinematic grading",
-    "overcast": "use soft cool overcast lighting",
-    "bluegreen": "apply a muted blue-green photographic look",
-    "winter": "make it winter",
-    "winter_day": "make it look like a cold winter day",
-    # SPA 論文 §4.2 的五句風格指令
-    "p_noedit": "Make no edit.",
-    "p_snow": "Add some snow.",
-    "p_light": "Add some light.",
-    "p_night": "Make it at night.",
-    "p_fog": "Make it in fog.",
-}
+#: 風格名 → ip2p 指令；正本為 configs/styles.yaml。
+STYLES = {name: str(prompt) for name, prompt in
+          yaml.safe_load(STYLES_FILE.read_text(encoding="utf-8"))["styles"].items()}
 
 
 class StyleEditor:

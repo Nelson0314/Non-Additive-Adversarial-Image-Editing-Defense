@@ -1,0 +1,8 @@
+# color 防禦條件的唯一正本：條件名 → generate_color_defenses 在預設參數之外的額外參數。
+# 實驗條件：simple＝色偏上限改為錨點方框、只留膚色同色上限；xattn＝降低對類別詞的注意力；
+# skinbox＝冷色方向的方框依離膚色中心的距離放大到 2 倍。
+conditions:
+  color: []
+  color_simple: [--caps, simple]
+  color_simple_xattn: [--caps, simple, --objective, xattn]
+  color_simple_skinbox: [--caps, simple, --box, skin]

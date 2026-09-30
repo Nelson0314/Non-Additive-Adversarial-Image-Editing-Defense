@@ -21,7 +21,7 @@ import argparse
 import csv
 from pathlib import Path
 
-from immunization_baseline import layout  # noqa: E402
+from immunization_baseline import conditions, layout  # noqa: E402
 
 import torch  # noqa: E402
 
@@ -32,9 +32,8 @@ from immunization_core.io import load_image_tensor, write_csv  # noqa: E402
 from immunization_core.pipelines.masks import subject_mask  # noqa: E402
 
 RESOLUTION = 1024  # FluxKontextPipeline 強制的輸出解析度，見 run_flux_edits
-CONDITIONS = ["dct_shield_y", "mist", "dct_shield", "photoguard_linf", "danp",
-             "sifm", "dayn", "dia_pt", "dia_r", "photoguard_c",
-             "color_curve", "diffvax"]
+#: 預設條件：configs/conditions.yaml 中主表的十二個條件。
+CONDITIONS = conditions.main_table_conditions()
 
 
 def read_csv(path: Path) -> list:

@@ -15,7 +15,7 @@ ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 case "$kind" in
   readout|fid)
     for a in ${WAIT_ARMS:-}; do
-      [ -e "$ROOT/runtime/state/$a.pedit_blur2_ip2p.done" ] || exit 1
+      [ -e "$ROOT/runtime/state/$a.chain.done" ] || exit 1
     done ;;
 esac
 exit 0

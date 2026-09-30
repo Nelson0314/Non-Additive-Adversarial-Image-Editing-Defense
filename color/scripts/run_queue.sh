@@ -12,7 +12,7 @@
 #   readout                     跨條件讀數。相依：全部 chain
 #   fid                         防禦圖失真（measure_defense_fidelity，需 FID_ARMS）
 # 佇列外的相依：readout 與 fid 等待 WAIT_ARMS 中每個條件的
-# runtime/state/<條件>.pedit_blur2_ip2p.done。
+# runtime/state/<條件>.chain.done。
 #
 # 狀態寫在 runtime/queues/<佇列名>/，逐工作的 log 在 runtime/logs/queue_<佇列名>/。
 # QUEUE_CAP 可另外降低本類佇列的合計租約數；全局卡數見 vendor/scripts/gpu_policy.sh。

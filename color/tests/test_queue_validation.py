@@ -75,7 +75,7 @@ def test_queue_dependencies_follow_job_grammar(tmp_path, job, expected):
 
 def test_readout_waits_for_external_condition_sentinels(tmp_path):
     state = SCRIPTS.parent / "runtime/state"
-    sentinel = state / "queue_test_arm.pedit_blur2_ip2p.done"
+    sentinel = state / "queue_test_arm.chain.done"
     assert depends(tmp_path, "readout", JOBS, WAIT_ARMS="queue_test_arm").returncode == 1
     state.mkdir(parents=True, exist_ok=True)
     try:

@@ -173,3 +173,17 @@ def test_fidelity_covers_twelve_conditions_times_eight_images():
     rows = read("additional_metrics/fidelity.csv")
     assert len(rows) == len(SOLVER) * len(IMAGES) == 96
     assert {r["condition"] for r in rows} == set(SOLVER)
+
+
+def test_condition_registry_is_the_single_source():
+    from immunization_baseline import conditions
+    from immunization_baseline.cli import generate_defenses
+
+    assert conditions.main_table_conditions() == [
+        "dct_shield_y", "mist", "dct_shield", "photoguard_linf", "danp", "sifm",
+        "dayn", "dia_pt", "dia_r", "photoguard_c", "color", "diffvax"]
+    assert set(conditions.main_table_conditions()) == set(SOLVER)
+    assert list(conditions.CONDITIONS)[-1] == "color_curve"
+    assert set(generate_defenses.CONDITIONS) == set(SOLVER) - {"color"}
+    assert generate_defenses.CONTENT_CONDITIONS == ("danp", "sifm", "dayn")
+    generate_defenses._check_prompts()

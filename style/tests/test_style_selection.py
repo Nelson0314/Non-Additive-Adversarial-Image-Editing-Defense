@@ -21,3 +21,10 @@ def test_selected_feasibility_is_independent_of_policy(
 def test_no_updates_reports_explicit_error():
     with pytest.raises(ValueError, match="沒有可選取"):
         select_result(None, None, "last")
+
+
+def test_styles_come_from_the_registry_file():
+    from immunization_style.method import STYLES
+    assert STYLES["p_snow"] == "Add some snow."
+    assert STYLES["cool_grade"] == "apply subtle cool cinematic grading"
+    assert len(STYLES) == 11

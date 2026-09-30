@@ -87,7 +87,7 @@ from pathlib import Path
 import torch  # noqa: E402
 import yaml  # noqa: E402
 
-from immunization_baseline import layout  # noqa: E402
+from immunization_baseline import conditions, layout  # noqa: E402
 
 from immunization_baseline.attacks import danp, dayn, dia, diffvax, mist, photoguard, sifm  # noqa: E402
 from immunization_baseline.attacks.pgd import run_pgd  # noqa: E402
@@ -111,37 +111,21 @@ RESOLUTION = 512
 # 不是評測設定。ℓ∞ 臂走同一條 `attack_forward`，故同樣吃這個值。
 PG_STRENGTH = 0.8
 
-PGD_SPECS = {
-    "photoguard_c": photoguard.SPEC,
-    "photoguard_linf": photoguard.SPEC_PAPER_LINF,
-    "mist": mist.SPEC,
-    "dia_r": dia.SPEC_R,
-    "dia_pt": dia.SPEC_PT,
-    "dayn": dayn.SPEC_PAPER,
-    "sifm": sifm.SPEC_PAPER,
-    "danp": danp.SPEC_PAPER,
-}
-# 三個要看資料集 `content` 的條件（DAYN 的 c_a、SIFM 的 φ_t 條件、DANP 的 DAA
-# 條件），故 `--conditions` 含其中之一時才讀 prompts.yaml；動物那一組還沒有
-# prompts.yaml，其餘六個條件不受影響。
-CONTENT_CONDITIONS = ("dayn", "sifm", "danp")
-DCT_CONDITIONS = ("dct_shield", "dct_shield_y")
-
-# DiffVax 不是逐影像最佳化：一個訓練好的 UNet++ 前向一次就吐出擾動，所以
-# `BaselineSpec` 的每一欄（`eps`／`steps`／`step_size`／`update_rule`／
-# `loss_fn`）在它身上都沒有對應值，不進 `PGD_SPECS`，也不進
-# `immunization_baseline.attacks.REGISTRY`（`tests/test_baselines.py` 以 `AUDIT == REGISTRY`
-# 稽核那張表）。接法照 `immunization_baseline/attacks/diffvax.py` 的「怎麼接進本專案的評測」：
-# `load_immunizer` 載一次，之後逐張 `immunise`。
+# 條件、求解族、spec 與求解端文字條件的正本為 configs/conditions.yaml。
+# DAYN／SIFM／DANP 的文字條件是資料集的逐類別 `content`（DAYN 的 c_a、SIFM 的 φ_t 條件、
+# DANP 的 DAA 條件），故 `--conditions` 含其中之一時才讀 prompts.yaml。
 #
-# 它與其餘十個條件有兩處不同，報表要分開標：
-#   1. **要遮罩。** 擾動只存在於重繪區之外（論文的免疫區 `M`），沒有遮罩
-#      就沒有「哪裡該加擾動」的定義。其餘條件都不吃遮罩。
-#   2. **沒有硬性 `L∞` 預算。** 輸出層是 1×1 Conv、後面沒有 activation，
-#      幅度由訓練時的 `L_noise`（alpha=4）壓住，不是由約束擋住。CSV 的
-#      `eps`／`eps_pixel01` 因此留空，**不是 0**：填 0 會被讀成「預算為零」。
-FEEDFORWARD_CONDITIONS = ("diffvax",)
-CONDITIONS = tuple(PGD_SPECS) + DCT_CONDITIONS + FEEDFORWARD_CONDITIONS
+# DiffVax（feedforward）不是逐影像最佳化：一個訓練好的 UNet++ 前向一次就產生擾動，
+# `BaselineSpec` 的各欄在它身上沒有對應值。它與其餘條件有兩處不同，報表要分開標：
+#   1. 要遮罩：擾動只存在於重繪區之外（論文的免疫區 `M`）。其餘條件都不吃遮罩。
+#   2. 沒有硬性 `L∞` 預算：輸出層是 1×1 Conv、後面沒有 activation，幅度由訓練時的
+#      `L_noise`（alpha=4）壓住。CSV 的 `eps`／`eps_pixel01` 因此留空而非 0。
+PGD_SPECS = {name: conditions.pgd_spec(name) for name in conditions.conditions_of("pgd")}
+CONTENT_CONDITIONS = tuple(name for name, entry in conditions.CONDITIONS.items()
+                           if entry.get("solver_prompt") == "content")
+DCT_CONDITIONS = tuple(conditions.conditions_of("dct_shield"))
+FEEDFORWARD_CONDITIONS = tuple(conditions.conditions_of("feedforward"))
+CONDITIONS = tuple(conditions.solver_conditions())
 
 #: 官方權重的預設位置。`--diffvax-ckpt` 可覆寫。
 DIFFVAX_CKPT = Path.home() / "thirdparty" / "diffvax" / "diffvax_trained.pth"
@@ -149,24 +133,11 @@ DIFFVAX_CKPT = Path.home() / "thirdparty" / "diffvax" / "diffvax_trained.pth"
 #: 遮罩目錄（`../scripts/make_masks.py` 的產出，白＝重繪）相對於 `--data` 的位置。
 MASK_SUBDIR = "masks"
 
-# 逐條件的求解端文字條件與它的出處。值本身由各 baseline 模組持有，這裡只是
-# 把它抄進報表——**不是**設定的來源。抄錯會被 `_check_prompts` 擋下來。
-# DAYN／SIFM／DANP 的文字條件逐類別不同，值在資料集的 `content`，不是這裡的
-# 常數；`solver_prompt_of` 會把實際生效的那一個字串抄進 CSV。
-CONTENT_PROMPT_SOURCE = ("prompts.yaml 的逐類別 content（文字條件由防禦方選，"
-                         "不從攻擊指令推；見 dayn.py 的「c_a 怎麼定位」）")
+CONTENT_PROMPT_SOURCE = conditions.CONTENT_PROMPT_SOURCE
 
-SOLVER_PROMPT = {
-    "photoguard_c": ("", "官方 notebook cell 10：prompt=\"\"（photoguard.py:114,122-125）"),
-    "photoguard_linf": ("", "同 photoguard_c，兩臂只差約束種類"),
-    "mist": (mist.MIST_PROMPT, "mist_v3.py 恆定 'a painting'（mist.py:54-55）"),
-    "dia_r": (dia.DIA_PROMPTS["uncond"], "attack_setting.json：三分支皆空字串（dia.py:62,228-229）"),
-    "dia_pt": (dia.DIA_PROMPTS["uncond"], "同 dia_r"),
-    "dct_shield": ("", "無文字條件：損失是 ‖E(x')‖₂，不經過 text encoder"),
-    "dct_shield_y": ("", "同 dct_shield"),
-    "diffvax": ("", "無文字條件：推論端只有 immunizer 的一次前向，"
-                    "prompt 只在訓練時進 L_edit（diffvax.py::immunise）"),
-}
+SOLVER_PROMPT = {name: (entry["solver_prompt"], entry["solver_prompt_source"])
+                 for name, entry in conditions.CONDITIONS.items()
+                 if entry["solver"] != "imported" and entry["solver_prompt"] != "content"}
 
 
 def solver_prompt_of(cond: str, item: dict) -> tuple:
@@ -187,7 +158,7 @@ def solver_prompt_of(cond: str, item: dict) -> tuple:
 
 
 def _check_prompts() -> None:
-    """抄進報表的字串必須與模組持有的值相同，不同就拋錯。
+    """設定檔中的求解端文字條件必須與攻擊模組持有的值相同，不同就拋錯。
 
     這一欄是「防禦方看到了什麼」的唯一書面證據，靜默抄錯會讓整批的威脅模型
     說不清楚，故不容許它與程式脫節。
@@ -199,11 +170,9 @@ def _check_prompts() -> None:
     assert "danp" not in SOLVER_PROMPT, "DANP 的 DAA 條件逐類別，不可寫成常數"
     assert SOLVER_PROMPT["diffvax"][0] == "", "DiffVax 的推論端不吃文字條件"
     assert "diffvax" not in PGD_SPECS, "DiffVax 不是 PGD 族，不可有 spec"
-    assert dayn.SPEC_PAPER.name == "dayn"
-    assert sifm.SPEC_PAPER.name == "sifm"
-    assert danp.SPEC_PAPER.name == "danp"
-    assert photoguard.SPEC.name == "photoguard_c"
-    assert photoguard.SPEC_PAPER_LINF.name == "photoguard_linf"
+    assert SOLVER_PROMPT["dia_pt"][0] == dia.DIA_PROMPTS["uncond"]
+    for name, spec in PGD_SPECS.items():
+        assert spec.name == name, f"configs/conditions.yaml 的 {name} 對到 spec {spec.name}"
 
 
 def content_by_class(root: Path) -> dict:
@@ -291,7 +260,8 @@ def solve(sd, cond: str, x01: torch.Tensor, seed: int,
     if cond in DCT_CONDITIONS:
         # DCT-Shield 的兩個臂只差作用通道與 JPEG 品質因子，其餘照論文
         # Algorithm 1（`--mode paper` 的路徑，見 ../scripts/dct_shield_run.py）。
-        q = PAPER_JPEG_FIG_QUALITY if cond.endswith("_y") else PAPER_DEFAULT_QUALITY
+        entry = conditions.CONDITIONS[cond]
+        q = {"figure": PAPER_JPEG_FIG_QUALITY, "default": PAPER_DEFAULT_QUALITY}[entry["jpeg_quality"]]
         eps = PAPER_EPS * eps_scale
         note = ""
         if eps_scale != 1.0:
@@ -304,7 +274,7 @@ def solve(sd, cond: str, x01: torch.Tensor, seed: int,
         spec = DCTShieldSpec(
             name=cond, q_alg=q, eps=eps, gamma=PAPER_GAMMA * eps_scale,
             steps=PAPER_STEPS,
-            channels=("Y",) if cond.endswith("_y") else ("Y", "Cb", "Cr"),
+            channels=tuple(entry["channels"]),
             modified_from_paper=eps_scale != 1.0, modification_note=note,
             source="arXiv:2504.17894 補充材料 Algorithm 1")
         x_def = run_dct_shield(sd, x01, spec, log_every=250).x_def

@@ -1,0 +1,184 @@
+{
+  "source_commit": "57a28a9324362cc9fa68a21cc1970632fefbc1a3",
+  "phase": "item3_foundation",
+  "copies": [
+    {
+      "source": "anti-purification/src/models/ip2p.py",
+      "destination": "core/src/immunization_core/editors/instruct_pix2pix.py",
+      "source_sha256": "4c9aed0b4c8e69ba411acbc58774538be9af72cb2dc6a935b3615ae257ee8950",
+      "definitions": null
+    },
+    {
+      "source": "anti-purification/src/metrics/acutance.py",
+      "destination": "core/src/immunization_core/metrics/acutance.py",
+      "source_sha256": "4d0904409eebe7dd8b2a75ab16ac8b04f5072b72ead3dc3f87fe2356021c546a",
+      "definitions": null
+    },
+    {
+      "source": "anti-purification/src/metrics/arcface.py",
+      "destination": "core/src/immunization_core/metrics/arcface.py",
+      "source_sha256": "fd6387678308a82b094ab3e2609794de42fbcfa04f01edc9975df1d8e23f7a2f",
+      "definitions": null
+    },
+    {
+      "source": "anti-purification/src/metrics/identity.py",
+      "destination": "core/src/immunization_core/metrics/identity.py",
+      "source_sha256": "72265f78c231679427558aa3c5266600cf48a9143c33d9f8aac226e1b8e8470b",
+      "definitions": null
+    },
+    {
+      "source": "anti-purification/src/metrics/regional.py",
+      "destination": "core/src/immunization_core/metrics/regional.py",
+      "source_sha256": "49435131066ffdaa7dd8f959de020a2f008a5bde8f889d2d9972bb7e5903731d",
+      "definitions": null
+    },
+    {
+      "source": "anti-purification/src/metrics/standard.py",
+      "destination": "core/src/immunization_core/metrics/standard.py",
+      "source_sha256": "3d5912f63d1793f90885484658190b6182f55c2205091d65559b63833e9f1e3c",
+      "definitions": null
+    },
+    {
+      "source": "anti-purification/src/metrics/suite.py",
+      "destination": "core/src/immunization_core/metrics/suite.py",
+      "source_sha256": "77ea73a316c82db97e64de6acbaf615e6d4c5505f86d455ac4f279521a7e5da6",
+      "definitions": null
+    },
+    {
+      "source": "anti-purification/src/utils/device.py",
+      "destination": "core/src/immunization_core/runtime/device.py",
+      "source_sha256": "516601f73e1def16c1bcf5e5ed4e89a1a592e6dbe7cac34bacf933fd9a68317c",
+      "definitions": null
+    },
+    {
+      "source": "anti-purification/src/utils/io.py",
+      "destination": "core/src/immunization_core/io.py",
+      "source_sha256": "7449a79a4405c7af67f945af792bb4205d85dd2383f572b07aa16b9da11fd604",
+      "definitions": null
+    },
+    {
+      "source": "anti-purification/src/models/sd.py",
+      "destination": "core/src/immunization_core/editors/conditioning.py",
+      "source_sha256": "fbf755fe465605b9687aaab17e218588900b18b9f4edb89048ac79c564286478",
+      "definitions": [
+        "SDXLPrompt",
+        "cat_cond",
+        "expand_cond"
+      ]
+    },
+    {
+      "source": "anti-purification/src/models/sd.py",
+      "destination": "core/src/immunization_core/editors/stable_diffusion.py",
+      "source_sha256": "fbf755fe465605b9687aaab17e218588900b18b9f4edb89048ac79c564286478",
+      "definitions": [
+        "SDWrapper"
+      ]
+    },
+    {
+      "source": "anti-purification/src/models/sd.py",
+      "destination": "core/src/immunization_core/editors/inpainting.py",
+      "source_sha256": "fbf755fe465605b9687aaab17e218588900b18b9f4edb89048ac79c564286478",
+      "definitions": [
+        "SDInpaintWrapper"
+      ]
+    },
+    {
+      "source": "anti-purification/src/models/sd.py",
+      "destination": "core/src/immunization_core/editors/stable_diffusion_xl.py",
+      "source_sha256": "fbf755fe465605b9687aaab17e218588900b18b9f4edb89048ac79c564286478",
+      "definitions": [
+        "SDXLWrapper"
+      ]
+    },
+    {
+      "source": "anti-purification/src/utils/artifacts.py",
+      "destination": "core/src/immunization_core/artifacts/images.py",
+      "source_sha256": "bbaa9588b43a3f3c92e98ad29d4a7b528f6d062c903fcbadf43aa78c881ea249",
+      "definitions": [
+        "_to_uint8",
+        "save_image"
+      ]
+    },
+    {
+      "source": "anti-purification/tests/test_acutance.py",
+      "destination": "core/tests/test_acutance.py",
+      "source_sha256": "e60e249aec309b7ad0eef9008275db404b94645e1346330f9aef73668e36232c",
+      "definitions": null
+    },
+    {
+      "source": "anti-purification/tests/test_ip2p.py",
+      "destination": "core/tests/test_ip2p.py",
+      "source_sha256": "228d5c520247084faa74918382ee89c9acb94b3d594107dfe175ba0aa9856090",
+      "definitions": null
+    },
+    {
+      "source": "anti-purification/tests/test_ip2p_batch.py",
+      "destination": "core/tests/test_ip2p_batch.py",
+      "source_sha256": "2b0c0cfef5eecd36b24e0237dd687e52c13302e281463321edf3bbb80fe9fa80",
+      "definitions": null
+    },
+    {
+      "source": "anti-purification/tests/test_inpaint_chain.py",
+      "destination": "core/tests/test_inpaint_chain.py",
+      "source_sha256": "8b4506d1a366ad3cb1d06450d8b03ff2683489e252e179476eb82740c69b8218",
+      "definitions": null
+    },
+    {
+      "source": "anti-purification/tests/test_identity_metric.py",
+      "destination": "core/tests/test_identity_metric.py",
+      "source_sha256": "6a85d01235fe10036d10f045551350aef5f79e31bc14a03c130a0a0812b1520c",
+      "definitions": null
+    },
+    {
+      "source": "anti-purification/tests/test_io_size.py",
+      "destination": "core/tests/test_io_size.py",
+      "source_sha256": "fd9e8440fd4db67155936557afe27a006cc2884856ebb93cfe06aa07c093d225",
+      "definitions": null
+    },
+    {
+      "source": "anti-purification/tests/test_suite_semantic.py",
+      "destination": "core/tests/test_suite_semantic.py",
+      "source_sha256": "f104c08aae04da77e7d5b2eb07f75bc6aa0a80aa4cf089984f739f83b3363ced",
+      "definitions": null
+    },
+    {
+      "source": "anti-purification/tests/test_suite_pairwise.py",
+      "destination": "core/tests/test_suite_pairwise.py",
+      "source_sha256": "6ef13d4a40b295bd7012ba843f53e91f699e3bcb43c6ebfd739b812e2bd96440",
+      "definitions": null
+    },
+    {
+      "source": "anti-purification/tests/test_suite_fid.py",
+      "destination": "core/tests/test_suite_fid.py",
+      "source_sha256": "48f07a3331fc7bc5697935d0bb4948c45a552da14875972ff14a5a021b80954b",
+      "definitions": null
+    },
+    {
+      "source": "anti-purification/tests/test_direction_similarity.py",
+      "destination": "core/tests/test_direction_similarity.py",
+      "source_sha256": "cf3ea1d698d590e3219c5f57e2bf1cf2be204b0ea62f5ccf54688687c8b81e22",
+      "definitions": null
+    },
+    {
+      "source": "anti-purification/tests/test_image_similarity.py",
+      "destination": "core/tests/test_image_similarity.py",
+      "source_sha256": "b4b8c5a6bb4191d91fc9c8f2c70ef49951b4e5f0e5ff037ab72c4ed84de91113",
+      "definitions": null
+    }
+  ],
+  "module_rewrites": {
+    "src.utils.device": "immunization_core.runtime.device",
+    "src.utils.io": "immunization_core.io",
+    "src.utils.artifacts": "immunization_core.artifacts.images",
+    "src.models.ip2p": "immunization_core.editors.instruct_pix2pix",
+    "src.models.sd": "immunization_core.editors.stable_diffusion",
+    "src.metrics": "immunization_core.metrics"
+  },
+  "symbol_rewrites": {
+    "cat_cond": "concatenate_conditioning",
+    "expand_cond": "expand_conditioning"
+  },
+  "environment_rewrites": {
+    "WACV_ALLOW_TF32": "IMMUNIZATION_ALLOW_TF32"
+  }
+}

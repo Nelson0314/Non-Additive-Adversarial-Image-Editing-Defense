@@ -68,7 +68,7 @@ core 的淨化協定正本 `purifiers/protocol.json` 指定：
 ### 幾何類的分區讀數：遮罩曾經沒有跟著變換
 
 `crop_resize0.1` 與 `rotate15` 改掉取景，淨化後的圖裡主體已不在原來的像素座標
-上。原 `main_table/code/edit_retention.py`（現為 `immunization_core.pipelines.retention`） 原本把遮罩載入一次後對七道算子重用，於是這兩道的
+上。原 `main_table/code/edit_retention.py`（現為 `immunization_core.pipelines.retention`）把遮罩載入一次後對七道算子重用，於是這兩道的
 分區是用**未變換的遮罩**切出來的。
 
 | 範圍 | 狀態 |

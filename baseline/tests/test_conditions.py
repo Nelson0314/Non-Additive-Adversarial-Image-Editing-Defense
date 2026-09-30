@@ -6,7 +6,7 @@
 `promptflare`）。它與主表十二列的交集只有四個：`photoguard_c`、`mist`、
 `dia_pt`、`dia_r`。其餘八列走各自的模組（`dct_shield` 有自己的 `DCTShieldSpec`
 與自己的 `REGISTRY`，`dayn`／`sifm`／`danp`／`diffvax` 各自獨立，
-`color` 走本專案的顏色載體（`lab/code/color_defence.py`）），**改動它們的常數不會有任何測試失敗**。
+`color` 走本專案的顏色載體（color 專案的 `immunization_color.cli.generate_color_defenses`）），**改動它們的常數不會有任何測試失敗**。
 
 這一支釘的是**已交付的讀數自己記下的設定**：`results/defense_<方法>.csv` 的
 求解欄位、讀數 CSV 的規模與鍵、以及協定欄位。它不重跑求解，也不判定任何條件

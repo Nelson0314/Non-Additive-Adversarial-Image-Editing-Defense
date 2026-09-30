@@ -701,7 +701,7 @@ git commit -m "Lock the remote execution environment for each project"
 
 ### 驗證
 
-core 238 passed（21 deselected）、baseline 82、color 47、style 20；`generate_vendor_snapshot.py --check` 三個專案通過；`restructure_result_layout.py --check` 與 `rename_csv_columns.py --check` 皆為 0。獨立目錄驗證（`verify_standalone.py`，`e13af6d`）：core 222（21 deselected；獨立副本沒有其他專案的文件可掃描，參數化案例較少）、baseline 82、color 47、style 20 passed，import、`--help`、`bash -n` 與檔案雜湊皆通過。
+core 238 passed（21 deselected）、baseline 82、color 47、style 20；`generate_vendor_snapshot.py --check` 三個專案通過；`restructure_result_layout.py --check` 與 `rename_csv_columns.py --check` 皆為 0。獨立目錄驗證（`verify_standalone.py`，`e13af6d`）：core 222（21 deselected；獨立副本沒有其他專案的文件可掃描，參數化案例較少）、baseline 82、color 47、style 20 passed，import、`--help`、`bash -n` 與檔案雜湊皆通過；模擬 Windows 簽出的 2,193 個版控檔 SHA-256 與 blob 相同。
 
 ### 協調端要在遠端執行的指令
 

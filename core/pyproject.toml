@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "immunization-core"
+version = "0.1.0"
+description = "Shared editor and measurement contracts for image immunization research"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = ["torch>=2.0", "torchvision>=0.15", "numpy>=1.24", "Pillow>=9.0"]
+
+[project.optional-dependencies]
+editors = ["diffusers>=0.30", "transformers>=4.40", "accelerate>=0.30", "safetensors>=0.4"]
+metrics = ["piq==0.8.0", "pyiqa>=0.1", "scikit-image>=0.19", "transformers>=4.40"]
+identity = ["facenet-pytorch>=2.5", "insightface>=0.7", "onnxruntime>=1.16"]
+test = ["pytest>=8"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-m 'not weights'"
+markers = ["weights: requires installed metric backends and pretrained model weights; explicitly opt in"]

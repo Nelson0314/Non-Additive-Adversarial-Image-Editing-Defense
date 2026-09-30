@@ -20,9 +20,9 @@ RESULTS = PROJECT / "results"
 ARTIFACTS = PROJECT / "artifacts"
 RUNTIME = PROJECT / "runtime"
 
-#: 各輪的防禦圖與逐步紀錄，`<輪名>/<工作>/`。
+#: 各組實驗的防禦圖與逐步紀錄，`<實驗名>/<工作>/`。
 DEFENSES = ARTIFACTS / "defenses"
-#: 各輪防禦圖的編輯，`<輪名>/<工作>_<風格>/` 與讀數 `readout_<風格>.csv`。
+#: 各組實驗防禦圖的編輯，`<實驗名>/<工作>_<風格>/` 與讀數 `readout_<風格>.csv`。
 EDITS = ARTIFACTS / "edits"
 #: 未防禦的編輯（讀數的分母 arm `ip2p_si18`）。
 UNDEFENDED_EDITS = ARTIFACTS / "undefended_edits"

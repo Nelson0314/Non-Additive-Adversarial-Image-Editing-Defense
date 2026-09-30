@@ -3,10 +3,20 @@
 依據 Wang et al.,「Style-controllable adversarial example generation via image editing and prompt embedding
 optimization」（Neurocomputing 702, 134591, 2026；DOI 10.1016/j.neucom.2026.134591，出處見 `references/README.md`）。原方法凍結 InstructPix2Pix、最佳化指令的文字
 embedding，使風格編輯後的影像騙過分類器。本線改為免疫：防禦圖由 ip2p 依防禦方的風格指令產生，目標是使攻擊端
-ip2p 的後續編輯失效。協定與攻擊端同 color 專案 `docs/DESIGN.md` §1。
+ip2p 的後續編輯失效。
 
 規則：訓練不得使用任何編輯指令（評估指令與自選替代指令皆不可），文字只可用空字串或類別詞；不可加性雜訊；
 主體身分與內容保持，衣服與背景可以變色；只用主種子。
+
+## 攻擊端協定
+
+- 攻擊方以 InstructPix2Pix（`timbrooks/instruct-pix2pix`，管線預設 scheduler）依文字指令編輯：50 步、s_t 7.5、s_i 1.8、
+  主種子 20260812（`immunization_core.pipelines.editing` 的預設值，經 `immunization_style.cli.run_edits` 執行）。
+- 指令：`data/portraits/prompts.yaml` 的 `edits.ip2p` 四句（墨鏡、警察制服、安全帽、領結）；防禦方在訓練中看不到這些指令。
+- 資料：`data/portraits/`，8 張 512² 人像（`man_00..03`、`woman_00..03`），附主體遮罩（`masks/`，白為重繪區）。
+- 未防禦分母：同一協定下原圖的編輯，位於 `artifacts/undefended_edits/ip2p_si18`。
+- 讀數：`cli/measure_style_prompt_edits.py`，定義見下節「程式」。LPIPS 為 `piq.LPIPS()`，主體與背景分區使用
+  `immunization_core.pipelines.masks.subject_mask()`。
 
 ## 程式
 
@@ -14,7 +24,7 @@ ip2p 的後續編輯失效。協定與攻擊端同 color 專案 `docs/DESIGN.md`
 |---|---|
 | `immunization_style.method`、`cli/generate_style_prompt_defenses.py` | 生成器 G、載體、目標、限制與求解（選項見 `--help`） |
 | `cli/measure_style_prompt_edits.py` | 讀數：編輯結果 LPIPS（對未防禦編輯、對風格參考圖的編輯）、編輯前後改變量 LPIPS，全圖／主體／背景 |
-| `scripts/run_style_prompt_jobs.sh` | 一輪實驗的排程：工作清單、經 `vendor/scripts/run_with_gpu_lease.sh` 取卡、防禦圖產出即送主種子編輯並重算讀數；名為 `ref` 的工作（`--lr 0 --updates 1`）產生對照 |
+| `scripts/run_style_prompt_jobs.sh` | 一組實驗的排程：工作清單、經 `vendor/scripts/run_with_gpu_lease.sh` 取卡、防禦圖產出即送主種子編輯並重算讀數；名為 `ref` 的工作（`--lr 0 --updates 1`）產生對照 |
 
 ## 設計
 
@@ -26,29 +36,6 @@ ip2p 的後續編輯失效。協定與攻擊端同 color 專案 `docs/DESIGN.md`
   exp(κ·tanh(m/κ))，κ 9，ResNet-50，標籤取原圖 top-1）、`free`。
 - 限制：FaceNet 身分下限、臉部暖色上限、`--struct-cap` 灰階 LPIPS 結構上限（對 x_ref）。停滯規則：連續 `--patience` 次驗證改善不到 1% 即 lr/4，最多 `--max-decays` 次。
 
-## 結果（man_01 等 3 張人像；主種子；看圖判定配件）
+## 結果
 
-| 設定 | 訓練 | 目標值 | 防禦圖 | 配件未畫出 |
-|---|---|---|---|---|
-| enc_gray，prompt＋latent，無結構上限 | 收斂 | 1.00 → 0.21–0.32 | 整張灰霧（對 x_ref LPIPS 0.34） | 1／4（安全帽） |
-| attn，prompt＋latent，無結構上限 | 300 步未收斂，中止 | 持續上升 | 背景改寫為幻覺場景 | 未評估 |
-| xattn，結構上限 0.08（`r11`） | 收斂 | 1.00 → 0.85–0.96 | 完好 | 0／12 |
-| chaos，結構上限 0.08（`r11`） | 2／3 收斂 | 偏離 ＋0.005–0.16 | 完好 | 1／12（安全帽） |
-| 論文設定（DDPM、77 token、lr 0.1、軌跡 ×25、prompt 餘弦 ×1）＋ xattn／chaos，20 步 | 依論文 | xattn 0.98–0.99 | 同參考圖 | 0／48 |
-| 同上，訓練至收斂（`r13`） | 收斂 | xattn 0.97–0.98；chaos ＋0.03–0.08 | chaos 一張臉部龜裂紋理 | 0／18（看圖） |
-| 論文完全移植：classifier 損失，20 步（`cls`） | 成功：4／4 分類器邊界轉負 | 1.50 → −2.81 等 | 對 x_ref LPIPS 0.05–0.11 | 0／16 |
-
-- 論文方法可移植並騙過分類器，但騙過分類器與阻止 ip2p 編輯之間沒有關聯；編輯前後改變量與 x_ref 持平。
-- 不讀指令的內部目標（encoder、注意力、攻擊代理輸出）在防禦圖完好時只移動 2–15%；能推動的設定以破壞防禦圖外觀為代價。
-- Codex 診斷：論文靠分類器決策邊界監督，換成內部距離後與編輯失敗失去關聯；G 的輸出落在 ip2p 自身的自然影像分布上。
-- 未試：分類器損失接在攻擊端以類別詞為指令的輸出上。
-
-## 資料位置
-
-各輪以輪名區分：`r11`（xattn／chaos，cool grading）、`r13`（論文設定、至收斂）、`cls_p_noedit`、`cls_p_snow`
-（論文完全移植）。數值 CSV 在 `results/defenses/<輪名>/`（逐工作 `results.csv`、`trace.csv`）與
-`results/edits/<輪名>/`（逐工作 `preflight.csv`、讀數 `readout_<風格>.csv`）；影像在 `artifacts/` 的同名位置。
-各輪的工作清單為 `configs/jobs/<輪名>.spec`（原遠端 `style_prompt_r11/jobs.spec`、`style_prompt_r13/jobs.spec`、
-`specs/style_prompt_cls_p_noedit.txt`、`specs/style_prompt_cls_p_snow.txt`，內容逐列保留，僅加檔頭說明）。
-清單參數與各工作 `results.csv` 的同名設定欄逐項相同；`tests/test_job_specs.py` 檢查每列可由現行 CLI 解析、
-且與結果目錄一一對應。重跑一輪：`bash scripts/run_style_prompt_jobs.sh <輪名> configs/jobs/<輪名>.spec`。
+本專案不保存結果。已刪除的實驗設定與關鍵數字記錄於 `docs/TRIALS.md`，數值 CSV 可由該表所列的 commit 取回。

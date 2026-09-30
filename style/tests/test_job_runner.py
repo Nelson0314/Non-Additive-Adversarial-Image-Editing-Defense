@@ -26,7 +26,7 @@ from pathlib import Path
 
 args = sys.argv[1:]
 if args[0] == "-c":
-    raise SystemExit(0)
+    raise SystemExit(1 if os.environ.get("FAIL_CUDA") else 0)
 module, rest = args[1], args[2:]
 if module.endswith("evaluate_job_outputs"):
     sys.argv = [module, *rest]
@@ -165,3 +165,25 @@ def test_spec_without_reference_job_is_rejected(project):
     assert result.returncode == 2
     assert "ref" in result.stderr
     assert not (copy / "artifacts/defenses/exp/alpha").exists()
+
+
+def test_launch_failure_ends_the_run_instead_of_retrying(project):
+    """啟動程序結束卻沒有結束碼（此處為 CUDA 檢查失敗）時，工作記為失敗，排程結束而不是反覆重派。"""
+    _, run = project
+    result = run(FAIL_CUDA="1")
+    assert result.returncode == 1, result.stdout + result.stderr
+    assert "exp_DONE" not in result.stdout
+    assert "啟動失敗" in result.stderr
+
+
+def test_unusable_detach_command_is_reported(project, tmp_path):
+    """setsid 無法執行（例如 Windows 上缺少該指令）時，排程回報啟動失敗並結束，不會等到逾時。"""
+    _, run = project
+    broken = tmp_path / "broken"
+    broken.mkdir()
+    (broken / "setsid").write_text('#!/usr/bin/env bash\necho "setsid: command not found" >&2\nexit 127\n',
+                                   newline="\n")
+    (broken / "setsid").chmod(0o755)
+    result = run(PATH=os.pathsep.join([str(broken), str(tmp_path / "bin"), os.environ["PATH"]]))
+    assert result.returncode == 1, result.stdout + result.stderr
+    assert "啟動失敗" in result.stderr

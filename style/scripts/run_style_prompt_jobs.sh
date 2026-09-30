@@ -43,17 +43,25 @@ for j in "${JOBS[@]}"; do  # 既有輸出須來自同一設定
   fi
 done
 
+# setsid 使工作脫離排程的行程群組；沒有 setsid 的環境（例如 Git for Windows）只以 nohup 在背景啟動。
+DETACH=$(command -v setsid || true)
+
 try_launch() {  # 取卡由共用租約原子地計入全局上限；結束碼寫入 <名稱>.rc
+  # 回傳 0：已啟動（或已結束並寫出結束碼）；1：暫時沒有空卡，稍後重試；2：啟動失敗，不重試。
   local cap=$1 name=$2; shift 2
   [ "$(lease_count)" -lt "$cap" ] || return 1
   rm -f "$L/$name.rc"
-  GPU_CAP= nohup setsid bash "$GPU_TOOLS/run_with_gpu_lease.sh" --work-dir "$STYLE_ROOT" --limit "$cap" "$name" \
+  GPU_CAP= nohup $DETACH bash "$GPU_TOOLS/run_with_gpu_lease.sh" --work-dir "$STYLE_ROOT" --limit "$cap" "$name" \
     bash -c "$*; echo \$? > '$L/$name.rc'" > "$L/$name.log" 2>&1 < /dev/null &
-  local i
+  local launcher=$! i
   for i in $(seq 1 40); do
     lease_running "$name" && { echo "$(date +%H:%M:%S) launched $name"; return 0; }
     [ -f "$L/$name.rc" ] && return 0
-    grep -q "\[FATAL\]" "$L/$name.log" 2>/dev/null && return 1
+    if ! kill -0 "$launcher" 2>/dev/null; then  # 啟動程序已結束，卻沒有結束碼
+      [ -f "$L/$name.rc" ] && return 0
+      grep -q "沒有空卡" "$L/$name.log" 2>/dev/null && return 1
+      return 2
+    fi
     sleep 1
   done
   return 1
@@ -103,15 +111,21 @@ while true; do
     [ "${STATE[$j]:-}" = defended ] || continue
     ims=$(edit_images "$j")
     if [ -z "$ims" ]; then fail_job "$j" "沒有可行的防禦圖"; continue; fi
-    try_launch "$(gpu_global_cap)" "${R}_edit_$j" "\"\$PY\" -m immunization_style.cli.run_edits --data-root $DATA --defenses-dir $O/$j --output-dir $(edit_dir "$j") --scenarios ip2p --suffix _${R}_$j --images $ims" \
-      && STATE[$j]=edit
+    try_launch "$(gpu_global_cap)" "${R}_edit_$j" "\"\$PY\" -m immunization_style.cli.run_edits --data-root $DATA --defenses-dir $O/$j --output-dir $(edit_dir "$j") --scenarios ip2p --suffix _${R}_$j --images $ims"
+    case $? in
+      0) STATE[$j]=edit ;;
+      2) fail_job "$j" "編輯啟動失敗：$(tail -n 3 "$L/${R}_edit_$j.log" 2>/dev/null | tr '\n' ' ')" ;;
+    esac
     pending=1
   done
   for j in "${JOBS[@]}"; do
     [ -z "${STATE[$j]:-}" ] || continue
     mkdir -p "$O/$j" && spec_line "$j" > "$O/$j/job.spec"
-    try_launch "$OPT_CAP" "${R}_opt_$j" "\"\$PY\" -m immunization_style.cli.generate_style_prompt_defenses $BASE --images ${IMG[$j]} --styles ${STY[$j]} ${ARG[$j]} --output-dir $O/$j" \
-      && STATE[$j]=opt
+    try_launch "$OPT_CAP" "${R}_opt_$j" "\"\$PY\" -m immunization_style.cli.generate_style_prompt_defenses $BASE --images ${IMG[$j]} --styles ${STY[$j]} ${ARG[$j]} --output-dir $O/$j"
+    case $? in
+      0) STATE[$j]=opt ;;
+      2) fail_job "$j" "最佳化啟動失敗：$(tail -n 3 "$L/${R}_opt_$j.log" 2>/dev/null | tr '\n' ' ')" ;;
+    esac
     pending=1
   done
   [ "$pending" -eq 0 ] && break

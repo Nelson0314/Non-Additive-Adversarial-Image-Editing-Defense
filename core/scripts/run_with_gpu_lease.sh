@@ -7,7 +7,7 @@
 # --work-dir  執行指令的工作目錄（必填）。
 # --env-file      先 source 的環境檔（例如設定 PY 與 PYTHONPATH）；source 失敗即中止。
 # --cap      全局授權卡數，寫入共用租約目錄；未給時依 GPU_CAP 或既有紀錄。
-# --limit    本次派工計入的租約上限，不超過全局授權。
+# --limit    單次派工計入的租約上限，不超過全局授權。
 # CUDA 檢查使用 $PY，未設定時為 python。
 set -uo pipefail
 AUTHORIZED_CAP=""; LAUNCH_LIMIT=""; WORKDIR=""; ENV_FILE=""

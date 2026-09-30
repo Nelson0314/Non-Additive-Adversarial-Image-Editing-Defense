@@ -1,9 +1,9 @@
 """把顏色方法的產物整理成與其他防禦條件同一個版面，好進同一張主表。
 
-為什麼要這一支
+用途
 ────────────────────────────────────────────────────────────────────
-`../scripts/immunise.py` 的輸出是逐結構的 `<名稱>__<結構>__def.png` 加上選中的
-`<名稱>__immunised.png`；`../scripts/paper_baseline.py` 的輸出是
+`archive/anti-purification/scripts/immunise.py` 的輸出是逐結構的 `<名稱>__<結構>__def.png` 加上選中的
+`<名稱>__immunised.png`；`archive/anti-purification/scripts/paper_baseline.py` 的輸出是
 `<名稱>__<臂>__defended.png`；`generate_defenses` 的輸出則是
 `<名稱>__<條件>__def.png` 與一份 `results*.csv`。下游（`--defenses-dir`、淨化、
 版面、主表）都照最後那個版面讀檔，所以前兩者要先換成那個版面才能並列。

@@ -1,7 +1,7 @@
 # AdvPaint／DIA／PromptFlare 原始碼逐字佐證
 
-> 2026-08-05。本檔補上 `src/baselines/` 審查（已刪，見 `INDEX.md` §3）點名的證據缺口：
-> `src/baselines/{advpaint,dia,promptflare}.py` 有多項宣稱在既有四份
+> 2026-08-05。本檔補上 `src/immunization_baseline/attacks/` 審查（已刪，見 `archive/anti-purification/docs/INDEX.md` §3）點名的證據缺口：
+> `src/immunization_baseline/attacks/{advpaint,dia,promptflare}.py` 有多項宣稱在既有四份
 > `_audit_*.md` 與 `SOURCE_AUDIT` 中查不到原文。以下全部取自官方 repo 的
 > raw 檔，逐字貼出，並標明該段落回答了哪一個待決問題。
 >
@@ -17,13 +17,13 @@
 > | `protect.py` | `NAHOHYUN-SKKU/PromptFlare` | 2281 |
 >
 > 本檔所有行號皆以上表的 raw 檔為準。既有模組 docstring 中若干行號取自
-> 另一版本，已在本次一併更正（見 §4）。
+> 另一版本，已於本檔查證時更正（見 §4）。
 
 ---
 
 ## 判定總表
 
-| 待決問題（來自 `src/baselines/` 的程式審查） | 判定 | 依據 |
+| 待決問題（來自 `src/immunization_baseline/attacks/` 的程式審查） | 判定 | 依據 |
 |---|---|---|
 | [重要-2] AdvPaint 的 GT 與各迭代是否共用同一次雜訊抽樣 | **不共用，本專案實作正確** | §1.3 |
 | [重要-4] DIA 的 `prev_timestep` 是 t−100 還是相鄰格點 t−111 | **t−100，且此不一致是原作自身的，本專案實作正確** | §2.2 |
@@ -97,7 +97,7 @@ GT 段：
   `randn_tensor` 退回全域 RNG，而全域 RNG 同樣在每次抽樣後前進
   （第 326 行 `torch.manual_seed(seed)` 只在程式起點設一次），結論不變。
 
-**判定**：`src/baselines/advpaint.py` 的 `_forward_and_record` 共用同一個
+**判定**：`src/immunization_baseline/attacks/advpaint.py` 的 `_forward_and_record` 共用同一個
 `ctx.generator`、每次呼叫重抽，與原作一致。[重要-2] 所擔心的
 「baseline 被系統性削弱」**不成立**。
 
@@ -156,7 +156,7 @@ eps 的**兩組預設互相矛盾**（簽章 0.06／CLI 0.1），`SOURCE_AUDIT �
 20:     return ((alpha_tm1**0.5*alpha_t**-0.5)*x_t + alpha_tm1**0.5*((1 / alpha_tm1 - 1) ** 0.5 - (1 / alpha_t - 1) ** 0.5) * eps_xt)
 ```
 
-與 `src/baselines/dia.py` 的 `_ddim` 逐字相同。
+與 `src/immunization_baseline/attacks/dia.py` 的 `_ddim` 逐字相同。
 
 ### 2.2 `prev_timestep` 與格點間距（回答 [重要-4]）
 
@@ -194,7 +194,7 @@ DDIM 步：
 `1000 // 10 = 100`，故 `prev_timestep = t − 100`。
 
 **判定**：「步進 100 與格點間距 111 不相符」是**原作自身**的性質，不是本專案
-的移植錯誤。`src/baselines/dia.py::_step` 的 `prev_t = int(t) - sd.num_train_timesteps //
+的移植錯誤。`src/immunization_baseline/attacks/dia.py::_step` 的 `prev_t = int(t) - sd.num_train_timesteps //
 ctx.num_inference_steps` 與之逐字相同，`final_alpha_cumprod` 的退路與
 反演時交換 α 的順序亦相同。[重要-4] 所擔心的「兩個變體強度系統性偏移」
 **不成立**（若要「修正」成 t−111，反而會偏離原作）。
@@ -214,7 +214,7 @@ ctx.num_inference_steps` 與之逐字相同，`final_alpha_cumprod` 的退路與
 ```
 
 前向的**值**由 `.sample()` 取得，反傳的 vjp 走 `.mode()`。
-確認 `src/baselines/dia.py::_encode_pt` 的作法正確。
+確認 `src/immunization_baseline/attacks/dia.py::_encode_pt` 的作法正確。
 
 ### 2.4 DIA-R 全程用 `.mode()`（回答「`DIA_R.py:353`」）
 
@@ -263,7 +263,7 @@ ctx.num_inference_steps` 與之逐字相同，`final_alpha_cumprod` 的退路與
 L1 起點的缺陷（`L1_projection` 第 54 行 `if c2.nelement != 0:` 比較的是
 方法物件、恆為真；且該函式的 `u = torch.min(1 - x - y, x + y)` 假設值域為
 `[0,1]` 而 DIA 用 `[-1,1]`）確認為**原始碼自身**的問題，本專案的轉寫無誤，
-已由 `tests/test_baselines.py` 的 `xfail(strict=True)` 釘住。
+已由 `archive/anti-purification/tests/test_baselines.py` 的 `xfail(strict=True)` 釘住。
 
 ---
 
@@ -307,7 +307,7 @@ L1 起點的缺陷（`L1_projection` 第 54 行 `if c2.nelement != 0:` 比較的
 ```
 
 `k=1` 使迴圈只跑一次，`torch.stack(...).mean()` 對單一元素取平均、
-第 56 行 `latents = pred_noise` 是死碼——確認 `src/baselines/promptflare.py`
+第 56 行 `latents = pred_noise` 是死碼——確認 `src/immunization_baseline/attacks/promptflare.py`
 的 `loss_fn` docstring 所述正確。
 
 `loss_depth = [1024, 256, 64]` 是 **token 數**白名單，對應 latent 64²
@@ -336,9 +336,11 @@ L1 起點的缺陷（`L1_projection` 第 54 行 `if c2.nelement != 0:` 比較的
 
 ---
 
-## 4. 因本次查證而更正的行號
+## 4. 查證時更正的行號
 
-`src/baselines/advpaint.py` 的模組 docstring 原引用的行號取自另一版本，
+行號的來源版本為 2026-08-05 同一批次下載的 raw 檔，以檔首表列的 bytes 識別。
+
+`src/immunization_baseline/attacks/advpaint.py` 的模組 docstring 原引用的行號取自另一版本，
 已更正為本檔表列 raw 檔的行號：
 
 | 項目 | 原引用 | 更正為 |

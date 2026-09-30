@@ -400,7 +400,7 @@ WebUI 的對應（`mist-webui.py:23-28`）：
 10. **論文未說明 textural loss 用的是 L2 還是平方 L2**（正文寫 `‖·‖₂`，程式碼是 `MSELoss(reduction="sum")`）。
 11. **論文未說明 VAE 編碼是取樣還是取均值**；程式碼取樣（`encoder_posterior.sample()`）。
 12. **`Readme.md` 的 mode 對照表與程式碼相反**（見第 6 節），無法判定何者為作者本意，只能以可執行的程式碼為準。
-13. **未找到官方對「(epsilon+1)/255」推導的說明文件**（`mist-documentation.readthedocs.io` 未在本次查證中取用）。
+13. **未找到官方對「(epsilon+1)/255」推導的說明文件**（`mist-documentation.readthedocs.io` 未在本檔查證中取用）。
 
 ---
 
@@ -625,7 +625,9 @@ def prepare_mask_and_masked_image(image, mask):
 
 # 增補：DiffVax 移植到本專案
 
-實作在 `src/baselines/diffvax.py`，測試在 `tests/test_diffvax.py`（23 項）。
+本節為移植紀錄，與前段對官方 repo 的原始查證分開閱讀。
+
+實作在 `src/immunization_baseline/attacks/diffvax.py`，測試在 `archive/anti-purification/tests/test_diffvax.py`（23 項）。
 上面「對象二：DiffVax」是對官方 repo（commit `77fe66a`）的逐行查證，本節記的
 是**移植的決定**，兩者不重複。內容與該模組的 docstring 是同一份，
 **改一邊要改兩邊**。
@@ -665,7 +667,7 @@ DiffVax 是**前饋式 immunizer**：一個 UNet++（`NestedUNet`，9,170,721 �
 | 論文 `~M`、程式 `mask_batch` | **編輯區域**（inpainting 要重繪的地方） | `mask_edit`，1 = 重繪 |
 | 論文 `M`、程式 `1 - mask_batch` | **免疫區域**（擾動加在這裡） | `1 - mask_edit` |
 
-本 repo 的遮罩由 `scripts/make_masks.py` 產生於
+本 repo 的遮罩由 `archive/anti-purification/scripts/make_masks.py` 產生於
 `data/<資料集>/masks/<影像>.png`，其極性寫在該檔的 docstring：
 **白（255）＝ 要重繪的區域，黑（0）＝ 保留的區域**。
 
@@ -675,7 +677,7 @@ DiffVax 是**前饋式 immunizer**：一個 UNet++（`NestedUNet`，9,170,721 �
 
 反過來說，**擾動落在白色區域之外**（黑色的保留區）。這是 DiffVax 的設計：
 重繪區的像素反正會被模型換掉，在那裡下擾動沒有作用，所以免疫區是保留區。
-`tests/test_diffvax.py` 以「白區內擾動為 0」釘住這個對應。
+`archive/anti-purification/tests/test_diffvax.py` 以「白區內擾動為 0」釘住這個對應。
 
 與論文的落差（照原始碼，不照論文正文）
 ──────────────────────────────────────────────────────────────────────
@@ -730,7 +732,7 @@ epoch 數、沒有 early stopping、`torch.save` 只在跑完或 loss 變 NaN �
 
 **本檔刻意不提供 `BaselineSpec`、也不進 `REGISTRY`。** `REGISTRY` 的契約是
 給逐影像 PGD 的（`eps` / `steps` / `step_size` / `update_rule` / `loss_fn`），
-DiffVax 一項都沒有；且 `tests/test_baselines.py` 以 `AUDIT == REGISTRY`
+DiffVax 一項都沒有；且 `archive/anti-purification/tests/test_baselines.py` 以 `AUDIT == REGISTRY`
 稽核，塞進去會讓那份稽核表失去意義。接法是在批次腳本裡直接呼叫：
 
     from src.baselines.diffvax import immunise, load_immunizer

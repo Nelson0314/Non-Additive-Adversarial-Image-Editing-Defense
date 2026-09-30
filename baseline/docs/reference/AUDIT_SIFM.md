@@ -4,7 +4,7 @@
 一律列在「未找到的項目」一節**，不作推斷、不補值。依 `BASELINE_PROVENANCE.md`
 §規則 1，本檔引用的每個數字都附帶它的協定。
 
-實作在 `src/baselines/sifm.py`，驗收在 `tests/test_sifm.py`。
+實作在 `src/immunization_baseline/attacks/sifm.py`，驗收在 `archive/anti-purification/tests/test_sifm.py`。
 
 ## 查證所用來源
 
@@ -27,7 +27,7 @@
 | `[SIFM-ABS]` 的 Code, Data and Media 區塊 | 無關聯的程式碼或 ancillary files |
 | 網路搜尋 `"Synergistic Intermediate Feature Manipulation" SIFM code github` | 無對應 repo（命中的 `cchen-cc/SIFA` 是 2019 年的醫學影像領域自適應，不同工作） |
 
-**後果**：`src/baselines/sifm.py` 是**依論文重建**，不是官方路徑的重現。
+**後果**：`src/immunization_baseline/attacks/sifm.py` 是**依論文重建**，不是官方路徑的重現。
 `SPEC_PAPER.modified_from_paper = True`，全部自訂項目寫在 `modification_note`
 與 `extras` 內。這與 `photoguard_linf`（依論文 Table 9 重建）同一性質，
 而與 `mist`／`dia_r`（有官方程式可逐行對照）不同。
@@ -148,7 +148,7 @@ diffusion-based image editing*；論文正文未展開 SA 這個縮寫的全稱�
 
 ## 3. 本專案實作了什麼
 
-| 論文的東西 | `src/baselines/sifm.py` 的對應 |
+| 論文的東西 | `src/immunization_baseline/attacks/sifm.py` 的對應 |
 |---|---|
 | 式 (3) 對 M 層平均 | `FeatureRecorder.aggregate`：forward hook 取層輸出後 `stack().mean(0)`，形狀不符即拋錯 |
 | 式 (4) `Dist` = MSE | `_dist(..., "mse")` = `((a-b)**2).mean()` |
@@ -251,7 +251,7 @@ L1 下成立。本專案實作 **L1**，落差記在 `SPEC_PAPER.discrepancy_not
 ### 4.8 ISR —— 未實作
 
 §VI 的 ISR 需要 Gemini 2.5 Pro 與 Gemini 2.5 Flash 兩個 MLLM 各自判定再取嚴格
-一致。本專案的評測管線（`scripts/baseline_run.py` 的 `evaluate`）沒有這條路，
+一致。本專案的評測管線（`archive/anti-purification/scripts/baseline_run.py` 的 `evaluate`）沒有這條路，
 `sifm.py` 只產生防禦圖。**因此本專案跑出來的任何數字都不能與論文表 II–VII 的
 ISR 欄對照。**
 
@@ -287,8 +287,9 @@ Image, Edit Prompt) 三元組，MLLM 端未明言是否相同）。
 **「哪一層是語意瓶頸」是隨架構改變的問題。** U-Net 的 `mid_block` 與 MMDiT 的
 某一層並沒有對應關係，本檔沒有處理 MMDiT。
 
-## 6. 接進 `scripts/baseline_run.py`
+## 6. 接進 `archive/anti-purification/scripts/baseline_run.py`
 
 `sifm.py` 的模組 docstring 末尾寫了需要加的三處（import、`CONDITIONS`、
-`run_additive` 的 spec 表與 `kw = {"prompt": item["prompt"]}`）。本輪沒有改
-那個檔，因為同時有其他 baseline 在改它。
+`run_additive` 的 spec 表與 `kw = {"prompt": item["prompt"]}`）。查證時未修改
+該檔。本專案的整合入口為 `immunization_baseline.cli.generate_defenses` 的 `sifm` 分支，
+條件設定為 `configs/conditions.yaml` 的 `sifm`（`spec: sifm.SPEC_PAPER`）。

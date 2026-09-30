@@ -9,7 +9,7 @@ Diffusion-Based Image Editing*，正文 pp. 24462–24471。
 就沒有公式）、Figure 2–6 的說明文字、補充材料 §A–§D 全文；CVPR open access
 頁面無 code 連結，作者亦無公開 repo。
 
-實作在 `src/baselines/dayn.py`，測試在 `tests/test_dayn.py`（49 項）。
+實作在 `src/immunization_baseline/attacks/dayn.py`，測試在 `archive/anti-purification/tests/test_dayn.py`（49 項）。
 以下內容與該模組的 docstring 是同一份，**改一邊要改兩邊**。
 
 ---
@@ -38,7 +38,7 @@ repo 位址。因此本檔的每一行只能追溯到論文的某一節或某一
    自己的決定，不是對齊 §A 的結果。
    `data/dayn_testset/` 是規劃向作者索取的原始測試集，**至今未取得**
    （`data/README.md`）。
-2. **`src/baselines/{sifm,danp,tdae}.py` 三篇對照表裡的 `SA`
+2. **`src/immunization_baseline/attacks/{sifm,danp}.py、archive/anti-purification/src/baselines/tdae.py` 三篇對照表裡的 `SA`
    （Semantic Attack）欄就是這一篇。** 例如 `AUDIT_SIFM.md` §2 表 II 的
    `SA [32]` 一列（PSNR 17.85、SSIM 0.5583、LPIPS 0.4225）引的即是本篇。
    要對回那三篇的數字，DAYN 是必須有的那一欄——但那些數字是**那三篇自己
@@ -182,7 +182,7 @@ Eq. 2 的 `c_a` 是「要保護的內容的文字嵌入」。**它由防禦方�
    的下一個元素。
 6. **9 通道（inpainting）權重下後 5 個通道取全 1 遮罩**，與 `mist.loss_fn`、
    `danp.loss_fn` 同一處置：Eq. 2 的 `ε_θ` 沒有影像條件。
-7. **注意力 processor 是自己寫的一份。** `src/baselines/danp.py` 的
+7. **注意力 processor 是自己寫的一份。** `src/immunization_baseline/attacks/danp.py` 的
    `DANPAttnProcessor` 做同一件事（diffusers 的 SDPA 融合核不會實體化
    softmax 後的 `A`），但那是另一篇的檔案，本檔不共用、也不修改它——
    兩篇的聚合規則不同（本篇 Eq. 3 是相加＋bicubic，DANP Eq. 4 是平均），
@@ -200,39 +200,43 @@ PSNR，不是免疫圖對原圖的失真，無法像 DANP 那樣反推上界。
 （「for a fair comparison」），而那兩個對照攻擊出自 PhotoGuard，其官方
 實作的影像張量在 `[-1,1]`（`docs/reference/BASELINE_PROVENANCE.md` §預算
 總表）；共用一個 κ 只有在共用值域時才成立。同一個 0.06 在 AdvPaint 也是
-`[-1,1]` 上的值（`src/baselines/advpaint.py`）。
+`[-1,1]` 上的值（`src/immunization_baseline/attacks/advpaint.py`）。
 
 **這是本檔挑的，不是論文的。** 另一種讀法（`[0,1]` 的 0.06 = 15.3/255）
 同樣說得通，且會給出強度差一倍的解。
 
-要接進 `scripts/baseline_run.py` 的 `CONDITIONS` 需要加的幾行
+原接入提案：`archive/anti-purification/scripts/baseline_run.py` 的 `CONDITIONS`
 ──────────────────────────────────────────────────────────────────────
 
-**本檔不修改 `scripts/baseline_run.py`，也不註冊進 `src/baselines/__init__.py`
-的 `REGISTRY`。** 後者是刻意的：`tests/test_baselines.py` 以
+> 本節為查證當時對 `baseline_run.py` 的接入提案，保留作為歷史紀錄。本專案的實際入口為
+> `immunization_baseline.cli.generate_defenses` 的 `dayn` 分支，條件設定為
+> `configs/conditions.yaml` 的 `dayn`（`spec: dayn.SPEC_PAPER`）。
+
+**原提案不修改 `archive/anti-purification/scripts/baseline_run.py`，也不註冊進 `src/immunization_baseline/attacks/__init__.py`
+的 `REGISTRY`。** 後者是刻意的：`archive/anti-purification/tests/test_baselines.py` 以
 `AUDIT == REGISTRY` 稽核，且逐一檢查 `REGISTRY` 的值域，加進去會打到既有
 測試；`danp`／`sifm`／`tdae` 也都刻意沒註冊。
 
 接線要加的是：
 
-    # src/baselines/__init__.py
+    # src/immunization_baseline/attacks/__init__.py
     from src.baselines import advpaint, dayn, dia, mist, photoguard, promptflare
     _SPECS = (..., dayn.SPEC_PAPER)
 
-    # scripts/baseline_run.py 第 36 行
+    # archive/anti-purification/scripts/baseline_run.py 第 36 行
     from src.baselines import dayn, dia, mist, photoguard  # noqa: E402
 
-    # scripts/baseline_run.py 第 60 行
+    # archive/anti-purification/scripts/baseline_run.py 第 60 行
     CONDITIONS = ["photoguard_c", "photoguard_linf", "mist", "dia_r", "dayn"]
 
-    # scripts/baseline_run.py `run_additive` 的 spec 表（第 90-93 行）
+    # archive/anti-purification/scripts/baseline_run.py `run_additive` 的 spec 表（第 90-93 行）
     spec = {"photoguard_c": photoguard.SPEC,
             "photoguard_linf": photoguard.SPEC_PAPER_LINF,
             "mist": mist.SPEC,
             "dia_r": dia.SPEC_R,
             "dayn": dayn.SPEC_PAPER}[name]
 
-    # scripts/baseline_run.py `run_additive` 的 kw 分支（第 94-105 行之後）
+    # archive/anti-purification/scripts/baseline_run.py `run_additive` 的 kw 分支（第 94-105 行之後）
     elif name == "dayn":
         # c_a 是防禦方選的那個詞，來自資料集的 `content` 欄；
         # **不可以傳 item["prompt"]**，那是攻擊方寫的，prepare 會拒絕。

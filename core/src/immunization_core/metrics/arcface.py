@@ -1,6 +1,6 @@
 """ArcFace 身分餘弦與 RetinaFace 偵測失敗率。
 
-為什麼與 `identity.py` 並存而不是取代它
+與 `identity.py` 並存的理由
 ────────────────────────────────────────────────────────────────────
 `identity.py` 用的是 FaceNet（`InceptionResnetV1`／VGGFace2），本專案所有既有
 的身分讀數都是它量的。外部比較的那一族（FaceLock、DeContext、NullEdit）報的

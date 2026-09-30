@@ -1,6 +1,7 @@
 # 淨化算子原始碼查證
 
-> 2026-08-05。對象為 `DESIGN_2026-08-05.md` §3 表列的五個淨化算子。
+> 2026-08-05。對象為 `DESIGN_2026-08-05.md`（歷史設計文件，不在 repo 內）§3 表列的五個淨化算子。
+> 本文件查證的算子並非全數進入主表；主表的七道淨化以 core 的 `purifiers/protocol.json` 為準。
 > **本文件的規則：只記錄可在原始碼或論文原文中直接讀到的內容。**
 > 凡是查不到的參數一律標記「未找到」，不以合理推斷填補。
 > 凡屬本文件作者的工程建議（非來源記載），一律加註「（建議，非來源）」。
@@ -32,7 +33,7 @@ DIA（ICCV 2025）參考文獻 [33] 的原文為：
 
 （來源：DIA arXiv:2510.00778v1 PDF，參考文獻第 33 條）
 
-**該 URL 目前為 404。** 以 GitHub API 查詢 `lllyasviel/AdverseCleaner` 回傳
+**2026-08-05 查證時該 URL 為 404。** 以 GitHub API 查詢 `lllyasviel/AdverseCleaner` 回傳
 `{"message": "Not Found", "status": "404"}`，原 repo 已被刪除。
 
 現存的完整鏡像（fork 網路，GitHub 在原始 repo 刪除後將網路根節點改指
@@ -802,7 +803,7 @@ DIA 的用法（單次裁切 + 縮放回原尺寸 → 送進編輯管線）才�
 2. **原始 repo 的建立日期與最後提交**。已刪除，無法查證。
 3. `p1atdev/stable-diffusion-webui-adverse-cleaner-tab` 的授權（未查證，
    該 repo 的 `scripts/adverse_cleaner_tab.py` 路徑回 404，實際檔名為 `scripts/main.py`，
-   本次未展開）。
+   本檔未展開）。
 4. HuggingFace Space `p1atdev/AdverseCleaner` 的授權（未查證）。
 
 ### 6.2 IMPRESS
@@ -845,11 +846,13 @@ DIA 的用法（單次裁切 + 縮放回原尺寸 → 送進編輯管線）才�
 18. **DIA 的「10%」是邊長還是面積**。
 19. **DIA 用中心裁切還是隨機裁切**。
 20. **DIA 的縮放插值方法**。
-21. **DIA 的官方 repo**（`SOURCE_AUDIT.md` 已記為未找到，本次未推翻）。
+21. **DIA 的官方 repo**（`SOURCE_AUDIT.md` 已記為未找到，本檔未推翻）。
 
 ---
 
 ## 7. 對 `DESIGN_2026-08-05.md` §3 淨化算子表的直接影響
+
+本節針對歷史設計文件 `DESIGN_2026-08-05.md`（不在 repo 內），保留作為查證紀錄。
 
 | 原表列 | 需修正之處 |
 |---|---|

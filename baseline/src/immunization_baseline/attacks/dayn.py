@@ -22,7 +22,7 @@ repo 位址。因此本檔的每一行只能追溯到論文的某一節或某一
    自己的決定，不是對齊 §A 的結果。
    `data/dayn_testset/` 是規劃向作者索取的原始測試集，**至今未取得**
    （`data/README.md`）。
-2. **`src/baselines/{sifm,danp,tdae}.py` 三篇對照表裡的 `SA`
+2. **`immunization_baseline/attacks/{sifm,danp}.py` 與 `archive/anti-purification/src/baselines/tdae.py` 三篇對照表裡的 `SA`
    （Semantic Attack）欄就是這一篇。** 例如 `AUDIT_SIFM.md` §2 表 II 的
    `SA [32]` 一列（PSNR 17.85、SSIM 0.5583、LPIPS 0.4225）引的即是本篇。
    要對回那三篇的數字，DAYN 是必須有的那一欄——但那些數字是**那三篇自己
@@ -117,7 +117,7 @@ repo 位址。因此本檔的每一行只能追溯到論文的某一節或某一
 | **CFG** | **未找到** | 不用 CFG，單次條件前向 | Eq. 2 只有一條 `c_a` 條件分支 |
 | **δ 的初始化** | Algorithm 1 第 2 行 `δ ← 0` | `init_rule="none"` | 論文明寫 |
 
-`c_a` 怎麼定位，以及為什麼不能從攻擊 prompt 推
+`c_a` 怎麼定位，以及不能從攻擊 prompt 推的理由
 ──────────────────────────────────────────────────────────────────────
 
 Eq. 2 的 `c_a` 是「要保護的內容的文字嵌入」。**它由防禦方選、攻擊 prompt

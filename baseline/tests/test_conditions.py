@@ -1,6 +1,6 @@
 """主表十二個條件的規格釘樁。
 
-**為什麼要有這一支。** 主線目錄的 `tests/test_baselines.py` 斷言
+**用途。** 主線目錄的 `tests/test_baselines.py` 斷言
 `set(AUDIT) == set(REGISTRY)`，而那個 `REGISTRY` 只收共用 `immunization_baseline/attacks/pgd.py`
 骨幹的六個 spec（`photoguard_c`、`mist`、`dia_pt`、`dia_r`、`advpaint`、
 `promptflare`）。它與主表十二列的交集只有四個：`photoguard_c`、`mist`、

@@ -43,7 +43,7 @@ class SDXLWrapper(SDWrapper):
         1. **更貼近真實威脅模型。** 攻擊方是「使用 stock SDXL 的一般使用者」，
            而實務上絕大多數 SDXL 應用載入的就是 fp16 變體——它只有一半大小
            且是 diffusers 文件的建議用法。
-        2. 本輪一律以 bf16 執行（RTX 5090 支援），fp32 權重檔的多餘精度
+        2. 本專案一律以 bf16 執行（RTX 5090 支援），fp32 權重檔的多餘精度
            在載入時就會被截掉，多下載 7 GB 換不到任何數值差異。
 
         `variant=None` 取 fp32 檔。段 0 的精度等價性驗證若要以 fp32 權重
@@ -91,7 +91,7 @@ class SDXLWrapper(SDWrapper):
 
         這對本專案有兩個後果：
 
-        1. 攻擊方必須是 stock SDXL。若我們用 `encode_text("")` 當 CFG 的
+        1. 攻擊方必須是 stock SDXL。若本專案用 `encode_text("")` 當 CFG 的
            無條件分支，模擬的就不是 stock 行為，威脅模型不成立。
         2. **prompt-free 的著力點需要重新檢視**（`DESIGN` §2.1）。
            在 SD v1.x 上，空 prompt 的 CLIP 編碼是 `[BOS][EOS][PAD]×75` 的

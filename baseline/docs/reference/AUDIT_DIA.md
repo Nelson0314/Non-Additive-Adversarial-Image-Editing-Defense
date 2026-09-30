@@ -25,7 +25,7 @@
 
 > Our code is available here: `https://anonymous.4open.science/r/DIA-13419/`.
 
-該匿名連結**目前仍可存取**。此外，共同第一作者 Geonho Son 的 GitHub 帳號 `sohn1029` 下有
+查證時該匿名連結可存取，其檔案結構與下列 repo 逐項相同（`created_at`、`pushed_at` 記錄該 repo 的查證快照）。此外，共同第一作者 Geonho Son 的 GitHub 帳號 `sohn1029` 下有
 正式 repo：
 
 - **https://github.com/sohn1029/DIA**

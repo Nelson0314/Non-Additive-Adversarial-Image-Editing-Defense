@@ -108,7 +108,7 @@ class SDWrapper:
         bf16 權重仍常駐時直接建構第二個 fp32 封裝，於 RTX 3090（23.56 GB）
         以 `torch.OutOfMemoryError` 失敗於 `decode_latent`（bf16 5.2 GB
         ＋ fp32 14 GB ＋ VAE 解碼活化，合計超過容量）。RTX 5090 的
-        31.4 GB 放得下，故先前未暴露。
+        31.4 GB 放得下，故修正前未暴露。
         """
         if self.device.type != "cuda":
             yield
@@ -252,9 +252,9 @@ class SDWrapper:
         缺漏。修訂前全專案沒有任何 CFG：`_eps` 只以條件嵌入呼叫一次 UNet，
         等同 w = 1。Stable Diffusion v1.x 是在 CFG 下訓練也在 CFG 下使用
         的，w = 1 時 prompt 對輸出的影響極弱，SDEdit 退化成「加噪再去噪」。
-        實測後果見 `docs/RESULTS_E25-E31.md`：CLIP(原圖) 0.2030 →
+        實測後果見原 `docs/RESULTS_E25-E31.md`（不在 repo 內）：CLIP(原圖) 0.2030 →
         CLIP(所謂的編輯結果) 0.2132，只升 0.0101 而標準差 0.0169，即編輯
-        根本沒有發生；使用者對 `runs/p5_semantic_axis/compare.html` 的判讀是
+        根本沒有發生；使用者對 原 `runs/p5_semantic_axis/compare.html`（不在 repo 內） 的判讀是
         「連原始圖片被文字編輯都沒有成功」。
 
         也就是說 E2–E23 全部是在防禦一個不存在的攻擊，量到的 `net_lpips`
@@ -686,7 +686,7 @@ class SDWrapper:
         """latent 的通道數。**不可用 `unet.config.in_channels` 代替。**
 
         一般 UNet 兩者相同（都是 4），inpainting UNet 的 `in_channels` 是 9
-        而 latent 仍是 4。`latent_shape` 先前直接取 `in_channels`，在
+        而 latent 仍是 4。`latent_shape` 修正前直接取 `in_channels`，在
         inpainting 權重上會回傳 9 通道的形狀，於是 `sample_edit_noise` 產生
         的噪聲與 latent 對不起來。VAE 的 `latent_channels` 才是真相來源。
         """
@@ -742,7 +742,7 @@ class SDWrapper:
         與 `sdedit` 的三個差別，每一個都改變防禦方的著力點：
 
         1. **沒有 strength。** 由純噪聲起跑、跑滿 `num_steps`，這是
-           inpainting pipeline 的定義。`sdedit` 的 strength 是我們為了把
+           inpainting pipeline 的定義。`sdedit` 的 strength 是本專案為了把
            inpainting 專用的三篇 baseline 移植到 img2img 才引入的參數——
            五篇原始碼裡都沒有這個數（`photoguard.py:124`、`advpaint.py:227`、
            `promptflare.py:350` 各自拒絕預設值並寫明理由）。換到本路徑之後

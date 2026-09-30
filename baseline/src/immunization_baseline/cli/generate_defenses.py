@@ -1,18 +1,18 @@
 """只產防禦圖：各 baseline 在**自己的原生設定**上對每張影像求解，不跑編輯評測。
 
-為什麼要跟 `baseline_run.py` 分開
+與 `baseline_run.py` 分開的理由
 ────────────────────────────────────────────────────────────────────
-`baseline_run.py` 把「求解」與「SDEdit 編輯評測」綁在同一個迴圈裡，於是
+`archive/anti-purification/scripts/baseline_run.py` 把「求解」與「SDEdit 編輯評測」綁在同一個迴圈裡，於是
 編輯那一段的任何問題都會擋住求解。本專案既有的作法是把攻擊與評測分開
-（（`../scripts/reedit_ip2p.py`、`../scripts/readout_panel.py`、
-`../frequency-phase/scripts/phase_retention.py`
+（`archive/anti-purification/scripts/reedit_ip2p.py`、`archive/anti-purification/scripts/readout_panel.py`、
+`archive/frequency-phase/scripts/phase_retention.py`
 都只讀已存的防禦圖，不重跑攻擊），這一支把求解端也獨立出來：
 **跑完之後，編輯與讀數可以事後便宜地重跑。**
 
 求解端用什麼 prompt
 ────────────────────────────────────────────────────────────────────
 **攻擊指令不會進到這裡。** 本專案的威脅模型裡，編輯指令是攻擊方寫的，
-防禦方看不到（`../scripts/immunise.py::assert_no_instructions` 是顏色線那邊的
+防禦方看不到（`archive/anti-purification/scripts/immunise.py::assert_no_instructions` 是顏色線那邊的
 同一條規則）。十一個條件的求解端各自帶著該篇自己的文字條件，逐條出處：
 
 | 條件 | 求解端的 prompt | 出處 |
@@ -30,9 +30,9 @@
 1×1 Conv、無 activation），掛不上其餘條件的失真錨點。遮罩讀
 `<data>/masks/<影像>.png`，權重由 `--diffvax-ckpt` 指定。
 
-**TDAE 不在這個表裡。** 依論文重建的模組仍在 `immunization_baseline/attacks/tdae.py`，但它
-沒有被接進本檔的條件集合；理由見 `docs/reference/AUDIT_TDAE.md` 的
-「為什麼不進本次的外部比較」。
+**TDAE 不在這個表裡。** 依論文重建的模組封存於 `archive/anti-purification/src/baselines/tdae.py`，
+沒有被接進本檔的條件集合；理由見 `archive/anti-purification/docs/reference/AUDIT_TDAE.md`
+§8。
 
 前七個條件的字串由各 baseline 模組內部持有，呼叫端不傳、也不能傳。CSV 的
 `solver_prompt` 欄逐列把實際生效的值抄出來（空字串就寫空字串），
@@ -106,7 +106,7 @@ MODEL_NAME = "CompVis/stable-diffusion-v1-4"
 RESOLUTION = 512
 
 # PhotoGuard-c 的攻擊在一個指定的 img2img 強度上最佳化（Salman et al. 的
-# diffusion attack），故求解端需要這個數。0.8 沿用 `../runs/baseline_restore`
+# diffusion attack），故求解端需要這個數。0.8 沿用 `archive/anti-purification/runs/baseline_restore`
 # 那一批（`baseline_run.py::EDIT_STRENGTH`），改它會改掉防禦圖本身，
 # 不是評測設定。ℓ∞ 臂走同一條 `attack_forward`，故同樣吃這個值。
 PG_STRENGTH = 0.8
@@ -130,7 +130,7 @@ CONDITIONS = tuple(conditions.solver_conditions())
 #: 官方權重的預設位置。`--diffvax-ckpt` 可覆寫。
 DIFFVAX_CKPT = Path.home() / "thirdparty" / "diffvax" / "diffvax_trained.pth"
 
-#: 遮罩目錄（`../scripts/make_masks.py` 的產出，白＝重繪）相對於 `--data-root` 的位置。
+#: 遮罩目錄（`archive/anti-purification/scripts/make_masks.py` 的產出，白＝重繪）相對於 `--data-root` 的位置。
 MASK_SUBDIR = "masks"
 
 CONTENT_PROMPT_SOURCE = conditions.CONTENT_PROMPT_SOURCE
@@ -259,7 +259,7 @@ def solve(sd, cond: str, x01: torch.Tensor, seed: int,
 
     if cond in DCT_CONDITIONS:
         # DCT-Shield 的兩個臂只差作用通道與 JPEG 品質因子，其餘照論文
-        # Algorithm 1（`--mode paper` 的路徑，見 ../scripts/dct_shield_run.py）。
+        # Algorithm 1（`--mode paper` 的路徑，見 archive/anti-purification/scripts/dct_shield_run.py）。
         entry = conditions.CONDITIONS[cond]
         q = {"figure": PAPER_JPEG_FIG_QUALITY, "default": PAPER_DEFAULT_QUALITY}[entry["jpeg_quality"]]
         eps = PAPER_EPS * eps_scale

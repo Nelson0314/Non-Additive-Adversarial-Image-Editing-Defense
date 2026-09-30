@@ -1,7 +1,7 @@
 # Baseline 出處總表
 
 一個 baseline 的數字要能被引用，必須同時說得出四件事：**哪一篇、那篇寫什麼、
-官方程式做什麼、我們跑什麼**。四者經常不一致，而不一致本身就是要報的東西。
+官方程式做什麼、本專案跑什麼**。四者經常不一致，而不一致本身就是要報的東西。
 
 本檔只放這四欄與它們的出處。逐行對照的證據在 `AUDIT_*.md`，工作點如何對齊在
 `BASELINE_ALIGNMENT.md`。
@@ -27,7 +27,7 @@
 
 ## 預算總表
 
-下表的七個方法共用 `src/baselines/pgd.py` 的 PGD 骨幹，`eps01` 是各自的
+下表的七個方法共用 `src/immunization_baseline/attacks/pgd.py` 的 PGD 骨幹，`eps01` 是各自的
 約束換算到 `[0,1]` 像素域的值。**換算逐篇不同，`eps01` 相同不代表束縛相同**：
 束縛種類（`L∞`／`L2`）不同的兩列，該欄不是同一個量。主表十二列的逐列單位
 見下一節。
@@ -49,7 +49,7 @@
 
 ## `eps_pixel01` 欄的單位，逐列
 
-`main_table/results/defence_*.csv` 的 `eps_pixel01` 要**連同一列的 `norm` 欄一起讀**。
+`results/defense_*.csv` 的 `eps_pixel01` 要**連同一列的 `norm` 欄一起讀**。
 `norm` 記的是束縛種類，主表十二列分成五種：
 
 | `norm` | 條件 | 該列 `eps_pixel01` 量的是什麼 |
@@ -75,11 +75,11 @@
 
 | 方法 | 模組 | 測試 | 在 `REGISTRY` | 防禦圖產物 |
 |---|---|---|---|---|
-| `advpaint` | `src/baselines/advpaint.py` | `tests/test_baselines.py` 的 `AUDIT` 有列 | 是 | 無 |
-| `promptflare` | `src/baselines/promptflare.py` | 同上 | 是 | 無 |
-| `diffusionguard` | `src/baselines/diffusionguard.py` | `tests/test_diffusionguard.py` | 否 | 無 |
+| `advpaint` | `src/immunization_baseline/attacks/advpaint.py` | `archive/anti-purification/tests/test_baselines.py` 的 `AUDIT` 有列 | 是 | 無 |
+| `promptflare` | `src/immunization_baseline/attacks/promptflare.py` | 同上 | 是 | 無 |
+| `diffusionguard` | `archive/anti-purification/src/baselines/diffusionguard.py` | `archive/anti-purification/tests/test_diffusionguard.py` | 否 | 無 |
 
-「防禦圖產物」查的是 `main_table/images/defence_portraits/` 與主線目錄的
+「防禦圖產物」查的是 `artifacts/defenses/` 與主線目錄的
 `runs/` 底下有無以這三個名字命名的目錄，三者皆無——**沒有產物就不可能有主表的
 64 格**。至於當初為何未跑，`HANDOFF.md` §「不在主表裡的方法，以及為什麼」只列
 `uap_semantic`、`tdae`、AdvCF、`colour_field` 四項，這三個不在其中；查過
@@ -113,12 +113,12 @@ Appendix C.1、Tables 6／10 查無 0.284 與 28.32。
 | **AdvPaint** | `eps` 兩組預設互相矛盾：函式簽章 0.06、CLI 0.1。步數簽章 100、論文正文 250。 | 本專案取 0.06／0.03／100，理由見 `AUDIT_INPAINTING_METHODS.md` §1.4。 |
 | **DIA** | 論文正文與補充資料均未給步長 α。 | 由 `attack_setting.json` 取 `lr=0.003921568…`（即 1/255）。 |
 | **PromptFlare** | repo 全無 `manual_seed`／`Generator`。 | 不可重現到位元；跨批對照作廢。 |
-| **DCT-Shield** | [官方 repo 是空的](https://github.com/SamsungLabs/dct-shield)，project page 標 code coming soon。Table 1 的 baseline 分支（encoder 還是 complex）與 LPIPS backbone 未載；補充資料 C.1.5 只說用 `pyiqa`。 | 它報的 baseline 數字只能當 as reported，不可用來判定我們的實作對錯。 |
+| **DCT-Shield** | [官方 repo 在查證時是空的](https://github.com/SamsungLabs/dct-shield)，project page 標 code coming soon。Table 1 的 baseline 分支（encoder 還是 complex）與 LPIPS backbone 未載；補充資料 C.1.5 只說用 `pyiqa`。 | 它報的 baseline 數字只能當 as reported，不可用來判定本專案的實作對錯。 |
 
 ## 本專案的量測管線
 
 - LPIPS 走 `piq.LPIPS()`，**與官方 `lpips(net='vgg')` 逐位相同**，不是 AlexNet。
   VGG/Alex 的比值逐條件由 1.32 變動到 17.98，與擾動結構高度相關，
   **不能用單一係數換算兩篇的數字**（`BASELINE_ALIGNMENT.md` §1.2）。
-- rms 的定義是 `(d ** 2).mean().sqrt()`，對 RGB 全部元素平均（`src/metrics/suite.py`）。
+- rms 的定義是 `(d ** 2).mean().sqrt()`，對 RGB 全部元素平均（`vendor/immunization_core/metrics/suite.py`）。
   引用他人由 PSNR 反推的 rms 時，兩者的平均方式不一定相同。

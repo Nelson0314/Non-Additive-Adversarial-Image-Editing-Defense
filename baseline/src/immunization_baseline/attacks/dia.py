@@ -150,7 +150,7 @@ class DIAContext:
         # 只對 DIA-R 這條路成立：它的編碼取 `.mode()`、解碼是純函式，兩者
         # **確定性**，重算得到逐位元相同的結果。DIA-PT 的 `_encode_pt` 走
         # `.sample()`，重算會抽到另一個樣本而使反向的梯度屬於另一個函式，
-        # 故不套用——該變體本來就不在本輪格點內（`grid.EXCLUDED`）。
+        # 故不套用——該變體本來就不在格點內（`grid.EXCLUDED`）。
         self.vae_ckpt = bool(vae_ckpt)
         self.variant = variant
         self.emb = emb

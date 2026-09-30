@@ -1,6 +1,6 @@
 """AdvPaint —— Jeon et al.（`JoonsungJeon/AdvPaint`）。
 
-出處：官方 `AdvPaint.py`（本次以 raw 檔逐行核對，行為與
+出處：官方 `AdvPaint.py`（以 raw 檔逐行核對，見 `docs/reference/AUDIT_INPAINTING_METHODS.md`，行為與
 `docs/reference/SOURCE_AUDIT.md` §1 一致，另補一項該文件未記的落差，見下）。
 逐字佐證見 `docs/_audit_advpaint_dia_promptflare.md` §1；下列行號以該文件
 記載的 raw 檔（`main` 分支，13891 bytes）為準。
@@ -287,7 +287,7 @@ def prepare(
               sd.num_train_timesteps - 1))
     generator = torch.Generator(device=device).manual_seed(seed)
     recorder = QKVRecorder(sd.unet)
-    # GT 與迭代必須走**同一條**路徑。先前這裡傳 None，遮罩因此讀不到，
+    # GT 與迭代必須走**同一條**路徑。修正前這裡傳 None，遮罩因此讀不到，
     # GT 會走 img2img 而迭代走 inpainting——兩組 Q/K/V 來自不同的前向，
     # 相減得到的距離量的是路徑差異而不是擾動。
     gt = _forward_and_record(
@@ -354,7 +354,7 @@ SPEC = BaselineSpec(
     init_rule="uniform_linf",    # `X + (rand*2*eps - eps)`，SOURCE_AUDIT §1.4 未記
     grad_reps=1,
     needs_target_image=False,
-    needs_mask=True,             # 本輪設為全圖
+    needs_mask=True,             # 本專案設為全圖
     modified_from_paper=True,
     modification_note=(
         "(1) mask 設為全圖，原作逐 mask 檔迴圈並只在 mask 外加擾動；"

@@ -119,7 +119,7 @@ class BaselineSpec:
     # 只有 PhotoGuard-c 為真：其 `attack_forward` 逐字為
     # `grad = grad * (1 - cur_mask)`，擾動只落在不會被重繪的區域。
     # **不可用 `needs_mask` 代替**——那一欄問的是「原作的攻擊需不需要遮罩」
-    # （AdvPaint 與 PromptFlare 為真，本輪以全圖遮罩代入），與「梯度要不要
+    # （AdvPaint 與 PromptFlare 為真，本專案以全圖遮罩代入），與「梯度要不要
     # 被遮罩限制」是兩件事，兩者在本專案的五篇上取值恰好互補。
     grad_outside_mask: bool = False
     # 論文正文與原始碼的落差。報表在該列加註，避免把原始碼的行為寫成
@@ -413,7 +413,7 @@ def run_pgd(
 
     # `seed` 必須顯式傳給 prepare。六篇的 prepare 都宣告了這個參數（用於
     # 評測噪聲、目標 latent 的取樣等），但它是 run_pgd 的 keyword-only 參數，
-    # 不在 `**kw` 內，先前因此永遠傳不到。
+    # 不在 `**kw` 內，修正前因此永遠傳不到。
     #
     # 症狀完全不存在：PGD 照跑、輸出一張合理的防禦圖。但對三篇
     # `init_rule="none"` 的（photoguard_c、dia_r、promptflare），起點也不隨

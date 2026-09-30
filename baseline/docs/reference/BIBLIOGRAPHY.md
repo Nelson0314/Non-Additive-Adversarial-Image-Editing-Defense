@@ -86,7 +86,7 @@ logit 差；本專案沒有 logits，目標是擴散編輯失效。換損失是�
 | **AdvPaint** | SD inpainting | 打自注意力的 QKV 與交叉注意力 | [repo](https://github.com/JoonsungJeon/AdvPaint) |
 | **PromptFlare** | SD inpainting | 在交叉注意力注入誘餌 prompt 嵌入 | [arXiv:2508.16217](https://arxiv.org/abs/2508.16217) ／ [repo](https://github.com/NAHOHYUN-SKKU/PromptFlare) |
 | **DiffusionGuard** | SD inpainting | 只打噪聲最大的那一個時刻 | [arXiv:2410.05694](https://arxiv.org/abs/2410.05694) |
-| **DCT-Shield** | IP2P 指令編輯 | 在 JPEG 量化域放擾動，換取抗壓縮 | [arXiv:2504.17894](https://arxiv.org/abs/2504.17894)；[官方 repo 目前是空的](https://github.com/SamsungLabs/dct-shield) |
+| **DCT-Shield** | IP2P 指令編輯 | 在 JPEG 量化域放擾動，換取抗壓縮 | [arXiv:2504.17894](https://arxiv.org/abs/2504.17894)；[官方 repo 在查證時是空的](https://github.com/SamsungLabs/dct-shield) |
 
 ### 7.2 場景一（指令式編輯）的 baseline，尚未實作
 

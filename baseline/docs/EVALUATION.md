@@ -2,7 +2,7 @@
 
 ## 指標
 
-程式在 `src/metrics/suite.py`，欄位名與方向在 `src/metrics/standard.py`。
+程式在 `vendor/immunization_core/metrics/suite.py`，欄位名與方向在 `vendor/immunization_core/metrics/standard.py`。
 
 兩欄的意思：**保真**是防禦圖對原圖，**防禦**是編輯後對未防禦編輯。
 
@@ -20,7 +20,7 @@
 
 ## 淨化
 
-算子在 `src/purify/ops.py`。`identity` 不可排除，它是保留率的分母。
+算子在 `vendor/immunization_core/purifiers/operators.py`。`identity` 不可排除，它是保留率的分母。
 **下表是模組裡各算子的預設設定，不是主表跑的那一組**；主表實跑的七道與
 它們的強度見下一節。
 
@@ -37,8 +37,8 @@
 
 ## 主表實跑的七道算子
 
-`main_table/results/retention.csv` 的 `purifier` 欄只有這七個值，強度由
-`main_table/code/purify_run.py` 的 `PURIFIERS` 指定：
+`results/retention.csv` 的 `purifier` 欄只有這七個值，強度由
+core 的淨化協定正本 `purifiers/protocol.json` 指定：
 
 | `purifier` | 算子 | 強度 | 幾何類 |
 |---|---|---|---|
@@ -48,18 +48,18 @@
 | `rotate15` | 繞中心旋轉 | **15°，固定** | 是 |
 
 `identity` 不在這七個之內：保留率的分母是同一格的未淨化位移
-（`disp_plain`，取自 `main_table/results/displacement.csv`），不是 `identity` 那一列。
+（`disp_plain`，取自 `results/displacement.csv`），不是 `identity` 那一列。
 
 ### `rotate15` 的角度：三個來源寫的是三個值
 
 | 來源 | 值 |
 |---|---|
-| FaceLock 原值 `ROTATE_DEGREES_FACELOCK`（`src/purify/ops.py`） | 10.0 |
+| FaceLock 原值 `ROTATE_DEGREES_FACELOCK`（`vendor/immunization_core/purifiers/operators.py`） | 10.0 |
 | 本檔上一節的算子表，改正前的寫法 | 隨機 ±10° |
-| **實跑**：`main_table/code/purify_run.py` 的 `PURIFIERS` 給 `strength=15.0`，且 `src/purify/ops.py` 的 `ROTATE_FIXED = True` | **固定 15.0** |
+| **實跑**：core 的淨化協定正本 `purifiers/protocol.json` 給 `strength=15.0`，且 `vendor/immunization_core/purifiers/operators.py` 的 `ROTATE_FIXED = True` | **固定 15.0** |
 
 實跑值與 FaceLock 原值不同，且不是隨機而是固定角度，**引用 `rotate15` 的任何
-讀數都要連這一點一起引用**。`src/purify/ops.py` 的函式名 `rotate_random` 在
+讀數都要連這一點一起引用**。`vendor/immunization_core/purifiers/operators.py` 的函式名 `rotate_random` 在
 `ROTATE_FIXED = True` 下已不描述它的行為；該檔在主線目錄，不在本目錄的範圍內。
 
 幾何類的兩道（`crop_resize0.1`、`rotate15`）另有一個影響分區讀數的已知限制，
@@ -68,15 +68,15 @@
 ### 幾何類的分區讀數：遮罩曾經沒有跟著變換
 
 `crop_resize0.1` 與 `rotate15` 改掉取景，淨化後的圖裡主體已不在原來的像素座標
-上。`main_table/code/edit_retention.py` 原本把遮罩載入一次後對七道算子重用，於是這兩道的
+上。原 `main_table/code/edit_retention.py`（現為 `immunization_core.pipelines.retention`） 原本把遮罩載入一次後對七道算子重用，於是這兩道的
 分區是用**未變換的遮罩**切出來的。
 
 | 範圍 | 狀態 |
 |---|---|
-| `main_table/results/retention.csv` 的 `disp_purified_subject`、`disp_purified_background` | 受影響，**1,536 列**（`crop_resize0.1` 768 ＋ `rotate15` 768） |
+| `results/retention.csv` 的 `disp_purified_subject`、`disp_purified_background` | 受影響，**1,536 列**（`crop_resize0.1` 768 ＋ `rotate15` 768） |
 | 同檔的 `disp_purified`、`net_gain`、`retained` | 不受影響，三者都由全圖 LPIPS 算，不吃遮罩 |
 | 非幾何的五道（`jpeg30/50/80`、`blur1/2`）的分區 | 不受影響，那些算子不動座標 |
-| `main_table/results/metrics_retention_union.csv` | 不受影響，該檔只有全圖 FSIM |
+| `results/additional_metrics/retention.csv` | 不受影響，該檔只有全圖 FSIM |
 
 **程式已修**：`edit_retention.purified_mask()` 把主體遮罩送過與影像同一個
 `Purifier`（強度取自 `purify_run.PURIFIERS`，不另寫一組），插值後以 0.5 重新
@@ -91,7 +91,7 @@
 | `rotate15` | 11.1%、13.8% |
 | `jpeg50`、`blur1` | 0.0%、0.0% |
 
-量法：載入 `main_table/images/masks/<圖>.png`，經 `subject_mask()` 翻極性並
+量法：載入 `data/portraits/masks/<圖>.png`，經 `subject_mask()` 翻極性並
 二值化得到基準遮罩，再送 `purified_mask()`，統計兩者相異的像素比例。不需模型，
 CPU 即可重現。非幾何的兩道列在表中作為對照：它們不動座標，改變量應為零。
 
@@ -108,7 +108,7 @@ CPU 即可重現。非幾何的兩道列在表中作為對照：它們不動座�
 
 **不進外部比較的算子**，理由各不相同，四個都要寫清楚：
 
-| 算子 | 為什麼不進比較 |
+| 算子 | 不進比較的理由 |
 |---|---|
 | `grayscale` / `gray_world` | 色彩正規化。它們是**診斷用的上界**，不是攻擊者會做的事。留在紀錄裡是因為量到一件事：它們洗掉隨機對照卻洗不掉最佳化解（`rand_a` −46%，最佳化臂 gain −0.02 到 +0.05） |
 | `diffpure` / `impress` | 使用者裁定移出本階段的淨化集 |
@@ -121,7 +121,7 @@ CPU 即可重現。非幾何的兩道列在表中作為對照：它們不動座�
        − metrics(編輯(淨化(原圖)), 編輯(淨化(防禦圖)))
 ```
 
-驅動 `scripts/phase_retention.py`，只讀已存的防禦圖，不重跑攻擊。
+驅動 `archive/frequency-phase/scripts/phase_retention.py`，只讀已存的防禦圖，不重跑攻擊。
 
 ## 同一設定重跑不會得到同一張防禦圖
 

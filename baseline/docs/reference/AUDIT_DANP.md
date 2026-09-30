@@ -3,7 +3,7 @@
 用途：供 baseline 嚴格重現使用。本文件所有數值與公式均標註來源；查不到者一律列於
 「未找到的項目」一節，**不作推斷、不補值**。
 
-實作在 `src/baselines/danp.py`（`SPEC_PAPER`），測試在 `tests/test_danp.py`。
+實作在 `src/immunization_baseline/attacks/danp.py`（`SPEC_PAPER`），測試在 `archive/anti-purification/tests/test_danp.py`。
 
 ## 查證所用來源
 
@@ -16,7 +16,9 @@
 
 ---
 
-## 0. 官方程式碼：沒有
+## 0. 官方程式碼查證
+
+查證範圍為下表所列來源（arXiv:2512.14333v1 全文、arXiv abs 頁及網路搜尋）；在這些來源中未找到官方程式。
 
 | 查過的地方 | 結果 |
 |---|---|
@@ -27,7 +29,7 @@
 
 作者：Jie Zhang、Shiguang Shan、Xilin Chen（中科院計算所）、Shuai Dong（中國地質大學）。
 
-**結論：本 baseline 是依論文重建，沒有可逐行比對的原始碼。** 因此
+**本 baseline 依論文 arXiv:2512.14333v1 重建；上述查證範圍內沒有可逐行比對的原始碼。** 因此
 `BaselineSpec.discrepancy_note` 裡「論文與程式不一致」那一類的落差在本篇不存在，
 取而代之的是「論文內部的落差」與「論文未給而由本檔決定」兩類。
 
@@ -48,10 +50,10 @@
 明確計算 softmax 機率並交給 `DANPAttnController`，聚合在
 `DANPAttnController.aggregate`。
 
-- **不能沿用 `src/baselines/promptflare.py` 的擷取層。** 那個 processor 走 SDPA
+- **不能沿用 `src/immunization_baseline/attacks/promptflare.py` 的擷取層。** 那個 processor 走 SDPA
   融合核，注意力機率從未被實體化，它記的是 `attn2` 模組經 `to_out` 之後的輸出
   `A·V·W_out`。Eq. 11 的被優化量是 `A` 本身，兩者不是同一個東西。
-  `tests/test_danp.py::test_擷取到的是後softmax機率而不是注意力輸出` 以
+  `archive/anti-purification/tests/test_danp.py::test_擷取到的是後softmax機率而不是注意力輸出` 以
   「每一列對 token 軸加總為 1」釘住這一點。
 - 只在 `attn2`（cross-attention）上記錄。Eq. 3 的 `K_l` 來自文字嵌入，
   self-attention 不在定義內。
@@ -126,7 +128,7 @@
 
 論文 Eq. 13：`L_total = L_DAA + λ_nba·L_NBA`。
 
-Algorithm 1 逐行對應到 `BaselineSpec` 與 `src/baselines/pgd.py::run_pgd` 的哪裡：
+Algorithm 1 逐行對應到 `BaselineSpec` 與 `src/immunization_baseline/attacks/pgd.py::run_pgd` 的哪裡：
 
 | Algorithm 1 | 論文的字 | 本檔 |
 |---|---|---|
@@ -215,7 +217,7 @@ DIA、PromptFlare 上各以不同形式出現）。
 
 ### 3.4 Eq. 4 的 `Upsample` 目標解析度與插值方式 —— 未找到
 
-論文只寫 `Upsample(A_l)`。本檔取**本次前向觀察到的最大** cross-attention 網格
+論文只寫 `Upsample(A_l)`。本檔取**該次前向觀察到的最大** cross-attention 網格
 （SD v1.x／512² 下是 64×64，即 latent 解析度），雙線性、`align_corners=False`。
 理由：那是不丟失任何一層空間資訊的最小共同網格。
 `test_聚合上採樣到最大網格並對層取平均` 釘住聚合的算術。
@@ -291,7 +293,7 @@ Eq. 12 只寫 `ε_θ(·, t, c)`，全文未出現 guidance scale。本檔不用 
 | prompt | **必填**。§V-A 用的是資料集逐張附帶的編輯指令，本檔沒有預設值，`prepare(prompt=None)` 直接 `NotImplementedError`（`test_沒有給prompt就拒絕執行`） |
 | processor 還原 | `DANPContext.close()` 把 `attn2` 的 processor 換回去，`run_pgd` 結束時呼叫。不還原會污染共用同一個 `SDWrapper` 的後續實驗（`test_close還原原本的processor`） |
 | 隨機性 | `prepare(seed=...)` 建一個顯式 generator，ε 由它抽。論文未提 seed |
-| 未接進 `REGISTRY` | `tests/test_baselines.py::test_五篇的值域全部是負一到一` 會逐一檢查 `REGISTRY` 的值域，而 DANP 是 `[0,1]`。接線要加哪幾行寫在 `src/baselines/danp.py` 模組 docstring 末段 |
+| 未接進 `REGISTRY` | `archive/anti-purification/tests/test_baselines.py::test_五篇的值域全部是負一到一` 會逐一檢查 `REGISTRY` 的值域，而 DANP 是 `[0,1]`。接線要加哪幾行寫在 `src/immunization_baseline/attacks/danp.py` 模組 docstring 末段 |
 
 ---
 

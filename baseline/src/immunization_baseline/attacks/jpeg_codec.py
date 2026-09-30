@@ -9,7 +9,7 @@ arXiv:2504.17894 §3.3 與 §4.2。論文把 JPEG 編碼寫成 `JPEG_E`、解碼
     α  = JPEG_E(x; Q_alg)                 α(c) ∈ Z^{n_p(c)×8×8}
     x' = JPEG_D(α + δ; Q_alg)
 
-**為什麼一定要拆成兩半**：量化含四捨五入，其導數幾乎處處為零。若把 δ 加在
+**拆成兩半的理由**：量化含四捨五入，其導數幾乎處處為零。若把 δ 加在
 像素上，梯度反傳穿過四捨五入之後會被歸零，最佳化一步都動不了（論文 §4.2
 明講這是設計動機）。因此本檔的 `jpeg_encode` **不需要可微**（α 只算一次、
 之後當常數），`jpeg_decode` **必須完全可微**。
@@ -240,7 +240,7 @@ def quantize_ste(coef: torch.Tensor, table: torch.Tensor) -> torch.Tensor:
 
     存在理由：`jpeg_encode` 用的是真的 `torch.round`，梯度會被歸零，所以
     它只能用在「α 是常數」的 DCT-Shield 上。要把 JPEG **放進最佳化迴圈**
-    （讓防禦擾動一開始就長在壓縮活得下來的地方，見 `src/defense/purify_aware.py`）
+    （讓防禦擾動一開始就長在壓縮活得下來的地方，見 `archive/anti-purification/src/defense/purify_aware.py`）
     就需要一條梯度通得過的往返路徑。作法取自 DiffJPEG（Shin & Song, 2017），
     MetaCloak-JPEG（arXiv:2604.18537）即以此把可微分 JPEG 放進最佳化。
     """

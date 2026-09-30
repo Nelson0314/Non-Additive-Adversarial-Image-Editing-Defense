@@ -1,6 +1,6 @@
 """DCT-Shield（Bala et al., ICCV 2025 Highlight）— 頻域加性 baseline。
 
-**這是別人論文的方法，不是我們的。** 官方 repo `SamsungLabs/dct-shield` 在
+**本模組重現他人論文的方法，並非本專案的方法。** 官方 repo `SamsungLabs/dct-shield` 在
 2026-08-18 查證時是空的（GitHub API 回 `This repository is empty.`，零分支），
 故本檔由論文與補充材料重寫。每一個超參數都標出處。
 

@@ -109,7 +109,7 @@ $$
 latent 解析度 32×32、16×16、8×8。SD v1 inpainting UNet 另有 $h = 4096$
 （64×64）的 attn2 層，該層不在白名單內、損失為 0。此與論文
 「$l$ is set to include only the attention layers excluding the outermost one」
-的敘述一致；惟本次查證未載入模型實測各 attn2 層的實際 $h$ 值，該對應關係
+的敘述一致；惟本檔查證未載入模型實測各 attn2 層的實際 $h$ 值，該對應關係
 係由 `int(np.sqrt(h))` 之算術推得。
 
 ### 1.4 遮罩極性（實測驗證）
@@ -731,7 +731,7 @@ num_inference_steps 100 / eta 1。img2img notebook 用 50 步，與 Table 8 不�
 4. **evaluation / metrics 腳本**：repo 中不存在。
 5. **批次處理多張影像的腳本**：僅有單張 demo notebook 與 gradio app。
 6. **`utils.py` 中的 `resize_and_crop`**：`demo/app.py:10` 匯入，
-   `demo/utils.py` 中存在（本次未逐行引用）；`notebooks/utils.py` 中不存在。
+   `demo/utils.py` 中存在（本檔未逐行引用）；`notebooks/utils.py` 中不存在。
 7. **PhotoGuard 論文的 arXiv HTML（ar5iv）核對結果**（供對照，非程式碼）：
    - Table 8：height 512、width 512、guidance_scale 7.5、num_inference_steps 100、eta 1。
    - Table 9：「Norm $\ell_\infty$ / $\epsilon$ 16/255 / step size 2/255 /

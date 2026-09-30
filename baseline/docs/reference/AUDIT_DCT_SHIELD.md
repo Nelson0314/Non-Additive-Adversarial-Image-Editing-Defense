@@ -4,7 +4,7 @@ Bala, Gupta, Jain et al.，*DCT-Shield: A Robust Frequency Domain Defense
 against Malicious Image Editing*，ICCV 2025 Highlight，
 [arXiv:2504.17894](https://arxiv.org/abs/2504.17894)。
 
-實作：`src/baselines/dct_shield.py`。主表兩列
+實作：`src/immunization_baseline/attacks/dct_shield.py`。主表兩列
 `dct_shield`（位移排名第一）與 `dct_shield_y`（第三）都由這一支產生。
 
 ## 0. 這份查證與其他 `AUDIT_*.md` 的差別
@@ -14,7 +14,7 @@ against Malicious Image Editing*，ICCV 2025 Highlight，
 在 2026-08-18 查證時是空的（GitHub API 回 `This repository is empty.`、零分支），
 project page 標 code coming soon。
 
-**因此 `main_table/results/defence_dct_shield*.csv` 的 `modified_from_paper=False` 的依據是
+**因此 `results/defense_dct_shield*.csv` 的 `modified_from_paper=False` 的依據是
 論文正文與補充材料 Algorithm 1，不是程式碼比對**——那個比對在可查證的範圍內
 不存在。同一列的 `spec_source` 欄寫的是「arXiv:2504.17894 補充材料 Algorithm 1」，
 與其他條件的 `spec_source`（多半含 repo commit hash）性質不同。
@@ -25,7 +25,7 @@ complex）與 LPIPS backbone 未載，補充材料 C.1.5 只說用 `pyiqa`。**�
 
 ## 1. 逐行對應補充材料 Algorithm 1
 
-`src/baselines/dct_shield.py` 的 docstring 記了這個對應，原文：
+`src/immunization_baseline/attacks/dct_shield.py` 的 docstring 記了這個對應，原文：
 
 | Algorithm 1 | 實作 |
 |---|---|
@@ -90,12 +90,12 @@ complex）與 LPIPS backbone 未載，補充材料 C.1.5 只說用 `pyiqa`。**�
 
 ## 5. 測試覆蓋
 
-`tests/test_baselines.py` 的 `AUDIT` 與 `AUDIT_STEP` 兩個字典斷言
-`set(AUDIT) == set(REGISTRY)`，而該 `REGISTRY` 是 `src/baselines/__init__.py` 的
+`archive/anti-purification/tests/test_baselines.py` 的 `AUDIT` 與 `AUDIT_STEP` 兩個字典斷言
+`set(AUDIT) == set(REGISTRY)`，而該 `REGISTRY` 是 `src/immunization_baseline/attacks/__init__.py` 的
 六個共用 PGD 骨幹的 spec（`photoguard_c`、`mist`、`dia_pt`、`dia_r`、`advpaint`、
 `promptflare`）。**DCT-Shield 走自己的 `DCTShieldSpec` 與自己的 `REGISTRY`，
 不在那個集合內**，故上述斷言不涵蓋它的任何常數。
 
 `dct_shield.py` 自帶的 `__post_init__` 檢查涵蓋三件事：未知通道、`skip_dc` 與
 `eps < 1` 未標註。這三項以外的常數（`Q_alg`、`γ`、`N`、`channels`）由
-`main_table/tests/test_conditions.py` 對 `main_table/results/defence_*.csv` 釘住。
+`tests/test_conditions.py` 對 `results/defense_*.csv` 釘住。

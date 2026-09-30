@@ -36,7 +36,7 @@ img2img／SDEdit，故 `attack_forward` 必須由我方改寫。改動逐項如�
 | `eta=1`（DDIM 隨機性）+ 未固定的 latent，`grad_reps=10` 平均 | DDIM 為決定性，改為**每個 rep 換一個編輯噪聲種子**，仍平均 10 次 | 保留「對前向的隨機性取期望」這個作用；決定性 DDIM 下若不換種子，10 個 rep 會完全相同，`grad_reps=10` 形同 1 |
 | `strength=0.7` 在 cell 10 被賦值但**未傳入** `super_l2` | 由呼叫端提供，無預設 | inpainting 版根本不用 strength，故原始碼中沒有這個數；憑空給一個值會讓失真預算與威脅模型脫節 |
 
-另兩處與原始碼不同、但不是我們選的（皆源自 `immunization_core/editors/stable_diffusion.py` 的既有語意）：
+另兩處與原始碼不同、但不是本專案選的（皆源自 `immunization_core/editors/stable_diffusion.py` 的既有語意）：
 
 1. `SDWrapper.decode_latent` 對輸出 `clamp(0,1)`，而 `attack_forward` 回傳
    未裁切的 `vae.decode(...).sample`。被裁切的像素其梯度為零。
@@ -243,7 +243,7 @@ SPEC = BaselineSpec(
 
 # ── 第二個臂：論文 Table 9 的預算 ──────────────────────────────────────
 #
-# 為什麼需要它
+# 用途
 # ────────────────────────────────────────────────────────────────────
 # 上面的 `SPEC` 重現的是官方 notebook **實際執行**的那條路徑（L2 renorm
 # maxnorm=16）。那條路徑的失真上界與影像內容無關：飽和時

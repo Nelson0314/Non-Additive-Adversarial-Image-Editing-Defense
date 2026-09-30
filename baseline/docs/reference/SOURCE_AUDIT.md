@@ -1,5 +1,5 @@
 > **這份檔案曾在 commit `b262d4d` 被刪除，現由 `b262d4d^` 取回，原文未改。**
-> 取回的理由：`src/baselines/`、`src/purify/ops.py` 與 `tests/test_baselines.py`
+> 取回的理由：`src/immunization_baseline/attacks/`、`vendor/immunization_core/purifiers/operators.py` 與 `archive/anti-purification/tests/test_baselines.py`
 > 共有 23 處引用它，其中 `test_baselines.py` 的數值直接抄自本檔第 10 節
 > （三篇 baseline 的 `[-1,1]` → `[0,1]` 值域對照表）。
 > 檔名與內文的日期是原文保留，不代表本專案現行的命名規則。
@@ -28,7 +28,7 @@
 | 8–11 | 四個淨化算子 | 進行中 | 進行中 | 進行中 | — |
 | 12 | Crop & Resize | DIA 論文內 | ✅ | 進行中 | — |
 
-## 查證的總結論（截至目前）
+## 查證的總結論
 
 **已查的五篇，五篇都有落差，其中兩篇的落差會直接改變比較基礎。**
 這證實了「依論文正文實作」不足以支撐嚴格比較。逐項見下。
@@ -57,7 +57,7 @@
 
 | 來源 | 值 |
 |---|---|
-| 論文正文（我先前擷取） | **250** |
+| 論文正文（查證時擷取） | **250** |
 | 原始碼預設 | **100** |
 
 `SURVEY` §2.1 記的 250 若直接拿來用，等於跑了一個原論文預設之外的設定。
@@ -123,14 +123,14 @@ for n, m in pipe.unet.named_modules():
         m.set_processor(MyAttnProcessor2_0(attn_controller, n))
 ```
 
-本專案的 `src/models/attention.py` 刻意**不換 processor**，改用 forward pre-hook，
+本專案的 原 `src/models/attention.py`（不在 repo 內） 刻意**不換 processor**，改用 forward pre-hook，
 理由記在該檔 docstring：換掉 processor 會連帶改變 UNet 自己的注意力計算路徑
 （SDPA 融合核心改為手寫實作），「有沒有開這個目標」就不再是單一變因。
 
 **這不是矛盾，是兩個不同用途**：本專案的 pre-hook 是為了**擷取**注意力分佈供
-我們自己的 N1 損失使用；PromptFlare 是**它自己的方法**，換 processor 是其實作的一部分。
+本專案自己的 N1 損失使用；PromptFlare 是**它自己的方法**，換 processor 是其實作的一部分。
 **處置：重現 PromptFlare 時照它的原樣換 processor**，不可改成 pre-hook——
-那會變成一個我們自己設計的變體。兩者在程式上必須隔離，不共用注意力擷取層。
+那會變成一個本專案自行設計的變體。兩者在程式上必須隔離，不共用注意力擷取層。
 
 ### 2.2 BOS 遮罩的實際建構
 
@@ -272,9 +272,9 @@ cell 10 的 `prompt = ""`——**PhotoGuard-c 本身就是 prompt-free 的**。
 
 **以原始碼版本（L2）為準實作**，理由：
 
-1. 我們在**匹配 τ_LPIPS** 上比較（射線縮放），故 eps 的絕對值不是操作變因；
+1. 本專案在**匹配 τ_LPIPS** 上比較（射線縮放），故 eps 的絕對值不是操作變因；
    真正影響結果的是**更新規則的幾何**（歸一化梯度 vs sign），那必須取自原始碼。
-2. 我們不引用其論文報告的數字，全部自行重跑，故無須遷就 Table 9。
+2. 本專案不引用其論文報告的數字，全部自行重跑，故無須遷就 Table 9。
 
 `BaselineSpec` 需記錄此落差，報表在該列加註
 「原始碼實跑 L2 renorm maxnorm=16；論文 Table 9 記為 ℓ∞ 16/255」。
@@ -346,7 +346,7 @@ steps = 100、step_size = 1/255、w（`rate`）= 1e4、預設 fused、SD v1.4 �
 
 **建議：把 DiffVax 移出 baseline 清單。** 理由不是它不好，而是在
 「無 mask 的全圖 SDEdit」這個威脅模型下，忠實重現它在結構上不可能——
-它的免疫器要吃 masked image。強行改寫等於我們自己設計一個新方法再冠上它的名字。
+它的免疫器要吃 masked image。強行改寫等於本專案自行設計一個新方法再冠上它的名字。
 
 處置建議是在論文的相關工作中引用它並說明為何未納入比較，
 這比放一個改到面目全非的版本誠實。**此項需你裁決。**
@@ -391,7 +391,7 @@ APA 的 arXiv v1 是唯一版本且**沒有 Appendix**，論文四處引用它�
 | 粒度 | per-image 一組 LoRA |
 | prompt | ImageNet 類別名 |
 
-> **已據此修正程式。** `src/residual/lora_weights.py` 原本寫死只掃 `.attn2.`，
+> **已據此修正程式。** `archive/frequency-phase/src/residual/lora_weights.py` 原本寫死只掃 `.attn2.`，
 > 照 APA 實作會少掉一半目標層（實測 4 → 8 層）。已新增 `blocks` 參數，
 > 預設維持 `("attn2",)` 使既有行為不變，`apa_port.py` 改用 `APA_BLOCKS`。
 > 這是一個不會有症狀的容量差異：訓練跑得完、曲線正常，只是階段一的對齊能力被削弱。
@@ -403,7 +403,7 @@ APA §4.5 明確批評 `R_a − λ‖z_0−z̄_0‖²` 這種 one-stage 形式�
 另 APA-GC 的「T=10」實際是沿用 50 步排程只跑 11 步，`ϱ(·)` 的 brightness 在程式碼中被註解掉。
 照論文重現得不到 Table 3 的 LPIPS 0.23 / SSIM 0.69。
 
-**對本專案的影響有限**：我們只移植階段一，階段二本來就已替換（`DESIGN` §4）。
+**對本專案的影響有限**：本專案只移植階段一，階段二本來就已替換（`DESIGN` §4）。
 矛盾落在被替換掉的那一半。但論文中須寫明「本專案移植的是其階段一，
 依官方程式碼而非論文正文，因後者無該節」。
 
@@ -429,7 +429,7 @@ APA §4.5 明確批評 `R_a − λ‖z_0−z̄_0‖²` 這種 one-stage 形式�
 | # | 事項 | 裁決 | 可回退 |
 |---|---|---|---|
 | 1 | **DiffVax** | **移出 baseline 清單**，改在相關工作中引用並說明未納入的理由。它的免疫器吃 masked image、只支援 inpainting、無 L∞ 預算、counter-attack 評測未實作——在無 mask 的 SDEdit 下忠實重現結構上不可能 | ✅ 需你確認 |
-| 2 | **PhotoGuard-c 的 norm** | **依原始碼取 L2**（`torch.renorm` maxnorm，歸一化梯度更新）。理由：我們在匹配 τ_LPIPS 上比較，eps 絕對值非操作變因，真正影響結果的是更新規則的幾何 | ✅ |
+| 2 | **PhotoGuard-c 的 norm** | **依原始碼取 L2**（`torch.renorm` maxnorm，歸一化梯度更新）。理由：本專案在匹配 τ_LPIPS 上比較，eps 絕對值非操作變因，真正影響結果的是更新規則的幾何 | ✅ |
 | 3 | **CNN 去噪** | **取 Restormer**（使用者 2026-08-05 裁決）。見下方說明 | ✅ 已定案 |
 
 ### 為何 CNN 去噪需要裁決（使用者問）
@@ -459,7 +459,7 @@ docstring 與例外訊息均寫明「非 NTIRE 2023 冠軍，為我方替代」�
 
 ## 11. 實作階段新發現：DIA-PT 的 L1 起點會超出預算 —— **待裁決**
 
-> 2026-08-05，補測試時發現。由 `tests/test_baselines.py::test_DIA的L1起點在某些輸入下超出預算`
+> 2026-08-05，補測試時發現。由 `archive/anti-purification/tests/test_baselines.py::test_DIA的L1起點在某些輸入下超出預算`
 > 以 `xfail(strict=True)` 釘住——缺陷還在時它如預期失敗，一旦有人修掉會變成
 > 非預期通過而立刻顯現，不會被靜默吸收。
 
@@ -511,7 +511,7 @@ c2 = c5.nonzero().squeeze(1)    # 需要投影的批次索引
 
 ### 裁決（使用者 2026-08-05）
 
-**取 (a) 的變體：保留 DIA-PT 的規格與程式碼，但本輪不納入實驗，並註明原因。**
+**取 (a) 的變體：保留 DIA-PT 的規格與程式碼，但不納入主表實驗，並註明原因。**
 
 理由是使用者定下的總原則——**除非不得已，一律完全還原論文原始碼**。
 選項 (b) 的加投影雖然能保住比較基礎，但那是**我方改動 DIA 的攻擊程序**，
@@ -522,9 +522,9 @@ c2 = c5.nonzero().squeeze(1)    # 需要投影的批次索引
 
 | 項目 | 作法 |
 |---|---|
-| `src/baselines/dia.py` 的 `dia_pt` spec | **保留**，逐字忠於原始碼，不加投影 |
-| `grid.py::CONDITIONS` | **移除 `dia_pt`**，本輪不跑 |
-| `tests/test_baselines.py` 的 xfail | **保留**，繼續釘住該缺陷 |
+| `src/immunization_baseline/attacks/dia.py` 的 `dia_pt` spec | **保留**，逐字忠於原始碼，不加投影 |
+| `grid.py::CONDITIONS` | **移除 `dia_pt`**，主表不跑 |
+| `archive/anti-purification/tests/test_baselines.py` 的 xfail | **保留**，繼續釘住該缺陷 |
 | 論文 | 在 baseline 章節註明 DIA 取 DIA-R 變體，並說明 DIA-PT 未納入的原因 |
 
 這樣既沒有改動別人的方法，也沒有讓一個失真預算不受控的條件混進匹配比較。
@@ -534,7 +534,7 @@ c2 = c5.nonzero().squeeze(1)    # 需要投影的批次索引
 
 ## 10. 值域對照表（實作時必須逐篇查表，不可共用）
 
-**這是本次查證最重要的單一產出。** 三篇 baseline 在 `[-1,1]` 上最佳化，
+**本項為本檔查證中影響範圍最廣的產出。** 三篇 baseline 在 `[-1,1]` 上最佳化，
 兩篇的 eps 換算方式還不一樣。
 
 | 方法 | 最佳化值域 | 程式碼的 eps 寫法 | **像素域 `[0,1]` 的實際 eps** |

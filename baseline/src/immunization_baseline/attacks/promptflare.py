@@ -7,15 +7,15 @@
 ──────────────────────────────────────────────────────────────────────
 
 `promptflare.py:66-68` 對 UNet 中所有名稱以 `attn2` 結尾的模組
-`set_processor(MyAttnProcessor2_0(...))`。本專案的 `src/models/attention.py`
+`set_processor(MyAttnProcessor2_0(...))`。本專案原 `src/models/attention.py`（不在 repo 內）
 刻意不換 processor（理由見該檔 docstring：換掉會改變 UNet 自己的注意力
 計算路徑，「有沒有開這個目標」不再是單一變因），但**那是為了擷取分佈供
-我們自己的損失使用**，是另一件事。
+本專案自己的損失使用**，是另一件事。
 
 PromptFlare 記錄的是 cross-attention 模組**經 `to_out` 之後的輸出**
 （`A·V·W_out`，不是論文 Eq. 10 的 `A·V`），其值取決於注意力如何計算。
-改用 pre-hook 重算會得到另一個量，那就變成我們設計的變體。故此處照原樣
-換 processor，並與 `src/models/attention.py` 完全隔離、不共用擷取層。
+改用 pre-hook 重算會得到另一個量，那就變成本專案設計的變體。故此處照原樣
+換 processor，並與該擷取層完全隔離、不共用擷取層。
 
 三項落差
 ──────────────────────────────────────────────────────────────────────
@@ -367,7 +367,7 @@ def prepare(
     h, w = x01.shape[-2], x01.shape[-1]
     device = x01.device
     if mask01 is None:
-        # 本輪設為全圖：損失涵蓋整張影像。原作的 mask 為待重繪區，
+        # 本專案設為全圖：損失涵蓋整張影像。原作的 mask 為待重繪區，
         # 且噪聲只加在保留區；img2img 沒有這個切分，見模組 docstring。
         mask01 = torch.ones(1, 1, h, w, device=device, dtype=x01.dtype)
 
@@ -459,7 +459,7 @@ SPEC = BaselineSpec(
     init_rule="none",            # `adv = src_image_orig.clone()`，無隨機初始化
     grad_reps=1,                 # `promptflare.py:75`
     needs_target_image=False,
-    needs_mask=True,             # 本輪設為全圖
+    needs_mask=True,             # 本專案設為全圖
     # `promptflare.py:82-94`：`masked_adv = adv * (1 - cur_mask)`，
     # 且**梯度亦乘 `(1 - cur_mask)`**。與 PhotoGuard-c 同一項忠實處置。
     grad_outside_mask=True,

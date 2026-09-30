@@ -165,7 +165,7 @@ def anchored_identity(x_orig: torch.Tensor, edit_orig: torch.Tensor,
 
     `subject_identity_row` 取「與主體框重疊最多的偵測框」，偵測不到就記空值。
     那個約定在當判準時會被鑽：把顏色推到偵測器失手，身分項就拿到最好的分數，
-    而人眼看過去那張臉還在、還認得出是同一個人。`runs/carrier_search_probe/`
+    而人眼看過去那張臉還在、還認得出是同一個人。原 `runs/carrier_search_probe/`（不在 repo 內）
     的第一批裡 18 列有 10 列是這樣拿到 0 分的。
 
     這裡改成直接在**原圖主體框的座標**上裁編輯輸出並取嵌入，偵測器不參與，

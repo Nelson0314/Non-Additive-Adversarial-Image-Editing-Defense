@@ -13,7 +13,7 @@
 | 軸 | DCT-Shield | 紋理重相位 | 為什麼不能直接比 |
 |---|---|---|---|
 | 強度參數 | `ε` = 量化階數（`ε ≥ 1`） | `θ` = 相位旋轉半徑（rad） | 兩者的單位無關，且 `ε` 的像素效果隨 `Q_alg` 的量化表逐係數不同 |
-| 論文的 baseline 預算 | 全部 baseline `L∞ = 16/255` | 本專案走**原生預算** | 我們的 `photoguard_c` rms 0.0091、論文的同名方法 rms 0.0384，**差 4.2 倍** |
+| 論文的 baseline 預算 | 全部 baseline `L∞ = 16/255` | 本專案走**原生預算** | 本專案的 `photoguard_c` rms 0.0091、論文的同名方法 rms 0.0384，**差 4.2 倍** |
 | 資料與模型 | OmniEdit 150 張＋InstructPix2Pix | set0817 7 張＋SD 1.4 SDEdit(0.7) | Edit Protection 的數值不可跨協定比較 |
 
 `ε` 不是 `L∞` 球這件事，與 StyleGuard 記過的 Glaze 問題同型：**當一個方法的
@@ -23,7 +23,7 @@
 ### 1.1 實測到的落差（2026-08-19，本機）
 
 **左欄三個數字全部出自 DCT-Shield（ICCV 2025）Table 1 的 Noise Perception
-半張表，不是各方法自己論文的數字。** 這件事必須寫在欄名裡：先前欄名只寫
+半張表，不是各方法自己論文的數字。** 這件事必須寫在欄名裡：原欄名只寫
 「論文」，讀表的人（包括本專案後續的 session）會以為 MIST 那一列來自 Mist
 的論文、PhotoGuard 那一列來自 PhotoGuard 的論文。都不是。
 
@@ -31,7 +31,7 @@ DCT-Shield 跑那張表用的是它自己的協定：**pixel-space `L∞ = 16/25
 OmniEdit、InstructPix2Pix**（§5.1／5.3／6.1）。所以右欄要與它並列，必須是
 同一個約束、同一個編輯器下的量測。
 
-| 方法 | DCT-Shield T1 LPIPS | 我們 LPIPS(VGG) | 我們 LPIPS(Alex) | DCT-Shield T1 PSNR | 我們 PSNR | DCT-Shield rms* | 我們 rms |
+| 方法 | DCT-Shield T1 LPIPS | 本專案 LPIPS(VGG) | 本專案 LPIPS(Alex) | DCT-Shield T1 PSNR | 本專案 PSNR | DCT-Shield rms* | 本專案 rms |
 |---|---|---|---|---|---|---|---|
 | DCT-Shield（原生 ε=1） | 0.267 | 0.5532 | — | 27.61 | 29.75 | 0.0416 | 0.0326 |
 | MIST | 0.362 | 0.6234 | 0.4718 | 26.62 | **26.66** | 0.0467 | **0.0465** |
@@ -44,10 +44,10 @@ OmniEdit、InstructPix2Pix**（§5.1／5.3／6.1）。所以右欄要與它並�
 
 三個讀數：
 
-1. **Mist 逐項吻合**（PSNR 差 0.04 dB、rms 差 0.4%），證明我們的量測管線與
+1. **Mist 逐項吻合**（PSNR 差 0.04 dB、rms 差 0.4%），顯示本專案的量測管線與
    DCT-Shield 的量級是可比的——落差不是量測錯誤。
 2. **PhotoGuard 那 12 dB 的落差已經查清楚，不是實作錯誤，是在比兩個不同的
-   約束。** 我們跑的是官方 notebook 唯一啟用的路徑，其投影是
+   約束。** 本專案跑的是官方 notebook 唯一啟用的路徑，其投影是
    `torch.renorm(d_x, p=2, dim=0, maxnorm=16)`——`(1,3,512,512)` 沿 `dim=0`
    只有一個切片，所以約束的是**整張影像**在 `[-1,1]` 下的 L2 範數。飽和時
 
@@ -67,7 +67,7 @@ OmniEdit、InstructPix2Pix**（§5.1／5.3／6.1）。所以右欄要與它並�
    Appendix C.1、Tables 6／10）查無。論文 Table 6 的 diffusion attack PSNR
    是 13.58±2.23，量的是「防禦圖的編輯結果 vs 未防禦的編輯結果」，與這裡的
    Noise Perception 半邊不是同一個量。
-3. **DCT-Shield 的擾動我們反而更小（rms 0.0326 < 0.0416）卻更醜（LPIPS 2.07 倍）**。
+3. **DCT-Shield 的擾動本專案反而更小（rms 0.0326 < 0.0416）卻更醜（LPIPS 2.07 倍）**。
    這是唯一無法用預算解釋的落差，指向擾動的**空間分布**不同。
 
 ### 1.1.1 這個領域沒有共同的 PhotoGuard 設定
@@ -84,13 +84,13 @@ OmniEdit、InstructPix2Pix**（§5.1／5.3／6.1）。所以右欄要與它並�
 
 三個來源、三個數字。**`repo` 中不存在同時滿足 Table 9 四欄的程式碼**：官方
 `super_linf` 的定義有啟用，但其呼叫在 cell 11 整段被註解，且該呼叫的
-`eps=0.1`／`step_size=0.006` 也不等於 Table 9。DCT-Shield 的 repo 目前是空的
+`eps=0.1`／`step_size=0.006` 也不等於 Table 9。DCT-Shield 的 repo 在查證時是空的
 （`SamsungLabs/dct-shield`），project page 仍標 code coming soon，故 Table 1 的
 baseline 完整參數（encoder 還是 complex 分支、LPIPS backbone）查無。
 
 ### 1.2 LPIPS 的 backbone 已排除為單一解釋
 
-2026-08-19 本機實測（7 張 set0817 的防禦圖，`runs/s0817/merged`）：
+2026-08-19 本機實測（7 張 set0817 的防禦圖，原 `runs/s0817/merged`（不在 repo 內））：
 
 | 條件 | `piq.LPIPS` | 官方 `lpips(net='vgg')` | 官方 `lpips(net='alex')` | VGG/Alex |
 |---|---|---|---|---|
@@ -122,7 +122,7 @@ baseline 完整參數（encoder 還是 complex 分支、LPIPS backbone）查無�
 **低預算與高預算各報一張表**。資料為 VGGFace2（50 身分 × 8 張）與 WikiArt
 （50 藝術家 × 8 張），全部 center-crop 到 512²。
 
-**限制**：該篇**沒有**討論原生約束不是 `L∞` 的方法要怎麼併進來——正是我們
+**限制**：該篇**沒有**討論原生約束不是 `L∞` 的方法要怎麼併進來——正是本專案
 遇到的情形。
 
 ### 2.2 對齊防禦效果，再比失真（反向單點對齊）
@@ -172,7 +172,7 @@ baseline 完整參數（encoder 還是 complex 分支、LPIPS backbone）查無�
 | 條件 | 掃描參數 | 網格 | 出處 |
 |---|---|---|---|
 | DCT-Shield base | `ε` | 0.8 / 1.0 / 1.2 / 1.4 | 論文 §6.1 圖 5 的取捨曲線用的就是這四點 |
-| DCT-Shield base | `ε` 補點 | 0.4 / 0.6 | **本專案指定**，為了往下延伸到我們的失真區間（`ε < 1` 時論文的抗 JPEG 保證失效，必須標 `modified_from_paper`） |
+| DCT-Shield base | `ε` 補點 | 0.4 / 0.6 | **本專案指定**，為了往下延伸到本專案的失真區間（`ε < 1` 時論文的抗 JPEG 保證失效，必須標 `modified_from_paper`） |
 | 紋理重相位 | `θ` | 0.8 / 1.0 / 1.30 / 1.6 / 2.0 | 1.30 是既有定案值（`MAINLINE.md` §4），其餘為對稱延伸 |
 
 兩邊各 6 與 5 點。**兩條曲線都必須跨過對方的失真區間**，否則交點要靠外插，
@@ -198,7 +198,7 @@ baseline 完整參數（encoder 還是 complex 分支、LPIPS backbone）查無�
 | 批次 | 影像 | 攻擊模型 | 目的 |
 |---|---|---|---|
 | **主線** | `data/omniedit150`：OmniEdit dev split 的 `src_img` 150 張（五類 × 30） | SD 1.4 SDEdit strength 0.7 | 本專案的正式比較；FID 在此才可報 |
-| **驗證** | 同一批的子集（50 張足夠） | InstructPix2Pix | **只有一個目的：確認我們的 DCT-Shield 實作能重出論文 Table 1 的量級**。成功之後主線的數字才有可信度 |
+| **驗證** | 同一批的子集（50 張足夠） | InstructPix2Pix | **只有一個目的：確認本專案的 DCT-Shield 實作能重出論文 Table 1 的量級**。成功之後主線的數字才有可信度 |
 
 兩批落在同一個影像域，對帳最乾淨。`src_img` 是真實照片（來源 LAION-5B 與
 OpenImagesV6，最低 1 MP），生成的是 `edited_img`、本專案不用，故
@@ -207,7 +207,7 @@ OpenImagesV6，最低 1 MP），生成的是 `edited_img`、本專案不用，�
 
 **論文用的那 150 張取不到**（無 seed、無索引清單、無釋出 split，repo 為空），
 故對齊的是**來源與任務分布**而非同一批影像——`n=150` 的抽樣誤差是驗證批本身
-的精度上限，必須寫進 limitation。我們自己抽的 id 全部寫進
+的精度上限，必須寫進 limitation。本專案抽的 id 全部寫進
 `data/omniedit150/provenance.json`，可重現。
 
 ### 3.4 一個還沒解決的相容性問題：prompt 的形態
@@ -229,7 +229,9 @@ caption（"a cat wearing a hat"）。兩者不等價，而 `fetch_omniedit.py`
 
 ## 4. 待跑清單與成本
 
-以單張 RTX 3090 計。DCT-Shield 免疫實測 **150 s/張**（1000 步，`runs/dctshield`
+> 第 4、5 節為頻域／相位研究線（`archive/frequency-phase/`）的工作紀錄，屬歷史協定；所列檔案、資料集與工時不屬於本專案主表流程，也不與主表 aligned 錨點混用。
+
+以單張 RTX 3090 計。DCT-Shield 免疫實測 **150 s/張**（1000 步，原 `runs/dctshield`（不在 repo 內）
 的 `total_seconds`）；紋理重相位的免疫成本遠低於此，主要成本在編輯與淨化。
 
 | 工作 | 格數 | 單卡時數 | 備註 |
@@ -252,22 +254,22 @@ caption（"a cat wearing a hat"）。兩者不等價，而 `fetch_omniedit.py`
 
 1. **FID 補進指標套件** — `MetricSuite.fid`（Inception-V3 pool3、
    `use_fid_inception=True`），`MetricSuite.FID_MIN_TRUSTED = 150`。
-   `tests/test_suite_fid.py` 五項釘住。
+   `archive/anti-purification/tests/test_suite_fid.py` 五項釘住。
 2. **LPIPS backbone 的文件錯誤已更正** — 見 §1.2 的實測。
-3. **兩個半邊的欄位統一** — `src/metrics/standard.py` 的 `standard_row`，
+3. **兩個半邊的欄位統一** — `vendor/immunization_core/metrics/standard.py` 的 `standard_row`，
    已接進 `baseline_run.evaluate`（涵蓋紋理重相位臂）、`dct_shield_run.py`、
    `freq_baselines_run.py`。此前失真半邊缺 VIFp、防禦半邊只有 LPIPS，
    於是與論文 Table 1 無法逐欄對照。**缺欄位會拋錯，不會靜默少報。**
-4. **批次 FID** — `scripts/fid_batch.py`，欄名 `frechet`，`n < 150` 預設拒絕
+4. **批次 FID** — 原 `scripts/fid_batch.py`（不在 repo 內），欄名 `frechet`，`n < 150` 預設拒絕
    寫出。既有 7 張批次實測跑得動（`phase` 防禦半邊 219.7、`mist` 332.5，
    兩者都標 `trusted=False`；論文報 MIST 288.6，量級相符但不可據以下結論）。
-5. **曲線與錨點** — `scripts/tradeoff_curve.py`，純函式、不需 GPU，
-   `tests/test_tradeoff_curve.py` 七項釘住，含「範圍外拒絕外插」。
-6. **上機工作表** — `scripts/run_s0820.sh`，六段：`sweep_dct`／`sweep_phase`／
+5. **曲線與錨點** — 原 `scripts/tradeoff_curve.py`（不在 repo 內），純函式、不需 GPU，
+   原 `tests/test_tradeoff_curve.py`（不在 repo 內） 七項釘住，含「範圍外拒絕外插」。
+6. **上機工作表** — 原 `scripts/run_s0820.sh`（不在 repo 內），六段：`sweep_dct`／`sweep_phase`／
    `curve`／`frechet`／`ret_anchor`／`merge`。合併段的輸出落在被 glob 匹配的
    路徑之外（FND-062 的教訓）。
-7. **資料集工具取回** — `scripts/fetch_cc0_images.py` 與
-   `scripts/prepare_dataset.py` 在 2026-08-13 的清理中被刪，已由
+7. **資料集工具取回** — 原 `scripts/fetch_cc0_images.py`（不在 repo 內） 與
+   原 `scripts/prepare_dataset.py`（不在 repo 內） 在 2026-08-13 的清理中被刪，已由
    `git checkout 9aaf69f7d^ -- <path>` 取回並實測可用（Wikimedia 的 robot
    policy 仍要求 User-Agent 帶聯絡方式；三張候選實抓成功）。
 
@@ -277,7 +279,7 @@ caption（"a cat wearing a hat"）。兩者不等價，而 `fetch_omniedit.py`
    **必須逐張看過再挑**——CC-Zero 分類混著大量館藏文物照（胸針、標本、
    酒吧招牌），搜尋排序完全不可信。類別組成沿用既有的六類，每類約 25 張。
 
-**無法離線完成的：** 任何需要 SD 前向的東西，以及 `runs/dctshield/` 的
+**無法離線完成的：** 任何需要 SD 前向的東西，以及 原 `runs/dctshield/`（不在 repo 內） 的
 防禦圖——那批**只有 CSV 入庫、PNG 留在遠端**，違反資料保全規定，網路恢復
 後第一件事就是把它們拉回來。
 

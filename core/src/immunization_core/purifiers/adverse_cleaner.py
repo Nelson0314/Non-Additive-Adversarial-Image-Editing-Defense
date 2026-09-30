@@ -76,9 +76,8 @@ def adverse_cleaner_real(x01: torch.Tensor) -> torch.Tensor:
     不可微（OpenCV 實作）。
     """
     import numpy as np
-    import cv2
-
     guided_filter = _load_guided_filter()
+    import cv2
     if x01.dim() != 4 or x01.shape[1] != 3:
         raise ValueError(f"Adverse Cleaner 需要 (B,3,H,W) 的 RGB 張量，收到 {tuple(x01.shape)}")
 

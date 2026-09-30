@@ -48,7 +48,7 @@ python -m pytest core/tests -q -p no:cacheprovider
 | `run_with_gpu_lease.sh --work-dir <目錄> [--env-file <檔案>] <名稱> <指令...>` | 取一張卡的租約後執行單一指令，結束時釋放。`--env-file` 可指定專案的 `scripts/env.sh`；呼叫端的 `ENV_FILE`（機器設定）仍由該檔讀取。 |
 | `queue_worker.sh --work-dir --state-dir --log-dir --runner --validator [--depends] <佇列> <工作>...` | 佇列排程；工作執行、輸出驗收與相依由專案以指令注入，驗收通過才記為完成。 |
 
-`trial.sh new|promote|drop <名稱>` 管理各專案不入版控的 `trials/<名稱>/`：`promote` 要求升格內容已提交，`drop` 要求 `docs/TRIALS.md` 已有該名稱的一列，並以 `TRIAL_REMOTE`、`TRIAL_REMOTE_ROOT` 同時刪除遠端副本（只刪本機時明確給 `--local-only`）。
+`trial.sh new|promote|drop <名稱>` 管理各專案不入版控的 `trials/<名稱>/`：`promote` 要求 `trials/<名稱>/PROMOTED` 列出已提交的目的檔，並把目的檔、SHA-256 與 commit 記入 `docs/TRIALS.md`；`drop` 要求 `docs/TRIALS.md` 已提交且該名稱一列的各欄齊全。兩者都以 `TRIAL_REMOTE`、`TRIAL_REMOTE_ROOT`（絕對路徑）刪除遠端副本，刪除前核對遠端專案名與路徑、拒絕符號連結，遠端完成才刪本機；只處理本機時明確給 `--local-only`。
 
 `export_vendor.py <專案>` 把 git HEAD 的 core 匯出為專案的 `vendor/` 與 `vendor.lock.json`（`--check` 驗證一致）；`freeze_env.py` 在專案根寫出或檢查 `requirements.lock`，直譯器沒有 pip 時改用 `uv pip freeze --python <直譯器>`。
 

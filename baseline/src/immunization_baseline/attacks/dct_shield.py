@@ -61,7 +61,7 @@ from typing import Callable, Dict, List, Optional, Tuple
 
 import torch
 
-from src.baselines.jpeg_codec import CHANNEL_NAMES, jpeg_decode, jpeg_encode
+from immunization_baseline.attacks.jpeg_codec import CHANNEL_NAMES, jpeg_decode, jpeg_encode
 
 PAPER_DEFAULT_QUALITY = 0.95      # §5.4，編輯任務
 PAPER_INPAINT_QUALITY = 0.90      # §6.2

@@ -1,4 +1,4 @@
-"""`edit_sd_family_preview.py` 產出的編輯，在指定配件以外改動了多少。
+"""`sweep_editor_parameters` 產出的編輯，在指定配件以外改動了多少。
 
 讀數（原圖與編輯結果都縮到 512×512 後逐像素比）
 ────────────────────────────────────────────────────────────────────
@@ -7,26 +7,23 @@
   背景區的改動都不是指令要求的。安全帽、配件超出主體輪廓的部分會落進背景區，
   所以這一欄對 p2（安全帽）偏高是預期的來源之一。
 - `de_subject`：主體區的平均 ΔE00，含指令要求的配件與衣服。
-- `lpips_full`：整張圖的 LPIPS（`piq.LPIPS`，與 `src/metrics/suite.py` 同一個）。
+- `lpips_full`：整張圖的 LPIPS（`piq.LPIPS`，與 `immunization_core/metrics/suite.py` 同一個）。
 
-輸出 `results/sd_family_offtarget_<批次>.csv`，逐格一列，鍵與原 CSV 相同。
-不需要 GPU。
+輸出逐格一列，鍵與輸入 CSV 相同。不需要 GPU。
 
-用法（遠端 repo 根目錄，CSV 的 png 欄是相對它的路徑）
-    python main_table/code/sd_family_offtarget_readout.py sdxl_ip2p_all8
+用法（CSV 的 png 欄為相對路徑時，於其基準目錄執行）
+    python -m immunization_baseline.cli.measure_off_target_changes \\
+        --edits results/sweeps/sdxl_ip2p/guidance_portraits.csv \\
+        --out results/sweeps/sdxl_ip2p/guidance_portraits_off_target.csv
 """
 
 from __future__ import annotations
 
+import argparse
 import csv
-import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-
-import paths  # noqa: E402
-
-paths.add_source_to_syspath()
+from immunization_baseline import layout  # noqa: E402
 
 import numpy as np  # noqa: E402
 import piq  # noqa: E402
@@ -44,9 +41,16 @@ def load01(path: Path) -> np.ndarray:
 
 
 def main() -> None:
-    batch = sys.argv[1]
-    src_csv = paths.RESULTS / f"sd_family_{batch}.csv"
-    rows = list(csv.DictReader(src_csv.open(encoding="utf-8", newline="")))
+    parser = argparse.ArgumentParser(description=__doc__,
+                                     formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument("--edits", type=Path, required=True,
+                        help="sweep_editor_parameters 寫出的 CSV")
+    parser.add_argument("--out", type=Path, required=True)
+    parser.add_argument("--data", type=Path, default=layout.PORTRAITS,
+                        help="資料集根目錄：原圖與 masks/")
+    args = parser.parse_args()
+    with args.edits.open(encoding="utf-8", newline="") as stream:
+        rows = list(csv.DictReader(stream))
     lpips = piq.LPIPS(reduction="none")
     cache = {}
     out = []
@@ -54,8 +58,8 @@ def main() -> None:
         name = r["image"]
         if name not in cache:
             cls = name.split("_")[0]
-            x = load01(paths.PORTRAITS / cls / f"{name}.png")
-            mask = np.asarray(Image.open(paths.PORTRAITS / "masks" / f"{name}.png")
+            x = load01(args.data / cls / f"{name}.png")
+            mask = np.asarray(Image.open(args.data / "masks" / f"{name}.png")
                               .convert("L").resize((RES, RES), Image.NEAREST)) > 127
             cache[name] = (x, rgb2lab(x), mask)
         x, lab_x, bg = cache[name]
@@ -69,7 +73,7 @@ def main() -> None:
                     "de_bg": round(float(de[bg].mean()), 3),
                     "de_subject": round(float(de[~bg].mean()), 3),
                     "lpips_full": round(lp, 4)})
-    out_csv = paths.RESULTS / f"sd_family_offtarget_{batch}.csv"
+    out_csv = args.out
     with out_csv.open("w", encoding="utf-8", newline="") as stream:
         writer = csv.DictWriter(stream, fieldnames=list(out[0]))
         writer.writeheader()

@@ -8,7 +8,7 @@
 
 用法：
 
-    from src.baselines import REGISTRY, run_pgd
+    from immunization_baseline.attacks import REGISTRY, run_pgd
 
     spec = REGISTRY["mist"]
     res = run_pgd(sd, x01, spec, target01=mist_png, strength=0.3)
@@ -27,8 +27,8 @@
 | `promptflare` | 是（全圖 mask、移植為 img2img） | L∞ 6/255 |
 """
 
-from src.baselines import advpaint, dia, mist, photoguard, promptflare
-from src.baselines.pgd import (
+from immunization_baseline.attacks import advpaint, dia, mist, photoguard, promptflare
+from immunization_baseline.attacks.pgd import (
     BaselineSpec,
     PGDResult,
     ValueRange,

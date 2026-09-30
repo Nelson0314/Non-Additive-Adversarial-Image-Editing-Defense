@@ -36,7 +36,7 @@ img2img／SDEdit，故 `attack_forward` 必須由我方改寫。改動逐項如�
 | `eta=1`（DDIM 隨機性）+ 未固定的 latent，`grad_reps=10` 平均 | DDIM 為決定性，改為**每個 rep 換一個編輯噪聲種子**，仍平均 10 次 | 保留「對前向的隨機性取期望」這個作用；決定性 DDIM 下若不換種子，10 個 rep 會完全相同，`grad_reps=10` 形同 1 |
 | `strength=0.7` 在 cell 10 被賦值但**未傳入** `super_l2` | 由呼叫端提供，無預設 | inpainting 版根本不用 strength，故原始碼中沒有這個數；憑空給一個值會讓失真預算與威脅模型脫節 |
 
-另兩處與原始碼不同、但不是我們選的（皆源自 `src/models/sd.py` 的既有語意）：
+另兩處與原始碼不同、但不是我們選的（皆源自 `immunization_core/editors/stable_diffusion.py` 的既有語意）：
 
 1. `SDWrapper.decode_latent` 對輸出 `clamp(0,1)`，而 `attack_forward` 回傳
    未裁切的 `vae.decode(...).sample`。被裁切的像素其梯度為零。
@@ -46,7 +46,7 @@ img2img／SDEdit，故 `attack_forward` 必須由我方改寫。改動逐項如�
    是對「DDIM `eta=1` 的隨機性 + 未固定的 `latents` + VAE 後驗抽樣」
    三重隨機性取期望，本移植只保留了編輯噪聲一項，期望的對象與原作不同。
 
-兩者都不在此繞過：繞過要改 `src/models/sd.py`，而 `encode_image` 取 mean
+兩者都不在此繞過：繞過要改 `immunization_core/editors/stable_diffusion.py`，而 `encode_image` 取 mean
 是全專案（含防禦端與既有 53 個 run）共用的決定性前提；且 `sdedit` 以
 `vae_ckpt=True` 走 `torch.utils.checkpoint`，反向時會**重算**前向，若在
 其中抽樣，重算會抽到另一組雜訊，梯度將對應到與前向值不同的函式
@@ -62,7 +62,7 @@ from typing import Optional
 
 import torch
 
-from src.baselines.pgd import BaselineSpec, ValueRange
+from immunization_baseline.attacks.pgd import BaselineSpec, ValueRange
 
 # `notebooks/utils.py:28-42` 的 `prepare_mask_and_masked_image`：
 # `image / 127.5 - 1.0`；`super_l2` 的 `clamp_min=-1, clamp_max=1`。

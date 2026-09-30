@@ -40,8 +40,8 @@ import torch
 import torch.utils.checkpoint as ckpt
 from diffusers.utils.torch_utils import randn_tensor
 
-from src.baselines.pgd import BaselineSpec, ValueRange
-from src.models.sd import expand_cond
+from immunization_baseline.attacks.pgd import BaselineSpec, ValueRange
+from immunization_core.editors.conditioning import expand_conditioning
 
 # `mist_v3.py:230-233` `img / 127.5 - 1.0`；PGD 的 `clip_min=-1.0`。
 MIST_RANGE = ValueRange(
@@ -201,9 +201,9 @@ def _semantic_loss(sd, x_paper: torch.Tensor, ctx: MistContext) -> torch.Tensor:
     )
     abar = sd.alphas_cumprod(z.device)[t].view(-1, 1, 1, 1).to(z.dtype)
     z_noisy = abar.sqrt() * z + (1 - abar).sqrt() * noise
-    # `expand_cond` 而非 `.expand(...)`：SDXL 的條件是 SDXLPrompt，
+    # `expand_conditioning` 而非 `.expand(...)`：SDXL 的條件是 SDXLPrompt，
     # 沒有 `expand` 方法，且 pooled 是二維、序列嵌入是三維，要分別處理。
-    eps_pred = sd._eps(z_noisy, t, expand_cond(ctx.emb, z.shape[0]),
+    eps_pred = sd._eps(z_noisy, t, expand_conditioning(ctx.emb, z.shape[0]),
                        use_ckpt=ctx.use_ckpt)
     return ((noise - eps_pred) ** 2).mean(dim=[1, 2, 3]).mean()
 

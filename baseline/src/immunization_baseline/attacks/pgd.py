@@ -11,7 +11,7 @@ L∞ 逐元素夾），隨機初始化更是三種都有。這些差異全部由
 值域：每篇獨立，不共用一套
 ──────────────────────────────────────────────────────────────────────
 
-本專案的張量介面是 `[0,1]`（`src/models/sd.py` 模組 docstring），而五篇
+本專案的張量介面是 `[0,1]`（`immunization_core/editors/stable_diffusion.py` 模組 docstring），而五篇
 baseline 全部在 `[-1,1]` 上最佳化。`docs/reference/SOURCE_AUDIT.md` §10
 指出：三篇的 eps 換算方式彼此不同，且**看起來都寫 `eps/255`**——
 

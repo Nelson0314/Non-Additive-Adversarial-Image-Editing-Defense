@@ -16,8 +16,8 @@ strength=0.5、guidance_scale=7.5、num_inference_steps=50。同一份稽核也�
 不是本專案為了通過某個身分門檻反推出來的**。
 
 **不加遮罩，使用者 2026-09-27 裁定。** 在 4 張影像 × 4 個 strength 的預覽中
-（`results/sdedit_preview.csv`），strength 0.3–0.6 的 id_orig 全部低於
-`edit_preflight.py` 記的 0.55 同一人門檻。`SDWrapper.sdedit()` 的 `keep01`
+（`results/sweeps/sdedit/sd15_strength.csv`），strength 0.3–0.6 的 id_orig 全部低於
+0.55 同一人門檻。`SDWrapper.sdedit()` 的 `keep01`
 遮罩參數可以緩解這件事，但 PhotoGuard 等文獻本身展示 SDEdit 時也沒有這樣做
 ——對這個威脅模型，身分被大幅改動是 SDEdit 這一類攻擊本來就有的性質，不是
 要修的缺陷。要不要遮罩因此不是本腳本的決定，本腳本沿用文獻沒有遮罩的做法。
@@ -25,7 +25,7 @@ strength=0.5、guidance_scale=7.5、num_inference_steps=50。同一份稽核也�
 跨 SD 1.x／2.x 的「統一」：`SDWrapper` 只讀 `self.pipe` 的 unet／
 text_encoder／tokenizer，不寫死任何維度，同一個類別餵不同的 `--model` 即可，
 不需要另一個 wrapper（FLUX 是流匹配架構，不共用這條路徑，見
-`edit_flux_preview.py`）。
+`run_flux_edits`）。
 
 **SD 2.x 只能用 epsilon-prediction 的權重。** `stabilityai/stable-diffusion-2-1`
 已從 Hub 下架，社群鏡像 `sd2-community/stable-diffusion-2-1` 復刻的是原始的
@@ -37,34 +37,31 @@ UNet 原生 768×768。`SDWrapper._eps`／`sdedit`／`denoise` 的 DDIM 遞迴�
 `sd2-community/stable-diffusion-2-1-base`**（`prediction_type == "epsilon"`、
 原生 512×512，同一個社群帳號的另一個 repo）。換掉 checkpoint 之後同一組協定
 （strength 0.5、guidance 7.5、50 步）跑出來的 id_orig 落在 −0.09–0.29，
-與 SD 1.5 在同一組指令下的量級一致（見 `results/sdedit_preview.csv`），不再
+與 SD 1.5 在同一組指令下的量級一致（見 `results/sweeps/sdedit/sd15_strength.csv`），不再
 是整批偵測不到臉。
 
 用法（遠端，需要一張卡）
     HF_HOME=/var/cache/huggingface CUDA_VISIBLE_DEVICES=<卡> \\
-        python code/edit_sdedit_preview.py --model sd2-community/stable-diffusion-2-1-base \\
-            --out images/sdedit_preview_sd21base
+        python -m immunization_baseline.cli.sweep_sdedit_parameters \\
+            --model sd2-community/stable-diffusion-2-1-base \\
+            --out artifacts/sweeps/sdedit/sd21_base_strength \\
+            --out-csv results/sweeps/sdedit/sd21_base_strength.csv
 """
 
 from __future__ import annotations
 
 import argparse
-import sys
 import time
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-
-import paths  # noqa: E402
-
-paths.add_source_to_syspath()
+from immunization_baseline import layout  # noqa: E402
 
 import torch  # noqa: E402
 
-from edit_preflight import identity_row, load_items  # noqa: E402
-from src.models.sd import SDWrapper  # noqa: E402
-from src.utils.artifacts import save_image  # noqa: E402
-from src.utils.io import load_image_tensor, write_csv  # noqa: E402
+from immunization_core.pipelines.editing import identity_row, load_items  # noqa: E402
+from immunization_core.editors.stable_diffusion import SDWrapper  # noqa: E402
+from immunization_core.artifacts.images import save_image  # noqa: E402
+from immunization_core.io import load_image_tensor, write_csv  # noqa: E402
 
 RESOLUTION = 512
 EDIT_SEED = 20260812   # 與 ip2p/inpaint 兩個場景共用同一顆種子
@@ -77,8 +74,9 @@ def main() -> None:
     ap = argparse.ArgumentParser(
         description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--data", type=Path, default=paths.PORTRAITS)
-    ap.add_argument("--out", type=Path, default=paths.IMAGES / "sdedit_preview")
+    ap.add_argument("--data", type=Path, default=layout.PORTRAITS)
+    ap.add_argument("--out", type=Path, required=True, help="影像輸出目錄")
+    ap.add_argument("--out-csv", type=Path, required=True, help="這一批的 CSV，完成後一次寫出")
     ap.add_argument("--model", default="runwayml/stable-diffusion-v1-5",
                     help="任何 SD 1.x／2.x 的 diffusers checkpoint 名稱；"
                          "SDWrapper 不寫死維度，換這個參數就是換模型家族")
@@ -136,12 +134,7 @@ def main() -> None:
                           f"id_orig={idr['id_orig']}  arcface_orig={idr['arcface_orig']}"
                           f"  ({time.time() - t0:.1f}s)", flush=True)
 
-    # 檔名同時掛 model 與 --out 的目錄名：只掛 model 時，同一個模型跑兩次
-    # 不同 --out（例如先掃 0.5 再掃 0.2/0.3）會共用同一個檔名、後者覆寫前者
-    # 而不自知——2026-09-27 的 SD 2.1-base 0.5 那批就這樣被蓋掉了，圖還在
-    # （存在各自的 --out 目錄），CSV 沒了。
-    model_tag = args.model.rsplit("/", 1)[-1].replace(".", "_")
-    out_csv = paths.RESULTS / f"sdedit_preview_{model_tag}_{args.out.name}.csv"
+    out_csv = args.out_csv
     write_csv(out_csv, rows)
     print(f"\n完成：{len(rows)} 格 -> {out_csv}")
 

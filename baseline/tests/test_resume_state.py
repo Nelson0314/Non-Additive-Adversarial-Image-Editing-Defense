@@ -1,14 +1,10 @@
 """續跑不得沿用其他協定或刪除缺圖的證據列。"""
 import csv
-import importlib.util
 from pathlib import Path
 
 import pytest
 
-path = Path(__file__).parents[1] / "code/resume_state.py"
-spec = importlib.util.spec_from_file_location("resume_state_test", path)
-resume = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(resume)
+from immunization_baseline import resume_state as resume
 FIELDS = ["arm", "image", "prompt_index", "protocol_id", "png", "input_png", "input_sha256"]
 
 

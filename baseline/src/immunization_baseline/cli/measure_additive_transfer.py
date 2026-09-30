@@ -4,7 +4,7 @@
 **原樣穿過編輯器**所造成的差異，以及編輯器真的被推離原本輸出的部分。對全域色調
 這類改動，ip2p 近乎等變，前者可以佔絕大部分。
 
-三個讀數（皆分全圖／主體／背景，遮罩與 `edit_displacement.py` 同源）：
+三個讀數（皆分全圖／主體／背景，遮罩與 `pipelines.displacement` 同源）：
 
     D   = LPIPS( edit(x),    edit(x_def) )     現行位移
     P   = LPIPS( edit(x),    T̂(edit(x)) )      完全等變時的預測位移
@@ -24,50 +24,31 @@
 
 只讀既有 PNG，不呼叫擴散。用法：
 
-    python code/passthrough_readout.py --out results/passthrough.csv
-    python code/passthrough_readout.py --conditions mist dia_r --out /tmp/probe.csv
+    python -m immunization_baseline.cli.measure_additive_transfer --out results/additive_transfer.csv
+    python -m immunization_baseline.cli.measure_additive_transfer --conditions mist dia_r --out <CSV>
+
+CSV 中的相對影像路徑以 `--path-root`（預設 baseline 專案根）為基準解析。
 """
 
 from __future__ import annotations
 
 import argparse
 import csv
-import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-
-import paths  # noqa: E402
-
-paths.add_source_to_syspath()
+from immunization_baseline import layout  # noqa: E402
 
 import torch  # noqa: E402
 
-from src.metrics.regional import RegionalLPIPS, split_displacement  # noqa: E402
-from src.metrics.standard import SIGLIP_BLOCKED_THRESHOLD  # noqa: E402
-from src.metrics.suite import MetricSuite  # noqa: E402
-from src.utils.io import load_image_tensor, write_csv  # noqa: E402
+from immunization_core.metrics.regional import RegionalLPIPS, split_displacement  # noqa: E402
+from immunization_core.metrics.standard import SIGLIP_BLOCKED_THRESHOLD  # noqa: E402
+from immunization_core.metrics.suite import MetricSuite  # noqa: E402
+from immunization_core.io import load_image_tensor, write_csv  # noqa: E402
 
-from edit_displacement import subject_mask  # noqa: E402
+from immunization_core.pipelines.masks import subject_mask  # noqa: E402
 
 RESOLUTION = 512
 SCENARIO = "ip2p"
-
-#: 防禦圖的產出目錄，兩者的檔名式樣相同（`<影像>__<條件>__def.png`）。
-#: 原生條件在 `main_table/images/defence_portraits/`，但那份影像沒有同步到遠端
-#: （`.gitignore` 排除、scp 時也沒帶），遠端只有求解當時寫出的
-#: `runs/defence_portraits/`，所以兩個位置都要找。等失真臂只在 `runs/eps_aligned/`。
-def _first_dir(*candidates: Path) -> Path:
-    for c in candidates:
-        if c.is_dir():
-            return c
-    raise SystemExit("找不到防禦圖目錄，找過：" + "、".join(str(c) for c in candidates))
-
-
-NATIVE_DEF = _first_dir(paths.IMAGES / "defence_portraits",
-                        paths.SOURCE_HOME / "runs" / "defence_portraits")
-ALIGNED_DEF = _first_dir(paths.SOURCE_HOME / "runs" / "eps_aligned")
-
 
 def load(path: Path, device) -> torch.Tensor:
     return load_image_tensor(path, device, size=RESOLUTION)
@@ -79,19 +60,19 @@ def quantise(y: torch.Tensor) -> torch.Tensor:
     return (y.detach().clamp(0, 1) * 255).round() / 255
 
 
-def defence_png(condition: str, image: str, arm: str) -> Path:
-    root = ALIGNED_DEF if arm == "aligned" else NATIVE_DEF
-    return root / condition / f"{image}__{condition}__def.png"
+def defence_png(roots: dict, condition: str, image: str, arm: str) -> Path:
+    """防禦圖，兩個 arm 的檔名式樣相同（`<影像>__<條件>__def.png`）。"""
+    return roots[arm] / condition / f"{image}__{condition}__def.png"
 
 
-def original_png(image: str) -> Path:
+def original_png(roots: dict, image: str) -> Path:
     """原圖。每個條件目錄都存了一份 `__orig.png`，內容同一組八張。"""
-    for root in (NATIVE_DEF, ALIGNED_DEF):
+    for root in roots.values():
         for d in sorted(p for p in root.iterdir() if p.is_dir()):
             p = d / f"{image}__orig.png"
             if p.is_file():
                 return p
-    raise SystemExit(f"找不到 {image} 的原圖（找過 {NATIVE_DEF} 與 {ALIGNED_DEF}）")
+    raise SystemExit(f"找不到 {image} 的原圖（找過 {'、'.join(map(str, roots.values()))}）")
 
 
 def read_csv(path: Path) -> list:
@@ -99,22 +80,20 @@ def read_csv(path: Path) -> list:
         return list(csv.DictReader(stream))
 
 
-def resolve(recorded: str) -> Path:
-    """CSV 記的影像路徑。兩份 CSV 的寫法不同——`displacement.csv` 是相對於主線
-    目錄的相對路徑，`displacement_aligned.csv` 是絕對路徑——所以相對的那一種要
-    補上主線目錄，不能直接當 cwd 相對路徑用。"""
+def resolve(recorded: str, root: Path) -> Path:
+    """CSV 記的影像路徑；相對路徑以 `root` 為基準，絕對路徑原樣使用。"""
     p = Path(recorded)
-    return p if p.is_absolute() else paths.SOURCE_HOME / p
+    return p if p.is_absolute() else root / p
 
 
 def sources(args) -> list:
     """回傳 (arm, csv 列) 的清單，只取 ip2p 場景。"""
     out = []
     for arm, rel in (("native", "displacement.csv"),
-                     ("aligned", "aligned/displacement_aligned.csv")):
+                     ("aligned", "aligned/displacement.csv")):
         if args.arms and arm not in args.arms:
             continue
-        rows = read_csv(paths.RESULTS / rel)
+        rows = read_csv(args.results / rel)
         for r in rows:
             if r["scenario"] != SCENARIO:
                 continue
@@ -130,12 +109,25 @@ def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--out", type=Path, required=True)
-    ap.add_argument("--data", type=Path, default=paths.IMAGES,
+    ap.add_argument("--data", type=Path, default=layout.PORTRAITS,
                     help="只用底下的 masks/")
     ap.add_argument("--conditions", nargs="+", default=None)
     ap.add_argument("--arms", nargs="+", default=None,
                     choices=("native", "aligned"))
+    ap.add_argument("--defenses", type=Path, default=layout.DEFENSES,
+                    help="原生條件的防禦圖根目錄")
+    ap.add_argument("--aligned-defenses", type=Path, default=layout.ALIGNED_DEFENSES,
+                    help="等失真對齊條件的防禦圖根目錄")
+    ap.add_argument("--results", type=Path, default=layout.RESULTS,
+                    help="含 displacement.csv 與 aligned/displacement.csv 的目錄")
+    ap.add_argument("--path-root", type=Path, default=layout.PROJECT,
+                    help="CSV 相對影像路徑的基準目錄")
     args = ap.parse_args()
+    roots = {"native": args.defenses, "aligned": args.aligned_defenses}
+    for arm in args.arms or roots:
+        if not roots[arm].is_dir():
+            raise SystemExit(f"{arm} 防禦圖目錄不存在：{roots[arm]}")
+    roots = {arm: roots[arm] for arm in (args.arms or roots)}
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     suite = MetricSuite(device=device)
@@ -149,17 +141,17 @@ def main() -> None:
     for arm, r in items:
         cond, name, k = r["condition"], r["image"], r["prompt_index"]
         if name not in originals:
-            originals[name] = load(original_png(name), device)
+            originals[name] = load(original_png(roots, name), device)
             repaint = load(args.data / "masks" / f"{name}.png", device)[:, :1]
             masks[name] = subject_mask(repaint)
         key = (arm, cond, name)
         if key not in cache:
-            dp = defence_png(cond, name, arm)
+            dp = defence_png(roots, cond, name, arm)
             if not dp.is_file():
                 raise SystemExit(f"找不到防禦圖：{dp}")
             cache[key] = load(dp, device) - originals[name]
-        a = load(resolve(r["undefended_png"]), device)
-        b = load(resolve(r["defended_png"]), device)
+        a = load(resolve(r["undefended_png"], args.path_root), device)
+        b = load(resolve(r["defended_png"], args.path_root), device)
         with torch.no_grad():
             ta = quantise(a + cache[key])
             d = split_displacement(regional, a, b, masks[name])
@@ -178,7 +170,7 @@ def main() -> None:
             "siglip_pair_T": round(sig, 5),
             "blocked_T": sig < SIGLIP_BLOCKED_THRESHOLD,
             "siglip_blocked_threshold": SIGLIP_BLOCKED_THRESHOLD,
-            "defence_png": defence_png(cond, name, arm).as_posix(),
+            "defence_png": defence_png(roots, cond, name, arm).as_posix(),
         })
         write_csv(args.out, rows)
     print(f"[ALLDONE] {args.out}（{len(rows)} 列）", flush=True)

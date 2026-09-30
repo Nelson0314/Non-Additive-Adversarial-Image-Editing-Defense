@@ -54,8 +54,8 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 
-from src.baselines.pgd import BaselineSpec, ValueRange
-from src.models.sd import cat_cond
+from immunization_baseline.attacks.pgd import BaselineSpec, ValueRange
+from immunization_core.editors.conditioning import concatenate_conditioning
 
 PROMPTFLARE_RANGE = ValueRange(
     -1.0,
@@ -372,9 +372,9 @@ def prepare(
         mask01 = torch.ones(1, 1, h, w, device=device, dtype=x01.dtype)
 
     emb = sd.encode_text(prompt).detach()
-    # `promptflare.py:22`：兩列是同一個 prompt。`cat_cond` 而非 `.repeat`——
+    # `promptflare.py:22`：兩列是同一個 prompt。`concatenate_conditioning` 而非 `.repeat`——
     # SDXL 的條件是 SDXLPrompt，沒有 `repeat` 方法，且 pooled 那一半也要跟著複製。
-    emb2 = cat_cond([emb, emb])
+    emb2 = concatenate_conditioning([emb, emb])
 
     # `promptflare.py:40-41`：第 0 列全 1（不遮罩），第 1 列只留位置 0（BOS）。
     encoder_attention_mask = torch.ones(2, 77, device=device, dtype=emb.dtype)

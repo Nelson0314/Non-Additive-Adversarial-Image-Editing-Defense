@@ -166,7 +166,7 @@ Eq. 2 的 `c_a` 是「要保護的內容的文字嵌入」。**它由防禦方�
    的下一個元素。
 6. **9 通道（inpainting）權重下後 5 個通道取全 1 遮罩**，與 `mist.loss_fn`、
    `danp.loss_fn` 同一處置：Eq. 2 的 `ε_θ` 沒有影像條件。
-7. **注意力 processor 是自己寫的一份。** `src/baselines/danp.py` 的
+7. **注意力 processor 是自己寫的一份。** `immunization_baseline/attacks/danp.py` 的
    `DANPAttnProcessor` 做同一件事（diffusers 的 SDPA 融合核不會實體化
    softmax 後的 `A`），但那是另一篇的檔案，本檔不共用、也不修改它——
    兩篇的聚合規則不同（本篇 Eq. 3 是相加＋bicubic，DANP Eq. 4 是平均），
@@ -184,7 +184,7 @@ PSNR，不是免疫圖對原圖的失真，無法像 DANP 那樣反推上界。
 （「for a fair comparison」），而那兩個對照攻擊出自 PhotoGuard，其官方
 實作的影像張量在 `[-1,1]`（`docs/reference/BASELINE_PROVENANCE.md` §預算
 總表）；共用一個 κ 只有在共用值域時才成立。同一個 0.06 在 AdvPaint 也是
-`[-1,1]` 上的值（`src/baselines/advpaint.py`）。
+`[-1,1]` 上的值（`immunization_baseline/attacks/advpaint.py`）。
 
 **這是本檔挑的，不是論文的。** 另一種讀法（`[0,1]` 的 0.06 = 15.3/255）
 同樣說得通，且會給出強度差一倍的解。
@@ -192,19 +192,19 @@ PSNR，不是免疫圖對原圖的失真，無法像 DANP 那樣反推上界。
 要接進 `scripts/baseline_run.py` 的 `CONDITIONS` 需要加的幾行
 ──────────────────────────────────────────────────────────────────────
 
-**本檔不修改 `scripts/baseline_run.py`，也不註冊進 `src/baselines/__init__.py`
+**本檔不修改 `scripts/baseline_run.py`，也不註冊進 `immunization_baseline/attacks/__init__.py`
 的 `REGISTRY`。** 後者是刻意的：`tests/test_baselines.py` 以
 `AUDIT == REGISTRY` 稽核，且逐一檢查 `REGISTRY` 的值域，加進去會打到既有
 測試；`danp`／`sifm`／`tdae` 也都刻意沒註冊。
 
 接線要加的是：
 
-    # src/baselines/__init__.py
-    from src.baselines import advpaint, dayn, dia, mist, photoguard, promptflare
+    # immunization_baseline/attacks/__init__.py
+    from immunization_baseline.attacks import advpaint, dayn, dia, mist, photoguard, promptflare
     _SPECS = (..., dayn.SPEC_PAPER)
 
     # scripts/baseline_run.py 第 36 行
-    from src.baselines import dayn, dia, mist, photoguard  # noqa: E402
+    from immunization_baseline.attacks import dayn, dia, mist, photoguard  # noqa: E402
 
     # scripts/baseline_run.py 第 60 行
     CONDITIONS = ["photoguard_c", "photoguard_linf", "mist", "dia_r", "dayn"]
@@ -231,7 +231,7 @@ import torch
 import torch.nn.functional as F
 import torch.utils.checkpoint as ckpt
 
-from src.baselines.pgd import BaselineSpec, ValueRange
+from immunization_baseline.attacks.pgd import BaselineSpec, ValueRange
 
 # ---------------------------------------------------------------------------
 # 論文給的常數
@@ -333,7 +333,7 @@ def locate_content_tokens(
 class DAYNAttnController:
     """收集各 cross-attention 層的**後 softmax 機率** `A_l`，再依 Eq. 3 聚合。
 
-    與 `src/baselines/promptflare.py::AttnController` 的差別：那一支記的是
+    與 `immunization_baseline/attacks/promptflare.py::AttnController` 的差別：那一支記的是
     `attn2` 經 `to_out` 之後的輸出（`A·V·W_out`），走 SDPA 融合核，`A` 從未
     被實體化。Eq. 2／Eq. 5 的被優化量正是 `A` 本身，故不能沿用那條路。
     """

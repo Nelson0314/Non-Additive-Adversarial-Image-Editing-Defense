@@ -137,7 +137,7 @@ Table IV（§V-D）給了 DANP 在 InstructPix2pix 上免疫圖對原圖的 **PS
 要接進 `scripts/baseline_run.py` 的 `CONDITIONS` 需要加的幾行
 ──────────────────────────────────────────────────────────────────────
 
-**本檔不修改 `scripts/baseline_run.py`，也不註冊進 `src/baselines/__init__.py`
+**本檔不修改 `scripts/baseline_run.py`，也不註冊進 `immunization_baseline/attacks/__init__.py`
 的 `REGISTRY`。** 後者是刻意的：`tests/test_baselines.py::
 test_五篇的值域全部是負一到一` 會逐一檢查 `REGISTRY` 的 `value_range`，
 而 DANP 的值域是 `[0,1]`（見上），註冊進去會讓那個測試失敗——但那個測試
@@ -146,12 +146,12 @@ test_五篇的值域全部是負一到一` 會逐一檢查 `REGISTRY` 的 `value
 
 接線要加的是：
 
-    # src/baselines/__init__.py
-    from src.baselines import advpaint, danp, dia, mist, photoguard, promptflare
+    # immunization_baseline/attacks/__init__.py
+    from immunization_baseline.attacks import advpaint, danp, dia, mist, photoguard, promptflare
     _SPECS = (..., danp.SPEC_PAPER)
 
     # scripts/baseline_run.py 第 36 行
-    from src.baselines import danp, dia, mist, photoguard  # noqa: E402
+    from immunization_baseline.attacks import danp, dia, mist, photoguard  # noqa: E402
 
     # scripts/baseline_run.py 第 60 行
     CONDITIONS = ["photoguard_c", "photoguard_linf", "mist", "dia_r", "danp"]
@@ -178,7 +178,7 @@ import torch
 import torch.nn.functional as F
 import torch.utils.checkpoint as ckpt
 
-from src.baselines.pgd import BaselineSpec, ValueRange
+from immunization_baseline.attacks.pgd import BaselineSpec, ValueRange
 
 # ---------------------------------------------------------------------------
 # 論文給的常數
@@ -309,7 +309,7 @@ def kapur_mask(att: torch.Tensor, bins: int) -> Tuple[torch.Tensor, int, float]:
 class DANPAttnController:
     """收集各 cross-attention 層的**後 softmax 機率** `A_l`，再依 Eq. 4 聚合。
 
-    與 `src/baselines/promptflare.py::AttnController` 的差別：PromptFlare 記的是
+    與 `immunization_baseline/attacks/promptflare.py::AttnController` 的差別：PromptFlare 記的是
     `attn2` 模組**經 `to_out` 之後的輸出**（`A·V·W_out`），走 SDPA 融合核，
     `A` 從未被實體化。DANP 的 Eq. 11 作用在 `A` 本身，故不能沿用那條路，
     必須換成明確算 softmax 的 processor（`DANPAttnProcessor`）。

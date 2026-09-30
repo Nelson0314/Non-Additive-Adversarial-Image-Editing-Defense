@@ -4,7 +4,7 @@ import csv
 import json
 from pathlib import Path
 
-from resume_state import file_digest, protocol_digest
+from immunization_baseline.resume_state import file_digest, protocol_digest
 
 
 def validate_stage(out, arm, expected, artifacts):
@@ -57,7 +57,7 @@ def main():
     parser.add_argument("--scenario", choices=["ip2p", "inpaint"], required=True)
     parser.add_argument("--suffix", required=True)
     args = parser.parse_args()
-    from edit_preflight import (load_items, defended_image, EDIT_SEED, EDIT_STEPS,
+    from immunization_core.pipelines.editing import (load_items, defended_image, EDIT_SEED, EDIT_STEPS,
                                 IP2P_MODEL, INPAINT_MODEL, IP2P_TEXT_GUIDANCE,
                                 IP2P_EDIT_IMAGE_GUIDANCE, INPAINT_GUIDANCE)
     items, edits = load_items(args.data)

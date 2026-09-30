@@ -98,7 +98,7 @@ checkpoint 區塊的前向在 `no_grad` 下執行，forward hook 攔到的特徵
 本檔不改那個檔（多個 baseline 同時在改它）。要接進去需要三處：
 
     # 1. import 行
-    from src.baselines import dia, mist, photoguard, sifm
+    from immunization_baseline.attacks import dia, mist, photoguard, sifm
 
     # 2. CONDITIONS
     CONDITIONS = ["photoguard_c", "photoguard_linf", "mist", "dia_r", "sifm"]
@@ -116,7 +116,7 @@ from typing import Dict, List, Optional, Sequence, Tuple
 
 import torch
 
-from src.baselines.pgd import BaselineSpec, ValueRange
+from immunization_baseline.attacks.pgd import BaselineSpec, ValueRange
 
 # Algorithm 1 第 14 行 `x_imu ← clip_{0,1}(x_orig + δ)`：論文的最佳化值域
 # 就是 [0,1]，與本專案的張量介面相同，故 eps 不需換算。

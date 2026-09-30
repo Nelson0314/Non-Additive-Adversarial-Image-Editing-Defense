@@ -2,7 +2,7 @@
 
 為什麼需要這一支
 ────────────────────────────────────────────────────────────────────
-主表的欄位是本專案自己定的標準清單（`src/metrics/standard.py`）：
+主表的欄位是本專案自己定的標準清單（`immunization_core/metrics/standard.py`）：
 LPIPS／SSIM／PSNR／VIFp／DISTS。但十一個外部方法的原論文各自報的指標不同，
 其中 **FSIM** 出現在五篇（DAYN §4.3、DANP §V-B、SIFM §VII-A、TDAE、
 DiffVax 的 `evaluate.py`），本專案的 `MetricSuite` 支援它、卻沒有寫進任何
@@ -16,16 +16,16 @@ DiffVax 的 `evaluate.py`），本專案的 `MetricSuite` 支援它、卻沒有�
 ────────────────────────────────────────────────────────────────────
 | 檔 | 對象 | 補的欄位 |
 |---|---|---|
-| `metrics_fidelity_union.csv`   | 防禦圖 vs 原圖 | `fid_fsim`、`fid_delta_e00`、`fid_mse` |
-| `metrics_displacement_union.csv` | 編輯(原圖) vs 編輯(防禦圖) | `disp_fsim`、`disp_mse` |
-| `metrics_retention_union.csv`  | 淨化後的同一對 | `disp_purified_fsim` |
-| `metrics_aesthetic_union.csv`  | 防禦圖本身（無參考） | 美學與自然度四項 |
-| `metrics_vmaf_union.csv`       | 上面前三種配對，各自的 VMAF | `vmaf`，`pairing` 欄標配對種類 |
+| `additional_metrics/fidelity.csv`   | 防禦圖 vs 原圖 | `fid_fsim`、`fid_delta_e00`、`fid_mse` |
+| `additional_metrics/displacement.csv` | 編輯(原圖) vs 編輯(防禦圖) | `disp_fsim`、`disp_mse` |
+| `additional_metrics/retention.csv`  | 淨化後的同一對 | `disp_purified_fsim` |
+| `additional_metrics/aesthetic.csv`  | 防禦圖本身（無參考） | 美學與自然度四項 |
+| `additional_metrics/vmaf.csv`       | 上面前三種配對，各自的 VMAF | `vmaf`，`pairing` 欄標配對種類 |
 
 **美學那一組是無參考指標**：它們只看一張圖，不跟原圖比，所以原圖自己也要量一份
 當參照列——`niqe 4.12` 這個數單獨擺出來沒有意義，要對著同一張原圖的值看。
 
-`mse` 由 rms 反推不可靠（rms 的平均方式見 `src/metrics/suite.py`），故直接算。
+`mse` 由 rms 反推不可靠（rms 的平均方式見 `immunization_core/metrics/suite.py`），故直接算。
 
 VMAF 的餵法：單張圖各自視為一支 1 幀的「影片」直接餵給 `libvmaf`
 （reference=原圖或未防禦編輯，distorted=防禦圖或防禦後編輯）。VMAF 原生設計
@@ -39,32 +39,27 @@ VMAF 的餵法：單張圖各自視為一支 1 幀的「影片」直接餵給 `l
 記錄，其餘不下判定。
 
 用法
-    python code/metrics_union.py --stage fidelity
-    python code/metrics_union.py --stage displacement
-    python code/metrics_union.py --stage retention
-    python code/metrics_union.py --stage vmaf
+    python -m immunization_baseline.cli.measure_additional_metrics --stage fidelity
+    python -m immunization_baseline.cli.measure_additional_metrics --stage displacement
+    python -m immunization_baseline.cli.measure_additional_metrics --stage retention
+    python -m immunization_baseline.cli.measure_additional_metrics --stage vmaf
 """
 
 from __future__ import annotations
 
 import argparse
 import csv
-import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-
-import paths  # noqa: E402
-
-paths.add_source_to_syspath()
+from immunization_baseline import layout  # noqa: E402
 
 #: `numpy`／`piq`／`torch` 只有 fidelity／displacement／retention／aesthetic 這四個
 #: stage 要用，`vmaf` 不碰張量、只呼叫 `ffmpeg`。四個重依賴延到 `main()` 裡依
 #: stage 決定要不要載入，讓 `--stage vmaf` 能在沒裝 torch 的機器（例如本機）上跑。
 RESOLUTION = 512
-OUT_DIR = paths.RESULTS
+OUT_DIR = layout.RESULTS / "additional_metrics"
 
-#: 淨化算子與其標籤，與 `code/purify_run.py` 的 `label()` 同式。
+#: 未防禦對照的條件名；淨化目錄版面與 `pipelines.retention.cell()` 相同。
 UNDEFENDED = "undefended"
 
 
@@ -74,21 +69,11 @@ def read_csv(path: Path) -> list:
 
 
 def resolve_png(raw: str) -> Path:
-    """`displacement.csv` 的影像欄記的是搬動前的相對路徑（`runs/...`）。
-
-    `main_table/` 從主線目錄搬出時，影像跟著搬進 `images/`，但寫死在這張
-    CSV 裡的路徑沒有跟著改——首段仍是 `runs`，而 `main_table/runs/` 不存在。
-    兩者除了首段其餘完全相同（`edit_preflight/...`、`edit_defended/...`），
-    故只需替換首段。已是絕對路徑的（例如 `aligned/displacement_aligned.csv`）
-    原樣放行。
-    """
+    """CSV 記的影像路徑；相對路徑以 baseline 專案根為基準，絕對路徑原樣使用。"""
     p = Path(raw)
     if p.is_absolute():
         return p
-    parts = p.parts
-    if parts and parts[0] == "runs":
-        p = Path("images", *parts[1:])
-    return (paths.BASELINES / p).resolve()
+    return (layout.PROJECT / p).resolve()
 
 
 def write_csv(path: Path, rows: list) -> None:
@@ -129,7 +114,7 @@ def delta_e00(a: torch.Tensor, b: torch.Tensor) -> float:
 
 def stage_fidelity(device) -> None:
     """防禦圖對原圖。檔名式樣 `<name>__orig.png` 與 `<name>__<cond>__def.png`。"""
-    root = paths.IMAGES / "defence_portraits"
+    root = layout.DEFENSES
     rows = []
     for directory in sorted(p for p in root.iterdir() if p.is_dir()):
         condition = directory.name
@@ -149,13 +134,13 @@ def stage_fidelity(device) -> None:
                     "defended_png": defended.as_posix(),
                 })
         print(f"[DONE] {condition:20s} 累計 {len(rows)} 列", flush=True)
-    write_csv(OUT_DIR / "metrics_fidelity_union.csv", rows)
-    print(f"[ALLDONE] {OUT_DIR / 'metrics_fidelity_union.csv'}（{len(rows)} 列）", flush=True)
+    write_csv(OUT_DIR / "fidelity.csv", rows)
+    print(f"[ALLDONE] {OUT_DIR / 'fidelity.csv'}（{len(rows)} 列）", flush=True)
 
 
 def stage_displacement(device) -> None:
     """編輯(原圖) vs 編輯(防禦圖)。路徑直接取 `displacement.csv` 自己記的兩欄。"""
-    source = read_csv(paths.RESULTS / "displacement.csv")
+    source = read_csv(layout.RESULTS / "displacement.csv")
     rows = []
     for i, row in enumerate(source, 1):
         a = load(resolve_png(row["undefended_png"]), device)
@@ -169,8 +154,8 @@ def stage_displacement(device) -> None:
             })
         if i % 64 == 0:
             print(f"[{i}/{len(source)}]", flush=True)
-    write_csv(OUT_DIR / "metrics_displacement_union.csv", rows)
-    print(f"[ALLDONE] {OUT_DIR / 'metrics_displacement_union.csv'}（{len(rows)} 列）", flush=True)
+    write_csv(OUT_DIR / "displacement.csv", rows)
+    print(f"[ALLDONE] {OUT_DIR / 'displacement.csv'}（{len(rows)} 列）", flush=True)
 
 
 def cell(root: Path, condition: str, purifier: str, scenario: str,
@@ -181,8 +166,8 @@ def cell(root: Path, condition: str, purifier: str, scenario: str,
 
 def stage_retention(device) -> None:
     """淨化後的同一對。條件與算子的組合直接照 `retention.csv` 的列。"""
-    root = paths.IMAGES / "edit_purified"
-    source = read_csv(paths.RESULTS / "retention.csv")
+    root = layout.PURIFIED_EDITS
+    source = read_csv(layout.RESULTS / "retention.csv")
     rows = []
     for i, row in enumerate(source, 1):
         a = cell(root, UNDEFENDED, row["purifier"], row["scenario"],
@@ -200,8 +185,8 @@ def stage_retention(device) -> None:
             })
         if i % 256 == 0:
             print(f"[{i}/{len(source)}]", flush=True)
-    write_csv(OUT_DIR / "metrics_retention_union.csv", rows)
-    print(f"[ALLDONE] {OUT_DIR / 'metrics_retention_union.csv'}（{len(rows)} 列）", flush=True)
+    write_csv(OUT_DIR / "retention.csv", rows)
+    print(f"[ALLDONE] {OUT_DIR / 'retention.csv'}（{len(rows)} 列）", flush=True)
 
 
 #: (欄名, pyiqa 模型, 越小越好)。七項都是**無參考**：只看一張圖，不跟原圖比。
@@ -224,7 +209,7 @@ def stage_aesthetic(device) -> None:
     for column, name, _ in AESTHETIC:
         models[column] = pyiqa.create_metric(name, device=device)
 
-    root = paths.IMAGES / "defence_portraits"
+    root = layout.DEFENSES
     targets = []
     seen = set()
     for directory in sorted(p for p in root.iterdir() if p.is_dir()):
@@ -247,8 +232,8 @@ def stage_aesthetic(device) -> None:
         rows.append(row)
         if i % 16 == 0:
             print(f"[{i}/{len(targets)}]", flush=True)
-    write_csv(OUT_DIR / "metrics_aesthetic_union.csv", rows)
-    print(f"[ALLDONE] {OUT_DIR / 'metrics_aesthetic_union.csv'}（{len(rows)} 列）",
+    write_csv(OUT_DIR / "aesthetic.csv", rows)
+    print(f"[ALLDONE] {OUT_DIR / 'aesthetic.csv'}（{len(rows)} 列）",
           flush=True)
 
 
@@ -283,7 +268,7 @@ def stage_vmaf(device) -> None:  # noqa: ARG001 - 與其他 stage 簽名一致�
 
     pairs = []  # (pairing, meta_dict, reference_path, distorted_path)
 
-    root = paths.IMAGES / "defence_portraits"
+    root = layout.DEFENSES
     for directory in sorted(p for p in root.iterdir() if p.is_dir()):
         condition = directory.name
         for defended in sorted(directory.glob(f"*__{condition}__def.png")):
@@ -295,15 +280,15 @@ def stage_vmaf(device) -> None:  # noqa: ARG001 - 與其他 stage 簽名一致�
                           {"condition": condition, "image": name},
                           original, defended))
 
-    disp_source = read_csv(paths.RESULTS / "displacement.csv")
+    disp_source = read_csv(layout.RESULTS / "displacement.csv")
     for row in disp_source:
         pairs.append(("displacement",
                       {"condition": row["condition"], "scenario": row["scenario"],
                        "image": row["image"], "prompt_index": row["prompt_index"]},
                       resolve_png(row["undefended_png"]), resolve_png(row["defended_png"])))
 
-    ret_root = paths.IMAGES / "edit_purified"
-    ret_source = read_csv(paths.RESULTS / "retention.csv")
+    ret_root = layout.PURIFIED_EDITS
+    ret_source = read_csv(layout.RESULTS / "retention.csv")
     for row in ret_source:
         a = cell(ret_root, UNDEFENDED, row["purifier"], row["scenario"],
                  row["image"], row["prompt_index"])
@@ -342,8 +327,8 @@ def stage_vmaf(device) -> None:  # noqa: ARG001 - 與其他 stage 簽名一致�
                 if done % 256 == 0:
                     print(f"[{done}/{len(pairs)}]", flush=True)
 
-    write_csv(OUT_DIR / "metrics_vmaf_union.csv", rows)
-    print(f"[ALLDONE] {OUT_DIR / 'metrics_vmaf_union.csv'}（{len(rows)} 列）", flush=True)
+    write_csv(OUT_DIR / "vmaf.csv", rows)
+    print(f"[ALLDONE] {OUT_DIR / 'vmaf.csv'}（{len(rows)} 列）", flush=True)
 
 
 def main() -> None:
@@ -359,7 +344,7 @@ def main() -> None:
         import numpy as np
         import piq
         import torch
-        from src.utils.io import load_image_tensor
+        from immunization_core.io import load_image_tensor
         device = torch.device("cpu")
     {"fidelity": stage_fidelity,
      "displacement": stage_displacement,

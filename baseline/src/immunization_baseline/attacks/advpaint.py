@@ -65,8 +65,8 @@ from typing import List, Optional
 
 import torch
 
-from src.baselines.pgd import BaselineSpec, ValueRange
-from src.models.sd import cat_cond
+from immunization_baseline.attacks.pgd import BaselineSpec, ValueRange
+from immunization_core.editors.conditioning import concatenate_conditioning
 
 ADVPAINT_RANGE = ValueRange(
     -1.0,
@@ -277,7 +277,7 @@ def prepare(
             "guidance_scale=1 時 pipeline 的 do_classifier_free_guidance 為 False，"
             "latent 不再複製兩份，記錄到的 Q/K/V 形狀與原作不同；該路徑未查證"
         )
-    emb2 = cat_cond([emb_uncond, emb_cond])
+    emb2 = concatenate_conditioning([emb_uncond, emb_cond])
 
     # inpainting 下原作取 pipeline 預設排程的 `timesteps[0]`（50 步、
     # strength=1），即整條排程的第一個 timestep。img2img 沒有那個排程，

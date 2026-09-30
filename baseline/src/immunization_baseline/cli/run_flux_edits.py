@@ -1,6 +1,6 @@
 """FLUX.1-Kontext-dev 在主表資料集上的編輯——跨編輯器遷移的第三支路線。
 
-與 `edit_sdedit_preview.py` 同一個評測外殼(同一批影像、同一組 ip2p 指令、
+與 `sweep_sdedit_parameters` 同一個評測外殼(同一批影像、同一組 ip2p 指令、
 同一個 `identity_row` 身分讀數、同一種 CSV 輸出),核心呼叫換成
 `FluxKontextPipeline`——FLUX 是流匹配 transformer,不是 UNet+DDIM,不走
 `SDWrapper` 那條路徑,`sdedit()` 的 strength/加噪起點對它沒有意義。
@@ -20,61 +20,44 @@
 解析度:`FluxKontextPipeline` **不接受**縮到 512×512。程式碼裡明給了
 `height=width=512`，但實測 log 印出「Generation height and width have
 been adjusted to 1024 and 1024 to fit the model requirements」——參數
-被套件自己蓋掉了。也就是說 FLUX 這一臂**沒有**跟 `edit_sdedit_preview.py`
+被套件自己蓋掉了。也就是說 FLUX 這一臂**沒有**跟 `sweep_sdedit_parameters`
 同一個解析度，兩者的位移／保真讀數不能直接並排比較解析度效應，這件事
 要在報告裡標明，不是程式錯誤。
 
 全表:`--arm undefended` 跑分母(8 影像 × 4 指令 = 32 格),`--arm <條件>` 跑該
-條件的防禦圖(同樣 32 格,`--defended` 預設用 `--arm` 去 `images/defence_portraits/
-<條件>/` 找)。12 條件 + 分母 = 13 個 arm、416 格,單格 83–185 秒（視卡上其他人
+條件的防禦圖(同樣 32 格,`--defended` 預設為 `artifacts/defenses/<條件>/`)。12 條件 + 分母 = 13 個 arm、416 格,單格 83–185 秒（視卡上其他人
 負載），每個 arm 只載入一次模型。CSV 逐格 append 並 flush，中斷重跑會跳過
 已經完成且協定摘要、輸入雜湊與 PNG 均一致的格，不必整個 arm 重來。
 
 用法(遠端,需要一張卡,首次會下載約 24GB 權重)
     HF_HOME=/var/cache/huggingface CUDA_VISIBLE_DEVICES=<卡> \\
-        python code/edit_flux_preview.py --arm undefended
+        python -m immunization_baseline.cli.run_flux_edits --arm undefended
     HF_HOME=/var/cache/huggingface CUDA_VISIBLE_DEVICES=<卡> \\
-        python code/edit_flux_preview.py --arm mist
+        python -m immunization_baseline.cli.run_flux_edits --arm mist
 """
 
 from __future__ import annotations
 
 import argparse
 import csv
-import sys
 import time
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+from immunization_baseline import layout  # noqa: E402
 
-import paths  # noqa: E402
-
-paths.add_source_to_syspath()
-
-import numpy as np  # noqa: E402
 import torch  # noqa: E402
-from PIL import Image  # noqa: E402
 
-from edit_preflight import defended_image, identity_row, load_items  # noqa: E402
-from src.utils.artifacts import save_image  # noqa: E402
-from src.utils.io import load_image_tensor  # noqa: E402
-from resume_state import file_digest, load_resume_rows, protocol_digest  # noqa: E402
+from immunization_core.pipelines.editing import defended_image, identity_row, load_items  # noqa: E402
+from immunization_core.artifacts.images import save_image  # noqa: E402
+from immunization_core.io import load_image_tensor  # noqa: E402
+from immunization_baseline.editors import to_pil, to_tensor  # noqa: E402
+from immunization_baseline.resume_state import file_digest, load_resume_rows, protocol_digest  # noqa: E402
 
 MODEL_NAME = "black-forest-labs/FLUX.1-Kontext-dev"
 RESOLUTION = 512
 EDIT_SEED = 20260812
 EDIT_STEPS = 28          # FluxKontextPipeline 的預設步數,沒有跨模型的協定可對齊
 EDIT_GUIDANCE = 3.5      # FluxKontextPipeline 的預設 guidance_scale
-
-
-def to_pil(x01: torch.Tensor) -> Image.Image:
-    arr = (x01[0].clamp(0, 1).cpu().permute(1, 2, 0).numpy() * 255).round().astype(np.uint8)
-    return Image.fromarray(arr)
-
-
-def to_tensor(img: Image.Image, device) -> torch.Tensor:
-    arr = np.array(img.convert("RGB")).astype(np.float32) / 255.0
-    return torch.from_numpy(arr).permute(2, 0, 1).unsqueeze(0).to(device)
 
 
 def load_pipeline():
@@ -113,14 +96,15 @@ def main() -> None:
     ap = argparse.ArgumentParser(
         description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--data", type=Path, default=paths.PORTRAITS)
+    ap.add_argument("--data", type=Path, default=layout.PORTRAITS)
     ap.add_argument("--arm", required=True,
-                    help="`undefended` 跑原圖，其餘視為 main_table 的條件名，"
-                         "去 images/defence_portraits/<條件>/ 找防禦圖")
+                    help="`undefended` 跑原圖，其餘為條件名，防禦圖取自 --defenses/<條件>/")
+    ap.add_argument("--defenses", type=Path, default=layout.DEFENSES,
+                    help="條件防禦圖的根目錄")
     ap.add_argument("--defended", type=Path, default=None,
-                    help="覆寫防禦圖目錄，預設由 --arm 推")
+                    help="覆寫單一條件的防禦圖目錄，預設為 --defenses/<arm>")
     ap.add_argument("--out", type=Path, default=None,
-                    help="預設 images/flux_full/<arm>/")
+                    help="預設 artifacts/flux_edits/<arm>/")
     ap.add_argument("--out-csv", type=Path, default=None,
                     help="不同協定須使用獨立 CSV 與 --out")
     ap.add_argument("--images", nargs="+", default=None,
@@ -137,8 +121,8 @@ def main() -> None:
                          "不要提被要求改的那個部位，否則會跟正面指令互相抵銷")
     args = ap.parse_args()
 
-    out_dir = args.out or (paths.IMAGES / "flux_full" / args.arm)
-    out_csv = args.out_csv or paths.RESULTS / f"flux_full_{args.arm}.csv"
+    out_dir = args.out or (layout.FLUX_EDITS / args.arm)
+    out_csv = args.out_csv or layout.RESULTS / "flux" / f"edits_{args.arm}.csv"
     out_dir.mkdir(parents=True, exist_ok=True)
 
     items, edits = load_items(args.data)
@@ -154,19 +138,7 @@ def main() -> None:
         ap.error("沒有符合的影像")
 
     if args.arm != "undefended":
-        if args.defended:
-            defended_dir = args.defended
-        else:
-            # main_table/images/ 是 gitignored，遠端從沒同步過；防禦圖在那裡
-            # 找不到時退到主線目錄的 runs/（搬動前的位置），與
-            # passthrough_readout.py 的 _first_dir() 同一個查找順序。
-            candidates = [paths.IMAGES / "defence_portraits",
-                         paths.SOURCE_HOME / "runs" / "defence_portraits"]
-            defended_root = next((c for c in candidates if c.is_dir()), None)
-            if defended_root is None:
-                raise SystemExit("找不到防禦圖目錄，找過：" +
-                                 "、".join(str(c) for c in candidates))
-            defended_dir = defended_root / args.arm
+        defended_dir = args.defended or args.defenses / args.arm
         for item in targets:
             item["path"] = defended_image(defended_dir, item["name"])
 

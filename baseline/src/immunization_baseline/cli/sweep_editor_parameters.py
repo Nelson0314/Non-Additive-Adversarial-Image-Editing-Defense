@@ -13,28 +13,28 @@ SDEdit（SD 1.5／2.1-base）三個參數維度都沒有交集，見 STATUS.md�
   guidance 1.5、30 步是本腳本的預設值。
 - `sd3-ultraedit`：`BleachNick/SD3_UltraEdit_freeform`，UltraEdit（arXiv:2407.05282）
   以 SD3-medium 為骨幹訓練的指令式編輯器，自由形式（不需遮罩）版本，512×512。
-  管線不在官方 diffusers，移植自作者的 fork，見 `ultraedit_sd3_pipeline.py`。
+  管線不在官方 diffusers，移植自作者的 fork，見 `third_party/ultraedit/pipeline.py`。
   作者 README 的範例值是 guidance 7.5、image guidance 1.5、50 步、
   `negative_prompt=""`。
 - `sdxl-img2img`、`sd3-img2img`：SDEdit（img2img），旋鈕是 `strength` 與
   `guidance_scale`，原生 1024×1024。不是指令式編輯器，祈使句只能當成描述。
 
 指令與種子沿用 ip2p 場景（`prompts.yaml` 的 `edits.ip2p`，逐字不改，不加遮罩），
-種子與 ip2p/inpaint 共用 20260812。身分讀數是 `edit_preflight.identity_row`，
+種子與 ip2p/inpaint 共用 20260812。身分讀數是 `immunization_core.pipelines.editing.identity_row`，
 參考圖是 512×512 的原圖，編輯結果以原生解析度直接送進去（與 FLUX 那一支相同）。
 
 指令句型（`--prompt-sets`）：JSON 檔，`{句型名: [四條指令]}`，四條依序對應
 `edits.ip2p` 的四個配件。不給時只有一個句型 `verbatim`，即 `edits.ip2p` 原文。
 句型是與參數並列的一個網格維度，逐列記在 `variant` 欄。
 
-每一批輸出一張 CSV（`results/sd_family_<--out 目錄名>.csv`，每格寫完整份重寫，
-可續跑）與一張對照圖 `<--out>/sheet.jpg`（列 = 參數組合，欄 = 影像 × 指令，
+每一批輸出一張 CSV（`--out-csv`，每格寫完整份重寫，可續跑）與一張對照圖 `<--out>/sheet.jpg`（列 = 參數組合，欄 = 影像 × 指令，
 第一欄是原圖）。
 
 用法（遠端，需要一張卡）
-    CUDA_VISIBLE_DEVICES=<卡> python main_table/code/edit_sd_family_preview.py \\
+    CUDA_VISIBLE_DEVICES=<卡> python -m immunization_baseline.cli.sweep_editor_parameters \\
         --editor sdxl-ip2p --guidances 3 5 7.5 --image-guidances 1.2 1.5 \\
-        --out main_table/images/sd_family_sdxl_ip2p_grid
+        --out artifacts/sweeps/sdxl_ip2p/guidance_portrait_pair \\
+        --out-csv results/sweeps/sdxl_ip2p/guidance_portrait_pair.csv
 """
 
 from __future__ import annotations
@@ -43,62 +43,24 @@ import argparse
 import csv
 import itertools
 import json
-import sys
 import time
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+from immunization_baseline import layout  # noqa: E402
 
-import paths  # noqa: E402
-
-paths.add_source_to_syspath()
-
-import numpy as np  # noqa: E402
 import torch  # noqa: E402
 from PIL import Image, ImageDraw  # noqa: E402
 
-from edit_preflight import identity_row, load_items  # noqa: E402
-from src.utils.io import load_image_tensor  # noqa: E402
+from immunization_core.pipelines.editing import identity_row, load_items  # noqa: E402
+from immunization_core.io import load_image_tensor  # noqa: E402
+from immunization_baseline.editors import EDITORS, load_pipeline, to_pil, to_tensor  # noqa: E402
 
 REF_RESOLUTION = 512
 EDIT_SEED = 20260812
 
-EDITORS = {
-    "sdxl-ip2p": dict(repo="diffusers/sdxl-instructpix2pix-768", kind="ip2p", res=768),
-    "sd3-ultraedit": dict(repo="BleachNick/SD3_UltraEdit_freeform", kind="ip2p", res=512,
-                          call_kw=dict(negative_prompt="")),
-    "sdxl-img2img": dict(repo="stabilityai/stable-diffusion-xl-base-1.0", kind="img2img", res=1024),
-    "sd3-img2img": dict(repo="stabilityai/stable-diffusion-3-medium-diffusers", kind="img2img", res=1024),
-}
-
 FIELDS = ["editor", "model", "variant", "image", "prompt_index", "prompt", "resolution", "steps",
           "guidance_scale", "image_guidance_scale", "strength", "seed", "seconds", "png",
           "id_orig", "arcface_orig", "face_found_orig", "face_found_edit"]
-
-
-def to_pil(x01: torch.Tensor) -> Image.Image:
-    arr = (x01[0].clamp(0, 1).cpu().permute(1, 2, 0).numpy() * 255).round().astype(np.uint8)
-    return Image.fromarray(arr)
-
-
-def to_tensor(img: Image.Image, device) -> torch.Tensor:
-    arr = np.array(img.convert("RGB")).astype(np.float32) / 255.0
-    return torch.from_numpy(arr).permute(2, 0, 1).unsqueeze(0).to(device)
-
-
-def load_pipeline(editor: str):
-    spec = EDITORS[editor]
-    if editor == "sdxl-ip2p":
-        from diffusers import StableDiffusionXLInstructPix2PixPipeline as Pipe
-    elif editor == "sd3-ultraedit":
-        from ultraedit_sd3_pipeline import StableDiffusion3InstructPix2PixPipeline as Pipe
-    elif editor == "sdxl-img2img":
-        from diffusers import StableDiffusionXLImg2ImgPipeline as Pipe
-    else:
-        from diffusers import StableDiffusion3Img2ImgPipeline as Pipe
-    pipe = Pipe.from_pretrained(spec["repo"], torch_dtype=torch.float16)
-    pipe.set_progress_bar_config(disable=True)
-    return pipe.to("cuda" if torch.cuda.is_available() else "cpu")
 
 
 def settings(args, kind: str, variants: list[str]) -> list[dict]:
@@ -170,9 +132,10 @@ def main() -> None:
         description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--editor", choices=sorted(EDITORS), required=True)
-    ap.add_argument("--data", type=Path, default=paths.PORTRAITS)
-    ap.add_argument("--out", type=Path, required=True,
-                    help="目錄名要帶進這一批的全部變因，CSV 檔名由它決定")
+    ap.add_argument("--data", type=Path, default=layout.PORTRAITS)
+    ap.add_argument("--out", type=Path, required=True, help="影像與對照圖的輸出目錄")
+    ap.add_argument("--out-csv", type=Path, required=True,
+                    help="這一批的 CSV；既有列視為已完成，續跑時沿用")
     ap.add_argument("--images", nargs="+", default=None, help="預設每個類別取第一張")
     ap.add_argument("--instruction-indices", nargs="+", type=int, default=[0, 1, 2, 3])
     ap.add_argument("--steps", type=int, default=30)
@@ -203,7 +166,7 @@ def main() -> None:
 
     out_dir = args.out
     out_dir.mkdir(parents=True, exist_ok=True)
-    out_csv = paths.RESULTS / f"sd_family_{out_dir.name}.csv"
+    out_csv = args.out_csv
     rows = load_rows(out_csv)
     for r in rows:
         r["variant"] = r.get("variant") or "verbatim"

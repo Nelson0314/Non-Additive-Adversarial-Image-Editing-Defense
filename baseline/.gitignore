@@ -1,16 +1,6 @@
-# 影像不入版控，與 `anti-purification/.gitignore` 同一條規則：防禦圖、編輯圖與
-# 淨化圖都能由已記錄的參數與種子重跑出來，屬於可重新產生的中間產物；
-# 量測結果（CSV）不可重現，一律保留。
-#
-# 這裡是 4.1 GB 的 PNG（edit_purified 3.5 G、edit_defended 571 M、
-# defence_portraits 70 M、edit_preflight 39 M）。git 的歷史會永久保留 blob，
-# 進去就拿不出來，所以照既有規則排除。
-images/
-
-# `images/masks/` 的八張也在排除範圍內。它們是實驗的輸入而非產物，但
-# `../data/portraits/masks/` 已有逐位元相同的一份，這裡再收一份就是重複。
-#
-# 要在這裡收回某個子目錄的話，上面那行必須寫成 `images/*`：被排除的目錄
-# 底下的檔案無法再用 `!` 收回，寫 `images/` 會連 `!images/masks/` 一起
-# 失效，且不會有任何錯誤訊息（`git check-ignore -v <路徑>` 可驗）。
+# 影像產物、執行狀態與暫時性嘗試不入版控：影像可由已記錄的參數與種子重新產生，
+# 量測結果（results/ 的 CSV）不可重現，一律入版控。
+artifacts/
+runtime/
+trials/
 .pytest_cache/

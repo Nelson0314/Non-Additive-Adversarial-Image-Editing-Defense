@@ -1,14 +1,14 @@
 """主表十二個條件的規格釘樁。
 
 **為什麼要有這一支。** 主線目錄的 `tests/test_baselines.py` 斷言
-`set(AUDIT) == set(REGISTRY)`，而那個 `REGISTRY` 只收共用 `src/baselines/pgd.py`
+`set(AUDIT) == set(REGISTRY)`，而那個 `REGISTRY` 只收共用 `immunization_baseline/attacks/pgd.py`
 骨幹的六個 spec（`photoguard_c`、`mist`、`dia_pt`、`dia_r`、`advpaint`、
 `promptflare`）。它與主表十二列的交集只有四個：`photoguard_c`、`mist`、
 `dia_pt`、`dia_r`。其餘八列走各自的模組（`dct_shield` 有自己的 `DCTShieldSpec`
 與自己的 `REGISTRY`，`dayn`／`sifm`／`danp`／`diffvax` 各自獨立，
 `color` 走本專案的顏色載體（`lab/code/color_defence.py`）），**改動它們的常數不會有任何測試失敗**。
 
-這一支釘的是**已交付的讀數自己記下的設定**：`results/defence_<方法>.csv` 的
+這一支釘的是**已交付的讀數自己記下的設定**：`results/defense_<方法>.csv` 的
 求解欄位、讀數 CSV 的規模與鍵、以及協定欄位。它不重跑求解，也不判定任何條件
 的好壞——只確保重跑後寫出來的設定與已發布的主表是同一組。
 
@@ -19,14 +19,10 @@
 from __future__ import annotations
 
 import csv
-import sys
-from pathlib import Path
 
 import pytest
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "code"))
-
-import paths  # noqa: E402
+from immunization_baseline import layout
 
 E = 1.0 / 255.0
 
@@ -72,7 +68,7 @@ PROMPT_INDICES = ("0", "1", "2", "3")
 
 
 def read(name: str) -> list[dict]:
-    with (paths.RESULTS / name).open(encoding="utf-8", newline="") as stream:
+    with (layout.RESULTS / name).open(encoding="utf-8", newline="") as stream:
         return list(csv.DictReader(stream))
 
 
@@ -82,7 +78,7 @@ def number(text: str):
 
 @pytest.mark.parametrize("condition", sorted(SOLVER))
 def test_solver_settings_match_the_published_table(condition):
-    rows = read(f"defence_{condition}.csv")
+    rows = read(f"defense_{condition}.csv")
     eps, eps01, norm, steps, reps, modified = SOLVER[condition]
     for row in rows:
         assert row["condition"] == condition
@@ -104,7 +100,7 @@ def test_solver_settings_match_the_published_table(condition):
 
 @pytest.mark.parametrize("condition", sorted(SOLVER))
 def test_each_condition_covers_the_eight_images_once(condition):
-    rows = read(f"defence_{condition}.csv")
+    rows = read(f"defense_{condition}.csv")
     assert len(rows) == len(IMAGES)
     assert sorted(r["image"] for r in rows) == sorted(IMAGES)
 
@@ -112,14 +108,14 @@ def test_each_condition_covers_the_eight_images_once(condition):
 @pytest.mark.parametrize("condition,eps01", sorted(VALUE_RANGE_TABLE.items()))
 def test_value_range_table_agrees_with_the_csv(condition, eps01):
     """`SOURCE_AUDIT.md` §10 的像素域 eps 與求解 CSV 記的是同一個數。"""
-    rows = read(f"defence_{condition}.csv")
+    rows = read(f"defense_{condition}.csv")
     assert number(rows[0]["eps_pixel01"]) == pytest.approx(eps01)
 
 
 def test_modified_conditions_say_what_was_changed():
     """`modified_from_paper=True` 的列必須有 `modification_note`。"""
     for condition in sorted(SOLVER):
-        for row in read(f"defence_{condition}.csv"):
+        for row in read(f"defense_{condition}.csv"):
             if row["modified_from_paper"] == "True":
                 assert row["modification_note"].strip(), (
                     f"{condition} 標了 modified_from_paper 卻沒寫改了什麼")
@@ -127,7 +123,7 @@ def test_modified_conditions_say_what_was_changed():
 
 def test_every_condition_names_its_source():
     for condition in sorted(SOLVER):
-        for row in read(f"defence_{condition}.csv"):
+        for row in read(f"defense_{condition}.csv"):
             assert row["spec_source"].strip(), f"{condition} 沒有 spec_source"
 
 
@@ -164,16 +160,16 @@ def test_geometric_flag_matches_the_purifier_name():
 
 
 @pytest.mark.parametrize("name,rows", [
-    ("metrics_displacement_union.csv", 768),
-    ("metrics_retention_union.csv", 5376),
-    ("metrics_fidelity_union.csv", 96),
-    ("metrics_aesthetic_union.csv", 104),
+    ("additional_metrics/displacement.csv", 768),
+    ("additional_metrics/retention.csv", 5376),
+    ("additional_metrics/fidelity.csv", 96),
+    ("additional_metrics/aesthetic.csv", 104),
 ])
-def test_metric_union_tables_keep_their_size(name, rows):
+def test_additional_metric_tables_keep_their_size(name, rows):
     assert len(read(name)) == rows
 
 
 def test_fidelity_covers_twelve_conditions_times_eight_images():
-    rows = read("metrics_fidelity_union.csv")
+    rows = read("additional_metrics/fidelity.csv")
     assert len(rows) == len(SOLVER) * len(IMAGES) == 96
     assert {r["condition"] for r in rows} == set(SOLVER)

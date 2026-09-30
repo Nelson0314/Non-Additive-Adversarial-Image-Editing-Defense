@@ -48,7 +48,7 @@ sign 更新下不影響方向，此處照原始碼。
 import torch
 import torch.utils.checkpoint as ckpt
 
-from src.baselines.pgd import BaselineSpec, ValueRange
+from immunization_baseline.attacks.pgd import BaselineSpec, ValueRange
 
 DIA_RANGE = ValueRange(
     -1.0,

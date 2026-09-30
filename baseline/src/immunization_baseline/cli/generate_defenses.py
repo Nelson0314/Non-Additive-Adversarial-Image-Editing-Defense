@@ -17,10 +17,10 @@
 
 | 條件 | 求解端的 prompt | 出處 |
 |---|---|---|
-| `photoguard_c` | `""`（空字串） | 官方 notebook cell 10 實際執行的呼叫，`src/baselines/photoguard.py:114,122-125` |
+| `photoguard_c` | `""`（空字串） | 官方 notebook cell 10 實際執行的呼叫，`immunization_baseline/attacks/photoguard.py:114,122-125` |
 | `photoguard_linf` | `""`（空字串） | 同上，兩臂只差約束種類 |
-| `mist` | `"a painting"` | `mist_v3.py` 恆定值，`src/baselines/mist.py:54-55`；另吃目標影像 `../data/targets/MIST.png` |
-| `dia_r` / `dia_pt` | `""`（三個分支皆空） | `attack_setting.json`，`src/baselines/dia.py:62,228-229` |
+| `mist` | `"a painting"` | `mist_v3.py` 恆定值，`immunization_baseline/attacks/mist.py:54-55`；另吃目標影像 `data/targets/MIST.png` |
+| `dia_r` / `dia_pt` | `""`（三個分支皆空） | `attack_setting.json`，`immunization_baseline/attacks/dia.py:62,228-229` |
 | `dct_shield` / `dct_shield_y` | 無文字條件 | 損失是 `‖E(x')‖₂`，完全不經過 text encoder |
 | `dayn` / `sifm` / `danp` | 該類別的 `content` | 資料集的 `prompts.yaml`，**不是常數**，見下 |
 | `diffvax` | 無文字條件 | 推論端只有 immunizer 的一次前向；prompt 只在訓練時進 `L_edit` |
@@ -30,7 +30,7 @@
 1×1 Conv、無 activation），掛不上其餘條件的失真錨點。遮罩讀
 `<data>/masks/<影像>.png`，權重由 `--diffvax-ckpt` 指定。
 
-**TDAE 不在這個表裡。** 依論文重建的模組仍在 `src/baselines/tdae.py`，但它
+**TDAE 不在這個表裡。** 依論文重建的模組仍在 `immunization_baseline/attacks/tdae.py`，但它
 沒有被接進本檔的條件集合；理由見 `docs/reference/AUDIT_TDAE.md` 的
 「為什麼不進本次的外部比較」。
 
@@ -73,39 +73,34 @@ CSV 的 `solver_prompt_source` 欄逐列寫明這件事。SIFM 與 DANP 因此�
     {out}/results.csv                  **逐列寫入**，不是跑完才寫
 
 用法
-    python code/defence_run.py --out images/defence_portraits/photoguard_c \\
-        --conditions photoguard_c --images man_00 man_01
+    python -m immunization_baseline.cli.generate_defenses \\
+        --out artifacts/defenses/photoguard_c --conditions photoguard_c --images man_00 man_01
 """
 
 from __future__ import annotations
 
 import argparse
-import sys
 import time
 from dataclasses import replace
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-
-import paths  # noqa: E402
-
-paths.add_source_to_syspath()
-
 import torch  # noqa: E402
 import yaml  # noqa: E402
 
-from src.baselines import danp, dayn, dia, diffvax, mist, photoguard, sifm  # noqa: E402
-from src.baselines.pgd import run_pgd  # noqa: E402
-from src.baselines.dct_shield import (  # noqa: E402
+from immunization_baseline import layout  # noqa: E402
+
+from immunization_baseline.attacks import danp, dayn, dia, diffvax, mist, photoguard, sifm  # noqa: E402
+from immunization_baseline.attacks.pgd import run_pgd  # noqa: E402
+from immunization_baseline.attacks.dct_shield import (  # noqa: E402
     PAPER_DEFAULT_QUALITY, PAPER_EPS, PAPER_GAMMA, PAPER_JPEG_FIG_QUALITY,
     PAPER_STEPS,
     DCTShieldSpec, run_dct_shield,
 )
-from src.metrics.standard import standard_row  # noqa: E402
-from src.metrics.suite import MetricSuite  # noqa: E402
-from src.models.sd import SDWrapper  # noqa: E402
-from src.utils.artifacts import save_image  # noqa: E402
-from src.utils.io import load_image_tensor, write_csv  # noqa: E402
+from immunization_core.metrics.standard import standard_row  # noqa: E402
+from immunization_core.metrics.suite import MetricSuite  # noqa: E402
+from immunization_core.editors.stable_diffusion import SDWrapper# noqa: E402
+from immunization_core.artifacts.images import save_image  # noqa: E402
+from immunization_core.io import load_image_tensor, write_csv  # noqa: E402
 
 MODEL_NAME = "CompVis/stable-diffusion-v1-4"
 RESOLUTION = 512
@@ -135,8 +130,8 @@ DCT_CONDITIONS = ("dct_shield", "dct_shield_y")
 # DiffVax 不是逐影像最佳化：一個訓練好的 UNet++ 前向一次就吐出擾動，所以
 # `BaselineSpec` 的每一欄（`eps`／`steps`／`step_size`／`update_rule`／
 # `loss_fn`）在它身上都沒有對應值，不進 `PGD_SPECS`，也不進
-# `src.baselines.REGISTRY`（`tests/test_baselines.py` 以 `AUDIT == REGISTRY`
-# 稽核那張表）。接法照 `src/baselines/diffvax.py` 的「怎麼接進本專案的評測」：
+# `immunization_baseline.attacks.REGISTRY`（`tests/test_baselines.py` 以 `AUDIT == REGISTRY`
+# 稽核那張表）。接法照 `immunization_baseline/attacks/diffvax.py` 的「怎麼接進本專案的評測」：
 # `load_immunizer` 載一次，之後逐張 `immunise`。
 #
 # 它與其餘十個條件有兩處不同，報表要分開標：
@@ -344,7 +339,7 @@ def solve(sd, cond: str, x01: torch.Tensor, seed: int,
         # fused 模式：兩次 VAE 編碼與一次完整 UNet 前向在同一張圖上，
         # 不開 checkpoint 會 OOM。目標影像是該篇自己的 MIST.png。
         kw = {"use_ckpt": True, "vae_ckpt": True,
-              "target01": load_image_tensor(paths.TARGETS / "MIST.png",
+              "target01": load_image_tensor(layout.TARGETS / "MIST.png",
                                             sd.device, size=RESOLUTION)}
     elif cond.startswith("dia"):
         # DIA 把整條反演（R 再加整條重建）留在同一張圖上，兩個開關都要開。
@@ -386,7 +381,7 @@ def main() -> None:
     ap = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--out", type=Path, required=True)
-    ap.add_argument("--data", type=Path, default=paths.PORTRAITS)
+    ap.add_argument("--data", type=Path, default=layout.PORTRAITS)
     ap.add_argument("--images", nargs="+", default=None)
     ap.add_argument("--conditions", nargs="+", default=None)
     ap.add_argument("--seed", type=int, default=0)

@@ -101,7 +101,7 @@ epoch 數、沒有 early stopping、`torch.save` 只在跑完或 loss 變 NaN �
 DiffVax 一項都沒有；且 `tests/test_baselines.py` 以 `AUDIT == REGISTRY`
 稽核，塞進去會讓那份稽核表失去意義。接法是在批次腳本裡直接呼叫：
 
-    from src.baselines.diffvax import immunise, load_immunizer
+    from immunization_baseline.attacks.diffvax import immunise, load_immunizer
 
     model = load_immunizer(ckpt_path, device=device)          # 一次
     for item in items:                                        # 每張

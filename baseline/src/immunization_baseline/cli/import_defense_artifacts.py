@@ -4,7 +4,7 @@
 ────────────────────────────────────────────────────────────────────
 `../scripts/immunise.py` 的輸出是逐結構的 `<名稱>__<結構>__def.png` 加上選中的
 `<名稱>__immunised.png`；`../scripts/paper_baseline.py` 的輸出是
-`<名稱>__<臂>__defended.png`；`defence_run.py` 的輸出則是
+`<名稱>__<臂>__defended.png`；`generate_defenses` 的輸出則是
 `<名稱>__<條件>__def.png` 與一份 `results*.csv`。下游（`--defended`、淨化、
 版面、主表）都照最後那個版面讀檔，所以前兩者要先換成那個版面才能並列。
 
@@ -14,32 +14,27 @@
 **保真那一欄在這裡重算，不從 `immunise.csv` 搬。** 那份 CSV 的欄位是求解端
 自己的診斷量（score、違反量、λ），與其他條件的 `fid_*` 不是同一個定義；
 搬過來會讓主表同一欄底下混進兩種量法。這裡走 `MetricSuite.pairwise` 與
-`standard_row`，與 `defence_run.py` 同一段程式、同一份權重。
+`standard_row`，與 `generate_defenses` 同一段程式、同一份權重。
 
 用法
-    python code/immunise_as_condition.py --run ../runs/immunise_portraits \\
-        --out images/defence_portraits/colour_curve_ours
+    python -m immunization_baseline.cli.import_defense_artifacts --run <求解輸出目錄> \\
+        --out artifacts/defenses/colour_curve_ours
 """
 
 from __future__ import annotations
 
 import argparse
-import sys
 import time
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-
-import paths  # noqa: E402
-
-paths.add_source_to_syspath()
+from immunization_baseline import layout  # noqa: E402
 
 import torch  # noqa: E402
 
-from src.metrics.standard import standard_row  # noqa: E402
-from src.metrics.suite import MetricSuite  # noqa: E402
-from src.utils.artifacts import save_image  # noqa: E402
-from src.utils.io import load_image_tensor, write_csv  # noqa: E402
+from immunization_core.metrics.standard import standard_row  # noqa: E402
+from immunization_core.metrics.suite import MetricSuite  # noqa: E402
+from immunization_core.artifacts.images import save_image  # noqa: E402
+from immunization_core.io import load_image_tensor, write_csv  # noqa: E402
 
 RESOLUTION = 512
 
@@ -67,7 +62,7 @@ def main() -> None:
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--run", type=Path, required=True,
                         help="immunise.py 的輸出目錄")
-    parser.add_argument("--data", type=Path, default=paths.PORTRAITS)
+    parser.add_argument("--data", type=Path, default=layout.PORTRAITS)
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--condition", default=None,
                         help="條件名。預設取 --variant，沒有 --variant 時是 colour")

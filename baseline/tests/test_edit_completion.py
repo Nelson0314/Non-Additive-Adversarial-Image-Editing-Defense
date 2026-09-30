@@ -1,12 +1,9 @@
 import csv
-import sys
-from pathlib import Path
 
 from PIL import Image
 import pytest
 
-sys.path.insert(0, str(Path(__file__).parents[1] / "code"))
-from check_edit_complete import validate_stage
+from immunization_baseline.cli.check_edit_completion import validate_stage
 
 
 def stage(tmp_path):

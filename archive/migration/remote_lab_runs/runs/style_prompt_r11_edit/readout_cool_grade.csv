@@ -1,0 +1,37 @@
+C_lpips_background,C_lpips_full,C_lpips_subject,C_undef_lpips_background,C_undef_lpips_full,C_undef_lpips_subject,D_lpips_background,D_lpips_full,D_lpips_subject,D_pair_lpips_background,D_pair_lpips_full,D_pair_lpips_subject,image,prompt,prompt_index,strength,style
+0.10884,0.10056,0.09545,0.08729,0.12227,0.14383,0.1816,0.13938,0.11336,,,,man_01,Let the person wear sunglasses,0,ref,cool_grade
+0.09474,0.20302,0.26975,0.1139,0.25689,0.34501,0.14043,0.16797,0.18494,,,,man_01,Let the person wear a police suit,1,ref,cool_grade
+0.07876,0.0858,0.09013,0.09059,0.12699,0.14943,0.14386,0.13378,0.12756,,,,man_01,Let the person wear a helmet,2,ref,cool_grade
+0.08703,0.1938,0.25961,0.09862,0.22282,0.29936,0.15647,0.17776,0.19088,,,,man_01,Let the person wear a bowtie,3,ref,cool_grade
+0.06241,0.06264,0.06282,0.07404,0.09787,0.11574,0.12511,0.08258,0.05068,,,,man_02,Let the person wear sunglasses,0,ref,cool_grade
+0.14315,0.21397,0.26709,0.12842,0.22905,0.30452,0.15294,0.12942,0.11179,,,,man_02,Let the person wear a police suit,1,ref,cool_grade
+0.08636,0.09025,0.09316,0.08993,0.12176,0.14563,0.13057,0.08783,0.05577,,,,man_02,Let the person wear a helmet,2,ref,cool_grade
+0.16258,0.17047,0.17638,0.16457,0.20162,0.22942,0.1789,0.118,0.07232,,,,man_02,Let the person wear a bowtie,3,ref,cool_grade
+0.0697,0.08695,0.09994,0.09991,0.12635,0.14625,0.10321,0.09844,0.09485,,,,woman_02,Let the person wear sunglasses,0,ref,cool_grade
+0.09517,0.15202,0.19483,0.1344,0.21074,0.26824,0.0872,0.10759,0.12295,,,,woman_02,Let the person wear a police suit,1,ref,cool_grade
+0.08064,0.10775,0.12817,0.13681,0.1814,0.21499,0.12773,0.13368,0.13816,,,,woman_02,Let the person wear a helmet,2,ref,cool_grade
+0.07651,0.0922,0.10401,0.10364,0.13468,0.15807,0.10246,0.10228,0.10214,,,,woman_02,Let the person wear a bowtie,3,ref,cool_grade
+0.13672,0.13772,0.13834,0.08729,0.12227,0.14383,0.30489,0.26118,0.23424,0.17939,0.15272,0.13629,man_01,Let the person wear sunglasses,0,xattn_m01,cool_grade
+0.06461,0.21566,0.30876,0.1139,0.25689,0.34501,0.29412,0.32575,0.34525,0.19472,0.23592,0.26131,man_01,Let the person wear a police suit,1,xattn_m01,cool_grade
+0.06639,0.10044,0.12142,0.09059,0.12699,0.14943,0.28859,0.28671,0.28556,0.18503,0.18197,0.18009,man_01,Let the person wear a helmet,2,xattn_m01,cool_grade
+0.06506,0.1859,0.26038,0.09862,0.22282,0.29936,0.30988,0.34484,0.36638,0.19909,0.23208,0.25241,man_01,Let the person wear a bowtie,3,xattn_m01,cool_grade
+0.06662,0.08672,0.10187,0.09991,0.12635,0.14625,0.11129,0.10669,0.10322,0.05796,0.06536,0.07093,woman_02,Let the person wear sunglasses,0,xattn_w02,cool_grade
+0.09666,0.17818,0.23956,0.1344,0.21074,0.26824,0.10084,0.12096,0.1361,0.05225,0.0813,0.10318,woman_02,Let the person wear a police suit,1,xattn_w02,cool_grade
+0.09364,0.13447,0.16522,0.13681,0.1814,0.21499,0.1414,0.13816,0.13572,0.0571,0.07426,0.08718,woman_02,Let the person wear a helmet,2,xattn_w02,cool_grade
+0.07527,0.09208,0.10474,0.10364,0.13468,0.15807,0.11324,0.12531,0.13439,0.06553,0.09275,0.11325,woman_02,Let the person wear a bowtie,3,xattn_w02,cool_grade
+0.06372,0.06545,0.06674,0.07404,0.09787,0.11574,0.09903,0.07144,0.05075,0.05737,0.03386,0.01623,man_02,Let the person wear sunglasses,0,xattn_m02,cool_grade
+0.13764,0.208,0.26077,0.12842,0.22905,0.30452,0.11994,0.10645,0.09632,0.06815,0.05497,0.0451,man_02,Let the person wear a police suit,1,xattn_m02,cool_grade
+0.08787,0.09393,0.09848,0.08993,0.12176,0.14563,0.10477,0.07298,0.04913,0.06309,0.03994,0.02257,man_02,Let the person wear a helmet,2,xattn_m02,cool_grade
+0.16775,0.17673,0.18346,0.16457,0.20162,0.22942,0.13386,0.09283,0.06205,0.07434,0.04577,0.02433,man_02,Let the person wear a bowtie,3,xattn_m02,cool_grade
+0.09568,0.09393,0.09285,0.08729,0.12227,0.14383,0.33582,0.24129,0.18302,0.18158,0.11421,0.07269,man_01,Let the person wear sunglasses,0,chaos_m01,cool_grade
+0.10148,0.17696,0.22348,0.1139,0.25689,0.34501,0.32104,0.3128,0.30772,0.19281,0.18828,0.18549,man_01,Let the person wear a police suit,1,chaos_m01,cool_grade
+0.08915,0.09145,0.09287,0.09059,0.12699,0.14943,0.32679,0.24559,0.19555,0.19731,0.12101,0.07398,man_01,Let the person wear a helmet,2,chaos_m01,cool_grade
+0.10208,0.20228,0.26404,0.09862,0.22282,0.29936,0.32806,0.28342,0.25591,0.1919,0.12242,0.0796,man_01,Let the person wear a bowtie,3,chaos_m01,cool_grade
+0.04242,0.06635,0.08438,0.09991,0.12635,0.14625,0.22882,0.19035,0.16139,0.12066,0.09659,0.07847,woman_02,Let the person wear sunglasses,0,chaos_w02,cool_grade
+0.06597,0.16845,0.24563,0.1344,0.21074,0.26824,0.19941,0.22177,0.23861,0.1227,0.16456,0.19608,woman_02,Let the person wear a police suit,1,chaos_w02,cool_grade
+0.06798,0.10705,0.13647,0.13681,0.1814,0.21499,0.24843,0.21226,0.18501,0.14339,0.13303,0.12522,woman_02,Let the person wear a helmet,2,chaos_w02,cool_grade
+0.05184,0.0785,0.09858,0.10364,0.13468,0.15807,0.24549,0.21312,0.18874,0.13777,0.12511,0.11557,woman_02,Let the person wear a bowtie,3,chaos_w02,cool_grade
+0.06278,0.06422,0.0653,0.07404,0.09787,0.11574,0.3043,0.26632,0.23783,0.19435,0.20203,0.20779,man_02,Let the person wear sunglasses,0,chaos_m02,cool_grade
+0.16347,0.25326,0.3206,0.12842,0.22905,0.30452,0.3284,0.31295,0.30135,0.20496,0.2538,0.29043,man_02,Let the person wear a police suit,1,chaos_m02,cool_grade
+0.08953,0.09179,0.09348,0.08993,0.12176,0.14563,0.31775,0.26882,0.23213,0.20029,0.2044,0.20749,man_02,Let the person wear a helmet,2,chaos_m02,cool_grade
+0.14181,0.16866,0.1888,0.16457,0.20162,0.22942,0.29876,0.25216,0.21721,0.18394,0.19037,0.19519,man_02,Let the person wear a bowtie,3,chaos_m02,cool_grade

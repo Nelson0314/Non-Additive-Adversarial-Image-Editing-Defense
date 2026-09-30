@@ -529,3 +529,18 @@ python archive/migration/rename_csv_columns.py color/artifacts style/artifacts b
 新增 `test_job_finishing_during_readiness_check_is_not_relaunched`：runner 執行期間讓 `--depends` 延遲，固定上述交錯順序。修正前在 Linux 上 3／3 次失敗（`['only', 'only']`），修正後 `test_gpu_scripts.py` 連跑 5 次皆 26 passed。原斷言未放寬，未 skip。
 
 vendor 已重新匯出（baseline、color、style 的 `vendor/scripts/queue_worker.sh`）。測試：core 177（21 deselected）、baseline 78、color 41、style 20 passed。style 的 `run_style_prompt_jobs.sh` 以行程內旗標 `OPT`／`EDT` 記錄已派工作，不經此判斷，不受影響。遠端若有以舊版 `queue_worker.sh` 執行中的佇列，需在第 10 項切換時改用新版。
+
+## 第 10 項：遠端重整（協調端）
+
+- 遠端 `~/image-immunization` 改為 GitHub `main` 的 clone（`git clone --depth 1`，簽出 `b95c6e0`）；之後以 `git pull` 同步，不再以 `git archive` 傳送。
+- `archive/migration/remote_migrate.py` 依第 4、5 項的目錄對照，把舊樹的產物以同一 NFS 上的 rename 搬入新樹：baseline 27 組、color 9 組、style 8 組；color、style 讀的未防禦編輯改為各自的複本（原為指向主表的連結）；`baseline/artifacts/purified_edits_aligned/undefended` 改為專案內相對連結 `../purified_edits/undefended`。
+  搬遷後容量：`baseline/artifacts` 9.6 GB、`color/artifacts` 814 MB、`style/artifacts` 105 MB、`archive` 4.7 GB。
+- 舊研究樹逐檔併入 `archive/anti-purification/`：與版控相同 519 檔、僅換行不同 521 檔、內容不同 13 檔（皆為 repo 版本較新），這三類留在 `~/image-immunization.old`。遠端獨有且未入版控的檔案（約 1,080 份 log／CSV／JSON／txt 與少量影像）依使用者指示刪除。`archive/` 內另有 147 個指向已不存在目錄（例如 `WACV-s4`）的舊連結，依封存規則不修改。
+- 遠端 CSV 欄名：`rename_csv_columns.py` 改寫 `artifacts/` 內 290 份表，`--check` 回傳 0。
+- `import-hashes` 補值：原匯入中繼目錄已不存在，依原命名由 `color/artifacts/defenses/color/*__color__def.png` 複製重建 `baseline/artifacts/color_import/`（8 張；baseline 與 color 的防禦圖逐位元相同）。`baseline/results/defense_color.csv` 補成新 schema，遠端寫出 `baseline/artifacts/defenses/color/import_manifest.json`。
+- `~/env.sh` 移除舊版面的 `PYTHONPATH` 與 `cd` 兩行（備份 `~/env.sh.bak`）；其餘為機器設定（`PY`、`HF_HOME`、`DIFFPURE_CKPT`）。
+
+### 未完成
+
+1. `requirements.lock`：遠端 venv（`~/venvs/wacv`）由 `uv` 建立、沒有 `pip`，`freeze_env.py` 依設計中止。需改為支援 `uv pip freeze --python <直譯器>`（第 13 項），之後由協調端在遠端產生。
+2. 租約目錄仍為 `~/lab_leases`（所有取卡入口的共用預設）。

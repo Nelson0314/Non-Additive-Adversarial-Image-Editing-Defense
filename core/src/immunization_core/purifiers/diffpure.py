@@ -128,20 +128,20 @@ def _load_guided(ckpt=None, device=None):
     另外引入一個變因。速度差異相對 4,050 格的總成本可忽略。
     """
     import torch as _torch
-    from guided_diffusion.script_util import (
-        create_model_and_diffusion, model_and_diffusion_defaults,
-    )
-
     p = diffpure_checkpoint_path(ckpt)
     if p is None or not p.exists():
         raise FileNotFoundError(
             f"找不到 DiffPure 的檢查點。請設環境變數 {DIFFPURE_CKPT_ENV} 指向 "
-            f"{DIFFPURE_CHECKPOINT}，或以 `scripts/fetch_diffpure.py` 下載。"
+            f"{DIFFPURE_CHECKPOINT}，或以 ckpt 參數明確指定檔案。"
             f"（來源 {DIFFPURE_CHECKPOINT_SOURCE}，2.2 GB，不入版控）"
         )
     key = (str(p), str(device))
     if key in _CACHE:
         return _CACHE[key]
+
+    from guided_diffusion.script_util import (
+        create_model_and_diffusion, model_and_diffusion_defaults,
+    )
 
     cfg = model_and_diffusion_defaults()
     cfg.update(DIFFPURE_MODEL_CONFIG)

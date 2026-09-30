@@ -1,9 +1,9 @@
 {
-  "commit": "85663a7cf77048859bbf6e03a5e54e2a3ebd9bba",
+  "commit": "cd9b97f9b206d3ade1aea3c5c09793b3859de167",
   "components": {
     "immunization_core": {
       "source": "core/src/immunization_core",
-      "tree": "f9302b3f7a23449497a0167fa5d4dd91c31263a2",
+      "tree": "a722a6901f4cfb3e67953c3cba459e498f063bcd",
       "files": {
         "__init__.py": "a084fcf45d32a78c5e2408e8330f39ee3f8b6d218cb36cb082da6bee7233235c",
         "artifacts/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
@@ -11,6 +11,7 @@
         "artifacts/layout.py": "c4a6069d19fb4f6d6e519aafc88d8a9996484130d4768c2c9d838eb7e27d9182",
         "color/__init__.py": "6e4dcd217bc888ec8e3d89c87f932f4b45e827681f7eab22b301503701115cb2",
         "color/difference.py": "3510d4741e9e182e277d7bf3fca400e88e640085bda7ca7fa7d3ef00923da2ff",
+        "color/shift.py": "9d1296b43ae52b8479a3fc9fa551633d0aa4e404bfb009ebf1feb6d8c85e93b1",
         "color/space.py": "5da4b85f904c2aa104c60a2ca500c16502a3804fc8230f325049c90780d9fecc",
         "color/uniformity.py": "91ff5affbdeafec6a3854101232a0ef593d5f5d059a583914291047e7809c882",
         "editors/__init__.py": "9430c052ac1f9181d83d2c39971b7c9c0c748035fdaf5cb57716fb3b5a152657",
@@ -19,7 +20,7 @@
         "editors/instruct_pix2pix.py": "e777c5b4f099f048eda8c92b8a147a76bd2a446092a64bee0034e387227feb08",
         "editors/stable_diffusion.py": "235a80814a7639af9002b769aa78c3b36c588d8811b9192d0453ac78bcbaccd8",
         "editors/stable_diffusion_xl.py": "2ea07627c2109698a713710f4097453d02ab54a2c8d3b4f8c0d9abd38a6299b9",
-        "io.py": "7e0903856ec7ebf4576af84010c1d13a1dda4f09f5274755bd82498954c0417c",
+        "io.py": "ba232f8051b8ad71f0dc6556b35408ec5f7bec70e0673bdf783a2a32f67f52cc",
         "metrics/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
         "metrics/acutance.py": "4d0904409eebe7dd8b2a75ab16ac8b04f5072b72ead3dc3f87fe2356021c546a",
         "metrics/arcface.py": "fd6387678308a82b094ab3e2609794de42fbcfa04f01edc9975df1d8e23f7a2f",
@@ -28,6 +29,7 @@
         "metrics/standard.py": "28066b0c08ba404c2a782cbabc46c1fd16b22d5707a50ba65f1ddea927491670",
         "metrics/suite.py": "fbfa0f19610b0c90903a3c13d39c54b4489dcfe217c545779c6d25451a44491a",
         "optimization/__init__.py": "5cd3e24b6d6d6a6b28f19e55d59bdf8908884e3333791b36406eb949fbaea7a9",
+        "optimization/attention.py": "ac993d957fe17f0d682aa66abd82ea5aa8bf40818806529633c212e31c519161",
         "optimization/carrier.py": "3a1c4fa38ffe8e40d27f66bb1b0308a6225f3dfd7ce9721d349591651703368c",
         "optimization/instruction_free.py": "aa66aa48d599046cffbb957b17797f7a819b3271c26940d4ca3352911493142b",
         "pipelines/__init__.py": "4cd2c7db6f5cef4f6615e2cbbadc9497a9f2a06cc5adcfd9f5fc277a9921676e",
@@ -48,9 +50,9 @@
     },
     "scripts": {
       "source": "core/scripts",
-      "tree": "6f11d5a51fe18eecb8f25237e0bd81961137e987",
+      "tree": "6acf0553ea9ee4c92e8ecbc7350841433d52235c",
       "files": {
-        "export_vendor.py": "71ac1e433483605f02e198647a5e99a9f6b35fbc5769ac848cef7283a944aae2",
+        "export_vendor.py": "2e0abb4c111f707d858369bc2c60c2ebbf8760a97d3343a8f4754e110a8e94af",
         "free_cards.sh": "b8e0674d18614329af034f7eb8b9b755e228673d4461805c5db5fb20a4a1875f",
         "gpu_lease.sh": "e581ea7a92c3e84a42158c486928f151e9cda800f405aeec2c7c3f40a3fb28f3",
         "gpu_policy.sh": "269917ee259134e608a22a4280136100ad0a3f4b98b67aff33696f603fa13971",

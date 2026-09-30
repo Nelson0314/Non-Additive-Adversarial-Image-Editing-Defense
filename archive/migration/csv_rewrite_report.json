@@ -1,0 +1,3002 @@
+{
+ "baseline/results/additional_metrics/aesthetic.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 104
+  },
+  "key_columns": [
+   "condition",
+   "image"
+  ],
+  "manifest_blob": "152c3778b168f7eb1b46ec6ad0c0a6b7a5302074",
+  "manifest_path": "anti-purification/main_table/results/metrics_aesthetic_union.csv",
+  "rows": 104
+ },
+ "baseline/results/additional_metrics/displacement.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "condition",
+   "scenario",
+   "image",
+   "prompt_index"
+  ],
+  "manifest_blob": "ffd42c68190269cf68137fe960c0feca600c1384",
+  "manifest_path": "anti-purification/main_table/results/metrics_displacement_union.csv",
+  "rows": 768
+ },
+ "baseline/results/additional_metrics/fidelity.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 192
+  },
+  "key_columns": [
+   "condition",
+   "image"
+  ],
+  "manifest_blob": "a5f292ee42fd029717dbb4a86b0bdeb30c1230c0",
+  "manifest_path": "anti-purification/main_table/results/metrics_fidelity_union.csv",
+  "rows": 96
+ },
+ "baseline/results/additional_metrics/retention.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "condition",
+   "scenario",
+   "image",
+   "prompt_index",
+   "purifier"
+  ],
+  "manifest_blob": "d945c3825bf547181bd8f2fbc87d52e2e562bfc3",
+  "manifest_path": "anti-purification/main_table/results/metrics_retention_union.csv",
+  "rows": 5376
+ },
+ "baseline/results/additional_metrics/vmaf.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "condition",
+   "scenario",
+   "image",
+   "prompt_index",
+   "purifier",
+   "pairing"
+  ],
+  "manifest_blob": "8011c8f2f08edab7b68b39058dc6ab29a46e5fd5",
+  "manifest_path": "anti-purification/main_table/results/metrics_vmaf_union.csv",
+  "rows": 6240
+ },
+ "baseline/results/additive_transfer.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 704
+  },
+  "key_columns": [
+   "condition",
+   "arm",
+   "scenario",
+   "image",
+   "prompt_index"
+  ],
+  "manifest_blob": "09e99ffdad0293762abe66ffbc2d51e9a57c2930",
+  "manifest_path": "anti-purification/main_table/results/passthrough.csv",
+  "rows": 704
+ },
+ "baseline/results/aligned/defense_danp.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 8
+  },
+  "key_columns": [
+   "condition",
+   "image"
+  ],
+  "manifest_blob": "c769ca84d0a66f4063ee030ab333bc305bc65827",
+  "manifest_path": "anti-purification/main_table/results/aligned/defence_danp_aligned.csv",
+  "rows": 8
+ },
+ "baseline/results/aligned/defense_dayn.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 8
+  },
+  "key_columns": [
+   "condition",
+   "image"
+  ],
+  "manifest_blob": "d72d87d42a9cbd7248d6f0956628f2ea16de3ffc",
+  "manifest_path": "anti-purification/main_table/results/aligned/defence_dayn_aligned.csv",
+  "rows": 8
+ },
+ "baseline/results/aligned/defense_dct_shield.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 8
+  },
+  "key_columns": [
+   "condition",
+   "image"
+  ],
+  "manifest_blob": "fadd216aebfb329060d27f354be299c528cf5915",
+  "manifest_path": "anti-purification/main_table/results/aligned/defence_dct_shield_aligned.csv",
+  "rows": 8
+ },
+ "baseline/results/aligned/defense_dct_shield_y.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 8
+  },
+  "key_columns": [
+   "condition",
+   "image"
+  ],
+  "manifest_blob": "3c0a8cc09504b469ec33da75b6bff298db4e6c0a",
+  "manifest_path": "anti-purification/main_table/results/aligned/defence_dct_shield_y_aligned.csv",
+  "rows": 8
+ },
+ "baseline/results/aligned/defense_dia_pt.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 8
+  },
+  "key_columns": [
+   "condition",
+   "image"
+  ],
+  "manifest_blob": "757b6900d16544fa4c50f1e504504557cbc8781d",
+  "manifest_path": "anti-purification/main_table/results/aligned/defence_dia_pt_aligned.csv",
+  "rows": 8
+ },
+ "baseline/results/aligned/defense_dia_r.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 8
+  },
+  "key_columns": [
+   "condition",
+   "image"
+  ],
+  "manifest_blob": "8b535fb03f0e6b2d62cc7425e35249041acefce8",
+  "manifest_path": "anti-purification/main_table/results/aligned/defence_dia_r_aligned.csv",
+  "rows": 8
+ },
+ "baseline/results/aligned/defense_mist.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 8
+  },
+  "key_columns": [
+   "condition",
+   "image"
+  ],
+  "manifest_blob": "013241dd909ffb1ecf9ba7434b7c74c1a1ddb828",
+  "manifest_path": "anti-purification/main_table/results/aligned/defence_mist_aligned.csv",
+  "rows": 8
+ },
+ "baseline/results/aligned/defense_photoguard_c.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 8
+  },
+  "key_columns": [
+   "condition",
+   "image"
+  ],
+  "manifest_blob": "a0e79d56e38665fa926329ebec5c1bb54631858b",
+  "manifest_path": "anti-purification/main_table/results/aligned/defence_photoguard_c_aligned.csv",
+  "rows": 8
+ },
+ "baseline/results/aligned/defense_photoguard_linf.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 8
+  },
+  "key_columns": [
+   "condition",
+   "image"
+  ],
+  "manifest_blob": "be5040b805bff03f1f9f47d155f539adca55b99a",
+  "manifest_path": "anti-purification/main_table/results/aligned/defence_photoguard_linf_aligned.csv",
+  "rows": 8
+ },
+ "baseline/results/aligned/defense_sifm.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 8
+  },
+  "key_columns": [
+   "condition",
+   "image"
+  ],
+  "manifest_blob": "4158d96e6e2d9eb659ca862f6401219793c040c3",
+  "manifest_path": "anti-purification/main_table/results/aligned/defence_sifm_aligned.csv",
+  "rows": 8
+ },
+ "baseline/results/aligned/deltae.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "condition"
+  ],
+  "manifest_blob": "9002551235a45ce21ebd95f6e84dd19767026947",
+  "manifest_path": "anti-purification/main_table/results/aligned/deltae.csv",
+  "rows": 10
+ },
+ "baseline/results/aligned/displacement.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 1280
+  },
+  "key_columns": [
+   "condition",
+   "arm",
+   "scenario",
+   "image",
+   "prompt_index"
+  ],
+  "manifest_blob": "e42ea3e0c0158452f182ed2e33615b9067ea963f",
+  "manifest_path": "anti-purification/main_table/results/aligned/displacement_aligned.csv",
+  "rows": 640
+ },
+ "baseline/results/aligned/retention.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "condition",
+   "scenario",
+   "image",
+   "prompt_index",
+   "purifier"
+  ],
+  "manifest_blob": "a1cb7e9acd3d3235499924bed2afe92a0807e9e7",
+  "manifest_path": "anti-purification/main_table/results/aligned/retention_aligned.csv",
+  "rows": 4480
+ },
+ "baseline/results/defense_color.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 8
+  },
+  "key_columns": [
+   "condition",
+   "image"
+  ],
+  "manifest_blob": "746980d11b376fbff04f288e62327bf09832024b",
+  "manifest_path": "anti-purification/main_table/results/defence_color.csv",
+  "rows": 8
+ },
+ "baseline/results/defense_danp.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "condition",
+   "image"
+  ],
+  "manifest_blob": "4dcfaf6c073bb9740cafa6fe58a132cb82e5a23a",
+  "manifest_path": "anti-purification/main_table/results/defence_danp.csv",
+  "rows": 8
+ },
+ "baseline/results/defense_dayn.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "condition",
+   "image"
+  ],
+  "manifest_blob": "df27a28e20802a06a3cb9e6f460b2fc7e1d05241",
+  "manifest_path": "anti-purification/main_table/results/defence_dayn.csv",
+  "rows": 8
+ },
+ "baseline/results/defense_dct_shield.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "condition",
+   "image"
+  ],
+  "manifest_blob": "f46877b369dbb02afd8094c9fbf2d9aa0dd8302f",
+  "manifest_path": "anti-purification/main_table/results/defence_dct_shield.csv",
+  "rows": 8
+ },
+ "baseline/results/defense_dct_shield_y.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "condition",
+   "image"
+  ],
+  "manifest_blob": "8e5c19de26cee9a07b2bc276027a8f5cdd75e047",
+  "manifest_path": "anti-purification/main_table/results/defence_dct_shield_y.csv",
+  "rows": 8
+ },
+ "baseline/results/defense_dia_pt.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "condition",
+   "image"
+  ],
+  "manifest_blob": "4836300c1d3d29916c4a381b3813ce799d70c7b8",
+  "manifest_path": "anti-purification/main_table/results/defence_dia_pt.csv",
+  "rows": 8
+ },
+ "baseline/results/defense_dia_r.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "condition",
+   "image"
+  ],
+  "manifest_blob": "990c91bf8240bd784636c53f217bd8c8b381826a",
+  "manifest_path": "anti-purification/main_table/results/defence_dia_r.csv",
+  "rows": 8
+ },
+ "baseline/results/defense_diffvax.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "condition",
+   "image"
+  ],
+  "manifest_blob": "b7c55e2244f1ff291fe6c1ca2b7a7d6393486a9a",
+  "manifest_path": "anti-purification/main_table/results/defence_diffvax.csv",
+  "rows": 8
+ },
+ "baseline/results/defense_mist.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "condition",
+   "image"
+  ],
+  "manifest_blob": "747f36532cd2da9f2f872b06f62eb1873d36e798",
+  "manifest_path": "anti-purification/main_table/results/defence_mist.csv",
+  "rows": 8
+ },
+ "baseline/results/defense_photoguard_c.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "condition",
+   "image"
+  ],
+  "manifest_blob": "7eaf59fddb4124b2fe7cdf069d5af516b7760934",
+  "manifest_path": "anti-purification/main_table/results/defence_photoguard_c.csv",
+  "rows": 8
+ },
+ "baseline/results/defense_photoguard_linf.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "condition",
+   "image"
+  ],
+  "manifest_blob": "93bc2d74606cb2aa7b93c66b1eac36da993b979f",
+  "manifest_path": "anti-purification/main_table/results/defence_photoguard_linf.csv",
+  "rows": 8
+ },
+ "baseline/results/defense_sifm.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "condition",
+   "image"
+  ],
+  "manifest_blob": "27fe5d419df077dd1cb64fe2d83785adaf046aae",
+  "manifest_path": "anti-purification/main_table/results/defence_sifm.csv",
+  "rows": 8
+ },
+ "baseline/results/displacement.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 1536
+  },
+  "key_columns": [
+   "condition",
+   "arm",
+   "scenario",
+   "image",
+   "prompt_index"
+  ],
+  "manifest_blob": "2251b08ea0babd2f988d76cb1adc733ca6887ae0",
+  "manifest_path": "anti-purification/main_table/results/displacement.csv",
+  "rows": 768
+ },
+ "baseline/results/flux/displacement.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "condition",
+   "image",
+   "prompt_index"
+  ],
+  "manifest_blob": "f4def0a1bca3b8d0e7851537e952d2330603a101",
+  "manifest_path": "anti-purification/main_table/results/displacement_flux.csv",
+  "rows": 384
+ },
+ "baseline/results/flux/edits_color.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 32
+  },
+  "key_columns": [
+   "arm",
+   "image",
+   "prompt_index",
+   "guidance_scale"
+  ],
+  "manifest_blob": "dda416bb33f5771cf21e8954b0fe16d97e6b8960",
+  "manifest_path": "anti-purification/main_table/results/flux_full_color.csv",
+  "rows": 32
+ },
+ "baseline/results/flux/edits_danp.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 32
+  },
+  "key_columns": [
+   "arm",
+   "image",
+   "prompt_index",
+   "guidance_scale"
+  ],
+  "manifest_blob": "97e64f0448fcea16f2d200ea9bae9ef899c983cc",
+  "manifest_path": "anti-purification/main_table/results/flux_full_danp.csv",
+  "rows": 32
+ },
+ "baseline/results/flux/edits_dayn.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 32
+  },
+  "key_columns": [
+   "arm",
+   "image",
+   "prompt_index",
+   "guidance_scale"
+  ],
+  "manifest_blob": "f689207b1060f4eaa29cf2885e044a35fe10fb90",
+  "manifest_path": "anti-purification/main_table/results/flux_full_dayn.csv",
+  "rows": 32
+ },
+ "baseline/results/flux/edits_dct_shield.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 32
+  },
+  "key_columns": [
+   "arm",
+   "image",
+   "prompt_index",
+   "guidance_scale"
+  ],
+  "manifest_blob": "11304178a08fdbc75b3d2f0728643205f08f54d3",
+  "manifest_path": "anti-purification/main_table/results/flux_full_dct_shield.csv",
+  "rows": 32
+ },
+ "baseline/results/flux/edits_dct_shield_y.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 32
+  },
+  "key_columns": [
+   "arm",
+   "image",
+   "prompt_index",
+   "guidance_scale"
+  ],
+  "manifest_blob": "f92995643d8e6be2c9b96b84f4efd2f341bbc7e6",
+  "manifest_path": "anti-purification/main_table/results/flux_full_dct_shield_y.csv",
+  "rows": 32
+ },
+ "baseline/results/flux/edits_dia_pt.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 32
+  },
+  "key_columns": [
+   "arm",
+   "image",
+   "prompt_index",
+   "guidance_scale"
+  ],
+  "manifest_blob": "69c7fba10bb95280b4b776b2dc35eae2f0cce94d",
+  "manifest_path": "anti-purification/main_table/results/flux_full_dia_pt.csv",
+  "rows": 32
+ },
+ "baseline/results/flux/edits_dia_r.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 32
+  },
+  "key_columns": [
+   "arm",
+   "image",
+   "prompt_index",
+   "guidance_scale"
+  ],
+  "manifest_blob": "e866b7a95d6853d2d15415376e748e554cb0b8ab",
+  "manifest_path": "anti-purification/main_table/results/flux_full_dia_r.csv",
+  "rows": 32
+ },
+ "baseline/results/flux/edits_diffvax.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 32
+  },
+  "key_columns": [
+   "arm",
+   "image",
+   "prompt_index",
+   "guidance_scale"
+  ],
+  "manifest_blob": "0570edff373694419ec41b97cfd32686c64696f4",
+  "manifest_path": "anti-purification/main_table/results/flux_full_diffvax.csv",
+  "rows": 32
+ },
+ "baseline/results/flux/edits_mist.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 32
+  },
+  "key_columns": [
+   "arm",
+   "image",
+   "prompt_index",
+   "guidance_scale"
+  ],
+  "manifest_blob": "7d935647b8a2d6550b06e0ec508a240d748feb94",
+  "manifest_path": "anti-purification/main_table/results/flux_full_mist.csv",
+  "rows": 32
+ },
+ "baseline/results/flux/edits_photoguard_c.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 32
+  },
+  "key_columns": [
+   "arm",
+   "image",
+   "prompt_index",
+   "guidance_scale"
+  ],
+  "manifest_blob": "0e523cff69bc87d9e09bce7481f2f5487071bb87",
+  "manifest_path": "anti-purification/main_table/results/flux_full_photoguard_c.csv",
+  "rows": 32
+ },
+ "baseline/results/flux/edits_photoguard_linf.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 32
+  },
+  "key_columns": [
+   "arm",
+   "image",
+   "prompt_index",
+   "guidance_scale"
+  ],
+  "manifest_blob": "fbf6c4d4ad9cbab614f1334f181d67e7113de4cf",
+  "manifest_path": "anti-purification/main_table/results/flux_full_photoguard_linf.csv",
+  "rows": 32
+ },
+ "baseline/results/flux/edits_sifm.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 32
+  },
+  "key_columns": [
+   "arm",
+   "image",
+   "prompt_index",
+   "guidance_scale"
+  ],
+  "manifest_blob": "fe27e2258fb07325ecca795b4cdf3eccaacaf330",
+  "manifest_path": "anti-purification/main_table/results/flux_full_sifm.csv",
+  "rows": 32
+ },
+ "baseline/results/flux/edits_undefended.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 32
+  },
+  "key_columns": [
+   "arm",
+   "image",
+   "prompt_index",
+   "guidance_scale"
+  ],
+  "manifest_blob": "0c155e8cbb7f674991aa1b73f3a3994e232460f7",
+  "manifest_path": "anti-purification/main_table/results/flux_full_undefended.csv",
+  "rows": 32
+ },
+ "baseline/results/retention.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "condition",
+   "scenario",
+   "image",
+   "prompt_index",
+   "purifier"
+  ],
+  "manifest_blob": "e543e037d49ffba73cb6bfe96825cc0a0a40e3c1",
+  "manifest_path": "anti-purification/main_table/results/retention.csv",
+  "rows": 5376
+ },
+ "baseline/results/sweeps/flux/guidance_2p0.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 4
+  },
+  "key_columns": [
+   "image",
+   "prompt_index",
+   "guidance_scale"
+  ],
+  "manifest_blob": "9d9886fe3905fe1ad5027be5a9efc210ea622114",
+  "manifest_path": "anti-purification/main_table/results/flux_preview_g2.csv",
+  "rows": 4
+ },
+ "baseline/results/sweeps/flux/guidance_3p5.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 4
+  },
+  "key_columns": [
+   "image",
+   "prompt_index",
+   "guidance_scale"
+  ],
+  "manifest_blob": "bcb1066f94181ce0c4a42173817b9e95323fd85d",
+  "manifest_path": "anti-purification/main_table/results/flux_preview.csv",
+  "rows": 4
+ },
+ "baseline/results/sweeps/flux/true_cfg_3p5.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 2
+  },
+  "key_columns": [
+   "image",
+   "prompt_index",
+   "guidance_scale"
+  ],
+  "manifest_blob": "e75bbc3ff85a965c4152fde4ec5fe6e71746c00c",
+  "manifest_path": "anti-purification/main_table/results/flux_preview_truecfg.csv",
+  "rows": 2
+ },
+ "baseline/results/sweeps/ip2p/reference_edits.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 32
+  },
+  "key_columns": [
+   "image",
+   "prompt_index",
+   "guidance_scale",
+   "image_guidance_scale",
+   "strength",
+   "strength"
+  ],
+  "manifest_blob": "d8026200a301740d781cbfebd9268c5a8de47eca",
+  "manifest_path": "anti-purification/main_table/results/sd_family_ip2p_si18_reference.csv",
+  "rows": 32
+ },
+ "baseline/results/sweeps/ip2p/reference_off_target.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "image",
+   "prompt_index",
+   "guidance_scale",
+   "image_guidance_scale",
+   "strength",
+   "strength"
+  ],
+  "manifest_blob": "a6e876effdbfdecec31f393a20cf100f26614283",
+  "manifest_path": "anti-purification/main_table/results/sd_family_offtarget_ip2p_si18_reference.csv",
+  "rows": 32
+ },
+ "baseline/results/sweeps/sdedit/sd15_guidance.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 16
+  },
+  "key_columns": [
+   "image",
+   "prompt_index",
+   "guidance_scale",
+   "strength",
+   "strength"
+  ],
+  "manifest_blob": "8392d78d57458abca7ce2b1e884358ab30ca307b",
+  "manifest_path": "anti-purification/main_table/results/sdedit_preview_stable-diffusion-v1-5_sdedit_guidance_sweep_sd15.csv",
+  "rows": 16
+ },
+ "baseline/results/sweeps/sdedit/sd15_strength.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 16
+  },
+  "key_columns": [
+   "image",
+   "prompt_index",
+   "guidance_scale",
+   "strength",
+   "strength"
+  ],
+  "manifest_blob": "49085901c27ba40bd5d71b9dd8c2b212a0a7e076",
+  "manifest_path": "anti-purification/main_table/results/sdedit_preview.csv",
+  "rows": 16
+ },
+ "baseline/results/sweeps/sdedit/sd21_base_strength.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 8
+  },
+  "key_columns": [
+   "image",
+   "prompt_index",
+   "guidance_scale",
+   "strength",
+   "strength"
+  ],
+  "manifest_blob": "dde6afeac8b9bef7c89be58e028314c68b9dab62",
+  "manifest_path": "anti-purification/main_table/results/sdedit_preview_stable-diffusion-2-1-base.csv",
+  "rows": 8
+ },
+ "baseline/results/sweeps/sdedit/sd21_v_prediction.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 4
+  },
+  "key_columns": [
+   "image",
+   "prompt_index",
+   "guidance_scale",
+   "strength",
+   "strength"
+  ],
+  "manifest_blob": "f282c42ce35b9cef616907eb1b70b023a5c06b9f",
+  "manifest_path": "anti-purification/main_table/results/sdedit_preview_stable-diffusion-2-1.csv",
+  "rows": 4
+ },
+ "baseline/results/sweeps/sdxl_ip2p/guidance_portrait_pair.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 72
+  },
+  "key_columns": [
+   "image",
+   "prompt_index",
+   "guidance_scale",
+   "image_guidance_scale",
+   "strength",
+   "strength"
+  ],
+  "manifest_blob": "61998a22c2b145e3fba6be13409acd79adaa924a",
+  "manifest_path": "anti-purification/main_table/results/sd_family_sdxl_ip2p_grid.csv",
+  "rows": 72
+ },
+ "baseline/results/sweeps/sdxl_ip2p/guidance_portraits.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 192
+  },
+  "key_columns": [
+   "image",
+   "prompt_index",
+   "guidance_scale",
+   "image_guidance_scale",
+   "strength",
+   "strength"
+  ],
+  "manifest_blob": "e207064ca2f354a907ec1be9512970b5372a7818",
+  "manifest_path": "anti-purification/main_table/results/sd_family_sdxl_ip2p_all8.csv",
+  "rows": 192
+ },
+ "baseline/results/sweeps/sdxl_ip2p/guidance_portraits_off_target.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "image",
+   "prompt_index",
+   "guidance_scale",
+   "image_guidance_scale",
+   "strength",
+   "strength"
+  ],
+  "manifest_blob": "d65f4a761df46ffc7c63e385d0112296fc12fe6a",
+  "manifest_path": "anti-purification/main_table/results/sd_family_offtarget_sdxl_ip2p_all8.csv",
+  "rows": 192
+ },
+ "baseline/results/sweeps/sdxl_ip2p/high_image_guidance.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 192
+  },
+  "key_columns": [
+   "image",
+   "prompt_index",
+   "guidance_scale",
+   "image_guidance_scale",
+   "strength",
+   "strength"
+  ],
+  "manifest_blob": "68dea7c48ea55869086eb12448a23db2931b91e1",
+  "manifest_path": "anti-purification/main_table/results/sd_family_sdxl_ip2p_high_image_guidance.csv",
+  "rows": 192
+ },
+ "baseline/results/sweeps/sdxl_ip2p/high_image_guidance_off_target.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "image",
+   "prompt_index",
+   "guidance_scale",
+   "image_guidance_scale",
+   "strength",
+   "strength"
+  ],
+  "manifest_blob": "57e554068c6fad43702a8fd327364ff0604a858e",
+  "manifest_path": "anti-purification/main_table/results/sd_family_offtarget_sdxl_ip2p_high_image_guidance.csv",
+  "rows": 192
+ },
+ "baseline/results/sweeps/ultraedit/image_guidance.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 8
+  },
+  "key_columns": [
+   "image",
+   "prompt_index",
+   "guidance_scale",
+   "image_guidance_scale",
+   "strength",
+   "strength"
+  ],
+  "manifest_blob": "0248f683a1ca4dbbd4047e758668eda97ef636b2",
+  "manifest_path": "anti-purification/main_table/results/sd_family_sd3_ultraedit_quick.csv",
+  "rows": 8
+ },
+ "baseline/results/sweeps/ultraedit/noun_placement_variants.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 96
+  },
+  "key_columns": [
+   "image",
+   "prompt_index",
+   "variant",
+   "guidance_scale",
+   "image_guidance_scale",
+   "strength",
+   "strength"
+  ],
+  "manifest_blob": "5536ed55a0e004e60f7a3b00f4965a346274bc2d",
+  "manifest_path": "anti-purification/main_table/results/sd_family_ultraedit_prompt_round2.csv",
+  "rows": 96
+ },
+ "baseline/results/sweeps/ultraedit/noun_placement_variants_off_target.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "image",
+   "prompt_index",
+   "variant",
+   "guidance_scale",
+   "image_guidance_scale",
+   "strength",
+   "strength"
+  ],
+  "manifest_blob": "b0d573d96a6831f288166e0b2c3424b3952b7f4b",
+  "manifest_path": "anti-purification/main_table/results/sd_family_offtarget_ultraedit_prompt_round2.csv",
+  "rows": 96
+ },
+ "baseline/results/sweeps/ultraedit/prompt_templates_man_00_woman_00.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 48
+  },
+  "key_columns": [
+   "image",
+   "prompt_index",
+   "variant",
+   "guidance_scale",
+   "image_guidance_scale",
+   "strength",
+   "strength"
+  ],
+  "manifest_blob": "f3366bc08158a41a53bf77c9ecf89b4c8bebdc7a",
+  "manifest_path": "anti-purification/main_table/results/sd_family_ultraedit_prompt_sweep_a.csv",
+  "rows": 48
+ },
+ "baseline/results/sweeps/ultraedit/prompt_templates_man_00_woman_00_off_target.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "image",
+   "prompt_index",
+   "variant",
+   "guidance_scale",
+   "image_guidance_scale",
+   "strength",
+   "strength"
+  ],
+  "manifest_blob": "d08e40f4e7a058a710bb43d8a4dce7ffef370cf6",
+  "manifest_path": "anti-purification/main_table/results/sd_family_offtarget_ultraedit_prompt_sweep_a.csv",
+  "rows": 48
+ },
+ "baseline/results/sweeps/ultraedit/prompt_templates_man_01_woman_01.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 48
+  },
+  "key_columns": [
+   "image",
+   "prompt_index",
+   "variant",
+   "guidance_scale",
+   "image_guidance_scale",
+   "strength",
+   "strength"
+  ],
+  "manifest_blob": "410b1d2abbc75711fe002a138ae4d377535c954d",
+  "manifest_path": "anti-purification/main_table/results/sd_family_ultraedit_prompt_sweep_b.csv",
+  "rows": 48
+ },
+ "baseline/results/sweeps/ultraedit/prompt_templates_man_01_woman_01_off_target.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "image",
+   "prompt_index",
+   "variant",
+   "guidance_scale",
+   "image_guidance_scale",
+   "strength",
+   "strength"
+  ],
+  "manifest_blob": "2c2822fa88c911b6d7c26fbfc6f13250ed95f4cf",
+  "manifest_path": "anti-purification/main_table/results/sd_family_offtarget_ultraedit_prompt_sweep_b.csv",
+  "rows": 48
+ },
+ "baseline/results/sweeps/ultraedit/text_image_guidance.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 24
+  },
+  "key_columns": [
+   "image",
+   "prompt_index",
+   "guidance_scale",
+   "image_guidance_scale",
+   "strength",
+   "strength"
+  ],
+  "manifest_blob": "a98e360be0634a845e67bb0a6f6d529ae5d38514",
+  "manifest_path": "anti-purification/main_table/results/sd_family_sd3_ultraedit_low_guidance.csv",
+  "rows": 24
+ },
+ "baseline/results/ultraedit/displacement.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 768
+  },
+  "key_columns": [
+   "condition",
+   "arm",
+   "scenario",
+   "image",
+   "prompt_index"
+  ],
+  "manifest_blob": "e60ae7f85c508c6258b36f598aabb91c9a1739f3",
+  "manifest_path": "anti-purification/main_table/results/displacement_ultraedit.csv",
+  "rows": 384
+ },
+ "baseline/results/ultraedit/edits/color.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 512
+  },
+  "key_columns": [
+   "arm",
+   "image",
+   "prompt_index",
+   "purifier",
+   "variant",
+   "guidance_scale",
+   "image_guidance_scale"
+  ],
+  "manifest_blob": "9bbbbab6430a37eb539c207e7b8b297465db9d44",
+  "manifest_path": "anti-purification/main_table/results/ultraedit_full/color.csv",
+  "rows": 256
+ },
+ "baseline/results/ultraedit/edits/danp.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 512
+  },
+  "key_columns": [
+   "arm",
+   "image",
+   "prompt_index",
+   "purifier",
+   "variant",
+   "guidance_scale",
+   "image_guidance_scale"
+  ],
+  "manifest_blob": "1f7491c994eff50683369d09594adcb7873b2566",
+  "manifest_path": "anti-purification/main_table/results/ultraedit_full/danp.csv",
+  "rows": 256
+ },
+ "baseline/results/ultraedit/edits/dayn.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 512
+  },
+  "key_columns": [
+   "arm",
+   "image",
+   "prompt_index",
+   "purifier",
+   "variant",
+   "guidance_scale",
+   "image_guidance_scale"
+  ],
+  "manifest_blob": "894bcbf24d96722a320f35cec561f861f6db3358",
+  "manifest_path": "anti-purification/main_table/results/ultraedit_full/dayn.csv",
+  "rows": 256
+ },
+ "baseline/results/ultraedit/edits/dct_shield.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 512
+  },
+  "key_columns": [
+   "arm",
+   "image",
+   "prompt_index",
+   "purifier",
+   "variant",
+   "guidance_scale",
+   "image_guidance_scale"
+  ],
+  "manifest_blob": "3667ec04685c7e894b1fc64e9241179ec1bb71ed",
+  "manifest_path": "anti-purification/main_table/results/ultraedit_full/dct_shield.csv",
+  "rows": 256
+ },
+ "baseline/results/ultraedit/edits/dct_shield_y.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 512
+  },
+  "key_columns": [
+   "arm",
+   "image",
+   "prompt_index",
+   "purifier",
+   "variant",
+   "guidance_scale",
+   "image_guidance_scale"
+  ],
+  "manifest_blob": "e88024f698689ec9e998a3899d9df6a5bd787faf",
+  "manifest_path": "anti-purification/main_table/results/ultraedit_full/dct_shield_y.csv",
+  "rows": 256
+ },
+ "baseline/results/ultraedit/edits/dia_pt.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 512
+  },
+  "key_columns": [
+   "arm",
+   "image",
+   "prompt_index",
+   "purifier",
+   "variant",
+   "guidance_scale",
+   "image_guidance_scale"
+  ],
+  "manifest_blob": "16ba0c56aced5290f636659d51626a3e93e81f2d",
+  "manifest_path": "anti-purification/main_table/results/ultraedit_full/dia_pt.csv",
+  "rows": 256
+ },
+ "baseline/results/ultraedit/edits/dia_r.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 512
+  },
+  "key_columns": [
+   "arm",
+   "image",
+   "prompt_index",
+   "purifier",
+   "variant",
+   "guidance_scale",
+   "image_guidance_scale"
+  ],
+  "manifest_blob": "cf48576cde8ac7a52dc708e5012adda3395c29b7",
+  "manifest_path": "anti-purification/main_table/results/ultraedit_full/dia_r.csv",
+  "rows": 256
+ },
+ "baseline/results/ultraedit/edits/diffvax.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 512
+  },
+  "key_columns": [
+   "arm",
+   "image",
+   "prompt_index",
+   "purifier",
+   "variant",
+   "guidance_scale",
+   "image_guidance_scale"
+  ],
+  "manifest_blob": "3be6f76b6d67c7e00598ea1e590b49eefacb886c",
+  "manifest_path": "anti-purification/main_table/results/ultraedit_full/diffvax.csv",
+  "rows": 256
+ },
+ "baseline/results/ultraedit/edits/mist.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 512
+  },
+  "key_columns": [
+   "arm",
+   "image",
+   "prompt_index",
+   "purifier",
+   "variant",
+   "guidance_scale",
+   "image_guidance_scale"
+  ],
+  "manifest_blob": "368c09640f21ab43348fa38b9c96297bf72d6e22",
+  "manifest_path": "anti-purification/main_table/results/ultraedit_full/mist.csv",
+  "rows": 256
+ },
+ "baseline/results/ultraedit/edits/photoguard_c.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 512
+  },
+  "key_columns": [
+   "arm",
+   "image",
+   "prompt_index",
+   "purifier",
+   "variant",
+   "guidance_scale",
+   "image_guidance_scale"
+  ],
+  "manifest_blob": "e5d8c61320710c388b71bd2f939dd1a03704eb85",
+  "manifest_path": "anti-purification/main_table/results/ultraedit_full/photoguard_c.csv",
+  "rows": 256
+ },
+ "baseline/results/ultraedit/edits/photoguard_linf.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 512
+  },
+  "key_columns": [
+   "arm",
+   "image",
+   "prompt_index",
+   "purifier",
+   "variant",
+   "guidance_scale",
+   "image_guidance_scale"
+  ],
+  "manifest_blob": "b5071ed2f7f164a9041230baa10a65bb4740d01b",
+  "manifest_path": "anti-purification/main_table/results/ultraedit_full/photoguard_linf.csv",
+  "rows": 256
+ },
+ "baseline/results/ultraedit/edits/sifm.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 512
+  },
+  "key_columns": [
+   "arm",
+   "image",
+   "prompt_index",
+   "purifier",
+   "variant",
+   "guidance_scale",
+   "image_guidance_scale"
+  ],
+  "manifest_blob": "563dba4cc3cde24be56e38c96a7b8910ffa74ad3",
+  "manifest_path": "anti-purification/main_table/results/ultraedit_full/sifm.csv",
+  "rows": 256
+ },
+ "baseline/results/ultraedit/edits/undefended.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 512
+  },
+  "key_columns": [
+   "arm",
+   "image",
+   "prompt_index",
+   "purifier",
+   "variant",
+   "guidance_scale",
+   "image_guidance_scale"
+  ],
+  "manifest_blob": "546159ac91f090a40935d5d0099e579a0d3e635b",
+  "manifest_path": "anti-purification/main_table/results/ultraedit_full/undefended.csv",
+  "rows": 256
+ },
+ "baseline/results/ultraedit/retention.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "condition",
+   "scenario",
+   "image",
+   "prompt_index",
+   "purifier"
+  ],
+  "manifest_blob": "a5a6d1789b1c813415bb6f2b808fa192be4e8cec",
+  "manifest_path": "anti-purification/main_table/results/retention_ultraedit.csv",
+  "rows": 2688
+ },
+ "color/results/defended_edits/color/preflight.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 96
+  },
+  "key_columns": [
+   "arm",
+   "scenario",
+   "image",
+   "prompt_index"
+  ],
+  "rows": 32
+ },
+ "color/results/defended_edits/color_simple/preflight.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 96
+  },
+  "key_columns": [
+   "arm",
+   "scenario",
+   "image",
+   "prompt_index"
+  ],
+  "rows": 32
+ },
+ "color/results/defended_edits/color_simple_skinbox/preflight.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 96
+  },
+  "key_columns": [
+   "arm",
+   "scenario",
+   "image",
+   "prompt_index"
+  ],
+  "rows": 32
+ },
+ "color/results/defended_edits/color_simple_xattn/preflight.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 96
+  },
+  "key_columns": [
+   "arm",
+   "scenario",
+   "image",
+   "prompt_index"
+  ],
+  "rows": 32
+ },
+ "color/results/defense_shards/color/man_00/results.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "arm",
+   "image"
+  ],
+  "rows": 1
+ },
+ "color/results/defense_shards/color/man_01/results.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "arm",
+   "image"
+  ],
+  "rows": 1
+ },
+ "color/results/defense_shards/color/man_02/results.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "arm",
+   "image"
+  ],
+  "rows": 1
+ },
+ "color/results/defense_shards/color/man_03/results.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "arm",
+   "image"
+  ],
+  "rows": 1
+ },
+ "color/results/defense_shards/color/woman_00/results.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "arm",
+   "image"
+  ],
+  "rows": 1
+ },
+ "color/results/defense_shards/color/woman_01/results.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "arm",
+   "image"
+  ],
+  "rows": 1
+ },
+ "color/results/defense_shards/color/woman_02/results.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "arm",
+   "image"
+  ],
+  "rows": 1
+ },
+ "color/results/defense_shards/color/woman_03/results.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "arm",
+   "image"
+  ],
+  "rows": 1
+ },
+ "color/results/defense_shards/color_simple/man_00/results.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "arm",
+   "image"
+  ],
+  "rows": 1
+ },
+ "color/results/defense_shards/color_simple/man_01/results.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "arm",
+   "image"
+  ],
+  "rows": 1
+ },
+ "color/results/defense_shards/color_simple/man_02/results.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "arm",
+   "image"
+  ],
+  "rows": 1
+ },
+ "color/results/defense_shards/color_simple/man_03/results.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "arm",
+   "image"
+  ],
+  "rows": 1
+ },
+ "color/results/defense_shards/color_simple/woman_00/results.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "arm",
+   "image"
+  ],
+  "rows": 1
+ },
+ "color/results/defense_shards/color_simple/woman_01/results.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "arm",
+   "image"
+  ],
+  "rows": 1
+ },
+ "color/results/defense_shards/color_simple/woman_02/results.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "arm",
+   "image"
+  ],
+  "rows": 1
+ },
+ "color/results/defense_shards/color_simple/woman_03/results.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "arm",
+   "image"
+  ],
+  "rows": 1
+ },
+ "color/results/defense_shards/color_simple_skinbox/man_00/results.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "arm",
+   "image"
+  ],
+  "rows": 1
+ },
+ "color/results/defense_shards/color_simple_skinbox/man_01/results.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "arm",
+   "image"
+  ],
+  "rows": 1
+ },
+ "color/results/defense_shards/color_simple_skinbox/man_02/results.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "arm",
+   "image"
+  ],
+  "rows": 1
+ },
+ "color/results/defense_shards/color_simple_skinbox/man_03/results.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "arm",
+   "image"
+  ],
+  "rows": 1
+ },
+ "color/results/defense_shards/color_simple_skinbox/woman_00/results.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "arm",
+   "image"
+  ],
+  "rows": 1
+ },
+ "color/results/defense_shards/color_simple_skinbox/woman_01/results.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "arm",
+   "image"
+  ],
+  "rows": 1
+ },
+ "color/results/defense_shards/color_simple_skinbox/woman_02/results.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "arm",
+   "image"
+  ],
+  "rows": 1
+ },
+ "color/results/defense_shards/color_simple_skinbox/woman_03/results.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "arm",
+   "image"
+  ],
+  "rows": 1
+ },
+ "color/results/defense_shards/color_simple_xattn/man_00/results.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "arm",
+   "image"
+  ],
+  "rows": 1
+ },
+ "color/results/defense_shards/color_simple_xattn/man_01/results.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "arm",
+   "image"
+  ],
+  "rows": 1
+ },
+ "color/results/defense_shards/color_simple_xattn/man_02/results.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "arm",
+   "image"
+  ],
+  "rows": 1
+ },
+ "color/results/defense_shards/color_simple_xattn/man_03/results.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "arm",
+   "image"
+  ],
+  "rows": 1
+ },
+ "color/results/defense_shards/color_simple_xattn/woman_00/results.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "arm",
+   "image"
+  ],
+  "rows": 1
+ },
+ "color/results/defense_shards/color_simple_xattn/woman_01/results.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "arm",
+   "image"
+  ],
+  "rows": 1
+ },
+ "color/results/defense_shards/color_simple_xattn/woman_02/results.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "arm",
+   "image"
+  ],
+  "rows": 1
+ },
+ "color/results/defense_shards/color_simple_xattn/woman_03/results.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "arm",
+   "image"
+  ],
+  "rows": 1
+ },
+ "color/results/defenses/color/results.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "arm",
+   "image"
+  ],
+  "rows": 8
+ },
+ "color/results/defenses/color_simple/results.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "arm",
+   "image"
+  ],
+  "rows": 8
+ },
+ "color/results/defenses/color_simple_skinbox/results.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "arm",
+   "image"
+  ],
+  "rows": 8
+ },
+ "color/results/defenses/color_simple_xattn/results.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "arm",
+   "image"
+  ],
+  "rows": 8
+ },
+ "color/results/displacement.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 64
+  },
+  "key_columns": [
+   "condition",
+   "arm",
+   "scenario",
+   "image",
+   "prompt_index"
+  ],
+  "manifest_blob": "9674093666017bca4f74f40d73c4eedc9d21330b",
+  "manifest_path": "lab/results/displacement.csv",
+  "rows": 32
+ },
+ "color/results/fidelity.csv": {
+  "changed": {
+   "identifier": 8,
+   "path": 0
+  },
+  "key_columns": [
+   "arm",
+   "image"
+  ],
+  "manifest_blob": "260e2c9edda60b66abc4e8398f594e4c5010489c",
+  "manifest_path": "lab/results/fidelity.csv",
+  "rows": 8
+ },
+ "color/results/purified/color/purified.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 128
+  },
+  "key_columns": [
+   "condition",
+   "image",
+   "purifier",
+   "strength",
+   "strength"
+  ],
+  "rows": 64
+ },
+ "color/results/purified/color_simple/purified.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 128
+  },
+  "key_columns": [
+   "condition",
+   "image",
+   "purifier",
+   "strength",
+   "strength"
+  ],
+  "rows": 64
+ },
+ "color/results/purified/color_simple_skinbox/purified.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 128
+  },
+  "key_columns": [
+   "condition",
+   "image",
+   "purifier",
+   "strength",
+   "strength"
+  ],
+  "rows": 64
+ },
+ "color/results/purified/color_simple_xattn/purified.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 128
+  },
+  "key_columns": [
+   "condition",
+   "image",
+   "purifier",
+   "strength",
+   "strength"
+  ],
+  "rows": 64
+ },
+ "color/results/purified_edits/color/blur1/preflight.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 96
+  },
+  "key_columns": [
+   "arm",
+   "scenario",
+   "image",
+   "prompt_index"
+  ],
+  "rows": 32
+ },
+ "color/results/purified_edits/color/blur2/preflight.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 96
+  },
+  "key_columns": [
+   "arm",
+   "scenario",
+   "image",
+   "prompt_index"
+  ],
+  "rows": 32
+ },
+ "color/results/purified_edits/color/crop_resize0.1/preflight.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 96
+  },
+  "key_columns": [
+   "arm",
+   "scenario",
+   "image",
+   "prompt_index"
+  ],
+  "rows": 32
+ },
+ "color/results/purified_edits/color/jpeg30/preflight.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 96
+  },
+  "key_columns": [
+   "arm",
+   "scenario",
+   "image",
+   "prompt_index"
+  ],
+  "rows": 32
+ },
+ "color/results/purified_edits/color/jpeg50/preflight.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 96
+  },
+  "key_columns": [
+   "arm",
+   "scenario",
+   "image",
+   "prompt_index"
+  ],
+  "rows": 32
+ },
+ "color/results/purified_edits/color/jpeg80/preflight.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 96
+  },
+  "key_columns": [
+   "arm",
+   "scenario",
+   "image",
+   "prompt_index"
+  ],
+  "rows": 32
+ },
+ "color/results/purified_edits/color/rotate15/preflight.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 96
+  },
+  "key_columns": [
+   "arm",
+   "scenario",
+   "image",
+   "prompt_index"
+  ],
+  "rows": 32
+ },
+ "color/results/purified_edits/color_simple/blur1/preflight.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 96
+  },
+  "key_columns": [
+   "arm",
+   "scenario",
+   "image",
+   "prompt_index"
+  ],
+  "rows": 32
+ },
+ "color/results/purified_edits/color_simple/blur2/preflight.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 96
+  },
+  "key_columns": [
+   "arm",
+   "scenario",
+   "image",
+   "prompt_index"
+  ],
+  "rows": 32
+ },
+ "color/results/purified_edits/color_simple/crop_resize0.1/preflight.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 96
+  },
+  "key_columns": [
+   "arm",
+   "scenario",
+   "image",
+   "prompt_index"
+  ],
+  "rows": 32
+ },
+ "color/results/purified_edits/color_simple/jpeg30/preflight.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 96
+  },
+  "key_columns": [
+   "arm",
+   "scenario",
+   "image",
+   "prompt_index"
+  ],
+  "rows": 32
+ },
+ "color/results/purified_edits/color_simple/jpeg50/preflight.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 96
+  },
+  "key_columns": [
+   "arm",
+   "scenario",
+   "image",
+   "prompt_index"
+  ],
+  "rows": 32
+ },
+ "color/results/purified_edits/color_simple/jpeg80/preflight.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 96
+  },
+  "key_columns": [
+   "arm",
+   "scenario",
+   "image",
+   "prompt_index"
+  ],
+  "rows": 32
+ },
+ "color/results/purified_edits/color_simple/rotate15/preflight.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 96
+  },
+  "key_columns": [
+   "arm",
+   "scenario",
+   "image",
+   "prompt_index"
+  ],
+  "rows": 32
+ },
+ "color/results/purified_edits/color_simple_skinbox/blur1/preflight.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 96
+  },
+  "key_columns": [
+   "arm",
+   "scenario",
+   "image",
+   "prompt_index"
+  ],
+  "rows": 32
+ },
+ "color/results/purified_edits/color_simple_skinbox/blur2/preflight.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 96
+  },
+  "key_columns": [
+   "arm",
+   "scenario",
+   "image",
+   "prompt_index"
+  ],
+  "rows": 32
+ },
+ "color/results/purified_edits/color_simple_skinbox/crop_resize0.1/preflight.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 96
+  },
+  "key_columns": [
+   "arm",
+   "scenario",
+   "image",
+   "prompt_index"
+  ],
+  "rows": 32
+ },
+ "color/results/purified_edits/color_simple_skinbox/jpeg30/preflight.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 96
+  },
+  "key_columns": [
+   "arm",
+   "scenario",
+   "image",
+   "prompt_index"
+  ],
+  "rows": 32
+ },
+ "color/results/purified_edits/color_simple_skinbox/jpeg50/preflight.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 96
+  },
+  "key_columns": [
+   "arm",
+   "scenario",
+   "image",
+   "prompt_index"
+  ],
+  "rows": 32
+ },
+ "color/results/purified_edits/color_simple_skinbox/jpeg80/preflight.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 96
+  },
+  "key_columns": [
+   "arm",
+   "scenario",
+   "image",
+   "prompt_index"
+  ],
+  "rows": 32
+ },
+ "color/results/purified_edits/color_simple_skinbox/rotate15/preflight.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 96
+  },
+  "key_columns": [
+   "arm",
+   "scenario",
+   "image",
+   "prompt_index"
+  ],
+  "rows": 32
+ },
+ "color/results/purified_edits/color_simple_xattn/blur1/preflight.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 96
+  },
+  "key_columns": [
+   "arm",
+   "scenario",
+   "image",
+   "prompt_index"
+  ],
+  "rows": 32
+ },
+ "color/results/purified_edits/color_simple_xattn/blur2/preflight.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 96
+  },
+  "key_columns": [
+   "arm",
+   "scenario",
+   "image",
+   "prompt_index"
+  ],
+  "rows": 32
+ },
+ "color/results/purified_edits/color_simple_xattn/crop_resize0.1/preflight.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 96
+  },
+  "key_columns": [
+   "arm",
+   "scenario",
+   "image",
+   "prompt_index"
+  ],
+  "rows": 32
+ },
+ "color/results/purified_edits/color_simple_xattn/jpeg30/preflight.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 96
+  },
+  "key_columns": [
+   "arm",
+   "scenario",
+   "image",
+   "prompt_index"
+  ],
+  "rows": 32
+ },
+ "color/results/purified_edits/color_simple_xattn/jpeg50/preflight.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 96
+  },
+  "key_columns": [
+   "arm",
+   "scenario",
+   "image",
+   "prompt_index"
+  ],
+  "rows": 32
+ },
+ "color/results/purified_edits/color_simple_xattn/jpeg80/preflight.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 96
+  },
+  "key_columns": [
+   "arm",
+   "scenario",
+   "image",
+   "prompt_index"
+  ],
+  "rows": 32
+ },
+ "color/results/purified_edits/color_simple_xattn/rotate15/preflight.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 96
+  },
+  "key_columns": [
+   "arm",
+   "scenario",
+   "image",
+   "prompt_index"
+  ],
+  "rows": 32
+ },
+ "color/results/retention.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "condition",
+   "scenario",
+   "image",
+   "prompt_index",
+   "purifier"
+  ],
+  "manifest_blob": "3c002c79ce9691ee0b093cd434be9e3418edb832",
+  "manifest_path": "lab/results/retention.csv",
+  "rows": 224
+ },
+ "color/results/variants/color_simple/displacement.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 64
+  },
+  "key_columns": [
+   "condition",
+   "arm",
+   "scenario",
+   "image",
+   "prompt_index"
+  ],
+  "manifest_blob": "0bdb5d5ecfe3b80cb330794f4a9c32378b520eee",
+  "manifest_path": "lab/results/exp/displacement_color_simple.csv",
+  "rows": 32
+ },
+ "color/results/variants/color_simple/fidelity.csv": {
+  "changed": {
+   "identifier": 8,
+   "path": 0
+  },
+  "key_columns": [
+   "arm",
+   "image"
+  ],
+  "manifest_blob": "d1dca11c4bb19af799d3adcf4f20bd5401c5f5c6",
+  "manifest_path": "lab/results/exp/fidelity_color_simple.csv",
+  "rows": 8
+ },
+ "color/results/variants/color_simple/retention.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "condition",
+   "scenario",
+   "image",
+   "prompt_index",
+   "purifier"
+  ],
+  "manifest_blob": "ca395d1fce96d1c32605b37d7709dcf2e6151e0e",
+  "manifest_path": "lab/results/exp/retention_color_simple.csv",
+  "rows": 224
+ },
+ "color/results/variants/color_simple_skinbox/displacement.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 64
+  },
+  "key_columns": [
+   "condition",
+   "arm",
+   "scenario",
+   "image",
+   "prompt_index"
+  ],
+  "manifest_blob": "41b9c0855ba1d9aad9249ce388b3c2edf3eb9f1a",
+  "manifest_path": "lab/results/exp/displacement_color_simple_skinbox.csv",
+  "rows": 32
+ },
+ "color/results/variants/color_simple_skinbox/fidelity.csv": {
+  "changed": {
+   "identifier": 8,
+   "path": 0
+  },
+  "key_columns": [
+   "arm",
+   "image"
+  ],
+  "manifest_blob": "bd739942c2be03816dd649810b0d2ed15cb1d00b",
+  "manifest_path": "lab/results/exp/fidelity_color_simple_skinbox.csv",
+  "rows": 8
+ },
+ "color/results/variants/color_simple_skinbox/retention.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "condition",
+   "scenario",
+   "image",
+   "prompt_index",
+   "purifier"
+  ],
+  "manifest_blob": "c21401aca7097b6fd2df3b4cb44d5e44f351ba66",
+  "manifest_path": "lab/results/exp/retention_color_simple_skinbox.csv",
+  "rows": 224
+ },
+ "color/results/variants/color_simple_xattn/displacement.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 64
+  },
+  "key_columns": [
+   "condition",
+   "arm",
+   "scenario",
+   "image",
+   "prompt_index"
+  ],
+  "manifest_blob": "921136bcd2f67b2209f2def6a3e1556f781b1b90",
+  "manifest_path": "lab/results/exp/displacement_color_simple_xattn.csv",
+  "rows": 32
+ },
+ "color/results/variants/color_simple_xattn/fidelity.csv": {
+  "changed": {
+   "identifier": 8,
+   "path": 0
+  },
+  "key_columns": [
+   "arm",
+   "image"
+  ],
+  "manifest_blob": "e22c985f880a5ff55c043c1981cb2699dea3cef6",
+  "manifest_path": "lab/results/exp/fidelity_color_simple_xattn.csv",
+  "rows": 8
+ },
+ "color/results/variants/color_simple_xattn/retention.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "condition",
+   "scenario",
+   "image",
+   "prompt_index",
+   "purifier"
+  ],
+  "manifest_blob": "6c22b9485b8c751a9498a1de660add9eed7b886a",
+  "manifest_path": "lab/results/exp/retention_color_simple_xattn.csv",
+  "rows": 224
+ },
+ "style/results/defenses/cls_p_noedit/cls_m01/results.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "image",
+   "style"
+  ],
+  "rows": 2
+ },
+ "style/results/defenses/cls_p_noedit/cls_m01/trace.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [],
+  "rows": 21
+ },
+ "style/results/defenses/cls_p_noedit/cls_w02/results.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "image",
+   "style"
+  ],
+  "rows": 2
+ },
+ "style/results/defenses/cls_p_noedit/cls_w02/trace.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [],
+  "rows": 21
+ },
+ "style/results/defenses/cls_p_noedit/ref/results.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "image",
+   "style"
+  ],
+  "rows": 4
+ },
+ "style/results/defenses/cls_p_noedit/ref/trace.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [],
+  "rows": 4
+ },
+ "style/results/defenses/cls_p_snow/cls_m01/results.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "image",
+   "style"
+  ],
+  "rows": 2
+ },
+ "style/results/defenses/cls_p_snow/cls_m01/trace.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [],
+  "rows": 21
+ },
+ "style/results/defenses/cls_p_snow/cls_w02/results.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "image",
+   "style"
+  ],
+  "rows": 2
+ },
+ "style/results/defenses/cls_p_snow/cls_w02/trace.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [],
+  "rows": 21
+ },
+ "style/results/defenses/cls_p_snow/ref/results.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "image",
+   "style"
+  ],
+  "rows": 4
+ },
+ "style/results/defenses/cls_p_snow/ref/trace.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [],
+  "rows": 4
+ },
+ "style/results/defenses/r11/chaos_m01/results.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "image",
+   "style"
+  ],
+  "rows": 2
+ },
+ "style/results/defenses/r11/chaos_m01/trace.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [],
+  "rows": 171
+ },
+ "style/results/defenses/r11/chaos_m02/results.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "image",
+   "style"
+  ],
+  "rows": 2
+ },
+ "style/results/defenses/r11/chaos_m02/trace.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [],
+  "rows": 301
+ },
+ "style/results/defenses/r11/chaos_w02/results.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "image",
+   "style"
+  ],
+  "rows": 2
+ },
+ "style/results/defenses/r11/chaos_w02/trace.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [],
+  "rows": 401
+ },
+ "style/results/defenses/r11/xattn_m01/results.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "image",
+   "style"
+  ],
+  "rows": 2
+ },
+ "style/results/defenses/r11/xattn_m01/trace.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [],
+  "rows": 351
+ },
+ "style/results/defenses/r11/xattn_m02/results.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "image",
+   "style"
+  ],
+  "rows": 2
+ },
+ "style/results/defenses/r11/xattn_m02/trace.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [],
+  "rows": 181
+ },
+ "style/results/defenses/r11/xattn_w02/results.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "image",
+   "style"
+  ],
+  "rows": 2
+ },
+ "style/results/defenses/r11/xattn_w02/trace.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [],
+  "rows": 241
+ },
+ "style/results/defenses/r13/chaos_m01/results.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "image",
+   "style"
+  ],
+  "rows": 2
+ },
+ "style/results/defenses/r13/chaos_m01/trace.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [],
+  "rows": 241
+ },
+ "style/results/defenses/r13/chaos_m02/results.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "image",
+   "style"
+  ],
+  "rows": 2
+ },
+ "style/results/defenses/r13/chaos_m02/trace.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [],
+  "rows": 191
+ },
+ "style/results/defenses/r13/chaos_w02/results.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "image",
+   "style"
+  ],
+  "rows": 2
+ },
+ "style/results/defenses/r13/chaos_w02/trace.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [],
+  "rows": 231
+ },
+ "style/results/defenses/r13/xattn_m01/results.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "image",
+   "style"
+  ],
+  "rows": 2
+ },
+ "style/results/defenses/r13/xattn_m01/trace.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [],
+  "rows": 201
+ },
+ "style/results/defenses/r13/xattn_m02/results.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "image",
+   "style"
+  ],
+  "rows": 2
+ },
+ "style/results/defenses/r13/xattn_m02/trace.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [],
+  "rows": 211
+ },
+ "style/results/defenses/r13/xattn_w02/results.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "image",
+   "style"
+  ],
+  "rows": 2
+ },
+ "style/results/defenses/r13/xattn_w02/trace.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [],
+  "rows": 161
+ },
+ "style/results/edits/cls_p_noedit/cls_m01_p_noedit/preflight.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 12
+  },
+  "key_columns": [
+   "arm",
+   "scenario",
+   "image",
+   "prompt_index"
+  ],
+  "rows": 4
+ },
+ "style/results/edits/cls_p_noedit/cls_w02_p_noedit/preflight.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 12
+  },
+  "key_columns": [
+   "arm",
+   "scenario",
+   "image",
+   "prompt_index"
+  ],
+  "rows": 4
+ },
+ "style/results/edits/cls_p_noedit/readout_p_noedit.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "image",
+   "prompt_index",
+   "strength",
+   "style",
+   "strength"
+  ],
+  "rows": 16
+ },
+ "style/results/edits/cls_p_noedit/ref_p_noedit/preflight.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 24
+  },
+  "key_columns": [
+   "arm",
+   "scenario",
+   "image",
+   "prompt_index"
+  ],
+  "rows": 8
+ },
+ "style/results/edits/cls_p_snow/cls_m01_p_snow/preflight.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 12
+  },
+  "key_columns": [
+   "arm",
+   "scenario",
+   "image",
+   "prompt_index"
+  ],
+  "rows": 4
+ },
+ "style/results/edits/cls_p_snow/cls_w02_p_snow/preflight.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 12
+  },
+  "key_columns": [
+   "arm",
+   "scenario",
+   "image",
+   "prompt_index"
+  ],
+  "rows": 4
+ },
+ "style/results/edits/cls_p_snow/readout_p_snow.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "image",
+   "prompt_index",
+   "strength",
+   "style",
+   "strength"
+  ],
+  "rows": 16
+ },
+ "style/results/edits/cls_p_snow/ref_p_snow/preflight.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 24
+  },
+  "key_columns": [
+   "arm",
+   "scenario",
+   "image",
+   "prompt_index"
+  ],
+  "rows": 8
+ },
+ "style/results/edits/r11/chaos_m01_cool_grade/preflight.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 12
+  },
+  "key_columns": [
+   "arm",
+   "scenario",
+   "image",
+   "prompt_index"
+  ],
+  "rows": 4
+ },
+ "style/results/edits/r11/chaos_m02_cool_grade/preflight.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 12
+  },
+  "key_columns": [
+   "arm",
+   "scenario",
+   "image",
+   "prompt_index"
+  ],
+  "rows": 4
+ },
+ "style/results/edits/r11/chaos_w02_cool_grade/preflight.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 12
+  },
+  "key_columns": [
+   "arm",
+   "scenario",
+   "image",
+   "prompt_index"
+  ],
+  "rows": 4
+ },
+ "style/results/edits/r11/readout_cool_grade.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "image",
+   "prompt_index",
+   "strength",
+   "style",
+   "strength"
+  ],
+  "rows": 36
+ },
+ "style/results/edits/r11/ref_cool_grade/preflight.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 48
+  },
+  "key_columns": [
+   "arm",
+   "scenario",
+   "image",
+   "prompt_index"
+  ],
+  "rows": 16
+ },
+ "style/results/edits/r11/xattn_m01_cool_grade/preflight.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 12
+  },
+  "key_columns": [
+   "arm",
+   "scenario",
+   "image",
+   "prompt_index"
+  ],
+  "rows": 4
+ },
+ "style/results/edits/r11/xattn_m02_cool_grade/preflight.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 12
+  },
+  "key_columns": [
+   "arm",
+   "scenario",
+   "image",
+   "prompt_index"
+  ],
+  "rows": 4
+ },
+ "style/results/edits/r11/xattn_w02_cool_grade/preflight.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 12
+  },
+  "key_columns": [
+   "arm",
+   "scenario",
+   "image",
+   "prompt_index"
+  ],
+  "rows": 4
+ },
+ "style/results/edits/r13/chaos_m01_p_snow/preflight.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 12
+  },
+  "key_columns": [
+   "arm",
+   "scenario",
+   "image",
+   "prompt_index"
+  ],
+  "rows": 4
+ },
+ "style/results/edits/r13/chaos_m02_p_snow/preflight.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 12
+  },
+  "key_columns": [
+   "arm",
+   "scenario",
+   "image",
+   "prompt_index"
+  ],
+  "rows": 4
+ },
+ "style/results/edits/r13/chaos_w02_p_snow/preflight.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 12
+  },
+  "key_columns": [
+   "arm",
+   "scenario",
+   "image",
+   "prompt_index"
+  ],
+  "rows": 4
+ },
+ "style/results/edits/r13/readout_p_snow.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 0
+  },
+  "key_columns": [
+   "image",
+   "prompt_index",
+   "strength",
+   "style",
+   "strength"
+  ],
+  "rows": 36
+ },
+ "style/results/edits/r13/ref_p_snow/preflight.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 36
+  },
+  "key_columns": [
+   "arm",
+   "scenario",
+   "image",
+   "prompt_index"
+  ],
+  "rows": 12
+ },
+ "style/results/edits/r13/xattn_m01_p_snow/preflight.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 12
+  },
+  "key_columns": [
+   "arm",
+   "scenario",
+   "image",
+   "prompt_index"
+  ],
+  "rows": 4
+ },
+ "style/results/edits/r13/xattn_m02_p_snow/preflight.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 12
+  },
+  "key_columns": [
+   "arm",
+   "scenario",
+   "image",
+   "prompt_index"
+  ],
+  "rows": 4
+ },
+ "style/results/edits/r13/xattn_w02_p_snow/preflight.csv": {
+  "changed": {
+   "identifier": 0,
+   "path": 12
+  },
+  "key_columns": [
+   "arm",
+   "scenario",
+   "image",
+   "prompt_index"
+  ],
+  "rows": 4
+ }
+}

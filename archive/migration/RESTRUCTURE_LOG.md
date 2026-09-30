@@ -777,3 +777,13 @@ git commit -m "Lock the remote execution environment for each project"
 - **修正**：`setsid` 只在存在時使用（沒有時僅以 `nohup` 背景啟動）；`try_launch` 記錄啟動程序的 PID，該程序結束卻沒有寫出結束碼時，除非 log 為「沒有空卡」（可重試），否則回傳啟動失敗，工作記為失敗並附 log 末三行，排程以結束碼 1 結束。
 - **回歸測試**：`test_launch_failure_ends_the_run_instead_of_retrying`（CUDA 檢查失敗）與 `test_unusable_detach_command_is_reported`（不可執行的 `setsid`）；舊版排程兩項皆逾時（240 秒），新版通過。以不含 `setsid` 的 PATH 執行整組 `test_job_runner.py`，7 項通過。
 - 驗證（Linux）：core 239（21 deselected）、baseline 82、color 47、style 22 passed。
+
+## Windows 測試修正：文字編碼（`0695134`）
+
+協調端在 Windows 驗收 `588a459`：baseline 82、color 47、style 22 通過，core 238 passed／1 failed。失敗為
+`test_promote_requires_listed_committed_targets` 讀回 `docs/TRIALS.md` 時的 `UnicodeDecodeError`。
+
+- 根本原因：測試以 `write_text(LEDGER_HEAD)` 建立 ledger 時沒有指定編碼，Windows 以平台預設（cp950）寫入中文表頭；腳本以 printf 追加 UTF-8 的升格紀錄，整檔以 UTF-8 讀回時失敗。Linux 預設 UTF-8，不會出現。
+- 修正：以 AST 掃描四個專案 `src/`、`tests/`、`scripts/` 的 Python 檔，未指定編碼的 `read_text`、`write_text` 與文字模式 `open` 共 41 處，全在測試中（core 27、style 7、baseline 5、color 2），一律加上 `encoding="utf-8"`；`src/` 沒有此類呼叫。會被 bash 讀取或追加的測試檔（ledger、`pyproject.toml`、`.gitignore`、`PROMOTED`、設定檔）另指定 `newline="\n"`。
+- 回歸測試：`core/tests/test_text_encoding.py` 逐檔掃描上述範圍，任何文字讀寫未帶 `encoding=` 即失敗；修正前的 `test_gpu_scripts.py` 會被抓出。
+- 驗證（Linux）：core 390（21 deselected；新增的掃描逐檔參數化）、baseline 82、color 47、style 22 passed。Windows 需協調端重跑。

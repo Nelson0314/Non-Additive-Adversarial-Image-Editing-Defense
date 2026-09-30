@@ -25,7 +25,7 @@
 
 ## 目前狀態
 
-- 分支 `cleanup`。第 0 項基準 commit `8bcaae0`；`archive/migration/pre_migration_manifest.json` 是改動前 1,707 個追蹤檔的
+- 分支 `main`（重整在本機的 `cleanup` 分支上開始，之後快轉併入 `main`）。第 0 項基準 commit `8bcaae0`；`archive/migration/pre_migration_manifest.json` 是改動前 1,707 個追蹤檔的
   blob／工作目錄雜湊與 697 份 CSV 的表頭與列數，`snapshot_manifest.py` 可重算。
 - 第 1 項：11 個 commit `5e1cd1c`…`89c148c`；第 2 項：`0f04ed3`…`57a28a9`；第 3 項第 1 段：`b7c312e`…`51d58bf`；第 2 段：`ff65396`…`db49113`。
   各項驗證紀錄在 `item_reports/`（第 3 項第 2 段沒有報告，內容見 commit message 與 `core/STATUS.md`）。
@@ -36,7 +36,7 @@
 
 ## 工作方式
 
-1. 在 `cleanup` 上工作；每完成一項（或一段可獨立驗收的子項）就 push 到 `origin/cleanup`。若你的環境只允許推送到自己的分支，
+1. 在 `main` 上工作；每完成一項（或一段可獨立驗收的子項）就 push 到 `origin/main`。若你的環境只允許推送到自己的分支，
    就推到該分支，並在 `RESTRUCTURE_LOG.md` 寫明分支名。
 2. 每完成一項，在 `archive/migration/RESTRUCTURE_LOG.md` 追加一段：項目、commit 範圍、改了什麼、驗證指令與結果、未完成或需使用者
    裁定的事。使用者要求每完成一項回報一次，這份 log 是回報的正本；同時在你的對話中向使用者簡短回報。

@@ -1,5 +1,5 @@
 {
-  "commit": "17c2cd6ef969516338d212c2ed08790a4d3c8a96",
+  "commit": "90b108179704b2301c6005c01686b20b77273233",
   "components": {
     "immunization_core": {
       "source": "core/src/immunization_core",
@@ -51,7 +51,7 @@
     },
     "scripts": {
       "source": "core/scripts",
-      "tree": "fcc400a703d1fedf664d8502ca0634ebba7fe5b6",
+      "tree": "7be3ba82934d91ef3beeaa6a27651c5b450d91bf",
       "files": {
         "generate_requirements_lock.py": "f426277b1840f82039ce11cc1fdccc619a0605410c373a4060da4c58c5cdb37a",
         "generate_vendor_snapshot.py": "dc08ed91676adc2340209ec3ad7cf5af6a128bc753abd4caf273938ad8e52b1e",
@@ -59,7 +59,7 @@
         "gpu_policy.sh": "c5ebdee593a191f56ba05613fd2113bc430400d9f3629bca8b57e698b612e6ce",
         "measure_free_gpus.sh": "fe92c3b2d36532612179746fb50d11a9808c217c2794ff6df912b91e7c227ddb",
         "run_queue_worker.sh": "9c5f84036fc71361ba4519064bc0ecef18e482b50fca30cf14c3c46ccdd1c405",
-        "run_trial_lifecycle.sh": "5203c2b235fdfdb91d72f39d6892317fad9340f2fe67e81906832e6005c4ccbe",
+        "run_trial_lifecycle.sh": "44eeb6f8fc88cec98b84c03c8e46933a748363064ef3d5e31b3be4c8d14fa67c",
         "run_with_gpu_lease.sh": "33e9ebdd948bc8bcc2aee36088eeaec9d89f72d9b295ad3b384e138456fb34f6"
       }
     }

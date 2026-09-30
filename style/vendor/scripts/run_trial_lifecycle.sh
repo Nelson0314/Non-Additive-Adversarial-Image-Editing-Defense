@@ -29,9 +29,10 @@ project_name() { grep -m 1 '^name *= *"' "$1/pyproject.toml" | cut -d '"' -f 2; 
 
 local_trial() {  # 本機 trial 的路徑檢查：trials 與目標都不是符號連結，且解析後位於 trials/ 之下
   [ -d "$ROOT/trials" ] && [ ! -L "$ROOT/trials" ] || { echo "[FATAL] $ROOT/trials 不存在或是符號連結" >&2; exit 1; }
-  [ -d "$dir" ] && [ ! -L "$dir" ] || { echo "[FATAL] 不存在或是符號連結：$dir" >&2; exit 1; }
-  [ "$(cd "$dir" && pwd -P)" = "$(cd "$ROOT/trials" && pwd -P)/$name" ] \
-    || { echo "[FATAL] $dir 解析後不在 trials/ 之下" >&2; exit 1; }
+  [ -d "$dir" ] || { echo "[FATAL] 不存在：$dir" >&2; exit 1; }
+  # 符號連結以 -L 判定；Windows 的 junction 不一定被 -L 認出，以解析後路徑判定，兩者同一訊息。
+  { [ ! -L "$dir" ] && [ "$(cd "$dir" && pwd -P)" = "$(cd "$ROOT/trials" && pwd -P)/$name" ]; } \
+    || { echo "[FATAL] $dir 是符號連結（或連結點），解析後不在 trials/ 之下" >&2; exit 1; }
 }
 
 REMOTE_SCRIPT='set -euo pipefail
@@ -41,8 +42,9 @@ cd "$root" || { echo "[FATAL] 遠端專案根不存在：$root" >&2; exit 3; }
 actual=$(grep -m 1 "^name *= *\"" pyproject.toml | cut -d "\"" -f 2)
 [ "$actual" = "$expected" ] || { echo "[FATAL] 遠端專案為 $actual，預期 $expected" >&2; exit 3; }
 [ -d trials ] && [ ! -L trials ] || { echo "[FATAL] 遠端 trials 不存在或是符號連結" >&2; exit 3; }
-[ -d "trials/$name" ] && [ ! -L "trials/$name" ] || { echo "[FATAL] 遠端沒有 trials/$name（或為符號連結）" >&2; exit 3; }
-[ "$(cd "trials/$name" && pwd -P)" = "$(cd trials && pwd -P)/$name" ] || { echo "[FATAL] 遠端路徑解析不符" >&2; exit 3; }
+[ -d "trials/$name" ] || { echo "[FATAL] 遠端沒有 trials/$name" >&2; exit 3; }
+{ [ ! -L "trials/$name" ] && [ "$(cd "trials/$name" && pwd -P)" = "$(cd trials && pwd -P)/$name" ]; } \
+  || { echo "[FATAL] 遠端 trials/$name 是符號連結（或連結點），解析後不在 trials/ 之下" >&2; exit 3; }
 rm -rf -- "trials/$name"
 [ ! -e "trials/$name" ] || { echo "[FATAL] 遠端刪除後仍存在" >&2; exit 3; }
 echo "$root/trials/$name"'

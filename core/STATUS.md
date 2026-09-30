@@ -2,7 +2,7 @@
 
 基礎模組來源基準：`57a28a9324362cc9fa68a21cc1970632fefbc1a3`；淨化階段基準：`51d58bf2757a691ec4d8c54a983efb74ac41bac8`。
 
-已建立可安裝的 `immunization_core` 套件、三份 pipelines 行為差異表、受害模型 adapters、活動閉包內六個 metrics 模組、device、I/O 與影像存檔介面。原 `anti-purification/src`、main_table、lab 呼叫端與所有資料保持原狀。baseline 攻擊實作未納入 core。
+已建立可安裝的 `immunization_core` 套件、三份 pipelines 行為差異表、受害模型 adapters、活動閉包內六個 metrics 模組、device、I/O 與影像存檔介面。來源（原 `anti-purification/src`、main_table、lab）依 commit 記錄於各 source manifest；封存後位於 `archive/anti-purification/`。baseline 攻擊實作未納入 core。
 
 第 3 項各子項狀態：
 

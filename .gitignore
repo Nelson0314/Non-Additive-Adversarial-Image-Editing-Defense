@@ -35,7 +35,7 @@ _report_anchor/
 # Windows ACL 鎖住、刪不掉的 pytest 暫存目錄。不擋掉的話每次 git status
 # 都會噴二十幾行 permission denied，那些行每次都要進脈絡。
 /.tmp/
-*/.tmp/
-*/.pytest_tmp_*/
+**/.tmp/
+**/.pytest_tmp_*/
 /pytest-ig-fixed-regression/
 **/runs/ncf_cpu_test_tmp/

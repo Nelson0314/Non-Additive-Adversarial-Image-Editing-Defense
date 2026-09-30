@@ -14,6 +14,7 @@
 | `docs/` | `EVALUATION.md` 與 `reference/`（方法出處、原始碼查證、淨化算子查證） |
 | `tests/` | 條件規格、續跑與完成判定、專案自足性（`pytest`，不需 GPU） |
 | `vendor/` | `immunization_core` 套件與 GPU 租約工具的固定版本快照；`vendor.lock.json` 記錄來源 commit 與逐檔雜湊 |
+| `docs/TRIALS.md` | 已刪除的暫時性嘗試紀錄；`trial.sh new|promote|drop` 的用法見檔首 |
 | `artifacts/`、`runtime/`、`trials/` | 影像產物、執行狀態、暫時性嘗試；不入版控 |
 
 ## 讀數

@@ -13,6 +13,7 @@
 | `docs/` | `DESIGN.md`；`references/neucom_134591.json`（論文 metadata） |
 | `tests/` | 選點、讀數輸入檢查、專案自足性 |
 | `vendor/` | `immunization_core` 與 GPU 租約工具的固定版本快照；`vendor.lock.json` 記錄來源 commit 與逐檔雜湊 |
+| `docs/TRIALS.md` | 已刪除的暫時性嘗試紀錄；`trial.sh new|promote|drop` 的用法見檔首 |
 | `artifacts/`、`runtime/`、`trials/` | 影像產物、排程紀錄、暫時性嘗試；不入版控 |
 
 ## 執行

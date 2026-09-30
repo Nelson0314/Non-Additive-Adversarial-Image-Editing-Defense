@@ -13,6 +13,7 @@
 | `docs/DESIGN.md` | 問題、協定、方法、結果與已退役方向的數據紀錄 |
 | `tests/` | 條件指令、佇列相依與驗收、讀數退出碼、專案自足性 |
 | `vendor/` | `immunization_core` 與 GPU 租約工具的固定版本快照；`vendor.lock.json` 記錄來源 commit 與逐檔雜湊 |
+| `docs/TRIALS.md` | 已刪除的暫時性嘗試紀錄；`trial.sh new|promote|drop` 的用法見檔首 |
 | `artifacts/`、`runtime/`、`trials/` | 影像產物、排程狀態、暫時性嘗試；不入版控 |
 
 ## 條件

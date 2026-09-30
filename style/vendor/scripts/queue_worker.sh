@@ -150,9 +150,15 @@ main() {
       [ "${#runnable[@]}" -eq 0 ] && break
       full && break
       job="${runnable[0]}"
-      mkdir "$Q/$(key "$job").lock" 2>/dev/null || { runnable=("${runnable[@]:1}"); continue; }
-      launch "$job" "$c"
       runnable=("${runnable[@]:1}")
+      mkdir "$Q/$(key "$job").lock" 2>/dev/null || continue
+      # 掃描時的完成判定與鎖的檢查不是同一時刻：工作可能在兩者之間（例如相依檢查執行中）
+      # 完成並釋放鎖。執行端先寫 .done／.GIVEUP 再釋放鎖，故取得鎖後重新判定即可排除重派。
+      if done_ "$job" || dead "$job"; then
+        rmdir "$Q/$(key "$job").lock"
+        continue
+      fi
+      launch "$job" "$c"
     done
     sleep "$POLL"
   done

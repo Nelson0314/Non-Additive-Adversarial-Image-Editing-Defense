@@ -1,17 +1,46 @@
 """CSV 與影像張量 I/O。
 
 CSV 欄位依全部資料列首次出現順序聯集；write_csv() 覆寫指定檔案。write_sorted_csv()
-的欄位依名稱排序。load_dataset_images() 列出資料集中 prompts.yaml 所列類別的影像。
+的欄位依名稱排序。兩者都經 write_rows_atomic()：在同一目錄寫完暫存檔並 fsync 後以
+os.replace() 取代目標，寫入中斷或失敗時目標檔維持原內容。load_dataset_images() 列出資料集中 prompts.yaml 所列類別的影像。
 load_image_tensor() 讀取 RGB 並回傳 (1,3,H,W)、[0,1] 張量；明給 size 時
 使用 bicubic、antialias=True 縮放為正方形，保留既有的取樣與 clamp 順序。"""
 
 from __future__ import annotations
 
 import csv
+import os
+import tempfile
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence
 
 import torch
+
+
+def write_rows_atomic(path: Path, fields: Sequence[str], rows: Sequence[Dict[str, Any]],
+                      **writer_options) -> Path:
+    """以 `fields` 為欄位寫出 `rows`，完成後原子地取代 `path`。
+
+    暫存檔與目標同目錄（同一檔案系統，`os.replace` 為原子操作）；任何例外都刪除暫存檔
+    並重新拋出，目標檔不受影響。`writer_options` 傳給 `csv.DictWriter`。
+    """
+    path = Path(path)
+    stream = tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", newline="",
+                                         dir=path.parent, prefix=f".{path.name}.", suffix=".tmp",
+                                         delete=False)
+    temporary = Path(stream.name)
+    try:
+        with stream:
+            writer = csv.DictWriter(stream, fieldnames=list(fields), **writer_options)
+            writer.writeheader()
+            writer.writerows(rows)
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.replace(temporary, path)
+    except BaseException:
+        temporary.unlink(missing_ok=True)
+        raise
+    return path
 
 
 def write_csv(path: Path, rows: Sequence[Dict[str, Any]]) -> Path:
@@ -27,12 +56,7 @@ def write_csv(path: Path, rows: Sequence[Dict[str, Any]]) -> Path:
         for k in r:
             if k not in fields:
                 fields.append(k)
-    with open(path, "w", newline="", encoding="utf-8") as f:
-        w = csv.DictWriter(f, fieldnames=fields, extrasaction="ignore")
-        w.writeheader()
-        for r in rows:
-            w.writerow(r)
-    return path
+    return write_rows_atomic(path, fields, rows, extrasaction="ignore")
 
 
 def load_image_tensor(path: Path, device, size: Optional[int] = None
@@ -72,8 +96,4 @@ def load_dataset_images(root: Path, only) -> list:
 
 def write_sorted_csv(path: Path, rows) -> None:
     """欄位取全部列的聯集並依名稱排序後覆寫 `path`。"""
-    keys = sorted({k for r in rows for k in r})
-    with path.open("w", newline="", encoding="utf-8") as fh:
-        writer = csv.DictWriter(fh, fieldnames=keys)
-        writer.writeheader()
-        writer.writerows(rows)
+    write_rows_atomic(path, sorted({k for r in rows for k in r}), rows)

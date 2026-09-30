@@ -1,5 +1,5 @@
 {
-  "commit": "d5b31507eb3c2d0d1ceded96255a6bb80466f449",
+  "commit": "c589b30b3a3de324920fa128799cfc843565944f",
   "components": {
     "immunization_core": {
       "source": "core/src/immunization_core",
@@ -51,10 +51,11 @@
     },
     "scripts": {
       "source": "core/scripts",
-      "tree": "8e1ac77f2b034d3940cee55b786354a742975ee3",
+      "tree": "9092736b39377c77fab1d2d4d5f99950dca8b852",
       "files": {
         "export_vendor.py": "2e0abb4c111f707d858369bc2c60c2ebbf8760a97d3343a8f4754e110a8e94af",
         "free_cards.sh": "b8e0674d18614329af034f7eb8b9b755e228673d4461805c5db5fb20a4a1875f",
+        "freeze_env.py": "c0e00fb61159830bd397d245d7d99e3109d581427c63a0f4f19ab53a864c5fd5",
         "gpu_lease.sh": "e581ea7a92c3e84a42158c486928f151e9cda800f405aeec2c7c3f40a3fb28f3",
         "gpu_policy.sh": "269917ee259134e608a22a4280136100ad0a3f4b98b67aff33696f603fa13971",
         "queue_worker.sh": "4798e7461754d20a1483ce281f35226efaac8e96e2919d45f01d8ca5327e489a",

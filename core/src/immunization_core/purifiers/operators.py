@@ -531,7 +531,9 @@ class Purifier:
         if self.kind == "impress":
             return has_impress_deps(self.options.get("sd"),
                                     self.options.get("backend", "lpips"))
-        if self.kind in ("diffpure", "gridpure", "fdpure"):
+        if self.kind in ("gridpure", "fdpure"):
+            return False
+        if self.kind == "diffpure":
             return _diffpure.has_diffpure_weights(self.options.get("ckpt"))
         if self.kind == "cnn_denoise_substitute":
             return has_cnn_denoise_weights(self.options.get("ckpt"))
@@ -586,11 +588,9 @@ class Purifier:
             t = int(self.strength) if self.strength else _diffpure.DIFFPURE_T_DEFAULT
             return diffpure_real(x, t=t, ckpt=self.options.get("ckpt"))
         if self.kind == "gridpure":
-            from immunization_core.purifiers.freq_grid import gridpure_real
-            return gridpure_real(x, seed=self.seed, **self.options)
+            raise NotImplementedError("gridpure 未包含於 core；必須提供獨立、經驗證的實作，禁止改用近似算子")
         if self.kind == "fdpure":
-            from immunization_core.purifiers.freq_grid import fdpure_real
-            return fdpure_real(x, seed=self.seed, **self.options)
+            raise NotImplementedError("fdpure 未包含於 core；必須提供獨立、經驗證的實作，禁止改用近似算子")
         return cnn_denoise_substitute_real(x, ckpt=self.options.get("ckpt"))
 
     def _run(self, x: torch.Tensor) -> torch.Tensor:

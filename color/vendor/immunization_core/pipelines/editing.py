@@ -89,9 +89,9 @@ def build_parser() -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser(
         description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--data", type=Path, required=True,
+    ap.add_argument("--data-root", dest="data", type=Path, required=True,
                     help="資料集根目錄，含 prompts.yaml、各類別子目錄與 masks/")
-    ap.add_argument("--out", type=Path, required=True)
+    ap.add_argument("--output-dir", dest="out", type=Path, required=True)
     ap.add_argument("--scenarios", nargs="+", default=["ip2p", "inpaint"])
     ap.add_argument("--images", nargs="+", default=None)
     ap.add_argument("--identity", action="store_true",
@@ -111,7 +111,7 @@ def build_parser() -> argparse.ArgumentParser:
                     help="IP2P 的文字 guidance，逐列記入 CSV")
     ap.add_argument("--s-i", type=float, default=IP2P_EDIT_IMAGE_GUIDANCE,
                     help="IP2P 的影像 guidance")
-    ap.add_argument("--defended", type=Path, default=None,
+    ap.add_argument("--defenses-dir", dest="defended", type=Path, default=None,
                     help="改用此目錄中的 `<名稱>__def.png` 作為輸入；缺圖即失敗")
     ap.add_argument("--negative-prompt", default="",
                     help="IP2P negative prompt; recorded verbatim in CSV")
@@ -142,7 +142,7 @@ def main(argv=None) -> None:
     if args.require_new_arm and args.metrics_only:
         ap.error("--require-new-arm cannot be used with --metrics-only")
     if args.defended is not None and not args.defended.is_dir():
-        ap.error(f"--defended 不是目錄：{args.defended}")
+        ap.error(f"--defenses-dir 不是目錄：{args.defended}")
 
     args.out.mkdir(parents=True, exist_ok=True)
     items, edits = load_items(args.data)

@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # 取得一張空卡的租約、確認 CUDA 可用後執行一條指令；結束時釋放租約。
 #
-# 用法：bash run_with_gpu_lease.sh --workdir <目錄> [--env <檔案>]
+# 用法：bash run_with_gpu_lease.sh --work-dir <目錄> [--env-file <檔案>]
 #           [--cap <全局授權|default>] [--limit <派工限制>] <租約名稱> <指令...>
 #
-# --workdir  執行指令的工作目錄（必填）。
-# --env      先 source 的環境檔（例如設定 PY 與 PYTHONPATH）；source 失敗即中止。
+# --work-dir  執行指令的工作目錄（必填）。
+# --env-file      先 source 的環境檔（例如設定 PY 與 PYTHONPATH）；source 失敗即中止。
 # --cap      全局授權卡數，寫入共用租約目錄；未給時依 GPU_CAP 或既有紀錄。
 # --limit    本次派工計入的租約上限，不超過全局授權。
 # CUDA 檢查使用 $PY，未設定時為 python。
@@ -15,12 +15,12 @@ while [[ "${1:-}" == --* ]]; do
   case "$1" in
     --cap) AUTHORIZED_CAP=$2; shift 2 ;;
     --limit) LAUNCH_LIMIT=$2; shift 2 ;;
-    --workdir) WORKDIR=$2; shift 2 ;;
-    --env) ENV_FILE=$2; shift 2 ;;
+    --work-dir) WORKDIR=$2; shift 2 ;;
+    --env-file) ENV_FILE=$2; shift 2 ;;
     *) echo "未知參數 $1" >&2; exit 2 ;;
   esac
 done
-[ -n "$WORKDIR" ] || { echo "[FATAL] 必須指定 --workdir" >&2; exit 2; }
+[ -n "$WORKDIR" ] || { echo "[FATAL] 必須指定 --work-dir" >&2; exit 2; }
 [ $# -ge 2 ] || { echo "[FATAL] 需要租約名稱與指令" >&2; exit 2; }
 NAME="$1"; shift
 if [ -n "$ENV_FILE" ]; then

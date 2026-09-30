@@ -6,8 +6,8 @@
 `SIGLIP_BLOCKED_THRESHOLD` 記為 `blocked`，門檻逐列寫入 CSV。
 
 用法
-    python -m immunization_core.pipelines.displacement --defended-root <條件根> \\
-        --preflight <未防禦編輯根> --data <資料集根> --out <CSV>
+    python -m immunization_core.pipelines.displacement --defended-edits-root <條件根> \\
+        --undefended-edits-root <未防禦編輯根> --data-root <資料集根> --output-csv <CSV>
 """
 
 from __future__ import annotations
@@ -65,11 +65,11 @@ def condition_directories(root: Path, conditions=None) -> list:
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--defended-root", type=Path, required=True)
-    parser.add_argument("--preflight", type=Path, required=True)
-    parser.add_argument("--data", type=Path, required=True,
+    parser.add_argument("--defended-edits-root", dest="defended_root", type=Path, required=True)
+    parser.add_argument("--undefended-edits-root", dest="preflight", type=Path, required=True)
+    parser.add_argument("--data-root", dest="data", type=Path, required=True,
                         help="資料集根目錄，只讀取其中的 masks/")
-    parser.add_argument("--out", type=Path, required=True)
+    parser.add_argument("--output-csv", dest="out", type=Path, required=True)
     parser.add_argument("--ip2p-arm", default=DEFAULT_ARMS["ip2p"])
     parser.add_argument("--inpaint-arm", default=DEFAULT_ARMS["inpaint"])
     parser.add_argument("--conditions", nargs="+", default=None)

@@ -9,8 +9,8 @@
 幾何算子（`crop_resize0.1`、`rotate15`）的遮罩經 `purified_mask()` 與影像同步變換。
 
 用法
-    python -m immunization_core.pipelines.retention --purified-root <淨化根> \\
-        --displacement <位移 CSV> --data <資料集根> --out <CSV>
+    python -m immunization_core.pipelines.retention --purified-edits-root <淨化根> \\
+        --displacement-csv <位移 CSV> --data-root <資料集根> --output-csv <CSV>
 """
 
 from __future__ import annotations
@@ -57,11 +57,11 @@ def purified_conditions(root: Path, conditions=None) -> list:
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--purified-root", type=Path, required=True)
-    parser.add_argument("--displacement", type=Path, required=True)
-    parser.add_argument("--data", type=Path, required=True,
+    parser.add_argument("--purified-edits-root", dest="purified_root", type=Path, required=True)
+    parser.add_argument("--displacement-csv", dest="displacement", type=Path, required=True)
+    parser.add_argument("--data-root", dest="data", type=Path, required=True,
                         help="資料集根目錄，只讀取其中的 masks/")
-    parser.add_argument("--out", type=Path, required=True)
+    parser.add_argument("--output-csv", dest="out", type=Path, required=True)
     parser.add_argument("--conditions", nargs="+", default=None,
                         help="只計算這些條件（預設為淨化根下全部）")
     return parser

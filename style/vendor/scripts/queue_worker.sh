@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # 共用工作佇列的 worker。取卡經 gpu_lease.sh，容量政策見 gpu_policy.sh。
 #
-# 用法：bash queue_worker.sh --workdir <目錄> --state <目錄> --logs <目錄>
-#           --runner <指令> --validator <指令> [--depends <指令>] [--env <檔案>]
+# 用法：bash queue_worker.sh --work-dir <目錄> --state-dir <目錄> --log-dir <目錄>
+#           --runner <指令> --validator <指令> [--depends <指令>] [--env-file <檔案>]
 #           <佇列名> <工作>...
 #
 # 工作語法與相依由專案注入：
@@ -13,7 +13,7 @@
 #                       工作；結束碼 0 表示佇列外的前置條件已滿足、1 表示尚未
 #                       滿足，其他值使 worker 中止。未提供時沒有相依。
 #
-# 狀態寫在 --state：<工作>.lock（mkdir，跨機原子）、<工作>.done、<工作>.fails。
+# 狀態寫在 --state-dir：<工作>.lock（mkdir，跨機原子）、<工作>.done、<工作>.fails。
 # 失敗的工作解鎖重試；同一工作失敗 MAXFAIL 次寫 <工作>.GIVEUP，不再派送相依於
 # 它的工作。佇列結束時任一工作未完成或未通過驗收，worker 回傳 1。
 # 環境變數 QUEUE_CAP 可另外降低本類佇列的合計租約數，不超過全局授權；POLL 與
@@ -22,17 +22,17 @@ set -uo pipefail
 WORKDIR=""; STATE=""; LOGDIR=""; RUNNER=""; VALIDATOR=""; DEPENDS=""; ENV_FILE=""
 while [[ "${1:-}" == --* ]]; do
   case "$1" in
-    --workdir) WORKDIR=$2; shift 2 ;;
-    --state) STATE=$2; shift 2 ;;
-    --logs) LOGDIR=$2; shift 2 ;;
+    --work-dir) WORKDIR=$2; shift 2 ;;
+    --state-dir) STATE=$2; shift 2 ;;
+    --log-dir) LOGDIR=$2; shift 2 ;;
     --runner) RUNNER=$2; shift 2 ;;
     --validator) VALIDATOR=$2; shift 2 ;;
     --depends) DEPENDS=$2; shift 2 ;;
-    --env) ENV_FILE=$2; shift 2 ;;
+    --env-file) ENV_FILE=$2; shift 2 ;;
     *) echo "未知參數 $1" >&2; exit 2 ;;
   esac
 done
-for required in workdir:WORKDIR state:STATE logs:LOGDIR runner:RUNNER validator:VALIDATOR; do
+for required in work-dir:WORKDIR state-dir:STATE log-dir:LOGDIR runner:RUNNER validator:VALIDATOR; do
   variable=${required#*:}
   [ -n "${!variable}" ] || { echo "[FATAL] 缺少必要參數 --${required%%:*}" >&2; exit 2; }
 done

@@ -65,6 +65,7 @@
 
 ## 暫時性嘗試
 
-在專案內以 `bash vendor/scripts/run_trial_lifecycle.sh new <名稱>` 建立 `trials/<名稱>/`（不入版控）。採用的內容搬進 `src/`、`configs/`、`results/`
-並提交後 `run_trial_lifecycle.sh promote`；不採用者先在 `docs/TRIALS.md` 寫一列（試了什麼、設定、關鍵數字、結論來源）再 `run_trial_lifecycle.sh drop`，
-遠端副本一併刪除。
+在專案內以 `bash vendor/scripts/run_trial_lifecycle.sh new <名稱>` 建立 `trials/<名稱>/`（不入版控）。
+採用時把內容搬進 `src/`、`configs/`、`results/` 等目錄並提交，在 `trials/<名稱>/PROMOTED` 逐行列出目的檔，再 `promote`；
+不採用時先在 `docs/TRIALS.md` 寫一列並提交（五欄皆填，結論來源不可指向 trial 本身），再 `drop`。
+兩者都一併刪除遠端副本（`TRIAL_REMOTE`、`TRIAL_REMOTE_ROOT`）；細節見 `core/README.md`。

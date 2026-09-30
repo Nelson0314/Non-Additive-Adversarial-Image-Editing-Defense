@@ -8,7 +8,7 @@ version = "0.1.0"
 description = "Shared editor and measurement contracts for image immunization research"
 readme = "README.md"
 requires-python = ">=3.10"
-dependencies = ["torch>=2.0", "torchvision>=0.15", "numpy>=1.24", "Pillow>=9.0"]
+dependencies = ["torch>=2.0", "torchvision>=0.15", "numpy>=1.24", "Pillow>=9.0", "PyYAML>=6.0"]
 
 [project.optional-dependencies]
 editors = ["diffusers>=0.30", "transformers>=4.40", "accelerate>=0.30", "safetensors>=0.4"]

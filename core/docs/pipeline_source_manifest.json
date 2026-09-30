@@ -1,0 +1,20 @@
+{
+  "source_commit": "4329881f65b706c18d0317e5276d66dcfa924772",
+  "copies": [
+    {
+      "source": "lab/code/edit_preflight.py",
+      "destination": "core/src/immunization_core/pipelines/editing.py",
+      "source_sha256": "15bc867b8e4fbdbfca80b6608bf6510c20c5282021d6d3c2e03ce1b984037931"
+    },
+    {
+      "source": "lab/code/edit_displacement.py",
+      "destination": "core/src/immunization_core/pipelines/displacement.py",
+      "source_sha256": "65b7e7676098155d484e8c822c371dc46db9b31bfb1953a5641274bfaecfa14c"
+    },
+    {
+      "source": "lab/code/edit_retention.py",
+      "destination": "core/src/immunization_core/pipelines/retention.py",
+      "source_sha256": "ce377b1db0418991bee4bc25e7c8606cd56718db305e90e16365fea16542f3e0"
+    }
+  ]
+}

@@ -16,7 +16,7 @@ strength=0.5、guidance_scale=7.5、num_inference_steps=50。同一份稽核也�
 不是本專案為了通過某個身分門檻反推出來的**。
 
 **不加遮罩，使用者 2026-09-27 裁定。** 在 4 張影像 × 4 個 strength 的預覽中
-（`results/sweeps/sdedit/sd15_strength.csv`），strength 0.3–0.6 的 id_orig 全部低於
+（`results/sweeps/sdedit/strength/sd15_strength.csv`），strength 0.3–0.6 的 id_orig 全部低於
 0.55 同一人門檻。`SDWrapper.sdedit()` 的 `keep01`
 遮罩參數可以緩解這件事，但 PhotoGuard 等文獻本身展示 SDEdit 時也沒有這樣做
 ——對這個威脅模型，身分被大幅改動是 SDEdit 這一類攻擊本來就有的性質，不是
@@ -37,15 +37,15 @@ UNet 原生 768×768。`SDWrapper._eps`／`sdedit`／`denoise` 的 DDIM 遞迴�
 `sd2-community/stable-diffusion-2-1-base`**（`prediction_type == "epsilon"`、
 原生 512×512，同一個社群帳號的另一個 repo）。換掉 checkpoint 之後同一組協定
 （strength 0.5、guidance 7.5、50 步）跑出來的 id_orig 落在 −0.09–0.29，
-與 SD 1.5 在同一組指令下的量級一致（見 `results/sweeps/sdedit/sd15_strength.csv`），不再
+與 SD 1.5 在同一組指令下的量級一致（見 `results/sweeps/sdedit/strength/sd15_strength.csv`），不再
 是整批偵測不到臉。
 
 用法（遠端，需要一張卡）
     HF_HOME=/var/cache/huggingface CUDA_VISIBLE_DEVICES=<卡> \\
         python -m immunization_baseline.cli.sweep_sdedit_parameters \\
             --model sd2-community/stable-diffusion-2-1-base \\
-            --output-dir artifacts/sweeps/sdedit/sd21_base_strength \\
-            --output-csv results/sweeps/sdedit/sd21_base_strength.csv
+            --output-dir artifacts/sweeps/sdedit/strength/sd21_base_strength \\
+            --output-csv results/sweeps/sdedit/strength/sd21_base_strength.csv
 """
 
 from __future__ import annotations

@@ -33,8 +33,8 @@ SDEdit（SD 1.5／2.1-base）三個參數維度都沒有交集，見 STATUS.md�
 用法（遠端，需要一張卡）
     CUDA_VISIBLE_DEVICES=<卡> python -m immunization_baseline.cli.sweep_editor_parameters \\
         --editor sdxl-ip2p --guidances 3 5 7.5 --image-guidances 1.2 1.5 \\
-        --output-dir artifacts/sweeps/sdxl_ip2p/guidance_portrait_pair \\
-        --output-csv results/sweeps/sdxl_ip2p/guidance_portrait_pair.csv
+        --output-dir artifacts/sweeps/sdxl_ip2p/guidance/guidance_portrait_pair \\
+        --output-csv results/sweeps/sdxl_ip2p/guidance/guidance_portrait_pair.csv
 """
 
 from __future__ import annotations

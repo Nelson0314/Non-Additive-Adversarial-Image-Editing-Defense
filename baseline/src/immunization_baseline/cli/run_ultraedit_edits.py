@@ -25,7 +25,7 @@
 淨化後那一層的中段仍寫 `ip2p`，因為 `pipelines.retention.cell()` 以場景名組路徑，
 而這裡的「場景」是指令來源 `edits.ip2p`，不是編輯器。
 
-逐格 CSV：`results/ultraedit/edits/<arm>.csv`（每個 arm 一檔，兩張卡寫不同的檔），
+逐格 CSV：`results/ultraedit/edits_<arm>.csv`（每個 arm 一檔，兩張卡寫不同的檔），
 含 id_orig／arcface_orig（參考圖是乾淨原圖）。續跑須通過協定摘要、輸入雜湊與 PNG 檢查。
 
 用法（baseline 專案根目錄，一張卡一份）
@@ -115,7 +115,7 @@ def main() -> None:
                     help="條件防禦圖的根目錄，`<條件>/<圖>__<條件>__def.png`")
     ap.add_argument("--purified-edits-root", dest="purified_edits", type=Path, default=layout.PURIFIED_EDITS,
                     help="主表淨化後編輯的根目錄，取其中 ip2p 格的輸入影像")
-    ap.add_argument("--output-csv-dir", dest="results", type=Path, default=layout.RESULTS / "ultraedit" / "edits",
+    ap.add_argument("--output-csv-dir", dest="results", type=Path, default=layout.RESULTS / "ultraedit",
                     help="不同協定須使用獨立結果目錄與 --output-dir")
     args = ap.parse_args()
 
@@ -136,7 +136,7 @@ def main() -> None:
 
     states = {}
     for arm in args.arms:
-        out_csv = args.results / f"{arm}.csv"
+        out_csv = args.results / f"edits_{arm}.csv"
         out_csv.parent.mkdir(parents=True, exist_ok=True)
         protocol_id = protocol_digest({
             "editor": EDITOR, "model": spec["repo"], "call_kw": spec["call_kw"],

@@ -40,10 +40,10 @@
 |---|---|---|
 | `results/flux/edits_<arm>.csv` | 32／檔，13 檔（分母＋12 條件） | FLUX.1-Kontext 編輯輸出的 id_orig／arcface_orig，guidance 3.5、1024×1024 |
 | `results/flux/displacement.csv` | 384 | FLUX 全表的編輯結果 LPIPS，欄位與 `displacement.csv` 同組 |
-| `results/ultraedit/edits/<arm>.csv` | 256／檔，13 檔 | UltraEdit（SD3）全表的逐格編輯，未淨化＋7 道算子 |
+| `results/ultraedit/edits_<arm>.csv` | 256／檔，13 檔 | UltraEdit（SD3）全表的逐格編輯，未淨化＋7 道算子 |
 | `results/ultraedit/displacement.csv`、`results/ultraedit/retention.csv` | 384、2,688 | UltraEdit 全表的編輯結果 LPIPS 與保留率 |
 | `results/additive_transfer.csv` | 704 | 加性穿透拆解（ip2p，原生 12 條件＋等失真 10 條件），見 `docs/ADDITIVE_TRANSFER.md` |
-| `results/sweeps/` | 數格至兩百格 | 未防禦影像上的編輯器參數掃描：`flux/`、`sdedit/`、`sdxl_ip2p/`、`ultraedit/`，及 `ip2p/` 對照；`*_off_target.csv` 為指令以外改動的讀數（背景／主體 ΔE00、LPIPS） |
+| `results/sweeps/` | 數格至兩百格 | 未防禦影像上的編輯器參數掃描，依 `<編輯器>/<變因>/` 分層：`flux/`、`sdedit/`、`sdxl_ip2p/`、`ultraedit/`，及 `ip2p/reference/` 對照；`*_off_target.csv` 為指令以外改動的讀數（背景／主體 ΔE00、LPIPS）；對應影像在 `artifacts/sweeps/` 的同名位置 |
 
 十二個條件：`dct_shield_y`、`mist`、`dct_shield`、`photoguard_linf`、`danp`、`sifm`、`dayn`、`dia_pt`、`dia_r`、`photoguard_c`、`color`、`diffvax`。顏色那一列原為 `color_curve`（數值留在 commit `0dd243b`），現為 color 專案的方法 `color`；等失真臂仍以舊顏色列的 0.3344 為錨點（見 `STATUS.md`）。每個條件 8 影像 × 4 指令 × 2 場景 ＝ 64 格。
 
@@ -98,8 +98,9 @@ python -m pytest tests         # pyproject.toml 已設定 pythonpath
 | 淨化後·未防禦分母 | 448 | `artifacts/purified_edits/undefended/<算子>/<場景>_undefended_<算子>/<圖>__p<N>.png` |
 | 淨化後·防禦 | 5,376 | `artifacts/purified_edits/<條件>/<算子>/<場景>_<條件>_<算子>/<圖>__p<N>.png` |
 | 防禦圖 | 96 | `artifacts/defenses/<條件>/<圖>__<條件>__def.png` |
-| 等失真防禦圖 | 80 | `artifacts/defenses_aligned/<條件>/<圖>__<條件>__def.png` |
+| 等失真防禦圖 | 80 | `artifacts/aligned/defenses/<條件>/<圖>__<條件>__def.png` |
 | 淨化後防禦圖 | — | `artifacts/purified/<條件>/<算子>/<圖>__def.png` |
-| FLUX、UltraEdit 編輯 | — | `artifacts/flux_edits/<arm>/`、`artifacts/ultraedit_edits/` |
+| 等失真臂的編輯 | — | `artifacts/aligned/defended_edits/`、`artifacts/aligned/purified_edits/` |
+| FLUX、UltraEdit 編輯 | — | `artifacts/flux/edits/<arm>/`、`artifacts/ultraedit/edits/` |
 
 原圖與重繪遮罩在 `data/portraits/`（`man/`、`woman/`、`masks/`）。

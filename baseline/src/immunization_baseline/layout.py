@@ -25,7 +25,7 @@ ARTIFACTS = PROJECT / "artifacts"
 #: 防禦圖，每條件一個子目錄（`<影像>__<條件>__def.png` 與 `results.csv`）。
 DEFENSES = ARTIFACTS / "defenses"
 #: 等失真對齊的防禦圖。
-ALIGNED_DEFENSES = ARTIFACTS / "defenses_aligned"
+ALIGNED_DEFENSES = ARTIFACTS / "aligned" / "defenses"
 #: 未防禦的編輯（各 arm 子目錄與 `preflight.csv`）。
 UNDEFENDED_EDITS = ARTIFACTS / "undefended_edits"
 #: 防禦後的編輯，每條件一個子目錄。
@@ -34,7 +34,7 @@ DEFENDED_EDITS = ARTIFACTS / "defended_edits"
 PURIFIED = ARTIFACTS / "purified"
 #: 淨化後重新編輯的結果，`<條件>/<淨化>/<arm>/`。
 PURIFIED_EDITS = ARTIFACTS / "purified_edits"
-FLUX_EDITS = ARTIFACTS / "flux_edits"
-ULTRAEDIT_EDITS = ARTIFACTS / "ultraedit_edits"
+FLUX_EDITS = ARTIFACTS / "flux" / "edits"
+ULTRAEDIT_EDITS = ARTIFACTS / "ultraedit" / "edits"
 #: 編輯器參數掃描的影像。
 SWEEPS = ARTIFACTS / "sweeps"

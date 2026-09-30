@@ -13,8 +13,8 @@
 
 用法（CSV 的 png 欄為相對路徑時，於其基準目錄執行）
     python -m immunization_baseline.cli.measure_off_target_changes \\
-        --edits-csv results/sweeps/sdxl_ip2p/guidance_portraits.csv \\
-        --output-csv results/sweeps/sdxl_ip2p/guidance_portraits_off_target.csv
+        --edits-csv results/sweeps/sdxl_ip2p/guidance/guidance_portraits.csv \\
+        --output-csv results/sweeps/sdxl_ip2p/guidance/guidance_portraits_off_target.csv
 """
 
 from __future__ import annotations

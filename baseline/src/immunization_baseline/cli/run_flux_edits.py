@@ -104,7 +104,7 @@ def main() -> None:
     ap.add_argument("--defenses-dir", dest="defended", type=Path, default=None,
                     help="覆寫單一條件的防禦圖目錄，預設為 --defenses-root/<arm>")
     ap.add_argument("--output-dir", dest="out", type=Path, default=None,
-                    help="預設 artifacts/flux_edits/<arm>/")
+                    help="預設 artifacts/flux/edits/<arm>/")
     ap.add_argument("--output-csv", dest="out_csv", type=Path, default=None,
                     help="不同協定須使用獨立 CSV 與 --output-dir")
     ap.add_argument("--images", nargs="+", default=None,

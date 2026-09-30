@@ -9,15 +9,15 @@ from immunization_baseline.cli import run_flux_edits, run_ultraedit_edits
 
 
 def driver(kind, tmp_path, monkeypatch):
-    module = {"flux_preview": run_flux_edits, "ultraedit_full": run_ultraedit_edits}[kind]
+    module = {"flux": run_flux_edits, "ultraedit": run_ultraedit_edits}[kind]
     captured = []
     original = tmp_path / "original.png"
     original.write_bytes(b"original")
     layout = types.SimpleNamespace(
         PROJECT=tmp_path, PORTRAITS=tmp_path / "data", RESULTS=tmp_path / "results",
         CONFIGS=tmp_path / "configs", DEFENSES=tmp_path / "defenses",
-        PURIFIED_EDITS=tmp_path / "purified_edits", FLUX_EDITS=tmp_path / "flux_edits",
-        ULTRAEDIT_EDITS=tmp_path / "ultraedit_edits")
+        PURIFIED_EDITS=tmp_path / "purified_edits", FLUX_EDITS=tmp_path / "flux/edits",
+        ULTRAEDIT_EDITS=tmp_path / "ultraedit/edits")
 
     def no_model(*args):
         raise AssertionError("model loader called")
@@ -28,22 +28,22 @@ def driver(kind, tmp_path, monkeypatch):
     monkeypatch.setattr(module, "load_pipeline", no_model)
     monkeypatch.setattr(module, "protocol_digest",
                         lambda config: captured.append(config) or resume_state.protocol_digest(config))
-    if kind == "flux_preview":
+    if kind == "flux":
         argv = ["run_flux_edits", "--arm", "undefended", "--instruction-indices", "0"]
         out_csv = tmp_path / "results/flux/edits_undefended.csv"
-        png = tmp_path / "flux_edits/undefended/a__p0.png"
+        png = tmp_path / "flux/edits/undefended/a__p0.png"
     else:
         monkeypatch.setattr(module, "input_png", lambda *args: original)
         prompts = tmp_path / "prompts.json"
         prompts.write_text('{"verbatim": ["edit"]}')
         argv = ["run_ultraedit_edits", "--arms", "undefended", "--purifiers", "none",
                 "--guidance", "2.5", "--image-guidance", "1.5", "--prompt-sets", str(prompts)]
-        out_csv = tmp_path / "results/ultraedit/edits/undefended.csv"
-        png = tmp_path / "ultraedit_edits/undefended_edits/ultraedit_undefended/a__p0.png"
+        out_csv = tmp_path / "results/ultraedit/edits_undefended.csv"
+        png = tmp_path / "ultraedit/edits/undefended_edits/ultraedit_undefended/a__p0.png"
     return module, captured, argv, out_csv, original, png
 
 
-@pytest.mark.parametrize("kind", ["flux_preview", "ultraedit_full"])
+@pytest.mark.parametrize("kind", ["flux", "ultraedit"])
 @pytest.mark.parametrize("change", ["none", "guidance", "missing_png", "legacy"])
 def test_cli_resume_validates_before_model_load(tmp_path, monkeypatch, kind, change):
     ns, configs, argv, csv_path, original, png = driver(kind, tmp_path, monkeypatch)

@@ -2,7 +2,7 @@
 
 FLUX 全表(`run_flux_edits --arm`)沒有 ip2p／inpaint 那種兩場景、
 `preflight.csv`、`<場景>_<條件>` 子目錄的版面──只有一個場景(ip2p 指令)，
-每個 arm 攤平成 `artifacts/flux_edits/<arm>/<影像>__p<指令>.png`，讀數在
+每個 arm 攤平成 `artifacts/flux/edits/<arm>/<影像>__p<指令>.png`，讀數在
 `results/flux/edits_<arm>.csv`。`pipelines.displacement` 的目錄假設對不上，
 故另立這一支，共用同一套指標模組（`RegionalLPIPS`、`standard_row`、
 `MetricSuite`），輸出欄位與 `results/displacement.csv` 一致，可以直接併進

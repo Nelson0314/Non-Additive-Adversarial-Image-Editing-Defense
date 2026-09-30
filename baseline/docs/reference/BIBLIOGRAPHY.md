@@ -73,8 +73,8 @@ logit 差；本專案沒有 logits，目標是擴散編輯失效。換損失是�
 讓分類器誤判，這一節的目標是讓擴散編輯失效。逐項的預算、論文與官方程式的落差、
 以及可引用數字的出處在 [`BASELINE_PROVENANCE.md`](BASELINE_PROVENANCE.md)。
 
-比現有六個條件更新的方法，連同「跑不跑得動／有沒有程式／數字能不能引用」三道
-篩選，在 [`BASELINE_CANDIDATES.md`](BASELINE_CANDIDATES.md)。
+主表條件以外、較新的方法，連同「跑不跑得動／有沒有程式／數字能不能引用」三道篩選，記錄於
+封存的 `archive/anti-purification/docs/reference/BASELINE_CANDIDATES.md`（篩選時的主表為六個條件，現行主表為 12 列，見 `configs/conditions.yaml`）。
 
 ### 7.1 已在本 repo 實作並查證過
 

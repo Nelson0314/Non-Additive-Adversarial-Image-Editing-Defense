@@ -24,7 +24,7 @@ RUNTIME = PROJECT / "runtime"
 DEFENSES = ARTIFACTS / "defenses"
 #: 單張防禦圖的分片輸出，`<條件>/<影像>/`。
 DEFENSE_SHARDS = ARTIFACTS / "defense_shards"
-#: 短步數的單張試跑，`<條件>/<影像>/`。
+#: 短步數的單張求解（檢查設定用），`<條件>/<影像>/`。
 DEFENSE_PILOTS = ARTIFACTS / "defense_pilots"
 #: 未防禦的編輯（對照 arm 與 `preflight.csv`）。
 UNDEFENDED_EDITS = ARTIFACTS / "undefended_edits"

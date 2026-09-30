@@ -167,7 +167,7 @@ encoder_attention_mask[1][1:] = 0
 
 ## 2.5 PromptFlare 的其餘落差（agent 查證）
 
-詳見 `_audit_promptflare_photoguard.md`。四項：
+詳見 `AUDIT_PROMPTFLARE_PHOTOGUARD.md`。四項：
 
 | # | 落差 | 後果 |
 |---|---|---|
@@ -334,7 +334,7 @@ steps = 100、step_size = 1/255、w（`rate`）= 1e4、預設 fused、SD v1.4 �
 
 ## 5. DiffVax — **在本專案的威脅模型下不可用**
 
-詳見 `_audit_mist_diffvax.md`。
+詳見 `AUDIT_MIST_DIFFVAX.md`。
 
 | # | 發現 | 後果 |
 |---|---|---|

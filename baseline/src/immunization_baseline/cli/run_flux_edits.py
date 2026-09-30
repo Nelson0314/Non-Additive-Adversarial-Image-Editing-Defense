@@ -1,4 +1,4 @@
-"""FLUX.1-Kontext-dev 在主表資料集上的編輯——跨編輯器遷移的第三支路線。
+"""FLUX.1-Kontext-dev 在主表資料集上的編輯：以同一批防禦圖量測跨編輯器的編輯結果。
 
 與 `sweep_sdedit_parameters` 同一個評測外殼(同一批影像、同一組 ip2p 指令、
 同一個 `identity_row` 身分讀數、同一種 CSV 輸出),核心呼叫換成

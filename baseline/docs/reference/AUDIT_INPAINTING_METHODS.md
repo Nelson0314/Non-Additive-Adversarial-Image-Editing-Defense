@@ -201,7 +201,7 @@ ctx.num_inference_steps` 與之逐字相同，`final_alpha_cumprod` 的退路與
 
 註：第 188-189 行在 `inversion_flag=False`（預設）時降冪排列，
 而反演迴圈以 `reversed(timestep_tensor)`（第 267、347、360 行）走訪，
-淨結果為升冪。`_audit_dia_apa.md:274-276` 記為「反演時不反轉順序」，
+淨結果為升冪。`AUDIT_DIA.md`（原檔名 `_audit_dia_apa.md`，行號屬較早版本，已不引用）記為「反演時不反轉順序」，
 與此不符；以本檔為準，`dia.py:70-72` 的敘述正確。
 
 ### 2.3 DIA-PT 的值／梯度雙路徑（回答「`DIA_PT.py:355,388`」）
@@ -361,6 +361,6 @@ L1 起點的缺陷（`L1_projection` 第 54 行 `if c2.nelement != 0:` 比較的
   （`self_query` 等全域字典的實際記錄時機與層清單）。本專案的
   `QKVRecorder` 以 forward pre-hook 自行實作，形狀與分組已在小型 UNet 上實測。
 - PromptFlare 的 `attention_control.py` 已下載但本檔尚未逐行貼出
-  （`cal_loss` 的跨層加總已由 `_audit_promptflare_photoguard.md` 佐證）。
+  （`cal_loss` 的跨層加總已由 `AUDIT_PROMPTFLARE_PHOTOGUARD.md` 佐證）。
 - Mist 的 `MIST.png` 目標影像仍未取得，`data/targets/` 只有 `gray.png`；
   在取得之前 `mist.prepare` 會拋 `NotImplementedError`，Mist 跑不起來。

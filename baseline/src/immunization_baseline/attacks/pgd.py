@@ -313,7 +313,7 @@ def step_size_at(spec: BaselineSpec, iteration: int) -> float:
         actual_step_size = step_size - (step_size - step_size / 100) / iters * iter
 
     即由 `step_size` 線性降到其 1%。PhotoGuard-c 的 notebook 有同一行但
-    **被註解掉**，實跑是定值（`_audit_promptflare_photoguard.md` §1.3）。
+    **被註解掉**，實跑是定值（`AUDIT_PROMPTFLARE_PHOTOGUARD.md` §1.3）。
     """
     if spec.step_size is None:
         raise ValueError(f"{spec.name}：step_size 未給定，無法計算第 {iteration} 步")
@@ -337,7 +337,7 @@ def project(
     `l2`：**只有 PhotoGuard-c**，`torch.renorm(d_x, p=2, dim=0, maxnorm=eps)`。
     約束作用在 `dim=0` 的每個切片展平後的單一 L2 範數上（batch=1 時即整張
     影像的 786,432 個元素），不是逐通道也不是逐像素
-    （`_audit_promptflare_photoguard.md` 附錄 B.3 實測）。L2 球允許少數
+    （`AUDIT_PROMPTFLARE_PHOTOGUARD.md` 附錄 B.3 實測）。L2 球允許少數
     像素遠超過 L∞ 等價值，兩者不可互相換算。
     """
     if spec.norm == "linf":

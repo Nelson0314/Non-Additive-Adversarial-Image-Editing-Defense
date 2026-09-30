@@ -4,7 +4,7 @@
 # 用法（color 專案根）：nohup setsid bash scripts/run_queue.sh <佇列名> <工作>... &
 #
 # 工作的寫法與相依（相依由 scripts/generate_queue_dependencies.sh 定義）：
-#   pilot:<條件>:<影像>:<步數>  單張短步數試跑，輸出到 artifacts/defense_pilots/<條件>/<影像>
+#   pilot:<條件>:<影像>:<步數>  單張短步數求解（檢查設定用），輸出到 artifacts/defense_pilots/<條件>/<影像>
 #   def:<條件>:<影像>           單張防禦圖，輸出到 artifacts/defense_shards/<條件>/<影像>
 #                               相依：同一條件的 pilot（若有列出）
 #   chain:<條件>                併分片（若有）後跑 evaluate_condition.sh（只跑 ip2p）

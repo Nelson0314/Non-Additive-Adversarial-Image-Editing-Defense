@@ -2,7 +2,7 @@
 
 出處：`MadryLab/photoguard`，HEAD `686bea75c786cb46c88fc396a0cd0ee3d7d28c2e`，
 `notebooks/demo_complex_attack_inpainting.ipynb`。逐字佐證見
-`docs/_audit_promptflare_photoguard.md` §PhotoGuard 1–4，裁決見
+`docs/reference/AUDIT_PROMPTFLARE_PHOTOGUARD.md` §PhotoGuard 1–4，裁決見
 `docs/reference/SOURCE_AUDIT.md` §3。
 
 三項必須照原始碼而非論文正文的地方
@@ -25,7 +25,7 @@ img2img 版由我方移植（`modified_from_paper=True`）
 ──────────────────────────────────────────────────────────────────────
 
 repo 的 complex attack **只有 inpainting 版**（GitHub tree API 全檔案清單
-確認，`_audit_promptflare_photoguard.md` §5）。本專案的威脅模型是
+確認，`AUDIT_PROMPTFLARE_PHOTOGUARD.md` §5）。本專案的威脅模型是
 img2img／SDEdit，故 `attack_forward` 必須由我方改寫。改動逐項如下：
 
 | 原始（inpainting） | 本移植（img2img） | 理由 |
@@ -42,7 +42,7 @@ img2img／SDEdit，故 `attack_forward` 必須由我方改寫。改動逐項如�
    未裁切的 `vae.decode(...).sample`。被裁切的像素其梯度為零。
 2. `SDWrapper.encode_image`（`sd.py:156,160`）固定取 `latent_dist.mean`，
    而 `attack_forward` 取 `latent_dist.sample()`
-   （`_audit_promptflare_photoguard.md:392-393`）。原作的 `grad_reps=10`
+   （`AUDIT_PROMPTFLARE_PHOTOGUARD.md:392-393`）。原作的 `grad_reps=10`
    是對「DDIM `eta=1` 的隨機性 + 未固定的 `latents` + VAE 後驗抽樣」
    三重隨機性取期望，本移植只保留了編輯噪聲一項，期望的對象與原作不同。
 

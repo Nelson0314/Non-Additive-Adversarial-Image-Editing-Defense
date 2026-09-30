@@ -559,3 +559,72 @@ vendor 已重新匯出（baseline、color、style 的 `vendor/scripts/queue_work
 - `baseline/results/aligned/retention.csv` 的分區欄未重算；當時程式是否含 `purified_mask()` 未查證。
 - 發現：`run_with_gpu_lease.sh` 以變數 `ENV_FILE` 保存 `--env-file`，而專案的 `scripts/env.sh` 會 source `$ENV_FILE`；
   `--env-file scripts/env.sh` 因此無限遞迴，bash segfault。本次改傳 `--env-file ~/env.sh` 執行。待第 13 項修正。
+
+## 第 13 項：收尾（`711ec9b`…）
+
+開始前已將 `origin/main`（至 `137cfd0`，含第 10–12 項）併入本分支。
+
+### 程式修正
+
+- **`--env-file` 遞迴**（`711ec9b`）：`run_with_gpu_lease.sh` 與 `queue_worker.sh` 以 `ENV_FILE` 保存 `--env-file`，而各專案 `scripts/env.sh` 在 `ENV_FILE` 有值時 source 它；`--env-file scripts/env.sh` 因此無限遞迴。內部變數改為 `LEASE_ENV_FILE`、`QUEUE_ENV_FILE`；呼叫端自行 export 的 `ENV_FILE`（機器設定，例如 `~/env.sh`）仍由 `env.sh` 讀取。
+  回歸測試 3 項（`run_with_gpu_lease.sh` 以專案形式的 env.sh、同時帶機器設定、`queue_worker.sh` 以專案形式的 env.sh）；修正前 3 項皆以 signal 11 結束（結束碼 −11），修正後通過。
+- **租約目錄改名**（`83cae3d`）：預設值由 `$HOME/lab_leases` 改為 `$HOME/gpu_leases`，只在 `gpu_policy.sh` 定義（`gpu_lease.sh` 刪除重複定義，改由 source `gpu_policy.sh` 取得）。所有取卡入口（`gpu_lease.sh`、`run_with_gpu_lease.sh`、`queue_worker.sh`、`free_cards.sh` 不讀租約）經此同一定義。新增測試：未設 `LEASE` 時兩支 source 檔皆解析為 `$HOME/gpu_leases`，且 `core/scripts/*.sh` 不含 `lab_leases`。
+- **`freeze_env.py` 支援 uv venv**（`7c1e1af`）：直譯器有 pip 時用 `python -m pip freeze --all`；沒有 pip 時用 `uv pip freeze --python <直譯器>`；兩者皆無即中止。鎖定檔檔頭記錄所用工具。以 `uv venv` 建立的無 pip 環境驗證：寫出、`--check` 為 0；安裝一個套件後 `--check` 為 1 並列出差異；`PATH` 無 uv 時中止。新增 3 項單元測試。
+- vendor 重新匯出（`069f0c0`）。測試：core 184（21 deselected）、baseline 78、color 41、style 20 passed。
+
+### 文件（`2686646`、`728470a`、`8e82a02`）
+
+- 根 `README.md` 改寫：目錄與入口、專案自足（vendor、env.sh、鎖定檔）、資料保存（results／data 入庫，artifacts／runtime／trials 不入庫）、執行環境。
+- 新增根 `CLAUDE.md`：共通規則（範圍、書面用語、命名、不設判準與科學協定、程式與測試、GPU 與租約、暫時性嘗試）。`archive/anti-purification/CLAUDE.md` 依封存規則不改；根 `CLAUDE.md` 註明 `archive/` 內文件不適用於現行專案。
+- `core/STATUS.md` 改寫為範圍、現況、已知限制與規則；`core/README.md` 更新租約目錄、`export_vendor.py`、`freeze_env.py` 與 `--env-file` 說明，刪除流程字句與 `.tmp/codex_audit` 路徑。
+- `baseline/STATUS.md`：已知限制新增一條，`results/aligned/retention.csv` 的 `crop_resize0.1`、`rotate15` 共 1,280 列（10 個條件 × 2 道 × 64 格）的 `disp_purified_subject`／`disp_purified_background` 未以 `purified_mask()` 重算、數值未改，全圖欄不受影響；遠端位置、租約目錄、`requirements.lock` 狀態更新。
+- `color/STATUS.md`、`style/STATUS.md`：未防禦分母改記為本專案 `artifacts/` 內的複本（第 10 項已搬入），style 工作清單位置改為 `configs/jobs/`，租約目錄更新；三份 STATUS 的共通規則改指向根 `CLAUDE.md`，保留專案專屬規則。
+- 根 `.gitignore`：改寫過時註解（原指向不存在的 `non-additive-frequency/`），規則保留；新增 `/*.pdf`（根目錄的論文 PDF 不入版控）。`git ls-files -ci --exclude-standard` 為 0（沒有版控檔被排除）。
+
+### 殘留舊名查核
+
+範圍：根 `README.md`、`CLAUDE.md`、`core/`、`baseline/`、`color/`、`style/` 的版控文字檔，排除 `vendor/`（core 的副本）與出處文件（`core/docs/PROVENANCE.md`、`PIPELINE_BEHAVIOR.md`、`*manifest.json`）。
+樣式：`lab_leases`、`lab/`、`main_table/`、`anti-purify`、`colour`、`defence`、`immunis`、`WACV`、`LAB_CAP`、`run_on_card`、`codex_audit`、`*_aligned.csv`、流程字眼（`第 N 項`、`重整`、`round<N>`），以及已刪除或改名的腳本名（`arm_chain`、`defence_cmd`、`readout.sh`、`color_row_chain`、`flux_full_queue`、`style_prompt_round`、`metrics_union`、`passthrough_readout` 等）。
+
+修正：`results/aligned/README.md` 的 `displacement_aligned.csv`／`retention_aligned.csv`／`edit_purified/undefended` 改為現行檔名與 `artifacts/purified_edits/undefended`；`AUDIT_MIST_DIFFVAX.md` 的 `immunise` 與 `src.baselines.diffvax` 改為 `immunize` 與 `immunization_baseline.attacks.diffvax`。
+
+保留（出處或外部名稱）：「原 `lab/...`」「原 `main_table/...`」加 commit 的出處註記；CSV 值與設定中「原為 `colour_curve_ours`」的改名紀錄；`archive/anti-purification/scripts/immunise.py` 及其輸出檔名 `__immunised.png`（封存腳本的實際檔名，`import_defense_artifacts` 讀取該格式）；文獻標題中的 colour；`test_device_contract.py` 刻意設定 `WACV_ALLOW_TF32=1` 以驗證舊變數不再生效；`test_gpu_scripts.py` 檔頭的來源檔名；公式敘述中的「第 0 項／第 1 項」（batch 索引）與清單項次。
+
+### 協調端要在遠端執行的指令
+
+**1. 租約目錄改名**（必須在沒有任何工作持有租約時執行；兩台主機共用 NFS 家目錄，只執行一次）：
+
+```bash
+cd ~/image-immunization
+# 前提：沒有持有中的租約、沒有 .guard 鎖，且新目錄尚不存在
+find ~/lab_leases -mindepth 1 -maxdepth 1 ! -name .capacity -print   # 必須無輸出
+[ ! -e ~/gpu_leases ] || { echo "~/gpu_leases 已存在，先確認其內容"; exit 1; }
+mv ~/lab_leases ~/gpu_leases
+git pull --ff-only                      # 取得預設為 ~/gpu_leases 的工具
+bash baseline/vendor/scripts/free_cards.sh   # 確認工具可讀新目錄
+cat ~/gpu_leases/.capacity 2>/dev/null       # 既有全局授權值隨目錄保留
+```
+
+`git pull` 之後才啟動新工作；`~/image-immunization.old` 與 `archive/` 內的舊腳本仍預設 `~/lab_leases`，不得再用於派工。
+
+**2. 產生 `requirements.lock`**（在實際執行環境；`~/env.sh` 設定 `PY` 指向 `~/venvs/wacv` 的直譯器，該 venv 沒有 pip，須 `uv` 在 `PATH` 上）：
+
+```bash
+cd ~/image-immunization && git pull --ff-only
+command -v uv                                            # 必須有輸出
+for p in baseline color style; do
+  (cd "$p" && export ENV_FILE=~/env.sh && source scripts/env.sh && "$PY" vendor/scripts/freeze_env.py) || break
+done
+(cd core && source ~/env.sh && "$PY" scripts/freeze_env.py)
+head -4 */requirements.lock                               # 檔頭應記錄 torch 與 CUDA 版本、uv pip freeze
+for p in baseline color style; do (cd "$p" && export ENV_FILE=~/env.sh && source scripts/env.sh && "$PY" vendor/scripts/freeze_env.py --check); done
+git add core/requirements.lock baseline/requirements.lock color/requirements.lock style/requirements.lock
+git commit -m "Lock the remote execution environment for each project"
+```
+
+三個專案共用同一個 venv 時，四份鎖定檔的套件列相同，仍各自入庫以維持專案自足。提交後在各專案 README 的「執行」一節記錄 `requirements.lock` 與 `freeze_env.py --check` 的用法。
+
+### 未完成
+
+- 上述兩組遠端指令（協調端）。
+- `results/aligned/retention.csv` 的幾何分區欄重算（需 GPU；是否重算由使用者決定），已列於 `baseline/STATUS.md` 已知限制。

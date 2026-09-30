@@ -200,12 +200,13 @@ def write_tool(path, body):
     return path
 
 
-def run_queue(tmp_path, jobs, validator_body, depends_body=None):
+def run_queue(tmp_path, jobs, validator_body, depends_body=None,
+              runner_body='echo "$2" > "done_$1"; echo "$1" >> order\n'):
     env, leases = stub_env(tmp_path, POLL="0.05", LAUNCH_GAP="0", MAXFAIL="1")
     work, tools = tmp_path / "work", tmp_path / "tools"
     work.mkdir()
     tools.mkdir()
-    runner = write_tool(tools / "runner", 'echo "$2" > "done_$1"; echo "$1" >> order\n')
+    runner = write_tool(tools / "runner", runner_body)
     validator = write_tool(tools / "validator", validator_body)
     command = [BASH, (SCRIPTS / "queue_worker.sh").as_posix(), "--work-dir", work.as_posix(),
                "--state-dir", (tmp_path / "state").as_posix(), "--log-dir", (tmp_path / "logs").as_posix(),
@@ -225,6 +226,18 @@ def test_queue_runs_dependencies_first_and_validates(tmp_path):
     assert (work / "order").read_text().split() == ["first", "second"]
     assert (tmp_path / "state/first.done").exists() and (tmp_path / "state/second.done").exists()
     assert (work / "done_first").read_text().strip() == "0"
+    assert not [p for p in leases.iterdir() if not p.name.startswith(".")]
+
+
+def test_job_finishing_during_readiness_check_is_not_relaunched(tmp_path):
+    # 主迴圈先判定工作未完成、再執行相依檢查、最後看鎖；工作若在相依檢查期間完成並釋放鎖，
+    # 必須在取得鎖之後重新確認完成狀態，不可再派一次。相依指令在工作執行中時延遲，固定此交錯順序。
+    runner = 'touch "running_$1"; sleep 0.5; echo "$2" > "done_$1"; echo "$1" >> order\n'
+    depends = 'if [ -e "running_$1" ] && [ ! -e "done_$1" ]; then sleep 1.5; fi\nexit 0\n'
+    result, work, leases = run_queue(tmp_path, ["only"], '[ -e "done_$1" ]\n', depends, runner)
+    assert result.returncode == 0, result.stderr
+    assert (work / "order").read_text().split() == ["only"]
+    assert (tmp_path / "state/only.done").exists()
     assert not [p for p in leases.iterdir() if not p.name.startswith(".")]
 
 

@@ -17,8 +17,28 @@
 
 ## 命名
 
-目錄、檔案、條件、實驗組、文件不含日期、流水號或順序詞（`round2`、`queue_a`、`_full`、`_preview`），名稱描述內容。
-參數數字與影像 ID（`jpeg50`、`rotate15`、`man_00`）有資料意義，保留。自有 API 使用美式拼法（`color`、`defense`、`optimize`、`gray`、`center`）。
+`core/tests/test_repository_naming.py` 掃描 `core/`、`baseline/`、`color/`、`style/` 的版控檔名（不含 `vendor/`），
+違反下列大小寫、拼法與流程用語規則即失敗。
+
+- **內容與用語**：目錄、檔案、條件、實驗組、文件描述內容，不含日期、流水號或順序詞（`round2`、`r11`、`queue_a`、`v2`、
+  `_full`、`_preview`、`_new`、`_old`、`_tmp`）。參數數字與影像 ID（`jpeg50`、`rotate15`、`man_00`）有資料意義，保留。
+- **大小寫**：目錄、檔名、Python 模組、CSV 欄名、條件與實驗 ID、設定鍵一律小寫 snake_case；CLI 參數用 kebab-case。
+  Python 私有模組可用單一底線開頭（`_defaults.py`）。只有固定名稱的文件用大寫：`README.md`、`STATUS.md`、`DESIGN.md`、`TRIALS.md`、`CLAUDE.md`，以及 `docs/` 內的主題文件
+  （大寫 snake_case，例如 `docs/EVALUATION.md`）。
+- **拼法**：自有 API、檔名與欄名使用美式拼法（`color`、`defense`、`immunize`、`optimize`、`normalize`、`gray`、`center`）。
+  文獻標題、上游 API 與封存區的原檔名不改。
+- **程式入口**：`cli/` 下的模組與 `scripts/` 下可執行的腳本一律「動詞_受詞」，動詞沿用 `generate_`、`run_`、`apply_`、
+  `measure_`、`import_`、`sweep_`、`evaluate_`，新入口從中選，不另創同義詞。被其他腳本 `source` 的函式庫
+  （`env.sh`、`gpu_lease.sh`、`gpu_policy.sh`）不是入口，以內容命名。
+- **結果**：以量測內容命名（`displacement.csv`、`retention.csv`、`fidelity.csv`）；逐條件的表用 `<種類>_<條件>.csv`
+  （例如 `defense_mist.csv`、`flux/edits_mist.csv`）；跨編輯器或協定的結果放在同名子目錄（`flux/`、`ultraedit/`、`aligned/`）；
+  `artifacts/` 的子樹與 `results/` 對應（例如 `results/flux/` ↔ `artifacts/flux/`）。
+- **參數掃描**：放 `results/sweeps/<編輯器>/<變因>/`，檔名寫出變動的參數，小數用 `p`（例如 `guidance/guidance_3p5.csv`）；
+  影像在 `artifacts/sweeps/` 的同名位置。
+- **試驗**：`trials/<描述假設的名稱>/`，名稱不得用 `test`、`try`、`new`、`v2`、`pilot` 這類詞。
+- **測試**：`test_<受測模組或行為>.py`；測試用的替身與共用程式以內容命名（例如 `carrier_stub.py`）。
+- **縮寫**：只用領域標準縮寫（LPIPS、PGD、DCT、FID、ip2p、SD、SDXL、VQA）與既有方法、條件的專名（`dia_pt`、`photoguard_c`），
+  其他一律寫全名（`reference`，不寫 `ref`）。語言與工具的慣例名（`src`、`cli`、`io`、`env`、`__init__`）不在此限。
 
 ## 實驗與報告
 

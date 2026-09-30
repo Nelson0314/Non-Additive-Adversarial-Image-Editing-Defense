@@ -30,3 +30,22 @@ def test_lock_round_trip_and_drift(tmp_path, capsys):
 def test_requires_project_root(tmp_path):
     with pytest.raises(SystemExit, match="pyproject.toml"):
         freeze_env.main(["--project-root", str(tmp_path)])
+
+
+def test_uses_uv_when_interpreter_has_no_pip(monkeypatch):
+    monkeypatch.setattr(freeze_env.importlib.util, "find_spec", lambda name: None)
+    monkeypatch.setattr(freeze_env.shutil, "which", lambda name: "/opt/bin/uv" if name == "uv" else None)
+    assert freeze_env.freeze_command() == ["/opt/bin/uv", "pip", "freeze", "--python", freeze_env.sys.executable]
+    assert freeze_env.tool_name() == "uv pip freeze"
+
+
+def test_prefers_pip_when_available(monkeypatch):
+    monkeypatch.setattr(freeze_env.shutil, "which", lambda name: "/opt/bin/uv")
+    assert freeze_env.freeze_command()[1:] == ["-m", "pip", "freeze", "--all"]
+
+
+def test_stops_without_pip_or_uv(monkeypatch):
+    monkeypatch.setattr(freeze_env.importlib.util, "find_spec", lambda name: None)
+    monkeypatch.setattr(freeze_env.shutil, "which", lambda name: None)
+    with pytest.raises(SystemExit, match="uv"):
+        freeze_env.freeze_command()

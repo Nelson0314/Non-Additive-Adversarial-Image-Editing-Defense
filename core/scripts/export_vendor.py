@@ -2,6 +2,7 @@
 
 快照來源為 git HEAD 中的 `core/src/immunization_core`（套件）與 `core/scripts`
 （GPU 租約工具）；兩者有未提交變更時拒絕，使 lock 記錄的 commit 與檔案內容一致。
+匯出的檔案若被 `.gitignore` 排除即失敗，避免提交不完整的快照。
 目的目錄 `<專案>/vendor/immunization_core` 與 `<專案>/vendor/scripts` 整體取代，
 lock 寫入 `<專案>/vendor.lock.json`，含 commit、樹雜湊與逐檔 SHA-256。
 
@@ -54,6 +55,13 @@ def export(repo: Path, project: Path) -> dict:
             "files": digests(target)}
     (project / "vendor.lock.json").write_text(
         json.dumps(lock, indent=2, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n")
+    exported = [str((project / "vendor" / component / name).relative_to(repo))
+                for component, entry in lock["components"].items() for name in entry["files"]]
+    ignored = subprocess.run(["git", "check-ignore", "--no-index", "--stdin"], cwd=repo,
+                             input="\n".join(exported), capture_output=True, text=True,
+                             encoding="utf-8").stdout.split()
+    if ignored:
+        raise SystemExit(f"下列 vendor 檔案被 .gitignore 排除，快照無法完整提交：{ignored}")
     return lock
 
 

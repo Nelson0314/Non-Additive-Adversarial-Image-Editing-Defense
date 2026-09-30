@@ -33,13 +33,20 @@
 於 color 專案根執行；Python 套件以 `src/` 與 `vendor/` 解析：
 
 ```bash
-source scripts/env.sh                          # PYTHONPATH、PY；ENV_FILE 可指定機器相關設定
-bash scripts/evaluate_condition.sh <GPU> color # 防禦圖 → 編輯 → 淨化 → 淨化後編輯
-bash scripts/measure_condition_results.sh <GPU>
+source scripts/env.sh                                          # PYTHONPATH、PY；ENV_FILE 可指定機器相關設定
+nohup setsid bash scripts/run_queue.sh <佇列名> chain:color &  # 經租約取卡：防禦圖 → 編輯 → 淨化 → 淨化後編輯
+nohup setsid bash scripts/run_queue.sh <佇列名> readout &      # 跨條件讀數
 python -m pytest tests
 ```
 
-工作佇列：`nohup setsid bash scripts/run_queue.sh <佇列名> <工作>... &`，工作語法（`pilot`、`def`、`chain`、`readout`、`fid`）見該檔檔頭；排程、租約與驗收由 `vendor/scripts/run_queue_worker.sh` 執行，全局卡數由使用者逐次授權，未指定時全局合計 6 張。單次 GPU 指令用 `vendor/scripts/run_with_gpu_lease.sh --workdir <color 根> <名稱> <指令...>`。
+工作語法（`pilot`、`def`、`chain`、`readout`、`fid`）見 `scripts/run_queue.sh` 檔頭；排程、取卡與驗收由 `vendor/scripts/run_queue_worker.sh` 執行。
+`scripts/evaluate_condition.sh <卡號> <條件>` 與 `scripts/measure_condition_results.sh <卡號>` 只設定 `CUDA_VISIBLE_DEVICES`，不取租約，
+是佇列在已持有租約時呼叫的內部入口；單獨執行時經租約工具包裝：
+
+```bash
+bash vendor/scripts/run_with_gpu_lease.sh --work-dir "$COLOR_ROOT" color_chain \
+  bash -c 'bash scripts/evaluate_condition.sh "$CUDA_VISIBLE_DEVICES" color'
+```
 
 | 入口（`python -m immunization_color.cli.<名稱>`） | 用途 |
 |---|---|

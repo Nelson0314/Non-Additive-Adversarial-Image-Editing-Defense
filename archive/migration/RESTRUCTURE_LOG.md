@@ -635,3 +635,117 @@ git commit -m "Lock the remote execution environment for each project"
   卡數規則只保留「使用者未說明時全局合計 6 張」一條，其餘以使用者口頭派發為主。
 - 遠端：`~/lab_leases` 已改名 `~/gpu_leases`（改名前為空），遠端樹同步至 `f89cac2`。
 - 等失真臂 `results/aligned/retention.csv`：basic-1 一張卡以 `purified_mask()` 重算 10 個條件全部七道、4,480 列，逐值與原表相同（含 1,280 列幾何分區欄），數值未改，`baseline/STATUS.md` 的限制改為已查證。
+
+## 驗收修正：Codex 審查（`RESTRUCTURE_REVIEW.md`）與使用者裁定（`d92417a`…`9ae0011`）
+
+開始前已將 `origin/main`（至 `7caa13a`）併入本分支。遠端現況依協調端告知：租約目錄已改名為 `~/gpu_leases`，遠端樹已同步到 `f89cac2`。
+
+### 使用者裁定
+
+1. 等失真臂的幾何分區欄：協調端已重算，4,480 列逐值相同，本輪不處理。
+2. style 四組結果刪除（`d92417a`、`d84f364`）：刪除前在 `style/docs/TRIALS.md` 各記一列（另補三列只存在於原 DESIGN 結果表的設定），來源 commit `7caa13a`；刪除 `configs/jobs/*.spec`、`results/{defenses,edits}/{r11,r13,cls_p_noedit,cls_p_snow}/`、`tests/test_job_specs.py`；DESIGN 移除結果與資料位置兩節，改寫入本專案自己的攻擊端協定；STATUS 寫明本專案沒有保存結果。
+3. 卡數規則（`df68acb`、`105862b`）：根 `CLAUDE.md` 只留「使用者沒有說明或說明不清時，全局合計上限 6 張」；佔卡門檻、他人 compute app、各線預設卡數等條文自 `CLAUDE.md`、各 STATUS、README 刪除。`measure_free_gpus.sh` 的偵測門檻保留為工具行為，只在其檔頭與 `core/README.md` 的工具說明中出現。
+4. Windows 測試（`e153005`）：`test_default_lease_directory_is_shared_by_all_tools` 改為在 `$LEASE` 內建立標記檔，由 Python 確認其位於 `tmp_path/gpu_leases`，不比對 bash 回報的路徑字串。
+5. `requirements.lock` 由協調端在本輪合併後產生（指令見下）。
+
+### P1
+
+| 項目 | 修正 | 驗證 |
+|---|---|---|
+| style 排程完成判定 | `run_style_prompt_jobs.sh` 重寫（`7f48f44`）：各階段結束碼寫入 `runtime/logs/<工作>.rc`；新 CLI `evaluate_job_outputs`（原暫名 `check_job_outputs`）驗收防禦（逐影像一列＋防禦圖）、編輯（影像 × 指令鍵集合與 PNG）、讀數（strength × 影像 × 指令）；既有輸出須與 `<防禦目錄>/job.spec` 的設定相同才沿用，不同即中止；清單缺 `ref` 或風格不一致在啟動時中止；任一階段失敗記為失敗、不重派，結束碼 1，全部通過才印 `_DONE` | `style/tests/test_job_runner.py` 5 項；舊腳本 5 項皆失敗（失敗情境無限等待而逾時） |
+| color 階段標記 | `immunization_color.stages`（`f6c3680`）：標記內容為摘要（各 CLI 自身 parser 解析後的設定，含 seed、步數、s_t、s_i、影像子集；淨化協定；各輸入檔 SHA-256）；摘要相符且輸出通過驗收才略過，否則重跑；分片合併寫同一標記；`evaluate_queue_job chain` 核對全部階段標記；合併的 `results.csv` 改原子寫入 | `color/tests/test_stage_markers.py` 6 項 |
+| CSV 原子寫入 | `immunization_core.io.write_rows_atomic`（`a513b10`）：同目錄暫存檔、fsync、`os.replace`，例外時刪除暫存檔；`write_csv`、`write_sorted_csv` 與 baseline 四支自行截斷寫檔的 CLI 改用它（`e52fdfa`）。`run_flux_edits` 為附加寫入，不截斷既有列，維持 | `core/tests/test_io_atomic.py` 5 項，舊 writer 3 項失敗 |
+| trials 升格 | `run_trial_lifecycle.sh`（原 `trial.sh`，`d8949f9`）：`promote` 需 `trials/<名稱>/PROMOTED` 列出已提交的目的檔（限 src、configs、results、scripts、tests、docs），紀錄目的檔、SHA-256、commit 於 `docs/TRIALS.md` 的「升格紀錄」 | `core/tests/test_gpu_scripts.py` 5 項 trials 測試；舊腳本 4 項失敗 |
+| trials 遠端刪除 | 遠端根須為不含 `..` 的絕對路徑，參數以 `printf %q` 傳遞；遠端核對 `pyproject.toml` 專案名、`trials` 與目標都不是符號連結、解析後路徑、目標存在，刪除後確認不存在；遠端完成才刪本機 | 同上（身份不符、路徑不存在、相對路徑、符號連結各有案例） |
+| style 參照相依 | 四組結果刪除後不再有缺參照的讀數；排程在啟動時要求 `ref` 工作 | 同 style 排程 |
+| color 匯入出處 | `configs/conditions.yaml` 的 `color` 條目新增 `spec_source`、`solver_prompt`、`solver_prompt_source`（主表匯入條件必填）；`import_defense_artifacts --condition` 必填且須為 imported 條件，出處欄取自條目，封存 `immunise.py` 輸入模式移除（`e3109a3`）。`defense_color.csv` 8 列的三欄以 `correct_import_provenance.py` 更正，其餘欄逐值不變（`1547d50`） | `test_conditions.py`、`test_import_defense_artifacts.py` 新增 4 項 |
+
+更正前的出處值：`spec_source` 為 `archive/anti-purification/scripts/paper_baseline.py 的 color 臂`；`solver_prompt_source` 為「無文字條件：三個項都不經過 text encoder（設定檔的 assert_no_instructions 擋下含指令的設定）」。color 專案 `results/defenses/color/results.csv` 等表中的同名欄是當時產生器寫出的原始紀錄，未改。
+
+### P2
+
+- trials 紀錄完整性與遠端殘留：見上表（`drop` 要求 ledger 已提交、五欄皆填、結論來源不指向 trial；`promote` 也刪遠端副本）。
+- 命名 `r11`／`r13`：隨裁定 2 刪除。
+- color README（`d6ec9fb`）：範例改經 `run_queue.sh` 或 `run_with_gpu_lease.sh`；註明 `evaluate_condition.sh`、`measure_condition_results.sh` 為已持有租約時的內部入口；`--workdir` 改 `--work-dir`；STATUS 的 `--out` 改 `--output-csv`。新增 `core/tests/test_documented_commands.py`：文件中 core 工具名稱之後的選項須為該工具實際接受的選項（舊 README 的 `--workdir` 會被抓出）。
+- 共通規則衝突：隨裁定 3 解決。
+- 文件路徑（`dbafcc6`）：`docs/_audit_*.md` 改指 `docs/reference/AUDIT_*.md`（抽查章節與行號與現行檔一致）；`_audit_dia_apa.md` 為較早版本，改指 `AUDIT_DIA.md` 並不再引用行號；`BASELINE_CANDIDATES.md` 改指封存位置並註明篩選時主表為六個條件。
+- style 文件自足：DESIGN 寫入攻擊端協定（模型、步數、s_t、s_i、種子、指令、資料、分母、讀數定義）。
+- 用語：style 結果結論（含「沒有關聯」「Codex 診斷」）隨結果一節移入 TRIALS 的數值紀錄；color DESIGN「撐得過淨化」改為以淨化後讀數界定；`run_flux_edits` 首段、color `pilot` 說明改寫。
+- STATUS 分工：三份 STATUS 不再重複根規則；「沒有工作在跑」改為以遠端租約與 `runtime/` 狀態為查核依據。
+- `requirements.lock`：仍未產生（需遠端執行環境）。
+
+### 命名規範（使用者追加）
+
+- 根 `CLAUDE.md`「命名」補成完整規範（`f4318bb`）：大小寫、拼法、程式入口動詞、結果與掃描的目錄、試驗、測試、縮寫；Python 私有模組可用單一底線開頭；語言與工具慣例名（`src`、`cli`、`io`、`env`、`__init__`）不在縮寫限制內。
+- `core/tests/test_repository_naming.py`：掃描四個專案的版控檔名（不含 `vendor/`），檢查大小寫、美式拼法、流程與順序用語、測試檔名、入口動詞；附已知違規與合規樣本。對 `7caa13a` 的樹找出 55 個違規，現行為 0。縮寫規則未自動化。
+- 改名（`ae898eb`；引用逐一更新，封存區不改，source manifest 只改 `destination`）：
+
+| 原名 | 新名 |
+|---|---|
+| `baseline/.../cli/check_edit_completion.py` | `evaluate_edit_completion.py` |
+| `color/.../cli/validate_queue_job.py` | `evaluate_queue_job.py` |
+| `style/.../cli/check_job_outputs.py` | `evaluate_job_outputs.py` |
+| `core/scripts/export_vendor.py` | `generate_vendor_snapshot.py` |
+| `core/scripts/freeze_env.py` | `generate_requirements_lock.py` |
+| `core/scripts/free_cards.sh` | `measure_free_gpus.sh` |
+| `core/scripts/queue_worker.sh` | `run_queue_worker.sh` |
+| `core/scripts/trial.sh` | `run_trial_lifecycle.sh` |
+| `color/scripts/queue_job.sh`、`queue_validate.sh`、`queue_depends.sh` | `run_queue_job.sh`、`evaluate_queue_job.sh`、`generate_queue_dependencies.sh` |
+| `core/tests/test_purify_new_ops.py`、`test_purify_cr.py`、`test_freeze_env.py` | `test_purifier_operators.py`、`test_purify_crop_resize_chain.py`、`test_generate_requirements_lock.py` |
+| `baseline/data/targets/MIST.png` | `mist.png`（程式與訊息同步；文件中上游 repo 的原檔名 `MIST.png` 保留） |
+| `color/data/color_lpips_ref.csv` | `color_lpips_reference.csv` |
+| `baseline/results/ADDITIVE_TRANSFER.md` | `baseline/docs/ADDITIVE_TRANSFER.md` |
+
+- 結果與產物樹對應（`bc47c2b`、`ef9fbab`）：`results/ultraedit/edits/<條件>.csv` → `results/ultraedit/edits_<條件>.csv`；`results/sweeps/<編輯器>/<名稱>.csv` → `results/sweeps/<編輯器>/<變因>/<名稱>.csv`；baseline `layout.py` 的 `FLUX_EDITS`、`ULTRAEDIT_EDITS`、`ALIGNED_DEFENSES` 改為 `artifacts/flux/edits`、`artifacts/ultraedit/edits`、`artifacts/aligned/defenses`。29 表 6,206 個路徑格以 `restructure_result_layout.py` 只改前綴並逐表驗證。
+- CSV 欄名（`e368f8f`、`2c5fe30`）：以 `rename_csv_columns.py` 改寫 41 表表頭：`D_/P_/DT_lpips_*` → `disp_/predicted_disp_/residual_disp_lpips_*`、`D_csv` → `displacement_csv_lpips_full`、`siglip_pair_T`／`blocked_T` → `siglip_pair_residual`／`blocked_residual`、`deltaE00*` → `delta_e00*`；style 讀數程式的 `D_`、`C_`、`D_pair_` 欄改為 `disp_`、`edit_change_`、`disp_reference_`；`MetricSuite.full()` 的鍵改 `delta_e00`。`ADDITIVE_TRANSFER.md` 的 D、P、D_T 代號改為描述性名稱（`17c2cd6`）。
+
+### 驗證
+
+core 238 passed（21 deselected）、baseline 82、color 47、style 20；`generate_vendor_snapshot.py --check` 三個專案通過；`restructure_result_layout.py --check` 與 `rename_csv_columns.py --check` 皆為 0。獨立目錄驗證（`verify_standalone.py`，`e13af6d`）：core 222（21 deselected；獨立副本沒有其他專案的文件可掃描，參數化案例較少）、baseline 82、color 47、style 20 passed，import、`--help`、`bash -n` 與檔案雜湊皆通過。
+
+### 協調端要在遠端執行的指令
+
+**0. 同步**：`cd ~/image-immunization && git pull --ff-only`（取得改名後的工具；`~/image-immunization.old`、`archive/` 內的舊腳本名不得再用於派工）。
+
+**1. 刪除 style 四組影像產物**：
+
+```bash
+cd ~/image-immunization/style
+for g in r11 r13 cls_p_noedit cls_p_snow; do
+  rm -rf -- "artifacts/defenses/$g" "artifacts/edits/$g"
+done
+rm -f -- runtime/logs/r11_* runtime/logs/r13_* runtime/logs/cls_p_noedit_* runtime/logs/cls_p_snow_*
+```
+
+**2. baseline 產物樹與結果樹對應**（先確認沒有 baseline 工作持有租約）：
+
+```bash
+cd ~/image-immunization
+python archive/migration/restructure_result_layout.py --remote-commands > /tmp/restructure_layout.sh
+bash /tmp/restructure_layout.sh            # 搬移並重建 aligned/purified_edits/undefended 的相對連結
+python archive/migration/restructure_result_layout.py --paths-only baseline/artifacts   # artifacts 內 CSV 的路徑欄
+python archive/migration/restructure_result_layout.py --paths-only baseline/artifacts --check   # 應為 0
+```
+
+**3. 遠端 artifacts 內 CSV 的欄名**：
+
+```bash
+python archive/migration/rename_csv_columns.py --check baseline/artifacts color/artifacts style/artifacts
+python archive/migration/rename_csv_columns.py baseline/artifacts color/artifacts style/artifacts
+```
+
+**4. color 階段標記**：既有的 `color/runtime/state/<條件>.<階段>.done` 是空檔，與新摘要不符，下次執行 chain 會重跑各階段。若確認既有輸出來自現行設定，可在執行前以
+`cd color && source scripts/env.sh && "$PY" -m immunization_color.stages write <條件> <階段>` 逐一補寫（階段：`defense`、`edit_ip2p`、`purify`、`pedit_<淨化>_ip2p`；影像不滿 8 張的條件加 `--images …`）；輸出未通過驗收時該指令會拒絕寫入。
+
+**5. 產生 `requirements.lock`**（`~/venvs/wacv` 沒有 pip，`uv` 須在 `PATH` 上）：
+
+```bash
+cd ~/image-immunization && command -v uv
+for p in baseline color style; do
+  (cd "$p" && export ENV_FILE=~/env.sh && source scripts/env.sh && "$PY" vendor/scripts/generate_requirements_lock.py) || break
+done
+(cd core && source ~/env.sh && "$PY" scripts/generate_requirements_lock.py)
+for p in baseline color style; do (cd "$p" && export ENV_FILE=~/env.sh && source scripts/env.sh && "$PY" vendor/scripts/generate_requirements_lock.py --check); done
+git add core/requirements.lock baseline/requirements.lock color/requirements.lock style/requirements.lock
+git commit -m "Lock the remote execution environment for each project"
+```

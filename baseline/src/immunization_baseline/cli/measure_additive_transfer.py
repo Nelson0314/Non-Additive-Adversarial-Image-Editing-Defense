@@ -17,7 +17,7 @@
 主表十二個條件裡有十一個是加性擾動（像素域或 DCT 係數域的 PGD、前饋式的 DiffVax），
 這個 `T̂` 對它們是該方法自己的擾動，不是近似。**`colour_curve_ours` 是全域色調映射**，
 它的 `T̂` 應該由參數族回推；加性版本在這裡照樣算出來，是為了讓十二列在同一個 `T̂`
-定義下可比，引用時要與由映射回推的值分開講——後者在 `lab/results/passthrough/`
+定義下可比，引用時要與由映射回推的值分開講——後者原在 `lab/results/passthrough/`（commit `cd03420` 刪除）
 （另一批的協定，回推誤差 ΔE00 0.04）。
 
 另報 `siglip_pair_T = SigLIP(T̂(edit(x)), edit(x_def))` 與 `blocked_T`（同一個 0.837 門檻）。

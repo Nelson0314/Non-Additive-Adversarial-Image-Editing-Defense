@@ -13,4 +13,4 @@
 5. 五支 GPU 租約工具已複製至 `core/scripts/`，`run_on_card.sh` 改名為 `run_with_gpu_lease.sh`；queue 的工作執行、驗收與相依改為 `--runner`、`--validator`、`--depends` 注入。`LAB_CAP`、`LAB_MYCAP` 改為 `GPU_CAP`、`QUEUE_CAP`；租約目錄預設值維持 `$HOME/lab_leases`，改名須所有取卡入口同時切換（第 10 項）。
 6. 上述模組的測試隨行；完整 core 的獨立副本通過全部 CPU 測試、各 pipeline `--help` 與全部公開模組匯入。
 
-來源雜湊：基礎模組見 `docs/source_manifest.json`，淨化見 `docs/purifier_source_manifest.json`，其餘見 `docs/pipeline_source_manifest.json`。原 `anti-purification`、`lab` 呼叫端尚未切換至 core，於第 4、5 項處理。
+來源雜湊：基礎模組見 `docs/source_manifest.json`，淨化見 `docs/purifier_source_manifest.json`，其餘見 `docs/pipeline_source_manifest.json`。baseline、color、style 三個專案經各自的 `vendor/` 快照使用 core（第 4、5 項）；`anti-purification` 的舊呼叫端未切換，第 6 項整體封存。

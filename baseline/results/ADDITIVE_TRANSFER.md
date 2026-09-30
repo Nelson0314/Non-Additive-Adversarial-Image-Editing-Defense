@@ -72,7 +72,7 @@
 ## 雜訊底線
 
 未防禦、同一格換評估種子兩兩比的 LPIPS：全圖 **0.109**、主體 0.155、背景 0.058。
-這個數來自 `lab/` 那條線（`lab/results/passthrough/seed_spread.csv`，另一批協定，
+這個數來自 color 線（原 `lab/results/passthrough/seed_spread.csv`，已於 commit `cd03420` 刪除，另一批協定，
 同一組八張人像與同一個 ip2p 設定，評估種子 20260813–16）。引用時要連來源一起講。
 
 ## 與另一批的對照：`colour_curve_ours` 的兩種 T̂
@@ -80,10 +80,10 @@
 | T̂ 的算法 | P | D_T | 來源 |
 |---|---|---|---|
 | 加性（本檔，與其餘十一列同一個定義） | 0.2930 | 0.2350 | `results/additive_transfer.csv` |
-| 由 `ColorCurveParam` 回推（該臂所屬的參數族） | 0.304 | 0.223 | `lab/results/passthrough/passthrough.csv`，回推誤差 ΔE00 0.04 |
+| 由 `ColorCurveParam` 回推（該臂所屬的參數族） | 0.304 | 0.223 | 原 `lab/results/passthrough/passthrough.csv`（commit `cd03420` 刪除），回推誤差 ΔE00 0.04 |
 
 兩者的 `D` 相同（0.386，同一批編輯輸出），`P` 差 3.6%、`D_T` 差 5.4%。
-`lab/` 那一份是另一批的協定，引用時要標明。
+color 線那一份是另一批的協定，引用時要標明。
 
 ## 擾動有沒有原樣穿過：直接量 δ 與 Δ 的關係
 

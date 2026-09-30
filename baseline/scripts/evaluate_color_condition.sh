@@ -6,7 +6,7 @@
 #   bash scripts/evaluate_color_condition.sh flux <卡>
 #       等待匯入完成 → FLUX 全表
 #
-# <color 防禦圖目錄> 為 color 專案產出的 `<圖>__color__def.png`，經
+# <color 防禦圖目錄> 為 color 專案產出的 `<圖>__color__def.png`（color/artifacts/defenses/color），經
 # import_defense_artifacts 整理成主表版面，並以同一段程式重算保真欄。
 # 取卡經 vendor/scripts/gpu_lease.sh，計入全局授權卡數。
 set -uo pipefail

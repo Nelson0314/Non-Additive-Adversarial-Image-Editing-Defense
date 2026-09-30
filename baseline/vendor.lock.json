@@ -1,0 +1,62 @@
+{
+  "commit": "85663a7cf77048859bbf6e03a5e54e2a3ebd9bba",
+  "components": {
+    "immunization_core": {
+      "source": "core/src/immunization_core",
+      "tree": "f9302b3f7a23449497a0167fa5d4dd91c31263a2",
+      "files": {
+        "__init__.py": "a084fcf45d32a78c5e2408e8330f39ee3f8b6d218cb36cb082da6bee7233235c",
+        "artifacts/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "artifacts/images.py": "c14c6b902d52c36a23e9790a8395013fd44d3583d968983f4547692b4bd3df59",
+        "artifacts/layout.py": "c4a6069d19fb4f6d6e519aafc88d8a9996484130d4768c2c9d838eb7e27d9182",
+        "color/__init__.py": "6e4dcd217bc888ec8e3d89c87f932f4b45e827681f7eab22b301503701115cb2",
+        "color/difference.py": "3510d4741e9e182e277d7bf3fca400e88e640085bda7ca7fa7d3ef00923da2ff",
+        "color/space.py": "5da4b85f904c2aa104c60a2ca500c16502a3804fc8230f325049c90780d9fecc",
+        "color/uniformity.py": "91ff5affbdeafec6a3854101232a0ef593d5f5d059a583914291047e7809c882",
+        "editors/__init__.py": "9430c052ac1f9181d83d2c39971b7c9c0c748035fdaf5cb57716fb3b5a152657",
+        "editors/conditioning.py": "debe3238ee97c8b9b515b508a9aed0f3bbbed4a28c8b86b3b42c0fc6c408d14d",
+        "editors/inpainting.py": "3a03c91a8e61b08ae304580e106ca0fe444923155b2949285a17a71d3ab6c37c",
+        "editors/instruct_pix2pix.py": "e777c5b4f099f048eda8c92b8a147a76bd2a446092a64bee0034e387227feb08",
+        "editors/stable_diffusion.py": "235a80814a7639af9002b769aa78c3b36c588d8811b9192d0453ac78bcbaccd8",
+        "editors/stable_diffusion_xl.py": "2ea07627c2109698a713710f4097453d02ab54a2c8d3b4f8c0d9abd38a6299b9",
+        "io.py": "7e0903856ec7ebf4576af84010c1d13a1dda4f09f5274755bd82498954c0417c",
+        "metrics/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "metrics/acutance.py": "4d0904409eebe7dd8b2a75ab16ac8b04f5072b72ead3dc3f87fe2356021c546a",
+        "metrics/arcface.py": "fd6387678308a82b094ab3e2609794de42fbcfa04f01edc9975df1d8e23f7a2f",
+        "metrics/identity.py": "b696eb5097fbe1a3a404fbdafed6bd9969cb42a56795b8c96c15bed2924eb71c",
+        "metrics/regional.py": "49435131066ffdaa7dd8f959de020a2f008a5bde8f889d2d9972bb7e5903731d",
+        "metrics/standard.py": "28066b0c08ba404c2a782cbabc46c1fd16b22d5707a50ba65f1ddea927491670",
+        "metrics/suite.py": "fbfa0f19610b0c90903a3c13d39c54b4489dcfe217c545779c6d25451a44491a",
+        "optimization/__init__.py": "5cd3e24b6d6d6a6b28f19e55d59bdf8908884e3333791b36406eb949fbaea7a9",
+        "optimization/carrier.py": "3a1c4fa38ffe8e40d27f66bb1b0308a6225f3dfd7ce9721d349591651703368c",
+        "optimization/instruction_free.py": "aa66aa48d599046cffbb957b17797f7a819b3271c26940d4ca3352911493142b",
+        "pipelines/__init__.py": "4cd2c7db6f5cef4f6615e2cbbadc9497a9f2a06cc5adcfd9f5fc277a9921676e",
+        "pipelines/displacement.py": "115cc991cbc6d6d89efa502e2ac31e85aaded6d41ad61b5281ba316ba2867e39",
+        "pipelines/editing.py": "6088eaf26fe8ae6f9918623d61d1910c26701643f922b302cad1d37a00180bde",
+        "pipelines/masks.py": "3188aae34cc5c02bd8db1eb60b2baf1370da4432d47c2e97215814a8a8540b19",
+        "pipelines/purification.py": "245c3784502c88c044529a48a3f397f2487d9f74e32a047d137b0574b0d946f0",
+        "pipelines/retention.py": "acdbbefd448c65fc4dd759046634de3c0ab8aec94cbbf46f0f3bd22eb3cb3e84",
+        "purifiers/__init__.py": "47d2ffee8cd6de417e48c9a579238af5ad8df2e94e6f150573db0bea3bd2ff83",
+        "purifiers/adverse_cleaner.py": "84ddb3a7bf66b608df729d71c7670766c90669f4b1658f8ac8c48b7f7a50e608",
+        "purifiers/diffpure.py": "60cabee9bae0f184ec68b5e1797fad6f0939d03d41d2fdf8d4fa57eded7c362c",
+        "purifiers/impress.py": "979762a0d5a722f3bfc2c220a1c979524e631affb16dc6110527633b419653b8",
+        "purifiers/operators.py": "205ba33507383f88264d0becab00f5568140d396ed5d914c10eb29a23a7722bd",
+        "purifiers/protocol.py": "b4ee4a651906c7a1f957edc7cf9fa32a04f6b71a37da87a971472865cb8f1f28",
+        "runtime/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "runtime/device.py": "f44ddfe8346ca7fc59e3f82f57ef14214888f0dd4f0e58f0d45880f987fef47b"
+      }
+    },
+    "scripts": {
+      "source": "core/scripts",
+      "tree": "6f11d5a51fe18eecb8f25237e0bd81961137e987",
+      "files": {
+        "export_vendor.py": "71ac1e433483605f02e198647a5e99a9f6b35fbc5769ac848cef7283a944aae2",
+        "free_cards.sh": "b8e0674d18614329af034f7eb8b9b755e228673d4461805c5db5fb20a4a1875f",
+        "gpu_lease.sh": "e581ea7a92c3e84a42158c486928f151e9cda800f405aeec2c7c3f40a3fb28f3",
+        "gpu_policy.sh": "269917ee259134e608a22a4280136100ad0a3f4b98b67aff33696f603fa13971",
+        "queue_worker.sh": "921d2e19d019b492a26e3fec7ecfaa31367be3707c3645e9b993a77ab9609099",
+        "run_with_gpu_lease.sh": "fc98d217c47a7d1a640847e3baaeb211e19b4cf961117b710e6f88f5c26e097a"
+      }
+    }
+  }
+}

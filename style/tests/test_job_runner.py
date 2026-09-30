@@ -94,14 +94,14 @@ def project(tmp_path):
     shutil.copyfile(ROOT / "data/portraits/prompts.yaml", copy / "data/portraits/prompts.yaml")
     stubs = tmp_path / "bin"
     stubs.mkdir()
-    (stubs / "nvidia-smi").write_text(NVIDIA_SMI, newline="\n")
+    (stubs / "nvidia-smi").write_text(NVIDIA_SMI, newline="\n", encoding="utf-8")
     (stubs / "stub.py").write_text(STUB, encoding="utf-8", newline="\n")
     (stubs / "python-stub").write_text(
         f'#!/usr/bin/env bash\nexec "{Path(sys.executable).as_posix()}" "{(stubs / "stub.py").as_posix()}" "$@"\n',
-        newline="\n")
+        newline="\n", encoding="utf-8")
     for name in ("nvidia-smi", "python-stub"):
         (stubs / name).chmod(0o755)
-    (copy / "jobs.spec").write_text(SPEC, newline="\n")
+    (copy / "jobs.spec").write_text(SPEC, newline="\n", encoding="utf-8")
     env = dict(os.environ, PY=(stubs / "python-stub").as_posix(), LEASE=(tmp_path / "leases").as_posix(),
                LEASE_HOST="test-host", GPU_CAP="", POLL="0.2",
                PATH=str(stubs) + os.pathsep + os.environ["PATH"])
@@ -127,7 +127,7 @@ def test_complete_run_validates_every_stage(project):
     assert "exp_DONE" in result.stdout
     keys = readout(copy)
     assert len(keys) == 4 * (2 + 1 + 1)
-    assert (copy / "artifacts/defenses/exp/alpha/job.spec").read_text().split()[-2:] == ["--lr", "0.1"]
+    assert (copy / "artifacts/defenses/exp/alpha/job.spec").read_text(encoding="utf-8").split()[-2:] == ["--lr", "0.1"]
     again = run()
     assert again.returncode == 0 and "launched" not in again.stdout
 
@@ -152,7 +152,7 @@ def test_failed_readout_is_not_reported_done(project):
 def test_outputs_from_other_settings_stop_the_run(project):
     copy, run = project
     assert run().returncode == 0
-    (copy / "jobs.spec").write_text(SPEC.replace("--lr 0.1", "--lr 0.05"), newline="\n")
+    (copy / "jobs.spec").write_text(SPEC.replace("--lr 0.1", "--lr 0.05"), newline="\n", encoding="utf-8")
     result = run()
     assert result.returncode == 2
     assert "job.spec 不符" in result.stderr
@@ -160,7 +160,7 @@ def test_outputs_from_other_settings_stop_the_run(project):
 
 def test_spec_without_reference_job_is_rejected(project):
     copy, run = project
-    (copy / "noref.spec").write_text("alpha man_01 cool_grade --lr 0.1\n", newline="\n")
+    (copy / "noref.spec").write_text("alpha man_01 cool_grade --lr 0.1\n", newline="\n", encoding="utf-8")
     result = run("noref.spec")
     assert result.returncode == 2
     assert "ref" in result.stderr
@@ -182,7 +182,7 @@ def test_unusable_detach_command_is_reported(project, tmp_path):
     broken = tmp_path / "broken"
     broken.mkdir()
     (broken / "setsid").write_text('#!/usr/bin/env bash\necho "setsid: command not found" >&2\nexit 127\n',
-                                   newline="\n")
+                                   newline="\n", encoding="utf-8")
     (broken / "setsid").chmod(0o755)
     result = run(PATH=os.pathsep.join([str(broken), str(tmp_path / "bin"), os.environ["PATH"]]))
     assert result.returncode == 1, result.stdout + result.stderr

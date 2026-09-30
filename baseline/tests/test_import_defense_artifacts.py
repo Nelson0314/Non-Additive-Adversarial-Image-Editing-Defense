@@ -32,7 +32,7 @@ def setup(tmp_path, monkeypatch):
         source.mkdir(exist_ok=True)
         Image.new("RGB", (16, 16), (90, 110, 130)).save(source / f"{name}__color__defended.png")
     settings = source / "results.csv"
-    settings.write_text("image,arm\nman_00,color\nwoman_00,color\n")
+    settings.write_text("image,arm\nman_00,color\nwoman_00,color\n", encoding="utf-8")
     monkeypatch.setattr(importer, "MetricSuite", FakeSuite)
     monkeypatch.setattr(importer, "RESOLUTION", 16)
     argv = ["import", "--source-dir", str(source), "--condition", "color", "--data-root", str(data),
@@ -63,7 +63,7 @@ def test_missing_settings_or_image_writes_no_manifest(setup, monkeypatch):
     monkeypatch.setattr(sys, "argv", argv)
     with pytest.raises(SystemExit):
         importer.main()
-    settings.write_text("x\n")
+    settings.write_text("x\n", encoding="utf-8")
     (source / "woman_00__color__defended.png").unlink()
     with pytest.raises(SystemExit):
         importer.main()

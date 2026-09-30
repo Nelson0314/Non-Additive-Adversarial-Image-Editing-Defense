@@ -35,7 +35,7 @@ def driver(kind, tmp_path, monkeypatch):
     else:
         monkeypatch.setattr(module, "input_png", lambda *args: original)
         prompts = tmp_path / "prompts.json"
-        prompts.write_text('{"verbatim": ["edit"]}')
+        prompts.write_text('{"verbatim": ["edit"]}', encoding="utf-8")
         argv = ["run_ultraedit_edits", "--arms", "undefended", "--purifiers", "none",
                 "--guidance", "2.5", "--image-guidance", "1.5", "--prompt-sets", str(prompts)]
         out_csv = tmp_path / "results/ultraedit/edits_undefended.csv"
@@ -66,7 +66,7 @@ def test_cli_resume_validates_before_model_load(tmp_path, monkeypatch, kind, cha
     elif change == "missing_png":
         png.unlink()
     elif change == "legacy":
-        csv_path.write_text("image,prompt_index\na,0\n")
+        csv_path.write_text("image,prompt_index\na,0\n", encoding="utf-8")
     before = csv_path.read_bytes()
     if change == "none":
         ns.main()

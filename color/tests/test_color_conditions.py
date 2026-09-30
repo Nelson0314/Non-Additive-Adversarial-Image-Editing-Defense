@@ -22,7 +22,7 @@ def dispatch(tmp_path, arm, extra=(), output=None):
     stub = tmp_path / "capture-python"
     stub.write_text('#!/usr/bin/env bash\n'
                     f'[ "$2" = immunization_color.conditions ] && exec "{Path(sys.executable).as_posix()}" "$@"\n'
-                    'printf "%s\\n" "$@"\n', newline="\n")
+                    'printf "%s\\n" "$@"\n', newline="\n", encoding="utf-8")
     stub.chmod(0o755)
     env = dict(os.environ, PY=stub.as_posix())
     env.pop("DEF_OUT", None)

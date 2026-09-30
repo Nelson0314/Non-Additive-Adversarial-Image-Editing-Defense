@@ -32,7 +32,7 @@ def stub_bin(tmp_path):
     for name, text in {"nvidia-smi": NVIDIA_SMI,
                        "python-stub": "#!/usr/bin/env bash\nexit 0\n"}.items():
         path = stubs / name
-        path.write_text(text, newline="\n")
+        path.write_text(text, newline="\n", encoding="utf-8")
         path.chmod(0o755)
     return stubs
 
@@ -99,8 +99,8 @@ def test_invalid_authorization_is_rejected(tmp_path, cap):
 
 
 def test_all_job_names_and_hosts_count_toward_authorized_limit(tmp_path):
-    (tmp_path / "remote-0").write_text("remote 1 unrelated\n")
-    (tmp_path / "remote-1").write_text("remote 2 q_other\n")
+    (tmp_path / "remote-0").write_text("remote 1 unrelated\n", encoding="utf-8")
+    (tmp_path / "remote-1").write_text("remote 2 q_other\n", encoding="utf-8")
     result = bash(tmp_path, '''gpu_policy_init 2 || exit $?
 lease_card_available() { return 0; }
 lease_acquire 0 style_prompt_work 6
@@ -137,7 +137,7 @@ fi
         while len(list(tmp_path.glob("result_*"))) != len(children) and time.monotonic() < deadline:
             time.sleep(0.02)
         assert len(list(tmp_path.glob("result_*"))) == len(children)
-        assert sum(p.read_text().strip() == "yes" for p in tmp_path.glob("result_*")) == expected
+        assert sum(p.read_text(encoding="utf-8").strip() == "yes" for p in tmp_path.glob("result_*")) == expected
         assert len([p for p in leases.iterdir() if p.is_file() and not p.name.startswith(".")]) == expected
     finally:
         release.touch()
@@ -158,7 +158,7 @@ test -f "$LEASE/$LEASE_HOST-0"
 
 
 def test_remote_and_legacy_leases_count_toward_limit(tmp_path):
-    (tmp_path / "remote-0").write_text("other-host 1 legacy\n")
+    (tmp_path / "remote-0").write_text("other-host 1 legacy\n", encoding="utf-8")
     result = bash(tmp_path, 'lease_card_available() { return 0; }; lease_acquire 1 new 1')
     assert result.returncode == 4, result.stderr
 
@@ -196,7 +196,7 @@ def test_command_exit_releases_owned_lease(tmp_path, command_rc):
         env=env, capture_output=True, text=True, encoding="utf-8", timeout=15)
     assert result.returncode == command_rc, result.stderr
     assert "[CARD]" in result.stderr and "gpu=0" in result.stderr
-    assert Path((work / "where").read_text()).resolve() == work.resolve()
+    assert Path((work / "where").read_text(encoding="utf-8")).resolve() == work.resolve()
     assert not [p for p in leases.iterdir() if not p.name.startswith(".")]
     assert not (leases / ".guard").exists()
 
@@ -207,7 +207,7 @@ def project_env(tmp_path):
     env_file.parent.mkdir(parents=True)
     env_file.write_text('export PROJECT_ENV_LOADED=1\n'
                         'if [ -n "${ENV_FILE:-}" ]; then source "$ENV_FILE" || return 1; fi\n',
-                        newline="\n")
+                        newline="\n", encoding="utf-8")
     return env_file
 
 
@@ -222,14 +222,14 @@ def test_env_file_that_sources_env_file_does_not_recurse(tmp_path):
          "bash", "-c", 'echo "$PROJECT_ENV_LOADED" > loaded'],
         env=env, capture_output=True, text=True, encoding="utf-8", timeout=15)
     assert result.returncode == 0, result.stderr
-    assert (work / "loaded").read_text().strip() == "1"
+    assert (work / "loaded").read_text(encoding="utf-8").strip() == "1"
     assert not [p for p in leases.iterdir() if not p.name.startswith(".")]
 
 
 def test_env_file_keeps_caller_machine_settings(tmp_path):
     env, _ = stub_env(tmp_path)
     machine = tmp_path / "machine.sh"
-    machine.write_text("export MACHINE_LOADED=1\n", newline="\n")
+    machine.write_text("export MACHINE_LOADED=1\n", newline="\n", encoding="utf-8")
     env["ENV_FILE"] = machine.as_posix()
     work = tmp_path / "work"
     work.mkdir()
@@ -239,7 +239,7 @@ def test_env_file_keeps_caller_machine_settings(tmp_path):
          "bash", "-c", 'echo "$PROJECT_ENV_LOADED $MACHINE_LOADED" > loaded'],
         env=env, capture_output=True, text=True, encoding="utf-8", timeout=15)
     assert result.returncode == 0, result.stderr
-    assert (work / "loaded").read_text().split() == ["1", "1"]
+    assert (work / "loaded").read_text(encoding="utf-8").split() == ["1", "1"]
 
 
 def test_missing_workdir_is_rejected(tmp_path):
@@ -253,7 +253,7 @@ def test_missing_workdir_is_rejected(tmp_path):
 # ---- 佇列 ----
 
 def write_tool(path, body):
-    path.write_text("#!/usr/bin/env bash\n" + body, newline="\n")
+    path.write_text("#!/usr/bin/env bash\n" + body, newline="\n", encoding="utf-8")
     path.chmod(0o755)
     return path
 
@@ -281,9 +281,9 @@ def test_queue_runs_dependencies_first_and_validates(tmp_path):
     result, work, leases = run_queue(tmp_path, ["second", "first"],
                                      '[ -e "done_$1" ]\n', depends)
     assert result.returncode == 0, result.stderr
-    assert (work / "order").read_text().split() == ["first", "second"]
+    assert (work / "order").read_text(encoding="utf-8").split() == ["first", "second"]
     assert (tmp_path / "state/first.done").exists() and (tmp_path / "state/second.done").exists()
-    assert (work / "done_first").read_text().strip() == "0"
+    assert (work / "done_first").read_text(encoding="utf-8").strip() == "0"
     assert not [p for p in leases.iterdir() if not p.name.startswith(".")]
 
 
@@ -294,7 +294,7 @@ def test_job_finishing_during_readiness_check_is_not_relaunched(tmp_path):
     depends = 'if [ -e "running_$1" ] && [ ! -e "done_$1" ]; then sleep 1.5; fi\nexit 0\n'
     result, work, leases = run_queue(tmp_path, ["only"], '[ -e "done_$1" ]\n', depends, runner)
     assert result.returncode == 0, result.stderr
-    assert (work / "order").read_text().split() == ["only"]
+    assert (work / "order").read_text(encoding="utf-8").split() == ["only"]
     assert (tmp_path / "state/only.done").exists()
     assert not [p for p in leases.iterdir() if not p.name.startswith(".")]
 
@@ -312,7 +312,7 @@ def test_given_up_upstream_blocks_dependents(tmp_path):
     result, work, _ = run_queue(tmp_path, ["first", "second"],
                                 '[ "$1" != first ] && [ -e "done_$1" ]\n', depends)
     assert result.returncode == 1
-    assert (work / "order").read_text().split() == ["first"]
+    assert (work / "order").read_text(encoding="utf-8").split() == ["first"]
 
 
 def test_invalid_dependency_status_stops_worker(tmp_path):
@@ -359,9 +359,9 @@ def make_project(path, name="x"):
     (path / "vendor/scripts").mkdir(parents=True)
     (path / "docs").mkdir()
     shutil.copyfile(SCRIPTS / "run_trial_lifecycle.sh", path / "vendor/scripts/run_trial_lifecycle.sh")
-    (path / "pyproject.toml").write_text(f'[project]\nname = "{name}"\n')
-    (path / ".gitignore").write_text("/trials/\n")
-    (path / "docs/TRIALS.md").write_text(LEDGER_HEAD)
+    (path / "pyproject.toml").write_text(f'[project]\nname = "{name}"\n', encoding="utf-8", newline="\n")
+    (path / ".gitignore").write_text("/trials/\n", encoding="utf-8", newline="\n")
+    (path / "docs/TRIALS.md").write_text(LEDGER_HEAD, encoding="utf-8", newline="\n")
     return path
 
 
@@ -420,13 +420,13 @@ def test_promote_requires_listed_committed_targets(tmp_path):
     result = run("promote", "warm_grade")
     assert result.returncode == 1 and "沒有列出" in result.stderr
     (project / "configs").mkdir()
-    (project / "configs/warm.yaml").write_text("x: 1\n")
-    (project / "trials/warm_grade/PROMOTED").write_text("configs/warm.yaml\n")
+    (project / "configs/warm.yaml").write_text("x: 1\n", encoding="utf-8", newline="\n")
+    (project / "trials/warm_grade/PROMOTED").write_text("configs/warm.yaml\n", encoding="utf-8", newline="\n")
     result = run("promote", "warm_grade")
     assert result.returncode == 1 and "configs/warm.yaml" in result.stderr
-    (project / "trials/warm_grade/PROMOTED").write_text("../outside.txt\n")
+    (project / "trials/warm_grade/PROMOTED").write_text("../outside.txt\n", encoding="utf-8", newline="\n")
     assert run("promote", "warm_grade").returncode == 1
-    (project / "trials/warm_grade/PROMOTED").write_text("configs/warm.yaml\n")
+    (project / "trials/warm_grade/PROMOTED").write_text("configs/warm.yaml\n", encoding="utf-8", newline="\n")
     commit("configs/warm.yaml")
     result = run("promote", "warm_grade")
     assert result.returncode == 0, result.stderr
@@ -437,7 +437,7 @@ def test_promote_requires_listed_committed_targets(tmp_path):
 
 
 def ledger_row(project, row):
-    with (project / "docs/TRIALS.md").open("a", encoding="utf-8") as ledger:
+    with (project / "docs/TRIALS.md").open("a", encoding="utf-8", newline="\n") as ledger:
         ledger.write(row)
 
 
@@ -451,11 +451,11 @@ def test_drop_requires_committed_complete_ledger_row(tmp_path):
     commit("docs/TRIALS.md")
     assert "不可空白" in run("drop", "cold_grade").stderr
     (project / "docs/TRIALS.md").write_text(
-        LEDGER_HEAD + "| `cold_grade` | 冷色調 | lr 0.02 | LPIPS 0.1 | trials/cold_grade/log.txt |\n")
+        LEDGER_HEAD + "| `cold_grade` | 冷色調 | lr 0.02 | LPIPS 0.1 | trials/cold_grade/log.txt |\n", encoding="utf-8", newline="\n")
     commit("docs/TRIALS.md")
     assert "即將刪除" in run("drop", "cold_grade").stderr
     (project / "docs/TRIALS.md").write_text(
-        LEDGER_HEAD + "| `cold_grade` | 冷色調 | lr 0.02 | LPIPS 0.1 | results/cold.csv @ abc |\n")
+        LEDGER_HEAD + "| `cold_grade` | 冷色調 | lr 0.02 | LPIPS 0.1 | results/cold.csv @ abc |\n", encoding="utf-8", newline="\n")
     commit("docs/TRIALS.md")
     assert run("drop", "cold_grade", TRIAL_REMOTE="", TRIAL_REMOTE_ROOT="").returncode == 2
     result = run("drop", "cold_grade")
@@ -486,7 +486,7 @@ def test_symlinked_remote_trial_is_refused(tmp_path):
     commit("docs/TRIALS.md")
     elsewhere = tmp_path / "elsewhere"
     elsewhere.mkdir()
-    (elsewhere / "keep.txt").write_text("keep")
+    (elsewhere / "keep.txt").write_text("keep", encoding="utf-8")
     (remote / "trials").mkdir()
     directory_link(remote / "trials/cold_grade", elsewhere)
     result = run("drop", "cold_grade")
@@ -498,7 +498,7 @@ def test_linked_local_trial_is_refused(tmp_path):
     project, _, run, _ = trial_project(tmp_path)
     elsewhere = tmp_path / "elsewhere"
     elsewhere.mkdir()
-    (elsewhere / "keep.txt").write_text("keep")
+    (elsewhere / "keep.txt").write_text("keep", encoding="utf-8")
     (project / "trials").mkdir()
     directory_link(project / "trials/cold_grade", elsewhere)
     result = run("drop", "cold_grade", "--local-only")

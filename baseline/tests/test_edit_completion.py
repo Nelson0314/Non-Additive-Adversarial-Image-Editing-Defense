@@ -12,7 +12,7 @@ def stage(tmp_path):
     png = tmp_path / arm / "a__p0.png"
     Image.new("RGB", (8, 8)).save(png)
     expected = [{"image": "a", "prompt_index": 0, "arm": arm, "seed": 12, "prompt": "edit"}]
-    with (tmp_path / "preflight.csv").open("w", newline="") as stream:
+    with (tmp_path / "preflight.csv").open("w", newline="", encoding="utf-8") as stream:
         writer = csv.DictWriter(stream, fieldnames=expected[0])
         writer.writeheader()
         writer.writerows(expected)

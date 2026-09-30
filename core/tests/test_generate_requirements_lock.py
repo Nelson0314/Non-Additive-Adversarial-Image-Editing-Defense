@@ -11,7 +11,7 @@ spec.loader.exec_module(generate_requirements_lock)
 
 
 def test_lock_round_trip_and_drift(tmp_path, capsys):
-    (tmp_path / "pyproject.toml").write_text("[project]\nname = 'x'\n")
+    (tmp_path / "pyproject.toml").write_text("[project]\nname = 'x'\n", encoding="utf-8")
     generate_requirements_lock.main(["--project-root", str(tmp_path)])
     lock = tmp_path / "requirements.lock"
     assert b"\r\n" not in lock.read_bytes()

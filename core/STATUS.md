@@ -1,16 +1,28 @@
-# 第 3 項：基礎模組與淨化階段
+# core：現況與接續指引
 
-基礎模組來源基準：`57a28a9324362cc9fa68a21cc1970632fefbc1a3`；淨化階段基準：`51d58bf2757a691ec4d8c54a983efb74ac41bac8`。
+共用正本。模組契約與工具用法見 `README.md`；來源與命名對照見 `docs/PROVENANCE.md`，三份流程差異見 `docs/PIPELINE_BEHAVIOR.md`，淨化見 `docs/PURIFICATION.md`。
 
-已建立可安裝的 `immunization_core` 套件、三份 pipelines 行為差異表、受害模型 adapters、活動閉包內六個 metrics 模組、device、I/O 與影像存檔介面。來源（原 `anti-purification/src`、main_table、lab）依 commit 記錄於各 source manifest；封存後位於 `archive/anti-purification/`。baseline 攻擊實作未納入 core。
+## 範圍
 
-第 3 項各子項狀態：
+- `src/immunization_core/`：受害模型 adapter（IP2P、SD、SD-inpainting、SDXL）、指標、淨化算子與固定淨化協定（`purifiers/protocol.json`）、
+  編輯／位移／保留量流程、幾何遮罩、色彩與載體最佳化 helpers、I/O 與產物版面。baseline 的攻擊實作不在 core。
+- `scripts/`：GPU 租約工具（`gpu_policy.sh`、`gpu_lease.sh`、`free_cards.sh`、`run_with_gpu_lease.sh`、`queue_worker.sh`）、
+  `trial.sh`、`export_vendor.py`、`freeze_env.py`。
+- 使用端：`baseline`、`color`、`style` 經各自的 `vendor/` 快照使用，不直接 import `core/`。
 
-1. 已移植四個淨化模組；歷史 `gridpure`／`fdpure` 明確標示不可用，無封存區 import。外部權重算子的真實數值驗證尚未執行（需權重與 GPU，由協調端處理）。
-2. 固定淨化流程、`purified_mask()` 與編輯、displacement、retention 主流程已合併（`pipelines.editing`、`pipelines.displacement`、`pipelines.retention`），保留 lab 子集順序與條件過濾。
-3. 已提供顯式 `artifacts/layout`；第 4、5 項的專案 CLI 須接入，不新增兄弟目錄探索。
-4. color／style 閉包中的共用 helpers 已依責任放入 `color.space`、`color.difference`、`color.uniformity`、`optimization.carrier`、`optimization.instruction_free`，改為 `quantize`、`optimize_carrier`、`randomize_carrier`。NCF 載體（`NCFColorParam`）、`lowfreq_color` 與 `color_amplitude` 的幅度求解器不在活動閉包內，未納入。
-5. 五支 GPU 租約工具已複製至 `core/scripts/`，`run_on_card.sh` 改名為 `run_with_gpu_lease.sh`；queue 的工作執行、驗收與相依改為 `--runner`、`--validator`、`--depends` 注入。`LAB_CAP`、`LAB_MYCAP` 改為 `GPU_CAP`、`QUEUE_CAP`；租約目錄預設值維持 `$HOME/lab_leases`，改名須所有取卡入口同時切換（第 10 項）。
-6. 上述模組的測試隨行；完整 core 的獨立副本通過全部 CPU 測試、各 pipeline `--help` 與全部公開模組匯入。
+## 現況
 
-來源雜湊：基礎模組見 `docs/source_manifest.json`，淨化見 `docs/purifier_source_manifest.json`，其餘見 `docs/pipeline_source_manifest.json`。baseline、color、style 三個專案經各自的 `vendor/` 快照使用 core（第 4、5 項）；`anti-purification` 的舊呼叫端未切換，第 6 項整體封存。
+- CPU 測試：`python -m pytest -q -p no:cacheprovider`（預設排除 `weights` 標記，需權重的案例以 `-m weights` 明確選取）。
+- 各專案的 `vendor.lock.json` 記錄匯出時的 core commit；`export_vendor.py --check` 在三個專案皆通過。
+
+## 已知限制
+
+- 外部權重淨化算子（DiffPure、IMPRESS、Adverse Cleaner）只有 CPU 契約測試，未在 GPU 與真實權重上驗證數值。
+  主表淨化協定的七道算子（`crop_resize0.1`、`jpeg30`、`jpeg50`、`jpeg80`、`blur1`、`blur2`、`rotate15`）不依賴這些權重。
+- 歷史算子 `gridpure`、`fdpure` 沒有實作，`available=False`，使用時明確拒絕。
+- NCF 載體（`NCFColorParam`）、`lowfreq_color` 與 `color_amplitude` 的幅度求解器不在任何現行專案的 import 閉包內，未納入 core；原始碼在 `archive/anti-purification/src/defense/`。
+- `requirements.lock`：core 本身的鎖定檔由 `python scripts/freeze_env.py` 在執行測試的環境產生；未入庫。
+
+## 規則
+
+共通規則見根目錄 `CLAUDE.md`。core 的修改必須附測試；修改後依序提交 core、重新匯出三個專案的 `vendor/`、在各專案執行測試，再提交匯出結果。

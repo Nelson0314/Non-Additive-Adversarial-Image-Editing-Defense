@@ -1,12 +1,12 @@
 # immunization_core
 
-影像免疫研究的共用模型、量測與 I/O 套件。來源以複製方式移植，原有專案與呼叫端保持原狀。包含基礎模組、淨化、固定淨化流程、幾何遮罩、顯式產物根目錄、編輯與讀數流程、色彩與載體最佳化 helpers，以及 `scripts/` 下的 GPU 租約工具。
+影像免疫研究的共用模型、量測與 I/O 套件。包含基礎模組、淨化、固定淨化流程、幾何遮罩、顯式產物根目錄、編輯與讀數流程、色彩與載體最佳化 helpers，以及 `scripts/` 下的 GPU 租約工具。
 
 ```powershell
 python -m pip install -e ./core --no-deps --no-build-isolation
 ```
 
-已有基礎相依的環境亦可將 `core/src` 加入 `PYTHONPATH`。套件可單獨複製至另一目錄使用，不搜尋 `anti-purification`、`lab` 或使用者家目錄。安裝相依的版本範圍不是實驗 lock；正式實驗仍須保存實際環境版本與模型 revision，第 9 項另建立專案鎖定檔。
+已有基礎相依的環境亦可將 `core/src` 加入 `PYTHONPATH`。套件可單獨複製至另一目錄使用，不搜尋兄弟目錄或使用者家目錄。`pyproject.toml` 的相依是版本範圍；實際執行環境的版本以 `scripts/freeze_env.py` 寫成各專案的 `requirements.lock`。
 
 | 公開模組 | 契約 |
 |---|---|
@@ -32,23 +32,25 @@ python -m pip install -e ./core --no-deps --no-build-isolation
 ```powershell
 $env:CUDA_VISIBLE_DEVICES = ''
 $env:PYTHONIOENCODING = 'utf-8'
-python -m pytest core/tests -q -p no:cacheprovider --basetemp=.tmp/codex_audit/pytest_core
+python -m pytest core/tests -q -p no:cacheprovider
 ```
 
-測試預設排除 `weights` 標記。需要真實指標權重的測試以 `-m weights` 明確選取；缺依賴或執行錯誤會失敗，不以廣泛例外轉為 skip。本階段不執行此組。獨立副本測試會禁止連網、CUDA 初始化，並匯入副本中的全部公開模組。
+測試預設排除 `weights` 標記。需要真實指標權重的測試以 `-m weights` 明確選取；缺依賴或執行錯誤會失敗，不以廣泛例外轉為 skip。獨立副本測試會禁止連網、CUDA 初始化，並匯入副本中的全部公開模組。
 
 ## GPU 租約工具
 
-`scripts/` 的五支 Bash 工具共用一個租約目錄（`LEASE`，預設 `$HOME/lab_leases`）。取卡、容量檢查、擁有者驗證與釋放都在同一個 `mkdir` 鎖內；全局卡數由使用者逐次授權，以 `--cap` 或 `GPU_CAP` 寫入租約目錄，未指定時預設全局合計 6 張，計入所有主機、session 與排程。
+`scripts/` 的五支租約 Bash 工具共用一個租約目錄（`LEASE`，預設 `$HOME/gpu_leases`，只在 `gpu_policy.sh` 定義）。取卡、容量檢查、擁有者驗證與釋放都在同一個 `mkdir` 鎖內；全局卡數由使用者逐次授權，以 `--cap` 或 `GPU_CAP` 寫入租約目錄，未指定時預設全局合計 6 張，計入所有主機、session 與排程。
 
 | 工具 | 用途 |
 |---|---|
 | `gpu_policy.sh`、`gpu_lease.sh` | 容量政策與租約函式，供其他工具 `source`。 |
 | `free_cards.sh` | 列出空閒卡；`--assert` 檢查指定卡。只產生候選清單，不保留卡。 |
-| `run_with_gpu_lease.sh --work-dir <目錄> [--env-file <檔案>] <名稱> <指令...>` | 取一張卡的租約後執行單一指令，結束時釋放。 |
+| `run_with_gpu_lease.sh --work-dir <目錄> [--env-file <檔案>] <名稱> <指令...>` | 取一張卡的租約後執行單一指令，結束時釋放。`--env-file` 可指定專案的 `scripts/env.sh`；呼叫端的 `ENV_FILE`（機器設定）仍由該檔讀取。 |
 | `queue_worker.sh --work-dir --state-dir --log-dir --runner --validator [--depends] <佇列> <工作>...` | 佇列排程；工作執行、輸出驗收與相依由專案以指令注入，驗收通過才記為完成。 |
 
 `trial.sh new|promote|drop <名稱>` 管理各專案不入版控的 `trials/<名稱>/`：`promote` 要求升格內容已提交，`drop` 要求 `docs/TRIALS.md` 已有該名稱的一列，並以 `TRIAL_REMOTE`、`TRIAL_REMOTE_ROOT` 同時刪除遠端副本（只刪本機時明確給 `--local-only`）。
+
+`export_vendor.py <專案>` 把 git HEAD 的 core 匯出為專案的 `vendor/` 與 `vendor.lock.json`（`--check` 驗證一致）；`freeze_env.py` 在專案根寫出或檢查 `requirements.lock`，直譯器沒有 pip 時改用 `uv pip freeze --python <直譯器>`。
 
 工具以自身所在目錄互相定位，不依賴 CWD；`PY` 未設定時使用 `python`，`PYTHONPATH` 等環境由 `--env-file` 或呼叫端提供。
 

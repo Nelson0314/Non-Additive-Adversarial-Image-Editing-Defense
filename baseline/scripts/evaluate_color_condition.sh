@@ -53,6 +53,7 @@ if [ "$mode" = main ]; then
     done
     "$PY" -m $CLI.import_defense_artifacts --source-dir $A/color_import --variant color \
         --norm delta_e00_cap --budget 32 --data-root data/portraits \
+        --source-settings "$color_defenses/results.csv" \
         --output-dir $A/defenses/color || exit 1
     touch "$S/import.done"
   fi

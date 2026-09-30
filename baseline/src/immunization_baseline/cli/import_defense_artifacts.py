@@ -16,6 +16,12 @@
 搬過來會讓主表同一欄底下混進兩種量法。這裡走 `MetricSuite.pairwise` 與
 `standard_row`，與 `generate_defenses` 同一段程式、同一份權重。
 
+**匯入與保真量測分開記錄。** 匯入階段逐張寫出 `<輸出>/import_manifest.json`：條件、束縛、
+方法設定檔（`--source-settings`，如 color 專案該條件的 `results.csv`）與其 SHA-256，以及每張
+影像的來源防禦圖、原圖、輸出防禦圖路徑與 SHA-256；缺任何一張即中止，不寫出 manifest。
+量測階段寫 `results_all.csv`，每列另帶 `source_sha256`、`original_sha256`、`defended_sha256`、
+`source_settings`、`source_settings_sha256`，與 manifest 對應。
+
 用法
     python -m immunization_baseline.cli.import_defense_artifacts --source-dir <求解輸出目錄> \\
         --output-dir artifacts/defenses/color_curve
@@ -24,10 +30,12 @@
 from __future__ import annotations
 
 import argparse
+import json
 import time
 from pathlib import Path
 
 from immunization_baseline import layout  # noqa: E402
+from immunization_baseline.resume_state import file_digest  # noqa: E402
 
 import torch  # noqa: E402
 
@@ -75,7 +83,12 @@ def main() -> None:
                              "advcf_radius，填錯等於在表上宣告一個不存在的預算")
     parser.add_argument("--budget", default="",
                         help="該束縛的數值（例如 16.0 或 radius=1.0），寫進 eps 欄")
+    parser.add_argument("--source-settings", type=Path, required=True,
+                        help="產生來源防禦圖的方法設定紀錄（例如該條件的 results.csv）；"
+                             "路徑與 SHA-256 寫入 manifest 與 CSV")
     args = parser.parse_args()
+    if not args.source_settings.is_file():
+        raise SystemExit(f"找不到方法設定紀錄：{args.source_settings}")
     if args.condition is None:
         args.condition = args.variant or "colour"
 
@@ -92,8 +105,31 @@ def main() -> None:
         picked[name] = path
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    suite = MetricSuite(device=device)
     args.out.mkdir(parents=True, exist_ok=True)
+    settings = {"path": args.source_settings.as_posix(),
+                "sha256": file_digest(args.source_settings)}
+
+    # 匯入：逐張寫出原圖與防禦圖，記錄三方雜湊。
+    imported = {}
+    for name, defended in picked.items():
+        source, _ = sources[name]
+        x01 = load_image_tensor(source, device, size=RESOLUTION)
+        y01 = load_image_tensor(defended, device, size=RESOLUTION)
+        output = args.out / f"{name}__{args.condition}__def.png"
+        save_image(x01, args.out / f"{name}__orig.png")
+        save_image(y01, output)
+        imported[name] = {"image": name, "source_png": defended.as_posix(),
+                          "source_sha256": file_digest(defended),
+                          "original_png": source.as_posix(), "original_sha256": file_digest(source),
+                          "defended_png": output.as_posix(), "defended_sha256": file_digest(output)}
+    manifest = {"condition": args.condition, "variant": args.variant, "norm": args.norm,
+                "budget": args.budget, "source_dir": args.run.as_posix(),
+                "source_settings": settings, "images": list(imported.values())}
+    (args.out / "import_manifest.json").write_text(
+        json.dumps(manifest, indent=1, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n")
+
+    # 保真量測：來源防禦圖對原圖，兩者以相同的縮放載入。
+    suite = MetricSuite(device=device)
     rows = []
     for name, defended in picked.items():
         source, cls = sources[name]
@@ -102,8 +138,7 @@ def main() -> None:
         y01 = load_image_tensor(defended, device, size=RESOLUTION)
         with torch.no_grad():
             pair = suite.pairwise(x01, y01)
-        save_image(x01, args.out / f"{name}__orig.png")
-        save_image(y01, args.out / f"{name}__{args.condition}__def.png")
+        record = imported[name]
         rows.append({
             "image": name, "class": cls, "condition": args.condition,
             "solver_prompt": SOLVER_PROMPT[0],
@@ -127,6 +162,11 @@ def main() -> None:
             "data_root": str(args.data).replace("\\", "/"),
             "source_png": defended.as_posix(),
             "measured_seconds": round(time.time() - started, 1),
+            "source_sha256": record["source_sha256"],
+            "original_sha256": record["original_sha256"],
+            "defended_sha256": record["defended_sha256"],
+            "source_settings": settings["path"],
+            "source_settings_sha256": settings["sha256"],
         })
         print(f"[DONE] {name:12s} psnr={pair['psnr']:.3f} "
               f"lpips={pair['lpips']:.4f} rms={pair['rms']:.5f}", flush=True)

@@ -22,6 +22,20 @@ DiffVax 的 `evaluate.py`），本專案的 `MetricSuite` 支援它、卻沒有�
 | `additional_metrics/aesthetic.csv`  | 防禦圖本身（無參考） | 美學與自然度四項 |
 | `additional_metrics/vmaf.csv`       | 上面前三種配對，各自的 VMAF | `vmaf`，`pairing` 欄標配對種類 |
 
+必要與選配指標
+────────────────────────────────────────────────────────────────────
+| stage | 必要（缺依賴或計算失敗即中止） | 選配（後端缺席時留空並記原因） |
+|---|---|---|
+| fidelity | `fid_fsim`、`fid_delta_e00`、`fid_mse` | — |
+| displacement | `disp_fsim`、`disp_mse` | — |
+| retention | `disp_purified_fsim` | — |
+| aesthetic | — | `aes_*` 七項（pyiqa 模型與權重） |
+| vmaf | — | `vmaf`（需含 libvmaf 的 ffmpeg） |
+
+選配指標只在建立後端時判定可用性；後端缺席時該欄留空，並在 `unavailable_metrics` 欄以
+`<欄名>: <原因>` 記錄（多項以 `; ` 分隔，全部可用時為空字串）。建立成功後的計算錯誤一律中止。
+每列另記 `device`：本工具固定以 CPU 計算。
+
 **美學那一組是無參考指標**：它們只看一張圖，不跟原圖比，所以原圖自己也要量一份
 當參照列——`niqe 4.12` 這個數單獨擺出來沒有意義，要對著同一張原圖的值看。
 
@@ -112,6 +126,21 @@ def delta_e00(a: torch.Tensor, b: torch.Tensor) -> float:
     return float(deltaE_ciede2000(rgb2lab(x), rgb2lab(y)).mean())
 
 
+def optional_backends(factories: dict) -> tuple:
+    """建立選配指標的後端；回傳 (可用的後端, 欄名 → 缺席原因)。"""
+    available, missing = {}, {}
+    for column, factory in factories.items():
+        try:
+            available[column] = factory()
+        except (ImportError, OSError, RuntimeError, ValueError) as error:
+            missing[column] = f"{type(error).__name__}: {error}".replace("\n", " ")
+    return available, missing
+
+
+def unavailable_text(missing: dict) -> str:
+    return "; ".join(f"{column}: {reason}" for column, reason in missing.items())
+
+
 def stage_fidelity(device) -> None:
     """防禦圖對原圖。檔名式樣 `<name>__orig.png` 與 `<name>__<cond>__def.png`。"""
     root = layout.DEFENSES
@@ -132,6 +161,7 @@ def stage_fidelity(device) -> None:
                     "fid_mse": round(mse(a, b), 8),
                     "original_png": original.as_posix(),
                     "defended_png": defended.as_posix(),
+                    "device": str(device),
                 })
         print(f"[DONE] {condition:20s} 累計 {len(rows)} 列", flush=True)
     write_csv(OUT_DIR / "fidelity.csv", rows)
@@ -151,6 +181,7 @@ def stage_displacement(device) -> None:
                 "image": row["image"], "prompt_index": row["prompt_index"],
                 "disp_fsim": round(fsim(a, b), 5),
                 "disp_mse": round(mse(a, b), 8),
+                "device": str(device),
             })
         if i % 64 == 0:
             print(f"[{i}/{len(source)}]", flush=True)
@@ -182,6 +213,7 @@ def stage_retention(device) -> None:
                 "scenario": row["scenario"], "image": row["image"],
                 "prompt_index": row["prompt_index"],
                 "disp_purified_fsim": round(fsim(load(a, device), load(b, device)), 5),
+                "device": str(device),
             })
         if i % 256 == 0:
             print(f"[{i}/{len(source)}]", flush=True)
@@ -204,10 +236,15 @@ AESTHETIC = (
 
 def stage_aesthetic(device) -> None:
     """防禦圖與原圖各量一份無參考的美學／自然度讀數。"""
-    import pyiqa
-    models = {}
-    for column, name, _ in AESTHETIC:
-        models[column] = pyiqa.create_metric(name, device=device)
+    def factory(name):
+        def create():
+            import pyiqa
+            return pyiqa.create_metric(name, device=device)
+        return create
+
+    models, missing = optional_backends({column: factory(name) for column, name, _ in AESTHETIC})
+    for column, reason in missing.items():
+        print(f"[UNAVAILABLE] {column}：{reason}", flush=True)
 
     root = layout.DEFENSES
     targets = []
@@ -228,7 +265,9 @@ def stage_aesthetic(device) -> None:
         row = {"condition": condition, "image": name, "png": path.as_posix()}
         with torch.no_grad():
             for column, _, _ in AESTHETIC:
-                row[column] = round(float(models[column](x)), 5)
+                row[column] = round(float(models[column](x)), 5) if column in models else ""
+        row["device"] = str(device)
+        row["unavailable_metrics"] = unavailable_text(missing)
         rows.append(row)
         if i % 16 == 0:
             print(f"[{i}/{len(targets)}]", flush=True)
@@ -259,6 +298,17 @@ def vmaf_score(distorted: Path, reference: Path, tmp_dir: Path, tag: str) -> flo
         data = json.load(stream)
     log_path.unlink()
     return float(data["frames"][0]["metrics"]["vmaf"])
+
+
+def libvmaf_available() -> bool:
+    """ffmpeg 存在且含 libvmaf 濾鏡；否則拋錯，由 `optional_backends` 記為缺席原因。"""
+    import subprocess
+
+    listing = subprocess.run(["ffmpeg", "-hide_banner", "-filters"], capture_output=True,
+                             text=True, check=True).stdout
+    if " libvmaf " not in listing:
+        raise RuntimeError("ffmpeg 未包含 libvmaf 濾鏡")
+    return True
 
 
 def stage_vmaf(device) -> None:  # noqa: ARG001 - 與其他 stage 簽名一致，VMAF 不用 GPU/torch
@@ -307,6 +357,16 @@ def stage_vmaf(device) -> None:  # noqa: ARG001 - 與其他 stage 簽名一致�
           f"retention={sum(1 for p in pairs if p[0] == 'retention')} "
           f"total={len(pairs)}", flush=True)
 
+    _, missing = optional_backends({"vmaf": libvmaf_available})
+    if missing:
+        print(f"[UNAVAILABLE] vmaf：{missing['vmaf']}", flush=True)
+        rows = [{"pairing": pairing, **meta, "vmaf": "", "device": "cpu",
+                 "unavailable_metrics": unavailable_text(missing)}
+                for pairing, meta, _, _ in pairs]
+        write_csv(OUT_DIR / "vmaf.csv", rows)
+        print(f"[ALLDONE] {OUT_DIR / 'vmaf.csv'}（{len(rows)} 列，vmaf 不可用）", flush=True)
+        return
+
     rows = [None] * len(pairs)
     with tempfile.TemporaryDirectory(prefix="vmaf_") as tmp_dir_str:
         tmp_dir = Path(tmp_dir_str)
@@ -314,7 +374,8 @@ def stage_vmaf(device) -> None:  # noqa: ARG001 - 與其他 stage 簽名一致�
         def work(i):
             pairing, meta, reference, distorted = pairs[i]
             score = vmaf_score(distorted, reference, tmp_dir, tag=str(i))
-            row = {"pairing": pairing, **meta, "vmaf": round(score, 5)}
+            row = {"pairing": pairing, **meta, "vmaf": round(score, 5), "device": "cpu",
+                   "unavailable_metrics": ""}
             return i, row
 
         done = 0

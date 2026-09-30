@@ -7,7 +7,7 @@
 第 3 項尚餘：
 
 1. 已移植四個淨化模組；歷史 `gridpure`／`fdpure` 明確標示不可用，無封存區 import。外部權重算子的真實數值驗證尚未執行。
-2. 固定淨化流程與 `purified_mask()` 已合併。尚待編輯、displacement 與 retention 主流程，保留 lab 子集順序與條件過濾。
+2. 固定淨化流程、`purified_mask()` 與編輯、displacement、retention 主流程已合併（`pipelines.editing`、`pipelines.displacement`、`pipelines.retention`，來源見 `docs/pipeline_source_manifest.json`），保留 lab 子集順序與條件過濾；原 lab 呼叫端尚未切換。
 3. 已提供顯式 `artifacts/layout`；後續 pipelines 與第 4、5 項 CLI 須接入，不新增兄弟目錄探索。
 4. 處理 color／style 閉包中的共用最佳化、色彩與 objective helpers：`color_amplitude`、`delta_e_torch`、`immunise`、`instruction_free`、`lowfreq_color`、`ncf_param`、`uniformity`。將共用部分依責任放置，改為 `optimization`、`optimize_carrier`、`randomize_carrier`、`quantize` 等美式名稱，避免納入 baseline 攻擊求解器。
 5. 複製五支 GPU 租約工具至 `core/scripts/`，將 `run_on_card.sh` 改名為 `run_with_gpu_lease.sh`，使 queue 呼叫與驗證依賴可明確注入；保留全局授權卡數與租約原子性。

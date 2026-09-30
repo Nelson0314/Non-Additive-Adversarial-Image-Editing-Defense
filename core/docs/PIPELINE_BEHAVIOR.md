@@ -37,4 +37,6 @@
 
 後續 pipelines 實作須驗證：只有子集防禦圖時可執行；防禦圖歧義與缺檔拒絕；條件過濾只處理指定條件；crop／rotate 後遮罩位置及黑角極性正確；未指定條件時的掃描集合不變；配對缺側拒絕；空區域與零分母維持原行為；既有輸出鍵、順序及精度保持一致。
 
-淨化階段已建立 `pipelines.purification`，沿用相同 registry 與運算；主體極性與 `purified_mask()` 原樣抽至 `pipelines.masks`。已提供顯式產物根目錄。編輯、displacement 與 retention 主流程、共用最佳化、GPU 租約工具仍屬後續子項；原呼叫端未切換。
+淨化階段已建立 `pipelines.purification`，沿用相同 registry 與運算；主體極性與 `purified_mask()` 原樣抽至 `pipelines.masks`。已提供顯式產物根目錄。
+
+編輯、displacement 與 retention 主流程依 lab 版本移入 `pipelines.editing`、`pipelines.displacement`、`pipelines.retention`，來源雜湊見 [pipeline_source_manifest.json](pipeline_source_manifest.json)。三者的 `--data` 改為必填，不再由 `paths.py` 推定資料根；`--defended` 的缺圖與歧義由 `artifacts.layout.defended_image()` 以 `ValueError` 拒絕。上列驗收案例由 `tests/test_edit_pipelines.py` 以替身指標在 CPU 上檢驗；原呼叫端未切換。

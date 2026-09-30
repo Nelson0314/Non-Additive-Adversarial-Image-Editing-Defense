@@ -1,6 +1,6 @@
 # immunization_core
 
-影像免疫研究的共用模型、量測與 I/O 套件。來源以複製方式移植，原有專案與呼叫端保持原狀。已提供基礎模組、淨化、固定淨化流程、幾何遮罩與顯式產物根目錄；完整編輯／讀數 pipelines、最佳化與 GPU 租約工具尚待移植。
+影像免疫研究的共用模型、量測與 I/O 套件。來源以複製方式移植，原有專案與呼叫端保持原狀。已提供基礎模組、淨化、固定淨化流程、幾何遮罩、顯式產物根目錄，以及編輯、displacement 與 retention 流程；最佳化與 GPU 租約工具尚待移植。
 
 ```powershell
 python -m pip install -e ./core --no-deps --no-build-isolation
@@ -18,6 +18,7 @@ python -m pip install -e ./core --no-deps --no-build-isolation
 | `io`、`artifacts.images` | CSV 欄位聯集、RGB 載入與 resize、PNG 量化及存檔。寫入函式會覆寫明確指定的目的檔案。 |
 | `purifiers.operators`、`purifiers.protocol` | 真實淨化與訓練代理分離；固定 identity 加七道淨化的順序及強度。 |
 | `pipelines.purification`、`pipelines.masks` | 明確指定資料／輸出根的淨化流程；保留主體極性及 `purified_mask()` 幾何變換。 |
+| `pipelines.editing`、`pipelines.displacement`、`pipelines.retention` | 編輯與位移讀數流程；資料根、輸入根與輸出路徑皆為必填參數，配對缺側立即失敗。 |
 | `artifacts.layout` | 顯式 `ArtifactLayout` 與唯一防禦 PNG 查找，不探索舊專案、不在建構時建立目錄。 |
 
 固定淨化入口為 `python -m immunization_core.pipelines.purification --data <資料集> --out <輸出>`，或以 `--defended <防禦圖目錄>` 代替 `--data`。IMPRESS 的 lpips 後端及 Adverse Cleaner 的 OpenCV-contrib 可由 `purifiers` extra 安裝；DiffPure 另需明確提供 guided-diffusion 與檢查點。歷史 `gridpure`／`fdpure` 未包含實作，`available=False` 並於使用時明確拒絕，無近似替代。詳見 [PURIFICATION.md](docs/PURIFICATION.md)。

@@ -152,7 +152,7 @@ class MetricSuite:
             # 失真會系統性偏袒色彩方法。這一欄是那個偏誤的對照軸。
             # 走 skimage 的 `deltaE_ciede2000`（實作已被廣泛驗證），
             # 不自行實作該公式。
-            "deltaE00": _delta_e00(a, b),
+            "delta_e00": _delta_e00(a, b),
         }
 
     FID_MIN_TRUSTED = 150

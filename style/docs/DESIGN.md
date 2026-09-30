@@ -3,7 +3,7 @@
 依據 Wang et al.,「Style-controllable adversarial example generation via image editing and prompt embedding
 optimization」（Neurocomputing 702, 134591, 2026；根目錄 PDF）。原方法凍結 InstructPix2Pix、最佳化指令的文字
 embedding，使風格編輯後的影像騙過分類器。本線改為免疫：防禦圖由 ip2p 依防禦方的風格指令產生，目標是使攻擊端
-ip2p 的後續編輯失效。協定與攻擊端同 `DESIGN.md` §1。
+ip2p 的後續編輯失效。協定與攻擊端同 color 專案 `docs/DESIGN.md` §1。論文 metadata 見 `references/neucom_134591.json`。
 
 規則：訓練不得使用任何編輯指令（評估指令與自選替代指令皆不可），文字只可用空字串或類別詞；不可加性雜訊；
 主體身分與內容保持，衣服與背景可以變色；只用主種子。
@@ -12,9 +12,9 @@ ip2p 的後續編輯失效。協定與攻擊端同 `DESIGN.md` §1。
 
 | 檔案 | 內容 |
 |---|---|
-| `code/style_prompt_defence.py` | 生成器 G、載體、目標、限制與求解（選項見 `--help`） |
-| `code/style_prompt_readout.py` | 讀數：編輯結果 LPIPS（對未防禦編輯、對風格參考圖的編輯）、編輯前後改變量 LPIPS，全圖／主體／背景 |
-| `scripts/style_prompt_round.sh` | 一輪實驗的排程：工作清單、`flock` 取卡、防禦圖產出即送主種子編輯並重算讀數；名為 `ref` 的工作（`--lr 0 --updates 1`）產生對照 |
+| `immunization_style.method`、`cli/generate_style_prompt_defenses.py` | 生成器 G、載體、目標、限制與求解（選項見 `--help`） |
+| `cli/measure_style_prompt_edits.py` | 讀數：編輯結果 LPIPS（對未防禦編輯、對風格參考圖的編輯）、編輯前後改變量 LPIPS，全圖／主體／背景 |
+| `scripts/run_style_prompt_jobs.sh` | 一輪實驗的排程：工作清單、經 `vendor/scripts/run_with_gpu_lease.sh` 取卡、防禦圖產出即送主種子編輯並重算讀數；名為 `ref` 的工作（`--lr 0 --updates 1`）產生對照 |
 
 ## 設計
 
@@ -43,7 +43,9 @@ ip2p 的後續編輯失效。協定與攻擊端同 `DESIGN.md` §1。
 - Codex 診斷：論文靠分類器決策邊界監督，換成內部距離後與編輯失敗失去關聯；G 的輸出落在 ip2p 自身的自然影像分布上。
 - 未試：分類器損失接在攻擊端以類別詞為指令的輸出上。
 
-## 資料位置（遠端 `~/image-immunization/lab/runs/`）
+## 資料位置
 
-`style_prompt_r11{,_edit}`（xattn／chaos，cool grading）、`style_prompt_r13{,_edit}`（論文設定、至收斂）、
-`style_prompt_cls_{p_noedit,p_snow}{,_edit}`（論文完全移植）；工作清單 `specs/style_prompt_cls_*.txt` 與各輪目錄內的 `jobs.spec`。
+各輪以輪名區分：`r11`（xattn／chaos，cool grading）、`r13`（論文設定、至收斂）、`cls_p_noedit`、`cls_p_snow`
+（論文完全移植）。數值 CSV 在 `results/defenses/<輪名>/`（逐工作 `results.csv`、`trace.csv`）與
+`results/edits/<輪名>/`（逐工作 `preflight.csv`、讀數 `readout_<風格>.csv`）；影像在 `artifacts/` 的同名位置。
+工作清單（原遠端 `specs/style_prompt_cls_*.txt` 與各輪目錄內的 `jobs.spec`）未入版控。

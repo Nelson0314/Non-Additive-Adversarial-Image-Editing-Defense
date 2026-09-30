@@ -1,6 +1,6 @@
-# 顏色線（color）：設計、協定與結果
+# color：設計、協定與結果
 
-現況與執行方式見 `../HANDOFF.md`。風格轉換線見 `STYLE_PROMPT.md`。
+現況見 `../STATUS.md`，執行方式見 `../README.md`。風格轉換線為獨立專案 `style/`。
 
 ## 1. 問題與協定
 
@@ -10,7 +10,7 @@
 - 防禦方看不到攻擊指令：訓練只可用空字串或類別名（`man`／`woman`）。
 - 資料：`data/portraits/`，8 張人像（`man_00..03`、`woman_00..03`），512²，附主體遮罩。
 - 攻擊端：ip2p，EulerAncestral 50 步、s_t 7.5、s_i 1.8、主種子 20260812；四句指令（墨鏡、警察制服、安全帽、領結）；8 × 4 ＝ 32 格。
-- 未防禦編輯 `runs/edit_preflight/ip2p_si18` 與淨化後的 `runs/edit_purified/undefended` 是主表既有檔（`lab/runs/` 下為符號連結）。
+- 未防禦編輯 `artifacts/undefended_edits/ip2p_si18` 與淨化後的 `artifacts/purified_edits/undefended` 與 baseline 的同名產物相同（遠端原以符號連結指向主表的檔案）。
 - 淨化：jpeg80／50／30、blur1／2、crop_resize0.1、rotate15。
 
 ## 2. 讀數
@@ -28,7 +28,7 @@
 - 不使用空間相依的色彩場（臉框權重場、分區求解產生邊界、色塊、臉框圈，已否決）。
 - 偏好全域映射的外觀。粉紅、紅、洋紅、黃的色調難看；青、藍、綠可接受。膚色同色 ΔE00 可放寬到 12–16。
 
-## 4. 現行方法 color（`code/color_defence.py`，預設參數即此設定）
+## 4. 現行方法 color（`immunization_color.cli.generate_color_defenses`，預設參數即此設定）
 
 - **載體**：全域換色表，輸出只依像素自身顏色。CIELAB (a,b) 以 7×7 錨點（±90）的 Gaussian RBF（σ 30）
   單位分割內插位移，|d| ≤ 80；亮度為 16 段單調曲線。參數 114 個。
@@ -54,7 +54,7 @@
 - xattn：注意力比值終值 0.857–0.988。
 - 「編輯結果 LPIPS ÷ 防禦圖 LPIPS」：color 1.30、color_simple 1.40、skinbox 1.40（主體 1.21／1.28／1.36）。
 
-## 6. 與主表 baseline 的比較（主表 session 提供）
+## 6. 與主表 baseline 的比較（baseline 專案提供）
 
 - 失真對齊（防禦圖 LPIPS ≈ 0.334）後，主體的編輯結果 LPIPS：colour_curve_ours 0.422，baseline 0.198–0.346（sifm 0.346、dayn 0.345、dia_pt 0.343）；
   全圖為 colour_curve_ours 0.386，與 dayn、dia_pt 相同，dia_r 0.390。

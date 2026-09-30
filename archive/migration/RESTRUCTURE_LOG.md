@@ -760,3 +760,20 @@ git commit -m "Lock the remote execution environment for each project"
 - Windows 本機測試（`73eb706`）：baseline 82、color 47 passed；core 234 passed、4 failed，style 16 passed、4 failed。
   core 的 4 項為 `run_trial_lifecycle.sh` 測試：`TRIAL_REMOTE_ROOT` 只接受 `/` 開頭，Windows 暫存路徑為 `C:/…`（3 項），以及建立符號連結需要 Windows 權限（WinError 1314，1 項）。
   style 的 4 項為 `test_job_runner.py`，`run_style_prompt_jobs.sh` 在 120 秒逾時內未結束。遠端（Linux）未執行這兩組測試。
+
+## Windows 測試修正（`90b1081`、`89c5c7a`、`dae519c`）
+
+協調端回報 Windows（Git Bash＋Windows Python）上 core 4 項、style 4 項失敗，同批測試在遠端 Linux 通過。開始前已將 `origin/main`（至 `dc4c1ca`）併入本分支。
+
+### trials 測試（core）
+
+- **`TRIAL_REMOTE_ROOT` 被判為非絕對路徑**：此參數是遠端 shell 看到的專案根，腳本要求以 `/` 開頭。測試以 Python 的暫存路徑模擬遠端，Windows 上為 `C:/Users/...`，因而結束碼 2。腳本的判定維持不變；測試改以 `bash -c 'cd "$1" && pwd'` 取得同一目錄在 bash 中的寫法（Git Bash 為 `/c/...` 或 `/tmp/...`）作為 `TRIAL_REMOTE_ROOT`。
+- **建立符號連結需要權限**：Windows 一般帳號（未開開發者模式）建立符號連結會得到 `WinError 1314`，這是作業系統的權限設定，測試無法在一般帳號取得。測試改用 `directory_link()`：先建符號連結，僅在 `WinError 1314` 時改建 directory junction（`_winapi.CreateJunction`，不需要該權限），其餘錯誤照常拋出。Git Bash 的 `[ -L ]` 不一定把 junction 報為連結，因此腳本的判定改為「是符號連結，或解析後路徑不在 `trials/` 之下」即拒絕（本機與遠端兩處，同一訊息），junction 與符號連結走同一條拒絕路徑。另新增本機端 trial 目錄為連結時拒絕的測試。
+- 驗證（Linux）：`test_gpu_scripts.py` 34 passed。Windows 需協調端重跑。
+
+### style 排程測試
+
+- **根本原因**：`run_style_prompt_jobs.sh` 以 `nohup setsid ...` 啟動工作，且把「啟動後沒有租約也沒有結束碼」一律視為暫時無卡而重試。啟動程序若因其他原因結束（指令不存在、CUDA 檢查失敗等）而 log 中沒有 `[FATAL]`，同一工作會每 40 秒重派一次、永不結束。在 Linux 上以不可執行的 `setsid` 遮蔽原指令即重現 120 秒逾時，症狀與 Windows 相同；Windows 上的具體啟動錯誤未在本環境取得。
+- **修正**：`setsid` 只在存在時使用（沒有時僅以 `nohup` 背景啟動）；`try_launch` 記錄啟動程序的 PID，該程序結束卻沒有寫出結束碼時，除非 log 為「沒有空卡」（可重試），否則回傳啟動失敗，工作記為失敗並附 log 末三行，排程以結束碼 1 結束。
+- **回歸測試**：`test_launch_failure_ends_the_run_instead_of_retrying`（CUDA 檢查失敗）與 `test_unusable_detach_command_is_reported`（不可執行的 `setsid`）；舊版排程兩項皆逾時（240 秒），新版通過。以不含 `setsid` 的 PATH 執行整組 `test_job_runner.py`，7 項通過。
+- 驗證（Linux）：core 239（21 deselected）、baseline 82、color 47、style 22 passed。

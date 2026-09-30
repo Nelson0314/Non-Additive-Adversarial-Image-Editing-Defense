@@ -4,11 +4,11 @@
 **原樣穿過編輯器**所造成的差異，以及編輯器真的被推離原本輸出的部分。對全域色調
 這類改動，ip2p 近乎等變，前者可以佔絕大部分。
 
-三個讀數（皆分全圖／主體／背景，遮罩與 `pipelines.displacement` 同源）：
+三個讀數（皆分全圖／主體／背景，遮罩與 `pipelines.displacement` 同源；欄名前綴在右）：
 
-    D   = LPIPS( edit(x),    edit(x_def) )     現行位移
-    P   = LPIPS( edit(x),    T̂(edit(x)) )      完全等變時的預測位移
-    D_T = LPIPS( T̂(edit(x)), edit(x_def) )     扣掉穿透後的位移
+    編輯結果 LPIPS      = LPIPS( edit(x),    edit(x_def) )   `disp_lpips_*`
+    預測編輯結果 LPIPS  = LPIPS( edit(x),    T̂(edit(x)) )    `predicted_disp_lpips_*`（完全等變時的預測）
+    殘差編輯結果 LPIPS  = LPIPS( T̂(edit(x)), edit(x_def) )   `residual_disp_lpips_*`（扣掉穿透後）
 
 `T̂` 是把防禦端的改動套到編輯輸出上的預測。**本檔只實作加性族**：
 
@@ -20,7 +20,8 @@
 定義下可比，引用時要與由映射回推的值分開講——後者原在 `lab/results/passthrough/`（commit `cd03420` 刪除）
 （另一批的協定，回推誤差 ΔE00 0.04）。
 
-另報 `siglip_pair_T = SigLIP(T̂(edit(x)), edit(x_def))` 與 `blocked_T`（同一個 0.837 門檻）。
+另報 `siglip_pair_residual = SigLIP(T̂(edit(x)), edit(x_def))` 與 `blocked_residual`（同一個 0.837 門檻），
+以及自 `displacement.csv` 抄錄的 `displacement_csv_lpips_full` 供核對。
 
 只讀既有 PNG，不呼叫擴散。用法：
 
@@ -54,9 +55,9 @@ def load(path: Path, device) -> torch.Tensor:
     return load_image_tensor(path, device, size=RESOLUTION)
 
 
-def quantise(y: torch.Tensor) -> torch.Tensor:
+def quantize(y: torch.Tensor) -> torch.Tensor:
     """量化到 8 bit。編輯輸出是從 PNG 讀進來的，預測也要走同一個量化階，
-    否則 `P` 會含一層只存在於浮點的差異。"""
+    否則預測編輯結果 LPIPS 會含一層只存在於浮點的差異。"""
     return (y.detach().clamp(0, 1) * 255).round() / 255
 
 
@@ -153,7 +154,7 @@ def main() -> None:
         a = load(resolve(r["undefended_png"], args.path_root), device)
         b = load(resolve(r["defended_png"], args.path_root), device)
         with torch.no_grad():
-            ta = quantise(a + cache[key])
+            ta = quantize(a + cache[key])
             d = split_displacement(regional, a, b, masks[name])
             p = split_displacement(regional, a, ta, masks[name])
             dt = split_displacement(regional, ta, b, masks[name])
@@ -162,13 +163,13 @@ def main() -> None:
             "arm": arm, "condition": cond, "scenario": SCENARIO,
             "image": name, "prompt_index": k, "prompt": r["prompt"],
             "t_hat": "additive",
-            **{f"D_{key2}": round(float(v), 5) for key2, v in d.items()},
-            **{f"P_{key2}": round(float(v), 5) for key2, v in p.items()},
-            **{f"DT_{key2}": round(float(v), 5) for key2, v in dt.items()},
-            "D_csv": r["disp_lpips_full"],
+            **{f"disp_{key2}": round(float(v), 5) for key2, v in d.items()},
+            **{f"predicted_disp_{key2}": round(float(v), 5) for key2, v in p.items()},
+            **{f"residual_disp_{key2}": round(float(v), 5) for key2, v in dt.items()},
+            "displacement_csv_lpips_full": r["disp_lpips_full"],
             "siglip_pair": r["siglip_pair"],
-            "siglip_pair_T": round(sig, 5),
-            "blocked_T": sig < SIGLIP_BLOCKED_THRESHOLD,
+            "siglip_pair_residual": round(sig, 5),
+            "blocked_residual": sig < SIGLIP_BLOCKED_THRESHOLD,
             "siglip_blocked_threshold": SIGLIP_BLOCKED_THRESHOLD,
             "defense_png": defense_png(roots, cond, name, arm).as_posix(),
         })

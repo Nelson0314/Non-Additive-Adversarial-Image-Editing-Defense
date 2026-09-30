@@ -1,8 +1,12 @@
-"""`style_prompt` 試跑的攻擊端讀數。
+"""風格載體防禦的攻擊端讀數。
 
-每格三張編輯：U = edit(x)（未防禦分母）、E_ref = edit(x_ref)、E_def = edit(x_def)。
-`D` = LPIPS(U, E)，`D_pair` = LPIPS(E_ref, E_def)：後者只量最佳化在風格之上多出的部分，
-不是扣穿透的 `D_T`。全圖／主體／背景三欄，與 `immunization_core.pipelines.displacement` 同一個 LPIPS 與遮罩。
+每格三張編輯：U = edit(x)（未防禦分母）、E_ref = edit(x_ref)、E_def = edit(x_def)。欄位（皆分全圖／主體／背景，
+與 `immunization_core.pipelines.displacement` 同一個 LPIPS 與遮罩）：
+
+    disp_lpips_*                  編輯結果 LPIPS：LPIPS(U, E)
+    disp_reference_lpips_*        對風格參照編輯的編輯結果 LPIPS：LPIPS(E_ref, E_def)，只量最佳化在風格之上多出的部分
+    edit_change_lpips_*           編輯前後改變量：LPIPS(輸入, E)
+    edit_change_undefended_lpips_* 未防禦的編輯前後改變量：LPIPS(x, U)
 
 未防禦分母 U 取自 `--undefended-edits-dir`（預設 `artifacts/undefended_edits/ip2p_si18`）。
 """
@@ -93,26 +97,26 @@ def main() -> None:
                 c = split_displacement(regional, load(inp), e, mask)
                 c0 = split_displacement(regional, load(args.data / name.split("_")[0] / f"{name}.png"), u, mask)
                 row = {"style": style, "strength": strength, "image": name, "prompt_index": k,
-                       "prompt": prompt, **{f"D_{a}": round(float(v), 5) for a, v in d.items()},
-                       **{f"C_{a}": round(float(v), 5) for a, v in c.items()},
-                       **{f"C_undef_{a}": round(float(v), 5) for a, v in c0.items()}}
+                       "prompt": prompt, **{f"disp_{a}": round(float(v), 5) for a, v in d.items()},
+                       **{f"edit_change_{a}": round(float(v), 5) for a, v in c.items()},
+                       **{f"edit_change_undefended_{a}": round(float(v), 5) for a, v in c0.items()}}
                 if strength != "ref":
                     p = split_displacement(regional, load(ref[(name, k)][0]), e, mask)
-                    row.update({f"D_pair_{a}": round(float(v), 5) for a, v in p.items()})
+                    row.update({f"disp_reference_{a}": round(float(v), 5) for a, v in p.items()})
             rows.append(row)
     args.out.parent.mkdir(parents=True, exist_ok=True)
     write_sorted_csv(args.out, rows)
 
-    keys = [k for k in rows[0] if k.startswith(("D_", "C_"))]
-    keys += [k for k in rows[-1] if k.startswith("D_pair_")]
-    print(f"{'style':<11}{'strength':<10}" + "".join(f"{k:>18}" for k in keys))
+    keys = [k for k in rows[0] if k.startswith(("disp_", "edit_change_")) and not k.startswith("disp_reference_")]
+    keys += [k for k in rows[-1] if k.startswith("disp_reference_")]
+    print(f"{'style':<11}{'strength':<10}" + "".join(f"{k:>34}" for k in keys))
     for style in args.styles:
         for strength in ["ref", *args.strengths]:
             sel = [r for r in rows if r["style"] == style and r["strength"] == strength]
             if not sel:
                 continue
             print(f"{style:<11}{strength:<16}n={len(sel):<3}" + "".join(
-                f"{statistics.mean(r[k] for r in sel):>18.4f}" if k in sel[0] else f"{'':>18}"
+                f"{statistics.mean(r[k] for r in sel):>34.4f}" if k in sel[0] else f"{'':>34}"
                 for k in keys))
     print(f"{len(rows)} 列 -> {args.out}")
 

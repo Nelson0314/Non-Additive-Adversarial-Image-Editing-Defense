@@ -179,9 +179,9 @@ def main(argv=None) -> None:
                 "chroma_p95_orig": round(c95, 4), "chroma_p95_out": round(float(chroma_p95(y)), 4),
                 **{f"shift_{n}_p95": round(float(channel_shift_p95(x, y, c, s)), 4) for n, c, s in CHANNEL_CAPS},
                 **{f"shift_{n}_max_out": round(float(channel_shift_max(x, y, c, s)), 4) for n, c, s in CHANNEL_CAPS},
-                "deltaE00_frame": round(float(delta_e00(x, y, frame)), 4),
-                "deltaE00_face_box": round(float(delta_e00(x, y, face)), 4),
-                "deltaE00_skin_color": round(float(delta_e00(x, y, skin)), 4),
+                "delta_e00_frame": round(float(delta_e00(x, y, frame)), 4),
+                "delta_e00_face_box": round(float(delta_e00(x, y, face)), 4),
+                "delta_e00_skin_color": round(float(delta_e00(x, y, skin)), 4),
                 "tv_frame": round(float(tv_offset(off, frame)), 5),
                 "warp_max": round(float(carrier.w.norm(dim=-1).max()), 3),
                 "psnr": round(float(10 * torch.log10(1.0 / (y - x).pow(2).mean())), 4),
@@ -193,7 +193,7 @@ def main(argv=None) -> None:
         save_image(warp_picture(carrier, device), args.out / f"{name}__warp.png")
         rows.append(row)
         write_sorted_csv(args.out / "results.csv", rows)
-        print(f"[{args.arm}] {name}  ΔE frame {row['deltaE00_frame']} face {row['deltaE00_face_box']} "
+        print(f"[{args.arm}] {name}  ΔE frame {row['delta_e00_frame']} face {row['delta_e00_face_box']} "
               f"LPIPS {row['lpips_out']}/{row['lpips_cap']}  {row['seconds']}s", flush=True)
     print(f"完成：{len(rows)} 張 → {args.out}", flush=True)
 

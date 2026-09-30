@@ -24,7 +24,7 @@ def delta_e00(a01: torch.Tensor, b01: torch.Tensor,
 
     色差公式為 skimage `deltaE_ciede2000`，與 `metrics.suite._delta_e00` 相同，
     本函式只改變縮減方式。支撐加權平均只計入載體作用的像素，使支撐面積不同的
-    載體可在同一 ΔE00 上比較；全圖平均另由 CSV 的 `final_deltaE00` 報告。
+    載體可在同一 ΔE00 上比較；全圖平均另由 CSV 的全圖平均欄報告。
     """
     if support is None:
         return _delta_e00(a01.detach(), b01.detach())

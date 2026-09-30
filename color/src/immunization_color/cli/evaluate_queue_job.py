@@ -140,7 +140,7 @@ def validate_job(project, job, fid_arms=()):
         expected = {(arm, name) for arm in fid_arms
                     for name in defense_names(project / relative(layout.DEFENSES) / arm, arm)}
         validate_table(results / "fidelity.csv", ("arm", "image"), expected,
-                       ("lpips", "lpips_vs_anchor", "deltaE00", "psnr", "linf", "rms", "anchor_lpips"))
+                       ("lpips", "lpips_vs_anchor", "delta_e00", "psnr", "linf", "rms", "anchor_lpips"))
     else:
         raise ValueError(f"未知工作：{job}")
 

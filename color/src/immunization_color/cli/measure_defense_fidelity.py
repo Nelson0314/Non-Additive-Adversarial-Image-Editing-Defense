@@ -20,7 +20,7 @@
 | 欄 | 怎麼算 |
 |---|---|
 | `lpips` | `piq.LPIPS()`（VGG），與主表與對齊那條線同一個實作 |
-| `deltaE00` | `skimage` 的 `deltaE_ciede2000`，全圖平均（量測路徑，不是可微那份） |
+| `delta_e00` | `skimage` 的 `deltaE_ciede2000`，全圖平均（量測路徑，不是可微那份） |
 | `psnr` | `10·log10(1/MSE)` |
 | `linf` | `max |y − x|` |
 | `rms` | `sqrt(MSE)` |
@@ -99,7 +99,7 @@ def main() -> None:
                 "budget": "none" if arm in NO_BUDGET else "ΔE00 16 / 臉 8",
                 "lpips": round(lp, 4),
                 "lpips_vs_anchor": round(lp / ANCHOR_LPIPS - 1.0, 4),
-                "deltaE00": round(float(delta_e00(x, y, torch.ones_like(x[:, :1]))), 4),
+                "delta_e00": round(float(delta_e00(x, y, torch.ones_like(x[:, :1]))), 4),
                 "psnr": round(float("inf") if mse == 0 else 10 * torch.log10(
                     torch.tensor(1.0 / mse)).item(), 4),
                 "linf": round(float((y - x).abs().max()), 5),
@@ -111,7 +111,7 @@ def main() -> None:
         sub = [r for r in rows if r["arm"] == arm]
         med = lambda k: sorted(r[k] for r in sub)[len(sub) // 2]
         print(f"{arm:30s} n={len(sub)}  LPIPS {med('lpips'):.4f} "
-              f"({med('lpips_vs_anchor'):+.1%} vs 錨)  ΔE00 {med('deltaE00'):6.2f}  "
+              f"({med('lpips_vs_anchor'):+.1%} vs 錨)  ΔE00 {med('delta_e00'):6.2f}  "
               f"PSNR {med('psnr'):6.2f}  L∞ {med('linf'):.3f}", flush=True)
     print(f"完成：{len(rows)} 列 → {args.out}", flush=True)
 

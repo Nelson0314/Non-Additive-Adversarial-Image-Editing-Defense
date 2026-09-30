@@ -57,6 +57,17 @@ def test_scripts_use_lf_line_endings():
         assert b"\r\n" not in path.read_bytes(), path
 
 
+def test_default_lease_directory_is_shared_by_all_tools(tmp_path):
+    env = {k: v for k, v in os.environ.items() if k != "LEASE"}
+    env["HOME"] = tmp_path.as_posix()
+    for script in ("gpu_policy.sh", "gpu_lease.sh"):
+        result = subprocess.run([BASH, "-c", f'source "{(SCRIPTS / script).as_posix()}"; echo "$LEASE"'],
+                                env=env, capture_output=True, text=True, encoding="utf-8", timeout=15)
+        assert result.stdout.strip() == f"{tmp_path.as_posix()}/gpu_leases", script
+    for path in SCRIPTS.glob("*.sh"):
+        assert "lab_leases" not in path.read_text(encoding="utf-8"), path
+
+
 # ---- 容量政策 ----
 
 def test_default_is_six(tmp_path):

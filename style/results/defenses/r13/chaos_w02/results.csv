@@ -1,3 +1,0 @@
-a_adv,a_id,a_perc,a_prompt,attack_s_i,carrier,chaos_steps,chaos_val_k,chosen_update,class_word,delta_rms,delta_rms_cap,feasible,freeze_warm,id_def,id_ref,image,l_adv,l_perc,last_update,lpips_def_ref,lpips_def_x,lpips_ref_x,lr,objective,peak_mem_gb,prompt,prompt_scope,psnr_def_ref,psnr_def_x,psnr_ref_x,s_i,s_t,seconds,seed,steps,stop,struct_cap,style,tau,tok_cos,updates,val_l_adv,w_enc,warm
-,,,,,,,,,,,,,,,0.97682,woman_02,,,,,,0.08777,,,,,,,,31.097,,,,,,,,vae_roundtrip,,,,,,
-1.0,0.0,25.0,1.0,1.8,prompt,10,4,230,woman,0.94425,1000000000.0,1,0,0.97372,0.97636,woman_02,-0.60275,0.002902,230,0.02269,0.21602,0.19303,0.1,chaos,10.11,Add some snow.,full,36.899,18.719,18.879,2.0,7.5,5440.0,0,20,plateau,0.0,p_snow,0.94636,0.96544,400,-0.39599,0.1,5

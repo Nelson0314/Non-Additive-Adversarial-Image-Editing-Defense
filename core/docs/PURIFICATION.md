@@ -4,7 +4,7 @@
 
 `Purifier.forward()` 保留訓練代理，`evaluate()` 保留真實算子；運算使用 fp32 再轉回輸入 dtype。JPEG 編解碼、中心 crop、Gaussian blur、rotate 的插值／補零／seed、IMPRESS 後端選擇、DiffPure 取樣式均未更換。IMPRESS 預設的 `lpips` 與顯式 `piq` 選項仍為不同實作，禁止缺依賴時自動替換。
 
-`purifiers.protocol` 的 `PURIFIERS`、`label()` 由 `lab/code/purify_run.py` 抽取：identity 0、crop_resize 0.1、jpeg 30／50／80、blur 1／2、rotate 15。`pipelines.purification` 合併三份相同運算，保留明確的 `--data`／`--defended` 與 `--out`，CSV 欄位、影像命名、量化與 512 解析度不變。沒有自動探索來源路徑或初始化模型。
+固定淨化協定的唯一正本為 `purifiers/protocol.json`（identity 對照與七道淨化，原由 `lab/code/purify_run.py` 抽取）；`purifiers.protocol` 讀取為 `PURIFIERS`、`label()`、`purifier_labels()`，shell 以 `python -m immunization_core.purifiers.protocol --exclude-identity` 取得標籤。`pipelines.purification` 合併三份相同運算，保留明確的 `--data`／`--defended` 與 `--out`，CSV 欄位、影像命名、量化與 512 解析度不變。沒有自動探索來源路徑或初始化模型。
 
 `pipelines.masks.subject_mask()` 由 `lab/code/edit_displacement.py` 抽取，`purified_mask()` 由 `lab/code/edit_retention.py` 抽取。先將重繪遮罩轉為主體遮罩，再套相同幾何算子與 `>=0.5` 二值化；旋轉黑角歸背景。非幾何算子直接回傳原遮罩。幾何種類仍為 crop_resize／rotate，不擴充既有協定。
 

@@ -66,7 +66,7 @@ class SDXLPrompt:
 def concatenate_conditioning(items: Sequence):
     """把數個文字條件沿批次維串接，裸張量與 `SDXLPrompt` 都能處理。
 
-    存在的理由：`src/baselines/` 的 AdvPaint 與 PromptFlare 需要自建兩列
+    存在的理由：baseline 專案 `immunization_baseline/attacks/` 的 AdvPaint 與 PromptFlare 需要自建兩列
     批次。在 SD v1.x 上那就是 `torch.cat([...])`，但 SDXL 的條件是
     `SDXLPrompt`（序列嵌入 + pooled 嵌入兩件），`torch.cat` 會直接拋
     `TypeError`，而 `.repeat()` 這種張量方法在 `SDXLPrompt` 上根本不存在。

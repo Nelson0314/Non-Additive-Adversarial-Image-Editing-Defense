@@ -34,8 +34,8 @@ GrIDPure 需要額外的擴散模型推論，成本遠高於上列各項，列�
 | Adverse Cleaner | `adverse_cleaner` | 直通 | 真實 | 上游 16 行原碼，需 opencv-contrib |
 | CNN 去噪 | `cnn_denoise_substitute` | — | — | **非 NTIRE 2023 冠軍**，冠軍不可得，為我方替代；缺權重 |
 | IMPRESS | `impress` | 直通 | 真實 | 官方 repo，PhotoGuard 情境參數；需 SDWrapper 與 LPIPS 後端 |
-| DiffPure | `diffpure` | 直通 | 真實 | 官方 repo，t=150；**缺檢查點，目前拋出** |
-| （對照）resize only | `resize_only` | 可微 | 同 | DiffPure 降升取樣的必要對照，見 `src/purify/diffpure.py` |
+| DiffPure | `diffpure` | 直通 | 真實 | 官方 repo，t=150；**缺檢查點時拋出** |
+| （對照）resize only | `resize_only` | 可微 | 同 | DiffPure 降升取樣的必要對照，見 `purifiers/diffpure.py` |
 """
 
 import io
@@ -239,7 +239,7 @@ def shift_only(x: torch.Tensor, pixels: int = 51) -> torch.Tensor:
     """平移 `pixels` 像素，**不重取樣、不縮放**，邊界以反射填補。
 
     中心裁切本身**不含平移**（中心是不動點），所以這一支不是 `crop_resize`
-    的分解項；它回答的是另一個問題：攻擊方若不置中裁切，我們掉多少。
+    的分解項；它回答的是另一個問題：攻擊方若不置中裁切，防禦效果下降多少。
     """
     if x.dim() != 4:
         raise ValueError(f"需要 (B,C,H,W) 張量，收到 {tuple(x.shape)}")
@@ -310,7 +310,7 @@ CNN_DENOISE_SIGMA = 50  # NTIRE 2023 挑戰賽的雜訊等級（[0,255] 尺度�
 
 # ── 色彩類淨化算子 ────────────────────────────────────────────────────
 #
-# 為什麼要有這一族：色彩重映射的防禦（`src/defense/color_param.py`）繞開的是
+# 這一族的用途：色彩重映射的防禦（`archive/anti-purification/src/defense/color_param.py`）繞開的是
 # 空間性的失效機制，它的代價是**多開了一個攻擊面**。AdvCF（arXiv:2011.06690）
 # 圖 10 量到色彩攻擊在 JPEG q30／中值濾波／resize&pad 上存活 75–82%，
 # 但**灰階轉換只剩約 18%**——那是它唯一的死穴，不測它主張就不成立。
@@ -327,7 +327,7 @@ CNN_DENOISE_SIGMA = 50  # NTIRE 2023 挑戰賽的雜訊等級（[0,255] 尺度�
 def grayscale_real(x: torch.Tensor) -> torch.Tensor:
     """ITU-R BT.601 亮度，複製回三通道。`strength` 未使用。
 
-    係數與 `src/defense/color_param.LUMA_WEIGHTS`、`src/metrics/acutance._luma`
+    係數與 `archive/anti-purification/src/defense/color_param.py` 的 `LUMA_WEIGHTS`、`immunization_core.metrics.acutance._luma`
     同一組——三處若不一致，「防禦把能量放在哪個亮度上」與「淨化拿走哪個
     亮度」講的就不是同一件事。
     """
@@ -384,12 +384,12 @@ def clahe_real(x: torch.Tensor, clip_limit: float = 2.0) -> torch.Tensor:
 
 
 def has_cnn_denoise_weights(ckpt=None) -> bool:
-    """替代去噪器的架構與權重是否到位。目前恆為 False。"""
+    """替代去噪器的架構與權重是否到位。恆為 False。"""
     return False
 
 
 def cnn_denoise_substitute_real(x: torch.Tensor, ckpt=None) -> torch.Tensor:
-    """CNN 去噪（**我方替代，非 NTIRE 2023 冠軍模型**）。目前無法執行。
+    """CNN 去噪（**我方替代，非 NTIRE 2023 冠軍模型**）。無法執行。
 
     NTIRE 2023 冠軍為 Team Apply AI 的 IPTV2（29.96 dB），其程式碼與權重皆未公開；
     挑戰賽官方 repo `ofsoundof/NTIRE2023_Dn50` 的 `model_zoo/` 只有主辦方 baseline
@@ -502,7 +502,7 @@ class Purifier:
     | `impress` | `sd`（SDWrapper，必要）、`backend`、`iters`、`lr`、`alpha`、`noise`、`eps` |
     | `diffpure` | `ckpt`（`strength` 即 t，預設 150） |
     | `cnn_denoise_substitute` | `ckpt` |
-    | `resize_only` | 無（降升取樣參數由 `src/purify/diffpure.py` 統一提供） |
+    | `resize_only` | 無（降升取樣參數由 `purifiers/diffpure.py` 統一提供） |
     | `gridpure` | `t`、`gamma`、`iters` **皆必填**（論文正文未載）、`ckpt` |
     | `fdpure` | `t_star` **必填**（論文正文未載）、`d_a`、`d_p`、`delta`、`ckpt` |
     """
@@ -667,7 +667,7 @@ def eval_sweep(sd=None) -> Dict[str, List[Purifier]]:
     已涵蓋主組要的 75 與 30 兩點，不另設重複的鍵。
 
     新增的鍵各只有一個設定（這些算子由來源固定參數，沒有強度軸可掃）。
-    `diffpure` 與 `cnn_denoise_substitute` 目前缺權重、`impress` 需 `sd`、
+    `diffpure` 與 `cnn_denoise_substitute` 缺權重、`impress` 需 `sd`、
     `adverse_cleaner` 需 opencv-contrib；呼叫端可先以 `Purifier.available`
     篩選，未篩選時會在該算子上明確拋出而不是靜默略過。
     """

@@ -10,7 +10,7 @@ class SDInpaintWrapper(SDWrapper):
 
     存在理由是威脅模型的形態改變，不是為了多支援一個模型：本專案的五篇
     baseline 中有三篇（PhotoGuard-c、AdvPaint、PromptFlare）**原作就是
-    inpainting**，目前表上全部標著 `modified_from_paper=True`，而改動的性質
+    inpainting**，表上全部標著 `modified_from_paper=True`，而改動的性質
     是「梯度從哪條路進入計算圖」——AdvPaint 原作的梯度只走
     `masked_image_latents`（`advpaint.py:43`），img2img 沒有那條路。載入
     inpainting 權重之後那三篇回到原生形式。

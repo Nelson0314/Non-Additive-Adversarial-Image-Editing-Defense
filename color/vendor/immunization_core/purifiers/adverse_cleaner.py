@@ -26,7 +26,7 @@
    輸出沿用原碼的 `.astype`（**截斷**而非四捨五入）。
 
 不可微：全部運算在 OpenCV C++ 內完成，無 autograd 圖。訓練時由
-`src/purify/ops.py` 的 `straight_through` 包裝，不在本模組另寫近似版本。
+`purifiers/operators.py` 的 `straight_through` 包裝，不在本模組另寫近似版本。
 """
 
 from __future__ import annotations

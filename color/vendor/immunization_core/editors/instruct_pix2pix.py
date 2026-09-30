@@ -145,7 +145,7 @@ class IP2PWrapper:
     def posterior_mean(self, x01: torch.Tensor, use_ckpt: bool = False) -> torch.Tensor:
         """未乘 scaling_factor 的後驗平均，與官方管線第 877 行同義。
 
-        `image_latents` 先前是 `encode_image() / scaling_factor`，在 bf16 下那一
+        `image_latents` 修正前是 `encode_image() / scaling_factor`，在 bf16 下那一
         乘一除的捨入不會完全抵銷，拼進 UNet 的影像條件因此與官方推論有微小差異。
         兩個入口改成共用這裡，`encode_image` 自己乘。
         """
@@ -251,7 +251,7 @@ class IP2PWrapper:
                    negative_prompt: Optional[str] = None) -> torch.Tensor:
         """一次編輯一批，回傳 (B,3,H,W) [0,1]，第 i 列等同 `edit(images[i], ...)`。
 
-        為什麼要批次
+        批次的理由
         ────────────────────────────────────────────────────────────────
         批次為 1 時 512² 的 UNet 遠遠餵不飽一張 3090：實測顯存只用到 24 GB 的
         29%，平行單元大半在等。整批的成本幾乎與單張相同，所以吞吐量直接隨批次

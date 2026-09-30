@@ -1,0 +1,17 @@
+image,prompt_index,prompt,strength,model,guidance_scale,steps,seed,png,id_orig,arcface_orig,face_found_orig,face_found_edit
+man_00,0,Let the person wear sunglasses,0.4,runwayml/stable-diffusion-v1-5,3.0,50,20260812,artifacts/sweeps/sdedit/guidance/sd15_guidance/man_00__p0__s0.4__g3.0.png,0.4086,0.3216,True,True
+man_00,0,Let the person wear sunglasses,0.4,runwayml/stable-diffusion-v1-5,5.0,50,20260812,artifacts/sweeps/sdedit/guidance/sd15_guidance/man_00__p0__s0.4__g5.0.png,0.3418,0.1956,True,True
+man_00,0,Let the person wear sunglasses,0.4,runwayml/stable-diffusion-v1-5,7.5,50,20260812,artifacts/sweeps/sdedit/guidance/sd15_guidance/man_00__p0__s0.4__g7.5.png,0.2089,0.1575,True,True
+man_00,0,Let the person wear sunglasses,0.4,runwayml/stable-diffusion-v1-5,10.0,50,20260812,artifacts/sweeps/sdedit/guidance/sd15_guidance/man_00__p0__s0.4__g10.0.png,0.0368,0.1051,True,True
+man_00,1,Let the person wear a police suit,0.4,runwayml/stable-diffusion-v1-5,3.0,50,20260812,artifacts/sweeps/sdedit/guidance/sd15_guidance/man_00__p1__s0.4__g3.0.png,0.437,0.3125,True,True
+man_00,1,Let the person wear a police suit,0.4,runwayml/stable-diffusion-v1-5,5.0,50,20260812,artifacts/sweeps/sdedit/guidance/sd15_guidance/man_00__p1__s0.4__g5.0.png,0.3678,0.2146,True,True
+man_00,1,Let the person wear a police suit,0.4,runwayml/stable-diffusion-v1-5,7.5,50,20260812,artifacts/sweeps/sdedit/guidance/sd15_guidance/man_00__p1__s0.4__g7.5.png,0.3378,0.1334,True,True
+man_00,1,Let the person wear a police suit,0.4,runwayml/stable-diffusion-v1-5,10.0,50,20260812,artifacts/sweeps/sdedit/guidance/sd15_guidance/man_00__p1__s0.4__g10.0.png,0.2563,0.0822,True,True
+woman_00,0,Let the person wear sunglasses,0.4,runwayml/stable-diffusion-v1-5,3.0,50,20260812,artifacts/sweeps/sdedit/guidance/sd15_guidance/woman_00__p0__s0.4__g3.0.png,0.3806,0.2187,True,True
+woman_00,0,Let the person wear sunglasses,0.4,runwayml/stable-diffusion-v1-5,5.0,50,20260812,artifacts/sweeps/sdedit/guidance/sd15_guidance/woman_00__p0__s0.4__g5.0.png,0.324,0.2267,True,True
+woman_00,0,Let the person wear sunglasses,0.4,runwayml/stable-diffusion-v1-5,7.5,50,20260812,artifacts/sweeps/sdedit/guidance/sd15_guidance/woman_00__p0__s0.4__g7.5.png,0.3561,0.2143,True,True
+woman_00,0,Let the person wear sunglasses,0.4,runwayml/stable-diffusion-v1-5,10.0,50,20260812,artifacts/sweeps/sdedit/guidance/sd15_guidance/woman_00__p0__s0.4__g10.0.png,0.2973,0.1879,True,True
+woman_00,1,Let the person wear a police suit,0.4,runwayml/stable-diffusion-v1-5,3.0,50,20260812,artifacts/sweeps/sdedit/guidance/sd15_guidance/woman_00__p1__s0.4__g3.0.png,0.5265,0.229,True,True
+woman_00,1,Let the person wear a police suit,0.4,runwayml/stable-diffusion-v1-5,5.0,50,20260812,artifacts/sweeps/sdedit/guidance/sd15_guidance/woman_00__p1__s0.4__g5.0.png,0.3569,0.2201,True,True
+woman_00,1,Let the person wear a police suit,0.4,runwayml/stable-diffusion-v1-5,7.5,50,20260812,artifacts/sweeps/sdedit/guidance/sd15_guidance/woman_00__p1__s0.4__g7.5.png,0.3406,0.2227,True,True
+woman_00,1,Let the person wear a police suit,0.4,runwayml/stable-diffusion-v1-5,10.0,50,20260812,artifacts/sweeps/sdedit/guidance/sd15_guidance/woman_00__p1__s0.4__g10.0.png,0.2763,0.2251,True,True

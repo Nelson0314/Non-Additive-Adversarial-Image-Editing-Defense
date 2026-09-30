@@ -1,0 +1,5 @@
+image,prompt_index,prompt,strength,model,guidance_scale,steps,seed,png,id_orig,arcface_orig,face_found_orig,face_found_edit
+man_00,0,Let the person wear sunglasses,0.5,sd2-community/stable-diffusion-2-1,7.5,50,20260812,artifacts/sweeps/sdedit/prediction_type/sd21_v_prediction/man_00__p0__s0.5.png,,,True,False
+man_00,1,Let the person wear a police suit,0.5,sd2-community/stable-diffusion-2-1,7.5,50,20260812,artifacts/sweeps/sdedit/prediction_type/sd21_v_prediction/man_00__p1__s0.5.png,,,True,False
+woman_00,0,Let the person wear sunglasses,0.5,sd2-community/stable-diffusion-2-1,7.5,50,20260812,artifacts/sweeps/sdedit/prediction_type/sd21_v_prediction/woman_00__p0__s0.5.png,,0.1483,True,False
+woman_00,1,Let the person wear a police suit,0.5,sd2-community/stable-diffusion-2-1,7.5,50,20260812,artifacts/sweeps/sdedit/prediction_type/sd21_v_prediction/woman_00__p1__s0.5.png,0.1797,0.0929,True,True

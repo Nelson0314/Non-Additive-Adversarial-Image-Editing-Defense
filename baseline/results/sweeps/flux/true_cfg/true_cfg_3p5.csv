@@ -1,0 +1,3 @@
+image,prompt_index,prompt,model,guidance_scale,true_cfg_scale,negative_prompt,steps,seed,seconds,png,id_orig,arcface_orig,face_found_orig,face_found_edit
+man_00,1,Let the person wear a police suit,black-forest-labs/FLUX.1-Kontext-dev,3.5,3.5,"different face, changed identity, different pose, different background, different hairstyle, different lighting",28,20260812,166.6,artifacts/sweeps/flux/true_cfg/true_cfg_3p5/man_00__p1.png,0.2036,0.0164,True,True
+woman_00,1,Let the person wear a police suit,black-forest-labs/FLUX.1-Kontext-dev,3.5,3.5,"different face, changed identity, different pose, different background, different hairstyle, different lighting",28,20260812,168.1,artifacts/sweeps/flux/true_cfg/true_cfg_3p5/woman_00__p1.png,0.7116,0.7324,True,True

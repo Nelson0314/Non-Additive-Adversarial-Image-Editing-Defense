@@ -1,33 +1,33 @@
 arm,image,prompt_index,prompt,model,guidance_scale,true_cfg_scale,negative_prompt,steps,seed,seconds,png,id_orig,arcface_orig,face_found_orig,face_found_edit
-dayn,man_00,0,Let the person wear sunglasses,black-forest-labs/FLUX.1-Kontext-dev,3.5,,,28,20260812,83.3,artifacts/flux_edits/dayn/man_00__p0.png,0.6599,0.7323,True,True
-dayn,man_00,1,Let the person wear a police suit,black-forest-labs/FLUX.1-Kontext-dev,3.5,,,28,20260812,83.3,artifacts/flux_edits/dayn/man_00__p1.png,0.3809,0.2101,True,True
-dayn,man_00,2,Let the person wear a helmet,black-forest-labs/FLUX.1-Kontext-dev,3.5,,,28,20260812,83.4,artifacts/flux_edits/dayn/man_00__p2.png,0.7644,0.8332,True,True
-dayn,man_00,3,Let the person wear a bowtie,black-forest-labs/FLUX.1-Kontext-dev,3.5,,,28,20260812,83.2,artifacts/flux_edits/dayn/man_00__p3.png,0.9871,0.9817,True,True
-dayn,man_01,0,Let the person wear sunglasses,black-forest-labs/FLUX.1-Kontext-dev,3.5,,,28,20260812,83.3,artifacts/flux_edits/dayn/man_01__p0.png,0.7531,0.803,True,True
-dayn,man_01,1,Let the person wear a police suit,black-forest-labs/FLUX.1-Kontext-dev,3.5,,,28,20260812,83.4,artifacts/flux_edits/dayn/man_01__p1.png,0.8314,0.7908,True,True
-dayn,man_01,2,Let the person wear a helmet,black-forest-labs/FLUX.1-Kontext-dev,3.5,,,28,20260812,83.3,artifacts/flux_edits/dayn/man_01__p2.png,0.8763,0.8174,True,True
-dayn,man_01,3,Let the person wear a bowtie,black-forest-labs/FLUX.1-Kontext-dev,3.5,,,28,20260812,83.4,artifacts/flux_edits/dayn/man_01__p3.png,0.9892,0.9783,True,True
-dayn,man_02,0,Let the person wear sunglasses,black-forest-labs/FLUX.1-Kontext-dev,3.5,,,28,20260812,83.5,artifacts/flux_edits/dayn/man_02__p0.png,0.7181,0.7581,True,True
-dayn,man_02,1,Let the person wear a police suit,black-forest-labs/FLUX.1-Kontext-dev,3.5,,,28,20260812,83.6,artifacts/flux_edits/dayn/man_02__p1.png,0.6128,0.7909,True,True
-dayn,man_02,2,Let the person wear a helmet,black-forest-labs/FLUX.1-Kontext-dev,3.5,,,28,20260812,83.6,artifacts/flux_edits/dayn/man_02__p2.png,0.736,0.7581,True,True
-dayn,man_02,3,Let the person wear a bowtie,black-forest-labs/FLUX.1-Kontext-dev,3.5,,,28,20260812,83.6,artifacts/flux_edits/dayn/man_02__p3.png,0.9763,0.9879,True,True
-dayn,man_03,0,Let the person wear sunglasses,black-forest-labs/FLUX.1-Kontext-dev,3.5,,,28,20260812,83.5,artifacts/flux_edits/dayn/man_03__p0.png,0.7562,0.7617,True,True
-dayn,man_03,1,Let the person wear a police suit,black-forest-labs/FLUX.1-Kontext-dev,3.5,,,28,20260812,83.5,artifacts/flux_edits/dayn/man_03__p1.png,0.9583,0.9369,True,True
-dayn,man_03,2,Let the person wear a helmet,black-forest-labs/FLUX.1-Kontext-dev,3.5,,,28,20260812,83.4,artifacts/flux_edits/dayn/man_03__p2.png,0.9747,0.9185,True,True
-dayn,man_03,3,Let the person wear a bowtie,black-forest-labs/FLUX.1-Kontext-dev,3.5,,,28,20260812,83.4,artifacts/flux_edits/dayn/man_03__p3.png,0.9843,0.9869,True,True
-dayn,woman_00,0,Let the person wear sunglasses,black-forest-labs/FLUX.1-Kontext-dev,3.5,,,28,20260812,83.4,artifacts/flux_edits/dayn/woman_00__p0.png,0.4958,0.7674,True,True
-dayn,woman_00,1,Let the person wear a police suit,black-forest-labs/FLUX.1-Kontext-dev,3.5,,,28,20260812,83.4,artifacts/flux_edits/dayn/woman_00__p1.png,0.7161,0.5066,True,True
-dayn,woman_00,2,Let the person wear a helmet,black-forest-labs/FLUX.1-Kontext-dev,3.5,,,28,20260812,83.4,artifacts/flux_edits/dayn/woman_00__p2.png,0.8635,0.8437,True,True
-dayn,woman_00,3,Let the person wear a bowtie,black-forest-labs/FLUX.1-Kontext-dev,3.5,,,28,20260812,83.4,artifacts/flux_edits/dayn/woman_00__p3.png,0.9901,0.9856,True,True
-dayn,woman_01,0,Let the person wear sunglasses,black-forest-labs/FLUX.1-Kontext-dev,3.5,,,28,20260812,83.3,artifacts/flux_edits/dayn/woman_01__p0.png,0.5615,0.6353,True,True
-dayn,woman_01,1,Let the person wear a police suit,black-forest-labs/FLUX.1-Kontext-dev,3.5,,,28,20260812,83.4,artifacts/flux_edits/dayn/woman_01__p1.png,0.842,0.8492,True,True
-dayn,woman_01,2,Let the person wear a helmet,black-forest-labs/FLUX.1-Kontext-dev,3.5,,,28,20260812,83.3,artifacts/flux_edits/dayn/woman_01__p2.png,0.855,0.8383,True,True
-dayn,woman_01,3,Let the person wear a bowtie,black-forest-labs/FLUX.1-Kontext-dev,3.5,,,28,20260812,83.5,artifacts/flux_edits/dayn/woman_01__p3.png,0.9803,0.9854,True,True
-dayn,woman_02,0,Let the person wear sunglasses,black-forest-labs/FLUX.1-Kontext-dev,3.5,,,28,20260812,83.6,artifacts/flux_edits/dayn/woman_02__p0.png,0.7846,0.8175,True,True
-dayn,woman_02,1,Let the person wear a police suit,black-forest-labs/FLUX.1-Kontext-dev,3.5,,,28,20260812,83.7,artifacts/flux_edits/dayn/woman_02__p1.png,0.7246,0.7586,True,True
-dayn,woman_02,2,Let the person wear a helmet,black-forest-labs/FLUX.1-Kontext-dev,3.5,,,28,20260812,83.8,artifacts/flux_edits/dayn/woman_02__p2.png,0.854,0.8266,True,True
-dayn,woman_02,3,Let the person wear a bowtie,black-forest-labs/FLUX.1-Kontext-dev,3.5,,,28,20260812,83.8,artifacts/flux_edits/dayn/woman_02__p3.png,0.9912,0.9886,True,True
-dayn,woman_03,0,Let the person wear sunglasses,black-forest-labs/FLUX.1-Kontext-dev,3.5,,,28,20260812,83.7,artifacts/flux_edits/dayn/woman_03__p0.png,0.6395,0.5756,True,True
-dayn,woman_03,1,Let the person wear a police suit,black-forest-labs/FLUX.1-Kontext-dev,3.5,,,28,20260812,83.7,artifacts/flux_edits/dayn/woman_03__p1.png,0.7558,0.5015,True,True
-dayn,woman_03,2,Let the person wear a helmet,black-forest-labs/FLUX.1-Kontext-dev,3.5,,,28,20260812,83.6,artifacts/flux_edits/dayn/woman_03__p2.png,0.8805,0.8745,True,True
-dayn,woman_03,3,Let the person wear a bowtie,black-forest-labs/FLUX.1-Kontext-dev,3.5,,,28,20260812,83.5,artifacts/flux_edits/dayn/woman_03__p3.png,0.9858,0.992,True,True
+dayn,man_00,0,Let the person wear sunglasses,black-forest-labs/FLUX.1-Kontext-dev,3.5,,,28,20260812,83.3,artifacts/flux/edits/dayn/man_00__p0.png,0.6599,0.7323,True,True
+dayn,man_00,1,Let the person wear a police suit,black-forest-labs/FLUX.1-Kontext-dev,3.5,,,28,20260812,83.3,artifacts/flux/edits/dayn/man_00__p1.png,0.3809,0.2101,True,True
+dayn,man_00,2,Let the person wear a helmet,black-forest-labs/FLUX.1-Kontext-dev,3.5,,,28,20260812,83.4,artifacts/flux/edits/dayn/man_00__p2.png,0.7644,0.8332,True,True
+dayn,man_00,3,Let the person wear a bowtie,black-forest-labs/FLUX.1-Kontext-dev,3.5,,,28,20260812,83.2,artifacts/flux/edits/dayn/man_00__p3.png,0.9871,0.9817,True,True
+dayn,man_01,0,Let the person wear sunglasses,black-forest-labs/FLUX.1-Kontext-dev,3.5,,,28,20260812,83.3,artifacts/flux/edits/dayn/man_01__p0.png,0.7531,0.803,True,True
+dayn,man_01,1,Let the person wear a police suit,black-forest-labs/FLUX.1-Kontext-dev,3.5,,,28,20260812,83.4,artifacts/flux/edits/dayn/man_01__p1.png,0.8314,0.7908,True,True
+dayn,man_01,2,Let the person wear a helmet,black-forest-labs/FLUX.1-Kontext-dev,3.5,,,28,20260812,83.3,artifacts/flux/edits/dayn/man_01__p2.png,0.8763,0.8174,True,True
+dayn,man_01,3,Let the person wear a bowtie,black-forest-labs/FLUX.1-Kontext-dev,3.5,,,28,20260812,83.4,artifacts/flux/edits/dayn/man_01__p3.png,0.9892,0.9783,True,True
+dayn,man_02,0,Let the person wear sunglasses,black-forest-labs/FLUX.1-Kontext-dev,3.5,,,28,20260812,83.5,artifacts/flux/edits/dayn/man_02__p0.png,0.7181,0.7581,True,True
+dayn,man_02,1,Let the person wear a police suit,black-forest-labs/FLUX.1-Kontext-dev,3.5,,,28,20260812,83.6,artifacts/flux/edits/dayn/man_02__p1.png,0.6128,0.7909,True,True
+dayn,man_02,2,Let the person wear a helmet,black-forest-labs/FLUX.1-Kontext-dev,3.5,,,28,20260812,83.6,artifacts/flux/edits/dayn/man_02__p2.png,0.736,0.7581,True,True
+dayn,man_02,3,Let the person wear a bowtie,black-forest-labs/FLUX.1-Kontext-dev,3.5,,,28,20260812,83.6,artifacts/flux/edits/dayn/man_02__p3.png,0.9763,0.9879,True,True
+dayn,man_03,0,Let the person wear sunglasses,black-forest-labs/FLUX.1-Kontext-dev,3.5,,,28,20260812,83.5,artifacts/flux/edits/dayn/man_03__p0.png,0.7562,0.7617,True,True
+dayn,man_03,1,Let the person wear a police suit,black-forest-labs/FLUX.1-Kontext-dev,3.5,,,28,20260812,83.5,artifacts/flux/edits/dayn/man_03__p1.png,0.9583,0.9369,True,True
+dayn,man_03,2,Let the person wear a helmet,black-forest-labs/FLUX.1-Kontext-dev,3.5,,,28,20260812,83.4,artifacts/flux/edits/dayn/man_03__p2.png,0.9747,0.9185,True,True
+dayn,man_03,3,Let the person wear a bowtie,black-forest-labs/FLUX.1-Kontext-dev,3.5,,,28,20260812,83.4,artifacts/flux/edits/dayn/man_03__p3.png,0.9843,0.9869,True,True
+dayn,woman_00,0,Let the person wear sunglasses,black-forest-labs/FLUX.1-Kontext-dev,3.5,,,28,20260812,83.4,artifacts/flux/edits/dayn/woman_00__p0.png,0.4958,0.7674,True,True
+dayn,woman_00,1,Let the person wear a police suit,black-forest-labs/FLUX.1-Kontext-dev,3.5,,,28,20260812,83.4,artifacts/flux/edits/dayn/woman_00__p1.png,0.7161,0.5066,True,True
+dayn,woman_00,2,Let the person wear a helmet,black-forest-labs/FLUX.1-Kontext-dev,3.5,,,28,20260812,83.4,artifacts/flux/edits/dayn/woman_00__p2.png,0.8635,0.8437,True,True
+dayn,woman_00,3,Let the person wear a bowtie,black-forest-labs/FLUX.1-Kontext-dev,3.5,,,28,20260812,83.4,artifacts/flux/edits/dayn/woman_00__p3.png,0.9901,0.9856,True,True
+dayn,woman_01,0,Let the person wear sunglasses,black-forest-labs/FLUX.1-Kontext-dev,3.5,,,28,20260812,83.3,artifacts/flux/edits/dayn/woman_01__p0.png,0.5615,0.6353,True,True
+dayn,woman_01,1,Let the person wear a police suit,black-forest-labs/FLUX.1-Kontext-dev,3.5,,,28,20260812,83.4,artifacts/flux/edits/dayn/woman_01__p1.png,0.842,0.8492,True,True
+dayn,woman_01,2,Let the person wear a helmet,black-forest-labs/FLUX.1-Kontext-dev,3.5,,,28,20260812,83.3,artifacts/flux/edits/dayn/woman_01__p2.png,0.855,0.8383,True,True
+dayn,woman_01,3,Let the person wear a bowtie,black-forest-labs/FLUX.1-Kontext-dev,3.5,,,28,20260812,83.5,artifacts/flux/edits/dayn/woman_01__p3.png,0.9803,0.9854,True,True
+dayn,woman_02,0,Let the person wear sunglasses,black-forest-labs/FLUX.1-Kontext-dev,3.5,,,28,20260812,83.6,artifacts/flux/edits/dayn/woman_02__p0.png,0.7846,0.8175,True,True
+dayn,woman_02,1,Let the person wear a police suit,black-forest-labs/FLUX.1-Kontext-dev,3.5,,,28,20260812,83.7,artifacts/flux/edits/dayn/woman_02__p1.png,0.7246,0.7586,True,True
+dayn,woman_02,2,Let the person wear a helmet,black-forest-labs/FLUX.1-Kontext-dev,3.5,,,28,20260812,83.8,artifacts/flux/edits/dayn/woman_02__p2.png,0.854,0.8266,True,True
+dayn,woman_02,3,Let the person wear a bowtie,black-forest-labs/FLUX.1-Kontext-dev,3.5,,,28,20260812,83.8,artifacts/flux/edits/dayn/woman_02__p3.png,0.9912,0.9886,True,True
+dayn,woman_03,0,Let the person wear sunglasses,black-forest-labs/FLUX.1-Kontext-dev,3.5,,,28,20260812,83.7,artifacts/flux/edits/dayn/woman_03__p0.png,0.6395,0.5756,True,True
+dayn,woman_03,1,Let the person wear a police suit,black-forest-labs/FLUX.1-Kontext-dev,3.5,,,28,20260812,83.7,artifacts/flux/edits/dayn/woman_03__p1.png,0.7558,0.5015,True,True
+dayn,woman_03,2,Let the person wear a helmet,black-forest-labs/FLUX.1-Kontext-dev,3.5,,,28,20260812,83.6,artifacts/flux/edits/dayn/woman_03__p2.png,0.8805,0.8745,True,True
+dayn,woman_03,3,Let the person wear a bowtie,black-forest-labs/FLUX.1-Kontext-dev,3.5,,,28,20260812,83.5,artifacts/flux/edits/dayn/woman_03__p3.png,0.9858,0.992,True,True

@@ -1,0 +1,5 @@
+image,prompt_index,prompt,model,guidance_scale,steps,seed,seconds,png,id_orig,arcface_orig,face_found_orig,face_found_edit
+man_00,0,Let the person wear sunglasses,black-forest-labs/FLUX.1-Kontext-dev,2.0,28,20260812,82.8,artifacts/sweeps/flux/guidance/guidance_2p0/man_00__p0.png,0.6046,0.6837,True,True
+man_00,1,Let the person wear a police suit,black-forest-labs/FLUX.1-Kontext-dev,2.0,28,20260812,83.1,artifacts/sweeps/flux/guidance/guidance_2p0/man_00__p1.png,0.4533,0.273,True,True
+woman_00,0,Let the person wear sunglasses,black-forest-labs/FLUX.1-Kontext-dev,2.0,28,20260812,83.2,artifacts/sweeps/flux/guidance/guidance_2p0/woman_00__p0.png,0.5351,0.7913,True,True
+woman_00,1,Let the person wear a police suit,black-forest-labs/FLUX.1-Kontext-dev,2.0,28,20260812,83.5,artifacts/sweeps/flux/guidance/guidance_2p0/woman_00__p1.png,0.8066,0.6654,True,True

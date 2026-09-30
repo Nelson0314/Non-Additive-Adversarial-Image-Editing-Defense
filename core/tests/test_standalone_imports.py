@@ -56,6 +56,7 @@ print(json.dumps(names))
     assert "immunization_core.runtime.device" in imported
     for name in ("pipelines.editing", "pipelines.displacement", "pipelines.retention",
                  "color.space", "color.difference", "color.uniformity",
-                 "optimization.carrier", "optimization.instruction_free"):
+                 "optimization.carrier", "optimization.instruction_free",
+                 "optimization.attention", "color.shift"):
         assert "immunization_core." + name in imported
     assert len(imported) == len(list((isolated / "src/immunization_core").rglob("*.py")))

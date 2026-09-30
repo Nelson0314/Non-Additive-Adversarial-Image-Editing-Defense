@@ -15,12 +15,12 @@ python -m pip install -e ./core --no-deps --no-build-isolation
 | `editors.conditioning` | `SDXLPrompt`、`concatenate_conditioning()`、`expand_conditioning()`；序列與 pooled 嵌入共同配對。 |
 | `metrics` | `suite`、`regional`、`standard`、`acutance`、`identity`、`arcface`，保留既有後端與 CSV 欄位語意。 |
 | `runtime.device` | 裝置與 precision；匯入時依 `IMMUNIZATION_ALLOW_TF32` 設定 TF32，僅字串 `1` 啟用，未設定時關閉。 |
-| `io`、`artifacts.images` | CSV 欄位聯集、RGB 載入與 resize、PNG 量化及存檔。寫入函式會覆寫明確指定的目的檔案。 |
+| `io`、`artifacts.images` | CSV 欄位聯集（`write_csv`）與排序欄位（`write_sorted_csv`）、資料集影像列舉、RGB 載入與 resize、PNG 量化及存檔。寫入函式會覆寫明確指定的目的檔案。 |
 | `purifiers.operators`、`purifiers.protocol` | 真實淨化與訓練代理分離；固定 identity 加七道淨化的順序及強度。 |
 | `pipelines.purification`、`pipelines.masks` | 明確指定資料／輸出根的淨化流程；保留主體極性及 `purified_mask()` 幾何變換。 |
 | `pipelines.editing`、`pipelines.displacement`、`pipelines.retention` | 編輯與位移讀數流程；資料根、輸入根與輸出路徑皆為必填參數，配對缺側立即失敗。 |
-| `color.space`、`color.difference`、`color.uniformity` | sRGB／CIELab 轉換；skimage 量測與可微求解兩條 CIEDE2000 路徑（平均與 CVaR）；位移場 TV、U16 與端點讀數。 |
-| `optimization.carrier`、`optimization.instruction_free` | 以 augmented Lagrangian 在色差上限內最佳化載體（`optimize_carrier`、`randomize_carrier`、`quantize`、`Cap`）；不含指令的 IP2P 目標 `FreeObjective`。 |
+| `color.space`、`color.difference`、`color.uniformity`、`color.shift` | sRGB／CIELab 轉換；skimage 量測與可微求解兩條 CIEDE2000 路徑（平均與 CVaR）；位移場 TV、U16 與端點讀數；逐通道 Lab 位移的分位數與最大值。 |
+| `optimization.carrier`、`optimization.instruction_free` | 以 augmented Lagrangian 在色差上限內最佳化載體（`optimize_carrier`、`randomize_carrier`、`quantize`、`Cap`）；不含指令的 IP2P 目標 `FreeObjective`；`optimization.attention` 為攻擊端 UNet 的自注意力偏離與類別詞交叉注意力質量目標。 |
 | `artifacts.layout` | 顯式 `ArtifactLayout` 與唯一防禦 PNG 查找，不探索舊專案、不在建構時建立目錄。 |
 
 固定淨化入口為 `python -m immunization_core.pipelines.purification --data <資料集> --out <輸出>`，或以 `--defended <防禦圖目錄>` 代替 `--data`。IMPRESS 的 lpips 後端及 Adverse Cleaner 的 OpenCV-contrib 可由 `purifiers` extra 安裝；DiffPure 另需明確提供 guided-diffusion 與檢查點。歷史 `gridpure`／`fdpure` 未包含實作，`available=False` 並於使用時明確拒絕，無近似替代。詳見 [PURIFICATION.md](docs/PURIFICATION.md)。

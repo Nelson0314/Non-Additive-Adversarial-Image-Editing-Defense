@@ -45,3 +45,7 @@
 | `lab/scripts/{gpu_policy,gpu_lease,run_on_card,queue_worker}.sh`、`anti-purification/scripts/free_cards.sh` | `core/scripts/`；`run_on_card.sh` 改名為 `run_with_gpu_lease.sh`。遠端根目錄與 `~/env.sh` 改為 `--workdir`、`--env` 參數；queue 的 lab 專屬工作語法（pilot／def／chain／readout／fid、分片合併、`validate_job.py`）留待第 5 項由 color 專案以注入指令提供。 |
 
 `src.defense.lowfreq_color` 只經 `color_amplitude` 的求解器延遲匯入，不在活動閉包內。helper 測試來自 `anti-purification/tests` 的 `test_delta_e_torch.py`、`test_color_amplitude.py`（僅 `delta_e00`）、`test_uniformity.py`、`test_instruction_free.py`；歷史載體 `carrier_search.build_carrier` 以 `tests/carrier_stub.py` 代替，舊入口腳本的指令設定檔守衛未移植。
+
+## color 與 style 共用部分
+
+原 `lab/code` 中 color 與 style 互相 import 的定義移入 core，兩個專案因此互不相依：`style_prompt_defence.py` 的 `encode_text`、`AttnObjective`、`CrossAttnObjective` → `optimization.attention`；`color_defence.py` 的 `_shift`、`channel_shift_p95`、`channel_shift_max` → `color.shift`；`load_images`、`write_rows` → `io.load_dataset_images`、`io.write_sorted_csv`。方法本體與欄位順序不變。

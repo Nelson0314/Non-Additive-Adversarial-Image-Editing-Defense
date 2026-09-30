@@ -87,6 +87,35 @@
       "destination": "core/scripts/queue_worker.sh",
       "source_sha256": "29d13a8f8c91a25ebf27a67324264145cbf0d3b0108768b280f6d6827bbaacce",
       "definitions": null
+    },
+    {
+      "source": "lab/code/style_prompt_defence.py",
+      "destination": "core/src/immunization_core/optimization/attention.py",
+      "source_sha256": "71c0e0c938f559ab7b5c7399f4558f4eef6789dfd9311f27634cf38a7de41356",
+      "definitions": [
+        "encode_text",
+        "AttnObjective",
+        "CrossAttnObjective"
+      ]
+    },
+    {
+      "source": "lab/code/color_defence.py",
+      "destination": "core/src/immunization_core/color/shift.py",
+      "source_sha256": "8fc19b9c154184340338b17b2d8790cc7f003d0db0458165b0ea1a34fb3aa234",
+      "definitions": [
+        "_shift",
+        "channel_shift_p95",
+        "channel_shift_max"
+      ]
+    },
+    {
+      "source": "lab/code/color_defence.py",
+      "destination": "core/src/immunization_core/io.py",
+      "source_sha256": "8fc19b9c154184340338b17b2d8790cc7f003d0db0458165b0ea1a34fb3aa234",
+      "definitions": [
+        "load_images",
+        "write_rows"
+      ]
     }
   ],
   "renames": {
@@ -95,6 +124,8 @@
     "randomise_carrier": "randomize_carrier",
     "LAB_CAP": "GPU_CAP",
     "LAB_MYCAP": "QUEUE_CAP",
-    "run_on_card.sh": "run_with_gpu_lease.sh"
+    "run_on_card.sh": "run_with_gpu_lease.sh",
+    "load_images": "load_dataset_images",
+    "write_rows": "write_sorted_csv"
   }
 }

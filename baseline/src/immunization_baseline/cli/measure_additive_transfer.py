@@ -60,7 +60,7 @@ def quantise(y: torch.Tensor) -> torch.Tensor:
     return (y.detach().clamp(0, 1) * 255).round() / 255
 
 
-def defence_png(roots: dict, condition: str, image: str, arm: str) -> Path:
+def defense_png(roots: dict, condition: str, image: str, arm: str) -> Path:
     """防禦圖，兩個 arm 的檔名式樣相同（`<影像>__<條件>__def.png`）。"""
     return roots[arm] / condition / f"{image}__{condition}__def.png"
 
@@ -146,7 +146,7 @@ def main() -> None:
             masks[name] = subject_mask(repaint)
         key = (arm, cond, name)
         if key not in cache:
-            dp = defence_png(roots, cond, name, arm)
+            dp = defense_png(roots, cond, name, arm)
             if not dp.is_file():
                 raise SystemExit(f"找不到防禦圖：{dp}")
             cache[key] = load(dp, device) - originals[name]
@@ -170,7 +170,7 @@ def main() -> None:
             "siglip_pair_T": round(sig, 5),
             "blocked_T": sig < SIGLIP_BLOCKED_THRESHOLD,
             "siglip_blocked_threshold": SIGLIP_BLOCKED_THRESHOLD,
-            "defence_png": defence_png(roots, cond, name, arm).as_posix(),
+            "defence_png": defense_png(roots, cond, name, arm).as_posix(),
         })
         write_csv(args.out, rows)
     print(f"[ALLDONE] {args.out}（{len(rows)} 列）", flush=True)

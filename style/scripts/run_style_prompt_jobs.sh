@@ -48,7 +48,7 @@ while true; do
     if ls "$O/$j/"*__def.png >/dev/null 2>&1; then
       try_launch "$(gpu_global_cap)" "${R}_edit_$j" "\"\$PY\" -m immunization_style.cli.run_edits --data-root data/portraits --defenses-dir $O/$j --output-dir $E/${j}_${STY[$j]} --scenarios ip2p --suffix _${R}_$j --images ${IMG[$j]}" && EDT[$j]=1
     else
-      echo "$(date +%H:%M:%S) $j: no feasible defence image"; EDT[$j]=none
+      echo "$(date +%H:%M:%S) $j: no feasible defense image"; EDT[$j]=none
     fi
   done
   # 編輯優先於新的最佳化：防禦圖一產出就送編輯

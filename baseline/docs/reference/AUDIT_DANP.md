@@ -76,7 +76,7 @@
 > In our experiment, this procedure is applied to the normalized attention map at
 > each timestep `t` to compute the adaptive threshold `τ_t`.
 
-本檔：`normalise_attention`（min-max）＋ `kapur_threshold_index`（Eq. 7–9）＋
+本檔：`normalize_attention`（min-max）＋ `kapur_threshold_index`（Eq. 7–9）＋
 `kapur_mask`（Eq. 10）。`L` = `PAPER_KAPUR_BINS` = 128。門檻每次 `loss_fn`
 （即每個 timestep）重算，與「at each timestep `t`」一致。
 

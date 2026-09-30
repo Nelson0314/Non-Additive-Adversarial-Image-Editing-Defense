@@ -246,7 +246,7 @@ def solve(sd, cond: str, x01: torch.Tensor, seed: int,
             raise SystemExit(
                 f"{cond} 需要 immunizer 與遮罩，呼叫端沒有給。"
                 "遮罩在 <data>/masks/<影像>.png（白＝重繪）。")
-        out = diffvax.immunise(immunizer, x01, mask01)
+        out = diffvax.immunize(immunizer, x01, mask01)
         cfg = {"eps": "", "eps_pixel01": "",
                "eps_native": "", "eps_scale": 1.0,
                "norm": "none", "steps": 1, "grad_reps": "",

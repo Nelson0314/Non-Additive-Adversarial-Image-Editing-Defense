@@ -21,7 +21,7 @@ ip2p 的後續編輯失效。協定與攻擊端同 color 專案 `docs/DESIGN.md`
 - 生成器 G：同一個 ip2p，20 步；前 5 步不回傳梯度，後 15 步回傳。`--sampler ddim`（預設）或 `ddpm`（論文附錄 B）。
   s_t 7.5、s_i 2.0（s_i 1.5 會換臉）。風格參考圖 x_ref ＝ 不做防禦訓練的 G 輸出（δ ＝ 0、z_off ＝ 0），為對照組。
 - 載體：`prompt`（指令 token embedding 位移 δ；`--prompt-scope full` 為整段 77 token）、`latent`（暖身後 latent 位移 z_off）、`prompt_latent`。
-- 目標（`--objective`）：`enc_grey`（E(y) 推向灰圖 latent）、`attn`（自注意力偏離）、`xattn`（類別詞交叉注意力比值，最小化）、
+- 目標（`--objective`）：`enc_gray`（E(y) 推向灰圖 latent）、`attn`（自注意力偏離）、`xattn`（類別詞交叉注意力比值，最小化）、
   `chaos`（攻擊端以類別詞為指令的 10 步編輯輸出與輸入的灰階 LPIPS，最大化）、`classifier`（論文原損失
   exp(κ·tanh(m/κ))，κ 9，ResNet-50，標籤取原圖 top-1）、`free`。
 - 限制：FaceNet 身分下限、臉部暖色上限、`--struct-cap` 灰階 LPIPS 結構上限（對 x_ref）。停滯規則：連續 `--patience` 次驗證改善不到 1% 即 lr/4，最多 `--max-decays` 次。
@@ -30,7 +30,7 @@ ip2p 的後續編輯失效。協定與攻擊端同 color 專案 `docs/DESIGN.md`
 
 | 設定 | 訓練 | 目標值 | 防禦圖 | 配件未畫出 |
 |---|---|---|---|---|
-| enc_grey，prompt＋latent，無結構上限 | 收斂 | 1.00 → 0.21–0.32 | 整張灰霧（對 x_ref LPIPS 0.34） | 1／4（安全帽） |
+| enc_gray，prompt＋latent，無結構上限 | 收斂 | 1.00 → 0.21–0.32 | 整張灰霧（對 x_ref LPIPS 0.34） | 1／4（安全帽） |
 | attn，prompt＋latent，無結構上限 | 300 步未收斂，中止 | 持續上升 | 背景改寫為幻覺場景 | 未評估 |
 | xattn，結構上限 0.08（`r11`） | 收斂 | 1.00 → 0.85–0.96 | 完好 | 0／12 |
 | chaos，結構上限 0.08（`r11`） | 2／3 收斂 | 偏離 ＋0.005–0.16 | 完好 | 1／12（安全帽） |

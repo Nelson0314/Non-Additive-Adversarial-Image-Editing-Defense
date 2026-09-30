@@ -73,7 +73,7 @@ def main() -> None:
     parser.add_argument("--data-root", dest="data", type=Path, default=layout.PORTRAITS)
     parser.add_argument("--output-dir", dest="out", type=Path, required=True)
     parser.add_argument("--condition", default=None,
-                        help="條件名。預設取 --variant，沒有 --variant 時是 colour")
+                        help="條件名。預設取 --variant，沒有 --variant 時是 color")
     parser.add_argument("--variant", default=None,
                         help="paper_baseline.py 的臂名，對應 "
                              "`<名稱>__<臂>__defended.png`")
@@ -90,7 +90,7 @@ def main() -> None:
     if not args.source_settings.is_file():
         raise SystemExit(f"找不到方法設定紀錄：{args.source_settings}")
     if args.condition is None:
-        args.condition = args.variant or "colour"
+        args.condition = args.variant or "color"
 
     sources = dataset_images(args.data)
     stem = (f"__{args.variant}__defended.png" if args.variant
@@ -150,9 +150,9 @@ def main() -> None:
             "eps": args.budget, "eps_pixel01": "", "norm": args.norm,
             "steps": "", "grad_reps": "", "q_alg": "", "pg_strength": "",
             "modified_from_paper": "", "modification_note": "",
-            "spec_source": (f"../scripts/paper_baseline.py 的 {args.variant} 臂"
+            "spec_source": (f"archive/anti-purification/scripts/paper_baseline.py 的 {args.variant} 臂"
                             if args.variant else
-                            "本專案的顏色載體（../scripts/immunise.py）"),
+                            "本專案的顏色載體（archive/anti-purification/scripts/immunise.py）"),
             "total_seconds": "",
             "fid_psnr": round(float(pair["psnr"]), 4),
             "fid_lpips": round(float(pair["lpips"]), 4),

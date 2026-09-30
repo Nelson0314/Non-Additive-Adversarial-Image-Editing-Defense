@@ -137,7 +137,7 @@ def chroma_p95(x01, q=0.95):
     return torch.quantile(lab[:, 1:].pow(2).sum(1).clamp_min(1e-12).sqrt().reshape(-1), q)
 
 
-def skin_centre(x01, face):
+def skin_center(x01, face):
     """臉框內 `(a,b)` 的中位數（平均會被頭髮與背景的離群值拉走）。"""
     ab = rgb_to_lab(x01.clamp(0, 1).float())[:, 1:]
     sel = ab[0].permute(1, 2, 0)[face[0, 0] > 0.5]
@@ -146,17 +146,17 @@ def skin_centre(x01, face):
     return sel.median(0).values
 
 
-def skin_colour_support(x01, face, radius=12.0):
+def skin_color_support(x01, face, radius=12.0):
     """原圖中 `(a,b)` 落在臉框膚色中位數半徑 `radius` 內的像素，不限位置。"""
     ab = rgb_to_lab(x01.clamp(0, 1).float())[:, 1:]
-    centre = skin_centre(x01, face).view(1, 2, 1, 1)
-    return ((ab - centre).pow(2).sum(1, keepdim=True).clamp_min(1e-12).sqrt() <= radius).to(ab.dtype)
+    center = skin_center(x01, face).view(1, 2, 1, 1)
+    return ((ab - center).pow(2).sum(1, keepdim=True).clamp_min(1e-12).sqrt() <= radius).to(ab.dtype)
 
 
-def skin_scaled_box(anchors, centre, base, gain=2.0, r0=20.0, r1=60.0):
+def skin_scaled_box(anchors, center, base, gain=2.0, r0=20.0, r1=60.0):
     """色偏上限依錨點離膚色中心的距離放大：r ≤ r0 維持 base，r ≥ r1 為 base × gain，其間線性。
     只放大冷色方向（a*－、b*－）；暖色方向（a*＋、b*＋）維持 base。回傳 (lo_a, hi_a, lo_b, hi_b)。"""
-    r = (anchors - centre.to(anchors.device).view(1, 2)).norm(dim=-1)
+    r = (anchors - center.to(anchors.device).view(1, 2)).norm(dim=-1)
     s = 1.0 + (gain - 1.0) * ((r - r0) / (r1 - r0)).clamp(0.0, 1.0)
     return (-base["a_neg"] * s, torch.full_like(s, base["a_pos"]),
             -base["b_neg"] * s, torch.full_like(s, base["b_pos"]))

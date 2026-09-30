@@ -198,7 +198,7 @@ class ClassifierObjective:
         return float(loss)
 
 
-def grey(x01):
+def gray(x01):
     return (0.299 * x01[:, :1] + 0.587 * x01[:, 1:2] + 0.114 * x01[:, 2:3]).expand(-1, 3, -1, -1)
 
 
@@ -254,7 +254,7 @@ class ChaosObjective:
         total = 0.0
         for z in draws:
             with torch.set_grad_enabled(backward):
-                d = self.lp(grey(self.edit(y, z, backward)), grey(y.detach())).mean()
+                d = self.lp(gray(self.edit(y, z, backward)), gray(y.detach())).mean()
                 if backward:
                     (-self.a.a_adv * d / len(draws)).backward()
             total += float(d)
@@ -284,7 +284,7 @@ def optimize(args, ip2p, ed, x_ref, e_txt, ids, x0_ref, id_cos, id_cos_diff, tau
         free = AnchoredFree(ip2p, x_ref, box=None, k=4, steps=50, seed=args.noise_seed,
                             weights={"id": 0.0, "enc": args.w_enc, "cond": 1.0},
                             chain_steps=6, grad_steps=1, s_i=1.5, resample=False)
-    elif args.objective == "enc_grey":
+    elif args.objective == "enc_gray":
         target = EncoderTarget(ip2p, x_ref, args)
     elif args.objective == "classifier":
         target = ClassifierObjective(x_orig, args, dev)
@@ -351,7 +351,7 @@ def optimize(args, ip2p, ed, x_ref, e_txt, ids, x0_ref, id_cos, id_cos_diff, tau
         if bg is not None and args.bg_cap > 0:
             reg = reg + args.a_bg * torch.relu(lp(y * bg + x_ref * (1 - bg), x_ref).mean() - args.bg_cap)
         if args.struct_cap > 0:
-            reg = reg + args.a_struct * torch.relu(lp(grey(y), grey(x_ref)).mean() - args.struct_cap)
+            reg = reg + args.a_struct * torch.relu(lp(gray(y), gray(x_ref)).mean() - args.struct_cap)
         col_terms = []
         if args.col_cap > 0:
             # 相對 x_ref 往 a*＋（紅、洋紅）與 b*＋（黃）的位移：p95 ≤ col_cap、p99 ≤ 2·col_cap
@@ -367,7 +367,7 @@ def optimize(args, ip2p, ed, x_ref, e_txt, ids, x0_ref, id_cos, id_cos_diff, tau
                      for c, q, _ in col_terms}
             col_ok = all(col_q[f"{'ab'[c - 1]}_pos_p{int(q * 100)}"] <= cap for c, q, cap in col_terms)
             bg_q = float(lp(yq * bg + x_ref * (1 - bg), x_ref).mean()) if bg is not None else 0.0
-            struct_q = float(lp(grey(yq), grey(x_ref)).mean())
+            struct_q = float(lp(gray(yq), gray(x_ref)).mean())
         if args.snapshot_every > 0 and (u % args.snapshot_every == 0 or u == args.updates):
             (args.out / "snapshots").mkdir(exist_ok=True)
             save_image(yq, args.out / "snapshots" / f"{tag}__u{u:03d}__def.png")

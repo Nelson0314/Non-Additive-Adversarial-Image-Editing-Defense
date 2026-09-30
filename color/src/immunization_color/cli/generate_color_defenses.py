@@ -40,7 +40,7 @@ import torch
 from immunization_color import layout
 from immunization_color.method import (
     ARM, CHANNEL_CAPS, RESOLUTION, ColorMap, CommObjective, XAttnScore, _grad_norm, align_weight,
-    box_support, chroma_p95, expanded_box, skin_centre, skin_colour_support, skin_scaled_box,
+    box_support, chroma_p95, expanded_box, skin_center, skin_color_support, skin_scaled_box,
     warp_picture,
 )
 from immunization_core.artifacts.images import save_image
@@ -105,7 +105,7 @@ def main(argv=None) -> None:
             raise SystemExit(f"{name} 偵測不到臉；膚色群心定不出來")
         box = expanded_box(x, max(boxes, key=lambda q: (q[2] - q[0]) * (q[3] - q[1])))
         frame, face = torch.ones_like(x[:, :1]), box_support(x, box)
-        skin = skin_colour_support(x, face, caps_cfg["skin_radius"])
+        skin = skin_color_support(x, face, caps_cfg["skin_radius"])
         c95 = float(chroma_p95(x))
 
         simple = args.caps == "simple"
@@ -119,7 +119,7 @@ def main(argv=None) -> None:
         sh = caps_cfg["shift"]
         if simple:
             if args.box == "skin":
-                carrier.set_box(*skin_scaled_box(carrier.anchors, skin_centre(x, face), sh))
+                carrier.set_box(*skin_scaled_box(carrier.anchors, skin_center(x, face), sh))
             else:
                 carrier.set_box(-sh["a_neg"], sh["a_pos"], -sh["b_neg"], sh["b_pos"])
         carrier.project()
@@ -127,7 +127,7 @@ def main(argv=None) -> None:
         caps = [
             Cap("frame", lambda y: delta_e00_torch(x, y, frame), lambda y: delta_e00(x, y, frame), caps_cfg["frame"]),
             Cap("face_box", lambda y: delta_e00_torch(x, y, face), lambda y: delta_e00(x, y, face), caps_cfg["face"]),
-            Cap("skin_colour", lambda y: delta_e00_torch(x, y, skin), lambda y: delta_e00(x, y, skin), caps_cfg["face"]),
+            Cap("skin_color", lambda y: delta_e00_torch(x, y, skin), lambda y: delta_e00(x, y, skin), caps_cfg["face"]),
             *[Cap(f"shift_{n}", lambda y, c=c, s=s: channel_shift_p95(x, y, c, s),
                   lambda y, c=c, s=s: float(channel_shift_p95(x, y, c, s)), sh[n]) for n, c, s in CHANNEL_CAPS],
             *[Cap(f"shift_{n}_max", lambda y, c=c, s=s: channel_shift_max(x, y, c, s),
@@ -138,7 +138,7 @@ def main(argv=None) -> None:
         ]
         if simple:
             # 方框只管映射本身；轉回 RGB 的色域裁切仍可能產生暖色位移，暖色兩個方向保留逐像素最大值
-            caps = [c for c in caps if c.name in ("skin_colour", "shift_a_pos_max", "shift_b_pos_max")]
+            caps = [c for c in caps if c.name in ("skin_color", "shift_a_pos_max", "shift_b_pos_max")]
             if args.objective == "xattn":
                 # 注意力目標的權重把解推到暖色上限邊界，量化後超出 0.4–0.5；訓練端留 0.5 餘量，可行性仍以 4 檢查
                 caps = [c._replace(soft=lambda y, f=c.soft: f(y) + 0.5) if c.name.startswith("shift_") else c
@@ -181,7 +181,7 @@ def main(argv=None) -> None:
                 **{f"shift_{n}_max_out": round(float(channel_shift_max(x, y, c, s)), 4) for n, c, s in CHANNEL_CAPS},
                 "deltaE00_frame": round(float(delta_e00(x, y, frame)), 4),
                 "deltaE00_face_box": round(float(delta_e00(x, y, face)), 4),
-                "deltaE00_skin_colour": round(float(delta_e00(x, y, skin)), 4),
+                "deltaE00_skin_color": round(float(delta_e00(x, y, skin)), 4),
                 "tv_frame": round(float(tv_offset(off, frame)), 5),
                 "warp_max": round(float(carrier.w.norm(dim=-1).max()), 3),
                 "psnr": round(float(10 * torch.log10(1.0 / (y - x).pow(2).mean())), 4),

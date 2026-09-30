@@ -5,7 +5,7 @@ x_ref = G(x, e_txt)、x_def = G(x, e_adv; z_off)。G 與攻擊端同一個 ip2p 
 可調的是指令 token（含第一個 EOS）的 embedding 與暖身結束時的 latent 位移。
 
 訓練目標一律不使用任何攻擊指令（評估指令或自選指令皆不用），文字只用空字串或類別詞：
-`free`（空指令 ip2p 代理，錨在 x_ref）、`enc_grey`（攻擊端影像條件 E(y) 推向灰圖 latent）、
+`free`（空指令 ip2p 代理，錨在 x_ref）、`enc_gray`（攻擊端影像條件 E(y) 推向灰圖 latent）、
 `attn`（攻擊端 UNet 自注意力圖相對 x_ref 的偏離，最大化）、`xattn`（攻擊端對類別詞的交叉注意力，
 最小化）、`chaos`（攻擊端以類別詞為指令的短程編輯輸出，最大化其與輸入的結構差異）、
 `classifier`（SPA 原損失：ResNet-50 對防禦圖的指數邊界損失，標籤取原圖 top-1）。
@@ -49,7 +49,7 @@ def build_parser() -> argparse.ArgumentParser:
     ap.add_argument("--warm", type=int, default=5)
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--updates", type=int, default=0)
-    ap.add_argument("--objective", default="free", choices=("free", "enc_grey", "attn", "xattn", "chaos",
+    ap.add_argument("--objective", default="free", choices=("free", "enc_gray", "attn", "xattn", "chaos",
                                                                     "classifier"))
     ap.add_argument("--cls-arch", default="resnet50", help="classifier：torchvision 模型名（論文 §4.1）")
     ap.add_argument("--cls-weights", default="IMAGENET1K_V1", help="classifier：權重名或 default")

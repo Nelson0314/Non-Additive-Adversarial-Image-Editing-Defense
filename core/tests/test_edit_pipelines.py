@@ -108,7 +108,7 @@ def test_editing_subset_runs_with_subset_defended_directory(fakes, dataset, tmp_
     rows = run_metrics_only(dataset, tmp_path / "out", "--images", "man_01",
                             "--defenses-dir", str(defended), "--scenarios", "inpaint")
     assert [r["image"] for r in rows] == ["man_01"]
-    assert rows[0]["defence"] == "defended"
+    assert rows[0]["defense"] == "defended"
     assert rows[0]["input_png"].endswith("man_01__color__def.png")
 
 

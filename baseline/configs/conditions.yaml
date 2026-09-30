@@ -74,7 +74,7 @@ conditions:
     solver: feedforward
     main_table: true
     solver_prompt: ""
-    solver_prompt_source: "無文字條件：推論端只有 immunizer 的一次前向，prompt 只在訓練時進 L_edit（diffvax.py::immunise）"
+    solver_prompt_source: "無文字條件：推論端只有 immunizer 的一次前向，prompt 只在訓練時進 L_edit（diffvax.py::immunize）"
   color_curve:
     solver: imported
     main_table: false

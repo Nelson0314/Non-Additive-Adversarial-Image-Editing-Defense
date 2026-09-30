@@ -170,7 +170,7 @@ def main() -> None:
             "siglip_pair_T": round(sig, 5),
             "blocked_T": sig < SIGLIP_BLOCKED_THRESHOLD,
             "siglip_blocked_threshold": SIGLIP_BLOCKED_THRESHOLD,
-            "defence_png": defense_png(roots, cond, name, arm).as_posix(),
+            "defense_png": defense_png(roots, cond, name, arm).as_posix(),
         })
         write_csv(args.out, rows)
     print(f"[ALLDONE] {args.out}（{len(rows)} 列）", flush=True)

@@ -220,7 +220,7 @@ RECONSTRUCTED_STEP_SIZE = 1.0 / 255.0
 # ---------------------------------------------------------------------------
 
 
-def normalise_attention(att: torch.Tensor) -> torch.Tensor:
+def normalize_attention(att: torch.Tensor) -> torch.Tensor:
     """`N(·)`（§IV-B）：對整張聚合注意力圖取全域 min-max，映到 `[0,1]`。
 
     退化輸入（`max == min`，即整張圖是常數）回傳**全 0**。這不是繞過錯誤，
@@ -294,7 +294,7 @@ def kapur_mask(att: torch.Tensor, bins: int) -> Tuple[torch.Tensor, int, float]:
     不同（字面讀法把邊界上的元素歸為 class 0，直方圖把它歸為 class 1），
     此處取與直方圖分割一致的那一種。回傳的 `τ_t` 即該邊界值，供報表引用。
     """
-    norm = normalise_attention(att)
+    norm = normalize_attention(att)
     tau_idx = kapur_threshold_index(norm, bins)
     idx = (norm.detach().float() * bins).floor().long().clamp_(max=bins - 1)
     mask = (idx > tau_idx).to(att.dtype)

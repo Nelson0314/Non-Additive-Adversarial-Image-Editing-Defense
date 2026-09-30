@@ -24,7 +24,7 @@ ip2p 的後續編輯失效。
 |---|---|
 | `immunization_style.method`、`cli/generate_style_prompt_defenses.py` | 生成器 G、載體、目標、限制與求解（選項見 `--help`） |
 | `cli/measure_style_prompt_edits.py` | 讀數：編輯結果 LPIPS（對未防禦編輯、對風格參考圖的編輯）、編輯前後改變量 LPIPS，全圖／主體／背景 |
-| `scripts/run_style_prompt_jobs.sh` | 一組實驗的排程：工作清單、經 `vendor/scripts/run_with_gpu_lease.sh` 取卡、防禦圖產出即送主種子編輯並重算讀數；名為 `ref` 的工作（`--lr 0 --updates 1`）產生對照 |
+| `scripts/run_style_prompt_jobs.sh`、`cli/check_job_outputs.py` | 一組實驗的排程：工作清單、經 `vendor/scripts/run_with_gpu_lease.sh` 取卡、防禦圖通過驗收即送主種子編輯，全部工作結束後以名為 `ref` 的工作（`--lr 0 --updates 1`）為參照計算讀數；各階段記錄結束碼並驗收鍵集合與輸出檔，既有輸出須與 `job.spec` 的設定相同才沿用，任一階段失敗即以結束碼 1 結束 |
 
 ## 設計
 

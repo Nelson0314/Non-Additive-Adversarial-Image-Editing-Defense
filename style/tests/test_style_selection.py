@@ -1,17 +1,7 @@
 """選點測試不載入編輯模型或權重。"""
-import ast
-from pathlib import Path
-
 import pytest
 
-
-def select_result(*args):
-    source = Path(__file__).parents[1] / "code/style_prompt_defence.py"
-    tree = ast.parse(source.read_text(encoding="utf-8"))
-    function = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == "select_result")
-    namespace = {}
-    exec(compile(ast.Module(body=[function], type_ignores=[]), str(source), "exec"), namespace)
-    return namespace["select_result"](*args)
+from immunization_style.method import select_result
 
 
 @pytest.mark.parametrize("policy,best_feasible,last_feasible,expected_update,expected_feasible", [

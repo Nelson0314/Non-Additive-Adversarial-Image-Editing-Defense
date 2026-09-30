@@ -2,7 +2,9 @@
 
 每格三張編輯：U = edit(x)（未防禦分母）、E_ref = edit(x_ref)、E_def = edit(x_def)。
 `D` = LPIPS(U, E)，`D_pair` = LPIPS(E_ref, E_def)：後者只量最佳化在風格之上多出的部分，
-不是扣穿透的 `D_T`。全圖／主體／背景三欄，與 `edit_displacement.py` 同一個 LPIPS 與遮罩。
+不是扣穿透的 `D_T`。全圖／主體／背景三欄，與 `immunization_core.pipelines.displacement` 同一個 LPIPS 與遮罩。
+
+未防禦分母 U 取自 `--undefended`（預設 `artifacts/undefended_edits/ip2p_si18`）。
 """
 
 from __future__ import annotations
@@ -10,22 +12,15 @@ from __future__ import annotations
 import argparse
 import csv
 import statistics
-import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+import piq
+import torch
 
-import paths  # noqa: E402
-
-paths.add_source_to_syspath()
-
-import piq  # noqa: E402
-import torch  # noqa: E402
-
-from color_defence import write_rows  # noqa: E402
-from edit_displacement import subject_mask  # noqa: E402
-from src.metrics.regional import RegionalLPIPS, split_displacement  # noqa: E402
-from src.utils.io import load_image_tensor  # noqa: E402
+from immunization_core.io import load_image_tensor, write_sorted_csv
+from immunization_core.metrics.regional import RegionalLPIPS, split_displacement
+from immunization_core.pipelines.masks import subject_mask
+from immunization_style import layout
 
 RESOLUTION = 512
 
@@ -65,12 +60,12 @@ def read_groups(root, ref_root, styles, strengths, images=None):
 
 
 def main() -> None:
-    ap = argparse.ArgumentParser()
+    ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--edits", type=Path, required=True)
     ap.add_argument("--styles", nargs="+", required=True)
     ap.add_argument("--strengths", nargs="+", default=["capped", "uncapped"])
-    ap.add_argument("--undefended", type=Path, default=Path("runs/edit_preflight/ip2p_si18"))
-    ap.add_argument("--data", type=Path, default=Path("lab/data/portraits"))
+    ap.add_argument("--undefended", type=Path, default=layout.UNDEFENDED_EDITS / "ip2p_si18")
+    ap.add_argument("--data", type=Path, default=layout.PORTRAITS)
     ap.add_argument("--out", type=Path, required=True)
     ap.add_argument("--ref-edits", type=Path, default=None, help="ref_<style> 所在的根目錄，預設同 --edits")
     ap.add_argument("--images", nargs="+", default=None)
@@ -106,7 +101,7 @@ def main() -> None:
                     row.update({f"D_pair_{a}": round(float(v), 5) for a, v in p.items()})
             rows.append(row)
     args.out.parent.mkdir(parents=True, exist_ok=True)
-    write_rows(args.out, rows)
+    write_sorted_csv(args.out, rows)
 
     keys = [k for k in rows[0] if k.startswith(("D_", "C_"))]
     keys += [k for k in rows[-1] if k.startswith("D_pair_")]

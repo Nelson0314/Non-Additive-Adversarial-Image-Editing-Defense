@@ -1,19 +1,9 @@
 """空組別與參照缺格須在建立 LPIPS 前拒絕。"""
-import ast
 import csv
-from pathlib import Path
 
 import pytest
 
-
-def read_groups(*args):
-    path = Path(__file__).parents[1] / "code/style_prompt_readout.py"
-    tree = ast.parse(path.read_text(encoding="utf-8"))
-    functions = [n for n in tree.body if isinstance(n, ast.FunctionDef)
-                 and n.name in ("edits", "read_groups")]
-    namespace = {"Path": Path, "csv": csv}
-    exec(compile(ast.Module(body=functions, type_ignores=[]), str(path), "exec"), namespace)
-    return namespace["read_groups"](*args)
+from immunization_style.cli.measure_style_prompt_edits import read_groups
 
 
 def table(root, group, names=("man_00",)):

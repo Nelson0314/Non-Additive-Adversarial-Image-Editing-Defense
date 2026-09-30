@@ -385,3 +385,33 @@
 專案內已同步：`baseline/scripts/evaluate_color_condition.sh`、`color/scripts/{generate_condition,evaluate_condition,measure_condition_results,queue_job,queue_validate,run_queue}.sh`、`style/scripts/run_style_prompt_jobs.sh`、各 CLI 包裝的預設參數、測試與文件。第 10 項由協調端改寫遠端家目錄腳本時，依上表替換。
 
 驗證：core 174 passed（21 deselected）；baseline 72、color 41、style 15 passed；三個專案全部 CLI 的 `--help` 成功；`bash -n` 全部 shell 通過。
+
+### 第 4 段：匯入 manifest、必要與選配指標（`3c712c2`、`ff0d37a`、`33f70bf`）
+
+**`import_defense_artifacts`**：新增必填 `--source-settings <方法設定紀錄>`（color 條件為 color 專案該條件目錄的 `results.csv`）。匯入階段先寫 `<--output-dir>/import_manifest.json`（條件、variant、norm、budget、來源目錄、方法設定檔路徑與 SHA-256、逐張的來源防禦圖／原圖／輸出防禦圖路徑與 SHA-256），任何輸入缺少即中止、不寫 manifest；保真量測階段的 `results_all.csv` 每列新增 `source_sha256`、`original_sha256`、`defended_sha256`、`source_settings`、`source_settings_sha256`。`baseline/scripts/evaluate_color_condition.sh` 已傳入 `--source-settings "$color_defenses/results.csv"`。
+
+**`measure_additional_metrics`**：
+| stage | 必要（任何錯誤即中止） | 選配（後端無法建立時留空並記原因） |
+|---|---|---|
+| fidelity | `fid_fsim`、`fid_delta_e00`、`fid_mse` | — |
+| displacement | `disp_fsim`、`disp_mse` | — |
+| retention | `disp_purified_fsim` | — |
+| aesthetic | — | `aes_*` 七項（pyiqa） |
+| vmaf | — | `vmaf`（含 libvmaf 的 ffmpeg） |
+
+選配指標只在建立後端時捕捉 `ImportError`、`OSError`、`RuntimeError`、`ValueError`，原因寫入 `unavailable_metrics`（`<欄名>: <原因>`，以 `; ` 分隔；全部可用時為空字串）；建立後的計算錯誤一律中止。每列新增 `device`（本工具固定 CPU）。
+
+**既有 CSV 的補值**（`archive/migration/backfill_result_schema.py`）：
+- 已於本機執行 `additional-metrics`：`additional_metrics/` 五份表補 `device=cpu`，aesthetic 與 vmaf 補 `unavailable_metrics`（既有 104／6,240 列的選配指標皆有值，故為空字串）；列數、鍵與原有欄位逐值不變，欄序與程式輸出一致。
+- **待協調端於第 10 項遠端版面切換後執行** `import-hashes`，把 `baseline/results/defense_color.csv` 補成新 schema 並在遠端寫出 `baseline/artifacts/defenses/color/import_manifest.json`：
+
+  ```bash
+  cd <遠端 repo 根>
+  python archive/migration/backfill_result_schema.py import-hashes \
+      --source-settings color/artifacts/defenses/color/results.csv
+  git add baseline/results/defense_color.csv   # 提交補值後的表
+  ```
+
+  前提：`baseline/artifacts/color_import/<影像>__color__defended.png`（指向 color 防禦圖）、`baseline/artifacts/defenses/color/<影像>__color__def.png`、`baseline/data/portraits/<類>/<影像>.png` 與上述設定檔都存在；任一缺少即中止且不寫檔。腳本驗證列數、鍵集合與原有欄位不變。補值前 `defense_color.csv` 為唯一仍是舊 schema 的表。
+
+驗證：baseline 78 passed（新增匯入 2 項、選配指標 4 項）；`import-hashes` 以替身檔案在 scratch 目錄模擬成功一次、缺一張防禦圖時中止（結束碼 1）。

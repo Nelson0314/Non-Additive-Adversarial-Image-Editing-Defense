@@ -60,10 +60,16 @@ def test_scripts_use_lf_line_endings():
 def test_default_lease_directory_is_shared_by_all_tools(tmp_path):
     env = {k: v for k, v in os.environ.items() if k != "LEASE"}
     env["HOME"] = tmp_path.as_posix()
+    # 以檔案系統比對：bash 回報的路徑格式因平台而異（Windows 上為 /tmp/... 或 /c/...），
+    # 在 $LEASE 內建立標記檔，再由 Python 確認它落在同一個目錄。
     for script in ("gpu_policy.sh", "gpu_lease.sh"):
-        result = subprocess.run([BASH, "-c", f'source "{(SCRIPTS / script).as_posix()}"; echo "$LEASE"'],
+        marker = f"marker_{script}"
+        result = subprocess.run([BASH, "-c", f'source "{(SCRIPTS / script).as_posix()}" && '
+                                             f'mkdir -p "$LEASE" && touch "$LEASE/{marker}" && basename "$LEASE"'],
                                 env=env, capture_output=True, text=True, encoding="utf-8", timeout=15)
-        assert result.stdout.strip() == f"{tmp_path.as_posix()}/gpu_leases", script
+        assert result.returncode == 0, result.stderr
+        assert result.stdout.strip() == "gpu_leases", script
+        assert (tmp_path / "gpu_leases" / marker).is_file(), script
     for path in SCRIPTS.glob("*.sh"):
         assert "lab_leases" not in path.read_text(encoding="utf-8"), path
 

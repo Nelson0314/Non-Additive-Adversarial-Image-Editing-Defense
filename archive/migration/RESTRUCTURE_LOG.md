@@ -517,3 +517,15 @@ python archive/migration/rename_csv_columns.py color/artifacts style/artifacts b
 - `requirements.lock` 四份：需遠端執行環境，由協調端於第 10 項產生（指令見上）。
 - 遠端 `artifacts/` 的 CSV 欄名改寫：由協調端於第 10 項執行（指令見上）。
 - Windows 上的實跑：本環境無法執行，修正依原因分析完成；請協調端在本機 Windows 簽出後執行 `python -m pytest` 於 core 與 color 確認。
+
+### 驗收後修正：佇列重複派工（`da82000`、`21d54bf`）
+
+協調端在 Windows 上回報 `core/tests/test_gpu_scripts.py::test_queue_runs_dependencies_first_and_validates` 連續 3 次失敗，`order` 為 `['first', 'second', 'second']`。
+
+根本原因：`core/scripts/queue_worker.sh` 主迴圈在同一次掃描中先以 `done_` 判定工作未完成，接著執行 `ready`（呼叫外部 `--depends` 指令），最後才檢查 `<工作>.lock`。工作若在這段期間完成，會依序寫入 `.done`、在 EXIT trap 移除鎖；主迴圈據此看到「未完成且無鎖」，取得鎖後再派一次。Windows 上起外部程序較慢，此空檔變長，因而每次重現；遠端的 validator 與 depends 為 Python 程序，同一空檔存在，屬同一缺陷。
+
+修正：取得 `.lock` 後重新判定 `done_` 與 `dead`，已完成或已放棄即釋放鎖、不派送。執行端一律先寫 `.done`／`.GIVEUP` 再釋放鎖，故持有鎖時前一次執行的結果必然可見。
+
+新增 `test_job_finishing_during_readiness_check_is_not_relaunched`：runner 執行期間讓 `--depends` 延遲，固定上述交錯順序。修正前在 Linux 上 3／3 次失敗（`['only', 'only']`），修正後 `test_gpu_scripts.py` 連跑 5 次皆 26 passed。原斷言未放寬，未 skip。
+
+vendor 已重新匯出（baseline、color、style 的 `vendor/scripts/queue_worker.sh`）。測試：core 177（21 deselected）、baseline 78、color 41、style 20 passed。style 的 `run_style_prompt_jobs.sh` 以行程內旗標 `OPT`／`EDT` 記錄已派工作，不經此判斷，不受影響。遠端若有以舊版 `queue_worker.sh` 執行中的佇列，需在第 10 項切換時改用新版。

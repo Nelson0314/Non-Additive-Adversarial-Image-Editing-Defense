@@ -23,12 +23,12 @@
     },
     {
       "source": "anti-purification/tests/test_purify_cr.py",
-      "destination": "core/tests/test_purify_cr.py",
+      "destination": "core/tests/test_purify_crop_resize_chain.py",
       "source_sha256": "bf53655e56c338cdd3a42a28e8451b3704eba96278ebbd740c6ed9d3704209dc"
     },
     {
       "source": "anti-purification/tests/test_purify_new_ops.py",
-      "destination": "core/tests/test_purify_new_ops.py",
+      "destination": "core/tests/test_purifier_operators.py",
       "source_sha256": "0dfe771b594e2f03cbae36041f632c0964cd6b458713388b04c070a29b8aff40"
     }
   ]

@@ -167,7 +167,7 @@ def test_card_check_failure_creates_no_lease(tmp_path):
 
 def test_free_cards_excludes_foreign_memory_and_asserts(tmp_path):
     env, _ = stub_env(tmp_path)
-    run = lambda *a: subprocess.run([BASH, (SCRIPTS / "free_cards.sh").as_posix(), *a], env=env,
+    run = lambda *a: subprocess.run([BASH, (SCRIPTS / "measure_free_gpus.sh").as_posix(), *a], env=env,
                                     capture_output=True, text=True, encoding="utf-8", timeout=15)
     listed = run()
     assert listed.returncode == 0, listed.stderr
@@ -260,7 +260,7 @@ def run_queue(tmp_path, jobs, validator_body, depends_body=None,
     tools.mkdir()
     runner = write_tool(tools / "runner", runner_body)
     validator = write_tool(tools / "validator", validator_body)
-    command = [BASH, (SCRIPTS / "queue_worker.sh").as_posix(), "--work-dir", work.as_posix(),
+    command = [BASH, (SCRIPTS / "run_queue_worker.sh").as_posix(), "--work-dir", work.as_posix(),
                "--state-dir", (tmp_path / "state").as_posix(), "--log-dir", (tmp_path / "logs").as_posix(),
                "--runner", runner.as_posix(), "--validator", validator.as_posix()]
     if depends_body is not None:
@@ -325,7 +325,7 @@ def test_queue_env_file_that_sources_env_file_does_not_recurse(tmp_path):
     runner = write_tool(tools / "runner", 'echo "$PROJECT_ENV_LOADED" > "done_$1"\n')
     validator = write_tool(tools / "validator", '[ "$(cat "done_$1")" = 1 ]\n')
     result = subprocess.run(
-        [BASH, (SCRIPTS / "queue_worker.sh").as_posix(), "--work-dir", work.as_posix(),
+        [BASH, (SCRIPTS / "run_queue_worker.sh").as_posix(), "--work-dir", work.as_posix(),
          "--state-dir", (tmp_path / "state").as_posix(), "--log-dir", (tmp_path / "logs").as_posix(),
          "--runner", runner.as_posix(), "--validator", validator.as_posix(),
          "--env-file", project_env(tmp_path).as_posix(), "test", "only"],
@@ -336,7 +336,7 @@ def test_queue_env_file_that_sources_env_file_does_not_recurse(tmp_path):
 
 def test_queue_requires_injected_validator(tmp_path):
     env, _ = stub_env(tmp_path)
-    result = subprocess.run([BASH, (SCRIPTS / "queue_worker.sh").as_posix(), "--work-dir", tmp_path.as_posix(),
+    result = subprocess.run([BASH, (SCRIPTS / "run_queue_worker.sh").as_posix(), "--work-dir", tmp_path.as_posix(),
                              "--state-dir", (tmp_path / "s").as_posix(), "--log-dir", (tmp_path / "l").as_posix(),
                              "--runner", "true", "test", "job"],
                             env=env, capture_output=True, text=True, encoding="utf-8", timeout=15)
@@ -352,7 +352,7 @@ LEDGER_HEAD = "| 名稱 | 試了什麼 | 設定 | 關鍵數字 | 結論來源 |\
 def make_project(path, name="x"):
     (path / "vendor/scripts").mkdir(parents=True)
     (path / "docs").mkdir()
-    shutil.copyfile(SCRIPTS / "trial.sh", path / "vendor/scripts/trial.sh")
+    shutil.copyfile(SCRIPTS / "run_trial_lifecycle.sh", path / "vendor/scripts/run_trial_lifecycle.sh")
     (path / "pyproject.toml").write_text(f'[project]\nname = "{name}"\n')
     (path / ".gitignore").write_text("/trials/\n")
     (path / "docs/TRIALS.md").write_text(LEDGER_HEAD)
@@ -374,7 +374,7 @@ def trial_project(tmp_path, remote_name="x"):
     env = dict(os.environ, PATH=str(stubs) + os.pathsep + os.environ["PATH"],
                SSH_LOG=(tmp_path / "ssh.log").as_posix(), TRIAL_REMOTE="-p 1 u@h",
                TRIAL_REMOTE_ROOT=remote.as_posix())
-    run = lambda *a, **e: subprocess.run([BASH, (project / "vendor/scripts/trial.sh").as_posix(), *a],
+    run = lambda *a, **e: subprocess.run([BASH, (project / "vendor/scripts/run_trial_lifecycle.sh").as_posix(), *a],
                                          env=dict(env, **e), capture_output=True, text=True,
                                          encoding="utf-8", timeout=15)
     commit = lambda *paths: (git("add", *paths),

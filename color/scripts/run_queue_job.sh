@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 佇列 runner：`queue_job.sh <工作> <卡號>`，於 color 專案根執行一件工作。
+# 佇列 runner：`run_queue_job.sh <工作> <卡號>`，於 color 專案根執行一件工作。
 set -uo pipefail
 job="$1"; gpu="$2"
 source "$(dirname "${BASH_SOURCE[0]}")/env.sh" || exit 1

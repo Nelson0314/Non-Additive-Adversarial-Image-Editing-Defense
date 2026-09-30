@@ -17,7 +17,7 @@
    `target_image_tensor = 0*target_image_tensor.cuda()`。
    下載的 pinimg 圖片不參與計算，損失退化為 `‖f(x_adv)‖₂`，
    即把 pipeline 的輸出壓成 `[-1,1]` 的中性灰。不需要外部影像，
-   也**不可**與 Mist 的 `MIST.png` 混用。
+   也**不可**與 Mist 的目標影像（`data/targets/mist.png`）混用。
 3. **損失沒有平方。** 論文 Eq. 5 寫 `‖·‖₂²`，cell 8 是
    `loss = (image_nat - target_image).norm(p=2)`。此處照原始碼。
 

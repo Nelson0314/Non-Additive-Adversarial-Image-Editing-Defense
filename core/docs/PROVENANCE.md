@@ -42,7 +42,7 @@
 | `src.defense.uniformity` | `color.uniformity`；`gaussian_blur` 改由 `purifiers.operators` 匯入。 |
 | `src.defense.immunise` | `optimization.carrier`；`quantise`、`optimise_carrier`、`randomise_carrier` 改為 `quantize`、`optimize_carrier`、`randomize_carrier`，回傳的 `free_*` 鍵不變。 |
 | `src.defense.instruction_free` | `optimization.instruction_free`。 |
-| `lab/scripts/{gpu_policy,gpu_lease,run_on_card,queue_worker}.sh`、`anti-purification/scripts/free_cards.sh` | `core/scripts/`；`run_on_card.sh` 改名為 `run_with_gpu_lease.sh`。遠端根目錄與 `~/env.sh` 改為 `--workdir`、`--env` 參數；queue 的 lab 專屬工作語法（pilot／def／chain／readout／fid、分片合併、`validate_job.py`）留待第 5 項由 color 專案以注入指令提供。 |
+| `lab/scripts/{gpu_policy,gpu_lease,run_on_card,queue_worker}.sh`、`anti-purification/scripts/free_cards.sh` | `core/scripts/`；改名為 `run_with_gpu_lease.sh`（原 `run_on_card.sh`）、`run_queue_worker.sh`（原 `queue_worker.sh`）、`measure_free_gpus.sh`（原 `free_cards.sh`）。遠端根目錄與 `~/env.sh` 改為 `--work-dir`、`--env-file` 參數；queue 的 lab 專屬工作語法（pilot／def／chain／readout／fid、分片合併、`validate_job.py`）由 color 專案以注入指令提供（`scripts/run_queue_job.sh`、`evaluate_queue_job.sh`、`generate_queue_dependencies.sh`）。 |
 
 `src.defense.lowfreq_color` 只經 `color_amplitude` 的求解器延遲匯入，不在活動閉包內。helper 測試來自 `anti-purification/tests` 的 `test_delta_e_torch.py`、`test_color_amplitude.py`（僅 `delta_e00`）、`test_uniformity.py`、`test_instruction_free.py`；歷史載體 `carrier_search.build_carrier` 以 `tests/carrier_stub.py` 代替，舊入口腳本的指令設定檔守衛未移植。
 

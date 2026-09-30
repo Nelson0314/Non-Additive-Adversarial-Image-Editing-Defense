@@ -19,7 +19,7 @@ case "$*" in
 esac
 '''
 
-# 替身直譯器：-c（CUDA 檢查）直接成功；check_job_outputs 交給真的模組；其餘三個入口寫出最小輸出。
+# 替身直譯器：-c（CUDA 檢查）直接成功；evaluate_job_outputs 交給真的模組；其餘三個入口寫出最小輸出。
 STUB = r'''
 import csv, os, runpy, sys
 from pathlib import Path
@@ -28,7 +28,7 @@ args = sys.argv[1:]
 if args[0] == "-c":
     raise SystemExit(0)
 module, rest = args[1], args[2:]
-if module.endswith("check_job_outputs"):
+if module.endswith("evaluate_job_outputs"):
     sys.argv = [module, *rest]
     runpy.run_module(module, run_name="__main__")
 

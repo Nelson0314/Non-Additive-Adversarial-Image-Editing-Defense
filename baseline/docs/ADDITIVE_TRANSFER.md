@@ -115,4 +115,4 @@ color 線那一份是另一批的協定，引用時要標明。
 而不是 `P`（改動原樣穿過）。兩者都讓輸出變了，但來源不同，拆解的用途就是分開它們。
 
 **這八列是代表性抽樣，不是全部二十二個臂 × 條件。** 逐格資料在
-`results/perturbation_transfer.csv`（若該檔不存在表示完整版尚未跑，量法見本節）。
+`results/perturbation_transfer.csv`（該表不在 repo 內；量法見本節）。

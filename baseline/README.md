@@ -15,7 +15,7 @@
 | `docs/` | `EVALUATION.md` 與 `reference/`（方法出處、原始碼查證、淨化算子查證） |
 | `tests/` | 條件規格、續跑與完成判定、專案自足性（`pytest`，不需 GPU） |
 | `vendor/` | `immunization_core` 套件與 GPU 租約工具的固定版本快照；`vendor.lock.json` 記錄來源 commit 與逐檔雜湊 |
-| `docs/TRIALS.md` | 已刪除的暫時性嘗試紀錄；`trial.sh new|promote|drop` 的用法見檔首 |
+| `docs/TRIALS.md` | 已刪除的暫時性嘗試紀錄；`run_trial_lifecycle.sh new|promote|drop` 的用法見檔首 |
 | `artifacts/`、`runtime/`、`trials/` | 影像產物、執行狀態、暫時性嘗試；不入版控 |
 
 ## 讀數
@@ -42,7 +42,7 @@
 | `results/flux/displacement.csv` | 384 | FLUX 全表的編輯結果 LPIPS，欄位與 `displacement.csv` 同組 |
 | `results/ultraedit/edits/<arm>.csv` | 256／檔，13 檔 | UltraEdit（SD3）全表的逐格編輯，未淨化＋7 道算子 |
 | `results/ultraedit/displacement.csv`、`results/ultraedit/retention.csv` | 384、2,688 | UltraEdit 全表的編輯結果 LPIPS 與保留率 |
-| `results/additive_transfer.csv` | 704 | 加性穿透拆解（ip2p，原生 12 條件＋等失真 10 條件），見 `results/ADDITIVE_TRANSFER.md` |
+| `results/additive_transfer.csv` | 704 | 加性穿透拆解（ip2p，原生 12 條件＋等失真 10 條件），見 `docs/ADDITIVE_TRANSFER.md` |
 | `results/sweeps/` | 數格至兩百格 | 未防禦影像上的編輯器參數掃描：`flux/`、`sdedit/`、`sdxl_ip2p/`、`ultraedit/`，及 `ip2p/` 對照；`*_off_target.csv` 為指令以外改動的讀數（背景／主體 ΔE00、LPIPS） |
 
 十二個條件：`dct_shield_y`、`mist`、`dct_shield`、`photoguard_linf`、`danp`、`sifm`、`dayn`、`dia_pt`、`dia_r`、`photoguard_c`、`color`、`diffvax`。顏色那一列原為 `color_curve`（數值留在 commit `0dd243b`），現為 color 專案的方法 `color`；等失真臂仍以舊顏色列的 0.3344 為錨點（見 `STATUS.md`）。每個條件 8 影像 × 4 指令 × 2 場景 ＝ 64 格。
@@ -69,9 +69,9 @@ source scripts/env.sh          # 設定 PYTHONPATH 與 PY；ENV_FILE 可指定�
 python -m pytest tests         # pyproject.toml 已設定 pythonpath
 ```
 
-所有預設目錄由 `layout.py` 依本專案根推定，每個入口皆可以參數覆寫；不搜尋其他專案。共用的編輯、淨化與讀數流程來自 `vendor/immunization_core`，更新方式為在 repo 根執行 `python core/scripts/export_vendor.py baseline`。
+所有預設目錄由 `layout.py` 依本專案根推定，每個入口皆可以參數覆寫；不搜尋其他專案。共用的編輯、淨化與讀數流程來自 `vendor/immunization_core`，更新方式為在 repo 根執行 `python core/scripts/generate_vendor_snapshot.py baseline`。
 
-主流程順序：`run_edits`（未防禦）→ `generate_defenses`（外部十一條件）與 `import_defense_artifacts`（`color`）→ `run_edits --defenses-dir` → `measure_edit_displacement` → `apply_purifiers` → `run_edits`（淨化後）→ `measure_purified_displacement` → `measure_additional_metrics`（五個 stage，含 VMAF）。`check_edit_completion` 驗收編輯格與產物。
+主流程順序：`run_edits`（未防禦）→ `generate_defenses`（外部十一條件）與 `import_defense_artifacts`（`color`）→ `run_edits --defenses-dir` → `measure_edit_displacement` → `apply_purifiers` → `run_edits`（淨化後）→ `measure_purified_displacement` → `measure_additional_metrics`（五個 stage，含 VMAF）。`evaluate_edit_completion` 驗收編輯格與產物。
 
 | 入口 | 用途 |
 |---|---|

@@ -72,7 +72,7 @@
     },
     {
       "source": "anti-purification/scripts/free_cards.sh",
-      "destination": "core/scripts/free_cards.sh",
+      "destination": "core/scripts/measure_free_gpus.sh",
       "source_sha256": "467aea6a3abb959fbd0c7ee028ecfeb7a3fab05c7f2a4b4e0cc10dae847e3940",
       "definitions": null
     },
@@ -84,7 +84,7 @@
     },
     {
       "source": "lab/scripts/queue_worker.sh",
-      "destination": "core/scripts/queue_worker.sh",
+      "destination": "core/scripts/run_queue_worker.sh",
       "source_sha256": "29d13a8f8c91a25ebf27a67324264145cbf0d3b0108768b280f6d6827bbaacce",
       "definitions": null
     },

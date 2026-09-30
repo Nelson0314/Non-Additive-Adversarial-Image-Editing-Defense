@@ -9,7 +9,7 @@
   `paper_classifier_p_snow` 等）的設定、關鍵數字與可取回數值 CSV 的 commit 記錄於 `docs/TRIALS.md`。
 - 研究方向由使用者決定。
 - 讀數的未防禦分母為 baseline 未防禦編輯的複本，位於本專案的 `artifacts/undefended_edits/ip2p_si18`；另以 `--undefended-edits-dir` 指定。
-- 本專案在遠端位於 `~/image-immunization/style`；`requirements.lock` 未入庫，由遠端執行環境以 `vendor/scripts/freeze_env.py` 產生。
+- 本專案在遠端位於 `~/image-immunization/style`；`requirements.lock` 未入庫，由遠端執行環境以 `vendor/scripts/generate_requirements_lock.py` 產生。
 
 ## 規矩
 

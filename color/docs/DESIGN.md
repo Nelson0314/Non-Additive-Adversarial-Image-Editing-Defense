@@ -36,7 +36,7 @@
   以起點值正規化，權重使起點梯度範數等於 FreeObjective；非恆等起點（恆等時梯度為 0）。
 - **上限**（增廣 Lagrange；在量化後 PNG 上檢查，每 10 步，取最佳可行 checkpoint）：整圖 ΔE00 ≤ 32；臉框與膚色同色像素 ≤ 16；
   彩度 p95 ≤ 2×；逐像素 Lab 位移的 p95 與最大值：a*＋ ≤ 4、a*− ≤ 15、b*＋ ≤ 4、b*− ≤ 25、|ΔL*| ≤ 15；
-  對原圖 LPIPS ≤ `data/color_lpips_ref.csv` 的逐張值 ＋ 0.0025。
+  對原圖 LPIPS ≤ `data/color_lpips_reference.csv` 的逐張值 ＋ 0.0025。
 - **求解**：Adam，lr 0.02 → 0.004，900 步；每張約 53 分鐘、顯存約 18 GB。
 
 ## 5. 結果（ip2p，主種子，32 格平均）

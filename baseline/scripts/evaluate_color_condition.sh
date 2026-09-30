@@ -30,14 +30,14 @@ mkdir -p "$S"
 step() { echo "[STEP] $(date -Is) $*"; }
 edit_stage() {
   local defended=$1 out=$2 scenario=$3 suffix=$4 rc
-  "$PY" -m $CLI.check_edit_completion --data-root data/portraits --defenses-dir "$defended" \
+  "$PY" -m $CLI.evaluate_edit_completion --data-root data/portraits --defenses-dir "$defended" \
       --output-dir "$out" --scenario "$scenario" --suffix "$suffix"
   rc=$?
   [ "$rc" -eq 0 ] && return 0
   [ "$rc" -eq 1 ] || return "$rc"
   "$PY" -m $CLI.run_edits --data-root data/portraits --defenses-dir "$defended" \
       --output-dir "$out" --scenarios "$scenario" --suffix "$suffix" --require-new-arm || return $?
-  "$PY" -m $CLI.check_edit_completion --data-root data/portraits --defenses-dir "$defended" \
+  "$PY" -m $CLI.evaluate_edit_completion --data-root data/portraits --defenses-dir "$defended" \
       --output-dir "$out" --scenario "$scenario" --suffix "$suffix"
 }
 

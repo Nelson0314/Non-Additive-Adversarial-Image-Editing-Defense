@@ -6,7 +6,7 @@ import subprocess
 
 import pytest
 
-from immunization_color.cli import validate_queue_job as validation
+from immunization_color.cli import evaluate_queue_job as validation
 
 SCRIPTS = Path(__file__).resolve().parents[1] / "scripts"
 
@@ -52,7 +52,7 @@ def test_fidelity_requires_explicit_arms(tmp_path):
 
 def depends(tmp_path, job, jobs, **environment):
     env = dict(os.environ, **environment)
-    return subprocess.run([shutil.which("bash"), (SCRIPTS / "queue_depends.sh").as_posix(), job, *jobs],
+    return subprocess.run([shutil.which("bash"), (SCRIPTS / "generate_queue_dependencies.sh").as_posix(), job, *jobs],
                           env=env, capture_output=True, text=True, encoding="utf-8", timeout=15)
 
 

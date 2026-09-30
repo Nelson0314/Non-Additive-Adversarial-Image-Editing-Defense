@@ -6,7 +6,7 @@
 python -m pip install -e ./core --no-deps --no-build-isolation
 ```
 
-已有基礎相依的環境亦可將 `core/src` 加入 `PYTHONPATH`。套件可單獨複製至另一目錄使用，不搜尋兄弟目錄或使用者家目錄。`pyproject.toml` 的相依是版本範圍；實際執行環境的版本以 `scripts/freeze_env.py` 寫成各專案的 `requirements.lock`。
+已有基礎相依的環境亦可將 `core/src` 加入 `PYTHONPATH`。套件可單獨複製至另一目錄使用，不搜尋兄弟目錄或使用者家目錄。`pyproject.toml` 的相依是版本範圍；實際執行環境的版本以 `scripts/generate_requirements_lock.py` 寫成各專案的 `requirements.lock`。
 
 | 公開模組 | 契約 |
 |---|---|
@@ -44,13 +44,13 @@ python -m pytest core/tests -q -p no:cacheprovider
 | 工具 | 用途 |
 |---|---|
 | `gpu_policy.sh`、`gpu_lease.sh` | 容量政策與租約函式，供其他工具 `source`。 |
-| `free_cards.sh` | 列出空閒卡；`--assert` 檢查指定卡。只產生候選清單，不保留卡。 |
+| `measure_free_gpus.sh` | 列出空閒卡；`--assert` 檢查指定卡。只產生候選清單，不保留卡。 |
 | `run_with_gpu_lease.sh --work-dir <目錄> [--env-file <檔案>] <名稱> <指令...>` | 取一張卡的租約後執行單一指令，結束時釋放。`--env-file` 可指定專案的 `scripts/env.sh`；呼叫端的 `ENV_FILE`（機器設定）仍由該檔讀取。 |
-| `queue_worker.sh --work-dir --state-dir --log-dir --runner --validator [--depends] <佇列> <工作>...` | 佇列排程；工作執行、輸出驗收與相依由專案以指令注入，驗收通過才記為完成。 |
+| `run_queue_worker.sh --work-dir --state-dir --log-dir --runner --validator [--depends] <佇列> <工作>...` | 佇列排程；工作執行、輸出驗收與相依由專案以指令注入，驗收通過才記為完成。 |
 
-`trial.sh new|promote|drop <名稱>` 管理各專案不入版控的 `trials/<名稱>/`：`promote` 要求 `trials/<名稱>/PROMOTED` 列出已提交的目的檔，並把目的檔、SHA-256 與 commit 記入 `docs/TRIALS.md`；`drop` 要求 `docs/TRIALS.md` 已提交且該名稱一列的各欄齊全。兩者都以 `TRIAL_REMOTE`、`TRIAL_REMOTE_ROOT`（絕對路徑）刪除遠端副本，刪除前核對遠端專案名與路徑、拒絕符號連結，遠端完成才刪本機；只處理本機時明確給 `--local-only`。
+`run_trial_lifecycle.sh new|promote|drop <名稱>` 管理各專案不入版控的 `trials/<名稱>/`：`promote` 要求 `trials/<名稱>/PROMOTED` 列出已提交的目的檔，並把目的檔、SHA-256 與 commit 記入 `docs/TRIALS.md`；`drop` 要求 `docs/TRIALS.md` 已提交且該名稱一列的各欄齊全。兩者都以 `TRIAL_REMOTE`、`TRIAL_REMOTE_ROOT`（絕對路徑）刪除遠端副本，刪除前核對遠端專案名與路徑、拒絕符號連結，遠端完成才刪本機；只處理本機時明確給 `--local-only`。
 
-`export_vendor.py <專案>` 把 git HEAD 的 core 匯出為專案的 `vendor/` 與 `vendor.lock.json`（`--check` 驗證一致）；`freeze_env.py` 在專案根寫出或檢查 `requirements.lock`，直譯器沒有 pip 時改用 `uv pip freeze --python <直譯器>`。
+`generate_vendor_snapshot.py <專案>` 把 git HEAD 的 core 匯出為專案的 `vendor/` 與 `vendor.lock.json`（`--check` 驗證一致）；`generate_requirements_lock.py` 在專案根寫出或檢查 `requirements.lock`，直譯器沒有 pip 時改用 `uv pip freeze --python <直譯器>`。
 
 工具以自身所在目錄互相定位，不依賴 CWD；`PY` 未設定時使用 `python`，`PYTHONPATH` 等環境由 `--env-file` 或呼叫端提供。
 

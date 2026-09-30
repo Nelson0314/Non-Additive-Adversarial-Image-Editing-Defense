@@ -19,7 +19,7 @@
 |---|---|---|
 | `photoguard_c` | `""`（空字串） | 官方 notebook cell 10 實際執行的呼叫，`immunization_baseline/attacks/photoguard.py:114,122-125` |
 | `photoguard_linf` | `""`（空字串） | 同上，兩臂只差約束種類 |
-| `mist` | `"a painting"` | `mist_v3.py` 恆定值，`immunization_baseline/attacks/mist.py:54-55`；另吃目標影像 `data/targets/MIST.png` |
+| `mist` | `"a painting"` | `mist_v3.py` 恆定值，`immunization_baseline/attacks/mist.py:54-55`；另吃目標影像 `data/targets/mist.png` |
 | `dia_r` / `dia_pt` | `""`（三個分支皆空） | `attack_setting.json`，`immunization_baseline/attacks/dia.py:62,228-229` |
 | `dct_shield` / `dct_shield_y` | 無文字條件 | 損失是 `‖E(x')‖₂`，完全不經過 text encoder |
 | `dayn` / `sifm` / `danp` | 該類別的 `content` | 資料集的 `prompts.yaml`，**不是常數**，見下 |
@@ -307,9 +307,9 @@ def solve(sd, cond: str, x01: torch.Tensor, seed: int,
         kw = {"mask": None, "strength": PG_STRENGTH}
     elif cond == "mist":
         # fused 模式：兩次 VAE 編碼與一次完整 UNet 前向在同一張圖上，
-        # 不開 checkpoint 會 OOM。目標影像是該篇自己的 MIST.png。
+        # 不開 checkpoint 會 OOM。目標影像是該篇自己的 `MIST.png`（本專案存為 `data/targets/mist.png`）。
         kw = {"use_ckpt": True, "vae_ckpt": True,
-              "target01": load_image_tensor(layout.TARGETS / "MIST.png",
+              "target01": load_image_tensor(layout.TARGETS / "mist.png",
                                             sd.device, size=RESOLUTION)}
     elif cond.startswith("dia"):
         # DIA 把整條反演（R 再加整條重建）留在同一張圖上，兩個開關都要開。

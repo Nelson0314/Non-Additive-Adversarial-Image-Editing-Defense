@@ -4,7 +4,7 @@
 
 ## 範圍
 
-- 每個 session 只改自己負責的專案目錄。`core/` 是共用正本，修改後以 `python core/scripts/export_vendor.py <專案>` 重新匯出，不就地修改 `vendor/`。
+- 每個 session 只改自己負責的專案目錄。`core/` 是共用正本，修改後以 `python core/scripts/generate_vendor_snapshot.py <專案>` 重新匯出，不就地修改 `vendor/`。
 - `archive/` 只保存，不刪除、不改寫其內部。
 
 ## 書面用語
@@ -39,13 +39,13 @@
 
 - GPU 工作一律送遠端，不用本機顯卡。
 - 全局可用卡數由使用者逐次授權；未說明或說明不清時預設全局合計 6 張，計入所有主機、session 與排程。
-- 取卡一律經專案 `vendor/scripts/`（`run_with_gpu_lease.sh`、`queue_worker.sh`）；租約目錄 `~/gpu_leases` 由所有入口共用，
+- 取卡一律經專案 `vendor/scripts/`（`run_with_gpu_lease.sh`、`run_queue_worker.sh`）；租約目錄 `~/gpu_leases` 由所有入口共用，
   `GPU_CAP=N` 或 `--cap N` 寫入 `~/gpu_leases/.capacity`，`GPU_CAP=default` 回到預設值。
-- 卡為多人共用：卡上有他人的 compute app 即不使用。`free_cards.sh` 只產生候選清單，不保留卡。
+- 卡為多人共用：卡上有他人的 compute app 即不使用。`measure_free_gpus.sh` 只產生候選清單，不保留卡。
 - 遠端腳本不可就地覆寫：先寫到暫存位置再 `mv`（執行中的 bash 逐行讀檔）。
 
 ## 暫時性嘗試
 
-在專案內以 `bash vendor/scripts/trial.sh new <名稱>` 建立 `trials/<名稱>/`（不入版控）。採用的內容搬進 `src/`、`configs/`、`results/`
-並提交後 `trial.sh promote`；不採用者先在 `docs/TRIALS.md` 寫一列（試了什麼、設定、關鍵數字、結論來源）再 `trial.sh drop`，
+在專案內以 `bash vendor/scripts/run_trial_lifecycle.sh new <名稱>` 建立 `trials/<名稱>/`（不入版控）。採用的內容搬進 `src/`、`configs/`、`results/`
+並提交後 `run_trial_lifecycle.sh promote`；不採用者先在 `docs/TRIALS.md` 寫一列（試了什麼、設定、關鍵數字、結論來源）再 `run_trial_lifecycle.sh drop`，
 遠端副本一併刪除。

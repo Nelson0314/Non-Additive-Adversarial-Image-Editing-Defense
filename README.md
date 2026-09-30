@@ -21,9 +21,9 @@
 `baseline`、`color`、`style` 各自可單獨複製使用，互不 import：
 
 - `immunization_core` 以 `vendor/` 快照提供，`vendor.lock.json` 記錄來源 commit 與逐檔 SHA-256。`vendor/` 不就地修改；
-  修正在 `core/` 提交後，於 repo 根執行 `python core/scripts/export_vendor.py <專案>` 重新匯出，`--check` 驗證快照與 lock 一致。
+  修正在 `core/` 提交後，於 repo 根執行 `python core/scripts/generate_vendor_snapshot.py <專案>` 重新匯出，`--check` 驗證快照與 lock 一致。
 - 各專案的 `scripts/env.sh` 設定 `PYTHONPATH=src:vendor`；預設路徑由套件內的 `layout.py` 自專案根推得，不搜尋兄弟目錄或家目錄。
-- 依賴範圍在各專案 `pyproject.toml`；實際執行環境的版本以 `vendor/scripts/freeze_env.py` 寫成 `requirements.lock`，`--check` 比對環境與鎖定檔。
+- 依賴範圍在各專案 `pyproject.toml`；實際執行環境的版本以 `vendor/scripts/generate_requirements_lock.py` 寫成 `requirements.lock`，`--check` 比對環境與鎖定檔。
 
 ## 資料保存
 

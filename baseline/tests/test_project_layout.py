@@ -16,7 +16,7 @@ def test_default_directories_stay_inside_the_project():
 
 
 def test_vendor_snapshot_matches_lock():
-    spec = importlib.util.spec_from_file_location("export_vendor", ROOT / "vendor/scripts/export_vendor.py")
+    spec = importlib.util.spec_from_file_location("generate_vendor_snapshot", ROOT / "vendor/scripts/generate_vendor_snapshot.py")
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     module.check(ROOT)

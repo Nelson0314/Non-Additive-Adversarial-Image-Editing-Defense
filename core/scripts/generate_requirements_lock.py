@@ -2,8 +2,8 @@
 
 在要鎖定的專案根目錄、以該專案實際使用的直譯器執行：
 
-    python vendor/scripts/freeze_env.py            # 寫出 requirements.lock
-    python vendor/scripts/freeze_env.py --check    # 環境與 requirements.lock 不符時結束碼 1
+    python vendor/scripts/generate_requirements_lock.py            # 寫出 requirements.lock
+    python vendor/scripts/generate_requirements_lock.py --check    # 環境與 requirements.lock 不符時結束碼 1
 
 檔頭記錄直譯器版本、平台、torch 與 CUDA 版本及取得清單的工具；內容為目前直譯器的
 `pip freeze --all`，直譯器沒有 pip 時（例如 uv 建立的 venv）改用
@@ -59,7 +59,7 @@ def header() -> list:
         torch_line = "# torch 未安裝"
     return [f"# python {platform.python_version()} ({sys.executable})",
             f"# platform {platform.platform()}", torch_line,
-            f"# 由 freeze_env.py 產生；套件列取自 {tool_name()}"]
+            f"# 由 generate_requirements_lock.py 產生；套件列取自 {tool_name()}"]
 
 
 def packages(path: Path) -> list:

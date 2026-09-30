@@ -3,7 +3,7 @@
 # 防禦圖通過驗收即送主種子編輯；全部工作結束後以名為 ref 的工作為參照重算讀數。
 # 用法（style 專案根）：bash scripts/run_style_prompt_jobs.sh <實驗名> <清單檔> [全局授權卡數] [最佳化派工上限]
 #
-# 完成判定：每個階段記錄結束碼（runtime/logs/<工作>.rc），並以 immunization_style.cli.check_job_outputs
+# 完成判定：每個階段記錄結束碼（runtime/logs/<工作>.rc），並以 immunization_style.cli.evaluate_job_outputs
 # 驗收鍵集合與輸出檔。已存在的輸出只有在 <防禦目錄>/job.spec 與本次設定相同且通過驗收時沿用；
 # 設定不同即中止。任一階段失敗，該工作記為失敗、不再派送；結束時有失敗即以結束碼 1 退出，
 # 全部通過才印出 <實驗名>_DONE。
@@ -21,7 +21,7 @@ DATA=data/portraits
 POLL=${POLL:-20}
 mkdir -p "$O" "$E" "$L"
 BASE="--data-root $DATA --s-i 2.0 --tf32"
-CHECK=("$PY" -m immunization_style.cli.check_job_outputs)
+CHECK=("$PY" -m immunization_style.cli.evaluate_job_outputs)
 
 declare -A IMG STY ARG
 JOBS=()

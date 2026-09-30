@@ -7,8 +7,8 @@
 lock 寫入 `<專案>/vendor.lock.json`，含 commit、樹雜湊與逐檔 SHA-256。
 
 用法
-    python core/scripts/export_vendor.py <專案目錄>
-    python core/scripts/export_vendor.py <專案目錄> --check   # 只驗證快照與 lock 一致
+    python core/scripts/generate_vendor_snapshot.py <專案目錄>
+    python core/scripts/generate_vendor_snapshot.py <專案目錄> --check   # 只驗證快照與 lock 一致
 """
 from __future__ import annotations
 

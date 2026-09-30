@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# color 的工作佇列：以 vendor/scripts/queue_worker.sh 排程，注入本專案的工作語法。
+# color 的工作佇列：以 vendor/scripts/run_queue_worker.sh 排程，注入本專案的工作語法。
 #
 # 用法（color 專案根）：nohup setsid bash scripts/run_queue.sh <佇列名> <工作>... &
 #
-# 工作的寫法與相依（相依由 scripts/queue_depends.sh 定義）：
+# 工作的寫法與相依（相依由 scripts/generate_queue_dependencies.sh 定義）：
 #   pilot:<條件>:<影像>:<步數>  單張短步數試跑，輸出到 artifacts/defense_pilots/<條件>/<影像>
 #   def:<條件>:<影像>           單張防禦圖，輸出到 artifacts/defense_shards/<條件>/<影像>
 #                               相依：同一條件的 pilot（若有列出）
@@ -27,7 +27,7 @@ for job in "$@"; do
   fi
 done
 export PY FID_ARMS="${FID_ARMS:-}" WAIT_ARMS="${WAIT_ARMS:-}"
-exec bash "$GPU_TOOLS/queue_worker.sh" --work-dir "$COLOR_ROOT" \
+exec bash "$GPU_TOOLS/run_queue_worker.sh" --work-dir "$COLOR_ROOT" \
   --state-dir "$COLOR_ROOT/runtime/queues/$QNAME" --log-dir "$COLOR_ROOT/runtime/logs/queue_$QNAME" \
-  --runner "$SCRIPTS/queue_job.sh" --validator "$SCRIPTS/queue_validate.sh" \
-  --depends "$SCRIPTS/queue_depends.sh" "$QNAME" "$@"
+  --runner "$SCRIPTS/run_queue_job.sh" --validator "$SCRIPTS/evaluate_queue_job.sh" \
+  --depends "$SCRIPTS/generate_queue_dependencies.sh" "$QNAME" "$@"

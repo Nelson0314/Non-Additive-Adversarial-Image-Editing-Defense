@@ -27,7 +27,7 @@ import sys
 from pathlib import Path
 
 from immunization_color import conditions, layout
-from immunization_color.cli import validate_queue_job as validation
+from immunization_color.cli import evaluate_queue_job as validation
 
 DATA = "data/portraits"
 

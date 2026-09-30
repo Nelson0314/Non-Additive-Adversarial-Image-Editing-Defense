@@ -9,12 +9,12 @@
 | `src/immunization_color/` | `method.py`（載體、目標、支撐）、`cli/`（命令列入口）、`layout.py`（預設目錄） |
 | `configs/conditions.yaml` | 防禦條件與其參數的唯一正本 |
 | `scripts/` | `generate_condition.sh`（條件 → 防禦圖指令）、`evaluate_condition.sh`（單卡完整鏈）、`measure_condition_results.sh`（跨條件讀數）、`run_queue.sh` 與 `queue_*.sh`（工作佇列）、`env.sh` |
-| `data/` | `portraits/`（原圖、`masks/`、`prompts.yaml`）、`color_lpips_ref.csv`（逐張 LPIPS 上限參考） |
+| `data/` | `portraits/`（原圖、`masks/`、`prompts.yaml`）、`color_lpips_reference.csv`（逐張 LPIPS 上限參考） |
 | `results/` | `displacement.csv`、`retention.csv`、`fidelity.csv`（`color`）；`variants/<條件>/`（三個 simple 條件）；`defenses/`、`defense_shards/`、`defended_edits/`、`purified/`、`purified_edits/`（逐條件的求解與編輯紀錄） |
 | `docs/DESIGN.md` | 問題、協定、方法、結果與已退役方向的數據紀錄 |
 | `tests/` | 條件指令、佇列相依與驗收、讀數退出碼、專案自足性 |
 | `vendor/` | `immunization_core` 與 GPU 租約工具的固定版本快照；`vendor.lock.json` 記錄來源 commit 與逐檔雜湊 |
-| `docs/TRIALS.md` | 已刪除的暫時性嘗試紀錄；`trial.sh new|promote|drop` 的用法見檔首 |
+| `docs/TRIALS.md` | 已刪除的暫時性嘗試紀錄；`run_trial_lifecycle.sh new|promote|drop` 的用法見檔首 |
 | `artifacts/`、`runtime/`、`trials/` | 影像產物、排程狀態、暫時性嘗試；不入版控 |
 
 ## 條件
@@ -39,13 +39,13 @@ bash scripts/measure_condition_results.sh <GPU>
 python -m pytest tests
 ```
 
-工作佇列：`nohup setsid bash scripts/run_queue.sh <佇列名> <工作>... &`，工作語法（`pilot`、`def`、`chain`、`readout`、`fid`）見該檔檔頭；排程、租約與驗收由 `vendor/scripts/queue_worker.sh` 執行，全局卡數由使用者逐次授權，未指定時全局合計 6 張。單次 GPU 指令用 `vendor/scripts/run_with_gpu_lease.sh --workdir <color 根> <名稱> <指令...>`。
+工作佇列：`nohup setsid bash scripts/run_queue.sh <佇列名> <工作>... &`，工作語法（`pilot`、`def`、`chain`、`readout`、`fid`）見該檔檔頭；排程、租約與驗收由 `vendor/scripts/run_queue_worker.sh` 執行，全局卡數由使用者逐次授權，未指定時全局合計 6 張。單次 GPU 指令用 `vendor/scripts/run_with_gpu_lease.sh --workdir <color 根> <名稱> <指令...>`。
 
 | 入口（`python -m immunization_color.cli.<名稱>`） | 用途 |
 |---|---|
 | `generate_color_defenses` | 求解防禦圖 |
 | `run_edits`、`apply_purifiers`、`measure_edit_displacement`、`measure_purified_displacement` | 對應 `immunization_core.pipelines` 的 editing、purification、displacement、retention |
 | `measure_defense_fidelity` | 防禦圖對原圖的 LPIPS、ΔE00、PSNR、L∞、RMS |
-| `validate_queue_job` | 佇列工作的產物驗收 |
+| `evaluate_queue_job` | 佇列工作的產物驗收 |
 
-`vendor/` 不就地修改；更新方式為在 repo 根執行 `python core/scripts/export_vendor.py color`。
+`vendor/` 不就地修改；更新方式為在 repo 根執行 `python core/scripts/generate_vendor_snapshot.py color`。

@@ -1,7 +1,7 @@
 # baseline：現況與接續指引
 
 接手先讀這一份；協定、檔案位置、程式清單在 `README.md`；兩組進階量測各有說明：
-`results/aligned/README.md`（等失真臂）、`results/ADDITIVE_TRANSFER.md`（加性穿透拆解）。
+`results/aligned/README.md`（等失真臂）、`docs/ADDITIVE_TRANSFER.md`（加性穿透拆解）。
 
 ## 資料組
 
@@ -9,7 +9,7 @@
 |---|---|---|
 | 主表 | 12 個方法在各自原生預算下，把 ip2p／inpaint 的編輯結果推開多少 | `results/*.csv` |
 | 等失真臂 | 10 個方法縮到同一個防禦圖 LPIPS 之後，還推開多少 | `results/aligned/` |
-| 穿透拆解 | 位移中有多少是防禦端的改動原樣穿過編輯器（ip2p） | `results/additive_transfer.csv`、`results/ADDITIVE_TRANSFER.md` |
+| 穿透拆解 | 位移中有多少是防禦端的改動原樣穿過編輯器（ip2p） | `results/additive_transfer.csv`、`docs/ADDITIVE_TRANSFER.md` |
 | FLUX 全表 | 同一批防禦圖換成 FLUX.1-Kontext 編輯 | `results/flux/` |
 | UltraEdit 全表 | 同一批防禦圖（含淨化後）換成 UltraEdit（SD3）編輯 | `results/ultraedit/` |
 
@@ -33,7 +33,7 @@
 b*＋ ≤ 4、b*－ ≤ 25、|ΔL*| ≤ 15）、臉框與膚色 ΔE00 ≤ 16、彩度 p95、對原圖 LPIPS 與位移場半徑 80，
 8 張中 a*－ 與位移場半徑各有 6 張頂到，整圖平均 ΔE00 為 9.0–13.8。
 
-**未跟著換的兩處**：等失真臂的錨點仍是舊顏色列的 0.3344（使用者指示不重新對齊）；`results/ADDITIVE_TRANSFER.md`
+**未跟著換的兩處**：等失真臂的錨點仍是舊顏色列的 0.3344（使用者指示不重新對齊）；`docs/ADDITIVE_TRANSFER.md`
 的文字與表格是舊顏色列的數字，`additive_transfer.csv` 的顏色列已是 `color`。
 
 ### 跨編輯器
@@ -68,7 +68,7 @@ b*＋ ≤ 4、b*－ ≤ 25、|ΔL*| ≤ 15）、臉框與膚色 ΔE00 ≤ 16、�
 
 - 遠端 `~/image-immunization/baseline` 為本專案（GitHub `main` 的 clone，以 `git pull` 同步）；影像產物位於 `artifacts/`
   （見 `README.md`「影像產物」）。舊位置與新目錄的對照記錄於 `archive/migration/RESTRUCTURE_LOG.md` 第 10 項。
-- `requirements.lock` 未入庫；由遠端執行環境以 `vendor/scripts/freeze_env.py` 產生。
+- `requirements.lock` 未入庫；由遠端執行環境以 `vendor/scripts/generate_requirements_lock.py` 產生。
 - HF 權重在各機的 `/var/cache/huggingface`，兩台不同：FLUX 只在 basic-2，UltraEdit 只在 basic-1，ip2p 與
   SD-inpainting 兩台都有。機器相關設定以 `ENV_FILE` 交給 `scripts/env.sh`。
 - `measure_additional_metrics` 讀 `artifacts/` 的版面與 CSV 中的影像路徑；無 GPU 亦可執行（固定使用 CPU）。
@@ -77,7 +77,7 @@ b*＋ ≤ 4、b*－ ≤ 25、|ΔL*| ≤ 15）、臉框與膚色 ΔE00 ≤ 16、�
 
 - **GPU 一律送遠端**。全局可用卡數由使用者逐次授權；未說明或說明不清時預設 6 張，所有 session、主機與排程合計。
   取卡一律經 `vendor/scripts/`（`run_with_gpu_lease.sh`、`gpu_lease.sh`），租約目錄 `~/gpu_leases/`
-  （`<主機> <pid> <名稱> <擁有者 token>`，兩台共用）；`free_cards.sh` 只擋別人佔用超過 512 MiB 的卡
+  （`<主機> <pid> <名稱> <擁有者 token>`，兩台共用）；`measure_free_gpus.sh` 只擋別人佔用超過 512 MiB 的卡
   （別人單一行程在每張卡上各留約 256 MiB 的 context 可放行，使用者裁定）。
 - **不設判準**：數據與圖擺出來為止，不下「成立／不成立」「值得／不值得」的結論，指標本身也一樣。
 - 報數字寫描述性名稱（編輯結果 LPIPS、防禦圖 LPIPS），不用 D、D_T 這類代號；引用數字連協定一起引用

@@ -161,7 +161,7 @@ def prepare(
         )
     if target01 is None:
         raise NotImplementedError(
-            "Mist 需要 target 影像 MIST.png（repo 根目錄，1440×1440，"
+            "Mist 需要 target 影像 data/targets/mist.png（官方 repo 根目錄的 MIST.png，1440×1440，"
             "黑底白字密集平鋪、高對比硬邊）。該檔無法由描述重建，必須取得原檔。"
             "PhotoGuard-c 的零張量 target **不可**代用（見 SOURCE_AUDIT §3.4）"
         )
@@ -264,7 +264,7 @@ SPEC = BaselineSpec(
     objective="minimize",
     init_rule="uniform_linf",  # `Masked_PGD.py:141-192` rand_init 預設 True 且未關閉
     grad_reps=1,
-    needs_target_image=True,   # MIST.png，不可與 PhotoGuard 的零張量混用
+    needs_target_image=True,   # data/targets/mist.png，不可與 PhotoGuard 的零張量混用
     needs_mask=False,
     modified_from_paper=False,
     modification_note="",
@@ -283,7 +283,7 @@ SPEC = BaselineSpec(
         "prompt": MIST_PROMPT,
         "block_num": 1,
         "seed_original": 23,
-        "target_file": "MIST.png（repo 根目錄，1440×1440）",
+        "target_file": "data/targets/mist.png（官方 repo 根目錄的 MIST.png，1440×1440）",
         "model": "CompVis Stable Diffusion v1.4 原始 ckpt",
     },
 )

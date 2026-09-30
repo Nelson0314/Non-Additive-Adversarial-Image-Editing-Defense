@@ -3,7 +3,7 @@ import csv
 from PIL import Image
 import pytest
 
-from immunization_baseline.cli.check_edit_completion import validate_stage
+from immunization_baseline.cli.evaluate_edit_completion import validate_stage
 
 
 def stage(tmp_path):

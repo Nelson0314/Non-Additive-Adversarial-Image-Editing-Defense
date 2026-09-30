@@ -13,7 +13,7 @@
 | `docs/` | `DESIGN.md`；`references/`（論文出處與 metadata） |
 | `tests/` | 選點、讀數輸入檢查、排程完成判定、專案自足性 |
 | `vendor/` | `immunization_core` 與 GPU 租約工具的固定版本快照；`vendor.lock.json` 記錄來源 commit 與逐檔雜湊 |
-| `docs/TRIALS.md` | 已刪除的暫時性嘗試紀錄；`trial.sh new|promote|drop` 的用法見檔首 |
+| `docs/TRIALS.md` | 已刪除的暫時性嘗試紀錄；`run_trial_lifecycle.sh new|promote|drop` 的用法見檔首 |
 | `artifacts/`、`runtime/`、`trials/` | 影像產物、排程紀錄、暫時性嘗試；不入版控 |
 
 ## 執行
@@ -33,4 +33,4 @@ python -m pytest tests
 | `run_edits` | `immunization_core.pipelines.editing`，預設資料根 `data/portraits` |
 | `measure_style_prompt_edits` | 編輯結果 LPIPS（對未防禦編輯、對風格參考圖的編輯）與編輯前後改變量，全圖／主體／背景 |
 
-讀數的未防禦分母預設為 `artifacts/undefended_edits/ip2p_si18`。`vendor/` 不就地修改；更新方式為在 repo 根執行 `python core/scripts/export_vendor.py style`。
+讀數的未防禦分母預設為 `artifacts/undefended_edits/ip2p_si18`。`vendor/` 不就地修改；更新方式為在 repo 根執行 `python core/scripts/generate_vendor_snapshot.py style`。

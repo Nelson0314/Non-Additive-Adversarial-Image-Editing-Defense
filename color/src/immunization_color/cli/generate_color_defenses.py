@@ -22,7 +22,7 @@ w_comm 使起點梯度範數等於 FreeObjective。恆等起點的 comm 與梯�
 | 臉框 ΔE00、與原膚色同色像素的 ΔE00 | ≤ 16 |
 | 彩度 p95 | ≤ 原圖 × 2.0 |
 | 逐像素 Lab 位移（p95 與精確最大值） | a*＋ ≤ 4、a*－ ≤ 15、b*＋ ≤ 4、b*－ ≤ 25、\\|ΔL*\\| ≤ 15 |
-| 對原圖的 LPIPS | ≤ `data/color_lpips_ref.csv` 的逐張值 ＋ 0.0025 |
+| 對原圖的 LPIPS | ≤ `data/color_lpips_reference.csv` 的逐張值 ＋ 0.0025 |
 
 產出：{out}/{image}__orig.png、{image}__color__def.png、{image}__warp.png、{image}__carrier.pt、results.csv
 """
@@ -59,7 +59,7 @@ def build_parser() -> argparse.ArgumentParser:
     ap.add_argument("--output-dir", dest="out", type=Path, required=True)
     ap.add_argument("--data-root", dest="data", type=Path, default=layout.PORTRAITS)
     ap.add_argument("--images", nargs="+", default=None)
-    ap.add_argument("--lpips-ref-csv", dest="lpips_ref", type=Path, default=layout.DATA / "color_lpips_ref.csv")
+    ap.add_argument("--lpips-ref-csv", dest="lpips_ref", type=Path, default=layout.DATA / "color_lpips_reference.csv")
     ap.add_argument("--lpips-tolerance", type=float, default=0.0025)
     ap.add_argument("--steps", type=int, default=900)
     ap.add_argument("--lr", type=float, default=0.02)

@@ -39,8 +39,8 @@
 
 ## 執行環境
 
-GPU 工作在遠端執行（`~/image-immunization` 為本 repo 的 clone，以 `git pull` 同步）；取卡一律經各專案 `vendor/scripts/` 的租約工具，
-租約目錄預設 `~/gpu_leases`，由所有主機、session 與排程共用。測試只需 CPU：
+GPU 工作在遠端執行（`~/image-immunization` 為本 repo 的 clone，以 `git pull` 同步）；租約工具位於各專案 `vendor/scripts/`
+（用法見 `core/README.md`），租約目錄預設 `~/gpu_leases`，由所有主機、session 與排程共用。卡數規則見 `CLAUDE.md`。測試只需 CPU：
 
 ```bash
 cd <專案> && python -m pytest -q -p no:cacheprovider

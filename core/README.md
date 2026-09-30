@@ -39,7 +39,7 @@ python -m pytest core/tests -q -p no:cacheprovider
 
 ## GPU 租約工具
 
-`scripts/` 的五支租約 Bash 工具共用一個租約目錄（`LEASE`，預設 `$HOME/gpu_leases`，只在 `gpu_policy.sh` 定義）。取卡、容量檢查、擁有者驗證與釋放都在同一個 `mkdir` 鎖內；全局卡數由使用者逐次授權，以 `--cap` 或 `GPU_CAP` 寫入租約目錄，未指定時預設全局合計 6 張，計入所有主機、session 與排程。
+`scripts/` 的五支租約 Bash 工具共用一個租約目錄（`LEASE`，預設 `$HOME/gpu_leases`，只在 `gpu_policy.sh` 定義）。取卡、容量檢查、擁有者驗證與釋放都在同一個 `mkdir` 鎖內。全局上限以 `--cap` 或 `GPU_CAP` 設定並寫入租約目錄的 `.capacity`，所有入口取卡時重新讀取，`GPU_CAP=default` 回到預設；未設定時為 6，計入所有主機、session 與排程的租約。`QUEUE_CAP` 只進一步限制佇列派工。`measure_free_gpus.sh` 判定空閒的條件（他人行程的顯存用量門檻）見該腳本檔頭。
 
 | 工具 | 用途 |
 |---|---|

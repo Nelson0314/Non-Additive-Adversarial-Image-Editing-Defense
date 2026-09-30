@@ -23,7 +23,7 @@ python -m pip install -e ./core --no-deps --no-build-isolation
 | `optimization.carrier`、`optimization.instruction_free` | 以 augmented Lagrangian 在色差上限內最佳化載體（`optimize_carrier`、`randomize_carrier`、`quantize`、`Cap`）；不含指令的 IP2P 目標 `FreeObjective`；`optimization.attention` 為攻擊端 UNet 的自注意力偏離與類別詞交叉注意力質量目標。 |
 | `artifacts.layout` | 顯式 `ArtifactLayout` 與唯一防禦 PNG 查找，不探索舊專案、不在建構時建立目錄。 |
 
-固定淨化入口為 `python -m immunization_core.pipelines.purification --data <資料集> --out <輸出>`，或以 `--defended <防禦圖目錄>` 代替 `--data`。IMPRESS 的 lpips 後端及 Adverse Cleaner 的 OpenCV-contrib 可由 `purifiers` extra 安裝；DiffPure 另需明確提供 guided-diffusion 與檢查點。歷史 `gridpure`／`fdpure` 未包含實作，`available=False` 並於使用時明確拒絕，無近似替代。詳見 [PURIFICATION.md](docs/PURIFICATION.md)。
+固定淨化入口為 `python -m immunization_core.pipelines.purification --data-root <資料集> --output-dir <輸出>`，或以 `--defenses-dir <防禦圖目錄>` 代替 `--data-root`。IMPRESS 的 lpips 後端及 Adverse Cleaner 的 OpenCV-contrib 可由 `purifiers` extra 安裝；DiffPure 另需明確提供 guided-diffusion 與檢查點。歷史 `gridpure`／`fdpure` 未包含實作，`available=False` 並於使用時明確拒絕，無近似替代。詳見 [PURIFICATION.md](docs/PURIFICATION.md)。
 
 匯入全部公開模組不載入權重、不連網、不建立 CUDA context。模型 adapter 建構及指標物件建構／計算依其契約載入權重；所需後端列於 `editors`、`metrics`、`identity` extras。未安裝所需後端時正常報錯，不替換為近似指標。
 
@@ -45,11 +45,11 @@ python -m pytest core/tests -q -p no:cacheprovider --basetemp=.tmp/codex_audit/p
 |---|---|
 | `gpu_policy.sh`、`gpu_lease.sh` | 容量政策與租約函式，供其他工具 `source`。 |
 | `free_cards.sh` | 列出空閒卡；`--assert` 檢查指定卡。只產生候選清單，不保留卡。 |
-| `run_with_gpu_lease.sh --workdir <目錄> [--env <檔案>] <名稱> <指令...>` | 取一張卡的租約後執行單一指令，結束時釋放。 |
-| `queue_worker.sh --workdir --state --logs --runner --validator [--depends] <佇列> <工作>...` | 佇列排程；工作執行、輸出驗收與相依由專案以指令注入，驗收通過才記為完成。 |
+| `run_with_gpu_lease.sh --work-dir <目錄> [--env-file <檔案>] <名稱> <指令...>` | 取一張卡的租約後執行單一指令，結束時釋放。 |
+| `queue_worker.sh --work-dir --state-dir --log-dir --runner --validator [--depends] <佇列> <工作>...` | 佇列排程；工作執行、輸出驗收與相依由專案以指令注入，驗收通過才記為完成。 |
 
 `trial.sh new|promote|drop <名稱>` 管理各專案不入版控的 `trials/<名稱>/`：`promote` 要求升格內容已提交，`drop` 要求 `docs/TRIALS.md` 已有該名稱的一列，並以 `TRIAL_REMOTE`、`TRIAL_REMOTE_ROOT` 同時刪除遠端副本（只刪本機時明確給 `--local-only`）。
 
-工具以自身所在目錄互相定位，不依賴 CWD；`PY` 未設定時使用 `python`，`PYTHONPATH` 等環境由 `--env` 檔或呼叫端提供。
+工具以自身所在目錄互相定位，不依賴 CWD；`PY` 未設定時使用 `python`，`PYTHONPATH` 等環境由 `--env-file` 或呼叫端提供。
 
 三份流程差異見 [PIPELINE_BEHAVIOR.md](docs/PIPELINE_BEHAVIOR.md)；來源、命名與後續範圍見 [PROVENANCE.md](docs/PROVENANCE.md) 及 [STATUS.md](STATUS.md)。

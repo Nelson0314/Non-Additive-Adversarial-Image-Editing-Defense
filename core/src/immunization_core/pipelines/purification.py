@@ -47,13 +47,13 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     source = parser.add_mutually_exclusive_group(required=True)
-    source.add_argument("--defended", type=Path,
+    source.add_argument("--defenses-dir", dest="defended", type=Path,
                         help="防禦圖目錄（防禦程式的輸出）")
-    source.add_argument("--data", type=Path,
+    source.add_argument("--data-root", dest="data", type=Path,
                         help="資料集根目錄，淨化未防禦的原圖")
-    parser.add_argument("--out", type=Path, required=True)
+    parser.add_argument("--output-dir", dest="out", type=Path, required=True)
     parser.add_argument("--condition", default=None,
-                        help="寫進 CSV 的條件名；預設取 --defended 的目錄名，"
+                        help="寫進 CSV 的條件名；預設取 --defenses-dir 的目錄名，"
                              "或未防禦時的 `undefended`")
     args = parser.parse_args()
 

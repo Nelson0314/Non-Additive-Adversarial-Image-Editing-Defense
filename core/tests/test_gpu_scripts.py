@@ -172,7 +172,7 @@ def test_command_exit_releases_owned_lease(tmp_path, command_rc):
     work = tmp_path / "work"
     work.mkdir()
     result = subprocess.run(
-        [BASH, str(SCRIPTS / "run_with_gpu_lease.sh"), "--workdir", str(work), "test",
+        [BASH, str(SCRIPTS / "run_with_gpu_lease.sh"), "--work-dir", str(work), "test",
          "bash", "-c", f'pwd > where; exit {command_rc}'],
         env=env, capture_output=True, text=True, encoding="utf-8", timeout=15)
     assert result.returncode == command_rc, result.stderr
@@ -187,7 +187,7 @@ def test_missing_workdir_is_rejected(tmp_path):
     result = subprocess.run([BASH, str(SCRIPTS / "run_with_gpu_lease.sh"), "test", "true"],
                             env=env, capture_output=True, text=True, encoding="utf-8", timeout=15)
     assert result.returncode == 2
-    assert "--workdir" in result.stderr
+    assert "--work-dir" in result.stderr
 
 
 # ---- 佇列 ----
@@ -205,8 +205,8 @@ def run_queue(tmp_path, jobs, validator_body, depends_body=None):
     tools.mkdir()
     runner = write_tool(tools / "runner", 'echo "$2" > "done_$1"; echo "$1" >> order\n')
     validator = write_tool(tools / "validator", validator_body)
-    command = [BASH, str(SCRIPTS / "queue_worker.sh"), "--workdir", str(work),
-               "--state", str(tmp_path / "state"), "--logs", str(tmp_path / "logs"),
+    command = [BASH, str(SCRIPTS / "queue_worker.sh"), "--work-dir", str(work),
+               "--state-dir", str(tmp_path / "state"), "--log-dir", str(tmp_path / "logs"),
                "--runner", str(runner), "--validator", str(validator)]
     if depends_body is not None:
         command += ["--depends", str(write_tool(tools / "depends", depends_body))]
@@ -251,8 +251,8 @@ def test_invalid_dependency_status_stops_worker(tmp_path):
 
 def test_queue_requires_injected_validator(tmp_path):
     env, _ = stub_env(tmp_path)
-    result = subprocess.run([BASH, str(SCRIPTS / "queue_worker.sh"), "--workdir", str(tmp_path),
-                             "--state", str(tmp_path / "s"), "--logs", str(tmp_path / "l"),
+    result = subprocess.run([BASH, str(SCRIPTS / "queue_worker.sh"), "--work-dir", str(tmp_path),
+                             "--state-dir", str(tmp_path / "s"), "--log-dir", str(tmp_path / "l"),
                              "--runner", "true", "test", "job"],
                             env=env, capture_output=True, text=True, encoding="utf-8", timeout=15)
     assert result.returncode == 2

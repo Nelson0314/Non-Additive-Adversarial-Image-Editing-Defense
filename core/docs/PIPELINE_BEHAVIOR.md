@@ -39,4 +39,4 @@
 
 淨化階段已建立 `pipelines.purification`，沿用相同 registry 與運算；主體極性與 `purified_mask()` 原樣抽至 `pipelines.masks`。已提供顯式產物根目錄。
 
-編輯、displacement 與 retention 主流程依 lab 版本移入 `pipelines.editing`、`pipelines.displacement`、`pipelines.retention`，來源雜湊見 [pipeline_source_manifest.json](pipeline_source_manifest.json)。三者的 `--data` 改為必填，不再由 `paths.py` 推定資料根；`--defended` 的缺圖與歧義由 `artifacts.layout.defended_image()` 以 `ValueError` 拒絕。上列驗收案例由 `tests/test_edit_pipelines.py` 以替身指標在 CPU 上檢驗；原呼叫端未切換。
+編輯、displacement 與 retention 主流程依 lab 版本移入 `pipelines.editing`、`pipelines.displacement`、`pipelines.retention`，來源雜湊見 [pipeline_source_manifest.json](pipeline_source_manifest.json)。三者的資料根改為必填的 `--data-root`，不再由 `paths.py` 推定；輸入與輸出依角色命名（editing：`--defenses-dir`、`--output-dir`；displacement：`--defended-edits-root`、`--undefended-edits-root`、`--output-csv`；retention：`--purified-edits-root`、`--displacement-csv`、`--output-csv`）。`--defenses-dir` 的缺圖與歧義由 `artifacts.layout.defended_image()` 以 `ValueError` 拒絕。上列驗收案例由 `tests/test_edit_pipelines.py` 以替身指標在 CPU 上檢驗。

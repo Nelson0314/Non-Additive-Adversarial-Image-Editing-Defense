@@ -85,7 +85,7 @@ def run_metrics_only(dataset, out, *extra):
         for name in ("man_00", "man_01"):
             for index in range(2):
                 png(out / scenario / f"{name}__p{index}.png", 90)
-    editing.main(["--data", str(dataset), "--out", str(out), "--metrics-only", *extra])
+    editing.main(["--data-root", str(dataset), "--output-dir", str(out), "--metrics-only", *extra])
     return read(out / "preflight.csv")
 
 
@@ -106,7 +106,7 @@ def test_editing_subset_runs_with_subset_defended_directory(fakes, dataset, tmp_
     defended = tmp_path / "defended"
     png(defended / "man_01__color__def.png")
     rows = run_metrics_only(dataset, tmp_path / "out", "--images", "man_01",
-                            "--defended", str(defended), "--scenarios", "inpaint")
+                            "--defenses-dir", str(defended), "--scenarios", "inpaint")
     assert [r["image"] for r in rows] == ["man_01"]
     assert rows[0]["defence"] == "defended"
     assert rows[0]["input_png"].endswith("man_01__color__def.png")
@@ -118,7 +118,7 @@ def test_editing_rejects_ambiguous_defended_image(fakes, dataset, tmp_path):
     png(defended / "man_01__def.png")
     with pytest.raises(ValueError):
         run_metrics_only(dataset, tmp_path / "out", "--images", "man_01",
-                         "--defended", str(defended))
+                         "--defenses-dir", str(defended))
 
 
 def test_editing_replaces_only_touched_arm(fakes, dataset, tmp_path):
@@ -148,8 +148,8 @@ def displacement_tree(tmp_path, dataset):
 def test_displacement_scans_conditions_and_splits_subject(fakes, dataset, tmp_path):
     preflight, root = displacement_tree(tmp_path, dataset)
     out = tmp_path / "displacement.csv"
-    displacement.main(["--defended-root", str(root), "--preflight", str(preflight),
-                       "--data", str(dataset), "--out", str(out)])
+    displacement.main(["--defended-edits-root", str(root), "--undefended-edits-root", str(preflight),
+                       "--data-root", str(dataset), "--output-csv", str(out)])
     rows = read(out)
     assert [(r["condition"], r["image"]) for r in rows] == [
         ("color", "man_00"), ("color", "man_01"), ("style", "man_00"), ("style", "man_01")]
@@ -162,8 +162,8 @@ def test_displacement_scans_conditions_and_splits_subject(fakes, dataset, tmp_pa
 def test_displacement_condition_filter(fakes, dataset, tmp_path):
     preflight, root = displacement_tree(tmp_path, dataset)
     out = tmp_path / "displacement.csv"
-    displacement.main(["--defended-root", str(root), "--preflight", str(preflight),
-                       "--data", str(dataset), "--out", str(out), "--conditions", "style"])
+    displacement.main(["--defended-edits-root", str(root), "--undefended-edits-root", str(preflight),
+                       "--data-root", str(dataset), "--output-csv", str(out), "--conditions", "style"])
     assert {r["condition"] for r in read(out)} == {"style"}
 
 
@@ -171,8 +171,8 @@ def test_displacement_missing_undefended_side_fails(fakes, dataset, tmp_path):
     preflight, root = displacement_tree(tmp_path, dataset)
     (preflight / "ip2p_si18" / "man_01__p0.png").unlink()
     with pytest.raises(SystemExit, match="man_01__p0"):
-        displacement.main(["--defended-root", str(root), "--preflight", str(preflight),
-                           "--data", str(dataset), "--out", str(tmp_path / "d.csv")])
+        displacement.main(["--defended-edits-root", str(root), "--undefended-edits-root", str(preflight),
+                           "--data-root", str(dataset), "--output-csv", str(tmp_path / "d.csv")])
 
 
 def retention_tree(tmp_path, plain="0.2"):
@@ -196,8 +196,8 @@ def retention_tree(tmp_path, plain="0.2"):
 def test_retention_pairs_both_purified_sides(fakes, dataset, tmp_path):
     root, base = retention_tree(tmp_path)
     out = tmp_path / "retention.csv"
-    retention.main(["--purified-root", str(root), "--displacement", str(base),
-                    "--data", str(dataset), "--out", str(out)])
+    retention.main(["--purified-edits-root", str(root), "--displacement-csv", str(base),
+                    "--data-root", str(dataset), "--output-csv", str(out)])
     rows = read(out)
     assert [(r["condition"], r["purifier"], r["geometric"]) for r in rows] == [
         ("color", "jpeg30", "False"), ("color", "rotate15", "True"),
@@ -214,8 +214,8 @@ def test_retention_pairs_both_purified_sides(fakes, dataset, tmp_path):
 def test_retention_condition_filter_and_zero_plain(fakes, dataset, tmp_path):
     root, base = retention_tree(tmp_path, plain="0")
     out = tmp_path / "retention.csv"
-    retention.main(["--purified-root", str(root), "--displacement", str(base),
-                    "--data", str(dataset), "--out", str(out), "--conditions", "color"])
+    retention.main(["--purified-edits-root", str(root), "--displacement-csv", str(base),
+                    "--data-root", str(dataset), "--output-csv", str(out), "--conditions", "color"])
     rows = read(out)
     assert {r["condition"] for r in rows} == {"color"}
     assert {r["retained"] for r in rows} == {""}
@@ -225,8 +225,8 @@ def test_retention_missing_undefended_side_fails(fakes, dataset, tmp_path):
     root, base = retention_tree(tmp_path)
     (root / "undefended/jpeg30/ip2p_undefended_jpeg30/man_00__p0.png").unlink()
     with pytest.raises(SystemExit, match="缺檔"):
-        retention.main(["--purified-root", str(root), "--displacement", str(base),
-                        "--data", str(dataset), "--out", str(tmp_path / "r.csv")])
+        retention.main(["--purified-edits-root", str(root), "--displacement-csv", str(base),
+                        "--data-root", str(dataset), "--output-csv", str(tmp_path / "r.csv")])
 
 
 def test_retention_mask_matches_geometric_purifier(dataset):

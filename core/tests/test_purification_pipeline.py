@@ -66,7 +66,7 @@ def test_pipeline_writes_complete_protocol_outputs(tmp_path, monkeypatch, source
     image.parent.mkdir(parents=True)
     Image.new("RGB", (32, 32), (90, 120, 160)).save(image)
     monkeypatch.setattr(purification, "RESOLUTION", 32)
-    monkeypatch.setattr(sys, "argv", ["purification", "--" + source_kind, str(source), "--out", str(output)])
+    monkeypatch.setattr(sys, "argv", ["purification", {"data": "--data-root", "defended": "--defenses-dir"}[source_kind], str(source), "--output-dir", str(output)])
     purification.main()
     with (output / "purified.csv").open(encoding="utf-8", newline="") as stream:
         rows = list(csv.DictReader(stream))

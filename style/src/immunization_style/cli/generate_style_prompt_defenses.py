@@ -90,7 +90,7 @@ def build_parser() -> argparse.ArgumentParser:
     ap.add_argument("--attn-tmax", type=int, default=900)
     ap.add_argument("--val-seed", type=int, default=777)
     ap.add_argument("--val-every", type=int, default=10)
-    ap.add_argument("--patience", type=int, default=15, help="停滯判定：連續幾次評估沒有改善 1%")
+    ap.add_argument("--patience", type=int, default=15, help="停滯判定：連續幾次評估沒有改善 1%%")
     ap.add_argument("--max-decays", type=int, default=2, help="停滯時最多降 lr 幾次（每次 /4）後停止")
     ap.add_argument("--snapshot-every", type=int, default=10)
     ap.add_argument("--noise-seed", type=int, default=0)

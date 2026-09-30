@@ -365,6 +365,24 @@ def make_project(path, name="x"):
     return path
 
 
+def bash_path(path) -> str:
+    """路徑在 bash 中的寫法（Git Bash 為 /c/... 或 /tmp/...），即 TRIAL_REMOTE_ROOT 在遠端 shell 的形式。"""
+    return subprocess.run([BASH, "-c", 'cd "$1" && pwd', "_", Path(path).as_posix()],
+                          capture_output=True, text=True, check=True).stdout.strip()
+
+
+def directory_link(link, target):
+    """建立指向 target 的目錄連結。Windows 帳號沒有建立符號連結的權限（WinError 1314）時改建 junction，
+    junction 不需要該權限；其餘錯誤照常拋出。"""
+    try:
+        link.symlink_to(target, target_is_directory=True)
+    except OSError as error:
+        if getattr(error, "winerror", None) != 1314:
+            raise
+        import _winapi
+        _winapi.CreateJunction(str(target), str(link))
+
+
 def trial_project(tmp_path, remote_name="x"):
     project = make_project(tmp_path / "project")
     remote = make_project(tmp_path / "remote", remote_name)
@@ -379,7 +397,7 @@ def trial_project(tmp_path, remote_name="x"):
                               'eval "$*"\n')
     env = dict(os.environ, PATH=str(stubs) + os.pathsep + os.environ["PATH"],
                SSH_LOG=(tmp_path / "ssh.log").as_posix(), TRIAL_REMOTE="-p 1 u@h",
-               TRIAL_REMOTE_ROOT=remote.as_posix())
+               TRIAL_REMOTE_ROOT=bash_path(remote))
     run = lambda *a, **e: subprocess.run([BASH, (project / "vendor/scripts/run_trial_lifecycle.sh").as_posix(), *a],
                                          env=dict(env, **e), capture_output=True, text=True,
                                          encoding="utf-8", timeout=15)
@@ -456,7 +474,7 @@ def test_remote_identity_and_path_are_checked_before_local_removal(tmp_path):
     result = run("drop", "cold_grade")
     assert result.returncode == 1 and "預期 x" in result.stderr
     assert (project / "trials/cold_grade").exists() and (remote / "trials/cold_grade").exists()
-    assert run("drop", "cold_grade", TRIAL_REMOTE_ROOT=(tmp_path / "missing").as_posix()).returncode == 1
+    assert run("drop", "cold_grade", TRIAL_REMOTE_ROOT=bash_path(tmp_path) + "/missing").returncode == 1
     assert run("drop", "cold_grade", TRIAL_REMOTE_ROOT="relative/path").returncode == 2
     assert (project / "trials/cold_grade").exists()
 
@@ -470,7 +488,19 @@ def test_symlinked_remote_trial_is_refused(tmp_path):
     elsewhere.mkdir()
     (elsewhere / "keep.txt").write_text("keep")
     (remote / "trials").mkdir()
-    (remote / "trials/cold_grade").symlink_to(elsewhere)
+    directory_link(remote / "trials/cold_grade", elsewhere)
     result = run("drop", "cold_grade")
     assert result.returncode == 1 and "符號連結" in result.stderr
     assert (elsewhere / "keep.txt").exists() and (project / "trials/cold_grade").exists()
+
+
+def test_linked_local_trial_is_refused(tmp_path):
+    project, _, run, _ = trial_project(tmp_path)
+    elsewhere = tmp_path / "elsewhere"
+    elsewhere.mkdir()
+    (elsewhere / "keep.txt").write_text("keep")
+    (project / "trials").mkdir()
+    directory_link(project / "trials/cold_grade", elsewhere)
+    result = run("drop", "cold_grade", "--local-only")
+    assert result.returncode == 1 and "符號連結" in result.stderr
+    assert (elsewhere / "keep.txt").exists()

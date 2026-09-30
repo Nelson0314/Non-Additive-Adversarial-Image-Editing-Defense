@@ -15,6 +15,53 @@
       "source": "lab/code/edit_retention.py",
       "destination": "core/src/immunization_core/pipelines/retention.py",
       "source_sha256": "ce377b1db0418991bee4bc25e7c8606cd56718db305e90e16365fea16542f3e0"
+    },
+    {
+      "source": "anti-purification/src/defense/ncf_param.py",
+      "destination": "core/src/immunization_core/color/space.py",
+      "source_sha256": "843922d1c89adff0424d5ca7f3a86b9a8882f939127aeda4da50f3ab626fc345",
+      "definitions": [
+        "rgb_to_lab",
+        "lab_to_rgb"
+      ]
+    },
+    {
+      "source": "anti-purification/src/defense/color_amplitude.py",
+      "destination": "core/src/immunization_core/color/difference.py",
+      "source_sha256": "4ef7bd28194ef0b8754c18e747c70cb322f311aa56b6f2ff5faddc4206a66976",
+      "definitions": [
+        "delta_e00",
+        "cvar_e00"
+      ]
+    },
+    {
+      "source": "anti-purification/src/defense/delta_e_torch.py",
+      "destination": "core/src/immunization_core/color/difference.py",
+      "source_sha256": "d8b3933c32c7f0a8589a80fafe9a9fe812d3c84d0ec72e222e2655d5602d6596",
+      "definitions": null
+    },
+    {
+      "source": "anti-purification/src/defense/uniformity.py",
+      "destination": "core/src/immunization_core/color/uniformity.py",
+      "source_sha256": "9bbaccb5eb2911c915e303023fea0f359744b6cd07ec836b0dd82ec7d53129ff",
+      "definitions": null
+    },
+    {
+      "source": "anti-purification/src/defense/immunise.py",
+      "destination": "core/src/immunization_core/optimization/carrier.py",
+      "source_sha256": "cd29d286ee816370726aae3e79053a66a19eb1871cdf33a9b17223e0754b8519",
+      "definitions": null
+    },
+    {
+      "source": "anti-purification/src/defense/instruction_free.py",
+      "destination": "core/src/immunization_core/optimization/instruction_free.py",
+      "source_sha256": "723a9d82ea2f7448debe6f59588ececf5fefbe655130ebcf8cad514b0728f591",
+      "definitions": null
     }
-  ]
+  ],
+  "renames": {
+    "quantise": "quantize",
+    "optimise_carrier": "optimize_carrier",
+    "randomise_carrier": "randomize_carrier"
+  }
 }

@@ -1,15 +1,13 @@
-# 子目錄各自另有 .gitignore，`runs/**` 那一組規則寫在
-# non-additive-frequency/.gitignore 裡（gitignore 的路徑樣式相對於它自己所在的
-# 目錄，所以那一組仍然只作用在該目錄的 runs/ 上）。
-# **改動任何 runs/ 規則之後必須用 `git status --porcelain --ignored` 確認沒有
-# 結果檔被排除**——曾因樣式寫錯而靜默漏掉 143 個結果檔。
+# 各專案的 artifacts/、runtime/、trials/ 由專案內的 .gitignore 排除；archive/ 內保留封存時的規則。
+# 改動排除規則後以 `git status --porcelain --ignored` 確認沒有數值結果檔被排除。
 
 # 模型權重
 *.ckpt
 *.safetensors
 
-# 第三方論文 PDF（本機參考用）
+# 第三方論文 PDF（本機參考用，不入版控；出處記錄於各專案 docs/references/）
 refs/
+/*.pdf
 
 # Python
 __pycache__/
@@ -17,8 +15,7 @@ __pycache__/
 .pytest_cache/
 .ipynb_checkpoints/
 
-# 報告頁與它的影像鏡像。兩者都由已記錄的 CSV、參數與種子重新產生得出來，
-# 而 CSV 不可重現所以一律入庫。影像鏡像是從 GPU 機抓回來的防禦圖與淨化圖。
+# 封存研究線的報告頁與影像鏡像（由已記錄的 CSV、參數與種子可重新產生）。
 /report_*.html
 **/report_*.html
 _rep/
@@ -32,8 +29,7 @@ _report_advcf_seeds/
 _report_metrics/
 _report_anchor/
 
-# Windows ACL 鎖住、刪不掉的 pytest 暫存目錄。不擋掉的話每次 git status
-# 都會噴二十幾行 permission denied，那些行每次都要進脈絡。
+# pytest 與工具的暫存目錄（Windows 上可能因 ACL 無法刪除）。
 /.tmp/
 **/.tmp/
 **/.pytest_tmp_*/

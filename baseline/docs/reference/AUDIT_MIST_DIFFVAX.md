@@ -695,7 +695,7 @@ DiffVax 是**前饋式 immunizer**：一個 UNet++（`NestedUNet`，9,170,721 �
    （`diffvax_immunization.py:48-49`）與 `immunize_img(epsilon=32)` 的參數
    在整個 DiffVax 路徑中**從未被引用**；唯一的幅度約束是訓練時的
    `alpha * L_noise` 這個軟性懲罰，推論時只有 `clamp(-1, 1)`。
-   本檔的 `immunise(..., linf_eps=None)` **預設關閉**約束，與原始碼一致；
+   本檔的 `immunize(..., linf_eps=None)` **預設關閉**約束，與原始碼一致；
    要做等失真比較時才明給一個值，那是本專案的加工，不是原論文設定。
 3. **只支援 inpainting。** `src/diffvax/attack.py` 只實例化
    `StableDiffusionInpaintPipeline`，可微前傳硬編碼 9 通道輸入；全 repo 對
@@ -735,14 +735,14 @@ epoch 數、沒有 early stopping、`torch.save` 只在跑完或 loss 變 NaN �
 DiffVax 一項都沒有；且 `archive/anti-purification/tests/test_baselines.py` 以 `AUDIT == REGISTRY`
 稽核，塞進去會讓那份稽核表失去意義。接法是在批次腳本裡直接呼叫：
 
-    from src.baselines.diffvax import immunise, load_immunizer
+    from immunization_baseline.attacks.diffvax import immunize, load_immunizer
 
     model = load_immunizer(ckpt_path, device=device)          # 一次
     for item in items:                                        # 每張
         x01 = load_image_tensor(item["path"], device, size=512)
         m01 = load_image_tensor(Path(data) / "masks" / f"{item['name']}.png",
                                 device, size=512)             # 白＝重繪
-        x_def01 = immunise(model, x01, m01)["x_def01"]
+        x_def01 = immunize(model, x01, m01)["x_def01"]
 
 `x_def01` 的形狀與值域（`(1,3,H,W)`、`[0,1]`）和 `run_pgd(...).x_adv01`
 相同，故後續的 `evaluate(...)` 不必改。**但要在報表註明兩件事**：

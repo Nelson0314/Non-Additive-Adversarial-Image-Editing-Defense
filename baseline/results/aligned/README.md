@@ -93,9 +93,9 @@ PSNR 仍差 8.98 dB、L∞ 差 6.21 倍。**錨得更緊沒有讓其餘指標收
 
 ## 編輯端
 
-`displacement_aligned.csv`（640 列）與 `retention_aligned.csv`（4,480 列）是這十組
+本目錄的 `displacement.csv`（640 列）與 `retention.csv`（4,480 列）是這十組
 防禦圖走完整條編輯管線的結果。**分母沒有動**：未防禦那一側仍是主表既有的
-`ip2p_si18` 與 `inpaint_undefended`，淨化後的分母沿用 `edit_purified/undefended`。
+`ip2p_si18` 與 `inpaint_undefended`，淨化後的分母沿用 `artifacts/purified_edits/undefended`。
 對齊只改防禦圖，換了分母比較就不成立。臂名加 `_aligned` 後綴與原生臂分開
 （`ip2p_<方法>_aligned`），CSV 的合併鍵是 `arm`，不加後綴會靜默覆蓋。
 

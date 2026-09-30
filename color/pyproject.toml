@@ -12,9 +12,13 @@ requires-python = ">=3.10"
 dependencies = ["torch>=2.0", "torchvision>=0.15", "numpy>=1.24", "Pillow>=9.0", "PyYAML>=6.0",
                 "diffusers>=0.30", "transformers>=4.40", "accelerate>=0.30", "safetensors>=0.4",
                 "piq==0.8.0", "scikit-image>=0.19",
-                "facenet-pytorch>=2.5", "insightface>=0.7", "onnxruntime>=1.16"]
+                "facenet-pytorch>=2.5", "insightface>=0.7", "onnxruntime>=1.16",
+                # SigLIP 的 AutoProcessor 載入 SentencePiece tokenizer（必要指標 siglip_pair）
+                "sentencepiece", "protobuf"]
 
 [project.optional-dependencies]
+# 不在主表淨化協定內的算子：CLAHE、AdverseCleaner（opencv）與 IMPRESS（lpips）；缺席時明確失敗。
+purifiers = ["opencv-contrib-python", "lpips"]
 test = ["pytest>=8"]
 
 [tool.setuptools.packages.find]

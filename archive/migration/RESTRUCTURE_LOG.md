@@ -344,3 +344,44 @@
 - `generate_defenses` 啟動時檢查設定檔的常數文字條件與攻擊模組持有的值相同、每個 pgd 條件的 spec 名稱與條件名相同。
 
 驗證：core 174 passed、21 deselected；baseline 72、color 41、style 15 passed（新增 registry 測試各 1 項）；三個專案以 vendor 取得的協定標籤一致。
+
+### 第 3 段：CLI 參數統一（`bc65ff1`…`80a6cf9`）
+
+依使用者裁定，全部 CLI 的路徑類參數依角色重新命名，不保留舊名稱或別名；argparse 的 `dest` 維持原名，程式內部行為不變。命名規則：資料集根 `--data-root`；輸出影像目錄 `--output-dir`；輸出 CSV `--output-csv`（逐檔多份時 `--output-csv-dir`）；單一條件的防禦圖目錄 `--defenses-dir`、多條件根目錄 `--defenses-root`；其餘輸入依產物角色加 `-root`（目錄樹）、`-dir`（單一目錄）或 `-csv`（單一 CSV）。未列出的參數（如 `--images`、`--conditions`、`--scenarios`、`--arm`、`--suffix`、`--steps`、`--cap`、`--limit`、`--runner`、`--validator`、`--depends`）不變。
+
+| CLI | 舊參數 → 新參數 |
+|---|---|
+| `immunization_core.pipelines.editing` | `--data` → `--data-root`、`--out` → `--output-dir`、`--defended` → `--defenses-dir` |
+| `immunization_core.pipelines.purification` | `--defended` → `--defenses-dir`、`--data` → `--data-root`、`--out` → `--output-dir` |
+| `immunization_core.pipelines.displacement` | `--defended-root` → `--defended-edits-root`、`--preflight` → `--undefended-edits-root`、`--data` → `--data-root`、`--out` → `--output-csv` |
+| `immunization_core.pipelines.retention` | `--purified-root` → `--purified-edits-root`、`--displacement` → `--displacement-csv`、`--data` → `--data-root`、`--out` → `--output-csv` |
+| `immunization_baseline.cli.check_edit_completion` | `--data` → `--data-root`、`--defended` → `--defenses-dir`、`--out` → `--output-dir` |
+| `immunization_baseline.cli.generate_defenses` | `--out` → `--output-dir`、`--data` → `--data-root` |
+| `immunization_baseline.cli.import_defense_artifacts` | `--run` → `--source-dir`、`--data` → `--data-root`、`--out` → `--output-dir` |
+| `immunization_baseline.cli.measure_additive_transfer` | `--out` → `--output-csv`、`--data` → `--data-root`、`--defenses` → `--defenses-root`、`--aligned-defenses` → `--aligned-defenses-root`、`--results` → `--results-dir` |
+| `immunization_baseline.cli.measure_flux_displacement` | `--out` → `--output-csv`、`--data` → `--data-root`、`--edits-csv-root` → `--edits-csv-dir` |
+| `immunization_baseline.cli.measure_off_target_changes` | `--edits` → `--edits-csv`、`--out` → `--output-csv`、`--data` → `--data-root` |
+| `immunization_baseline.cli.run_flux_edits` | `--data` → `--data-root`、`--defenses` → `--defenses-root`、`--defended` → `--defenses-dir`、`--out` → `--output-dir`、`--out-csv` → `--output-csv` |
+| `immunization_baseline.cli.run_ultraedit_edits` | `--root` → `--output-dir`、`--defenses` → `--defenses-root`、`--purified-edits` → `--purified-edits-root`、`--results` → `--output-csv-dir` |
+| `immunization_baseline.cli.sweep_editor_parameters` | `--data` → `--data-root`、`--out` → `--output-dir`、`--out-csv` → `--output-csv` |
+| `immunization_baseline.cli.sweep_sdedit_parameters` | `--data` → `--data-root`、`--out` → `--output-dir`、`--out-csv` → `--output-csv` |
+| `immunization_color.cli.generate_color_defenses` | `--out` → `--output-dir`、`--data` → `--data-root`、`--lpips-ref` → `--lpips-ref-csv` |
+| `immunization_color.cli.measure_defense_fidelity` | `--root` → `--defenses-root`、`--out` → `--output-csv` |
+| `immunization_color.cli.validate_queue_job` | `--project` → `--project-root` |
+| `immunization_style.cli.generate_style_prompt_defenses` | `--out` → `--output-dir`、`--data` → `--data-root` |
+| `immunization_style.cli.measure_style_prompt_edits` | `--edits` → `--edits-root`、`--undefended` → `--undefended-edits-dir`、`--data` → `--data-root`、`--out` → `--output-csv`、`--ref-edits` → `--reference-edits-root` |
+| `immunization_baseline.cli.run_edits` | 同 `immunization_core.pipelines.editing` |
+| `immunization_baseline.cli.measure_edit_displacement` | 同 `immunization_core.pipelines.displacement` |
+| `immunization_baseline.cli.measure_purified_displacement` | 同 `immunization_core.pipelines.retention` |
+| `immunization_baseline.cli.apply_purifiers` | 同 `immunization_core.pipelines.purification` |
+| `immunization_color.cli.run_edits` | 同 `immunization_core.pipelines.editing` |
+| `immunization_color.cli.measure_edit_displacement` | 同 `immunization_core.pipelines.displacement` |
+| `immunization_color.cli.measure_purified_displacement` | 同 `immunization_core.pipelines.retention` |
+| `immunization_color.cli.apply_purifiers` | 同 `immunization_core.pipelines.purification` |
+| `immunization_style.cli.run_edits` | 同 `immunization_core.pipelines.editing` |
+| `core/scripts/run_with_gpu_lease.sh` | `--workdir` → `--work-dir`、`--env` → `--env-file` |
+| `core/scripts/queue_worker.sh` | `--workdir` → `--work-dir`、`--state` → `--state-dir`、`--logs` → `--log-dir`、`--env` → `--env-file` |
+
+專案內已同步：`baseline/scripts/evaluate_color_condition.sh`、`color/scripts/{generate_condition,evaluate_condition,measure_condition_results,queue_job,queue_validate,run_queue}.sh`、`style/scripts/run_style_prompt_jobs.sh`、各 CLI 包裝的預設參數、測試與文件。第 10 項由協調端改寫遠端家目錄腳本時，依上表替換。
+
+驗證：core 174 passed（21 deselected）；baseline 72、color 41、style 15 passed；三個專案全部 CLI 的 `--help` 成功；`bash -n` 全部 shell 通過。

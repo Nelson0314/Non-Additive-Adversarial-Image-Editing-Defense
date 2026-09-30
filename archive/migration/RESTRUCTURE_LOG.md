@@ -544,3 +544,18 @@ vendor 已重新匯出（baseline、color、style 的 `vendor/scripts/queue_work
 
 1. `requirements.lock`：遠端 venv（`~/venvs/wacv`）由 `uv` 建立、沒有 `pip`，`freeze_env.py` 依設計中止。需改為支援 `uv pip freeze --python <直譯器>`（第 13 項），之後由協調端在遠端產生。
 2. 租約目錄仍為 `~/lab_leases`（所有取卡入口的共用預設）。
+
+## 第 11 項：Claude 記憶（協調端）
+
+記憶目錄中的舊路徑改為新位置；三份描述舊入口的記憶（根 HANDOFF、lab、main_table）由 `repo-layout-after-restructure` 取代；
+`main-table-session-one-card` 改名 `baseline-session-one-card`；取卡競態一份改記為已修（`0b68f9b`、`da82000`）。全部 `[[連結]]` 與索引可解析。記憶不在 repo 內。
+
+## 第 12 項：幾何分區欄更正（協調端）
+
+- basic-1 一張卡（租約 `basic-1-0`）以 `measure_purified_displacement` 重算 11 個條件（`color` 以外）全部七道、4,928 列，約 15 分鐘。
+- 比對：全圖欄、`net_gain`、`retained`、`siglip_pair`、`blocked` 與五道非幾何算子的分區欄，4,928 列逐值與原表相同。
+- 寫回：`crop_resize0.1`、`rotate15` 的 1,408 列 `disp_purified_subject`／`disp_purified_background`，2,814 個值改變，最大絕對變化 0.10288。
+  更正前的表在 `228c59b`。
+- `baseline/results/aligned/retention.csv` 的分區欄未重算；當時程式是否含 `purified_mask()` 未查證。
+- 發現：`run_with_gpu_lease.sh` 以變數 `ENV_FILE` 保存 `--env-file`，而專案的 `scripts/env.sh` 會 source `$ENV_FILE`；
+  `--env-file scripts/env.sh` 因此無限遞迴，bash segfault。本次改傳 `--env-file ~/env.sh` 執行。待第 13 項修正。

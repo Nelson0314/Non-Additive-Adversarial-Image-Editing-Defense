@@ -55,9 +55,11 @@ b*＋ ≤ 4、b*－ ≤ 25、|ΔL*| ≤ 15）、臉框與膚色 ΔE00 ≤ 16、�
 移植自作者的 fork，只改 import。
 
 ### 已知限制
-- **幾何淨化的分區欄**：`purified_mask()`（現為 `immunization_core.pipelines.masks`）在 commit `199b7de` 進版。`retention.csv`
-  中 `color` 以外的 11 個條件在那之前算出，`crop_resize0.1`、`rotate15` 的 `disp_purified_subject`／
-  `disp_purified_background` 用的是未變換的遮罩（全圖欄不受影響）；`color` 與 UltraEdit 的保留率是之後算的。
+- **幾何淨化的分區欄已更正**：`retention.csv` 中 `color` 以外 11 個條件的 `crop_resize0.1`、`rotate15`（1,408 列）的
+  `disp_purified_subject`／`disp_purified_background` 原以未變換的遮罩算出，已用 `purified_mask()` 重算並寫回
+  （2,814 個值改變，最大絕對變化 0.10288）。重算時其餘欄與非幾何算子的分區欄逐值與原表相同。更正前的數值見
+  commit `228c59b` 的 `baseline/results/retention.csv`。
+  `results/aligned/retention.csv` 的分區欄未重算，當時所用程式是否含 `purified_mask()` 未查證。
 - **SD 2.x 只能用 epsilon-prediction 權重**：`sd2-community/stable-diffusion-2-1` 是 v-prediction，`SDWrapper`
   的 DDIM 遞迴假設 ε-prediction，要用 `sd2-community/stable-diffusion-2-1-base`。
 

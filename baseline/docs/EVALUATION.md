@@ -73,7 +73,7 @@ core 的淨化協定正本 `purifiers/protocol.json` 指定：
 
 | 範圍 | 狀態 |
 |---|---|
-| `results/retention.csv` 的 `disp_purified_subject`、`disp_purified_background` | 受影響，**1,536 列**（`crop_resize0.1` 768 ＋ `rotate15` 768） |
+| `results/retention.csv` 的 `disp_purified_subject`、`disp_purified_background` | 幾何兩道共 1,536 列；其中 `color` 以外 11 個條件的 1,408 列曾以未變換遮罩算出，已重算更正（`color` 的 128 列原本即以 `purified_mask()` 算出） |
 | 同檔的 `disp_purified`、`net_gain`、`retained` | 不受影響，三者都由全圖 LPIPS 算，不吃遮罩 |
 | 非幾何的五道（`jpeg30/50/80`、`blur1/2`）的分區 | 不受影響，那些算子不動座標 |
 | `results/additional_metrics/retention.csv` | 不受影響，該檔只有全圖 FSIM |

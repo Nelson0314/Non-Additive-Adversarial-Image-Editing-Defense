@@ -56,10 +56,10 @@
 
 ## 6. 與主表 baseline 的比較（baseline 專案提供）
 
-- 失真對齊（防禦圖 LPIPS ≈ 0.334）後，主體的編輯結果 LPIPS：colour_curve_ours 0.422，baseline 0.198–0.346（sifm 0.346、dayn 0.345、dia_pt 0.343）；
-  全圖為 colour_curve_ours 0.386，與 dayn、dia_pt 相同，dia_r 0.390。
-- 淨化後編輯結果 LPIPS（7 道平均）：colour_curve_ours 0.392、color 0.308；對齊後 baseline 0.116–0.241。
-- 美術指標（原生預算）：VMAF color 70.6、colour_curve_ours 71.4，baseline 64.9–95.6；無參考指標（LAION、CLIP-IQA、NIQE）與原圖接近。
+- 失真對齊（防禦圖 LPIPS ≈ 0.334）後，主體的編輯結果 LPIPS：color_curve 0.422，baseline 0.198–0.346（sifm 0.346、dayn 0.345、dia_pt 0.343）；
+  全圖為 color_curve 0.386，與 dayn、dia_pt 相同，dia_r 0.390。
+- 淨化後編輯結果 LPIPS（7 道平均）：color_curve 0.392、color 0.308；對齊後 baseline 0.116–0.241。
+- 美術指標（原生預算）：VMAF color 70.6、color_curve 71.4，baseline 64.9–95.6；無參考指標（LAION、CLIP-IQA、NIQE）與原圖接近。
 - 穿透占比（LPIPS(edit(x), T̂(edit(x))) ÷ 編輯結果 LPIPS；T̂ 為由 (x, x_def) 回推的同族全域映射）：顏色方法 74–80%，對抗擾動 47–80%（多數 55–65%，以加性 T̂ 估計）。
 
 ## 7. 已退役方向的數據紀錄（程式與產物已刪除）

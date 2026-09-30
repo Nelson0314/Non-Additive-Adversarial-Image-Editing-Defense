@@ -18,7 +18,7 @@
 
 用法
     python -m immunization_baseline.cli.import_defense_artifacts --run <求解輸出目錄> \\
-        --out artifacts/defenses/colour_curve_ours
+        --out artifacts/defenses/color_curve
 """
 
 from __future__ import annotations
@@ -110,7 +110,7 @@ def main() -> None:
             "solver_prompt_source": SOLVER_PROMPT[1],
             "seed": "",
             # 顏色線沒有 L∞／L2 預算，束縛的種類逐臂不同，由 --norm 指定：
-            # `colour_curve_ours` 是 CIEDE2000 上限（投影施加），
+            # `color_curve` 是 CIEDE2000 上限（投影施加），
             # `advcf_paper` 只有 AdvCF 自己的半徑，**沒有色差上限**。
             "eps": args.budget, "eps_pixel01": "", "norm": args.norm,
             "steps": "", "grad_reps": "", "q_alg": "", "pg_strength": "",

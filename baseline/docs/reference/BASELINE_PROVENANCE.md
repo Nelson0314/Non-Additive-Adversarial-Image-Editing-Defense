@@ -57,7 +57,7 @@
 | `linf` | `mist`、`photoguard_linf`（0.0627）、`dayn`、`sifm`、`danp`（0.03）、`dia_pt`、`dia_r`（0.025） | 逐像素的 `L∞` 上界，`[0,1]` 尺度 |
 | `l2` | `photoguard_c`（8.0） | **整張影像的 `L2` 範數**，不是逐像素值 |
 | `dct_coeff_linf` | `dct_shield`、`dct_shield_y` | 空。束縛下在 DCT 係數上，`eps` 欄的 1.0 是係數域的量 |
-| `delta_e00_cap` | `colour_curve_ours` | 空。束縛是 ΔE00 上限，`eps` 欄的 16.0 是 ΔE00 |
+| `delta_e00_cap` | `color_curve` | 空。束縛是 ΔE00 上限，`eps` 欄的 16.0 是 ΔE00 |
 | `none` | `diffvax` | 空。前饋路徑，沒有迭代預算 |
 
 七個 `linf` 列之間，`eps_pixel01` 是同一個量。`photoguard_c` 的 8.0 與那七個數

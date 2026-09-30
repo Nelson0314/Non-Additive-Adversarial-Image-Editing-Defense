@@ -5,7 +5,7 @@
 各臂的 `results.csv` 是各自的求解腳本寫的，欄位隨載體而異：
 `curve_*`、`ab_warp` 有 ΔE00 沒有 LPIPS，`inpaint_*` 兩者都沒有意義，
 只有兩個 `style_*` 直接交付臂寫了 LPIPS。於是**沒有一個軸能把十二個臂排在
-一起**——而主表那條線的等失真錨點是 LPIPS 0.3344（`colour_curve_ours` 原生
+一起**——而主表那條線的等失真錨點是 LPIPS 0.3344（`color_curve` 原生
 設定的八張平均），要掛上去就得先有這一欄。
 
 這也正是本專案剛寫下的那條限制的自我檢查：**任一失真指標固定住時，其餘指標
@@ -43,7 +43,7 @@ from immunization_core.io import load_image_tensor, write_sorted_csv
 
 RESOLUTION = 512
 
-#: 主表等失真對齊的錨：`colour_curve_ours` 原生設定的八張平均 LPIPS。
+#: 主表等失真對齊的錨：`color_curve` 原生設定的八張平均 LPIPS。
 #: **那是另一批的數字**，這裡只當參照欄，不當判準。
 ANCHOR_LPIPS = 0.3344
 
@@ -104,7 +104,7 @@ def main() -> None:
                 "linf": round(float((y - x).abs().max()), 5),
                 "rms": round(mse ** 0.5, 6),
                 "anchor_lpips": ANCHOR_LPIPS,
-                "anchor_source": "主表 colour_curve_ours 原生設定的八張平均（另一批）",
+                "anchor_source": "主表 color_curve 原生設定的八張平均（另一批）",
             })
             write_sorted_csv(args.out, rows)
         sub = [r for r in rows if r["arm"] == arm]

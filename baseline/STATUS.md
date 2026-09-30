@@ -26,7 +26,7 @@
 `import_defense_artifacts --variant color` 整理成主表版面並重算保真欄；ip2p／inpaint 編輯、7 道淨化與
 淨化後重編、FLUX、UltraEdit 都重跑過（`scripts/evaluate_color_condition.sh`），讀數以同一程式只算 `color`
 後替換進各聚合 CSV，`results/additional_metrics/` 整張重算。
-舊顏色列 `colour_curve_ours` 的數值留在 commit `0dd243b`。
+舊顏色列 `color_curve`（CSV 識別值原為 `colour_curve_ours`，第 7 項改名）的數值留在 commit `0dd243b`。
 
 `color` 的防禦圖 LPIPS 是 0.2317（8 張平均），舊顏色列是 0.3344，量法相同（`piq.LPIPS`）。差距來自上限的
 組成：舊顏色列只有整圖平均 ΔE00 ≤ 16（8 張皆頂到）；`color` 另有逐像素 Lab 位移上限（a*＋ ≤ 4、a*－ ≤ 15、

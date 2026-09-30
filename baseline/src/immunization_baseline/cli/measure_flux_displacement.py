@@ -34,7 +34,7 @@ from immunization_core.pipelines.masks import subject_mask  # noqa: E402
 RESOLUTION = 1024  # FluxKontextPipeline 強制的輸出解析度，見 run_flux_edits
 CONDITIONS = ["dct_shield_y", "mist", "dct_shield", "photoguard_linf", "danp",
              "sifm", "dayn", "dia_pt", "dia_r", "photoguard_c",
-             "colour_curve_ours", "diffvax"]
+             "color_curve", "diffvax"]
 
 
 def read_csv(path: Path) -> list:

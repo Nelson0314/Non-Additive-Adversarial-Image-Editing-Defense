@@ -15,7 +15,7 @@
 
 靜態閉包包含上述六個 metrics 模組，不包含 `metrics.aesthetic`、`metrics.layout`、`metrics.naturalness`。此處的 `metrics.layout` 是人體分割布局指標，與待建的產物路徑 `artifacts/layout` 不同。
 
-閉包中的 `src.baselines` 攻擊模組不納入 core，保留第 4 項處理。`src.defense` 的七個活動 helper 模組與四個淨化模組待下一段依責任移植；`src.purify.freq_grid` 是 registry 中的延遲 import，現有 `anti-purification/src` 沒有該檔。後續必須明確處理選配來源，不複製缺失 import 或搜尋兄弟目錄來掩蓋它。
+閉包中的 `src.baselines` 攻擊模組不納入 core，保留第 4 項處理。`src.defense` 的七個活動 helper 模組依下節移植；`src.purify.freq_grid` 是 registry 中的延遲 import，現有 `anti-purification/src` 沒有該檔。後續必須明確處理選配來源，不複製缺失 import 或搜尋兄弟目錄來掩蓋它。
 
 ## 保存的量測與模型契約
 
@@ -29,3 +29,19 @@
 ## 測試移植
 
 複製 11 個相關測試檔至 `core/tests/`，調整 import 與檔案定位，原測試檔不動。IP2P batch 替身會暫時覆寫類別 property，新副本加入還原 fixture 避免污染後續測試。semantic 委派測試改以 `__new__` 建立不需權重的空實例；其被測路徑不讀 LPIPS／DISTS。真實 metric 權重案例以 `weights` 標記明確選取，移除廣泛捕捉例外或缺套件即 skip 的處理。
+
+## 編輯流程、helpers 與 GPU 工具
+
+來源 SHA-256 與改名對照見 [pipeline_source_manifest.json](pipeline_source_manifest.json)。
+
+| 原位置 | 新位置與處置 |
+|---|---|
+| `lab/code/edit_preflight.py`、`edit_displacement.py`、`edit_retention.py` | `pipelines.editing`、`pipelines.displacement`、`pipelines.retention`；`--data` 必填，其餘參數、欄位與數值設定不變。 |
+| `src.defense.ncf_param` 的 `rgb_to_lab`、`lab_to_rgb` | `color.space`；`NCFColorParam` 屬 NCF 基準方法，不納入。 |
+| `src.defense.color_amplitude` 的 `delta_e00`、`cvar_e00`，`src.defense.delta_e_torch` | `color.difference`；幅度求解器（`solve_amplitude` 等）不在活動閉包內。 |
+| `src.defense.uniformity` | `color.uniformity`；`gaussian_blur` 改由 `purifiers.operators` 匯入。 |
+| `src.defense.immunise` | `optimization.carrier`；`quantise`、`optimise_carrier`、`randomise_carrier` 改為 `quantize`、`optimize_carrier`、`randomize_carrier`，回傳的 `free_*` 鍵不變。 |
+| `src.defense.instruction_free` | `optimization.instruction_free`。 |
+| `lab/scripts/{gpu_policy,gpu_lease,run_on_card,queue_worker}.sh`、`anti-purification/scripts/free_cards.sh` | `core/scripts/`；`run_on_card.sh` 改名為 `run_with_gpu_lease.sh`。遠端根目錄與 `~/env.sh` 改為 `--workdir`、`--env` 參數；queue 的 lab 專屬工作語法（pilot／def／chain／readout／fid、分片合併、`validate_job.py`）留待第 5 項由 color 專案以注入指令提供。 |
+
+`src.defense.lowfreq_color` 只經 `color_amplitude` 的求解器延遲匯入，不在活動閉包內。helper 測試來自 `anti-purification/tests` 的 `test_delta_e_torch.py`、`test_color_amplitude.py`（僅 `delta_e00`）、`test_uniformity.py`、`test_instruction_free.py`；歷史載體 `carrier_search.build_carrier` 以 `tests/carrier_stub.py` 代替，舊入口腳本的指令設定檔守衛未移植。

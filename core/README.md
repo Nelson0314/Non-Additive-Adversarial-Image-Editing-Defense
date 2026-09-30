@@ -1,6 +1,6 @@
 # immunization_core
 
-影像免疫研究的共用模型、量測與 I/O 套件。來源以複製方式移植，原有專案與呼叫端保持原狀。已提供基礎模組、淨化、固定淨化流程、幾何遮罩、顯式產物根目錄，以及編輯、displacement 與 retention 流程；最佳化與 GPU 租約工具尚待移植。
+影像免疫研究的共用模型、量測與 I/O 套件。來源以複製方式移植，原有專案與呼叫端保持原狀。包含基礎模組、淨化、固定淨化流程、幾何遮罩、顯式產物根目錄、編輯與讀數流程、色彩與載體最佳化 helpers，以及 `scripts/` 下的 GPU 租約工具。
 
 ```powershell
 python -m pip install -e ./core --no-deps --no-build-isolation
@@ -19,6 +19,8 @@ python -m pip install -e ./core --no-deps --no-build-isolation
 | `purifiers.operators`、`purifiers.protocol` | 真實淨化與訓練代理分離；固定 identity 加七道淨化的順序及強度。 |
 | `pipelines.purification`、`pipelines.masks` | 明確指定資料／輸出根的淨化流程；保留主體極性及 `purified_mask()` 幾何變換。 |
 | `pipelines.editing`、`pipelines.displacement`、`pipelines.retention` | 編輯與位移讀數流程；資料根、輸入根與輸出路徑皆為必填參數，配對缺側立即失敗。 |
+| `color.space`、`color.difference`、`color.uniformity` | sRGB／CIELab 轉換；skimage 量測與可微求解兩條 CIEDE2000 路徑（平均與 CVaR）；位移場 TV、U16 與端點讀數。 |
+| `optimization.carrier`、`optimization.instruction_free` | 以 augmented Lagrangian 在色差上限內最佳化載體（`optimize_carrier`、`randomize_carrier`、`quantize`、`Cap`）；不含指令的 IP2P 目標 `FreeObjective`。 |
 | `artifacts.layout` | 顯式 `ArtifactLayout` 與唯一防禦 PNG 查找，不探索舊專案、不在建構時建立目錄。 |
 
 固定淨化入口為 `python -m immunization_core.pipelines.purification --data <資料集> --out <輸出>`，或以 `--defended <防禦圖目錄>` 代替 `--data`。IMPRESS 的 lpips 後端及 Adverse Cleaner 的 OpenCV-contrib 可由 `purifiers` extra 安裝；DiffPure 另需明確提供 guided-diffusion 與檢查點。歷史 `gridpure`／`fdpure` 未包含實作，`available=False` 並於使用時明確拒絕，無近似替代。詳見 [PURIFICATION.md](docs/PURIFICATION.md)。
@@ -34,5 +36,18 @@ python -m pytest core/tests -q -p no:cacheprovider --basetemp=.tmp/codex_audit/p
 ```
 
 測試預設排除 `weights` 標記。需要真實指標權重的測試以 `-m weights` 明確選取；缺依賴或執行錯誤會失敗，不以廣泛例外轉為 skip。本階段不執行此組。獨立副本測試會禁止連網、CUDA 初始化，並匯入副本中的全部公開模組。
+
+## GPU 租約工具
+
+`scripts/` 的五支 Bash 工具共用一個租約目錄（`LEASE`，預設 `$HOME/lab_leases`）。取卡、容量檢查、擁有者驗證與釋放都在同一個 `mkdir` 鎖內；全局卡數由使用者逐次授權，以 `--cap` 或 `GPU_CAP` 寫入租約目錄，未指定時預設全局合計 6 張，計入所有主機、session 與排程。
+
+| 工具 | 用途 |
+|---|---|
+| `gpu_policy.sh`、`gpu_lease.sh` | 容量政策與租約函式，供其他工具 `source`。 |
+| `free_cards.sh` | 列出空閒卡；`--assert` 檢查指定卡。只產生候選清單，不保留卡。 |
+| `run_with_gpu_lease.sh --workdir <目錄> [--env <檔案>] <名稱> <指令...>` | 取一張卡的租約後執行單一指令，結束時釋放。 |
+| `queue_worker.sh --workdir --state --logs --runner --validator [--depends] <佇列> <工作>...` | 佇列排程；工作執行、輸出驗收與相依由專案以指令注入，驗收通過才記為完成。 |
+
+工具以自身所在目錄互相定位，不依賴 CWD；`PY` 未設定時使用 `python`，`PYTHONPATH` 等環境由 `--env` 檔或呼叫端提供。
 
 三份流程差異見 [PIPELINE_BEHAVIOR.md](docs/PIPELINE_BEHAVIOR.md)；來源、命名與後續範圍見 [PROVENANCE.md](docs/PROVENANCE.md) 及 [STATUS.md](STATUS.md)。

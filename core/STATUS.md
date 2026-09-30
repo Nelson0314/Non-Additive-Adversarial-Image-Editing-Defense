@@ -4,13 +4,13 @@
 
 已建立可安裝的 `immunization_core` 套件、三份 pipelines 行為差異表、受害模型 adapters、活動閉包內六個 metrics 模組、device、I/O 與影像存檔介面。原 `anti-purification/src`、main_table、lab 呼叫端與所有資料保持原狀。baseline 攻擊實作未納入 core。
 
-第 3 項尚餘：
+第 3 項各子項狀態：
 
-1. 已移植四個淨化模組；歷史 `gridpure`／`fdpure` 明確標示不可用，無封存區 import。外部權重算子的真實數值驗證尚未執行。
-2. 固定淨化流程、`purified_mask()` 與編輯、displacement、retention 主流程已合併（`pipelines.editing`、`pipelines.displacement`、`pipelines.retention`，來源見 `docs/pipeline_source_manifest.json`），保留 lab 子集順序與條件過濾；原 lab 呼叫端尚未切換。
-3. 已提供顯式 `artifacts/layout`；後續 pipelines 與第 4、5 項 CLI 須接入，不新增兄弟目錄探索。
-4. 處理 color／style 閉包中的共用最佳化、色彩與 objective helpers：`color_amplitude`、`delta_e_torch`、`immunise`、`instruction_free`、`lowfreq_color`、`ncf_param`、`uniformity`。將共用部分依責任放置，改為 `optimization`、`optimize_carrier`、`randomize_carrier`、`quantize` 等美式名稱，避免納入 baseline 攻擊求解器。
-5. 複製五支 GPU 租約工具至 `core/scripts/`，將 `run_on_card.sh` 改名為 `run_with_gpu_lease.sh`，使 queue 呼叫與驗證依賴可明確注入；保留全局授權卡數與租約原子性。
-6. 上述模組相關測試隨行，再以完整 core 的獨立副本驗證全部公開模組；延伸處理新模組的公開契約與來源說明。
+1. 已移植四個淨化模組；歷史 `gridpure`／`fdpure` 明確標示不可用，無封存區 import。外部權重算子的真實數值驗證尚未執行（需權重與 GPU，由協調端處理）。
+2. 固定淨化流程、`purified_mask()` 與編輯、displacement、retention 主流程已合併（`pipelines.editing`、`pipelines.displacement`、`pipelines.retention`），保留 lab 子集順序與條件過濾。
+3. 已提供顯式 `artifacts/layout`；第 4、5 項的專案 CLI 須接入，不新增兄弟目錄探索。
+4. color／style 閉包中的共用 helpers 已依責任放入 `color.space`、`color.difference`、`color.uniformity`、`optimization.carrier`、`optimization.instruction_free`，改為 `quantize`、`optimize_carrier`、`randomize_carrier`。NCF 載體（`NCFColorParam`）、`lowfreq_color` 與 `color_amplitude` 的幅度求解器不在活動閉包內，未納入。
+5. 五支 GPU 租約工具已複製至 `core/scripts/`，`run_on_card.sh` 改名為 `run_with_gpu_lease.sh`；queue 的工作執行、驗收與相依改為 `--runner`、`--validator`、`--depends` 注入。`LAB_CAP`、`LAB_MYCAP` 改為 `GPU_CAP`、`QUEUE_CAP`；租約目錄預設值維持 `$HOME/lab_leases`，改名須所有取卡入口同時切換（第 10 項）。
+6. 上述模組的測試隨行；完整 core 的獨立副本通過全部 CPU 測試、各 pipeline `--help` 與全部公開模組匯入。
 
-基礎與淨化階段的驗證分別記錄於 `.tmp/codex_audit/ITEM3_REPORT.md`、`.tmp/codex_audit/ITEM3B_REPORT.md`；本文件不宣稱第 3 項全部完成。
+來源雜湊：基礎模組見 `docs/source_manifest.json`，淨化見 `docs/purifier_source_manifest.json`，其餘見 `docs/pipeline_source_manifest.json`。原 `anti-purification`、`lab` 呼叫端尚未切換至 core，於第 4、5 項處理。

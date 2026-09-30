@@ -48,6 +48,8 @@ python -m pytest core/tests -q -p no:cacheprovider --basetemp=.tmp/codex_audit/p
 | `run_with_gpu_lease.sh --workdir <目錄> [--env <檔案>] <名稱> <指令...>` | 取一張卡的租約後執行單一指令，結束時釋放。 |
 | `queue_worker.sh --workdir --state --logs --runner --validator [--depends] <佇列> <工作>...` | 佇列排程；工作執行、輸出驗收與相依由專案以指令注入，驗收通過才記為完成。 |
 
+`trial.sh new|promote|drop <名稱>` 管理各專案不入版控的 `trials/<名稱>/`：`promote` 要求升格內容已提交，`drop` 要求 `docs/TRIALS.md` 已有該名稱的一列，並以 `TRIAL_REMOTE`、`TRIAL_REMOTE_ROOT` 同時刪除遠端副本（只刪本機時明確給 `--local-only`）。
+
 工具以自身所在目錄互相定位，不依賴 CWD；`PY` 未設定時使用 `python`，`PYTHONPATH` 等環境由 `--env` 檔或呼叫端提供。
 
 三份流程差異見 [PIPELINE_BEHAVIOR.md](docs/PIPELINE_BEHAVIOR.md)；來源、命名與後續範圍見 [PROVENANCE.md](docs/PROVENANCE.md) 及 [STATUS.md](STATUS.md)。

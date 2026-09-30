@@ -257,3 +257,63 @@ def test_queue_requires_injected_validator(tmp_path):
                             env=env, capture_output=True, text=True, encoding="utf-8", timeout=15)
     assert result.returncode == 2
     assert "--validator" in result.stderr
+
+
+# ---- 暫時性嘗試 ----
+
+def trial_project(tmp_path):
+    project = tmp_path / "project"
+    (project / "vendor/scripts").mkdir(parents=True)
+    (project / "docs").mkdir()
+    shutil.copyfile(SCRIPTS / "trial.sh", project / "vendor/scripts/trial.sh")
+    (project / "pyproject.toml").write_text("[project]\nname = 'x'\n")
+    (project / ".gitignore").write_text("/trials/\n")
+    (project / "docs/TRIALS.md").write_text("| 名稱 | 試了什麼 | 設定 | 關鍵數字 | 結論來源 |\n|---|---|---|---|---|\n")
+    git = lambda *a: subprocess.run(["git", *a], cwd=project, check=True, capture_output=True)
+    git("init", "-q")
+    git("-c", "user.name=t", "-c", "user.email=t@t", "commit", "-qm", "init", "--allow-empty")
+    git("add", ".")
+    git("-c", "user.name=t", "-c", "user.email=t@t", "commit", "-qm", "files")
+    stubs = tmp_path / "bin"
+    stubs.mkdir()
+    write_tool(stubs / "ssh", 'echo "$@" >> "$SSH_LOG"\n')
+    env = dict(os.environ, PATH=str(stubs) + os.pathsep + os.environ["PATH"],
+               SSH_LOG=str(tmp_path / "ssh.log"))
+    env.pop("TRIAL_REMOTE", None)
+    env.pop("TRIAL_REMOTE_ROOT", None)
+    run = lambda *a, **e: subprocess.run([BASH, str(project / "vendor/scripts/trial.sh"), *a],
+                                         env=dict(env, **e), capture_output=True, text=True,
+                                         encoding="utf-8", timeout=15)
+    return project, run, git
+
+
+def test_trial_new_and_promote_require_committed_content(tmp_path):
+    project, run, git = trial_project(tmp_path)
+    assert run("new", "bad-name").returncode == 2
+    assert run("new", "warm_grade").returncode == 0
+    assert (project / "trials/warm_grade/README.md").is_file()
+    assert run("new", "warm_grade").returncode == 1
+    (project / "configs.yaml").write_text("x: 1\n")
+    result = run("promote", "warm_grade")
+    assert result.returncode == 1 and "configs.yaml" in result.stderr
+    git("add", "configs.yaml")
+    git("-c", "user.name=t", "-c", "user.email=t@t", "commit", "-qm", "promote")
+    assert run("promote", "warm_grade").returncode == 0
+    assert not (project / "trials/warm_grade").exists()
+
+
+def test_trial_drop_requires_ledger_row_and_remote(tmp_path):
+    project, run, _ = trial_project(tmp_path)
+    run("new", "cold_grade")
+    result = run("drop", "cold_grade")
+    assert result.returncode == 1 and "TRIALS.md" in result.stderr
+    with (project / "docs/TRIALS.md").open("a") as ledger:
+        ledger.write("| `cold_grade` | 冷色調 | lr 0.02 | LPIPS 0.1 | trials 已刪 |\n")
+    assert run("drop", "cold_grade").returncode == 2
+    assert (project / "trials/cold_grade").exists()
+    result = run("drop", "cold_grade", TRIAL_REMOTE="-p 1 u@h", TRIAL_REMOTE_ROOT="/r/color")
+    assert result.returncode == 0, result.stderr
+    assert "/r/color/trials/cold_grade" in (tmp_path / "ssh.log").read_text()
+    assert not (project / "trials/cold_grade").exists()
+    run("new", "cold_grade")
+    assert run("drop", "cold_grade", "--local-only").returncode == 0

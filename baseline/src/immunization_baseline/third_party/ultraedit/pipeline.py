@@ -15,7 +15,8 @@
 # 移植來源：UltraEdit（Zhao et al., arXiv:2407.05282）作者維護的 diffusers fork，
 # https://github.com/HaozheZhao/UltraEdit 的
 # diffusers/src/diffusers/pipelines/stable_diffusion_3/pipeline_stable_diffusion_3_instructpix2pix.py
-# （main 分支）。官方 diffusers 沒有這個管線。唯一的改動是把套件內的相對 import
+# （commit 70e8ce5bc3bc8a6a02e1b9e0b6a1eb0058d98bc2，該檔唯一的變更 commit；移植時 main 為
+# 1af5f0478d56d62cf6f35781a2ab63e03d656b2d，兩者之間該檔未變動）。官方 diffusers 沒有這個管線。唯一的改動是把套件內的相對 import
 # 換成 `diffusers.` 的絕對 import，讓它能在官方 diffusers 上以獨立檔案載入；
 # 取樣、guidance 組合、image latent 的縮放方式（encode 不乘 scaling_factor、
 # decode 只除 scaling_factor 不加 shift_factor）都照原樣保留。

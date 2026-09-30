@@ -155,6 +155,6 @@
 1. CSV 內的路徑欄仍為舊值；`measure_additive_transfer` 與 `measure_additional_metrics` 讀取 CSV 中的影像路徑時，相對路徑改以 baseline 根為基準（原為主線根，並有 `runs/`→`images/` 的首段替換）。第 7 項改寫路徑欄前，這兩支對既有 CSV 的重算不可用。
 2. 續跑 CSV 的 `protocol_id` 雜湊包含資料與輸出的絕對路徑（UltraEdit 另含原 `SOURCE_HOME`，已改為 `--defenses`、`--purified-edits`）；搬移後以既有 CSV 續跑會因協定不符而拒絕，須以新輸出重跑。此雜湊無法由第 7 項改寫。
 3. `generate_defenses`、`attacks/*` 與 `results/ADDITIVE_TRANSFER.md` 的 docstring／文字仍引用封存區的 `../scripts/*.py`、`src/models/attention.py` 與 `lab/results/passthrough/`；於第 8 項（文件清理）與第 5 項確定 color 結果位置後處理。
-4. `third_party/ultraedit/pipeline.py` 只記錄來源為作者 fork 的 `main` 分支；本環境未取得上游 commit。檔案 SHA-256：`d7d04ba20fee825e9819c658abc5cdf8a9b3660add4b7b324cfa90201ba14305`。需要協調端或使用者補上來源 commit。
+4. （已處理）`third_party/ultraedit/pipeline.py` 的來源版本由使用者提供並寫入該檔標頭與 `baseline/docs/README.md`：commit `70e8ce5bc3bc8a6a02e1b9e0b6a1eb0058d98bc2`（移植時 `main` 為 `1af5f0478d56d62cf6f35781a2ab63e03d656b2d`，其間該檔未變動），逐行比對除 import 與移植註解外一致。
 5. `anti-purification/tests/test_metrics_union_failure.py` 引用已移出的 `main_table/code`，在 anti-purification 內已不可執行；第 6 項封存時原狀保存，不修。
 6. 鎖定依賴（`requirements.lock`）屬第 9 項。

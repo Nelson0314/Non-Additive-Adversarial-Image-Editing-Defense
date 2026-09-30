@@ -628,3 +628,10 @@ git commit -m "Lock the remote execution environment for each project"
 
 - 上述兩組遠端指令（協調端）。
 - `results/aligned/retention.csv` 的幾何分區欄重算（需 GPU；是否重算由使用者決定），已列於 `baseline/STATUS.md` 已知限制。
+
+## 驗收後處理（協調端）
+
+- Codex 唯讀驗收 `f89cac2`：未發現 P0，列 7 項 P1、11 項 P2，另有三題待裁定。使用者裁定：等失真臂重算；style 的 `r11`、`r13`、`cls_p_noedit`、`cls_p_snow` 四組刪除；
+  卡數規則只保留「使用者未說明時全局合計 6 張」一條，其餘以使用者口頭派發為主。
+- 遠端：`~/lab_leases` 已改名 `~/gpu_leases`（改名前為空），遠端樹同步至 `f89cac2`。
+- 等失真臂 `results/aligned/retention.csv`：basic-1 一張卡以 `purified_mask()` 重算 10 個條件全部七道、4,480 列，逐值與原表相同（含 1,280 列幾何分區欄），數值未改，`baseline/STATUS.md` 的限制改為已查證。

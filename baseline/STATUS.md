@@ -59,10 +59,8 @@ b*＋ ≤ 4、b*－ ≤ 25、|ΔL*| ≤ 15）、臉框與膚色 ΔE00 ≤ 16、�
   `disp_purified_subject`／`disp_purified_background` 原以未變換的遮罩算出，已用 `purified_mask()` 重算並寫回
   （2,814 個值改變，最大絕對變化 0.10288）。重算時其餘欄與非幾何算子的分區欄逐值與原表相同。更正前的數值見
   commit `228c59b` 的 `baseline/results/retention.csv`。
-- **等失真臂的幾何淨化分區欄未重算**：`results/aligned/retention.csv` 中 `crop_resize0.1`、`rotate15` 的 1,280 列
-  （10 個條件 × 2 道 × 64 格）的 `disp_purified_subject`／`disp_purified_background` 沒有以 `purified_mask()` 重算，
-  產生該表的程式是否已對遮罩做幾何變換未查證；數值維持原表。引用這兩欄前須先重算。同表的全圖欄
-  （`disp_purified`、`net_gain`、`retained`）不使用遮罩，不受此影響。
+- **等失真臂的幾何淨化分區欄已查證**：`results/aligned/retention.csv` 全部 4,480 列以 `purified_mask()` 重算，
+  包括 `crop_resize0.1`、`rotate15` 的 1,280 列分區欄在內逐值與原表相同，原表即以變換後的遮罩算出，數值未改。
 - **SD 2.x 只能用 epsilon-prediction 權重**：`sd2-community/stable-diffusion-2-1` 是 v-prediction，`SDWrapper`
   的 DDIM 遞迴假設 ε-prediction，要用 `sd2-community/stable-diffusion-2-1-base`。
 

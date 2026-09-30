@@ -256,3 +256,31 @@
 2. style 各輪的工作清單不在 repo 中；若要保存，協調端取回後放入 `style/configs/`。
 3. 各專案的 vendor 快照對應不同 core commit（baseline `85663a7`；color、style `2097c77`／`39ca57a`，core 內容相同）。baseline 不使用第 5 項新增的 core 模組，未更新。
 4. 第 4 項紀錄的未完成事項 1–3、5、6 仍適用（CSV 路徑欄於第 7 項改寫；舊續跑 CSV 的 `protocol_id` 含絕對路徑）。
+
+## 第 6 項：建立 `/archive`
+
+- 基準：`00264ac`。commit 見下表（前 3 個為第 4、5 項的修正）。
+
+| commit | 內容 |
+|---|---|
+| `32f6045` | 行為修正（第 4、5 項）：三個專案 `.gitignore` 的 `artifacts/`、`runtime/` 未錨定，同時排除了 `vendor/immunization_core/artifacts/` 與 `runtime/` 兩個子套件，先前推送的 vendor 快照缺這 5 個檔案，乾淨 clone 無法匯入 `immunization_core`。規則改為 `/artifacts/`、`/runtime/`、`/trials/`、`/.pytest_cache/`，補入缺少的檔案（與各 `vendor.lock.json` 一致）。 |
+| `cd9b97f` | `export_vendor.py` 在匯出後以 `git check-ignore` 檢查，有檔案會被排除即失敗。 |
+| `e846124` | 三個專案重新匯出 vendor，統一對應 core commit `cd9b97f`。 |
+| `487e6d7` | 純改名：`anti-purification/`（1,545 檔）→ `archive/anti-purification/`、`frequency-phase/`（13 檔）→ `archive/frequency-phase/`、`HANDOFF.md`、`COLOUR_LINE.md` → `archive/`；內部不改名、不改內容。 |
+| `42676af` | 根 `.gitignore` 的 `*/.tmp/`、`*/.pytest_tmp_*/` 改為 `**/`，使搬入 archive 後的巢狀 pytest 暫存目錄仍被排除；baseline、core 文件中的來源路徑改指 `archive/anti-purification/`。 |
+
+### 驗證
+
+| 指令 | 結果 |
+|---|---|
+| 比對 `487e6d7~1` 與 `487e6d7` 的 `ls-tree` blob（`anti-purification/`↔`archive/anti-purification/`、`frequency-phase/`↔`archive/frequency-phase/`、兩份根文件） | 1,545／13／2 個檔案全部相同 |
+| 自本地 repo `git clone` 一份乾淨副本（修正後），執行 `core/tests` 與三個專案的 `tests` | 172 passed／21 deselected；71、40、14 passed |
+| 搬移後於工作目錄重跑同樣四組測試 | 同上 |
+
+根目錄現為 `README.md`、`archive/`、`baseline/`、`color/`、`core/`、`style/`（`docs/` 為空目錄，git 不追蹤，於第 13 項建立）。
+
+### 未完成與待裁定
+
+1. 根 `README.md` 仍是舊內容，連結指向已不存在的 `anti-purify/` 與已移入封存區的 `anti-purification/`；依計畫於第 13 項重寫。
+2. `archive/anti-purification/` 內的程式、測試與文件仍以原位置為準（例如 `tests/test_metrics_union_failure.py` 引用已移出的 `main_table/code`）；依規則不修改，封存區不承諾可執行。
+3. 協調端本機若有 `anti-purification/` 下未追蹤的資料（`runs/` 影像、`.tmp/` 等），合併本分支時 git 不會搬動它們，需在本機一併移到 `archive/anti-purification/`。

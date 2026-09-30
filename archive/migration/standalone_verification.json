@@ -1,0 +1,79 @@
+{
+ "rev": "677b6d144dc264d28b67de1a63d5c934309b6160",
+ "python": "3.11.15",
+ "projects": {
+  "core": {
+   "failures": [],
+   "files": 85,
+   "modules_imported": 41,
+   "help_ok": [
+    "immunization_core.pipelines.displacement",
+    "immunization_core.pipelines.editing",
+    "immunization_core.pipelines.purification",
+    "immunization_core.pipelines.retention",
+    "immunization_core.purifiers.protocol"
+   ],
+   "shell_scripts": 6,
+   "pytest": "176 passed, 21 deselected, 3 warnings in 18.38s"
+  },
+  "baseline": {
+   "failures": [],
+   "files": 232,
+   "modules_imported": 79,
+   "help_ok": [
+    "immunization_baseline.cli.apply_purifiers",
+    "immunization_baseline.cli.check_edit_completion",
+    "immunization_baseline.cli.generate_defenses",
+    "immunization_baseline.cli.import_defense_artifacts",
+    "immunization_baseline.cli.measure_additional_metrics",
+    "immunization_baseline.cli.measure_additive_transfer",
+    "immunization_baseline.cli.measure_edit_displacement",
+    "immunization_baseline.cli.measure_flux_displacement",
+    "immunization_baseline.cli.measure_off_target_changes",
+    "immunization_baseline.cli.measure_purified_displacement",
+    "immunization_baseline.cli.run_edits",
+    "immunization_baseline.cli.run_flux_edits",
+    "immunization_baseline.cli.run_ultraedit_edits",
+    "immunization_baseline.cli.sweep_editor_parameters",
+    "immunization_baseline.cli.sweep_sdedit_parameters",
+    "immunization_baseline.conditions"
+   ],
+   "shell_scripts": 9,
+   "pytest": "78 passed in 3.46s"
+  },
+  "color": {
+   "failures": [],
+   "files": 190,
+   "modules_imported": 54,
+   "help_ok": [
+    "immunization_color.cli.apply_purifiers",
+    "immunization_color.cli.generate_color_defenses",
+    "immunization_color.cli.measure_defense_fidelity",
+    "immunization_color.cli.measure_edit_displacement",
+    "immunization_color.cli.measure_purified_displacement",
+    "immunization_color.cli.run_edits",
+    "immunization_color.cli.validate_queue_job",
+    "immunization_color.conditions"
+   ],
+   "shell_scripts": 14,
+   "pytest": "41 passed in 2.25s"
+  },
+  "style": {
+   "failures": [],
+   "files": 160,
+   "modules_imported": 49,
+   "help_ok": [
+    "immunization_style.cli.generate_style_prompt_defenses",
+    "immunization_style.cli.measure_style_prompt_edits",
+    "immunization_style.cli.run_edits"
+   ],
+   "shell_scripts": 8,
+   "pytest": "20 passed in 2.85s"
+  }
+ },
+ "windows_checkout": {
+  "files": 2245,
+  "mismatched": [],
+  "mismatched_count": 0
+ }
+}

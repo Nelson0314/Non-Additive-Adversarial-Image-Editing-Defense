@@ -432,3 +432,88 @@
 ### 第 8 項完成狀態
 
 五段皆已推送。留給第 10 項（協調端）：遠端腳本改用新 CLI 參數（第 3 段對照表）、遠端執行 `backfill_result_schema.py import-hashes`（第 4 段）。未處理：`archive/` 內文件（依規則不改）、style `docs/` 的 r11／r13／cls 設定對照與 PDF 依賴清單（需要遠端 job spec 與原 PDF 來源，列入第 13 項前的待確認事項）。
+
+## 第 9 項：環境與自足驗證（`f618c0d`…）
+
+開始前已將 `origin/main`（含 `d3168ee`）快轉併入本分支。
+
+### 換行（`f618c0d`）
+
+根目錄新增 `.gitattributes`：`* text=auto eol=lf`；影像（png、jpg、jpeg、gif、webp、avif、bmp、tif、tiff）、PDF、壓縮檔與權重檔標為 `binary`。`git add --renormalize .` 未改變任何索引內容（索引中原本就沒有 CRLF 文字檔）。`archive/anti-purification/.gitattributes`、`color/.gitattributes`、`style/.gitattributes` 保留。
+
+驗證：以 `core.autocrlf=true`（Windows 簽出設定）clone，工作目錄 CRLF 檔 0 個；在該 clone 內 `export_vendor.py --check` 三個專案通過；2,245 個版控檔的 SHA-256 與 blob 相同（見下方獨立驗證）。
+
+### Windows 可攜性（`c8987cb`）
+
+- `color/tests/test_color_conditions.py`：替身腳本改為 `exec "<Path(sys.executable).as_posix()>" "$@"`（加引號、POSIX 形式）。
+- `core/tests/test_gpu_scripts.py`：傳給 bash 的腳本與目錄參數改為 `as_posix()`；`test_command_exit_releases_owned_lease` 原本比較 bash `pwd` 的輸出與 Python 路徑字串（Windows 上 `pwd` 為 `/c/...` 形式），改為由 `sys.executable`（POSIX 形式）寫出 `os.getcwd()`，再以 `Path.resolve()` 比較。
+- `color/tests` 其餘傳給 bash 的腳本路徑同樣改為 `as_posix()`。`PATH` 前置替身目錄仍以 `os.pathsep` 串接（Git Bash 會轉換繼承的 Windows `PATH`）。
+
+本環境為 Linux，未能在 Windows 上實跑；Linux 上 core 25／color 41 項通過。
+
+### CSV 欄名與識別值改名（`2e348fa`、`d5b3150`、`e9418c9`）
+
+使用者裁定一律改名。對照：
+
+| 種類 | 舊 | 新 | 範圍 |
+|---|---|---|---|
+| CSV 欄名 | `defence_png` | `defense_png` | `baseline/results/additive_transfer.csv`（1 表） |
+| CSV 欄名 | `defence` | `defense` | color `defended_edits`／`purified_edits`（32 表）、style `edits`（20 表）的 `preflight.csv` |
+| CSV 欄名 | `deltaE00_skin_colour` | `deltaE00_skin_color` | color `defenses`／`defense_shards` 的 `results.csv`（36 表） |
+| CSV 值 | `diffvax.py::immunise`（`solver_prompt_source`） | `diffvax.py::immunize` | `baseline/results/defense_diffvax.csv` 8 格；`configs/conditions.yaml` 同步 |
+| CSV 值 | `../scripts/`（`spec_source`） | `archive/anti-purification/scripts/` | `baseline/results/defense_color.csv` 8 格 |
+| 寫出欄的程式 | `pipelines.editing` 的 `"defence"`、`measure_additive_transfer` 的 `"defence_png"`、`generate_color_defenses` 的 `"deltaE00_skin_colour"` | 對應新欄名 | 讀這些欄的程式：`core/tests/test_edit_pipelines.py` |
+| 自有識別字 | `skin_colour_support`、`skin_centre`、限制名 `"skin_colour"`、`centre` | `skin_color_support`、`skin_center`、`"skin_color"`、`center` | `immunization_color` |
+| 自有識別字 | `diffvax.immunise`、`danp.normalise_attention` | `immunize`、`normalize_attention` | `immunization_baseline.attacks` |
+| 自有識別字 | `grey()`、`--objective enc_grey` | `gray()`、`enc_gray` | `immunization_style`（`enc_grey` 不出現在任何 CSV） |
+| 預設值 | `import_defense_artifacts --condition` 預設 `colour` | `color` | 與主表條件名一致 |
+
+`archive/migration/rename_csv_columns.py` 只改寫表頭與上述兩欄：89 表只換表頭列（其餘位元組不變），2 表改值；逐表驗證列數、欄數與未改欄位逐值相同。`--check` 模式在改寫後回傳 0。遠端 `artifacts/` 內的 `preflight.csv`（`defence` 欄）與 `results.csv`（`deltaE00_skin_colour` 欄）由協調端在第 10 項於遠端 repo 根執行：
+
+```bash
+python archive/migration/rename_csv_columns.py --check color/artifacts style/artifacts baseline/artifacts   # 列出待改
+python archive/migration/rename_csv_columns.py color/artifacts style/artifacts baseline/artifacts
+```
+
+保留不改：`archive/` 內部、描述封存檔名的字串（`immunise.py`、`__immunised.png`）、core `PROVENANCE.md` 與 `pipeline_source_manifest.json` 中的原始檔名。
+
+### style 工作清單與論文出處（`82689e0`）
+
+- `archive/migration/remote_style_specs/` 的四份清單移為 `style/configs/jobs/{r11,r13,cls_p_noedit,cls_p_snow}.spec`：每份加三行檔頭（輪的設定摘要、原遠端檔名、用法），其餘內容逐位元相同；暫存目錄已刪除。
+- 核對：244 個與 `results.csv` 同名的設定值全部相同（6 處只差布林寫法 `True`／`1`）；每列可由現行 `generate_style_prompt_defenses.build_parser()` 解析；`style/tests/test_job_specs.py` 檢查每個結果輪都有清單、清單列與 `results/defenses/<輪>/` 的工作目錄一一對應、風格名存在於 `configs/styles.yaml`。
+- `style/docs/references/README.md`：以 DOI `10.1016/j.neucom.2026.134591`、PII `S0925-2312(26)01989-2`、EID、刊期日期記錄出處，欄位來源為 `neucom_134591.json`；第一作者 Wang 與卷號 702 不在 metadata 內，沿用 `DESIGN.md` 的既有記載（本環境沒有 PDF，未能再核對）。`DESIGN.md` 的「根目錄 PDF」改為 DOI 與此檔。PDF 不入版控。
+
+### 依賴與鎖定（`a5ab24f`、`c589b30`、`d7b1d01`）
+
+- 依賴宣告：以 AST 掃描各專案 `src/`、`vendor/`、`tests/` 的第三方 import，對照 pyproject。補上 `sentencepiece`、`protobuf`（`MetricSuite` 以 `AutoProcessor` 載入 SigLIP，其 tokenizer 需要這兩項；`siglip_pair` 為位移與保留量的必要欄）；core 的 `metrics` extra 同步。`opencv-contrib-python`、`lpips` 只用於不在主表協定內的算子（CLAHE、AdverseCleaner、IMPRESS），列為三個專案的 `purifiers` extra。`guided_diffusion`（DiffPure）與 `torch_xla`（UltraEdit pipeline 的可選分支）不宣告，缺席時前者明確失敗、後者不走該分支。
+- 鎖定：新增 `core/scripts/freeze_env.py`（已匯入各專案 `vendor/scripts/`）。在專案根以該專案的直譯器執行即寫出 `requirements.lock`（檔頭記 Python、平台、torch 與 CUDA 版本；內容為 `pip freeze --all`，排除本 repo 的 `immunization-*` 套件）；`--check` 在環境與鎖定檔不符時結束碼 1。`core/tests/test_freeze_env.py` 2 項。
+- **待協調端於第 10 項在遠端實際執行環境產生並提交**（本沙箱的套件版本不是產生結果的環境，不能作為鎖定依據）：
+
+  ```bash
+  cd <遠端 repo 根>/baseline && source scripts/env.sh && "$PY" vendor/scripts/freeze_env.py
+  cd <遠端 repo 根>/color    && source scripts/env.sh && "$PY" vendor/scripts/freeze_env.py
+  cd <遠端 repo 根>/style    && source scripts/env.sh && "$PY" vendor/scripts/freeze_env.py
+  cd <遠端 repo 根>/core     && python scripts/freeze_env.py      # 以 core 測試所用的直譯器
+  git add */requirements.lock
+  ```
+
+  三個專案若共用同一個遠端環境，三份鎖定檔內容相同，仍各自入庫以維持專案自足。提交後由第 13 項在各專案 README 記錄鎖定檔。
+
+### 獨立目錄驗證（`677b6d1`；報告 `archive/migration/standalone_verification.json`）
+
+`archive/migration/verify_standalone.py` 對 `677b6d1`：各專案以 `git archive` 單獨解到 repo 外的空目錄（不含其他專案），只設 `PYTHONPATH=src[:vendor]`，並設 `HF_HUB_OFFLINE=1`、`CUDA_VISIBLE_DEVICES=`。
+
+| 專案 | 檔案（SHA-256 與 blob 相同） | import 模組 | `--help` 通過（未初始化 CUDA） | `bash -n` | pytest |
+|---|---|---|---|---|---|
+| core | 85 | 41 | 5 | 6 | 176 passed、21 deselected |
+| baseline | 232 | 79 | 16 | 9 | 78 passed |
+| color | 190 | 54 | 8 | 14 | 41 passed |
+| style | 160 | 49 | 3 | 8 | 20 passed |
+
+`immunization_core` 在三個專案副本中皆由副本內的 `vendor/` 載入。模擬 Windows 簽出（`core.autocrlf=true`）的 2,245 個版控檔 SHA-256 全部等於 blob。repo 內直接執行：core 176、baseline 78、color 41、style 20 passed。
+
+### 未完成與待確認
+
+- `requirements.lock` 四份：需遠端執行環境，由協調端於第 10 項產生（指令見上）。
+- 遠端 `artifacts/` 的 CSV 欄名改寫：由協調端於第 10 項執行（指令見上）。
+- Windows 上的實跑：本環境無法執行，修正依原因分析完成；請協調端在本機 Windows 簽出後執行 `python -m pytest` 於 core 與 color 確認。

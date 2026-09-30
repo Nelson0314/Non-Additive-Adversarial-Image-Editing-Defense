@@ -316,3 +316,14 @@
 1. style 的 `r11`／`r13` 參照編輯表（`edits/r11/ref_cool_grade/`、`edits/r13/ref_p_snow/`）的 `input_png` 指向已刪除的輪 `pilot`、`r12_p_snow`，依同一規則改寫為 `artifacts/defenses/pilot/…`、`artifacts/defenses/r12_p_snow/…`；這些產物在遠端已刪除時即為失效參照（原值同樣失效）。
 2. 續跑 CSV 的 `protocol_id`（雜湊值）無法改寫；第 4 項紀錄第 2 點仍適用。
 3. 第 4 項紀錄第 1 點（CSV 路徑欄為舊值時兩支讀數不可用）已由本項解決：路徑欄現在相對 baseline 根，與程式的解析方式一致。
+
+## 第 8 項：程式風格、文件與 trials 機制
+
+使用者裁定（第 8 項範圍）：CLI 參數全面統一為 `--data-root`、`--output-dir`、`--output-csv` 等，不保留舊參數別名，遠端腳本於第 10 項由協調端改寫；七道淨化與防禦條件改為單一設定檔正本；`import_defense_artifacts` 加輸入雜湊 manifest、`measure_additional_metrics` 區分必要與選配指標，既有 CSV 需遠端影像的欄位以補值腳本於第 10 項補回，不留兩種 schema。分五段提交。
+
+### 第 1 段：trials 機制（`4f0d0dc`、`c043345`）
+
+- `core/scripts/trial.sh`（經 vendor 分發）：`new <名稱>` 建立 `trials/<名稱>/` 與 README 樣板；`promote <名稱>` 要求 `trials/` 以外沒有未提交變更後刪除 trial；`drop <名稱>` 要求 `docs/TRIALS.md` 已有該名稱的一列，再以 `ssh $TRIAL_REMOTE rm -rf $TRIAL_REMOTE_ROOT/trials/<名稱>` 刪除遠端副本並刪除本機；兩個環境變數未設定時拒絕，只刪本機須明確給 `--local-only`。名稱只允許小寫英數字與底線。
+- baseline、color、style 各加 `docs/TRIALS.md`（說明與空表），README 目錄表列出；`/trials/` 已由各專案 `.gitignore` 排除。
+- 驗證：`core/tests/test_gpu_scripts.py` 新增 2 項（假 git 專案與 ssh stub）；core 相關測試 25 passed；三個專案 71／40／14 passed。
+- 協調端：遠端使用時設定 `TRIAL_REMOTE="-p 10101 nelson0314@server.basiclab.lab.nycu.edu.tw"`、`TRIAL_REMOTE_ROOT=<遠端專案根>`（第 10 項確定路徑）。

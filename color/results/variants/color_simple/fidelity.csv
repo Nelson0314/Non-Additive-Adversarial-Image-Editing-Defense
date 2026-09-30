@@ -1,4 +1,4 @@
-anchor_lpips,anchor_source,arm,budget,deltaE00,image,linf,lpips,lpips_vs_anchor,psnr,rms
+anchor_lpips,anchor_source,arm,budget,delta_e00,image,linf,lpips,lpips_vs_anchor,psnr,rms
 0.3344,主表 color_curve 原生設定的八張平均（另一批）,color_simple,ΔE00 16 / 臉 8,13.6858,man_00,0.38431,0.2289,-0.3154,20.891,0.09025
 0.3344,主表 color_curve 原生設定的八張平均（另一批）,color_simple,ΔE00 16 / 臉 8,14.0654,man_01,0.44706,0.299,-0.1059,17.931,0.126897
 0.3344,主表 color_curve 原生設定的八張平均（另一批）,color_simple,ΔE00 16 / 臉 8,16.3987,man_02,0.5098,0.2856,-0.1459,14.2169,0.194606

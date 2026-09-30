@@ -1,9 +1,11 @@
 """第 9 項：CSV 欄名與識別值的英式拼法改為美式，不保留兩種 schema。
 
-欄名對照（表頭中完全相符的欄才改）
+欄名對照（表頭中完全相符的欄才改；完整清單見 COLUMNS）
     defence_png           → defense_png
     defence               → defense
-    deltaE00_skin_colour  → deltaE00_skin_color
+    deltaE00*             → delta_e00*（含原 deltaE00_skin_colour）
+    D_／P_／DT_lpips_*    → disp_／predicted_disp_／residual_disp_lpips_*
+    D_csv、siglip_pair_T、blocked_T → displacement_csv_lpips_full、siglip_pair_residual、blocked_residual
 
 值對照（只改指定欄內完全相符的字串片段）
     solver_prompt_source：`diffvax.py::immunise` → `diffvax.py::immunize`
@@ -25,7 +27,15 @@ import io
 from pathlib import Path
 
 COLUMNS = {"defence_png": "defense_png", "defence": "defense",
-           "deltaE00_skin_colour": "deltaE00_skin_color"}
+           "deltaE00_skin_colour": "delta_e00_skin_color",
+           # 命名規範：欄名一律小寫 snake_case，不用 D、P、D_T 這類代號。
+           "deltaE00": "delta_e00", "deltaE00_frame": "delta_e00_frame",
+           "deltaE00_face_box": "delta_e00_face_box", "deltaE00_skin_color": "delta_e00_skin_color",
+           "D_csv": "displacement_csv_lpips_full",
+           "siglip_pair_T": "siglip_pair_residual", "blocked_T": "blocked_residual",
+           **{f"{old}_lpips_{region}": f"{new}_lpips_{region}"
+              for old, new in (("D", "disp"), ("P", "predicted_disp"), ("DT", "residual_disp"))
+              for region in ("full", "subject", "background")}}
 VALUES = {"solver_prompt_source": [("diffvax.py::immunise", "diffvax.py::immunize")],
           "spec_source": [("../scripts/", "archive/anti-purification/scripts/")]}
 

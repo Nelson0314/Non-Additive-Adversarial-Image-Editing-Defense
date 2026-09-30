@@ -346,59 +346,125 @@ def test_queue_requires_injected_validator(tmp_path):
 
 # ---- 暫時性嘗試 ----
 
-def trial_project(tmp_path):
-    project = tmp_path / "project"
-    (project / "vendor/scripts").mkdir(parents=True)
-    (project / "docs").mkdir()
-    shutil.copyfile(SCRIPTS / "trial.sh", project / "vendor/scripts/trial.sh")
-    (project / "pyproject.toml").write_text("[project]\nname = 'x'\n")
-    (project / ".gitignore").write_text("/trials/\n")
-    (project / "docs/TRIALS.md").write_text("| 名稱 | 試了什麼 | 設定 | 關鍵數字 | 結論來源 |\n|---|---|---|---|---|\n")
+LEDGER_HEAD = "| 名稱 | 試了什麼 | 設定 | 關鍵數字 | 結論來源 |\n|---|---|---|---|---|\n"
+
+
+def make_project(path, name="x"):
+    (path / "vendor/scripts").mkdir(parents=True)
+    (path / "docs").mkdir()
+    shutil.copyfile(SCRIPTS / "trial.sh", path / "vendor/scripts/trial.sh")
+    (path / "pyproject.toml").write_text(f'[project]\nname = "{name}"\n')
+    (path / ".gitignore").write_text("/trials/\n")
+    (path / "docs/TRIALS.md").write_text(LEDGER_HEAD)
+    return path
+
+
+def trial_project(tmp_path, remote_name="x"):
+    project = make_project(tmp_path / "project")
+    remote = make_project(tmp_path / "remote", remote_name)
     git = lambda *a: subprocess.run(["git", *a], cwd=project, check=True, capture_output=True)
     git("init", "-q")
-    git("-c", "user.name=t", "-c", "user.email=t@t", "commit", "-qm", "init", "--allow-empty")
     git("add", ".")
     git("-c", "user.name=t", "-c", "user.email=t@t", "commit", "-qm", "files")
     stubs = tmp_path / "bin"
     stubs.mkdir()
-    write_tool(stubs / "ssh", 'echo "$@" >> "$SSH_LOG"\n')
+    # ssh 替身：略過選項與主機後，在本機執行遠端指令字串。
+    write_tool(stubs / "ssh", 'echo "$@" >> "$SSH_LOG"\nwhile [ "${1#-}" != "$1" ]; do shift 2; done\nshift\n'
+                              'eval "$*"\n')
     env = dict(os.environ, PATH=str(stubs) + os.pathsep + os.environ["PATH"],
-               SSH_LOG=(tmp_path / "ssh.log").as_posix())
-    env.pop("TRIAL_REMOTE", None)
-    env.pop("TRIAL_REMOTE_ROOT", None)
+               SSH_LOG=(tmp_path / "ssh.log").as_posix(), TRIAL_REMOTE="-p 1 u@h",
+               TRIAL_REMOTE_ROOT=remote.as_posix())
     run = lambda *a, **e: subprocess.run([BASH, (project / "vendor/scripts/trial.sh").as_posix(), *a],
                                          env=dict(env, **e), capture_output=True, text=True,
                                          encoding="utf-8", timeout=15)
-    return project, run, git
+    commit = lambda *paths: (git("add", *paths),
+                             git("-c", "user.name=t", "-c", "user.email=t@t", "commit", "-qm", "c"))
+    return project, remote, run, commit
 
 
-def test_trial_new_and_promote_require_committed_content(tmp_path):
-    project, run, git = trial_project(tmp_path)
+def test_trial_names_are_restricted(tmp_path):
+    _, _, run, _ = trial_project(tmp_path)
     assert run("new", "bad-name").returncode == 2
     assert run("new", "warm_grade").returncode == 0
-    assert (project / "trials/warm_grade/README.md").is_file()
     assert run("new", "warm_grade").returncode == 1
-    (project / "configs.yaml").write_text("x: 1\n")
+
+
+def test_promote_requires_listed_committed_targets(tmp_path):
+    project, remote, run, commit = trial_project(tmp_path)
+    run("new", "warm_grade")
+    (remote / "trials/warm_grade").mkdir(parents=True)
     result = run("promote", "warm_grade")
-    assert result.returncode == 1 and "configs.yaml" in result.stderr
-    git("add", "configs.yaml")
-    git("-c", "user.name=t", "-c", "user.email=t@t", "commit", "-qm", "promote")
-    assert run("promote", "warm_grade").returncode == 0
-    assert not (project / "trials/warm_grade").exists()
-
-
-def test_trial_drop_requires_ledger_row_and_remote(tmp_path):
-    project, run, _ = trial_project(tmp_path)
-    run("new", "cold_grade")
-    result = run("drop", "cold_grade")
-    assert result.returncode == 1 and "TRIALS.md" in result.stderr
-    with (project / "docs/TRIALS.md").open("a") as ledger:
-        ledger.write("| `cold_grade` | 冷色調 | lr 0.02 | LPIPS 0.1 | trials 已刪 |\n")
-    assert run("drop", "cold_grade").returncode == 2
-    assert (project / "trials/cold_grade").exists()
-    result = run("drop", "cold_grade", TRIAL_REMOTE="-p 1 u@h", TRIAL_REMOTE_ROOT="/r/color")
+    assert result.returncode == 1 and "沒有列出" in result.stderr
+    (project / "configs").mkdir()
+    (project / "configs/warm.yaml").write_text("x: 1\n")
+    (project / "trials/warm_grade/PROMOTED").write_text("configs/warm.yaml\n")
+    result = run("promote", "warm_grade")
+    assert result.returncode == 1 and "configs/warm.yaml" in result.stderr
+    (project / "trials/warm_grade/PROMOTED").write_text("../outside.txt\n")
+    assert run("promote", "warm_grade").returncode == 1
+    (project / "trials/warm_grade/PROMOTED").write_text("configs/warm.yaml\n")
+    commit("configs/warm.yaml")
+    result = run("promote", "warm_grade")
     assert result.returncode == 0, result.stderr
-    assert "/r/color/trials/cold_grade" in (tmp_path / "ssh.log").read_text()
-    assert not (project / "trials/cold_grade").exists()
+    assert not (project / "trials/warm_grade").exists()
+    assert not (remote / "trials/warm_grade").exists()
+    ledger = (project / "docs/TRIALS.md").read_text(encoding="utf-8")
+    assert "## 升格紀錄" in ledger and "configs/warm.yaml" in ledger
+
+
+def ledger_row(project, row):
+    with (project / "docs/TRIALS.md").open("a", encoding="utf-8") as ledger:
+        ledger.write(row)
+
+
+def test_drop_requires_committed_complete_ledger_row(tmp_path):
+    project, remote, run, commit = trial_project(tmp_path)
+    run("new", "cold_grade")
+    (remote / "trials/cold_grade").mkdir(parents=True)
+    assert "TRIALS.md" in run("drop", "cold_grade").stderr
+    ledger_row(project, "| `cold_grade` | 冷色調 |  | LPIPS 0.1 | commit abc |\n")
+    assert "未提交" in run("drop", "cold_grade").stderr
+    commit("docs/TRIALS.md")
+    assert "不可空白" in run("drop", "cold_grade").stderr
+    (project / "docs/TRIALS.md").write_text(
+        LEDGER_HEAD + "| `cold_grade` | 冷色調 | lr 0.02 | LPIPS 0.1 | trials/cold_grade/log.txt |\n")
+    commit("docs/TRIALS.md")
+    assert "即將刪除" in run("drop", "cold_grade").stderr
+    (project / "docs/TRIALS.md").write_text(
+        LEDGER_HEAD + "| `cold_grade` | 冷色調 | lr 0.02 | LPIPS 0.1 | results/cold.csv @ abc |\n")
+    commit("docs/TRIALS.md")
+    assert run("drop", "cold_grade", TRIAL_REMOTE="", TRIAL_REMOTE_ROOT="").returncode == 2
+    result = run("drop", "cold_grade")
+    assert result.returncode == 0, result.stderr
+    assert not (project / "trials/cold_grade").exists() and not (remote / "trials/cold_grade").exists()
     run("new", "cold_grade")
     assert run("drop", "cold_grade", "--local-only").returncode == 0
+
+
+def test_remote_identity_and_path_are_checked_before_local_removal(tmp_path):
+    project, remote, run, commit = trial_project(tmp_path, remote_name="other")
+    run("new", "cold_grade")
+    ledger_row(project, "| `cold_grade` | 冷色調 | lr 0.02 | LPIPS 0.1 | results/cold.csv @ abc |\n")
+    commit("docs/TRIALS.md")
+    (remote / "trials/cold_grade").mkdir(parents=True)
+    result = run("drop", "cold_grade")
+    assert result.returncode == 1 and "預期 x" in result.stderr
+    assert (project / "trials/cold_grade").exists() and (remote / "trials/cold_grade").exists()
+    assert run("drop", "cold_grade", TRIAL_REMOTE_ROOT=(tmp_path / "missing").as_posix()).returncode == 1
+    assert run("drop", "cold_grade", TRIAL_REMOTE_ROOT="relative/path").returncode == 2
+    assert (project / "trials/cold_grade").exists()
+
+
+def test_symlinked_remote_trial_is_refused(tmp_path):
+    project, remote, run, commit = trial_project(tmp_path)
+    run("new", "cold_grade")
+    ledger_row(project, "| `cold_grade` | 冷色調 | lr 0.02 | LPIPS 0.1 | results/cold.csv @ abc |\n")
+    commit("docs/TRIALS.md")
+    elsewhere = tmp_path / "elsewhere"
+    elsewhere.mkdir()
+    (elsewhere / "keep.txt").write_text("keep")
+    (remote / "trials").mkdir()
+    (remote / "trials/cold_grade").symlink_to(elsewhere)
+    result = run("drop", "cold_grade")
+    assert result.returncode == 1 and "符號連結" in result.stderr
+    assert (elsewhere / "keep.txt").exists() and (project / "trials/cold_grade").exists()

@@ -19,7 +19,7 @@
 # 環境變數 QUEUE_CAP 可另外降低本類佇列的合計租約數，不超過全局授權；POLL 與
 # LAUNCH_GAP 為輪詢與相鄰派工的間隔秒數（預設 120、20）。
 set -uo pipefail
-WORKDIR=""; STATE=""; LOGDIR=""; RUNNER=""; VALIDATOR=""; DEPENDS=""; ENV_FILE=""
+WORKDIR=""; STATE=""; LOGDIR=""; RUNNER=""; VALIDATOR=""; DEPENDS=""; QUEUE_ENV_FILE=""
 while [[ "${1:-}" == --* ]]; do
   case "$1" in
     --work-dir) WORKDIR=$2; shift 2 ;;
@@ -28,7 +28,7 @@ while [[ "${1:-}" == --* ]]; do
     --runner) RUNNER=$2; shift 2 ;;
     --validator) VALIDATOR=$2; shift 2 ;;
     --depends) DEPENDS=$2; shift 2 ;;
-    --env-file) ENV_FILE=$2; shift 2 ;;
+    --env-file) QUEUE_ENV_FILE=$2; shift 2 ;;
     *) echo "未知參數 $1" >&2; exit 2 ;;
   esac
 done
@@ -39,8 +39,8 @@ done
 [ $# -ge 2 ] || { echo "[FATAL] 需要佇列名與至少一件工作" >&2; exit 2; }
 QNAME="$1"; shift
 JOBS=("$@")
-if [ -n "$ENV_FILE" ]; then
-  source "$ENV_FILE" || { echo "[FATAL] 無法載入環境檔 $ENV_FILE" >&2; exit 1; }
+if [ -n "$QUEUE_ENV_FILE" ]; then
+  source "$QUEUE_ENV_FILE" || { echo "[FATAL] 無法載入環境檔 $QUEUE_ENV_FILE" >&2; exit 1; }
 fi
 PY=${PY:-python}
 SCRIPTS=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)

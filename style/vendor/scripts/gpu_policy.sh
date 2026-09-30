@@ -3,8 +3,8 @@
 # 明確授權以參數或環境變數 GPU_CAP 指定，參數優先；未指定時沿用租約目錄中
 # 已記錄的授權值，沒有紀錄時為 6。
 GPU_DEFAULT_CAP=6
-# 租約目錄與既有排程共用；改名須所有取卡入口同時切換（第 10 項）。
-LEASE=${LEASE:-$HOME/lab_leases}
+# 租約目錄：所有主機、session 與排程共用同一個目錄；預設值只在此定義。
+LEASE=${LEASE:-$HOME/gpu_leases}
 
 gpu_valid_cap() { [[ "$1" =~ ^[1-9][0-9]*$ ]]; }
 gpu_global_cap() {

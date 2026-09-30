@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 # 共用 NFS 租約；檢查、取卡、擁有者驗證與釋放都在同一個 mkdir 鎖內。
-# 租約目錄與既有排程共用；改名須所有取卡入口同時切換（第 10 項）。
-LEASE=${LEASE:-$HOME/lab_leases}
+# 租約目錄 LEASE 的預設值見 gpu_policy.sh。
 LEASE_HOST=${LEASE_HOST:-$(hostname)}
 GPU_SCRIPTS=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 source "$GPU_SCRIPTS/gpu_policy.sh"

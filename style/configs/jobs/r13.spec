@@ -1,3 +1,6 @@
+# 輪 r13：論文設定（DDPM、77 token、lr 0.1、軌跡 ×25、prompt 餘弦 ×1）＋ xattn／chaos，p_snow，400 步至收斂。
+# 原遠端工作清單 style_prompt_r13/jobs.spec；格式：名稱 影像（多張以 + 連接） 風格 其餘參數。
+# 用法（style 專案根）：bash scripts/run_style_prompt_jobs.sh r13 configs/jobs/r13.spec
 chaos_m01 man_01 p_snow --objective chaos --class-word man --chaos-val-k 4 --sampler ddpm --carrier prompt --prompt-scope full --lr 0.1 --updates 400 --a-perc 25 --a-prompt 1 --a-adv 1 --init-rms 0 --delta-rms-cap 1e9 --a-id 0 --col-cap 0 --struct-cap 0 --patience 5 --max-decays 2 --select last --val-every 10 --snapshot-every 50
 chaos_w02 woman_02 p_snow --objective chaos --class-word woman --chaos-val-k 4 --sampler ddpm --carrier prompt --prompt-scope full --lr 0.1 --updates 400 --a-perc 25 --a-prompt 1 --a-adv 1 --init-rms 0 --delta-rms-cap 1e9 --a-id 0 --col-cap 0 --struct-cap 0 --patience 5 --max-decays 2 --select last --val-every 10 --snapshot-every 50
 chaos_m02 man_02 p_snow --objective chaos --class-word man --chaos-val-k 4 --sampler ddpm --carrier prompt --prompt-scope full --lr 0.1 --updates 400 --a-perc 25 --a-prompt 1 --a-adv 1 --init-rms 0 --delta-rms-cap 1e9 --a-id 0 --col-cap 0 --struct-cap 0 --patience 5 --max-decays 2 --select last --val-every 10 --snapshot-every 50

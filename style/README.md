@@ -8,11 +8,12 @@
 |---|---|
 | `src/immunization_style/` | `method.py`（生成器、載體、目標、選點）、`cli/`（命令列入口）、`layout.py`（預設目錄） |
 | `configs/styles.yaml` | 風格指令的唯一正本 |
+| `configs/jobs/<輪名>.spec` | 各輪的工作清單（`r11`、`r13`、`cls_p_noedit`、`cls_p_snow`） |
 | `scripts/` | `run_style_prompt_jobs.sh`（一輪實驗的排程）、`env.sh` |
 | `data/portraits/` | 原圖、`masks/`、`prompts.yaml` |
 | `results/` | `defenses/<輪名>/<工作>/`（`results.csv`、`trace.csv`）、`edits/<輪名>/`（逐工作 `preflight.csv`、`readout_<風格>.csv`） |
-| `docs/` | `DESIGN.md`；`references/neucom_134591.json`（論文 metadata） |
-| `tests/` | 選點、讀數輸入檢查、專案自足性 |
+| `docs/` | `DESIGN.md`；`references/`（論文出處與 metadata） |
+| `tests/` | 選點、讀數輸入檢查、工作清單、專案自足性 |
 | `vendor/` | `immunization_core` 與 GPU 租約工具的固定版本快照；`vendor.lock.json` 記錄來源 commit 與逐檔雜湊 |
 | `docs/TRIALS.md` | 已刪除的暫時性嘗試紀錄；`trial.sh new|promote|drop` 的用法見檔首 |
 | `artifacts/`、`runtime/`、`trials/` | 影像產物、排程紀錄、暫時性嘗試；不入版控 |

@@ -1,9 +1,9 @@
 # 風格轉換線（SPA 移植）
 
 依據 Wang et al.,「Style-controllable adversarial example generation via image editing and prompt embedding
-optimization」（Neurocomputing 702, 134591, 2026；根目錄 PDF）。原方法凍結 InstructPix2Pix、最佳化指令的文字
+optimization」（Neurocomputing 702, 134591, 2026；DOI 10.1016/j.neucom.2026.134591，出處見 `references/README.md`）。原方法凍結 InstructPix2Pix、最佳化指令的文字
 embedding，使風格編輯後的影像騙過分類器。本線改為免疫：防禦圖由 ip2p 依防禦方的風格指令產生，目標是使攻擊端
-ip2p 的後續編輯失效。協定與攻擊端同 color 專案 `docs/DESIGN.md` §1。論文 metadata 見 `references/neucom_134591.json`。
+ip2p 的後續編輯失效。協定與攻擊端同 color 專案 `docs/DESIGN.md` §1。
 
 規則：訓練不得使用任何編輯指令（評估指令與自選替代指令皆不可），文字只可用空字串或類別詞；不可加性雜訊；
 主體身分與內容保持，衣服與背景可以變色；只用主種子。
@@ -48,4 +48,7 @@ ip2p 的後續編輯失效。協定與攻擊端同 color 專案 `docs/DESIGN.md`
 各輪以輪名區分：`r11`（xattn／chaos，cool grading）、`r13`（論文設定、至收斂）、`cls_p_noedit`、`cls_p_snow`
 （論文完全移植）。數值 CSV 在 `results/defenses/<輪名>/`（逐工作 `results.csv`、`trace.csv`）與
 `results/edits/<輪名>/`（逐工作 `preflight.csv`、讀數 `readout_<風格>.csv`）；影像在 `artifacts/` 的同名位置。
-工作清單（原遠端 `specs/style_prompt_cls_*.txt` 與各輪目錄內的 `jobs.spec`）未入版控。
+各輪的工作清單為 `configs/jobs/<輪名>.spec`（原遠端 `style_prompt_r11/jobs.spec`、`style_prompt_r13/jobs.spec`、
+`specs/style_prompt_cls_p_noedit.txt`、`specs/style_prompt_cls_p_snow.txt`，內容逐列保留，僅加檔頭說明）。
+清單參數與各工作 `results.csv` 的同名設定欄逐項相同；`tests/test_job_specs.py` 檢查每列可由現行 CLI 解析、
+且與結果目錄一一對應。重跑一輪：`bash scripts/run_style_prompt_jobs.sh <輪名> configs/jobs/<輪名>.spec`。

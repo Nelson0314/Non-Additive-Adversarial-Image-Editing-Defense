@@ -158,3 +158,101 @@
 4. （已處理）`third_party/ultraedit/pipeline.py` 的來源版本由使用者提供並寫入該檔標頭與 `baseline/docs/README.md`：commit `70e8ce5bc3bc8a6a02e1b9e0b6a1eb0058d98bc2`（移植時 `main` 為 `1af5f0478d56d62cf6f35781a2ab63e03d656b2d`，其間該檔未變動），逐行比對除 import 與移植註解外一致。
 5. `anti-purification/tests/test_metrics_union_failure.py` 引用已移出的 `main_table/code`，在 anti-purification 內已不可執行；第 6 項封存時原狀保存，不修。
 6. 鎖定依賴（`requirements.lock`）屬第 9 項。
+
+## 第 5 項：建立 `/color`、`/style`
+
+- 基準：`c0a7647`（含 UltraEdit 來源版本的補記）。commit：`6bb29e7`…`22195d8`（12 個）。
+
+| commit | 內容 |
+|---|---|
+| `6bb29e7` | 純改名：`lab/` 的 39 個追蹤檔移入 `color/`、`style/`（對照見下），內容不變。 |
+| `367ca15` | 刪除 `lab/scripts/{gpu_lease,gpu_policy,run_on_card}.sh` 與其 3 份測試；正本已在 `core/scripts/`、`core/tests/test_gpu_scripts.py`，經 vendor 提供給各專案。 |
+| `8cf9ecf` | `archive/migration/remote_lab_runs/runs/` 的 132 份 CSV 逐位元移入 `color/results/` 與 `style/results/`（對照見下），並刪除此暫存目錄（交接文件的指示）。 |
+| `2d5d605` | `data/portraits` 快照複製到 `color/data/`、`style/data/`（與 baseline 那份相同）。 |
+| `39ca57a` | 解除 color／style 互相 import：`encode_text`、`AttnObjective`、`CrossAttnObjective` → `core/optimization/attention.py`；`_shift`、`channel_shift_p95`、`channel_shift_max` → `core/color/shift.py`；`load_images`、`write_rows` → `core/io.py` 的 `load_dataset_images`、`write_sorted_csv`；CPU 測試（stub UNet）。 |
+| `958081b`、`de12528` | color、style 的 vendor 快照（core commit `2097c77`／`39ca57a`，core 內容相同）。 |
+| `2097c77` | color 自足化：`color_defence.py` 拆為 `immunization_color.method` 與 `cli.generate_color_defenses`（argparse 抽為 `build_parser`）；四支共用流程改為呼叫 core pipelines；`paths.py` → `layout.py`；shell 入口改由 color 根執行；佇列改為包裝 vendor 內的通用 `queue_worker.sh`，以 `queue_job.sh`、`queue_validate.sh`、`queue_depends.sh` 注入 pilot／def／chain／readout／fid 語法。 |
+| `f01d985` | style 自足化：`style_prompt_defence.py` 拆為 `immunization_style.method` 與 `cli.generate_style_prompt_defenses`；讀數的未防禦分母與資料根改為本專案預設；排程改用 vendor 內的 `run_with_gpu_lease.sh`。 |
+| `88ead52` | 行為修正：`--patience` 說明字串中未跳脫的 `%` 使 `generate_style_prompt_defenses --help` 拋 `ValueError`（原 `style_prompt_defence.py` 即有此問題）。 |
+| `0390596` | color、style 的 README、STATUS 與 DESIGN 路徑更新（color 的 STATUS 由原 `lab/HANDOFF.md` 改寫）。 |
+| `22195d8` | baseline 與 core 文件中其餘 `lab/` 引用改指 color 專案或標明已刪除的 commit。 |
+
+### 檔案對照（程式、設定、文件）
+
+| 舊 | 新 |
+|---|---|
+| `lab/.gitattributes` | `color/.gitattributes` |
+| `lab/.gitignore` | `color/.gitignore` |
+| `lab/HANDOFF.md` | `color/STATUS.md` |
+| `lab/code/color_defence.py` | `color/src/immunization_color/method.py` |
+| `lab/code/defence_fidelity.py` | `color/src/immunization_color/cli/measure_defense_fidelity.py` |
+| `lab/code/edit_preflight.py` | `color/src/immunization_color/cli/run_edits.py` |
+| `lab/code/purify_run.py` | `color/src/immunization_color/cli/apply_purifiers.py` |
+| `lab/code/edit_displacement.py` | `color/src/immunization_color/cli/measure_edit_displacement.py` |
+| `lab/code/edit_retention.py` | `color/src/immunization_color/cli/measure_purified_displacement.py` |
+| `lab/code/paths.py` | `color/src/immunization_color/layout.py` |
+| `lab/code/validate_job.py` | `color/src/immunization_color/cli/validate_queue_job.py` |
+| `lab/code/style_prompt_defence.py` | `style/src/immunization_style/method.py` |
+| `lab/code/style_prompt_readout.py` | `style/src/immunization_style/cli/measure_style_prompt_edits.py` |
+| `lab/data/color_lpips_ref.csv` | `color/data/color_lpips_ref.csv` |
+| `lab/docs/DESIGN.md` | `color/docs/DESIGN.md` |
+| `lab/docs/STYLE_PROMPT.md` | `style/docs/DESIGN.md` |
+| `lab/docs/paper/neucom_134591.json` | `style/docs/references/neucom_134591.json` |
+| `lab/results/displacement.csv` | `color/results/displacement.csv` |
+| `lab/results/retention.csv` | `color/results/retention.csv` |
+| `lab/results/fidelity.csv` | `color/results/fidelity.csv` |
+| `lab/scripts/defence_cmd.sh` | `color/scripts/generate_condition.sh` |
+| `lab/scripts/arm_chain.sh` | `color/scripts/evaluate_condition.sh` |
+| `lab/scripts/readout.sh` | `color/scripts/measure_condition_results.sh` |
+| `lab/scripts/queue_worker.sh` | `color/scripts/run_queue.sh` |
+| `lab/scripts/style_prompt_round.sh` | `style/scripts/run_style_prompt_jobs.sh` |
+| `lab/tests/test_color_conditions.py` | `color/tests/test_color_conditions.py` |
+| `lab/tests/test_queue_validation.py` | `color/tests/test_queue_validation.py` |
+| `lab/tests/test_readout_script.py` | `color/tests/test_measure_condition_results.py` |
+| `lab/tests/test_style_readout_inputs.py` | `style/tests/test_style_readout_inputs.py` |
+| `lab/tests/test_style_selection.py` | `style/tests/test_style_selection.py` |
+
+`lab/results/exp/<讀數>_<條件>.csv` → `color/results/variants/<條件>/<讀數>.csv`（三個 simple 條件 × displacement／fidelity／retention）。
+
+### 遠端 CSV 與產物目錄對照（第 7 項 CSV 路徑改寫與第 10 項遠端搬移使用）
+
+舊位置相對遠端 `~/image-immunization/lab/runs/`。CSV 已收入 `results/` 的同名子樹；影像與其餘產物於第 10 項搬入各專案 `artifacts/` 的同名子樹。
+
+| 舊 | CSV（已入版控） | 產物 |
+|---|---|---|
+| `defence/<c>/` | `color/results/defenses/<c>/` | `color/artifacts/defenses/<c>/` |
+| `defence_shards/<c>/<img>/` | `color/results/defense_shards/<c>/<img>/` | `color/artifacts/defense_shards/<c>/<img>/` |
+| `defence_pilot/<c>/<img>/` | — | `color/artifacts/defense_pilots/<c>/<img>/` |
+| `edit_defended/<c>/` | `color/results/defended_edits/<c>/` | `color/artifacts/defended_edits/<c>/` |
+| `purified/<c>/` | `color/results/purified/<c>/` | `color/artifacts/purified/<c>/` |
+| `edit_purified/<c>/<pur>/` | `color/results/purified_edits/<c>/<pur>/` | `color/artifacts/purified_edits/<c>/<pur>/` |
+| `edit_preflight/`（原為指向主表 `runs/edit_preflight/` 的連結） | — | `color/artifacts/undefended_edits/`，內容與 `baseline/artifacts/undefended_edits/` 相同 |
+| `edit_purified/undefended/`（原為連結） | — | `color/artifacts/purified_edits/undefended/`，內容與 baseline 同名目錄相同 |
+| `state/`、`queue/<q>/`、`logs/` | — | `color/runtime/state/`、`color/runtime/queues/<q>/`、`color/runtime/logs/`；不搬舊完成狀態 |
+| `style_prompt_<輪>/<工作>/` | `style/results/defenses/<輪>/<工作>/` | `style/artifacts/defenses/<輪>/<工作>/` |
+| `style_prompt_<輪>_edit/` | `style/results/edits/<輪>/` | `style/artifacts/edits/<輪>/` |
+| 主表 `runs/edit_preflight/ip2p_si18/`（style 讀數的分母） | — | `style/artifacts/undefended_edits/ip2p_si18/`，或以 `--undefended` 指定 |
+| `specs/style_prompt_cls_*.txt`、各輪 `jobs.spec` | 未入版控 | 協定端決定是否收入 `style/configs/` |
+
+`<輪>` 為 `r11`、`r13`、`cls_p_noedit`、`cls_p_snow`。完成標記由 `<條件>.defence.done` 改名為 `<條件>.defense.done`。
+
+### 驗證
+
+| 指令 | 結果 |
+|---|---|
+| `python -m pytest -q -p no:cacheprovider core/tests` | 172 passed、21 deselected |
+| `baseline`、`color`、`style` 各自 `python -m pytest -q -p no:cacheprovider tests` | 71、40、14 passed |
+| 將 `color/`、`style/` 各自單獨複製到 scratch 後同一指令，及 `python vendor/scripts/export_vendor.py . --check` | 40、14 passed；lock 一致 |
+| 各 CLI `PYTHONPATH=src:vendor python -m immunization_<專案>.cli.<名稱> --help` | color 7 支、style 3 支全部成功 |
+| `bash -n color/scripts/*.sh style/scripts/*.sh` | 通過 |
+| 132 份遠端 CSV 與搬入位置逐位元比對 | 一致 |
+| `git ls-files lab/` | 0 個檔案 |
+
+原 lab 測試 56 項的去向：GPU 租約 3 份（15 項）已在 core；其餘移入 color（條件指令、佇列驗收、讀數退出碼）與 style（選點、讀數輸入）。原 queue `launch` 單元測試由 core 的佇列整合測試涵蓋，color 改為測試注入的相依與 `FID_ARMS` 預檢。
+
+### 未完成與待裁定
+
+1. color 與 style 需要主表的未防禦編輯（見上表）；第 10 項切換遠端時由協調端決定複製或以符號連結提供。
+2. style 各輪的工作清單不在 repo 中；若要保存，協調端取回後放入 `style/configs/`。
+3. 各專案的 vendor 快照對應不同 core commit（baseline `85663a7`；color、style `2097c77`／`39ca57a`，core 內容相同）。baseline 不使用第 5 項新增的 core 模組，未更新。
+4. 第 4 項紀錄的未完成事項 1–3、5、6 仍適用（CSV 路徑欄於第 7 項改寫；舊續跑 CSV 的 `protocol_id` 含絕對路徑）。

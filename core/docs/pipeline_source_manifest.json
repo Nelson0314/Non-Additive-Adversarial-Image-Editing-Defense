@@ -57,11 +57,44 @@
       "destination": "core/src/immunization_core/optimization/instruction_free.py",
       "source_sha256": "723a9d82ea2f7448debe6f59588ececf5fefbe655130ebcf8cad514b0728f591",
       "definitions": null
+    },
+    {
+      "source": "lab/scripts/gpu_policy.sh",
+      "destination": "core/scripts/gpu_policy.sh",
+      "source_sha256": "d7268950a6532c22b8df3d35d699543dc36c4097f7bef69369381431c1938984",
+      "definitions": null
+    },
+    {
+      "source": "lab/scripts/gpu_lease.sh",
+      "destination": "core/scripts/gpu_lease.sh",
+      "source_sha256": "eb34e4eb503ddd1216b5fc37df2e1b09925fa69c9899b42d5c8ee1fd2af52c66",
+      "definitions": null
+    },
+    {
+      "source": "anti-purification/scripts/free_cards.sh",
+      "destination": "core/scripts/free_cards.sh",
+      "source_sha256": "467aea6a3abb959fbd0c7ee028ecfeb7a3fab05c7f2a4b4e0cc10dae847e3940",
+      "definitions": null
+    },
+    {
+      "source": "lab/scripts/run_on_card.sh",
+      "destination": "core/scripts/run_with_gpu_lease.sh",
+      "source_sha256": "db81b442c058c5735ab4d8fdd4673594ff4035127ec23e56dc1ed91eecb1bac1",
+      "definitions": null
+    },
+    {
+      "source": "lab/scripts/queue_worker.sh",
+      "destination": "core/scripts/queue_worker.sh",
+      "source_sha256": "29d13a8f8c91a25ebf27a67324264145cbf0d3b0108768b280f6d6827bbaacce",
+      "definitions": null
     }
   ],
   "renames": {
     "quantise": "quantize",
     "optimise_carrier": "optimize_carrier",
-    "randomise_carrier": "randomize_carrier"
+    "randomise_carrier": "randomize_carrier",
+    "LAB_CAP": "GPU_CAP",
+    "LAB_MYCAP": "QUEUE_CAP",
+    "run_on_card.sh": "run_with_gpu_lease.sh"
   }
 }

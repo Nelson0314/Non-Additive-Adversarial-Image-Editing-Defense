@@ -284,3 +284,35 @@
 1. 根 `README.md` 仍是舊內容，連結指向已不存在的 `anti-purify/` 與已移入封存區的 `anti-purification/`；依計畫於第 13 項重寫。
 2. `archive/anti-purification/` 內的程式、測試與文件仍以原位置為準（例如 `tests/test_metrics_union_failure.py` 引用已移出的 `main_table/code`）；依規則不修改，封存區不承諾可執行。
 3. 協調端本機若有 `anti-purification/` 下未追蹤的資料（`runs/` 影像、`.tmp/` 等），合併本分支時 git 不會搬動它們，需在本機一併移到 `archive/anti-purification/`。
+
+## 第 7 項：CSV 改寫
+
+- 基準：`18aa70a`。commit：`b35bb2b`（改寫與驗證工具）、`9614c38`（改寫結果）、`c6d4b4e`（程式與文件中的 `colour_curve_ours` → `color_curve`），另加本紀錄。
+- 範圍：`baseline/results`、`color/results`、`style/results` 下全部 228 份 CSV（84／84／60 份，38,938 列）；`archive/` 不動。
+
+### 改寫內容
+
+| 類別 | 規則 | 格數 |
+|---|---|---|
+| 路徑欄（`data`、`data_root`、`input_png`、`output_png`、`png`、`defended_png`、`undefended_png`、`source_png`、`original_png`、`defence_png`、`reference_png`） | 去除遠端根 `/nfs/home/nelson0314/image-immunization/` 或本機根 `C:/image-immunization/[anti-purification/]`，再依產物角色的前綴規則改為相對所屬專案根的路徑；未知前綴即中止 | 16,674 |
+| 識別值 | `colour_curve_ours` → `color_curve`（color 的四份 fidelity 表 `anchor_source` 欄） | 32 |
+| 新欄 | `baseline/results/ultraedit/{displacement,retention}.csv` 在 `scenario` 後加入 `editor`＝`ultraedit`（`scenario=ip2p` 為借用欄位，原值不改） | 2 張表 |
+
+前綴規則全文見 `archive/migration/rewrite_results.py`；baseline 的規則即第 4 項的產物目錄對照，另加 `runs/edit_defended_aligned/` → `artifacts/defended_edits_aligned/`、`runs/edit_purified_aligned/` → `artifacts/purified_edits_aligned/`（第 4 項對照表遺漏，第 10 項搬移時一併處理），以及 sweep 影像目錄：`main_table/images/{flux_preview,flux_preview_g2,flux_preview_truecfg}/` → `artifacts/sweeps/flux/{guidance_3p5,guidance_2p0,true_cfg_3p5}/`、`sdedit_preview/`、`sdedit_preview_sd21/`、`sdedit_preview_sd21base_sweep/`、`sdedit_guidance_sweep_sd15/` → `artifacts/sweeps/sdedit/{sd15_strength,sd21_v_prediction,sd21_base_strength,sd15_guidance}/`、`sd_family/<批次>/` → `artifacts/sweeps/<與 results/sweeps 同名>/`。color／style 的規則即第 5 項的產物目錄對照。
+
+未改寫：非路徑欄（含 `dir_norm`、`direction` 一類數值欄、`model`／`victim` 的模型 ID、`spec_source`／`modification_note` 等說明文字）、欄名（含 `defence_png`、`free_*`、`D_*`、`DT_*`、`disp_*`）、其他識別值（`dia_pt`、`r11`、`ip2p_si18` 等，依診斷報告 4.7）、主表幾何淨化分區欄的數值（第 12 項）。
+
+### 驗證（`rewrite_results.py` 逐表執行，任一條件不符即中止；結果寫入 `archive/migration/csv_rewrite_report.json`）
+
+1. 改寫前 csv 解析後再寫出與原檔逐位元相同（全部 LF），確保改寫只動目標欄。
+2. 列數不變；表頭除新增的 `editor` 外不變。
+3. 鍵集合不變（鍵欄取 `condition`、`arm`、`scenario`、`image`、`prompt_index`、`purifier`、`variant`、guidance／strength、`style`、`pairing` 中存在者）。
+4. 非路徑欄逐值相同；唯一例外是識別值對照，且改寫後值等於對照結果。
+5. 96 份可追溯到遷移前 manifest（`8bcaae0`）的表：改寫前的 blob 與 manifest 相同，表頭與列數相同。其餘 132 份為遠端數值 CSV，第 5 項已與暫存副本逐位元比對。
+6. 改寫後 `baseline`、`color`、`style` 的測試：71、40、14 passed。
+
+### 未完成與待裁定
+
+1. style 的 `r11`／`r13` 參照編輯表（`edits/r11/ref_cool_grade/`、`edits/r13/ref_p_snow/`）的 `input_png` 指向已刪除的輪 `pilot`、`r12_p_snow`，依同一規則改寫為 `artifacts/defenses/pilot/…`、`artifacts/defenses/r12_p_snow/…`；這些產物在遠端已刪除時即為失效參照（原值同樣失效）。
+2. 續跑 CSV 的 `protocol_id`（雜湊值）無法改寫；第 4 項紀錄第 2 點仍適用。
+3. 第 4 項紀錄第 1 點（CSV 路徑欄為舊值時兩支讀數不可用）已由本項解決：路徑欄現在相對 baseline 根，與程式的解析方式一致。

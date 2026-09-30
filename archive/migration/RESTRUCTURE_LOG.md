@@ -327,3 +327,20 @@
 - baseline、color、style 各加 `docs/TRIALS.md`（說明與空表），README 目錄表列出；`/trials/` 已由各專案 `.gitignore` 排除。
 - 驗證：`core/tests/test_gpu_scripts.py` 新增 2 項（假 git 專案與 ssh stub）；core 相關測試 25 passed；三個專案 71／40／14 passed。
 - 協調端：遠端使用時設定 `TRIAL_REMOTE="-p 10101 nelson0314@server.basiclab.lab.nycu.edu.tw"`、`TRIAL_REMOTE_ROOT=<遠端專案根>`（第 10 項確定路徑）。
+
+### 第 2 段：協定與條件正本（`c36db56`…`04a7cdd`）
+
+| 正本 | 讀取方式 | 取代的副本 |
+|---|---|---|
+| `core/src/immunization_core/purifiers/protocol.json`（identity＋七道，順序與強度） | Python：`purifiers.protocol.PURIFIERS`、`label()`、`purifier_labels()`；shell：`python -m immunization_core.purifiers.protocol --exclude-identity` | `protocol.py` 的常數、`color/scripts/evaluate_condition.sh` 與 `baseline/scripts/evaluate_color_condition.sh` 的 `for PUR in …`、`validate_queue_job.PURIFIERS` |
+| `baseline/configs/conditions.yaml`（求解族、spec、求解端文字條件與出處、是否屬主表、主表列序） | `immunization_baseline.conditions`；`python -m immunization_baseline.conditions [--main-table｜--solvable]` | `generate_defenses` 的 `PGD_SPECS`、`SOLVER_PROMPT`、`CONTENT_CONDITIONS`、`DCT_CONDITIONS`、`FEEDFORWARD_CONDITIONS`；`run_ultraedit_edits.CONDITIONS`；`measure_flux_displacement.CONDITIONS` |
+| `color/configs/conditions.yaml`（條件 → 額外參數） | `python -m immunization_color.conditions <條件>` | `generate_condition.sh` 的 `case` |
+| `style/configs/styles.yaml`（風格名 → 指令） | `immunization_style.method.STYLES` | `method.py` 的 `STYLES` 字典 |
+
+行為上的差異（均不改科學協定）：
+- shell 鏈的七道淨化執行順序改為協定檔順序（crop_resize0.1、jpeg30、jpeg50、jpeg80、blur1、blur2、rotate15），原為 jpeg50、crop_resize0.1、blur1、rotate15、jpeg30、jpeg80、blur2；各階段的完成標記名稱不變。
+- color 的鏈在全部階段完成後寫 `runtime/state/<條件>.chain.done`；佇列的 `WAIT_ARMS` 改等此標記（原等最後一道 `pedit_blur2_ip2p`，其位置隨順序改變）。
+- `generate_defenses` 未給 `--conditions` 時的求解順序改為主表列序；`measure_flux_displacement` 的預設條件改為主表十二列（原清單含已退出主表的 `color_curve`、缺 `color`；`results/flux/displacement.csv` 已含 `color`、不含 `color_curve`）。
+- `generate_defenses` 啟動時檢查設定檔的常數文字條件與攻擊模組持有的值相同、每個 pgd 條件的 spec 名稱與條件名相同。
+
+驗證：core 174 passed、21 deselected；baseline 72、color 41、style 15 passed（新增 registry 測試各 1 項）；三個專案以 vendor 取得的協定標籤一致。

@@ -93,15 +93,10 @@ def output_png(root: Path, arm: str, purifier: str, name: str, pi: int) -> Path:
 def write_preflight(root: Path, arm: str, targets: list, prompts: list) -> None:
     """`pipelines.displacement` 從每個條件目錄的 preflight.csv 列舉格子。"""
     path = root / "defended_edits" / arm / "preflight.csv"
-    with path.open("w", encoding="utf-8", newline="") as stream:
-        writer = csv.DictWriter(stream, fieldnames=["scenario", "arm", "image",
-                                                    "prompt_index", "prompt"])
-        writer.writeheader()
-        for item in targets:
-            for pi, prompt in enumerate(prompts):
-                writer.writerow({"scenario": "ip2p", "arm": f"ultraedit_{arm}",
-                                 "image": item["name"], "prompt_index": pi,
-                                 "prompt": prompt})
+    rows = [{"scenario": "ip2p", "arm": f"ultraedit_{arm}", "image": item["name"],
+             "prompt_index": pi, "prompt": prompt}
+            for item in targets for pi, prompt in enumerate(prompts)]
+    write_rows_atomic(path, ["scenario", "arm", "image", "prompt_index", "prompt"], rows)
 
 
 def main() -> None:

@@ -51,6 +51,7 @@ from immunization_baseline import layout  # noqa: E402
 import torch  # noqa: E402
 from PIL import Image, ImageDraw  # noqa: E402
 
+from immunization_core.io import write_rows_atomic  # noqa: E402
 from immunization_core.pipelines.editing import identity_row, load_items  # noqa: E402
 from immunization_core.io import load_image_tensor  # noqa: E402
 from immunization_baseline.editors import EDITORS, load_pipeline, to_pil, to_tensor  # noqa: E402
@@ -92,10 +93,7 @@ def load_rows(csv_path: Path) -> list[dict]:
 
 def write_rows(csv_path: Path, rows: list[dict]) -> None:
     csv_path.parent.mkdir(parents=True, exist_ok=True)
-    with csv_path.open("w", encoding="utf-8", newline="") as stream:
-        writer = csv.DictWriter(stream, fieldnames=FIELDS)
-        writer.writeheader()
-        writer.writerows(rows)
+    write_rows_atomic(csv_path, FIELDS, rows)
 
 
 def contact_sheet(out_dir: Path, originals: dict, cols: list, grid: list, rows: list,

@@ -66,6 +66,7 @@ import csv
 from pathlib import Path
 
 from immunization_baseline import layout  # noqa: E402
+from immunization_core.io import write_rows_atomic  # noqa: E402
 
 #: `numpy`／`piq`／`torch` 只有 fidelity／displacement／retention／aesthetic 這四個
 #: stage 要用，`vmaf` 不碰張量、只呼叫 `ffmpeg`。四個重依賴延到 `main()` 裡依
@@ -101,10 +102,7 @@ def write_csv(path: Path, rows: list) -> None:
             if key not in fields:
                 fields.append(key)
     path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("w", encoding="utf-8", newline="") as stream:
-        writer = csv.DictWriter(stream, fieldnames=fields, restval="")
-        writer.writeheader()
-        writer.writerows(rows)
+    write_rows_atomic(path, fields, rows, restval="")
 
 
 def load(path, device):

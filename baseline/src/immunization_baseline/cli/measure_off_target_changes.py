@@ -24,6 +24,7 @@ import csv
 from pathlib import Path
 
 from immunization_baseline import layout  # noqa: E402
+from immunization_core.io import write_rows_atomic  # noqa: E402
 
 import numpy as np  # noqa: E402
 import piq  # noqa: E402
@@ -74,10 +75,7 @@ def main() -> None:
                     "de_subject": round(float(de[~bg].mean()), 3),
                     "lpips_full": round(lp, 4)})
     out_csv = args.out
-    with out_csv.open("w", encoding="utf-8", newline="") as stream:
-        writer = csv.DictWriter(stream, fieldnames=list(out[0]))
-        writer.writeheader()
-        writer.writerows(out)
+    write_rows_atomic(out_csv, list(out[0]), out)
     print(f"{len(out)} 格 -> {out_csv}")
 
 

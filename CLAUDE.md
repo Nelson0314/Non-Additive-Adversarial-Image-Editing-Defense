@@ -54,15 +54,14 @@
 - `.sh` 一律 LF（根目錄 `.gitattributes` 固定）；Python 以 `python` 指令執行。
 - commit message 用英文；機械搬檔、行為修正、文件更新分開 commit。
 - 密碼與 token 不寫入任何入庫檔案。
+- 遠端腳本不可就地覆寫：先寫到暫存位置再 `mv`（執行中的 bash 逐行讀檔）。
 
 ## GPU
 
-- GPU 工作一律送遠端，不用本機顯卡。
-- 全局可用卡數由使用者逐次授權；未說明或說明不清時預設全局合計 6 張，計入所有主機、session 與排程。
-- 取卡一律經專案 `vendor/scripts/`（`run_with_gpu_lease.sh`、`run_queue_worker.sh`）；租約目錄 `~/gpu_leases` 由所有入口共用，
-  `GPU_CAP=N` 或 `--cap N` 寫入 `~/gpu_leases/.capacity`，`GPU_CAP=default` 回到預設值。
-- 卡為多人共用：卡上有他人的 compute app 即不使用。`measure_free_gpus.sh` 只產生候選清單，不保留卡。
-- 遠端腳本不可就地覆寫：先寫到暫存位置再 `mv`（執行中的 bash 逐行讀檔）。
+- GPU 工作一律送遠端，不用本機顯卡；卡數與派工由使用者口頭指定。
+- 使用者沒有說明或說明不清時，全局合計上限 6 張（所有主機、session 與排程加總）。
+
+租約工具（`run_with_gpu_lease.sh`、`run_queue_worker.sh`、`measure_free_gpus.sh`）的用法見 `core/README.md`。
 
 ## 暫時性嘗試
 

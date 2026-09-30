@@ -19,7 +19,7 @@
 
 ## 現況
 
-全部資料組都已跑完，沒有進行中的遠端工作，沒有指定中的待辦。
+上表的資料組皆已有完整結果表；沒有指定中的待辦。遠端是否有工作在跑不記錄於本檔：以遠端 `~/gpu_leases/` 的租約與本專案 `runtime/` 的佇列狀態為準。
 
 ### 顏色列是 `color`
 主表的顏色那一列是 color 專案的方法 `color`（預設參數）。防禦圖由 color 專案產出，經
@@ -75,12 +75,5 @@ b*＋ ≤ 4、b*－ ≤ 25、|ΔL*| ≤ 15）、臉框與膚色 ΔE00 ≤ 16、�
 
 ## 規矩
 
-- **GPU 一律送遠端**。全局可用卡數由使用者逐次授權；未說明或說明不清時預設 6 張，所有 session、主機與排程合計。
-  取卡一律經 `vendor/scripts/`（`run_with_gpu_lease.sh`、`gpu_lease.sh`），租約目錄 `~/gpu_leases/`
-  （`<主機> <pid> <名稱> <擁有者 token>`，兩台共用）；`measure_free_gpus.sh` 只擋別人佔用超過 512 MiB 的卡
-  （別人單一行程在每張卡上各留約 256 MiB 的 context 可放行，使用者裁定）。
-- **不設判準**：數據與圖擺出來為止，不下「成立／不成立」「值得／不值得」的結論，指標本身也一樣。
-- 報數字寫描述性名稱（編輯結果 LPIPS、防禦圖 LPIPS），不用 D、D_T 這類代號；引用數字連協定一起引用
-  （`docs/reference/BASELINE_PROVENANCE.md` 規則 1）。
-- 本專案範圍只到 `baseline/`；`vendor/` 不就地修改，修正回到 `core/` 後重新匯出。
-- 共通規則（命名、書面用語、commit、LF）見根目錄 `CLAUDE.md`。
+- 引用外部方法的數字依 `docs/reference/BASELINE_PROVENANCE.md` 規則 1（連同該方法的協定與來源版本）。
+- 共通規則見根目錄 `CLAUDE.md`。

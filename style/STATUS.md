@@ -7,7 +7,7 @@
 - 本專案沒有保存結果：只保留方法程式（`src/`、`scripts/`）、設定（`configs/styles.yaml`）、資料與文件。
   已刪除的實驗（`xattn_chaos_cool_grade`、`paper_setting_xattn_chaos_p_snow`、`paper_classifier_p_noedit`、
   `paper_classifier_p_snow` 等）的設定、關鍵數字與可取回數值 CSV 的 commit 記錄於 `docs/TRIALS.md`。
-- 研究方向由使用者決定。
+- 研究方向由使用者決定。遠端是否有工作在跑不記錄於本檔：以遠端 `~/gpu_leases/` 的租約與本專案 `runtime/` 的佇列狀態為準。
 - 讀數的未防禦分母為 baseline 未防禦編輯的複本，位於本專案的 `artifacts/undefended_edits/ip2p_si18`；另以 `--undefended-edits-dir` 指定。
 - 本專案在遠端位於 `~/image-immunization/style`；`requirements.lock` 未入庫，由遠端執行環境以 `vendor/scripts/generate_requirements_lock.py` 產生。
 

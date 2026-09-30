@@ -17,7 +17,7 @@
 
 ## 旋鈕與它的副作用
 
-`code/defence_run.py --eps-scale <倍率>` 把該篇的原生 `eps` 乘上倍率，
+`generate_defenses --eps-scale <倍率>` 把該篇的原生 `eps` 乘上倍率，
 **`step_size` 同倍率縮放**以維持 `step_size / eps`——只縮 `eps` 會讓第一步就撞上
 投影邊界、有效步數變少，量到的就不只是預算的效果。倍率不等於 1 時該列強制標
 `modified_from_paper=True`，原生值留在 `eps_native` 欄，倍率留在 `eps_scale` 欄。
@@ -147,5 +147,5 @@ PSNR 仍差 8.98 dB、L∞ 差 6.21 倍。**錨得更緊沒有讓其餘指標收
 2. **樣本是八張人像、每條件 64 格**，比任何一篇 baseline 論文的評測規模都小
    （DIA 700 張、DCT-Shield 150 張、DANP 200 張）。規模不同的數字不能並排。
 3. **`colour_curve_ours` 那一列是原生設定**，不是對齊後的——它是錨。
-4. 位移與保留率各自的分母見 `../../docs/EVALUATION.md`；`rotate15` 是固定 15°
+4. 位移與保留率各自的分母見 `docs/EVALUATION.md`；`rotate15` 是固定 15°
    不是隨機 ±10°，幾何類的分區讀數另有一個已知限制，同一份文件裡有。

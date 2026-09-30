@@ -1,19 +1,15 @@
-# 出處文件在主線目錄
+# 文件
 
-這裡原本放了一份與 `../../docs/reference/` 重複的副本。
-兩份已合併，**正本在主線目錄**，這裡不再保留第二份。
-
-| 要查什麼 | 讀哪份 |
+| 要查什麼 | 文件 |
 |---|---|
-| 逐篇逐行的原始碼查證 | `../../docs/reference/SOURCE_AUDIT.md` |
-| 各 baseline 的出處與預算換算 | `../../docs/reference/BASELINE_PROVENANCE.md` |
-| 七道淨化算子的查證 | `../../docs/reference/AUDIT_PURIFIERS.md` |
-| 單一方法的查證 | `../../docs/reference/AUDIT_<方法>.md` |
-| 指標定義與比較方式 | `../../docs/EVALUATION.md` |
-| 外部文獻 | `../../docs/reference/BIBLIOGRAPHY.md` |
+| 逐篇逐行的原始碼查證 | `reference/SOURCE_AUDIT.md` |
+| 各 baseline 的出處與預算換算 | `reference/BASELINE_PROVENANCE.md` |
+| 等失真對齊 | `reference/BASELINE_ALIGNMENT.md` |
+| 七道淨化算子的查證 | `reference/AUDIT_PURIFIERS.md` |
+| 單一方法的查證 | `reference/AUDIT_<方法>.md` |
+| 指標定義與比較方式 | `EVALUATION.md` |
+| 外部文獻 | `reference/BIBLIOGRAPHY.md` |
 
-合併時取的是**較新、已修正的那一份**：`AUDIT_PURIFIERS.md`（兩處引用改成
-`SOURCE_AUDIT.md`，不是已作廢的帶日期檔名）、`BASELINE_PROVENANCE.md`（多出
-`eps_pixel01` 的逐列單位一節，並更正「只有這一欄跨方法可比」的說法）、
-`EVALUATION.md`（區分模組預設值與主表實跑的七道）、以及原本只在這裡的
-`AUDIT_DCT_SHIELD.md`。
+以上文件複製自 `anti-purification/docs/`，內容未改；其中對 `src/`、`scripts/`、`runs/` 等舊位置的引用
+指向封存的原專案。`third_party/ultraedit/pipeline.py` 移植自 UltraEdit 作者的 diffusers fork，
+只改 import；檔案 SHA-256 見 `archive/migration/RESTRUCTURE_LOG.md` 第 4 項。

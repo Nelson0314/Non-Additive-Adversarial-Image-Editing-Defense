@@ -1,7 +1,7 @@
-# 主表：現況與接續指引
+# baseline：現況與接續指引
 
 接手先讀這一份；協定、檔案位置、程式清單在 `README.md`；兩組進階量測各有說明：
-`results/aligned/README.md`（等失真臂）、`results/PASSTHROUGH.md`（穿透拆解）。
+`results/aligned/README.md`（等失真臂）、`results/ADDITIVE_TRANSFER.md`（加性穿透拆解）。
 
 ## 資料組
 
@@ -9,9 +9,9 @@
 |---|---|---|
 | 主表 | 12 個方法在各自原生預算下，把 ip2p／inpaint 的編輯結果推開多少 | `results/*.csv` |
 | 等失真臂 | 10 個方法縮到同一個防禦圖 LPIPS 之後，還推開多少 | `results/aligned/` |
-| 穿透拆解 | 位移中有多少是防禦端的改動原樣穿過編輯器（ip2p） | `results/passthrough.csv`、`results/PASSTHROUGH.md` |
-| FLUX 全表 | 同一批防禦圖換成 FLUX.1-Kontext 編輯 | `results/flux_full_<arm>.csv`、`results/displacement_flux.csv` |
-| UltraEdit 全表 | 同一批防禦圖（含淨化後）換成 UltraEdit（SD3）編輯 | `results/ultraedit_full/<arm>.csv`、`results/{displacement,retention}_ultraedit.csv` |
+| 穿透拆解 | 位移中有多少是防禦端的改動原樣穿過編輯器（ip2p） | `results/additive_transfer.csv`、`results/ADDITIVE_TRANSFER.md` |
+| FLUX 全表 | 同一批防禦圖換成 FLUX.1-Kontext 編輯 | `results/flux/` |
+| UltraEdit 全表 | 同一批防禦圖（含淨化後）換成 UltraEdit（SD3）編輯 | `results/ultraedit/` |
 
 主讀數是 `displacement.csv` 的 `disp_lpips_full`（編輯結果 LPIPS：未防禦編輯 vs 防禦後編輯，
 另有主體／背景分區）。主表的位移排名與防禦圖失真排名幾乎同序（原生防禦圖 LPIPS 0.043–0.666），
@@ -22,10 +22,10 @@
 全部資料組都已跑完，沒有進行中的遠端工作，沒有指定中的待辦。
 
 ### 顏色列是 `color`
-主表的顏色那一列是 lab 的現行方法 `color`（`lab/code/color_defence.py` 預設參數；lab 目錄唯讀）。
-防禦圖取自 `lab/runs/defence/color/`，經 `code/immunise_as_condition.py --variant color` 整理成主表版面並
-重算保真欄；ip2p／inpaint 編輯、7 道淨化與淨化後重編、FLUX、UltraEdit 都重跑過
-（`code/color_row_chain.sh`），讀數以原腳本只算 `color` 後替換進各聚合 CSV，`metrics_*_union.csv` 整張重算。
+主表的顏色那一列是 color 專案的方法 `color`（預設參數）。防禦圖由 color 專案產出，經
+`import_defense_artifacts --variant color` 整理成主表版面並重算保真欄；ip2p／inpaint 編輯、7 道淨化與
+淨化後重編、FLUX、UltraEdit 都重跑過（`scripts/evaluate_color_condition.sh`），讀數以同一程式只算 `color`
+後替換進各聚合 CSV，`results/additional_metrics/` 整張重算。
 舊顏色列 `colour_curve_ours` 的數值留在 commit `0dd243b`。
 
 `color` 的防禦圖 LPIPS 是 0.2317（8 張平均），舊顏色列是 0.3344，量法相同（`piq.LPIPS`）。差距來自上限的
@@ -33,8 +33,8 @@
 b*＋ ≤ 4、b*－ ≤ 25、|ΔL*| ≤ 15）、臉框與膚色 ΔE00 ≤ 16、彩度 p95、對原圖 LPIPS 與位移場半徑 80，
 8 張中 a*－ 與位移場半徑各有 6 張頂到，整圖平均 ΔE00 為 9.0–13.8。
 
-**未跟著換的兩處**：等失真臂的錨點仍是舊顏色列的 0.3344（使用者指示不重新對齊）；`results/PASSTHROUGH.md`
-的文字與表格是舊顏色列的數字，`passthrough.csv` 的顏色列已是 `color`。
+**未跟著換的兩處**：等失真臂的錨點仍是舊顏色列的 0.3344（使用者指示不重新對齊）；`results/ADDITIVE_TRANSFER.md`
+的文字與表格是舊顏色列的數字，`additive_transfer.csv` 的顏色列已是 `color`。
 
 ### 跨編輯器
 | 編輯器 | 狀態 | 協定 |
@@ -47,15 +47,15 @@ b*＋ ≤ 4、b*－ ≤ 25、|ΔL*| ≤ 15）、臉框與膚色 ΔE00 ≤ 16、�
 
 各方法的編輯結果 LPIPS 排名，與 ip2p 的 Spearman 相關：inpaint 0.979、FLUX 0.951、UltraEdit 0.951。
 
-**UltraEdit 的參數怎麼選的**（`results/sd_family_*ultraedit*.csv` 與對應的 `sd_family_offtarget_*.csv`，
+**UltraEdit 的參數選法**（`results/sweeps/ultraedit/` 與對應的 `*_off_target.csv`，
 2–4 張未防禦影像）：作者 README 的範例值 g7.5／ig1.5 會換臉、改動指令以外的區域；guidance 越低指令以外的
-改動越少，image guidance 2.5 反而提高對比；g2.5／ig1.5 下六種句型（`code/prompt_sets_ultraedit.json`）的
-背景 ΔE00 為 2.21–2.34，`add` 句型三項改動讀數最低；換名詞與 g4（`code/prompt_sets_ultraedit_round2.json`）
-沒有讓 `police suit` 被執行，且加重墨鏡那格的換臉。管線不在官方 diffusers，`code/ultraedit_sd3_pipeline.py`
+改動越少，image guidance 2.5 反而提高對比；g2.5／ig1.5 下六種句型（`configs/prompts/ultraedit_templates.json`）的
+背景 ΔE00 為 2.21–2.34，`add` 句型三項改動讀數最低；換名詞與 g4（`configs/prompts/ultraedit_noun_placement_variants.json`）
+沒有讓 `police suit` 被執行，且加重墨鏡那格的換臉。管線不在官方 diffusers，`third_party/ultraedit/pipeline.py`
 移植自作者的 fork，只改 import。
 
 ### 已知限制
-- **幾何淨化的分區欄**：`edit_retention.py` 的 `purified_mask()` 在 commit `199b7de` 進版。`retention.csv`
+- **幾何淨化的分區欄**：`purified_mask()`（現為 `immunization_core.pipelines.masks`）在 commit `199b7de` 進版。`retention.csv`
   中 `color` 以外的 11 個條件在那之前算出，`crop_resize0.1`、`rotate15` 的 `disp_purified_subject`／
   `disp_purified_background` 用的是未變換的遮罩（全圖欄不受影響）；`color` 與 UltraEdit 的保留率是之後算的。
 - **SD 2.x 只能用 epsilon-prediction 權重**：`sd2-community/stable-diffusion-2-1` 是 v-prediction，`SDWrapper`
@@ -63,27 +63,21 @@ b*＋ ≤ 4、b*－ ≤ 25、|ΔL*| ≤ 15）、臉框與膚色 ΔE00 ≤ 16、�
 
 ## 遠端
 
-- 程式與資料在 `~/image-immunization`（NFS，兩台共用）；`main_table/` 的影像大多在主線 `runs/`
-  （`defence_portraits`、`edit_preflight`、`edit_defended`、`purified`、`edit_purified`、`eps_aligned`），
-  FLUX 與 UltraEdit 的編輯圖在 `main_table/images/{flux_full,ultraedit_full}/`，探索用的掃描圖在
-  `main_table/images/sd_family/`。本機 `images/` 是部分鏡像，不入版控。
-- HF 權重在各機的 `/var/cache/huggingface`（`~/env.sh` 設定），兩台不同：FLUX 只在 basic-2，UltraEdit
-  只在 basic-1，ip2p 與 SD-inpainting 兩台都有。
-- `metrics_union.py` 讀 `main_table/images/` 的版面；遠端沒有這個版面，要在本機跑（本機 `python` 缺 `piq`，
-  用 `C:\Users\nelso\miniconda3\envs\wacv\python.exe`；它固定用 CPU），或在遠端先把 `runs/` 的對應目錄
-  連結進 `main_table/images/`。
+- 影像產物位於 `artifacts/`（見 `README.md`「影像產物」）。遠端版面的切換屬重整第 10 項；切換前的舊位置與新目錄的對照
+  記錄於 `archive/migration/RESTRUCTURE_LOG.md`。
+- HF 權重在各機的 `/var/cache/huggingface`，兩台不同：FLUX 只在 basic-2，UltraEdit 只在 basic-1，ip2p 與
+  SD-inpainting 兩台都有。機器相關設定以 `ENV_FILE` 交給 `scripts/env.sh`。
+- `measure_additional_metrics` 讀 `artifacts/` 的版面與 CSV 中的影像路徑；無 GPU 亦可執行（固定使用 CPU）。
 
 ## 規矩
 
 - **GPU 一律送遠端**。全局可用卡數由使用者逐次授權；未說明或說明不清時預設 6 張，所有 session、主機與排程合計。
-  派工前看 `~/lab_leases/`（`<主機> <pid> <名稱> <擁有者 token>`，兩台共用）並用
-  `nvidia-smi --query-compute-apps=gpu_uuid,pid,used_memory` 複驗；`scripts/free_cards.sh` 只擋別人佔用
-  超過 512 MiB 的卡（別人單一行程在每張卡上各留約 256 MiB 的 context 可放行，使用者裁定）。
-  啟動腳本要在 `free_cards.sh --assert` 失敗時中止。
+  取卡一律經 `vendor/scripts/`（`run_with_gpu_lease.sh`、`gpu_lease.sh`），租約目錄 `~/lab_leases/`
+  （`<主機> <pid> <名稱> <擁有者 token>`，兩台共用）；`free_cards.sh` 只擋別人佔用超過 512 MiB 的卡
+  （別人單一行程在每張卡上各留約 256 MiB 的 context 可放行，使用者裁定）。
 - **不設判準**：數據與圖擺出來為止，不下「成立／不成立」「值得／不值得」的結論，指標本身也一樣。
 - 報數字寫描述性名稱（編輯結果 LPIPS、防禦圖 LPIPS），不用 D、D_T 這類代號；引用數字連協定一起引用
-  （`../docs/reference/BASELINE_PROVENANCE.md` 規則 1）。
-- 主表範圍只到 `main_table/`：`lab/` 與 `frequency-phase/` 不動；主線的 `src/`、`docs/`、`data/` 是共用參考，
-  只讀不改，移植不了的回報使用者。
+  （`docs/reference/BASELINE_PROVENANCE.md` 規則 1）。
+- 本專案範圍只到 `baseline/`；`vendor/` 不就地修改，修正回到 `core/` 後重新匯出。
 - 命名不含日期、流水號或順序詞；文件不寫時間相依的字眼；commit message 用英文；Windows 寫出的 `.sh`
   上傳前去掉 CRLF。

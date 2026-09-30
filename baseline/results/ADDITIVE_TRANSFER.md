@@ -1,6 +1,6 @@
 # 穿透拆解：位移裡有多少是防禦端的改動原樣穿過編輯器
 
-> 本文的顏色列數字屬於舊顏色方法 `colour_curve_ours`（對應 commit `0dd243b` 的 `passthrough.csv`）。現行 `passthrough.csv` 的顏色列已換成 `color`，本文未改寫。
+> 本文的顏色列數字屬於舊顏色方法 `colour_curve_ours`（對應 commit `0dd243b` 的 `passthrough.csv`）。現行 `additive_transfer.csv` 的顏色列已換成 `color`，本文未改寫。
 
 `results/displacement.csv` 的位移 `D = LPIPS(edit(x), edit(x_def))` 把兩件事算在
 一起：防禦圖的改動**原樣穿過**編輯器所造成的差異，以及編輯器真的被推離原本輸出的
@@ -20,8 +20,8 @@
 `T̂` 定義下。兩種算法在它身上的差距見下面「與另一批的對照」。
 
 協定：ip2p、主種子 20260812、四句指令、八張人像，每條件 32 格，共 704 列。
-`piq.LPIPS()`（VGG），分區遮罩與 `code/edit_displacement.py` 同源。
-逐格資料在 `results/passthrough.csv`，產生程式 `code/passthrough_readout.py`。
+`piq.LPIPS()`（VGG），分區遮罩與 `measure_edit_displacement` 同源。
+逐格資料在 `results/additive_transfer.csv`，產生程式 `measure_additive_transfer`。
 
 ## 原生預算
 
@@ -79,7 +79,7 @@
 
 | T̂ 的算法 | P | D_T | 來源 |
 |---|---|---|---|
-| 加性（本檔，與其餘十一列同一個定義） | 0.2930 | 0.2350 | `results/passthrough.csv` |
+| 加性（本檔，與其餘十一列同一個定義） | 0.2930 | 0.2350 | `results/additive_transfer.csv` |
 | 由 `ColorCurveParam` 回推（該臂所屬的參數族） | 0.304 | 0.223 | `lab/results/passthrough/passthrough.csv`，回推誤差 ΔE00 0.04 |
 
 兩者的 `D` 相同（0.386，同一批編輯輸出），`P` 差 3.6%、`D_T` 差 5.4%。

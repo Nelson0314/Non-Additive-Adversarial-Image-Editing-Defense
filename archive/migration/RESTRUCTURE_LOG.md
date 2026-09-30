@@ -415,3 +415,20 @@
   前提：`baseline/artifacts/color_import/<影像>__color__defended.png`（指向 color 防禦圖）、`baseline/artifacts/defenses/color/<影像>__color__def.png`、`baseline/data/portraits/<類>/<影像>.png` 與上述設定檔都存在；任一缺少即中止且不寫檔。腳本驗證列數、鍵集合與原有欄位不變。補值前 `defense_color.csv` 為唯一仍是舊 schema 的表。
 
 驗證：baseline 78 passed（新增匯入 2 項、選配指標 4 項）；`import-hashes` 以替身檔案在 scratch 目錄模擬成功一次、缺一張防禦圖時中止（結束碼 1）。
+
+### 第 5 段：文件與 docstring 清理（`74cce42`…`f327f3e`）
+
+依 RESTRUCTURE_AUDIT §5.1、§5.2、§5.5 清理 core、baseline、color、style；`archive/` 內部不改。
+
+- **baseline 參考文件**（`docs/reference/*.md`、`docs/EVALUATION.md`）：指向本專案的舊路徑改為現行位置（`src/baselines/X.py` → `src/immunization_baseline/attacks/X.py`、`src/metrics/X.py` → `vendor/immunization_core/metrics/X.py`、`src/purify/ops.py` → `vendor/immunization_core/purifiers/operators.py`、`main_table/results/defence_*.csv` → `results/defense_*.csv`、`main_table/images/defence_portraits/` → `artifacts/defenses/`、淨化設定 → core `purifiers/protocol.json`）；仍在封存區的檔案指向 `archive/anti-purification/` 或 `archive/frequency-phase/`；已不在 repo 的檔案標為「原 `…`（不在 repo 內）」。上游 repo 的路徑不改。
+- **稽核 §5.5 逐項**：AUDIT_DANP §0 改為查證範圍與來源版本；AUDIT_DAYN 的接入段標為歷史提案並寫明實際入口 `generate_defenses` 的 `dayn` 分支；AUDIT_DIA「目前仍可存取」改為查證快照；AUDIT_INPAINTING_METHODS §4 綁定 2026-08-05 下載批次；AUDIT_MIST_DIFFVAX 增補段與原始查證分開；AUDIT_PURIFIERS 的 404 限於查證日期、`DESIGN_2026-08-05.md` 標為不在 repo 的歷史文件、主表七道以協定檔為準；AUDIT_SIFM「本輪沒有改」改為整合入口；BASELINE_ALIGNMENT §4–5 標為頻域／相位研究線的歷史協定。
+- **用語**：自有程式 docstring、註解與文件中的「本輪」「本次」「目前」「先前」「我們」「為什麼…」改為穩定敘述（本專案、修正前、用途、理由）；程式執行期語意（目前裝置、本次執行的 arm、這次前向）保留。附日期與數值的「實測」紀錄保留。
+- **color `measure_defense_fidelity`**：docstring 移除十二臂描述；說明 `budget` 欄為沿用的文字標籤（`ΔE00 16 / 臉 8`），不反映 `generate_color_defenses` 的實際上限（整圖 ≤ 32、臉框與膚色同色 ≤ 16），實際上限以各條件 `results.csv` 為準。CSV 欄位與值不變。
+- **拼法**：`measure_additive_transfer.defence_png()` 改為 `defense_png()`（CSV 欄 `defence_png` 保留）；style 佇列訊息改為 `defense`；`results/aligned/README.md` 的表名改為 `defense_<條件>.csv`。`pipelines.editing` 寫出的 `defence` 欄與 `import_defense_artifacts` 寫入 CSV 的 `spec_source` 值屬既有 schema／資料，不改。
+- vendor 重新匯出（baseline、color、style），`export_vendor.py --check` 通過。
+
+驗證：`core` 174 passed（21 deselected）、`baseline` 78 passed、`color` 41 passed、`style` 15 passed；改動的 `.py` 皆通過 `py_compile`。
+
+### 第 8 項完成狀態
+
+五段皆已推送。留給第 10 項（協調端）：遠端腳本改用新 CLI 參數（第 3 段對照表）、遠端執行 `backfill_result_schema.py import-hashes`（第 4 段）。未處理：`archive/` 內文件（依規則不改）、style `docs/` 的 r11／r13／cls 設定對照與 PDF 依賴清單（需要遠端 job spec 與原 PDF 來源，列入第 13 項前的待確認事項）。

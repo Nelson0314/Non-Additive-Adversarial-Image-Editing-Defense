@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # 暫時性嘗試的生命週期：trials/<名稱>/ 不入版控，結束時升格或刪除，本機與遠端副本一起處理。
 #
-# 用法（專案根，經 vendor/scripts/trial.sh 呼叫）：
-#   bash vendor/scripts/trial.sh new <名稱>                    建立 trials/<名稱>/ 與 README.md、PROMOTED 樣板
-#   bash vendor/scripts/trial.sh promote <名稱> [--local-only]  升格：PROMOTED 列出的目的檔皆已提交後，
+# 用法（專案根，經 vendor/scripts/run_trial_lifecycle.sh 呼叫）：
+#   bash vendor/scripts/run_trial_lifecycle.sh new <名稱>                    建立 trials/<名稱>/ 與 README.md、PROMOTED 樣板
+#   bash vendor/scripts/run_trial_lifecycle.sh promote <名稱> [--local-only]  升格：PROMOTED 列出的目的檔皆已提交後，
 #                                                            在 docs/TRIALS.md 記錄目的檔、SHA-256 與 commit，刪除 trial
-#   bash vendor/scripts/trial.sh drop <名稱> [--local-only]     放棄：docs/TRIALS.md 已提交且該列各欄齊全後刪除 trial
+#   bash vendor/scripts/run_trial_lifecycle.sh drop <名稱> [--local-only]     放棄：docs/TRIALS.md 已提交且該列各欄齊全後刪除 trial
 #
 # PROMOTED 每行一個相對專案根的目的檔，限 src/、configs/、results/、scripts/、tests/、docs/ 之下；
 # 每個檔案須已追蹤且與 HEAD 相同。至少一行。
@@ -18,7 +18,7 @@
 set -euo pipefail
 ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
 [ -f "$ROOT/pyproject.toml" ] || { echo "[FATAL] $ROOT 不是專案根" >&2; exit 2; }
-[ $# -ge 2 ] || { echo "用法：trial.sh new|promote|drop <名稱> [--local-only]" >&2; exit 2; }
+[ $# -ge 2 ] || { echo "用法：run_trial_lifecycle.sh new|promote|drop <名稱> [--local-only]" >&2; exit 2; }
 action=$1; name=$2; option=${3:-}
 [[ "$name" =~ ^[a-z][a-z0-9_]*$ ]] || { echo "[FATAL] 名稱只允許小寫英數字與底線：$name" >&2; exit 2; }
 [ -z "$option" ] || [ "$option" = --local-only ] || { echo "[FATAL] 未知選項 $option" >&2; exit 2; }

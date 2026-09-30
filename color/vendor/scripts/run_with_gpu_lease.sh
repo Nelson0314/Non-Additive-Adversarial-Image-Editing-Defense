@@ -34,7 +34,7 @@ gpu_policy_init "$AUTHORIZED_CAP" || exit $?
 CAP=${LAUNCH_LIMIT:-$(gpu_global_cap)}
 gpu_valid_cap "$CAP" || { echo "[FATAL] 派工限制必須是正整數" >&2; exit 2; }
 GPU=""
-for c in $(bash "$SCRIPTS/free_cards.sh" 2>/dev/null); do
+for c in $(bash "$SCRIPTS/measure_free_gpus.sh" 2>/dev/null); do
   lease_acquire "$c" "$NAME" "$CAP" || continue
   GPU=$c; break
 done

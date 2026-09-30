@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # 共用工作佇列的 worker。取卡經 gpu_lease.sh，容量政策見 gpu_policy.sh。
 #
-# 用法：bash queue_worker.sh --work-dir <目錄> --state-dir <目錄> --log-dir <目錄>
+# 用法：bash run_queue_worker.sh --work-dir <目錄> --state-dir <目錄> --log-dir <目錄>
 #           --runner <指令> --validator <指令> [--depends <指令>] [--env-file <檔案>]
 #           <佇列名> <工作>...
 #
@@ -146,7 +146,7 @@ main() {
     done
     if [ "$remaining" -eq 0 ]; then log WORKER-DONE "佇列清空或上游放棄"; break; fi
     if [ "${#runnable[@]}" -eq 0 ] || full; then sleep "$POLL"; continue; fi
-    for c in $(bash "$SCRIPTS/free_cards.sh" 2>/dev/null); do
+    for c in $(bash "$SCRIPTS/measure_free_gpus.sh" 2>/dev/null); do
       [ "${#runnable[@]}" -eq 0 ] && break
       full && break
       job="${runnable[0]}"

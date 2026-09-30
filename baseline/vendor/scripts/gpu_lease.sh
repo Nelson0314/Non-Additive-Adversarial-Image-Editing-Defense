@@ -63,7 +63,7 @@ lease_running() {
 
 lease_card_available() {
   local gpu=$1 uuid apps others
-  bash "$GPU_SCRIPTS/free_cards.sh" --assert "$gpu" >/dev/null 2>&1 || return 1
+  bash "$GPU_SCRIPTS/measure_free_gpus.sh" --assert "$gpu" >/dev/null 2>&1 || return 1
   uuid=$(nvidia-smi -i "$gpu" --query-gpu=uuid --format=csv,noheader) || return 1
   [ -n "$uuid" ] || return 1
   apps=$(nvidia-smi --query-compute-apps=gpu_uuid,used_memory --format=csv,noheader,nounits) || return 1

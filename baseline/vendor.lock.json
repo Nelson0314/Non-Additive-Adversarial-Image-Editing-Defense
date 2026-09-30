@@ -1,5 +1,5 @@
 {
-  "commit": "d8949f91efebe575521fd18696550c4139a476d7",
+  "commit": "ae898eb2b6fbd235e8c330896369cdf20be82f2a",
   "components": {
     "immunization_core": {
       "source": "core/src/immunization_core",
@@ -51,16 +51,16 @@
     },
     "scripts": {
       "source": "core/scripts",
-      "tree": "7b76a8d00126ca9878261b4425d653768ad29824",
+      "tree": "fcc400a703d1fedf664d8502ca0634ebba7fe5b6",
       "files": {
-        "export_vendor.py": "2e0abb4c111f707d858369bc2c60c2ebbf8760a97d3343a8f4754e110a8e94af",
-        "free_cards.sh": "b8e0674d18614329af034f7eb8b9b755e228673d4461805c5db5fb20a4a1875f",
-        "freeze_env.py": "ce34f30ff209ff53706ac4f858fe8eb2f51ff6d65895be4d6de03f4e1123fb8f",
-        "gpu_lease.sh": "dad2f421ab893d40fa08f53bc411b64d5500f73aef12cc4f649c28140253e6a1",
+        "generate_requirements_lock.py": "f426277b1840f82039ce11cc1fdccc619a0605410c373a4060da4c58c5cdb37a",
+        "generate_vendor_snapshot.py": "dc08ed91676adc2340209ec3ad7cf5af6a128bc753abd4caf273938ad8e52b1e",
+        "gpu_lease.sh": "2989b2f0a4282571569313c9da5180ba85e43066e53e9784607877f151864de0",
         "gpu_policy.sh": "c5ebdee593a191f56ba05613fd2113bc430400d9f3629bca8b57e698b612e6ce",
-        "queue_worker.sh": "ac694b616c81bc25c2eee5eab7d26d0f9e241558cd504ae63556247a1bec0c9d",
-        "run_with_gpu_lease.sh": "e1e22830b0a388a93326133c74435a1979a6ccf01eda9251ad8c0b213f096a41",
-        "trial.sh": "117243d705783daeec38dd0729bbf9a973b0e3b6c8fd26b189bf30a7b665e1f7"
+        "measure_free_gpus.sh": "fe92c3b2d36532612179746fb50d11a9808c217c2794ff6df912b91e7c227ddb",
+        "run_queue_worker.sh": "9c5f84036fc71361ba4519064bc0ecef18e482b50fca30cf14c3c46ccdd1c405",
+        "run_trial_lifecycle.sh": "5203c2b235fdfdb91d72f39d6892317fad9340f2fe67e81906832e6005c4ccbe",
+        "run_with_gpu_lease.sh": "33e9ebdd948bc8bcc2aee36088eeaec9d89f72d9b295ad3b384e138456fb34f6"
       }
     }
   }

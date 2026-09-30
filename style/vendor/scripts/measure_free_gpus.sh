@@ -8,10 +8,10 @@
 #      涵蓋未列出 app 但記憶體已被佔用的情況。
 #
 # 用法：
-#     bash free_cards.sh                  # 印出空卡號，空白分隔
-#     bash free_cards.sh --verbose        # 另於 stderr 印出每張卡的狀態
-#     bash free_cards.sh --max-cards 8    # 只限制候選清單長度
-#     bash free_cards.sh --assert "0 3"   # 指定卡任一非空閒即回傳 3
+#     bash measure_free_gpus.sh                  # 印出空卡號，空白分隔
+#     bash measure_free_gpus.sh --verbose        # 另於 stderr 印出每張卡的狀態
+#     bash measure_free_gpus.sh --max-cards 8    # 只限制候選清單長度
+#     bash measure_free_gpus.sh --assert "0 3"   # 指定卡任一非空閒即回傳 3
 set -uo pipefail
 
 MAX_USED=1024

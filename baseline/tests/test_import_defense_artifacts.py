@@ -35,7 +35,7 @@ def setup(tmp_path, monkeypatch):
     settings.write_text("image,arm\nman_00,color\nwoman_00,color\n")
     monkeypatch.setattr(importer, "MetricSuite", FakeSuite)
     monkeypatch.setattr(importer, "RESOLUTION", 16)
-    argv = ["import", "--source-dir", str(source), "--variant", "color", "--data-root", str(data),
+    argv = ["import", "--source-dir", str(source), "--condition", "color", "--data-root", str(data),
             "--output-dir", str(out), "--source-settings", str(settings)]
     return data, source, out, settings, argv
 
@@ -68,3 +68,28 @@ def test_missing_settings_or_image_writes_no_manifest(setup, monkeypatch):
     with pytest.raises(SystemExit):
         importer.main()
     assert not (out / "import_manifest.json").exists()
+
+
+def test_method_provenance_comes_from_the_condition_entry(setup, monkeypatch):
+    from immunization_baseline import conditions
+    _, _, out, _, argv = setup
+    monkeypatch.setattr(sys, "argv", argv)
+    importer.main()
+    with (out / "results_all.csv").open(encoding="utf-8", newline="") as stream:
+        rows = list(csv.DictReader(stream))
+    entry = conditions.CONDITIONS["color"]
+    for row in rows:
+        assert row["spec_source"] == entry["spec_source"]
+        assert row["solver_prompt"] == entry["solver_prompt"]
+        assert row["solver_prompt_source"] == entry["solver_prompt_source"]
+        assert "archive/" not in row["spec_source"]
+
+
+@pytest.mark.parametrize("condition", ["mist", "not_a_condition"])
+def test_only_imported_conditions_can_be_imported(setup, monkeypatch, condition):
+    _, _, out, _, argv = setup
+    argv = [a if a != "color" else condition for a in argv]
+    monkeypatch.setattr(sys, "argv", argv)
+    with pytest.raises(SystemExit, match="imported"):
+        importer.main()
+    assert not out.exists()

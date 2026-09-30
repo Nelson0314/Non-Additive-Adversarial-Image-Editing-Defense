@@ -1,7 +1,8 @@
 # baseline 防禦條件的唯一正本。檔中順序即主表列序。
 #
 # solver：pgd（spec 為 immunization_baseline.attacks 下的 `模組.屬性`）、dct_shield、
-#         feedforward（前饋式免疫器）、imported（由其他專案產出，經 import_defense_artifacts 匯入）。
+#         feedforward（前饋式免疫器）、imported（由其他專案產出，經 import_defense_artifacts 匯入；
+#         主表的 imported 條件另須 spec_source、solver_prompt、solver_prompt_source，由匯入工具寫入 CSV）。
 # main_table：是否為主表的十二個條件；false 者只保留既有結果。
 # solver_prompt：求解端實際使用的文字條件；`content` 表示逐類別取資料集 prompts.yaml 的 content。
 #               常數值必須與攻擊模組持有的值相同（generate_defenses 啟動時檢查）。
@@ -69,7 +70,10 @@ conditions:
   color:
     solver: imported
     main_table: true
-    source: "color 專案的 color 條件，經 import_defense_artifacts --variant color 匯入"
+    source: "color 專案的 color 條件，經 import_defense_artifacts --condition color 匯入"
+    spec_source: "color 專案 immunization_color.cli.generate_color_defenses 的 color 條件（參數正本 color/configs/conditions.yaml；逐張設定見 source_settings 欄的 results.csv）"
+    solver_prompt: ""
+    solver_prompt_source: "無攻擊指令：等變殘差目標以空字串指令的 ip2p 短鏈（immunization_core.optimization.instruction_free.FreeObjective.null_edit）計算"
   diffvax:
     solver: feedforward
     main_table: true

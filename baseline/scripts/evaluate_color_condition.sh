@@ -51,7 +51,7 @@ if [ "$mode" = main ]; then
       n=$(basename "$f" __color__def.png)
       ln -sf "$(cd "$(dirname "$f")" && pwd)/$(basename "$f")" "$A/color_import/${n}__color__defended.png"
     done
-    "$PY" -m $CLI.import_defense_artifacts --source-dir $A/color_import --variant color \
+    "$PY" -m $CLI.import_defense_artifacts --source-dir $A/color_import --condition color \
         --norm delta_e00_cap --budget 32 --data-root data/portraits \
         --source-settings "$color_defenses/results.csv" \
         --output-dir $A/defenses/color || exit 1

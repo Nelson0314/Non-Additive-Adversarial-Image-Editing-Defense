@@ -26,6 +26,10 @@ def _load() -> tuple:
             raise ValueError(f"{CONDITIONS_FILE}：{name} 缺 spec")
         if entry["solver"] != "imported" and "solver_prompt" not in entry:
             raise ValueError(f"{CONDITIONS_FILE}：{name} 缺 solver_prompt")
+        if entry["solver"] == "imported" and entry["main_table"]:
+            missing = {"spec_source", "solver_prompt", "solver_prompt_source"} - set(entry)
+            if missing:
+                raise ValueError(f"{CONDITIONS_FILE}：匯入條件 {name} 缺 {sorted(missing)}")
     return conditions, spec["content_prompt_source"]
 
 

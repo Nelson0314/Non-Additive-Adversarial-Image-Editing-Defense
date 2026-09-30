@@ -285,7 +285,7 @@ def main(argv=None) -> None:
                     "arm": scenario + args.suffix,
                     "instruction_set": args.instruction_set or scenario,
                     "data": str(args.data).replace("\\", "/"),
-                    "defence": args.defended.name if args.defended else "",
+                    "defense": args.defended.name if args.defended else "",
                     "input_png": item["path"].as_posix(),
                     "sampler": (args.sampler if scenario == "inpaint"
                                 else "ip2p_pipeline"),

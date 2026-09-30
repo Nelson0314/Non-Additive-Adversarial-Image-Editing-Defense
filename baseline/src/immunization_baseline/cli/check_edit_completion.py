@@ -51,9 +51,9 @@ def validate_stage(out, arm, expected, artifacts):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--data", type=Path, required=True)
-    parser.add_argument("--defended", type=Path, required=True)
-    parser.add_argument("--out", type=Path, required=True)
+    parser.add_argument("--data-root", dest="data", type=Path, required=True)
+    parser.add_argument("--defenses-dir", dest="defended", type=Path, required=True)
+    parser.add_argument("--output-dir", dest="out", type=Path, required=True)
     parser.add_argument("--scenario", choices=["ip2p", "inpaint"], required=True)
     parser.add_argument("--suffix", required=True)
     args = parser.parse_args()

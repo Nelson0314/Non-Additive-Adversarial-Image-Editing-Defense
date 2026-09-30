@@ -4,7 +4,7 @@
 `D` = LPIPS(U, E)，`D_pair` = LPIPS(E_ref, E_def)：後者只量最佳化在風格之上多出的部分，
 不是扣穿透的 `D_T`。全圖／主體／背景三欄，與 `immunization_core.pipelines.displacement` 同一個 LPIPS 與遮罩。
 
-未防禦分母 U 取自 `--undefended`（預設 `artifacts/undefended_edits/ip2p_si18`）。
+未防禦分母 U 取自 `--undefended-edits-dir`（預設 `artifacts/undefended_edits/ip2p_si18`）。
 """
 
 from __future__ import annotations
@@ -61,13 +61,13 @@ def read_groups(root, ref_root, styles, strengths, images=None):
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--edits", type=Path, required=True)
+    ap.add_argument("--edits-root", dest="edits", type=Path, required=True)
     ap.add_argument("--styles", nargs="+", required=True)
     ap.add_argument("--strengths", nargs="+", default=["capped", "uncapped"])
-    ap.add_argument("--undefended", type=Path, default=layout.UNDEFENDED_EDITS / "ip2p_si18")
-    ap.add_argument("--data", type=Path, default=layout.PORTRAITS)
-    ap.add_argument("--out", type=Path, required=True)
-    ap.add_argument("--ref-edits", type=Path, default=None, help="ref_<style> 所在的根目錄，預設同 --edits")
+    ap.add_argument("--undefended-edits-dir", dest="undefended", type=Path, default=layout.UNDEFENDED_EDITS / "ip2p_si18")
+    ap.add_argument("--data-root", dest="data", type=Path, default=layout.PORTRAITS)
+    ap.add_argument("--output-csv", dest="out", type=Path, required=True)
+    ap.add_argument("--reference-edits-root", dest="ref_edits", type=Path, default=None, help="ref_<style> 所在的根目錄，預設同 --edits-root")
     ap.add_argument("--images", nargs="+", default=None)
     args = ap.parse_args()
     images = set(args.images) if args.images else None

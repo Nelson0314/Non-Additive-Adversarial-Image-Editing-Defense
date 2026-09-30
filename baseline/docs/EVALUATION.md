@@ -95,14 +95,14 @@
 二值化得到基準遮罩，再送 `purified_mask()`，統計兩者相異的像素比例。不需模型，
 CPU 即可重現。非幾何的兩道列在表中作為對照：它們不動座標，改變量應為零。
 
-`purified_mask()` 進版於 commit `199b7de`。一份 `main_table/results/retention.csv`
+`purified_mask()` 進版於 commit `199b7de`。一份 `results/retention.csv`
 若未在該 commit 之後重跑過，那 1,536 列的分區兩欄就是用未變換的遮罩算的。
-重跑一次即更新，需要 LPIPS（`piq`）：
+重跑一次即更新，需要 LPIPS（`piq`），於 baseline 專案根執行：
 
-    python main_table/code/edit_retention.py \\
-        --purified-root main_table/images/edit_purified \\
-        --displacement main_table/results/displacement.csv \\
-        --out main_table/results/retention.csv
+    python -m immunization_baseline.cli.measure_purified_displacement \\
+        --purified-edits-root artifacts/purified_edits \\
+        --displacement-csv results/displacement.csv \\
+        --output-csv results/retention.csv
 
 引用那兩欄在幾何類上的值時要連這一點一起引用。
 

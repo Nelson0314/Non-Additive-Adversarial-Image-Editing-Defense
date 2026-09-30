@@ -15,16 +15,16 @@ mkdir -p results
 
 echo "[START] $(date -Is) displacement"
 "$PY" -m $CLI.measure_edit_displacement \
-    --defended-root "$A/defended_edits" --preflight "$A/undefended_edits" \
-    --data "$DATA" --out results/displacement.csv
+    --defended-edits-root "$A/defended_edits" --undefended-edits-root "$A/undefended_edits" \
+    --data-root "$DATA" --output-csv results/displacement.csv
 rc=$?
 echo "[EXIT] $(date -Is) displacement rc=$rc"
 [ "$rc" -eq 0 ] || exit "$rc"
 
 echo "[START] $(date -Is) retention"
 "$PY" -m $CLI.measure_purified_displacement \
-    --purified-root "$A/purified_edits" --displacement results/displacement.csv \
-    --data "$DATA" --out results/retention.csv
+    --purified-edits-root "$A/purified_edits" --displacement-csv results/displacement.csv \
+    --data-root "$DATA" --output-csv results/retention.csv
 rc=$?
 echo "[EXIT] $(date -Is) retention rc=$rc"
 [ "$rc" -eq 0 ] || exit "$rc"

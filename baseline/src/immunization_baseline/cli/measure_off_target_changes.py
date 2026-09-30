@@ -13,8 +13,8 @@
 
 用法（CSV 的 png 欄為相對路徑時，於其基準目錄執行）
     python -m immunization_baseline.cli.measure_off_target_changes \\
-        --edits results/sweeps/sdxl_ip2p/guidance_portraits.csv \\
-        --out results/sweeps/sdxl_ip2p/guidance_portraits_off_target.csv
+        --edits-csv results/sweeps/sdxl_ip2p/guidance_portraits.csv \\
+        --output-csv results/sweeps/sdxl_ip2p/guidance_portraits_off_target.csv
 """
 
 from __future__ import annotations
@@ -43,10 +43,10 @@ def load01(path: Path) -> np.ndarray:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--edits", type=Path, required=True,
+    parser.add_argument("--edits-csv", dest="edits", type=Path, required=True,
                         help="sweep_editor_parameters 寫出的 CSV")
-    parser.add_argument("--out", type=Path, required=True)
-    parser.add_argument("--data", type=Path, default=layout.PORTRAITS,
+    parser.add_argument("--output-csv", dest="out", type=Path, required=True)
+    parser.add_argument("--data-root", dest="data", type=Path, default=layout.PORTRAITS,
                         help="資料集根目錄：原圖與 masks/")
     args = parser.parse_args()
     with args.edits.open(encoding="utf-8", newline="") as stream:

@@ -12,7 +12,7 @@ FLUX 全表(`run_flux_edits --arm`)沒有 ip2p／inpaint 那種兩場景、
 理由見該檔案 docstring，這裡不重複。
 
 用法（遠端，CPU 或 GPU 皆可，不需要大量顯存）
-    python -m immunization_baseline.cli.measure_flux_displacement --out results/flux/displacement.csv
+    python -m immunization_baseline.cli.measure_flux_displacement --output-csv results/flux/displacement.csv
 """
 
 from __future__ import annotations
@@ -44,10 +44,10 @@ def read_csv(path: Path) -> list:
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--out", type=Path, default=layout.RESULTS / "flux" / "displacement.csv")
-    ap.add_argument("--data", type=Path, default=layout.PORTRAITS,
+    ap.add_argument("--output-csv", dest="out", type=Path, default=layout.RESULTS / "flux" / "displacement.csv")
+    ap.add_argument("--data-root", dest="data", type=Path, default=layout.PORTRAITS,
                     help="資料集根目錄，只讀取其中的 masks/")
-    ap.add_argument("--edits-csv-root", type=Path, default=layout.RESULTS / "flux",
+    ap.add_argument("--edits-csv-dir", dest="edits_csv_root", type=Path, default=layout.RESULTS / "flux",
                     help="逐 arm 的 `edits_<arm>.csv` 所在目錄")
     ap.add_argument("--edits-root", type=Path, default=layout.FLUX_EDITS,
                     help="逐 arm 的編輯影像根目錄")

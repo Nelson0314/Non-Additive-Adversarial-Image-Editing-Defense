@@ -27,7 +27,7 @@
 **都在量化後的 PNG 上算**，因為交付的就是 PNG。
 
 用法
-    python -m immunization_color.cli.measure_defense_fidelity --out results/fidelity.csv
+    python -m immunization_color.cli.measure_defense_fidelity --output-csv results/fidelity.csv
 """
 
 from __future__ import annotations
@@ -66,8 +66,8 @@ def pairs(arm_dir: Path, arm: str):
 def main() -> None:
     ap = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--root", type=Path, default=layout.DEFENSES)
-    ap.add_argument("--out", type=Path, default=layout.RESULTS / "fidelity.csv")
+    ap.add_argument("--defenses-root", dest="root", type=Path, default=layout.DEFENSES)
+    ap.add_argument("--output-csv", dest="out", type=Path, default=layout.RESULTS / "fidelity.csv")
     ap.add_argument("--arms", nargs="+", default=None)
     args = ap.parse_args()
 

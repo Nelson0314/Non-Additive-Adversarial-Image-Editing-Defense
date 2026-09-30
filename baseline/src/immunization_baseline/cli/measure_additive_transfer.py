@@ -24,8 +24,8 @@
 
 只讀既有 PNG，不呼叫擴散。用法：
 
-    python -m immunization_baseline.cli.measure_additive_transfer --out results/additive_transfer.csv
-    python -m immunization_baseline.cli.measure_additive_transfer --conditions mist dia_r --out <CSV>
+    python -m immunization_baseline.cli.measure_additive_transfer --output-csv results/additive_transfer.csv
+    python -m immunization_baseline.cli.measure_additive_transfer --conditions mist dia_r --output-csv <CSV>
 
 CSV 中的相對影像路徑以 `--path-root`（預設 baseline 專案根）為基準解析。
 """
@@ -108,17 +108,17 @@ def sources(args) -> list:
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--out", type=Path, required=True)
-    ap.add_argument("--data", type=Path, default=layout.PORTRAITS,
+    ap.add_argument("--output-csv", dest="out", type=Path, required=True)
+    ap.add_argument("--data-root", dest="data", type=Path, default=layout.PORTRAITS,
                     help="只用底下的 masks/")
     ap.add_argument("--conditions", nargs="+", default=None)
     ap.add_argument("--arms", nargs="+", default=None,
                     choices=("native", "aligned"))
-    ap.add_argument("--defenses", type=Path, default=layout.DEFENSES,
+    ap.add_argument("--defenses-root", dest="defenses", type=Path, default=layout.DEFENSES,
                     help="原生條件的防禦圖根目錄")
-    ap.add_argument("--aligned-defenses", type=Path, default=layout.ALIGNED_DEFENSES,
+    ap.add_argument("--aligned-defenses-root", dest="aligned_defenses", type=Path, default=layout.ALIGNED_DEFENSES,
                     help="等失真對齊條件的防禦圖根目錄")
-    ap.add_argument("--results", type=Path, default=layout.RESULTS,
+    ap.add_argument("--results-dir", dest="results", type=Path, default=layout.RESULTS,
                     help="含 displacement.csv 與 aligned/displacement.csv 的目錄")
     ap.add_argument("--path-root", type=Path, default=layout.PROJECT,
                     help="CSV 相對影像路徑的基準目錄")

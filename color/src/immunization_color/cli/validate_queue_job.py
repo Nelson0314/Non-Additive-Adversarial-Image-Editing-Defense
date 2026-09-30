@@ -1,6 +1,6 @@
 """CPU 驗收 color 佇列工作的產物：列數、鍵集合與必要欄位。
 
-路徑相對 `--project`（預設 color 專案根），版面與 `immunization_color.layout` 相同。
+路徑相對 `--project-root`（預設 color 專案根），版面與 `immunization_color.layout` 相同。
 """
 import argparse
 import csv
@@ -140,7 +140,7 @@ def validate_job(project, job, fid_arms=()):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("job")
-    parser.add_argument("--project", type=Path, default=layout.PROJECT)
+    parser.add_argument("--project-root", dest="project", type=Path, default=layout.PROJECT)
     parser.add_argument("--fid-arms", nargs="*", default=[])
     args = parser.parse_args()
     validate_job(args.project, args.job, args.fid_arms)

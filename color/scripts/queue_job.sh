@@ -37,6 +37,6 @@ case "$kind" in
            bash scripts/generate_condition.sh "$arm" --images "$img" ;;
   chain) merge_shards "$arm" && bash scripts/evaluate_condition.sh "$gpu" "$arm" ;;
   readout) bash scripts/measure_condition_results.sh "$gpu" ;;
-  fid)   "$PY" -m immunization_color.cli.measure_defense_fidelity --arms $FID_ARMS --out results/fidelity.csv ;;
+  fid)   "$PY" -m immunization_color.cli.measure_defense_fidelity --arms $FID_ARMS --output-csv results/fidelity.csv ;;
   *) echo "[FATAL] 未知的工作：$job" >&2; exit 2 ;;
 esac

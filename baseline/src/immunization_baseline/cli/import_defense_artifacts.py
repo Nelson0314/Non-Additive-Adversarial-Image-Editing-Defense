@@ -5,7 +5,7 @@
 `../scripts/immunise.py` 的輸出是逐結構的 `<名稱>__<結構>__def.png` 加上選中的
 `<名稱>__immunised.png`；`../scripts/paper_baseline.py` 的輸出是
 `<名稱>__<臂>__defended.png`；`generate_defenses` 的輸出則是
-`<名稱>__<條件>__def.png` 與一份 `results*.csv`。下游（`--defended`、淨化、
+`<名稱>__<條件>__def.png` 與一份 `results*.csv`。下游（`--defenses-dir`、淨化、
 版面、主表）都照最後那個版面讀檔，所以前兩者要先換成那個版面才能並列。
 
 `--variant` 指定 `paper_baseline.py` 的臂名；不給就找 `immunise.py` 選中的
@@ -17,8 +17,8 @@
 `standard_row`，與 `generate_defenses` 同一段程式、同一份權重。
 
 用法
-    python -m immunization_baseline.cli.import_defense_artifacts --run <求解輸出目錄> \\
-        --out artifacts/defenses/color_curve
+    python -m immunization_baseline.cli.import_defense_artifacts --source-dir <求解輸出目錄> \\
+        --output-dir artifacts/defenses/color_curve
 """
 
 from __future__ import annotations
@@ -60,10 +60,10 @@ def dataset_images(root: Path) -> dict:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--run", type=Path, required=True,
+    parser.add_argument("--source-dir", dest="run", type=Path, required=True,
                         help="immunise.py 的輸出目錄")
-    parser.add_argument("--data", type=Path, default=layout.PORTRAITS)
-    parser.add_argument("--out", type=Path, required=True)
+    parser.add_argument("--data-root", dest="data", type=Path, default=layout.PORTRAITS)
+    parser.add_argument("--output-dir", dest="out", type=Path, required=True)
     parser.add_argument("--condition", default=None,
                         help="條件名。預設取 --variant，沒有 --variant 時是 colour")
     parser.add_argument("--variant", default=None,

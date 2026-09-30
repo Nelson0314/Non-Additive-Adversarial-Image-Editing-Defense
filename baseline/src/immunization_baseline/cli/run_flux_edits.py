@@ -25,7 +25,7 @@ been adjusted to 1024 and 1024 to fit the model requirements」——參數
 要在報告裡標明，不是程式錯誤。
 
 全表:`--arm undefended` 跑分母(8 影像 × 4 指令 = 32 格),`--arm <條件>` 跑該
-條件的防禦圖(同樣 32 格,`--defended` 預設為 `artifacts/defenses/<條件>/`)。12 條件 + 分母 = 13 個 arm、416 格,單格 83–185 秒（視卡上其他人
+條件的防禦圖(同樣 32 格,`--defenses-dir` 預設為 `artifacts/defenses/<條件>/`)。12 條件 + 分母 = 13 個 arm、416 格,單格 83–185 秒（視卡上其他人
 負載），每個 arm 只載入一次模型。CSV 逐格 append 並 flush，中斷重跑會跳過
 已經完成且協定摘要、輸入雜湊與 PNG 均一致的格，不必整個 arm 重來。
 
@@ -96,17 +96,17 @@ def main() -> None:
     ap = argparse.ArgumentParser(
         description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--data", type=Path, default=layout.PORTRAITS)
+    ap.add_argument("--data-root", dest="data", type=Path, default=layout.PORTRAITS)
     ap.add_argument("--arm", required=True,
-                    help="`undefended` 跑原圖，其餘為條件名，防禦圖取自 --defenses/<條件>/")
-    ap.add_argument("--defenses", type=Path, default=layout.DEFENSES,
+                    help="`undefended` 跑原圖，其餘為條件名，防禦圖取自 --defenses-root/<條件>/")
+    ap.add_argument("--defenses-root", dest="defenses", type=Path, default=layout.DEFENSES,
                     help="條件防禦圖的根目錄")
-    ap.add_argument("--defended", type=Path, default=None,
-                    help="覆寫單一條件的防禦圖目錄，預設為 --defenses/<arm>")
-    ap.add_argument("--out", type=Path, default=None,
+    ap.add_argument("--defenses-dir", dest="defended", type=Path, default=None,
+                    help="覆寫單一條件的防禦圖目錄，預設為 --defenses-root/<arm>")
+    ap.add_argument("--output-dir", dest="out", type=Path, default=None,
                     help="預設 artifacts/flux_edits/<arm>/")
-    ap.add_argument("--out-csv", type=Path, default=None,
-                    help="不同協定須使用獨立 CSV 與 --out")
+    ap.add_argument("--output-csv", dest="out_csv", type=Path, default=None,
+                    help="不同協定須使用獨立 CSV 與 --output-dir")
     ap.add_argument("--images", nargs="+", default=None,
                     help="預設全部 8 張")
     ap.add_argument("--instruction-indices", nargs="+", type=int, default=[0, 1, 2, 3],

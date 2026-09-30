@@ -27,7 +27,7 @@ for job in "$@"; do
   fi
 done
 export PY FID_ARMS="${FID_ARMS:-}" WAIT_ARMS="${WAIT_ARMS:-}"
-exec bash "$GPU_TOOLS/queue_worker.sh" --workdir "$COLOR_ROOT" \
-  --state "$COLOR_ROOT/runtime/queues/$QNAME" --logs "$COLOR_ROOT/runtime/logs/queue_$QNAME" \
+exec bash "$GPU_TOOLS/queue_worker.sh" --work-dir "$COLOR_ROOT" \
+  --state-dir "$COLOR_ROOT/runtime/queues/$QNAME" --log-dir "$COLOR_ROOT/runtime/logs/queue_$QNAME" \
   --runner "$SCRIPTS/queue_job.sh" --validator "$SCRIPTS/queue_validate.sh" \
   --depends "$SCRIPTS/queue_depends.sh" "$QNAME" "$@"

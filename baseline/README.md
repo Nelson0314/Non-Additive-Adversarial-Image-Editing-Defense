@@ -71,7 +71,7 @@ python -m pytest tests         # pyproject.toml 已設定 pythonpath
 
 所有預設目錄由 `layout.py` 依本專案根推定，每個入口皆可以參數覆寫；不搜尋其他專案。共用的編輯、淨化與讀數流程來自 `vendor/immunization_core`，更新方式為在 repo 根執行 `python core/scripts/export_vendor.py baseline`。
 
-主流程順序：`run_edits`（未防禦）→ `generate_defenses`（外部十一條件）與 `import_defense_artifacts`（`color`）→ `run_edits --defended` → `measure_edit_displacement` → `apply_purifiers` → `run_edits`（淨化後）→ `measure_purified_displacement` → `measure_additional_metrics`（五個 stage，含 VMAF）。`check_edit_completion` 驗收編輯格與產物。
+主流程順序：`run_edits`（未防禦）→ `generate_defenses`（外部十一條件）與 `import_defense_artifacts`（`color`）→ `run_edits --defenses-dir` → `measure_edit_displacement` → `apply_purifiers` → `run_edits`（淨化後）→ `measure_purified_displacement` → `measure_additional_metrics`（五個 stage，含 VMAF）。`check_edit_completion` 驗收編輯格與產物。
 
 | 入口 | 用途 |
 |---|---|

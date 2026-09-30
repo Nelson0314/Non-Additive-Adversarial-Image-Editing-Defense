@@ -3,8 +3,8 @@
 輸入（全部沿用主表已產好的影像，不重跑防禦、不重跑淨化）
 ────────────────────────────────────────────────────────────────────
 - 分母、未淨化：`data/portraits/<類>/<圖>.png`。
-- 條件、未淨化：`<--defenses>/<條件>/<圖>__<條件>__def.png`（預設 `artifacts/defenses`），與 FLUX 全表同一份。
-- 淨化後（分母與條件皆同）：`<--purified-edits>/<條件>/<算子>/ip2p_<條件>_<算子>/<圖>__orig.png`
+- 條件、未淨化：`<--defenses-root>/<條件>/<圖>__<條件>__def.png`（預設 `artifacts/defenses`），與 FLUX 全表同一份。
+- 淨化後（分母與條件皆同）：`<--purified-edits-root>/<條件>/<算子>/ip2p_<條件>_<算子>/<圖>__orig.png`
   （預設 `artifacts/purified_edits`），即主表 ip2p 那一格實際送進編輯器的影像（`run_edits` 存下的輸入）。
   兩個編輯器因此使用逐位元相同的輸入。
 
@@ -16,7 +16,7 @@
 
 輸出版面與主表相同，`measure_edit_displacement`／`measure_purified_displacement` 可直接讀取：
 
-| 格 | 路徑（相對 `--root`） |
+| 格 | 路徑（相對 `--output-dir`） |
 |---|---|
 | 分母、未淨化 | `undefended_edits/ultraedit_undefended/<圖>__p<N>.png` |
 | 條件、未淨化 | `defended_edits/<條件>/ultraedit_<條件>/<圖>__p<N>.png`，同層 `preflight.csv` |
@@ -115,13 +115,13 @@ def main() -> None:
                     default=layout.CONFIGS / "prompts" / "ultraedit_templates.json")
     ap.add_argument("--guidance", type=float, required=True)
     ap.add_argument("--image-guidance", type=float, required=True)
-    ap.add_argument("--root", type=Path, default=layout.ULTRAEDIT_EDITS)
-    ap.add_argument("--defenses", type=Path, default=layout.DEFENSES,
+    ap.add_argument("--output-dir", dest="root", type=Path, default=layout.ULTRAEDIT_EDITS)
+    ap.add_argument("--defenses-root", dest="defenses", type=Path, default=layout.DEFENSES,
                     help="條件防禦圖的根目錄，`<條件>/<圖>__<條件>__def.png`")
-    ap.add_argument("--purified-edits", type=Path, default=layout.PURIFIED_EDITS,
+    ap.add_argument("--purified-edits-root", dest="purified_edits", type=Path, default=layout.PURIFIED_EDITS,
                     help="主表淨化後編輯的根目錄，取其中 ip2p 格的輸入影像")
-    ap.add_argument("--results", type=Path, default=layout.RESULTS / "ultraedit" / "edits",
-                    help="不同協定須使用獨立結果目錄與 --root")
+    ap.add_argument("--output-csv-dir", dest="results", type=Path, default=layout.RESULTS / "ultraedit" / "edits",
+                    help="不同協定須使用獨立結果目錄與 --output-dir")
     args = ap.parse_args()
 
     bad = [a for a in args.arms if a != UNDEFENDED and a not in CONDITIONS]

@@ -74,7 +74,7 @@ CSV 的 `solver_prompt_source` 欄逐列寫明這件事。SIFM 與 DANP 因此�
 
 用法
     python -m immunization_baseline.cli.generate_defenses \\
-        --out artifacts/defenses/photoguard_c --conditions photoguard_c --images man_00 man_01
+        --output-dir artifacts/defenses/photoguard_c --conditions photoguard_c --images man_00 man_01
 """
 
 from __future__ import annotations
@@ -130,7 +130,7 @@ CONDITIONS = tuple(conditions.solver_conditions())
 #: 官方權重的預設位置。`--diffvax-ckpt` 可覆寫。
 DIFFVAX_CKPT = Path.home() / "thirdparty" / "diffvax" / "diffvax_trained.pth"
 
-#: 遮罩目錄（`../scripts/make_masks.py` 的產出，白＝重繪）相對於 `--data` 的位置。
+#: 遮罩目錄（`../scripts/make_masks.py` 的產出，白＝重繪）相對於 `--data-root` 的位置。
 MASK_SUBDIR = "masks"
 
 CONTENT_PROMPT_SOURCE = conditions.CONTENT_PROMPT_SOURCE
@@ -350,8 +350,8 @@ def solve(sd, cond: str, x01: torch.Tensor, seed: int,
 def main() -> None:
     ap = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--out", type=Path, required=True)
-    ap.add_argument("--data", type=Path, default=layout.PORTRAITS)
+    ap.add_argument("--output-dir", dest="out", type=Path, required=True)
+    ap.add_argument("--data-root", dest="data", type=Path, default=layout.PORTRAITS)
     ap.add_argument("--images", nargs="+", default=None)
     ap.add_argument("--conditions", nargs="+", default=None)
     ap.add_argument("--seed", type=int, default=0)

@@ -41,7 +41,7 @@ def test_retained_commands_preserve_arguments_and_overrides(tmp_path, arm, overr
     assert result.returncode == 0, result.stderr
     assert result.stdout.splitlines() == [
         "-m", "immunization_color.cli.generate_color_defenses", "--arm", arm,
-        "--out", output or f"artifacts/defenses/{arm}", "--data", "data/portraits",
+        "--output-dir", output or f"artifacts/defenses/{arm}", "--data-root", "data/portraits",
         *CONDITIONS[arm], *extra,
     ]
 
@@ -61,7 +61,7 @@ def test_retired_commands_are_rejected_before_python_runs(tmp_path, arm):
 
 def parse_options(monkeypatch, options):
     """正式入口的 argparse 設定；不初始化模型。"""
-    return build_parser().parse_args(["--out", "unused", *options])
+    return build_parser().parse_args(["--output-dir", "unused", *options])
 
 
 @pytest.mark.parametrize("arm", CONDITIONS)

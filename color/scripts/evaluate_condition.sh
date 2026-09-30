@@ -48,19 +48,19 @@ step() {
 step defense bash scripts/generate_condition.sh "$ARM" || exit 1
 
 for SC in $SCENARIOS; do
-  step "edit_$SC" "$PY" -m $CLI.run_edits --data "$DATA" \
-      --defended "$A/defenses/$ARM" --out "$A/defended_edits/$ARM" \
+  step "edit_$SC" "$PY" -m $CLI.run_edits --data-root "$DATA" \
+      --defenses-dir "$A/defenses/$ARM" --output-dir "$A/defended_edits/$ARM" \
       --scenarios "$SC" --suffix "_$ARM" "${IMGS[@]}" || exit 1
 done
 
-step purify "$PY" -m $CLI.apply_purifiers --defended "$A/defenses/$ARM" \
-    --out "$A/purified/$ARM" || exit 1
+step purify "$PY" -m $CLI.apply_purifiers --defenses-dir "$A/defenses/$ARM" \
+    --output-dir "$A/purified/$ARM" || exit 1
 
 for PUR in $PURIFIERS; do
   for SC in $SCENARIOS; do
-    step "pedit_${PUR}_${SC}" "$PY" -m $CLI.run_edits --data "$DATA" \
-        --defended "$A/purified/$ARM/$PUR" \
-        --out "$A/purified_edits/$ARM/$PUR" --scenarios "$SC" \
+    step "pedit_${PUR}_${SC}" "$PY" -m $CLI.run_edits --data-root "$DATA" \
+        --defenses-dir "$A/purified/$ARM/$PUR" \
+        --output-dir "$A/purified_edits/$ARM/$PUR" --scenarios "$SC" \
         --suffix "_${ARM}_${PUR}" "${IMGS[@]}" || exit 1
   done
 done

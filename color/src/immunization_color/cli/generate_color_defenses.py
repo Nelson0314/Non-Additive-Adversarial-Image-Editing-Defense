@@ -56,10 +56,10 @@ from immunization_core.optimization.instruction_free import FreeObjective
 
 def build_parser() -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--out", type=Path, required=True)
-    ap.add_argument("--data", type=Path, default=layout.PORTRAITS)
+    ap.add_argument("--output-dir", dest="out", type=Path, required=True)
+    ap.add_argument("--data-root", dest="data", type=Path, default=layout.PORTRAITS)
     ap.add_argument("--images", nargs="+", default=None)
-    ap.add_argument("--lpips-ref", type=Path, default=layout.DATA / "color_lpips_ref.csv")
+    ap.add_argument("--lpips-ref-csv", dest="lpips_ref", type=Path, default=layout.DATA / "color_lpips_ref.csv")
     ap.add_argument("--lpips-tolerance", type=float, default=0.0025)
     ap.add_argument("--steps", type=int, default=900)
     ap.add_argument("--lr", type=float, default=0.02)

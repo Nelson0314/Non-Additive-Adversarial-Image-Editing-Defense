@@ -27,14 +27,14 @@ SDEdit（SD 1.5／2.1-base）三個參數維度都沒有交集，見 STATUS.md�
 `edits.ip2p` 的四個配件。不給時只有一個句型 `verbatim`，即 `edits.ip2p` 原文。
 句型是與參數並列的一個網格維度，逐列記在 `variant` 欄。
 
-每一批輸出一張 CSV（`--out-csv`，每格寫完整份重寫，可續跑）與一張對照圖 `<--out>/sheet.jpg`（列 = 參數組合，欄 = 影像 × 指令，
+每一批輸出一張 CSV（`--output-csv`，每格寫完整份重寫，可續跑）與一張對照圖 `<--output-dir>/sheet.jpg`（列 = 參數組合，欄 = 影像 × 指令，
 第一欄是原圖）。
 
 用法（遠端，需要一張卡）
     CUDA_VISIBLE_DEVICES=<卡> python -m immunization_baseline.cli.sweep_editor_parameters \\
         --editor sdxl-ip2p --guidances 3 5 7.5 --image-guidances 1.2 1.5 \\
-        --out artifacts/sweeps/sdxl_ip2p/guidance_portrait_pair \\
-        --out-csv results/sweeps/sdxl_ip2p/guidance_portrait_pair.csv
+        --output-dir artifacts/sweeps/sdxl_ip2p/guidance_portrait_pair \\
+        --output-csv results/sweeps/sdxl_ip2p/guidance_portrait_pair.csv
 """
 
 from __future__ import annotations
@@ -132,9 +132,9 @@ def main() -> None:
         description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--editor", choices=sorted(EDITORS), required=True)
-    ap.add_argument("--data", type=Path, default=layout.PORTRAITS)
-    ap.add_argument("--out", type=Path, required=True, help="影像與對照圖的輸出目錄")
-    ap.add_argument("--out-csv", type=Path, required=True,
+    ap.add_argument("--data-root", dest="data", type=Path, default=layout.PORTRAITS)
+    ap.add_argument("--output-dir", dest="out", type=Path, required=True, help="影像與對照圖的輸出目錄")
+    ap.add_argument("--output-csv", dest="out_csv", type=Path, required=True,
                     help="這一批的 CSV；既有列視為已完成，續跑時沿用")
     ap.add_argument("--images", nargs="+", default=None, help="預設每個類別取第一張")
     ap.add_argument("--instruction-indices", nargs="+", type=int, default=[0, 1, 2, 3])

@@ -39,8 +39,8 @@ from immunization_style.method import (
 
 def build_parser() -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--out", type=Path, required=True)
-    ap.add_argument("--data", type=Path, default=layout.PORTRAITS)
+    ap.add_argument("--output-dir", dest="out", type=Path, required=True)
+    ap.add_argument("--data-root", dest="data", type=Path, default=layout.PORTRAITS)
     ap.add_argument("--images", nargs="+", default=None)
     ap.add_argument("--styles", nargs="+", default=list(STYLES), choices=list(STYLES))
     ap.add_argument("--s-i", type=float, nargs="+", default=[2.0])

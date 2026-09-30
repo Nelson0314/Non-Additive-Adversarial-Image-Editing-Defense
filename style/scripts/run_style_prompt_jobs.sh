@@ -11,7 +11,7 @@ R=$1; SPEC=$2; CAP=$(gpu_global_cap); OPT_CAP=${4:-$((CAP > 1 ? CAP - 1 : 1))}
 gpu_valid_cap "$OPT_CAP" || { echo "OPT_CAP must be a positive integer" >&2; exit 2; }
 O=artifacts/defenses/$R; E=artifacts/edits/$R; L=runtime/logs
 mkdir -p "$O" "$E" "$L"
-BASE="--data data/portraits --s-i 2.0 --tf32"
+BASE="--data-root data/portraits --s-i 2.0 --tf32"
 
 declare -A IMG STY ARG
 JOBS=""
@@ -23,7 +23,7 @@ done < "$SPEC"
 try_launch() {  # Shared lease acquisition enforces the global limit atomically.
   local cap=$1 name=$2; shift 2
   [ "$(lease_count)" -lt "$cap" ] || return 1
-  GPU_CAP= nohup setsid bash "$GPU_TOOLS/run_with_gpu_lease.sh" --workdir "$STYLE_ROOT" --limit "$cap" "$name" \
+  GPU_CAP= nohup setsid bash "$GPU_TOOLS/run_with_gpu_lease.sh" --work-dir "$STYLE_ROOT" --limit "$cap" "$name" \
     bash -c "$*" > "$L/$name.log" 2>&1 < /dev/null &
   local ok=1
   for i in $(seq 1 40); do
@@ -46,7 +46,7 @@ while true; do
     [ -n "${EDT[$j]:-}" ] && continue
     [ -n "${OPT[$j]:-}" ] && [ -e "$O/$j/results.csv" ] && ! running "${R}_opt_$j" || continue
     if ls "$O/$j/"*__def.png >/dev/null 2>&1; then
-      try_launch "$(gpu_global_cap)" "${R}_edit_$j" "\"\$PY\" -m immunization_style.cli.run_edits --data data/portraits --defended $O/$j --out $E/${j}_${STY[$j]} --scenarios ip2p --suffix _${R}_$j --images ${IMG[$j]}" && EDT[$j]=1
+      try_launch "$(gpu_global_cap)" "${R}_edit_$j" "\"\$PY\" -m immunization_style.cli.run_edits --data-root data/portraits --defenses-dir $O/$j --output-dir $E/${j}_${STY[$j]} --scenarios ip2p --suffix _${R}_$j --images ${IMG[$j]}" && EDT[$j]=1
     else
       echo "$(date +%H:%M:%S) $j: no feasible defence image"; EDT[$j]=none
     fi
@@ -54,7 +54,7 @@ while true; do
   # 編輯優先於新的最佳化：防禦圖一產出就送編輯
   for j in $JOBS; do
     [ -n "${OPT[$j]:-}" ] && continue
-    try_launch "$OPT_CAP" "${R}_opt_$j" "\"\$PY\" -m immunization_style.cli.generate_style_prompt_defenses $BASE --images ${IMG[$j]} --styles ${STY[$j]} ${ARG[$j]} --out $O/$j" && OPT[$j]=1
+    try_launch "$OPT_CAP" "${R}_opt_$j" "\"\$PY\" -m immunization_style.cli.generate_style_prompt_defenses $BASE --images ${IMG[$j]} --styles ${STY[$j]} ${ARG[$j]} --output-dir $O/$j" && OPT[$j]=1
   done
   ndone=0; done_list=""
   for j in $JOBS; do
@@ -68,9 +68,9 @@ while true; do
       ims=$(for j in $done_list; do [ "${STY[$j]}" = "$st" ] && echo "${IMG[$j]}"; done | tr " " "\n" | sort -u | tr "\n" " ")
       # 對照為 $E/ref_<風格>：由清單中名為 ref 的工作（lr 0 的未最佳化風格圖）產生，或事先放入
       js=$(echo $js | tr " " "\n" | grep -vx ref | tr "\n" " ")
-      CUDA_VISIBLE_DEVICES= "$PY" -m immunization_style.cli.measure_style_prompt_edits --edits "$E" \
+      CUDA_VISIBLE_DEVICES= "$PY" -m immunization_style.cli.measure_style_prompt_edits --edits-root "$E" \
         --images $ims --styles "$st" --strengths $js \
-        --out "$E/readout_$st.csv" > "$L/${R}_readout_$st.log" 2>&1
+        --output-csv "$E/readout_$st.csv" > "$L/${R}_readout_$st.log" 2>&1
       echo "$(date +%H:%M:%S) readout $st [$js]:"; grep -v -i warn "$L/${R}_readout_$st.log" | tail -12
     done
   fi

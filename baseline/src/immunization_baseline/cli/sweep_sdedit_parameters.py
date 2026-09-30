@@ -44,8 +44,8 @@ UNet 原生 768×768。`SDWrapper._eps`／`sdedit`／`denoise` 的 DDIM 遞迴�
     HF_HOME=/var/cache/huggingface CUDA_VISIBLE_DEVICES=<卡> \\
         python -m immunization_baseline.cli.sweep_sdedit_parameters \\
             --model sd2-community/stable-diffusion-2-1-base \\
-            --out artifacts/sweeps/sdedit/sd21_base_strength \\
-            --out-csv results/sweeps/sdedit/sd21_base_strength.csv
+            --output-dir artifacts/sweeps/sdedit/sd21_base_strength \\
+            --output-csv results/sweeps/sdedit/sd21_base_strength.csv
 """
 
 from __future__ import annotations
@@ -74,9 +74,9 @@ def main() -> None:
     ap = argparse.ArgumentParser(
         description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--data", type=Path, default=layout.PORTRAITS)
-    ap.add_argument("--out", type=Path, required=True, help="影像輸出目錄")
-    ap.add_argument("--out-csv", type=Path, required=True, help="這一批的 CSV，完成後一次寫出")
+    ap.add_argument("--data-root", dest="data", type=Path, default=layout.PORTRAITS)
+    ap.add_argument("--output-dir", dest="out", type=Path, required=True, help="影像輸出目錄")
+    ap.add_argument("--output-csv", dest="out_csv", type=Path, required=True, help="這一批的 CSV，完成後一次寫出")
     ap.add_argument("--model", default="runwayml/stable-diffusion-v1-5",
                     help="任何 SD 1.x／2.x 的 diffusers checkpoint 名稱；"
                          "SDWrapper 不寫死維度，換這個參數就是換模型家族")

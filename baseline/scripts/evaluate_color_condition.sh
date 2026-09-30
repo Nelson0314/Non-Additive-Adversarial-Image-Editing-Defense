@@ -30,15 +30,15 @@ mkdir -p "$S"
 step() { echo "[STEP] $(date -Is) $*"; }
 edit_stage() {
   local defended=$1 out=$2 scenario=$3 suffix=$4 rc
-  "$PY" -m $CLI.check_edit_completion --data data/portraits --defended "$defended" \
-      --out "$out" --scenario "$scenario" --suffix "$suffix"
+  "$PY" -m $CLI.check_edit_completion --data-root data/portraits --defenses-dir "$defended" \
+      --output-dir "$out" --scenario "$scenario" --suffix "$suffix"
   rc=$?
   [ "$rc" -eq 0 ] && return 0
   [ "$rc" -eq 1 ] || return "$rc"
-  "$PY" -m $CLI.run_edits --data data/portraits --defended "$defended" \
-      --out "$out" --scenarios "$scenario" --suffix "$suffix" --require-new-arm || return $?
-  "$PY" -m $CLI.check_edit_completion --data data/portraits --defended "$defended" \
-      --out "$out" --scenario "$scenario" --suffix "$suffix"
+  "$PY" -m $CLI.run_edits --data-root data/portraits --defenses-dir "$defended" \
+      --output-dir "$out" --scenarios "$scenario" --suffix "$suffix" --require-new-arm || return $?
+  "$PY" -m $CLI.check_edit_completion --data-root data/portraits --defenses-dir "$defended" \
+      --output-dir "$out" --scenario "$scenario" --suffix "$suffix"
 }
 
 if [ "$mode" = main ]; then
@@ -51,9 +51,9 @@ if [ "$mode" = main ]; then
       n=$(basename "$f" __color__def.png)
       ln -sf "$(cd "$(dirname "$f")" && pwd)/$(basename "$f")" "$A/color_import/${n}__color__defended.png"
     done
-    "$PY" -m $CLI.import_defense_artifacts --run $A/color_import --variant color \
-        --norm delta_e00_cap --budget 32 --data data/portraits \
-        --out $A/defenses/color || exit 1
+    "$PY" -m $CLI.import_defense_artifacts --source-dir $A/color_import --variant color \
+        --norm delta_e00_cap --budget 32 --data-root data/portraits \
+        --output-dir $A/defenses/color || exit 1
     touch "$S/import.done"
   fi
   for SC in ip2p inpaint; do
@@ -62,7 +62,7 @@ if [ "$mode" = main ]; then
   done
   if [ ! -f $A/purified/color/purified.csv ]; then
     step "淨化"
-    "$PY" -m $CLI.apply_purifiers --defended $A/defenses/color --out $A/purified/color || exit 1
+    "$PY" -m $CLI.apply_purifiers --defenses-dir $A/defenses/color --output-dir $A/purified/color || exit 1
   fi
   for PUR in $PURIFIERS; do
     for SC in ip2p inpaint; do

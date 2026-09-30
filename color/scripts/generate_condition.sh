@@ -13,5 +13,5 @@ OUT="${DEF_OUT:-artifacts/defenses/$ARM}"
 EXTRA_TEXT=$("$PY" -m immunization_color.conditions "$ARM") || exit $?
 EXTRA=()
 [ -z "$EXTRA_TEXT" ] || mapfile -t EXTRA <<< "$EXTRA_TEXT"
-exec "$PY" -m immunization_color.cli.generate_color_defenses --arm "$ARM" --out "$OUT" \
-  --data data/portraits "${EXTRA[@]}" "${@:2}"
+exec "$PY" -m immunization_color.cli.generate_color_defenses --arm "$ARM" --output-dir "$OUT" \
+  --data-root data/portraits "${EXTRA[@]}" "${@:2}"

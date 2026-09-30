@@ -7,7 +7,7 @@ import torch
 # 匯入本模組即生效。放在模組層級而非 get_device() 內，是因為有些呼叫端
 # （例如評測腳本）直接用 torch 而不經過 get_device()，若靠函式呼叫來設定，
 # 就會出現「跑了哪條路徑決定用什麼精度」的隱性差異。
-_ALLOW_TF32 = os.environ.get("WACV_ALLOW_TF32", "0") == "1"
+_ALLOW_TF32 = os.environ.get("IMMUNIZATION_ALLOW_TF32", "0") == "1"
 torch.backends.cudnn.allow_tf32 = _ALLOW_TF32
 torch.backends.cuda.matmul.allow_tf32 = _ALLOW_TF32
 

@@ -2,8 +2,9 @@
 # 一個條件的完整鏈，固定跑在一張卡上：
 #   防禦圖 → 防禦後編輯 → 淨化（七道）→ 淨化後編輯（七道）
 #
-# 每一階段跑完寫一個完成標記到 runtime/state/，重跑時已完成的階段直接略過；
-# 標記只在 rc=0 時才寫，中途中止的階段下次會重跑。全部完成時寫 <條件>.chain.done。
+# 每一階段以 immunization_color.stages 判定完成：標記 runtime/state/<條件>.<階段>.done 記錄解析後設定與
+# 輸入雜湊的摘要，只有摘要相符且輸出通過驗收時略過；否則重跑，rc=0 且輸出通過驗收後才寫標記。
+# 全部完成時寫 <條件>.chain.done。
 # 七道淨化取自 immunization_core 的協定正本（purifiers/protocol.json）。
 #
 # 用法：bash scripts/evaluate_condition.sh <GPU> <條件名>
@@ -36,15 +37,20 @@ mkdir -p "$S"
 
 step() {
   local tag="$1"; shift
-  local flag="$S/${ARM}.${tag}.done"
-  if [ -f "$flag" ]; then echo "[SKIP] $ARM/$tag"; return 0; fi
+  local subset=("${IMGS[@]}")
+  [ "$tag" = defense ] && subset=()
+  if "$PY" -m immunization_color.stages check "$ARM" "$tag" "${subset[@]}"; then
+    echo "[SKIP] $ARM/$tag"; return 0
+  fi
   echo "[START] $(date -Is) $ARM/$tag gpu=$GPU"
   "$@"
   local rc=$?
   echo "[EXIT] $(date -Is) $ARM/$tag rc=$rc"
-  if [ "$rc" -eq 0 ]; then touch "$flag"; else return "$rc"; fi
+  [ "$rc" -eq 0 ] || return "$rc"
+  "$PY" -m immunization_color.stages write "$ARM" "$tag" "${subset[@]}"
 }
 
+rm -f "$S/${ARM}.chain.done"
 step defense bash scripts/generate_condition.sh "$ARM" || exit 1
 
 for SC in $SCENARIOS; do

@@ -15,19 +15,18 @@ merge_shards() {
   "$PY" - "$src" "$dst/results.csv" <<'PYEOF'
 import csv, sys
 from pathlib import Path
+from immunization_core.io import write_sorted_csv
 rows = []
 for f in sorted(Path(sys.argv[1]).glob("*/results.csv")):
-    rows += list(csv.DictReader(open(f, encoding="utf-8")))
-keys = sorted({k for r in rows for k in r})
-with open(sys.argv[2], "w", newline="", encoding="utf-8") as fh:
-    w = csv.DictWriter(fh, fieldnames=keys); w.writeheader(); w.writerows(rows)
+    with f.open(encoding="utf-8", newline="") as stream:
+        rows += list(csv.DictReader(stream))
+write_sorted_csv(Path(sys.argv[2]), rows)
 print(f"merged {len(rows)} rows", file=sys.stderr)
 PYEOF
   [ "$?" -eq 0 ] || return 1
   local n; n=$(ls -1 "$dst"/*__"$arm"__def.png 2>/dev/null | wc -l)
   [ "$n" -eq 8 ] || { echo "[FATAL] merge $arm 只有 $n 張防禦圖" >&2; return 1; }
-  mkdir -p runtime/state
-  touch "runtime/state/$arm.defense.done"
+  "$PY" -m immunization_color.stages write "$arm" defense
 }
 
 case "$kind" in

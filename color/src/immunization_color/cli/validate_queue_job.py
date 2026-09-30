@@ -1,4 +1,4 @@
-"""CPU 驗收 color 佇列工作的產物：列數、鍵集合與必要欄位。
+"""CPU 驗收 color 佇列工作的產物：列數、鍵集合與必要欄位；chain 另核對各階段的設定與輸入摘要（`immunization_color.stages`）。
 
 路徑相對 `--project-root`（預設 color 專案根），版面與 `immunization_color.layout` 相同。
 """
@@ -101,11 +101,19 @@ def validate_job(project, job, fid_arms=()):
             raise ValueError(f"{directory}: 影像集合不符 {image}")
         validate_table(directory / "results.csv", ("image",), {(image,)})
     elif kind == "chain":
+        from immunization_color import stages
         arm = parts[1]
         edit_keys(project, arm, defended_edits / arm, f"_{arm}")
         for purifier in PURIFIERS:
             edit_keys(project, arm, project / relative(layout.PURIFIED_EDITS) / arm / purifier,
                       f"_{arm}_{purifier}")
+        # 各階段標記須與解析後設定及輸入雜湊相符；影像子集與 evaluate_condition.sh 相同（防禦圖不滿 8 張時）。
+        names = sorted(defense_names(project / relative(layout.DEFENSES) / arm, arm))
+        subset = names if len(names) < 8 else None
+        for tag in stages.chain_tags():
+            ok, reason = stages.check(project, arm, tag, None if tag == "defense" else subset)
+            if not ok:
+                raise ValueError(f"{arm}/{tag}：{reason}")
     elif kind == "readout":
         directories = sorted(d for d in defended_edits.iterdir()
                              if d.is_dir() and not d.name.startswith("_"))

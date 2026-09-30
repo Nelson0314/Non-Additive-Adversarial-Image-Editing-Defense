@@ -1,6 +1,6 @@
 # 影像產物、執行狀態與暫時性嘗試不入版控：影像可由已記錄的參數與種子重新產生，
 # 量測結果（results/ 的 CSV）不可重現，一律入版控。
-artifacts/
-runtime/
-trials/
-.pytest_cache/
+/artifacts/
+/runtime/
+/trials/
+/.pytest_cache/

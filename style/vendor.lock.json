@@ -1,9 +1,9 @@
 {
-  "commit": "4f0d0dcc8e610ea805d7399cf7278011532273e9",
+  "commit": "c36db56f00ec0098fbb19bf0c37788db4b03cb18",
   "components": {
     "immunization_core": {
       "source": "core/src/immunization_core",
-      "tree": "a722a6901f4cfb3e67953c3cba459e498f063bcd",
+      "tree": "f82d8a9e81abe5cc3f94ad6e40bae4c798358d0e",
       "files": {
         "__init__.py": "a084fcf45d32a78c5e2408e8330f39ee3f8b6d218cb36cb082da6bee7233235c",
         "artifacts/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
@@ -43,7 +43,8 @@
         "purifiers/diffpure.py": "60cabee9bae0f184ec68b5e1797fad6f0939d03d41d2fdf8d4fa57eded7c362c",
         "purifiers/impress.py": "979762a0d5a722f3bfc2c220a1c979524e631affb16dc6110527633b419653b8",
         "purifiers/operators.py": "205ba33507383f88264d0becab00f5568140d396ed5d914c10eb29a23a7722bd",
-        "purifiers/protocol.py": "b4ee4a651906c7a1f957edc7cf9fa32a04f6b71a37da87a971472865cb8f1f28",
+        "purifiers/protocol.json": "5d06c7c7f0d2d7b6263257039ded764d395fe517b7734057f0f687a0acf63ad2",
+        "purifiers/protocol.py": "0b44eb3a101d76b9000a97daa69cd709396ed774372e2f5a935f4c9a77c93be4",
         "runtime/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
         "runtime/device.py": "f44ddfe8346ca7fc59e3f82f57ef14214888f0dd4f0e58f0d45880f987fef47b"
       }

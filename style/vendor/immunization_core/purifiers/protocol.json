@@ -1,0 +1,13 @@
+{
+  "description": "固定淨化協定：identity 對照與七道淨化，依序逐項 (kind, strength)。標籤為 kind 接上 strength 的 %g 格式；strength 為 0 時只用 kind。",
+  "purifiers": [
+    {"kind": "identity", "strength": 0.0},
+    {"kind": "crop_resize", "strength": 0.1},
+    {"kind": "jpeg", "strength": 30},
+    {"kind": "jpeg", "strength": 50},
+    {"kind": "jpeg", "strength": 80},
+    {"kind": "blur", "strength": 1.0},
+    {"kind": "blur", "strength": 2.0},
+    {"kind": "rotate", "strength": 15.0}
+  ]
+}

@@ -187,3 +187,16 @@ def test_condition_registry_is_the_single_source():
     assert set(generate_defenses.CONDITIONS) == set(SOLVER) - {"color"}
     assert generate_defenses.CONTENT_CONDITIONS == ("danp", "sifm", "dayn")
     generate_defenses._check_prompts()
+
+
+def test_imported_rows_carry_the_provenance_of_their_condition_entry():
+    """主表中由其他專案匯入的列，出處欄與 configs/conditions.yaml 的條目一致。"""
+    from immunization_baseline import conditions
+
+    for name in conditions.conditions_of("imported"):
+        entry = conditions.CONDITIONS[name]
+        if not entry["main_table"]:
+            continue
+        for row in read(f"defense_{name}.csv"):
+            for field in ("spec_source", "solver_prompt", "solver_prompt_source"):
+                assert row[field] == entry[field], (name, field)

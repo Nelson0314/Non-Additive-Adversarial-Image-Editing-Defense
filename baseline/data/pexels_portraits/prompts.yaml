@@ -1,0 +1,52 @@
+# Pexels 人像資料組（男 48、女 49）。來源、裁切框與逐張雜湊見 provenance.json；
+# 選取流程記錄於 docs/PEXELS_PORTRAITS.md。指令與 content 逐字沿用 data/portraits/prompts.yaml，
+# 以下註解亦同。
+#
+#
+# 指令按**場景**分組，不按類別，每個場景四條。
+#
+# ip2p（受害模型 timbrooks/instruct-pix2pix）
+#   四條**逐字取自 FaceLock（arXiv:2411.16832）Table A3 的 Accessory
+#   Adjustments 類**，句型是祈使句（`Let the person …` / `Place …`），
+#   不是 `add a pair of glasses` 那種名詞片語。逐字照抄是為了讓這一欄的
+#   數字能對回那一篇的協定。**不用會遮住臉的配件**（口罩、面罩）：
+#   遮住臉之後身分讀數分不出是編輯成功還是防禦生效。
+#
+# inpaint（受害模型 runwayml/stable-diffusion-inpainting）
+#   只重繪遮罩內，而遮罩是**主體的補集**，所以指令不可以衝著人。
+#   四條都是**描述整張結果影像、而且把主體寫進句子**的完整句子，不是
+#   `a snowy street` 那種只描述填充物的片語——實測片語會讓模型照上下文
+#   補出另一張人臉（`woman_01` 的「狗」被畫成人）。句型取自 DiffusionGuard
+#   （arXiv:2410.05694）的 InpaintGuardBench：`A [man/woman] in a hospital`。
+#   `{content}` 由該影像所屬類別的 content 欄代入。
+#
+# content 是防禦方選定要保護的那個詞（c_a），由防禦方選、與攻擊指令屬於
+# 不同的人。遮罩在 data/portraits/masks/，白 = 重繪、黑 = 保留。
+
+man:
+  content: man
+woman:
+  content: woman
+
+edits:
+  ip2p:
+    - Let the person wear sunglasses
+    - Let the person wear a police suit
+    - Let the person wear a helmet
+    - Let the person wear a bowtie
+  inpaint:
+    - A {content} in a hospital
+    - A {content} in the gym
+    - A {content} in a snowy street
+    - A {content} sitting next to a dog
+
+  # 第二組 inpaint 指令：把要求寫成**一張人像照片的背景**，而不是一整個場景。
+  # 理由是實測（官方 pipeline 與本專案的取樣鏈都試過）：頭肩構圖下整個人都被
+  # 保留，重繪區只是一圈 33–50% 的邊，放不下一間醫院或一條街。改成描述背景
+  # 之後，要求的東西落在那一圈裡是可達的。這**改變了任務定義**，與第一組
+  # 不可互相比較，故另立一個鍵而不是覆蓋。
+  inpaint_scene:
+    - A portrait of a {content} with a hospital corridor in the background
+    - A portrait of a {content} with gym equipment in the background
+    - A portrait of a {content} with snow-covered trees in the background
+    - A portrait of a {content} with a dog's head beside them

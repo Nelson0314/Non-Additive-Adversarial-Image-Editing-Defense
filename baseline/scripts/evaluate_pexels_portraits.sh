@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Pexels 人像資料組（data/pexels_portraits）上十一個外部條件的原生預算評測，只跑 ip2p 場景。
 #
-# 由 run_with_gpu_lease.sh 取得一張卡後執行，整條鏈在同一張卡上依序進行：
+# 取得指定卡的租約後，整條鏈在同一張卡上依序進行：
 #   1. 未防禦分母：ip2p 編輯（arm ip2p_si18）、七道淨化、淨化後編輯。
 #   2. 每個條件依求解成本由低到高：防禦生成 → ip2p 編輯 → 七道淨化 → 淨化後編輯
 #      → 編輯結果 LPIPS（displacement_<條件>.csv）與保留率（retention_<條件>.csv）
@@ -13,13 +13,21 @@
 # 未標記的編輯步驟整個 arm 重跑。防禦生成以 results_*.csv 已有的影像列判定完成，只補缺的影像。
 # 量測 CSV 寫在 runtime/pexels_portraits/results/，入版控時複製到 results/pexels_portraits/。
 #
-# 用法（baseline 專案根）：
-#   bash vendor/scripts/run_with_gpu_lease.sh --work-dir "$PWD" --env-file scripts/env.sh \
-#       pexels_portraits bash scripts/evaluate_pexels_portraits.sh
+# 用法（遠端；卡號由呼叫端以 measure_free_gpus.sh 與 nvidia-smi 的 compute app 清單確認後指定，
+# 全局上限依 GPU_CAP 或租約目錄的既有紀錄）：
+#   ENV_FILE=~/env.sh bash scripts/evaluate_pexels_portraits.sh <卡號>
 set -uo pipefail
-cd "$(dirname "${BASH_SOURCE[0]}")/.." || exit 1
-: "${PY:?需要由 scripts/env.sh 設定 PY}"
-export TOKENIZERS_PARALLELISM=false PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
+card=${1:?需要卡號}
+source "$(dirname "${BASH_SOURCE[0]}")/env.sh" || exit 1
+cd "$BASELINE_ROOT" || exit 1
+source "$GPU_TOOLS/gpu_lease.sh"
+gpu_policy_init || exit $?
+lease_acquire "$card" pexels_portraits "$(gpu_global_cap)" || { echo "CARD $card NOT FREE OR CAP REACHED"; exit 3; }
+trap 'lease_release "$card"' EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
+export CUDA_VISIBLE_DEVICES=$card TOKENIZERS_PARALLELISM=false \
+       PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 
 CLI=immunization_baseline.cli
 D=data/pexels_portraits

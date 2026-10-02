@@ -52,11 +52,28 @@ VMAF 的餵法：單張圖各自視為一支 1 幀的「影片」直接餵給 `l
 壓縮與縮放，這裡比的是免疫擾動與生成式編輯，不在它的訓練分佈內**——這點只
 記錄，其餘不下判定。
 
+輸入與輸出位置
+────────────────────────────────────────────────────────────────────
+| 參數 | 預設 | 使用的 stage |
+|---|---|---|
+| `--defenses-root` | `artifacts/defenses` | fidelity、aesthetic、vmaf |
+| `--displacement-csv` | `results/displacement.csv` | displacement、vmaf |
+| `--retention-csv` | `results/retention.csv` | retention、vmaf |
+| `--purified-edits-root` | `artifacts/purified_edits` | retention、vmaf |
+| `--path-root` | baseline 專案根 | displacement、vmaf（`displacement.csv` 相對影像路徑的基準） |
+| `--output-dir` | `results/additional_metrics` | 全部 |
+
+預設值即 `immunization_baseline.layout` 的對應常數。其他專案量測自己的產物時，
+以上述參數指向自己的目錄，並以 `--output-dir` 指定獨立的輸出目錄，不寫入 baseline 的表。
+
 用法
     python -m immunization_baseline.cli.measure_additional_metrics --stage fidelity
     python -m immunization_baseline.cli.measure_additional_metrics --stage displacement
     python -m immunization_baseline.cli.measure_additional_metrics --stage retention
     python -m immunization_baseline.cli.measure_additional_metrics --stage vmaf
+    python -m immunization_baseline.cli.measure_additional_metrics --stage fidelity \\
+        --defenses-root ../color/artifacts/defenses \\
+        --output-dir ../color/results/additional_metrics
 """
 
 from __future__ import annotations
@@ -72,7 +89,6 @@ from immunization_core.io import write_rows_atomic  # noqa: E402
 #: stage 要用，`vmaf` 不碰張量、只呼叫 `ffmpeg`。四個重依賴延到 `main()` 裡依
 #: stage 決定要不要載入，讓 `--stage vmaf` 能在沒裝 torch 的機器（例如本機）上跑。
 RESOLUTION = 512
-OUT_DIR = layout.RESULTS / "additional_metrics"
 
 #: 未防禦對照的條件名；淨化目錄版面與 `pipelines.retention.cell()` 相同。
 UNDEFENDED = "undefended"
@@ -83,12 +99,12 @@ def read_csv(path: Path) -> list:
         return list(csv.DictReader(stream))
 
 
-def resolve_png(raw: str) -> Path:
-    """CSV 記的影像路徑；相對路徑以 baseline 專案根為基準，絕對路徑原樣使用。"""
+def resolve_png(raw: str, path_root: Path) -> Path:
+    """CSV 記的影像路徑；相對路徑以 `path_root`（預設 baseline 專案根）為基準，絕對路徑原樣使用。"""
     p = Path(raw)
     if p.is_absolute():
         return p
-    return (layout.PROJECT / p).resolve()
+    return (path_root / p).resolve()
 
 
 def write_csv(path: Path, rows: list) -> None:
@@ -139,9 +155,9 @@ def unavailable_text(missing: dict) -> str:
     return "; ".join(f"{column}: {reason}" for column, reason in missing.items())
 
 
-def stage_fidelity(device) -> None:
+def stage_fidelity(device, defenses: Path, out_dir: Path) -> None:
     """防禦圖對原圖。檔名式樣 `<name>__orig.png` 與 `<name>__<cond>__def.png`。"""
-    root = layout.DEFENSES
+    root = defenses
     rows = []
     for directory in sorted(p for p in root.iterdir() if p.is_dir()):
         condition = directory.name
@@ -162,17 +178,17 @@ def stage_fidelity(device) -> None:
                     "device": str(device),
                 })
         print(f"[DONE] {condition:20s} 累計 {len(rows)} 列", flush=True)
-    write_csv(OUT_DIR / "fidelity.csv", rows)
-    print(f"[ALLDONE] {OUT_DIR / 'fidelity.csv'}（{len(rows)} 列）", flush=True)
+    write_csv(out_dir / "fidelity.csv", rows)
+    print(f"[ALLDONE] {out_dir / 'fidelity.csv'}（{len(rows)} 列）", flush=True)
 
 
-def stage_displacement(device) -> None:
+def stage_displacement(device, displacement_csv: Path, path_root: Path, out_dir: Path) -> None:
     """編輯(原圖) vs 編輯(防禦圖)。路徑直接取 `displacement.csv` 自己記的兩欄。"""
-    source = read_csv(layout.RESULTS / "displacement.csv")
+    source = read_csv(displacement_csv)
     rows = []
     for i, row in enumerate(source, 1):
-        a = load(resolve_png(row["undefended_png"]), device)
-        b = load(resolve_png(row["defended_png"]), device)
+        a = load(resolve_png(row["undefended_png"], path_root), device)
+        b = load(resolve_png(row["defended_png"], path_root), device)
         with torch.no_grad():
             rows.append({
                 "condition": row["condition"], "scenario": row["scenario"],
@@ -183,8 +199,8 @@ def stage_displacement(device) -> None:
             })
         if i % 64 == 0:
             print(f"[{i}/{len(source)}]", flush=True)
-    write_csv(OUT_DIR / "displacement.csv", rows)
-    print(f"[ALLDONE] {OUT_DIR / 'displacement.csv'}（{len(rows)} 列）", flush=True)
+    write_csv(out_dir / "displacement.csv", rows)
+    print(f"[ALLDONE] {out_dir / 'displacement.csv'}（{len(rows)} 列）", flush=True)
 
 
 def cell(root: Path, condition: str, purifier: str, scenario: str,
@@ -193,10 +209,10 @@ def cell(root: Path, condition: str, purifier: str, scenario: str,
     return root / condition / purifier / arm / f"{name}__p{index}.png"
 
 
-def stage_retention(device) -> None:
+def stage_retention(device, retention_csv: Path, purified_edits: Path, out_dir: Path) -> None:
     """淨化後的同一對。條件與算子的組合直接照 `retention.csv` 的列。"""
-    root = layout.PURIFIED_EDITS
-    source = read_csv(layout.RESULTS / "retention.csv")
+    root = purified_edits
+    source = read_csv(retention_csv)
     rows = []
     for i, row in enumerate(source, 1):
         a = cell(root, UNDEFENDED, row["purifier"], row["scenario"],
@@ -215,8 +231,8 @@ def stage_retention(device) -> None:
             })
         if i % 256 == 0:
             print(f"[{i}/{len(source)}]", flush=True)
-    write_csv(OUT_DIR / "retention.csv", rows)
-    print(f"[ALLDONE] {OUT_DIR / 'retention.csv'}（{len(rows)} 列）", flush=True)
+    write_csv(out_dir / "retention.csv", rows)
+    print(f"[ALLDONE] {out_dir / 'retention.csv'}（{len(rows)} 列）", flush=True)
 
 
 #: (欄名, pyiqa 模型, 越小越好)。七項都是**無參考**：只看一張圖，不跟原圖比。
@@ -232,7 +248,7 @@ AESTHETIC = (
 )
 
 
-def stage_aesthetic(device) -> None:
+def stage_aesthetic(device, defenses: Path, out_dir: Path) -> None:
     """防禦圖與原圖各量一份無參考的美學／自然度讀數。"""
     def factory(name):
         def create():
@@ -244,7 +260,7 @@ def stage_aesthetic(device) -> None:
     for column, reason in missing.items():
         print(f"[UNAVAILABLE] {column}：{reason}", flush=True)
 
-    root = layout.DEFENSES
+    root = defenses
     targets = []
     seen = set()
     for directory in sorted(p for p in root.iterdir() if p.is_dir()):
@@ -269,8 +285,8 @@ def stage_aesthetic(device) -> None:
         rows.append(row)
         if i % 16 == 0:
             print(f"[{i}/{len(targets)}]", flush=True)
-    write_csv(OUT_DIR / "aesthetic.csv", rows)
-    print(f"[ALLDONE] {OUT_DIR / 'aesthetic.csv'}（{len(rows)} 列）",
+    write_csv(out_dir / "aesthetic.csv", rows)
+    print(f"[ALLDONE] {out_dir / 'aesthetic.csv'}（{len(rows)} 列）",
           flush=True)
 
 
@@ -309,14 +325,17 @@ def libvmaf_available() -> bool:
     return True
 
 
-def stage_vmaf(device) -> None:  # noqa: ARG001 - 與其他 stage 簽名一致，VMAF 不用 GPU/torch
-    """對保真、位移、淨化後三種既有配對各補一欄 VMAF，寫成單一檔，`pairing` 欄區分。"""
+def stage_vmaf(device, defenses: Path, displacement_csv: Path, retention_csv: Path,  # noqa: ARG001
+               purified_edits: Path, path_root: Path, out_dir: Path) -> None:
+    """對保真、位移、淨化後三種既有配對各補一欄 VMAF，寫成單一檔，`pairing` 欄區分。
+
+    `device` 與其他 stage 的簽名一致；VMAF 不用 GPU 與 torch。"""
     import tempfile
     from concurrent.futures import ThreadPoolExecutor, as_completed
 
     pairs = []  # (pairing, meta_dict, reference_path, distorted_path)
 
-    root = layout.DEFENSES
+    root = defenses
     for directory in sorted(p for p in root.iterdir() if p.is_dir()):
         condition = directory.name
         for defended in sorted(directory.glob(f"*__{condition}__def.png")):
@@ -328,15 +347,16 @@ def stage_vmaf(device) -> None:  # noqa: ARG001 - 與其他 stage 簽名一致�
                           {"condition": condition, "image": name},
                           original, defended))
 
-    disp_source = read_csv(layout.RESULTS / "displacement.csv")
+    disp_source = read_csv(displacement_csv)
     for row in disp_source:
         pairs.append(("displacement",
                       {"condition": row["condition"], "scenario": row["scenario"],
                        "image": row["image"], "prompt_index": row["prompt_index"]},
-                      resolve_png(row["undefended_png"]), resolve_png(row["defended_png"])))
+                      resolve_png(row["undefended_png"], path_root),
+                      resolve_png(row["defended_png"], path_root)))
 
-    ret_root = layout.PURIFIED_EDITS
-    ret_source = read_csv(layout.RESULTS / "retention.csv")
+    ret_root = purified_edits
+    ret_source = read_csv(retention_csv)
     for row in ret_source:
         a = cell(ret_root, UNDEFENDED, row["purifier"], row["scenario"],
                  row["image"], row["prompt_index"])
@@ -361,8 +381,8 @@ def stage_vmaf(device) -> None:  # noqa: ARG001 - 與其他 stage 簽名一致�
         rows = [{"pairing": pairing, **meta, "vmaf": "", "device": "cpu",
                  "unavailable_metrics": unavailable_text(missing)}
                 for pairing, meta, _, _ in pairs]
-        write_csv(OUT_DIR / "vmaf.csv", rows)
-        print(f"[ALLDONE] {OUT_DIR / 'vmaf.csv'}（{len(rows)} 列，vmaf 不可用）", flush=True)
+        write_csv(out_dir / "vmaf.csv", rows)
+        print(f"[ALLDONE] {out_dir / 'vmaf.csv'}（{len(rows)} 列，vmaf 不可用）", flush=True)
         return
 
     rows = [None] * len(pairs)
@@ -386,16 +406,38 @@ def stage_vmaf(device) -> None:  # noqa: ARG001 - 與其他 stage 簽名一致�
                 if done % 256 == 0:
                     print(f"[{done}/{len(pairs)}]", flush=True)
 
-    write_csv(OUT_DIR / "vmaf.csv", rows)
-    print(f"[ALLDONE] {OUT_DIR / 'vmaf.csv'}（{len(rows)} 列）", flush=True)
+    write_csv(out_dir / "vmaf.csv", rows)
+    print(f"[ALLDONE] {out_dir / 'vmaf.csv'}（{len(rows)} 列）", flush=True)
 
 
-def main() -> None:
+def build_parser() -> argparse.ArgumentParser:
+    """路徑參數的預設值即 `layout` 常數；不給參數時讀寫位置與現行 baseline 表相同。"""
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--stage", required=True,
                         choices=("fidelity", "displacement", "retention", "aesthetic", "vmaf"))
-    args = parser.parse_args()
+    parser.add_argument("--defenses-root", dest="defenses", type=Path, default=layout.DEFENSES,
+                        help="條件防禦圖的根目錄，`<條件>/<圖>__orig.png` 與 `<條件>/<圖>__<條件>__def.png`"
+                             "（fidelity、aesthetic、vmaf）")
+    parser.add_argument("--displacement-csv", dest="displacement", type=Path,
+                        default=layout.RESULTS / "displacement.csv",
+                        help="位移表，取其 `undefended_png`／`defended_png` 兩欄（displacement、vmaf）")
+    parser.add_argument("--retention-csv", dest="retention", type=Path,
+                        default=layout.RESULTS / "retention.csv",
+                        help="淨化後保留表，取其條件、算子、場景、影像、指令列（retention、vmaf）")
+    parser.add_argument("--purified-edits-root", dest="purified_edits", type=Path,
+                        default=layout.PURIFIED_EDITS,
+                        help="淨化後編輯的根目錄，`<條件>/<算子>/<場景>_<條件>_<算子>/`（retention、vmaf）")
+    parser.add_argument("--path-root", type=Path, default=layout.PROJECT,
+                        help="位移表中相對影像路徑的基準目錄（displacement、vmaf）")
+    parser.add_argument("--output-dir", dest="out", type=Path,
+                        default=layout.RESULTS / "additional_metrics",
+                        help="輸出 CSV 的目錄；量測其他專案的產物時須指定獨立目錄")
+    return parser
+
+
+def main(argv=None) -> None:
+    args = build_parser().parse_args(argv)
     if args.stage == "vmaf":
         device = None
     else:
@@ -405,11 +447,17 @@ def main() -> None:
         import torch
         from immunization_core.io import load_image_tensor
         device = torch.device("cpu")
-    {"fidelity": stage_fidelity,
-     "displacement": stage_displacement,
-     "retention": stage_retention,
-     "aesthetic": stage_aesthetic,
-     "vmaf": stage_vmaf}[args.stage](device)
+    stages = {
+        "fidelity": lambda: stage_fidelity(device, args.defenses, args.out),
+        "displacement": lambda: stage_displacement(device, args.displacement, args.path_root,
+                                                   args.out),
+        "retention": lambda: stage_retention(device, args.retention, args.purified_edits,
+                                             args.out),
+        "aesthetic": lambda: stage_aesthetic(device, args.defenses, args.out),
+        "vmaf": lambda: stage_vmaf(device, args.defenses, args.displacement, args.retention,
+                                   args.purified_edits, args.path_root, args.out),
+    }
+    stages[args.stage]()
 
 
 if __name__ == "__main__":

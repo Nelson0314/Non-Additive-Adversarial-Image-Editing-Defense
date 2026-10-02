@@ -95,9 +95,10 @@ core 的淨化協定正本 `purifiers/protocol.json` 指定：
 二值化得到基準遮罩，再送 `purified_mask()`，統計兩者相異的像素比例。不需模型，
 CPU 即可重現。非幾何的兩道列在表中作為對照：它們不動座標，改變量應為零。
 
-`purified_mask()` 進版於 commit `199b7de`。一份 `results/retention.csv`
-若未在該 commit 之後重跑過，那 1,536 列的分區兩欄就是用未變換的遮罩算的。
-重跑一次即更新，需要 LPIPS（`piq`），於 baseline 專案根執行：
+`purified_mask()` 進版於 commit `199b7de`。`results/retention.csv` 的幾何類分區欄已以變換後的遮罩
+重算：`color` 以外 11 個條件的 1,408 列寫回更正值（更正前的表在 commit `228c59b`），`color` 列由同一程式產生；
+`results/aligned/retention.csv` 重算後逐值相同。查證細節見 `STATUS.md`「已知限制」。重算指令
+（需要 LPIPS，`piq`；於 baseline 專案根執行）：
 
     python -m immunization_baseline.cli.measure_purified_displacement \\
         --purified-edits-root artifacts/purified_edits \\

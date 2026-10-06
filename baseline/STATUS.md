@@ -20,8 +20,9 @@
 
 ## 現況
 
-上表除 Pexels 人像外皆已有完整結果表。Pexels 人像以單卡執行 `scripts/evaluate_pexels_portraits.sh`，
-條件依求解成本由低到高逐一完成，已完成的條件見 `results/pexels_portraits/`。遠端是否有工作在跑不記錄於本檔：以遠端 `~/gpu_leases/` 的租約與本專案 `runtime/` 的佇列狀態為準。
+上表除 Pexels 人像外皆已有完整結果表。Pexels 人像的評測鏈（`scripts/evaluate_pexels_portraits.sh`）已停止：
+`diffvax`、`mist`、`dia_pt`、`sifm`、`dia_r`、`dct_shield_y`、`dct_shield` 七個條件有完整讀數，`dayn` 只有 73 張的防禦端讀數，
+`danp`、`photoguard_c`、`photoguard_linf` 未執行。續跑方式與各規模的 GPU 時間換算見 `docs/PEXELS_PORTRAITS.md`。遠端是否有工作在跑不記錄於本檔：以遠端 `~/gpu_leases/` 的租約與本專案 `runtime/` 的佇列狀態為準。
 
 ### 顏色列是 `color`
 主表的顏色那一列是 color 專案的方法 `color`（預設參數）。防禦圖由 color 專案產出，經

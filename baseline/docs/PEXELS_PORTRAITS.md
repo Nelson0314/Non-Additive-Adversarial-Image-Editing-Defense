@@ -41,5 +41,30 @@
 | 逐條件讀數 | `results/pexels_portraits/defense_<條件>.csv`、`displacement_<條件>.csv`、`retention_<條件>.csv` |
 | 執行狀態 | `runtime/pexels_portraits/*.done` |
 
-依主表逐條件實測的求解時間，每張影像的 GPU 時間約為防禦生成 4.08 小時、ip2p 編輯（12 arm × 4 指令 × 未淨化與七道淨化，
-每格 9–12 秒）1.0–1.4 小時，97 張單卡合計約 500 小時。條件依求解成本由低到高執行，`photoguard_c`、`photoguard_linf` 在最後。
+條件依求解成本由低到高執行，`photoguard_c`、`photoguard_linf` 在最後。
+
+## 執行狀態
+
+評測鏈在 basic-2 單卡執行 111 小時後停止（`runtime/pexels_portraits/pause.log`）。
+
+| 條件 | 狀態 |
+|---|---|
+| 未防禦分母、`diffvax`、`mist`、`dia_pt`、`sifm`、`dia_r`、`dct_shield_y`、`dct_shield` | 防禦、編輯、七道淨化與量測皆完成 |
+| `dayn` | 防禦圖 73 / 97 張（`results/pexels_portraits/defense_dayn.csv` 為這 73 列）；未執行編輯 |
+| `danp`、`photoguard_c`、`photoguard_linf` | 未執行 |
+
+續跑：`ENV_FILE=~/env.sh bash scripts/evaluate_pexels_portraits.sh <卡號>`，由完成標記與 `results_*.csv` 的既有列接續。
+報告頁由讀數與示例影像產生，位於 `artifacts/pexels_portraits/report/index.html`（不入版控）。
+
+## GPU 時間
+
+每張影像的防禦生成時間（秒；`defense_<條件>.csv` 的 `total_seconds` 平均）：`diffvax` 0、`dia_pt` 69、`mist` 77、`sifm` 123、
+`dia_r` 147、`dct_shield` 155、`dct_shield_y` 155、`dayn` 483（73 張），以上為本資料組實測；`danp` 569、`photoguard_c` 6,414、
+`photoguard_linf` 6,481 為主表 8 張的實測。11 個條件合計每張 4.08 小時。
+ip2p 編輯為 64 個 arm（每個 388 格）的平均，每格 11.6 秒。
+
+| 配置 | 每張 GPU 小時 | 100 張 | 200 張 | 500 張 | 2,000 張 |
+|---|---|---|---|---|---|
+| 11 條件，含七道淨化（每張 384 格） | 5.31 | 531 | 1,063 | 2,657 | 10,629 |
+| 11 條件，只跑未淨化（每張 48 格） | 4.23 | 423 | 846 | 2,115 | 8,461 |
+| 去掉兩個 photoguard，含七道淨化（每張 320 格） | 1.53 | 153 | 305 | 763 | 3,052 |

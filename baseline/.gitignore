@@ -4,3 +4,5 @@
 /runtime/
 /trials/
 /.pytest_cache/
+# Pexels 人像的遮罩總覽圖由 generate_subject_masks 重新產生，309 張的總覽圖約 45 MB，不入版控。
+/data/pexels_portraits/masks/overview/

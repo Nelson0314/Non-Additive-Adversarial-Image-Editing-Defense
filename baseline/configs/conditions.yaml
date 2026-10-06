@@ -79,6 +79,12 @@ conditions:
     main_table: true
     solver_prompt: ""
     solver_prompt_source: "無文字條件：推論端只有 immunizer 的一次前向，prompt 只在訓練時進 L_edit（diffvax.py::immunize）"
+  photoguard_encoder:
+    solver: pgd
+    spec: photoguard.SPEC_ENCODER
+    main_table: false
+    solver_prompt: ""
+    solver_prompt_source: "無文字條件：損失是 ‖E(x_adv).mean‖₂，只經過 VAE encoder（photoguard.py::loss_encoder）"
   color_curve:
     solver: imported
     main_table: false

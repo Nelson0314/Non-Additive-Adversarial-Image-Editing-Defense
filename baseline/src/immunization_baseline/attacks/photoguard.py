@@ -309,3 +309,55 @@ SPEC_PAPER_LINF = BaselineSpec(
     loss_fn=loss_fn,
     extras=dict(SPEC.extras),
 )
+
+
+# ── 第三個臂：encoder attack（simple attack）──────────────────────────
+#
+# 官方 `notebooks/demo_simple_attack_img2img.ipynb`：cell 7 的 `pgd` 與 cell 9 的呼叫
+# （`AUDIT_PROMPTFLARE_PHOTOGUARD.md` §2.3、§3.2）。損失只經過 VAE encoder：
+#
+#     loss = (model(X_adv).latent_dist.mean).norm()        # model = pipe.vae.encode
+#     X_adv = X_adv - grad.detach().sign() * actual_step_size
+#     X_adv = min(max(X_adv, X - eps), X + eps); clamp(X_adv, clamp_min, clamp_max)
+#
+# img2img 版沒有 target 項，等價於把 latent 推向零。起點為 `X + U(-eps, eps)`，
+# 步長由 `step_size` 線性降到其 1%。cell 9 的參數為 eps 0.06、step_size 0.02、iters 1000，
+# 值域 [-1,1]（像素域 L∞ 7.65/255）。不經過 UNet、不吃文字條件、沒有 grad_reps。
+
+
+def prepare_encoder(sd, x01: torch.Tensor, spec: BaselineSpec, *, seed: int = 0):
+    """encoder attack 沒有與 δ 無關的常量；起點的隨機性由 `run_pgd` 的 `seed` 決定。"""
+    return None
+
+
+def loss_encoder(sd, x_adv: torch.Tensor, ctx) -> torch.Tensor:
+    """`‖E(x_adv).mean‖₂`，`x_adv` 在 [-1,1]；不乘 VAE 的 scaling factor（原始碼直接取 `latent_dist.mean`）。"""
+    return sd.vae.encode(x_adv.to(sd.vae.dtype)).latent_dist.mean.float().norm()
+
+
+SPEC_ENCODER = BaselineSpec(
+    name="photoguard_encoder",
+    source=SPEC.source + "；notebooks/demo_simple_attack_img2img.ipynb cell 7、cell 9",
+    value_range=PHOTOGUARD_RANGE,
+    eps=0.06,                  # cell 9
+    eps_pixel01=0.03,          # [-1,1] 的 0.06 即 [0,1] 的 0.03（7.65/255）
+    norm="linf",
+    steps=1000,                # cell 9 `iters=1000`
+    step_size=0.02,            # cell 9
+    step_schedule="linear_decay_1pct",   # cell 7：step_size 線性降到 step_size/100
+    update_rule="sign",        # cell 7 `grad.detach().sign()`
+    objective="minimize",      # cell 7 `X_adv - ... * actual_step_size`
+    init_rule="uniform_linf",  # cell 7 `X + (rand*2*eps - eps)`
+    grad_reps=1,
+    needs_target_image=False,
+    needs_mask=False,
+    modified_from_paper=False,
+    modification_note="",
+    discrepancy_note=(
+        "官方另有兩組 encoder attack 設定：inpainting notebook cell 11（eps 0.06、step 0.01、1000 步、"
+        "目標圖 latent）與 demo/app.py（eps 0.12、step 0.01、200 步、灰階目標）。本 spec 取 img2img notebook。"
+    ),
+    prepare=prepare_encoder,
+    loss_fn=loss_encoder,
+    extras={"target": "none (latent norm)", "model": "vae.encode"},
+)

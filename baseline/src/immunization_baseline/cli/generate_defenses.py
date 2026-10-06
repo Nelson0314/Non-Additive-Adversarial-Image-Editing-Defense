@@ -19,6 +19,7 @@
 |---|---|---|
 | `photoguard_c` | `""`（空字串） | 官方 notebook cell 10 實際執行的呼叫，`immunization_baseline/attacks/photoguard.py:114,122-125` |
 | `photoguard_linf` | `""`（空字串） | 同上，兩臂只差約束種類 |
+| `photoguard_encoder` | 無文字條件 | encoder attack 的損失是 `‖E(x_adv).mean‖₂`，不經過 text encoder 與 UNet |
 | `mist` | `"a painting"` | `mist_v3.py` 恆定值，`immunization_baseline/attacks/mist.py:54-55`；另吃目標影像 `data/targets/mist.png` |
 | `dia_r` / `dia_pt` | `""`（三個分支皆空） | `attack_setting.json`，`immunization_baseline/attacks/dia.py:62,228-229` |
 | `dct_shield` / `dct_shield_y` | 無文字條件 | 損失是 `‖E(x')‖₂`，完全不經過 text encoder |
@@ -126,6 +127,9 @@ CONTENT_CONDITIONS = tuple(name for name, entry in conditions.CONDITIONS.items()
 DCT_CONDITIONS = tuple(conditions.conditions_of("dct_shield"))
 FEEDFORWARD_CONDITIONS = tuple(conditions.conditions_of("feedforward"))
 CONDITIONS = tuple(conditions.solver_conditions())
+
+#: 以 img2img 的 `strength` 為參數的兩個 PhotoGuard diffusion attack 條件；`photoguard_encoder` 不經過擴散。
+DIFFUSION_PHOTOGUARD = ("photoguard_c", "photoguard_linf")
 
 #: 官方權重的預設位置。`--diffvax-ckpt` 可覆寫。
 DIFFVAX_CKPT = Path.home() / "thirdparty" / "diffvax" / "diffvax_trained.pth"
@@ -303,7 +307,7 @@ def solve(sd, cond: str, x01: torch.Tensor, seed: int,
                   f"（×{eps_scale:g}），step_size 同倍率縮放以維持 step_size/eps，"
                   "為對齊防禦圖失真而掃描，非論文設定。"))
     kw = {}
-    if cond.startswith("photoguard"):
+    if cond in DIFFUSION_PHOTOGUARD:
         kw = {"mask": None, "strength": PG_STRENGTH}
     elif cond == "mist":
         # fused 模式：兩次 VAE 編碼與一次完整 UNet 前向在同一張圖上，
@@ -340,7 +344,7 @@ def solve(sd, cond: str, x01: torch.Tensor, seed: int,
     cfg = {"eps": spec.eps, "eps_pixel01": spec.eps_pixel01,
            "eps_native": native.eps, "eps_scale": eps_scale,
            "norm": spec.norm, "steps": spec.steps, "grad_reps": spec.grad_reps,
-           "q_alg": "", "pg_strength": PG_STRENGTH if cond.startswith("photoguard") else "",
+           "q_alg": "", "pg_strength": PG_STRENGTH if cond in DIFFUSION_PHOTOGUARD else "",
            "modified_from_paper": spec.modified_from_paper,
            "modification_note": spec.modification_note,
            "spec_source": spec.source}

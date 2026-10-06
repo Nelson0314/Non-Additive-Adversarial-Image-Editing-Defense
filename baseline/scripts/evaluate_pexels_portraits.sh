@@ -2,7 +2,7 @@
 # Pexels 人像資料組（data/pexels_portraits）的 ip2p 評測：在一張卡上依序處理指定的影像組。
 #
 # 影像組定義於 data/pexels_portraits/image_sets.json（名稱為全域影像序的索引範圍，例如 images_0097_0106）。
-# 每個影像組是一次完整的評測鏈（scripts/evaluation_chain.sh）：未防禦分母與各條件的防禦生成、ip2p 編輯、
+# 每個影像組是一次完整的評測鏈（scripts/run_evaluation_chain.sh）：未防禦分母與各條件的防禦生成、ip2p 編輯、
 # 七道淨化、淨化後編輯、量測與補充指標。影像組逐一完成，因此已完成的影像組對全部條件都有讀數。
 #
 # 每個影像組的位置（<根> 由 image_sets.json 的 root 欄決定；空字串表示頂層，即第一批 97 張的既有產物）：
@@ -23,7 +23,7 @@ card=${1:?需要卡號}; shift
 source "$(dirname "${BASH_SOURCE[0]}")/env.sh" || exit 1
 cd "$BASELINE_ROOT" || exit 1
 source "$GPU_TOOLS/gpu_lease.sh"
-source scripts/evaluation_chain.sh
+source scripts/run_evaluation_chain.sh
 gpu_policy_init || exit $?
 lease_acquire "$card" pexels_portraits "$(gpu_global_cap)" || { echo "CARD $card NOT FREE OR CAP REACHED"; exit 3; }
 trap 'lease_release "$card"' EXIT

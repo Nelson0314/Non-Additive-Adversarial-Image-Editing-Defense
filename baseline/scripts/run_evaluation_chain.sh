@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# ip2p 評測鏈的函式庫（由入口腳本 source）：對一個資料根依序執行未防禦分母與各條件的
-# 防禦生成 → ip2p 編輯 → 七道淨化 → 淨化後編輯 → 量測。呼叫前須已 source scripts/env.sh、
-# 位於 baseline 專案根，並設定 CUDA_VISIBLE_DEVICES。
+# ip2p 評測鏈：對一個資料根依序執行未防禦分母與各條件的防禦生成 → ip2p 編輯 → 七道淨化 →
+# 淨化後編輯 → 量測。須已 source scripts/env.sh、位於 baseline 專案根，並設定 CUDA_VISIBLE_DEVICES（租約由呼叫端取得）。
 #
-#   run_evaluation_chain <資料根> <產物根> <狀態目錄> <讀數目錄> <條件...>
+#   直接執行：bash scripts/run_evaluation_chain.sh <資料根> <產物根> <狀態目錄> <讀數目錄> <條件...>
+#   被 source：提供函式 run_evaluation_chain，參數相同（scripts/evaluate_pexels_portraits.sh 的用法）。
 #
 # 產物根的子樹與主表 artifacts/ 相同。每一步完成後在狀態目錄寫入 <步驟>.done，重新呼叫時跳過；
 # 未標記的編輯步驟整個 arm 重跑。防禦生成以 results_*.csv 已有的影像列判定完成，只補缺的影像。
@@ -139,3 +139,11 @@ run_evaluation_chain() {
   fi
   chain_step "CHAIN DONE $D"
 }
+
+# 直接執行時以命令列參數呼叫；被 source 時只定義函式。
+if [ "${BASH_SOURCE[0]}" = "$0" ]; then
+  set -uo pipefail
+  [ $# -ge 5 ] || { echo "用法：$0 <資料根> <產物根> <狀態目錄> <讀數目錄> <條件...>" >&2; exit 2; }
+  : "${PY:?需要由 scripts/env.sh 設定 PY}"
+  run_evaluation_chain "$@"
+fi

@@ -7,10 +7,10 @@
 | 路徑 | 內容 |
 |---|---|
 | `src/immunization_baseline/` | `cli/`（命令列入口）、`attacks/`（baseline 攻擊實作）、`editors.py`、`layout.py`（預設目錄）、`resume_state.py`、`third_party/ultraedit/` |
-| `scripts/` | shell 入口：`evaluate_color_condition.sh`、`evaluate_pexels_portraits.sh`、`run_flux_conditions.sh`，以及共用環境 `env.sh` |
+| `scripts/` | shell 入口：`evaluate_color_condition.sh`、`evaluate_pexels_portraits.sh`、`run_flux_conditions.sh`，`run_evaluation_chain.sh`（可直接執行或被 source），以及共用環境 `env.sh` |
 | `configs/conditions.yaml` | 防禦條件的唯一正本：求解族、spec、求解端文字條件、是否屬主表 |
 | `configs/prompts/` | UltraEdit 指令句型 |
-| `data/` | `portraits/`（原圖、`masks/` 重繪遮罩、`prompts.yaml`）、`pexels_portraits/`（97 張 Pexels 人像，見 `docs/PEXELS_PORTRAITS.md`）、`targets/`（Mist 目標影像） |
+| `data/` | `portraits/`（原圖、`masks/` 重繪遮罩、`prompts.yaml`）、`pexels_portraits/`（309 張 Pexels 人像與影像組定義，見 `docs/PEXELS_PORTRAITS.md`）、`targets/`（Mist 目標影像） |
 | `results/` | 全部 CSV，入版控 |
 | `docs/` | `EVALUATION.md` 與 `reference/`（方法出處、原始碼查證、淨化算子查證） |
 | `tests/` | 條件規格、續跑與完成判定、專案自足性（`pytest`，不需 GPU） |
@@ -85,7 +85,7 @@ python -m pytest tests         # pyproject.toml 已設定 pythonpath
 | `sweep_sdedit_parameters`、`sweep_editor_parameters` | SDEdit 與 SD 系列編輯器的參數／句型掃描 |
 | `measure_off_target_changes` | 編輯結果在指令以外區域的 ΔE00 與 LPIPS |
 | `generate_subject_masks` | 以 CLIPSeg 產生資料集的 `masks/`（白 = 重繪）與 `overview/` |
-| `scripts/evaluate_pexels_portraits.sh` | Pexels 人像資料組上十一個外部條件的 ip2p 評測鏈（單卡、可續跑） |
+| `scripts/evaluate_pexels_portraits.sh` | Pexels 人像資料組的 ip2p 評測：在一張卡上依序完成指定的影像組（可續跑） |
 | `scripts/evaluate_color_condition.sh` | `color` 條件的整條評測鏈（`main`：匯入、編輯、淨化、淨化後重編、UltraEdit；`flux`：FLUX） |
 | `scripts/run_flux_conditions.sh` | 依序對多個條件執行 FLUX 全表 |
 

@@ -1,7 +1,7 @@
 # Pexels 人像資料組
 
-`data/pexels_portraits/`：男 48 張、女 49 張，512² RGB PNG，構圖與 `data/portraits/` 同型（單人、近正面、半身或全身）。
-用於在較大的影像集上重跑十一個外部條件的原生預算評測（ip2p 場景），入口為 `scripts/evaluate_pexels_portraits.sh`。
+`data/pexels_portraits/`：男 110 張、女 199 張，共 309 張，512² RGB PNG，構圖與 `data/portraits/` 同型（單人、近正面、半身或全身）。
+用於在較大的影像集上重跑外部條件的原生預算評測（ip2p 場景），入口為 `scripts/evaluate_pexels_portraits.sh`。
 
 ## 來源與授權
 
@@ -15,10 +15,16 @@
 2. MTCNN（`facenet_pytorch`，與 `immunization_core.metrics.identity` 相同偵測器）：機率 ≥ 0.90 的臉恰一張且其機率 ≥ 0.98；
    臉框高度 / 短邊介於 0.07 與 0.50；鼻尖對兩眼中點的水平偏移 ≤ 0.25 倍眼距；Lab 平均 |a*| + |b*| ≥ 6；
    臉框完整落在裁切內：2,486 張。
-3. CLIP ViT-L/14 零樣本 `a photo of a man` / `a photo of a woman` 的機率 ≥ 0.8 且與 alt 的類別一致：2,460 張。
-4. 依裁切後影像與 `data/portraits` 八張的 CLIP 影像餘弦平均值排序，同一攝影師至多兩張，各類別取前 50 張與 30 張備用。
-5. 目視剔除臉被遮擋、低頭或側臉、人物過小、臉部彩繪、同一場拍攝的近似重複等影像，以備用影像遞補；
-   第二次目視再剔除男 7 張、女 6 張（其中男 5 張、女 5 張以備用影像遞補），編號依序重排。
+3. CLIP ViT-L/14 零樣本 `a photo of a man` / `a photo of a woman` 的機率 ≥ 0.8 且與 alt 的類別一致，且 FaceNet 取得到身分向量：
+   2,459 張（男 407、女 2,052）。
+4. 依裁切後影像與 `data/portraits` 八張的 CLIP 影像餘弦平均值排序，同一攝影師至多兩張；
+   與同類別已選影像的 FaceNet 身分餘弦 ≥ 0.65 者略過（同一人或同一場拍攝）。
+5. 目視剔除：臉被遮擋、低頭或側臉、閉眼、人物過小、臉部彩繪或戲服、兒童、赤裸上身、過暗。
+6. 主體遮罩面積落在 [0.01, 0.80] 之外的影像不納入（3 張）。
+
+影像序 0–96（`man_00`–`man_47`、`woman_00`–`woman_48`）為第一批，由各類別前 80 名候選目視選出。
+影像序 97 起為擴充：男性候選 161 張（通過步驟 4 的全部男性）目視通過 62 張，女性前 430 名候選目視通過 153 張、其中 3 張因步驟 6 排除，
+依 CLIP 相似度由高到低續編號。男性在來源中通過步驟 3 的只有 407 張，兩類別的張數因此不相等。
 
 裁切沿用 `archive/anti-purification/scripts/crop_portraits.py`：邊長 min(H, W)，中心為臉框中心往下 0.18 倍邊長，
 超界夾回，LANCZOS 縮至 512²。
@@ -27,7 +33,7 @@
 
 `masks/` 由 `immunization_baseline.cli.generate_subject_masks` 產生（CLIPSeg `CIDAS/clipseg-rd64-refined`，
 文字為類別的 `content`，門檻 0.30，膨脹 4 px，白 = 重繪）。同一程式在 `data/portraits` 上的輸出與已入庫的八張遮罩逐位元相同。
-主體面積 0.168–0.748。`masks/overview/` 中可見的分割誤差：`man_00`（窗框併入主體）、`man_36`（軀幹有缺口）、
+309 張的主體面積為 0.014–0.792。`masks/overview/`（不入版控，由同一 CLI 重新產生）中，第一批可見的分割誤差：`man_00`（窗框併入主體）、`man_36`（軀幹有缺口）、
 `woman_03`（帽頂未含）、`woman_10` 與 `woman_46`（頭髮上緣未含）。遮罩只影響主體／背景分區欄與 `diffvax`。
 
 ## 評測協定
@@ -35,36 +41,41 @@
 與主表相同：`timbrooks/instruct-pix2pix`，`s_t` 7.5、`s_i` 1.8，種子 20260812，50 步，512²，四條 FaceLock 指令；
 七道淨化同 `immunization_core.purifiers.protocol`；LPIPS 為 `piq.LPIPS()`。只跑 ip2p 場景，不含 `color` 條件。
 
-| 產物 | 位置 |
-|---|---|
-| 防禦圖、編輯、淨化 | `artifacts/pexels_portraits/`（子樹與主表 `artifacts/` 相同） |
-| 逐條件讀數 | `results/pexels_portraits/defense_<條件>.csv`、`displacement_<條件>.csv`、`retention_<條件>.csv` |
-| 執行狀態 | `runtime/pexels_portraits/*.done` |
+條件（`scripts/evaluate_pexels_portraits.sh` 的預設）：`diffvax`、`photoguard_encoder`、`mist`、`dia_pt`、`sifm`、`dia_r`、
+`dct_shield_y`、`dct_shield`、`dayn`、`danp`。`photoguard_encoder` 為 PhotoGuard 的 encoder attack
+（官方 img2img notebook：L∞ 0.06／[-1,1]、1,000 步、步長由 0.02 線性衰減、隨機起點）；
+主表的 `photoguard_c`、`photoguard_linf` 為 diffusion attack，每張求解約 6,400 秒，不在預設內。
 
-條件依求解成本由低到高執行，`photoguard_c`、`photoguard_linf` 在最後。
+## 影像組與產物
 
-## 執行狀態
+`image_sets.json` 把影像序切成影像組：`images_0000_0096` 為第一批 97 張，其後每 10 張一組（`images_0097_0106`…）。
+每個影像組完成全部條件的防禦生成、編輯、七道淨化、量測與補充指標（FSIM、ΔE00、MSE 與七項無參考美學指標）後才進行下一組。
 
-評測鏈在 basic-2 單卡執行 111 小時後停止（`runtime/pexels_portraits/pause.log`）。
+| 影像組 | 產物 | 狀態與讀數 |
+|---|---|---|
+| `images_0000_0096` | `artifacts/pexels_portraits/` | `runtime/pexels_portraits/*.done`、`runtime/pexels_portraits/results/` |
+| 其餘 | `artifacts/pexels_portraits/sets/<影像組>/` | `runtime/pexels_portraits/sets/<影像組>/`（`*.done` 與 `results/`） |
 
-| 條件 | 狀態 |
-|---|---|
-| 未防禦分母、`diffvax`、`mist`、`dia_pt`、`sifm`、`dia_r`、`dct_shield_y`、`dct_shield` | 防禦、編輯、七道淨化與量測皆完成 |
-| `dayn` | 防禦圖 73 / 97 張（`results/pexels_portraits/defense_dayn.csv` 為這 73 列）；未執行編輯 |
-| `danp`、`photoguard_c`、`photoguard_linf` | 未執行 |
+各影像組的資料子集為 `runtime/pexels_portraits/data/<影像組>/`（指向本資料組的符號連結）。
+入版控的讀數在 `results/pexels_portraits/`（`defense_<條件>.csv`、`displacement_<條件>.csv`、`retention_<條件>.csv`）。
 
-續跑：`ENV_FILE=~/env.sh bash scripts/evaluate_pexels_portraits.sh <卡號>`，由完成標記與 `results_*.csv` 的既有列接續。
-報告頁由讀數與示例影像產生，位於 `artifacts/pexels_portraits/report/index.html`（不入版控）。
+執行：`ENV_FILE=~/env.sh bash scripts/evaluate_pexels_portraits.sh <卡號> <影像組> [<影像組>...]`；
+中斷後以同一指令接續（完成標記與 `results_*.csv` 的既有列）。
+
+## 第一批 97 張的既有讀數
+
+單卡 111 小時（`runtime/pexels_portraits/pause.log`）：未防禦分母與 `diffvax`、`mist`、`dia_pt`、`sifm`、`dia_r`、`dct_shield_y`、
+`dct_shield` 七個條件完成防禦、編輯、七道淨化與量測；`dayn` 有 73 張防禦圖（`results/pexels_portraits/defense_dayn.csv`）。
+報告頁位於 `artifacts/pexels_portraits/report/index.html`（不入版控）。
 
 ## GPU 時間
 
 每張影像的防禦生成時間（秒；`defense_<條件>.csv` 的 `total_seconds` 平均）：`diffvax` 0、`dia_pt` 69、`mist` 77、`sifm` 123、
-`dia_r` 147、`dct_shield` 155、`dct_shield_y` 155、`dayn` 483（73 張），以上為本資料組實測；`danp` 569、`photoguard_c` 6,414、
-`photoguard_linf` 6,481 為主表 8 張的實測。11 個條件合計每張 4.08 小時。
-ip2p 編輯為 64 個 arm（每個 388 格）的平均，每格 11.6 秒。
+`dia_r` 147、`dct_shield` 155、`dct_shield_y` 155、`dayn` 483（73 張），以上為第一批實測；`danp` 569、`photoguard_c` 6,414、
+`photoguard_linf` 6,481 為主表 8 張的實測。ip2p 編輯為 64 個 arm（每個 388 格）的平均，每格 11.6 秒。
 
 | 配置 | 每張 GPU 小時 | 100 張 | 200 張 | 500 張 | 2,000 張 |
 |---|---|---|---|---|---|
-| 11 條件，含七道淨化（每張 384 格） | 5.31 | 531 | 1,063 | 2,657 | 10,629 |
-| 11 條件，只跑未淨化（每張 48 格） | 4.23 | 423 | 846 | 2,115 | 8,461 |
-| 去掉兩個 photoguard，含七道淨化（每張 320 格） | 1.53 | 153 | 305 | 763 | 3,052 |
+| 11 條件（含兩個 photoguard diffusion attack），含七道淨化（每張 384 格） | 5.31 | 531 | 1,063 | 2,657 | 10,629 |
+| 同上，只跑未淨化（每張 48 格） | 4.23 | 423 | 846 | 2,115 | 8,461 |
+| 去掉兩個 photoguard diffusion attack，含七道淨化（每張 320 格） | 1.53 | 153 | 305 | 763 | 3,052 |

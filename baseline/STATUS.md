@@ -12,7 +12,7 @@
 | 穿透拆解 | 位移中有多少是防禦端的改動原樣穿過編輯器（ip2p） | `results/additive_transfer.csv`、`docs/ADDITIVE_TRANSFER.md` |
 | FLUX 全表 | 同一批防禦圖換成 FLUX.1-Kontext 編輯 | `results/flux/` |
 | UltraEdit 全表 | 同一批防禦圖（含淨化後）換成 UltraEdit（SD3）編輯 | `results/ultraedit/` |
-| Pexels 人像 | 11 個外部條件在 97 張 Pexels 人像上的原生預算讀數（只 ip2p） | `results/pexels_portraits/`、`docs/PEXELS_PORTRAITS.md` |
+| Pexels 人像 | 外部條件在 309 張 Pexels 人像上的原生預算讀數（只 ip2p） | `results/pexels_portraits/`、`docs/PEXELS_PORTRAITS.md` |
 
 主讀數是 `displacement.csv` 的 `disp_lpips_full`（編輯結果 LPIPS：未防禦編輯 vs 防禦後編輯，
 另有主體／背景分區）。主表的位移排名與防禦圖失真排名幾乎同序（原生防禦圖 LPIPS 0.043–0.666），
@@ -20,9 +20,9 @@
 
 ## 現況
 
-上表除 Pexels 人像外皆已有完整結果表。Pexels 人像的評測鏈（`scripts/evaluate_pexels_portraits.sh`）已停止：
-`diffvax`、`mist`、`dia_pt`、`sifm`、`dia_r`、`dct_shield_y`、`dct_shield` 七個條件有完整讀數，`dayn` 只有 73 張的防禦端讀數，
-`danp`、`photoguard_c`、`photoguard_linf` 未執行。續跑方式與各規模的 GPU 時間換算見 `docs/PEXELS_PORTRAITS.md`。遠端是否有工作在跑不記錄於本檔：以遠端 `~/gpu_leases/` 的租約與本專案 `runtime/` 的佇列狀態為準。
+上表除 Pexels 人像外皆已有完整結果表。Pexels 人像資料組為 309 張（`docs/PEXELS_PORTRAITS.md`），以影像組為單位執行
+`scripts/evaluate_pexels_portraits.sh`：第一批 97 張已有 7 個條件的讀數，其餘條件與擴充的 212 張依影像組逐一完成，
+進度以遠端 `runtime/pexels_portraits/` 的完成標記為準。
 
 ### 顏色列是 `color`
 主表的顏色那一列是 color 專案的方法 `color`（預設參數）。防禦圖由 color 專案產出，經

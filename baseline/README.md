@@ -10,7 +10,7 @@
 | `scripts/` | shell 入口：`evaluate_color_condition.sh`、`evaluate_pexels_portraits.sh`、`run_flux_conditions.sh`，`run_evaluation_chain.sh`（可直接執行或被 source），以及共用環境 `env.sh` |
 | `configs/conditions.yaml` | 防禦條件的唯一正本：求解族、spec、求解端文字條件、是否屬主表 |
 | `configs/prompts/` | UltraEdit 指令句型 |
-| `data/` | `portraits/`（原圖、`masks/` 重繪遮罩、`prompts.yaml`）、`pexels_portraits/`（309 張 Pexels 人像與影像組定義，見 `docs/PEXELS_PORTRAITS.md`）、`targets/`（Mist 目標影像） |
+| `data/` | `portraits/`（原圖、`masks/` 重繪遮罩、`prompts.yaml`）、`pexels_portraits/`（306 張 Pexels 人像與影像組定義，見 `docs/PEXELS_PORTRAITS.md`）、`targets/`（Mist 目標影像） |
 | `results/` | 全部 CSV，入版控 |
 | `docs/` | `EVALUATION.md` 與 `reference/`（方法出處、原始碼查證、淨化算子查證） |
 | `tests/` | 條件規格、續跑與完成判定、專案自足性（`pytest`，不需 GPU） |

@@ -880,17 +880,6 @@
     "repaint_area": 0.54673
   },
   {
-    "name": "man_70",
-    "image": "data/pexels_portraits/man/man_70.png",
-    "mask": "data/pexels_portraits/masks/man_70.png",
-    "text": "man",
-    "model": "CIDAS/clipseg-rd64-refined",
-    "threshold": 0.3,
-    "dilate": 4,
-    "subject_area": 0.07365,
-    "repaint_area": 0.92635
-  },
-  {
     "name": "man_71",
     "image": "data/pexels_portraits/man/man_71.png",
     "mask": "data/pexels_portraits/masks/man_71.png",
@@ -933,17 +922,6 @@
     "dilate": 4,
     "subject_area": 0.53238,
     "repaint_area": 0.46762
-  },
-  {
-    "name": "man_75",
-    "image": "data/pexels_portraits/man/man_75.png",
-    "mask": "data/pexels_portraits/masks/man_75.png",
-    "text": "man",
-    "model": "CIDAS/clipseg-rd64-refined",
-    "threshold": 0.3,
-    "dilate": 4,
-    "subject_area": 0.10782,
-    "repaint_area": 0.89218
   },
   {
     "name": "man_76",
@@ -1505,17 +1483,6 @@
     "dilate": 4,
     "subject_area": 0.27078,
     "repaint_area": 0.72922
-  },
-  {
-    "name": "woman_115",
-    "image": "data/pexels_portraits/woman/woman_115.png",
-    "mask": "data/pexels_portraits/masks/woman_115.png",
-    "text": "woman",
-    "model": "CIDAS/clipseg-rd64-refined",
-    "threshold": 0.3,
-    "dilate": 4,
-    "subject_area": 0.01397,
-    "repaint_area": 0.98603
   },
   {
     "name": "woman_116",

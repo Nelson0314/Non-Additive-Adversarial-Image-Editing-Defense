@@ -4727,35 +4727,6 @@
     "output_sha256": "78f0be690965b0777b6c38af9ff3cc9cf5b94a7e92855c357feef5e7c01ab40a"
   },
   {
-    "output": "woman/woman_115.png",
-    "source": "pexels",
-    "pexels_id": "2180287",
-    "page_url": "https://www.pexels.com/photo/woman-in-camouflage-jacket-2180287/",
-    "image_url": "https://images.pexels.com/photos/2180287/pexels-photo-2180287.jpeg",
-    "download_params": "auto=compress&cs=tinysrgb&w=1200",
-    "photographer": "Claudia Barbosa",
-    "photographer_id": "937150",
-    "alt": "Portrait of a stylish woman with a septum ring against a textured wall in São Paulo.",
-    "source_size": [
-      1200,
-      1805
-    ],
-    "face_box": [
-      325.3,
-      372.7,
-      806.9,
-      947.1
-    ],
-    "crop_xywh": [
-      0,
-      276,
-      1200,
-      1200
-    ],
-    "output_size": 512,
-    "output_sha256": "b5eb002276bf1225eb13e1d6163a85ea38f2cae891c65dd17660b1cb49b914fc"
-  },
-  {
     "output": "woman/woman_116.png",
     "source": "pexels",
     "pexels_id": "29772994",
@@ -7801,35 +7772,6 @@
     "output_sha256": "d4a45ac7731823d68ef6b4a62b827dcde7383f8b607d2802fb176487fd0b9c2a"
   },
   {
-    "output": "man/man_70.png",
-    "source": "pexels",
-    "pexels_id": "1812634",
-    "page_url": "https://www.pexels.com/photo/photo-of-man-wearing-red-shirt-1812634/",
-    "image_url": "https://images.pexels.com/photos/1812634/pexels-photo-1812634.jpeg",
-    "download_params": "auto=compress&cs=tinysrgb&w=1200",
-    "photographer": "Mwabonje Ringa",
-    "photographer_id": "320333",
-    "alt": "A serious-looking man wearing a red Black Pyramid t-shirt and necklace, standing outdoors.",
-    "source_size": [
-      1200,
-      1200
-    ],
-    "face_box": [
-      486.8,
-      251.1,
-      756.6,
-      603.1
-    ],
-    "crop_xywh": [
-      0,
-      0,
-      1200,
-      1200
-    ],
-    "output_size": 512,
-    "output_sha256": "f43cb651bda9fb30b01dec942587b80bb5e87a346619d1074d2930fa64d5e481"
-  },
-  {
     "output": "man/man_71.png",
     "source": "pexels",
     "pexels_id": "2228863",
@@ -7944,35 +7886,6 @@
     ],
     "output_size": 512,
     "output_sha256": "d0038f2c5ea265d9dc3668a30b1684c40ec511cac5e8ba381fc7804b96edd692"
-  },
-  {
-    "output": "man/man_75.png",
-    "source": "pexels",
-    "pexels_id": "3215010",
-    "page_url": "https://www.pexels.com/photo/smiling-man-3215010/",
-    "image_url": "https://images.pexels.com/photos/3215010/pexels-photo-3215010.jpeg",
-    "download_params": "auto=compress&cs=tinysrgb&w=1200",
-    "photographer": "Alex Azabache",
-    "photographer_id": "1664241",
-    "alt": "Man in colorful traditional wear in front of Peruvian mountain scenery.",
-    "source_size": [
-      1200,
-      1500
-    ],
-    "face_box": [
-      472.7,
-      412.6,
-      715.1,
-      704.1
-    ],
-    "crop_xywh": [
-      0,
-      174,
-      1200,
-      1200
-    ],
-    "output_size": 512,
-    "output_sha256": "9e539767fe5588316540603945667e08d9fe70c12bcc7a5e433683d8518824cf"
   },
   {
     "output": "man/man_76.png",

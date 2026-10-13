@@ -29,6 +29,10 @@ been adjusted to 1024 and 1024 to fit the model requirements」——參數
 負載），每個 arm 只載入一次模型。CSV 逐格 append 並 flush，中斷重跑會跳過
 已經完成且協定摘要、輸入雜湊與 PNG 均一致的格，不必整個 arm 重來。
 
+淨化後:`--purifier <算子>` 改以主表 ip2p 那一格實際送進編輯器的淨化後影像為輸入
+(`<--purified-edits-root>/<arm>/<算子>/ip2p_<arm>_<算子>/<圖>__orig.png`,`undefended` 亦同),
+輸出預設 `artifacts/flux/purified_edits/<arm>/<算子>/` 與 `results/flux/purified_edits/<算子>/edits_<arm>.csv`。
+
 用法(遠端,需要一張卡,首次會下載約 24GB 權重)
     HF_HOME=/var/cache/huggingface CUDA_VISIBLE_DEVICES=<卡> \\
         python -m immunization_baseline.cli.run_flux_edits --arm undefended
@@ -50,6 +54,7 @@ import torch  # noqa: E402
 from immunization_core.pipelines.editing import defended_image, identity_row, load_items  # noqa: E402
 from immunization_core.artifacts.images import save_image  # noqa: E402
 from immunization_core.io import load_image_tensor  # noqa: E402
+from immunization_core.purifiers.protocol import purifier_labels  # noqa: E402
 from immunization_baseline.editors import to_pil, to_tensor  # noqa: E402
 from immunization_baseline.resume_state import file_digest, load_resume_rows, protocol_digest  # noqa: E402
 
@@ -103,8 +108,13 @@ def main() -> None:
                     help="條件防禦圖的根目錄")
     ap.add_argument("--defenses-dir", dest="defended", type=Path, default=None,
                     help="覆寫單一條件的防禦圖目錄，預設為 --defenses-root/<arm>")
+    ap.add_argument("--purifier", default="none",
+                    help="`none` 為未淨化；其餘為淨化算子名，輸入改為主表 ip2p 的淨化後影像")
+    ap.add_argument("--purified-edits-root", dest="purified_edits", type=Path,
+                    default=layout.PURIFIED_EDITS,
+                    help="主表 ip2p 淨化後編輯的根目錄，取其中的 `<圖>__orig.png`")
     ap.add_argument("--output-dir", dest="out", type=Path, default=None,
-                    help="預設 artifacts/flux/edits/<arm>/")
+                    help="預設 artifacts/flux/edits/<arm>/；淨化後為 artifacts/flux/purified_edits/<arm>/<算子>/")
     ap.add_argument("--output-csv", dest="out_csv", type=Path, default=None,
                     help="不同協定須使用獨立 CSV 與 --output-dir")
     ap.add_argument("--images", nargs="+", default=None,
@@ -121,8 +131,15 @@ def main() -> None:
                          "不要提被要求改的那個部位，否則會跟正面指令互相抵銷")
     args = ap.parse_args()
 
-    out_dir = args.out or (layout.FLUX_EDITS / args.arm)
-    out_csv = args.out_csv or layout.RESULTS / "flux" / f"edits_{args.arm}.csv"
+    if args.purifier != "none" and args.purifier not in purifier_labels(include_identity=False):
+        ap.error(f"未知的淨化算子：{args.purifier}")
+    if args.purifier == "none":
+        out_dir = args.out or (layout.FLUX_EDITS / args.arm)
+        out_csv = args.out_csv or layout.RESULTS / "flux" / f"edits_{args.arm}.csv"
+    else:
+        out_dir = args.out or (layout.FLUX_EDITS.parent / "purified_edits" / args.arm / args.purifier)
+        out_csv = args.out_csv or (layout.RESULTS / "flux" / "purified_edits" / args.purifier
+                                   / f"edits_{args.arm}.csv")
     out_dir.mkdir(parents=True, exist_ok=True)
 
     items, edits = load_items(args.data)
@@ -137,7 +154,14 @@ def main() -> None:
     if not targets:
         ap.error("沒有符合的影像")
 
-    if args.arm != "undefended":
+    if args.purifier != "none":
+        defended_dir = (args.purified_edits / args.arm / args.purifier
+                        / f"ip2p_{args.arm}_{args.purifier}")
+        for item in targets:
+            item["path"] = defended_dir / f"{item['name']}__orig.png"
+            if not item["path"].is_file():
+                raise SystemExit(f"找不到淨化後的輸入：{item['path']}")
+    elif args.arm != "undefended":
         defended_dir = args.defended or args.defenses / args.arm
         for item in targets:
             item["path"] = defended_image(defended_dir, item["name"])
@@ -148,7 +172,9 @@ def main() -> None:
         "guidance": args.guidance, "true_cfg_scale": args.true_cfg_scale,
         "negative_prompt": args.negative_prompt, "precision": "bfloat16-nf4",
         "prompts": instructions, "data": str(args.data.resolve()),
-        "defended": str(defended_dir.resolve()) if args.arm != "undefended" else None,
+        "defended": (str(defended_dir.resolve())
+                     if args.arm != "undefended" or args.purifier != "none" else None),
+        **({"purifier": args.purifier} if args.purifier != "none" else {}),
         "output": str(out_dir.resolve()),
     })
     done = load_done(out_csv, protocol_id)

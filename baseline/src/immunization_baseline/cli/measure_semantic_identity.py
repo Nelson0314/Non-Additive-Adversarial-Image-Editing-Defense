@@ -21,7 +21,7 @@
     --edits-csv         編輯表（`arm`、`image`、`prompt_index`、`prompt`、`png`，可含 `purifier`）；
                         `arm` 為 `undefended` 者為對照，`--scenario` 指定場景名
 
-用法（專案根，CPU；`--shard i --shards n` 分片並行，同一輸出檔中斷後以同一指令接續）：
+用法（專案根；`--device cuda` 用 GPU，預設 CPU；`--shard i --shards n` 分片並行，同一輸出檔中斷後以同一指令接續）：
     python -m immunization_baseline.cli.measure_semantic_identity \\
         --displacement-csv results/displacement.csv --data-root data/portraits \\
         --output-csv <目錄>/semantic_identity_0.csv --shard 0 --shards 4
@@ -115,6 +115,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--shard", type=int, default=0)
     parser.add_argument("--shards", type=int, default=1)
     parser.add_argument("--threads", type=int, default=4, help="每個行程的 torch CPU 執行緒數")
+    parser.add_argument("--device", choices=("cpu", "cuda"), default="cpu")
     return parser
 
 
@@ -146,7 +147,7 @@ def main(argv=None) -> None:
     from immunization_core.metrics.suite import MetricSuite
 
     torch.set_num_threads(args.threads)
-    device = torch.device("cpu")
+    device = torch.device(args.device)
     suite = MetricSuite(device=device)
     source, reference = {}, {}
 
@@ -155,7 +156,7 @@ def main(argv=None) -> None:
             x = load_image_tensor(args.data_root / image.split("_")[0] / f"{image}.png",
                                   device, size=RESOLUTION)
             source[image] = x
-            reference[image] = (embed(x), arcface.embed(x))
+            reference[image] = (embed(x, device), arcface.embed(x, args.device))
         return source[image], reference[image]
 
     args.output_csv.parent.mkdir(parents=True, exist_ok=True)
@@ -172,8 +173,8 @@ def main(argv=None) -> None:
                 direction = suite.direction_similarity(x, y, prompt)
                 pair = None if undef is None else suite.image_similarity(
                     load_image_tensor(undef, device, size=RESOLUTION), y)
-            e_fn = embed(y)
-            found = arcface.faces(y)
+            e_fn = embed(y, device)
+            found = arcface.faces(y, args.device)
             e_af = found[0].normed_embedding if found else None
             fn, af = similarity(r_fn, e_fn), arcface.similarity(r_af, e_af)
             w.writerow({

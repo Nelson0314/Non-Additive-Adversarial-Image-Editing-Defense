@@ -42,7 +42,6 @@
 | `results/flux/displacement.csv` | 384 | FLUX 全表的編輯結果 LPIPS，欄位與 `displacement.csv` 同組 |
 | `results/ultraedit/edits_<arm>.csv` | 256／檔，13 檔 | UltraEdit（SD3）全表的逐格編輯，未淨化＋7 道算子 |
 | `results/ultraedit/displacement.csv`、`results/ultraedit/retention.csv` | 384、2,688 | UltraEdit 全表的編輯結果 LPIPS 與保留率 |
-| `results/additive_transfer.csv` | 704 | 加性穿透拆解（ip2p，原生 12 條件＋等失真 10 條件），見 `docs/ADDITIVE_TRANSFER.md` |
 | `results/sweeps/` | 數格至兩百格 | 未防禦影像上的編輯器參數掃描，依 `<編輯器>/<變因>/` 分層：`flux/`、`sdedit/`、`sdxl_ip2p/`、`ultraedit/`，及 `ip2p/reference/` 對照；`*_off_target.csv` 為指令以外改動的讀數（背景／主體 ΔE00、LPIPS）；對應影像在 `artifacts/sweeps/` 的同名位置 |
 
 十二個條件：`dct_shield_y`、`mist`、`dct_shield`、`photoguard_linf`、`danp`、`sifm`、`dayn`、`dia_pt`、`dia_r`、`photoguard_c`、`color`、`diffvax`。顏色那一列原為 `color_curve`（數值留在 commit `0dd243b`），現為 color 專案的方法 `color`；等失真臂仍以舊顏色列的 0.3344 為錨點（見 `STATUS.md`）。每個條件 8 影像 × 4 指令 × 2 場景 ＝ 64 格。
@@ -79,7 +78,6 @@ python -m pytest tests         # pyproject.toml 已設定 pythonpath
 | `import_defense_artifacts` | 將顏色方法的防禦圖整理成主表版面並重算保真欄 |
 | `run_edits`、`apply_purifiers`、`measure_edit_displacement`、`measure_purified_displacement` | 對應 `immunization_core.pipelines` 的 editing、purification、displacement、retention，預設資料根為 `data/portraits` |
 | `measure_additional_metrics` | FSIM、ΔE00、MSE、無參考美學指標與 VMAF |
-| `measure_additive_transfer` | 加性穿透拆解 |
 | `run_flux_edits`、`measure_flux_displacement` | FLUX.1-Kontext 全表與其編輯結果 LPIPS |
 | `run_ultraedit_edits` | UltraEdit 全表（13 arm × 未淨化與 7 道算子），輸出沿用主表版面 |
 | `sweep_sdedit_parameters`、`sweep_editor_parameters` | SDEdit 與 SD 系列編輯器的參數／句型掃描 |

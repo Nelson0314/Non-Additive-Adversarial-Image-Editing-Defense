@@ -1,7 +1,6 @@
 # baseline：現況與接續指引
 
-接手先讀這一份；協定、檔案位置、程式清單在 `README.md`；兩組進階量測各有說明：
-`results/aligned/README.md`（等失真臂）、`docs/ADDITIVE_TRANSFER.md`（加性穿透拆解）。
+接手先讀這一份；協定、檔案位置、程式清單在 `README.md`；等失真臂的說明在 `results/aligned/README.md`。
 
 ## 資料組
 
@@ -9,14 +8,13 @@
 |---|---|---|
 | 主表 | 12 個方法在各自原生預算下，把 ip2p／inpaint 的編輯結果推開多少 | `results/*.csv` |
 | 等失真臂 | 10 個方法縮到同一個防禦圖 LPIPS 之後，還推開多少 | `results/aligned/` |
-| 穿透拆解 | 位移中有多少是防禦端的改動原樣穿過編輯器（ip2p） | `results/additive_transfer.csv`、`docs/ADDITIVE_TRANSFER.md` |
 | FLUX 全表 | 同一批防禦圖換成 FLUX.1-Kontext 編輯 | `results/flux/` |
 | UltraEdit 全表 | 同一批防禦圖（含淨化後）換成 UltraEdit（SD3）編輯 | `results/ultraedit/` |
 | Pexels 人像 | 外部條件在 306 張 Pexels 人像上的原生預算讀數（只 ip2p） | `results/pexels_portraits/`、`docs/PEXELS_PORTRAITS.md` |
 
 主讀數是 `displacement.csv` 的 `disp_lpips_full`（編輯結果 LPIPS：未防禦編輯 vs 防禦後編輯，
 另有主體／背景分區）。主表的位移排名與防禦圖失真排名幾乎同序（原生防禦圖 LPIPS 0.043–0.666），
-等失真臂與穿透拆解是為了把「防禦有效」與「擾動較大」分開。各組協定不同，引用數字時連協定一起引用。
+等失真臂是為了把「防禦有效」與「擾動較大」分開。各組協定不同，引用數字時連協定一起引用。
 
 ## 現況
 
@@ -46,8 +44,7 @@
 b*＋ ≤ 4、b*－ ≤ 25、|ΔL*| ≤ 15）、臉框與膚色 ΔE00 ≤ 16、彩度 p95、對原圖 LPIPS 與位移場半徑 80，
 8 張中 a*－ 與位移場半徑各有 6 張頂到，整圖平均 ΔE00 為 9.0–13.8。
 
-**未跟著換的兩處**：等失真臂的錨點仍是舊顏色列的 0.3344（使用者指示不重新對齊）；`docs/ADDITIVE_TRANSFER.md`
-的文字與表格是舊顏色列的數字，`additive_transfer.csv` 的顏色列已是 `color`。
+**未跟著換的一處**：等失真臂的錨點仍是舊顏色列的 0.3344（使用者指示不重新對齊）。
 
 ### 跨編輯器
 | 編輯器 | 狀態 | 協定 |

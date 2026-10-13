@@ -20,6 +20,7 @@ DiffVax 的 `evaluate.py`），本專案的 `MetricSuite` 支援它、卻沒有�
 | `additional_metrics/displacement.csv` | 編輯(原圖) vs 編輯(防禦圖) | `disp_fsim`、`disp_mse` |
 | `additional_metrics/retention.csv`  | 淨化後的同一對 | `disp_purified_fsim` |
 | `additional_metrics/aesthetic.csv`  | 防禦圖本身（無參考） | 美學與自然度四項 |
+| `additional_metrics/edit_aesthetic.csv` | 未防禦編輯與防禦後編輯本身（無參考） | `aes_*` 七項 |
 | `additional_metrics/vmaf.csv`       | 上面前三種配對，各自的 VMAF | `vmaf`，`pairing` 欄標配對種類 |
 
 必要與選配指標
@@ -30,6 +31,7 @@ DiffVax 的 `evaluate.py`），本專案的 `MetricSuite` 支援它、卻沒有�
 | displacement | `disp_fsim`、`disp_mse` | — |
 | retention | `disp_purified_fsim` | — |
 | aesthetic | — | `aes_*` 七項（pyiqa 模型與權重） |
+| edit_aesthetic | — | `aes_*` 七項（pyiqa 模型與權重） |
 | vmaf | — | `vmaf`（需含 libvmaf 的 ffmpeg） |
 
 選配指標只在建立後端時判定可用性；後端缺席時該欄留空，並在 `unavailable_metrics` 欄以
@@ -57,11 +59,12 @@ VMAF 的餵法：單張圖各自視為一支 1 幀的「影片」直接餵給 `l
 | 參數 | 預設 | 使用的 stage |
 |---|---|---|
 | `--defenses-root` | `artifacts/defenses` | fidelity、aesthetic、vmaf |
-| `--displacement-csv` | `results/displacement.csv` | displacement、vmaf |
+| `--displacement-csv` | `results/displacement.csv` | displacement、edit_aesthetic、vmaf |
 | `--retention-csv` | `results/retention.csv` | retention、vmaf |
 | `--purified-edits-root` | `artifacts/purified_edits` | retention、vmaf |
-| `--path-root` | baseline 專案根 | displacement、vmaf（`displacement.csv` 相對影像路徑的基準） |
+| `--path-root` | baseline 專案根 | displacement、edit_aesthetic、vmaf（`displacement.csv` 相對影像路徑的基準） |
 | `--output-dir` | `results/additional_metrics` | 全部 |
+| `--shard`、`--shards` | 0、1 | edit_aesthetic（分片時輸出 `edit_aesthetic_<shard>.csv`） |
 
 預設值即 `immunization_baseline.layout` 的對應常數。其他專案量測自己的產物時，
 以上述參數指向自己的目錄，並以 `--output-dir` 指定獨立的輸出目錄，不寫入 baseline 的表。
@@ -248,8 +251,8 @@ AESTHETIC = (
 )
 
 
-def stage_aesthetic(device, defenses: Path, out_dir: Path) -> None:
-    """防禦圖與原圖各量一份無參考的美學／自然度讀數。"""
+def aesthetic_models(device):
+    """`AESTHETIC` 七項的 pyiqa 後端與缺席原因。"""
     def factory(name):
         def create():
             import pyiqa
@@ -259,6 +262,12 @@ def stage_aesthetic(device, defenses: Path, out_dir: Path) -> None:
     models, missing = optional_backends({column: factory(name) for column, name, _ in AESTHETIC})
     for column, reason in missing.items():
         print(f"[UNAVAILABLE] {column}：{reason}", flush=True)
+    return models, missing
+
+
+def stage_aesthetic(device, defenses: Path, out_dir: Path) -> None:
+    """防禦圖與原圖各量一份無參考的美學／自然度讀數。"""
+    models, missing = aesthetic_models(device)
 
     root = defenses
     targets = []
@@ -410,18 +419,55 @@ def stage_vmaf(device, defenses: Path, displacement_csv: Path, retention_csv: Pa
     print(f"[ALLDONE] {out_dir / 'vmaf.csv'}（{len(rows)} 列）", flush=True)
 
 
+def stage_edit_aesthetic(device, displacement_csv: Path, path_root: Path, out_dir: Path,
+                         shard: int, shards: int) -> None:
+    """位移表中每張未防禦編輯（`condition=undefended`）與防禦後編輯的無參考美學讀數。
+
+    未防禦編輯在位移表中隨條件重複出現，只量一次。`shards` 大於 1 時輸出
+    `edit_aesthetic_<shard>.csv`，各分片取目標清單的第 `shard::shards` 項。
+    """
+    targets, seen = [], set()
+    for row in read_csv(displacement_csv):
+        key = ("undefended", row["scenario"], row["image"], row["prompt_index"])
+        if key not in seen:
+            seen.add(key)
+            targets.append((*key, row["undefended_png"]))
+        targets.append((row["condition"], row["scenario"], row["image"], row["prompt_index"],
+                        row["defended_png"]))
+    targets = targets[shard::shards]
+    models, missing = aesthetic_models(device)
+    name = "edit_aesthetic.csv" if shards == 1 else f"edit_aesthetic_{shard}.csv"
+    rows = []
+    for i, (condition, scenario, image, index, png) in enumerate(targets, 1):
+        x = load(resolve_png(png, path_root), device).clamp(0, 1)
+        row = {"condition": condition, "scenario": scenario, "image": image,
+               "prompt_index": index, "png": png}
+        with torch.no_grad():
+            for column, _, _ in AESTHETIC:
+                row[column] = round(float(models[column](x)), 5) if column in models else ""
+        row["device"] = str(device)
+        row["unavailable_metrics"] = unavailable_text(missing)
+        rows.append(row)
+        if i % 16 == 0:
+            print(f"[{i}/{len(targets)}]", flush=True)
+    write_csv(out_dir / name, rows)
+    print(f"[ALLDONE] {out_dir / name}（{len(rows)} 列）", flush=True)
+
+
 def build_parser() -> argparse.ArgumentParser:
     """路徑參數的預設值即 `layout` 常數；不給參數時讀寫位置與現行 baseline 表相同。"""
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--stage", required=True,
-                        choices=("fidelity", "displacement", "retention", "aesthetic", "vmaf"))
+                        choices=("fidelity", "displacement", "retention", "aesthetic", "edit_aesthetic",
+                                 "vmaf"))
     parser.add_argument("--defenses-root", dest="defenses", type=Path, default=layout.DEFENSES,
                         help="條件防禦圖的根目錄，`<條件>/<圖>__orig.png` 與 `<條件>/<圖>__<條件>__def.png`"
                              "（fidelity、aesthetic、vmaf）")
     parser.add_argument("--displacement-csv", dest="displacement", type=Path,
                         default=layout.RESULTS / "displacement.csv",
-                        help="位移表，取其 `undefended_png`／`defended_png` 兩欄（displacement、vmaf）")
+                        help="位移表，取其 `undefended_png`／`defended_png` 兩欄"
+                             "（displacement、edit_aesthetic、vmaf）")
     parser.add_argument("--retention-csv", dest="retention", type=Path,
                         default=layout.RESULTS / "retention.csv",
                         help="淨化後保留表，取其條件、算子、場景、影像、指令列（retention、vmaf）")
@@ -429,7 +475,9 @@ def build_parser() -> argparse.ArgumentParser:
                         default=layout.PURIFIED_EDITS,
                         help="淨化後編輯的根目錄，`<條件>/<算子>/<場景>_<條件>_<算子>/`（retention、vmaf）")
     parser.add_argument("--path-root", type=Path, default=layout.PROJECT,
-                        help="位移表中相對影像路徑的基準目錄（displacement、vmaf）")
+                        help="位移表中相對影像路徑的基準目錄（displacement、edit_aesthetic、vmaf）")
+    parser.add_argument("--shard", type=int, default=0, help="分片序（edit_aesthetic）")
+    parser.add_argument("--shards", type=int, default=1, help="分片數（edit_aesthetic）")
     parser.add_argument("--output-dir", dest="out", type=Path,
                         default=layout.RESULTS / "additional_metrics",
                         help="輸出 CSV 的目錄；量測其他專案的產物時須指定獨立目錄")
@@ -454,6 +502,8 @@ def main(argv=None) -> None:
         "retention": lambda: stage_retention(device, args.retention, args.purified_edits,
                                              args.out),
         "aesthetic": lambda: stage_aesthetic(device, args.defenses, args.out),
+        "edit_aesthetic": lambda: stage_edit_aesthetic(device, args.displacement, args.path_root,
+                                                       args.out, args.shard, args.shards),
         "vmaf": lambda: stage_vmaf(device, args.defenses, args.displacement, args.retention,
                                    args.purified_edits, args.path_root, args.out),
     }

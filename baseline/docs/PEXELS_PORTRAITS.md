@@ -59,16 +59,57 @@
 | 其餘 | `artifacts/pexels_portraits/sets/<影像組>/` | `runtime/pexels_portraits/sets/<影像組>/`（`*.done` 與 `results/`） |
 
 各影像組的資料子集為 `runtime/pexels_portraits/data/<影像組>/`（指向本資料組的符號連結）。
-入版控的讀數在 `results/pexels_portraits/`（`defense_<條件>.csv`、`displacement_<條件>.csv`、`retention_<條件>.csv`）。
+入版控的讀數在 `results/pexels_portraits/`，見「讀數」。
 
 執行：`ENV_FILE=~/env.sh bash scripts/evaluate_pexels_portraits.sh <卡號> <影像組> [<影像組>...]`；
 中斷後以同一指令接續（完成標記與 `results_*.csv` 的既有列）。
 
-## 第一批 97 張的既有讀數
+## 讀數
 
-單卡 111 小時（`runtime/pexels_portraits/pause.log`）：未防禦分母與 `diffvax`、`mist`、`dia_pt`、`sifm`、`dia_r`、`dct_shield_y`、
-`dct_shield` 七個條件完成防禦、編輯、七道淨化與量測；`dayn` 有 73 張防禦圖（`results/pexels_portraits/defense_dayn.csv`）。
-報告頁位於 `artifacts/pexels_portraits/report/index.html`（不入版控）。
+`results/pexels_portraits/` 為已完整完成的影像組的合併表，由 `scripts/generate_pexels_result_tables.py` 自各影像組的 `results/` 產生；
+納入的影像組列於同目錄的 `image_sets.txt`。現有 186 張（`images_0000_0096` 至 `images_0177_0186`）、十個條件：
+`defense_<條件>.csv`（186 列）、`displacement_<條件>.csv`（744 列）、`retention_<條件>.csv`（5,208 列）、
+`fidelity.csv`（FSIM、ΔE00、MSE）與 `aesthetic.csv`（七項無參考美學指標，含 `condition=original` 參照列）。
+
+186 張的平均（ip2p；編輯結果每條件 744 格；淨化後四欄為淨化後的編輯結果 LPIPS）：
+
+| 條件 | 防禦圖 LPIPS | 防禦圖 PSNR | 編輯結果 LPIPS | 擋下 | `jpeg30` | `blur2` | `crop_resize0.1` | `rotate15` | 每張求解秒數 |
+|---|---|---|---|---|---|---|---|---|---|
+| `diffvax` | 0.044 | 36.05 | 0.081 | 4/744 | 0.077 | 0.058 | 0.087 | 0.088 | 0 |
+| `dia_r` | 0.282 | 40.35 | 0.335 | 75/744 | 0.181 | 0.093 | 0.283 | 0.235 | 145 |
+| `dia_pt` | 0.386 | 36.64 | 0.449 | 286/744 | 0.239 | 0.150 | 0.391 | 0.317 | 69 |
+| `dayn` | 0.447 | 33.47 | 0.496 | 405/744 | 0.328 | 0.226 | 0.455 | 0.381 | 478 |
+| `sifm` | 0.471 | 33.03 | 0.519 | 470/744 | 0.331 | 0.238 | 0.474 | 0.395 | 122 |
+| `danp` | 0.488 | 32.97 | 0.543 | 491/744 | 0.350 | 0.253 | 0.498 | 0.417 | 563 |
+| `dct_shield` | 0.549 | 29.66 | 0.681 | 719/744 | 0.138 | 0.115 | 0.487 | 0.383 | 154 |
+| `photoguard_encoder` | 0.558 | 31.72 | 0.703 | 734/744 | 0.297 | 0.206 | 0.505 | 0.411 | 157 |
+| `mist` | 0.623 | 26.69 | 0.636 | 738/744 | 0.436 | 0.360 | 0.607 | 0.515 | 78 |
+| `dct_shield_y` | 0.633 | 24.38 | 0.698 | 733/744 | 0.218 | 0.111 | 0.519 | 0.446 | 154 |
+
+「擋下」為兩張編輯結果的 SigLIP 影像餘弦低於 0.837 的格數。
+`artifacts/pexels_portraits/report/index.html`（不入版控）為第一批 97 張、七個條件時產生的報告頁。
+
+## 操作
+
+遠端專案根為 `~/image-immunization/baseline`；狀態目錄 `R=runtime/pexels_portraits`。
+
+| 項目 | 位置或指令 |
+|---|---|
+| 兩個 worker 的影像組清單 | `$R/worker_a.sets`、`$R/worker_b.sets`（已完成的影像組由完成標記跳過） |
+| worker 的主機、卡與結束碼 | `$R/worker_<名>.lock/owner` |
+| log | `$R/worker_<名>.log`（`[STEP]` 行為步驟邊界） |
+| 啟動或恢復一個 worker | 把 `$R/worker_<名>.lock` 移到 `$R/superseded/`，再於兩台主機各執行 `setsid nohup bash scripts/run_worker_when_card_free.sh <名> $(cat $R/worker_<名>.sets) > /dev/null 2>&1 < /dev/null &` |
+| 在步驟邊界暫停 | `setsid nohup bash scripts/run_pause_at_step_boundary.sh <名> <PID> ...`；紀錄於 `$R/pause.log` |
+| color 佇列結束後自動恢復 | `rm -rf $R/resume_after_color.done` 後於兩台各執行 `scripts/run_resume_after_color_queue.sh`；紀錄於 `$R/resume_after_color.log` |
+| 合併讀數 | `python scripts/generate_pexels_result_tables.py <輸出目錄>`（遠端專案根），再把輸出複製到本機 `results/pexels_portraits/` |
+
+- `run_worker_when_card_free.sh` 每 5 分鐘尋找沒有 compute app 且沒有租約的卡；同名 worker 以 `worker_<名>.lock` 保證只啟動一次，
+  worker 結束後不重新啟動（租約被拒的結束碼 3 除外）。
+- worker 的 PID 以 `pgrep -f "^bash scripts/evaluate_pexels_portraits.sh <卡號> "` 取得；樣式不加 `^` 時會符合執行該指令的 ssh 殼。
+  `pkill -f` 的樣式出現在自身指令列時會終止該連線。
+- 暫停後 worker 以結束碼 143 結束並釋放租約；恢復時只重跑被中斷的那一步。
+- 已取得租約的卡仍可能被其他使用者的行程佔用顯存，worker 會以 CUDA out of memory 結束（結束碼 1），需依上表恢復。
+- 主體遮罩未涵蓋人物的影像會使幾何淨化後的主體區為空，量測步驟即中止；處理方式為依「選取」第 7 點自資料組移除該影像。
 
 ## GPU 時間
 

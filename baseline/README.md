@@ -86,6 +86,9 @@ python -m pytest tests         # pyproject.toml 已設定 pythonpath
 | `measure_off_target_changes` | 編輯結果在指令以外區域的 ΔE00 與 LPIPS |
 | `generate_subject_masks` | 以 CLIPSeg 產生資料集的 `masks/`（白 = 重繪）與 `overview/` |
 | `scripts/evaluate_pexels_portraits.sh` | Pexels 人像資料組的 ip2p 評測：在一張卡上依序完成指定的影像組（可續跑） |
+| `scripts/run_worker_when_card_free.sh` | 等到本機有空卡再啟動一個 Pexels worker |
+| `scripts/run_pause_at_step_boundary.sh`、`scripts/run_resume_after_color_queue.sh` | 在步驟邊界暫停 worker；color 佇列結束後自動恢復 |
+| `scripts/generate_pexels_result_tables.py` | 把已完成影像組的讀數合併為 `results/pexels_portraits/` 的逐條件表 |
 | `scripts/evaluate_color_condition.sh` | `color` 條件的整條評測鏈（`main`：匯入、編輯、淨化、淨化後重編、UltraEdit；`flux`：FLUX） |
 | `scripts/run_flux_conditions.sh` | 依序對多個條件執行 FLUX 全表 |
 

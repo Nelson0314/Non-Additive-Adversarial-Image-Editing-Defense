@@ -30,6 +30,7 @@
 | `results/additional_metrics/displacement.csv` | 768 | 編輯結果的 FSIM／MSE |
 | `results/additional_metrics/retention.csv` | 5,376 | 淨化後編輯結果的 FSIM |
 | `results/additional_metrics/aesthetic.csv` | 104 | 七項無參考美學指標，含八張原圖的參照列 |
+| `results/semantic_identity.csv`、`results/aligned/semantic_identity.csv` | 6,656、5,632 | 逐張編輯結果（未淨化與七道淨化後，含 `undefended`）的指令方向 CLIP-S（`clip_dir`、`siglip_dir`）、對原圖的 FaceNet／ArcFace 身分餘弦與偵測、對未防禦編輯的 `clip_pair`／`siglip_pair`／`blocked`；由 `measure_semantic_identity` 以 CUDA 產生 |
 | `results/additional_metrics/vmaf.csv` | 6,240 | VMAF（`libvmaf`，單幀；`pairing` 欄區分 fidelity／displacement／retention） |
 | `results/defense_<條件>.csv` | 8／檔 | 防禦圖對原圖的失真與該方法的求解設定（各篇原生預算） |
 | `results/aligned/defense_<條件>.csv` | 8／檔 | 十個方法縮到同一防禦圖 LPIPS 錨點（0.3344）的求解結果，見 `results/aligned/README.md` |
@@ -42,6 +43,7 @@
 | `results/flux/displacement.csv` | 384 | FLUX 全表的編輯結果 LPIPS，欄位與 `displacement.csv` 同組 |
 | `results/ultraedit/edits_<arm>.csv` | 256／檔，13 檔 | UltraEdit（SD3）全表的逐格編輯，未淨化＋7 道算子 |
 | `results/ultraedit/displacement.csv`、`results/ultraedit/retention.csv` | 384、2,688 | UltraEdit 全表的編輯結果 LPIPS 與保留率 |
+| `results/ultraedit/semantic_identity.csv`、`results/flux/semantic_identity.csv` | 3,328、416 | 欄位同 `results/semantic_identity.csv`；FLUX 只有未淨化 |
 | `results/sweeps/` | 數格至兩百格 | 未防禦影像上的編輯器參數掃描，依 `<編輯器>/<變因>/` 分層：`flux/`、`sdedit/`、`sdxl_ip2p/`、`ultraedit/`，及 `ip2p/reference/` 對照；`*_off_target.csv` 為指令以外改動的讀數（背景／主體 ΔE00、LPIPS）；對應影像在 `artifacts/sweeps/` 的同名位置 |
 
 十二個條件：`dct_shield_y`、`mist`、`dct_shield`、`photoguard_linf`、`danp`、`sifm`、`dayn`、`dia_pt`、`dia_r`、`photoguard_c`、`color`、`diffvax`。顏色那一列原為 `color_curve`（數值留在 commit `0dd243b`），現為 color 專案的方法 `color`；等失真臂仍以舊顏色列的 0.3344 為錨點（見 `STATUS.md`）。每個條件 8 影像 × 4 指令 × 2 場景 ＝ 64 格。
@@ -77,13 +79,15 @@ python -m pytest tests         # pyproject.toml 已設定 pythonpath
 | `generate_defenses` | 各 baseline 在原生設定上求解防禦圖 |
 | `import_defense_artifacts` | 將顏色方法的防禦圖整理成主表版面並重算保真欄 |
 | `run_edits`、`apply_purifiers`、`measure_edit_displacement`、`measure_purified_displacement` | 對應 `immunization_core.pipelines` 的 editing、purification、displacement、retention，預設資料根為 `data/portraits` |
-| `measure_additional_metrics` | FSIM、ΔE00、MSE、無參考美學指標與 VMAF |
-| `run_flux_edits`、`measure_flux_displacement` | FLUX.1-Kontext 全表與其編輯結果 LPIPS |
+| `measure_additional_metrics` | FSIM、ΔE00、MSE、無參考美學指標（防禦圖：`aesthetic`；編輯結果：`edit_aesthetic`）與 VMAF |
+| `measure_semantic_identity` | 逐張編輯結果的指令方向 CLIP-S、FaceNet／ArcFace 身分與影像語意相似度，涵蓋未淨化與七道淨化 |
+| `run_flux_edits`、`measure_flux_displacement` | FLUX.1-Kontext 全表與其編輯結果 LPIPS；`--purifier` 以主表 ip2p 的淨化後影像為輸入 |
 | `run_ultraedit_edits` | UltraEdit 全表（13 arm × 未淨化與 7 道算子），輸出沿用主表版面 |
 | `sweep_sdedit_parameters`、`sweep_editor_parameters` | SDEdit 與 SD 系列編輯器的參數／句型掃描 |
 | `measure_off_target_changes` | 編輯結果在指令以外區域的 ΔE00 與 LPIPS |
 | `generate_subject_masks` | 以 CLIPSeg 產生資料集的 `masks/`（白 = 重繪）與 `overview/` |
 | `scripts/evaluate_pexels_portraits.sh` | Pexels 人像資料組的 ip2p 評測：在一張卡上依序完成指定的影像組（可續跑） |
+| `scripts/evaluate_pexels_aligned.sh` | Pexels 人像資料組的等失真臂（八條件沿用主表等失真臂的 eps 倍率），未防禦分母沿用原生評測 |
 | `scripts/run_worker_when_card_free.sh` | 等到本機有空卡再啟動一個 Pexels worker |
 | `scripts/run_pause_at_step_boundary.sh`、`scripts/run_resume_after_color_queue.sh` | 在步驟邊界暫停 worker；color 佇列結束後自動恢復 |
 | `scripts/generate_pexels_result_tables.py` | 把已完成影像組的讀數合併為 `results/pexels_portraits/` 的逐條件表 |

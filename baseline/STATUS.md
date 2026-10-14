@@ -30,6 +30,13 @@
 - GPU：使用者授權本工作 2 張卡；color 專案借卡時在步驟邊界暫停，並掛 `scripts/run_resume_after_color_queue.sh` 自動恢復。
 - 資料組的目標張數為 500；現行選取規則下來源只得到 306 張，補足方式（放寬規則、增加來源或只增加女性影像）未定。
 - 資料選取的程式與候選快取在 `trials/unsplash_portrait_pool/`（本機與遠端，不入版控），內容見該目錄的 `README.md`。
+- 語意與身分讀數：`results/pexels_portraits/semantic_identity_<條件>.csv`（含 `undefended`）為 186 張；
+  主表、等失真臂、UltraEdit、FLUX 見 `README.md`「結果表」。產生程式 `measure_semantic_identity`（CUDA；
+  與 CPU 計算相比 CLIP／SigLIP 方向差 ≤ 1e-5、ArcFace 逐位元相同、FaceNet 最大差 0.028）。
+- 等失真臂擴至 Pexels：`scripts/evaluate_pexels_aligned.sh`，八條件（`mist`、`dia_pt`、`sifm`、`dia_r`、`dct_shield_y`、
+  `dct_shield`、`dayn`、`danp`）沿用 `results/aligned/defense_<條件>.csv` 的 `eps_scale`；`photoguard_c`、`photoguard_linf`、
+  `photoguard_encoder` 與 `diffvax` 不在此臂。產物與狀態在 `artifacts/pexels_portraits/aligned/`、`runtime/pexels_portraits/aligned/`。
+- FLUX 七道淨化：`run_flux_edits --purifier`，13 arm × 7 算子 × 32 格，輸出 `results/flux/purified_edits/<算子>/edits_<arm>.csv`。
 - 文獻的評估集規模見 `docs/reference/EVALUATION_SET_SIZES.md`；完整版三張表的規劃與 GPU 時間見 `docs/PEXELS_PORTRAITS.md`「GPU 時間」。
 
 ### 顏色列是 `color`

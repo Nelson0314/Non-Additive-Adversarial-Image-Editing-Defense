@@ -32,7 +32,7 @@
 | `results/additional_metrics/aesthetic.csv` | 104 | 七項無參考美學指標，含八張原圖的參照列 |
 | `results/semantic_identity.csv`、`results/aligned/semantic_identity.csv` | 6,656、5,632 | 逐張編輯結果（未淨化與七道淨化後，含 `undefended`）的指令方向 CLIP-S（`clip_dir`、`siglip_dir`）、對原圖的 FaceNet／ArcFace 身分餘弦與偵測、對未防禦編輯的 `clip_pair`／`siglip_pair`／`blocked`；由 `measure_semantic_identity` 以 CUDA 產生 |
 | `results/additional_metrics/edit_aesthetic.csv` | 832 | 未防禦編輯（`condition=undefended`）與防禦後編輯的七項無參考美學指標 |
-| `results/<aligned／ultraedit／flux／pexels_portraits>/additional_metrics/` | — | 同名欄位的補充讀數：`edit_aesthetic.csv`（四者）、`displacement.csv`（編輯結果 FSIM／MSE；`ultraedit`、`flux`、`pexels_portraits`、`aligned`）、`fidelity.csv` 與 `aesthetic.csv`（`aligned` 防禦圖的逐張 FSIM／ΔE00／MSE 與美學） |
+| `results/<aligned／ultraedit／flux／pexels_portraits>/additional_metrics/` | — | 同名欄位的補充讀數：`edit_aesthetic.csv`（四者）、`displacement.csv`（編輯結果 FSIM／MSE；`ultraedit`、`flux`、`pexels_portraits`、`aligned`）、`fidelity.csv` 與 `aesthetic.csv`（`aligned` 防禦圖的逐張失真與美學）；`aligned` 另有 `vmaf.csv` 與 `retention.csv`（淨化後編輯結果 FSIM），由 color 專案以 commit 3fd14f8 的 `measure_additional_metrics` 在 CPU 上產生（ffmpeg 7.0.2） |
 | `results/additional_metrics/vmaf.csv` | 6,240 | VMAF（`libvmaf`，單幀；`pairing` 欄區分 fidelity／displacement／retention） |
 | `results/defense_<條件>.csv` | 8／檔 | 防禦圖對原圖的失真與該方法的求解設定（各篇原生預算） |
 | `results/aligned/defense_<條件>.csv` | 8／檔 | 十個方法縮到同一防禦圖 LPIPS 錨點（0.3344）的求解結果，見 `results/aligned/README.md` |

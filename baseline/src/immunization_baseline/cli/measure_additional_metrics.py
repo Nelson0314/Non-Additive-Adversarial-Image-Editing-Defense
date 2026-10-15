@@ -16,7 +16,7 @@ DiffVax 的 `evaluate.py`），本專案的 `MetricSuite` 支援它、卻沒有�
 ────────────────────────────────────────────────────────────────────
 | 檔 | 對象 | 補的欄位 |
 |---|---|---|
-| `additional_metrics/fidelity.csv`   | 防禦圖 vs 原圖 | `fid_fsim`、`fid_delta_e00`、`fid_mse` |
+| `additional_metrics/fidelity.csv`   | 防禦圖 vs 原圖 | `MetricSuite.pairwise` 的 `fid_psnr`／`fid_ssim`／`fid_lpips`／`fid_vif_p`／`fid_dists`／`fid_rms`／`fid_linf`，與 `fid_fsim`、`fid_delta_e00`、`fid_mse` |
 | `additional_metrics/displacement.csv` | 編輯(原圖) vs 編輯(防禦圖) | `disp_fsim`、`disp_mse` |
 | `additional_metrics/retention.csv`  | 淨化後的同一對 | `disp_purified_fsim` |
 | `additional_metrics/aesthetic.csv`  | 防禦圖本身（無參考） | 美學與自然度四項 |
@@ -27,7 +27,7 @@ DiffVax 的 `evaluate.py`），本專案的 `MetricSuite` 支援它、卻沒有�
 ────────────────────────────────────────────────────────────────────
 | stage | 必要（缺依賴或計算失敗即中止） | 選配（後端缺席時留空並記原因） |
 |---|---|---|
-| fidelity | `fid_fsim`、`fid_delta_e00`、`fid_mse` | — |
+| fidelity | `fid_*` 全部十項 | — |
 | displacement | `disp_fsim`、`disp_mse` | — |
 | retention | `disp_purified_fsim` | — |
 | aesthetic | — | `aes_*` 七項（pyiqa 模型與權重） |
@@ -159,7 +159,15 @@ def unavailable_text(missing: dict) -> str:
 
 
 def stage_fidelity(device, defenses: Path, out_dir: Path) -> None:
-    """防禦圖對原圖。檔名式樣 `<name>__orig.png` 與 `<name>__<cond>__def.png`。"""
+    """防禦圖對原圖。檔名式樣 `<name>__orig.png` 與 `<name>__<cond>__def.png`。
+
+    全部讀交付的 8-bit PNG、CPU 計算。`defense_<條件>.csv` 的 `fid_*` 是求解當下在未量化的
+    浮點張量上算的，作為求解紀錄保留；比較表的防禦圖失真讀本表。
+    """
+    from immunization_core.metrics.standard import standard_row
+    from immunization_core.metrics.suite import MetricSuite
+
+    suite = MetricSuite(device=device)
     root = defenses
     rows = []
     for directory in sorted(p for p in root.iterdir() if p.is_dir()):
@@ -171,8 +179,12 @@ def stage_fidelity(device, defenses: Path, out_dir: Path) -> None:
                 raise SystemExit(f"缺原圖：{original}。保真那一欄的分母缺一張就不可比")
             a, b = load(original, device), load(defended, device)
             with torch.no_grad():
+                pair = suite.pairwise(a, b)
                 rows.append({
                     "condition": condition, "image": name,
+                    **standard_row("fid_", pair),
+                    "fid_rms": round(float(pair["rms"]), 6),
+                    "fid_linf": round(float(pair["linf"]), 6),
                     "fid_fsim": round(fsim(a, b), 5),
                     "fid_delta_e00": round(delta_e00(a, b), 4),
                     "fid_mse": round(mse(a, b), 8),

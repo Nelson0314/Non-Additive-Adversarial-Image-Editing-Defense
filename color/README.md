@@ -1,58 +1,34 @@
-# color：CIELAB 色度平面全域映射的免疫防禦
+# color：全域顏色映射的免疫防禦
 
-防禦圖由全域換色表產生：CIELAB (a,b) 平面的 RBF 位移場加單調亮度曲線，輸出只依像素自身顏色；以等變殘差目標對 InstructPix2Pix 最佳化，並受色差、逐通道 Lab 位移、彩度與 LPIPS 上限約束。設計、協定與結果見 `docs/DESIGN.md`，現況見 `STATUS.md`。
+防禦圖由逐影像最佳化的全域逐像素顏色映射產生（研究主線 color3d：33³ RGB 3D 查找表），輸出只依像素自身顏色，不加性雜訊、不用空間相依色場；目標為使攻擊者以 InstructPix2Pix 做的編輯偏離未防禦的編輯結果，並以 LPIPS 區間與文獻依據的顏色約束控制外觀。主線在 trial `trials/lut3d_defense_and_naturalness/`（不入版控），方法與結果見其 `README.md`，現況見 `STATUS.md`，設計與已退役方向的數據見 `docs/DESIGN.md`。
 
 ## 目錄
 
 | 路徑 | 內容 |
 |---|---|
-| `src/immunization_color/` | `method.py`（載體、目標、支撐）、`cli/`（命令列入口）、`layout.py`（預設目錄） |
-| `configs/conditions.yaml` | 防禦條件與其參數的唯一正本 |
-| `scripts/` | `generate_condition.sh`（條件 → 防禦圖指令）、`evaluate_condition.sh`（單卡完整鏈）、`measure_condition_results.sh`（跨條件讀數）、`run_queue.sh` 與 `queue_*.sh`（工作佇列）、`env.sh` |
-| `data/` | `portraits/`（原圖、`masks/`、`prompts.yaml`）、`color_lpips_reference.csv`（逐張 LPIPS 上限參考） |
-| `results/` | `displacement.csv`、`retention.csv`、`fidelity.csv`（`color`）；`variants/<條件>/`（三個 simple 條件）；`defenses/`、`defense_shards/`、`defended_edits/`、`purified/`、`purified_edits/`（逐條件的求解與編輯紀錄） |
-| `docs/DESIGN.md` | 問題、協定、方法、結果與已退役方向的數據紀錄 |
-| `tests/` | 條件指令、佇列相依與驗收、讀數退出碼、專案自足性 |
-| `vendor/` | `immunization_core` 與 GPU 租約工具的固定版本快照；`vendor.lock.json` 記錄來源 commit 與逐檔雜湊 |
+| `src/immunization_color/` | `cli/`（編輯、淨化、讀數的命令列入口）、`method.py`（全域換色表 `ColorMap`、comm 目標與臉框／膚色支撐函式，trial 引用）、`layout.py`（預設目錄） |
+| `scripts/env.sh` | 執行環境：以 `src/` 與 `vendor/` 解析 Python 套件；`ENV_FILE` 可指定機器相關設定 |
+| `data/portraits/` | 原圖、`masks/`、`prompts.yaml` |
+| `docs/DESIGN.md` | 問題、協定、主線摘要與已退役方向的數據紀錄 |
 | `docs/TRIALS.md` | 已刪除的暫時性嘗試紀錄；`run_trial_lifecycle.sh new|promote|drop` 的用法見檔首 |
-| `artifacts/`、`runtime/`、`trials/` | 影像產物、排程狀態、暫時性嘗試；不入版控 |
-
-## 條件
-
-| 條件 | 設定 |
-|---|---|
-| `color` | 預設參數 |
-| `color_simple` | 色偏上限改為錨點方框，只保留膚色同色 ΔE00 與暖色兩道逐像素上限 |
-| `color_simple_skinbox` | 同上；冷色方向的方框隨離膚色中心的距離放大到 2 倍 |
-| `color_simple_xattn` | 同 `color_simple`；目標改為攻擊端對類別詞的交叉注意力 |
-
-條件與其參數的唯一正本為 `configs/conditions.yaml`；`scripts/generate_condition.sh` 經 `python -m immunization_color.conditions` 讀取。七道淨化取自 core 的 `purifiers/protocol.json`。
+| `tests/` | 專案自足性（預設目錄、vendor 快照、換行） |
+| `vendor/` | `immunization_core` 與 GPU 租約工具的固定版本快照；`vendor.lock.json` 記錄來源 commit 與逐檔雜湊 |
+| `artifacts/`、`trials/` | 影像產物（未防禦編輯與淨化後未防禦分母）、暫時性嘗試；不入版控 |
 
 ## 執行
 
 於 color 專案根執行；Python 套件以 `src/` 與 `vendor/` 解析：
 
 ```bash
-source scripts/env.sh                                          # PYTHONPATH、PY；ENV_FILE 可指定機器相關設定
-nohup setsid bash scripts/run_queue.sh <佇列名> chain:color &  # 經租約取卡：防禦圖 → 編輯 → 淨化 → 淨化後編輯
-nohup setsid bash scripts/run_queue.sh <佇列名> readout &      # 跨條件讀數
+source scripts/env.sh   # PYTHONPATH、PY
 python -m pytest tests
 ```
 
-工作語法（`pilot`、`def`、`chain`、`readout`、`fid`）見 `scripts/run_queue.sh` 檔頭；排程、取卡與驗收由 `vendor/scripts/run_queue_worker.sh` 執行。
-`scripts/evaluate_condition.sh <卡號> <條件>` 與 `scripts/measure_condition_results.sh <卡號>` 只設定 `CUDA_VISIBLE_DEVICES`，不取租約，
-是佇列在已持有租約時呼叫的內部入口；單獨執行時經租約工具包裝：
-
-```bash
-bash vendor/scripts/run_with_gpu_lease.sh --work-dir "$COLOR_ROOT" color_chain \
-  bash -c 'bash scripts/evaluate_condition.sh "$CUDA_VISIBLE_DEVICES" color'
-```
+color3d 的求解、編輯、淨化與讀數由 trial 的 `run_lut_queue.sh` 排程（用法見該 trial 的 `HANDOVER.md`）；它呼叫下列入口：
 
 | 入口（`python -m immunization_color.cli.<名稱>`） | 用途 |
 |---|---|
-| `generate_color_defenses` | 求解防禦圖 |
 | `run_edits`、`apply_purifiers`、`measure_edit_displacement`、`measure_purified_displacement` | 對應 `immunization_core.pipelines` 的 editing、purification、displacement、retention |
 | `measure_defense_fidelity` | 防禦圖對原圖的 LPIPS、ΔE00、PSNR、L∞、RMS |
-| `evaluate_queue_job` | 佇列工作的產物驗收 |
 
 `vendor/` 不就地修改；更新方式為在 repo 根執行 `python core/scripts/generate_vendor_snapshot.py color`。

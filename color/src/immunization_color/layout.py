@@ -1,7 +1,7 @@
 """color 專案的預設目錄；只由本套件位置推定專案根，不搜尋其他專案。
 
 `artifacts/` 存放可由已記錄參數與種子重新產生的影像，`runtime/` 存放排程狀態，兩者不入版控；
-`results/` 存放 CSV，入版控。
+`results/` 為預設讀數目錄（研究主線的讀數在 trial 的 `results/`）。
 """
 from __future__ import annotations
 

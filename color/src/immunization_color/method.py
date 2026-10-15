@@ -1,6 +1,6 @@
 """color 方法：CIELAB 色度平面的全域映射載體、等變殘差與交叉注意力目標、臉框與膚色支撐。
 
-命令列入口為 `immunization_color.cli.generate_color_defenses`，方法說明見其模組 docstring。
+前身方法 color 的命令列入口 `generate_color_defenses` 已刪除；本模組的 `ColorMap`、comm 目標與支撐函式由 trial `lut3d_defense_and_naturalness` 引用。
 """
 
 from __future__ import annotations

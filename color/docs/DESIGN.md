@@ -1,6 +1,6 @@
 # color：設計、協定與結果
 
-現況見 `../STATUS.md`，執行方式見 `../README.md`。風格轉換線為獨立專案 `style/`。
+現況見 `../STATUS.md`，執行方式見 `../README.md`。研究主線 color3d 的方法與結果見 trial `trials/lut3d_defense_and_naturalness/README.md`（§6a 為摘要）；§4–§7 的前身方法與已退役方向程式與產物已刪除，本文件保留其數據。風格轉換線為獨立專案 `style/`。
 
 ## 1. 問題與協定
 
@@ -17,9 +17,9 @@
 
 | 名稱 | 定義 | 檔案 |
 |---|---|---|
-| 編輯結果 LPIPS | LPIPS(未防禦的編輯, 防禦圖的編輯)，全圖／主體／背景 | `results/displacement.csv`（欄 `disp_lpips_*`） |
-| 淨化後編輯結果 LPIPS | 同上，兩邊都先經同一道淨化；保留率 ＝ 淨化後 ÷ 淨化前 | `results/retention.csv` |
-| 防禦圖失真 | 防禦圖對原圖的 LPIPS、ΔE00、PSNR、L∞ | `results/fidelity.csv` |
+| 編輯結果 LPIPS | LPIPS(未防禦的編輯, 防禦圖的編輯)，全圖／主體／背景 | trial `results/<條件>/displacement.csv`（欄 `disp_lpips_*`） |
+| 淨化後編輯結果 LPIPS | 同上，兩邊都先經同一道淨化；保留率 ＝ 淨化後 ÷ 淨化前 | trial `results/<條件>/retention.csv` |
+| 防禦圖失真 | 防禦圖對原圖的 LPIPS、ΔE00、PSNR、L∞ | trial `results/<條件>/fidelity.csv` |
 
 不設判準：數據與圖並列，並逐張看圖確認四句配件是否畫出。
 
@@ -28,7 +28,7 @@
 - 不使用空間相依的色彩場（臉框權重場、分區求解產生邊界、色塊、臉框圈，已否決）。
 - 偏好全域映射的外觀。粉紅、紅、洋紅、黃的色調難看；青、藍、綠可接受。膚色同色 ΔE00 可放寬到 12–16。
 
-## 4. 現行方法 color（`immunization_color.cli.generate_color_defenses`，預設參數即此設定）
+## 4. 前身方法 color（已退役；程式 `generate_color_defenses` 與產物已刪除）
 
 - **載體**：全域換色表，輸出只依像素自身顏色。CIELAB (a,b) 以 7×7 錨點（±90）的 Gaussian RBF（σ 30）
   單位分割內插位移，|d| ≤ 80；亮度為 16 段單調曲線。參數 114 個。
@@ -60,20 +60,18 @@
   全圖為 color_curve 0.386，與 dayn、dia_pt 相同，dia_r 0.390。
 - 淨化後編輯結果 LPIPS（7 道平均）：color_curve 0.392、color 0.308；對齊後 baseline 0.116–0.241。
 - 美術指標（原生預算）：VMAF color 70.6、color_curve 71.4，baseline 64.9–95.6；無參考指標（LAION、CLIP-IQA、NIQE）與原圖接近。
-- 穿透占比（LPIPS(edit(x), T̂(edit(x))) ÷ 編輯結果 LPIPS；T̂ 為由 (x, x_def) 回推的同族全域映射）：顏色方法 74–80%，對抗擾動 47–80%（多數 55–65%，以加性 T̂ 估計）。
 
-## 6a. 研究中：3D 查找表（trial `lut3d_defense_and_naturalness`）
+## 6a. 研究主線：color3d（trial `lut3d_defense_and_naturalness`）
 
-33³ RGB 3D 查找表 ＋ comm 目標，限防禦圖 LPIPS 與膚色同色 ΔE00 ≤ 16（8 張、ip2p 主種子、七道淨化）：
+33³ RGB 3D 查找表、ip2p VAE encoder 目標，防禦圖 LPIPS 區間 0.27–0.30 與文獻依據的顏色約束（逐像素色度位移 ≤ 8、相鄰色對尾端、色調單調、膚色色相與彩度比）；8 張、ip2p 主種子、四句配件指令：
 
-| 預算 | 防禦圖 LPIPS | 編輯結果 LPIPS 全圖／主體 | blocked | 淨化後 blocked 平均 | 保留率 |
-|---|---|---|---|---|---|
-| 0.2 | 0.198 | 0.278／0.292 | 22% | 20% | 1.00 |
-| 0.3 | 0.296 | 0.374／0.387 | 50% | 45% | 0.96 |
-| 0.3，每格 RGB 改變 ≤ 0.1 | 0.295 | 0.348／0.351 | 25% | 25% | 0.93 |
-| 0.4 | 0.397 | 0.463／0.463 | 72% | 60% | 0.96 |
+| 條件 | 防禦圖 LPIPS | 編輯結果 LPIPS 淨化前 | 七道平均 | VAE-Trans 後 |
+|---|---|---|---|---|
+| color3d | 0.287 | 0.341 | 0.302 | 0.185 |
+| 前一版（`color3d_chroma4_slope2`） | 0.207 | 0.266 | 0.233 | 0.143 |
+| baseline 等失真臂（10 個） | 0.308–0.343 | 0.24–0.39 | 0.12–0.24 | 0.02–0.07 |
 
-同欄位的主表 baseline：失真對齊（防禦圖 LPIPS 0.31–0.34）blocked 0–28%、淨化後 1–6%。防禦依賴最佳化得到的顏色空間細碎結構（平滑或同類隨機查找表退回 3–9%），外觀有色帶、色塊與輪廓高光，無參考美學指標（NIMA、MUSIQ、TOPIQ、CLIP-IQA、NIQE）明顯下降。自然化方法與完整數字見該 trial 的 `README.md`。
+約束設計、消融、隨機對照與已退役路線的數字見該 trial 的 `README.md`。
 
 ## 7. 已退役方向的數據紀錄（程式與產物已刪除）
 
@@ -92,7 +90,7 @@
 
 目標為 ip2p 以防禦圖自身為影像條件、空字串為文字條件的 ε 預測誤差比（配對 (t, ε)，最大化；Li et al., "Your Diffusion Model is
 Secretly a Zero-Shot Classifier", ICCV 2023），程式在 trial `edit_failure_mechanisms` 的 `generate_mechanism_defenses.py`。
-ip2p 主種子、四句配件指令、七道淨化；color 一列取 `results/` 同 8 張。
+ip2p 主種子、四句配件指令、七道淨化；color 一列為同 8 張的當時讀數。
 
 | 設定 | 張數 | 防禦圖 LPIPS | 編輯結果 LPIPS 全圖／主體 | blocked | 淨化後編輯結果 LPIPS（7 道平均） | 保留率 | 淨化後 blocked 平均 |
 |---|---|---|---|---|---|---|---|

@@ -47,14 +47,6 @@ fidelity,dia_r,woman_00,95.63124,cpu,,,,
 fidelity,dia_r,woman_01,95.26311,cpu,,,,
 fidelity,dia_r,woman_02,95.67979,cpu,,,,
 fidelity,dia_r,woman_03,96.31628,cpu,,,,
-fidelity,mist,man_00,96.72495,cpu,,,,
-fidelity,mist,man_01,96.47945,cpu,,,,
-fidelity,mist,man_02,96.463,cpu,,,,
-fidelity,mist,man_03,96.70115,cpu,,,,
-fidelity,mist,woman_00,96.62993,cpu,,,,
-fidelity,mist,woman_01,96.51807,cpu,,,,
-fidelity,mist,woman_02,96.53942,cpu,,,,
-fidelity,mist,woman_03,96.84678,cpu,,,,
 fidelity,photoguard_c,man_00,96.99889,cpu,,,,
 fidelity,photoguard_c,man_01,96.5703,cpu,,,,
 fidelity,photoguard_c,man_02,96.52119,cpu,,,,
@@ -463,70 +455,6 @@ displacement,dia_r,woman_03,49.24997,cpu,,inpaint,0,
 displacement,dia_r,woman_03,58.05484,cpu,,inpaint,1,
 displacement,dia_r,woman_03,22.80805,cpu,,inpaint,2,
 displacement,dia_r,woman_03,60.7629,cpu,,inpaint,3,
-displacement,mist,man_00,49.80978,cpu,,ip2p,0,
-displacement,mist,man_00,19.95402,cpu,,ip2p,1,
-displacement,mist,man_00,17.39269,cpu,,ip2p,2,
-displacement,mist,man_00,34.63943,cpu,,ip2p,3,
-displacement,mist,man_01,52.74623,cpu,,ip2p,0,
-displacement,mist,man_01,8.25203,cpu,,ip2p,1,
-displacement,mist,man_01,35.22484,cpu,,ip2p,2,
-displacement,mist,man_01,6.89438,cpu,,ip2p,3,
-displacement,mist,man_02,65.58759,cpu,,ip2p,0,
-displacement,mist,man_02,14.2977,cpu,,ip2p,1,
-displacement,mist,man_02,44.11579,cpu,,ip2p,2,
-displacement,mist,man_02,23.45769,cpu,,ip2p,3,
-displacement,mist,man_03,75.70583,cpu,,ip2p,0,
-displacement,mist,man_03,0.0,cpu,,ip2p,1,
-displacement,mist,man_03,66.45307,cpu,,ip2p,2,
-displacement,mist,man_03,31.48534,cpu,,ip2p,3,
-displacement,mist,woman_00,75.10003,cpu,,ip2p,0,
-displacement,mist,woman_00,0.0,cpu,,ip2p,1,
-displacement,mist,woman_00,14.02628,cpu,,ip2p,2,
-displacement,mist,woman_00,31.28477,cpu,,ip2p,3,
-displacement,mist,woman_01,44.47094,cpu,,ip2p,0,
-displacement,mist,woman_01,15.02414,cpu,,ip2p,1,
-displacement,mist,woman_01,42.82948,cpu,,ip2p,2,
-displacement,mist,woman_01,15.87687,cpu,,ip2p,3,
-displacement,mist,woman_02,46.73163,cpu,,ip2p,0,
-displacement,mist,woman_02,22.9583,cpu,,ip2p,1,
-displacement,mist,woman_02,27.29721,cpu,,ip2p,2,
-displacement,mist,woman_02,29.74302,cpu,,ip2p,3,
-displacement,mist,woman_03,72.07825,cpu,,ip2p,0,
-displacement,mist,woman_03,25.38422,cpu,,ip2p,1,
-displacement,mist,woman_03,47.97455,cpu,,ip2p,2,
-displacement,mist,woman_03,46.10657,cpu,,ip2p,3,
-displacement,mist,man_00,62.86313,cpu,,inpaint,0,
-displacement,mist,man_00,42.09079,cpu,,inpaint,1,
-displacement,mist,man_00,53.38428,cpu,,inpaint,2,
-displacement,mist,man_00,57.86771,cpu,,inpaint,3,
-displacement,mist,man_01,67.53291,cpu,,inpaint,0,
-displacement,mist,man_01,22.87274,cpu,,inpaint,1,
-displacement,mist,man_01,66.62224,cpu,,inpaint,2,
-displacement,mist,man_01,27.25679,cpu,,inpaint,3,
-displacement,mist,man_02,67.63628,cpu,,inpaint,0,
-displacement,mist,man_02,51.57088,cpu,,inpaint,1,
-displacement,mist,man_02,85.74816,cpu,,inpaint,2,
-displacement,mist,man_02,79.99801,cpu,,inpaint,3,
-displacement,mist,man_03,31.09871,cpu,,inpaint,0,
-displacement,mist,man_03,48.88997,cpu,,inpaint,1,
-displacement,mist,man_03,59.4294,cpu,,inpaint,2,
-displacement,mist,man_03,50.50609,cpu,,inpaint,3,
-displacement,mist,woman_00,63.43271,cpu,,inpaint,0,
-displacement,mist,woman_00,62.61944,cpu,,inpaint,1,
-displacement,mist,woman_00,65.60499,cpu,,inpaint,2,
-displacement,mist,woman_00,24.43817,cpu,,inpaint,3,
-displacement,mist,woman_01,68.44763,cpu,,inpaint,0,
-displacement,mist,woman_01,54.46514,cpu,,inpaint,1,
-displacement,mist,woman_01,55.69105,cpu,,inpaint,2,
-displacement,mist,woman_01,39.38221,cpu,,inpaint,3,
-displacement,mist,woman_02,47.21188,cpu,,inpaint,0,
-displacement,mist,woman_02,41.86075,cpu,,inpaint,1,
-displacement,mist,woman_02,14.12827,cpu,,inpaint,2,
-displacement,mist,woman_02,64.97354,cpu,,inpaint,3,
-displacement,mist,woman_03,23.3996,cpu,,inpaint,0,
-displacement,mist,woman_03,56.61384,cpu,,inpaint,1,
-displacement,mist,woman_03,16.85274,cpu,,inpaint,2,
-displacement,mist,woman_03,53.61377,cpu,,inpaint,3,
 displacement,photoguard_c,man_00,41.39516,cpu,,ip2p,0,
 displacement,photoguard_c,man_00,7.00634,cpu,,ip2p,1,
 displacement,photoguard_c,man_00,13.5151,cpu,,ip2p,2,
@@ -3407,454 +3335,6 @@ retention,dia_r,woman_03,84.08858,cpu,,ip2p,0,rotate15
 retention,dia_r,woman_03,69.23017,cpu,,ip2p,1,rotate15
 retention,dia_r,woman_03,81.92654,cpu,,ip2p,2,rotate15
 retention,dia_r,woman_03,54.18693,cpu,,ip2p,3,rotate15
-retention,mist,man_00,93.0871,cpu,,inpaint,0,blur1
-retention,mist,man_00,68.74486,cpu,,inpaint,1,blur1
-retention,mist,man_00,90.82016,cpu,,inpaint,2,blur1
-retention,mist,man_00,71.43067,cpu,,inpaint,3,blur1
-retention,mist,man_01,83.9594,cpu,,inpaint,0,blur1
-retention,mist,man_01,89.01019,cpu,,inpaint,1,blur1
-retention,mist,man_01,92.67801,cpu,,inpaint,2,blur1
-retention,mist,man_01,84.15732,cpu,,inpaint,3,blur1
-retention,mist,man_02,94.27844,cpu,,inpaint,0,blur1
-retention,mist,man_02,92.24417,cpu,,inpaint,1,blur1
-retention,mist,man_02,92.52346,cpu,,inpaint,2,blur1
-retention,mist,man_02,95.91976,cpu,,inpaint,3,blur1
-retention,mist,man_03,73.3616,cpu,,inpaint,0,blur1
-retention,mist,man_03,85.3268,cpu,,inpaint,1,blur1
-retention,mist,man_03,72.3564,cpu,,inpaint,2,blur1
-retention,mist,man_03,44.08394,cpu,,inpaint,3,blur1
-retention,mist,woman_00,65.20213,cpu,,inpaint,0,blur1
-retention,mist,woman_00,76.56477,cpu,,inpaint,1,blur1
-retention,mist,woman_00,60.71328,cpu,,inpaint,2,blur1
-retention,mist,woman_00,82.68894,cpu,,inpaint,3,blur1
-retention,mist,woman_01,69.93707,cpu,,inpaint,0,blur1
-retention,mist,woman_01,62.05731,cpu,,inpaint,1,blur1
-retention,mist,woman_01,92.84085,cpu,,inpaint,2,blur1
-retention,mist,woman_01,86.93904,cpu,,inpaint,3,blur1
-retention,mist,woman_02,90.60205,cpu,,inpaint,0,blur1
-retention,mist,woman_02,38.8161,cpu,,inpaint,1,blur1
-retention,mist,woman_02,52.23888,cpu,,inpaint,2,blur1
-retention,mist,woman_02,81.53445,cpu,,inpaint,3,blur1
-retention,mist,woman_03,71.6938,cpu,,inpaint,0,blur1
-retention,mist,woman_03,88.22006,cpu,,inpaint,1,blur1
-retention,mist,woman_03,61.37568,cpu,,inpaint,2,blur1
-retention,mist,woman_03,62.51508,cpu,,inpaint,3,blur1
-retention,mist,man_00,87.74506,cpu,,ip2p,0,blur1
-retention,mist,man_00,63.30233,cpu,,ip2p,1,blur1
-retention,mist,man_00,85.67621,cpu,,ip2p,2,blur1
-retention,mist,man_00,79.98074,cpu,,ip2p,3,blur1
-retention,mist,man_01,88.72804,cpu,,ip2p,0,blur1
-retention,mist,man_01,64.36352,cpu,,ip2p,1,blur1
-retention,mist,man_01,89.69289,cpu,,ip2p,2,blur1
-retention,mist,man_01,63.49233,cpu,,ip2p,3,blur1
-retention,mist,man_02,93.39395,cpu,,ip2p,0,blur1
-retention,mist,man_02,75.78445,cpu,,ip2p,1,blur1
-retention,mist,man_02,91.91616,cpu,,ip2p,2,blur1
-retention,mist,man_02,89.49931,cpu,,ip2p,3,blur1
-retention,mist,man_03,92.93614,cpu,,ip2p,0,blur1
-retention,mist,man_03,73.41682,cpu,,ip2p,1,blur1
-retention,mist,man_03,87.58739,cpu,,ip2p,2,blur1
-retention,mist,man_03,59.00555,cpu,,ip2p,3,blur1
-retention,mist,woman_00,94.21134,cpu,,ip2p,0,blur1
-retention,mist,woman_00,85.42611,cpu,,ip2p,1,blur1
-retention,mist,woman_00,44.79728,cpu,,ip2p,2,blur1
-retention,mist,woman_00,74.89821,cpu,,ip2p,3,blur1
-retention,mist,woman_01,87.1539,cpu,,ip2p,0,blur1
-retention,mist,woman_01,65.42508,cpu,,ip2p,1,blur1
-retention,mist,woman_01,89.82315,cpu,,ip2p,2,blur1
-retention,mist,woman_01,69.38226,cpu,,ip2p,3,blur1
-retention,mist,woman_02,88.1065,cpu,,ip2p,0,blur1
-retention,mist,woman_02,67.95453,cpu,,ip2p,1,blur1
-retention,mist,woman_02,65.02131,cpu,,ip2p,2,blur1
-retention,mist,woman_02,81.79476,cpu,,ip2p,3,blur1
-retention,mist,woman_03,92.54467,cpu,,ip2p,0,blur1
-retention,mist,woman_03,83.86985,cpu,,ip2p,1,blur1
-retention,mist,woman_03,90.49,cpu,,ip2p,2,blur1
-retention,mist,woman_03,90.87148,cpu,,ip2p,3,blur1
-retention,mist,man_00,87.59524,cpu,,inpaint,0,blur2
-retention,mist,man_00,91.95576,cpu,,inpaint,1,blur2
-retention,mist,man_00,94.43475,cpu,,inpaint,2,blur2
-retention,mist,man_00,88.80869,cpu,,inpaint,3,blur2
-retention,mist,man_01,86.7988,cpu,,inpaint,0,blur2
-retention,mist,man_01,87.20349,cpu,,inpaint,1,blur2
-retention,mist,man_01,92.3339,cpu,,inpaint,2,blur2
-retention,mist,man_01,93.52207,cpu,,inpaint,3,blur2
-retention,mist,man_02,88.67255,cpu,,inpaint,0,blur2
-retention,mist,man_02,95.82613,cpu,,inpaint,1,blur2
-retention,mist,man_02,94.69711,cpu,,inpaint,2,blur2
-retention,mist,man_02,76.88228,cpu,,inpaint,3,blur2
-retention,mist,man_03,49.92459,cpu,,inpaint,0,blur2
-retention,mist,man_03,82.25396,cpu,,inpaint,1,blur2
-retention,mist,man_03,89.62192,cpu,,inpaint,2,blur2
-retention,mist,man_03,91.54068,cpu,,inpaint,3,blur2
-retention,mist,woman_00,87.39404,cpu,,inpaint,0,blur2
-retention,mist,woman_00,88.51458,cpu,,inpaint,1,blur2
-retention,mist,woman_00,83.83201,cpu,,inpaint,2,blur2
-retention,mist,woman_00,96.33661,cpu,,inpaint,3,blur2
-retention,mist,woman_01,94.22225,cpu,,inpaint,0,blur2
-retention,mist,woman_01,93.86733,cpu,,inpaint,1,blur2
-retention,mist,woman_01,96.06569,cpu,,inpaint,2,blur2
-retention,mist,woman_01,64.56087,cpu,,inpaint,3,blur2
-retention,mist,woman_02,70.16156,cpu,,inpaint,0,blur2
-retention,mist,woman_02,30.18469,cpu,,inpaint,1,blur2
-retention,mist,woman_02,0.0,cpu,,inpaint,2,blur2
-retention,mist,woman_02,78.71477,cpu,,inpaint,3,blur2
-retention,mist,woman_03,71.59079,cpu,,inpaint,0,blur2
-retention,mist,woman_03,81.88958,cpu,,inpaint,1,blur2
-retention,mist,woman_03,85.83193,cpu,,inpaint,2,blur2
-retention,mist,woman_03,79.30436,cpu,,inpaint,3,blur2
-retention,mist,man_00,91.77056,cpu,,ip2p,0,blur2
-retention,mist,man_00,85.29522,cpu,,ip2p,1,blur2
-retention,mist,man_00,89.01812,cpu,,ip2p,2,blur2
-retention,mist,man_00,91.81407,cpu,,ip2p,3,blur2
-retention,mist,man_01,90.83415,cpu,,ip2p,0,blur2
-retention,mist,man_01,77.76316,cpu,,ip2p,1,blur2
-retention,mist,man_01,94.40693,cpu,,ip2p,2,blur2
-retention,mist,man_01,92.3407,cpu,,ip2p,3,blur2
-retention,mist,man_02,96.47181,cpu,,ip2p,0,blur2
-retention,mist,man_02,85.4604,cpu,,ip2p,1,blur2
-retention,mist,man_02,94.34067,cpu,,ip2p,2,blur2
-retention,mist,man_02,94.23932,cpu,,ip2p,3,blur2
-retention,mist,man_03,97.71195,cpu,,ip2p,0,blur2
-retention,mist,man_03,72.00578,cpu,,ip2p,1,blur2
-retention,mist,man_03,94.87317,cpu,,ip2p,2,blur2
-retention,mist,man_03,90.60277,cpu,,ip2p,3,blur2
-retention,mist,woman_00,97.56415,cpu,,ip2p,0,blur2
-retention,mist,woman_00,75.91467,cpu,,ip2p,1,blur2
-retention,mist,woman_00,54.79562,cpu,,ip2p,2,blur2
-retention,mist,woman_00,84.83494,cpu,,ip2p,3,blur2
-retention,mist,woman_01,92.04846,cpu,,ip2p,0,blur2
-retention,mist,woman_01,74.89893,cpu,,ip2p,1,blur2
-retention,mist,woman_01,96.6914,cpu,,ip2p,2,blur2
-retention,mist,woman_01,79.75985,cpu,,ip2p,3,blur2
-retention,mist,woman_02,93.7616,cpu,,ip2p,0,blur2
-retention,mist,woman_02,70.8398,cpu,,ip2p,1,blur2
-retention,mist,woman_02,68.92161,cpu,,ip2p,2,blur2
-retention,mist,woman_02,58.0025,cpu,,ip2p,3,blur2
-retention,mist,woman_03,95.76826,cpu,,ip2p,0,blur2
-retention,mist,woman_03,89.52275,cpu,,ip2p,1,blur2
-retention,mist,woman_03,76.69472,cpu,,ip2p,2,blur2
-retention,mist,woman_03,95.67122,cpu,,ip2p,3,blur2
-retention,mist,man_00,85.00732,cpu,,inpaint,0,crop_resize0.1
-retention,mist,man_00,52.63998,cpu,,inpaint,1,crop_resize0.1
-retention,mist,man_00,62.39905,cpu,,inpaint,2,crop_resize0.1
-retention,mist,man_00,60.41487,cpu,,inpaint,3,crop_resize0.1
-retention,mist,man_01,60.13928,cpu,,inpaint,0,crop_resize0.1
-retention,mist,man_01,64.10697,cpu,,inpaint,1,crop_resize0.1
-retention,mist,man_01,48.47763,cpu,,inpaint,2,crop_resize0.1
-retention,mist,man_01,78.02572,cpu,,inpaint,3,crop_resize0.1
-retention,mist,man_02,62.28141,cpu,,inpaint,0,crop_resize0.1
-retention,mist,man_02,72.1466,cpu,,inpaint,1,crop_resize0.1
-retention,mist,man_02,82.06753,cpu,,inpaint,2,crop_resize0.1
-retention,mist,man_02,60.42462,cpu,,inpaint,3,crop_resize0.1
-retention,mist,man_03,64.69532,cpu,,inpaint,0,crop_resize0.1
-retention,mist,man_03,34.71295,cpu,,inpaint,1,crop_resize0.1
-retention,mist,man_03,57.7676,cpu,,inpaint,2,crop_resize0.1
-retention,mist,man_03,79.92941,cpu,,inpaint,3,crop_resize0.1
-retention,mist,woman_00,69.98639,cpu,,inpaint,0,crop_resize0.1
-retention,mist,woman_00,50.22292,cpu,,inpaint,1,crop_resize0.1
-retention,mist,woman_00,58.34601,cpu,,inpaint,2,crop_resize0.1
-retention,mist,woman_00,30.14134,cpu,,inpaint,3,crop_resize0.1
-retention,mist,woman_01,42.04243,cpu,,inpaint,0,crop_resize0.1
-retention,mist,woman_01,60.33286,cpu,,inpaint,1,crop_resize0.1
-retention,mist,woman_01,54.01437,cpu,,inpaint,2,crop_resize0.1
-retention,mist,woman_01,63.06134,cpu,,inpaint,3,crop_resize0.1
-retention,mist,woman_02,50.10197,cpu,,inpaint,0,crop_resize0.1
-retention,mist,woman_02,52.15859,cpu,,inpaint,1,crop_resize0.1
-retention,mist,woman_02,29.58657,cpu,,inpaint,2,crop_resize0.1
-retention,mist,woman_02,47.30551,cpu,,inpaint,3,crop_resize0.1
-retention,mist,woman_03,38.46366,cpu,,inpaint,0,crop_resize0.1
-retention,mist,woman_03,33.55477,cpu,,inpaint,1,crop_resize0.1
-retention,mist,woman_03,26.83192,cpu,,inpaint,2,crop_resize0.1
-retention,mist,woman_03,36.40083,cpu,,inpaint,3,crop_resize0.1
-retention,mist,man_00,63.27271,cpu,,ip2p,0,crop_resize0.1
-retention,mist,man_00,9.77407,cpu,,ip2p,1,crop_resize0.1
-retention,mist,man_00,37.69729,cpu,,ip2p,2,crop_resize0.1
-retention,mist,man_00,61.61483,cpu,,ip2p,3,crop_resize0.1
-retention,mist,man_01,67.77601,cpu,,ip2p,0,crop_resize0.1
-retention,mist,man_01,33.54085,cpu,,ip2p,1,crop_resize0.1
-retention,mist,man_01,41.34445,cpu,,ip2p,2,crop_resize0.1
-retention,mist,man_01,37.77525,cpu,,ip2p,3,crop_resize0.1
-retention,mist,man_02,77.76361,cpu,,ip2p,0,crop_resize0.1
-retention,mist,man_02,15.18308,cpu,,ip2p,1,crop_resize0.1
-retention,mist,man_02,74.21182,cpu,,ip2p,2,crop_resize0.1
-retention,mist,man_02,53.37842,cpu,,ip2p,3,crop_resize0.1
-retention,mist,man_03,83.32329,cpu,,ip2p,0,crop_resize0.1
-retention,mist,man_03,37.5626,cpu,,ip2p,1,crop_resize0.1
-retention,mist,man_03,68.14496,cpu,,ip2p,2,crop_resize0.1
-retention,mist,man_03,28.82069,cpu,,ip2p,3,crop_resize0.1
-retention,mist,woman_00,77.15649,cpu,,ip2p,0,crop_resize0.1
-retention,mist,woman_00,31.3121,cpu,,ip2p,1,crop_resize0.1
-retention,mist,woman_00,65.8727,cpu,,ip2p,2,crop_resize0.1
-retention,mist,woman_00,68.87714,cpu,,ip2p,3,crop_resize0.1
-retention,mist,woman_01,61.36875,cpu,,ip2p,0,crop_resize0.1
-retention,mist,woman_01,39.25983,cpu,,ip2p,1,crop_resize0.1
-retention,mist,woman_01,30.53919,cpu,,ip2p,2,crop_resize0.1
-retention,mist,woman_01,11.36823,cpu,,ip2p,3,crop_resize0.1
-retention,mist,woman_02,66.28405,cpu,,ip2p,0,crop_resize0.1
-retention,mist,woman_02,23.48915,cpu,,ip2p,1,crop_resize0.1
-retention,mist,woman_02,57.32653,cpu,,ip2p,2,crop_resize0.1
-retention,mist,woman_02,51.67437,cpu,,ip2p,3,crop_resize0.1
-retention,mist,woman_03,76.95815,cpu,,ip2p,0,crop_resize0.1
-retention,mist,woman_03,37.32915,cpu,,ip2p,1,crop_resize0.1
-retention,mist,woman_03,69.39108,cpu,,ip2p,2,crop_resize0.1
-retention,mist,woman_03,66.05476,cpu,,ip2p,3,crop_resize0.1
-retention,mist,man_00,82.37277,cpu,,inpaint,0,jpeg30
-retention,mist,man_00,68.30295,cpu,,inpaint,1,jpeg30
-retention,mist,man_00,60.46457,cpu,,inpaint,2,jpeg30
-retention,mist,man_00,78.66371,cpu,,inpaint,3,jpeg30
-retention,mist,man_01,72.28371,cpu,,inpaint,0,jpeg30
-retention,mist,man_01,59.19573,cpu,,inpaint,1,jpeg30
-retention,mist,man_01,62.74508,cpu,,inpaint,2,jpeg30
-retention,mist,man_01,61.768,cpu,,inpaint,3,jpeg30
-retention,mist,man_02,64.34213,cpu,,inpaint,0,jpeg30
-retention,mist,man_02,58.66564,cpu,,inpaint,1,jpeg30
-retention,mist,man_02,87.93692,cpu,,inpaint,2,jpeg30
-retention,mist,man_02,83.31326,cpu,,inpaint,3,jpeg30
-retention,mist,man_03,54.77373,cpu,,inpaint,0,jpeg30
-retention,mist,man_03,62.15515,cpu,,inpaint,1,jpeg30
-retention,mist,man_03,54.53509,cpu,,inpaint,2,jpeg30
-retention,mist,man_03,59.16799,cpu,,inpaint,3,jpeg30
-retention,mist,woman_00,70.07688,cpu,,inpaint,0,jpeg30
-retention,mist,woman_00,35.84956,cpu,,inpaint,1,jpeg30
-retention,mist,woman_00,45.14407,cpu,,inpaint,2,jpeg30
-retention,mist,woman_00,71.92618,cpu,,inpaint,3,jpeg30
-retention,mist,woman_01,74.5431,cpu,,inpaint,0,jpeg30
-retention,mist,woman_01,66.52544,cpu,,inpaint,1,jpeg30
-retention,mist,woman_01,69.5844,cpu,,inpaint,2,jpeg30
-retention,mist,woman_01,69.47191,cpu,,inpaint,3,jpeg30
-retention,mist,woman_02,68.9598,cpu,,inpaint,0,jpeg30
-retention,mist,woman_02,54.75964,cpu,,inpaint,1,jpeg30
-retention,mist,woman_02,13.38664,cpu,,inpaint,2,jpeg30
-retention,mist,woman_02,75.56399,cpu,,inpaint,3,jpeg30
-retention,mist,woman_03,66.24958,cpu,,inpaint,0,jpeg30
-retention,mist,woman_03,72.73755,cpu,,inpaint,1,jpeg30
-retention,mist,woman_03,63.78029,cpu,,inpaint,2,jpeg30
-retention,mist,woman_03,78.5134,cpu,,inpaint,3,jpeg30
-retention,mist,man_00,82.65803,cpu,,ip2p,0,jpeg30
-retention,mist,man_00,47.04151,cpu,,ip2p,1,jpeg30
-retention,mist,man_00,81.67557,cpu,,ip2p,2,jpeg30
-retention,mist,man_00,80.46496,cpu,,ip2p,3,jpeg30
-retention,mist,man_01,80.28367,cpu,,ip2p,0,jpeg30
-retention,mist,man_01,68.07568,cpu,,ip2p,1,jpeg30
-retention,mist,man_01,83.47603,cpu,,ip2p,2,jpeg30
-retention,mist,man_01,65.00964,cpu,,ip2p,3,jpeg30
-retention,mist,man_02,85.60452,cpu,,ip2p,0,jpeg30
-retention,mist,man_02,58.02924,cpu,,ip2p,1,jpeg30
-retention,mist,man_02,75.59186,cpu,,ip2p,2,jpeg30
-retention,mist,man_02,76.93946,cpu,,ip2p,3,jpeg30
-retention,mist,man_03,89.47688,cpu,,ip2p,0,jpeg30
-retention,mist,man_03,64.46932,cpu,,ip2p,1,jpeg30
-retention,mist,man_03,84.35686,cpu,,ip2p,2,jpeg30
-retention,mist,man_03,74.86398,cpu,,ip2p,3,jpeg30
-retention,mist,woman_00,81.66792,cpu,,ip2p,0,jpeg30
-retention,mist,woman_00,56.58203,cpu,,ip2p,1,jpeg30
-retention,mist,woman_00,37.88836,cpu,,ip2p,2,jpeg30
-retention,mist,woman_00,58.34339,cpu,,ip2p,3,jpeg30
-retention,mist,woman_01,74.99726,cpu,,ip2p,0,jpeg30
-retention,mist,woman_01,50.22282,cpu,,ip2p,1,jpeg30
-retention,mist,woman_01,82.97555,cpu,,ip2p,2,jpeg30
-retention,mist,woman_01,65.92579,cpu,,ip2p,3,jpeg30
-retention,mist,woman_02,82.75956,cpu,,ip2p,0,jpeg30
-retention,mist,woman_02,57.38259,cpu,,ip2p,1,jpeg30
-retention,mist,woman_02,34.10345,cpu,,ip2p,2,jpeg30
-retention,mist,woman_02,42.37174,cpu,,ip2p,3,jpeg30
-retention,mist,woman_03,88.55441,cpu,,ip2p,0,jpeg30
-retention,mist,woman_03,60.35985,cpu,,ip2p,1,jpeg30
-retention,mist,woman_03,65.06611,cpu,,ip2p,2,jpeg30
-retention,mist,woman_03,58.83146,cpu,,ip2p,3,jpeg30
-retention,mist,man_00,67.5594,cpu,,inpaint,0,jpeg50
-retention,mist,man_00,49.60787,cpu,,inpaint,1,jpeg50
-retention,mist,man_00,72.07375,cpu,,inpaint,2,jpeg50
-retention,mist,man_00,49.6791,cpu,,inpaint,3,jpeg50
-retention,mist,man_01,73.54712,cpu,,inpaint,0,jpeg50
-retention,mist,man_01,48.76106,cpu,,inpaint,1,jpeg50
-retention,mist,man_01,82.22699,cpu,,inpaint,2,jpeg50
-retention,mist,man_01,32.89593,cpu,,inpaint,3,jpeg50
-retention,mist,man_02,84.9178,cpu,,inpaint,0,jpeg50
-retention,mist,man_02,71.55928,cpu,,inpaint,1,jpeg50
-retention,mist,man_02,81.67907,cpu,,inpaint,2,jpeg50
-retention,mist,man_02,78.70117,cpu,,inpaint,3,jpeg50
-retention,mist,man_03,46.10478,cpu,,inpaint,0,jpeg50
-retention,mist,man_03,67.46321,cpu,,inpaint,1,jpeg50
-retention,mist,man_03,72.88094,cpu,,inpaint,2,jpeg50
-retention,mist,man_03,74.43216,cpu,,inpaint,3,jpeg50
-retention,mist,woman_00,53.30584,cpu,,inpaint,0,jpeg50
-retention,mist,woman_00,63.28171,cpu,,inpaint,1,jpeg50
-retention,mist,woman_00,63.09905,cpu,,inpaint,2,jpeg50
-retention,mist,woman_00,81.22151,cpu,,inpaint,3,jpeg50
-retention,mist,woman_01,89.38378,cpu,,inpaint,0,jpeg50
-retention,mist,woman_01,65.87747,cpu,,inpaint,1,jpeg50
-retention,mist,woman_01,73.45813,cpu,,inpaint,2,jpeg50
-retention,mist,woman_01,37.21961,cpu,,inpaint,3,jpeg50
-retention,mist,woman_02,48.30088,cpu,,inpaint,0,jpeg50
-retention,mist,woman_02,61.15725,cpu,,inpaint,1,jpeg50
-retention,mist,woman_02,18.60435,cpu,,inpaint,2,jpeg50
-retention,mist,woman_02,82.64104,cpu,,inpaint,3,jpeg50
-retention,mist,woman_03,59.43012,cpu,,inpaint,0,jpeg50
-retention,mist,woman_03,80.20836,cpu,,inpaint,1,jpeg50
-retention,mist,woman_03,50.67247,cpu,,inpaint,2,jpeg50
-retention,mist,woman_03,61.06617,cpu,,inpaint,3,jpeg50
-retention,mist,man_00,84.81917,cpu,,ip2p,0,jpeg50
-retention,mist,man_00,52.09293,cpu,,ip2p,1,jpeg50
-retention,mist,man_00,74.78098,cpu,,ip2p,2,jpeg50
-retention,mist,man_00,76.62074,cpu,,ip2p,3,jpeg50
-retention,mist,man_01,75.78975,cpu,,ip2p,0,jpeg50
-retention,mist,man_01,50.23669,cpu,,ip2p,1,jpeg50
-retention,mist,man_01,75.46061,cpu,,ip2p,2,jpeg50
-retention,mist,man_01,64.69222,cpu,,ip2p,3,jpeg50
-retention,mist,man_02,87.03075,cpu,,ip2p,0,jpeg50
-retention,mist,man_02,61.85701,cpu,,ip2p,1,jpeg50
-retention,mist,man_02,82.7583,cpu,,ip2p,2,jpeg50
-retention,mist,man_02,79.061,cpu,,ip2p,3,jpeg50
-retention,mist,man_03,90.31746,cpu,,ip2p,0,jpeg50
-retention,mist,man_03,51.61235,cpu,,ip2p,1,jpeg50
-retention,mist,man_03,87.0636,cpu,,ip2p,2,jpeg50
-retention,mist,man_03,72.23645,cpu,,ip2p,3,jpeg50
-retention,mist,woman_00,83.65768,cpu,,ip2p,0,jpeg50
-retention,mist,woman_00,58.82252,cpu,,ip2p,1,jpeg50
-retention,mist,woman_00,33.89761,cpu,,ip2p,2,jpeg50
-retention,mist,woman_00,79.02465,cpu,,ip2p,3,jpeg50
-retention,mist,woman_01,82.75619,cpu,,ip2p,0,jpeg50
-retention,mist,woman_01,58.75141,cpu,,ip2p,1,jpeg50
-retention,mist,woman_01,80.85332,cpu,,ip2p,2,jpeg50
-retention,mist,woman_01,51.04781,cpu,,ip2p,3,jpeg50
-retention,mist,woman_02,84.854,cpu,,ip2p,0,jpeg50
-retention,mist,woman_02,41.55804,cpu,,ip2p,1,jpeg50
-retention,mist,woman_02,50.44544,cpu,,ip2p,2,jpeg50
-retention,mist,woman_02,74.56839,cpu,,ip2p,3,jpeg50
-retention,mist,woman_03,85.8505,cpu,,ip2p,0,jpeg50
-retention,mist,woman_03,50.76804,cpu,,ip2p,1,jpeg50
-retention,mist,woman_03,76.0243,cpu,,ip2p,2,jpeg50
-retention,mist,woman_03,80.77481,cpu,,ip2p,3,jpeg50
-retention,mist,man_00,80.77051,cpu,,inpaint,0,jpeg80
-retention,mist,man_00,68.02235,cpu,,inpaint,1,jpeg80
-retention,mist,man_00,73.63338,cpu,,inpaint,2,jpeg80
-retention,mist,man_00,83.34626,cpu,,inpaint,3,jpeg80
-retention,mist,man_01,74.07802,cpu,,inpaint,0,jpeg80
-retention,mist,man_01,52.52479,cpu,,inpaint,1,jpeg80
-retention,mist,man_01,91.39727,cpu,,inpaint,2,jpeg80
-retention,mist,man_01,55.84753,cpu,,inpaint,3,jpeg80
-retention,mist,man_02,90.63487,cpu,,inpaint,0,jpeg80
-retention,mist,man_02,50.27727,cpu,,inpaint,1,jpeg80
-retention,mist,man_02,81.46755,cpu,,inpaint,2,jpeg80
-retention,mist,man_02,71.50853,cpu,,inpaint,3,jpeg80
-retention,mist,man_03,46.0385,cpu,,inpaint,0,jpeg80
-retention,mist,man_03,50.97863,cpu,,inpaint,1,jpeg80
-retention,mist,man_03,60.67528,cpu,,inpaint,2,jpeg80
-retention,mist,man_03,55.23463,cpu,,inpaint,3,jpeg80
-retention,mist,woman_00,70.89791,cpu,,inpaint,0,jpeg80
-retention,mist,woman_00,40.24144,cpu,,inpaint,1,jpeg80
-retention,mist,woman_00,60.58312,cpu,,inpaint,2,jpeg80
-retention,mist,woman_00,76.31323,cpu,,inpaint,3,jpeg80
-retention,mist,woman_01,69.24341,cpu,,inpaint,0,jpeg80
-retention,mist,woman_01,66.09172,cpu,,inpaint,1,jpeg80
-retention,mist,woman_01,78.10281,cpu,,inpaint,2,jpeg80
-retention,mist,woman_01,84.22082,cpu,,inpaint,3,jpeg80
-retention,mist,woman_02,56.66997,cpu,,inpaint,0,jpeg80
-retention,mist,woman_02,34.39497,cpu,,inpaint,1,jpeg80
-retention,mist,woman_02,60.51002,cpu,,inpaint,2,jpeg80
-retention,mist,woman_02,75.09079,cpu,,inpaint,3,jpeg80
-retention,mist,woman_03,56.21813,cpu,,inpaint,0,jpeg80
-retention,mist,woman_03,55.00081,cpu,,inpaint,1,jpeg80
-retention,mist,woman_03,62.35642,cpu,,inpaint,2,jpeg80
-retention,mist,woman_03,78.8369,cpu,,inpaint,3,jpeg80
-retention,mist,man_00,79.57126,cpu,,ip2p,0,jpeg80
-retention,mist,man_00,40.82149,cpu,,ip2p,1,jpeg80
-retention,mist,man_00,45.49786,cpu,,ip2p,2,jpeg80
-retention,mist,man_00,62.23988,cpu,,ip2p,3,jpeg80
-retention,mist,man_01,74.25662,cpu,,ip2p,0,jpeg80
-retention,mist,man_01,62.15429,cpu,,ip2p,1,jpeg80
-retention,mist,man_01,80.22281,cpu,,ip2p,2,jpeg80
-retention,mist,man_01,59.70416,cpu,,ip2p,3,jpeg80
-retention,mist,man_02,88.01168,cpu,,ip2p,0,jpeg80
-retention,mist,man_02,67.75307,cpu,,ip2p,1,jpeg80
-retention,mist,man_02,86.97895,cpu,,ip2p,2,jpeg80
-retention,mist,man_02,79.43527,cpu,,ip2p,3,jpeg80
-retention,mist,man_03,88.84893,cpu,,ip2p,0,jpeg80
-retention,mist,man_03,40.78842,cpu,,ip2p,1,jpeg80
-retention,mist,man_03,80.95357,cpu,,ip2p,2,jpeg80
-retention,mist,man_03,30.25182,cpu,,ip2p,3,jpeg80
-retention,mist,woman_00,85.40324,cpu,,ip2p,0,jpeg80
-retention,mist,woman_00,60.53158,cpu,,ip2p,1,jpeg80
-retention,mist,woman_00,67.48465,cpu,,ip2p,2,jpeg80
-retention,mist,woman_00,73.88667,cpu,,ip2p,3,jpeg80
-retention,mist,woman_01,80.12401,cpu,,ip2p,0,jpeg80
-retention,mist,woman_01,49.39219,cpu,,ip2p,1,jpeg80
-retention,mist,woman_01,83.59834,cpu,,ip2p,2,jpeg80
-retention,mist,woman_01,36.7239,cpu,,ip2p,3,jpeg80
-retention,mist,woman_02,83.96933,cpu,,ip2p,0,jpeg80
-retention,mist,woman_02,49.32976,cpu,,ip2p,1,jpeg80
-retention,mist,woman_02,61.84042,cpu,,ip2p,2,jpeg80
-retention,mist,woman_02,76.85577,cpu,,ip2p,3,jpeg80
-retention,mist,woman_03,87.24782,cpu,,ip2p,0,jpeg80
-retention,mist,woman_03,65.99899,cpu,,ip2p,1,jpeg80
-retention,mist,woman_03,75.73948,cpu,,ip2p,2,jpeg80
-retention,mist,woman_03,80.86374,cpu,,ip2p,3,jpeg80
-retention,mist,man_00,57.38911,cpu,,inpaint,0,rotate15
-retention,mist,man_00,40.81545,cpu,,inpaint,1,rotate15
-retention,mist,man_00,36.48239,cpu,,inpaint,2,rotate15
-retention,mist,man_00,60.41965,cpu,,inpaint,3,rotate15
-retention,mist,man_01,77.60714,cpu,,inpaint,0,rotate15
-retention,mist,man_01,42.73626,cpu,,inpaint,1,rotate15
-retention,mist,man_01,91.20933,cpu,,inpaint,2,rotate15
-retention,mist,man_01,55.47381,cpu,,inpaint,3,rotate15
-retention,mist,man_02,63.0274,cpu,,inpaint,0,rotate15
-retention,mist,man_02,59.58664,cpu,,inpaint,1,rotate15
-retention,mist,man_02,81.94394,cpu,,inpaint,2,rotate15
-retention,mist,man_02,77.09659,cpu,,inpaint,3,rotate15
-retention,mist,man_03,67.08114,cpu,,inpaint,0,rotate15
-retention,mist,man_03,71.2526,cpu,,inpaint,1,rotate15
-retention,mist,man_03,34.64432,cpu,,inpaint,2,rotate15
-retention,mist,man_03,30.3188,cpu,,inpaint,3,rotate15
-retention,mist,woman_00,82.37195,cpu,,inpaint,0,rotate15
-retention,mist,woman_00,74.56511,cpu,,inpaint,1,rotate15
-retention,mist,woman_00,70.13968,cpu,,inpaint,2,rotate15
-retention,mist,woman_00,62.75154,cpu,,inpaint,3,rotate15
-retention,mist,woman_01,71.60045,cpu,,inpaint,0,rotate15
-retention,mist,woman_01,34.13831,cpu,,inpaint,1,rotate15
-retention,mist,woman_01,77.56542,cpu,,inpaint,2,rotate15
-retention,mist,woman_01,65.67082,cpu,,inpaint,3,rotate15
-retention,mist,woman_02,46.22603,cpu,,inpaint,0,rotate15
-retention,mist,woman_02,78.39404,cpu,,inpaint,1,rotate15
-retention,mist,woman_02,45.0936,cpu,,inpaint,2,rotate15
-retention,mist,woman_02,19.62586,cpu,,inpaint,3,rotate15
-retention,mist,woman_03,74.85271,cpu,,inpaint,0,rotate15
-retention,mist,woman_03,60.23488,cpu,,inpaint,1,rotate15
-retention,mist,woman_03,67.18802,cpu,,inpaint,2,rotate15
-retention,mist,woman_03,30.87501,cpu,,inpaint,3,rotate15
-retention,mist,man_00,82.30052,cpu,,ip2p,0,rotate15
-retention,mist,man_00,18.43003,cpu,,ip2p,1,rotate15
-retention,mist,man_00,77.8951,cpu,,ip2p,2,rotate15
-retention,mist,man_00,1.77256,cpu,,ip2p,3,rotate15
-retention,mist,man_01,83.69623,cpu,,ip2p,0,rotate15
-retention,mist,man_01,65.15661,cpu,,ip2p,1,rotate15
-retention,mist,man_01,72.06513,cpu,,ip2p,2,rotate15
-retention,mist,man_01,41.6402,cpu,,ip2p,3,rotate15
-retention,mist,man_02,86.42428,cpu,,ip2p,0,rotate15
-retention,mist,man_02,55.4224,cpu,,ip2p,1,rotate15
-retention,mist,man_02,37.10119,cpu,,ip2p,2,rotate15
-retention,mist,man_02,64.10651,cpu,,ip2p,3,rotate15
-retention,mist,man_03,88.07944,cpu,,ip2p,0,rotate15
-retention,mist,man_03,36.77524,cpu,,ip2p,1,rotate15
-retention,mist,man_03,84.6196,cpu,,ip2p,2,rotate15
-retention,mist,man_03,26.00039,cpu,,ip2p,3,rotate15
-retention,mist,woman_00,89.31032,cpu,,ip2p,0,rotate15
-retention,mist,woman_00,74.25141,cpu,,ip2p,1,rotate15
-retention,mist,woman_00,88.07561,cpu,,ip2p,2,rotate15
-retention,mist,woman_00,73.34519,cpu,,ip2p,3,rotate15
-retention,mist,woman_01,86.33478,cpu,,ip2p,0,rotate15
-retention,mist,woman_01,12.85237,cpu,,ip2p,1,rotate15
-retention,mist,woman_01,47.25284,cpu,,ip2p,2,rotate15
-retention,mist,woman_01,13.1819,cpu,,ip2p,3,rotate15
-retention,mist,woman_02,86.63988,cpu,,ip2p,0,rotate15
-retention,mist,woman_02,38.2699,cpu,,ip2p,1,rotate15
-retention,mist,woman_02,66.76784,cpu,,ip2p,2,rotate15
-retention,mist,woman_02,62.43614,cpu,,ip2p,3,rotate15
-retention,mist,woman_03,88.48412,cpu,,ip2p,0,rotate15
-retention,mist,woman_03,76.78024,cpu,,ip2p,1,rotate15
-retention,mist,woman_03,86.84315,cpu,,ip2p,2,rotate15
-retention,mist,woman_03,56.21198,cpu,,ip2p,3,rotate15
 retention,photoguard_c,man_00,81.20141,cpu,,inpaint,0,blur1
 retention,photoguard_c,man_00,49.14355,cpu,,inpaint,1,blur1
 retention,photoguard_c,man_00,65.18631,cpu,,inpaint,2,blur1
@@ -5199,3 +4679,523 @@ retention,sifm,woman_03,84.76021,cpu,,ip2p,0,rotate15
 retention,sifm,woman_03,71.98883,cpu,,ip2p,1,rotate15
 retention,sifm,woman_03,57.28909,cpu,,ip2p,2,rotate15
 retention,sifm,woman_03,0.0,cpu,,ip2p,3,rotate15
+fidelity,mist,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,,,
+fidelity,mist,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,,,
+fidelity,mist,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,,,
+fidelity,mist,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,,,
+fidelity,mist,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,,,
+fidelity,mist,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,,,
+fidelity,mist,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,,,
+fidelity,mist,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,,,
+displacement,mist,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,
+displacement,mist,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,
+displacement,mist,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,
+displacement,mist,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,
+displacement,mist,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,
+displacement,mist,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,
+displacement,mist,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,
+displacement,mist,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,
+displacement,mist,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,
+displacement,mist,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,
+displacement,mist,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,
+displacement,mist,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,
+displacement,mist,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,
+displacement,mist,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,
+displacement,mist,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,
+displacement,mist,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,
+displacement,mist,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,
+displacement,mist,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,
+displacement,mist,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,
+displacement,mist,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,
+displacement,mist,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,
+displacement,mist,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,
+displacement,mist,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,
+displacement,mist,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,
+displacement,mist,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,
+displacement,mist,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,
+displacement,mist,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,
+displacement,mist,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,
+displacement,mist,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,
+displacement,mist,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,
+displacement,mist,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,
+displacement,mist,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,
+displacement,mist,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,
+displacement,mist,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,
+displacement,mist,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,
+displacement,mist,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,
+displacement,mist,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,
+displacement,mist,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,
+displacement,mist,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,
+displacement,mist,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,
+displacement,mist,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,
+displacement,mist,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,
+displacement,mist,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,
+displacement,mist,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,
+displacement,mist,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,
+displacement,mist,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,
+displacement,mist,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,
+displacement,mist,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,
+displacement,mist,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,
+displacement,mist,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,
+displacement,mist,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,
+displacement,mist,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,
+displacement,mist,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,
+displacement,mist,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,
+displacement,mist,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,
+displacement,mist,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,
+displacement,mist,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,
+displacement,mist,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,
+displacement,mist,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,
+displacement,mist,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,
+displacement,mist,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,
+displacement,mist,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,
+displacement,mist,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,
+displacement,mist,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,
+retention,mist,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,blur1
+retention,mist,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,blur1
+retention,mist,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,blur1
+retention,mist,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,blur1
+retention,mist,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,blur1
+retention,mist,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,blur1
+retention,mist,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,blur1
+retention,mist,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,blur1
+retention,mist,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,blur1
+retention,mist,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,blur1
+retention,mist,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,blur1
+retention,mist,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,blur1
+retention,mist,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,blur1
+retention,mist,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,blur1
+retention,mist,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,blur1
+retention,mist,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,blur1
+retention,mist,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,blur1
+retention,mist,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,blur1
+retention,mist,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,blur1
+retention,mist,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,blur1
+retention,mist,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,blur1
+retention,mist,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,blur1
+retention,mist,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,blur1
+retention,mist,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,blur1
+retention,mist,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,blur1
+retention,mist,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,blur1
+retention,mist,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,blur1
+retention,mist,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,blur1
+retention,mist,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,blur1
+retention,mist,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,blur1
+retention,mist,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,blur1
+retention,mist,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,blur1
+retention,mist,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,blur1
+retention,mist,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,blur1
+retention,mist,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,blur1
+retention,mist,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,blur1
+retention,mist,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,blur1
+retention,mist,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,blur1
+retention,mist,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,blur1
+retention,mist,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,blur1
+retention,mist,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,blur1
+retention,mist,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,blur1
+retention,mist,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,blur1
+retention,mist,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,blur1
+retention,mist,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,blur1
+retention,mist,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,blur1
+retention,mist,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,blur1
+retention,mist,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,blur1
+retention,mist,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,blur1
+retention,mist,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,blur1
+retention,mist,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,blur1
+retention,mist,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,blur1
+retention,mist,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,blur1
+retention,mist,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,blur1
+retention,mist,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,blur1
+retention,mist,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,blur1
+retention,mist,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,blur1
+retention,mist,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,blur1
+retention,mist,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,blur1
+retention,mist,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,blur1
+retention,mist,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,blur1
+retention,mist,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,blur1
+retention,mist,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,blur1
+retention,mist,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,blur1
+retention,mist,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,blur2
+retention,mist,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,blur2
+retention,mist,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,blur2
+retention,mist,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,blur2
+retention,mist,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,blur2
+retention,mist,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,blur2
+retention,mist,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,blur2
+retention,mist,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,blur2
+retention,mist,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,blur2
+retention,mist,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,blur2
+retention,mist,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,blur2
+retention,mist,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,blur2
+retention,mist,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,blur2
+retention,mist,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,blur2
+retention,mist,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,blur2
+retention,mist,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,blur2
+retention,mist,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,blur2
+retention,mist,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,blur2
+retention,mist,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,blur2
+retention,mist,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,blur2
+retention,mist,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,blur2
+retention,mist,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,blur2
+retention,mist,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,blur2
+retention,mist,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,blur2
+retention,mist,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,blur2
+retention,mist,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,blur2
+retention,mist,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,blur2
+retention,mist,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,blur2
+retention,mist,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,blur2
+retention,mist,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,blur2
+retention,mist,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,blur2
+retention,mist,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,blur2
+retention,mist,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,blur2
+retention,mist,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,blur2
+retention,mist,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,blur2
+retention,mist,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,blur2
+retention,mist,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,blur2
+retention,mist,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,blur2
+retention,mist,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,blur2
+retention,mist,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,blur2
+retention,mist,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,blur2
+retention,mist,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,blur2
+retention,mist,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,blur2
+retention,mist,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,blur2
+retention,mist,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,blur2
+retention,mist,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,blur2
+retention,mist,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,blur2
+retention,mist,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,blur2
+retention,mist,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,blur2
+retention,mist,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,blur2
+retention,mist,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,blur2
+retention,mist,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,blur2
+retention,mist,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,blur2
+retention,mist,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,blur2
+retention,mist,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,blur2
+retention,mist,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,blur2
+retention,mist,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,blur2
+retention,mist,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,blur2
+retention,mist,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,blur2
+retention,mist,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,blur2
+retention,mist,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,blur2
+retention,mist,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,blur2
+retention,mist,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,blur2
+retention,mist,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,blur2
+retention,mist,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,crop_resize0.1
+retention,mist,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,crop_resize0.1
+retention,mist,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,crop_resize0.1
+retention,mist,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,crop_resize0.1
+retention,mist,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,crop_resize0.1
+retention,mist,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,crop_resize0.1
+retention,mist,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,crop_resize0.1
+retention,mist,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,crop_resize0.1
+retention,mist,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,crop_resize0.1
+retention,mist,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,crop_resize0.1
+retention,mist,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,crop_resize0.1
+retention,mist,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,crop_resize0.1
+retention,mist,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,crop_resize0.1
+retention,mist,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,crop_resize0.1
+retention,mist,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,crop_resize0.1
+retention,mist,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,crop_resize0.1
+retention,mist,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,crop_resize0.1
+retention,mist,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,crop_resize0.1
+retention,mist,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,crop_resize0.1
+retention,mist,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,crop_resize0.1
+retention,mist,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,crop_resize0.1
+retention,mist,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,crop_resize0.1
+retention,mist,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,crop_resize0.1
+retention,mist,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,crop_resize0.1
+retention,mist,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,crop_resize0.1
+retention,mist,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,crop_resize0.1
+retention,mist,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,crop_resize0.1
+retention,mist,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,crop_resize0.1
+retention,mist,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,crop_resize0.1
+retention,mist,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,crop_resize0.1
+retention,mist,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,crop_resize0.1
+retention,mist,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,crop_resize0.1
+retention,mist,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,crop_resize0.1
+retention,mist,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,crop_resize0.1
+retention,mist,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,crop_resize0.1
+retention,mist,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,crop_resize0.1
+retention,mist,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,crop_resize0.1
+retention,mist,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,crop_resize0.1
+retention,mist,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,crop_resize0.1
+retention,mist,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,crop_resize0.1
+retention,mist,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,crop_resize0.1
+retention,mist,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,crop_resize0.1
+retention,mist,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,crop_resize0.1
+retention,mist,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,crop_resize0.1
+retention,mist,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,crop_resize0.1
+retention,mist,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,crop_resize0.1
+retention,mist,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,crop_resize0.1
+retention,mist,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,crop_resize0.1
+retention,mist,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,crop_resize0.1
+retention,mist,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,crop_resize0.1
+retention,mist,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,crop_resize0.1
+retention,mist,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,crop_resize0.1
+retention,mist,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,crop_resize0.1
+retention,mist,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,crop_resize0.1
+retention,mist,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,crop_resize0.1
+retention,mist,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,crop_resize0.1
+retention,mist,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,crop_resize0.1
+retention,mist,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,crop_resize0.1
+retention,mist,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,crop_resize0.1
+retention,mist,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,crop_resize0.1
+retention,mist,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,crop_resize0.1
+retention,mist,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,crop_resize0.1
+retention,mist,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,crop_resize0.1
+retention,mist,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,crop_resize0.1
+retention,mist,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,jpeg30
+retention,mist,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,jpeg30
+retention,mist,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,jpeg30
+retention,mist,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,jpeg30
+retention,mist,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,jpeg30
+retention,mist,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,jpeg30
+retention,mist,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,jpeg30
+retention,mist,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,jpeg30
+retention,mist,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,jpeg30
+retention,mist,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,jpeg30
+retention,mist,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,jpeg30
+retention,mist,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,jpeg30
+retention,mist,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,jpeg30
+retention,mist,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,jpeg30
+retention,mist,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,jpeg30
+retention,mist,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,jpeg30
+retention,mist,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,jpeg30
+retention,mist,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,jpeg30
+retention,mist,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,jpeg30
+retention,mist,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,jpeg30
+retention,mist,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,jpeg30
+retention,mist,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,jpeg30
+retention,mist,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,jpeg30
+retention,mist,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,jpeg30
+retention,mist,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,jpeg30
+retention,mist,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,jpeg30
+retention,mist,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,jpeg30
+retention,mist,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,jpeg30
+retention,mist,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,jpeg30
+retention,mist,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,jpeg30
+retention,mist,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,jpeg30
+retention,mist,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,jpeg30
+retention,mist,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,jpeg30
+retention,mist,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,jpeg30
+retention,mist,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,jpeg30
+retention,mist,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,jpeg30
+retention,mist,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,jpeg30
+retention,mist,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,jpeg30
+retention,mist,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,jpeg30
+retention,mist,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,jpeg30
+retention,mist,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,jpeg30
+retention,mist,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,jpeg30
+retention,mist,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,jpeg30
+retention,mist,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,jpeg30
+retention,mist,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,jpeg30
+retention,mist,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,jpeg30
+retention,mist,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,jpeg30
+retention,mist,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,jpeg30
+retention,mist,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,jpeg30
+retention,mist,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,jpeg30
+retention,mist,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,jpeg30
+retention,mist,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,jpeg30
+retention,mist,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,jpeg30
+retention,mist,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,jpeg30
+retention,mist,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,jpeg30
+retention,mist,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,jpeg30
+retention,mist,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,jpeg30
+retention,mist,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,jpeg30
+retention,mist,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,jpeg30
+retention,mist,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,jpeg30
+retention,mist,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,jpeg30
+retention,mist,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,jpeg30
+retention,mist,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,jpeg30
+retention,mist,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,jpeg30
+retention,mist,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,jpeg50
+retention,mist,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,jpeg50
+retention,mist,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,jpeg50
+retention,mist,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,jpeg50
+retention,mist,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,jpeg50
+retention,mist,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,jpeg50
+retention,mist,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,jpeg50
+retention,mist,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,jpeg50
+retention,mist,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,jpeg50
+retention,mist,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,jpeg50
+retention,mist,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,jpeg50
+retention,mist,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,jpeg50
+retention,mist,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,jpeg50
+retention,mist,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,jpeg50
+retention,mist,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,jpeg50
+retention,mist,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,jpeg50
+retention,mist,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,jpeg50
+retention,mist,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,jpeg50
+retention,mist,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,jpeg50
+retention,mist,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,jpeg50
+retention,mist,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,jpeg50
+retention,mist,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,jpeg50
+retention,mist,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,jpeg50
+retention,mist,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,jpeg50
+retention,mist,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,jpeg50
+retention,mist,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,jpeg50
+retention,mist,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,jpeg50
+retention,mist,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,jpeg50
+retention,mist,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,jpeg50
+retention,mist,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,jpeg50
+retention,mist,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,jpeg50
+retention,mist,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,jpeg50
+retention,mist,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,jpeg50
+retention,mist,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,jpeg50
+retention,mist,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,jpeg50
+retention,mist,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,jpeg50
+retention,mist,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,jpeg50
+retention,mist,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,jpeg50
+retention,mist,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,jpeg50
+retention,mist,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,jpeg50
+retention,mist,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,jpeg50
+retention,mist,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,jpeg50
+retention,mist,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,jpeg50
+retention,mist,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,jpeg50
+retention,mist,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,jpeg50
+retention,mist,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,jpeg50
+retention,mist,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,jpeg50
+retention,mist,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,jpeg50
+retention,mist,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,jpeg50
+retention,mist,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,jpeg50
+retention,mist,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,jpeg50
+retention,mist,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,jpeg50
+retention,mist,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,jpeg50
+retention,mist,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,jpeg50
+retention,mist,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,jpeg50
+retention,mist,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,jpeg50
+retention,mist,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,jpeg50
+retention,mist,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,jpeg50
+retention,mist,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,jpeg50
+retention,mist,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,jpeg50
+retention,mist,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,jpeg50
+retention,mist,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,jpeg50
+retention,mist,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,jpeg50
+retention,mist,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,jpeg50
+retention,mist,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,jpeg80
+retention,mist,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,jpeg80
+retention,mist,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,jpeg80
+retention,mist,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,jpeg80
+retention,mist,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,jpeg80
+retention,mist,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,jpeg80
+retention,mist,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,jpeg80
+retention,mist,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,jpeg80
+retention,mist,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,jpeg80
+retention,mist,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,jpeg80
+retention,mist,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,jpeg80
+retention,mist,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,jpeg80
+retention,mist,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,jpeg80
+retention,mist,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,jpeg80
+retention,mist,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,jpeg80
+retention,mist,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,jpeg80
+retention,mist,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,jpeg80
+retention,mist,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,jpeg80
+retention,mist,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,jpeg80
+retention,mist,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,jpeg80
+retention,mist,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,jpeg80
+retention,mist,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,jpeg80
+retention,mist,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,jpeg80
+retention,mist,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,jpeg80
+retention,mist,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,jpeg80
+retention,mist,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,jpeg80
+retention,mist,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,jpeg80
+retention,mist,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,jpeg80
+retention,mist,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,jpeg80
+retention,mist,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,jpeg80
+retention,mist,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,jpeg80
+retention,mist,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,jpeg80
+retention,mist,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,jpeg80
+retention,mist,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,jpeg80
+retention,mist,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,jpeg80
+retention,mist,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,jpeg80
+retention,mist,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,jpeg80
+retention,mist,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,jpeg80
+retention,mist,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,jpeg80
+retention,mist,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,jpeg80
+retention,mist,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,jpeg80
+retention,mist,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,jpeg80
+retention,mist,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,jpeg80
+retention,mist,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,jpeg80
+retention,mist,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,jpeg80
+retention,mist,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,jpeg80
+retention,mist,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,jpeg80
+retention,mist,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,jpeg80
+retention,mist,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,jpeg80
+retention,mist,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,jpeg80
+retention,mist,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,jpeg80
+retention,mist,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,jpeg80
+retention,mist,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,jpeg80
+retention,mist,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,jpeg80
+retention,mist,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,jpeg80
+retention,mist,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,jpeg80
+retention,mist,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,jpeg80
+retention,mist,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,jpeg80
+retention,mist,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,jpeg80
+retention,mist,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,jpeg80
+retention,mist,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,jpeg80
+retention,mist,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,jpeg80
+retention,mist,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,jpeg80
+retention,mist,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,jpeg80
+retention,mist,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,rotate15
+retention,mist,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,rotate15
+retention,mist,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,rotate15
+retention,mist,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,rotate15
+retention,mist,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,rotate15
+retention,mist,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,rotate15
+retention,mist,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,rotate15
+retention,mist,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,rotate15
+retention,mist,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,rotate15
+retention,mist,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,rotate15
+retention,mist,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,rotate15
+retention,mist,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,rotate15
+retention,mist,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,rotate15
+retention,mist,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,rotate15
+retention,mist,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,rotate15
+retention,mist,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,rotate15
+retention,mist,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,rotate15
+retention,mist,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,rotate15
+retention,mist,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,rotate15
+retention,mist,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,rotate15
+retention,mist,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,rotate15
+retention,mist,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,rotate15
+retention,mist,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,rotate15
+retention,mist,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,rotate15
+retention,mist,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,rotate15
+retention,mist,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,rotate15
+retention,mist,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,rotate15
+retention,mist,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,rotate15
+retention,mist,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,rotate15
+retention,mist,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,rotate15
+retention,mist,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,rotate15
+retention,mist,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,rotate15
+retention,mist,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,rotate15
+retention,mist,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,rotate15
+retention,mist,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,rotate15
+retention,mist,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,rotate15
+retention,mist,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,rotate15
+retention,mist,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,rotate15
+retention,mist,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,rotate15
+retention,mist,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,rotate15
+retention,mist,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,rotate15
+retention,mist,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,rotate15
+retention,mist,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,rotate15
+retention,mist,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,rotate15
+retention,mist,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,rotate15
+retention,mist,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,rotate15
+retention,mist,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,rotate15
+retention,mist,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,rotate15
+retention,mist,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,rotate15
+retention,mist,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,rotate15
+retention,mist,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,rotate15
+retention,mist,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,rotate15
+retention,mist,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,rotate15
+retention,mist,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,rotate15
+retention,mist,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,rotate15
+retention,mist,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,rotate15
+retention,mist,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,rotate15
+retention,mist,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,rotate15
+retention,mist,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,rotate15
+retention,mist,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,rotate15
+retention,mist,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,rotate15
+retention,mist,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,rotate15
+retention,mist,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,rotate15
+retention,mist,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,rotate15

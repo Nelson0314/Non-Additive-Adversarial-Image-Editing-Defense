@@ -4,10 +4,9 @@
 
 ## 現況
 
-- 研究主線 **color3d**：33³ RGB 3D 查找表（`Lut3d`）的全域逐像素顏色映射，目標為 ip2p VAE 編碼器潛向量距離（單次前向，訓練不用編輯指令、不做淨化抽樣），PHR augmented Lagrangian 求解、只交付量化後全部可行的檢查點；約束為防禦圖 LPIPS 區間 0.27–0.30、逐像素色度位移 ≤ 8、斜率 3、相鄰顏色增益與其尾端、色調單調、膚色色相與彩度比。在 trial `trials/lut3d_defense_and_naturalness/`（不入版控）；方法、結果、消融與已退役路線見該目錄 `README.md`，現況、待辦與規範見 `HANDOVER.md`。
-- color3d 8 張（ip2p、4 句、32 筆編輯）：防禦圖 LPIPS 0.287；編輯結果 LPIPS 淨化前 0.341、七道淨化平均 0.302、逐格保留率 0.892、VAE-Trans 淨化後 0.185。同協定 baseline 等失真臂（防禦圖 LPIPS 0.308–0.343）：淨化前 0.24–0.39、七道 0.12–0.24、VAE-Trans 0.02–0.07。前一版（防禦圖 LPIPS 0.207）改名 `color3d_chroma4_slope2`，作消融。
+- 研究主線 **color3d**：33³ RGB 3D 查找表（`Lut3d`）的全域逐像素顏色映射，目標為 ip2p VAE 編碼器潛向量距離（單次前向，訓練不用編輯指令、不做淨化抽樣），PHR augmented Lagrangian 求解、只交付量化後全部可行的檢查點；約束為防禦圖 LPIPS 區間、逐像素色度位移上限、斜率、相鄰顏色增益與其尾端、色調單調、膚色色相與彩度比。在 trial `trials/lut3d_defense_and_naturalness/`（不入版控）；方法、結果、消融與已退役路線見該目錄 `README.md`，現況、待辦與規範見 `HANDOVER.md`。
+- 兩個操作點（8 張、ip2p、4 句、32 筆編輯）：`color3d` 防禦圖 LPIPS 0.287，編輯結果 LPIPS 淨化前 0.341、七道淨化平均 0.302、VAE-Trans 淨化後 0.185；`color3d_0d4` 防禦圖 LPIPS 0.409，淨化前 0.459、七道 0.408、VAE-Trans 後 0.288。同協定 baseline 等失真臂（防禦圖 LPIPS 0.300–0.374）：淨化前 0.29–0.40、七道 0.13–0.24、VAE-Trans 0.02–0.07。消融與對照條件的產物已刪除，數字保留在 trial `README.md`。
 - 淨化協定：七道（jpeg80／50／30、blur1／2、crop_resize0.1、rotate15）與 VAE-Trans（arXiv 2603.13028，另列一欄）；色彩正規化類淨化不做。讀數與 baseline 的共同協定（失真、美學、位移、語意、人臉）記於專案記憶 `metric-protocol-color-baseline`；穿透拆解已移出本專案。
-- trial `trials/edit_failure_mechanisms/` 保存 `lut3d_mild`（預算 0.2）的解與讀數。
 - 前身方法 `color`（CIELAB (a,b) 全域換色表）與其三個 simple 條件、隱含分類器目標（selfrec）已退役，程式與產物已刪除，數據保留在 `docs/DESIGN.md` §4–§7。`method.py` 的 `ColorMap` 與支撐函式仍由 trial 引用。
 - 研究方向由使用者決定。遠端是否有工作在跑：以遠端 `~/gpu_leases/` 的租約、各 trial 的 `runtime/` 與 `logs/` 為準。
 - 未防禦編輯（`artifacts/undefended_edits/ip2p_si18`）與淨化後的未防禦分母（`artifacts/purified_edits/undefended/`）為 baseline 同名產物的複本，放在本專案的 `artifacts/`，不連結到 baseline。

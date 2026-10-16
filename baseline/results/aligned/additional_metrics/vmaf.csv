@@ -55,14 +55,6 @@ fidelity,photoguard_c,woman_00,96.72339,cpu,,,,
 fidelity,photoguard_c,woman_01,96.75038,cpu,,,,
 fidelity,photoguard_c,woman_02,96.73521,cpu,,,,
 fidelity,photoguard_c,woman_03,96.92637,cpu,,,,
-fidelity,photoguard_linf,man_00,96.75531,cpu,,,,
-fidelity,photoguard_linf,man_01,96.54638,cpu,,,,
-fidelity,photoguard_linf,man_02,96.66455,cpu,,,,
-fidelity,photoguard_linf,man_03,96.67535,cpu,,,,
-fidelity,photoguard_linf,woman_00,96.75351,cpu,,,,
-fidelity,photoguard_linf,woman_01,96.62322,cpu,,,,
-fidelity,photoguard_linf,woman_02,96.72804,cpu,,,,
-fidelity,photoguard_linf,woman_03,96.89642,cpu,,,,
 fidelity,sifm,man_00,95.88139,cpu,,,,
 fidelity,sifm,man_01,95.34525,cpu,,,,
 fidelity,sifm,man_02,95.41245,cpu,,,,
@@ -519,70 +511,6 @@ displacement,photoguard_c,woman_03,22.44562,cpu,,inpaint,0,
 displacement,photoguard_c,woman_03,56.25526,cpu,,inpaint,1,
 displacement,photoguard_c,woman_03,17.75057,cpu,,inpaint,2,
 displacement,photoguard_c,woman_03,40.88235,cpu,,inpaint,3,
-displacement,photoguard_linf,man_00,50.62608,cpu,,ip2p,0,
-displacement,photoguard_linf,man_00,24.72315,cpu,,ip2p,1,
-displacement,photoguard_linf,man_00,32.78629,cpu,,ip2p,2,
-displacement,photoguard_linf,man_00,36.2755,cpu,,ip2p,3,
-displacement,photoguard_linf,man_01,57.4136,cpu,,ip2p,0,
-displacement,photoguard_linf,man_01,25.19729,cpu,,ip2p,1,
-displacement,photoguard_linf,man_01,26.34721,cpu,,ip2p,2,
-displacement,photoguard_linf,man_01,17.76649,cpu,,ip2p,3,
-displacement,photoguard_linf,man_02,66.15585,cpu,,ip2p,0,
-displacement,photoguard_linf,man_02,15.80614,cpu,,ip2p,1,
-displacement,photoguard_linf,man_02,46.91294,cpu,,ip2p,2,
-displacement,photoguard_linf,man_02,29.50371,cpu,,ip2p,3,
-displacement,photoguard_linf,man_03,64.42639,cpu,,ip2p,0,
-displacement,photoguard_linf,man_03,6.72096,cpu,,ip2p,1,
-displacement,photoguard_linf,man_03,29.77316,cpu,,ip2p,2,
-displacement,photoguard_linf,man_03,30.06305,cpu,,ip2p,3,
-displacement,photoguard_linf,woman_00,74.60774,cpu,,ip2p,0,
-displacement,photoguard_linf,woman_00,27.04624,cpu,,ip2p,1,
-displacement,photoguard_linf,woman_00,10.93222,cpu,,ip2p,2,
-displacement,photoguard_linf,woman_00,18.30349,cpu,,ip2p,3,
-displacement,photoguard_linf,woman_01,41.67907,cpu,,ip2p,0,
-displacement,photoguard_linf,woman_01,9.71818,cpu,,ip2p,1,
-displacement,photoguard_linf,woman_01,39.53379,cpu,,ip2p,2,
-displacement,photoguard_linf,woman_01,0.0,cpu,,ip2p,3,
-displacement,photoguard_linf,woman_02,45.56478,cpu,,ip2p,0,
-displacement,photoguard_linf,woman_02,8.70845,cpu,,ip2p,1,
-displacement,photoguard_linf,woman_02,24.31384,cpu,,ip2p,2,
-displacement,photoguard_linf,woman_02,31.10817,cpu,,ip2p,3,
-displacement,photoguard_linf,woman_03,72.56793,cpu,,ip2p,0,
-displacement,photoguard_linf,woman_03,28.91911,cpu,,ip2p,1,
-displacement,photoguard_linf,woman_03,50.66622,cpu,,ip2p,2,
-displacement,photoguard_linf,woman_03,46.54303,cpu,,ip2p,3,
-displacement,photoguard_linf,man_00,66.30116,cpu,,inpaint,0,
-displacement,photoguard_linf,man_00,37.60168,cpu,,inpaint,1,
-displacement,photoguard_linf,man_00,40.18053,cpu,,inpaint,2,
-displacement,photoguard_linf,man_00,51.6921,cpu,,inpaint,3,
-displacement,photoguard_linf,man_01,57.88868,cpu,,inpaint,0,
-displacement,photoguard_linf,man_01,10.53948,cpu,,inpaint,1,
-displacement,photoguard_linf,man_01,64.87288,cpu,,inpaint,2,
-displacement,photoguard_linf,man_01,19.71861,cpu,,inpaint,3,
-displacement,photoguard_linf,man_02,67.02665,cpu,,inpaint,0,
-displacement,photoguard_linf,man_02,43.73816,cpu,,inpaint,1,
-displacement,photoguard_linf,man_02,76.73706,cpu,,inpaint,2,
-displacement,photoguard_linf,man_02,79.20928,cpu,,inpaint,3,
-displacement,photoguard_linf,man_03,30.63086,cpu,,inpaint,0,
-displacement,photoguard_linf,man_03,28.62632,cpu,,inpaint,1,
-displacement,photoguard_linf,man_03,60.25368,cpu,,inpaint,2,
-displacement,photoguard_linf,man_03,50.23752,cpu,,inpaint,3,
-displacement,photoguard_linf,woman_00,57.5976,cpu,,inpaint,0,
-displacement,photoguard_linf,woman_00,49.93987,cpu,,inpaint,1,
-displacement,photoguard_linf,woman_00,39.77392,cpu,,inpaint,2,
-displacement,photoguard_linf,woman_00,23.79864,cpu,,inpaint,3,
-displacement,photoguard_linf,woman_01,62.60063,cpu,,inpaint,0,
-displacement,photoguard_linf,woman_01,56.94321,cpu,,inpaint,1,
-displacement,photoguard_linf,woman_01,52.58387,cpu,,inpaint,2,
-displacement,photoguard_linf,woman_01,41.06836,cpu,,inpaint,3,
-displacement,photoguard_linf,woman_02,43.79842,cpu,,inpaint,0,
-displacement,photoguard_linf,woman_02,38.95226,cpu,,inpaint,1,
-displacement,photoguard_linf,woman_02,11.11291,cpu,,inpaint,2,
-displacement,photoguard_linf,woman_02,39.30198,cpu,,inpaint,3,
-displacement,photoguard_linf,woman_03,23.27621,cpu,,inpaint,0,
-displacement,photoguard_linf,woman_03,60.80328,cpu,,inpaint,1,
-displacement,photoguard_linf,woman_03,19.46098,cpu,,inpaint,2,
-displacement,photoguard_linf,woman_03,49.15982,cpu,,inpaint,3,
 displacement,sifm,man_00,65.78476,cpu,,ip2p,0,
 displacement,sifm,man_00,0.0,cpu,,ip2p,1,
 displacement,sifm,man_00,26.64048,cpu,,ip2p,2,
@@ -3783,454 +3711,6 @@ retention,photoguard_c,woman_03,83.68222,cpu,,ip2p,0,rotate15
 retention,photoguard_c,woman_03,71.2247,cpu,,ip2p,1,rotate15
 retention,photoguard_c,woman_03,81.83694,cpu,,ip2p,2,rotate15
 retention,photoguard_c,woman_03,53.9777,cpu,,ip2p,3,rotate15
-retention,photoguard_linf,man_00,65.24387,cpu,,inpaint,0,blur1
-retention,photoguard_linf,man_00,48.89997,cpu,,inpaint,1,blur1
-retention,photoguard_linf,man_00,64.15241,cpu,,inpaint,2,blur1
-retention,photoguard_linf,man_00,66.52563,cpu,,inpaint,3,blur1
-retention,photoguard_linf,man_01,84.23436,cpu,,inpaint,0,blur1
-retention,photoguard_linf,man_01,85.35207,cpu,,inpaint,1,blur1
-retention,photoguard_linf,man_01,85.58749,cpu,,inpaint,2,blur1
-retention,photoguard_linf,man_01,81.14307,cpu,,inpaint,3,blur1
-retention,photoguard_linf,man_02,92.25526,cpu,,inpaint,0,blur1
-retention,photoguard_linf,man_02,80.16898,cpu,,inpaint,1,blur1
-retention,photoguard_linf,man_02,91.44027,cpu,,inpaint,2,blur1
-retention,photoguard_linf,man_02,95.5914,cpu,,inpaint,3,blur1
-retention,photoguard_linf,man_03,87.99254,cpu,,inpaint,0,blur1
-retention,photoguard_linf,man_03,84.42806,cpu,,inpaint,1,blur1
-retention,photoguard_linf,man_03,69.44669,cpu,,inpaint,2,blur1
-retention,photoguard_linf,man_03,73.60744,cpu,,inpaint,3,blur1
-retention,photoguard_linf,woman_00,69.91006,cpu,,inpaint,0,blur1
-retention,photoguard_linf,woman_00,74.182,cpu,,inpaint,1,blur1
-retention,photoguard_linf,woman_00,52.55012,cpu,,inpaint,2,blur1
-retention,photoguard_linf,woman_00,93.21759,cpu,,inpaint,3,blur1
-retention,photoguard_linf,woman_01,82.33255,cpu,,inpaint,0,blur1
-retention,photoguard_linf,woman_01,65.69797,cpu,,inpaint,1,blur1
-retention,photoguard_linf,woman_01,81.94552,cpu,,inpaint,2,blur1
-retention,photoguard_linf,woman_01,87.951,cpu,,inpaint,3,blur1
-retention,photoguard_linf,woman_02,76.44753,cpu,,inpaint,0,blur1
-retention,photoguard_linf,woman_02,74.81042,cpu,,inpaint,1,blur1
-retention,photoguard_linf,woman_02,55.77715,cpu,,inpaint,2,blur1
-retention,photoguard_linf,woman_02,83.80574,cpu,,inpaint,3,blur1
-retention,photoguard_linf,woman_03,71.91305,cpu,,inpaint,0,blur1
-retention,photoguard_linf,woman_03,76.93128,cpu,,inpaint,1,blur1
-retention,photoguard_linf,woman_03,79.00996,cpu,,inpaint,2,blur1
-retention,photoguard_linf,woman_03,55.73523,cpu,,inpaint,3,blur1
-retention,photoguard_linf,man_00,87.28013,cpu,,ip2p,0,blur1
-retention,photoguard_linf,man_00,66.45125,cpu,,ip2p,1,blur1
-retention,photoguard_linf,man_00,88.77925,cpu,,ip2p,2,blur1
-retention,photoguard_linf,man_00,77.10328,cpu,,ip2p,3,blur1
-retention,photoguard_linf,man_01,89.4048,cpu,,ip2p,0,blur1
-retention,photoguard_linf,man_01,68.88111,cpu,,ip2p,1,blur1
-retention,photoguard_linf,man_01,92.02356,cpu,,ip2p,2,blur1
-retention,photoguard_linf,man_01,69.87585,cpu,,ip2p,3,blur1
-retention,photoguard_linf,man_02,91.51718,cpu,,ip2p,0,blur1
-retention,photoguard_linf,man_02,56.55353,cpu,,ip2p,1,blur1
-retention,photoguard_linf,man_02,87.35403,cpu,,ip2p,2,blur1
-retention,photoguard_linf,man_02,86.06366,cpu,,ip2p,3,blur1
-retention,photoguard_linf,man_03,94.52461,cpu,,ip2p,0,blur1
-retention,photoguard_linf,man_03,56.57131,cpu,,ip2p,1,blur1
-retention,photoguard_linf,man_03,91.63325,cpu,,ip2p,2,blur1
-retention,photoguard_linf,man_03,54.35258,cpu,,ip2p,3,blur1
-retention,photoguard_linf,woman_00,94.35192,cpu,,ip2p,0,blur1
-retention,photoguard_linf,woman_00,85.97181,cpu,,ip2p,1,blur1
-retention,photoguard_linf,woman_00,44.2139,cpu,,ip2p,2,blur1
-retention,photoguard_linf,woman_00,73.40292,cpu,,ip2p,3,blur1
-retention,photoguard_linf,woman_01,86.57581,cpu,,ip2p,0,blur1
-retention,photoguard_linf,woman_01,62.03628,cpu,,ip2p,1,blur1
-retention,photoguard_linf,woman_01,89.76753,cpu,,ip2p,2,blur1
-retention,photoguard_linf,woman_01,40.81958,cpu,,ip2p,3,blur1
-retention,photoguard_linf,woman_02,86.14718,cpu,,ip2p,0,blur1
-retention,photoguard_linf,woman_02,69.29028,cpu,,ip2p,1,blur1
-retention,photoguard_linf,woman_02,87.73274,cpu,,ip2p,2,blur1
-retention,photoguard_linf,woman_02,84.09049,cpu,,ip2p,3,blur1
-retention,photoguard_linf,woman_03,93.00072,cpu,,ip2p,0,blur1
-retention,photoguard_linf,woman_03,82.73476,cpu,,ip2p,1,blur1
-retention,photoguard_linf,woman_03,82.19032,cpu,,ip2p,2,blur1
-retention,photoguard_linf,woman_03,83.93709,cpu,,ip2p,3,blur1
-retention,photoguard_linf,man_00,92.52114,cpu,,inpaint,0,blur2
-retention,photoguard_linf,man_00,90.76934,cpu,,inpaint,1,blur2
-retention,photoguard_linf,man_00,92.28604,cpu,,inpaint,2,blur2
-retention,photoguard_linf,man_00,91.33153,cpu,,inpaint,3,blur2
-retention,photoguard_linf,man_01,65.41894,cpu,,inpaint,0,blur2
-retention,photoguard_linf,man_01,87.92703,cpu,,inpaint,1,blur2
-retention,photoguard_linf,man_01,86.33538,cpu,,inpaint,2,blur2
-retention,photoguard_linf,man_01,37.84345,cpu,,inpaint,3,blur2
-retention,photoguard_linf,man_02,83.85556,cpu,,inpaint,0,blur2
-retention,photoguard_linf,man_02,95.7236,cpu,,inpaint,1,blur2
-retention,photoguard_linf,man_02,94.54931,cpu,,inpaint,2,blur2
-retention,photoguard_linf,man_02,92.38455,cpu,,inpaint,3,blur2
-retention,photoguard_linf,man_03,79.14616,cpu,,inpaint,0,blur2
-retention,photoguard_linf,man_03,81.78526,cpu,,inpaint,1,blur2
-retention,photoguard_linf,man_03,96.4459,cpu,,inpaint,2,blur2
-retention,photoguard_linf,man_03,64.75436,cpu,,inpaint,3,blur2
-retention,photoguard_linf,woman_00,87.24589,cpu,,inpaint,0,blur2
-retention,photoguard_linf,woman_00,43.81873,cpu,,inpaint,1,blur2
-retention,photoguard_linf,woman_00,65.781,cpu,,inpaint,2,blur2
-retention,photoguard_linf,woman_00,93.95885,cpu,,inpaint,3,blur2
-retention,photoguard_linf,woman_01,96.49972,cpu,,inpaint,0,blur2
-retention,photoguard_linf,woman_01,93.5594,cpu,,inpaint,1,blur2
-retention,photoguard_linf,woman_01,93.57879,cpu,,inpaint,2,blur2
-retention,photoguard_linf,woman_01,65.19111,cpu,,inpaint,3,blur2
-retention,photoguard_linf,woman_02,91.62444,cpu,,inpaint,0,blur2
-retention,photoguard_linf,woman_02,45.57827,cpu,,inpaint,1,blur2
-retention,photoguard_linf,woman_02,73.299,cpu,,inpaint,2,blur2
-retention,photoguard_linf,woman_02,73.00177,cpu,,inpaint,3,blur2
-retention,photoguard_linf,woman_03,79.23834,cpu,,inpaint,0,blur2
-retention,photoguard_linf,woman_03,89.71435,cpu,,inpaint,1,blur2
-retention,photoguard_linf,woman_03,85.57699,cpu,,inpaint,2,blur2
-retention,photoguard_linf,woman_03,56.52587,cpu,,inpaint,3,blur2
-retention,photoguard_linf,man_00,91.21664,cpu,,ip2p,0,blur2
-retention,photoguard_linf,man_00,71.63855,cpu,,ip2p,1,blur2
-retention,photoguard_linf,man_00,90.96306,cpu,,ip2p,2,blur2
-retention,photoguard_linf,man_00,84.04216,cpu,,ip2p,3,blur2
-retention,photoguard_linf,man_01,95.76117,cpu,,ip2p,0,blur2
-retention,photoguard_linf,man_01,84.20194,cpu,,ip2p,1,blur2
-retention,photoguard_linf,man_01,94.1204,cpu,,ip2p,2,blur2
-retention,photoguard_linf,man_01,92.1026,cpu,,ip2p,3,blur2
-retention,photoguard_linf,man_02,96.03181,cpu,,ip2p,0,blur2
-retention,photoguard_linf,man_02,87.33371,cpu,,ip2p,1,blur2
-retention,photoguard_linf,man_02,95.69935,cpu,,ip2p,2,blur2
-retention,photoguard_linf,man_02,92.19213,cpu,,ip2p,3,blur2
-retention,photoguard_linf,man_03,98.36099,cpu,,ip2p,0,blur2
-retention,photoguard_linf,man_03,66.75464,cpu,,ip2p,1,blur2
-retention,photoguard_linf,man_03,93.40454,cpu,,ip2p,2,blur2
-retention,photoguard_linf,man_03,59.51659,cpu,,ip2p,3,blur2
-retention,photoguard_linf,woman_00,98.37028,cpu,,ip2p,0,blur2
-retention,photoguard_linf,woman_00,78.87175,cpu,,ip2p,1,blur2
-retention,photoguard_linf,woman_00,65.20035,cpu,,ip2p,2,blur2
-retention,photoguard_linf,woman_00,85.33118,cpu,,ip2p,3,blur2
-retention,photoguard_linf,woman_01,91.32334,cpu,,ip2p,0,blur2
-retention,photoguard_linf,woman_01,53.729,cpu,,ip2p,1,blur2
-retention,photoguard_linf,woman_01,95.99929,cpu,,ip2p,2,blur2
-retention,photoguard_linf,woman_01,67.51327,cpu,,ip2p,3,blur2
-retention,photoguard_linf,woman_02,94.78032,cpu,,ip2p,0,blur2
-retention,photoguard_linf,woman_02,67.58394,cpu,,ip2p,1,blur2
-retention,photoguard_linf,woman_02,91.77275,cpu,,ip2p,2,blur2
-retention,photoguard_linf,woman_02,28.45859,cpu,,ip2p,3,blur2
-retention,photoguard_linf,woman_03,95.69146,cpu,,ip2p,0,blur2
-retention,photoguard_linf,woman_03,77.85964,cpu,,ip2p,1,blur2
-retention,photoguard_linf,woman_03,71.33641,cpu,,ip2p,2,blur2
-retention,photoguard_linf,woman_03,94.12375,cpu,,ip2p,3,blur2
-retention,photoguard_linf,man_00,54.54775,cpu,,inpaint,0,crop_resize0.1
-retention,photoguard_linf,man_00,40.41613,cpu,,inpaint,1,crop_resize0.1
-retention,photoguard_linf,man_00,54.75868,cpu,,inpaint,2,crop_resize0.1
-retention,photoguard_linf,man_00,53.12561,cpu,,inpaint,3,crop_resize0.1
-retention,photoguard_linf,man_01,56.93171,cpu,,inpaint,0,crop_resize0.1
-retention,photoguard_linf,man_01,57.8393,cpu,,inpaint,1,crop_resize0.1
-retention,photoguard_linf,man_01,47.39322,cpu,,inpaint,2,crop_resize0.1
-retention,photoguard_linf,man_01,61.05602,cpu,,inpaint,3,crop_resize0.1
-retention,photoguard_linf,man_02,63.98735,cpu,,inpaint,0,crop_resize0.1
-retention,photoguard_linf,man_02,30.14768,cpu,,inpaint,1,crop_resize0.1
-retention,photoguard_linf,man_02,80.53068,cpu,,inpaint,2,crop_resize0.1
-retention,photoguard_linf,man_02,72.90919,cpu,,inpaint,3,crop_resize0.1
-retention,photoguard_linf,man_03,65.66703,cpu,,inpaint,0,crop_resize0.1
-retention,photoguard_linf,man_03,34.79603,cpu,,inpaint,1,crop_resize0.1
-retention,photoguard_linf,man_03,63.69772,cpu,,inpaint,2,crop_resize0.1
-retention,photoguard_linf,man_03,80.192,cpu,,inpaint,3,crop_resize0.1
-retention,photoguard_linf,woman_00,64.48062,cpu,,inpaint,0,crop_resize0.1
-retention,photoguard_linf,woman_00,48.68403,cpu,,inpaint,1,crop_resize0.1
-retention,photoguard_linf,woman_00,56.65056,cpu,,inpaint,2,crop_resize0.1
-retention,photoguard_linf,woman_00,30.36494,cpu,,inpaint,3,crop_resize0.1
-retention,photoguard_linf,woman_01,47.16946,cpu,,inpaint,0,crop_resize0.1
-retention,photoguard_linf,woman_01,58.91582,cpu,,inpaint,1,crop_resize0.1
-retention,photoguard_linf,woman_01,48.13062,cpu,,inpaint,2,crop_resize0.1
-retention,photoguard_linf,woman_01,57.61274,cpu,,inpaint,3,crop_resize0.1
-retention,photoguard_linf,woman_02,64.62624,cpu,,inpaint,0,crop_resize0.1
-retention,photoguard_linf,woman_02,64.53254,cpu,,inpaint,1,crop_resize0.1
-retention,photoguard_linf,woman_02,26.63728,cpu,,inpaint,2,crop_resize0.1
-retention,photoguard_linf,woman_02,38.00419,cpu,,inpaint,3,crop_resize0.1
-retention,photoguard_linf,woman_03,37.68726,cpu,,inpaint,0,crop_resize0.1
-retention,photoguard_linf,woman_03,31.1463,cpu,,inpaint,1,crop_resize0.1
-retention,photoguard_linf,woman_03,27.95518,cpu,,inpaint,2,crop_resize0.1
-retention,photoguard_linf,woman_03,35.08114,cpu,,inpaint,3,crop_resize0.1
-retention,photoguard_linf,man_00,59.37325,cpu,,ip2p,0,crop_resize0.1
-retention,photoguard_linf,man_00,21.55272,cpu,,ip2p,1,crop_resize0.1
-retention,photoguard_linf,man_00,45.98377,cpu,,ip2p,2,crop_resize0.1
-retention,photoguard_linf,man_00,56.66021,cpu,,ip2p,3,crop_resize0.1
-retention,photoguard_linf,man_01,61.94855,cpu,,ip2p,0,crop_resize0.1
-retention,photoguard_linf,man_01,37.17745,cpu,,ip2p,1,crop_resize0.1
-retention,photoguard_linf,man_01,38.24684,cpu,,ip2p,2,crop_resize0.1
-retention,photoguard_linf,man_01,40.37578,cpu,,ip2p,3,crop_resize0.1
-retention,photoguard_linf,man_02,77.94594,cpu,,ip2p,0,crop_resize0.1
-retention,photoguard_linf,man_02,28.90366,cpu,,ip2p,1,crop_resize0.1
-retention,photoguard_linf,man_02,74.2132,cpu,,ip2p,2,crop_resize0.1
-retention,photoguard_linf,man_02,47.90284,cpu,,ip2p,3,crop_resize0.1
-retention,photoguard_linf,man_03,83.00872,cpu,,ip2p,0,crop_resize0.1
-retention,photoguard_linf,man_03,36.90198,cpu,,ip2p,1,crop_resize0.1
-retention,photoguard_linf,man_03,68.47263,cpu,,ip2p,2,crop_resize0.1
-retention,photoguard_linf,man_03,28.96356,cpu,,ip2p,3,crop_resize0.1
-retention,photoguard_linf,woman_00,75.16604,cpu,,ip2p,0,crop_resize0.1
-retention,photoguard_linf,woman_00,34.51501,cpu,,ip2p,1,crop_resize0.1
-retention,photoguard_linf,woman_00,65.90766,cpu,,ip2p,2,crop_resize0.1
-retention,photoguard_linf,woman_00,69.04447,cpu,,ip2p,3,crop_resize0.1
-retention,photoguard_linf,woman_01,58.55993,cpu,,ip2p,0,crop_resize0.1
-retention,photoguard_linf,woman_01,33.37425,cpu,,ip2p,1,crop_resize0.1
-retention,photoguard_linf,woman_01,27.62434,cpu,,ip2p,2,crop_resize0.1
-retention,photoguard_linf,woman_01,16.54269,cpu,,ip2p,3,crop_resize0.1
-retention,photoguard_linf,woman_02,64.91569,cpu,,ip2p,0,crop_resize0.1
-retention,photoguard_linf,woman_02,31.73716,cpu,,ip2p,1,crop_resize0.1
-retention,photoguard_linf,woman_02,50.74034,cpu,,ip2p,2,crop_resize0.1
-retention,photoguard_linf,woman_02,56.69426,cpu,,ip2p,3,crop_resize0.1
-retention,photoguard_linf,woman_03,77.70884,cpu,,ip2p,0,crop_resize0.1
-retention,photoguard_linf,woman_03,38.17727,cpu,,ip2p,1,crop_resize0.1
-retention,photoguard_linf,woman_03,69.4398,cpu,,ip2p,2,crop_resize0.1
-retention,photoguard_linf,woman_03,66.65346,cpu,,ip2p,3,crop_resize0.1
-retention,photoguard_linf,man_00,87.45949,cpu,,inpaint,0,jpeg30
-retention,photoguard_linf,man_00,75.16891,cpu,,inpaint,1,jpeg30
-retention,photoguard_linf,man_00,55.80965,cpu,,inpaint,2,jpeg30
-retention,photoguard_linf,man_00,80.76032,cpu,,inpaint,3,jpeg30
-retention,photoguard_linf,man_01,71.7184,cpu,,inpaint,0,jpeg30
-retention,photoguard_linf,man_01,45.86819,cpu,,inpaint,1,jpeg30
-retention,photoguard_linf,man_01,74.61406,cpu,,inpaint,2,jpeg30
-retention,photoguard_linf,man_01,59.38226,cpu,,inpaint,3,jpeg30
-retention,photoguard_linf,man_02,62.07884,cpu,,inpaint,0,jpeg30
-retention,photoguard_linf,man_02,43.8769,cpu,,inpaint,1,jpeg30
-retention,photoguard_linf,man_02,94.67493,cpu,,inpaint,2,jpeg30
-retention,photoguard_linf,man_02,86.84118,cpu,,inpaint,3,jpeg30
-retention,photoguard_linf,man_03,52.14963,cpu,,inpaint,0,jpeg30
-retention,photoguard_linf,man_03,61.87714,cpu,,inpaint,1,jpeg30
-retention,photoguard_linf,man_03,74.24761,cpu,,inpaint,2,jpeg30
-retention,photoguard_linf,man_03,61.42915,cpu,,inpaint,3,jpeg30
-retention,photoguard_linf,woman_00,34.77583,cpu,,inpaint,0,jpeg30
-retention,photoguard_linf,woman_00,36.02592,cpu,,inpaint,1,jpeg30
-retention,photoguard_linf,woman_00,46.38576,cpu,,inpaint,2,jpeg30
-retention,photoguard_linf,woman_00,53.15118,cpu,,inpaint,3,jpeg30
-retention,photoguard_linf,woman_01,71.64034,cpu,,inpaint,0,jpeg30
-retention,photoguard_linf,woman_01,48.6688,cpu,,inpaint,1,jpeg30
-retention,photoguard_linf,woman_01,82.10329,cpu,,inpaint,2,jpeg30
-retention,photoguard_linf,woman_01,75.98927,cpu,,inpaint,3,jpeg30
-retention,photoguard_linf,woman_02,47.72271,cpu,,inpaint,0,jpeg30
-retention,photoguard_linf,woman_02,54.16153,cpu,,inpaint,1,jpeg30
-retention,photoguard_linf,woman_02,36.3397,cpu,,inpaint,2,jpeg30
-retention,photoguard_linf,woman_02,70.05468,cpu,,inpaint,3,jpeg30
-retention,photoguard_linf,woman_03,72.75541,cpu,,inpaint,0,jpeg30
-retention,photoguard_linf,woman_03,73.26002,cpu,,inpaint,1,jpeg30
-retention,photoguard_linf,woman_03,64.44086,cpu,,inpaint,2,jpeg30
-retention,photoguard_linf,woman_03,63.35156,cpu,,inpaint,3,jpeg30
-retention,photoguard_linf,man_00,84.55934,cpu,,ip2p,0,jpeg30
-retention,photoguard_linf,man_00,54.1331,cpu,,ip2p,1,jpeg30
-retention,photoguard_linf,man_00,81.00934,cpu,,ip2p,2,jpeg30
-retention,photoguard_linf,man_00,77.26717,cpu,,ip2p,3,jpeg30
-retention,photoguard_linf,man_01,83.0741,cpu,,ip2p,0,jpeg30
-retention,photoguard_linf,man_01,74.08224,cpu,,ip2p,1,jpeg30
-retention,photoguard_linf,man_01,84.72886,cpu,,ip2p,2,jpeg30
-retention,photoguard_linf,man_01,49.54683,cpu,,ip2p,3,jpeg30
-retention,photoguard_linf,man_02,86.15813,cpu,,ip2p,0,jpeg30
-retention,photoguard_linf,man_02,62.22048,cpu,,ip2p,1,jpeg30
-retention,photoguard_linf,man_02,86.62294,cpu,,ip2p,2,jpeg30
-retention,photoguard_linf,man_02,78.74957,cpu,,ip2p,3,jpeg30
-retention,photoguard_linf,man_03,88.94652,cpu,,ip2p,0,jpeg30
-retention,photoguard_linf,man_03,66.67013,cpu,,ip2p,1,jpeg30
-retention,photoguard_linf,man_03,82.9848,cpu,,ip2p,2,jpeg30
-retention,photoguard_linf,man_03,73.24377,cpu,,ip2p,3,jpeg30
-retention,photoguard_linf,woman_00,83.28855,cpu,,ip2p,0,jpeg30
-retention,photoguard_linf,woman_00,43.16978,cpu,,ip2p,1,jpeg30
-retention,photoguard_linf,woman_00,30.5181,cpu,,ip2p,2,jpeg30
-retention,photoguard_linf,woman_00,64.9944,cpu,,ip2p,3,jpeg30
-retention,photoguard_linf,woman_01,71.69077,cpu,,ip2p,0,jpeg30
-retention,photoguard_linf,woman_01,53.07139,cpu,,ip2p,1,jpeg30
-retention,photoguard_linf,woman_01,80.1937,cpu,,ip2p,2,jpeg30
-retention,photoguard_linf,woman_01,57.27269,cpu,,ip2p,3,jpeg30
-retention,photoguard_linf,woman_02,82.84074,cpu,,ip2p,0,jpeg30
-retention,photoguard_linf,woman_02,56.2979,cpu,,ip2p,1,jpeg30
-retention,photoguard_linf,woman_02,25.59497,cpu,,ip2p,2,jpeg30
-retention,photoguard_linf,woman_02,59.96658,cpu,,ip2p,3,jpeg30
-retention,photoguard_linf,woman_03,86.62728,cpu,,ip2p,0,jpeg30
-retention,photoguard_linf,woman_03,53.62739,cpu,,ip2p,1,jpeg30
-retention,photoguard_linf,woman_03,66.54869,cpu,,ip2p,2,jpeg30
-retention,photoguard_linf,woman_03,73.58213,cpu,,ip2p,3,jpeg30
-retention,photoguard_linf,man_00,76.67526,cpu,,inpaint,0,jpeg50
-retention,photoguard_linf,man_00,66.04212,cpu,,inpaint,1,jpeg50
-retention,photoguard_linf,man_00,68.66398,cpu,,inpaint,2,jpeg50
-retention,photoguard_linf,man_00,71.45242,cpu,,inpaint,3,jpeg50
-retention,photoguard_linf,man_01,76.44651,cpu,,inpaint,0,jpeg50
-retention,photoguard_linf,man_01,60.02898,cpu,,inpaint,1,jpeg50
-retention,photoguard_linf,man_01,81.91832,cpu,,inpaint,2,jpeg50
-retention,photoguard_linf,man_01,41.65882,cpu,,inpaint,3,jpeg50
-retention,photoguard_linf,man_02,78.61317,cpu,,inpaint,0,jpeg50
-retention,photoguard_linf,man_02,39.92019,cpu,,inpaint,1,jpeg50
-retention,photoguard_linf,man_02,91.2882,cpu,,inpaint,2,jpeg50
-retention,photoguard_linf,man_02,79.34994,cpu,,inpaint,3,jpeg50
-retention,photoguard_linf,man_03,56.34199,cpu,,inpaint,0,jpeg50
-retention,photoguard_linf,man_03,68.76685,cpu,,inpaint,1,jpeg50
-retention,photoguard_linf,man_03,55.08595,cpu,,inpaint,2,jpeg50
-retention,photoguard_linf,man_03,74.65825,cpu,,inpaint,3,jpeg50
-retention,photoguard_linf,woman_00,36.20135,cpu,,inpaint,0,jpeg50
-retention,photoguard_linf,woman_00,44.73542,cpu,,inpaint,1,jpeg50
-retention,photoguard_linf,woman_00,10.09691,cpu,,inpaint,2,jpeg50
-retention,photoguard_linf,woman_00,48.67815,cpu,,inpaint,3,jpeg50
-retention,photoguard_linf,woman_01,85.9601,cpu,,inpaint,0,jpeg50
-retention,photoguard_linf,woman_01,57.25691,cpu,,inpaint,1,jpeg50
-retention,photoguard_linf,woman_01,79.27261,cpu,,inpaint,2,jpeg50
-retention,photoguard_linf,woman_01,39.10936,cpu,,inpaint,3,jpeg50
-retention,photoguard_linf,woman_02,47.99004,cpu,,inpaint,0,jpeg50
-retention,photoguard_linf,woman_02,59.21652,cpu,,inpaint,1,jpeg50
-retention,photoguard_linf,woman_02,34.48157,cpu,,inpaint,2,jpeg50
-retention,photoguard_linf,woman_02,82.69741,cpu,,inpaint,3,jpeg50
-retention,photoguard_linf,woman_03,56.81769,cpu,,inpaint,0,jpeg50
-retention,photoguard_linf,woman_03,64.0422,cpu,,inpaint,1,jpeg50
-retention,photoguard_linf,woman_03,49.43651,cpu,,inpaint,2,jpeg50
-retention,photoguard_linf,woman_03,60.69162,cpu,,inpaint,3,jpeg50
-retention,photoguard_linf,man_00,84.02927,cpu,,ip2p,0,jpeg50
-retention,photoguard_linf,man_00,48.22716,cpu,,ip2p,1,jpeg50
-retention,photoguard_linf,man_00,73.52448,cpu,,ip2p,2,jpeg50
-retention,photoguard_linf,man_00,76.70828,cpu,,ip2p,3,jpeg50
-retention,photoguard_linf,man_01,80.14686,cpu,,ip2p,0,jpeg50
-retention,photoguard_linf,man_01,56.05669,cpu,,ip2p,1,jpeg50
-retention,photoguard_linf,man_01,80.28406,cpu,,ip2p,2,jpeg50
-retention,photoguard_linf,man_01,66.46283,cpu,,ip2p,3,jpeg50
-retention,photoguard_linf,man_02,87.40365,cpu,,ip2p,0,jpeg50
-retention,photoguard_linf,man_02,61.37162,cpu,,ip2p,1,jpeg50
-retention,photoguard_linf,man_02,80.81167,cpu,,ip2p,2,jpeg50
-retention,photoguard_linf,man_02,78.88781,cpu,,ip2p,3,jpeg50
-retention,photoguard_linf,man_03,88.88253,cpu,,ip2p,0,jpeg50
-retention,photoguard_linf,man_03,52.59866,cpu,,ip2p,1,jpeg50
-retention,photoguard_linf,man_03,83.53807,cpu,,ip2p,2,jpeg50
-retention,photoguard_linf,man_03,73.44278,cpu,,ip2p,3,jpeg50
-retention,photoguard_linf,woman_00,85.44236,cpu,,ip2p,0,jpeg50
-retention,photoguard_linf,woman_00,57.83759,cpu,,ip2p,1,jpeg50
-retention,photoguard_linf,woman_00,66.83025,cpu,,ip2p,2,jpeg50
-retention,photoguard_linf,woman_00,82.84602,cpu,,ip2p,3,jpeg50
-retention,photoguard_linf,woman_01,82.14743,cpu,,ip2p,0,jpeg50
-retention,photoguard_linf,woman_01,54.8837,cpu,,ip2p,1,jpeg50
-retention,photoguard_linf,woman_01,80.20143,cpu,,ip2p,2,jpeg50
-retention,photoguard_linf,woman_01,59.6635,cpu,,ip2p,3,jpeg50
-retention,photoguard_linf,woman_02,85.05254,cpu,,ip2p,0,jpeg50
-retention,photoguard_linf,woman_02,58.27514,cpu,,ip2p,1,jpeg50
-retention,photoguard_linf,woman_02,65.37053,cpu,,ip2p,2,jpeg50
-retention,photoguard_linf,woman_02,76.79565,cpu,,ip2p,3,jpeg50
-retention,photoguard_linf,woman_03,86.91541,cpu,,ip2p,0,jpeg50
-retention,photoguard_linf,woman_03,54.98912,cpu,,ip2p,1,jpeg50
-retention,photoguard_linf,woman_03,76.44489,cpu,,ip2p,2,jpeg50
-retention,photoguard_linf,woman_03,76.92652,cpu,,ip2p,3,jpeg50
-retention,photoguard_linf,man_00,83.79875,cpu,,inpaint,0,jpeg80
-retention,photoguard_linf,man_00,74.24887,cpu,,inpaint,1,jpeg80
-retention,photoguard_linf,man_00,74.65916,cpu,,inpaint,2,jpeg80
-retention,photoguard_linf,man_00,85.31947,cpu,,inpaint,3,jpeg80
-retention,photoguard_linf,man_01,75.15139,cpu,,inpaint,0,jpeg80
-retention,photoguard_linf,man_01,40.76562,cpu,,inpaint,1,jpeg80
-retention,photoguard_linf,man_01,91.42878,cpu,,inpaint,2,jpeg80
-retention,photoguard_linf,man_01,57.94621,cpu,,inpaint,3,jpeg80
-retention,photoguard_linf,man_02,90.27398,cpu,,inpaint,0,jpeg80
-retention,photoguard_linf,man_02,72.62483,cpu,,inpaint,1,jpeg80
-retention,photoguard_linf,man_02,89.40334,cpu,,inpaint,2,jpeg80
-retention,photoguard_linf,man_02,87.04256,cpu,,inpaint,3,jpeg80
-retention,photoguard_linf,man_03,46.73813,cpu,,inpaint,0,jpeg80
-retention,photoguard_linf,man_03,52.10166,cpu,,inpaint,1,jpeg80
-retention,photoguard_linf,man_03,60.77389,cpu,,inpaint,2,jpeg80
-retention,photoguard_linf,man_03,77.70009,cpu,,inpaint,3,jpeg80
-retention,photoguard_linf,woman_00,75.82571,cpu,,inpaint,0,jpeg80
-retention,photoguard_linf,woman_00,51.78615,cpu,,inpaint,1,jpeg80
-retention,photoguard_linf,woman_00,56.1665,cpu,,inpaint,2,jpeg80
-retention,photoguard_linf,woman_00,79.554,cpu,,inpaint,3,jpeg80
-retention,photoguard_linf,woman_01,70.12916,cpu,,inpaint,0,jpeg80
-retention,photoguard_linf,woman_01,61.89758,cpu,,inpaint,1,jpeg80
-retention,photoguard_linf,woman_01,74.11229,cpu,,inpaint,2,jpeg80
-retention,photoguard_linf,woman_01,74.41086,cpu,,inpaint,3,jpeg80
-retention,photoguard_linf,woman_02,49.99839,cpu,,inpaint,0,jpeg80
-retention,photoguard_linf,woman_02,41.96195,cpu,,inpaint,1,jpeg80
-retention,photoguard_linf,woman_02,48.04422,cpu,,inpaint,2,jpeg80
-retention,photoguard_linf,woman_02,56.04091,cpu,,inpaint,3,jpeg80
-retention,photoguard_linf,woman_03,70.64011,cpu,,inpaint,0,jpeg80
-retention,photoguard_linf,woman_03,59.05798,cpu,,inpaint,1,jpeg80
-retention,photoguard_linf,woman_03,54.38649,cpu,,inpaint,2,jpeg80
-retention,photoguard_linf,woman_03,78.09879,cpu,,inpaint,3,jpeg80
-retention,photoguard_linf,man_00,81.84012,cpu,,ip2p,0,jpeg80
-retention,photoguard_linf,man_00,37.55252,cpu,,ip2p,1,jpeg80
-retention,photoguard_linf,man_00,40.63149,cpu,,ip2p,2,jpeg80
-retention,photoguard_linf,man_00,60.59178,cpu,,ip2p,3,jpeg80
-retention,photoguard_linf,man_01,80.2771,cpu,,ip2p,0,jpeg80
-retention,photoguard_linf,man_01,63.05651,cpu,,ip2p,1,jpeg80
-retention,photoguard_linf,man_01,70.94999,cpu,,ip2p,2,jpeg80
-retention,photoguard_linf,man_01,69.18182,cpu,,ip2p,3,jpeg80
-retention,photoguard_linf,man_02,87.60228,cpu,,ip2p,0,jpeg80
-retention,photoguard_linf,man_02,60.65554,cpu,,ip2p,1,jpeg80
-retention,photoguard_linf,man_02,73.53641,cpu,,ip2p,2,jpeg80
-retention,photoguard_linf,man_02,80.30876,cpu,,ip2p,3,jpeg80
-retention,photoguard_linf,man_03,89.29773,cpu,,ip2p,0,jpeg80
-retention,photoguard_linf,man_03,36.88889,cpu,,ip2p,1,jpeg80
-retention,photoguard_linf,man_03,82.93695,cpu,,ip2p,2,jpeg80
-retention,photoguard_linf,man_03,29.46831,cpu,,ip2p,3,jpeg80
-retention,photoguard_linf,woman_00,85.74461,cpu,,ip2p,0,jpeg80
-retention,photoguard_linf,woman_00,61.24665,cpu,,ip2p,1,jpeg80
-retention,photoguard_linf,woman_00,57.57515,cpu,,ip2p,2,jpeg80
-retention,photoguard_linf,woman_00,74.0713,cpu,,ip2p,3,jpeg80
-retention,photoguard_linf,woman_01,81.76899,cpu,,ip2p,0,jpeg80
-retention,photoguard_linf,woman_01,51.52647,cpu,,ip2p,1,jpeg80
-retention,photoguard_linf,woman_01,87.14619,cpu,,ip2p,2,jpeg80
-retention,photoguard_linf,woman_01,39.26772,cpu,,ip2p,3,jpeg80
-retention,photoguard_linf,woman_02,83.31411,cpu,,ip2p,0,jpeg80
-retention,photoguard_linf,woman_02,55.47704,cpu,,ip2p,1,jpeg80
-retention,photoguard_linf,woman_02,64.29448,cpu,,ip2p,2,jpeg80
-retention,photoguard_linf,woman_02,80.40916,cpu,,ip2p,3,jpeg80
-retention,photoguard_linf,woman_03,87.50856,cpu,,ip2p,0,jpeg80
-retention,photoguard_linf,woman_03,59.15666,cpu,,ip2p,1,jpeg80
-retention,photoguard_linf,woman_03,74.79769,cpu,,ip2p,2,jpeg80
-retention,photoguard_linf,woman_03,79.11567,cpu,,ip2p,3,jpeg80
-retention,photoguard_linf,man_00,54.54877,cpu,,inpaint,0,rotate15
-retention,photoguard_linf,man_00,37.99498,cpu,,inpaint,1,rotate15
-retention,photoguard_linf,man_00,39.83971,cpu,,inpaint,2,rotate15
-retention,photoguard_linf,man_00,57.25206,cpu,,inpaint,3,rotate15
-retention,photoguard_linf,man_01,77.12323,cpu,,inpaint,0,rotate15
-retention,photoguard_linf,man_01,78.37464,cpu,,inpaint,1,rotate15
-retention,photoguard_linf,man_01,86.42717,cpu,,inpaint,2,rotate15
-retention,photoguard_linf,man_01,51.00821,cpu,,inpaint,3,rotate15
-retention,photoguard_linf,man_02,78.68983,cpu,,inpaint,0,rotate15
-retention,photoguard_linf,man_02,55.16764,cpu,,inpaint,1,rotate15
-retention,photoguard_linf,man_02,76.05441,cpu,,inpaint,2,rotate15
-retention,photoguard_linf,man_02,78.45234,cpu,,inpaint,3,rotate15
-retention,photoguard_linf,man_03,55.20752,cpu,,inpaint,0,rotate15
-retention,photoguard_linf,man_03,58.22015,cpu,,inpaint,1,rotate15
-retention,photoguard_linf,man_03,41.63171,cpu,,inpaint,2,rotate15
-retention,photoguard_linf,man_03,47.22845,cpu,,inpaint,3,rotate15
-retention,photoguard_linf,woman_00,79.77614,cpu,,inpaint,0,rotate15
-retention,photoguard_linf,woman_00,80.07609,cpu,,inpaint,1,rotate15
-retention,photoguard_linf,woman_00,60.90142,cpu,,inpaint,2,rotate15
-retention,photoguard_linf,woman_00,48.26609,cpu,,inpaint,3,rotate15
-retention,photoguard_linf,woman_01,80.48828,cpu,,inpaint,0,rotate15
-retention,photoguard_linf,woman_01,36.22205,cpu,,inpaint,1,rotate15
-retention,photoguard_linf,woman_01,68.69741,cpu,,inpaint,2,rotate15
-retention,photoguard_linf,woman_01,66.41025,cpu,,inpaint,3,rotate15
-retention,photoguard_linf,woman_02,51.05248,cpu,,inpaint,0,rotate15
-retention,photoguard_linf,woman_02,74.73919,cpu,,inpaint,1,rotate15
-retention,photoguard_linf,woman_02,34.27795,cpu,,inpaint,2,rotate15
-retention,photoguard_linf,woman_02,27.88034,cpu,,inpaint,3,rotate15
-retention,photoguard_linf,woman_03,34.98453,cpu,,inpaint,0,rotate15
-retention,photoguard_linf,woman_03,35.13189,cpu,,inpaint,1,rotate15
-retention,photoguard_linf,woman_03,64.64052,cpu,,inpaint,2,rotate15
-retention,photoguard_linf,woman_03,31.44844,cpu,,inpaint,3,rotate15
-retention,photoguard_linf,man_00,81.2564,cpu,,ip2p,0,rotate15
-retention,photoguard_linf,man_00,15.82547,cpu,,ip2p,1,rotate15
-retention,photoguard_linf,man_00,70.02917,cpu,,ip2p,2,rotate15
-retention,photoguard_linf,man_00,4.52457,cpu,,ip2p,3,rotate15
-retention,photoguard_linf,man_01,82.31071,cpu,,ip2p,0,rotate15
-retention,photoguard_linf,man_01,61.37698,cpu,,ip2p,1,rotate15
-retention,photoguard_linf,man_01,47.73061,cpu,,ip2p,2,rotate15
-retention,photoguard_linf,man_01,34.74456,cpu,,ip2p,3,rotate15
-retention,photoguard_linf,man_02,85.33903,cpu,,ip2p,0,rotate15
-retention,photoguard_linf,man_02,63.26092,cpu,,ip2p,1,rotate15
-retention,photoguard_linf,man_02,49.57725,cpu,,ip2p,2,rotate15
-retention,photoguard_linf,man_02,62.23093,cpu,,ip2p,3,rotate15
-retention,photoguard_linf,man_03,88.96096,cpu,,ip2p,0,rotate15
-retention,photoguard_linf,man_03,51.7953,cpu,,ip2p,1,rotate15
-retention,photoguard_linf,man_03,82.93253,cpu,,ip2p,2,rotate15
-retention,photoguard_linf,man_03,41.86259,cpu,,ip2p,3,rotate15
-retention,photoguard_linf,woman_00,87.79984,cpu,,ip2p,0,rotate15
-retention,photoguard_linf,woman_00,65.60475,cpu,,ip2p,1,rotate15
-retention,photoguard_linf,woman_00,84.42895,cpu,,ip2p,2,rotate15
-retention,photoguard_linf,woman_00,72.0483,cpu,,ip2p,3,rotate15
-retention,photoguard_linf,woman_01,83.58685,cpu,,ip2p,0,rotate15
-retention,photoguard_linf,woman_01,26.71373,cpu,,ip2p,1,rotate15
-retention,photoguard_linf,woman_01,65.41239,cpu,,ip2p,2,rotate15
-retention,photoguard_linf,woman_01,15.83236,cpu,,ip2p,3,rotate15
-retention,photoguard_linf,woman_02,83.37324,cpu,,ip2p,0,rotate15
-retention,photoguard_linf,woman_02,40.25612,cpu,,ip2p,1,rotate15
-retention,photoguard_linf,woman_02,50.71405,cpu,,ip2p,2,rotate15
-retention,photoguard_linf,woman_02,42.94421,cpu,,ip2p,3,rotate15
-retention,photoguard_linf,woman_03,88.21266,cpu,,ip2p,0,rotate15
-retention,photoguard_linf,woman_03,77.94104,cpu,,ip2p,1,rotate15
-retention,photoguard_linf,woman_03,86.65807,cpu,,ip2p,2,rotate15
-retention,photoguard_linf,woman_03,56.40271,cpu,,ip2p,3,rotate15
 retention,sifm,man_00,42.48767,cpu,,inpaint,0,blur1
 retention,sifm,man_00,35.93394,cpu,,inpaint,1,blur1
 retention,sifm,man_00,45.96887,cpu,,inpaint,2,blur1
@@ -5719,3 +5199,523 @@ retention,photoguard_encoder,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 
 retention,photoguard_encoder,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,rotate15
 retention,photoguard_encoder,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,rotate15
 retention,photoguard_encoder,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,rotate15
+fidelity,photoguard_linf,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,,,
+fidelity,photoguard_linf,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,,,
+fidelity,photoguard_linf,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,,,
+fidelity,photoguard_linf,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,,,
+fidelity,photoguard_linf,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,,,
+fidelity,photoguard_linf,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,,,
+fidelity,photoguard_linf,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,,,
+fidelity,photoguard_linf,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,,,
+displacement,photoguard_linf,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,
+displacement,photoguard_linf,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,
+displacement,photoguard_linf,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,
+displacement,photoguard_linf,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,
+displacement,photoguard_linf,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,
+displacement,photoguard_linf,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,
+displacement,photoguard_linf,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,
+displacement,photoguard_linf,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,
+displacement,photoguard_linf,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,
+displacement,photoguard_linf,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,
+displacement,photoguard_linf,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,
+displacement,photoguard_linf,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,
+displacement,photoguard_linf,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,
+displacement,photoguard_linf,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,
+displacement,photoguard_linf,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,
+displacement,photoguard_linf,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,
+displacement,photoguard_linf,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,
+displacement,photoguard_linf,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,
+displacement,photoguard_linf,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,
+displacement,photoguard_linf,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,
+displacement,photoguard_linf,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,
+displacement,photoguard_linf,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,
+displacement,photoguard_linf,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,
+displacement,photoguard_linf,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,
+displacement,photoguard_linf,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,
+displacement,photoguard_linf,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,
+displacement,photoguard_linf,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,
+displacement,photoguard_linf,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,
+displacement,photoguard_linf,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,
+displacement,photoguard_linf,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,
+displacement,photoguard_linf,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,
+displacement,photoguard_linf,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,
+displacement,photoguard_linf,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,
+displacement,photoguard_linf,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,
+displacement,photoguard_linf,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,
+displacement,photoguard_linf,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,
+displacement,photoguard_linf,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,
+displacement,photoguard_linf,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,
+displacement,photoguard_linf,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,
+displacement,photoguard_linf,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,
+displacement,photoguard_linf,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,
+displacement,photoguard_linf,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,
+displacement,photoguard_linf,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,
+displacement,photoguard_linf,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,
+displacement,photoguard_linf,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,
+displacement,photoguard_linf,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,
+displacement,photoguard_linf,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,
+displacement,photoguard_linf,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,
+displacement,photoguard_linf,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,
+displacement,photoguard_linf,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,
+displacement,photoguard_linf,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,
+displacement,photoguard_linf,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,
+displacement,photoguard_linf,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,
+displacement,photoguard_linf,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,
+displacement,photoguard_linf,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,
+displacement,photoguard_linf,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,
+displacement,photoguard_linf,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,
+displacement,photoguard_linf,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,
+displacement,photoguard_linf,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,
+displacement,photoguard_linf,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,
+displacement,photoguard_linf,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,
+displacement,photoguard_linf,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,
+displacement,photoguard_linf,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,
+displacement,photoguard_linf,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,
+retention,photoguard_linf,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,blur1
+retention,photoguard_linf,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,blur1
+retention,photoguard_linf,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,blur1
+retention,photoguard_linf,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,blur1
+retention,photoguard_linf,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,blur1
+retention,photoguard_linf,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,blur1
+retention,photoguard_linf,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,blur1
+retention,photoguard_linf,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,blur1
+retention,photoguard_linf,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,blur1
+retention,photoguard_linf,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,blur1
+retention,photoguard_linf,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,blur1
+retention,photoguard_linf,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,blur1
+retention,photoguard_linf,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,blur1
+retention,photoguard_linf,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,blur1
+retention,photoguard_linf,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,blur1
+retention,photoguard_linf,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,blur1
+retention,photoguard_linf,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,blur1
+retention,photoguard_linf,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,blur1
+retention,photoguard_linf,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,blur1
+retention,photoguard_linf,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,blur1
+retention,photoguard_linf,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,blur1
+retention,photoguard_linf,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,blur1
+retention,photoguard_linf,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,blur1
+retention,photoguard_linf,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,blur1
+retention,photoguard_linf,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,blur1
+retention,photoguard_linf,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,blur1
+retention,photoguard_linf,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,blur1
+retention,photoguard_linf,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,blur1
+retention,photoguard_linf,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,blur1
+retention,photoguard_linf,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,blur1
+retention,photoguard_linf,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,blur1
+retention,photoguard_linf,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,blur1
+retention,photoguard_linf,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,blur1
+retention,photoguard_linf,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,blur1
+retention,photoguard_linf,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,blur1
+retention,photoguard_linf,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,blur1
+retention,photoguard_linf,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,blur1
+retention,photoguard_linf,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,blur1
+retention,photoguard_linf,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,blur1
+retention,photoguard_linf,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,blur1
+retention,photoguard_linf,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,blur1
+retention,photoguard_linf,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,blur1
+retention,photoguard_linf,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,blur1
+retention,photoguard_linf,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,blur1
+retention,photoguard_linf,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,blur1
+retention,photoguard_linf,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,blur1
+retention,photoguard_linf,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,blur1
+retention,photoguard_linf,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,blur1
+retention,photoguard_linf,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,blur1
+retention,photoguard_linf,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,blur1
+retention,photoguard_linf,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,blur1
+retention,photoguard_linf,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,blur1
+retention,photoguard_linf,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,blur1
+retention,photoguard_linf,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,blur1
+retention,photoguard_linf,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,blur1
+retention,photoguard_linf,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,blur1
+retention,photoguard_linf,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,blur1
+retention,photoguard_linf,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,blur1
+retention,photoguard_linf,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,blur1
+retention,photoguard_linf,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,blur1
+retention,photoguard_linf,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,blur1
+retention,photoguard_linf,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,blur1
+retention,photoguard_linf,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,blur1
+retention,photoguard_linf,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,blur1
+retention,photoguard_linf,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,blur2
+retention,photoguard_linf,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,blur2
+retention,photoguard_linf,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,blur2
+retention,photoguard_linf,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,blur2
+retention,photoguard_linf,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,blur2
+retention,photoguard_linf,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,blur2
+retention,photoguard_linf,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,blur2
+retention,photoguard_linf,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,blur2
+retention,photoguard_linf,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,blur2
+retention,photoguard_linf,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,blur2
+retention,photoguard_linf,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,blur2
+retention,photoguard_linf,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,blur2
+retention,photoguard_linf,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,blur2
+retention,photoguard_linf,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,blur2
+retention,photoguard_linf,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,blur2
+retention,photoguard_linf,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,blur2
+retention,photoguard_linf,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,blur2
+retention,photoguard_linf,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,blur2
+retention,photoguard_linf,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,blur2
+retention,photoguard_linf,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,blur2
+retention,photoguard_linf,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,blur2
+retention,photoguard_linf,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,blur2
+retention,photoguard_linf,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,blur2
+retention,photoguard_linf,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,blur2
+retention,photoguard_linf,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,blur2
+retention,photoguard_linf,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,blur2
+retention,photoguard_linf,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,blur2
+retention,photoguard_linf,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,blur2
+retention,photoguard_linf,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,blur2
+retention,photoguard_linf,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,blur2
+retention,photoguard_linf,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,blur2
+retention,photoguard_linf,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,blur2
+retention,photoguard_linf,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,blur2
+retention,photoguard_linf,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,blur2
+retention,photoguard_linf,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,blur2
+retention,photoguard_linf,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,blur2
+retention,photoguard_linf,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,blur2
+retention,photoguard_linf,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,blur2
+retention,photoguard_linf,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,blur2
+retention,photoguard_linf,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,blur2
+retention,photoguard_linf,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,blur2
+retention,photoguard_linf,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,blur2
+retention,photoguard_linf,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,blur2
+retention,photoguard_linf,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,blur2
+retention,photoguard_linf,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,blur2
+retention,photoguard_linf,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,blur2
+retention,photoguard_linf,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,blur2
+retention,photoguard_linf,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,blur2
+retention,photoguard_linf,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,blur2
+retention,photoguard_linf,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,blur2
+retention,photoguard_linf,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,blur2
+retention,photoguard_linf,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,blur2
+retention,photoguard_linf,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,blur2
+retention,photoguard_linf,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,blur2
+retention,photoguard_linf,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,blur2
+retention,photoguard_linf,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,blur2
+retention,photoguard_linf,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,blur2
+retention,photoguard_linf,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,blur2
+retention,photoguard_linf,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,blur2
+retention,photoguard_linf,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,blur2
+retention,photoguard_linf,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,blur2
+retention,photoguard_linf,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,blur2
+retention,photoguard_linf,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,blur2
+retention,photoguard_linf,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,blur2
+retention,photoguard_linf,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,crop_resize0.1
+retention,photoguard_linf,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,crop_resize0.1
+retention,photoguard_linf,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,crop_resize0.1
+retention,photoguard_linf,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,crop_resize0.1
+retention,photoguard_linf,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,crop_resize0.1
+retention,photoguard_linf,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,crop_resize0.1
+retention,photoguard_linf,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,crop_resize0.1
+retention,photoguard_linf,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,crop_resize0.1
+retention,photoguard_linf,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,crop_resize0.1
+retention,photoguard_linf,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,crop_resize0.1
+retention,photoguard_linf,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,crop_resize0.1
+retention,photoguard_linf,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,crop_resize0.1
+retention,photoguard_linf,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,crop_resize0.1
+retention,photoguard_linf,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,crop_resize0.1
+retention,photoguard_linf,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,crop_resize0.1
+retention,photoguard_linf,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,crop_resize0.1
+retention,photoguard_linf,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,crop_resize0.1
+retention,photoguard_linf,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,crop_resize0.1
+retention,photoguard_linf,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,crop_resize0.1
+retention,photoguard_linf,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,crop_resize0.1
+retention,photoguard_linf,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,crop_resize0.1
+retention,photoguard_linf,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,crop_resize0.1
+retention,photoguard_linf,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,crop_resize0.1
+retention,photoguard_linf,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,crop_resize0.1
+retention,photoguard_linf,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,crop_resize0.1
+retention,photoguard_linf,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,crop_resize0.1
+retention,photoguard_linf,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,crop_resize0.1
+retention,photoguard_linf,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,crop_resize0.1
+retention,photoguard_linf,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,crop_resize0.1
+retention,photoguard_linf,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,crop_resize0.1
+retention,photoguard_linf,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,crop_resize0.1
+retention,photoguard_linf,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,crop_resize0.1
+retention,photoguard_linf,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,crop_resize0.1
+retention,photoguard_linf,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,crop_resize0.1
+retention,photoguard_linf,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,crop_resize0.1
+retention,photoguard_linf,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,crop_resize0.1
+retention,photoguard_linf,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,crop_resize0.1
+retention,photoguard_linf,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,crop_resize0.1
+retention,photoguard_linf,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,crop_resize0.1
+retention,photoguard_linf,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,crop_resize0.1
+retention,photoguard_linf,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,crop_resize0.1
+retention,photoguard_linf,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,crop_resize0.1
+retention,photoguard_linf,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,crop_resize0.1
+retention,photoguard_linf,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,crop_resize0.1
+retention,photoguard_linf,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,crop_resize0.1
+retention,photoguard_linf,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,crop_resize0.1
+retention,photoguard_linf,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,crop_resize0.1
+retention,photoguard_linf,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,crop_resize0.1
+retention,photoguard_linf,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,crop_resize0.1
+retention,photoguard_linf,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,crop_resize0.1
+retention,photoguard_linf,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,crop_resize0.1
+retention,photoguard_linf,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,crop_resize0.1
+retention,photoguard_linf,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,crop_resize0.1
+retention,photoguard_linf,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,crop_resize0.1
+retention,photoguard_linf,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,crop_resize0.1
+retention,photoguard_linf,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,crop_resize0.1
+retention,photoguard_linf,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,crop_resize0.1
+retention,photoguard_linf,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,crop_resize0.1
+retention,photoguard_linf,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,crop_resize0.1
+retention,photoguard_linf,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,crop_resize0.1
+retention,photoguard_linf,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,crop_resize0.1
+retention,photoguard_linf,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,crop_resize0.1
+retention,photoguard_linf,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,crop_resize0.1
+retention,photoguard_linf,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,crop_resize0.1
+retention,photoguard_linf,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,jpeg30
+retention,photoguard_linf,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,jpeg30
+retention,photoguard_linf,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,jpeg30
+retention,photoguard_linf,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,jpeg30
+retention,photoguard_linf,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,jpeg30
+retention,photoguard_linf,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,jpeg30
+retention,photoguard_linf,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,jpeg30
+retention,photoguard_linf,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,jpeg30
+retention,photoguard_linf,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,jpeg30
+retention,photoguard_linf,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,jpeg30
+retention,photoguard_linf,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,jpeg30
+retention,photoguard_linf,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,jpeg30
+retention,photoguard_linf,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,jpeg30
+retention,photoguard_linf,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,jpeg30
+retention,photoguard_linf,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,jpeg30
+retention,photoguard_linf,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,jpeg30
+retention,photoguard_linf,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,jpeg30
+retention,photoguard_linf,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,jpeg30
+retention,photoguard_linf,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,jpeg30
+retention,photoguard_linf,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,jpeg30
+retention,photoguard_linf,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,jpeg30
+retention,photoguard_linf,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,jpeg30
+retention,photoguard_linf,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,jpeg30
+retention,photoguard_linf,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,jpeg30
+retention,photoguard_linf,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,jpeg30
+retention,photoguard_linf,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,jpeg30
+retention,photoguard_linf,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,jpeg30
+retention,photoguard_linf,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,jpeg30
+retention,photoguard_linf,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,jpeg30
+retention,photoguard_linf,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,jpeg30
+retention,photoguard_linf,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,jpeg30
+retention,photoguard_linf,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,jpeg30
+retention,photoguard_linf,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,jpeg30
+retention,photoguard_linf,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,jpeg30
+retention,photoguard_linf,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,jpeg30
+retention,photoguard_linf,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,jpeg30
+retention,photoguard_linf,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,jpeg30
+retention,photoguard_linf,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,jpeg30
+retention,photoguard_linf,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,jpeg30
+retention,photoguard_linf,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,jpeg30
+retention,photoguard_linf,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,jpeg30
+retention,photoguard_linf,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,jpeg30
+retention,photoguard_linf,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,jpeg30
+retention,photoguard_linf,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,jpeg30
+retention,photoguard_linf,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,jpeg30
+retention,photoguard_linf,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,jpeg30
+retention,photoguard_linf,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,jpeg30
+retention,photoguard_linf,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,jpeg30
+retention,photoguard_linf,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,jpeg30
+retention,photoguard_linf,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,jpeg30
+retention,photoguard_linf,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,jpeg30
+retention,photoguard_linf,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,jpeg30
+retention,photoguard_linf,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,jpeg30
+retention,photoguard_linf,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,jpeg30
+retention,photoguard_linf,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,jpeg30
+retention,photoguard_linf,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,jpeg30
+retention,photoguard_linf,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,jpeg30
+retention,photoguard_linf,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,jpeg30
+retention,photoguard_linf,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,jpeg30
+retention,photoguard_linf,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,jpeg30
+retention,photoguard_linf,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,jpeg30
+retention,photoguard_linf,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,jpeg30
+retention,photoguard_linf,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,jpeg30
+retention,photoguard_linf,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,jpeg30
+retention,photoguard_linf,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,jpeg50
+retention,photoguard_linf,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,jpeg50
+retention,photoguard_linf,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,jpeg50
+retention,photoguard_linf,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,jpeg50
+retention,photoguard_linf,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,jpeg50
+retention,photoguard_linf,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,jpeg50
+retention,photoguard_linf,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,jpeg50
+retention,photoguard_linf,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,jpeg50
+retention,photoguard_linf,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,jpeg50
+retention,photoguard_linf,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,jpeg50
+retention,photoguard_linf,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,jpeg50
+retention,photoguard_linf,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,jpeg50
+retention,photoguard_linf,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,jpeg50
+retention,photoguard_linf,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,jpeg50
+retention,photoguard_linf,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,jpeg50
+retention,photoguard_linf,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,jpeg50
+retention,photoguard_linf,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,jpeg50
+retention,photoguard_linf,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,jpeg50
+retention,photoguard_linf,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,jpeg50
+retention,photoguard_linf,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,jpeg50
+retention,photoguard_linf,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,jpeg50
+retention,photoguard_linf,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,jpeg50
+retention,photoguard_linf,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,jpeg50
+retention,photoguard_linf,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,jpeg50
+retention,photoguard_linf,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,jpeg50
+retention,photoguard_linf,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,jpeg50
+retention,photoguard_linf,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,jpeg50
+retention,photoguard_linf,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,jpeg50
+retention,photoguard_linf,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,jpeg50
+retention,photoguard_linf,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,jpeg50
+retention,photoguard_linf,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,jpeg50
+retention,photoguard_linf,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,jpeg50
+retention,photoguard_linf,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,jpeg50
+retention,photoguard_linf,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,jpeg50
+retention,photoguard_linf,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,jpeg50
+retention,photoguard_linf,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,jpeg50
+retention,photoguard_linf,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,jpeg50
+retention,photoguard_linf,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,jpeg50
+retention,photoguard_linf,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,jpeg50
+retention,photoguard_linf,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,jpeg50
+retention,photoguard_linf,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,jpeg50
+retention,photoguard_linf,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,jpeg50
+retention,photoguard_linf,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,jpeg50
+retention,photoguard_linf,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,jpeg50
+retention,photoguard_linf,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,jpeg50
+retention,photoguard_linf,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,jpeg50
+retention,photoguard_linf,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,jpeg50
+retention,photoguard_linf,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,jpeg50
+retention,photoguard_linf,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,jpeg50
+retention,photoguard_linf,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,jpeg50
+retention,photoguard_linf,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,jpeg50
+retention,photoguard_linf,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,jpeg50
+retention,photoguard_linf,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,jpeg50
+retention,photoguard_linf,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,jpeg50
+retention,photoguard_linf,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,jpeg50
+retention,photoguard_linf,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,jpeg50
+retention,photoguard_linf,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,jpeg50
+retention,photoguard_linf,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,jpeg50
+retention,photoguard_linf,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,jpeg50
+retention,photoguard_linf,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,jpeg50
+retention,photoguard_linf,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,jpeg50
+retention,photoguard_linf,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,jpeg50
+retention,photoguard_linf,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,jpeg50
+retention,photoguard_linf,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,jpeg50
+retention,photoguard_linf,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,jpeg80
+retention,photoguard_linf,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,jpeg80
+retention,photoguard_linf,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,jpeg80
+retention,photoguard_linf,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,jpeg80
+retention,photoguard_linf,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,jpeg80
+retention,photoguard_linf,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,jpeg80
+retention,photoguard_linf,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,jpeg80
+retention,photoguard_linf,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,jpeg80
+retention,photoguard_linf,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,jpeg80
+retention,photoguard_linf,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,jpeg80
+retention,photoguard_linf,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,jpeg80
+retention,photoguard_linf,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,jpeg80
+retention,photoguard_linf,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,jpeg80
+retention,photoguard_linf,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,jpeg80
+retention,photoguard_linf,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,jpeg80
+retention,photoguard_linf,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,jpeg80
+retention,photoguard_linf,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,jpeg80
+retention,photoguard_linf,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,jpeg80
+retention,photoguard_linf,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,jpeg80
+retention,photoguard_linf,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,jpeg80
+retention,photoguard_linf,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,jpeg80
+retention,photoguard_linf,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,jpeg80
+retention,photoguard_linf,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,jpeg80
+retention,photoguard_linf,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,jpeg80
+retention,photoguard_linf,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,jpeg80
+retention,photoguard_linf,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,jpeg80
+retention,photoguard_linf,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,jpeg80
+retention,photoguard_linf,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,jpeg80
+retention,photoguard_linf,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,jpeg80
+retention,photoguard_linf,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,jpeg80
+retention,photoguard_linf,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,jpeg80
+retention,photoguard_linf,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,jpeg80
+retention,photoguard_linf,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,jpeg80
+retention,photoguard_linf,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,jpeg80
+retention,photoguard_linf,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,jpeg80
+retention,photoguard_linf,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,jpeg80
+retention,photoguard_linf,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,jpeg80
+retention,photoguard_linf,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,jpeg80
+retention,photoguard_linf,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,jpeg80
+retention,photoguard_linf,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,jpeg80
+retention,photoguard_linf,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,jpeg80
+retention,photoguard_linf,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,jpeg80
+retention,photoguard_linf,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,jpeg80
+retention,photoguard_linf,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,jpeg80
+retention,photoguard_linf,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,jpeg80
+retention,photoguard_linf,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,jpeg80
+retention,photoguard_linf,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,jpeg80
+retention,photoguard_linf,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,jpeg80
+retention,photoguard_linf,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,jpeg80
+retention,photoguard_linf,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,jpeg80
+retention,photoguard_linf,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,jpeg80
+retention,photoguard_linf,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,jpeg80
+retention,photoguard_linf,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,jpeg80
+retention,photoguard_linf,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,jpeg80
+retention,photoguard_linf,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,jpeg80
+retention,photoguard_linf,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,jpeg80
+retention,photoguard_linf,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,jpeg80
+retention,photoguard_linf,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,jpeg80
+retention,photoguard_linf,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,jpeg80
+retention,photoguard_linf,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,jpeg80
+retention,photoguard_linf,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,jpeg80
+retention,photoguard_linf,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,jpeg80
+retention,photoguard_linf,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,jpeg80
+retention,photoguard_linf,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,jpeg80
+retention,photoguard_linf,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,rotate15
+retention,photoguard_linf,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,rotate15
+retention,photoguard_linf,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,rotate15
+retention,photoguard_linf,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,rotate15
+retention,photoguard_linf,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,rotate15
+retention,photoguard_linf,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,rotate15
+retention,photoguard_linf,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,rotate15
+retention,photoguard_linf,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,rotate15
+retention,photoguard_linf,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,rotate15
+retention,photoguard_linf,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,rotate15
+retention,photoguard_linf,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,rotate15
+retention,photoguard_linf,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,rotate15
+retention,photoguard_linf,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,rotate15
+retention,photoguard_linf,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,rotate15
+retention,photoguard_linf,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,rotate15
+retention,photoguard_linf,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,rotate15
+retention,photoguard_linf,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,rotate15
+retention,photoguard_linf,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,rotate15
+retention,photoguard_linf,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,rotate15
+retention,photoguard_linf,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,rotate15
+retention,photoguard_linf,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,rotate15
+retention,photoguard_linf,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,rotate15
+retention,photoguard_linf,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,rotate15
+retention,photoguard_linf,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,rotate15
+retention,photoguard_linf,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,rotate15
+retention,photoguard_linf,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,rotate15
+retention,photoguard_linf,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,rotate15
+retention,photoguard_linf,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,rotate15
+retention,photoguard_linf,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,0,rotate15
+retention,photoguard_linf,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,1,rotate15
+retention,photoguard_linf,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,2,rotate15
+retention,photoguard_linf,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,inpaint,3,rotate15
+retention,photoguard_linf,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,rotate15
+retention,photoguard_linf,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,rotate15
+retention,photoguard_linf,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,rotate15
+retention,photoguard_linf,man_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,rotate15
+retention,photoguard_linf,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,rotate15
+retention,photoguard_linf,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,rotate15
+retention,photoguard_linf,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,rotate15
+retention,photoguard_linf,man_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,rotate15
+retention,photoguard_linf,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,rotate15
+retention,photoguard_linf,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,rotate15
+retention,photoguard_linf,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,rotate15
+retention,photoguard_linf,man_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,rotate15
+retention,photoguard_linf,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,rotate15
+retention,photoguard_linf,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,rotate15
+retention,photoguard_linf,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,rotate15
+retention,photoguard_linf,man_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,rotate15
+retention,photoguard_linf,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,rotate15
+retention,photoguard_linf,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,rotate15
+retention,photoguard_linf,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,rotate15
+retention,photoguard_linf,woman_00,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,rotate15
+retention,photoguard_linf,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,rotate15
+retention,photoguard_linf,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,rotate15
+retention,photoguard_linf,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,rotate15
+retention,photoguard_linf,woman_01,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,rotate15
+retention,photoguard_linf,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,rotate15
+retention,photoguard_linf,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,rotate15
+retention,photoguard_linf,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,rotate15
+retention,photoguard_linf,woman_02,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,rotate15
+retention,photoguard_linf,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,0,rotate15
+retention,photoguard_linf,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,1,rotate15
+retention,photoguard_linf,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,2,rotate15
+retention,photoguard_linf,woman_03,,cpu,vmaf: RuntimeError: ffmpeg 未包含 libvmaf 濾鏡,ip2p,3,rotate15

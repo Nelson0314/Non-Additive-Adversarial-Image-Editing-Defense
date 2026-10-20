@@ -39,6 +39,22 @@
 - FLUX 七道淨化：`run_flux_edits --purifier`，13 arm × 7 算子 × 32 格，輸出 `results/flux/purified_edits/<算子>/edits_<arm>.csv`。
 - 文獻的評估集規模見 `docs/reference/EVALUATION_SET_SIZES.md`；完整版三張表的規劃與 GPU 時間見 `docs/PEXELS_PORTRAITS.md`「GPU 時間」。
 
+### 論文實驗
+
+以下讀數皆為 data/portraits 8 張、四句、主種子；防禦圖失真讀交付的 PNG、CPU，逐格編輯讀數用 GPU。
+
+| 項目 | 讀數 | 程式 |
+|---|---|---|
+| 失真—位移平面（ip2p） | `results/distortion_displacement/points.csv`（38 點）、`fits.csv`（LPIPS／DISTS／PieAPP 三種橫軸） | `scripts/generate_distortion_displacement_plane.py` |
+| 擾動存續比 LPIPS(P(x̃),P(x)) ÷ LPIPS(x̃,x) | `results/aligned/perturbation_survival.csv`（等失真 11 臂＋color 兩條件，七道＋VAE-Trans） | `measure_perturbation_survival` |
+| 淨化強度掃描（ip2p） | `results/sweeps/ip2p/purifier_strength/retention.csv`（13 個淨化設定 × 5 條件） | `apply_purifier_sweep`、`pipelines.retention` |
+| color 條件的 inpaint 全協定 | `results/color_conditions/<條件>/` | 遠端 `runtime/color_inpaint/` 的流程 |
+
+- 等失真臂的 `mist`、`photoguard_linf`、`photoguard_encoder` 取 2/255（PNG 上擾動為整數灰階，見 `results/aligned/README.md`）。
+- BlurGuard：`generate_blurguard_defenses` 直接呼叫官方 `pgd_freq`（第一階段編碼器以 diffusers 的 SD v1.4 VAE 代替 ldm checkpoint）。原生 8 張防禦圖 LPIPS 0.231；ε 乘 1.0／1.5／2.0／2.5 時為 0.231／0.232／0.217／0.216，ε 不約束擾動幅度，等失真版本的旋鈕待使用者決定。主表原生全鏈的產物在 `artifacts/{defenses,defended_edits,purified,purified_edits}/blurguard`，讀數在遠端 `runtime/blurguard/native/results/`（完成後併入主表）。
+- 跨模型移植：`generate_defenses --vae-model` 只接受損失只經過 VAE 編碼器的條件（`photoguard_encoder`、`dct_shield`、`dct_shield_y`）。以 SD3（UltraEdit）與 FLUX.1-Kontext 的 VAE 求解並做未淨化編輯，產物 `artifacts/cross_model/<sd3|flux>/`，狀態與讀數 `runtime/cross_model/`；淨化後編輯尚未排程。`mist` 只有 textural 項可移植，其餘條件需要去噪器或反演，不移植。
+- Pexels 長跑與 Pexels 等失真臂在論文實驗期間暫停；恢復方式見 `docs/PEXELS_PORTRAITS.md`「操作」（等失真臂改用 `scripts/evaluate_pexels_aligned.sh` 與遠端 `runtime/pexels_portraits/aligned/run_pexels_aligned_worker.sh`）。
+
 ### 顏色列是 `color`
 主表的顏色那一列是 color 專案的方法 `color`（預設參數）。防禦圖由 color 專案產出，經
 `import_defense_artifacts --variant color` 整理成主表版面並重算保真欄；ip2p／inpaint 編輯、7 道淨化與

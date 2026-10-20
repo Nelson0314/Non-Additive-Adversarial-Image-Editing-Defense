@@ -351,6 +351,40 @@ def solve(sd, cond: str, x01: torch.Tensor, seed: int,
     return x_def, cfg
 
 
+#: 損失只經過 VAE 編碼器的條件：photoguard_encoder（‖E(x).mean‖₂）與 DCT-Shield 兩型（‖E(x')‖₂）。
+#: 跨模型移植時以替代編輯器的 VAE 計算同一個損失；其餘條件需要 SD 的去噪器、反演或文字條件，不移植。
+ENCODER_ONLY_CONDITIONS = frozenset({"photoguard_encoder", "dct_shield", "dct_shield_y"})
+
+
+class ResizingVAE(torch.nn.Module):
+    """替代編輯器的 VAE：`encode` 前把輸入（[-1,1]）縮放到該編輯器編碼時的邊長，其餘屬性轉給原 VAE。"""
+
+    def __init__(self, model: str, resolution: int, device):
+        super().__init__()
+        from diffusers import AutoencoderKL
+        self.inner = AutoencoderKL.from_pretrained(model, subfolder="vae", torch_dtype=torch.float32).to(device).eval()
+        for p in self.inner.parameters():
+            p.requires_grad_(False)
+        self.resolution = resolution
+
+    @property
+    def dtype(self):
+        return self.inner.dtype
+
+    @property
+    def config(self):
+        return self.inner.config
+
+    def encode(self, x, *a, **k):
+        if x.shape[-1] != self.resolution:
+            x = torch.nn.functional.interpolate(x, size=(self.resolution, self.resolution), mode="bicubic",
+                                                antialias=True, align_corners=False)
+        return self.inner.encode(x, *a, **k)
+
+    def decode(self, *a, **k):
+        return self.inner.decode(*a, **k)
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -371,6 +405,12 @@ def main() -> None:
                          "同一個條件目錄被多個行程（不同影像子集）同時寫入時"
                          "必須給，否則兩個行程的 results.csv 會互相覆蓋——"
                          "PNG 不會，因為影像名不同。")
+    ap.add_argument("--vae-model", default=None,
+                    help="跨模型移植：以此 diffusers 模型的 VAE（subfolder=vae）取代 SD v1.4 的 VAE；"
+                         "只適用損失只經過 VAE 編碼器的條件")
+    ap.add_argument("--vae-resolution", type=int, default=RESOLUTION,
+                    help="送進替代 VAE 前把影像以 bicubic（antialias）縮放到的邊長，"
+                         "對應該編輯器實際編碼的解析度（FLUX.1-Kontext 為 1024）")
     args = ap.parse_args()
 
     _check_prompts()
@@ -382,6 +422,12 @@ def main() -> None:
 
     csv_path = args.out / (f"results_{args.tag}.csv" if args.tag else "results.csv")
     sd = SDWrapper(MODEL_NAME, dtype=torch.float32)
+    if args.vae_model:
+        bad = [c for c in conds if c not in ENCODER_ONLY_CONDITIONS]
+        if bad:
+            raise SystemExit(f"--vae-model 只適用損失只經過 VAE 編碼器的條件 {sorted(ENCODER_ONLY_CONDITIONS)}，"
+                             f"這些條件需要去噪器或其他 SD 元件：{bad}")
+        sd.vae = ResizingVAE(args.vae_model, args.vae_resolution, sd.device)
     suite = MetricSuite(device=sd.device)
     items = load_images(args.data, args.images)
     if any(cond in CONTENT_CONDITIONS for cond in conds):
@@ -420,6 +466,11 @@ def main() -> None:
                                immunizer=immunizer, mask01=mask01,
                                eps_scale=args.eps_scale)
             secs = time.time() - t0
+            if args.vae_model:
+                cfg["modified_from_paper"] = True
+                cfg["modification_note"] = "; ".join(filter(None, [
+                    cfg.get("modification_note", ""),
+                    f"VAE encoder replaced by {args.vae_model} (input resized to {args.vae_resolution})"]))
             save_image(x_def.clamp(0, 1), args.out / f"{item['name']}__{cond}__def.png")
             m = suite.pairwise(x01, x_def.clamp(0, 1))
             rows.append({

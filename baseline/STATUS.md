@@ -27,7 +27,7 @@
 `results/pexels_portraits/` 為 186 張（`images_0000_0096` 至 `images_0177_0186`）的合併表；其餘影像組的進度以遠端
 `runtime/pexels_portraits/` 的完成標記與 `worker_<名>.lock/owner` 為準。資料選取、讀數表、暫停與恢復的操作見 `docs/PEXELS_PORTRAITS.md`。
 
-- GPU：使用者授權本工作 2 張卡；color 專案借卡時在步驟邊界暫停，並掛 `scripts/run_resume_after_color_queue.sh` 自動恢復。
+- GPU：color 有佇列時優先取卡，baseline 用剩下的，全局合計 ≤ 6；讓卡與恢復用 `scripts/run_pause_for_color_queue.sh`（見 `docs/PEXELS_PORTRAITS.md`「操作」）。
 - 資料組的目標張數為 500；現行選取規則下來源只得到 306 張，補足方式（放寬規則、增加來源或只增加女性影像）未定。
 - 資料選取的程式與候選快取在 `trials/unsplash_portrait_pool/`（本機與遠端，不入版控），內容見該目錄的 `README.md`。
 - 語意與身分讀數：`results/pexels_portraits/semantic_identity_<條件>.csv`（含 `undefended`）為 186 張；
@@ -53,7 +53,7 @@
 - 等失真臂的 `mist`、`photoguard_linf`、`photoguard_encoder` 取 2/255（PNG 上擾動為整數灰階，見 `results/aligned/README.md`）。
 - BlurGuard：`generate_blurguard_defenses` 直接呼叫官方 `pgd_freq`（第一階段編碼器以 diffusers 的 SD v1.4 VAE 代替 ldm checkpoint）。原生 8 張防禦圖 LPIPS 0.231；ε 乘 1.0／1.5／2.0／2.5 時為 0.231／0.232／0.217／0.216，ε 不約束擾動幅度，等失真版本的旋鈕待使用者決定。主表原生全鏈的產物在 `artifacts/{defenses,defended_edits,purified,purified_edits}/blurguard`，讀數在遠端 `runtime/blurguard/native/results/`（完成後併入主表）。
 - 跨模型移植：`generate_defenses --vae-model` 只接受損失只經過 VAE 編碼器的條件（`photoguard_encoder`、`dct_shield`、`dct_shield_y`）。以 SD3（UltraEdit）與 FLUX.1-Kontext 的 VAE 求解並做未淨化編輯，產物 `artifacts/cross_model/<sd3|flux>/`，狀態與讀數 `runtime/cross_model/`；淨化後編輯尚未排程。`mist` 只有 textural 項可移植，其餘條件需要去噪器或反演，不移植。
-- Pexels 長跑與 Pexels 等失真臂在論文實驗期間暫停；恢復方式見 `docs/PEXELS_PORTRAITS.md`「操作」（等失真臂改用 `scripts/evaluate_pexels_aligned.sh` 與遠端 `runtime/pexels_portraits/aligned/run_pexels_aligned_worker.sh`）。
+- Pexels 長跑與 Pexels 等失真臂在論文實驗期間暫停；恢復方式見 `docs/PEXELS_PORTRAITS.md`「操作」（等失真臂為 `scripts/run_pexels_aligned_worker.sh`）。
 
 ### 顏色列是 `color`
 主表的顏色那一列是 color 專案的方法 `color`（預設參數）。防禦圖由 color 專案產出，經

@@ -94,7 +94,9 @@ python -m pytest tests         # pyproject.toml 已設定 pythonpath
 | `scripts/evaluate_pexels_portraits.sh` | Pexels 人像資料組的 ip2p 評測：在一張卡上依序完成指定的影像組（可續跑） |
 | `scripts/evaluate_pexels_aligned.sh` | Pexels 人像資料組的等失真臂（八條件沿用主表等失真臂的 eps 倍率），未防禦分母沿用原生評測 |
 | `scripts/run_worker_when_card_free.sh` | 等到本機有空卡再啟動一個 Pexels worker |
-| `scripts/run_pause_at_step_boundary.sh`、`scripts/run_resume_after_color_queue.sh` | 在步驟邊界暫停 worker；color 佇列結束後自動恢復 |
+| `scripts/run_pexels_aligned_worker.sh` | Pexels 等失真臂的取卡迴圈（呼叫 `evaluate_pexels_aligned.sh`） |
+| `scripts/run_pause_for_color_queue.sh` | 為 color 佇列讓卡：暫停本機的 Pexels worker，color 的 log 出現結束標記後恢復 |
+| `scripts/evaluate_portrait_condition.sh`、`scripts/measure_portrait_condition_additional.sh` | data/portraits 8 張上單一條件的完整評測（兩場景、七道淨化、位移、保留率、semantic_identity）與其後的 CPU 讀數；等失真臂重跑與 BlurGuard 原生列使用 |
 | `scripts/generate_pexels_result_tables.py` | 把已完成影像組的讀數合併為 `results/pexels_portraits/` 的逐條件表 |
 | `scripts/evaluate_color_condition.sh` | `color` 條件的整條評測鏈（`main`：匯入、編輯、淨化、淨化後重編、UltraEdit；`flux`：FLUX） |
 | `scripts/run_flux_conditions.sh` | 依序對多個條件執行 FLUX 全表 |

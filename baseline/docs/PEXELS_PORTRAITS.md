@@ -99,8 +99,8 @@
 | worker 的主機、卡與結束碼 | `$R/worker_<名>.lock/owner` |
 | log | `$R/worker_<名>.log`（`[STEP]` 行為步驟邊界） |
 | 啟動或恢復一個 worker | 把 `$R/worker_<名>.lock` 移到 `$R/superseded/`，再於兩台主機各執行 `setsid nohup bash scripts/run_worker_when_card_free.sh <名> $(cat $R/worker_<名>.sets) > /dev/null 2>&1 < /dev/null &` |
-| 在步驟邊界暫停 | `setsid nohup bash scripts/run_pause_at_step_boundary.sh <名> <PID> ...`；紀錄於 `$R/pause.log` |
-| color 佇列結束後自動恢復 | `rm -rf $R/resume_after_color.done` 後於兩台各執行 `scripts/run_resume_after_color_queue.sh`；紀錄於 `$R/resume_after_color.log` |
+| 等失真臂的 worker | 兩台各一個 `setsid nohup bash scripts/run_pexels_aligned_worker.sh <a|b>`；取卡、影像組鎖 `$R/aligned/locks/`、紀錄 `$R/aligned/run.log` 與 `worker_<名>.log` |
+| 為 color 讓卡並自動恢復 | 兩台各執行 `setsid nohup bash scripts/run_pause_for_color_queue.sh <標籤> <color log>[=<標記>] ...`：停止本機的等待行程與等失真取卡迴圈，worker 在步驟邊界暫停（`IMMEDIATE=1` 立即終止），color log 新增標記（預設 `[ALL-DONE]`，`@<檔名>` 表示檔案出現）後恢復；`NO_PAUSE=1` 只負責恢復，`NATIVE_WORKERS`、`EXTRA_ALIGNED_LOOPS` 指定要恢復的 worker；紀錄於 `$R/pause_for_color_<標籤>.log` |
 | 合併讀數 | `python scripts/generate_pexels_result_tables.py <輸出目錄>`（遠端專案根），再把輸出複製到本機 `results/pexels_portraits/` |
 
 - `run_worker_when_card_free.sh` 每 5 分鐘尋找沒有 compute app 且沒有租約的卡；同名 worker 以 `worker_<名>.lock` 保證只啟動一次，
@@ -108,6 +108,9 @@
 - worker 的 PID 以 `pgrep -f "^bash scripts/evaluate_pexels_portraits.sh <卡號> "` 取得；樣式不加 `^` 時會符合執行該指令的 ssh 殼。
   `pkill -f` 的樣式出現在自身指令列時會終止該連線。
 - 暫停後 worker 以結束碼 143 結束並釋放租約；恢復時只重跑被中斷的那一步。
+- 以 `run_pause_for_color_queue.sh` 在 basic-1 終止 worker 時，監看本身曾兩次在終止後結束、未完成恢復（原因未查明）；
+  較穩的作法是在 ssh 指令中以 PID 直接停止 worker、移除被停 driver 的影像組鎖，再以 `NO_PAUSE=1` 啟動只負責恢復的監看。
+- 不要以 `HF_HUB_OFFLINE=1` 啟動 worker：遠端快取的 SD v1.4 在離線模式下無法解析而立即失敗。
 - 已取得租約的卡仍可能被其他使用者的行程佔用顯存，worker 會以 CUDA out of memory 結束（結束碼 1），需依上表恢復。
 - 主體遮罩未涵蓋人物的影像會使幾何淨化後的主體區為空，量測步驟即中止；處理方式為依「選取」第 7 點自資料組移除該影像。
 

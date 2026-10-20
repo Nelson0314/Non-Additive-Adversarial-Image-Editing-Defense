@@ -10,7 +10,8 @@
 與官方的差異：官方以 ldm 的 SD v1.4 checkpoint（`../ckpt/model.ckpt`）提供第一階段編碼器，該檔不在本機；
 這裡以 diffusers 的 `CompVis/stable-diffusion-v1-4` VAE（同一組權重）實作 `encode_first_stage` 與
 `get_first_stage_encoding`（後驗取樣乘 0.18215，與 ldm 相同）。`attacks.py` 頂層匯入但 `pgd_freq` 未使用的
-`torch_dct`，以及 `utils.py` 只供彩色輸出的 `colorama`，在 import 前以空模組代替。
+`torch_dct` 在 import 前以空模組代替。`utils.py` 另需本環境沒有的 `colorama`、`sewar`（`pgd_freq` 皆不使用），
+因此其中的 `generate_and_process_masks` 逐行複製為本檔的 `_generate_and_process_masks`，不匯入 `utils`。
 `--eps-scale` 不等於 1 時列標 `modified_from_paper=True`（等失真臂）。
 
 輸出版面與 `generate_defenses` 相同：`<輸出目錄>/<影像>__orig.png`、`<影像>__blurguard__def.png`、
@@ -44,21 +45,42 @@ SD_MODEL = "CompVis/stable-diffusion-v1-4"
 VAE_SCALE = 0.18215
 
 
-class _Blank:
-    def __getattr__(self, name):
-        return ""
-
-
 def _import_official():
     sys.modules.setdefault("torch_dct", types.ModuleType("torch_dct"))
-    colorama = types.ModuleType("colorama")
-    colorama.Fore = colorama.Back = colorama.Style = _Blank()
-    sys.modules.setdefault("colorama", colorama)
     sys.path.insert(0, str(BLURGUARD_CODE))
     import attacks
-    from segment_anything import sam_model_registry
-    from utils import generate_and_process_masks
-    return attacks, sam_model_registry, generate_and_process_masks
+    from segment_anything import SamAutomaticMaskGenerator, sam_model_registry
+    return attacks, sam_model_registry, SamAutomaticMaskGenerator
+
+
+def _generate_and_process_masks(SamAutomaticMaskGenerator, model, image, device, points_per_side,
+                                pred_iou_thresh=0.86, stability_score_thresh=0.92, crop_n_layers=1,
+                                crop_n_points_downscale_factor=2, min_mask_region_area=100):
+    """官方 `code/utils.py` 的 `generate_and_process_masks`（commit e1b2d5e）逐行複製。"""
+    import numpy as np
+    import torch
+    mask_generator = SamAutomaticMaskGenerator(
+        model=model, points_per_side=points_per_side, pred_iou_thresh=pred_iou_thresh,
+        stability_score_thresh=stability_score_thresh, crop_n_layers=crop_n_layers,
+        crop_n_points_downscale_factor=crop_n_points_downscale_factor,
+        min_mask_region_area=min_mask_region_area)
+    masks = mask_generator.generate(image)
+    masks_dict = {}
+    sorted_masks = sorted(masks, key=lambda x: x['area'])
+    used_mask = np.zeros_like(masks[0]['segmentation'], dtype=np.uint8)
+    for i, mask_dict in enumerate(sorted_masks):
+        segmentation = mask_dict['segmentation']
+        mask_array = np.where(segmentation, 1, 0).astype(np.uint8)
+        mask_array = np.where(used_mask == 0, mask_array, 0)
+        used_mask = np.where(mask_array > 0, 1, used_mask)
+        mask_tensor = torch.tensor(mask_array, dtype=torch.float32).to(device).unsqueeze(0).unsqueeze(0)
+        masks_dict[f'mask{i+1}'] = mask_tensor
+    unused_mask = np.where(used_mask == 0, 1, 0).astype(np.uint8)
+    if np.any(unused_mask):
+        unused_mask_tensor = torch.tensor(unused_mask, dtype=torch.float32).to(device).unsqueeze(0).unsqueeze(0)
+        masks_dict[f'mask{len(masks_dict) + 1}'] = unused_mask_tensor
+    del mask_generator
+    return masks_dict
 
 
 class _FirstStage:
@@ -95,9 +117,16 @@ def main(argv=None) -> None:
     from diffusers import AutoencoderKL
     from PIL import Image
 
-    attacks, sam_model_registry, generate_and_process_masks = _import_official()
+    attacks, sam_model_registry, SamAutomaticMaskGenerator = _import_official()
     device = "cuda"
-    sam = sam_model_registry["vit_h"](checkpoint=str(SAM_CHECKPOINT)).to(device=device)
+    # 官方 build_sam 以相對於 code/ 的固定路徑讀權重（官方以 code/ 為工作目錄執行），建構時暫時切換工作目錄。
+    import os
+    cwd = os.getcwd()
+    os.chdir(BLURGUARD_CODE)
+    try:
+        sam = sam_model_registry["vit_h"](checkpoint=str(SAM_CHECKPOINT)).to(device=device)
+    finally:
+        os.chdir(cwd)
     vae = AutoencoderKL.from_pretrained(SD_MODEL, subfolder="vae").to(device).eval()
     for p in vae.parameters():
         p.requires_grad_(False)
@@ -116,7 +145,8 @@ def main(argv=None) -> None:
         name = path.stem
         t0 = time.time()
         rgb = cv2.cvtColor(cv2.imread(str(path)), cv2.COLOR_BGR2RGB)
-        masks = generate_and_process_masks(sam, rgb, device, points_per_side=POINTS_PER_SIDE)
+        masks = _generate_and_process_masks(SamAutomaticMaskGenerator, sam, rgb, device,
+                                            points_per_side=POINTS_PER_SIDE)
         img = Image.open(path).convert("RGB").resize((INPUT_SIZE, INPUT_SIZE), resample=PIL.Image.BICUBIC)
         img.save(args.output_dir / f"{name}__orig.png")
         x = torch.from_numpy(np.array(img).astype(np.float32) / 127.5 - 1.0).permute(2, 0, 1)[None].to(device)

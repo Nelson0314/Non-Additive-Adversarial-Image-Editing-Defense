@@ -50,6 +50,7 @@ from immunization_baseline.editors import EDITORS, load_pipeline, to_pil, to_ten
 from immunization_core.purifiers.protocol import PURIFIERS, label  # noqa: E402
 from immunization_core.io import load_image_tensor  # noqa: E402
 from immunization_baseline.resume_state import file_digest, load_resume_rows, protocol_digest, write_rows_atomic  # noqa: E402
+from immunization_baseline.vae_trans import LABEL as VAE_TRANS  # noqa: E402
 
 EDITOR = "sd3-ultraedit"
 RES = 512
@@ -120,7 +121,8 @@ def main() -> None:
     args = ap.parse_args()
 
     bad = [a for a in args.arms if a != UNDEFENDED and a not in CONDITIONS]
-    bad += [p for p in args.purifiers if p != "none" and p not in OPERATORS]
+    # `vae_trans` 不在預設清單：其淨化後輸入由 apply_vae_trans 產生，須明確指定。
+    bad += [p for p in args.purifiers if p != "none" and p not in OPERATORS + [VAE_TRANS]]
     if bad:
         raise SystemExit(f"未知的 arm／算子：{bad}")
 

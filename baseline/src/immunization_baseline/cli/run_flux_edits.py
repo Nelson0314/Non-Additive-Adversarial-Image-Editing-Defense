@@ -57,6 +57,7 @@ from immunization_core.io import load_image_tensor  # noqa: E402
 from immunization_core.purifiers.protocol import purifier_labels  # noqa: E402
 from immunization_baseline.editors import to_pil, to_tensor  # noqa: E402
 from immunization_baseline.resume_state import file_digest, load_resume_rows, protocol_digest  # noqa: E402
+from immunization_baseline.vae_trans import LABEL as VAE_TRANS  # noqa: E402
 
 MODEL_NAME = "black-forest-labs/FLUX.1-Kontext-dev"
 RESOLUTION = 512
@@ -109,7 +110,8 @@ def main() -> None:
     ap.add_argument("--defenses-dir", dest="defended", type=Path, default=None,
                     help="覆寫單一條件的防禦圖目錄，預設為 --defenses-root/<arm>")
     ap.add_argument("--purifier", default="none",
-                    help="`none` 為未淨化；其餘為淨化算子名，輸入改為主表 ip2p 的淨化後影像")
+                    help="`none` 為未淨化；其餘為淨化算子名，輸入改為主表 ip2p 的淨化後影像；"
+                         "`vae_trans` 的輸入由 apply_vae_trans 產生")
     ap.add_argument("--purified-edits-root", dest="purified_edits", type=Path,
                     default=layout.PURIFIED_EDITS,
                     help="主表 ip2p 淨化後編輯的根目錄，取其中的 `<圖>__orig.png`")
@@ -131,7 +133,7 @@ def main() -> None:
                          "不要提被要求改的那個部位，否則會跟正面指令互相抵銷")
     args = ap.parse_args()
 
-    if args.purifier != "none" and args.purifier not in purifier_labels(include_identity=False):
+    if args.purifier != "none" and args.purifier not in purifier_labels(include_identity=False) + [VAE_TRANS]:
         ap.error(f"未知的淨化算子：{args.purifier}")
     if args.purifier == "none":
         out_dir = args.out or (layout.FLUX_EDITS / args.arm)

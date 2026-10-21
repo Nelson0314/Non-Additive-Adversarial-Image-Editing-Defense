@@ -58,7 +58,9 @@ def test_fidelity_writes_only_to_custom_output_dir(tmp_path):
     with (out_dir / "fidelity.csv").open(encoding="utf-8", newline="") as stream:
         reader = csv.DictReader(stream)
         rows = list(reader)
-    assert reader.fieldnames == ["condition", "image", "fid_fsim", "fid_delta_e00", "fid_mse",
+    assert reader.fieldnames == ["condition", "image",
+                                 "fid_lpips", "fid_ssim", "fid_psnr", "fid_vif_p", "fid_dists",
+                                 "fid_rms", "fid_linf", "fid_fsim", "fid_delta_e00", "fid_mse",
                                  "original_png", "defended_png", "device"]
     assert len(rows) == 1
     row = rows[0]

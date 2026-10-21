@@ -184,7 +184,7 @@ def test_condition_registry_is_the_single_source():
         "dayn", "dia_pt", "dia_r", "photoguard_c", "color", "diffvax"]
     assert set(conditions.main_table_conditions()) == set(SOLVER)
     assert list(conditions.CONDITIONS)[-1] == "color_curve"
-    assert set(generate_defenses.CONDITIONS) == (set(SOLVER) - {"color"}) | {"photoguard_encoder"}
+    assert set(generate_defenses.CONDITIONS) == (set(SOLVER) - {"color"}) | {"photoguard_encoder", "mist_textural"}
     assert generate_defenses.CONTENT_CONDITIONS == ("danp", "sifm", "dayn")
     generate_defenses._check_prompts()
 

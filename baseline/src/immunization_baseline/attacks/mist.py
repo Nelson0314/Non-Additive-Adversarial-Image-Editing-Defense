@@ -34,6 +34,8 @@ VAE 取樣而非取均值
 （原始碼 `seed_everything(23)`）。
 """
 
+from dataclasses import replace
+from functools import partial
 from typing import Optional
 
 import torch
@@ -286,4 +288,17 @@ SPEC = BaselineSpec(
         "target_file": "data/targets/mist.png（官方 repo 根目錄的 MIST.png，1440×1440）",
         "model": "CompVis Stable Diffusion v1.4 原始 ckpt",
     },
+)
+
+
+# 只保留 textural 項：原始碼 `mist_v3.py:143-149` 的 mode 1。跨模型移植時 semantic 項需要 SD 的去噪器，
+# 換成其他編輯器的 VAE 後只剩這一項可以計算；eps、步數、步長、目標影像與 fused 模式相同。
+SPEC_TEXTURAL = replace(
+    SPEC,
+    name="mist_textural",
+    modified_from_paper=True,
+    modification_note=("只保留 textural 項（原始碼 mode 1，損失為 ‖E(x+δ) − E(y)‖² 之和），"
+                       "去掉需要去噪器的 semantic 項；論文主設定為 fused（mode 2）"),
+    prepare=partial(prepare, mode=1),
+    extras={**SPEC.extras, "mode": 1},
 )

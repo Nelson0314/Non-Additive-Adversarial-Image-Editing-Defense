@@ -315,6 +315,10 @@ def solve(sd, cond: str, x01: torch.Tensor, seed: int,
         kw = {"use_ckpt": True, "vae_ckpt": True,
               "target01": load_image_tensor(layout.TARGETS / "mist.png",
                                             sd.device, size=RESOLUTION)}
+    elif cond == "mist_textural":
+        # 只有一次 VAE 編碼、沒有 UNet，不需要 checkpoint；`vae_ckpt` 的重參數化以 SD v1.4 的 latent 形狀抽噪聲，
+        # 換成其他編輯器的 VAE 時形狀不符。
+        kw = {"target01": load_image_tensor(layout.TARGETS / "mist.png", sd.device, size=RESOLUTION)}
     elif cond.startswith("dia"):
         # DIA 把整條反演（R 再加整條重建）留在同一張圖上，兩個開關都要開。
         kw = {"use_ckpt": True, "vae_ckpt": True}
@@ -351,9 +355,10 @@ def solve(sd, cond: str, x01: torch.Tensor, seed: int,
     return x_def, cfg
 
 
-#: 損失只經過 VAE 編碼器的條件：photoguard_encoder（‖E(x).mean‖₂）與 DCT-Shield 兩型（‖E(x')‖₂）。
+#: 損失只經過 VAE 編碼器的條件：photoguard_encoder（‖E(x).mean‖₂）、DCT-Shield 兩型（‖E(x')‖₂）
+#: 與 mist_textural（‖E(x+δ) − E(y)‖² 之和）。
 #: 跨模型移植時以替代編輯器的 VAE 計算同一個損失；其餘條件需要 SD 的去噪器、反演或文字條件，不移植。
-ENCODER_ONLY_CONDITIONS = frozenset({"photoguard_encoder", "dct_shield", "dct_shield_y"})
+ENCODER_ONLY_CONDITIONS = frozenset({"photoguard_encoder", "dct_shield", "dct_shield_y", "mist_textural"})
 
 
 class ResizingVAE(torch.nn.Module):
@@ -374,6 +379,10 @@ class ResizingVAE(torch.nn.Module):
     @property
     def config(self):
         return self.inner.config
+
+    @property
+    def device(self):
+        return self.inner.device
 
     def encode(self, x, *a, **k):
         if x.shape[-1] != self.resolution:
@@ -427,7 +436,8 @@ def main() -> None:
         if bad:
             raise SystemExit(f"--vae-model 只適用損失只經過 VAE 編碼器的條件 {sorted(ENCODER_ONLY_CONDITIONS)}，"
                              f"這些條件需要去噪器或其他 SD 元件：{bad}")
-        sd.vae = ResizingVAE(args.vae_model, args.vae_resolution, sd.device)
+        # `SDWrapper.vae` 是轉給 `pipe.vae` 的唯讀屬性，替換要寫在 pipeline 上。
+        sd.pipe.vae = ResizingVAE(args.vae_model, args.vae_resolution, sd.device)
     suite = MetricSuite(device=sd.device)
     items = load_images(args.data, args.images)
     if any(cond in CONTENT_CONDITIONS for cond in conds):

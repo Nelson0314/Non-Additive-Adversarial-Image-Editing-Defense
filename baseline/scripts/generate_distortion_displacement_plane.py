@@ -27,7 +27,7 @@ import math
 import statistics as st
 from pathlib import Path
 
-COLOR_CONDITIONS = ("color3d", "color3d_adaptive_set", "color3d_0d4")
+COLOR_CONDITIONS = ("color3d_orig", "color3d_adaptive_set", "color3d_orig_0d4")
 SUPERSEDED = {"mist": ("mist_eps_scale_0p093", "0.093"),
               "photoguard_linf": ("photoguard_linf_eps_scale_0p0857", "0.0857")}
 

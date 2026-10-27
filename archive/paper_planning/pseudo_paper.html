@@ -1,0 +1,371 @@
+<title>色彩映射免疫論文骨架</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: 左側章節目錄（窄螢幕收起），右側單欄論文本體；每節以「讀者此時的問題 → 段落要點 → 證據」三層呈現 */
+:root{
+  --bg:#f4f6f5; --paper:#ffffff; --ink:#1b2422; --muted:#5d6b67; --line:#d3dbd8;
+  --accent:#1d6b5f; --accent-soft:#dcefe9; --q:#3a4fa0; --q-bg:#e6eaf8;
+  --done:#2e7d4f; --done-bg:#e3f2e8; --part:#2559a8; --part-bg:#e2ebf8;
+  --todo:#59636e; --todo-bg:#e8ecf0; --design:#9a6a00; --design-bg:#fbefd2; --risk:#b23a3a; --risk-bg:#f8e1e1;
+  --f-display:"Noto Serif TC","Songti TC",serif; --f-body:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif; --f-mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#111816; --paper:#18211f; --ink:#e2eae7; --muted:#9db0aa; --line:#2b3835;
+  --accent:#6cc9b6; --accent-soft:#1b3a33; --q:#a9b8f2; --q-bg:#222a48;
+  --done:#7cd09b; --done-bg:#183326; --part:#86aef0; --part-bg:#1a2a44;
+  --todo:#a8b2bc; --todo-bg:#252f39; --design:#e8bd5a; --design-bg:#3a2f12; --risk:#f08a8a; --risk-bg:#3f1d1d; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#111816; --paper:#18211f; --ink:#e2eae7; --muted:#9db0aa; --line:#2b3835;
+  --accent:#6cc9b6; --accent-soft:#1b3a33; --q:#a9b8f2; --q-bg:#222a48;
+  --done:#7cd09b; --done-bg:#183326; --part:#86aef0; --part-bg:#1a2a44;
+  --todo:#a8b2bc; --todo-bg:#252f39; --design:#e8bd5a; --design-bg:#3a2f12; --risk:#f08a8a; --risk-bg:#3f1d1d; color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.75}
+.shell{max-width:1240px;margin:0 auto;padding-block:28px 72px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;grid-template-columns:220px minmax(0,1fr);gap:32px}
+nav{position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px);align-self:start;font-size:.84rem;display:grid;gap:2px}
+nav a{color:var(--muted);text-decoration:none;padding:2px 8px;border-left:2px solid var(--line)}
+nav a:hover,nav a:focus-visible{color:var(--accent);border-left-color:var(--accent);outline:none}
+nav .lvl2{padding-left:20px;font-size:.8rem}
+main{display:grid;gap:36px;min-width:0}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.35}
+h1{font-size:1.85rem}
+h2{font-size:1.4rem;padding-bottom:6px;border-bottom:1px solid var(--line)}
+h3{font-size:1.08rem;margin-top:6px}
+p{margin:0;max-width:72ch}
+section{display:grid;gap:14px;scroll-margin-top:20px}
+.meta{font-family:var(--f-mono);font-size:.78rem;color:var(--muted)}
+.lede{font-size:1.05rem;max-width:70ch}
+.chip{display:inline-block;padding:0 8px;border-radius:999px;font-size:.72rem;font-weight:500;white-space:nowrap;letter-spacing:.03em;vertical-align:2px}
+.done{color:var(--done);background:var(--done-bg)} .part{color:var(--part);background:var(--part-bg)}
+.todo{color:var(--todo);background:var(--todo-bg)} .design{color:var(--design);background:var(--design-bg)} .risk{color:var(--risk);background:var(--risk-bg)}
+.q{background:var(--q-bg);color:var(--q);padding:8px 12px;border-radius:8px;font-size:.9rem;max-width:72ch}
+.q b{font-weight:700}
+ol.pts,ul.pts{margin:0;padding-left:1.3em;display:grid;gap:6px;max-width:74ch}
+.ev{font-size:.85rem;color:var(--muted)}
+.tablebox{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--paper)}
+table{border-collapse:collapse;width:100%;font-size:.86rem}
+th,td{text-align:left;vertical-align:top;padding:7px 10px;border-bottom:1px solid var(--line)}
+th{font-weight:500;color:var(--muted);font-size:.76rem;letter-spacing:.04em;background:var(--bg)}
+td.num{font-variant-numeric:tabular-nums;font-family:var(--f-mono);font-size:.8rem;white-space:nowrap}
+.wide{min-width:820px}
+.flow{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));border:1px solid var(--line);border-radius:10px;background:var(--paper);overflow:hidden}
+.step{padding:12px;border-left:1px solid var(--line);display:grid;gap:4px;align-content:start;min-width:0}
+.step:first-child{border-left:0}
+.step .n{font-family:var(--f-mono);font-size:.72rem;color:var(--accent)}
+.step .t{font-weight:700;font-size:.92rem}
+.step .d{font-size:.8rem;color:var(--muted)}
+.box{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:14px 16px;display:grid;gap:8px}
+.abstract{border-left:3px solid var(--accent)}
+.foot{font-size:.78rem;color:var(--muted)}
+code{font-family:var(--f-mono);font-size:.82em}
+@media (max-width:980px){.shell{grid-template-columns:minmax(0,1fr)}nav{display:none}.flow{grid-template-columns:repeat(3,minmax(0,1fr))}.step:nth-child(4){border-left:0}.step:nth-child(n+4){border-top:1px solid var(--line)}}
+@media (max-width:600px){.flow{grid-template-columns:1fr}.step{border-left:0;border-top:1px solid var(--line)}.step:first-child{border-top:0}h1{font-size:1.45rem}}
+a{color:var(--accent)}
+</style>
+
+<div class="shell">
+<nav aria-label="章節">
+  <a href="#claim">主張與貢獻</a>
+  <a href="#story">敘事線</a>
+  <a href="#abstract">摘要</a>
+  <a href="#intro">1 引言</a>
+  <a href="#related">2 相關工作</a>
+  <a href="#method">3 方法</a>
+  <a class="lvl2" href="#m-carrier">3.2 載體</a>
+  <a class="lvl2" href="#m-set">3.4 可行集合</a>
+  <a class="lvl2" href="#m-universal">3.6 共用查找表</a>
+  <a href="#exp">4 實驗</a>
+  <a class="lvl2" href="#e-plane">4.2 失真—位移平面</a>
+  <a class="lvl2" href="#e-purify">4.3 淨化分析</a>
+  <a class="lvl2" href="#e-anti">4.4 抗淨化</a>
+  <a class="lvl2" href="#e-gen">4.5 跨模型</a>
+  <a class="lvl2" href="#e-percept">4.6 感知品質</a>
+  <a class="lvl2" href="#e-universal">4.7 共用查找表</a>
+  <a class="lvl2" href="#e-ablation">4.8 消融</a>
+  <a href="#limits">5 討論與限制</a>
+  <a href="#figs">圖表配置</a>
+  <a href="#gaps">兩個研究缺口</a>
+  <a href="#risks">審稿風險</a>
+</nav>
+
+<main>
+<header style="display:grid;gap:10px">
+  <div class="meta">image-immunization · 論文骨架（中文） · 2026-10-20 · CVPR 2026 模板</div>
+  <h1>以全域色彩映射作為抗淨化的影像免疫載體</h1>
+  <p class="lede">本頁是論文的中文骨架：每一節列出讀者在該處會問的問題、段落要點與佐證的實驗。數據已有者標「已有」，部分完成者標「部分」，尚未進行者標「待做」，方法尚待設計者標「待設計」。未完成的部分依預期方向書寫。</p>
+  <p class="lede"><b>本方法尚未定案</b>：頁中的 color3d_orig、color3d_adaptive_set 數字只作為現有讀數的示意。color3d_orig 在論文中的角色是約束形式的消融（逐條約束入損失）。</p>
+  <div><span class="chip done">已有</span> <span class="chip part">部分</span> <span class="chip todo">待做</span> <span class="chip design">待設計</span> <span class="chip risk">風險</span></div>
+</header>
+
+<section id="claim">
+  <h2>主張與貢獻</h2>
+  <div class="box">
+    <p><b>核心主張</b>：既有的影像免疫以 PGD 類投影法在像素上逐點加入有界擾動，這類擾動容易被 JPEG、模糊、裁切縮放與 VAE 重建等淨化移除。改以逐影像最佳化的全域色彩映射（3D 查找表）為載體，擾動落在影像的色彩與色調參數空間，同色像素同變換、作用於整張影像；在與既有方法相同的防禦圖失真下，淨化後仍保留編輯結果的位移。</p>
+  </div>
+  <ol class="pts">
+    <li><b>觀察</b>：在失真—位移平面上，既有方法與色彩映射方法都分布在一條高相關的直線附近；防禦強度主要由失真預算決定。因此方法間的差異應以載體在淨化後的行為比較，不以單點位移比較。</li>
+    <li><b>載體</b>：提出以逐影像 3D 查找表為載體的免疫方法，目標為編輯器 VAE 編碼器的潛向量位移，訓練不使用任何編輯指令。</li>
+    <li><b>自然度</b>：以由原圖計算的影像自適應可行集合與投影求解約束最佳化，每條約束對應一項影像的感知性質。</li>
+    <li><b>評估</b>：等失真下的抗淨化評估、跨模型泛化，以及針對色調改變的感知品質評估（色彩對齊後失真、人類偏好、受測者實驗）。</li>
+    <li><b>延伸</b>：以多張影像訓練的共用查找表，作為影像無關的免疫濾鏡。</li>
+  </ol>
+</section>
+
+<section id="story">
+  <h2>敘事線</h2>
+  <p class="ev">全文依讀者的推理順序展開：每一步回答前一步留下的問題。</p>
+  <div class="flow">
+    <div class="step"><span class="n">1 現象</span><span class="t">防禦被淨化抹除</span><span class="d">逐像素的加性擾動經 JPEG、模糊、VAE 重建後，位移大幅下降。</span></div>
+    <div class="step"><span class="n">2 觀察</span><span class="t">防禦力由失真決定</span><span class="d">各方法落在同一條失真—位移直線；預算只讓點沿線移動。</span></div>
+    <div class="step"><span class="n">3 推論</span><span class="t">要換的是載體</span><span class="d">在同一條線上，能分出方法的是淨化後留下多少。</span></div>
+    <div class="step"><span class="n">4 想法</span><span class="t">借用修圖的全域調色</span><span class="d">查找表只依顏色作用於整張圖，不含逐像素的空間圖樣。</span></div>
+    <div class="step"><span class="n">5 驗證</span><span class="t">等失真、淨化、跨模型</span><span class="d">同條線上，淨化後保留率高於加性方法；趨勢跨模型成立。</span></div>
+    <div class="step"><span class="n">6 代價與延伸</span><span class="t">看起來不同但不難看</span><span class="d">以色彩對齊後失真與人眼實驗量化；共用查找表延伸應用。</span></div>
+  </div>
+</section>
+
+<section id="abstract">
+  <h2>摘要 <span class="chip part">待數字定稿</span></h2>
+  <div class="box abstract">
+    <p>指令式擴散編輯模型使發布後的人像可被任意改寫。影像免疫在發布前對影像加入擾動，使編輯結果偏離預期；現有方法多以 PGD 類投影法在像素上逐點最佳化有界擾動，經 JPEG 壓縮、模糊、裁切縮放或 VAE 重建等淨化後防禦效果大幅下降。本文觀察到，在防禦圖失真與編輯結果位移構成的平面上，既有方法分布於一條高相關的直線，防禦強度主要由失真預算決定；因此決定方法優劣的是擾動在淨化後的存續。依據影像調色的慣例，本文以逐影像最佳化的 3D 查找表作為免疫載體，在色彩與色調的參數空間中對整張影像施加全域映射，並以由原圖計算的影像自適應可行集合約束其自然度。在與 [N] 個既有方法等失真的比較下，本方法在七種淨化後保留 [X]% 的編輯位移（既有方法 [Y–Z]%），經 VAE 重建淨化後的位移為既有方法的 [K] 倍，且趨勢在 [模型清單] 上一致。針對色調改變的感知評估與受測者實驗顯示 [待補]。本文另以多張影像訓練共用查找表，作為影像無關的免疫濾鏡。</p>
+  </div>
+</section>
+
+<section id="intro">
+  <h2>1 引言</h2>
+  <div class="q"><b>讀者的問題</b>：已經有十多個免疫方法，為什麼還需要新的？</div>
+  <ol class="pts">
+    <li><b>背景</b> <span class="chip done">已有</span>：公開權重的指令式編輯器（InstructPix2Pix、FLUX.1 Kontext 等）讓人像可依一句指令被改寫；影像免疫在發布前處理影像，使攻擊方的編輯偏離。</li>
+    <li><b>既有方法的共同形式</b> <span class="chip done">已有</span>：PhotoGuard、Mist、DIA、DCT-Shield 等以 PGD 在像素上最佳化 L∞ 或 L2 有界的加性擾動。這種擾動依原圖逐像素設定，是附著在像素格上的空間圖樣。</li>
+    <li><b>問題</b> <span class="chip part">部分</span>：常見的影像處理會改寫像素格上的圖樣。在等失真條件下，既有方法經七種淨化後的編輯結果 LPIPS 為 0.12–0.24，經 VAE-Trans 後為 0.02–0.07（8 張、ip2p、四句指令）。</li>
+    <li><b>觀察</b> <span class="chip done">已有</span>：原生預算下，各方法的位移排名與防禦圖失真排名幾乎同序；在失真—位移平面上各方法位於同一條直線附近。加大預算只是沿線移動，比較方法時應固定失真，再比較淨化後的存續。</li>
+    <li><b>想法</b> <span class="chip done">已有</span>：攝影後製常以查找表（LUT）對整張影像調整色彩與色調，觀者習慣這類改變。查找表的輸出只依像素顏色，不含空間結構；淨化算子保留影像內容時，也大致保留其色彩分布。本文把免疫擾動放進這個參數空間。</li>
+    <li><b>挑戰</b> <span class="chip part">部分</span>：一是自然度，全域色彩改變幅度大，需要以影像的感知性質約束；二是量測，以原圖為參照的失真指標把色調改變一律計為劣化（第 4.6 節）。</li>
+    <li><b>貢獻</b>：同上方「主張與貢獻」四點加延伸。</li>
+  </ol>
+  <p class="ev">圖 1（teaser）：原圖 → 加性防禦與色彩映射防禦 → 各自經 JPEG／VAE 重建 → 編輯結果。上排加性防禦淨化後編輯照常完成，下排色彩映射防禦淨化後仍偏離。<span class="chip todo">待做</span></p>
+</section>
+
+<section id="related">
+  <h2>2 相關工作</h2>
+  <div class="tablebox"><table class="wide">
+    <thead><tr><th>小節</th><th>要交代的內容</th><th>代表文獻</th><th>與本文的區隔</th></tr></thead>
+    <tbody>
+      <tr><td>2.1 擴散編輯免疫</td><td>加性擾動、目標函數（encoder、diffusion、注意力）、預算設定</td><td>PhotoGuard、Mist、AdvDM、EditShield、DIA、SIFM、DANP、DAYN、DCT-Shield、DiffVax、FaceLock、BlurGuard</td><td>皆為像素加性擾動；本文的載體為全域色彩映射</td></tr>
+      <tr><td>2.2 淨化與免疫的破解</td><td>JPEG、模糊、重採樣、VAE 重建、對比式微調</td><td>Purify Once（VAE-Trans）、JPEG 繞過、noisy upscaling、CAT、IMPRESS 類</td><td>本文以等失真與多種淨化評估存續</td></tr>
+      <tr><td>2.3 色彩函數的對抗樣本</td><td>以色彩查找表、濾鏡、色相位移攻擊分類器</td><td>ReColorAdv、ACE／AdvCF、Natural Color Fool、ColorFool、cAdv、Semantic Adversarial Examples</td><td>目標為分類器誤判；本文用於編輯免疫並處理淨化</td></tr>
+      <tr><td>2.4 色彩改變的感知評估</td><td>全參考與無參考品質、色差、人類偏好、受測者實驗</td><td>LPIPS、DISTS、CIEDE2000、S-CIELAB、CD-Flow、PickScore、HPSv3、SCOOTER</td><td>本文提出色彩對齊後的失真量測</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="method">
+  <h2>3 方法</h2>
+  <div class="q"><b>讀者的問題</b>：把擾動放進色彩空間，要怎麼最佳化？怎麼保證不難看？強度怎麼控制？</div>
+  <h3>3.1 問題設定與威脅模型 <span class="chip done">已有</span></h3>
+  <ul class="pts">
+    <li>防禦方在發布前處理影像；攻擊方以公開權重的編輯器依文字指令編輯，可先淨化。</li>
+    <li>白盒、外掛（不改攻擊方權重）；防禦方看不到攻擊指令，訓練只用空字串或類別名。</li>
+    <li>防禦目標：編輯結果偏離未防禦時的編輯結果（編輯結果 LPIPS）；比較以防禦圖失真對齊。</li>
+  </ul>
+  <h3 id="m-carrier">3.2 色彩映射載體 <span class="chip done">已有</span></h3>
+  <ul class="pts">
+    <li>逐影像的 3D 查找表 T：輸出只依像素顏色，三線性內插；同色像素同變換，不產生空間結構。</li>
+    <li>與加性擾動的對照：參數維度、與淨化算子的交換關係（淨化後的影像是否仍近似同一個查找表作用於淨化後原圖）。<span class="chip todo">待做</span>（可放一段分析：淨化算子對 T(x) 與 x＋δ 的作用差異）</li>
+  </ul>
+  <h3>3.3 防禦目標 <span class="chip done">已有</span></h3>
+  <ul class="pts">
+    <li>最大化編輯器 VAE 編碼器的潛向量位移，單次前向，不需編輯指令。</li>
+    <li>其他目標（等變殘差、隱含分類器）列於消融。</li>
+  </ul>
+  <h3 id="m-set">3.4 影像自適應可行集合與投影 <span class="chip part">部分</span> <span class="chip design">待設計</span></h3>
+  <ul class="pts">
+    <li>敘事：色彩變換的外觀限制，直覺做法是逐條加約束並放進損失（color3d_orig，PHR 求解）；各約束彼此拉鋸，訓練不穩定（man_00 的 180 個檢查點只有 1 個可行）。這個失敗引出下一步的可行集合與投影。本節以此順序書寫，color3d_orig 歸入消融。</li>
+    <li>現況：以由原圖計算的可行集合取代逐條懲罰；每步以 ADMM 投影回集合，損失中只保留失真下界。拉鋸消失：交付時沒有活躍乘子，可行檢查點由 1/180 增為 105–165/180。</li>
+    <li>每條約束對應一項影像性質：色空間 Lipschitz（中性與白色區不出現彩紋）、逐點膚色橢圓（記憶色：膚色）、tile 協方差（局部色彩一致）。</li>
+    <li><b>待設計</b>：以更高層的感知原理統一這些約束（見頁尾「研究缺口一」），使集合的每一條都有影像性質或色彩科學的依據。</li>
+  </ul>
+  <h3>3.5 強度控制 <span class="chip part">部分</span></h3>
+  <ul class="pts">
+    <li>以防禦圖 LPIPS 下界（含前段線性升高）設定操作點，對應加性方法的預算 ε；點沿失真—位移直線移動（4.2 節）。</li>
+  </ul>
+  <h3 id="m-universal">3.6 共用查找表 <span class="chip todo">待做</span></h3>
+  <ul class="pts">
+    <li>以多張影像共同最佳化單一查找表，部署時不需逐圖求解。</li>
+    <li>變體：對特定指令類別的共用表。訓練若使用指令，與現行「訓練不用指令」的設定不同，需在文中另立威脅模型。</li>
+  </ul>
+</section>
+
+<section id="exp">
+  <h2>4 實驗</h2>
+  <h3>4.1 設定 <span class="chip part">部分</span></h3>
+  <ul class="pts">
+    <li>資料：portraits 8 張（已有）；Pexels 人像 306 張（baseline 原生 186 張已有），目標 500 張。<span class="chip todo">待做</span> 本方法的 Pexels 讀數。</li>
+    <li>攻擊端：ip2p（EulerAncestral 50 步、s_t 7.5、s_i 1.8、主種子 20260812）、FaceLock 配件四句。</li>
+    <li>比較對象：11 個加性方法的等失真臂與原生預算；DiffVax 為前饋式、無預算旋鈕，另列。BlurGuard 為抗淨化取向的加性對照。</li>
+    <li>讀數：編輯結果 LPIPS（全圖、主體、背景）、保留率、語意與身分、失真指標組。</li>
+  </ul>
+
+  <section id="e-plane">
+    <h3>4.2 基礎防禦與失真—位移平面 <span class="chip part">部分</span></h3>
+    <div class="q"><b>讀者的問題</b>：沒有淨化時，這個方法跟既有方法比起來如何？</div>
+    <ul class="pts">
+      <li>等失真比較：color3d_orig 防禦圖 LPIPS 0.287，編輯結果 LPIPS 0.341；等失真臂（0.30–0.37）為 0.24–0.39。在無淨化情境下與既有方法可比。</li>
+      <li>圖 4：橫軸防禦圖失真、縱軸編輯結果位移；各方法的預算掃描畫成點列。全域色彩映射族：編輯結果 LPIPS ≈ 0.99 × 防禦圖 LPIPS ＋ 0.064（136 個條件）。<span class="chip done">已有</span> baseline 38 點（原生、等失真、倍率掃描、color 3 點）合併：編輯結果 LPIPS ≈ 0.865 × 防禦圖 LPIPS ＋ 0.077，r ＝ 0.955；單一方法 r 0.987–1.000。color 三點位於合併直線上方 0.01–0.03。橫軸換 DISTS 合併 r ＝ 0.699、PieAPP 0.519，各方法內仍近線性（r 0.87–0.99）。檔案 baseline/results/distortion_displacement/。</li>
+      <li>本方法以失真下界控制強度，沿線移動（color3d_orig 0.287 → adaptive_set 0.326 → color3d_0d4 0.409）。</li>
+    </ul>
+  </section>
+
+  <section id="e-purify">
+    <h3>4.3 淨化對各方法的作用 <span class="chip todo">待做</span></h3>
+    <div class="q"><b>讀者的問題</b>：淨化到底拿掉了什麼？為什麼加性擾動特別脆弱？</div>
+    <ul class="pts">
+      <li>擾動存續 <span class="chip done">已有</span>：LPIPS(P(x̃), P(x)) ÷ LPIPS(x̃, x)，8 張平均。七道平均 color3d_orig 0.838、adaptive_set 0.846，等失真 11 臂 0.288–0.535；VAE-Trans 後 color3d_orig 0.457、adaptive_set 0.607，11 臂 0.019–0.092。幾何淨化（crop、rotate）各方法皆約 0.5–1.0，差異集中在 JPEG、blur 與 VAE-Trans。檔案 baseline/results/aligned/perturbation_survival.csv。</li>
+      <li>淨化強度掃描 <span class="chip done">已有</span>（圖 5；8 張 × 4 句、ip2p、等失真）：淨化後編輯結果 LPIPS。color3d_orig 在 JPEG q95–q10 為 0.308–0.340、blur σ 0.5–3 為 0.325→0.245、縮放 ×0.75–×0.25 為 0.310→0.276；dia_pt、mist、photoguard_encoder 在 q10 為 0.129–0.138、σ3 為 0.039–0.044、×0.25 為 0.083–0.108。檔案 baseline/results/sweeps/ip2p/purifier_strength/retention.csv。</li>
+      <li>BlurGuard 經 VAE-Trans 後 0.191，與色彩映射相近，論述需說明其與本方法的關係。</li>
+    </ul>
+  </section>
+
+  <section id="e-anti">
+    <h3>4.4 抗淨化 <span class="chip done">已有</span></h3>
+    <div class="q"><b>讀者的問題</b>：在等失真下，淨化之後還剩多少？</div>
+    <div class="tablebox"><table>
+      <thead><tr><th>條件（8 張、ip2p、四句、主種子）</th><th>防禦圖 LPIPS</th><th>淨化前</th><th>七道平均</th><th>保留率</th><th>VAE-Trans 後</th></tr></thead>
+      <tbody>
+        <tr><td>color3d_orig</td><td class="num">0.287</td><td class="num">0.341</td><td class="num">0.302</td><td class="num">0.892</td><td class="num">0.185</td></tr>
+        <tr><td>color3d_adaptive_set</td><td class="num">0.326</td><td class="num">0.369</td><td class="num">0.327</td><td class="num">0.890</td><td class="num">0.237</td></tr>
+        <tr><td>等失真臂（11 個）</td><td class="num">0.30–0.37</td><td class="num">0.24–0.39</td><td class="num">0.12–0.24</td><td class="num">0.42–0.63</td><td class="num">0.02–0.07</td></tr>
+        <tr><td>同失真隨機查找表</td><td class="num">0.207</td><td class="num">0.290</td><td class="num">0.299</td><td class="num">1.04</td><td class="num">0.196</td></tr>
+      </tbody>
+    </table></div>
+    <ul class="pts">
+      <li>隨機查找表的結果說明抗淨化來自載體本身；最佳化在同族中再提高位移 32–61%。兩者分開陳述：載體帶來存續，最佳化帶來強度。</li>
+      <li>保留率的等失真臂數字為 ip2p＋inpaint 兩場景平均，定稿時改為 ip2p 單場景。<span class="chip todo">待做</span></li>
+    </ul>
+  </section>
+
+  <section id="e-gen">
+    <h3>4.5 跨模型泛化 <span class="chip part">部分</span></h3>
+    <div class="q"><b>讀者的問題</b>：這只對 InstructPix2Pix 有效嗎？</div>
+    <ul class="pts">
+      <li>遷移（在 ip2p 上求解、換編輯器評估）<span class="chip done">已有</span>：FLUX.1 Kontext、UltraEdit 全表；方法排名與 ip2p 的 Spearman 相關 0.951。</li>
+      <li>VAE 編碼器的分組 <span class="chip done">已有</span>：ip2p、SD inpainting、SD 2.1-base 的 encoder＋quant_conv 248 個張量完全相同，以 ip2p 求得的防禦圖對三者是同一個目標，直接評估即可；SD3（UltraEdit）與 FLUX.1 Kontext 各為不同的 16 通道 VAE。</li>
+      <li>換模型求解 <span class="chip todo">待做</span>：先只做 baseline；本方法等定案後再對 FLUX 與 SD3 的 VAE 編碼器求解，並以各自的編輯器評估；SD inpainting 以現有防禦圖跑全協定（<span class="chip done">已有</span> color3d_orig：淨化前 0.343、七道 0.288–0.323、VAE-Trans 0.241；adaptive_set：0.451、0.348–0.428、0.353；8 張 × 4 句，baseline/results/color_conditions/）。baseline 只比能用原損失移植的 encoder 類方法（photoguard_encoder、dct_shield、dct_shield_y；mist 只有 textural 項可移植）。預期失真—位移直線與淨化後的差距在各模型上一致。</li>
+      <li>FLUX：目標只需 FLUX 的 VAE 編碼器，梯度不經過 12B transformer，可在 24 GB 卡上求解。需要去噪器梯度的 baseline（PhotoGuard diffusion attack、Mist 的語意項、DIA）無法在 FLUX 上照原損失移植，只比 encoder 類 baseline。</li>
+    </ul>
+  </section>
+
+  <section id="e-percept">
+    <h3>4.6 感知品質：看起來不同但不難看 <span class="chip part">部分</span> <span class="chip design">待設計</span></h3>
+    <div class="q"><b>讀者的問題</b>：色彩改這麼多，LPIPS 0.3 不就是很明顯嗎？</div>
+    <ul class="pts">
+      <li>現況 <span class="chip done">已有</span>：以原圖為參照的指標（PieAPP、TOPIQ-FR、AHIQ、CKDN、CW-SSIM、NLPD、GMSD、MS-SSIM）與 PickScore 均把三個色彩條件排在 11 個等失真臂之後。這些指標把色調改變與畫質劣化計為同一種差異。</li>
+      <li>色彩對齊後失真 <span class="chip done">已有</span>：防禦圖以全域最小平方對齊回原圖後再量。lut9（RGB 9³ 平滑 LUT）對齊後 color3d_orig LPIPS 0.137、DISTS 0.057、PieAPP 0.337、SSIM 0.986，11 臂 0.282–0.358／0.010–0.069／0.120–0.419／0.984–0.996；lab_affine（Lab 3×4）對齊後 color3d_orig 0.209／0.100／0.674／0.968，11 臂幾乎不變。<span class="chip risk">風險</span> lut9 與本方法同屬 LUT 族，需說明對齊族的選擇（以調色濾鏡參照帶用同一對齊方式作對照）。</li>
+      <li>調色濾鏡參照帶 <span class="chip done">已有</span>（20 個 RawTherapee HaldCLUT，CC BY-SA 4.0，8 張平均）：底片 12 種 LPIPS 0.031–0.115、lut9 對齊後 0.010–0.043、PieAPP 0.28–0.88；風格 8 種 LPIPS 0.061–0.353、lut9 後 0.014–0.340、PieAPP 0.66–3.44。color3d_orig 為 0.287／0.137／0.953。原規劃：以常見攝影調色濾鏡（LUT 預設）在同一批影像上的失真作為「人們接受的改變」範圍，標示本方法落在範圍內或外。</li>
+      <li>無參考指標 <span class="chip done">已有</span>（防禦圖減原圖）：LAION aesthetic color3d_orig +0.175、adaptive_set +0.227，11 臂 −0.061～+0.145；MUSIQ color3d_orig −2.19，11 臂 −2.67～+0.26；CLIP-IQA color3d_orig −0.031，11 臂 −0.113～−0.006。</li>
+      <li>偏好分數 <span class="chip done">已有</span>（防禦圖減原圖）：HPSv3 color3d_orig −1.212、adaptive_set −3.830，11 臂 −1.737～+0.530，底片濾鏡 −0.659～+0.016，風格濾鏡 −4.768～−0.208；ImageReward color3d_orig −0.022，11 臂 −0.072～−0.003，底片濾鏡 −0.026～+0.071。</li>
+      <li>色差 <span class="chip todo">待做</span>：CD-Flow 官方未釋出權重（需在 SPCD 自訓），暫不做。</li>
+      <li>受測者實驗 <span class="chip todo">待做</span>：二選一（哪張較自然）與「是否被處理過」判斷；協定參照 SCOOTER。</li>
+    </ul>
+  </section>
+
+  <section id="e-universal">
+    <h3>4.7 共用查找表 <span class="chip todo">待做</span></h3>
+    <div class="q"><b>讀者的問題</b>：每張圖都要求解十幾分鐘，能不能一張表通用？</div>
+    <ul class="pts">
+      <li>以訓練集影像最佳化單一查找表，在未見影像上評估位移與淨化後保留；預期弱於逐影像版本。</li>
+      <li>對特定指令類別（配件、服裝、背景）的共用表。</li>
+    </ul>
+  </section>
+
+  <section id="e-ablation">
+    <h3>4.8 消融 <span class="chip part">部分</span></h3>
+    <div class="tablebox"><table class="wide">
+      <thead><tr><th>消融軸</th><th>比較的條件</th><th>要回答的問題</th><th>狀態</th></tr></thead>
+      <tbody>
+        <tr><td>約束的形式</td><td>逐條懲罰進損失（PHR）／可行集合＋ADMM 投影／集合＋原理性約束</td><td>拉鋸、可行率、外觀與位移的差異</td><td><span class="chip part">部分</span></td></tr>
+        <tr><td>可行集合的組成</td><td>逐一加入 Lipschitz、膚色橢圓、tile 協方差</td><td>每條約束各自處理哪一類外觀缺陷</td><td><span class="chip part">部分</span></td></tr>
+        <tr><td>強度</td><td>失真下界 0.27／0.31／0.37 等操作點</td><td>是否沿直線移動，淨化後保留率是否不變</td><td><span class="chip part">部分</span></td></tr>
+        <tr><td>載體</td><td>RGB 曲線／(a,b) 換色表／3D 查找表（17³、33³）</td><td>載體容量與失真上限的關係</td><td><span class="chip done">已有</span></td></tr>
+        <tr><td>目標函數</td><td>encoder 位移／等變殘差／隱含分類器</td><td>目標間差距（同族內 3% 以內）</td><td><span class="chip done">已有</span></td></tr>
+        <tr><td>隨機對照</td><td>同失真隨機查找表、隨機濾鏡</td><td>載體效應與最佳化效應的拆分</td><td><span class="chip done">已有</span></td></tr>
+      </tbody>
+    </table></div>
+  </section>
+</section>
+
+<section id="limits">
+  <h2>5 討論與限制</h2>
+  <ul class="pts">
+    <li>編輯常仍完成：等失真點 32 格中 19 格所有方法都未擋下指令；位移與「編輯失敗」並非同一量，需在文中界定讀數的意義。</li>
+    <li>能估計並抵消全域映射的自適應攻擊（影像自適應 3D LUT 增強網路、色彩正規化類淨化）未納入評估。</li>
+    <li>以原圖為參照的失真指標對本方法不利；本文以色彩對齊後失真與受測者實驗補充，但色調改變本身是可見的。</li>
+    <li>逐影像求解成本（每張 12–25 分鐘）；共用查找表為部分解法。</li>
+  </ul>
+</section>
+
+<section id="figs">
+  <h2>圖表配置</h2>
+  <div class="tablebox"><table class="wide">
+    <thead><tr><th>編號</th><th>內容</th><th>位置</th><th>狀態</th></tr></thead>
+    <tbody>
+      <tr><td>圖 1</td><td>teaser：加性與色彩映射防禦在淨化前後的編輯結果</td><td>第 1 頁</td><td><span class="chip todo">待做</span></td></tr>
+      <tr><td>圖 2</td><td>擾動存續：各淨化算子下防禦圖差異的保留比例，加性方法對色彩映射</td><td>4.3</td><td><span class="chip todo">待做</span></td></tr>
+      <tr><td>圖 3</td><td>方法總覽：查找表、encoder 目標、可行集合投影</td><td>3 節</td><td><span class="chip todo">待做</span></td></tr>
+      <tr><td>圖 4</td><td>失真—位移平面與各方法的預算掃描</td><td>4.2</td><td><span class="chip part">部分</span></td></tr>
+      <tr><td>表 1</td><td>等失真主表：失真指標組、淨化前位移、語意與身分</td><td>4.2</td><td><span class="chip done">已有</span></td></tr>
+      <tr><td>圖 5</td><td>淨化強度掃描下的位移曲線</td><td>4.3</td><td><span class="chip todo">待做</span></td></tr>
+      <tr><td>表 2</td><td>逐道淨化與 VAE-Trans 後的位移、保留率</td><td>4.4</td><td><span class="chip done">已有</span></td></tr>
+      <tr><td>表 3</td><td>跨模型：遷移與換模型求解</td><td>4.5</td><td><span class="chip part">部分</span></td></tr>
+      <tr><td>表 4</td><td>感知品質：色彩對齊後失真、偏好、受測者結果</td><td>4.6</td><td><span class="chip todo">待做</span></td></tr>
+      <tr><td>表 5</td><td>共用查找表</td><td>4.7</td><td><span class="chip todo">待做</span></td></tr>
+      <tr><td>表 6</td><td>消融</td><td>4.8</td><td><span class="chip part">部分</span></td></tr>
+      <tr><td>補充材料</td><td>逐張結果、外觀樣張、協定細節、評估效度分析、失敗案例</td><td>附錄</td><td><span class="chip part">部分</span></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="gaps">
+  <h2>兩個研究缺口</h2>
+  <div class="box">
+    <h3>缺口一：約束的更高層設計 <span class="chip design">待設計</span></h3>
+    <p>現行可行集合的各條約束分別修補一類外觀缺陷，整體缺乏共同原理。可行的方向是把每一條約束對應到一項有文獻依據的影像性質，並說明這組性質涵蓋全域調色的主要失敗模式：</p>
+    <ul class="pts">
+      <li>色調次序：亮度單調、色相不翻轉（避免偽輪廓與色調分離）。</li>
+      <li>色空間平滑：Lipschitz 或曲率上限（避免中性區彩紋與色帶）。</li>
+      <li>記憶色：膚色、中性灰白、天空與植物的容許範圍（Bartleson 1960；Stephen 2009；Re 2011）。</li>
+      <li>色彩豐富度與對比：Hasler &amp; Süsstrunk 色彩豐富度、全域對比的變化上限。</li>
+      <li>參照帶：常見攝影調色濾鏡在上述性質上的實測範圍，作為約束數值的依據。</li>
+    </ul>
+    <p class="ev">相關記錄：color trial 的 <code>design_notes/constraint_design_proposals.md</code>、<code>hsv_design_proposals.md</code>、<code>LITERATURE_COLOR_CONSTRAINTS.md</code>。</p>
+  </div>
+  <div class="box">
+    <h3>缺口二：感知指標 <span class="chip todo">待做</span></h3>
+    <p>目標是以量測支持「防禦圖與原圖看起來不同，但觀感不差」。依與本方法的關係排序：</p>
+    <ol class="pts">
+      <li>色彩對齊後失真：最直接分離色調改變與結構劣化。</li>
+      <li>調色濾鏡參照帶：把本方法放進「人們接受的修圖範圍」中比較。</li>
+      <li>照片色差與無參考美學指標：CD-Flow、MUSIQ、TOPIQ-NR、LAION aesthetic。</li>
+      <li>人類偏好分數：HPSv3、ImageReward（PickScore 已量）。</li>
+      <li>受測者實驗：自然度二選一、是否被處理過的判斷。</li>
+    </ol>
+  </div>
+</section>
+
+<section id="risks">
+  <h2>審稿風險</h2>
+  <div class="tablebox"><table class="wide">
+    <thead><tr><th>風險</th><th>現況</th><th>對應</th></tr></thead>
+    <tbody>
+      <tr><td>BlurGuard 的抗淨化</td><td>BlurGuard 經 VAE-Trans 後 0.191，與色彩映射相近</td><td>放入主表，並在 4.3 說明</td></tr>
+      <tr><td>資料規模</td><td>本方法只有 portraits 8 張</td><td>Pexels 上的本方法讀數</td></tr>
+      <tr><td>缺少的 baseline</td><td>EditShield 未實作</td><td>補實作或在文中說明</td></tr>
+      <tr><td>色彩正規化淨化</td><td>依決定未納入</td><td>限制一節明列</td></tr>
+      <tr><td>感知指標不利</td><td>全參考指標與 PickScore 均把色彩條件排在後面</td><td>4.6 與受測者實驗</td></tr>
+      <tr><td>FLUX 上的 baseline</td><td>需要去噪器梯度的方法無法照原損失移植</td><td>FLUX 上只比 encoder 類 baseline，並在文中說明</td></tr>
+    </tbody>
+  </table></div>
+  <p class="foot">正本為 repo 內 <code>docs/pseudo_paper.html</code>；英文版草稿為 CVPR 2026 模板的 LaTeX 專案 <code>docs/paper/</code>（main.tex＋sec/）。</p>
+</section>
+</main>
+</div>

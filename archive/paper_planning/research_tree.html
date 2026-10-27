@@ -1,0 +1,349 @@
+<title>影像免疫論文研究樹</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: 敘事主線橫列在上，六個分支欄位成樹，下接進度線、會議事項、文獻總表；資料單一來源在頁尾 script */
+:root{
+  --bg:#f3f5f7; --surface:#ffffff; --ink:#18232e; --muted:#5b6875; --line:#cfd7df;
+  --accent:#0f6f7c; --accent-soft:#d9eef0;
+  --done:#2e7d4f; --done-bg:#e3f2e8; --run:#2559a8; --run-bg:#e2ebf8;
+  --decide:#9a6a00; --decide-bg:#fbefd2; --gap:#b23a3a; --gap-bg:#f8e1e1;
+  --todo:#59636e; --todo-bg:#e8ecf0; --new:#6b3fa0; --new-bg:#efe6f8;
+  --f-display:"Noto Serif TC","Songti TC",serif; --f-body:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#11171d; --surface:#18212a; --ink:#e3e9ee; --muted:#9aa7b3; --line:#2c3843;
+  --accent:#5cc3cf; --accent-soft:#1b3a3f;
+  --done:#7cd09b; --done-bg:#183326; --run:#86aef0; --run-bg:#1a2a44;
+  --decide:#e8bd5a; --decide-bg:#3a2f12; --gap:#f08a8a; --gap-bg:#3f1d1d;
+  --todo:#a8b2bc; --todo-bg:#252f39; --new:#c4a2ef; --new-bg:#2d2140; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#11171d; --surface:#18212a; --ink:#e3e9ee; --muted:#9aa7b3; --line:#2c3843;
+  --accent:#5cc3cf; --accent-soft:#1b3a3f;
+  --done:#7cd09b; --done-bg:#183326; --run:#86aef0; --run-bg:#1a2a44;
+  --decide:#e8bd5a; --decide-bg:#3a2f12; --gap:#f08a8a; --gap-bg:#3f1d1d;
+  --todo:#a8b2bc; --todo-bg:#252f39; --new:#c4a2ef; --new-bg:#2d2140; color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:14px;line-height:1.6}
+.wrap{max-width:1360px;margin:0 auto;padding-block:28px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:40px}
+h1,h2{font-family:var(--f-display);text-wrap:balance;margin:0}
+h1{font-size:1.9rem;line-height:1.25}
+h2{font-size:1.3rem;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+h2 small{font-family:var(--f-body);font-size:.8rem;color:var(--muted);font-weight:400}
+.mono{font-family:var(--f-mono);font-size:.82em}
+.muted{color:var(--muted)}
+header{display:grid;gap:10px}
+.thesis{max-width:72ch;color:var(--muted)}
+.thesis b{color:var(--ink)}
+.legend,.filters{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.chip{display:inline-flex;align-items:center;gap:4px;padding:1px 8px;border-radius:999px;font-size:.75rem;font-weight:500;white-space:nowrap;letter-spacing:.02em}
+.s-done{color:var(--done);background:var(--done-bg)} .s-run{color:var(--run);background:var(--run-bg)}
+.s-decide{color:var(--decide);background:var(--decide-bg)} .s-gap{color:var(--gap);background:var(--gap-bg)}
+.s-todo{color:var(--todo);background:var(--todo-bg)} .s-new{color:var(--new);background:var(--new-bg)}
+button.f{font:inherit;font-size:.78rem;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:2px 10px;cursor:pointer}
+button.f[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+button.f:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+a{color:var(--accent)}
+/* story spine */
+.spine{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:0;border:1px solid var(--line);border-radius:10px;background:var(--surface);overflow:hidden}
+.beat{padding:12px 14px;border-left:1px solid var(--line);display:grid;gap:4px;align-content:start;min-width:0}
+.beat:first-child{border-left:0}
+.beat .k{font-family:var(--f-mono);font-size:.72rem;color:var(--accent);letter-spacing:.06em}
+.beat .t{font-weight:700}
+.beat .d{font-size:.82rem;color:var(--muted)}
+.beat .refs{font-family:var(--f-mono);font-size:.72rem;color:var(--muted)}
+/* tree */
+.root{justify-self:center;text-align:center;max-width:60ch;padding:10px 18px;border:2px solid var(--accent);border-radius:10px;background:var(--surface)}
+.root .k{font-family:var(--f-mono);font-size:.72rem;color:var(--accent)}
+.trunk{width:2px;height:18px;background:var(--line);justify-self:center}
+.tree{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.branch{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px;display:grid;gap:10px;align-content:start;min-width:0}
+.branch>.bh{display:flex;gap:8px;align-items:baseline}
+.branch>.bh .id{font-family:var(--f-mono);font-weight:500;color:var(--accent)}
+.branch>.bh .name{font-weight:700;font-size:1.02rem}
+.branch>.bq{font-size:.82rem;color:var(--muted);margin-top:-6px}
+.nodes{display:grid;gap:8px;border-left:2px solid var(--line);margin-left:6px;padding-left:12px}
+.node{position:relative;display:grid;gap:4px}
+.node::before{content:"";position:absolute;left:-14px;top:.8em;width:10px;height:2px;background:var(--line)}
+.node .top{display:flex;gap:6px;align-items:baseline;flex-wrap:wrap}
+.node .nid{font-family:var(--f-mono);font-size:.74rem;color:var(--muted)}
+.node .nt{font-weight:500}
+.node .nd{font-size:.82rem;color:var(--muted)}
+.node .nd b{color:var(--ink);font-weight:500}
+.leaves{display:flex;flex-wrap:wrap;gap:4px}
+.leaf{font-family:var(--f-mono);font-size:.7rem;border:1px solid var(--line);border-radius:4px;padding:0 5px;color:var(--ink);background:var(--bg);text-decoration:none}
+.leaf.newp{border-color:var(--new);color:var(--new)}
+.leaf.unv{border-style:dashed}
+.node.dim{opacity:.28}
+/* tables */
+.tablebox{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:.84rem}
+th,td{text-align:left;vertical-align:top;padding:7px 10px;border-bottom:1px solid var(--line)}
+th{font-weight:500;color:var(--muted);font-size:.76rem;letter-spacing:.04em;background:var(--bg);position:sticky;top:0}
+tr.phase td{background:var(--accent-soft);font-weight:700;color:var(--ink)}
+tr.phase td .mono{color:var(--accent)}
+td.ind{padding-left:26px}
+td.ind2{padding-left:44px}
+.tw{min-width:960px}
+.notes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.note{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;display:grid;gap:6px;min-width:0}
+.note .raw{font-family:var(--f-mono);font-size:.8rem;color:var(--accent)}
+.note ul{margin:0;padding-left:1.1em}
+.note .q{font-size:.8rem;color:var(--decide)}
+.foot{font-size:.78rem;color:var(--muted)}
+@media (max-width:1100px){.tree{grid-template-columns:repeat(2,minmax(0,1fr))}.spine{grid-template-columns:repeat(3,minmax(0,1fr))}.beat:nth-child(4){border-left:0}.beat:nth-child(n+4){border-top:1px solid var(--line)}}
+@media (max-width:680px){.tree,.notes{grid-template-columns:1fr}.spine{grid-template-columns:1fr}.beat{border-left:0;border-top:1px solid var(--line)}.beat:first-child{border-top:0}h1{font-size:1.5rem}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+<header>
+  <div class="mono muted">image-immunization · 論文規劃 · 更新 2026-10-16</div>
+  <h1>影像免疫論文研究樹</h1>
+  <p class="thesis">工作主張：<b>以逐影像最佳化的全域色彩映射（33³ 3D LUT）作為擴散編輯免疫的載體，在與加性擾動相同的防禦圖失真下，經淨化後仍保留編輯結果位移。</b>本頁把敘事主線、研究分支、文獻與進度放在同一處；節點上的狀態以現況回報（baseline、color 兩個 pane，2026-10-16）為準。</p>
+  <div class="legend" id="legend"></div>
+</header>
+
+<section style="display:grid;gap:12px">
+  <h2>敘事主線 <small>論文由問題走到限制的六步；每步列出支撐它的樹節點</small></h2>
+  <div class="spine" id="spine"></div>
+</section>
+
+<section style="display:grid;gap:12px">
+  <h2>研究樹 <small>分支＝研究問題，節點＝具體方法或實驗，方框標籤＝文獻（虛線框為出處待核對，紫框為會議新增）</small></h2>
+  <div class="filters" id="filters"></div>
+  <div class="root"><div class="k">RQ</div><div>防禦方能否在不看攻擊指令、與既有方法等失真的條件下，使擴散編輯結果偏離，且偏離能撐過淨化？</div></div>
+  <div class="trunk"></div>
+  <div class="tree" id="tree"></div>
+</section>
+
+<section style="display:grid;gap:12px">
+  <h2>進度線 <small>依序；縮排列為該階段的分支工作，「依賴」欄列出必須先完成的項目</small></h2>
+  <div class="tablebox"><table class="tw" id="plan"></table></div>
+</section>
+
+<section style="display:grid;gap:12px">
+  <h2>指導會議筆記的具體化 <small>2026-10-16；解讀已由你確認</small></h2>
+  <div class="notes" id="notes"></div>
+</section>
+
+<section style="display:grid;gap:12px">
+  <h2>文獻總表 <small id="litcount"></small></h2>
+  <div class="filters" id="litfilters"></div>
+  <div class="tablebox"><table class="tw" id="lit"></table></div>
+  <p class="foot">查證層級：<b>已審計</b>＝移植並逐行對照官方程式（baseline/docs/reference/AUDIT_*.md）；<b>已記錄</b>＝repo 文件內有出處；<b>待核對</b>＝出處由 agent 憑記憶補上；<b>待讀</b>＝會議或規劃新增、尚未讀。</p>
+</section>
+
+<p class="foot">正本為 repo 內 <span class="mono">docs/research_tree.html</span>；資料在頁尾 script 的 STATUS、BRANCHES、PLAN、NOTES、PAPERS 五個常數。</p>
+</div>
+
+<script>
+const STATUS={done:["已完成","s-done"],run:["進行中","s-run"],decide:["待你決定","s-decide"],gap:["坑","s-gap"],todo:["待做","s-todo"],new:["會議新增","s-new"]};
+
+const SPINE=[
+ ["1 問題","擴散編輯的濫用","公開權重的指令式編輯器可直接改寫人像；免疫在發布前處理影像。","A1 A2"],
+ ["2 缺口","加性擾動撐不過淨化，比較未對齊失真","原生預算相差 2.6 倍，位移排名與失真排名幾乎同序；VAE-Trans 後 baseline 剩 0.02–0.07。","A4 A5 E1"],
+ ["3 假說","全域、低維、只依顏色的映射不被淨化消除","淨化針對高頻與離流形雜訊，全域色彩統計被保留。","C1 C6"],
+ ["4 方法","color3d_orig：3D LUT＋自然度約束＋PHR","自然度寫進參數化與約束；目標為 VAE encoder 潛向量位移，不用任何編輯指令。","B1–B6"],
+ ["5 證據","等失真比較、淨化、跨編輯器、人眼","等失真下七道淨化 0.302 對 0.12–0.24；隨機 LUT 對照指出載體效應；最佳化另加 32–61%。","A4 A7 C1–C3 D1–D4"],
+ ["6 限制","編輯常仍完成；色彩正規化","19/32 格所有條件都未擋下；色彩正規化淨化未納入。","A6 C5"]
+];
+
+const BRANCHES=[
+ {id:"A",name:"問題設定與評估協定",q:"怎麼量才公平、才可信？",nodes:[
+  ["A1","威脅模型","done","白盒、外掛（不改攻擊方權重）；防禦方看不到指令，訓練只用空字串或類別名。",["PhotoGuard","FaceLock"]],
+  ["A2","攻擊端與基準資料","done","ip2p 主種子 20260812；FaceLock 配件四句；portraits 8 張 × 4 句 ＝ 32 格。",["InstructPix2Pix","FaceLock"]],
+  ["A3","資料規模（Pexels 人像）","run","306 張中 186 張入表（10 條件、只 ip2p）；剩餘約 80–100 卡時。<b>待決定</b>：補到 500 張的方式（放寬篩選／加來源／只加女性）。",["EvalSetSizes"]],
+  ["A4","等失真臂","decide","portraits 11 臂齊（mist、photoguard_linf、photoguard_encoder 為 2/255）。<b>待決定</b>：錨點仍為舊 color_curve 的 0.3344（PNG 上各列 0.2997–0.3738）是否重定；photoguard_encoder 是否列為第 11 臂。Pexels 等失真臂 8 條件約 8 天。",["BaselineAlignment"]],
+  ["A5","淨化協定","gap","七道（jpeg80/50/30、blur1/2、crop_resize0.1、rotate15）＋ VAE-Trans；portraits 完成。<b>缺</b>：Pexels 與跨編輯器的 VAE-Trans。",["PurifyOnce","JPEGBypass","NoisyUpscaling","ISS"]],
+  ["A6","評估效度","decide","淨化前 19/32 格所有條件都未擋下；問題三決定條件排名。<b>待決定</b>：方案 A 篩格／B 二元成功率／C 重抽種子（違反主種子規則）／D 分層或加錨點。報告在桌面 evaluation_issues_report.md。",["ICIP25Disrupt","DoProtect"]],
+  ["A7","跨編輯器","run","FLUX.1-Kontext、UltraEdit 全表；Spearman 對 ip2p 0.951。FLUX 七道淨化約 3/7，剩約 40 卡時。SDEdit 放棄、SDXL-ip2p 只掃參數。",["FLUXKontext","UltraEdit"]],
+  ["A8","統計","todo","主種子單次、無信賴區間。可做影像間 bootstrap（不加種子）。",[]]
+ ]},
+ {id:"B",name:"方法：全域色彩載體",q:"用什麼載體、什麼目標、什麼約束？",nodes:[
+  ["B1","載體演進","done","單一 RGB 曲線 → (a,b) RBF 換色表 → color → 33³ 3D LUT。空間色場（色塊、臉框圈）與加性雜訊已否決。",["ReColorAdv","ACE","AdvCF","NCF","ColorFool","cAdv","AdaptiveLUT"]],
+  ["B2","color3d_orig 主線","decide","防禦圖 LPIPS 0.287、ΔE00 6.10；編輯結果 LPIPS 淨化前 0.341、七道 0.302、VAE-Trans 0.185（8 張 × 4 句）。<b>待決定</b>：trial promote；高失真版 color3d_0d4（0.409）是否入文。",[]],
+  ["B3","目標函數","done","VAE encoder 潛向量位移（單次前向）。對照：comm、FreeObjective（差距在 3% 內）、xattn、selfrec（暫緩）。",["PhotoGuard","EditShield","DiffusionClassifier"]],
+  ["B4","自然度約束","done","防禦圖 LPIPS 區間 0.27–0.30、色度位移 ≤ 8、色調單調、斜率 ≤ 3、相鄰色對增益與尾端、膚色色相與彩度比。",["CIEDE2000","PerC","ColorConstraintsLit"]],
+  ["B5","求解器","done","PHR 增廣 Lagrange，只交付量化後可行的檢查點；約束進損失勝過事後投影（穿透率 1/25 → 18/25）。",["PHR"]],
+  ["B6","HSV 參數化","new","會議：在 HSV 上定義映射，使色相、飽和度、明度的約束以參數化直接表達。由你與 color 直接討論。既有數據只有 HSV 明度族的振幅天花板（ΔE00 8.41–22.39）。",["SAE"]],
+  ["B8","約束重新公式化／影像自適應可行集合","decide","Lab 投影與 ball_contrast 外觀否決；可行集合以每張影像的 κ ×0.7、色空間 Lipschitz 3.7、逐點膚色橢圓 1.0、tile 協方差上限 7.7 收緊後為 <b>color3d_adaptive_set</b>。8 張全部可行：防禦圖 LPIPS 0.326；編輯結果 LPIPS 淨化前 0.369、七道 0.327、VAE-Trans 0.237（color3d_orig 為 0.287／0.341／0.302／0.185）。臉部明度分層比 color3d_orig 明顯。<b>待決定</b>：是否取代 color3d_orig。",["ColorConstraintsLit"]],
+  ["B7","全域共用查找表（延伸）","new","會議「prompt-global」：以現行載體求一張套用到所有影像的查找表；預期弱於逐影像版本，但可能對特定指令類別有效。列為延伸，待做。<b>注意</b>：針對特定指令會與「訓練不可用任何指令」規則衝突，開做前要先定訓練可用的文字。",["ReColorAdv"]]
+ ]},
+ {id:"C",name:"機制與分析",q:"為什麼有效？效果從哪裡來？",nodes:[
+  ["C1","隨機載體對照","done","同失真隨機 LUT／濾鏡在 VAE-Trans 後亦約 0.19：抗淨化是全域映射載體的共性。",[]],
+  ["C2","代價—位移直線","done","十個全域顏色方法：編輯結果 LPIPS ≈ 0.084 ＋ 0.932 × 防禦圖 LPIPS（r ＝ 0.944）。",[]],
+  ["C3","最佳化勝過隨機","done","同族隨機換色表在相同失真下改變量較小，最佳化解高 32–61%。",[]],
+  ["C4","取樣雜訊底線","done","同一未防禦輸入換評估種子兩次編輯的 LPIPS 0.109。",[]],
+  ["C5","編輯失效形式","todo","換人、多人、配件未畫；trial edit_failure_mechanisms 有讀數，尚未整理成圖與分類統計。",[]],
+  ["C6","淨化為何抓不到全域映射","gap","論文需要一段機制論證（頻域、潛空間或分布層面），目前只有 C1 的經驗結果。",["CAT","BlurGuard"]]
+ ]},
+ {id:"D",name:"感知品質與人眼",q:"防禦圖看起來自然嗎？用什麼證明？",nodes:[
+  ["D1","全參考失真指標組","done","LPIPS、DISTS、SSIM、FSIM、VMAF、ΔE00、PSNR、L∞。<b>缺</b>：mist、photoguard_linf 等失真臂的 VMAF。",["LPIPS","DISTS","FSIM","VMAF","CIEDE2000"]],
+  ["D2","先色彩對齊再量失真","new","會議：先以全域色彩轉換把防禦圖對齊回原圖色調，再量剩餘失真，分開「色調改變」與「畫質劣化」。與 D3 獨立。",["Rajashekar2010","SCIELAB","ShiftTolerantLPIPS"]],
+  ["D3","人眼感知取向的自然度指標","new","會議：現行失真指標（LPIPS 等）對全域色彩改變計分過重，對本方法不利。找以人眼感知為主的指標評估自然度，包括人類偏好分數 PickScore、HPSv3（需文字 prompt，以原圖為參照報差值），並擴充同類文獻。已量（8 張、防禦圖對原圖、14 條件）：pyiqa 的 PieAPP、TOPIQ-FR、AHIQ、CKDN、CW-SSIM、NLPD、GMSD、MS-SSIM 與 PickScore，結果在 color trial results/human_aligned_metrics/。未量：ImageReward、HPSv3、CD-Flow。",["PickScore","HPSv3","SCOOTER"]],
+  ["D4","真人 user study","new","會議：受測者判斷防禦圖是否被處理、自然度評分。待做；協定可借 SCOOTER（5 點 Likert、±0.2 等價界）。倫理審查與人數未定。",["SCOOTER","AdvCF"]],
+  ["D5","無參考指標與其限制","done","LAION aesthetic、CLIP-IQA、NIQE 已算；NIQE、平均色差、CVaR 尾端都曾被最佳化鑽過。",["NRIQAAdv","CLIPIQA"]]
+ ]},
+ {id:"E",name:"比較對象",q:"跟誰比？比得公平嗎？",nodes:[
+  ["E1","主表 12 列","done","ip2p＋inpaint、各自原生預算；位移、保留率、語意與身分、附加指標齊。",["PhotoGuard","Mist","DIA","SIFM","DANP","DAYN","DCTShield","DiffVax"]],
+  ["E2","已實作未入主表","done","AdvPaint、PromptFlare、DiffusionGuard（inpainting 場景）。",["AdvPaint","PromptFlare","DiffusionGuard"]],
+  ["E3","指令式編輯 baseline 缺口","gap","EditShield 未實作；FaceLock 本身作為防禦未跑。審稿人對 ip2p 場景最可能要求的兩個。",["EditShield","FaceLock"]],
+  ["E4","photoguard_encoder 原生列","decide","主表 8 張是否補 photoguard_encoder 的原生預算列。",["PhotoGuard"]],
+  ["E5","BlurGuard 對照","done","color 專案已跑（results/blurguard）。",["BlurGuard"]],
+  ["E6","DiT 時代方法","todo","DeContext、NullEdit、VETO、TDAE 只進相關工作；3090 放不下 12B 以上的白箱最佳化。",["DeContext","NullEdit","VETO","TDAE"]]
+ ]},
+ {id:"F",name:"論文建構",q:"怎麼把結果講成一個故事？",nodes:[
+  ["F1","範本論文拆解","new","會議：從 CVPR 相近主題自行挑 2–3 篇，拆出方法設計的順序、想法如何疊加、作者推測的思考流程、故事線，作為本文骨架。",[]],
+  ["F2","主張—證據對照表","todo","每一條主張對到一張表或一張圖；沒有證據的主張刪掉或補實驗。",[]],
+  ["F4","相關工作四節","todo","擴散編輯免疫、色彩函數對抗樣本、淨化與破解、感知評估。",[]],
+  ["F5","圖表規劃","todo","主圖：等失真下淨化前後位移；載體對照；外觀樣張；人眼結果。",[]],
+  ["F6","style 線是否入文","decide","SPA 移植（Neurocomputing 134591）結果已刪除，只存文件；入文需重跑。",["SPA"]],
+  ["F7","投稿目標與期限","decide","尚未指定會議或期刊；決定後倒推各階段期限。",[]]
+ ]}
+];
+
+const PLAN=[
+ ["P0","定題與故事","",""],
+ ["","決定投稿目標與期限（F7）","你","—"],
+ ["","從 CVPR 相近主題挑 2–3 篇範本論文並拆解（F1）","你派工","—"],
+ ["","寫一頁故事與主張—證據對照表（F2）","你＋executor","F1"],
+ ["P1","方法定稿","",""],
+ ["","HSV 參數化（B6）","你 ↔ color","—"],
+ ["","color3d_orig trial promote；0d4 是否入文（B2）","你 ↔ color","B6 決定"],
+ ["","style 線是否入文（F6）","你","P0"],
+ ["P2","評估補齊","",""],
+ ["","評估效度方案 A／B／C／D（A6）","你 ↔ color","—"],
+ ["","等失真錨點重定與第 11 臂（A4、E4）","你 ↔ baseline","—"],
+ ["","Pexels 原生跑完並決定補足方式（A3）","baseline，等 GPU","color 讓卡"],
+ ["","Pexels 等失真臂（A4）","baseline，約 8 天","A4 錨點決定"],
+ ["","FLUX 七道淨化（A7）","baseline，約 40 卡時","—"],
+ ["","Pexels 與跨編輯器的 VAE-Trans（A5）","baseline，等 GPU","—"],
+ ["","color3d_orig 上 Pexels（目前只有 portraits 8 張）","你 ↔ color","P1 方法定稿"],
+ ["","EditShield、FaceLock baseline（E3）","你 ↔ baseline","—"],
+ ["","補 VMAF 缺值（D1）","baseline","—"],
+ ["","先色彩對齊再量失真（D2）","你派工","—"],
+ ["","人眼感知取向的自然度指標，含 PickScore、HPSv3（D3）","你派工","P1 方法定稿"],
+ ["","真人 user study：設計、倫理、施測（D4）","你","P1 方法定稿"],
+ ["","影像間 bootstrap 信賴區間（A8）","baseline／color","P2 數據齊"],
+ ["","延伸：全域共用查找表（B7）","你派工","指令使用規則"],
+ ["P3","分析與圖表","",""],
+ ["","機制論證（C6）與失效形式整理（C5）","你 ↔ color","P2"],
+ ["","主圖與主表定稿（F5）","你","P2"],
+ ["P4","寫作","",""],
+ ["","Introduction、Related Work（F4）","你；executor 管文獻","P0"],
+ ["","Method、Experiments、Limitations","你","P1、P3"],
+ ["","全文主張與數字對照檢查","executor","初稿"],
+ ["P5","投稿","",""],
+ ["","格式、補充材料、程式碼釋出範圍","你","P4"]
+];
+
+const NOTES=[
+ ["hsv 優化 constraint-elegant","在 HSV 空間參數化色彩映射，讓自然度約束以參數化直接表達。由你與 color 直接討論。",["對應 B6；color 端未做過 HSV 最佳化，只有明度族的振幅天花板量測。"],""],
+ ["paper-construction 參考：方法設計、想法堆疊、臆測思考流程、故事","從 CVPR 相近主題自行挑 2–3 篇範本論文，拆解方法設計的順序、想法如何疊加、作者可能的思考流程與故事線，作為本文骨架。",["對應 F1、F2；待你派工。"],""],
+ ["prompt-global 方法","延伸：以現行載體求一張套用到所有影像的全域查找表；可能不如逐影像版本，但可能對特定指令有效。待做。",["對應 B7。","針對特定指令會與「訓練不可用任何指令」規則衝突，開做前要先定規則。"],""],
+ ["人眼感知失真指標＋PickScore＋HPSv3（2508.03789）","現行失真指標對全域色彩改變計分過重、對本方法不利。找以人眼感知為主的指標評估自然度；PickScore（NeurIPS 2023）與 HPSv3（ICCV 2025）歸在這一項。",["對應 D3。兩個偏好分數都需要文字 prompt，以原圖為參照報差值。"],""],
+ ["color-alignment-image-quality","先以全域色彩轉換把防禦圖對齊回原圖色調，再量剩餘失真。與上一項獨立。",["對應 D2；候選文獻 Rajashekar et al. 2010、S-CIELAB。","加性擾動的 baseline 對齊後失真幾乎不降，論文中要說明這個量法的公平性。"],""],
+ ["真人 study","受測者評自然度或判斷「是否被處理過」。待做。",["對應 D4；協定可借 SCOOTER；倫理審查與人數未定。"],""]
+];
+
+const PAPERS=[
+ // [key, 名稱, 出處, 連結, 分支, 查證, 角色, 會議新增]
+ ["PhotoGuard","PhotoGuard (Salman et al.)","ICML 2023 · arXiv 2302.06588","https://arxiv.org/abs/2302.06588","A1 B3 E1 E4","已審計","baseline／目標函數來源",0],
+ ["Mist","Mist (Liang et al.)","arXiv 2305.12683","https://arxiv.org/abs/2305.12683","E1","已審計","baseline",0],
+ ["DIA","DIA-PT／DIA-R","ICCV 2025 · arXiv 2510.00778","https://arxiv.org/abs/2510.00778","E1","已審計","baseline",0],
+ ["SIFM","SIFM","arXiv 2512.14320","https://arxiv.org/abs/2512.14320","E1","已審計","baseline",0],
+ ["DANP","DANP","arXiv 2512.14333","https://arxiv.org/abs/2512.14333","E1","已審計","baseline",0],
+ ["DAYN","DAYN (Lo et al.)","CVPR 2024","","E1","已審計","baseline",0],
+ ["DCTShield","DCT-Shield","arXiv 2504.17894","https://arxiv.org/abs/2504.17894","E1","已審計","baseline（指令式編輯）",0],
+ ["DiffVax","DiffVax","ICLR 2026 · arXiv 2411.17957","https://arxiv.org/abs/2411.17957","E1","已審計","baseline",0],
+ ["AdvPaint","AdvPaint","github JoonsungJeon/AdvPaint","https://github.com/JoonsungJeon/AdvPaint","E2","已審計","inpainting baseline",0],
+ ["PromptFlare","PromptFlare","arXiv 2508.16217","https://arxiv.org/abs/2508.16217","E2","已審計","inpainting baseline",0],
+ ["DiffusionGuard","DiffusionGuard","ICLR 2025 · arXiv 2410.05694","https://arxiv.org/abs/2410.05694","E2","已審計","inpainting baseline",0],
+ ["EditShield","EditShield","ECCV 2024 · arXiv 2311.12066","https://arxiv.org/abs/2311.12066","B3 E3 F3","已記錄","缺的 baseline；潛向量位移目標先例",0],
+ ["FaceLock","FaceLock","CVPR 2025 · arXiv 2411.16832","https://arxiv.org/abs/2411.16832","A1 A2 E3 F3","已記錄","評估協定來源；缺的 baseline",0],
+ ["BlurGuard","BlurGuard","NeurIPS 2025 · github jsu-kim/BlurGuard","https://github.com/jsu-kim/BlurGuard","C6 E5","已記錄","抗淨化免疫對照",0],
+ ["AdvDM","AdvDM","ICML 2023","","E1","已記錄","相關工作（加性免疫）",0],
+ ["Glaze","Glaze","USENIX Security 2023","","E1","已記錄","相關工作（風格模仿防護）",0],
+ ["SRIM","SRIM","arXiv 2610.07464","https://arxiv.org/abs/2610.07464","E1","已記錄","相關工作",0],
+ ["DeContext","DeContext","arXiv 2512.16625","https://arxiv.org/abs/2512.16625","E6","已記錄","DiT 時代相關工作",0],
+ ["NullEdit","NullEdit","arXiv 2608.10870","https://arxiv.org/abs/2608.10870","E6","已記錄","DiT 時代相關工作",0],
+ ["VETO","VETO","arXiv 2607.27292","https://arxiv.org/abs/2607.27292","E6","已記錄","DiT 時代相關工作",0],
+ ["TDAE","TDAE","arXiv 2512.14341","https://arxiv.org/abs/2512.14341","E6","已記錄","DiT 時代相關工作",0],
+ ["CLIP2Protect","CLIP2Protect／DiffAM（對抗妝容）","CVPR 2023／CVPR 2024","","B1","已記錄","非加性防禦先例（局部）",0],
+ ["PurifyOnce","Purify Once, Edit Freely（VAE-Trans、EditorClean）","arXiv 2603.13028","https://arxiv.org/abs/2603.13028","A5","已記錄","主要淨化攻擊",0],
+ ["JPEGBypass","JPEG 繞過免疫 (Sandoval-Segura et al.)","arXiv 2304.02234","https://arxiv.org/abs/2304.02234","A5","已記錄","淨化",0],
+ ["NoisyUpscaling","Noisy upscaling (Hönig et al.)","ICLR 2025","","A5","已記錄","淨化",0],
+ ["ISS","Image Shortcut Squeezing","ICML 2023","","A5","已記錄","灰階化等淨化",0],
+ ["CAT","CAT","ICML 2025 · arXiv 2502.07225","https://arxiv.org/abs/2502.07225","C6","已記錄","擾動有效性來自潛表徵失真",0],
+ ["GuardDoor","GuardDoor","arXiv 2503.03944","https://arxiv.org/abs/2503.03944","A5","已記錄","相關工作",0],
+ ["ICIP25Disrupt","Is Perturbation-Based Image Protection Disruptive to Image Editing?","ICIP 2025 · arXiv 2506.04394","https://arxiv.org/abs/2506.04394","A6","已記錄","評估效度的否定證據",0],
+ ["DoProtect","Do Protective Perturbations Really Protect Portrait Privacy…","arXiv 2604.23688","https://arxiv.org/abs/2604.23688","A6","已記錄","評估效度的否定證據",0],
+ ["ReColorAdv","ReColorAdv (Laidlaw & Feizi)","NeurIPS 2019 · arXiv 1906.00001","https://arxiv.org/abs/1906.00001","B1","已記錄","載體先例，必引",0],
+ ["ACE","ACE (Zhao, Liu, Larson)","BMVC 2020 · arXiv 2002.01008","https://arxiv.org/abs/2002.01008","B1","已記錄","色彩濾鏡對抗",0],
+ ["AdvCF","AdvCF","IEEE TIFS 2023 · doi 10.1109/TIFS.2023.3275057","https://doi.org/10.1109/TIFS.2023.3275057","B1 D4","已記錄","淨化評估與使用者研究先例",0],
+ ["NCF","Natural Color Fool","NeurIPS 2022 · arXiv 2210.02041","https://arxiv.org/abs/2210.02041","B1","已記錄","色彩對抗",0],
+ ["ColorFool","ColorFool","CVPR 2020 · arXiv 1911.10891","https://arxiv.org/abs/1911.10891","B1","已記錄","色彩對抗",0],
+ ["cAdv","cAdv／tAdv","ICLR 2020 · arXiv 1904.06347","https://arxiv.org/abs/1904.06347","B1","已記錄","色彩對抗",0],
+ ["SAE","Semantic Adversarial Examples (Hosseini & Poovendran)","CVPR-W 2018 · arXiv 1804.00499","https://arxiv.org/abs/1804.00499","B6","已記錄","HSV 色彩對抗先例",0],
+ ["PerC","PerC-AL","CVPR 2020 · arXiv 1911.02466","https://arxiv.org/abs/1911.02466","B4","已記錄","CIEDE2000 約束",0],
+ ["AdaptiveLUT","Image-adaptive 3D LUT (Zeng et al.)","TPAMI 2020 · arXiv 2009.14468","https://arxiv.org/abs/2009.14468","B1","待核對","3D LUT 載體；也是可能的反制",0],
+ ["PHR","Hestenes 1969；Powell 1969；Rockafellar 1973","JOTA 等","","B5","已記錄","增廣 Lagrange",0],
+ ["DiffusionClassifier","Your Diffusion Model is Secretly a Zero-Shot Classifier","ICCV 2023 · arXiv 2303.16203","https://arxiv.org/abs/2303.16203","B3","已記錄","selfrec 目標",0],
+ ["ColorConstraintsLit","色彩約束文獻 [1]–[21]（CIE 230、Luo 2006 等）","trial LITERATURE_COLOR_CONSTRAINTS.md","","B4","待核對","約束數值的出處；DOI 未逐一核對",0],
+ ["CIEDE2000","CIEDE2000 (Sharma et al.)","Color Res. Appl. 2005","https://doi.org/10.1002/col.20070","B4 D1","已記錄","色差",0],
+ ["InstructPix2Pix","InstructPix2Pix","CVPR 2023 · arXiv 2211.09800","https://arxiv.org/abs/2211.09800","A2","待核對","攻擊端",0],
+ ["LDM","High-Resolution Image Synthesis with Latent Diffusion Models (Rombach et al.)","CVPR 2022 · arXiv 2112.10752","https://arxiv.org/abs/2112.10752","A1","已記錄","Stable Diffusion；引言引用（bib key rombach2022ldm）",0],
+ ["FLUXKontext","FLUX.1 Kontext","arXiv 2506.15742","https://arxiv.org/abs/2506.15742","A7","待核對","跨編輯器",0],
+ ["UltraEdit","UltraEdit","arXiv 2407.05282","https://arxiv.org/abs/2407.05282","A7","待核對","跨編輯器",0],
+ ["LPIPS","LPIPS (Zhang et al.)","CVPR 2018 · arXiv 1801.03924","https://arxiv.org/abs/1801.03924","D1","待核對","主讀數",0],
+ ["DISTS","DISTS (Ding et al.)","TPAMI 2020 · arXiv 2004.07728","https://arxiv.org/abs/2004.07728","D1","待核對","失真指標",0],
+ ["FSIM","FSIM (Zhang et al.)","TIP 2011","","D1","待核對","失真指標",0],
+ ["VMAF","VMAF (Netflix libvmaf)","github Netflix/vmaf","https://github.com/Netflix/vmaf","D1","待核對","失真指標",0],
+ ["CLIPIQA","CLIP-IQA；NIQE；LAION aesthetic","AAAI 2023；SPL 2013","","D5","待核對","無參考指標",0],
+ ["NRIQAAdv","NR-IQA 的對抗穩健性","arXiv 2310.06958","https://arxiv.org/abs/2310.06958","D5","已記錄","指標可被鑽",0],
+ ["ShiftTolerantLPIPS","Shift-tolerant LPIPS","ECCV 2022 · arXiv 2207.13686","https://arxiv.org/abs/2207.13686","D2","已記錄","空間對齊的類比",0],
+ ["SCOOTER","SCOOTER","arXiv 2507.07776","https://arxiv.org/abs/2507.07776","D4","已記錄","人眼評測協定",0],
+ ["PickScore","Pick-a-Pic／PickScore (Kirstain et al.)","NeurIPS 2023 · arXiv 2305.01569","https://github.com/yuvalkirstain/pickscore","D3","待讀","人類偏好分數",1],
+ ["HPSv3","HPSv3 (Ma et al.)","ICCV 2025 · arXiv 2508.03789","https://arxiv.org/abs/2508.03789","D3","待讀","人類偏好分數",1],
+ ["Rajashekar2010","Perceptual quality assessment of color images using adaptive signal representation (Rajashekar, Wang, Simoncelli)","SPIE HVEI 2010","https://www.cns.nyu.edu/pub/lcv/rajashekar10a.pdf","D2","待讀","對光照與色偏不變的色彩品質指標候選",1],
+ ["SCIELAB","S-CIELAB (Zhang & Wandell)","SID 1997","","D2","待讀","空間色差指標候選",1],
+ ["SPA","Style-controllable adversarial example generation (Wang et al.)","Neurocomputing 702, 134591, 2026","https://doi.org/10.1016/j.neucom.2026.134591","F6","已記錄","style 線來源",0],
+ ["EvalSetSizes","16 篇文獻的評估集規模","baseline/docs/reference/EVALUATION_SET_SIZES.md","","A3","已記錄","資料規模依據",0],
+ ["BaselineAlignment","預算對齊設計","baseline/docs/reference/BASELINE_ALIGNMENT.md","","A4","已記錄","等失真臂依據",0]
+];
+
+const byKey=Object.fromEntries(PAPERS.map(p=>[p[0],p]));
+const esc=s=>s.replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+const chip=s=>`<span class="chip ${STATUS[s][1]}">${STATUS[s][0]}</span>`;
+
+document.getElementById("legend").innerHTML=Object.keys(STATUS).map(chip).join("");
+document.getElementById("spine").innerHTML=SPINE.map(b=>`<div class="beat"><span class="k">${b[0]}</span><span class="t">${b[1]}</span><span class="d">${b[2]}</span><span class="refs">${b[3]}</span></div>`).join("");
+
+function leafHTML(k){const p=byKey[k];if(!p)return `<span class="leaf">${esc(k)}</span>`;
+  const cls="leaf"+(p[7]?" newp":"")+(p[5]==="待核對"?" unv":"");const short=p[1].split(" (")[0].split("（")[0];
+  return p[3]?`<a class="${cls}" href="${p[3]}" target="_blank" rel="noopener" title="${esc(p[1])} · ${esc(p[2])}">${esc(short)}</a>`:`<span class="${cls}" title="${esc(p[2])}">${esc(short)}</span>`;}
+document.getElementById("tree").innerHTML=BRANCHES.map(b=>`<div class="branch"><div class="bh"><span class="id">${b.id}</span><span class="name">${b.name}</span></div><div class="bq">${b.q}</div><div class="nodes">${
+  b.nodes.map(n=>`<div class="node" data-s="${n[2]}"><div class="top"><span class="nid">${n[0]}</span><span class="nt">${n[1]}</span>${chip(n[2])}</div><div class="nd">${n[3]}</div>${n[4].length?`<div class="leaves">${n[4].map(leafHTML).join("")}</div>`:""}</div>`).join("")}</div></div>`).join("");
+
+const counts={};BRANCHES.forEach(b=>b.nodes.forEach(n=>counts[n[2]]=(counts[n[2]]||0)+1));
+const fbox=document.getElementById("filters");
+fbox.innerHTML=`<button class="f" id="f-all" aria-pressed="true">全部</button>`+Object.keys(STATUS).map(s=>`<button class="f" id="f-${s}" data-s="${s}" aria-pressed="false">只看${STATUS[s][0]}（${counts[s]||0}）</button>`).join("");
+fbox.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;const s=b.dataset.s||"";
+  fbox.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b?"true":"false"));
+  document.querySelectorAll(".node").forEach(n=>n.classList.toggle("dim",!!s&&n.dataset.s!==s));});
+
+document.getElementById("plan").innerHTML=`<thead><tr><th>階段</th><th>工作</th><th>負責</th><th>依賴</th></tr></thead><tbody>${
+  PLAN.map(r=>r[0]?`<tr class="phase"><td class="mono">${r[0]}</td><td colspan="3">${r[1]}</td></tr>`:`<tr><td></td><td class="ind">${r[1]}</td><td>${r[2]}</td><td class="mono">${r[3]}</td></tr>`).join("")}</tbody>`;
+
+document.getElementById("notes").innerHTML=NOTES.map(n=>`<div class="note"><div class="raw">${esc(n[0])}</div><div>${n[1]}</div><ul>${n[2].map(x=>`<li class="muted">${x}</li>`).join("")}</ul>${n[3]?`<div class="q">待確認：${n[3]}</div>`:""}</div>`).join("");
+
+const levels=["全部","已審計","已記錄","待核對","待讀"];
+const lf=document.getElementById("litfilters");
+lf.innerHTML=levels.map((l,i)=>`<button class="f" id="lit-${i}" data-l="${i?l:""}" aria-pressed="${i?"false":"true"}">${l}${i?`（${PAPERS.filter(p=>p[5]===l).length}）`:""}</button>`).join("");
+function renderLit(level){const rows=PAPERS.filter(p=>!level||p[5]===level);
+  document.getElementById("lit").innerHTML=`<thead><tr><th>文獻</th><th>出處</th><th>樹節點</th><th>查證</th><th>在本文的角色</th></tr></thead><tbody>${
+   rows.map(p=>`<tr><td>${p[3]?`<a href="${p[3]}" target="_blank" rel="noopener">${esc(p[1])}</a>`:esc(p[1])}${p[7]?` ${chip("new")}`:""}</td><td class="mono">${esc(p[2])}</td><td class="mono">${p[4]}</td><td>${p[5]}</td><td>${p[6]}</td></tr>`).join("")}</tbody>`;}
+renderLit("");document.getElementById("litcount").textContent=`${PAPERS.length} 條；連到研究樹的節點編號`;
+lf.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;lf.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b?"true":"false"));renderLit(b.dataset.l);});
+</script>

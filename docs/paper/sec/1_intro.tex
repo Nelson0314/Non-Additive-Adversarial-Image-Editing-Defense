@@ -1,0 +1,30 @@
+\section{Introduction}
+\label{sec:intro}
+
+% P1: background and the development of immunization
+Recent generative image models such as Stable Diffusion~\cite{rombach2022ldm} and the instruction-guided editors built on them~\cite{brooks2023instructpix2pix,zhao2024ultraedit,flux2025kontext} allow a publicly released photograph, portraits in particular, to be modified with a text prompt. This capability raises privacy and security concerns. Image immunization~\cite{salman2023photoguard} addresses them on the side of the image owner, who modifies a photograph before release so that edits of the released copy diverge from edits of the original. PhotoGuard introduced this setting for Stable Diffusion image-to-image editing and inpainting. Subsequent work extended it to instruction-guided editing~\cite{chen2024editshield,dctshield2025}, inpainting under attacker-chosen masks~\cite{diffusionguard2025,dia2025}, facial identity~\cite{wang2025facelock}, and diffusion-transformer editors~\cite{decontext2025,nulledit2026}, and replaced per-image optimization with a trained feed-forward generator~\cite{diffvax2026}.
+
+% P2: common form of existing methods
+Most of these methods share one form. They superimpose an additive adversarial perturbation $\delta$ on the image, optimized under an $\ell_\infty$ or $\ell_2$ budget with projected gradient descent against a component of the editor~\cite{salman2023photoguard,liang2023mist,chen2024editshield,dia2025,dctshield2025}. The perturbation is set independently at each pixel and forms a pattern tied to the pixel grid of the original photograph, with most of its energy at high spatial frequencies \TODO{radial power spectrum of $\delta$, supplementary}. Methods designed for robustness keep the additive form and change where $\delta$ is placed. DCT-Shield~\cite{dctshield2025} perturbs quantized JPEG coefficients, and BlurGuard~\cite{blurguard2025} applies region-wise Gaussian blur to $\delta$ to bring its spectrum closer to that of natural images.
+
+% P3: findings of purification studies
+This spatial structure makes the perturbation fragile. Purification operations that an attacker can apply before editing remove it. JPEG compression~\cite{sandoval2023jpeg} and noisy upscaling~\cite{honig2025noisyupscaling} bypass several protections, and VAE-based purification removes the protection of six methods without access to the protected images or to the defense~\cite{purifyonce2026}. Contrastive adversarial training of a lightweight adapter removes it on the side of the editor~\cite{cat2025}. Evaluations of edit outcomes report that protected images are often still edited as instructed~\cite{icip2025disruptive} and that protections fail under chains of common transformations~\cite{doprotect2026}. H\"{o}nig~\etal~\cite{honig2025noisyupscaling} attribute this to a structural disadvantage of the defender, whose protection is fixed before the attacker selects a purification.
+
+% P4: the proposed carrier
+We propose color-mapping immunization, a filter-like defense that encodes the protection in the colors of the image. Each image receives its own 3D color lookup table (LUT), the operator of global color grading~\cite{zeng2020lut}. Acting on colors alone, the LUT introduces no spatial structure into the image, and the protection it carries persists through purification (\cref{sec:carrier}). The protected image appears as a color-graded version of the original (\cref{fig:teaser}). Color mappings have served as adversarial carriers against image classifiers~\cite{laidlaw2019functional,zhao2023advcf,yuan2022ncf}. We bring this family of transformations to immunization against diffusion editing.
+
+% P5: naturalness by parameterization
+A LUT optimized without restriction can produce banding, unnatural skin tones, and colored fringes in neutral regions. Adding a penalty for each such artifact leads to constraints that conflict during optimization (\cref{sec:exp_ablation}). We instead restrict the form of the mapping. The LUT rotates each color vector about the black point, with the gray axis as the polar axis. The polar angle, which governs saturation, and the azimuth, which governs hue, each change within a small bound, and the rotation varies smoothly across color space (\cref{sec:feasible}). Every mapping in this family is a mild, smooth color shift, so the optimization needs no penalty terms or projection and maximizes the defense objective alone.
+
+% P6: comparison protocol
+Defenses of different forms are compared at matched distortion. We measure defense distortion as the LPIPS between the protected and the original image, and edit displacement as the LPIPS between the edits of the two. The operating points of additive methods and of color mappings lie close to one line on these axes, and adjusting the budget of a method moves it along that line (\cref{fig:plane}). At equal distortion the defenses are therefore comparable before purification, and we evaluate how much of their displacement remains after it (\cref{sec:exp_purify}).
+
+% P7: measurement of naturalness
+Reference-based quality metrics and preference models count a change of tone as degradation, and PieAPP, TOPIQ-FR, and HPSv3 rank a color-graded photograph below an additive perturbation of the same LPIPS (\cref{sec:exp_percept}). We report these metrics together with a color-aligned distortion that factors out the best-fitting global color transform before comparison, a reference band of common grading presets, and a user study.
+
+Our contributions are:
+\begin{itemize}
+  \item We propose color-mapping immunization, a filter-like defense that protects each image with its own 3D LUT and introduces no spatial structure into the image.
+  \item On InstructPix2Pix at matched distortion, the edit displacement our defense retains after purification, averaged over all purification methods, is \NUM{} times that of additive defenses.
+  \item We propose an evaluation of naturalness for tone-changing defenses that combines color-aligned distortion, a reference band of grading presets, and a user study.
+\end{itemize}

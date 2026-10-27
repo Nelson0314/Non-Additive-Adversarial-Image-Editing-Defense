@@ -1,0 +1,43 @@
+\section{Method}
+\label{sec:method}
+
+
+\Cref{fig:overview} summarizes the method. The defense is a per-image 3D LUT (\cref{sec:carrier}) whose form is restricted to smooth rotations of color (\cref{sec:feasible}), optimized against the VAE encoder of the editor (\cref{sec:objective}).
+
+\subsection{Threat model}
+\label{sec:threat}
+The defender processes an image $x$ before sharing it and publishes $\tilde{x}$. The attacker edits $\tilde{x}$ with a public editor $E(\cdot, p)$ and an instruction $p$, possibly after applying a purification $P$. We assume the defender knows the editor's weights but cannot change them, and does not know $p$. During optimization the defender uses no instruction. We measure success by edit displacement, the LPIPS distance between $E(P(\tilde{x}), p)$ and $E(P(x), p)$.
+
+\subsection{A color lookup table as the carrier}
+\label{sec:carrier}
+We parameterize the defense as a 3D LUT $T : [0,1]^3 \to [0,1]^3$ with $33^3$ lattice nodes. Each pixel is mapped by trilinear interpolation, $\tilde{x}_i = T(x_i)$. Two pixels of the same color therefore receive the same output, and the defense has no spatial structure of its own. \TODO{A short argument for why purification operators that preserve content approximately commute with $T$, while they do not preserve $\delta$ in $x + \delta$.}
+
+\subsection{Smooth color rotations}
+\label{sec:feasible}
+A LUT optimized without restriction produces color bands, unnatural skin tones, and colored fringes in neutral regions. We restrict $T$ to rotations of color about the black point. Each lattice color $c \in [0,1]^3$ is treated as a vector with direction $\hat{c} = c / \|c\|$, and the gray axis $g = (1,1,1)/\sqrt{3}$ serves as the polar axis. The polar angle of $\hat{c}$, its deviation from $g$, governs saturation, and its azimuth around $g$ governs hue.
+
+\paragraph{Rotation field.} The free parameters $P \in \mathbb{R}^{3 \times 33^3}$ assign a vector to every lattice node. A separable 3D Gaussian filter with $\sigma = 4$ lattice cells, truncated at $3\sigma$ and applied with replicated borders, turns them into a smooth field $V = G_\sigma * P$, so that neighboring colors rotate by similar amounts. At each node, the component of $V$ along $\hat{c}$ is removed, and the remainder is split into a meridian component $v_p$, which lies in the plane spanned by $\hat{c}$ and $g$, and an azimuthal component $v_h$ along $h = g \times \hat{c} / \|g \times \hat{c}\|$.
+
+\paragraph{Bounded rotation.} The two components rotate $\hat{c}$ in turn, each through a $\tanh$ saturation that bounds the angle without clipping:
+\begin{align}
+  d &= \hat{c} + \frac{v_p}{\|v_p\|}\, \tan\theta_{\max} \tanh\!\Big(\frac{\|v_p\|}{\tan\theta_{\max}}\Big), \\
+  o &= d + b \tanh\!\Big(\frac{v_h}{b}\Big)\, \frac{g \times d}{\|g \times d\|}, \qquad b = \tan\phi_{\max}\, \|g \times d\|, \\
+  T(c) &= \mathrm{clip}_{[0,1]}\big(\|c\|\, o / \|o\|\big).
+  \label{eq:rotation}
+\end{align}
+The first step changes the polar angle by less than $\theta_{\max}$ and the second changes the azimuth by less than $\phi_{\max}$; on the gray axis $b = 0$ and the hue of neutral colors is not defined. We use $\theta_{\max} = 10^\circ$ and $\phi_{\max} = 3^\circ$, so hue changes less than saturation. The output keeps the magnitude $\|c\|$, and the bounds hold before the final per-channel clipping to the RGB gamut. Pixels are mapped by trilinear interpolation of the $33^3$ node outputs.
+
+Every mapping in this family is a smooth change of saturation and hue at fixed vector magnitude. Naturalness is thus a property of the parameterization, and the optimization needs no penalty terms, projection, or bound on distortion. An earlier version added one penalty for each observed artifact and solved the problem with an augmented Lagrangian; the penalties pulled in different directions, and on one image only 1 of 180 checkpoints satisfied all of them (\cref{sec:exp_ablation}).
+
+\subsection{Objective}
+\label{sec:objective}
+We push the editor's VAE latent away from that of the original. With $\mu_\mathcal{E}$ the posterior mean of the VAE encoder, the objective is the mean squared difference over all $n$ latent elements,
+\begin{equation}
+  \max_P \; \frac{1}{n} \big\| \mu_\mathcal{E}(T_P(x)) - \mu_\mathcal{E}(x) \big\|_2^2 .
+  \label{eq:objective}
+\end{equation}
+This needs one forward pass through the encoder and no instruction. The method also needs gradients only through the VAE, which matters for large editors such as FLUX.1 Kontext, whose 12B transformer we never back-propagate through. Other objectives are compared in \cref{sec:exp_ablation}.
+
+\subsection{Optimization}
+\label{sec:optimization}
+We initialize $P$ with independent Gaussian entries of standard deviation 0.002 and optimize \cref{eq:objective} with Adam ($\beta_1 = 0.5$, $\beta_2 = 0.99$) for 1800 steps at $512^2$ resolution. The learning rate follows a cosine decay from $3 \times 10^{-4}$ to $10^{-5}$ over the first two thirds of the steps and stays at $10^{-5}$ afterwards. The protected image of the final step is delivered as an 8-bit PNG. Solving one image takes 8.5 to 9 minutes on a single RTX 3090.

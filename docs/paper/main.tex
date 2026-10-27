@@ -1,0 +1,63 @@
+% CVPR 2027 Paper Template; see https://github.com/cvpr-org/author-kit
+% Style files (cvpr.sty, ieeenat_fullname.bst, preamble.tex) copied from author-kit-CVPR2027-v1-latex.zip.
+
+\documentclass[10pt,twocolumn,letterpaper]{article}
+
+%%%%%%%%% PAPER TYPE  - PLEASE UPDATE FOR FINAL VERSION
+% \usepackage{cvpr}              % To produce the CAMERA-READY version
+\usepackage[review]{cvpr}      % To produce the REVIEW version
+% \usepackage[pagenumbers]{cvpr} % To force page numbers, e.g. for an arXiv version
+
+% Local preview with Tectonic (XeTeX): cvpr.sty loads the Type 1 package times, which has no
+% Unicode encoding; use the OpenType TeX Gyre clones instead. pdfLaTeX on Overleaf skips this block.
+\ifdefined\XeTeXrevision
+  \usepackage{fontspec}
+  \setmainfont{texgyretermes}[Extension=.otf, UprightFont=*-regular, BoldFont=*-bold, ItalicFont=*-italic, BoldItalicFont=*-bolditalic]
+  \setsansfont{texgyreheros}[Extension=.otf, UprightFont=*-regular, BoldFont=*-bold, ItalicFont=*-italic, BoldItalicFont=*-bolditalic]
+  \setmonofont{texgyrecursor}[Extension=.otf, UprightFont=*-regular, BoldFont=*-bold, ItalicFont=*-italic, BoldItalicFont=*-bolditalic]
+\fi
+
+% Import additional packages in the preamble file, before hyperref
+\input{preamble}
+% Two-column teaser (fig/teaser.tex); the CVPR 2027 preamble no longer loads these packages.
+\usepackage{cuted}
+\usepackage{currfile}
+\usepackage{caption}
+\newcommand{\NUM}{\textbf{\color{red}[NUM]}}
+
+\definecolor{cvprblue}{rgb}{0.21,0.49,0.74}
+\usepackage[pagebackref,breaklinks,colorlinks,allcolors=cvprblue]{hyperref}
+
+\def\confName{CVPR}
+\def\confYear{2027}
+
+%%%%%%%%% TITLE
+\title{Color-Mapping Immunization: Purification-Robust Protection of Images against Diffusion-Based Editing}
+
+%%%%%%%%% AUTHORS
+\author{First Author\\
+Institution1\\
+{\tt\small firstauthor@i1.org}
+}
+
+\begin{document}
+\maketitle
+\input{fig/teaser}
+\input{sec/0_abstract}
+\input{sec/1_intro}
+\input{sec/2_related}
+\input{sec/3_method}
+\input{sec/4_experiments}
+\input{sec/5_discussion}
+\input{sec/6_conclusion}
+\input{sec/7_llm_usage}
+{
+    \small
+    \bibliographystyle{ieeenat_fullname}
+    \bibliography{main}
+}
+
+% WARNING: do not forget to delete the supplementary pages from your submission
+% \input{sec/X_suppl}
+
+\end{document}

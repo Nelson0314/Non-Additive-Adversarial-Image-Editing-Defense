@@ -1,7 +1,7 @@
-"""measure_grading_comparison 的彙總：color3d 在三組全域調色分布中的百分位，與各組的中位數與範圍。
+"""measure_grading_comparison 的彙總：color3d_phr 在三組全域調色分布中的百分位，與各組的中位數與範圍。
 
-百分位：逐張計算「該組在同一張影像上的值 ≤ color3d 值」的比例 ×100（並列各計一半），再對 8 張取平均。
-中位數與範圍：該組全部（影像 × 成員）的值；color3d 為 8 張的值。
+百分位：逐張計算「該組在同一張影像上的值 ≤ color3d_phr 值」的比例 ×100（並列各計一半），再對 8 張取平均。
+中位數與範圍：該組全部（影像 × 成員）的值；color3d_phr 為 8 張的值。
 
 用法：python scripts/generate_grading_comparison_summary.py <grading_comparison CSV…> --output-csv <CSV>
 """
@@ -21,12 +21,12 @@ def main():
     args = ap.parse_args()
     rows = [r for p in args.inputs for r in csv.DictReader(p.open(encoding="utf-8"))]
     metrics = [k for k in rows[0] if k not in SKIP]
-    color = {r["image"]: r for r in rows if r["group"] == "color3d"}
+    color = {r["image"]: r for r in rows if r["group"] == "color3d_phr"}
     out = []
     for m in metrics:
-        rec = {"metric": m, "color3d_median": round(statistics.median(float(r[m]) for r in color.values()), 5),
-               "color3d_min": min(float(r[m]) for r in color.values()),
-               "color3d_max": max(float(r[m]) for r in color.values())}
+        rec = {"metric": m, "color3d_phr_median": round(statistics.median(float(r[m]) for r in color.values()), 5),
+               "color3d_phr_min": min(float(r[m]) for r in color.values()),
+               "color3d_phr_max": max(float(r[m]) for r in color.values())}
         for g in GROUPS:
             vals = [r for r in rows if r["group"] == g]
             per = []

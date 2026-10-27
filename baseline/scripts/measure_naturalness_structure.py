@@ -44,12 +44,12 @@ torch.set_num_threads(4)
 ALIGNED = HOME / "image-immunization" / "baseline" / "artifacts" / "aligned" / "defenses"
 IMAGES = ("man_00", "woman_01")
 ARMS = ("photoguard_encoder", "mist", "dia_pt", "dct_shield")
-COLOR = ("color3d", "color3d_orig")
+COLOR = ("color3d_phr", "color3d_orig")
 GRADING = ("kodak_portra_400", "creative_teal_orange")
 
 
 def original(im):
-    return T / "artifacts" / "defenses" / "color3d" / f"{im}__orig.png"
+    return T / "artifacts" / "defenses" / "color3d_phr" / f"{im}__orig.png"
 
 
 def defended(cond, im):

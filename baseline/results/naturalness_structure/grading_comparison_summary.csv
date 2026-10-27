@@ -1,4 +1,4 @@
-metric,color3d_median,color3d_min,color3d_max,rt_percentile,rt_median,rt_min,rt_max,rt_n,random_raw_percentile,random_raw_median,random_raw_min,random_raw_max,random_raw_n,random_matched_percentile,random_matched_median,random_matched_min,random_matched_max,random_matched_n
+metric,color3d_phr_median,color3d_phr_min,color3d_phr_max,rt_percentile,rt_median,rt_min,rt_max,rt_n,random_raw_percentile,random_raw_median,random_raw_min,random_raw_max,random_raw_n,random_matched_percentile,random_matched_median,random_matched_min,random_matched_max,random_matched_n
 ssim_structure,0.94386,0.90105,0.96412,0.0,0.99814,0.97983,0.99978,160,0.0,0.99923,0.98255,0.9999,160,0.0,0.99582,0.9692,0.99969,160
 fsim_pc,0.99144,0.97655,0.99594,5.6,0.99858,0.92037,0.99999,160,8.1,0.99944,0.97146,0.99998,160,38.8,0.99586,0.96529,0.99987,160
 edge_ssim_sobel,0.92851,0.89369,0.95522,18.8,0.97343,0.57461,0.99888,160,14.4,0.98069,0.73746,0.99957,160,70.0,0.89132,0.7108,0.99702,160

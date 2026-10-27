@@ -1,10 +1,10 @@
-"""color3d 防禦圖與全域調色（RawTherapee HaldCLUT、隨機參數化調色）對原圖的影響，以同一組讀數量測（CPU）。
+"""color3d_phr 防禦圖與全域調色（RawTherapee HaldCLUT、隨機參數化調色）對原圖的影響，以同一組讀數量測（CPU）。
 
 條件（皆對 data/portraits 8 張原圖量）：
-    color3d                 color trial `artifacts/defenses/color3d/<影像>__color3d__def.png`
+    color3d_phr                 color trial `artifacts/defenses/color3d_phr/<影像>__color3d_phr__def.png`
     rt_<名稱>               color trial `artifacts/perceptual_quality/grading_luts/<名稱>/<影像>.png`（20 個 HaldCLUT）
     random_raw_<k>          每張 20 組隨機參數化調色，不縮放（k = 0..19）
-    random_matched_<k>      同一組參數乘上逐張的倍率 α，使防禦圖 LPIPS 等於該張 color3d 的防禦圖 LPIPS（二分 14 次）
+    random_matched_<k>      同一組參數乘上逐張的倍率 α，使防禦圖 LPIPS 等於該張 color3d_phr 的防禦圖 LPIPS（二分 14 次）
 
 隨機調色（sRGB [0,1]，依序施加，輸出量化到 8 位元）；範圍取 Lightroom／RawTherapee 基本面板的常用區間：
     曝光 EV ∈ [−1, 1]：線性 RGB 乘 2^EV
@@ -119,8 +119,8 @@ def main():
         x = apq.tens(ns.original(im))
         with torch.no_grad():
             nr_x = {k: float(m(x)) for k, m in nr.items()}
-            target = float(lpips(apq.tens(ns.defended("color3d", im)), x))
-        measure("color3d", "color3d", im, x, apq.tens(ns.defended("color3d", im)), nr_x, {})
+            target = float(lpips(apq.tens(ns.defended("color3d_phr", im)), x))
+        measure("color3d_phr", "color3d_phr", im, x, apq.tens(ns.defended("color3d_phr", im)), nr_x, {})
         for g in GRADING:
             y = apq.tens(ns.T / "artifacts" / "perceptual_quality" / "grading_luts" / g / f"{im}.png")
             measure(f"rt_{g}", "rt", im, x, y, nr_x, {})

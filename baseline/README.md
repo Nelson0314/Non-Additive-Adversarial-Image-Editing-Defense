@@ -48,7 +48,9 @@
 | `results/flux/displacement.csv` | 384 | FLUX 全表的編輯結果 LPIPS，欄位與 `displacement.csv` 同組 |
 | `results/ultraedit/edits_<arm>.csv` | 256／檔，13 檔 | UltraEdit（SD3）全表的逐格編輯，未淨化＋7 道算子 |
 | `results/ultraedit/displacement.csv`、`results/ultraedit/retention.csv` | 384、2,688 | UltraEdit 全表的編輯結果 LPIPS 與保留率 |
-| `results/ultraedit/semantic_identity.csv`、`results/flux/semantic_identity.csv` | 3,328、416 | 欄位同 `results/semantic_identity.csv`；FLUX 只有未淨化 |
+| `results/ultraedit/semantic_identity.csv`、`results/flux/semantic_identity.csv` | 3,328、3,328 | 欄位同 `results/semantic_identity.csv`（未淨化與七道淨化後） |
+| `results/flux/retention.csv` | 2,688 | FLUX 全表七道淨化後的編輯結果 LPIPS 與保留率（`measure_flux_retention`，1024 解析度） |
+| `results/cross_model/` | — | encoder 類 4 條件以 SD3／FLUX 的 VAE 求解後的失真、位移、保留率（七道＋VAE-Trans）與語意讀數，見該目錄 `README.md` |
 | `results/sweeps/` | 數格至兩百格 | 未防禦影像上的編輯器參數掃描，依 `<編輯器>/<變因>/` 分層：`flux/`、`sdedit/`、`sdxl_ip2p/`、`ultraedit/`，及 `ip2p/reference/` 對照；`*_off_target.csv` 為指令以外改動的讀數（背景／主體 ΔE00、LPIPS）；對應影像在 `artifacts/sweeps/` 的同名位置 |
 
 十二個條件：`dct_shield_y`、`mist`、`dct_shield`、`photoguard_linf`、`danp`、`sifm`、`dayn`、`dia_pt`、`dia_r`、`photoguard_c`、`color`、`diffvax`。顏色那一列原為 `color_curve`（數值留在 commit `0dd243b`），現為 color 專案的方法 `color`；等失真臂仍以舊顏色列的 0.3344 為錨點（見 `STATUS.md`）。每個條件 8 影像 × 4 指令 × 2 場景 ＝ 64 格。

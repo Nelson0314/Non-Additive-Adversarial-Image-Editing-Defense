@@ -46,10 +46,32 @@
   主表、等失真臂、UltraEdit、FLUX 見 `README.md`「結果表」。產生程式 `measure_semantic_identity`（CUDA；
   與 CPU 計算相比 CLIP／SigLIP 方向差 ≤ 1e-5、ArcFace 逐位元相同、FaceNet 最大差 0.028）。
 - 等失真臂擴至 Pexels：`scripts/evaluate_pexels_aligned.sh`，八條件（`mist`、`dia_pt`、`sifm`、`dia_r`、`dct_shield_y`、
-  `dct_shield`、`dayn`、`danp`）沿用 `results/aligned/defense_<條件>.csv` 的 `eps_scale`；`photoguard_c`、`photoguard_linf`、
-  `photoguard_encoder` 與 `diffvax` 不在此臂。產物與狀態在 `artifacts/pexels_portraits/aligned/`、`runtime/pexels_portraits/aligned/`。
+  `dct_shield`、`dayn`、`danp`）沿用 `results/aligned/defense_<條件>.csv` 的 `eps_scale`；`photoguard_encoder`（eps_scale 0.2614，
+  即 2/255，1000 步）由 `scripts/evaluate_pexels_aligned_condition.sh` 另跑（逐條件的完成標記 `chain_<條件>.done`、鎖
+  `locks/<條件>/`，防禦圖失真與美學在 `results/<條件>/`）；`photoguard_c`、`photoguard_linf` 與 `diffvax` 不在此臂。
+  產物與狀態在 `artifacts/pexels_portraits/aligned/`、`runtime/pexels_portraits/aligned/`。八臂的 `fidelity.csv` 若在
+  photoguard_encoder 防禦生成期間量測，可能含部分 photoguard_encoder 列，合併時依條件過濾。
 - FLUX 七道淨化：`run_flux_edits --purifier`，13 arm × 7 算子 × 32 格，輸出 `results/flux/purified_edits/<算子>/edits_<arm>.csv`。
 - 文獻的評估集規模見 `docs/reference/EVALUATION_SET_SIZES.md`；完整版三張表的規劃與 GPU 時間見 `docs/PEXELS_PORTRAITS.md`「GPU 時間」。
+
+### Pexels 的論文工作（使用者 2026-10-29 定案：論文圖表全部改用 Pexels，以影像組推進，每完成一批交 paper，每天向 executor 回報完成數/總數）
+
+| 優先 | 內容 | 狀態與位置 |
+|---|---|---|
+| P0 | 主表：等失真 9 臂（8 臂＋`photoguard_encoder`）＋`color3d_pexels`；欄為防禦圖 LPIPS、防禦圖美學（LAION、NIMA、MUSIQ、NIQE）、編輯結果 LPIPS（淨化前、七道平均、最差一道、VAE-Trans、保留率）、SigLIP（七道、VAE-Trans）、ArcFace（七道） | 遠端佇列：`aligned_photoguard_encoder_<組>`、`aligned_<組>`、`followup_<組>_{undefended,color3d,aligned}`、`cpu_<組>`；原生 10 臂的 followup 不做。2 卡下預估 11/5–11/6 完成 |
+| P1 | 擾動存續比 LPIPS(P(x̃),P(x))/LPIPS(x̃,x)，9 臂＋`color3d_pexels`，七道＋VAE-Trans（CPU） | `scripts/measure_pexels_perturbation_survival.sh`；佇列 `survival_color3d_seven`、`survival_<組>_{seven,vae_trans}`；輸出 `runtime/pexels_portraits/followup/<根>/results/<aligned｜color3d>/survival_*.csv`、`followup/results/color3d_all/` |
+| P2 | 淨化強度掃描：306 張，`color3d_pexels`＋`dct_shield`、`mist`、`dia_pt`（等失真）＋未防禦分母；13 設定中 `blur1`、`blur2`、`jpeg30`、`jpeg50` 重用七道編輯，新增 9 個（`blur0.5`、`blur3`、`jpeg10`、`jpeg70`、`jpeg90`、`jpeg95`、`resample_roundtrip128/256/384`） | 未建；約 180 GPU 小時，佇列中排在 P0 之後。portraits 版見 `results/sweeps/ip2p/purifier_strength/`、`apply_purifier_sweep` |
+| P3 | 跨編輯器 baseline 列（`photoguard_encoder`、`dct_shield`、`dct_shield_y`、`mist_textural`）：UltraEdit 306 張全協定（未淨化、七道、VAE-Trans）；FLUX 只跑 color trial `pexels_subsets/flux.txt` 的影像（一行一張影像名，與 Ours 同一份名單） | 未建；排在 P2 之後。流程見 `results/cross_model/README.md` 與遠端 `runtime/cross_model/run_cross_model_job.sh`。Pexels 的 FLUX／UltraEdit 未防禦分母由 color 產生後共用，路徑由 color 提供。FLUX 只在 basic-2、UltraEdit 只在 basic-1 |
+| — | Fig. 3 散布點：原生 10 臂與等失真臂的淨化前、七道平均（編輯結果 LPIPS 對防禦圖 LPIPS），在數據齊的影像組上整理給 paper | 不需 GPU；原生讀 `runtime/pexels_portraits/<根>/results/`，等失真讀 `runtime/pexels_portraits/aligned/<根>/results/` |
+
+- CLIP-IQA／FID／KID 在 9 臂補齊 306 張且有 VAE-Trans 組後重新合併（需加入 `photoguard_encoder` 與 VAE-Trans 組），通知 paper 一次，附 `n_images`，KID 為負值的組在表中加欄標註。
+- 306 張的原生合併表以 `scripts/generate_pexels_result_tables.py` 重新產生後入庫。
+- `native_images_0307_0308` 的佇列完成標記為手動補上（log 於 2026-10-29 16:40:49 有 `ALL SETS DONE`，worker 因腳本檔 stale handle 在寫標記前結束，見 `queue/worker.log`）。
+  `aligned_images_0000_0096` 的 worker 有同樣情形，結束後須核對 log 與完成標記、確認沒有重複寫入。
+- 遠端 `runtime/` 的刪除候選（等使用者確認）：`semantic_identity/{superseded_cpu,timing,merged,merged_cpu,merged_fidelity}`、`aligned_recalibration/discarded`、
+  `superseded_scripts`、`cross_model/{superseded,*.patch,generate_defenses.py}`、`pexels_portraits/superseded`、各處的 `.py` 副本、`blurguard/`（讀數保留與否由使用者決定）。
+  `distribution_metrics/` 的特徵檔保留，供重新合併使用。
+- 改到正在執行的遠端腳本時，先建立 `queue/PAUSED` 並等工作結束再 `git pull`，或另寫新檔：此 NFS 上 `git pull` 會就地改寫檔案（inode 不變）。
 
 ### 論文實驗
 

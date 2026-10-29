@@ -5,7 +5,8 @@
 # 分組（第二個參數）：
 #   undefended  VAE-Trans 淨化未防禦原圖並編輯（其餘三組的分母）；需原生評測已完成該影像組的未防禦步驟
 #   native      原生預算十個條件（scripts/evaluate_pexels_portraits.sh 的預設）；需該影像組十個條件的 measured_<條件>.done
-#   aligned     等失真八個條件（scripts/evaluate_pexels_aligned.sh）；需該影像組的 chain.done
+#   aligned     等失真九個條件：scripts/evaluate_pexels_aligned.sh 的八個（需該影像組的 chain.done）與
+#               photoguard_encoder（scripts/evaluate_pexels_aligned_condition.sh；需 chain_photoguard_encoder.done）
 #   color3d     color 專案的 color3d_pexels（color trial artifacts_pexels/，只讀）；需該影像組每張影像的四句編輯
 # native、aligned、color3d 需 undefended 已完成（done/undefended.done）。前置條件不成立時以結束碼 4 結束。
 #
@@ -39,7 +40,7 @@ source scripts/run_evaluation_chain.sh
 export TOKENIZERS_PARALLELISM=false PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 
 NATIVE_CONDITIONS="diffvax photoguard_encoder mist dia_pt sifm dia_r dct_shield_y dct_shield dayn danp"
-ALIGNED_CONDITIONS="mist dia_pt sifm dia_r dct_shield_y dct_shield dayn danp"
+ALIGNED_CONDITIONS="mist dia_pt sifm dia_r dct_shield_y dct_shield dayn danp photoguard_encoder"
 ENC=../color/trials/lut3d_defense_and_naturalness/artifacts/purification/vae_trans/model/encoder.pt
 CT=../color/trials/lut3d_defense_and_naturalness
 CP=$CT/artifacts_pexels
@@ -175,6 +176,7 @@ run_group() {
     aligned)
       [ -f "$F/done/undefended.done" ] || not_ready "$SET 的 VAE-Trans 分母"
       [ -f "$AS/chain.done" ] || not_ready "等失真 $SET"
+      [ -f "$AS/chain_photoguard_encoder.done" ] || not_ready "等失真 $SET 的 photoguard_encoder"
       link_denominator aligned || return 1
       tables=()
       for c in $ALIGNED_CONDITIONS; do

@@ -11,6 +11,8 @@
 | FLUX 全表 | 同一批防禦圖換成 FLUX.1-Kontext 編輯 | `results/flux/` |
 | UltraEdit 全表 | 同一批防禦圖（含淨化後）換成 UltraEdit（SD3）編輯 | `results/ultraedit/` |
 | Pexels 人像 | 外部條件在 306 張 Pexels 人像上的原生預算讀數（只 ip2p） | `results/pexels_portraits/`、`docs/PEXELS_PORTRAITS.md` |
+| 跨模型移植 | encoder 類條件改以 SD3／FLUX 的 VAE 求解後由該編輯器編輯 | `results/cross_model/` |
+| CLIP-IQA、FID、KID | 等失真臂與 color3d 的分布距離與 CLIP-IQA（portraits、Pexels） | `results/distribution_metrics/` |
 
 主讀數是 `displacement.csv` 的 `disp_lpips_full`（編輯結果 LPIPS：未防禦編輯 vs 防禦後編輯，
 另有主體／背景分區）。主表的位移排名與防禦圖失真排名幾乎同序（原生防禦圖 LPIPS 0.043–0.666），
@@ -18,16 +20,26 @@
 
 ## 現況
 
-上表除 Pexels 人像外皆已有完整結果表。
+上表除 Pexels 人像外皆已有完整結果表。論文的 baseline 只列 9 個條件（不含 `photoguard_c`、`photoguard_linf`、`diffvax`），
+其餘條件的既有數據保留。BlurGuard 不併入主表（使用者決定），讀數留在遠端 `runtime/blurguard/`。
 
 ### Pexels 人像
 
 資料組 306 張（男 108、女 198），十個條件（`diffvax`、`photoguard_encoder`、`mist`、`dia_pt`、`sifm`、`dia_r`、`dct_shield_y`、
-`dct_shield`、`dayn`、`danp`），只跑 ip2p，以影像組為單位由兩個 worker 各佔一張卡執行。
-`results/pexels_portraits/` 為 186 張（`images_0000_0096` 至 `images_0177_0186`）的合併表；其餘影像組的進度以遠端
-`runtime/pexels_portraits/` 的完成標記與 `worker_<名>.lock/owner` 為準。資料選取、讀數表、暫停與恢復的操作見 `docs/PEXELS_PORTRAITS.md`。
+`dct_shield`、`dayn`、`danp`），只跑 ip2p，分為 23 個影像組。原生評測的進度以遠端各影像組的 `measured_<條件>.done`、
+`additional_metrics.done` 為準；`results/pexels_portraits/` 為 186 張（`images_0000_0096` 至 `images_0177_0186`）的合併表，
+全部影像組完成後以 `scripts/generate_pexels_result_tables.py` 重新產生。
+資料選取、讀數表與操作見 `docs/PEXELS_PORTRAITS.md`。
 
-- GPU：color 有佇列時優先取卡，baseline 用剩下的，全局合計 ≤ 6；讓卡與恢復用 `scripts/run_pause_for_color_queue.sh`（見 `docs/PEXELS_PORTRAITS.md`「操作」）。
+- 執行方式：遠端佇列。兩台主機的 crontab 每 30 分鐘執行 `scripts/run_pexels_supervisor.sh`，依 `runtime/pexels_portraits/queue/jobs.txt`
+  開 worker（`scripts/run_pexels_job.sh`），不依賴本機。工作清單含等失真臂各影像組（`aligned_<影像組>`）與後續量測
+  （`followup_<影像組>_<分組>`、`cpu_<影像組>`）；格式、狀態與 color 取卡方式見 `docs/PEXELS_PORTRAITS.md`「操作」。
+- GPU：全局合計 ≤ 6，color 優先；baseline 可用卡數 = 6 − max(非 baseline 租約數, `queue/color_reserve`)，由 supervisor 自動調整。
+- 後續量測（原生 10、等失真 8、`color3d_pexels`）：VAE-Trans（含未防禦分母）、語意與身分、編輯結果美學，以及 `color3d_pexels`
+  的防禦圖失真與美學。原生與等失真臂的防禦圖失真（交付 PNG、CPU，`fidelity.csv`）與美學已在各影像組的 `results/` 中。
+  `color3d_pexels` 的影像取自 color trial `artifacts_pexels/`（只讀），讀數寫在 baseline。
+- CLIP-IQA／FID／KID：`results/distribution_metrics/pexels_*.csv` 的等失真臂只含合併當時已完成的影像（42–166 張，同條件內各淨化的影像集合不同），
+  `color3d` 為 306 張；等失真臂補齊 306 張且有 VAE-Trans 組後重新合併。
 - 資料組的目標張數為 500；現行選取規則下來源只得到 306 張，補足方式（放寬規則、增加來源或只增加女性影像）未定。
 - 資料選取的程式與候選快取在 `trials/unsplash_portrait_pool/`（本機與遠端，不入版控），內容見該目錄的 `README.md`。
 - 語意與身分讀數：`results/pexels_portraits/semantic_identity_<條件>.csv`（含 `undefended`）為 186 張；
@@ -52,8 +64,8 @@
 
 - 等失真臂的 `mist`、`photoguard_linf`、`photoguard_encoder` 取 2/255（PNG 上擾動為整數灰階，見 `results/aligned/README.md`）。
 - BlurGuard：`generate_blurguard_defenses` 直接呼叫官方 `pgd_freq`（第一階段編碼器以 diffusers 的 SD v1.4 VAE 代替 ldm checkpoint）。原生 8 張防禦圖 LPIPS 0.231；ε 乘 1.0／1.5／2.0／2.5 時為 0.231／0.232／0.217／0.216，ε 不約束擾動幅度，等失真版本的旋鈕待使用者決定。主表原生全鏈的產物在 `artifacts/{defenses,defended_edits,purified,purified_edits}/blurguard`，讀數在遠端 `runtime/blurguard/native/results/`（完成後併入主表）。
-- 跨模型移植：`generate_defenses --vae-model` 只接受損失只經過 VAE 編碼器的條件（`photoguard_encoder`、`dct_shield`、`dct_shield_y`）。以 SD3（UltraEdit）與 FLUX.1-Kontext 的 VAE 求解並做未淨化編輯，產物 `artifacts/cross_model/<sd3|flux>/`，狀態與讀數 `runtime/cross_model/`；淨化後編輯尚未排程。`mist` 只有 textural 項可移植，其餘條件需要去噪器或反演，不移植。
-- Pexels 長跑與 Pexels 等失真臂在論文實驗期間暫停；恢復方式見 `docs/PEXELS_PORTRAITS.md`「操作」（等失真臂為 `scripts/run_pexels_aligned_worker.sh`）。
+- 跨模型移植：`generate_defenses --vae-model` 只接受損失只經過 VAE 編碼器的條件（`photoguard_encoder`、`dct_shield`、`dct_shield_y`，另有只保留 textural 項的 `mist_textural`）。SD3（UltraEdit）與 FLUX.1-Kontext 兩者的未淨化、七道與 VAE-Trans 讀數在 `results/cross_model/<sd3|flux>/`，協定與 `mist_textural` 和原方法的差異見該目錄的 `README.md`；產物 `artifacts/cross_model/`。
+- `scripts/generate_distortion_displacement_plane.py` 引用的 color 條件 `color3d_adaptive_set`、`color3d_0d4` 的產物已由 color 刪除，重跑前須指定新的條件清單。
 
 ### 顏色列是 `color`
 主表的顏色那一列是 color 專案的方法 `color`（預設參數）。防禦圖由 color 專案產出，經

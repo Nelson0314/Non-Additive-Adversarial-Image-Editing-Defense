@@ -101,6 +101,10 @@
 | 啟動或恢復一個 worker | 把 `$R/worker_<名>.lock` 移到 `$R/superseded/`，再於兩台主機各執行 `setsid nohup bash scripts/run_worker_when_card_free.sh <名> $(cat $R/worker_<名>.sets) > /dev/null 2>&1 < /dev/null &` |
 | 等失真臂的 worker | 兩台各一個 `setsid nohup bash scripts/run_pexels_aligned_worker.sh <a|b>`；取卡、影像組鎖 `$R/aligned/locks/`、紀錄 `$R/aligned/run.log` 與 `worker_<名>.log` |
 | 為 color 讓卡並自動恢復 | 兩台各執行 `setsid nohup bash scripts/run_pause_for_color_queue.sh <標籤> <color log>[=<標記>] ...`：停止本機的等待行程與等失真取卡迴圈，worker 在步驟邊界暫停（`IMMEDIATE=1` 立即終止），color log 新增標記（預設 `[ALL-DONE]`，`@<檔名>` 表示檔案出現）後恢復；`NO_PAUSE=1` 只負責恢復，`NATIVE_WORKERS`、`EXTRA_ALIGNED_LOOPS` 指定要恢復的 worker；紀錄於 `$R/pause_for_color_<標籤>.log` |
+| 佇列與監督（現行） | 工作清單 `$R/queue/jobs.txt`（每行「<工作 ID> <指令>」）；兩台的 crontab 每 30 分鐘執行 `scripts/run_pexels_supervisor.sh`，依可用卡數以 `scripts/run_pexels_job.sh` 開 worker（每個 worker 認領一項工作、取一張卡、做完即退出）。紀錄：`$R/queue/supervisor.log`、`worker.log`、`logs/<工作>.log`；完成標記 `$R/queue/done/`，失敗 3 次記於 `$R/queue/failed/` |
+| baseline 可用卡數 | 6 − max(`~/gpu_leases` 中名稱不以 `baseline_` 開頭的租約數, `$R/queue/color_reserve` 的整數)；baseline 的租約名皆為 `baseline_pexels_<工作>` |
+| color 取卡 | 在 `$R/queue/color_reserve` 寫入 color 要的張數（0–6），再於兩台各執行一次 `bash scripts/run_pexels_supervisor.sh`：已認領工作多於可用卡數時，監督停止本機最新認領的 worker 並交還其卡，之後不再開回；中斷的步驟由下一個 worker 依完成標記重做。color 用完後把該檔改回 0（或刪除），下一個週期 baseline 自動擴回 |
+| 暫停整個佇列 | 建立 `$R/queue/PAUSED`（監督不再開 worker，已在跑的做完即退出）；刪除即恢復 |
 | 合併讀數 | `python scripts/generate_pexels_result_tables.py <輸出目錄>`（遠端專案根），再把輸出複製到本機 `results/pexels_portraits/` |
 
 - `run_worker_when_card_free.sh` 每 5 分鐘尋找沒有 compute app 且沒有租約的卡；同名 worker 以 `worker_<名>.lock` 保證只啟動一次，

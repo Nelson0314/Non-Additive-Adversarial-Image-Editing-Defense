@@ -16,6 +16,7 @@
 
 輸出：<輸出目錄>/<dataset>_clipiqa.csv（逐張）、<dataset>_distribution.csv（逐組 FID、KID、CLIP-IQA 平均）。
 用法（遠端 baseline 專案根）：python scripts/measure_distribution_metrics.py <輸出目錄> --dataset portraits
+大量影像時先以 --shard i --shards n 平行抽取（各片存 .pt），再不帶 --shard 執行一次合併計算各組。
 """
 import argparse
 import csv
@@ -109,6 +110,10 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("out", type=Path)
     ap.add_argument("--dataset", choices=("portraits", "pexels"), required=True)
+    ap.add_argument("--shard", type=int, default=None,
+                    help="只抽取第 i 片（共 --shards 片）不重複影像的 CLIP-IQA 與特徵，存成 <輸出目錄>/<dataset>_features_<i>.pt")
+    ap.add_argument("--shards", type=int, default=1)
+    ap.add_argument("--tag", default="", help="分片檔名的附加段（<dataset>_features_<tag>_<i>.pt）；已存在的分片檔中有的影像不重算")
     args = ap.parse_args()
     args.out.mkdir(parents=True, exist_ok=True)
     torch.set_num_threads(8)
@@ -120,6 +125,23 @@ def main():
     clipiqa = pyiqa.create_metric("clipiqa", device="cpu", as_loss=False)
     inception = InceptionV3().eval()
     q_cache, f_cache = {}, {}
+    for part in sorted(args.out.glob(f"{args.dataset}_features_*.pt")):
+        saved = torch.load(part)
+        q_cache.update(saved["quality"])
+        f_cache.update(saved["feature"])
+    if args.shard is not None:
+        paths = sorted({str(p) for g in groups for p in g[3] + g[4]} - set(f_cache))[args.shard::args.shards]
+        q_cache, f_cache = {}, {}
+        for k, p in enumerate(paths):
+            with torch.no_grad():
+                x = load(p)
+                q_cache[p], f_cache[p] = float(clipiqa(x)), inception(x)[0].flatten(1)[0]
+            if k % 500 == 0:
+                print(f"[FEATURES] {args.shard}/{args.shards} {k}/{len(paths)}", flush=True)
+        name = f"{args.dataset}_features_{args.tag}_{args.shard}.pt" if args.tag else f"{args.dataset}_features_{args.shard}.pt"
+        torch.save({"quality": q_cache, "feature": f_cache}, args.out / name)
+        print(f"[ALLDONE] shard {args.shard}", flush=True)
+        return
 
     def quality(p):
         if p not in q_cache:

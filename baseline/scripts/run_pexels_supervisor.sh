@@ -30,6 +30,17 @@ for c in $Q/claims/*; do
   [ "$h" = "$host" ] || continue
   ps -p "$pid" > /dev/null 2>&1 || { log "reap stale claim $(basename $c) (pid $pid)"; rm -rf "$c"; }
 done
+# 等失真臂的影像組鎖（evaluate_pexels_aligned.sh、evaluate_pexels_aligned_condition.sh；owner 為「<主機> card <卡> pid <PID> <時刻>」）：
+# worker 被停止時鎖會留下，之後該影像組一律以結束碼 4 略過。本機擁有、行程已消失的鎖移到 runtime/pexels_portraits/superseded/stale_locks/。
+for o in $B/runtime/pexels_portraits/aligned/locks/*/owner $B/runtime/pexels_portraits/aligned/locks/*/*/owner; do
+  [ -f "$o" ] || continue
+  read -r h _ _ _ pid _ < "$o"
+  [ "$h" = "$host" ] && [[ "$pid" =~ ^[0-9]+$ ]] || continue
+  ps -p "$pid" > /dev/null 2>&1 && continue
+  l=$(dirname "$o"); rel=${l#$B/runtime/pexels_portraits/aligned/locks/}
+  mkdir -p "$B/runtime/pexels_portraits/superseded/stale_locks/$(dirname "$rel")"
+  mv "$l" "$B/runtime/pexels_portraits/superseded/stale_locks/$rel.$(date +%s)" && log "reap stale aligned lock $rel (pid $pid)"
+done
 
 others=0
 for f in ~/gpu_leases/*; do

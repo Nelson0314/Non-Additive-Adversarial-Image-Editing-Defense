@@ -75,15 +75,25 @@ if [ $excess -gt 0 ]; then
     excess=$((excess - 1)); claimed=$((claimed - 1))
   done
 fi
-pending=0 cpu_pending=0
+pending=0 cpu_pending=0 first_gpu="" first_cpu=""
 while read -r id cmd; do
   [ -n "$id" ] && [ "${id#\#}" = "$id" ] || continue
   [ -e $Q/done/$id ] || [ -e $Q/failed/$id ] || [ -d $Q/claims/$id ] && continue
   deps=""
   case $cmd in AFTER=*) deps=${cmd%% *}; deps=${deps#AFTER=}; cmd=${cmd#* } ;; esac
   for d in ${deps//,/ }; do [ -e $Q/done/$d ] || continue 2; done
-  case $cmd in "CPU "*) cpu_pending=$((cpu_pending + 1)) ;; *) pending=$((pending + 1)) ;; esac
+  case $cmd in
+    "CPU "*) cpu_pending=$((cpu_pending + 1)); [ -n "$first_cpu" ] || first_cpu=$id ;;
+    *) pending=$((pending + 1)); [ -n "$first_gpu" ] || first_gpu=$id ;;
+  esac
 done < $Q/jobs.txt
+# 可認領的第一項若在 worker.log 中連續 STALL_ROUNDS 次（預設 4）以結束碼 4（not ready）結束，寫警示行：
+# worker 依檔案順序認領，該項會一直擋住後面的工作（例如影像組鎖未清除）。
+STALL_ROUNDS=${STALL_ROUNDS:-4}
+for j in $first_gpu $first_cpu; do
+  n=$(grep -E " (claim|done|not ready|no free card for|exit [0-9]+) $j(:| |$)" $Q/worker.log 2>/dev/null | grep -v " claim $j"       | tail -n $STALL_ROUNDS | grep -c " not ready $j")
+  [ "$n" -ge "$STALL_ROUNDS" ] && log "[WARN] 佇列第一項 $j 連續 $n 次以結束碼 4（not ready）結束，後面的工作被擋住；檢查 logs/$j.log 與 runtime/pexels_portraits/aligned/locks/"
+done
 free=$(bash $B/vendor/scripts/measure_free_gpus.sh 2>/dev/null | wc -w)
 start=$((allowed - claimed)); [ $start -gt $free ] && start=$free; [ $start -gt $pending ] && start=$pending
 [ $start -lt 0 ] && start=0

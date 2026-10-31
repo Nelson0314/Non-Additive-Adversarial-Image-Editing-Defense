@@ -5,10 +5,10 @@
 #      color 預留張數讀 runtime/pexels_portraits/queue/color_reserve（0–6 的整數；缺檔為 0）。
 #      已認領的工作多於可用卡數時，停止本機最新認領的 worker（中斷的步驟之後依完成標記重做）；
 #      已認領的工作數（兩台合計）低於可用卡數時，於本機以 setsid nohup 啟動 worker
-#      （scripts/run_pexels_job.sh），每次至多啟動本機空卡數（vendor/scripts/measure_free_gpus.sh）。
+#      （scripts/run_pexels_queue_worker.sh），每次至多啟動本機空卡數（vendor/scripts/measure_free_gpus.sh）。
 #   3. CPU 工作（jobs.txt 中標 CPU 者）不佔卡、不計入上述認領數：本機進行中的 CPU 工作少於 CPU_PER_HOST（預設 2）
-#      且有可認領的 CPU 工作時，啟動 `run_pexels_job.sh cpu`。
-#   可認領：沒有完成或失敗標記、未被認領，且 AFTER= 所列工作皆已完成（格式見 scripts/run_pexels_job.sh）。
+#      且有可認領的 CPU 工作時，啟動 `run_pexels_queue_worker.sh cpu`。
+#   可認領：沒有完成或失敗標記、未被認領，且 AFTER= 所列工作皆已完成、HOST= 為本機（格式見 scripts/run_pexels_queue_worker.sh）。
 #   color 要取卡：寫入 color_reserve 後於兩台各執行一次本腳本，不必等下一個 cron 週期（見 docs/PEXELS_PORTRAITS.md「操作」）。
 #   停止監督：建立 runtime/pexels_portraits/queue/PAUSED。
 # 紀錄：runtime/pexels_portraits/queue/supervisor.log
@@ -82,6 +82,7 @@ while read -r id cmd; do
   deps=""
   case $cmd in AFTER=*) deps=${cmd%% *}; deps=${deps#AFTER=}; cmd=${cmd#* } ;; esac
   for d in ${deps//,/ }; do [ -e $Q/done/$d ] || continue 2; done
+  case $cmd in HOST=*) target=${cmd%% *}; cmd=${cmd#* }; [ "${target#HOST=}" = "$host" ] || continue ;; esac
   case $cmd in
     "CPU "*) cpu_pending=$((cpu_pending + 1)); [ -n "$first_cpu" ] || first_cpu=$id ;;
     *) pending=$((pending + 1)); [ -n "$first_gpu" ] || first_gpu=$id ;;
@@ -101,10 +102,10 @@ cpu_start=$((CPU_PER_HOST - cpu_local)); [ $cpu_start -gt $cpu_pending ] && cpu_
 [ $cpu_start -lt 0 ] && cpu_start=0
 log "others=$others reserve=$reserve allowed=$allowed claimed=$claimed pending=$pending free_local=$free start=$start cpu_local=$cpu_local cpu_pending=$cpu_pending cpu_start=$cpu_start"
 for _ in $(seq 1 $start); do
-  (cd $B && setsid nohup bash scripts/run_pexels_job.sh > /dev/null 2>&1 < /dev/null &)
+  (cd $B && setsid nohup bash scripts/run_pexels_queue_worker.sh > /dev/null 2>&1 < /dev/null &)
   sleep 20   # 讓前一個 worker 先完成認領與取卡，避免同時取卡互搶
 done
 for _ in $(seq 1 $cpu_start); do
-  (cd $B && setsid nohup bash scripts/run_pexels_job.sh cpu > /dev/null 2>&1 < /dev/null &)
+  (cd $B && setsid nohup bash scripts/run_pexels_queue_worker.sh cpu > /dev/null 2>&1 < /dev/null &)
   sleep 5
 done

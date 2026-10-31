@@ -106,6 +106,8 @@ def main() -> None:
     ap.add_argument("--arms", nargs="+", required=True,
                     help=f"`{UNDEFENDED}` 或 configs/conditions.yaml 的條件之一：{' '.join(CONDITIONS)}")
     ap.add_argument("--purifiers", nargs="+", default=["none"] + OPERATORS)
+    ap.add_argument("--data-root", dest="data", type=Path, default=layout.PORTRAITS,
+                    help="資料集根目錄（`<類別>/<影像>.png`、`masks/`）；預設 data/portraits")
     ap.add_argument("--variant", default="verbatim")
     ap.add_argument("--prompt-sets", type=Path,
                     default=layout.CONFIGS / "prompts" / "ultraedit_templates.json")
@@ -129,7 +131,7 @@ def main() -> None:
     if len(set(args.arms)) != len(args.arms) or len(set(args.purifiers)) != len(args.purifiers):
         ap.error("--arms 與 --purifiers 不得重複")
 
-    items, _ = load_items(layout.PORTRAITS)
+    items, _ = load_items(args.data)
     targets = sorted(items, key=lambda i: i["name"])
     prompts = json.loads(args.prompt_sets.read_text(encoding="utf-8"))[args.variant]
     if not targets or not prompts:
@@ -145,7 +147,7 @@ def main() -> None:
             "arm": arm, "resolution": RES, "steps": STEPS, "seed": EDIT_SEED,
             "precision": "float16", "variant": args.variant, "prompts": prompts,
             "guidance": args.guidance, "image_guidance": args.image_guidance,
-            "data": str(layout.PORTRAITS.resolve()), "defenses": str(args.defenses.resolve()),
+            "data": str(args.data.resolve()), "defenses": str(args.defenses.resolve()),
             "purified_edits": str(args.purified_edits.resolve()),
             "output": str(args.root.resolve()),
         })

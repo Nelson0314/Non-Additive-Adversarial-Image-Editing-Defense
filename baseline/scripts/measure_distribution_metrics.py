@@ -20,6 +20,7 @@
 """
 import argparse
 import csv
+import json
 from pathlib import Path
 
 import numpy as np
@@ -59,10 +60,17 @@ def portraits_groups():
 
 def pexels_groups():
     """Pexels 人像：等失真臂（artifacts/pexels_portraits/aligned/，第一批與 sets/<影像組>/）與 color3d_pexels（color trial
-    artifacts_pexels/），只取兩側檔案都存在的格；無 VAE-Trans（Pexels 沒有 VAE-Trans 的未防禦分母）。"""
+    artifacts_pexels/），只取兩側檔案都存在的格；VAE-Trans 取 artifacts/pexels_portraits/vae_trans/<根>/（scripts/evaluate_pexels_followup.sh）。"""
     base = Path("artifacts/pexels_portraits")
-    roots = [(base / "aligned", base)] + [(base / "aligned" / "sets" / s.name, base / "sets" / s.name)
-                                          for s in sorted((base / "aligned" / "sets").iterdir())]
+    roots = [(base / "aligned", base, base / "vae_trans")] + [
+        (base / "aligned" / "sets" / s.name, base / "sets" / s.name, base / "vae_trans" / "sets" / s.name)
+        for s in sorted((base / "aligned" / "sets").iterdir())]
+    vae_root = {im: base / "vae_trans" / s["root"] for s in json.loads(Path("data/pexels_portraits/image_sets.json").read_text(encoding="utf-8"))["sets"]
+                for im in s["images"]}
+
+    def vae_denominator(vroot, im, p):
+        return vroot / "native/purified_edits/undefended/vae_trans/ip2p_undefended_vae_trans" / f"{im}__p{p}.png"
+
     groups = {}
 
     def add(c, end, purifier, a, b):
@@ -71,7 +79,7 @@ def pexels_groups():
             groups[(c, end, purifier)][0].append(a)
             groups[(c, end, purifier)][1].append(b)
 
-    for aroot, uroot in roots:
+    for aroot, uroot, vroot in roots:
         if not (aroot / "defenses").is_dir():
             continue
         for cdir in sorted((aroot / "defenses").iterdir()):
@@ -86,6 +94,9 @@ def pexels_groups():
                         add(c, "displacement", op,
                             aroot / "purified_edits" / c / op / f"ip2p_{c}_{op}" / f"{im}__p{p}.png",
                             uroot / "purified_edits" / "undefended" / op / f"ip2p_undefended_{op}" / f"{im}__p{p}.png")
+                    add(c, "displacement", "vae_trans",
+                        vroot / "aligned/purified_edits" / c / "vae_trans" / f"ip2p_{c}_vae_trans" / f"{im}__p{p}.png",
+                        vae_denominator(vroot, im, p))
     cp, n = CT.parent / "artifacts_pexels", "color3d_pexels"
     for shard in sorted((cp / "defense_shards" / n).iterdir()):
         im = shard.name
@@ -97,6 +108,9 @@ def pexels_groups():
             for op in PURIFIERS:
                 add("color3d", "displacement", op, e / "purified" / op / f"ip2p_{n}_{op}" / f"{im}__p{p}.png",
                     cp / "purified_edits" / "undefended" / op / f"ip2p_undefended_{op}" / f"{im}__p{p}.png")
+            add("color3d", "displacement", "vae_trans",
+                vae_root[im] / "color3d/purified_edits" / n / "vae_trans" / f"ip2p_{n}_vae_trans" / f"{im}__p{p}.png",
+                vae_denominator(vae_root[im], im, p))
     for (c, end, purifier), (a, b) in sorted(groups.items()):
         yield c, end, purifier, a, b
 
@@ -113,6 +127,7 @@ def main():
     ap.add_argument("--shard", type=int, default=None,
                     help="只抽取第 i 片（共 --shards 片）不重複影像的 CLIP-IQA 與特徵，存成 <輸出目錄>/<dataset>_features_<i>.pt")
     ap.add_argument("--shards", type=int, default=1)
+    ap.add_argument("--require-images", type=int, default=None, help="每組的影像數須為此值，否則失敗（合併時）")
     ap.add_argument("--tag", default="", help="分片檔名的附加段（<dataset>_features_<tag>_<i>.pt）；已存在的分片檔中有的影像不重算")
     args = ap.parse_args()
     args.out.mkdir(parents=True, exist_ok=True)
@@ -155,6 +170,11 @@ def main():
                 f_cache[p] = inception(load(p))[0].flatten(1)[0]
         return f_cache[p]
 
+    if args.require_images is not None:
+        wrong = [(g[0], g[1], g[2], n) for g in groups
+                 if (n := len({Path(p).name.split("__")[0] for p in g[3]})) != args.require_images]
+        if wrong:
+            raise SystemExit(f"{len(wrong)} 組的影像數不是 {args.require_images}，例如 {wrong[:3]}")
     rows, per_image = [], []
     for c, end, purifier, a, b in groups:
         qa, qb = [quality(str(p)) for p in a], [quality(str(p)) for p in b]
@@ -164,7 +184,7 @@ def main():
             fid = float(piq.FID()(fa, fb))
             kid = float(piq.KID(average=True, n_subsets=100, subset_size=n)(fa, fb))
         rows.append({"dataset": args.dataset, "condition": c, "end": end, "purifier": purifier,
-                     "n_images": len({Path(p).name.split("__")[0] for p in a}), "n_a": len(a), "n_b": len(b), "fid": round(fid, 3), "kid": round(kid, 6),
+                     "n_images": len({Path(p).name.split("__")[0] for p in a}), "n_a": len(a), "n_b": len(b), "fid": round(fid, 3), "kid": round(kid, 6), "kid_negative": kid < 0,
                      "clipiqa_a": round(float(np.mean(qa)), 5), "clipiqa_b": round(float(np.mean(qb)), 5),
                      "feature_extractor": "piq InceptionV3 pool3 (pt_inception-2015-12-05)", "device": "cpu"})
         per_image += [{"dataset": args.dataset, "condition": c, "end": end, "purifier": purifier, "png": str(p),

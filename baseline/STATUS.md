@@ -56,6 +56,8 @@
 
 ### Pexels 的論文工作（使用者 2026-10-29 定案：論文圖表全部改用 Pexels，以影像組推進，每完成一批交 paper，每天向 executor 回報完成數/總數）
 
+使用者 2026-10-31 指示：全部 GPU 只跑 P0，P1（CPU）照跑；P2、P3 暫停，下一步待主表完成後由使用者決定。P2、P3 的佇列行移到遠端 `runtime/pexels_portraits/queue/jobs_deferred_p2_p3.txt`（恢復時併回 `jobs.txt`）。兩者的程式尚未實際驗證第一步，恢復時先確認；`sweep_images_0097_0106_undefended` 與 `cross_flux_mist_textural_0` 曾在起步階段被終止。
+
 | 優先 | 內容 | 狀態與位置 |
 |---|---|---|
 | P0 | 主表：等失真 9 臂（8 臂＋`photoguard_encoder`）＋`color3d_pexels`；欄為防禦圖 LPIPS、防禦圖美學（LAION、NIMA、MUSIQ、NIQE）、編輯結果 LPIPS（淨化前、七道平均、最差一道、VAE-Trans、保留率）、SigLIP（七道、VAE-Trans）、ArcFace（七道） | 遠端佇列：`aligned_photoguard_encoder_<組>`、`aligned_<組>`、`followup_<組>_{undefended,color3d,aligned}`、`cpu_<組>`；原生 10 臂的 followup 不做。2 卡下預估 11/5–11/6 完成 |

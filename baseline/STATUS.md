@@ -66,7 +66,7 @@
 | P3 | 跨編輯器 baseline 列（`photoguard_encoder`、`dct_shield`、`dct_shield_y`、`mist_textural`）：UltraEdit 306 張全協定（未淨化、七道、VAE-Trans）；FLUX 只跑 color trial `pexels_subsets/flux.txt` 的影像（一行一張影像名，與 Ours 同一份名單） | `scripts/evaluate_pexels_cross_model.sh`；佇列 `cross_sd3_*`（`HOST=basic-1`）、`cross_flux_*`（`HOST=basic-2`），排在 P2 之後。協定見 `results/cross_model/README.md`。未防禦分母在 color trial `artifacts_pexels/cross_model/`：FLUX 由 color 完成；UltraEdit 的 7 組由 color 完成，其餘由佇列沿用 color 的工具與完成標記補齊 |
 | — | Fig. 3 散布點：原生 10 臂與等失真臂的淨化前、七道平均（編輯結果 LPIPS 對防禦圖 LPIPS），在數據齊的影像組上整理給 paper | 不需 GPU；原生讀 `runtime/pexels_portraits/<根>/results/`，等失真讀 `runtime/pexels_portraits/aligned/<根>/results/` |
 
-- CLIP-IQA／FID／KID 在 9 臂補齊 306 張且有 VAE-Trans 組後重新合併（需加入 `photoguard_encoder` 與 VAE-Trans 組），通知 paper 一次，附 `n_images`，KID 為負值的組在表中加欄標註。
+- 彙整：佇列工作 `arcface_pair_<組>`、`distribution_pexels`（CLIP-IQA、FID、KID，含 `photoguard_encoder` 與 VAE-Trans 組，每組須 306 張，`kid_negative` 欄）、`summary_pexels`，皆為 CPU，接在 P0 與 P1 之後（`scripts/measure_pexels_summary_inputs.sh`）。產物 `runtime/pexels_portraits/summary/`（`main_table.csv`、`distribution_groups.csv`、`README.md`）；完成後送 executor 與 paper。
 - 306 張的原生合併表以 `scripts/generate_pexels_result_tables.py` 重新產生後入庫。
 - `native_images_0307_0308` 的佇列完成標記為手動補上（log 於 2026-10-29 16:40:49 有 `ALL SETS DONE`，worker 因腳本檔 stale handle 在寫標記前結束，見 `queue/worker.log`）。
   `aligned_images_0000_0096` 的 worker 有同樣情形，結束後須核對 log 與完成標記、確認沒有重複寫入。

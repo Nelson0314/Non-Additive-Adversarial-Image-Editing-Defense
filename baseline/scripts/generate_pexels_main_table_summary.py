@@ -18,10 +18,12 @@
     clipiqa_defense、clipiqa_none、clipiqa_seven、clipiqa_vae_trans：A 集合（防禦圖或防禦後編輯）的 CLIP-IQA
     fid_*、kid_*：distortion（防禦圖對原圖）、none、seven（七組的平均）、vae_trans；kid_negative_groups 為 KID 負值的組數
 任一條件的影像數不是 306 或格數不齊時失敗。
+`--without-vae-trans` 時不讀 VAE-Trans 的來源，VAE-Trans 欄留空，其餘檢查不變。
 
 輸出：runtime/pexels_portraits/summary/{main_table.csv,distribution_groups.csv,README.md}
-用法（遠端 baseline 專案根）：python scripts/generate_pexels_main_table_summary.py
+用法（遠端 baseline 專案根）：python scripts/generate_pexels_main_table_summary.py [--without-vae-trans]
 """
+import argparse
 import csv
 import json
 from collections import defaultdict
@@ -53,6 +55,9 @@ def require(condition, label, got, want):
 
 
 def main():
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--without-vae-trans", action="store_true")
+    vae = not ap.parse_args().without_vae_trans
     sets = json.loads(Path("data/pexels_portraits/image_sets.json").read_text(encoding="utf-8"))["sets"]
     fidelity, aesthetic, displacement, retention, vae_retention = {}, {}, {}, {}, {}
     siglip, arc_original, arc_pair, survival = defaultdict(list), defaultdict(list), defaultdict(list), defaultdict(list)
@@ -93,11 +98,11 @@ def main():
             if row["condition"] == COLOR3D:
                 aesthetic[COLOR3D][row["image"]] = row
         for group, conditions in (("aligned", ALIGNED), ("color3d", (COLOR3D,))):
-            for c in conditions:
+            for c in conditions if vae else ():
                 for row in read(F / group / f"retention_vae_trans_{c}.csv"):
                     if row["scenario"] == "ip2p":
                         vae_retention[c][(row["image"], row["prompt_index"])] = (float(row["disp_purified"]), float(row["retained"]))
-            for name in ("semantic_identity.csv", "semantic_identity_vae_trans.csv"):
+            for name in ("semantic_identity.csv", "semantic_identity_vae_trans.csv") if vae else ("semantic_identity.csv",):
                 for row in read(F / group / name):
                     c = row["condition"]
                     kind = "seven" if row["purifier"] in SEVEN else row["purifier"]
@@ -110,7 +115,7 @@ def main():
                 arc_pair[(row["condition"], kind)].append(float(row["arcface_pair"]) if row["arcface_pair"] != "" else None)
         for row in read(F / "aligned/survival_seven.csv"):
             survival[(row["condition"], "seven")].append(float(row["survival"]))
-        for group in ("aligned", "color3d"):
+        for group in ("aligned", "color3d") if vae else ():
             for row in read(F / group / "survival_vae_trans.csv"):
                 survival[(row["condition"], "vae_trans")].append(float(row["survival"]))
 
@@ -127,18 +132,20 @@ def main():
         require(c, "防禦圖失真影像數", len(fidelity[c]), N_IMAGES)
         require(c, "防禦圖美學影像數", len(aesthetic[c]), N_IMAGES)
         require(c, "未淨化格數", len(displacement[c]), n_cells)
-        require(c, "VAE-Trans 格數", len(vae_retention[c]), n_cells)
+        if vae:
+            require(c, "VAE-Trans 格數", len(vae_retention[c]), n_cells)
         cells = retention[c]
         require(c, "七道格數", sum(len(v) for v in cells.values()), n_cells * 7)
         seven = [v for by_purifier in cells.values() for v in by_purifier.values()]
-        for key in (("seven"), ("vae_trans")):
+        for key in ("seven", "vae_trans") if vae else ("seven",):
             require(c, f"存續比 {key} 列數", len(survival[(c, key)]), N_IMAGES * (7 if key == "seven" else 1))
         original_faces = [x for x in arc_original[c] if x is not None]
         pair_seven = arc_pair[(c, "seven")]
         pair_vae = arc_pair[(c, "vae_trans")]
         require(c, "ArcFace 七道格數", len(arc_original[c]), n_cells * 7)
         require(c, "ArcFace(E_u,E_d) 七道格數", len(pair_seven), n_cells * 7)
-        require(c, "ArcFace(E_u,E_d) VAE-Trans 格數", len(pair_vae), n_cells)
+        if vae:
+            require(c, "ArcFace(E_u,E_d) VAE-Trans 格數", len(pair_vae), n_cells)
         row = {"condition": c, "n_images": N_IMAGES, "defense_lpips": mean(list(fidelity[c].values()))}
         for column in AESTHETIC:
             row[column] = mean([float(r[column]) for r in aesthetic[c].values()])
@@ -146,23 +153,23 @@ def main():
             "disp_none": mean(list(displacement[c].values())),
             "disp_seven": mean([v[0] for v in seven]),
             "disp_worst": mean([min(v[0] for v in by_purifier.values()) for by_purifier in cells.values()]),
-            "disp_vae_trans": mean([v[0] for v in vae_retention[c].values()]),
+            "disp_vae_trans": mean([v[0] for v in vae_retention[c].values()]) if vae else "",
             "retained_seven": mean([v[1] for v in seven]),
             "retained_seven_ratio": mean([v[0] for v in seven]) / mean(list(displacement[c].values())),
-            "retained_vae_trans": mean([v[1] for v in vae_retention[c].values()]),
+            "retained_vae_trans": mean([v[1] for v in vae_retention[c].values()]) if vae else "",
             "siglip_seven": mean(siglip[(c, "seven")]),
-            "siglip_vae_trans": mean(siglip[(c, "vae_trans")]),
+            "siglip_vae_trans": mean(siglip[(c, "vae_trans")]) if vae else "",
             "arcface_original_seven": mean(original_faces),
             "arcface_original_seven_missing": len(arc_original[c]) - len(original_faces),
             "arcface_pair_seven": mean([x for x in pair_seven if x is not None]),
             "arcface_pair_seven_missing": sum(x is None for x in pair_seven),
-            "arcface_pair_vae_trans": mean([x for x in pair_vae if x is not None]),
-            "arcface_pair_vae_trans_missing": sum(x is None for x in pair_vae),
+            "arcface_pair_vae_trans": mean([x for x in pair_vae if x is not None]) if vae else "",
+            "arcface_pair_vae_trans_missing": sum(x is None for x in pair_vae) if vae else "",
             "survival_seven": mean(survival[(c, "seven")]),
-            "survival_vae_trans": mean(survival[(c, "vae_trans")]),
+            "survival_vae_trans": mean(survival[(c, "vae_trans")]) if vae else "",
         })
         d = distribution[c]
-        required = ("distortion", "none", "vae_trans") + SEVEN
+        required = ("distortion", "none") + (("vae_trans",) if vae else ()) + SEVEN
         for key in required:
             if key not in d:
                 raise SystemExit(f"{c} 缺分布指標組 {key}")
@@ -172,7 +179,7 @@ def main():
             row[f"{metric}_{name['distortion']}"] = float(d["distortion"][column])
             row[f"{metric}_none"] = float(d["none"][column])
             row[f"{metric}_seven"] = mean([float(d[p][column]) for p in SEVEN])
-            row[f"{metric}_vae_trans"] = float(d["vae_trans"][column])
+            row[f"{metric}_vae_trans"] = float(d["vae_trans"][column]) if vae else ""
         row["kid_negative_groups"] = sum(float(d[key]["kid"]) < 0 for key in required)
         table.append({k: round(v, 5) if isinstance(v, float) else v for k, v in row.items()})
 
@@ -193,6 +200,7 @@ def main():
         w.writerows(groups)
     (OUT / "README.md").write_text(
         f"# Pexels 主表彙整\n\n由 `scripts/generate_pexels_main_table_summary.py` 產生；欄的定義與來源見該程式開頭。\n\n"
+        + ("" if vae else "- 本版不含 VAE-Trans：`*_vae_trans` 欄留空。\n") +
         f"- 資料組：Pexels 人像 {N_IMAGES} 張；等失真九個條件與 `color3d_pexels`；ip2p、四句、主種子。\n"
         f"- `main_table.csv`：每條件一列，末列 `original` 為原圖美學。\n"
         f"- `distribution_groups.csv`：逐組 FID、KID、CLIP-IQA，含 `n_images`、`kid_negative`。\n"

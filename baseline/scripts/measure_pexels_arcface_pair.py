@@ -5,7 +5,8 @@ runtime/pexels_portraits/followup/<根>/results/<aligned|color3d>/semantic_ident
 （`undefended` 列為 E_u）。任一側偵測不到臉時 `arcface_pair` 留空（`immunization_core.metrics.arcface.similarity`）。
 
 輸出：同目錄的 arcface_pair.csv。
-用法（遠端 baseline 專案根）：python scripts/measure_pexels_arcface_pair.py <影像組>
+`--without-vae-trans` 時只讀 semantic_identity.csv（未淨化與七道）。
+用法（遠端 baseline 專案根）：python scripts/measure_pexels_arcface_pair.py <影像組> [--without-vae-trans]
 """
 import argparse
 import csv
@@ -26,6 +27,7 @@ def read(path):
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("image_set")
+    ap.add_argument("--without-vae-trans", action="store_true")
     args = ap.parse_args()
     sets = {s["name"]: s for s in json.loads(Path("data/pexels_portraits/image_sets.json").read_text(encoding="utf-8"))["sets"]}
     root = sets[args.image_set]["root"]
@@ -39,7 +41,9 @@ def main():
         return cache[path]
 
     for group in ("aligned", "color3d"):
-        rows = read(base / group / "semantic_identity.csv") + read(base / group / "semantic_identity_vae_trans.csv")
+        rows = read(base / group / "semantic_identity.csv")
+        if not args.without_vae_trans:
+            rows += read(base / group / "semantic_identity_vae_trans.csv")
         reference = {(r["image"], r["prompt_index"], r["purifier"]): r["edit_png"] for r in rows if r["condition"] == "undefended"}
         out = []
         for r in rows:

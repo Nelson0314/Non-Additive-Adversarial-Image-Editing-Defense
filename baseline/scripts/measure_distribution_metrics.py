@@ -58,7 +58,7 @@ def portraits_groups():
         yield c, "displacement", "vae_trans", cells(vae / f"ip2p_{c}_vae_trans"), cells(vae / "ip2p_undefended_vae_trans")
 
 
-def pexels_groups():
+def pexels_groups(with_vae_trans=True):
     """Pexels 人像：等失真臂（artifacts/pexels_portraits/aligned/，第一批與 sets/<影像組>/）與 color3d_pexels（color trial
     artifacts_pexels/），只取兩側檔案都存在的格；VAE-Trans 取 artifacts/pexels_portraits/vae_trans/<根>/（scripts/evaluate_pexels_followup.sh）。"""
     base = Path("artifacts/pexels_portraits")
@@ -94,7 +94,8 @@ def pexels_groups():
                         add(c, "displacement", op,
                             aroot / "purified_edits" / c / op / f"ip2p_{c}_{op}" / f"{im}__p{p}.png",
                             uroot / "purified_edits" / "undefended" / op / f"ip2p_undefended_{op}" / f"{im}__p{p}.png")
-                    add(c, "displacement", "vae_trans",
+                    if with_vae_trans:
+                        add(c, "displacement", "vae_trans",
                         vroot / "aligned/purified_edits" / c / "vae_trans" / f"ip2p_{c}_vae_trans" / f"{im}__p{p}.png",
                         vae_denominator(vroot, im, p))
     cp, n = CT.parent / "artifacts_pexels", "color3d_pexels"
@@ -108,7 +109,8 @@ def pexels_groups():
             for op in PURIFIERS:
                 add("color3d", "displacement", op, e / "purified" / op / f"ip2p_{n}_{op}" / f"{im}__p{p}.png",
                     cp / "purified_edits" / "undefended" / op / f"ip2p_undefended_{op}" / f"{im}__p{p}.png")
-            add("color3d", "displacement", "vae_trans",
+            if with_vae_trans:
+                add("color3d", "displacement", "vae_trans",
                 vae_root[im] / "color3d/purified_edits" / n / "vae_trans" / f"ip2p_{n}_vae_trans" / f"{im}__p{p}.png",
                 vae_denominator(vae_root[im], im, p))
     for (c, end, purifier), (a, b) in sorted(groups.items()):
@@ -127,12 +129,13 @@ def main():
     ap.add_argument("--shard", type=int, default=None,
                     help="只抽取第 i 片（共 --shards 片）不重複影像的 CLIP-IQA 與特徵，存成 <輸出目錄>/<dataset>_features_<i>.pt")
     ap.add_argument("--shards", type=int, default=1)
+    ap.add_argument("--without-vae-trans", action="store_true", help="Pexels 不建 VAE-Trans 組")
     ap.add_argument("--require-images", type=int, default=None, help="每組的影像數須為此值，否則失敗（合併時）")
     ap.add_argument("--tag", default="", help="分片檔名的附加段（<dataset>_features_<tag>_<i>.pt）；已存在的分片檔中有的影像不重算")
     args = ap.parse_args()
     args.out.mkdir(parents=True, exist_ok=True)
     torch.set_num_threads(8)
-    groups = list(portraits_groups() if args.dataset == "portraits" else pexels_groups())
+    groups = list(portraits_groups() if args.dataset == "portraits" else pexels_groups(not args.without_vae_trans))
     missing = [str(p) for g in groups for p in g[3] + g[4] if not Path(p).is_file()]
     if missing:
         raise SystemExit(f"缺 {len(missing)} 個檔案，例如 {missing[:3]}")

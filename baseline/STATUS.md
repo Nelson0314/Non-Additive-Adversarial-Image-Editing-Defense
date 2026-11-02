@@ -31,7 +31,7 @@
 全部影像組完成後以 `scripts/generate_pexels_result_tables.py` 重新產生。
 資料選取、讀數表與操作見 `docs/PEXELS_PORTRAITS.md`。
 
-- 執行方式：遠端佇列。兩台主機的 crontab 每 30 分鐘執行 `scripts/run_pexels_supervisor.sh`，依 `runtime/pexels_portraits/queue/jobs.txt`
+- 執行方式：遠端佇列。兩台主機的 crontab 每 5 分鐘（2026-11-03 起；原為每 30 分鐘，工作結束後空出的卡與 CPU 槽要等下一輪才補）執行 `scripts/run_pexels_supervisor.sh`，依 `runtime/pexels_portraits/queue/jobs.txt`
   開 worker（`scripts/run_pexels_job.sh`），不依賴本機。工作清單含等失真臂各影像組（`aligned_<影像組>`）與後續量測
   （`followup_<影像組>_<分組>`、`cpu_<影像組>`）；格式、狀態與 color 取卡方式見 `docs/PEXELS_PORTRAITS.md`「操作」。
 - GPU：全局合計 ≤ 6，color 優先；baseline 可用卡數 = 6 − max(非 baseline 租約數, `queue/color_reserve`)，由 supervisor 自動調整。

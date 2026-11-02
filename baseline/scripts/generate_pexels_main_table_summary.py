@@ -11,6 +11,7 @@
 欄（數值皆先逐格或逐張再對條件平均）：
     防禦圖 LPIPS 與七項美學：交付 PNG、CPU
     disp_none、disp_seven、disp_worst、disp_vae_trans：編輯結果 LPIPS（未淨化、七道平均、每格取七道最小值後平均、VAE-Trans）
+    disp_weakest、disp_weakest_purifier：七道中編輯結果 LPIPS 平均最低的一道之平均與其名稱（逐道平均見 per_purifier_displacement.csv）
     retained_seven、retained_seven_ratio、retained_vae_trans：逐格 disp_purified/disp_plain 的平均、七道平均之比、VAE-Trans 逐格平均
     siglip_seven、siglip_vae_trans：兩張編輯的 SigLIP 影像餘弦（siglip_pair）
     arcface_original_seven：ArcFace(原圖, 編輯結果)；arcface_pair_seven、arcface_pair_vae_trans：ArcFace(E_u, E_d)；只計有臉的格，*_missing 為無臉格數
@@ -52,6 +53,18 @@ def mean(values):
 def require(condition, label, got, want):
     if got != want:
         raise SystemExit(f"{condition} 的 {label} 為 {got}，應為 {want}")
+
+
+def weakest(condition, cells, per_purifier):
+    """逐道平均編輯結果 LPIPS，回傳平均最低的一道；逐道列附加到 per_purifier。"""
+    means = {}
+    for p in SEVEN:
+        values = [by_purifier[p] for by_purifier in cells.values()]
+        means[p] = mean([v[0] for v in values])
+        per_purifier.append({"condition": condition, "purifier": p, "n_cells": len(values),
+                             "disp_purified": round(means[p], 5), "retained": round(mean([v[1] for v in values]), 5)})
+    p = min(means, key=means.get)
+    return {"disp_weakest": means[p], "disp_weakest_purifier": p}
 
 
 def main():
@@ -126,7 +139,7 @@ def main():
         purifier = "distortion" if row["end"] == "distortion" else row["purifier"]
         distribution[c][purifier] = row
 
-    table = []
+    table, per_purifier = [], []
     for c in ALIGNED + (COLOR3D,):
         n_cells = N_IMAGES * 4
         require(c, "防禦圖失真影像數", len(fidelity[c]), N_IMAGES)
@@ -153,6 +166,7 @@ def main():
             "disp_none": mean(list(displacement[c].values())),
             "disp_seven": mean([v[0] for v in seven]),
             "disp_worst": mean([min(v[0] for v in by_purifier.values()) for by_purifier in cells.values()]),
+            **weakest(c, cells, per_purifier),
             "disp_vae_trans": mean([v[0] for v in vae_retention[c].values()]) if vae else "",
             "retained_seven": mean([v[1] for v in seven]),
             "retained_seven_ratio": mean([v[0] for v in seven]) / mean(list(displacement[c].values())),
@@ -194,6 +208,10 @@ def main():
         w = csv.DictWriter(f, fieldnames=list(table[0]), lineterminator="\n")
         w.writeheader()
         w.writerows(table)
+    with open(OUT / "per_purifier_displacement.csv", "w", newline="", encoding="utf-8") as f:
+        w = csv.DictWriter(f, fieldnames=list(per_purifier[0]), lineterminator="\n")
+        w.writeheader()
+        w.writerows(per_purifier)
     with open(OUT / "distribution_groups.csv", "w", newline="", encoding="utf-8") as f:
         w = csv.DictWriter(f, fieldnames=list(groups[0]), lineterminator="\n")
         w.writeheader()
@@ -203,6 +221,7 @@ def main():
         + ("" if vae else "- 本版不含 VAE-Trans：`*_vae_trans` 欄留空。\n") +
         f"- 資料組：Pexels 人像 {N_IMAGES} 張；等失真九個條件與 `color3d_pexels`；ip2p、四句、主種子。\n"
         f"- `main_table.csv`：每條件一列，末列 `original` 為原圖美學。\n"
+        f"- `per_purifier_displacement.csv`：每條件逐道淨化的編輯結果 LPIPS 與保留率平均（1,224 格／道）。\n"
         f"- `distribution_groups.csv`：逐組 FID、KID、CLIP-IQA，含 `n_images`、`kid_negative`。\n"
         f"- `distribution_metrics/pexels_clipiqa.csv`：逐張 CLIP-IQA。\n", encoding="utf-8")
     print(f"[ALLDONE] {OUT / 'main_table.csv'}（{len(table)} 列）", flush=True)

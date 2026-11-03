@@ -69,6 +69,12 @@
 | P2 淨化強度掃描 | 306 張，`color3d_pexels`＋`dct_shield`、`mist`、`dia_pt` | `scripts/sweep_pexels_purifier_strength.sh` | 延後；佇列行在 `queue/jobs_deferred_p2_p3.txt`，第一步未驗證 |
 | P3 跨編輯器（替代 VAE 重新求解） | `photoguard_encoder`、`dct_shield`、`dct_shield_y`、`mist_textural` | `scripts/evaluate_pexels_cross_model.sh` | 延後；同上 |
 
+- 卡數（使用者 2026-11-04 指示）：baseline 合計上限 4 張，留 2 張給 color；由 `queue/baseline_cap`（現值 4）限制 supervisor 新開的 worker，
+  執行中的不受影響。
+- FLUX 改用 512×512 協定（使用者 2026-11-04 定案，資料版本 `flux_512`，說明見 `results/pexels_portraits/flux_512/README.md`）：佇列工作
+  `flux_512_<影像>`（flux.txt 50 張，6 條件 × 36 格，`scripts/evaluate_pexels_flux_512.sh`），等 UltraEdit 50 張與 `queue/done/flux_512_accepted`。
+  實測每格 21.3 s、每張約 1.34 GPU 小時；1024 版的 FLUX 工作移到 `queue/superseded_jobs_flux_1024.txt`，已有產物與標記不動。
+  讀數（位移、保留率、SigLIP、CLIP-S、CLIP-I、ArcFace、編輯端 SSIM／PSNR、FID）由 baseline 統一量，尚未寫。
 - 遷移實驗目前只跑兩編輯器各 50 張（使用者 2026-11-04 指示）：第三、四段（UltraEdit 與 FLUX 其餘 256 張、color 的 91 項、閘門
   `transfer_ultraedit_rest_done`）移到遠端 `queue/jobs_deferred_transfer_rest.txt`，完成標記未動；續跑時移回 `jobs.txt`。
 - 遷移實驗的順序（使用者 2026-11-03 定案，`TRANSFER_DEADLINE` 取消）：UltraEdit 的 FLUX 子集 50 張（color trial `pexels_subsets/flux.txt`）→ FLUX 同 50 張

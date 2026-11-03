@@ -73,7 +73,7 @@ PDF 共 10 頁：正文與 Conclusion 到第 8 頁，參考文獻自第 8 頁起
 | Pexels 失真—位移點與擾動存續比 | Fig. 2、Fig. 3a | 同目錄 `interim/fig3_points.csv`（原生預算）、`followup/sets/*/results/aligned/survival_seven.csv` 與 `followup/results/color3d_all/survival_seven.csv` |
 | 8 張的淨化強度掃描（無 DCT-Shield-Y） | Fig. 3b–d、4.4 | baseline `results/sweeps/ip2p/purifier_strength/retention.csv` |
 | 原生預算 8 張的直接遷移（加性） | Table 2 紅字 | baseline `results/{ultraedit,flux}/retention.csv`（無 VAE-Trans；photoguard_encoder 無）；彙整腳本為 session scratchpad 的 `summarize_transfer.py`，在遠端 `~/venvs/*/bin/python` 執行 |
-| Ours（color3d，ip2p 上求得）8 張 | Table 2 紅字 | color trial `results/cross_model/{flux,sd3}/` |
+| Ours（color3d，ip2p 上求得）：UltraEdit 為 Pexels 50 張全協定（g2.5／ig1.5、512²、50 步）；FLUX 為 8 張舊設定，512² 由 baseline 重跑 | Table 2 紅字 | color trial `results/cross_model_pexels/sd3/transfer50/summary.txt`；`results/cross_model/flux/` |
 | 消融 A（306 張，只有未淨化）、單角 6°、逐項懲罰、可行集合投影（8 張） | Table 3 | color trial `results/color3d_random_pexels/`、`README.md` |
 
 ## 6. 交付物與進行中的工作

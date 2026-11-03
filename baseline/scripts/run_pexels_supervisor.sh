@@ -6,6 +6,8 @@
 #      已認領的工作多於可用卡數時，停止本機最新認領的 worker（中斷的步驟之後依完成標記重做）；
 #      已認領的工作數（兩台合計）低於可用卡數時，於本機以 setsid nohup 啟動 worker
 #      （scripts/run_pexels_queue_worker.sh），每次至多啟動本機空卡數（vendor/scripts/measure_free_gpus.sh）。
+#      另讀 runtime/pexels_portraits/queue/baseline_cap（0–6 的整數；缺檔為 6）：新開 worker 時已認領數不超過
+#      min(baseline_cap, 可用卡數)；baseline_cap 只限制新開，不停止執行中的 worker（停止只依可用卡數）。
 #   3. CPU 工作（jobs.txt 中標 CPU 者）不佔卡、不計入上述認領數：本機進行中的 CPU 工作少於 CPU_PER_HOST（預設 2）
 #      且有可認領的 CPU 工作時，啟動 `run_pexels_queue_worker.sh cpu`。
 #   可認領：沒有完成或失敗標記、未被認領，且 AFTER= 所列工作皆已完成、HOST= 為本機（格式見 scripts/run_pexels_queue_worker.sh）。
@@ -52,6 +54,9 @@ reserve=$(cat $Q/color_reserve 2>/dev/null || echo 0)
 [[ "$reserve" =~ ^[0-6]$ ]] || { log "[FATAL] $Q/color_reserve 須為 0–6 的整數，收到 '$reserve'"; exit 1; }
 held=$others; [ $reserve -gt $held ] && held=$reserve
 allowed=$((6 - held)); [ $allowed -lt 0 ] && allowed=0
+cap=$(cat $Q/baseline_cap 2>/dev/null || echo 6)
+[[ "$cap" =~ ^[0-6]$ ]] || { log "[FATAL] $Q/baseline_cap 須為 0–6 的整數，收到 '$cap'"; exit 1; }
+start_limit=$allowed; [ $cap -lt $start_limit ] && start_limit=$cap
 claimed=0 cpu_local=0
 for c in $Q/claims/*/; do
   [ -f $c/owner ] || continue
@@ -96,11 +101,11 @@ for j in $first_gpu $first_cpu; do
   [ "$n" -ge "$STALL_ROUNDS" ] && log "[WARN] 佇列第一項 $j 連續 $n 次以結束碼 4（not ready）結束，後面的工作被擋住；檢查 logs/$j.log 與 runtime/pexels_portraits/aligned/locks/"
 done
 free=$(bash $B/vendor/scripts/measure_free_gpus.sh 2>/dev/null | wc -w)
-start=$((allowed - claimed)); [ $start -gt $free ] && start=$free; [ $start -gt $pending ] && start=$pending
+start=$((start_limit - claimed)); [ $start -gt $free ] && start=$free; [ $start -gt $pending ] && start=$pending
 [ $start -lt 0 ] && start=0
 cpu_start=$((CPU_PER_HOST - cpu_local)); [ $cpu_start -gt $cpu_pending ] && cpu_start=$cpu_pending
 [ $cpu_start -lt 0 ] && cpu_start=0
-log "others=$others reserve=$reserve allowed=$allowed claimed=$claimed pending=$pending free_local=$free start=$start cpu_local=$cpu_local cpu_pending=$cpu_pending cpu_start=$cpu_start"
+log "others=$others reserve=$reserve cap=$cap allowed=$allowed claimed=$claimed pending=$pending free_local=$free start=$start cpu_local=$cpu_local cpu_pending=$cpu_pending cpu_start=$cpu_start"
 for _ in $(seq 1 $start); do
   (cd $B && setsid nohup bash scripts/run_pexels_queue_worker.sh > /dev/null 2>&1 < /dev/null &)
   sleep 20   # 讓前一個 worker 先完成認領與取卡，避免同時取卡互搶

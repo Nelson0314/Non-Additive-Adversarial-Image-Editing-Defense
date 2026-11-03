@@ -1,0 +1,3 @@
+# 編譯產物：method_overview.pdf 複製到 docs/paper/fig/ 後即不需保留；experiment_overview.pdf 複製到桌面
+method_overview/*.pdf
+experiment_overview/*.pdf

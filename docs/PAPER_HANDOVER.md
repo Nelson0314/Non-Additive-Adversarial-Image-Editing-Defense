@@ -53,7 +53,7 @@ PDF 共 10 頁：正文與 Conclusion 到第 8 頁，參考文獻自第 8 頁起
 | 4.2 Robustness to purification | Table 1：上下兩個 panel，每個方法一列，數字旁小字為 95% 信賴區間半寬：Purified* 欄為跨七道淨化（七道各自的 306 張平均，t 分布、自由度 6；編輯 LPIPS 與 Ret. 由 `summary/per_purifier_displacement.csv` 算出，其餘待 baseline），其他欄為 306 張影像間（逐張先對 4 句平均；`_ci95` 欄未到前以 1.96·s／√306 由 `_std` 算出）。不放 Weakest 欄，逐道結果放補充材料。上 panel：防禦圖 LPIPS、LAION、MUSIQ，編輯 LPIPS（None、Purified*、VAE-Trans）、Ret.；下 panel：SigLIP（Purified*、VAE-Trans）、CLIP-S、CLIP-I、FID、ArcFace、編輯端 SSIM、PSNR（同一淨化下兩張編輯之間，待 baseline 新欄）。防禦圖對原圖的 PSNR、SSIM 移到補充表 `tab:supp_aesthetics`、Ret.、SigLIP、CLIP-S、CLIP-I、FID、ArcFace；全部欄位為 306 張完整讀數（baseline `summary_pexels`，11/3 23:35）；紅字只剩 BlurGuard 列；4.2 的 FID 句為 8 張紅字 | 補齊上述讀數；BlurGuard 等失真臂 |
 | 4.3 Distortion and displacement before purification | Fig. 2（306 張，18 點，1.037x＋0.049，r＝0.967；Ours 高於線 0.009）；caption 已含 BlurGuard 與 Ours 多預算點 | 重畫 Fig. 2；擬合與點數為紅字；Ours 多預算以 8 張四種角度上界暫代 |
 | 4.4 What purification removes | Fig. 3a 為 306 張；Fig. 3b–d caption 寫 306 張、DCT-Shield-Y，正文數字為 8 張 DCT-Shield 的紅字 | VAE-Trans 存續比；306 張強度掃描（約 190 GPU 小時，待使用者決定） |
-| 4.5 Editors with different encoders | Table 2 只留 ip2p 求解、等失真、直接遷移：PhotoGuard、DCT-Shield、DCT-Shield-Y、Mist、Ours (transfer)，兩編輯器上下排；全部紅字（加性為原生預算 8 張、Ours 為 8 張） | Pexels 遷移讀數（UltraEdit 50 張約 11/4、FLUX 50 張約 11/5）；粗體待讀數齊後再標 |
+| 4.5 Editors with different encoders | Table 2 只留 ip2p 求解、等失真、直接遷移：PhotoGuard、DCT-Shield、DCT-Shield-Y、Mist、Ours，兩編輯器上下排；全部紅字（加性為原生預算 8 張、Ours 為 8 張） | Pexels 遷移讀數（UltraEdit 50 張約 11/4、FLUX 50 張約 11/5）；粗體待讀數齊後再標 |
 | 4.6 Ablations | Table 3 上半為完整 pipeline 與 A–E（A 只有未淨化；D 以單角 6°、8 張暫代；B、C、C＋D、E 為紅色 --）；下半逐項懲罰、可行集合投影為 8 張紅字 | A–E 與下半的 306 張讀數；上半結果段為 `\TODO` |
 | 5 Limitations | 已寫；配件仍出現的計數為 8 張紅字 | 負面社會影響與緩解為 `\TODO` |
 | 6 Conclusion、LLM Usage Statement | Conclusion 為 `\TODO`；LLM Usage 已寫（只列 Claude Code） | Conclusion；LLM Usage 待使用者審閱 |
@@ -73,7 +73,7 @@ PDF 共 10 頁：正文與 Conclusion 到第 8 頁，參考文獻自第 8 頁起
 | Pexels 失真—位移點與擾動存續比 | Fig. 2、Fig. 3a | 同目錄 `interim/fig3_points.csv`（原生預算）、`followup/sets/*/results/aligned/survival_seven.csv` 與 `followup/results/color3d_all/survival_seven.csv` |
 | 8 張的淨化強度掃描（無 DCT-Shield-Y） | Fig. 3b–d、4.4 | baseline `results/sweeps/ip2p/purifier_strength/retention.csv` |
 | 原生預算 8 張的直接遷移（加性） | Table 2 紅字 | baseline `results/{ultraedit,flux}/retention.csv`（無 VAE-Trans；photoguard_encoder 無）；彙整腳本為 session scratchpad 的 `summarize_transfer.py`，在遠端 `~/venvs/*/bin/python` 執行 |
-| Ours (transfer) 8 張 | Table 2 紅字 | color trial `results/cross_model/{flux,sd3}/` |
+| Ours（color3d，ip2p 上求得）8 張 | Table 2 紅字 | color trial `results/cross_model/{flux,sd3}/` |
 | 消融 A（306 張，只有未淨化）、單角 6°、逐項懲罰、可行集合投影（8 張） | Table 3 | color trial `results/color3d_random_pexels/`、`README.md` |
 
 ## 6. 交付物與進行中的工作
@@ -89,7 +89,7 @@ PDF 共 10 頁：正文與 Conclusion 到第 8 頁，參考文獻自第 8 頁起
 | 項目 | 規格 | 待補 |
 |---|---|---|
 | Table 1 主表 | 等失真 9 臂＋BlurGuard＋Ours；LPIPS、SigLIP、ArcFace、CLIP-S、CLIP-I、編輯端 FID，LAION、MUSIQ，編輯端 SSIM、PSNR；數字旁小字為 95% 信賴區間半寬（Purified 欄跨七道淨化，其餘跨 306 張）；無 Weakest 欄；防禦圖對原圖的 PSNR、SSIM 與其他美學分數為補充表 | BlurGuard 等失真臂 |
-| Table 2 遷移 | ip2p 上等失真臂（photoguard_encoder、dct_shield、dct_shield_y、mist）＋Ours (transfer) 直接送 UltraEdit、FLUX；不放重新求解的列 | 全部 |
+| Table 2 遷移 | ip2p 上等失真臂（photoguard_encoder、dct_shield、dct_shield_y、mist）＋Ours 直接送 UltraEdit、FLUX；不放重新求解的列 | 全部 |
 | Table 3 消融 | A–E（C、D、C＋D 分列）＋逐項懲罰、可行集合投影，306 張全協定，不對齊失真 | 全部（A 缺淨化後） |
 | Fig. 2 | 加 Ours 多預算點與 BlurGuard 等失真 | 讀數與重畫 |
 | Fig. 3b–d | 強度掃描 306 張，DCT-Shield 換成 DCT-Shield-Y | 讀數與重畫 |
@@ -100,7 +100,7 @@ PDF 共 10 頁：正文與 Conclusion 到第 8 頁，參考文獻自第 8 頁起
 - 摘要寫背景、痛點、本方法特色與預期效果，不寫 baseline、方法細節或「We observe」句型。
 - 失真—位移直線是對所有方法的觀察（含本方法），寫成「等失真下可比」，不寫成對立。
 - 方法節以式子表達，先講選擇、再講用意；不寫章節導覽句。
-- 表格：固定字級、不用 `\resizebox`；Method 欄獨立（`\multirow`），表頭依「對象 → 指標 → 淨化條件」分層；指標標 ↑／↓，各欄最佳粗體（Ours 與 Ours (transfer) 分開比），Ours 列底色 `oursrow`；七道淨化平均一律寫 Purified$^{*}$ 並在 caption 註明七道名稱，不寫 7-mean；最弱一道寫 Weakest$^{\dagger}$（平均最低的那一道淨化，不是逐格取最小）；每個指標的比較條件寫進 caption（例如 ArcFace 是同一淨化下兩張編輯的嵌入餘弦）。
+- 表格：固定字級、不用 `\resizebox`；Method 欄獨立（`\multirow`），表頭依「對象 → 指標 → 淨化條件」分層；指標標 ↑／↓，各欄最佳粗體（Ours 一列），Ours 列底色 `oursrow`；七道淨化平均一律寫 Purified$^{*}$ 並在 caption 註明七道名稱，不寫 7-mean；最弱一道寫 Weakest$^{\dagger}$（平均最低的那一道淨化，不是逐格取最小）；每個指標的比較條件寫進 caption（例如 ArcFace 是同一淨化下兩張編輯的嵌入餘弦）。
 - 暫代數字：未達全規模的數字寫 `\prelim{值}{註解}`（紅字；註解非空時加紅色上標序號並列入 PDF 最後一頁）；表格欄位或圖的整體說明寫 `\prelimnote{註解}`，放在 `\caption` 之外（caption 會排版兩次）。註解寫目前張數、協定、路徑與待補內容。沒有任何讀數的格子寫 `\prelim{--}{}`。投稿前在 `main.tex` 加 `\prelimfinaltrue`，殘留者編譯失敗。不再使用 `\NUM`、`\TBD`（已移除定義）。
 - 圖：與論文同字體（Times 系：matplotlib 用 STIXGeneral＋stix，TikZ 用 texgyretermes），印刷尺寸 ≥ 7 pt；配色全文一致：加性方法紅 `#A94438`、本方法 teal `#1F6F7C`、飽和度／θ 藍 `#2F5DA8`、色相／φ 橘 `#C9781A`、參考與凍結元件灰；caption 只寫看什麼與結論，示意與實際資料要分清楚。
 - 不下「方法成立／不成立」的判定。不做色調／白平衡類淨化。不提「加性擾動偏高頻」（無頻譜證據，頻譜圖已撤）。
@@ -122,3 +122,5 @@ PDF 共 10 頁：正文與 Conclusion 到第 8 頁，參考文獻自第 8 頁起
 - 11/4 20:00 收一次遷移性實驗，FLUX 可能不足 50 張，caption 張數屆時更新。
 - Fig. 1（方法總覽）的版面已由使用者逐輪定稿：(a) 參數化、(b) 球面上的色彩旋轉（含 woman_00 實際 LUT 的色度盤）、(c) 最佳化與同色像素；色度盤箭頭用深灰或 teal 尚待確認。
 - 11/3：主表的 SSIM、PSNR 為防禦圖端（防禦圖對原圖），列在 Table 1 的 Protected 組；Ret.、ArcFace、CLIP-S、CLIP-I、FID 的定義改在 caption 以名稱標示，不用註記符號（容納兩欄的表寬）。簡報不再維護。
+
+- 11/4：跨編輯器表只用 ip2p 上求得的防禦圖直接送 UltraEdit 與 FLUX，表與正文不用「transfer／Ours (transfer)」的稱呼，Ours 即 color3d；FLUX 改為 512×512、guidance 3.5、28 步、NF4，寫在 4.1 Attack 段與 Table 2 caption。

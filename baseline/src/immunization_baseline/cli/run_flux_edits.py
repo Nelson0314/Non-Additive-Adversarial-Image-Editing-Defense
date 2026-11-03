@@ -33,6 +33,10 @@ been adjusted to 1024 and 1024 to fit the model requirements」——參數
 (`<--purified-edits-root>/<arm>/<算子>/ip2p_<arm>_<算子>/<圖>__orig.png`,`undefended` 亦同),
 輸出預設 `artifacts/flux/purified_edits/<arm>/<算子>/` 與 `results/flux/purified_edits/<算子>/edits_<arm>.csv`。
 
+生成尺寸:`--generation-size` 預設 1024(上述行為,管線依 `max_area=1024²` 把輸出改為 1024×1024,條件圖經
+`_auto_resize` 放大到約 1MP)。`--generation-size 512` 傳 `max_area=512²` 與 `_auto_resize=False`,輸出與條件圖皆為
+512×512(輸入仍以 512² 讀入),每格檢查輸出尺寸;此設定寫入協定摘要,與 1024 的續跑紀錄分開。
+
 用法(遠端,需要一張卡,首次會下載約 24GB 權重)
     HF_HOME=/var/cache/huggingface CUDA_VISIBLE_DEVICES=<卡> \\
         python -m immunization_baseline.cli.run_flux_edits --arm undefended
@@ -128,6 +132,8 @@ def main() -> None:
     ap.add_argument("--true-cfg-scale", type=float, default=1.0,
                     help="真正的雙分支 CFG。FluxKontextPipeline 只在 >1 且有給"
                          "negative_prompt 時才會啟用，否則沿用蒸餾過的 guidance_scale")
+    ap.add_argument("--generation-size", type=int, choices=(512, 1024), default=1024,
+                    help="生成與條件圖的邊長;1024 為管線預設的 max_area 行為,512 關閉 _auto_resize")
     ap.add_argument("--negative-prompt", default=None,
                     help="配合 --true-cfg-scale>1 使用，往「不要偏離原圖」推，"
                          "不要提被要求改的那個部位，否則會跟正面指令互相抵銷")
@@ -177,6 +183,7 @@ def main() -> None:
         "defended": (str(defended_dir.resolve())
                      if args.arm != "undefended" or args.purifier != "none" else None),
         **({"purifier": args.purifier} if args.purifier != "none" else {}),
+        **({"generation_size": args.generation_size} if args.generation_size != 1024 else {}),
         "output": str(out_dir.resolve()),
     })
     done = load_done(out_csv, protocol_id)
@@ -222,11 +229,16 @@ def main() -> None:
             call_kw = dict(image=x_pil, prompt=prompt, height=RESOLUTION, width=RESOLUTION,
                           guidance_scale=args.guidance, num_inference_steps=args.steps,
                           generator=gen)
+            if args.generation_size != 1024:
+                call_kw["max_area"] = args.generation_size ** 2
+                call_kw["_auto_resize"] = False
             if args.negative_prompt:
                 call_kw["negative_prompt"] = args.negative_prompt
                 call_kw["true_cfg_scale"] = args.true_cfg_scale
             out = pipe(**call_kw).images[0]
             dt = time.time() - t0
+            if args.generation_size != 1024 and out.size != (args.generation_size, args.generation_size):
+                raise SystemExit(f"輸出尺寸 {out.size}，應為 {args.generation_size}²")
             edit = to_tensor(out, device)
             idr = identity_row(x01, edit)
             out_png = out_dir / f"{name}__p{pi}.png"

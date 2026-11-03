@@ -54,14 +54,12 @@ pane 編號會變動，送訊前一律以 multi-agent 的 `list_panes` 依標題
 | 4.5 Editors with different encoders | Table 3：兩編輯器上下排（8 張），CLIP-S、CLIP-I、FID 欄為 `\TBD` | 遷移性實驗讀數與張數 |
 | 4.6 Ablations | Table 4（8 張） | 定案張數的讀數 |
 | 5 Limitations | 已寫 | 負面社會影響與緩解為 `\TODO` |
-| 6 Conclusion、LLM Usage Statement | `\TODO` | LLM Usage 需使用者提供工具清單 |
+| 6 Conclusion、LLM Usage Statement | Conclusion 為 `\TODO`；LLM Usage 已寫（只列 Claude Code） | Conclusion；LLM Usage 待使用者審閱 |
 | 補充材料 `sec/X_suppl.tex` | CLIP-IQA 與 FID 表已撤下（使用者 11/3 決定）；未編入 PDF | DISTS、色彩對齊後失真（PSNR、SSIM 已移入 Table 1） |
 
 使用者 11/3 的決定：摘要倍數寫區間（逐一除以各加性方法）；保留「at matched distortion」；Fig. 1 色度盤箭頭用深灰（`disp` 樣式 `black!62`，現行即是）；論文重心等 306 張的同類隨機對照（`color3d_random_matched`）讀數到齊後再定。
 
-待使用者決定的事項：
-1. |Δφ| < 3° 在像素層是否註明。
-2. LLM Usage Statement 的工具清單。
+|Δφ| < 3° 不註明像素層的情形；LLM Usage Statement 只列 Claude Code，草稿已寫入 `sec/7_llm_usage.tex`（程式、圖表腳本、文字三部分），待使用者審閱。
 
 ## 5. 已收到的數字與位置
 

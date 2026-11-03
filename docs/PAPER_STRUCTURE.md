@@ -24,7 +24,7 @@
 | | 4.6 Ablations | Table 4 | 8 張已填；待換定案張數 | 部分 | |
 | 5 Limitations | — | 位移與編輯失敗的差異、未評估色彩反推攻擊、未做受測者實驗、求解時間、負面社會影響 | 前四項已寫；社會影響 `\TODO` | 部分 | 0.4（0.3） |
 | 6 Conclusion | — | 方法、主要結果、意義 | `\TODO` | 未寫 | 0.2（0.1） |
-| LLM Usage Statement | — | 工具、受影響部分、使用程度（不計頁） | `\TODO` | 未寫 | 不計 |
+| LLM Usage Statement | — | 工具、受影響部分、使用程度（不計頁） | 已寫：Claude Code；程式、圖表腳本、文字 | 待使用者審閱 | 不計 |
 | 補充材料 | Additional metrics | DISTS、色彩對齊後失真（PSNR、SSIM 在 Table 1） | `\TODO`；CLIP-IQA 與 FID 表已撤下；未編入 PDF | 未寫 | 不計 |
 | References | — | 無 URL；全部核實 | executor 已核實（含 radford2021clip、hessel2021clipscore）；未引用條目已移除 | 完成 | 不計 |
 

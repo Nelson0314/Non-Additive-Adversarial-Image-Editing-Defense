@@ -63,11 +63,22 @@
 | 主表（不含 VAE-Trans） | 等失真 9 臂（8 臂＋`photoguard_encoder`）＋`color3d_pexels`，306 張 | `nv_*`（`scripts/evaluate_pexels_followup_semantic.sh`）、`nv_distribution`、`nv_summary` | 已完成（2026-11-03）；產物 `runtime/pexels_portraits/summary/` |
 | VAE-Trans 那一半 | VAE-Trans 淨化與編輯、位移保留、語意、存續比，以及含 VAE-Trans 的 distribution 與彙整 | `followup_<組>_{undefended,color3d,aligned}`（`scripts/evaluate_pexels_followup.sh`）、`survival_<組>_vae_trans`、`cpu_<組>`、`arcface_pair_<組>`、`distribution_pexels`、`summary_pexels`（`scripts/measure_pexels_summary_inputs.sh`） | 執行中；`summary_pexels` 完成後覆寫 `summary/main_table.csv`（VAE-Trans 欄填入），送 executor 與 paper |
 | 閘門 | 69 項 VAE-Trans GPU 工作完成 | `vae_trans_gpu_done`（CPU，`true`） | color 等它出現後在 `queue/color_reserve` 寫 1，取 1 卡補 FLUX Ours 的 VAE-Trans 40 格 |
-| 遷移性實驗 | 等失真 `photoguard_encoder`、`dct_shield`、`dct_shield_y`、`mist` 的 ip2p 防禦圖直接送 FLUX（basic-2）與 UltraEdit（basic-1），全協定（淨化前、七道、VAE-Trans），每張 4 臂 × 36 格 | `scripts/evaluate_pexels_transfer.sh`；`transfer_flux_<影像>`（color trial `pexels_subsets/flux.txt` 的 50 張）、`transfer_ultraedit_<影像>`（`runtime/pexels_portraits/transfer/ultraedit_order.txt` 的 306 張，前 50 為 flux.txt）；`TRANSFER_DEADLINE=2026-11-04T20:00:00+08:00` 之後不再開始新影像 | 排在閘門後，第一步未驗證；產物 `artifacts/pexels_portraits/transfer/<編輯器>/`，逐格表與完成標記 `runtime/pexels_portraits/transfer/<編輯器>/{chunks,done}/`；讀數（位移、保留、語意、CLIP-S、FID）尚未寫，分母與 Ours (transfer) 由 color 產生 |
+| 遷移性實驗 | 等失真 `photoguard_encoder`、`dct_shield`、`dct_shield_y`、`mist` 的 ip2p 防禦圖直接送 FLUX（basic-2）與 UltraEdit（basic-1），全協定（淨化前、七道、VAE-Trans），每張 4 臂 × 36 格；兩編輯器皆 306 張 | `scripts/evaluate_pexels_transfer.sh`（UltraEdit；FLUX 的舊路徑）、`scripts/evaluate_pexels_flux_transfer.sh`（FLUX，每張只載入一次模型）；`transfer_<編輯器>_<影像>`，順序見下 | 排在閘門後，第一步未驗證；產物 `artifacts/pexels_portraits/transfer/<編輯器>/`，逐格表與完成標記 `runtime/pexels_portraits/transfer/<編輯器>/{chunks,done}/`；讀數（位移、保留、語意、CLIP-S、FID）尚未寫 |
+| color 的遷移列 | 未防禦分母與 Ours (transfer)：UltraEdit 其餘 16 組（`images_0157_0166` 起）、FLUX 其餘 256 張 | `scripts/run_color_transfer_job.sh <sd3\|flux> <工作>` 呼叫 color trial 的 `tools/run_pexels_{ultraedit,cross_model}_job.sh`；佇列工作 `color_<sd3\|flux>_<工作>`，清單取自 color trial `runtime/cross_model_pexels/<sd3\|flux>/baseline_queue.txt`；完成標記與 log 在 color 的 `jobs/`、`logs/` | 排在第三段（sd3）與第四段（flux）；flux 另需 `queue/done/flux_single_load_accepted` |
 | CLIP-S | cos(E_img(編輯), E_txt(實際送進編輯器的指令))，CLIP 與 SigLIP | `scripts/measure_clip_score.py`；`clip_score_<組>`（GPU） | 排在各組 followup 後，第一步未驗證；彙整程式尚未加 CLIP-S 欄 |
 | P2 淨化強度掃描 | 306 張，`color3d_pexels`＋`dct_shield`、`mist`、`dia_pt` | `scripts/sweep_pexels_purifier_strength.sh` | 延後；佇列行在 `queue/jobs_deferred_p2_p3.txt`，第一步未驗證 |
 | P3 跨編輯器（替代 VAE 重新求解） | `photoguard_encoder`、`dct_shield`、`dct_shield_y`、`mist_textural` | `scripts/evaluate_pexels_cross_model.sh` | 延後；同上 |
 
+- 遷移實驗的順序（使用者 2026-11-03 定案，`TRANSFER_DEADLINE` 取消）：UltraEdit 的 FLUX 子集 50 張（color trial `pexels_subsets/flux.txt`）→ FLUX 同 50 張
+  → UltraEdit 其餘 256 張與 color 的 sd3 工作 → FLUX 其餘 256 張與 color 的 flux 工作；其餘 256 張依 `runtime/pexels_portraits/transfer/ultraedit_order.txt`
+  第 51–306 行（影像組順序）。段與段之間由 CPU 閘門 `transfer_ultraedit_flux_subset_done`、`transfer_flux_subset_done`、`transfer_ultraedit_rest_done`
+  銜接：前一段每項皆有 `done/` 或 `failed/` 標記才放行（失敗的影像不擋後段，回報時列出）。佇列清單的產生程式在遠端 `queue/generate_jobs_transfer_sequence.py`、
+  `queue/add_color_transfer_jobs.py`，改動前的清單為 `queue/superseded_jobs_before_{transfer_sequence,color_transfer}.txt`。
+- FLUX 單次載入：`run_flux_edit_jobs --jobs-file` 讀多行 `run_flux_edits` 參數，共用一次載入依序執行，各行的協定、輸出與續跑規則不變。
+  與逐次載入的等價性檢查在遠端 `runtime/pexels_portraits/transfer/single_load_check/`（data/portraits、`mist`、`man_00`，未淨化與 `jpeg50`，
+  basic-2 一卡）：單次載入、同卡逐次載入與既有 `artifacts/flux/` 的 12 格輸出逐像素相同（max|Δ| = 0），`id_orig`、`arcface_orig` 相同。
+  據此寫入 `queue/done/flux_single_load_accepted`，306 個 `transfer_flux_*` 行改用 `evaluate_pexels_flux_transfer.sh`。
+- 遷移的實測：UltraEdit 每張約 24 分鐘（4 條件 × {淨化前 4 格、VAE-Trans 4 格、七道 28 格}，含 12 次載入）；FLUX 單格 83 s、載入 99 s。
 - 主表彙整的欄定義見 `scripts/generate_pexels_main_table_summary.py` 開頭；`disp_weakest` 為各方法七道中平均編輯結果 LPIPS 最低的一道（論文 Weakest），`disp_worst` 為逐格取七道最小值後平均。論文不用 CLIP-IQA 與防禦圖對原圖的 FID；CLIP-I＝`clip_pair`，`clip_dir` 保留在表內。
 - 共用指標的通用輸入（color 專案直接呼叫）：`measure_clip_score.py --edits-csv`、`measure_distribution_metrics.py --pairs-csv`、`measure_pexels_arcface_pair.py --semantic-csv --output-csv`。
 - 佇列機制：worker 為 `scripts/run_pexels_queue_worker.sh`（`AFTER=`、`HOST=`、`CPU`；結束碼 4 略過後繼續認領）；supervisor 由兩台 crontab 每 5 分鐘執行，清除本機擁有、行程已消失的等失真鎖，佇列第一項連續 4 次 not ready 時在 `supervisor.log` 寫 `[WARN]`。舊 worker `scripts/run_pexels_job.sh` 已不再使用。
@@ -86,9 +97,9 @@
 1. 閘門 `vae_trans_gpu_done` 出現後，驗證 `transfer_flux_<影像>`（basic-2）、`transfer_ultraedit_<影像>`（basic-1）與 `clip_score_<組>` 的第一步：
    log 的 `[STEP] 遷移 …` 與逐格輸出、`artifacts/pexels_portraits/transfer/<編輯器>/` 的第一張輸出；`clip_score` 的
    `[ALLDONE] … clip_score.csv（N 格）`，10 張的組 N＝3,200＋400＋640＋80（9 臂與未防禦 × 4 指令 × 8 淨化設定、9 臂與未防禦 × 4、color3d 兩組）。異常即停並回報 executor。
-2. `TRANSFER_DEADLINE`（2026-11-04 20:00）時向 executor 回報 FLUX、UltraEdit 各完成張數（／50；UltraEdit 另報／306）與 GPU 小時：
+2. 2026-11-04 20:00 向 executor 回報完成張數快照（FLUX、UltraEdit 各／50 與／306）與 GPU 小時，排程不停：
    張數取 `runtime/pexels_portraits/transfer/<編輯器>/done/<影像>.done`，GPU 小時取 `queue/worker.log` 的 claim 與 done 時刻相減。
-   截止後的遷移工作以結束碼 4 略過；是否續跑由使用者決定。
+   等價性檢查通過後寫 `queue/done/flux_single_load_accepted`，並把尚未開始的 `transfer_flux_*` 行改為 `evaluate_pexels_flux_transfer.sh`。
 3. `summary_pexels` 完成後（`summary/main_table.csv` 的 `*_vae_trans` 欄有值）送 executor 與 paper，附路徑與 n；
    再於 `scripts/generate_pexels_main_table_summary.py` 加 CLIP-S 欄（讀各組 `followup/<根>/results/clip_score.csv`，淨化前、七道、VAE-Trans 各一）並重跑彙整。
 4. 遷移表的讀數：位移 `measure_flux_displacement`／`measure_edit_displacement`、保留 `measure_flux_retention`／`measure_purified_displacement`、

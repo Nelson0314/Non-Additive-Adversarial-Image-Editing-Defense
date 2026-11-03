@@ -9,7 +9,7 @@
     分布指標  runtime/pexels_portraits/summary/distribution_metrics/pexels_distribution.csv
 
 欄（數值皆先逐格或逐張再對條件平均）：
-    防禦圖 LPIPS 與七項美學：交付 PNG、CPU
+    防禦圖 LPIPS、SSIM、PSNR（fidelity.csv 的 fid_lpips、fid_ssim、fid_psnr）與七項美學：防禦圖對原圖，交付 PNG、CPU
     disp_none、disp_seven、disp_worst、disp_vae_trans：編輯結果 LPIPS（未淨化、七道平均、每格取七道最小值後平均、VAE-Trans）
     disp_weakest、disp_weakest_purifier：七道中編輯結果 LPIPS 平均最低的一道之平均與其名稱（逐道平均見 per_purifier_displacement.csv）
     retained_seven、retained_seven_ratio、retained_vae_trans：逐格 disp_purified/disp_plain 的平均、七道平均之比、VAE-Trans 逐格平均
@@ -34,6 +34,7 @@ N_IMAGES = 306
 SEVEN = ("blur1", "blur2", "crop_resize0.1", "jpeg30", "jpeg50", "jpeg80", "rotate15")
 ALIGNED = ("mist", "dia_pt", "sifm", "dia_r", "dct_shield_y", "dct_shield", "dayn", "danp", "photoguard_encoder")
 COLOR3D = "color3d_pexels"
+FIDELITY = ("lpips", "ssim", "psnr")
 AESTHETIC = ("aes_laion", "aes_nima", "aes_musiq_ava", "aes_topiq_iaa", "aes_clipiqa", "aes_niqe", "aes_brisque")
 CT = Path("../color/trials/lut3d_defense_and_naturalness")
 OUT = Path("runtime/pexels_portraits/summary")
@@ -92,7 +93,7 @@ def main():
             directory = R / c if c == "photoguard_encoder" else R
             for row in read(directory / "fidelity.csv"):
                 if row["condition"] == c:
-                    fidelity[c][row["image"]] = float(row["fid_lpips"])
+                    fidelity[c][row["image"]] = {k: float(row[f"fid_{k}"]) for k in FIDELITY}
             for row in read(directory / "aesthetic.csv"):
                 if row["condition"] == c:
                     aesthetic[c][row["image"]] = row
@@ -106,7 +107,7 @@ def main():
                     retention[c][(row["image"], row["prompt_index"])][row["purifier"]] = (float(row["disp_purified"]), float(row["retained"]))
         for row in read(F / "color3d/fidelity.csv"):
             if row["condition"] == COLOR3D:
-                fidelity[COLOR3D][row["image"]] = float(row["fid_lpips"])
+                fidelity[COLOR3D][row["image"]] = {k: float(row[f"fid_{k}"]) for k in FIDELITY}
         for row in read(F / "color3d/aesthetic.csv"):
             if row["condition"] == COLOR3D:
                 aesthetic[COLOR3D][row["image"]] = row
@@ -159,7 +160,9 @@ def main():
         require(c, "ArcFace(E_u,E_d) 七道格數", len(pair_seven), n_cells * 7)
         if vae:
             require(c, "ArcFace(E_u,E_d) VAE-Trans 格數", len(pair_vae), n_cells)
-        row = {"condition": c, "n_images": N_IMAGES, "defense_lpips": mean(list(fidelity[c].values()))}
+        row = {"condition": c, "n_images": N_IMAGES}
+        for k in FIDELITY:
+            row[f"defense_{k}"] = mean([v[k] for v in fidelity[c].values()])
         for column in AESTHETIC:
             row[column] = mean([float(r[column]) for r in aesthetic[c].values()])
         row.update({

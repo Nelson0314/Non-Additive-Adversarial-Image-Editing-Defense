@@ -24,6 +24,10 @@
 \usepackage{currfile}
 \usepackage{caption}
 \newcommand{\NUM}{\textbf{\color{red}[NUM]}}
+\newcommand{\TBD}{{\color{red}--}}
+\usepackage{colortbl}
+\usepackage{multirow}
+\definecolor{oursrow}{HTML}{FCEBEC}
 
 \definecolor{cvprblue}{rgb}{0.21,0.49,0.74}
 \usepackage[pagebackref,breaklinks,colorlinks,allcolors=cvprblue]{hyperref}
@@ -42,7 +46,7 @@ Institution1\\
 
 \begin{document}
 \maketitle
-\input{fig/teaser}
+% \input{fig/teaser}  % teaser 暫時移除
 \input{sec/0_abstract}
 \input{sec/1_intro}
 \input{sec/2_related}

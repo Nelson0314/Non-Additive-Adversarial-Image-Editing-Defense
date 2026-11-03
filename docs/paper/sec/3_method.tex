@@ -67,31 +67,31 @@ $\Theta$ is initialized with independent Gaussian entries of standard deviation 
 \begin{table*}[t]
   \centering
   \footnotesize
-  \setlength{\tabcolsep}{2.8pt}
+  \setlength{\tabcolsep}{2.0pt}
   \renewcommand{\arraystretch}{1.08}
-  \begin{tabular}{l c cccc c cc c c c c}
+  \begin{tabular}{l ccc cccc c cc c c c c}
     \toprule
-    \multirow{3}{*}{Method} & \textbf{Protected} & \multicolumn{11}{c}{\textbf{Edit of the protected image} vs.\ edit of the original} \\
-    \cmidrule(lr){2-2} \cmidrule(l){3-13}
-    & Distortion & \multicolumn{4}{c}{LPIPS $\uparrow$} & Ret.$^{\ddagger}$ $\uparrow$ & \multicolumn{2}{c}{SigLIP $\downarrow$} & CLIP-S$^{\P}$ $\downarrow$ & CLIP-I$^{\P}$ $\downarrow$ & FID$^{\P}$ $\uparrow$ & ArcFace$^{\S}$ $\downarrow$ \\
-    \cmidrule(lr){2-2} \cmidrule(lr){3-6} \cmidrule(lr){7-7} \cmidrule(lr){8-9} \cmidrule(lr){10-10} \cmidrule(lr){11-11} \cmidrule(lr){12-12} \cmidrule(l){13-13}
-    & LPIPS $\downarrow$ & None & Purified$^{*}$ & Weakest$^{\dagger}$ & VAE-Trans & Purified$^{*}$ & Purified$^{*}$ & VAE-Trans & Purified$^{*}$ & Purified$^{*}$ & Purified$^{*}$ & Purified$^{*}$ \\
+    \multirow{3}{*}{Method} & \multicolumn{3}{c}{\textbf{Protected} vs.\ original} & \multicolumn{11}{c}{\textbf{Edit of the protected image} vs.\ edit of the original} \\
+    \cmidrule(lr){2-4} \cmidrule(l){5-15}
+    & \multicolumn{3}{c}{Distortion} & \multicolumn{4}{c}{LPIPS $\uparrow$} & \multirow{2}{*}{Ret.\ $\uparrow$} & \multicolumn{2}{c}{SigLIP $\downarrow$} & CLIP-S $\downarrow$ & CLIP-I $\downarrow$ & FID $\uparrow$ & ArcFace $\downarrow$ \\
+    \cmidrule(lr){2-4} \cmidrule(lr){5-8} \cmidrule(lr){10-11} \cmidrule(l){12-15}
+    & LPIPS $\downarrow$ & PSNR $\uparrow$ & SSIM $\uparrow$ & None & Purified$^{*}$ & Weakest$^{\dagger}$ & VAE-Trans & & Purified$^{*}$ & VAE-Trans & \multicolumn{4}{c}{Purified$^{*}$} \\
     \midrule
-    DAYN & .290 & .363 & .212 & .106 & \TBD & .591 & .948 & \TBD & \TBD & \TBD & \TBD & .870 \\
-    DIA-R & .280 & .335 & .201 & .094 & \TBD & .609 & .957 & \TBD & \TBD & \TBD & \TBD & .879 \\
-    DIA-PT & .261 & .343 & .186 & .078 & \TBD & .546 & .959 & \TBD & \TBD & \TBD & \TBD & .887 \\
-    SIFM & .251 & .328 & .170 & .070 & \TBD & .529 & .965 & \TBD & \TBD & \TBD & \TBD & .895 \\
-    DANP & .262 & .354 & .180 & .077 & \TBD & .517 & .964 & \TBD & \TBD & \TBD & \TBD & .888 \\
-    Mist & .310 & .353 & .164 & .063 & \TBD & .463 & .966 & \TBD & \TBD & \TBD & \TBD & .906 \\
-    PhotoGuard & .318 & \textbf{.415} & .157 & .056 & \TBD & .388 & .966 & \TBD & \TBD & \TBD & \TBD & .910 \\
-    DCT-Shield & .283 & .315 & .112 & .028 & \TBD & .366 & .974 & \TBD & \TBD & \TBD & \TBD & .928 \\
-    DCT-Shield-Y & .270 & .262 & .114 & .035 & \TBD & .447 & .976 & \TBD & \TBD & \TBD & \TBD & .920 \\
+    DAYN & .290 & \TBD & \TBD &.363 & .212 & .106 & \TBD & .591 & .948 & \TBD & \TBD & \TBD & \TBD & .870 \\
+    DIA-R & .280 & \TBD & \TBD &.335 & .201 & .094 & \TBD & .609 & .957 & \TBD & \TBD & \TBD & \TBD & .879 \\
+    DIA-PT & .261 & \TBD & \TBD &.343 & .186 & .078 & \TBD & .546 & .959 & \TBD & \TBD & \TBD & \TBD & .887 \\
+    SIFM & .251 & \TBD & \TBD &.328 & .170 & .070 & \TBD & .529 & .965 & \TBD & \TBD & \TBD & \TBD & .895 \\
+    DANP & .262 & \TBD & \TBD &.354 & .180 & .077 & \TBD & .517 & .964 & \TBD & \TBD & \TBD & \TBD & .888 \\
+    Mist & .310 & \TBD & \TBD &.353 & .164 & .063 & \TBD & .463 & .966 & \TBD & \TBD & \TBD & \TBD & .906 \\
+    PhotoGuard & .318 & \TBD & \TBD &\textbf{.415} & .157 & .056 & \TBD & .388 & .966 & \TBD & \TBD & \TBD & \TBD & .910 \\
+    DCT-Shield & .283 & \TBD & \TBD &.315 & .112 & .028 & \TBD & .366 & .974 & \TBD & \TBD & \TBD & \TBD & .928 \\
+    DCT-Shield-Y & .270 & \TBD & \TBD &.262 & .114 & .035 & \TBD & .447 & .976 & \TBD & \TBD & \TBD & \TBD & .920 \\
     \midrule
     \rowcolor{oursrow}
-    \textbf{Ours} & \textbf{.211} & .277 & \textbf{.291} & \textbf{.251} & \TBD & \textbf{1.091} & \textbf{.913} & \TBD & \TBD & \TBD & \TBD & \textbf{.826} \\
+    \textbf{Ours} & \textbf{.211} & \TBD & \TBD & .277 & \textbf{.291} & \textbf{.251} & \TBD & \textbf{1.091} & \textbf{.913} & \TBD & \TBD & \TBD & \TBD & \textbf{.826} \\
     \bottomrule
   \end{tabular}
-  \caption{Main comparison on 306 Pexels portraits $\times$ 4 instructions (InstructPix2Pix); additive methods at the settings of their matched-distortion arm. Edits are compared under the same purification. Best in bold. $^{*}$Mean over the seven purifications (JPEG 80, 50, 30; Gaussian blur $\sigma = 1, 2$; crop-and-resize; rotation). $^{\dagger}$The purification with the lowest mean for each method. $^{\ddagger}$Retention: edit LPIPS after purification divided by that before, per edit. $^{\S}$Cosine similarity of ArcFace embeddings, over edits in which a face is detected. $^{\P}$CLIP-S: CLIP similarity between the edit and the instruction text; CLIP-I: CLIP similarity between the two edits; FID: between the sets of defended and undefended edits.}
+  \caption{Main comparison on 306 Pexels portraits $\times$ 4 instructions (InstructPix2Pix); additive methods at the settings of their matched-distortion arm. Edits are compared under the same purification. Best in bold. $^{*}$Mean over the seven purifications (JPEG 80, 50, 30; Gaussian blur $\sigma = 1, 2$; crop-and-resize; rotation). $^{\dagger}$The purification with the lowest mean for each method. PSNR and SSIM: protected image against the original. Ret.: retention, edit LPIPS after purification divided by that before, per edit. ArcFace: cosine similarity of ArcFace embeddings, over edits in which a face is detected. CLIP-S: CLIP similarity between the edit and the instruction text; CLIP-I: CLIP similarity between the two edits; FID: between the sets of defended and undefended edits.}
   \label{tab:main}
 \end{table*}
 

@@ -23,8 +23,35 @@
 \usepackage{cuted}
 \usepackage{currfile}
 \usepackage{caption}
-\newcommand{\NUM}{\textbf{\color{red}[NUM]}}
-\newcommand{\TBD}{{\color{red}--}}
+% Preliminary values. \prelim{value}{note} prints the value in red; a non-empty
+% note adds a red superscript index and is listed in red at the end of the PDF.
+% \prelimnote{note} adds a note to that list without marking the text (for a
+% table column or a figure). Before submission set \prelimfinaltrue: every
+% remaining \prelim or \prelimnote then stops compilation with an error.
+\newif\ifprelimfinal
+\newcounter{prelimindex}
+\makeatletter
+\gdef\prelim@list{}
+\newcommand{\prelim@add}[2]{%
+  \xdef\prelim@list{\unexpanded\expandafter{\prelim@list}\noexpand\item[#1]\unexpanded{#2}}}
+\newcommand{\prelim}[2]{%
+  \ifprelimfinal\PackageError{prelim}{Preliminary value `#1' remains}{}\fi
+  {\color{red}#1}%
+  \if\relax\detokenize{#2}\relax\else
+    \stepcounter{prelimindex}%
+    \textsuperscript{\color{red}\theprelimindex}%
+    \expandafter\prelim@add\expandafter{\theprelimindex}{#2}%
+  \fi}
+\newcommand{\prelimnote}[1]{%
+  \ifprelimfinal\PackageError{prelim}{Preliminary note remains}{}\fi
+  \prelim@add{--}{#1}}
+\AtEndDocument{%
+  \ifx\prelim@list\@empty\else
+    \onecolumn
+    \section*{\color{red}Internal notes on preliminary values}
+    {\color{red}\footnotesize\raggedright\begin{description}\prelim@list\end{description}}%
+  \fi}
+\makeatother
 \usepackage{colortbl}
 \usepackage{multirow}
 \definecolor{oursrow}{HTML}{FCEBEC}

@@ -60,7 +60,8 @@ $\Theta$ is initialized with independent Gaussian entries of standard deviation 
 \begin{figure*}[t]
   \centering
   \includegraphics[width=\linewidth]{fig/distortion_displacement.pdf}
-  \caption{Distortion and edit displacement on InstructPix2Pix (306 Pexels portraits $\times$ 4 instructions). (a)~Before purification, the additive methods at their native budgets and at the matched-distortion arm; dashed: least-squares fit. (b)~Matched-distortion arms and ours before (filled) and after (open, mean of the seven purifications) purification.}
+  \caption{Distortion and edit displacement on InstructPix2Pix (306 Pexels portraits $\times$ 4 instructions). (a)~Before purification, the additive methods, including BlurGuard, at their native budgets and at the matched-distortion arm, and our defense at several distortion budgets; dashed: least-squares fit to the additive methods. (b)~Matched-distortion arms and ours before (filled) and after (open, mean of the seven purifications) purification.}
+  \prelimnote{Fig.~2: the current figure has no BlurGuard points and our defense at its default bound only; the multi-budget points of our defense and the matched-distortion BlurGuard arm are not yet run.}
   \label{fig:plane}
 \end{figure*}
 
@@ -69,29 +70,32 @@ $\Theta$ is initialized with independent Gaussian entries of standard deviation 
   \footnotesize
   \setlength{\tabcolsep}{2.0pt}
   \renewcommand{\arraystretch}{1.08}
-  \begin{tabular}{l ccc cccc c cc c c c c}
+  \begin{tabular}{l ccc ccc c cc c c c c}
     \toprule
-    \multirow{3}{*}{Method} & \multicolumn{3}{c}{\textbf{Protected} vs.\ original} & \multicolumn{11}{c}{\textbf{Edit of the protected image} vs.\ edit of the original} \\
-    \cmidrule(lr){2-4} \cmidrule(l){5-15}
-    & \multicolumn{3}{c}{Distortion} & \multicolumn{4}{c}{LPIPS $\uparrow$} & \multirow{2}{*}{Ret.\ $\uparrow$} & \multicolumn{2}{c}{SigLIP $\downarrow$} & CLIP-S $\downarrow$ & CLIP-I $\downarrow$ & FID $\uparrow$ & ArcFace $\downarrow$ \\
-    \cmidrule(lr){2-4} \cmidrule(lr){5-8} \cmidrule(lr){10-11} \cmidrule(l){12-15}
-    & LPIPS $\downarrow$ & PSNR $\uparrow$ & SSIM $\uparrow$ & None & Purified$^{*}$ & Weakest$^{\dagger}$ & VAE-Trans & & Purified$^{*}$ & VAE-Trans & \multicolumn{4}{c}{Purified$^{*}$} \\
+    \multirow{3}{*}{Method} & \multicolumn{3}{c}{\textbf{Protected} vs.\ original} & \multicolumn{10}{c}{\textbf{Edit of the protected image} vs.\ edit of the original} \\
+    \cmidrule(lr){2-4} \cmidrule(l){5-14}
+    & \multicolumn{3}{c}{Distortion} & \multicolumn{3}{c}{LPIPS $\uparrow$} & \multirow{2}{*}{Ret.\ $\uparrow$} & \multicolumn{2}{c}{SigLIP $\downarrow$} & CLIP-S $\downarrow$ & CLIP-I $\downarrow$ & FID $\uparrow$ & ArcFace $\downarrow$ \\
+    \cmidrule(lr){2-4} \cmidrule(lr){5-7} \cmidrule(lr){9-10} \cmidrule(l){11-14}
+    & LPIPS $\downarrow$ & PSNR $\uparrow$ & SSIM $\uparrow$ & None & Purified$^{*}$ & VAE-Trans & & Purified$^{*}$ & VAE-Trans & \multicolumn{4}{c}{Purified$^{*}$} \\
     \midrule
-    DAYN & .290 & \TBD & \TBD &.363 & .212 & .106 & \TBD & .591 & .948 & \TBD & \TBD & \TBD & \TBD & .870 \\
-    DIA-R & .280 & \TBD & \TBD &.335 & .201 & .094 & \TBD & .609 & .957 & \TBD & \TBD & \TBD & \TBD & .879 \\
-    DIA-PT & .261 & \TBD & \TBD &.343 & .186 & .078 & \TBD & .546 & .959 & \TBD & \TBD & \TBD & \TBD & .887 \\
-    SIFM & .251 & \TBD & \TBD &.328 & .170 & .070 & \TBD & .529 & .965 & \TBD & \TBD & \TBD & \TBD & .895 \\
-    DANP & .262 & \TBD & \TBD &.354 & .180 & .077 & \TBD & .517 & .964 & \TBD & \TBD & \TBD & \TBD & .888 \\
-    Mist & .310 & \TBD & \TBD &.353 & .164 & .063 & \TBD & .463 & .966 & \TBD & \TBD & \TBD & \TBD & .906 \\
-    PhotoGuard & .318 & \TBD & \TBD &\textbf{.415} & .157 & .056 & \TBD & .388 & .966 & \TBD & \TBD & \TBD & \TBD & .910 \\
-    DCT-Shield & .283 & \TBD & \TBD &.315 & .112 & .028 & \TBD & .366 & .974 & \TBD & \TBD & \TBD & \TBD & .928 \\
-    DCT-Shield-Y & .270 & \TBD & \TBD &.262 & .114 & .035 & \TBD & .447 & .976 & \TBD & \TBD & \TBD & \TBD & .920 \\
+    DAYN & .290 & 40.6 & .981 & .363 & .212\,$\pm$\,.044 & \prelim{.056}{} & .591 & .948 & \prelim{.986}{} & \prelim{.243}{} & .949 & 26.1 & .870 \\
+    DIA-R & .280 & 40.4 & .981 & .335 & .201\,$\pm$\,.048 & .051 & .609 & .957 & \prelim{.988}{} & \prelim{.242}{} & .957 & 23.7 & .879 \\
+    DIA-PT & .261 & 42.5 & .988 & .343 & .186\,$\pm$\,.038 & .042 & .546 & .959 & \prelim{.990}{} & \prelim{.241}{} & .960 & 24.4 & .887 \\
+    SIFM & .251 & \textbf{43.2} & .989 & .328 & .170\,$\pm$\,.041 & .036 & .529 & .965 & \prelim{.991}{} & \prelim{.244}{} & .964 & 21.0 & .895 \\
+    DANP & .262 & 43.0 & .988 & .354 & .180\,$\pm$\,.041 & \prelim{.041}{} & .517 & .964 & \prelim{.990}{} & \prelim{.244}{} & .964 & 21.5 & .888 \\
+    Mist & .310 & 43.1 & \textbf{.991} & .353 & .164\,$\pm$\,.044 & .033 & .463 & .966 & \prelim{.992}{} & \prelim{.241}{} & .968 & 20.7 & .906 \\
+    PhotoGuard & .318 & 42.7 & .990 & \textbf{.415} & .157\,$\pm$\,.040 & \prelim{.033}{} & .388 & .966 & \prelim{.992}{} & \prelim{.242}{} & .969 & 21.4 & .910 \\
+    DCT-Shield & .283 & 39.3 & .980 & .315 & .112\,$\pm$\,.027 & \prelim{.023}{} & .366 & .974 & \prelim{.994}{} & \prelim{.242}{} & .975 & 17.9 & .928 \\
+    DCT-Shield-Y & .270 & 37.7 & .987 & .262 & .114\,$\pm$\,.025 & .029 & .447 & .976 & \prelim{.993}{} & \prelim{.243}{} & .980 & 17.4 & .920 \\
+    BlurGuard & \prelim{.231}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
     \midrule
     \rowcolor{oursrow}
-    \textbf{Ours} & \textbf{.211} & \TBD & \TBD & .277 & \textbf{.291} & \textbf{.251} & \TBD & \textbf{1.091} & \textbf{.913} & \TBD & \TBD & \TBD & \TBD & \textbf{.826} \\
+    \textbf{Ours} & \textbf{.211} & 24.2 & .928 & .277 & \textbf{.291\,$\pm$\,.083} & \textbf{.218} & \textbf{1.091} & \textbf{.913} & \textbf{.925} & \textbf{\prelim{.240}{}} & \textbf{.913} & \textbf{35.0} & \textbf{.826} \\
     \bottomrule
   \end{tabular}
-  \caption{Main comparison on 306 Pexels portraits $\times$ 4 instructions (InstructPix2Pix); additive methods at the settings of their matched-distortion arm. Edits are compared under the same purification. Best in bold. $^{*}$Mean over the seven purifications (JPEG 80, 50, 30; Gaussian blur $\sigma = 1, 2$; crop-and-resize; rotation). $^{\dagger}$The purification with the lowest mean for each method. PSNR and SSIM: protected image against the original. Ret.: retention, edit LPIPS after purification divided by that before, per edit. ArcFace: cosine similarity of ArcFace embeddings, over edits in which a face is detected. CLIP-S: CLIP similarity between the edit and the instruction text; CLIP-I: CLIP similarity between the two edits; FID: between the sets of defended and undefended edits.}
+  \caption{Main comparison on 306 Pexels portraits $\times$ 4 instructions (InstructPix2Pix); additive methods at the settings of their matched-distortion arm. Edits are compared under the same purification. Best in bold. $^{*}$Mean over the seven purifications (JPEG 80, 50, 30; Gaussian blur $\sigma = 1, 2$; crop-and-resize; rotation); $\pm$: standard deviation across images of the per-image mean over instructions and purifications. PSNR and SSIM: protected image against the original. Ret.: retention, edit LPIPS after purification divided by that before, per edit. ArcFace: cosine similarity of ArcFace embeddings, over edits in which a face is detected. CLIP-S: CLIP similarity between the edit and the instruction text; CLIP-I: CLIP similarity between the two edits; FID: between the sets of defended and undefended edits.}
+  \prelimnote{Tab.~1, VAE-Trans LPIPS: DAYN, DANP, PhotoGuard 286 portraits, DCT-Shield 296; VAE-Trans SigLIP: additive methods 286 portraits; CLIP-S: 137 portraits (baseline \texttt{runtime/pexels\_portraits/summary/main\_table\_available.csv}).}
+  \prelimnote{Tab.~1, BlurGuard: matched-distortion arm not yet run (budget knob awaits a decision); defense LPIPS is the native budget on 8 portraits (\texttt{baseline/runtime/blurguard/native/results/}).}
   \label{tab:main}
 \end{table*}
 
@@ -99,26 +103,28 @@ $\Theta$ is initialized with independent Gaussian entries of standard deviation 
   \centering
   \footnotesize
   \setlength{\tabcolsep}{4pt}
-  \begin{tabular}{l cccc}
+  \begin{tabular}{l cc}
     \toprule
-    Method & LAION $\uparrow$ & NIMA $\uparrow$ & MUSIQ $\uparrow$ & NIQE $\downarrow$ \\
+    Method & LAION $\uparrow$ & MUSIQ $\uparrow$ \\
     \midrule
-    \textcolor{gray}{Original} & \textcolor{gray}{5.459} & \textcolor{gray}{5.399} & \textcolor{gray}{5.389} & \textcolor{gray}{4.061} \\
+    \textcolor{gray}{Original} & \textcolor{gray}{5.459} & \textcolor{gray}{5.389} \\
     \midrule
-    DAYN & 5.492 & 5.208 & 5.117 & 4.135 \\
-    DIA-R & 5.510 & 5.283 & 5.204 & 4.049 \\
-    DIA-PT & 5.416 & 5.265 & 5.195 & \textbf{3.867} \\
-    SIFM & 5.484 & 5.300 & 5.225 & 3.995 \\
-    DANP & 5.483 & 5.286 & 5.197 & 3.993 \\
-    Mist & 5.505 & 5.339 & 5.298 & 3.997 \\
-    PhotoGuard & 5.516 & 5.315 & 5.274 & 4.083 \\
-    DCT-Shield & \textbf{5.531} & \textbf{5.380} & 5.261 & 4.823 \\
-    DCT-Shield-Y & 5.345 & 5.351 & 5.174 & 4.633 \\
+    DAYN & 5.492 & 5.117 \\
+    DIA-R & 5.510 & 5.204 \\
+    DIA-PT & 5.416 & 5.195 \\
+    SIFM & 5.484 & 5.225 \\
+    DANP & 5.483 & 5.197 \\
+    Mist & 5.505 & 5.298 \\
+    PhotoGuard & 5.516 & 5.274 \\
+    DCT-Shield & \textbf{5.531} & 5.261 \\
+    DCT-Shield-Y & 5.345 & 5.174 \\
+    BlurGuard & \prelim{--}{} & \prelim{--}{} \\
     \midrule
     \rowcolor{oursrow}
-    \textbf{Ours} & 5.388 & 5.278 & \textbf{5.343} & 3.979 \\
+    \textbf{Ours} & 5.388 & \textbf{5.343} \\
     \bottomrule
   \end{tabular}
-  \caption{No-reference aesthetic scores of the protected images (306 Pexels portraits, matched-distortion arms). Best in bold.}
+  \caption{No-reference aesthetic scores of the protected images (306 Pexels portraits, matched-distortion arms). NIMA and NIQE are reported in the supplementary material. Best in bold.}
+  \prelimnote{Tab.~2: the matched-distortion BlurGuard arm is not yet run.}
   \label{tab:aesthetics}
 \end{table}

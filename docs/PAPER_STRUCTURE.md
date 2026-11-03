@@ -15,7 +15,7 @@
 | 2 Related Work | 免疫、淨化、色彩對抗樣本、美學與品質評估 | 段末收回限制或寫選擇理由 | 已寫 | 完成 | 0.7（0.8） |
 | | Fig. 1 方法總覽 | (a) 參數化、(b) 色彩旋轉、(c) 最佳化 | `fig/method_overview.pdf`（TikZ，`docs/paper_tools/method_overview/`）；(b) 右為 woman_00 color3d LUT 的實際位移；同色像素 (228,85)、(423,378) → 同一輸出 | 完成 | |
 | 3 Method | 3.1–3.5 | 威脅模型、3D LUT、平滑色度旋轉（式 1–5）、目標（式 6）、最佳化 | 已寫 | 完成 | 1.3（1.1） |
-| | Fig. 2、Table 1 | 失真—位移雙面板圖（含 BlurGuard、Ours 多預算點）；主表（兩個 panel，數字旁小字為 95% 信賴區間半寬） | Fig. 2 為 306 張、無 BlurGuard 與多預算點；Table 1 為 306 張，VAE-Trans 部分臂、CLIP-S、BlurGuard 列為紅字 | 部分 | |
+| | Fig. 2、Table 1 | 失真—位移雙面板圖（含 BlurGuard、Ours 多預算點）；主表（兩個 panel，數字旁小字為 95% 信賴區間半寬） | Fig. 2 為 306 張、無 BlurGuard 與多預算點；Table 1 為 306 張，只有 BlurGuard 列為紅字 | 部分 | |
 | 4 Experiments | 4.1 Setup | 資料、攻擊、淨化、baseline、讀數 | 已寫；Pexels 選取規則與授權為 `\TODO` | 部分 | 3.2（2.9） |
 | | 4.2 Robustness to purification | 主結果敘述 | 已寫；VAE-Trans 加性範圍與 FID 句為紅字 | 部分 | |
 | | 4.3 Distortion and displacement before purification | Fig. 2a | 已寫（306 張；8 張的掃描與 DISTS／PieAPP 結論另註） | 完成 | |

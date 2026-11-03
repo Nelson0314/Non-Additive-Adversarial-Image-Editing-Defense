@@ -50,7 +50,7 @@ PDF 共 10 頁：正文與 Conclusion 到第 8 頁，參考文獻自第 8 頁起
 | 2 Related Work | 四段 | — |
 | 3 Method | 威脅模型、3D LUT、平滑色度旋轉（式 1–5）、目標（式 6）、最佳化；Fig. 1 | — |
 | 4.1 Setup | 全部實驗寫為 Pexels 306 張；Baselines 為十個加性方法（含 BlurGuard）；美學正文只報 LAION、MUSIQ（在 Table 1），NIMA、NIQE 在補充材料表 `tab:supp_aesthetics` | Pexels 選取規則與授權為 `\TODO` |
-| 4.2 Robustness to purification | Table 1：上下兩個 panel，每個方法一列，數字旁小字為 95% 信賴區間半寬：Purified* 欄為跨七道淨化（七道各自的 306 張平均，t 分布、自由度 6；編輯 LPIPS 與 Ret. 由 `summary/per_purifier_displacement.csv` 算出，其餘待 baseline），其他欄為 306 張影像間（逐張先對 4 句平均；`_ci95` 欄未到前以 1.96·s／√306 由 `_std` 算出）。不放 Weakest 欄，逐道結果放補充材料。上 panel：防禦圖 LPIPS、LAION、MUSIQ，編輯 LPIPS（None、Purified*、VAE-Trans）、Ret.；下 panel：SigLIP（Purified*、VAE-Trans）、CLIP-S、CLIP-I、FID、ArcFace、編輯端 SSIM、PSNR（同一淨化下兩張編輯之間，待 baseline 新欄）。防禦圖對原圖的 PSNR、SSIM 移到補充表 `tab:supp_aesthetics`、Ret.、SigLIP、CLIP-S、CLIP-I、FID、ArcFace；紅字：VAE-Trans 部分臂 286／296 張、SigLIP VAE-Trans 286 張、CLIP-S 137 張、BlurGuard 列；FID 句為 8 張 | 補齊上述讀數；BlurGuard 等失真臂 |
+| 4.2 Robustness to purification | Table 1：上下兩個 panel，每個方法一列，數字旁小字為 95% 信賴區間半寬：Purified* 欄為跨七道淨化（七道各自的 306 張平均，t 分布、自由度 6；編輯 LPIPS 與 Ret. 由 `summary/per_purifier_displacement.csv` 算出，其餘待 baseline），其他欄為 306 張影像間（逐張先對 4 句平均；`_ci95` 欄未到前以 1.96·s／√306 由 `_std` 算出）。不放 Weakest 欄，逐道結果放補充材料。上 panel：防禦圖 LPIPS、LAION、MUSIQ，編輯 LPIPS（None、Purified*、VAE-Trans）、Ret.；下 panel：SigLIP（Purified*、VAE-Trans）、CLIP-S、CLIP-I、FID、ArcFace、編輯端 SSIM、PSNR（同一淨化下兩張編輯之間，待 baseline 新欄）。防禦圖對原圖的 PSNR、SSIM 移到補充表 `tab:supp_aesthetics`、Ret.、SigLIP、CLIP-S、CLIP-I、FID、ArcFace；全部欄位為 306 張完整讀數（baseline `summary_pexels`，11/3 23:35）；紅字只剩 BlurGuard 列；4.2 的 FID 句為 8 張紅字 | 補齊上述讀數；BlurGuard 等失真臂 |
 | 4.3 Distortion and displacement before purification | Fig. 2（306 張，18 點，1.037x＋0.049，r＝0.967；Ours 高於線 0.009）；caption 已含 BlurGuard 與 Ours 多預算點 | 重畫 Fig. 2；擬合與點數為紅字；Ours 多預算以 8 張四種角度上界暫代 |
 | 4.4 What purification removes | Fig. 3a 為 306 張；Fig. 3b–d caption 寫 306 張、DCT-Shield-Y，正文數字為 8 張 DCT-Shield 的紅字 | VAE-Trans 存續比；306 張強度掃描（約 190 GPU 小時，待使用者決定） |
 | 4.5 Editors with different encoders | Table 2 只留 ip2p 求解、等失真、直接遷移：PhotoGuard、DCT-Shield、DCT-Shield-Y、Mist、Ours (transfer)，兩編輯器上下排；全部紅字（加性為原生預算 8 張、Ours 為 8 張） | Pexels 遷移讀數（UltraEdit 50 張約 11/4、FLUX 50 張約 11/5）；粗體待讀數齊後再標 |
@@ -70,7 +70,6 @@ PDF 共 10 頁：正文與 Conclusion 到第 8 頁，參考文獻自第 8 頁起
 | 內容 | 用在哪裡 | 來源 |
 |---|---|---|
 | Pexels 306 張：10 條件的防禦圖 LPIPS、SSIM、PSNR、美學、編輯 LPIPS（未淨化、七道、最弱一道，含影像間標準差）、保留率、SigLIP、ArcFace、CLIP-I、編輯端 FID | Table 1、4.2 | baseline 遠端 `runtime/pexels_portraits/summary/main_table.csv`（含 `<欄>_std`，baseline commit 1f7dbcd；Table 1 由 session scratchpad 的 `rebuild_table1.py` 依欄名產生）（欄定義見 `scripts/generate_pexels_main_table_summary.py`）、`per_purifier_displacement.csv` |
-| Pexels 部分影像：VAE-Trans LPIPS／SigLIP、CLIP-S | Table 1 | 同目錄 `main_table_available.csv`（逐欄 n） |
 | Pexels 失真—位移點與擾動存續比 | Fig. 2、Fig. 3a | 同目錄 `interim/fig3_points.csv`（原生預算）、`followup/sets/*/results/aligned/survival_seven.csv` 與 `followup/results/color3d_all/survival_seven.csv` |
 | 8 張的淨化強度掃描（無 DCT-Shield-Y） | Fig. 3b–d、4.4 | baseline `results/sweeps/ip2p/purifier_strength/retention.csv` |
 | 原生預算 8 張的直接遷移（加性） | Table 2 紅字 | baseline `results/{ultraedit,flux}/retention.csv`（無 VAE-Trans；photoguard_encoder 無）；彙整腳本為 session scratchpad 的 `summarize_transfer.py`，在遠端 `~/venvs/*/bin/python` 執行 |
@@ -89,7 +88,7 @@ PDF 共 10 頁：正文與 Conclusion 到第 8 頁，參考文獻自第 8 頁起
 
 | 項目 | 規格 | 待補 |
 |---|---|---|
-| Table 1 主表 | 等失真 9 臂＋BlurGuard＋Ours；LPIPS、SigLIP、ArcFace、CLIP-S、CLIP-I、編輯端 FID，LAION、MUSIQ，編輯端 SSIM、PSNR；數字旁小字為 95% 信賴區間半寬（Purified 欄跨七道淨化，其餘跨 306 張）；無 Weakest 欄；防禦圖對原圖的 PSNR、SSIM 與其他美學分數為補充表 | VAE-Trans 剩餘影像、CLIP-S、BlurGuard 等失真臂 |
+| Table 1 主表 | 等失真 9 臂＋BlurGuard＋Ours；LPIPS、SigLIP、ArcFace、CLIP-S、CLIP-I、編輯端 FID，LAION、MUSIQ，編輯端 SSIM、PSNR；數字旁小字為 95% 信賴區間半寬（Purified 欄跨七道淨化，其餘跨 306 張）；無 Weakest 欄；防禦圖對原圖的 PSNR、SSIM 與其他美學分數為補充表 | BlurGuard 等失真臂 |
 | Table 2 遷移 | ip2p 上等失真臂（photoguard_encoder、dct_shield、dct_shield_y、mist）＋Ours (transfer) 直接送 UltraEdit、FLUX；不放重新求解的列 | 全部 |
 | Table 3 消融 | A–E（C、D、C＋D 分列）＋逐項懲罰、可行集合投影，306 張全協定，不對齊失真 | 全部（A 缺淨化後） |
 | Fig. 2 | 加 Ours 多預算點與 BlurGuard 等失真 | 讀數與重畫 |

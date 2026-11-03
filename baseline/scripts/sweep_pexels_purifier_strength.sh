@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Pexels 人像的淨化強度掃描（ip2p），對一個影像組的一個條件執行。
-# 條件：undefended（分母）、color3d_pexels、等失真臂的 dct_shield、mist、dia_pt。
+# 條件：undefended（分母）、color3d_pexels、等失真臂的 dct_shield_y、dct_shield、mist、dia_pt（論文用 dct_shield_y、mist、dia_pt）。
 #
 # 13 個設定與 data/portraits 的掃描（results/sweeps/ip2p/purifier_strength/）相同：jpeg95、90、70、50、30、10，blur0.5、1、2、3，
 # resample_roundtrip384、256、128。blur1、blur2、jpeg30、jpeg50 與七道協定相同（portraits 上兩者送進編輯器的輸入 md5 相同），
@@ -11,7 +11,7 @@
 #   產物  artifacts/sweeps/ip2p/purifier_strength/pexels_portraits/<根>/{purified,purified_edits}/<條件>/<設定>/
 #   狀態  runtime/pexels_portraits/purifier_strength/<根>/done/
 #   讀數  runtime/pexels_portraits/purifier_strength/<根>/results/retention_<條件>.csv
-# 前置條件：undefended 需原生評測的七道未防禦編輯；其餘條件需 undefended 完成；dct_shield、mist、dia_pt 需等失真臂
+# 前置條件：undefended 需原生評測的七道未防禦編輯；其餘條件需 undefended 完成；dct_shield_y、dct_shield、mist、dia_pt 需等失真臂
 # 該條件的 measured_<條件>.done；color3d_pexels 需 scripts/evaluate_pexels_followup.sh 的 color3d 分組。不成立時以結束碼 4 結束。
 #
 # 用法（遠端 baseline 專案根；CUDA_VISIBLE_DEVICES 由呼叫端的租約設定）：
@@ -62,7 +62,7 @@ case $C in
     reuse_root=$BASELINE_ROOT/$CP/purified_edits/$C
     displacement=$FS/results/color3d/displacement_$C.csv
     ;;
-  dct_shield|mist|dia_pt)
+  dct_shield_y|dct_shield|mist|dia_pt)
     [ -f "$S/done/undefended.done" ] || not_ready "$SET 的未防禦分母"
     [ -f "$AS/measured_$C.done" ] || not_ready "等失真 $SET 的 $C"
     source_args=(--defenses-dir "$AA/defenses/$C" --condition "$C")

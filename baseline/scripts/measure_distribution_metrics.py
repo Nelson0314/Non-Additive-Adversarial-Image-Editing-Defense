@@ -129,13 +129,25 @@ def main():
     ap.add_argument("--shard", type=int, default=None,
                     help="只抽取第 i 片（共 --shards 片）不重複影像的 CLIP-IQA 與特徵，存成 <輸出目錄>/<dataset>_features_<i>.pt")
     ap.add_argument("--shards", type=int, default=1)
+    ap.add_argument("--pairs-csv", type=Path, default=None,
+                    help="通用輸入：欄 condition、end、purifier、a_png、b_png，每列一對；給定時取代 --dataset 的組（--dataset 只決定輸出檔名）")
     ap.add_argument("--without-vae-trans", action="store_true", help="Pexels 不建 VAE-Trans 組")
     ap.add_argument("--require-images", type=int, default=None, help="每組的影像數須為此值，否則失敗（合併時）")
     ap.add_argument("--tag", default="", help="分片檔名的附加段（<dataset>_features_<tag>_<i>.pt）；已存在的分片檔中有的影像不重算")
     args = ap.parse_args()
     args.out.mkdir(parents=True, exist_ok=True)
     torch.set_num_threads(8)
-    groups = list(portraits_groups() if args.dataset == "portraits" else pexels_groups(not args.without_vae_trans))
+    if args.pairs_csv is not None:
+        grouped = {}
+        with open(args.pairs_csv, encoding="utf-8", newline="") as f:
+            for r in csv.DictReader(f):
+                key = (r["condition"], r["end"], r["purifier"])
+                grouped.setdefault(key, ([], []))
+                grouped[key][0].append(Path(r["a_png"]))
+                grouped[key][1].append(Path(r["b_png"]))
+        groups = [(c, e, p, a, b) for (c, e, p), (a, b) in sorted(grouped.items())]
+    else:
+        groups = list(portraits_groups() if args.dataset == "portraits" else pexels_groups(not args.without_vae_trans))
     missing = [str(p) for g in groups for p in g[3] + g[4] if not Path(p).is_file()]
     if missing:
         raise SystemExit(f"缺 {len(missing)} 個檔案，例如 {missing[:3]}")

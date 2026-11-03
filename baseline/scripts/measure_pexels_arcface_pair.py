@@ -6,6 +6,7 @@ runtime/pexels_portraits/followup/<根>/results/<aligned|color3d>/semantic_ident
 
 輸出：同目錄的 arcface_pair.csv。
 `--without-vae-trans` 時只讀 semantic_identity.csv（未淨化與七道）。
+通用輸入：`--semantic-csv <CSV>... --output-csv <CSV>`（measure_semantic_identity 的輸出，含 undefended 列）取代影像組。
 用法（遠端 baseline 專案根）：python scripts/measure_pexels_arcface_pair.py <影像組> [--without-vae-trans]
 """
 import argparse
@@ -26,12 +27,13 @@ def read(path):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("image_set")
+    ap.add_argument("image_set", nargs="?")
+    ap.add_argument("--semantic-csv", nargs="*", default=[], type=Path)
+    ap.add_argument("--output-csv", type=Path, default=None)
     ap.add_argument("--without-vae-trans", action="store_true")
     args = ap.parse_args()
-    sets = {s["name"]: s for s in json.loads(Path("data/pexels_portraits/image_sets.json").read_text(encoding="utf-8"))["sets"]}
-    root = sets[args.image_set]["root"]
-    base = Path("runtime/pexels_portraits/followup") / root / "results"
+    if args.semantic_csv and args.output_csv is None or bool(args.semantic_csv) == bool(args.image_set):
+        ap.error("給影像組，或給 --semantic-csv 與 --output-csv")
     device = torch.device("cpu")
     cache = {}
 
@@ -40,10 +42,18 @@ def main():
             cache[path] = arcface.embed(load_image_tensor(path, device, size=512).clamp(0, 1))
         return cache[path]
 
-    for group in ("aligned", "color3d"):
-        rows = read(base / group / "semantic_identity.csv")
-        if not args.without_vae_trans:
-            rows += read(base / group / "semantic_identity_vae_trans.csv")
+    if args.semantic_csv:
+        jobs = [([r for p in args.semantic_csv for r in read(p)], args.output_csv)]
+    else:
+        sets = {s["name"]: s for s in json.loads(Path("data/pexels_portraits/image_sets.json").read_text(encoding="utf-8"))["sets"]}
+        base = Path("runtime/pexels_portraits/followup") / sets[args.image_set]["root"] / "results"
+        jobs = []
+        for group in ("aligned", "color3d"):
+            rows = read(base / group / "semantic_identity.csv")
+            if not args.without_vae_trans:
+                rows += read(base / group / "semantic_identity_vae_trans.csv")
+            jobs.append((rows, base / group / "arcface_pair.csv"))
+    for rows, out_path in jobs:
         reference = {(r["image"], r["prompt_index"], r["purifier"]): r["edit_png"] for r in rows if r["condition"] == "undefended"}
         out = []
         for r in rows:
@@ -54,11 +64,11 @@ def main():
             out.append({"condition": r["condition"], "image": key[0], "prompt_index": key[1], "purifier": key[2],
                         "arcface_pair": "" if similarity is None else round(similarity, 5),
                         "undefended_png": reference[key], "defended_png": r["edit_png"], "device": "cpu"})
-        with open(base / group / "arcface_pair.csv", "w", newline="", encoding="utf-8") as f:
+        with open(out_path, "w", newline="", encoding="utf-8") as f:
             w = csv.DictWriter(f, fieldnames=list(out[0]), lineterminator="\n")
             w.writeheader()
             w.writerows(out)
-        print(f"[DONE] {group} {len(out)} 列", flush=True)
+        print(f"[DONE] {out_path} {len(out)} 列", flush=True)
     print("[ALLDONE]", flush=True)
 
 

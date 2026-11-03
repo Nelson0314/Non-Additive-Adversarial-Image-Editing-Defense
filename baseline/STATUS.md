@@ -54,25 +54,27 @@
 - FLUX 七道淨化：`run_flux_edits --purifier`，13 arm × 7 算子 × 32 格，輸出 `results/flux/purified_edits/<算子>/edits_<arm>.csv`。
 - 文獻的評估集規模見 `docs/reference/EVALUATION_SET_SIZES.md`；完整版三張表的規劃與 GPU 時間見 `docs/PEXELS_PORTRAITS.md`「GPU 時間」。
 
-### Pexels 的論文工作（使用者 2026-10-29 定案：論文圖表全部改用 Pexels，以影像組推進，每完成一批交 paper，每天向 executor 回報完成數/總數）
+### Pexels 的論文工作（使用者 2026-10-29 定案：論文圖表全部改用 Pexels，以影像組推進）
 
-使用者 2026-10-31 指示：全部 GPU 只跑 P0，P1（CPU）照跑；P2、P3 暫停，下一步待主表完成後由使用者決定。P2、P3 的佇列行移到遠端 `runtime/pexels_portraits/queue/jobs_deferred_p2_p3.txt`（恢復時併回 `jobs.txt`）。兩者的程式尚未實際驗證第一步，恢復時先確認；`sweep_images_0097_0106_undefended` 與 `cross_flux_mist_textural_0` 曾在起步階段被終止。
+遠端佇列 `runtime/pexels_portraits/queue/jobs.txt` 的工作分類與狀態（以 `queue/done/` 的完成標記為準）：
 
-| 優先 | 內容 | 狀態與位置 |
-|---|---|---|
-| P0 | 主表：等失真 9 臂（8 臂＋`photoguard_encoder`）＋`color3d_pexels`；欄為防禦圖 LPIPS、防禦圖美學（LAION、NIMA、MUSIQ、NIQE）、編輯結果 LPIPS（淨化前、七道平均、最差一道、VAE-Trans、保留率）、SigLIP（七道、VAE-Trans）、ArcFace（七道） | 遠端佇列：`aligned_photoguard_encoder_<組>`、`aligned_<組>`、`followup_<組>_{undefended,color3d,aligned}`、`cpu_<組>`；原生 10 臂的 followup 不做。2 卡下預估 11/5–11/6 完成 |
-| P1 | 擾動存續比 LPIPS(P(x̃),P(x))/LPIPS(x̃,x)，9 臂＋`color3d_pexels`，七道＋VAE-Trans（CPU） | `scripts/measure_pexels_perturbation_survival.sh`；佇列 `survival_color3d_seven`、`survival_<組>_{seven,vae_trans}`；輸出 `runtime/pexels_portraits/followup/<根>/results/<aligned｜color3d>/survival_*.csv`、`followup/results/color3d_all/` |
-| P2 | 淨化強度掃描：306 張，`color3d_pexels`＋`dct_shield`、`mist`、`dia_pt`（等失真）＋未防禦分母；13 設定中 `blur1`、`blur2`、`jpeg30`、`jpeg50` 重用七道編輯，新增 9 個（`blur0.5`、`blur3`、`jpeg10`、`jpeg70`、`jpeg90`、`jpeg95`、`resample_roundtrip128/256/384`） | `scripts/sweep_pexels_purifier_strength.sh`；佇列 `sweep_<組>_<條件>`（115 項），排在 P0 之後；約 180 GPU 小時。portraits 版見 `results/sweeps/ip2p/purifier_strength/`、`apply_purifier_sweep` |
-| P3 | 跨編輯器 baseline 列（`photoguard_encoder`、`dct_shield`、`dct_shield_y`、`mist_textural`）：UltraEdit 306 張全協定（未淨化、七道、VAE-Trans）；FLUX 只跑 color trial `pexels_subsets/flux.txt` 的影像（一行一張影像名，與 Ours 同一份名單） | `scripts/evaluate_pexels_cross_model.sh`；佇列 `cross_sd3_*`（`HOST=basic-1`）、`cross_flux_*`（`HOST=basic-2`），排在 P2 之後。協定見 `results/cross_model/README.md`。未防禦分母在 color trial `artifacts_pexels/cross_model/`：FLUX 由 color 完成；UltraEdit 的 7 組由 color 完成，其餘由佇列沿用 color 的工具與完成標記補齊 |
-| — | Fig. 3 散布點：原生 10 臂與等失真臂的淨化前、七道平均（編輯結果 LPIPS 對防禦圖 LPIPS），在數據齊的影像組上整理給 paper | 不需 GPU；原生讀 `runtime/pexels_portraits/<根>/results/`，等失真讀 `runtime/pexels_portraits/aligned/<根>/results/` |
+| 項目 | 內容 | 程式與佇列工作 | 狀態 |
+|---|---|---|---|
+| 主表（不含 VAE-Trans） | 等失真 9 臂（8 臂＋`photoguard_encoder`）＋`color3d_pexels`，306 張 | `nv_*`（`scripts/evaluate_pexels_followup_semantic.sh`）、`nv_distribution`、`nv_summary` | 已完成（2026-11-03）；產物 `runtime/pexels_portraits/summary/` |
+| VAE-Trans 那一半 | VAE-Trans 淨化與編輯、位移保留、語意、存續比，以及含 VAE-Trans 的 distribution 與彙整 | `followup_<組>_{undefended,color3d,aligned}`（`scripts/evaluate_pexels_followup.sh`）、`survival_<組>_vae_trans`、`cpu_<組>`、`arcface_pair_<組>`、`distribution_pexels`、`summary_pexels`（`scripts/measure_pexels_summary_inputs.sh`） | 執行中；`summary_pexels` 完成後覆寫 `summary/main_table.csv`（VAE-Trans 欄填入），送 executor 與 paper |
+| 閘門 | 69 項 VAE-Trans GPU 工作完成 | `vae_trans_gpu_done`（CPU，`true`） | color 等它出現後在 `queue/color_reserve` 寫 1，取 1 卡補 FLUX Ours 的 VAE-Trans 40 格 |
+| 遷移性實驗 | 等失真 `photoguard_encoder`、`dct_shield`、`dct_shield_y`、`mist` 的 ip2p 防禦圖直接送 FLUX（basic-2）與 UltraEdit（basic-1），全協定（淨化前、七道、VAE-Trans），每張 4 臂 × 36 格 | `scripts/evaluate_pexels_transfer.sh`；`transfer_flux_<影像>`（color trial `pexels_subsets/flux.txt` 的 50 張）、`transfer_ultraedit_<影像>`（`runtime/pexels_portraits/transfer/ultraedit_order.txt` 的 306 張，前 50 為 flux.txt）；`TRANSFER_DEADLINE=2026-11-04T20:00:00+08:00` 之後不再開始新影像 | 排在閘門後，第一步未驗證；產物 `artifacts/pexels_portraits/transfer/<編輯器>/`，逐格表與完成標記 `runtime/pexels_portraits/transfer/<編輯器>/{chunks,done}/`；讀數（位移、保留、語意、CLIP-S、FID）尚未寫，分母與 Ours (transfer) 由 color 產生 |
+| CLIP-S | cos(E_img(編輯), E_txt(實際送進編輯器的指令))，CLIP 與 SigLIP | `scripts/measure_clip_score.py`；`clip_score_<組>`（GPU） | 排在各組 followup 後，第一步未驗證；彙整程式尚未加 CLIP-S 欄 |
+| P2 淨化強度掃描 | 306 張，`color3d_pexels`＋`dct_shield`、`mist`、`dia_pt` | `scripts/sweep_pexels_purifier_strength.sh` | 延後；佇列行在 `queue/jobs_deferred_p2_p3.txt`，第一步未驗證 |
+| P3 跨編輯器（替代 VAE 重新求解） | `photoguard_encoder`、`dct_shield`、`dct_shield_y`、`mist_textural` | `scripts/evaluate_pexels_cross_model.sh` | 延後；同上 |
 
-- 彙整：佇列工作 `arcface_pair_<組>`、`distribution_pexels`（CLIP-IQA、FID、KID，含 `photoguard_encoder` 與 VAE-Trans 組，每組須 306 張，`kid_negative` 欄）、`summary_pexels`，皆為 CPU，接在 P0 與 P1 之後（`scripts/measure_pexels_summary_inputs.sh`）。產物 `runtime/pexels_portraits/summary/`（`main_table.csv`、`distribution_groups.csv`、`README.md`）；完成後送 executor 與 paper。
-- 306 張的原生合併表以 `scripts/generate_pexels_result_tables.py` 重新產生後入庫。
-- `native_images_0307_0308` 的佇列完成標記為手動補上（log 於 2026-10-29 16:40:49 有 `ALL SETS DONE`，worker 因腳本檔 stale handle 在寫標記前結束，見 `queue/worker.log`）。
-  `aligned_images_0000_0096` 的 worker 有同樣情形，結束後須核對 log 與完成標記、確認沒有重複寫入。
-- 遠端 `runtime/` 的刪除候選（等使用者確認）：`semantic_identity/{superseded_cpu,timing,merged,merged_cpu,merged_fidelity}`、`aligned_recalibration/discarded`、
-  `superseded_scripts`、`cross_model/{superseded,*.patch,generate_defenses.py}`、`pexels_portraits/superseded`、各處的 `.py` 副本、`blurguard/`（讀數保留與否由使用者決定）。
-  `distribution_metrics/` 的特徵檔保留，供重新合併使用。
+- 主表彙整的欄定義見 `scripts/generate_pexels_main_table_summary.py` 開頭；`disp_weakest` 為各方法七道中平均編輯結果 LPIPS 最低的一道（論文 Weakest），`disp_worst` 為逐格取七道最小值後平均。論文不用 CLIP-IQA 與防禦圖對原圖的 FID；CLIP-I＝`clip_pair`，`clip_dir` 保留在表內。
+- 共用指標的通用輸入（color 專案直接呼叫）：`measure_clip_score.py --edits-csv`、`measure_distribution_metrics.py --pairs-csv`、`measure_pexels_arcface_pair.py --semantic-csv --output-csv`。
+- 佇列機制：worker 為 `scripts/run_pexels_queue_worker.sh`（`AFTER=`、`HOST=`、`CPU`；結束碼 4 略過後繼續認領）；supervisor 由兩台 crontab 每 5 分鐘執行，清除本機擁有、行程已消失的等失真鎖，佇列第一項連續 4 次 not ready 時在 `supervisor.log` 寫 `[WARN]`。舊 worker `scripts/run_pexels_job.sh` 已不再使用。
+- `aligned_images_0000_0096`、`native_images_0307_0308` 的佇列完成標記為手動補上（log 有 `ALL SETS DONE`，worker 因 stale handle 在寫標記前結束），已核對無重複寫入。
+- 遠端 `runtime/` 的刪除候選：`semantic_identity/{superseded_cpu,timing,merged,merged_cpu,merged_fidelity}`、`aligned_recalibration/discarded`、`superseded_scripts`、
+  `cross_model/{superseded,*.patch,generate_defenses.py}`、`pexels_portraits/superseded`、各處的 `.py` 副本；處理方式為 mv 到 `~/trash/baseline/<原相對路徑>`。
+  `runtime/blurguard/` 保留（使用者待辦）；`distribution_metrics/` 與 `summary/distribution_metrics/` 的特徵檔保留，供重新合併使用。
 - 改到正在執行的遠端腳本時，先建立 `queue/PAUSED` 並等工作結束再 `git pull`，或另寫新檔：此 NFS 上 `git pull` 會就地改寫檔案（inode 不變）。
 
 ### 論文實驗

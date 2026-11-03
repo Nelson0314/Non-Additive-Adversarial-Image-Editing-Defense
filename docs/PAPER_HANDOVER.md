@@ -48,14 +48,14 @@ pane 編號會變動，送訊前一律以 multi-agent 的 `list_panes` 依標題
 | 2 Related Work | 四段 | — |
 | 3 Method | 威脅模型、3D LUT、平滑色度旋轉（式 1–5）、目標（式 6）、最佳化；Fig. 1 | |Δφ| < 3° 為格點上的保證，像素經三線性內插後可能超出，是否註明待使用者決定 |
 | 4.1 Setup | Pexels 306 張用於 Table 1、2、Fig. 2、Fig. 3a；8 張 portraits 用於 Fig. 3b–d、Table 3、4；Metrics 段已含 CLIP-S、CLIP-I、FID | Pexels 選取規則與授權為 `\TODO` |
-| 4.2 Robustness to purification | Table 1 已填（306 張），VAE-Trans、CLIP-S、CLIP-I、FID 欄為 `\TBD`；正文 3 個 `\NUM` | 等 baseline／color 的讀數 |
+| 4.2 Robustness to purification | Table 1 已填（306 張），防禦圖端 PSNR、SSIM 與 VAE-Trans、CLIP-S、CLIP-I、FID 欄為 `\TBD`；正文 3 個 `\NUM` | 等 baseline／color 的讀數 |
 | 4.3 Distortion and displacement before purification | Fig. 2（306 張，18 點，1.037x＋0.049，r＝0.967；Ours 高於線 0.009） | — |
 | 4.4 What purification removes | Fig. 3a 為 306 張，Fig. 3b–d 為 8 張 | VAE-Trans 存續比為 `\NUM`；強度掃描的 Pexels 版本（P2）由使用者暫停 |
 | 4.5 Editors with different encoders | Table 3：兩編輯器上下排（8 張），CLIP-S、CLIP-I、FID 欄為 `\TBD` | 遷移性實驗讀數與張數 |
 | 4.6 Ablations | Table 4（8 張） | 定案張數的讀數 |
 | 5 Limitations | 已寫 | 負面社會影響與緩解為 `\TODO` |
 | 6 Conclusion、LLM Usage Statement | `\TODO` | LLM Usage 需使用者提供工具清單 |
-| 補充材料 `sec/X_suppl.tex` | CLIP-IQA 與 FID 表已撤下（使用者 11/3 決定）；未編入 PDF | PSNR、SSIM、DISTS、色彩對齊後失真 |
+| 補充材料 `sec/X_suppl.tex` | CLIP-IQA 與 FID 表已撤下（使用者 11/3 決定）；未編入 PDF | DISTS、色彩對齊後失真（PSNR、SSIM 已移入 Table 1） |
 
 待使用者決定的事項：
 1. 摘要 `\NUM` 的倍數定義。
@@ -78,13 +78,14 @@ pane 編號會變動，送訊前一律以 multi-agent 的 `list_panes` 依標題
 ## 6. 交付物與進行中的工作
 
 - **桌面 `paper.pdf`**：`run_paper_preview.py` 每次成功編譯後自動覆寫；Overleaf 由使用者整個上傳 `docs/paper/`，不另做壓縮包。
-- **簡報素材**（executor 製作簡報）：正本在遠端 `~/paper_figures/deck_assets/`（含 `tables_src/`）；executor 目前取用的本機副本在前一個 paper session 的 scratchpad `C:\Users\nelso\AppData\Local\Temp\claude\C--image-immunization\edb08373-522b-4130-814d-5e1f4dc8a9d3\scratchpad\deck_assets\`，可能隨 session 清除，重出時以遠端正本為準。PNG 為 300 dpi、白底、不含 caption；`captions.md` 為各圖中文摘要；表格 PNG 由 `tables_src/*.tex`（取論文原始碼的表格、相同字型與套件單獨編譯）以遠端 `mutool draw -r 300` 轉出；例子圖 `example_*.png` 由 `generate_teaser_figure.py --image --prompt --name` 產生。**待辦**：VAE-Trans、CLIP-S、CLIP-I、FID 與遷移性讀數填入論文後，重出 Table 1（主表）、Table 2（美學）、Table 3（遷移）的 PNG 到遠端正本，抓到新 session 的 scratchpad，再把新路徑告訴 executor；簡報由 executor 修改。`supp_clipiqa.png`、`supp_fid.png` 已作廢。
+- **簡報素材**：不再維護（executor 11/3 轉達），不重出 PNG。遠端 `~/paper_figures/deck_assets/` 保留舊版。
 - **實驗總覽 PDF**：`docs/paper_tools/experiment_overview/experiment_overview.tex`，成品為桌面 `experiment_overview.pdf`（於該目錄 `tectonic -X compile`，再複製）。內容停在 8 張與 Pexels 混合的版本，表格不標紅字、各欄最佳粗體；使用者未再要求更新。
 
 ## 7. 還在等的數字
 
 | 來源 | 內容 | 用途 |
 |---|---|---|
+| baseline／color | Pexels 的防禦圖端 PSNR、SSIM（防禦圖對原圖） | Table 1 |
 | baseline／color | Pexels 的 VAE-Trans（編輯 LPIPS、SigLIP、存續比） | Table 1、4.2、4.4 |
 | baseline／color | CLIP-S、CLIP-I、編輯端 FID（Pexels 主表與遷移表） | Table 1、Table 3 |
 | color | 遷移性實驗（11/4 20:00 收一次；FLUX 張數到時再改 caption） | Table 3 |
@@ -116,3 +117,4 @@ pane 編號會變動，送訊前一律以 multi-agent 的 `list_panes` 依標題
 - 11/3：teaser 暫時移出論文（檔案保留）；Fig. 2、Fig. 3a 改用 Pexels 306 張；Table 1 表頭重排、ArcFace 寫明比較條件；Table 3（遷移）各欄最佳粗體。
 - 11/4 20:00 收一次遷移性實驗，FLUX 可能不足 50 張，caption 張數屆時更新。
 - Fig. 1（方法總覽）的版面已由使用者逐輪定稿：(a) 參數化、(b) 球面上的色彩旋轉（含 woman_00 實際 LUT 的色度盤）、(c) 最佳化與同色像素；色度盤箭頭用深灰或 teal 尚待確認。
+- 11/3：主表的 SSIM、PSNR 為防禦圖端（防禦圖對原圖），列在 Table 1 的 Protected 組；Ret.、ArcFace、CLIP-S、CLIP-I、FID 的定義改在 caption 以名稱標示，不用註記符號（容納兩欄的表寬）。簡報不再維護。

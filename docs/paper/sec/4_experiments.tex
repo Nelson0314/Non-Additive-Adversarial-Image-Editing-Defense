@@ -53,31 +53,30 @@
     \cmidrule(lr){2-3} \cmidrule(lr){4-7}
     Variant & LPIPS $\downarrow$ & LAION $\uparrow$ & None & Purified$^{*}$ & Weakest & VAE-Trans & Retention $\uparrow$ & Feasible $\uparrow$ \\
     \midrule
-    \multicolumn{9}{@{}l}{\emph{Enforcement of naturalness}} \\
+    \multicolumn{9}{@{}l}{\emph{Removing one component} (\TBD{} portraits)} \\
+    \rowcolor{oursrow}
+    Full pipeline (ours) & \TBD & \TBD & \TBD & \TBD & \TBD & \TBD & \TBD & -- \\
+    w/o optimization (random $\Theta$) & \TBD & \TBD & \TBD & \TBD & \TBD & \TBD & \TBD & -- \\
+    w/o smoothing ($\sigma = 0$) & \TBD & \TBD & \TBD & \TBD & \TBD & \TBD & \TBD & -- \\
+    w/o angle bounds & \TBD & \TBD & \TBD & \TBD & \TBD & \TBD & \TBD & -- \\
+    w/o separate polar / azimuth bounds & \TBD & \TBD & \TBD & \TBD & \TBD & \TBD & \TBD & -- \\
+    w/o both & \TBD & \TBD & \TBD & \TBD & \TBD & \TBD & \TBD & -- \\
+    w/o luminance constraint ($\|c\|$ free) & \TBD & \TBD & \TBD & \TBD & \TBD & \TBD & \TBD & -- \\
+    \midrule
+    \multicolumn{9}{@{}l}{\emph{Naturalness enforced during optimization} (8 portraits)} \\
     Penalties & .287 & 5.653 & .341 & .302 & .265 & .185 & .892 & 76 \\
-    Single bound & .296 & 5.374 & .378 & .363 & .330 & .276 & .965 & -- \\
     Adaptive set & .326 & 5.705 & .369 & .327 & .273 & .237 & .890 & 109 \\
-    Hue cone & .291 & 5.423 & .350 & .318 & .282 & .211 & .907 & -- \\
     \rowcolor{oursrow}
     Rotation (ours) & .296 & 5.482 & .374 & .367 & .339 & .301 & 1.020 & -- \\
-    \midrule
-    \multicolumn{9}{@{}l}{\emph{Rotation bounds} (polar / azimuth)} \\
-    Single, $6^\circ$ & .307 & 5.377 & .373 & .389 & .323 & .329 & 1.068 & -- \\
-    $9^\circ$ / $0^\circ$ & .270 & 5.489 & .350 & .342 & .308 & .281 & 1.022 & -- \\
-    $9^\circ$ / $3^\circ$ & .280 & 5.500 & .356 & .353 & .324 & .286 & 1.029 & -- \\
-    \rowcolor{oursrow}
-    $10^\circ$ / $3^\circ$ (ours) & .296 & 5.482 & .374 & .367 & .339 & .301 & 1.020 & -- \\
-    \midrule
-    Random rotation & .296 & 5.377 & .366 & .368 & .333 & .285 & 1.028 & -- \\
     \bottomrule
   \end{tabular}
-  \caption{Ablations (8 portraits $\times$ 4 instructions, InstructPix2Pix). $^{*}$Mean over the seven purifications. Feasible: checks, out of 180 during optimization, at which all constraints hold.}
+  \caption{Ablations on InstructPix2Pix ($\times$ 4 instructions). Top: each row removes one component of the pipeline; no row is rescaled to a common distortion. Bottom: naturalness imposed as per-artifact penalties or as a projection onto an image-adaptive constraint set, against the rotation parameterization. $^{*}$Mean over the seven purifications. Feasible: checks, out of 180 during optimization, at which all constraints hold.}
   \label{tab:ablation}
 \end{table*}
 
 \subsection{Setup}
 \label{sec:exp_setup}
-\paragraph{Data.} The main comparison (\cref{tab:main}) uses 306 portraits from Pexels at $512^2$ resolution. \Cref{fig:plane} and \cref{fig:purification}a use the same 306 portraits; \cref{fig:purification}b--d and \cref{tab:cross,tab:ablation} use a set of eight $512^2$ portraits. Each caption states the number of images. \TODO{Selection rule and license of the Pexels portraits.}
+\paragraph{Data.} The main comparison (\cref{tab:main}) uses 306 portraits from Pexels at $512^2$ resolution. \Cref{fig:plane} and \cref{fig:purification}a use the same 306 portraits; \cref{fig:purification}b--d, \cref{tab:cross}, and the lower part of \cref{tab:ablation} use a set of eight $512^2$ portraits. Each caption states the number of images. \TODO{Selection rule and license of the Pexels portraits.}
 
 \paragraph{Attack.} The attacker uses InstructPix2Pix~\cite{brooks2023instructpix2pix} with Euler-Ancestral sampling (50 steps, text guidance 7.5, image guidance 1.8, seed 20260812) and the four accessory instructions of FaceLock~\cite{wang2025facelock}, which yields four edits per image and defense.
 
@@ -109,5 +108,7 @@ InstructPix2Pix, Stable Diffusion inpainting, and Stable Diffusion 2.1 share the
 
 \subsection{Ablations}
 \label{sec:exp_ablation}
-\Cref{tab:ablation} varies how naturalness is enforced and how the rotation is bounded. Formulations that impose the appearance constraints during optimization, as penalties or as a projection onto a constraint set, retain 0.302--0.363 of edit LPIPS on average over the seven purifications and 0.185--0.276 after VAE-Trans. The rotation parameterization retains 0.342--0.389 and 0.281--0.329, with a retention of 1.02--1.07. The penalty formulation satisfies all constraints at 76 of 180 checks during optimization on average, and the projection onto an image-adaptive constraint set at 109. Among the rotations, a single bound of $6^\circ$ on the rotation angle yields the largest displacement, while separate bounds on saturation and hue keep the LAION score at the level of the original image (5.48 against 5.38). A random rotation field drawn from the same parameterization without optimization, with its magnitude scaled so that each image reaches the defense LPIPS of our defense, displaces the edits by 0.366 before purification, 0.368 on average over the seven purifications, and 0.285 after VAE-Trans, against 0.374, 0.367, and 0.301 for the optimized table; at the same distortion, the random table lowers the LAION score of the protected image from 5.48 to 5.38.
+The upper part of \cref{tab:ablation} removes one component of the pipeline at a time: the optimization, by using a random $\Theta$; the Gaussian smoothing, by setting $\sigma = 0$; the angle bounds; the separation of the bounds on polar angle and azimuth; both of these; and the constraint that keeps $\|c\|$ fixed. No variant is rescaled to the distortion of the full pipeline, since the distortion each variant reaches is itself a result of its optimization. \TODO{Results of the component ablation.}
+
+The lower part compares ways of enforcing naturalness during optimization on eight portraits. Imposing the appearance constraints as penalties or as a projection onto an image-adaptive constraint set retains 0.302 and 0.327 of edit LPIPS on average over the seven purifications and 0.185 and 0.237 after VAE-Trans, against 0.367 and 0.301 for the rotation parameterization. The penalty formulation satisfies all constraints at 76 of 180 checks during optimization on average, and the projection at 109.
 

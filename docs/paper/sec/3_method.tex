@@ -68,44 +68,58 @@ $\Theta$ is initialized with independent Gaussian entries of standard deviation 
 \begin{table*}[t]
   \centering
   \footnotesize
-  \setlength{\tabcolsep}{1.4pt}
-  \renewcommand{\arraystretch}{1.0}
-  \begin{tabular}{l ccccc ccc c cc c c c c}
+  \setlength{\tabcolsep}{3.5pt}
+  \begin{tabular}{l c cc ccc c}
     \toprule
-    \multirow{3}{*}{Method} & \multicolumn{5}{c}{\textbf{Protected image}} & \multicolumn{10}{c}{\textbf{Edit of the protected image} vs.\ edit of the original} \\
-    \cmidrule(lr){2-6} \cmidrule(l){7-16}
-    & \multicolumn{3}{c}{vs.\ original} & \multicolumn{2}{c}{Aesthetics $\uparrow$} & \multicolumn{3}{c}{LPIPS $\uparrow$} & \multirow{2}{*}{Ret.\ $\uparrow$} & \multicolumn{2}{c}{SigLIP $\downarrow$} & CLIP-S $\downarrow$ & CLIP-I $\downarrow$ & FID $\uparrow$ & ArcFace $\downarrow$ \\
-    \cmidrule(lr){2-4} \cmidrule(lr){5-6} \cmidrule(lr){7-9} \cmidrule(lr){11-12} \cmidrule(l){13-16}
-    & LPIPS $\downarrow$ & PSNR $\uparrow$ & SSIM $\uparrow$ & LAION & MUSIQ & None & \shortstack{Purified$^{*}$\\/ Weakest$^{\dagger}$} & \shortstack{VAE-\\Trans} & & Purified$^{*}$ & \shortstack{VAE-\\Trans} & \multicolumn{4}{c}{Purified$^{*}$} \\
+    \multirow{3}{*}{Method} & \multicolumn{3}{c}{\textbf{Protected image}} & \multicolumn{4}{c}{\textbf{Edit of the protected image} vs.\ edit of the original} \\
+    \cmidrule(lr){2-4} \cmidrule(l){5-8}
+    & Distortion & \multicolumn{2}{c}{Aesthetics $\uparrow$} & \multicolumn{3}{c}{LPIPS $\uparrow$} & \multirow{2}{*}{Ret.\ $\uparrow$} \\
+    \cmidrule(lr){2-2} \cmidrule(lr){3-4} \cmidrule(lr){5-7}
+    & LPIPS $\downarrow$ & LAION & MUSIQ & None & Purified$^{*}$ / Weakest$^{\dagger}$ & VAE-Trans & \\
     \midrule
-    DAYN & .290 & 40.6 & .981 & 5.49 & 5.12 & .363 & .212 / .106 & \prelim{.056}{} & .591 & .948 & \prelim{.986}{} & \prelim{.243}{} & .949 & 26.1 & .870 \\
-    & {\scriptsize $\pm$.058} & {\scriptsize $\pm$.3} & {\scriptsize $\pm$.006} & {\scriptsize $\pm$.34} & {\scriptsize $\pm$.42} & {\scriptsize $\pm$.058} & {\scriptsize $\pm$.044 / $\pm$.051} & {\scriptsize \prelim{--}{}} & {\scriptsize $\pm$.109} & {\scriptsize $\pm$.020} & {\scriptsize \prelim{--}{}} & {\scriptsize \prelim{--}{}} & {\scriptsize $\pm$.023} &  & {\scriptsize $\pm$.075} \\[1pt]
-    DIA-R & .280 & 40.3 & .981 & 5.51 & 5.20 & .335 & .201 / .094 & .051 & .609 & .957 & \prelim{.988}{} & \prelim{.242}{} & .957 & 23.7 & .879 \\
-    & {\scriptsize $\pm$.074} & {\scriptsize $\pm$.5} & {\scriptsize $\pm$.006} & {\scriptsize $\pm$.35} & {\scriptsize $\pm$.39} & {\scriptsize $\pm$.073} & {\scriptsize $\pm$.048 / $\pm$.048} & {\scriptsize \prelim{--}{}} & {\scriptsize $\pm$.076} & {\scriptsize $\pm$.019} & {\scriptsize \prelim{--}{}} & {\scriptsize \prelim{--}{}} & {\scriptsize $\pm$.023} &  & {\scriptsize $\pm$.069} \\[1pt]
-    DIA-PT & .261 & 42.5 & .988 & 5.42 & 5.20 & .343 & .186 / .078 & .042 & .546 & .959 & \prelim{.990}{} & \prelim{.241}{} & .960 & 24.4 & .887 \\
-    & {\scriptsize $\pm$.059} & {\scriptsize $\pm$.7} & {\scriptsize $\pm$.005} & {\scriptsize $\pm$.36} & {\scriptsize $\pm$.39} & {\scriptsize $\pm$.063} & {\scriptsize $\pm$.038 / $\pm$.039} & {\scriptsize \prelim{--}{}} & {\scriptsize $\pm$.059} & {\scriptsize $\pm$.016} & {\scriptsize \prelim{--}{}} & {\scriptsize \prelim{--}{}} & {\scriptsize $\pm$.018} &  & {\scriptsize $\pm$.065} \\[1pt]
-    SIFM & .251 & \textbf{43.2} & .989 & 5.48 & 5.22 & .328 & .170 / .070 & .036 & .529 & .965 & \prelim{.991}{} & \prelim{.244}{} & .964 & 21.0 & .895 \\
-    & {\scriptsize $\pm$.063} & {\scriptsize $\pm$.2} & {\scriptsize $\pm$.004} & {\scriptsize $\pm$.35} & {\scriptsize $\pm$.40} & {\scriptsize $\pm$.065} & {\scriptsize $\pm$.041 / $\pm$.040} & {\scriptsize \prelim{--}{}} & {\scriptsize $\pm$.095} & {\scriptsize $\pm$.016} & {\scriptsize \prelim{--}{}} & {\scriptsize \prelim{--}{}} & {\scriptsize $\pm$.019} &  & {\scriptsize $\pm$.064} \\[1pt]
-    DANP & .262 & 43.0 & .988 & 5.48 & 5.20 & .354 & .180 / .077 & \prelim{.041}{} & .517 & .964 & \prelim{.990}{} & \prelim{.244}{} & .964 & 21.5 & .888 \\
-    & {\scriptsize $\pm$.065} & {\scriptsize $\pm$.2} & {\scriptsize $\pm$.004} & {\scriptsize $\pm$.35} & {\scriptsize $\pm$.40} & {\scriptsize $\pm$.060} & {\scriptsize $\pm$.041 / $\pm$.042} & {\scriptsize \prelim{--}{}} & {\scriptsize $\pm$.094} & {\scriptsize $\pm$.016} & {\scriptsize \prelim{--}{}} & {\scriptsize \prelim{--}{}} & {\scriptsize $\pm$.018} &  & {\scriptsize $\pm$.065} \\[1pt]
-    Mist & .310 & 43.1 & \textbf{.991} & 5.50 & 5.30 & .353 & .164 / .063 & .033 & .463 & .966 & \prelim{.992}{} & \prelim{.241}{} & .968 & 20.7 & .906 \\
-    & {\scriptsize $\pm$.068} & {\scriptsize $\pm$.2} & {\scriptsize $\pm$.003} & {\scriptsize $\pm$.34} & {\scriptsize $\pm$.39} & {\scriptsize $\pm$.074} & {\scriptsize $\pm$.044 / $\pm$.042} & {\scriptsize \prelim{--}{}} & {\scriptsize $\pm$.051} & {\scriptsize $\pm$.016} & {\scriptsize \prelim{--}{}} & {\scriptsize \prelim{--}{}} & {\scriptsize $\pm$.017} &  & {\scriptsize $\pm$.062} \\[1pt]
-    PhotoGuard & .318 & 42.7 & .990 & 5.52 & 5.27 & \textbf{.415} & .157 / .056 & \prelim{.033}{} & .388 & .966 & \prelim{.992}{} & \prelim{.242}{} & .969 & 21.4 & .910 \\
-    & {\scriptsize $\pm$.066} & {\scriptsize $\pm$.2} & {\scriptsize $\pm$.004} & {\scriptsize $\pm$.34} & {\scriptsize $\pm$.39} & {\scriptsize $\pm$.117} & {\scriptsize $\pm$.040 / $\pm$.037} & {\scriptsize \prelim{--}{}} & {\scriptsize $\pm$.056} & {\scriptsize $\pm$.016} & {\scriptsize \prelim{--}{}} & {\scriptsize \prelim{--}{}} & {\scriptsize $\pm$.017} &  & {\scriptsize $\pm$.060} \\[1pt]
-    DCT-Shield & .283 & 39.3 & .980 & \textbf{5.53} & 5.26 & .315 & .112 / .028 & \prelim{.023}{} & .366 & .974 & \prelim{.994}{} & \prelim{.242}{} & .975 & 17.9 & .928 \\
-    & {\scriptsize $\pm$.065} & {\scriptsize $\pm$1.4} & {\scriptsize $\pm$.004} & {\scriptsize $\pm$.34} & {\scriptsize $\pm$.39} & {\scriptsize $\pm$.086} & {\scriptsize $\pm$.027 / $\pm$.020} & {\scriptsize \prelim{--}{}} & {\scriptsize $\pm$.053} & {\scriptsize $\pm$.012} & {\scriptsize \prelim{--}{}} & {\scriptsize \prelim{--}{}} & {\scriptsize $\pm$.012} &  & {\scriptsize $\pm$.050} \\[1pt]
-    DCT-Shield-Y & .270 & 37.7 & .987 & 5.35 & 5.17 & .262 & .114 / .035 & .029 & .447 & .976 & \prelim{.993}{} & \prelim{.243}{} & .980 & 17.4 & .920 \\
-    & {\scriptsize $\pm$.064} & {\scriptsize $\pm$1.9} & {\scriptsize $\pm$.006} & {\scriptsize $\pm$.33} & {\scriptsize $\pm$.39} & {\scriptsize $\pm$.065} & {\scriptsize $\pm$.025 / $\pm$.021} & {\scriptsize \prelim{--}{}} & {\scriptsize $\pm$.062} & {\scriptsize $\pm$.010} & {\scriptsize \prelim{--}{}} & {\scriptsize \prelim{--}{}} & {\scriptsize $\pm$.011} &  & {\scriptsize $\pm$.051} \\[1pt]
-    BlurGuard & \prelim{.231}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
+    DAYN & .290{\scriptsize$\pm$.007} & 5.49{\scriptsize$\pm$.04} & 5.12{\scriptsize$\pm$.05} & .363{\scriptsize$\pm$.007} & .212{\scriptsize$\pm$.005} / .106{\scriptsize$\pm$.006} & \prelim{.056}{} & .591{\scriptsize$\pm$.012} \\
+    DIA-R & .280{\scriptsize$\pm$.008} & 5.51{\scriptsize$\pm$.04} & 5.20{\scriptsize$\pm$.04} & .335{\scriptsize$\pm$.008} & .201{\scriptsize$\pm$.005} / .094{\scriptsize$\pm$.005} & .051 & .609{\scriptsize$\pm$.009} \\
+    DIA-PT & .261{\scriptsize$\pm$.007} & 5.42{\scriptsize$\pm$.04} & 5.20{\scriptsize$\pm$.04} & .343{\scriptsize$\pm$.007} & .186{\scriptsize$\pm$.004} / .078{\scriptsize$\pm$.004} & .042 & .546{\scriptsize$\pm$.007} \\
+    SIFM & .251{\scriptsize$\pm$.007} & 5.48{\scriptsize$\pm$.04} & 5.22{\scriptsize$\pm$.04} & .328{\scriptsize$\pm$.007} & .170{\scriptsize$\pm$.005} / .070{\scriptsize$\pm$.004} & .036 & .529{\scriptsize$\pm$.011} \\
+    DANP & .262{\scriptsize$\pm$.007} & 5.48{\scriptsize$\pm$.04} & 5.20{\scriptsize$\pm$.05} & .354{\scriptsize$\pm$.007} & .180{\scriptsize$\pm$.005} / .077{\scriptsize$\pm$.005} & \prelim{.041}{} & .517{\scriptsize$\pm$.011} \\
+    Mist & .310{\scriptsize$\pm$.008} & 5.50{\scriptsize$\pm$.04} & 5.30{\scriptsize$\pm$.04} & .353{\scriptsize$\pm$.008} & .164{\scriptsize$\pm$.005} / .063{\scriptsize$\pm$.005} & .033 & .463{\scriptsize$\pm$.006} \\
+    PhotoGuard & .318{\scriptsize$\pm$.007} & 5.52{\scriptsize$\pm$.04} & 5.27{\scriptsize$\pm$.04} & \textbf{.415}{\scriptsize$\pm$.013} & .157{\scriptsize$\pm$.004} / .056{\scriptsize$\pm$.004} & \prelim{.033}{} & .388{\scriptsize$\pm$.006} \\
+    DCT-Shield & .283{\scriptsize$\pm$.007} & \textbf{5.53}{\scriptsize$\pm$.04} & 5.26{\scriptsize$\pm$.04} & .315{\scriptsize$\pm$.010} & .112{\scriptsize$\pm$.003} / .028{\scriptsize$\pm$.002} & \prelim{.023}{} & .366{\scriptsize$\pm$.006} \\
+    DCT-Shield-Y & .270{\scriptsize$\pm$.007} & 5.35{\scriptsize$\pm$.04} & 5.17{\scriptsize$\pm$.04} & .262{\scriptsize$\pm$.007} & .114{\scriptsize$\pm$.003} / .035{\scriptsize$\pm$.002} & .029 & .447{\scriptsize$\pm$.007} \\
+    BlurGuard & \prelim{.231}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
     \midrule
     \rowcolor{oursrow}
-    \textbf{Ours} & \textbf{.211} & 24.2 & .928 & 5.39 & \textbf{5.34} & .277 & \textbf{.291} / \textbf{.251} & \textbf{.218} & \textbf{1.091} & \textbf{.913} & \textbf{.925} & \prelim{\textbf{.240}}{} & \textbf{.913} & \textbf{35.0} & \textbf{.826} \\
-    \rowcolor{oursrow}
-    & {\scriptsize $\pm$.088} & {\scriptsize $\pm$2.8} & {\scriptsize $\pm$.035} & {\scriptsize $\pm$.37} & {\scriptsize $\pm$.40} & {\scriptsize $\pm$.096} & {\scriptsize $\pm$.083 / $\pm$.083} & {\scriptsize \prelim{--}{}} & {\scriptsize $\pm$.136} & {\scriptsize $\pm$.029} & {\scriptsize \prelim{--}{}} & {\scriptsize \prelim{--}{}} & {\scriptsize $\pm$.032} &  & {\scriptsize $\pm$.084} \\[1pt]
+    \textbf{Ours} & \textbf{.211}{\scriptsize$\pm$.010} & 5.39{\scriptsize$\pm$.04} & \textbf{5.34}{\scriptsize$\pm$.04} & .277{\scriptsize$\pm$.011} & \textbf{.291}{\scriptsize$\pm$.009} / \textbf{.251}{\scriptsize$\pm$.009} & \textbf{.218} & \textbf{1.091}{\scriptsize$\pm$.015} \\
     \bottomrule
   \end{tabular}
-  \caption{Main comparison on 306 Pexels portraits $\times$ 4 instructions (InstructPix2Pix); additive methods at the settings of their matched-distortion arm. Second line of each method: standard deviation across the 306 images, each image first averaged over the four instructions (and over the purifications for Purified$^{*}$). Edits are compared under the same purification. Best mean in bold. $^{*}$Mean over the seven purifications (JPEG 80, 50, 30; Gaussian blur $\sigma = 1, 2$; crop-and-resize; rotation). $^{\dagger}$The purification with the lowest mean for each method: Gaussian blur ($\sigma = 2$) for every additive method, rotation for ours. PSNR and SSIM: protected image against the original; LAION and MUSIQ of the original images: 5.46 and 5.39. Ret.: retention, edit LPIPS after purification divided by that before, per edit. ArcFace: cosine similarity of ArcFace embeddings of the two edits, over edits in which a face is detected. CLIP-S: CLIP similarity between the edit and the instruction text; CLIP-I: CLIP similarity between the two edits; FID: between the sets of defended and undefended edits, mean over the seven purifications.}
+
+  \vspace{6pt}
+  \begin{tabular}{l cc c c c c cc}
+    \toprule
+    \multirow{2}{*}{Method} & \multicolumn{8}{c}{\textbf{Edit of the protected image} vs.\ edit of the original} \\
+    \cmidrule(l){2-9}
+    & SigLIP $\downarrow$ & SigLIP $\downarrow$ & CLIP-S $\downarrow$ & CLIP-I $\downarrow$ & FID $\uparrow$ & ArcFace $\downarrow$ & SSIM $\downarrow$ & PSNR $\downarrow$ \\
+    & Purified$^{*}$ & VAE-Trans & Purified$^{*}$ & Purified$^{*}$ & Purified$^{*}$ & Purified$^{*}$ & Purified$^{*}$ & Purified$^{*}$ \\
+    \midrule
+    DAYN & .948{\scriptsize$\pm$.002} & \prelim{.986}{} & \prelim{.243}{} & .949{\scriptsize$\pm$.003} & 26.1 & .870{\scriptsize$\pm$.008} & \prelim{--}{} & \prelim{--}{} \\
+    DIA-R & .957{\scriptsize$\pm$.002} & \prelim{.988}{} & \prelim{.242}{} & .957{\scriptsize$\pm$.003} & 23.7 & .879{\scriptsize$\pm$.008} & \prelim{--}{} & \prelim{--}{} \\
+    DIA-PT & .959{\scriptsize$\pm$.002} & \prelim{.990}{} & \prelim{.241}{} & .960{\scriptsize$\pm$.002} & 24.4 & .887{\scriptsize$\pm$.007} & \prelim{--}{} & \prelim{--}{} \\
+    SIFM & .965{\scriptsize$\pm$.002} & \prelim{.991}{} & \prelim{.244}{} & .964{\scriptsize$\pm$.002} & 21.0 & .895{\scriptsize$\pm$.007} & \prelim{--}{} & \prelim{--}{} \\
+    DANP & .964{\scriptsize$\pm$.002} & \prelim{.990}{} & \prelim{.244}{} & .964{\scriptsize$\pm$.002} & 21.5 & .888{\scriptsize$\pm$.007} & \prelim{--}{} & \prelim{--}{} \\
+    Mist & .966{\scriptsize$\pm$.002} & \prelim{.992}{} & \prelim{.241}{} & .968{\scriptsize$\pm$.002} & 20.7 & .906{\scriptsize$\pm$.007} & \prelim{--}{} & \prelim{--}{} \\
+    PhotoGuard & .966{\scriptsize$\pm$.002} & \prelim{.992}{} & \prelim{.242}{} & .969{\scriptsize$\pm$.002} & 21.4 & .910{\scriptsize$\pm$.007} & \prelim{--}{} & \prelim{--}{} \\
+    DCT-Shield & .974{\scriptsize$\pm$.001} & \prelim{.994}{} & \prelim{.242}{} & .975{\scriptsize$\pm$.001} & 17.9 & .928{\scriptsize$\pm$.006} & \prelim{--}{} & \prelim{--}{} \\
+    DCT-Shield-Y & .976{\scriptsize$\pm$.001} & \prelim{.993}{} & \prelim{.243}{} & .980{\scriptsize$\pm$.001} & 17.4 & .920{\scriptsize$\pm$.006} & \prelim{--}{} & \prelim{--}{} \\
+    BlurGuard & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
+    \midrule
+    \rowcolor{oursrow}
+    \textbf{Ours} & \textbf{.913}{\scriptsize$\pm$.003} & \textbf{.925} & \prelim{\textbf{.240}}{} & \textbf{.913}{\scriptsize$\pm$.004} & \textbf{35.0} & \textbf{.826}{\scriptsize$\pm$.009} & \prelim{--}{} & \prelim{--}{} \\
+    \bottomrule
+  \end{tabular}
+  \caption{Main comparison on 306 Pexels portraits $\times$ 4 instructions (InstructPix2Pix); additive methods at the settings of their matched-distortion arm. Each image is first averaged over the four instructions; small numbers: half-width of the 95\% confidence interval of the mean over the 306 images. Edits are compared under the same purification. Best mean in bold. $^{*}$Mean over the seven purifications (JPEG 80, 50, 30; Gaussian blur $\sigma = 1, 2$; crop-and-resize; rotation). $^{\dagger}$The purification with the lowest mean for each method: Gaussian blur ($\sigma = 2$) for every additive method, rotation for ours. LAION and MUSIQ of the original images: 5.46 and 5.39. Ret.: retention, edit LPIPS after purification divided by that before, per edit. ArcFace: cosine similarity of ArcFace embeddings of the two edits, over edits in which a face is detected. CLIP-S: CLIP similarity between the edit and the instruction text; CLIP-I: CLIP similarity between the two edits; FID: between the sets of defended and undefended edits, mean over the seven purifications; SSIM and PSNR: between the two edits.}
   \label{tab:main}
 \end{table*}
-\prelimnote{Tab.~1, VAE-Trans LPIPS: DAYN, DANP, PhotoGuard 286 portraits, DCT-Shield 296; VAE-Trans SigLIP: additive methods 286 portraits; CLIP-S: 137 portraits; their standard deviations are not yet available (baseline \texttt{runtime/pexels\_portraits/summary/main\_table\_available.csv}; the complete \texttt{main\_table.csv} follows when VAE-Trans and CLIP-S finish).}
+\prelimnote{Tab.~1, VAE-Trans LPIPS: DAYN, DANP, PhotoGuard 286 portraits, DCT-Shield 296; VAE-Trans SigLIP: additive methods 286 portraits; CLIP-S: 137 portraits; no confidence intervals yet (baseline \texttt{runtime/pexels\_portraits/summary/main\_table\_available.csv}).}
+\prelimnote{Tab.~1, confidence intervals: computed as $1.96\,s/\sqrt{306}$ from the \texttt{\_std} columns until baseline adds the \texttt{\_ci95} columns; for ArcFace the number of images with a detected face is below 306.}
+\prelimnote{Tab.~1, edit-side SSIM and PSNR: awaiting the new columns from baseline.}
 \prelimnote{Tab.~1, BlurGuard: matched-distortion arm not yet run (budget knob awaits a decision); defense LPIPS is the native budget on 8 portraits (\texttt{baseline/runtime/blurguard/native/results/}).}

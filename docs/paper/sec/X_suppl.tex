@@ -17,28 +17,30 @@
   \centering
   \footnotesize
   \setlength{\tabcolsep}{4pt}
-  \begin{tabular}{l cc}
+  \begin{tabular}{l cc cc}
     \toprule
-    Method & NIMA $\uparrow$ & NIQE $\downarrow$ \\
+    & \multicolumn{2}{c}{vs.\ original} & \multicolumn{2}{c}{No-reference} \\
+    \cmidrule(lr){2-3} \cmidrule(l){4-5}
+    Method & PSNR $\uparrow$ & SSIM $\uparrow$ & NIMA $\uparrow$ & NIQE $\downarrow$ \\
     \midrule
-    \textcolor{gray}{Original} & \textcolor{gray}{5.399} & \textcolor{gray}{4.061} \\
+    \textcolor{gray}{Original} & \textcolor{gray}{--} & \textcolor{gray}{--} & \textcolor{gray}{5.399} & \textcolor{gray}{4.061} \\
     \midrule
-    DAYN & 5.208 & 4.135 \\
-    DIA-R & 5.283 & 4.049 \\
-    DIA-PT & 5.265 & \textbf{3.867} \\
-    SIFM & 5.300 & 3.995 \\
-    DANP & 5.286 & 3.993 \\
-    Mist & 5.339 & 3.997 \\
-    PhotoGuard & 5.315 & 4.083 \\
-    DCT-Shield & \textbf{5.380} & 4.823 \\
-    DCT-Shield-Y & 5.351 & 4.633 \\
-    BlurGuard & \prelim{--}{} & \prelim{--}{} \\
+    DAYN & 40.6 & .981 & 5.208 & 4.135 \\
+    DIA-R & 40.3 & .981 & 5.283 & 4.049 \\
+    DIA-PT & 42.5 & .988 & 5.265 & \textbf{3.867} \\
+    SIFM & \textbf{43.2} & .989 & 5.300 & 3.995 \\
+    DANP & 43.0 & .988 & 5.286 & 3.993 \\
+    Mist & 43.1 & \textbf{.991} & 5.339 & 3.997 \\
+    PhotoGuard & 42.7 & .990 & 5.315 & 4.083 \\
+    DCT-Shield & 39.3 & .980 & \textbf{5.380} & 4.823 \\
+    DCT-Shield-Y & 37.7 & .987 & 5.351 & 4.633 \\
+    BlurGuard & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
     \midrule
     \rowcolor{oursrow}
-    \textbf{Ours} & 5.278 & 3.979 \\
+    \textbf{Ours} & 24.2 & .928 & 5.278 & 3.979 \\
     \bottomrule
   \end{tabular}
-  \caption{No-reference aesthetic scores NIMA and NIQE of the protected images (306 Pexels portraits, matched-distortion arms); LAION and MUSIQ are in \cref{tab:main}. Best in bold.}
+  \caption{Additional measurements of the protected images (306 Pexels portraits, matched-distortion arms): PSNR and SSIM against the original image, and the no-reference scores NIMA and NIQE. LPIPS, LAION, and MUSIQ are in \cref{tab:main}. Best in bold.}
   \label{tab:supp_aesthetics}
 \end{table}
 \prelimnote{Supplementary aesthetics table: the matched-distortion BlurGuard arm is not yet run.}

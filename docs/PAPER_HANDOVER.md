@@ -50,7 +50,7 @@ PDF 共 10 頁：正文與 Conclusion 到第 8 頁，參考文獻自第 8 頁起
 | 2 Related Work | 四段 | — |
 | 3 Method | 威脅模型、3D LUT、平滑色度旋轉（式 1–5）、目標（式 6）、最佳化；Fig. 1 | — |
 | 4.1 Setup | 全部實驗寫為 Pexels 306 張；Baselines 為十個加性方法（含 BlurGuard）；美學正文只報 LAION、MUSIQ（在 Table 1），NIMA、NIQE 在補充材料表 `tab:supp_aesthetics` | Pexels 選取規則與授權為 `\TODO` |
-| 4.2 Robustness to purification | Table 1：每個方法兩列（平均；影像間標準差，逐張先對 4 句平均）。防禦圖端 LPIPS／PSNR／SSIM、LAION／MUSIQ，編輯 LPIPS（None、Purified* / Weakest 合欄、VAE-Trans）、Ret.、SigLIP、CLIP-S、CLIP-I、FID、ArcFace；紅字：VAE-Trans 部分臂 286／296 張、SigLIP VAE-Trans 286 張、CLIP-S 137 張、BlurGuard 列；FID 句為 8 張 | 補齊上述讀數；BlurGuard 等失真臂 |
+| 4.2 Robustness to purification | Table 1：上下兩個 panel，每個方法一列，數字旁小字為 306 張平均的 95% 信賴區間半寬（逐張先對 4 句平均；`_ci95` 欄未到前以 1.96·s／√306 由 `_std` 算出）。上 panel：防禦圖 LPIPS、LAION、MUSIQ，編輯 LPIPS（None、Purified* / Weakest 合欄、VAE-Trans）、Ret.；下 panel：SigLIP（Purified*、VAE-Trans）、CLIP-S、CLIP-I、FID、ArcFace、編輯端 SSIM、PSNR（同一淨化下兩張編輯之間，待 baseline 新欄）。防禦圖對原圖的 PSNR、SSIM 移到補充表 `tab:supp_aesthetics`、Ret.、SigLIP、CLIP-S、CLIP-I、FID、ArcFace；紅字：VAE-Trans 部分臂 286／296 張、SigLIP VAE-Trans 286 張、CLIP-S 137 張、BlurGuard 列；FID 句為 8 張 | 補齊上述讀數；BlurGuard 等失真臂 |
 | 4.3 Distortion and displacement before purification | Fig. 2（306 張，18 點，1.037x＋0.049，r＝0.967；Ours 高於線 0.009）；caption 已含 BlurGuard 與 Ours 多預算點 | 重畫 Fig. 2；擬合與點數為紅字；Ours 多預算以 8 張四種角度上界暫代 |
 | 4.4 What purification removes | Fig. 3a 為 306 張；Fig. 3b–d caption 寫 306 張、DCT-Shield-Y，正文數字為 8 張 DCT-Shield 的紅字 | VAE-Trans 存續比；306 張強度掃描（約 190 GPU 小時，待使用者決定） |
 | 4.5 Editors with different encoders | Table 2 只留 ip2p 求解、等失真、直接遷移：PhotoGuard、DCT-Shield、DCT-Shield-Y、Mist、Ours (transfer)，兩編輯器上下排；全部紅字（加性為原生預算 8 張、Ours 為 8 張） | Pexels 遷移讀數（UltraEdit 50 張約 11/4、FLUX 50 張約 11/5）；粗體待讀數齊後再標 |
@@ -89,7 +89,7 @@ PDF 共 10 頁：正文與 Conclusion 到第 8 頁，參考文獻自第 8 頁起
 
 | 項目 | 規格 | 待補 |
 |---|---|---|
-| Table 1 主表 | 等失真 9 臂＋BlurGuard＋Ours；LPIPS、SigLIP、ArcFace、CLIP-S、CLIP-I、編輯端 FID，防禦圖端 SSIM、PSNR、LAION、MUSIQ；每欄附影像間標準差；Purified 與 Weakest 合欄；其他美學分數為補充表 | VAE-Trans 剩餘影像、CLIP-S、BlurGuard 等失真臂 |
+| Table 1 主表 | 等失真 9 臂＋BlurGuard＋Ours；LPIPS、SigLIP、ArcFace、CLIP-S、CLIP-I、編輯端 FID，LAION、MUSIQ，編輯端 SSIM、PSNR；數字旁小字為 95% 信賴區間半寬；Purified 與 Weakest 合欄；防禦圖對原圖的 PSNR、SSIM 與其他美學分數為補充表 | VAE-Trans 剩餘影像、CLIP-S、BlurGuard 等失真臂 |
 | Table 2 遷移 | ip2p 上等失真臂（photoguard_encoder、dct_shield、dct_shield_y、mist）＋Ours (transfer) 直接送 UltraEdit、FLUX；不放重新求解的列 | 全部 |
 | Table 3 消融 | A–E（C、D、C＋D 分列）＋逐項懲罰、可行集合投影，306 張全協定，不對齊失真 | 全部（A 缺淨化後） |
 | Fig. 2 | 加 Ours 多預算點與 BlurGuard 等失真 | 讀數與重畫 |

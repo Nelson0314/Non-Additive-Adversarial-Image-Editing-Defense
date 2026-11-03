@@ -76,6 +76,29 @@
   `cross_model/{superseded,*.patch,generate_defenses.py}`、`pexels_portraits/superseded`、各處的 `.py` 副本；處理方式為 mv 到 `~/trash/baseline/<原相對路徑>`。
   `runtime/blurguard/` 保留（使用者待辦）；`distribution_metrics/` 與 `summary/distribution_metrics/` 的特徵檔保留，供重新合併使用。
 - 改到正在執行的遠端腳本時，先建立 `queue/PAUSED` 並等工作結束再 `git pull`，或另寫新檔：此 NFS 上 `git pull` 會就地改寫檔案（inode 不變）。
+  pull 前以 `ps -eo args | grep -o "scripts/[a-z_]*\.sh"` 對照 `git diff --name-only HEAD origin/main`；`.py` 在啟動時讀入，可改。
+- 已知的單次失敗：他人行程佔顯存造成 OOM、HF 取模型連線失敗；worker 自動重跑，同一工作失敗 3 次才進 `queue/failed/`。
+- 實測每格秒數（不含載入模型）：ip2p 11.4 s、UltraEdit 6.6 s、FLUX 83 s。遷移 4 臂 × 50 張的估算：UltraEdit 13.2、FLUX 166 GPU 小時。
+  後續量測每 10 張約 3.0 卡時（`undefended` 0.44、`color3d` 0.69、`aligned` 1.87）。
+
+待辦（依優先序）：
+
+1. 閘門 `vae_trans_gpu_done` 出現後，驗證 `transfer_flux_<影像>`（basic-2）、`transfer_ultraedit_<影像>`（basic-1）與 `clip_score_<組>` 的第一步：
+   log 的 `[STEP] 遷移 …` 與逐格輸出、`artifacts/pexels_portraits/transfer/<編輯器>/` 的第一張輸出；`clip_score` 的
+   `[ALLDONE] … clip_score.csv（N 格）`，10 張的組 N＝3,200＋400＋640＋80（9 臂與未防禦 × 4 指令 × 8 淨化設定、9 臂與未防禦 × 4、color3d 兩組）。異常即停並回報 executor。
+2. `TRANSFER_DEADLINE`（2026-11-04 20:00）時向 executor 回報 FLUX、UltraEdit 各完成張數（／50；UltraEdit 另報／306）與 GPU 小時：
+   張數取 `runtime/pexels_portraits/transfer/<編輯器>/done/<影像>.done`，GPU 小時取 `queue/worker.log` 的 claim 與 done 時刻相減。
+   截止後的遷移工作以結束碼 4 略過；是否續跑由使用者決定。
+3. `summary_pexels` 完成後（`summary/main_table.csv` 的 `*_vae_trans` 欄有值）送 executor 與 paper，附路徑與 n；
+   再於 `scripts/generate_pexels_main_table_summary.py` 加 CLIP-S 欄（讀各組 `followup/<根>/results/clip_score.csv`，淨化前、七道、VAE-Trans 各一）並重跑彙整。
+4. 遷移表的讀數：位移 `measure_flux_displacement`／`measure_edit_displacement`、保留 `measure_flux_retention`／`measure_purified_displacement`、
+   語意 `measure_semantic_identity --edits-csv`、CLIP-S `measure_clip_score.py --edits-csv`、FID `measure_distribution_metrics.py --pairs-csv`。
+   未防禦分母與 Ours (transfer) 由 color 量（FLUX：color trial `artifacts_pexels/cross_model/flux/{edits,purified_edits}/undefended/`；
+   UltraEdit：`artifacts_pexels/cross_model/sd3/edits/{undefended_edits,purified_edits/undefended}/`），程式共用。
+5. baseline/ 清理（executor 派工，排在遷移實驗之後）：只動 baseline/、不改行為；被 color trial、`docs/paper_tools`、簡報、佇列引用的路徑不動
+   （改前 grep 整個 repo 與遠端 color trial 的 `tools/`）；測試在遠端跑（含 `core/tests/test_repository_naming.py`）；遠端產物 mv 到 `~/trash/baseline/`。
+   完成後以 ≤ 8 行回報類別與數量、commit、trash 總量、刻意保留的項目與理由。
+6. 待使用者決定：P2、P3 是否開跑。
 
 ### 論文實驗
 
@@ -143,6 +166,11 @@ b*＋ ≤ 4、b*－ ≤ 25、|ΔL*| ≤ 15）、臉框與膚色 ΔE00 ≤ 16、�
 - HF 權重在各機的 `/var/cache/huggingface`，兩台不同：FLUX 只在 basic-2，UltraEdit 只在 basic-1，ip2p 與
   SD-inpainting 兩台都有。機器相關設定以 `ENV_FILE` 交給 `scripts/env.sh`。
 - `measure_additional_metrics` 讀 `artifacts/` 的版面與 CSV 中的影像路徑；無 GPU 亦可執行（固定使用 CPU）。
+- 連線：basic-1 `ssh -p 10101 nelson0314@server.basiclab.lab.nycu.edu.tw`、basic-2 `-p 10102`，NFS 共用，repo 在 `~/image-immunization`；
+  Python 為 `export ENV_FILE=~/env.sh; source scripts/env.sh` 後的 `$PY`。basic-2 的 ssh 逾時時從 basic-1 查詢。
+- 停工作：以 `queue/claims/<工作>/owner` 的 PID 執行 `kill -TERM -- -<PID>`，再以 `pgrep -g <PID>` 確認 0 個行程、租約已釋放、完成標記未被覆寫。
+- 遠端產物不 rm，mv 到 `~/trash/baseline/<原相對路徑>`，事先列清單給使用者確認。crontab 的修改需使用者同意（備份在兩台 `~/crontab.backup.*`）。
+- 本 session 的 commit 由 executor push；push 後在遠端 pull。
 
 ## 規矩
 

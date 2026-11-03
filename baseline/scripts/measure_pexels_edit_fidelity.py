@@ -7,7 +7,10 @@
     VAE-Trans：               followup/<根>/results/<aligned|color3d>/semantic_identity_vae_trans.csv → edit_fidelity_vae_trans.csv
 未淨化格另與位移表的 `disp_ssim`、`disp_psnr` 逐格核對，不一致即失敗。缺 E_u 或 PNG 時失敗。
 
+另一種輸入 `--pairs-csv`：measure_distribution_metrics 的配對表（condition、end、purifier、a_png＝E_d、b_png＝E_u），輸出寫到 `--output-csv`。
+
 用法（遠端 baseline 專案根，CPU）：python scripts/measure_pexels_edit_fidelity.py <seven|vae_trans> [--workers N]
+                                  python scripts/measure_pexels_edit_fidelity.py pairs --pairs-csv <檔> --output-csv <檔> [--workers N]
 """
 import argparse
 import csv
@@ -79,11 +82,43 @@ def displacement_reference(sub, group):
     return table
 
 
+def measure_pairs(args):
+    t0 = time.time()
+    rows = [r for r in read(args.pairs_csv) if r["end"] == "displacement"]
+    for r in rows:
+        for p in (r["a_png"], r["b_png"]):
+            if not Path(p).is_file():
+                raise SystemExit(f"找不到 {p}")
+    pairs = [(r["b_png"], r["a_png"]) for r in rows]
+    with ProcessPoolExecutor(args.workers) as pool:
+        results = list(pool.map(measure, [pairs[i::args.workers] for i in range(args.workers)]))
+    out = []
+    for i, r in enumerate(rows):
+        ssim, psnr = results[i % args.workers][i // args.workers]
+        image = Path(r["a_png"]).name.split("__p")[0]
+        index = Path(r["a_png"]).stem.split("__p")[1]
+        out.append({"condition": r["condition"], "scenario": "", "image": image, "prompt_index": index, "purifier": r["purifier"],
+                    "disp_ssim": ssim, "disp_psnr": psnr, "defended_png": r["a_png"], "undefended_png": r["b_png"], "device": "cpu"})
+    args.output_csv.parent.mkdir(parents=True, exist_ok=True)
+    with open(args.output_csv, "w", newline="", encoding="utf-8") as f:
+        w = csv.DictWriter(f, fieldnames=FIELDS, lineterminator="\n")
+        w.writeheader()
+        w.writerows(out)
+    print(f"[ALLDONE] {args.output_csv}（{len(out)} 格，{time.time() - t0:.0f}s，{args.workers} 個 CPU 行程）", flush=True)
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("part", choices=("seven", "vae_trans"))
+    ap.add_argument("part", choices=("seven", "vae_trans", "pairs"))
     ap.add_argument("--workers", type=int, default=16)
+    ap.add_argument("--pairs-csv", type=Path)
+    ap.add_argument("--output-csv", type=Path)
     args = ap.parse_args()
+    if args.part == "pairs":
+        if not (args.pairs_csv and args.output_csv):
+            ap.error("pairs 需要 --pairs-csv 與 --output-csv")
+        measure_pairs(args)
+        return
     source = "semantic_identity.csv" if args.part == "seven" else "semantic_identity_vae_trans.csv"
     target = "edit_fidelity.csv" if args.part == "seven" else "edit_fidelity_vae_trans.csv"
     sets = json.loads(Path("data/pexels_portraits/image_sets.json").read_text(encoding="utf-8"))["sets"]

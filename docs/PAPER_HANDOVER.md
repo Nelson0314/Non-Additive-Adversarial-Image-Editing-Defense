@@ -35,7 +35,9 @@ pane 編號會變動，送訊前一律以 multi-agent 的 `list_panes` 依標題
 
 `color3d`（論文的 Ours）：33³ RGB LUT，色空間平滑的色度旋轉。以黑點為原點、灰軸為極軸，自由參數 Θ 經 σ = 4 格點的 3D 高斯濾波成旋轉場，極角（彩度）變化 < 10°、方位角（色相）變化 < 3°（截斷到 RGB 色域前），‖c‖ 不變；損失只有 ip2p VAE 編碼器後驗平均差的平方平均；Adam (0.5, 0.99)、1800 步、學習率餘弦 3e-4 → 1e-5（前 2/3）；每張 8.5–9 分鐘（RTX 3090）。程式在 color trial `generate_color3d_defenses.py`（250–300 行為旋轉）。
 
-消融用的其他版本：`color3d_orig`（逐項懲罰、PHR）、`color3d_phr`（單一常數上界）、`color3d_adaptive_set`（可行集合投影）、`color3d_cone_theta12`（色相夾角錐投影）、`color3d_smooth_angle6`（單角 6°）、`color3d_smooth_polar9_hue0`／`_hue3`、`color3d_random_matched`（同類隨機旋轉，逐張對齊 Ours 的防禦圖 LPIPS）。
+消融設計（使用者定案，executor 11/3 轉達）：每次拿掉 pipeline 的一部分，不做 LPIPS 對齊（失真差異本身是最佳化的結果）。A 拿掉最佳化（隨機 Θ）；B 拿掉高斯平滑（σ＝0）；C 拿掉角度上界、D 拿掉極角與色相分開限制，C、D 各拿一種與兩種都拿；E 拿掉亮度相關限制（‖c‖ 不變）。張數與 GPU 預算未定（每項 8 張約 4、97 張約 45、306 張約 140 GPU 小時），尚未派工，排在遷移實驗之後；目前沒有任何消融或隨機對照在跑。
+
+已完成、不再跑：`color3d_random_matched_pexels`（同失真隨機，270 張，只有淨化前）、`color3d_random_pexels`（純隨機 α＝1，306 張）、portraits 8 張的舊消融（`color3d_orig` 逐項懲罰、`color3d_phr` 單一常數上界、`color3d_adaptive_set` 可行集合投影、`color3d_cone_theta12`、`color3d_smooth_angle6`、`color3d_smooth_polar9_hue0`／`_hue3`、`color3d_random_matched`）。Table 4 下半只保留其中的逐項懲罰與可行集合投影（引言與 3.3 引用「逐項懲罰互相衝突」）。
 
 ## 4. 論文各節現況與待改處
 
@@ -52,12 +54,12 @@ pane 編號會變動，送訊前一律以 multi-agent 的 `list_panes` 依標題
 | 4.3 Distortion and displacement before purification | Fig. 2（306 張，18 點，1.037x＋0.049，r＝0.967；Ours 高於線 0.009） | — |
 | 4.4 What purification removes | Fig. 3a 為 306 張，Fig. 3b–d 為 8 張 | VAE-Trans 存續比為 `\NUM`；強度掃描的 Pexels 版本（P2）由使用者暫停 |
 | 4.5 Editors with different encoders | Table 3：兩編輯器上下排（8 張），CLIP-S、CLIP-I、FID 欄為 `\TBD` | 遷移性實驗讀數與張數 |
-| 4.6 Ablations | Table 4（8 張） | 定案張數的讀數 |
+| 4.6 Ablations | Table 4 上半為 A–E 與完整 pipeline（`\TBD`，張數未定）；下半為 8 張的逐項懲罰、可行集合投影與 Ours | A–E 的讀數與張數；結果段為 `\TODO` |
 | 5 Limitations | 已寫 | 負面社會影響與緩解為 `\TODO` |
 | 6 Conclusion、LLM Usage Statement | Conclusion 為 `\TODO`；LLM Usage 已寫（只列 Claude Code） | Conclusion；LLM Usage 待使用者審閱 |
 | 補充材料 `sec/X_suppl.tex` | CLIP-IQA 與 FID 表已撤下（使用者 11/3 決定）；未編入 PDF | DISTS、色彩對齊後失真（PSNR、SSIM 已移入 Table 1） |
 
-使用者 11/3 的決定：摘要倍數寫區間（逐一除以各加性方法）；保留「at matched distortion」；Fig. 1 色度盤箭頭用深灰（`disp` 樣式 `black!62`，現行即是）；論文重心等 306 張的同類隨機對照（`color3d_random_matched`）讀數到齊後再定。
+使用者 11/3 的決定：摘要倍數寫區間（逐一除以各加性方法）；保留「at matched distortion」；Fig. 1 色度盤箭頭用深灰（`disp` 樣式 `black!62`，現行即是）；論文重心等消融 A（拿掉最佳化）的讀數到齊後再定。
 
 |Δφ| < 3° 不註明像素層的情形；LLM Usage Statement 只列 Claude Code，草稿已寫入 `sec/7_llm_usage.tex`（程式、圖表腳本、文字三部分），待使用者審閱。
 
@@ -71,7 +73,7 @@ pane 編號會變動，送訊前一律以 multi-agent 的 `list_panes` 依標題
 | Pexels 失真—位移點與擾動存續比 | Fig. 2、Fig. 3a | 同目錄 `interim/fig3_points.csv`（原生預算）、`followup/sets/*/results/aligned/survival_seven.csv` 與 `followup/results/color3d_all/survival_seven.csv` |
 | 8 張的淨化強度掃描 | Fig. 3b–d | baseline `results/sweeps/ip2p/purifier_strength/retention.csv` |
 | 跨編輯器（8 張） | Table 3 | baseline `results/cross_model/`；color trial `results/cross_model/{flux,sd3}/` |
-| 消融（8 張） | Table 4 | color trial `README.md`、`results/color3d_random_matched/` |
+| 消融下半（8 張：逐項懲罰、可行集合投影、Ours） | Table 4 | color trial `README.md` |
 
 ## 6. 交付物與進行中的工作
 
@@ -87,7 +89,7 @@ pane 編號會變動，送訊前一律以 multi-agent 的 `list_panes` 依標題
 | baseline／color | Pexels 的 VAE-Trans（編輯 LPIPS、SigLIP、存續比） | Table 1、4.2、4.4 |
 | baseline／color | CLIP-S、CLIP-I、編輯端 FID（Pexels 主表與遷移表） | Table 1、Table 3 |
 | color | 遷移性實驗（11/4 20:00 收一次；FLUX 張數到時再改 caption） | Table 3 |
-| color | 消融定案張數的讀數 | Table 4 |
+| color | 消融 A–E（未派工，張數未定，排在遷移實驗之後） | Table 4 上半、4.6 |
 
 ## 8. 寫作規則
 

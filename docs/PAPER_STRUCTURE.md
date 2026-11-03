@@ -4,7 +4,7 @@
 
 編譯狀態：共 9 頁，正文與 Conclusion 至第 8 頁，參考文獻自第 8 頁起。正文圖表：Fig. 1 方法總覽、Fig. 2 失真—位移、Fig. 3 淨化分析；Table 1 主表、Table 2 美學分數、Table 3 跨編輯器、Table 4 消融。
 
-資料範圍（executor 定案）：主表、存續比、強度掃描用 Pexels 306 張；跨編輯器 UltraEdit 306 張、FLUX 約 50 張固定子集；消融的隨機對照與單角 6° 用 306 張，逐項懲罰與單一常數上界約 100 張。數字由 baseline／color 陸續送來（約 11/12–13 到齊），到齊時改 caption 的張數。
+資料範圍（executor 定案）：主表、存續比、強度掃描用 Pexels 306 張；跨編輯器 UltraEdit 306 張、FLUX 約 50 張固定子集；消融改為逐項拿掉 pipeline 的一部分（A–E，見 `docs/PAPER_HANDOVER.md` 第 3 節），張數未定、尚未派工；Table 4 下半沿用 8 張。數字由 baseline／color 陸續送來（約 11/12–13 到齊），到齊時改 caption 的張數。
 
 | 節 | 小節 | 應含內容 | 現有內容 | 狀態 | 頁數預算（現有） |
 |---|---|---|---|---|---|
@@ -21,7 +21,7 @@
 | | 4.3 Distortion and displacement before purification | Fig. 2a | 已寫（306 張；8 張的掃描與 DISTS／PieAPP 結論另註） | 完成 | |
 | | 4.4 What purification removes | Fig. 3（a 存續比 306 張；b–d 強度掃描 8 張） | 已寫；VAE-Trans 存續比為 `\NUM` | 部分 | |
 | | 4.5 Editors with different encoders | Table 3（兩編輯器上下排） | 8 張已填；CLIP-S、CLIP-I、FID 欄為 `\TBD` | 部分 | |
-| | 4.6 Ablations | Table 4 | 8 張已填；待換定案張數 | 部分 | |
+| | 4.6 Ablations | Table 4：上半逐項拿掉 pipeline 的一部分，下半為自然度的其他施加方式 | 上半 `\TBD`、結果段 `\TODO`；下半 8 張已填 | 部分 | |
 | 5 Limitations | — | 位移與編輯失敗的差異、未評估色彩反推攻擊、未做受測者實驗、求解時間、負面社會影響 | 前四項已寫；社會影響 `\TODO` | 部分 | 0.4（0.3） |
 | 6 Conclusion | — | 方法、主要結果、意義 | `\TODO` | 未寫 | 0.2（0.1） |
 | LLM Usage Statement | — | 工具、受影響部分、使用程度（不計頁） | 已寫：Claude Code；程式、圖表腳本、文字 | 待使用者審閱 | 不計 |

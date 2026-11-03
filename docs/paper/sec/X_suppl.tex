@@ -13,6 +13,36 @@
 
 \section{Additional metrics}
 \label{sec:supp_metrics}
+\begin{table}[h]
+  \centering
+  \footnotesize
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{l cc}
+    \toprule
+    Method & NIMA $\uparrow$ & NIQE $\downarrow$ \\
+    \midrule
+    \textcolor{gray}{Original} & \textcolor{gray}{5.399} & \textcolor{gray}{4.061} \\
+    \midrule
+    DAYN & 5.208 & 4.135 \\
+    DIA-R & 5.283 & 4.049 \\
+    DIA-PT & 5.265 & \textbf{3.867} \\
+    SIFM & 5.300 & 3.995 \\
+    DANP & 5.286 & 3.993 \\
+    Mist & 5.339 & 3.997 \\
+    PhotoGuard & 5.315 & 4.083 \\
+    DCT-Shield & \textbf{5.380} & 4.823 \\
+    DCT-Shield-Y & 5.351 & 4.633 \\
+    BlurGuard & \prelim{--}{} & \prelim{--}{} \\
+    \midrule
+    \rowcolor{oursrow}
+    \textbf{Ours} & 5.278 & 3.979 \\
+    \bottomrule
+  \end{tabular}
+  \caption{No-reference aesthetic scores NIMA and NIQE of the protected images (306 Pexels portraits, matched-distortion arms); LAION and MUSIQ are in \cref{tab:main}. Best in bold.}
+  \label{tab:supp_aesthetics}
+\end{table}
+\prelimnote{Supplementary aesthetics table: the matched-distortion BlurGuard arm is not yet run.}
+
 \TODO{DISTS and color-aligned distortion on the 306 Pexels portraits.}
 
 \section{Evaluation validity}

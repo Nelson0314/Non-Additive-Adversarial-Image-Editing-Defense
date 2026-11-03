@@ -26,6 +26,6 @@
 | 6 Conclusion | — | 方法、主要結果、意義 | `\TODO` | 未寫 | 0.2（0.1） |
 | LLM Usage Statement | — | 工具、受影響部分、使用程度（不計頁） | `\TODO` | 未寫 | 不計 |
 | 補充材料 | Additional metrics | PSNR、SSIM、DISTS、色彩對齊後失真 | `\TODO`；CLIP-IQA 與 FID 表已撤下；未編入 PDF | 未寫 | 不計 |
-| References | — | 無 URL；全部核實 | executor 核實；radford2021clip、hessel2021clipscore 待核實 | 部分 | 不計 |
+| References | — | 無 URL；全部核實 | executor 已核實（含 radford2021clip、hessel2021clipscore）；未引用條目已移除 | 完成 | 不計 |
 
 正文預算合計 8.0 頁。圖表與程式：`docs/paper_tools/generate_paper_figures.py`（遠端 `~/paper_figures/` 執行）。

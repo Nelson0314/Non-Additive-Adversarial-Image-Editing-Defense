@@ -4,19 +4,19 @@
 
 ## 1. 角色與分工
 
-pane 編號會變動，送訊前一律以 multi-agent 的 `list_panes` 依標題確認。交接當下的編號：
+pane 編號會變動，送訊前一律以 multi-agent 的 `list_panes` 依標題確認，不沿用本表或記憶中的編號。
 
-| pane | 標題 | 角色 | 寫入範圍 |
-|---|---|---|---|
-| 5 | paper | 論文撰寫（本文件的讀者） | `docs/paper/`、`docs/paper_tools/`、`docs/PAPER_STRUCTURE.md`、本檔 |
-| 2 | executor | 專案管理、派工、文獻管理；`main.bib` 的唯一核實者 | `docs/EXECUTOR_HANDOVER.md` 等 |
-| 3 | color | 本方法的實驗與讀數 | `color/` |
-| 4 | baseline | 加性方法、主表、跨模型 baseline 的讀數 | `baseline/` |
+| 標題 | 角色 | 寫入範圍 |
+|---|---|---|
+| paper | 論文撰寫（本文件的讀者） | `docs/paper/`、`docs/paper_tools/`、`docs/PAPER_STRUCTURE.md`、本檔 |
+| executor | 專案管理、派工、文獻管理；`main.bib` 的唯一核實者；代使用者轉達決定 | `docs/EXECUTOR_HANDOVER.md` 等 |
+| color | 本方法的實驗與讀數 | `color/` |
+| baseline | 加性方法、Pexels 主表、跨模型 baseline 的讀數 | `baseline/` |
 
-- 需要數字、圖或方法細節時，以 `send_to_pane` 向 color 或 baseline 索取，要求附路徑、協定與影像數 n；完成一節後回報 executor（訊息 ≤ 4–8 行，依 executor 要求）。
+- 需要數字、圖或方法細節時，以 `send_to_pane` 向 color 或 baseline 索取，要求附路徑、協定與影像數 n；完成一件事後回報 executor，訊息行數依 executor 要求（通常 ≤ 3–6 行）。
 - 不派實驗、不改其他專案的檔案。
-- `main.bib`：新增條目可以直接用 Edit 插入（不要整檔重寫），加入後立即通知 executor 核實；executor 正在改 bib 時不動它。現有條目已全部核實、無 URL／DOI 欄。
-- 本機不跑計算（Tectonic 編譯除外）；圖在遠端畫，看圖時抓回 scratchpad。
+- `main.bib`：新增條目以 Edit 插入（不整檔重寫），加入後立即通知 executor 核實；未引用的條目交 executor 處理，不自行刪除。現有條目已全部核實、無 URL／DOI 欄。
+- 本機不跑計算（Tectonic 編譯除外）：資料彙整、畫圖、PDF 轉 PNG 都在遠端 basic-1（`ssh -p 10101 nelson0314@server.basiclab.lab.nycu.edu.tw`）；看圖時抓回 session 的 scratchpad。
 
 ## 2. 檔案與工具
 
@@ -75,14 +75,11 @@ pane 編號會變動，送訊前一律以 multi-agent 的 `list_panes` 依標題
 | 跨編輯器（8 張） | Table 3 | baseline `results/cross_model/`；color trial `results/cross_model/{flux,sd3}/` |
 | 消融（8 張） | Table 4 | color trial `README.md`、`results/color3d_random_matched/` |
 
-## 6. 進行中的工作：實驗總覽 PDF
+## 6. 交付物與進行中的工作
 
-- 原始檔：`docs/paper_tools/experiment_overview/experiment_overview.tex`；成品：`C:\Users\nelso\OneDrive\桌面\experiment_overview.pdf`。
-- 編譯：在該目錄執行 `tectonic -X compile experiment_overview.tex`，再把 `experiment_overview.pdf` 複製到桌面同名檔。中文字型為 xeCJK＋Microsoft JhengHei；圖直接取 `docs/paper/fig/`。
-- 規格（executor 代使用者派工，照字面）：論文中每個實驗一節，依論文順序（主表、Fig. 3、Fig. 4、Table 2、Table 3、CLIP-IQA、FID／KID）；每節只有「設定」「組別」條列、與論文同格式的圖表、中文說明（caption 譯文）；不加引言、結論或製作說明。
-- 使用者的要求：表格不標紅字；各欄最佳值用粗體（依欄的 ↑／↓）；設定與組別只寫必要資訊，組別直接列出方法名稱。
-- 現況：七節都已填數字，無空格。主表加性方法為 8 張（標 b，n＝8），Ours 有 Pexels 讀數的格為 306 張（標 a），其餘為 8 張。
-- 下一步：baseline 與 color 的 Pexels 讀數到齊後，替換主表對應格與張數標記，重新判定各欄粗體，重新編譯並覆蓋桌面檔。
+- **桌面 `paper.pdf`**：`run_paper_preview.py` 每次成功編譯後自動覆寫；Overleaf 由使用者整個上傳 `docs/paper/`，不另做壓縮包。
+- **簡報素材**（executor 製作簡報）：前一個 paper session 的 scratchpad `C:\Users\nelso\AppData\Local\Temp\claude\C--image-immunization\edb08373-522b-4130-814d-5e1f4dc8a9d3\scratchpad\deck_assets\`。PNG 為 300 dpi、白底、不含 caption；`captions.md` 為各圖中文摘要；表格 PNG 由 `tables_src/*.tex`（取論文原始碼的表格、相同字型與套件單獨編譯）以遠端 `mutool draw -r 300` 轉出；例子圖 `example_*.png` 由 `generate_teaser_figure.py --image --prompt --name` 產生。**待辦**：VAE-Trans、CLIP-S、CLIP-I、FID 與遷移性讀數填入論文後，重出 Table 1（主表）、Table 2（美學）、Table 3（遷移）的 PNG 到該目錄（或新 session 的 scratchpad，並告訴 executor 新路徑），再通知 executor；簡報由 executor 修改。`supp_clipiqa.png`、`supp_fid.png` 已作廢。
+- **實驗總覽 PDF**：`docs/paper_tools/experiment_overview/experiment_overview.tex`，成品為桌面 `experiment_overview.pdf`（於該目錄 `tectonic -X compile`，再複製）。內容停在 8 張與 Pexels 混合的版本，表格不標紅字、各欄最佳粗體；使用者未再要求更新。
 
 ## 7. 還在等的數字
 
@@ -99,7 +96,23 @@ pane 編號會變動，送訊前一律以 multi-agent 的 `list_panes` 依標題
 - 摘要寫背景、痛點、本方法特色與預期效果，不寫 baseline、方法細節或「We observe」句型。
 - 失真—位移直線是對所有方法的觀察（含本方法），寫成「等失真下可比」，不寫成對立。
 - 方法節以式子表達，先講選擇、再講用意；不寫章節導覽句。
-- 表格固定字級、不用自動縮放；caption 一兩行，定義與解讀寫在正文；指標標 ↑／↓、各欄最佳粗體、Ours 列底色。
-- 不下「方法成立／不成立」的判定。不做色調／白平衡類淨化（Limitations 已寫）。
+- 表格：固定字級、不用 `\resizebox`；Method 欄獨立（`\multirow`），表頭依「對象 → 指標 → 淨化條件」分層；指標標 ↑／↓，各欄最佳粗體（Ours 與 Ours (transfer) 分開比），Ours 列底色 `oursrow`；七道淨化平均一律寫 Purified$^{*}$ 並在 caption 註明七道名稱，不寫 7-mean；最弱一道寫 Weakest$^{\dagger}$（平均最低的那一道淨化，不是逐格取最小）；每個指標的比較條件寫進 caption（例如 ArcFace 是同一淨化下兩張編輯的嵌入餘弦）。
+- 圖：與論文同字體（Times 系：matplotlib 用 STIXGeneral＋stix，TikZ 用 texgyretermes），印刷尺寸 ≥ 7 pt；配色全文一致：加性方法紅 `#A94438`、本方法 teal `#1F6F7C`、飽和度／θ 藍 `#2F5DA8`、色相／φ 橘 `#C9781A`、參考與凍結元件灰；caption 只寫看什麼與結論，示意與實際資料要分清楚。
+- 不下「方法成立／不成立」的判定。不做色調／白平衡類淨化。不提「加性擾動偏高頻」（無頻譜證據，頻譜圖已撤）。
 - 正文上限 8 頁，參考文獻與 LLM Usage Statement 不計；全文不放 URL。
-- commit message 用英文；push 由使用者執行；論文檔目前未入版控（`docs/` 為 untracked）。
+- commit message 用英文；內容修改、清理、文件更新分開 commit；push 由使用者或 executor 執行。工作樹與其他 session 共用，在 main 上 commit，不切 branch。
+
+## 9. 工作方式
+
+- **改論文**：改 `docs/paper/` 後執行 `python docs/paper_tools/run_paper_preview.py`；檢查頁數、`build/main.log` 的 Overfull 與未定義引用。看排版時把 `build/main.pdf` scp 到遠端 `/tmp`，以 `mutool draw -q -r 150 -o page.png main.pdf <頁>` 轉 PNG 抓回看。
+- **填表**：先把 baseline 的 CSV scp 到 scratchpad，用 Python 依欄名產生表格列與粗體，不手抄數字；改 tex 用 Python 時一律寫成 scratchpad 內的 `.py` 檔並用 `assert s.count(old) == 1` 確認唯一替換（heredoc 內的反斜線與 f-string 容易出錯）。
+- **畫圖**：腳本改在本機，`scp` 到遠端 `~/paper_figures/in/` 執行，輸出抓回 `docs/paper/fig/`。Fig. 1 的 TikZ 在本機 Tectonic 編譯，資料圖塊在遠端產生。畫之前先確認讀者要記住的一件事；使用者偏好先看清楚的版面草圖，再上實際資料，圖面要乾淨、少字、標籤不壓線與框。
+- **示意與實際資料**：圖中標示的像素、數值必須來自既有產物並在腳本頂端註明出處；示意部分在 caption 註明放大或非比例。
+- **數字來源**：Pexels 主表與分布指標都由 baseline 彙整在 `runtime/pexels_portraits/summary/`（`main_table.csv` 欄定義在 `baseline/scripts/generate_pexels_main_table_summary.py` 開頭）；`distribution_groups.csv` 的 `clipiqa_b` 為未防禦編輯。color 的 `metrics_<條件>.csv` 曾有過期版本（Mist），兩邊數字不一致時以 baseline 為準並請其確認。
+
+## 10. 近期決定（使用者，經 executor 轉達）
+
+- 11/3：不用 CLIP-IQA；新增 CLIP-S（編輯對指令文字）、CLIP-I（防禦後編輯對未防禦編輯）、編輯端 FID；防禦圖對原圖的 FID 不報；KID 不放（Pexels 90 組中 32 組為負）。
+- 11/3：teaser 暫時移出論文（檔案保留）；Fig. 2、Fig. 3a 改用 Pexels 306 張；Table 1 表頭重排、ArcFace 寫明比較條件；Table 3（遷移）各欄最佳粗體。
+- 11/4 20:00 收一次遷移性實驗，FLUX 可能不足 50 張，caption 張數屆時更新。
+- Fig. 1（方法總覽）的版面已由使用者逐輪定稿：(a) 參數化、(b) 球面上的色彩旋轉（含 woman_00 實際 LUT 的色度盤）、(c) 最佳化與同色像素；色度盤箭頭用深灰或 teal 尚待確認。

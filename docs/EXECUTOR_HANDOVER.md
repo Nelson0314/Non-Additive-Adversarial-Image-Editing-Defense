@@ -1,129 +1,107 @@
 # executor 交接
 
-接手 executor（專案管理、文獻管理、派工）的冷啟動文件。狀態以 2026-10-27 為準；各實驗的即時狀態以 `baseline/STATUS.md`、`color/STATUS.md` 與 color trial `HANDOVER.md` 為準。
+接手 executor（專案管理、文獻管理、派工與轉達）的冷啟動文件。狀態以 2026-11-03 為準；各實驗的即時狀態以 `baseline/STATUS.md`、`color/STATUS.md`、color trial `HANDOVER.md` 與 `docs/PAPER_STRUCTURE.md` 為準。
 
-## 1. 角色與分工
+## 1. 角色、分工與 pane
 
-| pane | 角色 | 寫入範圍 |
+| 角色 | 職責 | 寫入範圍 |
 |---|---|---|
-| executor（本角色） | 進度管理、文獻管理、派工與轉達、整理成果給使用者；不做實驗、不寫論文正文 | `docs/` 下的管理文件（本檔、`PAPER_HANDOVER.md` 第 4 節的方法現況） |
-| baseline | 11 個加性方法、等失真臂、主表、跨模型 baseline、Pexels baseline 長跑、指標量測 | `baseline/` |
-| color | 本方法 color3d 的實驗與設計、簡報、Pexels 上的 color3d、跨模型 color3d | `color/` |
-| paper | 論文正文（`docs/paper/`）與 `docs/PAPER_STRUCTURE.md` | `docs/paper/`、`docs/paper_tools/` |
+| executor（本角色） | 進度管理、文獻管理（`docs/paper/main.bib` 歸 executor 核實）、派工與轉達、整理成果給使用者、代使用者 push | `docs/` 下的管理文件、`main.bib` 的核實修改 |
+| baseline | 加性方法、等失真臂、Pexels 主表佇列與後續量測、跨編輯器 baseline 列 | `baseline/` |
+| color | 本方法 color3d、Pexels 上的 color3d 與對照、跨編輯器 Ours、消融 | `color/` |
+| paper | 論文正文 `docs/paper/`、`docs/paper_tools/`、`docs/PAPER_STRUCTURE.md`、圖表素材 | `docs/paper/`、`docs/paper_tools/` |
 
-pane 編號會變動，派工前先以 `list_panes` 確認。各 session 只改自己的目錄；同一時間一個目錄只能有一個 session 有寫入權（color 交接時備援 session 先唯讀）。
+- pane 編號會隨關閉與新開而變動，每次派工前先 `list_panes`，依標題（executor、color、baseline、paper）確認。
+- 同一時間一個目錄只有一個 session 有寫入權；換手時舊 session 先改為唯讀，確認本機沒有背景工作與 CronCreate 後才關。
+- 回報給使用者：先講結果，數字附協定與張數，不下「成立／不成立」判定，外觀由使用者看圖決定；進度用「完成數／總數」，不用狀態文字。
+- 看圖：遠端產物用 scp 抓到自己的 scratchpad，再用 `Start-Process` 開給使用者。本機不跑任何計算（Tectonic 編譯除外）。
 
-工作方式：
-- 使用者以中文下指令，executor 轉成具體工作送到對應 pane。訊息要寫明目標、檔案、協定與回報格式（行數上限）。
-- 方法設計與實驗方向由使用者直接與 color、baseline 討論；executor 只轉達。
-- 回報給使用者：先講結果，表格附協定，不下「成立／不成立」判定。外觀由使用者看圖決定。
-- 要給使用者看圖時，用 scp 抓到 scratchpad，再用 `start` 開啟或 SendUserFile。
+## 2. 專案背景與方法
 
-## 2. 專案背景
+- **問題**：影像免疫。發布前處理人像，使攻擊方以擴散編輯器依指令編輯時，結果偏離未防禦的編輯。白盒、外掛；防禦方不知道指令，訓練只用空字串或類別名。
+- **既有方法**：PGD 逐像素加性擾動，會被淨化（JPEG、模糊、縮放、VAE 重建）移除。
+- **本方法 color3d**：每張影像一個 33³ RGB 3D LUT。自由參數 Θ 經色空間高斯平滑（σ = 4 格）成旋轉場 V；以黑點為原點、灰軸為極軸，去掉徑向分量後拆成子午與方位分量，分別以 tanh 限制極角 < 10°、方位角 < 3°（截斷到色域前；上界只在格點上保證，像素經三線性內插後可能超出）；‖c‖ 不變。目標為 ip2p VAE 編碼器後驗平均位移；損失只有目標，Adam 1800 步。公式見論文 3.3 節（`docs/paper/sec/3_method.tex`）。
+- **淨化協定**：七道（jpeg80／50／30、blur σ1／2、crop_resize0.1、rotate15）＋ VAE-Trans（arXiv 2603.13028）；不做色調／白平衡淨化。
+- **論文的 baseline**：9 臂（DAYN、DIA-R、DIA-PT、SIFM、DANP、Mist、PhotoGuard encoder、DCT-Shield、DCT-Shield-Y）；不列 photoguard_c、photoguard_linf、DiffVax。
 
-- **問題**：影像免疫。發布前處理人像，使攻擊方以公開權重的擴散編輯器依指令編輯時，結果偏離未防禦的編輯。白盒、外掛（不改攻擊方權重）；防禦方不知道指令，訓練只用空字串或類別名。
-- **既有方法**：PGD 逐像素加性擾動，會被淨化移除。
-- **本方法 color3d**（2026-10-27 定案；原條件名 `color3d_smooth_polar10_hue3`）：
-  - 每張影像一個 33³ RGB 3D LUT；自由參數經色空間 3D 高斯平滑（σ = 4 格點）成為旋轉場；
-  - 以黑點為原點、灰軸為極軸旋轉色向量，‖c‖ 不變；極角變化 < 10°、方位角變化 < 3°（截斷到 RGB 色域前；截斷後約 3% 格點方位角超過 3°）；
-  - 目標為 ip2p VAE 編碼器潛向量位移；損失只有目標，沒有投影、沒有 LPIPS 上下界。
-- **消融條件**：
-  - `color3d_phr`：δ = 30.6 三條上界，PHR 求解；
-  - `color3d_orig`：最早的逐項懲罰版，用來說明懲罰式訓練不穩定（1/180 個檢查點可行）；
-  - `color3d_smooth_angle6`：黑點 6° 單角度版。
-- **主要讀數**（8 張 portraits、ip2p EulerAncestral 50 步、s_T 7.5、s_I 1.8、主種子 20260812、FaceLock 配件四句、32 格）：
+## 3. 現有結果
 
-| 條件 | 防禦圖 LPIPS | 淨化前 | 七道平均 | VAE-Trans 後 | 保留率 |
-|---|---|---|---|---|---|
-| color3d | 0.296 | 0.374 | 0.367 | 0.301 | 1.020 |
-| 等失真 11 臂 | 0.30–0.37 | 0.24–0.39 | 0.12–0.24 | 0.02–0.07 | — |
+### Pexels 主表（306 張，ip2p，4 句，主種子 20260812，不含 VAE-Trans）
 
-  - color3d 的其他讀數：SSIM 0.942、ΔE00 12.9、LAION 5.48（原圖 5.48）、BRISQUE 14.1。
-  - 淨化：jpeg80／50／30、blur σ1／2、crop_resize0.1、rotate15，以及 VAE-Trans（arXiv 2603.13028）。色調／白平衡類淨化依使用者決定不做。
-- **其他已有結果**（多數尚未以最終 color3d 重量）：
-  - 失真—位移直線：38 點，r = 0.955（`baseline/results/distortion_displacement/`）；
-  - 擾動存續比、淨化強度掃描（color3d_orig）；
-  - inpainting（color3d_orig）；
-  - 感知指標與調色濾鏡比較；
-  - 原圖對防禦圖頻譜（`color/trials/.../results/image_spectrum/`，使用者指示先不入論文）；
-  - SD 系（ip2p、SD2.1-base、SD inpainting）共用同一個 VAE 編碼器；FLUX、SD3 不同。
+完成於 11/3 06:50。檔案：遠端 `baseline/runtime/pexels_portraits/summary/main_table.csv`、`distribution_groups.csv`（逐組 FID／KID／CLIP-IQA，32/90 組 KID 為負）。已填入論文 Table 1 與補充材料。
 
-## 3. 進行中的工作（2026-10-27 派出）
+| 條件 | 防禦圖 LPIPS | 淨化前 | 七道平均 | 最弱一道 | 保留率 | SigLIP 七道 ↓ | ArcFace 七道 ↓ |
+|---|---|---|---|---|---|---|---|
+| 9 臂 | 0.251–0.318 | 0.262–0.415 | 0.112–0.212 | 0.028–0.106 | 0.366–0.609 | 0.948–0.976 | 0.870–0.928 |
+| color3d | 0.211 | 0.277 | 0.291 | 0.251 | 1.091 | 0.913 | 0.826 |
 
-| 負責 | 工作 | 狀態 |
-|---|---|---|
-| color | color3d 在 Pexels 306 張上跑 baseline 協定（只 ip2p） | 10/27 13:17 開跑，預計 10/28 傍晚完成求解與編輯，之後約半天讀數 |
-| color | color3d 跨模型：對 FLUX.1 Kontext（basic-2）與 SD3／UltraEdit（basic-1）的 VAE 求解、全協定，另做 ip2p 防禦圖的交叉遷移 | 已派，時程待回報 |
-| color | 成果簡報改版為 color3d（https://claude.ai/artifact/VfAGamPdpErLFqNV9iVxdE ） | 已派 |
-| color | 本地與遠端檔案整理、文件更新到最新、commit 未提交的 color 文件 | 已派；刪除前會列清單給使用者 |
-| baseline | CLIP-IQA、FID（附 KID）、MCIQA（arXiv 2609.14495）的失真端與位移端量測，對象為 11 臂與 color3d | 已派 |
-| baseline | 跨模型 encoder 類 baseline（photoguard_encoder、dct_shield、dct_shield_y、mist_textural）在 FLUX／SD3 | FLUX 未淨化已完成；淨化後與 SD3 狀態以 STATUS 為準 |
-| baseline | 補 Pexels images_0307_0308 的三道淨化分母給 color | 已完成；color 已匯入，Pexels 分母 306 張齊全 |
-| baseline | 本地與遠端檔案整理、文件更新 | 已派 |
-| paper | 完成第 2–4 節（見第 5 節的指示） | 第 2–4 節已改寫；第 1 頁 teaser 為佔位，草案在 color 遠端 `results/paper_figures/` |
-| paper | 兩張散布圖（淨化後等失真主表、淨化前失真—位移平面），在遠端畫成 PDF 放進 `docs/paper/fig/` | 已完成：`fig/plane.pdf`、`fig/purified_plane.pdf`，程式 `docs/paper_tools/generate_paper_figures.py` |
-| baseline | Ours（color3d）的擾動存續比（七道＋VAE-Trans）與淨化強度掃描（13 個設定），協定同 color3d_orig | 已派 |
-| 方法總覽圖的 subagent | 重做精緻版 teaser | 因帳號週額度用完中斷（10/30 22:00 重置）；使用者已改為：方法總覽圖移到 Method 前，第 1 頁另放簡單 teaser（交 paper） |
+- 加性方法沿用 portraits 校準的等失真倍率，Pexels 上失真比 color3d 高（使用者決定暫不處理，caption 不宣稱 matched distortion）。
+- FID 七道淨化後：color3d 35.0，9 臂 17.4–26.1；防禦圖對原圖 FID：color3d 39.1（最高）。CLIP-IQA：color3d 無一欄最佳。
 
-## 4. 論文
+### 同類隨機對照
 
-- 投稿 CVPR 2027：摘要（enrollment）11/10、全文 11/16、補充材料 11/23（皆 AOE）。
-- 硬性規定：
-  - 正文 8 頁；
-  - 必須有 LLM Usage Statement；
-  - 全文不放 URL（含參考文獻）；
-  - 匿名；
-  - 引用不存在的文獻會被拒；
-  - 2026-09-15 後公開的同期工作要引用。
-- 行政：作者名單在 11/10 前確定；所有作者的 OpenReview profile 要匯入論文；若沒有作者在指定 venue 被接受過論文，只能投一篇。
-- 檔案：
-  - `docs/paper/`：CVPR 2027 author kit，唯一正本；
-  - `docs/PAPER_STRUCTURE.md`：節、內容、狀態、頁數，由 paper 維護；
-  - `docs/PAPER_HANDOVER.md`：paper 的交接檔；
-  - 預覽工具 `docs/paper_tools/run_paper_preview.py`（Tectonic）自動把 PDF 複製到桌面 `paper.pdf`；
-  - 桌面 `paper_outline.html`：給指導者看的架構表（使用者已自行修改過，不要覆寫）。
-- `docs/` 目前不在版控內；是否 commit 由使用者決定。
-- 寫作規則（使用者定）：
-  - 摘要當產品介紹寫，原則上不放數字（現有一個 `\NUM` 由使用者決定）；
-  - 引言從領域研究現況開場，不寫日常情境；
-  - 失真—位移直線是對所有方法的觀察；
-  - 頻譜分析暫不入論文。
-- 待辦（executor 負責）：`main.bib` 40 條中 28 處標 TODO，須逐條人工核實並改為出版社或 DBLP 條目，去除 URL。另需調查 2026-09-15 後的同期工作（已知候選：MCIQA-2K，arXiv 2609.14495）。
+- **同失真隨機**（`color3d_random_matched_pexels`，Pexels 270 張，36 張對不到 color3d 失真不列入，只有淨化前）：位移與 color3d 相同（編輯結果 LPIPS 0.265 vs 0.267，SigLIP 0.914 vs 0.914，ArcFace 0.821 vs 0.835）；隨機版 SSIM、VIF-p、L∞ 與 MUSIQ、NIMA、TOPIQ、CLIP-IQA 平均較差，LAION 相同。8 張 portraits 的同失真隨機見論文 Table 3 最後一列。
+- **純隨機 α＝1**（`color3d_random_pexels`，306 張）：防禦圖 LPIPS 0.037，幾乎接近恆等。
 
-## 5. 使用者 2026-10-27 的論文指示（已轉給 paper）
+### 其他已完成
 
-1. Related Work 每段結尾回收到該方法或領域的限制，或本文為何選擇該方法。
-2. 主表以淨化後結果為主（完整數字表＋散布圖），原生預算放後面。
-3. 方法總覽圖移到 Method 前；第 1 頁 teaser 改放簡單、能呈現本文在做什麼的圖。
-4. 主表失真欄只用 LPIPS 與有利或持平的美學指標；位移欄只用 LPIPS 與語義類。DISTS、PSNR、SSIM 保留數據，另找地方說明它們對色彩改變的偏差。
-5. CLIP-IQA、FID、MCIQA 交 baseline 量測，報有利部分。
-6. paper 先完成第 2–4 節，數據有多少放多少。
+- portraits 8 張：跨編輯器（論文 Table 2，含 Ours 與 Ours (transfer)）、消融（Table 3）、淨化強度掃描（Fig. 3 b–d）。
+- 提亮再防禦試驗（3 張）：提亮後失真與位移上升，提亮本身失真 0.407。
+- color3d 防禦圖 LPIPS 在 Pexels 較低的原因：與中性亮區比例（ρ 0.763）、平均明度（0.719）相關，見 color trial README。
 
-## 6. 硬體與環境
+## 4. 執行中、延後與暫停中的工作
 
-- **本機**：Windows 11，PowerShell 與 Git Bash。Python 指令為 `python`。本機不跑任何計算（含 CPU 分析與畫圖），只編輯、ssh、看圖；Tectonic 編譯論文除外。
-- **遠端**：
-  - `nelson0314@server.basiclab.lab.nycu.edu.tw`，`-p 10101`（basic-1，8 卡）、`-p 10102`（basic-2，7 卡），RTX 3090 24 GB，NFS 共用；
-  - repo 在 `~/image-immunization`，以 `git pull` 同步；venv 為 `~/venvs/wacv`。
-  - HF 權重各機不同：FLUX 只在 basic-2，UltraEdit／SD3 只在 basic-1；ip2p 與 SD inpainting 兩台都有。
-  - 卡常被實驗室其他人佔用。
-- **GPU 規則**：
-  - 卡數由使用者口頭指定；未指定時全局合計 ≤ 6 張（所有主機、session 加總）；color 優先；
-  - 租約目錄 `~/gpu_leases`，工具 `run_with_gpu_lease.sh`；不要給 `--limit`；取卡失敗時迴圈重試，重試要在有卡的那台主機上開。
-- **常見陷阱**（詳見專案記憶）：
-  - 取卡函式的紀錄要寫 stderr；
-  - 殺行程後用 ps 與租約目錄回頭確認；
-  - 遠端腳本不可就地覆寫；
-  - Python 寫 .sh 會變成 CRLF；
-  - 只做編輯的條件不可用符號連結；
-  - HF 離線模式會讓 SD v1-4 載不起來。
+- 執行中：baseline 佇列的 Pexels 主表 VAE-Trans（114 項）；其後由閘門 `vae_trans_gpu_done` 接遷移性實驗（`baseline/scripts/evaluate_pexels_transfer.sh`，`TRANSFER_DEADLINE` 2026-11-04 20:00）與主表各影像組的 CLIP-S（`baseline/scripts/measure_clip_score.py`），全局 6 卡。
 
-## 7. 規範（摘要；全文見根目錄 `CLAUDE.md`、`AGENTS.md` 與專案記憶 `MEMORY.md`）
+| 負責 | 工作 | 位置 | 狀態 |
+|---|---|---|---|
+| baseline | 淨化強度掃描 P2、跨編輯器 baseline 列 P3（252 項） | `queue/jobs_deferred_p2_p3.txt` | 延後；第一步未驗證，恢復時先看 |
+| color | Pexels 跨編輯器：FLUX transferred＋未防禦分母（50 張子集） | color trial `runtime/cross_model/` | 淨化前 200/200、七道 1,400/1,400、VAE-Trans 160/200 |
+| color | Pexels 跨編輯器：UltraEdit transferred＋未防禦分母（306 張） | 同上 | 7/23 組 |
+| color | Pexels 跨編輯器 Ours（以 FLUX／SD3 編碼器求解） | 同上 | 0 |
+| color | Pexels 消融 | 子集 `pexels_subsets/ablation.txt`（97 張） | 只有隨機對照完成 |
+
+- 子集：FLUX 50 張（`pexels_subsets/flux.txt`，依性別與 LPIPS 四分位分層抽樣）、消融 97 張（第一個影像組）。
+- 遠端 Pexels 佇列由 crontab 每 5 分鐘的 `baseline/scripts/run_pexels_supervisor.sh` 推進；可用卡數＝6 − max(他人租約, `queue/color_reserve`)；第一項連續卡住會寫 `[WARN]`。color 用卡時設 `color_reserve`，用完歸零（color 曾兩次忘記歸零，派 color 用卡時要求它設自動歸零）。
+
+## 5. 使用者 11/3 會議後的待辦（使用者已選定，依序）
+
+1. **遷移性（最優先，週四 11/5 10:00 開會前）**：ip2p 求出的防禦圖直接送 UltraEdit 與 FLUX，Ours (transfer) 對 4 個 baseline（等失真臂的 photoguard_encoder、dct_shield、dct_shield_y、mist），全協定（淨化前、七道、VAE-Trans）。最終要跑完 306 張；先做 50 張。executor 的估計（未經 baseline／color 核實，估算）：
+   - UltraEdit 50 張：每格約 6.6 秒，每條件每張 36 格；4 baseline＋Ours＋未防禦分母約 20 GPU 小時（Ours 與分母若已在已完成的影像組內則更少），basic-1 3 卡約 6–7 小時。
+   - FLUX 50 張：每格約 90 秒；4 baseline 約 180 GPU 小時，Ours 只剩 VAE-Trans 40 格，分母已齊；只能在 basic-2，3–5 卡約 36–60 小時，週四前做不完全協定。
+   - 核實後（baseline 實測每格 UltraEdit 6.6 秒、FLUX 83 秒；4 臂 50 張 UltraEdit 13.2、FLUX 166 GPU 小時；306 張 81、1,017 GPU 小時）。color 的 Ours (transfer) 與未防禦分母：50 張只缺 FLUX VAE-Trans 40 格；UltraEdit 306 張剩 149 張約 20 GPU 小時。
+   - 使用者決定：VAE-Trans 跑完後接上，全局 6 卡跑到 2026-11-04 20:00，以「張」為單位（一張 4 臂 × 36 格做完才算），20:00 後不派新工作，回報完成張數，續跑與否由使用者決定。FLUX 在 basic-2、UltraEdit 在 basic-1（306 張，前 50 為 `flux.txt`）。
+2. **表格的波動性**：Purified 與 Weakest 合成一欄，以 ± 或標準差等方式呈現各方法的影像間波動。
+3. **主表美學**：只留 LAION、MUSIQ，其餘移到後面或補充材料。
+4. **主表加指標**：在 LPIPS、SigLIP、ArcFace 之外，加入 SSIM、PSNR（編輯端或防禦圖端未定）、CLIP-S、CLIP-I 與編輯端 FID；不用 CLIP-IQA。定義（主表與遷移表共用）：CLIP-S＝cos(E_img(編輯), E_txt(指令))，文字端為實際送進該編輯器的指令（ip2p 與 FLUX 用 `edits.ip2p[k]`，UltraEdit 用 `ultraedit_templates.json` 的 add 句）；CLIP-I＝baseline 的 `clip_pair`（clip-vit-base-patch32，防禦後編輯對未防禦編輯，同一淨化）；FID 只算編輯端（防禦後編輯分布對未防禦編輯分布，淨化前／七道／VAE-Trans），不報防禦圖對原圖的 FID。論文已改版：Table 1 加三欄、美學移到 Table 2、遷移表為 Table 3、消融為 Table 4。
+5. **本方法的多個預算點**：color3d 失真 0.21 與 baseline 0.3 脫節；需要 color3d 的多個失真預算點，證明本方法也能沿失真—位移直線移動。做不到時，退而把 300 多張逐張的失真—位移點全部畫出。
+6. **BlurGuard**：先確定等失真的預算（旋鈕），再在 Pexels 跑全協定。
+7. **淨化分析**：Fig. 3 的強度比較把 DCT-Shield 換成 DCT-Shield-Y；論文先分開呈現已有的淨化分類討論，中間缺的掃描先放著。
+8. **消融改為「每次拿掉 pipeline 的一部分」，不做 LPIPS 對齊**（使用者理由：失真差異本身是最佳化的結果）：
+   - A 拿掉最佳化（隨機 Θ）；
+   - B 拿掉高斯平滑（σ＝0）；
+   - C／D 合併：拿掉角度上界、拿掉極角與色相分開限制，分成一次拿掉一種，以及兩種都拿掉；
+   - E 拿掉所有和亮度有關的限制（例如 ‖c‖ 不變）。
+   規模、張數未定，需先估算後交使用者決定（每項 8 張約 4、97 張約 45、306 張約 140 GPU 小時，均為估算）。
+
+## 6. 論文
+
+- 投稿 CVPR 2027：摘要 11/10、全文 11/16、補充材料 11/23（AOE）。正文 8 頁；LLM Usage Statement 必備；不放 URL；匿名；2026-09-15 後的同期工作要引用（已知 MCIQA-2K、NullEdit，調查未完成）。
+- 現況：9 頁，正文到第 8 頁。Fig. 1 方法總覽（BlurGuard 式版面、球面色彩旋轉）、Fig. 2 失真—位移（Pexels）、Fig. 3 淨化分析（(a) Pexels、(b–d) 8 張）；Table 1 Pexels 主表（VAE-Trans 欄 \TBD）、Table 2 跨編輯器（8 張）、Table 3 消融（8 張）；補充 CLIP-IQA、FID 已改 Pexels 306。
+- 還在等使用者決定：摘要倍數的定義、是否保留「at matched distortion」、論文重心是否轉向參數化、|Δφ| < 3° 只在格點保證是否在文中註明、兩支舊產圖腳本（`generate_lut_overview_figure.py`、`generate_method_overview_figure.py`）是否刪除、LLM Usage 工具清單、Pexels 選取規則與授權。
+- `main.bib`：46 條，全部被正文引用且已核實，無 TODO、無 URL；未引用的條目已移除（commit 歷史可查）。來源較弱的兩條：`doprotect2026`（作者取自第三方摘要頁）、`zeng2020lut`（TPAMI 卷期頁未在 IEEE 確認）。新增條目由 paper 通知後核實。
+
+## 7. 簡報與其他成品
+
+- 成果簡報（Slides，私人）：https://claude.ai/artifact/97hLkqveZu8We3he7abNSR 。使用者會在頁面上直接修改，發布前一定先 `read` 最新的 `project/deck.json` 與要改的投影片。目前頁序：method、main、plane、purif、clipiqa、fid、cross、ablation（已改為規劃中的條列）、random、random_median、random_distinct。圖表素材由 paper 從論文輸出到其 scratchpad 的 `deck_assets/`。
+- 實驗總覽 PDF：桌面 `experiment_overview.pdf`（原始檔 `docs/paper_tools/experiment_overview/`）。
+
+## 8. 規範（摘要；全文見根目錄 `CLAUDE.md`、`AGENTS.md` 與專案記憶 `MEMORY.md`）
 
 - 回覆用繁體中文；寫進檔案的文件用客觀、學術語氣，不寫時間相依字眼；報數字用描述性名稱並附協定。
-- 不設判準：數據完整回報，成立與否由使用者判斷；這條也適用於指標。
-- 刪除、覆寫、部署、對外發布、花錢之前先確認；`archive/` 只保存，不刪除。
+- 不設判準；刪除、覆寫、部署、對外發布、花錢前先確認；`archive/` 只保存。
 - 主種子為標準，不跑多種子；訓練不可用任何編輯指令。
-- push 由使用者執行；commit message 用英文。
-- 沒有使用者要求就不派 subagent；派時一次一個、限制輸出長度。
-- 封存：舊的規劃文件（`PAPER.md`、`pseudo_paper.html`、`research_tree.html`）已移到 `archive/paper_planning/`，不再維護。
+- **git push 由 executor 代使用者執行**（使用者 10/29 授權）：baseline／color 回報 commit 號後，確認 fast-forward、.sh 為 LF 再 push，並提醒對方遠端 pull 時不可覆寫執行中的腳本（這台 NFS 上 git 會就地改檔；先建 `queue/PAUSED` 或寫新檔）。
+- GPU：卡數依使用者口頭指定，未指定時全局 ≤ 6；color 優先；監督一律放遠端，不依賴本機排程。
+- 沒有使用者要求不派 subagent；工具呼叫超過約 50 次時主動提議換手。
+- 硬體：`nelson0314@server.basiclab.lab.nycu.edu.tw`，`-p 10101`（basic-1，8 卡）／`-p 10102`（basic-2，7 卡），NFS 共用，repo `~/image-immunization`；FLUX 權重只在 basic-2，UltraEdit／SD3 只在 basic-1。

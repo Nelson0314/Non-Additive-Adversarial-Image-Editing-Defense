@@ -78,7 +78,7 @@ pane 編號會變動，送訊前一律以 multi-agent 的 `list_panes` 依標題
 ## 6. 交付物與進行中的工作
 
 - **桌面 `paper.pdf`**：`run_paper_preview.py` 每次成功編譯後自動覆寫；Overleaf 由使用者整個上傳 `docs/paper/`，不另做壓縮包。
-- **簡報素材**（executor 製作簡報）：前一個 paper session 的 scratchpad `C:\Users\nelso\AppData\Local\Temp\claude\C--image-immunization\edb08373-522b-4130-814d-5e1f4dc8a9d3\scratchpad\deck_assets\`。PNG 為 300 dpi、白底、不含 caption；`captions.md` 為各圖中文摘要；表格 PNG 由 `tables_src/*.tex`（取論文原始碼的表格、相同字型與套件單獨編譯）以遠端 `mutool draw -r 300` 轉出；例子圖 `example_*.png` 由 `generate_teaser_figure.py --image --prompt --name` 產生。**待辦**：VAE-Trans、CLIP-S、CLIP-I、FID 與遷移性讀數填入論文後，重出 Table 1（主表）、Table 2（美學）、Table 3（遷移）的 PNG 到該目錄（或新 session 的 scratchpad，並告訴 executor 新路徑），再通知 executor；簡報由 executor 修改。`supp_clipiqa.png`、`supp_fid.png` 已作廢。
+- **簡報素材**（executor 製作簡報）：正本在遠端 `~/paper_figures/deck_assets/`（含 `tables_src/`）；executor 目前取用的本機副本在前一個 paper session 的 scratchpad `C:\Users\nelso\AppData\Local\Temp\claude\C--image-immunization\edb08373-522b-4130-814d-5e1f4dc8a9d3\scratchpad\deck_assets\`，可能隨 session 清除，重出時以遠端正本為準。PNG 為 300 dpi、白底、不含 caption；`captions.md` 為各圖中文摘要；表格 PNG 由 `tables_src/*.tex`（取論文原始碼的表格、相同字型與套件單獨編譯）以遠端 `mutool draw -r 300` 轉出；例子圖 `example_*.png` 由 `generate_teaser_figure.py --image --prompt --name` 產生。**待辦**：VAE-Trans、CLIP-S、CLIP-I、FID 與遷移性讀數填入論文後，重出 Table 1（主表）、Table 2（美學）、Table 3（遷移）的 PNG 到遠端正本，抓到新 session 的 scratchpad，再把新路徑告訴 executor；簡報由 executor 修改。`supp_clipiqa.png`、`supp_fid.png` 已作廢。
 - **實驗總覽 PDF**：`docs/paper_tools/experiment_overview/experiment_overview.tex`，成品為桌面 `experiment_overview.pdf`（於該目錄 `tectonic -X compile`，再複製）。內容停在 8 張與 Pexels 混合的版本，表格不標紅字、各欄最佳粗體；使用者未再要求更新。
 
 ## 7. 還在等的數字

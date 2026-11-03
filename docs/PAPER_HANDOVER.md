@@ -43,8 +43,8 @@ pane 編號會變動，送訊前一律以 multi-agent 的 `list_panes` 依標題
 
 | 節 | 現況 | 待改 |
 |---|---|---|
-| Abstract | 產品介紹式；結果句一個 `\NUM`（淨化後保留位移相對加性方法的倍數） | 倍數定義與「at matched distortion」待使用者決定 |
-| 1 Introduction | 已寫；貢獻 3 點；一個 `\NUM` | 貢獻第二條同樣有「at matched distortion」 |
+| Abstract | 產品介紹式；結果句為「at matched distortion …1.37 to 2.60 times」：Ours 七道淨化平均編輯 LPIPS 0.291 除以各加性方法的 0.212（DAYN）至 0.112（DCT-Shield），Pexels 306 張、ip2p，不含 VAE-Trans | — |
+| 1 Introduction | 已寫；貢獻 3 點；第二條與摘要同一倍數，指向 4.2 | — |
 | 2 Related Work | 四段 | — |
 | 3 Method | 威脅模型、3D LUT、平滑色度旋轉（式 1–5）、目標（式 6）、最佳化；Fig. 1 | |Δφ| < 3° 為格點上的保證，像素經三線性內插後可能超出，是否註明待使用者決定 |
 | 4.1 Setup | Pexels 306 張用於 Table 1、2、Fig. 2、Fig. 3a；8 張 portraits 用於 Fig. 3b–d、Table 3、4；Metrics 段已含 CLIP-S、CLIP-I、FID | Pexels 選取規則與授權為 `\TODO` |
@@ -57,11 +57,11 @@ pane 編號會變動，送訊前一律以 multi-agent 的 `list_panes` 依標題
 | 6 Conclusion、LLM Usage Statement | `\TODO` | LLM Usage 需使用者提供工具清單 |
 | 補充材料 `sec/X_suppl.tex` | CLIP-IQA 與 FID 表已撤下（使用者 11/3 決定）；未編入 PDF | DISTS、色彩對齊後失真（PSNR、SSIM 已移入 Table 1） |
 
+使用者 11/3 的決定：摘要倍數寫區間（逐一除以各加性方法）；保留「at matched distortion」；Fig. 1 色度盤箭頭用深灰（`disp` 樣式 `black!62`，現行即是）；論文重心等 306 張的同類隨機對照（`color3d_random_matched`）讀數到齊後再定。
+
 待使用者決定的事項：
-1. 摘要 `\NUM` 的倍數定義。
-2. 摘要與貢獻是否保留「at matched distortion」（Pexels 上 Ours 的防禦圖 LPIPS 0.211，加性方法 0.251–0.318）。
-3. 論文重心是否由「對編碼器最佳化」轉向「參數化本身」（同類隨機旋轉與最佳化在 8 張上相近）。
-4. Fig. 1 色度盤箭頭用深灰或 teal；|Δφ| < 3° 在像素層是否註明。
+1. |Δφ| < 3° 在像素層是否註明。
+2. LLM Usage Statement 的工具清單。
 
 ## 5. 已收到的數字與位置
 

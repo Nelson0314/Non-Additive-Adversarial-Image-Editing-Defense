@@ -35,7 +35,8 @@ C_ADDITIVE = "#A94438"
 C_ADDITIVE_LIGHT = "#D9A39C"
 C_OURS = "#1F6F7C"
 C_OURS_LIGHT = "#8FB9C0"
-HIGHLIGHT = "dct_shield_y"  # additive method drawn separately in the survival panel
+HIGHLIGHT = "dct_shield_y"  # additive method drawn separately (native budget; inputs merged by the caller)
+HIGHLIGHT_LABEL = "DCT-Shield-Y (native)"
 SOURCE_MARKER = {"native": "s", "aligned": "o", "aligned_1p255": "o", "plane": "^"}
 
 
@@ -78,7 +79,7 @@ SWEEPS = [
     ("Resize scale", [("resample_roundtrip384", 0.75), ("resample_roundtrip256", 0.5), ("resample_roundtrip128", 0.25)], True),
 ]
 SWEEP_STYLE = {"dia_pt": ("DIA-PT", "o"), "mist": ("Mist", "s"), "photoguard_encoder": ("PhotoGuard", "^"),
-               "dct_shield": ("DCT-Shield", "D")}
+               HIGHLIGHT: (HIGHLIGHT_LABEL, "D")}
 SEED_FLOOR = 0.109  # edit LPIPS between two seeds on the same undefended image (8 portraits x 4 instructions)
 
 
@@ -114,11 +115,14 @@ def purification_figure(survival_rows, sweep_rows, out):
     ax.set_ylabel("Perturbation survival")
     ax.set_title("(a) Perturbation survival", loc="left")
     ax.legend(handles=[Line2D([], [], color=C_ADDITIVE_LIGHT, lw=0.9, marker="o", ms=2.2, label="8 other additive methods"),
-                       Line2D([], [], color=C_ADDITIVE, lw=1.1, marker="D", ms=2.4, label="DCT-Shield-Y"),
+                       Line2D([], [], color=C_ADDITIVE, lw=1.1, marker="D", ms=2.4, label=HIGHLIGHT_LABEL),
                        Line2D([], [], color=C_OURS, lw=1.3, marker="*", ms=5, label="Ours")],
               loc="center left", bbox_to_anchor=(0.0, 0.56), frameon=False, handletextpad=0.3, fontsize=6)
 
     shades = ["#7A2E25", "#A94438", "#C7756B", "#DDA59E"]
+    # panels b-d share one y range (c and d carry no tick labels)
+    top = max(0.48, round(max(sweep[(m, p)] for m in list(SWEEP_STYLE) + [OURS]
+                                for _, settings, _ in SWEEPS for p, _ in settings) + 0.05, 1))
     for ax, (title, settings, reverse), letter in zip(axes[1:], SWEEPS, "bcd"):
         sx = [v for _, v in settings]
         for (method, (name, marker)), shade in zip(SWEEP_STYLE.items(), shades):
@@ -129,7 +133,7 @@ def purification_figure(survival_rows, sweep_rows, out):
         ax.axhline(SEED_FLOOR, color=GRAY, lw=0.6, ls=(0, (1, 1.5)), zorder=1)
         if reverse:
             ax.invert_xaxis()
-        ax.set_ylim(0, 0.48)
+        ax.set_ylim(0, top)
         ax.set_xlabel(title)
         ax.set_title(f"({letter}) Edit LPIPS", loc="left")
         if letter == "b":

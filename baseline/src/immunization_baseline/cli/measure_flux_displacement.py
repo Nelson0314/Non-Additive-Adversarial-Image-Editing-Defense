@@ -52,6 +52,8 @@ def main() -> None:
     ap.add_argument("--edits-root", type=Path, default=layout.FLUX_EDITS,
                     help="逐 arm 的編輯影像根目錄")
     ap.add_argument("--conditions", nargs="+", default=CONDITIONS)
+    ap.add_argument("--resolution", type=int, default=RESOLUTION,
+                    help="讀圖解析度；預設為 1024 版的輸出解析度，512 協定（flux_512）給 512")
     args = ap.parse_args()
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -72,13 +74,13 @@ def main() -> None:
                 raise SystemExit(f"分母缺這一格：{condition} {key}")
             a = load_image_tensor(args.edits_root / "undefended" /
                                   f"{row['image']}__p{row['prompt_index']}.png",
-                                  device, size=RESOLUTION)
+                                  device, size=args.resolution)
             b = load_image_tensor(args.edits_root / condition /
                                   f"{row['image']}__p{row['prompt_index']}.png",
-                                  device, size=RESOLUTION)
+                                  device, size=args.resolution)
             mask_path = mdir / f"{row['image']}.png"
             mask = subject_mask(
-                load_image_tensor(mask_path, device, size=RESOLUTION)[:, :1])
+                load_image_tensor(mask_path, device, size=args.resolution)[:, :1])
             with torch.no_grad():
                 pair = suite.pairwise(a, b)
                 split = split_displacement(regional, a, b, mask)

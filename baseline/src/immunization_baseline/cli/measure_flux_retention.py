@@ -7,7 +7,7 @@
 
 未淨化位移讀 `measure_flux_displacement` 的 CSV（`disp_lpips_full`）；淨化後兩側皆經同一淨化，分母取自
 `<--undefended-root>/undefended/<算子>/`（預設與淨化根相同）。遮罩、SigLIP 門檻與欄位與 `pipelines.retention` 相同，
-幾何算子的遮罩經 `purified_mask()` 與影像同步變換；解析度為 FLUX 輸出的 1024。
+幾何算子的遮罩經 `purified_mask()` 與影像同步變換；解析度預設為 1024 版的 FLUX 輸出，512 協定以 `--resolution 512` 指定。
 
 用法（遠端 baseline 專案根，CPU 或 GPU 皆可）：
     python -m immunization_baseline.cli.measure_flux_retention --purified-edits-root artifacts/flux/purified_edits \\
@@ -49,6 +49,8 @@ def main() -> None:
     ap.add_argument("--output-csv", dest="out", type=Path, required=True)
     ap.add_argument("--conditions", nargs="+", default=None, help="預設為淨化根下全部非未防禦的條件目錄")
     ap.add_argument("--purifiers", nargs="+", default=None, help="預設為各條件目錄下的全部算子目錄")
+    ap.add_argument("--resolution", type=int, default=RESOLUTION,
+                    help="讀圖解析度；預設為 1024 版的輸出解析度，512 協定（flux_512）給 512")
     args = ap.parse_args()
     undefended_root = args.undefended_root or args.purified_root
 
@@ -79,10 +81,10 @@ def main() -> None:
                     raise SystemExit(f"缺檔：{a if not a.is_file() else b}；淨化後的兩側必須齊全")
                 if (name, purifier) not in masks:
                     repaint = load_image_tensor(args.data / "masks" / f"{name}.png",
-                                                device, size=RESOLUTION)[:, :1]
+                                                device, size=args.resolution)[:, :1]
                     masks[(name, purifier)] = purified_mask(subject_mask(repaint), purifier)
-                xa = load_image_tensor(a, device, size=RESOLUTION)
-                xb = load_image_tensor(b, device, size=RESOLUTION)
+                xa = load_image_tensor(a, device, size=args.resolution)
+                xb = load_image_tensor(b, device, size=args.resolution)
                 with torch.no_grad():
                     split = split_displacement(regional, xa, xb, masks[(name, purifier)])
                     similar = suite.image_similarity(xa, xb)

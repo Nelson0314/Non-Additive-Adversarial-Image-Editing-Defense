@@ -7,7 +7,8 @@ runtime/pexels_portraits/followup/<根>/results/<aligned|color3d>/semantic_ident
 輸出：同目錄的 arcface_pair.csv。
 `--without-vae-trans` 時只讀 semantic_identity.csv（未淨化與七道）。
 通用輸入：`--semantic-csv <CSV>... --output-csv <CSV>`（measure_semantic_identity 的輸出，含 undefended 列）取代影像組。
-用法（遠端 baseline 專案根）：python scripts/measure_pexels_arcface_pair.py <影像組> [--without-vae-trans]
+`--color3d-group color3d_<變體>` 時只做該分組（results/<分組>/）。
+用法（遠端 baseline 專案根）：python scripts/measure_pexels_arcface_pair.py <影像組> [--without-vae-trans] [--color3d-group <分組>]
 """
 import argparse
 import csv
@@ -25,12 +26,19 @@ def read(path):
         return list(csv.DictReader(f))
 
 
+def groups_of(color3d_group):
+    if color3d_group != "color3d" and not color3d_group.startswith("color3d_"):
+        raise SystemExit(f"--color3d-group 須為 color3d 或 color3d_<變體>：{color3d_group}")
+    return ("aligned", "color3d") if color3d_group == "color3d" else (color3d_group,)
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("image_set", nargs="?")
     ap.add_argument("--semantic-csv", nargs="*", default=[], type=Path)
     ap.add_argument("--output-csv", type=Path, default=None)
     ap.add_argument("--without-vae-trans", action="store_true")
+    ap.add_argument("--color3d-group", default="color3d", help="color3d（預設，與等失真 aligned 一起）或 color3d_<變體>（只做該分組，條件為 <分組>_pexels）")
     args = ap.parse_args()
     if args.semantic_csv and args.output_csv is None or bool(args.semantic_csv) == bool(args.image_set):
         ap.error("給影像組，或給 --semantic-csv 與 --output-csv")
@@ -48,7 +56,7 @@ def main():
         sets = {s["name"]: s for s in json.loads(Path("data/pexels_portraits/image_sets.json").read_text(encoding="utf-8"))["sets"]}
         base = Path("runtime/pexels_portraits/followup") / sets[args.image_set]["root"] / "results"
         jobs = []
-        for group in ("aligned", "color3d"):
+        for group in groups_of(args.color3d_group):
             rows = read(base / group / "semantic_identity.csv")
             if not args.without_vae_trans:
                 rows += read(base / group / "semantic_identity_vae_trans.csv")

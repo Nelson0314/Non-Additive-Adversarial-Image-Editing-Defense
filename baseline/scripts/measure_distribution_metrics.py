@@ -58,9 +58,10 @@ def portraits_groups():
         yield c, "displacement", "vae_trans", cells(vae / f"ip2p_{c}_vae_trans"), cells(vae / "ip2p_undefended_vae_trans")
 
 
-def pexels_groups(with_vae_trans=True):
+def pexels_groups(with_vae_trans=True, color3d_group="color3d"):
     """Pexels 人像：等失真臂（artifacts/pexels_portraits/aligned/，第一批與 sets/<影像組>/）與 color3d_pexels（color trial
-    artifacts_pexels/），只取兩側檔案都存在的格；VAE-Trans 取 artifacts/pexels_portraits/vae_trans/<根>/（scripts/evaluate_pexels_followup.sh）。"""
+    artifacts_pexels/），只取兩側檔案都存在的格；VAE-Trans 取 artifacts/pexels_portraits/vae_trans/<根>/（scripts/evaluate_pexels_followup.sh）。
+    color3d_group 為 color3d_<變體> 時只建該分組（條件 <分組>_pexels，組名為分組名），不含等失真臂。"""
     base = Path("artifacts/pexels_portraits")
     roots = [(base / "aligned", base, base / "vae_trans")] + [
         (base / "aligned" / "sets" / s.name, base / "sets" / s.name, base / "vae_trans" / "sets" / s.name)
@@ -79,7 +80,7 @@ def pexels_groups(with_vae_trans=True):
             groups[(c, end, purifier)][0].append(a)
             groups[(c, end, purifier)][1].append(b)
 
-    for aroot, uroot, vroot in roots:
+    for aroot, uroot, vroot in roots if color3d_group == "color3d" else ():
         if not (aroot / "defenses").is_dir():
             continue
         for cdir in sorted((aroot / "defenses").iterdir()):
@@ -98,20 +99,21 @@ def pexels_groups(with_vae_trans=True):
                         add(c, "displacement", "vae_trans",
                         vroot / "aligned/purified_edits" / c / "vae_trans" / f"ip2p_{c}_vae_trans" / f"{im}__p{p}.png",
                         vae_denominator(vroot, im, p))
-    cp, n = CT.parent / "artifacts_pexels", "color3d_pexels"
+    cp, g = CT.parent / "artifacts_pexels", color3d_group
+    n = f"{g}_pexels"
     for shard in sorted((cp / "defense_shards" / n).iterdir()):
         im = shard.name
-        add("color3d", "distortion", "", shard / f"{im}__{n}__def.png", shard / f"{im}__orig.png")
+        add(g, "distortion", "", shard / f"{im}__{n}__def.png", shard / f"{im}__orig.png")
         e = cp / "edits_by_image" / n / im
         for p in PROMPTS:
-            add("color3d", "displacement", "none", e / "defended" / f"ip2p_{n}" / f"{im}__p{p}.png",
+            add(g, "displacement", "none", e / "defended" / f"ip2p_{n}" / f"{im}__p{p}.png",
                 cp / "undefended_edits" / "ip2p_si18" / f"{im}__p{p}.png")
             for op in PURIFIERS:
-                add("color3d", "displacement", op, e / "purified" / op / f"ip2p_{n}_{op}" / f"{im}__p{p}.png",
+                add(g, "displacement", op, e / "purified" / op / f"ip2p_{n}_{op}" / f"{im}__p{p}.png",
                     cp / "purified_edits" / "undefended" / op / f"ip2p_undefended_{op}" / f"{im}__p{p}.png")
             if with_vae_trans:
-                add("color3d", "displacement", "vae_trans",
-                vae_root[im] / "color3d/purified_edits" / n / "vae_trans" / f"ip2p_{n}_vae_trans" / f"{im}__p{p}.png",
+                add(g, "displacement", "vae_trans",
+                vae_root[im] / g / "purified_edits" / n / "vae_trans" / f"ip2p_{n}_vae_trans" / f"{im}__p{p}.png",
                 vae_denominator(vae_root[im], im, p))
     for (c, end, purifier), (a, b) in sorted(groups.items()):
         yield c, end, purifier, a, b
@@ -132,6 +134,7 @@ def main():
     ap.add_argument("--pairs-csv", type=Path, default=None,
                     help="通用輸入：欄 condition、end、purifier、a_png、b_png，每列一對；給定時取代 --dataset 的組（--dataset 只決定輸出檔名）")
     ap.add_argument("--without-vae-trans", action="store_true", help="Pexels 不建 VAE-Trans 組")
+    ap.add_argument("--color3d-group", default="color3d", help="Pexels：" + "color3d（預設，與等失真 aligned 一起）或 color3d_<變體>（只做該分組，條件為 <分組>_pexels）")
     ap.add_argument("--require-images", type=int, default=None, help="每組的影像數須為此值，否則失敗（合併時）")
     ap.add_argument("--tag", default="", help="分片檔名的附加段（<dataset>_features_<tag>_<i>.pt）；已存在的分片檔中有的影像不重算")
     args = ap.parse_args()
@@ -147,7 +150,7 @@ def main():
                 grouped[key][1].append(Path(r["b_png"]))
         groups = [(c, e, p, a, b) for (c, e, p), (a, b) in sorted(grouped.items())]
     else:
-        groups = list(portraits_groups() if args.dataset == "portraits" else pexels_groups(not args.without_vae_trans))
+        groups = list(portraits_groups() if args.dataset == "portraits" else pexels_groups(not args.without_vae_trans, args.color3d_group))
     missing = [str(p) for g in groups for p in g[3] + g[4] if not Path(p).is_file()]
     if missing:
         raise SystemExit(f"缺 {len(missing)} 個檔案，例如 {missing[:3]}")

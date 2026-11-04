@@ -9,7 +9,9 @@
 
 另一種輸入 `--pairs-csv`：measure_distribution_metrics 的配對表（condition、end、purifier、a_png＝E_d、b_png＝E_u），輸出寫到 `--output-csv`。
 
-用法（遠端 baseline 專案根，CPU）：python scripts/measure_pexels_edit_fidelity.py <seven|vae_trans> [--workers N]
+`--color3d-group color3d_<變體>` 時只做該分組（results/<分組>/，未淨化格以 color trial results/<分組>_pexels/displacement.csv 核對）。
+
+用法（遠端 baseline 專案根，CPU）：python scripts/measure_pexels_edit_fidelity.py <seven|vae_trans> [--workers N] [--color3d-group <分組>]
                                   python scripts/measure_pexels_edit_fidelity.py pairs --pairs-csv <檔> --output-csv <檔> [--workers N]
 """
 import argparse
@@ -69,8 +71,8 @@ def plan(semantic_csv):
 
 def displacement_reference(sub, group):
     """未淨化格的位移表值：(條件, 影像, 句) -> (disp_ssim, disp_psnr)。"""
-    if group == "color3d":
-        paths = [CT / "results/color3d_pexels/displacement.csv"]
+    if group == "color3d" or group.startswith("color3d_"):
+        paths = [CT / f"results/{group}_pexels/displacement.csv"]
     else:
         R = Path("runtime/pexels_portraits/aligned") / sub / "results"
         paths = sorted(R.glob("displacement_*.csv"))
@@ -113,7 +115,11 @@ def main():
     ap.add_argument("--workers", type=int, default=16)
     ap.add_argument("--pairs-csv", type=Path)
     ap.add_argument("--output-csv", type=Path)
+    ap.add_argument("--color3d-group", default="color3d", help="color3d（預設，與等失真 aligned 一起）或 color3d_<變體>（只做該分組，條件為 <分組>_pexels）")
     args = ap.parse_args()
+    if args.color3d_group != "color3d" and not args.color3d_group.startswith("color3d_"):
+        ap.error(f"--color3d-group 須為 color3d 或 color3d_<變體>：{args.color3d_group}")
+    groups = ("aligned", "color3d") if args.color3d_group == "color3d" else (args.color3d_group,)
     if args.part == "pairs":
         if not (args.pairs_csv and args.output_csv):
             ap.error("pairs 需要 --pairs-csv 與 --output-csv")
@@ -128,7 +134,7 @@ def main():
         for s in sets:
             sub = Path(s["root"]) if s["root"] else Path()
             F = Path("runtime/pexels_portraits/followup") / sub / "results"
-            for group in ("aligned", "color3d"):
+            for group in groups:
                 cells = plan(F / group / source)
                 pairs = [(c["undefended_png"], c["defended_png"]) for c in cells]
                 chunks = [pairs[i::args.workers] for i in range(args.workers)]

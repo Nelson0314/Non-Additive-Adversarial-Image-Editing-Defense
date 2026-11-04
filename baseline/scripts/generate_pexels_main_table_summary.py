@@ -34,7 +34,10 @@
 `--without-vae-trans` 時不讀 VAE-Trans 與 CLIP-S 的來源，這些欄留空，其餘檢查不變。
 
 輸出：runtime/pexels_portraits/summary/{main_table.csv,main_table_supplementary.csv,per_purifier.csv,distribution_groups.csv,README.md}
-用法（遠端 baseline 專案根）：python scripts/generate_pexels_main_table_summary.py [--without-vae-trans]
+`--color3d-group color3d_<變體>` 時只彙整條件 <分組>_pexels 一列（原圖美學列照常）：color trial results/<分組>_pexels/、
+    followup/<根>/results/<分組>/、followup/<根>/results/clip_score_<分組>.csv、followup/results/<分組>_all/survival_seven.csv、
+    summary/<分組>/distribution_metrics/pexels_distribution.csv，輸出到 runtime/pexels_portraits/summary/<分組>/。
+用法（遠端 baseline 專案根）：python scripts/generate_pexels_main_table_summary.py [--without-vae-trans] [--color3d-group <分組>]
 """
 import argparse
 import csv
@@ -47,14 +50,13 @@ from pathlib import Path
 N_IMAGES = 306
 SEVEN = ("blur1", "blur2", "crop_resize0.1", "jpeg30", "jpeg50", "jpeg80", "rotate15")
 ALIGNED = ("mist", "dia_pt", "sifm", "dia_r", "dct_shield_y", "dct_shield", "dayn", "danp", "photoguard_encoder")
-COLOR3D = "color3d_pexels"
 FIDELITY = ("lpips", "ssim", "psnr")
 AESTHETIC_MAIN = ("aes_laion", "aes_musiq_ava")
 AESTHETIC_SUPPLEMENTARY = ("aes_nima", "aes_topiq_iaa", "aes_clipiqa", "aes_niqe", "aes_brisque")
 T_0975_DF6 = 2.446912   # Student t 分布 0.975 分位，自由度 6
 Z_0975 = 1.96
 CT = Path("../color/trials/lut3d_defense_and_naturalness")
-OUT = Path("runtime/pexels_portraits/summary")
+SUMMARY = Path("runtime/pexels_portraits/summary")
 
 
 def read(path):
@@ -120,9 +122,17 @@ def blank(target, name):
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--without-vae-trans", action="store_true")
-    vae = not ap.parse_args().without_vae_trans
+    ap.add_argument("--color3d-group", default="color3d", help="color3d（預設，與等失真 aligned 一起）或 color3d_<變體>（只做該分組，條件為 <分組>_pexels）")
+    args = ap.parse_args()
+    vae = not args.without_vae_trans
+    group3 = args.color3d_group
+    if group3 != "color3d" and not group3.startswith("color3d_"):
+        ap.error(f"--color3d-group 須為 color3d 或 color3d_<變體>：{group3}")
+    COLOR3D = f"{group3}_pexels"
+    OUT = SUMMARY if group3 == "color3d" else SUMMARY / group3
+    clip_score_csv = "clip_score.csv" if group3 == "color3d" else f"clip_score_{group3}.csv"
     sets = json.loads(Path("data/pexels_portraits/image_sets.json").read_text(encoding="utf-8"))["sets"]
-    conditions = ALIGNED + (COLOR3D,)
+    conditions = ALIGNED + (COLOR3D,) if group3 == "color3d" else (COLOR3D,)
     fidelity = {c: {} for c in conditions}            # 影像 -> {lpips, ssim, psnr}
     aesthetic = {c: {} for c in conditions}           # 影像 -> 列
     # metric[(指標, 條件, none|seven|vae_trans)] = {(影像, 句, 道): 值}；survival 的鍵為 (影像, 道)
@@ -143,11 +153,11 @@ def main():
         metric[("disp", c, kind)][key] = float(row["disp_purified"])
         metric[("retained", c, kind)][key] = float(row["retained"])
 
-    for row in read(CT / "results/color3d_pexels/displacement.csv"):
+    for row in read(CT / f"results/{COLOR3D}/displacement.csv"):
         add_displacement(COLOR3D, row)
-    for row in read(CT / "results/color3d_pexels/retention.csv"):
+    for row in read(CT / f"results/{COLOR3D}/retention.csv"):
         add_retention(COLOR3D, row, "seven")
-    for row in read("runtime/pexels_portraits/followup/results/color3d_all/survival_seven.csv"):
+    for row in read(f"runtime/pexels_portraits/followup/results/{group3}_all/survival_seven.csv"):
         metric[("survival", COLOR3D, "seven")][(row["image"], row["purifier"])] = float(row["survival"])
 
     for s in sets:
@@ -170,13 +180,13 @@ def main():
             for row in read(R / f"retention_{c}.csv"):
                 if row["scenario"] == "ip2p" and row["purifier"] in SEVEN:
                     add_retention(c, row, "seven")
-        for row in read(F / "color3d/fidelity.csv"):
+        for row in read(F / group3 / "fidelity.csv"):
             if row["condition"] == COLOR3D:
                 fidelity[COLOR3D][row["image"]] = {k: float(row[f"fid_{k}"]) for k in FIDELITY}
-        for row in read(F / "color3d/aesthetic.csv"):
+        for row in read(F / group3 / "aesthetic.csv"):
             if row["condition"] == COLOR3D:
                 aesthetic[COLOR3D][row["image"]] = row
-        for group, members in (("aligned", ALIGNED), ("color3d", (COLOR3D,))):
+        for group, members in ((("aligned", ALIGNED),) if group3 == "color3d" else ()) + ((group3, (COLOR3D,)),):
             for c in members if vae else ():
                 for row in read(F / group / f"retention_vae_trans_{c}.csv"):
                     if row["scenario"] == "ip2p":
@@ -204,10 +214,10 @@ def main():
                     float(row["arcface_pair"]) if row["arcface_pair"] != "" else None)
         for row in read(F / "aligned/survival_seven.csv"):
             metric[("survival", row["condition"], "seven")][(row["image"], row["purifier"])] = float(row["survival"])
-        for group in ("aligned", "color3d") if vae else ():
+        for group in (("aligned",) if group3 == "color3d" else ()) + (group3,) if vae else ():
             for row in read(F / group / "survival_vae_trans.csv"):
                 metric[("survival", row["condition"], "vae_trans")][(row["image"], row["purifier"])] = float(row["survival"])
-        for row in read(F / "clip_score.csv") if vae else ():
+        for row in read(F / clip_score_csv) if vae else ():
             if row["condition"] in conditions:
                 metric[("clip_s", row["condition"], kind_of(row["purifier"]))][
                     (row["image"], row["prompt_index"], row["purifier"])] = float(row["clip_s"])
@@ -215,7 +225,7 @@ def main():
     groups = read(OUT / "distribution_metrics/pexels_distribution.csv")
     distribution = defaultdict(dict)
     for row in groups:
-        c = COLOR3D if row["condition"] == "color3d" else row["condition"]
+        c = COLOR3D if row["condition"] == group3 else row["condition"]
         distribution[c]["distortion" if row["end"] == "distortion" else row["purifier"]] = row
 
     n_cells = N_IMAGES * 4
@@ -319,7 +329,7 @@ def main():
     (OUT / "README.md").write_text(
         f"# Pexels 主表彙整\n\n由 `scripts/generate_pexels_main_table_summary.py` 產生；欄的定義、平均與區間的算法見該程式開頭。\n\n"
         + ("" if vae else "- 本版不含 VAE-Trans 與 CLIP-S：`*_vae_trans`、`clip_s_*` 欄留空。\n") +
-        f"- 資料組：Pexels 人像 {N_IMAGES} 張；等失真九個條件與 `color3d_pexels`；ip2p、四句、主種子。\n"
+        f"- 資料組：Pexels 人像 {N_IMAGES} 張；{'等失真九個條件與 ' if group3 == 'color3d' else ''}`{COLOR3D}`；ip2p、四句、主種子。\n"
         f"- `main_table.csv`：每條件一列；`<欄>_std`、`<欄>_ci95` 七道欄為跨 7 道、其餘為跨影像；末列 `original` 為原圖美學。\n"
         f"- `main_table_supplementary.csv`：防禦圖 SSIM／PSNR、其餘美學、Weakest、防禦圖對原圖的 FID／KID、CLIP-IQA。\n"
         f"- `per_purifier.csv`：每條件逐道的平均（七道欄的 7 個值）與 FID、KID。\n"

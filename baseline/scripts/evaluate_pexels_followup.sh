@@ -8,7 +8,9 @@
 #   aligned     等失真九個條件：scripts/evaluate_pexels_aligned.sh 的八個（需該影像組的 chain.done）與
 #               photoguard_encoder（scripts/evaluate_pexels_aligned_condition.sh；需 chain_photoguard_encoder.done）
 #   color3d     color 專案的 color3d_pexels（color trial artifacts_pexels/，只讀）；需該影像組每張影像的四句編輯
-# native、aligned、color3d 需 undefended 已完成（done/undefended.done）。前置條件不成立時以結束碼 4 結束。
+#   color3d_<變體>  color 專案的 color3d_<變體>_pexels（例如 color3d_scale2p5 → color3d_scale2p5_pexels），流程與輸出版面同 color3d，
+#               各路徑中的分組名換成本分組名；需 color trial 已合併的 defenses/<條件>/ 與 results/<條件>/displacement.csv
+# native、aligned、color3d* 需 undefended 已完成（done/undefended.done）。前置條件不成立時以結束碼 4 結束。
 #
 # 協定：VAE-Trans 為 `apply_vae_trans`（encoder 為 color trial 訓練的 artifacts/purification/vae_trans/model/encoder.pt，
 # 與跨模型移植相同）；編輯同原生評測（ip2p_si18，四句，主種子）；語意與身分為 `measure_semantic_identity --device cuda`
@@ -18,20 +20,20 @@
 #   產物  artifacts/pexels_portraits/vae_trans/<根>/inputs/<分組>/<條件>/vae_trans/ip2p_<條件>_vae_trans/
 #             （`<影像>__orig.png` 為 apply_vae_trans 的輸出；`<影像>__vae_trans__def.png` 為同一檔案的硬連結，供 run_edits 讀取）
 #         artifacts/pexels_portraits/vae_trans/<根>/<分組>/purified_edits/<條件>/vae_trans/ip2p_<條件>_vae_trans/
-#             （分母在 native/purified_edits/undefended/；aligned、color3d 的 purified_edits/undefended 為指向它的相對符號連結）
+#             （分母在 native/purified_edits/undefended/；aligned、color3d* 的 purified_edits/undefended 為指向它的相對符號連結）
 #   狀態  runtime/pexels_portraits/followup/<根>/done/
 #   讀數  runtime/pexels_portraits/followup/<根>/results/<分組>/
 #           vae_trans_fidelity_<條件>.csv  VAE-Trans 淨化圖對淨化前輸入的 PSNR 與 LPIPS
 #           retention_vae_trans_<條件>.csv  VAE-Trans 淨化後的編輯結果 LPIPS（measure_purified_displacement）
 #           semantic_identity.csv           未淨化與七道（含 undefended 列）
 #           semantic_identity_vae_trans.csv VAE-Trans（含 undefended 列）
-#         color3d 另有 displacement_color3d_pexels.csv：color 的 results/color3d_pexels/displacement.csv 中本影像組的列，
+#         color3d* 另有 displacement_<條件>.csv：color 的 results/<條件>/displacement.csv 中本影像組的列，
 #         影像路徑加上 `../color/` 前綴（相對 baseline 專案根）。
 #
 # 用法（遠端 baseline 專案根；CUDA_VISIBLE_DEVICES 由呼叫端的租約設定）：
-#   ENV_FILE=~/env.sh bash scripts/evaluate_pexels_followup.sh <影像組> <undefended|native|aligned|color3d>
+#   ENV_FILE=~/env.sh bash scripts/evaluate_pexels_followup.sh <影像組> <undefended|native|aligned|color3d|color3d_<變體>>
 set -uo pipefail
-[ $# -eq 2 ] || { echo "用法：$0 <影像組> <undefended|native|aligned|color3d>" >&2; exit 2; }
+[ $# -eq 2 ] || { echo "用法：$0 <影像組> <undefended|native|aligned|color3d|color3d_<變體>>" >&2; exit 2; }
 SET=$1 GROUP=$2
 source "$(dirname "${BASH_SOURCE[0]}")/env.sh" || exit 1
 cd "$BASELINE_ROOT" || exit 1
@@ -186,19 +188,20 @@ run_group() {
       done
       semantic aligned "${tables[@]}" || return 1
       ;;
-    color3d)
+    color3d|color3d_*)
       [ -f "$F/done/undefended.done" ] || not_ready "$SET 的 VAE-Trans 分母"
-      link_denominator color3d || return 1
-      c=color3d_pexels
-      # 本影像組的 color3d_pexels 防禦圖與原圖：指向 color trial 交付 PNG 的符號連結（只讀）
-      mkdir -p "$V/color3d/defenses/$c" || return 1
+      c=${GROUP}_pexels
+      [ -f "$CT/results/$c/displacement.csv" ] || not_ready "color trial 的 results/$c/displacement.csv"
+      link_denominator "$GROUP" || return 1
+      # 本影像組的防禦圖與原圖：指向 color trial 交付 PNG 的符號連結（只讀）
+      mkdir -p "$V/$GROUP/defenses/$c" || return 1
       for im in $IMAGES; do
         for f in "${im}__${c}__def.png" "${im}__orig.png"; do
           [ -f "$CP/defenses/$c/$f" ] || { echo "[FATAL] 缺 $CP/defenses/$c/$f" >&2; return 1; }
-          ln -sfn "$BASELINE_ROOT/$CP/defenses/$c/$f" "$V/color3d/defenses/$c/$f" || return 1
+          ln -sfn "$BASELINE_ROOT/$CP/defenses/$c/$f" "$V/$GROUP/defenses/$c/$f" || return 1
         done
       done
-      "$PY" - "$CT/results/color3d_pexels/displacement.csv" "$R/displacement_$c.csv" $IMAGES <<'EOF' || return 1
+      "$PY" - "$CT/results/$c/displacement.csv" "$R/displacement_$c.csv" $IMAGES <<'EOF' || return 1
 import csv, sys
 src, out, images = sys.argv[1], sys.argv[2], set(sys.argv[3:])
 rows = [r for r in csv.DictReader(open(src, encoding="utf-8")) if r["image"] in images and r["scenario"] == "ip2p"]
@@ -211,9 +214,9 @@ with open(out, "w", newline="", encoding="utf-8") as f:
     w = csv.DictWriter(f, fieldnames=list(rows[0]), lineterminator="\n"); w.writeheader(); w.writerows(rows)
 print(f"[SUBSET] {out}（{len(rows)} 列）")
 EOF
-      vae_trans_arm color3d "$c" "$V/color3d/defenses/$c" || return 1
-      vae_trans_retention color3d "$c" "$R/displacement_$c.csv" || return 1
-      semantic color3d "$R/displacement_$c.csv" || return 1
+      vae_trans_arm "$GROUP" "$c" "$V/$GROUP/defenses/$c" || return 1
+      vae_trans_retention "$GROUP" "$c" "$R/displacement_$c.csv" || return 1
+      semantic "$GROUP" "$R/displacement_$c.csv" || return 1
       ;;
     *) echo "[FATAL] 未知的分組 $GROUP" >&2; exit 2 ;;
   esac

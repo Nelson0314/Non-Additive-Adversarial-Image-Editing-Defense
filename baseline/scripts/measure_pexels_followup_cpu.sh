@@ -9,10 +9,15 @@
 # 輸出：runtime/pexels_portraits/followup/<根>/results/<aligned|color3d>/（edit_aesthetic.csv；color3d 另有
 # fidelity.csv、aesthetic.csv）；edit_aesthetic 的輸入為該組各條件位移表的合併（edit_aesthetic_plan.csv）。
 #
-# 用法（遠端 baseline 專案根，不需 GPU）：ENV_FILE=~/env.sh bash scripts/measure_pexels_followup_cpu.sh <影像組>
+# COLOR3D_GROUP＝color3d_<變體>（預設 color3d）時只做該分組（條件 color3d_<變體>_pexels）的 edit_aesthetic、fidelity、aesthetic，
+# 前置條件為 evaluate_pexels_followup.sh 的該分組，完成標記為 done/cpu_<分組>.done；等失真臂不重做。
+# 用法（遠端 baseline 專案根，不需 GPU）：[COLOR3D_GROUP=<分組>] ENV_FILE=~/env.sh bash scripts/measure_pexels_followup_cpu.sh <影像組>
 set -uo pipefail
 [ $# -eq 1 ] || { echo "用法：$0 <影像組>" >&2; exit 2; }
 SET=$1
+G=${COLOR3D_GROUP:-color3d}
+case $G in color3d|color3d_*) ;; *) echo "[FATAL] COLOR3D_GROUP 須為 color3d 或 color3d_<變體>：$G" >&2; exit 2 ;; esac
+C3=${G}_pexels
 source "$(dirname "${BASH_SOURCE[0]}")/env.sh" || exit 1
 cd "$BASELINE_ROOT" || exit 1
 source scripts/run_evaluation_chain.sh
@@ -34,7 +39,7 @@ mkdir -p "$F/done"
 not_ready() { chain_step "前置條件不成立：$*"; exit 4; }
 [ -f "$AS/chain.done" ] || not_ready "等失真 $SET"
 [ -f "$AS/chain_photoguard_encoder.done" ] || not_ready "等失真 $SET 的 photoguard_encoder"
-[ -f "$F/done/color3d.done" ] || not_ready "$SET 的 color3d 分組（evaluate_pexels_followup.sh）"
+[ -f "$F/done/$G.done" ] || not_ready "$SET 的 $G 分組（evaluate_pexels_followup.sh）"
 
 edit_aesthetic() {  # <分組> <位移表...>
   local group=$1 R=$F/results/$1; shift
@@ -54,18 +59,20 @@ EOF
   touch "$F/done/edit_aesthetic_$group.done"
 }
 
-chain_step "後續量測 CPU $SET"
-aligned=()
-for c in $ALIGNED_CONDITIONS; do aligned+=("$AS/results/displacement_$c.csv"); done
-edit_aesthetic aligned "${aligned[@]}" || exit 1
-edit_aesthetic color3d "$F/results/color3d/displacement_color3d_pexels.csv" || exit 1
-if [ ! -f "$F/done/color3d_fidelity.done" ]; then
-  chain_step "color3d_pexels 防禦圖失真與美學"
-  "$PY" -m $CHAIN_CLI.measure_additional_metrics --stage fidelity \
-      --defenses-root "$V/color3d/defenses" --output-dir "$F/results/color3d" || exit 1
-  "$PY" -m $CHAIN_CLI.measure_additional_metrics --stage aesthetic \
-      --defenses-root "$V/color3d/defenses" --output-dir "$F/results/color3d" || exit 1
-  touch "$F/done/color3d_fidelity.done"
+chain_step "後續量測 CPU $SET $G"
+if [ "$G" = color3d ]; then
+  aligned=()
+  for c in $ALIGNED_CONDITIONS; do aligned+=("$AS/results/displacement_$c.csv"); done
+  edit_aesthetic aligned "${aligned[@]}" || exit 1
 fi
-touch "$F/done/cpu.done"
-chain_step "FOLLOWUP CPU DONE $SET"
+edit_aesthetic "$G" "$F/results/$G/displacement_$C3.csv" || exit 1
+if [ ! -f "$F/done/${G}_fidelity.done" ]; then
+  chain_step "$C3 防禦圖失真與美學"
+  "$PY" -m $CHAIN_CLI.measure_additional_metrics --stage fidelity \
+      --defenses-root "$V/$G/defenses" --output-dir "$F/results/$G" || exit 1
+  "$PY" -m $CHAIN_CLI.measure_additional_metrics --stage aesthetic \
+      --defenses-root "$V/$G/defenses" --output-dir "$F/results/$G" || exit 1
+  touch "$F/done/${G}_fidelity.done"
+fi
+if [ "$G" = color3d ]; then touch "$F/done/cpu.done"; else touch "$F/done/cpu_$G.done"; fi
+chain_step "FOLLOWUP CPU DONE $SET $G"

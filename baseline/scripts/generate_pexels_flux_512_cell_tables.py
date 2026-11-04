@@ -10,8 +10,10 @@
 - `plain/edits_<條件>.csv`：只含淨化前的格，供 measure_flux_displacement（`--edits-csv-dir`）
 - `pairs.csv`：欄 condition、end、purifier、a_png（防禦後編輯）、b_png（同一淨化的未防禦編輯），供 measure_distribution_metrics 與編輯端 SSIM／PSNR
 任一條件格數不齊、格重複、影像缺檔或指令與未防禦不同時失敗。
-用法（遠端 baseline 專案根，CPU）：python scripts/generate_pexels_flux_512_cell_tables.py
+`--images-file` 指定影像清單（每行或以空白分隔的影像名，預設為 flux.txt 的 50 張），格數依清單張數檢查。
+用法（遠端 baseline 專案根，CPU）：python scripts/generate_pexels_flux_512_cell_tables.py [--images-file <檔>]
 """
+import argparse
 import csv
 from pathlib import Path
 
@@ -58,7 +60,11 @@ def collect(condition, images):
 
 
 def main():
-    images = (CT / "pexels_subsets/flux.txt").read_text(encoding="utf-8").split()
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--images-file", type=Path, default=CT / "pexels_subsets/flux.txt")
+    images = ap.parse_args().images_file.read_text(encoding="utf-8").split()
+    if not images or len(set(images)) != len(images):
+        raise SystemExit("影像清單為空或有重複")
     cells = {}
     for c in (UNDEFENDED, *CONDITIONS):
         data = collect(c, images)

@@ -9,10 +9,11 @@ color3d_pexels 為 runtime/pexels_portraits/followup/<根>/results/color3d/。
     七道欄：7 個逐道平均的平均，_std 為其樣本標準差，_ci95＝t(0.975, 6)·s_p／√7
     其餘欄：逐格平均，_std 為逐張值（4 句平均）的影像間標準差，_ci95＝1.96·s／√n（n＝50；ArcFace 為有臉影像數）
     fid_seven、kid_seven：7 組各自的值，同七道規則；fid_none、fid_vae_trans 無區間
-任一條件的影像數不是 50 或格數不齊時失敗。
+`--images-file` 指定影像清單（預設 flux.txt 的 50 張）；任一條件的影像數不等於清單張數或格數不齊時失敗。
 輸出 runtime/pexels_portraits/flux_512/readouts/summary.csv 與 per_purifier.csv。
-用法（遠端 baseline 專案根）：python scripts/generate_pexels_flux_512_summary.py
+用法（遠端 baseline 專案根）：python scripts/generate_pexels_flux_512_summary.py [--images-file <檔>]
 """
+import argparse
 import csv
 import glob
 import json
@@ -28,7 +29,6 @@ COLOR3D = "color3d_pexels"
 CONDITIONS = ("photoguard_encoder", "dct_shield", "dct_shield_y", "mist", COLOR3D)
 R = Path("runtime/pexels_portraits/flux_512/readouts")
 CT = Path("../color/trials/lut3d_defense_and_naturalness")
-N = 50
 
 
 def kind_of(purifier):
@@ -36,8 +36,12 @@ def kind_of(purifier):
 
 
 def main():
-    images = set((CT / "pexels_subsets/flux.txt").read_text(encoding="utf-8").split())
-    require("flux.txt", "影像數", len(images), N)
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--images-file", type=Path, default=CT / "pexels_subsets/flux.txt")
+    images = set(ap.parse_args().images_file.read_text(encoding="utf-8").split())
+    N = len(images)
+    if N == 0:
+        raise SystemExit("影像清單為空")
     metric = defaultdict(dict)   # (指標, 條件, none|seven|vae_trans) -> {(影像, 句, 道): 值}
     for row in read(R / "displacement.csv"):
         key = (row["image"], row["prompt_index"], "none")

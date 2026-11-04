@@ -4,7 +4,7 @@
     cd ~/paper_figures && ~/venvs/wacv/bin/python in/generate_pexels_teaser_figure.py --image man_12 --prompt 1 \
         --out-dir out_teaser --name teaser_man_12_p1
 
-Layout as generate_teaser_figure.py (--purified-only keeps only the row after purification): rows are the protected image, the unpurified edit and the edit after
+Layout as generate_teaser_figure.py (--layout selects the rows; --no-lpips drops the LPIPS labels): rows are the protected image, the unpurified edit and the edit after
 Gaussian blur (sigma 2); columns are no defense, the matched-distortion arms of PhotoGuard (encoder attack),
 Mist, DIA-PT, DCT-Shield, and ours (color3d_pexels). The chips give the edit LPIPS against the undefended edit
 under the same purification.
@@ -99,7 +99,8 @@ def find_one(pattern):
     return hits[0]
 
 
-def figure(img_id, prompt, out_dir, name, purified_only=False):
+def figure(img_id, prompt, out_dir, name, layout="full", chips=True):
+    purified_only = layout == "purified"
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
@@ -127,7 +128,7 @@ def figure(img_id, prompt, out_dir, name, purified_only=False):
     plt.rcParams.update({"font.family": "STIXGeneral", "mathtext.fontset": "stix", "font.size": 8.5, "text.color": INK})
     s, head, foot = 1.0, 0.17, 0.27
     label_w, gap0, gap_ours = 0.36, 0.14, 0.07
-    nrows = 1 if purified_only else 3
+    nrows = {"full": 3, "purified": 1, "protected-purified": 2}[layout]
     if purified_only:
         label_w = 0.0
     H = head + nrows * s + foot
@@ -145,7 +146,7 @@ def figure(img_id, prompt, out_dir, name, purified_only=False):
         inset = lw / 72 / 2
         ax.add_patch(plt.Rectangle((x + inset, y + inset), s - 2 * inset, s - 2 * inset, fill=False, ec=edge, lw=lw,
                                    zorder=3))
-        if chip is not None:
+        if chip is not None and chips:
             ax.text(x + s / 2, y + 0.075, f"LPIPS {chip:.2f}", ha="center", va="center", fontsize=7.5, color="white",
                     zorder=4, bbox=dict(boxstyle="round,pad=0.18", fc="black", ec="none", alpha=0.62))
 
@@ -155,6 +156,15 @@ def figure(img_id, prompt, out_dir, name, purified_only=False):
         for x, (label, color, _, _, purified, (_, lp1)) in zip(xs, columns):
             ax.text(x + s / 2, H - 0.03, label, ha="center", va="top", color=OURS if label == "Ours" else INK)
             show(purified, x, ys[0], edge=color, lw=1.8, chip=lp1)
+    elif layout == "protected-purified":
+        show(source, x_ref, ys[0])
+        show(ref_purified, x_ref, ys[1])
+        for x, (label, color, protected, _, purified, (_, lp1)) in zip(xs, columns):
+            ax.text(x + s / 2, H - 0.03, label, ha="center", va="top", color=OURS if label == "Ours" else INK)
+            show(protected, x, ys[0])
+            show(purified, x, ys[1], edge=color, lw=1.8, chip=lp1)
+        for label, y in zip(["Protection", "Edited\n(purified)"], ys):
+            ax.text(x0 - 0.05, y + s / 2, label, rotation=90, ha="right", va="center", fontsize=8.5, linespacing=1.05)
     else:
         for im, y in zip((source, ref_plain, ref_purified), ys):
             show(im, x_ref, y)
@@ -181,12 +191,14 @@ def main():
     ap.add_argument("--prompt", type=int)
     ap.add_argument("--out-dir", type=Path, default=Path("out_teaser"))
     ap.add_argument("--name", default="teaser")
-    ap.add_argument("--purified-only", action="store_true", help="draw only the row of edits after purification")
+    ap.add_argument("--layout", choices=["full", "purified", "protected-purified"], default="full",
+                    help="rows: protected/unpurified/purified, purified only, or protected and purified")
+    ap.add_argument("--no-lpips", action="store_true", help="omit the LPIPS labels on the edits")
     args = ap.parse_args()
     if args.rank:
         rank(args.rank)
     else:
-        figure(args.image, args.prompt, args.out_dir, args.name, args.purified_only)
+        figure(args.image, args.prompt, args.out_dir, args.name, args.layout, not args.no_lpips)
 
 
 if __name__ == "__main__":

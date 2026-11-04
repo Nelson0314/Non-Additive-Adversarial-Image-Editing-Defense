@@ -125,3 +125,4 @@ PDF 共 10 頁：正文與 Conclusion 到第 8 頁，參考文獻自第 8 頁起
 - 11/3：主表的 SSIM、PSNR 為防禦圖端（防禦圖對原圖），列在 Table 1 的 Protected 組；Ret.、ArcFace、CLIP-S、CLIP-I、FID 的定義改在 caption 以名稱標示，不用註記符號（容納兩欄的表寬）。簡報不再維護。
 
 - 11/4：跨編輯器表只用 ip2p 上求得的防禦圖直接送 UltraEdit 與 FLUX，表與正文不用「transfer／Ours (transfer)」的稱呼，Ours 即 color3d；FLUX 改為 512×512、guidance 3.5、28 步、NF4，寫在 4.1 Attack 段與 Table 2 caption。
+- 11/4：Fig. 2a 加 306 張逐張淡點（9 臂＋Ours，`import_pexels_per_image_points.py` 在遠端 baseline 根目錄執行，輸出 `~/paper_figures/in_pexels/per_image_points.csv`；`generate_paper_figures.py --per-image`）；Fig. 3a 單獨標出 DCT-Shield-Y，b–d 仍為 8 張 DCT-Shield（紅字）；補充材料逐道淨化表 `sec/X_suppl_purification.tex` 由 `generate_per_purification_table.py` 從 baseline `summary/per_purifier.csv`、`main_table.csv` 產生；Related Work 加入同期工作 SPIN、SRIM、Copying as Defense。

@@ -49,47 +49,36 @@
 - 提亮再防禦試驗（3 張）：提亮後失真與位移上升，提亮本身失真 0.407。
 - color3d 防禦圖 LPIPS 在 Pexels 較低的原因：與中性亮區比例（ρ 0.763）、平均明度（0.719）相關，見 color trial README。
 
-## 4. 執行中、延後與暫停中的工作
+## 4. 執行中的工作（2026-11-04 19:50 狀態）
 
-- 執行中：baseline 佇列的 Pexels 主表 VAE-Trans（114 項）；其後由閘門 `vae_trans_gpu_done` 接遷移性實驗（`baseline/scripts/evaluate_pexels_transfer.sh`，`TRANSFER_DEADLINE` 2026-11-04 20:00）與主表各影像組的 CLIP-S（`baseline/scripts/measure_clip_score.py`），全局 6 卡。
+全局 6 卡。baseline 的 supervisor 另讀 `baseline/runtime/pexels_portraits/queue/baseline_cap`（現為 4）：新開 worker 上限＝min(baseline_cap, 6 − max(他人租約, color_reserve))。
 
-| 負責 | 工作 | 位置 | 狀態 |
+| 負責 | 工作 | 協定 | 進度與閘門 |
 |---|---|---|---|
-| baseline | 淨化強度掃描 P2、跨編輯器 baseline 列 P3（252 項） | `queue/jobs_deferred_p2_p3.txt` | 延後；第一步未驗證，恢復時先看 |
-| color | Pexels 跨編輯器：FLUX transferred＋未防禦分母（50 張子集） | color trial `runtime/cross_model/` | 淨化前 200/200、七道 1,400/1,400、VAE-Trans 160/200 |
-| color | Pexels 跨編輯器：UltraEdit transferred＋未防禦分母（306 張） | 同上 | 7/23 組 |
-| color | Pexels 跨編輯器 Ours（以 FLUX／SD3 編碼器求解） | 同上 | 0 |
-| color | Pexels 消融 | 子集 `pexels_subsets/ablation.txt`（97 張） | 只有隨機對照完成 |
+| baseline | FLUX 512：50 張（`pexels_subsets/flux.txt`）× 6 條件（等失真 photoguard_encoder、dct_shield、dct_shield_y、mist＋color3d_pexels＋未防禦），ip2p 防禦圖直接送入 | FLUX.1 Kontext 512×512、guidance 3.5、28 步、NF4、單次載入入口；淨化前、七道、VAE-Trans；資料版本 `baseline/results/pexels_portraits/flux_512/README.md` | 34/50（19:45）；`flux_512_readouts` 於 50 張完成後自動量讀數並彙整，完成後送 paper |
+| baseline | color3d_scale2p5 的主表讀數（VAE-Trans 與主表全部欄位，121 項） | 同主表；程式已參數化（a6c4c7d） | 閘門為 color 的 `finish_color3d_scale2p5_pexels_full.log` 出現 `[FINISH]`；color 有 failed 時 followup 會因張數不齊失敗 |
+| color | color3d_scale2p5_pexels（角度上界 2.5 倍：極角 25°、色相 7.5°）306 張，淨化前＋七道 | ip2p、4 句、主種子 | 2 線（FLUX 50 張完成前）；FLUX 完成後 color_reserve＝5、color 最多 5 線，baseline 讀數完成後改 6；預估 11/5 18:00 後完成 |
+| color | 2.5 倍在 `pexels_subsets/budget_sweep.txt` 20 張的 VAE-Trans 與整組讀數，對照同 20 張的 color3d_pexels 與 9 臂 | 主表定義 | 降回 2 線後第一張卡優先跑；預估 11/4 22:00 前後 |
 
-- 子集：FLUX 50 張（`pexels_subsets/flux.txt`，依性別與 LPIPS 四分位分層抽樣）、消融 97 張（第一個影像組）。
-- 遠端 Pexels 佇列由 crontab 每 5 分鐘的 `baseline/scripts/run_pexels_supervisor.sh` 推進；可用卡數＝6 − max(他人租約, `queue/color_reserve`)；第一項連續卡住會寫 `[WARN]`。color 用卡時設 `color_reserve`，用完歸零（color 曾兩次忘記歸零，派 color 用卡時要求它設自動歸零）。
+- UltraEdit 50 張（4 臂＋Ours＋未防禦）全協定已完成，讀數已填入論文 Table 2（遠端 `baseline/runtime/pexels_portraits/ultraedit_readouts/summary.csv`）。
+- 延後（使用者另行安排）：UltraEdit／FLUX 其餘 256 張（`queue/jobs_deferred_transfer_rest.txt`；FLUX 1024 版已由 512 取代，`superseded_jobs_flux_1024.txt`）、P2 淨化強度掃描（dct_shield 已換 dct_shield_y，1a5f0be）、BlurGuard 等失真版（旋鈕待使用者定）、消融 A–E 與下半兩列（306 張）。
+- 取消：以 SD3／FLUX VAE 重新求解的跨模型列（P3 移到 `queue/superseded_jobs_cross_model_resolve.txt`）；跨編輯器表不再區分 transfer。
+- 預算掃描（20 張、只求解＋淨化前）：倍率 0.5／1.0／1.5／2.0／2.5 的防禦圖 LPIPS 0.126／0.213／0.258／0.279／0.288，淨化前編輯結果 LPIPS 0.182／0.278／0.326／0.347／0.357；20 張依性別×防禦圖 LPIPS 分層、20,000 組取 max KS 最小（0.085）。
 
-## 5. 使用者 11/3 會議後的待辦（使用者已選定，依序）
+## 5. 使用者 11/3–11/4 的決定（已實施）
 
-1. **遷移性（最優先，週四 11/5 10:00 開會前）**：ip2p 求出的防禦圖直接送 UltraEdit 與 FLUX，Ours (transfer) 對 4 個 baseline（等失真臂的 photoguard_encoder、dct_shield、dct_shield_y、mist），全協定（淨化前、七道、VAE-Trans）。最終要跑完 306 張；先做 50 張。executor 的估計（未經 baseline／color 核實，估算）：
-   - UltraEdit 50 張：每格約 6.6 秒，每條件每張 36 格；4 baseline＋Ours＋未防禦分母約 20 GPU 小時（Ours 與分母若已在已完成的影像組內則更少），basic-1 3 卡約 6–7 小時。
-   - FLUX 50 張：每格約 90 秒；4 baseline 約 180 GPU 小時，Ours 只剩 VAE-Trans 40 格，分母已齊；只能在 basic-2，3–5 卡約 36–60 小時，週四前做不完全協定。
-   - 核實後（baseline 實測每格 UltraEdit 6.6 秒、FLUX 83 秒；4 臂 50 張 UltraEdit 13.2、FLUX 166 GPU 小時；306 張 81、1,017 GPU 小時）。color 的 Ours (transfer) 與未防禦分母：50 張只缺 FLUX VAE-Trans 40 格；UltraEdit 306 張剩 149 張約 20 GPU 小時。
-   - 使用者決定：VAE-Trans 跑完後接上，全局 6 卡跑到 2026-11-04 20:00，以「張」為單位（一張 4 臂 × 36 格做完才算），20:00 後不派新工作，回報完成張數，續跑與否由使用者決定。FLUX 在 basic-2、UltraEdit 在 basic-1（306 張，前 50 為 `flux.txt`）。
-2. **表格的波動性**：Purified 與 Weakest 合成一欄，以 ± 或標準差等方式呈現各方法的影像間波動。
-3. **主表美學**：只留 LAION、MUSIQ，其餘移到後面或補充材料。
-4. **主表加指標**：在 LPIPS、SigLIP、ArcFace 之外，加入 SSIM、PSNR（編輯端或防禦圖端未定）、CLIP-S、CLIP-I 與編輯端 FID；不用 CLIP-IQA。定義（主表與遷移表共用）：CLIP-S＝cos(E_img(編輯), E_txt(指令))，文字端為實際送進該編輯器的指令（ip2p 與 FLUX 用 `edits.ip2p[k]`，UltraEdit 用 `ultraedit_templates.json` 的 add 句）；CLIP-I＝baseline 的 `clip_pair`（clip-vit-base-patch32，防禦後編輯對未防禦編輯，同一淨化）；FID 只算編輯端（防禦後編輯分布對未防禦編輯分布，淨化前／七道／VAE-Trans），不報防禦圖對原圖的 FID。論文已改版：Table 1 加三欄、美學移到 Table 2、遷移表為 Table 3、消融為 Table 4。
-5. **本方法的多個預算點**：color3d 失真 0.21 與 baseline 0.3 脫節；需要 color3d 的多個失真預算點，證明本方法也能沿失真—位移直線移動。做不到時，退而把 300 多張逐張的失真—位移點全部畫出。
-6. **BlurGuard**：先確定等失真的預算（旋鈕），再在 Pexels 跑全協定。
-7. **淨化分析**：Fig. 3 的強度比較把 DCT-Shield 換成 DCT-Shield-Y；論文先分開呈現已有的淨化分類討論，中間缺的掃描先放著。
-8. **消融改為「每次拿掉 pipeline 的一部分」，不做 LPIPS 對齊**（使用者理由：失真差異本身是最佳化的結果）：
-   - A 拿掉最佳化（隨機 Θ）；
-   - B 拿掉高斯平滑（σ＝0）；
-   - C／D 合併：拿掉角度上界、拿掉極角與色相分開限制，分成一次拿掉一種，以及兩種都拿掉；
-   - E 拿掉所有和亮度有關的限制（例如 ‖c‖ 不變）。
-   規模、張數未定，需先估算後交使用者決定（每項 8 張約 4、97 張約 45、306 張約 140 GPU 小時，均為估算）。
+- 主表：每方法一列，數字旁小字為 95% 信賴區間半寬（Purified 欄跨七道 t(0.975,6)·s/√7，其餘欄 306 張 1.96·s/√306）；不放 Weakest（移補充）；SSIM、PSNR 放位移端（未防禦編輯對防禦後編輯），防禦圖端移補充；美學主表只留 LAION、MUSIQ；加 CLIP-S、CLIP-I、編輯端 FID；不用 CLIP-IQA。
+- 指標定義：CLIP-S＝cos(E_img(編輯), E_txt(實際送入該編輯器的指令))；CLIP-I＝clip-vit-base-patch32 的防禦後編輯對未防禦編輯（同一淨化）；FID 只算編輯端。
+- 所有實驗以全規模（306 張）寫進論文；未跑完的數字以 `\prelim{值}{註解}` 紅字並附內部註解（`\prelimfinaltrue` 時殘留即報錯）。
+- 消融：A 拿掉最佳化、B σ＝0、C 拿掉角度上界、D 單一 10° 夾角、C＋D、E 不正規化回 ‖c‖；不對齊失真；規模與排程由使用者安排。
 
 ## 6. 論文
 
-- 投稿 CVPR 2027：摘要 11/10、全文 11/16、補充材料 11/23（AOE）。正文 8 頁；LLM Usage Statement 必備；不放 URL；匿名；2026-09-15 後的同期工作要引用（已知 MCIQA-2K、NullEdit，調查未完成）。
-- 現況：9 頁，正文到第 8 頁。Fig. 1 方法總覽（BlurGuard 式版面、球面色彩旋轉）、Fig. 2 失真—位移（Pexels）、Fig. 3 淨化分析（(a) Pexels、(b–d) 8 張）；Table 1 Pexels 主表（VAE-Trans 欄 \TBD）、Table 2 跨編輯器（8 張）、Table 3 消融（8 張）；補充 CLIP-IQA、FID 已改 Pexels 306。
-- 還在等使用者決定：摘要倍數的定義、是否保留「at matched distortion」、論文重心是否轉向參數化、|Δφ| < 3° 只在格點保證是否在文中註明、兩支舊產圖腳本（`generate_lut_overview_figure.py`、`generate_method_overview_figure.py`）是否刪除、LLM Usage 工具清單、Pexels 選取規則與授權。
-- `main.bib`：46 條，全部被正文引用且已核實，無 TODO、無 URL；未引用的條目已移除（commit 歷史可查）。來源較弱的兩條：`doprotect2026`（作者取自第三方摘要頁）、`zeng2020lut`（TPAMI 卷期頁未在 IEEE 確認）。新增條目由 paper 通知後核實。
+- 投稿 CVPR 2027：摘要 11/10、全文 11/16、補充材料 11/23（AOE）。正文 8 頁；LLM Usage Statement 已寫；不放 URL；匿名。
+- 現況：正文止於第 8 頁。Table 1 主表（306 張，紅字只剩 BlurGuard 列）、Table 2 跨編輯器（UltraEdit 50 張已填；FLUX 待 512 讀數）、Table 3 消融（A–E＋逐項懲罰、可行集合投影，紅字）；Fig. 2 含 306 張逐張點；Fig. 3a 標 DCT-Shield-Y，b–d 為 8 張 DCT-Shield 紅字；結論、社會影響、補充協定已寫。
+- 待使用者：Pexels 選取規則與授權（4.1、補充）；限制節「配件仍出現 19/32」改 306 張需 VQA／偵測（GPU）；補充的 DISTS 與色彩對齊後失真換 306 張；未評估反推全域色彩映射的攻擊（使用者已決定不做色調／白平衡淨化）。
+- 同期工作（2026-09-15 後）：spin2026（2610.06334）、srim2026（2610.07464）、cad2026（2610.35566）已入 bib 並寫入 Related Work 與引言。
+- `main.bib`：49 條，皆被引用並核實；來源較弱：`doprotect2026`、`zeng2020lut`。
 
 ## 7. 簡報與其他成品
 

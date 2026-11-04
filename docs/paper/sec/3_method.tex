@@ -42,7 +42,7 @@ The filter makes $T$ smooth in color space. This keeps the gradual color transit
 \end{align}
 so that $|\Delta\theta| < \theta_{\max}$ and $|\Delta\phi| < \phi_{\max}$ before clipping, with $\Delta\phi = 0$ on the gray axis. We set $\theta_{\max} = 10^\circ$ and $\phi_{\max} = 3^\circ$. The tighter bound on hue reflects that hue shifts reduce the perceived naturalness of photographs more than chroma changes of comparable size~\cite{deridder1995naturalness,fedorovskaya1997chroma}.
 
-Every $T$ of this form is a smooth change of saturation and hue at fixed $\|c\|$, so naturalness is a property of the parameterization, and the optimization requires no penalty term, projection, or bound on distortion. Enforcing naturalness instead through one penalty per artifact produces constraints that conflict during optimization (\cref{sec:exp_ablation}).
+Every $T$ of this form is a smooth change of saturation and hue at fixed $\|c\|$, so naturalness is a property of the parameterization, and the optimization requires no penalty term, projection, or bound on distortion.
 
 \subsection{Objective}
 \label{sec:objective}

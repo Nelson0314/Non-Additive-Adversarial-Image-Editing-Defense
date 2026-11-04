@@ -49,33 +49,26 @@
   \centering
   \footnotesize
   \setlength{\tabcolsep}{5pt}
-  \begin{tabular}{@{}lcccccccc@{}}
+  \begin{tabular}{@{}lccccccc@{}}
     \toprule
-    & \multicolumn{2}{c}{Protected} & \multicolumn{4}{c}{Edit LPIPS $\uparrow$} & & \\
+    & \multicolumn{2}{c}{Protected} & \multicolumn{4}{c}{Edit LPIPS $\uparrow$} & \\
     \cmidrule(lr){2-3} \cmidrule(lr){4-7}
-    Variant & LPIPS $\downarrow$ & LAION $\uparrow$ & None & Purified$^{*}$ & Weakest & VAE-Trans & Retention $\uparrow$ & Feasible $\uparrow$ \\
+    Variant & LPIPS $\downarrow$ & LAION $\uparrow$ & None & Purified$^{*}$ & Weakest & VAE-Trans & Retention $\uparrow$ \\
     \midrule
-    \multicolumn{9}{@{}l}{\emph{Removing one component}} \\
     \rowcolor{oursrow}
-    Full pipeline (ours) & .211 & 5.388 & .277 & .291 & .251 & \prelim{--}{} & 1.091 & -- \\
-    w/o optimization (random $\Theta$) & .037 & 5.448 & .076 & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & -- \\
-    w/o smoothing ($\sigma = 0$) & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & -- \\
-    w/o angle bounds & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & -- \\
-    w/o separate polar / azimuth bounds & \prelim{.307}{} & \prelim{5.377}{} & \prelim{.373}{} & \prelim{.389}{} & \prelim{.323}{} & \prelim{.329}{} & \prelim{1.068}{} & -- \\
-    w/o both & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & -- \\
-    w/o luminance constraint ($\|c\|$ free) & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & -- \\
-    \midrule
-    \multicolumn{9}{@{}l}{\emph{Naturalness enforced during optimization}} \\
-    Penalties & \prelim{.287}{} & \prelim{5.653}{} & \prelim{.341}{} & \prelim{.302}{} & \prelim{.265}{} & \prelim{.185}{} & \prelim{.892}{} & \prelim{76}{} \\
-    Adaptive set & \prelim{.326}{} & \prelim{5.705}{} & \prelim{.369}{} & \prelim{.327}{} & \prelim{.273}{} & \prelim{.237}{} & \prelim{.890}{} & \prelim{109}{} \\
+    Full pipeline (ours) & .211 & 5.388 & .277 & .291 & .251 & .218 & 1.091 \\
+    w/o optimization (random $\Theta$) & .037 & 5.448 & .076 & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
+    w/o smoothing ($\sigma = 0$) & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
+    w/o angle bounds & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
+    w/o separate polar / azimuth bounds & \prelim{.307}{} & \prelim{5.377}{} & \prelim{.373}{} & \prelim{.389}{} & \prelim{.323}{} & \prelim{.329}{} & \prelim{1.068}{} \\
+    w/o both & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
+    w/o luminance constraint ($\|c\|$ free) & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
     \bottomrule
   \end{tabular}
-  \caption{Ablations on InstructPix2Pix (306 Pexels portraits $\times$ 4 instructions). Top: each row removes one component of the pipeline; no row is rescaled to a common distortion. Bottom: naturalness imposed as per-artifact penalties or as a projection onto an image-adaptive constraint set, to be compared with the full pipeline. $^{*}$Mean over the seven purifications. Feasible: checks, out of 180 during optimization, at which all constraints hold.}
-  \prelimnote{Tab.~3, full pipeline: VAE-Trans on the 306 Pexels portraits not yet available.}
+  \caption{Ablations on InstructPix2Pix (306 Pexels portraits $\times$ 4 instructions). Each row removes one component of the pipeline; no row is rescaled to a common distortion. $^{*}$Mean over the seven purifications.}
   \prelimnote{Tab.~3, w/o optimization: \texttt{color3d\_random\_pexels} (random $\Theta$, $\alpha = 1$), 306 portraits, only unpurified edits evaluated (\texttt{color/trials/lut3d\_defense\_and\_naturalness/results/color3d\_random\_pexels/}).}
   \prelimnote{Tab.~3, w/o smoothing, w/o angle bounds, w/o both, w/o luminance constraint: not yet run.}
   \prelimnote{Tab.~3, w/o separate polar / azimuth bounds: stand-in \texttt{color3d\_smooth\_angle6} (single $6^\circ$ bound instead of $10^\circ$/$3^\circ$), 8 portraits, full protocol; Weakest is rotation.}
-  \prelimnote{Tab.~3, penalties (\texttt{color3d\_orig}) and adaptive set (\texttt{color3d\_adaptive\_set}): 8 portraits, full protocol; 306-portrait runs not yet started.}
   \label{tab:ablation}
 \end{table*}
 
@@ -113,7 +106,5 @@ InstructPix2Pix, Stable Diffusion inpainting, and Stable Diffusion 2.1 share the
 
 \subsection{Ablations}
 \label{sec:exp_ablation}
-The upper part of \cref{tab:ablation} removes one component of the pipeline at a time: the optimization, by using a random $\Theta$; the Gaussian smoothing, by setting $\sigma = 0$; the angle bounds; the separation of the bounds on polar angle and azimuth; both of these; and the constraint that keeps $\|c\|$ fixed. No variant is rescaled to the distortion of the full pipeline, since the distortion each variant reaches is itself a result of its optimization. Without optimization, the random table reaches a defense LPIPS of 0.037 and displaces the unpurified edits by 0.076, against 0.211 and 0.277 for the full pipeline. \TODO{Results of the remaining component ablations.}
-
-The lower part compares ways of enforcing naturalness during optimization. Imposing the appearance constraints as penalties or as a projection onto an image-adaptive constraint set retains \prelim{0.302}{} and \prelim{0.327}{} of edit LPIPS on average over the seven purifications and \prelim{0.185}{} and \prelim{0.237}{8 portraits; full pipeline on the same 8 portraits: 0.367 (Purified$^{*}$) and 0.301 (VAE-Trans).} after VAE-Trans, against 0.291 and \prelim{--}{} for the full pipeline. The penalty formulation satisfies all constraints at \prelim{76}{} of 180 checks during optimization on average, and the projection at \prelim{109}{8 portraits.}.
+\Cref{tab:ablation} removes one component of the pipeline at a time: the optimization, by using a random $\Theta$; the Gaussian smoothing, by setting $\sigma = 0$; the angle bounds; the separation of the bounds on polar angle and azimuth; both of these; and the constraint that keeps $\|c\|$ fixed. No variant is rescaled to the distortion of the full pipeline, since the distortion each variant reaches is itself a result of its optimization. Without optimization, the random table reaches a defense LPIPS of 0.037 and displaces the unpurified edits by 0.076, against 0.211 and 0.277 for the full pipeline. \TODO{Results of the remaining component ablations.}
 

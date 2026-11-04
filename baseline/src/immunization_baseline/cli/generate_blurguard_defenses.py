@@ -12,7 +12,8 @@
 `get_first_stage_encoding`（後驗取樣乘 0.18215，與 ldm 相同）。`attacks.py` 頂層匯入但 `pgd_freq` 未使用的
 `torch_dct` 在 import 前以空模組代替。`utils.py` 另需本環境沒有的 `colorama`、`sewar`（`pgd_freq` 皆不使用），
 因此其中的 `generate_and_process_masks` 逐行複製為本檔的 `_generate_and_process_masks`，不匯入 `utils`。
-`--eps-scale` 不等於 1 時列標 `modified_from_paper=True`（等失真臂）。
+`--eps-scale` 不等於 1 時列標 `modified_from_paper=True`（等失真臂）。`--sigma-weighting`、`--learning-rate` 預設為上列官方值，
+不同時同樣標 `modified_from_paper=True`，並在 `modification_note` 記下所用的值（防禦圖 LPIPS 校準用）。
 
 輸出版面與 `generate_defenses` 相同：`<輸出目錄>/<影像>__orig.png`、`<影像>__blurguard__def.png`、
 `results_<tag>.csv`（求解設定與秒數；防禦圖失真由 `measure_additional_metrics --stage fidelity` 另量）。
@@ -108,6 +109,8 @@ def main(argv=None) -> None:
     ap.add_argument("--eps-scale", type=float, default=1.0)
     ap.add_argument("--images", nargs="+", default=None)
     ap.add_argument("--tag", default="blurguard")
+    ap.add_argument("--sigma-weighting", type=float, default=SIGMA_WEIGHTING)
+    ap.add_argument("--learning-rate", type=float, default=LEARNING_RATE)
     args = ap.parse_args(argv)
 
     import cv2
@@ -132,6 +135,7 @@ def main(argv=None) -> None:
         p.requires_grad_(False)
     net = _Net(vae)
     epsilon = EPSILON * args.eps_scale
+    modified = args.eps_scale != 1.0 or args.sigma_weighting != SIGMA_WEIGHTING or args.learning_rate != LEARNING_RATE
     eps_internal = epsilon / 255.0 * 2
 
     images = sorted(p for cls in ("man", "woman") for p in (args.data_root / cls).glob("*.png"))
@@ -152,20 +156,22 @@ def main(argv=None) -> None:
         x = torch.from_numpy(np.array(img).astype(np.float32) / 127.5 - 1.0).permute(2, 0, 1)[None].to(device)
         torch.manual_seed(0)
         attack = attacks.LF_PGD(net, eps_internal, STEPS, targeted=True, masks_dict=masks, filename=name,
-                                eps_sigma=EPS_SIGMA, sigma_weighting=SIGMA_WEIGHTING,
-                                learning_rate=LEARNING_RATE, attack_type="pgd_freq")
+                                eps_sigma=EPS_SIGMA, sigma_weighting=args.sigma_weighting,
+                                learning_rate=args.learning_rate, attack_type="pgd_freq")
         x_adv, adv_loss, _, sigma_loss, sigmas = attack.perturb(x, torch.zeros_like(x))
         out = torch.clamp((x_adv[0] + 1.0) / 2.0, 0, 1).permute(1, 2, 0).cpu().numpy() * 255.0
         Image.fromarray(out.astype(np.uint8)).save(args.output_dir / f"{name}__{CONDITION}__def.png")
         rows.append({
             "image": name, "class": path.parent.name, "condition": CONDITION,
             "eps": epsilon, "eps_pixel01": epsilon / 255.0, "eps_native": EPSILON, "eps_scale": args.eps_scale,
-            "norm": "linf", "steps": STEPS, "learning_rate": LEARNING_RATE, "eps_sigma": EPS_SIGMA,
-            "sigma_weighting": SIGMA_WEIGHTING, "num_masks": len(masks),
+            "norm": "linf", "steps": STEPS, "learning_rate": args.learning_rate, "eps_sigma": EPS_SIGMA,
+            "sigma_weighting": args.sigma_weighting, "num_masks": len(masks),
             "final_adv_loss": round(adv_loss[-1], 6), "final_sigma_loss": round(sigma_loss[-1], 6),
-            "modified_from_paper": args.eps_scale != 1.0,
+            "modified_from_paper": modified,
             "modification_note": ("first-stage encoder from diffusers SD v1.4 VAE"
-                                  + ("" if args.eps_scale == 1.0 else f"; epsilon scaled by {args.eps_scale}")),
+                                  + ("" if args.eps_scale == 1.0 else f"; epsilon scaled by {args.eps_scale}")
+                                  + ("" if args.sigma_weighting == SIGMA_WEIGHTING else f"; sigma_weighting {args.sigma_weighting} (official {SIGMA_WEIGHTING})")
+                                  + ("" if args.learning_rate == LEARNING_RATE else f"; learning_rate {args.learning_rate} (official {LEARNING_RATE})")),
             "spec_source": "BlurGuard e1b2d5e configs/attack/base.yaml", "total_seconds": round(time.time() - t0, 1),
             "data_root": str(args.data_root),
         })

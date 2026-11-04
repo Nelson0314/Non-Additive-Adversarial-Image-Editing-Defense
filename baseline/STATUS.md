@@ -74,7 +74,18 @@
 - FLUX 改用 512×512 協定（使用者 2026-11-04 定案，資料版本 `flux_512`，說明見 `results/pexels_portraits/flux_512/README.md`）：佇列工作
   `flux_512_<影像>`（flux.txt 50 張，6 條件 × 36 格，`scripts/evaluate_pexels_flux_512.sh`），等 UltraEdit 50 張與 `queue/done/flux_512_accepted`。
   實測每格 21.3 s、每張約 1.34 GPU 小時；1024 版的 FLUX 工作移到 `queue/superseded_jobs_flux_1024.txt`，已有產物與標記不動。
-  讀數（位移、保留率、SigLIP、CLIP-S、CLIP-I、ArcFace、編輯端 SSIM／PSNR、FID）由 baseline 統一量，尚未寫。
+  讀數由佇列工作 `flux_512_readouts`（`AFTER=` 50 項 `flux_512_<影像>`，GPU 1 張；`scripts/evaluate_pexels_flux_512_readouts.sh`）在 50 張完成後執行，
+  程式與輸出見 `results/pexels_portraits/flux_512/README.md`「讀數」；位移與保留率以 `--resolution 512` 讀圖。2 張影像的試算（逐格表、位移、保留率）已通過。
+- UltraEdit 4 臂（等失真 `photoguard_encoder`、`dct_shield`、`dct_shield_y`、`mist`）50 張讀數：`runtime/pexels_portraits/ultraedit_readouts/summary.csv`
+  （`scripts/generate_pexels_ultraedit_cell_tables.py`、`evaluate_pexels_ultraedit_readouts.sh`、`generate_pexels_ultraedit_summary.py`；語意、CLIP-S、ArcFace 由佇列
+  GPU 工作 `ultraedit_readouts_semantic` 執行未入版控的 `runtime/pexels_portraits/ultraedit_readouts/run_gpu_part.sh`），已送 paper。
+- color 的變體條件（例如 `color3d_scale2p5_pexels`，306 張，color 2026-11-04 提出）：followup、cpu、存續比、ArcFace pair、編輯端 SSIM／PSNR、分布指標與
+  主表彙整接受分組 `color3d_<變體>`（條件 `<分組>_pexels`；shell 以第二參數或 `COLOR3D_GROUP`，Python 以 `--color3d-group`），輸出在
+  `followup/<根>/results/<分組>/`、`followup/<根>/results/clip_score_<分組>.csv`、`followup/results/<分組>_all/`、`summary/<分組>/`，不動 `color3d_pexels`。
+  預設分組的主表四張表與分布指標配對清單以新程式重算後與既有檔逐位元相同（commit a6c4c7d）。輸入為 color trial 合併後的
+  `artifacts_pexels/{defenses,defended_edits,purified_edits}/<條件>/` 與 `results/<條件>/{displacement,retention}.csv`；分布指標讀逐張目錄
+  `defense_shards/`、`edits_by_image/`。全部寫完的判定為 color trial `logs/finish_<條件>_full.log` 出現 `[FINISH]`（同時 `queue/color_reserve` 寫 0），
+  佇列以 CPU 閘門 `<分組>_ready` 檢查；防禦圖美學由 baseline 量（color 同意）。color 的 306 張若有 `runtime/failed/`，followup 因張數不齊而失敗。
 - 遷移實驗目前只跑兩編輯器各 50 張（使用者 2026-11-04 指示）：第三、四段（UltraEdit 與 FLUX 其餘 256 張、color 的 91 項、閘門
   `transfer_ultraedit_rest_done`）移到遠端 `queue/jobs_deferred_transfer_rest.txt`，完成標記未動；續跑時移回 `jobs.txt`。
 - 遷移實驗的順序（使用者 2026-11-03 定案，`TRANSFER_DEADLINE` 取消）：UltraEdit 的 FLUX 子集 50 張（color trial `pexels_subsets/flux.txt`）→ FLUX 同 50 張
@@ -95,29 +106,34 @@
   `cross_model/{superseded,*.patch,generate_defenses.py}`、`pexels_portraits/superseded`、各處的 `.py` 副本；處理方式為 mv 到 `~/trash/baseline/<原相對路徑>`。
   `runtime/blurguard/` 保留（使用者待辦）；`distribution_metrics/` 與 `summary/distribution_metrics/` 的特徵檔保留，供重新合併使用。
 - 改到正在執行的遠端腳本時，先建立 `queue/PAUSED` 並等工作結束再 `git pull`，或另寫新檔：此 NFS 上 `git pull` 會就地改寫檔案（inode 不變）。
-  pull 前以 `ps -eo args | grep -o "scripts/[a-z_]*\.sh"` 對照 `git diff --name-only HEAD origin/main`；`.py` 在啟動時讀入，可改。
+  pull 前以 `ps -eo args | grep -o "scripts/[a-z_]*\.sh"` 對照 `git diff --name-only HEAD origin/main`（兩台各查一次）；`.py` 在啟動時讀入，可改。
+  確認沒有 supervisor 在讀檔：`ps -eo pid,lstart,args | grep "[b]ash .*/run_pexels_supervisor\.sh"`（`pgrep -f` 會數到 ssh 自己的指令列）；pull 後移除 `PAUSED`。
+- 佇列清單的改動一律寫 `jobs.txt.next` 再 `mv`，改前的清單另存 `queue/superseded_jobs_*.txt`。CPU 閘門行在 `supervisor.log` 產生 `[WARN] … not ready` 屬預期。
+- 長時間等待：在遠端以 `setsid nohup bash -c "until …; done; … > 結果檔"` 執行再定期讀結果檔；直接掛 ssh 等待會被連線重置中斷（exit 255）。
 - 已知的單次失敗：他人行程佔顯存造成 OOM、HF 取模型連線失敗；worker 自動重跑，同一工作失敗 3 次才進 `queue/failed/`。
 - 實測每格秒數（不含載入模型）：ip2p 11.4 s、UltraEdit 6.6 s、FLUX 83 s。遷移 4 臂 × 50 張的估算：UltraEdit 13.2、FLUX 166 GPU 小時。
   後續量測每 10 張約 3.0 卡時（`undefended` 0.44、`color3d` 0.69、`aligned` 1.87）。
 
-待辦（依優先序）：
+待辦（依優先序；遷移首段的驗證、主表含 VAE-Trans 與 CLIP-S 的彙整、UltraEdit 4 臂讀數皆已完成）：
 
-1. 閘門 `vae_trans_gpu_done` 出現後，驗證 `transfer_flux_<影像>`（basic-2）、`transfer_ultraedit_<影像>`（basic-1）與 `clip_score_<組>` 的第一步：
-   log 的 `[STEP] 遷移 …` 與逐格輸出、`artifacts/pexels_portraits/transfer/<編輯器>/` 的第一張輸出；`clip_score` 的
-   `[ALLDONE] … clip_score.csv（N 格）`，10 張的組 N＝3,200＋400＋640＋80（9 臂與未防禦 × 4 指令 × 8 淨化設定、9 臂與未防禦 × 4、color3d 兩組）。異常即停並回報 executor。
-2. 2026-11-04 20:00 向 executor 回報完成張數快照（FLUX、UltraEdit 各／50 與／306）與 GPU 小時，排程不停：
-   張數取 `runtime/pexels_portraits/transfer/<編輯器>/done/<影像>.done`，GPU 小時取 `queue/worker.log` 的 claim 與 done 時刻相減。
-   等價性檢查通過後寫 `queue/done/flux_single_load_accepted`，並把尚未開始的 `transfer_flux_*` 行改為 `evaluate_pexels_flux_transfer.sh`。
-3. `summary_pexels` 完成後（`summary/main_table.csv` 的 `*_vae_trans` 欄有值）送 executor 與 paper，附路徑與 n；
-   再於 `scripts/generate_pexels_main_table_summary.py` 加 CLIP-S 欄（讀各組 `followup/<根>/results/clip_score.csv`，淨化前、七道、VAE-Trans 各一）並重跑彙整。
-4. 遷移表的讀數：位移 `measure_flux_displacement`／`measure_edit_displacement`、保留 `measure_flux_retention`／`measure_purified_displacement`、
-   語意 `measure_semantic_identity --edits-csv`、CLIP-S `measure_clip_score.py --edits-csv`、FID `measure_distribution_metrics.py --pairs-csv`。
-   未防禦分母與 Ours (transfer) 由 color 量（FLUX：color trial `artifacts_pexels/cross_model/flux/{edits,purified_edits}/undefended/`；
-   UltraEdit：`artifacts_pexels/cross_model/sd3/edits/{undefended_edits,purified_edits/undefended}/`），程式共用。
-5. baseline/ 清理（executor 派工，排在遷移實驗之後）：只動 baseline/、不改行為；被 color trial、`docs/paper_tools`、簡報、佇列引用的路徑不動
-   （改前 grep 整個 repo 與遠端 color trial 的 `tools/`）；測試在遠端跑（含 `core/tests/test_repository_naming.py`）；遠端產物 mv 到 `~/trash/baseline/`。
+1. `flux_512_readouts` 完成後（`runtime/pexels_portraits/flux_512/readouts/summary.csv`；2026-11-04 19:45 為 34／50、無 failed、累計 46.7 GPU 小時），把 `summary.csv`、`per_purifier.csv` 複製到
+   `results/pexels_portraits/flux_512/` 並提交，數字連同協定（50 張、6 條件、四句、主種子、512²）送 paper 與 executor。
+   表的欄同 UltraEdit 彙整（`disp_{none,seven,vae_trans}`、`disp_{ssim,psnr}_*`、`retained_*`、`siglip_*`、`clip_i_*`、`clip_s_*`、
+   `arcface_original_seven`、`arcface_pair_*`、`fid_*`、`kid_*`、`defense_lpips`，附 `_std`、`_ci95`）；失敗時看 `queue/logs/flux_512_readouts.log`。
+2. 2026-11-04 的完成張數快照已於 19:45 回報 executor（FLUX 512 34／50、46.7 GPU 小時）；之後的快照依 executor 要求。
+3. color3d_scale2p5 的自動工作已排入 `jobs.txt`（121 行，遠端產生程式 `queue/generate_jobs_color3d_variant.py <分組>`，清單另存
+   `queue/jobs_color3d_scale2p5.txt`，改前清單 `queue/superseded_jobs_before_color3d_scale2p5.txt`）：CPU 閘門 `color3d_scale2p5_ready`
+   （color trial `logs/finish_color3d_scale2p5_pexels_full.log` 出現 `[FINISH]`，color 估 2026-11-05 18:00 之後，屆時 color 會通知）；
+   各影像組 `followup_<組>_color3d_scale2p5`（GPU）→ `cpu_<組>_…`、`survival_<組>_vae_trans_…`、`arcface_pair_<組>_…`（CPU）、`clip_score_<組>_…`（GPU）；
+   全體 `survival_color3d_scale2p5_seven`、`distribution_pexels_…`、`edit_fidelity_{seven,vae_trans}_…`，最後 `summary_pexels_color3d_scale2p5`。
+   開跑後驗證第一個 followup 的 log（`[SUBSET] … displacement_color3d_scale2p5_pexels.csv` 列數＝4 × 組內張數、VAE-Trans 第一張輸出）。
+   完成後 `runtime/pexels_portraits/summary/color3d_scale2p5/{main_table,main_table_supplementary,per_purifier}.csv`（欄同主表，見
+   `scripts/generate_pexels_main_table_summary.py` 開頭）送 color、executor 與 paper，附 n 與協定（306 張、ip2p、四句、主種子）。
+4. baseline/ 清理（使用者 2026-11-03 指示，executor 派工；尚未開始）：版控檔可直接刪改，機械搬檔、行為修正、文件分開 commit；遠端產物 mv 到
+   `~/trash/baseline/<原相對路徑>`，不 rm；執行中的佇列、被 color trial、`docs/paper_tools`、簡報、佇列引用的路徑不動（改前 grep 整個 repo 與
+   遠端 color trial 的 `tools/`）；`runtime/blurguard/` 保留；測試在遠端跑（含 `core/tests/test_repository_naming.py`）。
    完成後以 ≤ 8 行回報類別與數量、commit、trash 總量、刻意保留的項目與理由。
-6. 待使用者決定：P2、P3 是否開跑。
+5. 待使用者決定：P2、P3 是否開跑；遷移第三、四段（`queue/jobs_deferred_transfer_rest.txt`）何時續跑。
 
 ### 論文實驗
 

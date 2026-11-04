@@ -20,13 +20,13 @@
     Method & LPIPS $\downarrow$ & None & Purified$^{*}$ & VAE-Trans & Ret.\ $\uparrow$ & CLIP-S $\downarrow$ & CLIP-I $\downarrow$ & FID $\uparrow$ \\
     \midrule
     \multicolumn{9}{l}{\textit{UltraEdit (Stable Diffusion 3)}} \\
-    PhotoGuard & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
-    DCT-Shield & \prelim{.576}{} & \prelim{.502}{} & \prelim{.252}{} & \prelim{--}{} & \prelim{.501}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
-    DCT-Shield-Y & \prelim{.648}{} & \prelim{.600}{} & \prelim{.356}{} & \prelim{--}{} & \prelim{.595}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
-    Mist & \prelim{.654}{} & \prelim{.614}{} & \prelim{.455}{} & \prelim{--}{} & \prelim{.742}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
+    PhotoGuard & \prelim{.330}{} & \prelim{.288}{} & \prelim{.134}{} & \prelim{.024}{} & \prelim{.474}{} & \prelim{.231}{} & \prelim{.976}{} & \prelim{28.2}{} \\
+    DCT-Shield & \prelim{.294}{} & \prelim{.256}{} & \prelim{.100}{} & \prelim{.016}{} & \prelim{.414}{} & \prelim{.232}{} & \prelim{.980}{} & \prelim{23.2}{} \\
+    DCT-Shield-Y & \prelim{.282}{} & \prelim{.267}{} & \prelim{.097}{} & \prelim{.021}{} & \prelim{.386}{} & \prelim{.232}{} & \prelim{.983}{} & \prelim{21.6}{} \\
+    Mist & \prelim{.323}{} & \prelim{\textbf{.299}}{} & \prelim{.135}{} & \prelim{.023}{} & \prelim{.465}{} & \prelim{\textbf{.231}}{} & \prelim{.976}{} & \prelim{27.9}{} \\
     \midrule
     \rowcolor{oursrow}
-    \textbf{Ours} & \prelim{.212}{} & \prelim{.269}{} & \prelim{.284}{} & \prelim{.207}{} & \prelim{1.121}{} & \prelim{.236}{} & \prelim{.911}{} & \prelim{65.5}{} \\
+    \textbf{Ours} & \prelim{\textbf{.212}}{} & \prelim{.269}{} & \prelim{\textbf{.284}}{} & \prelim{\textbf{.207}}{} & \prelim{\textbf{1.121}}{} & \prelim{.236}{} & \prelim{\textbf{.911}}{} & \prelim{\textbf{65.5}}{} \\
     \midrule
     \multicolumn{9}{l}{\textit{FLUX.1 Kontext}} \\
     PhotoGuard & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
@@ -39,9 +39,9 @@
     \bottomrule
   \end{tabular}
   \caption{Editors with different VAE encoders (306 Pexels portraits $\times$ 4 instructions). The protected images are those of \cref{tab:main}, optimized on InstructPix2Pix at the matched-distortion setting. UltraEdit at $512^2$ resolution, text guidance 2.5, image guidance 1.5, 50 steps; FLUX.1 Kontext at $512^2$ resolution, guidance 3.5, 28 steps, NF4 quantization. $^{*}$Mean over the seven purifications. Ret.: retention over the seven purifications. CLIP-S, CLIP-I, and FID as in \cref{tab:main}. Best in bold.}
-  \prelimnote{Tab.~2, additive rows: stand-in from the native-budget (not matched-distortion) run on 8 portraits (\texttt{baseline/results/\{ultraedit,flux\}/retention.csv}); no VAE-Trans, CLIP-S, CLIP-I, or FID in that run; PhotoGuard encoder attack not included. Pexels run scheduled: UltraEdit 50 portraits about 11/4, FLUX.1 Kontext 50 portraits about 11/5.}
+  \prelimnote{Tab.~2, UltraEdit additive rows: 50 Pexels portraits (\texttt{pexels\_subsets/flux.txt}), full protocol (baseline \texttt{runtime/pexels\_portraits/ultraedit\_readouts/summary.csv}). FLUX.1 Kontext additive rows: stand-in from the native-budget (not matched-distortion) run on 8 portraits at the earlier setting (\texttt{baseline/results/flux/retention.csv}); the $512^2$ run on 50 portraits is in progress.}
   \prelimnote{Tab.~2, Ours, UltraEdit: 50 Pexels portraits (\texttt{pexels\_subsets/flux.txt}), full protocol (\texttt{color/trials/lut3d\_defense\_and\_naturalness/results/cross\_model\_pexels/sd3/transfer50/summary.txt}). Ours, FLUX.1 Kontext: 8 portraits at the earlier setting (\texttt{results/cross\_model/flux/}); the $512^2$ run is assigned to baseline.}
-  \prelimnote{Tab.~2: bold marks are withheld until the Pexels readings are complete; the FLUX.1 Kontext stand-ins predate the $512^2$, guidance 3.5, 28-step, NF4 setting.}
+  \prelimnote{Tab.~2: bold marks in the FLUX.1 Kontext block are withheld until its readings are complete; the caption states 306 portraits, the available readings cover 50.}
   \label{tab:cross}
 \end{table*}
 
@@ -109,7 +109,7 @@ To separate the effect of purification on the protected image from its effect on
 
 \subsection{Editors with different encoders}
 \label{sec:exp_gen}
-InstructPix2Pix, Stable Diffusion inpainting, and Stable Diffusion 2.1 share the same VAE encoder, so a defense optimized for one of them applies to all three. FLUX.1 Kontext~\cite{flux2025kontext} and UltraEdit~\cite{zhao2024ultraedit}, which builds on Stable Diffusion 3, use different 16-channel VAEs. \Cref{tab:cross} applies the protected images of the PhotoGuard encoder attack, DCT-Shield, DCT-Shield-Y, Mist, and ours, optimized on InstructPix2Pix at matched distortion, to these two editors (settings in \cref{sec:exp_setup}). The defenses preserve the ranking of the methods (Spearman correlation \prelim{0.951}{Ranking correlation from the earlier 8-portrait run; to be recomputed on the Pexels set.}). Averaged over the seven purifications, the additive methods displace the edits by \prelim{0.252--0.455}{} on UltraEdit and \prelim{0.292--0.484}{} on FLUX.1 Kontext, and our table by \prelim{0.284}{} and \prelim{0.418}{Additive: native budget on 8 portraits; ours: 50 Pexels portraits on UltraEdit, 8 portraits at the earlier setting on FLUX.1 Kontext.}, with a retention of \prelim{1.121}{} and \prelim{1.026}{}. After VAE-Trans, our table retains \prelim{0.207}{} and \prelim{0.327}{VAE-Trans readings of the additive rows are not yet available.}.
+InstructPix2Pix, Stable Diffusion inpainting, and Stable Diffusion 2.1 share the same VAE encoder, so a defense optimized for one of them applies to all three. FLUX.1 Kontext~\cite{flux2025kontext} and UltraEdit~\cite{zhao2024ultraedit}, which builds on Stable Diffusion 3, use different 16-channel VAEs. \Cref{tab:cross} applies the protected images of the PhotoGuard encoder attack, DCT-Shield, DCT-Shield-Y, Mist, and ours, optimized on InstructPix2Pix at matched distortion, to these two editors (settings in \cref{sec:exp_setup}). The defenses preserve the ranking of the methods (Spearman correlation \prelim{0.951}{Ranking correlation from the earlier 8-portrait run; to be recomputed on the Pexels set.}). Averaged over the seven purifications, the additive methods displace the edits by \prelim{0.097--0.135}{} on UltraEdit and \prelim{0.292--0.484}{} on FLUX.1 Kontext, and our table by \prelim{0.284}{} and \prelim{0.418}{UltraEdit: 50 Pexels portraits; FLUX.1 Kontext: additive at native budget on 8 portraits, ours on 8 portraits, both at the earlier setting.}, with a retention of \prelim{1.121}{} and \prelim{1.026}{}. After VAE-Trans, our table retains \prelim{0.207}{} on UltraEdit, against \prelim{0.016--0.024}{} for the additive methods, and \prelim{0.327}{FLUX.1 Kontext: 8 portraits at the earlier setting; additive VAE-Trans readings on FLUX.1 Kontext not yet available.} on FLUX.1 Kontext.
 
 \subsection{Ablations}
 \label{sec:exp_ablation}

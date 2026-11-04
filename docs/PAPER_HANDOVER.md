@@ -126,4 +126,4 @@ PDF 共 10 頁：正文與 Conclusion 到第 8 頁，參考文獻自第 8 頁起
 
 - 11/4：跨編輯器表只用 ip2p 上求得的防禦圖直接送 UltraEdit 與 FLUX，表與正文不用「transfer／Ours (transfer)」的稱呼，Ours 即 color3d；FLUX 改為 512×512、guidance 3.5、28 步、NF4，寫在 4.1 Attack 段與 Table 2 caption。
 - 11/4：Fig. 2a 加 306 張逐張淡點（9 臂＋Ours，`import_pexels_per_image_points.py` 在遠端 baseline 根目錄執行，輸出 `~/paper_figures/in_pexels/per_image_points.csv`；`generate_paper_figures.py --per-image`）；Fig. 3a 單獨標出 DCT-Shield-Y，b–d 仍為 8 張 DCT-Shield（紅字）；補充材料逐道淨化表 `sec/X_suppl_purification.tex` 由 `generate_per_purification_table.py` 從 baseline `summary/per_purifier.csv`、`main_table.csv` 產生；Related Work 加入同期工作 SPIN、SRIM、Copying as Defense。
-- 11/4：Conclusion、負面社會影響與緩解（Limitations 段末）、補充材料協定細節（資料、指令與編輯器、淨化、等失真縮放；Pexels 選取規則與授權仍為 `\TODO`）已寫；引言加 cad2026、srim2026。求解時間改為 9.4 分鐘：color Pexels lane log 中 358 次求解自開始到編輯開始的中位數（平均 9.7，含寫檔）；多數在 basic-2 執行，其 GPU 型號待確認，暫以紅字標 RTX 3090。
+- 11/4：Conclusion、負面社會影響與緩解（Limitations 段末）、補充材料協定細節（資料、指令與編輯器、淨化、等失真縮放；Pexels 選取規則與授權仍為 `\TODO`）已寫；引言加 cad2026、srim2026。求解時間改為 9.4 分鐘：color Pexels lane log 中 358 次求解自開始到編輯開始的中位數（平均 9.7，含寫檔）；basic-1、basic-2 皆為 RTX 3090（color 核實；成功求解 309 次，basic-2 199、basic-1 110），已改為黑字。

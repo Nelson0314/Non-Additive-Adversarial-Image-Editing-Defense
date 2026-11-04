@@ -153,6 +153,8 @@ def main():
     parser.add_argument("--color-summary", type=Path, required=True)
     parser.add_argument("--survival", type=Path, required=True, help="baseline/results/aligned/perturbation_survival.csv")
     parser.add_argument("--sweep", type=Path, required=True, help="baseline/results/sweeps/ip2p/purifier_strength/retention.csv")
+    parser.add_argument("--ours-extra", nargs=3, metavar=("DEFENSE_LPIPS", "EDIT_LPIPS", "LABEL"),
+                        help="an additional operating point of our defense before purification, drawn in panel (a)")
     parser.add_argument("--per-image", type=Path, help="per_image_points.csv from import_pexels_per_image_points.py")
     parser.add_argument("--out-dir", type=Path, required=True)
     args = parser.parse_args()
@@ -187,6 +189,11 @@ def main():
     ax_a.scatter(ox, oy0, s=70, marker="*", color=C_OURS, edgecolors="white", linewidths=0.4, zorder=4)
     ax_a.annotate("Ours", (ox, oy0), xytext=(-14, 9), textcoords="offset points", color=C_OURS,
                   fontsize=7)
+    if args.ours_extra:
+        ex, ey = float(args.ours_extra[0]), float(args.ours_extra[1])
+        ax_a.scatter(ex, ey, s=70, marker="*", facecolors="white", edgecolors=C_OURS, linewidths=0.9, zorder=4)
+        ax_a.annotate(args.ours_extra[2], (ex, ey), xytext=(6, -3), textcoords="offset points", color=C_OURS,
+                      fontsize=6.5, va="top")
     ax_a.set_xlim(0, 0.7)
     ax_a.set_ylim(0, top)
     ax_a.set_xlabel("Defense LPIPS")

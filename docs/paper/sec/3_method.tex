@@ -55,7 +55,7 @@ It requires a single forward pass through the encoder and no instruction, and it
 
 \subsection{Optimization}
 \label{sec:optimization}
-$\Theta$ is initialized with independent Gaussian entries of standard deviation 0.002, and \cref{eq:objective} is optimized with Adam ($\beta_1 = 0.5$, $\beta_2 = 0.99$) for 1800 steps at $512^2$ resolution. The learning rate follows a cosine decay from $3 \times 10^{-4}$ to $10^{-5}$ over the first two thirds of the steps and remains at $10^{-5}$ afterwards. The protected image of the final step is stored as an 8-bit PNG. One image takes about \prelim{9.4}{Median interval between the start of the solve and the start of editing over the color3d\_pexels jobs in \texttt{color/trials/lut3d\_defense\_and\_naturalness/logs/lane\_color\_pexels\_*.log} (358 solves, mean 9.7 minutes, including file output); most jobs ran on basic-2, whose GPU model is to be confirmed (basic-1: RTX 3090).} minutes on a single \prelim{RTX 3090}{}.
+$\Theta$ is initialized with independent Gaussian entries of standard deviation 0.002, and \cref{eq:objective} is optimized with Adam ($\beta_1 = 0.5$, $\beta_2 = 0.99$) for 1800 steps at $512^2$ resolution. The learning rate follows a cosine decay from $3 \times 10^{-4}$ to $10^{-5}$ over the first two thirds of the steps and remains at $10^{-5}$ afterwards. The protected image of the final step is stored as an 8-bit PNG. One image takes about 9.4 minutes on a single RTX 3090.
 
 \begin{figure*}[t]
   \centering

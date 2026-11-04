@@ -7,7 +7,9 @@ distortion_displacement.pdf has two panels that share the least-squares line fit
 pre-purification points of the additive methods (baseline/results/distortion_displacement/
 points.csv; rows of earlier color conditions are dropped, the final color3d comes from the color
 paper table).
-(a) Edit LPIPS before purification against defense LPIPS for every budget of every additive method.
+(a) Edit LPIPS before purification against defense LPIPS for every budget of every additive method;
+    with --per-image, the 306 per-image points of the nine matched-distortion arms and color3d_pexels
+    (import_pexels_per_image_points.py) are drawn as light dots behind the method means.
 (b) The eleven matched-distortion arms and color3d: filled marker before purification, open marker
     after purification (mean over the seven standard purifications), joined by an arrow.
 """
@@ -32,6 +34,8 @@ LIGHT = "#b9c1ca"
 C_ADDITIVE = "#A94438"
 C_ADDITIVE_LIGHT = "#D9A39C"
 C_OURS = "#1F6F7C"
+C_OURS_LIGHT = "#8FB9C0"
+HIGHLIGHT = "dct_shield_y"  # additive method drawn separately in the survival panel
 SOURCE_MARKER = {"native": "s", "aligned": "o", "aligned_1p255": "o", "plane": "^"}
 
 
@@ -97,8 +101,11 @@ def purification_figure(survival_rows, sweep_rows, out):
     for method in sorted(ADDITIVE - {"diffvax"}):
         ys = [survival.get((method, p)) for p, _ in order]
         if None in ys:
-            continue
-        ax.plot(xs, ys, color=C_ADDITIVE_LIGHT, lw=0.9, marker="o", ms=2.2, zorder=2)
+            raise SystemExit(f"survival readings missing for {method}")
+        if method == HIGHLIGHT:
+            ax.plot(xs, ys, color=C_ADDITIVE, lw=1.1, marker="D", ms=2.4, zorder=3)
+        else:
+            ax.plot(xs, ys, color=C_ADDITIVE_LIGHT, lw=0.9, marker="o", ms=2.2, zorder=2)
     ys = [survival[(OURS, p)] for p, _ in order]
     ax.plot(xs, ys, color=C_OURS, lw=1.3, marker="*", ms=5, zorder=4)
     ax.set_xticks(xs)
@@ -106,7 +113,8 @@ def purification_figure(survival_rows, sweep_rows, out):
     ax.set_ylim(0, max(1.25, max(ys) + 0.1))
     ax.set_ylabel("Perturbation survival")
     ax.set_title("(a) Perturbation survival", loc="left")
-    ax.legend(handles=[Line2D([], [], color=C_ADDITIVE_LIGHT, lw=0.9, marker="o", ms=2.2, label="9 additive methods"),
+    ax.legend(handles=[Line2D([], [], color=C_ADDITIVE_LIGHT, lw=0.9, marker="o", ms=2.2, label="8 other additive methods"),
+                       Line2D([], [], color=C_ADDITIVE, lw=1.1, marker="D", ms=2.4, label="DCT-Shield-Y"),
                        Line2D([], [], color=C_OURS, lw=1.3, marker="*", ms=5, label="Ours")],
               loc="center left", bbox_to_anchor=(0.0, 0.56), frameon=False, handletextpad=0.3, fontsize=6)
 
@@ -145,6 +153,7 @@ def main():
     parser.add_argument("--color-summary", type=Path, required=True)
     parser.add_argument("--survival", type=Path, required=True, help="baseline/results/aligned/perturbation_survival.csv")
     parser.add_argument("--sweep", type=Path, required=True, help="baseline/results/sweeps/ip2p/purifier_strength/retention.csv")
+    parser.add_argument("--per-image", type=Path, help="per_image_points.csv from import_pexels_per_image_points.py")
     parser.add_argument("--out-dir", type=Path, required=True)
     args = parser.parse_args()
     args.out_dir.mkdir(parents=True, exist_ok=True)
@@ -162,6 +171,14 @@ def main():
     fig, (ax_a, ax_b) = plt.subplots(1, 2, figsize=(6.9, 2.05), gridspec_kw={"width_ratios": [1, 1.15]})
 
     # (a) every budget before purification
+    top = 0.7
+    if args.per_image:
+        per_image = read(args.per_image)
+        for group, color, alpha in ((ADDITIVE, C_ADDITIVE_LIGHT, 0.25), ({"color3d_pexels"}, C_OURS_LIGHT, 0.45)):
+            sel = [row for row in per_image if row["condition"] in group]
+            ax_a.scatter([float(row["defense_lpips"]) for row in sel], [float(row["edit_lpips_none"]) for row in sel],
+                         s=1.5, color=color, alpha=alpha, linewidths=0, zorder=1, rasterized=True)
+        top = 0.8
     draw_line(ax_a, slope, intercept, 0.0, 0.7)
     for marker in ("s", "o", "^"):
         sel = [row for row in points if SOURCE_MARKER.get(row["source"]) == marker]
@@ -171,15 +188,17 @@ def main():
     ax_a.annotate("Ours", (ox, oy0), xytext=(-14, 9), textcoords="offset points", color=C_OURS,
                   fontsize=7)
     ax_a.set_xlim(0, 0.7)
-    ax_a.set_ylim(0, 0.7)
+    ax_a.set_ylim(0, top)
     ax_a.set_xlabel("Defense LPIPS")
     ax_a.set_ylabel("Edit LPIPS")
     present = {SOURCE_MARKER.get(row["source"]) for row in points}
     ax_a.set_title("(a) Before purification, all budgets" if "^" in present else "(a) Before purification", loc="left")
     ax_a.text(0.69, 0.04, f"dashed: least-squares fit, $r$ = {r:.3f}", color=GRAY, fontsize=6.5, ha="right")
-    ax_a.legend(handles=[Line2D([], [], ls="none", marker=m, color=C_ADDITIVE, ms=3.5, label=label)
-                         for m, label in (("s", "native budget"), ("o", "matched distortion"), ("^", "budget sweep"))
-                         if m in present], loc="upper left", frameon=False, handletextpad=0.2, borderaxespad=0.2)
+    handles = [Line2D([], [], ls="none", marker=m, color=C_ADDITIVE, ms=3.5, label=label)
+               for m, label in (("s", "native budget"), ("o", "matched distortion"), ("^", "budget sweep")) if m in present]
+    if args.per_image:
+        handles.append(Line2D([], [], ls="none", marker="o", color=C_ADDITIVE_LIGHT, ms=2, label="per image (matched, ours)"))
+    ax_a.legend(handles=handles, loc="upper left", frameon=False, handletextpad=0.2, borderaxespad=0.2)
 
     # (b) matched distortion, before -> after purification
     arm_x = [float(row["defense_lpips"]) for row in arms]

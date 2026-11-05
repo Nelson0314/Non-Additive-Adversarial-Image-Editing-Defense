@@ -111,7 +111,7 @@ def find_one(pattern):
     return hits[0]
 
 
-def figure(img_id, prompt, out_dir, name, layout="full", chips=True, arms=None, cite=False):
+def figure(img_id, prompt, out_dir, name, layout="full", chips=True, arms=None, cite=False, scale2p5=False):
     arms = arms or [c for _, c in ARMS]
     purified_only = layout == "purified"
     import matplotlib
@@ -139,27 +139,41 @@ def figure(img_id, prompt, out_dir, name, layout="full", chips=True, arms=None, 
         columns.append((label, ADDITIVE, *(load(f) for f in files),
                         (lp.get((c, img_id, p, "none"), float("nan")), lp.get((c, img_id, p, PURIFIER), float("nan"))),
                         CITES[c] if cite else None))
-    columns.append((OURS_LABEL, OURS, load(TRIAL / f"artifacts_pexels/defenses/{OURS_C}/{img_id}__{OURS_C}__def.png"),
-                    load(png[(OURS_C, img_id, p, "none")]), load(png[(OURS_C, img_id, p, PURIFIER)]),
-                    (lp[(OURS_C, img_id, p, "none")], lp[(OURS_C, img_id, p, PURIFIER)]), None))
+    # CAPGuard: the 2.5x-bound condition when its defense and purified edit exist, otherwise the default bounds (tagged)
+    ours_tag = None
+    big = OURS_C.replace("color3d_", "color3d_scale2p5_")
+    big_def = sorted(p_ for p_ in (TRIAL / "artifacts_pexels").glob(f"**/{img_id}__{big}__def.png")
+                     if "vae_trans" not in str(p_))
+    big_pur = TRIAL / f"artifacts_pexels/edits_by_image/{big}/{img_id}/purified/{PURIFIER}/ip2p_{big}_{PURIFIER}/{img_id}__p{p}.png"
+    big_plain = sorted((TRIAL / "artifacts_pexels").glob(f"**/ip2p_{big}/{img_id}__p{p}.png"))
+    if scale2p5 and big_def and big_pur.exists():
+        columns.append((OURS_LABEL, OURS, load(big_def[0]), load(big_plain[0]) if big_plain else load(big_pur),
+                        load(big_pur), (float("nan"), float("nan")), None))
+    else:
+        ours_tag = "default bounds" if scale2p5 else None
+        columns.append((OURS_LABEL, OURS, load(TRIAL / f"artifacts_pexels/defenses/{OURS_C}/{img_id}__{OURS_C}__def.png"),
+                        load(png[(OURS_C, img_id, p, "none")]), load(png[(OURS_C, img_id, p, PURIFIER)]),
+                        (lp[(OURS_C, img_id, p, "none")], lp[(OURS_C, img_id, p, PURIFIER)]), None))
     source = load(find_one(f"**/defenses/**/{img_id}__orig.png"))
     ref_plain = load(png[("undefended", img_id, p, "none")])
     ref_purified = load(png[("undefended", img_id, p, PURIFIER)])
 
     plt.rcParams.update({"font.family": "STIXGeneral", "mathtext.fontset": "stix", "font.size": 8.5, "text.color": INK})
-    s, head, foot = 1.0, (0.30 if cite else 0.17), 0.27
+    n_add = len(columns) - 1  # additive columns; the last column is CAPGuard
+    head, foot = (0.30 if cite else 0.17), 0.27
     label_w, gap0, gap_ours = 0.36, 0.14, 0.07
-    nrows = {"full": 3, "purified": 1, "protected-purified": 2}[layout]
     if purified_only:
         label_w = 0.0
+    s = min(1.0, (WIDTH - 0.1 - label_w - gap0 - gap_ours) / (n_add + 2))  # tile size that fits the column count
+    nrows = {"full": 3, "purified": 1, "protected-purified": 2}[layout]
     H = head + nrows * s + foot
     fig = plt.figure(figsize=(WIDTH, H))
     ax = fig.add_axes([0, 0, 1, 1])
     ax.set_xlim(0, WIDTH), ax.set_ylim(0, H)
     ax.axis("off")
-    x_ref = (WIDTH - (6 * s + label_w + gap0 + gap_ours)) / 2
+    x_ref = (WIDTH - ((n_add + 2) * s + label_w + gap0 + gap_ours)) / 2
     x0 = x_ref + s + gap0 + label_w
-    xs = [x0 + i * s for i in range(4)] + [x0 + 4 * s + gap_ours]
+    xs = [x0 + i * s for i in range(n_add)] + [x0 + n_add * s + gap_ours]
     ys = [H - head - (i + 1) * s for i in range(nrows)]
 
     def show(im, x, y, edge=INK, lw=0.5, chip=None):
@@ -202,6 +216,10 @@ def figure(img_id, prompt, out_dir, name, layout="full", chips=True, arms=None, 
             show(purified, x, ys[2], edge=color, lw=1.8, chip=lp1)
         for label, y in zip(["Protection", "Edited\n(unpurified)", "Edited\n(purified)"], ys):
             ax.text(x0 - 0.05, y + s / 2, label, rotation=90, ha="right", va="center", fontsize=8.5, linespacing=1.05)
+    if ours_tag:  # CAPGuard tiles drawn from the default bounds because the 2.5x readings are missing
+        for y in ys:
+            ax.text(xs[-1] + s / 2, y + s - 0.07, ours_tag, ha="center", va="center", fontsize=7, color="white", zorder=5,
+                    bbox=dict(boxstyle="round,pad=0.18", fc="#C0392B", ec="none"))
     ax.text(x_ref + 0.03, 0.12, f"Edit prompt: “{INSTRUCTIONS[prompt]}”", ha="left", va="center", fontsize=8.5,
             bbox=dict(boxstyle="square,pad=0.3", fc="white", ec=INK, lw=0.5))
     ax.text(xs[-1] + s, 0.12, r"Purification: Gaussian blur, $\sigma = 2$", ha="right", va="center", fontsize=8.5)
@@ -223,12 +241,14 @@ def main():
     ap.add_argument("--no-lpips", action="store_true", help="omit the LPIPS labels on the edits")
     ap.add_argument("--arms", help="comma-separated additive conditions, e.g. photoguard_encoder,mist,dia_pt,blurguard")
     ap.add_argument("--cite", action="store_true", help="add the source (author, year) under each method name")
+    ap.add_argument("--scale2p5", action="store_true",
+                    help="draw CAPGuard with the 2.5x angle bounds (color3d_scale2p5_pexels); tag tiles that fall back")
     args = ap.parse_args()
     if args.rank:
         rank(args.rank)
     else:
         figure(args.image, args.prompt, args.out_dir, args.name, args.layout, not args.no_lpips,
-               args.arms.split(",") if args.arms else None, args.cite)
+               args.arms.split(",") if args.arms else None, args.cite, args.scale2p5)
 
 
 if __name__ == "__main__":

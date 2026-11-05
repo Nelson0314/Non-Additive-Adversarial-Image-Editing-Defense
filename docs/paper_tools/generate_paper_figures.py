@@ -30,6 +30,7 @@ from matplotlib.patches import Patch  # noqa: E402
 ADDITIVE = {"danp", "dayn", "dct_shield", "dct_shield_y", "dia_pt", "dia_r", "mist",
             "photoguard_encoder", "sifm"}
 OURS = "color3d"
+OURS_LABEL = "CAPGuard"
 GRAY = "#6b7785"
 LIGHT = "#b9c1ca"
 C_ADDITIVE = "#A94438"
@@ -119,7 +120,7 @@ def purification_figure(survival_rows, sweep_rows, out):
     ax.set_ylabel("Perturbation survival")
     ax.set_title("(a) Perturbation survival", loc="left")
     ax.legend(handles=[Patch(color=C_ADDITIVE_LIGHT, label=f"other additive ({len(others)})"),
-                       Patch(color=C_ADDITIVE, label=HIGHLIGHT_LABEL), Patch(color=C_OURS, label="Ours")],
+                       Patch(color=C_ADDITIVE, label=HIGHLIGHT_LABEL), Patch(color=C_OURS, label=OURS_LABEL)],
               loc="upper center", bbox_to_anchor=(0.5, 1.0), frameon=False, handlelength=0.9, handletextpad=0.3,
               columnspacing=0.8, fontsize=5.6, ncol=3)
 
@@ -137,7 +138,7 @@ def purification_figure(survival_rows, sweep_rows, out):
             ys = [plain[(method,)]] + [sweep[(method, p)] for p, _ in settings]
             ax.plot(sx, ys, color=shade, lw=0.9, marker=marker, ms=2.4, label=name, zorder=2)
         ys = [plain[(OURS,)]] + [sweep[(OURS, p)] for p, _ in settings]
-        ax.plot(sx, ys, color=C_OURS, lw=1.3, marker="*", ms=5, label="Ours", zorder=4)
+        ax.plot(sx, ys, color=C_OURS, lw=1.3, marker="*", ms=5, label=OURS_LABEL, zorder=4)
         ax.axhline(SEED_FLOOR, color=GRAY, lw=0.6, ls=(0, (1, 1.5)), zorder=1)
         ax.set_xticks(sx)
         ax.set_xticklabels(["None"] + [f"{v:g}" for _, v in settings], fontsize=5.6)
@@ -200,7 +201,7 @@ def main():
         ax_a.scatter([float(row["defense_lpips"]) for row in sel], [float(row["edit_lpips"]) for row in sel],
                      s=14, marker=marker, color=C_ADDITIVE, alpha=0.85, edgecolors="white", linewidths=0.3, zorder=2)
     ax_a.scatter(ox, oy0, s=70, marker="*", color=C_OURS, edgecolors="white", linewidths=0.4, zorder=4)
-    ax_a.annotate("Ours", (ox, oy0), xytext=(-14, 9), textcoords="offset points", color=C_OURS,
+    ax_a.annotate(OURS_LABEL, (ox, oy0), xytext=(-14, 9), textcoords="offset points", color=C_OURS,
                   fontsize=7)
     if args.ours_extra:
         ex, ey = float(args.ours_extra[0]), float(args.ours_extra[1])
@@ -233,7 +234,7 @@ def main():
         ax_b.scatter(x, y1, s=16, facecolors="white", edgecolors=C_ADDITIVE, linewidths=0.9, zorder=3)
     ax_b.scatter(ox, oy1, s=90, marker="*", facecolors="white", edgecolors=C_OURS, linewidths=0.9, zorder=4)
     ax_b.scatter(ox, oy0, s=14, color=C_OURS, edgecolors="white", linewidths=0.3, zorder=5)
-    ax_b.annotate(f"Ours\n{oy0:.3f} $\\rightarrow$ {oy1:.3f}", (ox, oy1), xytext=(-4, 12), textcoords="offset points",
+    ax_b.annotate(f"{OURS_LABEL}\n{oy0:.3f} $\\rightarrow$ {oy1:.3f}", (ox, oy1), xytext=(-4, 12), textcoords="offset points",
                   color=C_OURS, fontsize=6.5, ha="center")
     after = [float(row["edit_lpips_purified_mean"]) for row in arms]
     ax_b.text(lo + 0.006, min(after) - 0.03, f"{len(arms)} additive methods", color=C_ADDITIVE, fontsize=6.5,

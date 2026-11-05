@@ -60,7 +60,7 @@ $\Theta$ is initialized with independent Gaussian entries of standard deviation 
 \begin{figure*}[t]
   \centering
   \includegraphics[width=\linewidth]{fig/distortion_displacement.pdf}
-  \caption{Distortion and edit displacement on InstructPix2Pix (306 Pexels portraits $\times$ 4 instructions). (a)~Before purification, the additive methods, including BlurGuard, at their native budgets and at the matched-distortion arm, and our defense at its default bounds (filled star) and with both angle bounds multiplied by 2.5 (open star); dashed: least-squares fit to the additive methods. (b)~Matched-distortion arms and ours before (filled) and after (open, mean of the seven purifications) purification.}
+  \caption{Distortion and edit displacement on InstructPix2Pix (306 Pexels portraits $\times$ 4 instructions). (a)~Before purification, the additive methods, including BlurGuard, at their native budgets and at the matched-distortion arm, and \capg{} at its default bounds (filled star) and with both angle bounds multiplied by 2.5 (open star); dashed: least-squares fit to the additive methods. (b)~Matched-distortion arms and \capg{} before (filled) and after (open, mean of the seven purifications) purification.}
   \prelimnote{Fig.~2: no BlurGuard points (matched-distortion arm not yet run). The open star (bounds $\times 2.5$, \texttt{color3d\_scale2p5\_pexels}) is the mean over 82 Pexels portraits (defense LPIPS 0.302, edit LPIPS 0.367 before purification, 0.375 over the seven purifications, 0.299 after VAE-Trans); the 306-image run is in progress (\texttt{color/trials/lut3d\_defense\_and\_naturalness/results/color3d\_scale2p5\_pexels/per\_image/main\_table.csv}).}
   \label{fig:plane}
 \end{figure*}
@@ -89,7 +89,7 @@ $\Theta$ is initialized with independent Gaussian entries of standard deviation 
     BlurGuard & \prelim{.271{\scriptsize$\pm$.012}}{} & \prelim{5.41{\scriptsize$\pm$.06}}{} & \prelim{5.17{\scriptsize$\pm$.07}}{} & \prelim{.329{\scriptsize$\pm$.013}}{} & \prelim{.271{\scriptsize$\pm$.029}}{} & \prelim{.136{\scriptsize$\pm$.008}}{} & \prelim{.825{\scriptsize$\pm$.091}}{} \\
     \midrule
     \rowcolor{oursrow}
-    \textbf{Ours} & \textbf{.211}{\scriptsize$\pm$.010} & 5.39{\scriptsize$\pm$.04} & \textbf{5.34}{\scriptsize$\pm$.04} & .277{\scriptsize$\pm$.011} & \textbf{.291}{\scriptsize$\pm$.025} & \textbf{.218}{\scriptsize$\pm$.009} & \textbf{1.091}{\scriptsize$\pm$.113} \\
+    \textbf{\capg{}} & \textbf{.211}{\scriptsize$\pm$.010} & 5.39{\scriptsize$\pm$.04} & \textbf{5.34}{\scriptsize$\pm$.04} & .277{\scriptsize$\pm$.011} & \textbf{.291}{\scriptsize$\pm$.025} & \textbf{.218}{\scriptsize$\pm$.009} & \textbf{1.091}{\scriptsize$\pm$.113} \\
     \bottomrule
   \end{tabular}
 
@@ -113,10 +113,10 @@ $\Theta$ is initialized with independent Gaussian entries of standard deviation 
     BlurGuard & \prelim{.935{\scriptsize$\pm$.007}}{} & \prelim{.971{\scriptsize$\pm$.004}}{} & \prelim{\textbf{.232}{\scriptsize$\pm$.003}}{} & \prelim{.936{\scriptsize$\pm$.009}}{} & \prelim{\textbf{49.2}{\scriptsize$\pm$8.0}}{} & \prelim{.864{\scriptsize$\pm$.027}}{} & \prelim{.855{\scriptsize$\pm$.029}}{} & \prelim{26.6{\scriptsize$\pm$1.3}}{} \\
     \midrule
     \rowcolor{oursrow}
-    \textbf{Ours} & \textbf{.913}{\scriptsize$\pm$.003} & \textbf{.925}{\scriptsize$\pm$.004} & .238{\scriptsize$\pm$.001} & \textbf{.913}{\scriptsize$\pm$.004} & 35.0{\scriptsize$\pm$2.1} & \textbf{.826}{\scriptsize$\pm$.028} & \textbf{.855}{\scriptsize$\pm$.015} & \textbf{21.4}{\scriptsize$\pm$.2} \\
+    \textbf{\capg{}} & \textbf{.913}{\scriptsize$\pm$.003} & \textbf{.925}{\scriptsize$\pm$.004} & .238{\scriptsize$\pm$.001} & \textbf{.913}{\scriptsize$\pm$.004} & 35.0{\scriptsize$\pm$2.1} & \textbf{.826}{\scriptsize$\pm$.028} & \textbf{.855}{\scriptsize$\pm$.015} & \textbf{21.4}{\scriptsize$\pm$.2} \\
     \bottomrule
   \end{tabular}
   \caption{Main comparison on 306 Pexels portraits $\times$ 4 instructions (InstructPix2Pix); additive methods at the settings of their matched-distortion arm. Each image is first averaged over the four instructions. Small numbers: in the Purified$^{*}$ columns, the half-width of the 95\% confidence interval across the seven purifications ($t$ distribution, 6 degrees of freedom, over the seven per-purification means), which measures how much the result varies between purifications; in the other columns, the half-width of the 95\% confidence interval of the mean over the 306 images (over the images with a detected face for ArcFace). Edits are compared under the same purification. Best mean in bold. $^{*}$Mean over the seven purifications (JPEG 80, 50, 30; Gaussian blur $\sigma = 1, 2$; crop-and-resize; rotation). LAION and MUSIQ of the original images: 5.46 and 5.39. Ret.: retention, edit LPIPS after purification divided by that before, per edit. ArcFace: cosine similarity of ArcFace embeddings of the two edits, over edits in which a face is detected. CLIP-S: CLIP similarity between the edit and the instruction text; CLIP-I: CLIP similarity between the two edits; FID: between the sets of defended and undefended edits, mean over the seven purifications; SSIM and PSNR: between the two edits.}
   \label{tab:main}
 \end{table*}
-\prelimnote{Tab.~1, BlurGuard: 100 of the 306 Pexels portraits (stratified by gender and our defense LPIPS), full protocol; perturbation scaled by 0.6071, calibrated on the eight-portrait set to defense LPIPS 0.334, which gives 0.271 on these portraits (baseline \texttt{results/pexels\_portraits/blurguard/summary.csv}, commit e84f78c).}
+\prelimnote{Tab.~1, BlurGuard: 100 of the 306 Pexels portraits (stratified by gender and the defense LPIPS of \capg{}), full protocol; perturbation scaled by 0.6071, calibrated on the eight-portrait set to defense LPIPS 0.334, which gives 0.271 on these portraits (baseline \texttt{results/pexels\_portraits/blurguard/summary.csv}, commit e84f78c).}

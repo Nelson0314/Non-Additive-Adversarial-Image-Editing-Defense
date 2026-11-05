@@ -9,6 +9,8 @@
 # 輸出：artifacts/pexels_portraits/vae_trans/<根>/{inputs,blurguard/purified_edits}/blurguard/…；
 #       runtime/pexels_portraits/blurguard/results/<影像組>/：vae_trans_fidelity_blurguard.csv、retention_vae_trans_blurguard.csv、
 #       semantic_identity{,_vae_trans}.csv、clip_score.csv、arcface_pair.csv、survival.csv、edit_fidelity.csv
+# BLURGUARD_ROOT（預設 runtime/pexels_portraits/blurguard）指定子集的執行根（data／state／results）；同一產物根下另一批影像的
+# 防禦圖不進入本批的 VAE-Trans 與存續比（以 results/<影像組>/vae_defenses/ 只連本批影像）。
 # 前置條件不成立時以結束碼 4 結束。
 # 用法（遠端 baseline 專案根；CUDA_VISIBLE_DEVICES 由呼叫端的租約設定）：ENV_FILE=~/env.sh bash scripts/evaluate_pexels_blurguard_followup.sh <影像組>
 set -uo pipefail
@@ -23,7 +25,7 @@ C=blurguard
 ENC=../color/trials/lut3d_defense_and_naturalness/artifacts/purification/vae_trans/model/encoder.pt
 PURIFIERS=$("$PY" -m immunization_core.purifiers.protocol --exclude-identity) || exit 1
 root=$("$PY" -c "import json; print({s['name']: s['root'] for s in json.load(open('data/pexels_portraits/image_sets.json'))['sets']}['$SET'])") || exit 1
-B=runtime/pexels_portraits/blurguard
+B=${BLURGUARD_ROOT:-runtime/pexels_portraits/blurguard}
 D=$B/data/$SET S=$B/state/$SET R=$B/results/$SET
 NA=artifacts/pexels_portraits${root:+/$root}
 V=artifacts/pexels_portraits/vae_trans${root:+/$root}
@@ -33,16 +35,27 @@ step() { echo "[STEP] $(date -Iseconds) $*"; }
 [ -d "$V/inputs/native/undefended/vae_trans/ip2p_undefended_vae_trans" ] || { echo "[FATAL] 缺 VAE-Trans 未防禦分母 $V/inputs/native/undefended" >&2; exit 1; }
 "$PY" -c "import torch, sys; sys.exit(0 if torch.cuda.is_available() else 'CUDA 不可用')" || exit 1
 n_images=$(ls "$D"/man/*.png "$D"/woman/*.png 2>/dev/null | wc -l)
-step "BlurGuard followup $SET（$n_images 張，GPU $CUDA_VISIBLE_DEVICES）"
+step "BlurGuard followup $SET（$n_images 張，GPU $CUDA_VISIBLE_DEVICES，$B）"
+# 本批影像的防禦圖連結（apply_vae_trans 與存續比只讀本批）
+mkdir -p "$R/vae_defenses/$C"
+for f in "$D"/man/*.png "$D"/woman/*.png; do
+  [ -e "$f" ] || continue; n=$(basename "$f" .png)
+  for g in "${n}__${C}__def.png" "${n}__orig.png"; do
+    [ -f "$NA/defenses/$C/$g" ] || { echo "[FATAL] 缺 $NA/defenses/$C/$g" >&2; exit 1; }
+    ln -sfn "$BASELINE_ROOT/$NA/defenses/$C/$g" "$R/vae_defenses/$C/$g"
+  done
+done
 
 in=$V/inputs/$C/$C/vae_trans/ip2p_${C}_vae_trans
 out=$V/$C/purified_edits/$C/vae_trans
 if [ ! -f "$S/vae_trans_inputs.done" ]; then
   step "VAE-Trans 淨化"
-  "$PY" -m $CHAIN_CLI.apply_vae_trans --defenses-dir "$NA/defenses/$C" --condition "$C" --encoder "$ENC" \
+  "$PY" -m $CHAIN_CLI.apply_vae_trans --defenses-dir "$R/vae_defenses/$C" --condition "$C" --encoder "$ENC" \
       --output-root "$V/inputs/$C" --fidelity-csv "$R/vae_trans_fidelity_$C.csv" || exit 1
   for f in "$in"/*__orig.png; do ln -f "$f" "${f%__orig.png}__vae_trans__def.png" || exit 1; done
-  [ "$(ls "$in"/*__vae_trans__def.png | wc -l)" -eq "$n_images" ] || { echo "[FATAL] $in 張數不等於 $n_images" >&2; exit 1; }
+  for f in "$R/vae_defenses/$C"/*__orig.png; do
+    [ -f "$in/$(basename "$f" __orig.png)__vae_trans__def.png" ] || { echo "[FATAL] $in 缺 $(basename "$f" __orig.png)" >&2; exit 1; }
+  done
   touch "$S/vae_trans_inputs.done"
 fi
 if [ ! -f "$S/vae_trans_edits.done" ]; then
@@ -108,7 +121,7 @@ if [ ! -f "$S/arcface_pair.done" ]; then
 fi
 if [ ! -f "$S/survival.done" ]; then
   step 擾動存續比
-  "$PY" -m $CHAIN_CLI.measure_perturbation_survival --defenses-root "$NA/defenses" --purified-edits-root "$NA/purified_edits" --conditions "$C" \
+  "$PY" -m $CHAIN_CLI.measure_perturbation_survival --defenses-root "$R/vae_defenses" --purified-edits-root "$NA/purified_edits" --conditions "$C" \
       --extra-purifier vae_trans "$V/inputs/$C/{condition}/vae_trans/ip2p_{condition}_vae_trans/{image}__orig.png" \
       "$V/inputs/native/undefended/vae_trans/ip2p_undefended_vae_trans/{image}__orig.png" --output-csv "$R/survival.csv" || exit 1
   touch "$S/survival.done"

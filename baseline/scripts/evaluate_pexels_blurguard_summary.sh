@@ -4,29 +4,35 @@
 # 再以 scripts/generate_pexels_blurguard_summary.py 產生主表列。
 # 輸出 runtime/pexels_portraits/blurguard/results/all/{pairs.csv,distribution/,summary.csv,per_purifier.csv}。
 # 已開始的影像組（state/<影像組>/）有任一缺 followup.done 時以結束碼 4 結束；佇列以 AFTER= 保證各組都已排過。
-# 用法（遠端 baseline 專案根）：ENV_FILE=~/env.sh bash scripts/evaluate_pexels_blurguard_summary.sh
+# BLURGUARD_ROOTS（預設 runtime/pexels_portraits/blurguard）可列多個執行根，合併為一列；BLURGUARD_OUTPUT 為輸出目錄
+# （預設 <第一個根>/results/all）。防禦圖對原圖的配對只取各根 images.txt 中的影像。
+# 用法（遠端 baseline 專案根）：[BLURGUARD_ROOTS="<根> ..."] [BLURGUARD_OUTPUT=<目錄>] ENV_FILE=~/env.sh bash scripts/evaluate_pexels_blurguard_summary.sh
 set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/env.sh"
 cd "$BASELINE_ROOT"
 export CUDA_VISIBLE_DEVICES=
-B=runtime/pexels_portraits/blurguard
-O=$B/results/all
-for d in "$B"/state/*/; do
-  [ -f "$d/followup.done" ] || { echo "[NOT READY] $(basename "$d") 的 followup"; exit 4; }
+ROOTS=${BLURGUARD_ROOTS:-runtime/pexels_portraits/blurguard}
+first=${ROOTS%% *}
+O=${BLURGUARD_OUTPUT:-$first/results/all}
+for B in $ROOTS; do
+  for d in "$B"/state/*/; do
+    [ -f "$d/followup.done" ] || { echo "[NOT READY] $(basename "$d") 的 followup（$B）"; exit 4; }
+  done
 done
 mkdir -p "$O"
-"$PY" - "$B" "$O/pairs.csv" <<'EOF'
+"$PY" - "$O/pairs.csv" $ROOTS <<'EOF'
 import csv, json, sys
 from pathlib import Path
-B, out = Path(sys.argv[1]), sys.argv[2]
+out, roots = sys.argv[1], [Path(r) for r in sys.argv[2:]]
+images = set().union(*(set((r / "images.txt").read_text(encoding="utf-8").split()) for r in roots))
 rows = []
 for s in json.load(open("data/pexels_portraits/image_sets.json", encoding="utf-8"))["sets"]:
-    R = B / "results" / s["name"]
-    if not (R / "pairs.csv").is_file():
-        continue
-    rows += list(csv.DictReader(open(R / "pairs.csv", encoding="utf-8")))
+    for B in roots:
+        R = B / "results" / s["name"]
+        if (R / "pairs.csv").is_file():
+            rows += list(csv.DictReader(open(R / "pairs.csv", encoding="utf-8")))
     d = Path("artifacts/pexels_portraits") / (s["root"] or "") / "defenses/blurguard"
-    for p in sorted(d.glob("*__blurguard__def.png")):
+    for p in sorted(q for q in d.glob("*__blurguard__def.png") if q.name.split("__")[0] in images):
         rows.append({"condition": "blurguard", "end": "distortion", "purifier": "", "a_png": p.as_posix(),
                      "b_png": p.with_name(p.name.replace("__blurguard__def.png", "__orig.png")).as_posix()})
 with open(out, "w", newline="", encoding="utf-8") as f:
@@ -35,5 +41,5 @@ with open(out, "w", newline="", encoding="utf-8") as f:
 print(f"[PAIRS] {out}（{len(rows)} 對）")
 EOF
 "$PY" scripts/measure_distribution_metrics.py "$O/distribution" --dataset pexels --pairs-csv "$O/pairs.csv"
-"$PY" scripts/generate_pexels_blurguard_summary.py
+"$PY" scripts/generate_pexels_blurguard_summary.py --roots $ROOTS --output-dir "$O"
 echo "[STEP] $(date -Iseconds) BLURGUARD SUMMARY DONE"

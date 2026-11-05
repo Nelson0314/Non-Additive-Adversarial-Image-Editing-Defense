@@ -6,8 +6,11 @@ arcface_pair.csv、clip_score.csv、survival.csv、edit_fidelity.csv、fidelity.
 （scripts/evaluate_pexels_blurguard_summary.sh）。欄、平均與區間的算法同 scripts/generate_pexels_main_table_summary.py
 （n＝100；ArcFace 為有臉影像數）。影像數不是 100 或格數不齊時失敗。
 輸出 runtime/pexels_portraits/blurguard/results/all/{summary,per_purifier}.csv。
-用法（遠端 baseline 專案根）：python scripts/generate_pexels_blurguard_summary.py
+`--roots` 給多個執行根時合併各根的 results/<影像組>/（影像不得重複），影像清單為各根 images.txt 的聯集，
+FID／KID 與輸出位置改用 `--output-dir`。
+用法（遠端 baseline 專案根）：python scripts/generate_pexels_blurguard_summary.py [--roots <根>...] [--output-dir <目錄>]
 """
+import argparse
 import csv
 import glob
 import sys
@@ -20,7 +23,6 @@ from generate_pexels_main_table_summary import (SEVEN, faces, image_stat, purifi
 
 C = "blurguard"
 B = Path("runtime/pexels_portraits/blurguard")
-OUT = B / "results/all"
 
 
 def kind_of(purifier):
@@ -28,11 +30,19 @@ def kind_of(purifier):
 
 
 def main():
-    images = set((B / "images.txt").read_text(encoding="utf-8").split())
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--roots", nargs="+", type=Path, default=[B])
+    ap.add_argument("--output-dir", type=Path, default=B / "results/all")
+    args = ap.parse_args()
+    OUT = args.output_dir
+    lists = [set((r / "images.txt").read_text(encoding="utf-8").split()) for r in args.roots]
+    images = set().union(*lists)
+    if sum(len(x) for x in lists) != len(images):
+        raise SystemExit("各執行根的影像清單重疊")
     N = len(images)
     metric = defaultdict(dict)
     defense, aesthetic = {}, {}
-    for R in sorted(p for p in (B / "results").iterdir() if p.is_dir() and p.name != "all"):
+    for R in sorted(p for root in args.roots for p in (root / "results").iterdir() if p.is_dir() and p.name != "all"):
         if not (R / f"displacement_{C}.csv").is_file():
             continue
         for row in read(R / f"displacement_{C}.csv"):

@@ -4,7 +4,7 @@
     cd ~/paper_figures && ~/venvs/wacv/bin/python in/generate_pexels_teaser_figure.py --image man_12 --prompt 1 \
         --out-dir out_teaser --name teaser_man_12_p1
 
-Layout as generate_teaser_figure.py (--layout selects the rows; --no-lpips drops the LPIPS labels): rows are the protected image, the unpurified edit and the edit after
+Layout (--layout selects the rows; --no-lpips drops the LPIPS labels): rows are the protected image, the unpurified edit and the edit after
 Gaussian blur (sigma 2); columns are no defense, the matched-distortion arms of PhotoGuard (encoder attack),
 Mist, DIA-PT, DCT-Shield, and ours (color3d_pexels). The chips give the edit LPIPS against the undefended edit
 under the same purification.

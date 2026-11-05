@@ -7,9 +7,8 @@ distortion_displacement.pdf has two panels that share the least-squares line fit
 pre-purification points of the additive methods (baseline/results/distortion_displacement/
 points.csv; rows of earlier color conditions are dropped, the final color3d comes from the color
 paper table).
-(a) Edit LPIPS before purification against defense LPIPS for every budget of every additive method;
-    with --per-image, the 306 per-image points of the nine matched-distortion arms and color3d_pexels
-    (import_pexels_per_image_points.py) are drawn as light dots behind the method means.
+(a) Edit LPIPS before purification against defense LPIPS for every budget of every additive method; --ours-extra adds a second
+    operating point of CAPGuard.
 (b) The eleven matched-distortion arms and color3d: filled marker before purification, open marker
     after purification (mean over the seven standard purifications), joined by an arrow.
 """
@@ -36,7 +35,6 @@ LIGHT = "#b9c1ca"
 C_ADDITIVE = "#A94438"
 C_ADDITIVE_LIGHT = "#D9A39C"
 C_OURS = "#1F6F7C"
-C_OURS_LIGHT = "#8FB9C0"
 HIGHLIGHT = "dct_shield_y"  # additive method drawn separately (native budget; inputs merged by the caller)
 HIGHLIGHT_LABEL = "DCT-Shield-Y (native)"
 SOURCE_MARKER = {"native": "s", "aligned": "o", "aligned_1p255": "o", "plane": "^"}
@@ -169,7 +167,6 @@ def main():
     parser.add_argument("--sweep", type=Path, required=True, help="baseline/results/sweeps/ip2p/purifier_strength/retention.csv")
     parser.add_argument("--ours-extra", nargs=3, metavar=("DEFENSE_LPIPS", "EDIT_LPIPS", "LABEL"),
                         help="an additional operating point of our defense before purification, drawn in panel (a)")
-    parser.add_argument("--per-image", type=Path, help="per_image_points.csv from import_pexels_per_image_points.py")
     parser.add_argument("--out-dir", type=Path, required=True)
     args = parser.parse_args()
     args.out_dir.mkdir(parents=True, exist_ok=True)
@@ -187,14 +184,6 @@ def main():
     fig, (ax_a, ax_b) = plt.subplots(1, 2, figsize=(6.9, 2.05), gridspec_kw={"width_ratios": [1, 1.15]})
 
     # (a) every budget before purification
-    top = 0.7
-    if args.per_image:
-        per_image = read(args.per_image)
-        for group, color, alpha in ((ADDITIVE, C_ADDITIVE_LIGHT, 0.25), ({"color3d_pexels"}, C_OURS_LIGHT, 0.45)):
-            sel = [row for row in per_image if row["condition"] in group]
-            ax_a.scatter([float(row["defense_lpips"]) for row in sel], [float(row["edit_lpips_none"]) for row in sel],
-                         s=1.5, color=color, alpha=alpha, linewidths=0, zorder=1, rasterized=True)
-        top = 0.8
     draw_line(ax_a, slope, intercept, 0.0, 0.7)
     for marker in ("s", "o", "^"):
         sel = [row for row in points if SOURCE_MARKER.get(row["source"]) == marker]
@@ -209,7 +198,7 @@ def main():
         ax_a.annotate(args.ours_extra[2], (ex, ey), xytext=(6, -3), textcoords="offset points", color=C_OURS,
                       fontsize=6.5, va="top")
     ax_a.set_xlim(0, 0.7)
-    ax_a.set_ylim(0, top)
+    ax_a.set_ylim(0, 0.7)
     ax_a.set_xlabel("Defense LPIPS")
     ax_a.set_ylabel("Edit LPIPS")
     present = {SOURCE_MARKER.get(row["source"]) for row in points}
@@ -217,8 +206,6 @@ def main():
     ax_a.text(0.69, 0.04, f"dashed: least-squares fit, $r$ = {r:.3f}", color=GRAY, fontsize=6.5, ha="right")
     handles = [Line2D([], [], ls="none", marker=m, color=C_ADDITIVE, ms=3.5, label=label)
                for m, label in (("s", "native budget"), ("o", "matched distortion"), ("^", "budget sweep")) if m in present]
-    if args.per_image:
-        handles.append(Line2D([], [], ls="none", marker="o", color=C_ADDITIVE_LIGHT, ms=2, label="per image (matched, ours)"))
     ax_a.legend(handles=handles, loc="upper left", frameon=False, handletextpad=0.2, borderaxespad=0.2)
 
     # (b) matched distortion, before -> after purification

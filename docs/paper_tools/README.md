@@ -23,9 +23,15 @@ python docs/paper_tools/run_paper_preview.py --watch    # 原始檔變更時重�
 
 | 腳本 | 產物 |
 |---|---|
-| `generate_method_overview_panels.py` | Fig. 1 的資料圖塊，複製到 `method_overview/` 後以 Tectonic 編譯 `method_overview/method_overview.tex` |
+| `generate_method_overview_panels.py` | 方法總覽圖（Fig. 2）的資料圖塊，複製到 `method_overview/` 後以 Tectonic 編譯 `method_overview/method_overview.tex` |
 | `import_pexels_figure_inputs.py` | 把 baseline 的 Pexels 讀數轉成 `generate_paper_figures.py` 的輸入 |
-| `generate_paper_figures.py` | Fig. 2（`distortion_displacement.pdf`）、Fig. 3（`purification.pdf`） |
-| `generate_teaser_figure.py` | teaser（暫時移出論文）與同版面的例子 |
+| `generate_paper_figures.py` | 失真—位移圖（`distortion_displacement.pdf`）、淨化分析圖（`purification.pdf`） |
+| `generate_pexels_teaser_figure.py` | Fig. 1 teaser（`teaser.pdf`）與候選排序（`--rank`）；CAPGuard 以 `--scale2p5` 取 2.5 倍防禦圖 |
+| `generate_teaser_overview.py` | 把多組 teaser 候選 PNG 疊成一張總覽圖（選圖用，不入論文） |
 
-`experiment_overview/` 為內部用實驗總覽，於該目錄以 Tectonic 編譯後複製到桌面。
+本機產生表格（讀遠端抓回的 CSV，寫入 `docs/paper/sec/`）：
+
+| 腳本 | 產物 |
+|---|---|
+| `generate_main_table.py` | Table 1（`3_method.tex` 的 `tab:main`，含 UltraEdit、FLUX 區塊） |
+| `generate_per_purification_table.py` | 補充材料逐道淨化表（`sec/X_suppl_purification.tex`） |

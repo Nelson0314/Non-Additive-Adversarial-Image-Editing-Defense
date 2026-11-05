@@ -12,6 +12,9 @@
 #              （等失真、undefended、color3d_pexels 依序）
 # 輸出：產物 artifacts/pexels_portraits/flux_512/{edits,purified_edits}/<條件>/…；逐格表 runtime/pexels_portraits/flux_512/chunks/<影像>/；
 #       參數清單 chunks/<影像>/flux_jobs.txt；完成標記 runtime/pexels_portraits/flux_512/done/<影像>{,__<條件>__<設定>}.done。
+# COLOR3D_GROUP＝color3d_<變體> 時只跑條件 color3d_<變體>_pexels（防禦圖與七道取 color trial 合併後的產物，VAE-Trans 取
+# scripts/evaluate_pexels_followup.sh 該分組的輸入），影像完成標記為 done/<影像>__<分組>.done；FLUX_WITHOUT_COLOR3D=1 時
+# 預設的六條件去掉 color3d_pexels。
 # 前置條件不成立時以結束碼 4 結束；缺必要輸入時失敗。
 # 用法（遠端 baseline 專案根，basic-2；CUDA_VISIBLE_DEVICES 由呼叫端的租約設定）：
 #   ENV_FILE=~/env.sh bash scripts/evaluate_pexels_flux_512.sh <影像>
@@ -26,6 +29,12 @@ export TOKENIZERS_PARALLELISM=false PYTORCH_CUDA_ALLOC_CONF=expandable_segments:
 
 ALIGNED="photoguard_encoder dct_shield dct_shield_y mist"
 CONDS="undefended $ALIGNED color3d_pexels"
+[ "${FLUX_WITHOUT_COLOR3D:-0}" = 1 ] && CONDS="undefended $ALIGNED"
+G=${COLOR3D_GROUP:-}
+if [ -n "$G" ]; then
+  case $G in color3d_*) ;; *) echo "[FATAL] COLOR3D_GROUP 須為 color3d_<變體>：$G" >&2; exit 2 ;; esac
+  CONDS=${G}_pexels
+fi
 OPS="blur1 blur2 crop_resize0.1 jpeg30 jpeg50 jpeg80 rotate15"
 PD=data/pexels_portraits
 CT=../color/trials/lut3d_defense_and_naturalness/artifacts_pexels
@@ -47,12 +56,13 @@ S=runtime/pexels_portraits/flux_512
 R=$S/chunks/$IMG
 mkdir -p "$S/done" "$R"
 not_ready() { chain_step "前置條件不成立：$*"; exit 4; }
-[ -f "$S/done/$IMG.done" ] && { chain_step "flux_512 $IMG 已完成"; exit 0; }
+IMG_DONE=$S/done/$IMG${G:+__$G}.done
+[ -f "$IMG_DONE" ] && { chain_step "flux_512 $IMG ${G:-} 已完成"; exit 0; }
 [ -f "$AS/chain.done" ] && [ -f "$AS/chain_photoguard_encoder.done" ] || not_ready "等失真 $SET"
 
-defenses_dir() { case $1 in color3d_pexels) echo "$CT/defenses/color3d_pexels" ;; *) echo "$AA/defenses/$1" ;; esac; }
-seven_root() { case $1 in color3d_pexels) echo "$CT/purified_edits" ;; *) echo "$AA/purified_edits" ;; esac; }
-vae_root() { case $1 in color3d_pexels) echo "$VT/color3d" ;; undefended) echo "$VT/native" ;; *) echo "$VT/aligned" ;; esac; }
+defenses_dir() { case $1 in color3d_*) echo "$CT/defenses/$1" ;; *) echo "$AA/defenses/$1" ;; esac; }
+seven_root() { case $1 in color3d_*) echo "$CT/purified_edits" ;; *) echo "$AA/purified_edits" ;; esac; }
+vae_root() { case $1 in color3d_pexels) echo "$VT/color3d" ;; color3d_*) echo "$VT/${1%_pexels}" ;; undefended) echo "$VT/native" ;; *) echo "$VT/aligned" ;; esac; }
 for c in $CONDS; do
   if [ "$c" != undefended ]; then
     [ -f "$(defenses_dir $c)/${IMG}__${c}__def.png" ] || { echo "[FATAL] 缺防禦圖 $(defenses_dir $c)/${IMG}__${c}__def.png" >&2; exit 1; }
@@ -91,5 +101,5 @@ if [ -n "$pending" ]; then
   "$PY" -m $CHAIN_CLI.run_flux_edit_jobs --jobs-file "$J" || exit 1
   for k in $pending; do touch "$S/done/${IMG}__$k.done"; done
 fi
-touch "$S/done/$IMG.done"
-chain_step "FLUX 512 DONE $IMG"
+touch "$IMG_DONE"
+chain_step "FLUX 512 DONE $IMG ${G:-}"

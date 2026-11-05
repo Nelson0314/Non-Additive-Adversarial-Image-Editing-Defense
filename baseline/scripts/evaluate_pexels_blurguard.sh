@@ -12,7 +12,7 @@ source scripts/env.sh || exit 1
 source scripts/run_evaluation_chain.sh
 : "${CUDA_VISIBLE_DEVICES:?需要由租約設定 CUDA_VISIBLE_DEVICES}"
 export TOKENIZERS_PARALLELISM=false PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
-B=${BLURGUARD_ROOT:-runtime/pexels_portraits/blurguard}   # 執行根；setting.env 與 scale_blurguard.py 固定取 runtime/pexels_portraits/blurguard/
+B=${BLURGUARD_ROOT:-runtime/pexels_portraits/blurguard}   # 執行根；setting.env 固定取 runtime/pexels_portraits/blurguard/
 G=runtime/pexels_portraits/blurguard
 [ -f $G/setting.env ] || { echo "[NOT READY] 缺 $G/setting.env"; exit 4; }
 source $G/setting.env
@@ -45,7 +45,7 @@ if [ -n "$missing" ]; then
 fi
 if [ ! -f "$S/scaled.done" ]; then
   : "${BG_SCALE:?setting.env 需要 BG_SCALE}"
-  CUDA_VISIBLE_DEVICES= "$PY" $G/scale_blurguard.py apply "$RAW" "$NA/defenses/blurguard" "$BG_SCALE" || exit 1
+  CUDA_VISIBLE_DEVICES= "$PY" scripts/apply_blurguard_scale.py apply "$RAW" "$NA/defenses/blurguard" "$BG_SCALE" || exit 1
   touch "$S/scaled.done"
 fi
 run_evaluation_chain "$D" "$NA" "$S" "$R" blurguard || exit 1

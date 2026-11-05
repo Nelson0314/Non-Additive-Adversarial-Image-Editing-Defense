@@ -5,8 +5,9 @@
                                         σ = 4 格的高斯平滑（與 SmoothAngleLut._blur 相同的可分離核與 replicate 邊界）。
   disk_background.png                   (b) 色度盤底色：‖c‖ = NORM 的球面沿灰軸俯視，半徑為極角 θ、角度為方位角 φ；
                                         色域外透明。
-  disk_arrows.tex                       (b) 同一球面上 c → T(c) 的位移，T 為 woman_00、color3d 的實際 LUT（三線性查表）。
-  disk_points.tex                       (b) 兩個同色像素的 c、c′ 在色度盤上的位置與色票顏色。
+  disk_arrows.tex                       (b) 同一球面上 c → T(c) 的位移，T 為 man_60、color3d_scale2p5_pexels 的實際 LUT（三線性查表）。
+  disk_points.tex                       (b) 兩個同色像素的 c、c′ 在色度盤上的位置、色票顏色與影像座標（\pixax 等）。
+  original.png、protected.png           (c) x 與 x̃。
 
 遠端 CPU 執行（basic-1）：
   cd ~/paper_figures && ~/venvs/wacv/bin/python in/generate_method_overview_panels.py --out-dir out_overview
@@ -24,8 +25,11 @@ from PIL import Image
 
 REPO = Path.home() / "image-immunization"
 TRIAL = REPO / "color/trials/lut3d_defense_and_naturalness"
-COND, IMG = "color3d", "woman_00"
-PIXELS = ((228, 85), (423, 378))  # 影像座標 (x, y)，在 x 中同為 RGB (170, 123, 101)
+TARGET = "color3d_scale2p5"  # 論文方法（極角 < 25°、色相 < 7.5°），由 generate_color3d_budget_defenses 登錄
+COND, IMG = "color3d_scale2p5_pexels", "man_60"  # 與 Fig. 1 teaser 同一張
+DEFENSE_DIR = TRIAL / f"artifacts_pexels/defense_shards/{COND}/{IMG}"
+PIXEL_MIN_DISTANCE, PIXEL_MARGIN = 200, 40  # 自動挑像素對：兩點相距與離邊界的最小像素數
+PIXEL_CODE_RANGE, PIXEL_THETA = (8, 247), (12.0, 30.0)  # 像素對的 c′ 碼值範圍與 c 的極角範圍（度）
 GRID, SIGMA, NODES, NODE_STEP = 33, 4.0, 5, 2  # 示意晶格：5³ 個節點，間隔 2 格（σ 的一半）
 DISK_THETA = 45.0  # 色度盤外緣的極角（度）
 DISK_RADIUS = 1.6  # 色度盤外緣在圖上的半徑（cm）
@@ -42,12 +46,14 @@ def load_lut():
     for p in (TRIAL, REPO / "color/src", REPO / "color/vendor"):
         sys.path.insert(0, str(p))
     import generate_color3d_defenses as g
+    import generate_color3d_budget_defenses  # noqa: F401  登錄 color3d_scale2p5
 
-    cfg = g.TARGETS[COND]
+    cfg = g.TARGETS[TARGET]
     cls = g.SmoothAngleLut
     cls.tan_theta, cls.sigma = math.tan(math.radians(cfg["theta"])), cfg["sigma"]
     cls.tan_hue, cls.desat = math.tan(math.radians(cfg["hue"])), False
-    state = torch.load(TRIAL / f"artifacts/defenses/{COND}/{IMG}__carrier.pt", map_location="cpu")
+    print(f"{TARGET}：極角上界 {cfg['theta']}°、色相上界 {cfg['hue']}°、σ = {cfg['sigma']}")
+    state = torch.load(DEFENSE_DIR / f"{IMG}__carrier.pt", map_location="cpu")
     lut = cls(grid=int(state["grid"]))
     lut.reset(torch.zeros(1, 3, 8, 8), seed=0)
     lut.load_state_dict(state)
@@ -102,6 +108,40 @@ def lattice(lut, field, path):
     Path(path).write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
+def pick_pixels(x, protected):
+    """在 x 中找同色、相距 ≥ PIXEL_MIN_DISTANCE 的兩個像素，取 c → c′ 位移最大者；回傳 ((x, y), (x, y))。"""
+    h, w, _ = x.shape
+    ys, xs = np.mgrid[PIXEL_MARGIN:h - PIXEL_MARGIN, PIXEL_MARGIN:w - PIXEL_MARGIN]
+    ys, xs = ys.ravel(), xs.ravel()
+    keys = x[ys, xs].astype(np.int64) @ np.array([65536, 256, 1])
+    order = np.argsort(keys, kind="stable")
+    keys, ys, xs = keys[order], ys[order], xs[order]
+    starts = np.flatnonzero(np.r_[True, keys[1:] != keys[:-1]])
+    best = None
+    for s, e in zip(starts, np.r_[starts[1:], len(keys)]):
+        if e - s < 2:
+            continue
+        py, px = ys[s:e:max(1, (e - s) // 2000)], xs[s:e:max(1, (e - s) // 2000)]  # 大群組等距抽樣，限制距離矩陣大小
+        outs = {tuple(protected[a, b]) for a, b in zip(py, px)}
+        if len(outs) != 1:
+            raise ValueError(f"同色像素在 x̃ 中不同色：{x[py[0], px[0]]} → {outs}")
+        out = np.array(outs.pop())
+        theta = float(to_polar(x[py[0], px[0]] / 255.0)[0])
+        # 只取未截斷、有色度的顏色（排除近白背景與飽和截斷），色度盤上才看得到旋轉
+        if out.min() < PIXEL_CODE_RANGE[0] or out.max() > PIXEL_CODE_RANGE[1] or not PIXEL_THETA[0] <= theta <= PIXEL_THETA[1]:
+            continue
+        d2 = (py[:, None] - py[None]) ** 2 + (px[:, None] - px[None]) ** 2
+        i, j = np.unravel_index(np.argmax(d2), d2.shape)
+        if d2[i, j] < PIXEL_MIN_DISTANCE ** 2:
+            continue
+        shift = np.linalg.norm(protected[py[0], px[0]].astype(float) - x[py[0], px[0]].astype(float))
+        if best is None or shift > best[0]:
+            best = (shift, ((int(px[i]), int(py[i])), (int(px[j]), int(py[j]))))
+    if best is None:
+        raise ValueError("找不到符合距離條件的同色像素對")
+    return best[1]
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out-dir", type=Path, required=True)
@@ -116,10 +156,18 @@ def main():
     lattice(lut, noise, args.out_dir / "lattice_raw.tex")
     lattice(lut, smooth, args.out_dir / "lattice_smooth.tex")
 
-    x = np.asarray(Image.open(TRIAL / f"artifacts/defenses/{COND}/{IMG}__orig.png").convert("RGB"))
-    protected = np.asarray(Image.open(TRIAL / f"artifacts/defenses/{COND}/{IMG}__{COND}__def.png").convert("RGB"))
-    colors = {tuple(x[py, px]) for px, py in PIXELS}
-    outputs = {tuple(protected[py, px]) for px, py in PIXELS}
+    x = np.asarray(Image.open(DEFENSE_DIR / f"{IMG}__orig.png").convert("RGB"))
+    protected = np.asarray(Image.open(DEFENSE_DIR / f"{IMG}__{COND}__def.png").convert("RGB"))
+    rendered = np.round(lookup(table, x.reshape(-1, 3) / 255.0) * 255).reshape(x.shape)
+    mismatch = np.abs(rendered - protected).max()
+    print(f"carrier.pt 套在 x 上與 x̃ 的最大碼值差 {mismatch:.0f}")
+    if mismatch > 1:
+        raise ValueError("carrier.pt 與防禦圖不一致")
+    Image.fromarray(x).save(args.out_dir / "original.png")
+    Image.fromarray(protected).save(args.out_dir / "protected.png")
+    pixels = pick_pixels(x, protected)
+    colors = {tuple(x[py, px]) for px, py in pixels}
+    outputs = {tuple(protected[py, px]) for px, py in pixels}
     if len(colors) != 1 or len(outputs) != 1:
         raise ValueError(f"像素在 x 或 x̃ 中不同色：{colors}, {outputs}")
     c8, t8 = np.array(colors.pop(), dtype=float), np.array(outputs.pop(), dtype=float)
@@ -166,7 +214,10 @@ def main():
             rf"\xglobal\definecolor{{colorc}}{{RGB}}{{{rgb_line(c8)}}}",
             rf"\xglobal\definecolor{{colorcp}}{{RGB}}{{{rgb_line(t8)}}}",
             rf"\gdef\disknorm{{{norm:.2f}}}",
+            rf"\gdef\pixax{{{pixels[0][0]}}}\gdef\pixay{{{pixels[0][1]}}}",
+            rf"\gdef\pixbx{{{pixels[1][0]}}}\gdef\pixby{{{pixels[1][1]}}}",
         ]) + "\n", encoding="utf-8")
+    print(f"像素對 {pixels}：c = {rgb_line(c8)} → c′ = {rgb_line(t8)}")
     dphi = (p1 - ph + 180) % 360 - 180
     print(f"‖c‖ = {norm:.4f}；c (θ, φ) = ({float(tc):.2f}, {float(pc):.2f})，c′ = ({float(tt):.2f}, {float(pt):.2f})")
     print(f"色度盤箭頭 {len(th)} 支；|Δθ| 最大 {np.abs(t1 - th).max():.2f}°，|Δφ| 最大 {np.abs(dphi).max():.2f}°"

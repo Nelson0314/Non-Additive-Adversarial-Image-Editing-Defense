@@ -2,7 +2,7 @@
 % 編譯：先以 docs/paper_tools/generate_method_overview_panels.py 產生 lattice_*.tex、disk_*.tex、disk_background.png
 %（遠端執行，輸出複製到本目錄），再於本目錄執行 tectonic -X compile method_overview.tex，
 % 把 method_overview.pdf 複製到 docs/paper/fig/。
-% (a) 與 (b) 左側球帽為示意；(b) 右側色度盤為 woman_00、color3d 的實際 LUT。
+% (a) 與 (b) 左側球帽為示意；(b) 右側色度盤為 man_60、color3d_scale2p5_pexels 的實際 LUT。
 \documentclass[tikz,border=1pt]{standalone}
 \usepackage{amsmath,amssymb,mathptmx}
 \usepackage[no-math]{fontspec}
@@ -111,8 +111,8 @@
   \draw[ink, line width=0.9pt, domain=-0.55:0.55, samples=40, smooth] plot (\x,{0.36*tanh(\x/0.36*1.8)});
   \node[small, anchor=north] at (0,-0.55) {bounded};
 \end{scope}
-\node[lab, anchor=west, polar] at (\bL+1.65,5.0) {$|\Delta\theta|<10^\circ$};
-\node[lab, anchor=west, azim] at (\bL+1.65,4.55) {$|\Delta\phi|<3^\circ$};
+\node[lab, anchor=west, polar] at (\bL+1.65,5.0) {$|\Delta\theta|<25^\circ$};
+\node[lab, anchor=west, azim] at (\bL+1.65,4.55) {$|\Delta\phi|<7.5^\circ$};
 
 % ======== (b) 右：實際 LUT 的色度盤 ========
 \def\dx{9.82}\def\dy{3.3}
@@ -141,14 +141,14 @@
 \draw[->, ours, line width=1pt] (imgx.east) -- (imgd.west) node[lab, midway, above, text=ours] {$T_\Theta$};
 
 % 同色像素 → 同一個 c → c′
-\coordinate (pa) at ($(imgx.north west)+(228/512*\iw,-85/512*\iw)$);
-\coordinate (pb) at ($(imgx.north west)+(423/512*\iw,-378/512*\iw)$);
-\coordinate (qa) at ($(imgd.north west)+(228/512*\iw,-85/512*\iw)$);
-\coordinate (qb) at ($(imgd.north west)+(423/512*\iw,-378/512*\iw)$);
+\coordinate (pa) at ($(imgx.north west)+(\pixax/512*\iw,-\pixay/512*\iw)$);
+\coordinate (pb) at ($(imgx.north west)+(\pixbx/512*\iw,-\pixby/512*\iw)$);
+\coordinate (qa) at ($(imgd.north west)+(\pixax/512*\iw,-\pixay/512*\iw)$);
+\coordinate (qb) at ($(imgd.north west)+(\pixbx/512*\iw,-\pixby/512*\iw)$);
 \tikzset{link/.style={line width=0.75pt, preaction={draw=white, line width=1.9pt}}}
 \draw[link, ink] (pa) -- (DC) (pb) -- (DC);
-\draw[link, ours] (qa) .. controls (15.75,3.3) and (12.4,3.35) .. (DCP);
-\draw[link, ours] (qb) .. controls (16.2,3.2) and (12.6,3.25) .. (DCP);
+\draw[link, ours] (qa) .. controls ($(qa)+(0,-1.2)$) and (15.4,3.47) .. (14.4,3.47) .. controls (13.2,3.47) and (12.0,3.47) .. (DCP);
+\draw[link, ours] (qb) .. controls ($(qb)+(0,-0.3)$) and (15.3,3.39) .. (14.4,3.39) .. controls (13.2,3.39) and (12.0,3.39) .. (DCP);
 \pixelring{pa}{ink}\pixelring{pb}{ink}\pixelring{qa}{ours}\pixelring{qb}{ours}
 \node[circle, draw=white, line width=1.6pt, inner sep=2.1pt] at (DC) {};
 \node[circle, draw=ink, line width=0.9pt, fill=colorc, inner sep=2.1pt] at (DC) {};

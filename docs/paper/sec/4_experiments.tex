@@ -49,18 +49,18 @@
   \setlength{\tabcolsep}{5pt}
   \begin{tabular}{@{}lcccc@{}}
     \toprule
-    & \multicolumn{3}{c}{Protected image} & Edit LPIPS $\uparrow$ \
+    & \multicolumn{3}{c}{Protected image} & Edit LPIPS $\uparrow$ \\
     \cmidrule(lr){2-4} \cmidrule(l){5-5}
-    Variant & LPIPS $\downarrow$ & LAION $\uparrow$ & MUSIQ $\uparrow$ & None \
+    Variant & LPIPS $\downarrow$ & LAION $\uparrow$ & MUSIQ $\uparrow$ & None \\
     \midrule
     \rowcolor{oursrow}
-    Full pipeline (ours) & .211 & 5.39 & 5.34 & .277 \
-    w/o optimization (random $\Theta$) & .037 & 5.45 & \prelim{--}{} & .076 \
-    w/o smoothing ($\sigma = 0$) & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \
-    w/o angle bounds & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \
-    w/o separate polar / azimuth bounds & \prelim{.307}{} & \prelim{5.38}{} & \prelim{--}{} & \prelim{.373}{} \
-    w/o both & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \
-    w/o luminance constraint ($\|c\|$ free) & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \
+    Full pipeline (ours) & .211 & 5.39 & 5.34 & .277 \\
+    w/o optimization (random $\Theta$) & .037 & 5.45 & \prelim{--}{} & .076 \\
+    w/o smoothing ($\sigma = 0$) & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
+    w/o angle bounds & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
+    w/o separate polar / azimuth bounds & \prelim{.307}{} & \prelim{5.38}{} & \prelim{--}{} & \prelim{.373}{} \\
+    w/o both & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
+    w/o luminance constraint ($\|c\|$ free) & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
     \bottomrule
   \end{tabular}
   \caption{Ablations on InstructPix2Pix (306 Pexels portraits $\times$ 4 instructions), without purification. Each row removes one component of the pipeline; no row is rescaled to a common distortion. None: edit LPIPS of the unpurified protected image.}

@@ -14,7 +14,7 @@ from pathlib import Path
 OUT = Path(__file__).resolve().parents[1] / "paper" / "sec" / "X_suppl_purification.tex"
 METHODS = [("dayn", "DAYN"), ("dia_r", "DIA-R"), ("dia_pt", "DIA-PT"), ("sifm", "SIFM"), ("danp", "DANP"),
            ("mist", "Mist"), ("photoguard_encoder", "PhotoGuard"), ("dct_shield", "DCT-Shield"),
-           ("dct_shield_y", "DCT-Shield-Y"), ("color3d_pexels", r"\textbf{Ours}")]
+           ("dct_shield_y", "DCT-Shield-Y"), ("color3d_pexels", r"\textbf{\capg{}}")]
 PURIFIERS = [("jpeg80", "JPEG 80"), ("jpeg50", "JPEG 50"), ("jpeg30", "JPEG 30"), ("blur1", r"Blur $\sigma{=}1$"),
              ("blur2", r"Blur $\sigma{=}2$"), ("crop_resize0.1", "Crop"), ("rotate15", "Rotation")]
 # (per_purifier column, main_table VAE-Trans column, label, decimals)

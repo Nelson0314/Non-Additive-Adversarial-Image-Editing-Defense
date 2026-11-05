@@ -5,7 +5,8 @@
 # artifacts/pexels_portraits/<根>/{defenses,defended_edits,purified,purified_edits}/blurguard/，未防禦分母沿用原生評測。
 # 狀態 runtime/pexels_portraits/blurguard/state/<影像組>/；讀數 runtime/pexels_portraits/blurguard/results/<影像組>/
 # （defense_、displacement_、retention_blurguard.csv，fidelity.csv、aesthetic.csv）。
-# 用法（遠端 baseline 專案根）：ENV_FILE=~/env.sh bash runtime/pexels_portraits/blurguard/run_blurguard_set.sh <影像組>
+# BLURGUARD_ROOT 指定執行根（data／state／results／raw／images.txt；預設 runtime/pexels_portraits/blurguard），用於第二批影像。
+# 用法（遠端 baseline 專案根）：[BLURGUARD_ROOT=<根>] ENV_FILE=~/env.sh bash scripts/evaluate_pexels_blurguard.sh <影像組>
 set -uo pipefail
 SET=$1
 source scripts/env.sh || exit 1

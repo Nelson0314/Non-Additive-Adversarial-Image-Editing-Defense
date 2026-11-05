@@ -5,7 +5,7 @@
   \centering
   \includegraphics[width=\linewidth]{fig/purification.pdf}
   \caption{Effect of purification on InstructPix2Pix. (a)~Fraction of the perturbation that survives each purification (306 Pexels portraits), one bar per method; dotted: full survival; DCT-Shield-Y at its native budget (defense LPIPS 0.629), the other additive methods at matched distortion. (b--d)~Edit LPIPS under increasing JPEG compression, blur, and downscaling (306 Pexels portraits $\times$ 4 instructions; DCT-Shield-Y at its native budget); the leftmost point of each panel is the edit without purification, followed by the purification settings from weakest to strongest; dotted: edit LPIPS between two seeds on the same undefended image.}
-  \prelimnote{Fig.~3b--d: the current panels use 8 portraits (DCT-Shield-Y native: baseline \texttt{runtime/purifier\_sweep\_native\_dct\_shield\_y/retention\_dct\_shield\_y.csv}); the 306-portrait sweep is not yet run.}
+  \prelimnote{Fig.~4b--d: the current panels use 8 portraits (DCT-Shield-Y native: baseline \texttt{runtime/purifier\_sweep\_native\_dct\_shield\_y/retention\_dct\_shield\_y.csv}); the 306-portrait sweep is not yet run.}
   \label{fig:purification}
 \end{figure*}
 
@@ -30,15 +30,15 @@
     \bottomrule
   \end{tabular}
   \caption{Ablations on InstructPix2Pix (306 Pexels portraits $\times$ 4 instructions), without purification. Each row removes one component of the pipeline; no row is rescaled to a common distortion. None: edit LPIPS of the unpurified protected image.}
-  \prelimnote{Tab.~3, w/o optimization: \texttt{color3d\_random\_pexels} (random $\Theta$, $\alpha = 1$), 306 portraits; MUSIQ not yet computed (\texttt{color/trials/lut3d\_defense\_and\_naturalness/results/color3d\_random\_pexels/}).}
-  \prelimnote{Tab.~3, w/o smoothing, w/o angle bounds, w/o both, w/o luminance constraint: not yet run.}
-  \prelimnote{Tab.~3, w/o separate polar / azimuth bounds: stand-in \texttt{color3d\_smooth\_angle6} (single $6^\circ$ bound instead of $10^\circ$/$3^\circ$), 8 portraits.}
+  \prelimnote{Tab.~2, w/o optimization: \texttt{color3d\_random\_pexels} (random $\Theta$, $\alpha = 1$), 306 portraits; MUSIQ not yet computed (\texttt{color/trials/lut3d\_defense\_and\_naturalness/results/color3d\_random\_pexels/}).}
+  \prelimnote{Tab.~2, w/o smoothing, w/o angle bounds, w/o both, w/o luminance constraint: not yet run.}
+  \prelimnote{Tab.~2, w/o separate polar / azimuth bounds: stand-in \texttt{color3d\_smooth\_angle6} (single $6^\circ$ bound, from the bounds before scaling), 8 portraits; to be replaced by the variant of the $25^\circ$/$7.5^\circ$ pipeline.}
   \label{tab:ablation}
 \end{table*}
 
 \subsection{Setup}
 \label{sec:exp_setup}
-\paragraph{Data.} All experiments use 306 portraits from Pexels at $512^2$ resolution. \TODO{Selection rule and license of the Pexels portraits.}
+\paragraph{Data.} All experiments use 306 portraits from Pexels (108 men, 198 women), used under the Pexels License. They are selected from a public Pexels portrait collection by automatic filters for a single, near-frontal, unoccluded color face whose apparent gender agrees with the image description, deduplicated by photographer and identity, screened visually, and cropped around the face to $512^2$ (details in the supplementary material).
 
 \paragraph{Attack.} The attacker uses InstructPix2Pix~\cite{brooks2023instructpix2pix} with Euler-Ancestral sampling (50 steps, text guidance 7.5, image guidance 1.8, seed 20260812) and the four accessory instructions of FaceLock~\cite{wang2025facelock}, which yields four edits per image and defense. In \cref{sec:exp_gen}, UltraEdit~\cite{zhao2024ultraedit} runs at $512^2$ resolution with text guidance 2.5, image guidance 1.5, and 50 sampling steps, and FLUX.1 Kontext~\cite{flux2025kontext} at $512^2$ resolution with guidance 3.5, 28 sampling steps, and NF4 quantization.
 
@@ -56,7 +56,7 @@
 
 \subsection{Distortion and displacement before purification}
 \label{sec:exp_plane}
-\Cref{fig:plane}a plots edit displacement before purification against distortion for the additive methods at their native budgets and at the matched-distortion arm. On the 306 portraits, the \prelim{18}{} points follow a single line, edit LPIPS $= \prelim{1.037}{} \times$ defense LPIPS $+ \prelim{0.049}{}$ ($r = {}$\prelim{0.967}{Point count and fit without the two BlurGuard points.}). At the native budgets, the defense LPIPS ranges from 0.280 to 0.629, and the ranking of the methods by displacement follows their ranking by distortion. On the eight-portrait set, budget sweeps of five methods follow the same form, each along its own line ($r = 0.987$ to $1.000$), and replacing LPIPS on the horizontal axis with DISTS or PieAPP preserves the linearity within each method ($r = 0.87$ to $0.99$) but not a common slope. \capg{} lies 0.009 above the pooled LPIPS line, and with both angle bounds multiplied by 2.5 its operating point moves to a defense LPIPS of \prelim{0.302}{} and an edit LPIPS of \prelim{0.367}{82 Pexels portraits; the 306-image run is in progress.}, \prelim{0.005}{} above the line. Before purification, the displacement of a defense is therefore determined largely by its distortion, independently of the form of the perturbation, and defenses of equal distortion are comparable.
+\Cref{fig:plane}a plots edit displacement before purification against distortion for the additive methods at their native budgets and at the matched-distortion arm. On the 306 portraits, the \prelim{18}{} points follow a single line, edit LPIPS $= \prelim{1.037}{} \times$ defense LPIPS $+ \prelim{0.049}{}$ ($r = {}$\prelim{0.967}{Point count and fit without the two BlurGuard points.}). At the native budgets, the defense LPIPS ranges from 0.280 to 0.629, and the ranking of the methods by displacement follows their ranking by distortion. On the eight-portrait set, budget sweeps of five methods follow the same form, each along its own line ($r = 0.987$ to $1.000$), and replacing LPIPS on the horizontal axis with DISTS or PieAPP preserves the linearity within each method ($r = 0.87$ to $0.99$) but not a common slope. \capg{} operates at a defense LPIPS of \prelim{0.302}{} and an edit LPIPS of \prelim{0.367}{82 Pexels portraits; the 306-image run is in progress.}, \prelim{0.005}{} above the pooled LPIPS line. Before purification, the displacement of a defense is therefore determined largely by its distortion, independently of the form of the perturbation, and defenses of equal distortion are comparable.
 
 \subsection{What purification removes}
 \label{sec:exp_purify}

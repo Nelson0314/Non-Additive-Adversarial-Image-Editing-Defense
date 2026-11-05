@@ -40,7 +40,7 @@ The filter makes $T$ smooth in color space. This keeps the gradual color transit
   s_a(t) &= \arctan\!\big(\tan a \, \tanh(t / \tan a)\big),
   \label{eq:bounds}
 \end{align}
-so that $|\Delta\theta| < \theta_{\max}$ and $|\Delta\phi| < \phi_{\max}$ before clipping, with $\Delta\phi = 0$ on the gray axis. We set $\theta_{\max} = 10^\circ$ and $\phi_{\max} = 3^\circ$. The tighter bound on hue reflects that hue shifts reduce the perceived naturalness of photographs more than chroma changes of comparable size~\cite{deridder1995naturalness,fedorovskaya1997chroma}.
+so that $|\Delta\theta| < \theta_{\max}$ and $|\Delta\phi| < \phi_{\max}$ before clipping, with $\Delta\phi = 0$ on the gray axis. We set $\theta_{\max} = 25^\circ$ and $\phi_{\max} = 7.5^\circ$. The tighter bound on hue reflects that hue shifts reduce the perceived naturalness of photographs more than chroma changes of comparable size~\cite{deridder1995naturalness,fedorovskaya1997chroma}.
 
 Every $T$ of this form is a smooth change of saturation and hue at fixed $\|c\|$, so naturalness is a property of the parameterization, and the optimization requires no penalty term, projection, or bound on distortion.
 
@@ -55,7 +55,7 @@ It requires a single forward pass through the encoder and no instruction, and it
 
 \subsection{Optimization}
 \label{sec:optimization}
-$\Theta$ is initialized with independent Gaussian entries of standard deviation 0.002, and \cref{eq:objective} is optimized with Adam ($\beta_1 = 0.5$, $\beta_2 = 0.99$) for 1800 steps at $512^2$ resolution. The learning rate follows a cosine decay from $3 \times 10^{-4}$ to $10^{-5}$ over the first two thirds of the steps and remains at $10^{-5}$ afterwards. The protected image of the final step is stored as an 8-bit PNG. One image takes about 9.4 minutes on a single RTX 3090.
+$\Theta$ is initialized with independent Gaussian entries of standard deviation 0.002, and \cref{eq:objective} is optimized with Adam ($\beta_1 = 0.5$, $\beta_2 = 0.99$) for 1800 steps at $512^2$ resolution. The learning rate follows a cosine decay from $3 \times 10^{-4}$ to $10^{-5}$ over the first two thirds of the steps and remains at $10^{-5}$ afterwards. The protected image of the final step is stored as an 8-bit PNG. One image takes about 9.5 minutes on a single RTX 3090 (median over 231 Pexels portraits).
 
 \begin{figure*}[t]
   \centering

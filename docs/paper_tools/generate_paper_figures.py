@@ -123,16 +123,20 @@ def purification_figure(survival_rows, sweep_rows, out):
     # panels b-d share one y range (c and d carry no tick labels)
     top = max(0.48, round(max(sweep[(m, p)] for m in list(SWEEP_STYLE) + [OURS]
                                 for _, settings, _ in SWEEPS for p, _ in settings) + 0.05, 1))
-    for ax, (title, settings, reverse), letter in zip(axes[1:], SWEEPS, "bcd"):
-        sx = [v for _, v in settings]
+    # unpurified edit LPIPS of the same cells (disp_plain), drawn as the leftmost "None" point of each panel
+    plain = mean_by(sweep_rows, ("condition",), "disp_plain")
+    top = max(top, round(max(plain[(m,)] for m in list(SWEEP_STYLE) + [OURS]) + 0.05, 1))
+    for ax, (title, settings, _), letter in zip(axes[1:], SWEEPS, "bcd"):
+        sx = list(range(len(settings) + 1))  # categorical positions, weakest to strongest after "None"
         for (method, (name, marker)), shade in zip(SWEEP_STYLE.items(), shades):
-            ys = [sweep[(method, p)] for p, _ in settings]
+            ys = [plain[(method,)]] + [sweep[(method, p)] for p, _ in settings]
             ax.plot(sx, ys, color=shade, lw=0.9, marker=marker, ms=2.4, label=name, zorder=2)
-        ys = [sweep[(OURS, p)] for p, _ in settings]
+        ys = [plain[(OURS,)]] + [sweep[(OURS, p)] for p, _ in settings]
         ax.plot(sx, ys, color=C_OURS, lw=1.3, marker="*", ms=5, label="Ours", zorder=4)
         ax.axhline(SEED_FLOOR, color=GRAY, lw=0.6, ls=(0, (1, 1.5)), zorder=1)
-        if reverse:
-            ax.invert_xaxis()
+        ax.set_xticks(sx)
+        ax.set_xticklabels(["None"] + [f"{v:g}" for _, v in settings], fontsize=5.6)
+        ax.set_xlim(-0.4, len(settings) + 0.4)
         ax.set_ylim(0, top)
         ax.set_xlabel(title)
         ax.set_title(f"({letter}) Edit LPIPS", loc="left")

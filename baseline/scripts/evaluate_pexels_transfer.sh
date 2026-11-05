@@ -10,6 +10,9 @@
 # 位置：產物 artifacts/pexels_portraits/transfer/<編輯器>/；逐格表 runtime/pexels_portraits/transfer/<編輯器>/chunks/<影像>/；
 #       完成標記 runtime/pexels_portraits/transfer/<編輯器>/done/<影像>.done。
 # 前置條件：該影像所屬影像組的等失真臂（chain.done、chain_photoguard_encoder.done）與 VAE-Trans 輸入；不成立時以結束碼 4 結束。
+# COLOR3D_GROUP＝color3d_<變體> 時只跑條件 color3d_<變體>_pexels：防禦圖與七道取 color trial artifacts_pexels/{defenses,purified_edits}/（合併後），
+# VAE-Trans 取 artifacts/pexels_portraits/vae_trans/<根>/inputs/<分組>/（scripts/evaluate_pexels_followup.sh 該分組），
+# 影像完成標記為 done/<影像>__<分組>.done。
 # 用法（遠端 baseline 專案根；CUDA_VISIBLE_DEVICES 由呼叫端的租約設定；FLUX 只在 basic-2、UltraEdit 只在 basic-1）：
 #   [TRANSFER_DEADLINE=<ISO 時刻>] ENV_FILE=~/env.sh bash scripts/evaluate_pexels_transfer.sh <flux|ultraedit> <影像>
 set -uo pipefail
@@ -39,17 +42,25 @@ EOF
 AS=runtime/pexels_portraits/aligned${root:+/$root}
 AA=artifacts/pexels_portraits/aligned${root:+/$root}
 VI=artifacts/pexels_portraits/vae_trans${root:+/$root}/inputs/aligned
+G=${COLOR3D_GROUP:-}
+if [ -n "$G" ]; then
+  case $G in color3d_*) ;; *) echo "[FATAL] COLOR3D_GROUP 須為 color3d_<變體>：$G" >&2; exit 2 ;; esac
+  CONDS=${G}_pexels
+  AA=../color/trials/lut3d_defense_and_naturalness/artifacts_pexels
+  VI=artifacts/pexels_portraits/vae_trans${root:+/$root}/inputs/$G
+fi
 X=artifacts/pexels_portraits/transfer/$M
 S=runtime/pexels_portraits/transfer/$M
 R=$S/chunks/$IMG
 mkdir -p "$S/done" "$R"
 not_ready() { chain_step "前置條件不成立：$*"; exit 4; }
-[ -f "$S/done/$IMG.done" ] && { chain_step "$M $IMG 已完成"; exit 0; }
+IMG_DONE=$S/done/$IMG${G:+__$G}.done
+[ -f "$IMG_DONE" ] && { chain_step "$M $IMG ${G:-} 已完成"; exit 0; }
 # TRANSFER_DEADLINE（例如 2026-11-04T20:00:00+08:00）之後不再開始新影像；進行中的影像不受影響
 if [ -n "${TRANSFER_DEADLINE:-}" ] && [ "$(date +%s)" -ge "$(date -d "$TRANSFER_DEADLINE" +%s)" ]; then
   not_ready "已過 TRANSFER_DEADLINE=$TRANSFER_DEADLINE"
 fi
-[ -f "$AS/chain.done" ] && [ -f "$AS/chain_photoguard_encoder.done" ] || not_ready "等失真 $SET"
+[ -n "$G" ] || { [ -f "$AS/chain.done" ] && [ -f "$AS/chain_photoguard_encoder.done" ]; } || not_ready "等失真 $SET"
 for c in $CONDS; do
   [ -f "$AA/defenses/$c/${IMG}__${c}__def.png" ] || { echo "[FATAL] 缺防禦圖 $AA/defenses/$c/${IMG}__${c}__def.png" >&2; exit 1; }
   [ -f "$VI/$c/vae_trans/ip2p_${c}_vae_trans/${IMG}__orig.png" ] || not_ready "$c 的 VAE-Trans 輸入（$SET）"
@@ -103,5 +114,5 @@ else
     done
   done
 fi
-touch "$S/done/$IMG.done"
+touch "$IMG_DONE"
 chain_step "TRANSFER DONE $M $IMG"

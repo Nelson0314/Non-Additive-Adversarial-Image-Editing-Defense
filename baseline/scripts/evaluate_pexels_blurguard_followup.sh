@@ -12,10 +12,12 @@
 # BLURGUARD_ROOT（預設 runtime/pexels_portraits/blurguard）指定子集的執行根（data／state／results）；同一產物根下另一批影像的
 # 防禦圖不進入本批的 VAE-Trans 與存續比（以 results/<影像組>/vae_defenses/ 只連本批影像）。
 # 前置條件不成立時以結束碼 4 結束。
-# 用法（遠端 baseline 專案根；CUDA_VISIBLE_DEVICES 由呼叫端的租約設定）：ENV_FILE=~/env.sh bash scripts/evaluate_pexels_blurguard_followup.sh <影像組>
+# 第二個參數 <單位> 給定時，只處理 <執行根>/units/<單位>.txt 所列的影像，狀態、讀數與產物都以單位命名；
+# 此時 BlurGuard 的產物讀自 <執行根>/artifacts/<單位>/，VAE-Trans 產物寫在 <執行根>/vae_trans/<單位>/（未防禦分母以符號連結指向原生評測），同一影像組的各單位可並行。
+# 用法（遠端 baseline 專案根；CUDA_VISIBLE_DEVICES 由呼叫端的租約設定）：ENV_FILE=~/env.sh bash scripts/evaluate_pexels_blurguard_followup.sh <影像組> [<單位>]
 set -uo pipefail
-[ $# -eq 1 ] || { echo "用法：$0 <影像組>" >&2; exit 2; }
-SET=$1
+[ $# -ge 1 ] && [ $# -le 2 ] || { echo "用法：$0 <影像組> [<單位>]" >&2; exit 2; }
+SET=$1 U=${2:-$1}
 source "$(dirname "${BASH_SOURCE[0]}")/env.sh" || exit 1
 cd "$BASELINE_ROOT" || exit 1
 source scripts/run_evaluation_chain.sh
@@ -26,9 +28,16 @@ ENC=../color/trials/lut3d_defense_and_naturalness/artifacts/purification/vae_tra
 PURIFIERS=$("$PY" -m immunization_core.purifiers.protocol --exclude-identity) || exit 1
 root=$("$PY" -c "import json; print({s['name']: s['root'] for s in json.load(open('data/pexels_portraits/image_sets.json'))['sets']}['$SET'])") || exit 1
 B=${BLURGUARD_ROOT:-runtime/pexels_portraits/blurguard}
-D=$B/data/$SET S=$B/state/$SET R=$B/results/$SET
+D=$B/data/$U S=$B/state/$U R=$B/results/$U
 NA=artifacts/pexels_portraits${root:+/$root}
 V=artifacts/pexels_portraits/vae_trans${root:+/$root}
+if [ $# -ge 2 ]; then
+  NA=$B/artifacts/$U
+  VN=$V V=$B/vae_trans/$U
+  mkdir -p "$V/inputs"
+  ln -sfn "$BASELINE_ROOT/$VN/inputs/native" "$V/inputs/native"
+  ln -sfn "$BASELINE_ROOT/$VN/native" "$V/native"
+fi
 step() { echo "[STEP] $(date -Iseconds) $*"; }
 [ -f "$S/chain.done" ] || { step "前置條件不成立：$SET 的評測鏈"; exit 4; }
 [ -f "$R/displacement_$C.csv" ] || { step "[SKIP] $SET 沒有選中的影像"; touch "$S/followup.done"; exit 0; }

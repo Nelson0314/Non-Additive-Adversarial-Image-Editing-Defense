@@ -5,7 +5,7 @@
 # 輸出 runtime/pexels_portraits/blurguard/results/all/{pairs.csv,distribution/,summary.csv,per_purifier.csv}。
 # 已開始的影像組（state/<影像組>/）有任一缺 followup.done 時以結束碼 4 結束；佇列以 AFTER= 保證各組都已排過。
 # BLURGUARD_ROOTS（預設 runtime/pexels_portraits/blurguard）可列多個執行根，合併為一列；BLURGUARD_OUTPUT 為輸出目錄
-# （預設 <第一個根>/results/all）。防禦圖對原圖的配對只取各根 images.txt 中的影像。
+# （預設 <第一個根>/results/all）。防禦圖對原圖的配對取各單位 results/<單位>/defenses_root/blurguard/ 中、列在 images.txt 的影像。
 # 用法（遠端 baseline 專案根）：[BLURGUARD_ROOTS="<根> ..."] [BLURGUARD_OUTPUT=<目錄>] ENV_FILE=~/env.sh bash scripts/evaluate_pexels_blurguard_summary.sh
 set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/env.sh"
@@ -21,18 +21,17 @@ for B in $ROOTS; do
 done
 mkdir -p "$O"
 "$PY" - "$O/pairs.csv" $ROOTS <<'EOF'
-import csv, json, sys
+import csv, sys
 from pathlib import Path
 out, roots = sys.argv[1], [Path(r) for r in sys.argv[2:]]
 images = set().union(*(set((r / "images.txt").read_text(encoding="utf-8").split()) for r in roots))
 rows = []
-for s in json.load(open("data/pexels_portraits/image_sets.json", encoding="utf-8"))["sets"]:
-    for B in roots:
-        R = B / "results" / s["name"]
-        if (R / "pairs.csv").is_file():
-            rows += list(csv.DictReader(open(R / "pairs.csv", encoding="utf-8")))
-    d = Path("artifacts/pexels_portraits") / (s["root"] or "") / "defenses/blurguard"
-    for p in sorted(q for q in d.glob("*__blurguard__def.png") if q.name.split("__")[0] in images):
+for B in roots:
+    for p in sorted(B.glob("results/*/pairs.csv")):
+        if p.parent.name != "all":
+            rows += list(csv.DictReader(open(p, encoding="utf-8")))
+for B in roots:
+    for p in sorted(q for q in B.glob("results/*/defenses_root/blurguard/*__blurguard__def.png") if q.name.split("__")[0] in images):
         rows.append({"condition": "blurguard", "end": "distortion", "purifier": "", "a_png": p.as_posix(),
                      "b_png": p.with_name(p.name.replace("__blurguard__def.png", "__orig.png")).as_posix()})
 with open(out, "w", newline="", encoding="utf-8") as f:

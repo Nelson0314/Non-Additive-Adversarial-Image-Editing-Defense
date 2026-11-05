@@ -11,7 +11,7 @@
 | Abstract | 背景、痛點、CAPGuard 全名、淨化後位移倍數 | 倍數為紅字 | 待 2.5 倍 |
 | 1 Introduction | 背景、加性擾動、淨化研究、CAPGuard、自然度參數化、比較協定；貢獻 3 點 | 貢獻第二條倍數紅字 | 待 2.5 倍 |
 | 2 Related Work | 免疫（含同期 SPIN、SRIM、Copying as Defense）、淨化、色彩對抗樣本、美學評估；Fig. 2 方法總覽 | 已寫 | 完成 |
-| 3 Method | 威脅模型、3D LUT、平滑色度旋轉、目標、最佳化 | 上界數字仍為 10°／3° | 待改 25°／7.5° |
+| 3 Method | 威脅模型、3D LUT、平滑色度旋轉、目標、最佳化 | 上界極角 < 25°、色相 < 7.5°，求解每張中位 9.5 分鐘（231 張）；Fig. 2 以 man_60 的 2.5 倍 LUT 重繪 | 完成 |
 | Fig. 3、Table 1 | 失真—位移雙面板；主表 | CAPGuard 為 1.0 倍＋2.5 倍空心星（82 張）；Table 1 CAPGuard、BlurGuard（100 張）、跨編輯器區塊為紅字 | 待 2.5 倍、BlurGuard 306 |
 | 4.1 Setup | 資料、攻擊（ip2p、UltraEdit、FLUX 512 設定）、淨化、十個加性方法、讀數 | Pexels 選取規則與授權 `\TODO` | 部分 |
 | 4.2 Robustness to purification | 主結果、跨淨化區間、VAE-Trans、美學 | CAPGuard 數字為 1.0 倍 | 待 2.5 倍 |

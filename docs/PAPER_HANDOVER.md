@@ -65,7 +65,7 @@ color 會送 `color/trials/lut3d_defense_and_naturalness/results/color3d_scale2p
 3. Fig. 4：(a) 存續比、(b–d) 強度掃描的 CAPGuard 換 2.5 倍（需 color／baseline 提供讀數）。
 4. 4.2–4.5 正文所有 CAPGuard 數字（0.277、0.291、0.218、1.091、0.025、0.98／1.00 等）與 BlurGuard 範圍；Conclusion 同步。
 5. 摘要與引言貢獻第二條的倍數重算（CAPGuard 七道平均 ÷ 各加性方法，含 BlurGuard），拿掉紅字。
-6. Method 3.3 的上界數字改為極角 < 25°、色相 < 7.5°（與 color 程式核對），Fig. 2 方法總覽若標示上界一併改；求解時間若 2.5 倍不同則更新。
+6. （已完成）Method 3.3 上界為極角 < 25°、色相 < 7.5°（color 核對 `generate_color3d_budget_defenses.py:13–16`），求解時間 9.5 分鐘（中位，231 次求解）；Fig. 2 改用 man_60、`color3d_scale2p5_pexels` 的 LUT，像素對由 `generate_method_overview_panels.py` 自動挑選。
 7. Table 3 消融以 2.5 倍為基準的新讀數。
 8. Limitations 的「19 of 32」計數（8 張）若有新數字則換。
 
@@ -86,6 +86,7 @@ color 會送 `color/trials/lut3d_defense_and_naturalness/results/color3d_scale2p
 | FLUX 512、34 張 | `baseline/results/pexels_portraits/flux_512/summary.csv`（commit ccb4ad7） |
 | 原生 DCT-Shield-Y 存續比與強度掃描 | baseline 遠端 `runtime/pexels_portraits/summary/native_dct_shield_y/`、`runtime/purifier_sweep_native_dct_shield_y/` |
 | 2.5 倍（82 張，Fig. 3 空心星） | color `results/color3d_scale2p5_pexels/per_image/main_table.csv` |
+| Fig. 2 的 LUT 與 x、x̃ | color `artifacts_pexels/defense_shards/color3d_scale2p5_pexels/man_60/` |
 | teaser 影像 | 加性與 BlurGuard：`baseline/artifacts/pexels_portraits/<根>/`；CAPGuard 2.5 倍：color `artifacts_pexels/defense_shards/color3d_scale2p5_pexels/`、`edits_by_image/color3d_scale2p5_pexels/` |
 
 ## 8. 寫作規則

@@ -4,7 +4,7 @@
 \begin{figure*}[t]
   \centering
   \includegraphics[width=\linewidth]{fig/purification.pdf}
-  \caption{Effect of purification on InstructPix2Pix. (a)~Fraction of the perturbation that survives each purification (306 Pexels portraits); DCT-Shield-Y at its native budget (defense LPIPS 0.629), the other additive methods at matched distortion. (b--d)~Edit LPIPS under increasing JPEG compression, blur, and downscaling (306 Pexels portraits $\times$ 4 instructions; DCT-Shield-Y at its native budget); the leftmost point of each panel is the edit without purification, followed by the purification settings from weakest to strongest; dotted: edit LPIPS between two seeds on the same undefended image.}
+  \caption{Effect of purification on InstructPix2Pix. (a)~Fraction of the perturbation that survives each purification (306 Pexels portraits), one bar per method; dotted: full survival; DCT-Shield-Y at its native budget (defense LPIPS 0.629), the other additive methods at matched distortion. (b--d)~Edit LPIPS under increasing JPEG compression, blur, and downscaling (306 Pexels portraits $\times$ 4 instructions; DCT-Shield-Y at its native budget); the leftmost point of each panel is the edit without purification, followed by the purification settings from weakest to strongest; dotted: edit LPIPS between two seeds on the same undefended image.}
   \prelimnote{Fig.~3b--d: the current panels use 8 portraits (DCT-Shield-Y native: baseline \texttt{runtime/purifier\_sweep\_native\_dct\_shield\_y/retention\_dct\_shield\_y.csv}); the 306-portrait sweep is not yet run.}
   \label{fig:purification}
 \end{figure*}

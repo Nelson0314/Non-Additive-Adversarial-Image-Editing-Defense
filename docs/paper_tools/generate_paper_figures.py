@@ -24,6 +24,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
 from matplotlib.lines import Line2D  # noqa: E402
+from matplotlib.patches import Patch  # noqa: E402
 
 # Additive methods reported in the paper; PhotoGuard appears only as its encoder attack.
 ADDITIVE = {"danp", "dayn", "dct_shield", "dct_shield_y", "dia_pt", "dia_r", "mist",
@@ -98,28 +99,32 @@ def purification_figure(survival_rows, sweep_rows, out):
 
     ax = axes[0]
     order = [(p, label) for p, label in SURVIVAL_ORDER if (OURS, p) in survival]  # 缺讀數的淨化（如未算的 VAE-Trans）不畫
-    xs = list(range(len(order)))
-    for method in sorted(ADDITIVE - {"diffvax"}):
+    # purifications have no order of strength: grouped bars, one group per purification
+    others = [m for m in sorted(ADDITIVE - {"diffvax"}) if m != HIGHLIGHT]
+    methods = others + [HIGHLIGHT, OURS]
+    colors = [C_ADDITIVE_LIGHT] * len(others) + [C_ADDITIVE, C_OURS]
+    width = 0.8 / len(methods)
+    top_bar = 0.0
+    for j, (method, color) in enumerate(zip(methods, colors)):
         ys = [survival.get((method, p)) for p, _ in order]
         if None in ys:
             raise SystemExit(f"survival readings missing for {method}")
-        if method == HIGHLIGHT:
-            ax.plot(xs, ys, color=C_ADDITIVE, lw=1.1, marker="D", ms=2.4, zorder=3)
-        else:
-            ax.plot(xs, ys, color=C_ADDITIVE_LIGHT, lw=0.9, marker="o", ms=2.2, zorder=2)
-    ys = [survival[(OURS, p)] for p, _ in order]
-    ax.plot(xs, ys, color=C_OURS, lw=1.3, marker="*", ms=5, zorder=4)
-    ax.set_xticks(xs)
+        top_bar = max(top_bar, max(ys))
+        ax.bar([i - 0.4 + (j + 0.5) * width for i in range(len(order))], ys, width=width, color=color,
+               edgecolor="white", linewidth=0.2, zorder=2)
+    ax.axhline(1.0, color=GRAY, lw=0.5, ls=(0, (1, 1.5)), zorder=1)
+    ax.set_xticks(range(len(order)))
     ax.set_xticklabels([label for _, label in order], fontsize=5.6)
-    ax.set_ylim(0, max(1.25, max(ys) + 0.1))
+    ax.set_ylim(0, top_bar + 0.3)
     ax.set_ylabel("Perturbation survival")
     ax.set_title("(a) Perturbation survival", loc="left")
-    ax.legend(handles=[Line2D([], [], color=C_ADDITIVE_LIGHT, lw=0.9, marker="o", ms=2.2, label="8 other additive methods"),
-                       Line2D([], [], color=C_ADDITIVE, lw=1.1, marker="D", ms=2.4, label=HIGHLIGHT_LABEL),
-                       Line2D([], [], color=C_OURS, lw=1.3, marker="*", ms=5, label="Ours")],
-              loc="center left", bbox_to_anchor=(0.0, 0.56), frameon=False, handletextpad=0.3, fontsize=6)
+    ax.legend(handles=[Patch(color=C_ADDITIVE_LIGHT, label=f"other additive ({len(others)})"),
+                       Patch(color=C_ADDITIVE, label=HIGHLIGHT_LABEL), Patch(color=C_OURS, label="Ours")],
+              loc="upper center", bbox_to_anchor=(0.5, 1.0), frameon=False, handlelength=0.9, handletextpad=0.3,
+              columnspacing=0.8, fontsize=5.6, ncol=3)
 
-    shades = ["#7A2E25", "#A94438", "#C7756B", "#DDA59E"]
+    # the highlighted method keeps the color it has in panel (a); the others take lighter shades
+    shades = ["#7A2E25", "#DDA59E", "#C7756B", C_ADDITIVE]  # DIA-PT, Mist, PhotoGuard, HIGHLIGHT (SWEEP_STYLE order)
     # panels b-d share one y range (c and d carry no tick labels)
     top = max(0.48, round(max(sweep[(m, p)] for m in list(SWEEP_STYLE) + [OURS]
                                 for _, settings, _ in SWEEPS for p, _ in settings) + 0.05, 1))

@@ -9,8 +9,11 @@ semantic_identity.csv、arcface_pair.csv、clip_score.csv、edit_fidelity.csv、
     fid_seven、kid_seven：7 組各自的值，同七道規則；fid_none、fid_vae_trans 無區間
 任一條件的影像數不是 50 或格數不齊時失敗。
 輸出 runtime/pexels_portraits/ultraedit_readouts/summary.csv 與 per_purifier.csv。
-用法（遠端 baseline 專案根）：python scripts/generate_pexels_ultraedit_summary.py
+選項：--images-file、--conditions、--readouts-dir（同 generate_pexels_ultraedit_cell_tables.py）；color3d_<變體>_pexels 的防禦圖 LPIPS
+取 runtime/pexels_portraits/followup/<根>/results/color3d_<變體>/fidelity.csv。
+用法（遠端 baseline 專案根）：python scripts/generate_pexels_ultraedit_summary.py [--images-file <檔>] [--conditions ...] [--readouts-dir <目錄>]
 """
+import argparse
 import csv
 import glob
 import json
@@ -25,7 +28,6 @@ from generate_pexels_main_table_summary import (SEVEN, faces, image_stat, purifi
 CONDITIONS = ("photoguard_encoder", "dct_shield", "dct_shield_y", "mist")
 R = Path("runtime/pexels_portraits/ultraedit_readouts")
 CT = Path("../color/trials/lut3d_defense_and_naturalness")
-N = 50
 
 
 def kind_of(purifier):
@@ -33,8 +35,17 @@ def kind_of(purifier):
 
 
 def main():
-    images = set((CT / "pexels_subsets/flux.txt").read_text(encoding="utf-8").split())
-    require("flux.txt", "影像數", len(images), N)
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--images-file", type=Path, default=CT / "pexels_subsets/flux.txt")
+    ap.add_argument("--conditions", nargs="+", default=list(CONDITIONS))
+    ap.add_argument("--readouts-dir", type=Path, default=R)
+    args = ap.parse_args()
+    images = set(args.images_file.read_text(encoding="utf-8").split())
+    N = len(images)
+    run(images, N, tuple(args.conditions), args.readouts_dir)
+
+
+def run(images, N, CONDITIONS, R):
     metric = defaultdict(dict)   # (指標, 條件, none|seven|vae_trans) -> {(影像, 句, 道): 值}
     for row in read(R / "displacement.csv"):
         key = (row["image"], row["prompt_index"], "none")
@@ -75,7 +86,11 @@ def main():
     for s in sets:
         base = Path("runtime/pexels_portraits/aligned") / (s["root"] or "") / "results"
         for c in CONDITIONS:
-            for row in read((base / c if c == "photoguard_encoder" else base) / "fidelity.csv"):
+            if c.startswith("color3d_"):
+                path = Path("runtime/pexels_portraits/followup") / (s["root"] or "") / "results" / c.removesuffix("_pexels") / "fidelity.csv"
+            else:
+                path = (base / c if c == "photoguard_encoder" else base) / "fidelity.csv"
+            for row in read(path):
                 if row["condition"] == c and row["image"] in images:
                     defense[c][(row["image"],)] = float(row["fid_lpips"])
 

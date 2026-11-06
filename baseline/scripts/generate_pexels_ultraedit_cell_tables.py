@@ -10,9 +10,13 @@
 - `pairs.csv`：欄 condition、end、purifier、a_png（防禦後編輯）、b_png（同一淨化的未防禦編輯），供 measure_distribution_metrics 與編輯端 SSIM／PSNR
 - `edits/defended_edits/<條件>/`：`preflight.csv`（50 張 × 4 句）與指向產物 `ultraedit_<條件>/` 的符號連結
 - `edits/purified_edits/`：指向四條件與未防禦淨化後編輯的符號連結（只讀）
-用法（遠端 baseline 專案根，CPU）：python scripts/generate_pexels_ultraedit_cell_tables.py
+選項：--images-file（預設 flux.txt 的 50 張）、--conditions（預設上列四條件；color3d_<變體>_pexels 取 baseline 遷移產物）、--output-dir；
+給 --images-file 時未防禦分母改讀 color trial results/cross_model_pexels/sd3/chunks/<影像組>/edits_undefended.csv 的聯集。
+用法（遠端 baseline 專案根，CPU）：python scripts/generate_pexels_ultraedit_cell_tables.py [--images-file <檔>] [--conditions ...] [--output-dir <目錄>]
 """
+import argparse
 import csv
+import glob
 import os
 from pathlib import Path
 
@@ -61,14 +65,25 @@ def check(arm, data, n_images):
 
 
 def main():
-    images = (CT / "pexels_subsets/flux.txt").read_text(encoding="utf-8").split()
-    OUT.mkdir(parents=True, exist_ok=True)
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--images-file", type=Path, default=None)
+    ap.add_argument("--conditions", nargs="+", default=list(CONDITIONS))
+    ap.add_argument("--output-dir", type=Path, default=OUT)
+    args = ap.parse_args()
+    out = args.output_dir
+    conditions = tuple(args.conditions)
+    images = (args.images_file or CT / "pexels_subsets/flux.txt").read_text(encoding="utf-8").split()
+    out.mkdir(parents=True, exist_ok=True)
     cells = {}
-    undefended = [r for r in rows(CT / "results/cross_model_pexels/sd3/transfer50/edits_undefended.csv") if r["image"] in set(images)]
+    if args.images_file is None:
+        source = rows(CT / "results/cross_model_pexels/sd3/transfer50/edits_undefended.csv")
+    else:
+        source = [r for p in sorted(glob.glob(str(CT / "results/cross_model_pexels/sd3/chunks/*/edits_undefended.csv"))) for r in rows(p)]
+    undefended = [{k: r[k] for k in COLS} | {"arm": "undefended"} for r in source if r["image"] in set(images)]
     check("undefended", undefended, len(images))
-    write(OUT / "edits_undefended.csv", undefended, COLS)
+    write(out / "edits_undefended.csv", undefended, COLS)
     cells["undefended"] = {(r["image"], r["prompt_index"], r["purifier"]): r for r in undefended}
-    for c in CONDITIONS:
+    for c in conditions:
         data = []
         for img in images:
             for part in ("plain", "vae_trans", "seven"):
@@ -77,26 +92,26 @@ def main():
                                  "png": r["png"], "purifier": r["purifier"]})
         check(c, data, len(images))
         data.sort(key=lambda r: (r["purifier"], r["image"], int(r["prompt_index"])))
-        write(OUT / f"edits_{c}.csv", data, COLS)
+        write(out / f"edits_{c}.csv", data, COLS)
         cells[c] = {(r["image"], r["prompt_index"], r["purifier"]): r for r in data}
         for k, r in cells[c].items():
             if r["prompt"] != cells["undefended"][k]["prompt"]:
                 raise SystemExit(f"{c} {k} 的指令與未防禦不同：{r['prompt']} vs {cells['undefended'][k]['prompt']}")
-        d = OUT / "edits/defended_edits" / c
+        d = out / "edits/defended_edits" / c
         d.mkdir(parents=True, exist_ok=True)
         link(EDITS / "defended_edits" / c / f"ultraedit_{c}", d / f"ultraedit_{c}")
         pre = [{"scenario": "ip2p", "arm": f"ultraedit_{c}", "image": r["image"], "prompt_index": r["prompt_index"], "prompt": r["prompt"]}
                for r in sorted(data, key=lambda r: (r["image"], int(r["prompt_index"]))) if r["purifier"] == "none"]
         write(d / "preflight.csv", pre, ("scenario", "arm", "image", "prompt_index", "prompt"))
-    p = OUT / "edits/purified_edits"
+    p = out / "edits/purified_edits"
     p.mkdir(parents=True, exist_ok=True)
-    for c in CONDITIONS:
+    for c in conditions:
         link(EDITS / "purified_edits" / c, p / c)
     link(COLOR_EDITS / "purified_edits/undefended", p / "undefended")
     pairs = [{"condition": c, "end": "displacement", "purifier": k[2], "a_png": r["png"], "b_png": cells["undefended"][k]["png"]}
-             for c in CONDITIONS for k, r in sorted(cells[c].items())]
-    write(OUT / "pairs.csv", pairs, ("condition", "end", "purifier", "a_png", "b_png"))
-    print(f"[TABLES] images={len(images)} conditions={len(CONDITIONS)} pairs={len(pairs)} → {OUT}", flush=True)
+             for c in conditions for k, r in sorted(cells[c].items())]
+    write(out / "pairs.csv", pairs, ("condition", "end", "purifier", "a_png", "b_png"))
+    print(f"[TABLES] images={len(images)} conditions={len(conditions)} pairs={len(pairs)} → {out}", flush=True)
 
 
 if __name__ == "__main__":

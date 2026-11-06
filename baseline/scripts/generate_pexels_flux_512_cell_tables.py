@@ -11,7 +11,8 @@
 - `pairs.csv`：欄 condition、end、purifier、a_png（防禦後編輯）、b_png（同一淨化的未防禦編輯），供 measure_distribution_metrics 與編輯端 SSIM／PSNR
 任一條件格數不齊、格重複、影像缺檔或指令與未防禦不同時失敗。
 `--images-file` 指定影像清單（每行或以空白分隔的影像名，預設為 flux.txt 的 50 張），格數依清單張數檢查。
-用法（遠端 baseline 專案根，CPU）：python scripts/generate_pexels_flux_512_cell_tables.py [--images-file <檔>]
+`--conditions` 改條件（例如以 color3d_scale2p5_pexels 取代 color3d_pexels）、`--output-dir` 改輸出目錄。
+用法（遠端 baseline 專案根，CPU）：python scripts/generate_pexels_flux_512_cell_tables.py [--images-file <檔>] [--conditions ...] [--output-dir <目錄>]
 """
 import argparse
 import csv
@@ -62,23 +63,27 @@ def collect(condition, images):
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--images-file", type=Path, default=CT / "pexels_subsets/flux.txt")
-    images = ap.parse_args().images_file.read_text(encoding="utf-8").split()
+    ap.add_argument("--conditions", nargs="+", default=list(CONDITIONS))
+    ap.add_argument("--output-dir", type=Path, default=OUT)
+    args = ap.parse_args()
+    images = args.images_file.read_text(encoding="utf-8").split()
+    conditions, out = tuple(args.conditions), args.output_dir
     if not images or len(set(images)) != len(images):
         raise SystemExit("影像清單為空或有重複")
     cells = {}
-    for c in (UNDEFENDED, *CONDITIONS):
+    for c in (UNDEFENDED, *conditions):
         data = collect(c, images)
-        write(OUT / f"edits_{c}.csv", data, COLS)
-        write(OUT / "plain" / f"edits_{c}.csv", [r for r in data if r["purifier"] == "none"], COLS)
+        write(out / f"edits_{c}.csv", data, COLS)
+        write(out / "plain" / f"edits_{c}.csv", [r for r in data if r["purifier"] == "none"], COLS)
         cells[c] = {(r["image"], r["prompt_index"], r["purifier"]): r for r in data}
-    for c in CONDITIONS:
+    for c in conditions:
         for k, r in cells[c].items():
             if r["prompt"] != cells[UNDEFENDED][k]["prompt"]:
                 raise SystemExit(f"{c} {k} 的指令與未防禦不同：{r['prompt']} vs {cells[UNDEFENDED][k]['prompt']}")
     pairs = [{"condition": c, "end": "displacement", "purifier": k[2], "a_png": r["png"], "b_png": cells[UNDEFENDED][k]["png"]}
-             for c in CONDITIONS for k, r in sorted(cells[c].items())]
-    write(OUT / "pairs.csv", pairs, ("condition", "end", "purifier", "a_png", "b_png"))
-    print(f"[TABLES] images={len(images)} conditions={len(CONDITIONS)} pairs={len(pairs)} → {OUT}", flush=True)
+             for c in conditions for k, r in sorted(cells[c].items())]
+    write(out / "pairs.csv", pairs, ("condition", "end", "purifier", "a_png", "b_png"))
+    print(f"[TABLES] images={len(images)} conditions={len(conditions)} pairs={len(pairs)} → {out}", flush=True)
 
 
 if __name__ == "__main__":

@@ -11,7 +11,8 @@ color3d_pexels 為 runtime/pexels_portraits/followup/<根>/results/color3d/。
     fid_seven、kid_seven：7 組各自的值，同七道規則；fid_none、fid_vae_trans 無區間
 `--images-file` 指定影像清單（預設 flux.txt 的 50 張）；任一條件的影像數不等於清單張數或格數不齊時失敗。
 輸出 runtime/pexels_portraits/flux_512/readouts/summary.csv 與 per_purifier.csv。
-用法（遠端 baseline 專案根）：python scripts/generate_pexels_flux_512_summary.py [--images-file <檔>]
+`--conditions`、`--readouts-dir` 同逐格表；color3d_<變體>_pexels 的防禦圖 LPIPS 取 followup/<根>/results/color3d_<變體>/fidelity.csv。
+用法（遠端 baseline 專案根）：python scripts/generate_pexels_flux_512_summary.py [--images-file <檔>] [--conditions ...] [--readouts-dir <目錄>]
 """
 import argparse
 import csv
@@ -38,7 +39,14 @@ def kind_of(purifier):
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--images-file", type=Path, default=CT / "pexels_subsets/flux.txt")
-    images = set(ap.parse_args().images_file.read_text(encoding="utf-8").split())
+    ap.add_argument("--conditions", nargs="+", default=list(CONDITIONS))
+    ap.add_argument("--readouts-dir", type=Path, default=R)
+    args = ap.parse_args()
+    images = set(args.images_file.read_text(encoding="utf-8").split())
+    run(images, tuple(args.conditions), args.readouts_dir)
+
+
+def run(images, CONDITIONS, R):
     N = len(images)
     if N == 0:
         raise SystemExit("影像清單為空")
@@ -82,8 +90,9 @@ def main():
     for s in sets:
         base = Path("runtime/pexels_portraits/aligned") / (s["root"] or "") / "results"
         for c in CONDITIONS:
-            if c == COLOR3D:
-                path = Path("runtime/pexels_portraits/followup") / (s["root"] or "") / "results/color3d/fidelity.csv"
+            if c.startswith("color3d_"):
+                group = "color3d" if c == COLOR3D else c.removesuffix("_pexels")
+                path = Path("runtime/pexels_portraits/followup") / (s["root"] or "") / "results" / group / "fidelity.csv"
             else:
                 path = (base / c if c == "photoguard_encoder" else base) / "fidelity.csv"
             for row in read(path):

@@ -7,21 +7,25 @@
 #   CLIP-S   scripts/measure_clip_score.py --edits-csv；ArcFace(E_u, E_d) scripts/measure_pexels_arcface_pair.py
 #   FID／KID scripts/measure_distribution_metrics.py --pairs-csv；SSIM／PSNR scripts/measure_pexels_edit_fidelity.py pairs
 # 輸出 runtime/pexels_portraits/ultraedit_readouts/（彙整見 scripts/generate_pexels_ultraedit_summary.py）。
-# 用法（遠端 baseline 專案根）：ENV_FILE=~/env.sh [SHARDS=8] bash scripts/evaluate_pexels_ultraedit_readouts.sh
+# IMAGES_FILE、CONDS、READOUTS_DIR 可改影像清單、條件與輸出目錄（預設 flux.txt 50 張、上列四條件、runtime/pexels_portraits/ultraedit_readouts）。
+# 用法（遠端 baseline 專案根）：[IMAGES_FILE=<檔>] [CONDS="..."] [READOUTS_DIR=<目錄>] ENV_FILE=~/env.sh [SHARDS=8] bash scripts/evaluate_pexels_ultraedit_readouts.sh
 set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/env.sh"
 cd "$BASELINE_ROOT"
 export CUDA_VISIBLE_DEVICES=
 SHARDS=${SHARDS:-8}
-CONDS="photoguard_encoder dct_shield dct_shield_y mist"
+CONDS=${CONDS:-photoguard_encoder dct_shield dct_shield_y mist}
 OPS="blur1 blur2 crop_resize0.1 jpeg30 jpeg50 jpeg80 rotate15"
 D=data/pexels_portraits
-R=runtime/pexels_portraits/ultraedit_readouts
+R=${READOUTS_DIR:-runtime/pexels_portraits/ultraedit_readouts}
+TABLE_ARGS=(--conditions $CONDS --output-dir "$R")
+SUMMARY_ARGS=(--conditions $CONDS --readouts-dir "$R")
+if [ -n "${IMAGES_FILE:-}" ]; then TABLE_ARGS+=(--images-file "$IMAGES_FILE"); SUMMARY_ARGS+=(--images-file "$IMAGES_FILE"); fi
 UE=../color/trials/lut3d_defense_and_naturalness/artifacts_pexels/cross_model/sd3/edits/undefended_edits
 step() { echo "[STEP] $(date -Iseconds) $*"; }
 
 step 逐格表
-"$PY" scripts/generate_pexels_ultraedit_cell_tables.py
+"$PY" scripts/generate_pexels_ultraedit_cell_tables.py "${TABLE_ARGS[@]}"
 EDITS="$R/edits_undefended.csv $(for c in $CONDS; do printf '%s ' "$R/edits_$c.csv"; done)"
 
 step 位移與保留率
@@ -63,4 +67,6 @@ step CLIP-S 與 ArcFace
 step FID／KID 與 SSIM／PSNR
 "$PY" scripts/measure_distribution_metrics.py $R/distribution --dataset pexels --pairs-csv $R/pairs.csv
 "$PY" scripts/measure_pexels_edit_fidelity.py pairs --pairs-csv $R/pairs.csv --output-csv $R/edit_fidelity.csv --workers 16
+step 彙整
+"$PY" scripts/generate_pexels_ultraedit_summary.py "${SUMMARY_ARGS[@]}"
 step "READOUTS DONE"

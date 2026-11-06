@@ -18,6 +18,6 @@ Full-reference quality metrics count a change of color as degradation, so they r
 Our contributions are:
 \begin{itemize}
   \item We propose \capg{}, a filter-like defense that protects each image with its own 3D LUT and introduces no spatial structure into the image.
-  \item On InstructPix2Pix at matched distortion, the edit displacement \capg{} retains after purification, averaged over seven standard purifications, is \prelim{1.37 to 2.60}{To be recomputed once the main table uses \capg{} with angle bounds $\times 2.5$ on 306 portraits and BlurGuard on 306 portraits; current value: nine additive methods against \capg{} with the bounds before scaling.} times that of additive defenses (\cref{sec:exp_anti}).
+  \item On InstructPix2Pix at matched distortion, the edit displacement \capg{} retains after purification, averaged over seven standard purifications, is \prelim{1.34 to 3.23}{Ratio of the Purified$^{*}$ edit LPIPS of \capg{} (0.364, 306 portraits) to that of each additive method in \cref{tab:main}; the lower end is BlurGuard on 100 portraits (0.271) and is recomputed once BlurGuard covers the 306 portraits; without BlurGuard 1.72 (DAYN) to 3.23 (DCT-Shield).} times that of additive defenses (\cref{sec:exp_anti}).
   \item We analyze ten additive methods and \capg{} under a common protocol, relating distortion to edit displacement before purification and measuring how much of each perturbation survives purification.
 \end{itemize}

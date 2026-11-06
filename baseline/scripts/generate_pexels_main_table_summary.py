@@ -133,8 +133,9 @@ def main():
     clip_score_csv = "clip_score.csv" if group3 == "color3d" else f"clip_score_{group3}.csv"
     sets = json.loads(Path("data/pexels_portraits/image_sets.json").read_text(encoding="utf-8"))["sets"]
     conditions = ALIGNED + (COLOR3D,) if group3 == "color3d" else (COLOR3D,)
-    fidelity = {c: {} for c in conditions}            # 影像 -> {lpips, ssim, psnr}
-    aesthetic = {c: {} for c in conditions}           # 影像 -> 列
+    # 等失真臂的檔照常讀入（原圖美學列取自其 aesthetic.csv），字典含讀入的全部條件；輸出只列 conditions
+    fidelity = {c: {} for c in ALIGNED + (COLOR3D,)}  # 影像 -> {lpips, ssim, psnr}
+    aesthetic = {c: {} for c in ALIGNED + (COLOR3D,)}  # 影像 -> 列
     # metric[(指標, 條件, none|seven|vae_trans)] = {(影像, 句, 道): 值}；survival 的鍵為 (影像, 道)
     metric = defaultdict(dict)
     originals = {}

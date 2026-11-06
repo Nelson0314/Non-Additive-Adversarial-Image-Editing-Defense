@@ -27,7 +27,7 @@ from matplotlib.patches import Patch  # noqa: E402
 
 # Additive methods reported in the paper; PhotoGuard appears only as its encoder attack.
 ADDITIVE = {"danp", "dayn", "dct_shield", "dct_shield_y", "dia_pt", "dia_r", "mist",
-            "photoguard_encoder", "sifm"}
+            "photoguard_encoder", "sifm", "blurguard"}
 OURS = "color3d"
 OURS_LABEL = "CAPGuard"
 GRAY = "#6b7785"

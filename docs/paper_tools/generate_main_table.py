@@ -6,7 +6,7 @@ Upper block: InstructPix2Pix, 306 Pexels portraits, all methods; protected-image
 SigLIP, ArcFace of the edit of the protected image against the edit of the original under the same purification.
 Inputs: baseline remote runtime/pexels_portraits/summary/main_table.csv (with <col>_ci95) and
 baseline remote runtime/pexels_portraits/summary/color3d_scale2p5/main_table.csv (CAPGuard, 2.5x angle bounds, 306
-portraits) and baseline results/pexels_portraits/blurguard/summary.csv (100 portraits). Small numbers are 95% interval half-widths
+portraits) and baseline remote runtime/pexels_portraits/blurguard_306/summary.csv (BlurGuard, 306 portraits). Small numbers are 95% interval half-widths
 (Purified*: across the seven purifications; other columns: across images).
 Lower blocks: the same edit columns on UltraEdit (50 portraits; baseline runtime/pexels_portraits/ultraedit_readouts/
 summary.csv, CAPGuard from color trial results/cross_model_pexels/sd3/transfer50/summary.txt) and FLUX.1 Kontext at 512^2
@@ -34,7 +34,7 @@ FLUX = {"photoguard_encoder": (.241, .145, .074, .986, .993, .930, .932), "dct_s
 COLS = [("defense_lpips", 3, min), ("aes_laion", 2, max), ("aes_musiq_ava", 2, max), ("disp_none", 3, max),
         ("disp_seven", 3, max), ("disp_vae_trans", 3, max), ("siglip_seven", 3, min), ("siglip_vae_trans", 3, min),
         ("arcface_pair_seven", 3, min), ("arcface_pair_vae_trans", 3, min)]
-PRELIM_ROWS = {"blurguard"}
+PRELIM_ROWS = set()
 
 
 def f(x, d=3):
@@ -100,7 +100,6 @@ def main():
   \label{tab:main}
 \end{table*}
 \prelimnote{Tab.~1, \capg{} rows of the UltraEdit and FLUX.1 Kontext blocks: angle bounds before scaling ($10^\circ$/$3^\circ$); to be replaced by the $25^\circ$/$7.5^\circ$ readings.}
-\prelimnote{Tab.~1, BlurGuard: 100 of the 306 Pexels portraits (stratified by gender and the defense LPIPS of \capg{}), full protocol; perturbation scaled by 0.6071, calibrated on the eight-portrait set to defense LPIPS 0.334, which gives 0.271 on these portraits (baseline \texttt{results/pexels\_portraits/blurguard/summary.csv}, commit e84f78c).}
 \prelimnote{Tab.~1, UltraEdit and FLUX.1 Kontext blocks: 50 and 34 of the 306 portraits (baseline \texttt{runtime/pexels\_portraits/ultraedit\_readouts/summary.csv}, \texttt{results/pexels\_portraits/flux\_512/summary.csv}; \capg{} on UltraEdit: color \texttt{results/cross\_model\_pexels/sd3/transfer50/summary.txt}).}
 """
     s = TEX.read_text(encoding="utf-8")

@@ -104,7 +104,7 @@ def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--arms", nargs="+", required=True,
-                    help=f"`{UNDEFENDED}` 或 configs/conditions.yaml 的條件之一：{' '.join(CONDITIONS)}")
+                    help=f"`{UNDEFENDED}`、configs/conditions.yaml 的條件之一（{' '.join(CONDITIONS)}），或 --defenses-root 下有同名目錄的條件")
     ap.add_argument("--purifiers", nargs="+", default=["none"] + OPERATORS)
     ap.add_argument("--data-root", dest="data", type=Path, default=layout.PORTRAITS,
                     help="資料集根目錄（`<類別>/<影像>.png`、`masks/`）；預設 data/portraits")
@@ -122,7 +122,9 @@ def main() -> None:
                     help="不同協定須使用獨立結果目錄與 --output-dir")
     args = ap.parse_args()
 
-    bad = [a for a in args.arms if a != UNDEFENDED and a not in CONDITIONS]
+    # configs/conditions.yaml 以外的條件（例如 color trial 的 color3d_scale2p5_pexels）須在 --defenses-root 下有同名目錄；
+    # 逐張輸入仍由 input_png 在載入模型前驗收。
+    bad = [a for a in args.arms if a != UNDEFENDED and a not in CONDITIONS and not (args.defenses / a).is_dir()]
     # `vae_trans` 不在預設清單：其淨化後輸入由 apply_vae_trans 產生，須明確指定。
     bad += [p for p in args.purifiers if p != "none" and p not in OPERATORS + [VAE_TRANS]]
     if bad:

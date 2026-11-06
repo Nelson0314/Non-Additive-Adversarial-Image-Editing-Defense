@@ -89,7 +89,7 @@ $\Theta$ is initialized with independent Gaussian entries of standard deviation 
     BlurGuard & .275{\scriptsize$\pm$.007} & 5.41{\scriptsize$\pm$.04} & 5.14{\scriptsize$\pm$.04} & .334{\scriptsize$\pm$.007} & .275{\scriptsize$\pm$.029} & .143{\scriptsize$\pm$.006} & .935{\scriptsize$\pm$.007} & .970{\scriptsize$\pm$.002} & .862{\scriptsize$\pm$.029} & .913{\scriptsize$\pm$.009} \\
     \midrule
     \rowcolor{oursrow}
-    \textbf{\capg{}} & .287{\scriptsize$\pm$.012} & 5.34{\scriptsize$\pm$.04} & \textbf{5.31}{\scriptsize$\pm$.04} & .353{\scriptsize$\pm$.012} & \textbf{.364}{\scriptsize$\pm$.025} & \textbf{.288}{\scriptsize$\pm$.010} & \textbf{.885}{\scriptsize$\pm$.004} & \textbf{.901}{\scriptsize$\pm$.005} & \textbf{.791}{\scriptsize$\pm$.026} & \textbf{.788}{\scriptsize$\pm$.014} \\
+    \textbf{\capg{} (Ours)} & .287{\scriptsize$\pm$.012} & 5.34{\scriptsize$\pm$.04} & \textbf{5.31}{\scriptsize$\pm$.04} & .353{\scriptsize$\pm$.012} & \textbf{.364}{\scriptsize$\pm$.025} & \textbf{.288}{\scriptsize$\pm$.010} & \textbf{.885}{\scriptsize$\pm$.004} & \textbf{.901}{\scriptsize$\pm$.005} & \textbf{.791}{\scriptsize$\pm$.026} & \textbf{.788}{\scriptsize$\pm$.014} \\
     \midrule[0.8pt]
     \multicolumn{11}{l}{\emph{UltraEdit, 50 portraits; protected images of the upper block, without re-optimization}} \\
     PhotoGuard & & & & \prelim{.288}{} & \prelim{.134}{} & \prelim{.024}{} & \prelim{.969}{} & \prelim{.993}{} & \prelim{.875}{} & \prelim{.981}{} \\
@@ -98,7 +98,7 @@ $\Theta$ is initialized with independent Gaussian entries of standard deviation 
     Mist & & & & \prelim{\textbf{.299}}{} & \prelim{.135}{} & \prelim{.023}{} & \prelim{.969}{} & \prelim{.994}{} & \prelim{.878}{} & \prelim{.978}{} \\
     \midrule
     \rowcolor{oursrow}
-    \textbf{\capg{}} & & & & \prelim{.269}{} & \prelim{\textbf{.284}}{} & \prelim{\textbf{.207}}{} & \prelim{\textbf{.902}}{} & \prelim{\textbf{.914}}{} & \prelim{\textbf{.772}}{} & \prelim{\textbf{.855}}{} \\
+    \textbf{\capg{} (Ours)} & & & & \prelim{.269}{} & \prelim{\textbf{.284}}{} & \prelim{\textbf{.207}}{} & \prelim{\textbf{.902}}{} & \prelim{\textbf{.914}}{} & \prelim{\textbf{.772}}{} & \prelim{\textbf{.855}}{} \\
     \midrule[0.8pt]
     \multicolumn{11}{l}{\emph{FLUX.1 Kontext ($512^2$), 34 portraits; protected images of the upper block, without re-optimization}} \\
     PhotoGuard & & & & \prelim{.241}{} & \prelim{.145}{} & \prelim{.074}{} & \prelim{.986}{} & \prelim{.993}{} & \prelim{.930}{} & \prelim{.932}{} \\
@@ -107,7 +107,7 @@ $\Theta$ is initialized with independent Gaussian entries of standard deviation 
     Mist & & & & \prelim{.257}{} & \prelim{.149}{} & \prelim{.069}{} & \prelim{.987}{} & \prelim{.993}{} & \prelim{.930}{} & \prelim{.934}{} \\
     \midrule
     \rowcolor{oursrow}
-    \textbf{\capg{}} & & & & \prelim{\textbf{.309}}{} & \prelim{\textbf{.292}}{} & \prelim{\textbf{.260}}{} & \prelim{\textbf{.934}}{} & \prelim{\textbf{.936}}{} & \prelim{\textbf{.869}}{} & \prelim{\textbf{.807}}{} \\
+    \textbf{\capg{} (Ours)} & & & & \prelim{\textbf{.309}}{} & \prelim{\textbf{.292}}{} & \prelim{\textbf{.260}}{} & \prelim{\textbf{.934}}{} & \prelim{\textbf{.936}}{} & \prelim{\textbf{.869}}{} & \prelim{\textbf{.807}}{} \\
     \bottomrule
   \end{tabular}
   \caption{Main comparison (306 Pexels portraits $\times$ 4 instructions; additive methods at the settings of their matched-distortion arm). Each image is first averaged over the four instructions. Small numbers: half-width of the 95\% confidence interval, across the seven purifications in the Purified$^{*}$ columns and across images (images with a detected face for ArcFace) in the other columns. Edits are compared under the same purification; SigLIP and ArcFace are the similarities of the two edits. Best mean in bold within each block. $^{*}$Mean over the seven purifications (JPEG 80, 50, 30; Gaussian blur $\sigma = 1, 2$; crop-and-resize; rotation). LAION and MUSIQ of the original images: 5.46 and 5.39.}

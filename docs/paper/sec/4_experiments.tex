@@ -5,8 +5,7 @@
   \centering
   \includegraphics[width=\linewidth]{fig/purification.pdf}
   \caption{Effect of purification on InstructPix2Pix. (a)~Fraction of the perturbation that survives each purification (306 Pexels portraits), one bar per method; dotted: full survival; DCT-Shield-Y at its native budget (defense LPIPS 0.629), the other additive methods at matched distortion. (b--d)~Edit LPIPS under increasing JPEG compression, blur, and downscaling (306 Pexels portraits $\times$ 4 instructions; DCT-Shield-Y at its native budget); the leftmost point of each panel is the edit without purification, followed by the purification settings from weakest to strongest; dotted: edit LPIPS between two seeds on the same undefended image.}
-  \prelimnote{Fig.~4a: the \capg{} bars use the angle bounds before scaling (seven-purification mean 1.097); the $25^\circ$/$7.5^\circ$ survival (1.057; 0.827 after VAE-Trans; baseline \texttt{runtime/pexels\_portraits/summary/color3d\_scale2p5/main\_table.csv}) is not yet drawn.}
-  \prelimnote{Fig.~4b--d: the current panels use 8 portraits (DCT-Shield-Y native: baseline \texttt{runtime/purifier\_sweep\_native\_dct\_shield\_y/retention\_dct\_shield\_y.csv}); the 306-portrait sweep is not yet run.}
+  \prelimnote{Fig.~4b--d: the current panels use 8 portraits and \capg{} with the angle bounds before scaling (DCT-Shield-Y native: baseline \texttt{runtime/purifier\_sweep\_native\_dct\_shield\_y/retention\_dct\_shield\_y.csv}); the 306-portrait sweep is not yet run.}
   \label{fig:purification}
 \end{figure*}
 
@@ -21,7 +20,7 @@
     Variant & LPIPS $\downarrow$ & LAION $\uparrow$ & MUSIQ $\uparrow$ & None \\
     \midrule
     \rowcolor{oursrow}
-    Full pipeline (\capg{}) & .287 & 5.34 & 5.31 & .353 \\
+    Full pipeline (\capg{}, Ours) & .287 & 5.34 & 5.31 & .353 \\
     w/o optimization (random $\Theta$) & \prelim{.037}{} & \prelim{5.45}{} & \prelim{--}{} & \prelim{.076}{} \\
     w/o smoothing ($\sigma = 0$) & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
     w/o angle bounds & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\

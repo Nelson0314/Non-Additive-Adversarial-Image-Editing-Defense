@@ -60,8 +60,7 @@ $\Theta$ is initialized with independent Gaussian entries of standard deviation 
 \begin{figure*}[t]
   \centering
   \includegraphics[width=\linewidth]{fig/distortion_displacement.pdf}
-  \caption{Distortion and edit displacement on InstructPix2Pix (306 Pexels portraits $\times$ 4 instructions). (a)~Before purification, the additive methods, including BlurGuard, at their native budgets and at the matched-distortion arm, and \capg{} (star); dashed: least-squares fit to the additive methods. (b)~Matched-distortion arms and \capg{} before (filled) and after (open, mean of the seven purifications) purification.}
-  \prelimnote{Fig.~3: no BlurGuard points (306-portrait BlurGuard run in progress).}
+  \caption{Distortion and edit displacement on InstructPix2Pix (306 Pexels portraits $\times$ 4 instructions). (a)~Before purification, the additive methods at their native budgets and at the matched-distortion arm (BlurGuard at the latter only), and \capg{} (star); dashed: least-squares fit to the additive methods. (b)~Matched-distortion arms and \capg{} before (filled) and after (open, mean of the seven purifications) purification.}
   \label{fig:plane}
 \end{figure*}
 
@@ -87,7 +86,7 @@ $\Theta$ is initialized with independent Gaussian entries of standard deviation 
     PhotoGuard & .318{\scriptsize$\pm$.007} & 5.52{\scriptsize$\pm$.04} & 5.27{\scriptsize$\pm$.04} & \textbf{.415}{\scriptsize$\pm$.013} & .157{\scriptsize$\pm$.065} & .033{\scriptsize$\pm$.002} & .966{\scriptsize$\pm$.020} & .992{\scriptsize$\pm$.001} & .910{\scriptsize$\pm$.034} & .968{\scriptsize$\pm$.005} \\
     DCT-Shield & .283{\scriptsize$\pm$.007} & \textbf{5.53}{\scriptsize$\pm$.04} & 5.26{\scriptsize$\pm$.04} & .315{\scriptsize$\pm$.010} & .112{\scriptsize$\pm$.068} & .023{\scriptsize$\pm$.001} & .974{\scriptsize$\pm$.020} & .994{\scriptsize$\pm$.001} & .928{\scriptsize$\pm$.031} & .974{\scriptsize$\pm$.005} \\
     DCT-Shield-Y & .270{\scriptsize$\pm$.007} & 5.35{\scriptsize$\pm$.04} & 5.17{\scriptsize$\pm$.04} & .262{\scriptsize$\pm$.007} & .114{\scriptsize$\pm$.057} & .029{\scriptsize$\pm$.002} & .976{\scriptsize$\pm$.015} & .993{\scriptsize$\pm$.001} & .920{\scriptsize$\pm$.033} & .966{\scriptsize$\pm$.005} \\
-    BlurGuard & \prelim{.271{\scriptsize$\pm$.012}}{} & \prelim{5.41{\scriptsize$\pm$.06}}{} & \prelim{5.17{\scriptsize$\pm$.07}}{} & \prelim{.329{\scriptsize$\pm$.013}}{} & \prelim{.271{\scriptsize$\pm$.029}}{} & \prelim{.136{\scriptsize$\pm$.008}}{} & \prelim{.935{\scriptsize$\pm$.007}}{} & \prelim{.971{\scriptsize$\pm$.004}}{} & \prelim{.864{\scriptsize$\pm$.027}}{} & \prelim{.920{\scriptsize$\pm$.013}}{} \\
+    BlurGuard & .275{\scriptsize$\pm$.007} & 5.41{\scriptsize$\pm$.04} & 5.14{\scriptsize$\pm$.04} & .334{\scriptsize$\pm$.007} & .275{\scriptsize$\pm$.029} & .143{\scriptsize$\pm$.006} & .935{\scriptsize$\pm$.007} & .970{\scriptsize$\pm$.002} & .862{\scriptsize$\pm$.029} & .913{\scriptsize$\pm$.009} \\
     \midrule
     \rowcolor{oursrow}
     \textbf{\capg{}} & .287{\scriptsize$\pm$.012} & 5.34{\scriptsize$\pm$.04} & \textbf{5.31}{\scriptsize$\pm$.04} & .353{\scriptsize$\pm$.012} & \textbf{.364}{\scriptsize$\pm$.025} & \textbf{.288}{\scriptsize$\pm$.010} & \textbf{.885}{\scriptsize$\pm$.004} & \textbf{.901}{\scriptsize$\pm$.005} & \textbf{.791}{\scriptsize$\pm$.026} & \textbf{.788}{\scriptsize$\pm$.014} \\
@@ -115,5 +114,4 @@ $\Theta$ is initialized with independent Gaussian entries of standard deviation 
   \label{tab:main}
 \end{table*}
 \prelimnote{Tab.~1, \capg{} rows of the UltraEdit and FLUX.1 Kontext blocks: angle bounds before scaling ($10^\circ$/$3^\circ$); to be replaced by the $25^\circ$/$7.5^\circ$ readings.}
-\prelimnote{Tab.~1, BlurGuard: 100 of the 306 Pexels portraits (stratified by gender and the defense LPIPS of \capg{}), full protocol; perturbation scaled by 0.6071, calibrated on the eight-portrait set to defense LPIPS 0.334, which gives 0.271 on these portraits (baseline \texttt{results/pexels\_portraits/blurguard/summary.csv}, commit e84f78c).}
 \prelimnote{Tab.~1, UltraEdit and FLUX.1 Kontext blocks: 50 and 34 of the 306 portraits (baseline \texttt{runtime/pexels\_portraits/ultraedit\_readouts/summary.csv}, \texttt{results/pexels\_portraits/flux\_512/summary.csv}; \capg{} on UltraEdit: color \texttt{results/cross\_model\_pexels/sd3/transfer50/summary.txt}).}

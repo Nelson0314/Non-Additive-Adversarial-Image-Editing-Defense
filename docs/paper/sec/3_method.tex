@@ -11,7 +11,7 @@ The edit displacement between $E(P(\tilde{x}), p)$ and $E(P(x), p)$ is measured 
 
 \subsection{Color mapping with a 3D lookup table}
 \label{sec:carrier}
-A 3D lookup table (LUT) represents a color mapping $T : [0,1]^3 \to [0,1]^3$ by its values on the lattice $\mathcal{L} = \{0, \tfrac{1}{32}, \dots, 1\}^3$ of $33^3$ nodes. For a pixel color $x_i$, $T(x_i)$ is the trilinear interpolation of $T$ over the eight nodes of the lattice cell that contains $x_i$, and the protected image is $\tilde{x}_i = T(x_i)$. The LUT is the standard operator of global color grading~\cite{zeng2020lut}, and its effect on an image is that of a color filter.
+A 3D lookup table (LUT) defines a color mapping $T : [0,1]^3 \to [0,1]^3$ on RGB values by storing an output color at each node of the lattice $\mathcal{L} = \{0, \tfrac{1}{32}, \dots, 1\}^3$ ($33^3$ nodes). For the color $x_i$ of pixel $i$, $T(x_i)$ is the trilinear interpolation of the output colors stored at the eight nodes of the lattice cell that contains $x_i$, and the protected image is $\tilde{x}_i = T(x_i)$. The LUT is the standard operator of global color grading~\cite{zeng2020lut}. Because $T$ depends only on the color of a pixel, two pixels of the same color receive the same output wherever they lie in the image, and the mapping introduces no spatial pattern.
 
 \subsection{Smooth color rotations}
 \label{sec:feasible}

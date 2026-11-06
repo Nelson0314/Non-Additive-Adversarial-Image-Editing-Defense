@@ -29,7 +29,7 @@ from matplotlib.patches import Patch  # noqa: E402
 ADDITIVE = {"danp", "dayn", "dct_shield", "dct_shield_y", "dia_pt", "dia_r", "mist",
             "photoguard_encoder", "sifm", "blurguard"}
 OURS = "color3d"
-OURS_LABEL = "CAPGuard"
+OURS_LABEL = "CAPGuard (Ours)"
 GRAY = "#6b7785"
 LIGHT = "#b9c1ca"
 C_ADDITIVE = "#A94438"

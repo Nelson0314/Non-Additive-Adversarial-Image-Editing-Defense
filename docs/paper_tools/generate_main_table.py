@@ -21,9 +21,9 @@ from pathlib import Path
 TEX = Path(__file__).resolve().parents[1] / "paper" / "sec" / "3_method.tex"
 ORDER = [("dayn", "DAYN"), ("dia_r", "DIA-R"), ("dia_pt", "DIA-PT"), ("sifm", "SIFM"), ("danp", "DANP"),
          ("mist", "Mist"), ("photoguard_encoder", "PhotoGuard"), ("dct_shield", "DCT-Shield"),
-         ("dct_shield_y", "DCT-Shield-Y"), ("blurguard", "BlurGuard"), ("color3d_scale2p5_pexels", r"\textbf{\capg{}}")]
+         ("dct_shield_y", "DCT-Shield-Y"), ("blurguard", "BlurGuard"), ("color3d_scale2p5_pexels", r"\textbf{\capg{} (Ours)}")]
 CROSS = [("photoguard_encoder", "PhotoGuard"), ("dct_shield", "DCT-Shield"), ("dct_shield_y", "DCT-Shield-Y"),
-         ("mist", "Mist"), ("color3d_pexels", r"\textbf{\capg{}}")]
+         ("mist", "Mist"), ("color3d_pexels", r"\textbf{\capg{} (Ours)}")]
 # edit LPIPS None, Purified*, VAE-Trans; SigLIP Purified*, VAE-Trans; ArcFace Purified*, VAE-Trans
 ULTRA = {"photoguard_encoder": (.288, .134, .024, .969, .993, .875, .981), "dct_shield": (.256, .100, .016, .975, .995, .895, .986),
          "dct_shield_y": (.267, .097, .021, .976, .993, .915, .977), "mist": (.299, .135, .023, .969, .994, .878, .978),

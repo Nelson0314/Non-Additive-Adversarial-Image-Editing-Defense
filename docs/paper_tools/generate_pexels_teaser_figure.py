@@ -28,7 +28,7 @@ RUN = BASE / "runtime/pexels_portraits"
 ART = BASE / "artifacts/pexels_portraits"
 TRIAL = REPO / "color/trials/lut3d_defense_and_naturalness"
 OURS_C = "color3d_pexels"
-OURS_LABEL = "CAPGuard"
+OURS_LABEL = "CAPGuard (Ours)"
 ARMS = [("PhotoGuard", "photoguard_encoder"), ("Mist", "mist"), ("DIA-PT", "dia_pt"), ("DCT-Shield", "dct_shield")]
 LABELS = {"photoguard_encoder": "PhotoGuard", "mist": "Mist", "dia_pt": "DIA-PT", "dct_shield": "DCT-Shield",
           "dct_shield_y": "DCT-Shield-Y", "blurguard": "BlurGuard"}

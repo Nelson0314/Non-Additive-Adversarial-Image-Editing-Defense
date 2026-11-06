@@ -60,13 +60,13 @@ pane 編號會變動，送訊前一律以 multi-agent 的 `list_panes` 依標題
 
 color 會送 `color/trials/lut3d_defense_and_naturalness/results/color3d_scale2p5_pexels/per_image/main_table.csv`（306 張），baseline 會送 BlurGuard 306 張與以 2.5 倍為基準的消融、跨編輯器讀數。
 
-1. Table 1：CAPGuard 三列換 2.5 倍（ip2p 讀 color 的 main_table；跨編輯器讀 baseline／color 新表），重跑 `generate_main_table.py`（ip2p 列若由 color 提供，需讓腳本讀入 color 的 CSV 取代 `color3d_pexels` 列）；BlurGuard 換 306 張後拿掉紅字與對應 `\prelimnote`。
-2. Fig. 3：CAPGuard 只留 2.5 倍一點（`generate_paper_figures.py` 的 `--color-summary` 指向 2.5 倍，拿掉 `--ours-extra`），4.3 正文的 0.009／0.005 偏離值重算。
-3. Fig. 4：(a) 存續比、(b–d) 強度掃描的 CAPGuard 換 2.5 倍（需 color／baseline 提供讀數）。
-4. 4.2–4.5 正文所有 CAPGuard 數字（0.277、0.291、0.218、1.091、0.025、0.98／1.00 等）與 BlurGuard 範圍；Conclusion 同步。
-5. 摘要與引言貢獻第二條的倍數重算（CAPGuard 七道平均 ÷ 各加性方法，含 BlurGuard），拿掉紅字。
+1. Table 1：上段 CAPGuard 已換 2.5 倍（baseline 遠端 `runtime/pexels_portraits/summary/color3d_scale2p5/main_table.csv`（306 張）；`generate_main_table.py --capguard`）。待辦：BlurGuard 換 306 張後拿掉紅字與 `\prelimnote`；UltraEdit／FLUX 區塊的 CAPGuard 仍為 1.0 倍紅字，待 2.5 倍跨編輯器讀數。
+2. （已完成）Fig. 3 只畫 2.5 倍一點（遠端 `in_pexels/color_summary_scale2p5.csv`，輸出 `out_pexels_scale2p5/`，不給 `--ours-extra`）；4.3 偏離值 0.006（擬合 18 點、不含 BlurGuard，紅字）。BlurGuard 點待 306 張。
+3. Fig. 4：(a) 的 CAPGuard 仍為 1.0 倍（已加 `\prelimnote`；2.5 倍存續比七道 1.057、VAE-Trans 0.827 已寫入 4.4 正文）；(b–d) 強度掃描為 8 張、1.0 倍，需 306 張與 2.5 倍讀數。
+4. 4.2–4.4 與 Conclusion 的 CAPGuard 數字已換 2.5 倍（0.353、0.364、1.058、0.288、7%、LAION 5.343、MUSIQ 5.308、FID 44.7／38.0、存續 1.057／83%）。待辦：BlurGuard 306 張、4.4 強度掃描、4.5 跨編輯器。
+5. 摘要與貢獻第二條倍數為 1.34 to 3.23（CAPGuard Purified* 編輯 LPIPS 0.364 ÷ 各加性方法 Purified*；下端為 BlurGuard 100 張 0.271，故仍紅字；不含 BlurGuard 為 1.72（DAYN）至 3.23（DCT-Shield））。BlurGuard 306 張後重算下端。
 6. （已完成）Method 3.3 上界為極角 < 25°、色相 < 7.5°（color 核對 `generate_color3d_budget_defenses.py:13–16`），求解時間 9.5 分鐘（中位，231 次求解）；Fig. 2 改用 man_60、`color3d_scale2p5_pexels` 的 LUT，像素對由 `generate_method_overview_panels.py` 自動挑選。
-7. Table 3 消融以 2.5 倍為基準的新讀數。
+7. Table 2 消融：完整方法列已換 2.5 倍；A（隨機 Θ）為 1.0 倍上界、已改紅字；其餘待以 2.5 倍為基準的新讀數。
 8. Limitations 的「19 of 32」計數（8 張）若有新數字則換。
 
 ## 6. 交付物

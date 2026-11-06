@@ -51,7 +51,7 @@ The table is optimized to displace the VAE latent of the protected image from th
   \max_\Theta \; \frac{1}{n} \big\| \mu_\mathcal{E}(T_\Theta(x)) - \mu_\mathcal{E}(x) \big\|_2^2 .
   \label{eq:objective}
 \end{equation}
-It requires a single forward pass through the encoder and no instruction, and the protected image is optimized once, against the encoder of InstructPix2Pix. UltraEdit and FLUX.1 Kontext receive the same protected image without re-optimization (\cref{sec:exp_gen}).
+It requires a single forward pass through the encoder and no instruction.
 
 \subsection{Optimization}
 \label{sec:optimization}

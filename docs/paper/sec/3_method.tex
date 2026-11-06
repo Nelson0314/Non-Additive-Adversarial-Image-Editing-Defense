@@ -7,7 +7,7 @@ The defense maps the colors of an image through a per-image 3D lookup table whos
 \label{sec:threat}
 The defender, an image owner, transforms a photograph $x$ into a protected image $\tilde{x}$ before publication. The attacker edits $\tilde{x}$ with an instruction-guided diffusion editor $E(\cdot, p)$, where $p$ denotes a text instruction, and may first apply a purification $P$ such as JPEG compression, Gaussian blur, or reconstruction through a variational autoencoder (VAE). The defender has white-box access to InstructPix2Pix~\cite{brooks2023instructpix2pix}, with frozen weights and an unknown text prompt $p$.
 
-The edit displacement between $E(P(\tilde{x}), p)$ and $E(P(x), p)$ is measured by the learned perceptual distance LPIPS~\cite{zhang2018lpips}, by the cosine similarity of SigLIP~\cite{zhai2023siglip} image embeddings as a measure of semantic agreement, and by the Fr\'echet inception distance (FID)~\cite{heusel2017fid} between the two sets of edits. The distortion of the protected image is the LPIPS between $\tilde{x}$ and $x$.
+The edit displacement between $E(P(\tilde{x}), p)$ and $E(P(x), p)$ is measured by the learned perceptual distance LPIPS~\cite{zhang2018lpips}, by the cosine similarity of SigLIP~\cite{zhai2023siglip} image embeddings as a measure of semantic agreement, and by the cosine similarity of ArcFace~\cite{deng2019arcface} face embeddings as a measure of facial identity, computed on the edits in which a face is detected. The Fr\'echet inception distance (FID)~\cite{heusel2017fid} compares the set of edits of protected images with the set of edits of the originals. Retention is the ratio of the edit LPIPS after purification to that before, computed per edit and averaged. The distortion of the protected image is the LPIPS between $\tilde{x}$ and $x$, and its quality is scored by the no-reference aesthetic models LAION~\cite{schuhmann2022laion} and MUSIQ~\cite{ke2021musiq} (\cref{sec:related}).
 
 \subsection{Color mapping with a 3D lookup table}
 \label{sec:carrier}
@@ -42,7 +42,7 @@ The filter makes $T$ smooth in color space. This keeps the gradual color transit
 \end{align}
 so that $|\Delta\theta| < \theta_{\max}$ and $|\Delta\phi| < \phi_{\max}$ before clipping, with $\Delta\phi = 0$ on the gray axis. We set $\theta_{\max} = 25^\circ$ and $\phi_{\max} = 7.5^\circ$. The tighter bound on hue reflects that hue shifts reduce the perceived naturalness of photographs more than chroma changes of comparable size~\cite{deridder1995naturalness,fedorovskaya1997chroma}.
 
-Every $T$ of this form is a smooth change of saturation and hue at fixed $\|c\|$, so naturalness is a property of the parameterization, and the optimization requires no penalty term, projection, or bound on distortion.
+Every $T$ of this form is a smooth change of saturation and hue at fixed $\|c\|$. The bounds $\theta_{\max}$ and $\phi_{\max}$ set the extent of this change and thereby control both the quality of the protected image and the strength of the defense.
 
 \subsection{Objective}
 \label{sec:objective}
@@ -111,7 +111,7 @@ $\Theta$ is initialized with independent Gaussian entries of standard deviation 
     \textbf{\capg{}} & & & & \prelim{\textbf{.309}}{} & \prelim{\textbf{.292}}{} & \prelim{\textbf{.260}}{} & \prelim{\textbf{.934}}{} & \prelim{\textbf{.936}}{} & \prelim{\textbf{.869}}{} & \prelim{\textbf{.807}}{} \\
     \bottomrule
   \end{tabular}
-  \caption{Main comparison (306 Pexels portraits $\times$ 4 instructions; additive methods at the settings of their matched-distortion arm). Each image is first averaged over the four instructions. Small numbers: half-width of the 95\% confidence interval, across the seven purifications in the Purified$^{*}$ columns and across images (images with a detected face for ArcFace) in the other columns. Edits are compared under the same purification; SigLIP and ArcFace are the similarities of the two edits. Best mean in bold within each block. $^{*}$Mean over the seven purifications (JPEG 80, 50, 30; Gaussian blur $\sigma = 1, 2$; crop-and-resize; rotation). LAION and MUSIQ of the original images: 5.46 and 5.39. Retention, CLIP-S, CLIP-I, FID, SSIM, and PSNR are reported in the supplementary material.}
+  \caption{Main comparison (306 Pexels portraits $\times$ 4 instructions; additive methods at the settings of their matched-distortion arm). Each image is first averaged over the four instructions. Small numbers: half-width of the 95\% confidence interval, across the seven purifications in the Purified$^{*}$ columns and across images (images with a detected face for ArcFace) in the other columns. Edits are compared under the same purification; SigLIP and ArcFace are the similarities of the two edits. Best mean in bold within each block. $^{*}$Mean over the seven purifications (JPEG 80, 50, 30; Gaussian blur $\sigma = 1, 2$; crop-and-resize; rotation). LAION and MUSIQ of the original images: 5.46 and 5.39.}
   \label{tab:main}
 \end{table*}
 \prelimnote{Tab.~1, \capg{} rows of the UltraEdit and FLUX.1 Kontext blocks: angle bounds before scaling ($10^\circ$/$3^\circ$); to be replaced by the $25^\circ$/$7.5^\circ$ readings.}

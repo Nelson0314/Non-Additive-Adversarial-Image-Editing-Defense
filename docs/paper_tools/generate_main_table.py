@@ -1,16 +1,18 @@
 """Write Table 1 (tab:main) of the paper into docs/paper/sec/3_method.tex.
 
-    python generate_main_table.py --main-table main_table.csv --blurguard blurguard_summary.csv
+    python generate_main_table.py --main-table main_table.csv --capguard capguard_main_table.csv --blurguard blurguard_summary.csv
 
 Upper block: InstructPix2Pix, 306 Pexels portraits, all methods; protected-image LPIPS, LAION, MUSIQ and the edit LPIPS,
 SigLIP, ArcFace of the edit of the protected image against the edit of the original under the same purification.
 Inputs: baseline remote runtime/pexels_portraits/summary/main_table.csv (with <col>_ci95) and
-baseline results/pexels_portraits/blurguard/summary.csv (100 portraits). Small numbers are 95% interval half-widths
+baseline remote runtime/pexels_portraits/summary/color3d_scale2p5/main_table.csv (CAPGuard, 2.5x angle bounds, 306
+portraits) and baseline results/pexels_portraits/blurguard/summary.csv (100 portraits). Small numbers are 95% interval half-widths
 (Purified*: across the seven purifications; other columns: across images).
 Lower blocks: the same edit columns on UltraEdit (50 portraits; baseline runtime/pexels_portraits/ultraedit_readouts/
 summary.csv, CAPGuard from color trial results/cross_model_pexels/sd3/transfer50/summary.txt) and FLUX.1 Kontext at 512^2
 (34 portraits; baseline results/pexels_portraits/flux_512/summary.csv), for the methods evaluated there.
-CAPGuard rows stay preliminary (red) until the 2.5x-bound readings replace them.
+Upper-block CAPGuard row: 2.5x bounds (color3d_scale2p5_pexels). Lower-block CAPGuard rows use the bounds before scaling
+and stay preliminary (red) until the 2.5x cross-editor readings replace them.
 """
 import argparse
 import csv
@@ -19,7 +21,7 @@ from pathlib import Path
 TEX = Path(__file__).resolve().parents[1] / "paper" / "sec" / "3_method.tex"
 ORDER = [("dayn", "DAYN"), ("dia_r", "DIA-R"), ("dia_pt", "DIA-PT"), ("sifm", "SIFM"), ("danp", "DANP"),
          ("mist", "Mist"), ("photoguard_encoder", "PhotoGuard"), ("dct_shield", "DCT-Shield"),
-         ("dct_shield_y", "DCT-Shield-Y"), ("blurguard", "BlurGuard"), ("color3d_pexels", r"\textbf{\capg{}}")]
+         ("dct_shield_y", "DCT-Shield-Y"), ("blurguard", "BlurGuard"), ("color3d_scale2p5_pexels", r"\textbf{\capg{}}")]
 CROSS = [("photoguard_encoder", "PhotoGuard"), ("dct_shield", "DCT-Shield"), ("dct_shield_y", "DCT-Shield-Y"),
          ("mist", "Mist"), ("color3d_pexels", r"\textbf{\capg{}}")]
 # edit LPIPS None, Purified*, VAE-Trans; SigLIP Purified*, VAE-Trans; ArcFace Purified*, VAE-Trans
@@ -32,7 +34,7 @@ FLUX = {"photoguard_encoder": (.241, .145, .074, .986, .993, .930, .932), "dct_s
 COLS = [("defense_lpips", 3, min), ("aes_laion", 2, max), ("aes_musiq_ava", 2, max), ("disp_none", 3, max),
         ("disp_seven", 3, max), ("disp_vae_trans", 3, max), ("siglip_seven", 3, min), ("siglip_vae_trans", 3, min),
         ("arcface_pair_seven", 3, min), ("arcface_pair_vae_trans", 3, min)]
-PRELIM_ROWS = {"blurguard", "color3d_pexels"}
+PRELIM_ROWS = {"blurguard"}
 
 
 def f(x, d=3):
@@ -43,9 +45,11 @@ def f(x, d=3):
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--main-table", type=Path, required=True)
+    ap.add_argument("--capguard", type=Path, required=True)
     ap.add_argument("--blurguard", type=Path, required=True)
     args = ap.parse_args()
     rows = {r["condition"]: r for r in csv.DictReader(open(args.main_table, encoding="utf-8"))}
+    rows.update({r["condition"]: r for r in csv.DictReader(open(args.capguard, encoding="utf-8")) if r["condition"] != "original"})
     rows["blurguard"] = next(csv.DictReader(open(args.blurguard, encoding="utf-8")))
     best = {c: fn(float(rows[k][c]) for k, _ in ORDER) for c, _, fn in COLS}
 
@@ -69,7 +73,7 @@ def main():
 
     body = ""
     for k, name in ORDER:
-        if k == "color3d_pexels":
+        if k == "color3d_scale2p5_pexels":
             body += "    \\midrule\n    \\rowcolor{oursrow}\n"
         body += "    " + name + " & " + " & ".join(cell(k, c, d) for c, d, _ in COLS) + " \\\\\n"
     U, D = r"$\uparrow$", r"$\downarrow$"
@@ -95,7 +99,7 @@ def main():
   \caption{Main comparison (306 Pexels portraits $\times$ 4 instructions; additive methods at the settings of their matched-distortion arm). Each image is first averaged over the four instructions. Small numbers: half-width of the 95\% confidence interval, across the seven purifications in the Purified$^{*}$ columns and across images (images with a detected face for ArcFace) in the other columns. Edits are compared under the same purification; SigLIP and ArcFace are the similarities of the two edits. Best mean in bold within each block. $^{*}$Mean over the seven purifications (JPEG 80, 50, 30; Gaussian blur $\sigma = 1, 2$; crop-and-resize; rotation). LAION and MUSIQ of the original images: """ + f"{float(rows['original']['aes_laion']):.2f} and {float(rows['original']['aes_musiq_ava']):.2f}" + r""". Retention, CLIP-S, CLIP-I, FID, SSIM, and PSNR are reported in the supplementary material.}
   \label{tab:main}
 \end{table*}
-\prelimnote{Tab.~1, \capg{} rows: default angle bounds; to be replaced by the 2.5x-bound readings on 306 portraits (\texttt{color3d\_scale2p5\_pexels}).}
+\prelimnote{Tab.~1, \capg{} rows of the UltraEdit and FLUX.1 Kontext blocks: angle bounds before scaling ($10^\circ$/$3^\circ$); to be replaced by the $25^\circ$/$7.5^\circ$ readings.}
 \prelimnote{Tab.~1, BlurGuard: 100 of the 306 Pexels portraits (stratified by gender and the defense LPIPS of \capg{}), full protocol; perturbation scaled by 0.6071, calibrated on the eight-portrait set to defense LPIPS 0.334, which gives 0.271 on these portraits (baseline \texttt{results/pexels\_portraits/blurguard/summary.csv}, commit e84f78c).}
 \prelimnote{Tab.~1, UltraEdit and FLUX.1 Kontext blocks: 50 and 34 of the 306 portraits (baseline \texttt{runtime/pexels\_portraits/ultraedit\_readouts/summary.csv}, \texttt{results/pexels\_portraits/flux\_512/summary.csv}; \capg{} on UltraEdit: color \texttt{results/cross\_model\_pexels/sd3/transfer50/summary.txt}).}
 """

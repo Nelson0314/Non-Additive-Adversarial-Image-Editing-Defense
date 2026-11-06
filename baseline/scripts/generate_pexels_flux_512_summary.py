@@ -90,6 +90,8 @@ def run(images, CONDITIONS, R):
     for s in sets:
         base = Path("runtime/pexels_portraits/aligned") / (s["root"] or "") / "results"
         for c in CONDITIONS:
+            if c == "blurguard":
+                continue
             if c.startswith("color3d_"):
                 group = "color3d" if c == COLOR3D else c.removesuffix("_pexels")
                 path = Path("runtime/pexels_portraits/followup") / (s["root"] or "") / "results" / group / "fidelity.csv"
@@ -99,6 +101,13 @@ def run(images, CONDITIONS, R):
                 if row["condition"] == c and row["image"] in images:
                     defense[c][(row["image"],)] = float(row["fid_lpips"])
 
+    if "blurguard" in CONDITIONS:  # 兩批 BlurGuard 的防禦圖失真（runtime/pexels_portraits/blurguard{,_rest}/results/<組或單位>/fidelity.csv）
+        for path in sorted(glob.glob("runtime/pexels_portraits/blurguard*/results/*/fidelity.csv")):
+            if "/results/all/" in path.replace("\\", "/"):
+                continue
+            for row in read(path):
+                if row["condition"] == "blurguard" and row["image"] in images:
+                    defense["blurguard"][(row["image"],)] = float(row["fid_lpips"])
     n_cells = N * 4
     expected = {"none": n_cells, "seven": n_cells * 7, "vae_trans": n_cells}
     columns = ([("disp", k) for k in ("none", "seven", "vae_trans")]

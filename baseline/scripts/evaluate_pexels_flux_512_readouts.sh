@@ -11,7 +11,8 @@
 # IMAGES_FILE 指定影像清單（預設 color trial pexels_subsets/flux.txt 的 50 張）；清單內影像的 FLUX 512 完成標記
 # （runtime/pexels_portraits/flux_512/done/<影像>.done）不齊時以結束碼 4 結束。SHARDS（預設 8）為 CPU 語意量測的平行片數。
 # 輸出 runtime/pexels_portraits/flux_512/readouts/（彙整見 scripts/generate_pexels_flux_512_summary.py）。
-# CONDS、READOUTS_DIR 改條件與輸出目錄（預設上列五條件、runtime/pexels_portraits/flux_512/readouts）。
+# CONDS、READOUTS_DIR 改條件與輸出目錄（預設上列五條件、runtime/pexels_portraits/flux_512/readouts）；EDITOR_NAME（預設 flux_512）改產物與
+# 逐格表的根（artifacts/pexels_portraits/<名>/、runtime/pexels_portraits/<名>/），供版面相同的其他編輯器（scripts/evaluate_pexels_nonsd_editor.sh）使用。
 # 用法（遠端 baseline 專案根）：[IMAGES_FILE=<檔>] [CONDS="..."] [READOUTS_DIR=<目錄>] [SHARDS=8] ENV_FILE=~/env.sh bash scripts/evaluate_pexels_flux_512_readouts.sh
 set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/env.sh"
@@ -19,8 +20,9 @@ cd "$BASELINE_ROOT"
 CONDS=${CONDS:-photoguard_encoder dct_shield dct_shield_y mist color3d_pexels}
 OPS="blur1 blur2 crop_resize0.1 jpeg30 jpeg50 jpeg80 rotate15"
 D=data/pexels_portraits
-X=artifacts/pexels_portraits/flux_512
-S=runtime/pexels_portraits/flux_512
+EDITOR_NAME=${EDITOR_NAME:-flux_512}
+X=artifacts/pexels_portraits/$EDITOR_NAME
+S=runtime/pexels_portraits/$EDITOR_NAME
 R=${READOUTS_DIR:-$S/readouts}
 IMAGES_FILE=${IMAGES_FILE:-../color/trials/lut3d_defense_and_naturalness/pexels_subsets/flux.txt}
 SHARDS=${SHARDS:-8}
@@ -37,7 +39,7 @@ if [ -n "${CUDA_VISIBLE_DEVICES:-}" ]; then DEVICE=cuda; else DEVICE=cpu; fi
 step "device=$DEVICE（CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES:-}），影像 $(wc -w < "$IMAGES_FILE") 張（$IMAGES_FILE）"
 
 step 逐格表
-"$PY" scripts/generate_pexels_flux_512_cell_tables.py --images-file "$IMAGES_FILE" --conditions $CONDS --output-dir "$R"
+"$PY" scripts/generate_pexels_flux_512_cell_tables.py --images-file "$IMAGES_FILE" --conditions $CONDS --output-dir "$R" --chunks-dir "$S/chunks"
 EDITS="$R/edits_undefended.csv $(for c in $CONDS; do printf '%s ' "$R/edits_$c.csv"; done)"
 
 step 位移與保留率

@@ -40,13 +40,13 @@ def write(path, data, cols):
         w.writerows(data)
 
 
-def collect(condition, images):
+def collect(condition, images, chunks=CHUNKS):
     data = []
     for img in images:
         for setting in SETTINGS:
-            for r in rows(CHUNKS / img / f"edits_{condition}__{setting}.csv"):
+            for r in rows(chunks / img / f"edits_{condition}__{setting}.csv"):
                 if r["arm"] != condition or r["image"] != img:
-                    raise SystemExit(f"{CHUNKS / img}/edits_{condition}__{setting}.csv 含 {r['arm']} {r['image']} 的列")
+                    raise SystemExit(f"{chunks / img}/edits_{condition}__{setting}.csv 含 {r['arm']} {r['image']} 的列")
                 data.append({"arm": condition, "image": img, "prompt_index": r["prompt_index"], "prompt": r["prompt"],
                              "png": r["png"], "purifier": setting})
     keys = {(r["image"], r["prompt_index"], r["purifier"]) for r in data}
@@ -65,6 +65,7 @@ def main():
     ap.add_argument("--images-file", type=Path, default=CT / "pexels_subsets/flux.txt")
     ap.add_argument("--conditions", nargs="+", default=list(CONDITIONS))
     ap.add_argument("--output-dir", type=Path, default=OUT)
+    ap.add_argument("--chunks-dir", type=Path, default=CHUNKS)
     args = ap.parse_args()
     images = args.images_file.read_text(encoding="utf-8").split()
     conditions, out = tuple(args.conditions), args.output_dir
@@ -72,7 +73,7 @@ def main():
         raise SystemExit("影像清單為空或有重複")
     cells = {}
     for c in (UNDEFENDED, *conditions):
-        data = collect(c, images)
+        data = collect(c, images, args.chunks_dir)
         write(out / f"edits_{c}.csv", data, COLS)
         write(out / "plain" / f"edits_{c}.csv", [r for r in data if r["purifier"] == "none"], COLS)
         cells[c] = {(r["image"], r["prompt_index"], r["purifier"]): r for r in data}

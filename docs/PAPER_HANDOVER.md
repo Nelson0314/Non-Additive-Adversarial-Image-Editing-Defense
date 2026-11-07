@@ -60,7 +60,7 @@ pane 編號會變動，送訊前一律以 multi-agent 的 `list_panes` 依標題
 
 color 會送 `color/trials/lut3d_defense_and_naturalness/results/color3d_scale2p5_pexels/per_image/main_table.csv`（306 張），baseline 會送 BlurGuard 306 張與以 2.5 倍為基準的消融、跨編輯器讀數。
 
-1. Table 1：上段 CAPGuard 為 2.5 倍、BlurGuard 為 306 張（`generate_main_table.py --capguard … --blurguard <baseline 遠端 runtime/pexels_portraits/blurguard_306/summary.csv>`），皆黑字。待辦：UltraEdit／FLUX 區塊的 CAPGuard 仍為 1.0 倍紅字，待 2.5 倍跨編輯器讀數。
+1. Table 1：上段 CAPGuard 2.5 倍、BlurGuard 306 張；下段跨編輯器改為 VIBE-DistilledCFG（306 張，`--vibe baseline/results/pexels_portraits/vibe_distilled/summary.csv`）與 FLUX.2 [klein] 4B（`--klein`，未給時紅字佔位），方法為 Mist、PhotoGuard、DCT-Shield、BlurGuard、CAPGuard。UltraEdit／FLUX.1 Kontext 已停用。待辦：klein 讀數到齊後以 `--klein` 重產，並補 4.5 與 Conclusion 的 klein 句。
 2. （已完成）Fig. 3：CAPGuard 只畫 2.5 倍一點，BlurGuard 只有等失真臂一點；遠端輸入 `in_pexels/points_blurguard.csv`、`condition_summary_blurguard.csv`、`color_summary_scale2p5.csv`、`perturbation_survival_blurguard.csv`（BlurGuard 列為 baseline `blurguard_306/per_purifier.csv` 的逐道平均），輸出 `out_pexels_blurguard/`。擬合 19 點，斜率 1.037、截距 0.049、r＝0.968；CAPGuard 在線上方 0.006。
 3. Fig. 4：(a) 的 CAPGuard 仍為 1.0 倍（已加 `\prelimnote`；2.5 倍存續比七道 1.057、VAE-Trans 0.827 已寫入 4.4 正文）；(b–d) 強度掃描為 8 張、1.0 倍，需 306 張與 2.5 倍讀數。
 4. 4.2–4.4 與 Conclusion 的 CAPGuard 數字已換 2.5 倍（0.353、0.364、1.058、0.288、7%、LAION 5.343、MUSIQ 5.308、FID 44.7／38.0、存續 1.057／83%）。待辦：BlurGuard 306 張、4.4 強度掃描、4.5 跨編輯器。

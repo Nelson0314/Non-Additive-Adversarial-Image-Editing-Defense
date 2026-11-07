@@ -1,0 +1,41 @@
+{
+ "model": "klein_base",
+ "repo": "black-forest-labs/FLUX.2-klein-base-4B",
+ "settings": {
+  "num_inference_steps": 50,
+  "guidance_scale": 4.0
+ },
+ "load_s": 20.2,
+ "edits": 8,
+ "sec_per_edit_mean": 34.753,
+ "sec_per_edit": [
+  34.298,
+  34.745,
+  34.801,
+  34.835,
+  34.848,
+  34.853,
+  34.829,
+  34.817
+ ],
+ "peak_vram_alloc_gb": 15.49,
+ "peak_vram_reserved_gb": 15.61,
+ "gpu": "NVIDIA GeForce RTX 3090",
+ "vae": {
+  "class": "AutoencoderKLFlux2",
+  "latent_channels": 32,
+  "block_out_channels": [
+   128,
+   256,
+   512,
+   512
+  ],
+  "encoder_block_out_channels": null,
+  "downsample_hint": [
+   "DownEncoderBlock2D",
+   "DownEncoderBlock2D",
+   "DownEncoderBlock2D",
+   "DownEncoderBlock2D"
+  ]
+ }
+}

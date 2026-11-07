@@ -1,0 +1,37 @@
+{
+ "model": "vibe_distilled",
+ "repo": "iitolstykh/VIBE-Image-Edit-DistilledCFG",
+ "settings": {
+  "num_inference_steps": 20
+ },
+ "load_s": 11.1,
+ "edits": 8,
+ "sec_per_edit_mean": 0.966,
+ "sec_per_edit": [
+  0.888,
+  0.874,
+  0.934,
+  1.024,
+  0.94,
+  0.98,
+  1.044,
+  1.04
+ ],
+ "peak_vram_alloc_gb": 8.5,
+ "peak_vram_reserved_gb": 8.62,
+ "gpu": "NVIDIA GeForce RTX 3090",
+ "vae": {
+  "class": "AutoencoderDC",
+  "latent_channels": 32,
+  "block_out_channels": null,
+  "encoder_block_out_channels": [
+   128,
+   256,
+   512,
+   512,
+   1024,
+   1024
+  ],
+  "downsample_hint": "Conv"
+ }
+}

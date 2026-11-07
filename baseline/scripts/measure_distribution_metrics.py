@@ -1,4 +1,4 @@
-"""防禦圖與編輯結果的 CLIP-IQA（逐張）與 FID／KID（集合對集合），失真端與位移端（CPU）。
+"""防禦圖與編輯結果的 CLIP-IQA（逐張）與 FID／KID（集合對集合），失真端與位移端。
 
 端別與集合（A 為受測集合，B 為參照集合；逐條件、逐淨化各一組）：
     distortion             A＝防禦圖，B＝原圖
@@ -12,6 +12,9 @@
     CLIP-IQA   pyiqa `clipiqa`，逐張（與 measure_additional_metrics 的 aes_clipiqa 相同）
     FID、KID   piq.FID、piq.KID（三次多項式核，n_subsets 100，subset_size＝較小集合的張數），特徵為 piq 的 InceptionV3
                （pytorch-fid 權重 pt_inception-2015-12-05，pool3 2048 維，輸入縮放到 299）；兩集合各 n_a、n_b 張
+裝置（--device）：cpu（預設）或 cuda，只決定 CLIP-IQA 與 InceptionV3 特徵的計算裝置；影像逐張送入（不批次），cuda 時關閉 TF32。
+    FID、KID 一律由特徵在 CPU 以 float64 計算。分片特徵檔記錄裝置，與 --device 不同時失敗，避免混用。
+    KID 的子集抽樣用未設種子的 torch.randperm，同一特徵重算時 KID 也會變動。
 小樣本下 FID 的共變異數估計秩不足（2048 維、≤ 32 張），數值隨樣本數變動大，n 逐列記錄。
 
 輸出：<輸出目錄>/<dataset>_clipiqa.csv（逐張）、<dataset>_distribution.csv（逐組 FID、KID、CLIP-IQA 平均）。
@@ -136,6 +139,7 @@ def main():
     ap.add_argument("--without-vae-trans", action="store_true", help="Pexels 不建 VAE-Trans 組")
     ap.add_argument("--color3d-group", default="color3d", help="Pexels：" + "color3d（預設，與等失真 aligned 一起）或 color3d_<變體>（只做該分組，條件為 <分組>_pexels）")
     ap.add_argument("--require-images", type=int, default=None, help="每組的影像數須為此值，否則失敗（合併時）")
+    ap.add_argument("--device", choices=("cpu", "cuda"), default="cpu", help="CLIP-IQA 與 InceptionV3 特徵的計算裝置")
     ap.add_argument("--tag", default="", help="分片檔名的附加段（<dataset>_features_<tag>_<i>.pt）；已存在的分片檔中有的影像不重算")
     args = ap.parse_args()
     args.out.mkdir(parents=True, exist_ok=True)
@@ -155,37 +159,45 @@ def main():
     if missing:
         raise SystemExit(f"缺 {len(missing)} 個檔案，例如 {missing[:3]}")
 
-    clipiqa = pyiqa.create_metric("clipiqa", device="cpu", as_loss=False)
-    inception = InceptionV3().eval()
+    if args.device == "cuda":
+        torch.backends.cuda.matmul.allow_tf32 = False
+        torch.backends.cudnn.allow_tf32 = False
+    device = torch.device(args.device)
+    clipiqa = pyiqa.create_metric("clipiqa", device=device, as_loss=False)
+    inception = InceptionV3().eval().to(device)
+
+    def extract(p):
+        with torch.no_grad():
+            x = load(p).to(device)
+            return float(clipiqa(x)), inception(x)[0].flatten(1)[0].cpu()
+
     q_cache, f_cache = {}, {}
     for part in sorted(args.out.glob(f"{args.dataset}_features_*.pt")):
         saved = torch.load(part)
+        if saved.get("device", "cpu") != args.device:
+            raise SystemExit(f"{part} 的特徵以 {saved.get('device', 'cpu')} 計算，與 --device {args.device} 不同")
         q_cache.update(saved["quality"])
         f_cache.update(saved["feature"])
     if args.shard is not None:
         paths = sorted({str(p) for g in groups for p in g[3] + g[4]} - set(f_cache))[args.shard::args.shards]
         q_cache, f_cache = {}, {}
         for k, p in enumerate(paths):
-            with torch.no_grad():
-                x = load(p)
-                q_cache[p], f_cache[p] = float(clipiqa(x)), inception(x)[0].flatten(1)[0]
+            q_cache[p], f_cache[p] = extract(p)
             if k % 500 == 0:
                 print(f"[FEATURES] {args.shard}/{args.shards} {k}/{len(paths)}", flush=True)
         name = f"{args.dataset}_features_{args.tag}_{args.shard}.pt" if args.tag else f"{args.dataset}_features_{args.shard}.pt"
-        torch.save({"quality": q_cache, "feature": f_cache}, args.out / name)
+        torch.save({"quality": q_cache, "feature": f_cache, "device": args.device}, args.out / name)
         print(f"[ALLDONE] shard {args.shard}", flush=True)
         return
 
     def quality(p):
         if p not in q_cache:
-            with torch.no_grad():
-                q_cache[p] = float(clipiqa(load(p)))
+            q_cache[p], f_cache[p] = extract(p)
         return q_cache[p]
 
     def feature(p):
         if p not in f_cache:
-            with torch.no_grad():
-                f_cache[p] = inception(load(p))[0].flatten(1)[0]
+            q_cache[p], f_cache[p] = extract(p)
         return f_cache[p]
 
     if args.require_images is not None:
@@ -204,7 +216,7 @@ def main():
         rows.append({"dataset": args.dataset, "condition": c, "end": end, "purifier": purifier,
                      "n_images": len({Path(p).name.split("__")[0] for p in a}), "n_a": len(a), "n_b": len(b), "fid": round(fid, 3), "kid": round(kid, 6), "kid_negative": kid < 0,
                      "clipiqa_a": round(float(np.mean(qa)), 5), "clipiqa_b": round(float(np.mean(qb)), 5),
-                     "feature_extractor": "piq InceptionV3 pool3 (pt_inception-2015-12-05)", "device": "cpu"})
+                     "feature_extractor": "piq InceptionV3 pool3 (pt_inception-2015-12-05)", "device": args.device})
         per_image += [{"dataset": args.dataset, "condition": c, "end": end, "purifier": purifier, "png": str(p),
                        "clipiqa": round(q, 5)} for p, q in zip(a, qa)]
         print(f"[DONE] {c} {end} {purifier} fid={fid:.2f} kid={kid:.4f}", flush=True)

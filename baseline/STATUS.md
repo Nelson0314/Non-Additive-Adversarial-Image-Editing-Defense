@@ -1,6 +1,9 @@
 # baseline：現況與接續指引
 
-接手先讀這一份；協定、檔案位置、程式清單在 `README.md`；等失真臂的說明在 `results/aligned/README.md`。
+冷啟動先讀 `docs/HANDOVER.md`（職責範圍、結果正本、各臂設定、協定、跨編輯器現況、進行中的工作、佇列與 GPU、遠端環境、已知的坑、待決事項），
+再讀這一份；協定、檔案位置、程式清單在 `README.md`；等失真臂的說明在 `results/aligned/README.md`。
+下列「Pexels 的論文工作」以下各節記錄過程與舊排程；跨編輯器現行為 VIBE-DistilledCFG 與 FLUX.2 klein 4B 蒸餾，UltraEdit 與 FLUX.1 Kontext 已停，
+以 `docs/HANDOVER.md` 為準。佇列的改前清單（`queue/superseded_jobs_*.txt`）已移到遠端 `~/trash/baseline/2026-11-07/queue/`。
 
 ## 資料組
 

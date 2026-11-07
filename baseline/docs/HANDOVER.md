@@ -63,7 +63,7 @@ data/portraits 8 張的主表、等失真臂、FLUX／UltraEdit 全表見 `STATU
 - 現行：VIBE-DistilledCFG（`iitolstykh/VIBE-Image-Edit-DistilledCFG`，20 步）與 FLUX.2 [klein] 4B 蒸餾（`black-forest-labs/FLUX.2-klein-4B`，4 步、guidance 1.0），
   512²。條件：undefended、photoguard_encoder、dct_shield、mist、blurguard、color3d_scale2p5_pexels；全協定 216 次編輯／張。
   入口 `scripts/evaluate_pexels_nonsd_editor.sh <vibe_distilled|klein> <影像>`（版面同 FLUX 512），編輯 `scripts/run_nonsd_edits.py`。
-  實測（RTX 3090、含 VAE 編解碼）：VIBE-DistilledCFG 每次 0.97 s、峰值 8.5 GB；klein 蒸餾 1.55 s、15.5 GB（`scripts/measure_nonsd_editor_speed.py`）。
+  實測（RTX 3090、含 VAE 編解碼）：VIBE-DistilledCFG 每次 0.97 s、峰值 8.5 GB；klein 蒸餾 1.55 s、15.5 GB（`scripts/measure_nonsd_editor_speed.py`，結果 `results/pexels_portraits/nonsd_editor_speed/speed_<模型>.json`）。
   VIBE 授權：模型卡無 license 標籤，README 指向 SANA License；查證紀錄在遠端 `trials/non_sd_editor_speed/README.md`。
 - 已停：UltraEdit 與 FLUX.1 Kontext 的 2.5 倍與補到 306 張（UltraEdit 2.5 倍完成 21／100）。未執行的工作行在遠端 `runtime/pexels_portraits/queue/jobs_deferred_manual.txt`。
 - 讀數：`scripts/evaluate_pexels_flux_512_readouts.sh`（`EDITOR_NAME`、`IMAGES_FILE`、`CONDS`、`READOUTS_DIR`），彙整 `generate_pexels_flux_512_summary.py`。
@@ -72,7 +72,7 @@ data/portraits 8 張的主表、等失真臂、FLUX／UltraEdit 全表見 `STATU
 
 - VIBE-DistilledCFG：306 張編輯已完成。`vibe_distilled_readouts_100`（GPU，單一行程）執行中；306 張的讀數改為 `vibe_distilled_r306_sem_{0..3}`（已完成）與
   `vibe_distilled_r306_finish`（合併、CLIP-S、ArcFace、FID、SSIM／PSNR、彙整）。待辦：分片結果中前 100 張的格與 `readouts_100/semantic_identity.csv` 逐值比對並回報。
-- FLUX.2 klein 4B 蒸餾：306 張編輯執行中（6 線，取空卡），之後 `klein_readouts_100`、`klein_readouts_306`。klein 的 306 張讀數照 VIBE 的方式分片較快
+- FLUX.2 klein 4B 蒸餾：306 張編輯執行中（佇列以 AFTER 串成 6 條鏈，實際 4 線，與 VIBE 讀數共用全局 6 張上限；只取空卡），之後 `klein_readouts_100`、`klein_readouts_306`。klein 的 306 張讀數照 VIBE 的方式分片較快
   （單一行程約每秒 3 格，66,096 格約 7.6 小時）。
 - 完成後：summary 複製到 `results/pexels_portraits/<編輯器>/` 並提交，路徑與主要數字回報 executor，由 executor 轉 paper。
 

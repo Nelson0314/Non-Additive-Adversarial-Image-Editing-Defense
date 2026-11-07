@@ -7,7 +7,8 @@
 #   語意     measure_semantic_identity --edits-csv（CLIP-I＝clip_pair、SigLIP、ArcFace(原圖, 編輯)）；CPU 時分 SHARDS 片並行後合併
 #   CLIP-S   scripts/measure_clip_score.py --edits-csv；ArcFace(E_u, E_d) scripts/measure_pexels_arcface_pair.py
 #   FID／KID scripts/measure_distribution_metrics.py --pairs-csv；SSIM／PSNR scripts/measure_pexels_edit_fidelity.py pairs
-# 位移、保留率、語意與 CLIP-S 在 CUDA_VISIBLE_DEVICES 有卡時用 GPU，否則用 CPU；ArcFace(E_u, E_d)、FID／KID、SSIM／PSNR 固定 CPU。
+# 位移、保留率、語意、CLIP-S 與 FID／KID 的特徵（CLIP-IQA、InceptionV3）在 CUDA_VISIBLE_DEVICES 有卡時用 GPU，否則用 CPU；
+# ArcFace(E_u, E_d)、SSIM／PSNR 固定 CPU。FID／KID 的 GPU 與 CPU 讀數比對見 runtime/pexels_portraits/fid_cuda/compare_*.csv。
 # IMAGES_FILE 指定影像清單（預設 color trial pexels_subsets/flux.txt 的 50 張）；清單內影像的 FLUX 512 完成標記
 # （runtime/pexels_portraits/flux_512/done/<影像>.done）不齊時以結束碼 4 結束。SHARDS（預設 8）為 CPU 語意量測的平行片數。
 # 輸出 runtime/pexels_portraits/flux_512/readouts/（彙整見 scripts/generate_pexels_flux_512_summary.py）。
@@ -86,7 +87,7 @@ step CLIP-S 與 ArcFace
 CUDA_VISIBLE_DEVICES= "$PY" scripts/measure_pexels_arcface_pair.py --semantic-csv $R/semantic_identity.csv --output-csv $R/arcface_pair.csv
 
 step FID／KID 與 SSIM／PSNR
-CUDA_VISIBLE_DEVICES= "$PY" scripts/measure_distribution_metrics.py $R/distribution --dataset pexels --pairs-csv $R/pairs.csv
+"$PY" scripts/measure_distribution_metrics.py $R/distribution --dataset pexels --pairs-csv $R/pairs.csv --device $DEVICE
 CUDA_VISIBLE_DEVICES= "$PY" scripts/measure_pexels_edit_fidelity.py pairs --pairs-csv $R/pairs.csv --output-csv $R/edit_fidelity.csv --workers 16
 
 step 彙整

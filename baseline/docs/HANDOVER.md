@@ -64,7 +64,10 @@ data/portraits 8 張的主表、等失真臂、FLUX／UltraEdit 全表見 `STATU
   512²。條件：undefended、photoguard_encoder、dct_shield、mist、blurguard、color3d_scale2p5_pexels；全協定 216 次編輯／張。
   入口 `scripts/evaluate_pexels_nonsd_editor.sh <vibe_distilled|klein> <影像>`（版面同 FLUX 512），編輯 `scripts/run_nonsd_edits.py`。
   實測（RTX 3090、含 VAE 編解碼）：VIBE-DistilledCFG 每次 0.97 s、峰值 8.5 GB；klein 蒸餾 1.55 s、15.5 GB（`scripts/measure_nonsd_editor_speed.py`，結果 `results/pexels_portraits/nonsd_editor_speed/speed_<模型>.json`）。
-  VIBE 授權：模型卡無 license 標籤，README 指向 SANA License；查證紀錄在遠端 `trials/non_sd_editor_speed/README.md`。
+  授權（2026-11-07 查證，未判定）：FLUX.2 klein 4B 模型卡為 apache-2.0。VIBE-Image-Edit(-DistilledCFG) 模型卡沒有 license 標籤，README 寫
+  「built upon SANA, refer to the original SANA license」，所附連結（SANA1.5_4.8B…/LICENSE.txt）回傳 404；SANA 程式庫 NVlabs/Sana 為 Apache-2.0；
+  SANA1.5_1.6B_1024px_diffusers 模型卡標 apache-2.0，Direct Use 段寫「intended for research purposes only」；VLM Qwen3-VL-2B 為 Apache-2.0。
+  trial `non_sd_editor_speed` 已 promote（`docs/TRIALS.md`）；範例對比圖在遠端 `artifacts/pexels_portraits/vibe_distilled/examples/`。
 - 已停：UltraEdit 與 FLUX.1 Kontext 的 2.5 倍與補到 306 張（UltraEdit 2.5 倍完成 21／100）。未執行的工作行在遠端 `runtime/pexels_portraits/queue/jobs_deferred_manual.txt`。
 - 讀數：`scripts/evaluate_pexels_flux_512_readouts.sh`（`EDITOR_NAME`、`IMAGES_FILE`、`CONDS`、`READOUTS_DIR`），彙整 `generate_pexels_flux_512_summary.py`。
 
@@ -110,4 +113,3 @@ data/portraits 8 張的主表、等失真臂、FLUX／UltraEdit 全表見 `STATU
 - BlurGuard 倍率 0.6071 在 Pexels 上的防禦圖 LPIPS 為 0.2745，未達 0.3344；是否在 Pexels 上重新校準。
 - deferred 的 UltraEdit／FLUX.1 Kontext 工作（2.5 倍與補到 306 張）是否恢復。
 - Pexels 306 張的淨化強度掃描（約 100 GPU 小時）是否執行。
-- trial `non_sd_editor_speed`：採用的程式已在 `scripts/`；範例圖已複製到 `artifacts/pexels_portraits/vibe_distilled/examples/`；promote 收尾待執行。

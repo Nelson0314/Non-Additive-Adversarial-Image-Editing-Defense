@@ -4,3 +4,9 @@
 
 | 名稱 | 試了什麼 | 設定 | 關鍵數字 | 結論來源 |
 |---|---|---|---|---|
+
+## 升格紀錄
+
+| 名稱 | 目的檔與 SHA-256 | commit |
+|---|---|---|
+| `non_sd_editor_speed` | `scripts/run_nonsd_edits.py 22d8d0fef0e965ba04b433014b48bf86b93da581908779b35724c1da03d47cf3`<br>`scripts/measure_nonsd_editor_speed.py 9e307bbef0db0cd1575c5defc8bf0a670267ac417194134f90aef7e6dab9a4b8`<br>`scripts/evaluate_pexels_nonsd_editor.sh 3b0bda9e525185f4e1763637ac0a2987111221cd494eab0d1a638894305395c1`<br>`results/pexels_portraits/nonsd_editor_speed/speed_klein.json 3ec503b47b181fd7a8efd583b6f246eca60bae59c7dbbd2efe732c89f66ced29`<br>`results/pexels_portraits/nonsd_editor_speed/speed_klein_base.json 9d4e2413adcbfb12731566555b9ba74052fc470422e8bee00836c76d88803de2`<br>`results/pexels_portraits/nonsd_editor_speed/speed_vibe.json 8e21bfd11c835b23454a5f038a8298d5ca8e571352dca8e01919f8fedd39fcc9`<br>`results/pexels_portraits/nonsd_editor_speed/speed_vibe_distilled.json e67c6d439562f69fdf2a5c911585138011b9ec3ffc0f3bad4805ab652190fc70`<br> | `ab567f98c4b6df9dfd65a5735451f11d0ea1951f` |

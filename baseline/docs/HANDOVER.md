@@ -18,7 +18,7 @@ executor 負責派工、push 與轉知 paper。baseline session 只寫 `baseline
 | BlurGuard 主表列（306 張） | `results/pexels_portraits/blurguard/` | `runtime/pexels_portraits/blurguard_306/`（兩批：`blurguard/`、`blurguard_rest/`） | `BLURGUARD_ROOTS=… bash scripts/evaluate_pexels_blurguard_summary.sh` | 0fbc5e11（100 張版 e84f78c3） |
 | UltraEdit 跨編輯器 50 張（等失真 4 臂） | `results/pexels_portraits/ultraedit/` | `runtime/pexels_portraits/ultraedit_readouts/` | `scripts/evaluate_pexels_ultraedit_readouts.sh` | 0fbc5e11 |
 | FLUX.1 Kontext 512² 跨編輯器 34 張 | `results/pexels_portraits/flux_512/` | `runtime/pexels_portraits/flux_512/readouts/` | `IMAGES_FILE=… bash scripts/evaluate_pexels_flux_512_readouts.sh` | ccb4ad7 |
-| VIBE-DistilledCFG 跨編輯器 100／306 張 | 尚未入版控（目的地 `results/pexels_portraits/vibe_distilled/`） | `runtime/pexels_portraits/vibe_distilled/readouts_{100,306}/` | `EDITOR_NAME=vibe_distilled … scripts/evaluate_pexels_flux_512_readouts.sh`；306 張的語意步驟以 `runtime/pexels_portraits/vibe_distilled/readouts_parts.sh` 分 4 片 | b78e9daf |
+| VIBE-DistilledCFG 跨編輯器 100／306 張 | `results/pexels_portraits/vibe_distilled/`（100 張在 `crosseditor100/`） | `runtime/pexels_portraits/vibe_distilled/readouts_{100,306}/` | `EDITOR_NAME=vibe_distilled … scripts/evaluate_pexels_flux_512_readouts.sh`；306 張的語意步驟以 `runtime/pexels_portraits/vibe_distilled/readouts_parts.sh` 分 4 片 | b78e9daf |
 | FLUX.2 klein 4B 蒸餾跨編輯器 100／306 張 | 尚未入版控（目的地 `results/pexels_portraits/klein_distilled/`） | 編輯 `runtime/pexels_portraits/klein/`，讀數 `runtime/pexels_portraits/klein_distilled/readouts_{100,306}/` | 同上，`EDITOR_NAME=klein` | b78e9daf |
 | 原生預算 dct_shield_y（Fig. 3） | 尚未入版控 | 存續比 `runtime/pexels_portraits/summary/native_dct_shield_y/survival_{seven,vae_trans}.csv`（306 張）；淨化強度掃描 `runtime/purifier_sweep_native_dct_shield_y/retention_dct_shield_y.csv`（portraits 8 張） | `runtime/pexels_portraits/summary/run_native_*.sh` | — |
 
@@ -56,6 +56,8 @@ data/portraits 8 張的主表、等失真臂、FLUX／UltraEdit 全表見 `STATU
 - 讀數定義與區間：`scripts/generate_pexels_main_table_summary.py` 開頭。主讀數為編輯結果 LPIPS（未防禦編輯對防禦後編輯，兩者經同一淨化）；
   七道欄為 7 個逐道平均的平均、區間 t(0.975, 6)·s／√7；其餘欄為影像間 1.96·s／√n。另有 SSIM／PSNR、保留率、SigLIP、CLIP-I、CLIP-S、
   ArcFace（原圖對編輯、E_u 對 E_d）、存續比、FID／KID、防禦圖 LPIPS 與美學。不設判準，數字連同協定回報。
+- FID、KID、CLIP-IQA 的特徵以 GPU 計算（`measure_distribution_metrics.py --device cuda`）；主表、CAPGuard 2.5 倍、BlurGuard、VIBE-DistilledCFG 已由
+  CPU 版取代，比對與 CPU 版副本位置見 `results/pexels_portraits/distribution_device/README.md`。`evaluate_pexels_flux_512_readouts.sh` 在有卡時以 GPU 計算。
 - 跨編輯器：防禦圖與淨化後輸入一律取 ip2p 流程的產物，不以替代編輯器重新求解。
 
 ## 跨編輯器現況
@@ -73,8 +75,8 @@ data/portraits 8 張的主表、等失真臂、FLUX／UltraEdit 全表見 `STATU
 
 ## 進行中的工作（佇列自動執行）
 
-- VIBE-DistilledCFG：306 張編輯已完成。`vibe_distilled_readouts_100`（GPU，單一行程）執行中；306 張的讀數改為 `vibe_distilled_r306_sem_{0..3}`（已完成）與
-  `vibe_distilled_r306_finish`（合併、CLIP-S、ArcFace、FID、SSIM／PSNR、彙整）。待辦：分片結果中前 100 張的格與 `readouts_100/semantic_identity.csv` 逐值比對並回報。
+- VIBE-DistilledCFG：100／306 張讀數完成並入版控。306 張的 `vibe_distilled_r306_finish` 已自佇列移除（改前清單 `queue/superseded_jobs_before_fid_gpu.txt`），
+  其 ArcFace、SSIM／PSNR 以手動 CPU 行程、FID 以 `runtime/pexels_portraits/fid_cuda/run_fid_cuda.sh` 完成；前 100 張的逐格讀數與 100 張版逐值相同。
 - FLUX.2 klein 4B 蒸餾：306 張編輯執行中（佇列以 AFTER 串成 6 條鏈，實際 4 線，與 VIBE 讀數共用全局 6 張上限；只取空卡），之後 `klein_readouts_100`、`klein_readouts_306`。klein 的 306 張讀數照 VIBE 的方式分片較快
   （單一行程約每秒 3 格，66,096 格約 7.6 小時）。
 - 完成後：summary 複製到 `results/pexels_portraits/<編輯器>/` 並提交，路徑與主要數字回報 executor，由 executor 轉 paper。

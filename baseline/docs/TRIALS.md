@@ -4,6 +4,7 @@
 
 | 名稱 | 試了什麼 | 設定 | 關鍵數字 | 結論來源 |
 |---|---|---|---|---|
+| `isr_prompt_and_guidance` | 未執行：ISR 偏低來源的 pilot（指令、ip2p image guidance、VIBE-DistilledCFG、原生預算 PhotoGuard encoder），只建立目錄與程式草稿 | 規劃：isr50 前 10 張、5 條件、8 句、ip2p 7.5／1.8 與 7.5／1.2、VIBE-DistilledCFG 20 步、淨化 none／jpeg50／vae_trans | 未量測 | 使用者於 2026-11-08 經 executor 取消，未啟動任何計算 |
 
 ## 升格紀錄
 

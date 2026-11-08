@@ -1,61 +1,162 @@
 \section{Method}
 \label{sec:method}
+We aim to protect images against unauthorized diffusion-based editing through a learnable color transformation. Specifically, we represent the transformation using a per-image 3D lookup table (LUT), allowing it to adapt to the visual content and color distribution of each input image. To maintain visual fidelity, we leverage the geometry of the RGB color space to constrain the transformation to smooth and bounded rotations around the neutral gray axis. Within this constrained transformation space, we further optimize the LUT using a VAE-guided objective that maximizes the latent discrepancy between the original and transformed images, aiming to disrupt subsequent diffusion-based editing. An overview of our proposed approach is illustrated in~\cref{fig:overview}.
 
-The defense maps the colors of an image through a per-image 3D lookup table whose form is restricted to smooth rotations of color, and optimizes the table against the VAE encoder of the editor (\cref{fig:overview}).
+%The defense maps the colors of an image through a per-image 3D lookup table whose form is restricted to smooth rotations of color, and optimizes the table against the VAE encoder of the editor (\cref{fig:overview}). 
+
 
 \subsection{Threat model}
 \label{sec:threat}
-The defender, an image owner, transforms a photograph $x$ into a protected image $\tilde{x}$ before publication. The attacker edits $\tilde{x}$ with an instruction-guided diffusion editor $E(\cdot, p)$, where $p$ denotes a text instruction, and may first apply a purification $P$ such as JPEG compression, Gaussian blur, or reconstruction through a variational autoencoder (VAE). The defender has white-box access to InstructPix2Pix~\cite{brooks2023instructpix2pix}, with frozen weights and an unknown text prompt $p$.
+We consider a defender (image owner) who transforms an image $x$ into an immunized image $\tilde{x}$ before publication to prevent unauthorized diffusion-based editing. An attacker may directly edit $\tilde{x}$ using an instruction-guided diffusion editor $E(\cdot,p)$, where $p$ denotes an editing instruction, or first apply an image purification operation $P$ before editing. Such purification may involve conventional image processing operations, such as JPEG compression and Gaussian blurring, or learned reconstruction methods, such as VAE-based purification. We assume that the defender has white-box access to a pretrained diffusion editor with frozen model weights, but has no knowledge of the attacker's editing instruction \(p\) or purification operation \(P\). 
 
-The edit displacement between $E(P(\tilde{x}), p)$ and $E(P(x), p)$ is measured by the learned perceptual distance LPIPS~\cite{zhang2018lpips}, by the cosine similarity of SigLIP~\cite{zhai2023siglip} image embeddings as a measure of semantic agreement, and by the cosine similarity of ArcFace~\cite{deng2019arcface} face embeddings as a measure of facial identity, computed on the edits in which a face is detected. The Fr\'echet inception distance (FID)~\cite{heusel2017fid} compares the set of edits of protected images with the set of edits of the originals. Retention is the ratio of the edit LPIPS after purification to that before, computed per edit and averaged. The distortion of the protected image is the LPIPS between $\tilde{x}$ and $x$, and its quality is scored by the no-reference aesthetic models LAION~\cite{schuhmann2022laion} and MUSIQ~\cite{ke2021musiq} (\cref{sec:related}).
+%The defender, an image owner, transforms a photograph $x$ into a protected image $\tilde{x}$ before publication. The attacker edits $\tilde{x}$ with an instruction-guided diffusion editor $E(\cdot, p)$, where $p$ denotes a text instruction, and may first apply a purification $P$ such as JPEG compression, Gaussian blur, or reconstruction through a variational autoencoder (VAE). The defender has white-box access to InstructPix2Pix~\cite{brooks2023instructpix2pix}, with frozen weights and an unknown text prompt $p$.
 
-\subsection{Color mapping with a 3D lookup table}
+%The edit displacement between $E(P(\tilde{x}), p)$ and $E(P(x), p)$ is measured by the learned perceptual distance LPIPS~\cite{zhang2018lpips}, by the cosine similarity of SigLIP~\cite{zhai2023siglip} image embeddings as a measure of semantic agreement, and by the cosine similarity of ArcFace~\cite{deng2019arcface} face embeddings as a measure of facial identity, computed on the edits in which a face is detected. The Fr\'echet inception distance (FID)~\cite{heusel2017fid} compares the set of edits of protected images with the set of edits of the originals. Retention is the ratio of the edit LPIPS after purification to that before, computed per edit and averaged. The distortion of the protected image is the LPIPS between $\tilde{x}$ and $x$, and its quality is scored by the no-reference aesthetic models LAION~\cite{schuhmann2022laion} and MUSIQ~\cite{ke2021musiq} (\cref{sec:related}).
+
+%\subsection{Color mapping with a 3D lookup table}
+\subsection{3D LUT-based Parameterization}
 \label{sec:carrier}
-A 3D lookup table (LUT) defines a color mapping $T : [0,1]^3 \to [0,1]^3$ on RGB values by storing an output color at each node of the lattice $\mathcal{L} = \{0, \tfrac{1}{32}, \dots, 1\}^3$ ($33^3$ nodes). For the color $x_i$ of pixel $i$, $T(x_i)$ is the trilinear interpolation of the output colors stored at the eight nodes of the lattice cell that contains $x_i$, and the protected image is $\tilde{x}_i = T(x_i)$. The LUT is the standard operator of global color grading~\cite{zeng2020lut}. Because $T$ depends only on the color of a pixel, two pixels of the same color receive the same output wherever they lie in the image, and the mapping introduces no spatial pattern.
+To protect an image through color transformations, we define a nonlinear mapping $T:[0,1]^3\rightarrow[0,1]^3$ that transforms each pixel's RGB value into a new color, where each RGB channel is normalized to the range $[0,1]$. Specifically, we parameterize $T$ using a learnable 3D lookup table (LUT), which provides a flexible representation of nonlinear color mappings and supports differentiable optimization. A separate LUT is optimized for each input image, allowing the learned color transformation to adapt to its visual content and color distribution. The LUT stores output colors at uniformly sampled nodes of the RGB color space, forming a $K\times K\times K$ lattice, where $K$ denotes the number of sampling points along each RGB dimension. For each input pixel, we use trilinear interpolation to compute the transformed color $T(c)$ for any input RGB value $c$ from its eight neighboring lattice nodes to obtain a continuous mapping between sampled LUT entries. Given an image $x$ with pixels $\{x_i\}_{i=1}^{N}$, the protected image is obtained by applying the same mapping to every pixel:
+\begin{equation}
+    \tilde{x}_i=T(x_i),\quad i=1,\ldots,N.
+\end{equation}
+The shared mapping ensures that the transformation depends solely on pixel colors rather than spatial locations, yielding a global color transformation without introducing spatially varying perturbation patterns.
 
-\subsection{Smooth color rotations}
+%A 3D lookup table (LUT) defines a color mapping $T : [0,1]^3 \to [0,1]^3$ on RGB values by storing an output color at each node of the lattice $\mathcal{L} = \{0, \tfrac{1}{32}, \dots, 1\}^3$ ($33^3$ nodes). For the color $x_i$ of pixel $i$, $T(x_i)$ is the trilinear interpolation of the output colors stored at the eight nodes of the lattice cell that contains $x_i$, and the protected image is $\tilde{x}_i = T(x_i)$. The LUT is the standard operator of global color grading~\cite{zeng2020lut}. Because $T$ depends only on the color of a pixel, two pixels of the same color receive the same output wherever they lie in the image, and the mapping introduces no spatial pattern.
+
+%\subsection{Smooth color rotations}
+\subsection{Geometry-Constrained Color Transformation}
 \label{sec:feasible}
-An unrestricted LUT introduces unnatural local color differences and color tones. We therefore restrict $T$ to rotations of color about the black point. With the gray axis $g = (1,1,1)/\sqrt{3}$ as the polar axis, every color is written as
-\begin{equation}
-  c = \|c\|\, u(\theta, \phi),
-  \label{eq:spherical}
-\end{equation}
-where $u(\theta, \phi)$ is the unit vector with polar angle $\theta$, the deviation from the neutral axis, and azimuth $\phi$ about $g$. As in cylindrical hue--saturation color models, $\theta$ corresponds to saturation and $\phi$ to hue. The LUT preserves $\|c\|$, and thus approximately the brightness, and changes only the two angles:
-\begin{equation}
-  T(c) = \mathrm{clip}_{[0,1]}\big(\|c\|\, u(\theta + \Delta\theta(c),\; \phi + \Delta\phi(c))\big).
-  \label{eq:rotation}
-\end{equation}
+While a 3D LUT provides a flexible representation of color mappings, an unrestricted mapping may introduce abrupt or unnatural color distortions. To maintain the visual fidelity of the protected image, we leverage the geometry of the RGB color space to constrain the color mapping to bounded rotations around the neutral gray axis.
 
-\paragraph{Smooth rotation field.} The free parameters $\Theta \in \mathbb{R}^{3 \times 33^3}$ assign a vector to each lattice node and are smoothed by a separable 3D Gaussian filter,
+\paragraph{Gray-Axis Rotation. }
+We choose the neutral gray axis, represented by the unit vector $g=(1,1,1)/\sqrt{3}$, as the reference axis, since all achromatic colors lie along this direction in the RGB space. The gray axis provides a natural geometric basis for characterizing chromatic variations: the angular deviation $\theta$ from the gray axis describes the chromatic departure from neutral gray, while the azimuthal angle $\phi$ captures the orientation of the color around the axis. An RGB color $c$ can therefore be expressed in spherical coordinates as
 \begin{equation}
-  V = G_\sigma * \Theta, \qquad \sigma = 4 \text{ lattice cells}.
-  \label{eq:field}
+c = \|c\|\,u(\theta,\phi),
+\label{eq:spherical}
 \end{equation}
-The filter makes $T$ smooth in color space. This keeps the gradual color transitions of skin, sky, and fabric from being mapped to distant outputs, which would produce banding; learned grading LUTs are regularized toward smoothness for the same reason~\cite{zeng2020lut}. At each node, $V$ is projected onto the unit tangent vectors $e_\theta$ and $e_\phi$ of the sphere at $u(\theta, \phi)$, giving $v_\theta = \langle V, e_\theta \rangle$ and $v_\phi = \langle V, e_\phi \rangle$.
+where $\theta$ and $\phi$ denote the polar and azimuthal angles, respectively. 
 
-\paragraph{Bounded angles.} The angle increments saturate smoothly at prescribed bounds,
+The unified representation jointly models RGB channels as a 3D vector, enabling color transformations that account for their geometric relationships rather than treating individual channels independently. We then constrain the transformation to modify only the angular coordinates while preserving the RGB magnitude. This prevents additional radial changes and allows the transformation to focus on chromatic manipulation while reducing unintended variations in the image's tonal characteristics. Accordingly, we define the color transformation as
+\begin{equation}
+T(c)=\mathrm{clip}_{[0,1]}
+\left(
+\|c\|\,u(
+\theta+\Delta\theta(c),
+\phi+\Delta\phi(c))
+\right),
+\label{eq:rotation}
+\end{equation}
+and the clipping operation ensures that all transformed RGB values remain within the valid range $[0,1]$.
+
+\paragraph{Smooth Rotation Field.}
+Natural images often contain gradual color transitions, such as those found in skin tones, skies, and smooth surfaces. If nearby RGB values undergo substantially different transformations, these transitions may be disrupted, introducing unnatural color boundaries or banding artifacts. To preserve color continuity, we parameterize the transformation using a learnable 3D vector field $\Theta\in\mathbb{R}^{3\times K^3}$ defined over the RGB lattice. Rather than directly optimizing angular displacements $\Delta\theta(c)$ and $\Delta\phi(c)$ at individual lattice nodes, we first learn the vector field in the RGB Euclidean space and apply a separable 3D Gaussian filter:
+\begin{equation}
+V=G_\sigma * \Theta,
+\label{eq:field}
+\end{equation}
+where $G_\sigma$ denotes the Gaussian kernel with standard deviation $\sigma$. The formulation encourages nearby RGB values to undergo consistent transformations by smoothing the underlying vector field, without requiring an additional smoothness regularization loss. To progressively learn protective color transformations from the original image, we initialize $\Theta$ with small random values, resulting in an initial rotation field close to zero and, consequently, a color transformation close to the identity mapping. 
+
+We then project the smoothed vector at each lattice node onto the local tangent basis of the sphere to obtain its angular components:
+\begin{equation}
+v_\theta=\langle V,e_\theta\rangle,\qquad
+v_\phi=\langle V,e_\phi\rangle,
+\label{eq:tangent}
+\end{equation}
+where $e_\theta$ and $e_\phi$ are the orthogonal unit tangent vectors associated with the polar and azimuthal directions, respectively. Since these tangent directions vary across the RGB space, this projection converts the shared RGB-space vector field into position-dependent angular components, which are subsequently used to determine the color rotations. 
+
+\paragraph{Bounded Angular Displacement.}
+While consistent transformations across neighboring RGB values are encouraged, this does not explicitly limit the magnitude of color changes. To prevent excessive color distortions, we constrain the angular displacements within prescribed bounds using a smooth saturation function:
 \begin{align}
-  \Delta\theta &= s_{\theta_{\max}}(v_\theta), \qquad
-  \Delta\phi = s_{\phi_{\max}}\!\left(\frac{v_\phi \cos\Delta\theta}{\sin(\theta + \Delta\theta)}\right), \\
-  s_a(t) &= \arctan\!\big(\tan a \, \tanh(t / \tan a)\big),
-  \label{eq:bounds}
+\Delta\theta &= s_{\theta_{\max}}(v_\theta),\\
+\Delta\phi &= s_{\phi_{\max}}\left(
+\frac{v_\phi\cos\Delta\theta}
+{\sin(\theta+\Delta\theta)}
+\right),
+\label{eq:increments}
 \end{align}
-so that $|\Delta\theta| < \theta_{\max}$ and $|\Delta\phi| < \phi_{\max}$ before clipping, with $\Delta\phi = 0$ on the gray axis. We set $\theta_{\max} = 25^\circ$ and $\phi_{\max} = 7.5^\circ$. The tighter bound on hue reflects that hue shifts reduce the perceived naturalness of photographs more than chroma changes of comparable size~\cite{deridder1995naturalness,fedorovskaya1997chroma}.
-
-Every $T$ of this form is a smooth change of saturation and hue at fixed $\|c\|$. The bounds $\theta_{\max}$ and $\phi_{\max}$ set the extent of this change and thereby control both the quality of the protected image and the strength of the defense.
-
-\subsection{Objective}
-\label{sec:objective}
-The table is optimized to displace the VAE latent of the protected image from that of the original. With $\mu_\mathcal{E}$ the posterior mean of the VAE encoder and $n$ the number of latent elements, the objective is
+where
 \begin{equation}
-  \max_\Theta \; \frac{1}{n} \big\| \mu_\mathcal{E}(T_\Theta(x)) - \mu_\mathcal{E}(x) \big\|_2^2 .
-  \label{eq:objective}
+s_a(t)=\arctan\left(
+\tan(a)\tanh\left(\frac{t}{\tan(a)}\right)
+\right).
+\label{eq:bounds}
 \end{equation}
-It requires a single forward pass through the encoder and no instruction.
 
-\subsection{Optimization}
-\label{sec:optimization}
-$\Theta$ is initialized with independent Gaussian entries of standard deviation 0.002, and \cref{eq:objective} is optimized with Adam ($\beta_1 = 0.5$, $\beta_2 = 0.99$) for 1800 steps at $512^2$ resolution. The learning rate follows a cosine decay from $3 \times 10^{-4}$ to $10^{-5}$ over the first two thirds of the steps and remains at $10^{-5}$ afterwards. The protected image of the final step is stored as an 8-bit PNG. One image takes about 9.5 minutes on a single RTX 3090, including model loading and file I/O (median over the 306 Pexels portraits).
+We smoothly bound the angular displacements within $[-a,a]$, avoiding abrupt saturation during optimization. We use separate bounds $\theta_{\max}$ and $\phi_{\max}$ to independently control the deviations along the polar and azimuthal directions. In particular, we impose a tighter bound on $\phi$ to prevent excessive changes in the RGB channel composition, which may lead to noticeable deviations from the original colors~\cite{deridder1995naturalness,fedorovskaya1997chroma}. For colors on the neutral gray axis, we set $\Delta\phi=0$, since their azimuth is undefined. Together, these constraints define a smooth and bounded color transformation in the RGB space. The angular bounds $\theta_{\max}$ and $\phi_{\max}$ control the extent of permissible color changes, providing a trade-off between preserving the visual fidelity of the protected image and inducing sufficient disruption to diffusion-based editing.
+
+
+
+
+%An unrestricted LUT introduces unnatural local color differences and color tones. We therefore restrict $T$ to rotations of color about the black point. With the gray axis $g = (1,1,1)/\sqrt{3}$ as the polar axis, every color is written as
+%\begin{equation}
+  %c = \|c\|\, u(\theta, \phi),
+  %\label{eq:spherical}
+%\end{equation}
+%where $u(\theta, \phi)$ is the unit vector with polar angle $\theta$, the deviation from the neutral axis, and azimuth $\phi$ about $g$. As in cylindrical hue--saturation color models, $\theta$ corresponds to saturation and $\phi$ to hue. The LUT preserves $\|c\|$, and thus approximately the brightness, and changes only the two angles:
+%\begin{equation}
+  %T(c) = \mathrm{clip}_{[0,1]}\big(\|c\|\, u(\theta + %\Delta\theta(c),\; \phi + \Delta\phi(c))\big).
+  %\label{eq:rotation}
+%\end{equation}
+
+
+%\paragraph{Smooth rotation field.} The free parameters $\Theta \in \mathbb{R}^{3 \times 33^3}$ assign a vector to each lattice node and are smoothed by a separable 3D Gaussian filter,
+%\begin{equation}
+  %V = G_\sigma * \Theta, \qquad \sigma = 4 \text{ lattice cells}.
+  %\label{eq:field}
+%\end{equation}
+%The filter makes $T$ smooth in color space. This keeps the gradual color transitions of skin, sky, and fabric from being mapped to distant outputs, which would produce banding; learned grading LUTs are regularized toward smoothness for the same reason~\cite{zeng2020lut}. At each node, $V$ is projected onto the unit tangent vectors $e_\theta$ and $e_\phi$ of the sphere at $u(\theta, \phi)$, giving $v_\theta = \langle V, e_\theta \rangle$ and $v_\phi = \langle V, e_\phi \rangle$.
+
+%\paragraph{Bounded angles.} The angle increments saturate smoothly at prescribed bounds,
+%\begin{align}
+  %\Delta\theta &= s_{\theta_{\max}}(v_\theta), \qquad
+  %\Delta\phi = s_{\phi_{\max}}\!\left(\frac{v_\phi \cos\Delta\theta}{\sin(\theta + \Delta\theta)}\right), \\
+  %s_a(t) &= \arctan\!\big(\tan a \, \tanh(t / \tan a)\big),
+  %\label{eq:bounds}
+%\end{align}
+%so that $|\Delta\theta| < \theta_{\max}$ and $|\Delta\phi| < \phi_{\max}$ before clipping, with $\Delta\phi = 0$ on the gray axis. We set $\theta_{\max} = 25^\circ$ and $\phi_{\max} = 7.5^\circ$. The tighter bound on hue reflects that hue shifts reduce the perceived naturalness of photographs more than chroma changes of comparable size~\cite{deridder1995naturalness,fedorovskaya1997chroma}.
+
+%Every $T$ of this form is a smooth change of saturation and hue at fixed $\|c\|$. The bounds $\theta_{\max}$ and $\phi_{\max}$ set the extent of this change and thereby control both the quality of the protected image and the strength of the defense.
+
+\subsection{Overall Immunization Objective}
+\label{sec:objective}
+The geometric constraints we introduce define a transformation space that balances color manipulation with the visual fidelity of the protected image. Within this constrained space, our goal is to identify a color transformation that effectively disrupts subsequent diffusion-based editing while maintaining the original image's appearance. We follow prior approaches and leverage the VAE encoder of the diffusion editor to guide the optimization of the protective transformation. Specifically, we maximize the discrepancy between the latent representations of the original and transformed images. Given a VAE encoder $\mathcal{E}$ with posterior mean $\mu_{\mathcal{E}}(\cdot)$, we formulate the immunization objective as
+\begin{equation}
+\max_{\Theta}\quad
+\mathcal{L}_{\mathrm{immunize}}
+=
+\frac{1}{n}
+\left\|
+\mu_{\mathcal{E}}\left(T_{\Theta}(x)\right)
+-
+\mu_{\mathcal{E}}(x)
+\right\|_2^2,
+\label{eq:objective}
+\end{equation}
+where $n$ denotes the number of latent elements and $T_{\Theta}$ represents the geometry-constrained color transformation parameterized by $\Theta$. By maximizing this objective, we encourage the learned transformation to induce substantial changes in the image representation while remaining within the geometrically constrained transformation space.
+
+During optimization, the VAE encoder remains frozen, while gradients are propagated through the encoder and color transformation to update $\Theta$. Since the objective operates directly on the image representation, it does not require an explicit editing instruction or backpropagation through the subsequent diffusion denoising process. After optimization, the learned transformation is applied to the original image to obtain the protected image:
+
+\begin{equation}
+\tilde{x}=T_{\Theta^*}(x),
+\label{eq:protected}
+\end{equation}
+
+where $\Theta^*$ denotes the optimized parameters.
+
+
+%\subsection{Objective}
+%\label{sec:objective}
+%The table is optimized to displace the VAE latent of the protected image from that of the original. With $\mu_\mathcal{E}$ the posterior mean of the VAE encoder and $n$ the number of latent elements, the objective is
+%\begin{equation}
+  %\max_\Theta \; \frac{1}{n} \big\| \mu_\mathcal{E}(T_\Theta(x)) - \mu_\mathcal{E}(x) \big\|_2^2 .
+  %\label{eq:objective}
+%\end{equation}
+%It requires a single forward pass through the encoder and no instruction.
+
+%\subsection{Optimization}
+%\label{sec:optimization}
+%$\Theta$ is initialized with independent Gaussian entries of standard deviation 0.002, and \cref{eq:objective} is optimized with Adam ($\beta_1 = 0.5$, $\beta_2 = 0.99$) for 1800 steps at $512^2$ resolution. The learning rate follows a cosine decay from $3 \times 10^{-4}$ to $10^{-5}$ over the first two thirds of the steps and remains at $10^{-5}$ afterwards. The protected image of the final step is stored as an 8-bit PNG. One image takes about 9.5 minutes on a single RTX 3090, including model loading and file I/O (median over the 306 Pexels portraits).
 
 \begin{figure*}[t]
   \centering

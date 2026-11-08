@@ -2,7 +2,7 @@
 \centering
 \includegraphics[width=\linewidth]{fig/teaser.pdf}
 \captionsetup{hypcap=false}
-\captionof{figure}{Protected images (top) and their edits with the instruction ``Let the person wear a helmet'' after Gaussian blur with $\sigma = 2$ (bottom), InstructPix2Pix. The blur returns the edits of the additive defenses (red), BlurGuard included, close to the edit of the undefended image; the edit of the image protected by \capg{} (teal) keeps the color mapping and departs from it.}
+\captionof{figure}{Protected images (top) and their InstructPix2Pix edits (bottom) with the instruction ``Let the person wear a helmet'' after Gaussian blur purification ($\sigma = 2$). While the additive defenses (red), including BlurGuard, fail to prevent the requested helmet insertion after purification, \capg{} (teal) successfully prevents the helmet from appearing, demonstrating its robustness to purification.}
 \captionsetup{hypcap=true}
 \label{fig:teaser}%
 \end{strip}

@@ -101,16 +101,15 @@ $\Theta$ is initialized with independent Gaussian entries of standard deviation 
     \textbf{\capg{} (Ours)} & & & & \textbf{.318}{\scriptsize$\pm$.012} & \textbf{.331}{\scriptsize$\pm$.022} & \textbf{.278}{\scriptsize$\pm$.010} & \textbf{.906}{\scriptsize$\pm$.007} & \textbf{.925}{\scriptsize$\pm$.003} & \textbf{.754}{\scriptsize$\pm$.016} & \textbf{.789}{\scriptsize$\pm$.011} \\
     \midrule[0.8pt]
     \multicolumn{11}{l}{\emph{FLUX.2 [klein] 4B, 306 portraits; protected images of the upper block, without re-optimization}} \\
-    Mist & & & & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
-    PhotoGuard & & & & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
-    DCT-Shield & & & & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
-    BlurGuard & & & & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
+    Mist & & & & .175{\scriptsize$\pm$.007} & .086{\scriptsize$\pm$.037} & .020{\scriptsize$\pm$.001} & .993{\scriptsize$\pm$.003} & .997{\scriptsize$\pm$.000} & .974{\scriptsize$\pm$.013} & .985{\scriptsize$\pm$.001} \\
+    PhotoGuard & & & & .188{\scriptsize$\pm$.007} & .088{\scriptsize$\pm$.038} & .019{\scriptsize$\pm$.001} & .993{\scriptsize$\pm$.003} & .997{\scriptsize$\pm$.000} & .977{\scriptsize$\pm$.010} & .987{\scriptsize$\pm$.001} \\
+    DCT-Shield & & & & .163{\scriptsize$\pm$.007} & .060{\scriptsize$\pm$.039} & .013{\scriptsize$\pm$.001} & .995{\scriptsize$\pm$.002} & .998{\scriptsize$\pm$.000} & .984{\scriptsize$\pm$.007} & .990{\scriptsize$\pm$.001} \\
+    BlurGuard & & & & .231{\scriptsize$\pm$.008} & .198{\scriptsize$\pm$.027} & .091{\scriptsize$\pm$.003} & .974{\scriptsize$\pm$.003} & .989{\scriptsize$\pm$.001} & .951{\scriptsize$\pm$.013} & .958{\scriptsize$\pm$.003} \\
     \midrule
     \rowcolor{oursrow}
-    \textbf{\capg{} (Ours)} & & & & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
+    \textbf{\capg{} (Ours)} & & & & \textbf{.281}{\scriptsize$\pm$.011} & \textbf{.293}{\scriptsize$\pm$.020} & \textbf{.239}{\scriptsize$\pm$.009} & \textbf{.928}{\scriptsize$\pm$.006} & \textbf{.930}{\scriptsize$\pm$.004} & \textbf{.920}{\scriptsize$\pm$.010} & \textbf{.884}{\scriptsize$\pm$.007} \\
     \bottomrule
   \end{tabular}
   \caption{Main comparison (306 Pexels portraits $\times$ 4 instructions; additive methods at the settings of their matched-distortion arm). Each image is first averaged over the four instructions. Small numbers: half-width of the 95\% confidence interval, across the seven purifications in the Purified$^{*}$ columns and across images (images with a detected face for ArcFace) in the other columns. Edits are compared under the same purification; SigLIP and ArcFace are the similarities of the two edits. Best mean in bold within each block. $^{*}$Mean over the seven purifications (JPEG 80, 50, 30; Gaussian blur $\sigma = 1, 2$; crop-and-resize; rotation). LAION and MUSIQ of the original images: 5.46 and 5.39.}
   \label{tab:main}
 \end{table*}
-\prelimnote{Tab.~1, FLUX.2 [klein] block: 306-portrait edits in progress.}

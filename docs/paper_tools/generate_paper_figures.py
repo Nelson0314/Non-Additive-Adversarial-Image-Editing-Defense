@@ -35,6 +35,11 @@ LIGHT = "#b9c1ca"
 C_ADDITIVE = "#A94438"
 C_ADDITIVE_LIGHT = "#D9A39C"
 C_OURS = "#1F6F7C"
+# Figure 4 colors (Okabe-Ito; CAPGuard keeps its teal, no red shades)
+C_OTHER = "#BBBBBB"
+C_BLURGUARD = "#0072B2"
+C_HIGHLIGHT = "#E69F00"
+BLURGUARD = "blurguard"
 HIGHLIGHT = "dct_shield_y"  # additive method drawn separately (native budget; inputs merged by the caller)
 HIGHLIGHT_LABEL = "DCT-Shield-Y (native)"
 SOURCE_MARKER = {"native": "s", "aligned": "o", "aligned_1p255": "o", "plane": "^"}
@@ -73,16 +78,6 @@ def draw_line(ax, slope, intercept, lo, hi):
 
 SURVIVAL_ORDER = [("jpeg80", "JPEG\n80"), ("jpeg50", "JPEG\n50"), ("jpeg30", "JPEG\n30"), ("blur1", "Blur\n1"),
                   ("blur2", "Blur\n2"), ("crop_resize0.1", "Crop"), ("rotate15", "Rot."), ("vae_trans", "VAE-\nTrans")]
-SWEEPS = [
-    ("JPEG quality", [("jpeg95", 95), ("jpeg90", 90), ("jpeg70", 70), ("jpeg50", 50), ("jpeg30", 30), ("jpeg10", 10)], True),
-    (r"Blur $\sigma$", [("blur0.5", 0.5), ("blur1", 1), ("blur2", 2), ("blur3", 3)], False),
-    ("Resize scale", [("resample_roundtrip384", 0.75), ("resample_roundtrip256", 0.5), ("resample_roundtrip128", 0.25)], True),
-]
-SWEEP_STYLE = {"dia_pt": ("DIA-PT", "o"), "mist": ("Mist", "s"), "photoguard_encoder": ("PhotoGuard", "^"),
-               HIGHLIGHT: (HIGHLIGHT_LABEL, "D")}
-SEED_FLOOR = 0.109  # edit LPIPS between two seeds on the same undefended image (8 portraits x 4 instructions)
-
-
 def mean_by(rows, key_fields, value_field):
     acc = {}
     for row in rows:
@@ -91,17 +86,14 @@ def mean_by(rows, key_fields, value_field):
     return {k: sum(v) / len(v) for k, v in acc.items()}
 
 
-def purification_figure(survival_rows, sweep_rows, out):
+def purification_figure(survival_rows, out):
     survival = mean_by(survival_rows, ("condition", "purifier"), "survival")
-    sweep = mean_by(sweep_rows, ("condition", "purifier"), "disp_purified")
-    fig, axes = plt.subplots(1, 4, figsize=(6.9, 1.95), gridspec_kw={"width_ratios": [1.55, 1, 0.85, 0.75]})
-
-    ax = axes[0]
-    order = [(p, label) for p, label in SURVIVAL_ORDER if (OURS, p) in survival]  # 缺讀數的淨化（如未算的 VAE-Trans）不畫
+    fig, ax = plt.subplots(figsize=(3.3, 1.75))
+    order = [(p, label) for p, label in SURVIVAL_ORDER if (OURS, p) in survival]  # purifications without readings are not drawn
     # purifications have no order of strength: grouped bars, one group per purification
-    others = [m for m in sorted(ADDITIVE - {"diffvax"}) if m != HIGHLIGHT]
-    methods = others + [HIGHLIGHT, OURS]
-    colors = [C_ADDITIVE_LIGHT] * len(others) + [C_ADDITIVE, C_OURS]
+    others = [m for m in sorted(ADDITIVE - {"diffvax"}) if m not in (HIGHLIGHT, BLURGUARD)]
+    methods = others + [BLURGUARD, HIGHLIGHT, OURS]
+    colors = [C_OTHER] * len(others) + [C_BLURGUARD, C_HIGHLIGHT, C_OURS]
     width = 0.8 / len(methods)
     top_bar = 0.0
     for j, (method, color) in enumerate(zip(methods, colors)):
@@ -113,46 +105,15 @@ def purification_figure(survival_rows, sweep_rows, out):
                edgecolor="white", linewidth=0.2, zorder=2)
     ax.axhline(1.0, color=GRAY, lw=0.5, ls=(0, (1, 1.5)), zorder=1)
     ax.set_xticks(range(len(order)))
-    ax.set_xticklabels([label for _, label in order], fontsize=5.6)
-    ax.set_ylim(0, top_bar + 0.3)
+    ax.set_xticklabels([label for _, label in order], fontsize=6)
+    ax.set_ylim(0, top_bar + 0.08)
     ax.set_ylabel("Perturbation survival")
-    ax.set_title("(a) Perturbation survival", loc="left")
-    ax.legend(handles=[Patch(color=C_ADDITIVE_LIGHT, label=f"other additive ({len(others)})"),
-                       Patch(color=C_ADDITIVE, label=HIGHLIGHT_LABEL), Patch(color=C_OURS, label=OURS_LABEL)],
-              loc="upper center", bbox_to_anchor=(0.5, 1.0), frameon=False, handlelength=0.9, handletextpad=0.3,
-              columnspacing=0.8, fontsize=5.6, ncol=3)
-
-    # the highlighted method keeps the color it has in panel (a); the others take lighter shades
-    shades = ["#7A2E25", "#DDA59E", "#C7756B", C_ADDITIVE]  # DIA-PT, Mist, PhotoGuard, HIGHLIGHT (SWEEP_STYLE order)
-    # panels b-d share one y range (c and d carry no tick labels)
-    top = max(0.48, round(max(sweep[(m, p)] for m in list(SWEEP_STYLE) + [OURS]
-                                for _, settings, _ in SWEEPS for p, _ in settings) + 0.05, 1))
-    # unpurified edit LPIPS of the same cells (disp_plain), drawn as the leftmost "None" point of each panel
-    plain = mean_by(sweep_rows, ("condition",), "disp_plain")
-    top = max(top, round(max(plain[(m,)] for m in list(SWEEP_STYLE) + [OURS]) + 0.05, 1))
-    for ax, (title, settings, _), letter in zip(axes[1:], SWEEPS, "bcd"):
-        sx = list(range(len(settings) + 1))  # categorical positions, weakest to strongest after "None"
-        for (method, (name, marker)), shade in zip(SWEEP_STYLE.items(), shades):
-            ys = [plain[(method,)]] + [sweep[(method, p)] for p, _ in settings]
-            ax.plot(sx, ys, color=shade, lw=0.9, marker=marker, ms=2.4, label=name, zorder=2)
-        ys = [plain[(OURS,)]] + [sweep[(OURS, p)] for p, _ in settings]
-        ax.plot(sx, ys, color=C_OURS, lw=1.3, marker="*", ms=5, label=OURS_LABEL, zorder=4)
-        ax.axhline(SEED_FLOOR, color=GRAY, lw=0.6, ls=(0, (1, 1.5)), zorder=1)
-        ax.set_xticks(sx)
-        ax.set_xticklabels(["None"] + [f"{v:g}" for _, v in settings], fontsize=5.6)
-        ax.set_xlim(-0.4, len(settings) + 0.4)
-        ax.set_ylim(0, top)
-        ax.set_xlabel(title)
-        ax.set_title(f"({letter}) Edit LPIPS", loc="left")
-        if letter == "b":
-            ax.set_ylabel("Edit LPIPS")
-            ax.text(sx[-1], SEED_FLOOR - 0.035, "seed-to-seed", color=GRAY, fontsize=5.5, ha="right")
-        else:
-            ax.tick_params(labelleft=False)
-    handles, labels = axes[1].get_legend_handles_labels()
-    fig.legend(handles, labels, loc="upper center", bbox_to_anchor=(0.66, 1.0), ncol=5, frameon=False,
-               fontsize=6, handletextpad=0.3, columnspacing=1.0)
-    fig.tight_layout(pad=0.3, w_pad=0.6, rect=(0, 0, 1, 0.9))
+    ax.legend(handles=[Patch(color=C_OTHER, label=f"other additive ({len(others)})"),
+                       Patch(color=C_BLURGUARD, label="BlurGuard"),
+                       Patch(color=C_HIGHLIGHT, label=HIGHLIGHT_LABEL), Patch(color=C_OURS, label=OURS_LABEL)],
+              loc="lower center", bbox_to_anchor=(0.5, 1.0), frameon=False, handlelength=0.9, handletextpad=0.3,
+              columnspacing=0.7, fontsize=6, ncol=4, borderaxespad=0.2)
+    fig.tight_layout(pad=0.3)
     fig.savefig(out)
     print(f"purification: ours survival 7-mean="
           f"{sum(survival[(OURS, p)] for p, _ in SURVIVAL_ORDER[:7]) / 7:.3f}")
@@ -164,14 +125,13 @@ def main():
     parser.add_argument("--aligned", type=Path, required=True)
     parser.add_argument("--color-summary", type=Path, required=True)
     parser.add_argument("--survival", type=Path, required=True, help="baseline/results/aligned/perturbation_survival.csv")
-    parser.add_argument("--sweep", type=Path, required=True, help="baseline/results/sweeps/ip2p/purifier_strength/retention.csv")
     parser.add_argument("--ours-extra", nargs=3, metavar=("DEFENSE_LPIPS", "EDIT_LPIPS", "LABEL"),
                         help="an additional operating point of our defense before purification, drawn in panel (a)")
     parser.add_argument("--out-dir", type=Path, required=True)
     args = parser.parse_args()
     args.out_dir.mkdir(parents=True, exist_ok=True)
     style()
-    purification_figure(read(args.survival), read(args.sweep), args.out_dir / "purification.pdf")
+    purification_figure(read(args.survival), args.out_dir / "purification.pdf")
 
     points = [r for r in read(args.points) if r["method"] in ADDITIVE]
     xs = [float(r["defense_lpips"]) for r in points]

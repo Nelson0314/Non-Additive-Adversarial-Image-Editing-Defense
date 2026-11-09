@@ -72,30 +72,39 @@ InstructPix2Pix, Stable Diffusion inpainting, and Stable Diffusion 2.1 share one
 \begin{table*}[t]
   \centering
   \footnotesize
-  \setlength{\tabcolsep}{5pt}
-  \begin{tabular}{@{}lcccc@{}}
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{@{}lc ccc cccc cc@{}}
     \toprule
-    & \multicolumn{3}{c}{Protected image} & Edit LPIPS $\uparrow$ \\
-    \cmidrule(lr){2-4} \cmidrule(l){5-5}
-    Variant & LPIPS $\downarrow$ & LAION $\uparrow$ & MUSIQ $\uparrow$ & None \\
+    & & \multicolumn{3}{c}{Protected image} & \multicolumn{4}{c}{Edit LPIPS $\uparrow$} & \multicolumn{2}{c}{ISR (\%) $\uparrow$} \\
+    \cmidrule(lr){3-5} \cmidrule(lr){6-9} \cmidrule(l){10-11}
+    Variant & $n$ & LPIPS $\downarrow$ & LAION $\uparrow$ & MUSIQ $\uparrow$ & None & JPEG 50 & Blur 2 & VAE-Trans & None & Purified \\
     \midrule
     \rowcolor{oursrow}
-    Full pipeline (\capg{}, Ours) & .287 & 5.34 & 5.31 & .353 \\
-    w/o optimization (random $\Theta$) & \prelim{.037}{} & \prelim{5.45}{} & \prelim{--}{} & \prelim{.076}{} \\
-    w/o smoothing ($\sigma = 0$) & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
-    w/o angle bounds & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
-    w/o separate polar / azimuth bounds & \prelim{.307}{} & \prelim{5.38}{} & \prelim{--}{} & \prelim{.373}{} \\
-    w/o both & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
-    w/o luminance constraint ($\|c\|$ free) & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
+    \capg{} (Ours) & 100 & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & 17.0 & 16.5 \\
+    \midrule
+    \multicolumn{11}{@{}l}{\emph{One component removed, without distortion matching}} \\
+    w/o optimization (random $\Theta$) & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
+    w/o smoothing ($\sigma = 0$) & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
+    w/o angle bounds & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
+    single angle bound ($25^\circ$) & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
+    w/o luminance constraint ($\|c\|$ free) & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
+    \midrule
+    \multicolumn{11}{@{}l}{\emph{Simpler color mappings at the defense LPIPS of \capg{}}} \\
+    random hue / saturation & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
+    optimized hue / saturation & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
+    optimized $3\times3$ affine & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
+    unconstrained $33^3$ LUT & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
     \bottomrule
   \end{tabular}
-  \caption{Ablations on InstructPix2Pix (306 portraits $\times$ 4 instructions), without purification. None: edit LPIPS of the unpurified protected image.}
-  \prelimnote{Tab.~2, w/o optimization: \texttt{color3d\_random\_pexels} (random $\Theta$, $\alpha = 1$, angle bounds before scaling), 306 portraits; to be replaced by the random $\Theta$ under the $25^\circ$/$7.5^\circ$ bounds; MUSIQ not yet computed (\texttt{color/trials/lut3d\_defense\_and\_naturalness/results/color3d\_random\_pexels/}).}
-  \prelimnote{Tab.~2, w/o smoothing, w/o angle bounds, w/o both, w/o luminance constraint: not yet run.}
-  \prelimnote{Tab.~2, w/o separate polar / azimuth bounds: stand-in \texttt{color3d\_smooth\_angle6} (single $6^\circ$ bound, from the bounds before scaling), 8 portraits; to be replaced by the variant of the $25^\circ$/$7.5^\circ$ pipeline.}
+  \caption{Ablations on InstructPix2Pix (100 portraits $\times$ 4 instructions). $n$: portraits with a solution. ISR Purified: JPEG 50, blur, and VAE-Trans combined.}
+  \prelimnote{Tab.~3: readings of the crosseditor100 runs pending (color trial \texttt{results/<condition>/}, conditions color3d\_ablation\_\{random, sigma0, unbounded, single25, unnormalized\}\_pexels and color\_baseline\_\{random\_huesat, huesat, affine, lut33\}\_pexels); optimized hue / saturation and affine not yet scheduled; ISR judging of the ablation rows not scheduled; rule for portraits without a feasible solution (common subset or per-row $n$) not yet decided.}
   \label{tab:ablation}
 \end{table*}
 
 \subsection{Ablation study}
 \label{sec:exp_ablation}
-\Cref{tab:ablation} removes one component of the pipeline at a time: the optimization, by using a random $\Theta$; the Gaussian smoothing, by setting $\sigma = 0$; the angle bounds; the separation of the bounds on polar angle and azimuth; both of these; and the constraint that keeps $\|c\|$ fixed. No variant is rescaled to the distortion of the full pipeline, since the distortion each variant reaches is itself a result of its optimization. Without optimization, the random table changes the protected image and its edits little. \TODO{Results of the remaining component ablations.}
+\Cref{tab:ablation} examines the pipeline on 100 of the portraits in two groups. The first group removes one component at a time: the optimization, by drawing $\Theta$ at random within the angle bounds; the Gaussian smoothing, by setting $\sigma = 0$; the angle bounds; the separate bounds on polar angle and azimuth, replaced by a single bound of $25^\circ$; and the constraint that keeps $\|c\|$ fixed. These variants are not rescaled to a common distortion, since the distortion each variant reaches is itself a result of its optimization. The second group replaces the constrained LUT with simpler color mappings whose defense LPIPS is matched to that of \capg{} on each image: a random shift of hue and saturation, an optimized global rotation of hue with a scaling of saturation, an optimized $3\times3$ affine map with offset, and a $33^3$ LUT without smoothing or angle bounds; the last three are optimized with the objective of \capg{}.
+
+\prelim{Results of the component ablations.}{Sec.~4.2: to be written from the readings of the first group; order: optimization, then smoothing, angle bounds, separate bounds, and luminance constraint, each in terms of distortion, quality scores, and the displacement kept after purification.}
+
+\prelim{The simpler color mappings keep less of their displacement after purification than \capg{} at the same distortion, so the optimized, bounded rotation contributes to the protection beyond the use of a color mapping.}{Sec.~4.2, version for the case that the second group falls below \capg{}.} \prelim{The simpler color mappings keep a displacement after purification comparable to that of \capg{} at the same distortion, so persistence under purification is a property of global color mappings, and the constraints of \capg{} determine the appearance of the protected image.}{Sec.~4.2, version for the case that the second group matches \capg{}; keep one of the two sentences.}

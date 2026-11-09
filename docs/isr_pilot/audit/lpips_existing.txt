@@ -1,0 +1,97 @@
+coverage of no-purification ISR cells by existing disp_lpips (matched on defended_png):
+  CAPGuard    400/400
+  BlurGuard   400/400
+  Mist        400/400
+  SIFM        400/400
+  PhotoGuard  400/400
+  DCT-Shield  400/400
+cells with differing values across sources: 0
+sources:
+    400  color/trials/lut3d_defense_and_naturalness/results/color3d_scale2p5_pexels/displacement.csv
+    400  color/trials/lut3d_defense_and_naturalness/results/color3d_scale2p5_pexels/per_image/displacement.csv
+    200  baseline/runtime/pexels_portraits/aligned/results/displacement_dct_shield.csv
+    200  baseline/runtime/pexels_portraits/aligned/results/displacement_mist.csv
+    200  baseline/runtime/pexels_portraits/aligned/results/displacement_photoguard_encoder.csv
+    200  baseline/runtime/pexels_portraits/aligned/results/displacement_sifm.csv
+    200  baseline/runtime/pexels_portraits/followup/results/color3d_scale2p5/displacement_color3d_scale2p5_pexels.csv
+    112  color/trials/lut3d_defense_and_naturalness/results/color3d_scale2p5_pexels/batch_done62/displacement.csv
+     72  baseline/runtime/pexels_portraits/blurguard/results/images_0000_0096/displacement_blurguard.csv
+     40  baseline/runtime/pexels_portraits/aligned/sets/images_0097_0106/results/displacement_dct_shield.csv
+     40  baseline/runtime/pexels_portraits/aligned/sets/images_0097_0106/results/displacement_mist.csv
+     40  baseline/runtime/pexels_portraits/aligned/sets/images_0097_0106/results/displacement_photoguard_encoder.csv
+     40  baseline/runtime/pexels_portraits/aligned/sets/images_0097_0106/results/displacement_sifm.csv
+     40  baseline/runtime/pexels_portraits/aligned/sets/images_0107_0116/results/displacement_dct_shield.csv
+     40  baseline/runtime/pexels_portraits/aligned/sets/images_0107_0116/results/displacement_mist.csv
+     40  baseline/runtime/pexels_portraits/aligned/sets/images_0107_0116/results/displacement_photoguard_encoder.csv
+     40  baseline/runtime/pexels_portraits/aligned/sets/images_0107_0116/results/displacement_sifm.csv
+     40  baseline/runtime/pexels_portraits/aligned/sets/images_0117_0126/results/displacement_dct_shield.csv
+     40  baseline/runtime/pexels_portraits/aligned/sets/images_0117_0126/results/displacement_mist.csv
+     40  baseline/runtime/pexels_portraits/aligned/sets/images_0117_0126/results/displacement_photoguard_encoder.csv
+     40  baseline/runtime/pexels_portraits/aligned/sets/images_0117_0126/results/displacement_sifm.csv
+     40  baseline/runtime/pexels_portraits/aligned/sets/images_0127_0136/results/displacement_dct_shield.csv
+     40  baseline/runtime/pexels_portraits/aligned/sets/images_0127_0136/results/displacement_mist.csv
+     40  baseline/runtime/pexels_portraits/aligned/sets/images_0127_0136/results/displacement_photoguard_encoder.csv
+     40  baseline/runtime/pexels_portraits/aligned/sets/images_0127_0136/results/displacement_sifm.csv
+     40  baseline/runtime/pexels_portraits/aligned/sets/images_0137_0146/results/displacement_dct_shield.csv
+     40  baseline/runtime/pexels_portraits/aligned/sets/images_0137_0146/results/displacement_mist.csv
+     40  baseline/runtime/pexels_portraits/aligned/sets/images_0137_0146/results/displacement_photoguard_encoder.csv
+     40  baseline/runtime/pexels_portraits/aligned/sets/images_0137_0146/results/displacement_sifm.csv
+     40  baseline/runtime/pexels_portraits/followup/sets/images_0097_0106/results/color3d_scale2p5/displacement_color3d_scale2p5_pexels.csv
+     40  baseline/runtime/pexels_portraits/followup/sets/images_0107_0116/results/color3d_scale2p5/displacement_color3d_scale2p5_pexels.csv
+     40  baseline/runtime/pexels_portraits/followup/sets/images_0117_0126/results/color3d_scale2p5/displacement_color3d_scale2p5_pexels.csv
+     40  baseline/runtime/pexels_portraits/followup/sets/images_0127_0136/results/color3d_scale2p5/displacement_color3d_scale2p5_pexels.csv
+     40  baseline/runtime/pexels_portraits/followup/sets/images_0137_0146/results/color3d_scale2p5/displacement_color3d_scale2p5_pexels.csv
+     36  baseline/runtime/pexels_portraits/blurguard_rest/results/images_0117_0126__0/displacement_blurguard.csv
+     36  baseline/runtime/pexels_portraits/blurguard_rest/results/images_0127_0136__0/displacement_blurguard.csv
+     32  color/trials/lut3d_defense_and_naturalness/results/color3d_scale2p5_pexels/batch_1105_190953/displacement.csv
+     32  color/trials/lut3d_defense_and_naturalness/results/color3d_scale2p5_pexels/batch_1105_193359/displacement.csv
+     28  baseline/runtime/pexels_portraits/blurguard_rest/results/images_0000_0096__3/displacement_blurguard.csv
+     28  baseline/runtime/pexels_portraits/blurguard_rest/results/images_0107_0116__0/displacement_blurguard.csv
+     28  baseline/runtime/pexels_portraits/blurguard_rest/results/images_0137_0146__0/displacement_blurguard.csv
+     28  color/trials/lut3d_defense_and_naturalness/results/color3d_scale2p5_pexels/budget_sweep/displacement.csv
+     24  baseline/runtime/pexels_portraits/blurguard_rest/results/images_0000_0096__4/displacement_blurguard.csv
+     24  baseline/runtime/pexels_portraits/blurguard_rest/results/images_0097_0106__0/displacement_blurguard.csv
+     20  baseline/runtime/pexels_portraits/blurguard_rest/results/images_0000_0096__2/displacement_blurguard.csv
+     20  baseline/runtime/pexels_portraits/blurguard_rest/results/images_0000_0096__5/displacement_blurguard.csv
+     16  baseline/runtime/pexels_portraits/blurguard/results/images_0097_0106/displacement_blurguard.csv
+     16  baseline/runtime/pexels_portraits/blurguard_rest/results/images_0000_0096__1/displacement_blurguard.csv
+     16  color/trials/lut3d_defense_and_naturalness/results/color3d_scale2p5_pexels/batch_1105_214653/displacement.csv
+     16  color/trials/lut3d_defense_and_naturalness/results/color3d_scale2p5_pexels/batch_1105_233904/displacement.csv
+     16  color/trials/lut3d_defense_and_naturalness/results/color3d_scale2p5_pexels/batch_1106_072721/displacement.csv
+     12  baseline/runtime/pexels_portraits/blurguard/results/images_0107_0116/displacement_blurguard.csv
+     12  baseline/runtime/pexels_portraits/blurguard/results/images_0137_0146/displacement_blurguard.csv
+     12  baseline/runtime/pexels_portraits/blurguard_rest/results/images_0000_0096__6/displacement_blurguard.csv
+     12  color/trials/lut3d_defense_and_naturalness/results/color3d_scale2p5_pexels/batch_1106_005838/displacement.csv
+     12  color/trials/lut3d_defense_and_naturalness/results/color3d_scale2p5_pexels/batch_1106_022142/displacement.csv
+     12  color/trials/lut3d_defense_and_naturalness/results/color3d_scale2p5_pexels/batch_1106_033239/displacement.csv
+     12  color/trials/lut3d_defense_and_naturalness/results/color3d_scale2p5_pexels/batch_1106_060422/displacement.csv
+      8  baseline/runtime/pexels_portraits/blurguard_rest/results/images_0000_0096__0/displacement_blurguard.csv
+      8  color/trials/lut3d_defense_and_naturalness/results/color3d_scale2p5_pexels/batch_1105_141236/displacement.csv
+      8  color/trials/lut3d_defense_and_naturalness/results/color3d_scale2p5_pexels/batch_1105_150147/displacement.csv
+      8  color/trials/lut3d_defense_and_naturalness/results/color3d_scale2p5_pexels/batch_1105_151957/displacement.csv
+      8  color/trials/lut3d_defense_and_naturalness/results/color3d_scale2p5_pexels/batch_1105_201149/displacement.csv
+      8  color/trials/lut3d_defense_and_naturalness/results/color3d_scale2p5_pexels/batch_1106_025725/displacement.csv
+      8  color/trials/lut3d_defense_and_naturalness/results/color3d_scale2p5_pexels/batch_1106_052500/displacement.csv
+      8  color/trials/lut3d_defense_and_naturalness/results/color3d_scale2p5_pexels/batch_1106_075822/displacement.csv
+      4  baseline/runtime/pexels_portraits/blurguard/results/images_0117_0126/displacement_blurguard.csv
+      4  baseline/runtime/pexels_portraits/blurguard/results/images_0127_0136/displacement_blurguard.csv
+      4  color/trials/lut3d_defense_and_naturalness/results/color3d_scale2p5_pexels/batch_1105_134948/displacement.csv
+      4  color/trials/lut3d_defense_and_naturalness/results/color3d_scale2p5_pexels/batch_1105_135520/displacement.csv
+      4  color/trials/lut3d_defense_and_naturalness/results/color3d_scale2p5_pexels/batch_1105_141951/displacement.csv
+      4  color/trials/lut3d_defense_and_naturalness/results/color3d_scale2p5_pexels/batch_1105_142839/displacement.csv
+      4  color/trials/lut3d_defense_and_naturalness/results/color3d_scale2p5_pexels/batch_1105_143410/displacement.csv
+      4  color/trials/lut3d_defense_and_naturalness/results/color3d_scale2p5_pexels/batch_1105_144427/displacement.csv
+      4  color/trials/lut3d_defense_and_naturalness/results/color3d_scale2p5_pexels/batch_1105_151140/displacement.csv
+      4  color/trials/lut3d_defense_and_naturalness/results/color3d_scale2p5_pexels/batch_1105_222434/displacement.csv
+      4  color/trials/lut3d_defense_and_naturalness/results/color3d_scale2p5_pexels/batch_1106_041506/displacement.csv
+      4  color/trials/lut3d_defense_and_naturalness/results/color3d_scale2p5_pexels/batch_1106_045817/displacement.csv
+      4  color/trials/lut3d_defense_and_naturalness/results/color3d_scale2p5_pexels/batch_1106_064553/displacement.csv
+
+purification = none, eligible cells; AUC = P(LPIPS of blocked > LPIPS of not blocked)
+method         n   ISR% LPIPS all  blocked  not blk   AUC
+CAPGuard     324   17.0     0.357    0.386    0.351  0.58
+BlurGuard    324   14.8     0.325    0.353    0.320  0.66
+Mist         324   32.4     0.343    0.381    0.325  0.73
+SIFM         324   17.6     0.323    0.389    0.309  0.74
+PhotoGuard   324   42.0     0.407    0.484    0.351  0.82
+DCT-Shield   324   21.9     0.305    0.370    0.287  0.74

@@ -4,6 +4,7 @@
 
 | 名稱 | 試了什麼 | 設定 | 關鍵數字 | 結論來源 |
 |---|---|---|---|---|
+| `color_normalization_purification` | 未完成：四種色彩處理（灰世界、自動色階、逐通道直方圖均衡、灰階）施於防禦圖後送 ip2p 的淨化實驗；只執行了處理後輸入的產生（CPU，2,285 張 PNG，中途停止），未編輯、未取卡 | 規劃：crosseditor100 的 100 張、ip2p 7.5／1.8／50 步、6 條件（＋SIFM） | 未量測 | 使用者於 2026-11-09 經 executor 取消 |
 | `isr_prompt_and_guidance` | 未執行：ISR 偏低來源的 pilot（指令、ip2p image guidance、VIBE-DistilledCFG、原生預算 PhotoGuard encoder），只建立目錄與程式草稿 | 規劃：isr50 前 10 張、5 條件、8 句、ip2p 7.5／1.8 與 7.5／1.2、VIBE-DistilledCFG 20 步、淨化 none／jpeg50／vae_trans | 未量測 | 使用者於 2026-11-08 經 executor 取消，未啟動任何計算 |
 
 ## 升格紀錄

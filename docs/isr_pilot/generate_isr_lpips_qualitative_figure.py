@@ -67,7 +67,7 @@ def load(rel, gray=False):
     return np.asarray(im)
 
 
-cols = ["Original", "Undefended edit", "CAPGuard edit", "Undefended edit\n(grayscale)", "CAPGuard edit\n(grayscale)"]
+cols = ["Original", "Undefended", "CAPGuard", "Undefended (gray)", "CAPGuard (gray)"]
 n = len(succ) + len(blk)
 # grid rows: header (a), succ rows, header (b), blk rows
 ratios = [0.18] + [1] * len(succ) + [0.18] + [1] * len(blk)
@@ -75,8 +75,7 @@ fig = plt.figure(figsize=(12.5, 2.75 * n + 1.2), facecolor="white")
 gs = fig.add_gridspec(len(ratios), 5, height_ratios=ratios, hspace=0.35, wspace=0.05)
 row_of = [1 + i for i in range(len(succ))] + [2 + len(succ) + i for i in range(len(blk))]
 axes = np.array([[fig.add_subplot(gs[row_of[i], c]) for c in range(5)] for i in range(n)])
-for hdr, text in [(0, "(a) High edit-result LPIPS, edit succeeded: the gap is mostly color (gray LPIPS < half of RGB)"),
-                  (1 + len(succ), "(b) Edit blocked (accessory absent, image not degraded): most of the gap remains in grayscale (gray LPIPS >= 0.55 of RGB)")]:
+for hdr, text in [(0, "(a) Edit succeeded, high LPIPS"), (1 + len(succ), "(b) Edit blocked")]:
     ax = fig.add_subplot(gs[hdr, :])
     ax.axis("off")
     ax.text(0, 0.0, text, fontsize=11, weight="bold", ha="left", va="bottom", transform=ax.transAxes)
@@ -91,11 +90,10 @@ for i, (group, r) in enumerate([("succ", r) for r in succ] + [("blk", r) for r i
             s.set_visible(False)
         if i in (0, len(succ)):
             ax.set_title(cols[c], fontsize=10)
-    axes[i, 2].set_xlabel(f"LPIPS (RGB) {r['rgb']:.3f}", fontsize=9)
-    axes[i, 4].set_xlabel(f"LPIPS (gray) {r['gray']:.3f}", fontsize=9)
+    axes[i, 2].set_xlabel(f"LPIPS {r['rgb']:.2f}", fontsize=9)
+    axes[i, 4].set_xlabel(f"LPIPS {r['gray']:.2f}", fontsize=9)
     instr = r["p"]["prompt_text"].replace("Let the person wear ", "")
-    axes[i, 0].set_ylabel(f"{instr}\n{PUR[r['pur']]}\n{'edit succeeded' if group == 'succ' else 'edit blocked'}"
-                          + ("\n(human-audited)" if r["audited"] else ""), fontsize=9)
+    axes[i, 0].set_ylabel(f"{instr}\n{PUR[r['pur']]}", fontsize=9)
 plt.savefig(OUT, dpi=150, facecolor="white", bbox_inches="tight")
 with open(os.path.splitext(OUT)[0] + ".csv", "w", newline="") as f:
     w = csv.writer(f)

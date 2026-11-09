@@ -28,7 +28,7 @@ PURS = ["none", "jpeg50", "blur2", "vae_trans"]
 # Okabe-Ito order (colorblind-safe): CAPGuard, BlurGuard, additive pool
 COLOR = {"CAPGuard": "#D55E00", "BlurGuard": "#0072B2", "additive": "#7f7f7f"}
 GROUPS = [("CAPGuard", ["CAPGuard"]), ("BlurGuard", ["BlurGuard"]), ("additive", ADDITIVE)]
-LABEL = {"CAPGuard": "CAPGuard", "BlurGuard": "BlurGuard", "additive": "Additive (Mist, SIFM, PhotoGuard, DCT-Shield)"}
+LABEL = {"CAPGuard": "CAPGuard", "BlurGuard": "BlurGuard", "additive": "Additive (4 methods)"}
 
 ok = lambda r: r["accessory"].strip() == "1" and r["mismatch"].strip() == "0" and r["degraded"].strip() == "0"
 labels, und = {}, {}
@@ -94,9 +94,9 @@ for ax, idx, name, pooled in [(axes[0, 0], 2, "RGB", all_rgb), (axes[0, 1], 3, "
             if len(inb) >= 15:
                 xs.append(np.mean([c[idx] for c in inb])); ys.append(100 * np.mean([c[4] for c in inb])); ns.append(len(inb))
         ax.plot(xs, ys, "-o", color=COLOR[g], lw=2, ms=6, label=LABEL[g])
-    ax.set_xlabel(f"edit-result LPIPS, {name} (bin mean; 8 equal-count bins over all methods)")
+    ax.set_xlabel(f"edit LPIPS ({name})")
     ax.set_ylabel("defense success rate (%)")
-    ax.set_title(f"({'a' if idx == 2 else 'b'}) Defense success vs edit-result LPIPS, {name}", loc="left", fontsize=11)
+    ax.set_title(f"({'a' if idx == 2 else 'b'}) {name.capitalize() if name != 'RGB' else name}", loc="left", fontsize=11)
     ax.set_ylim(0, 100)
     ax.grid(color="#e5e5e5", lw=0.6)
     ax.spines[["top", "right"]].set_visible(False)
@@ -114,8 +114,8 @@ lim = max(all_rgb.max(), all_gray.max()) * 1.03
 ax.plot([0, lim], [0, lim], color="#333333", lw=0.8, ls="--")
 ax.text(lim * 0.97, lim * 0.93, "gray = RGB", ha="right", fontsize=8, color="#333333")
 ax.set_xlim(0, lim); ax.set_ylim(0, lim)
-ax.set_xlabel("edit-result LPIPS, RGB"); ax.set_ylabel("edit-result LPIPS, grayscale")
-ax.set_title("(c) Grayscale vs RGB edit-result LPIPS per cell", loc="left", fontsize=11)
+ax.set_xlabel("edit LPIPS (RGB)"); ax.set_ylabel("edit LPIPS (grayscale)")
+ax.set_title("(c) Grayscale vs RGB, per cell", loc="left", fontsize=11)
 ax.legend(frameon=False, fontsize=7.5, loc="upper left", ncol=1, markerscale=1.5)
 ax.grid(color="#e5e5e5", lw=0.6); ax.spines[["top", "right"]].set_visible(False)
 
@@ -133,15 +133,12 @@ for k, (idx, name, hatch) in enumerate([(2, "RGB", None), (3, "grayscale", "//")
 ax.axhline(0.5, color="#333333", lw=0.8, ls="--")
 ax.text(len(METHODS) - 0.5, 0.51, "chance", ha="right", fontsize=8)
 ax.set_xticks(x); ax.set_xticklabels(METHODS)
-ax.set_ylim(0.3, 1.0); ax.set_ylabel("AUC of LPIPS for blocked vs not blocked")
-ax.set_title("(d) AUC, blocked vs not blocked (solid RGB, hatched gray)", loc="left", fontsize=11)
+ax.set_ylim(0.3, 1.0); ax.set_ylabel("AUC")
+ax.set_title("(d) AUC (solid RGB, hatched gray)", loc="left", fontsize=11)
 ax.grid(axis="y", color="#e5e5e5", lw=0.6); ax.spines[["top", "right"]].set_visible(False)
 
 n_by = collections.Counter(c[0] for c in cells)
-fig.suptitle("Edit-result LPIPS and defense success, InstructPix2Pix, 100 Pexels portraits x 4 instructions x 4 purifications "
-             "(none, JPEG 50, blur σ2, VAE-Trans), seed 20260812\n"
-             f"eligible cells (undefended edit succeeds): {n_by['CAPGuard']} per method; labels: {JUDGMENTS.split('/')[-1]}",
-             fontsize=11)
+fig.suptitle("Edit LPIPS vs defense success (ip2p, 100 portraits x 4 instructions x 4 purifications)", fontsize=12)
 plt.tight_layout(rect=[0, 0, 1, 0.95])
 plt.savefig(OUT + ".png", dpi=150, facecolor="white")
 print("saved", OUT + ".png")

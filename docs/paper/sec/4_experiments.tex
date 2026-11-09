@@ -1,12 +1,24 @@
 \section{Experiments}
 \label{sec:exp}
 
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=\linewidth]{fig/purification.pdf}
-  \caption{Fraction of the perturbation that survives each purification (InstructPix2Pix, 306 portraits); dotted: full survival.}
-  \label{fig:purification}
-\end{figure}
+We evaluate \capg{} and additive defenses on portraits edited by InstructPix2Pix, with and without purification, and compare how much of each protection survives purification. The protected images are also applied to two editors with different encoders.
+
+\paragraph{Data and attack.}
+\label{sec:exp_setup}
+All experiments use 306 portraits from Pexels (108 men, 198 women), used under the Pexels License. They are selected from a public Pexels portrait collection by automatic filters for a single, near-frontal, unoccluded color face whose apparent gender agrees with the image description, deduplicated by photographer and identity, screened visually, and cropped around the face to $512^2$. The attacker edits each image with InstructPix2Pix~\cite{brooks2023instructpix2pix} (Euler-Ancestral sampling, 50 steps, text guidance 7.5, image guidance 1.8, seed 20260812) under four instructions that add sunglasses, a police suit, a helmet, or a bow tie to the person, which yields four edits per image and defense.
+
+\paragraph{Purification methods.}
+Seven standard operations are applied before editing: JPEG compression at quality 80, 50, and 30; Gaussian blur with $\sigma = 1$ and $2$; a 10\% crop followed by resizing to the original size; and a $15^\circ$ rotation. VAE-Trans~\cite{purifyonce2026}, a fine-tuned VAE encoder used as a purifier, is reported separately as the strongest purification.
+
+\paragraph{Baselines.}
+The comparison includes ten additive methods: DAYN~\cite{lo2024dayn}, DIA-R and DIA-PT~\cite{dia2025}, SIFM~\cite{dong2025sifm}, DANP~\cite{zhang2025danp}, Mist~\cite{liang2023mist}, the encoder attack of PhotoGuard~\cite{salman2023photoguard}, DCT-Shield and DCT-Shield-Y~\cite{dctshield2025}, and BlurGuard~\cite{blurguard2025}. Each method is run at its native budget and, in the matched-distortion arm, with its budget rescaled so that the defense LPIPS on the eight-portrait set falls in 0.300--0.367; on the 306 portraits, the defense LPIPS of these arms is 0.251 to 0.318 (\cref{tab:main}).
+
+\subsection{Results}
+\label{sec:exp_results}
+
+\paragraph{Robustness to purification.}
+\label{sec:exp_anti}
+Before purification, \capg{} displaces the edits as far as the additive methods at matched distortion (\cref{tab:main}). Purification reduces the displacement of every additive method, and VAE-Trans removes nearly all of it, whereas the displacement of \capg{} is unchanged on average over the seven purifications and remains the largest after VAE-Trans. The SigLIP and ArcFace similarities and the FID between defended and undefended edits follow the same pattern. The protected images of \capg{} have the highest MUSIQ score and a LAION score slightly below those of the additive methods.
 
 \begin{table}[t]
   \centering
@@ -35,31 +47,19 @@
   \label{tab:isr}
 \end{table}
 
-We evaluate \capg{} and additive defenses on portraits edited by InstructPix2Pix, with and without purification, and compare how much of each protection survives purification. The protected images are also applied to two editors with different encoders.
-
-\paragraph{Data and attack.}
-\label{sec:exp_setup}
-All experiments use 306 portraits from Pexels (108 men, 198 women), used under the Pexels License. They are selected from a public Pexels portrait collection by automatic filters for a single, near-frontal, unoccluded color face whose apparent gender agrees with the image description, deduplicated by photographer and identity, screened visually, and cropped around the face to $512^2$. The attacker edits each image with InstructPix2Pix~\cite{brooks2023instructpix2pix} (Euler-Ancestral sampling, 50 steps, text guidance 7.5, image guidance 1.8, seed 20260812) under four instructions that add sunglasses, a police suit, a helmet, or a bow tie to the person, which yields four edits per image and defense.
-
-\paragraph{Purification methods.}
-Seven standard operations are applied before editing: JPEG compression at quality 80, 50, and 30; Gaussian blur with $\sigma = 1$ and $2$; a 10\% crop followed by resizing to the original size; and a $15^\circ$ rotation. VAE-Trans~\cite{purifyonce2026}, a fine-tuned VAE encoder used as a purifier, is reported separately as the strongest purification.
-
-\paragraph{Baselines.}
-The comparison includes ten additive methods: DAYN~\cite{lo2024dayn}, DIA-R and DIA-PT~\cite{dia2025}, SIFM~\cite{dong2025sifm}, DANP~\cite{zhang2025danp}, Mist~\cite{liang2023mist}, the encoder attack of PhotoGuard~\cite{salman2023photoguard}, DCT-Shield and DCT-Shield-Y~\cite{dctshield2025}, and BlurGuard~\cite{blurguard2025}. Each method is run at its native budget and, in the matched-distortion arm, with its budget rescaled so that the defense LPIPS on the eight-portrait set falls in 0.300--0.367; on the 306 portraits, the defense LPIPS of these arms is 0.251 to 0.318 (\cref{tab:main}).
-
-\subsection{Results}
-\label{sec:exp_results}
-
-\paragraph{Robustness to purification.}
-\label{sec:exp_anti}
-Before purification, \capg{} displaces the edits as far as the additive methods at matched distortion (\cref{tab:main}). Purification reduces the displacement of every additive method, and VAE-Trans removes nearly all of it, whereas the displacement of \capg{} is unchanged on average over the seven purifications and remains the largest after VAE-Trans. The SigLIP and ArcFace similarities and the FID between defended and undefended edits follow the same pattern. The protected images of \capg{} have the highest MUSIQ score and a LAION score slightly below those of the additive methods.
-
 \paragraph{Edit failure.}
 \Cref{tab:isr} reports the immunization success rate (ISR) on 100 of the portraits: among the edits of the original image that carry out the instruction, the percentage whose counterpart on the protected image lacks the accessory, shows a different edit, or is degraded. A vision--language model (Claude) judged each edit against the original image and the undefended edit under the same purification; 606 judgments were reviewed blind by a human annotator (agreement 87.1\% on a random subset of 140), and the reviewed labels replace those of the model. Without purification, most additive methods prevent more edits than \capg{}. After purification, their rates fall, whereas the rate of \capg{} stays at its level without purification and is the highest of all methods; over the three purifications combined, its difference from BlurGuard has a 95\% interval above zero. Most requested edits still succeed for every method.
 
 \paragraph{Distortion and displacement.}
 \label{sec:exp_plane}
 \Cref{fig:plane}a plots edit displacement against distortion before purification for the additive methods at their native budgets and at matched distortion. The points lie close to a single line ($r = 0.968$), and \capg{} lies on it, so before purification the displacement of a defense follows its distortion, and defenses at equal distortion are comparable. Purification moves every additive method far below this line, whereas \capg{} remains on it (\cref{fig:plane}b).
+
+\begin{figure}[b]
+  \centering
+  \includegraphics[width=\linewidth]{fig/purification.pdf}
+  \caption{Fraction of the perturbation that survives each purification (InstructPix2Pix, 306 portraits); dotted: full survival.}
+  \label{fig:purification}
+\end{figure}
 
 \paragraph{What purification removes.}
 \label{sec:exp_purify}

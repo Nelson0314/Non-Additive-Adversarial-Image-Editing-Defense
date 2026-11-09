@@ -22,8 +22,15 @@
 
 兩支程式預設讀同目錄的 `judgments.csv`，於遠端以 `python3`（圖需 `~/venvs/wacv` 的 matplotlib）執行。
 
+## 配對差值與人工複核
+
+- `measure_isr_paired_difference.py` → `paired_difference.txt`：CAPGuard 對各方法的 ISR 差值，以影像為單位的 paired bootstrap 95% CI（2000 次，種子 20260812）。
+- `generate_isr_audit_cases.py` 挑出人工複核的 606 格：CAPGuard 與 BlurGuard 判定不同的 233 對（466 格，四種淨化）與 7 條件 × 4 淨化每層 5 格的分層隨機 140 格；盲化面板為原圖、同淨化的未防禦編輯、受檢編輯，不顯示條件與評審標籤。使用者一人標註。
+- `measure_isr_audit_agreement.py` → `audit/`：`human_labels.csv`（人工與評審標籤並列）、`judgments_human.csv`（複核格以人工標籤取代）、`summary_human.txt`、`paired_difference_human.txt`；`audit_key.csv` 為案例對照表。
+- 人工標註的不符指令較評審嚴格：編輯額外加上未要求的物件（口罩、胸前另一個領結等）計為不符指令。
+
 ## 已知限制
 
-- 未做人工驗證。
+- 人工複核只涵蓋 606 格；其餘 10,594 格仍為評審標籤。
 - 評審標準在部分批次較寬，尚未重判：batch 12（woman_20–22 前兩句，淡色配件計為出現）、batch 15（woman_28__p3 手腕上的領結計為出現）、batch 34（woman_84__p2 部分淡色頭盔計為出現）、batch 37（雙領結計為出現）。
 - 只有 ip2p；VIBE 與 klein 的同版面拼圖未評。

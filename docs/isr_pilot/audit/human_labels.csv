@@ -1,0 +1,607 @@
+case_id,set,sheet,cell,condition,purification,h_accessory,h_mismatch,h_degraded,h_unsure,h_note,j_accessory,j_mismatch,j_degraded,j_note,h_success,j_success
+case_001,discordant,woman_56__p2,C2-R7,CAPGuard,none,1,1,0,0,,0,0,0,faint visor only,0,0
+case_002,random,woman_09__p0,C2-R2,PhotoGuard,none,1,0,0,0,,1,0,0,,1,1
+case_003,discordant,woman_10__p1,C5-R7,CAPGuard,vae_trans,1,1,0,0,,1,1,0,face mask added,0,0
+case_004,discordant,woman_80__p3,C3-R7,CAPGuard,jpeg50,1,1,0,0,,1,1,0,extra giant bows,0,0
+case_005,random,woman_43__p0,C4-R6,Mist,blur2,1,0,0,0,,1,0,0,,1,1
+case_006,random,woman_39__p0,C4-R7,CAPGuard,blur2,1,0,0,0,,1,0,0,,1,1
+case_007,discordant,man_30__p2,C3-R4,BlurGuard,jpeg50,0,1,0,0,,0,0,0,looks like hair,0,0
+case_008,discordant,woman_09__p2,C3-R7,CAPGuard,jpeg50,0,1,0,0,,1,0,0,,0,1
+case_009,discordant,woman_84__p2,C2-R4,BlurGuard,none,0,1,0,0,,1,0,0,borderline cap-like,0,1
+case_010,random,woman_42__p2,C3-R4,BlurGuard,jpeg50,0,1,0,0,,0,0,0,faint,0,0
+case_011,discordant,woman_66__p3,C5-R7,CAPGuard,vae_trans,1,0,0,0,,1,0,0,,1,1
+case_012,discordant,man_20__p0,C4-R4,BlurGuard,blur2,1,0,0,0,,1,0,0,borderline faint,1,1
+case_013,random,woman_67__p1,C4-R7,CAPGuard,blur2,1,0,0,0,,1,0,0,,1,1
+case_014,discordant,man_08__p2,C2-R4,BlurGuard,none,1,1,0,0,,1,0,0,borderline gray helmet,0,1
+case_015,random,woman_63__p0,C2-R3,DCT-Shield,none,1,0,0,0,,1,0,0,,1,1
+case_016,discordant,woman_80__p3,C4-R4,BlurGuard,blur2,1,0,0,0,,1,0,0,,1,1
+case_017,discordant,woman_87__p0,C5-R4,BlurGuard,vae_trans,1,0,0,0,,1,0,0,,1,1
+case_018,discordant,woman_69__p3,C5-R7,CAPGuard,vae_trans,0,0,0,0,,1,0,0,,0,1
+case_019,random,woman_27__p2,C2-R7,CAPGuard,none,0,1,0,0,,0,0,0,,0,0
+case_020,random,woman_58__p2,C3-R5,SIFM,jpeg50,0,1,0,0,,0,0,0,hat only,0,0
+case_021,discordant,woman_41__p2,C2-R4,BlurGuard,none,1,1,0,0,,0,0,0,faint,0,0
+case_022,discordant,man_34__p2,C2-R7,CAPGuard,none,1,1,0,0,,0,0,0,blue hair-like cap,0,0
+case_023,discordant,woman_77__p1,C5-R4,BlurGuard,vae_trans,1,0,0,0,,1,0,0,,1,1
+case_024,discordant,woman_85__p3,C5-R7,CAPGuard,vae_trans,1,0,0,0,,0,0,0,faint,1,0
+case_025,discordant,man_01__p3,C2-R4,BlurGuard,none,1,0,0,0,,1,0,0,,1,1
+case_026,discordant,woman_36__p2,C2-R7,CAPGuard,none,0,1,0,0,,1,0,0,,0,1
+case_027,discordant,woman_06__p2,C5-R7,CAPGuard,vae_trans,1,1,1,0,,1,0,1,body mangled,0,0
+case_028,discordant,woman_61__p3,C4-R7,CAPGuard,blur2,1,0,0,0,,1,0,0,,1,1
+case_029,discordant,woman_21__p3,C4-R4,BlurGuard,blur2,1,0,0,0,,1,0,0,,1,1
+case_030,random,woman_42__p0,C5-R6,Mist,vae_trans,1,0,0,0,,1,0,0,,1,1
+case_031,discordant,woman_86__p2,C4-R7,CAPGuard,blur2,1,0,0,0,,1,0,0,,1,1
+case_032,discordant,man_27__p2,C4-R4,BlurGuard,blur2,1,1,0,0,,0,0,0,looks like hair,0,0
+case_033,discordant,woman_86__p1,C4-R4,BlurGuard,blur2,1,1,0,0,,0,0,0,no uniform,0,0
+case_034,random,woman_53__p1,C3-R1,Undefended,jpeg50,1,0,0,0,,1,0,0,,1,1
+case_035,discordant,woman_92__p2,C3-R4,BlurGuard,jpeg50,0,1,0,0,,0,0,0,faint,0,0
+case_036,discordant,woman_45__p3,C5-R7,CAPGuard,vae_trans,1,0,0,0,,1,0,0,,1,1
+case_037,discordant,woman_56__p2,C3-R7,CAPGuard,jpeg50,1,1,0,0,,0,0,0,faint,0,0
+case_038,random,woman_69__p1,C2-R4,BlurGuard,none,1,0,0,0,,1,0,0,,1,1
+case_039,discordant,man_07__p3,C4-R7,CAPGuard,blur2,1,1,1,0,,0,1,1,scene zoomed; two bowties; mangled,0,0
+case_040,discordant,woman_86__p0,C5-R4,BlurGuard,vae_trans,1,0,0,0,,1,0,0,light tint,1,1
+case_041,discordant,woman_24__p2,C2-R4,BlurGuard,none,1,0,0,0,,1,0,0,partial hard hat,1,1
+case_042,discordant,woman_76__p3,C4-R7,CAPGuard,blur2,1,1,0,0,,0,0,0,,0,0
+case_043,discordant,woman_17__p3,C2-R7,CAPGuard,none,1,0,0,0,,1,0,0,,1,1
+case_044,discordant,man_07__p1,C5-R7,CAPGuard,vae_trans,1,0,0,0,,1,0,0,,1,1
+case_045,discordant,woman_21__p1,C2-R4,BlurGuard,none,1,1,0,0,,0,0,0,only badge on white shirt,0,0
+case_046,random,woman_93__p2,C3-R2,PhotoGuard,jpeg50,1,0,0,0,,1,1,0,extra helmet object,1,0
+case_047,discordant,woman_72__p2,C3-R7,CAPGuard,jpeg50,0,1,0,0,,0,0,0,,0,0
+case_048,random,man_30__p0,C3-R6,Mist,jpeg50,1,0,0,0,,1,0,0,,1,1
+case_049,random,woman_85__p1,C5-R4,BlurGuard,vae_trans,0,1,0,0,,0,0,0,faint,0,0
+case_050,random,woman_43__p2,C5-R3,DCT-Shield,vae_trans,1,0,0,0,,0,0,0,,1,0
+case_051,discordant,woman_09__p1,C5-R7,CAPGuard,vae_trans,0,1,0,0,,0,0,0,no clear uniform,0,0
+case_052,random,man_20__p2,C3-R1,Undefended,jpeg50,0,1,0,0,,1,0,0,,0,1
+case_053,discordant,woman_42__p1,C3-R7,CAPGuard,jpeg50,1,1,0,0,,1,0,0,,0,1
+case_054,discordant,man_14__p2,C5-R4,BlurGuard,vae_trans,1,0,0,0,,1,0,0,,1,1
+case_055,discordant,woman_03__p1,C2-R7,CAPGuard,none,0,1,0,0,,0,0,0,,0,0
+case_056,discordant,woman_67__p3,C4-R7,CAPGuard,blur2,1,0,1,0,,1,1,0,person became male,0,0
+case_057,discordant,woman_63__p0,C2-R7,CAPGuard,none,1,0,0,0,,0,0,0,light tint only,1,0
+case_058,discordant,woman_75__p2,C4-R4,BlurGuard,blur2,1,0,0,0,,1,0,0,,1,1
+case_059,discordant,woman_09__p1,C5-R4,BlurGuard,vae_trans,1,0,0,0,,1,0,0,patch borderline,1,1
+case_060,random,woman_93__p0,C2-R7,CAPGuard,none,1,0,0,0,,1,0,0,,1,1
+case_061,discordant,man_30__p1,C3-R7,CAPGuard,jpeg50,1,0,0,0,,1,0,0,,1,1
+case_062,discordant,woman_91__p1,C4-R7,CAPGuard,blur2,1,1,0,0,,0,0,0,plaid shirt with tiny badge,0,0
+case_063,discordant,man_27__p2,C5-R4,BlurGuard,vae_trans,0,1,0,0,,1,0,0,,0,1
+case_064,random,woman_54__p1,C2-R6,Mist,none,1,0,0,0,,1,0,0,,1,1
+case_065,random,man_20__p0,C5-R4,BlurGuard,vae_trans,1,0,0,0,,1,0,0,,1,1
+case_066,discordant,woman_72__p2,C2-R4,BlurGuard,none,0,1,0,0,,1,0,0,,0,1
+case_067,random,woman_27__p0,C4-R3,DCT-Shield,blur2,1,0,0,0,,1,0,0,,1,1
+case_068,discordant,woman_82__p2,C3-R4,BlurGuard,jpeg50,1,0,0,0,,1,0,0,,1,1
+case_069,discordant,woman_80__p1,C5-R7,CAPGuard,vae_trans,1,0,0,0,,1,0,0,,1,1
+case_070,random,woman_35__p2,C5-R3,DCT-Shield,vae_trans,0,1,0,0,,0,0,0,,0,0
+case_071,discordant,man_27__p2,C3-R7,CAPGuard,jpeg50,1,0,0,0,,1,0,0,,1,1
+case_072,random,woman_50__p3,C2-R7,CAPGuard,none,0,1,0,0,,1,0,0,small bowtie at collar,0,1
+case_073,discordant,woman_23__p2,C3-R7,CAPGuard,jpeg50,1,0,1,0,,1,1,0,extra people,0,0
+case_074,random,woman_23__p3,C3-R5,SIFM,jpeg50,1,0,0,0,,1,1,0,extra bowtie,1,0
+case_075,discordant,woman_92__p2,C5-R7,CAPGuard,vae_trans,0,1,0,0,,1,0,0,,0,1
+case_076,discordant,woman_85__p3,C4-R4,BlurGuard,blur2,1,0,1,0,,0,1,1,scene replaced ghosted face,0,0
+case_077,discordant,woman_88__p3,C5-R7,CAPGuard,vae_trans,1,0,0,0,,0,0,0,faint,1,0
+case_078,discordant,woman_79__p2,C2-R4,BlurGuard,none,1,0,0,0,,0,0,0,faint,1,0
+case_079,discordant,woman_97__p2,C3-R7,CAPGuard,jpeg50,0,1,0,0,,1,0,0,,0,1
+case_080,discordant,woman_76__p3,C4-R4,BlurGuard,blur2,0,1,0,0,,1,0,0,borderline semi-faded bowtie,0,1
+case_081,discordant,woman_92__p3,C5-R4,BlurGuard,vae_trans,1,0,1,0,,1,1,0,extra person,0,0
+case_082,discordant,man_14__p1,C3-R4,BlurGuard,jpeg50,1,0,0,0,,1,0,0,,1,1
+case_083,discordant,man_37__p1,C2-R7,CAPGuard,none,1,0,0,0,,1,0,0,,1,1
+case_084,random,woman_32__p0,C4-R7,CAPGuard,blur2,1,0,0,0,,1,0,0,,1,1
+case_085,random,woman_66__p3,C2-R1,Undefended,none,1,0,0,0,,1,1,0,person became male,1,0
+case_086,discordant,woman_62__p2,C3-R4,BlurGuard,jpeg50,1,1,0,0,,1,0,0,borderline glossy helmet,0,1
+case_087,discordant,woman_60__p2,C4-R7,CAPGuard,blur2,0,1,0,0,,0,0,0,,0,0
+case_088,random,woman_41__p2,C4-R4,BlurGuard,blur2,1,0,0,0,,1,0,0,,1,1
+case_089,random,woman_39__p1,C5-R1,Undefended,vae_trans,1,0,0,0,,1,0,0,,1,1
+case_090,discordant,woman_10__p2,C5-R4,BlurGuard,vae_trans,1,0,0,0,,1,0,0,,1,1
+case_091,discordant,woman_86__p1,C2-R4,BlurGuard,none,1,1,0,0,,0,0,0,no uniform,0,0
+case_092,random,man_19__p0,C2-R1,Undefended,none,1,0,0,0,,1,0,0,,1,1
+case_093,discordant,woman_31__p1,C3-R4,BlurGuard,jpeg50,1,1,0,0,,0,0,0,small badge only,0,0
+case_094,random,woman_80__p0,C4-R7,CAPGuard,blur2,1,0,0,0,,1,0,0,,1,1
+case_095,discordant,woman_87__p0,C5-R7,CAPGuard,vae_trans,1,0,0,0,,0,0,0,faint,1,0
+case_096,discordant,woman_67__p2,C2-R7,CAPGuard,none,1,0,1,0,,1,1,0,extra helmet on shoulder,0,0
+case_097,discordant,woman_61__p3,C2-R7,CAPGuard,none,1,0,0,0,,1,1,0,extra bowtie near hand,1,0
+case_098,discordant,woman_92__p2,C2-R7,CAPGuard,none,0,1,0,0,,1,0,0,,0,1
+case_099,random,woman_10__p0,C5-R6,Mist,vae_trans,1,0,0,0,,1,0,0,,1,1
+case_100,discordant,woman_21__p2,C2-R4,BlurGuard,none,0,1,0,0,,0,0,0,barely visible,0,0
+case_101,discordant,woman_98__p2,C5-R7,CAPGuard,vae_trans,0,1,0,0,,0,0,0,faint,0,0
+case_102,discordant,woman_78__p3,C5-R4,BlurGuard,vae_trans,1,0,0,0,,1,0,0,,1,1
+case_103,discordant,woman_92__p2,C3-R7,CAPGuard,jpeg50,0,1,0,0,,1,0,0,,0,1
+case_104,random,woman_65__p3,C2-R6,Mist,none,1,0,0,0,,1,0,0,small,1,1
+case_105,discordant,man_07__p1,C5-R4,BlurGuard,vae_trans,1,0,0,0,,0,0,0,blue shirt no badge,1,0
+case_106,discordant,woman_45__p3,C5-R4,BlurGuard,vae_trans,1,0,0,0,,0,0,0,none visible,1,0
+case_107,discordant,man_08__p2,C3-R4,BlurGuard,jpeg50,0,1,0,0,,1,0,0,borderline gray helmet,0,1
+case_108,discordant,woman_82__p2,C3-R7,CAPGuard,jpeg50,0,1,0,0,,0,0,0,hat unchanged,0,0
+case_109,discordant,man_07__p2,C4-R7,CAPGuard,blur2,1,1,0,0,,0,0,0,,0,0
+case_110,discordant,woman_04__p1,C3-R4,BlurGuard,jpeg50,1,1,0,0,,0,0,0,light jacket with patches,0,0
+case_111,discordant,woman_70__p1,C3-R7,CAPGuard,jpeg50,0,1,0,0,,0,0,0,badges on hat; faint,0,0
+case_112,discordant,woman_66__p2,C2-R4,BlurGuard,none,1,1,0,0,,0,0,0,faint,0,0
+case_113,random,woman_42__p2,C3-R2,PhotoGuard,jpeg50,0,1,0,0,,0,0,0,tiny fragment,0,0
+case_114,discordant,woman_06__p2,C5-R4,BlurGuard,vae_trans,1,0,0,0,,1,0,0,,1,1
+case_115,discordant,woman_98__p3,C2-R7,CAPGuard,none,1,0,0,0,,1,0,0,,1,1
+case_116,discordant,woman_94__p2,C3-R4,BlurGuard,jpeg50,0,1,0,0,,0,1,0,white blob on hand,0,0
+case_117,random,woman_97__p0,C3-R5,SIFM,jpeg50,1,0,0,0,,1,0,0,,1,1
+case_118,discordant,woman_86__p1,C2-R7,CAPGuard,none,1,0,0,0,,1,0,0,,1,1
+case_119,discordant,woman_10__p2,C5-R7,CAPGuard,vae_trans,1,0,1,0,,1,1,0,different person,0,0
+case_120,discordant,woman_23__p2,C2-R4,BlurGuard,none,1,0,0,0,,1,0,0,,1,1
+case_121,discordant,man_19__p1,C2-R4,BlurGuard,none,1,1,0,0,,0,0,0,borderline dark jacket,0,0
+case_122,discordant,woman_86__p2,C4-R4,BlurGuard,blur2,1,1,0,0,,0,0,0,faint,0,0
+case_123,discordant,woman_58__p1,C3-R4,BlurGuard,jpeg50,1,0,0,0,,1,0,0,,1,1
+case_124,random,man_47__p0,C2-R1,Undefended,none,1,0,0,0,,1,0,0,,1,1
+case_125,discordant,woman_82__p1,C5-R7,CAPGuard,vae_trans,1,0,1,0,,1,1,0,extra police person,0,0
+case_126,discordant,woman_50__p2,C4-R7,CAPGuard,blur2,0,1,0,0,,1,0,0,,0,1
+case_127,discordant,woman_60__p1,C2-R7,CAPGuard,none,1,1,0,0,,0,0,0,faint,0,0
+case_128,random,woman_04__p0,C5-R7,CAPGuard,vae_trans,1,0,0,0,,1,0,0,,1,1
+case_129,discordant,woman_80__p3,C2-R4,BlurGuard,none,1,0,0,0,,1,0,0,,1,1
+case_130,discordant,woman_90__p1,C5-R7,CAPGuard,vae_trans,1,1,0,0,,0,0,0,plain blue shirt,0,0
+case_131,discordant,man_34__p2,C4-R4,BlurGuard,blur2,1,1,0,0,,0,0,0,faint,0,0
+case_132,discordant,woman_83__p1,C2-R7,CAPGuard,none,1,1,0,0,,0,0,0,badges on unchanged top,0,0
+case_133,discordant,woman_04__p2,C2-R4,BlurGuard,none,1,0,0,0,,1,0,0,small helmet,1,1
+case_134,discordant,woman_77__p1,C5-R7,CAPGuard,vae_trans,1,1,0,0,,1,1,0,extra person at left edge,0,0
+case_135,discordant,woman_43__p3,C4-R7,CAPGuard,blur2,1,0,0,0,,0,0,0,none visible,1,0
+case_136,discordant,man_07__p2,C3-R7,CAPGuard,jpeg50,1,1,0,0,,0,0,0,,0,0
+case_137,discordant,woman_61__p3,C4-R4,BlurGuard,blur2,1,0,1,0,,0,1,0,scene replaced shirt closeup,0,0
+case_138,random,woman_28__p1,C3-R4,BlurGuard,jpeg50,0,1,0,0,,1,0,0,,0,1
+case_139,discordant,man_37__p2,C4-R4,BlurGuard,blur2,0,1,0,0,,0,0,0,faint sheen,0,0
+case_140,discordant,woman_23__p2,C5-R4,BlurGuard,vae_trans,1,0,0,0,,1,0,0,,1,1
+case_141,discordant,woman_90__p2,C5-R4,BlurGuard,vae_trans,1,0,0,0,,1,0,0,,1,1
+case_142,discordant,woman_79__p2,C3-R4,BlurGuard,jpeg50,1,0,1,0,,1,1,1,giant helmet over torso,0,0
+case_143,random,woman_70__p0,C5-R6,Mist,vae_trans,1,0,0,0,,1,0,0,,1,1
+case_144,discordant,man_14__p3,C4-R7,CAPGuard,blur2,1,0,0,0,,0,0,0,ghostly pale bowtie,1,0
+case_145,discordant,woman_80__p3,C5-R4,BlurGuard,vae_trans,1,0,0,0,,1,0,0,,1,1
+case_146,discordant,woman_61__p3,C2-R4,BlurGuard,none,1,0,0,0,,1,0,0,,1,1
+case_147,discordant,man_14__p2,C5-R7,CAPGuard,vae_trans,1,0,1,0,,0,1,1,multiple helmets and other people,0,0
+case_148,discordant,woman_36__p1,C2-R4,BlurGuard,none,1,1,0,0,,0,0,0,faint uniform,0,0
+case_149,discordant,man_25__p0,C2-R4,BlurGuard,none,1,0,0,0,,1,0,0,borderline tint,1,1
+case_150,discordant,woman_71__p1,C3-R7,CAPGuard,jpeg50,0,1,0,0,,0,0,0,no uniform visible,0,0
+case_151,discordant,woman_86__p2,C5-R7,CAPGuard,vae_trans,1,0,1,0,,1,0,0,,0,1
+case_152,discordant,woman_60__p3,C2-R7,CAPGuard,none,1,0,0,0,,1,0,0,,1,1
+case_153,random,woman_39__p0,C4-R5,SIFM,blur2,1,0,0,0,,1,0,0,,1,1
+case_154,discordant,woman_23__p3,C4-R4,BlurGuard,blur2,1,0,0,0,,1,0,0,,1,1
+case_155,discordant,woman_24__p2,C2-R7,CAPGuard,none,0,1,0,0,,0,0,0,faint,0,0
+case_156,discordant,woman_89__p2,C5-R7,CAPGuard,vae_trans,1,0,0,0,,1,0,0,,1,1
+case_157,random,woman_79__p1,C3-R5,SIFM,jpeg50,0,0,0,0,,1,0,0,,0,1
+case_158,discordant,man_01__p3,C5-R7,CAPGuard,vae_trans,1,0,1,0,,1,1,0,two bowties,0,0
+case_159,discordant,man_01__p2,C2-R7,CAPGuard,none,1,1,0,0,,0,0,0,ghostly blue cap and straps,0,0
+case_160,random,woman_43__p3,C4-R6,Mist,blur2,1,0,0,0,,1,0,0,,1,1
+case_161,discordant,woman_39__p2,C2-R4,BlurGuard,none,1,0,0,0,,1,0,0,,1,1
+case_162,discordant,woman_49__p3,C2-R7,CAPGuard,none,1,0,0,0,,1,0,0,,1,1
+case_163,random,woman_56__p3,C5-R3,DCT-Shield,vae_trans,1,0,0,0,,1,0,0,second bowtie lower,1,1
+case_164,discordant,woman_71__p1,C4-R7,CAPGuard,blur2,0,1,0,0,,0,0,0,no uniform visible,0,0
+case_165,discordant,woman_09__p2,C3-R4,BlurGuard,jpeg50,0,1,0,0,,0,0,0,faint,0,0
+case_166,discordant,woman_04__p2,C5-R4,BlurGuard,vae_trans,1,0,0,0,,1,0,0,,1,1
+case_167,discordant,man_19__p1,C2-R7,CAPGuard,none,1,1,0,0,,1,0,0,borderline,0,1
+case_168,discordant,woman_94__p2,C2-R7,CAPGuard,none,0,1,0,0,,0,0,0,faint,0,0
+case_169,discordant,woman_79__p2,C2-R7,CAPGuard,none,1,0,1,0,,1,0,0,,0,1
+case_170,random,man_19__p2,C3-R5,SIFM,jpeg50,1,0,0,0,,1,0,0,,1,1
+case_171,discordant,woman_01__p2,C3-R4,BlurGuard,jpeg50,0,1,0,0,,0,0,0,faint,0,0
+case_172,discordant,woman_60__p2,C2-R7,CAPGuard,none,0,1,0,0,,1,0,0,,0,1
+case_173,discordant,man_01__p3,C2-R7,CAPGuard,none,1,0,1,0,,1,1,0,two bowties,0,0
+case_174,discordant,woman_27__p1,C3-R7,CAPGuard,jpeg50,0,1,0,0,,0,0,0,small badge only,0,0
+case_175,random,woman_73__p1,C4-R1,Undefended,blur2,1,0,0,0,,1,0,0,,1,1
+case_176,random,woman_50__p1,C5-R7,CAPGuard,vae_trans,0,1,0,0,,1,0,0,,0,1
+case_177,discordant,man_23__p3,C3-R4,BlurGuard,jpeg50,1,1,0,0,,0,0,0,faint,0,0
+case_178,discordant,woman_24__p1,C3-R4,BlurGuard,jpeg50,0,1,0,0,,1,0,0,,0,1
+case_179,random,man_03__p3,C3-R3,DCT-Shield,jpeg50,1,0,0,0,,1,0,0,,1,1
+case_180,discordant,woman_24__p1,C4-R7,CAPGuard,blur2,1,1,0,0,,1,1,0,extra officer,0,0
+case_181,discordant,man_17__p2,C5-R7,CAPGuard,vae_trans,0,1,0,0,,1,0,0,,0,1
+case_182,discordant,woman_50__p2,C4-R4,BlurGuard,blur2,1,0,0,0,,0,0,0,faint,1,0
+case_183,discordant,woman_01__p1,C4-R4,BlurGuard,blur2,1,0,0,0,,1,1,0,extra person at right edge,1,0
+case_184,discordant,woman_78__p2,C4-R7,CAPGuard,blur2,0,1,0,0,,1,0,0,borderline wire-like helmet,0,1
+case_185,discordant,woman_86__p1,C3-R7,CAPGuard,jpeg50,1,0,0,0,,1,0,0,,1,1
+case_186,discordant,woman_16__p3,C4-R7,CAPGuard,blur2,1,0,0,0,,1,0,0,,1,1
+case_187,discordant,woman_68__p3,C4-R7,CAPGuard,blur2,1,0,1,0,,1,1,0,extra large bowtie at bottom,0,0
+case_188,discordant,woman_28__p3,C5-R7,CAPGuard,vae_trans,1,0,0,0,,0,0,0,no bowtie,1,0
+case_189,discordant,woman_67__p1,C3-R4,BlurGuard,jpeg50,1,1,0,0,,0,0,0,no clear badge,0,0
+case_190,discordant,man_47__p1,C3-R7,CAPGuard,jpeg50,0,1,0,0,,0,0,0,original jacket unchanged,0,0
+case_191,discordant,woman_86__p2,C3-R4,BlurGuard,jpeg50,0,1,0,0,,0,0,0,,0,0
+case_192,random,woman_04__p3,C4-R5,SIFM,blur2,1,0,0,0,,1,0,0,,1,1
+case_193,discordant,woman_31__p1,C3-R7,CAPGuard,jpeg50,0,1,0,0,,1,0,0,,0,1
+case_194,discordant,woman_85__p2,C2-R7,CAPGuard,none,0,1,0,0,,1,0,0,,0,1
+case_195,discordant,woman_80__p3,C3-R4,BlurGuard,jpeg50,1,0,0,0,,1,0,0,,1,1
+case_196,discordant,woman_39__p2,C4-R7,CAPGuard,blur2,1,0,0,0,,1,0,0,,1,1
+case_197,discordant,woman_67__p3,C4-R4,BlurGuard,blur2,0,1,0,0,,1,0,0,,0,1
+case_198,discordant,woman_53__p1,C5-R7,CAPGuard,vae_trans,1,0,0,0,,0,0,0,navy beret only no badge,1,0
+case_199,random,woman_18__p1,C5-R4,BlurGuard,vae_trans,0,1,0,0,,0,0,0,no uniform,0,0
+case_200,discordant,woman_24__p1,C2-R7,CAPGuard,none,0,1,0,0,,1,1,0,extra officer,0,0
+case_201,discordant,man_01__p3,C4-R4,BlurGuard,blur2,1,0,0,0,,1,0,0,,1,1
+case_202,discordant,woman_39__p2,C4-R4,BlurGuard,blur2,1,0,0,0,,1,1,0,extra red helmet at edge,1,0
+case_203,discordant,woman_92__p2,C2-R4,BlurGuard,none,1,1,0,0,,0,0,0,faint,0,0
+case_204,discordant,woman_89__p2,C5-R4,BlurGuard,vae_trans,1,0,1,0,,1,1,0,extra separate helmet object,0,0
+case_205,discordant,man_08__p3,C4-R7,CAPGuard,blur2,1,0,1,0,,0,1,1,zoomed blurry floating bowties,0,0
+case_206,discordant,man_01__p3,C4-R7,CAPGuard,blur2,1,0,0,0,,1,1,0,two bowties,1,0
+case_207,discordant,woman_04__p1,C3-R7,CAPGuard,jpeg50,1,0,0,0,,1,0,0,,1,1
+case_208,discordant,woman_24__p1,C3-R7,CAPGuard,jpeg50,1,0,0,0,,1,1,0,extra officer,1,0
+case_209,random,woman_02__p1,C5-R5,SIFM,vae_trans,1,0,0,0,,1,0,0,,1,1
+case_210,random,woman_92__p2,C3-R3,DCT-Shield,jpeg50,0,1,0,0,,1,0,0,,0,1
+case_211,discordant,woman_36__p2,C2-R4,BlurGuard,none,0,1,0,0,,0,0,0,faint,0,0
+case_212,discordant,woman_50__p1,C4-R4,BlurGuard,blur2,1,0,0,0,,1,0,0,,1,1
+case_213,discordant,man_32__p2,C2-R4,BlurGuard,none,1,0,0,0,,1,0,0,,1,1
+case_214,discordant,woman_62__p2,C5-R7,CAPGuard,vae_trans,1,0,1,0,,1,1,1,different people,0,0
+case_215,random,woman_62__p0,C2-R2,PhotoGuard,none,1,0,0,0,,1,0,0,,1,1
+case_216,random,woman_72__p2,C3-R1,Undefended,jpeg50,0,1,0,0,,1,0,0,,0,1
+case_217,discordant,woman_73__p2,C2-R4,BlurGuard,none,1,0,0,0,,1,0,0,,1,1
+case_218,discordant,woman_90__p2,C4-R7,CAPGuard,blur2,1,1,0,0,,0,0,0,faint,0,0
+case_219,discordant,man_17__p3,C4-R4,BlurGuard,blur2,1,0,0,0,,1,0,0,,1,1
+case_220,discordant,man_37__p2,C2-R4,BlurGuard,none,1,1,0,0,,0,0,0,faint sheen,0,0
+case_221,random,man_25__p1,C4-R1,Undefended,blur2,1,0,0,0,,1,0,0,,1,1
+case_222,discordant,woman_97__p2,C2-R4,BlurGuard,none,0,1,0,0,,0,0,0,faint,0,0
+case_223,discordant,man_01__p3,C3-R4,BlurGuard,jpeg50,1,0,0,0,,1,0,0,,1,1
+case_224,discordant,woman_24__p2,C3-R7,CAPGuard,jpeg50,0,1,0,0,,0,0,0,faint band,0,0
+case_225,discordant,woman_56__p2,C5-R7,CAPGuard,vae_trans,1,0,1,0,,1,1,0,extra people,0,0
+case_226,random,woman_36__p1,C4-R6,Mist,blur2,1,0,0,0,,1,0,0,,1,1
+case_227,discordant,woman_02__p3,C4-R7,CAPGuard,blur2,1,0,1,0,,1,1,0,person became a man,0,0
+case_228,discordant,woman_94__p2,C3-R7,CAPGuard,jpeg50,0,1,0,0,,1,0,0,,0,1
+case_229,random,woman_58__p0,C2-R3,DCT-Shield,none,1,0,0,0,,1,0,0,,1,1
+case_230,discordant,woman_24__p2,C3-R4,BlurGuard,jpeg50,1,0,0,0,,1,0,0,partial hard hat,1,1
+case_231,discordant,woman_16__p1,C3-R7,CAPGuard,jpeg50,1,1,0,0,,1,0,0,,0,1
+case_232,discordant,man_27__p2,C4-R7,CAPGuard,blur2,0,1,0,0,,1,0,0,borderline,0,1
+case_233,discordant,woman_77__p3,C5-R4,BlurGuard,vae_trans,1,0,0,0,,0,0,0,faint pale bowtie,1,0
+case_234,random,woman_43__p0,C2-R3,DCT-Shield,none,1,0,0,0,,1,0,0,,1,1
+case_235,discordant,woman_92__p2,C5-R4,BlurGuard,vae_trans,0,1,0,0,,0,0,0,shoulder only,0,0
+case_236,random,woman_55__p3,C3-R2,PhotoGuard,jpeg50,1,0,0,0,,1,0,0,,1,1
+case_237,discordant,woman_70__p1,C3-R4,BlurGuard,jpeg50,0,1,0,0,,1,0,0,,0,1
+case_238,discordant,woman_26__p1,C4-R4,BlurGuard,blur2,0,1,0,0,,1,0,0,,0,1
+case_239,discordant,woman_72__p2,C2-R7,CAPGuard,none,0,1,0,0,,0,0,0,faint,0,0
+case_240,discordant,man_08__p2,C3-R7,CAPGuard,jpeg50,0,1,0,0,,0,0,0,,0,0
+case_241,random,woman_79__p1,C5-R3,DCT-Shield,vae_trans,0,0,1,0,,1,0,0,,0,1
+case_242,discordant,woman_93__p3,C4-R4,BlurGuard,blur2,0,0,1,0,,1,0,0,,0,1
+case_243,discordant,woman_37__p3,C4-R7,CAPGuard,blur2,1,0,1,0,,1,1,0,extra floating bowtie,0,0
+case_244,discordant,woman_94__p2,C2-R4,BlurGuard,none,0,1,0,0,,1,0,0,borderline,0,1
+case_245,random,woman_71__p2,C2-R7,CAPGuard,none,1,1,0,0,,1,0,0,blue tint,0,1
+case_246,discordant,woman_24__p1,C2-R4,BlurGuard,none,1,0,0,0,,1,0,0,,1,1
+case_247,discordant,woman_67__p2,C4-R4,BlurGuard,blur2,1,0,0,0,,1,0,0,,1,1
+case_248,random,woman_28__p0,C2-R5,SIFM,none,1,0,0,0,,1,0,0,,1,1
+case_249,discordant,woman_77__p1,C3-R7,CAPGuard,jpeg50,1,1,0,0,,1,0,0,,0,1
+case_250,discordant,woman_26__p2,C4-R7,CAPGuard,blur2,0,1,0,0,,0,0,0,,0,0
+case_251,discordant,woman_28__p3,C4-R4,BlurGuard,blur2,1,0,0,0,,1,0,0,small,1,1
+case_252,discordant,woman_90__p1,C5-R4,BlurGuard,vae_trans,1,0,0,0,,1,0,0,,1,1
+case_253,discordant,woman_53__p1,C2-R7,CAPGuard,none,1,1,0,0,,0,0,0,navy beret only no badge,0,0
+case_254,discordant,woman_17__p3,C3-R7,CAPGuard,jpeg50,1,0,0,0,,1,0,0,,1,1
+case_255,discordant,man_08__p2,C2-R7,CAPGuard,none,0,1,0,0,,0,0,0,,0,0
+case_256,discordant,woman_69__p1,C5-R4,BlurGuard,vae_trans,0,1,0,0,,1,0,0,,0,1
+case_257,discordant,woman_23__p2,C4-R7,CAPGuard,blur2,1,0,1,0,,1,1,0,extra people,0,0
+case_258,random,woman_09__p2,C2-R3,DCT-Shield,none,0,1,0,0,,0,0,0,faint,0,0
+case_259,discordant,woman_02__p3,C4-R4,BlurGuard,blur2,1,0,0,0,,1,0,0,,1,1
+case_260,discordant,woman_62__p2,C2-R7,CAPGuard,none,1,1,0,0,,0,0,0,faint,0,0
+case_261,random,woman_62__p0,C3-R1,Undefended,jpeg50,1,0,0,0,,1,0,0,,1,1
+case_262,discordant,woman_75__p2,C4-R7,CAPGuard,blur2,0,0,0,0,,0,0,0,faint dark cap,0,0
+case_263,discordant,woman_98__p2,C5-R4,BlurGuard,vae_trans,0,1,0,0,,1,0,0,,0,1
+case_264,discordant,woman_84__p2,C2-R7,CAPGuard,none,0,1,0,0,,0,0,0,faint,0,0
+case_265,random,woman_79__p0,C3-R7,CAPGuard,jpeg50,1,0,0,0,,1,0,0,,1,1
+case_266,random,woman_18__p0,C2-R5,SIFM,none,1,0,0,0,,1,0,0,,1,1
+case_267,discordant,woman_63__p0,C2-R4,BlurGuard,none,1,0,0,0,,1,0,0,,1,1
+case_268,discordant,woman_17__p3,C2-R4,BlurGuard,none,1,1,0,0,,0,0,0,no bowtie visible,0,0
+case_269,discordant,woman_58__p1,C3-R7,CAPGuard,jpeg50,1,1,0,0,,0,0,0,faint patch only,0,0
+case_270,discordant,woman_68__p1,C4-R7,CAPGuard,blur2,1,1,0,0,,1,0,0,,0,1
+case_271,random,woman_53__p0,C2-R4,BlurGuard,none,1,0,0,0,,1,0,0,,1,1
+case_272,random,woman_80__p2,C3-R6,Mist,jpeg50,0,0,1,0,,1,1,1,double head,0,0
+case_273,discordant,woman_70__p3,C2-R7,CAPGuard,none,1,0,0,0,,1,0,0,,1,1
+case_274,random,woman_39__p0,C2-R6,Mist,none,1,0,0,0,,1,0,0,,1,1
+case_275,discordant,woman_22__p2,C4-R7,CAPGuard,blur2,0,1,0,0,,0,0,0,faint,0,0
+case_276,discordant,woman_80__p3,C4-R7,CAPGuard,blur2,1,0,1,0,,1,1,0,extra giant bows,0,0
+case_277,random,man_20__p3,C3-R3,DCT-Shield,jpeg50,1,0,0,0,,1,0,0,,1,1
+case_278,discordant,woman_86__p0,C4-R4,BlurGuard,blur2,1,0,0,0,,1,1,0,extra sunglasses at edge,1,0
+case_279,discordant,woman_39__p2,C3-R4,BlurGuard,jpeg50,1,0,0,0,,1,0,0,,1,1
+case_280,random,man_19__p3,C3-R4,BlurGuard,jpeg50,1,0,1,0,,1,1,0,extra bowtie on head,0,0
+case_281,discordant,woman_28__p2,C3-R7,CAPGuard,jpeg50,0,1,0,0,,0,0,0,faint,0,0
+case_282,discordant,woman_03__p1,C2-R4,BlurGuard,none,0,1,0,0,,1,0,0,,0,1
+case_283,random,woman_51__p0,C5-R2,PhotoGuard,vae_trans,1,0,0,0,,1,0,0,,1,1
+case_284,discordant,man_08__p3,C2-R4,BlurGuard,none,1,0,0,0,,1,0,0,,1,1
+case_285,discordant,woman_92__p3,C3-R4,BlurGuard,jpeg50,1,0,0,0,,0,0,0,faint,1,0
+case_286,random,woman_84__p3,C5-R7,CAPGuard,vae_trans,1,0,0,0,,1,0,0,,1,1
+case_287,discordant,woman_66__p2,C2-R7,CAPGuard,none,1,0,0,0,,1,0,0,,1,1
+case_288,discordant,man_32__p1,C2-R7,CAPGuard,none,1,0,0,0,,0,0,0,borderline faint badge,1,0
+case_289,discordant,woman_01__p1,C4-R7,CAPGuard,blur2,1,0,0,0,,1,0,0,,1,1
+case_290,random,man_38__p2,C5-R5,SIFM,vae_trans,0,0,1,0,,1,1,1,different person giant helmet,0,0
+case_291,discordant,woman_53__p1,C3-R7,CAPGuard,jpeg50,0,1,0,0,,0,0,0,navy beret only no badge,0,0
+case_292,discordant,woman_21__p2,C2-R7,CAPGuard,none,0,1,0,0,,1,0,0,,0,1
+case_293,random,man_17__p1,C5-R1,Undefended,vae_trans,1,0,0,0,,1,0,0,,1,1
+case_294,random,woman_55__p3,C4-R5,SIFM,blur2,1,0,0,0,,1,0,0,,1,1
+case_295,discordant,woman_01__p2,C5-R4,BlurGuard,vae_trans,0,1,0,0,,0,0,0,,0,0
+case_296,discordant,woman_58__p2,C2-R7,CAPGuard,none,0,1,0,0,,0,0,0,hat only,0,0
+case_297,discordant,woman_82__p1,C4-R7,CAPGuard,blur2,1,0,1,0,,1,1,0,extra police at edge,0,0
+case_298,discordant,woman_26__p2,C4-R4,BlurGuard,blur2,0,1,0,0,,1,0,0,,0,1
+case_299,discordant,woman_53__p1,C3-R4,BlurGuard,jpeg50,0,1,0,0,,1,0,0,,0,1
+case_300,random,woman_83__p3,C5-R1,Undefended,vae_trans,1,0,0,0,,1,0,0,,1,1
+case_301,discordant,woman_51__p1,C4-R4,BlurGuard,blur2,0,1,0,0,,1,0,0,borderline,0,1
+case_302,discordant,woman_10__p1,C5-R4,BlurGuard,vae_trans,1,0,0,0,,1,0,0,faint but uniform,1,1
+case_303,random,woman_24__p1,C5-R6,Mist,vae_trans,1,0,0,0,,1,0,0,,1,1
+case_304,discordant,woman_17__p0,C5-R4,BlurGuard,vae_trans,1,0,0,0,,1,0,0,,1,1
+case_305,discordant,woman_23__p2,C3-R4,BlurGuard,jpeg50,1,0,0,0,,1,0,0,,1,1
+case_306,discordant,woman_90__p2,C5-R7,CAPGuard,vae_trans,1,0,1,0,,1,1,1,face mangled by visor,0,0
+case_307,discordant,woman_72__p2,C3-R4,BlurGuard,jpeg50,0,1,0,0,,1,0,0,,0,1
+case_308,random,woman_77__p0,C2-R5,SIFM,none,1,0,0,0,,1,0,0,,1,1
+case_309,discordant,woman_20__p3,C4-R7,CAPGuard,blur2,1,0,1,0,,1,1,0,scene altered two bowties,0,0
+case_310,discordant,man_47__p3,C2-R7,CAPGuard,none,1,0,1,0,,1,0,0,,0,1
+case_311,discordant,woman_36__p2,C3-R4,BlurGuard,jpeg50,0,1,0,0,,0,0,0,faint,0,0
+case_312,discordant,woman_80__p3,C5-R7,CAPGuard,vae_trans,1,0,1,0,,1,1,0,extra giant bows,0,0
+case_313,discordant,woman_70__p1,C4-R7,CAPGuard,blur2,0,1,0,0,,0,0,0,,0,0
+case_314,discordant,woman_23__p2,C4-R4,BlurGuard,blur2,1,0,0,0,,1,0,0,,1,1
+case_315,discordant,woman_85__p3,C3-R7,CAPGuard,jpeg50,1,0,0,0,,0,0,0,faint,1,0
+case_316,discordant,woman_37__p3,C4-R4,BlurGuard,blur2,1,0,0,0,,1,0,0,small,1,1
+case_317,discordant,woman_01__p2,C3-R7,CAPGuard,jpeg50,0,1,0,0,,1,0,0,,0,1
+case_318,random,woman_89__p3,C4-R4,BlurGuard,blur2,1,0,0,0,,1,0,0,,1,1
+case_319,discordant,woman_93__p3,C4-R7,CAPGuard,blur2,0,0,1,0,,1,1,0,scene replaced,0,0
+case_320,random,woman_04__p3,C5-R2,PhotoGuard,vae_trans,1,0,0,0,,1,0,0,,1,1
+case_321,random,woman_28__p2,C4-R2,PhotoGuard,blur2,1,0,0,0,,1,0,0,,1,1
+case_322,random,woman_48__p3,C5-R1,Undefended,vae_trans,0,0,1,0,,1,1,0,extra bows,0,0
+case_323,discordant,man_07__p1,C3-R7,CAPGuard,jpeg50,1,0,0,0,,1,1,0,face mask added,1,0
+case_324,random,woman_90__p0,C5-R1,Undefended,vae_trans,1,0,0,0,,1,0,0,,1,1
+case_325,random,woman_88__p0,C2-R3,DCT-Shield,none,1,0,0,0,,1,0,0,,1,1
+case_326,discordant,woman_23__p3,C4-R7,CAPGuard,blur2,1,0,1,0,,1,1,0,extra bowties,0,0
+case_327,random,man_27__p0,C3-R7,CAPGuard,jpeg50,1,0,0,0,,1,0,0,,1,1
+case_328,discordant,woman_43__p2,C4-R4,BlurGuard,blur2,1,0,0,0,,0,0,0,,1,0
+case_329,discordant,woman_21__p3,C3-R4,BlurGuard,jpeg50,1,0,0,0,,1,0,0,,1,1
+case_330,discordant,woman_88__p3,C2-R7,CAPGuard,none,1,0,0,0,,1,0,0,small collar bowtie,1,1
+case_331,discordant,man_08__p2,C5-R4,BlurGuard,vae_trans,1,0,0,0,,1,0,0,,1,1
+case_332,discordant,woman_32__p2,C3-R7,CAPGuard,jpeg50,1,0,1,0,,1,1,1,mangled dark helmet and torso,0,0
+case_333,discordant,woman_26__p3,C2-R7,CAPGuard,none,1,0,0,0,,1,0,0,,1,1
+case_334,discordant,woman_86__p2,C3-R7,CAPGuard,jpeg50,0,1,0,0,,1,0,0,,0,1
+case_335,discordant,woman_41__p2,C2-R7,CAPGuard,none,1,0,0,0,,1,0,0,,1,1
+case_336,discordant,woman_42__p1,C5-R4,BlurGuard,vae_trans,1,0,0,0,,1,0,0,,1,1
+case_337,random,woman_62__p3,C5-R5,SIFM,vae_trans,1,0,0,0,,1,0,0,,1,1
+case_338,discordant,woman_57__p2,C5-R7,CAPGuard,vae_trans,1,0,1,0,,1,1,0,extra helmet on chest,0,0
+case_339,random,woman_22__p2,C4-R5,SIFM,blur2,0,1,0,0,,1,0,0,,0,1
+case_340,discordant,woman_78__p2,C4-R4,BlurGuard,blur2,0,1,0,0,,0,0,0,faint,0,0
+case_341,discordant,man_37__p2,C2-R7,CAPGuard,none,0,1,0,0,,1,0,0,,0,1
+case_342,discordant,man_08__p2,C5-R7,CAPGuard,vae_trans,1,1,0,0,,0,0,0,,0,0
+case_343,discordant,woman_42__p1,C3-R4,BlurGuard,jpeg50,1,1,0,0,,0,0,0,blue sweater,0,0
+case_344,discordant,woman_70__p3,C5-R4,BlurGuard,vae_trans,1,0,0,0,,0,0,0,none visible,1,0
+case_345,discordant,woman_85__p3,C3-R4,BlurGuard,jpeg50,1,0,0,0,,1,0,0,,1,1
+case_346,discordant,woman_92__p1,C3-R4,BlurGuard,jpeg50,0,1,0,0,,0,0,0,faint,0,0
+case_347,discordant,man_32__p2,C2-R7,CAPGuard,none,0,1,0,0,,0,1,0,glasses-like band only,0,0
+case_348,discordant,woman_84__p2,C3-R4,BlurGuard,jpeg50,0,1,0,0,,1,0,0,borderline cap-like,0,1
+case_349,discordant,woman_86__p0,C4-R7,CAPGuard,blur2,1,0,0,0,,1,0,0,,1,1
+case_350,random,woman_39__p0,C4-R6,Mist,blur2,1,0,0,0,,1,0,0,,1,1
+case_351,discordant,woman_17__p1,C2-R7,CAPGuard,none,1,1,0,0,,1,0,0,,0,1
+case_352,discordant,woman_80__p3,C2-R7,CAPGuard,none,1,0,1,0,,1,1,0,extra giant bows,0,0
+case_353,discordant,man_07__p2,C4-R4,BlurGuard,blur2,1,0,0,0,,1,0,0,,1,1
+case_354,discordant,man_07__p3,C4-R4,BlurGuard,blur2,1,0,0,0,,1,0,0,,1,1
+case_355,discordant,woman_12__p3,C5-R7,CAPGuard,vae_trans,1,0,0,0,,1,0,0,,1,1
+case_356,discordant,man_37__p2,C3-R7,CAPGuard,jpeg50,0,1,0,0,,1,0,0,,0,1
+case_357,discordant,woman_91__p2,C4-R4,BlurGuard,blur2,0,1,0,0,,0,0,0,faint,0,0
+case_358,discordant,woman_03__p1,C3-R7,CAPGuard,jpeg50,0,1,0,0,,0,0,0,,0,0
+case_359,discordant,man_20__p0,C4-R7,CAPGuard,blur2,1,0,0,0,,0,0,0,faint,1,0
+case_360,random,woman_30__p3,C4-R5,SIFM,blur2,1,0,0,0,,1,0,0,,1,1
+case_361,random,woman_72__p0,C2-R4,BlurGuard,none,1,0,0,0,,1,0,0,,1,1
+case_362,random,woman_06__p1,C4-R2,PhotoGuard,blur2,1,0,0,0,,1,0,0,,1,1
+case_363,discordant,woman_88__p1,C2-R4,BlurGuard,none,1,1,0,0,,0,0,0,,0,0
+case_364,random,woman_80__p0,C4-R2,PhotoGuard,blur2,1,0,0,0,,1,0,0,,1,1
+case_365,random,woman_87__p2,C3-R4,BlurGuard,jpeg50,1,1,0,0,,1,0,0,,0,1
+case_366,random,woman_92__p3,C2-R5,SIFM,none,1,0,1,0,,1,1,0,person replaced by man,0,0
+case_367,discordant,man_23__p3,C2-R7,CAPGuard,none,1,0,0,0,,1,0,0,faint blue,1,1
+case_368,random,woman_59__p1,C5-R2,PhotoGuard,vae_trans,0,1,0,0,,0,0,0,,0,0
+case_369,discordant,woman_18__p3,C2-R7,CAPGuard,none,0,1,0,0,,1,0,0,tiny bowtie at collar,0,1
+case_370,discordant,woman_96__p3,C5-R4,BlurGuard,vae_trans,1,0,0,0,,1,0,0,small,1,1
+case_371,discordant,woman_85__p3,C5-R4,BlurGuard,vae_trans,1,0,0,0,,1,0,0,small,1,1
+case_372,discordant,woman_67__p2,C4-R7,CAPGuard,blur2,1,0,1,0,,1,1,0,extra helmeted person,0,0
+case_373,discordant,woman_36__p1,C2-R7,CAPGuard,none,1,0,0,0,,1,0,0,,1,1
+case_374,discordant,woman_82__p2,C2-R7,CAPGuard,none,0,1,0,0,,0,0,0,hat unchanged,0,0
+case_375,discordant,woman_60__p2,C4-R4,BlurGuard,blur2,0,1,0,0,,1,0,0,,0,1
+case_376,discordant,woman_43__p3,C4-R4,BlurGuard,blur2,1,0,0,0,,1,0,0,,1,1
+case_377,random,woman_77__p2,C5-R2,PhotoGuard,vae_trans,0,1,0,0,,0,0,0,,0,0
+case_378,discordant,man_37__p2,C4-R7,CAPGuard,blur2,0,1,0,0,,1,0,0,,0,1
+case_379,discordant,woman_90__p2,C4-R4,BlurGuard,blur2,1,0,0,0,,1,0,0,,1,1
+case_380,discordant,woman_26__p3,C2-R4,BlurGuard,none,1,0,0,0,,0,0,0,faint,1,0
+case_381,discordant,man_23__p3,C2-R4,BlurGuard,none,1,1,0,0,,0,0,0,none visible,0,0
+case_382,discordant,man_30__p2,C3-R7,CAPGuard,jpeg50,0,1,0,0,,1,0,0,,0,1
+case_383,discordant,woman_87__p2,C2-R7,CAPGuard,none,0,1,0,0,,1,0,0,,0,1
+case_384,discordant,woman_88__p3,C5-R4,BlurGuard,vae_trans,1,0,0,0,,1,0,0,tiny collar bowtie,1,1
+case_385,discordant,woman_41__p2,C3-R7,CAPGuard,jpeg50,1,0,0,0,,1,0,0,,1,1
+case_386,discordant,woman_26__p2,C3-R4,BlurGuard,jpeg50,0,1,0,0,,1,0,0,,0,1
+case_387,discordant,woman_95__p1,C2-R4,BlurGuard,none,1,1,0,0,,0,0,0,plaid blue,0,0
+case_388,discordant,woman_36__p2,C3-R7,CAPGuard,jpeg50,0,1,0,0,,1,0,0,,0,1
+case_389,discordant,woman_56__p2,C3-R4,BlurGuard,jpeg50,1,1,0,0,,1,0,0,,0,1
+case_390,random,man_32__p3,C2-R6,Mist,none,1,0,0,0,,1,0,0,,1,1
+case_391,discordant,woman_92__p3,C2-R7,CAPGuard,none,1,0,0,0,,1,0,0,small,1,1
+case_392,discordant,woman_71__p1,C5-R4,BlurGuard,vae_trans,0,1,0,0,,1,0,0,,0,1
+case_393,discordant,man_47__p1,C3-R4,BlurGuard,jpeg50,0,1,0,0,,1,0,0,partial uniform with patches,0,1
+case_394,discordant,woman_70__p3,C5-R7,CAPGuard,vae_trans,1,0,0,0,,1,0,0,,1,1
+case_395,discordant,man_23__p3,C3-R7,CAPGuard,jpeg50,1,0,0,0,,1,0,0,,1,1
+case_396,discordant,woman_22__p3,C5-R7,CAPGuard,vae_trans,0,0,0,0,,1,0,0,,0,1
+case_397,discordant,woman_92__p3,C5-R7,CAPGuard,vae_trans,1,0,0,0,,1,0,0,small,1,1
+case_398,discordant,man_34__p2,C4-R7,CAPGuard,blur2,1,0,0,0,,1,0,0,,1,1
+case_399,discordant,woman_91__p1,C4-R4,BlurGuard,blur2,1,0,0,0,,1,0,0,,1,1
+case_400,discordant,woman_42__p1,C5-R7,CAPGuard,vae_trans,1,1,0,0,,0,0,0,unchanged,0,0
+case_401,random,woman_10__p0,C4-R6,Mist,blur2,1,0,0,0,,1,0,0,,1,1
+case_402,random,woman_87__p2,C4-R1,Undefended,blur2,0,1,0,0,,1,0,0,,0,1
+case_403,discordant,woman_86__p1,C3-R4,BlurGuard,jpeg50,1,0,0,0,,0,0,0,no uniform,1,0
+case_404,discordant,woman_71__p1,C5-R7,CAPGuard,vae_trans,0,1,0,0,,0,0,0,no uniform visible,0,0
+case_405,discordant,man_25__p0,C2-R7,CAPGuard,none,1,0,0,0,,0,0,0,clear lenses,1,0
+case_406,random,woman_76__p2,C2-R2,PhotoGuard,none,0,1,0,0,,0,0,0,,0,0
+case_407,discordant,woman_27__p1,C2-R4,BlurGuard,none,0,1,0,0,,1,0,0,,0,1
+case_408,discordant,woman_73__p2,C2-R7,CAPGuard,none,1,1,0,0,,0,0,0,,0,0
+case_409,discordant,woman_49__p3,C2-R4,BlurGuard,none,1,0,0,0,,0,0,0,faint,1,0
+case_410,discordant,woman_28__p2,C4-R4,BlurGuard,blur2,0,1,0,0,,1,0,0,dark cap,0,1
+case_411,discordant,woman_16__p1,C3-R4,BlurGuard,jpeg50,1,0,0,0,,0,0,0,floral dress remains,1,0
+case_412,discordant,woman_93__p1,C3-R7,CAPGuard,jpeg50,0,1,0,0,,1,0,0,,0,1
+case_413,discordant,woman_21__p3,C3-R7,CAPGuard,jpeg50,1,0,1,0,,1,1,1,face mangled extra bowties,0,0
+case_414,discordant,woman_21__p1,C2-R7,CAPGuard,none,1,0,1,0,,1,0,0,,0,1
+case_415,discordant,woman_22__p3,C5-R4,BlurGuard,vae_trans,0,0,1,0,,1,1,0,extra bowtie,0,0
+case_416,random,woman_36__p1,C4-R3,DCT-Shield,blur2,1,1,0,0,,1,0,0,,0,1
+case_417,random,woman_12__p2,C5-R4,BlurGuard,vae_trans,1,1,0,0,,1,0,0,,0,1
+case_418,random,woman_88__p2,C2-R4,BlurGuard,none,0,1,0,0,,0,0,0,,0,0
+case_419,discordant,woman_56__p2,C4-R7,CAPGuard,blur2,1,1,0,0,,0,0,0,faint,0,0
+case_420,random,woman_96__p0,C5-R2,PhotoGuard,vae_trans,1,0,0,0,,1,0,0,,1,1
+case_421,discordant,man_19__p1,C3-R7,CAPGuard,jpeg50,0,1,0,0,,1,0,0,,0,1
+case_422,discordant,woman_62__p2,C3-R7,CAPGuard,jpeg50,1,0,1,0,,1,1,1,different people,0,0
+case_423,discordant,woman_72__p1,C4-R4,BlurGuard,blur2,0,1,0,0,,1,0,0,,0,1
+case_424,discordant,woman_58__p2,C2-R4,BlurGuard,none,0,1,0,0,,1,0,0,helmet-like hat dome,0,1
+case_425,discordant,woman_70__p3,C3-R7,CAPGuard,jpeg50,1,0,0,0,,1,0,0,,1,1
+case_426,discordant,woman_39__p2,C3-R7,CAPGuard,jpeg50,1,0,1,0,,1,1,1,mangled lower body,0,0
+case_427,random,woman_58__p0,C5-R7,CAPGuard,vae_trans,1,0,0,0,,1,0,0,,1,1
+case_428,random,woman_39__p3,C2-R2,PhotoGuard,none,1,0,1,0,,1,1,0,extra bowtie at waist,0,0
+case_429,discordant,woman_28__p2,C3-R4,BlurGuard,jpeg50,0,1,0,0,,1,0,0,,0,1
+case_430,discordant,woman_03__p1,C3-R4,BlurGuard,jpeg50,0,1,0,0,,1,0,0,,0,1
+case_431,random,woman_84__p3,C3-R3,DCT-Shield,jpeg50,1,0,0,0,,1,0,0,,1,1
+case_432,discordant,woman_24__p0,C5-R7,CAPGuard,vae_trans,1,0,0,0,,0,0,0,faint,1,0
+case_433,random,woman_12__p1,C5-R4,BlurGuard,vae_trans,1,0,0,0,,1,0,0,,1,1
+case_434,discordant,man_08__p3,C3-R7,CAPGuard,jpeg50,1,0,1,0,,1,1,0,different face; floating bowtie,0,0
+case_435,random,man_38__p2,C2-R1,Undefended,none,0,0,1,0,,1,1,1,extra giant helmet and person,0,0
+case_436,discordant,woman_35__p1,C3-R7,CAPGuard,jpeg50,1,1,0,0,,1,0,0,,0,1
+case_437,discordant,man_37__p1,C3-R7,CAPGuard,jpeg50,1,0,0,0,,1,0,0,,1,1
+case_438,discordant,woman_97__p2,C4-R7,CAPGuard,blur2,1,0,0,0,,1,0,0,,1,1
+case_439,discordant,man_07__p1,C3-R4,BlurGuard,jpeg50,1,0,0,0,,1,0,0,,1,1
+case_440,discordant,man_37__p2,C3-R4,BlurGuard,jpeg50,1,1,0,0,,0,0,0,partial sheen,0,0
+case_441,random,woman_39__p0,C4-R2,PhotoGuard,blur2,1,0,0,0,,1,0,0,,1,1
+case_442,discordant,woman_23__p0,C5-R7,CAPGuard,vae_trans,1,0,0,0,,0,0,0,faint,1,0
+case_443,discordant,woman_26__p2,C3-R7,CAPGuard,jpeg50,0,1,0,0,,0,0,0,,0,0
+case_444,random,woman_68__p2,C3-R7,CAPGuard,jpeg50,0,1,0,0,,0,0,0,,0,0
+case_445,discordant,woman_86__p0,C5-R7,CAPGuard,vae_trans,1,0,0,0,,0,0,0,faint tint,1,0
+case_446,discordant,woman_37__p3,C5-R4,BlurGuard,vae_trans,1,0,0,0,,1,0,0,,1,1
+case_447,discordant,woman_35__p1,C3-R4,BlurGuard,jpeg50,1,0,0,0,,0,0,0,knit sweater with badge only,1,0
+case_448,discordant,woman_70__p1,C2-R4,BlurGuard,none,0,1,0,0,,0,1,0,badges on book only,0,0
+case_449,discordant,woman_17__p3,C3-R4,BlurGuard,jpeg50,1,0,0,0,,0,0,0,no bowtie visible,1,0
+case_450,discordant,woman_39__p2,C2-R7,CAPGuard,none,1,0,1,0,,1,1,1,extra people mangled,0,0
+case_451,discordant,woman_62__p2,C5-R4,BlurGuard,vae_trans,1,0,0,0,,1,0,0,,1,1
+case_452,discordant,woman_56__p2,C4-R4,BlurGuard,blur2,1,0,0,0,,1,0,0,,1,1
+case_453,random,man_03__p3,C4-R1,Undefended,blur2,1,0,0,0,,1,0,0,,1,1
+case_454,discordant,woman_60__p1,C3-R4,BlurGuard,jpeg50,1,1,0,0,,0,0,0,faint,0,0
+case_455,discordant,man_17__p2,C5-R4,BlurGuard,vae_trans,1,0,0,0,,0,0,0,hair,1,0
+case_456,discordant,woman_27__p1,C3-R4,BlurGuard,jpeg50,0,1,0,0,,1,0,0,,0,1
+case_457,discordant,man_27__p2,C5-R7,CAPGuard,vae_trans,0,1,0,0,,0,0,0,faint,0,0
+case_458,discordant,woman_83__p2,C3-R7,CAPGuard,jpeg50,0,1,0,0,,0,0,0,faint,0,0
+case_459,random,woman_91__p3,C5-R7,CAPGuard,vae_trans,1,0,0,0,,1,0,0,,1,1
+case_460,discordant,woman_27__p1,C2-R7,CAPGuard,none,0,1,0,0,,0,0,0,small badge only,0,0
+case_461,discordant,man_01__p3,C3-R7,CAPGuard,jpeg50,1,0,1,0,,1,1,0,two bowties,0,0
+case_462,discordant,man_07__p1,C4-R7,CAPGuard,blur2,1,0,1,0,,1,1,0,person replaced by woman,0,0
+case_463,discordant,man_07__p2,C2-R7,CAPGuard,none,1,0,0,0,,0,0,0,,1,0
+case_464,discordant,man_01__p3,C5-R4,BlurGuard,vae_trans,1,0,0,0,,1,0,0,,1,1
+case_465,discordant,woman_97__p2,C2-R7,CAPGuard,none,0,0,0,0,,1,0,0,,0,1
+case_466,discordant,woman_56__p2,C2-R4,BlurGuard,none,1,0,0,0,,1,0,0,,1,1
+case_467,discordant,woman_92__p3,C2-R4,BlurGuard,none,1,0,1,0,,1,1,0,extra person,0,0
+case_468,discordant,woman_82__p1,C4-R4,BlurGuard,blur2,1,0,0,0,,1,0,0,,1,1
+case_469,random,woman_22__p3,C4-R2,PhotoGuard,blur2,0,0,1,0,,1,1,0,extra bowties,0,0
+case_470,discordant,woman_87__p2,C2-R4,BlurGuard,none,1,1,0,0,,0,0,0,faint,0,0
+case_471,discordant,woman_88__p1,C2-R7,CAPGuard,none,1,0,0,0,,1,0,0,,1,1
+case_472,discordant,woman_83__p2,C3-R4,BlurGuard,jpeg50,0,1,0,0,,1,0,0,,0,1
+case_473,discordant,man_07__p2,C2-R4,BlurGuard,none,1,0,0,0,,1,0,0,,1,1
+case_474,discordant,woman_80__p1,C5-R4,BlurGuard,vae_trans,1,1,0,0,,0,0,0,faint ghost uniform,0,0
+case_475,discordant,woman_97__p2,C3-R4,BlurGuard,jpeg50,0,1,0,0,,0,0,0,faint,0,0
+case_476,discordant,woman_28__p3,C5-R4,BlurGuard,vae_trans,0,1,0,0,,1,0,0,,0,1
+case_477,random,woman_59__p0,C4-R1,Undefended,blur2,1,0,0,0,,1,0,0,,1,1
+case_478,discordant,woman_88__p3,C2-R4,BlurGuard,none,1,1,0,0,,0,0,0,faint,0,0
+case_479,discordant,woman_78__p3,C5-R7,CAPGuard,vae_trans,1,0,0,0,,0,0,0,no clear bowtie,1,0
+case_480,discordant,woman_60__p1,C2-R4,BlurGuard,none,1,0,0,0,,1,0,0,,1,1
+case_481,random,woman_68__p2,C4-R3,DCT-Shield,blur2,0,1,0,0,,0,0,0,,0,0
+case_482,random,man_23__p3,C4-R4,BlurGuard,blur2,0,1,0,0,,0,1,0,red object off body,0,0
+case_483,discordant,woman_60__p3,C2-R4,BlurGuard,none,1,0,0,0,,0,0,0,faint,1,0
+case_484,discordant,woman_26__p1,C4-R7,CAPGuard,blur2,0,1,0,0,,0,0,0,small badge only,0,0
+case_485,discordant,woman_70__p3,C2-R4,BlurGuard,none,1,0,1,0,,1,1,0,scene replaced,0,0
+case_486,discordant,woman_50__p1,C4-R7,CAPGuard,blur2,1,1,0,0,,0,0,0,faint,0,0
+case_487,discordant,woman_66__p3,C5-R4,BlurGuard,vae_trans,1,0,0,0,,0,1,0,bowtie at hand,1,0
+case_488,random,man_32__p3,C2-R2,PhotoGuard,none,1,0,1,0,,1,1,0,different person and scene,0,0
+case_489,discordant,woman_22__p2,C4-R4,BlurGuard,blur2,1,0,0,0,,1,0,0,,1,1
+case_490,discordant,woman_58__p1,C5-R7,CAPGuard,vae_trans,0,1,0,0,,0,0,0,faint patch only,0,0
+case_491,random,woman_52__p1,C5-R6,Mist,vae_trans,1,0,0,0,,1,0,0,,1,1
+case_492,discordant,woman_53__p1,C2-R4,BlurGuard,none,1,1,0,0,,1,0,0,,0,1
+case_493,discordant,woman_69__p3,C3-R4,BlurGuard,jpeg50,1,0,0,0,,1,0,0,,1,1
+case_494,discordant,man_08__p3,C3-R4,BlurGuard,jpeg50,1,0,0,0,,1,0,0,,1,1
+case_495,random,woman_50__p1,C5-R5,SIFM,vae_trans,1,0,0,0,,1,0,0,,1,1
+case_496,discordant,woman_91__p2,C4-R7,CAPGuard,blur2,0,1,0,0,,1,0,0,,0,1
+case_497,discordant,woman_04__p2,C2-R7,CAPGuard,none,1,0,1,0,,1,1,0,extra helmet with face,0,0
+case_498,discordant,woman_97__p2,C4-R4,BlurGuard,blur2,1,0,0,0,,0,0,0,faint,1,0
+case_499,discordant,woman_28__p2,C4-R7,CAPGuard,blur2,0,1,0,0,,0,0,0,faint,0,0
+case_500,discordant,man_14__p3,C4-R4,BlurGuard,blur2,1,0,0,0,,1,0,0,,1,1
+case_501,discordant,woman_71__p1,C4-R4,BlurGuard,blur2,0,1,0,0,,1,0,0,,0,1
+case_502,discordant,woman_72__p1,C4-R7,CAPGuard,blur2,0,1,0,0,,0,0,0,,0,0
+case_503,random,woman_09__p0,C4-R7,CAPGuard,blur2,1,0,0,0,,1,0,0,,1,1
+case_504,discordant,woman_01__p1,C2-R7,CAPGuard,none,1,0,0,0,,1,0,0,,1,1
+case_505,discordant,woman_60__p2,C2-R4,BlurGuard,none,0,1,0,0,,0,0,0,faint,0,0
+case_506,discordant,woman_82__p1,C5-R4,BlurGuard,vae_trans,1,0,0,0,,1,0,0,,1,1
+case_507,random,woman_64__p1,C2-R5,SIFM,none,1,0,0,0,,1,0,0,,1,1
+case_508,discordant,woman_85__p3,C4-R7,CAPGuard,blur2,1,0,0,0,,1,0,0,,1,1
+case_509,discordant,woman_56__p2,C5-R4,BlurGuard,vae_trans,1,0,0,0,,1,0,0,,1,1
+case_510,discordant,woman_17__p0,C5-R7,CAPGuard,vae_trans,1,0,0,0,,0,0,0,lenses only lightly tinted,1,0
+case_511,discordant,woman_78__p2,C3-R4,BlurGuard,jpeg50,0,1,0,0,,0,0,0,faint,0,0
+case_512,discordant,woman_41__p2,C3-R4,BlurGuard,jpeg50,0,1,0,0,,0,0,0,faint,0,0
+case_513,discordant,man_01__p2,C2-R4,BlurGuard,none,1,0,0,0,,1,0,0,faint partial helmet,1,1
+case_514,random,woman_48__p0,C3-R1,Undefended,jpeg50,1,0,0,0,,1,0,0,,1,1
+case_515,discordant,man_30__p1,C3-R4,BlurGuard,jpeg50,1,1,0,0,,0,0,0,faint,0,0
+case_516,discordant,woman_16__p1,C2-R4,BlurGuard,none,1,1,0,0,,0,0,0,faint uniform,0,0
+case_517,discordant,woman_78__p2,C3-R7,CAPGuard,jpeg50,0,1,0,0,,1,0,0,,0,1
+case_518,discordant,woman_68__p3,C4-R4,BlurGuard,blur2,1,0,0,0,,1,0,0,,1,1
+case_519,random,woman_66__p0,C3-R6,Mist,jpeg50,1,0,0,0,,1,0,0,,1,1
+case_520,random,man_27__p3,C4-R4,BlurGuard,blur2,1,0,0,0,,1,0,0,,1,1
+case_521,discordant,woman_58__p1,C5-R4,BlurGuard,vae_trans,1,0,0,0,,1,0,0,,1,1
+case_522,random,woman_69__p0,C2-R7,CAPGuard,none,1,0,0,0,,1,0,0,,1,1
+case_523,discordant,woman_59__p3,C5-R4,BlurGuard,vae_trans,1,0,0,0,,0,0,0,,1,0
+case_524,discordant,man_37__p1,C3-R4,BlurGuard,jpeg50,1,1,0,0,,0,0,0,blue plaid shirt small badge only,0,0
+case_525,discordant,man_08__p3,C2-R7,CAPGuard,none,1,0,1,0,,0,1,1,giant floating bowties; zoomed,0,0
+case_526,random,woman_24__p1,C3-R6,Mist,jpeg50,1,0,0,0,,1,0,0,,1,1
+case_527,random,woman_62__p0,C3-R2,PhotoGuard,jpeg50,1,0,0,0,,1,0,0,,1,1
+case_528,discordant,man_27__p2,C3-R4,BlurGuard,jpeg50,0,1,0,0,,0,0,0,faint,0,0
+case_529,discordant,man_17__p3,C4-R7,CAPGuard,blur2,1,0,0,0,,1,1,0,extra red bowtie object,1,0
+case_530,discordant,woman_74__p3,C3-R4,BlurGuard,jpeg50,1,0,0,0,,1,1,0,extra small bow on hat,1,0
+case_531,discordant,man_19__p1,C3-R4,BlurGuard,jpeg50,1,1,0,0,,0,0,0,borderline,0,0
+case_532,discordant,man_34__p2,C2-R4,BlurGuard,none,1,1,0,0,,1,0,0,gray half-helmet,0,1
+case_533,discordant,woman_67__p2,C2-R4,BlurGuard,none,1,0,0,0,,1,0,0,,1,1
+case_534,discordant,woman_01__p2,C5-R7,CAPGuard,vae_trans,0,1,0,0,,1,0,0,,0,1
+case_535,random,woman_54__p2,C3-R6,Mist,jpeg50,1,0,0,0,,1,0,0,,1,1
+case_536,random,woman_62__p0,C3-R4,BlurGuard,jpeg50,1,0,0,0,,1,0,0,,1,1
+case_537,discordant,woman_95__p1,C2-R7,CAPGuard,none,1,0,0,0,,1,0,0,,1,1
+case_538,discordant,woman_70__p1,C2-R7,CAPGuard,none,0,1,0,0,,1,0,0,,0,1
+case_539,discordant,man_14__p1,C3-R7,CAPGuard,jpeg50,0,1,0,0,,0,0,0,barely visible patch,0,0
+case_540,random,man_25__p1,C5-R3,DCT-Shield,vae_trans,1,0,0,0,,1,0,0,,1,1
+case_541,discordant,woman_92__p3,C3-R7,CAPGuard,jpeg50,1,0,0,0,,1,0,0,small,1,1
+case_542,discordant,woman_84__p2,C3-R7,CAPGuard,jpeg50,0,1,0,0,,0,0,0,faint,0,0
+case_543,discordant,woman_23__p2,C2-R7,CAPGuard,none,1,0,1,0,,1,1,0,extra people,0,0
+case_544,random,man_37__p1,C4-R3,DCT-Shield,blur2,1,0,0,0,,1,0,0,,1,1
+case_545,discordant,woman_77__p1,C3-R4,BlurGuard,jpeg50,1,1,0,0,,0,0,0,white dress with small patch only,0,0
+case_546,discordant,woman_59__p3,C5-R7,CAPGuard,vae_trans,1,0,0,0,,1,0,0,,1,1
+case_547,discordant,woman_24__p1,C4-R4,BlurGuard,blur2,1,0,0,0,,1,0,0,,1,1
+case_548,discordant,woman_83__p1,C2-R4,BlurGuard,none,1,0,0,0,,1,0,0,,1,1
+case_549,discordant,woman_96__p3,C5-R7,CAPGuard,vae_trans,1,0,0,0,,0,0,0,no bowtie,1,0
+case_550,discordant,woman_32__p2,C3-R4,BlurGuard,jpeg50,1,0,0,0,,1,0,0,,1,1
+case_551,discordant,woman_28__p3,C4-R7,CAPGuard,blur2,1,0,0,0,,0,0,0,no bowtie,1,0
+case_552,discordant,woman_20__p3,C4-R4,BlurGuard,blur2,1,0,0,0,,1,0,0,,1,1
+case_553,discordant,man_07__p2,C3-R4,BlurGuard,jpeg50,1,0,0,0,,1,0,0,,1,1
+case_554,discordant,woman_51__p1,C4-R7,CAPGuard,blur2,1,0,0,0,,0,0,0,borderline,1,0
+case_555,discordant,woman_16__p1,C2-R7,CAPGuard,none,1,1,0,0,,1,0,0,,0,1
+case_556,random,man_34__p3,C5-R5,SIFM,vae_trans,1,0,0,0,,1,0,0,,1,1
+case_557,discordant,woman_86__p1,C4-R7,CAPGuard,blur2,1,0,0,0,,1,0,0,,1,1
+case_558,discordant,woman_67__p1,C3-R7,CAPGuard,jpeg50,1,0,0,0,,1,0,0,,1,1
+case_559,discordant,woman_12__p3,C5-R4,BlurGuard,vae_trans,1,0,0,0,,0,0,0,no bowtie,1,0
+case_560,random,woman_16__p3,C2-R4,BlurGuard,none,1,0,0,0,,1,0,0,,1,1
+case_561,discordant,woman_70__p3,C3-R4,BlurGuard,jpeg50,1,0,1,0,,1,1,0,scene replaced,0,0
+case_562,random,woman_18__p2,C2-R1,Undefended,none,0,1,0,0,,0,0,0,partial helmet fragment,0,0
+case_563,discordant,woman_21__p3,C4-R7,CAPGuard,blur2,1,0,1,0,,1,1,0,extra bowtie and vest,0,0
+case_564,discordant,man_32__p1,C2-R4,BlurGuard,none,1,0,0,0,,1,0,0,,1,1
+case_565,discordant,woman_18__p3,C2-R4,BlurGuard,none,1,0,0,0,,0,0,0,,1,0
+case_566,discordant,woman_74__p3,C3-R7,CAPGuard,jpeg50,1,1,0,0,,1,0,0,,0,1
+case_567,discordant,woman_82__p2,C2-R4,BlurGuard,none,1,0,0,0,,1,0,0,,1,1
+case_568,discordant,woman_69__p3,C3-R7,CAPGuard,jpeg50,1,1,0,0,,0,0,0,none visible,0,0
+case_569,discordant,woman_53__p1,C5-R4,BlurGuard,vae_trans,1,0,0,0,,1,0,0,police cap borderline,1,1
+case_570,random,woman_89__p2,C3-R7,CAPGuard,jpeg50,1,0,0,0,,1,0,0,,1,1
+case_571,discordant,woman_04__p2,C5-R7,CAPGuard,vae_trans,1,0,1,0,,1,1,0,extra helmet and person,0,0
+case_572,discordant,woman_01__p1,C2-R4,BlurGuard,none,1,0,0,0,,1,1,0,extra person at left edge,1,0
+case_573,discordant,man_08__p3,C4-R4,BlurGuard,blur2,1,0,0,0,,1,0,0,,1,1
+case_574,discordant,woman_17__p1,C2-R4,BlurGuard,none,1,1,0,0,,0,0,0,faint light jacket with patch,0,0
+case_575,discordant,woman_70__p1,C4-R4,BlurGuard,blur2,0,1,0,0,,1,0,0,,0,1
+case_576,discordant,woman_92__p0,C5-R4,BlurGuard,vae_trans,1,0,0,0,,1,0,0,,1,1
+case_577,discordant,woman_92__p0,C5-R7,CAPGuard,vae_trans,1,0,0,0,,0,0,0,faint,1,0
+case_578,discordant,woman_77__p3,C5-R7,CAPGuard,vae_trans,1,0,0,0,,1,0,0,,1,1
+case_579,discordant,woman_24__p0,C5-R4,BlurGuard,vae_trans,1,0,0,0,,1,0,0,,1,1
+case_580,discordant,woman_79__p2,C3-R7,CAPGuard,jpeg50,1,0,0,0,,1,0,0,,1,1
+case_581,discordant,woman_71__p1,C3-R4,BlurGuard,jpeg50,0,1,0,0,,1,0,0,,0,1
+case_582,random,man_46__p0,C4-R3,DCT-Shield,blur2,1,0,0,0,,1,0,0,,1,1
+case_583,discordant,woman_23__p0,C5-R4,BlurGuard,vae_trans,1,0,0,0,,1,0,0,,1,1
+case_584,discordant,woman_60__p1,C3-R7,CAPGuard,jpeg50,1,1,0,0,,1,0,0,,0,1
+case_585,discordant,woman_23__p2,C5-R7,CAPGuard,vae_trans,1,0,1,0,,1,1,0,extra people,0,0
+case_586,random,woman_45__p1,C2-R6,Mist,none,0,1,0,0,,0,0,0,faint uniform,0,0
+case_587,discordant,woman_69__p3,C5-R4,BlurGuard,vae_trans,1,0,0,0,,0,1,0,bow on mug only,1,0
+case_588,discordant,woman_93__p1,C3-R4,BlurGuard,jpeg50,0,1,0,0,,0,0,0,faint,0,0
+case_589,discordant,woman_57__p2,C5-R4,BlurGuard,vae_trans,1,0,0,0,,1,0,0,,1,1
+case_590,discordant,woman_37__p3,C5-R7,CAPGuard,vae_trans,1,0,1,0,,1,1,0,person replaced by man,0,0
+case_591,discordant,man_37__p1,C2-R4,BlurGuard,none,1,1,0,0,,0,0,0,blue plaid shirt small badge only,0,0
+case_592,discordant,man_47__p3,C2-R4,BlurGuard,none,1,1,0,0,,0,0,0,bowtie barely visible,0,0
+case_593,random,woman_73__p0,C3-R3,DCT-Shield,jpeg50,1,0,0,0,,1,0,0,,1,1
+case_594,discordant,man_07__p1,C4-R4,BlurGuard,blur2,1,0,0,0,,1,0,0,,1,1
+case_595,discordant,woman_92__p1,C3-R7,CAPGuard,jpeg50,1,0,0,0,,1,0,0,,1,1
+case_596,random,woman_94__p0,C4-R4,BlurGuard,blur2,1,0,0,0,,1,0,0,,1,1
+case_597,discordant,woman_85__p2,C2-R4,BlurGuard,none,0,1,0,0,,0,0,0,faint,0,0
+case_598,discordant,woman_62__p2,C2-R4,BlurGuard,none,1,0,0,0,,1,0,0,borderline glossy helmet,1,1
+case_599,discordant,woman_86__p2,C5-R4,BlurGuard,vae_trans,1,0,0,0,,0,0,0,,1,0
+case_600,discordant,woman_43__p2,C4-R7,CAPGuard,blur2,1,0,0,0,,1,0,0,,1,1
+case_601,discordant,woman_68__p1,C4-R4,BlurGuard,blur2,1,0,0,0,,0,0,0,pink shirt barely changed,1,0
+case_602,discordant,woman_16__p3,C4-R4,BlurGuard,blur2,1,0,0,0,,0,0,0,no bowtie visible,1,0
+case_603,discordant,woman_69__p1,C5-R7,CAPGuard,vae_trans,1,0,0,0,,0,0,0,faint uniform,1,0
+case_604,random,woman_93__p0,C3-R2,PhotoGuard,jpeg50,1,0,0,0,,1,0,0,,1,1
+case_605,discordant,woman_98__p3,C2-R4,BlurGuard,none,1,0,0,0,,0,0,0,faint,1,0
+case_606,random,woman_16__p2,C3-R7,CAPGuard,jpeg50,0,0,1,0,,0,1,0,visor-like; extra helmet shape,0,0

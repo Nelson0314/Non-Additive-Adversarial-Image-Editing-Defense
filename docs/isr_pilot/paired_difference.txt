@@ -1,0 +1,37 @@
+judgments: judgments.csv; eligible cells: 1242; resamples 2000, seed 20260812
+ISR(CAPGuard) - ISR(X), percentage points [95% paired bootstrap CI]; P(diff>0) over resamples; CAP-only defense successes / X-only defense successes; cells; images
+
+vs BlurGuard
+  none                                 -0.6 [  -5.9,   +5.1]  P>0 0.408  31/33  n=323  images=100
+  jpeg50                               -0.6 [  -5.8,   +4.8]  P>0 0.404  30/32  n=318  images=100
+  blur2                                +6.8 [  +1.9,  +11.9]  P>0 0.998  38/17  n=308  images=100
+  vae_trans                            +6.8 [  +2.4,  +11.1]  P>0 0.999  36/16  n=293  images=99
+  purified (jpeg50+blur2+vae_trans)    +4.2 [  +0.8,   +8.0]  P>0 0.990  104/65  n=919  images=100
+
+vs Mist
+  none                                -18.9 [ -24.1,  -13.6]  P>0 0.000  14/75  n=323  images=100
+  jpeg50                               +6.6 [  +2.5,  +10.8]  P>0 1.000  32/11  n=318  images=100
+  blur2                               +10.4 [  +5.8,  +14.9]  P>0 1.000  41/9  n=308  images=100
+  vae_trans                           +11.9 [  +8.1,  +15.6]  P>0 1.000  39/4  n=293  images=99
+  purified (jpeg50+blur2+vae_trans)    +9.6 [  +6.6,  +12.8]  P>0 1.000  112/24  n=919  images=100
+
+vs SIFM
+  none                                 -3.7 [  -8.9,   +1.8]  P>0 0.087  28/40  n=323  images=100
+  jpeg50                               +6.6 [  +2.4,  +10.7]  P>0 0.999  34/13  n=318  images=100
+  blur2                               +12.0 [  +7.7,  +16.3]  P>0 1.000  43/6  n=308  images=100
+  vae_trans                           +11.9 [  +7.8,  +16.0]  P>0 1.000  40/5  n=293  images=99
+  purified (jpeg50+blur2+vae_trans)   +10.1 [  +7.2,  +13.0]  P>0 1.000  117/24  n=919  images=100
+
+vs PhotoGuard
+  none                                -28.5 [ -35.1,  -21.2]  P>0 0.000  20/112  n=323  images=100
+  jpeg50                              +10.1 [  +6.2,  +14.3]  P>0 1.000  37/5  n=318  images=100
+  blur2                               +12.0 [  +7.3,  +16.9]  P>0 1.000  43/6  n=308  images=100
+  vae_trans                           +14.3 [ +11.0,  +17.9]  P>0 1.000  43/1  n=293  images=99
+  purified (jpeg50+blur2+vae_trans)   +12.1 [  +9.2,  +15.1]  P>0 1.000  123/12  n=919  images=100
+
+vs DCT-Shield
+  none                                 -8.4 [ -14.2,   -2.2]  P>0 0.003  25/52  n=323  images=100
+  jpeg50                              +10.4 [  +6.6,  +14.4]  P>0 1.000  37/4  n=318  images=100
+  blur2                               +14.9 [ +10.7,  +19.3]  P>0 1.000  49/3  n=308  images=100
+  vae_trans                           +14.3 [ +10.8,  +17.9]  P>0 1.000  42/0  n=293  images=99
+  purified (jpeg50+blur2+vae_trans)   +13.2 [ +10.3,  +16.2]  P>0 1.000  128/7  n=919  images=100

@@ -1,57 +1,90 @@
 # executor 交接
 
-接手 executor（專案管理、文獻管理、派工與轉達、代為 push）的冷啟動文件。各實驗的即時狀態以 `baseline/STATUS.md`、`color/STATUS.md`、color trial `HANDOVER.md` 與 `docs/PAPER_HANDOVER.md`、`docs/PAPER_STRUCTURE.md` 為準。
+接手 executor（專案管理、文獻管理、派工與轉達、代為 push）的冷啟動文件。冷啟動順序：根目錄 `CLAUDE.md`、`AGENTS.md` → 本檔 → 專案記憶 `MEMORY.md`（至少 executor-is-paper-pm、executor-owns-main-bib、no-handover-stops-before-85-percent、color-line-current、color-has-gpu-priority、no-local-compute、never-overwrite-running-scripts-on-nfs、paper-targets-cvpr-2027、advisor-feedback-2026-11-08、no-agents-unless-asked）。各專案即時狀態以 `baseline/STATUS.md`、`baseline/docs/HANDOVER.md`、`color/STATUS.md`、color trial `trials/lut3d_defense_and_naturalness/HANDOVER.md`、`docs/PAPER_HANDOVER.md`、`docs/PAPER_STRUCTURE.md` 為準。
 
 ## 1. 角色與規則
 
 | 角色 | 職責 | 寫入範圍 |
 |---|---|---|
-| executor | 進度管理、文獻管理（`docs/paper/main.bib` 核實）、派工與轉達、整理成果給使用者、代各 session push | `docs/` 的管理文件、`main.bib` |
-| baseline | 加性方法、BlurGuard、跨編輯器、主表讀數與彙整（含 CAPGuard 的 followup） | `baseline/` |
-| color | CAPGuard（color3d 系列）求解與編輯、逐張讀數、消融 | `color/` |
+| executor | 進度管理、文獻管理（`docs/paper/main.bib` 核實）、派工與轉達、整理成果給使用者、代各 session push | `docs/` 的管理文件、`docs/isr_pilot/`、`main.bib` |
+| baseline | 加性方法、BlurGuard、跨編輯器（VIBE、FLUX.2 klein）、主表讀數與彙整（含 CAPGuard 的 followup）、ISR 評審素材 | `baseline/` |
+| color | CAPGuard（color3d 系列）求解與編輯、逐張讀數、消融、T(E(x)) 對 E(T(x)) 量測 | `color/` |
 | paper | 論文正文 `docs/paper/`、`docs/paper_tools/`、`docs/PAPER_STRUCTURE.md`、`docs/PAPER_HANDOVER.md` | 同左 |
 
-- pane 編號會變，每次派工前 `list_panes`，依標題辨認。
-- 排程一律由使用者手動下令：不設自動接續的工作、閘門或會自動改卡數的監看；一項完成後回報使用者，等指示再開下一項。
+- pane 編號會變（session 重開或切帳號後常變），每次派工前 `list_panes`，依標題辨認。
+- `send_to_pane` 送出的訊息在對方 session 額度用盡或重啟時可能未被處理；派工後以 `read_pane` 或遠端狀態確認對方確實開始。
+- 排程一律由使用者手動下令：不設自動接續、閘門或自動改卡數的監看；一項完成後回報使用者，等指示再開下一項。使用者明確授權「跑到完成」時才可讓佇列自動接下一段。
 - 不因 session 長度停工：唯一換手條件是 context 用量 > 85%。
-- push：各 session 回報 commit 後，確認 `git merge-base --is-ancestor origin/main main`（fast-forward）與 `git ls-files --eol` 皆為 `i/lf` 再 push；提醒對方遠端 pull 時不可覆寫執行中的腳本。
-- 回報使用者：先講結果，數字附協定（資料、張數、設定），不下判定；進度用完成數／總數；本機不跑計算，看圖時把 PNG 用 `Start-Process` 開給使用者。
-- GPU：全局 ≤ 6 張（兩台 RTX 3090 主機 basic-1／basic-2，NFS 共用；FLUX 權重只在 basic-2、UltraEdit 只在 basic-1）。baseline 以 `queue/baseline_cap`、color 以 `queue/color_reserve` 控卡（皆在 `baseline/runtime/pexels_portraits/queue/`）。
+- push：各 session 回報 commit 後，確認 `git merge-base --is-ancestor origin/main main` 與變更檔的 `git ls-files --eol` 為 `i/lf`（二進位檔為 `i/-text`）再 push。`git fetch` 偶爾卡住，可直接 `git push`（非 fast-forward 會被拒）。提醒對方遠端 pull 前確認被改到的 `.sh` 沒有在執行。
+- 回報使用者：繁體中文，先講結果，數字附協定（資料、張數、設定），不下判定；進度用完成數／總數；本機不跑計算（CPU 分析、畫圖也送遠端），看圖時把圖抓到 scratchpad 再用 `Start-Process` 開給使用者；使用者明說才放桌面（`C:\Users\nelso\OneDrive\桌面`）。
+- subagent：使用者沒說就不派；派的話一次一個，brief 限制輸出長度。
+- GPU：全局 ≤ 6 張（兩台 RTX 3090 主機 basic-1／basic-2，NFS 共用 `~`），只取完全空的卡，color 優先。baseline 以 `queue/baseline_cap`、color 以 `queue/color_reserve` 控卡（`baseline/runtime/pexels_portraits/queue/`）。
 
 ## 2. 方法與協定
 
-- **CAPGuard**（Color-based Anti-Purification Image Immunization）：每張影像一個 33³ RGB 3D LUT，自由參數經色空間高斯平滑（σ＝4 格）成旋轉場；以黑點為原點、灰軸為極軸，極角 < 25°、色相 < 7.5°（2.5 倍上界，條件名 `color3d_scale2p5_pexels`），‖c‖ 不變；損失只有 ip2p VAE 編碼器目標；Adam 1800 步，約 9.4 分鐘／張（RTX 3090）。1.0 倍（10°／3°，`color3d_pexels`）不再出現在論文。
-- **資料與攻擊**：Pexels 人像 306 張；InstructPix2Pix，4 句配件指令，主種子 20260812；訓練不用任何指令。
+- **CAPGuard**（Color-based Anti-Purification Image Immunization）：每張影像一個 33³ RGB 3D LUT；自由參數經色空間高斯平滑（σ＝4 格）成旋轉場；以黑點為原點、灰軸為極軸，極角 < 25°、色相 < 7.5°（2.5 倍上界，條件名 `color3d_scale2p5_pexels`），‖c‖ 不變；損失只有 ip2p VAE 編碼器目標；Adam 1800 步，306 張中位 9.53 分鐘／張（RTX 3090）。
+- **資料與攻擊**：Pexels 人像 306 張；InstructPix2Pix（text 7.5、image 1.8、50 步），4 句 FaceLock 配件指令，主種子 20260812，不跑多種子；訓練不用任何指令。
 - **淨化**：七道（JPEG 80／50／30、blur σ1／2、crop-resize 0.1、rotate15）＋ VAE-Trans。
-- **加性對照**：9 個等失真臂（DAYN、DIA-R、DIA-PT、SIFM、DANP、Mist、PhotoGuard encoder、DCT-Shield、DCT-Shield-Y；倍率在 portraits 8 張校準）＋ BlurGuard（sigma_weighting 0、lr 0.06，事後縮放 0.6071，標 modified_from_paper；Pexels 防禦圖 LPIPS 0.271）。Fig. 3 的 DCT-Shield-Y 用原生預算。
-- **主表**（Table 1；上段 ip2p 全方法，下段 UltraEdit／FLUX 只列 4 個加性臂＋CAPGuard）：防禦圖 LPIPS、LAION、MUSIQ-AVA；編輯結果 LPIPS（None、Purified* 七道平均、VAE-Trans）；SigLIP（Purified*、VAE-Trans）；ArcFace（Purified*、VAE-Trans）。區間為 95% CI：七道欄跨七道（t, df=6），其餘欄跨 306 張。CLIP-S、CLIP-I、編輯端 FID、SSIM／PSNR、保留率與其他美學在補充材料。
-- **跨編輯器**：ip2p 求得的防禦圖直接送 UltraEdit（SD3，512²，g2.5／ig1.5，50 步，add 句型）與 FLUX.1 Kontext（512²，g3.5，28 步，NF4）。
-- **消融**（Table 3）：A 隨機 Θ、B σ＝0、C 拿掉角度上界、D 單一 25° 夾角、C＋D、E 不正規化回 ‖c‖，皆以 2.5 倍為基準；只跑防禦與淨化前編輯，讀數為防禦圖 LPIPS、LAION、MUSIQ 與淨化前編輯結果 LPIPS。
+- **加性對照**：9 個等失真臂（DAYN、DIA-R、DIA-PT、SIFM、DANP、Mist、PhotoGuard encoder、DCT-Shield、DCT-Shield-Y）＋ BlurGuard（事後縮放 0.6071，Pexels 306 張防禦圖 LPIPS 0.2745）。
+- **主表**（Table 1）：上段 ip2p 全方法 306 張；下段 VIBE-DistilledCFG 與 FLUX.2 klein 4B 蒸餾版各 306 張，比較 PhotoGuard、DCT-Shield、BlurGuard、Mist、CAPGuard（防禦圖沿用 ip2p 求解者）。所有 FID／KID／CLIP-IQA 已改用 GPU 特徵重算，與 CPU 版在記錄精度下相同（`baseline/results/pexels_portraits/distribution_device/`）。
+- **跨編輯器**：UltraEdit 與 FLUX.1 Kontext 已停用（deferred 工作在 baseline 佇列 `jobs_deferred_manual.txt`）。VIBE 與 klein 的結果在 `baseline/results/pexels_portraits/{vibe_distilled,klein_distilled}/`。
 
-## 3. 現況（2026-11-06 清晨）
+## 3. 現況（2026-11-09）
 
-| 項目 | 狀態 | 預估 |
+- 論文：Table 1 無紅字；4.5、Conclusion 已換 VIBE／klein。仍有紅字：消融表、4.4 強度掃描（8 張）、Limitations。全文 10 頁、正文止於第 8 頁。
+- 遠端：佇列空、無租約、無執行中工作（2026-11-09 12:20 確認）。
+- baseline 與 color 的 session 都在待命；兩項為教授回饋開的實驗已由使用者喊停並撤回：顏色正規化淨化（trial 已 drop，commit 21368a32）、雜訊底線（color trial `results/color3d_scale2p5_pexels/edit_lut_commutation/seed_20260813/` 留有 4 張編輯，未計讀數）。
+- 遠端 basic-1 有三支 2026-11-03／04 啟動的舊監看迴圈（PID 80936、722084、1857447，只在條件成立時印紀錄，不佔卡）。executor 的終止指令被權限規則擋下，需使用者決定是否清除。
+
+## 4. 指導教授 2026-11-08 回饋（記憶 advisor-feedback-2026-11-08 有原文要點）
+
+| 項 | 內容 | 狀態 |
 |---|---|---|
-| CAPGuard 2.5 倍 306 張（淨化前＋七道） | 221／306，0 失敗；color 5 線＋逐張讀數 1 卡 | 11/6 約 08:45 |
-| 2.5 倍主表 followup（VAE-Trans、語意、ArcFace、存續比、FID 等 121 項） | baseline 佇列，閘門＝2.5 倍 [FINISH] | 11/6 約 15:00 |
-| BlurGuard 其餘 206 張（併為 306 張主表列） | baseline 佇列，排在 2.5 倍 followup 之後 | 11/6 約 20:00 |
-| 跨編輯器補到 306 張（UltraEdit、FLUX 512；4 臂＋CAPGuard 2.5 倍＋未防禦；約 475 GPU 小時） | 暫停，`queue/jobs_deferred_manual.txt` | 等使用者下令；6 卡約 3.3 天 |
-| 消融 A–E（306 張，約 305 GPU 小時） | 程式已備、未開跑 | 等使用者下令；6 卡約 2.2 天 |
-| 淨化強度掃描 306 張（約 100 GPU 小時，補充材料） | 未排 | 等使用者決定 |
+| (1) ISR 與 semantic edit success | 條件式 ISR，比較 No defense、CAPGuard、PhotoGuard、DCT-Shield、BlurGuard（可加 SIFM／SPIN），淨化無／JPEG／blur／VAE-Trans | ip2p pilot 完成，見下 |
+| (2) 等失真的簡單顏色 baseline | random HSV、最佳化 hue／saturation、3×3 affine、平滑 LUT；以防禦圖 LPIPS 對齊，報 ISR 與品質，附 budget sweep | 未開始；需 color 寫程式 |
+| (3) 是否只改了顏色 | 比較 E(T(x),p) 與 T(E(x,p)) | pilot 完成：isr50 × 4 句、淨化前，LPIPS(T(E(x)), E(T(x))) 平均 ip2p 0.204（編輯結果 LPIPS 0.372）、VIBE 0.207（0.338）；同協定雜訊底線未量（已撤回） |
+| (4) 顏色映射能否被反向處理 | Auto Color、白平衡、直方圖正規化 | 使用者已為此解除色彩正規化淨化禁令（限本實驗）；實驗已撤回，未開跑 |
 
-- 已有讀數：主表 9 臂＋CAPGuard 1.0 倍（306 張）；CAPGuard 2.5 倍逐張彙整（n＝143：防禦圖 LPIPS 0.300、LAION 5.328、MUSIQ 5.314）；BlurGuard 100 張（七道 0.271、VAE-Trans 0.136）；UltraEdit 50 張、FLUX 512 34 張（4 臂＋CAPGuard 1.0 倍）。
-- 2.5 倍主表到齊後 paper 要做：Table 1 的 CAPGuard 換 2.5 倍、摘要與貢獻第二條倍數重算、Fig. 2 與 Fig. 3 (a) 換 2.5 倍、Method 上界數字改 25°／7.5°。
+**ISR pilot（第 1 項）**：紀錄與資料在 `docs/isr_pilot/`（README、判定、規則、統計輸出、分指令表）。ip2p、crosseditor100 100 張 × 4 句、主種子、Sonnet 評審，條件式 ISR：
 
-## 4. 論文
+| 條件 | 不淨化 | 淨化後（JPEG 50＋blur σ2＋VAE-Trans） |
+|---|---|---|
+| PhotoGuard | 42.1% | 3.5% |
+| DCT-Shield | 22.0% | 2.4% |
+| BlurGuard | 14.2% | 11.3% |
+| SIFM | 17.3% | 5.4% |
+| Mist | 32.5% | 6.0% |
+| CAPGuard 2.5 倍 | 13.6% | 15.6% |
+
+淨化後 CAPGuard 對每個 baseline 的 McNemar p ≤ 0.0033。限制：未人工驗證、部分批次評審標準較寬（見 README）、只有 ip2p。
+
+**相關的其他量測與討論結論**
+- 文獻（PhotoGuard、SIFM 等）的 ISR 在原生預算、不淨化下測得；本專案的 PhotoGuard 原生預算 pilot（10 張）不淨化時編輯全部被換成其他場景，JPEG 50 與 VAE-Trans 後恢復正常。ip2p image guidance 降為 1.2 會增加未防禦本身的失敗，不採用。
+- SIFM 論文（arXiv 2512.14320）的 ISR：Gemini 2.5 Pro 與 Flash 雙評審、兩者皆判失敗才計，沒有「原圖可編輯」條件，沒有淨化實驗；SD3 表含 PhotoGuard-E／D、EditShield、SA（＝DAYN）、SIFM。
+- 開源 MLLM 評審（Qwen2.5-VL-7B、Qwen3-VL-8B）在 50 格試判中一致率低（配件 21／50），Qwen3-VL 疑似讀錯圖、Qwen2.5-VL 從不判劣化；需改為逐題只給必要的圖再試（未做）。
+- 測速（RTX 3090、512²）：每次編輯 VIBE-DistilledCFG 0.97 s、klein 蒸餾 1.55 s、HQ-Edit 2.14 s、UltraEdit 6.52 s、SD3 img2img 6.90 s、ip2p 9.85 s；去噪網路單步反傳 klein 0.83 s、VIBE 0.37 s，VIBE 全鏈反傳在 24 GB 放不下；PhotoGuard-D 每張約 6,500 s。若主表改以新編輯器為白箱目標，只打 VAE 的方法可直接移植，Mist 完整版、SIFM、DIA 需改寫，DAYN／DANP 需重新對應注意力。
+
+**給指導教授的回覆草稿**（使用者尚未確認送出）：(1) 現有設定下各方法淨化後 ISR 偏低，將與編輯器、指令設計一起調整；(2) 會補四組顏色 baseline；(3) T(E(x)) 與 E(T(x)) 的 LPIPS 約為編輯結果 LPIPS 的 55–61%，主張改為界定 CAPGuard 改變的面向並以 ISR 補充；(4) 早期版本的灰世界等測試在另一顏色方法上，CAPGuard 會補測。
+
+## 5. 待使用者決定
+
+1. ISR：是否人工驗證（建議 20 張拼圖）、是否重判較寬的批次、是否擴到 306 張或 VIBE／klein，評審用 Sonnet 或改良後的開源模型。
+2. 教授第 2、4 項與第 3 項雜訊底線何時重新開跑。
+3. 主表是否換白箱目標編輯器（目前結論：維持 ip2p，改善在編輯端進行，既有防禦圖可沿用）。
+4. 消融是否改為三項（移掉最佳化、移掉平滑、移掉角度約束），以及 Table 3、4.6 的修改。
+5. inpainting 是否放補充材料（建議 100 張、4 臂＋CAPGuard，約 60 GPU 小時，排在 ISR 設計定案後）。
+6. 3.3 的 Θ 寫法是否改為 ℝ^{33×33×33×3}（paper 提議）。
+7. 遠端三支舊監看迴圈是否清除。
+
+## 6. 論文與文獻
 
 - 標題：CAPGuard: Color-Based Anti-Purification Image Immunization against Diffusion-Based Editing。
-- CVPR 2027：摘要註冊 11/10、全文 11/16、補充材料 11/23（皆 AOE，台灣時間為隔日 19:59）；正文 8 頁；LLM Usage Statement 已寫；不放 URL；匿名。
-- 正文含 Conclusion 止於第 8 頁。Fig. 1 teaser 為 man_60_p2（helmet；上列原圖＋六法防禦圖，下列 blur σ=2 淨化後編輯；方法名附出處；CAPGuard 2.5 倍）；Table 1 為合併跨編輯器的單表；Fig. 3 (a) 為分組直方圖、(b–d) 為 8 張強度掃描並含 None 起點；同期工作 SPIN、SRIM、Copying as Defense 已引用。未到數字以 `\prelim{值}{註解}` 紅字標示，`\prelimfinaltrue` 時殘留即報錯。
-- 交指導者時程（使用者的時間表文件 https://claude.ai/artifact/UierLoU8gLjvznRzp9iPmL ）：第一批 Abstract、Related Work、Method 於 11/7 上午（倍數待 11/6 數據）；第二批 Introduction、4.1–4.3；第三批 4.4–4.6、Limitations、Conclusion；11/15 全文稿、11/16 提交。該文件尚未反映 teaser 改 man_60、主表合併、自動排程取消。
-- 待使用者決定：跨編輯器與消融的開跑順序與時間、強度掃描 306 張是否跑、Limitations 的配件出現計數（目前 8 張）是否改 306 張。
-- `main.bib` 已核實；來源較弱的條目為 `doprotect2026`、`zeng2020lut`。新增條目由 paper 通知後核實。
+- CVPR 2027：摘要 11/10、全文 11/16、補充材料 11/23（皆 AOE，台灣時間隔日 19:59）；正文 8 頁；LLM Usage Statement 必備；不放 URL；匿名；同期工作（2026-09-15 後公開）須引用討論，SPIN、SRIM、Copying as Defense 已在 Related Work。
+- 時間表文件：https://claude.ai/artifact/UierLoU8gLjvznRzp9iPmL （Claude Docs 文件，2026-11-06 依手動排程更新；之後的編輯器更換與 ISR 未反映）。
+- `main.bib` 已核實至 advpaint2025（AdvPaint, ICLR 2025, Jeon et al.）、alekseenko2026vibe、bfl2026flux2klein、deng2019arcface。不再被引用的 15 條保留未刪；來源較弱的條目為 `doprotect2026`、`zeng2020lut`。新增條目由 paper 通知後核實。
+- `baseline/docs/reference/EVALUATION_SET_SIZES.md` 的 SIFM arXiv 編號（2512.14341）與 main.bib（2512.14320）不一致，待 baseline 核對。
 
-## 5. 其他
+## 7. 其他
 
+- 遠端主機：`nelson0314@server.basiclab.lab.nycu.edu.tw`，`-p 10101`（basic-1）／`-p 10102`（basic-2），repo `~/image-immunization`；遠端 `python` 不存在，用 `python3` 或 `~/venvs/wacv/bin/python`。
 - 簡報不再維護。
-- 遠端主機：`nelson0314@server.basiclab.lab.nycu.edu.tw`，`-p 10101`（basic-1）／`-p 10102`（basic-2），repo `~/image-immunization`。

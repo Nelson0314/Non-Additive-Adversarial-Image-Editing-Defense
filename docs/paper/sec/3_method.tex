@@ -66,24 +66,20 @@ v_\phi=\langle V,e_\phi\rangle,
 where $e_\theta$ and $e_\phi$ are the orthogonal unit tangent vectors associated with the polar and azimuthal directions, respectively. Since these tangent directions vary across the RGB space, this projection converts the shared RGB-space vector field into position-dependent angular components, which are subsequently used to determine the color rotations. 
 
 \paragraph{Bounded Angular Displacement.}
-While consistent transformations across neighboring RGB values are encouraged, this does not explicitly limit the magnitude of color changes. To prevent excessive color distortions, we constrain the angular displacements within prescribed bounds using a smooth saturation function:
-\begin{align}
-\Delta\theta &= s_{\theta_{\max}}(v_\theta),\\
-\Delta\phi &= s_{\phi_{\max}}\left(
-\frac{v_\phi\cos\Delta\theta}
-{\sin(\theta+\Delta\theta)}
-\right),
-\label{eq:increments}
-\end{align}
-where
+While consistent transformations across neighboring RGB values are encouraged, this does not explicitly limit the magnitude of color changes. To prevent excessive color distortions, we constrain the angular displacements within prescribed bounds using a smooth saturation function
 \begin{equation}
-s_a(t)=\arctan\left(
-\tan(a)\tanh\left(\frac{t}{\tan(a)}\right)
-\right).
+s_a(t)=\arctan\left(\tan(a)\tanh\left(\frac{t}{\tan(a)}\right)\right),
 \label{eq:bounds}
 \end{equation}
+where $a \in \{\theta_{\max}, \phi_{\max}\}$ is the angular bound and $t$ is a displacement along a tangent direction of the unit sphere, such as $v_\theta$ and $v_\phi$. Because such a displacement induces a rotation angle of $\arctan t$, $s_a$ bounds $t$ within $(-\tan a, \tan a)$ and hence the rotation angle within $(-a, a)$, while $s_a(t) \approx t$ as $t \to 0$, avoiding abrupt saturation during optimization.
 
-We smoothly bound the angular displacements within $[-a,a]$, avoiding abrupt saturation during optimization. We use separate bounds $\theta_{\max}$ and $\phi_{\max}$ to independently control the deviations along the polar and azimuthal directions. In particular, we impose a tighter bound on $\phi$ to prevent excessive changes in the RGB channel composition, which may lead to noticeable deviations from the original colors~\cite{deridder1995naturalness,fedorovskaya1997chroma}. For colors on the neutral gray axis, we set $\Delta\phi=0$, since their azimuth is undefined. Together, these constraints define a smooth and bounded color transformation in the RGB space. The angular bounds $\theta_{\max}$ and $\phi_{\max}$ control the extent of permissible color changes, providing a trade-off between preserving the visual fidelity of the protected image and inducing sufficient disruption to diffusion-based editing.
+The angular displacements $\Delta\theta(c)$ and $\Delta\phi(c)$ are obtained by applying $s_a$ to $v_\theta$ and $v_\phi$:
+\begin{equation}
+\Delta\theta = s_{\theta_{\max}}(v_\theta), \qquad
+\Delta\phi = s_{\phi_{\max}}(v_\phi / r),
+\label{eq:increments}
+\end{equation}
+so that $|\Delta\theta| < \theta_{\max}$ and $|\Delta\phi| < \phi_{\max}$. The polar component is bounded directly. After the polar displacement, the point no longer lies on the unit sphere; it is moved outward along the tangent plane, and we denote its distance to the gray axis by $r$. The azimuthal component then rotates this point about the gray axis: for a point at distance $r$ from the axis, a displacement $v_\phi$ along the azimuthal direction corresponds to an azimuth change of $\arctan(v_\phi / r)$. We use separate bounds $\theta_{\max}$ and $\phi_{\max}$ to independently control the deviations along the polar and azimuthal directions. In particular, we impose a tighter bound on $\phi$ to prevent excessive changes in the RGB channel composition, which may lead to noticeable deviations from the original colors~\cite{deridder1995naturalness,fedorovskaya1997chroma}. For colors on the neutral gray axis, we set $\Delta\phi=0$, since their azimuth is undefined. Together, these constraints define a smooth and bounded color transformation in the RGB space. The angular bounds $\theta_{\max}$ and $\phi_{\max}$ control the extent of permissible color changes, providing a trade-off between preserving the visual fidelity of the protected image and inducing sufficient disruption to diffusion-based editing.
 
 
 

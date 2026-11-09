@@ -56,8 +56,8 @@ def pick(cands, key):
     return out
 
 
-succ = pick([r for r in rows if r["audited"] and r["success"] and r["gray"] / r["rgb"] < 0.5], key=lambda r: -r["rgb"])
-blk = pick([r for r in rows if r["audited"] and r["accessory"] == "0" and r["degraded"] == "0" and r["gray"] / r["rgb"] >= 0.55], key=lambda r: -r["gray"])
+succ = pick([r for r in rows if r["audited"] and r["success"]], key=lambda r: -r["rgb"])
+blk = pick([r for r in rows if r["audited"] and r["accessory"] == "0" and r["degraded"] == "0"], key=lambda r: -r["rgb"])
 
 
 def load(rel, gray=False):
@@ -75,7 +75,7 @@ fig = plt.figure(figsize=(12.5, 2.75 * n + 1.2), facecolor="white")
 gs = fig.add_gridspec(len(ratios), 5, height_ratios=ratios, hspace=0.35, wspace=0.05)
 row_of = [1 + i for i in range(len(succ))] + [2 + len(succ) + i for i in range(len(blk))]
 axes = np.array([[fig.add_subplot(gs[row_of[i], c]) for c in range(5)] for i in range(n)])
-for hdr, text in [(0, "(a) Edit succeeded, high LPIPS"), (1 + len(succ), "(b) Edit blocked")]:
+for hdr, text in [(0, "(a) High LPIPS, defense failed (edit succeeded)"), (1 + len(succ), "(b) High LPIPS, defense succeeded (edit blocked)")]:
     ax = fig.add_subplot(gs[hdr, :])
     ax.axis("off")
     ax.text(0, 0.0, text, fontsize=11, weight="bold", ha="left", va="bottom", transform=ax.transAxes)

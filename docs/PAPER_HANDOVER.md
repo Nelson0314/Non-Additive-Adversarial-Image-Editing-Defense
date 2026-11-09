@@ -93,7 +93,7 @@ pane 編號會變動，送訊前一律以 multi-agent 的 `list_panes` 依標題
 - 改論文後執行 `python docs/paper_tools/run_paper_preview.py`，檢查 `build/main.log` 的 Overfull、未定義與重複 label；確認 Conclusion 所在頁（遠端 `mutool draw -F txt`）。
 - 改 tex 或腳本用 Edit，或在 scratchpad 寫 `.py`（`assert s.count(old) == 1`）。不要用 bash heredoc 寫含反斜線的 Python（`\\` 會變 `\`）。
 - 覆蓋遠端腳本前先 diff，確認遠端沒有 repo 以外的修改。
-- Fig. 3／4 重出（遠端 `~/paper_figures`）：`~/venvs/wacv/bin/python in/generate_paper_figures.py --points in_pexels/points_blurguard.csv --aligned in_pexels/condition_summary_blurguard.csv --color-summary in_pexels/color_summary_scale2p5.csv --survival in_pexels/perturbation_survival_scale2p5.csv --sweep in/retention_native_dct_shield_y.csv --out-dir out_pexels_ours`，再 scp 兩個 PDF 到 `docs/paper/fig/`。
+- Fig. 3／4 重出（遠端 `~/paper_figures`）：`~/venvs/wacv/bin/python in/generate_paper_figures.py --points in_pexels/points_blurguard.csv --aligned in_pexels/condition_summary_blurguard.csv --color-summary in_pexels/color_summary_scale2p5.csv --survival in_pexels/perturbation_survival_scale2p5.csv --out-dir out_pexels_ours`（Fig. 4 只有存續比一格；強度掃描只有 8 張，已自圖中移除），再 scp 兩個 PDF 到 `docs/paper/fig/`。
 - teaser 重出：`~/venvs/wacv/bin/python in/generate_pexels_teaser_figure.py --image man_60 --prompt 2 --layout protected-purified --no-lpips --cite --scale2p5 --arms photoguard_encoder,mist,dia_pt,dct_shield,blurguard --out-dir out_teaser_ours --name teaser`。
 
 ## 9. 讀數來源

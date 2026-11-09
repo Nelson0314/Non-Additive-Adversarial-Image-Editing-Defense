@@ -22,7 +22,7 @@ pane 編號會變動，送訊前一律以 multi-agent 的 `list_panes` 依標題
 ## 2. Overleaf 協作
 
 - 專案：Overleaf `[CVPR 2027] Color-based Image Immunization`（`6ad193f8288983a2f6af5d50`），由 `docs/paper/` 在 2026-11-06 上傳（基底 commit `51fd87d7`）。iamshuai（指導教授）與 Lynn 在線上直接編修。
-- **repo 與 Overleaf 必須逐字一致。** 兩邊都有修改時，以三方合併處理（基底為上次同步點）。repo 最近一次與 Overleaf 完全一致：commit `1d4f619a`（2026-11-09），以雜湊比對確認。
+- **repo 與 Overleaf 必須逐字一致。** 兩邊都有修改時，以三方合併處理（基底為上次同步點）。repo 最近一次與 Overleaf 完全一致：commit `d152ea8c`（2026-11-10；第 4–7 章以編輯器詞級修改套用、`fig/purification.pdf` 以上傳覆蓋），以雜湊比對確認。
 - **線上修改一律在 Overleaf 編輯器內進行，不上傳或覆蓋檔案**（覆蓋會失去編輯歷史）。工具與步驟見 `docs/paper_tools/README.md`「Overleaf 同步」：`generate_overleaf_ops.py` 產生詞級修改清單，於編輯器頁面以 CodeMirror transaction 套用，前後比對雜湊，重新載入再驗證一次。
 - 瀏覽器：使用者先以 `/chrome` 連線 Claude in Chrome；只能操作自己開的分頁群組。擴充功能會擋下看似網址參數的輸出，此時改用截圖，不繞過過濾。
 - 線上任何修改前先讓使用者看渲染結果：在 scratchpad 複製 `docs/paper/`，以 `\color{blue}` 標出修改處編譯，遠端 `mutool draw -r 170` 轉 PNG，以 `Start-Process` 開給使用者看。使用者確認後才改 Overleaf 與 repo。

@@ -18,7 +18,7 @@ The comparison includes ten additive methods: DAYN~\cite{lo2024dayn}, DIA-R and 
 
 \paragraph{Perturbation survival.}
 \label{sec:exp_purify}
-\Cref{fig:purification} reports the fraction of each perturbation that is preserved by a purification $P$, $\mathrm{LPIPS}(P(\tilde{x}), P(x)) / \mathrm{LPIPS}(\tilde{x}, x)$. Cropping and rotation preserve most of every perturbation. JPEG compression and blur remove most of the additive perturbations and less of that of BlurGuard, whereas the perturbation of \capg{} is preserved in full. After VAE-Trans, 0.83 of the perturbation of \capg{} remains, against 0.03 to 0.35 for the additive methods. These purifications act on the spatial frequency content of an image, and a mapping applied to colors alone adds no spatial structure for them to remove.
+\Cref{fig:purification} reports the fraction of each perturbation that is preserved by a purification $P$, $\mathrm{LPIPS}(P(\tilde{x}), P(x)) / \mathrm{LPIPS}(\tilde{x}, x)$. Cropping and rotation preserve most of every perturbation. JPEG compression and blur remove most of the additive perturbations and less of that of BlurGuard, whereas the perturbation of \capg{} is preserved in full. After VAE-Trans, 0.83 of the perturbation of \capg{} remains, against 0.03 to 0.35 for the additive methods. This behavior is consistent with the form of the two kinds of perturbation: the purifications considered here primarily attenuate high-frequency spatial content, where additive perturbations concentrate, whereas a global color mapping introduces no spatial pattern of its own.
 
 \paragraph{Edit displacement after purification.}
 \label{sec:exp_anti}

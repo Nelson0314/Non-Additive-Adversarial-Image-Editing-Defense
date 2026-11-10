@@ -1,24 +1,39 @@
 \section{Experiments}
 \label{sec:exp}
 
-We evaluate \capg{} and additive defenses on portraits edited by InstructPix2Pix, with and without purification, and compare how much of each protection survives purification. The protected images are also applied to two editors with different encoders.
+We compare \capg{} with additive defenses at matched distortion and measure, before and after purification, how much of each perturbation is preserved, how far the edits of the protected image differ from the edits of the original, and how often a requested edit fails.
 
 \paragraph{Data and attack.}
 \label{sec:exp_setup}
-All experiments use 306 portraits from Pexels (108 men, 198 women), used under the Pexels License. They are selected from a public Pexels portrait collection by automatic filters for a single, near-frontal, unoccluded color face whose apparent gender agrees with the image description, deduplicated by photographer and identity, screened visually, and cropped around the face to $512^2$. The attacker edits each image with InstructPix2Pix~\cite{brooks2023instructpix2pix} (Euler-Ancestral sampling, 50 steps, text guidance 7.5, image guidance 1.8, seed 20260812) under four instructions that add sunglasses, a police suit, a helmet, or a bow tie to the person, which yields four edits per image and defense.
+All experiments use 306 portraits from Pexels (108 men, 198 women), used under the Pexels License, each with a single, near-frontal, unoccluded face and cropped around the face to $512^2$. The attacker edits each image with InstructPix2Pix~\cite{brooks2023instructpix2pix} (Euler-Ancestral sampling, 50 steps, text guidance 7.5, image guidance 1.8, seed 20260812) under four instructions that add sunglasses, a police suit, a helmet, or a bow tie to the person, which yields four edits per image and defense.
 
 \paragraph{Purification methods.}
 Seven standard operations are applied before editing: JPEG compression at quality 80, 50, and 30; Gaussian blur with $\sigma = 1$ and $2$; a 10\% crop followed by resizing to the original size; and a $15^\circ$ rotation. VAE-Trans~\cite{purifyonce2026}, a fine-tuned VAE encoder used as a purifier, is reported separately as the strongest purification.
 
-\paragraph{Baselines.}
+\paragraph{Compared methods.}
 The comparison includes ten additive methods: DAYN~\cite{lo2024dayn}, DIA-R and DIA-PT~\cite{dia2025}, SIFM~\cite{dong2025sifm}, DANP~\cite{zhang2025danp}, Mist~\cite{liang2023mist}, the encoder attack of PhotoGuard~\cite{salman2023photoguard}, DCT-Shield and DCT-Shield-Y~\cite{dctshield2025}, and BlurGuard~\cite{blurguard2025}. Each method is run at its native budget and, in the matched-distortion arm, with its budget rescaled so that the defense LPIPS on the eight-portrait set falls in 0.300--0.367; on the 306 portraits, the defense LPIPS of these arms is 0.251 to 0.318 (\cref{tab:main}).
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{fig/purification.pdf}
+  \caption{Fraction of the perturbation that survives each purification (InstructPix2Pix, 306 portraits); dotted: full survival.}
+  \label{fig:purification}
+\end{figure}
 
 \subsection{Results}
 \label{sec:exp_results}
 
-\paragraph{Robustness to purification.}
+\paragraph{Perturbation survival.}
+\label{sec:exp_purify}
+\Cref{fig:purification} reports the fraction of each perturbation that is preserved by a purification $P$, $\mathrm{LPIPS}(P(\tilde{x}), P(x)) / \mathrm{LPIPS}(\tilde{x}, x)$, on the 306 portraits. Cropping and rotation preserve 0.48 to 0.90 of the additive perturbations and 0.88 to 1.01 of that of \capg{}. JPEG compression preserves 0.16 to 0.65 of the additive perturbations other than BlurGuard and DCT-Shield-Y, 0.73 to 0.86 of that of BlurGuard, and 1.09 to 1.21 of that of \capg{}; Gaussian blur with $\sigma = 2$ preserves 0.04 to 0.16, 0.49, and 1.03, respectively. DCT-Shield-Y, shown at its native budget (defense LPIPS 0.629), keeps 1.02 under JPEG compression at quality 80 and 0.36 and 0.25 at quality 50 and 30. After VAE-Trans, 0.83 of the perturbation of \capg{} is preserved, against 0.03 to 0.11 for the additive methods other than BlurGuard and 0.35 for BlurGuard. These purifications act on the spatial frequency content of an image, and a mapping applied to colors alone adds no spatial structure for them to remove.
+
+\paragraph{Edit displacement after purification.}
 \label{sec:exp_anti}
-Without purification, the additive methods displace the edits by 0.262 to 0.415 LPIPS and \capg{} by 0.353; PhotoGuard (0.415), DAYN (0.363), and DANP (0.354) displace them further than \capg{} (\cref{tab:main}). Averaged over the seven purifications, the displacement falls to 0.112 to 0.212 for the additive methods other than BlurGuard and to 0.275 for BlurGuard, and it is 0.364 for \capg{}; after VAE-Trans, it is 0.023 to 0.056, 0.143, and 0.288, respectively. The SigLIP and ArcFace similarities between defended and undefended edits order the methods in the same way. Part of the displacement of \capg{} is the color shift that it carries into the edit (see the paragraph on edit failure). Among the protected images, \capg{} has the highest MUSIQ score (5.31, against 5.12 to 5.30) and the lowest LAION score (5.34, against 5.35 to 5.53).
+\Cref{tab:main} reports the difference between the edit of the protected image and the edit of the original under the same purification. Without purification, this difference is 0.262 to 0.415 LPIPS for the additive methods and 0.353 for \capg{}; PhotoGuard (0.415), DAYN (0.363), and DANP (0.354) exceed \capg{}. Averaged over the seven purifications, it is 0.112 to 0.212 for the additive methods other than BlurGuard, 0.275 for BlurGuard, and 0.364 for \capg{}; after VAE-Trans, it is 0.023 to 0.056, 0.143, and 0.288, respectively. The SigLIP and ArcFace similarities order the methods in the same way. The perturbation that purification preserves thus still reaches the edit. The protected images of \capg{} have a defense LPIPS within the range of the additive methods (0.287, against 0.251 to 0.318), the lowest LAION score (5.34, against 5.35 to 5.53), and a MUSIQ score of 5.31, against 5.12 to 5.30.
+
+\paragraph{Distortion and displacement.}
+\label{sec:exp_plane}
+\Cref{fig:plane}a plots the edit difference before purification against the defense LPIPS for the additive methods at their native budgets and at matched distortion. The 19 points lie close to a single line ($r = 0.968$), and \capg{} lies 0.006 LPIPS above it. Before purification, the edit difference of a defense thus follows its distortion, and the comparison in \cref{tab:main} is made at comparable distortion. After purification, the additive methods lie below this line and \capg{} remains close to it (\cref{fig:plane}b).
 
 \begin{table}[t]
   \centering
@@ -46,27 +61,13 @@ Without purification, the additive methods displace the edits by 0.262 to 0.415 
   \label{tab:isr}
 \end{table}
 
-\paragraph{Edit failure.}
-\Cref{tab:isr} reports the immunization success rate (ISR) on 100 of the portraits: among the edits of the original image that carry out the instruction, the percentage whose counterpart on the protected image lacks the accessory, shows a different edit, or is degraded. A vision--language model (Claude) judged each edit against the original image and the undefended edit under the same purification; 606 judgments were reviewed blind by a human annotator (agreement 87.1\% on a random subset of 140), and the reviewed labels replace those of the model. Differences below are paired, in percentage points, with 95\% bootstrap intervals over images. Without purification, the ISR of \capg{} (17.0\%) is lower than that of PhotoGuard ($-25.0$, $[-31.1, -18.5]$) and Mist ($-15.4$, $[-19.8, -10.7]$), and its differences from DCT-Shield ($-4.9$, $[-9.7, 0.3]$), SIFM ($-0.6$, $[-5.2, 4.3]$), and BlurGuard ($+2.2$, $[-1.5, 6.0]$) have intervals that include zero. Over the three purifications combined, the ISR of \capg{} (16.5\%) is higher than that of PhotoGuard, DCT-Shield, SIFM, and Mist by 10.6 to 13.9 (lower interval bounds 7.8 to 11.0) and higher than that of BlurGuard by 4.3 ($[2.0, 6.9]$); against BlurGuard, the interval includes zero after JPEG compression at quality 50 and excludes it after blur and VAE-Trans. For every method, most requested edits succeed. Edit LPIPS overstates the protection of a color mapping. Computed on grayscale versions of the edits, it falls to 0.49 of its RGB value for \capg{} without purification, against 0.94 to 0.99 for the additive methods, and it separates the edits that \capg{} prevents from those it does not with an area under the ROC curve of 0.58, against 0.66 to 0.82 for the additive methods.
-
-\paragraph{Distortion and displacement.}
-\label{sec:exp_plane}
-\Cref{fig:plane}a plots edit displacement against distortion before purification for the additive methods at their native budgets and at matched distortion. The 19 points lie close to a single line ($r = 0.968$), and \capg{} lies 0.006 LPIPS above it, so before purification the displacement of a defense follows its distortion. After purification, the additive methods lie below this line and \capg{} lies close to it (\cref{fig:plane}b). Both axes are LPIPS distances and include the color shift of \capg{}.
-
-\begin{figure}[b]
-  \centering
-  \includegraphics[width=\linewidth]{fig/purification.pdf}
-  \caption{Fraction of the perturbation that survives each purification (InstructPix2Pix, 306 portraits); dotted: full survival.}
-  \label{fig:purification}
-\end{figure}
-
-\paragraph{What purification removes.}
-\label{sec:exp_purify}
-\Cref{fig:purification} reports the fraction of each perturbation that survives a purification $P$, $\mathrm{LPIPS}(P(\tilde{x}), P(x)) / \mathrm{LPIPS}(\tilde{x}, x)$. Cropping and rotation leave 0.48 to 0.90 of the additive perturbations and 0.88 to 1.01 of that of \capg{}. JPEG compression leaves 0.16 to 0.65 of the additive perturbations other than BlurGuard and DCT-Shield-Y, 0.73 to 0.86 of that of BlurGuard, and 1.09 to 1.21 of that of \capg{}; a survival above one means that purification increases the LPIPS between the protected and the original image. Gaussian blur with $\sigma = 2$ leaves 0.04 to 0.16 of the additive perturbations other than BlurGuard, 0.49 of that of BlurGuard, and 1.03 of that of \capg{}. DCT-Shield-Y, whose perturbation lies in quantized JPEG coefficients, keeps 1.02 under JPEG compression at quality 80 and 0.36 and 0.25 at quality 50 and 30; it is shown at its native budget (defense LPIPS 0.629), the other additive methods at matched distortion. Averaged over the seven purifications, the survival of \capg{} is 1.06; after VAE-Trans, it is 0.83, against 0.03 to 0.11 for the additive methods other than BlurGuard and 0.35 for BlurGuard.
+\paragraph{Edit failure rate.}
+\label{sec:exp_isr}
+\Cref{tab:isr} reports the immunization success rate (ISR) on 100 of the portraits: among the edits of the original image that carry out the instruction, the percentage whose counterpart on the protected image lacks the accessory, shows a different edit, or is degraded, as judged by a vision--language model with human review of 606 judgments. Without purification, the ISR of \capg{} is 17.0\%, lower than that of PhotoGuard (42.0\%; paired difference $-25.0$ points, 95\% interval $[-31.1, -18.5]$) and Mist (32.4\%; $-15.4$, $[-19.8, -10.7]$); the intervals of its differences from DCT-Shield, SIFM, and BlurGuard include zero. Over the three purifications combined, the ISR of \capg{} is 16.5\%, against 2.6\% to 5.9\% for PhotoGuard, DCT-Shield, SIFM, and Mist (differences of 10.6 to 13.9 points, lower interval bounds 7.8 to 11.0) and 12.2\% for BlurGuard ($+4.3$, $[2.0, 6.9]$); against BlurGuard, the interval includes zero after JPEG compression at quality 50. The ISR of \capg{} is thus unchanged by purification, but its absolute value is low, and most requested edits succeed for every method.
 
 \paragraph{Editors with different encoders.}
 \label{sec:exp_gen}
-InstructPix2Pix, Stable Diffusion inpainting, and Stable Diffusion 2.1 share one VAE encoder, so a defense optimized for one of them applies to all three. The lower blocks of \cref{tab:main} apply the protected images optimized on InstructPix2Pix, without re-optimization, to VIBE-DistilledCFG~\cite{alekseenko2026vibe}, which encodes images with a 32-channel DC-AE at $32\times$ downsampling (20 sampling steps), and to the distilled FLUX.2 [klein] 4B~\cite{bfl2026flux2klein} with the 32-channel FLUX.2 VAE at $8\times$ downsampling (4 sampling steps, guidance 1.0), both at $512^2$ with the four instructions phrased as additions. Averaged over the seven purifications, the edit LPIPS of \capg{} is 0.331 on VIBE-DistilledCFG and 0.293 on FLUX.2 [klein], against 0.077 to 0.098 and 0.060 to 0.088 for Mist, PhotoGuard, and DCT-Shield and 0.202 and 0.198 for BlurGuard. On these editors, the protection is measured by edit LPIPS only, which includes the color shift of \capg{}; the ISR was not judged.
+The lower blocks of \cref{tab:main} apply the protected images optimized against the VAE encoder of InstructPix2Pix, without re-optimization, to VIBE-DistilledCFG~\cite{alekseenko2026vibe} (32-channel DC-AE at $32\times$ downsampling, 20 sampling steps) and to the distilled FLUX.2 [klein] 4B~\cite{bfl2026flux2klein} (32-channel FLUX.2 VAE at $8\times$ downsampling, 4 sampling steps, guidance 1.0), both at $512^2$ with the four instructions phrased as additions. Without purification, the edit difference of \capg{} is 0.318 and 0.281 on the two editors, against 0.146 to 0.159 and 0.163 to 0.188 for Mist, PhotoGuard, and DCT-Shield and 0.218 and 0.231 for BlurGuard. Averaged over the seven purifications, it is 0.331 and 0.293 for \capg{}, 0.077 to 0.098 and 0.060 to 0.088 for Mist, PhotoGuard, and DCT-Shield, and 0.202 and 0.198 for BlurGuard.
 
 \begin{table*}[t]
   \centering
@@ -102,8 +103,11 @@ InstructPix2Pix, Stable Diffusion inpainting, and Stable Diffusion 2.1 share one
 
 \subsection{Ablation study}
 \label{sec:exp_ablation}
+\paragraph{Design.}
 \Cref{tab:ablation} examines the pipeline on 100 of the portraits in two groups. The first group removes one component at a time: the optimization, by drawing $\Theta$ at random within the angle bounds; the Gaussian smoothing, by setting $\sigma = 0$; the angle bounds; the separate bounds on polar angle and azimuth, replaced by a single bound of $25^\circ$; and the constraint that keeps $\|c\|$ fixed. These variants are not rescaled to a common distortion, since the distortion each variant reaches is itself a result of its optimization. The second group replaces the constrained LUT with simpler color mappings whose defense LPIPS is matched to that of \capg{} on each image: a random shift of hue and saturation, an optimized global rotation of hue with a scaling of saturation, an optimized $3\times3$ affine map with offset, and a $33^3$ LUT without smoothing or angle bounds; the last three are optimized with the objective of \capg{}.
 
-\prelim{Results of the component ablations.}{Sec.~4.2: to be written from the readings of the first group; order: optimization, then smoothing, angle bounds, separate bounds, and luminance constraint, each in terms of distortion, quality scores, and the displacement kept after purification.}
+\paragraph{Role of the components.}
+With a random $\Theta$, the defense LPIPS is 0.045 and the edit difference without purification 0.088, against 0.299 and 0.361 for the full pipeline. Without smoothing, both are higher than for the full pipeline (0.408 and 0.468). \prelim{Angle bounds, single bound, and luminance constraint.}{Sec.~4.2: to be written from the readings of the remaining rows of the first group, in terms of distortion, quality scores, and the edit difference preserved after purification.}
 
-\prelim{The simpler color mappings keep less of their displacement after purification than \capg{} at the same distortion, so the optimized, bounded rotation contributes to the protection beyond the use of a color mapping.}{Sec.~4.2, version for the case that the second group falls below \capg{}.} \prelim{The simpler color mappings keep a displacement after purification comparable to that of \capg{} at the same distortion, so persistence under purification is a property of global color mappings, and the constraints of \capg{} determine the appearance of the protected image.}{Sec.~4.2, version for the case that the second group matches \capg{}; keep one of the two sentences.}
+\paragraph{Simpler color mappings.}
+\prelim{The simpler color mappings also preserve their edit difference after purification, which is consistent with persistence following from acting on colors alone; the constraints of \capg{} determine the naturalness of the protected image and the distortion it reaches.}{Sec.~4.2, version for the case that the second group is preserved like \capg{}.} \prelim{The simpler color mappings preserve less of their edit difference after purification than \capg{} at the same distortion.}{Sec.~4.2, version for the case that the second group falls below \capg{}; keep one of the two sentences.}

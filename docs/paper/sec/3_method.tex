@@ -154,6 +154,13 @@ where $\Theta^*$ denotes the optimized parameters.
 %\label{sec:optimization}
 %$\Theta$ is initialized with independent Gaussian entries of standard deviation 0.002, and \cref{eq:objective} is optimized with Adam ($\beta_1 = 0.5$, $\beta_2 = 0.99$) for 1800 steps at $512^2$ resolution. The learning rate follows a cosine decay from $3 \times 10^{-4}$ to $10^{-5}$ over the first two thirds of the steps and remains at $10^{-5}$ afterwards. The protected image of the final step is stored as an 8-bit PNG. One image takes about 9.5 minutes on a single RTX 3090, including model loading and file I/O (median over the 306 Pexels portraits).
 
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{fig/purification.pdf}
+  \caption{Fraction of the perturbation that survives each purification (InstructPix2Pix, 306 portraits); dotted: full survival.}
+  \label{fig:purification}
+\end{figure}
+
 \begin{figure*}[t]
   \centering
   \includegraphics[width=\linewidth]{fig/distortion_displacement.pdf}

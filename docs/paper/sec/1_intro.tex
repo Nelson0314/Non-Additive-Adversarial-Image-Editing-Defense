@@ -16,7 +16,7 @@ Full-reference metrics such as LPIPS measure the difference from the original im
 
 Our contributions are:
 \begin{itemize}
-  \item We propose \capg{}, a filter-like defense that protects each image with its own 3D LUT and introduces no spatial structure into the image.
-  \item On InstructPix2Pix at matched distortion, the edit displacement \capg{} retains after purification, averaged over seven standard purifications, is 1.32 to 3.23 times that of additive defenses (\cref{sec:exp_anti}).
-  \item We analyze ten additive methods and \capg{} under a common protocol, relating distortion to edit displacement before purification and measuring how much of each perturbation survives purification.
+  \item We show that a perturbation applied to the colors of an image carries no spatial structure and is preserved by purification, whereas additive perturbations are removed: after VAE-based purification, 0.83 of the perturbation of \capg{} remains, against 0.03 to 0.35 for ten additive defenses (\cref{sec:exp_purify}).
+  \item We propose \capg{}, which realizes such a perturbation as a per-image 3D LUT restricted to smooth, bounded rotations of color about the gray axis, so that the protected image is a color-graded version of the original (\cref{sec:feasible}).
+  \item We evaluate on 306 portraits against ten additive defenses at matched distortion, under seven standard purifications and VAE-based purification. On a 100-portrait subset, the rate at which a requested edit fails, judged by Claude Sonnet~\TODO{version} with human review of a sample of the judgments, is 17.0\% for \capg{} without purification and 16.5\% over three purifications (JPEG compression, blur, and VAE-based purification), against 2.6\% to 12.2\% for the additive defenses after purification (\cref{sec:exp_isr}).
 \end{itemize}

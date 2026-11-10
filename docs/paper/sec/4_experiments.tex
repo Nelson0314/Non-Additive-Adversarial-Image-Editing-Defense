@@ -13,13 +13,6 @@ Seven standard operations are applied before editing: JPEG compression at qualit
 \paragraph{Compared methods.}
 The comparison includes ten additive methods: DAYN~\cite{lo2024dayn}, DIA-R and DIA-PT~\cite{dia2025}, SIFM~\cite{dong2025sifm}, DANP~\cite{zhang2025danp}, Mist~\cite{liang2023mist}, the encoder attack of PhotoGuard~\cite{salman2023photoguard}, DCT-Shield and DCT-Shield-Y~\cite{dctshield2025}, and BlurGuard~\cite{blurguard2025}. Each method is run at its native budget and, in the matched-distortion arm, with its budget rescaled so that the defense LPIPS on the eight-portrait set falls in 0.300--0.367; on the 306 portraits, the defense LPIPS of these arms is 0.251 to 0.318 (\cref{tab:main}).
 
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=\linewidth]{fig/purification.pdf}
-  \caption{Fraction of the perturbation that survives each purification (InstructPix2Pix, 306 portraits); dotted: full survival.}
-  \label{fig:purification}
-\end{figure}
-
 \subsection{Results}
 \label{sec:exp_results}
 
@@ -63,7 +56,7 @@ The comparison includes ten additive methods: DAYN~\cite{lo2024dayn}, DIA-R and 
 
 \paragraph{Edit failure rate.}
 \label{sec:exp_isr}
-\Cref{tab:isr} reports the immunization success rate (ISR) on 100 of the portraits: among the edits of the original image that carry out the instruction, the percentage whose counterpart on the protected image lacks the accessory, shows a different edit, or is degraded, as judged by a vision--language model with human review of 606 judgments. Without purification, the ISR of \capg{} is 17.0\%, lower than that of PhotoGuard (42.0\%; paired difference $-25.0$ points, 95\% interval $[-31.1, -18.5]$) and Mist (32.4\%; $-15.4$, $[-19.8, -10.7]$); the intervals of its differences from DCT-Shield, SIFM, and BlurGuard include zero. Over the three purifications combined, the ISR of \capg{} is 16.5\%, against 2.6\% to 5.9\% for PhotoGuard, DCT-Shield, SIFM, and Mist (differences of 10.6 to 13.9 points, lower interval bounds 7.8 to 11.0) and 12.2\% for BlurGuard ($+4.3$, $[2.0, 6.9]$); against BlurGuard, the interval includes zero after JPEG compression at quality 50. The ISR of \capg{} is thus unchanged by purification, but its absolute value is low, and most requested edits succeed for every method.
+\Cref{tab:isr} reports the immunization success rate (ISR) on 100 of the portraits: among the edits of the original image that carry out the instruction, the percentage whose counterpart on the protected image lacks the accessory, shows a different edit, or is degraded, as judged by Claude Sonnet~\TODO{version} with human review of a sample of the judgments. Without purification, the ISR of \capg{} is 17.0\%, lower than that of PhotoGuard (42.0\%; paired difference $-25.0$ points, 95\% interval $[-31.1, -18.5]$) and Mist (32.4\%; $-15.4$, $[-19.8, -10.7]$); the intervals of its differences from DCT-Shield, SIFM, and BlurGuard include zero. Over the three purifications combined, the ISR of \capg{} is 16.5\%, against 2.6\% to 5.9\% for PhotoGuard, DCT-Shield, SIFM, and Mist (differences of 10.6 to 13.9 points, lower interval bounds 7.8 to 11.0) and 12.2\% for BlurGuard ($+4.3$, $[2.0, 6.9]$); against BlurGuard, the interval includes zero after JPEG compression at quality 50. The ISR of \capg{} is thus unchanged by purification, but its absolute value is low, and most requested edits succeed for every method.
 
 \paragraph{Editors with different encoders.}
 \label{sec:exp_gen}
@@ -103,11 +96,4 @@ The lower blocks of \cref{tab:main} apply the protected images optimized against
 
 \subsection{Ablation study}
 \label{sec:exp_ablation}
-\paragraph{Design.}
-\Cref{tab:ablation} examines the pipeline on 100 of the portraits in two groups. The first group removes one component at a time: the optimization, by drawing $\Theta$ at random within the angle bounds; the Gaussian smoothing, by setting $\sigma = 0$; the angle bounds; the separate bounds on polar angle and azimuth, replaced by a single bound of $25^\circ$; and the constraint that keeps $\|c\|$ fixed. These variants are not rescaled to a common distortion, since the distortion each variant reaches is itself a result of its optimization. The second group replaces the constrained LUT with simpler color mappings whose defense LPIPS is matched to that of \capg{} on each image: a random shift of hue and saturation, an optimized global rotation of hue with a scaling of saturation, an optimized $3\times3$ affine map with offset, and a $33^3$ LUT without smoothing or angle bounds; the last three are optimized with the objective of \capg{}.
-
-\paragraph{Role of the components.}
-With a random $\Theta$, the defense LPIPS is 0.045 and the edit difference without purification 0.088, against 0.299 and 0.361 for the full pipeline. Without smoothing, both are higher than for the full pipeline (0.408 and 0.468). \prelim{Angle bounds, single bound, and luminance constraint.}{Sec.~4.2: to be written from the readings of the remaining rows of the first group, in terms of distortion, quality scores, and the edit difference preserved after purification.}
-
-\paragraph{Simpler color mappings.}
-\prelim{The simpler color mappings also preserve their edit difference after purification, which is consistent with persistence following from acting on colors alone; the constraints of \capg{} determine the naturalness of the protected image and the distortion it reaches.}{Sec.~4.2, version for the case that the second group is preserved like \capg{}.} \prelim{The simpler color mappings preserve less of their edit difference after purification than \capg{} at the same distortion.}{Sec.~4.2, version for the case that the second group falls below \capg{}; keep one of the two sentences.}
+\TODO{Text of the ablation study (\cref{tab:ablation}).}

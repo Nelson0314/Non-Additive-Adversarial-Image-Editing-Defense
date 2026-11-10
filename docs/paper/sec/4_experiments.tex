@@ -79,11 +79,11 @@ InstructPix2Pix, Stable Diffusion inpainting, and Stable Diffusion 2.1 share one
     Variant & $n$ & LPIPS $\downarrow$ & LAION $\uparrow$ & MUSIQ $\uparrow$ & None & JPEG 50 & Blur 2 & VAE-Trans & None & Purified \\
     \midrule
     \rowcolor{oursrow}
-    \capg{} (Ours) & 100 & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & 17.0 & 16.5 \\
+    \capg{} (Ours) & 100 & .299 & \prelim{--}{} & \prelim{--}{} & .361 & .390 & .366 & \prelim{--}{} & 17.0 & 16.5 \\
     \midrule
     \multicolumn{11}{@{}l}{\emph{One component removed, without distortion matching}} \\
-    w/o optimization (random $\Theta$) & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
-    w/o smoothing ($\sigma = 0$) & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
+    w/o optimization (random $\Theta$) & 100 & .045 & \prelim{--}{} & \prelim{--}{} & .088 & .151 & .084 & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
+    w/o smoothing ($\sigma = 0$) & 100 & .408 & \prelim{--}{} & \prelim{--}{} & .468 & .453 & .431 & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
     w/o angle bounds & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
     single angle bound ($25^\circ$) & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
     w/o luminance constraint ($\|c\|$ free) & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\

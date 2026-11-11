@@ -8,7 +8,7 @@ pre-purification points of the additive methods (baseline/results/distortion_dis
 points.csv; rows of earlier color conditions are dropped, the final color3d comes from the color
 paper table).
 (a) Edit LPIPS before purification against defense LPIPS for every budget of every additive method; --ours-extra adds a second
-    operating point of CAPGuard.
+    operating point of ImmuLUT.
 (b) The eleven matched-distortion arms and color3d: filled marker before purification, open marker
     after purification (mean over the seven standard purifications), joined by an arrow.
 """
@@ -29,13 +29,13 @@ from matplotlib.patches import Patch  # noqa: E402
 ADDITIVE = {"danp", "dayn", "dct_shield", "dct_shield_y", "dia_pt", "dia_r", "mist",
             "photoguard_encoder", "sifm", "blurguard"}
 OURS = "color3d"
-OURS_LABEL = "CAPGuard (Ours)"
+OURS_LABEL = "ImmuLUT (Ours)"
 GRAY = "#6b7785"
 LIGHT = "#b9c1ca"
 C_ADDITIVE = "#A94438"
 C_ADDITIVE_LIGHT = "#D9A39C"
 C_OURS = "#1F6F7C"
-# Figure 4 colors (Okabe-Ito; CAPGuard keeps its teal, no red shades)
+# Figure 4 colors (Okabe-Ito; ImmuLUT keeps its teal, no red shades)
 C_OTHER = "#BBBBBB"
 C_BLURGUARD = "#0072B2"
 C_HIGHLIGHT = "#E69F00"

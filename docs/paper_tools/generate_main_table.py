@@ -5,12 +5,12 @@
 Upper block: InstructPix2Pix, 306 Pexels portraits, all methods; protected-image LPIPS, LAION, MUSIQ and the edit LPIPS,
 SigLIP, ArcFace of the edit of the protected image against the edit of the original under the same purification.
 Inputs: baseline remote runtime/pexels_portraits/summary/main_table.csv (with <col>_ci95) and
-baseline remote runtime/pexels_portraits/summary/color3d_scale2p5/main_table.csv (CAPGuard, 2.5x angle bounds, 306
+baseline remote runtime/pexels_portraits/summary/color3d_scale2p5/main_table.csv (ImmuLUT, 2.5x angle bounds, 306
 portraits) and baseline remote runtime/pexels_portraits/blurguard_306/summary.csv (BlurGuard, 306 portraits). Small numbers are 95% interval half-widths
 (Purified*: across the seven purifications; other columns: across images).
 Lower blocks: the same edit columns on VIBE-DistilledCFG (306 portraits; baseline results/pexels_portraits/vibe_distilled/
 summary.csv, --vibe) and FLUX.2 [klein] 4B (306 portraits; --klein, red placeholders when omitted), for PhotoGuard,
-DCT-Shield, BlurGuard, Mist and CAPGuard; the protected images of the upper block are used without re-optimization.
+DCT-Shield, BlurGuard, Mist and ImmuLUT; the protected images of the upper block are used without re-optimization.
 """
 import argparse
 import csv

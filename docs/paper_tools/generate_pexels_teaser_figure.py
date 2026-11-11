@@ -28,7 +28,7 @@ RUN = BASE / "runtime/pexels_portraits"
 ART = BASE / "artifacts/pexels_portraits"
 TRIAL = REPO / "color/trials/lut3d_defense_and_naturalness"
 OURS_C = "color3d_pexels"
-OURS_LABEL = "CAPGuard (Ours)"
+OURS_LABEL = "ImmuLUT (Ours)"
 ARMS = [("PhotoGuard", "photoguard_encoder"), ("Mist", "mist"), ("DIA-PT", "dia_pt"), ("DCT-Shield", "dct_shield")]
 LABELS = {"photoguard_encoder": "PhotoGuard", "mist": "Mist", "dia_pt": "DIA-PT", "dct_shield": "DCT-Shield",
           "dct_shield_y": "DCT-Shield-Y", "blurguard": "BlurGuard"}
@@ -144,7 +144,7 @@ def figure(img_id, prompt, out_dir, name, layout="full", chips=True, arms=None, 
         columns.append((label, ADDITIVE, *(load(f) for f in files),
                         (lp.get((c, img_id, p, "none"), float("nan")), lp.get((c, img_id, p, PURIFIER), float("nan"))),
                         CITES[c] if cite else None))
-    # CAPGuard: the 2.5x-bound condition when its defense and purified edit exist, otherwise the default bounds (tagged)
+    # ImmuLUT: the 2.5x-bound condition when its defense and purified edit exist, otherwise the default bounds (tagged)
     ours_tag = None
     big = OURS_C.replace("color3d_", "color3d_scale2p5_")
     big_def = sorted(p_ for p_ in (TRIAL / "artifacts_pexels").glob(f"**/{img_id}__{big}__def.png")
@@ -164,7 +164,7 @@ def figure(img_id, prompt, out_dir, name, layout="full", chips=True, arms=None, 
     ref_purified = load(png[("undefended", img_id, p, PURIFIER)])
 
     plt.rcParams.update({"font.family": "STIXGeneral", "mathtext.fontset": "stix", "font.size": 8.5, "text.color": INK})
-    n_add = len(columns) - 1  # additive columns; the last column is CAPGuard
+    n_add = len(columns) - 1  # additive columns; the last column is ImmuLUT
     head, foot = (0.30 if cite else 0.17), 0.27
     label_w, gap0, gap_ours = 0.36, 0.14, 0.07
     if purified_only:
@@ -237,7 +237,7 @@ def figure(img_id, prompt, out_dir, name, layout="full", chips=True, arms=None, 
             show(purified, x, ys[2], edge=color, lw=1.8, chip=lp1)
         for label, y in zip(["Protection", "Edited\n(unpurified)", "Edited\n(purified)"], ys):
             ax.text(x0 - 0.05, y + s / 2, label, rotation=90, ha="right", va="center", fontsize=8.5, linespacing=1.05)
-    if ours_tag:  # CAPGuard tiles drawn from the default bounds because the 2.5x readings are missing
+    if ours_tag:  # ImmuLUT tiles drawn from the default bounds because the 2.5x readings are missing
         for y in ys:
             ax.text(xs[-1] + s / 2, y + s - 0.07, ours_tag, ha="center", va="center", fontsize=7, color="white", zorder=5,
                     bbox=dict(boxstyle="round,pad=0.18", fc="#C0392B", ec="none"))
@@ -263,7 +263,7 @@ def main():
     ap.add_argument("--arms", help="comma-separated additive conditions, e.g. photoguard_encoder,mist,dia_pt,blurguard")
     ap.add_argument("--cite", action="store_true", help="add the source (author, year) under each method name")
     ap.add_argument("--scale2p5", action="store_true",
-                    help="draw CAPGuard with the 2.5x angle bounds (color3d_scale2p5_pexels); tag tiles that fall back")
+                    help="draw ImmuLUT with the 2.5x angle bounds (color3d_scale2p5_pexels); tag tiles that fall back")
     ap.add_argument("--highlight", nargs=4, metavar=("CX", "CY", "R", "CORNER"),
                     help="protected-purified layout: circle the region centred at (CX, CY) with radius R, in pixels of "
                          "the 512 tile, on every purified edit and repeat it magnified in CORNER "

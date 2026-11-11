@@ -116,6 +116,15 @@
 6. 第 2 章是否對齊新定調；ISR 是否找第二位標註者、是否更正疑似誤點的 4 格。
 7. 給指導教授的回覆是否送出。
 
+### 8.4a 更新（2026-11-12 01:00，executor 換手時）
+- 各 session：color＝pane 5、paper＝pane 6、baseline＝pane 2；舊 color（pane 1）、舊 paper（pane 4）唯讀。pane 編號會變，派工前先 `list_panes`。
+- ImmuLUT 改名已完成並 push（5bf6f6f7；PAPER_HANDOVER 78808d9d）：全文、摘要、第 1 章、Fig. 1／3／4 重產，PDF 無 CAPGuard 字樣；全文 10 頁（Conclusion 第 8 頁、Table 3 第 9 頁）。線上摘要由使用者上傳，與 `sec/0_abstract.tex` 逐字一致。
+- Overleaf 同步點仍為 453a196e，之後 7 個 docs/paper commit 未同步；同步需使用者在 paper pane 直接下令。
+- teaser 維持 man_60；使用者在 paper pane 說過「teaser 先別放」，woman_75 紅圈版（桌面有副本）與生成人像激進版（`baseline/artifacts/teaser/teaser_woman_{a,b,c}[_wound]`，殭屍與傷口指令，已完成）都待使用者決定；使用者尚未看過激進版總覽圖。裸露類指令 executor 不跑。
+- 消融：B2 99/100（woman_82 在 ±0.015 內不可行），主讀數已寫出；B3 10/100（00:54），約每 4 分鐘一張，預計 11/12 早上 6–7 點完成；兩列的 LAION／MUSIQ／VAE-Trans 在 B3 讀數後一起補，color 完成後回報九列表 → 轉 paper 填 Table 3。
+- 色彩校正攻擊數字見 8.2；正文 Limitations 的「may remove the protection」仍待使用者決定是否改寫。
+- teaser 腳本（baseline，c6c9477b）：`scripts/generate_synthetic_portraits.py`、`scripts/run_teaser_edits.py`、`scripts/generate_teaser_overview.py`；執行前 `export ENV_FILE=~/env.sh PY=~/venvs/wacv/bin/python`。
+
 ### 8.5 工作方式補充
 - executor 的監看：`scratchpad/watch_idle.sh` 每 30 分鐘查兩台空卡與租約數，租約 < 6 且有空卡連續兩次、或佇列跑完即通知；session 重開會中斷，需重啟。使用者原則是卡不要空下來。
 - 被派工的 session 也會因用量上限中斷而不回應：派工後以 `read_pane` 或遠端 `~/gpu_leases`、`runtime/done` 確認；遠端沒有行程又沒有租約即表示對方停了。

@@ -87,3 +87,39 @@
 
 - 遠端主機：`nelson0314@server.basiclab.lab.nycu.edu.tw`，`-p 10101`（basic-1）／`-p 10102`（basic-2），repo `~/image-immunization`；遠端 `python` 不存在，用 `python3` 或 `~/venvs/wacv/bin/python`。
 - 簡報不再維護。
+
+## 8. 現況（2026-11-12 00:35），取代第 3、5 節
+
+### 8.1 定調與命名
+- 方法名改為 **ImmuLUT**（原 CAPGuard；條件名 `color3d_scale2p5_pexels`、檔名、程式不改）。線上摘要已由使用者以 ImmuLUT 版上傳；標題不變。
+- 主張：施加在色彩上的擾動在淨化後被保留，加性擾動被移除。主表（Table 1）證明的是「保留」。不主張防禦有效；用詞 persist／survive／is preserved，不用 prevents／effective／outperforms（除非附數字與 CI）。全文不寫 ISR「低」，寫「不高於加性方法」。
+- 內部分析不寫入正文：灰階 LPIPS、LPIPS 對 ISR 的 AUC、定性圖（`docs/isr_pilot/audit/lpips_*`）。
+- 第 4 章結構：設定三段（Data and attack／Purification methods／Compared methods）→ 4.1 Results（Perturbation survival［Fig. 3］→ Edit displacement after purification［Table 1］→ Distortion and displacement［Fig. 4］→ Edit failure rate［Table 2］→ Editors with different encoders）→ 4.2 Ablation study（Table 3，內文為紅字 TODO）。第 5 章 Limitations、第 6 章 Conclusion 各一段。
+- ISR 評審在正文寫成「Claude Sonnet 5.5 with human review of a sample of the judgments」；不寫 606 格、不寫複核前後變化、不提單一標註者。
+
+### 8.2 已完成的數據（協定：ip2p、crosseditor100 100 張 × 4 句、主種子 20260812）
+- 條件式 ISR（人工複核 606 格後，`docs/isr_pilot/audit/`）：不淨化 ImmuLUT 17.0%、PhotoGuard 42.0%、Mist 32.4%、DCT-Shield 21.9%、SIFM 17.6%、BlurGuard 14.8%；淨化後合計（JPEG 50＋blur σ2＋VAE-Trans）ImmuLUT 16.5%、BlurGuard 12.2%、Mist 5.9%、SIFM 5.6%、PhotoGuard 3.5%、DCT-Shield 2.6%；ImmuLUT − BlurGuard 淨化後 +4.3 pp，paired bootstrap 95% CI [+2.0, +6.9]。使用者標註中疑似誤點 4 格（woman_50__p1 vae_trans、woman_22__p3 vae_trans、woman_97__p2 jpeg50／none），未更正。
+- 消融（Table 3；防禦圖 LPIPS｜LAION｜MUSIQ-AVA｜編輯 LPIPS 不淨化／JPEG 50／blur σ2／VAE-Trans）：Full 0.299｜5.31｜5.33｜0.361／0.390／0.366／0.295；A1 隨機 Θ 0.045｜5.45｜5.39｜0.088／0.151／0.084／0.064；A2 σ=0 0.408｜5.22｜5.05｜0.468／0.453／0.431／0.331；A3 不設角度界 0.472｜5.20｜4.94｜0.517／0.536／0.525／0.429；A4 單一 25° 0.449｜5.31｜5.16｜0.491／0.524／0.514／0.436；A5 不固定亮度 0.297｜5.32｜5.32｜0.358／0.389／0.364／0.293；B1 隨機色相飽和度 0.236｜5.30｜5.21｜0.297／0.334／0.317／0.254（34/100 張到不了目標失真，`results/color_baseline_random_huesat_pexels/unreachable.csv`）；B4 無約束 LUT 0.300｜5.26｜5.06｜0.390／0.384／0.330／0.315。來源：color trial `results/<條件>/`。A1–A5、B1、B4 已填入 Table 3。
+- 色彩校正攻擊（ImmuLUT 對未防禦，`results/color_normalization/`）：gray-world 擾動存續比 0.996、編輯 LPIPS 0.357；Lab 正規化（Reinhard，對齊 306 張原圖統計量）0.970、0.355；淨化前 0.361。未評 ISR、未跑加性方法。正文 Limitations 仍寫「may remove the protection」，與此不符，待使用者決定是否改寫。
+
+### 8.3 進行中
+- color：B2（最佳化 hue/saturation，參數尺度 ×10）99/100、1 失敗；B3（3×3 affine，×3）8/100；兩列的 LAION／MUSIQ／VAE-Trans 補充量測在佇列讀數寫出後才開。完成後數字交 paper 填 Table 3。
+- color：teaser 激進案例。三張 FLUX.2 klein 生成人像（`baseline/artifacts/synthetic_portraits/teaser_woman_{a,b,c}/`，主種子）已求解 ImmuLUT 並以 `baseline/scripts/run_teaser_edits.py` 編輯（"make this person into a bloody zombie"，另有 `_wound` 變體目錄），輸出 `baseline/artifacts/teaser/`；總覽圖由 `generate_teaser_overview.py` 產生，結果直接回報使用者。裸露類指令 executor 不跑。
+- paper：方法名改 ImmuLUT（本地工作目錄有未 commit 的修改：main.tex、0_abstract、1_intro、paper_tools 三支）；teaser 換成 woman_75 紅圈放大版；Overleaf 等使用者指令才同步。
+
+### 8.4 待使用者決定
+1. 方法圖（Fig. 2）約束部分的重畫草稿是否採用（已 commit dccdfd7f、cbb4e8cb、4bb1f3d7，含 caption 修改，尚未同步 Overleaf）；色度盤上「θ saturation」的標示是否改。
+2. Limitations 的色彩校正句是否依 8.2 的數字改寫；色彩校正攻擊是否補加性方法與 ISR（補充材料 11/23）。
+3. 消融各列的 ISR 評審（約 14,400 格，Sonnet）是否做、何時做；「九列皆可行」共同子集排除規則是否同意；4.2 內文何時寫。
+4. 壓回 8 頁（目前 11 頁，Conclusion 在第 8 頁、Table 3 在第 9 頁）。
+5. teaser 最終案例（woman_75 頭盔版，或生成人像的激進版）。
+6. 第 2 章是否對齊新定調；ISR 是否找第二位標註者、是否更正疑似誤點的 4 格。
+7. 給指導教授的回覆是否送出。
+
+### 8.5 工作方式補充
+- executor 的監看：`scratchpad/watch_idle.sh` 每 30 分鐘查兩台空卡與租約數，租約 < 6 且有空卡連續兩次、或佇列跑完即通知；session 重開會中斷，需重啟。使用者原則是卡不要空下來。
+- 被派工的 session 也會因用量上限中斷而不回應：派工後以 `read_pane` 或遠端 `~/gpu_leases`、`runtime/done` 確認；遠端沒有行程又沒有租約即表示對方停了。
+- 取卡：`run_with_gpu_lease.sh` 只取完全空的卡，需 `export ENV_FILE=~/env.sh PY=~/venvs/wacv/bin/python`（遠端沒有 `python`）。
+- 經 executor 轉達的 Overleaf 寫入會被權限規則擋下，需使用者在 paper pane 直接下令。
+- 遠端 PDF 工具：`~/isr_audit/pylib`（PyMuPDF，`PYTHONPATH=pylib python3`）；人工標註網頁 https://claude.ai/artifact/UsWeXVkvZmZRNnPySW7zHy ；進度簡報 https://claude.ai/artifact/5zBE9fscPQ9EkCakhtUAfK 。
+- 截止：全文 11/16、補充材料 11/23（AOE，台灣時間隔日 19:59）。

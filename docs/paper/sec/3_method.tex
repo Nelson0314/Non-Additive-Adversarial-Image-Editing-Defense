@@ -71,15 +71,16 @@ While consistent transformations across neighboring RGB values are encouraged, t
 s_a(t)=\arctan\left(\tan(a)\tanh\left(\frac{t}{\tan(a)}\right)\right),
 \label{eq:bounds}
 \end{equation}
-where $a \in \{\theta_{\max}, \phi_{\max}\}$ is the angular bound and $t$ is a displacement along a tangent direction of the unit sphere, such as $v_\theta$ and $v_\phi$. Because such a displacement induces a rotation angle of $\arctan t$, $s_a$ bounds $t$ within $(-\tan a, \tan a)$ and hence the rotation angle within $(-a, a)$, while $s_a(t) \approx t$ as $t \to 0$, avoiding abrupt saturation during optimization.
+where $a \in \{\theta_{\max}, \phi_{\max}\}$ is the angular bound. The function maps any real $t$ into $(-a, a)$ and satisfies $s_a(t) \approx t$ for small $t$, which avoids abrupt saturation during optimization.
 
-The angular displacements $\Delta\theta(c)$ and $\Delta\phi(c)$ are obtained by applying $s_a$ to $v_\theta$ and $v_\phi$:
+The angular displacements $\Delta\theta(c)$ and $\Delta\phi(c)$ are obtained from the two components of the field as
 \begin{equation}
 \Delta\theta = s_{\theta_{\max}}(v_\theta), \qquad
-\Delta\phi = s_{\phi_{\max}}(v_\phi / r),
+\Delta\phi = s_{\phi_{\max}}\!\left(\frac{v_\phi}{r}\right), \qquad
+r = \frac{\sin(\theta + \Delta\theta)}{\cos\Delta\theta},
 \label{eq:increments}
 \end{equation}
-so that $|\Delta\theta| < \theta_{\max}$ and $|\Delta\phi| < \phi_{\max}$. The polar component is bounded directly. After the polar displacement, the point no longer lies on the unit sphere; it is moved outward along the tangent plane, and we denote its distance to the gray axis by $r$. The azimuthal component then rotates this point about the gray axis: for a point at distance $r$ from the axis, a displacement $v_\phi$ along the azimuthal direction corresponds to an azimuth change of $\arctan(v_\phi / r)$. We use separate bounds $\theta_{\max}$ and $\phi_{\max}$ to independently control the deviations along the polar and azimuthal directions. In particular, we impose a tighter bound on $\phi$ to prevent excessive changes in the RGB channel composition, which may lead to noticeable deviations from the original colors~\cite{deridder1995naturalness,fedorovskaya1997chroma}. For colors on the neutral gray axis, we set $\Delta\phi=0$, since their azimuth is undefined. Together, these constraints define a smooth and bounded color transformation in the RGB space. The angular bounds $\theta_{\max}$ and $\phi_{\max}$ control the extent of permissible color changes, providing a trade-off between preserving the visual fidelity of the protected image and inducing sufficient disruption to diffusion-based editing.
+so that $|\Delta\theta| < \theta_{\max}$ and $|\Delta\phi| < \phi_{\max}$. The two components are treated differently because they relate differently to the angles. A displacement along $e_\theta$ changes $\theta$ by the same amount at every point of the sphere, so $v_\theta$ is bounded directly. A displacement along $e_\phi$ changes $\phi$ by an amount inversely proportional to the distance from the gray axis: the smaller $\theta$ is, the larger the change of $\phi$ produced by the same $v_\phi$. The factor $r$ converts $v_\phi$ into an azimuthal angle before the bound is applied, so that $\phi_{\max}$ limits the angle itself for every color; without it, a small $v_\phi$ could change the azimuth of a color near the gray axis by an arbitrarily large amount. For colors on the gray axis, where $\phi$ is undefined, we set $\Delta\phi=0$. We use separate bounds $\theta_{\max}$ and $\phi_{\max}$ to control the deviations along the polar and azimuthal directions independently. Together, these constraints define a smooth and bounded color transformation in the RGB space. The angular bounds $\theta_{\max}$ and $\phi_{\max}$ control the extent of permissible color changes, providing a trade-off between preserving the visual fidelity of the protected image and inducing sufficient disruption to diffusion-based editing.
 
 
 

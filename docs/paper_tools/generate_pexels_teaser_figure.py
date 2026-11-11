@@ -105,13 +105,18 @@ def rank(n):
 
 
 def find_one(pattern):
-    hits = sorted(ART.glob(pattern)) + sorted(TRIAL.glob(pattern))
+    # blurguard_rest holds the BlurGuard runs of the portraits outside the first 100-portrait batch
+    hits = sorted(ART.glob(pattern)) + sorted(TRIAL.glob(pattern)) + sorted((RUN / "blurguard_rest").glob(pattern))
     if not hits:
         raise FileNotFoundError(pattern)
     return hits[0]
 
 
-def figure(img_id, prompt, out_dir, name, layout="full", chips=True, arms=None, cite=False, scale2p5=False):
+HIGHLIGHT = "#E3120B"  # circle and magnified inset on the purified edits (--highlight)
+
+
+def figure(img_id, prompt, out_dir, name, layout="full", chips=True, arms=None, cite=False, scale2p5=False,
+           highlight=None):
     arms = arms or [c for _, c in ARMS]
     purified_only = layout == "purified"
     import matplotlib
@@ -176,11 +181,27 @@ def figure(img_id, prompt, out_dir, name, layout="full", chips=True, arms=None, 
     xs = [x0 + i * s for i in range(n_add)] + [x0 + n_add * s + gap_ours]
     ys = [H - head - (i + 1) * s for i in range(nrows)]
 
-    def show(im, x, y, edge=INK, lw=0.5, chip=None):
+    def show(im, x, y, edge=INK, lw=0.5, chip=None, mark=False):
         ax.imshow(im, extent=(x, x + s, y, y + s), interpolation="bilinear", zorder=2)
         inset = lw / 72 / 2
         ax.add_patch(plt.Rectangle((x + inset, y + inset), s - 2 * inset, s - 2 * inset, fill=False, ec=edge, lw=lw,
                                    zorder=3))
+        if mark and highlight:  # circle the region (pixels of the 512 tile) and repeat it magnified in a corner
+            cx, cy, r, corner = highlight
+            u = s / 512
+            px, py = x + cx * u, y + (512 - cy) * u
+            ax.add_patch(plt.Circle((px, py), r * u, fill=False, ec=HIGHLIGHT, lw=1.0, zorder=5))
+            k, m = 0.47 * s, 0.035 * s
+            bx = x + m if corner.endswith("left") else x + s - m - k
+            by = y + m if corner.startswith("lower") else y + s - m - k
+            crop = im[max(cy - r, 0):cy + r, max(cx - r, 0):cx + r]
+            ax.imshow(crop, extent=(bx, bx + k, by, by + k), interpolation="bilinear", zorder=6)
+            ax.add_patch(plt.Rectangle((bx, by), k, k, fill=False, ec=HIGHLIGHT, lw=1.0, zorder=7))
+            tx, ty = bx + k / 2, (by + k if corner.startswith("lower") else by)
+            dx, dy = tx - px, ty - py
+            d = (dx * dx + dy * dy) ** 0.5
+            ax.plot([px + dx / d * r * u, tx], [py + dy / d * r * u, ty], color=HIGHLIGHT, lw=0.8, zorder=5,
+                    solid_capstyle="butt")
         if chip is not None and chips:
             ax.text(x + s / 2, y + 0.075, f"LPIPS {chip:.2f}", ha="center", va="center", fontsize=7.5, color="white",
                     zorder=4, bbox=dict(boxstyle="round,pad=0.18", fc="black", ec="none", alpha=0.62))
@@ -195,13 +216,13 @@ def figure(img_id, prompt, out_dir, name, layout="full", chips=True, arms=None, 
             show(purified, x, ys[0], edge=color, lw=1.8, chip=lp1)
     elif layout == "protected-purified":
         show(source, x_ref, ys[0])
-        show(ref_purified, x_ref, ys[1])
+        show(ref_purified, x_ref, ys[1], mark=True)
         for x, (label, color, protected, _, purified, (_, lp1), src) in zip(xs, columns):
             ax.text(x + s / 2, H - 0.03, label, ha="center", va="top", color=OURS if label == OURS_LABEL else INK)
             if src:
                 ax.text(x + s / 2, H - 0.17, src, ha="center", va="top", fontsize=6.5, color="#555555")
             show(protected, x, ys[0])
-            show(purified, x, ys[1], edge=color, lw=1.8, chip=lp1)
+            show(purified, x, ys[1], edge=color, lw=1.8, chip=lp1, mark=True)
         for label, y in zip(["Protection", "Edited\n(purified)"], ys):
             ax.text(x0 - 0.05, y + s / 2, label, rotation=90, ha="right", va="center", fontsize=8.5, linespacing=1.05)
     else:
@@ -243,12 +264,18 @@ def main():
     ap.add_argument("--cite", action="store_true", help="add the source (author, year) under each method name")
     ap.add_argument("--scale2p5", action="store_true",
                     help="draw CAPGuard with the 2.5x angle bounds (color3d_scale2p5_pexels); tag tiles that fall back")
+    ap.add_argument("--highlight", nargs=4, metavar=("CX", "CY", "R", "CORNER"),
+                    help="protected-purified layout: circle the region centred at (CX, CY) with radius R, in pixels of "
+                         "the 512 tile, on every purified edit and repeat it magnified in CORNER "
+                         "(lower-left, lower-right, upper-left, upper-right)")
     args = ap.parse_args()
     if args.rank:
         rank(args.rank)
     else:
+        mark = (int(args.highlight[0]), int(args.highlight[1]), int(args.highlight[2]), args.highlight[3]) \
+            if args.highlight else None
         figure(args.image, args.prompt, args.out_dir, args.name, args.layout, not args.no_lpips,
-               args.arms.split(",") if args.arms else None, args.cite, args.scale2p5)
+               args.arms.split(",") if args.arms else None, args.cite, args.scale2p5, mark)
 
 
 if __name__ == "__main__":

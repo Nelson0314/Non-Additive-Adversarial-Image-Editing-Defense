@@ -80,13 +80,13 @@ The lower blocks of \cref{tab:main} apply the protected images optimized against
     w/o smoothing ($\sigma = 0$) & 100 & .408 & 5.22 & 5.05 & .468 & .453 & .431 & .331 & \prelim{--}{} & \prelim{--}{} \\
     w/o angle bounds & 100 & .472 & 5.20 & 4.94 & .517 & .536 & .525 & .429 & \prelim{--}{} & \prelim{--}{} \\
     single angle bound ($25^\circ$) & 100 & .449 & 5.31 & 5.16 & .491 & .524 & .514 & .436 & \prelim{--}{} & \prelim{--}{} \\
-    w/o luminance constraint ($\|c\|$ free) & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
+    w/o luminance constraint ($\|c\|$ free) & 100 & .297 & 5.32 & 5.32 & .358 & .389 & .364 & .293 & \prelim{--}{} & \prelim{--}{} \\
     \midrule
     \multicolumn{11}{@{}l}{\emph{Simpler color mappings at the defense LPIPS of \capg{}}} \\
-    random hue / saturation & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
+    random hue / saturation & 100 & .236 & 5.30 & 5.21 & .297 & .334 & .317 & .254 & \prelim{--}{} & \prelim{--}{} \\
     optimized hue / saturation & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
     optimized $3\times3$ affine & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
-    unconstrained $33^3$ LUT & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
+    unconstrained $33^3$ LUT & 100 & .300 & 5.26 & 5.06 & .390 & .384 & .330 & .315 & \prelim{--}{} & \prelim{--}{} \\
     \bottomrule
   \end{tabular}
   \caption{Ablations on InstructPix2Pix (100 portraits $\times$ 4 instructions). $n$: portraits with a solution. ISR Purified: JPEG 50, blur, and VAE-Trans combined.}

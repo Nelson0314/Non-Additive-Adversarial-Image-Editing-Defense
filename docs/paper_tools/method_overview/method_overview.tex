@@ -33,15 +33,16 @@
 % 區塊邊界（cm）
 \def\aR{4.0}\def\bL{4.15}\def\bR{11.55}\def\cL{11.7}\def\W{17.4}\def\H{6.45}
 
-% (b) 球帽示意：球心 (bx, by)，半徑 \Rs，視角仰角 \Elev；θ 自灰軸量起，φ 繞灰軸
-\def\bx{6.25}\def\by{0.62}\def\Rs{2.6}\def\Elev{28}
+% (b) sphere of constant |c|: center (bx, by), radius \Rs, elevation \Elev; theta from the gray axis, phi about it
+\def\bx{6.35}\def\by{1.35}\def\Rs{2.05}\def\Elev{28}
 \tikzset{cap/.cd, t/.store in=\capt, p/.store in=\capp}
 \tikzdeclarecoordinatesystem{cap}{\tikzset{cap/.cd,#1}%
   \pgfmathsetmacro{\cpx}{\bx+\Rs*sin(\capt)*cos(\capp)}%
   \pgfmathsetmacro{\cpy}{\by+\Rs*cos(\capt)*cos(\Elev)+\Rs*sin(\capt)*sin(\capp)*sin(\Elev)}%
   \pgfpointxy{\cpx}{\cpy}}
-% c 與 c′（示意位置）
-\def\tC{42}\def\pC{232}\def\tN{29}\def\pN{257}
+% c, c' and the bounds, drawn to scale: |dtheta| < 25 deg, |dphi| < 7.5 deg
+\def\tC{45}\def\pC{235}\def\tN{30}\def\pN{239.5}
+\def\tLo{20}\def\tHi{70}\def\pLo{227.5}\def\pHi{242.5}
 
 \begin{document}
 \begin{tikzpicture}[line cap=round]
@@ -66,53 +67,60 @@
 \draw[grad] (0.35,5.55) -- (0.95,5.05);
 \node[lab, text=ours, anchor=south] at (0.35,5.52) {$\nabla_\Theta$};
 
-% ======== (b) 左：球帽上的一個顏色 ========
+% ======== (b) left: the set of colors that c can reach ========
 \draw[muted, densely dashed, line width=0.5pt] (\bx,\by) -- (cap cs:t=0,p=0);
-\foreach \t in {16,32,48}{
+\foreach \t in {20,45,70}{
   \draw[black!28, line width=0.4pt] plot[domain=180:360, samples=40, smooth, variable=\p] (cap cs:t=\t,p=\p);
   \draw[black!13, line width=0.4pt] plot[domain=0:180, samples=40, smooth, variable=\p] (cap cs:t=\t,p=\p);
 }
-\foreach \p in {200,230,...,350}{
-  \draw[black!28, line width=0.4pt] plot[domain=0:48, samples=20, smooth, variable=\t] (cap cs:t=\t,p=\p);
+\foreach \p in {195,225,...,345}{
+  \draw[black!22, line width=0.4pt] plot[domain=0:70, samples=20, smooth, variable=\t] (cap cs:t=\t,p=\p);
 }
-\draw[->, muted, line width=0.5pt] (cap cs:t=0,p=0) -- ++(0,0.6) node[small, above] {gray axis};
+\draw[->, muted, line width=0.5pt] (cap cs:t=0,p=0) -- ++(0,0.55) node[small, above] {gray axis};
 \fill[muted] (cap cs:t=0,p=0) circle (1.1pt);
+
+% reachable set: polar angle within theta_max, azimuth within phi_max, on the sphere |c'| = |c|
+\fill[ours, opacity=0.22]
+  plot[domain=\tLo:\tHi, samples=20, smooth, variable=\t] (cap cs:t=\t,p=\pLo) --
+  plot[domain=\pLo:\pHi, samples=8, smooth, variable=\p] (cap cs:t=\tHi,p=\p) --
+  plot[domain=\tHi:\tLo, samples=20, smooth, variable=\t] (cap cs:t=\t,p=\pHi) --
+  plot[domain=\pHi:\pLo, samples=8, smooth, variable=\p] (cap cs:t=\tLo,p=\p) -- cycle;
+\draw[ours, line width=0.7pt]
+  plot[domain=\tLo:\tHi, samples=20, smooth, variable=\t] (cap cs:t=\t,p=\pLo) --
+  plot[domain=\pLo:\pHi, samples=8, smooth, variable=\p] (cap cs:t=\tHi,p=\p) --
+  plot[domain=\tHi:\tLo, samples=20, smooth, variable=\t] (cap cs:t=\t,p=\pHi) --
+  plot[domain=\pHi:\pLo, samples=8, smooth, variable=\p] (cap cs:t=\tLo,p=\p) -- cycle;
+\node[small, text=ours, anchor=south east] at ($(cap cs:t=\tLo,p=\pLo)+(0.05,0.02)$) {reachable $c'$};
+
+% radius: the norm is kept
 \draw[black!40, line width=0.45pt] (\bx,\by) -- (cap cs:t=\tC,p=\pC);
 \draw[black!40, line width=0.45pt] (\bx,\by) -- (cap cs:t=\tN,p=\pN);
 \fill[black] (\bx,\by) circle (1.4pt);
 \node[small, anchor=north] at (\bx,\by-0.04) {black};
-\node[small, anchor=east] at ($(\bx,\by)!0.45!(cap cs:t=\tC,p=\pC)+(-0.08,0)$) {$\|c'\|=\|c\|$};
+\node[small, anchor=west] at (\bx+0.12,\by+0.22) {$\|c'\|=\|c\|$};
 
-% c 處的切向量：V(c) 分解成 v_θ e_θ（沿經線）與 v_φ e_φ（沿緯圈）
-\coordinate (C) at (cap cs:t=\tC,p=\pC);
-% 有界後的移動（寬淡色帶）：先 Δθ 再 Δφ
-\draw[polar, line width=3.6pt, opacity=0.45] plot[domain=\tC:\tN, samples=15, smooth, variable=\t] (cap cs:t=\t,p=\pC);
-\draw[azim, line width=3.6pt, opacity=0.5] plot[domain=\pC:\pN, samples=15, smooth, variable=\p] (cap cs:t=\tN,p=\p);
+% the two bounds as dimension arcs beside the set
+\draw[<->, polar, line width=0.9pt] plot[domain=\tLo:\tHi, samples=20, smooth, variable=\t] (cap cs:t=\t,p=\pLo-9);
+\node[lab, polar, anchor=east] at ($(cap cs:t=\tC+6,p=\pLo-9)+(-0.04,0)$) {$\pm\theta_{\max}$};
+\draw[<->, azim, line width=0.9pt] plot[domain=\pLo:\pHi, samples=8, smooth, variable=\p] (cap cs:t=\tHi+7,p=\p);
+\node[lab, azim, anchor=north] at ($(cap cs:t=\tHi+7,p=\pC)+(0.05,-0.03)$) {$\pm\phi_{\max}$};
 
-\coordinate (Tt) at ($(C)!1.0!(cap cs:t=\tC-24,p=\pC)$);
-\coordinate (Tp) at ($(C)!1.0!(cap cs:t=\tC,p=\pC+62)$);
-\coordinate (TV) at ($(Tt)+(Tp)-(C)$);
-\draw[black!45, densely dotted, line width=0.5pt] (Tt) -- (TV) -- (Tp);
-\draw[->, polar, line width=1.1pt] (C) -- (Tt);
-\draw[->, azim, line width=1.1pt] (C) -- (Tp);
-\draw[->, ink, line width=0.9pt] (C) -- (TV);
-\node[lab, polar, anchor=east] at ($(Tt)+(-0.08,-0.12)$) {$v_\theta e_\theta$};
-\node[lab, azim, anchor=north west] at ($(Tp)+(-0.25,-0.04)$) {$v_\phi e_\phi$};
-\node[lab, anchor=south west] at ($(TV)+(0.0,0.0)$) {$V(c)$};
-\fill[white] (C) circle (2pt); \draw[ink, line width=0.6pt] (C) circle (2pt);
+% c and one admissible c'
+\draw[->, ink, line width=0.9pt, shorten >=2.2pt, shorten <=2.2pt] (cap cs:t=\tC,p=\pC) -- (cap cs:t=\tN,p=\pN);
+\fill[white] (cap cs:t=\tC,p=\pC) circle (2pt); \draw[ink, line width=0.6pt] (cap cs:t=\tC,p=\pC) circle (2pt);
 \fill[ink] (cap cs:t=\tN,p=\pN) circle (2pt);
-\node[lab, anchor=north east] at ($(C)+(-0.03,-0.03)$) {$c$};
-\node[lab, anchor=north east] at ($(cap cs:t=\tN,p=\pN)+(-0.02,-0.06)$) {$c'$};
+\node[lab, anchor=west] at ($(cap cs:t=\tC,p=\pC)+(0.05,-0.06)$) {$c$};
+\node[lab, anchor=west] at ($(cap cs:t=\tN,p=\pN)+(0.05,0.04)$) {$c'$};
 
-% 有界函數：tangent 分量 → 角度
+% legend: the bounds and the smooth saturation that enforces them
 \begin{scope}[shift={(\bL+0.95,4.75)}]
   \draw[black!35, line width=0.3pt] (-0.55,0) -- (0.55,0) (0,-0.5) -- (0,0.5);
   \draw[black!50, densely dashed, line width=0.4pt] (-0.55,0.36) -- (0.55,0.36) (-0.55,-0.36) -- (0.55,-0.36);
   \draw[ink, line width=0.9pt, domain=-0.55:0.55, samples=40, smooth] plot (\x,{0.36*tanh(\x/0.36*1.8)});
-  \node[small, anchor=north] at (0,-0.55) {bounded};
+  \node[small, anchor=north] at (0,-0.55) {smooth bound};
 \end{scope}
-\node[lab, anchor=west, polar] at (\bL+1.65,5.0) {$|\Delta\theta|<25^\circ$};
-\node[lab, anchor=west, azim] at (\bL+1.65,4.55) {$|\Delta\phi|<7.5^\circ$};
+\node[lab, anchor=west, polar] at (\bL+1.65,5.0) {$|\Delta\theta|<\theta_{\max}=25^\circ$};
+\node[lab, anchor=west, azim] at (\bL+1.65,4.55) {$|\Delta\phi|<\phi_{\max}=7.5^\circ$};
 
 % ======== (b) 右：實際 LUT 的色度盤 ========
 \def\dx{9.82}\def\dy{3.3}

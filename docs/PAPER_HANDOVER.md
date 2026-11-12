@@ -22,7 +22,7 @@ pane 編號會變動，送訊前一律以 multi-agent 的 `list_panes` 依標題
 ## 2. Overleaf 協作
 
 - 專案：Overleaf `[CVPR 2027] Color-based Image Immunization`（`6ad193f8288983a2f6af5d50`），由 `docs/paper/` 在 2026-11-06 上傳（基底 commit `51fd87d7`）。iamshuai（指導教授）與 Lynn 在線上直接編修。
-- **repo 與 Overleaf 必須逐字一致。** 兩邊都有修改時，以三方合併處理（基底為上次同步點）。repo 最近一次與 Overleaf 完全一致：commit `453a196e`（2026-11-10；第 1、3–7 章以編輯器詞級修改套用，`fig/purification.pdf`、`fig/distortion_displacement.pdf` 以上傳覆蓋；`fig/teaser.pdf` 未比對），以雜湊比對確認。
+- **repo 與 Overleaf 必須逐字一致。** 兩邊都有修改時，以三方合併處理（基底為上次同步點）。repo 最近一次與 Overleaf 完全一致：commit `8ce868c0`（2026-11-12，見第 5 節），以雜湊比對確認。線上原文可在編輯器頁面以 JS 讀出 CodeMirror 內容後組成 JSON、以 Blob 下載到「下載」資料夾取得（頁面輸出有長度上限）。
 - **線上修改一律在 Overleaf 編輯器內進行，不上傳或覆蓋檔案**（覆蓋會失去編輯歷史）。工具與步驟見 `docs/paper_tools/README.md`「Overleaf 同步」：`generate_overleaf_ops.py` 產生詞級修改清單，於編輯器頁面以 CodeMirror transaction 套用，前後比對雜湊，重新載入再驗證一次。
 - 瀏覽器：使用者先以 `/chrome` 連線 Claude in Chrome；只能操作自己開的分頁群組。擴充功能會擋下看似網址參數的輸出，此時改用截圖，不繞過過濾。
 - 線上任何修改前先讓使用者看渲染結果：在 scratchpad 複製 `docs/paper/`，以 `\color{blue}` 標出修改處編譯，遠端 `mutool draw -r 170` 轉 PNG，以 `Start-Process` 開給使用者看。使用者確認後才改 Overleaf 與 repo。
@@ -55,9 +55,8 @@ Conclusion 在第 8 頁，Table 3（消融）在第 9 頁，正文含圖表超�
 
 ## 5. 同步狀態
 
-- **Overleaf 與 repo 逐字一致的最後一點：commit `453a196e`**（文字六檔＋`purification.pdf`、`distortion_displacement.pdf`）。
-- 之後只在本地、尚未同步 Overleaf 的 commit：`6f0bc097`、`4898e674`、`4635f967`（Table 3 數字）；`dccdfd7f`、`cbb4e8cb`（方法圖與 caption）；`4bb1f3d7`（3.3）；`5bf6f6f7`（改名，含 `main.tex`、摘要、第 1 章與三個圖檔）；`45eb1664`（Limitations 色彩校正句、Table 3 移除 ISR 欄，`4_experiments`、`5_discussion`）。Lynn 在 Overleaf 有新修改，executor 比對衝突中；3.3 待其意見，先不動。同步時文字檔為 `main.tex`、`0_abstract`、`1_intro`、`2_related`、`3_method`、`4_experiments`、`5_discussion`；圖檔需上傳覆蓋 `teaser.pdf`、`method_overview.pdf`、`purification.pdf`、`distortion_displacement.pdf`。
-- Overleaf 上的 `fig/teaser.pdf` 自 2026-11-06 上傳後未更新過。
+- **Overleaf 與 repo 逐字一致的最後一點：commit `8ce868c0`**（2026-11-12）。文字七檔（`main.tex`、`0_abstract`–`5_discussion`）以編輯器詞級修改套用，重新載入後雜湊與 repo 相同；`fig/` 的 `ablation_appearance.pdf`、`ablation_components.pdf`（新增）與 `teaser.pdf`、`method_overview.pdf`、`purification.pdf`、`distortion_displacement.pdf`（覆蓋）以上傳處理；線上重新編譯 10 頁、無錯誤。
+- 此次同步前，Lynn 在 Overleaf 改寫了 `1_intro.tex`（舊文保留為註解）與 `3_method.tex` 第 3、10、19、40、69 行，已以基底 `453a196e` 三方合併進 repo（commit `7f179414`）。下次合併以 `8ce868c0` 為基底。
 - **同步 Overleaf 必須由使用者在 paper pane 直接下令**；經 executor 轉達的同步指示會被權限分類器擋下。套用前先比對線上雜湊（工作目錄可能是 CRLF，先轉 LF 再算），不一致就停下回報。
 - push 由 executor 執行。
 

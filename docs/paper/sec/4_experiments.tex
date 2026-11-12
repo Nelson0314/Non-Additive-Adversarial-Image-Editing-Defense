@@ -66,31 +66,31 @@ The lower blocks of \cref{tab:main} apply the protected images optimized against
   \centering
   \footnotesize
   \setlength{\tabcolsep}{4pt}
-  \begin{tabular}{@{}lc ccc cccc cc@{}}
+  \begin{tabular}{@{}lc ccc cccc@{}}
     \toprule
-    & & \multicolumn{3}{c}{Protected image} & \multicolumn{4}{c}{Edit LPIPS $\uparrow$} & \multicolumn{2}{c}{ISR (\%) $\uparrow$} \\
-    \cmidrule(lr){3-5} \cmidrule(lr){6-9} \cmidrule(l){10-11}
-    Variant & $n$ & LPIPS $\downarrow$ & LAION $\uparrow$ & MUSIQ $\uparrow$ & None & JPEG 50 & Blur 2 & VAE-Trans & None & Purified \\
+    & & \multicolumn{3}{c}{Protected image} & \multicolumn{4}{c}{Edit LPIPS $\uparrow$} \\
+    \cmidrule(lr){3-5} \cmidrule(l){6-9}
+    Variant & $n$ & LPIPS $\downarrow$ & LAION $\uparrow$ & MUSIQ $\uparrow$ & None & JPEG 50 & Blur 2 & VAE-Trans \\
     \midrule
     \rowcolor{oursrow}
-    \capg{} (Ours) & 100 & .299 & 5.31 & 5.33 & .361 & .390 & .366 & .295 & 17.0 & 16.5 \\
+    \capg{} (Ours) & 100 & .299 & 5.31 & 5.33 & .361 & .390 & .366 & .295 \\
     \midrule
-    \multicolumn{11}{@{}l}{\emph{One component removed, without distortion matching}} \\
-    w/o optimization (random $\Theta$) & 100 & .045 & 5.45 & 5.39 & .088 & .151 & .084 & .064 & \prelim{--}{} & \prelim{--}{} \\
-    w/o smoothing ($\sigma = 0$) & 100 & .408 & 5.22 & 5.05 & .468 & .453 & .431 & .331 & \prelim{--}{} & \prelim{--}{} \\
-    w/o angle bounds & 100 & .472 & 5.20 & 4.94 & .517 & .536 & .525 & .429 & \prelim{--}{} & \prelim{--}{} \\
-    single angle bound ($25^\circ$) & 100 & .449 & 5.31 & 5.16 & .491 & .524 & .514 & .436 & \prelim{--}{} & \prelim{--}{} \\
-    w/o luminance constraint ($\|c\|$ free) & 100 & .297 & 5.32 & 5.32 & .358 & .389 & .364 & .293 & \prelim{--}{} & \prelim{--}{} \\
+    \multicolumn{9}{@{}l}{\emph{One component removed, without distortion matching}} \\
+    w/o optimization (random $\Theta$) & 100 & .045 & 5.45 & 5.39 & .088 & .151 & .084 & .064 \\
+    w/o smoothing ($\sigma = 0$) & 100 & .408 & 5.22 & 5.05 & .468 & .453 & .431 & .331 \\
+    w/o angle bounds & 100 & .472 & 5.20 & 4.94 & .517 & .536 & .525 & .429 \\
+    single angle bound ($25^\circ$) & 100 & .449 & 5.31 & 5.16 & .491 & .524 & .514 & .436 \\
+    w/o luminance constraint ($\|c\|$ free) & 100 & .297 & 5.32 & 5.32 & .358 & .389 & .364 & .293 \\
     \midrule
-    \multicolumn{11}{@{}l}{\emph{Simpler color mappings at the defense LPIPS of \capg{}}} \\
-    random hue / saturation & 100 & .236 & 5.30 & 5.21 & .297 & .334 & .317 & .254 & \prelim{--}{} & \prelim{--}{} \\
-    optimized hue / saturation & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
-    optimized $3\times3$ affine & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
-    unconstrained $33^3$ LUT & 100 & .300 & 5.26 & 5.06 & .390 & .384 & .330 & .315 & \prelim{--}{} & \prelim{--}{} \\
+    \multicolumn{9}{@{}l}{\emph{Simpler color mappings at the defense LPIPS of \capg{}}} \\
+    random hue / saturation & 100 & .236 & 5.30 & 5.21 & .297 & .334 & .317 & .254 \\
+    optimized hue / saturation & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
+    optimized $3\times3$ affine & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
+    unconstrained $33^3$ LUT & 100 & .300 & 5.26 & 5.06 & .390 & .384 & .330 & .315 \\
     \bottomrule
   \end{tabular}
-  \caption{Ablations on InstructPix2Pix (100 portraits $\times$ 4 instructions). $n$: portraits with a solution. ISR Purified: JPEG 50, blur, and VAE-Trans combined.}
-  \prelimnote{Tab.~3: readings of the crosseditor100 runs pending (color trial \texttt{results/<condition>/}, conditions color3d\_ablation\_\{random, sigma0, unbounded, single25, unnormalized\}\_pexels and color\_baseline\_\{random\_huesat, huesat, affine, lut33\}\_pexels); optimized hue / saturation and affine not yet scheduled; ISR judging of the ablation rows not scheduled; rule for portraits without a feasible solution (common subset or per-row $n$) not yet decided.}
+  \caption{Ablations on InstructPix2Pix (100 portraits $\times$ 4 instructions). $n$: portraits with a solution.}
+  \prelimnote{Tab.~3: optimized hue / saturation (color\_baseline\_huesat\_pexels) and optimized affine (color\_baseline\_affine\_pexels) readings pending (color trial \texttt{results/<condition>/}); rule for portraits without a feasible solution (common subset or per-row $n$) not yet decided.}
   \label{tab:ablation}
 \end{table*}
 

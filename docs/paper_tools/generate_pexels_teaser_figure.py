@@ -144,22 +144,28 @@ def figure(img_id, prompt, out_dir, name, layout="full", chips=True, arms=None, 
         columns.append((label, ADDITIVE, *(load(f) for f in files),
                         (lp.get((c, img_id, p, "none"), float("nan")), lp.get((c, img_id, p, PURIFIER), float("nan"))),
                         CITES[c] if cite else None))
-    # ImmuLUT: the 2.5x-bound condition when its defense and purified edit exist, otherwise the default bounds (tagged)
-    ours_tag = None
+    # ImmuLUT: the 2.5x-bound condition with --scale2p5 (all three files must exist), otherwise the default bounds
     big = OURS_C.replace("color3d_", "color3d_scale2p5_")
-    big_def = sorted(p_ for p_ in (TRIAL / "artifacts_pexels").glob(f"**/{img_id}__{big}__def.png")
-                     if "vae_trans" not in str(p_))
-    big_pur = TRIAL / f"artifacts_pexels/edits_by_image/{big}/{img_id}/purified/{PURIFIER}/ip2p_{big}_{PURIFIER}/{img_id}__p{p}.png"
-    big_plain = sorted((TRIAL / "artifacts_pexels").glob(f"**/ip2p_{big}/{img_id}__p{p}.png"))
-    if scale2p5 and big_def and big_pur.exists():
-        columns.append((OURS_LABEL, OURS, load(big_def[0]), load(big_plain[0]) if big_plain else load(big_pur),
-                        load(big_pur), (float("nan"), float("nan")), None))
+    # Main-table files only: other directories under artifacts_pexels hold color-corrected copies
+    # (color_normalization/gray_world, lab_norm) and subset reruns with the same file names.
+    big_root = TRIAL / "artifacts_pexels"
+    big_def = big_root / f"defenses/{big}/{img_id}__{big}__def.png"
+    big_plain = big_root / f"edits_by_image/{big}/{img_id}/defended/ip2p_{big}/{img_id}__p{p}.png"
+    big_pur = big_root / f"edits_by_image/{big}/{img_id}/purified/{PURIFIER}/ip2p_{big}_{PURIFIER}/{img_id}__p{p}.png"
+    if scale2p5:
+        for f in (big_def, big_plain, big_pur):
+            if not f.exists():
+                raise FileNotFoundError(f)
+        columns.append((OURS_LABEL, OURS, load(big_def), load(big_plain), load(big_pur),
+                        (float("nan"), float("nan")), None))
     else:
-        ours_tag = "default bounds" if scale2p5 else None
         columns.append((OURS_LABEL, OURS, load(TRIAL / f"artifacts_pexels/defenses/{OURS_C}/{img_id}__{OURS_C}__def.png"),
                         load(png[(OURS_C, img_id, p, "none")]), load(png[(OURS_C, img_id, p, PURIFIER)]),
                         (lp[(OURS_C, img_id, p, "none")], lp[(OURS_C, img_id, p, PURIFIER)]), None))
-    source = load(find_one(f"**/defenses/**/{img_id}__orig.png"))
+    sources = sorted((BASE / "data/pexels_portraits").glob(f"*/{img_id}.png"))
+    if len(sources) != 1:
+        raise FileNotFoundError(f"expected one dataset image for {img_id}, found {sources}")
+    source = load(sources[0])
     ref_plain = load(png[("undefended", img_id, p, "none")])
     ref_purified = load(png[("undefended", img_id, p, PURIFIER)])
 
@@ -237,10 +243,6 @@ def figure(img_id, prompt, out_dir, name, layout="full", chips=True, arms=None, 
             show(purified, x, ys[2], edge=color, lw=1.8, chip=lp1)
         for label, y in zip(["Protection", "Edited\n(unpurified)", "Edited\n(purified)"], ys):
             ax.text(x0 - 0.05, y + s / 2, label, rotation=90, ha="right", va="center", fontsize=8.5, linespacing=1.05)
-    if ours_tag:  # ImmuLUT tiles drawn from the default bounds because the 2.5x readings are missing
-        for y in ys:
-            ax.text(xs[-1] + s / 2, y + s - 0.07, ours_tag, ha="center", va="center", fontsize=7, color="white", zorder=5,
-                    bbox=dict(boxstyle="round,pad=0.18", fc="#C0392B", ec="none"))
     ax.text(x_ref + 0.03, 0.12, f"Edit prompt: “{INSTRUCTIONS[prompt]}”", ha="left", va="center", fontsize=8.5,
             bbox=dict(boxstyle="square,pad=0.3", fc="white", ec=INK, lw=0.5))
     ax.text(xs[-1] + s, 0.12, r"Purification: Gaussian blur, $\sigma = 2$", ha="right", va="center", fontsize=8.5)

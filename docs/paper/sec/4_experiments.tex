@@ -80,7 +80,6 @@ The lower blocks of \cref{tab:main} apply the protected images optimized against
     w/o smoothing ($\sigma = 0$) & 100 & .408 & 5.22 & 5.05 & .468 & .453 & .431 & .331 \\
     w/o angle bounds & 100 & .472 & 5.20 & 4.93 & .517 & .536 & .525 & .429 \\
     single angle bound ($25^\circ$) & 100 & .449 & 5.31 & 5.16 & .491 & .524 & .514 & .436 \\
-    w/o luminance constraint ($\|c\|$ free) & 100 & .297 & 5.32 & 5.32 & .358 & .389 & .364 & .293 \\
     \midrule
     \multicolumn{9}{@{}l}{\emph{Simpler color mappings at the defense LPIPS of \capg{}}} \\
     random hue / saturation & 100 & .236 & 5.30 & 5.21 & .297 & .334 & .317 & .254 \\
@@ -95,4 +94,20 @@ The lower blocks of \cref{tab:main} apply the protected images optimized against
 
 \subsection{Ablation study}
 \label{sec:exp_ablation}
-\TODO{Text of the ablation study (\cref{tab:ablation}).}
+\Cref{tab:ablation} compares \capg{} with two groups of variants on the 100 portraits of \cref{tab:isr}. The first group removes one component of \capg{}: the optimization (a random $\Theta$), the smoothing ($\sigma = 0$), the angular bounds, or the separate bounds on $\theta$ and $\phi$ (a single bound of $25^\circ$); these variants are not matched in distortion. The second group replaces the parameterization of \cref{sec:feasible} with simpler color mappings, a random or an optimized change of hue and saturation, an optimized $3\times3$ affine color transform, and an unconstrained $33^3$ LUT, each optimized to the LPIPS of the protected images of \capg{}. Quality is scored by the no-reference aesthetic models LAION~\cite{schuhmann2022laion} and MUSIQ~\cite{ke2021musiq}. Differences to \capg{} are computed per portrait on the 99 portraits common to all rows, with 95\% paired bootstrap intervals.
+
+\paragraph{Persistence.}
+Every color variant preserves its edit displacement under purification. For \capg{}, the edit LPIPS after purification is 1.10, 1.02, and 0.82 times that before purification for JPEG compression, blur, and VAE-Trans, respectively. Persistence is therefore a property of global color mappings and does not depend on the parameterization of \capg{}.
+
+\paragraph{Appearance at matched distortion.}
+At the same protected-image LPIPS of about 0.30, the optimized hue and saturation change, the affine transform, and the unconstrained LUT have a lower MUSIQ score than \capg{}, by $0.19 \pm 0.07$, $0.49 \pm 0.08$, and $0.28 \pm 0.07$, respectively (\cref{fig:ablation_appearance}). Their LAION scores differ from that of \capg{} by $-0.12 \pm 0.05$, $-0.04 \pm 0.05$, and $-0.06 \pm 0.05$. The edit displacement of \capg{} is not larger than that of these mappings. Without purification, the hue and saturation change reaches the same edit LPIPS ($+0.005 \pm 0.008$), and the affine transform and the unconstrained LUT reach a larger one ($+0.032 \pm 0.010$ and $+0.028 \pm 0.006$). After VAE-Trans, the edit LPIPS of the hue and saturation change and of the affine transform exceeds that of \capg{} by $0.035 \pm 0.011$ and $0.081 \pm 0.014$; after blur, that of the unconstrained LUT is lower by $0.037 \pm 0.011$. The random change of hue and saturation does not reach the target LPIPS on 34 portraits.
+
+\paragraph{Components.}
+Removing the smoothing, the angular bounds, or the separate bounds raises the protected-image LPIPS by 0.11 to 0.17 and lowers the MUSIQ score by $0.28 \pm 0.05$, $0.39 \pm 0.06$, and $0.17 \pm 0.05$, respectively. Because these variants differ in distortion from \capg{}, their edit displacements are not compared directly. A random $\Theta$ of the same parameterization yields a protected-image LPIPS of 0.045 and an edit LPIPS of 0.088 without purification, against 0.361 for \capg{}.
+
+\begin{figure*}[t]
+  \centering
+  \fbox{\parbox[c][4cm][c]{0.95\linewidth}{\centering\TODO{Protected images of one portrait under \capg{} and each ablation variant.}}}
+  \caption{Protected images of one portrait under \capg{} and each variant of \cref{tab:ablation}.}
+  \label{fig:ablation_appearance}
+\end{figure*}

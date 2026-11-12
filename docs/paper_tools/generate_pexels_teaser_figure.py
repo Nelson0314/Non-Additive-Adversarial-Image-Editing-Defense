@@ -141,8 +141,8 @@ def figure(img_id, prompt, out_dir, name, layout="full", chips=True, arms=None, 
         else:
             # matched-distortion defenses: aligned/defenses/ (first batch) or aligned/sets/<range>/defenses/;
             # aligned/superseded/ holds earlier budgets with the same file names and is never read
-            name = f"defenses/{c}/{img_id}__{c}__def.png"
-            hits = [f for f in [ART / "aligned" / name] if f.exists()] + sorted((ART / "aligned/sets").glob(f"*/{name}"))
+            def_name = f"defenses/{c}/{img_id}__{c}__def.png"
+            hits = [f for f in [ART / "aligned" / def_name] if f.exists()] + sorted((ART / "aligned/sets").glob(f"*/{def_name}"))
             if len(hits) != 1:
                 raise FileNotFoundError(f"expected one matched-distortion defense for {c}/{img_id}, found {hits}")
             files = (hits[0], png[(c, img_id, p, "none")], png[(c, img_id, p, PURIFIER)])
@@ -167,10 +167,11 @@ def figure(img_id, prompt, out_dir, name, layout="full", chips=True, arms=None, 
         columns.append((OURS_LABEL, OURS, load(TRIAL / f"artifacts_pexels/defenses/{OURS_C}/{img_id}__{OURS_C}__def.png"),
                         load(png[(OURS_C, img_id, p, "none")]), load(png[(OURS_C, img_id, p, PURIFIER)]),
                         (lp[(OURS_C, img_id, p, "none")], lp[(OURS_C, img_id, p, PURIFIER)]), None))
-    sources = sorted((BASE / "data/pexels_portraits").glob(f"*/{img_id}.png"))
-    if len(sources) != 1:
-        raise FileNotFoundError(f"expected one dataset image for {img_id}, found {sources}")
-    source = load(sources[0])
+    # dataset layout: data/pexels_portraits/{man,woman}/<id>.png; masks/ holds face masks with the same names
+    source_path = BASE / "data/pexels_portraits" / img_id.split("_")[0] / f"{img_id}.png"
+    if not source_path.exists():
+        raise FileNotFoundError(source_path)
+    source = load(source_path)
     ref_plain = load(png[("undefended", img_id, p, "none")])
     ref_purified = load(png[("undefended", img_id, p, PURIFIER)])
 

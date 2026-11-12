@@ -139,8 +139,13 @@ def figure(img_id, prompt, out_dir, name, layout="full", chips=True, arms=None, 
                      find_one(f"**/defended_edits/blurguard/ip2p_blurguard/{img_id}__p{p}.png"),
                      find_one(f"**/purified_edits/blurguard/{PURIFIER}/ip2p_blurguard_{PURIFIER}/{img_id}__p{p}.png"))
         else:
-            files = (find_one(f"**/aligned/**/defenses/{c}/{img_id}__{c}__def.png"), png[(c, img_id, p, "none")],
-                     png[(c, img_id, p, PURIFIER)])
+            # matched-distortion defenses: aligned/defenses/ (first batch) or aligned/sets/<range>/defenses/;
+            # aligned/superseded/ holds earlier budgets with the same file names and is never read
+            name = f"defenses/{c}/{img_id}__{c}__def.png"
+            hits = [f for f in [ART / "aligned" / name] if f.exists()] + sorted((ART / "aligned/sets").glob(f"*/{name}"))
+            if len(hits) != 1:
+                raise FileNotFoundError(f"expected one matched-distortion defense for {c}/{img_id}, found {hits}")
+            files = (hits[0], png[(c, img_id, p, "none")], png[(c, img_id, p, PURIFIER)])
         columns.append((label, ADDITIVE, *(load(f) for f in files),
                         (lp.get((c, img_id, p, "none"), float("nan")), lp.get((c, img_id, p, PURIFIER), float("nan"))),
                         CITES[c] if cite else None))

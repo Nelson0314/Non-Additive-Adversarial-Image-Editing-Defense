@@ -20,11 +20,8 @@ p{margin:0}
 .progress{display:flex;justify-content:space-between;font-size:.85rem;color:var(--muted)}
 .bar{height:6px;background:var(--line);border-radius:3px;overflow:hidden}
 .bar>i{display:block;height:100%;background:var(--accent);width:0;transition:width .2s}
-.post{width:100%;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface)}
-.post img{width:100%;aspect-ratio:1;display:block;background:var(--line)}
-.post-head,.post-foot{display:flex;align-items:center;gap:8px;padding:8px 12px;font-size:.88rem}
-.post-foot{justify-content:space-between;color:var(--muted)}
-.avatar{width:28px;height:28px;border-radius:50%;background:var(--line)}
+.stage{display:flex;justify-content:center}
+.stage img{display:block;width:auto;height:auto;max-width:100%;max-height:min(70vh,512px);object-fit:contain;border-radius:6px}
 .q{font-weight:600}
 .scale{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
 .scale button,.mini button{font:inherit;border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:8px;cursor:pointer}
@@ -47,8 +44,8 @@ select{font:inherit;padding:10px;border:1px solid var(--line);border-radius:8px;
 <main>
   <section id="intro" class="panel">
     <h1>社群貼文照片調查</h1>
-    <p>以下 20 張人像照片都是社群平台動態中的貼文。許多人發文前會先套用 App 內建的濾鏡或自己調整，也有人直接發原圖。</p>
-    <p>請想像你正在滑動態，依第一眼印象回答：這則貼文的照片，看起來是不是一般人發文時會有的樣子。沒有標準答案。</p>
+    <p>你會看到 20 張人像照片。許多人在社群平台發文前會先套用 App 內建的濾鏡或自己調整，也有人直接發原圖。</p>
+    <p>請依第一眼印象回答：這張照片看起來是不是一般人發文時會有的樣子。沒有標準答案。</p>
     <p class="muted">約 6–8 分鐘。不需登入，不收集姓名或聯絡方式。建議以手機直式或電腦全螢幕作答。</p>
     <div class="field"><label for="age">年齡</label>
       <select id="age"><option value="">請選擇</option><option>18 歲以下</option><option>18–24</option><option>25–34</option><option>35–44</option><option>45–54</option><option>55 歲以上</option></select></div>
@@ -66,12 +63,8 @@ select{font:inherit;padding:10px;border:1px solid var(--line);border-radius:8px;
       <div class="bar"><i id="barfill"></i></div>
     </div>
     <div class="panel">
-      <article class="post" aria-label="社群貼文">
-        <header class="post-head"><span class="avatar" aria-hidden="true"></span><span id="handle"></span></header>
-        <img id="photo" alt="貼文中的人像照片">
-        <footer class="post-foot"><span aria-hidden="true">♡ ○ ➤</span><span id="likes"></span></footer>
-      </article>
-      <p class="q">在動態上看到這則貼文，照片像是一般人發文會有的樣子嗎？</p>
+      <div class="stage"><img id="photo" alt="人像照片"></div>
+      <p class="q">這張照片像是一般人發文會有的樣子嗎？</p>
       <div class="scale" id="scale" role="group" aria-label="整體評分">
         <button data-v="1" aria-pressed="false"><b>1</b>完全不像</button>
         <button data-v="2" aria-pressed="false"><b>2</b>不太像</button>
@@ -115,7 +108,6 @@ $("start").onclick=async()=>{
 };
 function render(){
   overall=null;subs={};$("photo").src="photos/"+seq[i];
-  $("handle").textContent="user_"+String(1000+((i*7919+37)%9000));$("likes").textContent=(37+(i*53)%400)+" 個讚";
   $("count").textContent=`第 ${i+1} / ${seq.length} 張`;$("pct").textContent=`${Math.round(100*i/seq.length)}%`;
   $("barfill").style.width=`${100*i/seq.length}%`;
   document.querySelectorAll("#trial button[aria-pressed]").forEach(x=>x.setAttribute("aria-pressed","false"));

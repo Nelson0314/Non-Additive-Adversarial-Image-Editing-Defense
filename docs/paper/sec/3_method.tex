@@ -71,7 +71,7 @@ While consistent transformations across neighboring RGB values are encouraged, t
 s_a(t)=\arctan\left(\tan(a)\tanh\left(\frac{t}{\tan(a)}\right)\right),
 \label{eq:bounds}
 \end{equation}
-where $t$ denotes an unbounded angular displacement and $a \in \{\theta_{\max}, \phi_{\max}\}$ is the corresponding angular bound. The function maps any real $t$ into $(-a, a)$ and satisfies $s_a(t) \approx t$ for small $t$, which avoids abrupt saturation during optimization.
+where $t$ denotes a tangential displacement and $a \in \{\theta_{\max}, \phi_{\max}\}$ is the corresponding angular bound. The function maps any real $t$ into $(-a, a)$ and satisfies $s_a(t) \approx t$ for small $t$, which avoids abrupt saturation during optimization.
 
 The polar angle $\theta$ and the azimuthal angle $\phi$ correspond to the saturation and the hue of a color, respectively. We therefore bound their displacements separately:
 \begin{equation}
@@ -79,7 +79,7 @@ The polar angle $\theta$ and the azimuthal angle $\phi$ correspond to the satura
 \Delta\phi = s_{\phi_{\max}}\!\left(\frac{v_\phi}{r}\right),
 \label{eq:increments}
 \end{equation}
-so that $|\Delta\theta| < \theta_{\max}$ and $|\Delta\phi| < \phi_{\max}$ for every color. Since $v_\theta$ already measures a displacement in the polar angle, we apply the bound to it directly. In contrast, $v_\phi$ measures a length along the circle of polar angle $\theta + \Delta\theta$ around the gray axis, and we divide it by the radius $r = \sin(\theta + \Delta\theta)$ of this circle to convert it into an azimuthal angle before applying the bound. For colors on the gray axis, where $\phi$ is undefined, we set $\Delta\phi=0$. Together, these constraints define a smooth and bounded color transformation in the RGB space. The angular bounds $\theta_{\max}$ and $\phi_{\max}$ control the extent of permissible color changes, providing a trade-off between preserving the visual fidelity of the protected image and inducing sufficient disruption to diffusion-based editing.
+so that $|\Delta\theta| < \theta_{\max}$ and $|\Delta\phi| < \phi_{\max}$ for every color. The function $s_a$ converts a tangential displacement at unit distance into the angle it subtends. The polar displacement $v_\theta$ lies on the unit sphere, so we apply $s_{\theta_{\max}}$ to it directly. The azimuthal displacement $v_\phi$ lies on the circle of polar angle $\theta + \Delta\theta$ around the gray axis, whose radius is $r = \sin(\theta + \Delta\theta)$, so we normalize $v_\phi$ by $r$ before applying $s_{\phi_{\max}}$. For colors on the gray axis, where $\phi$ is undefined, we set $\Delta\phi=0$. Together, these constraints define a smooth and bounded color transformation in the RGB space. The angular bounds $\theta_{\max}$ and $\phi_{\max}$ control the extent of permissible color changes, providing a trade-off between preserving the visual fidelity of the protected image and inducing sufficient disruption to diffusion-based editing.
 
 
 

@@ -125,6 +125,12 @@
 - 色彩校正攻擊數字見 8.2；正文 Limitations 的「may remove the protection」仍待使用者決定是否改寫。
 - teaser 腳本（baseline，c6c9477b）：`scripts/generate_synthetic_portraits.py`、`scripts/run_teaser_edits.py`、`scripts/generate_teaser_overview.py`；執行前 `export ENV_FILE=~/env.sh PY=~/venvs/wacv/bin/python`。
 
+### 8.6 使用者決定與待辦（2026-11-12 10:00）
+- 已決定：方法圖（Fig. 2）草稿與 caption 採納；Limitations 色彩校正句依 8.2 數字改寫；消融不做 ISR 評審，只補 B2／B3 數據填 Table 3；color 持續嘗試視覺效果好的 teaser，失敗再換做法；給指導教授的回覆廢除。
+- 3.3 bounded angular displacement 依審閱意見改寫（eq. 6 的 r 定義、rotation 參數化與內文一致、說明 angular bound 的必要性與兩方向的不同處理、省略 tangent plane 細節），paper 負責。
+- Overleaf（基底 453a196e）：Lynn 改寫 `1_intro.tex`（舊段落以註解保留於第 23–43 行；第 10 行方法名仍為 Color-based Anti-Purification Image Immunization，未用 `\capg{}`），與 repo 的改名（5bf6f6f7，舊第 9 行）重疊；`3_method.tex` 第 3、10、19、40、69 行有修改，與 repo 的 74–82 行不重疊；其餘檔案與基底一致。
+- 待辦：inpainting 編輯器的 user study（補充材料）；防禦圖品質的 user study（補充材料）；主文加入定性圖。
+
 ### 8.5 工作方式補充
 - executor 的監看：`scratchpad/watch_idle.sh` 每 30 分鐘查兩台空卡與租約數，租約 < 6 且有空卡連續兩次、或佇列跑完即通知；session 重開會中斷，需重啟。使用者原則是卡不要空下來。
 - 被派工的 session 也會因用量上限中斷而不回應：派工後以 `read_pane` 或遠端 `~/gpu_leases`、`runtime/done` 確認；遠端沒有行程又沒有租約即表示對方停了。

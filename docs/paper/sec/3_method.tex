@@ -73,14 +73,13 @@ s_a(t)=\arctan\left(\tan(a)\tanh\left(\frac{t}{\tan(a)}\right)\right),
 \end{equation}
 where $a \in \{\theta_{\max}, \phi_{\max}\}$ is the angular bound. The function maps any real $t$ into $(-a, a)$ and satisfies $s_a(t) \approx t$ for small $t$, which avoids abrupt saturation during optimization.
 
-The angular displacements $\Delta\theta(c)$ and $\Delta\phi(c)$ are obtained from the two components of the field as
+The two angles describe different color changes, $\Delta\theta$ a change of saturation and $\Delta\phi$ a change of hue, and each receives its own bound:
 \begin{equation}
 \Delta\theta = s_{\theta_{\max}}(v_\theta), \qquad
-\Delta\phi = s_{\phi_{\max}}\!\left(\frac{v_\phi}{r}\right), \qquad
-r = \frac{\sin(\theta + \Delta\theta)}{\cos\Delta\theta},
+\Delta\phi = s_{\phi_{\max}}\!\left(\frac{v_\phi}{r}\right),
 \label{eq:increments}
 \end{equation}
-so that $|\Delta\theta| < \theta_{\max}$ and $|\Delta\phi| < \phi_{\max}$. The two components are treated differently because they relate differently to the angles. A displacement along $e_\theta$ changes $\theta$ by the same amount at every point of the sphere, so $v_\theta$ is bounded directly. A displacement along $e_\phi$ changes $\phi$ by an amount inversely proportional to the distance from the gray axis: the smaller $\theta$ is, the larger the change of $\phi$ produced by the same $v_\phi$. The factor $r$ converts $v_\phi$ into an azimuthal angle before the bound is applied, so that $\phi_{\max}$ limits the angle itself for every color; without it, a small $v_\phi$ could change the azimuth of a color near the gray axis by an arbitrarily large amount. For colors on the gray axis, where $\phi$ is undefined, we set $\Delta\phi=0$. We use separate bounds $\theta_{\max}$ and $\phi_{\max}$ to control the deviations along the polar and azimuthal directions independently. Together, these constraints define a smooth and bounded color transformation in the RGB space. The angular bounds $\theta_{\max}$ and $\phi_{\max}$ control the extent of permissible color changes, providing a trade-off between preserving the visual fidelity of the protected image and inducing sufficient disruption to diffusion-based editing.
+so that $|\Delta\theta| < \theta_{\max}$ and $|\Delta\phi| < \phi_{\max}$ for every color. The two components enter differently. A displacement along $e_\theta$ changes $\theta$ by the same amount at every point of the sphere, so $v_\theta$ is bounded directly. A displacement along $e_\phi$ changes $\phi$ in inverse proportion to the distance from the gray axis, so the same $v_\phi$ would rotate the hue of a nearly gray color by an arbitrarily large angle. Dividing by $r = \sin(\theta + \Delta\theta)/\cos\Delta\theta$, the distance from the gray axis of the color after the polar displacement and before rescaling to $\|c\|$, converts $v_\phi$ into an azimuthal angle, so that $\phi_{\max}$ bounds the hue change itself. The azimuthal displacement increases the polar angle by a further second-order amount, at most $0.25^\circ$ for $\phi_{\max} = 7.5^\circ$. For colors on the gray axis, where $\phi$ is undefined, $\Delta\phi=0$. Together, these constraints define a smooth and bounded color transformation in the RGB space. The angular bounds $\theta_{\max}$ and $\phi_{\max}$ control the extent of permissible color changes, providing a trade-off between preserving the visual fidelity of the protected image and inducing sufficient disruption to diffusion-based editing.
 
 
 

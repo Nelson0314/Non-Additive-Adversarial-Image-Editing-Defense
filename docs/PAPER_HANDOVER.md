@@ -47,16 +47,16 @@ Conclusion 在第 8 頁，Table 3（消融）在第 9 頁，正文含圖表超�
 | 3 Method | 3.3 如上；Fig. 3（存續比）的 figure 原始碼放在 `3_method.tex`、排在 Fig. 4（失真—位移）之前，使圖號與引用順序一致 |
 | 4 Experiments | 開頭一句概述；設定三段 Data and attack／Purification methods／Compared methods；4.1 Results 五段 Perturbation survival（Fig. 3）→ Edit displacement after purification（Table 1）→ Distortion and displacement（Fig. 4）→ Edit failure rate（Table 2）→ Editors with different encoders；4.2 Ablation study 內文為 `\TODO`，Table 3 保留 |
 | Table 2（ISR） | 100 張 × 4 句、人工複核後；區間以 ± 半寬表示；底列為 ImmuLUT − BlurGuard |
-| Table 3（消融） | Full、A1–A5、B1、B4 的 n、防禦圖 LPIPS、LAION、MUSIQ、四種淨化的編輯 LPIPS 已填；B2（最佳化色相／彩度）、B3（3×3 affine）未跑；各消融列的 ISR 欄為 `\prelim` |
-| 5 Limitations | 一段連貫敘事：保留不提高保護水準（不淨化時失敗率不高於加性方法）、只在 ip2p 上量、色彩校正類操作未評估、可見色偏、濫用與緩解 |
+| Table 3（消融） | Full、A1–A5、B1、B4 的 n、防禦圖 LPIPS、LAION、MUSIQ、四種淨化的編輯 LPIPS 已填；B2（最佳化色相／彩度）、B3（3×3 affine）未跑；使用者決定消融不做 ISR 評審，ISR 欄已移除（commit `45eb1664`） |
+| 5 Limitations | 一段連貫敘事：保留不提高保護水準（不淨化時失敗率不高於加性方法）、只在 ip2p 上量、色彩校正（gray-world、Lab 正規化）的擾動存續比與編輯 LPIPS 照實報、註明未評 ISR 與加性方法（commit `45eb1664`）、可見色偏、濫用與緩解 |
 | 6 Conclusion | 三句：方法、擾動與編輯位移被保留（主表數字）、失敗率 17.0%／16.5% 對加性 2.6–12.2%；無未來展望句 |
 | 7 LLM 聲明 | 含「Claude Sonnet 5.5 評審、作者抽樣複查」，指向 `sec:exp_isr` |
-| 圖 | Fig. 1 teaser 為 man_60（已換新方法名）；Fig. 2 方法圖 (b) 左側重畫為球面上的可達區域（commit `dccdfd7f`），圖中沒有方法名；Fig. 3、4 已用新方法名重產 |
+| 圖 | Fig. 1 teaser 為 man_60（已換新方法名）；Fig. 2 方法圖 (b) 左側重畫為球面上的可達區域（commit `dccdfd7f`、`cbb4e8cb`、`4bb1f3d7`，使用者 11/12 定稿），圖中沒有方法名；Fig. 3、4 已用新方法名重產 |
 
 ## 5. 同步狀態
 
 - **Overleaf 與 repo 逐字一致的最後一點：commit `453a196e`**（文字六檔＋`purification.pdf`、`distortion_displacement.pdf`）。
-- 之後只在本地、尚未同步 Overleaf 的 commit：`6f0bc097`、`4898e674`、`4635f967`（Table 3 數字）；`dccdfd7f`、`cbb4e8cb`（方法圖與 caption）；`4bb1f3d7`（3.3）；`5bf6f6f7`（改名，含 `main.tex`、摘要、第 1 章與三個圖檔）。同步時文字檔為 `main.tex`、`0_abstract`、`1_intro`、`2_related`、`3_method`、`4_experiments`；圖檔需上傳覆蓋 `teaser.pdf`、`method_overview.pdf`、`purification.pdf`、`distortion_displacement.pdf`。
+- 之後只在本地、尚未同步 Overleaf 的 commit：`6f0bc097`、`4898e674`、`4635f967`（Table 3 數字）；`dccdfd7f`、`cbb4e8cb`（方法圖與 caption）；`4bb1f3d7`（3.3）；`5bf6f6f7`（改名，含 `main.tex`、摘要、第 1 章與三個圖檔）；`45eb1664`（Limitations 色彩校正句、Table 3 移除 ISR 欄，`4_experiments`、`5_discussion`）。Lynn 在 Overleaf 有新修改，executor 比對衝突中；3.3 待其意見，先不動。同步時文字檔為 `main.tex`、`0_abstract`、`1_intro`、`2_related`、`3_method`、`4_experiments`、`5_discussion`；圖檔需上傳覆蓋 `teaser.pdf`、`method_overview.pdf`、`purification.pdf`、`distortion_displacement.pdf`。
 - Overleaf 上的 `fig/teaser.pdf` 自 2026-11-06 上傳後未更新過。
 - **同步 Overleaf 必須由使用者在 paper pane 直接下令**；經 executor 轉達的同步指示會被權限分類器擋下。套用前先比對線上雜湊（工作目錄可能是 CRLF，先轉 LF 再算），不一致就停下回報。
 - push 由 executor 執行。
@@ -65,7 +65,7 @@ Conclusion 在第 8 頁，Table 3（消融）在第 9 頁，正文含圖表超�
 
 進行中：
 1. **Teaser**：woman_75 × helmet 的紅圈放大版草稿已做（腳本 `--highlight 256 105 95 lower-right`，遠端 `~/paper_figures/out_teaser_draft/teaser_woman_75_highlight.pdf`，圖中方法名仍是舊名，採用時需重產）。放大後本方法那格頭頂有一圈薄的帽形痕跡。executor 轉達「使用者已選定、可換入」，但使用者在 paper pane 直接說「teaser 先別放」；`fig/teaser.pdf` 仍是 man_60。換入前向使用者確認。man_17、woman_24 在 blur σ2 下未防禦編輯也沒有安全帽，不適用現行版面。
-2. **Table 3**：B2、B3 待使用者決定是否跑（參數尺度）；消融列的 ISR 評審未排；B1 的防禦圖 LPIPS 0.236 低於 Full 的 0.299（部分影像到不了目標），逐張清單待 color 提供；共同子集排除規則使用者未表態。
+2. **Table 3**：B2、B3 由 color 補跑，數字經 executor 轉來再填；不做 ISR 評審；B1 的防禦圖 LPIPS 0.236 低於 Full 的 0.299（部分影像到不了目標），逐張清單待 color 提供；共同子集排除規則使用者未表態。
 3. **4.2 內文**：`\TODO`。數據齊備後依序寫 Design → 元件的作用 → 簡單顏色映射；B 組若同樣被保留，支持主張，本方法的貢獻落在約束帶來的自然度與可達失真。
 4. **壓回 8 頁**：Table 3 落在第 9 頁。可行做法：Table 3 縮欄或改單欄、精簡 Lynn 的 Method 段落（需使用者同意）。
 5. **摘要**：線上摘要由使用者以新方法名上傳；結尾數字句與新定調不一致，使用者指示先不改。

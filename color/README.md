@@ -1,6 +1,6 @@
 # color：全域顏色映射的免疫防禦
 
-防禦圖由逐影像最佳化的全域逐像素顏色映射產生（研究主線 color3d：33³ RGB 3D 查找表），輸出只依像素自身顏色，不加性雜訊、不用空間相依色場；目標為使攻擊者以 InstructPix2Pix 做的編輯偏離未防禦的編輯結果，並以 LPIPS 區間與文獻依據的顏色約束控制外觀。主線在 trial `trials/lut3d_defense_and_naturalness/`（不入版控），方法與結果見其 `README.md`，現況見 `STATUS.md`，設計與已退役方向的數據見 `docs/DESIGN.md`。
+防禦圖由逐影像最佳化的全域逐像素顏色映射產生（研究主線 color3d：33³ RGB 3D 查找表，色空間平滑的色度旋轉，外觀由參數化保證極角變化 < 10°、色相變化 < 3°；對照為 PHR 版 color3d_phr 與更早的 color3d_orig），輸出只依像素自身顏色，不加性雜訊、不用空間相依色場；目標為使攻擊者以 InstructPix2Pix 做的編輯偏離未防禦的編輯結果，並以 LPIPS 區間與文獻依據的顏色約束控制外觀。主線在 trial `trials/lut3d_defense_and_naturalness/`（不入版控），方法與結果見其 `README.md`，現況見 `STATUS.md`，設計與已退役方向的數據見 `docs/DESIGN.md`。
 
 ## 目錄
 
@@ -24,7 +24,7 @@ source scripts/env.sh   # PYTHONPATH、PY
 python -m pytest tests
 ```
 
-color3d 的求解、編輯、淨化與讀數由 trial 的 `run_lut_queue.sh` 排程（用法見該 trial 的 `HANDOVER.md`）；它呼叫下列入口：
+color3d、color3d_phr 與 color3d_orig 的求解、編輯、淨化與讀數由 trial 的 `run_lut_queue.sh` 排程（用法見該 trial 的 `HANDOVER.md`）；它呼叫下列入口：
 
 | 入口（`python -m immunization_color.cli.<名稱>`） | 用途 |
 |---|---|

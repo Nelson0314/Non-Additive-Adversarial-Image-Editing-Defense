@@ -1,6 +1,6 @@
 # color：設計、協定與結果
 
-現況見 `../STATUS.md`，執行方式見 `../README.md`。研究主線 color3d 的方法與結果見 trial `trials/lut3d_defense_and_naturalness/README.md`（§6a 為摘要）；§4–§7 的前身方法與已退役方向程式與產物已刪除，本文件保留其數據。風格轉換線為獨立專案 `style/`。
+現況見 `../STATUS.md`，執行方式見 `../README.md`。研究主線 color3d_orig 的方法與結果見 trial `trials/lut3d_defense_and_naturalness/README.md`（§6a 為摘要）；§4–§7 的前身方法與已退役方向程式與產物已刪除，本文件保留其數據。風格轉換線為獨立專案 `style/`。
 
 ## 1. 問題與協定
 
@@ -61,16 +61,18 @@
 - 淨化後編輯結果 LPIPS（7 道平均）：color_curve 0.392、color 0.308；對齊後 baseline 0.116–0.241。
 - 美術指標（原生預算）：VMAF color 70.6、color_curve 71.4，baseline 64.9–95.6；無參考指標（LAION、CLIP-IQA、NIQE）與原圖接近。
 
-## 6a. 研究主線：color3d（trial `lut3d_defense_and_naturalness`）
+## 6a. 研究主線：color3d_orig（trial `lut3d_defense_and_naturalness`）
 
-33³ RGB 3D 查找表、ip2p VAE encoder 目標、PHR 增廣 Lagrange 求解，以文獻依據的顏色約束（逐像素色度位移上限、相鄰色對增益與尾端、色調單調、膚色色相與彩度比）與防禦圖 LPIPS 區間控制外觀。兩個操作點：`color3d`（LPIPS 0.27–0.30、色度 ≤ 8）與 `color3d_0d4`（LPIPS 0.37–0.42、色度 ≤ 15、另加膚色 Δ(a*, b*) 不均勻度 ≤ 4.5）。8 張、ip2p 主種子、四句配件指令；讀數讀 8-bit PNG：
+33³ RGB 3D 查找表、ip2p VAE encoder 目標、PHR 增廣 Lagrange 求解，以文獻依據的顏色約束（逐像素色度位移上限、相鄰色對增益與尾端、色調單調、膚色色相與彩度比）與防禦圖 LPIPS 區間控制外觀。兩個操作點：`color3d_orig`（LPIPS 0.27–0.30、色度 ≤ 8）與 `color3d_0d4`（LPIPS 0.37–0.42、色度 ≤ 15、另加膚色 Δ(a*, b*) 不均勻度 ≤ 4.5）。8 張、ip2p 主種子、四句配件指令；讀數讀 8-bit PNG：
 
 | 條件 | 防禦圖 LPIPS | 編輯結果 LPIPS 淨化前 | 七道平均 | VAE-Trans 後 |
 |---|---|---|---|---|
-| color3d | 0.287 | 0.341 | 0.302 | 0.185 |
+| color3d_orig | 0.287 | 0.341 | 0.302 | 0.185 |
 | color3d_0d4 | 0.409 | 0.459 | 0.408 | 0.288 |
 | 前一版（`color3d_chroma4_slope2`，已刪除） | 0.207 | 0.266 | 0.233 | 0.143 |
 | baseline 等失真臂（10 個；Mist、PhotoGuard-L∞ 為 2/255） | 0.300–0.374 | 0.29–0.40 | 0.13–0.24 | 0.02–0.07 |
+
+約束的重新公式化（LPIPS 下界斜坡 `color3d_floor_ramp`；影像自適應可行集合加色空間 Lipschitz 與逐點膚色橢圓，解除約束間的拉鋸）的診斷、各變體讀數與使用者看圖判定，見該 trial 的 `README.md`〈約束重新公式化的驗證〉與 `design_notes/`。
 
 參數、約束設計、消融與已退役路線的數字見該 trial 的 `README.md`。
 

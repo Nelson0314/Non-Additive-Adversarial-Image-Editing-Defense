@@ -1,30 +1,29 @@
 # color：現況與接續指引
 
-設計與結果見 `docs/DESIGN.md`，執行方式見 `README.md`，已刪除的暫時性嘗試見 `docs/TRIALS.md`。
+冷啟動順序：根目錄 `CLAUDE.md`、`AGENTS.md` → 本檔 → trial `trials/lut3d_defense_and_naturalness/HANDOVER.md`（〈零〉節為現況）
+→ `docs/EXECUTOR_HANDOVER.md` → 專案記憶 `MEMORY.md`。設計沿革見 `docs/DESIGN.md`，已刪除的暫時性嘗試見 `docs/TRIALS.md`，
+執行方式見 `README.md`。trial 目錄不入版控，實體在遠端 `~/image-immunization/color/trials/lut3d_defense_and_naturalness/`。
 
 ## 現況
 
-- 研究主線 **color3d**：33³ RGB 3D 查找表（`Lut3d`）的全域逐像素顏色映射，目標為 ip2p VAE 編碼器潛向量距離（單次前向，訓練不用編輯指令、不做淨化抽樣），PHR augmented Lagrangian 求解、只交付量化後全部可行的檢查點；約束為防禦圖 LPIPS 區間、逐像素色度位移上限、斜率、相鄰顏色增益與其尾端、色調單調、膚色色相與彩度比。在 trial `trials/lut3d_defense_and_naturalness/`（不入版控）；方法、結果、消融與已退役路線見該目錄 `README.md`，現況、待辦與規範見 `HANDOVER.md`。
-- 兩個操作點（8 張、ip2p、4 句、32 筆編輯）：`color3d` 防禦圖 LPIPS 0.287，編輯結果 LPIPS 淨化前 0.341、七道淨化平均 0.302、VAE-Trans 淨化後 0.185；`color3d_0d4` 防禦圖 LPIPS 0.409，淨化前 0.459、七道 0.408、VAE-Trans 後 0.288。同協定 baseline 等失真臂（防禦圖 LPIPS 0.300–0.374）：淨化前 0.29–0.40、七道 0.13–0.24、VAE-Trans 0.02–0.07。消融與對照條件的產物已刪除，數字保留在 trial `README.md`。
-- 淨化協定：七道（jpeg80／50／30、blur1／2、crop_resize0.1、rotate15）與 VAE-Trans（arXiv 2603.13028，另列一欄）；色彩正規化類淨化不做。讀數與 baseline 的共同協定（失真、美學、位移、語意、人臉）記於專案記憶 `metric-protocol-color-baseline`；穿透拆解已移出本專案。
-- 前身方法 `color`（CIELAB (a,b) 全域換色表）與其三個 simple 條件、隱含分類器目標（selfrec）已退役，程式與產物已刪除，數據保留在 `docs/DESIGN.md` §4–§7。`method.py` 的 `ColorMap` 與支撐函式仍由 trial 引用。
-- 研究方向由使用者決定。遠端是否有工作在跑：以遠端 `~/gpu_leases/` 的租約、各 trial 的 `runtime/` 與 `logs/` 為準。
-- 未防禦編輯（`artifacts/undefended_edits/ip2p_si18`）與淨化後的未防禦分母（`artifacts/purified_edits/undefended/`）為 baseline 同名產物的複本，放在本專案的 `artifacts/`，不連結到 baseline。
-- `requirements.lock` 未入庫；由遠端執行環境以 `vendor/scripts/generate_requirements_lock.py` 產生。
-
-## 執行紀錄
-
-- 遠端：`ssh -p 10101`（basic-1，8 卡）／`-p 10102`（basic-2，7 卡）`nelson0314@server.basiclab.lab.nycu.edu.tw`，NFS 兩台共用；本專案位於 `~/image-immunization/color`。
-  兩台的卡常被實驗室其他使用者占用；取卡工具只取本機的卡，需要時在另一台另開 main。
-- 實測成本：color3d 求解約 13–15 分鐘／張（PHR 1800 步）；單張的編輯 ＋ 七道淨化 ＋ 淨化後編輯約 15–18 分鐘；8 張完整協定約 17 GPU 小時（4 條件 × 8 張）÷ 線數；VAE-Trans 淨化＋編輯約 7 分鐘／條件。
+- 論文方法 **ImmuLUT**（原名 CAPGuard；條件名 `color3d_scale2p5`，Pexels 版 `color3d_scale2p5_pexels`）：33³ RGB 查找表，
+  以黑點為原點、灰軸為極軸的色度旋轉場，旋轉場以色空間高斯模糊（σ ＝ 4 格點）平滑；極角變化 < 25°、方位角（色相）變化 < 7.5°、
+  ‖c‖ 不變，三者由參數化保證（tanh 壓縮），無投影、無 LPIPS 上下界；損失只有 ip2p VAE 編碼器潛向量距離；Adam 1800 步，種子 0。
+  程式：trial `generate_color3d_budget_defenses.py`（登錄倍率）→ `generate_color3d_defenses.py` 的 `SmoothAngleLut`。
+- 論文定調：ImmuLUT 的主張為淨化後保留防禦效果；不主張未淨化時阻擋編輯（未淨化時 ImmuLUT 的編輯通常照樣完成）。
+- 主表（Pexels 306 張、ip2p、四句、主種子）、消融九列（crosseditor100）與成對差、色彩校正淨化、論文圖素材均已完成；
+  數字、路徑與產生腳本見 trial `HANDOVER.md`〈零〉。
+- 分工：color 負責 ImmuLUT 的求解、編輯、讀數與 color 相關圖素材（只寫 `color/`）；baseline 負責對照方法；paper 負責
+  `docs/paper/` 與 `docs/paper_tools/`；executor 負責進度、派工、文獻與 push。
 
 ## 規矩
 
-- **卡數**：依使用者口頭指定；未說明時全局合計 6 張。`run_with_gpu_lease.sh` 的 `--limit` 比的是全局租約總數，不要給；取卡失敗（沒有空卡）時以迴圈每 5 分鐘重試。
-- **取卡函式的紀錄一律寫 stderr**：`$(...)` 會收走 stdout。
-- **殺行程**：`pkill -f <樣式>` 會匹配到下指令的 ssh；以 PGID 或明確 PID 終止，終止後以 `ps`／租約目錄回頭驗證。`$(...)` 收到多個 PID 時要逐一處理。
-- **佇列**：color3d 走 trial 的 `run_lut_queue.sh`（`conds/<條件>.args`、`jobs/<名>.txt`）；只編輯既有防禦圖時不可對有 `.args` 的條件排工作（會重新求解並覆寫），改用複製的新條件名。
-- **GPU 優先序**：使用者指令 color 優先；開佇列前請 baseline 立即讓卡（見專案記憶 `color-has-gpu-priority`）。
-- **分母**：新種子或新設定的編輯不寫進 `artifacts/undefended_edits/`。
-- **`optimize_carrier` 回傳的字典鍵一律 `free_` 開頭**，與 `--objective` 無關。
 - 共通規則見根目錄 `CLAUDE.md`。
+- 遠端：`ssh -p 10101`（basic-1，8 卡）／`-p 10102`（basic-2，7 卡）`nelson0314@server.basiclab.lab.nycu.edu.tw`，NFS 共用；
+  本機只編輯、ssh、看圖，CPU 分析與畫圖也在遠端跑；遠端 Python 為 `~/venvs/wacv/bin/python`。
+- GPU：全局合計 ≤ 6 張（所有主機與 session），只取完全空的卡；color 優先。取卡用 trial `tools/run_with_lease_retry.sh`
+  （`LEASE_LIMIT=6 HOSTS=<本機>`），必須在有卡的主機本機開（basic-1 連不到 basic-2）。
+- 殺行程以明確 PID（含子行程）終止，終止後以 `ps` 與 `~/gpu_leases/` 回頭驗證；不用 `pkill -f`（會匹配到 ssh 本身）。
+- 遠端腳本不可就地覆寫：先寫 `.tmp` 再 `mv`；`.sh` 為 LF。
+- 不改 `docs/paper/`、`docs/paper_tools/`（含 `generate_pexels_teaser_figure.py`）與 baseline 的程式；只呼叫。
+- 看圖規範與剔除條件見 trial `HANDOVER.md`〈零〉0.2。

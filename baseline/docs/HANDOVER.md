@@ -76,8 +76,11 @@ BlurGuard（官方 `pgd_freq`，github.com/jsu-kim/BlurGuard commit e1b2d5e）�
 - Fig. 4（失真—位移平面）：遠端 `~/paper_figures/in_pexels/points_blurguard.csv`、`condition_summary_blurguard.csv`、`color_summary_scale2p5.csv`
   （paper session 以 `docs/paper_tools/import_pexels_figure_inputs.py` 與 `generate_paper_figures.py` 產生）。方形為 9 個方法的原生預算
   （遠端 `runtime/pexels_portraits/interim/fig3_points.csv`），圓點為 10 個等失真臂（含 BlurGuard）。
-- ISR 評審素材：`artifacts/pexels_portraits/ip2p_isr100_sheets/`（crosseditor100 的 100 張 × 4 句，7 條件 × 4 淨化，`cells.csv` 11,200 列）、
-  `ip2p_isr_sheets/` 與 `vibe_distilled/isr_sheets/`（isr50）；產生程式在遠端 `runtime/pexels_portraits/{crosseditor100,vibe_distilled}/generate_*.py`。
+- ISR 評審（論文 Table 2 與正文的條件式 ISR）：素材為 `artifacts/pexels_portraits/ip2p_isr100_sheets/`（crosseditor100 的 100 張 × 4 句，
+  7 條件 × 4 淨化，`cells.csv` 11,200 列）；已完成（Claude Sonnet 判定＋人工複核 606 格），結果見根目錄 `docs/isr_pilot/`
+  （`judgments.csv`、`audit/judgments_human.csv`、`summary.txt`、`paired_difference.txt`）。
+- isr50 的 `ip2p_isr_sheets/` 與 `vibe_distilled/isr_sheets/`：未排程，使用者指示才評審。
+- 拼圖產生程式在遠端 `runtime/pexels_portraits/{crosseditor100,vibe_distilled}/generate_*.py`。
 
 ### 3.4 暫時性嘗試（`trials/`，不入版控，本機與遠端各一份）
 
@@ -108,7 +111,7 @@ BlurGuard（官方 `pgd_freq`，github.com/jsu-kim/BlurGuard commit e1b2d5e）�
   （語意分片＋finish_gpu／finish_cpu）、`generate_pexels_flux_512_summary.py`。
 - 分布指標：`scripts/measure_distribution_metrics.py`（`--device cpu|cuda`）。
 - teaser：`scripts/generate_synthetic_portraits.py`（FLUX.2 klein 4B 文生圖，輸出 `artifacts/synthetic_portraits/<名稱>/`）、
-  `scripts/run_teaser_edits.py`（防禦、淨化、ip2p 編輯；ImmuLUT 從 `--immulut-dir` 讀）、`scripts/generate_teaser_overview.py`。指令只由使用者給。
+  `scripts/run_teaser_edits.py`（防禦、淨化、ip2p 編輯；ImmuLUT 從 `--immulut-dir` 讀）、`scripts/generate_teaser_overview.py`。teaser 已定案（Fig. 1 殭屍版，由 color 產生），baseline 入口不需執行。
 - BlurGuard 對外套件：使用者桌面 `BlurGuard_package.zip`（官方 e1b2d5e 副本＋以 diffusers 載入 VAE 的替代入口；VAE 權重與官方 `sd-v1-4.ckpt` 逐元素相同）。
 
 ## 5. 已知問題與待決

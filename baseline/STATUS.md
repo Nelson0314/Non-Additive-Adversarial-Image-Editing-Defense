@@ -20,8 +20,8 @@
 - 主表、ImmuLUT 2.5 倍、BlurGuard、VIBE-DistilledCFG、FLUX.2 klein 的 306 張讀數皆已完成並入版控（`docs/HANDOVER.md` 3.1）；
   分布指標以 GPU 特徵重算，CPU 版副本在遠端 `~/backup/baseline/fid_cpu_2026-11-07/`。
 - 遠端佇列無待執行工作；deferred 清單見 `docs/HANDOVER.md` 3.5。
-- ISR 評審素材（ip2p 100 張 × 4 句的拼圖與 `cells.csv`、isr50 的 ip2p 與 VIBE 拼圖）已產生，評審尚未開始。
-- teaser 用的生成、防禦—淨化—編輯、總覽圖三個入口已寫好（`docs/HANDOVER.md` 4），尚未執行。
+- ISR 評審：crosseditor100（ip2p 100 張 × 4 句）已完成，結果見根目錄 `docs/isr_pilot/`（論文 Table 2）；isr50 的 ip2p 與 VIBE 拼圖未排程，使用者指示才做。
+- teaser 已定案（Fig. 1 殭屍版，由 color 產生）；`docs/HANDOVER.md` 4 的三個 teaser 入口不需執行。
 - BlurGuard 依論文協定的重跑未對上論文數字（`docs/HANDOVER.md` 5）。
 
 ## 待使用者決定

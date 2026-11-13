@@ -2,7 +2,7 @@
 \centering
 \includegraphics[width=\linewidth]{fig/teaser.pdf}
 \captionsetup{hypcap=false}
-\captionof{figure}{Protected images (top) and their InstructPix2Pix edits (bottom) with the instruction ``Let the person wear a helmet'' after Gaussian blur purification ($\sigma = 2$). While the additive defenses (red), including BlurGuard, fail to prevent the requested helmet insertion after purification, \capg{} (teal) successfully prevents the helmet from appearing, demonstrating its robustness to purification.}
+\captionof{figure}{Edits of a generated portrait with the instruction ``give this person rotting zombie skin'' on InstructPix2Pix (text guidance 7.5, image guidance 1.8, main seed). Without purification, the edit is applied to the protected images of PhotoGuard, DIA-PT, and \capg{}. After JPEG compression (quality 30) of the protected image, the edits of PhotoGuard and DIA-PT show the zombie skin and the edit of \capg{} does not.}
 \captionsetup{hypcap=true}
 \label{fig:teaser}%
 \end{strip}

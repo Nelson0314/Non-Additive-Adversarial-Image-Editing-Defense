@@ -56,7 +56,14 @@ The comparison includes ten additive methods: DAYN~\cite{lo2024dayn}, DIA-R and 
 
 \paragraph{Edit failure rate.}
 \label{sec:exp_isr}
-\Cref{tab:isr} reports the immunization success rate (ISR) on 100 of the portraits: among the edits of the original image that carry out the instruction, the percentage whose counterpart on the protected image lacks the accessory, shows a different edit, or is degraded, as judged by Claude Sonnet~5.5 with human review of a sample of the judgments. Without purification, \capg{} does not reach a higher ISR than the additive methods. Under purification, the ISR of \capg{} is preserved, at 17.0\% without purification and 16.5$\pm$2.8\% over the three purifications combined, whereas that of the additive methods decreases to between 2.6\% and 12.2\%. After purification, \capg{} exceeds BlurGuard, the closest additive method, by 4.3$\pm$2.5\%; after JPEG compression alone the difference is 1.3$\pm$3.2\%.
+\Cref{tab:isr} reports the immunization success rate (ISR) on 100 of the portraits: among the edits of the original image that carry out the instruction, the percentage whose counterpart on the protected image lacks the accessory, shows a different edit, or is degraded, as judged by Claude Sonnet~5.5 with human review of a sample of the judgments. Without purification, \capg{} does not reach a higher ISR than the additive methods. Under purification, the ISR of \capg{} is preserved, at 17.0\% without purification and 16.5$\pm$2.8\% over the three purifications combined, whereas that of the additive methods decreases to between 2.6\% and 12.2\%. After purification, \capg{} exceeds BlurGuard, the closest additive method, by 4.3$\pm$2.5\%; after JPEG compression alone the difference is 1.3$\pm$3.2\%. \Cref{fig:purification_example} shows one portrait of this set on which, after blur, the helmet is added for every additive method and not for \capg{}.
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=\textwidth]{fig/purification_example.pdf}
+  \caption{Edits of one of the 100 portraits of \cref{tab:isr} with the instruction ``Let the person wear a helmet'' on InstructPix2Pix (text guidance 7.5, image guidance 1.8). All columns use edit seed 3, which differs from the seed of the main evaluation. Rows: protected image, edit without purification, and edit after Gaussian blur ($\sigma = 2$); the left column shows the original image and its edits.}
+  \label{fig:purification_example}
+\end{figure*}
 
 \paragraph{Editors with different encoders.}
 \label{sec:exp_gen}

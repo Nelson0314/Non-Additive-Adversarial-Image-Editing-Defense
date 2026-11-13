@@ -1,116 +1,123 @@
 # baseline 交接
 
 冷啟動順序：根目錄 `CLAUDE.md` 與 `AGENTS.md` → 本檔 → `STATUS.md` → 專案記憶 `MEMORY.md`（至少 color-has-gpu-priority、no-local-compute、
-never-overwrite-running-scripts-on-nfs、lease-limit-counts-global-leases、no-agents-unless-asked、no-handover-stops-before-85-percent）。
+never-overwrite-running-scripts-on-nfs、lease-limit-counts-global-leases、no-agents-unless-asked、dont-touch-others-work、
+no-handover-stops-before-85-percent）。協定細節、檔案位置與程式清單在 `README.md`；等失真臂的說明在 `results/aligned/README.md`。
 
-## 職責範圍
+## 1. 範圍與分工
 
-baseline 專案負責外部免疫方法（baseline 臂）的移植、求解與評測，並以同一套讀數程式量測 color 專案的方法 CAPGuard（條件名
-`color3d_scale2p5_pexels`，防禦圖由 color trial `trials/lut3d_defense_and_naturalness/` 產生）。論文的表與圖由 paper session 取用；
-executor 負責派工、push 與轉知 paper。baseline session 只寫 `baseline/` 與遠端 `~/image-immunization/baseline/`。
+- baseline 負責外部免疫方法（加性擾動）的移植、求解與評測，並以同一套讀數程式量測 color 專案的方法 ImmuLUT（原名 CAPGuard；條件名
+  `color3d_scale2p5_pexels`，防禦圖由 color trial `trials/lut3d_defense_and_naturalness/` 產生）。
+- 方法：PhotoGuard（encoder 攻擊 `photoguard_encoder`；diffusion 攻擊 `photoguard_c`、`photoguard_linf` 只保留 data/portraits 的既有結果）、
+  Mist、DIA-PT、DIA-R、DCT-Shield、DCT-Shield-Y、SIFM、DAYN、DANP、BlurGuard；DiffVax 只保留既有結果。
+- 論文定調：加性擾動在淨化後大幅減弱，ImmuLUT 的全域色彩變換在淨化後仍保留；主讀數為編輯結果 LPIPS。
+- 分工：color 專案負責 ImmuLUT 的求解；paper session 負責 `docs/paper/`、`docs/paper_tools/` 與論文圖表；executor 負責派工、push、文獻與轉知。
+  baseline session 只寫 `baseline/` 與遠端 `~/image-immunization/baseline/`，不改論文檔與其他專案的檔案（需要時把事實與數字交給 executor）。
 
-## 結果正本
+## 2. 工作規範
 
-| 項目 | 版控正本 | 遠端工作區 | 產生指令 | commit |
-|---|---|---|---|---|
-| Pexels 306 張主表（等失真 9 臂＋`color3d_pexels`） | `results/pexels_portraits/main_table/` | `runtime/pexels_portraits/summary/` | `scripts/measure_pexels_summary_inputs.sh summary` | 0fbc5e11 |
-| CAPGuard 2.5 倍主表列（306 張） | `results/pexels_portraits/color3d_scale2p5/` | `runtime/pexels_portraits/summary/color3d_scale2p5/` | `COLOR3D_GROUP=color3d_scale2p5 bash scripts/measure_pexels_summary_inputs.sh summary` | 0fbc5e11（程式 2c33b25） |
-| BlurGuard 主表列（306 張） | `results/pexels_portraits/blurguard/` | `runtime/pexels_portraits/blurguard_306/`（兩批：`blurguard/`、`blurguard_rest/`） | `BLURGUARD_ROOTS=… bash scripts/evaluate_pexels_blurguard_summary.sh` | 0fbc5e11（100 張版 e84f78c3） |
-| UltraEdit 跨編輯器 50 張（等失真 4 臂） | `results/pexels_portraits/ultraedit/` | `runtime/pexels_portraits/ultraedit_readouts/` | `scripts/evaluate_pexels_ultraedit_readouts.sh` | 0fbc5e11 |
-| FLUX.1 Kontext 512² 跨編輯器 34 張 | `results/pexels_portraits/flux_512/` | `runtime/pexels_portraits/flux_512/readouts/` | `IMAGES_FILE=… bash scripts/evaluate_pexels_flux_512_readouts.sh` | ccb4ad7 |
-| VIBE-DistilledCFG 跨編輯器 100／306 張 | `results/pexels_portraits/vibe_distilled/`（100 張在 `crosseditor100/`） | `runtime/pexels_portraits/vibe_distilled/readouts_{100,306}/` | `EDITOR_NAME=vibe_distilled … scripts/evaluate_pexels_flux_512_readouts.sh`；306 張的語意步驟以 `runtime/pexels_portraits/vibe_distilled/readouts_parts.sh` 分 4 片 | b78e9daf |
-| FLUX.2 klein 4B 蒸餾跨編輯器 100／306 張 | `results/pexels_portraits/klein_distilled/`（100 張在 `crosseditor100/`） | 編輯 `runtime/pexels_portraits/klein/`，讀數 `runtime/pexels_portraits/klein_distilled/readouts_{100,306}/` | 同上，`EDITOR_NAME=klein` | b78e9daf |
-| 原生預算 dct_shield_y（Fig. 3） | 尚未入版控 | 存續比 `runtime/pexels_portraits/summary/native_dct_shield_y/survival_{seven,vae_trans}.csv`（306 張）；淨化強度掃描 `runtime/purifier_sweep_native_dct_shield_y/retention_dct_shield_y.csv`（portraits 8 張） | `runtime/pexels_portraits/summary/run_native_*.sh` | — |
+- 不設判準：數據與影像完整回報，「成立／值得再跑」由使用者判斷。只用主種子 20260812（防禦求解為種子 0，見各 `results/defense_*.csv`）。
+- 不改科學協定（LPIPS 後端 `piq.LPIPS`、resize、插值、遮罩、seed、precision、量化、樣本排除）；需要修正時另立資料版本並記錄。
+- 移植外部方法時使用其原損失與設定；與論文不同處在結果列標 `modified_from_paper` 並寫 `modification_note`。
+- GPU：一律遠端（basic-1 `ssh -p 10101`、basic-2 `-p 10102`，`nelson0314@server.basiclab.lab.nycu.edu.tw`，NFS 共用 `~`）。全局合計 ≤ 6 張，
+  color 優先；只取完全空的卡；租約工具 `vendor/scripts/run_with_gpu_lease.sh`（不給 `--limit`）；取卡重試在有卡的主機上開（basic-1 無法 ssh 到 basic-2）。
+  baseline 佇列的卡數上限為遠端 `runtime/pexels_portraits/queue/baseline_cap`；color 要卡時以 `scripts/run_pause_for_color_queue.sh` 停 baseline worker。
+- 本機不跑計算（CPU 讀數、畫圖亦送遠端）；本機只編輯、git、ssh、看圖。
+- 遠端執行前 `export ENV_FILE=~/env.sh; source scripts/env.sh`，之後以 `$PY`（`~/venvs/wacv`）執行；VIBE 系用 `~/venvs/vibe`。
+- 遠端腳本不可就地覆寫：先寫暫存檔再 `mv`；遠端 `git pull` 前確認改到的 `.sh` 沒有行程在執行。佇列清單改動寫 `jobs.txt.next` 再 `mv`，改前清單另存。
+- 刪除一律改為移到遠端 `~/trash/baseline/<日期>/`，事先列清單給使用者確認。別人做的東西只呼叫不改。commit 由 executor push。
 
-data/portraits 8 張的主表、等失真臂、FLUX／UltraEdit 全表見 `STATUS.md` 與 `README.md`「結果表」。
+## 3. 現況
 
-## 方法與各臂設定
+### 3.1 結果正本（Pexels 人像 306 張；ip2p：text 7.5、image 1.8、50 步、種子 20260812，FaceLock 四句）
 
-- 等失真臂：各方法的原生 eps 乘 `eps_scale`，使 data/portraits 8 張的平均防禦圖 LPIPS（`piq.LPIPS`，交付 PNG）等於錨點 0.3344；倍率在
-  `results/aligned/defense_<條件>.csv`（例如 dct_shield_y 0.073、dct_shield 0.211、mist 0.125），`photoguard_encoder` 為 eps_scale 0.2614（2/255）、1000 步。
-  全部列標 `modified_from_paper=True`。論文主表的 baseline 為 9 臂（`mist`、`dia_pt`、`sifm`、`dia_r`、`dct_shield_y`、`dct_shield`、`dayn`、`danp`、`photoguard_encoder`）。
-- BlurGuard：官方 `pgd_freq`，ε 16/255、150 步、sigma_weighting 0、learning_rate 0.06，求解後擾動乘 0.6071（data/portraits 8 張校準到 0.3344；
-  sigma_weighting 10／5／2／1／0.5／0.25／0.1 於 lr 0.06 皆約 0.232，0 為 0.419；紀錄 `runtime/blurguard/calibration/run.log`）。
-  標 `modified_from_paper`。同一倍率下 Pexels 306 張的防禦圖 LPIPS 為 0.2745（100 張 0.2711）。程式 `src/…/generate_blurguard_defenses.py`（d11247a）、
-  `scripts/apply_blurguard_scale.py`、`scripts/evaluate_pexels_blurguard.sh`、`scripts/generate_pexels_blurguard_subset.py`。
-- DCT-Shield-Y：主表為等失真版；Fig. 3 依使用者指示改用原生預算（eps 1、Q_alg 0.85），讀數見上表。等失真倍率 0.073 下擾動不足一個 JPEG 量化級，
-  論文 §4.2 的抗 JPEG 條件不成立（`docs/reference/AUDIT_DCT_SHIELD.md`）。
-- CAPGuard：`color3d_scale2p5_pexels`（color 專案；極角 < 25°、色相 < 7.5°）。1.0 倍的 `color3d_pexels` 只保留既有數據。
+| 項目 | 版控正本 | 遠端工作區 |
+|---|---|---|
+| 主表（等失真 9 臂＋`color3d_pexels`） | `results/pexels_portraits/main_table/` | `runtime/pexels_portraits/summary/` |
+| ImmuLUT 2.5 倍主表列 | `results/pexels_portraits/color3d_scale2p5/` | `runtime/pexels_portraits/summary/color3d_scale2p5/` |
+| BlurGuard 主表列 | `results/pexels_portraits/blurguard/` | `runtime/pexels_portraits/blurguard_306/` |
+| VIBE-DistilledCFG 跨編輯器 100／306 張 | `results/pexels_portraits/vibe_distilled/` | `runtime/pexels_portraits/vibe_distilled/readouts_{100,306}/` |
+| FLUX.2 klein 4B 蒸餾跨編輯器 100／306 張 | `results/pexels_portraits/klein_distilled/` | `runtime/pexels_portraits/klein_distilled/readouts_{100,306}/` |
+| FLUX.1 Kontext 512² 34 張、UltraEdit 50 張 | `results/pexels_portraits/{flux_512,ultraedit}/` | `runtime/pexels_portraits/{flux_512,ultraedit_readouts}/` |
+| 分布指標 CPU／GPU 特徵比對 | `results/pexels_portraits/distribution_device/` | `runtime/pexels_portraits/fid_cuda/` |
+| 非 SD 編輯器測速 | `results/pexels_portraits/nonsd_editor_speed/` | — |
 
-## 資料
-
-- Pexels 人像 306 張（男 108、女 198），512² PNG，`data/pexels_portraits/`；選取規則與授權見 `docs/PEXELS_PORTRAITS.md`，逐張出處 `provenance.json`。
-- 影像組：`data/pexels_portraits/image_sets.json`（第一組 `images_0000_0096` 97 張，其餘每組 10 張）。
-- 跨編輯器子集 `runtime/pexels_portraits/crosseditor100/images.txt`：color trial `pexels_subsets/flux.txt` 的 50 張（性別 × color3d_pexels 防禦圖 LPIPS 四分位分層）
-  ＋影像組 `images_0097_0106` 至 `images_0137_0146` 的 50 張（color 已有這幾組的 UltraEdit 未防禦分母）。306 張順序為這 100 張再接其餘 206 張
-  （`runtime/pexels_portraits/<編輯器>/images_306.txt`）。
-- BlurGuard 第一批 100 張：`results/pexels_portraits/blurguard/images.txt`（分層抽樣，含 color 的 budget_sweep 20 張，KS D＝0.029）；第二批 206 張分 29 個單位
-  （`runtime/pexels_portraits/blurguard_rest/units/`）。
-
-## 協定
-
-- ip2p：`timbrooks/instruct-pix2pix`，text guidance 7.5、image guidance 1.8、50 步、512²、種子 20260812（主種子，不跑多種子）；四句指令
-  （FaceLock；UltraEdit 與非 SD 系編輯器用 `configs/prompts/ultraedit_templates.json` 的 add 句型）。
+- 讀數定義與區間：`scripts/generate_pexels_main_table_summary.py` 開頭。主讀數為編輯結果 LPIPS（未防禦編輯對防禦後編輯，同淨化）；
+  七道欄為 7 個逐道平均的平均；另有 SSIM／PSNR、保留率、SigLIP、CLIP-I、CLIP-S、ArcFace、存續比、FID／KID、防禦圖 LPIPS 與美學。
 - 淨化：七道 `blur1`、`blur2`、`crop_resize0.1`、`jpeg30`、`jpeg50`、`jpeg80`、`rotate15`（`immunization_core.purifiers.protocol`）與 VAE-Trans
   （color trial `artifacts/purification/vae_trans/model/encoder.pt`）。
-- 讀數定義與區間：`scripts/generate_pexels_main_table_summary.py` 開頭。主讀數為編輯結果 LPIPS（未防禦編輯對防禦後編輯，兩者經同一淨化）；
-  七道欄為 7 個逐道平均的平均、區間 t(0.975, 6)·s／√7；其餘欄為影像間 1.96·s／√n。另有 SSIM／PSNR、保留率、SigLIP、CLIP-I、CLIP-S、
-  ArcFace（原圖對編輯、E_u 對 E_d）、存續比、FID／KID、防禦圖 LPIPS 與美學。不設判準，數字連同協定回報。
-- FID、KID、CLIP-IQA 的特徵以 GPU 計算（`measure_distribution_metrics.py --device cuda`）；主表、CAPGuard 2.5 倍、BlurGuard、VIBE-DistilledCFG 已由
-  CPU 版取代，比對與 CPU 版副本位置見 `results/pexels_portraits/distribution_device/README.md`。`evaluate_pexels_flux_512_readouts.sh` 在有卡時以 GPU 計算。
-- 跨編輯器：防禦圖與淨化後輸入一律取 ip2p 流程的產物，不以替代編輯器重新求解。
+- FID／KID／CLIP-IQA 的特徵以 GPU 計算（`measure_distribution_metrics.py --device cuda`），與 CPU 版的最大 FID 差 0.001，排名不變。
+- 跨編輯器的防禦圖與淨化後輸入一律取 ip2p 流程的產物，不以替代編輯器重新求解。
+- data/portraits 8 張的主表、等失真臂、FLUX／UltraEdit 全表與跨模型移植見 `README.md`「結果表」與 `results/` 各子目錄的 README。
 
-## 跨編輯器現況
+### 3.2 等失真設定
 
-- 現行：VIBE-DistilledCFG（`iitolstykh/VIBE-Image-Edit-DistilledCFG`，20 步）與 FLUX.2 [klein] 4B 蒸餾（`black-forest-labs/FLUX.2-klein-4B`，4 步、guidance 1.0），
-  512²。條件：undefended、photoguard_encoder、dct_shield、mist、blurguard、color3d_scale2p5_pexels；全協定 216 次編輯／張。
-  入口 `scripts/evaluate_pexels_nonsd_editor.sh <vibe_distilled|klein> <影像>`（版面同 FLUX 512），編輯 `scripts/run_nonsd_edits.py`。
-  實測（RTX 3090、含 VAE 編解碼）：VIBE-DistilledCFG 每次 0.97 s、峰值 8.5 GB；klein 蒸餾 1.55 s、15.5 GB（`scripts/measure_nonsd_editor_speed.py`，結果 `results/pexels_portraits/nonsd_editor_speed/speed_<模型>.json`）。
-  授權（2026-11-07 查證，未判定）：FLUX.2 klein 4B 模型卡為 apache-2.0。VIBE-Image-Edit(-DistilledCFG) 模型卡沒有 license 標籤，README 寫
-  「built upon SANA, refer to the original SANA license」，所附連結（SANA1.5_4.8B…/LICENSE.txt）回傳 404；SANA 程式庫 NVlabs/Sana 為 Apache-2.0；
-  SANA1.5_1.6B_1024px_diffusers 模型卡標 apache-2.0，Direct Use 段寫「intended for research purposes only」；VLM Qwen3-VL-2B 為 Apache-2.0。
-  trial `non_sd_editor_speed` 已 promote（`docs/TRIALS.md`）；範例對比圖在遠端 `artifacts/pexels_portraits/vibe_distilled/examples/`。
-- 已停：UltraEdit 與 FLUX.1 Kontext 的 2.5 倍與補到 306 張（UltraEdit 2.5 倍完成 21／100）。未執行的工作行在遠端 `runtime/pexels_portraits/queue/jobs_deferred_manual.txt`。
-- 讀數：`scripts/evaluate_pexels_flux_512_readouts.sh`（`EDITOR_NAME`、`IMAGES_FILE`、`CONDS`、`READOUTS_DIR`），彙整 `generate_pexels_flux_512_summary.py`。
+各方法的原生 ε 乘 `eps_scale`，使 data/portraits 8 張的平均防禦圖 LPIPS 等於錨點 0.3344（`piq.LPIPS`，交付 PNG）；倍率在 `results/aligned/defense_<條件>.csv`：
 
-## 進行中的工作（佇列自動執行）
+| 條件 | eps_scale | 步數 |
+|---|---|---|
+| `photoguard_encoder` | 0.2614（2/255） | 1000 |
+| `mist` | 0.125 | 100 |
+| `dia_pt` | 0.418 | 20 |
+| `dia_r` | 0.969 | 20 |
+| `dct_shield` | 0.211 | 1000 |
+| `dct_shield_y` | 0.073 | 1000 |
+| `danp` | 0.323 | 100 |
+| `dayn` | 0.43 | 100 |
+| `sifm` | 0.289 | 100 |
 
-- VIBE-DistilledCFG：100／306 張讀數完成並入版控。306 張的 `vibe_distilled_r306_finish` 已自佇列移除（改前清單 `queue/superseded_jobs_before_fid_gpu.txt`），
-  其 ArcFace、SSIM／PSNR 以手動 CPU 行程、FID 以 `runtime/pexels_portraits/fid_cuda/run_fid_cuda.sh` 完成；前 100 張的逐格讀數與 100 張版逐值相同。
-- FLUX.2 klein 4B 蒸餾：100／306 張讀數完成並入版控（306 張以 `scripts/run_pexels_readout_parts.sh` 分段，FID 走 GPU）；前 100 張的逐格讀數與 100 張版逐值相同。
-- 完成後：summary 複製到 `results/pexels_portraits/<編輯器>/` 並提交，路徑與主要數字回報 executor，由 executor 轉 paper。
+BlurGuard（官方 `pgd_freq`，github.com/jsu-kim/BlurGuard commit e1b2d5e）的擾動幅度由各區塊學到的高斯模糊 σ 決定，ε 只是上限；等失真版本設
+`sigma_weighting` 0（σ 不更新、固定為 1）並於求解後把擾動乘 0.6071（`scripts/apply_blurguard_scale.py`；校準紀錄 `runtime/blurguard/calibration/run.log`）。
+同倍率下 Pexels 306 張的防禦圖 LPIPS 為 0.2745。官方設定（`sigma_weighting` 10）在 data/portraits 8 張的防禦圖 LPIPS 為 0.231，論文圖表未使用。
 
-## 佇列與 GPU
+### 3.3 論文引用數字的出處
 
-- 佇列：遠端 `runtime/pexels_portraits/queue/jobs.txt`，每行「<ID> [AFTER=…] [HOST=…] [CPU] <指令>」；兩台 crontab 每 5 分鐘執行
-  `scripts/run_pexels_supervisor.sh`，以 `scripts/run_pexels_queue_worker.sh` 認領（取鎖後重驗完成狀態），完成標記 `done/`、失敗 3 次 `failed/`、紀錄 `logs/`。
-  暫停新認領：`touch queue/PAUSED`。清單改動寫 `jobs.txt.next` 再 `mv`，改前清單另存，舊的改前清單在 `~/trash/baseline/2026-11-07/queue/`。
-- 卡數：全局 ≤ 6（所有 session 合計），color 優先。baseline 可用卡數 ＝ min(`queue/baseline_cap`, 6 − max(非 baseline 租約數, `queue/color_reserve`))。
-  只取完全空的卡，不與他人共用；租約工具 `vendor/scripts/run_with_gpu_lease.sh`（不給 `--limit`）。線數以 AFTER 串鏈控制。
-- 排程只依使用者經 executor 下達的指令；不自行接續下一階段。
+- Table 1 與 ISR 表：3.1 各 `results/pexels_portraits/*` 的 summary（paper session 以 `docs/paper_tools/generate_main_table.py` 讀取）。
+- Fig. 4（失真—位移平面）：遠端 `~/paper_figures/in_pexels/points_blurguard.csv`、`condition_summary_blurguard.csv`、`color_summary_scale2p5.csv`
+  （paper session 以 `docs/paper_tools/import_pexels_figure_inputs.py` 與 `generate_paper_figures.py` 產生）。方形為 9 個方法的原生預算
+  （遠端 `runtime/pexels_portraits/interim/fig3_points.csv`），圓點為 10 個等失真臂（含 BlurGuard）。
+- ISR 評審素材：`artifacts/pexels_portraits/ip2p_isr100_sheets/`（crosseditor100 的 100 張 × 4 句，7 條件 × 4 淨化，`cells.csv` 11,200 列）、
+  `ip2p_isr_sheets/` 與 `vibe_distilled/isr_sheets/`（isr50）；產生程式在遠端 `runtime/pexels_portraits/{crosseditor100,vibe_distilled}/generate_*.py`。
 
-## 遠端環境
+### 3.4 暫時性嘗試（`trials/`，不入版控，本機與遠端各一份）
 
-- basic-1 `ssh -p 10101`、basic-2 `-p 10102`（`nelson0314@server.basiclab.lab.nycu.edu.tw`），NFS 共用 `~`；repo `~/image-immunization`。
-  basic-1 上無法 ssh 到 basic-2，取卡重試要在有卡的主機開。
-- Python：`export ENV_FILE=~/env.sh; source scripts/env.sh` 後的 `$PY`（`~/venvs/wacv`）；VIBE 用 `~/venvs/vibe`（torch 2.6.0、diffusers 0.33.1、transformers 4.57.1、vibe）。
-- HF 快取：各機 `/var/cache/huggingface`（`HF_HOME`，不設 `HF_HUB_OFFLINE`）。FLUX.1-Kontext 兩台都有；FLUX.2 klein 4B 與 VIBE 兩台都有；UltraEdit 只在 basic-1。
+| trial | 內容 | 狀態 |
+|---|---|---|
+| `blurguard_paper_protocol` | BlurGuard 依論文協定（ImageNet-Edit 80 張、SD v1.4 img2img、未淨化）重跑 | 完成；遠端 `trials/blurguard_paper_protocol/results.json`，見 5. |
+| `isr_guidance_and_budget` | isr50 前 10 張：ip2p image guidance 1.8／1.2、VIBE、原生預算 PhotoGuard 的拼圖與編輯結果 LPIPS | 完成；`outputs/sheets/`、`outputs/lpips_*.csv` |
+| `isr_mllm_judge` | Qwen2.5-VL-7B 與 Qwen3-VL-8B 試判 50 格 | 完成；兩模型逐欄一致 21–41／50 |
+| `unsplash_portrait_pool` | Pexels 資料組的選取程式與候選快取 | 保留（資料組來源） |
 
-## 已知的坑
+前三者待使用者決定 promote 或 drop（drop 前在 `docs/TRIALS.md` 寫一列並提交）。
 
-- 遠端 `git pull` 會就地改寫檔案；pull 前確認改到的 `.sh` 沒有行程在執行（必要時以 `/proc/<pid>/fd/255` 對 inode）。遠端腳本更新一律寫暫存檔再 `mv`。
-- 租約取得後他人可能隨即佔用同一張卡，造成 OOM（UltraEdit woman_04、klein 測速各一次）；worker 會重試，連續失敗才進 `failed/`。
-- 語意與身分讀數（`measure_semantic_identity`）單一行程約每秒 3 格；大量格數以 `--shard/--shards` 分成多個 GPU 工作再合併。
-- Python 寫 `.sh` 時保持 LF；ssh 單引號內嵌 Python 會吃掉引號，較長的遠端程式先寫檔再 scp。
+### 3.5 佇列
 
-## 規範
+遠端 `runtime/pexels_portraits/queue/jobs.txt`，兩台 crontab 每 5 分鐘執行 `scripts/run_pexels_supervisor.sh`，以 `scripts/run_pexels_queue_worker.sh`
+認領；完成標記 `done/`、失敗 3 次 `failed/`、紀錄 `logs/`；暫停新認領 `touch queue/PAUSED`。目前無待執行工作。未執行的 UltraEdit／FLUX.1 Kontext
+工作在 `queue/jobs_deferred_manual.txt`、`jobs_deferred_transfer_rest.txt`、`jobs_deferred_p2_p3.txt`。
 
-- `CLAUDE.md`、`AGENTS.md`：只改 `baseline/`；`archive/` 不動；不設判準；不改科學協定；必要輸入失敗即失敗；commit 依機械搬檔／行為修正／文件更新分開，
-  訊息用英文；push 由 executor 代為執行。命名規則由 `core/tests/test_repository_naming.py` 檢查。
-- 刪除改為移到遠端 `~/trash/baseline/<日期>/`；不確定是否被引用的檔先列給 executor。
+## 4. 工具與路徑索引
 
-## 待使用者決定
+- 遠端版面：`artifacts/pexels_portraits/{aligned,sets}/`（等失真臂防禦圖與編輯；`aligned/` 為第一個影像組，`sets/<影像組>/` 為其餘）、
+  `defenses/`、`defended_edits/`、`purified_edits/`、`vae_trans/`、`vibe_distilled/`、`klein/`；`runtime/pexels_portraits/{summary,followup,queue,
+  blurguard,blurguard_rest,blurguard_306,vibe_distilled,klein_distilled,crosseditor100}/`。影像組定義 `data/pexels_portraits/image_sets.json`。
+- 求解：`immunization_baseline.cli.generate_defenses`（`--eps-scale`、`--vae-model`）、`immunization_baseline.cli.generate_blurguard_defenses`、
+  `scripts/apply_blurguard_scale.py`。
+- 主表管線：`scripts/evaluate_pexels_aligned*.sh`、`evaluate_pexels_followup*.sh`、`measure_pexels_summary_inputs.sh`、`generate_pexels_main_table_summary.py`。
+- 跨編輯器：`scripts/evaluate_pexels_nonsd_editor.sh`（`run_nonsd_edits.py`）、`evaluate_pexels_flux_512_readouts.sh`、`run_pexels_readout_parts.sh`
+  （語意分片＋finish_gpu／finish_cpu）、`generate_pexels_flux_512_summary.py`。
+- 分布指標：`scripts/measure_distribution_metrics.py`（`--device cpu|cuda`）。
+- teaser：`scripts/generate_synthetic_portraits.py`（FLUX.2 klein 4B 文生圖，輸出 `artifacts/synthetic_portraits/<名稱>/`）、
+  `scripts/run_teaser_edits.py`（防禦、淨化、ip2p 編輯；ImmuLUT 從 `--immulut-dir` 讀）、`scripts/generate_teaser_overview.py`。指令只由使用者給。
+- BlurGuard 對外套件：使用者桌面 `BlurGuard_package.zip`（官方 e1b2d5e 副本＋以 diffusers 載入 VAE 的替代入口；VAE 權重與官方 `sd-v1-4.ckpt` 逐元素相同）。
 
-- BlurGuard 倍率 0.6071 在 Pexels 上的防禦圖 LPIPS 為 0.2745，未達 0.3344；是否在 Pexels 上重新校準。
-- deferred 的 UltraEdit／FLUX.1 Kontext 工作（2.5 倍與補到 306 張）是否恢復。
-- Pexels 306 張的淨化強度掃描（約 100 GPU 小時）是否執行。
+## 5. 已知問題與待決
+
+- BlurGuard 依論文協定重跑（ImageNet-Edit 80 張、SD v1.4 img2img、官方設定）未對上論文：未淨化編輯結果 LPIPS（AlexNet）0.228 對論文 0.36，
+  SSIM 0.757 對 0.65，PSNR 29.65 對 28.5，IA 0.932 對 0.89；防禦圖對原圖 LPIPS 0.086 對 0.21。重產的未防禦編輯與官方隨附者幾乎相同
+  （LPIPS 0.005），差距在防禦圖：學到的 σ 中位 3.21（0.71–7.43），擾動被重度模糊。原因未查明；可用官方 `blurguard.py`＋原始 checkpoint 對照。
+- 論文正文與 BlurGuard 的實際做法不一致（`docs/paper/sec/4_experiments.tex` 第 14 行寫「each method is run at its native budget」與「budget rescaled」）；
+  實際上 BlurGuard 無原生預算點，等失真版本為 `sigma_weighting` 0＋求解後乘 0.6071。Fig. 4 的 DIA-R 方形與圓點重疊（eps_scale 0.969）。論文修改屬 paper session。
+- BlurGuard 倍率 0.6071 在 Pexels 上的防禦圖 LPIPS 為 0.2745，未達 0.3344；是否在 Pexels 上重新校準待使用者決定。
+- deferred 的 UltraEdit／FLUX.1 Kontext 工作與 Pexels 淨化強度掃描（約 100 GPU 小時）是否執行待使用者決定。
+- 遠端可清理的中間產物清單已交 executor，待使用者確認後才移到 `~/trash/baseline/`。

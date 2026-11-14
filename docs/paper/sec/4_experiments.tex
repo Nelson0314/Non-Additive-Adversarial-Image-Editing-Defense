@@ -11,7 +11,7 @@ All experiments use 306 portraits from Pexels (108 men, 198 women), used under t
 Seven standard operations are applied before editing: JPEG compression at quality 80, 50, and 30; Gaussian blur with $\sigma = 1$ and $2$; a 10\% crop followed by resizing to the original size; and a $15^\circ$ rotation. VAE-Trans~\cite{purifyonce2026}, a pretrained VAE-based denoiser, is reported separately as the strongest purification.
 
 \paragraph{Compared methods.}
-The comparison includes ten additive methods: DAYN~\cite{lo2024dayn}, DIA-R and DIA-PT~\cite{dia2025}, SIFM~\cite{dong2025sifm}, DANP~\cite{zhang2025danp}, Mist~\cite{liang2023mist}, the encoder attack of PhotoGuard~\cite{salman2023photoguard}, DCT-Shield and DCT-Shield-Y~\cite{dctshield2025}, and BlurGuard~\cite{blurguard2025}. Each method is run at its native budget and, in the matched-distortion arm, with its budget rescaled so that its defense LPIPS on the 306 portraits is 0.251 to 0.318, against 0.287 for \capg{} (\cref{tab:main}).
+The comparison includes ten additive methods: DAYN~\cite{lo2024dayn}, DIA-R and DIA-PT~\cite{dia2025}, SIFM~\cite{dong2025sifm}, DANP~\cite{zhang2025danp}, Mist~\cite{liang2023mist}, the encoder attack of PhotoGuard~\cite{salman2023photoguard}, DCT-Shield and DCT-Shield-Y~\cite{dctshield2025}, and BlurGuard~\cite{blurguard2025}. Each method is run at its native budget and, in the matched-distortion arm, with its budget rescaled so that its defense LPIPS~\cite{zhang2018lpips} on the 306 portraits is 0.251 to 0.318, against 0.287 for \capg{} (\cref{tab:main}).
 
 \subsection{Results}
 \label{sec:exp_results}

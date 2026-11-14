@@ -29,6 +29,34 @@
 - `measure_isr_audit_agreement.py` → `audit/`：`human_labels.csv`（人工與評審標籤並列）、`judgments_human.csv`（複核格以人工標籤取代）、`summary_human.txt`、`paired_difference_human.txt`；`audit_key.csv` 為案例對照表。
 - 人工標註的不符指令較評審嚴格：編輯額外加上未要求的物件（口罩、胸前另一個領結等）計為不符指令。
 
+## 人工標註更正版
+
+`audit/judgments_human.csv` 中有 7 格 CAPGuard（ImmuLUT）的人工標籤記為編輯失敗，但拼圖上配件已穿戴在人物身上。
+`generate_isr_corrected_judgments.py` 讀該檔、只改這 7 格為 accessory=1、mismatch=0、degraded=0，另存
+`audit/judgments_human_corrected.csv`（多一欄 `correction_note`，記原標籤與依據；其餘 11,193 格逐字相同）。原檔不變。
+
+| 拼圖 | 格 | 淨化 | 原人工標籤（accessory／mismatch／degraded） | 拼圖所見 |
+|---|---|---|---|---|
+| `man_37__p2` | C2-R7 | none | 0／1／0 | 頭上有金屬頭盔，與未防禦編輯相同 |
+| `man_37__p2` | C3-R7 | jpeg50 | 0／1／0 | 同上 |
+| `man_37__p2` | C4-R7 | blur2 | 0／1／0 | 頭上有深色頭盔，與未防禦編輯相同 |
+| `woman_50__p1` | C5-R7 | vae_trans | 0／1／0 | 警察制服，含臂章與徽章 |
+| `woman_22__p3` | C5-R7 | vae_trans | 0／0／0 | 領口有紅色領結 |
+| `woman_97__p2` | C2-R7 | none | 0／0／0 | 頭上有金屬頭盔 |
+| `woman_97__p2` | C3-R7 | jpeg50 | 0／1／0 | 同上 |
+
+`audit/summary_corrected.txt`、`audit/paired_difference_corrected.txt` 為兩支量測程式讀更正檔的輸出。與 `*_human.txt` 的差異只在 CAPGuard 列
+與含 CAPGuard 的配對差值（協定同上：crosseditor100 100 張 × 4 句，條件式 ISR，影像層 bootstrap）：
+
+| 讀數 | none | jpeg50 | blur2 | vae_trans | 三道合計 |
+|---|---|---|---|---|---|
+| CAPGuard 條件式 ISR，`judgments_human.csv` | 17.0%（55/324） | 18.4%（58/316） | 16.9%（52/307） | 14.0%（41/293） | 16.5%（151/916） |
+| CAPGuard 條件式 ISR，更正版 | 16.4%（53/324） | 17.7%（56/316） | 16.6%（51/307） | 13.3%（39/293） | 15.9%（146/916） |
+| CAPGuard − BlurGuard，`judgments_human.csv` | +2.2 [−1.5, +6.0] | +1.3 [−1.9, +4.4] | +5.5 [+1.7, +9.9] | +6.1 [+2.8, +9.6] | +4.3 [+2.0, +6.9] |
+| CAPGuard − BlurGuard，更正版 | +1.5 [−2.2, +5.5] | +0.6 [−2.8, +3.9] | +5.2 [+1.3, +9.5] | +5.5 [+2.0, +8.9] | +3.7 [+1.3, +6.3] |
+
+`man_37__p2` 的 C5-R7（CAPGuard、vae_trans）為評審標籤 0／0／0（note「faint」），拼圖上同樣有頭盔；該格不在人工複核的 606 格內，更正版未改。
+
 ## 已知限制
 
 - 人工複核只涵蓋 606 格；其餘 10,594 格仍為評審標籤。

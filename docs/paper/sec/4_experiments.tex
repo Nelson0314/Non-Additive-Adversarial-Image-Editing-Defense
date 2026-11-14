@@ -80,28 +80,28 @@ The lower blocks of \cref{tab:main} apply the protected images optimized against
     Variant & $n$ & LPIPS $\downarrow$ & LAION $\uparrow$ & MUSIQ $\uparrow$ & None & JPEG 50 & Blur 2 & VAE-Trans \\
     \midrule
     \rowcolor{oursrow}
-    \capg{} (Ours) & 100 & .299 & 5.31 & 5.33 & .361 & .390 & .366 & .295 \\
+    \capg{} (Ours) & 197 & .291 & 5.32 & 5.30 & .355 & .387 & .362 & .290 \\
     \midrule
     \multicolumn{9}{@{}l}{\emph{One component removed, without distortion matching}} \\
-    w/o optimization (random $\Theta$) & 100 & .045 & 5.45 & 5.39 & .088 & .151 & .084 & .064 \\
-    w/o smoothing ($\sigma = 0$) & 100 & .408 & 5.22 & 5.05 & .468 & .453 & .431 & .331 \\
-    w/o angle bounds & 100 & .472 & 5.20 & 4.93 & .517 & .536 & .525 & .429 \\
-    single angle bound ($25^\circ$) & 100 & .449 & 5.31 & 5.16 & .491 & .524 & .514 & .436 \\
+    w/o optimization (random $\Theta$) & 197 & .048 & 5.43 & 5.33 & .091 & .154 & .086 & .064 \\
+    w/o smoothing ($\sigma = 0$) & 197 & .405 & 5.23 & 5.03 & .466 & .451 & .427 & .326 \\
+    w/o angle bounds & 197 & .465 & 5.22 & 4.94 & .512 & .534 & .522 & .425 \\
+    single angle bound ($25^\circ$) & 197 & .442 & 5.32 & 5.14 & .489 & .522 & .511 & .433 \\
     \midrule
     \multicolumn{9}{@{}l}{\emph{Simpler color mappings at the defense LPIPS of \capg{}}} \\
-    random hue / saturation & 100 & .236 & 5.30 & 5.21 & .297 & .334 & .317 & .254 \\
-    optimized hue / saturation & 99 & .304 & 5.19 & 5.15 & .366 & .400 & .378 & .329 \\
-    optimized $3\times3$ affine & 100 & .299 & 5.27 & 4.84 & .393 & .435 & .404 & .376 \\
-    unconstrained $33^3$ LUT & 100 & .300 & 5.26 & 5.05 & .390 & .384 & .330 & .315 \\
+    random hue / saturation & 197 & .236 & 5.28 & 5.18 & .296 & .334 & .317 & .250 \\
+    optimized hue / saturation & 197 & .295 & 5.17 & 5.11 & .359 & .395 & .370 & .319 \\
+    optimized $3\times3$ affine & 197 & .291 & 5.26 & 4.80 & .385 & .429 & .394 & .364 \\
+    unconstrained $33^3$ LUT & 197 & .292 & 5.26 & 5.03 & .382 & .377 & .323 & .308 \\
     \bottomrule
   \end{tabular}
-  \caption{Ablations on InstructPix2Pix (100 portraits $\times$ 4 instructions). $n$: portraits with a solution, for the simpler color mappings within $\pm 0.015$ of the defense LPIPS of \capg{}; random hue / saturation does not reach this target on 34 portraits. On the 99 portraits common to all rows, every entry differs by at most 0.001 (MUSIQ: 0.01).}
+  \caption{Ablations on InstructPix2Pix (200 portraits $\times$ 4 instructions). Means over the $n = 197$ portraits with a result in every row: the single-bound variant did not finish on one portrait for lack of GPU memory, and the optimized hue / saturation change has no solution within $\pm 0.015$ of the defense LPIPS of \capg{} on two. Random hue / saturation does not reach this target on 64 of the 197 portraits, which are kept.}
   \label{tab:ablation}
 \end{table*}
 
 \subsection{Ablation study}
 \label{sec:exp_ablation}
-\Cref{tab:ablation} compares \capg{} with two groups of variants on the 100 portraits of \cref{tab:isr}. The first group changes one component without distortion matching: a random $\Theta$ without optimization, no Gaussian smoothing ($\sigma = 0$), no angular bounds ($s_a$ removed), and a single bound of $25^\circ$ on the rotation of each color in place of the separate bounds on $\theta$ and $\phi$. The second group replaces the parameterization with simpler color mappings optimized to the same defense LPIPS: a global hue rotation with a saturation scaling (random or optimized), a $3\times3$ affine transform, and an unconstrained $33^3$ LUT. Quality is scored by the aesthetic models LAION~\cite{schuhmann2022laion} and MUSIQ~\cite{ke2021musiq}. After each purification in \cref{tab:ablation}, every color variant retains at least 0.70 of its mean edit displacement without purification.
+\Cref{tab:ablation} compares \capg{} with two groups of variants on 200 portraits: the 100 portraits of \cref{tab:isr} and 100 drawn with the main seed from the other 206. The first group changes one component without distortion matching: a random $\Theta$ without optimization, no Gaussian smoothing ($\sigma = 0$), no angular bounds ($s_a$ removed), and a single bound of $25^\circ$ on the rotation of each color in place of the separate bounds on $\theta$ and $\phi$. The second group replaces the parameterization with simpler color mappings optimized to the same defense LPIPS: a global hue rotation with a saturation scaling (random or optimized), a $3\times3$ affine transform, and an unconstrained $33^3$ LUT. Quality is scored by the aesthetic models LAION~\cite{schuhmann2022laion} and MUSIQ~\cite{ke2021musiq}. After each purification in \cref{tab:ablation}, every color variant retains on average at least 0.69 of its edit displacement without purification.
 
 At matched distortion (\cref{fig:ablation_appearance}, bottom), \capg{} saturates the yellow background, adds blue-gray patches to the forehead, under the eyes, and on the cheeks, and tints the white stripes of the shirt cyan. The hue and saturation change desaturates the whole image, the affine transform adds a pale pink cast, and the unconstrained LUT turns the red checks of the shirt green; all three mappings have a lower MUSIQ score than \capg{}. Removing a component of \capg{} (top) raises the distortion and lowers the MUSIQ score: without smoothing, the background shows large irregular orange and gray patches and the face blue-gray patches with red dots, and without the angular bounds or with a single bound, the background turns yellow-green, the face green, and the hair purple.
 

@@ -40,17 +40,17 @@ def write(path, data, cols):
         w.writerows(data)
 
 
-def collect(condition, images, chunks=CHUNKS):
+def collect(condition, images, chunks=CHUNKS, settings=SETTINGS):
     data = []
     for img in images:
-        for setting in SETTINGS:
+        for setting in settings:
             for r in rows(chunks / img / f"edits_{condition}__{setting}.csv"):
                 if r["arm"] != condition or r["image"] != img:
                     raise SystemExit(f"{chunks / img}/edits_{condition}__{setting}.csv 含 {r['arm']} {r['image']} 的列")
                 data.append({"arm": condition, "image": img, "prompt_index": r["prompt_index"], "prompt": r["prompt"],
                              "png": r["png"], "purifier": setting})
     keys = {(r["image"], r["prompt_index"], r["purifier"]) for r in data}
-    want = len(images) * 4 * len(SETTINGS)
+    want = len(images) * 4 * len(settings)
     if len(data) != len(keys) or len(keys) != want:
         raise SystemExit(f"{condition}：{len(data)} 列、{len(keys)} 個不重複格，應為 {want}")
     for r in data:
@@ -66,6 +66,8 @@ def main():
     ap.add_argument("--conditions", nargs="+", default=list(CONDITIONS))
     ap.add_argument("--output-dir", type=Path, default=OUT)
     ap.add_argument("--chunks-dir", type=Path, default=CHUNKS)
+    ap.add_argument("--settings", nargs="+", default=list(SETTINGS),
+                    help="逐格表涵蓋的設定（預設 none、七道、vae_trans）；inpainting 協定為 none jpeg50 blur2 vae_trans")
     args = ap.parse_args()
     images = args.images_file.read_text(encoding="utf-8").split()
     conditions, out = tuple(args.conditions), args.output_dir
@@ -73,7 +75,7 @@ def main():
         raise SystemExit("影像清單為空或有重複")
     cells = {}
     for c in (UNDEFENDED, *conditions):
-        data = collect(c, images, args.chunks_dir)
+        data = collect(c, images, args.chunks_dir, tuple(args.settings))
         write(out / f"edits_{c}.csv", data, COLS)
         write(out / "plain" / f"edits_{c}.csv", [r for r in data if r["purifier"] == "none"], COLS)
         cells[c] = {(r["image"], r["prompt_index"], r["purifier"]): r for r in data}

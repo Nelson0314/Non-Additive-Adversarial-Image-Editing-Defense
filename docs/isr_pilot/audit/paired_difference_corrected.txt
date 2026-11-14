@@ -5,33 +5,33 @@ vs BlurGuard
   none                                 +1.5 [  -2.2,   +5.5]  P>0 0.761  19/14  n=324  images=100
   jpeg50                               +0.6 [  -2.8,   +3.9]  P>0 0.616  16/14  n=316  images=100
   blur2                                +5.2 [  +1.3,   +9.5]  P>0 0.995  23/7  n=307  images=100
-  vae_trans                            +5.5 [  +2.0,   +8.9]  P>0 1.000  23/7  n=293  images=99
-  purified (jpeg50+blur2+vae_trans)    +3.7 [  +1.3,   +6.3]  P>0 0.999  62/28  n=916  images=100
+  vae_trans                            +5.1 [  +1.7,   +8.7]  P>0 1.000  23/8  n=293  images=99
+  purified (jpeg50+blur2+vae_trans)    +3.6 [  +1.1,   +6.3]  P>0 0.997  62/29  n=916  images=100
 
 vs Mist
   none                                -16.0 [ -20.5,  -11.0]  P>0 0.000  12/64  n=324  images=100
   jpeg50                              +11.1 [  +7.4,  +14.7]  P>0 1.000  40/5  n=316  images=100
   blur2                                +9.8 [  +5.2,  +14.6]  P>0 1.000  39/9  n=307  images=100
-  vae_trans                            +9.2 [  +5.5,  +12.8]  P>0 1.000  32/5  n=293  images=99
-  purified (jpeg50+blur2+vae_trans)   +10.0 [  +7.2,  +12.9]  P>0 1.000  111/19  n=916  images=100
+  vae_trans                            +8.9 [  +5.2,  +12.5]  P>0 1.000  31/5  n=293  images=99
+  purified (jpeg50+blur2+vae_trans)    +9.9 [  +7.1,  +12.9]  P>0 1.000  110/19  n=916  images=100
 
 vs SIFM
   none                                 -1.2 [  -6.1,   +3.7]  P>0 0.309  31/35  n=324  images=100
   jpeg50                              +10.8 [  +6.5,  +15.0]  P>0 1.000  42/8  n=316  images=100
   blur2                               +11.1 [  +6.8,  +15.5]  P>0 1.000  39/5  n=307  images=100
-  vae_trans                            +9.2 [  +5.4,  +13.0]  P>0 1.000  32/5  n=293  images=99
-  purified (jpeg50+blur2+vae_trans)   +10.4 [  +7.6,  +13.2]  P>0 1.000  113/18  n=916  images=100
+  vae_trans                            +8.9 [  +5.1,  +12.8]  P>0 1.000  31/5  n=293  images=99
+  purified (jpeg50+blur2+vae_trans)   +10.3 [  +7.4,  +13.2]  P>0 1.000  112/18  n=916  images=100
 
 vs PhotoGuard
   none                                -25.6 [ -31.6,  -19.2]  P>0 0.000  19/102  n=324  images=100
   jpeg50                              +14.2 [ +10.6,  +18.0]  P>0 1.000  48/3  n=316  images=100
   blur2                               +11.4 [  +6.6,  +16.4]  P>0 1.000  44/9  n=307  images=100
-  vae_trans                           +11.6 [  +8.5,  +14.8]  P>0 1.000  34/0  n=293  images=99
-  purified (jpeg50+blur2+vae_trans)   +12.4 [  +9.7,  +15.3]  P>0 1.000  126/12  n=916  images=100
+  vae_trans                           +11.3 [  +8.2,  +14.5]  P>0 1.000  33/0  n=293  images=99
+  purified (jpeg50+blur2+vae_trans)   +12.3 [  +9.6,  +15.2]  P>0 1.000  125/12  n=916  images=100
 
 vs DCT-Shield
   none                                 -5.6 [ -10.3,   -0.6]  P>0 0.013  24/42  n=324  images=100
   jpeg50                              +14.6 [ +11.1,  +18.2]  P>0 1.000  48/2  n=316  images=100
   blur2                               +14.0 [  +9.8,  +18.4]  P>0 1.000  46/3  n=307  images=100
-  vae_trans                           +11.3 [  +7.7,  +14.7]  P>0 1.000  35/2  n=293  images=99
-  purified (jpeg50+blur2+vae_trans)   +13.3 [ +10.5,  +16.1]  P>0 1.000  129/7  n=916  images=100
+  vae_trans                           +10.9 [  +7.5,  +14.5]  P>0 1.000  34/2  n=293  images=99
+  purified (jpeg50+blur2+vae_trans)   +13.2 [ +10.4,  +16.0]  P>0 1.000  128/7  n=916  images=100

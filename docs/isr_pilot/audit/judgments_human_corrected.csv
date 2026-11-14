@@ -1650,7 +1650,7 @@ man_37__p2,C5-R3,DCT-Shield,vae_trans,1,0,0,,
 man_37__p2,C5-R4,BlurGuard,vae_trans,0,0,0,faint sheen,
 man_37__p2,C5-R5,SIFM,vae_trans,1,0,0,,
 man_37__p2,C5-R6,Mist,vae_trans,1,0,0,,
-man_37__p2,C5-R7,CAPGuard,vae_trans,0,0,0,faint,
+man_37__p2,C5-R7,CAPGuard,vae_trans,1,0,0,faint,"judge label 0/0/0 -> 1/0/0: sheet shows a metal helmet on the head, same as the undefended edit"
 man_37__p3,C2-R1,Undefended,none,0,0,0,no bowtie,
 man_37__p3,C2-R2,PhotoGuard,none,0,0,0,no bowtie,
 man_37__p3,C2-R3,DCT-Shield,none,0,0,0,no bowtie,

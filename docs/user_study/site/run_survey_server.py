@@ -20,7 +20,7 @@ STATIC = HERE / "static"
 RESPONSES = HERE / "responses.jsonl"
 PHOTOS = sorted(p.name for p in (STATIC / "photos").glob("photo_*.jpg"))
 LOCK = threading.Lock()
-FIELDS = {"overall", "person", "background", "no_artifacts", "whole"}
+FIELDS = {"share", "normal"}
 
 
 class Handler(SimpleHTTPRequestHandler):

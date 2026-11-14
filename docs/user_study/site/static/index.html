@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>社群貼文照片調查</title>
+<title>人像照片調查</title>
 <style>
 :root{--bg:#f3f3f1;--surface:#fff;--fg:#1d1f22;--muted:#61656b;--line:#d9dad6;--accent:#2f5d8a;--accent-fg:#fff;
   --sans:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif}
@@ -21,36 +21,28 @@ p{margin:0}
 .bar{height:6px;background:var(--line);border-radius:3px;overflow:hidden}
 .bar>i{display:block;height:100%;background:var(--accent);width:0;transition:width .2s}
 .stage{display:flex;justify-content:center}
-.stage img{display:block;width:auto;height:auto;max-width:100%;max-height:min(70vh,512px);object-fit:contain;border-radius:6px}
+.stage img{display:block;width:auto;height:auto;max-width:100%;max-height:min(62vh,512px);object-fit:contain;border-radius:6px}
 .q{font-weight:600}
 .scale{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
-.scale button,.mini button{font:inherit;border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:8px;cursor:pointer}
-.scale button{padding:10px 2px;font-size:.82rem;display:grid;gap:2px;justify-items:center;line-height:1.25}
+.scale button{font:inherit;border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:8px;cursor:pointer;padding:10px 2px;font-size:.8rem;display:grid;gap:2px;justify-items:center;line-height:1.25}
 .scale button b{font-size:1.05rem}
-.scale button[aria-pressed=true],.mini button[aria-pressed=true]{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
-.sub{display:grid;grid-template-columns:8.5em 1fr;gap:8px;align-items:center}
-.mini{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}
-.mini button{padding:8px 0}
+.scale button[aria-pressed=true]{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
 .btn{font:inherit;padding:12px 20px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-fg);cursor:pointer;justify-self:end}
 .btn:disabled{opacity:.4;cursor:not-allowed}
 button:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .field{display:grid;gap:4px}
 select{font:inherit;padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--fg)}
 .err{color:#b3261e}
-@media (max-width:420px){.sub{grid-template-columns:1fr}.scale button{font-size:.75rem}}
+@media (max-width:420px){.scale button{font-size:.72rem}}
 </style>
 </head>
 <body>
 <main>
   <section id="intro" class="panel">
-    <h1>社群貼文照片調查</h1>
-    <p>你會看到 20 張人像照片。許多人在社群平台發文前會先套用 App 內建的濾鏡或自己調整，也有人直接發原圖。</p>
-    <p>請依第一眼印象回答：這張照片看起來是不是一般人發文時會有的樣子。沒有標準答案。</p>
-    <p class="muted">約 6–8 分鐘。不需登入，不收集姓名或聯絡方式。建議以手機直式或電腦全螢幕作答。</p>
-    <div class="field"><label for="age">年齡</label>
-      <select id="age"><option value="">請選擇</option><option>18 歲以下</option><option>18–24</option><option>25–34</option><option>35–44</option><option>45–54</option><option>55 歲以上</option></select></div>
-    <div class="field"><label for="pro">是否從事攝影或影像處理相關工作？</label>
-      <select id="pro"><option value="">請選擇</option><option>是</option><option>否</option></select></div>
+    <h1>人像照片調查</h1>
+    <p>接下來的 20 張人像照片，都是經過<b>濾鏡調色</b>的照片。</p>
+    <p>請想像這些是<b>你自己的照片</b>，經過這樣的調色後，準備發到社群平台。每張照片請回答兩題，依第一眼印象作答即可，沒有標準答案。</p>
+    <p class="muted">約 4–5 分鐘。不需登入，不收集姓名或聯絡方式。建議以手機直式或電腦全螢幕作答。</p>
     <div class="field"><label for="cvd">是否有已知的色覺異常（色弱、色盲）？</label>
       <select id="cvd"><option value="">請選擇</option><option>是</option><option>否</option><option>不確定</option></select></div>
     <p id="startErr" class="err" hidden></p>
@@ -63,20 +55,23 @@ select{font:inherit;padding:10px;border:1px solid var(--line);border-radius:8px;
       <div class="bar"><i id="barfill"></i></div>
     </div>
     <div class="panel">
-      <div class="stage"><img id="photo" alt="人像照片"></div>
-      <p class="q">這張照片像是一般人發文會有的樣子嗎？</p>
-      <div class="scale" id="scale" role="group" aria-label="整體評分">
+      <div class="stage"><img id="photo" alt="經過調色的人像照片"></div>
+      <p class="q">1. 如果這是你自己的照片，調色成這樣後，你願意分享到社群平台嗎？</p>
+      <div class="scale" data-k="share" role="group" aria-label="願意分享">
+        <button data-v="1" aria-pressed="false"><b>1</b>一定不會</button>
+        <button data-v="2" aria-pressed="false"><b>2</b>大概不會</button>
+        <button data-v="3" aria-pressed="false"><b>3</b>說不上來</button>
+        <button data-v="4" aria-pressed="false"><b>4</b>大概會</button>
+        <button data-v="5" aria-pressed="false"><b>5</b>一定會</button>
+      </div>
+      <p class="q">2. 這張照片看起來像一般人發文時會有的樣子嗎？</p>
+      <div class="scale" data-k="normal" role="group" aria-label="像一般人發文">
         <button data-v="1" aria-pressed="false"><b>1</b>完全不像</button>
         <button data-v="2" aria-pressed="false"><b>2</b>不太像</button>
         <button data-v="3" aria-pressed="false"><b>3</b>說不上來</button>
         <button data-v="4" aria-pressed="false"><b>4</b>大致像</button>
         <button data-v="5" aria-pressed="false"><b>5</b>完全像</button>
       </div>
-      <p class="q">以下各部分看起來自然嗎？（1 很不自然 – 5 很自然）</p>
-      <div class="sub" data-k="person"><span>人物</span><div class="mini"></div></div>
-      <div class="sub" data-k="background"><span>背景與衣物</span><div class="mini"></div></div>
-      <div class="sub" data-k="no_artifacts"><span>沒有奇怪的痕跡</span><div class="mini"></div></div>
-      <div class="sub" data-k="whole"><span>整張照片</span><div class="mini"></div></div>
       <p id="sendErr" class="err" hidden>送出失敗，請檢查網路後再按一次。</p>
       <button class="btn" id="next" disabled>下一題</button>
     </div>
@@ -89,38 +84,37 @@ select{font:inherit;padding:10px;border:1px solid var(--line);border-radius:8px;
 </main>
 <script>
 const $=id=>document.getElementById(id);
-const SUBK=["person","background","no_artifacts","whole"];
-let pid="",seq=[],i=0,overall=null,subs={},t0=0;
+const KEYS=["share","normal"];
+let pid="",seq=[],i=0,scores={},t0=0;
 function shuffle(a){a=a.slice();for(let k=a.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[a[k],a[j]]=[a[j],a[k]]}return a}
 async function post(obj){const r=await fetch("/api/answer",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(obj)});if(!r.ok)throw new Error(await r.text());}
-["age","pro","cvd"].forEach(k=>$(k).addEventListener("change",()=>{$("start").disabled=!["age","pro","cvd"].every(x=>$(x).value)}));
-document.querySelectorAll(".sub").forEach(s=>{const m=s.querySelector(".mini");for(let v=1;v<=5;v++){const b=document.createElement("button");b.textContent=v;b.setAttribute("aria-pressed","false");b.setAttribute("aria-label",s.querySelector("span").textContent+" "+v);
-  b.onclick=()=>{subs[s.dataset.k]=v;m.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));check()};m.appendChild(b)}});
-document.querySelectorAll("#scale button").forEach(b=>b.onclick=()=>{overall=+b.dataset.v;document.querySelectorAll("#scale button").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));check()});
-function check(){$("next").disabled=!(overall&&SUBK.every(k=>subs[k]))}
+$("cvd").addEventListener("change",()=>{$("start").disabled=!$("cvd").value});
+document.querySelectorAll(".scale").forEach(g=>g.querySelectorAll("button").forEach(b=>b.onclick=()=>{
+  scores[g.dataset.k]=+b.dataset.v;g.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));
+  $("next").disabled=!KEYS.every(k=>scores[k]);}));
 $("start").onclick=async()=>{
   $("start").disabled=true;$("startErr").hidden=true;
   try{const r=await fetch("/api/start",{cache:"no-store"});const d=await r.json();pid=d.participant;seq=shuffle(d.photos);
-    await post({kind:"profile",participant:pid,age:$("age").value,photo_work:$("pro").value,color_vision:$("cvd").value,order:seq,user_agent:navigator.userAgent,screen:`${screen.width}x${screen.height}`});
+    await post({kind:"profile",participant:pid,color_vision:$("cvd").value,order:seq,user_agent:navigator.userAgent,screen:`${screen.width}x${screen.height}`});
     seq.forEach(p=>{const im=new Image();im.src="photos/"+p});
     $("intro").hidden=true;$("trial").hidden=false;render();
   }catch(e){$("startErr").textContent="無法連線到伺服器，請稍後再試。";$("startErr").hidden=false;$("start").disabled=false}
 };
 function render(){
-  overall=null;subs={};$("photo").src="photos/"+seq[i];
+  scores={};$("photo").src="photos/"+seq[i];
   $("count").textContent=`第 ${i+1} / ${seq.length} 張`;$("pct").textContent=`${Math.round(100*i/seq.length)}%`;
   $("barfill").style.width=`${100*i/seq.length}%`;
-  document.querySelectorAll("#trial button[aria-pressed]").forEach(x=>x.setAttribute("aria-pressed","false"));
+  document.querySelectorAll(".scale button").forEach(x=>x.setAttribute("aria-pressed","false"));
   $("next").disabled=true;$("sendErr").hidden=true;t0=performance.now();window.scrollTo(0,0);
 }
 $("next").onclick=async()=>{
   $("next").disabled=true;
-  try{await post({kind:"answer",participant:pid,index:i+1,photo:seq[i],scores:{overall,...subs},seconds:+((performance.now()-t0)/1000).toFixed(1)});}
+  try{await post({kind:"answer",participant:pid,index:i+1,photo:seq[i],scores:{...scores},seconds:+((performance.now()-t0)/1000).toFixed(1)});}
   catch(e){$("sendErr").hidden=false;$("next").disabled=false;return}
   i++;
   if(i<seq.length){render();return}
   $("barfill").style.width="100%";
-  try{await post({kind:"finish",participant:pid})}catch(e){}
+  await post({kind:"finish",participant:pid}).catch(()=>{});
   $("trial").hidden=true;$("done").hidden=false;
 };
 </script>

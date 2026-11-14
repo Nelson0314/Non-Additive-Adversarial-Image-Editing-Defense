@@ -1,0 +1,122 @@
+[
+ {
+  "file": "photo_01.jpg",
+  "image": "woman_39",
+  "condition": "immulut",
+  "filter": ""
+ },
+ {
+  "file": "photo_02.jpg",
+  "image": "woman_70",
+  "condition": "immulut",
+  "filter": ""
+ },
+ {
+  "file": "photo_03.jpg",
+  "image": "man_20",
+  "condition": "immulut",
+  "filter": ""
+ },
+ {
+  "file": "photo_04.jpg",
+  "image": "woman_01",
+  "condition": "original",
+  "filter": ""
+ },
+ {
+  "file": "photo_05.jpg",
+  "image": "woman_95",
+  "condition": "filter",
+  "filter": "muted"
+ },
+ {
+  "file": "photo_06.jpg",
+  "image": "woman_24",
+  "condition": "immulut",
+  "filter": ""
+ },
+ {
+  "file": "photo_07.jpg",
+  "image": "woman_59",
+  "condition": "filter",
+  "filter": "faded"
+ },
+ {
+  "file": "photo_08.jpg",
+  "image": "woman_15",
+  "condition": "immulut",
+  "filter": ""
+ },
+ {
+  "file": "photo_09.jpg",
+  "image": "woman_55",
+  "condition": "original",
+  "filter": ""
+ },
+ {
+  "file": "photo_10.jpg",
+  "image": "man_30",
+  "condition": "immulut",
+  "filter": ""
+ },
+ {
+  "file": "photo_11.jpg",
+  "image": "woman_86",
+  "condition": "original",
+  "filter": ""
+ },
+ {
+  "file": "photo_12.jpg",
+  "image": "woman_74",
+  "condition": "original",
+  "filter": ""
+ },
+ {
+  "file": "photo_13.jpg",
+  "image": "woman_42",
+  "condition": "filter",
+  "filter": "cool"
+ },
+ {
+  "file": "photo_14.jpg",
+  "image": "woman_87",
+  "condition": "filter",
+  "filter": "vivid"
+ },
+ {
+  "file": "photo_15.jpg",
+  "image": "woman_75",
+  "condition": "immulut",
+  "filter": ""
+ },
+ {
+  "file": "photo_16.jpg",
+  "image": "woman_16",
+  "condition": "filter",
+  "filter": "warm"
+ },
+ {
+  "file": "photo_17.jpg",
+  "image": "woman_64",
+  "condition": "immulut",
+  "filter": ""
+ },
+ {
+  "file": "photo_18.jpg",
+  "image": "woman_90",
+  "condition": "immulut",
+  "filter": ""
+ },
+ {
+  "file": "photo_19.jpg",
+  "image": "woman_43",
+  "condition": "original",
+  "filter": ""
+ },
+ {
+  "file": "photo_20.jpg",
+  "image": "woman_88",
+  "condition": "immulut",
+  "filter": ""
+ }
+]

@@ -4,10 +4,10 @@
 
 | 條件 | 張數 | 來源 |
 |---|---|---|
-| ImmuLUT 防禦圖 | 18 | crosseditor100 依防禦圖 LPIPS 排序分 6 個區間，每區取最接近區間中位數的 3 張（LPIPS 0.161–0.456） |
-| 常見濾鏡 | 2 | 第一版的暖色（woman_16）與高飽和（woman_87） |
+| ImmuLUT 防禦圖 | 18 | crosseditor100 中臉框 CIEDE2000 最小的 36 張，以人工看圖排除背景或衣物偏粉紫、局部色塊者後取 18 張：woman_87、man_19、man_34、woman_28、woman_95、woman_06、woman_43、woman_03、woman_30、woman_15、man_07、woman_68、woman_70、woman_96、woman_77、woman_89、woman_88、woman_41 |
+| 常見濾鏡 | 2 | 第一版的暖色（woman_16）與褪色（woman_59），與上列人像不重複 |
 
-條件對應在 `manifest.json`（含每張的防禦圖 LPIPS），影像由遠端 `user_study_make_site_v2.py` 產生（主種子 20260812 打亂檔名）。第一版（5 題、原圖／濾鏡／ImmuLUT 各條件）的頁面、影像、manifest 與作答保存在 `pilot/`。
+條件對應在 `manifest.json`（含每張的防禦圖 LPIPS），影像由遠端 `user_study_make_site_v2.py` 產生（主種子 20260812 打亂檔名）。第一版（5 題、原圖／濾鏡／ImmuLUT 各條件）保存在 `pilot/`；依 LPIPS 區間挑選 18 張的版本（2 人作答）保存在 `lpips_bins/`。此版影像由遠端 `user_study_make_site_v3.py` 產生。
 
 ## 執行
 

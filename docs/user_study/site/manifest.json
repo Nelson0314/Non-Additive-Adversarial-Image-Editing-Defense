@@ -1,79 +1,79 @@
 [
  {
-  "image": "woman_65",
+  "image": "woman_77",
   "condition": "immulut",
   "filter": "",
-  "defense_lpips": 0.35371,
+  "defense_lpips": 0.16545,
   "file": "photo_01.jpg"
  },
  {
-  "image": "woman_62",
+  "image": "woman_89",
   "condition": "immulut",
   "filter": "",
-  "defense_lpips": 0.44829,
+  "defense_lpips": 0.34383,
   "file": "photo_02.jpg"
  },
  {
-  "image": "woman_51",
+  "image": "woman_30",
   "condition": "immulut",
   "filter": "",
-  "defense_lpips": 0.27171,
+  "defense_lpips": 0.26261,
   "file": "photo_03.jpg"
  },
  {
-  "image": "man_14",
+  "image": "woman_88",
   "condition": "immulut",
   "filter": "",
-  "defense_lpips": 0.44187,
+  "defense_lpips": 0.21251,
   "file": "photo_04.jpg"
  },
  {
-  "image": "woman_60",
+  "image": "woman_43",
   "condition": "immulut",
   "filter": "",
-  "defense_lpips": 0.27076,
+  "defense_lpips": 0.20007,
   "file": "photo_05.jpg"
  },
  {
-  "image": "woman_39",
+  "image": "woman_95",
   "condition": "immulut",
   "filter": "",
-  "defense_lpips": 0.22211,
+  "defense_lpips": 0.21465,
   "file": "photo_06.jpg"
  },
  {
-  "image": "woman_87",
+  "image": "woman_59",
   "condition": "filter",
-  "filter": "vivid",
+  "filter": "faded",
   "defense_lpips": null,
   "file": "photo_07.jpg"
  },
  {
-  "image": "woman_74",
+  "image": "woman_68",
   "condition": "immulut",
   "filter": "",
-  "defense_lpips": 0.32214,
+  "defense_lpips": 0.27459,
   "file": "photo_08.jpg"
  },
  {
-  "image": "woman_66",
+  "image": "woman_06",
   "condition": "immulut",
   "filter": "",
-  "defense_lpips": 0.22689,
+  "defense_lpips": 0.21189,
   "file": "photo_09.jpg"
  },
  {
-  "image": "woman_97",
+  "image": "woman_70",
   "condition": "immulut",
   "filter": "",
-  "defense_lpips": 0.35834,
+  "defense_lpips": 0.39324,
   "file": "photo_10.jpg"
  },
  {
-  "image": "woman_17",
+  "image": "man_07",
   "condition": "immulut",
   "filter": "",
-  "defense_lpips": 0.32196,
+  "defense_lpips": 0.21098,
   "file": "photo_11.jpg"
  },
  {
@@ -84,59 +84,59 @@
   "file": "photo_12.jpg"
  },
  {
-  "image": "woman_36",
+  "image": "woman_03",
   "condition": "immulut",
   "filter": "",
-  "defense_lpips": 0.27044,
+  "defense_lpips": 0.25249,
   "file": "photo_13.jpg"
  },
  {
-  "image": "woman_09",
+  "image": "woman_87",
   "condition": "immulut",
   "filter": "",
-  "defense_lpips": 0.16172,
+  "defense_lpips": 0.12639,
   "file": "photo_14.jpg"
  },
  {
-  "image": "woman_94",
+  "image": "woman_28",
   "condition": "immulut",
   "filter": "",
-  "defense_lpips": 0.2243,
+  "defense_lpips": 0.2661,
   "file": "photo_15.jpg"
  },
  {
-  "image": "man_47",
+  "image": "woman_41",
   "condition": "immulut",
   "filter": "",
-  "defense_lpips": 0.45619,
+  "defense_lpips": 0.21786,
   "file": "photo_16.jpg"
  },
  {
-  "image": "woman_42",
+  "image": "woman_96",
   "condition": "immulut",
   "filter": "",
-  "defense_lpips": 0.35501,
+  "defense_lpips": 0.36673,
   "file": "photo_17.jpg"
  },
  {
-  "image": "woman_69",
+  "image": "woman_15",
   "condition": "immulut",
   "filter": "",
-  "defense_lpips": 0.32137,
+  "defense_lpips": 0.31887,
   "file": "photo_18.jpg"
  },
  {
-  "image": "man_03",
+  "image": "man_34",
   "condition": "immulut",
   "filter": "",
-  "defense_lpips": 0.16051,
+  "defense_lpips": 0.17358,
   "file": "photo_19.jpg"
  },
  {
-  "image": "woman_77",
+  "image": "man_19",
   "condition": "immulut",
   "filter": "",
-  "defense_lpips": 0.16545,
+  "defense_lpips": 0.19379,
   "file": "photo_20.jpg"
  }
 ]

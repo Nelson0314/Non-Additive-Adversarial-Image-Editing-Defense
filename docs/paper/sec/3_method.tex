@@ -157,14 +157,14 @@ where $\Theta^*$ denotes the optimized parameters.
 \begin{figure}[t]
   \centering
   \includegraphics[width=\linewidth]{fig/purification.pdf}
-  \caption{Fraction of the perturbation that survives each purification (InstructPix2Pix, 306 portraits); dotted: full survival.}
+  \caption{Fraction of the perturbation that survives each purification (306 portraits); dotted: full survival. Additive methods at their matched-distortion arm, except DCT-Shield-Y at its native budget, because at matched distortion its perturbation is smaller than one JPEG quantization step.}
   \label{fig:purification}
 \end{figure}
 
 \begin{figure*}[t]
   \centering
   \includegraphics[width=\linewidth]{fig/distortion_displacement.pdf}
-  \caption{Distortion and edit displacement on InstructPix2Pix (306 Pexels portraits $\times$ 4 instructions). (a)~Before purification, the additive methods at their native budgets and at the matched-distortion arm (BlurGuard at the latter only), and \capg{} (star); dashed: least-squares fit to the additive methods. (b)~Matched-distortion arms and \capg{} before (filled) and after (open, mean of the seven purifications) purification.}
+  \caption{Defense LPIPS and edit LPIPS on InstructPix2Pix (306 Pexels portraits $\times$ 4 instructions). (a)~Before purification, the additive methods at their native budgets and at the matched-distortion arm (BlurGuard at the latter only), and \capg{} (star); dashed: least-squares fit to the additive methods. (b)~Matched-distortion arms and \capg{} before (filled) and after (open, mean of the seven purifications) purification.}
   \label{fig:plane}
 \end{figure*}
 

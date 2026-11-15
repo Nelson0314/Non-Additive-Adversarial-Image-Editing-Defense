@@ -138,3 +138,36 @@
 - 經 executor 轉達的 Overleaf 寫入會被權限規則擋下，需使用者在 paper pane 直接下令。
 - 遠端 PDF 工具：`~/isr_audit/pylib`（PyMuPDF，`PYTHONPATH=pylib python3`）；人工標註網頁 https://claude.ai/artifact/UsWeXVkvZmZRNnPySW7zHy ；進度簡報 https://claude.ai/artifact/5zBE9fscPQ9EkCakhtUAfK 。
 - 截止：全文 11/16、補充材料 11/23（AOE，台灣時間隔日 19:59）。
+
+## 9. 現況（2026-11-15 晚），取代第 8 節的進行中與待決項目
+
+### 9.1 Session 與分工
+- pane 編號會變，派工前以 `list_panes` 依標題辨認。本節寫成時：paper＝pane 1、舊 executor＝pane 2（交接後唯讀）、color＝pane 3、baseline＝pane 4、新 executor＝pane 5。
+- check session 已結束；其論文檢查報告的修正已全部合併。
+- 同步 Overleaf 必須由使用者在 paper pane 直接下令；executor 轉達會被權限規則擋下。
+
+### 9.2 論文狀態
+- 全文截止 11/16 23:59 AOE（台灣時間 11/17 19:59）；補充材料 11/23 AOE（台灣 11/24 19:59）。使用者表示頁數超出不必處理（目前 11 頁）。
+- Overleaf 與 repo 一致至 a2da3035；其後 repo 有 dd5ab740（Table 3 與 4.2 改為 200 張消融）尚未同步。教授 11/15 在 Overleaf 改的 1_intro、2_related、main.bib（DANP 改 TIFS 2026）已合併進 repo，線上即為該版。
+- 已定案的圖：Fig. 1＝殭屍流程 teaser（man_x、JPEG q30、PhotoGuard／DIA-PT／ImmuLUT）；Fig. 5＝woman_23 helmet（編輯種子 3，7 欄）；Fig. 6＝man_37 消融兩列。
+- ISR 更正版：`docs/isr_pilot/audit/judgments_human_corrected.csv`（8 格依圖更正），Table 2 與正文已用更正數字（ImmuLUT 淨化後合計 15.8%，對 BlurGuard +3.6±2.6）。
+- 待使用者決定：教授改寫的第三點貢獻用語（substantially more／advantage／improved editing failure rates）與定調不一致；Fig. 4、Table 1／3 的「Edit LPIPS」標頭與正文 edit displacement 不一致（使用者已決定維持現狀）；第 2 章兩句 spatial frequency／spectrum。
+
+### 9.3 實驗進行中
+- **濾鏡化 ImmuLUT（教授 11/15 回饋）**：color trial `generate_color3d_filter_defenses.py`、`tools/run_filter_trial.sh`。四種預設濾鏡（warm b*+16 a*+4、cool、vintage、pink；`tools/generate_filter_presets.py`）；臂 a 只套濾鏡、b 濾鏡＋殘差（色相上界 2.5°、極角 25°）、c 膚色區剛體小旋轉（skinrigid）、d 求解後在膚色區混回濾鏡（skinlock）。20 張（crosseditor100 分層抽樣，`pexels_subsets/filter_trial20.txt`）× 新 4 句（helmet、rotting zombie skin、acid、bleeding head wound）已完成；ISR 由 executor 逐格判定：`C:\Users\nelso\AppData\Local\Temp\claude\78c200ab6afda56d\e21819ef-de7d-4cef-9fc0-32a8b8e5e04b\scratchpad\filter_isr\judgments20.csv`（副本在 trial results/filter_trial/prompts20/isr_judgments_executor.csv）。
+  - 20 張條件式 ISR（淨化後合計）：ImmuLUT 24.1%、warm c 11.0%、warm d 10.5%、cool c 14.1%、cool d 8.9%；臉部偏移標準差 ImmuLUT 15.6、warm d 8.1、cool d 7.0；防禦圖 LPIPS ImmuLUT 0.279、warm d 0.334、cool d 0.270。結果圖在 trial artifacts/filter_trial/metric_sheets20/、comparison20/。
+  - VAE 目標終值濾鏡版高於 ImmuLUT，但 ISR 較低：差距不是最佳化不足，而是目標函數（VAE 距離）與編輯失效脫鉤。偏冷原因：ImmuLUT 把膚色往灰軸／互補色推（極角方向），results/cold_bias/。
+- **新任務（2026-11-15 晚派給 color）**：A. 用 FLUX.2 klein 重新生成姿勢自然的人像，跑殭屍等強烈句，目標 warm d 與 cool d 兩版淨化後都擋下、未防禦與 baseline 效果強烈，出 teaser_flow_compact 版面；B. 質性圖改以一種正常濾鏡（warm d 或 cool d）當「我們」欄，同 Fig. 5 版面。先送防禦圖小圖給 executor 篩。
+- **inpainting 補充欄（baseline）**：306 張 × 7 條件（未防禦、ImmuLUT、PhotoGuard、DIA-PT、DCT-Shield、SIFM、BlurGuard），SD1.5 inpainting 50 步，不做 ISR。11/15 10:34 為讓卡暫停（queue/PAUSED、baseline_cap 0），完成 101／306；恢復時刪 PAUSED、cap 改回 6，從未完成的 205 張接續（約 8.5 小時）。
+- **消融 200 張**：已完成並寫入論文（共同子集 197）；A4 man_33 因他人行程顯存不足未完成，是否補跑待使用者決定。
+
+### 9.4 使用者研究
+- 網站 `docs/user_study/site/`，伺服器與 Cloudflare 通道開在本機兩個獨立視窗（標題 survey server／survey tunnel）；網址 https://camcorder-massive-serves-radio.trycloudflare.com（通道重開會變）。
+- 現行版：18 張最自然的 ImmuLUT＋2 張一般濾鏡（暖、褪色），每張兩題（願意分享、像一般發文）；前版保存在 pilot/、lpips_bins/。截至 11/15 02:10：2 人完成，ImmuLUT 願意分享 2.08、像一般發文 2.25，濾鏡 3.75／4.75。
+
+### 9.5 工作方式（使用者偏好）
+- 圖一律用 `Invoke-Item` 在本機預設看圖程式開，不用小畫家；使用者明說才用 SendUserFile 傳手機。
+- 看圖判斷（ISR、防禦圖是否正常）由 executor 親自做；剔除條件：防禦圖背景／衣物偏粉紅洋紅紫、臉偏藍白或過亮、局部色塊、拼貼退化、未防禦編輯不明顯、勾叉與圖不一致。
+- 條件式 ISR 只計未防禦編輯成功的格。
+- 實驗室使用者 s314511048 會在 basic-1 我們持有租約的卡上開 18 GB 行程，造成顯存不足；只取完全空卡，必要時改用 basic-2。
+- 本機記憶體不足時背景指令會被回收；長駐服務改用獨立視窗。

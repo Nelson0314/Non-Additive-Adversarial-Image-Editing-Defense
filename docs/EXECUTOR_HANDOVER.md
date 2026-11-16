@@ -171,3 +171,35 @@
 - 條件式 ISR 只計未防禦編輯成功的格。
 - 實驗室使用者 s314511048 會在 basic-1 我們持有租約的卡上開 18 GB 行程，造成顯存不足；只取完全空卡，必要時改用 basic-2。
 - 本機記憶體不足時背景指令會被回收；長駐服務改用獨立視窗。
+
+## 10. 現況（2026-11-17 02:00），取代第 9 節的進行中與待決項目
+
+### 10.1 Session 與工作方式
+- 本節寫成時：paper＝pane 1、baseline＝pane 2、舊 executor＝pane 3（交接後唯讀）、color＝pane 4；新 executor 以 `list_panes` 辨認。
+- 使用者授權 executor 直接對 paper／color／baseline 下令（使用者原話：executor 是主管，有權責），不必先轉回使用者確認；例外是 Overleaf 同步，paper 的規則要求使用者在 paper pane 親自下令，executor 轉達的同步指令會被擋。
+- 使用者曾切換 claude.ai 帳號；舊帳號建立的 artifact 新帳號打不開也不能更新。
+- 看圖一律看原尺寸拼圖再下結論；以 112 px 縮圖判斷曾把 night_o 誤判為擋下。圖以 `Start-Process` 在本機開；放桌面只在使用者明說時。
+- 使用者未回應時機器不可閒置：依教授方向自行排下一批（專案記憶 `keep-gpus-busy-on-advisor-direction`）。teaser 色調標準見專案記憶 `teaser-look-like-optimized-immulut`。
+- 使用者明說時可派 subagent；ISR 評審用 Sonnet、effort medium、每個 agent 10 張拼圖、只准 Read／Write。撞到使用上限時，先刪掉行數不足的批次檔再重派新 agent。
+
+### 10.2 論文（全文截止 11/17 19:59 台灣時間；補充 11/23 19:59）
+- repo 與 Overleaf 逐字一致於 `b26dfe9f`（同步點記於 `docs/PAPER_HANDOVER.md`）。Lynn 改寫的 abstract、method、experiments、limitations、conclusion 已照收（`8030cc25`）；使用者決定 Lynn 的文字一律不動，包含消融段第一句與 Δφ 公式（舊版有 cosΔθ 項，使用者決定不查）。
+- 已完成：圖表與 caption 的 33 改 K（表 4、方法總覽圖）、Fig. 1／Fig. 2 圖說移除實驗細節、Fig. 2 圖說縮短、Setup 段尾補 K=33、σ=4、θ_max=25°、φ_max=7.5° 與 ip2p 設定（`a8bb6596`、`750ac6a7`、`3be20a56`）。
+- 使用者須自行把新摘要更新到 OpenReview。
+- 待使用者決定 1：Qualitative Comparison 段（目前只有標題）。候選：正文沿用 Fig. 5（woman_23 安全帽，306 張判定中五個 baseline 淨化後全成功、ImmuLUT 全擋下），woman_111 p1「police suit」放 supp（未防禦與 baseline 淨化後整套制服，ImmuLUT 四欄仍為原衣物；缺點是木牆背景偏藍）。拼圖：scratchpad `isr_second100/ip2p_isr_second100_sheets/woman_111__p1.jpg`。剔除者：woman_168／114／167（背景粉紫或換人）、man_44（臉青）、woman_141（半面罩）、man_67（編輯不明顯）。
+- 待使用者決定 2：縮回 8 頁。現況正文到第 9 頁中段（第 9 頁有表 4、Fig. 6、Conclusion、LLM 聲明），參考文獻在第 10–11 頁。已提給使用者的計劃，依序做、每步編譯、到 8 頁即停：(1) 第 4 章五段刪鋪陳與重述句，各縮兩到三成；(2) 第 3 章三段合併重複動機，公式不動；(3) 第 1、2 章收緊，教授的第三點貢獻不改；(4) 表 3、圖 3、圖 4 版面；(5) 仍不足時依 Lynn 指示把 Fig. 6 移到 supp（表 4 保留）；(6) 補 Qualitative Comparison 2–3 句；(7) 查 LLM 聲明是否計入 8 頁。改完以藍色標出改動編譯給使用者看，確認後才同步 Overleaf。使用者尚未批准，等回應。
+- 表 2 的 ISR 待第二、三批人工複核完成後換成 306 張數字。
+
+### 10.3 ISR 擴充到 306 張
+- 第二批 100 張（`baseline/runtime/pexels_portraits/isr_second100/images.txt`，與消融擴充 100 張相同）、第三批 106 張（`isr_third106/`）；拼圖在 baseline `artifacts/pexels_portraits/ip2p_isr_{second100,third106}_sheets/`，協定與 crosseditor100 相同，未用 GPU。
+- Sonnet 判定已完成並檢核（11,200 與 11,872 格，無重複、無缺格）。合併檔與結果在 scratchpad `06922550-…/scratchpad/isr_third106/`：`judgments_all306.csv`（第一批人工更正版＋第二、三批評審版）、`summary_judgments_{third106,all306}.txt`、`paired_{third106,all306}.txt`；第二批在 `isr_second100/`。遠端副本在 basic-1 `/tmp/executor_isr2/`（會被清除，應移入 `docs/isr_pilot/` 再入庫，尚未做）。
+- 306 張淨化後三種合計條件式 ISR：ImmuLUT 16.2% [14.5, 17.8]、BlurGuard 11.2%、SIFM 5.7%、Mist 5.4%、PhotoGuard 3.4%、DCT-Shield 2.8%；ImmuLUT − BlurGuard ＋5.0 [＋3.4, ＋6.7]（blur2 ＋8.4、VAE-Trans ＋5.8 顯著；JPEG50 ＋1.0、不淨化 −3.0 [−5.8, −0.3]）。
+- 人工複核頁（新帳號）：https://claude.ai/artifact/5c7eWE57L3K8tbjhnB1DJC，第二、三批 1038 格（ImmuLUT 與 BlurGuard 判定不同 449 對＋7 條件 × 4 淨化分層隨機 140 格；選格程式 `docs/isr_pilot/generate_isr_audit_cases.py`）。每格只選三項：1 編輯成功、2 編輯失敗（防禦成功）、3 參考編輯本身失敗（排除）。存在頁面 db 的 `labels` 集合（`success`、`ref_fail`、`accessory`），案例對照表 `isr_audit206/audit_key.csv`。使用者標完後：`ref_fail=1` 的槽位（影像 × 指令 × 淨化）整列移出分母，其餘以 `success` 取代評審標籤，算一致率與更正版 ISR（`measure_isr_paired_difference.py` 對總列數的檢查需依實際列數調整）。
+
+### 10.4 teaser
+- Fig. 1 現行：man_x 殭屍、JPEG30、PhotoGuard／DIA-PT 等失真臂。原生預算版（`teaser_man_x_zombieskin_native_tg7p5_ig1p8`）中 PhotoGuard、DCT-Shield 不淨化即變多個殭屍，DIA-PT 為唯一「淨化前擋、淨化後敗」者；ImmuLUT 在 blur2、VAE-Trans 下也被編輯，原生預算版不採用。
+- 候選（桌面）：man_23 強酸 blur2（臉略偏白、襯衫偏淡藍）、man_35 強酸 jpeg30（背景偏紫、淨化後臉偏青綠）。已否定：暖色起點、skinlock、warmhalf、cool 系、dark／night 批、woman_177（效果太弱）、dark_v、night_v、night_o、dark_d、dark_h。
+- color 自動鏈仍可能在跑：暖色背景 18 張（剔除 warm_e、i、k、l、o、p）四句編輯與 gore10 十句血腥指令，拼圖寫到 color trial `artifacts/teaser_filter/{teaser_warm_sheets,gore10_sheets}/`，尚未看圖。
+
+### 10.5 supp 待辦
+- user study 只有 2 人回答；inpainting 暫停在 101／306（恢復：刪 `queue/PAUSED`、`baseline_cap` 改回 6，約 8.5 小時）；真實圖片範例（由 306 張判定挑，同 10.2 的篩法）；ISR 完整結果與人工一致率；實驗細節完整版；被移出正文的圖或表；隨機 Θ 消融數字不放論文，留作 rebuttal。

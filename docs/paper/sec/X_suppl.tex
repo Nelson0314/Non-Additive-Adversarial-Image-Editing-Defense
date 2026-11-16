@@ -26,6 +26,36 @@
   \label{fig:ablation_appearance}
 \end{figure*}
 
+\begin{table*}[t]
+  \centering
+  \scriptsize
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{@{}lc ccc cccc@{}}
+    \toprule
+    & & \multicolumn{3}{c}{Protected image} & \multicolumn{4}{c}{Edit LPIPS $\uparrow$} \\
+    \cmidrule(lr){3-5} \cmidrule(l){6-9}
+    Variant & $n$ & LPIPS $\downarrow$ & LAION $\uparrow$ & MUSIQ $\uparrow$ & None & JPEG 50 & Blur 2 & VAE-Trans \\
+    \midrule
+    \rowcolor{oursrow}
+    \capg{} (Ours) & 197 & .291 & 5.32 & 5.30 & .355 & .387 & .362 & .290 \\
+    \midrule
+    \multicolumn{9}{@{}l}{\emph{Component Analysis (Unmatched Distortion)}} \\
+    %w/o optimization (random $\Theta$) & 197 & .048 & 5.43 & 5.33 & .091 & .154 & .086 & .064 \\
+    w/o smoothing ($\sigma = 0$) & 197 & .405 & 5.23 & 5.03 & .466 & .451 & .427 & .326 \\
+    w/o angle bounds & 197 & .465 & 5.22 & 4.94 & .512 & .534 & .522 & .425 \\
+    single angle bound ($25^\circ$) & 197 & .442 & 5.32 & 5.14 & .489 & .522 & .511 & .433 \\
+    \midrule
+    \multicolumn{9}{@{}l}{\emph{Color Mapping Comparison (Matched Distortion)}} \\
+    random hue / saturation & 197 & .236 & 5.28 & 5.18 & .296 & .334 & .317 & .250 \\
+    optimized hue / saturation & 197 & .295 & 5.17 & 5.11 & .359 & .395 & .370 & .319 \\
+    optimized $3\times3$ affine & 197 & .291 & 5.26 & 4.80 & .385 & .429 & .394 & .364 \\
+    unconstrained $K^3$ LUT & 197 & .292 & 5.26 & 5.03 & .382 & .377 & .323 & .308 \\
+    \bottomrule
+  \end{tabular}
+  \caption{Ablations on InstructPix2Pix (200 portraits $\times$ 4 instructions). Means over the $n = 197$ portraits with a result in every row: the single-bound variant did not finish on one portrait for lack of GPU memory, and the optimized hue / saturation change has no solution within $\pm 0.015$ of the defense LPIPS of \capg{} on two. Random hue / saturation does not reach this target on 64 of the 197 portraits, which are kept.}
+  \label{tab:ablation}
+\end{table*}
+
 \TODO{}
 
 \section{Additional metrics}

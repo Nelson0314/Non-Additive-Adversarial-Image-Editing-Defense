@@ -73,7 +73,7 @@ We further examine how perceptual distortion relates to editing disruption. As s
 
 
 \paragraph{Qualitative Comparison.}
-\Cref{fig:purification_example} shows the edits of one portrait with the instruction ``Let the person wear a helmet''. After Gaussian blur, the helmet is added to the protected images of all additive defenses, whereas the edit of \capg{} does not show it. More examples are given in the supplementary material.
+In \cref{fig:purification_example}, after Gaussian blur the helmet is added for all additive defenses but not for \capg{}; more examples are in the supplementary material.
 
 
 \subsection{Cross-Model Transferability}
@@ -235,8 +235,8 @@ As the distortion–effectiveness analysis in \cref{fig:plane} shows that \capg{
 
 \begin{figure*}[t]
   \centering
-  \includegraphics[width=\textwidth]{fig/purification_example.pdf}
-  \caption{Edits of one of the 100 portraits of \cref{tab:isr} with the instruction ``Let the person wear a helmet'' on InstructPix2Pix (text guidance 7.5, image guidance 1.8). All columns use edit seed 3, which differs from the seed of the main evaluation. Rows: protected image, edit without purification, and edit after Gaussian blur ($\sigma = 2$); the left column shows the original image and its edits.}
+  \includegraphics[width=0.7\textwidth]{fig/purification_example.pdf}
+  \caption{Edits with the instruction ``Let the person wear a helmet'' on InstructPix2Pix, with edit seed 3 for all columns (not the main seed). Rows: protected image, edit without purification, and edit after Gaussian blur ($\sigma = 2$).}
   \label{fig:purification_example}
 \end{figure*}
 
@@ -244,39 +244,10 @@ As the distortion–effectiveness analysis in \cref{fig:plane} shows that \capg{
 %\label{sec:exp_gen}
 %The lower blocks of \cref{tab:main} apply the protected images optimized against the VAE encoder of InstructPix2Pix, without re-optimization, to VIBE-DistilledCFG~\cite{alekseenko2026vibe} (DC-AE encoder, 20 sampling steps) and to the distilled FLUX.2 [klein] 4B~\cite{bfl2026flux2klein} (FLUX.2 VAE, 4 sampling steps, guidance 1.0), both at $512^2$ with the four instructions phrased as additions. On both editors, the edit displacement of \capg{} is unchanged by purification (0.318 and 0.331 on VIBE-DistilledCFG, 0.281 and 0.293 on FLUX.2 [klein]), whereas that of the additive methods decreases.
 
-\begin{table*}[t]
-  \centering
-  \scriptsize
-  \setlength{\tabcolsep}{4pt}
-  \begin{tabular}{@{}lc ccc cccc@{}}
-    \toprule
-    & & \multicolumn{3}{c}{Protected image} & \multicolumn{4}{c}{Edit LPIPS $\uparrow$} \\
-    \cmidrule(lr){3-5} \cmidrule(l){6-9}
-    Variant & $n$ & LPIPS $\downarrow$ & LAION $\uparrow$ & MUSIQ $\uparrow$ & None & JPEG 50 & Blur 2 & VAE-Trans \\
-    \midrule
-    \rowcolor{oursrow}
-    \capg{} (Ours) & 197 & .291 & 5.32 & 5.30 & .355 & .387 & .362 & .290 \\
-    \midrule
-    \multicolumn{9}{@{}l}{\emph{Component Analysis (Unmatched Distortion)}} \\
-    %w/o optimization (random $\Theta$) & 197 & .048 & 5.43 & 5.33 & .091 & .154 & .086 & .064 \\
-    w/o smoothing ($\sigma = 0$) & 197 & .405 & 5.23 & 5.03 & .466 & .451 & .427 & .326 \\
-    w/o angle bounds & 197 & .465 & 5.22 & 4.94 & .512 & .534 & .522 & .425 \\
-    single angle bound ($25^\circ$) & 197 & .442 & 5.32 & 5.14 & .489 & .522 & .511 & .433 \\
-    \midrule
-    \multicolumn{9}{@{}l}{\emph{Color Mapping Comparison (Matched Distortion)}} \\
-    random hue / saturation & 197 & .236 & 5.28 & 5.18 & .296 & .334 & .317 & .250 \\
-    optimized hue / saturation & 197 & .295 & 5.17 & 5.11 & .359 & .395 & .370 & .319 \\
-    optimized $3\times3$ affine & 197 & .291 & 5.26 & 4.80 & .385 & .429 & .394 & .364 \\
-    unconstrained $K^3$ LUT & 197 & .292 & 5.26 & 5.03 & .382 & .377 & .323 & .308 \\
-    \bottomrule
-  \end{tabular}
-  \caption{Ablations on InstructPix2Pix (200 portraits $\times$ 4 instructions). Means over the $n = 197$ portraits with a result in every row: the single-bound variant did not finish on one portrait for lack of GPU memory, and the optimized hue / saturation change has no solution within $\pm 0.015$ of the defense LPIPS of \capg{} on two. Random hue / saturation does not reach this target on 64 of the 197 portraits, which are kept.}
-  \label{tab:ablation}
-\end{table*}
 
 \subsection{Ablation study}
 \label{sec:exp_ablation}
-We evaluate the contributions of the proposed geometric constraints, and compare the proposed parameterization with alternative color mappings. As shown in \cref{tab:ablation}, component variants are evaluated without distortion matching, whereas alternative color mappings are compared at approximately matched LPIPS distortion.
+We evaluate the contributions of the proposed geometric constraints, and compare the proposed parameterization with alternative color mappings. Quantitative ablation results are reported in the supplementary material; component variants are evaluated without distortion matching, whereas alternative color mappings are compared at approximately matched LPIPS distortion.
 
 \paragraph{Effect of Geometric Constraints.}
 %Without optimization, randomly sampled color transformations induce minor image modifications and provide limited editing disruption. In contrast, 

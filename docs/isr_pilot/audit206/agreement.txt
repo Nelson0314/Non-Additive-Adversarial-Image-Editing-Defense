@@ -1,0 +1,17 @@
+audited cells 1038; ref_fail 199; unsure 0
+ref_fail cells whose reference the judge rated a success: 180/199
+[all] success agreement 604/839 (72.0%)  human1-judge0 207  human0-judge1 28
+[random] success agreement 105/114 (92.1%)  human1-judge0 8  human0-judge1 1
+[discordant] success agreement 499/725 (68.8%)  human1-judge0 199  human0-judge1 27
+  random by condition BlurGuard   12/16 (75.0%)  human1-judge0 4  human0-judge1 0
+  random by condition CAPGuard    15/17 (88.2%)  human1-judge0 1  human0-judge1 1
+  random by condition DCT-Shield  19/19 (100.0%)  human1-judge0 0  human0-judge1 0
+  random by condition Mist        15/15 (100.0%)  human1-judge0 0  human0-judge1 0
+  random by condition PhotoGuard  15/15 (100.0%)  human1-judge0 0  human0-judge1 0
+  random by condition SIFM        14/15 (93.3%)  human1-judge0 1  human0-judge1 0
+  random by condition Undefended  15/17 (88.2%)  human1-judge0 2  human0-judge1 0
+  random by purification blur2       25/29 (86.2%)  human1-judge0 4  human0-judge1 0
+  random by purification jpeg50      27/28 (96.4%)  human1-judge0 0  human0-judge1 1
+  random by purification none        25/28 (89.3%)  human1-judge0 3  human0-judge1 0
+  random by purification vae_trans   28/29 (96.6%)  human1-judge0 1  human0-judge1 0
+judgments_audited.csv: 839 cells take the human label; 135 slots excluded by ref_fail

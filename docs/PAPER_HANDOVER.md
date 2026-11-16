@@ -149,3 +149,10 @@ Conclusion 在第 8 頁，Table 3（消融）在第 9 頁，正文含圖表超�
 1. 表 3 字級（10.2）。
 2. 表 2 是否換成 306 張人工複核版 ISR（executor 已算好，`docs/isr_pilot/audit206/summary_audited.txt`、`paired_difference_audited.txt`）。現行表 2 為 100 張（ImmuLUT 淨化合計 15.8±2.9）。306 張複核版淨化合計：ImmuLUT 12.3 [10.8, 13.8]、BlurGuard 8.9、SIFM 5.4、Mist 5.2、PhotoGuard 3.2、DCT-Shield 2.6；ImmuLUT − BlurGuard ＋3.4 [＋2.3, ＋4.5]。換入時連同 caption、正文 ISR 段與 Introduction 第三點貢獻、Conclusion 的數字一併檢查（後三者是 Lynn／教授文字，改數字須使用者同意）。
 3. supp 的 woman_111 p1「police suit」質性圖（baseline `artifacts/pexels_portraits/purification_example/woman_111_p1.pdf`，主種子 20260812、blur σ2；腳本 `baseline/scripts/generate_purification_example_figure.py`）尚未放入 `docs/paper/`。
+
+### 10.5 已下令、尚未執行（使用者在 paper pane 直接下達，新 paper 接手後先做）
+1. 消融外觀圖（現 Fig. 4，`fig:ablation_appearance`）改放 supp，與消融表同一節；正文 Lynn 的「As illustrated in \cref{fig:ablation_appearance}」改為指向補充資料（`efbd3998` 的寫法）。
+2. 消融段補一句 ImmuLUT 的 LAION 與 MUSIQ 最高。消融表（200 張）中 random Θ 的 LAION 5.43／MUSIQ 5.33 高於 ImmuLUT 5.32／5.30，random hue/sat 的 LAION 也接近，因此句子須限定在成立的比較範圍（例如等失真的簡單映射之間）；寫好先給使用者看措辭。
+
+### 10.6 版面備案（未採用）
+- teaser 與方法圖縮到 0.95 倍；Fig. 5／表 3 並排比例改 0.45／0.53 或 0.40／0.58，均可在 8 頁內放大表 3 的字級。舊 paper session 的腳本 `shrink_top.py` 在其 scratchpad（`2f0566ab-…/scratchpad/`），未入庫。

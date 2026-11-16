@@ -76,16 +76,36 @@ We further examine how perceptual distortion relates to editing disruption. As s
 In \cref{fig:purification_example}, after blur the helmet appears for every additive defense but not for \capg{}.
 
 
+\begin{figure*}[t]
+  \centering
+  % Each source PDF holds five 100.32 bp panels; the viewports cut out the panels used here.
+  \includegraphics[viewport=1.2 0 101.52 116.64, clip, width=0.139\textwidth]{fig/ablation_components.pdf}%
+  \includegraphics[viewport=201.84 0 502.80 116.64, clip, width=0.416\textwidth]{fig/ablation_components.pdf}\\[2pt]
+  \includegraphics[viewport=101.52 0 201.84 116.64, clip, width=0.139\textwidth]{fig/ablation_appearance.pdf}%
+  \includegraphics[viewport=201.84 0 502.80 116.64, clip, width=0.416\textwidth]{fig/ablation_appearance.pdf}
+  \caption{Protected images of one portrait under the variants of \cref{sec:exp_ablation}. Left: the original (top) and \capg{} (bottom). Top row: the variants that change one component, at different defense LPIPS. Bottom row: the simpler color mappings, each optimized to the defense LPIPS of \capg{} on this portrait (0.127) within $\pm 0.015$.}
+  \label{fig:ablation_appearance}
+\end{figure*}
+
 \subsection{Cross-Model Transferability}
 We further evaluate whether the protection against InstructPix2Pix transfers to other diffusion-based image editors. Specifically, we apply the same protected images, optimized exclusively against InstructPix2Pix, to VIBE-DistilledCFG and FLUX.2 [klein] 4B without re-optimization. As shown in \cref{tab:transfer}, \capg{} consistently outperforms the evaluated additive defenses across both editors, even without purification, with its advantage becoming more pronounced after purification. Notably, while several additive defenses achieve stronger editing disruption on the optimization model, their effectiveness transfers less successfully to unseen editors. In contrast, \capg{} maintains strong editing disruption across different editing models under various purification. These results demonstrate that both the editing effectiveness and purification robustness of \capg{} extend beyond the model used for optimization.
 
 
 
-\begin{table*}[t]
+\begin{figure*}[t]
   \centering
-  \scriptsize
-  \setlength{\tabcolsep}{2.4pt}
-  \begin{tabular}{l ccc cc cc}
+  \begin{minipage}[b]{0.55\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{fig/purification_example.pdf}
+    \caption{Edits with the instruction ``Let the person wear a helmet'' on InstructPix2Pix, with edit seed 3 for all columns (not the main seed). Rows: protected image, edit without purification, and edit after Gaussian blur ($\sigma = 2$).}
+    \label{fig:purification_example}
+  \end{minipage}\hfill
+  \begin{minipage}[b]{0.43\textwidth}
+    \centering
+    \scriptsize
+    \setlength{\tabcolsep}{2.4pt}
+    \resizebox{\linewidth}{!}{%
+\begin{tabular}{l ccc cc cc}
     \toprule
     & \multicolumn{7}{c}{\textbf{Edit of The Protected Image} vs.\ \textbf{Edit of The Original}} \\
     \cmidrule(l){2-8}
@@ -190,13 +210,13 @@ We further evaluate whether the protection against InstructPix2Pix transfers to 
       & \textbf{.920}{\scriptsize$\pm$.010}
       & \textbf{.884}{\scriptsize$\pm$.007} \\
     \bottomrule
-  \end{tabular}
-
-  \caption{
+  \end{tabular}}
+    \captionof{table}{
     Cross-model transferability on VIBE-DistilledCFG and FLUX.2 [klein] 4B. All protected images optimized against InstructPix2Pix are transferred without re-optimization. Metrics and confidence intervals follow \cref{tab:main}. $^{*}$Mean over seven image transformations.
   }
-  \label{tab:transfer}
-\end{table*}
+    \label{tab:transfer}
+  \end{minipage}
+\end{figure*}
 
 \subsection{Perturbation Persistence under Purification}
 As the distortion–effectiveness analysis in \cref{fig:plane} shows that \capg{} achieves stronger editing disruption after purification at comparable initial distortion levels, we further investigate how purification affects the immunization introduced by different defensesin \cref{fig:purification}. Specifically, we measure the relative perceptual discrepancy after purification as $\mathrm{LPIPS}(P(\tilde{x}),P(x))/\mathrm{LPIPS}(\tilde{x},x)$, where $P$ denotes a purification operation. additive defenses exhibit substantial reductions in this discrepancy under JPEG compression and Gaussian blur, including BlurGuard, which is designed to improve robustness. In contrast, \capg{} maintains a ratio of at least 1.0 across all evaluated JPEG and blur settings, indicating that its protection-induced differences are not attenuated by these transformations. This contrast is consistent with the global nature of the proposed color transformation, which introduces no independent spatial perturbation pattern and is therefore less susceptible to the suppression of local image variations. 
@@ -233,12 +253,6 @@ As the distortion–effectiveness analysis in \cref{fig:plane} shows that \capg{
 %\label{sec:exp_isr}
 %\Cref{tab:isr} reports the immunization success rate (ISR) on 100 of the portraits: among the edits of the original image that carry out the instruction, the percentage whose counterpart on the protected image lacks the accessory, shows a different edit, or is degraded, as judged by Claude Sonnet~5.5 with human review of a sample of the judgments. Without purification, the ISR of \capg{} is not significantly higher than that of the five additive methods. Under purification, the ISR of \capg{} is preserved, at 16.4\% without purification and 15.8$\pm$2.9\% over the three purifications combined, whereas that of the additive methods decreases to between 2.6\% and 12.2\%. After purification, \capg{} exceeds BlurGuard, the closest additive method, by 3.6$\pm$2.6\%; after JPEG compression alone the difference is 0.6$\pm$3.4\%. \Cref{fig:purification_example} shows one portrait of this set on which, after blur, the helmet is added for every additive method and not for \capg{}.
 
-\begin{figure*}[t]
-  \centering
-  \includegraphics[width=0.7\textwidth]{fig/purification_example.pdf}
-  \caption{Edits with the instruction ``Let the person wear a helmet'' on InstructPix2Pix, with edit seed 3 for all columns (not the main seed). Rows: protected image, edit without purification, and edit after Gaussian blur ($\sigma = 2$).}
-  \label{fig:purification_example}
-\end{figure*}
 
 %\paragraph{Editors with different encoders.}
 %\label{sec:exp_gen}
@@ -254,7 +268,7 @@ We evaluate the contributions of the proposed geometric constraints, and compare
 \capg{} exploits the constrained color transformation space to identify more effective protection mappings while largely preserving aesthetic quality. Removing Gaussian smoothing,  relaxing the angular bounds or replacing the separate angular bounds with a single rotation bound further increases editing disruption, but at the cost of substantially greater image distortion and reduced image quality. These findings highlight the complementary roles of optimization and geometric constraints in balancing editing disruption and image quality.
 
 \paragraph{Comparison with Alternative Color Mappings.}
-At approximately matched LPIPS distortion, alternative color mappings can achieve comparable or stronger editing disruption, but consistently yield lower MUSIQ scores than \capg{}. In particular, the optimized affine transformation achieves stronger disruption under VAE-Trans but reduces MUSIQ from 5.30 to 4.80. As illustrated in the supplementary material, these alternatives introduce undesirable color shifts and artifacts, while removing the proposed constraints produces more pronounced spatial color irregularities. The proposed parameterization provides a favorable balance between editing disruption, robustness to purification, and image quality.
+At approximately matched LPIPS distortion, alternative color mappings can achieve comparable or stronger editing disruption, but consistently yield lower MUSIQ scores than \capg{}. In particular, the optimized affine transformation achieves stronger disruption under VAE-Trans but reduces MUSIQ from 5.30 to 4.80. As illustrated in \cref{fig:ablation_appearance}, these alternatives introduce undesirable color shifts and artifacts, while removing the proposed constraints produces more pronounced spatial color irregularities. The proposed parameterization provides a favorable balance between editing disruption, robustness to purification, and image quality.
 
 
 

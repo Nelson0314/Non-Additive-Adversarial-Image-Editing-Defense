@@ -1,0 +1,1039 @@
+case_id,set,prompt
+case_001,discordant,Let the person wear sunglasses
+case_002,discordant,Let the person wear a police suit
+case_003,discordant,Let the person wear a police suit
+case_004,discordant,Let the person wear a police suit
+case_005,discordant,Let the person wear a helmet
+case_006,discordant,Let the person wear a helmet
+case_007,discordant,Let the person wear a police suit
+case_008,discordant,Let the person wear a police suit
+case_009,discordant,Let the person wear a bowtie
+case_010,discordant,Let the person wear a bowtie
+case_011,random,Let the person wear a bowtie
+case_012,discordant,Let the person wear a police suit
+case_013,discordant,Let the person wear a helmet
+case_014,discordant,Let the person wear a helmet
+case_015,discordant,Let the person wear a bowtie
+case_016,discordant,Let the person wear a bowtie
+case_017,discordant,Let the person wear a helmet
+case_018,discordant,Let the person wear a police suit
+case_019,discordant,Let the person wear a bowtie
+case_020,discordant,Let the person wear a police suit
+case_021,random,Let the person wear sunglasses
+case_022,discordant,Let the person wear a police suit
+case_023,discordant,Let the person wear a helmet
+case_024,discordant,Let the person wear a police suit
+case_025,discordant,Let the person wear a police suit
+case_026,random,Let the person wear a bowtie
+case_027,discordant,Let the person wear a police suit
+case_028,discordant,Let the person wear a police suit
+case_029,discordant,Let the person wear a bowtie
+case_030,discordant,Let the person wear a helmet
+case_031,discordant,Let the person wear a helmet
+case_032,discordant,Let the person wear a bowtie
+case_033,discordant,Let the person wear a police suit
+case_034,discordant,Let the person wear a police suit
+case_035,discordant,Let the person wear a bowtie
+case_036,discordant,Let the person wear a police suit
+case_037,discordant,Let the person wear a police suit
+case_038,random,Let the person wear a bowtie
+case_039,discordant,Let the person wear a bowtie
+case_040,random,Let the person wear a police suit
+case_041,random,Let the person wear sunglasses
+case_042,discordant,Let the person wear a police suit
+case_043,discordant,Let the person wear a helmet
+case_044,discordant,Let the person wear a bowtie
+case_045,discordant,Let the person wear a helmet
+case_046,random,Let the person wear sunglasses
+case_047,discordant,Let the person wear a bowtie
+case_048,random,Let the person wear a bowtie
+case_049,discordant,Let the person wear sunglasses
+case_050,discordant,Let the person wear a police suit
+case_051,discordant,Let the person wear a helmet
+case_052,discordant,Let the person wear a police suit
+case_053,discordant,Let the person wear a police suit
+case_054,discordant,Let the person wear a bowtie
+case_055,discordant,Let the person wear a bowtie
+case_056,discordant,Let the person wear a police suit
+case_057,discordant,Let the person wear a bowtie
+case_058,discordant,Let the person wear a bowtie
+case_059,discordant,Let the person wear a helmet
+case_060,discordant,Let the person wear a helmet
+case_061,random,Let the person wear sunglasses
+case_062,discordant,Let the person wear a police suit
+case_063,discordant,Let the person wear a bowtie
+case_064,discordant,Let the person wear a helmet
+case_065,discordant,Let the person wear a bowtie
+case_066,discordant,Let the person wear a bowtie
+case_067,discordant,Let the person wear a bowtie
+case_068,discordant,Let the person wear a bowtie
+case_069,discordant,Let the person wear a police suit
+case_070,random,Let the person wear sunglasses
+case_071,discordant,Let the person wear a helmet
+case_072,discordant,Let the person wear a bowtie
+case_073,discordant,Let the person wear a bowtie
+case_074,discordant,Let the person wear a police suit
+case_075,discordant,Let the person wear a bowtie
+case_076,discordant,Let the person wear a bowtie
+case_077,discordant,Let the person wear a police suit
+case_078,discordant,Let the person wear a helmet
+case_079,discordant,Let the person wear a helmet
+case_080,discordant,Let the person wear a helmet
+case_081,discordant,Let the person wear a bowtie
+case_082,discordant,Let the person wear a bowtie
+case_083,discordant,Let the person wear a helmet
+case_084,random,Let the person wear sunglasses
+case_085,discordant,Let the person wear a helmet
+case_086,discordant,Let the person wear a helmet
+case_087,random,Let the person wear sunglasses
+case_088,discordant,Let the person wear a helmet
+case_089,discordant,Let the person wear a helmet
+case_090,discordant,Let the person wear a police suit
+case_091,random,Let the person wear a police suit
+case_092,discordant,Let the person wear a bowtie
+case_093,discordant,Let the person wear a bowtie
+case_094,discordant,Let the person wear a police suit
+case_095,discordant,Let the person wear a helmet
+case_096,discordant,Let the person wear a helmet
+case_097,discordant,Let the person wear a police suit
+case_098,discordant,Let the person wear a police suit
+case_099,discordant,Let the person wear a police suit
+case_100,discordant,Let the person wear a bowtie
+case_101,discordant,Let the person wear a helmet
+case_102,discordant,Let the person wear a police suit
+case_103,discordant,Let the person wear a bowtie
+case_104,discordant,Let the person wear a police suit
+case_105,discordant,Let the person wear a helmet
+case_106,discordant,Let the person wear a bowtie
+case_107,discordant,Let the person wear a bowtie
+case_108,discordant,Let the person wear a bowtie
+case_109,discordant,Let the person wear a police suit
+case_110,discordant,Let the person wear a helmet
+case_111,discordant,Let the person wear a bowtie
+case_112,discordant,Let the person wear a bowtie
+case_113,discordant,Let the person wear a police suit
+case_114,discordant,Let the person wear a police suit
+case_115,discordant,Let the person wear a police suit
+case_116,random,Let the person wear a police suit
+case_117,random,Let the person wear sunglasses
+case_118,discordant,Let the person wear a helmet
+case_119,discordant,Let the person wear a police suit
+case_120,discordant,Let the person wear a bowtie
+case_121,discordant,Let the person wear a police suit
+case_122,discordant,Let the person wear a helmet
+case_123,discordant,Let the person wear a police suit
+case_124,discordant,Let the person wear sunglasses
+case_125,discordant,Let the person wear a police suit
+case_126,discordant,Let the person wear a helmet
+case_127,discordant,Let the person wear a police suit
+case_128,discordant,Let the person wear a helmet
+case_129,discordant,Let the person wear a police suit
+case_130,discordant,Let the person wear a helmet
+case_131,discordant,Let the person wear a police suit
+case_132,discordant,Let the person wear a police suit
+case_133,discordant,Let the person wear a helmet
+case_134,discordant,Let the person wear a bowtie
+case_135,random,Let the person wear a helmet
+case_136,discordant,Let the person wear a police suit
+case_137,discordant,Let the person wear a police suit
+case_138,discordant,Let the person wear a helmet
+case_139,discordant,Let the person wear a police suit
+case_140,discordant,Let the person wear a bowtie
+case_141,discordant,Let the person wear a police suit
+case_142,discordant,Let the person wear a bowtie
+case_143,discordant,Let the person wear a helmet
+case_144,discordant,Let the person wear a bowtie
+case_145,random,Let the person wear a police suit
+case_146,discordant,Let the person wear a police suit
+case_147,discordant,Let the person wear a helmet
+case_148,discordant,Let the person wear a bowtie
+case_149,discordant,Let the person wear a police suit
+case_150,discordant,Let the person wear a police suit
+case_151,discordant,Let the person wear a police suit
+case_152,discordant,Let the person wear a police suit
+case_153,discordant,Let the person wear a bowtie
+case_154,random,Let the person wear a bowtie
+case_155,random,Let the person wear sunglasses
+case_156,discordant,Let the person wear a police suit
+case_157,random,Let the person wear sunglasses
+case_158,discordant,Let the person wear a helmet
+case_159,discordant,Let the person wear a helmet
+case_160,discordant,Let the person wear a helmet
+case_161,random,Let the person wear sunglasses
+case_162,discordant,Let the person wear a bowtie
+case_163,discordant,Let the person wear a bowtie
+case_164,discordant,Let the person wear a bowtie
+case_165,discordant,Let the person wear a bowtie
+case_166,discordant,Let the person wear a helmet
+case_167,discordant,Let the person wear a helmet
+case_168,discordant,Let the person wear a police suit
+case_169,discordant,Let the person wear a helmet
+case_170,discordant,Let the person wear a police suit
+case_171,random,Let the person wear a police suit
+case_172,discordant,Let the person wear a police suit
+case_173,discordant,Let the person wear a police suit
+case_174,discordant,Let the person wear a police suit
+case_175,discordant,Let the person wear a bowtie
+case_176,discordant,Let the person wear a police suit
+case_177,discordant,Let the person wear a police suit
+case_178,discordant,Let the person wear a helmet
+case_179,discordant,Let the person wear a police suit
+case_180,discordant,Let the person wear a helmet
+case_181,discordant,Let the person wear a helmet
+case_182,discordant,Let the person wear a police suit
+case_183,discordant,Let the person wear a helmet
+case_184,discordant,Let the person wear a police suit
+case_185,discordant,Let the person wear a helmet
+case_186,discordant,Let the person wear a helmet
+case_187,discordant,Let the person wear a police suit
+case_188,discordant,Let the person wear a bowtie
+case_189,discordant,Let the person wear a police suit
+case_190,discordant,Let the person wear a police suit
+case_191,discordant,Let the person wear sunglasses
+case_192,discordant,Let the person wear a helmet
+case_193,discordant,Let the person wear a police suit
+case_194,discordant,Let the person wear a bowtie
+case_195,discordant,Let the person wear a bowtie
+case_196,discordant,Let the person wear a helmet
+case_197,discordant,Let the person wear a bowtie
+case_198,discordant,Let the person wear a bowtie
+case_199,discordant,Let the person wear a helmet
+case_200,discordant,Let the person wear a helmet
+case_201,discordant,Let the person wear a bowtie
+case_202,discordant,Let the person wear a helmet
+case_203,discordant,Let the person wear a bowtie
+case_204,discordant,Let the person wear a bowtie
+case_205,discordant,Let the person wear a helmet
+case_206,discordant,Let the person wear a helmet
+case_207,discordant,Let the person wear a bowtie
+case_208,discordant,Let the person wear a bowtie
+case_209,discordant,Let the person wear a police suit
+case_210,discordant,Let the person wear a bowtie
+case_211,discordant,Let the person wear a police suit
+case_212,discordant,Let the person wear a bowtie
+case_213,random,Let the person wear a police suit
+case_214,discordant,Let the person wear a police suit
+case_215,discordant,Let the person wear a police suit
+case_216,discordant,Let the person wear a helmet
+case_217,discordant,Let the person wear a police suit
+case_218,discordant,Let the person wear a bowtie
+case_219,discordant,Let the person wear a bowtie
+case_220,discordant,Let the person wear a bowtie
+case_221,random,Let the person wear sunglasses
+case_222,discordant,Let the person wear a bowtie
+case_223,discordant,Let the person wear a bowtie
+case_224,discordant,Let the person wear a bowtie
+case_225,discordant,Let the person wear a helmet
+case_226,discordant,Let the person wear a bowtie
+case_227,discordant,Let the person wear a bowtie
+case_228,discordant,Let the person wear a helmet
+case_229,random,Let the person wear sunglasses
+case_230,discordant,Let the person wear a police suit
+case_231,discordant,Let the person wear a helmet
+case_232,discordant,Let the person wear a police suit
+case_233,discordant,Let the person wear a bowtie
+case_234,random,Let the person wear a helmet
+case_235,discordant,Let the person wear a bowtie
+case_236,random,Let the person wear sunglasses
+case_237,discordant,Let the person wear a helmet
+case_238,discordant,Let the person wear a police suit
+case_239,discordant,Let the person wear a helmet
+case_240,random,Let the person wear a helmet
+case_241,discordant,Let the person wear a police suit
+case_242,discordant,Let the person wear a helmet
+case_243,discordant,Let the person wear a bowtie
+case_244,discordant,Let the person wear a police suit
+case_245,discordant,Let the person wear a helmet
+case_246,discordant,Let the person wear a bowtie
+case_247,random,Let the person wear a helmet
+case_248,discordant,Let the person wear a police suit
+case_249,discordant,Let the person wear a helmet
+case_250,discordant,Let the person wear a helmet
+case_251,discordant,Let the person wear a bowtie
+case_252,discordant,Let the person wear a police suit
+case_253,discordant,Let the person wear a helmet
+case_254,discordant,Let the person wear a police suit
+case_255,random,Let the person wear a helmet
+case_256,discordant,Let the person wear a helmet
+case_257,discordant,Let the person wear a police suit
+case_258,discordant,Let the person wear a helmet
+case_259,discordant,Let the person wear a helmet
+case_260,discordant,Let the person wear a police suit
+case_261,discordant,Let the person wear a helmet
+case_262,discordant,Let the person wear sunglasses
+case_263,discordant,Let the person wear a helmet
+case_264,discordant,Let the person wear a helmet
+case_265,random,Let the person wear sunglasses
+case_266,discordant,Let the person wear a police suit
+case_267,discordant,Let the person wear a helmet
+case_268,discordant,Let the person wear a police suit
+case_269,discordant,Let the person wear a bowtie
+case_270,random,Let the person wear a helmet
+case_271,discordant,Let the person wear a police suit
+case_272,discordant,Let the person wear a police suit
+case_273,discordant,Let the person wear a helmet
+case_274,discordant,Let the person wear a helmet
+case_275,discordant,Let the person wear a bowtie
+case_276,discordant,Let the person wear a police suit
+case_277,discordant,Let the person wear a police suit
+case_278,discordant,Let the person wear a helmet
+case_279,discordant,Let the person wear a police suit
+case_280,discordant,Let the person wear a helmet
+case_281,discordant,Let the person wear a helmet
+case_282,discordant,Let the person wear a police suit
+case_283,discordant,Let the person wear a police suit
+case_284,random,Let the person wear sunglasses
+case_285,random,Let the person wear a helmet
+case_286,discordant,Let the person wear a police suit
+case_287,discordant,Let the person wear a helmet
+case_288,discordant,Let the person wear a bowtie
+case_289,discordant,Let the person wear a helmet
+case_290,discordant,Let the person wear a police suit
+case_291,discordant,Let the person wear a police suit
+case_292,random,Let the person wear sunglasses
+case_293,discordant,Let the person wear a helmet
+case_294,random,Let the person wear sunglasses
+case_295,random,Let the person wear a helmet
+case_296,discordant,Let the person wear a helmet
+case_297,discordant,Let the person wear a police suit
+case_298,discordant,Let the person wear a helmet
+case_299,random,Let the person wear a helmet
+case_300,discordant,Let the person wear a bowtie
+case_301,discordant,Let the person wear a bowtie
+case_302,discordant,Let the person wear a police suit
+case_303,discordant,Let the person wear a bowtie
+case_304,discordant,Let the person wear a bowtie
+case_305,random,Let the person wear a bowtie
+case_306,discordant,Let the person wear a police suit
+case_307,discordant,Let the person wear a bowtie
+case_308,discordant,Let the person wear a police suit
+case_309,discordant,Let the person wear a helmet
+case_310,discordant,Let the person wear a police suit
+case_311,discordant,Let the person wear a helmet
+case_312,random,Let the person wear a police suit
+case_313,discordant,Let the person wear a bowtie
+case_314,discordant,Let the person wear a police suit
+case_315,random,Let the person wear sunglasses
+case_316,discordant,Let the person wear a police suit
+case_317,discordant,Let the person wear a helmet
+case_318,discordant,Let the person wear a bowtie
+case_319,discordant,Let the person wear a police suit
+case_320,discordant,Let the person wear a helmet
+case_321,discordant,Let the person wear a helmet
+case_322,discordant,Let the person wear a police suit
+case_323,discordant,Let the person wear a police suit
+case_324,discordant,Let the person wear a police suit
+case_325,discordant,Let the person wear a helmet
+case_326,discordant,Let the person wear a bowtie
+case_327,discordant,Let the person wear a police suit
+case_328,random,Let the person wear sunglasses
+case_329,random,Let the person wear a helmet
+case_330,discordant,Let the person wear a police suit
+case_331,discordant,Let the person wear a helmet
+case_332,discordant,Let the person wear a helmet
+case_333,discordant,Let the person wear a bowtie
+case_334,discordant,Let the person wear a police suit
+case_335,random,Let the person wear a bowtie
+case_336,discordant,Let the person wear a bowtie
+case_337,discordant,Let the person wear a bowtie
+case_338,discordant,Let the person wear a bowtie
+case_339,discordant,Let the person wear a helmet
+case_340,discordant,Let the person wear a police suit
+case_341,discordant,Let the person wear a police suit
+case_342,discordant,Let the person wear a police suit
+case_343,discordant,Let the person wear a police suit
+case_344,discordant,Let the person wear a police suit
+case_345,discordant,Let the person wear a bowtie
+case_346,random,Let the person wear sunglasses
+case_347,discordant,Let the person wear a bowtie
+case_348,random,Let the person wear sunglasses
+case_349,discordant,Let the person wear a bowtie
+case_350,discordant,Let the person wear a helmet
+case_351,random,Let the person wear a bowtie
+case_352,discordant,Let the person wear a police suit
+case_353,discordant,Let the person wear a police suit
+case_354,discordant,Let the person wear a helmet
+case_355,random,Let the person wear a police suit
+case_356,discordant,Let the person wear a police suit
+case_357,discordant,Let the person wear a helmet
+case_358,discordant,Let the person wear a police suit
+case_359,discordant,Let the person wear a police suit
+case_360,discordant,Let the person wear a helmet
+case_361,discordant,Let the person wear a bowtie
+case_362,discordant,Let the person wear a police suit
+case_363,discordant,Let the person wear a police suit
+case_364,discordant,Let the person wear a police suit
+case_365,discordant,Let the person wear a helmet
+case_366,discordant,Let the person wear a bowtie
+case_367,discordant,Let the person wear a police suit
+case_368,discordant,Let the person wear a police suit
+case_369,discordant,Let the person wear a bowtie
+case_370,discordant,Let the person wear a bowtie
+case_371,discordant,Let the person wear a helmet
+case_372,discordant,Let the person wear a police suit
+case_373,discordant,Let the person wear a police suit
+case_374,discordant,Let the person wear a police suit
+case_375,discordant,Let the person wear a police suit
+case_376,discordant,Let the person wear a helmet
+case_377,random,Let the person wear a helmet
+case_378,discordant,Let the person wear a bowtie
+case_379,discordant,Let the person wear a bowtie
+case_380,discordant,Let the person wear a police suit
+case_381,discordant,Let the person wear a bowtie
+case_382,discordant,Let the person wear a helmet
+case_383,discordant,Let the person wear a police suit
+case_384,discordant,Let the person wear a helmet
+case_385,discordant,Let the person wear sunglasses
+case_386,discordant,Let the person wear a bowtie
+case_387,discordant,Let the person wear a helmet
+case_388,random,Let the person wear a bowtie
+case_389,discordant,Let the person wear a bowtie
+case_390,random,Let the person wear sunglasses
+case_391,discordant,Let the person wear a police suit
+case_392,random,Let the person wear a bowtie
+case_393,discordant,Let the person wear a helmet
+case_394,discordant,Let the person wear a police suit
+case_395,discordant,Let the person wear a bowtie
+case_396,discordant,Let the person wear a police suit
+case_397,discordant,Let the person wear a police suit
+case_398,random,Let the person wear a police suit
+case_399,random,Let the person wear a bowtie
+case_400,discordant,Let the person wear a bowtie
+case_401,discordant,Let the person wear a helmet
+case_402,discordant,Let the person wear a police suit
+case_403,discordant,Let the person wear a police suit
+case_404,discordant,Let the person wear a bowtie
+case_405,discordant,Let the person wear a helmet
+case_406,discordant,Let the person wear a bowtie
+case_407,discordant,Let the person wear a helmet
+case_408,discordant,Let the person wear a police suit
+case_409,discordant,Let the person wear a helmet
+case_410,discordant,Let the person wear a police suit
+case_411,discordant,Let the person wear a helmet
+case_412,discordant,Let the person wear a helmet
+case_413,discordant,Let the person wear a bowtie
+case_414,discordant,Let the person wear a police suit
+case_415,discordant,Let the person wear a bowtie
+case_416,discordant,Let the person wear a helmet
+case_417,discordant,Let the person wear a police suit
+case_418,discordant,Let the person wear a bowtie
+case_419,discordant,Let the person wear a bowtie
+case_420,discordant,Let the person wear a police suit
+case_421,random,Let the person wear a police suit
+case_422,random,Let the person wear a police suit
+case_423,discordant,Let the person wear a police suit
+case_424,discordant,Let the person wear a helmet
+case_425,discordant,Let the person wear a helmet
+case_426,random,Let the person wear a bowtie
+case_427,discordant,Let the person wear a police suit
+case_428,discordant,Let the person wear a police suit
+case_429,discordant,Let the person wear a police suit
+case_430,discordant,Let the person wear a bowtie
+case_431,discordant,Let the person wear a police suit
+case_432,discordant,Let the person wear a police suit
+case_433,random,Let the person wear a police suit
+case_434,discordant,Let the person wear a helmet
+case_435,discordant,Let the person wear a police suit
+case_436,discordant,Let the person wear a bowtie
+case_437,discordant,Let the person wear a police suit
+case_438,discordant,Let the person wear a police suit
+case_439,discordant,Let the person wear sunglasses
+case_440,discordant,Let the person wear a bowtie
+case_441,discordant,Let the person wear a helmet
+case_442,discordant,Let the person wear a bowtie
+case_443,discordant,Let the person wear a bowtie
+case_444,discordant,Let the person wear a helmet
+case_445,discordant,Let the person wear a helmet
+case_446,discordant,Let the person wear a helmet
+case_447,discordant,Let the person wear a helmet
+case_448,discordant,Let the person wear a helmet
+case_449,discordant,Let the person wear a police suit
+case_450,discordant,Let the person wear a bowtie
+case_451,discordant,Let the person wear a helmet
+case_452,discordant,Let the person wear a helmet
+case_453,discordant,Let the person wear sunglasses
+case_454,discordant,Let the person wear a police suit
+case_455,discordant,Let the person wear a bowtie
+case_456,random,Let the person wear a police suit
+case_457,discordant,Let the person wear a bowtie
+case_458,discordant,Let the person wear a bowtie
+case_459,discordant,Let the person wear a police suit
+case_460,discordant,Let the person wear a helmet
+case_461,discordant,Let the person wear a bowtie
+case_462,discordant,Let the person wear a police suit
+case_463,random,Let the person wear sunglasses
+case_464,discordant,Let the person wear a police suit
+case_465,discordant,Let the person wear a police suit
+case_466,discordant,Let the person wear a helmet
+case_467,discordant,Let the person wear a police suit
+case_468,discordant,Let the person wear a police suit
+case_469,discordant,Let the person wear a bowtie
+case_470,discordant,Let the person wear a police suit
+case_471,discordant,Let the person wear a police suit
+case_472,discordant,Let the person wear a bowtie
+case_473,random,Let the person wear a police suit
+case_474,random,Let the person wear sunglasses
+case_475,random,Let the person wear a helmet
+case_476,discordant,Let the person wear a police suit
+case_477,discordant,Let the person wear a helmet
+case_478,discordant,Let the person wear a bowtie
+case_479,discordant,Let the person wear a helmet
+case_480,discordant,Let the person wear a helmet
+case_481,discordant,Let the person wear a helmet
+case_482,discordant,Let the person wear a bowtie
+case_483,discordant,Let the person wear a helmet
+case_484,discordant,Let the person wear a helmet
+case_485,random,Let the person wear a police suit
+case_486,discordant,Let the person wear a helmet
+case_487,discordant,Let the person wear a police suit
+case_488,discordant,Let the person wear a bowtie
+case_489,discordant,Let the person wear a bowtie
+case_490,random,Let the person wear a bowtie
+case_491,discordant,Let the person wear a bowtie
+case_492,discordant,Let the person wear a bowtie
+case_493,random,Let the person wear a police suit
+case_494,discordant,Let the person wear a helmet
+case_495,discordant,Let the person wear a police suit
+case_496,discordant,Let the person wear sunglasses
+case_497,discordant,Let the person wear a bowtie
+case_498,discordant,Let the person wear a police suit
+case_499,discordant,Let the person wear a police suit
+case_500,random,Let the person wear sunglasses
+case_501,discordant,Let the person wear a helmet
+case_502,discordant,Let the person wear a police suit
+case_503,discordant,Let the person wear a bowtie
+case_504,random,Let the person wear sunglasses
+case_505,discordant,Let the person wear a bowtie
+case_506,discordant,Let the person wear a police suit
+case_507,discordant,Let the person wear a police suit
+case_508,discordant,Let the person wear a police suit
+case_509,random,Let the person wear sunglasses
+case_510,discordant,Let the person wear a helmet
+case_511,random,Let the person wear a helmet
+case_512,discordant,Let the person wear a police suit
+case_513,discordant,Let the person wear a bowtie
+case_514,discordant,Let the person wear a police suit
+case_515,discordant,Let the person wear a police suit
+case_516,discordant,Let the person wear a bowtie
+case_517,discordant,Let the person wear a police suit
+case_518,discordant,Let the person wear a bowtie
+case_519,discordant,Let the person wear a bowtie
+case_520,discordant,Let the person wear a helmet
+case_521,discordant,Let the person wear a helmet
+case_522,random,Let the person wear sunglasses
+case_523,discordant,Let the person wear a bowtie
+case_524,discordant,Let the person wear a police suit
+case_525,discordant,Let the person wear a bowtie
+case_526,discordant,Let the person wear a helmet
+case_527,discordant,Let the person wear a helmet
+case_528,discordant,Let the person wear a police suit
+case_529,discordant,Let the person wear a police suit
+case_530,discordant,Let the person wear a helmet
+case_531,discordant,Let the person wear a helmet
+case_532,discordant,Let the person wear a police suit
+case_533,discordant,Let the person wear a helmet
+case_534,random,Let the person wear a helmet
+case_535,discordant,Let the person wear a helmet
+case_536,discordant,Let the person wear a bowtie
+case_537,discordant,Let the person wear a bowtie
+case_538,discordant,Let the person wear a police suit
+case_539,discordant,Let the person wear a helmet
+case_540,random,Let the person wear sunglasses
+case_541,discordant,Let the person wear sunglasses
+case_542,discordant,Let the person wear a police suit
+case_543,discordant,Let the person wear a bowtie
+case_544,discordant,Let the person wear a helmet
+case_545,discordant,Let the person wear a police suit
+case_546,discordant,Let the person wear a helmet
+case_547,discordant,Let the person wear a police suit
+case_548,discordant,Let the person wear a helmet
+case_549,discordant,Let the person wear a bowtie
+case_550,discordant,Let the person wear a helmet
+case_551,discordant,Let the person wear a police suit
+case_552,discordant,Let the person wear a bowtie
+case_553,discordant,Let the person wear a police suit
+case_554,discordant,Let the person wear a police suit
+case_555,discordant,Let the person wear a helmet
+case_556,discordant,Let the person wear a police suit
+case_557,discordant,Let the person wear a police suit
+case_558,discordant,Let the person wear a bowtie
+case_559,discordant,Let the person wear a police suit
+case_560,discordant,Let the person wear a police suit
+case_561,discordant,Let the person wear a bowtie
+case_562,discordant,Let the person wear a bowtie
+case_563,discordant,Let the person wear a helmet
+case_564,discordant,Let the person wear a police suit
+case_565,discordant,Let the person wear a police suit
+case_566,discordant,Let the person wear a helmet
+case_567,discordant,Let the person wear a police suit
+case_568,random,Let the person wear a bowtie
+case_569,discordant,Let the person wear a helmet
+case_570,discordant,Let the person wear a helmet
+case_571,discordant,Let the person wear a police suit
+case_572,discordant,Let the person wear a bowtie
+case_573,random,Let the person wear a bowtie
+case_574,discordant,Let the person wear a police suit
+case_575,discordant,Let the person wear a bowtie
+case_576,discordant,Let the person wear a helmet
+case_577,discordant,Let the person wear a police suit
+case_578,random,Let the person wear a helmet
+case_579,discordant,Let the person wear a bowtie
+case_580,discordant,Let the person wear a bowtie
+case_581,discordant,Let the person wear a helmet
+case_582,discordant,Let the person wear a police suit
+case_583,discordant,Let the person wear a bowtie
+case_584,discordant,Let the person wear a helmet
+case_585,discordant,Let the person wear a police suit
+case_586,discordant,Let the person wear a helmet
+case_587,discordant,Let the person wear a helmet
+case_588,discordant,Let the person wear a police suit
+case_589,discordant,Let the person wear a bowtie
+case_590,discordant,Let the person wear a helmet
+case_591,discordant,Let the person wear a police suit
+case_592,discordant,Let the person wear a bowtie
+case_593,discordant,Let the person wear a police suit
+case_594,discordant,Let the person wear sunglasses
+case_595,random,Let the person wear sunglasses
+case_596,discordant,Let the person wear a police suit
+case_597,discordant,Let the person wear a police suit
+case_598,discordant,Let the person wear a helmet
+case_599,discordant,Let the person wear a bowtie
+case_600,random,Let the person wear sunglasses
+case_601,discordant,Let the person wear a police suit
+case_602,discordant,Let the person wear a police suit
+case_603,discordant,Let the person wear a bowtie
+case_604,discordant,Let the person wear a police suit
+case_605,discordant,Let the person wear a police suit
+case_606,discordant,Let the person wear a police suit
+case_607,discordant,Let the person wear a helmet
+case_608,discordant,Let the person wear a bowtie
+case_609,discordant,Let the person wear a helmet
+case_610,discordant,Let the person wear a police suit
+case_611,discordant,Let the person wear a bowtie
+case_612,discordant,Let the person wear a police suit
+case_613,discordant,Let the person wear a bowtie
+case_614,discordant,Let the person wear a police suit
+case_615,discordant,Let the person wear a police suit
+case_616,discordant,Let the person wear a helmet
+case_617,discordant,Let the person wear a police suit
+case_618,discordant,Let the person wear a helmet
+case_619,discordant,Let the person wear a helmet
+case_620,random,Let the person wear a bowtie
+case_621,random,Let the person wear sunglasses
+case_622,discordant,Let the person wear a helmet
+case_623,discordant,Let the person wear a bowtie
+case_624,discordant,Let the person wear a bowtie
+case_625,discordant,Let the person wear a bowtie
+case_626,discordant,Let the person wear a helmet
+case_627,discordant,Let the person wear a helmet
+case_628,discordant,Let the person wear a police suit
+case_629,discordant,Let the person wear a helmet
+case_630,discordant,Let the person wear a helmet
+case_631,discordant,Let the person wear a bowtie
+case_632,discordant,Let the person wear a helmet
+case_633,discordant,Let the person wear a helmet
+case_634,discordant,Let the person wear a police suit
+case_635,discordant,Let the person wear a bowtie
+case_636,discordant,Let the person wear a helmet
+case_637,discordant,Let the person wear a police suit
+case_638,discordant,Let the person wear a helmet
+case_639,discordant,Let the person wear a helmet
+case_640,discordant,Let the person wear a police suit
+case_641,discordant,Let the person wear a bowtie
+case_642,discordant,Let the person wear a helmet
+case_643,discordant,Let the person wear a helmet
+case_644,discordant,Let the person wear a police suit
+case_645,discordant,Let the person wear a bowtie
+case_646,discordant,Let the person wear a helmet
+case_647,discordant,Let the person wear a police suit
+case_648,discordant,Let the person wear a police suit
+case_649,discordant,Let the person wear sunglasses
+case_650,discordant,Let the person wear a bowtie
+case_651,discordant,Let the person wear a bowtie
+case_652,random,Let the person wear a police suit
+case_653,discordant,Let the person wear a police suit
+case_654,random,Let the person wear sunglasses
+case_655,discordant,Let the person wear a police suit
+case_656,discordant,Let the person wear a police suit
+case_657,discordant,Let the person wear a police suit
+case_658,discordant,Let the person wear a police suit
+case_659,discordant,Let the person wear a police suit
+case_660,discordant,Let the person wear a bowtie
+case_661,discordant,Let the person wear a police suit
+case_662,discordant,Let the person wear a helmet
+case_663,discordant,Let the person wear a helmet
+case_664,random,Let the person wear sunglasses
+case_665,discordant,Let the person wear a bowtie
+case_666,discordant,Let the person wear a police suit
+case_667,discordant,Let the person wear a helmet
+case_668,discordant,Let the person wear a bowtie
+case_669,discordant,Let the person wear a bowtie
+case_670,discordant,Let the person wear sunglasses
+case_671,discordant,Let the person wear a police suit
+case_672,random,Let the person wear a helmet
+case_673,discordant,Let the person wear a helmet
+case_674,discordant,Let the person wear a police suit
+case_675,discordant,Let the person wear a police suit
+case_676,discordant,Let the person wear a police suit
+case_677,discordant,Let the person wear a police suit
+case_678,discordant,Let the person wear a police suit
+case_679,discordant,Let the person wear a police suit
+case_680,random,Let the person wear sunglasses
+case_681,discordant,Let the person wear a helmet
+case_682,discordant,Let the person wear a helmet
+case_683,random,Let the person wear a helmet
+case_684,random,Let the person wear a bowtie
+case_685,discordant,Let the person wear a helmet
+case_686,discordant,Let the person wear a police suit
+case_687,discordant,Let the person wear a police suit
+case_688,discordant,Let the person wear a bowtie
+case_689,discordant,Let the person wear a police suit
+case_690,discordant,Let the person wear a helmet
+case_691,discordant,Let the person wear a helmet
+case_692,discordant,Let the person wear sunglasses
+case_693,discordant,Let the person wear a police suit
+case_694,random,Let the person wear a bowtie
+case_695,random,Let the person wear a police suit
+case_696,discordant,Let the person wear a police suit
+case_697,discordant,Let the person wear a helmet
+case_698,discordant,Let the person wear a police suit
+case_699,discordant,Let the person wear a police suit
+case_700,random,Let the person wear a police suit
+case_701,discordant,Let the person wear a helmet
+case_702,discordant,Let the person wear a police suit
+case_703,discordant,Let the person wear a helmet
+case_704,random,Let the person wear a police suit
+case_705,discordant,Let the person wear a police suit
+case_706,random,Let the person wear a bowtie
+case_707,discordant,Let the person wear a police suit
+case_708,discordant,Let the person wear a police suit
+case_709,discordant,Let the person wear a bowtie
+case_710,discordant,Let the person wear a helmet
+case_711,discordant,Let the person wear a bowtie
+case_712,discordant,Let the person wear a police suit
+case_713,discordant,Let the person wear a bowtie
+case_714,discordant,Let the person wear a helmet
+case_715,discordant,Let the person wear a police suit
+case_716,discordant,Let the person wear a bowtie
+case_717,discordant,Let the person wear a police suit
+case_718,discordant,Let the person wear a police suit
+case_719,discordant,Let the person wear a bowtie
+case_720,discordant,Let the person wear a police suit
+case_721,discordant,Let the person wear a helmet
+case_722,random,Let the person wear a police suit
+case_723,discordant,Let the person wear a police suit
+case_724,discordant,Let the person wear a helmet
+case_725,random,Let the person wear sunglasses
+case_726,discordant,Let the person wear a helmet
+case_727,discordant,Let the person wear a police suit
+case_728,discordant,Let the person wear a helmet
+case_729,discordant,Let the person wear a helmet
+case_730,discordant,Let the person wear a police suit
+case_731,discordant,Let the person wear a helmet
+case_732,discordant,Let the person wear a helmet
+case_733,discordant,Let the person wear a police suit
+case_734,discordant,Let the person wear a police suit
+case_735,discordant,Let the person wear a helmet
+case_736,discordant,Let the person wear a police suit
+case_737,discordant,Let the person wear a helmet
+case_738,discordant,Let the person wear a police suit
+case_739,discordant,Let the person wear a police suit
+case_740,discordant,Let the person wear a bowtie
+case_741,discordant,Let the person wear a police suit
+case_742,discordant,Let the person wear a police suit
+case_743,discordant,Let the person wear a police suit
+case_744,random,Let the person wear a bowtie
+case_745,discordant,Let the person wear a bowtie
+case_746,discordant,Let the person wear a bowtie
+case_747,discordant,Let the person wear a police suit
+case_748,discordant,Let the person wear a helmet
+case_749,discordant,Let the person wear a police suit
+case_750,discordant,Let the person wear a bowtie
+case_751,discordant,Let the person wear a helmet
+case_752,discordant,Let the person wear a police suit
+case_753,discordant,Let the person wear a bowtie
+case_754,discordant,Let the person wear a police suit
+case_755,discordant,Let the person wear a helmet
+case_756,discordant,Let the person wear a bowtie
+case_757,discordant,Let the person wear a helmet
+case_758,discordant,Let the person wear a police suit
+case_759,discordant,Let the person wear a police suit
+case_760,discordant,Let the person wear a helmet
+case_761,discordant,Let the person wear a bowtie
+case_762,discordant,Let the person wear a police suit
+case_763,discordant,Let the person wear a helmet
+case_764,discordant,Let the person wear a helmet
+case_765,discordant,Let the person wear a helmet
+case_766,discordant,Let the person wear a police suit
+case_767,discordant,Let the person wear a helmet
+case_768,discordant,Let the person wear a police suit
+case_769,discordant,Let the person wear a bowtie
+case_770,discordant,Let the person wear a police suit
+case_771,discordant,Let the person wear a helmet
+case_772,discordant,Let the person wear a helmet
+case_773,discordant,Let the person wear a police suit
+case_774,discordant,Let the person wear a helmet
+case_775,discordant,Let the person wear a police suit
+case_776,discordant,Let the person wear a helmet
+case_777,discordant,Let the person wear a helmet
+case_778,discordant,Let the person wear a police suit
+case_779,discordant,Let the person wear a police suit
+case_780,discordant,Let the person wear a bowtie
+case_781,discordant,Let the person wear a helmet
+case_782,discordant,Let the person wear a bowtie
+case_783,discordant,Let the person wear a helmet
+case_784,discordant,Let the person wear a police suit
+case_785,discordant,Let the person wear a bowtie
+case_786,random,Let the person wear sunglasses
+case_787,discordant,Let the person wear a bowtie
+case_788,random,Let the person wear a bowtie
+case_789,discordant,Let the person wear a bowtie
+case_790,discordant,Let the person wear sunglasses
+case_791,random,Let the person wear a police suit
+case_792,random,Let the person wear a police suit
+case_793,discordant,Let the person wear a helmet
+case_794,discordant,Let the person wear a bowtie
+case_795,discordant,Let the person wear a police suit
+case_796,discordant,Let the person wear a helmet
+case_797,discordant,Let the person wear a police suit
+case_798,discordant,Let the person wear a helmet
+case_799,random,Let the person wear a police suit
+case_800,discordant,Let the person wear a police suit
+case_801,random,Let the person wear a helmet
+case_802,discordant,Let the person wear a bowtie
+case_803,discordant,Let the person wear a bowtie
+case_804,discordant,Let the person wear a bowtie
+case_805,discordant,Let the person wear a helmet
+case_806,random,Let the person wear sunglasses
+case_807,discordant,Let the person wear a helmet
+case_808,discordant,Let the person wear a police suit
+case_809,discordant,Let the person wear a helmet
+case_810,discordant,Let the person wear a bowtie
+case_811,discordant,Let the person wear a police suit
+case_812,random,Let the person wear sunglasses
+case_813,discordant,Let the person wear a helmet
+case_814,discordant,Let the person wear a bowtie
+case_815,discordant,Let the person wear a helmet
+case_816,discordant,Let the person wear a helmet
+case_817,random,Let the person wear a police suit
+case_818,random,Let the person wear a bowtie
+case_819,discordant,Let the person wear a helmet
+case_820,discordant,Let the person wear a bowtie
+case_821,random,Let the person wear sunglasses
+case_822,discordant,Let the person wear a police suit
+case_823,discordant,Let the person wear a police suit
+case_824,discordant,Let the person wear a bowtie
+case_825,discordant,Let the person wear a bowtie
+case_826,discordant,Let the person wear a police suit
+case_827,discordant,Let the person wear a helmet
+case_828,random,Let the person wear a bowtie
+case_829,discordant,Let the person wear a police suit
+case_830,discordant,Let the person wear a police suit
+case_831,random,Let the person wear a helmet
+case_832,discordant,Let the person wear a helmet
+case_833,discordant,Let the person wear a bowtie
+case_834,discordant,Let the person wear a helmet
+case_835,discordant,Let the person wear a police suit
+case_836,discordant,Let the person wear a helmet
+case_837,discordant,Let the person wear a police suit
+case_838,discordant,Let the person wear a helmet
+case_839,discordant,Let the person wear a bowtie
+case_840,random,Let the person wear sunglasses
+case_841,discordant,Let the person wear a helmet
+case_842,discordant,Let the person wear a bowtie
+case_843,discordant,Let the person wear a helmet
+case_844,discordant,Let the person wear a police suit
+case_845,discordant,Let the person wear a bowtie
+case_846,discordant,Let the person wear a police suit
+case_847,discordant,Let the person wear a helmet
+case_848,discordant,Let the person wear a helmet
+case_849,discordant,Let the person wear a helmet
+case_850,discordant,Let the person wear a police suit
+case_851,discordant,Let the person wear a bowtie
+case_852,discordant,Let the person wear a bowtie
+case_853,discordant,Let the person wear a police suit
+case_854,discordant,Let the person wear a helmet
+case_855,discordant,Let the person wear a police suit
+case_856,random,Let the person wear sunglasses
+case_857,discordant,Let the person wear a helmet
+case_858,discordant,Let the person wear a police suit
+case_859,discordant,Let the person wear a bowtie
+case_860,discordant,Let the person wear a helmet
+case_861,discordant,Let the person wear a police suit
+case_862,discordant,Let the person wear a bowtie
+case_863,discordant,Let the person wear a helmet
+case_864,discordant,Let the person wear sunglasses
+case_865,discordant,Let the person wear a helmet
+case_866,random,Let the person wear sunglasses
+case_867,random,Let the person wear sunglasses
+case_868,discordant,Let the person wear a bowtie
+case_869,random,Let the person wear a bowtie
+case_870,discordant,Let the person wear a bowtie
+case_871,discordant,Let the person wear a police suit
+case_872,random,Let the person wear a helmet
+case_873,discordant,Let the person wear a bowtie
+case_874,discordant,Let the person wear a police suit
+case_875,discordant,Let the person wear a police suit
+case_876,discordant,Let the person wear a bowtie
+case_877,random,Let the person wear a helmet
+case_878,discordant,Let the person wear a police suit
+case_879,discordant,Let the person wear a bowtie
+case_880,discordant,Let the person wear a bowtie
+case_881,random,Let the person wear a bowtie
+case_882,discordant,Let the person wear a helmet
+case_883,discordant,Let the person wear a helmet
+case_884,random,Let the person wear a bowtie
+case_885,discordant,Let the person wear a police suit
+case_886,discordant,Let the person wear a bowtie
+case_887,discordant,Let the person wear a bowtie
+case_888,discordant,Let the person wear a helmet
+case_889,discordant,Let the person wear a police suit
+case_890,discordant,Let the person wear a helmet
+case_891,random,Let the person wear a bowtie
+case_892,discordant,Let the person wear a bowtie
+case_893,discordant,Let the person wear a bowtie
+case_894,random,Let the person wear sunglasses
+case_895,discordant,Let the person wear a helmet
+case_896,random,Let the person wear a helmet
+case_897,random,Let the person wear a helmet
+case_898,random,Let the person wear a bowtie
+case_899,random,Let the person wear a helmet
+case_900,discordant,Let the person wear a police suit
+case_901,discordant,Let the person wear a police suit
+case_902,discordant,Let the person wear a police suit
+case_903,discordant,Let the person wear a police suit
+case_904,discordant,Let the person wear a helmet
+case_905,discordant,Let the person wear a bowtie
+case_906,discordant,Let the person wear a police suit
+case_907,discordant,Let the person wear a police suit
+case_908,discordant,Let the person wear a helmet
+case_909,discordant,Let the person wear a bowtie
+case_910,random,Let the person wear a helmet
+case_911,discordant,Let the person wear a police suit
+case_912,discordant,Let the person wear a police suit
+case_913,discordant,Let the person wear a police suit
+case_914,discordant,Let the person wear a helmet
+case_915,discordant,Let the person wear a police suit
+case_916,discordant,Let the person wear a helmet
+case_917,discordant,Let the person wear a helmet
+case_918,discordant,Let the person wear a police suit
+case_919,random,Let the person wear a helmet
+case_920,discordant,Let the person wear a police suit
+case_921,discordant,Let the person wear a helmet
+case_922,discordant,Let the person wear a police suit
+case_923,discordant,Let the person wear a bowtie
+case_924,random,Let the person wear a police suit
+case_925,discordant,Let the person wear a helmet
+case_926,discordant,Let the person wear a bowtie
+case_927,discordant,Let the person wear a police suit
+case_928,discordant,Let the person wear a helmet
+case_929,discordant,Let the person wear a police suit
+case_930,discordant,Let the person wear a bowtie
+case_931,discordant,Let the person wear a police suit
+case_932,discordant,Let the person wear a police suit
+case_933,discordant,Let the person wear a helmet
+case_934,discordant,Let the person wear a police suit
+case_935,discordant,Let the person wear a helmet
+case_936,discordant,Let the person wear a helmet
+case_937,discordant,Let the person wear a helmet
+case_938,discordant,Let the person wear a police suit
+case_939,discordant,Let the person wear a helmet
+case_940,discordant,Let the person wear a bowtie
+case_941,discordant,Let the person wear a police suit
+case_942,discordant,Let the person wear a police suit
+case_943,discordant,Let the person wear a police suit
+case_944,discordant,Let the person wear a helmet
+case_945,discordant,Let the person wear a police suit
+case_946,discordant,Let the person wear a helmet
+case_947,discordant,Let the person wear a police suit
+case_948,discordant,Let the person wear a bowtie
+case_949,discordant,Let the person wear a bowtie
+case_950,discordant,Let the person wear a police suit
+case_951,discordant,Let the person wear a police suit
+case_952,discordant,Let the person wear a police suit
+case_953,discordant,Let the person wear a bowtie
+case_954,random,Let the person wear a police suit
+case_955,discordant,Let the person wear a helmet
+case_956,discordant,Let the person wear a police suit
+case_957,discordant,Let the person wear a helmet
+case_958,discordant,Let the person wear a helmet
+case_959,discordant,Let the person wear sunglasses
+case_960,discordant,Let the person wear a police suit
+case_961,discordant,Let the person wear a helmet
+case_962,discordant,Let the person wear a bowtie
+case_963,discordant,Let the person wear a bowtie
+case_964,discordant,Let the person wear a helmet
+case_965,discordant,Let the person wear a police suit
+case_966,discordant,Let the person wear sunglasses
+case_967,discordant,Let the person wear a police suit
+case_968,discordant,Let the person wear a police suit
+case_969,random,Let the person wear sunglasses
+case_970,discordant,Let the person wear a helmet
+case_971,discordant,Let the person wear a bowtie
+case_972,random,Let the person wear a bowtie
+case_973,discordant,Let the person wear a helmet
+case_974,discordant,Let the person wear a bowtie
+case_975,discordant,Let the person wear a helmet
+case_976,discordant,Let the person wear a police suit
+case_977,discordant,Let the person wear a bowtie
+case_978,discordant,Let the person wear a bowtie
+case_979,discordant,Let the person wear a police suit
+case_980,discordant,Let the person wear a police suit
+case_981,discordant,Let the person wear a helmet
+case_982,random,Let the person wear a bowtie
+case_983,discordant,Let the person wear a helmet
+case_984,discordant,Let the person wear a helmet
+case_985,discordant,Let the person wear a police suit
+case_986,discordant,Let the person wear a police suit
+case_987,discordant,Let the person wear a bowtie
+case_988,discordant,Let the person wear a bowtie
+case_989,discordant,Let the person wear a police suit
+case_990,discordant,Let the person wear a police suit
+case_991,discordant,Let the person wear a helmet
+case_992,discordant,Let the person wear a police suit
+case_993,discordant,Let the person wear a helmet
+case_994,random,Let the person wear a police suit
+case_995,discordant,Let the person wear a police suit
+case_996,discordant,Let the person wear a helmet
+case_997,discordant,Let the person wear a helmet
+case_998,discordant,Let the person wear a police suit
+case_999,random,Let the person wear a helmet
+case_1000,discordant,Let the person wear a police suit
+case_1001,discordant,Let the person wear a police suit
+case_1002,discordant,Let the person wear a police suit
+case_1003,discordant,Let the person wear a police suit
+case_1004,discordant,Let the person wear a police suit
+case_1005,discordant,Let the person wear a bowtie
+case_1006,discordant,Let the person wear a police suit
+case_1007,discordant,Let the person wear a police suit
+case_1008,discordant,Let the person wear a helmet
+case_1009,discordant,Let the person wear a police suit
+case_1010,discordant,Let the person wear a police suit
+case_1011,random,Let the person wear a helmet
+case_1012,discordant,Let the person wear a bowtie
+case_1013,discordant,Let the person wear a police suit
+case_1014,random,Let the person wear a helmet
+case_1015,random,Let the person wear sunglasses
+case_1016,discordant,Let the person wear a police suit
+case_1017,discordant,Let the person wear a bowtie
+case_1018,discordant,Let the person wear a bowtie
+case_1019,discordant,Let the person wear a helmet
+case_1020,random,Let the person wear sunglasses
+case_1021,discordant,Let the person wear a helmet
+case_1022,discordant,Let the person wear a bowtie
+case_1023,random,Let the person wear a bowtie
+case_1024,discordant,Let the person wear a helmet
+case_1025,discordant,Let the person wear a police suit
+case_1026,random,Let the person wear a bowtie
+case_1027,discordant,Let the person wear a police suit
+case_1028,discordant,Let the person wear a helmet
+case_1029,discordant,Let the person wear a helmet
+case_1030,discordant,Let the person wear a helmet
+case_1031,discordant,Let the person wear a bowtie
+case_1032,discordant,Let the person wear a bowtie
+case_1033,discordant,Let the person wear a police suit
+case_1034,random,Let the person wear a helmet
+case_1035,random,Let the person wear a police suit
+case_1036,discordant,Let the person wear a bowtie
+case_1037,discordant,Let the person wear a police suit
+case_1038,discordant,Let the person wear a helmet

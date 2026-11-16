@@ -76,17 +76,6 @@ We further examine how perceptual distortion relates to editing disruption. As s
 In \cref{fig:purification_example}, after blur the helmet appears for every additive defense but not for \capg{}.
 
 
-\begin{figure*}[t]
-  \centering
-  % Each source PDF holds five 100.32 bp panels; the viewports cut out the panels used here.
-  \includegraphics[viewport=1.2 0 101.52 116.64, clip, width=0.139\textwidth]{fig/ablation_components.pdf}%
-  \includegraphics[viewport=201.84 0 502.80 116.64, clip, width=0.416\textwidth]{fig/ablation_components.pdf}\\[2pt]
-  \includegraphics[viewport=101.52 0 201.84 116.64, clip, width=0.139\textwidth]{fig/ablation_appearance.pdf}%
-  \includegraphics[viewport=201.84 0 502.80 116.64, clip, width=0.416\textwidth]{fig/ablation_appearance.pdf}
-  \caption{Protected images of one portrait under the variants of \cref{sec:exp_ablation}. Left: the original (top) and \capg{} (bottom). Top row: the variants that change one component, at different defense LPIPS. Bottom row: the simpler color mappings, each optimized to the defense LPIPS of \capg{} on this portrait (0.127) within $\pm 0.015$.}
-  \label{fig:ablation_appearance}
-\end{figure*}
-
 \subsection{Cross-Model Transferability}
 We further evaluate whether the protection against InstructPix2Pix transfers to other diffusion-based image editors. Specifically, we apply the same protected images, optimized exclusively against InstructPix2Pix, to VIBE-DistilledCFG and FLUX.2 [klein] 4B without re-optimization. As shown in \cref{tab:transfer}, \capg{} consistently outperforms the evaluated additive defenses across both editors, even without purification, with its advantage becoming more pronounced after purification. Notably, while several additive defenses achieve stronger editing disruption on the optimization model, their effectiveness transfers less successfully to unseen editors. In contrast, \capg{} maintains strong editing disruption across different editing models under various purification. These results demonstrate that both the editing effectiveness and purification robustness of \capg{} extend beyond the model used for optimization.
 
@@ -268,7 +257,7 @@ We evaluate the contributions of the proposed geometric constraints, and compare
 \capg{} exploits the constrained color transformation space to identify more effective protection mappings while largely preserving aesthetic quality. Removing Gaussian smoothing,  relaxing the angular bounds or replacing the separate angular bounds with a single rotation bound further increases editing disruption, but at the cost of substantially greater image distortion and reduced image quality. These findings highlight the complementary roles of optimization and geometric constraints in balancing editing disruption and image quality.
 
 \paragraph{Comparison with Alternative Color Mappings.}
-At approximately matched LPIPS distortion, alternative color mappings can achieve comparable or stronger editing disruption, but consistently yield lower MUSIQ scores than \capg{}. In particular, the optimized affine transformation achieves stronger disruption under VAE-Trans but reduces MUSIQ from 5.30 to 4.80. As illustrated in \cref{fig:ablation_appearance}, these alternatives introduce undesirable color shifts and artifacts, while removing the proposed constraints produces more pronounced spatial color irregularities. The proposed parameterization provides a favorable balance between editing disruption, robustness to purification, and image quality.
+At approximately matched LPIPS distortion, alternative color mappings can achieve comparable or stronger editing disruption, but consistently yield lower MUSIQ scores than \capg{}. In particular, the optimized affine transformation achieves stronger disruption under VAE-Trans but reduces MUSIQ from 5.30 to 4.80. As illustrated in the supplementary material, these alternatives introduce undesirable color shifts and artifacts, while removing the proposed constraints produces more pronounced spatial color irregularities. The proposed parameterization provides a favorable balance between editing disruption, robustness to purification, and image quality.
 
 
 

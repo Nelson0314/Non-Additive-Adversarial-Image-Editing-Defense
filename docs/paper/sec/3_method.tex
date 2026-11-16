@@ -1,6 +1,6 @@
 \section{Method}
 \label{sec:method}
-We aim to protect images against unauthorized diffusion-based editing through a learnable color transformation. Specifically, we represent the transformation using a per-image 3D lookup table (LUT), allowing it to adapt to the visual content and color distribution of each input image. To maintain visual fidelity, we leverage the geometry of the RGB color space to constrain the transformation to smooth and bounded rotations around the neutral gray axis. Within the constrained transformation space, we further optimize the LUT using a VAE-guided objective that maximizes the latent discrepancy between the original and transformed images, aiming to disrupt subsequent diffusion-based editing. An overview of our proposed approach is illustrated in~\cref{fig:overview}.
+We propose ImmuLUT to protect images against unauthorized diffusion-based editing through a learnable color transformation. Specifically, we represent the transformation using a per-image LUT, allowing it to adapt to the visual content and color distribution of each input image. To maintain visual fidelity, we leverage the geometry of RGB color space to constrain the transformation to smooth and coherent adjustment. Within the constrained transformation space, we further optimize the LUT using a VAE-guided objective that maximizes the latent discrepancy between the original and immunized images, aiming to disrupt subsequent diffusion-based editing. An overview of our proposed approach is illustrated in~\cref{fig:overview}.
 
 %The defense maps the colors of an image through a per-image 3D lookup table whose form is restricted to smooth rotations of color, and optimizes the table against the VAE encoder of the editor (\cref{fig:overview}). 
 
@@ -14,9 +14,9 @@ We consider a defender (image owner) who transforms an image $x$ into an immuniz
 %The edit displacement between $E(P(\tilde{x}), p)$ and $E(P(x), p)$ is measured by the learned perceptual distance LPIPS~\cite{zhang2018lpips}, by the cosine similarity of SigLIP~\cite{zhai2023siglip} image embeddings as a measure of semantic agreement, and by the cosine similarity of ArcFace~\cite{deng2019arcface} face embeddings as a measure of facial identity, computed on the edits in which a face is detected. The Fr\'echet inception distance (FID)~\cite{heusel2017fid} compares the set of edits of protected images with the set of edits of the originals. Retention is the ratio of the edit LPIPS after purification to that before, computed per edit and averaged. The distortion of the protected image is the LPIPS between $\tilde{x}$ and $x$, and its quality is scored by the no-reference aesthetic models LAION~\cite{schuhmann2022laion} and MUSIQ~\cite{ke2021musiq} (\cref{sec:related}).
 
 %\subsection{Color mapping with a 3D lookup table}
-\subsection{3D LUT-based Parameterization}
+\subsection{LUT-based Parameterization}
 \label{sec:carrier}
-To immunize an image through color transformations, we define a nonlinear protective mapping $T:[0,1]^3\rightarrow[0,1]^3$ that transforms each pixel's RGB value into a new color, where each RGB channel is normalized to the range $[0,1]$. Specifically, we parameterize $T$ using a learnable 3D lookup table (LUT), which provides a flexible representation of nonlinear color mappings and supports differentiable optimization. A separate LUT is optimized for each input image, allowing the learned color transformation to adapt to its visual content and color distribution. The LUT stores output colors at uniformly sampled nodes of the RGB color space, forming a $K\times K\times K$ lattice, where $K$ denotes the number of sampling points along each RGB dimension. For each input pixel, we use trilinear interpolation to compute the transformed color $T(c)$ for any input RGB value $c$ from its eight neighboring lattice nodes to obtain a continuous mapping between sampled LUT entries. Given an image $x$ with pixels $\{x_i\}_{i=1}^{N}$, the protected image is obtained by applying the same mapping to every pixel:
+To immunize an image through color transformations, we define a nonlinear protective mapping $T:[0,1]^3\rightarrow[0,1]^3$ that transforms each pixel's RGB value into a new color, where each RGB channel is normalized to the range $[0,1]$. Specifically, we parameterize $T$ using a learnable lookup table (LUT), which provides a flexible representation of nonlinear color mappings and supports differentiable optimization. A separate LUT is optimized for each input image, allowing the learned color transformation to adapt to its visual content and color distribution. The LUT stores output colors at uniformly sampled nodes of the RGB color space, forming a $K\times K\times K$ lattice, where $K$ denotes the number of sampling points along each RGB dimension. For each input pixel, we use trilinear interpolation to compute the transformed color $T(c)$ for any input RGB value $c$ from its eight neighboring lattice nodes to obtain a continuous mapping between sampled LUT entries. Given an image $x$ with pixels $\{x_i\}_{i=1}^{N}$, the protected image is obtained by applying the same mapping to every pixel:
 \begin{equation}
     \tilde{x}_i=T(x_i),\quad i=1,\ldots,N.
 \end{equation}
@@ -27,7 +27,7 @@ The shared mapping ensures that the transformation depends solely on pixel color
 %\subsection{Smooth color rotations}
 \subsection{Geometry-Constrained Color Transformation}
 \label{sec:feasible}
-While a 3D LUT provides a flexible representation of color mappings, an unrestricted mapping may introduce abrupt or unnatural color distortions. To maintain the visual fidelity of the protected image, we leverage the geometry of the RGB color space to constrain the color mapping to bounded rotations around the neutral gray axis.
+While a LUT provides a flexible representation of color mappings, an unrestricted mapping may introduce abrupt or unnatural color distortions. To maintain the visual fidelity of the protected image, we leverage the geometry of the RGB color space to constrain the color mapping to bounded rotations around the neutral gray axis.
 
 \paragraph{Gray-Axis Rotation. }
 We choose the neutral gray axis, represented by the unit vector $g=(1,1,1)/\sqrt{3}$, as the reference axis, since all achromatic colors lie along this direction in the RGB space. The gray axis provides a natural geometric basis for characterizing chromatic variations: the angular deviation $\theta$ from the gray axis describes the chromatic departure from neutral gray, while the azimuthal angle $\phi$ captures the orientation of the color around the axis. An RGB color $c$ can therefore be expressed in spherical coordinates as
@@ -50,7 +50,7 @@ T(c)=\mathrm{clip}_{[0,1]}
 and the clipping operation ensures that all transformed RGB values remain within the valid range $[0,1]$.
 
 \paragraph{Smooth Rotation Field.}
-Natural images often contain gradual color transitions, such as those found in skin tones, skies, and smooth surfaces. If nearby RGB values undergo substantially different transformations, these transitions may be disrupted, introducing unnatural color boundaries or banding artifacts. To preserve color continuity, we parameterize the transformation using a learnable 3D vector field $\Theta\in\mathbb{R}^{3\times K^3}$ defined over the RGB lattice. Rather than directly optimizing angular displacements $\Delta\theta(c)$ and $\Delta\phi(c)$ at individual lattice nodes, we first learn the vector field in the RGB Euclidean space and apply a separable 3D Gaussian filter:
+Natural images often contain gradual color transitions, such as those found in skin tones, skies, and smooth surfaces. If nearby RGB values undergo substantially different transformations, these transitions may be disrupted, introducing unnatural color boundaries or banding artifacts. To preserve color continuity, we parameterize the transformation using a learnable vector field $\Theta\in\mathbb{R}^{3\times K^3}$ defined over the RGB lattice. Rather than directly optimizing angular displacements $\Delta\theta(c)$ and $\Delta\phi(c)$ at individual lattice nodes, we first learn the vector field in the RGB Euclidean space and apply a separable 3D Gaussian filter:
 \begin{equation}
 V=G_\sigma * \Theta,
 \label{eq:field}
@@ -63,23 +63,24 @@ v_\theta=\langle V,e_\theta\rangle,\qquad
 v_\phi=\langle V,e_\phi\rangle,
 \label{eq:tangent}
 \end{equation}
-where $e_\theta$ and $e_\phi$ are the orthogonal unit tangent vectors associated with the polar and azimuthal directions, respectively. Since these tangent directions vary across the RGB space, this projection converts the shared RGB-space vector field into position-dependent angular components, which are subsequently used to determine the color rotations. 
+where $e_\theta$ and $e_\phi$ are the orthogonal unit tangent vectors associated with the polar and azimuthal directions, respectively. Since these tangent directions vary across the RGB space, this projection converts the shared RGB-space vector field into position-dependent angular components, which are subsequently used to determine the color transformation. 
 
 \paragraph{Bounded Angular Displacement.}
-While magnitude preservation restricts radial changes and smoothing encourages gradual color transitions, neither explicitly limits the extent of angular variations. Excessive angular displacements may still introduce noticeable color shifts, compromising the visual fidelity of the protected image. We therefore constrain the angular displacements within prescribed bounds using a smooth saturation function
+While magnitude preservation restricts radial changes and smoothing encourages gradual color transitions, neither explicitly limits the extent of angular variations. Excessive angular displacements may still introduce noticeable color shifts, compromising the visual fidelity of the protected image. We therefore constrain the angular displacements within prescribed bounds using a smooth saturation function:
 \begin{equation}
 s_a(t)=\arctan\left(\tan(a)\tanh\left(\frac{t}{\tan(a)}\right)\right),
 \label{eq:bounds}
 \end{equation}
-where $t$ denotes a tangential displacement and $a \in \{\theta_{\max}, \phi_{\max}\}$ is the corresponding angular bound. The function maps any real $t$ into $(-a, a)$ and satisfies $s_a(t) \approx t$ for small $t$, which avoids abrupt saturation during optimization.
-
-The polar angle $\theta$ and the azimuthal angle $\phi$ correspond to the saturation and the hue of a color, respectively. We therefore bound their displacements separately:
+where $t$ denotes a tangential displacement and $a \in \{\theta_{\max}, \phi_{\max}\}$ specifies the corresponding angular bound. The function maps any real $t$ into $(-a, a)$ while remaining approximately linear near zero, allowing bounded angular adjustments without hard clipping. We then compute the polar and azimuthal displacements as:
+%and satisfies $s_a(t) \approx t$ for small $t$, which avoids abrupt saturation during optimization. As the polar angle x$\theta$ and the azimuthal angle $\phi$ correspond to different aspects of color transformation, we bound their displacements separately:
 \begin{equation}
 \Delta\theta = s_{\theta_{\max}}(v_\theta), \qquad
 \Delta\phi = s_{\phi_{\max}}\!\left(\frac{v_\phi}{r}\right),
 \label{eq:increments}
 \end{equation}
-so that $|\Delta\theta| < \theta_{\max}$ and $|\Delta\phi| < \phi_{\max}$ for every color. The function $s_a$ converts a tangential displacement into a bounded angular displacement. The polar displacement $v_\theta$ lies on the unit sphere, so we apply $s_{\theta_{\max}}$ to it directly. The azimuthal displacement $v_\phi$ lies on the circle of polar angle $\theta + \Delta\theta$ around the gray axis, whose radius is $r = \sin(\theta + \Delta\theta)$, so we normalize $v_\phi$ by $r$ before applying $s_{\phi_{\max}}$. For colors on the gray axis, where $\phi$ is undefined, we set $\Delta\phi=0$. Together, these constraints define a smooth and bounded color transformation in the RGB space. The angular bounds $\theta_{\max}$ and $\phi_{\max}$ control the extent of permissible color changes, providing a trade-off between preserving the visual fidelity of the protected image and inducing sufficient disruption to diffusion-based editing.
+where $\theta_{\max}$ and $\phi_{\max}$ independently bound the two angular directions. The azimuthal component $v_\phi$ is normalized by $r=\sin(\theta+\Delta\theta)$, the radius of the corresponding latitude circle on the unit sphere, to account for the dependence of angular displacement on the polar angle. For colors on the neutral gray axis, we set $\Delta\phi=0$ since the azimuth is undefined. Together, $\theta_{\max}$ and $\phi_{\max}$ control the extent of permissible color changes, limiting excessive color shifts while allowing sufficient flexibility for effective immunization.
+
+%so that $|\Delta\theta| < \theta_{\max}$ and $|\Delta\phi| < \phi_{\max}$ for every color. The function $s_a$ converts a tangential displacement into a bounded angular displacement. The polar displacement $v_\theta$ lies on the unit sphere, so we apply $s_{\theta_{\max}}$ to it directly. The azimuthal displacement $v_\phi$ lies on the circle of polar angle $\theta + \Delta\theta$ around the gray axis, whose radius is $r = \sin(\theta + \Delta\theta)$, so we normalize $v_\phi$ by $r$ before applying $s_{\phi_{\max}}$. For colors on the gray axis, where $\phi$ is undefined, we set $\Delta\phi=0$. Together, these constraints define a smooth and bounded color transformation in the RGB space. The angular bounds $\theta_{\max}$ and $\phi_{\max}$ control the extent of permissible color changes, providing a trade-off between preserving the visual fidelity of the protected image and inducing sufficient disruption to diffusion-based editing.
 
 
 
@@ -116,7 +117,7 @@ so that $|\Delta\theta| < \theta_{\max}$ and $|\Delta\phi| < \phi_{\max}$ for ev
 
 \subsection{Overall Immunization Objective}
 \label{sec:objective}
-The geometric constraints we introduce define a transformation space that balances color manipulation with the visual fidelity of the protected image. Within this constrained space, our goal is to identify a color transformation that effectively disrupts subsequent diffusion-based editing while maintaining the original image's appearance. We follow prior approaches and leverage the VAE encoder of the diffusion editor to guide the optimization of the protective transformation. Specifically, we maximize the discrepancy between the latent representations of the original and transformed images. Given a VAE encoder $\mathcal{E}$ with posterior mean $\mu_{\mathcal{E}}(\cdot)$, we formulate the immunization objective as
+The geometric constraints we introduce define a transformation space that balances color manipulation with the visual fidelity of the protected image. Within this constrained space, our goal is to identify a color transformation that effectively disrupts subsequent diffusion-based editing while keeping the resulting color changes visually acceptable. We follow prior approaches and leverage the VAE encoder of the diffusion editor to guide the optimization of the protective transformation. Specifically, we maximize the discrepancy between the latent representations of the original and transformed images. Given a VAE encoder $\mathcal{E}$ with posterior mean $\mu_{\mathcal{E}}(\cdot)$, we formulate the immunization objective as
 \begin{equation}
 \max_{\Theta}\quad
 \mathcal{L}_{\mathrm{immunize}}
@@ -130,8 +131,8 @@ The geometric constraints we introduce define a transformation space that balanc
 \label{eq:objective}
 \end{equation}
 where $n$ denotes the number of latent elements and $T_{\Theta}$ represents the geometry-constrained color transformation parameterized by $\Theta$. By maximizing this objective, we encourage the learned transformation to induce substantial changes in the image representation while remaining within the geometrically constrained transformation space.
-
-During optimization, the VAE encoder remains frozen, while gradients are propagated through the encoder and color transformation to update $\Theta$. Since the objective operates directly on the image representation, it does not require an explicit editing instruction or backpropagation through the subsequent diffusion denoising process. After optimization, the learned transformation is applied to the original image to obtain the protected image:
+%During optimization, the VAE encoder remains frozen, while gradients are propagated through the encoder and color transformation to update $\Theta$. Since the objective operates directly on the image representation, it does not require an explicit editing instruction or backpropagation through the subsequent diffusion denoising process. 
+After optimization, the learned transformation is applied to the original image to obtain the protected image:
 
 \begin{equation}
 \tilde{x}=T_{\Theta^*}(x),
@@ -154,19 +155,9 @@ where $\Theta^*$ denotes the optimized parameters.
 %\label{sec:optimization}
 %$\Theta$ is initialized with independent Gaussian entries of standard deviation 0.002, and \cref{eq:objective} is optimized with Adam ($\beta_1 = 0.5$, $\beta_2 = 0.99$) for 1800 steps at $512^2$ resolution. The learning rate follows a cosine decay from $3 \times 10^{-4}$ to $10^{-5}$ over the first two thirds of the steps and remains at $10^{-5}$ afterwards. The protected image of the final step is stored as an 8-bit PNG. One image takes about 9.5 minutes on a single RTX 3090, including model loading and file I/O (median over the 306 Pexels portraits).
 
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=\linewidth]{fig/purification.pdf}
-  \caption{Fraction of the perturbation that survives each purification (306 portraits); dotted: full survival. Additive methods at their matched-distortion arm, except DCT-Shield-Y at its native budget, because at matched distortion its perturbation is smaller than one JPEG quantization step.}
-  \label{fig:purification}
-\end{figure}
 
-\begin{figure*}[t]
-  \centering
-  \includegraphics[width=\linewidth]{fig/distortion_displacement.pdf}
-  \caption{Distortion and edit displacement on InstructPix2Pix (306 Pexels portraits $\times$ 4 instructions). (a)~Before purification, the additive methods at their native budgets and at the matched-distortion arm (BlurGuard at the latter only), and \capg{} (star); dashed: least-squares fit to the additive methods. (b)~Matched-distortion arms and \capg{} before (filled) and after (open, mean of the seven purifications) purification.}
-  \label{fig:plane}
-\end{figure*}
+
+
 
 \begin{table*}[t]
   \centering
@@ -174,7 +165,7 @@ where $\Theta^*$ denotes the optimized parameters.
   \setlength{\tabcolsep}{2.4pt}
   \begin{tabular}{l ccc ccc cc cc}
     \toprule
-    & \multicolumn{3}{c}{\textbf{Protected image}} & \multicolumn{7}{c}{\textbf{Edit of the protected image} vs.\ edit of the original} \\
+    & \multicolumn{3}{c}{\textbf{Protected Image}} & \multicolumn{7}{c}{\textbf{Edit of The Protected Image vs.\ Edit of The Original}} \\
     \cmidrule(lr){2-4} \cmidrule(l){5-11}
     & & & & \multicolumn{3}{c}{LPIPS $\uparrow$} & \multicolumn{2}{c}{SigLIP $\downarrow$} & \multicolumn{2}{c}{ArcFace $\downarrow$} \\
     \cmidrule(lr){5-7} \cmidrule(lr){8-9} \cmidrule(l){10-11}
@@ -194,26 +185,9 @@ where $\Theta^*$ denotes the optimized parameters.
     \midrule
     \rowcolor{oursrow}
     \textbf{\capg{} (Ours)} & .287{\scriptsize$\pm$.012} & 5.34{\scriptsize$\pm$.04} & \textbf{5.31}{\scriptsize$\pm$.04} & .353{\scriptsize$\pm$.012} & \textbf{.364}{\scriptsize$\pm$.025} & \textbf{.288}{\scriptsize$\pm$.010} & \textbf{.885}{\scriptsize$\pm$.004} & \textbf{.901}{\scriptsize$\pm$.005} & \textbf{.791}{\scriptsize$\pm$.026} & \textbf{.788}{\scriptsize$\pm$.014} \\
-    \midrule[0.8pt]
-    \multicolumn{11}{l}{\emph{VIBE-DistilledCFG, 306 portraits; protected images of the upper block, without re-optimization}} \\
-    Mist & & & & .159{\scriptsize$\pm$.004} & .098{\scriptsize$\pm$.034} & .041{\scriptsize$\pm$.002} & .981{\scriptsize$\pm$.006} & .991{\scriptsize$\pm$.001} & .882{\scriptsize$\pm$.048} & .949{\scriptsize$\pm$.006} \\
-    PhotoGuard & & & & .152{\scriptsize$\pm$.004} & .094{\scriptsize$\pm$.030} & .040{\scriptsize$\pm$.002} & .981{\scriptsize$\pm$.006} & .991{\scriptsize$\pm$.001} & .889{\scriptsize$\pm$.042} & .954{\scriptsize$\pm$.006} \\
-    DCT-Shield & & & & .146{\scriptsize$\pm$.004} & .077{\scriptsize$\pm$.028} & .035{\scriptsize$\pm$.002} & .983{\scriptsize$\pm$.006} & .991{\scriptsize$\pm$.001} & .899{\scriptsize$\pm$.037} & .958{\scriptsize$\pm$.005} \\
-    BlurGuard & & & & .218{\scriptsize$\pm$.006} & .202{\scriptsize$\pm$.025} & .103{\scriptsize$\pm$.003} & .962{\scriptsize$\pm$.003} & .979{\scriptsize$\pm$.001} & .822{\scriptsize$\pm$.027} & .898{\scriptsize$\pm$.008} \\
-    \midrule
-    \rowcolor{oursrow}
-    \textbf{\capg{} (Ours)} & & & & \textbf{.318}{\scriptsize$\pm$.012} & \textbf{.331}{\scriptsize$\pm$.022} & \textbf{.278}{\scriptsize$\pm$.010} & \textbf{.906}{\scriptsize$\pm$.007} & \textbf{.925}{\scriptsize$\pm$.003} & \textbf{.754}{\scriptsize$\pm$.016} & \textbf{.789}{\scriptsize$\pm$.011} \\
-    \midrule[0.8pt]
-    \multicolumn{11}{l}{\emph{FLUX.2 [klein] 4B, 306 portraits; protected images of the upper block, without re-optimization}} \\
-    Mist & & & & .175{\scriptsize$\pm$.007} & .086{\scriptsize$\pm$.037} & .020{\scriptsize$\pm$.001} & .993{\scriptsize$\pm$.003} & .997{\scriptsize$\pm$.000} & .974{\scriptsize$\pm$.013} & .985{\scriptsize$\pm$.001} \\
-    PhotoGuard & & & & .188{\scriptsize$\pm$.007} & .088{\scriptsize$\pm$.038} & .019{\scriptsize$\pm$.001} & .993{\scriptsize$\pm$.003} & .997{\scriptsize$\pm$.000} & .977{\scriptsize$\pm$.010} & .987{\scriptsize$\pm$.001} \\
-    DCT-Shield & & & & .163{\scriptsize$\pm$.007} & .060{\scriptsize$\pm$.039} & .013{\scriptsize$\pm$.001} & .995{\scriptsize$\pm$.002} & .998{\scriptsize$\pm$.000} & .984{\scriptsize$\pm$.007} & .990{\scriptsize$\pm$.001} \\
-    BlurGuard & & & & .231{\scriptsize$\pm$.008} & .198{\scriptsize$\pm$.027} & .091{\scriptsize$\pm$.003} & .974{\scriptsize$\pm$.003} & .989{\scriptsize$\pm$.001} & .951{\scriptsize$\pm$.013} & .958{\scriptsize$\pm$.003} \\
-    \midrule
-    \rowcolor{oursrow}
-    \textbf{\capg{} (Ours)} & & & & \textbf{.281}{\scriptsize$\pm$.011} & \textbf{.293}{\scriptsize$\pm$.020} & \textbf{.239}{\scriptsize$\pm$.009} & \textbf{.928}{\scriptsize$\pm$.006} & \textbf{.930}{\scriptsize$\pm$.004} & \textbf{.920}{\scriptsize$\pm$.010} & \textbf{.884}{\scriptsize$\pm$.007} \\
     \bottomrule
   \end{tabular}
-  \caption{Main comparison (306 Pexels portraits $\times$ 4 instructions; additive methods at the settings of their matched-distortion arm). Each image is first averaged over the four instructions. Small numbers: half-width of the 95\% confidence interval, across the seven purifications in the Purified$^{*}$ columns and across images (images with a detected face for ArcFace) in the other columns. Edits are compared under the same purification; SigLIP~\cite{zhai2023siglip} and ArcFace~\cite{deng2019arcface} are the similarities of the two edits. Best mean in bold within each block. $^{*}$Mean over the seven purifications (JPEG 80, 50, 30; Gaussian blur $\sigma = 1, 2$; crop-and-resize; rotation). LAION and MUSIQ of the original images: 5.46 and 5.39.}
+  \caption{Immunization effectiveness at approximately matched perceptual distortion. Each image is first averaged over the four instructions. Small numbers indicate half-widths of 95\% confidence intervals. Edits are compared under the same purification; best means are in bold. $^{*}$Mean over seven image purifications. Original-image LAION and MUSIQ scores are 5.46 and 5.39, respectively.
+  }
   \label{tab:main}
 \end{table*}

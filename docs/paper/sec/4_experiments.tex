@@ -40,7 +40,7 @@ We consider eight purification operations applied before editing: JPEG compressi
 
 \begin{figure*}[t]
   \centering
-  \includegraphics[width=0.66\textwidth]{fig/purification_example.pdf}
+  \includegraphics[width=0.62\textwidth]{fig/purification_example.pdf}
     \caption{Edits with the instruction ``Let the person wear a police suit'' on InstructPix2Pix with the main seed. Rows: protected image, edit without purification, and edit after Gaussian blur ($\sigma = 2$).}
     \label{fig:purification_example}
 \end{figure*}
@@ -91,7 +91,7 @@ In \cref{fig:purification_example}, after blur the police suit replaces the clot
 
 
 \subsection{Cross-Model Transferability}
-We further evaluate whether the protection against InstructPix2Pix transfers to other diffusion-based image editors. Specifically, we apply the same protected images, optimized exclusively against InstructPix2Pix, to VIBE-DistilledCFG and FLUX.2 [klein] 4B without re-optimization. As shown in \cref{tab:transfer}, \capg{} consistently outperforms the evaluated additive defenses across both editors, even without purification, with its advantage becoming more pronounced after purification. Notably, while several additive defenses achieve stronger editing disruption on the optimization model, their effectiveness transfers less successfully to unseen editors. In contrast, \capg{} maintains strong editing disruption across different editing models under various purification. These results demonstrate that both the editing effectiveness and purification robustness of \capg{} extend beyond the model used for optimization.
+We further evaluate whether the protection against InstructPix2Pix transfers to other diffusion-based image editors. Specifically, we apply the same protected images, optimized exclusively against InstructPix2Pix, to VIBE-DistilledCFG and FLUX.2 [klein] 4B without re-optimization. As shown in \cref{tab:transfer}, \capg{} consistently outperforms the evaluated additive defenses across both editors, even without purification, with its advantage becoming more pronounced after purification. Notably, while several additive defenses achieve stronger editing disruption on the optimization model, their effectiveness transfers less successfully to unseen editors. In contrast, \capg{} maintains strong editing disruption across different editing models under various purification. These results demonstrate that both the editing effectiveness and purification robustness of \capg{} extend beyond the model used for optimization. Results on a mask-based inpainting editor, Stable Diffusion Inpainting, are reported in the supplementary material.
 
 
 

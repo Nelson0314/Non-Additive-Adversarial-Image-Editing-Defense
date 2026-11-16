@@ -63,24 +63,24 @@ We consider eight purification operations applied before editing: JPEG compressi
     \cmidrule(l){3-6}
     Method & None & JPEG 50 & Blur 2 & VAE-Trans & Combined \\
     \midrule
-    PhotoGuard & \textbf{42.0} & 3.5 & 5.2 & 1.7 & 3.5{\scriptsize$\pm$1.3} \\
-    DCT-Shield & 21.9 & 3.2 & 2.6 & 2.0 & 2.6{\scriptsize$\pm$1.1} \\
-    BlurGuard & 14.8 & 17.1 & 11.4 & 7.8 & 12.2{\scriptsize$\pm$2.5} \\
-    SIFM & 17.6 & 7.0 & 5.5 & 4.1 & 5.6{\scriptsize$\pm$1.6} \\
-    Mist & 32.4 & 6.6 & 6.8 & 4.1 & 5.9{\scriptsize$\pm$1.6} \\
+    PhotoGuard & \textbf{43.6} & 3.3 & 3.4 & 2.8 & 3.2{\scriptsize$\pm$0.7} \\
+    DCT-Shield & 24.0 & 2.2 & 2.9 & 2.9 & 2.6{\scriptsize$\pm$0.7} \\
+    BlurGuard & 13.3 & 11.0 & 9.0 & 6.7 & 8.9{\scriptsize$\pm$1.3} \\
+    SIFM & 15.8 & 5.7 & 5.0 & 5.5 & 5.4{\scriptsize$\pm$1.1} \\
+    Mist & 30.9 & 5.2 & 4.9 & 5.4 & 5.2{\scriptsize$\pm$0.9} \\
     \midrule
     \rowcolor{oursrow}
-    \textbf{\capg{} (Ours)} & 16.4 & \textbf{17.7} & \textbf{16.6} & \textbf{13.0} & \textbf{15.8}{\scriptsize$\pm$2.9} \\
+    \textbf{\capg{} (Ours)} & 12.3 & \textbf{11.6} & \textbf{14.8} & \textbf{10.4} & \textbf{12.3}{\scriptsize$\pm$1.5} \\
     %\midrule
     %\capg{} $-$ BlurGuard & $+$1.5{\scriptsize$\pm$3.9} & $+$0.6{\scriptsize$\pm$3.4} & $+$5.2{\scriptsize$\pm$4.1} & $+$5.1{\scriptsize$\pm$3.5} & $+$3.6{\scriptsize$\pm$2.6} \\
     \bottomrule
   \end{tabular}
-  \caption{Immunization Success Rate. Combined: the three purifications pooled. $\pm$: half-width of the 95\% bootstrap interval over images. %Bottom row: paired difference from BlurGuard (\%). $\pm$: half-width of the 95\% bootstrap interval over images.
+  \caption{Immunization Success Rate. Combined: the three purifications pooled. %Bottom row: paired difference from BlurGuard (\%). $\pm$: half-width of the 95\% bootstrap interval over images.
   }
   \label{tab:isr}
 \end{table}
 \paragraph{Immunization Success Rate.}
-Beyond editing discrepancies, we evaluate immunization success rate (ISR), defined as the proportion of originally successful edits that fail when applied to protected images. The evaluation uses Claude Sonnet 5.5, with a subset of judgments reviewed by humans. As shown in \cref{tab:isr}, while several additive defenses achieve higher ISR without purification, their effectiveness decreases substantially after purification. In contrast, \capg{} maintains a relatively stable ISR. Relative to BlurGuard, the strongest additive baseline after purification, \capg{} achieves a combined ISR improvement of 3.6$\pm$2.6 percentage points (95\% bootstrap interval). These results further demonstrate that \capg{} retains its ability to prevent intended edits even after purification.
+Beyond editing discrepancies, we evaluate immunization success rate (ISR), defined as the proportion of originally successful edits that fail when applied to protected images. The evaluation uses Claude Sonnet 5.5, with a subset of judgments reviewed by humans. As shown in \cref{tab:isr}, while several additive defenses achieve higher ISR without purification, their effectiveness decreases substantially after purification. In contrast, \capg{} maintains a relatively stable ISR. Relative to BlurGuard, the strongest additive baseline after purification, \capg{} achieves a combined ISR improvement of 3.4$\pm$1.1 percentage points (95\% bootstrap interval). These results further demonstrate that \capg{} retains its ability to prevent intended edits even after purification.
 
 \paragraph{Distortion–Effectiveness Trade-off.}
 We further examine how perceptual distortion relates to editing disruption. As shown in \cref{fig:plane}(a), additive defenses generally achieve stronger editing disruption at higher distortion levels before purification, motivating our matched-distortion comparison. On the other hand, \cref{fig:plane}(b) shows that \capg{} maintains substantially stronger editing disruption than additive defenses at comparable distortion levels after purification, demonstrating a more favorable distortion–effectiveness trade-off under purification.

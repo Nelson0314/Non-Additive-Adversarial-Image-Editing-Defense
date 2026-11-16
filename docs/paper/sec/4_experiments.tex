@@ -38,6 +38,20 @@ We consider eight purification operations applied before editing: JPEG compressi
   \label{fig:plane}
 \end{figure*}
 
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=0.66\textwidth]{fig/purification_example.pdf}
+    \caption{Edits with the instruction ``Let the person wear a police suit'' on InstructPix2Pix with the main seed. Rows: protected image, edit without purification, and edit after Gaussian blur ($\sigma = 2$).}
+    \label{fig:purification_example}
+\end{figure*}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{fig/purification.pdf}
+  \caption{Perturbation survival under purification. Additive defenses use matched-distortion settings, except DCT-Shield-Y, which uses its native budget as its matched-distortion perturbation falls below a JPEG quantization step.}
+  \label{fig:purification}
+\end{figure}
+
 
 \begin{table}[t]
   \centering
@@ -61,7 +75,7 @@ We consider eight purification operations applied before editing: JPEG compressi
     %\capg{} $-$ BlurGuard & $+$1.5{\scriptsize$\pm$3.9} & $+$0.6{\scriptsize$\pm$3.4} & $+$5.2{\scriptsize$\pm$4.1} & $+$5.1{\scriptsize$\pm$3.5} & $+$3.6{\scriptsize$\pm$2.6} \\
     \bottomrule
   \end{tabular}
-  \caption{Immunization Success Rate. Combined: the three purifications pooled. %Bottom row: paired difference from BlurGuard (\%). $\pm$: half-width of the 95\% bootstrap interval over images.
+  \caption{Immunization Success Rate. Combined: the three purifications pooled. $\pm$: half-width of the 95\% bootstrap interval over images. %Bottom row: paired difference from BlurGuard (\%). $\pm$: half-width of the 95\% bootstrap interval over images.
   }
   \label{tab:isr}
 \end{table}
@@ -73,7 +87,7 @@ We further examine how perceptual distortion relates to editing disruption. As s
 
 
 \paragraph{Qualitative Comparison.}
-In \cref{fig:purification_example}, after blur the helmet appears for every additive defense but not for \capg{}.
+In \cref{fig:purification_example}, after blur the police suit replaces the clothing on the undefended image and on every additive defense, whereas for \capg{} the original clothing is kept.
 
 
 \subsection{Cross-Model Transferability}
@@ -81,20 +95,11 @@ We further evaluate whether the protection against InstructPix2Pix transfers to 
 
 
 
-\begin{figure*}[t]
+\begin{table*}[t]
   \centering
-  \begin{minipage}[b]{0.55\textwidth}
-    \centering
-    \includegraphics[width=\linewidth]{fig/purification_example.pdf}
-    \caption{Edits with the instruction ``Let the person wear a helmet'' on InstructPix2Pix, with edit seed 3 for all columns (not the main seed). Rows: protected image, edit without purification, and edit after Gaussian blur ($\sigma = 2$).}
-    \label{fig:purification_example}
-  \end{minipage}\hfill
-  \begin{minipage}[b]{0.43\textwidth}
-    \centering
-    \scriptsize
-    \setlength{\tabcolsep}{2.4pt}
-    \resizebox{\linewidth}{!}{%
-\begin{tabular}{l ccc cc cc}
+  \scriptsize
+  \setlength{\tabcolsep}{2.4pt}
+  \begin{tabular}{l ccc cc cc}
     \toprule
     & \multicolumn{7}{c}{\textbf{Edit of The Protected Image} vs.\ \textbf{Edit of The Original}} \\
     \cmidrule(l){2-8}
@@ -199,23 +204,16 @@ We further evaluate whether the protection against InstructPix2Pix transfers to 
       & \textbf{.920}{\scriptsize$\pm$.010}
       & \textbf{.884}{\scriptsize$\pm$.007} \\
     \bottomrule
-  \end{tabular}}
-    \captionof{table}{
-    Cross-model transferability on VIBE-DistilledCFG and FLUX.2 [klein] 4B. All protected images optimized against InstructPix2Pix are transferred without re-optimization. Metrics and confidence intervals follow \cref{tab:main}. $^{*}$Mean over seven image transformations.
+  \end{tabular}
+    \caption{
+    Cross-model transferability on VIBE-DistilledCFG and FLUX.2 [klein] 4B. All protected images optimized against InstructPix2Pix are transferred without re-optimization. Metrics and confidence intervals follow \cref{tab:main}. $^{*}$Mean over seven image purifications.
   }
     \label{tab:transfer}
-  \end{minipage}
-\end{figure*}
+\end{table*}
 
 \subsection{Perturbation Persistence under Purification}
-As the distortion–effectiveness analysis in \cref{fig:plane} shows that \capg{} achieves stronger editing disruption after purification at comparable initial distortion levels, we further investigate how purification affects the immunization introduced by different defensesin \cref{fig:purification}. Specifically, we measure the relative perceptual discrepancy after purification as $\mathrm{LPIPS}(P(\tilde{x}),P(x))/\mathrm{LPIPS}(\tilde{x},x)$, where $P$ denotes a purification operation. additive defenses exhibit substantial reductions in this discrepancy under JPEG compression and Gaussian blur, including BlurGuard, which is designed to improve robustness. In contrast, \capg{} maintains a ratio of at least 1.0 across all evaluated JPEG and blur settings, indicating that its protection-induced differences are not attenuated by these transformations. This contrast is consistent with the global nature of the proposed color transformation, which introduces no independent spatial perturbation pattern and is therefore less susceptible to the suppression of local image variations. 
+As the distortion–effectiveness analysis in \cref{fig:plane} shows that \capg{} achieves stronger editing disruption after purification at comparable initial distortion levels, we further investigate how purification affects the immunization introduced by different defenses in \cref{fig:purification}. Specifically, we measure the relative perceptual discrepancy after purification as $\mathrm{LPIPS}(P(\tilde{x}),P(x))/\mathrm{LPIPS}(\tilde{x},x)$, where $P$ denotes a purification operation. Additive defenses exhibit substantial reductions in this discrepancy under JPEG compression and Gaussian blur, including BlurGuard, which is designed to improve robustness. In contrast, \capg{} maintains a ratio of at least 1.0 across all evaluated JPEG and blur settings, indicating that its protection-induced differences are not attenuated by these transformations. This contrast is consistent with the global nature of the proposed color transformation, which introduces no independent spatial perturbation pattern and is therefore less susceptible to the suppression of local image variations. 
 
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=\linewidth]{fig/purification.pdf}
-  \caption{Perturbation survival under purification. Additive defenses use matched-distortion settings, except DCT-Shield-Y, which uses its native budget as its matched-distortion perturbation falls below a JPEG quantization step.}
-  \label{fig:purification}
-\end{figure}
 
 
 
@@ -257,7 +255,7 @@ We evaluate the contributions of the proposed geometric constraints, and compare
 \capg{} exploits the constrained color transformation space to identify more effective protection mappings while largely preserving aesthetic quality. Removing Gaussian smoothing,  relaxing the angular bounds or replacing the separate angular bounds with a single rotation bound further increases editing disruption, but at the cost of substantially greater image distortion and reduced image quality. These findings highlight the complementary roles of optimization and geometric constraints in balancing editing disruption and image quality.
 
 \paragraph{Comparison with Alternative Color Mappings.}
-At approximately matched LPIPS distortion, alternative color mappings can achieve comparable or stronger editing disruption, but consistently yield lower MUSIQ scores than \capg{}. In particular, the optimized affine transformation achieves stronger disruption under VAE-Trans but reduces MUSIQ from 5.30 to 4.80. As illustrated in the supplementary material, these alternatives introduce undesirable color shifts and artifacts, while removing the proposed constraints produces more pronounced spatial color irregularities. The proposed parameterization provides a favorable balance between editing disruption, robustness to purification, and image quality.
+At approximately matched LPIPS distortion, alternative color mappings can achieve comparable or stronger editing disruption, but consistently yield lower LAION and MUSIQ scores than \capg{}. In particular, the optimized affine transformation achieves stronger disruption under VAE-Trans but reduces LAION from 5.32 to 5.26 and MUSIQ from 5.30 to 4.80. As illustrated in the supplementary material, these alternatives introduce undesirable color shifts and artifacts, while removing the proposed constraints produces more pronounced spatial color irregularities. The proposed parameterization provides a favorable balance between editing disruption, robustness to purification, and image quality.
 
 
 

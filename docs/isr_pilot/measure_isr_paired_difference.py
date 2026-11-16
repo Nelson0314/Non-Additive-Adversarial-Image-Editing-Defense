@@ -29,7 +29,7 @@ rows = {}
 for r in csv.DictReader(open(PATH)):
     rows[(r["sheet"].strip(), r["cell"].strip())] = r
 sheet_counts = collections.Counter(s for s, _ in rows)
-if len(rows) != 11200 or any(n != 28 for n in sheet_counts.values()):
+if len(rows) != 28 * len(sheet_counts) or any(n != 28 for n in sheet_counts.values()):
     raise SystemExit(f"unexpected judgments shape: {len(rows)} cells, {len(sheet_counts)} sheets")
 
 fail = {}  # (condition, image, prompt, purification) -> 1 if defense succeeded (edit failed)

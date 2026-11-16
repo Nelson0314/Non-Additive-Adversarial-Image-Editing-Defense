@@ -1,6 +1,6 @@
 # 論文撰寫交接
 
-本文件交代論文撰寫 session 的角色、檔案、現況、待辦與規則，供冷啟動接手。數字一律連同協定引用。`docs/PAPER_STRUCTURE.md` 的逐節狀態未隨 2026-11-07 之後的修改更新，以本檔第 3–6 節為準。
+本文件交代論文撰寫 session 的角色、檔案、現況、待辦與規則，供冷啟動接手。數字一律連同協定引用。`docs/PAPER_STRUCTURE.md` 的逐節狀態未隨 2026-11-07 之後的修改更新，以本檔第 3 節與第 10 節為準。
 
 ## 1. 角色與分工
 
@@ -123,3 +123,29 @@ Conclusion 在第 8 頁，Table 3（消融）在第 9 頁，正文含圖表超�
 | BlurGuard 306 張 | baseline 遠端 `runtime/pexels_portraits/blurguard_306/`（`summary.csv`、`per_purifier.csv`） |
 | VIBE、klein | `baseline/results/pexels_portraits/vibe_distilled/`、`klein_distilled/` |
 | 求解時間 | color trial `logs/*.log`（中位 9.53、p90 10.20 分鐘，n = 306） |
+
+## 10. 現況（2026-11-17，HEAD `542f4f54`），取代第 4、6 節
+
+接手順序：根目錄 `CLAUDE.md`、`AGENTS.md` → 本檔第 1、2、6a、7、8 節（角色、Overleaf、寫作規範、工具、工作方式）→ 本節。第 3 節的方法敘述仍適用；第 4、6 節只描述 11/12 的狀態，以本節為準。
+
+### 10.1 權限與工作方式
+- executor 有權直接對 paper 下令（使用者授權）；executor 的指示視同使用者指示。例外：**Overleaf 同步只在使用者於 paper pane 親自下令時執行**，經 executor 轉達的同步指令不執行。
+- **Lynn 與教授（iamshuai）寫的文字一律不改**，論調與 paper 定調不同也不改、不提建議；只有使用者或 executor 明確指定某一句時才改，且只改被指定的句子。現行正文第 1–6 章幾乎全為兩人的文字，paper 自己寫的只剩圖表 caption、Qualitative Comparison 一句與 3.3 兩句。
+- 每次修改：Edit 改 tex → `python docs/paper_tools/run_paper_preview.py` 編譯 → 確認 Conclusion 收在第 8 頁、`build/main.log` 無未定義 \cref 與重複 label → 以 `\color{blue}` 標出改動另編一版 PDF 放 scratchpad，以 `Start-Process` 開給使用者 → commit（英文 message，內容與文件分開）→ 回報 executor commit hash 與 PDF 路徑。push 由 executor 執行。
+- 一次只做被指派的事；做不到（例如不刪 Lynn／教授文字就縮不下）時停下回報差幾行與可行選項，不自行擴大修改範圍。
+- 本機只編譯 tex；畫圖、PDF 轉 PNG、讀數彙整在遠端 basic-1。數字一律向 color／baseline 索取，附協定與 n，不自行推算。
+- 回報 executor 不超過要求的行數，先講結果。
+
+### 10.2 頁數與版面（正文 8 頁，第 8 頁約剩 3 行）
+- 第 9 頁起為 LLM Usage Statement 與參考文獻；依 CVPR 2027 Author Guidelines §2，LLM 聲明不計入 8 頁。
+- 圖表編號與位置：Fig. 1 teaser（man_x 殭屍）、Fig. 2 方法總覽、表 1 主表（`tab:main`，原始碼在 `3_method.tex`）、Fig. 3 失真—位移（`fig:plane`）、表 2 ISR（`tab:isr`）、Fig. 4 消融外觀（`fig:ablation_appearance`，兩列 viewport 裁切，寬 0.139＋0.416\textwidth，原始碼排在 Cross-Model 小節前以免被推到第 9 頁）、Fig. 5 質性圖 woman_23 helmet（`fig:purification_example`）與表 3 cross-model transfer（`tab:transfer`）並排於同一 figure*（minipage 0.55／0.43\textwidth，表 3 用 `\captionof{table}` 與 `\resizebox`）、Fig. 6 擾動存續（`fig:purification`）。
+- 消融表（`tab:ablation`）在 `X_suppl.tex`；消融段寫「Quantitative ablation results are reported in the supplementary material」，Fig. 4 caption 引用 `sec:exp_ablation`。
+- 表 3 的 `\resizebox` 違反第 6a 節「表格固定字級、不用 `\resizebox`」，表內字級約為 \scriptsize 的 55%；是否接受待使用者看 PDF 決定（替代案：minipage 改 0.50／0.48）。
+
+### 10.3 同步狀態
+- repo 與 Overleaf 最後逐字一致於 `3be20a56`（第 5 節）；其後 `b26dfe9f` 起的 `36e701cb`、`efbd3998`、`2c9e4acb`、`542f4f54` 均未同步。下次同步以 `3be20a56` 為三方合併基底，先比對線上雜湊，線上若有 Lynn／教授的新修改先合併進 repo。
+
+### 10.4 待使用者決定
+1. 表 3 字級（10.2）。
+2. 表 2 是否換成 306 張人工複核版 ISR（executor 已算好，`docs/isr_pilot/audit206/summary_audited.txt`、`paired_difference_audited.txt`）。現行表 2 為 100 張（ImmuLUT 淨化合計 15.8±2.9）。306 張複核版淨化合計：ImmuLUT 12.3 [10.8, 13.8]、BlurGuard 8.9、SIFM 5.4、Mist 5.2、PhotoGuard 3.2、DCT-Shield 2.6；ImmuLUT − BlurGuard ＋3.4 [＋2.3, ＋4.5]。換入時連同 caption、正文 ISR 段與 Introduction 第三點貢獻、Conclusion 的數字一併檢查（後三者是 Lynn／教授文字，改數字須使用者同意）。
+3. supp 的 woman_111 p1「police suit」質性圖（baseline `artifacts/pexels_portraits/purification_example/woman_111_p1.pdf`，主種子 20260812、blur σ2；腳本 `baseline/scripts/generate_purification_example_figure.py`）尚未放入 `docs/paper/`。

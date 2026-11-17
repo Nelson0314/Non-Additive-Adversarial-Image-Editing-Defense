@@ -58,9 +58,9 @@
 % ======== (a)：Θ → G_σ → V ========
 \begin{scope}[shift={(2.0,3.76)}, scale=1.2]\input{lattice_raw.tex}\end{scope}
 \node[lab, anchor=west] at (2.95,4.2) {$\Theta$};
-\node[small, anchor=north] at (2.0,2.89) {free vectors on $K^3$ nodes};
-\draw[flow] (2.0,2.56) -- (2.0,2.2);
-\node[lab, anchor=west] at (2.12,2.38) {$G_\sigma$, $\sigma=4$ cells};
+\node[small, anchor=north] at (2.0,2.8) {free vectors on $K^3$ nodes};
+\draw[flow] (2.0,2.48) -- (2.0,2.2);
+\node[lab, anchor=west] at (2.12,2.34) {$G_\sigma$, $\sigma=4$ cells};
 \begin{scope}[shift={(2.0,1.32)}, scale=1.2]\input{lattice_smooth.tex}\end{scope}
 \node[lab, anchor=west] at (2.95,1.76) {$V$};
 \node[small, anchor=north] at (2.0,0.45) {smooth field $V=G_\sigma*\Theta$};
@@ -155,8 +155,8 @@
 \coordinate (qb) at ($(imgd.north west)+(\pixbx/512*\iw,-\pixby/512*\iw)$);
 \tikzset{link/.style={line width=0.75pt, preaction={draw=white, line width=1.9pt}}}
 \draw[link, ink] (pa) -- (DC) (pb) -- (DC);
-\draw[link, ours] (qa) .. controls ($(qa)+(0,-0.6)$) and (15.4,2.36) .. (14.4,2.36) .. controls (13.2,2.36) and (12.0,2.36) .. (DCP);
-\draw[link, ours] (qb) .. controls ($(qb)+(0,-0.3)$) and (15.3,2.28) .. (14.4,2.28) .. controls (13.2,2.28) and (12.0,2.28) .. (DCP);
+\draw[link, ours] (qa) .. controls ($(qa)+(0,-0.6)$) and (15.4,2.42) .. (14.4,2.42) .. controls (13.2,2.42) and (12.0,2.42) .. (DCP);
+\draw[link, ours] (qb) .. controls ($(qb)+(0,-0.3)$) and (15.3,2.35) .. (14.4,2.35) .. controls (13.2,2.35) and (12.0,2.35) .. (DCP);
 \pixelring{pa}{ink}\pixelring{pb}{ink}\pixelring{qa}{ours}\pixelring{qb}{ours}
 \node[circle, draw=white, line width=1.6pt, inner sep=2.1pt] at (DC) {};
 \node[circle, draw=ink, line width=0.9pt, fill=colorc, inner sep=2.1pt] at (DC) {};
@@ -168,11 +168,11 @@
 \fill[black!12] ($(e0)+(-0.32,0.42)$) -- ($(e0)+(0.32,0.2)$) -- ($(e0)+(0.32,-0.2)$) -- ($(e0)+(-0.32,-0.42)$) -- cycle;
 \draw[black!60, line width=0.6pt] ($(e0)+(-0.32,0.42)$) -- ($(e0)+(0.32,0.2)$) -- ($(e0)+(0.32,-0.2)$) -- ($(e0)+(-0.32,-0.42)$) -- cycle;
 \node[lab] at ($(e0)+(-0.04,0)$) {$\mathcal{E}$};
-\begin{scope}[shift={($(e0)+(-0.92,0.6)$)}]
+\begin{scope}[shift={($(e0)+(-0.92,0.68)$)}]
   \draw[black!55, line width=0.5pt] (-0.07,0.02) arc (180:0:0.07);
   \fill[black!55] (-0.1,-0.11) rectangle (0.1,0.03);
 \end{scope}
-\node[small, anchor=west] at ($(e0)+(-0.79,0.6)$) {frozen VAE encoder};
+\node[small, anchor=west] at ($(e0)+(-0.79,0.68)$) {frozen VAE encoder};
 \draw[flow] (imgx.south) |- ($(e0)+(-0.33,0.12)$);
 \draw[flow] (imgd.south) |- ($(e0)+(0.33,0.05)$);
 \node[small, anchor=south west] at ($(imgx.south |- e0)+(0.1,0.14)$) {$\mu_{\mathcal{E}}(x)$};

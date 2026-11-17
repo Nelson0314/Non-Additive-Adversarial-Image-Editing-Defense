@@ -17,8 +17,9 @@
     PhotoGuard & .166 & .146 & .137 & .114 & .056 & .282 & .199 & .033 \\
     DCT-Shield & .095 & .099 & .096 & .062 & .028 & .254 & .154 & .023 \\
     DCT-Shield-Y & .118 & .113 & .122 & .051 & .035 & .223 & .136 & .029 \\
+    BlurGuard & .300 & .282 & .275 & .280 & .208 & .298 & .279 & .143 \\
     \rowcolor{oursrow}
-    \textbf{\capg{}} & .299 & .316 & .333 & .277 & .279 & .280 & .251 & .218 \\
+    \textbf{\capg{}} & .372 & .386 & .401 & .357 & .360 & .355 & .317 & .288 \\
     \midrule
     \multicolumn{9}{l}{\textit{SSIM between the two edits $\downarrow$}} \\
     DAYN & .879 & .892 & .900 & .928 & .964 & .858 & .881 & .970 \\
@@ -30,8 +31,9 @@
     PhotoGuard & .921 & .927 & .927 & .959 & .982 & .850 & .895 & .982 \\
     DCT-Shield & .947 & .947 & .948 & .974 & .989 & .864 & .912 & .987 \\
     DCT-Shield-Y & .935 & .938 & .932 & .978 & .987 & .880 & .925 & .983 \\
+    BlurGuard & .832 & .838 & .839 & .872 & .923 & .839 & .843 & .942 \\
     \rowcolor{oursrow}
-    \textbf{\capg{}} & .853 & .843 & .833 & .871 & .879 & .847 & .856 & .897 \\
+    \textbf{\capg{}} & .806 & .797 & .789 & .819 & .832 & .798 & .812 & .858 \\
     \midrule
     \multicolumn{9}{l}{\textit{PSNR between the two edits (dB) $\downarrow$}} \\
     DAYN & 26.1 & 27.4 & 28.0 & 29.8 & 33.9 & 25.4 & 26.6 & 31.3 \\
@@ -43,8 +45,9 @@
     PhotoGuard & 28.6 & 29.4 & 29.5 & 33.5 & 38.5 & 24.5 & 27.2 & 34.1 \\
     DCT-Shield & 30.3 & 30.6 & 30.7 & 35.4 & 40.6 & 25.3 & 28.2 & 35.5 \\
     DCT-Shield-Y & 29.3 & 29.9 & 29.4 & 36.2 & 39.5 & 25.8 & 28.9 & 34.1 \\
+    BlurGuard & 25.7 & 26.1 & 26.3 & 27.2 & 29.9 & 25.8 & 25.9 & 28.8 \\
     \rowcolor{oursrow}
-    \textbf{\capg{}} & 21.3 & 21.2 & 21.3 & 21.6 & 21.6 & 21.1 & 21.6 & 22.0 \\
+    \textbf{\capg{}} & 18.9 & 18.9 & 19.0 & 19.0 & 19.1 & 18.8 & 19.3 & 19.7 \\
     \midrule
     \multicolumn{9}{l}{\textit{SigLIP $\downarrow$}} \\
     DAYN & .937 & .952 & .963 & .954 & .971 & .923 & .937 & .986 \\
@@ -56,8 +59,9 @@
     PhotoGuard & .969 & .976 & .975 & .979 & .988 & .925 & .951 & .992 \\
     DCT-Shield & .984 & .983 & .982 & .987 & .993 & .931 & .960 & .994 \\
     DCT-Shield-Y & .980 & .980 & .979 & .990 & .991 & .944 & .968 & .993 \\
+    BlurGuard & .930 & .937 & .939 & .934 & .948 & .930 & .928 & .970 \\
     \rowcolor{oursrow}
-    \textbf{\capg{}} & .915 & .914 & .915 & .912 & .907 & .910 & .914 & .925 \\
+    \textbf{\capg{}} & .888 & .888 & .888 & .882 & .878 & .882 & .890 & .901 \\
     \bottomrule
   \end{tabular}
   \caption{Edit displacement for each purification (first part; 306 Pexels portraits $\times$ 4 instructions, InstructPix2Pix, matched-distortion arms). Each entry is the mean over the 306 images, each image first averaged over the four instructions; \cref{tab:main} reports the mean over the seven purifications. SSIM, PSNR, SigLIP, CLIP-I, and ArcFace compare the defended and the undefended edit under the same purification; CLIP-S compares the defended edit with the instruction text; FID is computed between the sets of defended and undefended edits.}
@@ -82,8 +86,9 @@
     PhotoGuard & .973 & .979 & .980 & .980 & .991 & .927 & .952 & .994 \\
     DCT-Shield & .988 & .986 & .985 & .985 & .995 & .932 & .955 & .996 \\
     DCT-Shield-Y & .983 & .984 & .983 & .993 & .994 & .950 & .973 & .994 \\
+    BlurGuard & .929 & .937 & .944 & .933 & .955 & .930 & .928 & .972 \\
     \rowcolor{oursrow}
-    \textbf{\capg{}} & .910 & .909 & .913 & .916 & .919 & .908 & .919 & .920 \\
+    \textbf{\capg{}} & .883 & .886 & .890 & .889 & .895 & .883 & .896 & .894 \\
     \midrule
     \multicolumn{9}{l}{\textit{CLIP-S $\downarrow$}} \\
     DAYN & .243 & .242 & .240 & .241 & .245 & .240 & .237 & .245 \\
@@ -95,8 +100,9 @@
     PhotoGuard & .240 & .241 & .239 & .239 & .245 & .233 & .236 & .245 \\
     DCT-Shield & .242 & .242 & .240 & .240 & .245 & .233 & .236 & .245 \\
     DCT-Shield-Y & .243 & .242 & .241 & .241 & .246 & .235 & .238 & .246 \\
+    BlurGuard & .233 & .233 & .233 & .232 & .240 & .232 & .230 & .242 \\
     \rowcolor{oursrow}
-    \textbf{\capg{}} & .238 & .238 & .236 & .237 & .240 & .238 & .235 & .243 \\
+    \textbf{\capg{}} & .236 & .236 & .234 & .235 & .238 & .236 & .232 & .242 \\
     \midrule
     \multicolumn{9}{l}{\textit{ArcFace $\downarrow$}} \\
     DAYN & .825 & .849 & .859 & .906 & .950 & .847 & .851 & .943 \\
@@ -108,8 +114,9 @@
     PhotoGuard & .895 & .900 & .898 & .949 & .971 & .866 & .890 & .968 \\
     DCT-Shield & .922 & .922 & .919 & .963 & .979 & .881 & .906 & .974 \\
     DCT-Shield-Y & .903 & .914 & .893 & .965 & .975 & .883 & .906 & .966 \\
+    BlurGuard & .846 & .835 & .822 & .871 & .916 & .882 & .858 & .913 \\
     \rowcolor{oursrow}
-    \textbf{\capg{}} & .818 & .793 & .778 & .846 & .851 & .856 & .843 & .834 \\
+    \textbf{\capg{}} & .784 & .760 & .750 & .806 & .812 & .825 & .805 & .788 \\
     \midrule
     \multicolumn{9}{l}{\textit{FID $\uparrow$}} \\
     DAYN & 27.6 & 22.7 & 20.2 & 23.7 & 18.0 & 34.7 & 35.8 & 14.2 \\
@@ -121,8 +128,9 @@
     PhotoGuard & 19.2 & 16.7 & 16.7 & 17.0 & 13.6 & 35.8 & 31.0 & 12.1 \\
     DCT-Shield & 15.0 & 14.4 & 14.7 & 13.2 & 11.8 & 30.7 & 25.7 & 11.4 \\
     DCT-Shield-Y & 16.5 & 15.5 & 16.2 & 12.3 & 12.3 & 26.8 & 22.3 & 12.1 \\
+    BlurGuard & 40.5 & 34.9 & 29.5 & 43.3 & 32.9 & 39.9 & 51.1 & 20.8 \\
     \rowcolor{oursrow}
-    \textbf{\capg{}} & 33.5 & 33.4 & 34.3 & 34.7 & 36.7 & 33.0 & 39.2 & 30.0 \\
+    \textbf{\capg{}} & 42.5 & 41.7 & 42.9 & 45.1 & 48.6 & 41.5 & 50.8 & 38.0 \\
     \bottomrule
   \end{tabular}
   \caption{Edit displacement for each purification (second part; 306 Pexels portraits $\times$ 4 instructions, InstructPix2Pix, matched-distortion arms). Each entry is the mean over the 306 images, each image first averaged over the four instructions; \cref{tab:main} reports the mean over the seven purifications. SSIM, PSNR, SigLIP, CLIP-I, and ArcFace compare the defended and the undefended edit under the same purification; CLIP-S compares the defended edit with the instruction text; FID is computed between the sets of defended and undefended edits.}

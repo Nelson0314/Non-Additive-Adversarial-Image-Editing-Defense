@@ -25,6 +25,9 @@ no-handover-stops-before-85-percent）。協定細節、檔案位置與程式清
 - 本機不跑計算（CPU 讀數、畫圖亦送遠端）；本機只編輯、git、ssh、看圖。
 - 遠端執行前 `export ENV_FILE=~/env.sh; source scripts/env.sh`，之後以 `$PY`（`~/venvs/wacv`）執行；VIBE 系用 `~/venvs/vibe`。
 - 遠端腳本不可就地覆寫：先寫暫存檔再 `mv`；遠端 `git pull` 前確認改到的 `.sh` 沒有行程在執行。佇列清單改動寫 `jobs.txt.next` 再 `mv`，改前清單另存。
+- 遠端 `~/image-immunization/baseline` 以 `git pull` 同步（push 由 executor 執行）；影像產物在 `artifacts/`，執行狀態在 `runtime/`。
+  停工作：以 `queue/claims/<工作>/owner` 的 PID 執行 `kill -TERM -- -<PID>`，再以 `pgrep -g <PID>` 確認 0 個行程、租約已釋放。
+  crontab 的修改需使用者同意（備份在兩台 `~/crontab.backup.*`）。
 - 刪除一律改為移到遠端 `~/trash/baseline/<日期>/`，事先列清單給使用者確認。別人做的東西只呼叫不改。commit 由 executor push。
 
 ## 3. 現況
@@ -79,48 +82,69 @@ BlurGuard（官方 `pgd_freq`，github.com/jsu-kim/BlurGuard commit e1b2d5e）�
 - ISR 評審（論文 Table 2 與正文的條件式 ISR）：素材為 `artifacts/pexels_portraits/ip2p_isr100_sheets/`（crosseditor100 的 100 張 × 4 句，
   7 條件 × 4 淨化，`cells.csv` 11,200 列）；已完成（Claude Sonnet 判定＋人工複核 606 格），結果見根目錄 `docs/isr_pilot/`
   （`judgments.csv`、`audit/judgments_human.csv`、`summary.txt`、`paired_difference.txt`）。
-- isr50 的 `ip2p_isr_sheets/` 與 `vibe_distilled/isr_sheets/`：未排程，使用者指示才評審。
-- 拼圖產生程式在遠端 `runtime/pexels_portraits/{crosseditor100,vibe_distilled}/generate_*.py`。
+- ISR 第二批與第三批素材（協定同上，評審由 executor 派工）：`artifacts/pexels_portraits/ip2p_isr_second100_sheets/`（100 張，
+  清單 `runtime/pexels_portraits/isr_second100/images.txt`，即 color 消融擴充的 `ablation_extension100.txt`，抽樣為其餘 206 張依名排序後
+  `default_rng(20260812).choice(206, 100, replace=False)`）與 `ip2p_isr_third106_sheets/`（其餘 106 張，`isr_third106/images.txt`）；
+  三批合為 306 張。isr50 的 `ip2p_isr_sheets/` 與 `vibe_distilled/isr_sheets/` 未排程。
+- 拼圖產生程式在遠端 `runtime/pexels_portraits/{crosseditor100,isr_second100,isr_third106,vibe_distilled}/generate_*.py`。
+- 質性圖（Fig. 4 與補充資料）：`scripts/generate_purification_example_figure.py`，取主表既有產物、主種子；輸出遠端
+  `artifacts/pexels_portraits/purification_example/`（`woman_111_p1`、`man_07_p2`、`woman_111_p1_tones`）。字級依置入寬度換算（預設
+  0.62 倍正文寬度、印刷 7 pt），`--extra` 加 ImmuLUT 變體欄。
+- Fig. 1 teaser：`scripts/generate_teaser_flow_figure.py`（呼叫 color trial `tools/generate_teaser_flow_figure_compact.py`，圖內用詞改為
+  Undefended、Immunized image），run-dir 為遠端 `artifacts/teaser/teaser_man_x_zombieskin_tg7p5_ig1p8`，輸出 `artifacts/teaser_paper_format/`。
 
-### 3.4 暫時性嘗試（`trials/`，不入版控，本機與遠端各一份）
+### 3.4 Inpainting 跨編輯器（補充資料）
+
+- 協定：`runwayml/stable-diffusion-inpainting`（SD 1.5 inpainting），fp32、strength 1.0、50 步、guidance 7.5、種子 20260812、512²；遮罩為
+  `data/pexels_portraits/masks/`（CLIPSeg 主體分割，白＝重繪＝主體的補集），輸出合成回遮罩外原輸入；指令 `prompts.yaml` 的 `edits.inpaint`。
+- 防禦圖與淨化後輸入沿用 ip2p 流程，不重新求解：SD1.4（各 baseline 的求解目標）、SD1.5 inpainting 與 ip2p 的 VAE 逐張量相同（最大差 0）。
+- 7 條件（未防禦、等失真 photoguard_encoder、dia_pt、dct_shield、sifm、BlurGuard、ImmuLUT）× none／jpeg50／blur2／VAE-Trans × 4 句，306 張。
+- 程式：`scripts/evaluate_pexels_inpaint_editor.sh`（`run_inpaint_edits.py`）、讀數 `evaluate_pexels_inpaint_readouts.sh`（base／sem／finish_gpu／
+  finish_cpu）、彙整 `generate_pexels_inpaint_summary.py`；產物 `artifacts/pexels_portraits/inpaint/`，執行狀態 `runtime/pexels_portraits/inpaint/`。
+- 每格約 7.7 秒（3090、多卡並行）；佇列工作 `inpaint_<影像>`（`queue/jobs_inpaint.txt` 已併入 `jobs.txt`）。
+
+### 3.5 暫時性嘗試（`trials/`，不入版控，本機與遠端各一份）
 
 | trial | 內容 | 狀態 |
 |---|---|---|
-| `blurguard_paper_protocol` | BlurGuard 依論文協定（ImageNet-Edit 80 張、SD v1.4 img2img、未淨化）重跑 | 完成；遠端 `trials/blurguard_paper_protocol/results.json`，見 5. |
-| `isr_guidance_and_budget` | isr50 前 10 張：ip2p image guidance 1.8／1.2、VIBE、原生預算 PhotoGuard 的拼圖與編輯結果 LPIPS | 完成；`outputs/sheets/`、`outputs/lpips_*.csv` |
-| `isr_mllm_judge` | Qwen2.5-VL-7B 與 Qwen3-VL-8B 試判 50 格 | 完成；兩模型逐欄一致 21–41／50 |
 | `unsplash_portrait_pool` | Pexels 資料組的選取程式與候選快取 | 保留（資料組來源） |
 
-前三者待使用者決定 promote 或 drop（drop 前在 `docs/TRIALS.md` 寫一列並提交）。
+已刪除的 trial 與其數字見 `docs/TRIALS.md`。
 
-### 3.5 佇列
+### 3.6 佇列
 
 遠端 `runtime/pexels_portraits/queue/jobs.txt`，兩台 crontab 每 5 分鐘執行 `scripts/run_pexels_supervisor.sh`，以 `scripts/run_pexels_queue_worker.sh`
-認領；完成標記 `done/`、失敗 3 次 `failed/`、紀錄 `logs/`；暫停新認領 `touch queue/PAUSED`。目前無待執行工作。未執行的 UltraEdit／FLUX.1 Kontext
-工作在 `queue/jobs_deferred_manual.txt`、`jobs_deferred_transfer_rest.txt`、`jobs_deferred_p2_p3.txt`。
+認領；完成標記 `done/`、失敗 3 次 `failed/`、紀錄 `logs/`；暫停新認領 `touch queue/PAUSED`；卡數上限 `queue/baseline_cap`（全局 ≤ 6 扣除其他
+session 的租約，color 優先）。未執行的 UltraEdit／FLUX.1 Kontext 工作在 `queue/jobs_deferred_manual.txt`、`jobs_deferred_transfer_rest.txt`、
+`jobs_deferred_flux_512_rest.txt`；其中使用已刪除腳本的工作項已移除（改前清單存為 `*.before_cleanup`）。
 
 ## 4. 工具與路徑索引
 
 - 遠端版面：`artifacts/pexels_portraits/{aligned,sets}/`（等失真臂防禦圖與編輯；`aligned/` 為第一個影像組，`sets/<影像組>/` 為其餘）、
-  `defenses/`、`defended_edits/`、`purified_edits/`、`vae_trans/`、`vibe_distilled/`、`klein/`；`runtime/pexels_portraits/{summary,followup,queue,
-  blurguard,blurguard_rest,blurguard_306,vibe_distilled,klein_distilled,crosseditor100}/`。影像組定義 `data/pexels_portraits/image_sets.json`。
+  `defenses/`、`defended_edits/`、`purified_edits/`、`vae_trans/`、`vibe_distilled/`、`klein/`、`inpaint/`；`runtime/pexels_portraits/{summary,followup,
+  queue,blurguard,blurguard_rest,blurguard_306,vibe_distilled,klein_distilled,crosseditor100,inpaint}/`。影像組定義 `data/pexels_portraits/image_sets.json`。
 - 求解：`immunization_baseline.cli.generate_defenses`（`--eps-scale`、`--vae-model`）、`immunization_baseline.cli.generate_blurguard_defenses`、
   `scripts/apply_blurguard_scale.py`。
-- 主表管線：`scripts/evaluate_pexels_aligned*.sh`、`evaluate_pexels_followup*.sh`、`measure_pexels_summary_inputs.sh`、`generate_pexels_main_table_summary.py`。
+- 主表管線：`scripts/evaluate_pexels_aligned*.sh`、`evaluate_pexels_followup.sh`、`measure_pexels_summary_inputs.sh`、`generate_pexels_main_table_summary.py`。
 - 跨編輯器：`scripts/evaluate_pexels_nonsd_editor.sh`（`run_nonsd_edits.py`）、`evaluate_pexels_flux_512_readouts.sh`、`run_pexels_readout_parts.sh`
-  （語意分片＋finish_gpu／finish_cpu）、`generate_pexels_flux_512_summary.py`。
+  （語意分片＋finish_gpu／finish_cpu）、`generate_pexels_flux_512_{cell_tables,summary}.py`（vibe、klein、inpaint 共用）；inpainting 見 3.4。
 - 分布指標：`scripts/measure_distribution_metrics.py`（`--device cpu|cuda`）。
-- teaser：`scripts/generate_synthetic_portraits.py`（FLUX.2 klein 4B 文生圖，輸出 `artifacts/synthetic_portraits/<名稱>/`）、
-  `scripts/run_teaser_edits.py`（防禦、淨化、ip2p 編輯；ImmuLUT 從 `--immulut-dir` 讀）、`scripts/generate_teaser_overview.py`。teaser 已定案（Fig. 1 殭屍版，由 color 產生），baseline 入口不需執行。
+- 圖內文字替換：`immunization_baseline.figure_text.relabel`（包裝其他專案的繪圖函式，不改其原始碼）。
+- teaser 素材：`scripts/generate_synthetic_portraits.py`（FLUX.2 klein 4B 文生圖）、`scripts/run_teaser_edits.py`（防禦、淨化、ip2p 編輯）。
 - BlurGuard 對外套件：使用者桌面 `BlurGuard_package.zip`（官方 e1b2d5e 副本＋以 diffusers 載入 VAE 的替代入口；VAE 權重與官方 `sd-v1-4.ckpt` 逐元素相同）。
 
 ## 5. 已知問題與待決
 
 - BlurGuard 依論文協定重跑（ImageNet-Edit 80 張、SD v1.4 img2img、官方設定）未對上論文：未淨化編輯結果 LPIPS（AlexNet）0.228 對論文 0.36，
   SSIM 0.757 對 0.65，PSNR 29.65 對 28.5，IA 0.932 對 0.89；防禦圖對原圖 LPIPS 0.086 對 0.21。重產的未防禦編輯與官方隨附者幾乎相同
-  （LPIPS 0.005），差距在防禦圖：學到的 σ 中位 3.21（0.71–7.43），擾動被重度模糊。原因未查明；可用官方 `blurguard.py`＋原始 checkpoint 對照。
-- 論文正文與 BlurGuard 的實際做法不一致（`docs/paper/sec/4_experiments.tex` 第 14 行寫「each method is run at its native budget」與「budget rescaled」）；
-  實際上 BlurGuard 無原生預算點，等失真版本為 `sigma_weighting` 0＋求解後乘 0.6071。Fig. 4 的 DIA-R 方形與圓點重疊（eps_scale 0.969）。論文修改屬 paper session。
+  （LPIPS 0.005），差距在防禦圖：學到的 σ 中位 3.21（0.71–7.43），擾動被重度模糊。原因未查明；該 trial 已刪除（`docs/TRIALS.md`）。
+- 論文正文與 BlurGuard 的實際做法不一致（`docs/paper/sec/4_experiments.tex` 寫「each method is run at its native budget」與「budget rescaled」）；
+  實際上 BlurGuard 無原生預算點，等失真版本為 `sigma_weighting` 0＋求解後乘 0.6071。論文修改屬 paper session。
 - BlurGuard 倍率 0.6071 在 Pexels 上的防禦圖 LPIPS 為 0.2745，未達 0.3344；是否在 Pexels 上重新校準待使用者決定。
-- deferred 的 UltraEdit／FLUX.1 Kontext 工作與 Pexels 淨化強度掃描（約 100 GPU 小時）是否執行待使用者決定。
-- 遠端可清理的中間產物清單已交 executor，待使用者確認後才移到 `~/trash/baseline/`。
+- 等失真臂的錨點為舊顏色列的 0.3344（使用者指示不重新對齊）。
+- 幾何淨化的分區欄：`results/retention.csv` 中 11 個條件的 `crop_resize0.1`、`rotate15` 分區欄已以 `purified_mask()` 重算（更正前見 commit
+  `228c59b`）；`results/aligned/retention.csv` 已查證無需更正。
+- SD 2.x 只能用 epsilon-prediction 權重（`sd2-community/stable-diffusion-2-1-base`）。
+- `results/distortion_displacement/points.csv` 的產生程式已刪除（引用的 color 條件產物已不存在）；檔案保留為紀錄。
+- deferred 的 UltraEdit／FLUX.1 Kontext 工作是否執行待使用者決定。
+- inpainting 的 pipeline 原始輸出（`__raw.png`，約 11 GB）依使用者指示保留。

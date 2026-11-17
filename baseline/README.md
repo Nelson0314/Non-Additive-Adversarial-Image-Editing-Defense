@@ -7,16 +7,27 @@
 | 路徑 | 內容 |
 |---|---|
 | `src/immunization_baseline/` | `cli/`（命令列入口）、`attacks/`（baseline 攻擊實作）、`editors.py`、`layout.py`（預設目錄）、`resume_state.py`、`third_party/ultraedit/` |
-| `scripts/` | shell 入口：`evaluate_color_condition.sh`、`evaluate_pexels_portraits.sh`、`run_flux_conditions.sh`，`run_evaluation_chain.sh`（可直接執行或被 source），以及共用環境 `env.sh` |
+| `scripts/` | shell 與 Python 入口（data/portraits 的評測鏈、Pexels 佇列與讀數、跨編輯器、圖），以及共用環境 `env.sh`；Pexels 相關入口的索引見 `docs/HANDOVER.md` 4 |
 | `configs/conditions.yaml` | 防禦條件的唯一正本：求解族、spec、求解端文字條件、是否屬主表 |
 | `configs/prompts/` | UltraEdit 指令句型 |
 | `data/` | `portraits/`（原圖、`masks/` 重繪遮罩、`prompts.yaml`）、`pexels_portraits/`（306 張 Pexels 人像與影像組定義，見 `docs/PEXELS_PORTRAITS.md`）、`targets/`（Mist 目標影像） |
 | `results/` | 全部 CSV，入版控 |
-| `docs/` | `EVALUATION.md` 與 `reference/`（方法出處、原始碼查證、淨化算子查證） |
+| `docs/` | `HANDOVER.md`（交接）、`PEXELS_PORTRAITS.md`、`EVALUATION.md`、`TRIALS.md` 與 `reference/`，見下方「文件」 |
 | `tests/` | 條件規格、續跑與完成判定、專案自足性（`pytest`，不需 GPU） |
 | `vendor/` | `immunization_core` 套件與 GPU 租約工具的固定版本快照；`vendor.lock.json` 記錄來源 commit 與逐檔雜湊 |
 | `docs/TRIALS.md` | 已刪除的暫時性嘗試紀錄；`run_trial_lifecycle.sh new|promote|drop` 的用法見檔首 |
 | `artifacts/`、`runtime/`、`trials/` | 影像產物、執行狀態、暫時性嘗試；不入版控 |
+
+## 資料組
+
+| 資料 | 回答什麼 | 位置 |
+|---|---|---|
+| data/portraits 8 張主表 | 12 個方法在各自原生預算下，把 ip2p／inpaint 的編輯結果推開多少 | `results/*.csv` |
+| data/portraits 等失真臂 | 方法縮到同一個防禦圖 LPIPS 之後還推開多少 | `results/aligned/` |
+| data/portraits 跨編輯器 | 同一批防禦圖換 FLUX.1-Kontext、UltraEdit 編輯；跨模型移植 | `results/flux/`、`results/ultraedit/`、`results/cross_model/` |
+| Pexels 人像 306 張 | 論文主表、ImmuLUT、BlurGuard、跨編輯器（VIBE-DistilledCFG、FLUX.2 klein、SD inpainting）的讀數 | `results/pexels_portraits/`，正本清單見 `docs/HANDOVER.md` 3.1 |
+
+論文的圖表全部取自 Pexels 306 張；data/portraits 8 張只用於等失真倍率的校準。
 
 ## 讀數
 
@@ -33,14 +44,13 @@
 | `results/semantic_identity.csv`、`results/aligned/semantic_identity.csv` | 6,656、5,632 | 逐張編輯結果（未淨化與七道淨化後，含 `undefended`）的指令方向 CLIP-S（`clip_dir`、`siglip_dir`）、對原圖的 FaceNet／ArcFace 身分餘弦與偵測、對未防禦編輯的 `clip_pair`／`siglip_pair`／`blocked`；由 `measure_semantic_identity` 以 CUDA 產生 |
 | `results/additional_metrics/edit_aesthetic.csv` | 832 | 未防禦編輯（`condition=undefended`）與防禦後編輯的七項無參考美學指標 |
 | `results/sweeps/ip2p/purifier_strength/retention.csv` | 2,496 | 淨化強度掃描：JPEG 品質 95／90／70／50／30／10、blur σ 0.5／1／2／3、縮放 0.75／0.5／0.25（`resample_roundtrip` 384／256／128）後的編輯結果 LPIPS（`disp_purified`）；`color3d`、`color3d_orig` 與等失真 `mist`、`photoguard_encoder`、`dct_shield`、`dia_pt`，8 張 × 4 句、ip2p（`apply_purifier_sweep`、`pipelines.retention`） |
-| `results/color_conditions/<color3d_orig／color3d_adaptive_set>/` | 32、256、576／條件 | color 兩個條件的 inpaint 全協定：`displacement.csv`、`retention.csv`（七道＋VAE-Trans）、`semantic_identity.csv` 與 `additional_metrics/`（FSIM／MSE、edit_aesthetic、VMAF）。防禦圖與 VAE-Trans 淨化輸入取自 color 專案；未防禦分母沿用主表 |
 | `results/aligned/perturbation_survival.csv` | 896 | 擾動存續比 LPIPS(P(x̃), P(x)) ÷ LPIPS(x̃, x)：等失真 11 臂與 color 的 `color3d_orig`、`color3d_adaptive_set`、`color3d`，七道淨化＋VAE-Trans，8 張；PNG、CPU（`measure_perturbation_survival`）。VAE-Trans 的淨化輸出與 color 兩條件的防禦圖取自 color 專案 |
 | `results/<aligned／ultraedit／flux／pexels_portraits>/additional_metrics/` | — | 同名欄位的補充讀數：`edit_aesthetic.csv`（四者）、`displacement.csv`（編輯結果 FSIM／MSE；`ultraedit`、`flux`、`pexels_portraits`、`aligned`）、`fidelity.csv` 與 `aesthetic.csv`（`aligned` 防禦圖的逐張失真與美學）；`aligned` 另有 `vmaf.csv` 與 `retention.csv`（淨化後編輯結果 FSIM），由 color 專案以 commit 3fd14f8 的 `measure_additional_metrics` 在 CPU 上產生（ffmpeg 7.0.2） |
 | `results/additional_metrics/vmaf.csv` | 6,240 | VMAF（`libvmaf`，單幀；`pairing` 欄區分 fidelity／displacement／retention） |
 | `results/defense_<條件>.csv` | 8／檔 | 防禦圖對原圖的失真與該方法的求解設定（各篇原生預算） |
 | `results/aligned/defense_<條件>.csv` | 8／檔 | 十個方法縮到同一防禦圖 LPIPS 錨點（0.3344）的求解結果，見 `results/aligned/README.md` |
 
-跨編輯器（協定與主讀數不同，見 `STATUS.md`「跨編輯器」）：
+跨編輯器（協定與主讀數不同）：
 
 | 檔 | 列數 | 內容 |
 |---|---|---|
@@ -120,3 +130,24 @@ python -m pytest tests         # pyproject.toml 已設定 pythonpath
 | FLUX、UltraEdit 編輯 | — | `artifacts/flux/edits/<arm>/`、`artifacts/ultraedit/edits/` |
 
 原圖與重繪遮罩在 `data/portraits/`（`man/`、`woman/`、`masks/`）。
+
+## 文件
+
+| 要查什麼 | 文件 |
+|---|---|
+| 交接、結果正本、工具索引、已知問題 | `docs/HANDOVER.md` |
+| Pexels 資料組的選取與操作 | `docs/PEXELS_PORTRAITS.md` |
+| 指標定義與比較方式 | `docs/EVALUATION.md` |
+| 已刪除的暫時性嘗試 | `docs/TRIALS.md` |
+| 逐篇逐行的原始碼查證 | `docs/reference/SOURCE_AUDIT.md` |
+| 各 baseline 的出處與預算換算 | `docs/reference/BASELINE_PROVENANCE.md` |
+| 等失真對齊 | `docs/reference/BASELINE_ALIGNMENT.md` |
+| 七道淨化算子的查證 | `docs/reference/AUDIT_PURIFIERS.md` |
+| 單一方法的查證 | `docs/reference/AUDIT_<方法>.md` |
+| 外部文獻 | `docs/reference/BIBLIOGRAPHY.md` |
+
+`docs/reference/` 與 `docs/EVALUATION.md` 複製自 `archive/anti-purification/docs/`，內容未改；其中對 `src/`、`scripts/`、`runs/` 等舊位置的
+引用指向封存的原專案 `archive/anti-purification/`。`third_party/ultraedit/pipeline.py` 移植自 `HaozheZhao/UltraEdit` 的
+`diffusers/src/diffusers/pipelines/stable_diffusion_3/pipeline_stable_diffusion_3_instructpix2pix.py`，來源版本為 commit
+`70e8ce5bc3bc8a6a02e1b9e0b6a1eb0058d98bc2`（該檔唯一的變更 commit；移植時 `main` 為 `1af5f0478d56d62cf6f35781a2ab63e03d656b2d`，兩者之間
+該檔未變動）。逐行比對結果：除 import 改為 `diffusers.` 絕對路徑與移植註解外，與來源一致。

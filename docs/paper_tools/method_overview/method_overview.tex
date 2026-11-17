@@ -31,10 +31,10 @@
 \newcommand{\pixelring}[2]{\draw[white, line width=1.8pt] (#1) circle (2.1pt);\draw[#2, line width=0.9pt] (#1) circle (2.1pt);}
 
 % 區塊邊界（cm）
-\def\aR{4.0}\def\bL{4.15}\def\bR{11.55}\def\cL{11.7}\def\W{17.4}\def\H{6.45}
+\def\aR{4.0}\def\bL{4.15}\def\bR{11.55}\def\cL{11.7}\def\W{17.4}\def\H{5.25}
 
 % (b) sphere of constant |c|: center (bx, by), radius \Rs, elevation \Elev; theta from the gray axis, phi about it
-\def\bx{6.35}\def\by{1.35}\def\Rs{2.05}\def\Elev{28}
+\def\bx{6.35}\def\by{0.95}\def\Rs{2.05}\def\Elev{28}
 \tikzset{cap/.cd, t/.store in=\capt, p/.store in=\capp}
 \tikzdeclarecoordinatesystem{cap}{\tikzset{cap/.cd,#1}%
   \pgfmathsetmacro{\cpx}{\bx+\Rs*sin(\capt)*cos(\capp)}%
@@ -56,16 +56,16 @@
 \node[title] at (\cL+0.2,\H-0.2) {(c) Optimization};
 
 % ======== (a)：Θ → G_σ → V ========
-\begin{scope}[shift={(2.0,4.4)}, scale=1.25]\input{lattice_raw.tex}\end{scope}
-\node[lab, anchor=west] at (3.0,4.85) {$\Theta$};
-\node[small, anchor=north] at (2.0,3.42) {free vectors on $K^3$ nodes};
-\draw[flow] (2.0,3.0) -- (2.0,2.55);
-\node[lab, anchor=west] at (2.12,2.78) {$G_\sigma$, $\sigma=4$ cells};
-\begin{scope}[shift={(2.0,1.42)}, scale=1.25]\input{lattice_smooth.tex}\end{scope}
-\node[lab, anchor=west] at (3.0,1.87) {$V$};
-\node[small, anchor=north] at (2.0,0.44) {smooth field $V=G_\sigma*\Theta$};
-\draw[grad] (0.35,5.55) -- (0.95,5.05);
-\node[lab, text=ours, anchor=south] at (0.35,5.52) {$\nabla_\Theta$};
+\begin{scope}[shift={(2.0,3.76)}, scale=1.2]\input{lattice_raw.tex}\end{scope}
+\node[lab, anchor=west] at (2.95,4.2) {$\Theta$};
+\node[small, anchor=north] at (2.0,2.89) {free vectors on $K^3$ nodes};
+\draw[flow] (2.0,2.56) -- (2.0,2.2);
+\node[lab, anchor=west] at (2.12,2.38) {$G_\sigma$, $\sigma=4$ cells};
+\begin{scope}[shift={(2.0,1.32)}, scale=1.2]\input{lattice_smooth.tex}\end{scope}
+\node[lab, anchor=west] at (2.95,1.76) {$V$};
+\node[small, anchor=north] at (2.0,0.45) {smooth field $V=G_\sigma*\Theta$};
+\draw[grad] (0.3,4.05) -- (0.95,3.7);
+\node[lab, text=ours, anchor=south] at (0.3,4.02) {$\nabla_\Theta$};
 
 % ======== (b) left: the set of colors that c can reach ========
 \draw[muted, densely dashed, line width=0.5pt] (\bx,\by) -- (cap cs:t=0,p=0);
@@ -76,7 +76,7 @@
 \foreach \p in {195,225,...,345}{
   \draw[black!22, line width=0.4pt] plot[domain=0:70, samples=20, smooth, variable=\t] (cap cs:t=\t,p=\p);
 }
-\draw[->, muted, line width=0.5pt] (cap cs:t=0,p=0) -- ++(0,0.55) node[small, above] {gray axis};
+\draw[->, muted, line width=0.5pt] (cap cs:t=0,p=0) -- ++(0,0.55) node[small, right] {gray axis};
 \fill[muted] (cap cs:t=0,p=0) circle (1.1pt);
 
 % reachable set: polar angle within theta_max, azimuth within phi_max, on the sphere |c'| = |c|
@@ -113,17 +113,17 @@
 \node[lab, anchor=west] at ($(cap cs:t=\tN,p=\pN)+(0.05,0.04)$) {$c'$};
 
 % legend: the bounds and the smooth saturation that enforces them
-\begin{scope}[shift={(\bL+0.95,4.75)}]
+\begin{scope}[shift={(\bL+0.95,4.08)}]
   \draw[black!35, line width=0.3pt] (-0.55,0) -- (0.55,0) (0,-0.5) -- (0,0.5);
   \draw[black!50, densely dashed, line width=0.4pt] (-0.55,0.36) -- (0.55,0.36) (-0.55,-0.36) -- (0.55,-0.36);
   \draw[ink, line width=0.9pt, domain=-0.55:0.55, samples=40, smooth] plot (\x,{0.36*tanh(\x/0.36*1.8)});
   \node[small, anchor=north] at (0,-0.55) {smooth bound};
 \end{scope}
-\node[lab, anchor=west, polar] at (\bL+1.65,5.0) {$|\Delta\theta|<\theta_{\max}=25^\circ$};
-\node[lab, anchor=west, azim] at (\bL+1.65,4.55) {$|\Delta\phi|<\phi_{\max}=7.5^\circ$};
+\node[lab, anchor=west, polar] at (\bL+1.65,4.33) {$|\Delta\theta|<\theta_{\max}=25^\circ$};
+\node[lab, anchor=west, azim] at (\bL+1.65,3.88) {$|\Delta\phi|<\phi_{\max}=7.5^\circ$};
 
 % ======== (b) 右：實際 LUT 的色度盤 ========
-\def\dx{9.82}\def\dy{3.3}
+\def\dx{9.82}\def\dy{2.45}
 \begin{scope}[shift={(\dx,\dy)}]
   \input{disk_points.tex}
   \node[inner sep=0pt] at (0,0) {\includegraphics[width=3.2cm]{disk_background.png}};
@@ -136,12 +136,12 @@
   \node[lab, azim, anchor=south] at (90:1.78) {$\phi$ hue};
   \coordinate (DC) at (dc); \coordinate (DCP) at (dcp);
 \end{scope}
-\node[small, anchor=north] at (\dx,0.62) {LUT on $\|c\|=\disknorm$, top view};
+\node[small, anchor=north east] at (\bR-0.15,\H-0.18) {LUT on $\|c\|=\disknorm$, top view};
 
 % ======== (c) ========
-\def\iw{1.85}
-\node[inner sep=0pt, anchor=north west] (imgx) at (12.0,5.55) {\includegraphics[width=\iw cm]{original.png}};
-\node[inner sep=0pt, anchor=north west] (imgd) at (15.25,5.55) {\includegraphics[width=\iw cm]{protected.png}};
+\def\iw{1.8}
+\node[inner sep=0pt, anchor=north west] (imgx) at (12.0,4.36) {\includegraphics[width=\iw cm]{original.png}};
+\node[inner sep=0pt, anchor=north west] (imgd) at (15.3,4.36) {\includegraphics[width=\iw cm]{protected.png}};
 \draw[black!50, line width=0.4pt] (imgx.south west) rectangle (imgx.north east);
 \draw[ours, line width=0.8pt] (imgd.south west) rectangle (imgd.north east);
 \node[lab, above] at (imgx.north) {$x$};
@@ -155,8 +155,8 @@
 \coordinate (qb) at ($(imgd.north west)+(\pixbx/512*\iw,-\pixby/512*\iw)$);
 \tikzset{link/.style={line width=0.75pt, preaction={draw=white, line width=1.9pt}}}
 \draw[link, ink] (pa) -- (DC) (pb) -- (DC);
-\draw[link, ours] (qa) .. controls ($(qa)+(0,-1.2)$) and (15.4,3.47) .. (14.4,3.47) .. controls (13.2,3.47) and (12.0,3.47) .. (DCP);
-\draw[link, ours] (qb) .. controls ($(qb)+(0,-0.3)$) and (15.3,3.39) .. (14.4,3.39) .. controls (13.2,3.39) and (12.0,3.39) .. (DCP);
+\draw[link, ours] (qa) .. controls ($(qa)+(0,-0.6)$) and (15.4,2.36) .. (14.4,2.36) .. controls (13.2,2.36) and (12.0,2.36) .. (DCP);
+\draw[link, ours] (qb) .. controls ($(qb)+(0,-0.3)$) and (15.3,2.28) .. (14.4,2.28) .. controls (13.2,2.28) and (12.0,2.28) .. (DCP);
 \pixelring{pa}{ink}\pixelring{pb}{ink}\pixelring{qa}{ours}\pixelring{qb}{ours}
 \node[circle, draw=white, line width=1.6pt, inner sep=2.1pt] at (DC) {};
 \node[circle, draw=ink, line width=0.9pt, fill=colorc, inner sep=2.1pt] at (DC) {};
@@ -164,21 +164,21 @@
 \node[circle, draw=ours, line width=0.9pt, fill=colorcp, inner sep=2.1pt] at (DCP) {};
 
 % 凍結的編碼器與目標
-\coordinate (e0) at (14.15,2.25);
+\coordinate (e0) at (14.15,1.45);
 \fill[black!12] ($(e0)+(-0.32,0.42)$) -- ($(e0)+(0.32,0.2)$) -- ($(e0)+(0.32,-0.2)$) -- ($(e0)+(-0.32,-0.42)$) -- cycle;
 \draw[black!60, line width=0.6pt] ($(e0)+(-0.32,0.42)$) -- ($(e0)+(0.32,0.2)$) -- ($(e0)+(0.32,-0.2)$) -- ($(e0)+(-0.32,-0.42)$) -- cycle;
 \node[lab] at ($(e0)+(-0.04,0)$) {$\mathcal{E}$};
-\begin{scope}[shift={($(e0)+(-0.92,0.78)$)}]
+\begin{scope}[shift={($(e0)+(-0.92,0.6)$)}]
   \draw[black!55, line width=0.5pt] (-0.07,0.02) arc (180:0:0.07);
   \fill[black!55] (-0.1,-0.11) rectangle (0.1,0.03);
 \end{scope}
-\node[small, anchor=west] at ($(e0)+(-0.79,0.78)$) {frozen VAE encoder};
+\node[small, anchor=west] at ($(e0)+(-0.79,0.6)$) {frozen VAE encoder};
 \draw[flow] (imgx.south) |- ($(e0)+(-0.33,0.12)$);
 \draw[flow] (imgd.south) |- ($(e0)+(0.33,0.05)$);
 \node[small, anchor=south west] at ($(imgx.south |- e0)+(0.1,0.14)$) {$\mu_{\mathcal{E}}(x)$};
 \node[small, anchor=south east] at ($(imgd.south |- e0)+(-0.1,0.07)$) {$\mu_{\mathcal{E}}(\tilde{x})$};
-\draw[flow] ($(e0)+(0,-0.43)$) -- ($(e0)+(0,-0.72)$);
-\node[lab, anchor=north] (obj) at ($(e0)+(0.35,-0.74)$) {$\max_\Theta\ \tfrac{1}{n}\big\|\mu_{\mathcal{E}}(\tilde{x})-\mu_{\mathcal{E}}(x)\big\|_2^2$};
+\draw[flow] ($(e0)+(0,-0.43)$) -- ($(e0)+(0,-0.6)$);
+\node[lab, anchor=north] (obj) at ($(e0)+(0.35,-0.6)$) {$\max_\Theta\ \tfrac{1}{n}\big\|\mu_{\mathcal{E}}(\tilde{x})-\mu_{\mathcal{E}}(x)\big\|_2^2$};
 \node[small, anchor=north] at ($(obj.south)+(0,0.04)$) {no instruction};
 \draw[grad] (obj.west) -- ++(-0.4,0) node[lab, left, text=ours] {$\nabla_\Theta$ to (a)};
 \end{tikzpicture}

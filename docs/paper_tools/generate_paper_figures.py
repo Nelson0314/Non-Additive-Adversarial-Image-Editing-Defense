@@ -43,7 +43,7 @@ BLURGUARD = "blurguard"
 HIGHLIGHT = "dct_shield_y"  # additive method drawn separately (native budget; inputs merged by the caller)
 HIGHLIGHT_LABEL = "DCT-Shield-Y (native)"
 SOURCE_MARKER = {"native": "s", "aligned": "o", "aligned_1p255": "o", "plane": "^"}
-# Fig. 3(a): both axes start near the data (no points below 0.2), marked with axis breaks at the origin
+# Fig. 3(a): both axes start near the data (no points below 0.2)
 PLANE_A_LO = 0.2
 # purification.pdf is drawn at its printed size (CVPR \linewidth = 3.25 in) so that its 7 pt text prints at 7 pt
 PURIFICATION_SIZE = (3.25, 1.9)
@@ -75,14 +75,6 @@ def style():
         "ytick.major.size": 2.5, "axes.grid": True, "grid.color": "#e6e9ed", "grid.linewidth": 0.5,
         "pdf.fonttype": 42,
     })
-
-
-def axis_breaks(ax, size=0.018):
-    """Two short slanted strokes on each axis next to the origin, marking that the axes do not start at 0."""
-    kw = dict(transform=ax.transAxes, color="black", lw=0.6, clip_on=False, zorder=6)
-    for d in (0.03, 0.045):
-        ax.plot([d - size / 2, d + size / 2], [-size, size], **kw)
-        ax.plot([-size, size], [d - size / 2, d + size / 2], **kw)
 
 
 def draw_line(ax, slope, intercept, lo, hi):
@@ -180,7 +172,6 @@ def main():
     y_top = math.ceil((max(ys + [oy0]) + 0.03) * 20) / 20  # every native point drawn in full
     ax_a.set_xlim(PLANE_A_LO, 0.7)
     ax_a.set_ylim(PLANE_A_LO, y_top)
-    axis_breaks(ax_a)
     ax_a.set_xlabel("Defense LPIPS")
     ax_a.set_ylabel("Edit LPIPS")
     present = {SOURCE_MARKER.get(row["source"]) for row in points}

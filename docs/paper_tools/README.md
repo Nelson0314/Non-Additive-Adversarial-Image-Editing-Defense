@@ -27,14 +27,13 @@ python docs/paper_tools/run_paper_preview.py --watch    # 原始檔變更時重�
 | `import_pexels_figure_inputs.py` | 把 baseline 的 Pexels 讀數轉成 `generate_paper_figures.py` 的輸入 |
 | `generate_paper_figures.py` | 失真—位移圖（`distortion_displacement.pdf`）、淨化分析圖（`purification.pdf`） |
 | `generate_pexels_teaser_figure.py` | Fig. 1 teaser（`teaser.pdf`）與候選排序（`--rank`）；CAPGuard 以 `--scale2p5` 取 2.5 倍防禦圖 |
-| `generate_teaser_overview.py` | 把多組 teaser 候選 PNG 疊成一張總覽圖（選圖用，不入論文） |
 
 本機產生表格（讀遠端抓回的 CSV，寫入 `docs/paper/sec/`）：
 
 | 腳本 | 產物 |
 |---|---|
-| `generate_main_table.py` | Table 1（`3_method.tex` 的 `tab:main`，含 VIBE-DistilledCFG、FLUX.2 [klein] 區塊） |
-| `generate_per_purification_table.py` | 補充材料逐道淨化表（`sec/X_suppl_purification.tex`） |
+| `generate_main_table.py` | Table 1（`3_method.tex` 的 `tab:main`）；仍輸出含 VIBE-DistilledCFG、FLUX.2 [klein] 4B 下段的舊版版面，與現行表 1、表 3 不符，重跑前需改寫 |
+| `generate_per_purification_table.py` | 補充材料逐道淨化表（`sec/X_suppl_purification.tex`）；輸入為 9 臂、BlurGuard 306 張、ImmuLUT 2.5 倍三組 `per_purifier.csv` 與對應的 `main_table.csv`／`summary.csv`，於 baseline 遠端執行 |
 | `generate_overleaf_ops.py` | Overleaf 同步：由「Overleaf 現行文字」與「repo 文字」產生詞級修改清單（JSON）與前後雜湊值 |
 
 ## Overleaf 同步

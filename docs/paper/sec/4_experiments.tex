@@ -2,7 +2,7 @@
 \label{sec:exp}
 
 \subsection{Experimental Setup}
-Since greater perceptual distortion of the protected image may be associated with stronger editing disruption, we compare \capg{} with existing additive defenses at comparable perceptual distortion levels, measured by LPIPS, to reduce the influence of distortion differences on the evaluation. We evaluate the protection through editing disruption, perturbation preservation, and immunization success rate (ISR), with particular emphasis on the robustness to purification.
+Since greater perceptual distortion of the immunized image may be associated with stronger editing disruption, we compare \capg{} with existing additive defenses at comparable perceptual distortion levels, measured by LPIPS, to reduce the influence of distortion differences on the evaluation. We evaluate the protection through editing disruption, perturbation preservation, and immunization success rate (ISR), with particular emphasis on the robustness to purification.
 
 \paragraph{Data and Editing Setup.}
 \label{sec:exp_setup}
@@ -29,7 +29,7 @@ We consider eight purification operations applied before editing: JPEG compressi
 \subsection{Immunization Effectiveness under Purification}
 
 \paragraph{Quantitative Comparison.}
-\cref{tab:main} compares \capg{} with ten additive defenses at approximately matched perceptual distortion levels. Before purification (None column), several additive defenses achieve comparable or stronger editing disruption. However, they exhibit substantial performance degradation after purification. Across seven purifications, \capg{} achieves favorable edited LPIPS compared to BlurGuard, the strongest additive baseline under purification, which explicitly targets robustness to blurring. Notably, \capg{} maintains its advantage under VAE-Trans, demonstrating that its robustness extends beyond conventional image transformations to model-based purification. Consistent improvements in SigLIP and ArcFace similarities further indicate that \capg{} maintains editing disruption at both semantic and facial identity levels. Meanwhile, \capg{} achieves the highest MUSIQ score among the evaluated defenses while maintaining a comparable LAION score. Together, these results demonstrate that \capg{} sustains stronger editing disruption after purification at comparable perceptual distortion levels while maintaining competitive image quality.
+\cref{tab:main} compares \capg{} with ten additive defenses at approximately matched perceptual distortion levels. Before purification (None column), several additive defenses achieve comparable or stronger editing disruption. However, they exhibit substantial performance degradation after purification. Across seven purifications, \capg{} achieves favorable edited LPIPS compared to BlurGuard, the strongest additive baseline under purification, which explicitly targets robustness to blurring. Notably, \capg{} maintains its advantage under VAE-Trans, demonstrating that its robustness extends beyond conventional image transformations to model-based purification. Consistent improvements in SigLIP~\cite{zhai2023siglip} and ArcFace~\cite{deng2019arcface} similarities further indicate that \capg{} maintains editing disruption at both semantic and facial identity levels. Meanwhile, \capg{} achieves the highest MUSIQ~\cite{ke2021musiq} score among the evaluated defenses while maintaining a comparable LAION~\cite{schuhmann2022laion} score. Together, these results demonstrate that \capg{} sustains stronger editing disruption after purification at comparable perceptual distortion levels while maintaining competitive image quality.
 
 \begin{figure*}[t]
   \centering
@@ -41,7 +41,7 @@ We consider eight purification operations applied before editing: JPEG compressi
 \begin{figure*}[t]
   \centering
   \includegraphics[width=0.62\textwidth]{fig/purification_example.pdf}
-    \caption{Edits with the instruction ``Let the person wear a police suit'' on InstructPix2Pix with the main seed. Rows: protected image, edit without purification, and edit after Gaussian blur ($\sigma = 2$).}
+    \caption{Edits with the instruction ``Let the person wear a police suit'' on InstructPix2Pix with the main seed. Rows: immunized image, edit without purification, and edit after Gaussian blur ($\sigma = 2$).}
     \label{fig:purification_example}
 \end{figure*}
 
@@ -80,18 +80,18 @@ We consider eight purification operations applied before editing: JPEG compressi
   \label{tab:isr}
 \end{table}
 \paragraph{Immunization Success Rate.}
-Beyond editing discrepancies, we evaluate immunization success rate (ISR), defined as the proportion of originally successful edits that fail when applied to protected images. The evaluation uses Claude Sonnet 5.5, with a subset of judgments reviewed by humans. As shown in \cref{tab:isr}, while several additive defenses achieve higher ISR without purification, their effectiveness decreases substantially after purification. In contrast, \capg{} maintains a relatively stable ISR. Relative to BlurGuard, the strongest additive baseline after purification, \capg{} achieves a combined ISR improvement of 3.4$\pm$1.1 percentage points (95\% bootstrap interval). These results further demonstrate that \capg{} retains its ability to prevent intended edits even after purification.
+Beyond editing discrepancies, we evaluate immunization success rate (ISR), defined as the proportion of originally successful edits that fail when applied to immunized images. The evaluation uses Claude Sonnet 5.5, with a subset of judgments reviewed by humans. As shown in \cref{tab:isr}, while several additive defenses achieve higher ISR without purification, their effectiveness decreases substantially after purification. In contrast, \capg{} maintains a relatively stable ISR. Relative to BlurGuard, the strongest additive baseline after purification, \capg{} achieves a combined ISR improvement of 3.4$\pm$1.1 percentage points (95\% bootstrap interval). These results further demonstrate that \capg{} retains its ability to prevent intended edits even after purification.
 
 \paragraph{Distortion–Effectiveness Trade-off.}
 We further examine how perceptual distortion relates to editing disruption. As shown in \cref{fig:plane}(a), additive defenses generally achieve stronger editing disruption at higher distortion levels before purification, motivating our matched-distortion comparison. On the other hand, \cref{fig:plane}(b) shows that \capg{} maintains substantially stronger editing disruption than additive defenses at comparable distortion levels after purification, demonstrating a more favorable distortion–effectiveness trade-off under purification.
 
 
 \paragraph{Qualitative Comparison.}
-In \cref{fig:purification_example}, after blur the police suit replaces the clothing on the undefended image and on every additive defense, whereas for \capg{} the original clothing is kept.
+\Cref{fig:purification_example} shows the edits of one portrait with the instruction ``Let the person wear a police suit''. Without purification, the undefended image is changed into a police uniform, whereas the edits of all immunized images, including that of \capg{}, keep the original dress and add only small badges or shoulder patches. After Gaussian blur, the uniform appears on the undefended image and on all five additive defenses, while the edit of \capg{} keeps the original clothing with small patches on the shoulders. This agrees with the persistence analysis in \cref{sec:exp_persistence}: blur removes the additive perturbations but preserves the color mapping of \capg{}. Owing to the page limit, the ablation results, the results on an inpainting editor, and further qualitative examples are provided in the supplementary material.
 
 
 \subsection{Cross-Model Transferability}
-We further evaluate whether the protection against InstructPix2Pix transfers to other diffusion-based image editors. Specifically, we apply the same protected images, optimized exclusively against InstructPix2Pix, to VIBE-DistilledCFG and FLUX.2 [klein] 4B without re-optimization. As shown in \cref{tab:transfer}, \capg{} consistently outperforms the evaluated additive defenses across both editors, even without purification, with its advantage becoming more pronounced after purification. Notably, while several additive defenses achieve stronger editing disruption on the optimization model, their effectiveness transfers less successfully to unseen editors. In contrast, \capg{} maintains strong editing disruption across different editing models under various purification. These results demonstrate that both the editing effectiveness and purification robustness of \capg{} extend beyond the model used for optimization. Results on a mask-based inpainting editor, Stable Diffusion Inpainting, are reported in the supplementary material.
+We further evaluate whether the protection against InstructPix2Pix transfers to other diffusion-based image editors. Specifically, we apply the same immunized images, optimized exclusively against InstructPix2Pix, to VIBE-DistilledCFG~\cite{alekseenko2026vibe} and FLUX.2 [klein] 4B~\cite{bfl2026flux2klein} without re-optimization. As shown in \cref{tab:transfer}, \capg{} consistently outperforms the evaluated additive defenses across both editors, even without purification, with its advantage becoming more pronounced after purification. Notably, while several additive defenses achieve stronger editing disruption on the optimization model, their effectiveness transfers less successfully to unseen editors. In contrast, \capg{} maintains strong editing disruption across different editing models under various purification. These results demonstrate that both the editing effectiveness and purification robustness of \capg{} extend beyond the model used for optimization. Results on a mask-based inpainting editor, Stable Diffusion Inpainting, are reported in the supplementary material.
 
 
 
@@ -101,7 +101,7 @@ We further evaluate whether the protection against InstructPix2Pix transfers to 
   \setlength{\tabcolsep}{2.4pt}
   \begin{tabular}{l ccc cc cc}
     \toprule
-    & \multicolumn{7}{c}{\textbf{Edit of The Protected Image} vs.\ \textbf{Edit of The Original}} \\
+    & \multicolumn{7}{c}{\textbf{Edit of The Immunized Image} vs.\ \textbf{Edit of The Original}} \\
     \cmidrule(l){2-8}
     & \multicolumn{3}{c}{LPIPS $\uparrow$}
     & \multicolumn{2}{c}{SigLIP $\downarrow$}
@@ -206,12 +206,13 @@ We further evaluate whether the protection against InstructPix2Pix transfers to 
     \bottomrule
   \end{tabular}
     \caption{
-    Cross-model transferability on VIBE-DistilledCFG and FLUX.2 [klein] 4B. All protected images optimized against InstructPix2Pix are transferred without re-optimization. Metrics and confidence intervals follow \cref{tab:main}. $^{*}$Mean over seven image purifications.
+    Cross-model transferability on VIBE-DistilledCFG and FLUX.2 [klein] 4B. All immunized images optimized against InstructPix2Pix are transferred without re-optimization. Metrics and confidence intervals follow \cref{tab:main}. $^{*}$Mean over seven image purifications.
   }
     \label{tab:transfer}
 \end{table*}
 
 \subsection{Perturbation Persistence under Purification}
+\label{sec:exp_persistence}
 As the distortion–effectiveness analysis in \cref{fig:plane} shows that \capg{} achieves stronger editing disruption after purification at comparable initial distortion levels, we further investigate how purification affects the immunization introduced by different defenses in \cref{fig:purification}. Specifically, we measure the relative perceptual discrepancy after purification as $\mathrm{LPIPS}(P(\tilde{x}),P(x))/\mathrm{LPIPS}(\tilde{x},x)$, where $P$ denotes a purification operation. Additive defenses exhibit substantial reductions in this discrepancy under JPEG compression and Gaussian blur, including BlurGuard, which is designed to improve robustness. In contrast, \capg{} maintains a ratio of at least 1.0 across all evaluated JPEG and blur settings, indicating that its protection-induced differences are not attenuated by these transformations. This contrast is consistent with the global nature of the proposed color transformation, which introduces no independent spatial perturbation pattern and is therefore less susceptible to the suppression of local image variations. 
 
 
@@ -246,7 +247,7 @@ As the distortion–effectiveness analysis in \cref{fig:plane} shows that \capg{
 %The lower blocks of \cref{tab:main} apply the protected images optimized against the VAE encoder of InstructPix2Pix, without re-optimization, to VIBE-DistilledCFG~\cite{alekseenko2026vibe} (DC-AE encoder, 20 sampling steps) and to the distilled FLUX.2 [klein] 4B~\cite{bfl2026flux2klein} (FLUX.2 VAE, 4 sampling steps, guidance 1.0), both at $512^2$ with the four instructions phrased as additions. On both editors, the edit displacement of \capg{} is unchanged by purification (0.318 and 0.331 on VIBE-DistilledCFG, 0.281 and 0.293 on FLUX.2 [klein]), whereas that of the additive methods decreases.
 
 
-\subsection{Ablation study}
+\subsection{Ablation Study}
 \label{sec:exp_ablation}
 We evaluate the contributions of the proposed geometric constraints, and compare the proposed parameterization with alternative color mappings. Quantitative ablation results are reported in the supplementary material; component variants are evaluated without distortion matching, whereas alternative color mappings are compared at approximately matched LPIPS distortion.
 

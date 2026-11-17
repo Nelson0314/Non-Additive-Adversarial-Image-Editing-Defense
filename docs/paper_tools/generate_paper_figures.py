@@ -43,11 +43,10 @@ BLURGUARD = "blurguard"
 HIGHLIGHT = "dct_shield_y"  # additive method drawn separately (native budget; inputs merged by the caller)
 HIGHLIGHT_LABEL = "DCT-Shield-Y (native)"
 SOURCE_MARKER = {"native": "s", "aligned": "o", "aligned_1p255": "o", "plane": "^"}
-# Printed sizes (inches): the PDFs are drawn at the size they are included at, so that font sizes print as set
-# (CVPR \textwidth = 6.875 in, \linewidth = 3.25 in; distortion_displacement.pdf is included at 0.75\textwidth).
-PLANE_SIZE = (0.75 * 6.875, 1.7)
+# purification.pdf is drawn at its printed size (CVPR \linewidth = 3.25 in) so that its 7 pt text prints at 7 pt
 PURIFICATION_SIZE = (3.25, 1.9)
-MIN_FONT = 7
+PURIFICATION_FONT = {"font.size": 7, "axes.labelsize": 7, "legend.fontsize": 7, "xtick.labelsize": 7,
+                     "ytick.labelsize": 7}
 
 
 def read(path):
@@ -67,8 +66,8 @@ def fit(xs, ys):
 
 def style():
     plt.rcParams.update({
-        "font.family": "STIXGeneral", "mathtext.fontset": "stix", "font.size": MIN_FONT, "axes.labelsize": MIN_FONT, "axes.titlesize": 7.5,
-        "legend.fontsize": MIN_FONT, "xtick.labelsize": MIN_FONT, "ytick.labelsize": MIN_FONT,
+        "font.family": "STIXGeneral", "mathtext.fontset": "stix", "font.size": 7, "axes.labelsize": 7, "axes.titlesize": 7.5,
+        "legend.fontsize": 6.5, "xtick.labelsize": 6.5, "ytick.labelsize": 6.5,
         "axes.spines.top": False, "axes.spines.right": False, "axes.linewidth": 0.6,
         "xtick.major.width": 0.6, "ytick.major.width": 0.6, "xtick.major.size": 2.5,
         "ytick.major.size": 2.5, "axes.grid": True, "grid.color": "#e6e9ed", "grid.linewidth": 0.5,
@@ -92,6 +91,11 @@ def mean_by(rows, key_fields, value_field):
 
 
 def purification_figure(survival_rows, out):
+    with plt.rc_context(PURIFICATION_FONT):
+        draw_purification(survival_rows, out)
+
+
+def draw_purification(survival_rows, out):
     survival = mean_by(survival_rows, ("condition", "purifier"), "survival")
     fig, ax = plt.subplots(figsize=PURIFICATION_SIZE)
     order = [(p, label) for p, label in SURVIVAL_ORDER if (OURS, p) in survival]  # purifications without readings are not drawn
@@ -146,7 +150,7 @@ def main():
     ox, oy0, oy1 = float(ours["fid_lpips"]), float(ours["lpips_none"]), float(ours["lpips_seven"])
     arms = [row for row in read(args.aligned) if row["condition"] in ADDITIVE]
 
-    fig, (ax_a, ax_b) = plt.subplots(1, 2, figsize=PLANE_SIZE, gridspec_kw={"width_ratios": [1, 1.15]})
+    fig, (ax_a, ax_b) = plt.subplots(1, 2, figsize=(6.9, 2.05), gridspec_kw={"width_ratios": [1, 1.15]})
 
     # (a) every budget before purification
     draw_line(ax_a, slope, intercept, 0.0, 0.7)
@@ -155,22 +159,20 @@ def main():
         ax_a.scatter([float(row["defense_lpips"]) for row in sel], [float(row["edit_lpips"]) for row in sel],
                      s=14, marker=marker, color=C_ADDITIVE, alpha=0.85, edgecolors="white", linewidths=0.3, zorder=2)
     ax_a.scatter(ox, oy0, s=70, marker="*", color=C_OURS, edgecolors="white", linewidths=0.4, zorder=4)
-    # label placed below the cluster of matched-distortion points, with a leader line to the star
-    ax_a.annotate(OURS_LABEL, (ox, oy0), xytext=(0.40, 0.17), textcoords="data", color=C_OURS, ha="left", va="center",
-                  arrowprops=dict(arrowstyle="-", color=C_OURS, lw=0.5, shrinkA=1, shrinkB=4))
+    ax_a.annotate(OURS_LABEL, (ox, oy0), xytext=(-14, 9), textcoords="offset points", color=C_OURS,
+                  fontsize=7)
     if args.ours_extra:
         ex, ey = float(args.ours_extra[0]), float(args.ours_extra[1])
         ax_a.scatter(ex, ey, s=70, marker="*", facecolors="white", edgecolors=C_OURS, linewidths=0.9, zorder=4)
         ax_a.annotate(args.ours_extra[2], (ex, ey), xytext=(6, -3), textcoords="offset points", color=C_OURS,
-                      va="top")
+                      fontsize=6.5, va="top")
     ax_a.set_xlim(0, 0.7)
-    y_top = math.ceil((max(ys + [oy0]) + 0.03) * 10) / 10  # keep every budget inside the axes
-    ax_a.set_ylim(0, y_top)
+    ax_a.set_ylim(0, 0.7)
     ax_a.set_xlabel("Defense LPIPS")
     ax_a.set_ylabel("Edit LPIPS")
     present = {SOURCE_MARKER.get(row["source"]) for row in points}
     ax_a.set_title("(a) Before purification, all budgets" if "^" in present else "(a) Before purification", loc="left")
-    ax_a.text(0.69, 0.04, f"dashed: least-squares fit, $r$ = {r:.3f}", color=GRAY, ha="right")
+    ax_a.text(0.69, 0.04, f"dashed: least-squares fit, $r$ = {r:.3f}", color=GRAY, fontsize=6.5, ha="right")
     handles = [Line2D([], [], ls="none", marker=m, color=C_ADDITIVE, ms=3.5, label=label)
                for m, label in (("s", "native budget"), ("o", "matched distortion"), ("^", "budget sweep")) if m in present]
     ax_a.legend(handles=handles, loc="upper left", frameon=False, handletextpad=0.2, borderaxespad=0.2)
@@ -188,23 +190,22 @@ def main():
         ax_b.scatter(x, y1, s=16, facecolors="white", edgecolors=C_ADDITIVE, linewidths=0.9, zorder=3)
     ax_b.scatter(ox, oy1, s=90, marker="*", facecolors="white", edgecolors=C_OURS, linewidths=0.9, zorder=4)
     ax_b.scatter(ox, oy0, s=14, color=C_OURS, edgecolors="white", linewidths=0.3, zorder=5)
-    ax_b.annotate(f"{OURS_LABEL}\n{oy0:.3f} $\\rightarrow$ {oy1:.3f}", (ox, oy1), xytext=(hi + 0.002, 0.45),
-                  textcoords="data", color=C_OURS, ha="left", va="center",
-                  arrowprops=dict(arrowstyle="-", color=C_OURS, lw=0.5, shrinkA=1, shrinkB=5))
+    ax_b.annotate(f"{OURS_LABEL}\n{oy0:.3f} $\\rightarrow$ {oy1:.3f}", (ox, oy1), xytext=(-4, 12), textcoords="offset points",
+                  color=C_OURS, fontsize=6.5, ha="center")
     after = [float(row["edit_lpips_purified_mean"]) for row in arms]
-    ax_b.text(lo + 0.006, min(after) - 0.05, f"{len(arms)} additive methods", color=C_ADDITIVE,
+    ax_b.text(lo + 0.006, min(after) - 0.03, f"{len(arms)} additive methods", color=C_ADDITIVE, fontsize=6.5,
               ha="left", va="center")
-    ax_b.set_xlim(lo, hi + 0.07)  # free space on the right holds the legend
-    ax_b.set_ylim(0.0, 0.5)
+    ax_b.set_xlim(lo, hi + 0.03)
+    ax_b.set_ylim(0.0, 0.48)
     ax_b.set_xlabel("Defense LPIPS")
     ax_b.set_ylabel("Edit LPIPS")
     ax_b.set_title("(b) Matched distortion, before and after purification", loc="left")
     ax_b.legend(handles=[
         Line2D([], [], ls="none", marker="o", color=C_ADDITIVE, ms=3.5, label="before purification"),
         Line2D([], [], ls="none", marker="o", mfc="white", mec=C_ADDITIVE, mew=0.9, ms=3.5,
-               label="after (mean of 7)"),
+               label="after (mean of 7 purifications)"),
         Line2D([], [], color=GRAY, lw=0.8, ls=(0, (4, 2)), label="fit before purification"),
-    ], loc="center right", frameon=False, handletextpad=0.3, borderaxespad=0.2)
+    ], loc="lower right", frameon=False, handletextpad=0.3, borderaxespad=0.2)
 
     fig.tight_layout(pad=0.3, w_pad=1.2)
     out = args.out_dir / "distortion_displacement.pdf"

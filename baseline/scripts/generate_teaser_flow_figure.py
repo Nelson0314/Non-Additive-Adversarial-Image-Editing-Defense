@@ -10,7 +10,7 @@ import importlib.util
 import sys
 from pathlib import Path
 
-from _figure_text import relabel
+from immunization_baseline.figure_text import relabel
 
 TOOL = Path("../color/trials/lut3d_defense_and_naturalness/tools/generate_teaser_flow_figure_compact.py")
 LABELS = {"No defense": "Undefended", "Protected\nimage": "Immunized\nimage"}

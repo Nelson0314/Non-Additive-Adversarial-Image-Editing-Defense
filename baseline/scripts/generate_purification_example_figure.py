@@ -20,9 +20,9 @@ from pathlib import Path
 
 import yaml
 
-from _figure_text import relabel
+from immunization_baseline.figure_text import relabel
 
-# 圖內用詞與論文正文一致（undefended、immunized image）；figure() 的原字串由 _figure_text.relabel 替換。
+# 圖內用詞與論文正文一致（undefended、immunized image）；figure() 的原字串由 immunization_baseline.figure_text.relabel 替換。
 LABELS = {"No defense": "Undefended", "Protection": "Immunized"}
 ARMS = ("photoguard_encoder", "mist", "dia_pt", "dct_shield")
 SEED, TEXT_GUIDANCE, IMAGE_GUIDANCE = 20260812, 7.5, 1.8

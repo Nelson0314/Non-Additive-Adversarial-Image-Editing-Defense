@@ -87,7 +87,7 @@ We further examine how perceptual distortion relates to editing disruption. As s
 
 
 \paragraph{Qualitative Comparison.}
-\Cref{fig:purification_example} shows the edits of one portrait with the instruction ``Let the person wear a police suit''. Without purification, the undefended image is changed into a police uniform, whereas the edits of all immunized images, including that of \capg{}, keep the original dress. After Gaussian blur, the uniform appears on the undefended image and on all five additive defenses, while the edit of \capg{} keeps the original clothing with small patches on the shoulders. This agrees with the persistence analysis in \cref{sec:exp_persistence}: blur removes the additive perturbations but preserves the color mapping of \capg{}. Owing to the page limit, the ablation results, the results on an inpainting editor, and further qualitative examples are provided in the supplementary material.
+\Cref{fig:purification_example} shows the edits of one portrait with the instruction ``Let the person wear a police suit''. Without purification, the undefended image is changed into a police uniform, whereas the edits of all immunized images, including that of \capg{}, keep the original dress. After Gaussian blur, the uniform appears on the undefended image and on all five additive defenses, while the edit of \capg{} keeps the original dress with small patches on the shoulders. This agrees with the persistence analysis in \cref{sec:exp_persistence}: blur removes the additive perturbations but preserves the color mapping of \capg{}. Owing to the page limit, the ablation results, the results on an inpainting editor, and further qualitative examples are provided in the supplementary material.
 
 
 \subsection{Cross-Model Transferability}
@@ -101,7 +101,7 @@ We further evaluate whether the protection against InstructPix2Pix transfers to 
   \setlength{\tabcolsep}{2.4pt}
   \begin{tabular}{l ccc cc cc}
     \toprule
-    & \multicolumn{7}{c}{Edit of immunized vs.\ edit of original} \\
+    & \multicolumn{7}{c}{Edit of Immunized Image vs.\ Edit of Original} \\
     \cmidrule(l){2-8}
     & \multicolumn{3}{c}{LPIPS $\uparrow$}
     & \multicolumn{2}{c}{SigLIP $\downarrow$}

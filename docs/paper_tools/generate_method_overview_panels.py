@@ -7,7 +7,7 @@
                                         色域外透明。
   disk_arrows.tex                       (b) 同一球面上 c → T(c) 的位移，T 為 man_60、color3d_scale2p5_pexels 的實際 LUT（三線性查表）。
   disk_points.tex                       (b) 兩個同色像素的 c、c′ 在色度盤上的位置、色票顏色與影像座標（\pixax 等）。
-  original.png、protected.png           (c) x 與 x̃。
+  original.png、immunized.png           (c) x 與 x̃。
 
 遠端 CPU 執行（basic-1）：
   cd ~/paper_figures && ~/venvs/wacv/bin/python in/generate_method_overview_panels.py --out-dir out_overview
@@ -164,7 +164,7 @@ def main():
     if mismatch > 1:
         raise ValueError("carrier.pt 與防禦圖不一致")
     Image.fromarray(x).save(args.out_dir / "original.png")
-    Image.fromarray(protected).save(args.out_dir / "protected.png")
+    Image.fromarray(protected).save(args.out_dir / "immunized.png")
     pixels = pick_pixels(x, protected)
     colors = {tuple(x[py, px]) for px, py in pixels}
     outputs = {tuple(protected[py, px]) for px, py in pixels}

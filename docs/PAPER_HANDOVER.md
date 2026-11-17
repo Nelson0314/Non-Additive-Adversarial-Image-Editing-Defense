@@ -143,7 +143,7 @@ Conclusion 在第 8 頁，Table 3（消融）在第 9 頁，正文含圖表超�
 - 表 3 的 `\resizebox` 違反第 6a 節「表格固定字級、不用 `\resizebox`」，表內字級約為 \scriptsize 的 55%；是否接受待使用者看 PDF 決定（替代案：minipage 改 0.50／0.48）。
 
 ### 10.3 同步狀態
-- repo 與 Overleaf 最後逐字一致於 `5e5f9f38`（2026-11-17）：同步前線上 14 個文字檔的雜湊皆等於 `3be20a56`（無他人修改）；`4_experiments.tex`、`X_suppl.tex` 以編輯器詞級修改套用，重新載入後雜湊與 repo 相同；`fig/purification_example.pdf`（woman_111 police suit）經使用者同意以上傳覆寫；線上編譯 10 頁、0 錯誤。線上另有 repo 沒有的 `sec/[old] related.tex`，未動。下次同步以 `5e5f9f38` 為三方合併基底。
+- repo 與 Overleaf 最後逐字一致於 `b5b8a9b5`（2026-11-17）：同步前線上文字檔雜湊皆等於 `5e5f9f38`（無他人修改）；`fig/teaser.tex`、`main.bib`、`0_abstract`、`1_intro`、`2_related`、`3_method`、`4_experiments`、`X_suppl`、`X_suppl_purification` 以編輯器詞級修改套用，重新載入後 14 個文字檔雜湊與 repo 相同；`fig/` 的 `distortion_displacement.pdf`、`method_overview.pdf`、`purification.pdf`、`purification_example.pdf`、`teaser.pdf` 以上傳覆寫；線上編譯 10 頁、0 錯誤。線上另有 repo 沒有的 `sec/[old] related.tex`，未動。下次同步以 `b5b8a9b5` 為三方合併基底。
 
 ### 10.4 待使用者決定
 1. 表 3 字級（10.2）。

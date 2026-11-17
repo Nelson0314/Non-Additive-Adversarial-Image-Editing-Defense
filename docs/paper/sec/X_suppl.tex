@@ -31,6 +31,8 @@
   \centering
   \scriptsize
   \setlength{\tabcolsep}{4pt}
+  \caption{Ablations on InstructPix2Pix (200 portraits $\times$ 4 instructions). Means over the $n = 197$ portraits with a result in every row: the single-bound variant did not finish on one portrait for lack of GPU memory, and the optimized hue / saturation change has no solution within $\pm 0.015$ of the defense LPIPS of \capg{} on two. Random hue / saturation does not reach this target on 64 of the 197 portraits, which are kept.}
+  \label{tab:ablation}
   \begin{tabular}{@{}lc ccc cccc@{}}
     \toprule
     & & \multicolumn{3}{c}{Immunized image} & \multicolumn{4}{c}{Edit LPIPS $\uparrow$} \\
@@ -53,8 +55,6 @@
     unconstrained $K^3$ LUT & 197 & .292 & 5.26 & 5.03 & .382 & .377 & .323 & .308 \\
     \bottomrule
   \end{tabular}
-  \caption{Ablations on InstructPix2Pix (200 portraits $\times$ 4 instructions). Means over the $n = 197$ portraits with a result in every row: the single-bound variant did not finish on one portrait for lack of GPU memory, and the optimized hue / saturation change has no solution within $\pm 0.015$ of the defense LPIPS of \capg{} on two. Random hue / saturation does not reach this target on 64 of the 197 portraits, which are kept.}
-  \label{tab:ablation}
 \end{table*}
 
 \TODO{}
@@ -65,6 +65,8 @@
   \centering
   \footnotesize
   \setlength{\tabcolsep}{4pt}
+  \caption{Additional measurements of the immunized images (306 Pexels portraits, matched-distortion arms): PSNR and SSIM against the original image, and the no-reference scores NIMA and NIQE. LPIPS, LAION, and MUSIQ are in \cref{tab:main}. Best in bold.}
+  \label{tab:supp_aesthetics}
   \begin{tabular}{l cc cc}
     \toprule
     & \multicolumn{2}{c}{vs.\ original} & \multicolumn{2}{c}{No-reference} \\
@@ -88,8 +90,6 @@
     \textbf{\capg{}} & 24.2 & .928 & 5.278 & 3.979 \\
     \bottomrule
   \end{tabular}
-  \caption{Additional measurements of the immunized images (306 Pexels portraits, matched-distortion arms): PSNR and SSIM against the original image, and the no-reference scores NIMA and NIQE. LPIPS, LAION, and MUSIQ are in \cref{tab:main}. Best in bold.}
-  \label{tab:supp_aesthetics}
 \end{table}
 \prelimnote{Supplementary aesthetics table: the matched-distortion BlurGuard arm is not yet run.}
 

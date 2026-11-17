@@ -57,6 +57,9 @@ We consider eight purification operations applied before editing: JPEG compressi
   \centering
   \scriptsize
   \setlength{\tabcolsep}{1.6pt}
+  \caption{Immunization Success Rate. Combined: the three purifications pooled. %Bottom row: paired difference from BlurGuard (\%). $\pm$: half-width of the 95\% bootstrap interval over images.
+  }
+  \label{tab:isr}
   \begin{tabular}{@{}lccccc@{}}
     \toprule
     & & \multicolumn{4}{c}{Purified} \\
@@ -75,9 +78,6 @@ We consider eight purification operations applied before editing: JPEG compressi
     %\capg{} $-$ BlurGuard & $+$1.5{\scriptsize$\pm$3.9} & $+$0.6{\scriptsize$\pm$3.4} & $+$5.2{\scriptsize$\pm$4.1} & $+$5.1{\scriptsize$\pm$3.5} & $+$3.6{\scriptsize$\pm$2.6} \\
     \bottomrule
   \end{tabular}
-  \caption{Immunization Success Rate. Combined: the three purifications pooled. %Bottom row: paired difference from BlurGuard (\%). $\pm$: half-width of the 95\% bootstrap interval over images.
-  }
-  \label{tab:isr}
 \end{table}
 \paragraph{Immunization Success Rate.}
 Beyond editing discrepancies, we evaluate immunization success rate (ISR), defined as the proportion of originally successful edits that fail when applied to immunized images. The evaluation uses Claude Sonnet 5.5, with a subset of judgments reviewed by humans. As shown in \cref{tab:isr}, while several additive defenses achieve higher ISR without purification, their effectiveness decreases substantially after purification. In contrast, \capg{} maintains a relatively stable ISR. Relative to BlurGuard, the strongest additive baseline after purification, \capg{} achieves a combined ISR improvement of 3.4$\pm$1.1 percentage points (95\% bootstrap interval). These results further demonstrate that \capg{} retains its ability to prevent intended edits even after purification.
@@ -99,6 +99,10 @@ We further evaluate whether the protection against InstructPix2Pix transfers to 
   \centering
   \footnotesize
   \setlength{\tabcolsep}{2.4pt}
+    \caption{
+    Transfer of the InstructPix2Pix-optimized immunized images, without re-optimization, to VIBE-DistilledCFG and FLUX.2 [klein] 4B. Metrics follow \cref{tab:main} and compare the edit of the immunized image with that of the original. Purif.$^{*}$: mean over seven image purifications; VAE: VAE-Trans.
+  }
+    \label{tab:transfer}
   \begin{tabular}{l ccc cc cc}
     \toprule
     & \multicolumn{7}{c}{Edit of Immunized Image vs.\ Edit of Original} \\
@@ -205,10 +209,6 @@ We further evaluate whether the protection against InstructPix2Pix transfers to 
       & \textbf{.884} \\
     \bottomrule
   \end{tabular}
-    \caption{
-    Transfer of the InstructPix2Pix-optimized immunized images, without re-optimization, to VIBE-DistilledCFG and FLUX.2 [klein] 4B. Metrics follow \cref{tab:main} and compare the edit of the immunized image with that of the original. Purif.$^{*}$: mean over seven image purifications; VAE: VAE-Trans.
-  }
-    \label{tab:transfer}
 \end{table}
 
 \subsection{Perturbation Persistence under Purification}

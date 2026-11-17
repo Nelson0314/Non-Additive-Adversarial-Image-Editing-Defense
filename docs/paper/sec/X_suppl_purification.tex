@@ -3,6 +3,8 @@
   \centering
   \footnotesize
   \setlength{\tabcolsep}{4pt}
+  \caption{Edit displacement for each purification (first part; 306 Pexels portraits $\times$ 4 instructions, InstructPix2Pix, matched-distortion arms). Each entry is the mean over the 306 images, each image first averaged over the four instructions; \cref{tab:main} reports the mean over the seven purifications. SSIM, PSNR, SigLIP, CLIP-I, and ArcFace compare the defended and the undefended edit under the same purification; CLIP-S compares the defended edit with the instruction text; FID is computed between the sets of defended and undefended edits.}
+  \label{tab:supp_purification_first}
   \begin{tabular}{l ccccccc c}
     \toprule
     Method & JPEG 80 & JPEG 50 & JPEG 30 & Blur $\sigma{=}1$ & Blur $\sigma{=}2$ & Crop & Rotation & VAE-Trans \\
@@ -64,14 +66,14 @@
     \textbf{\capg{}} & .888 & .888 & .888 & .882 & .878 & .882 & .890 & .901 \\
     \bottomrule
   \end{tabular}
-  \caption{Edit displacement for each purification (first part; 306 Pexels portraits $\times$ 4 instructions, InstructPix2Pix, matched-distortion arms). Each entry is the mean over the 306 images, each image first averaged over the four instructions; \cref{tab:main} reports the mean over the seven purifications. SSIM, PSNR, SigLIP, CLIP-I, and ArcFace compare the defended and the undefended edit under the same purification; CLIP-S compares the defended edit with the instruction text; FID is computed between the sets of defended and undefended edits.}
-  \label{tab:supp_purification_first}
 \end{table*}
 
 \begin{table*}[t]
   \centering
   \footnotesize
   \setlength{\tabcolsep}{4pt}
+  \caption{Edit displacement for each purification (second part; 306 Pexels portraits $\times$ 4 instructions, InstructPix2Pix, matched-distortion arms). Each entry is the mean over the 306 images, each image first averaged over the four instructions; \cref{tab:main} reports the mean over the seven purifications. SSIM, PSNR, SigLIP, CLIP-I, and ArcFace compare the defended and the undefended edit under the same purification; CLIP-S compares the defended edit with the instruction text; FID is computed between the sets of defended and undefended edits.}
+  \label{tab:supp_purification_second}
   \begin{tabular}{l ccccccc c}
     \toprule
     Method & JPEG 80 & JPEG 50 & JPEG 30 & Blur $\sigma{=}1$ & Blur $\sigma{=}2$ & Crop & Rotation & VAE-Trans \\
@@ -133,6 +135,4 @@
     \textbf{\capg{}} & 42.5 & 41.7 & 42.9 & 45.1 & 48.6 & 41.5 & 50.8 & 38.0 \\
     \bottomrule
   \end{tabular}
-  \caption{Edit displacement for each purification (second part; 306 Pexels portraits $\times$ 4 instructions, InstructPix2Pix, matched-distortion arms). Each entry is the mean over the 306 images, each image first averaged over the four instructions; \cref{tab:main} reports the mean over the seven purifications. SSIM, PSNR, SigLIP, CLIP-I, and ArcFace compare the defended and the undefended edit under the same purification; CLIP-S compares the defended edit with the instruction text; FID is computed between the sets of defended and undefended edits.}
-  \label{tab:supp_purification_second}
 \end{table*}

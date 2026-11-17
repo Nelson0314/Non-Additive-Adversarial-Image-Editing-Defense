@@ -1,7 +1,8 @@
 """論文 Fig. 5（purification_example）版面的 Pexels 主表質性圖：一張影像、一句 ip2p 指令，取主表 306 張的既有產物，不重跑編輯。
 
 欄：原圖、PhotoGuard、Mist、DIA-PT、DCT-Shield（等失真臂）、BlurGuard（306 張版）、ImmuLUT（color3d_scale2p5_pexels）；
-列：防禦圖、不淨化的編輯、淨化後的編輯（--purification，blur2 或 jpeg<q>）。編輯協定為主表 ip2p（text 7.5、image 1.8、50 步、
+列：防禦圖、不淨化的編輯、淨化後的編輯（--purification，blur2 或 jpeg<q>）。圖內 "No defense" 改為 "Undefended"、
+列標 "Protection" 改為 "Immunized"（與論文正文用詞一致）。編輯協定為主表 ip2p（text 7.5、image 1.8、50 步、
 主種子 20260812）。版面、字型與尺寸由 color trial tools/generate_teaser_paper_figure.py 的 figure() 產生（只呼叫、不修改）；
 本腳本把主表產物複製成該函式讀取的 run-dir 版面：
     <輸出根>/<影像>/inputs/<條件>/none/<影像>.png（undefended 為原圖）、edits/<條件>/{none,<淨化>}/<影像>__p<k>.png、data/man/<影像>.png、
@@ -19,6 +20,10 @@ from pathlib import Path
 
 import yaml
 
+from _figure_text import relabel
+
+# 圖內用詞與論文正文一致（undefended、immunized image）；figure() 的原字串由 _figure_text.relabel 替換。
+LABELS = {"No defense": "Undefended", "Protection": "Immunized"}
 ARMS = ("photoguard_encoder", "mist", "dia_pt", "dct_shield")
 SEED, TEXT_GUIDANCE, IMAGE_GUIDANCE = 20260812, 7.5, 1.8
 DATA = Path("data/pexels_portraits")
@@ -94,7 +99,8 @@ def main():
     spec.loader.exec_module(tool)
     tool.OUT = a.output_root
     name = f"{img}_p{k}" + ("" if purifier == "blur2" else f"_{purifier}")
-    tool.figure(run, k, "full", name, purifier)
+    with relabel(LABELS):
+        tool.figure(run, k, "full", name, purifier)
 
 
 if __name__ == "__main__":

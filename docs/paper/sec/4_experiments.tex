@@ -101,7 +101,7 @@ We further evaluate whether the protection against InstructPix2Pix transfers to 
   \setlength{\tabcolsep}{2.4pt}
   \begin{tabular}{l ccc cc cc}
     \toprule
-    & \multicolumn{7}{c}{\shortstack{\textbf{Edit of The Immunized Image}\\vs.\ \textbf{Edit of The Original}}} \\
+    & \multicolumn{7}{c}{Edit of immunized vs.\ edit of original} \\
     \cmidrule(l){2-8}
     & \multicolumn{3}{c}{LPIPS $\uparrow$}
     & \multicolumn{2}{c}{SigLIP $\downarrow$}
@@ -206,7 +206,7 @@ We further evaluate whether the protection against InstructPix2Pix transfers to 
     \bottomrule
   \end{tabular}
     \caption{
-    Cross-model transferability on VIBE-DistilledCFG and FLUX.2 [klein] 4B. All immunized images optimized against InstructPix2Pix are transferred without re-optimization. Metrics follow \cref{tab:main}. Purif.$^{*}$: mean of seven purifications; VAE: VAE-Trans.
+    Transfer of the InstructPix2Pix-optimized immunized images, without re-optimization, to VIBE-DistilledCFG and FLUX.2 [klein] 4B. Metrics follow \cref{tab:main} and compare the edit of the immunized image with that of the original. Purif.$^{*}$: mean over seven image purifications; VAE: VAE-Trans.
   }
     \label{tab:transfer}
 \end{table}

@@ -1,6 +1,6 @@
 """Write Table 1 (tab:main) of the paper into docs/paper/sec/3_method.tex.
 
-    python generate_main_table.py --main-table main_table.csv --capguard capguard_main_table.csv --blurguard blurguard_summary.csv
+    python generate_main_table.py --main-table main_table.csv --immulut immulut_main_table.csv --blurguard blurguard_summary.csv
 
 Upper block: InstructPix2Pix, 306 Pexels portraits, all methods; protected-image LPIPS, LAION, MUSIQ and the edit LPIPS,
 SigLIP, ArcFace of the edit of the protected image against the edit of the original under the same purification.
@@ -36,13 +36,13 @@ def f(x, d=3):
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--main-table", type=Path, required=True)
-    ap.add_argument("--capguard", type=Path, required=True)
+    ap.add_argument("--immulut", type=Path, required=True)
     ap.add_argument("--blurguard", type=Path, required=True)
     ap.add_argument("--vibe", type=Path, required=True)
     ap.add_argument("--klein", type=Path)
     args = ap.parse_args()
     rows = {r["condition"]: r for r in csv.DictReader(open(args.main_table, encoding="utf-8"))}
-    rows.update({r["condition"]: r for r in csv.DictReader(open(args.capguard, encoding="utf-8")) if r["condition"] != "original"})
+    rows.update({r["condition"]: r for r in csv.DictReader(open(args.immulut, encoding="utf-8")) if r["condition"] != "original"})
     rows["blurguard"] = next(csv.DictReader(open(args.blurguard, encoding="utf-8")))
     best = {c: fn(float(rows[k][c]) for k, _ in ORDER) for c, _, fn in COLS}
 

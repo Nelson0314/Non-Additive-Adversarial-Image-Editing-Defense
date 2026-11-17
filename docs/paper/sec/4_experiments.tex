@@ -95,13 +95,13 @@ We further evaluate whether the protection against InstructPix2Pix transfers to 
 
 
 
-\begin{table*}[t]
+\begin{table}[t]
   \centering
-  \scriptsize
+  \footnotesize
   \setlength{\tabcolsep}{2.4pt}
   \begin{tabular}{l ccc cc cc}
     \toprule
-    & \multicolumn{7}{c}{\textbf{Edit of The Immunized Image} vs.\ \textbf{Edit of The Original}} \\
+    & \multicolumn{7}{c}{\shortstack{\textbf{Edit of The Immunized Image}\\vs.\ \textbf{Edit of The Original}}} \\
     \cmidrule(l){2-8}
     & \multicolumn{3}{c}{LPIPS $\uparrow$}
     & \multicolumn{2}{c}{SigLIP $\downarrow$}
@@ -110,106 +110,106 @@ We further evaluate whether the protection against InstructPix2Pix transfers to 
     \cmidrule(lr){5-6}
     \cmidrule(l){7-8}
     Method
-      & None & Purified$^{*}$ & VAE-Trans
-      & Purified$^{*}$ & VAE-Trans
-      & Purified$^{*}$ & VAE-Trans \\
+      & None & Purif.$^{*}$ & VAE
+      & Purif.$^{*}$ & VAE
+      & Purif.$^{*}$ & VAE \\
     \midrule
 
     \multicolumn{8}{l}{\emph{VIBE-DistilledCFG}} \\
     Mist
-      & .159{\scriptsize$\pm$.004}
-      & .098{\scriptsize$\pm$.034}
-      & .041{\scriptsize$\pm$.002}
-      & .981{\scriptsize$\pm$.006}
-      & .991{\scriptsize$\pm$.001}
-      & .882{\scriptsize$\pm$.048}
-      & .949{\scriptsize$\pm$.006} \\
+      & .159
+      & .098
+      & .041
+      & .981
+      & .991
+      & .882
+      & .949 \\
     PhotoGuard
-      & .152{\scriptsize$\pm$.004}
-      & .094{\scriptsize$\pm$.030}
-      & .040{\scriptsize$\pm$.002}
-      & .981{\scriptsize$\pm$.006}
-      & .991{\scriptsize$\pm$.001}
-      & .889{\scriptsize$\pm$.042}
-      & .954{\scriptsize$\pm$.006} \\
+      & .152
+      & .094
+      & .040
+      & .981
+      & .991
+      & .889
+      & .954 \\
     DCT-Shield
-      & .146{\scriptsize$\pm$.004}
-      & .077{\scriptsize$\pm$.028}
-      & .035{\scriptsize$\pm$.002}
-      & .983{\scriptsize$\pm$.006}
-      & .991{\scriptsize$\pm$.001}
-      & .899{\scriptsize$\pm$.037}
-      & .958{\scriptsize$\pm$.005} \\
+      & .146
+      & .077
+      & .035
+      & .983
+      & .991
+      & .899
+      & .958 \\
     BlurGuard
-      & .218{\scriptsize$\pm$.006}
-      & .202{\scriptsize$\pm$.025}
-      & .103{\scriptsize$\pm$.003}
-      & .962{\scriptsize$\pm$.003}
-      & .979{\scriptsize$\pm$.001}
-      & .822{\scriptsize$\pm$.027}
-      & .898{\scriptsize$\pm$.008} \\
+      & .218
+      & .202
+      & .103
+      & .962
+      & .979
+      & .822
+      & .898 \\
     \midrule
     \rowcolor{oursrow}
     \textbf{\capg{} (Ours)}
-      & \textbf{.318}{\scriptsize$\pm$.012}
-      & \textbf{.331}{\scriptsize$\pm$.022}
-      & \textbf{.278}{\scriptsize$\pm$.010}
-      & \textbf{.906}{\scriptsize$\pm$.007}
-      & \textbf{.925}{\scriptsize$\pm$.003}
-      & \textbf{.754}{\scriptsize$\pm$.016}
-      & \textbf{.789}{\scriptsize$\pm$.011} \\
+      & \textbf{.318}
+      & \textbf{.331}
+      & \textbf{.278}
+      & \textbf{.906}
+      & \textbf{.925}
+      & \textbf{.754}
+      & \textbf{.789} \\
 
     \midrule[0.8pt]
     \multicolumn{8}{l}{\emph{FLUX.2 [klein] 4B}} \\
     Mist
-      & .175{\scriptsize$\pm$.007}
-      & .086{\scriptsize$\pm$.037}
-      & .020{\scriptsize$\pm$.001}
-      & .993{\scriptsize$\pm$.003}
-      & .997{\scriptsize$\pm$.000}
-      & .974{\scriptsize$\pm$.013}
-      & .985{\scriptsize$\pm$.001} \\
+      & .175
+      & .086
+      & .020
+      & .993
+      & .997
+      & .974
+      & .985 \\
     PhotoGuard
-      & .188{\scriptsize$\pm$.007}
-      & .088{\scriptsize$\pm$.038}
-      & .019{\scriptsize$\pm$.001}
-      & .993{\scriptsize$\pm$.003}
-      & .997{\scriptsize$\pm$.000}
-      & .977{\scriptsize$\pm$.010}
-      & .987{\scriptsize$\pm$.001} \\
+      & .188
+      & .088
+      & .019
+      & .993
+      & .997
+      & .977
+      & .987 \\
     DCT-Shield
-      & .163{\scriptsize$\pm$.007}
-      & .060{\scriptsize$\pm$.039}
-      & .013{\scriptsize$\pm$.001}
-      & .995{\scriptsize$\pm$.002}
-      & .998{\scriptsize$\pm$.000}
-      & .984{\scriptsize$\pm$.007}
-      & .990{\scriptsize$\pm$.001} \\
+      & .163
+      & .060
+      & .013
+      & .995
+      & .998
+      & .984
+      & .990 \\
     BlurGuard
-      & .231{\scriptsize$\pm$.008}
-      & .198{\scriptsize$\pm$.027}
-      & .091{\scriptsize$\pm$.003}
-      & .974{\scriptsize$\pm$.003}
-      & .989{\scriptsize$\pm$.001}
-      & .951{\scriptsize$\pm$.013}
-      & .958{\scriptsize$\pm$.003} \\
+      & .231
+      & .198
+      & .091
+      & .974
+      & .989
+      & .951
+      & .958 \\
     \midrule
     \rowcolor{oursrow}
     \textbf{\capg{} (Ours)}
-      & \textbf{.281}{\scriptsize$\pm$.011}
-      & \textbf{.293}{\scriptsize$\pm$.020}
-      & \textbf{.239}{\scriptsize$\pm$.009}
-      & \textbf{.928}{\scriptsize$\pm$.006}
-      & \textbf{.930}{\scriptsize$\pm$.004}
-      & \textbf{.920}{\scriptsize$\pm$.010}
-      & \textbf{.884}{\scriptsize$\pm$.007} \\
+      & \textbf{.281}
+      & \textbf{.293}
+      & \textbf{.239}
+      & \textbf{.928}
+      & \textbf{.930}
+      & \textbf{.920}
+      & \textbf{.884} \\
     \bottomrule
   \end{tabular}
     \caption{
-    Cross-model transferability on VIBE-DistilledCFG and FLUX.2 [klein] 4B. All immunized images optimized against InstructPix2Pix are transferred without re-optimization. Metrics and confidence intervals follow \cref{tab:main}. $^{*}$Mean over seven image purifications.
+    Cross-model transferability on VIBE-DistilledCFG and FLUX.2 [klein] 4B. All immunized images optimized against InstructPix2Pix are transferred without re-optimization. Metrics follow \cref{tab:main}. Purif.$^{*}$: mean of seven purifications; VAE: VAE-Trans.
   }
     \label{tab:transfer}
-\end{table*}
+\end{table}
 
 \subsection{Perturbation Persistence under Purification}
 \label{sec:exp_persistence}

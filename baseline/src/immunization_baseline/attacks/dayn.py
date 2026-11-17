@@ -431,7 +431,7 @@ class DAYNAttnProcessor:
         **kwargs,
     ):
         if args or kwargs:
-            # 新版 diffusers 若多傳引數，靜默忽略會讓注意力算出別的東西而
+            # diffusers 0.39.0（requirements.lock）若多傳引數，靜默忽略會讓注意力算出別的東西而
             # 完全沒有症狀。與 promptflare、danp 的同一處置。
             raise RuntimeError(
                 f"{self.module_name}：processor 收到未預期的引數 "

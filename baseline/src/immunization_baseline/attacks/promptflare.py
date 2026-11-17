@@ -135,7 +135,7 @@ class MyAttnProcessor2_0:
     改寫：原作對 `to_q/to_k/to_v/to_out[0]` 傳 `scale=scale`
     （diffusers 0.21.2 的 `LoRACompatibleLinear` 簽名）。PromptFlare 從未
     傳入非預設的 `scale`，其值恆為 1.0，而 1.0 對非 LoRA 線性層是恆等；
-    新版 diffusers 的 `nn.Linear` 不接受該引數。故此處不傳，數值等價。
+    diffusers 0.39.0（requirements.lock）的 `nn.Linear` 不接受該引數。故此處不傳，數值等價。
 
     `attention_mask` 分支保留：BOS 遮罩就是經由 UNet 的
     `encoder_attention_mask` 轉成 `-10000.0` 偏置後走這一路
@@ -160,7 +160,7 @@ class MyAttnProcessor2_0:
         **kwargs,
     ):
         if args or kwargs:
-            # 新版 diffusers 若多傳了引數，靜默忽略會讓注意力算出別的東西
+            # diffusers 0.39.0（requirements.lock）若多傳了引數，靜默忽略會讓注意力算出別的東西
             # 而完全沒有症狀。此處直接中止。
             raise RuntimeError(
                 f"{self.module_name}：processor 收到未預期的引數 "

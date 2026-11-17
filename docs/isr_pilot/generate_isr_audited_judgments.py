@@ -12,28 +12,35 @@ Outputs (to --out-dir):
   agreement.txt         judge/human agreement on the derived success label, excluding ref_fail cells
 
 Usage: python generate_isr_audited_judgments.py --judgments judgments_all306.csv \
-         --key audit206/audit_key.csv --labels-dir audit206/labels --out-dir audit206
+         --key audit206/audit_key.csv --labels audit206/human_labels_raw.csv --out-dir audit206
+
+human_labels_raw.csv holds the labels exported from the review page (one row per case; empty
+cell = field absent in the stored record).
 """
 import argparse
 import collections
 import csv
-import glob
-import json
 import os
 
 ap = argparse.ArgumentParser()
 ap.add_argument("--judgments", required=True)
 ap.add_argument("--key", required=True)
-ap.add_argument("--labels-dir", required=True)
+ap.add_argument("--labels", required=True, help="human_labels_raw.csv: one row per audited case")
 ap.add_argument("--out-dir", required=True)
 args = ap.parse_args()
 
+
+def field(v):
+    return None if v == "" else int(v)
+
+
 key = {r["case_id"]: r for r in csv.DictReader(open(args.key, encoding="utf-8"))}
 human = {}
-for f in glob.glob(os.path.join(args.labels_dir, "*.json")):
-    d = json.load(open(f, encoding="utf-8"))
-    cid = os.path.basename(f)[:-5]
-    if "ref_fail" not in d:  # saved by the page version without ref_fail/success fields
+for r in csv.DictReader(open(args.labels, encoding="utf-8")):
+    cid = r["case_id"]
+    d = {k: field(r[k]) for k in ("success", "ref_fail", "accessory", "mismatch", "degraded", "unsure")}
+    d["note"] = r["note"]
+    if d["ref_fail"] is None:  # saved by the page version without ref_fail/success fields
         if d.get("accessory") not in (0, 1):
             raise SystemExit(f"{cid}: accessory={d.get('accessory')!r}")
         d = dict(d, ref_fail=0, success=d["accessory"])

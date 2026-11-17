@@ -68,6 +68,11 @@ def main():
     ap.add_argument("--output-root", type=Path, default=Path("artifacts/pexels_portraits/purification_example"))
     ap.add_argument("--print-width", type=float, default=0.62 * WIDTH, help="論文置入寬度（英吋），預設為論文正文寬度的 0.62 倍")
     ap.add_argument("--min-print-pt", type=float, default=7.0, help="印刷字級下限（pt）")
+    ap.add_argument("--extra-paths", type=Path, default=None,
+                    help="ImmuLUT 變體欄的影像清單（CSV：tone、defense、edit_none、edit_<淨化>）")
+    ap.add_argument("--extra", nargs="+", default=[], metavar="TONE=LABEL",
+                    help="依序加在 ImmuLUT 欄右側的變體欄；LABEL 中的 | 為換行")
+    ap.add_argument("--name", default=None, help="輸出檔名（不含副檔名）")
     a = ap.parse_args()
     img, k, purifier = a.image, a.prompt_index, a.purification
     prompts = yaml.safe_load((DATA / "prompts.yaml").read_text(encoding="utf-8"))["edits"]["ip2p"]
@@ -83,11 +88,22 @@ def main():
         w = csv.DictWriter(f, fieldnames=list(rows[0]), lineterminator="\n")
         w.writeheader()
         w.writerows(rows)
-    name = f"{img}_p{k}" + ("" if purifier == "blur2" else f"_{purifier}")
-    draw(files, prompts[k], purifier, a.min_print_pt * WIDTH / a.print_width, a.output_root / name)
+    extras = []
+    if a.extra:
+        with open(a.extra_paths, encoding="utf-8", newline="") as f:
+            table = {r["tone"]: r for r in csv.DictReader(f)}
+        for item in a.extra:
+            tone, label = item.split("=", 1)
+            triple = tuple(Path(table[tone][c]) for c in ("defense", "edit_none", f"edit_{purifier}"))
+            missing = [x.as_posix() for x in triple if not x.is_file()]
+            if missing:
+                raise SystemExit(f"{tone} 缺檔：{missing}")
+            extras.append((label.replace("|", "\n"), triple))
+    name = a.name or f"{img}_p{k}" + ("" if purifier == "blur2" else f"_{purifier}")
+    draw(files, prompts[k], purifier, a.min_print_pt * WIDTH / a.print_width, a.output_root / name, extras)
 
 
-def draw(files, prompt, purifier, fs, out):
+def draw(files, prompt, purifier, fs, out, extras=()):
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
@@ -100,6 +116,8 @@ def draw(files, prompt, purifier, fs, out):
     ink, additive, ours = tool.INK, tool.ADDITIVE, tool.OURS
     columns = [(tool.LABELS[c], ink, additive, files[c]) for c in (*ARMS, "blurguard")]
     columns.append((tool.OURS_LABEL.replace(" (", "\n("), ours, ours, files["immulut"]))
+    n_extra = len(extras)
+    columns += [(label, ours, ours, triple) for label, triple in extras]
 
     def load(path):
         return np.asarray(Image.open(path).convert("RGB").resize((512, 512), Image.LANCZOS))
@@ -108,16 +126,22 @@ def draw(files, prompt, purifier, fs, out):
     line = fs * 1.15 / 72                      # 一行文字的高度（英吋）
     H = ASPECT * WIDTH
     head, foot = 2 * line + 0.06, line + 0.12  # ImmuLUT (Ours) 分兩行
-    label_w, gap0, gap_ours = 2 * line + 0.04, 0.10, 0.07
-    n = len(columns) + 1
+    label_w, gap0, gap_ours, gap_extra = 2 * line + 0.04, 0.10, 0.07, 0.05
+    n = len(columns) - n_extra + 1
     s = min((WIDTH - 0.1 - label_w - gap0 - gap_ours) / n, (H - head - foot) / 3)
+    # 變體欄：圖格與字級不變，圖向右加寬；欄標最多三行，標題區加高一行。
+    W = WIDTH + n_extra * (s + gap_extra)
+    if n_extra:
+        head += line
+        H += line
     x_ref = (WIDTH - (n * s + label_w + gap0 + gap_ours)) / 2
     x0 = x_ref + s + gap0 + label_w
-    xs = [x0 + i * s for i in range(len(columns) - 1)] + [x0 + (len(columns) - 1) * s + gap_ours]
+    xs = [x0 + i * s for i in range(n - 2)] + [x0 + (n - 2) * s + gap_ours]
+    xs += [xs[-1] + (i + 1) * (s + gap_extra) for i in range(n_extra)]
     ys = [H - head - (i + 1) * s for i in range(3)]
-    fig = plt.figure(figsize=(WIDTH, H))
+    fig = plt.figure(figsize=(W, H))
     ax = fig.add_axes([0, 0, 1, 1])
-    ax.set_xlim(0, WIDTH), ax.set_ylim(0, H)
+    ax.set_xlim(0, W), ax.set_ylim(0, H)
     ax.axis("off")
 
     def show(path, x, y, edge=ink, lw=0.5):
@@ -151,7 +175,7 @@ def draw(files, prompt, purifier, fs, out):
     fig.savefig(out.with_suffix(".pdf"), dpi=300)
     fig.savefig(out.with_suffix(".png"), dpi=300, facecolor="white")
     plt.close(fig)
-    print(f"[WROTE] {out}.{{pdf,png}}  {WIDTH} x {H:.3f} in，字級 {fs:.2f} pt，圖格 {s:.3f} in")
+    print(f"[WROTE] {out}.{{pdf,png}}  {W:.3f} x {H:.3f} in，字級 {fs:.2f} pt，圖格 {s:.3f} in")
 
 
 if __name__ == "__main__":

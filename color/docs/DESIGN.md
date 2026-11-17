@@ -1,6 +1,6 @@
 # color：設計、協定與結果
 
-現況見 `../STATUS.md`，執行方式見 `../README.md`。研究主線 color3d_orig 的方法與結果見 trial `trials/lut3d_defense_and_naturalness/README.md`（§6a 為摘要）；§4–§7 的前身方法與已退役方向程式與產物已刪除，本文件保留其數據。風格轉換線為獨立專案 `style/`。
+現況見 `../STATUS.md`，執行方式見 `../README.md`。論文方法 ImmuLUT 見 §4；§5 為已退役方向的數據紀錄（程式與產物已刪除）。風格轉換線為獨立專案 `style/`。
 
 ## 1. 問題與協定
 
@@ -8,7 +8,8 @@
 並可先做淨化。防禦目標：攻擊方的編輯結果偏離未防禦時的編輯結果；防禦圖外觀自然；經淨化後編輯結果仍偏離（以淨化後的編輯結果 LPIPS 與保留率量測）。
 
 - 防禦方看不到攻擊指令：訓練只可用空字串或類別名（`man`／`woman`）。
-- 資料：`data/portraits/`，8 張人像（`man_00..03`、`woman_00..03`），512²，附主體遮罩。
+- 資料：開發集 `data/portraits/`，8 張人像（`man_00..03`、`woman_00..03`），512²，附主體遮罩；論文主表為 baseline 的 Pexels 306 張
+  （`baseline/data/pexels_portraits/`），消融為其中 100（crosseditor100）、200 與 306 張。
 - 攻擊端：ip2p，EulerAncestral 50 步、s_t 7.5、s_i 1.8、主種子 20260812；四句指令（墨鏡、警察制服、安全帽、領結）；8 × 4 ＝ 32 格。
 - 未防禦編輯 `artifacts/undefended_edits/ip2p_si18` 與淨化後的 `artifacts/purified_edits/undefended` 與 baseline 的同名產物相同（遠端原以符號連結指向主表的檔案）。
 - 淨化：jpeg80／50／30、blur1／2、crop_resize0.1、rotate15。
@@ -26,9 +27,25 @@
 ## 3. 外觀條件（使用者看圖後定）
 
 - 不使用空間相依的色彩場（臉框權重場、分區求解產生邊界、色塊、臉框圈，已否決）。
-- 偏好全域映射的外觀。粉紅、紅、洋紅、黃的色調難看；青、藍、綠可接受。膚色同色 ΔE00 可放寬到 12–16。
+- 偏好全域映射的外觀；色偏在高飽和或與原膚色色差過大時不自然。論文圖（teaser）另要求防禦圖避免整臉偏藍青，
+  以及背景或物件往藍、綠、紫、粉紅方向的色偏與斑塊。
 
-## 4. 前身方法 color（已退役；程式 `generate_color_defenses` 與產物已刪除）
+## 4. 論文方法 ImmuLUT（`color3d_scale2p5`）
+
+- **載體**：33³ RGB 查找表。自由參數 Θ（33³ × 3）經色空間三維高斯模糊（σ ＝ 4 格點）得旋轉場；以黑點為原點、灰軸為極軸，
+  去掉沿格點顏色方向的分量後拆成子午面（極角）與方位（色相）分量，分別以 tan 25° · tanh(‖·‖／tan 25°) 與
+  tan 7.5° · ‖u × d‖ · tanh 壓縮，c′ ＝ ‖c‖ · normalize(…)，截到 [0, 1]。極角變化 < 25°、色相變化 < 7.5°、‖c‖ 不變皆由參數化保證，
+  無投影、無 LPIPS 上下界。名稱中的 2.5 為相對前一版預算（10°／3°）的倍率。
+- **目標**：ip2p VAE 編碼器後驗平均與原圖的距離（最大化）；Adam 1800 步、lr 3e-4 → 1e-5，Θ 以種子 0、尺度 0.002 初始化。
+- **主張**：淨化後保留防禦效果；未淨化時不主張阻擋編輯。
+- **消融**（八列，與 Full 同協定）：A1 隨機 Θ、A2 σ ＝ 0、A3 不設角度界、A4 單一 25°、B1 隨機色相飽和度、B2 最佳化色相飽和度、
+  B3 3×3 affine、B4 無約束 LUT；B1–B4 以防禦圖 LPIPS 對齊 ImmuLUT（B1 ±0.005、B2–B4 ±0.015）。
+- 程式、讀數與彙整目前在 trial `lut3d_defense_and_naturalness`（`generate_color3d_defenses.py` 的 `SmoothAngleLut`、`run_lut_queue.sh`、
+  `results/`）；升格計畫見 `../STATUS.md`。
+
+## 5. 已退役方向的數據紀錄（程式與產物已刪除）
+
+### 5.1 前身方法 color（程式 `generate_color_defenses`）
 
 - **載體**：全域換色表，輸出只依像素自身顏色。CIELAB (a,b) 以 7×7 錨點（±90）的 Gaussian RBF（σ 30）
   單位分割內插位移，|d| ≤ 80；亮度為 16 段單調曲線。參數 114 個。
@@ -39,7 +56,7 @@
   對原圖 LPIPS ≤ `data/color_lpips_reference.csv` 的逐張值 ＋ 0.0025。
 - **求解**：Adam，lr 0.02 → 0.004，900 步；每張約 53 分鐘、顯存約 18 GB。
 
-## 5. 結果（ip2p，主種子，32 格平均）
+#### 結果（開發集 8 張，ip2p，主種子，32 格平均）
 
 | 方法 | 改動 | 防禦圖 LPIPS | ΔE00 | 編輯結果 LPIPS 全圖／主體／背景 | 淨化後編輯結果 LPIPS（7 道） |
 |---|---|---|---|---|---|
@@ -54,14 +71,14 @@
 - xattn：注意力比值終值 0.857–0.988。
 - 「編輯結果 LPIPS ÷ 防禦圖 LPIPS」：color 1.30、color_simple 1.40、skinbox 1.40（主體 1.21／1.28／1.36）。
 
-## 6. 與主表 baseline 的比較（baseline 專案提供）
+#### 與主表 baseline 的比較（baseline 專案提供）
 
 - 失真對齊（防禦圖 LPIPS ≈ 0.334）後，主體的編輯結果 LPIPS：color_curve 0.422，baseline 0.198–0.346（sifm 0.346、dayn 0.345、dia_pt 0.343）；
   全圖為 color_curve 0.386，與 dayn、dia_pt 相同，dia_r 0.390。
 - 淨化後編輯結果 LPIPS（7 道平均）：color_curve 0.392、color 0.308；對齊後 baseline 0.116–0.241。
 - 美術指標（原生預算）：VMAF color 70.6、color_curve 71.4，baseline 64.9–95.6；無參考指標（LAION、CLIP-IQA、NIQE）與原圖接近。
 
-## 6a. 研究主線：color3d_orig（trial `lut3d_defense_and_naturalness`）
+### 5.2 約束版查找表 color3d_orig（ImmuLUT 的前一代）
 
 33³ RGB 3D 查找表、ip2p VAE encoder 目標、PHR 增廣 Lagrange 求解，以文獻依據的顏色約束（逐像素色度位移上限、相鄰色對增益與尾端、色調單調、膚色色相與彩度比）與防禦圖 LPIPS 區間控制外觀。兩個操作點：`color3d_orig`（LPIPS 0.27–0.30、色度 ≤ 8）與 `color3d_0d4`（LPIPS 0.37–0.42、色度 ≤ 15、另加膚色 Δ(a*, b*) 不均勻度 ≤ 4.5）。8 張、ip2p 主種子、四句配件指令；讀數讀 8-bit PNG：
 
@@ -72,11 +89,9 @@
 | 前一版（`color3d_chroma4_slope2`，已刪除） | 0.207 | 0.266 | 0.233 | 0.143 |
 | baseline 等失真臂（10 個；Mist、PhotoGuard-L∞ 為 2/255） | 0.300–0.374 | 0.29–0.40 | 0.13–0.24 | 0.02–0.07 |
 
-約束的重新公式化（LPIPS 下界斜坡 `color3d_floor_ramp`；影像自適應可行集合加色空間 Lipschitz 與逐點膚色橢圓，解除約束間的拉鋸）的診斷、各變體讀數與使用者看圖判定，見該 trial 的 `README.md`〈約束重新公式化的驗證〉與 `design_notes/`。
+約束的重新公式化（LPIPS 下界斜坡、影像自適應可行集合加色空間 Lipschitz 與逐點膚色橢圓）的診斷與各變體讀數見 trial 的 `README.md`。
 
-參數、約束設計、消融與已退役路線的數字見該 trial 的 `README.md`。
-
-## 7. 已退役方向的數據紀錄（程式與產物已刪除）
+### 5.3 其他全域顏色方法
 
 | 方法 | 載體／改動 | 防禦圖 LPIPS | 編輯結果 LPIPS 全圖 |
 |---|---|---|---|
@@ -89,7 +104,7 @@
 | ab_prism | 色度相依亮度曲線 ＋ 亮度相依色度相似變換 | 0.239 | 0.295 |
 | style_affine／style_opt／curve_dual_spatial | 空間色場，否決（色塊、臉框圈、邊界） | 0.34–0.39 | 0.40–0.44 |
 
-### 暫緩：隱含分類器目標（selfrec）
+### 5.4 暫緩：隱含分類器目標（selfrec）
 
 目標為 ip2p 以防禦圖自身為影像條件、空字串為文字條件的 ε 預測誤差比（配對 (t, ε)，最大化；Li et al., "Your Diffusion Model is
 Secretly a Zero-Shot Classifier", ICCV 2023），程式在 trial `edit_failure_mechanisms` 的 `generate_mechanism_defenses.py`。

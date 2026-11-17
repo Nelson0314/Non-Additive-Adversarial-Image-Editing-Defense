@@ -1,12 +1,16 @@
 # color：全域顏色映射的免疫防禦
 
-防禦圖由逐影像最佳化的全域逐像素顏色映射產生（研究主線 color3d：33³ RGB 3D 查找表，色空間平滑的色度旋轉，外觀由參數化保證極角變化 < 10°、色相變化 < 3°；對照為 PHR 版 color3d_phr 與更早的 color3d_orig），輸出只依像素自身顏色，不加性雜訊、不用空間相依色場；目標為使攻擊者以 InstructPix2Pix 做的編輯偏離未防禦的編輯結果，並以 LPIPS 區間與文獻依據的顏色約束控制外觀。主線在 trial `trials/lut3d_defense_and_naturalness/`（不入版控），方法與結果見其 `README.md`，現況見 `STATUS.md`，設計與已退役方向的數據見 `docs/DESIGN.md`。
+防禦圖由逐影像最佳化的全域逐像素顏色映射產生，輸出只依像素自身顏色，不加性雜訊、不用空間相依色場。論文方法 **ImmuLUT**
+（條件名 `color3d_scale2p5`，Pexels 版 `color3d_scale2p5_pexels`）為 33³ RGB 查找表：以黑點為原點、灰軸為極軸的色度旋轉場，
+經色空間高斯模糊（σ ＝ 4 格點）平滑，極角變化 < 25°、色相變化 < 7.5°、‖c‖ 不變，三者由參數化保證；目標為 ip2p VAE 編碼器潛向量
+距離（使攻擊者以 InstructPix2Pix 做的編輯偏離未防禦的編輯結果），Adam 1800 步，無投影、無 LPIPS 上下界。求解鏈與讀數目前在
+trial `trials/lut3d_defense_and_naturalness/`（不入版控，待升格），現況見 `STATUS.md`，設計與已退役方向的數據見 `docs/DESIGN.md`。
 
 ## 目錄
 
 | 路徑 | 內容 |
 |---|---|
-| `src/immunization_color/` | `cli/`（編輯、淨化、讀數的命令列入口）、`method.py`（全域換色表 `ColorMap`、comm 目標與臉框／膚色支撐函式，trial 引用）、`layout.py`（預設目錄） |
+| `src/immunization_color/` | `cli/`（編輯、淨化、讀數的命令列入口）、`method.py`（前身方法的全域換色表 `ColorMap`、comm 目標與臉框／膚色支撐函式；trial 的 `FilteredLut` 仍引用，升格後不再引用即刪除）、`layout.py`（預設目錄） |
 | `scripts/env.sh` | 執行環境：以 `src/` 與 `vendor/` 解析 Python 套件；`ENV_FILE` 可指定機器相關設定 |
 | `data/portraits/` | 原圖、`masks/`、`prompts.yaml` |
 | `docs/DESIGN.md` | 問題、協定、主線摘要與已退役方向的數據紀錄 |
@@ -24,7 +28,7 @@ source scripts/env.sh   # PYTHONPATH、PY
 python -m pytest tests
 ```
 
-color3d、color3d_phr 與 color3d_orig 的求解、編輯、淨化與讀數由 trial 的 `run_lut_queue.sh` 排程（用法見該 trial 的 `HANDOVER.md`）；它呼叫下列入口：
+ImmuLUT 與消融各列的求解、編輯、淨化與讀數由 trial 的 `run_lut_queue.sh` 排程（用法見該 trial 的 `HANDOVER.md`）；它呼叫下列入口：
 
 | 入口（`python -m immunization_color.cli.<名稱>`） | 用途 |
 |---|---|

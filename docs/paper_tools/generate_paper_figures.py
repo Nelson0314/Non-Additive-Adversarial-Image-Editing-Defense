@@ -43,6 +43,8 @@ BLURGUARD = "blurguard"
 HIGHLIGHT = "dct_shield_y"  # additive method drawn separately (native budget; inputs merged by the caller)
 HIGHLIGHT_LABEL = "DCT-Shield-Y (native)"
 SOURCE_MARKER = {"native": "s", "aligned": "o", "aligned_1p255": "o", "plane": "^"}
+# Fig. 3(a): both axes start near the data (no points below 0.2), marked with axis breaks at the origin
+PLANE_A_LO = 0.2
 # purification.pdf is drawn at its printed size (CVPR \linewidth = 3.25 in) so that its 7 pt text prints at 7 pt
 PURIFICATION_SIZE = (3.25, 1.9)
 PURIFICATION_FONT = {"font.size": 7, "axes.labelsize": 7, "legend.fontsize": 7, "xtick.labelsize": 7,
@@ -73,6 +75,14 @@ def style():
         "ytick.major.size": 2.5, "axes.grid": True, "grid.color": "#e6e9ed", "grid.linewidth": 0.5,
         "pdf.fonttype": 42,
     })
+
+
+def axis_breaks(ax, size=0.018):
+    """Two short slanted strokes on each axis next to the origin, marking that the axes do not start at 0."""
+    kw = dict(transform=ax.transAxes, color="black", lw=0.6, clip_on=False, zorder=6)
+    for d in (0.03, 0.045):
+        ax.plot([d - size / 2, d + size / 2], [-size, size], **kw)
+        ax.plot([-size, size], [d - size / 2, d + size / 2], **kw)
 
 
 def draw_line(ax, slope, intercept, lo, hi):
@@ -159,20 +169,24 @@ def main():
         ax_a.scatter([float(row["defense_lpips"]) for row in sel], [float(row["edit_lpips"]) for row in sel],
                      s=14, marker=marker, color=C_ADDITIVE, alpha=0.85, edgecolors="white", linewidths=0.3, zorder=2)
     ax_a.scatter(ox, oy0, s=70, marker="*", color=C_OURS, edgecolors="white", linewidths=0.4, zorder=4)
-    ax_a.annotate(OURS_LABEL, (ox, oy0), xytext=(-14, 9), textcoords="offset points", color=C_OURS,
-                  fontsize=7)
+    # label in the empty lower-right area, with a leader line to the star
+    ax_a.annotate(OURS_LABEL, (ox, oy0), xytext=(0.43, 0.31), textcoords="data", color=C_OURS, fontsize=7,
+                  ha="left", va="center", arrowprops=dict(arrowstyle="-", color=C_OURS, lw=0.5, shrinkA=1, shrinkB=4))
     if args.ours_extra:
         ex, ey = float(args.ours_extra[0]), float(args.ours_extra[1])
         ax_a.scatter(ex, ey, s=70, marker="*", facecolors="white", edgecolors=C_OURS, linewidths=0.9, zorder=4)
         ax_a.annotate(args.ours_extra[2], (ex, ey), xytext=(6, -3), textcoords="offset points", color=C_OURS,
                       fontsize=6.5, va="top")
-    ax_a.set_xlim(0, 0.7)
-    ax_a.set_ylim(0, 0.7)
+    y_top = math.ceil((max(ys + [oy0]) + 0.03) * 20) / 20  # every native point drawn in full
+    ax_a.set_xlim(PLANE_A_LO, 0.7)
+    ax_a.set_ylim(PLANE_A_LO, y_top)
+    axis_breaks(ax_a)
     ax_a.set_xlabel("Defense LPIPS")
     ax_a.set_ylabel("Edit LPIPS")
     present = {SOURCE_MARKER.get(row["source"]) for row in points}
     ax_a.set_title("(a) Before purification, all budgets" if "^" in present else "(a) Before purification", loc="left")
-    ax_a.text(0.69, 0.04, f"dashed: least-squares fit, $r$ = {r:.3f}", color=GRAY, fontsize=6.5, ha="right")
+    ax_a.text(0.69, PLANE_A_LO + 0.02, f"dashed: least-squares fit, $r$ = {r:.3f}", color=GRAY, fontsize=6.5,
+              ha="right")
     handles = [Line2D([], [], ls="none", marker=m, color=C_ADDITIVE, ms=3.5, label=label)
                for m, label in (("s", "native budget"), ("o", "matched distortion"), ("^", "budget sweep")) if m in present]
     ax_a.legend(handles=handles, loc="upper left", frameon=False, handletextpad=0.2, borderaxespad=0.2)

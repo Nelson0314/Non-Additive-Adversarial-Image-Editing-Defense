@@ -40,6 +40,9 @@ def test_uses_uv_when_interpreter_has_no_pip(monkeypatch):
 
 
 def test_prefers_pip_when_available(monkeypatch):
+    # 情境為「pip 可用」：測試環境本身不一定裝有 pip（uv 建立的 venv 沒有），故明確設定 find_spec。
+    monkeypatch.setattr(generate_requirements_lock.importlib.util, "find_spec",
+                        lambda name: object() if name == "pip" else None)
     monkeypatch.setattr(generate_requirements_lock.shutil, "which", lambda name: "/opt/bin/uv")
     assert generate_requirements_lock.freeze_command()[1:] == ["-m", "pip", "freeze", "--all"]
 

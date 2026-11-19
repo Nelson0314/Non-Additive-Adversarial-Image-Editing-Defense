@@ -54,6 +54,14 @@ def sources(img, k, purifier):
     e = COLOR_TRIAL / "artifacts_pexels/edits_by_image" / c / img
     out["immulut"] = (COLOR_TRIAL / "artifacts_pexels/defenses" / c / f"{img}__{c}__def.png",
                       e / "defended" / f"ip2p_{c}" / edit, e / "purified" / purifier / f"ip2p_{c}_{purifier}" / edit)
+    if purifier == "vae_trans":  # VAE-Trans 的編輯在 vae_trans/<根>/<分組>/（scripts/evaluate_pexels_followup.sh、blurguard_rest 的同名版面）
+        vt = Path("artifacts/pexels_portraits/vae_trans") / root
+        tail = lambda c: Path("purified_edits") / c / "vae_trans" / f"ip2p_{c}_vae_trans" / edit
+        groups = {"undefended": vt / "native", "immulut": vt / "color3d_scale2p5", **{c: vt / "aligned" for c in ARMS},
+                  "blurguard": vt / "blurguard" if img in first
+                  else Path("runtime/pexels_portraits/blurguard_rest/vae_trans") / unit / "blurguard"}
+        names = {"immulut": "color3d_scale2p5_pexels"}
+        out = {c: (t[0], t[1], groups[c] / tail(names.get(c, c))) for c, t in out.items()}
     missing = [p.as_posix() for files in out.values() for p in files if not p.is_file()]
     if missing:
         raise SystemExit(f"缺 {len(missing)} 個檔：{missing}")

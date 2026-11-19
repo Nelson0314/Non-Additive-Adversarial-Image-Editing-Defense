@@ -66,7 +66,7 @@ We evaluate the contributions of the geometric constraints and compare the propo
   \centering
   \footnotesize
   \setlength{\tabcolsep}{4pt}
-  \caption{Ablations on InstructPix2Pix (306 portraits $\times$ 4 instructions). Means over the portraits with a result in every row.}
+  \caption{Ablations on InstructPix2Pix (306 portraits $\times$ 4 instructions). Each row is the mean over the $n$ portraits on which the variant has a result; A4 has no result on man\_33, B2 on woman\_44, woman\_82, and woman\_129, and B3 on man\_99. The paired differences of \cref{tab:supp_ablation_paired} use the 301 portraits common to all rows.}
   \label{tab:ablation}
   \begin{tabular}{@{}llc ccc cccc@{}}
     \toprule
@@ -75,19 +75,19 @@ We evaluate the contributions of the geometric constraints and compare the propo
     & Variant & $n$ & LPIPS $\downarrow$ & LAION $\uparrow$ & MUSIQ $\uparrow$ & None & JPEG 50 & Blur 2 & VAE-Trans \\
     \midrule
     \rowcolor{oursrow}
-    Full & \capg{} (Ours) & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
+    Full & \capg{} (Ours) & 306 & .287 & 5.34 & 5.31 & .353 & .386 & .360 & .288 \\
     \midrule
     \multicolumn{10}{@{}l}{\emph{Components (unmatched distortion)}} \\
-    A1 & w/o optimization (random $\Theta$) & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
-    A2 & w/o smoothing ($\sigma = 0$) & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
-    A3 & w/o angle bounds & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
-    A4 & single angle bound ($25^\circ$) & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
+    A1 & w/o optimization (random $\Theta$) & 306 & .045 & 5.44 & 5.36 & .087 & .151 & .082 & .061 \\
+    A2 & w/o smoothing ($\sigma = 0$) & 306 & .401 & 5.28 & 5.05 & .462 & .448 & .425 & .322 \\
+    A3 & w/o angle bounds & 306 & .459 & 5.24 & 4.96 & .507 & .530 & .517 & .421 \\
+    A4 & single angle bound ($25^\circ$) & 305 & .438 & 5.33 & 5.16 & .483 & .518 & .505 & .428 \\
     \midrule
     \multicolumn{10}{@{}l}{\emph{Color mappings (matched distortion)}} \\
-    B1 & random hue / saturation & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
-    B2 & optimized hue / saturation & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
-    B3 & optimized $3\times3$ affine & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
-    B4 & unconstrained $K^3$ LUT & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
+    B1 & random hue / saturation & 306 & .238 & 5.28 & 5.19 & .298 & .337 & .317 & .255 \\
+    B2 & optimized hue / saturation & 303 & .290 & 5.19 & 5.13 & .353 & .391 & .365 & .316 \\
+    B3 & optimized $3\times3$ affine & 305 & .287 & 5.27 & 4.81 & .381 & .428 & .393 & .364 \\
+    B4 & unconstrained $K^3$ LUT & 306 & .289 & 5.30 & 5.05 & .380 & .375 & .319 & .305 \\
     \bottomrule
   \end{tabular}
 \end{table*}
@@ -96,7 +96,7 @@ We evaluate the contributions of the geometric constraints and compare the propo
   \centering
   \footnotesize
   \setlength{\tabcolsep}{4pt}
-  \caption{Paired differences, variant minus Full, on the portraits of \cref{tab:ablation}. $\pm$: half-width of the 95\% bootstrap interval over images.}
+  \caption{Paired differences, variant minus Full, on the 301 portraits of \cref{tab:ablation}. $\pm$: half-width of the 95\% paired bootstrap interval over images (10{,}000 resamples).}
   \label{tab:supp_ablation_paired}
   \begin{tabular}{@{}l ccc cccc@{}}
     \toprule
@@ -104,18 +104,17 @@ We evaluate the contributions of the geometric constraints and compare the propo
     \cmidrule(lr){2-4} \cmidrule(l){5-8}
     Variant $-$ Full & LPIPS & LAION & MUSIQ & None & JPEG 50 & Blur 2 & VAE-Trans \\
     \midrule
-    A1 & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
-    A2 & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
-    A3 & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
-    A4 & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
-    B1 & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
-    B2 & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
-    B3 & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
-    B4 & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
+    A1 & $-$.241{\scriptsize$\pm$.010} & $+$0.10{\scriptsize$\pm$.02} & $+$0.05{\scriptsize$\pm$.02} & $-$.264{\scriptsize$\pm$.010} & $-$.233{\scriptsize$\pm$.009} & $-$.276{\scriptsize$\pm$.011} & $-$.226{\scriptsize$\pm$.009} \\
+    A2 & $+$.115{\scriptsize$\pm$.007} & $-$0.06{\scriptsize$\pm$.03} & $-$0.26{\scriptsize$\pm$.03} & $+$.111{\scriptsize$\pm$.007} & $+$.063{\scriptsize$\pm$.006} & $+$.066{\scriptsize$\pm$.008} & $+$.035{\scriptsize$\pm$.007} \\
+    A3 & $+$.173{\scriptsize$\pm$.008} & $-$0.10{\scriptsize$\pm$.02} & $-$0.34{\scriptsize$\pm$.03} & $+$.155{\scriptsize$\pm$.008} & $+$.145{\scriptsize$\pm$.008} & $+$.159{\scriptsize$\pm$.008} & $+$.133{\scriptsize$\pm$.008} \\
+    A4 & $+$.151{\scriptsize$\pm$.007} & $-$0.01{\scriptsize$\pm$.02} & $-$0.15{\scriptsize$\pm$.03} & $+$.131{\scriptsize$\pm$.008} & $+$.133{\scriptsize$\pm$.007} & $+$.146{\scriptsize$\pm$.008} & $+$.140{\scriptsize$\pm$.007} \\
+    B1 & $-$.050{\scriptsize$\pm$.011} & $-$0.06{\scriptsize$\pm$.03} & $-$0.11{\scriptsize$\pm$.04} & $-$.055{\scriptsize$\pm$.011} & $-$.049{\scriptsize$\pm$.011} & $-$.043{\scriptsize$\pm$.010} & $-$.034{\scriptsize$\pm$.010} \\
+    B2 & $+$.004{\scriptsize$\pm$.001} & $-$0.15{\scriptsize$\pm$.03} & $-$0.18{\scriptsize$\pm$.04} & $+$.002{\scriptsize$\pm$.004} & $+$.007{\scriptsize$\pm$.004} & $+$.006{\scriptsize$\pm$.005} & $+$.029{\scriptsize$\pm$.006} \\
+    B3 & $+$.001{\scriptsize$\pm$.001} & $-$0.07{\scriptsize$\pm$.03} & $-$0.49{\scriptsize$\pm$.04} & $+$.029{\scriptsize$\pm$.006} & $+$.043{\scriptsize$\pm$.006} & $+$.034{\scriptsize$\pm$.007} & $+$.076{\scriptsize$\pm$.008} \\
+    B4 & $+$.001{\scriptsize$\pm$.000} & $-$0.04{\scriptsize$\pm$.03} & $-$0.25{\scriptsize$\pm$.04} & $+$.027{\scriptsize$\pm$.003} & $-$.011{\scriptsize$\pm$.004} & $-$.041{\scriptsize$\pm$.006} & $+$.017{\scriptsize$\pm$.005} \\
     \bottomrule
   \end{tabular}
 \end{table*}
-\prelimnote{Ablation tables: 306-portrait readings from color pending.}
 
 \section{Additional metrics}
 \label{sec:supp_metrics}

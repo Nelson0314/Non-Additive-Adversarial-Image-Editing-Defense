@@ -103,7 +103,7 @@ def main():
     draw(files, prompts[k], purifier, a.min_print_pt * WIDTH / a.print_width, a.output_root / name, extras)
 
 
-def draw(files, prompt, purifier, fs, out, extras=()):
+def draw(files, prompt, purifier, fs, out, extras=(), arms=(*ARMS, "blurguard")):
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
@@ -114,7 +114,8 @@ def draw(files, prompt, purifier, fs, out, extras=()):
     tool = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(tool)
     ink, additive, ours = tool.INK, tool.ADDITIVE, tool.OURS
-    columns = [(tool.LABELS[c], ink, additive, files[c]) for c in (*ARMS, "blurguard")]
+    labels = {**tool.LABELS, "sifm": "SIFM"}
+    columns = [(labels[c], ink, additive, files[c]) for c in arms]
     columns.append((tool.OURS_LABEL.replace(" (", "\n("), ours, ours, files["immulut"]))
     n_extra = len(extras)
     columns += [(label, ours, ours, triple) for label, triple in extras]
@@ -168,6 +169,8 @@ def draw(files, prompt, purifier, fs, out, extras=()):
         note = r"Purification: Gaussian blur, $\sigma = 2$"
     elif purifier.startswith("jpeg") and purifier[4:].isdigit():
         note = f"Purification: JPEG, quality {int(purifier[4:])}"
+    elif purifier == "vae_trans":
+        note = "Purification: VAE-Trans"
     else:
         raise SystemExit(f"未定義的淨化標示：{purifier}")
     ax.text(xs[-1] + s, y_foot, note, ha="right", va="center")

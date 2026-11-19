@@ -1,20 +1,53 @@
 \clearpage
 \setcounter{page}{1}
 \maketitlesupplementary
+\setcounter{section}{0}
+enewcommand{	hesection}{\Alph{section}}
 
 \section{Protocol details}
-\paragraph{Data.} The portraits are drawn from the metadata of a public collection of 9{,}853 Pexels portraits from which images without a detected face had been removed; the images are downloaded at a width of 1200 pixels. The selection proceeds in six steps. (1)~The image description contains words for exactly one of man and woman and none of a list of exclusion words (children, groups, black-and-white, occlusion, artistic rendering), which leaves 5{,}763 images. (2)~MTCNN detects exactly one face with probability at least 0.98, the face height is 0.07 to 0.50 of the shorter image side, the face is near-frontal (horizontal offset of the nose tip at most 0.25 of the inter-eye distance), the image is not grayscale (mean $|a^*| + |b^*| \ge 6$ in CIELAB), and the face box lies inside the crop, which leaves 2{,}486 images. (3)~The zero-shot gender probability of CLIP ViT-L/14 is at least 0.8 and agrees with the description, and FaceNet returns an identity embedding, which leaves 2{,}459 images (407 men, 2{,}052 women). (4)~The images are ranked by CLIP image similarity to a set of eight reference portraits, at most two images per photographer are kept, and pairs with FaceNet identity cosine similarity of at least 0.65 are treated as the same person. (5)~Images with occlusion, profile views, closed eyes, small subjects, face paint, children, nudity, or underexposure are removed by visual inspection. (6)~Six images whose subject mask covers less than 1\% or more than 80\% of the image or misses the person are removed. The result contains 108 men and 198 women; the gender ratio follows the number of men that pass step~(3). The images are used under the Pexels License, which permits commercial and non-commercial use without attribution; the Pexels identifier, photographer, description, original size, face box, crop box, and checksum of each image are recorded with the data. The 306 Pexels portraits are cropped to a square of side $\min(H, W)$ centered $0.18$ side lengths below the center of the detected face box, clamped to the image, and resized to $512^2$ with Lanczos resampling. Subject masks are produced with CLIPSeg (\texttt{CIDAS/clipseg-rd64-refined}, text prompt given by the class name, threshold 0.30, dilation by 4 pixels); they are used only for the subject and background breakdown of the per-cell readings and are not used by any defense in the paper.
+\label{sec:supp_protocol}
+\paragraph{Data.} The portraits are drawn from the metadata of a public collection of 9{,}853 Pexels portraits from which images without a detected face had been removed; the images are downloaded at a width of 1200 pixels. The selection proceeds in six steps. (1)~The image description contains words for exactly one of man and woman and none of a list of exclusion words (children, groups, black-and-white, occlusion, artistic rendering), which leaves 5{,}763 images. (2)~MTCNN detects exactly one face with probability at least 0.98, the face height is 0.07 to 0.50 of the shorter image side, the face is near-frontal (horizontal offset of the nose tip at most 0.25 of the inter-eye distance), the image is not grayscale (mean $|a^*| + |b^*| \ge 6$ in CIELAB), and the face box lies inside the crop, which leaves 2{,}486 images. (3)~The zero-shot gender probability of CLIP ViT-L/14 is at least 0.8 and agrees with the description, and FaceNet returns an identity embedding, which leaves 2{,}459 images (407 men, 2{,}052 women). (4)~The images are ranked by CLIP image similarity to a set of eight reference portraits, at most two images per photographer are kept, and pairs with FaceNet identity cosine similarity of at least 0.65 are treated as the same person. (5)~Images with occlusion, profile views, closed eyes, small subjects, face paint, children, nudity, or underexposure are removed by visual inspection. (6)~Six images whose subject mask covers less than 1\% or more than 80\% of the image or misses the person are removed. The result contains 108 men and 198 women; the gender ratio follows the number of men that pass step~(3). The images are used under the Pexels License, which permits commercial and non-commercial use without attribution; the Pexels identifier, photographer, description, original size, face box, crop box, and checksum of each image are recorded with the data. The 306 Pexels portraits are cropped to a square of side $\min(H, W)$ centered $0.18$ side lengths below the center of the detected face box, clamped to the image, and resized to $512^2$ with Lanczos resampling. Subject masks are produced with CLIPSeg (\texttt{CIDAS/clipseg-rd64-refined}, text prompt given by the class name, threshold 0.30, dilation by 4 pixels); they are used for the inpainting masks of \cref{sec:supp_inpainting} and are not used by any defense.
 
-\paragraph{Instructions and editors.} The four instructions are those of FaceLock~\cite{wang2025facelock}: ``Let the person wear sunglasses'', ``Let the person wear a police suit'', ``Let the person wear a helmet'', and ``Let the person wear a bowtie''. InstructPix2Pix (\texttt{timbrooks/instruct-pix2pix}) uses Euler-Ancestral sampling with 50 steps, text guidance 7.5, image guidance 1.8, and seed 20260812 at $512^2$. UltraEdit receives the same instructions in the form ``Add sunglasses to the person'' and so on, with text guidance 2.5, image guidance 1.5, and 50 steps at $512^2$; FLUX.1 Kontext uses guidance 3.5, 28 steps, and NF4 quantization at $512^2$. The undefended edit of each image and instruction uses the same seed, so that a defended and an undefended edit differ only in the input image.
+\paragraph{Instructions and editors.} The four instructions are those of FaceLock~\cite{wang2025facelock}: ``Let the person wear sunglasses'', ``Let the person wear a police suit'', ``Let the person wear a helmet'', and ``Let the person wear a bowtie''. InstructPix2Pix (\texttt{timbrooks/instruct-pix2pix}) uses Euler-Ancestral sampling with 50 steps, text guidance 7.5, image guidance 1.8, and seed 20260812 at $512^2$. VIBE-DistilledCFG (\texttt{iitolstykh/VIBE-Image-Edit-DistilledCFG}, 20 sampling steps) and FLUX.2 [klein] 4B (\texttt{black-forest-labs/FLUX.2-klein-4B}, distilled, bf16, 4 steps, guidance 1.0) receive the same instructions in the form ``Add sunglasses to the person'' and so on, at $512^2$ with the same seed. The immunized images of all editors are those optimized against InstructPix2Pix, without re-optimization. The undefended edit of each image and instruction uses the same seed, so that an immunized and an undefended edit differ only in the input image. The inpainting editor is described in \cref{sec:supp_inpainting}.
 
 \paragraph{Purifications.} JPEG compression at quality 80, 50, and 30; Gaussian blur with $\sigma = 1$ and $2$; cropping 10\% from each side followed by bicubic resizing to $512^2$; and rotation about the image center by a fixed angle of $15^\circ$ with bilinear interpolation and zero fill. Each purification is applied to the immunized image, and the edit of the purified image is compared with the edit of the original image under the same purification. VAE-Trans~\cite{purifyonce2026} reconstructs the immunized image through a VAE whose encoder is fine-tuned on clean images.
 
-\paragraph{Matched-distortion rescaling.} Each additive method is first run at the budget of its paper. In the matched-distortion arm its budget $\epsilon$ is multiplied by a factor chosen so that the mean defense LPIPS is close to that of \capg{}, which gives 0.251 to 0.318 on the 306 portraits; the step size is scaled by the same factor so that the ratio of step size to budget is unchanged, and all other settings are kept. The rescaled arms are therefore not the settings of the original papers; for DCT-Shield and DCT-Shield-Y the rescaled budget falls below one quantization level, so the condition under which those papers state robustness to JPEG compression no longer holds. LPIPS is computed with \texttt{piq.LPIPS} (VGG) on the delivered 8-bit images.
+\paragraph{Matched-distortion rescaling.} Each additive method is first run at the budget of its paper (\cref{tab:supp_provenance}). In the matched-distortion arm its budget $\epsilon$ is multiplied by a factor chosen on a calibration set of 8 portraits so that the mean defense LPIPS equals 0.3344, the value of an earlier color-based variant of this project; the factors are then applied unchanged to the 306 portraits, on which the arms have mean defense LPIPS between 0.251 and 0.318 and \capg{} has 0.287. The step size is scaled by the same factor so that the ratio of step size to budget is unchanged, and all other settings are kept. The rescaled arms are therefore not the settings of the original papers; for DCT-Shield and DCT-Shield-Y the rescaled budget falls below one quantization level, so the condition under which those papers state robustness to JPEG compression no longer holds. LPIPS is computed with \texttt{piq.LPIPS} (VGG) on the delivered 8-bit images.
 
 \section{Baseline provenance and budget conversion}
-\TODO{}
+\label{sec:supp_provenance}
+\Cref{tab:supp_provenance} lists the native settings of each additive method, the factor applied to its budget in the matched-distortion arm, and the source of the implementation. Methods without a public implementation are reimplemented from the description in their papers.
 
-\section{Per-image results and appearance sheets}
+\begin{table*}[t]
+  \centering
+  \scriptsize
+  \setlength{\tabcolsep}{3pt}
+  \caption{Native settings of the additive methods, the factor applied to $\epsilon$ in the matched-distortion arm, and the implementation used. Budgets are on the $[0, 1]$ pixel scale unless stated. $^{\dagger}$The PhotoGuard paper (Table~9) states an $L_\infty$ budget of 16/255 with step 2/255; the code path enabled in the official notebook uses the values listed, which are the ones used here.}
+  \label{tab:supp_provenance}
+  \begin{tabular}{@{}l p{0.13\textwidth} p{0.08\textwidth} c p{0.15\textwidth} c p{0.2\textwidth}@{}}
+    \toprule
+    Method & Budget $\epsilon$ & Step size & Steps & Norm & $\epsilon$ factor & Implementation \\
+    \midrule
+    PhotoGuard (encoder)$^{\dagger}$~\cite{salman2023photoguard} & 0.03 (7.65/255) & 0.01 & 1000 & $L_\infty$, sign PGD & 0.2614 & official notebook (commit 686bea7), ported \\
+    Mist~\cite{liang2023mist} & 16/255 & 1/255 & 100 & $L_\infty$ & 0.125 & official code (commit 99f5f3c), ported \\
+    DIA-PT~\cite{dia2025} & 6.4/255 & 1/255 & 20 & $L_\infty$ & 0.418 & official code, ported \\
+    DIA-R~\cite{dia2025} & 6.4/255 & 1/255 & 20 & $L_\infty$ & 0.969 & official code, ported \\
+    DCT-Shield~\cite{dctshield2025} & 1 (DCT coefficients) & -- & 1000 & DCT domain, $Q_{\mathrm{alg}} = 0.95$, $\gamma = 0.1$ & 0.211 & reimplemented (Algorithm~1 of the supplement) \\
+    DCT-Shield-Y~\cite{dctshield2025} & 1 (DCT coefficients, Y only) & -- & 1000 & DCT domain, $Q_{\mathrm{alg}} = 0.85$, $\gamma = 0.1$ & 0.073 & reimplemented (Algorithm~1 of the supplement) \\
+    SIFM~\cite{dong2025sifm} & 7.65/255 & 1/255 (not stated) & 100 & $L_\infty$ & 0.289 & reimplemented from the paper \\
+    DAYN~\cite{lo2024dayn} & 0.06 & -- & 100 & -- & 0.43 & reimplemented from the paper \\
+    DANP~\cite{zhang2025danp} & 0.03 & -- & 100 & -- & 0.323 & reimplemented from the paper \\
+    BlurGuard~\cite{blurguard2025} & 16/255 & 0.06 (learning rate) & 150 & $L_\infty$, $\sigma$-weighting 10 & 0.6071$^{\ddagger}$ & official code (commit e1b2d5e) \\
+    \bottomrule
+  \end{tabular}
+  \\[2pt]
+  {\scriptsize $^{\ddagger}$Matched-distortion arm: $\sigma$-weighting 0, and the solved perturbation is multiplied by 0.6071.}
+\end{table*}
+\prelimnote{Tab.~\ref{tab:supp_provenance}: step sizes and norms marked -- are not stated in the source; check against the baseline provenance notes.}
+
+\section{Ablations}
+\label{sec:supp_ablation}
+\Cref{tab:ablation} compares \capg{} (Full) with two groups of variants on the 306 portraits. Components (A): A1 random $\Theta$ without optimization, A2 no Gaussian smoothing ($\sigma = 0$), A3 no angular bounds, and A4 a single bound of $25^\circ$ on the rotation of each color. Color mappings (B), each optimized to the defense LPIPS of \capg{}: B1 random hue rotation with saturation scaling, B2 optimized hue rotation with saturation scaling, B3 optimized $3\times3$ affine transform, and B4 unconstrained $K^3$ LUT. \Cref{tab:supp_ablation_paired} gives the paired differences from Full. \Cref{fig:ablation_appearance} shows the immunized images of one portrait.
 
 \begin{figure*}[t]
   \centering
@@ -29,39 +62,64 @@
 
 \begin{table*}[t]
   \centering
-  \scriptsize
+  \footnotesize
   \setlength{\tabcolsep}{4pt}
-  \caption{Ablations on InstructPix2Pix (200 portraits $\times$ 4 instructions). Means over the $n = 197$ portraits with a result in every row: the single-bound variant did not finish on one portrait for lack of GPU memory, and the optimized hue / saturation change has no solution within $\pm 0.015$ of the defense LPIPS of \capg{} on two. Random hue / saturation does not reach this target on 64 of the 197 portraits, which are kept.}
+  \caption{Ablations on InstructPix2Pix (306 portraits $\times$ 4 instructions). Means over the portraits with a result in every row.}
   \label{tab:ablation}
-  \begin{tabular}{@{}lc ccc cccc@{}}
+  \begin{tabular}{@{}llc ccc cccc@{}}
     \toprule
-    & & \multicolumn{3}{c}{Immunized image} & \multicolumn{4}{c}{Edit LPIPS $\uparrow$} \\
-    \cmidrule(lr){3-5} \cmidrule(l){6-9}
-    Variant & $n$ & LPIPS $\downarrow$ & LAION $\uparrow$ & MUSIQ $\uparrow$ & None & JPEG 50 & Blur 2 & VAE-Trans \\
+    & & & \multicolumn{3}{c}{Immunized image} & \multicolumn{4}{c}{Edit LPIPS $\uparrow$} \\
+    \cmidrule(lr){4-6} \cmidrule(l){7-10}
+    & Variant & $n$ & LPIPS $\downarrow$ & LAION $\uparrow$ & MUSIQ $\uparrow$ & None & JPEG 50 & Blur 2 & VAE-Trans \\
     \midrule
     \rowcolor{oursrow}
-    \capg{} (Ours) & 197 & .291 & 5.32 & 5.30 & .355 & .387 & .362 & .290 \\
+    Full & \capg{} (Ours) & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
     \midrule
-    \multicolumn{9}{@{}l}{\emph{Component Analysis (Unmatched Distortion)}} \\
-    %w/o optimization (random $\Theta$) & 197 & .048 & 5.43 & 5.33 & .091 & .154 & .086 & .064 \\
-    w/o smoothing ($\sigma = 0$) & 197 & .405 & 5.23 & 5.03 & .466 & .451 & .427 & .326 \\
-    w/o angle bounds & 197 & .465 & 5.22 & 4.94 & .512 & .534 & .522 & .425 \\
-    single angle bound ($25^\circ$) & 197 & .442 & 5.32 & 5.14 & .489 & .522 & .511 & .433 \\
+    \multicolumn{10}{@{}l}{\emph{Components (unmatched distortion)}} \\
+    A1 & w/o optimization (random $\Theta$) & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
+    A2 & w/o smoothing ($\sigma = 0$) & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
+    A3 & w/o angle bounds & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
+    A4 & single angle bound ($25^\circ$) & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
     \midrule
-    \multicolumn{9}{@{}l}{\emph{Color Mapping Comparison (Matched Distortion)}} \\
-    random hue / saturation & 197 & .236 & 5.28 & 5.18 & .296 & .334 & .317 & .250 \\
-    optimized hue / saturation & 197 & .295 & 5.17 & 5.11 & .359 & .395 & .370 & .319 \\
-    optimized $3\times3$ affine & 197 & .291 & 5.26 & 4.80 & .385 & .429 & .394 & .364 \\
-    unconstrained $K^3$ LUT & 197 & .292 & 5.26 & 5.03 & .382 & .377 & .323 & .308 \\
+    \multicolumn{10}{@{}l}{\emph{Color mappings (matched distortion)}} \\
+    B1 & random hue / saturation & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
+    B2 & optimized hue / saturation & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
+    B3 & optimized $3\times3$ affine & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
+    B4 & unconstrained $K^3$ LUT & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
     \bottomrule
   \end{tabular}
 \end{table*}
 
-\TODO{}
+\begin{table*}[t]
+  \centering
+  \footnotesize
+  \setlength{\tabcolsep}{4pt}
+  \caption{Paired differences, variant minus Full, on the portraits of \cref{tab:ablation}. $\pm$: half-width of the 95\% bootstrap interval over images.}
+  \label{tab:supp_ablation_paired}
+  \begin{tabular}{@{}l ccc cccc@{}}
+    \toprule
+    & \multicolumn{3}{c}{Immunized image} & \multicolumn{4}{c}{Edit LPIPS} \\
+    \cmidrule(lr){2-4} \cmidrule(l){5-8}
+    Variant $-$ Full & LPIPS & LAION & MUSIQ & None & JPEG 50 & Blur 2 & VAE-Trans \\
+    \midrule
+    A1 & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
+    A2 & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
+    A3 & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
+    A4 & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
+    B1 & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
+    B2 & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
+    B3 & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
+    B4 & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
+    \bottomrule
+  \end{tabular}
+\end{table*}
+\prelimnote{Ablation tables: 306-portrait readings from color pending.}
 
 \section{Additional metrics}
 \label{sec:supp_metrics}
-\begin{table}[h]
+\Cref{tab:supp_aesthetics} reports further measurements of the immunized images. \Cref{tab:supp_purification_first,tab:supp_purification_second} give the edit displacement for each purification, of which \cref{tab:main} reports the mean over the seven purifications. \Cref{tab:supp_distortion} reports two further distortion measures.
+
+\begin{table}[t]
   \centering
   \footnotesize
   \setlength{\tabcolsep}{4pt}
@@ -77,28 +135,207 @@
     \midrule
     DAYN & 40.6 & .981 & 5.208 & 4.135 \\
     DIA-R & 40.3 & .981 & 5.283 & 4.049 \\
-    DIA-PT & 42.5 & .988 & 5.265 & \textbf{3.867} \\
+    DIA-PT & 42.5 & .988 & 5.265 & 3.867 \\
     SIFM & \textbf{43.2} & .989 & 5.300 & 3.995 \\
     DANP & 43.0 & .988 & 5.286 & 3.993 \\
     Mist & 43.1 & \textbf{.991} & 5.339 & 3.997 \\
     PhotoGuard & 42.7 & .990 & 5.315 & 4.083 \\
     DCT-Shield & 39.3 & .980 & \textbf{5.380} & 4.823 \\
     DCT-Shield-Y & 37.7 & .987 & 5.351 & 4.633 \\
-    BlurGuard & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} & \prelim{--}{} \\
+    BlurGuard & 38.1 & .946 & 5.083 & \textbf{3.420} \\
     \midrule
     \rowcolor{oursrow}
     \textbf{\capg{}} & 24.2 & .928 & 5.278 & 3.979 \\
     \bottomrule
   \end{tabular}
 \end{table}
-\prelimnote{Supplementary aesthetics table: the matched-distortion BlurGuard arm is not yet run.}
 
 \input{sec/X_suppl_purification}
 
-\TODO{DISTS and color-aligned distortion on the 306 Pexels portraits.}
+\begin{table}[t]
+  \centering
+  \footnotesize
+  \setlength{\tabcolsep}{4pt}
+  \caption{Distortion of the immunized images under two further measures (306 Pexels portraits, matched-distortion arms): DISTS against the original image, and LPIPS after aligning the global color statistics of the immunized image to the original.}
+  \label{tab:supp_distortion}
+  \begin{tabular}{l cc}
+    \toprule
+    Method & DISTS $\downarrow$ & Color-aligned LPIPS $\downarrow$ \\
+    \midrule
+    DAYN & \prelim{--}{} & \prelim{--}{} \\
+    DIA-R & \prelim{--}{} & \prelim{--}{} \\
+    DIA-PT & \prelim{--}{} & \prelim{--}{} \\
+    SIFM & \prelim{--}{} & \prelim{--}{} \\
+    DANP & \prelim{--}{} & \prelim{--}{} \\
+    Mist & \prelim{--}{} & \prelim{--}{} \\
+    PhotoGuard & \prelim{--}{} & \prelim{--}{} \\
+    DCT-Shield & \prelim{--}{} & \prelim{--}{} \\
+    DCT-Shield-Y & \prelim{--}{} & \prelim{--}{} \\
+    BlurGuard & \prelim{--}{} & \prelim{--}{} \\
+    \midrule
+    \rowcolor{oursrow}
+    \textbf{\capg{}} & \prelim{--}{} & \prelim{--}{} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\prelimnote{Tab.~\ref{tab:supp_distortion}: DISTS and color-aligned LPIPS not yet computed; the alignment protocol is to be stated.}
+
+\section{Cross-editor: SD Inpainting}
+\label{sec:supp_inpainting}
+The immunized images optimized against InstructPix2Pix are edited with Stable Diffusion Inpainting (\texttt{runwayml/stable-diffusion-inpainting}, based on SD~1.5) without re-optimization; its VAE is identical to that of InstructPix2Pix. The mask is the complement of the CLIPSeg subject mask of \cref{sec:supp_protocol}, so that only the background is repainted, and the output is composited with the input outside the mask. The pipeline uses 50 steps, guidance 7.5, strength 1.0, and seed 20260812 at $512^2$. The four instructions follow the inpainting prompts of DiffusionGuard~\cite{diffusionguard2025}: ``A man/woman in a hospital'', ``in the gym'', ``in a snowy street'', and ``sitting next to a dog''. The evaluation covers 306 portraits $\times$ 4 instructions $=$ 1{,}224 edits per condition and purification. \Cref{tab:supp_inpainting} reports the results.
+
+\begin{table*}[t]
+  \centering
+  \footnotesize
+  \setlength{\tabcolsep}{3.5pt}
+  \caption{SD Inpainting (306 portraits $\times$ 4 instructions; immunized images optimized against InstructPix2Pix, without re-optimization). Each metric compares the edit of the immunized image with the edit of the original under the same purification. Best means in bold. ArcFace finds no face in the edits of one portrait after blur and after VAE-Trans; these cells are excluded from the ArcFace means.}
+  \label{tab:supp_inpainting}
+  \begin{tabular}{@{}l c cccc cccc cccc@{}}
+    \toprule
+    & Immunized & \multicolumn{4}{c}{Edit LPIPS $\uparrow$} & \multicolumn{4}{c}{SigLIP $\downarrow$} & \multicolumn{4}{c}{ArcFace $\downarrow$} \\
+    \cmidrule(lr){3-6} \cmidrule(lr){7-10} \cmidrule(l){11-14}
+    Method & LPIPS $\downarrow$ & None & JPEG 50 & Blur 2 & VAE & None & JPEG 50 & Blur 2 & VAE & None & JPEG 50 & Blur 2 & VAE \\
+    \midrule
+    PhotoGuard & .318 & .322 & .134 & .053 & .072 & .950 & .978 & .984 & .985 & .983 & .970 & .989 & .984 \\
+    DIA-PT & .261 & .280 & .160 & .075 & .086 & .952 & .970 & .977 & .983 & .976 & .966 & .979 & .972 \\
+    DCT-Shield & .283 & .283 & .109 & .044 & .061 & .958 & .980 & .986 & .987 & .987 & .980 & .989 & .987 \\
+    SIFM & \textbf{.251} & .270 & .150 & .071 & .082 & .952 & .973 & .978 & .983 & .978 & .969 & .984 & .979 \\
+    BlurGuard & .275 & .283 & .234 & .171 & .156 & .944 & .948 & .951 & .968 & .961 & .946 & .954 & .955 \\
+    \midrule
+    \rowcolor{oursrow}
+    \textbf{\capg{} (Ours)} & .287 & \textbf{.378} & \textbf{.389} & \textbf{.386} & \textbf{.352} & \textbf{.887} & \textbf{.888} & \textbf{.862} & \textbf{.897} & \textbf{.944} & \textbf{.924} & \textbf{.906} & \textbf{.895} \\
+    \bottomrule
+  \end{tabular}
+\end{table*}
+
+\begin{figure*}[t]
+  \centering
+  \fbox{\parbox[c][0.25\textwidth][c]{0.9\textwidth}{\centering\prelim{Figure in preparation}{}}}
+  \caption{Qualitative inpainting examples.}
+  \label{fig:supp_inpainting_examples}
+\end{figure*}
+\prelimnote{Fig.~\ref{fig:supp_inpainting_examples}: examples and description to be chosen.}
+
+\section{Immunization success rate}
+\label{sec:supp_isr}
+\paragraph{Judging.} Every edit of the 306 portraits under the six conditions of \cref{tab:isr} and the undefended condition, without purification and after JPEG 50, blur 2, and VAE-Trans, is judged by Claude Sonnet~5.5 on a sheet that shows all conditions of one portrait and instruction. Each edit receives three independent binary labels: the requested accessory is worn by the person; the edit does something other than the instruction (another person, extra people, a replaced scene, a wrong or unworn object); and the edit shows a severe structural or quality breakdown. A global color cast, mild blur, or mild haze is not a breakdown. An edit fails when the accessory is absent or either of the other labels is set. The immunization success rate of a condition is the fraction of failed edits among the cells whose undefended edit, under the same purification, succeeds (\cref{sec:supp_validity}).
+
+\paragraph{Human review.} The authors reviewed 1{,}038 cells on blinded panels: a stratified random sample of 114 cells and 725 cells in which the judgments of \capg{} and BlurGuard differ, together with the cells of their undefended references. The human and the model labels agree on 92.1\% of the random cells and on 68.8\% of the discordant cells. The reviewers marked 199 undefended reference edits as failures that the model had accepted; the 135 corresponding image, instruction, and purification slots are removed from the denominator. Reviewed cells take the human label.
+
+\Cref{tab:supp_isr_full} gives the rates with 95\% bootstrap intervals over images, \cref{tab:supp_isr_prompt} the rates per instruction, \cref{tab:supp_isr_kinds} the labels of the failed edits, and \cref{tab:supp_isr_paired} the paired differences from \capg{}.
+
+\begin{table*}[t]
+  \centering
+  \footnotesize
+  \setlength{\tabcolsep}{4pt}
+  \caption{Immunization success rate (\%) on 306 portraits $\times$ 4 instructions, InstructPix2Pix, with the 95\% bootstrap interval over images. Combined: the three purifications pooled. $n$: cells whose undefended edit succeeds.}
+  \label{tab:supp_isr_full}
+  \begin{tabular}{@{}l ccccc@{}}
+    \toprule
+    Method & None & JPEG 50 & Blur 2 & VAE-Trans & Combined \\
+    \midrule
+    PhotoGuard & \textbf{43.6} [39.6, 47.7] & 3.3 [2.1, 4.6] & 3.4 [2.2, 4.6] & 2.8 [1.7, 4.0] & 3.2 [2.5, 3.9] \\
+    DCT-Shield & 24.0 [21.1, 27.0] & 2.2 [1.3, 3.1] & 2.9 [1.8, 4.0] & 2.9 [1.9, 4.1] & 2.6 [2.0, 3.3] \\
+    BlurGuard & 13.3 [11.3, 15.3] & 11.0 [9.0, 13.1] & 9.0 [7.2, 10.7] & 6.7 [5.1, 8.4] & 8.9 [7.7, 10.3] \\
+    SIFM & 15.8 [13.2, 18.4] & 5.7 [4.2, 7.4] & 5.0 [3.7, 6.6] & 5.5 [4.1, 7.0] & 5.4 [4.4, 6.5] \\
+    Mist & 30.9 [28.2, 33.8] & 5.2 [3.9, 6.5] & 4.9 [3.6, 6.4] & 5.4 [3.9, 6.9] & 5.2 [4.2, 6.0] \\
+    \midrule
+    \rowcolor{oursrow}
+    \textbf{\capg{} (Ours)} & 12.3 [10.4, 14.4] & \textbf{11.6} [9.7, 13.5] & \textbf{14.8} [12.5, 17.3] & \textbf{10.4} [8.5, 12.4] & \textbf{12.3} [10.8, 13.8] \\
+    \midrule
+    $n$ & 957 & 930 & 912 & 895 & 2{,}737 \\
+    \bottomrule
+  \end{tabular}
+\end{table*}
+
+\begin{table}[t]
+  \centering
+  \scriptsize
+  \setlength{\tabcolsep}{2.5pt}
+  \caption{Immunization success rate (\%) per instruction, without purification and over the three purifications pooled. $n$: cells whose undefended edit succeeds after purification.}
+  \label{tab:supp_isr_prompt}
+  \begin{tabular}{@{}l cccc cccc@{}}
+    \toprule
+    & \multicolumn{4}{c}{None} & \multicolumn{4}{c}{Purified (pooled)} \\
+    \cmidrule(lr){2-5} \cmidrule(l){6-9}
+    Method & Sungl. & Police & Helmet & Bowtie & Sungl. & Police & Helmet & Bowtie \\
+    \midrule
+    PhotoGuard & 25.6 & 44.7 & 59.2 & 54.4 & 0.4 & 2.9 & 6.8 & 4.8 \\
+    DCT-Shield & 5.9 & 29.1 & 42.0 & 29.3 & 0.3 & 2.4 & 8.0 & 2.5 \\
+    BlurGuard & 0.0 & 23.8 & 29.6 & 7.9 & 0.1 & 11.4 & 26.9 & 6.0 \\
+    SIFM & 0.7 & 16.4 & 33.7 & 21.8 & 1.1 & 4.6 & 14.8 & 5.9 \\
+    Mist & 1.0 & 56.1 & 59.8 & 23.0 & 1.1 & 4.8 & 12.8 & 6.0 \\
+    \midrule
+    \rowcolor{oursrow}
+    \capg{} & 0.0 & 18.4 & 31.4 & 8.4 & 0.2 & 15.0 & 33.8 & 11.2 \\
+    \midrule
+    $n$ (purified) & & & & & 897 & 753 & 438 & 649 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{table}[t]
+  \centering
+  \footnotesize
+  \setlength{\tabcolsep}{4pt}
+  \caption{Labels of the failed edits (counts; an edit can carry more than one label): accessory absent, edit other than the instruction, and severe breakdown, over the three purifications pooled and without purification.}
+  \label{tab:supp_isr_kinds}
+  \begin{tabular}{@{}l ccc ccc@{}}
+    \toprule
+    & \multicolumn{3}{c}{Purified (pooled)} & \multicolumn{3}{c}{None} \\
+    \cmidrule(lr){2-4} \cmidrule(l){5-7}
+    Method & Absent & Other & Broken & Absent & Other & Broken \\
+    \midrule
+    PhotoGuard & 66 & 23 & 1 & 205 & 293 & 51 \\
+    DCT-Shield & 53 & 19 & 3 & 158 & 94 & 11 \\
+    BlurGuard & 205 & 80 & 10 & 104 & 35 & 2 \\
+    SIFM & 116 & 33 & 5 & 79 & 82 & 4 \\
+    Mist & 114 & 26 & 4 & 294 & 7 & 1 \\
+    \midrule
+    \rowcolor{oursrow}
+    \capg{} & 250 & 98 & 39 & 88 & 39 & 12 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{table}[t]
+  \centering
+  \footnotesize
+  \setlength{\tabcolsep}{4pt}
+  \caption{Paired difference in immunization success rate, \capg{} minus each method, over the three purifications pooled (2{,}737 cells, 306 portraits), with the 95\% paired bootstrap interval over images (2{,}000 resamples). $b$: cells where only \capg{} fails the edit; $c$: cells where only the other method does; $p$: McNemar test.}
+  \label{tab:supp_isr_paired}
+  \begin{tabular}{@{}l c cc c@{}}
+    \toprule
+    Method & Difference (pp) & $b$ & $c$ & $p$ \\
+    \midrule
+    BlurGuard & $+$3.4 [$+$2.3, $+$4.5] & 144 & 52 & $3.5\times10^{-11}$ \\
+    SIFM & $+$6.9 [$+$5.2, $+$8.5] & 266 & 78 & $3.8\times10^{-25}$ \\
+    Mist & $+$7.1 [$+$5.7, $+$8.6] & 260 & 65 & $9.2\times10^{-29}$ \\
+    PhotoGuard & $+$9.1 [$+$7.6, $+$10.6] & 294 & 45 & $6\times10^{-46}$ \\
+    DCT-Shield & $+$9.6 [$+$8.2, $+$11.1] & 293 & 29 & $4.3\times10^{-56}$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
 
 \section{Evaluation validity}
-\TODO{Cells where undefended edits fail; blocking rates.}
+\label{sec:supp_validity}
+An immunization can only be judged on cells in which the undefended edit carries out the instruction. The undefended edit fails in 21.8\% of the 1{,}224 cells without purification, 24.0\% after JPEG 50, 25.5\% after blur 2, and 26.9\% after VAE-Trans. Per instruction, over the four purification settings (1{,}224 cells each), it fails for 1.8\% of the sunglasses edits, 18.5\% of the police suit edits, 50.4\% of the helmet edits, and 27.5\% of the bowtie edits. These cells are excluded from the denominator of the immunization success rate (\cref{sec:supp_isr}).
 
-\section{User study}
-\TODO{Interface and statistics.}
+\section{More qualitative examples}
+\label{sec:supp_qualitative}
+\Cref{fig:supp_woman_23,fig:supp_man_07} show two further portraits with the instruction ``Let the person wear a helmet'' on InstructPix2Pix, in the layout of \cref{fig:purification_example}.
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=0.85\textwidth]{fig/qualitative_woman_23_helmet.pdf}
+  \caption{Edits with the instruction ``Let the person wear a helmet'' on InstructPix2Pix, with edit seed 3 for all columns (not the main seed). Rows: immunized image, edit without purification, and edit after Gaussian blur ($\sigma = 2$).}
+  \label{fig:supp_woman_23}
+\end{figure*}
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=0.85\textwidth]{fig/qualitative_man_07_helmet.pdf}
+  \caption{Edits with the instruction ``Let the person wear a helmet'' on InstructPix2Pix. Rows: immunized image, edit without purification, and edit after Gaussian blur ($\sigma = 2$).}
+  \label{fig:supp_man_07}
+\end{figure*}
+\prelimnote{Fig.~\ref{fig:supp_woman_23}: the source figure predates the immunized wording and still labels the first row ``Protection'' and the first column ``No defense''; Fig.~\ref{fig:supp_man_07}: edit seed to confirm with baseline.}

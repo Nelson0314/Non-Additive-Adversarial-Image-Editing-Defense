@@ -71,9 +71,13 @@ def main():
             if j:
                 body += "    \\midrule\n"
             body += f"    \\multicolumn{{9}}{{l}}{{\\textit{{{label}}}}} \\\\\n"
+            table = {cond: [round(float(per[(cond, p)][col]), d) for p, _ in PURIFIERS]
+                     + [round(float(main_rows[cond][vae_col]), d)] for cond, _ in METHODS}
+            # best entry of each column in bold: the arrow in the label gives the direction
+            pick = max if "uparrow" in label else min
+            best = [pick(table[cond][k] for cond, _ in METHODS) for k in range(len(PURIFIERS) + 1)]
             for cond, name in METHODS:
-                vals = [fmt(float(per[(cond, p)][col]), d) for p, _ in PURIFIERS]
-                vals.append(fmt(float(main_rows[cond][vae_col]), d))
+                vals = [("\\textbf{" + fmt(v, d) + "}") if v == best[k] else fmt(v, d) for k, v in enumerate(table[cond])]
                 prefix = "    \\rowcolor{oursrow}\n" if cond == OURS else ""
                 body += prefix + "    " + name + " & " + " & ".join(vals) + " \\\\\n"
         part = "first" if k == 0 else "second"
@@ -81,7 +85,7 @@ def main():
   \centering
   \footnotesize
   \setlength{\tabcolsep}{4pt}
-  \caption{Edit displacement for each purification (""" + part + r""" part; 306 Pexels portraits $\times$ 4 instructions, InstructPix2Pix, matched-distortion arms). Each entry is the mean over the 306 images, each image first averaged over the four instructions; \cref{tab:main} reports the mean over the seven purifications. SSIM, PSNR, SigLIP, CLIP-I, and ArcFace compare the immunized and the undefended edit under the same purification; CLIP-S compares the immunized edit with the instruction text; FID is computed between the sets of immunized and undefended edits.}
+  \caption{Edit displacement for each purification (""" + part + r""" part; 306 Pexels portraits $\times$ 4 instructions, InstructPix2Pix, matched-distortion arms). Each entry is the mean over the 306 images, each image first averaged over the four instructions; \cref{tab:main} reports the mean over the seven purifications. SSIM, PSNR, SigLIP, CLIP-I, and ArcFace compare the immunized and the undefended edit under the same purification; CLIP-S compares the immunized edit with the instruction text; FID is computed between the sets of immunized and undefended edits. Best in bold.}
   \label{tab:supp_purification_""" + part + r"""}
   \begin{tabular}{l ccccccc c}
     \toprule

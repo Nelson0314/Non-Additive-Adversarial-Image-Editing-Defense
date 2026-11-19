@@ -11,7 +11,6 @@
 - 質性圖（Fig. 4、補充資料）與 Fig. 1 teaser 由 `scripts/generate_purification_example_figure.py`、`scripts/generate_teaser_flow_figure.py` 產生（`docs/HANDOVER.md` 3.3）。
 - Inpainting 跨編輯器（補充資料，306 張 × 7 條件 × 4 淨化）執行中；完成後以 `scripts/evaluate_pexels_inpaint_readouts.sh` 出讀數，
   結果入 `results/pexels_portraits/inpaint/`（`docs/HANDOVER.md` 3.4）。
-- 讀數完成後的整理：`generate_pexels_flux_512_{cell_tables,summary}.py` 改名為編輯器通用的名稱，inpaint 彙整併入。
 
 ## 待使用者決定
 

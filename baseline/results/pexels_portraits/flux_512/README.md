@@ -17,9 +17,9 @@
 
 | 步驟 | 程式 | 輸出（遠端 `runtime/pexels_portraits/flux_512/readouts/`） |
 |---|---|---|
-| 逐格表 | `scripts/generate_pexels_flux_512_cell_tables.py` | `edits_<條件>.csv`（每條件 1,800 格）、`plain/`、`pairs.csv` |
+| 逐格表 | `scripts/generate_pexels_editor_cell_tables.py` | `edits_<條件>.csv`（每條件 1,800 格）、`plain/`、`pairs.csv` |
 | 全部讀數 | `scripts/evaluate_pexels_flux_512_readouts.sh`（佇列工作 `flux_512_readouts`，GPU 1 張；50 張完成前結束碼 4） | `displacement.csv`、`retention.csv`、`semantic_identity.csv`、`clip_score.csv`、`arcface_pair.csv`、`distribution/`、`edit_fidelity.csv` |
-| 彙整 | `scripts/generate_pexels_flux_512_summary.py`（欄與區間算法同 `generate_pexels_main_table_summary.py`） | `summary.csv`、`per_purifier.csv`，複製到本目錄 |
+| 彙整 | `scripts/generate_pexels_editor_summary.py`（欄與區間算法同 `generate_pexels_main_table_summary.py`） | `summary.csv`、`per_purifier.csv`，複製到本目錄 |
 
 防禦圖 LPIPS 取 ip2p 主表的 `fidelity.csv`（同一批防禦圖，只取這 50 張）。
 

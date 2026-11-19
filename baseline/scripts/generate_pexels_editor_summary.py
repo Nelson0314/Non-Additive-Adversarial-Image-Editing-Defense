@@ -12,7 +12,7 @@ color3d_pexels 為 runtime/pexels_portraits/followup/<根>/results/color3d/。
 `--images-file` 指定影像清單（預設 flux.txt 的 50 張）；任一條件的影像數不等於清單張數或格數不齊時失敗。
 輸出 runtime/pexels_portraits/flux_512/readouts/summary.csv 與 per_purifier.csv。
 `--conditions`、`--readouts-dir` 同逐格表；color3d_<變體>_pexels 的防禦圖 LPIPS 取 followup/<根>/results/color3d_<變體>/fidelity.csv。
-用法（遠端 baseline 專案根）：python scripts/generate_pexels_flux_512_summary.py [--images-file <檔>] [--conditions ...] [--readouts-dir <目錄>]
+用法（遠端 baseline 專案根）：python scripts/generate_pexels_editor_summary.py [--images-file <檔>] [--conditions ...] [--readouts-dir <目錄>]
 """
 import argparse
 import csv

@@ -18,7 +18,7 @@ ip2p 流程求得的防禦圖與淨化後輸入直接送 VIBE-DistilledCFG（`ii
 ## 產生方式
 
 - 編輯：`scripts/evaluate_pexels_nonsd_editor.sh vibe_distilled <影像>`（`scripts/run_nonsd_edits.py`）。
-- 讀數：`EDITOR_NAME=vibe_distilled scripts/evaluate_pexels_flux_512_readouts.sh`；彙整 `scripts/generate_pexels_flux_512_summary.py`。
+- 讀數：`EDITOR_NAME=vibe_distilled scripts/evaluate_pexels_flux_512_readouts.sh`；彙整 `scripts/generate_pexels_editor_summary.py`。
   306 張的語意與身分讀數分 4 個 GPU 工作計算後合併（遠端 `runtime/pexels_portraits/vibe_distilled/readouts_parts.sh`）。
 - 306 張版中屬於前 100 張的格，與 100 張版逐值相同：語意與身分 21,600 列、CLIP-S 21,600 列、ArcFace(E_u, E_d) 18,000 列、
   位移 2,000 列、保留率 16,000 列、SSIM／PSNR 18,000 列，差異格數皆為 0。

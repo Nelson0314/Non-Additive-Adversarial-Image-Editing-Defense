@@ -3,7 +3,7 @@
 
 來源 runtime/pexels_portraits/inpaint/readouts/（scripts/evaluate_pexels_inpaint_readouts.sh）：displacement.csv、retention.csv、
 semantic_identity.csv、arcface_pair.csv、clip_score.csv、edit_fidelity.csv、distribution/ 的 FID／KID；防禦圖 LPIPS 取 ip2p 主表的
-fidelity.csv（同一批防禦圖），來源規則同 scripts/generate_pexels_flux_512_summary.py。
+fidelity.csv（同一批防禦圖），來源規則同 scripts/generate_pexels_editor_summary.py。
 淨化設定逐一成欄（none＝淨化前、jpeg50、blur2、vae_trans），不做跨淨化平均：
     各欄為逐格平均，_std 為逐張值（4 句平均）的影像間標準差，_ci95＝1.96·s／√n（ArcFace 的 n 為有臉影像數）；
     FID／KID 為各設定一個值，無區間。

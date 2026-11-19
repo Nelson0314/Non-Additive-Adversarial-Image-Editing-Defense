@@ -2,7 +2,7 @@
 # Pexels 人像 FLUX 512 協定（資料版本 flux_512）的讀數：等失真 photoguard_encoder、dct_shield、dct_shield_y、mist 與 color3d_pexels，
 # 分母為同一資料版本的 undefended。程式與 scripts/evaluate_pexels_ultraedit_readouts.sh 相同，位移與保留率改用 FLUX 版面的
 # measure_flux_displacement、measure_flux_retention（--resolution 512）。
-#   逐格表   scripts/generate_pexels_flux_512_cell_tables.py
+#   逐格表   scripts/generate_pexels_editor_cell_tables.py
 #   位移     measure_flux_displacement（淨化前）；保留率 measure_flux_retention（七道與 VAE-Trans）
 #   語意     measure_semantic_identity --edits-csv（CLIP-I＝clip_pair、SigLIP、ArcFace(原圖, 編輯)）；CPU 時分 SHARDS 片並行後合併
 #   CLIP-S   scripts/measure_clip_score.py --edits-csv；ArcFace(E_u, E_d) scripts/measure_pexels_arcface_pair.py
@@ -11,7 +11,7 @@
 # ArcFace(E_u, E_d)、SSIM／PSNR 固定 CPU。FID／KID 的 GPU 與 CPU 讀數比對見 runtime/pexels_portraits/fid_cuda/compare_*.csv。
 # IMAGES_FILE 指定影像清單（預設 color trial pexels_subsets/flux.txt 的 50 張）；清單內影像的 FLUX 512 完成標記
 # （runtime/pexels_portraits/flux_512/done/<影像>.done）不齊時以結束碼 4 結束。SHARDS（預設 8）為 CPU 語意量測的平行片數。
-# 輸出 runtime/pexels_portraits/flux_512/readouts/（彙整見 scripts/generate_pexels_flux_512_summary.py）。
+# 輸出 runtime/pexels_portraits/flux_512/readouts/（彙整見 scripts/generate_pexels_editor_summary.py）。
 # CONDS、READOUTS_DIR 改條件與輸出目錄（預設上列五條件、runtime/pexels_portraits/flux_512/readouts）；EDITOR_NAME（預設 flux_512）改產物與
 # 逐格表的根（artifacts/pexels_portraits/<名>/、runtime/pexels_portraits/<名>/），供版面相同的其他編輯器（scripts/evaluate_pexels_nonsd_editor.sh）使用。
 # 用法（遠端 baseline 專案根）：[IMAGES_FILE=<檔>] [CONDS="..."] [READOUTS_DIR=<目錄>] [SHARDS=8] ENV_FILE=~/env.sh bash scripts/evaluate_pexels_flux_512_readouts.sh
@@ -40,7 +40,7 @@ if [ -n "${CUDA_VISIBLE_DEVICES:-}" ]; then DEVICE=cuda; else DEVICE=cpu; fi
 step "device=$DEVICE（CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES:-}），影像 $(wc -w < "$IMAGES_FILE") 張（$IMAGES_FILE）"
 
 step 逐格表
-"$PY" scripts/generate_pexels_flux_512_cell_tables.py --images-file "$IMAGES_FILE" --conditions $CONDS --output-dir "$R" --chunks-dir "$S/chunks"
+"$PY" scripts/generate_pexels_editor_cell_tables.py --images-file "$IMAGES_FILE" --conditions $CONDS --output-dir "$R" --chunks-dir "$S/chunks"
 EDITS="$R/edits_undefended.csv $(for c in $CONDS; do printf '%s ' "$R/edits_$c.csv"; done)"
 
 step 位移與保留率
@@ -91,5 +91,5 @@ step FID／KID 與 SSIM／PSNR
 CUDA_VISIBLE_DEVICES= "$PY" scripts/measure_pexels_edit_fidelity.py pairs --pairs-csv $R/pairs.csv --output-csv $R/edit_fidelity.csv --workers 16
 
 step 彙整
-"$PY" scripts/generate_pexels_flux_512_summary.py --images-file "$IMAGES_FILE" --conditions $CONDS --readouts-dir "$R"
+"$PY" scripts/generate_pexels_editor_summary.py --images-file "$IMAGES_FILE" --conditions $CONDS --readouts-dir "$R"
 step "READOUTS DONE"

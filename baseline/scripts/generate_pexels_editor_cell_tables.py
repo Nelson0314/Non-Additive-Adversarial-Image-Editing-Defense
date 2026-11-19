@@ -12,7 +12,7 @@
 任一條件格數不齊、格重複、影像缺檔或指令與未防禦不同時失敗。
 `--images-file` 指定影像清單（每行或以空白分隔的影像名，預設為 flux.txt 的 50 張），格數依清單張數檢查。
 `--conditions` 改條件（例如以 color3d_scale2p5_pexels 取代 color3d_pexels）、`--output-dir` 改輸出目錄。
-用法（遠端 baseline 專案根，CPU）：python scripts/generate_pexels_flux_512_cell_tables.py [--images-file <檔>] [--conditions ...] [--output-dir <目錄>]
+用法（遠端 baseline 專案根，CPU）：python scripts/generate_pexels_editor_cell_tables.py [--images-file <檔>] [--conditions ...] [--output-dir <目錄>]
 """
 import argparse
 import csv

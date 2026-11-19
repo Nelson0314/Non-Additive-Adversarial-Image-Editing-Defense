@@ -29,7 +29,7 @@ case ${1:?用法：$0 <base|sem|finish_gpu|finish_cpu> ...} in
     done
     [ "$missing" -eq 0 ] || { step "前置條件不成立：$EDITOR_NAME 尚缺 $missing 張"; exit 4; }
     step "逐格表（影像 $(wc -w < "$IMAGES_FILE") 張）"
-    "$PY" scripts/generate_pexels_flux_512_cell_tables.py --images-file "$IMAGES_FILE" --conditions $CONDS --output-dir "$R" --chunks-dir "$S/chunks"
+    "$PY" scripts/generate_pexels_editor_cell_tables.py --images-file "$IMAGES_FILE" --conditions $CONDS --output-dir "$R" --chunks-dir "$S/chunks"
     step 位移與保留率
     "$PY" -m immunization_baseline.cli.measure_flux_displacement --data-root $D --edits-csv-dir $R/plain --edits-root $X/edits \
         --conditions $CONDS --resolution 512 --output-csv $R/displacement.csv
@@ -70,7 +70,7 @@ EOF
     "$PY" scripts/measure_pexels_arcface_pair.py --semantic-csv $R/semantic_identity.csv --output-csv $R/arcface_pair.csv
     "$PY" scripts/measure_pexels_edit_fidelity.py pairs --pairs-csv $R/pairs.csv --output-csv $R/edit_fidelity.csv --workers 16
     step 彙整
-    "$PY" scripts/generate_pexels_flux_512_summary.py --images-file "$IMAGES_FILE" --conditions $CONDS --readouts-dir "$R"
+    "$PY" scripts/generate_pexels_editor_summary.py --images-file "$IMAGES_FILE" --conditions $CONDS --readouts-dir "$R"
     step "READOUTS DONE"
     ;;
   *) echo "[FATAL] 未知的段 $1" >&2; exit 2 ;;

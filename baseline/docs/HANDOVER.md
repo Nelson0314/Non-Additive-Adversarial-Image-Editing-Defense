@@ -127,7 +127,7 @@ session 的租約，color 優先）。未執行的 UltraEdit／FLUX.1 Kontext �
   `scripts/apply_blurguard_scale.py`。
 - 主表管線：`scripts/evaluate_pexels_aligned*.sh`、`evaluate_pexels_followup.sh`、`measure_pexels_summary_inputs.sh`、`generate_pexels_main_table_summary.py`。
 - 跨編輯器：`scripts/evaluate_pexels_nonsd_editor.sh`（`run_nonsd_edits.py`）、`evaluate_pexels_flux_512_readouts.sh`、`run_pexels_readout_parts.sh`
-  （語意分片＋finish_gpu／finish_cpu）、`generate_pexels_flux_512_{cell_tables,summary}.py`（vibe、klein、inpaint 共用）；inpainting 見 3.4。
+  （語意分片＋finish_gpu／finish_cpu）、`generate_pexels_editor_{cell_tables,summary}.py`（vibe、klein、inpaint 共用）；inpainting 見 3.4。
 - 分布指標：`scripts/measure_distribution_metrics.py`（`--device cpu|cuda`）。
 - 圖內文字替換：`immunization_baseline.figure_text.relabel`（包裝其他專案的繪圖函式，不改其原始碼）。
 - teaser 素材：`scripts/generate_synthetic_portraits.py`（FLUX.2 klein 4B 文生圖）、`scripts/run_teaser_edits.py`（防禦、淨化、ip2p 編輯）。

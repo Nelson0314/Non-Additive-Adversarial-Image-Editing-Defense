@@ -3,7 +3,7 @@
 #   1. 移除本機已消失行程留下的認領（runtime/pexels_portraits/queue/claims/<工作>/owner）。
 #   2. baseline 可用卡數 = 6 − max(~/gpu_leases 中名稱不以 baseline_ 開頭的租約數, color 預留張數)，
 #      color 預留張數讀 runtime/pexels_portraits/queue/color_reserve（0–6 的整數；缺檔為 0）。
-#      已認領的工作多於可用卡數時，停止本機最新認領的 worker（中斷的步驟之後依完成標記重做）；
+#      已認領的工作多於可用卡數時，停止本機最後認領的 worker（中斷的步驟之後依完成標記重做）；
 #      已認領的工作數（兩台合計）低於可用卡數時，於本機以 setsid nohup 啟動 worker
 #      （scripts/run_pexels_queue_worker.sh），每次至多啟動本機空卡數（vendor/scripts/measure_free_gpus.sh）。
 #      另讀 runtime/pexels_portraits/queue/baseline_cap（0–6 的整數；缺檔為 6）：新開 worker 時已認領數不超過
@@ -66,7 +66,7 @@ for c in $Q/claims/*/; do
     claimed=$((claimed + 1))
   fi
 done
-# 已認領的工作多於可用卡數（color 新增租約或預留）：停止本機最新認領的 worker，交還其卡。
+# 已認領的工作多於可用卡數（color 新增租約或預留）：停止本機最後認領的 worker，交還其卡。
 excess=$((claimed - allowed))
 if [ $excess -gt 0 ]; then
   for c in $(ls -td $Q/claims/*/ 2>/dev/null); do

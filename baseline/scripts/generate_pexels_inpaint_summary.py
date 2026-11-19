@@ -75,7 +75,7 @@ def main():
         metric[("retained", row["condition"], row["purifier"])][key] = float(row["retained"])
     for row in read(R_ / "semantic_identity.csv"):
         c, p = row["condition"], row["purifier"]
-        if c == "undefended" or p not in PURIFIED:
+        if c == "undefended" or p not in SETTINGS:
             continue
         key = (row["image"], row["prompt_index"], p)
         for m, name in (("siglip", "siglip"), ("clip", "clip_i")):
@@ -100,7 +100,7 @@ def main():
     defense = defense_lpips(images, conditions)
 
     columns = ([(m, k) for m in ("disp", "disp_ssim", "disp_psnr", "clip_s") for k in SETTINGS]
-               + [(m, k) for m in ("retained", "siglip", "clip_i") for k in PURIFIED]
+               + [("retained", k) for k in PURIFIED] + [(m, k) for m in ("siglip", "clip_i") for k in SETTINGS]
                + [("arcface_pair", k) for k in SETTINGS])
     table = []
     for c in conditions:

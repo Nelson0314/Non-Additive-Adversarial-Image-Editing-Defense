@@ -3,6 +3,10 @@
 \maketitlesupplementary
 \setcounter{section}{0}
 \renewcommand{\thesection}{\Alph{section}}
+% Float placement for the supplement: allow several floats per page and fuller float pages.
+\setcounter{topnumber}{4}\setcounter{dbltopnumber}{4}\setcounter{totalnumber}{8}
+\renewcommand{\topfraction}{0.95}\renewcommand{\dbltopfraction}{0.95}\renewcommand{\textfraction}{0.05}
+\renewcommand{\floatpagefraction}{0.05}\renewcommand{\dblfloatpagefraction}{0.3}
 
 \section{Protocol details}
 \label{sec:supp_protocol}
@@ -20,28 +24,26 @@
 
 \begin{table*}[t]
   \centering
-  \scriptsize
-  \setlength{\tabcolsep}{3pt}
-  \caption{Native settings of the additive methods, the factor applied to $\epsilon$ in the matched-distortion arm, and the implementation used. Budgets are on the $[0, 1]$ pixel scale unless stated. $^{\dagger}$The PhotoGuard paper (Table~9) states an $L_\infty$ budget of 16/255 with step 2/255; the code path enabled in the official notebook uses the values listed, which are the ones used here.}
+  \footnotesize
+  \setlength{\tabcolsep}{5pt}
+  \caption{Native settings of the additive methods, the factor applied to $\epsilon$ in the matched-distortion arm, and the source of the implementation. Budgets are on the $[0, 1]$ pixel scale unless stated. Official: the authors' code, ported to this pipeline (commit in parentheses); Reimpl.: reimplemented from the paper. $^{a}$The code path enabled in the official notebook; the paper (Table~9) states an $L_\infty$ budget of 16/255 with step 2/255. $^{b}$Budget on the DCT coefficients, $Q_{\mathrm{alg}} = 0.95$ (0.85 for DCT-Shield-Y, luminance only), $\gamma = 0.1$; reimplemented from Algorithm~1 of the paper's supplement. $^{c}$Learning rate; $\sigma$-weighting 10. In the matched-distortion arm the $\sigma$-weighting is 0 and the solved perturbation is multiplied by 0.6071.}
   \label{tab:supp_provenance}
-  \begin{tabular}{@{}l p{0.13\textwidth} p{0.08\textwidth} c p{0.15\textwidth} c p{0.2\textwidth}@{}}
+  \begin{tabular}{@{}l l l c l c l@{}}
     \toprule
-    Method & Budget $\epsilon$ & Step size & Steps & Norm & $\epsilon$ factor & Implementation \\
+    Method & Budget $\epsilon$ & Step size & Steps & Norm & $\epsilon$ factor & Source \\
     \midrule
-    PhotoGuard (encoder)$^{\dagger}$~\cite{salman2023photoguard} & 0.03 (7.65/255) & 0.01 & 1000 & $L_\infty$, sign PGD & 0.2614 & official notebook (commit 686bea7), ported \\
-    Mist~\cite{liang2023mist} & 16/255 & 1/255 & 100 & $L_\infty$ & 0.125 & official code (commit 99f5f3c), ported \\
-    DIA-PT~\cite{dia2025} & 6.4/255 & 1/255 & 20 & $L_\infty$ & 0.418 & official code, ported \\
-    DIA-R~\cite{dia2025} & 6.4/255 & 1/255 & 20 & $L_\infty$ & 0.969 & official code, ported \\
-    DCT-Shield~\cite{dctshield2025} & 1 (DCT coefficients) & -- & 1000 & DCT domain, $Q_{\mathrm{alg}} = 0.95$, $\gamma = 0.1$ & 0.211 & reimplemented (Algorithm~1 of the supplement) \\
-    DCT-Shield-Y~\cite{dctshield2025} & 1 (DCT coefficients, Y only) & -- & 1000 & DCT domain, $Q_{\mathrm{alg}} = 0.85$, $\gamma = 0.1$ & 0.073 & reimplemented (Algorithm~1 of the supplement) \\
-    SIFM~\cite{dong2025sifm} & 7.65/255 & 1/255 (not stated) & 100 & $L_\infty$ & 0.289 & reimplemented from the paper \\
-    DAYN~\cite{lo2024dayn} & 0.06 & -- & 100 & -- & 0.43 & reimplemented from the paper \\
-    DANP~\cite{zhang2025danp} & 0.03 & -- & 100 & -- & 0.323 & reimplemented from the paper \\
-    BlurGuard~\cite{blurguard2025} & 16/255 & 0.06 (learning rate) & 150 & $L_\infty$, $\sigma$-weighting 10 & 0.6071$^{\ddagger}$ & official code (commit e1b2d5e) \\
+    PhotoGuard (encoder)~\cite{salman2023photoguard} & 0.03$^{a}$ & 0.01$^{a}$ & 1000 & $L_\infty$, sign PGD & 0.2614 & Official (686bea7) \\
+    Mist~\cite{liang2023mist} & 16/255 & 1/255 & 100 & $L_\infty$ & 0.125 & Official (99f5f3c) \\
+    DIA-PT~\cite{dia2025} & 6.4/255 & 1/255 & 20 & $L_\infty$ & 0.418 & Official \\
+    DIA-R~\cite{dia2025} & 6.4/255 & 1/255 & 20 & $L_\infty$ & 0.969 & Official \\
+    DCT-Shield~\cite{dctshield2025} & 1$^{b}$ & -- & 1000 & DCT$^{b}$ & 0.211 & Reimpl. \\
+    DCT-Shield-Y~\cite{dctshield2025} & 1$^{b}$ & -- & 1000 & DCT, Y only$^{b}$ & 0.073 & Reimpl. \\
+    SIFM~\cite{dong2025sifm} & 7.65/255 & 1/255 (not stated) & 100 & $L_\infty$ & 0.289 & Reimpl. \\
+    DAYN~\cite{lo2024dayn} & 0.06 & -- & 100 & -- & 0.43 & Reimpl. \\
+    DANP~\cite{zhang2025danp} & 0.03 & -- & 100 & -- & 0.323 & Reimpl. \\
+    BlurGuard~\cite{blurguard2025} & 16/255 & 0.06$^{c}$ & 150 & $L_\infty$ & 0.6071$^{c}$ & Official (e1b2d5e) \\
     \bottomrule
   \end{tabular}
-  \\[2pt]
-  {\scriptsize $^{\ddagger}$Matched-distortion arm: $\sigma$-weighting 0, and the solved perturbation is multiplied by 0.6071.}
 \end{table*}
 \prelimnote{Tab.~\ref{tab:supp_provenance}: step sizes and norms marked -- are not stated in the source; check against the baseline provenance notes.}
 
@@ -119,7 +121,8 @@
 \label{sec:supp_metrics}
 \Cref{tab:supp_aesthetics} reports further measurements of the immunized images. \Cref{tab:supp_purification_first,tab:supp_purification_second} give the edit displacement for each purification, of which \cref{tab:main} reports the mean over the seven purifications. \Cref{tab:supp_distortion} reports two further distortion measures.
 
-\begin{table}[t]
+\begin{table*}[t]
+  \begin{minipage}[t]{0.52\textwidth}
   \centering
   \footnotesize
   \setlength{\tabcolsep}{4pt}
@@ -148,11 +151,8 @@
     \textbf{\capg{}} & 24.2 & .928 & 5.278 & 3.979 \\
     \bottomrule
   \end{tabular}
-\end{table}
-
-\input{sec/X_suppl_purification}
-
-\begin{table}[t]
+  \end{minipage}\hfill
+  \begin{minipage}[t]{0.44\textwidth}
   \centering
   \footnotesize
   \setlength{\tabcolsep}{4pt}
@@ -177,7 +177,11 @@
     \textbf{\capg{}} & \prelim{--}{} & \prelim{--}{} \\
     \bottomrule
   \end{tabular}
-\end{table}
+  \end{minipage}
+\end{table*}
+
+\input{sec/X_suppl_purification}
+
 \prelimnote{Tab.~\ref{tab:supp_distortion}: DISTS and color-aligned LPIPS not yet computed; the alignment protocol is to be stated.}
 
 \section{Cross-editor: SD Inpainting}
@@ -248,7 +252,8 @@ The immunized images optimized against InstructPix2Pix are edited with Stable Di
   \end{tabular}
 \end{table*}
 
-\begin{table}[t]
+\begin{table*}[t]
+  \begin{minipage}[t]{0.50\textwidth}
   \centering
   \scriptsize
   \setlength{\tabcolsep}{2.5pt}
@@ -272,9 +277,8 @@ The immunized images optimized against InstructPix2Pix are edited with Stable Di
     $n$ (purified) & & & & & 897 & 753 & 438 & 649 \\
     \bottomrule
   \end{tabular}
-\end{table}
-
-\begin{table}[t]
+  \end{minipage}\hfill
+  \begin{minipage}[t]{0.46\textwidth}
   \centering
   \footnotesize
   \setlength{\tabcolsep}{4pt}
@@ -296,9 +300,9 @@ The immunized images optimized against InstructPix2Pix are edited with Stable Di
     \capg{} & 250 & 98 & 39 & 88 & 39 & 12 \\
     \bottomrule
   \end{tabular}
-\end{table}
-
-\begin{table}[t]
+  \end{minipage}\\[8pt]
+  \centering
+  \begin{minipage}[t]{0.55\textwidth}
   \centering
   \footnotesize
   \setlength{\tabcolsep}{4pt}
@@ -315,7 +319,8 @@ The immunized images optimized against InstructPix2Pix are edited with Stable Di
     DCT-Shield & $+$9.6 [$+$8.2, $+$11.1] & 293 & 29 & $4.3\times10^{-56}$ \\
     \bottomrule
   \end{tabular}
-\end{table}
+  \end{minipage}
+\end{table*}
 
 \section{Evaluation validity}
 \label{sec:supp_validity}

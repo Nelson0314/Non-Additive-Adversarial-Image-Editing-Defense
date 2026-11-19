@@ -39,8 +39,7 @@ pane 編號會變動，送訊前一律以 multi-agent 的 `list_panes` 依標題
 ## 4. 現況（2026-11-17）
 
 ### 4.1 同步狀態
-- repo 與 Overleaf 最後逐字一致於 `677f2f54`（同步前線上 14 個文字檔皆等於前一同步點；文字檔以編輯器詞級修改套用，重新載入後雜湊相符；`fig/teaser.pdf` 上傳覆寫；線上編譯 10 頁、0 錯誤，第 9 頁由 LLM Usage Statement 開始）。下次同步以 `677f2f54` 為三方合併基底。
-- 其後 repo 對 `docs/paper/` 的修改：`6f163b5d`（`X_suppl_purification.tex` caption 的 defended → immunized），尚未同步。
+- repo 與 Overleaf 最後逐字一致於 `f0cd3cee`（2026-11-20：同步前線上 14 個文字檔皆等於 `677f2f54`；`main.tex`（啟用 `\input{sec/X_suppl}`，supp 接在正文後）、`X_suppl_purification.tex` 以編輯器詞級修改套用，`X_suppl.tex` 在編輯器內以單一 transaction 整檔替換；重新載入後雜湊相符；新增上傳 `fig/inpaint_man_26_dog.pdf`、`fig/inpaint_woman_14_hospital.pdf`；線上編譯 14 頁、0 錯誤，第 9 頁由 LLM Usage Statement 開始）。repo 的 `sec/X_suppl_parked.tex`（未被 `\input`）與 `fig/qualitative_*.pdf`（只被 parked 檔引用）未上傳。下次同步以 `f0cd3cee` 為三方合併基底。
 - **頁數以 Overleaf 編譯為準**：Overleaf 用 pdfLaTeX＋Times，本機 Tectonic 用 TeX Gyre 替代字型，斷行不同（Fig. 3 寬 1.0\textwidth 時本機 Conclusion 收在第 8 頁、線上溢到第 9 頁 4 行；故 `1ada1c6f` 改為 0.85\textwidth）。本機預覽只作參考。
 
 ### 4.2 結構與圖表

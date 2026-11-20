@@ -28,7 +28,7 @@ pane 編號會變動，送訊前一律以 multi-agent 的 `list_panes` 依標題
 - 頁面程式的 JS 字串會很長：把 ops 或全文先寫成 JSON 檔，再整段貼進 `javascript_tool`；單次呼叫超過約 45 秒會逾時，等待編譯另用 `computer wait`。
 - 檔案樹的上傳按鈕在「Add」選單內（Add → Upload），先點選 `fig` 資料夾再上傳。
 - 瀏覽器：使用者以 `/chrome` 連線 Claude in Chrome；只操作自己開的分頁群組。擴充功能會擋下看似網址參數的輸出，此時改用截圖。線上 PDF 檢視器預設不顯示時，按 "Switch to PDF"；頁面文字層需捲動到該頁後才能讀取。
-- 線上若有 repo 沒有的檔案（現有 `sec/[old] related.tex`），不動。
+- 線上若有 repo 沒有的檔案（現有 `sec/[old] related.tex` 與根目錄的 `build` 資料夾），不動。
 
 ## 3. 方法與定調
 
@@ -41,7 +41,8 @@ pane 編號會變動，送訊前一律以 multi-agent 的 `list_panes` 依標題
 ## 4. 現況
 
 ### 4.1 同步狀態
-- repo 與 Overleaf 最後逐字一致於 `f0cd3cee`。同步前線上 14 個文字檔皆等於前一同步點 `677f2f54`；`main.tex`（啟用 `\input{sec/X_suppl}`，supp 接在正文後）與 `X_suppl_purification.tex` 以詞級修改套用，`X_suppl.tex` 整檔替換；新上傳 `fig/inpaint_man_26_dog.pdf`、`fig/inpaint_woman_14_hospital.pdf`。線上編譯 14 頁、0 錯誤：正文第 1–8 頁、Conclusion 在第 8 頁，第 9 頁起為 LLM Usage Statement 與參考文獻，supp 接在其後。下次同步以 `f0cd3cee` 為三方合併基底。
+- repo 與 Overleaf 最後逐字一致於 `04ab6494`：同步前線上 14 個文字檔皆等於 `f0cd3cee`，`4_experiments.tex` 以詞級修改套用（消融段 LAION、MUSIQ 換成 306 張版），線上編譯 14 頁、0 錯誤；下次同步以 `04ab6494` 為三方合併基底。
+- `f0cd3cee` 同步時：線上 14 個文字檔皆等於前一同步點 `677f2f54`；`main.tex`（啟用 `\input{sec/X_suppl}`，supp 接在正文後）與 `X_suppl_purification.tex` 以詞級修改套用，`X_suppl.tex` 整檔替換；新上傳 `fig/inpaint_man_26_dog.pdf`、`fig/inpaint_woman_14_hospital.pdf`。線上編譯 14 頁、0 錯誤：正文第 1–8 頁、Conclusion 在第 8 頁，第 9 頁起為 LLM Usage Statement 與參考文獻，supp 接在其後。
 - repo 有而線上沒有的檔：`sec/X_suppl_parked.tex`（未被 `\input`）、`fig/qualitative_woman_171_police.pdf`、`fig/qualitative_woman_173_bowtie.pdf`、`fig/qualitative_man_91_police.pdf`（只被 parked 檔引用）。
 - **頁數以 Overleaf 編譯為準**：Overleaf 用 pdfLaTeX＋Times，本機 Tectonic 用 TeX Gyre 替代字型，斷行不同（Fig. 3 寬 1.0\textwidth 時本機 Conclusion 收在第 8 頁、線上溢到第 9 頁 4 行；故 `1ada1c6f` 改為 0.85\textwidth）。本機預覽只作參考。
 
@@ -81,7 +82,7 @@ pane 編號會變動，送訊前一律以 multi-agent 的 `list_panes` 依標題
 
 ### 4.4 待完成與待決
 1. OpenReview 補充材料上傳截止 2026-11-23 19:59（臺灣時間）。補充材料 PDF 需從 supp 單獨產出（正文與 supp 分開上傳時，依 `main.tex` 中 author kit 的註解刪除 supp 頁）。
-2. 正文 4.5 消融段的數字（Lynn 文字，例：B3 的 LAION 5.32 → 5.26、MUSIQ 5.30 → 4.80）是 200 張版；是否換成 306 張版（Full 5.34／5.31、B3 5.27／4.81）待使用者決定，未決前不動。
+2. 正文 4.5 消融段的數字已依使用者指示換成 306 張版（Full LAION 5.34／MUSIQ 5.31、B3 5.27／4.81，`04ab6494`）。
 3. tex 中的舊文註解（`3_method` 約 45 行、`4_experiments` 約 30 行、`1_intro` 約 13 行）是否刪除；先問 Lynn，刪除後需同步 Overleaf。
 4. `generate_main_table.py` 仍輸出含 VIBE／klein 下段的舊版表 1，與現行表 1（只有 InstructPix2Pix）、表 3 不符；重跑前需先改寫。
 5. supp inpainting 節若要更多質性圖，需放寬挑選條件，向 baseline 提出。

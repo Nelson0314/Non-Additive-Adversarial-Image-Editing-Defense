@@ -15,15 +15,19 @@
   數字、路徑與產生腳本見 trial `HANDOVER.md`〈現行狀態〉與〈零〉。
 - 消融 306 張已完成：trial `results/ablation_pexels306/`（`summary.csv`：common 301 張與 all；`paired_differences.csv`／
   `paired_differences_all.csv`：列 − Full，paired bootstrap 10,000 次、種子 20260812；`failed.csv`）。各列設定與 200 張版相同。
-- 多色調 ImmuLUT（論文 Fig. 4 方向，未納入論文）：色調前置、色調初值、學習率與色調牽引的結論，以及 50 張淨化後篩選的通過清單，
-  見 trial `HANDOVER.md`〈現行狀態〉C。現行方向為使用者研究的自然濾鏡（warm、cool、faded、vivid、muted、vintage）為起點、
-  以未淨化即擋下為判準：程式 trial `generate_color3d_user_filter_defenses.py`，第一批 `runtime/user_filter_batch.sh`
-  （man_00、woman_136、woman_164、woman_152 × 6 濾鏡 × 只套濾鏡／lr1／lr10），拼圖 `artifacts/user_filter/contact/`，事件 `[UF-BATCH1]`
-  （trial `logs/night_events.log`）。
+- 多色調 ImmuLUT（論文 Fig. 4 方向，未納入論文；目標為防禦圖像真人會套用的相片濾鏡且未淨化即擋下）：搜尋已停止，無進行中的批次。
+  結論：police suit 與血腥句（`give this person rotting zombie skin`）在所有參數化下沒有任何一格於未淨化時擋下，最佳為原衣物保留但多肩章、
+  臂章；woman_111、woman_152、man_32、woman_59 在外觀自然的設定下結論相同。helmet 的未淨化擋下來自旋轉場對暗色（頭髮）的大位移，
+  與外觀自然直接衝突：去黑位抬升、σ ＝ 8、暗部不旋轉後頭髮恢復正常，helmet 全部出現頭盔。霧感來自濾鏡基底的黑位抬升，
+  髒感來自旋轉場對暗色的大位移，LUT 格點數不是主因。已試方向：角度預算（受步長限制）、學習率與色調牽引、使用者研究濾鏡起點、
+  參數式風格族（28 種起點）、ip2p UNet 端到端項、低頻空間光影、粗糙／平滑 LUT、參考圖濾鏡擬合與位移、旋轉場元件變體（濾鏡中性軸、
+  依色相分配預算、極角／色相上限、clean、暗部門檻與黑位掃描）。各方向結論、最接近的候選、事件、拼圖、verdict 與程式清單見 trial
+  `HANDOVER.md`〈現行狀態〉C、D。
 - 遠端清理：ImmuLUT 1.0 倍（`color3d_pexels`）、濾鏡試驗、已否決的 teaser 篩選批、多色調中間解與隨機對照的影像產物已刪除
   （清單 trial `runtime/cleanup_delete_list.txt`，173 個目錄、約 17 GB）；各條件的讀數 CSV 保留在 trial `results/`。
 - 升格待辦：ImmuLUT 求解鏈與論文讀取的結果 CSV 升格進 `src/`、`scripts/`、`results/`（只收 CSV，`.pt` 載體記遠端路徑），
   ImmuLUT 不再引用 `method.ColorMap` 後刪除之；trial 中已否決的部分寫入 `docs/TRIALS.md` 後刪除（細目見 trial `HANDOVER.md`〈現行狀態〉E）。
+  多色調搜尋的程式與影像產物（trial `artifacts/parametric_style/`、`artifacts/user_filter/`）未升格，處置方式同上，刪除前須經使用者確認。
 - 分工：color 負責 ImmuLUT 的求解、編輯、讀數與 color 相關圖素材（只寫 `color/`）；baseline 負責對照方法；paper 負責
   `docs/paper/` 與 `docs/paper_tools/`；executor 負責進度、派工、文獻與 push。
 

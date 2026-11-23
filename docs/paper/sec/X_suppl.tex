@@ -79,6 +79,32 @@ We further evaluate the transferability of the immunization to a mask-based inpa
 
 \paragraph{Quantitative and Qualitative Comparison.} As shown in \cref{tab:supp_inpainting}, without purification, the additive defenses yield edit LPIPS between 0.270 and 0.322, and \capg{} yields 0.378. After purification, the edit LPIPS of the additive defenses decreases to between 0.044 and 0.234, with BlurGuard retaining the highest values, whereas that of \capg{} remains between 0.352 and 0.389. SigLIP and ArcFace similarities follow the same trend: after blur, \capg{} yields 0.862 and 0.906, compared with at least 0.951 and 0.954 for the additive defenses. \Cref{fig:supp_inpaint_man_26,fig:supp_inpaint_woman_14} show two portraits. After purification, the requested content appears in the edits of the undefended image and of the five additive defenses, whereas the edits of \capg{} keep the original background with and without purification.
 
+\paragraph{Immunization Success Rate.} We also measure the ISR of the inpainting edits on the 306 portraits and four prompts. For each portrait and prompt, one sheet shows the input and the four edits (without purification, after JPEG~50, after blur, and after VAE-Trans) of the original image and of the six immunized images; the seven rows are shuffled independently for each sheet and are labeled without method names, giving 1{,}224 sheets. Claude Sonnet~5.5 assigns three binary labels to every edit: \emph{content}, whether the requested background content is clearly present; \emph{mismatch}, whether the edit alters the person, adds people, or produces content other than the request; and \emph{degraded}, whether the image shows a severe structural or quality breakdown. A global color cast alone is not counted as a failure. An edit succeeds when the content is present and neither mismatch nor degradation occurs. The ISR is conditional: it counts only the portrait--prompt pairs on which the edit of the original image succeeds under the same purification, and an immunized edit counts as an immunization success when any of the three labels fails. The edits of the original image succeed in 68.7\%, 72.3\%, 65.8\%, and 66.5\% of the 1{,}224 pairs without purification and after JPEG~50, blur, and VAE-Trans, respectively. Intervals are 95\% bootstrap intervals over portraits with 1{,}000 resamples. Two differences from the protocol of \cref{tab:isr} apply: the inpainting judgments are not reviewed by hand, and the color shift of the images immunized by \capg{} is visible in the sheets, so the blinding is incomplete for this row. As shown in \cref{tab:supp_inpaint_isr}, without purification, the additive defenses yield ISR between 10.5\% and 13.4\%, and \capg{} yields 23.7\%. After purification, the ISR of the additive defenses is between 2.4\% and 9.4\%, and that of \capg{} is between 23.1\% and 28.7\%; over the three purifications combined, \capg{} yields 25.8\% and BlurGuard 8.3\%.
+
+\begin{table*}[t]
+  \centering
+  \footnotesize
+  \setlength{\tabcolsep}{5pt}
+  \caption{Immunization Success Rate on SD Inpainting (306 portraits $\times$ 4 prompts, Claude Sonnet~5.5 without human review). Combined: the three purifications pooled. Brackets: 95\% bootstrap interval over portraits.}
+  \label{tab:supp_inpaint_isr}
+  \begin{tabular}{@{}lccccc@{}}
+    \toprule
+    & & \multicolumn{4}{c}{Purified} \\
+    \cmidrule(l){3-6}
+    Method & None & JPEG 50 & Blur 2 & VAE-Trans & Combined \\
+    \midrule
+    PhotoGuard & 13.4 {\scriptsize[10.9, 16.1]} & 4.4 {\scriptsize[3.2, 5.8]} & 3.7 {\scriptsize[2.4, 5.2]} & 5.3 {\scriptsize[3.7, 7.1]} & 4.5 {\scriptsize[3.6, 5.4]} \\
+    DIA-PT & 11.1 {\scriptsize[8.8, 13.3]} & 5.4 {\scriptsize[4.0, 6.9]} & 4.6 {\scriptsize[3.2, 6.1]} & 4.7 {\scriptsize[3.3, 6.2]} & 4.9 {\scriptsize[4.1, 5.8]} \\
+    DCT-Shield & 10.5 {\scriptsize[8.5, 12.6]} & 2.4 {\scriptsize[1.4, 3.4]} & 2.6 {\scriptsize[1.5, 3.7]} & 5.2 {\scriptsize[3.7, 6.8]} & 3.4 {\scriptsize[2.7, 4.2]} \\
+    SIFM & 13.2 {\scriptsize[11.1, 15.6]} & 4.5 {\scriptsize[3.2, 5.8]} & 4.7 {\scriptsize[3.2, 6.4]} & 3.8 {\scriptsize[2.6, 5.1]} & 4.4 {\scriptsize[3.5, 5.2]} \\
+    BlurGuard & 12.7 {\scriptsize[10.4, 15.1]} & 9.4 {\scriptsize[7.5, 11.4]} & 8.0 {\scriptsize[6.1, 9.9]} & 7.6 {\scriptsize[5.6, 9.7]} & 8.3 {\scriptsize[7.0, 9.8]} \\
+    \midrule
+    \rowcolor{oursrow}
+    \textbf{\capg{} (Ours)} & \textbf{23.7} {\scriptsize[20.6, 27.2]} & \textbf{23.1} {\scriptsize[20.1, 26.1]} & \textbf{28.7} {\scriptsize[25.5, 32.2]} & \textbf{25.9} {\scriptsize[22.8, 29.4]} & \textbf{25.8} {\scriptsize[23.5, 28.5]} \\
+    \bottomrule
+  \end{tabular}
+\end{table*}
+
 \begin{table*}[t]
   \centering
   \footnotesize

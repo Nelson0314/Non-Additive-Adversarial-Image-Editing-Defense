@@ -41,7 +41,8 @@ pane 編號會變動，送訊前一律以 multi-agent 的 `list_panes` 依標題
 ## 4. 現況
 
 ### 4.1 同步狀態
-- repo 與 Overleaf 最後逐字一致於 `7ec63889`：同步前線上 14 個文字檔皆等於 `04ab6494`；`X_suppl.tex`（inpainting ISR 段與表 `tab:supp_inpaint_isr`、兩張質性圖）與 `7_llm_usage.tex`（ip2p 有人工複核、inpainting 無）以詞級修改套用；新上傳 `fig/inpaint_woman_39_gym.pdf`、`fig/inpaint_man_81_dog.pdf`。線上編譯 16 頁、0 錯誤（正文未改）。下次同步以 `7ec63889` 為三方合併基底。
+- repo 與 Overleaf 最後逐字一致於 `ba5a8de8`：同步前線上只有 `X_suppl.tex` 與 `7ec63889` 不同（羅婈修訂兩處，已以三方合併收入 `74988b9e`）；`X_suppl.tex` 以詞級修改套用；新上傳 `fig/inpaint_woman_118_snowy_street.pdf`，覆蓋 `ablation_appearance.pdf`、`inpaint_man_26_dog.pdf`、`inpaint_woman_14_hospital.pdf`、`inpaint_man_81_dog.pdf`。線上編譯 16 頁、0 錯誤。下次同步以 `ba5a8de8` 為三方合併基底。線上的 `fig/inpaint_woman_39_gym.pdf` 已不被引用，保留未刪。補充材料 PDF：basic-1 以 pdflatex 編譯整份（16 頁，Conclusion 在第 8 頁）後擷取第 11–16 頁，存為桌面 `paper_supp.pdf`（6 頁）。
+- `7ec63889` 同步時：同步前線上 14 個文字檔皆等於 `04ab6494`；`X_suppl.tex`（inpainting ISR 段與表 `tab:supp_inpaint_isr`、兩張質性圖）與 `7_llm_usage.tex`（ip2p 有人工複核、inpainting 無）以詞級修改套用；新上傳 `fig/inpaint_woman_39_gym.pdf`、`fig/inpaint_man_81_dog.pdf`。線上編譯 16 頁、0 錯誤（正文未改）。下次同步以 `7ec63889` 為三方合併基底。
 - `04ab6494` 同步時：同步前線上 14 個文字檔皆等於 `f0cd3cee`，`4_experiments.tex` 以詞級修改套用（消融段 LAION、MUSIQ 換成 306 張版），線上編譯 14 頁、0 錯誤。
 - `f0cd3cee` 同步時：線上 14 個文字檔皆等於前一同步點 `677f2f54`；`main.tex`（啟用 `\input{sec/X_suppl}`，supp 接在正文後）與 `X_suppl_purification.tex` 以詞級修改套用，`X_suppl.tex` 整檔替換；新上傳 `fig/inpaint_man_26_dog.pdf`、`fig/inpaint_woman_14_hospital.pdf`。線上編譯 14 頁、0 錯誤：正文第 1–8 頁、Conclusion 在第 8 頁，第 9 頁起為 LLM Usage Statement 與參考文獻，supp 接在其後。
 - repo 有而線上沒有的檔：`sec/X_suppl_parked.tex`（未被 `\input`）、`fig/qualitative_woman_171_police.pdf`、`fig/qualitative_woman_173_bowtie.pdf`、`fig/qualitative_man_91_police.pdf`（只被 parked 檔引用）；baseline 送來而依使用者指示不引用的 inpainting 圖 `fig/inpaint_woman_138_hospital.pdf`、`inpaint_man_51_hospital.pdf`、`inpaint_man_07_gym.pdf`、`inpaint_woman_146_snowy_street.pdf`、`inpaint_woman_87_snowy_street.pdf`、`inpaint_woman_27_dog.pdf`（只在 repo，未上傳）。

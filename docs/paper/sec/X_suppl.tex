@@ -33,11 +33,13 @@ For B2 to B4, only checkpoints whose defense LPIPS, measured on the quantized im
 \begin{figure*}[t]
   \centering
   % Each source PDF holds five 100.32 bp panels; the viewports cut out the panels used here.
+  \makebox[0.185\textwidth]{}\makebox[0.185\textwidth]{\small A2}\makebox[0.185\textwidth]{\small A3}\makebox[0.185\textwidth]{\small A4}\\[1pt]
   \includegraphics[viewport=1.2 0 101.52 116.64, clip, width=0.185\textwidth]{fig/ablation_components.pdf}%
   \includegraphics[viewport=201.84 0 502.80 116.64, clip, width=0.555\textwidth]{fig/ablation_components.pdf}\\[2pt]
+  \makebox[0.185\textwidth]{\small Full}\makebox[0.185\textwidth]{\small B2}\makebox[0.185\textwidth]{\small B3}\makebox[0.185\textwidth]{\small B4}\\[1pt]
   \includegraphics[viewport=101.52 0 201.84 116.64, clip, width=0.185\textwidth]{fig/ablation_appearance.pdf}%
   \includegraphics[viewport=201.84 0 502.80 116.64, clip, width=0.555\textwidth]{fig/ablation_appearance.pdf}
-  \caption{Immunized images of one portrait under the variants of \cref{tab:ablation}. Left: the original (top) and \capg{} (bottom). Top row: the variants that change one component, at different defense LPIPS. Bottom row: the simpler color mappings, each optimized to the defense LPIPS of \capg{} on this portrait (0.127) within $\pm 0.015$.}
+  \caption{Immunized images of one portrait under the variants of \cref{tab:ablation}. Left: the original (top) and \capg{} (bottom). Labels above the panels give the variant codes of \cref{tab:ablation}. Top row: the variants that change one component, at different defense LPIPS. Bottom row: the simpler color mappings, each optimized to the defense LPIPS of \capg{} on this portrait (0.127) within $\pm 0.015$.}
   \label{fig:ablation_appearance}
 \end{figure*}
 

@@ -24,11 +24,11 @@ B1 and B2 use a two-parameter model, a global rotation about the gray axis combi
 (B2)~\emph{Optimized rotation and scaling}: the two scalars $(h, s)$ are optimized with the solver of \capg{}.
 (B3)~\emph{Optimized $3\times3$ affine}: $c' = A c + b$ in RGB with 12 parameters, optimized from the identity.
 (B4)~\emph{Unconstrained $K^3$ LUT}: the $33^3 \times 3$ vertex displacements of a LUT are optimized without smoothing or angular bounds.
-For B2 to B4, only checkpoints whose defense LPIPS, measured on the quantized image, lies within $\pm 0.015$ of that of \capg{} on the same portrait are kept; portraits without such a checkpoint have no result.
+For B2 to B4, only checkpoints whose defense LPIPS, measured on the quantized image, lies within $\pm 0.015$ of that of \capg{} on the same portrait are kept. On four portraits, the default solver yields no such checkpoint, and the solver settings are changed as listed in \cref{tab:ablation}.
 
 \paragraph{Effect of Optimization and Geometric Constraints.} Without optimization (A1), a random $\Theta$ changes the image only slightly: the defense LPIPS is 0.045 and the edit LPIPS without purification is 0.087, compared with 0.287 and 0.353 for \capg{}, while LAION and MUSIQ are higher by 0.10 and 0.05. Removing the Gaussian smoothing (A2), removing the angular bounds (A3), or replacing the separate bounds on $\theta$ and $\phi$ with a single rotation bound (A4) increases the defense LPIPS by 0.114 to 0.172 and the edit LPIPS by 0.109 to 0.154 without purification and by 0.034 to 0.140 after VAE-Trans. These variants also reduce MUSIQ by 0.15 to 0.35; LAION decreases by 0.06 and 0.10 for A2 and A3, and is 5.33 for A4, compared with 5.34 for \capg{}. In \cref{fig:ablation_appearance}, A2 shows irregular color patches in the background and on the face, and A3 and A4 shift the colors of the background, the face, and the hair.
 
-\paragraph{Comparison with Alternative Color Mappings.} At matched defense LPIPS (differences from \capg{} of at most 0.003), the optimized rotation and scaling (B2) yields edit LPIPS within 0.005 of \capg{} without purification and after JPEG~50 and blur~2, and 0.028 higher after VAE-Trans. The optimized affine transformation (B3) yields edit LPIPS higher by 0.028 to 0.076, and the unconstrained LUT (B4) yields edit LPIPS higher by 0.027 without purification and by 0.017 after VAE-Trans but lower by 0.011 after JPEG~50 and by 0.041 after blur~2. All three mappings have lower MUSIQ than \capg{}, by 0.18 (B2), 0.50 (B3), and 0.26 (B4), and lower LAION, by 0.15, 0.07, and 0.04. The random rotation and scaling (B1) does not reach the target distortion on every portrait (defense LPIPS 0.238); its edit LPIPS is lower than that of \capg{} by 0.033 to 0.055, and its MUSIQ and LAION are lower by 0.12 and 0.06. In \cref{fig:ablation_appearance}, B2 desaturates the whole image, B3 adds a pale pink cast, and B4 changes the hue of individual colors, such as the red checks of the shirt.
+\paragraph{Comparison with Alternative Color Mappings.} At matched defense LPIPS (differences from \capg{} of at most 0.004), the optimized rotation and scaling (B2) yields edit LPIPS within 0.007 of \capg{} without purification and after JPEG~50 and blur~2, and 0.029 higher after VAE-Trans. The optimized affine transformation (B3) yields edit LPIPS higher by 0.029 to 0.076, and the unconstrained LUT (B4) yields edit LPIPS higher by 0.027 without purification and by 0.017 after VAE-Trans but lower by 0.011 after JPEG~50 and by 0.041 after blur~2. All three mappings have lower MUSIQ than \capg{}, by 0.18 (B2), 0.50 (B3), and 0.26 (B4), and lower LAION, by 0.15, 0.07, and 0.04. The random rotation and scaling (B1) does not reach the target distortion on every portrait (defense LPIPS 0.238); its edit LPIPS is lower than that of \capg{} by 0.033 to 0.055, and its MUSIQ and LAION are lower by 0.12 and 0.06. In \cref{fig:ablation_appearance}, B2 desaturates the whole image, B3 adds a pale pink cast, and B4 changes the hue of individual colors, such as the red checks of the shirt.
 
 \begin{figure*}[t]
   \centering
@@ -47,28 +47,28 @@ For B2 to B4, only checkpoints whose defense LPIPS, measured on the quantized im
   \centering
   \footnotesize
   \setlength{\tabcolsep}{4pt}
-  \caption{Ablations on InstructPix2Pix (306 portraits $\times$ 4 instructions). Each row is the mean over the $n$ portraits on which the variant has a result; B1 does not reach the target distortion on 34 portraits; A4 has no result on man\_33, B2 on woman\_44, woman\_82, and woman\_129, and B3 on man\_99. Best in bold.}
+  \caption{Ablations on InstructPix2Pix (306 portraits $\times$ 4 instructions). B1 does not reach the target distortion on 34 portraits. For four portraits, the solver runs for 3600 steps with a fixed learning rate: B2 on woman\_44 ($3\times10^{-4}$), woman\_82, and woman\_129, and B3 on man\_99 ($10^{-3}$). Best in bold.}
   \label{tab:ablation}
-  \begin{tabular}{@{}llc ccc cccc@{}}
+  \begin{tabular}{@{}ll ccc cccc@{}}
     \toprule
-    & & & \multicolumn{3}{c}{Immunized image} & \multicolumn{4}{c}{Edit LPIPS $\uparrow$} \\
-    \cmidrule(lr){4-6} \cmidrule(l){7-10}
-    & Variant & $n$ & LPIPS $\downarrow$ & LAION $\uparrow$ & MUSIQ $\uparrow$ & None & JPEG 50 & Blur 2 & VAE-Trans \\
+    & & \multicolumn{3}{c}{Immunized image} & \multicolumn{4}{c}{Edit LPIPS $\uparrow$} \\
+    \cmidrule(lr){3-5} \cmidrule(l){6-9}
+    & Variant & LPIPS $\downarrow$ & LAION $\uparrow$ & MUSIQ $\uparrow$ & None & JPEG 50 & Blur 2 & VAE-Trans \\
     \midrule
     \rowcolor{oursrow}
-    Full & \capg{} (Ours) & 306 & .287 & 5.34 & 5.31 & .353 & .386 & .360 & .288 \\
+    Full & \capg{} (Ours) & .287 & 5.34 & 5.31 & .353 & .386 & .360 & .288 \\
     \midrule
-    \multicolumn{10}{@{}l}{\emph{Components (unmatched distortion)}} \\
-    A1 & w/o optimization (random $\Theta$) & 306 & \textbf{.045} & \textbf{5.44} & \textbf{5.36} & .087 & .151 & .082 & .061 \\
-    A2 & w/o smoothing ($\sigma = 0$) & 306 & .401 & 5.28 & 5.05 & .462 & .448 & .425 & .322 \\
-    A3 & w/o angle bounds & 306 & .459 & 5.24 & 4.96 & \textbf{.507} & \textbf{.530} & \textbf{.517} & .421 \\
-    A4 & single angle bound ($25^\circ$) & 305 & .438 & 5.33 & 5.16 & .483 & .518 & .505 & \textbf{.428} \\
+    \multicolumn{9}{@{}l}{\emph{Components (unmatched distortion)}} \\
+    A1 & w/o optimization (random $\Theta$) & \textbf{.045} & \textbf{5.44} & \textbf{5.36} & .087 & .151 & .082 & .061 \\
+    A2 & w/o smoothing ($\sigma = 0$) & .401 & 5.28 & 5.05 & .462 & .448 & .425 & .322 \\
+    A3 & w/o angle bounds & .459 & 5.24 & 4.96 & \textbf{.507} & \textbf{.530} & \textbf{.517} & .421 \\
+    A4 & single angle bound ($25^\circ$) & .437 & 5.33 & 5.16 & .483 & .518 & .505 & \textbf{.428} \\
     \midrule
-    \multicolumn{10}{@{}l}{\emph{Color mappings (matched distortion)}} \\
-    B1 & random rotation / scaling & 306 & .238 & 5.28 & 5.19 & .298 & .337 & .317 & .255 \\
-    B2 & optimized rotation / scaling & 303 & .290 & 5.19 & 5.13 & .353 & .391 & .365 & .316 \\
-    B3 & optimized $3\times3$ affine & 305 & .287 & 5.27 & 4.81 & .381 & .428 & .393 & .364 \\
-    B4 & unconstrained $K^3$ LUT & 306 & .289 & 5.30 & 5.05 & .380 & .375 & .319 & .305 \\
+    \multicolumn{9}{@{}l}{\emph{Color mappings (matched distortion)}} \\
+    B1 & random rotation / scaling & .238 & 5.28 & 5.19 & .298 & .337 & .317 & .255 \\
+    B2 & optimized rotation / scaling & .291 & 5.19 & 5.13 & .355 & .393 & .366 & .317 \\
+    B3 & optimized $3\times3$ affine & .288 & 5.27 & 4.81 & .382 & .428 & .394 & .364 \\
+    B4 & unconstrained $K^3$ LUT & .289 & 5.30 & 5.05 & .380 & .375 & .319 & .305 \\
     \bottomrule
   \end{tabular}
 \end{table*}

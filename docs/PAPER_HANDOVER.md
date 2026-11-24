@@ -41,9 +41,11 @@ pane 編號會變動，送訊前一律以 multi-agent 的 `list_panes` 依標題
 ## 4. 現況
 
 ### 4.1 同步狀態
-- repo 與 Overleaf 最後逐字一致於 `04ab6494`：同步前線上 14 個文字檔皆等於 `f0cd3cee`，`4_experiments.tex` 以詞級修改套用（消融段 LAION、MUSIQ 換成 306 張版），線上編譯 14 頁、0 錯誤；下次同步以 `04ab6494` 為三方合併基底。
+- repo 與 Overleaf 最後逐字一致於 `7ec63889`：同步前線上 14 個文字檔皆等於 `04ab6494`；`X_suppl.tex`（inpainting ISR 段與表 `tab:supp_inpaint_isr`、兩張質性圖）與 `7_llm_usage.tex`（ip2p 有人工複核、inpainting 無）以詞級修改套用；新上傳 `fig/inpaint_woman_39_gym.pdf`、`fig/inpaint_man_81_dog.pdf`。線上編譯 16 頁、0 錯誤（正文未改）。下次同步以 `7ec63889` 為三方合併基底。
+- `04ab6494` 同步時：同步前線上 14 個文字檔皆等於 `f0cd3cee`，`4_experiments.tex` 以詞級修改套用（消融段 LAION、MUSIQ 換成 306 張版），線上編譯 14 頁、0 錯誤。
 - `f0cd3cee` 同步時：線上 14 個文字檔皆等於前一同步點 `677f2f54`；`main.tex`（啟用 `\input{sec/X_suppl}`，supp 接在正文後）與 `X_suppl_purification.tex` 以詞級修改套用，`X_suppl.tex` 整檔替換；新上傳 `fig/inpaint_man_26_dog.pdf`、`fig/inpaint_woman_14_hospital.pdf`。線上編譯 14 頁、0 錯誤：正文第 1–8 頁、Conclusion 在第 8 頁，第 9 頁起為 LLM Usage Statement 與參考文獻，supp 接在其後。
-- repo 有而線上沒有的檔：`sec/X_suppl_parked.tex`（未被 `\input`）、`fig/qualitative_woman_171_police.pdf`、`fig/qualitative_woman_173_bowtie.pdf`、`fig/qualitative_man_91_police.pdf`（只被 parked 檔引用）。
+- repo 有而線上沒有的檔：`sec/X_suppl_parked.tex`（未被 `\input`）、`fig/qualitative_woman_171_police.pdf`、`fig/qualitative_woman_173_bowtie.pdf`、`fig/qualitative_man_91_police.pdf`（只被 parked 檔引用）；baseline 送來而依使用者指示不引用的 inpainting 圖 `fig/inpaint_woman_138_hospital.pdf`、`inpaint_man_51_hospital.pdf`、`inpaint_man_07_gym.pdf`、`inpaint_woman_146_snowy_street.pdf`、`inpaint_woman_87_snowy_street.pdf`、`inpaint_woman_27_dog.pdf`（只在 repo，未上傳）。
+- 線上根目錄的 `build/` 只含 `main.pdf`（編譯產物，未被引用）；executor 轉達刪除，刪除動作被 Claude Code 權限檢查擋下，現仍保留。
 - **頁數以 Overleaf 編譯為準**：Overleaf 用 pdfLaTeX＋Times，本機 Tectonic 用 TeX Gyre 替代字型，斷行不同（Fig. 3 寬 1.0\textwidth 時本機 Conclusion 收在第 8 頁、線上溢到第 9 頁 4 行；故 `1ada1c6f` 改為 0.85\textwidth）。本機預覽只作參考。
 
 ### 4.2 正文結構與圖表

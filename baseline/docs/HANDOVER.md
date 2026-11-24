@@ -106,7 +106,7 @@ BlurGuard（官方 `pgd_freq`，github.com/jsu-kim/BlurGuard commit e1b2d5e）�
 - 結果正本：`results/pexels_portraits/inpaint/`（`summary.csv`、`images.txt`、`README.md`）；逐格讀數在遠端 `runtime/pexels_portraits/inpaint/readouts/`。
 - ISR 素材：遠端 `artifacts/pexels_portraits/inpaint_isr_sheets/`（1,224 張拼圖，列序以 `default_rng(20260812)` 逐張打亂；`cells.csv`、
   解盲表 `key.csv`），由 `scripts/generate_inpaint_isr_sheets.py` 產生；評審規則草稿 `docs/INPAINT_ISR_RUBRIC.md`。
-- 原生預算對照（僅 man_26 p3，論文未用）：遠端 `artifacts/pexels_portraits/inpaint_native_man_26/readouts.csv`。
+- 原生預算對照（僅 man_26 p3，論文未用）：已移到遠端 `~/trash/baseline/2026-11-24/inpaint_native_man_26/readouts.csv`（見第 6 節）。
 
 ### 3.5 暫時性嘗試（`trials/`，不入版控）
 
@@ -121,7 +121,7 @@ BlurGuard（官方 `pgd_freq`，github.com/jsu-kim/BlurGuard commit e1b2d5e）�
 - 佇列 `runtime/pexels_portraits/queue/jobs.txt`：無待執行工作，`failed/` 為空；`baseline_cap` 為 2（color 的要求），`PAUSED` 不存在。
   兩台 crontab 各有一行，每 5 分鐘執行 `scripts/run_pexels_supervisor.sh`，無工作時不取卡。暫停新認領：`touch queue/PAUSED`。
 - 常駐行程：baseline 沒有在跑的工作，也沒有租約（兩台 `pgrep` 只見 color 的行程）。
-- 未執行的 UltraEdit／FLUX.1 Kontext 工作：`queue/jobs_deferred_manual.txt`、`jobs_deferred_transfer_rest.txt`、`jobs_deferred_flux_512_rest.txt`
+- 使用者決定不執行的 UltraEdit／FLUX.1 Kontext 工作（第 6 節）：`queue/jobs_deferred_manual.txt`、`jobs_deferred_transfer_rest.txt`、`jobs_deferred_flux_512_rest.txt`
   （使用已刪除腳本的工作項已移除，改前清單 `*.before_cleanup`）。
 - 卡數規則：全局 ≤ 6，扣除其他 session 的租約，color 優先；color 要卡時設 `PAUSED` 並把 `baseline_cap` 改為 0，讓在跑的影像跑完。
 
@@ -147,7 +147,7 @@ BlurGuard（官方 `pgd_freq`，github.com/jsu-kim/BlurGuard commit e1b2d5e）�
 
 - BlurGuard 依論文協定重跑（ImageNet-Edit 80 張、SD v1.4 img2img、官方設定）未對上論文數字；數字見 `docs/TRIALS.md` 的
   `blurguard_paper_protocol` 列，原因未查明。
-- BlurGuard 倍率 0.6071 在 Pexels 上的防禦圖 LPIPS 為 0.2745，未達錨點 0.3344。
+- BlurGuard 倍率 0.6071 在 Pexels 上的防禦圖 LPIPS 為 0.2745，未達錨點 0.3344；使用者決定不重新校準（第 6 節）。
 - 幾何淨化的分區欄：`results/retention.csv` 中 11 個條件的 `crop_resize0.1`、`rotate15` 分區欄已以 `purified_mask()` 重算（更正前見 commit `228c59b`）。
 - SD 2.x 只能用 epsilon-prediction 權重（`sd2-community/stable-diffusion-2-1-base`）。
 - `results/distortion_displacement/points.csv` 的產生程式已刪除（引用的 color 條件產物已不存在）；檔案保留為紀錄。
@@ -155,15 +155,19 @@ BlurGuard（官方 `pgd_freq`，github.com/jsu-kim/BlurGuard commit e1b2d5e）�
 - ImmuLUT 的防禦圖與編輯有明顯色調，ISR 拼圖即使打亂列序也無法完全盲化。
 - 遠端跑 `core/tests` 前需 `export ENV_FILE=~/env.sh; source baseline/scripts/env.sh`，否則 `test_generate_requirements_lock.py` 的 round-trip 測試找不到 uv。
 
-## 6. 待使用者決定
+## 6. 使用者決定（2026-11-24）
 
-1. BlurGuard 是否在 Pexels 上重新校準等失真倍率。
-2. deferred 的 UltraEdit／FLUX.1 Kontext 工作是否執行。
-3. 遠端可清理的暫存（刪除需使用者確認，確認後移到 `~/trash/baseline/`）：
-   - `artifacts/pexels_portraits/inpaint_isr_sheets/` 中 inpainting ISR 100 張試評的 `pilot100.txt`、`pilot100_codes_partial.txt`、`score.py`
-     （試評停在 68 張，已由 executor 的 1,224 張全評取代）；
-   - `~/tmp_figs/`（83 MB，腳本副本、拼圖與測試紀錄）、`~/tmp_inpaint/`（28 KB）；
-   - `artifacts/pexels_portraits/inpaint_example_candidates/` 中未入論文的 8 張候選，以及 `inpaint_native_man_26/`。
+目前沒有待使用者決定的事項。
+
+1. BlurGuard 不在 Pexels 上重新校準等失真倍率，維持 0.6071（306 張的防禦圖 LPIPS 0.2745，錨點 0.3344）。
+2. deferred 的 UltraEdit／FLUX.1 Kontext 工作不執行；清單檔保留在 `queue/` 作為紀錄。
+3. 遠端暫存經使用者確認後移到 `~/trash/baseline/2026-11-24/`（原路徑已以 `ls` 確認不存在），移動前查過 repo 與遠端腳本均無引用：
+   - `inpaint_isr_sheets/`：inpainting ISR 100 張試評的 `pilot100.txt`、`pilot100_codes_partial.txt`、`score.py`（16 KB；試評停在 68 張，
+     由 1,224 張全評 `docs/isr_pilot/inpaint/` 取代）；
+   - `tmp_figs/`（83 MB）、`tmp_inpaint/`（28 KB）；
+   - `inpaint_example_candidates/`：未入論文的 8 張候選 man_16_p3、man_37_p3、man_79_p0、man_94_p2、woman_118_p2、woman_119_p1、woman_163_p0、
+     woman_84_p1（各 `.csv`／`.pdf`／`.png`，35 MB）；遠端原目錄保留論文所用的 8 張；
+   - `inpaint_native_man_26/`（19 MB，原生預算對照，論文未用）。
 4. inpainting 的 pipeline 原始輸出（`artifacts/pexels_portraits/inpaint/**/__raw.png`，約 11 GB）依使用者指示保留。
 
 逐段工作紀錄：`git log -- baseline/`；STATUS 的舊版逐段紀錄見 commit `05f785f0`。

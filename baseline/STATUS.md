@@ -15,9 +15,12 @@
 
 ## 待使用者決定
 
-1. BlurGuard 在 Pexels 上是否重新校準等失真倍率（現為 0.6071，306 張的防禦圖 LPIPS 0.2745，錨點 0.3344）。
-2. deferred 的 UltraEdit／FLUX.1 Kontext 工作是否執行。
-3. 遠端暫存的清理，包括被 1,224 張全評取代的 inpainting ISR 100 張試評檔（清單見 `docs/HANDOVER.md` 6；刪除需確認）。
+無。使用者決定（2026-11-24，`docs/HANDOVER.md` 6）：
+
+1. BlurGuard 不在 Pexels 上重新校準，維持倍率 0.6071（306 張的防禦圖 LPIPS 0.2745，錨點 0.3344）。
+2. deferred 的 UltraEdit／FLUX.1 Kontext 工作不執行。
+3. 遠端暫存（inpainting ISR 100 張試評檔、`~/tmp_figs`、`~/tmp_inpaint`、8 張未入論文的 inpainting 候選、`inpaint_native_man_26`）已移到
+   `~/trash/baseline/2026-11-24/`；`inpaint/**/__raw.png` 保留。
 
 ## 規矩
 

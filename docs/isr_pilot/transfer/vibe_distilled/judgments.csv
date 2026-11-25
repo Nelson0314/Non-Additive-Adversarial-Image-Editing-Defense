@@ -1,0 +1,4801 @@
+sheet,row,cell,purification,accessory,color_cast,mismatch,degraded,note
+man_05__p0,R1,C2,none,1,0,0,0,
+man_05__p0,R1,C3,jpeg50,1,0,0,0,
+man_05__p0,R1,C4,blur2,1,0,0,0,
+man_05__p0,R1,C5,vae_trans,1,0,0,0,
+man_05__p0,R2,C2,none,1,0,0,0,
+man_05__p0,R2,C3,jpeg50,1,0,0,0,
+man_05__p0,R2,C4,blur2,1,0,0,0,
+man_05__p0,R2,C5,vae_trans,1,0,0,0,
+man_05__p0,R3,C2,none,1,0,0,0,
+man_05__p0,R3,C3,jpeg50,1,0,0,0,
+man_05__p0,R3,C4,blur2,1,0,0,0,
+man_05__p0,R3,C5,vae_trans,1,0,0,0,
+man_05__p0,R4,C2,none,1,0,0,0,
+man_05__p0,R4,C3,jpeg50,1,0,0,0,
+man_05__p0,R4,C4,blur2,1,0,0,0,
+man_05__p0,R4,C5,vae_trans,1,0,0,0,
+man_05__p0,R5,C2,none,1,0,0,0,
+man_05__p0,R5,C3,jpeg50,1,0,0,0,
+man_05__p0,R5,C4,blur2,1,0,0,0,
+man_05__p0,R5,C5,vae_trans,1,0,0,0,
+man_05__p0,R6,C2,none,1,1,0,0,
+man_05__p0,R6,C3,jpeg50,1,1,0,0,
+man_05__p0,R6,C4,blur2,1,1,0,0,
+man_05__p0,R6,C5,vae_trans,1,1,0,0,
+man_05__p1,R1,C2,none,0,0,0,0,
+man_05__p1,R1,C3,jpeg50,1,0,0,0,
+man_05__p1,R1,C4,blur2,1,0,0,0,
+man_05__p1,R1,C5,vae_trans,0,0,0,0,
+man_05__p1,R2,C2,none,0,0,0,0,
+man_05__p1,R2,C3,jpeg50,0,0,0,0,
+man_05__p1,R2,C4,blur2,1,0,0,0,
+man_05__p1,R2,C5,vae_trans,0,0,0,0,
+man_05__p1,R3,C2,none,1,0,0,0,
+man_05__p1,R3,C3,jpeg50,0,0,0,0,
+man_05__p1,R3,C4,blur2,1,0,0,0,
+man_05__p1,R3,C5,vae_trans,0,0,0,0,
+man_05__p1,R4,C2,none,0,0,0,0,
+man_05__p1,R4,C3,jpeg50,0,0,0,0,
+man_05__p1,R4,C4,blur2,1,0,0,0,
+man_05__p1,R4,C5,vae_trans,0,0,0,0,
+man_05__p1,R5,C2,none,0,1,0,0,
+man_05__p1,R5,C3,jpeg50,0,1,0,0,
+man_05__p1,R5,C4,blur2,0,1,0,0,
+man_05__p1,R5,C5,vae_trans,0,1,0,0,
+man_05__p1,R6,C2,none,0,0,0,0,
+man_05__p1,R6,C3,jpeg50,1,0,0,0,
+man_05__p1,R6,C4,blur2,1,0,0,0,
+man_05__p1,R6,C5,vae_trans,0,0,0,0,
+man_05__p2,R1,C2,none,1,0,0,0,
+man_05__p2,R1,C3,jpeg50,1,0,0,0,
+man_05__p2,R1,C4,blur2,1,0,0,0,
+man_05__p2,R1,C5,vae_trans,1,0,0,0,
+man_05__p2,R2,C2,none,1,0,0,0,
+man_05__p2,R2,C3,jpeg50,1,0,0,0,
+man_05__p2,R2,C4,blur2,1,0,0,0,
+man_05__p2,R2,C5,vae_trans,1,0,0,0,
+man_05__p2,R3,C2,none,1,0,0,0,
+man_05__p2,R3,C3,jpeg50,1,0,0,0,
+man_05__p2,R3,C4,blur2,1,0,0,0,
+man_05__p2,R3,C5,vae_trans,1,0,0,0,
+man_05__p2,R4,C2,none,1,0,0,0,
+man_05__p2,R4,C3,jpeg50,1,0,0,0,
+man_05__p2,R4,C4,blur2,1,0,0,0,
+man_05__p2,R4,C5,vae_trans,1,0,0,0,
+man_05__p2,R5,C2,none,1,1,0,0,
+man_05__p2,R5,C3,jpeg50,1,1,0,0,
+man_05__p2,R5,C4,blur2,1,1,0,0,
+man_05__p2,R5,C5,vae_trans,1,1,0,0,
+man_05__p2,R6,C2,none,1,0,0,0,
+man_05__p2,R6,C3,jpeg50,1,0,0,0,
+man_05__p2,R6,C4,blur2,1,0,0,0,
+man_05__p2,R6,C5,vae_trans,1,0,0,0,
+man_05__p3,R1,C2,none,1,0,0,0,
+man_05__p3,R1,C3,jpeg50,1,0,0,0,
+man_05__p3,R1,C4,blur2,1,0,0,0,
+man_05__p3,R1,C5,vae_trans,1,0,0,0,
+man_05__p3,R2,C2,none,1,1,0,0,
+man_05__p3,R2,C3,jpeg50,1,1,0,0,
+man_05__p3,R2,C4,blur2,1,1,0,0,
+man_05__p3,R2,C5,vae_trans,1,1,0,0,
+man_05__p3,R3,C2,none,1,0,0,0,
+man_05__p3,R3,C3,jpeg50,1,0,0,0,
+man_05__p3,R3,C4,blur2,1,0,0,0,
+man_05__p3,R3,C5,vae_trans,1,0,0,0,
+man_05__p3,R4,C2,none,1,0,0,0,
+man_05__p3,R4,C3,jpeg50,1,0,0,0,
+man_05__p3,R4,C4,blur2,1,0,0,0,
+man_05__p3,R4,C5,vae_trans,1,0,0,0,
+man_05__p3,R5,C2,none,1,0,0,0,
+man_05__p3,R5,C3,jpeg50,1,0,0,0,
+man_05__p3,R5,C4,blur2,1,0,0,0,
+man_05__p3,R5,C5,vae_trans,1,0,0,0,
+man_05__p3,R6,C2,none,1,0,0,0,
+man_05__p3,R6,C3,jpeg50,1,0,0,0,
+man_05__p3,R6,C4,blur2,1,0,0,0,
+man_05__p3,R6,C5,vae_trans,1,0,0,0,
+man_100__p0,R1,C2,none,1,0,0,0,
+man_100__p0,R1,C3,jpeg50,1,0,0,0,
+man_100__p0,R1,C4,blur2,1,0,0,0,
+man_100__p0,R1,C5,vae_trans,1,0,0,0,
+man_100__p0,R2,C2,none,1,0,0,0,
+man_100__p0,R2,C3,jpeg50,1,0,0,0,
+man_100__p0,R2,C4,blur2,1,0,0,0,
+man_100__p0,R2,C5,vae_trans,1,0,0,0,
+man_100__p0,R3,C2,none,1,0,0,0,
+man_100__p0,R3,C3,jpeg50,1,0,0,0,
+man_100__p0,R3,C4,blur2,1,0,0,0,
+man_100__p0,R3,C5,vae_trans,1,0,0,0,
+man_100__p0,R4,C2,none,1,0,0,0,
+man_100__p0,R4,C3,jpeg50,1,0,0,0,
+man_100__p0,R4,C4,blur2,1,0,0,0,
+man_100__p0,R4,C5,vae_trans,1,0,0,0,
+man_100__p0,R5,C2,none,1,0,0,0,
+man_100__p0,R5,C3,jpeg50,1,0,0,0,
+man_100__p0,R5,C4,blur2,1,0,0,0,
+man_100__p0,R5,C5,vae_trans,1,0,0,0,
+man_100__p0,R6,C2,none,1,1,0,0,
+man_100__p0,R6,C3,jpeg50,1,1,0,0,
+man_100__p0,R6,C4,blur2,1,1,0,0,
+man_100__p0,R6,C5,vae_trans,1,1,0,0,
+man_100__p1,R1,C2,none,0,0,0,0,
+man_100__p1,R1,C3,jpeg50,0,0,0,0,
+man_100__p1,R1,C4,blur2,1,0,0,0,
+man_100__p1,R1,C5,vae_trans,1,0,0,0,
+man_100__p1,R2,C2,none,1,0,0,0,
+man_100__p1,R2,C3,jpeg50,1,0,0,0,
+man_100__p1,R2,C4,blur2,1,0,0,0,
+man_100__p1,R2,C5,vae_trans,0,0,0,0,
+man_100__p1,R3,C2,none,0,0,0,0,
+man_100__p1,R3,C3,jpeg50,1,0,0,0,
+man_100__p1,R3,C4,blur2,1,0,0,0,
+man_100__p1,R3,C5,vae_trans,0,0,0,0,
+man_100__p1,R4,C2,none,1,0,0,0,
+man_100__p1,R4,C3,jpeg50,1,0,0,0,
+man_100__p1,R4,C4,blur2,1,0,0,0,
+man_100__p1,R4,C5,vae_trans,0,0,0,0,
+man_100__p1,R5,C2,none,1,0,0,0,
+man_100__p1,R5,C3,jpeg50,0,0,0,0,
+man_100__p1,R5,C4,blur2,0,0,0,0,
+man_100__p1,R5,C5,vae_trans,1,0,0,0,
+man_100__p1,R6,C2,none,1,1,0,0,
+man_100__p1,R6,C3,jpeg50,1,1,0,0,
+man_100__p1,R6,C4,blur2,1,1,0,0,
+man_100__p1,R6,C5,vae_trans,0,1,0,0,
+man_100__p2,R1,C2,none,1,1,0,0,
+man_100__p2,R1,C3,jpeg50,1,1,0,0,
+man_100__p2,R1,C4,blur2,1,1,0,0,
+man_100__p2,R1,C5,vae_trans,1,1,0,0,
+man_100__p2,R2,C2,none,1,0,0,0,
+man_100__p2,R2,C3,jpeg50,1,0,0,0,
+man_100__p2,R2,C4,blur2,1,0,0,0,
+man_100__p2,R2,C5,vae_trans,1,0,0,0,
+man_100__p2,R3,C2,none,1,0,0,0,
+man_100__p2,R3,C3,jpeg50,1,0,0,0,
+man_100__p2,R3,C4,blur2,1,0,0,0,
+man_100__p2,R3,C5,vae_trans,1,0,0,0,
+man_100__p2,R4,C2,none,1,0,0,0,
+man_100__p2,R4,C3,jpeg50,1,0,0,0,
+man_100__p2,R4,C4,blur2,1,0,0,0,
+man_100__p2,R4,C5,vae_trans,1,0,0,0,
+man_100__p2,R5,C2,none,1,0,0,0,
+man_100__p2,R5,C3,jpeg50,1,0,0,0,
+man_100__p2,R5,C4,blur2,1,0,0,0,
+man_100__p2,R5,C5,vae_trans,1,0,0,0,
+man_100__p2,R6,C2,none,1,0,0,0,
+man_100__p2,R6,C3,jpeg50,1,0,0,0,
+man_100__p2,R6,C4,blur2,1,0,0,0,
+man_100__p2,R6,C5,vae_trans,1,0,0,0,
+man_100__p3,R1,C2,none,1,0,0,0,
+man_100__p3,R1,C3,jpeg50,1,0,0,0,
+man_100__p3,R1,C4,blur2,1,0,0,0,
+man_100__p3,R1,C5,vae_trans,1,0,0,0,
+man_100__p3,R2,C2,none,1,0,0,0,
+man_100__p3,R2,C3,jpeg50,1,0,0,0,
+man_100__p3,R2,C4,blur2,1,0,0,0,
+man_100__p3,R2,C5,vae_trans,1,0,0,0,
+man_100__p3,R3,C2,none,1,1,0,0,
+man_100__p3,R3,C3,jpeg50,1,1,0,0,
+man_100__p3,R3,C4,blur2,1,1,0,0,
+man_100__p3,R3,C5,vae_trans,1,1,0,0,
+man_100__p3,R4,C2,none,1,0,0,0,
+man_100__p3,R4,C3,jpeg50,1,0,0,0,
+man_100__p3,R4,C4,blur2,1,0,0,0,
+man_100__p3,R4,C5,vae_trans,1,0,0,0,
+man_100__p3,R5,C2,none,1,0,0,0,
+man_100__p3,R5,C3,jpeg50,1,0,0,0,
+man_100__p3,R5,C4,blur2,1,0,0,0,
+man_100__p3,R5,C5,vae_trans,1,0,0,0,
+man_100__p3,R6,C2,none,1,0,0,0,
+man_100__p3,R6,C3,jpeg50,1,0,0,0,
+man_100__p3,R6,C4,blur2,1,0,0,0,
+man_100__p3,R6,C5,vae_trans,1,0,0,0,
+man_102__p0,R1,C2,none,1,0,0,0,
+man_102__p0,R1,C3,jpeg50,1,0,0,0,
+man_102__p0,R1,C4,blur2,1,0,0,0,
+man_102__p0,R1,C5,vae_trans,1,0,0,0,
+man_102__p0,R2,C2,none,1,0,0,0,
+man_102__p0,R2,C3,jpeg50,1,0,0,0,
+man_102__p0,R2,C4,blur2,1,0,0,0,
+man_102__p0,R2,C5,vae_trans,1,0,0,0,
+man_102__p0,R3,C2,none,1,0,0,0,
+man_102__p0,R3,C3,jpeg50,1,0,0,0,
+man_102__p0,R3,C4,blur2,1,0,0,0,
+man_102__p0,R3,C5,vae_trans,1,0,0,0,
+man_102__p0,R4,C2,none,1,0,0,0,
+man_102__p0,R4,C3,jpeg50,1,0,0,0,
+man_102__p0,R4,C4,blur2,1,0,0,0,
+man_102__p0,R4,C5,vae_trans,1,0,0,0,
+man_102__p0,R5,C2,none,1,1,0,0,
+man_102__p0,R5,C3,jpeg50,1,1,0,0,
+man_102__p0,R5,C4,blur2,1,1,0,0,
+man_102__p0,R5,C5,vae_trans,1,1,0,0,
+man_102__p0,R6,C2,none,1,0,0,0,
+man_102__p0,R6,C3,jpeg50,1,0,0,0,
+man_102__p0,R6,C4,blur2,1,0,0,0,
+man_102__p0,R6,C5,vae_trans,1,0,0,0,
+man_102__p1,R1,C2,none,0,0,0,0,
+man_102__p1,R1,C3,jpeg50,0,0,0,0,
+man_102__p1,R1,C4,blur2,0,0,0,0,
+man_102__p1,R1,C5,vae_trans,0,0,0,0,
+man_102__p1,R2,C2,none,0,0,0,0,
+man_102__p1,R2,C3,jpeg50,0,0,0,0,
+man_102__p1,R2,C4,blur2,0,0,0,0,
+man_102__p1,R2,C5,vae_trans,0,0,0,0,
+man_102__p1,R3,C2,none,0,0,0,0,
+man_102__p1,R3,C3,jpeg50,0,0,0,0,
+man_102__p1,R3,C4,blur2,0,0,0,0,
+man_102__p1,R3,C5,vae_trans,0,0,0,0,
+man_102__p1,R4,C2,none,0,1,0,0,
+man_102__p1,R4,C3,jpeg50,0,1,0,0,
+man_102__p1,R4,C4,blur2,0,1,0,0,
+man_102__p1,R4,C5,vae_trans,0,1,0,0,
+man_102__p1,R5,C2,none,0,0,0,0,
+man_102__p1,R5,C3,jpeg50,0,0,0,0,
+man_102__p1,R5,C4,blur2,0,0,0,0,
+man_102__p1,R5,C5,vae_trans,0,0,0,0,
+man_102__p1,R6,C2,none,0,0,0,0,
+man_102__p1,R6,C3,jpeg50,0,0,0,0,
+man_102__p1,R6,C4,blur2,0,0,0,0,
+man_102__p1,R6,C5,vae_trans,0,0,0,0,
+man_102__p2,R1,C2,none,1,0,0,0,
+man_102__p2,R1,C3,jpeg50,1,0,0,0,
+man_102__p2,R1,C4,blur2,1,0,0,0,
+man_102__p2,R1,C5,vae_trans,1,0,0,0,
+man_102__p2,R2,C2,none,1,0,0,0,
+man_102__p2,R2,C3,jpeg50,1,0,0,0,
+man_102__p2,R2,C4,blur2,1,0,0,0,
+man_102__p2,R2,C5,vae_trans,1,0,0,0,
+man_102__p2,R3,C2,none,1,1,0,0,
+man_102__p2,R3,C3,jpeg50,1,1,0,0,
+man_102__p2,R3,C4,blur2,1,1,0,0,face darkened purple
+man_102__p2,R3,C5,vae_trans,1,1,0,0,
+man_102__p2,R4,C2,none,1,0,0,0,
+man_102__p2,R4,C3,jpeg50,1,0,0,0,
+man_102__p2,R4,C4,blur2,1,0,0,0,
+man_102__p2,R4,C5,vae_trans,1,0,0,0,
+man_102__p2,R5,C2,none,1,0,0,0,
+man_102__p2,R5,C3,jpeg50,1,0,0,0,
+man_102__p2,R5,C4,blur2,1,0,0,0,
+man_102__p2,R5,C5,vae_trans,1,0,0,0,
+man_102__p2,R6,C2,none,1,0,0,0,
+man_102__p2,R6,C3,jpeg50,1,0,0,0,
+man_102__p2,R6,C4,blur2,1,0,0,0,
+man_102__p2,R6,C5,vae_trans,1,0,0,0,
+man_102__p3,R1,C2,none,1,0,0,0,
+man_102__p3,R1,C3,jpeg50,1,0,0,0,
+man_102__p3,R1,C4,blur2,1,0,0,0,
+man_102__p3,R1,C5,vae_trans,1,0,0,0,
+man_102__p3,R2,C2,none,1,0,0,0,
+man_102__p3,R2,C3,jpeg50,1,0,0,0,
+man_102__p3,R2,C4,blur2,1,0,0,0,
+man_102__p3,R2,C5,vae_trans,1,0,0,0,
+man_102__p3,R3,C2,none,1,0,0,0,
+man_102__p3,R3,C3,jpeg50,1,0,0,0,
+man_102__p3,R3,C4,blur2,1,0,0,0,
+man_102__p3,R3,C5,vae_trans,1,0,0,0,
+man_102__p3,R4,C2,none,1,0,0,0,
+man_102__p3,R4,C3,jpeg50,1,0,0,0,
+man_102__p3,R4,C4,blur2,1,0,0,0,
+man_102__p3,R4,C5,vae_trans,1,0,0,0,
+man_102__p3,R5,C2,none,1,1,0,0,
+man_102__p3,R5,C3,jpeg50,1,1,0,0,
+man_102__p3,R5,C4,blur2,1,1,0,0,
+man_102__p3,R5,C5,vae_trans,1,1,0,0,
+man_102__p3,R6,C2,none,1,0,0,0,
+man_102__p3,R6,C3,jpeg50,1,0,0,0,
+man_102__p3,R6,C4,blur2,1,0,0,0,
+man_102__p3,R6,C5,vae_trans,1,0,0,0,
+man_105__p0,R1,C2,none,1,1,0,0,
+man_105__p0,R1,C3,jpeg50,1,1,0,0,
+man_105__p0,R1,C4,blur2,1,1,0,0,
+man_105__p0,R1,C5,vae_trans,1,1,0,0,
+man_105__p0,R2,C2,none,1,0,0,0,
+man_105__p0,R2,C3,jpeg50,1,0,0,0,
+man_105__p0,R2,C4,blur2,1,0,0,0,
+man_105__p0,R2,C5,vae_trans,1,0,0,0,
+man_105__p0,R3,C2,none,1,0,0,0,
+man_105__p0,R3,C3,jpeg50,1,0,0,0,
+man_105__p0,R3,C4,blur2,1,0,0,0,
+man_105__p0,R3,C5,vae_trans,1,0,0,0,
+man_105__p0,R4,C2,none,1,0,0,0,
+man_105__p0,R4,C3,jpeg50,1,0,0,0,
+man_105__p0,R4,C4,blur2,1,0,0,0,
+man_105__p0,R4,C5,vae_trans,1,0,0,0,
+man_105__p0,R5,C2,none,1,0,0,0,
+man_105__p0,R5,C3,jpeg50,1,0,0,0,
+man_105__p0,R5,C4,blur2,1,0,0,0,
+man_105__p0,R5,C5,vae_trans,1,0,0,0,
+man_105__p0,R6,C2,none,1,0,0,0,
+man_105__p0,R6,C3,jpeg50,1,0,0,0,
+man_105__p0,R6,C4,blur2,1,0,0,0,
+man_105__p0,R6,C5,vae_trans,1,0,0,0,
+man_105__p1,R1,C2,none,1,0,0,0,
+man_105__p1,R1,C3,jpeg50,0,0,0,0,
+man_105__p1,R1,C4,blur2,0,0,0,0,
+man_105__p1,R1,C5,vae_trans,0,0,0,0,
+man_105__p1,R2,C2,none,1,0,0,0,
+man_105__p1,R2,C3,jpeg50,0,0,0,0,
+man_105__p1,R2,C4,blur2,0,0,0,0,
+man_105__p1,R2,C5,vae_trans,0,0,0,0,
+man_105__p1,R3,C2,none,1,1,0,0,
+man_105__p1,R3,C3,jpeg50,0,1,0,0,
+man_105__p1,R3,C4,blur2,0,1,0,0,
+man_105__p1,R3,C5,vae_trans,0,1,0,0,
+man_105__p1,R4,C2,none,1,0,0,0,
+man_105__p1,R4,C3,jpeg50,0,0,0,0,
+man_105__p1,R4,C4,blur2,0,0,0,0,
+man_105__p1,R4,C5,vae_trans,0,0,0,0,
+man_105__p1,R5,C2,none,1,0,0,0,
+man_105__p1,R5,C3,jpeg50,0,0,0,0,
+man_105__p1,R5,C4,blur2,0,0,0,0,
+man_105__p1,R5,C5,vae_trans,0,0,0,0,
+man_105__p1,R6,C2,none,1,0,0,0,
+man_105__p1,R6,C3,jpeg50,0,0,0,0,
+man_105__p1,R6,C4,blur2,0,0,0,0,
+man_105__p1,R6,C5,vae_trans,0,0,0,0,
+man_105__p2,R1,C2,none,1,0,0,0,
+man_105__p2,R1,C3,jpeg50,1,0,0,0,
+man_105__p2,R1,C4,blur2,1,0,0,0,
+man_105__p2,R1,C5,vae_trans,1,0,0,0,
+man_105__p2,R2,C2,none,1,0,0,0,
+man_105__p2,R2,C3,jpeg50,1,0,0,0,
+man_105__p2,R2,C4,blur2,1,0,0,0,
+man_105__p2,R2,C5,vae_trans,1,0,0,0,
+man_105__p2,R3,C2,none,1,1,0,0,
+man_105__p2,R3,C3,jpeg50,1,1,0,0,
+man_105__p2,R3,C4,blur2,1,1,0,0,
+man_105__p2,R3,C5,vae_trans,1,1,0,0,
+man_105__p2,R4,C2,none,1,0,0,0,
+man_105__p2,R4,C3,jpeg50,1,0,0,0,
+man_105__p2,R4,C4,blur2,1,0,0,0,
+man_105__p2,R4,C5,vae_trans,1,0,0,0,
+man_105__p2,R5,C2,none,1,0,0,0,
+man_105__p2,R5,C3,jpeg50,1,0,0,0,
+man_105__p2,R5,C4,blur2,1,0,0,0,
+man_105__p2,R5,C5,vae_trans,1,0,0,0,
+man_105__p2,R6,C2,none,1,0,0,0,
+man_105__p2,R6,C3,jpeg50,1,0,0,0,
+man_105__p2,R6,C4,blur2,1,0,0,0,
+man_105__p2,R6,C5,vae_trans,1,0,0,0,
+man_105__p3,R1,C2,none,1,0,0,0,
+man_105__p3,R1,C3,jpeg50,1,0,0,0,
+man_105__p3,R1,C4,blur2,1,0,0,0,
+man_105__p3,R1,C5,vae_trans,1,0,0,0,
+man_105__p3,R2,C2,none,1,0,0,0,
+man_105__p3,R2,C3,jpeg50,1,0,0,0,
+man_105__p3,R2,C4,blur2,1,0,0,0,
+man_105__p3,R2,C5,vae_trans,1,0,0,0,
+man_105__p3,R3,C2,none,1,0,0,0,
+man_105__p3,R3,C3,jpeg50,1,0,0,0,
+man_105__p3,R3,C4,blur2,1,0,0,0,
+man_105__p3,R3,C5,vae_trans,1,0,0,0,
+man_105__p3,R4,C2,none,1,0,0,0,
+man_105__p3,R4,C3,jpeg50,1,0,0,0,
+man_105__p3,R4,C4,blur2,1,0,0,0,
+man_105__p3,R4,C5,vae_trans,1,0,0,0,
+man_105__p3,R5,C2,none,1,0,0,0,
+man_105__p3,R5,C3,jpeg50,1,0,0,0,
+man_105__p3,R5,C4,blur2,1,0,0,0,
+man_105__p3,R5,C5,vae_trans,1,0,0,0,
+man_105__p3,R6,C2,none,1,1,0,0,
+man_105__p3,R6,C3,jpeg50,1,1,0,0,
+man_105__p3,R6,C4,blur2,1,1,0,0,
+man_105__p3,R6,C5,vae_trans,1,1,0,0,
+man_108__p0,R1,C2,none,1,0,0,0,
+man_108__p0,R1,C3,jpeg50,1,0,0,0,
+man_108__p0,R1,C4,blur2,1,0,0,0,
+man_108__p0,R1,C5,vae_trans,1,0,0,0,
+man_108__p0,R2,C2,none,1,0,0,0,
+man_108__p0,R2,C3,jpeg50,1,0,0,0,
+man_108__p0,R2,C4,blur2,1,0,0,0,
+man_108__p0,R2,C5,vae_trans,1,0,0,0,
+man_108__p0,R3,C2,none,1,0,0,0,
+man_108__p0,R3,C3,jpeg50,1,0,0,0,
+man_108__p0,R3,C4,blur2,1,0,0,0,
+man_108__p0,R3,C5,vae_trans,1,0,0,0,
+man_108__p0,R4,C2,none,1,0,0,0,
+man_108__p0,R4,C3,jpeg50,1,0,0,0,
+man_108__p0,R4,C4,blur2,1,0,0,0,
+man_108__p0,R4,C5,vae_trans,1,0,0,0,
+man_108__p0,R5,C2,none,1,1,0,0,
+man_108__p0,R5,C3,jpeg50,1,1,0,0,
+man_108__p0,R5,C4,blur2,1,1,0,0,
+man_108__p0,R5,C5,vae_trans,1,1,0,0,
+man_108__p0,R6,C2,none,1,0,0,0,
+man_108__p0,R6,C3,jpeg50,1,0,0,0,
+man_108__p0,R6,C4,blur2,1,0,0,0,
+man_108__p0,R6,C5,vae_trans,1,0,0,0,
+man_108__p1,R1,C2,none,0,0,0,0,
+man_108__p1,R1,C3,jpeg50,0,0,0,0,
+man_108__p1,R1,C4,blur2,0,0,0,0,
+man_108__p1,R1,C5,vae_trans,0,0,0,0,
+man_108__p1,R2,C2,none,0,0,0,0,
+man_108__p1,R2,C3,jpeg50,0,0,0,0,
+man_108__p1,R2,C4,blur2,0,0,0,0,
+man_108__p1,R2,C5,vae_trans,0,0,0,0,
+man_108__p1,R3,C2,none,0,0,0,0,
+man_108__p1,R3,C3,jpeg50,0,0,0,0,
+man_108__p1,R3,C4,blur2,0,0,0,0,
+man_108__p1,R3,C5,vae_trans,0,0,0,0,
+man_108__p1,R4,C2,none,0,0,0,0,
+man_108__p1,R4,C3,jpeg50,0,0,0,0,
+man_108__p1,R4,C4,blur2,0,0,0,0,
+man_108__p1,R4,C5,vae_trans,0,0,0,0,
+man_108__p1,R5,C2,none,0,1,0,0,
+man_108__p1,R5,C3,jpeg50,0,1,0,0,
+man_108__p1,R5,C4,blur2,0,1,0,0,
+man_108__p1,R5,C5,vae_trans,0,1,0,0,
+man_108__p1,R6,C2,none,0,0,0,0,
+man_108__p1,R6,C3,jpeg50,0,0,0,0,
+man_108__p1,R6,C4,blur2,0,0,0,0,
+man_108__p1,R6,C5,vae_trans,0,0,0,0,
+man_108__p2,R1,C2,none,1,0,0,0,
+man_108__p2,R1,C3,jpeg50,1,0,0,0,
+man_108__p2,R1,C4,blur2,1,0,0,0,
+man_108__p2,R1,C5,vae_trans,1,0,0,0,
+man_108__p2,R2,C2,none,1,0,0,0,
+man_108__p2,R2,C3,jpeg50,1,0,0,0,
+man_108__p2,R2,C4,blur2,1,0,0,0,
+man_108__p2,R2,C5,vae_trans,1,0,0,0,
+man_108__p2,R3,C2,none,1,1,0,0,
+man_108__p2,R3,C3,jpeg50,1,1,0,0,
+man_108__p2,R3,C4,blur2,1,1,0,0,
+man_108__p2,R3,C5,vae_trans,1,1,0,0,
+man_108__p2,R4,C2,none,1,0,0,0,
+man_108__p2,R4,C3,jpeg50,1,0,0,0,
+man_108__p2,R4,C4,blur2,1,0,0,0,
+man_108__p2,R4,C5,vae_trans,1,0,0,0,
+man_108__p2,R5,C2,none,1,0,0,0,
+man_108__p2,R5,C3,jpeg50,1,0,0,0,
+man_108__p2,R5,C4,blur2,1,0,0,0,
+man_108__p2,R5,C5,vae_trans,1,0,0,0,
+man_108__p2,R6,C2,none,1,0,0,0,
+man_108__p2,R6,C3,jpeg50,1,0,0,0,
+man_108__p2,R6,C4,blur2,1,0,0,0,
+man_108__p2,R6,C5,vae_trans,1,0,0,0,
+man_108__p3,R1,C2,none,1,0,0,0,
+man_108__p3,R1,C3,jpeg50,1,0,0,0,
+man_108__p3,R1,C4,blur2,1,0,0,0,
+man_108__p3,R1,C5,vae_trans,1,0,0,0,
+man_108__p3,R2,C2,none,1,1,0,0,
+man_108__p3,R2,C3,jpeg50,1,1,0,0,
+man_108__p3,R2,C4,blur2,1,1,0,0,
+man_108__p3,R2,C5,vae_trans,1,1,0,0,
+man_108__p3,R3,C2,none,1,0,0,0,
+man_108__p3,R3,C3,jpeg50,1,0,0,0,
+man_108__p3,R3,C4,blur2,1,0,0,0,
+man_108__p3,R3,C5,vae_trans,1,0,0,0,
+man_108__p3,R4,C2,none,1,0,0,0,
+man_108__p3,R4,C3,jpeg50,1,0,0,0,
+man_108__p3,R4,C4,blur2,1,0,0,0,
+man_108__p3,R4,C5,vae_trans,1,0,0,0,
+man_108__p3,R5,C2,none,1,0,0,0,
+man_108__p3,R5,C3,jpeg50,1,0,0,0,
+man_108__p3,R5,C4,blur2,1,0,0,0,
+man_108__p3,R5,C5,vae_trans,1,0,0,0,
+man_108__p3,R6,C2,none,1,0,0,0,
+man_108__p3,R6,C3,jpeg50,1,0,0,0,
+man_108__p3,R6,C4,blur2,1,0,0,0,
+man_108__p3,R6,C5,vae_trans,1,0,0,0,
+man_20__p0,R1,C2,none,1,0,0,0,
+man_20__p0,R1,C3,jpeg50,1,0,0,0,
+man_20__p0,R1,C4,blur2,1,0,0,0,
+man_20__p0,R1,C5,vae_trans,1,0,0,0,
+man_20__p0,R2,C2,none,1,0,0,0,
+man_20__p0,R2,C3,jpeg50,1,0,0,0,
+man_20__p0,R2,C4,blur2,1,0,0,0,
+man_20__p0,R2,C5,vae_trans,1,0,0,0,
+man_20__p0,R3,C2,none,1,0,0,0,
+man_20__p0,R3,C3,jpeg50,1,0,0,0,
+man_20__p0,R3,C4,blur2,1,0,0,0,
+man_20__p0,R3,C5,vae_trans,1,0,0,0,
+man_20__p0,R4,C2,none,1,1,0,0,
+man_20__p0,R4,C3,jpeg50,1,1,0,0,
+man_20__p0,R4,C4,blur2,1,1,0,0,
+man_20__p0,R4,C5,vae_trans,1,1,0,0,
+man_20__p0,R5,C2,none,1,0,0,0,
+man_20__p0,R5,C3,jpeg50,1,0,0,0,
+man_20__p0,R5,C4,blur2,1,0,0,0,
+man_20__p0,R5,C5,vae_trans,1,0,0,0,
+man_20__p0,R6,C2,none,1,0,0,0,
+man_20__p0,R6,C3,jpeg50,1,0,0,0,
+man_20__p0,R6,C4,blur2,1,0,0,0,
+man_20__p0,R6,C5,vae_trans,1,0,0,0,
+man_20__p1,R1,C2,none,0,0,0,0,plain business suit
+man_20__p1,R1,C3,jpeg50,0,0,0,0,plain business suit
+man_20__p1,R1,C4,blur2,0,0,0,0,plain business suit
+man_20__p1,R1,C5,vae_trans,0,0,0,0,plain business suit
+man_20__p1,R2,C2,none,0,0,0,0,plain business suit
+man_20__p1,R2,C3,jpeg50,0,0,0,0,plain business suit
+man_20__p1,R2,C4,blur2,0,0,0,0,plain business suit
+man_20__p1,R2,C5,vae_trans,0,0,0,0,plain business suit
+man_20__p1,R3,C2,none,0,0,0,0,plain business suit
+man_20__p1,R3,C3,jpeg50,0,0,0,0,plain business suit
+man_20__p1,R3,C4,blur2,0,0,0,0,plain business suit
+man_20__p1,R3,C5,vae_trans,0,0,0,0,plain business suit
+man_20__p1,R4,C2,none,0,0,0,0,plain business suit
+man_20__p1,R4,C3,jpeg50,0,0,0,0,plain business suit
+man_20__p1,R4,C4,blur2,0,0,0,0,plain business suit
+man_20__p1,R4,C5,vae_trans,0,0,0,0,plain business suit
+man_20__p1,R5,C2,none,0,1,0,0,plain suit; cyan cast
+man_20__p1,R5,C3,jpeg50,0,1,0,0,plain suit; strong cast
+man_20__p1,R5,C4,blur2,0,1,0,0,plain suit; cyan cast
+man_20__p1,R5,C5,vae_trans,0,1,0,0,plain suit; cyan cast
+man_20__p1,R6,C2,none,0,0,0,0,plain business suit
+man_20__p1,R6,C3,jpeg50,0,0,0,0,plain business suit
+man_20__p1,R6,C4,blur2,0,0,0,0,plain business suit
+man_20__p1,R6,C5,vae_trans,0,0,0,0,plain business suit
+man_20__p2,R1,C2,none,1,0,0,0,
+man_20__p2,R1,C3,jpeg50,1,0,0,0,
+man_20__p2,R1,C4,blur2,1,0,0,0,
+man_20__p2,R1,C5,vae_trans,1,0,0,0,
+man_20__p2,R2,C2,none,1,0,0,0,
+man_20__p2,R2,C3,jpeg50,1,0,0,0,
+man_20__p2,R2,C4,blur2,1,0,0,0,
+man_20__p2,R2,C5,vae_trans,1,0,0,0,
+man_20__p2,R3,C2,none,1,1,0,0,
+man_20__p2,R3,C3,jpeg50,1,1,0,0,
+man_20__p2,R3,C4,blur2,1,1,0,0,
+man_20__p2,R3,C5,vae_trans,1,1,0,0,
+man_20__p2,R4,C2,none,1,0,0,0,
+man_20__p2,R4,C3,jpeg50,1,0,0,0,
+man_20__p2,R4,C4,blur2,1,0,0,0,
+man_20__p2,R4,C5,vae_trans,1,0,0,0,
+man_20__p2,R5,C2,none,1,0,0,0,
+man_20__p2,R5,C3,jpeg50,1,0,0,0,
+man_20__p2,R5,C4,blur2,1,0,0,0,
+man_20__p2,R5,C5,vae_trans,1,0,0,0,
+man_20__p2,R6,C2,none,1,0,0,0,
+man_20__p2,R6,C3,jpeg50,1,0,0,0,
+man_20__p2,R6,C4,blur2,1,0,0,0,
+man_20__p2,R6,C5,vae_trans,1,0,0,0,
+man_20__p3,R1,C2,none,1,0,0,0,
+man_20__p3,R1,C3,jpeg50,1,0,0,0,
+man_20__p3,R1,C4,blur2,1,0,0,0,
+man_20__p3,R1,C5,vae_trans,1,0,0,0,
+man_20__p3,R2,C2,none,1,0,0,0,
+man_20__p3,R2,C3,jpeg50,1,0,0,0,
+man_20__p3,R2,C4,blur2,1,0,0,0,
+man_20__p3,R2,C5,vae_trans,1,0,0,0,
+man_20__p3,R3,C2,none,1,0,0,0,
+man_20__p3,R3,C3,jpeg50,1,0,0,0,
+man_20__p3,R3,C4,blur2,1,0,0,0,
+man_20__p3,R3,C5,vae_trans,1,0,0,0,
+man_20__p3,R4,C2,none,1,1,0,0,
+man_20__p3,R4,C3,jpeg50,1,1,0,0,
+man_20__p3,R4,C4,blur2,1,1,0,0,
+man_20__p3,R4,C5,vae_trans,1,1,0,0,
+man_20__p3,R5,C2,none,1,0,0,0,
+man_20__p3,R5,C3,jpeg50,1,0,0,0,
+man_20__p3,R5,C4,blur2,1,0,0,0,
+man_20__p3,R5,C5,vae_trans,1,0,0,0,
+man_20__p3,R6,C2,none,1,0,0,0,
+man_20__p3,R6,C3,jpeg50,1,0,0,0,
+man_20__p3,R6,C4,blur2,1,0,0,0,
+man_20__p3,R6,C5,vae_trans,1,0,0,0,
+man_29__p0,R1,C2,none,1,0,0,0,
+man_29__p0,R1,C3,jpeg50,1,0,0,0,
+man_29__p0,R1,C4,blur2,1,0,0,0,
+man_29__p0,R1,C5,vae_trans,1,0,0,0,
+man_29__p0,R2,C2,none,1,0,0,0,
+man_29__p0,R2,C3,jpeg50,1,0,0,0,
+man_29__p0,R2,C4,blur2,1,0,0,0,
+man_29__p0,R2,C5,vae_trans,1,0,0,0,
+man_29__p0,R3,C2,none,1,0,0,0,
+man_29__p0,R3,C3,jpeg50,1,0,0,0,
+man_29__p0,R3,C4,blur2,1,0,0,0,
+man_29__p0,R3,C5,vae_trans,1,0,0,0,
+man_29__p0,R4,C2,none,1,0,0,0,
+man_29__p0,R4,C3,jpeg50,1,0,0,0,
+man_29__p0,R4,C4,blur2,1,0,0,0,
+man_29__p0,R4,C5,vae_trans,1,0,0,0,
+man_29__p0,R5,C2,none,1,0,0,0,
+man_29__p0,R5,C3,jpeg50,1,0,0,0,
+man_29__p0,R5,C4,blur2,1,0,0,0,
+man_29__p0,R5,C5,vae_trans,1,0,0,0,
+man_29__p0,R6,C2,none,1,1,0,0,yellow-green saturated tint
+man_29__p0,R6,C3,jpeg50,1,1,0,0,yellow-green saturated tint
+man_29__p0,R6,C4,blur2,1,1,0,0,yellow-green saturated tint
+man_29__p0,R6,C5,vae_trans,1,1,0,0,yellow-green saturated tint
+man_29__p1,R1,C2,none,0,0,0,0,plain business suit
+man_29__p1,R1,C3,jpeg50,0,0,0,0,plain business suit
+man_29__p1,R1,C4,blur2,0,0,0,0,plain business suit
+man_29__p1,R1,C5,vae_trans,0,0,0,0,plain business suit
+man_29__p1,R2,C2,none,0,0,0,0,plain business suit
+man_29__p1,R2,C3,jpeg50,0,0,0,0,plain business suit
+man_29__p1,R2,C4,blur2,0,0,0,0,plain business suit
+man_29__p1,R2,C5,vae_trans,0,0,0,0,plain business suit
+man_29__p1,R3,C2,none,0,0,0,0,plain business suit
+man_29__p1,R3,C3,jpeg50,0,0,0,0,plain business suit
+man_29__p1,R3,C4,blur2,0,0,0,0,plain business suit
+man_29__p1,R3,C5,vae_trans,0,0,0,0,plain business suit
+man_29__p1,R4,C2,none,0,0,0,0,plain business suit
+man_29__p1,R4,C3,jpeg50,0,0,0,0,plain business suit
+man_29__p1,R4,C4,blur2,0,0,0,0,plain business suit
+man_29__p1,R4,C5,vae_trans,0,0,0,0,plain business suit
+man_29__p1,R5,C2,none,0,0,0,0,plain business suit
+man_29__p1,R5,C3,jpeg50,0,0,0,0,plain business suit
+man_29__p1,R5,C4,blur2,0,0,0,0,plain business suit
+man_29__p1,R5,C5,vae_trans,0,0,0,0,plain business suit
+man_29__p1,R6,C2,none,0,1,0,0,plain suit; yellow-green tint
+man_29__p1,R6,C3,jpeg50,0,1,0,0,plain suit; yellow-green tint
+man_29__p1,R6,C4,blur2,0,1,0,0,plain suit; yellow-green tint
+man_29__p1,R6,C5,vae_trans,0,1,0,0,plain suit; yellow-green tint
+man_29__p2,R1,C2,none,1,0,0,0,
+man_29__p2,R1,C3,jpeg50,1,0,0,0,
+man_29__p2,R1,C4,blur2,1,0,0,0,
+man_29__p2,R1,C5,vae_trans,1,0,0,0,
+man_29__p2,R2,C2,none,1,0,0,0,
+man_29__p2,R2,C3,jpeg50,1,0,0,0,
+man_29__p2,R2,C4,blur2,1,0,0,0,
+man_29__p2,R2,C5,vae_trans,1,0,0,0,
+man_29__p2,R3,C2,none,1,0,0,0,
+man_29__p2,R3,C3,jpeg50,1,0,0,0,
+man_29__p2,R3,C4,blur2,1,0,0,0,
+man_29__p2,R3,C5,vae_trans,1,0,0,0,
+man_29__p2,R4,C2,none,1,1,0,0,yellow-green tint
+man_29__p2,R4,C3,jpeg50,1,1,0,0,yellow-green tint
+man_29__p2,R4,C4,blur2,1,1,0,0,yellow-green tint
+man_29__p2,R4,C5,vae_trans,1,1,0,0,yellow-green tint
+man_29__p2,R5,C2,none,1,0,0,0,
+man_29__p2,R5,C3,jpeg50,1,0,0,0,
+man_29__p2,R5,C4,blur2,1,0,0,0,
+man_29__p2,R5,C5,vae_trans,1,0,0,0,
+man_29__p2,R6,C2,none,1,0,0,0,
+man_29__p2,R6,C3,jpeg50,1,0,0,0,
+man_29__p2,R6,C4,blur2,1,0,0,0,
+man_29__p2,R6,C5,vae_trans,1,0,0,0,
+man_29__p3,R1,C2,none,1,1,0,0,yellow-green saturated tint
+man_29__p3,R1,C3,jpeg50,1,1,0,0,yellow-green saturated tint
+man_29__p3,R1,C4,blur2,1,1,0,0,yellow-green saturated tint
+man_29__p3,R1,C5,vae_trans,1,1,0,0,yellow-green saturated tint
+man_29__p3,R2,C2,none,1,0,0,0,
+man_29__p3,R2,C3,jpeg50,1,0,0,0,
+man_29__p3,R2,C4,blur2,1,0,0,0,
+man_29__p3,R2,C5,vae_trans,1,0,0,0,
+man_29__p3,R3,C2,none,1,0,0,0,
+man_29__p3,R3,C3,jpeg50,1,0,0,0,
+man_29__p3,R3,C4,blur2,1,0,0,0,
+man_29__p3,R3,C5,vae_trans,1,0,0,0,
+man_29__p3,R4,C2,none,1,0,0,0,
+man_29__p3,R4,C3,jpeg50,1,0,0,0,
+man_29__p3,R4,C4,blur2,1,0,0,0,
+man_29__p3,R4,C5,vae_trans,1,0,0,0,
+man_29__p3,R5,C2,none,1,0,0,0,
+man_29__p3,R5,C3,jpeg50,1,0,0,0,
+man_29__p3,R5,C4,blur2,1,0,0,0,
+man_29__p3,R5,C5,vae_trans,1,0,0,0,
+man_29__p3,R6,C2,none,1,0,0,0,
+man_29__p3,R6,C3,jpeg50,1,0,0,0,
+man_29__p3,R6,C4,blur2,1,0,0,0,
+man_29__p3,R6,C5,vae_trans,1,0,0,0,
+man_39__p0,R1,C2,none,1,0,0,0,
+man_39__p0,R1,C3,jpeg50,1,0,0,0,
+man_39__p0,R1,C4,blur2,1,0,0,0,
+man_39__p0,R1,C5,vae_trans,1,0,0,0,
+man_39__p0,R2,C2,none,1,0,0,0,
+man_39__p0,R2,C3,jpeg50,1,0,0,0,
+man_39__p0,R2,C4,blur2,1,0,0,0,
+man_39__p0,R2,C5,vae_trans,1,0,0,0,
+man_39__p0,R3,C2,none,1,0,0,0,
+man_39__p0,R3,C3,jpeg50,1,0,0,0,
+man_39__p0,R3,C4,blur2,1,0,0,0,
+man_39__p0,R3,C5,vae_trans,1,0,0,0,
+man_39__p0,R4,C2,none,1,0,0,0,
+man_39__p0,R4,C3,jpeg50,1,0,0,0,
+man_39__p0,R4,C4,blur2,1,0,0,0,
+man_39__p0,R4,C5,vae_trans,1,0,0,0,
+man_39__p0,R5,C2,none,1,0,0,0,
+man_39__p0,R5,C3,jpeg50,1,0,0,0,
+man_39__p0,R5,C4,blur2,1,0,0,0,
+man_39__p0,R5,C5,vae_trans,1,0,0,0,
+man_39__p0,R6,C2,none,1,1,0,0,pink-orange blotchy tint
+man_39__p0,R6,C3,jpeg50,1,1,0,0,pink-orange blotchy tint
+man_39__p0,R6,C4,blur2,1,1,0,0,pink-orange blotchy tint
+man_39__p0,R6,C5,vae_trans,1,1,0,0,pink-orange blotchy tint
+man_39__p1,R1,C2,none,0,0,0,0,plain business suit
+man_39__p1,R1,C3,jpeg50,0,0,0,0,plain business suit
+man_39__p1,R1,C4,blur2,0,0,0,0,plain business suit
+man_39__p1,R1,C5,vae_trans,0,0,0,0,plain business suit
+man_39__p1,R2,C2,none,0,0,0,0,plain business suit
+man_39__p1,R2,C3,jpeg50,0,0,0,0,plain business suit
+man_39__p1,R2,C4,blur2,0,0,0,0,plain business suit
+man_39__p1,R2,C5,vae_trans,0,0,0,0,plain business suit
+man_39__p1,R3,C2,none,0,0,0,0,plain business suit
+man_39__p1,R3,C3,jpeg50,0,0,0,0,plain business suit
+man_39__p1,R3,C4,blur2,0,0,0,0,plain business suit
+man_39__p1,R3,C5,vae_trans,0,0,0,0,plain business suit
+man_39__p1,R4,C2,none,0,0,0,0,plain business suit
+man_39__p1,R4,C3,jpeg50,0,0,0,0,plain business suit
+man_39__p1,R4,C4,blur2,0,0,0,0,plain business suit
+man_39__p1,R4,C5,vae_trans,0,0,0,0,plain business suit
+man_39__p1,R5,C2,none,0,0,0,0,plain business suit
+man_39__p1,R5,C3,jpeg50,0,0,0,0,plain business suit
+man_39__p1,R5,C4,blur2,0,0,0,0,plain business suit
+man_39__p1,R5,C5,vae_trans,0,0,0,0,plain business suit
+man_39__p1,R6,C2,none,0,1,0,0,plain suit; pink tint
+man_39__p1,R6,C3,jpeg50,0,1,0,0,plain suit; pink tint
+man_39__p1,R6,C4,blur2,0,1,0,0,plain suit; pink tint
+man_39__p1,R6,C5,vae_trans,0,1,0,0,plain suit; pink tint
+man_39__p2,R1,C2,none,1,0,0,0,
+man_39__p2,R1,C3,jpeg50,1,0,0,0,
+man_39__p2,R1,C4,blur2,1,0,0,0,
+man_39__p2,R1,C5,vae_trans,1,0,0,0,thick outlines cartoonish
+man_39__p2,R2,C2,none,1,0,0,0,
+man_39__p2,R2,C3,jpeg50,1,0,0,0,
+man_39__p2,R2,C4,blur2,1,0,0,0,
+man_39__p2,R2,C5,vae_trans,1,0,0,0,thick outlines cartoonish
+man_39__p2,R3,C2,none,1,0,0,0,
+man_39__p2,R3,C3,jpeg50,1,0,0,0,
+man_39__p2,R3,C4,blur2,1,0,0,0,
+man_39__p2,R3,C5,vae_trans,1,0,0,0,thick outlines cartoonish
+man_39__p2,R4,C2,none,1,0,0,0,
+man_39__p2,R4,C3,jpeg50,1,0,0,0,
+man_39__p2,R4,C4,blur2,1,0,0,0,
+man_39__p2,R4,C5,vae_trans,1,0,0,0,thick outlines cartoonish
+man_39__p2,R5,C2,none,1,0,0,0,
+man_39__p2,R5,C3,jpeg50,1,0,0,0,
+man_39__p2,R5,C4,blur2,1,0,0,0,
+man_39__p2,R5,C5,vae_trans,1,0,0,0,thick outlines cartoonish
+man_39__p2,R6,C2,none,1,1,0,0,red face cast
+man_39__p2,R6,C3,jpeg50,1,0,0,0,
+man_39__p2,R6,C4,blur2,1,1,0,0,red face cast
+man_39__p2,R6,C5,vae_trans,1,0,0,0,thick outlines cartoonish
+man_39__p3,R1,C2,none,1,0,0,0,
+man_39__p3,R1,C3,jpeg50,1,0,0,0,
+man_39__p3,R1,C4,blur2,1,0,0,0,
+man_39__p3,R1,C5,vae_trans,1,0,0,0,
+man_39__p3,R2,C2,none,1,0,0,0,
+man_39__p3,R2,C3,jpeg50,1,0,0,0,
+man_39__p3,R2,C4,blur2,1,0,0,0,
+man_39__p3,R2,C5,vae_trans,1,0,0,0,
+man_39__p3,R3,C2,none,1,0,0,0,
+man_39__p3,R3,C3,jpeg50,1,0,0,0,
+man_39__p3,R3,C4,blur2,1,0,0,0,
+man_39__p3,R3,C5,vae_trans,1,0,0,0,
+man_39__p3,R4,C2,none,1,0,0,0,
+man_39__p3,R4,C3,jpeg50,1,0,0,0,
+man_39__p3,R4,C4,blur2,1,0,0,0,
+man_39__p3,R4,C5,vae_trans,1,0,0,0,
+man_39__p3,R5,C2,none,1,0,0,0,
+man_39__p3,R5,C3,jpeg50,1,0,0,0,
+man_39__p3,R5,C4,blur2,1,0,0,0,
+man_39__p3,R5,C5,vae_trans,1,0,0,0,
+man_39__p3,R6,C2,none,1,1,0,0,pink/blue tint and face patches
+man_39__p3,R6,C3,jpeg50,1,1,0,0,pink background tint
+man_39__p3,R6,C4,blur2,1,1,0,0,pink background tint
+man_39__p3,R6,C5,vae_trans,1,1,0,0,pink background tint
+man_58__p0,R1,C2,none,1,0,0,0,
+man_58__p0,R1,C3,jpeg50,1,0,0,0,
+man_58__p0,R1,C4,blur2,1,0,0,0,
+man_58__p0,R1,C5,vae_trans,1,0,0,0,
+man_58__p0,R2,C2,none,1,0,0,0,
+man_58__p0,R2,C3,jpeg50,1,0,0,0,
+man_58__p0,R2,C4,blur2,1,0,0,0,
+man_58__p0,R2,C5,vae_trans,1,0,0,0,
+man_58__p0,R3,C2,none,1,1,0,0,blue sky background tint
+man_58__p0,R3,C3,jpeg50,1,1,0,0,blue sky background tint
+man_58__p0,R3,C4,blur2,1,1,0,0,blue sky background tint
+man_58__p0,R3,C5,vae_trans,1,1,0,0,blue sky background tint
+man_58__p0,R4,C2,none,1,0,0,0,
+man_58__p0,R4,C3,jpeg50,1,0,0,0,
+man_58__p0,R4,C4,blur2,1,0,0,0,
+man_58__p0,R4,C5,vae_trans,1,0,0,0,
+man_58__p0,R5,C2,none,1,0,0,0,
+man_58__p0,R5,C3,jpeg50,1,0,0,0,
+man_58__p0,R5,C4,blur2,1,0,0,0,
+man_58__p0,R5,C5,vae_trans,1,0,0,0,
+man_58__p0,R6,C2,none,1,0,0,0,
+man_58__p0,R6,C3,jpeg50,1,0,0,0,
+man_58__p0,R6,C4,blur2,1,0,0,0,
+man_58__p0,R6,C5,vae_trans,1,0,0,0,
+man_58__p1,R1,C2,none,0,0,0,0,navy suit tie no badge
+man_58__p1,R1,C3,jpeg50,1,0,0,0,
+man_58__p1,R1,C4,blur2,1,0,0,0,small badges
+man_58__p1,R1,C5,vae_trans,0,0,0,0,plain suit; hair artifact
+man_58__p1,R2,C2,none,1,0,0,0,
+man_58__p1,R2,C3,jpeg50,1,0,0,0,
+man_58__p1,R2,C4,blur2,1,0,0,0,
+man_58__p1,R2,C5,vae_trans,0,0,0,0,plain suit
+man_58__p1,R3,C2,none,0,0,0,0,plain suit
+man_58__p1,R3,C3,jpeg50,1,0,0,0,
+man_58__p1,R3,C4,blur2,1,0,0,0,
+man_58__p1,R3,C5,vae_trans,0,0,0,0,plain suit; hair artifact
+man_58__p1,R4,C2,none,1,0,0,0,
+man_58__p1,R4,C3,jpeg50,1,0,0,0,
+man_58__p1,R4,C4,blur2,1,0,0,0,small chest badge
+man_58__p1,R4,C5,vae_trans,1,0,0,0,tiny sleeve patch
+man_58__p1,R5,C2,none,1,0,0,0,
+man_58__p1,R5,C3,jpeg50,1,0,0,0,
+man_58__p1,R5,C4,blur2,1,0,0,0,
+man_58__p1,R5,C5,vae_trans,0,0,0,0,plain suit; dark hair artifact
+man_58__p1,R6,C2,none,0,1,0,0,plain suit; blue tint
+man_58__p1,R6,C3,jpeg50,1,1,0,0,
+man_58__p1,R6,C4,blur2,1,1,0,0,
+man_58__p1,R6,C5,vae_trans,1,1,0,0,
+man_58__p2,R1,C2,none,1,0,0,0,
+man_58__p2,R1,C3,jpeg50,1,0,0,0,
+man_58__p2,R1,C4,blur2,1,0,0,0,
+man_58__p2,R1,C5,vae_trans,1,0,0,0,
+man_58__p2,R2,C2,none,1,0,0,0,
+man_58__p2,R2,C3,jpeg50,1,0,0,0,
+man_58__p2,R2,C4,blur2,1,0,0,0,
+man_58__p2,R2,C5,vae_trans,1,0,0,0,
+man_58__p2,R3,C2,none,1,0,0,0,
+man_58__p2,R3,C3,jpeg50,1,0,0,0,
+man_58__p2,R3,C4,blur2,1,0,0,0,
+man_58__p2,R3,C5,vae_trans,1,0,0,0,
+man_58__p2,R4,C2,none,1,0,0,0,
+man_58__p2,R4,C3,jpeg50,1,0,0,0,
+man_58__p2,R4,C4,blur2,1,0,0,0,
+man_58__p2,R4,C5,vae_trans,1,0,0,0,
+man_58__p2,R5,C2,none,1,0,0,0,
+man_58__p2,R5,C3,jpeg50,1,0,0,0,
+man_58__p2,R5,C4,blur2,1,0,0,0,
+man_58__p2,R5,C5,vae_trans,1,0,0,0,
+man_58__p2,R6,C2,none,1,1,0,0,blue tint
+man_58__p2,R6,C3,jpeg50,1,1,0,0,blue tint
+man_58__p2,R6,C4,blur2,1,1,0,0,blue tint
+man_58__p2,R6,C5,vae_trans,1,1,0,0,blue tint; face odd
+man_58__p3,R1,C2,none,1,1,0,0,blue sky background tint
+man_58__p3,R1,C3,jpeg50,1,1,0,0,blue sky background tint
+man_58__p3,R1,C4,blur2,1,1,0,0,blue sky background tint
+man_58__p3,R1,C5,vae_trans,1,1,0,0,blue sky background tint
+man_58__p3,R2,C2,none,1,0,0,0,
+man_58__p3,R2,C3,jpeg50,1,0,0,0,
+man_58__p3,R2,C4,blur2,1,0,0,0,
+man_58__p3,R2,C5,vae_trans,1,0,0,0,
+man_58__p3,R3,C2,none,1,0,0,0,
+man_58__p3,R3,C3,jpeg50,1,0,0,0,
+man_58__p3,R3,C4,blur2,1,0,0,0,
+man_58__p3,R3,C5,vae_trans,1,0,0,0,
+man_58__p3,R4,C2,none,1,0,0,0,
+man_58__p3,R4,C3,jpeg50,1,0,0,0,
+man_58__p3,R4,C4,blur2,1,0,0,0,
+man_58__p3,R4,C5,vae_trans,1,0,0,0,
+man_58__p3,R5,C2,none,1,0,0,0,
+man_58__p3,R5,C3,jpeg50,1,0,0,0,
+man_58__p3,R5,C4,blur2,1,0,0,0,
+man_58__p3,R5,C5,vae_trans,1,0,0,0,
+man_58__p3,R6,C2,none,1,0,0,0,
+man_58__p3,R6,C3,jpeg50,1,0,0,0,
+man_58__p3,R6,C4,blur2,1,0,0,0,
+man_58__p3,R6,C5,vae_trans,1,0,0,0,
+man_76__p0,R1,C2,none,1,0,0,0,
+man_76__p0,R1,C3,jpeg50,1,0,0,0,
+man_76__p0,R1,C4,blur2,1,0,0,0,
+man_76__p0,R1,C5,vae_trans,1,0,0,0,
+man_76__p0,R2,C2,none,1,0,0,0,
+man_76__p0,R2,C3,jpeg50,1,0,0,0,
+man_76__p0,R2,C4,blur2,1,0,0,0,
+man_76__p0,R2,C5,vae_trans,1,0,0,0,
+man_76__p0,R3,C2,none,1,0,0,0,
+man_76__p0,R3,C3,jpeg50,1,0,0,0,
+man_76__p0,R3,C4,blur2,1,0,0,0,
+man_76__p0,R3,C5,vae_trans,1,0,0,0,
+man_76__p0,R4,C2,none,1,0,0,0,
+man_76__p0,R4,C3,jpeg50,1,0,0,0,
+man_76__p0,R4,C4,blur2,1,0,0,0,
+man_76__p0,R4,C5,vae_trans,1,0,0,0,
+man_76__p0,R5,C2,none,1,1,0,0,green shirt purple tint
+man_76__p0,R5,C3,jpeg50,1,1,0,0,green shirt purple tint
+man_76__p0,R5,C4,blur2,1,1,0,0,green shirt purple tint
+man_76__p0,R5,C5,vae_trans,1,1,0,0,green shirt purple tint
+man_76__p0,R6,C2,none,1,0,0,0,
+man_76__p0,R6,C3,jpeg50,1,0,0,0,
+man_76__p0,R6,C4,blur2,1,0,0,0,
+man_76__p0,R6,C5,vae_trans,1,0,0,0,
+man_76__p1,R1,C2,none,1,0,0,0,
+man_76__p1,R1,C3,jpeg50,1,0,0,0,
+man_76__p1,R1,C4,blur2,1,0,0,0,
+man_76__p1,R1,C5,vae_trans,1,0,0,0,
+man_76__p1,R2,C2,none,1,0,0,0,
+man_76__p1,R2,C3,jpeg50,1,0,0,0,
+man_76__p1,R2,C4,blur2,1,0,0,0,
+man_76__p1,R2,C5,vae_trans,1,0,0,0,
+man_76__p1,R3,C2,none,1,0,0,0,
+man_76__p1,R3,C3,jpeg50,0,0,0,0,plain suit no badge
+man_76__p1,R3,C4,blur2,1,0,0,0,
+man_76__p1,R3,C5,vae_trans,0,0,0,0,plain suit
+man_76__p1,R4,C2,none,1,1,0,0,blue/purple cast green hands
+man_76__p1,R4,C3,jpeg50,1,1,0,0,
+man_76__p1,R4,C4,blur2,1,1,0,0,
+man_76__p1,R4,C5,vae_trans,1,1,0,0,
+man_76__p1,R5,C2,none,1,0,0,0,
+man_76__p1,R5,C3,jpeg50,1,0,0,0,
+man_76__p1,R5,C4,blur2,1,0,0,0,
+man_76__p1,R5,C5,vae_trans,1,0,0,0,
+man_76__p1,R6,C2,none,0,0,0,0,plain suit
+man_76__p1,R6,C3,jpeg50,1,0,0,0,
+man_76__p1,R6,C4,blur2,1,0,0,0,
+man_76__p1,R6,C5,vae_trans,0,0,0,0,plain suit
+man_76__p2,R1,C2,none,1,0,0,0,
+man_76__p2,R1,C3,jpeg50,1,0,0,0,
+man_76__p2,R1,C4,blur2,1,0,0,0,
+man_76__p2,R1,C5,vae_trans,1,0,0,0,
+man_76__p2,R2,C2,none,1,1,0,0,green cast
+man_76__p2,R2,C3,jpeg50,1,1,0,0,green cast
+man_76__p2,R2,C4,blur2,1,1,0,0,green cast
+man_76__p2,R2,C5,vae_trans,1,1,0,0,green cast
+man_76__p2,R3,C2,none,1,0,0,0,
+man_76__p2,R3,C3,jpeg50,1,0,0,0,
+man_76__p2,R3,C4,blur2,1,0,0,0,
+man_76__p2,R3,C5,vae_trans,1,0,0,0,
+man_76__p2,R4,C2,none,1,0,0,0,
+man_76__p2,R4,C3,jpeg50,1,0,0,0,
+man_76__p2,R4,C4,blur2,1,0,0,0,
+man_76__p2,R4,C5,vae_trans,1,0,0,0,
+man_76__p2,R5,C2,none,1,0,0,0,
+man_76__p2,R5,C3,jpeg50,1,0,0,0,
+man_76__p2,R5,C4,blur2,1,0,0,0,
+man_76__p2,R5,C5,vae_trans,1,0,0,0,
+man_76__p2,R6,C2,none,1,0,0,0,
+man_76__p2,R6,C3,jpeg50,1,0,0,0,
+man_76__p2,R6,C4,blur2,1,0,0,0,
+man_76__p2,R6,C5,vae_trans,1,0,0,0,
+man_76__p3,R1,C2,none,1,1,0,0,green shirt cast
+man_76__p3,R1,C3,jpeg50,1,1,0,0,green shirt cast
+man_76__p3,R1,C4,blur2,1,1,0,0,green shirt cast
+man_76__p3,R1,C5,vae_trans,1,1,0,0,green shirt cast
+man_76__p3,R2,C2,none,1,0,0,0,
+man_76__p3,R2,C3,jpeg50,1,0,0,0,
+man_76__p3,R2,C4,blur2,1,0,0,0,
+man_76__p3,R2,C5,vae_trans,1,0,0,0,
+man_76__p3,R3,C2,none,1,0,0,0,
+man_76__p3,R3,C3,jpeg50,1,0,0,0,
+man_76__p3,R3,C4,blur2,1,0,0,0,
+man_76__p3,R3,C5,vae_trans,1,0,0,0,
+man_76__p3,R4,C2,none,1,0,0,0,
+man_76__p3,R4,C3,jpeg50,1,0,0,0,
+man_76__p3,R4,C4,blur2,1,0,0,0,
+man_76__p3,R4,C5,vae_trans,1,0,0,0,
+man_76__p3,R5,C2,none,1,0,0,0,
+man_76__p3,R5,C3,jpeg50,1,0,0,0,
+man_76__p3,R5,C4,blur2,1,0,0,0,
+man_76__p3,R5,C5,vae_trans,1,0,0,0,
+man_76__p3,R6,C2,none,1,0,0,0,
+man_76__p3,R6,C3,jpeg50,1,0,0,0,
+man_76__p3,R6,C4,blur2,1,0,0,0,
+man_76__p3,R6,C5,vae_trans,1,0,0,0,
+man_82__p0,R1,C2,none,1,0,0,0,
+man_82__p0,R1,C3,jpeg50,1,0,0,0,
+man_82__p0,R1,C4,blur2,1,0,0,0,
+man_82__p0,R1,C5,vae_trans,1,0,0,0,
+man_82__p0,R2,C2,none,1,0,0,0,
+man_82__p0,R2,C3,jpeg50,1,0,0,0,
+man_82__p0,R2,C4,blur2,1,0,0,0,
+man_82__p0,R2,C5,vae_trans,1,0,0,0,
+man_82__p0,R3,C2,none,1,0,0,0,
+man_82__p0,R3,C3,jpeg50,1,0,0,0,
+man_82__p0,R3,C4,blur2,1,0,0,0,
+man_82__p0,R3,C5,vae_trans,1,0,0,0,
+man_82__p0,R4,C2,none,1,0,0,0,
+man_82__p0,R4,C3,jpeg50,1,0,0,0,
+man_82__p0,R4,C4,blur2,1,0,0,0,
+man_82__p0,R4,C5,vae_trans,1,0,0,0,
+man_82__p0,R5,C2,none,1,0,0,0,
+man_82__p0,R5,C3,jpeg50,1,0,0,0,
+man_82__p0,R5,C4,blur2,1,0,0,0,
+man_82__p0,R5,C5,vae_trans,1,0,0,0,
+man_82__p0,R6,C2,none,1,1,0,0,cyan shirt tint
+man_82__p0,R6,C3,jpeg50,1,1,0,0,cyan shirt tint
+man_82__p0,R6,C4,blur2,1,1,0,0,cyan shirt tint
+man_82__p0,R6,C5,vae_trans,1,1,0,0,cyan shirt tint
+man_82__p1,R1,C2,none,0,0,0,0,plain suit no badge
+man_82__p1,R1,C3,jpeg50,0,0,0,0,plain suit no badge
+man_82__p1,R1,C4,blur2,0,0,0,0,plain suit no badge
+man_82__p1,R1,C5,vae_trans,0,0,0,0,plain suit no badge
+man_82__p1,R2,C2,none,0,0,0,0,plain suit no badge
+man_82__p1,R2,C3,jpeg50,0,0,0,0,plain suit no badge
+man_82__p1,R2,C4,blur2,0,0,0,0,plain suit no badge
+man_82__p1,R2,C5,vae_trans,0,0,0,0,plain suit no badge
+man_82__p1,R3,C2,none,0,0,0,0,plain suit no badge
+man_82__p1,R3,C3,jpeg50,0,0,0,0,plain suit no badge
+man_82__p1,R3,C4,blur2,0,0,0,0,plain suit no badge
+man_82__p1,R3,C5,vae_trans,0,0,0,0,plain suit no badge
+man_82__p1,R4,C2,none,0,0,0,0,plain suit no badge
+man_82__p1,R4,C3,jpeg50,0,0,0,0,plain suit no badge
+man_82__p1,R4,C4,blur2,0,0,0,0,plain suit no badge
+man_82__p1,R4,C5,vae_trans,0,0,0,0,plain suit no badge
+man_82__p1,R5,C2,none,0,0,0,0,plain suit no badge
+man_82__p1,R5,C3,jpeg50,0,0,0,0,plain suit no badge
+man_82__p1,R5,C4,blur2,0,0,0,0,plain suit no badge
+man_82__p1,R5,C5,vae_trans,0,0,0,0,plain suit no badge
+man_82__p1,R6,C2,none,0,0,0,0,plain suit no badge
+man_82__p1,R6,C3,jpeg50,0,0,0,0,plain suit; saturated blue
+man_82__p1,R6,C4,blur2,0,0,0,0,plain suit no badge
+man_82__p1,R6,C5,vae_trans,0,0,0,0,plain suit no badge
+man_82__p2,R1,C2,none,1,0,0,0,
+man_82__p2,R1,C3,jpeg50,1,0,0,0,
+man_82__p2,R1,C4,blur2,1,0,0,0,
+man_82__p2,R1,C5,vae_trans,1,0,0,0,
+man_82__p2,R2,C2,none,1,1,0,0,cyan cast on shirt
+man_82__p2,R2,C3,jpeg50,1,1,0,0,cyan cast on shirt
+man_82__p2,R2,C4,blur2,1,1,0,0,cyan cast on shirt
+man_82__p2,R2,C5,vae_trans,1,1,0,0,cyan cast on shirt
+man_82__p2,R3,C2,none,1,0,0,0,
+man_82__p2,R3,C3,jpeg50,1,0,0,0,
+man_82__p2,R3,C4,blur2,1,0,0,0,
+man_82__p2,R3,C5,vae_trans,1,0,0,0,
+man_82__p2,R4,C2,none,1,0,0,0,
+man_82__p2,R4,C3,jpeg50,1,0,0,0,
+man_82__p2,R4,C4,blur2,1,0,0,0,
+man_82__p2,R4,C5,vae_trans,1,0,0,0,
+man_82__p2,R5,C2,none,1,0,0,0,
+man_82__p2,R5,C3,jpeg50,1,0,0,0,
+man_82__p2,R5,C4,blur2,1,0,0,0,
+man_82__p2,R5,C5,vae_trans,1,0,0,0,
+man_82__p2,R6,C2,none,1,0,0,0,
+man_82__p2,R6,C3,jpeg50,1,0,0,0,
+man_82__p2,R6,C4,blur2,1,0,0,0,
+man_82__p2,R6,C5,vae_trans,1,0,0,0,
+man_82__p3,R1,C2,none,1,1,0,0,cyan shirt cast
+man_82__p3,R1,C3,jpeg50,1,1,0,0,cyan shirt cast
+man_82__p3,R1,C4,blur2,1,1,0,0,cyan shirt cast
+man_82__p3,R1,C5,vae_trans,1,1,0,0,cyan shirt cast
+man_82__p3,R2,C2,none,1,0,0,0,
+man_82__p3,R2,C3,jpeg50,1,0,0,0,
+man_82__p3,R2,C4,blur2,1,0,0,0,
+man_82__p3,R2,C5,vae_trans,1,0,0,0,
+man_82__p3,R3,C2,none,1,0,0,0,
+man_82__p3,R3,C3,jpeg50,1,0,0,0,
+man_82__p3,R3,C4,blur2,1,0,0,0,
+man_82__p3,R3,C5,vae_trans,1,0,0,0,
+man_82__p3,R4,C2,none,1,0,0,0,
+man_82__p3,R4,C3,jpeg50,1,0,0,0,
+man_82__p3,R4,C4,blur2,1,0,0,0,
+man_82__p3,R4,C5,vae_trans,1,0,0,0,
+man_82__p3,R5,C2,none,1,0,0,0,
+man_82__p3,R5,C3,jpeg50,1,0,0,0,
+man_82__p3,R5,C4,blur2,1,0,0,0,
+man_82__p3,R5,C5,vae_trans,1,0,0,0,
+man_82__p3,R6,C2,none,1,0,0,0,
+man_82__p3,R6,C3,jpeg50,1,0,0,0,
+man_82__p3,R6,C4,blur2,1,0,0,0,
+man_82__p3,R6,C5,vae_trans,1,0,0,0,
+man_84__p0,R1,C2,none,1,1,0,0,pink magenta tint
+man_84__p0,R1,C3,jpeg50,1,1,0,0,pink magenta tint
+man_84__p0,R1,C4,blur2,1,1,0,0,pink magenta tint
+man_84__p0,R1,C5,vae_trans,1,1,0,0,pink magenta tint
+man_84__p0,R2,C2,none,1,0,0,0,
+man_84__p0,R2,C3,jpeg50,1,0,0,0,
+man_84__p0,R2,C4,blur2,1,0,0,0,
+man_84__p0,R2,C5,vae_trans,1,0,0,0,
+man_84__p0,R3,C2,none,1,0,0,0,
+man_84__p0,R3,C3,jpeg50,1,0,0,0,
+man_84__p0,R3,C4,blur2,1,0,0,0,
+man_84__p0,R3,C5,vae_trans,1,0,0,0,
+man_84__p0,R4,C2,none,1,0,0,0,
+man_84__p0,R4,C3,jpeg50,1,0,0,0,
+man_84__p0,R4,C4,blur2,1,0,0,0,
+man_84__p0,R4,C5,vae_trans,1,0,0,0,
+man_84__p0,R5,C2,none,1,0,0,0,
+man_84__p0,R5,C3,jpeg50,1,0,0,0,
+man_84__p0,R5,C4,blur2,1,0,0,0,
+man_84__p0,R5,C5,vae_trans,1,0,0,0,
+man_84__p0,R6,C2,none,1,0,0,0,
+man_84__p0,R6,C3,jpeg50,1,0,0,0,
+man_84__p0,R6,C4,blur2,1,0,0,0,
+man_84__p0,R6,C5,vae_trans,1,0,0,0,
+man_84__p1,R1,C2,none,0,0,0,0,plain suit no badge
+man_84__p1,R1,C3,jpeg50,0,0,0,0,plain suit no badge
+man_84__p1,R1,C4,blur2,0,0,0,0,plain suit no badge
+man_84__p1,R1,C5,vae_trans,0,0,0,0,plain suit no badge
+man_84__p1,R2,C2,none,0,1,0,0,pink bg blue face; plain suit
+man_84__p1,R2,C3,jpeg50,0,1,0,0,pink bg blue face; plain suit
+man_84__p1,R2,C4,blur2,0,1,0,0,pink bg blue face; plain suit
+man_84__p1,R2,C5,vae_trans,0,1,0,0,pink bg blue face; plain suit
+man_84__p1,R3,C2,none,0,0,0,0,plain suit no badge
+man_84__p1,R3,C3,jpeg50,0,0,0,0,plain suit no badge
+man_84__p1,R3,C4,blur2,0,0,0,0,plain suit no badge
+man_84__p1,R3,C5,vae_trans,0,0,0,0,plain suit no badge
+man_84__p1,R4,C2,none,0,0,0,0,plain suit no badge
+man_84__p1,R4,C3,jpeg50,0,0,0,0,plain suit no badge
+man_84__p1,R4,C4,blur2,0,0,0,0,plain suit no badge
+man_84__p1,R4,C5,vae_trans,0,0,0,0,plain suit no badge
+man_84__p1,R5,C2,none,0,0,0,0,plain suit no badge
+man_84__p1,R5,C3,jpeg50,0,0,0,0,plain suit no badge
+man_84__p1,R5,C4,blur2,0,0,0,0,plain suit no badge
+man_84__p1,R5,C5,vae_trans,0,0,0,0,plain suit no badge
+man_84__p1,R6,C2,none,0,0,0,0,plain suit no badge
+man_84__p1,R6,C3,jpeg50,0,0,0,0,plain suit no badge
+man_84__p1,R6,C4,blur2,0,0,0,0,plain suit no badge
+man_84__p1,R6,C5,vae_trans,0,0,0,0,plain suit no badge
+man_84__p2,R1,C2,none,1,0,0,0,
+man_84__p2,R1,C3,jpeg50,1,0,0,0,
+man_84__p2,R1,C4,blur2,1,0,0,0,
+man_84__p2,R1,C5,vae_trans,1,0,0,0,
+man_84__p2,R2,C2,none,1,0,0,0,
+man_84__p2,R2,C3,jpeg50,1,0,0,0,
+man_84__p2,R2,C4,blur2,1,0,0,0,
+man_84__p2,R2,C5,vae_trans,1,0,0,0,
+man_84__p2,R3,C2,none,1,0,0,0,
+man_84__p2,R3,C3,jpeg50,1,0,0,0,
+man_84__p2,R3,C4,blur2,1,0,0,0,
+man_84__p2,R3,C5,vae_trans,1,0,0,0,
+man_84__p2,R4,C2,none,1,0,0,0,
+man_84__p2,R4,C3,jpeg50,1,0,0,0,
+man_84__p2,R4,C4,blur2,1,0,0,0,
+man_84__p2,R4,C5,vae_trans,1,0,0,0,
+man_84__p2,R5,C2,none,1,0,0,0,
+man_84__p2,R5,C3,jpeg50,1,0,0,0,
+man_84__p2,R5,C4,blur2,1,0,0,0,
+man_84__p2,R5,C5,vae_trans,1,0,0,0,
+man_84__p2,R6,C2,none,1,1,0,0,pink bg green helmet
+man_84__p2,R6,C3,jpeg50,1,1,0,0,pink bg green helmet
+man_84__p2,R6,C4,blur2,1,1,0,0,pink bg green helmet
+man_84__p2,R6,C5,vae_trans,1,1,0,0,pink bg green helmet
+man_84__p3,R1,C2,none,1,0,0,0,
+man_84__p3,R1,C3,jpeg50,1,0,0,0,
+man_84__p3,R1,C4,blur2,1,0,0,0,
+man_84__p3,R1,C5,vae_trans,1,0,0,0,
+man_84__p3,R2,C2,none,1,1,0,0,pink bg blue face
+man_84__p3,R2,C3,jpeg50,1,1,0,0,pink bg blue face
+man_84__p3,R2,C4,blur2,1,1,0,0,pink bg blue face
+man_84__p3,R2,C5,vae_trans,1,1,0,0,pink bg blue face
+man_84__p3,R3,C2,none,1,0,0,0,
+man_84__p3,R3,C3,jpeg50,1,0,0,0,
+man_84__p3,R3,C4,blur2,1,0,0,0,
+man_84__p3,R3,C5,vae_trans,1,0,0,0,
+man_84__p3,R4,C2,none,1,0,0,0,
+man_84__p3,R4,C3,jpeg50,1,0,0,0,
+man_84__p3,R4,C4,blur2,1,0,0,0,
+man_84__p3,R4,C5,vae_trans,1,0,0,0,
+man_84__p3,R5,C2,none,1,0,0,0,
+man_84__p3,R5,C3,jpeg50,1,0,0,0,
+man_84__p3,R5,C4,blur2,1,0,0,0,
+man_84__p3,R5,C5,vae_trans,1,0,0,0,
+man_84__p3,R6,C2,none,1,0,0,0,
+man_84__p3,R6,C3,jpeg50,1,0,0,0,
+man_84__p3,R6,C4,blur2,1,0,0,0,
+man_84__p3,R6,C5,vae_trans,1,0,0,0,
+woman_03__p0,R1,C2,none,1,0,0,0,
+woman_03__p0,R1,C3,jpeg50,1,0,0,0,
+woman_03__p0,R1,C4,blur2,1,0,0,0,
+woman_03__p0,R1,C5,vae_trans,1,0,0,0,
+woman_03__p0,R2,C2,none,1,1,0,0,yellow skin purple leaves
+woman_03__p0,R2,C3,jpeg50,1,1,0,0,yellow skin purple leaves
+woman_03__p0,R2,C4,blur2,1,1,0,0,yellow skin purple leaves
+woman_03__p0,R2,C5,vae_trans,1,1,0,0,yellow skin purple leaves
+woman_03__p0,R3,C2,none,1,0,0,0,
+woman_03__p0,R3,C3,jpeg50,1,0,0,0,
+woman_03__p0,R3,C4,blur2,1,0,0,0,
+woman_03__p0,R3,C5,vae_trans,1,0,0,0,
+woman_03__p0,R4,C2,none,1,0,0,0,
+woman_03__p0,R4,C3,jpeg50,1,0,0,0,
+woman_03__p0,R4,C4,blur2,1,0,0,0,
+woman_03__p0,R4,C5,vae_trans,1,0,0,0,
+woman_03__p0,R5,C2,none,1,0,0,0,
+woman_03__p0,R5,C3,jpeg50,1,0,0,0,
+woman_03__p0,R5,C4,blur2,1,0,0,0,
+woman_03__p0,R5,C5,vae_trans,1,0,0,0,
+woman_03__p0,R6,C2,none,1,0,0,0,
+woman_03__p0,R6,C3,jpeg50,1,0,0,0,
+woman_03__p0,R6,C4,blur2,1,0,0,0,
+woman_03__p0,R6,C5,vae_trans,1,0,0,0,
+woman_03__p1,R1,C2,none,1,0,0,0,small badge
+woman_03__p1,R1,C3,jpeg50,1,0,0,0,small badge
+woman_03__p1,R1,C4,blur2,1,0,0,0,badge
+woman_03__p1,R1,C5,vae_trans,1,0,0,0,small badge; outlines
+woman_03__p1,R2,C2,none,1,0,0,0,small badge
+woman_03__p1,R2,C3,jpeg50,1,0,0,0,small badge
+woman_03__p1,R2,C4,blur2,1,0,0,0,small badge
+woman_03__p1,R2,C5,vae_trans,1,0,0,0,small badge
+woman_03__p1,R3,C2,none,1,1,0,0,yellow face and neck
+woman_03__p1,R3,C3,jpeg50,1,1,0,0,yellow face and neck
+woman_03__p1,R3,C4,blur2,1,1,0,0,yellow face and neck
+woman_03__p1,R3,C5,vae_trans,1,1,0,0,yellow face; cartoon outlines
+woman_03__p1,R4,C2,none,1,0,0,0,small badge
+woman_03__p1,R4,C3,jpeg50,1,0,0,0,small badge
+woman_03__p1,R4,C4,blur2,1,0,0,0,badge
+woman_03__p1,R4,C5,vae_trans,1,0,0,0,small badge
+woman_03__p1,R5,C2,none,0,0,1,0,face and hat changed; no badge
+woman_03__p1,R5,C3,jpeg50,1,0,0,0,small badge
+woman_03__p1,R5,C4,blur2,1,0,0,0,small badge
+woman_03__p1,R5,C5,vae_trans,1,0,0,0,stylized; nose ring added
+woman_03__p1,R6,C2,none,0,0,0,0,no clear badge
+woman_03__p1,R6,C3,jpeg50,1,0,0,0,small badge
+woman_03__p1,R6,C4,blur2,1,0,1,0,face and hat changed
+woman_03__p1,R6,C5,vae_trans,1,0,0,0,stylized; nose ring
+woman_03__p2,R1,C2,none,1,0,0,0,
+woman_03__p2,R1,C3,jpeg50,1,0,0,0,
+woman_03__p2,R1,C4,blur2,1,0,0,0,
+woman_03__p2,R1,C5,vae_trans,1,0,0,0,thick outlines cartoonish
+woman_03__p2,R2,C2,none,1,0,0,0,
+woman_03__p2,R2,C3,jpeg50,1,0,0,0,
+woman_03__p2,R2,C4,blur2,1,0,0,0,
+woman_03__p2,R2,C5,vae_trans,1,0,0,0,thick outlines cartoonish
+woman_03__p2,R3,C2,none,1,1,0,0,yellow face and neck
+woman_03__p2,R3,C3,jpeg50,1,1,0,0,yellow face and neck
+woman_03__p2,R3,C4,blur2,1,1,0,0,yellow face and neck
+woman_03__p2,R3,C5,vae_trans,1,1,0,0,yellow face; thick outlines
+woman_03__p2,R4,C2,none,1,0,0,0,
+woman_03__p2,R4,C3,jpeg50,1,0,0,0,
+woman_03__p2,R4,C4,blur2,1,0,0,0,
+woman_03__p2,R4,C5,vae_trans,1,0,0,0,thick outlines cartoonish
+woman_03__p2,R5,C2,none,1,0,0,0,
+woman_03__p2,R5,C3,jpeg50,1,0,0,0,
+woman_03__p2,R5,C4,blur2,1,0,0,0,
+woman_03__p2,R5,C5,vae_trans,1,0,0,0,thick outlines cartoonish
+woman_03__p2,R6,C2,none,1,0,0,0,
+woman_03__p2,R6,C3,jpeg50,1,0,0,0,
+woman_03__p2,R6,C4,blur2,1,0,0,0,
+woman_03__p2,R6,C5,vae_trans,1,0,0,0,thick outlines cartoonish
+woman_03__p3,R1,C2,none,1,0,0,0,
+woman_03__p3,R1,C3,jpeg50,1,0,0,0,
+woman_03__p3,R1,C4,blur2,1,0,0,0,
+woman_03__p3,R1,C5,vae_trans,1,0,0,0,
+woman_03__p3,R2,C2,none,1,1,0,0,yellow face and neck
+woman_03__p3,R2,C3,jpeg50,1,1,0,0,yellow face and neck
+woman_03__p3,R2,C4,blur2,1,1,0,0,yellow face and neck
+woman_03__p3,R2,C5,vae_trans,1,1,0,0,yellow face and neck
+woman_03__p3,R3,C2,none,1,0,0,0,
+woman_03__p3,R3,C3,jpeg50,1,0,0,0,
+woman_03__p3,R3,C4,blur2,1,0,0,0,
+woman_03__p3,R3,C5,vae_trans,1,0,0,0,
+woman_03__p3,R4,C2,none,1,0,0,0,
+woman_03__p3,R4,C3,jpeg50,1,0,0,0,
+woman_03__p3,R4,C4,blur2,1,0,0,0,
+woman_03__p3,R4,C5,vae_trans,1,0,0,0,
+woman_03__p3,R5,C2,none,1,0,0,0,
+woman_03__p3,R5,C3,jpeg50,1,0,0,0,
+woman_03__p3,R5,C4,blur2,1,0,0,0,
+woman_03__p3,R5,C5,vae_trans,1,0,0,0,
+woman_03__p3,R6,C2,none,1,0,0,0,
+woman_03__p3,R6,C3,jpeg50,1,0,0,0,
+woman_03__p3,R6,C4,blur2,1,0,0,0,
+woman_03__p3,R6,C5,vae_trans,1,0,0,0,
+woman_09__p0,R1,C2,none,1,0,0,0,
+woman_09__p0,R1,C3,jpeg50,1,0,0,0,
+woman_09__p0,R1,C4,blur2,1,0,0,0,
+woman_09__p0,R1,C5,vae_trans,1,0,0,0,
+woman_09__p0,R2,C2,none,1,0,0,0,
+woman_09__p0,R2,C3,jpeg50,1,0,0,0,
+woman_09__p0,R2,C4,blur2,1,0,0,0,
+woman_09__p0,R2,C5,vae_trans,1,0,0,0,
+woman_09__p0,R3,C2,none,1,0,0,0,
+woman_09__p0,R3,C3,jpeg50,1,0,0,0,
+woman_09__p0,R3,C4,blur2,1,0,0,0,
+woman_09__p0,R3,C5,vae_trans,1,0,0,0,
+woman_09__p0,R4,C2,none,1,0,0,0,
+woman_09__p0,R4,C3,jpeg50,1,0,0,0,
+woman_09__p0,R4,C4,blur2,1,0,0,0,
+woman_09__p0,R4,C5,vae_trans,1,0,0,0,
+woman_09__p0,R5,C2,none,1,0,0,0,
+woman_09__p0,R5,C3,jpeg50,1,0,0,0,
+woman_09__p0,R5,C4,blur2,1,0,0,0,
+woman_09__p0,R5,C5,vae_trans,1,0,0,0,
+woman_09__p0,R6,C2,none,1,1,0,0,blue-tinted face
+woman_09__p0,R6,C3,jpeg50,1,1,0,0,blue-tinted face
+woman_09__p0,R6,C4,blur2,1,1,0,0,blue-tinted face
+woman_09__p0,R6,C5,vae_trans,1,1,0,0,blue-tinted face
+woman_09__p1,R1,C2,none,1,1,0,0,cyan face cast
+woman_09__p1,R1,C3,jpeg50,1,1,0,0,epaulettes only; cyan face
+woman_09__p1,R1,C4,blur2,1,1,0,0,cyan face cast
+woman_09__p1,R1,C5,vae_trans,1,1,0,0,cyan face cast
+woman_09__p1,R2,C2,none,1,0,0,0,
+woman_09__p1,R2,C3,jpeg50,1,0,0,0,
+woman_09__p1,R2,C4,blur2,1,0,0,0,
+woman_09__p1,R2,C5,vae_trans,0,0,0,0,no clear badge
+woman_09__p1,R3,C2,none,1,0,0,0,
+woman_09__p1,R3,C3,jpeg50,1,0,0,0,
+woman_09__p1,R3,C4,blur2,1,0,0,0,
+woman_09__p1,R3,C5,vae_trans,0,0,0,0,plain jacket no badge
+woman_09__p1,R4,C2,none,1,0,0,0,
+woman_09__p1,R4,C3,jpeg50,1,0,0,0,
+woman_09__p1,R4,C4,blur2,1,0,0,0,
+woman_09__p1,R4,C5,vae_trans,1,0,0,0,small badge
+woman_09__p1,R5,C2,none,1,0,0,0,
+woman_09__p1,R5,C3,jpeg50,1,0,0,0,
+woman_09__p1,R5,C4,blur2,1,0,0,0,
+woman_09__p1,R5,C5,vae_trans,1,0,0,0,small badge
+woman_09__p1,R6,C2,none,1,0,0,0,small badge
+woman_09__p1,R6,C3,jpeg50,0,0,0,0,no clear badge
+woman_09__p1,R6,C4,blur2,1,0,0,0,
+woman_09__p1,R6,C5,vae_trans,1,0,0,0,small badge
+woman_09__p2,R1,C2,none,1,0,0,0,
+woman_09__p2,R1,C3,jpeg50,1,0,0,0,
+woman_09__p2,R1,C4,blur2,1,0,0,0,
+woman_09__p2,R1,C5,vae_trans,1,0,0,0,
+woman_09__p2,R2,C2,none,1,0,0,0,
+woman_09__p2,R2,C3,jpeg50,1,0,0,0,
+woman_09__p2,R2,C4,blur2,1,0,0,0,
+woman_09__p2,R2,C5,vae_trans,1,0,0,0,
+woman_09__p2,R3,C2,none,1,1,0,0,cyan helmet and face
+woman_09__p2,R3,C3,jpeg50,1,1,0,0,cyan helmet and face
+woman_09__p2,R3,C4,blur2,1,1,0,0,cyan helmet and face
+woman_09__p2,R3,C5,vae_trans,1,1,0,0,cyan helmet and face
+woman_09__p2,R4,C2,none,1,0,0,0,
+woman_09__p2,R4,C3,jpeg50,1,0,0,0,
+woman_09__p2,R4,C4,blur2,1,0,0,0,
+woman_09__p2,R4,C5,vae_trans,1,0,0,0,
+woman_09__p2,R5,C2,none,1,0,0,0,
+woman_09__p2,R5,C3,jpeg50,1,0,0,0,
+woman_09__p2,R5,C4,blur2,1,0,0,0,
+woman_09__p2,R5,C5,vae_trans,1,0,0,0,
+woman_09__p2,R6,C2,none,1,0,0,0,
+woman_09__p2,R6,C3,jpeg50,1,0,0,0,
+woman_09__p2,R6,C4,blur2,1,0,0,0,
+woman_09__p2,R6,C5,vae_trans,1,0,0,0,
+woman_09__p3,R1,C2,none,1,0,0,0,
+woman_09__p3,R1,C3,jpeg50,1,0,0,0,
+woman_09__p3,R1,C4,blur2,1,0,0,0,
+woman_09__p3,R1,C5,vae_trans,1,0,0,0,
+woman_09__p3,R2,C2,none,1,0,0,0,
+woman_09__p3,R2,C3,jpeg50,1,0,0,0,
+woman_09__p3,R2,C4,blur2,1,0,0,0,
+woman_09__p3,R2,C5,vae_trans,1,0,0,0,
+woman_09__p3,R3,C2,none,1,0,0,0,
+woman_09__p3,R3,C3,jpeg50,1,0,0,0,
+woman_09__p3,R3,C4,blur2,1,0,0,0,
+woman_09__p3,R3,C5,vae_trans,1,0,0,0,
+woman_09__p3,R4,C2,none,1,0,0,0,
+woman_09__p3,R4,C3,jpeg50,1,0,0,0,
+woman_09__p3,R4,C4,blur2,1,0,0,0,
+woman_09__p3,R4,C5,vae_trans,1,0,0,0,
+woman_09__p3,R5,C2,none,1,0,0,0,
+woman_09__p3,R5,C3,jpeg50,1,0,0,0,
+woman_09__p3,R5,C4,blur2,1,0,0,0,
+woman_09__p3,R5,C5,vae_trans,1,0,0,0,
+woman_09__p3,R6,C2,none,1,1,0,0,blue-tinted face
+woman_09__p3,R6,C3,jpeg50,1,1,0,0,blue-tinted face
+woman_09__p3,R6,C4,blur2,1,1,0,0,blue-tinted face
+woman_09__p3,R6,C5,vae_trans,1,1,0,0,blue-tinted face
+woman_103__p0,R1,C2,none,1,0,0,0,
+woman_103__p0,R1,C3,jpeg50,1,0,0,0,
+woman_103__p0,R1,C4,blur2,1,0,0,0,
+woman_103__p0,R1,C5,vae_trans,1,0,0,0,
+woman_103__p0,R2,C2,none,1,0,0,0,
+woman_103__p0,R2,C3,jpeg50,1,0,0,0,
+woman_103__p0,R2,C4,blur2,1,0,0,0,
+woman_103__p0,R2,C5,vae_trans,1,0,0,0,
+woman_103__p0,R3,C2,none,1,0,0,0,
+woman_103__p0,R3,C3,jpeg50,1,0,0,0,
+woman_103__p0,R3,C4,blur2,1,0,0,0,
+woman_103__p0,R3,C5,vae_trans,1,0,0,0,
+woman_103__p0,R4,C2,none,1,1,0,0,green/cyan cast
+woman_103__p0,R4,C3,jpeg50,1,1,0,0,green/cyan cast
+woman_103__p0,R4,C4,blur2,1,1,0,0,green/cyan cast
+woman_103__p0,R4,C5,vae_trans,1,1,0,0,green/cyan cast
+woman_103__p0,R5,C2,none,1,0,0,0,
+woman_103__p0,R5,C3,jpeg50,1,0,0,0,
+woman_103__p0,R5,C4,blur2,1,0,0,0,
+woman_103__p0,R5,C5,vae_trans,1,0,0,0,
+woman_103__p0,R6,C2,none,1,0,0,0,
+woman_103__p0,R6,C3,jpeg50,1,0,0,0,
+woman_103__p0,R6,C4,blur2,1,0,0,0,
+woman_103__p0,R6,C5,vae_trans,1,0,0,0,
+woman_103__p1,R1,C2,none,0,0,0,0,plain suit no badge
+woman_103__p1,R1,C3,jpeg50,1,0,0,0,epaulettes and tag
+woman_103__p1,R1,C4,blur2,1,0,0,0,badge
+woman_103__p1,R1,C5,vae_trans,0,0,0,0,plain suit no badge
+woman_103__p1,R2,C2,none,1,0,0,0,name tag bar
+woman_103__p1,R2,C3,jpeg50,1,0,0,0,epaulettes only
+woman_103__p1,R2,C4,blur2,1,0,0,0,name tag bar
+woman_103__p1,R2,C5,vae_trans,0,0,0,0,plain suit no badge
+woman_103__p1,R3,C2,none,1,0,0,0,name tag bar
+woman_103__p1,R3,C3,jpeg50,1,0,0,0,epaulettes
+woman_103__p1,R3,C4,blur2,1,0,0,0,badge
+woman_103__p1,R3,C5,vae_trans,0,0,0,0,plain suit no badge
+woman_103__p1,R4,C2,none,1,0,0,0,name tag bar
+woman_103__p1,R4,C3,jpeg50,1,0,0,0,name tag bar
+woman_103__p1,R4,C4,blur2,1,0,0,0,badge
+woman_103__p1,R4,C5,vae_trans,0,0,0,0,plain suit no badge
+woman_103__p1,R5,C2,none,1,1,0,0,name tag; green/cyan cast
+woman_103__p1,R5,C3,jpeg50,0,1,0,0,plain saturated blue suit
+woman_103__p1,R5,C4,blur2,1,1,0,0,name tag; green/cyan cast
+woman_103__p1,R5,C5,vae_trans,1,1,0,0,name tag; green/cyan cast
+woman_103__p1,R6,C2,none,0,0,0,0,plain suit no badge
+woman_103__p1,R6,C3,jpeg50,1,0,0,0,epaulettes
+woman_103__p1,R6,C4,blur2,1,0,0,0,name tag bar
+woman_103__p1,R6,C5,vae_trans,0,0,0,0,plain suit no badge
+woman_103__p2,R1,C2,none,1,1,0,0,green/cyan cast
+woman_103__p2,R1,C3,jpeg50,1,1,0,0,green/cyan cast
+woman_103__p2,R1,C4,blur2,1,1,0,0,green/cyan cast
+woman_103__p2,R1,C5,vae_trans,1,1,0,0,green/cyan cast
+woman_103__p2,R2,C2,none,1,0,0,0,
+woman_103__p2,R2,C3,jpeg50,1,0,0,0,
+woman_103__p2,R2,C4,blur2,1,0,0,0,
+woman_103__p2,R2,C5,vae_trans,1,0,0,0,
+woman_103__p2,R3,C2,none,1,0,0,0,
+woman_103__p2,R3,C3,jpeg50,1,0,0,0,
+woman_103__p2,R3,C4,blur2,1,0,0,0,
+woman_103__p2,R3,C5,vae_trans,1,0,0,0,
+woman_103__p2,R4,C2,none,1,0,0,0,
+woman_103__p2,R4,C3,jpeg50,1,0,0,0,
+woman_103__p2,R4,C4,blur2,1,0,0,0,
+woman_103__p2,R4,C5,vae_trans,1,0,0,0,
+woman_103__p2,R5,C2,none,1,0,0,0,
+woman_103__p2,R5,C3,jpeg50,1,0,0,0,
+woman_103__p2,R5,C4,blur2,1,0,0,0,
+woman_103__p2,R5,C5,vae_trans,1,0,0,0,
+woman_103__p2,R6,C2,none,1,0,0,0,
+woman_103__p2,R6,C3,jpeg50,1,0,0,0,
+woman_103__p2,R6,C4,blur2,1,0,0,0,
+woman_103__p2,R6,C5,vae_trans,1,0,0,0,
+woman_103__p3,R1,C2,none,1,0,0,0,
+woman_103__p3,R1,C3,jpeg50,1,0,0,0,
+woman_103__p3,R1,C4,blur2,1,0,0,0,
+woman_103__p3,R1,C5,vae_trans,1,0,0,0,skewed bowtie at scarf
+woman_103__p3,R2,C2,none,1,1,0,0,green/cyan cast
+woman_103__p3,R2,C3,jpeg50,1,1,0,0,green/cyan cast
+woman_103__p3,R2,C4,blur2,1,1,0,0,green/cyan cast
+woman_103__p3,R2,C5,vae_trans,1,1,0,0,green/cyan cast
+woman_103__p3,R3,C2,none,1,0,0,0,
+woman_103__p3,R3,C3,jpeg50,1,0,0,0,
+woman_103__p3,R3,C4,blur2,1,0,0,0,
+woman_103__p3,R3,C5,vae_trans,1,0,0,0,skewed bowtie at scarf
+woman_103__p3,R4,C2,none,1,0,0,0,two bowties
+woman_103__p3,R4,C3,jpeg50,1,0,0,0,
+woman_103__p3,R4,C4,blur2,1,0,0,0,
+woman_103__p3,R4,C5,vae_trans,1,0,0,0,
+woman_103__p3,R5,C2,none,1,0,0,0,two bowties
+woman_103__p3,R5,C3,jpeg50,1,0,0,0,
+woman_103__p3,R5,C4,blur2,1,0,0,0,
+woman_103__p3,R5,C5,vae_trans,1,0,0,0,skewed bowtie at scarf
+woman_103__p3,R6,C2,none,1,0,0,0,two bowties
+woman_103__p3,R6,C3,jpeg50,1,0,0,0,
+woman_103__p3,R6,C4,blur2,1,0,0,0,
+woman_103__p3,R6,C5,vae_trans,1,0,0,0,skewed bowtie at scarf
+woman_104__p0,R1,C2,none,1,1,0,0,cyan face tint
+woman_104__p0,R1,C3,jpeg50,1,1,0,0,cyan face tint
+woman_104__p0,R1,C4,blur2,1,1,0,0,cyan face tint
+woman_104__p0,R1,C5,vae_trans,1,1,0,0,cyan face tint
+woman_104__p0,R2,C2,none,1,0,0,0,
+woman_104__p0,R2,C3,jpeg50,1,0,0,0,
+woman_104__p0,R2,C4,blur2,1,0,0,0,
+woman_104__p0,R2,C5,vae_trans,1,0,0,0,
+woman_104__p0,R3,C2,none,1,0,0,0,
+woman_104__p0,R3,C3,jpeg50,1,0,0,0,
+woman_104__p0,R3,C4,blur2,1,0,0,0,
+woman_104__p0,R3,C5,vae_trans,1,0,0,0,
+woman_104__p0,R4,C2,none,1,0,0,0,
+woman_104__p0,R4,C3,jpeg50,1,0,0,0,
+woman_104__p0,R4,C4,blur2,1,0,0,0,
+woman_104__p0,R4,C5,vae_trans,1,0,0,0,
+woman_104__p0,R5,C2,none,1,0,0,0,
+woman_104__p0,R5,C3,jpeg50,1,0,0,0,
+woman_104__p0,R5,C4,blur2,1,0,0,0,
+woman_104__p0,R5,C5,vae_trans,1,0,0,0,
+woman_104__p0,R6,C2,none,1,0,0,0,
+woman_104__p0,R6,C3,jpeg50,1,0,0,0,
+woman_104__p0,R6,C4,blur2,1,0,0,0,
+woman_104__p0,R6,C5,vae_trans,1,0,0,0,
+woman_104__p1,R1,C2,none,1,0,0,0,small sleeve emblem
+woman_104__p1,R1,C3,jpeg50,1,0,0,0,sleeve emblem
+woman_104__p1,R1,C4,blur2,0,0,0,0,plain navy suit
+woman_104__p1,R1,C5,vae_trans,0,0,0,0,plain navy suit
+woman_104__p1,R2,C2,none,1,0,0,0,small sleeve emblem
+woman_104__p1,R2,C3,jpeg50,1,0,0,0,sleeve emblem
+woman_104__p1,R2,C4,blur2,1,0,0,0,sleeve emblem
+woman_104__p1,R2,C5,vae_trans,0,0,0,0,plain navy suit
+woman_104__p1,R3,C2,none,1,1,0,0,emblem; blue-cyan tint
+woman_104__p1,R3,C3,jpeg50,1,1,0,0,patches; blue-cyan tint
+woman_104__p1,R3,C4,blur2,1,1,0,0,shield patches; tint
+woman_104__p1,R3,C5,vae_trans,1,1,0,0,emblem; tint
+woman_104__p1,R4,C2,none,1,0,0,0,small sleeve emblem
+woman_104__p1,R4,C3,jpeg50,1,0,0,0,sleeve emblem
+woman_104__p1,R4,C4,blur2,1,0,0,0,sleeve emblem
+woman_104__p1,R4,C5,vae_trans,0,0,0,0,plain navy suit
+woman_104__p1,R5,C2,none,1,0,0,0,small sleeve emblem
+woman_104__p1,R5,C3,jpeg50,1,0,0,0,tiny emblem at edge
+woman_104__p1,R5,C4,blur2,1,0,0,0,sleeve emblem
+woman_104__p1,R5,C5,vae_trans,0,0,0,0,plain navy suit
+woman_104__p1,R6,C2,none,0,0,0,0,no emblem visible
+woman_104__p1,R6,C3,jpeg50,1,0,0,0,sleeve emblem
+woman_104__p1,R6,C4,blur2,1,0,0,0,sleeve emblem
+woman_104__p1,R6,C5,vae_trans,0,0,0,0,plain navy suit
+woman_104__p2,R1,C2,none,1,0,0,0,
+woman_104__p2,R1,C3,jpeg50,1,0,0,0,
+woman_104__p2,R1,C4,blur2,1,0,0,0,
+woman_104__p2,R1,C5,vae_trans,1,0,0,0,
+woman_104__p2,R2,C2,none,1,0,0,0,
+woman_104__p2,R2,C3,jpeg50,1,0,0,0,
+woman_104__p2,R2,C4,blur2,1,0,0,0,
+woman_104__p2,R2,C5,vae_trans,1,0,0,0,
+woman_104__p2,R3,C2,none,1,0,0,0,
+woman_104__p2,R3,C3,jpeg50,1,0,0,0,
+woman_104__p2,R3,C4,blur2,1,0,0,0,
+woman_104__p2,R3,C5,vae_trans,1,0,0,0,
+woman_104__p2,R4,C2,none,1,1,0,0,cyan tint
+woman_104__p2,R4,C3,jpeg50,1,1,0,0,cyan tint
+woman_104__p2,R4,C4,blur2,1,1,0,0,cyan tint
+woman_104__p2,R4,C5,vae_trans,1,1,0,0,cyan face tint
+woman_104__p2,R5,C2,none,1,0,0,0,
+woman_104__p2,R5,C3,jpeg50,1,0,0,0,
+woman_104__p2,R5,C4,blur2,1,0,0,0,
+woman_104__p2,R5,C5,vae_trans,1,0,0,0,
+woman_104__p2,R6,C2,none,1,0,0,0,
+woman_104__p2,R6,C3,jpeg50,1,0,0,0,
+woman_104__p2,R6,C4,blur2,1,0,0,0,
+woman_104__p2,R6,C5,vae_trans,1,0,0,0,
+woman_104__p3,R1,C2,none,1,0,0,0,
+woman_104__p3,R1,C3,jpeg50,1,0,0,0,
+woman_104__p3,R1,C4,blur2,1,0,0,0,
+woman_104__p3,R1,C5,vae_trans,1,0,0,0,
+woman_104__p3,R2,C2,none,1,0,0,0,
+woman_104__p3,R2,C3,jpeg50,1,0,0,0,
+woman_104__p3,R2,C4,blur2,1,0,0,0,
+woman_104__p3,R2,C5,vae_trans,1,0,0,0,
+woman_104__p3,R3,C2,none,1,0,0,0,
+woman_104__p3,R3,C3,jpeg50,1,0,0,0,
+woman_104__p3,R3,C4,blur2,1,0,0,0,
+woman_104__p3,R3,C5,vae_trans,1,0,0,0,
+woman_104__p3,R4,C2,none,1,1,0,0,cyan face tint
+woman_104__p3,R4,C3,jpeg50,1,1,0,0,cyan face tint
+woman_104__p3,R4,C4,blur2,1,1,0,0,cyan face tint
+woman_104__p3,R4,C5,vae_trans,1,1,0,0,cyan face tint
+woman_104__p3,R5,C2,none,1,0,0,0,
+woman_104__p3,R5,C3,jpeg50,1,0,0,0,
+woman_104__p3,R5,C4,blur2,1,0,0,0,
+woman_104__p3,R5,C5,vae_trans,1,0,0,0,
+woman_104__p3,R6,C2,none,1,0,0,0,
+woman_104__p3,R6,C3,jpeg50,1,0,0,0,
+woman_104__p3,R6,C4,blur2,1,0,0,0,
+woman_104__p3,R6,C5,vae_trans,1,0,0,0,
+woman_108__p0,R1,C2,none,1,0,0,0,
+woman_108__p0,R1,C3,jpeg50,1,0,0,0,
+woman_108__p0,R1,C4,blur2,1,0,0,0,
+woman_108__p0,R1,C5,vae_trans,1,0,0,0,
+woman_108__p0,R2,C2,none,1,0,0,0,
+woman_108__p0,R2,C3,jpeg50,1,0,0,0,
+woman_108__p0,R2,C4,blur2,1,0,0,0,
+woman_108__p0,R2,C5,vae_trans,1,0,0,0,
+woman_108__p0,R3,C2,none,1,1,0,0,teal-yellow cast
+woman_108__p0,R3,C3,jpeg50,1,1,0,0,teal-yellow cast
+woman_108__p0,R3,C4,blur2,1,1,0,0,teal-yellow cast
+woman_108__p0,R3,C5,vae_trans,1,0,0,0,
+woman_108__p0,R4,C2,none,1,0,0,0,
+woman_108__p0,R4,C3,jpeg50,1,0,0,0,
+woman_108__p0,R4,C4,blur2,1,0,0,0,
+woman_108__p0,R4,C5,vae_trans,1,0,0,0,
+woman_108__p0,R5,C2,none,1,0,0,0,
+woman_108__p0,R5,C3,jpeg50,1,0,0,0,
+woman_108__p0,R5,C4,blur2,1,0,0,0,
+woman_108__p0,R5,C5,vae_trans,1,0,0,0,
+woman_108__p0,R6,C2,none,1,0,0,0,
+woman_108__p0,R6,C3,jpeg50,1,0,0,0,
+woman_108__p0,R6,C4,blur2,1,0,0,0,
+woman_108__p0,R6,C5,vae_trans,1,0,0,0,
+woman_108__p1,R1,C2,none,0,0,0,0,plain navy suit
+woman_108__p1,R1,C3,jpeg50,0,0,0,0,plain navy suit
+woman_108__p1,R1,C4,blur2,0,0,0,0,plain navy suit
+woman_108__p1,R1,C5,vae_trans,0,0,0,0,plain navy suit
+woman_108__p1,R2,C2,none,0,1,0,0,plain suit; teal tint
+woman_108__p1,R2,C3,jpeg50,0,1,0,0,plain suit; teal tint
+woman_108__p1,R2,C4,blur2,0,0,0,0,plain navy suit
+woman_108__p1,R2,C5,vae_trans,0,0,0,0,plain navy suit
+woman_108__p1,R3,C2,none,0,0,0,0,plain navy suit
+woman_108__p1,R3,C3,jpeg50,0,0,0,0,plain navy suit
+woman_108__p1,R3,C4,blur2,0,0,0,0,plain navy suit
+woman_108__p1,R3,C5,vae_trans,0,0,0,0,plain navy suit
+woman_108__p1,R4,C2,none,0,0,0,0,plain navy suit
+woman_108__p1,R4,C3,jpeg50,0,0,0,0,plain navy suit
+woman_108__p1,R4,C4,blur2,0,0,0,0,plain navy suit
+woman_108__p1,R4,C5,vae_trans,0,0,0,0,plain navy suit
+woman_108__p1,R5,C2,none,0,0,0,0,plain navy suit
+woman_108__p1,R5,C3,jpeg50,0,0,0,0,plain navy suit
+woman_108__p1,R5,C4,blur2,0,0,0,0,plain navy suit
+woman_108__p1,R5,C5,vae_trans,0,0,0,0,plain navy suit
+woman_108__p1,R6,C2,none,0,0,0,0,plain navy suit
+woman_108__p1,R6,C3,jpeg50,0,0,0,0,plain navy suit
+woman_108__p1,R6,C4,blur2,0,0,0,0,plain navy suit
+woman_108__p1,R6,C5,vae_trans,0,0,0,0,plain navy suit
+woman_108__p2,R1,C2,none,1,0,0,0,
+woman_108__p2,R1,C3,jpeg50,1,0,0,0,
+woman_108__p2,R1,C4,blur2,1,0,0,0,
+woman_108__p2,R1,C5,vae_trans,1,0,0,0,
+woman_108__p2,R2,C2,none,1,1,0,0,teal-yellow cast
+woman_108__p2,R2,C3,jpeg50,1,1,0,0,teal cast
+woman_108__p2,R2,C4,blur2,1,1,0,0,teal cast
+woman_108__p2,R2,C5,vae_trans,1,0,0,0,
+woman_108__p2,R3,C2,none,1,0,0,0,
+woman_108__p2,R3,C3,jpeg50,1,0,0,0,
+woman_108__p2,R3,C4,blur2,1,0,0,0,
+woman_108__p2,R3,C5,vae_trans,1,0,0,0,
+woman_108__p2,R4,C2,none,1,0,0,0,
+woman_108__p2,R4,C3,jpeg50,1,0,0,0,
+woman_108__p2,R4,C4,blur2,1,0,0,0,
+woman_108__p2,R4,C5,vae_trans,1,0,0,0,
+woman_108__p2,R5,C2,none,1,0,0,0,
+woman_108__p2,R5,C3,jpeg50,1,0,0,0,
+woman_108__p2,R5,C4,blur2,1,0,0,0,
+woman_108__p2,R5,C5,vae_trans,1,0,0,0,
+woman_108__p2,R6,C2,none,1,0,0,0,face slightly altered
+woman_108__p2,R6,C3,jpeg50,1,0,0,0,face altered
+woman_108__p2,R6,C4,blur2,1,0,0,0,
+woman_108__p2,R6,C5,vae_trans,1,0,0,0,
+woman_108__p3,R1,C2,none,1,0,0,0,
+woman_108__p3,R1,C3,jpeg50,1,0,0,0,
+woman_108__p3,R1,C4,blur2,1,0,0,0,
+woman_108__p3,R1,C5,vae_trans,1,0,0,0,
+woman_108__p3,R2,C2,none,1,0,0,0,
+woman_108__p3,R2,C3,jpeg50,1,0,0,0,
+woman_108__p3,R2,C4,blur2,1,0,0,0,
+woman_108__p3,R2,C5,vae_trans,1,0,0,0,
+woman_108__p3,R3,C2,none,1,0,0,0,
+woman_108__p3,R3,C3,jpeg50,1,0,0,0,
+woman_108__p3,R3,C4,blur2,1,0,0,0,
+woman_108__p3,R3,C5,vae_trans,1,0,0,0,
+woman_108__p3,R4,C2,none,1,1,0,0,teal-yellow cast
+woman_108__p3,R4,C3,jpeg50,1,1,0,0,teal-yellow cast
+woman_108__p3,R4,C4,blur2,1,1,0,0,teal-yellow cast
+woman_108__p3,R4,C5,vae_trans,1,0,0,0,
+woman_108__p3,R5,C2,none,1,0,0,0,
+woman_108__p3,R5,C3,jpeg50,1,0,0,0,
+woman_108__p3,R5,C4,blur2,1,0,0,0,
+woman_108__p3,R5,C5,vae_trans,1,0,0,0,
+woman_108__p3,R6,C2,none,1,0,0,0,
+woman_108__p3,R6,C3,jpeg50,1,0,0,0,
+woman_108__p3,R6,C4,blur2,1,0,0,0,
+woman_108__p3,R6,C5,vae_trans,1,0,0,0,
+woman_119__p0,R1,C2,none,1,1,0,0,orange face pink background
+woman_119__p0,R1,C3,jpeg50,1,1,0,0,orange face pink background
+woman_119__p0,R1,C4,blur2,1,1,0,0,orange face pink background
+woman_119__p0,R1,C5,vae_trans,1,0,0,0,faint pink background
+woman_119__p0,R2,C2,none,1,0,0,0,
+woman_119__p0,R2,C3,jpeg50,1,0,0,0,
+woman_119__p0,R2,C4,blur2,1,0,0,0,
+woman_119__p0,R2,C5,vae_trans,1,0,0,0,
+woman_119__p0,R3,C2,none,1,0,0,0,
+woman_119__p0,R3,C3,jpeg50,1,0,0,0,
+woman_119__p0,R3,C4,blur2,1,0,0,0,
+woman_119__p0,R3,C5,vae_trans,1,0,0,0,
+woman_119__p0,R4,C2,none,1,0,0,0,
+woman_119__p0,R4,C3,jpeg50,1,0,0,0,
+woman_119__p0,R4,C4,blur2,1,0,0,0,
+woman_119__p0,R4,C5,vae_trans,1,0,0,0,
+woman_119__p0,R5,C2,none,1,0,0,0,
+woman_119__p0,R5,C3,jpeg50,1,0,0,0,
+woman_119__p0,R5,C4,blur2,1,0,0,0,
+woman_119__p0,R5,C5,vae_trans,1,0,0,0,
+woman_119__p0,R6,C2,none,1,0,0,0,
+woman_119__p0,R6,C3,jpeg50,1,0,0,0,
+woman_119__p0,R6,C4,blur2,1,0,0,0,
+woman_119__p0,R6,C5,vae_trans,1,0,0,0,
+woman_119__p1,R1,C2,none,1,1,0,0,gold epaulette; orange pink cast
+woman_119__p1,R1,C3,jpeg50,0,1,0,0,plain blazer; cast
+woman_119__p1,R1,C4,blur2,1,1,0,0,gold chest badge; cast
+woman_119__p1,R1,C5,vae_trans,1,0,0,0,small silver badge
+woman_119__p1,R2,C2,none,1,0,0,0,chest badge
+woman_119__p1,R2,C3,jpeg50,0,0,0,0,plain blazer
+woman_119__p1,R2,C4,blur2,1,0,0,0,gold badge
+woman_119__p1,R2,C5,vae_trans,0,0,0,0,plain blazer
+woman_119__p1,R3,C2,none,1,0,0,0,chest badge
+woman_119__p1,R3,C3,jpeg50,0,0,0,0,plain blazer
+woman_119__p1,R3,C4,blur2,0,0,0,0,tie only
+woman_119__p1,R3,C5,vae_trans,0,0,0,0,plain blazer
+woman_119__p1,R4,C2,none,1,0,0,0,chest badge
+woman_119__p1,R4,C3,jpeg50,0,0,0,0,plain blazer
+woman_119__p1,R4,C4,blur2,1,0,0,0,gold badge
+woman_119__p1,R4,C5,vae_trans,0,0,0,0,plain blazer
+woman_119__p1,R5,C2,none,1,0,0,0,badge and epaulette
+woman_119__p1,R5,C3,jpeg50,1,0,0,0,small orange badge
+woman_119__p1,R5,C4,blur2,0,0,0,0,tiny mark only
+woman_119__p1,R5,C5,vae_trans,0,0,0,0,plain blazer
+woman_119__p1,R6,C2,none,0,0,0,0,plain blazer
+woman_119__p1,R6,C3,jpeg50,0,0,0,0,plain blazer
+woman_119__p1,R6,C4,blur2,1,0,0,0,gold badge
+woman_119__p1,R6,C5,vae_trans,0,0,0,0,plain blazer
+woman_119__p2,R1,C2,none,1,1,0,0,orange pink cast
+woman_119__p2,R1,C3,jpeg50,1,1,0,0,orange pink cast
+woman_119__p2,R1,C4,blur2,1,1,0,0,orange pink cast
+woman_119__p2,R1,C5,vae_trans,1,1,0,0,weaker orange pink cast
+woman_119__p2,R2,C2,none,1,0,0,0,
+woman_119__p2,R2,C3,jpeg50,1,0,0,0,
+woman_119__p2,R2,C4,blur2,1,0,0,0,
+woman_119__p2,R2,C5,vae_trans,1,0,0,0,
+woman_119__p2,R3,C2,none,1,0,0,0,
+woman_119__p2,R3,C3,jpeg50,1,0,0,0,
+woman_119__p2,R3,C4,blur2,1,0,0,0,
+woman_119__p2,R3,C5,vae_trans,1,0,0,0,
+woman_119__p2,R4,C2,none,1,0,0,0,
+woman_119__p2,R4,C3,jpeg50,1,0,0,0,
+woman_119__p2,R4,C4,blur2,1,0,0,0,
+woman_119__p2,R4,C5,vae_trans,1,0,0,0,
+woman_119__p2,R5,C2,none,1,0,0,0,
+woman_119__p2,R5,C3,jpeg50,1,0,0,0,
+woman_119__p2,R5,C4,blur2,1,0,0,0,
+woman_119__p2,R5,C5,vae_trans,1,0,0,0,
+woman_119__p2,R6,C2,none,1,0,0,0,
+woman_119__p2,R6,C3,jpeg50,1,0,0,0,
+woman_119__p2,R6,C4,blur2,1,0,0,0,
+woman_119__p2,R6,C5,vae_trans,1,0,0,0,
+woman_119__p3,R1,C2,none,1,0,0,0,
+woman_119__p3,R1,C3,jpeg50,1,0,0,0,distorted bow with white bib
+woman_119__p3,R1,C4,blur2,1,0,0,0,
+woman_119__p3,R1,C5,vae_trans,1,0,0,0,
+woman_119__p3,R2,C2,none,1,0,0,0,
+woman_119__p3,R2,C3,jpeg50,1,0,0,0,distorted bow with white bib
+woman_119__p3,R2,C4,blur2,1,0,0,0,
+woman_119__p3,R2,C5,vae_trans,1,0,0,0,
+woman_119__p3,R3,C2,none,1,0,0,0,
+woman_119__p3,R3,C3,jpeg50,1,0,0,0,
+woman_119__p3,R3,C4,blur2,1,0,0,0,
+woman_119__p3,R3,C5,vae_trans,1,0,0,0,
+woman_119__p3,R4,C2,none,1,0,0,0,
+woman_119__p3,R4,C3,jpeg50,1,0,0,0,
+woman_119__p3,R4,C4,blur2,1,0,0,0,
+woman_119__p3,R4,C5,vae_trans,1,0,0,0,
+woman_119__p3,R5,C2,none,1,0,0,0,
+woman_119__p3,R5,C3,jpeg50,1,0,0,0,
+woman_119__p3,R5,C4,blur2,1,0,0,0,
+woman_119__p3,R5,C5,vae_trans,1,0,0,0,
+woman_119__p3,R6,C2,none,1,1,0,0,orange pink cast
+woman_119__p3,R6,C3,jpeg50,1,1,0,0,orange pink cast
+woman_119__p3,R6,C4,blur2,1,1,0,0,orange pink cast
+woman_119__p3,R6,C5,vae_trans,1,1,0,0,orange pink cast
+woman_122__p0,R1,C2,none,1,0,0,0,
+woman_122__p0,R1,C3,jpeg50,1,0,0,0,
+woman_122__p0,R1,C4,blur2,0,0,0,0,no sunglasses
+woman_122__p0,R1,C5,vae_trans,1,0,0,0,
+woman_122__p0,R2,C2,none,1,0,0,0,
+woman_122__p0,R2,C3,jpeg50,1,0,0,0,
+woman_122__p0,R2,C4,blur2,0,0,0,0,no sunglasses
+woman_122__p0,R2,C5,vae_trans,1,0,0,0,
+woman_122__p0,R3,C2,none,1,0,0,0,
+woman_122__p0,R3,C3,jpeg50,1,0,0,0,
+woman_122__p0,R3,C4,blur2,0,0,0,0,no sunglasses
+woman_122__p0,R3,C5,vae_trans,1,0,0,0,
+woman_122__p0,R4,C2,none,1,0,0,0,
+woman_122__p0,R4,C3,jpeg50,1,0,0,0,
+woman_122__p0,R4,C4,blur2,0,0,0,0,no sunglasses
+woman_122__p0,R4,C5,vae_trans,1,0,0,0,
+woman_122__p0,R5,C2,none,1,1,0,0,yellow patches
+woman_122__p0,R5,C3,jpeg50,1,1,0,0,yellow patches
+woman_122__p0,R5,C4,blur2,1,1,0,0,yellow patches
+woman_122__p0,R5,C5,vae_trans,1,1,0,0,yellow streaks on arm
+woman_122__p0,R6,C2,none,1,0,0,0,
+woman_122__p0,R6,C3,jpeg50,1,0,0,0,
+woman_122__p0,R6,C4,blur2,0,0,0,0,no sunglasses
+woman_122__p0,R6,C5,vae_trans,1,0,0,0,
+woman_122__p1,R1,C2,none,1,0,0,0,sleeve emblem
+woman_122__p1,R1,C3,jpeg50,0,0,0,0,plain navy suit
+woman_122__p1,R1,C4,blur2,0,0,0,0,plain navy suit
+woman_122__p1,R1,C5,vae_trans,1,0,0,0,pin and sleeve emblem
+woman_122__p1,R2,C2,none,0,0,0,0,plain navy suit
+woman_122__p1,R2,C3,jpeg50,1,0,0,0,small lapel pin
+woman_122__p1,R2,C4,blur2,1,0,0,0,small sleeve emblem
+woman_122__p1,R2,C5,vae_trans,1,0,0,0,sleeve emblem
+woman_122__p1,R3,C2,none,1,0,0,0,faint sleeve emblem
+woman_122__p1,R3,C3,jpeg50,0,0,0,0,plain navy suit
+woman_122__p1,R3,C4,blur2,0,0,0,0,plain navy suit
+woman_122__p1,R3,C5,vae_trans,1,0,0,0,sleeve emblem
+woman_122__p1,R4,C2,none,0,0,0,0,plain navy suit
+woman_122__p1,R4,C3,jpeg50,0,0,0,0,plain navy suit
+woman_122__p1,R4,C4,blur2,1,0,0,0,name tag and pin
+woman_122__p1,R4,C5,vae_trans,1,0,0,0,pin and sleeve emblem
+woman_122__p1,R5,C2,none,1,1,0,0,pin and emblem; yellow patches
+woman_122__p1,R5,C3,jpeg50,0,1,0,0,plain suit; yellow patches
+woman_122__p1,R5,C4,blur2,1,1,0,0,faint emblem; yellow patches
+woman_122__p1,R5,C5,vae_trans,0,1,0,0,plain suit; yellow tint
+woman_122__p1,R6,C2,none,0,0,0,0,plain navy suit
+woman_122__p1,R6,C3,jpeg50,0,0,0,0,plain navy suit
+woman_122__p1,R6,C4,blur2,0,0,0,0,plain navy suit
+woman_122__p1,R6,C5,vae_trans,1,0,0,0,pin name tag emblem
+woman_122__p2,R1,C2,none,1,0,0,0,
+woman_122__p2,R1,C3,jpeg50,1,0,0,0,
+woman_122__p2,R1,C4,blur2,1,0,0,0,
+woman_122__p2,R1,C5,vae_trans,1,0,0,0,
+woman_122__p2,R2,C2,none,1,0,0,0,
+woman_122__p2,R2,C3,jpeg50,1,0,0,0,
+woman_122__p2,R2,C4,blur2,1,0,0,0,
+woman_122__p2,R2,C5,vae_trans,1,0,0,0,
+woman_122__p2,R3,C2,none,1,0,0,0,
+woman_122__p2,R3,C3,jpeg50,1,0,0,0,
+woman_122__p2,R3,C4,blur2,1,0,0,0,
+woman_122__p2,R3,C5,vae_trans,1,0,0,0,
+woman_122__p2,R4,C2,none,1,0,0,0,
+woman_122__p2,R4,C3,jpeg50,1,0,0,0,
+woman_122__p2,R4,C4,blur2,1,0,0,0,
+woman_122__p2,R4,C5,vae_trans,1,0,0,0,
+woman_122__p2,R5,C2,none,1,0,0,0,
+woman_122__p2,R5,C3,jpeg50,1,0,0,0,
+woman_122__p2,R5,C4,blur2,1,0,0,0,
+woman_122__p2,R5,C5,vae_trans,1,0,0,0,
+woman_122__p2,R6,C2,none,1,1,0,0,yellow cast
+woman_122__p2,R6,C3,jpeg50,1,1,0,0,yellow cast
+woman_122__p2,R6,C4,blur2,1,1,0,0,yellow cast
+woman_122__p2,R6,C5,vae_trans,1,1,0,0,mild yellow patches
+woman_122__p3,R1,C2,none,1,0,0,0,
+woman_122__p3,R1,C3,jpeg50,1,0,0,0,
+woman_122__p3,R1,C4,blur2,1,0,0,0,
+woman_122__p3,R1,C5,vae_trans,1,0,0,0,
+woman_122__p3,R2,C2,none,1,0,0,0,
+woman_122__p3,R2,C3,jpeg50,1,0,0,0,
+woman_122__p3,R2,C4,blur2,1,0,0,0,
+woman_122__p3,R2,C5,vae_trans,1,0,0,0,
+woman_122__p3,R3,C2,none,1,0,0,0,bow near hand
+woman_122__p3,R3,C3,jpeg50,1,0,0,0,
+woman_122__p3,R3,C4,blur2,1,0,0,0,
+woman_122__p3,R3,C5,vae_trans,1,0,0,0,
+woman_122__p3,R4,C2,none,1,0,0,0,
+woman_122__p3,R4,C3,jpeg50,1,0,0,0,extra dark blob near neck
+woman_122__p3,R4,C4,blur2,1,0,0,0,
+woman_122__p3,R4,C5,vae_trans,1,0,0,0,
+woman_122__p3,R5,C2,none,1,0,0,0,
+woman_122__p3,R5,C3,jpeg50,1,0,0,0,
+woman_122__p3,R5,C4,blur2,1,0,0,0,
+woman_122__p3,R5,C5,vae_trans,1,0,0,0,
+woman_122__p3,R6,C2,none,1,1,0,0,yellow cast
+woman_122__p3,R6,C3,jpeg50,1,1,0,0,yellow cast
+woman_122__p3,R6,C4,blur2,1,1,0,0,yellow cast
+woman_122__p3,R6,C5,vae_trans,1,1,0,0,mild yellow patches
+woman_127__p0,R1,C2,none,1,0,0,0,
+woman_127__p0,R1,C3,jpeg50,1,0,0,0,
+woman_127__p0,R1,C4,blur2,1,0,0,0,
+woman_127__p0,R1,C5,vae_trans,1,0,0,0,
+woman_127__p0,R2,C2,none,1,0,0,0,
+woman_127__p0,R2,C3,jpeg50,1,0,0,0,
+woman_127__p0,R2,C4,blur2,1,0,0,0,
+woman_127__p0,R2,C5,vae_trans,1,0,0,0,
+woman_127__p0,R3,C2,none,1,0,0,0,
+woman_127__p0,R3,C3,jpeg50,1,0,0,0,
+woman_127__p0,R3,C4,blur2,1,0,0,0,
+woman_127__p0,R3,C5,vae_trans,1,0,0,0,
+woman_127__p0,R4,C2,none,1,0,0,0,
+woman_127__p0,R4,C3,jpeg50,1,0,0,0,
+woman_127__p0,R4,C4,blur2,1,0,0,0,
+woman_127__p0,R4,C5,vae_trans,1,0,0,0,
+woman_127__p0,R5,C2,none,1,1,0,0,pink cast
+woman_127__p0,R5,C3,jpeg50,1,1,0,0,pink cast
+woman_127__p0,R5,C4,blur2,1,1,0,0,pink cast
+woman_127__p0,R5,C5,vae_trans,1,1,0,0,pink cast
+woman_127__p0,R6,C2,none,1,0,0,0,
+woman_127__p0,R6,C3,jpeg50,1,0,0,0,
+woman_127__p0,R6,C4,blur2,1,0,0,0,
+woman_127__p0,R6,C5,vae_trans,1,0,0,0,
+woman_127__p1,R1,C2,none,0,0,0,0,plain navy suit
+woman_127__p1,R1,C3,jpeg50,0,0,0,0,plain navy suit
+woman_127__p1,R1,C4,blur2,0,0,0,0,plain navy suit
+woman_127__p1,R1,C5,vae_trans,0,0,0,0,plain navy suit
+woman_127__p1,R2,C2,none,0,0,0,0,plain navy suit
+woman_127__p1,R2,C3,jpeg50,0,0,0,0,plain navy suit
+woman_127__p1,R2,C4,blur2,0,0,0,0,plain navy suit
+woman_127__p1,R2,C5,vae_trans,0,0,0,0,plain navy suit
+woman_127__p1,R3,C2,none,0,0,0,0,plain navy suit
+woman_127__p1,R3,C3,jpeg50,0,0,0,0,plain navy suit
+woman_127__p1,R3,C4,blur2,0,0,0,0,plain navy suit
+woman_127__p1,R3,C5,vae_trans,0,0,0,0,plain navy suit
+woman_127__p1,R4,C2,none,0,0,0,0,plain navy suit
+woman_127__p1,R4,C3,jpeg50,0,0,0,0,plain navy suit
+woman_127__p1,R4,C4,blur2,0,0,0,0,plain navy suit
+woman_127__p1,R4,C5,vae_trans,0,0,0,0,plain navy suit
+woman_127__p1,R5,C2,none,0,1,0,0,plain suit; pink cast
+woman_127__p1,R5,C3,jpeg50,0,1,0,0,plain suit; pink cast
+woman_127__p1,R5,C4,blur2,0,1,0,0,plain suit; pink cast
+woman_127__p1,R5,C5,vae_trans,0,1,0,0,plain suit; pink cast
+woman_127__p1,R6,C2,none,0,0,0,0,plain navy suit
+woman_127__p1,R6,C3,jpeg50,0,0,0,0,plain navy suit
+woman_127__p1,R6,C4,blur2,0,0,0,0,plain navy suit
+woman_127__p1,R6,C5,vae_trans,0,0,0,0,plain navy suit
+woman_127__p2,R1,C2,none,1,0,0,0,
+woman_127__p2,R1,C3,jpeg50,1,0,0,0,
+woman_127__p2,R1,C4,blur2,1,0,0,0,
+woman_127__p2,R1,C5,vae_trans,1,0,0,0,
+woman_127__p2,R2,C2,none,1,0,0,0,
+woman_127__p2,R2,C3,jpeg50,1,0,0,0,
+woman_127__p2,R2,C4,blur2,1,0,0,0,
+woman_127__p2,R2,C5,vae_trans,1,0,0,0,
+woman_127__p2,R3,C2,none,1,0,0,0,
+woman_127__p2,R3,C3,jpeg50,1,0,0,0,
+woman_127__p2,R3,C4,blur2,1,0,0,0,
+woman_127__p2,R3,C5,vae_trans,1,0,0,0,
+woman_127__p2,R4,C2,none,1,1,0,0,pink cast
+woman_127__p2,R4,C3,jpeg50,1,1,0,0,pink cast
+woman_127__p2,R4,C4,blur2,1,1,0,0,pink cast
+woman_127__p2,R4,C5,vae_trans,1,1,0,0,pink cast
+woman_127__p2,R5,C2,none,1,0,0,0,
+woman_127__p2,R5,C3,jpeg50,1,0,0,0,
+woman_127__p2,R5,C4,blur2,1,0,0,0,
+woman_127__p2,R5,C5,vae_trans,1,0,0,0,
+woman_127__p2,R6,C2,none,1,0,0,0,
+woman_127__p2,R6,C3,jpeg50,1,0,0,0,
+woman_127__p2,R6,C4,blur2,1,0,0,0,
+woman_127__p2,R6,C5,vae_trans,1,0,0,0,
+woman_127__p3,R1,C2,none,1,0,0,0,
+woman_127__p3,R1,C3,jpeg50,1,0,0,0,
+woman_127__p3,R1,C4,blur2,1,0,0,0,
+woman_127__p3,R1,C5,vae_trans,1,0,0,0,
+woman_127__p3,R2,C2,none,1,0,0,0,
+woman_127__p3,R2,C3,jpeg50,1,0,0,0,
+woman_127__p3,R2,C4,blur2,1,0,0,0,
+woman_127__p3,R2,C5,vae_trans,1,0,0,0,
+woman_127__p3,R3,C2,none,1,0,0,0,
+woman_127__p3,R3,C3,jpeg50,1,0,0,0,
+woman_127__p3,R3,C4,blur2,1,0,0,0,
+woman_127__p3,R3,C5,vae_trans,1,0,0,0,
+woman_127__p3,R4,C2,none,1,0,0,0,
+woman_127__p3,R4,C3,jpeg50,1,0,0,0,
+woman_127__p3,R4,C4,blur2,1,0,0,0,
+woman_127__p3,R4,C5,vae_trans,1,0,0,0,
+woman_127__p3,R5,C2,none,1,1,0,0,pink cast
+woman_127__p3,R5,C3,jpeg50,1,1,0,0,pink cast
+woman_127__p3,R5,C4,blur2,1,1,0,0,pink cast
+woman_127__p3,R5,C5,vae_trans,1,1,0,0,pink cast
+woman_127__p3,R6,C2,none,1,0,0,0,
+woman_127__p3,R6,C3,jpeg50,1,0,0,0,
+woman_127__p3,R6,C4,blur2,1,0,0,0,
+woman_127__p3,R6,C5,vae_trans,1,0,0,0,
+woman_129__p0,R1,C2,none,1,0,0,0,
+woman_129__p0,R1,C3,jpeg50,1,0,0,0,
+woman_129__p0,R1,C4,blur2,1,0,0,0,
+woman_129__p0,R1,C5,vae_trans,1,0,0,0,
+woman_129__p0,R2,C2,none,1,0,0,0,
+woman_129__p0,R2,C3,jpeg50,1,0,0,0,
+woman_129__p0,R2,C4,blur2,1,0,0,0,
+woman_129__p0,R2,C5,vae_trans,1,0,0,0,
+woman_129__p0,R3,C2,none,1,0,0,0,
+woman_129__p0,R3,C3,jpeg50,1,0,0,0,
+woman_129__p0,R3,C4,blur2,1,0,0,0,
+woman_129__p0,R3,C5,vae_trans,1,0,0,0,
+woman_129__p0,R4,C2,none,1,0,0,0,
+woman_129__p0,R4,C3,jpeg50,1,0,0,0,
+woman_129__p0,R4,C4,blur2,1,0,0,0,
+woman_129__p0,R4,C5,vae_trans,1,0,0,0,
+woman_129__p0,R5,C2,none,1,0,0,0,
+woman_129__p0,R5,C3,jpeg50,1,0,0,0,
+woman_129__p0,R5,C4,blur2,1,0,0,0,
+woman_129__p0,R5,C5,vae_trans,1,0,0,0,
+woman_129__p0,R6,C2,none,1,1,0,0,cyan skin green background
+woman_129__p0,R6,C3,jpeg50,1,1,0,0,cyan skin green background
+woman_129__p0,R6,C4,blur2,1,1,0,0,cyan skin green background
+woman_129__p0,R6,C5,vae_trans,1,1,0,0,cyan skin green background
+woman_129__p1,R1,C2,none,0,0,0,0,plain dark suit
+woman_129__p1,R1,C3,jpeg50,1,0,0,0,shoulder epaulettes
+woman_129__p1,R1,C4,blur2,1,0,0,0,badge and epaulettes
+woman_129__p1,R1,C5,vae_trans,0,0,0,0,plain dark suit
+woman_129__p1,R2,C2,none,1,1,0,0,epaulette; cyan green cast
+woman_129__p1,R2,C3,jpeg50,0,1,0,0,plain suit; cast
+woman_129__p1,R2,C4,blur2,1,1,0,0,badge; cast
+woman_129__p1,R2,C5,vae_trans,0,1,0,0,plain suit; cast
+woman_129__p1,R3,C2,none,1,0,0,0,epaulette buttons
+woman_129__p1,R3,C3,jpeg50,1,0,0,0,epaulette buttons
+woman_129__p1,R3,C4,blur2,1,0,0,0,badge
+woman_129__p1,R3,C5,vae_trans,0,0,0,0,plain dark suit
+woman_129__p1,R4,C2,none,0,0,0,0,plain dark suit
+woman_129__p1,R4,C3,jpeg50,0,0,0,0,plain dark suit
+woman_129__p1,R4,C4,blur2,1,0,0,0,epaulettes
+woman_129__p1,R4,C5,vae_trans,0,0,0,0,plain dark suit
+woman_129__p1,R5,C2,none,0,0,0,0,plain dark suit
+woman_129__p1,R5,C3,jpeg50,0,0,0,0,plain dark suit
+woman_129__p1,R5,C4,blur2,1,0,0,0,badge
+woman_129__p1,R5,C5,vae_trans,0,0,0,0,plain dark suit
+woman_129__p1,R6,C2,none,0,0,0,0,plain dark suit
+woman_129__p1,R6,C3,jpeg50,0,0,0,0,plain dark suit
+woman_129__p1,R6,C4,blur2,0,0,0,0,plain dark suit
+woman_129__p1,R6,C5,vae_trans,0,0,0,0,plain dark suit
+woman_129__p2,R1,C2,none,1,0,0,0,
+woman_129__p2,R1,C3,jpeg50,1,0,0,0,
+woman_129__p2,R1,C4,blur2,1,0,0,0,
+woman_129__p2,R1,C5,vae_trans,1,0,0,0,
+woman_129__p2,R2,C2,none,1,0,0,0,
+woman_129__p2,R2,C3,jpeg50,1,0,0,0,
+woman_129__p2,R2,C4,blur2,1,0,0,0,
+woman_129__p2,R2,C5,vae_trans,1,0,0,0,
+woman_129__p2,R3,C2,none,1,0,0,0,
+woman_129__p2,R3,C3,jpeg50,1,0,0,0,
+woman_129__p2,R3,C4,blur2,1,0,0,0,
+woman_129__p2,R3,C5,vae_trans,1,0,0,0,
+woman_129__p2,R4,C2,none,1,1,0,0,cyan skin green background
+woman_129__p2,R4,C3,jpeg50,1,1,0,0,cyan skin green background
+woman_129__p2,R4,C4,blur2,1,1,0,0,cyan skin green background
+woman_129__p2,R4,C5,vae_trans,1,1,0,0,cyan skin green background
+woman_129__p2,R5,C2,none,1,0,0,0,
+woman_129__p2,R5,C3,jpeg50,1,0,0,0,
+woman_129__p2,R5,C4,blur2,1,0,0,0,
+woman_129__p2,R5,C5,vae_trans,1,0,0,0,
+woman_129__p2,R6,C2,none,1,0,0,0,
+woman_129__p2,R6,C3,jpeg50,1,0,0,0,
+woman_129__p2,R6,C4,blur2,1,0,0,0,
+woman_129__p2,R6,C5,vae_trans,1,0,0,0,
+woman_129__p3,R1,C2,none,1,0,0,0,
+woman_129__p3,R1,C3,jpeg50,1,0,0,0,
+woman_129__p3,R1,C4,blur2,1,0,0,0,
+woman_129__p3,R1,C5,vae_trans,1,0,0,0,
+woman_129__p3,R2,C2,none,1,0,0,0,
+woman_129__p3,R2,C3,jpeg50,1,0,0,0,
+woman_129__p3,R2,C4,blur2,1,0,0,0,
+woman_129__p3,R2,C5,vae_trans,1,0,0,0,
+woman_129__p3,R3,C2,none,1,1,0,0,cyan skin green background
+woman_129__p3,R3,C3,jpeg50,1,1,0,0,cyan skin green background
+woman_129__p3,R3,C4,blur2,1,1,0,0,cyan skin green background
+woman_129__p3,R3,C5,vae_trans,1,1,0,0,cyan skin teal background
+woman_129__p3,R4,C2,none,1,0,0,0,
+woman_129__p3,R4,C3,jpeg50,1,0,0,0,
+woman_129__p3,R4,C4,blur2,1,0,0,0,
+woman_129__p3,R4,C5,vae_trans,1,0,0,0,
+woman_129__p3,R5,C2,none,1,0,0,0,
+woman_129__p3,R5,C3,jpeg50,1,0,0,0,
+woman_129__p3,R5,C4,blur2,1,0,0,0,
+woman_129__p3,R5,C5,vae_trans,1,0,0,0,
+woman_129__p3,R6,C2,none,1,0,0,0,
+woman_129__p3,R6,C3,jpeg50,1,0,0,0,
+woman_129__p3,R6,C4,blur2,1,0,0,0,
+woman_129__p3,R6,C5,vae_trans,1,0,0,0,
+woman_136__p0,R1,C2,none,1,0,0,0,
+woman_136__p0,R1,C3,jpeg50,1,0,0,0,
+woman_136__p0,R1,C4,blur2,1,0,0,0,
+woman_136__p0,R1,C5,vae_trans,1,0,0,0,
+woman_136__p0,R2,C2,none,1,0,0,0,
+woman_136__p0,R2,C3,jpeg50,1,0,0,0,
+woman_136__p0,R2,C4,blur2,1,0,0,0,
+woman_136__p0,R2,C5,vae_trans,1,0,0,0,
+woman_136__p0,R3,C2,none,1,1,0,0,blue pink green cast
+woman_136__p0,R3,C3,jpeg50,1,1,0,0,blue pink green cast
+woman_136__p0,R3,C4,blur2,1,1,0,0,blue pink green cast
+woman_136__p0,R3,C5,vae_trans,1,1,0,0,milder pink lavender cast
+woman_136__p0,R4,C2,none,1,0,0,0,
+woman_136__p0,R4,C3,jpeg50,1,0,0,0,
+woman_136__p0,R4,C4,blur2,1,0,0,0,
+woman_136__p0,R4,C5,vae_trans,1,0,0,0,
+woman_136__p0,R5,C2,none,1,0,0,0,
+woman_136__p0,R5,C3,jpeg50,1,0,0,0,
+woman_136__p0,R5,C4,blur2,1,0,0,0,
+woman_136__p0,R5,C5,vae_trans,1,0,0,0,
+woman_136__p0,R6,C2,none,1,0,0,0,
+woman_136__p0,R6,C3,jpeg50,1,0,0,0,
+woman_136__p0,R6,C4,blur2,1,0,0,0,
+woman_136__p0,R6,C5,vae_trans,1,0,0,0,
+woman_136__p1,R1,C2,none,1,1,0,0,patch and badge; blue pink cast
+woman_136__p1,R1,C3,jpeg50,1,1,0,0,patch; blue pink cast
+woman_136__p1,R1,C4,blur2,1,1,0,0,patch and badge; cast
+woman_136__p1,R1,C5,vae_trans,1,1,0,0,sleeve patch; milder cast
+woman_136__p1,R2,C2,none,1,0,0,0,shoulder patch
+woman_136__p1,R2,C3,jpeg50,0,0,0,0,plain navy suit
+woman_136__p1,R2,C4,blur2,1,0,0,0,shoulder patch
+woman_136__p1,R2,C5,vae_trans,1,0,0,0,shoulder patch
+woman_136__p1,R3,C2,none,1,0,0,0,shoulder patch
+woman_136__p1,R3,C3,jpeg50,1,0,0,0,shoulder patch
+woman_136__p1,R3,C4,blur2,1,0,0,0,shoulder patch
+woman_136__p1,R3,C5,vae_trans,1,0,0,0,shoulder patch
+woman_136__p1,R4,C2,none,0,0,0,0,plain navy suit
+woman_136__p1,R4,C3,jpeg50,0,0,0,0,plain navy suit
+woman_136__p1,R4,C4,blur2,1,0,0,0,shoulder patch
+woman_136__p1,R4,C5,vae_trans,1,0,0,0,shoulder patch
+woman_136__p1,R5,C2,none,0,0,0,0,plain navy suit
+woman_136__p1,R5,C3,jpeg50,0,0,0,0,plain navy suit
+woman_136__p1,R5,C4,blur2,1,0,0,0,shoulder patch
+woman_136__p1,R5,C5,vae_trans,1,0,0,0,shoulder patch
+woman_136__p1,R6,C2,none,0,0,0,0,no patch visible
+woman_136__p1,R6,C3,jpeg50,1,0,0,0,shoulder patch
+woman_136__p1,R6,C4,blur2,1,0,0,0,shoulder patch
+woman_136__p1,R6,C5,vae_trans,1,0,0,0,shoulder patch
+woman_136__p2,R1,C2,none,1,0,0,0,
+woman_136__p2,R1,C3,jpeg50,1,0,0,0,
+woman_136__p2,R1,C4,blur2,1,0,0,0,
+woman_136__p2,R1,C5,vae_trans,1,0,0,0,
+woman_136__p2,R2,C2,none,1,0,0,0,
+woman_136__p2,R2,C3,jpeg50,1,0,0,0,
+woman_136__p2,R2,C4,blur2,1,0,0,0,
+woman_136__p2,R2,C5,vae_trans,1,0,0,0,
+woman_136__p2,R3,C2,none,1,0,0,0,
+woman_136__p2,R3,C3,jpeg50,1,0,0,0,
+woman_136__p2,R3,C4,blur2,1,0,0,0,
+woman_136__p2,R3,C5,vae_trans,1,0,0,0,
+woman_136__p2,R4,C2,none,1,0,0,0,
+woman_136__p2,R4,C3,jpeg50,1,0,0,0,
+woman_136__p2,R4,C4,blur2,1,0,0,0,
+woman_136__p2,R4,C5,vae_trans,1,0,0,0,
+woman_136__p2,R5,C2,none,1,0,0,0,
+woman_136__p2,R5,C3,jpeg50,1,0,0,0,
+woman_136__p2,R5,C4,blur2,1,0,0,0,
+woman_136__p2,R5,C5,vae_trans,1,0,0,0,
+woman_136__p2,R6,C2,none,1,1,0,0,blue pink green cast
+woman_136__p2,R6,C3,jpeg50,1,1,0,0,blue pink green cast
+woman_136__p2,R6,C4,blur2,1,1,0,0,blue pink green cast
+woman_136__p2,R6,C5,vae_trans,1,1,0,0,blue pink green cast
+woman_136__p3,R1,C2,none,1,0,0,0,
+woman_136__p3,R1,C3,jpeg50,1,0,0,0,
+woman_136__p3,R1,C4,blur2,1,0,0,0,
+woman_136__p3,R1,C5,vae_trans,1,0,0,0,
+woman_136__p3,R2,C2,none,1,0,0,0,
+woman_136__p3,R2,C3,jpeg50,1,0,0,0,
+woman_136__p3,R2,C4,blur2,1,0,0,0,
+woman_136__p3,R2,C5,vae_trans,1,0,0,0,
+woman_136__p3,R3,C2,none,1,0,0,0,
+woman_136__p3,R3,C3,jpeg50,1,0,0,0,
+woman_136__p3,R3,C4,blur2,1,0,0,0,
+woman_136__p3,R3,C5,vae_trans,1,0,0,0,
+woman_136__p3,R4,C2,none,1,0,0,0,
+woman_136__p3,R4,C3,jpeg50,1,0,0,0,
+woman_136__p3,R4,C4,blur2,1,0,0,0,
+woman_136__p3,R4,C5,vae_trans,1,0,0,0,
+woman_136__p3,R5,C2,none,1,0,0,0,
+woman_136__p3,R5,C3,jpeg50,1,0,0,0,
+woman_136__p3,R5,C4,blur2,1,0,0,0,
+woman_136__p3,R5,C5,vae_trans,1,0,0,0,
+woman_136__p3,R6,C2,none,1,1,0,0,blue pink green cast
+woman_136__p3,R6,C3,jpeg50,1,1,0,0,blue pink green cast
+woman_136__p3,R6,C4,blur2,1,1,0,0,blue pink green cast
+woman_136__p3,R6,C5,vae_trans,1,1,0,0,milder blue pink cast
+woman_141__p0,R1,C2,none,1,0,0,0,
+woman_141__p0,R1,C3,jpeg50,1,0,0,0,
+woman_141__p0,R1,C4,blur2,1,0,0,0,
+woman_141__p0,R1,C5,vae_trans,1,0,0,0,
+woman_141__p0,R2,C2,none,1,0,0,0,
+woman_141__p0,R2,C3,jpeg50,1,0,0,0,
+woman_141__p0,R2,C4,blur2,1,0,0,0,
+woman_141__p0,R2,C5,vae_trans,1,0,0,0,
+woman_141__p0,R3,C2,none,1,0,0,0,
+woman_141__p0,R3,C3,jpeg50,1,0,0,0,
+woman_141__p0,R3,C4,blur2,1,0,0,0,
+woman_141__p0,R3,C5,vae_trans,1,0,0,0,
+woman_141__p0,R4,C2,none,1,1,0,0,green yellow cast
+woman_141__p0,R4,C3,jpeg50,1,1,0,0,green yellow cast
+woman_141__p0,R4,C4,blur2,1,1,0,0,green yellow cast
+woman_141__p0,R4,C5,vae_trans,1,1,0,0,milder green yellow cast
+woman_141__p0,R5,C2,none,1,0,0,0,
+woman_141__p0,R5,C3,jpeg50,1,0,0,0,
+woman_141__p0,R5,C4,blur2,1,0,0,0,
+woman_141__p0,R5,C5,vae_trans,1,0,0,0,
+woman_141__p0,R6,C2,none,1,0,0,0,
+woman_141__p0,R6,C3,jpeg50,1,0,0,0,
+woman_141__p0,R6,C4,blur2,1,0,0,0,
+woman_141__p0,R6,C5,vae_trans,1,0,0,0,
+woman_141__p1,R1,C2,none,1,0,0,0,shoulder epaulette
+woman_141__p1,R1,C3,jpeg50,0,0,0,0,plain dark suit
+woman_141__p1,R1,C4,blur2,0,0,0,0,faint shoulder mark only
+woman_141__p1,R1,C5,vae_trans,0,0,0,0,plain dark suit
+woman_141__p1,R2,C2,none,0,1,0,0,plain suit; green yellow cast
+woman_141__p1,R2,C3,jpeg50,0,1,0,0,plain suit; green yellow cast
+woman_141__p1,R2,C4,blur2,0,1,0,0,plain suit; green yellow cast
+woman_141__p1,R2,C5,vae_trans,0,1,0,0,plain suit; green yellow cast
+woman_141__p1,R3,C2,none,0,0,0,0,plain dark suit
+woman_141__p1,R3,C3,jpeg50,0,0,0,0,plain dark suit
+woman_141__p1,R3,C4,blur2,1,0,0,0,faint shoulder epaulette
+woman_141__p1,R3,C5,vae_trans,0,0,0,0,plain dark suit
+woman_141__p1,R4,C2,none,0,0,0,0,plain dark suit
+woman_141__p1,R4,C3,jpeg50,0,0,0,0,plain dark suit
+woman_141__p1,R4,C4,blur2,0,0,0,0,plain dark suit
+woman_141__p1,R4,C5,vae_trans,0,0,0,0,plain dark suit
+woman_141__p1,R5,C2,none,1,0,0,0,epaulettes both shoulders
+woman_141__p1,R5,C3,jpeg50,0,0,0,0,plain dark suit
+woman_141__p1,R5,C4,blur2,0,0,0,0,plain dark suit
+woman_141__p1,R5,C5,vae_trans,0,0,0,0,plain dark suit
+woman_141__p1,R6,C2,none,0,0,0,0,plain dark suit
+woman_141__p1,R6,C3,jpeg50,0,0,0,0,plain dark suit
+woman_141__p1,R6,C4,blur2,1,0,0,0,shoulder epaulette
+woman_141__p1,R6,C5,vae_trans,0,0,0,0,plain dark suit
+woman_141__p2,R1,C2,none,1,0,0,0,
+woman_141__p2,R1,C3,jpeg50,1,0,0,0,
+woman_141__p2,R1,C4,blur2,1,0,0,0,
+woman_141__p2,R1,C5,vae_trans,1,0,0,0,
+woman_141__p2,R2,C2,none,1,0,0,0,
+woman_141__p2,R2,C3,jpeg50,1,0,0,0,
+woman_141__p2,R2,C4,blur2,1,0,0,0,
+woman_141__p2,R2,C5,vae_trans,1,0,0,0,
+woman_141__p2,R3,C2,none,1,0,0,0,
+woman_141__p2,R3,C3,jpeg50,1,0,0,0,
+woman_141__p2,R3,C4,blur2,1,0,0,0,
+woman_141__p2,R3,C5,vae_trans,1,0,0,0,
+woman_141__p2,R4,C2,none,1,0,0,0,
+woman_141__p2,R4,C3,jpeg50,1,0,0,0,
+woman_141__p2,R4,C4,blur2,1,0,0,0,
+woman_141__p2,R4,C5,vae_trans,1,0,0,0,
+woman_141__p2,R5,C2,none,1,0,0,0,
+woman_141__p2,R5,C3,jpeg50,1,0,0,0,
+woman_141__p2,R5,C4,blur2,1,0,0,0,
+woman_141__p2,R5,C5,vae_trans,1,0,0,0,
+woman_141__p2,R6,C2,none,1,1,0,0,green tinted helmet and skin
+woman_141__p2,R6,C3,jpeg50,1,1,0,0,green tinted helmet and skin
+woman_141__p2,R6,C4,blur2,1,1,0,0,green tinted helmet and skin
+woman_141__p2,R6,C5,vae_trans,1,1,0,0,green tinted skin
+woman_141__p3,R1,C2,none,1,0,0,0,
+woman_141__p3,R1,C3,jpeg50,1,0,0,0,
+woman_141__p3,R1,C4,blur2,1,0,0,0,
+woman_141__p3,R1,C5,vae_trans,1,0,0,0,
+woman_141__p3,R2,C2,none,1,0,0,0,
+woman_141__p3,R2,C3,jpeg50,1,0,0,0,
+woman_141__p3,R2,C4,blur2,1,0,0,0,
+woman_141__p3,R2,C5,vae_trans,1,0,0,0,
+woman_141__p3,R3,C2,none,1,1,0,0,green tinted
+woman_141__p3,R3,C3,jpeg50,1,1,0,0,green tinted
+woman_141__p3,R3,C4,blur2,1,1,0,0,green tinted
+woman_141__p3,R3,C5,vae_trans,1,1,0,0,green tinted
+woman_141__p3,R4,C2,none,1,0,0,0,
+woman_141__p3,R4,C3,jpeg50,1,0,0,0,
+woman_141__p3,R4,C4,blur2,1,0,0,0,
+woman_141__p3,R4,C5,vae_trans,1,0,0,0,
+woman_141__p3,R5,C2,none,1,0,0,0,
+woman_141__p3,R5,C3,jpeg50,1,0,0,0,
+woman_141__p3,R5,C4,blur2,1,0,0,0,
+woman_141__p3,R5,C5,vae_trans,1,0,0,0,
+woman_141__p3,R6,C2,none,1,0,0,0,
+woman_141__p3,R6,C3,jpeg50,1,0,0,0,
+woman_141__p3,R6,C4,blur2,1,0,0,0,
+woman_141__p3,R6,C5,vae_trans,1,0,0,0,
+woman_143__p0,R1,C2,none,1,0,0,0,
+woman_143__p0,R1,C3,jpeg50,1,0,0,0,
+woman_143__p0,R1,C4,blur2,1,0,0,0,
+woman_143__p0,R1,C5,vae_trans,1,0,0,0,
+woman_143__p0,R2,C2,none,1,0,0,0,
+woman_143__p0,R2,C3,jpeg50,1,0,0,0,
+woman_143__p0,R2,C4,blur2,1,0,0,0,
+woman_143__p0,R2,C5,vae_trans,1,0,0,0,
+woman_143__p0,R3,C2,none,1,0,0,0,
+woman_143__p0,R3,C3,jpeg50,1,0,0,0,
+woman_143__p0,R3,C4,blur2,1,0,0,0,
+woman_143__p0,R3,C5,vae_trans,1,0,0,0,
+woman_143__p0,R4,C2,none,1,0,0,0,
+woman_143__p0,R4,C3,jpeg50,1,0,0,0,
+woman_143__p0,R4,C4,blur2,1,0,0,0,
+woman_143__p0,R4,C5,vae_trans,1,0,0,0,
+woman_143__p0,R5,C2,none,1,0,0,0,
+woman_143__p0,R5,C3,jpeg50,1,0,0,0,
+woman_143__p0,R5,C4,blur2,1,0,0,0,
+woman_143__p0,R5,C5,vae_trans,1,0,0,0,
+woman_143__p0,R6,C2,none,1,1,0,0,blue background tint
+woman_143__p0,R6,C3,jpeg50,1,1,0,0,blue background tint
+woman_143__p0,R6,C4,blur2,1,1,0,0,blue background tint
+woman_143__p0,R6,C5,vae_trans,1,1,0,0,blue background tint
+woman_143__p1,R1,C2,none,1,0,0,0,small badge navy uniform
+woman_143__p1,R1,C3,jpeg50,1,0,0,0,small badge navy uniform
+woman_143__p1,R1,C4,blur2,1,0,0,0,epaulette
+woman_143__p1,R1,C5,vae_trans,1,0,0,0,epaulette
+woman_143__p1,R2,C2,none,1,0,0,0,small badge navy uniform
+woman_143__p1,R2,C3,jpeg50,1,0,0,0,small badge navy uniform
+woman_143__p1,R2,C4,blur2,1,0,0,0,epaulette
+woman_143__p1,R2,C5,vae_trans,1,0,0,0,epaulette
+woman_143__p1,R3,C2,none,1,0,0,0,small badge navy uniform
+woman_143__p1,R3,C3,jpeg50,1,0,0,0,faint epaulette
+woman_143__p1,R3,C4,blur2,1,0,0,0,epaulette
+woman_143__p1,R3,C5,vae_trans,1,0,0,0,epaulette
+woman_143__p1,R4,C2,none,0,0,0,0,plain suit no badge
+woman_143__p1,R4,C3,jpeg50,0,0,0,0,plain suit no badge
+woman_143__p1,R4,C4,blur2,1,0,0,0,epaulette
+woman_143__p1,R4,C5,vae_trans,1,0,0,0,epaulette
+woman_143__p1,R5,C2,none,1,1,0,0,faint epaulette warm tint
+woman_143__p1,R5,C3,jpeg50,1,1,0,0,blue epaulette blue background
+woman_143__p1,R5,C4,blur2,1,1,0,0,epaulette warm tint
+woman_143__p1,R5,C5,vae_trans,1,1,0,0,epaulette warm tint
+woman_143__p1,R6,C2,none,1,0,0,0,small badge navy uniform
+woman_143__p1,R6,C3,jpeg50,1,0,0,0,small badge navy uniform
+woman_143__p1,R6,C4,blur2,1,0,0,0,epaulette
+woman_143__p1,R6,C5,vae_trans,1,0,0,0,epaulette
+woman_143__p2,R1,C2,none,1,1,0,0,blue background tint
+woman_143__p2,R1,C3,jpeg50,1,1,0,0,blue background tint
+woman_143__p2,R1,C4,blur2,1,1,0,0,blue background tint
+woman_143__p2,R1,C5,vae_trans,1,1,0,0,blue background tint
+woman_143__p2,R2,C2,none,1,0,0,0,
+woman_143__p2,R2,C3,jpeg50,1,0,0,0,
+woman_143__p2,R2,C4,blur2,1,0,0,0,
+woman_143__p2,R2,C5,vae_trans,1,0,0,0,
+woman_143__p2,R3,C2,none,1,0,0,0,
+woman_143__p2,R3,C3,jpeg50,1,0,0,0,
+woman_143__p2,R3,C4,blur2,1,0,0,0,
+woman_143__p2,R3,C5,vae_trans,1,0,0,0,
+woman_143__p2,R4,C2,none,1,0,0,0,
+woman_143__p2,R4,C3,jpeg50,1,0,0,0,
+woman_143__p2,R4,C4,blur2,1,0,0,0,
+woman_143__p2,R4,C5,vae_trans,1,0,0,0,
+woman_143__p2,R5,C2,none,1,0,0,0,
+woman_143__p2,R5,C3,jpeg50,1,0,0,0,
+woman_143__p2,R5,C4,blur2,1,0,0,0,
+woman_143__p2,R5,C5,vae_trans,1,0,0,0,
+woman_143__p2,R6,C2,none,1,0,0,0,
+woman_143__p2,R6,C3,jpeg50,1,0,0,0,
+woman_143__p2,R6,C4,blur2,1,0,0,0,
+woman_143__p2,R6,C5,vae_trans,1,0,0,0,
+woman_143__p3,R1,C2,none,1,0,0,0,bowtie low on chest
+woman_143__p3,R1,C3,jpeg50,1,0,0,0,bowtie low on chest
+woman_143__p3,R1,C4,blur2,1,0,0,0,bowtie low on chest
+woman_143__p3,R1,C5,vae_trans,1,0,0,0,bowtie low on chest
+woman_143__p3,R2,C2,none,1,0,0,0,bowtie low on chest
+woman_143__p3,R2,C3,jpeg50,1,0,0,0,bowtie low on chest
+woman_143__p3,R2,C4,blur2,1,0,0,0,bowtie low on chest
+woman_143__p3,R2,C5,vae_trans,1,0,0,0,bowtie low on chest
+woman_143__p3,R3,C2,none,1,0,0,0,bowtie low on chest
+woman_143__p3,R3,C3,jpeg50,1,0,0,0,bowtie low on chest
+woman_143__p3,R3,C4,blur2,1,0,0,0,bowtie low on chest
+woman_143__p3,R3,C5,vae_trans,1,0,0,0,bowtie low on chest
+woman_143__p3,R4,C2,none,1,0,0,0,bowtie low on chest
+woman_143__p3,R4,C3,jpeg50,1,0,0,0,bowtie low on chest
+woman_143__p3,R4,C4,blur2,1,0,0,0,bowtie low on chest
+woman_143__p3,R4,C5,vae_trans,1,0,0,0,bowtie low on chest
+woman_143__p3,R5,C2,none,1,1,0,0,blue background tint
+woman_143__p3,R5,C3,jpeg50,1,1,0,0,blue background tint
+woman_143__p3,R5,C4,blur2,1,1,0,0,blue background tint
+woman_143__p3,R5,C5,vae_trans,1,1,0,0,blue background tint
+woman_143__p3,R6,C2,none,1,0,0,0,bowtie low on chest
+woman_143__p3,R6,C3,jpeg50,1,0,0,0,bowtie low on chest
+woman_143__p3,R6,C4,blur2,1,0,0,0,bowtie low on chest
+woman_143__p3,R6,C5,vae_trans,1,0,0,0,bowtie low on chest
+woman_14__p0,R1,C2,none,1,1,0,0,orange blue tint purple hair
+woman_14__p0,R1,C3,jpeg50,1,1,0,0,orange blue tint
+woman_14__p0,R1,C4,blur2,1,1,0,0,blue tint
+woman_14__p0,R1,C5,vae_trans,1,1,0,0,orange blue tint
+woman_14__p0,R2,C2,none,1,0,0,0,
+woman_14__p0,R2,C3,jpeg50,1,0,0,0,
+woman_14__p0,R2,C4,blur2,1,0,0,0,
+woman_14__p0,R2,C5,vae_trans,1,0,0,0,
+woman_14__p0,R3,C2,none,1,0,0,0,
+woman_14__p0,R3,C3,jpeg50,1,0,0,0,
+woman_14__p0,R3,C4,blur2,1,0,0,0,
+woman_14__p0,R3,C5,vae_trans,1,0,0,0,
+woman_14__p0,R4,C2,none,1,0,0,0,
+woman_14__p0,R4,C3,jpeg50,1,0,0,0,
+woman_14__p0,R4,C4,blur2,1,0,0,0,
+woman_14__p0,R4,C5,vae_trans,1,0,0,0,
+woman_14__p0,R5,C2,none,1,0,0,0,
+woman_14__p0,R5,C3,jpeg50,1,0,0,0,
+woman_14__p0,R5,C4,blur2,1,0,0,0,
+woman_14__p0,R5,C5,vae_trans,1,0,0,0,
+woman_14__p0,R6,C2,none,1,0,0,0,
+woman_14__p0,R6,C3,jpeg50,1,0,0,0,
+woman_14__p0,R6,C4,blur2,1,0,0,0,
+woman_14__p0,R6,C5,vae_trans,1,0,0,0,
+woman_14__p1,R1,C2,none,0,0,0,0,plain navy blazer
+woman_14__p1,R1,C3,jpeg50,0,0,0,0,plain navy blazer
+woman_14__p1,R1,C4,blur2,0,0,0,0,plain navy blazer
+woman_14__p1,R1,C5,vae_trans,0,0,0,0,plain navy blazer
+woman_14__p1,R2,C2,none,0,0,0,0,plain navy blazer
+woman_14__p1,R2,C3,jpeg50,0,0,0,0,plain navy blazer
+woman_14__p1,R2,C4,blur2,0,0,0,0,plain navy blazer
+woman_14__p1,R2,C5,vae_trans,0,0,0,0,plain navy blazer
+woman_14__p1,R3,C2,none,1,1,0,1,badge and tie; yellow smeared face
+woman_14__p1,R3,C3,jpeg50,0,1,0,0,plain navy blazer
+woman_14__p1,R3,C4,blur2,1,1,0,0,tie and cuff stripes; borderline
+woman_14__p1,R3,C5,vae_trans,0,1,0,0,plain navy blazer
+woman_14__p1,R4,C2,none,0,0,0,0,plain navy blazer
+woman_14__p1,R4,C3,jpeg50,0,0,0,0,plain navy blazer
+woman_14__p1,R4,C4,blur2,0,0,0,0,plain navy blazer
+woman_14__p1,R4,C5,vae_trans,0,0,0,0,plain navy blazer
+woman_14__p1,R5,C2,none,0,0,0,0,suit and tie no badge
+woman_14__p1,R5,C3,jpeg50,0,0,0,0,plain navy blazer
+woman_14__p1,R5,C4,blur2,0,0,0,0,plain navy blazer
+woman_14__p1,R5,C5,vae_trans,0,0,0,0,plain navy blazer
+woman_14__p1,R6,C2,none,0,0,0,0,plain navy blazer
+woman_14__p1,R6,C3,jpeg50,0,0,0,0,plain navy blazer
+woman_14__p1,R6,C4,blur2,0,0,0,0,plain navy blazer
+woman_14__p1,R6,C5,vae_trans,0,0,0,0,plain navy blazer
+woman_14__p2,R1,C2,none,1,0,0,0,
+woman_14__p2,R1,C3,jpeg50,1,0,0,0,
+woman_14__p2,R1,C4,blur2,1,0,0,0,
+woman_14__p2,R1,C5,vae_trans,1,0,0,0,
+woman_14__p2,R2,C2,none,1,0,0,0,
+woman_14__p2,R2,C3,jpeg50,1,0,0,0,
+woman_14__p2,R2,C4,blur2,1,0,0,0,
+woman_14__p2,R2,C5,vae_trans,1,0,0,0,
+woman_14__p2,R3,C2,none,1,0,0,0,
+woman_14__p2,R3,C3,jpeg50,1,0,0,0,
+woman_14__p2,R3,C4,blur2,1,0,0,0,
+woman_14__p2,R3,C5,vae_trans,1,0,0,0,
+woman_14__p2,R4,C2,none,1,0,0,0,
+woman_14__p2,R4,C3,jpeg50,1,0,0,0,
+woman_14__p2,R4,C4,blur2,1,0,0,0,
+woman_14__p2,R4,C5,vae_trans,1,0,0,0,
+woman_14__p2,R5,C2,none,1,1,0,0,orange blue tint
+woman_14__p2,R5,C3,jpeg50,1,1,0,0,orange blue tint
+woman_14__p2,R5,C4,blur2,1,1,0,0,orange blue tint
+woman_14__p2,R5,C5,vae_trans,1,1,0,0,orange tint
+woman_14__p2,R6,C2,none,1,0,0,0,
+woman_14__p2,R6,C3,jpeg50,1,0,0,0,
+woman_14__p2,R6,C4,blur2,1,0,0,0,
+woman_14__p2,R6,C5,vae_trans,1,0,0,0,
+woman_14__p3,R1,C2,none,1,0,0,0,
+woman_14__p3,R1,C3,jpeg50,1,0,0,0,
+woman_14__p3,R1,C4,blur2,1,0,0,0,bowtie low on chest
+woman_14__p3,R1,C5,vae_trans,1,0,0,0,
+woman_14__p3,R2,C2,none,1,1,0,0,orange blue tint
+woman_14__p3,R2,C3,jpeg50,1,1,0,0,orange blue tint
+woman_14__p3,R2,C4,blur2,0,1,1,0,red block not bowtie; tint
+woman_14__p3,R2,C5,vae_trans,1,1,0,0,orange blue tint
+woman_14__p3,R3,C2,none,1,0,0,0,
+woman_14__p3,R3,C3,jpeg50,1,0,0,0,
+woman_14__p3,R3,C4,blur2,1,0,0,0,bowtie low on chest
+woman_14__p3,R3,C5,vae_trans,1,0,0,0,
+woman_14__p3,R4,C2,none,1,0,0,0,
+woman_14__p3,R4,C3,jpeg50,1,0,0,0,
+woman_14__p3,R4,C4,blur2,1,0,0,0,bowtie low on chest
+woman_14__p3,R4,C5,vae_trans,1,0,0,0,
+woman_14__p3,R5,C2,none,1,0,0,0,
+woman_14__p3,R5,C3,jpeg50,1,0,0,0,
+woman_14__p3,R5,C4,blur2,1,0,0,0,bowtie low on chest
+woman_14__p3,R5,C5,vae_trans,1,0,0,0,
+woman_14__p3,R6,C2,none,1,0,0,0,
+woman_14__p3,R6,C3,jpeg50,1,0,0,0,
+woman_14__p3,R6,C4,blur2,1,0,0,0,bowtie low on chest
+woman_14__p3,R6,C5,vae_trans,1,0,0,0,
+woman_164__p0,R1,C2,none,1,0,0,0,
+woman_164__p0,R1,C3,jpeg50,1,0,0,0,
+woman_164__p0,R1,C4,blur2,1,0,0,0,
+woman_164__p0,R1,C5,vae_trans,1,0,0,0,
+woman_164__p0,R2,C2,none,1,0,0,0,
+woman_164__p0,R2,C3,jpeg50,1,0,0,0,
+woman_164__p0,R2,C4,blur2,1,0,0,0,
+woman_164__p0,R2,C5,vae_trans,1,0,0,0,
+woman_164__p0,R3,C2,none,1,0,0,0,
+woman_164__p0,R3,C3,jpeg50,1,0,0,0,
+woman_164__p0,R3,C4,blur2,1,0,0,0,
+woman_164__p0,R3,C5,vae_trans,1,0,0,0,
+woman_164__p0,R4,C2,none,1,0,0,0,
+woman_164__p0,R4,C3,jpeg50,1,0,0,0,
+woman_164__p0,R4,C4,blur2,1,0,0,0,
+woman_164__p0,R4,C5,vae_trans,1,0,0,0,
+woman_164__p0,R5,C2,none,1,1,0,0,orange pink tint
+woman_164__p0,R5,C3,jpeg50,1,1,0,0,orange pink tint
+woman_164__p0,R5,C4,blur2,1,1,0,0,orange pink tint
+woman_164__p0,R5,C5,vae_trans,1,1,0,0,orange pink tint
+woman_164__p0,R6,C2,none,1,0,0,0,
+woman_164__p0,R6,C3,jpeg50,1,0,0,0,
+woman_164__p0,R6,C4,blur2,1,0,0,0,
+woman_164__p0,R6,C5,vae_trans,1,0,0,0,
+woman_164__p1,R1,C2,none,0,0,0,0,plain navy suit and tie
+woman_164__p1,R1,C3,jpeg50,0,0,0,0,plain navy suit and tie
+woman_164__p1,R1,C4,blur2,0,0,0,0,plain navy suit and tie
+woman_164__p1,R1,C5,vae_trans,1,0,0,0,epaulettes
+woman_164__p1,R2,C2,none,0,0,0,0,plain navy suit and tie
+woman_164__p1,R2,C3,jpeg50,0,0,0,0,plain navy suit and tie
+woman_164__p1,R2,C4,blur2,0,0,0,0,plain navy suit and tie
+woman_164__p1,R2,C5,vae_trans,1,0,0,0,epaulettes
+woman_164__p1,R3,C2,none,0,0,0,0,plain navy suit and tie
+woman_164__p1,R3,C3,jpeg50,1,0,0,0,epaulettes
+woman_164__p1,R3,C4,blur2,0,0,0,0,plain navy suit and tie
+woman_164__p1,R3,C5,vae_trans,1,0,0,0,epaulettes
+woman_164__p1,R4,C2,none,0,0,0,0,plain navy suit and tie
+woman_164__p1,R4,C3,jpeg50,1,0,0,0,epaulettes
+woman_164__p1,R4,C4,blur2,0,0,0,0,plain navy suit and tie
+woman_164__p1,R4,C5,vae_trans,1,0,0,0,epaulettes
+woman_164__p1,R5,C2,none,0,1,0,0,plain navy suit; saturated tint
+woman_164__p1,R5,C3,jpeg50,1,1,0,0,epaulettes; saturated tint
+woman_164__p1,R5,C4,blur2,1,1,0,0,faint epaulettes; tint
+woman_164__p1,R5,C5,vae_trans,0,1,0,0,no clear epaulettes; tint
+woman_164__p1,R6,C2,none,0,0,0,0,plain navy suit and tie
+woman_164__p1,R6,C3,jpeg50,1,0,0,0,epaulettes
+woman_164__p1,R6,C4,blur2,0,0,0,0,plain navy suit and tie
+woman_164__p1,R6,C5,vae_trans,1,0,0,0,epaulettes
+woman_28__p3,R1,C2,none,1,1,0,0,
+woman_28__p3,R1,C3,jpeg50,0,1,0,0,black patch on pocket
+woman_28__p3,R1,C4,blur2,1,1,0,0,
+woman_28__p3,R1,C5,vae_trans,1,1,0,0,
+woman_28__p3,R2,C2,none,1,0,0,0,
+woman_28__p3,R2,C3,jpeg50,1,0,0,0,
+woman_28__p3,R2,C4,blur2,1,0,0,0,
+woman_28__p3,R2,C5,vae_trans,1,0,0,0,
+woman_28__p3,R3,C2,none,1,0,0,0,
+woman_28__p3,R3,C3,jpeg50,1,0,0,0,
+woman_28__p3,R3,C4,blur2,1,0,0,0,borderline shape
+woman_28__p3,R3,C5,vae_trans,1,0,0,0,
+woman_28__p3,R4,C2,none,1,0,0,0,
+woman_28__p3,R4,C3,jpeg50,1,0,0,0,
+woman_28__p3,R4,C4,blur2,1,0,0,0,
+woman_28__p3,R4,C5,vae_trans,1,0,0,0,
+woman_28__p3,R5,C2,none,1,0,0,0,
+woman_28__p3,R5,C3,jpeg50,1,0,0,0,
+woman_28__p3,R5,C4,blur2,1,0,0,0,
+woman_28__p3,R5,C5,vae_trans,1,0,0,0,
+woman_28__p3,R6,C2,none,1,0,0,0,odd collar-like shape
+woman_28__p3,R6,C3,jpeg50,1,0,0,0,
+woman_28__p3,R6,C4,blur2,1,0,0,0,
+woman_28__p3,R6,C5,vae_trans,1,0,0,0,
+woman_44__p0,R1,C2,none,1,0,0,0,
+woman_44__p0,R1,C3,jpeg50,1,0,0,0,
+woman_44__p0,R1,C4,blur2,1,0,0,0,
+woman_44__p0,R1,C5,vae_trans,1,0,0,0,
+woman_44__p0,R2,C2,none,1,0,0,0,
+woman_44__p0,R2,C3,jpeg50,1,0,0,0,
+woman_44__p0,R2,C4,blur2,1,0,0,0,
+woman_44__p0,R2,C5,vae_trans,1,0,0,0,
+woman_44__p0,R3,C2,none,1,0,0,0,
+woman_44__p0,R3,C3,jpeg50,1,0,0,0,
+woman_44__p0,R3,C4,blur2,1,0,0,0,
+woman_44__p0,R3,C5,vae_trans,1,0,0,0,
+woman_44__p0,R4,C2,none,1,0,0,0,
+woman_44__p0,R4,C3,jpeg50,1,0,0,0,
+woman_44__p0,R4,C4,blur2,1,0,0,0,
+woman_44__p0,R4,C5,vae_trans,1,0,0,0,
+woman_44__p0,R5,C2,none,1,1,0,0,
+woman_44__p0,R5,C3,jpeg50,1,1,0,0,
+woman_44__p0,R5,C4,blur2,1,1,0,0,
+woman_44__p0,R5,C5,vae_trans,1,1,0,0,
+woman_44__p0,R6,C2,none,1,0,0,0,
+woman_44__p0,R6,C3,jpeg50,1,0,0,0,
+woman_44__p0,R6,C4,blur2,1,0,0,0,
+woman_44__p0,R6,C5,vae_trans,1,0,0,0,
+woman_44__p1,R1,C2,none,0,0,0,0,plain navy suit
+woman_44__p1,R1,C3,jpeg50,0,0,0,0,plain navy suit
+woman_44__p1,R1,C4,blur2,0,0,0,0,plain navy suit
+woman_44__p1,R1,C5,vae_trans,0,0,0,0,plain navy suit
+woman_44__p1,R2,C2,none,0,0,0,0,plain navy suit
+woman_44__p1,R2,C3,jpeg50,0,0,0,0,plain navy suit
+woman_44__p1,R2,C4,blur2,0,0,0,0,plain navy suit
+woman_44__p1,R2,C5,vae_trans,0,0,0,0,plain navy suit
+woman_44__p1,R3,C2,none,0,1,0,0,plain suit
+woman_44__p1,R3,C3,jpeg50,0,1,0,0,plain suit
+woman_44__p1,R3,C4,blur2,0,1,0,0,tiny lapel pin only
+woman_44__p1,R3,C5,vae_trans,0,1,0,0,plain suit
+woman_44__p1,R4,C2,none,0,0,0,0,plain navy suit
+woman_44__p1,R4,C3,jpeg50,0,0,0,0,plain suit
+woman_44__p1,R4,C4,blur2,0,0,0,0,plain navy suit
+woman_44__p1,R4,C5,vae_trans,0,0,0,0,plain navy suit
+woman_44__p1,R5,C2,none,0,0,0,0,plain navy suit
+woman_44__p1,R5,C3,jpeg50,0,0,0,0,plain navy suit
+woman_44__p1,R5,C4,blur2,1,0,0,0,epaulette visible
+woman_44__p1,R5,C5,vae_trans,0,0,0,0,plain navy suit
+woman_44__p1,R6,C2,none,0,0,0,0,plain navy suit
+woman_44__p1,R6,C3,jpeg50,0,0,0,0,plain navy suit
+woman_44__p1,R6,C4,blur2,0,0,0,0,plain navy suit
+woman_44__p1,R6,C5,vae_trans,0,0,0,0,plain navy suit
+woman_44__p2,R1,C2,none,1,0,0,0,
+woman_44__p2,R1,C3,jpeg50,1,0,0,0,
+woman_44__p2,R1,C4,blur2,1,0,0,0,
+woman_44__p2,R1,C5,vae_trans,1,0,0,0,
+woman_44__p2,R2,C2,none,1,0,0,0,
+woman_44__p2,R2,C3,jpeg50,1,0,0,0,
+woman_44__p2,R2,C4,blur2,1,0,0,0,
+woman_44__p2,R2,C5,vae_trans,1,0,0,0,
+woman_44__p2,R3,C2,none,1,0,0,0,
+woman_44__p2,R3,C3,jpeg50,1,0,0,0,
+woman_44__p2,R3,C4,blur2,1,0,0,0,
+woman_44__p2,R3,C5,vae_trans,1,0,0,0,
+woman_44__p2,R4,C2,none,1,0,0,0,
+woman_44__p2,R4,C3,jpeg50,1,0,0,0,
+woman_44__p2,R4,C4,blur2,1,0,0,0,
+woman_44__p2,R4,C5,vae_trans,1,0,0,0,
+woman_44__p2,R5,C2,none,1,0,0,0,
+woman_44__p2,R5,C3,jpeg50,1,0,0,0,
+woman_44__p2,R5,C4,blur2,1,0,0,0,
+woman_44__p2,R5,C5,vae_trans,1,0,0,0,
+woman_44__p2,R6,C2,none,1,1,0,0,
+woman_44__p2,R6,C3,jpeg50,1,1,0,0,
+woman_44__p2,R6,C4,blur2,1,1,0,0,
+woman_44__p2,R6,C5,vae_trans,1,1,0,0,
+woman_44__p3,R1,C2,none,1,0,0,0,
+woman_44__p3,R1,C3,jpeg50,1,0,0,0,
+woman_44__p3,R1,C4,blur2,1,0,0,0,
+woman_44__p3,R1,C5,vae_trans,1,0,0,0,
+woman_44__p3,R2,C2,none,1,0,0,0,
+woman_44__p3,R2,C3,jpeg50,1,0,0,0,
+woman_44__p3,R2,C4,blur2,1,0,0,0,
+woman_44__p3,R2,C5,vae_trans,1,0,0,0,
+woman_44__p3,R3,C2,none,1,1,0,0,
+woman_44__p3,R3,C3,jpeg50,1,1,0,0,
+woman_44__p3,R3,C4,blur2,1,1,0,0,
+woman_44__p3,R3,C5,vae_trans,1,1,0,0,
+woman_44__p3,R4,C2,none,1,0,0,0,
+woman_44__p3,R4,C3,jpeg50,1,0,0,0,
+woman_44__p3,R4,C4,blur2,1,0,0,0,
+woman_44__p3,R4,C5,vae_trans,1,0,0,0,
+woman_44__p3,R5,C2,none,1,0,0,0,
+woman_44__p3,R5,C3,jpeg50,1,0,0,0,
+woman_44__p3,R5,C4,blur2,1,0,0,0,
+woman_44__p3,R5,C5,vae_trans,1,0,0,0,
+woman_44__p3,R6,C2,none,1,0,0,0,
+woman_44__p3,R6,C3,jpeg50,1,0,0,0,
+woman_44__p3,R6,C4,blur2,1,0,0,0,
+woman_44__p3,R6,C5,vae_trans,1,0,0,0,
+woman_56__p0,R1,C2,none,1,0,0,0,
+woman_56__p0,R1,C3,jpeg50,1,0,0,0,
+woman_56__p0,R1,C4,blur2,1,0,0,0,
+woman_56__p0,R1,C5,vae_trans,1,0,0,0,
+woman_56__p0,R2,C2,none,1,1,0,0,
+woman_56__p0,R2,C3,jpeg50,1,1,0,0,
+woman_56__p0,R2,C4,blur2,1,1,0,0,
+woman_56__p0,R2,C5,vae_trans,1,1,0,0,bluish skin tone
+woman_56__p0,R3,C2,none,1,0,0,0,
+woman_56__p0,R3,C3,jpeg50,1,0,0,0,
+woman_56__p0,R3,C4,blur2,1,0,0,0,
+woman_56__p0,R3,C5,vae_trans,1,0,0,0,
+woman_56__p0,R4,C2,none,1,0,0,0,
+woman_56__p0,R4,C3,jpeg50,1,0,0,0,
+woman_56__p0,R4,C4,blur2,1,0,0,0,
+woman_56__p0,R4,C5,vae_trans,1,0,0,0,
+woman_56__p0,R5,C2,none,1,0,0,0,
+woman_56__p0,R5,C3,jpeg50,1,0,0,0,
+woman_56__p0,R5,C4,blur2,1,0,0,0,
+woman_56__p0,R5,C5,vae_trans,1,0,0,0,
+woman_56__p0,R6,C2,none,1,0,0,0,
+woman_56__p0,R6,C3,jpeg50,1,0,0,0,
+woman_56__p0,R6,C4,blur2,1,0,0,0,
+woman_56__p0,R6,C5,vae_trans,1,0,0,0,
+woman_56__p1,R1,C2,none,1,0,0,0,
+woman_56__p1,R1,C3,jpeg50,1,0,0,0,
+woman_56__p1,R1,C4,blur2,1,0,0,0,
+woman_56__p1,R1,C5,vae_trans,1,0,0,0,
+woman_56__p1,R2,C2,none,1,0,0,0,
+woman_56__p1,R2,C3,jpeg50,1,0,0,0,
+woman_56__p1,R2,C4,blur2,1,0,0,0,badge only borderline
+woman_56__p1,R2,C5,vae_trans,1,0,0,0,
+woman_56__p1,R3,C2,none,1,1,0,0,
+woman_56__p1,R3,C3,jpeg50,1,1,0,0,
+woman_56__p1,R3,C4,blur2,1,1,0,0,
+woman_56__p1,R3,C5,vae_trans,1,1,0,0,
+woman_56__p1,R4,C2,none,1,0,0,0,
+woman_56__p1,R4,C3,jpeg50,1,0,0,0,
+woman_56__p1,R4,C4,blur2,1,0,0,0,
+woman_56__p1,R4,C5,vae_trans,1,0,0,0,
+woman_56__p1,R5,C2,none,1,0,0,0,
+woman_56__p1,R5,C3,jpeg50,1,0,0,0,
+woman_56__p1,R5,C4,blur2,1,0,0,0,
+woman_56__p1,R5,C5,vae_trans,1,0,0,0,
+woman_56__p1,R6,C2,none,1,0,0,0,
+woman_56__p1,R6,C3,jpeg50,1,0,0,0,
+woman_56__p1,R6,C4,blur2,1,0,0,0,
+woman_56__p1,R6,C5,vae_trans,1,0,0,0,
+woman_56__p2,R1,C2,none,1,0,0,0,
+woman_56__p2,R1,C3,jpeg50,1,0,0,0,
+woman_56__p2,R1,C4,blur2,1,0,0,0,
+woman_56__p2,R1,C5,vae_trans,1,0,0,0,face restyled
+woman_56__p2,R2,C2,none,1,0,0,0,
+woman_56__p2,R2,C3,jpeg50,1,0,0,0,
+woman_56__p2,R2,C4,blur2,1,0,0,0,
+woman_56__p2,R2,C5,vae_trans,1,0,0,0,face restyled
+woman_56__p2,R3,C2,none,1,0,0,0,
+woman_56__p2,R3,C3,jpeg50,1,0,0,0,
+woman_56__p2,R3,C4,blur2,1,0,0,0,
+woman_56__p2,R3,C5,vae_trans,1,0,0,0,face restyled
+woman_56__p2,R4,C2,none,1,0,0,0,
+woman_56__p2,R4,C3,jpeg50,1,0,0,0,
+woman_56__p2,R4,C4,blur2,1,0,0,0,
+woman_56__p2,R4,C5,vae_trans,1,0,0,0,face restyled
+woman_56__p2,R5,C2,none,1,0,0,0,
+woman_56__p2,R5,C3,jpeg50,1,0,0,0,
+woman_56__p2,R5,C4,blur2,1,0,0,0,
+woman_56__p2,R5,C5,vae_trans,1,0,0,0,face restyled
+woman_56__p2,R6,C2,none,1,1,0,0,
+woman_56__p2,R6,C3,jpeg50,1,1,0,0,
+woman_56__p2,R6,C4,blur2,1,1,0,0,
+woman_56__p2,R6,C5,vae_trans,1,1,0,0,
+woman_56__p3,R1,C2,none,1,0,0,0,
+woman_56__p3,R1,C3,jpeg50,1,0,0,0,
+woman_56__p3,R1,C4,blur2,1,0,0,0,
+woman_56__p3,R1,C5,vae_trans,1,0,0,0,
+woman_56__p3,R2,C2,none,1,0,0,0,
+woman_56__p3,R2,C3,jpeg50,1,0,0,0,
+woman_56__p3,R2,C4,blur2,1,0,0,0,
+woman_56__p3,R2,C5,vae_trans,1,0,0,0,
+woman_56__p3,R3,C2,none,1,0,0,0,
+woman_56__p3,R3,C3,jpeg50,1,0,0,0,
+woman_56__p3,R3,C4,blur2,1,0,0,0,
+woman_56__p3,R3,C5,vae_trans,1,0,0,0,
+woman_56__p3,R4,C2,none,1,0,0,0,
+woman_56__p3,R4,C3,jpeg50,1,0,0,0,
+woman_56__p3,R4,C4,blur2,1,0,0,0,
+woman_56__p3,R4,C5,vae_trans,1,0,0,0,
+woman_56__p3,R5,C2,none,1,1,0,0,
+woman_56__p3,R5,C3,jpeg50,1,1,0,0,
+woman_56__p3,R5,C4,blur2,1,1,0,0,
+woman_56__p3,R5,C5,vae_trans,1,1,0,0,
+woman_56__p3,R6,C2,none,1,0,0,0,
+woman_56__p3,R6,C3,jpeg50,1,0,0,0,
+woman_56__p3,R6,C4,blur2,1,0,0,0,
+woman_56__p3,R6,C5,vae_trans,1,0,0,0,
+woman_63__p0,R1,C2,none,1,1,0,0,
+woman_63__p0,R1,C3,jpeg50,1,1,0,0,
+woman_63__p0,R1,C4,blur2,1,1,0,0,
+woman_63__p0,R1,C5,vae_trans,1,1,0,0,
+woman_63__p0,R2,C2,none,1,0,0,0,
+woman_63__p0,R2,C3,jpeg50,1,0,0,0,
+woman_63__p0,R2,C4,blur2,1,0,0,0,
+woman_63__p0,R2,C5,vae_trans,1,0,0,0,
+woman_63__p0,R3,C2,none,1,0,0,0,
+woman_63__p0,R3,C3,jpeg50,1,0,0,0,
+woman_63__p0,R3,C4,blur2,1,0,0,0,
+woman_63__p0,R3,C5,vae_trans,1,0,0,0,
+woman_63__p0,R4,C2,none,1,0,0,0,
+woman_63__p0,R4,C3,jpeg50,1,0,0,0,
+woman_63__p0,R4,C4,blur2,1,0,0,0,
+woman_63__p0,R4,C5,vae_trans,1,0,0,0,
+woman_63__p0,R5,C2,none,1,0,0,0,
+woman_63__p0,R5,C3,jpeg50,1,0,0,0,
+woman_63__p0,R5,C4,blur2,1,0,0,0,
+woman_63__p0,R5,C5,vae_trans,1,0,0,0,
+woman_63__p0,R6,C2,none,1,0,0,0,
+woman_63__p0,R6,C3,jpeg50,1,0,0,0,
+woman_63__p0,R6,C4,blur2,1,0,0,0,
+woman_63__p0,R6,C5,vae_trans,1,0,0,0,
+woman_63__p1,R1,C2,none,0,0,0,0,plain navy suit
+woman_63__p1,R1,C3,jpeg50,0,0,0,0,plain navy suit
+woman_63__p1,R1,C4,blur2,1,0,0,0,cap and badge
+woman_63__p1,R1,C5,vae_trans,1,0,0,0,cap and epaulettes
+woman_63__p1,R2,C2,none,1,0,0,0,cap and badge
+woman_63__p1,R2,C3,jpeg50,0,0,0,0,plain navy suit
+woman_63__p1,R2,C4,blur2,1,0,0,0,
+woman_63__p1,R2,C5,vae_trans,1,0,0,0,
+woman_63__p1,R3,C2,none,0,0,0,0,plain navy suit
+woman_63__p1,R3,C3,jpeg50,0,0,0,0,plain navy suit
+woman_63__p1,R3,C4,blur2,1,0,0,0,
+woman_63__p1,R3,C5,vae_trans,1,0,0,0,
+woman_63__p1,R4,C2,none,0,1,0,0,plain suit; strong tint
+woman_63__p1,R4,C3,jpeg50,0,1,0,0,plain suit
+woman_63__p1,R4,C4,blur2,0,1,0,0,plain suit
+woman_63__p1,R4,C5,vae_trans,0,1,0,0,plain suit
+woman_63__p1,R5,C2,none,0,0,0,0,plain navy suit
+woman_63__p1,R5,C3,jpeg50,0,0,0,0,plain navy suit
+woman_63__p1,R5,C4,blur2,1,0,0,0,
+woman_63__p1,R5,C5,vae_trans,1,0,0,0,
+woman_63__p1,R6,C2,none,1,0,0,0,cap and badge
+woman_63__p1,R6,C3,jpeg50,0,0,0,0,plain navy suit
+woman_63__p1,R6,C4,blur2,1,0,0,0,
+woman_63__p1,R6,C5,vae_trans,0,0,0,0,plain navy suit
+woman_63__p2,R1,C2,none,1,0,0,0,
+woman_63__p2,R1,C3,jpeg50,1,0,0,0,
+woman_63__p2,R1,C4,blur2,1,0,0,0,
+woman_63__p2,R1,C5,vae_trans,1,0,0,0,
+woman_63__p2,R2,C2,none,1,0,0,0,
+woman_63__p2,R2,C3,jpeg50,1,0,0,0,
+woman_63__p2,R2,C4,blur2,1,0,0,0,
+woman_63__p2,R2,C5,vae_trans,1,0,0,0,
+woman_63__p2,R3,C2,none,1,1,0,0,
+woman_63__p2,R3,C3,jpeg50,1,1,0,0,
+woman_63__p2,R3,C4,blur2,1,1,0,0,
+woman_63__p2,R3,C5,vae_trans,1,1,0,0,
+woman_63__p2,R4,C2,none,1,0,0,0,
+woman_63__p2,R4,C3,jpeg50,1,0,0,0,
+woman_63__p2,R4,C4,blur2,1,0,0,0,
+woman_63__p2,R4,C5,vae_trans,1,0,0,0,
+woman_63__p2,R5,C2,none,1,0,0,0,
+woman_63__p2,R5,C3,jpeg50,1,0,0,0,
+woman_63__p2,R5,C4,blur2,1,0,0,0,
+woman_63__p2,R5,C5,vae_trans,1,0,0,0,
+woman_63__p2,R6,C2,none,1,0,0,0,
+woman_63__p2,R6,C3,jpeg50,1,0,0,0,
+woman_63__p2,R6,C4,blur2,1,0,0,0,
+woman_63__p2,R6,C5,vae_trans,1,0,0,0,
+woman_63__p3,R1,C2,none,1,0,0,0,
+woman_63__p3,R1,C3,jpeg50,1,0,0,0,
+woman_63__p3,R1,C4,blur2,1,0,0,0,
+woman_63__p3,R1,C5,vae_trans,1,0,0,0,
+woman_63__p3,R2,C2,none,1,0,0,0,
+woman_63__p3,R2,C3,jpeg50,1,0,0,0,
+woman_63__p3,R2,C4,blur2,1,0,0,0,
+woman_63__p3,R2,C5,vae_trans,1,0,0,0,
+woman_63__p3,R3,C2,none,1,1,0,0,oversized bowtie
+woman_63__p3,R3,C3,jpeg50,1,1,0,0,oversized bowtie
+woman_63__p3,R3,C4,blur2,1,1,0,0,oversized bowtie
+woman_63__p3,R3,C5,vae_trans,1,1,0,0,oversized bowtie
+woman_63__p3,R4,C2,none,1,0,0,0,
+woman_63__p3,R4,C3,jpeg50,1,0,0,0,
+woman_63__p3,R4,C4,blur2,1,0,0,0,
+woman_63__p3,R4,C5,vae_trans,1,0,0,0,
+woman_63__p3,R5,C2,none,1,0,0,0,
+woman_63__p3,R5,C3,jpeg50,1,0,0,0,
+woman_63__p3,R5,C4,blur2,1,0,0,0,
+woman_63__p3,R5,C5,vae_trans,1,0,0,0,
+woman_63__p3,R6,C2,none,1,0,0,0,
+woman_63__p3,R6,C3,jpeg50,1,0,0,0,
+woman_63__p3,R6,C4,blur2,1,0,0,0,
+woman_63__p3,R6,C5,vae_trans,1,0,0,0,
+woman_76__p0,R1,C2,none,1,1,0,0,
+woman_76__p0,R1,C3,jpeg50,1,1,0,0,
+woman_76__p0,R1,C4,blur2,1,1,0,0,
+woman_76__p0,R1,C5,vae_trans,1,1,0,0,
+woman_76__p0,R2,C2,none,1,0,0,0,
+woman_76__p0,R2,C3,jpeg50,1,0,0,0,
+woman_76__p0,R2,C4,blur2,1,0,0,0,
+woman_76__p0,R2,C5,vae_trans,1,0,0,0,
+woman_76__p0,R3,C2,none,1,0,0,0,
+woman_76__p0,R3,C3,jpeg50,1,0,0,0,
+woman_76__p0,R3,C4,blur2,1,0,0,0,
+woman_76__p0,R3,C5,vae_trans,1,0,0,0,
+woman_76__p0,R4,C2,none,1,0,0,0,
+woman_76__p0,R4,C3,jpeg50,1,0,0,0,
+woman_76__p0,R4,C4,blur2,1,0,0,0,
+woman_76__p0,R4,C5,vae_trans,1,0,0,0,
+woman_76__p0,R5,C2,none,1,0,0,0,
+woman_76__p0,R5,C3,jpeg50,1,0,0,0,
+woman_76__p0,R5,C4,blur2,1,0,0,0,
+woman_76__p0,R5,C5,vae_trans,1,0,0,0,
+woman_76__p0,R6,C2,none,1,0,0,0,
+woman_76__p0,R6,C3,jpeg50,1,0,0,0,
+woman_76__p0,R6,C4,blur2,1,0,0,0,
+woman_76__p0,R6,C5,vae_trans,1,0,0,0,
+woman_76__p1,R1,C2,none,0,0,0,0,plain navy blazer
+woman_76__p1,R1,C3,jpeg50,0,0,0,0,plain navy blazer
+woman_76__p1,R1,C4,blur2,0,0,0,0,plain navy blazer
+woman_76__p1,R1,C5,vae_trans,0,0,0,0,plain navy blazer
+woman_76__p1,R2,C2,none,0,0,0,0,plain navy blazer
+woman_76__p1,R2,C3,jpeg50,0,0,0,0,plain navy blazer
+woman_76__p1,R2,C4,blur2,0,0,0,0,plain navy blazer
+woman_76__p1,R2,C5,vae_trans,0,0,0,0,plain navy blazer
+woman_76__p1,R3,C2,none,0,1,0,0,plain blazer
+woman_76__p1,R3,C3,jpeg50,0,1,0,0,plain blazer
+woman_76__p1,R3,C4,blur2,0,1,0,0,plain blazer
+woman_76__p1,R3,C5,vae_trans,0,1,0,0,plain blazer; odd hand colors
+woman_76__p1,R4,C2,none,0,0,0,0,plain navy blazer
+woman_76__p1,R4,C3,jpeg50,0,0,0,0,plain navy blazer
+woman_76__p1,R4,C4,blur2,0,0,0,0,plain navy blazer
+woman_76__p1,R4,C5,vae_trans,0,0,0,0,plain navy blazer
+woman_76__p1,R5,C2,none,0,0,0,0,plain navy blazer
+woman_76__p1,R5,C3,jpeg50,0,0,0,0,plain navy blazer
+woman_76__p1,R5,C4,blur2,0,0,0,0,plain navy blazer
+woman_76__p1,R5,C5,vae_trans,0,0,0,0,plain navy blazer
+woman_76__p1,R6,C2,none,0,0,0,0,plain navy blazer
+woman_76__p1,R6,C3,jpeg50,0,0,0,0,tiny pin only
+woman_76__p1,R6,C4,blur2,0,0,0,0,plain navy blazer
+woman_76__p1,R6,C5,vae_trans,0,0,0,0,plain navy blazer
+woman_76__p2,R1,C2,none,1,0,0,0,
+woman_76__p2,R1,C3,jpeg50,1,0,0,0,
+woman_76__p2,R1,C4,blur2,1,0,0,0,
+woman_76__p2,R1,C5,vae_trans,1,0,0,0,
+woman_76__p2,R2,C2,none,1,0,0,0,
+woman_76__p2,R2,C3,jpeg50,1,0,0,0,
+woman_76__p2,R2,C4,blur2,1,0,0,0,
+woman_76__p2,R2,C5,vae_trans,1,0,0,0,
+woman_76__p2,R3,C2,none,1,0,0,0,
+woman_76__p2,R3,C3,jpeg50,1,0,0,0,
+woman_76__p2,R3,C4,blur2,1,0,0,0,
+woman_76__p2,R3,C5,vae_trans,1,0,0,0,
+woman_76__p2,R4,C2,none,1,1,0,0,
+woman_76__p2,R4,C3,jpeg50,1,1,0,0,
+woman_76__p2,R4,C4,blur2,1,1,0,0,
+woman_76__p2,R4,C5,vae_trans,1,1,0,0,
+woman_76__p2,R5,C2,none,1,0,0,0,
+woman_76__p2,R5,C3,jpeg50,1,0,0,0,
+woman_76__p2,R5,C4,blur2,1,0,0,0,
+woman_76__p2,R5,C5,vae_trans,1,0,0,0,
+woman_76__p2,R6,C2,none,1,0,0,0,
+woman_76__p2,R6,C3,jpeg50,1,0,0,0,
+woman_76__p2,R6,C4,blur2,1,0,0,0,
+woman_76__p2,R6,C5,vae_trans,1,0,0,0,
+woman_76__p3,R1,C2,none,1,0,0,0,on chest by hand
+woman_76__p3,R1,C3,jpeg50,1,0,0,0,on chest by hand
+woman_76__p3,R1,C4,blur2,1,0,0,0,on chest by hand
+woman_76__p3,R1,C5,vae_trans,1,0,0,0,on chest by hand
+woman_76__p3,R2,C2,none,1,0,0,0,on chest by hand
+woman_76__p3,R2,C3,jpeg50,1,0,0,0,on chest by hand
+woman_76__p3,R2,C4,blur2,1,0,0,0,on chest by hand
+woman_76__p3,R2,C5,vae_trans,1,0,0,0,on chest by hand
+woman_76__p3,R3,C2,none,1,0,0,0,on chest by hand
+woman_76__p3,R3,C3,jpeg50,1,0,0,0,on chest by hand
+woman_76__p3,R3,C4,blur2,1,0,0,0,on chest by hand
+woman_76__p3,R3,C5,vae_trans,1,0,0,0,on chest by hand
+woman_76__p3,R4,C2,none,1,0,0,0,on chest by hand
+woman_76__p3,R4,C3,jpeg50,1,0,0,0,on chest by hand
+woman_76__p3,R4,C4,blur2,1,0,0,0,on chest by hand
+woman_76__p3,R4,C5,vae_trans,1,0,0,0,on chest by hand
+woman_76__p3,R5,C2,none,1,0,0,0,on chest by hand
+woman_76__p3,R5,C3,jpeg50,1,0,0,0,on chest by hand
+woman_76__p3,R5,C4,blur2,1,0,0,0,on chest by hand
+woman_76__p3,R5,C5,vae_trans,1,0,0,0,on chest by hand
+woman_76__p3,R6,C2,none,1,1,0,0,on chest by hand
+woman_76__p3,R6,C3,jpeg50,1,1,0,0,on chest by hand
+woman_76__p3,R6,C4,blur2,1,1,0,0,on chest by hand
+woman_76__p3,R6,C5,vae_trans,1,1,0,0,on chest by hand
+woman_78__p0,R1,C2,none,1,1,0,0,
+woman_78__p0,R1,C3,jpeg50,1,1,0,0,
+woman_78__p0,R1,C4,blur2,1,1,0,0,
+woman_78__p0,R1,C5,vae_trans,1,1,0,0,
+woman_78__p0,R2,C2,none,1,0,0,0,
+woman_78__p0,R2,C3,jpeg50,1,0,0,0,
+woman_78__p0,R2,C4,blur2,1,0,0,0,
+woman_78__p0,R2,C5,vae_trans,1,0,0,0,
+woman_78__p0,R3,C2,none,1,0,0,0,
+woman_78__p0,R3,C3,jpeg50,1,0,0,0,
+woman_78__p0,R3,C4,blur2,1,0,0,0,
+woman_78__p0,R3,C5,vae_trans,1,0,0,0,
+woman_78__p0,R4,C2,none,1,0,0,0,
+woman_78__p0,R4,C3,jpeg50,1,0,0,0,
+woman_78__p0,R4,C4,blur2,1,0,0,0,
+woman_78__p0,R4,C5,vae_trans,1,0,0,0,
+woman_78__p0,R5,C2,none,1,0,0,0,
+woman_78__p0,R5,C3,jpeg50,1,0,0,0,
+woman_78__p0,R5,C4,blur2,1,0,0,0,
+woman_78__p0,R5,C5,vae_trans,1,0,0,0,
+woman_78__p0,R6,C2,none,1,0,0,0,
+woman_78__p0,R6,C3,jpeg50,1,0,0,0,
+woman_78__p0,R6,C4,blur2,1,0,0,0,
+woman_78__p0,R6,C5,vae_trans,1,0,0,0,
+woman_78__p1,R1,C2,none,0,0,0,0,tiny pin only
+woman_78__p1,R1,C3,jpeg50,1,0,0,0,badge on suit
+woman_78__p1,R1,C4,blur2,1,0,0,0,badge on suit
+woman_78__p1,R1,C5,vae_trans,0,0,0,0,plain navy suit
+woman_78__p1,R2,C2,none,1,1,0,0,badge on suit
+woman_78__p1,R2,C3,jpeg50,0,1,0,0,plain navy suit
+woman_78__p1,R2,C4,blur2,1,1,0,0,badges on suit
+woman_78__p1,R2,C5,vae_trans,0,1,0,0,plain navy suit
+woman_78__p1,R3,C2,none,1,0,0,0,badge on suit
+woman_78__p1,R3,C3,jpeg50,0,0,0,0,faint small pins
+woman_78__p1,R3,C4,blur2,1,0,0,0,badge on suit
+woman_78__p1,R3,C5,vae_trans,0,0,0,0,plain navy suit
+woman_78__p1,R4,C2,none,0,0,0,0,plain navy suit
+woman_78__p1,R4,C3,jpeg50,0,0,0,0,plain navy suit
+woman_78__p1,R4,C4,blur2,1,0,0,0,badge and epaulette
+woman_78__p1,R4,C5,vae_trans,0,0,0,0,plain navy suit
+woman_78__p1,R5,C2,none,0,0,0,0,plain navy suit
+woman_78__p1,R5,C3,jpeg50,0,0,0,0,plain navy suit
+woman_78__p1,R5,C4,blur2,1,0,0,0,badge on suit
+woman_78__p1,R5,C5,vae_trans,0,0,0,0,plain navy suit
+woman_78__p1,R6,C2,none,0,0,0,0,plain navy suit
+woman_78__p1,R6,C3,jpeg50,1,0,0,0,badge on suit
+woman_78__p1,R6,C4,blur2,1,0,0,0,badge on suit
+woman_78__p1,R6,C5,vae_trans,0,0,0,0,plain navy suit
+woman_78__p2,R1,C2,none,1,0,0,0,
+woman_78__p2,R1,C3,jpeg50,1,0,0,0,
+woman_78__p2,R1,C4,blur2,1,0,0,0,
+woman_78__p2,R1,C5,vae_trans,1,0,0,0,
+woman_78__p2,R2,C2,none,1,1,0,0,
+woman_78__p2,R2,C3,jpeg50,1,1,0,0,
+woman_78__p2,R2,C4,blur2,1,1,0,0,
+woman_78__p2,R2,C5,vae_trans,1,1,0,0,grayish tone
+woman_78__p2,R3,C2,none,1,0,0,0,
+woman_78__p2,R3,C3,jpeg50,1,0,0,0,
+woman_78__p2,R3,C4,blur2,1,0,0,0,
+woman_78__p2,R3,C5,vae_trans,1,0,0,0,
+woman_78__p2,R4,C2,none,1,0,0,0,
+woman_78__p2,R4,C3,jpeg50,1,0,0,0,
+woman_78__p2,R4,C4,blur2,1,0,0,0,
+woman_78__p2,R4,C5,vae_trans,1,0,0,0,
+woman_78__p2,R5,C2,none,1,0,0,0,
+woman_78__p2,R5,C3,jpeg50,1,0,0,0,
+woman_78__p2,R5,C4,blur2,1,0,0,0,
+woman_78__p2,R5,C5,vae_trans,1,0,0,0,
+woman_78__p2,R6,C2,none,1,0,0,0,
+woman_78__p2,R6,C3,jpeg50,1,0,0,0,
+woman_78__p2,R6,C4,blur2,1,0,0,0,
+woman_78__p2,R6,C5,vae_trans,1,0,0,0,
+woman_78__p3,R1,C2,none,1,0,0,0,
+woman_78__p3,R1,C3,jpeg50,1,0,0,0,
+woman_78__p3,R1,C4,blur2,1,0,0,0,
+woman_78__p3,R1,C5,vae_trans,1,0,0,0,
+woman_78__p3,R2,C2,none,1,0,0,0,
+woman_78__p3,R2,C3,jpeg50,1,0,0,0,
+woman_78__p3,R2,C4,blur2,1,0,0,0,
+woman_78__p3,R2,C5,vae_trans,1,0,0,0,
+woman_78__p3,R3,C2,none,1,0,0,0,
+woman_78__p3,R3,C3,jpeg50,1,0,0,0,
+woman_78__p3,R3,C4,blur2,1,0,0,0,
+woman_78__p3,R3,C5,vae_trans,1,0,0,0,
+woman_78__p3,R4,C2,none,1,0,0,0,
+woman_78__p3,R4,C3,jpeg50,1,0,0,0,
+woman_78__p3,R4,C4,blur2,1,0,0,0,
+woman_78__p3,R4,C5,vae_trans,1,0,0,0,
+woman_78__p3,R5,C2,none,1,1,0,0,
+woman_78__p3,R5,C3,jpeg50,1,1,0,0,
+woman_78__p3,R5,C4,blur2,1,1,0,0,
+woman_78__p3,R5,C5,vae_trans,1,1,0,0,
+woman_78__p3,R6,C2,none,1,0,0,0,
+woman_78__p3,R6,C3,jpeg50,1,0,0,0,
+woman_78__p3,R6,C4,blur2,1,0,0,0,
+woman_78__p3,R6,C5,vae_trans,1,0,0,0,
+woman_88__p0,R1,C2,none,1,0,0,0,
+woman_88__p0,R1,C3,jpeg50,1,0,0,0,
+woman_88__p0,R1,C4,blur2,1,0,0,0,
+woman_88__p0,R1,C5,vae_trans,1,0,0,0,
+woman_88__p0,R2,C2,none,1,0,0,0,
+woman_88__p0,R2,C3,jpeg50,1,0,0,0,
+woman_88__p0,R2,C4,blur2,1,0,0,0,
+woman_88__p0,R2,C5,vae_trans,1,0,0,0,
+woman_88__p0,R3,C2,none,1,1,0,0,
+woman_88__p0,R3,C3,jpeg50,1,1,0,0,
+woman_88__p0,R3,C4,blur2,1,1,0,0,
+woman_88__p0,R3,C5,vae_trans,1,1,0,0,
+woman_88__p0,R4,C2,none,1,0,0,0,
+woman_88__p0,R4,C3,jpeg50,1,0,0,0,
+woman_88__p0,R4,C4,blur2,1,0,0,0,
+woman_88__p0,R4,C5,vae_trans,1,0,0,0,
+woman_88__p0,R5,C2,none,1,0,0,0,
+woman_88__p0,R5,C3,jpeg50,1,0,0,0,
+woman_88__p0,R5,C4,blur2,1,0,0,0,
+woman_88__p0,R5,C5,vae_trans,1,0,0,0,
+woman_88__p0,R6,C2,none,1,0,0,0,
+woman_88__p0,R6,C3,jpeg50,1,0,0,0,
+woman_88__p0,R6,C4,blur2,1,0,0,0,
+woman_88__p0,R6,C5,vae_trans,1,0,0,0,
+woman_88__p1,R1,C2,none,0,0,0,0,plain suit
+woman_88__p1,R1,C3,jpeg50,0,0,0,0,plain suit
+woman_88__p1,R1,C4,blur2,0,0,0,0,plain suit
+woman_88__p1,R1,C5,vae_trans,0,0,1,0,face looks like other person
+woman_88__p1,R2,C2,none,0,1,0,0,plain suit
+woman_88__p1,R2,C3,jpeg50,0,1,0,0,plain suit
+woman_88__p1,R2,C4,blur2,0,1,0,0,plain suit
+woman_88__p1,R2,C5,vae_trans,0,1,0,0,plain suit
+woman_88__p1,R3,C2,none,0,0,0,0,plain suit
+woman_88__p1,R3,C3,jpeg50,0,0,0,0,plain suit
+woman_88__p1,R3,C4,blur2,0,0,0,0,plain suit
+woman_88__p1,R3,C5,vae_trans,0,0,1,0,face looks like other person
+woman_88__p1,R4,C2,none,0,0,0,0,plain suit
+woman_88__p1,R4,C3,jpeg50,0,0,0,0,plain suit
+woman_88__p1,R4,C4,blur2,0,0,0,0,plain suit
+woman_88__p1,R4,C5,vae_trans,0,0,1,0,face looks like other person
+woman_88__p1,R5,C2,none,0,0,0,0,plain suit
+woman_88__p1,R5,C3,jpeg50,0,0,0,0,plain suit
+woman_88__p1,R5,C4,blur2,0,0,0,0,plain suit
+woman_88__p1,R5,C5,vae_trans,0,0,0,0,plain suit
+woman_88__p1,R6,C2,none,0,0,0,0,plain suit
+woman_88__p1,R6,C3,jpeg50,0,0,0,0,plain suit
+woman_88__p1,R6,C4,blur2,0,0,0,0,plain suit
+woman_88__p1,R6,C5,vae_trans,0,0,1,0,face looks like other person
+woman_88__p2,R1,C2,none,1,0,0,0,
+woman_88__p2,R1,C3,jpeg50,1,0,0,0,
+woman_88__p2,R1,C4,blur2,1,0,0,0,
+woman_88__p2,R1,C5,vae_trans,1,0,0,0,
+woman_88__p2,R2,C2,none,1,0,0,0,
+woman_88__p2,R2,C3,jpeg50,1,0,0,0,
+woman_88__p2,R2,C4,blur2,1,0,0,0,
+woman_88__p2,R2,C5,vae_trans,1,0,0,0,
+woman_88__p2,R3,C2,none,1,1,0,0,
+woman_88__p2,R3,C3,jpeg50,1,1,0,0,
+woman_88__p2,R3,C4,blur2,1,1,0,0,
+woman_88__p2,R3,C5,vae_trans,1,1,0,0,
+woman_88__p2,R4,C2,none,1,0,0,0,
+woman_88__p2,R4,C3,jpeg50,1,0,0,0,
+woman_88__p2,R4,C4,blur2,1,0,0,0,
+woman_88__p2,R4,C5,vae_trans,1,0,0,0,
+woman_88__p2,R5,C2,none,1,0,0,0,
+woman_88__p2,R5,C3,jpeg50,1,0,0,0,
+woman_88__p2,R5,C4,blur2,1,0,0,0,
+woman_88__p2,R5,C5,vae_trans,1,0,0,0,
+woman_88__p2,R6,C2,none,1,0,0,0,
+woman_88__p2,R6,C3,jpeg50,1,0,0,0,
+woman_88__p2,R6,C4,blur2,1,0,0,0,
+woman_88__p2,R6,C5,vae_trans,1,0,0,0,
+woman_88__p3,R1,C2,none,1,0,0,0,
+woman_88__p3,R1,C3,jpeg50,1,0,0,0,
+woman_88__p3,R1,C4,blur2,1,0,0,0,
+woman_88__p3,R1,C5,vae_trans,1,0,0,0,
+woman_88__p3,R2,C2,none,1,0,0,0,
+woman_88__p3,R2,C3,jpeg50,1,0,0,0,
+woman_88__p3,R2,C4,blur2,1,0,0,0,
+woman_88__p3,R2,C5,vae_trans,1,0,0,0,
+woman_88__p3,R3,C2,none,1,1,0,0,
+woman_88__p3,R3,C3,jpeg50,1,1,0,0,
+woman_88__p3,R3,C4,blur2,1,1,0,0,
+woman_88__p3,R3,C5,vae_trans,1,1,0,0,
+woman_88__p3,R4,C2,none,1,0,0,0,
+woman_88__p3,R4,C3,jpeg50,1,0,0,0,
+woman_88__p3,R4,C4,blur2,1,0,0,0,
+woman_88__p3,R4,C5,vae_trans,1,0,0,0,
+woman_88__p3,R5,C2,none,1,0,0,0,
+woman_88__p3,R5,C3,jpeg50,1,0,0,0,
+woman_88__p3,R5,C4,blur2,1,0,0,0,
+woman_88__p3,R5,C5,vae_trans,1,0,0,0,
+woman_88__p3,R6,C2,none,1,0,0,0,
+woman_88__p3,R6,C3,jpeg50,1,0,0,0,
+woman_88__p3,R6,C4,blur2,1,0,0,0,
+woman_88__p3,R6,C5,vae_trans,1,0,0,0,
+woman_89__p0,R1,C2,none,1,0,0,0,
+woman_89__p0,R1,C3,jpeg50,1,0,0,0,
+woman_89__p0,R1,C4,blur2,1,0,0,0,
+woman_89__p0,R1,C5,vae_trans,1,0,0,0,
+woman_89__p0,R2,C2,none,1,0,0,0,
+woman_89__p0,R2,C3,jpeg50,1,0,0,0,
+woman_89__p0,R2,C4,blur2,1,0,0,0,
+woman_89__p0,R2,C5,vae_trans,1,0,0,0,
+woman_89__p0,R3,C2,none,1,0,0,0,
+woman_89__p0,R3,C3,jpeg50,1,0,0,0,
+woman_89__p0,R3,C4,blur2,1,0,0,0,
+woman_89__p0,R3,C5,vae_trans,1,0,0,0,
+woman_89__p0,R4,C2,none,1,1,0,0,
+woman_89__p0,R4,C3,jpeg50,1,1,0,0,
+woman_89__p0,R4,C4,blur2,1,1,0,0,
+woman_89__p0,R4,C5,vae_trans,1,1,0,0,
+woman_89__p0,R5,C2,none,1,0,0,0,
+woman_89__p0,R5,C3,jpeg50,1,0,0,0,
+woman_89__p0,R5,C4,blur2,1,0,0,0,
+woman_89__p0,R5,C5,vae_trans,1,0,0,0,
+woman_89__p0,R6,C2,none,1,0,0,0,
+woman_89__p0,R6,C3,jpeg50,1,0,0,0,
+woman_89__p0,R6,C4,blur2,1,0,0,0,
+woman_89__p0,R6,C5,vae_trans,1,0,0,0,
+woman_89__p1,R1,C2,none,0,0,0,0,navy suit; cuff pins only
+woman_89__p1,R1,C3,jpeg50,0,0,0,0,plain navy suit
+woman_89__p1,R1,C4,blur2,0,0,0,0,plain navy suit
+woman_89__p1,R1,C5,vae_trans,0,0,0,0,plain navy suit
+woman_89__p1,R2,C2,none,0,1,0,0,navy suit; cuff pins only
+woman_89__p1,R2,C3,jpeg50,0,1,0,0,suit partial; jeans visible
+woman_89__p1,R2,C4,blur2,0,1,0,0,plain navy suit
+woman_89__p1,R2,C5,vae_trans,0,1,0,0,plain navy suit
+woman_89__p1,R3,C2,none,0,0,0,0,navy suit; cuff pins only
+woman_89__p1,R3,C3,jpeg50,0,0,0,0,plain navy suit
+woman_89__p1,R3,C4,blur2,0,0,0,0,plain navy suit
+woman_89__p1,R3,C5,vae_trans,0,0,0,0,plain navy suit
+woman_89__p1,R4,C2,none,0,0,0,0,navy suit; cuff pins only
+woman_89__p1,R4,C3,jpeg50,0,0,0,0,plain navy suit
+woman_89__p1,R4,C4,blur2,0,0,0,0,plain navy suit
+woman_89__p1,R4,C5,vae_trans,0,0,0,0,plain navy suit
+woman_89__p1,R5,C2,none,0,0,0,0,navy suit; cuff pins only
+woman_89__p1,R5,C3,jpeg50,0,0,0,0,plain navy suit
+woman_89__p1,R5,C4,blur2,0,0,0,0,plain navy suit
+woman_89__p1,R5,C5,vae_trans,0,0,0,0,plain navy suit
+woman_89__p1,R6,C2,none,0,0,0,0,navy suit; cuff pins only
+woman_89__p1,R6,C3,jpeg50,0,0,0,0,plain navy suit
+woman_89__p1,R6,C4,blur2,0,0,0,0,plain navy suit
+woman_89__p1,R6,C5,vae_trans,0,0,0,0,plain navy suit
+woman_89__p2,R1,C2,none,1,1,0,0,
+woman_89__p2,R1,C3,jpeg50,1,1,0,0,
+woman_89__p2,R1,C4,blur2,1,1,0,0,
+woman_89__p2,R1,C5,vae_trans,1,1,0,0,
+woman_89__p2,R2,C2,none,1,0,0,0,
+woman_89__p2,R2,C3,jpeg50,1,0,0,0,
+woman_89__p2,R2,C4,blur2,1,0,0,0,
+woman_89__p2,R2,C5,vae_trans,1,0,0,0,
+woman_89__p2,R3,C2,none,1,0,0,0,
+woman_89__p2,R3,C3,jpeg50,1,0,0,0,
+woman_89__p2,R3,C4,blur2,1,0,0,0,
+woman_89__p2,R3,C5,vae_trans,1,0,0,0,
+woman_89__p2,R4,C2,none,1,0,0,0,
+woman_89__p2,R4,C3,jpeg50,1,0,0,0,
+woman_89__p2,R4,C4,blur2,1,0,0,0,
+woman_89__p2,R4,C5,vae_trans,1,0,0,0,
+woman_89__p2,R5,C2,none,1,0,0,0,
+woman_89__p2,R5,C3,jpeg50,1,0,0,0,
+woman_89__p2,R5,C4,blur2,1,0,0,0,
+woman_89__p2,R5,C5,vae_trans,1,0,0,0,
+woman_89__p2,R6,C2,none,1,0,0,0,
+woman_89__p2,R6,C3,jpeg50,1,0,0,0,
+woman_89__p2,R6,C4,blur2,1,0,0,0,
+woman_89__p2,R6,C5,vae_trans,1,0,0,0,
+woman_89__p3,R1,C2,none,1,0,0,0,
+woman_89__p3,R1,C3,jpeg50,1,0,0,0,
+woman_89__p3,R1,C4,blur2,1,0,0,0,
+woman_89__p3,R1,C5,vae_trans,1,0,0,0,
+woman_89__p3,R2,C2,none,1,0,0,0,
+woman_89__p3,R2,C3,jpeg50,1,0,0,0,
+woman_89__p3,R2,C4,blur2,1,0,0,0,
+woman_89__p3,R2,C5,vae_trans,1,0,0,0,
+woman_89__p3,R3,C2,none,1,0,0,0,
+woman_89__p3,R3,C3,jpeg50,1,0,0,0,
+woman_89__p3,R3,C4,blur2,1,0,0,0,
+woman_89__p3,R3,C5,vae_trans,1,0,0,0,
+woman_89__p3,R4,C2,none,1,1,0,0,
+woman_89__p3,R4,C3,jpeg50,1,1,0,0,
+woman_89__p3,R4,C4,blur2,1,1,0,0,
+woman_89__p3,R4,C5,vae_trans,1,1,0,0,
+woman_89__p3,R5,C2,none,1,0,0,0,
+woman_89__p3,R5,C3,jpeg50,1,0,0,0,
+woman_89__p3,R5,C4,blur2,1,0,0,0,
+woman_89__p3,R5,C5,vae_trans,1,0,0,0,
+woman_89__p3,R6,C2,none,1,0,0,0,
+woman_89__p3,R6,C3,jpeg50,1,0,0,0,
+woman_89__p3,R6,C4,blur2,1,0,0,0,
+woman_89__p3,R6,C5,vae_trans,1,0,0,0,
+woman_90__p0,R1,C2,none,1,1,0,0,
+woman_90__p0,R1,C3,jpeg50,1,1,0,0,
+woman_90__p0,R1,C4,blur2,1,1,0,0,
+woman_90__p0,R1,C5,vae_trans,1,1,0,0,
+woman_90__p0,R2,C2,none,1,0,0,0,
+woman_90__p0,R2,C3,jpeg50,1,0,0,0,
+woman_90__p0,R2,C4,blur2,1,0,0,0,
+woman_90__p0,R2,C5,vae_trans,1,0,0,0,
+woman_90__p0,R3,C2,none,1,0,0,0,
+woman_90__p0,R3,C3,jpeg50,1,0,0,0,
+woman_90__p0,R3,C4,blur2,1,0,0,0,
+woman_90__p0,R3,C5,vae_trans,1,0,0,0,
+woman_90__p0,R4,C2,none,1,0,0,0,
+woman_90__p0,R4,C3,jpeg50,1,0,0,0,
+woman_90__p0,R4,C4,blur2,1,0,0,0,
+woman_90__p0,R4,C5,vae_trans,1,0,0,0,
+woman_90__p0,R5,C2,none,1,0,0,0,
+woman_90__p0,R5,C3,jpeg50,1,0,0,0,
+woman_90__p0,R5,C4,blur2,1,0,0,0,
+woman_90__p0,R5,C5,vae_trans,1,0,0,0,
+woman_90__p0,R6,C2,none,1,0,0,0,
+woman_90__p0,R6,C3,jpeg50,1,0,0,0,
+woman_90__p0,R6,C4,blur2,1,0,0,0,
+woman_90__p0,R6,C5,vae_trans,1,0,0,0,
+woman_90__p1,R1,C2,none,1,0,0,0,
+woman_90__p1,R1,C3,jpeg50,1,0,0,0,
+woman_90__p1,R1,C4,blur2,1,0,0,0,
+woman_90__p1,R1,C5,vae_trans,1,0,0,0,
+woman_90__p1,R2,C2,none,1,1,0,0,
+woman_90__p1,R2,C3,jpeg50,0,1,0,0,navy jacket; no badge visible
+woman_90__p1,R2,C4,blur2,1,1,0,0,
+woman_90__p1,R2,C5,vae_trans,1,1,0,0,badge bottom right
+woman_90__p1,R3,C2,none,1,0,0,0,
+woman_90__p1,R3,C3,jpeg50,1,0,0,0,
+woman_90__p1,R3,C4,blur2,1,0,0,0,
+woman_90__p1,R3,C5,vae_trans,1,0,0,0,
+woman_90__p1,R4,C2,none,1,0,0,0,
+woman_90__p1,R4,C3,jpeg50,1,0,0,0,
+woman_90__p1,R4,C4,blur2,1,0,0,0,
+woman_90__p1,R4,C5,vae_trans,1,0,0,0,
+woman_90__p1,R5,C2,none,1,0,0,0,
+woman_90__p1,R5,C3,jpeg50,1,0,0,0,
+woman_90__p1,R5,C4,blur2,1,0,0,0,
+woman_90__p1,R5,C5,vae_trans,1,0,0,0,
+woman_90__p1,R6,C2,none,1,0,0,0,
+woman_90__p1,R6,C3,jpeg50,1,0,0,0,
+woman_90__p1,R6,C4,blur2,1,0,0,0,
+woman_90__p1,R6,C5,vae_trans,1,0,0,0,
+woman_90__p2,R1,C2,none,1,0,0,0,
+woman_90__p2,R1,C3,jpeg50,1,0,0,0,
+woman_90__p2,R1,C4,blur2,1,0,0,0,
+woman_90__p2,R1,C5,vae_trans,1,0,0,0,
+woman_90__p2,R2,C2,none,1,0,0,0,
+woman_90__p2,R2,C3,jpeg50,1,0,0,0,
+woman_90__p2,R2,C4,blur2,1,0,0,0,
+woman_90__p2,R2,C5,vae_trans,1,0,0,0,
+woman_90__p2,R3,C2,none,1,0,0,0,
+woman_90__p2,R3,C3,jpeg50,1,0,0,0,
+woman_90__p2,R3,C4,blur2,1,0,0,0,
+woman_90__p2,R3,C5,vae_trans,1,0,0,0,
+woman_90__p2,R4,C2,none,1,0,0,0,
+woman_90__p2,R4,C3,jpeg50,1,0,0,0,
+woman_90__p2,R4,C4,blur2,1,0,0,0,
+woman_90__p2,R4,C5,vae_trans,1,0,0,0,
+woman_90__p2,R5,C2,none,1,0,0,0,
+woman_90__p2,R5,C3,jpeg50,1,0,0,0,
+woman_90__p2,R5,C4,blur2,1,0,0,0,
+woman_90__p2,R5,C5,vae_trans,1,0,0,0,
+woman_90__p2,R6,C2,none,1,1,0,0,
+woman_90__p2,R6,C3,jpeg50,1,1,0,0,
+woman_90__p2,R6,C4,blur2,1,1,0,0,
+woman_90__p2,R6,C5,vae_trans,1,1,0,0,
+woman_90__p3,R1,C2,none,1,0,0,0,
+woman_90__p3,R1,C3,jpeg50,1,0,0,0,
+woman_90__p3,R1,C4,blur2,1,0,0,0,
+woman_90__p3,R1,C5,vae_trans,1,0,0,0,
+woman_90__p3,R2,C2,none,1,0,0,0,
+woman_90__p3,R2,C3,jpeg50,1,0,0,0,
+woman_90__p3,R2,C4,blur2,1,0,0,0,
+woman_90__p3,R2,C5,vae_trans,1,0,0,0,
+woman_90__p3,R3,C2,none,1,0,0,0,
+woman_90__p3,R3,C3,jpeg50,1,0,0,0,
+woman_90__p3,R3,C4,blur2,1,0,0,0,
+woman_90__p3,R3,C5,vae_trans,1,0,0,0,
+woman_90__p3,R4,C2,none,1,0,0,0,
+woman_90__p3,R4,C3,jpeg50,1,0,0,0,
+woman_90__p3,R4,C4,blur2,1,0,0,0,
+woman_90__p3,R4,C5,vae_trans,1,0,0,0,
+woman_90__p3,R5,C2,none,1,0,0,0,
+woman_90__p3,R5,C3,jpeg50,1,0,0,0,
+woman_90__p3,R5,C4,blur2,1,0,0,0,
+woman_90__p3,R5,C5,vae_trans,1,0,0,0,
+woman_90__p3,R6,C2,none,1,1,0,0,
+woman_90__p3,R6,C3,jpeg50,1,1,0,0,
+woman_90__p3,R6,C4,blur2,1,1,0,0,
+woman_90__p3,R6,C5,vae_trans,1,1,0,0,
+woman_92__p0,R1,C2,none,1,0,0,0,
+woman_92__p0,R1,C3,jpeg50,1,0,0,0,
+woman_92__p0,R1,C4,blur2,1,0,0,0,
+woman_92__p0,R1,C5,vae_trans,1,0,0,0,
+woman_92__p0,R2,C2,none,1,0,0,0,
+woman_92__p0,R2,C3,jpeg50,1,0,0,0,
+woman_92__p0,R2,C4,blur2,1,0,0,0,
+woman_92__p0,R2,C5,vae_trans,1,0,0,0,
+woman_92__p0,R3,C2,none,1,0,0,0,
+woman_92__p0,R3,C3,jpeg50,1,0,0,0,
+woman_92__p0,R3,C4,blur2,1,0,0,0,
+woman_92__p0,R3,C5,vae_trans,1,0,0,0,
+woman_92__p0,R4,C2,none,1,0,0,0,
+woman_92__p0,R4,C3,jpeg50,1,0,0,0,
+woman_92__p0,R4,C4,blur2,1,0,0,0,
+woman_92__p0,R4,C5,vae_trans,1,0,0,0,
+woman_92__p0,R5,C2,none,1,0,0,0,
+woman_92__p0,R5,C3,jpeg50,1,0,0,0,
+woman_92__p0,R5,C4,blur2,1,0,0,0,
+woman_92__p0,R5,C5,vae_trans,1,0,0,0,
+woman_92__p0,R6,C2,none,1,1,0,0,
+woman_92__p0,R6,C3,jpeg50,1,1,0,0,
+woman_92__p0,R6,C4,blur2,1,1,0,0,
+woman_92__p0,R6,C5,vae_trans,1,1,0,0,
+woman_92__p1,R1,C2,none,0,0,0,0,plain navy suit; cuff buttons
+woman_92__p1,R1,C3,jpeg50,0,0,0,0,
+woman_92__p1,R1,C4,blur2,0,0,0,0,
+woman_92__p1,R1,C5,vae_trans,0,0,0,0,
+woman_92__p1,R2,C2,none,0,0,0,0,plain navy suit; cuff buttons
+woman_92__p1,R2,C3,jpeg50,0,0,0,0,
+woman_92__p1,R2,C4,blur2,0,0,0,0,
+woman_92__p1,R2,C5,vae_trans,0,0,0,0,
+woman_92__p1,R3,C2,none,0,1,0,0,plain navy suit; cuff buttons
+woman_92__p1,R3,C3,jpeg50,0,1,0,0,
+woman_92__p1,R3,C4,blur2,0,1,0,0,
+woman_92__p1,R3,C5,vae_trans,0,1,0,0,
+woman_92__p1,R4,C2,none,0,0,0,0,plain navy suit; cuff buttons
+woman_92__p1,R4,C3,jpeg50,0,0,0,0,
+woman_92__p1,R4,C4,blur2,0,0,0,0,
+woman_92__p1,R4,C5,vae_trans,0,0,0,0,
+woman_92__p1,R5,C2,none,0,0,0,0,plain navy suit; cuff buttons
+woman_92__p1,R5,C3,jpeg50,0,0,0,0,
+woman_92__p1,R5,C4,blur2,0,0,0,0,
+woman_92__p1,R5,C5,vae_trans,0,0,0,0,
+woman_92__p1,R6,C2,none,0,0,0,0,plain navy suit; cuff buttons
+woman_92__p1,R6,C3,jpeg50,0,0,0,0,
+woman_92__p1,R6,C4,blur2,0,0,0,0,
+woman_92__p1,R6,C5,vae_trans,0,0,0,0,
+woman_92__p2,R1,C2,none,1,0,0,0,
+woman_92__p2,R1,C3,jpeg50,1,0,0,0,
+woman_92__p2,R1,C4,blur2,1,0,0,0,
+woman_92__p2,R1,C5,vae_trans,1,0,0,0,
+woman_92__p2,R2,C2,none,1,0,0,0,
+woman_92__p2,R2,C3,jpeg50,1,0,0,0,
+woman_92__p2,R2,C4,blur2,1,0,0,0,
+woman_92__p2,R2,C5,vae_trans,1,0,0,0,
+woman_92__p2,R3,C2,none,1,0,0,0,
+woman_92__p2,R3,C3,jpeg50,1,0,0,0,
+woman_92__p2,R3,C4,blur2,1,0,0,0,
+woman_92__p2,R3,C5,vae_trans,1,0,0,0,
+woman_92__p2,R4,C2,none,1,0,0,0,
+woman_92__p2,R4,C3,jpeg50,1,0,0,0,
+woman_92__p2,R4,C4,blur2,1,0,0,0,
+woman_92__p2,R4,C5,vae_trans,1,0,0,0,
+woman_92__p2,R5,C2,none,1,1,0,0,
+woman_92__p2,R5,C3,jpeg50,1,1,0,0,
+woman_92__p2,R5,C4,blur2,1,1,0,0,
+woman_92__p2,R5,C5,vae_trans,1,1,0,0,
+woman_92__p2,R6,C2,none,1,0,0,0,
+woman_92__p2,R6,C3,jpeg50,1,0,0,0,
+woman_92__p2,R6,C4,blur2,1,0,0,0,
+woman_92__p2,R6,C5,vae_trans,1,0,0,0,
+woman_92__p3,R1,C2,none,1,0,0,0,
+woman_92__p3,R1,C3,jpeg50,1,0,0,0,
+woman_92__p3,R1,C4,blur2,1,0,0,0,
+woman_92__p3,R1,C5,vae_trans,1,0,0,0,
+woman_92__p3,R2,C2,none,1,0,0,0,
+woman_92__p3,R2,C3,jpeg50,1,0,0,0,
+woman_92__p3,R2,C4,blur2,1,0,0,0,
+woman_92__p3,R2,C5,vae_trans,1,0,0,0,
+woman_92__p3,R3,C2,none,1,0,0,0,
+woman_92__p3,R3,C3,jpeg50,1,0,0,0,
+woman_92__p3,R3,C4,blur2,1,0,0,0,
+woman_92__p3,R3,C5,vae_trans,1,0,0,0,
+woman_92__p3,R4,C2,none,1,0,0,0,
+woman_92__p3,R4,C3,jpeg50,1,0,0,0,
+woman_92__p3,R4,C4,blur2,1,0,0,0,
+woman_92__p3,R4,C5,vae_trans,1,0,0,0,
+woman_92__p3,R5,C2,none,1,0,0,0,
+woman_92__p3,R5,C3,jpeg50,1,0,0,0,
+woman_92__p3,R5,C4,blur2,1,0,0,0,
+woman_92__p3,R5,C5,vae_trans,1,0,0,0,
+woman_92__p3,R6,C2,none,1,1,0,0,
+woman_92__p3,R6,C3,jpeg50,1,1,0,0,
+woman_92__p3,R6,C4,blur2,1,1,0,0,
+woman_92__p3,R6,C5,vae_trans,1,1,0,0,
+woman_93__p0,R1,C2,none,1,0,0,0,
+woman_93__p0,R1,C3,jpeg50,1,0,0,0,
+woman_93__p0,R1,C4,blur2,1,0,0,0,
+woman_93__p0,R1,C5,vae_trans,1,0,0,0,
+woman_93__p0,R2,C2,none,1,0,0,0,
+woman_93__p0,R2,C3,jpeg50,1,0,0,0,
+woman_93__p0,R2,C4,blur2,1,0,0,0,
+woman_93__p0,R2,C5,vae_trans,1,0,0,0,
+woman_93__p0,R3,C2,none,1,0,0,0,
+woman_93__p0,R3,C3,jpeg50,1,0,0,0,
+woman_93__p0,R3,C4,blur2,1,0,0,0,
+woman_93__p0,R3,C5,vae_trans,1,0,0,0,
+woman_93__p0,R4,C2,none,1,0,0,0,
+woman_93__p0,R4,C3,jpeg50,1,0,0,0,
+woman_93__p0,R4,C4,blur2,1,0,0,0,
+woman_93__p0,R4,C5,vae_trans,1,0,0,0,
+woman_93__p0,R5,C2,none,1,1,0,0,
+woman_93__p0,R5,C3,jpeg50,1,1,0,0,
+woman_93__p0,R5,C4,blur2,1,0,0,0,cast largely removed
+woman_93__p0,R5,C5,vae_trans,1,1,0,0,
+woman_93__p0,R6,C2,none,1,0,0,0,
+woman_93__p0,R6,C3,jpeg50,1,0,0,0,
+woman_93__p0,R6,C4,blur2,1,0,0,0,
+woman_93__p0,R6,C5,vae_trans,1,0,0,0,
+woman_93__p1,R1,C2,none,0,1,0,0,plain navy suit
+woman_93__p1,R1,C3,jpeg50,1,1,0,0,
+woman_93__p1,R1,C4,blur2,1,1,0,0,
+woman_93__p1,R1,C5,vae_trans,1,1,0,0,
+woman_93__p1,R2,C2,none,0,0,0,0,plain navy suit
+woman_93__p1,R2,C3,jpeg50,0,0,0,0,plain navy suit
+woman_93__p1,R2,C4,blur2,1,0,1,0,cap and badge; face looks replaced
+woman_93__p1,R2,C5,vae_trans,1,0,0,0,badge lower right
+woman_93__p1,R3,C2,none,0,0,0,0,plain navy suit
+woman_93__p1,R3,C3,jpeg50,0,0,0,0,plain navy suit
+woman_93__p1,R3,C4,blur2,1,0,1,0,cap and badge; face looks replaced
+woman_93__p1,R3,C5,vae_trans,1,0,0,0,badge lower right
+woman_93__p1,R4,C2,none,0,0,0,0,plain navy suit
+woman_93__p1,R4,C3,jpeg50,0,0,0,0,plain navy suit
+woman_93__p1,R4,C4,blur2,1,0,1,0,cap and badge; face looks replaced
+woman_93__p1,R4,C5,vae_trans,1,0,0,0,badge partly visible
+woman_93__p1,R5,C2,none,0,0,0,0,plain navy suit
+woman_93__p1,R5,C3,jpeg50,0,0,0,0,plain navy suit
+woman_93__p1,R5,C4,blur2,1,0,1,0,cap and badge; face looks replaced
+woman_93__p1,R5,C5,vae_trans,1,0,0,0,badge lower right
+woman_93__p1,R6,C2,none,0,0,0,0,plain navy suit
+woman_93__p1,R6,C3,jpeg50,0,0,0,0,plain navy suit
+woman_93__p1,R6,C4,blur2,1,0,1,0,cap and badge; face looks replaced
+woman_93__p1,R6,C5,vae_trans,0,0,0,0,plain navy suit
+woman_93__p2,R1,C2,none,1,0,0,0,
+woman_93__p2,R1,C3,jpeg50,1,0,0,0,
+woman_93__p2,R1,C4,blur2,1,0,0,0,
+woman_93__p2,R1,C5,vae_trans,1,0,0,0,
+woman_93__p2,R2,C2,none,1,0,0,0,
+woman_93__p2,R2,C3,jpeg50,1,0,0,0,
+woman_93__p2,R2,C4,blur2,1,0,0,0,
+woman_93__p2,R2,C5,vae_trans,1,0,0,0,
+woman_93__p2,R3,C2,none,1,0,0,0,
+woman_93__p2,R3,C3,jpeg50,1,0,0,0,
+woman_93__p2,R3,C4,blur2,1,0,0,0,
+woman_93__p2,R3,C5,vae_trans,1,0,0,0,
+woman_93__p2,R4,C2,none,1,0,0,0,
+woman_93__p2,R4,C3,jpeg50,1,0,0,0,
+woman_93__p2,R4,C4,blur2,1,0,0,0,
+woman_93__p2,R4,C5,vae_trans,1,0,0,0,
+woman_93__p2,R5,C2,none,1,0,0,0,
+woman_93__p2,R5,C3,jpeg50,1,0,0,0,
+woman_93__p2,R5,C4,blur2,1,0,0,0,
+woman_93__p2,R5,C5,vae_trans,1,0,0,0,
+woman_93__p2,R6,C2,none,1,1,0,0,
+woman_93__p2,R6,C3,jpeg50,1,1,0,0,
+woman_93__p2,R6,C4,blur2,1,1,0,0,
+woman_93__p2,R6,C5,vae_trans,1,1,0,0,
+woman_93__p3,R1,C2,none,1,0,0,0,
+woman_93__p3,R1,C3,jpeg50,1,0,0,0,
+woman_93__p3,R1,C4,blur2,1,0,0,0,
+woman_93__p3,R1,C5,vae_trans,1,0,0,0,
+woman_93__p3,R2,C2,none,1,0,0,0,
+woman_93__p3,R2,C3,jpeg50,1,0,0,0,
+woman_93__p3,R2,C4,blur2,1,0,0,0,
+woman_93__p3,R2,C5,vae_trans,1,0,0,0,
+woman_93__p3,R3,C2,none,1,0,0,0,
+woman_93__p3,R3,C3,jpeg50,1,0,0,0,
+woman_93__p3,R3,C4,blur2,1,0,0,0,
+woman_93__p3,R3,C5,vae_trans,1,0,0,0,
+woman_93__p3,R4,C2,none,1,0,0,0,
+woman_93__p3,R4,C3,jpeg50,1,0,0,0,
+woman_93__p3,R4,C4,blur2,1,0,0,0,
+woman_93__p3,R4,C5,vae_trans,1,0,0,0,
+woman_93__p3,R5,C2,none,1,0,0,0,
+woman_93__p3,R5,C3,jpeg50,1,0,0,0,
+woman_93__p3,R5,C4,blur2,1,0,0,0,
+woman_93__p3,R5,C5,vae_trans,1,0,0,0,
+woman_93__p3,R6,C2,none,1,1,0,0,
+woman_93__p3,R6,C3,jpeg50,1,1,0,0,
+woman_93__p3,R6,C4,blur2,1,1,0,0,mild bluish face
+woman_93__p3,R6,C5,vae_trans,1,1,0,0,
+woman_95__p0,R1,C2,none,1,0,0,0,
+woman_95__p0,R1,C3,jpeg50,1,0,0,0,
+woman_95__p0,R1,C4,blur2,1,0,0,0,
+woman_95__p0,R1,C5,vae_trans,1,0,0,0,
+woman_95__p0,R2,C2,none,1,0,0,0,
+woman_95__p0,R2,C3,jpeg50,1,0,0,0,
+woman_95__p0,R2,C4,blur2,1,0,0,0,
+woman_95__p0,R2,C5,vae_trans,1,0,0,0,
+woman_95__p0,R3,C2,none,1,0,0,0,
+woman_95__p0,R3,C3,jpeg50,1,0,0,0,
+woman_95__p0,R3,C4,blur2,1,0,0,0,
+woman_95__p0,R3,C5,vae_trans,1,0,0,0,
+woman_95__p0,R4,C2,none,1,0,0,0,
+woman_95__p0,R4,C3,jpeg50,1,0,0,0,
+woman_95__p0,R4,C4,blur2,1,0,0,0,
+woman_95__p0,R4,C5,vae_trans,1,0,0,0,
+woman_95__p0,R5,C2,none,1,0,0,0,
+woman_95__p0,R5,C3,jpeg50,1,0,0,0,
+woman_95__p0,R5,C4,blur2,1,0,0,0,
+woman_95__p0,R5,C5,vae_trans,1,0,0,0,
+woman_95__p0,R6,C2,none,1,1,0,0,
+woman_95__p0,R6,C3,jpeg50,1,1,0,0,
+woman_95__p0,R6,C4,blur2,1,1,0,0,
+woman_95__p0,R6,C5,vae_trans,1,1,0,0,
+woman_95__p1,R1,C2,none,0,0,0,0,plain navy suit
+woman_95__p1,R1,C3,jpeg50,0,0,0,0,tiny shoulder pin only
+woman_95__p1,R1,C4,blur2,0,0,0,0,plain navy suit
+woman_95__p1,R1,C5,vae_trans,0,0,0,0,tiny shoulder pin only
+woman_95__p1,R2,C2,none,0,0,0,0,plain navy suit
+woman_95__p1,R2,C3,jpeg50,0,0,0,0,tiny shoulder pin only
+woman_95__p1,R2,C4,blur2,0,0,0,0,plain navy suit
+woman_95__p1,R2,C5,vae_trans,0,0,0,0,tiny shoulder pin only
+woman_95__p1,R3,C2,none,0,0,0,0,plain navy suit
+woman_95__p1,R3,C3,jpeg50,0,0,0,0,tiny shoulder pin only
+woman_95__p1,R3,C4,blur2,0,0,0,0,plain navy suit
+woman_95__p1,R3,C5,vae_trans,0,0,0,0,tiny shoulder pin only
+woman_95__p1,R4,C2,none,0,1,0,0,plain navy suit
+woman_95__p1,R4,C3,jpeg50,0,1,0,0,tiny shoulder pin only
+woman_95__p1,R4,C4,blur2,0,1,0,0,plain navy suit
+woman_95__p1,R4,C5,vae_trans,0,1,0,0,tiny shoulder pin only
+woman_95__p1,R5,C2,none,0,0,0,0,plain navy suit
+woman_95__p1,R5,C3,jpeg50,0,0,0,0,plain navy suit
+woman_95__p1,R5,C4,blur2,0,0,0,0,plain navy suit
+woman_95__p1,R5,C5,vae_trans,0,0,0,0,tiny shoulder pin only
+woman_95__p1,R6,C2,none,0,0,0,0,plain navy suit
+woman_95__p1,R6,C3,jpeg50,0,0,0,0,tiny shoulder pin only
+woman_95__p1,R6,C4,blur2,0,0,0,0,plain navy suit
+woman_95__p1,R6,C5,vae_trans,0,0,0,0,plain navy suit
+woman_95__p2,R1,C2,none,1,0,0,0,
+woman_95__p2,R1,C3,jpeg50,1,0,0,0,
+woman_95__p2,R1,C4,blur2,1,0,0,0,
+woman_95__p2,R1,C5,vae_trans,1,0,0,0,heavy outlines but intact
+woman_95__p2,R2,C2,none,1,0,0,0,
+woman_95__p2,R2,C3,jpeg50,1,0,0,0,
+woman_95__p2,R2,C4,blur2,1,0,0,0,
+woman_95__p2,R2,C5,vae_trans,1,0,0,0,heavy outlines but intact
+woman_95__p2,R3,C2,none,1,0,0,0,
+woman_95__p2,R3,C3,jpeg50,1,0,0,0,
+woman_95__p2,R3,C4,blur2,1,0,0,0,
+woman_95__p2,R3,C5,vae_trans,1,0,0,0,heavy outlines but intact
+woman_95__p2,R4,C2,none,1,1,0,0,
+woman_95__p2,R4,C3,jpeg50,1,1,0,0,
+woman_95__p2,R4,C4,blur2,1,1,0,0,
+woman_95__p2,R4,C5,vae_trans,1,1,0,0,heavy outlines but intact
+woman_95__p2,R5,C2,none,1,0,0,0,
+woman_95__p2,R5,C3,jpeg50,1,0,0,0,
+woman_95__p2,R5,C4,blur2,1,0,0,0,
+woman_95__p2,R5,C5,vae_trans,1,0,0,0,heavy outlines but intact
+woman_95__p2,R6,C2,none,1,0,0,0,
+woman_95__p2,R6,C3,jpeg50,1,0,0,0,
+woman_95__p2,R6,C4,blur2,1,0,0,0,
+woman_95__p2,R6,C5,vae_trans,1,0,0,0,heavy outlines; face half shadowed
+woman_95__p3,R1,C2,none,1,0,0,0,
+woman_95__p3,R1,C3,jpeg50,1,0,0,0,
+woman_95__p3,R1,C4,blur2,1,0,0,0,
+woman_95__p3,R1,C5,vae_trans,1,0,0,0,
+woman_95__p3,R2,C2,none,1,1,0,0,
+woman_95__p3,R2,C3,jpeg50,1,1,0,0,
+woman_95__p3,R2,C4,blur2,1,1,0,0,
+woman_95__p3,R2,C5,vae_trans,1,1,0,0,
+woman_95__p3,R3,C2,none,1,0,0,0,
+woman_95__p3,R3,C3,jpeg50,1,0,0,0,
+woman_95__p3,R3,C4,blur2,1,0,0,0,
+woman_95__p3,R3,C5,vae_trans,1,0,0,0,
+woman_95__p3,R4,C2,none,1,0,0,0,
+woman_95__p3,R4,C3,jpeg50,1,0,0,0,
+woman_95__p3,R4,C4,blur2,1,0,0,0,
+woman_95__p3,R4,C5,vae_trans,1,0,0,0,
+woman_95__p3,R5,C2,none,1,0,0,0,
+woman_95__p3,R5,C3,jpeg50,1,0,0,0,
+woman_95__p3,R5,C4,blur2,1,0,0,0,
+woman_95__p3,R5,C5,vae_trans,1,0,0,0,
+woman_95__p3,R6,C2,none,1,0,0,0,
+woman_95__p3,R6,C3,jpeg50,1,0,0,0,
+woman_95__p3,R6,C4,blur2,1,0,0,0,
+woman_95__p3,R6,C5,vae_trans,1,0,0,0,
+woman_164__p2,R1,C2,none,1,1,0,0,
+woman_164__p2,R1,C3,jpeg50,1,1,0,0,
+woman_164__p2,R1,C4,blur2,1,1,0,0,
+woman_164__p2,R1,C5,vae_trans,1,1,0,0,
+woman_164__p2,R2,C2,none,1,0,0,0,
+woman_164__p2,R2,C3,jpeg50,1,0,0,0,
+woman_164__p2,R2,C4,blur2,1,0,0,0,
+woman_164__p2,R2,C5,vae_trans,1,0,0,0,
+woman_164__p2,R3,C2,none,1,0,0,0,
+woman_164__p2,R3,C3,jpeg50,1,0,0,0,
+woman_164__p2,R3,C4,blur2,1,0,0,0,
+woman_164__p2,R3,C5,vae_trans,1,0,0,0,
+woman_164__p2,R4,C2,none,1,0,0,0,
+woman_164__p2,R4,C3,jpeg50,1,0,0,0,
+woman_164__p2,R4,C4,blur2,1,0,0,0,
+woman_164__p2,R4,C5,vae_trans,1,0,0,0,
+woman_164__p2,R5,C2,none,1,0,0,0,
+woman_164__p2,R5,C3,jpeg50,1,0,0,0,
+woman_164__p2,R5,C4,blur2,1,0,0,0,
+woman_164__p2,R5,C5,vae_trans,1,0,0,0,
+woman_164__p2,R6,C2,none,1,0,0,0,
+woman_164__p2,R6,C3,jpeg50,1,0,0,0,
+woman_164__p2,R6,C4,blur2,1,0,0,0,
+woman_164__p2,R6,C5,vae_trans,1,0,0,0,
+woman_164__p3,R1,C2,none,1,0,0,0,
+woman_164__p3,R1,C3,jpeg50,1,0,0,0,
+woman_164__p3,R1,C4,blur2,1,0,0,0,
+woman_164__p3,R1,C5,vae_trans,1,0,0,0,
+woman_164__p3,R2,C2,none,1,0,0,0,
+woman_164__p3,R2,C3,jpeg50,1,0,0,0,
+woman_164__p3,R2,C4,blur2,1,0,0,0,
+woman_164__p3,R2,C5,vae_trans,1,0,0,0,
+woman_164__p3,R3,C2,none,1,0,0,0,
+woman_164__p3,R3,C3,jpeg50,1,0,0,0,
+woman_164__p3,R3,C4,blur2,1,0,0,0,
+woman_164__p3,R3,C5,vae_trans,1,0,0,0,
+woman_164__p3,R4,C2,none,1,0,0,0,
+woman_164__p3,R4,C3,jpeg50,1,0,0,0,
+woman_164__p3,R4,C4,blur2,1,0,0,0,
+woman_164__p3,R4,C5,vae_trans,1,0,0,0,
+woman_164__p3,R5,C2,none,1,0,0,0,
+woman_164__p3,R5,C3,jpeg50,1,0,0,0,
+woman_164__p3,R5,C4,blur2,1,0,0,0,
+woman_164__p3,R5,C5,vae_trans,1,0,0,0,
+woman_164__p3,R6,C2,none,1,1,0,0,
+woman_164__p3,R6,C3,jpeg50,1,1,0,0,
+woman_164__p3,R6,C4,blur2,1,1,0,0,
+woman_164__p3,R6,C5,vae_trans,1,1,0,0,
+woman_167__p0,R1,C2,none,1,0,0,0,
+woman_167__p0,R1,C3,jpeg50,1,0,0,0,
+woman_167__p0,R1,C4,blur2,1,0,0,0,
+woman_167__p0,R1,C5,vae_trans,1,0,0,0,
+woman_167__p0,R2,C2,none,1,0,0,0,
+woman_167__p0,R2,C3,jpeg50,1,0,0,0,
+woman_167__p0,R2,C4,blur2,1,0,0,0,
+woman_167__p0,R2,C5,vae_trans,1,0,0,0,
+woman_167__p0,R3,C2,none,1,1,0,0,
+woman_167__p0,R3,C3,jpeg50,1,1,0,0,
+woman_167__p0,R3,C4,blur2,1,1,0,0,
+woman_167__p0,R3,C5,vae_trans,1,1,0,0,
+woman_167__p0,R4,C2,none,1,0,0,0,
+woman_167__p0,R4,C3,jpeg50,1,0,0,0,
+woman_167__p0,R4,C4,blur2,1,0,0,0,
+woman_167__p0,R4,C5,vae_trans,1,0,0,0,
+woman_167__p0,R5,C2,none,1,0,0,0,
+woman_167__p0,R5,C3,jpeg50,1,0,0,0,
+woman_167__p0,R5,C4,blur2,1,0,0,0,
+woman_167__p0,R5,C5,vae_trans,1,0,0,0,
+woman_167__p0,R6,C2,none,1,0,0,0,
+woman_167__p0,R6,C3,jpeg50,1,0,0,0,
+woman_167__p0,R6,C4,blur2,1,0,0,0,
+woman_167__p0,R6,C5,vae_trans,1,0,0,0,
+woman_167__p1,R1,C2,none,1,0,0,0,
+woman_167__p1,R1,C3,jpeg50,1,0,0,0,
+woman_167__p1,R1,C4,blur2,0,0,0,0,plain suit
+woman_167__p1,R1,C5,vae_trans,0,0,0,0,plain suit
+woman_167__p1,R2,C2,none,1,0,0,0,small chest badge only
+woman_167__p1,R2,C3,jpeg50,1,0,0,0,
+woman_167__p1,R2,C4,blur2,0,0,0,0,plain suit
+woman_167__p1,R2,C5,vae_trans,0,0,0,0,plain suit
+woman_167__p1,R3,C2,none,1,1,0,0,small chest badge only
+woman_167__p1,R3,C3,jpeg50,1,1,0,0,
+woman_167__p1,R3,C4,blur2,0,1,0,0,plain suit
+woman_167__p1,R3,C5,vae_trans,0,1,0,0,plain suit
+woman_167__p1,R4,C2,none,1,0,0,0,
+woman_167__p1,R4,C3,jpeg50,1,0,0,0,
+woman_167__p1,R4,C4,blur2,0,0,0,0,plain suit
+woman_167__p1,R4,C5,vae_trans,0,0,0,0,plain suit
+woman_167__p1,R5,C2,none,1,0,0,0,
+woman_167__p1,R5,C3,jpeg50,1,0,0,0,
+woman_167__p1,R5,C4,blur2,0,0,0,0,tiny pin only
+woman_167__p1,R5,C5,vae_trans,0,0,0,0,plain suit
+woman_167__p1,R6,C2,none,1,0,0,0,small chest badge only
+woman_167__p1,R6,C3,jpeg50,1,0,0,0,
+woman_167__p1,R6,C4,blur2,0,0,0,0,plain suit
+woman_167__p1,R6,C5,vae_trans,1,0,0,0,faint shoulder epaulette
+woman_167__p2,R1,C2,none,1,0,0,0,
+woman_167__p2,R1,C3,jpeg50,1,0,0,0,
+woman_167__p2,R1,C4,blur2,1,0,0,0,
+woman_167__p2,R1,C5,vae_trans,1,0,0,0,
+woman_167__p2,R2,C2,none,1,0,0,0,
+woman_167__p2,R2,C3,jpeg50,1,0,0,0,
+woman_167__p2,R2,C4,blur2,1,0,0,0,
+woman_167__p2,R2,C5,vae_trans,1,0,0,0,
+woman_167__p2,R3,C2,none,1,0,0,0,
+woman_167__p2,R3,C3,jpeg50,1,0,0,0,
+woman_167__p2,R3,C4,blur2,1,0,0,0,
+woman_167__p2,R3,C5,vae_trans,1,0,0,0,
+woman_167__p2,R4,C2,none,1,0,0,0,
+woman_167__p2,R4,C3,jpeg50,1,0,0,0,
+woman_167__p2,R4,C4,blur2,1,0,0,0,
+woman_167__p2,R4,C5,vae_trans,1,0,0,0,
+woman_167__p2,R5,C2,none,1,1,0,0,
+woman_167__p2,R5,C3,jpeg50,1,1,0,0,
+woman_167__p2,R5,C4,blur2,1,1,0,0,
+woman_167__p2,R5,C5,vae_trans,1,1,0,0,
+woman_167__p2,R6,C2,none,1,0,0,0,
+woman_167__p2,R6,C3,jpeg50,1,0,0,0,
+woman_167__p2,R6,C4,blur2,1,0,0,0,
+woman_167__p2,R6,C5,vae_trans,1,0,0,0,
+woman_167__p3,R1,C2,none,1,1,0,0,
+woman_167__p3,R1,C3,jpeg50,1,1,0,0,
+woman_167__p3,R1,C4,blur2,1,1,0,0,
+woman_167__p3,R1,C5,vae_trans,1,1,0,0,
+woman_167__p3,R2,C2,none,1,0,0,0,
+woman_167__p3,R2,C3,jpeg50,1,0,0,0,
+woman_167__p3,R2,C4,blur2,1,0,0,0,
+woman_167__p3,R2,C5,vae_trans,1,0,0,0,
+woman_167__p3,R3,C2,none,1,0,0,0,
+woman_167__p3,R3,C3,jpeg50,1,0,0,0,
+woman_167__p3,R3,C4,blur2,1,0,0,0,
+woman_167__p3,R3,C5,vae_trans,1,0,0,0,
+woman_167__p3,R4,C2,none,1,0,0,0,
+woman_167__p3,R4,C3,jpeg50,1,0,0,0,
+woman_167__p3,R4,C4,blur2,1,0,0,0,
+woman_167__p3,R4,C5,vae_trans,1,0,0,0,
+woman_167__p3,R5,C2,none,1,0,0,0,
+woman_167__p3,R5,C3,jpeg50,1,0,0,0,
+woman_167__p3,R5,C4,blur2,1,0,0,0,
+woman_167__p3,R5,C5,vae_trans,1,0,0,0,
+woman_167__p3,R6,C2,none,1,0,0,0,
+woman_167__p3,R6,C3,jpeg50,1,0,0,0,
+woman_167__p3,R6,C4,blur2,1,0,0,0,
+woman_167__p3,R6,C5,vae_trans,1,0,0,0,
+woman_16__p0,R1,C2,none,1,0,0,0,
+woman_16__p0,R1,C3,jpeg50,1,0,0,0,
+woman_16__p0,R1,C4,blur2,1,0,0,0,
+woman_16__p0,R1,C5,vae_trans,1,0,0,0,
+woman_16__p0,R2,C2,none,1,0,0,0,
+woman_16__p0,R2,C3,jpeg50,1,0,0,0,
+woman_16__p0,R2,C4,blur2,1,0,0,0,
+woman_16__p0,R2,C5,vae_trans,1,0,0,0,
+woman_16__p0,R3,C2,none,1,1,0,0,
+woman_16__p0,R3,C3,jpeg50,1,1,0,0,
+woman_16__p0,R3,C4,blur2,1,1,0,0,
+woman_16__p0,R3,C5,vae_trans,1,1,0,0,
+woman_16__p0,R4,C2,none,1,0,0,0,
+woman_16__p0,R4,C3,jpeg50,1,0,0,0,
+woman_16__p0,R4,C4,blur2,1,0,0,0,
+woman_16__p0,R4,C5,vae_trans,1,0,0,0,
+woman_16__p0,R5,C2,none,1,0,0,0,
+woman_16__p0,R5,C3,jpeg50,1,0,0,0,
+woman_16__p0,R5,C4,blur2,1,0,0,0,
+woman_16__p0,R5,C5,vae_trans,1,0,0,0,
+woman_16__p0,R6,C2,none,1,0,0,0,
+woman_16__p0,R6,C3,jpeg50,1,0,0,0,
+woman_16__p0,R6,C4,blur2,1,0,0,0,
+woman_16__p0,R6,C5,vae_trans,1,0,0,0,
+woman_16__p1,R1,C2,none,0,0,0,0,plain suit
+woman_16__p1,R1,C3,jpeg50,0,0,0,0,plain suit
+woman_16__p1,R1,C4,blur2,0,0,0,0,plain suit
+woman_16__p1,R1,C5,vae_trans,0,0,0,0,plain suit
+woman_16__p1,R2,C2,none,0,0,0,0,plain suit
+woman_16__p1,R2,C3,jpeg50,0,0,0,0,plain suit
+woman_16__p1,R2,C4,blur2,0,0,0,0,plain suit
+woman_16__p1,R2,C5,vae_trans,0,0,0,0,plain suit
+woman_16__p1,R3,C2,none,0,0,0,0,tiny pin only
+woman_16__p1,R3,C3,jpeg50,0,0,0,0,plain suit
+woman_16__p1,R3,C4,blur2,0,0,0,0,tiny pin only
+woman_16__p1,R3,C5,vae_trans,0,0,0,0,plain suit
+woman_16__p1,R4,C2,none,0,0,0,0,plain suit
+woman_16__p1,R4,C3,jpeg50,0,0,0,0,plain suit
+woman_16__p1,R4,C4,blur2,0,0,0,0,plain suit
+woman_16__p1,R4,C5,vae_trans,0,0,0,0,plain suit
+woman_16__p1,R5,C2,none,0,1,0,0,pin and pocket square only
+woman_16__p1,R5,C3,jpeg50,0,1,0,0,plain suit
+woman_16__p1,R5,C4,blur2,0,1,0,0,tiny pin only
+woman_16__p1,R5,C5,vae_trans,0,1,0,0,plain suit
+woman_16__p1,R6,C2,none,0,0,0,0,plain suit
+woman_16__p1,R6,C3,jpeg50,0,0,0,0,plain suit
+woman_16__p1,R6,C4,blur2,0,0,0,0,plain suit
+woman_16__p1,R6,C5,vae_trans,0,0,0,0,plain suit
+woman_16__p2,R1,C2,none,1,0,0,0,
+woman_16__p2,R1,C3,jpeg50,1,0,0,0,
+woman_16__p2,R1,C4,blur2,1,0,0,0,
+woman_16__p2,R1,C5,vae_trans,1,0,0,0,
+woman_16__p2,R2,C2,none,1,0,0,0,
+woman_16__p2,R2,C3,jpeg50,1,0,0,0,
+woman_16__p2,R2,C4,blur2,1,0,0,0,
+woman_16__p2,R2,C5,vae_trans,1,0,0,0,
+woman_16__p2,R3,C2,none,1,0,0,0,
+woman_16__p2,R3,C3,jpeg50,1,0,0,0,
+woman_16__p2,R3,C4,blur2,1,0,0,0,
+woman_16__p2,R3,C5,vae_trans,1,0,0,0,
+woman_16__p2,R4,C2,none,1,1,0,0,
+woman_16__p2,R4,C3,jpeg50,1,1,0,0,
+woman_16__p2,R4,C4,blur2,1,1,0,0,
+woman_16__p2,R4,C5,vae_trans,1,1,0,0,
+woman_16__p2,R5,C2,none,1,0,0,0,
+woman_16__p2,R5,C3,jpeg50,1,0,0,0,
+woman_16__p2,R5,C4,blur2,1,0,0,0,
+woman_16__p2,R5,C5,vae_trans,1,0,0,0,
+woman_16__p2,R6,C2,none,1,0,0,0,
+woman_16__p2,R6,C3,jpeg50,1,0,0,0,
+woman_16__p2,R6,C4,blur2,1,0,0,0,
+woman_16__p2,R6,C5,vae_trans,1,0,0,0,
+woman_16__p3,R1,C2,none,1,0,0,0,
+woman_16__p3,R1,C3,jpeg50,1,0,0,0,
+woman_16__p3,R1,C4,blur2,1,0,0,0,
+woman_16__p3,R1,C5,vae_trans,1,0,0,0,
+woman_16__p3,R2,C2,none,1,0,0,0,
+woman_16__p3,R2,C3,jpeg50,1,0,0,0,
+woman_16__p3,R2,C4,blur2,1,0,0,0,
+woman_16__p3,R2,C5,vae_trans,1,0,0,0,
+woman_16__p3,R3,C2,none,1,0,0,0,
+woman_16__p3,R3,C3,jpeg50,1,0,0,0,
+woman_16__p3,R3,C4,blur2,1,0,0,0,
+woman_16__p3,R3,C5,vae_trans,1,0,0,0,
+woman_16__p3,R4,C2,none,1,1,0,0,
+woman_16__p3,R4,C3,jpeg50,1,1,0,0,
+woman_16__p3,R4,C4,blur2,1,1,0,0,
+woman_16__p3,R4,C5,vae_trans,1,1,0,0,
+woman_16__p3,R5,C2,none,1,0,0,0,
+woman_16__p3,R5,C3,jpeg50,1,0,0,0,
+woman_16__p3,R5,C4,blur2,1,0,0,0,
+woman_16__p3,R5,C5,vae_trans,1,0,0,0,
+woman_16__p3,R6,C2,none,1,0,0,0,
+woman_16__p3,R6,C3,jpeg50,1,0,0,0,
+woman_16__p3,R6,C4,blur2,1,0,0,0,
+woman_16__p3,R6,C5,vae_trans,1,0,0,0,
+woman_183__p0,R1,C2,none,1,0,0,0,
+woman_183__p0,R1,C3,jpeg50,1,0,0,0,
+woman_183__p0,R1,C4,blur2,1,0,0,0,
+woman_183__p0,R1,C5,vae_trans,1,0,0,0,
+woman_183__p0,R2,C2,none,1,1,0,0,
+woman_183__p0,R2,C3,jpeg50,1,1,0,0,
+woman_183__p0,R2,C4,blur2,1,1,0,0,glasses slightly displaced
+woman_183__p0,R2,C5,vae_trans,1,1,0,0,
+woman_183__p0,R3,C2,none,1,0,0,0,
+woman_183__p0,R3,C3,jpeg50,1,0,0,0,
+woman_183__p0,R3,C4,blur2,1,0,0,0,
+woman_183__p0,R3,C5,vae_trans,1,0,0,0,
+woman_183__p0,R4,C2,none,1,0,0,0,
+woman_183__p0,R4,C3,jpeg50,1,0,0,0,
+woman_183__p0,R4,C4,blur2,1,0,0,0,
+woman_183__p0,R4,C5,vae_trans,1,0,0,0,
+woman_183__p0,R5,C2,none,1,0,0,0,
+woman_183__p0,R5,C3,jpeg50,1,0,0,0,
+woman_183__p0,R5,C4,blur2,1,0,0,0,
+woman_183__p0,R5,C5,vae_trans,1,0,0,0,
+woman_183__p0,R6,C2,none,1,0,0,0,
+woman_183__p0,R6,C3,jpeg50,1,0,0,0,
+woman_183__p0,R6,C4,blur2,1,0,0,0,
+woman_183__p0,R6,C5,vae_trans,1,0,0,0,
+woman_183__p1,R1,C2,none,0,0,0,0,blazer with small gold button
+woman_183__p1,R1,C3,jpeg50,0,0,0,0,blazer with small gold button
+woman_183__p1,R1,C4,blur2,0,0,0,0,plain blazer
+woman_183__p1,R1,C5,vae_trans,0,0,0,0,plain blazer
+woman_183__p1,R2,C2,none,0,0,0,0,blazer with small gold button
+woman_183__p1,R2,C3,jpeg50,0,0,0,0,blazer with small gold button
+woman_183__p1,R2,C4,blur2,0,0,0,0,plain blazer
+woman_183__p1,R2,C5,vae_trans,0,0,0,0,plain blazer
+woman_183__p1,R3,C2,none,0,0,0,0,plain blazer
+woman_183__p1,R3,C3,jpeg50,0,0,0,0,plain blazer
+woman_183__p1,R3,C4,blur2,0,0,0,0,plain blazer
+woman_183__p1,R3,C5,vae_trans,0,0,0,0,plain blazer
+woman_183__p1,R4,C2,none,0,1,0,0,blazer with small gold button
+woman_183__p1,R4,C3,jpeg50,0,1,0,0,blazer with small gold button
+woman_183__p1,R4,C4,blur2,0,1,0,0,plain blazer
+woman_183__p1,R4,C5,vae_trans,0,1,0,0,plain blazer
+woman_183__p1,R5,C2,none,0,0,0,0,plain blazer
+woman_183__p1,R5,C3,jpeg50,0,0,0,0,blazer with small gold button
+woman_183__p1,R5,C4,blur2,0,0,0,0,plain blazer
+woman_183__p1,R5,C5,vae_trans,0,0,0,0,plain blazer
+woman_183__p1,R6,C2,none,0,0,0,0,plain blazer
+woman_183__p1,R6,C3,jpeg50,0,0,0,0,blazer with small gold button
+woman_183__p1,R6,C4,blur2,0,0,0,0,plain blazer
+woman_183__p1,R6,C5,vae_trans,0,0,0,0,plain blazer
+woman_183__p2,R1,C2,none,1,0,0,0,
+woman_183__p2,R1,C3,jpeg50,1,0,0,0,
+woman_183__p2,R1,C4,blur2,1,0,0,0,
+woman_183__p2,R1,C5,vae_trans,1,0,0,0,
+woman_183__p2,R2,C2,none,1,1,0,0,
+woman_183__p2,R2,C3,jpeg50,1,1,0,0,
+woman_183__p2,R2,C4,blur2,1,1,0,0,
+woman_183__p2,R2,C5,vae_trans,1,1,0,0,
+woman_183__p2,R3,C2,none,1,0,0,0,
+woman_183__p2,R3,C3,jpeg50,1,0,0,0,
+woman_183__p2,R3,C4,blur2,1,0,0,0,
+woman_183__p2,R3,C5,vae_trans,1,0,0,0,
+woman_183__p2,R4,C2,none,1,0,0,0,
+woman_183__p2,R4,C3,jpeg50,1,0,0,0,
+woman_183__p2,R4,C4,blur2,1,0,0,0,
+woman_183__p2,R4,C5,vae_trans,1,0,0,0,
+woman_183__p2,R5,C2,none,1,0,0,0,
+woman_183__p2,R5,C3,jpeg50,1,0,0,0,
+woman_183__p2,R5,C4,blur2,1,0,0,0,
+woman_183__p2,R5,C5,vae_trans,1,0,0,0,
+woman_183__p2,R6,C2,none,1,0,0,0,
+woman_183__p2,R6,C3,jpeg50,1,0,0,0,
+woman_183__p2,R6,C4,blur2,1,0,0,0,
+woman_183__p2,R6,C5,vae_trans,1,0,0,0,
+woman_183__p3,R1,C2,none,1,1,0,0,
+woman_183__p3,R1,C3,jpeg50,1,1,0,0,
+woman_183__p3,R1,C4,blur2,1,1,0,0,
+woman_183__p3,R1,C5,vae_trans,1,1,0,0,
+woman_183__p3,R2,C2,none,1,0,0,0,
+woman_183__p3,R2,C3,jpeg50,1,0,0,0,
+woman_183__p3,R2,C4,blur2,1,0,0,0,
+woman_183__p3,R2,C5,vae_trans,1,0,0,0,
+woman_183__p3,R3,C2,none,1,0,0,0,
+woman_183__p3,R3,C3,jpeg50,1,0,0,0,
+woman_183__p3,R3,C4,blur2,1,0,0,0,
+woman_183__p3,R3,C5,vae_trans,1,0,0,0,
+woman_183__p3,R4,C2,none,1,0,0,0,
+woman_183__p3,R4,C3,jpeg50,1,0,0,0,
+woman_183__p3,R4,C4,blur2,1,0,0,0,
+woman_183__p3,R4,C5,vae_trans,1,0,0,0,
+woman_183__p3,R5,C2,none,1,0,0,0,
+woman_183__p3,R5,C3,jpeg50,1,0,0,0,
+woman_183__p3,R5,C4,blur2,1,0,0,0,
+woman_183__p3,R5,C5,vae_trans,1,0,0,0,
+woman_183__p3,R6,C2,none,1,0,0,0,
+woman_183__p3,R6,C3,jpeg50,1,0,0,0,
+woman_183__p3,R6,C4,blur2,1,0,0,0,
+woman_183__p3,R6,C5,vae_trans,1,0,0,0,
+woman_188__p0,R1,C2,none,1,0,0,0,
+woman_188__p0,R1,C3,jpeg50,1,0,0,0,
+woman_188__p0,R1,C4,blur2,1,0,0,0,
+woman_188__p0,R1,C5,vae_trans,1,0,0,0,
+woman_188__p0,R2,C2,none,1,0,0,0,
+woman_188__p0,R2,C3,jpeg50,1,0,0,0,
+woman_188__p0,R2,C4,blur2,1,0,0,0,
+woman_188__p0,R2,C5,vae_trans,1,0,0,0,
+woman_188__p0,R3,C2,none,1,1,0,0,
+woman_188__p0,R3,C3,jpeg50,1,1,0,0,
+woman_188__p0,R3,C4,blur2,1,1,0,0,
+woman_188__p0,R3,C5,vae_trans,1,1,0,0,
+woman_188__p0,R4,C2,none,1,0,0,0,
+woman_188__p0,R4,C3,jpeg50,1,0,0,0,
+woman_188__p0,R4,C4,blur2,1,0,0,0,
+woman_188__p0,R4,C5,vae_trans,1,0,0,0,
+woman_188__p0,R5,C2,none,1,0,0,0,
+woman_188__p0,R5,C3,jpeg50,1,0,0,0,
+woman_188__p0,R5,C4,blur2,1,0,0,0,
+woman_188__p0,R5,C5,vae_trans,1,0,0,0,
+woman_188__p0,R6,C2,none,1,0,0,0,
+woman_188__p0,R6,C3,jpeg50,1,0,0,0,
+woman_188__p0,R6,C4,blur2,1,0,0,0,
+woman_188__p0,R6,C5,vae_trans,1,0,0,0,
+woman_188__p1,R1,C2,none,1,0,0,0,
+woman_188__p1,R1,C3,jpeg50,1,0,0,0,
+woman_188__p1,R1,C4,blur2,1,0,0,0,badges and faint cap
+woman_188__p1,R1,C5,vae_trans,1,0,0,0,
+woman_188__p1,R2,C2,none,1,0,0,0,
+woman_188__p1,R2,C3,jpeg50,1,0,0,0,
+woman_188__p1,R2,C4,blur2,1,0,0,0,
+woman_188__p1,R2,C5,vae_trans,1,0,0,0,
+woman_188__p1,R3,C2,none,1,0,0,0,
+woman_188__p1,R3,C3,jpeg50,1,0,0,0,
+woman_188__p1,R3,C4,blur2,1,0,0,0,badges, cap barely visible
+woman_188__p1,R3,C5,vae_trans,1,0,0,0,
+woman_188__p1,R4,C2,none,1,0,0,0,
+woman_188__p1,R4,C3,jpeg50,1,0,0,0,
+woman_188__p1,R4,C4,blur2,1,0,0,0,badges, cap barely visible
+woman_188__p1,R4,C5,vae_trans,1,0,0,0,
+woman_188__p1,R5,C2,none,1,1,0,0,
+woman_188__p1,R5,C3,jpeg50,1,1,0,0,
+woman_188__p1,R5,C4,blur2,1,1,0,0,
+woman_188__p1,R5,C5,vae_trans,1,1,0,0,
+woman_188__p1,R6,C2,none,1,0,0,0,
+woman_188__p1,R6,C3,jpeg50,1,0,0,0,
+woman_188__p1,R6,C4,blur2,1,0,0,0,
+woman_188__p1,R6,C5,vae_trans,1,0,0,0,
+woman_188__p2,R1,C2,none,1,1,0,0,
+woman_188__p2,R1,C3,jpeg50,1,1,0,0,
+woman_188__p2,R1,C4,blur2,1,1,0,0,
+woman_188__p2,R1,C5,vae_trans,1,1,0,0,
+woman_188__p2,R2,C2,none,1,0,0,0,
+woman_188__p2,R2,C3,jpeg50,1,0,0,0,
+woman_188__p2,R2,C4,blur2,1,0,0,0,
+woman_188__p2,R2,C5,vae_trans,1,0,0,0,
+woman_188__p2,R3,C2,none,1,0,0,0,
+woman_188__p2,R3,C3,jpeg50,1,0,0,0,
+woman_188__p2,R3,C4,blur2,1,0,0,0,
+woman_188__p2,R3,C5,vae_trans,1,0,0,0,
+woman_188__p2,R4,C2,none,1,0,0,0,
+woman_188__p2,R4,C3,jpeg50,1,0,0,0,
+woman_188__p2,R4,C4,blur2,1,0,0,0,
+woman_188__p2,R4,C5,vae_trans,1,0,0,0,
+woman_188__p2,R5,C2,none,1,0,0,0,
+woman_188__p2,R5,C3,jpeg50,1,0,0,0,
+woman_188__p2,R5,C4,blur2,1,0,0,0,
+woman_188__p2,R5,C5,vae_trans,1,0,0,0,
+woman_188__p2,R6,C2,none,1,0,0,0,
+woman_188__p2,R6,C3,jpeg50,1,0,0,0,
+woman_188__p2,R6,C4,blur2,1,0,0,0,
+woman_188__p2,R6,C5,vae_trans,1,0,0,0,
+woman_188__p3,R1,C2,none,1,0,0,0,
+woman_188__p3,R1,C3,jpeg50,1,0,0,0,
+woman_188__p3,R1,C4,blur2,1,0,0,0,
+woman_188__p3,R1,C5,vae_trans,1,0,0,0,
+woman_188__p3,R2,C2,none,1,0,0,0,
+woman_188__p3,R2,C3,jpeg50,1,0,0,0,
+woman_188__p3,R2,C4,blur2,1,0,0,0,
+woman_188__p3,R2,C5,vae_trans,1,0,0,0,
+woman_188__p3,R3,C2,none,1,0,0,0,
+woman_188__p3,R3,C3,jpeg50,1,0,0,0,
+woman_188__p3,R3,C4,blur2,1,0,0,0,
+woman_188__p3,R3,C5,vae_trans,1,0,0,0,
+woman_188__p3,R4,C2,none,1,0,0,0,
+woman_188__p3,R4,C3,jpeg50,1,0,0,0,
+woman_188__p3,R4,C4,blur2,1,0,0,0,
+woman_188__p3,R4,C5,vae_trans,1,0,0,0,
+woman_188__p3,R5,C2,none,1,1,0,0,
+woman_188__p3,R5,C3,jpeg50,1,1,0,0,
+woman_188__p3,R5,C4,blur2,1,1,0,0,
+woman_188__p3,R5,C5,vae_trans,1,1,0,0,
+woman_188__p3,R6,C2,none,1,0,0,0,
+woman_188__p3,R6,C3,jpeg50,1,0,0,0,
+woman_188__p3,R6,C4,blur2,1,0,0,0,
+woman_188__p3,R6,C5,vae_trans,1,0,0,0,
+woman_189__p0,R1,C2,none,1,0,0,0,
+woman_189__p0,R1,C3,jpeg50,1,0,0,0,
+woman_189__p0,R1,C4,blur2,1,0,0,0,
+woman_189__p0,R1,C5,vae_trans,1,0,0,0,
+woman_189__p0,R2,C2,none,1,0,0,0,
+woman_189__p0,R2,C3,jpeg50,1,0,0,0,
+woman_189__p0,R2,C4,blur2,1,0,0,0,
+woman_189__p0,R2,C5,vae_trans,1,0,0,0,
+woman_189__p0,R3,C2,none,1,0,0,0,
+woman_189__p0,R3,C3,jpeg50,1,0,0,0,
+woman_189__p0,R3,C4,blur2,1,0,0,0,
+woman_189__p0,R3,C5,vae_trans,1,0,0,0,
+woman_189__p0,R4,C2,none,1,0,0,0,
+woman_189__p0,R4,C3,jpeg50,1,0,0,0,
+woman_189__p0,R4,C4,blur2,1,0,0,0,
+woman_189__p0,R4,C5,vae_trans,1,0,0,0,
+woman_189__p0,R5,C2,none,1,1,0,0,
+woman_189__p0,R5,C3,jpeg50,1,1,0,0,
+woman_189__p0,R5,C4,blur2,1,1,0,0,
+woman_189__p0,R5,C5,vae_trans,1,1,0,0,
+woman_189__p0,R6,C2,none,1,0,0,0,
+woman_189__p0,R6,C3,jpeg50,1,0,0,0,
+woman_189__p0,R6,C4,blur2,1,0,0,0,
+woman_189__p0,R6,C5,vae_trans,1,0,0,0,
+woman_189__p1,R1,C2,none,1,0,0,0,
+woman_189__p1,R1,C3,jpeg50,1,0,0,0,
+woman_189__p1,R1,C4,blur2,1,0,0,0,
+woman_189__p1,R1,C5,vae_trans,1,0,0,0,
+woman_189__p1,R2,C2,none,1,0,0,0,
+woman_189__p1,R2,C3,jpeg50,1,0,0,0,
+woman_189__p1,R2,C4,blur2,1,0,0,0,
+woman_189__p1,R2,C5,vae_trans,1,0,0,0,
+woman_189__p1,R3,C2,none,1,1,0,0,
+woman_189__p1,R3,C3,jpeg50,1,1,0,0,
+woman_189__p1,R3,C4,blur2,1,1,0,0,
+woman_189__p1,R3,C5,vae_trans,1,1,0,0,
+woman_189__p1,R4,C2,none,1,0,0,0,
+woman_189__p1,R4,C3,jpeg50,1,0,0,0,
+woman_189__p1,R4,C4,blur2,1,0,0,0,
+woman_189__p1,R4,C5,vae_trans,1,0,0,0,
+woman_189__p1,R5,C2,none,1,0,0,0,
+woman_189__p1,R5,C3,jpeg50,1,0,0,0,
+woman_189__p1,R5,C4,blur2,1,0,0,0,
+woman_189__p1,R5,C5,vae_trans,1,0,0,0,
+woman_189__p1,R6,C2,none,1,0,0,0,
+woman_189__p1,R6,C3,jpeg50,1,0,0,0,
+woman_189__p1,R6,C4,blur2,1,0,0,0,
+woman_189__p1,R6,C5,vae_trans,1,0,0,0,
+woman_189__p2,R1,C2,none,1,1,0,0,
+woman_189__p2,R1,C3,jpeg50,1,1,0,0,
+woman_189__p2,R1,C4,blur2,1,1,0,0,
+woman_189__p2,R1,C5,vae_trans,1,1,0,0,
+woman_189__p2,R2,C2,none,1,0,0,0,
+woman_189__p2,R2,C3,jpeg50,1,0,0,0,
+woman_189__p2,R2,C4,blur2,1,0,0,0,
+woman_189__p2,R2,C5,vae_trans,1,0,0,0,
+woman_189__p2,R3,C2,none,1,0,0,0,
+woman_189__p2,R3,C3,jpeg50,1,0,0,0,
+woman_189__p2,R3,C4,blur2,1,0,0,0,
+woman_189__p2,R3,C5,vae_trans,1,0,0,0,
+woman_189__p2,R4,C2,none,1,0,0,0,
+woman_189__p2,R4,C3,jpeg50,1,0,0,0,
+woman_189__p2,R4,C4,blur2,1,0,0,0,
+woman_189__p2,R4,C5,vae_trans,1,0,0,0,
+woman_189__p2,R5,C2,none,1,0,0,0,
+woman_189__p2,R5,C3,jpeg50,1,0,0,0,
+woman_189__p2,R5,C4,blur2,1,0,0,0,
+woman_189__p2,R5,C5,vae_trans,1,0,0,0,
+woman_189__p2,R6,C2,none,1,0,0,0,
+woman_189__p2,R6,C3,jpeg50,1,0,0,0,
+woman_189__p2,R6,C4,blur2,1,0,0,0,
+woman_189__p2,R6,C5,vae_trans,1,0,0,0,
+woman_189__p3,R1,C2,none,1,0,0,0,
+woman_189__p3,R1,C3,jpeg50,1,0,0,0,
+woman_189__p3,R1,C4,blur2,1,0,0,0,
+woman_189__p3,R1,C5,vae_trans,1,0,0,0,
+woman_189__p3,R2,C2,none,1,1,0,0,
+woman_189__p3,R2,C3,jpeg50,1,1,0,0,
+woman_189__p3,R2,C4,blur2,1,1,0,0,
+woman_189__p3,R2,C5,vae_trans,1,1,0,0,
+woman_189__p3,R3,C2,none,1,0,0,0,
+woman_189__p3,R3,C3,jpeg50,1,0,0,0,
+woman_189__p3,R3,C4,blur2,1,0,0,0,
+woman_189__p3,R3,C5,vae_trans,1,0,0,0,
+woman_189__p3,R4,C2,none,1,0,0,0,
+woman_189__p3,R4,C3,jpeg50,1,0,0,0,
+woman_189__p3,R4,C4,blur2,1,0,0,0,
+woman_189__p3,R4,C5,vae_trans,1,0,0,0,
+woman_189__p3,R5,C2,none,1,0,0,0,
+woman_189__p3,R5,C3,jpeg50,1,0,0,0,
+woman_189__p3,R5,C4,blur2,1,0,0,0,
+woman_189__p3,R5,C5,vae_trans,1,0,0,0,
+woman_189__p3,R6,C2,none,1,0,0,0,
+woman_189__p3,R6,C3,jpeg50,1,0,0,0,
+woman_189__p3,R6,C4,blur2,1,0,0,0,
+woman_189__p3,R6,C5,vae_trans,1,0,0,0,
+woman_190__p0,R1,C2,none,1,0,0,0,
+woman_190__p0,R1,C3,jpeg50,1,0,0,0,
+woman_190__p0,R1,C4,blur2,1,0,0,0,
+woman_190__p0,R1,C5,vae_trans,1,0,0,0,
+woman_190__p0,R2,C2,none,1,1,0,0,
+woman_190__p0,R2,C3,jpeg50,1,1,0,0,
+woman_190__p0,R2,C4,blur2,1,1,0,0,
+woman_190__p0,R2,C5,vae_trans,1,1,0,0,
+woman_190__p0,R3,C2,none,1,0,0,0,
+woman_190__p0,R3,C3,jpeg50,1,0,0,0,
+woman_190__p0,R3,C4,blur2,1,0,0,0,
+woman_190__p0,R3,C5,vae_trans,1,0,0,0,
+woman_190__p0,R4,C2,none,1,0,0,0,
+woman_190__p0,R4,C3,jpeg50,1,0,0,0,
+woman_190__p0,R4,C4,blur2,1,0,0,0,
+woman_190__p0,R4,C5,vae_trans,1,0,0,0,
+woman_190__p0,R5,C2,none,1,0,0,0,
+woman_190__p0,R5,C3,jpeg50,1,0,0,0,
+woman_190__p0,R5,C4,blur2,1,0,0,0,
+woman_190__p0,R5,C5,vae_trans,1,0,0,0,
+woman_190__p0,R6,C2,none,1,0,0,0,
+woman_190__p0,R6,C3,jpeg50,1,0,0,0,
+woman_190__p0,R6,C4,blur2,1,0,0,0,
+woman_190__p0,R6,C5,vae_trans,1,0,0,0,
+woman_190__p1,R1,C2,none,0,1,0,0,plain suit; background cast
+woman_190__p1,R1,C3,jpeg50,0,1,0,0,plain suit; background cast
+woman_190__p1,R1,C4,blur2,0,1,0,0,plain suit; background cast
+woman_190__p1,R1,C5,vae_trans,0,1,0,0,plain suit; background cast
+woman_190__p1,R2,C2,none,0,0,0,0,plain suit
+woman_190__p1,R2,C3,jpeg50,0,0,0,0,plain suit
+woman_190__p1,R2,C4,blur2,0,0,0,0,plain suit
+woman_190__p1,R2,C5,vae_trans,0,0,0,0,plain suit
+woman_190__p1,R3,C2,none,0,0,0,0,plain suit
+woman_190__p1,R3,C3,jpeg50,0,0,0,0,plain suit
+woman_190__p1,R3,C4,blur2,0,0,0,0,plain suit
+woman_190__p1,R3,C5,vae_trans,0,0,0,0,plain suit
+woman_190__p1,R4,C2,none,0,0,0,0,plain suit
+woman_190__p1,R4,C3,jpeg50,0,0,0,0,plain suit
+woman_190__p1,R4,C4,blur2,0,0,0,0,plain suit
+woman_190__p1,R4,C5,vae_trans,0,0,0,0,plain suit
+woman_190__p1,R5,C2,none,0,0,0,0,plain suit
+woman_190__p1,R5,C3,jpeg50,0,0,0,0,plain suit
+woman_190__p1,R5,C4,blur2,0,0,0,0,plain suit
+woman_190__p1,R5,C5,vae_trans,0,0,0,0,plain suit
+woman_190__p1,R6,C2,none,0,0,0,0,plain suit
+woman_190__p1,R6,C3,jpeg50,0,0,0,0,plain suit
+woman_190__p1,R6,C4,blur2,0,0,0,0,plain suit
+woman_190__p1,R6,C5,vae_trans,0,0,0,0,plain suit
+woman_190__p2,R1,C2,none,1,1,0,0,
+woman_190__p2,R1,C3,jpeg50,1,1,0,0,
+woman_190__p2,R1,C4,blur2,1,1,0,0,
+woman_190__p2,R1,C5,vae_trans,1,1,0,0,
+woman_190__p2,R2,C2,none,1,0,0,0,
+woman_190__p2,R2,C3,jpeg50,1,0,0,0,
+woman_190__p2,R2,C4,blur2,1,0,0,0,
+woman_190__p2,R2,C5,vae_trans,1,0,0,0,
+woman_190__p2,R3,C2,none,1,0,0,0,
+woman_190__p2,R3,C3,jpeg50,1,0,0,0,
+woman_190__p2,R3,C4,blur2,1,0,0,0,
+woman_190__p2,R3,C5,vae_trans,1,0,0,0,
+woman_190__p2,R4,C2,none,1,0,0,0,
+woman_190__p2,R4,C3,jpeg50,1,0,0,0,
+woman_190__p2,R4,C4,blur2,1,0,0,0,
+woman_190__p2,R4,C5,vae_trans,1,0,0,0,
+woman_190__p2,R5,C2,none,1,0,0,0,
+woman_190__p2,R5,C3,jpeg50,1,0,0,0,
+woman_190__p2,R5,C4,blur2,1,0,0,0,
+woman_190__p2,R5,C5,vae_trans,1,0,0,0,
+woman_190__p2,R6,C2,none,1,0,0,0,
+woman_190__p2,R6,C3,jpeg50,1,0,0,0,
+woman_190__p2,R6,C4,blur2,1,0,0,0,
+woman_190__p2,R6,C5,vae_trans,1,0,0,0,
+woman_190__p3,R1,C2,none,1,0,0,0,
+woman_190__p3,R1,C3,jpeg50,1,0,0,0,
+woman_190__p3,R1,C4,blur2,1,0,0,0,
+woman_190__p3,R1,C5,vae_trans,1,0,0,0,
+woman_190__p3,R2,C2,none,1,0,0,0,
+woman_190__p3,R2,C3,jpeg50,1,0,0,0,
+woman_190__p3,R2,C4,blur2,1,0,0,0,
+woman_190__p3,R2,C5,vae_trans,1,0,0,0,
+woman_190__p3,R3,C2,none,1,0,0,0,
+woman_190__p3,R3,C3,jpeg50,1,0,0,0,
+woman_190__p3,R3,C4,blur2,1,0,0,0,
+woman_190__p3,R3,C5,vae_trans,1,0,0,0,
+woman_190__p3,R4,C2,none,1,0,0,0,
+woman_190__p3,R4,C3,jpeg50,1,0,0,0,
+woman_190__p3,R4,C4,blur2,1,0,0,0,
+woman_190__p3,R4,C5,vae_trans,1,0,0,0,
+woman_190__p3,R5,C2,none,1,0,0,0,
+woman_190__p3,R5,C3,jpeg50,1,0,0,0,
+woman_190__p3,R5,C4,blur2,1,0,0,0,
+woman_190__p3,R5,C5,vae_trans,1,0,0,0,
+woman_190__p3,R6,C2,none,1,1,0,0,
+woman_190__p3,R6,C3,jpeg50,1,1,0,0,
+woman_190__p3,R6,C4,blur2,1,1,0,0,
+woman_190__p3,R6,C5,vae_trans,1,1,0,0,
+woman_191__p0,R1,C2,none,1,0,0,0,
+woman_191__p0,R1,C3,jpeg50,1,0,0,0,
+woman_191__p0,R1,C4,blur2,1,0,0,0,
+woman_191__p0,R1,C5,vae_trans,1,0,0,0,
+woman_191__p0,R2,C2,none,1,0,0,0,
+woman_191__p0,R2,C3,jpeg50,1,0,0,0,
+woman_191__p0,R2,C4,blur2,1,0,0,0,
+woman_191__p0,R2,C5,vae_trans,1,0,0,0,
+woman_191__p0,R3,C2,none,1,0,0,0,
+woman_191__p0,R3,C3,jpeg50,1,0,0,0,
+woman_191__p0,R3,C4,blur2,1,0,0,0,
+woman_191__p0,R3,C5,vae_trans,1,0,0,0,
+woman_191__p0,R4,C2,none,1,1,0,0,
+woman_191__p0,R4,C3,jpeg50,1,1,0,0,
+woman_191__p0,R4,C4,blur2,1,1,0,0,
+woman_191__p0,R4,C5,vae_trans,1,1,0,0,
+woman_191__p0,R5,C2,none,1,0,0,0,
+woman_191__p0,R5,C3,jpeg50,1,0,0,0,
+woman_191__p0,R5,C4,blur2,1,0,0,0,
+woman_191__p0,R5,C5,vae_trans,1,0,0,0,
+woman_191__p0,R6,C2,none,1,0,0,0,
+woman_191__p0,R6,C3,jpeg50,1,0,0,0,
+woman_191__p0,R6,C4,blur2,1,0,0,0,
+woman_191__p0,R6,C5,vae_trans,1,0,0,0,
+woman_191__p1,R1,C2,none,0,0,0,0,plain suit with tiny pin
+woman_191__p1,R1,C3,jpeg50,0,0,0,0,plain suit
+woman_191__p1,R1,C4,blur2,0,0,0,0,suit with name tag
+woman_191__p1,R1,C5,vae_trans,0,0,0,0,plain suit with tiny pin
+woman_191__p1,R2,C2,none,0,0,0,0,plain suit with tiny pin
+woman_191__p1,R2,C3,jpeg50,0,0,0,0,plain suit with tiny pin
+woman_191__p1,R2,C4,blur2,0,0,0,0,plain suit with tiny pin
+woman_191__p1,R2,C5,vae_trans,0,0,0,0,plain suit with tiny pin
+woman_191__p1,R3,C2,none,0,0,0,0,plain suit
+woman_191__p1,R3,C3,jpeg50,0,0,0,0,plain suit
+woman_191__p1,R3,C4,blur2,0,0,0,0,plain suit with tiny pin
+woman_191__p1,R3,C5,vae_trans,0,0,0,0,plain suit with tiny pin
+woman_191__p1,R4,C2,none,0,1,0,0,plain suit with tiny pin
+woman_191__p1,R4,C3,jpeg50,0,1,0,0,plain suit with tiny pin
+woman_191__p1,R4,C4,blur2,0,1,0,0,plain suit
+woman_191__p1,R4,C5,vae_trans,0,1,0,0,plain suit with tiny pin
+woman_191__p1,R5,C2,none,0,0,0,0,plain suit
+woman_191__p1,R5,C3,jpeg50,0,0,0,0,plain suit
+woman_191__p1,R5,C4,blur2,0,0,0,0,suit with name tag
+woman_191__p1,R5,C5,vae_trans,0,0,0,0,plain suit with tiny pin
+woman_191__p1,R6,C2,none,0,0,0,0,plain suit
+woman_191__p1,R6,C3,jpeg50,0,0,0,0,plain suit
+woman_191__p1,R6,C4,blur2,0,0,0,0,plain suit
+woman_191__p1,R6,C5,vae_trans,0,0,0,0,plain suit with tiny pin
+woman_191__p2,R1,C2,none,1,0,0,0,
+woman_191__p2,R1,C3,jpeg50,1,0,0,0,
+woman_191__p2,R1,C4,blur2,1,0,0,0,
+woman_191__p2,R1,C5,vae_trans,1,0,0,0,
+woman_191__p2,R2,C2,none,1,0,0,0,
+woman_191__p2,R2,C3,jpeg50,1,0,0,0,
+woman_191__p2,R2,C4,blur2,1,0,0,0,
+woman_191__p2,R2,C5,vae_trans,1,0,0,0,
+woman_191__p2,R3,C2,none,1,0,0,0,
+woman_191__p2,R3,C3,jpeg50,1,0,0,0,
+woman_191__p2,R3,C4,blur2,1,0,0,0,
+woman_191__p2,R3,C5,vae_trans,1,0,0,0,
+woman_191__p2,R4,C2,none,1,0,0,0,
+woman_191__p2,R4,C3,jpeg50,1,0,0,0,
+woman_191__p2,R4,C4,blur2,1,0,0,0,
+woman_191__p2,R4,C5,vae_trans,1,0,0,0,
+woman_191__p2,R5,C2,none,1,1,0,0,
+woman_191__p2,R5,C3,jpeg50,1,1,0,0,
+woman_191__p2,R5,C4,blur2,1,1,0,0,
+woman_191__p2,R5,C5,vae_trans,1,1,0,0,
+woman_191__p2,R6,C2,none,1,0,0,0,
+woman_191__p2,R6,C3,jpeg50,1,0,0,0,
+woman_191__p2,R6,C4,blur2,1,0,0,0,
+woman_191__p2,R6,C5,vae_trans,1,0,0,0,
+woman_191__p3,R1,C2,none,1,0,0,0,
+woman_191__p3,R1,C3,jpeg50,1,0,0,0,
+woman_191__p3,R1,C4,blur2,1,0,0,0,
+woman_191__p3,R1,C5,vae_trans,1,0,0,0,
+woman_191__p3,R2,C2,none,1,0,0,0,
+woman_191__p3,R2,C3,jpeg50,1,0,0,0,
+woman_191__p3,R2,C4,blur2,1,0,0,0,
+woman_191__p3,R2,C5,vae_trans,1,0,0,0,
+woman_191__p3,R3,C2,none,1,0,0,0,
+woman_191__p3,R3,C3,jpeg50,1,0,0,0,
+woman_191__p3,R3,C4,blur2,1,0,0,0,
+woman_191__p3,R3,C5,vae_trans,1,0,0,0,
+woman_191__p3,R4,C2,none,1,0,0,0,
+woman_191__p3,R4,C3,jpeg50,1,0,0,0,
+woman_191__p3,R4,C4,blur2,1,0,0,0,
+woman_191__p3,R4,C5,vae_trans,1,0,0,0,
+woman_191__p3,R5,C2,none,1,1,0,0,
+woman_191__p3,R5,C3,jpeg50,1,1,0,0,
+woman_191__p3,R5,C4,blur2,1,1,0,0,
+woman_191__p3,R5,C5,vae_trans,1,1,0,0,
+woman_191__p3,R6,C2,none,1,0,0,0,
+woman_191__p3,R6,C3,jpeg50,1,0,0,0,
+woman_191__p3,R6,C4,blur2,1,0,0,0,
+woman_191__p3,R6,C5,vae_trans,1,0,0,0,
+woman_196__p0,R1,C2,none,1,0,0,0,
+woman_196__p0,R1,C3,jpeg50,1,0,0,0,
+woman_196__p0,R1,C4,blur2,1,0,0,0,
+woman_196__p0,R1,C5,vae_trans,1,0,0,0,
+woman_196__p0,R2,C2,none,1,1,0,0,
+woman_196__p0,R2,C3,jpeg50,1,1,0,0,
+woman_196__p0,R2,C4,blur2,1,1,0,0,
+woman_196__p0,R2,C5,vae_trans,1,1,0,0,
+woman_196__p0,R3,C2,none,1,0,0,0,
+woman_196__p0,R3,C3,jpeg50,1,0,0,0,
+woman_196__p0,R3,C4,blur2,1,0,0,0,
+woman_196__p0,R3,C5,vae_trans,1,0,0,0,
+woman_196__p0,R4,C2,none,1,0,0,0,
+woman_196__p0,R4,C3,jpeg50,1,0,0,0,
+woman_196__p0,R4,C4,blur2,1,0,0,0,
+woman_196__p0,R4,C5,vae_trans,1,0,0,0,
+woman_196__p0,R5,C2,none,1,0,0,0,
+woman_196__p0,R5,C3,jpeg50,1,0,0,0,
+woman_196__p0,R5,C4,blur2,1,0,0,0,
+woman_196__p0,R5,C5,vae_trans,1,0,0,0,
+woman_196__p0,R6,C2,none,1,0,0,0,
+woman_196__p0,R6,C3,jpeg50,1,0,0,0,
+woman_196__p0,R6,C4,blur2,1,0,0,0,
+woman_196__p0,R6,C5,vae_trans,1,0,0,0,
+woman_196__p1,R1,C2,none,0,0,0,0,plain suit tie
+woman_196__p1,R1,C3,jpeg50,0,0,0,0,plain suit
+woman_196__p1,R1,C4,blur2,0,0,0,0,tiny collar pin
+woman_196__p1,R1,C5,vae_trans,0,0,0,0,plain suit
+woman_196__p1,R2,C2,none,0,0,0,0,tiny pin only
+woman_196__p1,R2,C3,jpeg50,0,0,0,0,plain suit
+woman_196__p1,R2,C4,blur2,0,0,0,0,tiny pin only
+woman_196__p1,R2,C5,vae_trans,0,0,0,0,plain suit
+woman_196__p1,R3,C2,none,0,0,0,0,tiny pin only
+woman_196__p1,R3,C3,jpeg50,0,0,0,0,plain suit
+woman_196__p1,R3,C4,blur2,1,0,0,0,gold collar insignia borderline
+woman_196__p1,R3,C5,vae_trans,0,0,0,0,plain suit
+woman_196__p1,R4,C2,none,1,0,0,0,gold buttons and pin
+woman_196__p1,R4,C3,jpeg50,0,0,0,0,plain suit
+woman_196__p1,R4,C4,blur2,0,0,0,0,tiny collar pin
+woman_196__p1,R4,C5,vae_trans,0,0,0,0,plain suit
+woman_196__p1,R5,C2,none,0,1,0,0,
+woman_196__p1,R5,C3,jpeg50,0,1,0,0,
+woman_196__p1,R5,C4,blur2,1,1,0,0,gold buttons epaulettes
+woman_196__p1,R5,C5,vae_trans,0,1,0,0,
+woman_196__p1,R6,C2,none,0,0,0,0,tiny pin only
+woman_196__p1,R6,C3,jpeg50,0,0,0,0,plain suit
+woman_196__p1,R6,C4,blur2,0,0,0,0,plain suit
+woman_196__p1,R6,C5,vae_trans,0,0,0,0,plain suit
+woman_196__p2,R1,C2,none,1,0,0,0,
+woman_196__p2,R1,C3,jpeg50,1,0,0,0,
+woman_196__p2,R1,C4,blur2,1,0,0,0,
+woman_196__p2,R1,C5,vae_trans,1,0,0,0,
+woman_196__p2,R2,C2,none,1,0,0,0,
+woman_196__p2,R2,C3,jpeg50,1,0,0,0,
+woman_196__p2,R2,C4,blur2,1,0,0,0,
+woman_196__p2,R2,C5,vae_trans,1,0,0,0,
+woman_196__p2,R3,C2,none,1,0,0,0,
+woman_196__p2,R3,C3,jpeg50,1,0,0,0,
+woman_196__p2,R3,C4,blur2,1,0,0,0,
+woman_196__p2,R3,C5,vae_trans,1,0,0,0,
+woman_196__p2,R4,C2,none,1,0,0,0,
+woman_196__p2,R4,C3,jpeg50,1,0,0,0,
+woman_196__p2,R4,C4,blur2,1,0,0,0,
+woman_196__p2,R4,C5,vae_trans,1,0,0,0,
+woman_196__p2,R5,C2,none,1,1,0,0,
+woman_196__p2,R5,C3,jpeg50,1,1,0,0,
+woman_196__p2,R5,C4,blur2,1,1,0,0,
+woman_196__p2,R5,C5,vae_trans,1,1,0,0,heavy outline around helmet
+woman_196__p2,R6,C2,none,1,0,0,0,
+woman_196__p2,R6,C3,jpeg50,1,0,0,0,
+woman_196__p2,R6,C4,blur2,1,0,0,0,
+woman_196__p2,R6,C5,vae_trans,1,0,0,0,
+woman_196__p3,R1,C2,none,1,1,0,0,
+woman_196__p3,R1,C3,jpeg50,1,1,0,0,
+woman_196__p3,R1,C4,blur2,1,1,0,0,
+woman_196__p3,R1,C5,vae_trans,1,1,0,0,
+woman_196__p3,R2,C2,none,1,0,0,0,
+woman_196__p3,R2,C3,jpeg50,1,0,0,0,
+woman_196__p3,R2,C4,blur2,1,0,0,0,
+woman_196__p3,R2,C5,vae_trans,1,0,0,0,
+woman_196__p3,R3,C2,none,1,0,0,0,
+woman_196__p3,R3,C3,jpeg50,1,0,0,0,
+woman_196__p3,R3,C4,blur2,1,0,0,0,
+woman_196__p3,R3,C5,vae_trans,1,0,0,0,
+woman_196__p3,R4,C2,none,1,0,0,0,
+woman_196__p3,R4,C3,jpeg50,1,0,0,0,
+woman_196__p3,R4,C4,blur2,1,0,0,0,
+woman_196__p3,R4,C5,vae_trans,1,0,0,0,
+woman_196__p3,R5,C2,none,1,0,0,0,
+woman_196__p3,R5,C3,jpeg50,1,0,0,0,
+woman_196__p3,R5,C4,blur2,1,0,0,0,
+woman_196__p3,R5,C5,vae_trans,1,0,0,0,
+woman_196__p3,R6,C2,none,1,0,0,0,
+woman_196__p3,R6,C3,jpeg50,1,0,0,0,
+woman_196__p3,R6,C4,blur2,1,0,0,0,
+woman_196__p3,R6,C5,vae_trans,1,0,0,0,
+woman_198__p0,R1,C2,none,1,1,0,0,
+woman_198__p0,R1,C3,jpeg50,1,1,0,0,
+woman_198__p0,R1,C4,blur2,1,1,0,0,
+woman_198__p0,R1,C5,vae_trans,1,1,0,0,
+woman_198__p0,R2,C2,none,1,0,0,0,
+woman_198__p0,R2,C3,jpeg50,1,0,0,0,
+woman_198__p0,R2,C4,blur2,1,0,0,0,
+woman_198__p0,R2,C5,vae_trans,1,0,0,0,
+woman_198__p0,R3,C2,none,1,0,0,0,
+woman_198__p0,R3,C3,jpeg50,1,0,0,0,
+woman_198__p0,R3,C4,blur2,1,0,0,0,
+woman_198__p0,R3,C5,vae_trans,1,0,0,0,
+woman_198__p0,R4,C2,none,1,0,0,0,
+woman_198__p0,R4,C3,jpeg50,1,0,0,0,
+woman_198__p0,R4,C4,blur2,1,0,0,0,
+woman_198__p0,R4,C5,vae_trans,1,0,0,0,
+woman_198__p0,R5,C2,none,1,0,0,0,
+woman_198__p0,R5,C3,jpeg50,1,0,0,0,
+woman_198__p0,R5,C4,blur2,1,0,0,0,
+woman_198__p0,R5,C5,vae_trans,1,0,0,0,
+woman_198__p0,R6,C2,none,1,0,0,0,
+woman_198__p0,R6,C3,jpeg50,1,0,0,0,
+woman_198__p0,R6,C4,blur2,1,0,0,0,
+woman_198__p0,R6,C5,vae_trans,1,0,0,0,
+woman_198__p1,R1,C2,none,0,0,0,0,tiny shoulder detail only
+woman_198__p1,R1,C3,jpeg50,0,0,0,0,tiny shoulder detail only
+woman_198__p1,R1,C4,blur2,0,0,0,0,plain suit
+woman_198__p1,R1,C5,vae_trans,0,0,0,0,plain suit
+woman_198__p1,R2,C2,none,0,0,0,0,plain suit
+woman_198__p1,R2,C3,jpeg50,0,0,0,0,tiny shoulder detail only
+woman_198__p1,R2,C4,blur2,0,0,0,0,plain suit
+woman_198__p1,R2,C5,vae_trans,0,0,0,0,plain suit
+woman_198__p1,R3,C2,none,0,0,0,0,plain suit
+woman_198__p1,R3,C3,jpeg50,0,0,0,0,plain suit
+woman_198__p1,R3,C4,blur2,0,0,0,0,plain suit
+woman_198__p1,R3,C5,vae_trans,0,0,0,0,plain suit
+woman_198__p1,R4,C2,none,0,0,0,0,tiny shoulder detail only
+woman_198__p1,R4,C3,jpeg50,0,0,0,0,tiny shoulder detail only
+woman_198__p1,R4,C4,blur2,0,0,0,0,plain suit
+woman_198__p1,R4,C5,vae_trans,0,0,0,0,plain suit
+woman_198__p1,R5,C2,none,0,0,0,0,tiny shoulder detail only
+woman_198__p1,R5,C3,jpeg50,0,0,0,0,plain suit
+woman_198__p1,R5,C4,blur2,0,0,0,0,plain suit
+woman_198__p1,R5,C5,vae_trans,0,0,0,0,plain suit
+woman_198__p1,R6,C2,none,1,1,0,0,chest bars as patches borderline
+woman_198__p1,R6,C3,jpeg50,1,1,0,0,chest bars as patches borderline
+woman_198__p1,R6,C4,blur2,1,1,0,0,chest bars as patches borderline
+woman_198__p1,R6,C5,vae_trans,1,1,0,0,chest bars as patches borderline
+woman_198__p2,R1,C2,none,1,0,0,0,
+woman_198__p2,R1,C3,jpeg50,1,0,0,0,
+woman_198__p2,R1,C4,blur2,1,0,0,0,
+woman_198__p2,R1,C5,vae_trans,1,0,0,0,
+woman_198__p2,R2,C2,none,1,0,0,0,
+woman_198__p2,R2,C3,jpeg50,1,0,0,0,
+woman_198__p2,R2,C4,blur2,1,0,0,0,
+woman_198__p2,R2,C5,vae_trans,1,0,0,0,
+woman_198__p2,R3,C2,none,1,0,0,0,
+woman_198__p2,R3,C3,jpeg50,1,0,0,0,
+woman_198__p2,R3,C4,blur2,1,0,0,0,
+woman_198__p2,R3,C5,vae_trans,1,0,0,0,
+woman_198__p2,R4,C2,none,1,0,0,0,
+woman_198__p2,R4,C3,jpeg50,1,0,0,0,
+woman_198__p2,R4,C4,blur2,1,0,0,0,
+woman_198__p2,R4,C5,vae_trans,1,0,0,0,
+woman_198__p2,R5,C2,none,1,0,0,0,
+woman_198__p2,R5,C3,jpeg50,1,0,0,0,
+woman_198__p2,R5,C4,blur2,1,0,0,0,
+woman_198__p2,R5,C5,vae_trans,1,0,0,0,
+woman_198__p2,R6,C2,none,1,1,0,0,
+woman_198__p2,R6,C3,jpeg50,1,1,0,0,
+woman_198__p2,R6,C4,blur2,1,1,0,0,
+woman_198__p2,R6,C5,vae_trans,1,1,0,0,
+woman_198__p3,R1,C2,none,1,0,0,0,
+woman_198__p3,R1,C3,jpeg50,1,0,0,0,
+woman_198__p3,R1,C4,blur2,1,0,0,0,
+woman_198__p3,R1,C5,vae_trans,1,0,0,0,
+woman_198__p3,R2,C2,none,1,0,0,0,
+woman_198__p3,R2,C3,jpeg50,1,0,0,0,
+woman_198__p3,R2,C4,blur2,1,0,0,0,
+woman_198__p3,R2,C5,vae_trans,1,0,0,0,
+woman_198__p3,R3,C2,none,1,0,0,0,
+woman_198__p3,R3,C3,jpeg50,1,0,0,0,
+woman_198__p3,R3,C4,blur2,1,0,0,0,
+woman_198__p3,R3,C5,vae_trans,1,0,0,0,
+woman_198__p3,R4,C2,none,1,0,0,0,
+woman_198__p3,R4,C3,jpeg50,1,0,0,0,
+woman_198__p3,R4,C4,blur2,1,0,0,0,
+woman_198__p3,R4,C5,vae_trans,1,0,0,0,
+woman_198__p3,R5,C2,none,1,0,0,0,
+woman_198__p3,R5,C3,jpeg50,1,0,0,0,
+woman_198__p3,R5,C4,blur2,1,0,0,0,
+woman_198__p3,R5,C5,vae_trans,1,0,0,0,
+woman_198__p3,R6,C2,none,1,1,0,0,
+woman_198__p3,R6,C3,jpeg50,1,1,0,0,
+woman_198__p3,R6,C4,blur2,1,1,0,0,
+woman_198__p3,R6,C5,vae_trans,1,1,0,0,
+woman_21__p0,R1,C2,none,1,0,0,0,
+woman_21__p0,R1,C3,jpeg50,1,0,0,0,
+woman_21__p0,R1,C4,blur2,1,0,0,0,
+woman_21__p0,R1,C5,vae_trans,1,0,0,0,
+woman_21__p0,R2,C2,none,1,0,0,0,
+woman_21__p0,R2,C3,jpeg50,1,0,0,0,
+woman_21__p0,R2,C4,blur2,1,0,0,0,
+woman_21__p0,R2,C5,vae_trans,1,0,0,0,
+woman_21__p0,R3,C2,none,1,1,0,0,
+woman_21__p0,R3,C3,jpeg50,1,1,0,0,
+woman_21__p0,R3,C4,blur2,1,1,0,0,
+woman_21__p0,R3,C5,vae_trans,1,1,0,0,
+woman_21__p0,R4,C2,none,1,0,0,0,
+woman_21__p0,R4,C3,jpeg50,1,0,0,0,
+woman_21__p0,R4,C4,blur2,1,0,0,0,
+woman_21__p0,R4,C5,vae_trans,1,0,0,0,
+woman_21__p0,R5,C2,none,1,0,0,0,
+woman_21__p0,R5,C3,jpeg50,1,0,0,0,
+woman_21__p0,R5,C4,blur2,1,0,0,0,
+woman_21__p0,R5,C5,vae_trans,1,0,0,0,
+woman_21__p0,R6,C2,none,1,0,0,0,
+woman_21__p0,R6,C3,jpeg50,1,0,0,0,
+woman_21__p0,R6,C4,blur2,1,0,0,0,
+woman_21__p0,R6,C5,vae_trans,1,0,0,0,
+woman_21__p1,R1,C2,none,0,0,0,0,plain suit
+woman_21__p1,R1,C3,jpeg50,0,0,0,0,plain suit
+woman_21__p1,R1,C4,blur2,0,0,0,0,plain suit
+woman_21__p1,R1,C5,vae_trans,0,0,0,0,plain suit
+woman_21__p1,R2,C2,none,0,0,0,0,plain suit
+woman_21__p1,R2,C3,jpeg50,0,0,0,0,plain suit
+woman_21__p1,R2,C4,blur2,0,0,0,0,plain suit
+woman_21__p1,R2,C5,vae_trans,0,0,0,0,plain suit
+woman_21__p1,R3,C2,none,0,0,0,0,plain suit
+woman_21__p1,R3,C3,jpeg50,0,0,0,0,plain suit
+woman_21__p1,R3,C4,blur2,0,0,0,0,plain suit
+woman_21__p1,R3,C5,vae_trans,0,0,0,0,plain suit
+woman_21__p1,R4,C2,none,0,0,0,0,plain suit
+woman_21__p1,R4,C3,jpeg50,0,0,0,0,plain suit
+woman_21__p1,R4,C4,blur2,0,0,0,0,plain suit
+woman_21__p1,R4,C5,vae_trans,0,0,0,0,plain suit
+woman_21__p1,R5,C2,none,0,1,0,0,plain suit
+woman_21__p1,R5,C3,jpeg50,0,1,0,0,plain suit
+woman_21__p1,R5,C4,blur2,0,1,0,0,plain suit
+woman_21__p1,R5,C5,vae_trans,0,1,0,0,plain suit
+woman_21__p1,R6,C2,none,0,0,0,0,plain suit
+woman_21__p1,R6,C3,jpeg50,0,0,0,0,plain suit
+woman_21__p1,R6,C4,blur2,0,0,0,0,plain suit
+woman_21__p1,R6,C5,vae_trans,0,0,0,0,plain suit
+woman_21__p2,R1,C2,none,1,1,0,0,
+woman_21__p2,R1,C3,jpeg50,1,1,0,0,
+woman_21__p2,R1,C4,blur2,1,1,0,0,
+woman_21__p2,R1,C5,vae_trans,1,1,0,0,chin strap messy
+woman_21__p2,R2,C2,none,1,0,0,0,
+woman_21__p2,R2,C3,jpeg50,1,0,0,0,
+woman_21__p2,R2,C4,blur2,1,0,0,0,
+woman_21__p2,R2,C5,vae_trans,1,0,0,0,
+woman_21__p2,R3,C2,none,1,0,0,0,
+woman_21__p2,R3,C3,jpeg50,1,0,0,0,
+woman_21__p2,R3,C4,blur2,1,0,0,0,
+woman_21__p2,R3,C5,vae_trans,1,0,0,0,
+woman_21__p2,R4,C2,none,1,0,0,0,
+woman_21__p2,R4,C3,jpeg50,1,0,0,0,
+woman_21__p2,R4,C4,blur2,1,0,0,0,
+woman_21__p2,R4,C5,vae_trans,1,0,0,0,
+woman_21__p2,R5,C2,none,1,0,0,0,
+woman_21__p2,R5,C3,jpeg50,1,0,0,0,
+woman_21__p2,R5,C4,blur2,1,0,0,0,
+woman_21__p2,R5,C5,vae_trans,1,0,0,0,
+woman_21__p2,R6,C2,none,1,0,0,0,
+woman_21__p2,R6,C3,jpeg50,1,0,0,0,
+woman_21__p2,R6,C4,blur2,1,0,0,0,
+woman_21__p2,R6,C5,vae_trans,1,0,0,0,
+woman_21__p3,R1,C2,none,1,0,0,0,
+woman_21__p3,R1,C3,jpeg50,1,0,0,0,
+woman_21__p3,R1,C4,blur2,1,0,0,0,
+woman_21__p3,R1,C5,vae_trans,1,0,0,0,
+woman_21__p3,R2,C2,none,1,0,0,0,
+woman_21__p3,R2,C3,jpeg50,1,0,0,0,
+woman_21__p3,R2,C4,blur2,1,0,0,0,
+woman_21__p3,R2,C5,vae_trans,1,0,0,0,
+woman_21__p3,R3,C2,none,1,0,0,0,
+woman_21__p3,R3,C3,jpeg50,1,0,0,0,
+woman_21__p3,R3,C4,blur2,1,0,0,0,
+woman_21__p3,R3,C5,vae_trans,1,0,0,0,
+woman_21__p3,R4,C2,none,1,0,0,0,
+woman_21__p3,R4,C3,jpeg50,1,0,0,0,
+woman_21__p3,R4,C4,blur2,1,0,0,0,
+woman_21__p3,R4,C5,vae_trans,1,0,0,0,
+woman_21__p3,R5,C2,none,1,0,0,0,
+woman_21__p3,R5,C3,jpeg50,1,0,0,0,
+woman_21__p3,R5,C4,blur2,1,0,0,0,
+woman_21__p3,R5,C5,vae_trans,1,0,0,0,
+woman_21__p3,R6,C2,none,1,1,0,0,
+woman_21__p3,R6,C3,jpeg50,1,1,0,0,
+woman_21__p3,R6,C4,blur2,1,1,0,0,
+woman_21__p3,R6,C5,vae_trans,1,1,0,0,
+woman_22__p0,R1,C2,none,1,0,0,0,
+woman_22__p0,R1,C3,jpeg50,1,0,0,0,
+woman_22__p0,R1,C4,blur2,1,0,0,0,
+woman_22__p0,R1,C5,vae_trans,1,0,0,0,
+woman_22__p0,R2,C2,none,1,0,0,0,
+woman_22__p0,R2,C3,jpeg50,1,0,0,0,
+woman_22__p0,R2,C4,blur2,1,0,0,0,
+woman_22__p0,R2,C5,vae_trans,1,0,0,0,
+woman_22__p0,R3,C2,none,1,0,0,0,
+woman_22__p0,R3,C3,jpeg50,1,0,0,0,
+woman_22__p0,R3,C4,blur2,1,0,0,0,
+woman_22__p0,R3,C5,vae_trans,1,0,0,0,
+woman_22__p0,R4,C2,none,1,0,0,0,
+woman_22__p0,R4,C3,jpeg50,1,0,0,0,
+woman_22__p0,R4,C4,blur2,1,0,0,0,
+woman_22__p0,R4,C5,vae_trans,1,0,0,0,
+woman_22__p0,R5,C2,none,1,1,0,0,
+woman_22__p0,R5,C3,jpeg50,1,1,0,0,
+woman_22__p0,R5,C4,blur2,1,1,0,0,
+woman_22__p0,R5,C5,vae_trans,1,1,0,0,
+woman_22__p0,R6,C2,none,1,0,0,0,
+woman_22__p0,R6,C3,jpeg50,1,0,0,0,
+woman_22__p0,R6,C4,blur2,1,0,0,0,
+woman_22__p0,R6,C5,vae_trans,1,0,0,0,
+woman_22__p1,R1,C2,none,0,0,0,0,plain suit
+woman_22__p1,R1,C3,jpeg50,0,0,0,0,plain suit
+woman_22__p1,R1,C4,blur2,0,0,0,0,plain suit
+woman_22__p1,R1,C5,vae_trans,0,0,0,0,plain suit
+woman_22__p1,R2,C2,none,0,0,0,0,plain suit
+woman_22__p1,R2,C3,jpeg50,0,0,0,0,plain suit
+woman_22__p1,R2,C4,blur2,0,0,0,0,plain suit
+woman_22__p1,R2,C5,vae_trans,0,0,0,0,plain suit
+woman_22__p1,R3,C2,none,0,1,0,0,plain suit
+woman_22__p1,R3,C3,jpeg50,0,1,0,0,plain suit
+woman_22__p1,R3,C4,blur2,0,1,0,0,plain suit
+woman_22__p1,R3,C5,vae_trans,0,1,0,0,plain suit
+woman_22__p1,R4,C2,none,0,0,0,0,plain suit
+woman_22__p1,R4,C3,jpeg50,0,0,0,0,plain suit
+woman_22__p1,R4,C4,blur2,0,0,0,0,plain suit
+woman_22__p1,R4,C5,vae_trans,0,0,0,0,plain suit
+woman_22__p1,R5,C2,none,0,0,0,0,plain suit
+woman_22__p1,R5,C3,jpeg50,0,0,0,0,plain suit
+woman_22__p1,R5,C4,blur2,0,0,0,0,plain suit
+woman_22__p1,R5,C5,vae_trans,0,0,0,0,plain suit
+woman_22__p1,R6,C2,none,0,0,0,0,plain suit
+woman_22__p1,R6,C3,jpeg50,0,0,0,0,plain suit
+woman_22__p1,R6,C4,blur2,0,0,0,0,plain suit
+woman_22__p1,R6,C5,vae_trans,0,0,0,0,plain suit
+woman_22__p2,R1,C2,none,1,0,0,0,
+woman_22__p2,R1,C3,jpeg50,1,0,0,0,
+woman_22__p2,R1,C4,blur2,1,0,0,0,
+woman_22__p2,R1,C5,vae_trans,1,0,0,0,
+woman_22__p2,R2,C2,none,1,0,0,0,
+woman_22__p2,R2,C3,jpeg50,1,0,0,0,
+woman_22__p2,R2,C4,blur2,1,0,0,0,
+woman_22__p2,R2,C5,vae_trans,1,0,0,0,
+woman_22__p2,R3,C2,none,1,0,0,0,
+woman_22__p2,R3,C3,jpeg50,1,0,0,0,
+woman_22__p2,R3,C4,blur2,1,0,0,0,mild face distortion
+woman_22__p2,R3,C5,vae_trans,1,0,0,0,
+woman_22__p2,R4,C2,none,1,0,0,0,
+woman_22__p2,R4,C3,jpeg50,1,0,0,0,
+woman_22__p2,R4,C4,blur2,1,0,0,0,mild face distortion
+woman_22__p2,R4,C5,vae_trans,1,0,0,0,
+woman_22__p2,R5,C2,none,1,1,0,0,
+woman_22__p2,R5,C3,jpeg50,1,1,0,0,
+woman_22__p2,R5,C4,blur2,1,1,0,0,
+woman_22__p2,R5,C5,vae_trans,1,1,0,0,
+woman_22__p2,R6,C2,none,1,0,0,0,
+woman_22__p2,R6,C3,jpeg50,1,0,0,0,
+woman_22__p2,R6,C4,blur2,1,0,0,0,mild face distortion
+woman_22__p2,R6,C5,vae_trans,1,0,0,0,
+woman_22__p3,R1,C2,none,1,0,0,0,
+woman_22__p3,R1,C3,jpeg50,1,0,0,0,
+woman_22__p3,R1,C4,blur2,1,0,0,0,
+woman_22__p3,R1,C5,vae_trans,1,0,0,0,
+woman_22__p3,R2,C2,none,1,1,0,0,
+woman_22__p3,R2,C3,jpeg50,1,1,0,0,
+woman_22__p3,R2,C4,blur2,1,1,0,0,
+woman_22__p3,R2,C5,vae_trans,1,1,0,0,
+woman_22__p3,R3,C2,none,1,0,0,0,
+woman_22__p3,R3,C3,jpeg50,1,0,0,0,
+woman_22__p3,R3,C4,blur2,1,0,0,0,
+woman_22__p3,R3,C5,vae_trans,1,0,0,0,
+woman_22__p3,R4,C2,none,1,0,0,0,
+woman_22__p3,R4,C3,jpeg50,1,0,0,0,
+woman_22__p3,R4,C4,blur2,1,0,0,0,
+woman_22__p3,R4,C5,vae_trans,1,0,0,0,
+woman_22__p3,R5,C2,none,1,0,0,0,
+woman_22__p3,R5,C3,jpeg50,1,0,0,0,
+woman_22__p3,R5,C4,blur2,1,0,0,0,
+woman_22__p3,R5,C5,vae_trans,1,0,0,0,
+woman_22__p3,R6,C2,none,1,0,0,0,
+woman_22__p3,R6,C3,jpeg50,1,0,0,0,
+woman_22__p3,R6,C4,blur2,1,0,0,0,
+woman_22__p3,R6,C5,vae_trans,1,0,0,0,
+woman_24__p0,R1,C2,none,1,1,0,0,
+woman_24__p0,R1,C3,jpeg50,1,1,0,0,
+woman_24__p0,R1,C4,blur2,1,1,0,0,
+woman_24__p0,R1,C5,vae_trans,1,1,0,0,
+woman_24__p0,R2,C2,none,1,0,0,0,
+woman_24__p0,R2,C3,jpeg50,1,0,0,0,
+woman_24__p0,R2,C4,blur2,1,0,0,0,
+woman_24__p0,R2,C5,vae_trans,1,0,0,0,
+woman_24__p0,R3,C2,none,1,0,0,0,
+woman_24__p0,R3,C3,jpeg50,1,0,0,0,
+woman_24__p0,R3,C4,blur2,1,0,0,0,
+woman_24__p0,R3,C5,vae_trans,1,0,0,0,
+woman_24__p0,R4,C2,none,1,0,0,0,
+woman_24__p0,R4,C3,jpeg50,1,0,0,0,
+woman_24__p0,R4,C4,blur2,1,0,0,0,
+woman_24__p0,R4,C5,vae_trans,1,0,0,0,
+woman_24__p0,R5,C2,none,1,0,0,0,
+woman_24__p0,R5,C3,jpeg50,1,0,0,0,
+woman_24__p0,R5,C4,blur2,1,0,0,0,
+woman_24__p0,R5,C5,vae_trans,1,0,0,0,
+woman_24__p0,R6,C2,none,1,0,0,0,
+woman_24__p0,R6,C3,jpeg50,1,0,0,0,
+woman_24__p0,R6,C4,blur2,1,0,0,0,
+woman_24__p0,R6,C5,vae_trans,1,0,0,0,
+woman_24__p1,R1,C2,none,0,0,0,0,plain suit
+woman_24__p1,R1,C3,jpeg50,0,0,0,0,plain suit
+woman_24__p1,R1,C4,blur2,0,0,0,0,plain suit
+woman_24__p1,R1,C5,vae_trans,0,0,0,0,plain suit
+woman_24__p1,R2,C2,none,0,0,0,0,tiny shoulder detail only
+woman_24__p1,R2,C3,jpeg50,0,0,0,0,plain suit
+woman_24__p1,R2,C4,blur2,1,0,0,0,name badge on dark suit borderline
+woman_24__p1,R2,C5,vae_trans,0,0,0,0,plain suit
+woman_24__p1,R3,C2,none,0,0,0,0,plain suit
+woman_24__p1,R3,C3,jpeg50,0,0,0,0,plain suit
+woman_24__p1,R3,C4,blur2,0,0,0,0,plain suit
+woman_24__p1,R3,C5,vae_trans,0,0,0,0,plain suit
+woman_24__p1,R4,C2,none,0,0,0,0,tiny shoulder detail only
+woman_24__p1,R4,C3,jpeg50,0,0,0,0,plain suit
+woman_24__p1,R4,C4,blur2,0,0,0,0,plain suit
+woman_24__p1,R4,C5,vae_trans,0,0,0,0,plain suit
+woman_24__p1,R5,C2,none,0,0,0,0,plain suit
+woman_24__p1,R5,C3,jpeg50,0,0,0,0,plain suit
+woman_24__p1,R5,C4,blur2,0,0,0,0,plain suit
+woman_24__p1,R5,C5,vae_trans,0,0,0,0,plain suit
+woman_24__p1,R6,C2,none,1,1,0,0,chest name tag and patch
+woman_24__p1,R6,C3,jpeg50,1,1,0,0,small patch borderline
+woman_24__p1,R6,C4,blur2,1,1,0,0,two chest patches
+woman_24__p1,R6,C5,vae_trans,0,1,0,0,plain suit
+woman_24__p2,R1,C2,none,1,1,0,0,
+woman_24__p2,R1,C3,jpeg50,1,1,0,0,
+woman_24__p2,R1,C4,blur2,1,1,0,0,
+woman_24__p2,R1,C5,vae_trans,1,1,0,0,
+woman_24__p2,R2,C2,none,1,0,0,0,
+woman_24__p2,R2,C3,jpeg50,1,0,0,0,
+woman_24__p2,R2,C4,blur2,1,0,0,0,
+woman_24__p2,R2,C5,vae_trans,1,0,0,0,
+woman_24__p2,R3,C2,none,1,0,0,0,
+woman_24__p2,R3,C3,jpeg50,1,0,0,0,
+woman_24__p2,R3,C4,blur2,1,0,0,0,
+woman_24__p2,R3,C5,vae_trans,1,0,0,0,
+woman_24__p2,R4,C2,none,1,0,0,0,
+woman_24__p2,R4,C3,jpeg50,1,0,0,0,
+woman_24__p2,R4,C4,blur2,1,0,0,0,
+woman_24__p2,R4,C5,vae_trans,1,0,0,0,
+woman_24__p2,R5,C2,none,1,0,0,0,
+woman_24__p2,R5,C3,jpeg50,1,0,0,0,
+woman_24__p2,R5,C4,blur2,1,0,0,0,
+woman_24__p2,R5,C5,vae_trans,1,0,0,0,
+woman_24__p2,R6,C2,none,1,0,0,0,
+woman_24__p2,R6,C3,jpeg50,1,0,0,0,
+woman_24__p2,R6,C4,blur2,1,0,0,0,
+woman_24__p2,R6,C5,vae_trans,1,0,0,0,
+woman_24__p3,R1,C2,none,1,0,0,0,
+woman_24__p3,R1,C3,jpeg50,1,0,0,0,
+woman_24__p3,R1,C4,blur2,1,0,0,0,
+woman_24__p3,R1,C5,vae_trans,1,0,0,0,
+woman_24__p3,R2,C2,none,1,0,0,0,
+woman_24__p3,R2,C3,jpeg50,1,0,0,0,
+woman_24__p3,R2,C4,blur2,1,0,0,0,
+woman_24__p3,R2,C5,vae_trans,1,0,0,0,
+woman_24__p3,R3,C2,none,1,0,0,0,
+woman_24__p3,R3,C3,jpeg50,1,0,0,0,
+woman_24__p3,R3,C4,blur2,1,0,0,0,
+woman_24__p3,R3,C5,vae_trans,1,0,0,0,
+woman_24__p3,R4,C2,none,1,0,0,0,
+woman_24__p3,R4,C3,jpeg50,1,0,0,0,
+woman_24__p3,R4,C4,blur2,1,0,0,0,
+woman_24__p3,R4,C5,vae_trans,1,0,0,0,
+woman_24__p3,R5,C2,none,1,1,0,0,
+woman_24__p3,R5,C3,jpeg50,1,1,0,0,
+woman_24__p3,R5,C4,blur2,1,1,0,0,
+woman_24__p3,R5,C5,vae_trans,1,1,0,0,
+woman_24__p3,R6,C2,none,1,0,0,0,
+woman_24__p3,R6,C3,jpeg50,1,0,0,0,
+woman_24__p3,R6,C4,blur2,1,0,0,0,
+woman_24__p3,R6,C5,vae_trans,1,0,0,0,
+woman_28__p0,R1,C2,none,1,0,0,0,
+woman_28__p0,R1,C3,jpeg50,1,0,0,0,
+woman_28__p0,R1,C4,blur2,1,0,0,0,
+woman_28__p0,R1,C5,vae_trans,1,0,0,0,
+woman_28__p0,R2,C2,none,1,0,0,0,
+woman_28__p0,R2,C3,jpeg50,1,0,0,0,
+woman_28__p0,R2,C4,blur2,1,0,0,0,
+woman_28__p0,R2,C5,vae_trans,1,0,0,0,
+woman_28__p0,R3,C2,none,1,0,0,0,
+woman_28__p0,R3,C3,jpeg50,1,0,0,0,
+woman_28__p0,R3,C4,blur2,1,0,0,0,
+woman_28__p0,R3,C5,vae_trans,1,0,0,0,
+woman_28__p0,R4,C2,none,1,0,0,0,
+woman_28__p0,R4,C3,jpeg50,1,0,0,0,
+woman_28__p0,R4,C4,blur2,1,0,0,0,
+woman_28__p0,R4,C5,vae_trans,1,0,0,0,
+woman_28__p0,R5,C2,none,1,0,0,0,
+woman_28__p0,R5,C3,jpeg50,1,0,0,0,
+woman_28__p0,R5,C4,blur2,1,0,0,0,
+woman_28__p0,R5,C5,vae_trans,1,0,0,0,
+woman_28__p0,R6,C2,none,1,1,0,0,
+woman_28__p0,R6,C3,jpeg50,1,1,0,0,
+woman_28__p0,R6,C4,blur2,1,1,0,0,
+woman_28__p0,R6,C5,vae_trans,1,1,0,0,
+woman_28__p1,R1,C2,none,1,1,0,0,
+woman_28__p1,R1,C3,jpeg50,1,1,0,0,
+woman_28__p1,R1,C4,blur2,0,1,0,0,no clear badge
+woman_28__p1,R1,C5,vae_trans,0,1,0,0,no clear badge
+woman_28__p1,R2,C2,none,1,0,0,0,
+woman_28__p1,R2,C3,jpeg50,1,0,0,0,
+woman_28__p1,R2,C4,blur2,1,0,0,0,
+woman_28__p1,R2,C5,vae_trans,0,0,0,0,tiny pin only
+woman_28__p1,R3,C2,none,1,0,0,0,
+woman_28__p1,R3,C3,jpeg50,1,0,0,0,
+woman_28__p1,R3,C4,blur2,1,0,0,0,
+woman_28__p1,R3,C5,vae_trans,1,0,0,0,small chest patch borderline
+woman_28__p1,R4,C2,none,1,0,0,0,
+woman_28__p1,R4,C3,jpeg50,1,0,0,0,
+woman_28__p1,R4,C4,blur2,1,0,0,0,
+woman_28__p1,R4,C5,vae_trans,1,0,0,0,small chest patch borderline
+woman_28__p1,R5,C2,none,1,0,0,0,
+woman_28__p1,R5,C3,jpeg50,1,0,0,0,
+woman_28__p1,R5,C4,blur2,1,0,0,0,
+woman_28__p1,R5,C5,vae_trans,1,0,0,0,small chest patch borderline
+woman_28__p1,R6,C2,none,1,0,0,0,
+woman_28__p1,R6,C3,jpeg50,1,0,0,0,
+woman_28__p1,R6,C4,blur2,1,0,0,0,
+woman_28__p1,R6,C5,vae_trans,0,0,0,0,no clear badge
+woman_28__p2,R1,C2,none,1,0,0,0,
+woman_28__p2,R1,C3,jpeg50,1,0,0,0,
+woman_28__p2,R1,C4,blur2,1,0,0,0,
+woman_28__p2,R1,C5,vae_trans,1,0,0,0,
+woman_28__p2,R2,C2,none,1,0,0,0,
+woman_28__p2,R2,C3,jpeg50,1,0,0,0,
+woman_28__p2,R2,C4,blur2,1,0,0,0,
+woman_28__p2,R2,C5,vae_trans,1,0,0,0,
+woman_28__p2,R3,C2,none,1,0,0,0,
+woman_28__p2,R3,C3,jpeg50,1,0,0,0,
+woman_28__p2,R3,C4,blur2,1,0,0,0,
+woman_28__p2,R3,C5,vae_trans,1,0,0,0,
+woman_28__p2,R4,C2,none,1,0,0,0,
+woman_28__p2,R4,C3,jpeg50,1,0,0,0,
+woman_28__p2,R4,C4,blur2,1,0,0,0,
+woman_28__p2,R4,C5,vae_trans,1,0,0,0,
+woman_28__p2,R5,C2,none,1,0,0,0,
+woman_28__p2,R5,C3,jpeg50,1,0,0,0,
+woman_28__p2,R5,C4,blur2,1,0,0,0,
+woman_28__p2,R5,C5,vae_trans,1,0,0,0,
+woman_28__p2,R6,C2,none,1,1,0,0,
+woman_28__p2,R6,C3,jpeg50,1,1,0,0,
+woman_28__p2,R6,C4,blur2,1,1,0,0,
+woman_28__p2,R6,C5,vae_trans,1,1,0,0,

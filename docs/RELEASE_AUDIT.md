@@ -77,3 +77,26 @@ Paper silent (code behaviour):
 - A14 Default runs are not bit-identical (--deterministic, already decided).
 
 README: Baselines table = code except A1; the "Loss" column for PhotoGuard/DCT-Shield does not state the direction.
+
+## Audit results (evaluation/, color_mappings.py, solve_ablation.py, scripts/, README.md; read-only audit by the baseline session)
+Decided items (Adam betas, cosine schedule, -w*d/d0, r, polar angle, Mist license, --deterministic) not repeated.
+
+Match: E1 timbrooks/instruct-pix2pix, text 7.5, image 1.8, 50 steps, seed 20260812, fp32 (configs/immulut.yaml:17-21, evaluation/edit_ip2p.py:16-21); scheduler = model default (Euler-Ancestral); instruction strings configs/immulut.yaml:22-26. E2 JPEG 80/50/30, blur sigma 1/2 (radius ceil(3 sigma), reflect), crop 10% per side + bicubic resize, rotate 15 bilinear zero fill (evaluation/purify.py:19-55); VAE-Trans encoder+quant_conv fine-tuned, frozen decoder, posterior mean (evaluation/vae_trans.py:13-23); training sigma 0.1, posterior-mean target, MSE, AdamW 1e-4, 6 epochs, batch 2, 512 random crops, seed 0 (scripts/train_vae_trans.py). E3 piq.LPIPS default (evaluation/metrics.py:12); edit LPIPS = LPIPS(edit(P(y)), edit(P(x))) same seed (run_protocol.py:64-72); 8-bit quantization of purified inputs, edits and defended images. E4 A1-A4 options; B1 bisection to +-0.005 on 8-bit images with |h| capped at pi; B2/B3/B4 parameterizations; B2-B4 init 0.002 N(0,1) seed 0 and ImmuLUT objective/schedule; +-0.015 checkpoint rule. Anonymity grep clean.
+
+Mismatch:
+- B1 Distortion constraint in B2-B4. Supp A: "No distortion constraint enters the optimization" (all optimized variants) and only checkpoints within +-0.015 are kept. Code color_mappings.py:118-183 solve_matched adds the defense LPIPS interval [t-0.015, t+0.015] to the loss through an augmented-Lagrangian (PHR) term updated every 50 steps (soft upper target t, floor term, rho doubling up to 16); the checkpoint check is in addition. B2-B4 are optimized under a distortion constraint; A1-A4 and ImmuLUT are not.
+- B2 Re-runs. Supp A: B2-B4 use the ImmuLUT solver (1800 steps, 3e-4 -> 1e-5). README.md:103-105: B2/B3 portraits without a feasible checkpoint were solved again with steps=3600 lr=0.001 or steps=3600 lr=0.0003 lr_final=0.0003. Not in the paper.
+
+Paper silent (code behaviour):
+- B3 B1 search: alpha starts at 0.01, doubles until target or cap; geometric-mean bisection, at most 60 iterations.
+- B4 Parameter scaling: B2 (h, s) = 10*delta, B3 (A, b) = 3*delta; B4 table projected to [0, 1] after every step.
+- B5 B2-B4 delivery: last iterate if feasible, else last feasible checkpoint within the final 100 steps, else the feasible checkpoint with the lowest loss, else no output.
+- B6 B2-B4 objective includes the face-box reference weight w as in ImmuLUT.
+- B7 JPEG input cast to uint8 by truncation after *255 (purify.py:22, as in the original code); float32 k/255 can yield k-1.
+- B8 InstructPix2Pix input passed as a tensor in [-1, 1] (edit_ip2p.py:19); the diffusers image processor treats a tensor without negative values as [0, 1] and rescales again (only when all pixels >= 128).
+- B9 Edit LPIPS on GPU, defense LPIPS on CPU; LAION and MUSIQ-AVA via pyiqa on CPU; SigLIP google/siglip-base-patch16-224 with empty text, ArcFace insightface buffalo_l highest-score face, cells without a face excluded from ArcFace means.
+- B10 Perturbation survival LPIPS(P(y), P(x)) / LPIPS(y, x); seven-purification averages pool images, prompts and purifications.
+- B11 VAE-Trans validation: center crops, fixed noise seed 12345.
+- B12 README.md:36 example command omits vae_trans from --purifications; configs include it.
+
+README: numbers agree with configs and code; B1 is not described in README.

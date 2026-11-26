@@ -3,7 +3,7 @@
 輸入
     --judgments   docs/isr_pilot/ablation/judgments.csv（逐格評審標籤：sheet、row、cell、purification、accessory、mismatch、degraded）
     --key         消融 ISR 拼圖的解盲表（sheet、row、condition；sheet 含 .jpg 副檔名）
-    --aesthetic-dir  含 aesthetic_full.csv、aesthetic_b2.csv、aesthetic_b3.csv（image、aes_laion、aes_musiq_ava），
+    --aesthetic-dir  含 aesthetic_immulut.csv、aesthetic_b2.csv、aesthetic_b3.csv（image、aes_laion、aes_musiq_ava），
                   為 supp 表 4 所用的逐張讀數（pyiqa laion_aes、musiq-ava，CPU，防禦圖 8 位元 PNG 以 512² 讀入）
 分母：一格＝(影像, 指令, 淨化)，淨化為 none、jpeg50、blur2、vae_trans；同一格的 Undefended 編輯成功
 （accessory＝1、mismatch＝0、degraded＝0）才計入，與 measure_ablation_isr_summary.py 相同。Full、B2、B3 共用同一組分母格。
@@ -25,7 +25,7 @@ from pathlib import Path
 
 PURIFS = ["none", "jpeg50", "blur2", "vae_trans"]
 CONDS = ["Full", "B2", "B3"]
-FILES = {"Full": "aesthetic_full.csv", "B2": "aesthetic_b2.csv", "B3": "aesthetic_b3.csv"}
+FILES = {"Full": "aesthetic_immulut.csv", "B2": "aesthetic_b2.csv", "B3": "aesthetic_b3.csv"}
 METRICS = ["aes_laion", "aes_musiq_ava"]
 SEED, BOOTS = 20260812, 1000
 

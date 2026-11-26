@@ -19,7 +19,7 @@ from pathlib import Path
 
 PURIFS = ["none", "jpeg50", "blur2", "vae_trans"]
 CONDS = ["Full", "B2", "B3"]
-FILES = {"Full": "aesthetic_full.csv", "B2": "aesthetic_b2.csv", "B3": "aesthetic_b3.csv"}
+FILES = {"Full": "aesthetic_immulut.csv", "B2": "aesthetic_b2.csv", "B3": "aesthetic_b3.csv"}
 METRICS = ["aes_laion", "aes_musiq_ava"]
 SEED, BOOTS, ROWS_PER_PAGE, TILE = 20260812, 1000, 10, 256
 

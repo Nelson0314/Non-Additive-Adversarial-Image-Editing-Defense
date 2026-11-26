@@ -34,9 +34,3 @@ B3    sunglasses:   6.8  police suit:  21.2  helmet:  55.7  bowtie:  38.7
 Paired difference in conditional ISR, percentage points [95% CI]
 Full - B2  none: -7.0 [-11.5,-2.4]  jpeg50: -7.0 [-12.1,-1.9]  blur2: -8.3 [-14.7,-1.6]  vae_trans: -7.8 [-12.6,-2.4]  purified: -7.7 [-12.5,-2.8]  all: -7.5 [-11.9,-3.0]
 Full - B3  none: -13.9 [-19.1,-8.9]  jpeg50: -15.2 [-21.1,-9.6]  blur2: -12.1 [-18.8,-5.4]  vae_trans: -16.5 [-22.7,-10.6]  purified: -14.6 [-19.8,-9.4]  all: -14.4 [-19.2,-9.4]
-
-Input naturalness (1-5), mean over rated rows
-  Undefended 4.52 (n=400)
-  Full       1.83 (n=400)
-  B2         1.36 (n=400)
-  B3         1.89 (n=400)

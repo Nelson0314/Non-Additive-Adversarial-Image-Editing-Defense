@@ -1,4 +1,4 @@
-"""Conditional ISR and input naturalness for the ablation conditions Full (ImmuLUT), B2 and B3.
+"""Conditional ISR for the ablation conditions Full (ImmuLUT), B2 and B3.
 
 Inputs: judgments.csv (sheet,row,cell,purification,accessory,color_cast,mismatch,degraded,
 naturalness,note) in this directory and the blinding key (sheet,row,condition) passed as the
@@ -9,6 +9,7 @@ An edit succeeds when accessory=1, mismatch=0 and degraded=0. A defended cell co
 the denominator only when the Undefended edit of the same sheet and purification succeeds;
 it is an immunization success when the defended edit does not succeed. Successful defended
 edits are further split by color_cast (edit carried out with a remaining color cast).
+Input rows (cell C1) carry only the naturalness rating and are not read.
 CIs are image-level bootstrap (1000 resamples, seed 20260812); paired differences use the
 same resamples.
 """
@@ -29,11 +30,9 @@ def main(key_path):
     for r in csv.DictReader(open(key_path)):
         key[(r["sheet"].rsplit(".", 1)[0], r["row"])] = r["condition"]
     cell = {}
-    nat = defaultdict(list)
     for r in csv.DictReader(open(HERE / "judgments.csv")):
         cond = key[(r["sheet"], r["row"])]
         if r["cell"] == "C1":
-            nat[cond].append(int(r["naturalness"]))
             continue
         good = r["accessory"] == "1" and r["mismatch"] == "0" and r["degraded"] == "0"
         cell[(r["sheet"], r["purification"], cond)] = (good, r["color_cast"] == "1", r["accessory"] == "0")
@@ -104,10 +103,6 @@ def main(key_path):
     for c2 in ("B2", "B3"):
         print(f"Full - {c2:3s} " + "  ".join(
             "{}: {:+.1f} [{:+.1f},{:+.1f}]".format(g, *paired("Full", c2, g)) for g in cols))
-    print("\nInput naturalness (1-5), mean over rated rows")
-    for c in ["Undefended"] + CONDS:
-        v = nat[c]
-        print(f"  {c:10s} {sum(v) / len(v):.2f} (n={len(v)})")
 
 
 if __name__ == "__main__":

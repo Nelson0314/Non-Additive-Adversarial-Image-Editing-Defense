@@ -48,7 +48,7 @@ E6  SD inpainting: CLIPSeg CIDAS/clipseg-rd64-refined, class-name prompt, thresh
 - M1-M25: all items match the paper or are covered by the user's decisions (Adam betas and schedule documented in README; loss -w*d/d0 ported; r = sin(theta+dtheta)/cos(dtheta) left unchanged by decision; Gaussian 3-sigma truncation with replicate padding and black-point / gray-axis handling documented).
 - Trilinear interpolation: grid_sample on a 5D table with align_corners=True; table axes (b, g, r) match grid coordinates (r, g, b).
 - TF32 disabled at import in immulut/ and evaluation/, as in the code that produced the reported results.
-- Finding pending a user decision: the output is ||c|| * normalize(d + t * e_phi(d)); adding the azimuthal component increases the polar angle slightly beyond theta + dtheta (sin factor at most sqrt(1 + tan^2(dphi)) <= 1.0087 under the 7.5 degree bound); the azimuth bound holds exactly. Same mechanism as the r definition.
+- Finding: the output is ||c|| * normalize(d + t * e_phi(d)); adding the azimuthal component increases the polar angle slightly beyond theta + dtheta (sin factor at most sqrt(1 + tan^2(dphi)) <= 1.0087 under the 7.5 degree bound); the azimuth bound holds exactly. Same mechanism as the r definition. Decision: left unchanged.
 - face_box raises when no face is detected (all paper inputs are portraits).
 
 Not yet audited: evaluation/, immulut/color_mappings.py, immulut/solve_ablation.py, scripts/, baselines/, final README.md.

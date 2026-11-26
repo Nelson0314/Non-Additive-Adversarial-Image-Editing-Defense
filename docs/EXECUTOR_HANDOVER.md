@@ -51,24 +51,24 @@
 | (4) 消融數字不一致 | 已改 supp | 表 4 的 Full、B3 兩列 LAION／MUSIQ 改為已投出正文的數字（5.32／5.30、5.26／4.80），以 Full 為基準的差值同步重算；其餘格仍為 306 張完整版 |
 | (5) 加性方法細節 | 已寫入 supp（新增 C 節） | Data、Purifications、VAE-Trans、Editors、Matched-Distortion Rescaling、Baseline Settings＋表 7（`tab:supp_provenance`）、Objectives |
 | 目錄 | 已加入 | 教授原碼；`##1`／`##2` 在頂層需寫成 `#1`／`#2`；`main.tex` 77–78 行讓正文條目隱藏 |
-| 程式碼與資料 zip | supp 包已做（見第 5 節）；GitHub 尚未推送 | 遠端 `~/immulut_release/`（凍結） |
+| 程式碼與資料 zip | supp 包已做（見第 5 節）；使用者決定不開 GitHub，程式只放 supp zip | 遠端 `~/immulut_release/`（凍結） |
 
 其他本期 supp 改動：B1／B2 改稱 rotation and scaling、Fig. 6 面板標上 A2–B4 代號、A1 寫明 Θ 為單位尺度 N(0,1)、消融補跑到每列 306 張並移除 n 欄、inpainting 質性圖改為加性方法原生預算版（man_26、woman_14、man_81、woman_118）。逐段內容與 commit 見 `docs/PAPER_HANDOVER.md` 與 git log（本期 commit `2512ea6b`、`156d38c1`、`3adfec09` 等）。
 
 ## 5. 公開程式碼與補充材料包
 
 - **位置**：遠端 `~/immulut_release/`（不在 repo、無 .git），進度與決定記錄在 `~/immulut_release/RELEASE_NOTES_INTERNAL.txt` 與 `baselines/RELEASE_NOTES_INTERNAL.txt`（此兩檔不上傳）。color 與 baseline 已凍結此目錄，修改需由 executor 列清單交辦。
-- **匿名做法（使用者授權 executor 決定）**：GitHub repo `Nelson0314/ImmuLUT`（公開、目前為空）與 supp zip 用同一份完全匿名內容；論文與 supp 不放 repo 連結、README 不提 CVPR 或投稿。依據 CVPR 2027 Author Guidelines：「To preserve anonymity, you cannot cite your public codebase.」，並鼓勵把程式碼放進補充材料。
+- **發布方式（使用者決定）**：不使用 GitHub repo `Nelson0314/ImmuLUT`，程式碼只放在 supp zip。zip 內容完全匿名；論文與 supp 不放連結，README 不提 CVPR 或投稿。依據 CVPR 2027 Author Guidelines：「To preserve anonymity, you cannot cite your public codebase.」，並鼓勵把程式碼放進補充材料。
 - **使用者對程式與論文不一致的決定**：Adam betas (0.5, 0.99) 與「前 2/3 步餘弦降到 1e-5、之後固定」只在 README 與註解寫明；損失 −w·d/d0 完整移植（w 來自 `immulut/alignment.py` 的參考目標梯度範數比）；方位角正規化 r＝sin(θ+Δθ)/cos Δθ 完全不動；高斯核 3σ 截斷＋replicate、近黑格點與灰軸處理寫在 README 與註解；A1 公開版補逐張種子、supp 改寫 A1；Mist 程式保留並在 `THIRD_PARTY.md` 註明上游無授權。
 - **驗證**：ImmuLUT 三張與既有防禦圖最大差 1 階（根因為 TF32，公開版已關閉）；編輯結果 LPIPS 改在 8 位元 PNG 上量後與主表差 ≤ 0.0003；加性方法差異來自 GPU 非決定性（VAE attention 與 cuDNN），公開版提供 `--deterministic`，論文結果為預設模式。
-- **逐行審查進度（使用者要求逐檔對照論文所有細節）**：已審 `immulut/lut.py`、`solve.py`、`ip2p.py`、`io.py`、`alignment.py`、`configs/immulut.yaml`，對照清單與已審結果在 `docs/RELEASE_AUDIT.md`（M1–M25 全部對上）。新發現一處待使用者決定：輸出先轉極角再沿方位角方向加切向量後正規化，最終極角比 θ+Δθ 略大（sin 項最多放大 √(1+tan²Δφ) ≤ 1.0087），方位角上界仍嚴格成立；與 r 算式同一機制，建議比照不改。**未審**：`evaluation/`（約 290 行）、`immulut/color_mappings.py`、`solve_ablation.py`、`scripts/`、`baselines/`（約 2,500 行）、`README.md` 最終版。審查通過後才推 GitHub。
+- **逐行審查進度（使用者要求逐檔對照論文所有細節）**：已審 `immulut/lut.py`、`solve.py`、`ip2p.py`、`io.py`、`alignment.py`、`configs/immulut.yaml`，對照清單與已審結果在 `docs/RELEASE_AUDIT.md`（M1–M25 全部對上）。新發現一處待使用者決定：輸出先轉極角再沿方位角方向加切向量後正規化，最終極角比 θ+Δθ 略大（sin 項最多放大 √(1+tan²Δφ) ≤ 1.0087），方位角上界仍嚴格成立；與 r 算式同一機制；使用者決定不改。**未審**：`evaluation/`（約 290 行）、`immulut/color_mappings.py`、`solve_ablation.py`、`scripts/`、`baselines/`（約 2,500 行）、`README.md` 最終版。未審檔案的審查結果併入 `docs/RELEASE_AUDIT.md`；審查後若程式有改動，重新打包 supp zip。
 - **補充材料包**：桌面 `C:\Users\nelso\OneDrive\桌面\supplementary.zip`（11.97 MB）＝ `paper_supp.pdf`（repo `3adfec09` 編譯，supp 第 11–19 頁，9 頁）＋ `code/`（凍結版 `~/immulut_release`，49 檔，去除 `__pycache__` 與兩份 RELEASE_NOTES_INTERNAL）。打包時 grep 人名、帳號、主機、路徑、內部檔名、CAPGuard、Claude、日期與中文：僅命中他人論文的「CVPR 2024」引用。上傳 OpenReview 由使用者執行；若之後程式再改，需重新打包。
 
 ## 6. 待使用者決定
 
 1. 教授 (1)：消融 ISR 表是否放入 supp（照實結果為 Full 低於 B2、B3）。
 2. 教授 (2)：VIBE、FLUX.2 ISR 是否放入 supp。
-3. 公開程式碼：極角略大於 θ+Δθ 一事是否處理；其餘檔案審查完成後推 GitHub 的時點。
+3. 公開程式碼：其餘檔案的審查結果中與論文不一致之處。
 4. Overleaf 同步（`X_suppl.tex`、`7_llm_usage.tex`、`main.tex`）與 supp 上傳。
 5. 多色調 A（色調版 ImmuLUT）暫停於 300 格中 162 格，是否恢復；GPU 目前閒置。
 6. Overleaf `build/` 與未引用圖檔是否刪除。

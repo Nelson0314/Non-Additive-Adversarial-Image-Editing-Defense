@@ -18,7 +18,7 @@ PURIFS = ["none", "jpeg50", "blur2", "vae_trans"]
 PROMPTS = {"p0": "hospital", "p1": "gym", "p2": "snowy street", "p3": "dog"}
 
 
-def main(key_path):
+def main(key_path, review=None):
     key = {}
     for r in csv.DictReader(open(key_path)):
         key[(r["sheet"].rsplit(".", 1)[0], r["row"])] = r["condition"]
@@ -31,6 +31,20 @@ def main(key_path):
     sheets = sorted({s for s, _, _ in ok})
     conds = sorted({c for _, _, c in ok} - {"Undefended"})
     assert len(sheets) == 1224, len(sheets)
+    removed = set()
+    if review is not None:
+        # Same protocol as the InstructPix2Pix ISR: reviewed cells take the human label, and slots whose
+        # undefended reference the reviewer marks as failed are removed from the denominator.
+        answers_path, review_key_path = review
+        rkey = {r["item"]: r for r in csv.DictReader(open(review_key_path))}
+        for a in csv.DictReader(open(answers_path)):
+            k = rkey[a["item"]]
+            if a["undefended_success"] != "1":
+                removed.add((k["sheet"], k["purification"]))
+                continue
+            human_ok = a["content"] == "1" and a["mismatch"] == "0" and a["degraded"] == "0"
+            ok[(k["sheet"], k["purification"], k["condition"])] = human_ok
+        print(f"Human review applied: {len(rkey) - len(removed)} cells relabelled, {len(removed)} slots removed\n")
 
     def isr(cells):
         n = len(cells)
@@ -42,7 +56,7 @@ def main(key_path):
     for s in sheets:
         img, p = s.rsplit("__", 1)
         for pu in PURIFS:
-            u = ok[(s, pu, "Undefended")]
+            u = ok[(s, pu, "Undefended")] and (s, pu) not in removed
             elig[pu][1] += 1
             elig[pu][0] += u
             elig[p][1] += 1
@@ -95,4 +109,5 @@ def main(key_path):
 
 
 if __name__ == "__main__":
-    main(sys.argv[1])
+    # Optional: <answers.csv> <review key.csv> applies the human review (human_review/README.md).
+    main(sys.argv[1], tuple(sys.argv[2:4]) if len(sys.argv) >= 4 else None)

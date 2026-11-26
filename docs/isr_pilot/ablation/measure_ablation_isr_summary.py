@@ -22,6 +22,9 @@ HERE = Path(__file__).resolve().parent
 PURIFS = ["none", "jpeg50", "blur2", "vae_trans"]
 PROMPTS = {"p0": "sunglasses", "p1": "police suit", "p2": "helmet", "p3": "bowtie"}
 CONDS = ["Full", "B2", "B3"]
+# With --exclude-mismatch, a defended cell labelled mismatch=1 (the edit did something other than the
+# instruction) is removed from the denominator instead of counting as an immunization success.
+EXCLUDE_MISMATCH = "--exclude-mismatch" in sys.argv
 
 
 def main(key_path):
@@ -36,7 +39,8 @@ def main(key_path):
             nat[cond].append(int(r["naturalness"]))
             continue
         good = r["accessory"] == "1" and r["mismatch"] == "0" and r["degraded"] == "0"
-        cell[(r["sheet"], r["purification"], cond)] = (good, r["color_cast"] == "1", r["accessory"] == "0")
+        cell[(r["sheet"], r["purification"], cond)] = (good, r["color_cast"] == "1", r["accessory"] == "0",
+                                                       r["mismatch"] == "1")
     sheets = sorted({s for s, _, _ in cell})
     assert len(sheets) == 400, len(sheets)
     assert len(cell) == 400 * 4 * 4, len(cell)
@@ -54,6 +58,9 @@ def main(key_path):
                 continue
             for c in CONDS:
                 v = cell[(s, pu, c)]
+                if EXCLUDE_MISMATCH and v[3]:
+                    continue
+                v = v[:3]
                 for g in (pu, p, "all") + (("purified",) if pu != "none" else ()):
                     by_image[img][(c, g)].append(v)
     images = sorted(by_image)

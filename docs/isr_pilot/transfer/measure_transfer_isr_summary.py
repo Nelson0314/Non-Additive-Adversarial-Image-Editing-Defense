@@ -17,6 +17,8 @@ from pathlib import Path
 
 PURIFS = ["none", "jpeg50", "blur2", "vae_trans"]
 PROMPTS = {"p0": "sunglasses", "p1": "police suit", "p2": "helmet", "p3": "bowtie"}
+# With --exclude-mismatch, a defended cell labelled mismatch=1 is removed from the denominator.
+EXCLUDE_MISMATCH = "--exclude-mismatch" in sys.argv
 
 
 def main(editor_dir, key_path):
@@ -26,8 +28,10 @@ def main(editor_dir, key_path):
     ok = {}
     for r in csv.DictReader(open(Path(editor_dir) / "judgments.csv")):
         cond = key[(r["sheet"], r["row"])]
-        ok[(r["sheet"], r["purification"], cond)] = (
-            r["accessory"] == "1" and r["mismatch"] == "0" and r["degraded"] == "0")
+        good = r["accessory"] == "1" and r["mismatch"] == "0" and r["degraded"] == "0"
+        if EXCLUDE_MISMATCH and cond != "Undefended" and r["mismatch"] == "1":
+            good = None
+        ok[(r["sheet"], r["purification"], cond)] = good
     sheets = sorted({s for s, _, _ in ok})
     conds = sorted({c for _, _, c in ok} - {"Undefended"})
     assert len(sheets) == 200, len(sheets)
@@ -45,6 +49,8 @@ def main(editor_dir, key_path):
             if not u:
                 continue
             for c in conds:
+                if ok[(s, pu, c)] is None:
+                    continue
                 for g in (pu, p, "all") + (("purified",) if pu != "none" else ()):
                     by_image[img][(c, g)].append(ok[(s, pu, c)])
     images = sorted(by_image)

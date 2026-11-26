@@ -8,7 +8,8 @@
 \renewcommand{\topfraction}{0.95}\renewcommand{\dbltopfraction}{0.95}\renewcommand{\textfraction}{0.05}
 \renewcommand{\floatpagefraction}{0.05}\renewcommand{\dblfloatpagefraction}{0.3}
 
-\noindent This supplement contains the ablation study (\cref{sec:supp_ablation}), the evaluation on SD Inpainting (\cref{sec:supp_inpainting}), the settings of the baselines and the evaluation protocol (\cref{sec:supp_protocol}), and the details of the ISR evaluation (\cref{sec:supp_isr}).
+\addtocontents{toc}{\protect\setcounter{tocdepth}{2}}
+\begingroup\makeatletter\setcounter{tocdepth}{-1}\renewcommand{\contentsname}{Contents}\renewcommand{\l@section}[2]{\@dottedtocline{1}{0em}{1.6em}{\bfseries #1}{#2}}\renewcommand{\l@subsection}[2]{\@dottedtocline{2}{1.6em}{2.3em}{#1}{#2}}\footnotesize\tableofcontents\makeatother\endgroup
 
 \section{Ablation Study}
 \label{sec:supp_ablation}

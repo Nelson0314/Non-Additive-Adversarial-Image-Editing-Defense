@@ -1,0 +1,26 @@
+Cells blocked by Full, B2 and B3 (undefended edit successful): 50 cells, 29 images; none 11, jpeg50 13, blur2 15, vae_trans 11
+Failure labels per condition (a cell can carry several):
+  Full: no accessory 29, mismatch 22, degraded 3
+  B2: no accessory 17, mismatch 34, degraded 7
+  B3: no accessory 16, mismatch 36, degraded 6
+scheme         metric         row         n     mean  95% CI
+cell_weighted  aes_laion      Full       50  5.20265  [5.08918, 5.35351]
+cell_weighted  aes_laion      B2         50  5.12946  [4.9702, 5.33561]
+cell_weighted  aes_laion      B3         50  5.18541  [5.0498, 5.34045]
+cell_weighted  aes_laion      Full-B2    50  0.07319  [-0.01538, 0.14664]
+cell_weighted  aes_laion      Full-B3    50  0.01724  [-0.07428, 0.13257]
+cell_weighted  aes_musiq_ava  Full       50  5.25512  [5.11815, 5.4102]
+cell_weighted  aes_musiq_ava  B2         50  4.96905  [4.77989, 5.21281]
+cell_weighted  aes_musiq_ava  B3         50   4.7048  [4.56518, 4.85722]
+cell_weighted  aes_musiq_ava  Full-B2    50  0.28608  [0.12468, 0.41814]
+cell_weighted  aes_musiq_ava  Full-B3    50  0.55033  [0.41236, 0.71891]
+image_level    aes_laion      Full       29  5.27297  [5.16024, 5.38446]
+image_level    aes_laion      B2         29   5.2053  [5.07959, 5.34252]
+image_level    aes_laion      B3         29  5.24981  [5.13456, 5.36692]
+image_level    aes_laion      Full-B2    29  0.06768  [-0.02514, 0.15837]
+image_level    aes_laion      Full-B3    29  0.02317  [-0.05753, 0.11222]
+image_level    aes_musiq_ava  Full       29  5.34668  [5.21003, 5.47925]
+image_level    aes_musiq_ava  B2         29  5.13156  [4.95818, 5.29632]
+image_level    aes_musiq_ava  B3         29  4.78229  [4.6809, 4.8869]
+image_level    aes_musiq_ava  Full-B2    29  0.21512  [0.09515, 0.33142]
+image_level    aes_musiq_ava  Full-B3    29  0.56439  [0.44314, 0.69331]

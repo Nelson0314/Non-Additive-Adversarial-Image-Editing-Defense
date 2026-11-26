@@ -1,0 +1,51 @@
+sheet,image,prompt_id,purification,labels_Full,labels_B2,labels_B3
+woman_27__p1,woman_27,p1,none,no accessory,mismatch,mismatch
+woman_83__p1,woman_83,p1,none,no accessory,no accessory,mismatch
+man_34__p2,man_34,p2,none,no accessory,no accessory,mismatch;degraded
+woman_04__p2,woman_04,p2,none,mismatch;degraded,mismatch;degraded,mismatch;degraded
+woman_26__p2,woman_26,p2,none,no accessory,no accessory,no accessory
+woman_56__p2,woman_56,p2,none,no accessory,mismatch,mismatch
+woman_60__p2,woman_60,p2,none,no accessory,mismatch,no accessory;mismatch
+woman_62__p2,woman_62,p2,none,no accessory,mismatch,mismatch
+woman_67__p2,woman_67,p2,none,mismatch,mismatch,mismatch
+woman_70__p2,woman_70,p2,none,no accessory,degraded,degraded
+woman_67__p3,woman_67,p3,none,mismatch,mismatch;degraded,mismatch
+woman_27__p1,woman_27,p1,jpeg50,no accessory,mismatch,mismatch
+woman_83__p1,woman_83,p1,jpeg50,no accessory,no accessory;mismatch,mismatch
+man_17__p2,man_17,p2,jpeg50,no accessory,no accessory,no accessory
+man_32__p2,man_32,p2,jpeg50,mismatch,mismatch,no accessory
+man_34__p2,man_34,p2,jpeg50,no accessory,no accessory,mismatch;degraded
+woman_28__p2,woman_28,p2,jpeg50,no accessory,no accessory,no accessory
+woman_56__p2,woman_56,p2,jpeg50,no accessory,mismatch,mismatch
+woman_62__p2,woman_62,p2,jpeg50,mismatch,mismatch,mismatch
+woman_67__p2,woman_67,p2,jpeg50,mismatch,mismatch,mismatch
+woman_73__p2,woman_73,p2,jpeg50,no accessory,no accessory,no accessory
+woman_90__p2,woman_90,p2,jpeg50,no accessory,no accessory;mismatch;degraded,no accessory;mismatch;degraded
+woman_91__p2,woman_91,p2,jpeg50,no accessory,no accessory,mismatch
+woman_67__p3,woman_67,p3,jpeg50,mismatch,mismatch;degraded,mismatch
+woman_58__p1,woman_58,p1,blur2,no accessory,no accessory,no accessory
+man_32__p2,man_32,p2,blur2,mismatch,mismatch,no accessory
+woman_60__p2,woman_60,p2,blur2,no accessory,no accessory,no accessory
+woman_62__p2,woman_62,p2,blur2,no accessory,mismatch,mismatch
+woman_67__p2,woman_67,p2,blur2,mismatch,mismatch,mismatch
+woman_72__p2,woman_72,p2,blur2,no accessory,mismatch,mismatch
+woman_85__p2,woman_85,p2,blur2,no accessory,no accessory,no accessory
+woman_02__p3,woman_02,p3,blur2,mismatch,mismatch,mismatch
+woman_23__p3,woman_23,p3,blur2,mismatch,mismatch,mismatch
+woman_37__p3,woman_37,p3,blur2,mismatch,mismatch,mismatch
+woman_50__p3,woman_50,p3,blur2,no accessory,mismatch,mismatch
+woman_53__p3,woman_53,p3,blur2,no accessory,mismatch,mismatch
+woman_56__p3,woman_56,p3,blur2,mismatch,mismatch,mismatch
+woman_67__p3,woman_67,p3,blur2,mismatch,mismatch,mismatch
+woman_96__p3,woman_96,p3,blur2,mismatch,mismatch,mismatch
+woman_82__p1,woman_82,p1,vae_trans,mismatch,mismatch,mismatch
+man_14__p2,man_14,p2,vae_trans,mismatch;degraded,no accessory;mismatch;degraded,mismatch;degraded
+man_17__p2,man_17,p2,vae_trans,no accessory,no accessory,no accessory
+woman_03__p2,woman_03,p2,vae_trans,no accessory,no accessory,no accessory
+woman_06__p2,woman_06,p2,vae_trans,mismatch;degraded,mismatch,no accessory;mismatch
+woman_28__p2,woman_28,p2,vae_trans,no accessory,no accessory,no accessory
+woman_56__p2,woman_56,p2,vae_trans,mismatch,mismatch,mismatch
+woman_62__p2,woman_62,p2,vae_trans,mismatch,mismatch,mismatch
+woman_70__p2,woman_70,p2,vae_trans,no accessory,degraded,no accessory
+woman_37__p3,woman_37,p3,vae_trans,mismatch,mismatch,mismatch
+woman_53__p3,woman_53,p3,vae_trans,no accessory;mismatch,mismatch,mismatch

@@ -52,3 +52,28 @@ E6  SD inpainting: CLIPSeg CIDAS/clipseg-rd64-refined, class-name prompt, thresh
 - face_box raises when no face is detected (all paper inputs are portraits).
 
 Not yet audited: evaluation/, immulut/color_mappings.py, immulut/solve_ablation.py, scripts/, baselines/, final README.md.
+
+## Audit results (baselines/, read-only audit by the baseline session)
+Paper = X_suppl.tex Sec. B, Sec. C, Table 7 (tab:supp_provenance).
+
+Match: E5 budgets/steps/norms/factors for PhotoGuard (encoder), Mist, DIA-PT/-R (eps, steps), DCT-Shield/-Y (eps 1, gamma 0.1 linearly decayed, 1000 steps, Q_alg 0.95/0.85, Y only), SIFM (7.65/255, 1/255, 100), DAYN (0.06 on [-1,1] = 0.03, 2/255 on [-1,1] = 1/255, 100), DANP (0.03, 1/255, 100), BlurGuard (16/255, lr 0.06, 150, sigma-weighting 10; matched: 0 and x0.6071); matched factors immunize.py MATCHED_EPS_SCALE = Table 7; step size scaled with eps (immunize.py solve); DCT gamma scaled with eps; calibration anchor 0.3344 on 8-bit PNG with piq.LPIPS (calibrate.py, evaluation.metrics.lpips); solver seed 0 (immunize.py --seed default 0; generate_blurguard_defenses.py:117); 10 gradient repetitions for DAYN/DANP; Mist target text "a painting", fused mode 2 (mist.py:10, :40); E6 model, class-name prompt, threshold 0.30, dilation 4, 50 steps, guidance 7.5, strength 1.0, 512, seed 20260812, composite outside mask (editors/inpaint.py, subject_masks.py); E6 prompts ("A {content} in a hospital / in the gym / in a snowy street / sitting next to a dog"; README lists them); klein/VIBE settings (editors/cross_editor.py:20-21) = Sec. C Editors; anonymity grep clean.
+
+Mismatch:
+- A1 DIA step size. Table 7: "1/255" (budgets on [0,1] unless stated). Code attacks/dia.py:101 step_size=1/255 on the [-1,1] range, i.e. 0.5/255 on [0,1] (pgd.py:83). README Baselines table repeats "1/255". The 1/255 value is the official attack_setting.json lr in [-1,1] units.
+- A2 PhotoGuard objective. Sec. C: "maximizes the l2 norm of the posterior mean". Code attacks/photoguard.py:54-55 minimizes ||mu_E(x_adv)||_2 (pgd.py:187), as in the official encoder attack with a zero target.
+- A3 DCT-Shield objective. Sec. C: "maximizes the l2 norm of the encoder latent". Code attacks/dct_shield.py:46 minimizes ||E(x')||_2 (delta -= sign(g)*eta).
+- A4 SIFM objective. Sec. C: "uses a mean squared error on the mid-block output". Code attacks/sifm.py:132 minimizes L_norm - lambda*L_dist, L_norm = L1 of mid-block features, L_dist = MSE, lambda = 0.1 (sifm.py:7).
+
+Paper silent (code behaviour):
+- A5 PhotoGuard: step size linearly decayed 0.01 -> 0.0001 over 1000 steps; uniform L-inf init.
+- A6 Mist: uniform L-inf init.
+- A7 DIA-PT: L1-ball random init; DIA-R no init.
+- A8 Victim of all PGD-type baselines is SD v1.4 (CompVis/stable-diffusion-v1-4), fp32, 512; only SIFM states SD v1.4 in the paper. Its VAE encoder equals that of InstructPix2Pix.
+- A9 BlurGuard: SAM automatic masks, points_per_side=2; data root needs man/ and woman/.
+- A10 Subject mask: max-pool dilation with a 9x9 kernel (radius 4); mask area must lie in [0.01, 0.8] or the run stops; repaint mask binarized at 0.5.
+- A11 Inpainting: fp32, safety checker off; raw output saved as __raw.png.
+- A12 Cross-editor inputs resized to 512x512 with Lanczos; VIBE seeded with torch.manual_seed, klein with a CUDA generator per edit.
+- A13 Calibration procedure (coarse sweep {0.05,0.1,0.25,0.5} on one image, log-log interpolation, 2/255 level for saturated L-inf methods) documented in calibrate.py only.
+- A14 Default runs are not bit-identical (--deterministic, already decided).
+
+README: Baselines table = code except A1; the "Loss" column for PhotoGuard/DCT-Shield does not state the direction.

@@ -9,13 +9,11 @@ Labels: the reviewer first states whether the Undefended edit carries out the in
 are excluded from the comparison. For the remaining cells the reviewer labels content, mismatch and degraded.
 
 Files
-- answers.csv: first pass of the review.
-- audit.csv: final review labels. Three cells (18, 56, 58) are additionally excluded because their Undefended
-  background is only blurred or shows no clear scene cue, the standard applied to the other excluded cells.
-- agreement.txt, agreement_audit.txt: agreement with Sonnet for answers.csv and audit.csv
+- answers.csv: review labels (the values reported in the supplementary material).
+- agreement.txt: agreement with Sonnet for answers.csv
   (../measure_inpaint_human_agreement.py, run with python3 on the review key).
 
-Disagreements (audit.csv): Sonnet labels the Undefended edit successful when the background shows only weak cues
+Disagreements: Sonnet labels the Undefended edit successful when the background shows only weak cues
 (blurred or darkened background, a single small device, no snow), and labels defended edits as failures when the
 scene cue is weak or at the image border, when scene-consistent people are added, or when the mask-dilation band
 is visible. Both directions raise the ISR of every condition.

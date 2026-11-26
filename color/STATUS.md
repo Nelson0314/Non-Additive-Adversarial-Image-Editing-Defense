@@ -15,6 +15,19 @@
   數字、路徑與產生腳本見 trial `HANDOVER.md`〈現行狀態〉與〈零〉。
 - 消融 306 張已完成：trial `results/ablation_pexels306/`（`summary.csv`：common 301 張與 all；`paired_differences.csv`／
   `paired_differences_all.csv`：列 − Full，paired bootstrap 10,000 次、種子 20260812；`failed.csv`）。各列設定與 200 張版相同。
+- 消融降強度（教授 11/25 第 1 點延伸：防禦效果相近時比較畫質）：B2、B3 各三個防禦圖 LPIPS 目標，r ＝ 0.85、0.70、0.55 倍 Full 同一張，
+  容差 ±0.015；機制同消融配對（`with_lpips_interval`），只換目標 t，每個目標各自求解。條件
+  `color_baseline_<huesat|affine>_lpips<0p85|0p70|0p55>_pexels`（`_pexels` 須在結尾，`run_lut_queue.sh` 依結尾判定資料集）。
+  樣本 `results/ablation_strength/images.txt`（crosseditor100 排序後 `default_rng(20260812).choice(100, 30, replace=False)`）。
+  協定同消融 ISR（ip2p text 7.5、image 1.8、50 步、主種子、4 句 × none／jpeg50／blur2／vae_trans）；Undefended、Full 沿用既有編輯。
+  程式：`scripts/generate_ablation_strength_sample.py`、`generate_ablation_strength_defenses.py`（generator）、
+  `run_ablation_strength.sh`（遠端 basic-2 以 `all` 串接 prep → 佇列 → 每條件一卡 VAE-Trans 與 CPU 美學 → 拼圖與彙整）、
+  `generate_ablation_strength_sheets.py`、`measure_ablation_strength_summary.py`。
+  log：trial `logs/ablation_strength/all.log`（結束行 `[STRENGTH-ALL] … rc=`）、`logs/lane_color_abl_s_<1–6>.log`、
+  `logs/ablation_strength/vae_<條件>.log`。完成後產物：`results/ablation_strength/{summary.csv,summary.txt,per_image.csv}`（遠端），
+  拼圖 trial `artifacts_pexels/ablation_strength_sheets/`（120 張、8 列 R1–R8 打亂，`key.csv`、`cells.csv`）。
+  待辦：rc＝0 後把 summary 三檔與 `key.csv`（複製到 `results/ablation_strength/key.csv`）抓回 repo 提交；Sonnet 評審由 executor 執行。
+  rc≠0 時依 log 查原因，各子指令可單獨重跑（`vae <條件>`、`finish`）。
 - 多色調 ImmuLUT（論文 Fig. 4 方向，未納入論文；目標為防禦圖像真人會套用的相片濾鏡且未淨化即擋下）：搜尋已停止，無進行中的批次。
   結論：police suit 與血腥句（`give this person rotting zombie skin`）在所有參數化下沒有任何一格於未淨化時擋下，最佳為原衣物保留但多肩章、
   臂章；woman_111、woman_152、man_32、woman_59 在外觀自然的設定下結論相同。helmet 的未淨化擋下來自旋轉場對暗色（頭髮）的大位移，

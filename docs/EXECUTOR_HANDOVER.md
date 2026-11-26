@@ -81,3 +81,14 @@
 - 評審常偏離 brief（改用 shell 附加、跨批寫入同一檔）；計分前逐檔核對「檔內拼圖＝清單、每張行數正確」。
 - 碰到 5 小時或每週用量上限就停，換帳號或重置後依已寫入的 CSV 建立剩餘清單續評。
 - 使用者複核的偏差型態（inpainting）：Sonnet 對未防禦編輯接受弱線索、對防禦後編輯在線索微弱或在邊緣、多出合理人物、可見遮罩邊帶時判失敗；兩方向都使 ISR 偏高。
+
+## 8. 教授 11/26 回覆與進行中的工作
+
+教授回覆：(1) 先看 Full、B2、B3 的 ISR 與 LAION／MUSIQ；要回答「防護效果相近時 Full 是否較自然」，以同一批影像、指令與淨化把 B2、B3 的強度降低（各 2–3 個設定），先小規模確認。(2) FLUX.2、VIBE 不再擴跑，supp 不新增表格或段落。
+
+- **(1) 已完成的讀數**：ISR 分母（1268 格）上的 LAION／MUSIQ：`color/results/ablation_isr_aesthetics/`；三者都擋下的 50 格、29 張：`color/results/ablation_all_blocked/`，拼圖在 color 遠端 trial `artifacts_pexels/ablation_all_blocked/`。兩張表的 PNG 在桌面（`ablation_isr_aesthetics_table.png`、`ablation_all_blocked_aesthetics_table.png`），產生程式在遠端 basic-1 `~/executor_tmp/ablation_table/`。
+- **(1) 降強度實驗（遠端自行執行中）**：30 張（`color/results/ablation_strength/images.txt`）× B2、B3 各 3 個目標（防禦圖 LPIPS 為 ImmuLUT 的 0.85／0.70／0.55 倍，±0.015，沿用 PHR 區間約束），條件名 `color_baseline_<huesat|affine>_lpips<0p85|0p70|0p55>_pexels`。basic-2 卡 0–5，`scripts/run_ablation_strength.sh all`，log 在 color trial `logs/ablation_strength/all.log`；預估 11/27 06:00 完成，細節見 `color/STATUS.md`。拼圖與彙整兩支腳本未實際跑過，失敗時以 `run_ablation_strength.sh finish` 單獨重跑。完成後：由 color 把 summary 與 key.csv 收進 repo；executor 以 Sonnet 評審 `artifacts_pexels/ablation_strength_sheets/` 的 120 張拼圖（8 列：Undefended、Full、B2×3、B3×3），rubric 為 `docs/isr_pilot/ablation/rubric.md`。
+- **程式審查**：全部完成，結果在 `docs/RELEASE_AUDIT.md`。使用者決定：6 處不一致（A1–A4、B1–B2）改 supp 與 README 配合程式，程式不動（supp `fd554671`；README 由 baseline 修改，備份在 basic-1 `~/executor_tmp/release_readme_backup/`）；paper silent 細節與 B8 不處理。
+- **supp 包已重做**：桌面 `supplementary.zip`（11,976,773 bytes）＝ `paper_supp.pdf`（`fd554671` 編譯，第 11–19 頁，9 頁）＋ `code/`（49 檔）。匿名 grep 只命中種子 20260812。打包目錄在 basic-1 `~/executor_tmp/supp_package/`。上傳 OpenReview 由使用者執行。
+- **Overleaf**：仍停在 `ba5a8de8`。上一輪核准後 Chrome 擴充功能連不上，未同步；待同步的檔為 `main.tex`、`7_llm_usage.tex`、`X_suppl.tex`，須使用者在 paper pane 核准。
+- pane 編號（11/27）：paper＝1、baseline＝2、executor＝3、color＝4。

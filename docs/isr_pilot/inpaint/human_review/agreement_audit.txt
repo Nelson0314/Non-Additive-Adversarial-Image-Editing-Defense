@@ -1,0 +1,15 @@
+Items: 60; Undefended edit judged unsuccessful by the human reviewer: 16
+  excluded by condition: BlurGuard 3, DCT-Shield 3, DIA-PT 2, ImmuLUT 2, PhotoGuard 3, SIFM 3
+
+Compared cells: 44; agreement 33/44 (75.0%)
+Confusion (rows Sonnet, columns human; 'edit ok' = edit carried out, i.e. defense failed):
+  Sonnet edit ok   : human edit ok  25 | human blocked   2
+  Sonnet blocked   : human edit ok   9 | human blocked   8
+Agreement by condition:
+  BlurGuard    5/7
+  DCT-Shield   6/7
+  DIA-PT       6/8
+  ImmuLUT      6/8
+  PhotoGuard   5/7
+  SIFM         5/7
+Human labels on cells judged blocked: content=0 10, mismatch=1 10, degraded=1 0

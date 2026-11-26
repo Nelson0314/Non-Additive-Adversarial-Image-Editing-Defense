@@ -73,6 +73,8 @@
 5. 多色調 A（色調版 ImmuLUT）暫停於 300 格中 162 格，是否恢復；GPU 目前閒置。
 6. Overleaf `build/` 與未引用圖檔是否刪除。
 
+已知不一致（使用者已決定，再提起時才處理，不自行改回）：supp 表 4 的 Full 列 LAION／MUSIQ 為 5.32／5.30（B3 5.26／4.80），取自已投出正文 4.5 節（11/17 版）的數字；正文表 1 的 Full 為 5.34／5.31，與 supp 表 4 不一致。曾建議保留 306 張數字並加註，使用者決定改為教授指出的正文數字（commit `83bbcb16`）。repo 的 `4_experiments.tex` 第 259 行為 306 張版（5.34→5.27、5.31→4.81，`04ab6494`），與已投出的正文不同；正文不可再改。
+
 ## 7. Sonnet 評審工作方式
 
 - 拼圖由 color／baseline 在遠端產生（列序以 `default_rng(20260812)` 逐張打亂，列標不含條件名，另存 `key.csv`），executor 下載到 scratchpad、10 張一批，以 `Agent`（model sonnet）評審，brief 指定 rubric、批次清單與輸出 CSV，要求只用 Read／Write／Edit。每個 agent 可連續做 2–3 批。

@@ -1,0 +1,24 @@
+Undefended success (eligible cells):
+  none          200/200 (100.0%)
+  jpeg50        200/200 (100.0%)
+  blur2         200/200 (100.0%)
+  vae_trans     199/200 (99.5%)
+  sunglasses    199/200 (99.5%)
+  police suit   200/200 (100.0%)
+  helmet        200/200 (100.0%)
+  bowtie        200/200 (100.0%)
+
+Conditional ISR % [95% CI] (blocked/eligible)
+method                        none |                 jpeg50 |                  blur2 |              vae_trans |               purified |                    all
+BlurGuard     0.0 [ 0.0, 0.0] (0/200) |   0.0 [ 0.0, 0.0] (0/200) |   0.5 [ 0.0, 1.5] (1/200) |   0.5 [ 0.0, 1.5] (1/199) |   0.3 [ 0.0, 0.8] (2/599) |   0.3 [ 0.0, 0.6] (2/799)
+DCT-Shield    0.0 [ 0.0, 0.0] (0/200) |   0.0 [ 0.0, 0.0] (0/200) |   0.5 [ 0.0, 1.5] (1/200) |   0.0 [ 0.0, 0.0] (0/199) |   0.2 [ 0.0, 0.5] (1/599) |   0.1 [ 0.0, 0.4] (1/799)
+ImmuLUT       0.0 [ 0.0, 0.0] (0/200) |   0.0 [ 0.0, 0.0] (0/200) |   0.0 [ 0.0, 0.0] (0/200) |   0.5 [ 0.0, 1.5] (1/199) |   0.2 [ 0.0, 0.5] (1/599) |   0.1 [ 0.0, 0.4] (1/799)
+Mist          0.0 [ 0.0, 0.0] (0/200) |   0.0 [ 0.0, 0.0] (0/200) |   0.0 [ 0.0, 0.0] (0/200) |   0.0 [ 0.0, 0.0] (0/199) |   0.0 [ 0.0, 0.0] (0/599) |   0.0 [ 0.0, 0.0] (0/799)
+PhotoGuard    0.0 [ 0.0, 0.0] (0/200) |   0.0 [ 0.0, 0.0] (0/200) |   0.0 [ 0.0, 0.0] (0/200) |   0.0 [ 0.0, 0.0] (0/199) |   0.0 [ 0.0, 0.0] (0/599) |   0.0 [ 0.0, 0.0] (0/799)
+
+Conditional ISR % by instruction (all purifications pooled)
+BlurGuard   sunglasses:   0.5  police suit:   0.0  helmet:   0.0  bowtie:   0.5
+DCT-Shield  sunglasses:   0.0  police suit:   0.0  helmet:   0.0  bowtie:   0.5
+ImmuLUT     sunglasses:   0.0  police suit:   0.0  helmet:   0.0  bowtie:   0.5
+Mist        sunglasses:   0.0  police suit:   0.0  helmet:   0.0  bowtie:   0.0
+PhotoGuard  sunglasses:   0.0  police suit:   0.0  helmet:   0.0  bowtie:   0.0

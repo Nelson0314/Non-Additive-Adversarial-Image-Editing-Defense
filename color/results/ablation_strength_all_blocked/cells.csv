@@ -1,0 +1,15 @@
+sheet,image,prompt_id,purification,labels_Full,labels_B2_lpips0p85,labels_B3_lpips0p55
+man_14__p2,man_14,p2,none,no accessory,no accessory,mismatch
+man_32__p2,man_32,p2,none,no accessory,mismatch,no accessory
+woman_53__p3,woman_53,p3,jpeg50,no accessory,mismatch,mismatch
+man_32__p2,man_32,p2,blur2,mismatch,mismatch,no accessory
+woman_43__p2,woman_43,p2,blur2,no accessory,no accessory;mismatch,no accessory
+woman_80__p2,woman_80,p2,blur2,no accessory,mismatch,mismatch;degraded
+man_08__p3,man_08,p3,blur2,no accessory;mismatch;degraded,mismatch,mismatch
+woman_21__p3,woman_21,p3,blur2,mismatch,mismatch,mismatch
+woman_48__p3,woman_48,p3,blur2,mismatch,mismatch,mismatch
+woman_53__p3,woman_53,p3,blur2,no accessory,mismatch,mismatch
+woman_68__p3,woman_68,p3,blur2,mismatch,mismatch,mismatch
+man_32__p2,man_32,p2,vae_trans,mismatch,mismatch,no accessory
+woman_32__p3,woman_32,p3,vae_trans,mismatch,mismatch,mismatch
+woman_53__p3,woman_53,p3,vae_trans,no accessory,mismatch;degraded,mismatch

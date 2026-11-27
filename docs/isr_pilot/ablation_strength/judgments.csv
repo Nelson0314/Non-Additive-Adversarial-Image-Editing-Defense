@@ -1,0 +1,3841 @@
+sheet,row,cell,purification,accessory,color_cast,mismatch,degraded,note
+man_08__p0,R1,C2,none,1,0,0,0,
+man_08__p0,R1,C3,jpeg50,1,0,0,0,
+man_08__p0,R1,C4,blur2,1,0,0,0,
+man_08__p0,R1,C5,vae_trans,1,0,0,0,
+man_08__p0,R2,C2,none,1,1,0,0,
+man_08__p0,R2,C3,jpeg50,1,1,0,0,
+man_08__p0,R2,C4,blur2,1,1,0,0,
+man_08__p0,R2,C5,vae_trans,1,1,0,0,
+man_08__p0,R3,C2,none,1,1,0,0,dark blue; glasses dim
+man_08__p0,R3,C3,jpeg50,1,1,1,0,pose and scene changed
+man_08__p0,R3,C4,blur2,1,1,0,0,dark blue; glasses dim
+man_08__p0,R3,C5,vae_trans,1,1,1,0,pose and shirt changed
+man_08__p0,R4,C2,none,1,1,0,0,
+man_08__p0,R4,C3,jpeg50,1,1,0,0,
+man_08__p0,R4,C4,blur2,1,1,0,0,
+man_08__p0,R4,C5,vae_trans,1,1,0,0,
+man_08__p0,R5,C2,none,1,1,0,0,
+man_08__p0,R5,C3,jpeg50,1,1,0,0,
+man_08__p0,R5,C4,blur2,1,1,0,0,
+man_08__p0,R5,C5,vae_trans,1,1,0,0,
+man_08__p0,R6,C2,none,1,1,0,0,
+man_08__p0,R6,C3,jpeg50,1,1,0,0,
+man_08__p0,R6,C4,blur2,1,1,0,0,
+man_08__p0,R6,C5,vae_trans,1,1,0,0,
+man_08__p0,R7,C2,none,1,1,0,0,
+man_08__p0,R7,C3,jpeg50,1,1,0,0,
+man_08__p0,R7,C4,blur2,1,1,0,0,
+man_08__p0,R7,C5,vae_trans,1,1,0,0,
+man_08__p0,R8,C2,none,1,1,0,0,
+man_08__p0,R8,C3,jpeg50,1,1,0,0,
+man_08__p0,R8,C4,blur2,1,1,0,0,
+man_08__p0,R8,C5,vae_trans,1,1,0,0,
+man_08__p1,R1,C2,none,1,0,0,0,
+man_08__p1,R1,C3,jpeg50,1,0,0,0,
+man_08__p1,R1,C4,blur2,1,0,0,0,
+man_08__p1,R1,C5,vae_trans,1,0,0,0,
+man_08__p1,R2,C2,none,1,1,0,0,
+man_08__p1,R2,C3,jpeg50,1,1,0,0,
+man_08__p1,R2,C4,blur2,1,1,0,0,
+man_08__p1,R2,C5,vae_trans,1,1,0,0,
+man_08__p1,R3,C2,none,1,1,0,0,
+man_08__p1,R3,C3,jpeg50,0,1,0,0,shirt not clearly uniform
+man_08__p1,R3,C4,blur2,1,1,0,0,
+man_08__p1,R3,C5,vae_trans,1,1,0,0,grey shirt with badge
+man_08__p1,R4,C2,none,1,1,0,0,
+man_08__p1,R4,C3,jpeg50,1,1,0,0,
+man_08__p1,R4,C4,blur2,1,1,0,0,
+man_08__p1,R4,C5,vae_trans,1,1,0,0,
+man_08__p1,R5,C2,none,1,1,0,0,
+man_08__p1,R5,C3,jpeg50,1,1,0,0,
+man_08__p1,R5,C4,blur2,1,1,0,0,
+man_08__p1,R5,C5,vae_trans,1,1,0,0,
+man_08__p1,R6,C2,none,1,1,0,0,
+man_08__p1,R6,C3,jpeg50,1,1,0,0,faint uniform
+man_08__p1,R6,C4,blur2,1,1,0,0,
+man_08__p1,R6,C5,vae_trans,1,1,0,0,
+man_08__p1,R7,C2,none,1,1,0,0,
+man_08__p1,R7,C3,jpeg50,1,1,0,0,
+man_08__p1,R7,C4,blur2,1,1,0,0,
+man_08__p1,R7,C5,vae_trans,1,1,1,0,extra person added
+man_08__p1,R8,C2,none,1,1,0,0,
+man_08__p1,R8,C3,jpeg50,1,1,0,0,
+man_08__p1,R8,C4,blur2,1,1,0,0,
+man_08__p1,R8,C5,vae_trans,1,1,0,0,
+man_08__p2,R1,C2,none,1,1,0,0,grey helmet faint
+man_08__p2,R1,C3,jpeg50,0,1,0,0,no helmet visible
+man_08__p2,R1,C4,blur2,1,1,0,0,grey helmet faint
+man_08__p2,R1,C5,vae_trans,1,1,0,0,
+man_08__p2,R2,C2,none,1,1,0,0,grey helmet faint
+man_08__p2,R2,C3,jpeg50,0,1,0,0,no helmet visible
+man_08__p2,R2,C4,blur2,1,1,0,0,grey helmet faint
+man_08__p2,R2,C5,vae_trans,1,1,0,0,
+man_08__p2,R3,C2,none,1,0,0,0,orange helmet partial
+man_08__p2,R3,C3,jpeg50,0,0,0,0,
+man_08__p2,R3,C4,blur2,1,0,0,0,grey helmet faint
+man_08__p2,R3,C5,vae_trans,1,0,0,0,
+man_08__p2,R4,C2,none,1,1,1,0,second helmeted figure
+man_08__p2,R4,C3,jpeg50,1,1,0,0,red helmet glowing
+man_08__p2,R4,C4,blur2,1,1,1,0,second helmeted figure
+man_08__p2,R4,C5,vae_trans,1,1,1,0,second helmeted figure
+man_08__p2,R5,C2,none,1,1,0,0,
+man_08__p2,R5,C3,jpeg50,1,1,0,0,light helmet faint
+man_08__p2,R5,C4,blur2,1,1,1,0,second helmeted figure
+man_08__p2,R5,C5,vae_trans,1,1,1,0,second helmeted figure
+man_08__p2,R6,C2,none,1,1,0,0,grey helmet faint
+man_08__p2,R6,C3,jpeg50,0,1,0,0,no helmet visible
+man_08__p2,R6,C4,blur2,1,1,0,0,grey helmet faint
+man_08__p2,R6,C5,vae_trans,1,1,0,0,
+man_08__p2,R7,C2,none,0,1,0,0,
+man_08__p2,R7,C3,jpeg50,0,1,0,0,
+man_08__p2,R7,C4,blur2,0,1,0,0,
+man_08__p2,R7,C5,vae_trans,0,1,0,0,
+man_08__p2,R8,C2,none,1,1,0,0,grey helmet faint
+man_08__p2,R8,C3,jpeg50,1,1,0,0,grey helmet faint
+man_08__p2,R8,C4,blur2,1,1,0,0,
+man_08__p2,R8,C5,vae_trans,1,1,1,0,second helmeted figure
+man_08__p3,R1,C2,none,1,1,0,0,
+man_08__p3,R1,C3,jpeg50,1,1,0,0,
+man_08__p3,R1,C4,blur2,1,1,1,0,cropped scene; giant extra bowtie
+man_08__p3,R1,C5,vae_trans,1,1,0,0,
+man_08__p3,R2,C2,none,1,0,1,0,scene and clothes replaced
+man_08__p3,R2,C3,jpeg50,1,1,0,0,
+man_08__p3,R2,C4,blur2,1,0,1,0,scene replaced
+man_08__p3,R2,C5,vae_trans,1,0,1,0,scene replaced
+man_08__p3,R3,C2,none,1,1,0,0,
+man_08__p3,R3,C3,jpeg50,1,1,0,0,
+man_08__p3,R3,C4,blur2,1,1,1,0,two bowties; cropped
+man_08__p3,R3,C5,vae_trans,1,1,0,0,beige background tint
+man_08__p3,R4,C2,none,1,1,1,0,extra bowties on shoulders
+man_08__p3,R4,C3,jpeg50,1,1,0,0,
+man_08__p3,R4,C4,blur2,1,1,1,0,extra bowties on shoulders
+man_08__p3,R4,C5,vae_trans,1,1,1,0,extra bowties on shoulders
+man_08__p3,R5,C2,none,1,0,1,0,scene and clothes replaced
+man_08__p3,R5,C3,jpeg50,0,0,1,0,no bowtie; scene replaced
+man_08__p3,R5,C4,blur2,1,0,1,0,scene replaced
+man_08__p3,R5,C5,vae_trans,1,0,1,0,scene replaced
+man_08__p3,R6,C2,none,1,1,0,0,
+man_08__p3,R6,C3,jpeg50,1,1,0,0,
+man_08__p3,R6,C4,blur2,1,1,0,0,
+man_08__p3,R6,C5,vae_trans,1,1,0,0,
+man_08__p3,R7,C2,none,0,1,1,0,giant floating bowties
+man_08__p3,R7,C3,jpeg50,1,1,1,0,floating bowties; face changed
+man_08__p3,R7,C4,blur2,0,1,1,1,floating bowties; mangled
+man_08__p3,R7,C5,vae_trans,1,1,1,0,face changed
+man_08__p3,R8,C2,none,1,0,0,0,
+man_08__p3,R8,C3,jpeg50,1,0,0,0,
+man_08__p3,R8,C4,blur2,1,0,0,0,
+man_08__p3,R8,C5,vae_trans,1,0,0,0,
+man_14__p0,R1,C2,none,1,1,0,0,dark lenses borderline
+man_14__p0,R1,C3,jpeg50,1,1,0,0,
+man_14__p0,R1,C4,blur2,1,1,1,0,scene and person replaced
+man_14__p0,R1,C5,vae_trans,1,1,0,0,dark lenses borderline
+man_14__p0,R2,C2,none,0,1,0,0,clear-looking lenses
+man_14__p0,R2,C3,jpeg50,0,1,0,0,clear-looking lenses
+man_14__p0,R2,C4,blur2,1,1,1,0,extra floating sunglasses
+man_14__p0,R2,C5,vae_trans,1,1,0,0,lenses darker borderline
+man_14__p0,R3,C2,none,0,1,0,0,clear-looking lenses
+man_14__p0,R3,C3,jpeg50,0,1,0,0,clear-looking lenses
+man_14__p0,R3,C4,blur2,0,1,0,0,clear-looking lenses
+man_14__p0,R3,C5,vae_trans,1,1,0,0,lenses darker borderline
+man_14__p0,R4,C2,none,1,1,0,0,
+man_14__p0,R4,C3,jpeg50,1,1,0,0,
+man_14__p0,R4,C4,blur2,1,1,0,0,
+man_14__p0,R4,C5,vae_trans,1,1,0,0,
+man_14__p0,R5,C2,none,0,1,0,0,clear-looking lenses
+man_14__p0,R5,C3,jpeg50,1,1,0,0,
+man_14__p0,R5,C4,blur2,1,1,0,0,
+man_14__p0,R5,C5,vae_trans,1,1,0,0,
+man_14__p0,R6,C2,none,1,0,0,0,
+man_14__p0,R6,C3,jpeg50,1,0,0,0,
+man_14__p0,R6,C4,blur2,1,0,0,0,
+man_14__p0,R6,C5,vae_trans,1,0,0,0,
+man_14__p0,R7,C2,none,1,1,0,0,
+man_14__p0,R7,C3,jpeg50,1,1,0,0,
+man_14__p0,R7,C4,blur2,1,1,0,0,
+man_14__p0,R7,C5,vae_trans,1,1,0,0,
+man_14__p0,R8,C2,none,1,1,0,0,
+man_14__p0,R8,C3,jpeg50,1,1,0,0,
+man_14__p0,R8,C4,blur2,1,1,0,0,
+man_14__p0,R8,C5,vae_trans,1,1,0,0,
+man_14__p1,R1,C2,none,1,1,0,0,face covered by dark mask
+man_14__p1,R1,C3,jpeg50,1,1,0,0,faint uniform
+man_14__p1,R1,C4,blur2,1,1,1,0,different person
+man_14__p1,R1,C5,vae_trans,1,1,1,0,different full-body person
+man_14__p1,R2,C2,none,1,1,1,0,two full-body officers
+man_14__p1,R2,C3,jpeg50,1,1,1,1,mangled figure
+man_14__p1,R2,C4,blur2,1,1,1,0,two full-body officers
+man_14__p1,R2,C5,vae_trans,1,1,1,0,three full-body officers
+man_14__p1,R3,C2,none,1,1,0,0,
+man_14__p1,R3,C3,jpeg50,1,1,0,0,
+man_14__p1,R3,C4,blur2,1,1,1,0,different person with mask
+man_14__p1,R3,C5,vae_trans,1,1,0,0,
+man_14__p1,R4,C2,none,1,1,0,0,
+man_14__p1,R4,C3,jpeg50,1,1,0,0,
+man_14__p1,R4,C4,blur2,1,1,1,0,different person with mask
+man_14__p1,R4,C5,vae_trans,1,1,0,0,faint badge
+man_14__p1,R5,C2,none,1,0,0,0,
+man_14__p1,R5,C3,jpeg50,1,0,0,0,
+man_14__p1,R5,C4,blur2,1,0,0,0,
+man_14__p1,R5,C5,vae_trans,1,0,0,0,faint badge
+man_14__p1,R6,C2,none,1,1,0,0,
+man_14__p1,R6,C3,jpeg50,1,1,0,0,
+man_14__p1,R6,C4,blur2,1,1,0,0,
+man_14__p1,R6,C5,vae_trans,1,1,0,0,
+man_14__p1,R7,C2,none,1,1,1,0,different full-body person
+man_14__p1,R7,C3,jpeg50,1,1,1,1,mangled figure
+man_14__p1,R7,C4,blur2,1,1,1,0,different person
+man_14__p1,R7,C5,vae_trans,1,1,1,0,three full-body officers
+man_14__p1,R8,C2,none,1,1,0,0,
+man_14__p1,R8,C3,jpeg50,1,1,0,0,
+man_14__p1,R8,C4,blur2,1,1,0,0,
+man_14__p1,R8,C5,vae_trans,1,1,0,0,
+man_14__p2,R1,C2,none,1,1,0,0,
+man_14__p2,R1,C3,jpeg50,0,1,0,0,no helmet visible
+man_14__p2,R1,C4,blur2,0,1,0,0,no helmet visible
+man_14__p2,R1,C5,vae_trans,1,1,0,0,helmet with shoulder armor
+man_14__p2,R2,C2,none,1,1,0,0,
+man_14__p2,R2,C3,jpeg50,1,1,0,0,glossy helmet borderline
+man_14__p2,R2,C4,blur2,1,1,0,0,glossy helmet borderline
+man_14__p2,R2,C5,vae_trans,1,1,0,0,
+man_14__p2,R3,C2,none,1,0,0,0,glossy helmet borderline
+man_14__p2,R3,C3,jpeg50,1,0,0,0,glossy helmet borderline
+man_14__p2,R3,C4,blur2,0,0,0,0,no helmet visible
+man_14__p2,R3,C5,vae_trans,1,0,0,0,
+man_14__p2,R4,C2,none,0,1,0,0,no helmet visible
+man_14__p2,R4,C3,jpeg50,0,1,0,0,no helmet visible
+man_14__p2,R4,C4,blur2,0,1,0,0,no helmet visible
+man_14__p2,R4,C5,vae_trans,1,1,0,0,helmet with armor
+man_14__p2,R5,C2,none,1,1,1,0,extra separate helmet
+man_14__p2,R5,C3,jpeg50,1,1,1,0,faint helmet; extra helmet
+man_14__p2,R5,C4,blur2,1,1,0,0,
+man_14__p2,R5,C5,vae_trans,1,1,1,0,extra separate helmet
+man_14__p2,R6,C2,none,1,1,1,0,extra separate helmet
+man_14__p2,R6,C3,jpeg50,1,1,0,0,
+man_14__p2,R6,C4,blur2,1,1,0,0,
+man_14__p2,R6,C5,vae_trans,1,1,1,0,extra separate helmet
+man_14__p2,R7,C2,none,0,1,0,0,no helmet visible
+man_14__p2,R7,C3,jpeg50,0,1,0,0,no helmet visible
+man_14__p2,R7,C4,blur2,0,1,0,0,no helmet visible
+man_14__p2,R7,C5,vae_trans,1,1,1,1,extra people; collage
+man_14__p2,R8,C2,none,1,1,1,0,extra separate helmet
+man_14__p2,R8,C3,jpeg50,1,1,1,0,extra separate helmet
+man_14__p2,R8,C4,blur2,1,1,1,0,extra separate helmet
+man_14__p2,R8,C5,vae_trans,1,1,1,0,extra separate helmet
+man_14__p3,R1,C2,none,1,1,1,0,extra bowties
+man_14__p3,R1,C3,jpeg50,1,1,1,0,extra bowties
+man_14__p3,R1,C4,blur2,1,0,1,0,cropped scene; giant bowties
+man_14__p3,R1,C5,vae_trans,1,0,1,0,extra bowties on face
+man_14__p3,R2,C2,none,1,0,0,0,
+man_14__p3,R2,C3,jpeg50,1,0,1,0,person changed; extra bowties
+man_14__p3,R2,C4,blur2,1,0,1,0,person replaced
+man_14__p3,R2,C5,vae_trans,1,0,1,0,person replaced
+man_14__p3,R3,C2,none,1,0,1,0,extra bowties
+man_14__p3,R3,C3,jpeg50,1,1,1,0,extra bowties
+man_14__p3,R3,C4,blur2,1,0,1,0,cropped scene; giant bowties
+man_14__p3,R3,C5,vae_trans,1,0,1,0,bowtie over face
+man_14__p3,R4,C2,none,1,0,1,0,extra bowties
+man_14__p3,R4,C3,jpeg50,1,1,1,0,extra bowties
+man_14__p3,R4,C4,blur2,1,0,1,0,extra bowties
+man_14__p3,R4,C5,vae_trans,1,0,1,0,bowtie over face
+man_14__p3,R5,C2,none,1,1,0,0,faint pastel bowtie
+man_14__p3,R5,C3,jpeg50,1,1,0,0,faint pastel bowtie
+man_14__p3,R5,C4,blur2,1,1,0,0,faint pastel bowtie
+man_14__p3,R5,C5,vae_trans,1,1,0,0,
+man_14__p3,R6,C2,none,1,0,1,0,person and clothes replaced
+man_14__p3,R6,C3,jpeg50,1,0,1,0,person and clothes replaced
+man_14__p3,R6,C4,blur2,1,1,1,0,extra bowties
+man_14__p3,R6,C5,vae_trans,0,1,0,0,bowtie not visible
+man_14__p3,R7,C2,none,1,0,1,0,extra bowtie on shoulder
+man_14__p3,R7,C3,jpeg50,1,0,1,0,extra bowtie on shoulder
+man_14__p3,R7,C4,blur2,1,0,1,0,extra bowtie on shoulder
+man_14__p3,R7,C5,vae_trans,1,0,0,0,
+man_14__p3,R8,C2,none,1,1,1,0,extra bowtie on shoulder
+man_14__p3,R8,C3,jpeg50,1,1,1,0,person and clothes replaced
+man_14__p3,R8,C4,blur2,1,0,1,0,person and clothes replaced
+man_14__p3,R8,C5,vae_trans,1,0,1,0,person and clothes replaced
+man_20__p0,R1,C2,none,1,0,0,0,
+man_20__p0,R1,C3,jpeg50,1,0,0,0,
+man_20__p0,R1,C4,blur2,1,0,0,0,
+man_20__p0,R1,C5,vae_trans,1,0,0,0,
+man_20__p0,R2,C2,none,1,1,0,0,
+man_20__p0,R2,C3,jpeg50,1,1,0,0,
+man_20__p0,R2,C4,blur2,1,1,0,0,
+man_20__p0,R2,C5,vae_trans,1,1,0,0,
+man_20__p0,R3,C2,none,1,1,0,0,
+man_20__p0,R3,C3,jpeg50,1,1,0,0,
+man_20__p0,R3,C4,blur2,1,1,0,0,
+man_20__p0,R3,C5,vae_trans,1,1,0,0,
+man_20__p0,R4,C2,none,1,1,0,0,
+man_20__p0,R4,C3,jpeg50,1,1,0,0,
+man_20__p0,R4,C4,blur2,1,1,0,0,
+man_20__p0,R4,C5,vae_trans,1,1,0,0,
+man_20__p0,R5,C2,none,1,1,0,0,
+man_20__p0,R5,C3,jpeg50,1,1,0,0,
+man_20__p0,R5,C4,blur2,1,1,0,0,
+man_20__p0,R5,C5,vae_trans,1,1,0,0,
+man_20__p0,R6,C2,none,1,0,0,0,
+man_20__p0,R6,C3,jpeg50,1,0,0,0,
+man_20__p0,R6,C4,blur2,1,0,0,0,
+man_20__p0,R6,C5,vae_trans,1,0,0,0,
+man_20__p0,R7,C2,none,1,1,0,0,
+man_20__p0,R7,C3,jpeg50,1,1,0,0,
+man_20__p0,R7,C4,blur2,1,1,0,0,
+man_20__p0,R7,C5,vae_trans,1,1,0,0,
+man_20__p0,R8,C2,none,1,0,0,0,
+man_20__p0,R8,C3,jpeg50,1,0,0,0,
+man_20__p0,R8,C4,blur2,1,0,0,0,
+man_20__p0,R8,C5,vae_trans,1,0,0,0,
+man_20__p1,R1,C2,none,1,0,0,0,
+man_20__p1,R1,C3,jpeg50,1,0,0,0,
+man_20__p1,R1,C4,blur2,1,0,0,0,
+man_20__p1,R1,C5,vae_trans,1,0,0,0,
+man_20__p1,R2,C2,none,1,1,0,0,
+man_20__p1,R2,C3,jpeg50,1,1,0,0,
+man_20__p1,R2,C4,blur2,1,1,0,0,
+man_20__p1,R2,C5,vae_trans,1,1,0,0,
+man_20__p1,R3,C2,none,1,1,0,0,
+man_20__p1,R3,C3,jpeg50,1,1,0,0,
+man_20__p1,R3,C4,blur2,1,1,0,0,
+man_20__p1,R3,C5,vae_trans,1,1,0,0,
+man_20__p1,R4,C2,none,1,0,0,0,
+man_20__p1,R4,C3,jpeg50,1,0,0,0,
+man_20__p1,R4,C4,blur2,1,0,0,0,
+man_20__p1,R4,C5,vae_trans,1,0,0,0,
+man_20__p1,R5,C2,none,1,1,0,0,
+man_20__p1,R5,C3,jpeg50,1,1,0,0,
+man_20__p1,R5,C4,blur2,1,1,0,0,
+man_20__p1,R5,C5,vae_trans,1,1,0,0,
+man_20__p1,R6,C2,none,1,1,0,0,
+man_20__p1,R6,C3,jpeg50,0,1,0,0,plaid shirt unchanged
+man_20__p1,R6,C4,blur2,0,1,0,0,plaid shirt unchanged
+man_20__p1,R6,C5,vae_trans,1,1,0,0,
+man_20__p1,R7,C2,none,1,0,0,0,
+man_20__p1,R7,C3,jpeg50,1,0,0,0,
+man_20__p1,R7,C4,blur2,1,0,0,0,
+man_20__p1,R7,C5,vae_trans,1,0,0,0,
+man_20__p1,R8,C2,none,1,1,0,0,
+man_20__p1,R8,C3,jpeg50,1,1,0,0,
+man_20__p1,R8,C4,blur2,1,1,0,0,
+man_20__p1,R8,C5,vae_trans,1,1,0,0,
+man_20__p2,R1,C2,none,1,1,0,0,
+man_20__p2,R1,C3,jpeg50,1,1,0,0,
+man_20__p2,R1,C4,blur2,1,1,0,0,
+man_20__p2,R1,C5,vae_trans,1,1,0,0,
+man_20__p2,R2,C2,none,1,0,0,0,
+man_20__p2,R2,C3,jpeg50,1,0,0,0,grey helmet borderline
+man_20__p2,R2,C4,blur2,0,0,0,0,no helmet visible
+man_20__p2,R2,C5,vae_trans,1,0,0,0,grey helmet borderline
+man_20__p2,R3,C2,none,1,1,0,0,
+man_20__p2,R3,C3,jpeg50,1,1,0,0,
+man_20__p2,R3,C4,blur2,1,1,0,0,
+man_20__p2,R3,C5,vae_trans,1,1,0,0,
+man_20__p2,R4,C2,none,1,0,0,0,
+man_20__p2,R4,C3,jpeg50,1,0,0,0,
+man_20__p2,R4,C4,blur2,1,0,0,0,
+man_20__p2,R4,C5,vae_trans,1,0,0,0,
+man_20__p2,R5,C2,none,1,1,1,0,extra helmets at hands
+man_20__p2,R5,C3,jpeg50,0,1,0,0,dark cap not clear
+man_20__p2,R5,C4,blur2,0,1,0,0,no helmet visible
+man_20__p2,R5,C5,vae_trans,0,1,0,0,dark cap not clear
+man_20__p2,R6,C2,none,1,0,0,0,
+man_20__p2,R6,C3,jpeg50,1,0,0,0,
+man_20__p2,R6,C4,blur2,1,0,0,0,
+man_20__p2,R6,C5,vae_trans,1,0,0,0,
+man_20__p2,R7,C2,none,1,1,0,0,
+man_20__p2,R7,C3,jpeg50,1,1,0,0,
+man_20__p2,R7,C4,blur2,1,1,0,0,
+man_20__p2,R7,C5,vae_trans,1,1,0,0,
+man_20__p2,R8,C2,none,1,1,0,0,
+man_20__p2,R8,C3,jpeg50,1,1,0,0,
+man_20__p2,R8,C4,blur2,1,1,0,0,
+man_20__p2,R8,C5,vae_trans,1,1,0,0,
+man_20__p3,R1,C2,none,1,1,0,0,
+man_20__p3,R1,C3,jpeg50,1,1,0,0,
+man_20__p3,R1,C4,blur2,1,1,0,0,
+man_20__p3,R1,C5,vae_trans,1,1,0,0,
+man_20__p3,R2,C2,none,1,1,0,0,
+man_20__p3,R2,C3,jpeg50,1,1,0,0,
+man_20__p3,R2,C4,blur2,1,1,0,0,
+man_20__p3,R2,C5,vae_trans,1,1,0,0,
+man_20__p3,R3,C2,none,1,1,0,0,
+man_20__p3,R3,C3,jpeg50,1,1,0,0,
+man_20__p3,R3,C4,blur2,1,1,0,0,
+man_20__p3,R3,C5,vae_trans,1,1,0,0,
+man_20__p3,R4,C2,none,1,0,0,0,
+man_20__p3,R4,C3,jpeg50,1,0,0,0,
+man_20__p3,R4,C4,blur2,1,0,0,0,
+man_20__p3,R4,C5,vae_trans,1,0,0,0,
+man_20__p3,R5,C2,none,1,0,0,0,
+man_20__p3,R5,C3,jpeg50,1,0,0,0,
+man_20__p3,R5,C4,blur2,1,0,0,0,faint bowtie
+man_20__p3,R5,C5,vae_trans,1,0,0,0,
+man_20__p3,R6,C2,none,1,1,0,0,
+man_20__p3,R6,C3,jpeg50,1,1,0,0,
+man_20__p3,R6,C4,blur2,1,1,0,0,
+man_20__p3,R6,C5,vae_trans,1,1,0,0,
+man_20__p3,R7,C2,none,1,0,0,0,
+man_20__p3,R7,C3,jpeg50,1,0,0,0,
+man_20__p3,R7,C4,blur2,1,0,0,0,
+man_20__p3,R7,C5,vae_trans,1,0,0,0,
+man_20__p3,R8,C2,none,1,1,0,0,faint bowtie
+man_20__p3,R8,C3,jpeg50,1,1,0,0,suit changed
+man_20__p3,R8,C4,blur2,1,1,1,0,suit; extra bowtie at waist
+man_20__p3,R8,C5,vae_trans,1,1,0,0,faint bowtie
+man_32__p0,R1,C2,none,1,0,0,0,
+man_32__p0,R1,C3,jpeg50,1,0,0,0,
+man_32__p0,R1,C4,blur2,1,0,0,0,
+man_32__p0,R1,C5,vae_trans,1,0,0,0,
+man_32__p0,R2,C2,none,1,0,0,0,
+man_32__p0,R2,C3,jpeg50,1,0,0,0,
+man_32__p0,R2,C4,blur2,1,0,0,0,
+man_32__p0,R2,C5,vae_trans,1,0,0,0,
+man_32__p0,R3,C2,none,1,1,0,0,
+man_32__p0,R3,C3,jpeg50,1,1,0,0,
+man_32__p0,R3,C4,blur2,1,1,0,0,
+man_32__p0,R3,C5,vae_trans,1,1,0,0,
+man_32__p0,R4,C2,none,1,1,0,0,
+man_32__p0,R4,C3,jpeg50,1,1,0,0,
+man_32__p0,R4,C4,blur2,1,1,0,0,
+man_32__p0,R4,C5,vae_trans,1,1,0,0,
+man_32__p0,R5,C2,none,1,0,0,0,
+man_32__p0,R5,C3,jpeg50,1,0,0,0,one lens blue
+man_32__p0,R5,C4,blur2,1,0,0,0,
+man_32__p0,R5,C5,vae_trans,1,0,0,0,one lens blue
+man_32__p0,R6,C2,none,1,1,0,0,
+man_32__p0,R6,C3,jpeg50,1,1,0,0,
+man_32__p0,R6,C4,blur2,1,1,0,0,
+man_32__p0,R6,C5,vae_trans,1,1,0,0,
+man_32__p0,R7,C2,none,1,0,0,0,
+man_32__p0,R7,C3,jpeg50,1,0,0,0,
+man_32__p0,R7,C4,blur2,1,0,0,0,
+man_32__p0,R7,C5,vae_trans,1,0,0,0,
+man_32__p0,R8,C2,none,1,1,0,0,
+man_32__p0,R8,C3,jpeg50,1,1,0,0,one lens blue
+man_32__p0,R8,C4,blur2,1,1,0,0,
+man_32__p0,R8,C5,vae_trans,1,1,0,0,
+man_32__p1,R1,C2,none,1,1,0,0,
+man_32__p1,R1,C3,jpeg50,1,1,0,0,
+man_32__p1,R1,C4,blur2,1,1,0,0,
+man_32__p1,R1,C5,vae_trans,1,1,0,0,
+man_32__p1,R2,C2,none,1,0,0,0,
+man_32__p1,R2,C3,jpeg50,1,0,0,0,
+man_32__p1,R2,C4,blur2,1,0,0,0,
+man_32__p1,R2,C5,vae_trans,1,0,0,0,
+man_32__p1,R3,C2,none,1,0,0,0,
+man_32__p1,R3,C3,jpeg50,1,0,0,0,
+man_32__p1,R3,C4,blur2,1,0,0,0,
+man_32__p1,R3,C5,vae_trans,1,0,0,0,
+man_32__p1,R4,C2,none,1,1,0,0,
+man_32__p1,R4,C3,jpeg50,1,1,0,0,
+man_32__p1,R4,C4,blur2,1,1,0,0,
+man_32__p1,R4,C5,vae_trans,1,1,0,0,
+man_32__p1,R5,C2,none,1,1,0,0,
+man_32__p1,R5,C3,jpeg50,1,1,0,0,
+man_32__p1,R5,C4,blur2,1,1,0,0,
+man_32__p1,R5,C5,vae_trans,1,1,0,0,
+man_32__p1,R6,C2,none,1,0,0,0,
+man_32__p1,R6,C3,jpeg50,1,0,0,0,
+man_32__p1,R6,C4,blur2,1,0,0,0,
+man_32__p1,R6,C5,vae_trans,1,0,0,0,
+man_32__p1,R7,C2,none,1,0,0,0,
+man_32__p1,R7,C3,jpeg50,1,0,0,0,
+man_32__p1,R7,C4,blur2,1,0,0,0,
+man_32__p1,R7,C5,vae_trans,1,0,0,0,
+man_32__p1,R8,C2,none,1,1,0,0,
+man_32__p1,R8,C3,jpeg50,1,1,0,0,
+man_32__p1,R8,C4,blur2,1,1,0,0,
+man_32__p1,R8,C5,vae_trans,1,1,0,0,
+man_32__p2,R1,C2,none,0,1,0,0,faint helmet outline
+man_32__p2,R1,C3,jpeg50,1,1,1,0,person changed; extra helmets
+man_32__p2,R1,C4,blur2,1,1,1,0,person changed; extra helmets
+man_32__p2,R1,C5,vae_trans,1,1,1,0,extra helmet in hand
+man_32__p2,R2,C2,none,0,0,0,0,faint helmet outline
+man_32__p2,R2,C3,jpeg50,0,0,0,0,faint helmet outline
+man_32__p2,R2,C4,blur2,0,0,0,0,no helmet visible
+man_32__p2,R2,C5,vae_trans,0,0,0,0,no helmet visible
+man_32__p2,R3,C2,none,1,0,0,0,
+man_32__p2,R3,C3,jpeg50,1,0,1,0,extra helmet in hand
+man_32__p2,R3,C4,blur2,1,0,0,0,
+man_32__p2,R3,C5,vae_trans,1,0,0,0,
+man_32__p2,R4,C2,none,1,1,1,0,extra helmet in hand
+man_32__p2,R4,C3,jpeg50,1,1,1,0,extra helmet in hand
+man_32__p2,R4,C4,blur2,1,1,1,0,extra large helmets
+man_32__p2,R4,C5,vae_trans,1,1,1,0,extra helmet and person
+man_32__p2,R5,C2,none,0,0,0,0,faint helmet outline
+man_32__p2,R5,C3,jpeg50,0,0,0,0,faint helmet outline
+man_32__p2,R5,C4,blur2,0,0,0,0,no helmet visible
+man_32__p2,R5,C5,vae_trans,0,0,0,0,no helmet visible
+man_32__p2,R6,C2,none,0,0,0,0,faint helmet outline
+man_32__p2,R6,C3,jpeg50,0,0,0,0,faint helmet outline
+man_32__p2,R6,C4,blur2,0,0,0,0,no helmet visible
+man_32__p2,R6,C5,vae_trans,0,0,0,0,no helmet visible
+man_32__p2,R7,C2,none,1,1,1,0,extra helmet in hand
+man_32__p2,R7,C3,jpeg50,1,1,1,0,extra helmet in hand
+man_32__p2,R7,C4,blur2,1,1,1,0,extra large helmets
+man_32__p2,R7,C5,vae_trans,1,1,1,0,extra helmet and person
+man_32__p2,R8,C2,none,1,1,1,0,extra helmet in hand
+man_32__p2,R8,C3,jpeg50,1,1,1,0,person changed; extra helmets
+man_32__p2,R8,C4,blur2,1,1,1,0,extra large helmets
+man_32__p2,R8,C5,vae_trans,1,1,1,0,extra helmet and person
+man_32__p3,R1,C2,none,1,0,0,0,
+man_32__p3,R1,C3,jpeg50,1,0,0,0,
+man_32__p3,R1,C4,blur2,1,0,0,0,faint bowtie
+man_32__p3,R1,C5,vae_trans,1,0,0,0,
+man_32__p3,R2,C2,none,1,1,0,0,
+man_32__p3,R2,C3,jpeg50,1,1,0,0,
+man_32__p3,R2,C4,blur2,1,1,0,0,
+man_32__p3,R2,C5,vae_trans,1,1,0,0,
+man_32__p3,R3,C2,none,1,1,0,0,
+man_32__p3,R3,C3,jpeg50,1,1,0,0,
+man_32__p3,R3,C4,blur2,1,1,0,0,
+man_32__p3,R3,C5,vae_trans,1,1,0,0,
+man_32__p3,R4,C2,none,1,0,0,0,
+man_32__p3,R4,C3,jpeg50,1,0,0,0,
+man_32__p3,R4,C4,blur2,0,0,0,0,necktie unchanged
+man_32__p3,R4,C5,vae_trans,0,0,0,0,necktie unchanged
+man_32__p3,R5,C2,none,1,0,0,0,
+man_32__p3,R5,C3,jpeg50,1,0,0,0,
+man_32__p3,R5,C4,blur2,0,0,0,0,necktie unchanged
+man_32__p3,R5,C5,vae_trans,1,0,0,0,
+man_32__p3,R6,C2,none,1,1,0,0,
+man_32__p3,R6,C3,jpeg50,1,1,0,0,
+man_32__p3,R6,C4,blur2,1,1,0,0,
+man_32__p3,R6,C5,vae_trans,1,1,0,0,
+man_32__p3,R7,C2,none,0,1,0,0,faint bowtie
+man_32__p3,R7,C3,jpeg50,1,1,0,0,
+man_32__p3,R7,C4,blur2,1,1,0,0,
+man_32__p3,R7,C5,vae_trans,1,1,0,0,
+man_32__p3,R8,C2,none,1,0,0,0,faint bowtie
+man_32__p3,R8,C3,jpeg50,1,0,0,0,faint bowtie
+man_32__p3,R8,C4,blur2,0,0,0,0,no bowtie visible
+man_32__p3,R8,C5,vae_trans,1,0,0,0,faint bowtie
+woman_09__p0,R1,C2,none,1,0,0,0,
+woman_09__p0,R1,C3,jpeg50,1,0,0,0,
+woman_09__p0,R1,C4,blur2,1,0,0,0,
+woman_09__p0,R1,C5,vae_trans,1,0,0,0,
+woman_09__p0,R2,C2,none,1,1,0,0,
+woman_09__p0,R2,C3,jpeg50,1,1,0,0,
+woman_09__p0,R2,C4,blur2,1,1,0,0,
+woman_09__p0,R2,C5,vae_trans,1,1,0,0,
+woman_09__p0,R3,C2,none,1,1,0,0,
+woman_09__p0,R3,C3,jpeg50,1,1,0,0,
+woman_09__p0,R3,C4,blur2,1,1,0,0,
+woman_09__p0,R3,C5,vae_trans,1,1,0,0,
+woman_09__p0,R4,C2,none,1,1,0,0,
+woman_09__p0,R4,C3,jpeg50,1,1,0,0,
+woman_09__p0,R4,C4,blur2,1,1,0,0,
+woman_09__p0,R4,C5,vae_trans,1,1,0,0,
+woman_09__p0,R5,C2,none,1,1,0,0,
+woman_09__p0,R5,C3,jpeg50,1,1,0,0,
+woman_09__p0,R5,C4,blur2,1,1,0,0,
+woman_09__p0,R5,C5,vae_trans,1,1,0,0,
+woman_09__p0,R6,C2,none,1,0,0,0,
+woman_09__p0,R6,C3,jpeg50,1,0,0,0,
+woman_09__p0,R6,C4,blur2,1,0,0,0,
+woman_09__p0,R6,C5,vae_trans,1,0,0,0,
+woman_09__p0,R7,C2,none,1,0,0,0,
+woman_09__p0,R7,C3,jpeg50,1,0,0,0,
+woman_09__p0,R7,C4,blur2,1,0,0,0,
+woman_09__p0,R7,C5,vae_trans,1,0,0,0,
+woman_09__p0,R8,C2,none,1,1,0,0,
+woman_09__p0,R8,C3,jpeg50,1,1,0,0,
+woman_09__p0,R8,C4,blur2,1,1,0,0,
+woman_09__p0,R8,C5,vae_trans,1,1,0,0,
+woman_09__p1,R1,C2,none,1,0,0,0,
+woman_09__p1,R1,C3,jpeg50,1,0,0,0,
+woman_09__p1,R1,C4,blur2,1,0,0,0,
+woman_09__p1,R1,C5,vae_trans,0,0,0,0,denim jacket without patches
+woman_09__p1,R2,C2,none,1,0,0,0,
+woman_09__p1,R2,C3,jpeg50,1,1,0,0,
+woman_09__p1,R2,C4,blur2,1,1,0,0,
+woman_09__p1,R2,C5,vae_trans,0,0,0,0,denim jacket without patches
+woman_09__p1,R3,C2,none,1,0,0,0,
+woman_09__p1,R3,C3,jpeg50,1,0,0,0,faint patch
+woman_09__p1,R3,C4,blur2,1,1,0,0,
+woman_09__p1,R3,C5,vae_trans,0,0,0,0,denim jacket without patches
+woman_09__p1,R4,C2,none,1,0,0,0,
+woman_09__p1,R4,C3,jpeg50,1,0,0,0,
+woman_09__p1,R4,C4,blur2,1,0,0,0,
+woman_09__p1,R4,C5,vae_trans,1,0,0,0,faint patch
+woman_09__p1,R5,C2,none,1,0,0,0,
+woman_09__p1,R5,C3,jpeg50,1,1,0,0,
+woman_09__p1,R5,C4,blur2,1,1,0,0,
+woman_09__p1,R5,C5,vae_trans,0,0,0,0,denim jacket without patches
+woman_09__p1,R6,C2,none,1,0,0,0,
+woman_09__p1,R6,C3,jpeg50,1,1,0,0,
+woman_09__p1,R6,C4,blur2,1,1,0,0,
+woman_09__p1,R6,C5,vae_trans,1,0,0,0,faint patch
+woman_09__p1,R7,C2,none,1,0,0,0,
+woman_09__p1,R7,C3,jpeg50,1,0,0,0,
+woman_09__p1,R7,C4,blur2,1,0,0,0,
+woman_09__p1,R7,C5,vae_trans,0,0,0,0,denim jacket without patches
+woman_09__p1,R8,C2,none,1,0,0,0,
+woman_09__p1,R8,C3,jpeg50,1,1,0,0,
+woman_09__p1,R8,C4,blur2,1,1,0,0,
+woman_09__p1,R8,C5,vae_trans,1,1,0,0,faint patch
+woman_09__p2,R1,C2,none,0,0,0,0,faint helmet outline
+woman_09__p2,R1,C3,jpeg50,1,0,0,0,translucent helmet borderline
+woman_09__p2,R1,C4,blur2,0,0,0,0,faint helmet outline
+woman_09__p2,R1,C5,vae_trans,0,0,0,0,no helmet visible
+woman_09__p2,R2,C2,none,0,1,0,0,no helmet visible
+woman_09__p2,R2,C3,jpeg50,0,1,0,0,faint helmet outline
+woman_09__p2,R2,C4,blur2,0,1,0,0,faint helmet outline
+woman_09__p2,R2,C5,vae_trans,0,1,0,0,no helmet visible
+woman_09__p2,R3,C2,none,1,1,0,0,
+woman_09__p2,R3,C3,jpeg50,1,1,0,0,
+woman_09__p2,R3,C4,blur2,1,1,0,0,translucent helmet borderline
+woman_09__p2,R3,C5,vae_trans,0,1,0,0,faint helmet outline
+woman_09__p2,R4,C2,none,1,0,0,0,
+woman_09__p2,R4,C3,jpeg50,1,0,1,0,extra translucent helmets
+woman_09__p2,R4,C4,blur2,1,0,0,0,
+woman_09__p2,R4,C5,vae_trans,0,0,0,0,faint helmet outline
+woman_09__p2,R5,C2,none,1,0,0,0,
+woman_09__p2,R5,C3,jpeg50,1,0,0,0,
+woman_09__p2,R5,C4,blur2,1,0,0,0,
+woman_09__p2,R5,C5,vae_trans,0,0,0,0,faint helmet outline
+woman_09__p2,R6,C2,none,0,0,0,0,faint helmet outline
+woman_09__p2,R6,C3,jpeg50,0,0,0,0,faint helmet outline
+woman_09__p2,R6,C4,blur2,1,0,0,0,translucent helmet borderline
+woman_09__p2,R6,C5,vae_trans,0,0,0,0,no helmet visible
+woman_09__p2,R7,C2,none,1,1,0,0,
+woman_09__p2,R7,C3,jpeg50,1,1,0,0,translucent visor
+woman_09__p2,R7,C4,blur2,1,1,0,0,translucent helmet borderline
+woman_09__p2,R7,C5,vae_trans,0,1,0,0,faint helmet outline
+woman_09__p2,R8,C2,none,1,1,0,0,
+woman_09__p2,R8,C3,jpeg50,1,1,0,0,translucent helmet borderline
+woman_09__p2,R8,C4,blur2,1,1,0,0,translucent helmet borderline
+woman_09__p2,R8,C5,vae_trans,0,1,0,0,faint helmet outline
+woman_09__p3,R1,C2,none,0,1,0,0,no bowtie visible
+woman_09__p3,R1,C3,jpeg50,0,1,0,0,no bowtie visible
+woman_09__p3,R1,C4,blur2,1,0,1,0,person replaced; extra bowties
+woman_09__p3,R1,C5,vae_trans,0,1,0,0,no bowtie visible
+woman_09__p3,R2,C2,none,0,1,0,0,no bowtie visible
+woman_09__p3,R2,C3,jpeg50,1,1,0,0,small bowtie borderline
+woman_09__p3,R2,C4,blur2,1,0,1,0,person replaced; extra bowties
+woman_09__p3,R2,C5,vae_trans,1,1,0,0,
+woman_09__p3,R3,C2,none,0,1,0,0,no bowtie visible
+woman_09__p3,R3,C3,jpeg50,1,1,0,0,small bowtie borderline
+woman_09__p3,R3,C4,blur2,1,0,1,0,person replaced; extra bowties
+woman_09__p3,R3,C5,vae_trans,1,1,0,0,
+woman_09__p3,R4,C2,none,0,0,0,0,no bowtie visible
+woman_09__p3,R4,C3,jpeg50,0,0,0,0,no bowtie visible
+woman_09__p3,R4,C4,blur2,1,0,1,0,person replaced; extra bowties
+woman_09__p3,R4,C5,vae_trans,0,0,0,0,no bowtie visible
+woman_09__p3,R5,C2,none,0,0,0,0,no bowtie visible
+woman_09__p3,R5,C3,jpeg50,0,0,0,0,faint bowtie at hand
+woman_09__p3,R5,C4,blur2,1,0,1,0,person replaced; extra bowties
+woman_09__p3,R5,C5,vae_trans,1,0,0,0,cream bowtie borderline
+woman_09__p3,R6,C2,none,1,0,1,0,person replaced; extra bowtie
+woman_09__p3,R6,C3,jpeg50,1,0,1,0,person replaced; extra bowtie
+woman_09__p3,R6,C4,blur2,1,0,1,0,person replaced; extra bowtie
+woman_09__p3,R6,C5,vae_trans,1,0,0,0,
+woman_09__p3,R7,C2,none,1,0,0,0,jacket changed
+woman_09__p3,R7,C3,jpeg50,1,0,1,0,person replaced; extra bowties
+woman_09__p3,R7,C4,blur2,1,0,1,0,person replaced; extra bowties
+woman_09__p3,R7,C5,vae_trans,1,0,0,0,
+woman_09__p3,R8,C2,none,0,1,0,0,no bowtie visible
+woman_09__p3,R8,C3,jpeg50,0,1,0,0,no bowtie visible
+woman_09__p3,R8,C4,blur2,1,1,1,0,person replaced; extra bowties
+woman_09__p3,R8,C5,vae_trans,1,1,0,0,cream bowtie borderline
+woman_17__p0,R1,C2,none,1,1,0,0,tinted lenses borderline
+woman_17__p0,R1,C3,jpeg50,1,1,0,0,tinted lenses borderline
+woman_17__p0,R1,C4,blur2,1,1,0,0,
+woman_17__p0,R1,C5,vae_trans,0,1,0,0,lightly tinted lenses
+woman_17__p0,R2,C2,none,1,1,0,0,
+woman_17__p0,R2,C3,jpeg50,1,1,0,0,
+woman_17__p0,R2,C4,blur2,1,1,0,0,
+woman_17__p0,R2,C5,vae_trans,1,1,0,0,
+woman_17__p0,R3,C2,none,1,1,0,0,
+woman_17__p0,R3,C3,jpeg50,1,1,0,0,
+woman_17__p0,R3,C4,blur2,1,1,0,0,
+woman_17__p0,R3,C5,vae_trans,1,1,0,0,
+woman_17__p0,R4,C2,none,1,0,0,0,
+woman_17__p0,R4,C3,jpeg50,1,0,0,0,
+woman_17__p0,R4,C4,blur2,1,0,0,0,
+woman_17__p0,R4,C5,vae_trans,1,0,0,0,
+woman_17__p0,R5,C2,none,1,1,0,0,
+woman_17__p0,R5,C3,jpeg50,1,1,0,0,
+woman_17__p0,R5,C4,blur2,1,1,0,0,
+woman_17__p0,R5,C5,vae_trans,1,1,0,0,
+woman_17__p0,R6,C2,none,1,1,0,0,
+woman_17__p0,R6,C3,jpeg50,1,1,0,0,
+woman_17__p0,R6,C4,blur2,1,1,0,0,
+woman_17__p0,R6,C5,vae_trans,1,1,0,0,
+woman_17__p0,R7,C2,none,1,1,0,0,
+woman_17__p0,R7,C3,jpeg50,1,1,0,0,
+woman_17__p0,R7,C4,blur2,1,1,0,0,
+woman_17__p0,R7,C5,vae_trans,1,1,0,0,
+woman_17__p0,R8,C2,none,1,1,0,0,
+woman_17__p0,R8,C3,jpeg50,1,1,0,0,
+woman_17__p0,R8,C4,blur2,1,1,0,0,
+woman_17__p0,R8,C5,vae_trans,1,1,0,0,
+woman_17__p1,R1,C2,none,1,1,0,0,
+woman_17__p1,R1,C3,jpeg50,1,1,0,0,
+woman_17__p1,R1,C4,blur2,1,1,0,0,faint patches
+woman_17__p1,R1,C5,vae_trans,1,1,0,0,
+woman_17__p1,R2,C2,none,1,1,0,0,
+woman_17__p1,R2,C3,jpeg50,1,1,0,0,
+woman_17__p1,R2,C4,blur2,1,1,0,0,
+woman_17__p1,R2,C5,vae_trans,1,1,0,0,
+woman_17__p1,R3,C2,none,1,0,0,0,
+woman_17__p1,R3,C3,jpeg50,1,0,0,0,
+woman_17__p1,R3,C4,blur2,1,0,0,0,
+woman_17__p1,R3,C5,vae_trans,1,0,0,0,
+woman_17__p1,R4,C2,none,1,1,0,0,
+woman_17__p1,R4,C3,jpeg50,1,1,0,0,
+woman_17__p1,R4,C4,blur2,1,1,0,0,
+woman_17__p1,R4,C5,vae_trans,1,1,0,0,
+woman_17__p1,R5,C2,none,1,1,0,0,
+woman_17__p1,R5,C3,jpeg50,1,1,0,0,
+woman_17__p1,R5,C4,blur2,1,1,0,0,
+woman_17__p1,R5,C5,vae_trans,1,1,0,0,
+woman_17__p1,R6,C2,none,1,1,0,0,
+woman_17__p1,R6,C3,jpeg50,1,1,0,0,
+woman_17__p1,R6,C4,blur2,1,1,0,0,
+woman_17__p1,R6,C5,vae_trans,1,1,0,0,
+woman_17__p1,R7,C2,none,1,1,0,0,
+woman_17__p1,R7,C3,jpeg50,1,1,0,0,
+woman_17__p1,R7,C4,blur2,1,1,0,0,
+woman_17__p1,R7,C5,vae_trans,1,1,0,0,
+woman_17__p1,R8,C2,none,1,1,0,0,
+woman_17__p1,R8,C3,jpeg50,1,1,0,0,
+woman_17__p1,R8,C4,blur2,0,1,0,0,no clear patches
+woman_17__p1,R8,C5,vae_trans,1,1,1,0,three full-body officers
+woman_17__p2,R1,C2,none,1,1,1,0,person replaced; two helmets
+woman_17__p2,R1,C3,jpeg50,0,1,0,1,mangled face; ghostly helmet
+woman_17__p2,R1,C4,blur2,1,1,1,0,person replaced; two helmets
+woman_17__p2,R1,C5,vae_trans,1,1,1,0,person replaced; two helmets
+woman_17__p2,R2,C2,none,0,1,0,0,glossy hair only
+woman_17__p2,R2,C3,jpeg50,0,1,0,0,no helmet visible
+woman_17__p2,R2,C4,blur2,0,1,0,0,no helmet visible
+woman_17__p2,R2,C5,vae_trans,0,1,0,0,glossy hair only
+woman_17__p2,R3,C2,none,0,0,0,0,glossy hair only
+woman_17__p2,R3,C3,jpeg50,0,0,0,0,no helmet visible
+woman_17__p2,R3,C4,blur2,0,0,0,0,no helmet visible
+woman_17__p2,R3,C5,vae_trans,1,0,0,0,grey helmet borderline
+woman_17__p2,R4,C2,none,0,1,0,0,glossy hair only
+woman_17__p2,R4,C3,jpeg50,0,1,0,0,no helmet visible
+woman_17__p2,R4,C4,blur2,0,1,0,0,no helmet visible
+woman_17__p2,R4,C5,vae_trans,1,1,0,0,dark helmet borderline
+woman_17__p2,R5,C2,none,1,1,1,0,person replaced; two helmets
+woman_17__p2,R5,C3,jpeg50,0,1,0,1,mangled face; ghostly helmet
+woman_17__p2,R5,C4,blur2,1,1,1,0,person replaced; two helmets
+woman_17__p2,R5,C5,vae_trans,1,1,1,0,person replaced; two helmets
+woman_17__p2,R6,C2,none,1,1,0,0,grey helmet borderline
+woman_17__p2,R6,C3,jpeg50,0,1,0,0,no helmet visible
+woman_17__p2,R6,C4,blur2,0,1,0,0,no helmet visible
+woman_17__p2,R6,C5,vae_trans,1,1,0,0,
+woman_17__p2,R7,C2,none,1,1,0,0,grey helmet borderline
+woman_17__p2,R7,C3,jpeg50,0,1,0,0,no helmet visible
+woman_17__p2,R7,C4,blur2,0,1,0,0,no helmet visible
+woman_17__p2,R7,C5,vae_trans,1,1,0,0,
+woman_17__p2,R8,C2,none,1,1,1,0,person replaced; two helmets
+woman_17__p2,R8,C3,jpeg50,0,1,0,1,mangled face; ghostly helmet
+woman_17__p2,R8,C4,blur2,1,1,1,0,person replaced; two helmets
+woman_17__p2,R8,C5,vae_trans,1,1,1,0,person replaced; two helmets
+woman_17__p3,R1,C2,none,1,0,1,0,person replaced by man
+woman_17__p3,R1,C3,jpeg50,1,0,1,0,person replaced by man
+woman_17__p3,R1,C4,blur2,1,0,1,0,person replaced by man
+woman_17__p3,R1,C5,vae_trans,1,0,1,0,person replaced by man
+woman_17__p3,R2,C2,none,1,0,1,0,person replaced by man
+woman_17__p3,R2,C3,jpeg50,1,0,1,0,person replaced by man
+woman_17__p3,R2,C4,blur2,1,0,1,0,person changed; extra bowties
+woman_17__p3,R2,C5,vae_trans,1,0,1,0,person replaced; bowtie on head
+woman_17__p3,R3,C2,none,1,0,1,0,extra bowties
+woman_17__p3,R3,C3,jpeg50,1,0,0,0,
+woman_17__p3,R3,C4,blur2,1,0,1,0,extra bowties
+woman_17__p3,R3,C5,vae_trans,1,0,0,0,
+woman_17__p3,R4,C2,none,1,1,1,0,extra bowties
+woman_17__p3,R4,C3,jpeg50,1,1,1,0,extra bowties
+woman_17__p3,R4,C4,blur2,1,0,1,1,person replaced; mangled face
+woman_17__p3,R4,C5,vae_trans,1,1,1,0,extra bowties
+woman_17__p3,R5,C2,none,1,0,1,0,scene and clothes replaced
+woman_17__p3,R5,C3,jpeg50,1,0,1,0,person replaced by man
+woman_17__p3,R5,C4,blur2,1,0,1,0,person replaced by man
+woman_17__p3,R5,C5,vae_trans,1,0,1,0,person replaced by man
+woman_17__p3,R6,C2,none,1,1,0,0,small bowtie
+woman_17__p3,R6,C3,jpeg50,1,1,0,0,small bowtie
+woman_17__p3,R6,C4,blur2,1,1,1,0,extra bowties
+woman_17__p3,R6,C5,vae_trans,1,1,0,0,small bowtie
+woman_17__p3,R7,C2,none,1,1,0,0,
+woman_17__p3,R7,C3,jpeg50,1,1,0,0,
+woman_17__p3,R7,C4,blur2,1,1,0,0,
+woman_17__p3,R7,C5,vae_trans,1,1,0,0,
+woman_17__p3,R8,C2,none,1,1,0,0,small bowtie
+woman_17__p3,R8,C3,jpeg50,1,1,0,0,small bowtie
+woman_17__p3,R8,C4,blur2,1,1,1,0,extra bowties
+woman_17__p3,R8,C5,vae_trans,0,1,0,0,no bowtie visible
+woman_18__p0,R1,C2,none,1,0,0,0,
+woman_18__p0,R1,C3,jpeg50,1,0,0,0,
+woman_18__p0,R1,C4,blur2,1,0,0,0,
+woman_18__p0,R1,C5,vae_trans,1,0,0,0,
+woman_18__p0,R2,C2,none,1,1,0,0,
+woman_18__p0,R2,C3,jpeg50,1,1,0,0,
+woman_18__p0,R2,C4,blur2,1,1,0,0,
+woman_18__p0,R2,C5,vae_trans,1,1,0,0,
+woman_18__p0,R3,C2,none,1,1,0,0,
+woman_18__p0,R3,C3,jpeg50,1,1,0,0,
+woman_18__p0,R3,C4,blur2,1,1,0,0,
+woman_18__p0,R3,C5,vae_trans,1,1,0,0,
+woman_18__p0,R4,C2,none,1,0,0,0,
+woman_18__p0,R4,C3,jpeg50,1,0,0,0,
+woman_18__p0,R4,C4,blur2,1,0,0,0,
+woman_18__p0,R4,C5,vae_trans,1,0,0,0,
+woman_18__p0,R5,C2,none,1,1,0,0,
+woman_18__p0,R5,C3,jpeg50,1,1,0,0,
+woman_18__p0,R5,C4,blur2,1,1,0,0,
+woman_18__p0,R5,C5,vae_trans,1,1,0,0,
+woman_18__p0,R6,C2,none,1,1,0,0,
+woman_18__p0,R6,C3,jpeg50,1,1,0,0,
+woman_18__p0,R6,C4,blur2,1,1,0,0,
+woman_18__p0,R6,C5,vae_trans,1,1,0,0,
+woman_18__p0,R7,C2,none,1,1,0,0,
+woman_18__p0,R7,C3,jpeg50,1,1,0,0,
+woman_18__p0,R7,C4,blur2,1,1,0,0,
+woman_18__p0,R7,C5,vae_trans,1,1,0,0,
+woman_18__p0,R8,C2,none,1,1,0,0,
+woman_18__p0,R8,C3,jpeg50,1,1,0,0,
+woman_18__p0,R8,C4,blur2,1,1,0,0,
+woman_18__p0,R8,C5,vae_trans,1,1,0,0,
+woman_18__p1,R1,C2,none,0,1,0,0,only a small badge
+woman_18__p1,R1,C3,jpeg50,0,1,0,0,no uniform
+woman_18__p1,R1,C4,blur2,1,1,0,0,several badges; borderline
+woman_18__p1,R1,C5,vae_trans,1,1,1,0,two full-body officers
+woman_18__p1,R2,C2,none,0,0,0,0,only a small badge
+woman_18__p1,R2,C3,jpeg50,0,0,0,0,no uniform
+woman_18__p1,R2,C4,blur2,1,0,0,0,collar and badges
+woman_18__p1,R2,C5,vae_trans,0,0,0,0,badges on unchanged dress
+woman_18__p1,R3,C2,none,0,1,0,0,only a small badge
+woman_18__p1,R3,C3,jpeg50,0,1,0,0,only a small patch
+woman_18__p1,R3,C4,blur2,1,1,0,0,several badges; borderline
+woman_18__p1,R3,C5,vae_trans,0,1,0,0,no uniform
+woman_18__p1,R4,C2,none,0,0,0,0,only a small badge
+woman_18__p1,R4,C3,jpeg50,0,0,0,0,only a small badge
+woman_18__p1,R4,C4,blur2,1,0,0,0,several badges; borderline
+woman_18__p1,R4,C5,vae_trans,0,0,0,0,no uniform
+woman_18__p1,R5,C2,none,0,1,0,0,no uniform
+woman_18__p1,R5,C3,jpeg50,0,1,0,0,no uniform
+woman_18__p1,R5,C4,blur2,0,1,0,0,no uniform
+woman_18__p1,R5,C5,vae_trans,0,1,0,0,no uniform
+woman_18__p1,R6,C2,none,0,1,0,0,no uniform
+woman_18__p1,R6,C3,jpeg50,0,1,0,0,only a small patch
+woman_18__p1,R6,C4,blur2,1,1,0,0,several badges; borderline
+woman_18__p1,R6,C5,vae_trans,0,1,0,0,no uniform
+woman_18__p1,R7,C2,none,0,1,0,0,no uniform
+woman_18__p1,R7,C3,jpeg50,0,1,0,0,only a small patch
+woman_18__p1,R7,C4,blur2,1,1,0,0,several badges; borderline
+woman_18__p1,R7,C5,vae_trans,0,1,0,0,no uniform
+woman_18__p1,R8,C2,none,0,1,0,0,only a small badge
+woman_18__p1,R8,C3,jpeg50,0,1,0,0,only a small badge
+woman_18__p1,R8,C4,blur2,0,1,0,0,only a small badge
+woman_18__p1,R8,C5,vae_trans,0,1,0,0,no uniform
+woman_18__p2,R1,C2,none,0,1,1,0,giant helmets; scene replaced
+woman_18__p2,R1,C3,jpeg50,0,1,1,1,face hidden by giant helmets
+woman_18__p2,R1,C4,blur2,0,1,1,1,face hidden by giant helmets
+woman_18__p2,R1,C5,vae_trans,0,1,1,1,face hidden by giant helmets
+woman_18__p2,R2,C2,none,1,0,0,0,
+woman_18__p2,R2,C3,jpeg50,1,0,0,0,dark cap borderline
+woman_18__p2,R2,C4,blur2,0,0,0,0,faint helmet outline
+woman_18__p2,R2,C5,vae_trans,1,0,0,0,dark cap borderline
+woman_18__p2,R3,C2,none,1,1,0,0,
+woman_18__p2,R3,C3,jpeg50,1,1,0,0,dark cap borderline
+woman_18__p2,R3,C4,blur2,1,1,0,0,
+woman_18__p2,R3,C5,vae_trans,1,1,0,0,dark cap borderline
+woman_18__p2,R4,C2,none,1,1,0,0,
+woman_18__p2,R4,C3,jpeg50,1,1,0,0,dark cap borderline
+woman_18__p2,R4,C4,blur2,0,1,0,0,faint helmet outline
+woman_18__p2,R4,C5,vae_trans,1,1,0,0,
+woman_18__p2,R5,C2,none,1,0,0,0,
+woman_18__p2,R5,C3,jpeg50,1,0,0,0,
+woman_18__p2,R5,C4,blur2,1,0,0,0,
+woman_18__p2,R5,C5,vae_trans,1,0,0,0,dark cap borderline
+woman_18__p2,R6,C2,none,1,1,0,0,
+woman_18__p2,R6,C3,jpeg50,1,1,0,0,
+woman_18__p2,R6,C4,blur2,1,1,0,0,
+woman_18__p2,R6,C5,vae_trans,0,1,0,0,faint helmet outline
+woman_18__p2,R7,C2,none,0,1,1,0,giant helmets; scene replaced
+woman_18__p2,R7,C3,jpeg50,0,1,1,1,face hidden by giant helmets
+woman_18__p2,R7,C4,blur2,0,1,1,1,face hidden by giant helmets
+woman_18__p2,R7,C5,vae_trans,0,1,1,1,face hidden by giant helmets
+woman_18__p2,R8,C2,none,1,1,0,0,
+woman_18__p2,R8,C3,jpeg50,1,1,0,0,
+woman_18__p2,R8,C4,blur2,1,1,0,0,
+woman_18__p2,R8,C5,vae_trans,1,1,0,0,dark cap borderline
+woman_18__p3,R1,C2,none,0,1,0,0,no bowtie visible
+woman_18__p3,R1,C3,jpeg50,0,1,0,0,no bowtie visible
+woman_18__p3,R1,C4,blur2,0,1,0,0,no bowtie visible
+woman_18__p3,R1,C5,vae_trans,0,1,0,0,no bowtie visible
+woman_18__p3,R2,C2,none,0,0,0,0,no bowtie visible
+woman_18__p3,R2,C3,jpeg50,1,0,0,0,small bowtie at neckline
+woman_18__p3,R2,C4,blur2,0,0,0,0,no bowtie visible
+woman_18__p3,R2,C5,vae_trans,0,0,0,0,no bowtie visible
+woman_18__p3,R3,C2,none,0,1,0,0,no bowtie visible
+woman_18__p3,R3,C3,jpeg50,0,1,0,0,white shirt panel only
+woman_18__p3,R3,C4,blur2,1,0,1,0,person replaced
+woman_18__p3,R3,C5,vae_trans,0,1,0,0,no bowtie visible
+woman_18__p3,R4,C2,none,0,1,0,0,no bowtie visible
+woman_18__p3,R4,C3,jpeg50,0,1,0,0,no bowtie visible
+woman_18__p3,R4,C4,blur2,0,1,0,0,white shirt panel only
+woman_18__p3,R4,C5,vae_trans,0,1,0,0,no bowtie visible
+woman_18__p3,R5,C2,none,0,1,0,0,no bowtie visible
+woman_18__p3,R5,C3,jpeg50,0,1,0,0,no bowtie visible
+woman_18__p3,R5,C4,blur2,0,1,0,0,no bowtie visible
+woman_18__p3,R5,C5,vae_trans,0,1,0,0,no bowtie visible
+woman_18__p3,R6,C2,none,0,1,0,0,no bowtie visible
+woman_18__p3,R6,C3,jpeg50,0,1,0,0,no bowtie visible
+woman_18__p3,R6,C4,blur2,0,1,0,0,no bowtie visible
+woman_18__p3,R6,C5,vae_trans,0,1,0,0,no bowtie visible
+woman_18__p3,R7,C2,none,0,0,0,0,no bowtie visible
+woman_18__p3,R7,C3,jpeg50,0,0,0,0,no bowtie visible
+woman_18__p3,R7,C4,blur2,0,0,0,0,no bowtie visible
+woman_18__p3,R7,C5,vae_trans,0,0,0,0,no bowtie visible
+woman_18__p3,R8,C2,none,1,1,0,0,small bowtie at neckline
+woman_18__p3,R8,C3,jpeg50,1,1,0,0,small bowtie at neckline
+woman_18__p3,R8,C4,blur2,1,1,0,0,faint small bowtie
+woman_18__p3,R8,C5,vae_trans,0,1,0,0,no bowtie visible
+woman_21__p0,R1,C2,none,1,1,0,0,
+woman_21__p0,R1,C3,jpeg50,1,1,0,0,
+woman_21__p0,R1,C4,blur2,1,1,1,0,extra floating sunglasses
+woman_21__p0,R1,C5,vae_trans,1,1,0,0,
+woman_21__p0,R2,C2,none,1,0,0,0,
+woman_21__p0,R2,C3,jpeg50,1,0,0,0,
+woman_21__p0,R2,C4,blur2,1,0,0,0,
+woman_21__p0,R2,C5,vae_trans,1,0,0,0,
+woman_21__p0,R3,C2,none,1,1,0,0,
+woman_21__p0,R3,C3,jpeg50,1,1,0,0,
+woman_21__p0,R3,C4,blur2,1,1,0,0,
+woman_21__p0,R3,C5,vae_trans,1,1,0,0,
+woman_21__p0,R4,C2,none,1,1,0,0,
+woman_21__p0,R4,C3,jpeg50,1,1,0,0,
+woman_21__p0,R4,C4,blur2,1,1,0,0,
+woman_21__p0,R4,C5,vae_trans,1,1,0,0,
+woman_21__p0,R5,C2,none,1,1,0,0,
+woman_21__p0,R5,C3,jpeg50,1,1,0,0,
+woman_21__p0,R5,C4,blur2,1,1,1,0,extra floating sunglasses
+woman_21__p0,R5,C5,vae_trans,1,1,0,0,
+woman_21__p0,R6,C2,none,1,1,0,0,
+woman_21__p0,R6,C3,jpeg50,1,1,0,0,
+woman_21__p0,R6,C4,blur2,1,1,0,0,
+woman_21__p0,R6,C5,vae_trans,1,1,0,0,
+woman_21__p0,R7,C2,none,1,1,0,0,
+woman_21__p0,R7,C3,jpeg50,1,1,0,0,
+woman_21__p0,R7,C4,blur2,1,1,0,0,
+woman_21__p0,R7,C5,vae_trans,1,1,0,0,
+woman_21__p0,R8,C2,none,1,1,0,0,
+woman_21__p0,R8,C3,jpeg50,1,1,1,0,extra floating sunglasses
+woman_21__p0,R8,C4,blur2,1,1,1,0,extra large sunglasses
+woman_21__p0,R8,C5,vae_trans,1,1,0,0,
+woman_21__p1,R1,C2,none,1,1,0,0,
+woman_21__p1,R1,C3,jpeg50,1,1,0,0,
+woman_21__p1,R1,C4,blur2,1,1,0,0,
+woman_21__p1,R1,C5,vae_trans,1,1,0,0,
+woman_21__p1,R2,C2,none,1,0,0,0,
+woman_21__p1,R2,C3,jpeg50,1,0,0,0,
+woman_21__p1,R2,C4,blur2,1,0,0,0,
+woman_21__p1,R2,C5,vae_trans,1,0,0,0,
+woman_21__p1,R3,C2,none,1,1,0,0,
+woman_21__p1,R3,C3,jpeg50,1,1,0,0,
+woman_21__p1,R3,C4,blur2,1,1,0,0,
+woman_21__p1,R3,C5,vae_trans,1,1,0,0,
+woman_21__p1,R4,C2,none,1,1,0,0,
+woman_21__p1,R4,C3,jpeg50,1,1,0,0,
+woman_21__p1,R4,C4,blur2,1,1,0,0,
+woman_21__p1,R4,C5,vae_trans,1,1,0,0,
+woman_21__p1,R5,C2,none,1,1,0,0,
+woman_21__p1,R5,C3,jpeg50,1,1,0,0,
+woman_21__p1,R5,C4,blur2,1,1,0,0,
+woman_21__p1,R5,C5,vae_trans,1,1,0,0,
+woman_21__p1,R6,C2,none,1,0,0,0,
+woman_21__p1,R6,C3,jpeg50,1,0,0,0,
+woman_21__p1,R6,C4,blur2,1,0,0,0,
+woman_21__p1,R6,C5,vae_trans,1,0,1,0,extra helmet above head
+woman_21__p1,R7,C2,none,1,1,0,0,face covered by mask
+woman_21__p1,R7,C3,jpeg50,1,1,0,0,
+woman_21__p1,R7,C4,blur2,1,1,0,0,face covered by mask
+woman_21__p1,R7,C5,vae_trans,1,1,0,0,
+woman_21__p1,R8,C2,none,1,1,0,0,
+woman_21__p1,R8,C3,jpeg50,1,1,0,0,
+woman_21__p1,R8,C4,blur2,1,1,0,0,
+woman_21__p1,R8,C5,vae_trans,1,1,0,0,
+woman_21__p2,R1,C2,none,1,1,1,0,duplicate helmet below
+woman_21__p2,R1,C3,jpeg50,0,1,0,0,ghostly half helmet
+woman_21__p2,R1,C4,blur2,0,1,0,0,faint
+woman_21__p2,R1,C5,vae_trans,1,1,1,0,duplicate helmet below
+woman_21__p2,R2,C2,none,1,0,0,0,partial helmet on hair
+woman_21__p2,R2,C3,jpeg50,1,0,0,0,partial helmet on hair
+woman_21__p2,R2,C4,blur2,0,0,0,0,faint
+woman_21__p2,R2,C5,vae_trans,0,0,0,0,faint
+woman_21__p2,R3,C2,none,1,1,0,0,
+woman_21__p2,R3,C3,jpeg50,1,1,0,0,ghostly lower part
+woman_21__p2,R3,C4,blur2,1,1,0,0,borderline
+woman_21__p2,R3,C5,vae_trans,1,1,1,0,duplicate helmet below
+woman_21__p2,R4,C2,none,1,1,0,0,borderline
+woman_21__p2,R4,C3,jpeg50,1,1,0,0,borderline
+woman_21__p2,R4,C4,blur2,1,1,0,0,borderline
+woman_21__p2,R4,C5,vae_trans,1,1,1,0,person replaced
+woman_21__p2,R5,C2,none,1,1,1,0,duplicate helmet below
+woman_21__p2,R5,C3,jpeg50,0,1,0,0,ghostly
+woman_21__p2,R5,C4,blur2,0,1,0,0,faint
+woman_21__p2,R5,C5,vae_trans,0,1,0,0,ghostly
+woman_21__p2,R6,C2,none,1,1,1,0,duplicate helmet below
+woman_21__p2,R6,C3,jpeg50,1,1,1,0,duplicate helmet below
+woman_21__p2,R6,C4,blur2,0,1,0,0,faint
+woman_21__p2,R6,C5,vae_trans,1,1,1,0,duplicate helmet below
+woman_21__p2,R7,C2,none,1,1,1,0,duplicate helmet below
+woman_21__p2,R7,C3,jpeg50,0,1,0,0,ghostly
+woman_21__p2,R7,C4,blur2,0,1,0,0,faint
+woman_21__p2,R7,C5,vae_trans,0,1,0,0,ghostly
+woman_21__p2,R8,C2,none,1,1,0,0,borderline
+woman_21__p2,R8,C3,jpeg50,0,1,0,0,faint
+woman_21__p2,R8,C4,blur2,1,1,0,0,borderline
+woman_21__p2,R8,C5,vae_trans,1,1,0,0,borderline
+woman_21__p3,R1,C2,none,1,1,1,0,extra blue bow; face male
+woman_21__p3,R1,C3,jpeg50,1,1,1,0,extra blue bow; face male
+woman_21__p3,R1,C4,blur2,1,1,1,0,extra bow top right
+woman_21__p3,R1,C5,vae_trans,1,1,1,0,face partly male
+woman_21__p3,R2,C2,none,1,1,0,0,
+woman_21__p3,R2,C3,jpeg50,1,1,1,0,face male
+woman_21__p3,R2,C4,blur2,1,1,1,0,extra bow below
+woman_21__p3,R2,C5,vae_trans,1,1,0,0,
+woman_21__p3,R3,C2,none,1,1,0,0,
+woman_21__p3,R3,C3,jpeg50,1,1,0,0,
+woman_21__p3,R3,C4,blur2,1,1,1,0,extra bow top right
+woman_21__p3,R3,C5,vae_trans,1,1,0,0,
+woman_21__p3,R4,C2,none,1,1,1,0,extra blue bow; face male
+woman_21__p3,R4,C3,jpeg50,1,0,1,0,extra people and bows
+woman_21__p3,R4,C4,blur2,1,1,1,0,extra bows
+woman_21__p3,R4,C5,vae_trans,1,0,1,0,face male; extra bows
+woman_21__p3,R5,C2,none,1,0,1,0,extra teal bows
+woman_21__p3,R5,C3,jpeg50,1,0,0,0,
+woman_21__p3,R5,C4,blur2,1,0,0,0,
+woman_21__p3,R5,C5,vae_trans,1,0,0,0,
+woman_21__p3,R6,C2,none,1,1,0,0,
+woman_21__p3,R6,C3,jpeg50,1,1,1,0,face male; two bows
+woman_21__p3,R6,C4,blur2,1,1,1,0,extra bow top right
+woman_21__p3,R6,C5,vae_trans,1,1,0,0,
+woman_21__p3,R7,C2,none,1,1,1,0,extra bows; face changed
+woman_21__p3,R7,C3,jpeg50,1,0,1,0,face male; extra bows
+woman_21__p3,R7,C4,blur2,1,1,1,0,extra bows
+woman_21__p3,R7,C5,vae_trans,1,0,1,0,face male; extra bows
+woman_21__p3,R8,C2,none,1,1,0,0,
+woman_21__p3,R8,C3,jpeg50,1,1,1,0,face male
+woman_21__p3,R8,C4,blur2,1,1,0,0,small blurry bowtie
+woman_21__p3,R8,C5,vae_trans,1,1,0,0,
+woman_22__p0,R1,C2,none,1,1,0,0,
+woman_22__p0,R1,C3,jpeg50,1,1,0,0,
+woman_22__p0,R1,C4,blur2,1,1,0,0,
+woman_22__p0,R1,C5,vae_trans,1,1,0,0,
+woman_22__p0,R2,C2,none,1,0,0,0,
+woman_22__p0,R2,C3,jpeg50,1,0,0,0,
+woman_22__p0,R2,C4,blur2,1,0,0,0,
+woman_22__p0,R2,C5,vae_trans,1,0,0,0,
+woman_22__p0,R3,C2,none,1,1,0,0,
+woman_22__p0,R3,C3,jpeg50,1,1,0,0,
+woman_22__p0,R3,C4,blur2,1,1,0,0,
+woman_22__p0,R3,C5,vae_trans,1,1,0,0,
+woman_22__p0,R4,C2,none,1,1,0,0,mild pink tint
+woman_22__p0,R4,C3,jpeg50,1,1,0,0,mild pink tint
+woman_22__p0,R4,C4,blur2,1,1,0,0,mild pink tint
+woman_22__p0,R4,C5,vae_trans,1,0,0,0,
+woman_22__p0,R5,C2,none,1,1,0,0,
+woman_22__p0,R5,C3,jpeg50,1,1,0,0,
+woman_22__p0,R5,C4,blur2,1,1,0,0,
+woman_22__p0,R5,C5,vae_trans,1,1,0,0,
+woman_22__p0,R6,C2,none,1,1,0,0,
+woman_22__p0,R6,C3,jpeg50,1,1,0,0,
+woman_22__p0,R6,C4,blur2,1,1,0,0,
+woman_22__p0,R6,C5,vae_trans,1,1,0,0,
+woman_22__p0,R7,C2,none,1,1,0,0,
+woman_22__p0,R7,C3,jpeg50,1,1,0,0,
+woman_22__p0,R7,C4,blur2,1,1,0,0,
+woman_22__p0,R7,C5,vae_trans,1,1,0,0,
+woman_22__p0,R8,C2,none,1,0,0,0,
+woman_22__p0,R8,C3,jpeg50,1,0,0,0,
+woman_22__p0,R8,C4,blur2,1,1,0,0,haze
+woman_22__p0,R8,C5,vae_trans,1,0,0,0,
+woman_22__p1,R1,C2,none,1,1,0,0,
+woman_22__p1,R1,C3,jpeg50,1,1,0,0,
+woman_22__p1,R1,C4,blur2,1,1,0,0,
+woman_22__p1,R1,C5,vae_trans,1,1,0,0,
+woman_22__p1,R2,C2,none,1,1,0,0,
+woman_22__p1,R2,C3,jpeg50,1,1,0,0,
+woman_22__p1,R2,C4,blur2,1,1,0,0,
+woman_22__p1,R2,C5,vae_trans,1,1,0,0,
+woman_22__p1,R3,C2,none,1,1,0,0,
+woman_22__p1,R3,C3,jpeg50,1,1,0,0,
+woman_22__p1,R3,C4,blur2,1,1,0,0,
+woman_22__p1,R3,C5,vae_trans,1,1,0,0,
+woman_22__p1,R4,C2,none,1,1,0,0,
+woman_22__p1,R4,C3,jpeg50,1,0,1,0,different person; extra person
+woman_22__p1,R4,C4,blur2,1,0,1,0,different person; extra person
+woman_22__p1,R4,C5,vae_trans,1,1,1,0,face changed
+woman_22__p1,R5,C2,none,1,1,0,0,
+woman_22__p1,R5,C3,jpeg50,1,0,1,0,face changed; extra person
+woman_22__p1,R5,C4,blur2,1,0,1,0,different person
+woman_22__p1,R5,C5,vae_trans,1,1,0,0,
+woman_22__p1,R6,C2,none,1,1,0,0,
+woman_22__p1,R6,C3,jpeg50,1,1,0,0,
+woman_22__p1,R6,C4,blur2,1,1,0,0,
+woman_22__p1,R6,C5,vae_trans,1,1,0,0,
+woman_22__p1,R7,C2,none,1,0,0,0,
+woman_22__p1,R7,C3,jpeg50,1,0,0,0,
+woman_22__p1,R7,C4,blur2,1,0,0,0,
+woman_22__p1,R7,C5,vae_trans,1,0,0,0,
+woman_22__p1,R8,C2,none,1,0,0,0,
+woman_22__p1,R8,C3,jpeg50,1,1,0,0,pink haze
+woman_22__p1,R8,C4,blur2,1,0,0,0,
+woman_22__p1,R8,C5,vae_trans,1,0,0,0,
+woman_22__p2,R1,C2,none,1,1,1,0,armor-like object on body
+woman_22__p2,R1,C3,jpeg50,1,1,1,0,armor-like object on body
+woman_22__p2,R1,C4,blur2,1,1,0,0,
+woman_22__p2,R1,C5,vae_trans,1,1,1,0,scene replaced; extra helmets
+woman_22__p2,R2,C2,none,1,1,1,0,blue armor object on shoulder
+woman_22__p2,R2,C3,jpeg50,1,1,1,0,blue armor object on shoulder
+woman_22__p2,R2,C4,blur2,1,1,0,0,
+woman_22__p2,R2,C5,vae_trans,1,1,0,0,
+woman_22__p2,R3,C2,none,1,1,1,0,blue armor object on shoulder
+woman_22__p2,R3,C3,jpeg50,1,1,1,0,blue armor object on shoulder
+woman_22__p2,R3,C4,blur2,1,1,0,0,faint helmet
+woman_22__p2,R3,C5,vae_trans,1,1,1,0,blue armor object on shoulder
+woman_22__p2,R4,C2,none,1,0,0,0,
+woman_22__p2,R4,C3,jpeg50,1,0,0,0,faint helmet
+woman_22__p2,R4,C4,blur2,1,0,0,0,faint helmet
+woman_22__p2,R4,C5,vae_trans,1,0,0,0,
+woman_22__p2,R5,C2,none,1,1,1,0,large helmet-like object below
+woman_22__p2,R5,C3,jpeg50,1,1,1,0,large helmet-like object below
+woman_22__p2,R5,C4,blur2,1,1,0,0,
+woman_22__p2,R5,C5,vae_trans,1,1,1,0,extra helmets; person changed
+woman_22__p2,R6,C2,none,1,1,0,0,
+woman_22__p2,R6,C3,jpeg50,1,1,1,0,blue armor object on shoulder
+woman_22__p2,R6,C4,blur2,1,1,0,0,
+woman_22__p2,R6,C5,vae_trans,1,1,0,0,
+woman_22__p2,R7,C2,none,1,0,0,0,
+woman_22__p2,R7,C3,jpeg50,1,0,0,0,
+woman_22__p2,R7,C4,blur2,1,0,0,0,
+woman_22__p2,R7,C5,vae_trans,1,0,0,0,
+woman_22__p2,R8,C2,none,1,1,0,0,
+woman_22__p2,R8,C3,jpeg50,1,1,0,0,
+woman_22__p2,R8,C4,blur2,1,1,0,0,
+woman_22__p2,R8,C5,vae_trans,1,1,0,0,
+woman_22__p3,R1,C2,none,1,1,1,0,face male; extra ties
+woman_22__p3,R1,C3,jpeg50,1,1,1,0,face male; extra ties
+woman_22__p3,R1,C4,blur2,1,1,1,0,face male; extra bows
+woman_22__p3,R1,C5,vae_trans,1,1,1,0,face male; extra ties
+woman_22__p3,R2,C2,none,1,1,1,0,face male; extra ties
+woman_22__p3,R2,C3,jpeg50,1,1,1,0,face male; extra object
+woman_22__p3,R2,C4,blur2,1,1,1,0,face male; extra bows
+woman_22__p3,R2,C5,vae_trans,1,1,1,0,face male; suspenders
+woman_22__p3,R3,C2,none,1,1,1,0,person replaced by man
+woman_22__p3,R3,C3,jpeg50,1,1,1,0,person replaced by man
+woman_22__p3,R3,C4,blur2,1,1,1,0,person replaced by man
+woman_22__p3,R3,C5,vae_trans,1,1,1,0,person replaced by man
+woman_22__p3,R4,C2,none,1,1,1,0,face changed; extra bow
+woman_22__p3,R4,C3,jpeg50,1,1,1,0,person replaced by man
+woman_22__p3,R4,C4,blur2,1,1,1,0,person replaced by man
+woman_22__p3,R4,C5,vae_trans,1,1,1,0,person replaced by man
+woman_22__p3,R5,C2,none,1,0,0,0,
+woman_22__p3,R5,C3,jpeg50,1,0,0,0,
+woman_22__p3,R5,C4,blur2,1,0,1,0,face male; extra bows
+woman_22__p3,R5,C5,vae_trans,1,0,1,0,face changed; suspender
+woman_22__p3,R6,C2,none,1,1,0,0,
+woman_22__p3,R6,C3,jpeg50,1,1,0,0,
+woman_22__p3,R6,C4,blur2,1,1,1,0,face male
+woman_22__p3,R6,C5,vae_trans,1,1,1,0,face changed
+woman_22__p3,R7,C2,none,1,1,1,0,extra ties
+woman_22__p3,R7,C3,jpeg50,1,1,1,0,extra ties
+woman_22__p3,R7,C4,blur2,1,1,1,0,face male; extra bows
+woman_22__p3,R7,C5,vae_trans,1,1,1,0,extra ties
+woman_22__p3,R8,C2,none,1,1,0,0,small bowtie
+woman_22__p3,R8,C3,jpeg50,1,1,0,0,small bowtie
+woman_22__p3,R8,C4,blur2,1,1,0,0,
+woman_22__p3,R8,C5,vae_trans,1,1,0,0,
+woman_32__p0,R1,C2,none,1,0,0,0,
+woman_32__p0,R1,C3,jpeg50,1,0,0,0,
+woman_32__p0,R1,C4,blur2,1,0,0,0,
+woman_32__p0,R1,C5,vae_trans,1,0,0,0,
+woman_32__p0,R2,C2,none,1,1,0,0,
+woman_32__p0,R2,C3,jpeg50,1,1,0,0,
+woman_32__p0,R2,C4,blur2,1,1,0,0,
+woman_32__p0,R2,C5,vae_trans,1,1,0,0,
+woman_32__p0,R3,C2,none,1,1,0,0,
+woman_32__p0,R3,C3,jpeg50,1,1,0,0,
+woman_32__p0,R3,C4,blur2,1,1,0,0,
+woman_32__p0,R3,C5,vae_trans,1,1,0,0,
+woman_32__p0,R4,C2,none,1,1,0,0,mild pink tint
+woman_32__p0,R4,C3,jpeg50,1,1,0,0,mild pink tint
+woman_32__p0,R4,C4,blur2,1,1,0,0,mild pink tint
+woman_32__p0,R4,C5,vae_trans,1,1,0,0,mild pink tint
+woman_32__p0,R5,C2,none,1,1,0,0,
+woman_32__p0,R5,C3,jpeg50,1,1,0,0,
+woman_32__p0,R5,C4,blur2,1,1,0,0,
+woman_32__p0,R5,C5,vae_trans,1,1,0,0,
+woman_32__p0,R6,C2,none,1,1,0,0,
+woman_32__p0,R6,C3,jpeg50,1,1,0,0,
+woman_32__p0,R6,C4,blur2,1,1,0,0,
+woman_32__p0,R6,C5,vae_trans,1,1,0,0,
+woman_32__p0,R7,C2,none,1,1,0,0,
+woman_32__p0,R7,C3,jpeg50,1,1,0,0,
+woman_32__p0,R7,C4,blur2,0,1,1,1,body dissolved; floating sunglasses
+woman_32__p0,R7,C5,vae_trans,1,1,0,0,
+woman_32__p0,R8,C2,none,1,1,0,0,
+woman_32__p0,R8,C3,jpeg50,1,1,0,0,
+woman_32__p0,R8,C4,blur2,1,1,0,0,
+woman_32__p0,R8,C5,vae_trans,1,1,0,0,
+woman_32__p1,R1,C2,none,1,0,0,0,
+woman_32__p1,R1,C3,jpeg50,1,0,0,0,
+woman_32__p1,R1,C4,blur2,1,0,0,0,
+woman_32__p1,R1,C5,vae_trans,1,0,0,0,
+woman_32__p1,R2,C2,none,1,1,0,0,
+woman_32__p1,R2,C3,jpeg50,1,1,0,0,
+woman_32__p1,R2,C4,blur2,1,1,0,0,
+woman_32__p1,R2,C5,vae_trans,1,1,0,0,
+woman_32__p1,R3,C2,none,1,1,0,0,
+woman_32__p1,R3,C3,jpeg50,1,1,0,0,
+woman_32__p1,R3,C4,blur2,1,1,0,0,
+woman_32__p1,R3,C5,vae_trans,1,1,0,0,
+woman_32__p1,R4,C2,none,1,1,0,0,
+woman_32__p1,R4,C3,jpeg50,1,1,0,0,
+woman_32__p1,R4,C4,blur2,1,1,0,0,
+woman_32__p1,R4,C5,vae_trans,1,1,0,0,
+woman_32__p1,R5,C2,none,1,1,0,0,
+woman_32__p1,R5,C3,jpeg50,1,1,0,0,
+woman_32__p1,R5,C4,blur2,1,1,0,0,
+woman_32__p1,R5,C5,vae_trans,1,1,0,0,
+woman_32__p1,R6,C2,none,1,1,0,0,mild pink tint
+woman_32__p1,R6,C3,jpeg50,1,1,0,0,mild pink tint
+woman_32__p1,R6,C4,blur2,1,1,1,0,extra person at right
+woman_32__p1,R6,C5,vae_trans,1,1,0,0,mild pink tint
+woman_32__p1,R7,C2,none,1,1,0,0,
+woman_32__p1,R7,C3,jpeg50,1,1,0,0,
+woman_32__p1,R7,C4,blur2,1,1,0,0,
+woman_32__p1,R7,C5,vae_trans,1,1,0,0,
+woman_32__p1,R8,C2,none,1,1,0,0,
+woman_32__p1,R8,C3,jpeg50,1,1,0,0,
+woman_32__p1,R8,C4,blur2,1,1,1,0,partial figure at left edge
+woman_32__p1,R8,C5,vae_trans,1,1,0,0,
+woman_32__p2,R1,C2,none,1,0,0,0,
+woman_32__p2,R1,C3,jpeg50,1,0,0,0,
+woman_32__p2,R1,C4,blur2,1,0,1,0,extra helmet held below
+woman_32__p2,R1,C5,vae_trans,1,0,1,0,extra helmet and face below
+woman_32__p2,R2,C2,none,1,1,0,0,
+woman_32__p2,R2,C3,jpeg50,1,1,1,0,extra armor object
+woman_32__p2,R2,C4,blur2,0,1,0,0,ghostly dark hood
+woman_32__p2,R2,C5,vae_trans,1,1,0,0,
+woman_32__p2,R3,C2,none,1,1,0,0,mild pink tint
+woman_32__p2,R3,C3,jpeg50,1,1,0,0,mild pink tint
+woman_32__p2,R3,C4,blur2,1,1,1,0,extra helmets held
+woman_32__p2,R3,C5,vae_trans,1,1,1,0,extra helmet and face below
+woman_32__p2,R4,C2,none,1,1,1,0,extra helmet on body
+woman_32__p2,R4,C3,jpeg50,1,1,1,0,extra helmet on body
+woman_32__p2,R4,C4,blur2,0,1,0,0,ghostly helmet
+woman_32__p2,R4,C5,vae_trans,1,1,1,0,scene replaced; extra person
+woman_32__p2,R5,C2,none,0,1,1,0,ghostly helmet; armor object
+woman_32__p2,R5,C3,jpeg50,0,1,1,0,ghostly helmet; armor object
+woman_32__p2,R5,C4,blur2,0,1,0,0,ghostly helmet
+woman_32__p2,R5,C5,vae_trans,1,1,1,0,scene replaced; extra person
+woman_32__p2,R6,C2,none,1,1,1,0,scene replaced; extra helmet
+woman_32__p2,R6,C3,jpeg50,1,1,1,0,scene replaced; extra helmet
+woman_32__p2,R6,C4,blur2,0,1,1,0,faint outline; dark blobs
+woman_32__p2,R6,C5,vae_trans,1,1,1,0,scene replaced; extra helmet
+woman_32__p2,R7,C2,none,1,1,1,0,armor object on body
+woman_32__p2,R7,C3,jpeg50,1,1,1,0,armor object on body
+woman_32__p2,R7,C4,blur2,0,1,0,0,ghostly helmet
+woman_32__p2,R7,C5,vae_trans,1,1,1,0,scene replaced; extra person
+woman_32__p2,R8,C2,none,1,1,1,0,scene replaced; extra helmet
+woman_32__p2,R8,C3,jpeg50,1,1,1,0,extra helmet below
+woman_32__p2,R8,C4,blur2,0,1,1,0,dark blobs; no helmet on head
+woman_32__p2,R8,C5,vae_trans,1,1,1,0,scene replaced; extra helmet
+woman_32__p3,R1,C2,none,1,1,1,0,scene replaced; extra bowtie
+woman_32__p3,R1,C3,jpeg50,1,1,1,0,scene replaced; extra bowtie
+woman_32__p3,R1,C4,blur2,1,1,1,0,scene replaced; extra bowtie
+woman_32__p3,R1,C5,vae_trans,1,1,1,0,scene replaced; extra bowtie
+woman_32__p3,R2,C2,none,1,1,1,0,scene replaced; extra bowtie
+woman_32__p3,R2,C3,jpeg50,1,1,1,0,scene replaced; extra bowtie
+woman_32__p3,R2,C4,blur2,1,1,1,0,scene replaced; extra people
+woman_32__p3,R2,C5,vae_trans,1,1,1,0,scene replaced; extra bowtie
+woman_32__p3,R3,C2,none,1,1,1,0,scene replaced; extra bowties
+woman_32__p3,R3,C3,jpeg50,1,1,1,0,scene replaced; extra bowties
+woman_32__p3,R3,C4,blur2,1,1,1,0,scene replaced; extra bowtie
+woman_32__p3,R3,C5,vae_trans,1,1,1,0,scene replaced; extra bowtie
+woman_32__p3,R4,C2,none,1,1,1,0,scene replaced; extra bowties
+woman_32__p3,R4,C3,jpeg50,1,1,1,0,scene replaced; extra bowtie
+woman_32__p3,R4,C4,blur2,1,1,1,0,scene replaced; extra bowtie
+woman_32__p3,R4,C5,vae_trans,1,1,1,0,scene replaced; extra bowties
+woman_32__p3,R5,C2,none,1,0,0,0,
+woman_32__p3,R5,C3,jpeg50,1,1,1,0,scene replaced; extra bowties
+woman_32__p3,R5,C4,blur2,1,0,1,0,face changed to man
+woman_32__p3,R5,C5,vae_trans,1,0,0,0,
+woman_32__p3,R6,C2,none,1,1,1,0,extra bowtie at waist
+woman_32__p3,R6,C3,jpeg50,1,1,1,0,scene replaced; extra bowtie
+woman_32__p3,R6,C4,blur2,1,1,1,0,scene replaced; extra bowtie
+woman_32__p3,R6,C5,vae_trans,1,1,1,0,scene replaced; extra bowtie
+woman_32__p3,R7,C2,none,1,0,1,0,extra bowtie at waist
+woman_32__p3,R7,C3,jpeg50,1,0,1,0,scene replaced; extra bowtie
+woman_32__p3,R7,C4,blur2,1,0,1,0,scene replaced; extra bowtie
+woman_32__p3,R7,C5,vae_trans,1,0,0,0,
+woman_32__p3,R8,C2,none,1,1,1,0,scene replaced; extra bowtie
+woman_32__p3,R8,C3,jpeg50,1,1,1,0,scene replaced; extra bowtie
+woman_32__p3,R8,C4,blur2,1,1,1,0,scene replaced; extra bowtie
+woman_32__p3,R8,C5,vae_trans,1,1,1,0,scene replaced; extra bowtie
+woman_35__p0,R1,C2,none,1,1,0,0,
+woman_35__p0,R1,C3,jpeg50,1,1,0,0,
+woman_35__p0,R1,C4,blur2,1,1,0,0,
+woman_35__p0,R1,C5,vae_trans,1,1,0,0,
+woman_35__p0,R2,C2,none,1,1,0,0,
+woman_35__p0,R2,C3,jpeg50,1,1,0,0,
+woman_35__p0,R2,C4,blur2,1,1,0,0,
+woman_35__p0,R2,C5,vae_trans,1,1,0,0,
+woman_35__p0,R3,C2,none,1,0,0,0,
+woman_35__p0,R3,C3,jpeg50,1,0,0,0,
+woman_35__p0,R3,C4,blur2,1,0,0,0,
+woman_35__p0,R3,C5,vae_trans,1,0,0,0,
+woman_35__p0,R4,C2,none,1,1,0,0,
+woman_35__p0,R4,C3,jpeg50,1,1,0,0,
+woman_35__p0,R4,C4,blur2,1,1,0,0,
+woman_35__p0,R4,C5,vae_trans,1,1,0,0,
+woman_35__p0,R5,C2,none,1,1,0,0,
+woman_35__p0,R5,C3,jpeg50,1,1,0,0,
+woman_35__p0,R5,C4,blur2,1,1,0,0,
+woman_35__p0,R5,C5,vae_trans,1,1,0,0,background greenish
+woman_35__p0,R6,C2,none,1,1,0,0,
+woman_35__p0,R6,C3,jpeg50,1,1,0,0,
+woman_35__p0,R6,C4,blur2,1,1,0,0,
+woman_35__p0,R6,C5,vae_trans,1,1,0,0,
+woman_35__p0,R7,C2,none,1,1,0,0,
+woman_35__p0,R7,C3,jpeg50,1,1,0,0,
+woman_35__p0,R7,C4,blur2,1,1,0,0,
+woman_35__p0,R7,C5,vae_trans,1,1,0,0,
+woman_35__p0,R8,C2,none,1,1,0,0,
+woman_35__p0,R8,C3,jpeg50,1,1,0,0,
+woman_35__p0,R8,C4,blur2,1,1,0,0,
+woman_35__p0,R8,C5,vae_trans,1,1,0,0,
+woman_35__p1,R1,C2,none,1,1,0,0,
+woman_35__p1,R1,C3,jpeg50,1,1,0,0,
+woman_35__p1,R1,C4,blur2,1,1,0,0,
+woman_35__p1,R1,C5,vae_trans,1,1,0,0,
+woman_35__p1,R2,C2,none,1,1,0,0,
+woman_35__p1,R2,C3,jpeg50,1,1,0,0,
+woman_35__p1,R2,C4,blur2,1,1,0,0,
+woman_35__p1,R2,C5,vae_trans,1,0,0,0,
+woman_35__p1,R3,C2,none,1,1,0,0,
+woman_35__p1,R3,C3,jpeg50,1,1,0,0,
+woman_35__p1,R3,C4,blur2,1,1,0,0,
+woman_35__p1,R3,C5,vae_trans,1,1,0,0,
+woman_35__p1,R4,C2,none,1,1,0,0,
+woman_35__p1,R4,C3,jpeg50,1,1,0,0,
+woman_35__p1,R4,C4,blur2,1,1,0,0,
+woman_35__p1,R4,C5,vae_trans,1,0,0,0,
+woman_35__p1,R5,C2,none,1,0,0,0,
+woman_35__p1,R5,C3,jpeg50,1,0,0,0,
+woman_35__p1,R5,C4,blur2,1,0,0,0,
+woman_35__p1,R5,C5,vae_trans,1,0,0,0,
+woman_35__p1,R6,C2,none,1,1,0,0,
+woman_35__p1,R6,C3,jpeg50,1,1,0,0,
+woman_35__p1,R6,C4,blur2,1,1,0,0,
+woman_35__p1,R6,C5,vae_trans,1,1,0,0,
+woman_35__p1,R7,C2,none,1,1,0,0,
+woman_35__p1,R7,C3,jpeg50,1,1,0,0,
+woman_35__p1,R7,C4,blur2,1,1,0,0,
+woman_35__p1,R7,C5,vae_trans,1,0,0,0,
+woman_35__p1,R8,C2,none,1,1,0,0,
+woman_35__p1,R8,C3,jpeg50,1,1,0,0,
+woman_35__p1,R8,C4,blur2,1,1,0,0,
+woman_35__p1,R8,C5,vae_trans,1,1,0,0,
+woman_35__p2,R1,C2,none,0,1,0,0,no clear helmet
+woman_35__p2,R1,C3,jpeg50,0,1,0,0,no clear helmet
+woman_35__p2,R1,C4,blur2,0,1,0,0,no clear helmet
+woman_35__p2,R1,C5,vae_trans,1,1,0,0,dark shell on head
+woman_35__p2,R2,C2,none,1,1,0,0,borderline
+woman_35__p2,R2,C3,jpeg50,1,1,0,0,borderline
+woman_35__p2,R2,C4,blur2,1,1,0,0,
+woman_35__p2,R2,C5,vae_trans,1,1,0,0,
+woman_35__p2,R3,C2,none,1,1,0,0,borderline
+woman_35__p2,R3,C3,jpeg50,0,1,0,0,no clear helmet
+woman_35__p2,R3,C4,blur2,1,1,0,0,
+woman_35__p2,R3,C5,vae_trans,1,1,0,0,
+woman_35__p2,R4,C2,none,0,0,0,0,no clear helmet
+woman_35__p2,R4,C3,jpeg50,0,0,0,0,no clear helmet
+woman_35__p2,R4,C4,blur2,0,0,0,0,no clear helmet
+woman_35__p2,R4,C5,vae_trans,1,0,0,0,dark shell on head
+woman_35__p2,R5,C2,none,1,1,0,0,
+woman_35__p2,R5,C3,jpeg50,1,1,0,0,borderline
+woman_35__p2,R5,C4,blur2,0,1,0,0,no clear helmet
+woman_35__p2,R5,C5,vae_trans,1,1,0,0,
+woman_35__p2,R6,C2,none,0,1,0,0,no clear helmet
+woman_35__p2,R6,C3,jpeg50,1,1,0,0,borderline
+woman_35__p2,R6,C4,blur2,0,1,0,0,no clear helmet
+woman_35__p2,R6,C5,vae_trans,1,1,0,0,
+woman_35__p2,R7,C2,none,1,1,0,0,
+woman_35__p2,R7,C3,jpeg50,1,1,0,0,borderline
+woman_35__p2,R7,C4,blur2,0,1,0,0,no clear helmet
+woman_35__p2,R7,C5,vae_trans,1,1,0,0,
+woman_35__p2,R8,C2,none,0,1,0,0,no clear helmet
+woman_35__p2,R8,C3,jpeg50,1,1,0,0,
+woman_35__p2,R8,C4,blur2,1,1,0,0,borderline
+woman_35__p2,R8,C5,vae_trans,1,1,0,0,
+woman_35__p3,R1,C2,none,1,1,0,0,extra bow on head wrap
+woman_35__p3,R1,C3,jpeg50,1,1,0,0,extra bow on head wrap
+woman_35__p3,R1,C4,blur2,1,1,0,0,
+woman_35__p3,R1,C5,vae_trans,1,1,1,0,person replaced by man
+woman_35__p3,R2,C2,none,1,0,0,0,extra bow on head wrap
+woman_35__p3,R2,C3,jpeg50,1,0,0,0,extra bow on head wrap
+woman_35__p3,R2,C4,blur2,1,0,0,0,extra bow on head wrap
+woman_35__p3,R2,C5,vae_trans,1,0,0,0,extra bow on head wrap
+woman_35__p3,R3,C2,none,1,1,0,0,
+woman_35__p3,R3,C3,jpeg50,1,1,1,0,person replaced by man
+woman_35__p3,R3,C4,blur2,1,1,0,0,
+woman_35__p3,R3,C5,vae_trans,1,1,1,0,person replaced by man
+woman_35__p3,R4,C2,none,1,1,0,0,extra bow on head wrap
+woman_35__p3,R4,C3,jpeg50,1,1,0,0,
+woman_35__p3,R4,C4,blur2,1,1,0,0,extra bow on head wrap
+woman_35__p3,R4,C5,vae_trans,1,1,0,0,extra bow on head wrap
+woman_35__p3,R5,C2,none,1,1,0,0,extra bow on head wrap
+woman_35__p3,R5,C3,jpeg50,1,1,0,0,
+woman_35__p3,R5,C4,blur2,1,1,0,0,
+woman_35__p3,R5,C5,vae_trans,1,1,0,0,extra bow on head wrap
+woman_35__p3,R6,C2,none,1,1,0,0,
+woman_35__p3,R6,C3,jpeg50,1,1,0,0,
+woman_35__p3,R6,C4,blur2,1,1,0,0,
+woman_35__p3,R6,C5,vae_trans,1,1,0,0,
+woman_35__p3,R7,C2,none,1,1,0,0,
+woman_35__p3,R7,C3,jpeg50,1,1,1,0,person replaced by man
+woman_35__p3,R7,C4,blur2,1,1,0,0,
+woman_35__p3,R7,C5,vae_trans,1,1,1,0,person replaced by man
+woman_35__p3,R8,C2,none,1,1,0,0,extra bow on head wrap
+woman_35__p3,R8,C3,jpeg50,1,1,0,0,
+woman_35__p3,R8,C4,blur2,1,1,0,0,
+woman_35__p3,R8,C5,vae_trans,1,1,0,0,extra bow on head wrap
+woman_37__p0,R1,C2,none,1,0,0,0,
+woman_37__p0,R1,C3,jpeg50,1,0,0,0,
+woman_37__p0,R1,C4,blur2,1,0,0,0,
+woman_37__p0,R1,C5,vae_trans,1,0,0,0,
+woman_37__p0,R2,C2,none,1,1,0,0,
+woman_37__p0,R2,C3,jpeg50,1,1,0,0,
+woman_37__p0,R2,C4,blur2,1,1,0,0,
+woman_37__p0,R2,C5,vae_trans,1,1,0,0,
+woman_37__p0,R3,C2,none,1,0,0,0,
+woman_37__p0,R3,C3,jpeg50,1,0,0,0,
+woman_37__p0,R3,C4,blur2,1,0,0,0,
+woman_37__p0,R3,C5,vae_trans,1,0,0,0,
+woman_37__p0,R4,C2,none,1,1,0,0,mild yellow haze
+woman_37__p0,R4,C3,jpeg50,1,1,0,0,mild yellow haze
+woman_37__p0,R4,C4,blur2,1,1,0,0,mild yellow haze
+woman_37__p0,R4,C5,vae_trans,1,0,0,0,
+woman_37__p0,R5,C2,none,1,0,0,0,
+woman_37__p0,R5,C3,jpeg50,1,0,0,0,
+woman_37__p0,R5,C4,blur2,1,0,0,0,
+woman_37__p0,R5,C5,vae_trans,1,0,0,0,
+woman_37__p0,R6,C2,none,1,1,0,0,
+woman_37__p0,R6,C3,jpeg50,1,1,0,0,
+woman_37__p0,R6,C4,blur2,1,1,0,0,
+woman_37__p0,R6,C5,vae_trans,1,1,0,0,
+woman_37__p0,R7,C2,none,1,0,0,0,
+woman_37__p0,R7,C3,jpeg50,1,0,0,0,
+woman_37__p0,R7,C4,blur2,1,0,0,0,
+woman_37__p0,R7,C5,vae_trans,1,0,0,0,
+woman_37__p0,R8,C2,none,1,0,0,0,
+woman_37__p0,R8,C3,jpeg50,1,0,0,0,
+woman_37__p0,R8,C4,blur2,1,0,0,0,
+woman_37__p0,R8,C5,vae_trans,1,0,0,0,
+woman_37__p1,R1,C2,none,1,0,0,0,
+woman_37__p1,R1,C3,jpeg50,1,0,0,0,
+woman_37__p1,R1,C4,blur2,1,0,0,0,
+woman_37__p1,R1,C5,vae_trans,1,0,0,0,painted look
+woman_37__p1,R2,C2,none,1,1,0,0,
+woman_37__p1,R2,C3,jpeg50,1,1,0,0,
+woman_37__p1,R2,C4,blur2,1,1,0,0,
+woman_37__p1,R2,C5,vae_trans,1,1,0,0,
+woman_37__p1,R3,C2,none,1,0,0,0,
+woman_37__p1,R3,C3,jpeg50,1,0,0,0,
+woman_37__p1,R3,C4,blur2,1,0,1,0,different person with cap
+woman_37__p1,R3,C5,vae_trans,1,1,1,0,different person with helmet
+woman_37__p1,R4,C2,none,1,1,0,0,mild yellow haze
+woman_37__p1,R4,C3,jpeg50,1,1,0,0,mild yellow haze
+woman_37__p1,R4,C4,blur2,1,0,1,0,different person with cap
+woman_37__p1,R4,C5,vae_trans,1,0,1,0,different person with helmet
+woman_37__p1,R5,C2,none,1,0,0,0,
+woman_37__p1,R5,C3,jpeg50,1,0,0,0,
+woman_37__p1,R5,C4,blur2,1,0,1,0,different person with cap
+woman_37__p1,R5,C5,vae_trans,1,0,1,0,different person; painted look
+woman_37__p1,R6,C2,none,1,1,0,0,
+woman_37__p1,R6,C3,jpeg50,1,1,0,0,
+woman_37__p1,R6,C4,blur2,1,1,0,0,
+woman_37__p1,R6,C5,vae_trans,1,1,0,0,
+woman_37__p1,R7,C2,none,1,0,0,0,
+woman_37__p1,R7,C3,jpeg50,1,0,0,0,
+woman_37__p1,R7,C4,blur2,1,0,0,0,
+woman_37__p1,R7,C5,vae_trans,1,0,0,0,
+woman_37__p1,R8,C2,none,1,0,0,0,
+woman_37__p1,R8,C3,jpeg50,1,0,0,0,
+woman_37__p1,R8,C4,blur2,1,0,0,0,
+woman_37__p1,R8,C5,vae_trans,1,0,1,0,different person with helmet
+woman_37__p2,R1,C2,none,1,0,1,0,extra helmet and person
+woman_37__p2,R1,C3,jpeg50,0,0,1,0,ghostly helmet; extra helmet blob
+woman_37__p2,R1,C4,blur2,1,0,1,0,extra helmet and person
+woman_37__p2,R1,C5,vae_trans,1,0,1,0,extra helmets and people
+woman_37__p2,R2,C2,none,1,1,0,0,borderline
+woman_37__p2,R2,C3,jpeg50,1,1,0,0,borderline
+woman_37__p2,R2,C4,blur2,0,1,0,0,faint
+woman_37__p2,R2,C5,vae_trans,1,1,1,0,extra helmets and people
+woman_37__p2,R3,C2,none,1,0,1,0,extra helmet and person
+woman_37__p2,R3,C3,jpeg50,1,0,1,0,extra helmet and person
+woman_37__p2,R3,C4,blur2,1,0,1,0,extra helmet; face changed
+woman_37__p2,R3,C5,vae_trans,1,0,1,0,extra helmets and people
+woman_37__p2,R4,C2,none,1,0,1,0,large helmet on body
+woman_37__p2,R4,C3,jpeg50,1,0,1,0,large helmet on body
+woman_37__p2,R4,C4,blur2,1,0,0,0,faint visor helmet
+woman_37__p2,R4,C5,vae_trans,1,0,1,0,large helmet on body
+woman_37__p2,R5,C2,none,1,1,1,0,extra helmets and people
+woman_37__p2,R5,C3,jpeg50,1,1,1,0,extra helmets and people
+woman_37__p2,R5,C4,blur2,1,1,1,0,extra helmets and people
+woman_37__p2,R5,C5,vae_trans,1,1,1,0,extra helmets and people
+woman_37__p2,R6,C2,none,1,0,1,0,extra helmet and person
+woman_37__p2,R6,C3,jpeg50,0,0,1,0,ghostly helmet; extra helmet blob
+woman_37__p2,R6,C4,blur2,1,0,1,0,extra helmet and person
+woman_37__p2,R6,C5,vae_trans,1,0,1,0,extra helmets and people
+woman_37__p2,R7,C2,none,1,0,1,0,extra helmet and person
+woman_37__p2,R7,C3,jpeg50,1,0,1,0,translucent helmet; extra helmet
+woman_37__p2,R7,C4,blur2,1,0,1,0,extra helmet and person
+woman_37__p2,R7,C5,vae_trans,1,0,1,0,extra helmets and people
+woman_37__p2,R8,C2,none,1,0,1,0,large helmet on body
+woman_37__p2,R8,C3,jpeg50,0,0,0,0,faint
+woman_37__p2,R8,C4,blur2,1,0,0,0,faint visor helmet
+woman_37__p2,R8,C5,vae_trans,1,0,1,0,large helmet on body
+woman_37__p3,R1,C2,none,1,1,0,0,
+woman_37__p3,R1,C3,jpeg50,1,1,0,0,
+woman_37__p3,R1,C4,blur2,1,1,1,0,extra floating bow
+woman_37__p3,R1,C5,vae_trans,1,1,1,0,person replaced by man
+woman_37__p3,R2,C2,none,1,0,0,0,
+woman_37__p3,R2,C3,jpeg50,1,0,0,0,
+woman_37__p3,R2,C4,blur2,1,0,1,0,person replaced by man
+woman_37__p3,R2,C5,vae_trans,1,0,1,0,person replaced by man
+woman_37__p3,R3,C2,none,1,1,1,0,scene replaced; extra bowtie
+woman_37__p3,R3,C3,jpeg50,1,0,1,0,scene replaced; extra bowtie
+woman_37__p3,R3,C4,blur2,1,0,1,0,scene replaced; extra bowtie
+woman_37__p3,R3,C5,vae_trans,1,0,1,0,scene replaced; extra bowtie
+woman_37__p3,R4,C2,none,1,1,0,0,
+woman_37__p3,R4,C3,jpeg50,1,1,0,0,
+woman_37__p3,R4,C4,blur2,1,1,1,0,person replaced by man
+woman_37__p3,R4,C5,vae_trans,1,1,1,0,face changed to man
+woman_37__p3,R5,C2,none,1,0,0,0,
+woman_37__p3,R5,C3,jpeg50,1,0,0,0,
+woman_37__p3,R5,C4,blur2,1,0,1,0,face male
+woman_37__p3,R5,C5,vae_trans,1,0,1,0,face changed; suit
+woman_37__p3,R6,C2,none,1,0,0,0,
+woman_37__p3,R6,C3,jpeg50,1,0,0,0,
+woman_37__p3,R6,C4,blur2,1,0,1,0,person replaced by man
+woman_37__p3,R6,C5,vae_trans,1,0,1,0,person replaced by man
+woman_37__p3,R7,C2,none,1,1,1,0,person replaced by man
+woman_37__p3,R7,C3,jpeg50,1,0,1,0,scene replaced; extra bowtie
+woman_37__p3,R7,C4,blur2,1,0,1,0,scene replaced; extra bowtie
+woman_37__p3,R7,C5,vae_trans,1,0,1,0,scene replaced; extra bowtie
+woman_37__p3,R8,C2,none,1,1,1,0,scene replaced; extra bowties
+woman_37__p3,R8,C3,jpeg50,1,0,1,0,scene replaced; extra bowtie
+woman_37__p3,R8,C4,blur2,1,0,1,0,scene replaced; extra bowties
+woman_37__p3,R8,C5,vae_trans,1,0,1,0,scene replaced; extra bowtie
+woman_41__p0,R1,C2,none,1,0,0,0,
+woman_41__p0,R1,C3,jpeg50,1,0,0,0,
+woman_41__p0,R1,C4,blur2,1,0,0,0,
+woman_41__p0,R1,C5,vae_trans,1,0,0,0,
+woman_41__p0,R2,C2,none,1,0,0,0,
+woman_41__p0,R2,C3,jpeg50,1,0,0,0,
+woman_41__p0,R2,C4,blur2,1,0,0,0,
+woman_41__p0,R2,C5,vae_trans,1,0,0,0,
+woman_41__p0,R3,C2,none,1,1,0,0,
+woman_41__p0,R3,C3,jpeg50,1,1,0,0,
+woman_41__p0,R3,C4,blur2,1,1,0,0,
+woman_41__p0,R3,C5,vae_trans,1,1,0,0,
+woman_41__p0,R4,C2,none,1,0,0,0,
+woman_41__p0,R4,C3,jpeg50,1,0,0,0,
+woman_41__p0,R4,C4,blur2,1,0,0,0,
+woman_41__p0,R4,C5,vae_trans,1,0,0,0,
+woman_41__p0,R5,C2,none,1,1,0,0,
+woman_41__p0,R5,C3,jpeg50,1,1,0,0,
+woman_41__p0,R5,C4,blur2,1,1,0,0,
+woman_41__p0,R5,C5,vae_trans,1,1,0,0,
+woman_41__p0,R6,C2,none,1,1,0,0,
+woman_41__p0,R6,C3,jpeg50,1,1,0,0,
+woman_41__p0,R6,C4,blur2,1,1,0,0,
+woman_41__p0,R6,C5,vae_trans,1,1,0,0,
+woman_41__p0,R7,C2,none,1,0,0,0,
+woman_41__p0,R7,C3,jpeg50,1,0,0,0,
+woman_41__p0,R7,C4,blur2,1,0,0,0,
+woman_41__p0,R7,C5,vae_trans,1,0,0,0,
+woman_41__p0,R8,C2,none,1,0,0,0,
+woman_41__p0,R8,C3,jpeg50,1,0,0,0,
+woman_41__p0,R8,C4,blur2,1,0,0,0,
+woman_41__p0,R8,C5,vae_trans,1,0,0,0,
+woman_41__p1,R1,C2,none,1,0,0,0,
+woman_41__p1,R1,C3,jpeg50,1,0,0,0,
+woman_41__p1,R1,C4,blur2,1,0,0,0,
+woman_41__p1,R1,C5,vae_trans,1,0,0,0,
+woman_41__p1,R2,C2,none,1,0,0,0,
+woman_41__p1,R2,C3,jpeg50,1,0,0,0,
+woman_41__p1,R2,C4,blur2,1,0,0,0,
+woman_41__p1,R2,C5,vae_trans,1,0,0,0,
+woman_41__p1,R3,C2,none,1,0,0,0,
+woman_41__p1,R3,C3,jpeg50,1,0,0,0,
+woman_41__p1,R3,C4,blur2,1,0,0,0,
+woman_41__p1,R3,C5,vae_trans,1,0,0,0,
+woman_41__p1,R4,C2,none,1,0,0,0,
+woman_41__p1,R4,C3,jpeg50,1,0,0,0,
+woman_41__p1,R4,C4,blur2,1,0,0,0,
+woman_41__p1,R4,C5,vae_trans,1,0,0,0,
+woman_41__p1,R5,C2,none,1,1,0,0,
+woman_41__p1,R5,C3,jpeg50,1,1,0,0,
+woman_41__p1,R5,C4,blur2,1,1,0,0,
+woman_41__p1,R5,C5,vae_trans,1,1,0,0,
+woman_41__p1,R6,C2,none,1,1,0,0,
+woman_41__p1,R6,C3,jpeg50,1,1,0,0,
+woman_41__p1,R6,C4,blur2,1,1,0,0,
+woman_41__p1,R6,C5,vae_trans,1,1,0,0,
+woman_41__p1,R7,C2,none,1,1,0,0,
+woman_41__p1,R7,C3,jpeg50,1,1,0,0,
+woman_41__p1,R7,C4,blur2,1,1,0,0,
+woman_41__p1,R7,C5,vae_trans,1,1,0,0,
+woman_41__p1,R8,C2,none,1,0,0,0,
+woman_41__p1,R8,C3,jpeg50,1,0,0,0,
+woman_41__p1,R8,C4,blur2,1,0,0,0,
+woman_41__p1,R8,C5,vae_trans,1,0,0,0,
+woman_41__p2,R1,C2,none,1,0,0,0,
+woman_41__p2,R1,C3,jpeg50,1,0,0,0,
+woman_41__p2,R1,C4,blur2,1,0,0,0,
+woman_41__p2,R1,C5,vae_trans,1,0,0,0,
+woman_41__p2,R2,C2,none,1,0,0,0,
+woman_41__p2,R2,C3,jpeg50,1,0,0,0,
+woman_41__p2,R2,C4,blur2,1,0,0,0,
+woman_41__p2,R2,C5,vae_trans,1,0,0,0,
+woman_41__p2,R3,C2,none,1,0,0,0,
+woman_41__p2,R3,C3,jpeg50,1,0,0,0,
+woman_41__p2,R3,C4,blur2,1,0,1,0,extra helmet on body
+woman_41__p2,R3,C5,vae_trans,1,0,0,0,
+woman_41__p2,R4,C2,none,1,0,0,0,
+woman_41__p2,R4,C3,jpeg50,1,0,0,0,
+woman_41__p2,R4,C4,blur2,1,0,0,0,
+woman_41__p2,R4,C5,vae_trans,1,0,0,0,
+woman_41__p2,R5,C2,none,1,1,0,0,
+woman_41__p2,R5,C3,jpeg50,1,1,0,0,
+woman_41__p2,R5,C4,blur2,1,1,0,0,
+woman_41__p2,R5,C5,vae_trans,1,1,0,0,
+woman_41__p2,R6,C2,none,1,1,0,0,
+woman_41__p2,R6,C3,jpeg50,1,1,1,0,extra helmet on body
+woman_41__p2,R6,C4,blur2,1,1,1,0,extra helmet on body
+woman_41__p2,R6,C5,vae_trans,1,1,1,0,extra helmet on body
+woman_41__p2,R7,C2,none,1,0,0,0,
+woman_41__p2,R7,C3,jpeg50,1,0,0,0,
+woman_41__p2,R7,C4,blur2,1,0,0,0,
+woman_41__p2,R7,C5,vae_trans,1,0,0,0,
+woman_41__p2,R8,C2,none,1,1,0,0,
+woman_41__p2,R8,C3,jpeg50,1,0,1,0,extra helmet on body
+woman_41__p2,R8,C4,blur2,1,0,1,0,extra helmet on body
+woman_41__p2,R8,C5,vae_trans,1,0,1,0,extra helmet on body
+woman_41__p3,R1,C2,none,1,1,0,0,
+woman_41__p3,R1,C3,jpeg50,1,1,0,0,
+woman_41__p3,R1,C4,blur2,1,1,0,0,
+woman_41__p3,R1,C5,vae_trans,1,1,0,0,
+woman_41__p3,R2,C2,none,1,0,0,0,
+woman_41__p3,R2,C3,jpeg50,1,0,0,0,
+woman_41__p3,R2,C4,blur2,1,0,0,0,
+woman_41__p3,R2,C5,vae_trans,1,0,0,0,
+woman_41__p3,R3,C2,none,1,0,0,0,
+woman_41__p3,R3,C3,jpeg50,1,0,0,0,
+woman_41__p3,R3,C4,blur2,1,0,0,0,
+woman_41__p3,R3,C5,vae_trans,1,0,0,0,
+woman_41__p3,R4,C2,none,1,0,0,0,
+woman_41__p3,R4,C3,jpeg50,1,0,0,0,
+woman_41__p3,R4,C4,blur2,1,0,0,0,
+woman_41__p3,R4,C5,vae_trans,1,0,0,0,
+woman_41__p3,R5,C2,none,1,0,0,0,
+woman_41__p3,R5,C3,jpeg50,1,0,0,0,
+woman_41__p3,R5,C4,blur2,1,0,0,0,
+woman_41__p3,R5,C5,vae_trans,1,0,0,0,
+woman_41__p3,R6,C2,none,1,0,0,0,
+woman_41__p3,R6,C3,jpeg50,1,0,0,0,
+woman_41__p3,R6,C4,blur2,1,0,0,0,
+woman_41__p3,R6,C5,vae_trans,1,0,0,0,
+woman_41__p3,R7,C2,none,1,1,0,0,
+woman_41__p3,R7,C3,jpeg50,1,1,0,0,
+woman_41__p3,R7,C4,blur2,1,1,0,0,
+woman_41__p3,R7,C5,vae_trans,1,1,0,0,
+woman_41__p3,R8,C2,none,1,1,0,0,
+woman_41__p3,R8,C3,jpeg50,1,1,0,0,
+woman_41__p3,R8,C4,blur2,1,1,0,0,
+woman_41__p3,R8,C5,vae_trans,1,1,0,0,
+woman_43__p0,R1,C2,none,1,0,0,0,
+woman_43__p0,R1,C3,jpeg50,1,0,0,0,
+woman_43__p0,R1,C4,blur2,1,0,0,0,
+woman_43__p0,R1,C5,vae_trans,1,0,0,0,
+woman_43__p0,R2,C2,none,1,0,0,0,
+woman_43__p0,R2,C3,jpeg50,1,0,0,0,
+woman_43__p0,R2,C4,blur2,1,0,0,0,
+woman_43__p0,R2,C5,vae_trans,1,0,0,0,
+woman_43__p0,R3,C2,none,1,1,0,0,dark reddish tint
+woman_43__p0,R3,C3,jpeg50,1,1,0,0,dark reddish tint
+woman_43__p0,R3,C4,blur2,1,1,0,0,dark reddish tint
+woman_43__p0,R3,C5,vae_trans,1,1,0,0,dark reddish tint
+woman_43__p0,R4,C2,none,1,1,0,0,
+woman_43__p0,R4,C3,jpeg50,1,1,0,0,
+woman_43__p0,R4,C4,blur2,1,1,0,0,
+woman_43__p0,R4,C5,vae_trans,1,1,0,0,
+woman_43__p0,R5,C2,none,1,1,0,0,
+woman_43__p0,R5,C3,jpeg50,1,1,0,0,
+woman_43__p0,R5,C4,blur2,1,1,0,0,
+woman_43__p0,R5,C5,vae_trans,1,1,0,0,
+woman_43__p0,R6,C2,none,1,1,0,0,
+woman_43__p0,R6,C3,jpeg50,1,1,0,0,
+woman_43__p0,R6,C4,blur2,1,1,0,0,
+woman_43__p0,R6,C5,vae_trans,1,1,0,0,
+woman_43__p0,R7,C2,none,1,1,0,0,
+woman_43__p0,R7,C3,jpeg50,1,1,0,0,
+woman_43__p0,R7,C4,blur2,1,1,0,0,
+woman_43__p0,R7,C5,vae_trans,1,1,0,0,
+woman_43__p0,R8,C2,none,1,0,0,0,
+woman_43__p0,R8,C3,jpeg50,1,0,0,0,
+woman_43__p0,R8,C4,blur2,1,0,0,0,
+woman_43__p0,R8,C5,vae_trans,1,0,0,0,
+woman_43__p1,R1,C2,none,1,1,0,0,
+woman_43__p1,R1,C3,jpeg50,1,1,0,0,
+woman_43__p1,R1,C4,blur2,0,1,0,0,gray vest; no badge
+woman_43__p1,R1,C5,vae_trans,1,1,0,0,
+woman_43__p1,R2,C2,none,1,1,0,0,
+woman_43__p1,R2,C3,jpeg50,0,1,0,0,half-drawn uniform
+woman_43__p1,R2,C4,blur2,1,1,0,0,gray uniform with badge
+woman_43__p1,R2,C5,vae_trans,1,1,0,0,
+woman_43__p1,R3,C2,none,1,1,0,0,
+woman_43__p1,R3,C3,jpeg50,1,1,0,0,faint badge
+woman_43__p1,R3,C4,blur2,1,1,0,0,
+woman_43__p1,R3,C5,vae_trans,1,1,0,0,
+woman_43__p1,R4,C2,none,1,1,0,0,
+woman_43__p1,R4,C3,jpeg50,1,1,0,0,
+woman_43__p1,R4,C4,blur2,1,1,0,0,gray uniform with badge
+woman_43__p1,R4,C5,vae_trans,1,1,0,0,
+woman_43__p1,R5,C2,none,1,0,0,0,
+woman_43__p1,R5,C3,jpeg50,1,0,0,0,
+woman_43__p1,R5,C4,blur2,0,0,0,0,half-drawn uniform
+woman_43__p1,R5,C5,vae_trans,1,0,0,0,
+woman_43__p1,R6,C2,none,1,1,0,0,
+woman_43__p1,R6,C3,jpeg50,1,1,0,0,
+woman_43__p1,R6,C4,blur2,1,1,0,0,
+woman_43__p1,R6,C5,vae_trans,1,1,0,0,
+woman_43__p1,R7,C2,none,1,0,0,0,
+woman_43__p1,R7,C3,jpeg50,1,0,0,0,
+woman_43__p1,R7,C4,blur2,1,0,0,0,
+woman_43__p1,R7,C5,vae_trans,1,0,0,0,
+woman_43__p1,R8,C2,none,1,0,0,0,
+woman_43__p1,R8,C3,jpeg50,1,0,0,0,
+woman_43__p1,R8,C4,blur2,1,0,0,0,
+woman_43__p1,R8,C5,vae_trans,1,0,0,0,
+woman_43__p2,R1,C2,none,1,1,1,0,extra helmet and person
+woman_43__p2,R1,C3,jpeg50,1,1,1,0,extra helmet; face changed
+woman_43__p2,R1,C4,blur2,0,1,1,0,faint helmet; extra helmet object
+woman_43__p2,R1,C5,vae_trans,1,1,1,0,extra helmet and person
+woman_43__p2,R2,C2,none,1,0,0,0,small shell on hair
+woman_43__p2,R2,C3,jpeg50,1,0,0,0,small shell on hair
+woman_43__p2,R2,C4,blur2,1,0,0,0,
+woman_43__p2,R2,C5,vae_trans,0,0,0,0,faint
+woman_43__p2,R3,C2,none,1,0,0,0,small shell on hair
+woman_43__p2,R3,C3,jpeg50,1,0,0,0,small shell on hair
+woman_43__p2,R3,C4,blur2,0,0,0,0,faint
+woman_43__p2,R3,C5,vae_trans,1,0,0,0,small shell on hair
+woman_43__p2,R4,C2,none,1,1,0,0,small shell on hair
+woman_43__p2,R4,C3,jpeg50,1,1,0,0,small shell on hair
+woman_43__p2,R4,C4,blur2,0,1,0,0,faint
+woman_43__p2,R4,C5,vae_trans,0,1,0,0,faint
+woman_43__p2,R5,C2,none,1,1,0,0,
+woman_43__p2,R5,C3,jpeg50,1,1,0,0,
+woman_43__p2,R5,C4,blur2,1,1,0,0,
+woman_43__p2,R5,C5,vae_trans,1,1,0,0,
+woman_43__p2,R6,C2,none,1,1,1,0,extra helmet and person
+woman_43__p2,R6,C3,jpeg50,1,1,1,0,extra helmet and person
+woman_43__p2,R6,C4,blur2,1,1,0,0,
+woman_43__p2,R6,C5,vae_trans,1,1,0,0,
+woman_43__p2,R7,C2,none,1,1,0,0,
+woman_43__p2,R7,C3,jpeg50,1,1,0,0,half shell
+woman_43__p2,R7,C4,blur2,0,1,0,0,faint
+woman_43__p2,R7,C5,vae_trans,0,1,0,1,body dissolving; no helmet
+woman_43__p2,R8,C2,none,1,0,0,0,small shell on hair
+woman_43__p2,R8,C3,jpeg50,1,0,0,0,small shell on hair
+woman_43__p2,R8,C4,blur2,1,0,0,0,small shell on hair
+woman_43__p2,R8,C5,vae_trans,1,0,0,0,small shell on hair
+woman_43__p3,R1,C2,none,1,0,0,0,small bowtie
+woman_43__p3,R1,C3,jpeg50,1,0,0,0,small bowtie
+woman_43__p3,R1,C4,blur2,1,0,1,0,scene replaced; extra bowties
+woman_43__p3,R1,C5,vae_trans,1,0,1,0,extra bow on arm
+woman_43__p3,R2,C2,none,1,1,0,0,
+woman_43__p3,R2,C3,jpeg50,0,1,0,0,no clear bowtie
+woman_43__p3,R2,C4,blur2,1,1,0,0,faint small bowtie
+woman_43__p3,R2,C5,vae_trans,1,1,0,0,
+woman_43__p3,R3,C2,none,1,0,0,0,
+woman_43__p3,R3,C3,jpeg50,1,0,0,0,
+woman_43__p3,R3,C4,blur2,0,0,0,0,no clear bowtie
+woman_43__p3,R3,C5,vae_trans,1,0,1,0,extra bow on arm
+woman_43__p3,R4,C2,none,1,0,0,0,small bowtie
+woman_43__p3,R4,C3,jpeg50,1,0,0,0,small bowtie
+woman_43__p3,R4,C4,blur2,1,0,1,0,extra bowties; clothing changed
+woman_43__p3,R4,C5,vae_trans,1,0,1,0,extra bow on arm
+woman_43__p3,R5,C2,none,1,1,0,0,
+woman_43__p3,R5,C3,jpeg50,0,1,0,0,no clear bowtie
+woman_43__p3,R5,C4,blur2,1,1,0,0,
+woman_43__p3,R5,C5,vae_trans,1,1,1,0,extra object on arm
+woman_43__p3,R6,C2,none,1,1,0,0,
+woman_43__p3,R6,C3,jpeg50,1,1,0,0,
+woman_43__p3,R6,C4,blur2,1,1,0,0,
+woman_43__p3,R6,C5,vae_trans,1,1,0,0,
+woman_43__p3,R7,C2,none,1,1,0,0,
+woman_43__p3,R7,C3,jpeg50,1,1,0,0,
+woman_43__p3,R7,C4,blur2,1,1,0,0,faint
+woman_43__p3,R7,C5,vae_trans,0,1,0,0,no clear bowtie
+woman_43__p3,R8,C2,none,1,1,0,0,
+woman_43__p3,R8,C3,jpeg50,1,1,0,0,
+woman_43__p3,R8,C4,blur2,1,1,0,0,faint
+woman_43__p3,R8,C5,vae_trans,1,1,0,0,
+woman_48__p0,R1,C2,none,1,1,0,0,
+woman_48__p0,R1,C3,jpeg50,1,1,0,0,
+woman_48__p0,R1,C4,blur2,1,1,0,0,
+woman_48__p0,R1,C5,vae_trans,1,1,0,0,faint glasses
+woman_48__p0,R2,C2,none,1,1,0,0,
+woman_48__p0,R2,C3,jpeg50,1,1,0,0,
+woman_48__p0,R2,C4,blur2,1,1,0,0,
+woman_48__p0,R2,C5,vae_trans,1,1,0,0,
+woman_48__p0,R3,C2,none,1,1,0,0,
+woman_48__p0,R3,C3,jpeg50,1,1,0,0,
+woman_48__p0,R3,C4,blur2,1,1,0,0,
+woman_48__p0,R3,C5,vae_trans,1,1,0,0,
+woman_48__p0,R4,C2,none,1,1,0,1,person dissolved; oversize glasses
+woman_48__p0,R4,C3,jpeg50,1,1,1,1,person dissolved; extra glasses
+woman_48__p0,R4,C4,blur2,1,1,0,0,
+woman_48__p0,R4,C5,vae_trans,1,1,0,1,person dissolved; oversize glasses
+woman_48__p0,R5,C2,none,1,0,0,0,
+woman_48__p0,R5,C3,jpeg50,1,0,0,0,
+woman_48__p0,R5,C4,blur2,1,0,0,0,
+woman_48__p0,R5,C5,vae_trans,1,0,0,0,
+woman_48__p0,R6,C2,none,1,1,0,0,
+woman_48__p0,R6,C3,jpeg50,1,1,0,0,
+woman_48__p0,R6,C4,blur2,1,1,0,0,face distorted color
+woman_48__p0,R6,C5,vae_trans,1,1,0,0,
+woman_48__p0,R7,C2,none,1,1,0,1,person dissolved; oversize glasses
+woman_48__p0,R7,C3,jpeg50,1,1,1,1,person dissolved; extra glasses
+woman_48__p0,R7,C4,blur2,1,1,0,0,
+woman_48__p0,R7,C5,vae_trans,1,1,0,1,face mangled; dark
+woman_48__p0,R8,C2,none,1,1,0,0,mild yellow tint
+woman_48__p0,R8,C3,jpeg50,1,1,0,0,mild yellow tint
+woman_48__p0,R8,C4,blur2,1,1,0,0,mild yellow tint
+woman_48__p0,R8,C5,vae_trans,1,1,0,0,mild yellow tint
+woman_48__p1,R1,C2,none,1,1,0,0,
+woman_48__p1,R1,C3,jpeg50,1,1,0,0,
+woman_48__p1,R1,C4,blur2,1,1,0,0,
+woman_48__p1,R1,C5,vae_trans,1,1,0,0,
+woman_48__p1,R2,C2,none,1,0,1,0,extra person
+woman_48__p1,R2,C3,jpeg50,1,0,0,0,
+woman_48__p1,R2,C4,blur2,1,0,0,0,
+woman_48__p1,R2,C5,vae_trans,1,0,1,0,extra person
+woman_48__p1,R3,C2,none,1,1,0,0,
+woman_48__p1,R3,C3,jpeg50,1,1,0,0,
+woman_48__p1,R3,C4,blur2,1,1,0,0,
+woman_48__p1,R3,C5,vae_trans,1,1,0,0,
+woman_48__p1,R4,C2,none,1,1,0,0,
+woman_48__p1,R4,C3,jpeg50,1,1,0,0,
+woman_48__p1,R4,C4,blur2,1,1,0,0,
+woman_48__p1,R4,C5,vae_trans,1,1,0,0,faint washed uniform
+woman_48__p1,R5,C2,none,1,1,0,0,
+woman_48__p1,R5,C3,jpeg50,1,1,0,0,
+woman_48__p1,R5,C4,blur2,1,1,0,0,
+woman_48__p1,R5,C5,vae_trans,1,1,1,0,extra person; faint uniform
+woman_48__p1,R6,C2,none,1,1,1,0,person replaced; extra person
+woman_48__p1,R6,C3,jpeg50,1,1,0,0,
+woman_48__p1,R6,C4,blur2,1,1,0,0,
+woman_48__p1,R6,C5,vae_trans,1,1,0,0,faint uniform
+woman_48__p1,R7,C2,none,1,1,0,0,
+woman_48__p1,R7,C3,jpeg50,1,1,0,0,
+woman_48__p1,R7,C4,blur2,1,1,0,0,
+woman_48__p1,R7,C5,vae_trans,1,1,0,0,
+woman_48__p1,R8,C2,none,1,1,1,0,extra person
+woman_48__p1,R8,C3,jpeg50,1,1,0,0,
+woman_48__p1,R8,C4,blur2,1,1,0,0,
+woman_48__p1,R8,C5,vae_trans,1,1,1,0,scene replaced; two officers
+woman_48__p2,R1,C2,none,1,1,1,0,face replaced by visor
+woman_48__p2,R1,C3,jpeg50,1,1,0,0,
+woman_48__p2,R1,C4,blur2,1,1,1,0,extra helmet shape on body
+woman_48__p2,R1,C5,vae_trans,1,1,1,0,person replaced
+woman_48__p2,R2,C2,none,0,1,0,0,bluish hat dome; not clear helmet
+woman_48__p2,R2,C3,jpeg50,0,1,0,0,dark blue blob on head
+woman_48__p2,R2,C4,blur2,0,1,0,0,hat unchanged
+woman_48__p2,R2,C5,vae_trans,1,1,0,0,gray helmet with visor
+woman_48__p2,R3,C2,none,1,1,0,0,
+woman_48__p2,R3,C3,jpeg50,1,1,0,0,
+woman_48__p2,R3,C4,blur2,1,1,1,0,person replaced; edge object
+woman_48__p2,R3,C5,vae_trans,1,1,1,0,person replaced
+woman_48__p2,R4,C2,none,1,1,1,0,extra helmet and person
+woman_48__p2,R4,C3,jpeg50,1,1,0,0,
+woman_48__p2,R4,C4,blur2,1,1,1,0,extra helmet and person
+woman_48__p2,R4,C5,vae_trans,1,1,1,0,person replaced; black clothing
+woman_48__p2,R5,C2,none,1,1,1,0,person replaced; dark clothing
+woman_48__p2,R5,C3,jpeg50,1,1,0,0,
+woman_48__p2,R5,C4,blur2,1,1,1,0,ghost person below
+woman_48__p2,R5,C5,vae_trans,1,1,0,0,
+woman_48__p2,R6,C2,none,1,1,0,0,
+woman_48__p2,R6,C3,jpeg50,1,1,0,0,
+woman_48__p2,R6,C4,blur2,1,1,1,0,person replaced
+woman_48__p2,R6,C5,vae_trans,1,1,0,0,
+woman_48__p2,R7,C2,none,1,1,1,0,person replaced; dark clothing
+woman_48__p2,R7,C3,jpeg50,1,1,0,0,
+woman_48__p2,R7,C4,blur2,1,1,1,0,extra person
+woman_48__p2,R7,C5,vae_trans,1,1,0,0,faint helmet
+woman_48__p2,R8,C2,none,1,0,1,0,extra gray helmet
+woman_48__p2,R8,C3,jpeg50,1,0,0,0,
+woman_48__p2,R8,C4,blur2,1,0,1,0,extra helmet shape on body
+woman_48__p2,R8,C5,vae_trans,1,0,1,0,person replaced
+woman_48__p3,R1,C2,none,1,1,1,0,giant bow on head
+woman_48__p3,R1,C3,jpeg50,1,1,1,0,giant bow on head
+woman_48__p3,R1,C4,blur2,1,1,1,0,giant bow on head
+woman_48__p3,R1,C5,vae_trans,1,1,1,0,giant bow on head
+woman_48__p3,R2,C2,none,1,1,1,0,person replaced by man
+woman_48__p3,R2,C3,jpeg50,1,1,1,0,man; extra bow
+woman_48__p3,R2,C4,blur2,1,1,1,0,person replaced by man
+woman_48__p3,R2,C5,vae_trans,1,1,1,0,person replaced by man
+woman_48__p3,R3,C2,none,1,1,1,0,giant bow on head
+woman_48__p3,R3,C3,jpeg50,1,1,1,0,giant bow on head
+woman_48__p3,R3,C4,blur2,1,1,1,0,giant bow on head
+woman_48__p3,R3,C5,vae_trans,1,1,1,0,giant bow on head
+woman_48__p3,R4,C2,none,1,0,1,0,giant bow on head
+woman_48__p3,R4,C3,jpeg50,1,0,1,0,giant bow on head
+woman_48__p3,R4,C4,blur2,1,0,0,0,
+woman_48__p3,R4,C5,vae_trans,1,0,1,0,giant bow on head
+woman_48__p3,R5,C2,none,1,1,1,0,person replaced; extra bows
+woman_48__p3,R5,C3,jpeg50,1,1,1,0,man; extra bows
+woman_48__p3,R5,C4,blur2,1,1,1,0,person replaced by man
+woman_48__p3,R5,C5,vae_trans,1,1,1,0,man; extra bows
+woman_48__p3,R6,C2,none,1,1,0,0,small bow at shoulder
+woman_48__p3,R6,C3,jpeg50,1,1,1,0,giant bow on hat
+woman_48__p3,R6,C4,blur2,1,1,1,0,giant bow on hat
+woman_48__p3,R6,C5,vae_trans,0,1,0,0,no clear bowtie
+woman_48__p3,R7,C2,none,1,1,1,0,giant bow on head
+woman_48__p3,R7,C3,jpeg50,1,1,1,0,giant bow on head
+woman_48__p3,R7,C4,blur2,1,1,1,0,giant bow on head
+woman_48__p3,R7,C5,vae_trans,1,1,1,0,giant bow on head
+woman_48__p3,R8,C2,none,1,1,1,0,man; giant bow
+woman_48__p3,R8,C3,jpeg50,1,1,1,0,extra people
+woman_48__p3,R8,C4,blur2,1,1,1,0,person replaced by man
+woman_48__p3,R8,C5,vae_trans,1,1,1,0,man; giant bow
+woman_53__p0,R1,C2,none,1,0,0,0,
+woman_53__p0,R1,C3,jpeg50,1,0,0,0,
+woman_53__p0,R1,C4,blur2,1,0,0,0,
+woman_53__p0,R1,C5,vae_trans,1,0,0,0,
+woman_53__p0,R2,C2,none,1,1,0,0,
+woman_53__p0,R2,C3,jpeg50,1,1,0,0,
+woman_53__p0,R2,C4,blur2,0,1,0,1,dark mangled face
+woman_53__p0,R2,C5,vae_trans,1,1,0,0,
+woman_53__p0,R3,C2,none,1,0,0,0,
+woman_53__p0,R3,C3,jpeg50,1,0,0,0,
+woman_53__p0,R3,C4,blur2,1,0,0,0,
+woman_53__p0,R3,C5,vae_trans,1,0,0,0,
+woman_53__p0,R4,C2,none,1,1,0,0,
+woman_53__p0,R4,C3,jpeg50,1,1,0,0,
+woman_53__p0,R4,C4,blur2,1,1,0,0,
+woman_53__p0,R4,C5,vae_trans,1,1,0,0,
+woman_53__p0,R5,C2,none,1,1,0,0,
+woman_53__p0,R5,C3,jpeg50,1,1,0,0,
+woman_53__p0,R5,C4,blur2,1,1,0,0,
+woman_53__p0,R5,C5,vae_trans,1,1,0,0,
+woman_53__p0,R6,C2,none,1,1,0,0,
+woman_53__p0,R6,C3,jpeg50,1,1,0,0,
+woman_53__p0,R6,C4,blur2,1,1,0,0,
+woman_53__p0,R6,C5,vae_trans,1,1,0,0,
+woman_53__p0,R7,C2,none,1,1,0,0,
+woman_53__p0,R7,C3,jpeg50,1,1,0,0,
+woman_53__p0,R7,C4,blur2,1,1,0,0,
+woman_53__p0,R7,C5,vae_trans,1,1,0,0,
+woman_53__p0,R8,C2,none,1,1,0,0,
+woman_53__p0,R8,C3,jpeg50,1,1,0,0,
+woman_53__p0,R8,C4,blur2,1,1,0,0,
+woman_53__p0,R8,C5,vae_trans,1,1,0,0,
+woman_53__p1,R1,C2,none,1,1,1,0,extra officer behind
+woman_53__p1,R1,C3,jpeg50,1,1,1,0,extra officer behind
+woman_53__p1,R1,C4,blur2,1,1,0,0,
+woman_53__p1,R1,C5,vae_trans,1,0,0,0,
+woman_53__p1,R2,C2,none,1,0,0,0,
+woman_53__p1,R2,C3,jpeg50,1,0,0,0,
+woman_53__p1,R2,C4,blur2,1,0,0,0,
+woman_53__p1,R2,C5,vae_trans,1,0,0,0,
+woman_53__p1,R3,C2,none,1,1,0,0,
+woman_53__p1,R3,C3,jpeg50,0,1,0,0,hat only no badge
+woman_53__p1,R3,C4,blur2,1,1,0,0,
+woman_53__p1,R3,C5,vae_trans,0,0,0,0,faded dark jacket
+woman_53__p1,R4,C2,none,1,1,0,0,patch at edge
+woman_53__p1,R4,C3,jpeg50,1,1,0,0,patch at edge
+woman_53__p1,R4,C4,blur2,1,1,0,0,
+woman_53__p1,R4,C5,vae_trans,1,1,0,0,
+woman_53__p1,R5,C2,none,1,1,1,0,extra officer behind
+woman_53__p1,R5,C3,jpeg50,1,1,1,0,extra officer behind
+woman_53__p1,R5,C4,blur2,1,1,0,0,
+woman_53__p1,R5,C5,vae_trans,1,1,0,0,
+woman_53__p1,R6,C2,none,1,1,0,0,
+woman_53__p1,R6,C3,jpeg50,1,1,0,0,
+woman_53__p1,R6,C4,blur2,1,1,0,0,
+woman_53__p1,R6,C5,vae_trans,1,1,0,0,
+woman_53__p1,R7,C2,none,1,1,0,0,
+woman_53__p1,R7,C3,jpeg50,1,1,0,0,
+woman_53__p1,R7,C4,blur2,1,1,0,0,
+woman_53__p1,R7,C5,vae_trans,0,1,0,0,no clear uniform
+woman_53__p1,R8,C2,none,0,0,0,0,hat only
+woman_53__p1,R8,C3,jpeg50,0,0,0,0,hat only
+woman_53__p1,R8,C4,blur2,0,0,0,0,hat only
+woman_53__p1,R8,C5,vae_trans,0,0,0,0,
+woman_53__p2,R1,C2,none,1,0,0,0,
+woman_53__p2,R1,C3,jpeg50,1,0,0,0,
+woman_53__p2,R1,C4,blur2,1,0,0,0,
+woman_53__p2,R1,C5,vae_trans,1,0,1,0,white helmet at shoulder
+woman_53__p2,R2,C2,none,1,0,1,0,white helmet at shoulder
+woman_53__p2,R2,C3,jpeg50,1,0,0,0,
+woman_53__p2,R2,C4,blur2,1,0,0,0,
+woman_53__p2,R2,C5,vae_trans,1,0,1,0,white helmet at shoulder
+woman_53__p2,R3,C2,none,1,1,1,0,extra person and helmet
+woman_53__p2,R3,C3,jpeg50,1,1,1,0,extra person and helmet
+woman_53__p2,R3,C4,blur2,1,1,1,0,extra helmet
+woman_53__p2,R3,C5,vae_trans,1,0,1,0,extra person and helmet
+woman_53__p2,R4,C2,none,1,1,1,0,extra person and helmet
+woman_53__p2,R4,C3,jpeg50,1,1,1,0,extra person and helmet
+woman_53__p2,R4,C4,blur2,1,1,1,0,extra yellow helmet
+woman_53__p2,R4,C5,vae_trans,1,1,0,0,
+woman_53__p2,R5,C2,none,0,1,0,0,grey beret-like
+woman_53__p2,R5,C3,jpeg50,0,1,0,0,grey beret-like
+woman_53__p2,R5,C4,blur2,0,1,0,0,smooth red cap
+woman_53__p2,R5,C5,vae_trans,0,1,0,0,
+woman_53__p2,R6,C2,none,0,1,0,0,grey beret-like
+woman_53__p2,R6,C3,jpeg50,0,1,0,0,smooth red cap
+woman_53__p2,R6,C4,blur2,1,1,0,0,
+woman_53__p2,R6,C5,vae_trans,1,1,0,0,
+woman_53__p2,R7,C2,none,1,1,1,0,extra person and helmet
+woman_53__p2,R7,C3,jpeg50,1,1,0,0,
+woman_53__p2,R7,C4,blur2,1,1,0,0,
+woman_53__p2,R7,C5,vae_trans,1,0,0,0,
+woman_53__p2,R8,C2,none,1,1,1,0,white helmet at shoulder
+woman_53__p2,R8,C3,jpeg50,1,1,1,0,white helmet at shoulder
+woman_53__p2,R8,C4,blur2,1,1,1,0,white helmet at shoulder
+woman_53__p2,R8,C5,vae_trans,1,1,0,0,
+woman_53__p3,R1,C2,none,1,0,1,0,replaced by man
+woman_53__p3,R1,C3,jpeg50,1,0,1,0,replaced by man
+woman_53__p3,R1,C4,blur2,1,0,1,0,replaced by man
+woman_53__p3,R1,C5,vae_trans,1,0,1,0,replaced by man
+woman_53__p3,R2,C2,none,1,1,0,0,tiny bowtie at neck
+woman_53__p3,R2,C3,jpeg50,0,1,0,0,
+woman_53__p3,R2,C4,blur2,0,1,0,0,
+woman_53__p3,R2,C5,vae_trans,0,1,0,0,bow on hat only
+woman_53__p3,R3,C2,none,1,1,0,0,small bow at neck
+woman_53__p3,R3,C3,jpeg50,1,1,0,0,small bow at neck
+woman_53__p3,R3,C4,blur2,1,1,0,0,small bow at neck
+woman_53__p3,R3,C5,vae_trans,1,1,0,0,small bow at neck
+woman_53__p3,R4,C2,none,1,0,0,0,tiny bow at neck
+woman_53__p3,R4,C3,jpeg50,1,0,0,0,tiny bow at neck
+woman_53__p3,R4,C4,blur2,1,0,0,0,
+woman_53__p3,R4,C5,vae_trans,1,0,0,0,
+woman_53__p3,R5,C2,none,1,1,1,0,replaced by man
+woman_53__p3,R5,C3,jpeg50,1,1,1,0,replaced by man
+woman_53__p3,R5,C4,blur2,1,1,1,0,replaced by man
+woman_53__p3,R5,C5,vae_trans,1,1,1,0,replaced by man
+woman_53__p3,R6,C2,none,1,1,1,0,replaced by man
+woman_53__p3,R6,C3,jpeg50,1,1,1,0,replaced by man
+woman_53__p3,R6,C4,blur2,1,1,1,0,replaced by man
+woman_53__p3,R6,C5,vae_trans,1,1,1,0,replaced by man
+woman_53__p3,R7,C2,none,0,1,0,0,bow on hat only
+woman_53__p3,R7,C3,jpeg50,0,1,0,0,bow on hat only
+woman_53__p3,R7,C4,blur2,1,1,1,0,overexposed replaced scene
+woman_53__p3,R7,C5,vae_trans,1,1,1,0,replaced by man
+woman_53__p3,R8,C2,none,1,1,1,0,replaced by man
+woman_53__p3,R8,C3,jpeg50,1,1,1,0,replaced by man
+woman_53__p3,R8,C4,blur2,1,1,1,0,replaced by man
+woman_53__p3,R8,C5,vae_trans,1,1,1,1,mangled face
+woman_59__p0,R1,C2,none,1,1,0,0,
+woman_59__p0,R1,C3,jpeg50,1,1,0,0,
+woman_59__p0,R1,C4,blur2,1,1,0,0,
+woman_59__p0,R1,C5,vae_trans,1,1,0,0,
+woman_59__p0,R2,C2,none,1,1,0,0,mild olive tint
+woman_59__p0,R2,C3,jpeg50,1,1,0,0,mild olive tint
+woman_59__p0,R2,C4,blur2,1,1,0,0,mild olive tint
+woman_59__p0,R2,C5,vae_trans,1,1,0,0,mild olive tint
+woman_59__p0,R3,C2,none,1,1,0,0,
+woman_59__p0,R3,C3,jpeg50,1,1,0,0,
+woman_59__p0,R3,C4,blur2,1,1,0,0,
+woman_59__p0,R3,C5,vae_trans,1,1,0,0,
+woman_59__p0,R4,C2,none,1,1,0,0,
+woman_59__p0,R4,C3,jpeg50,1,1,0,0,
+woman_59__p0,R4,C4,blur2,1,1,0,0,
+woman_59__p0,R4,C5,vae_trans,1,1,0,0,
+woman_59__p0,R5,C2,none,1,1,0,0,
+woman_59__p0,R5,C3,jpeg50,1,1,0,0,
+woman_59__p0,R5,C4,blur2,1,1,0,0,
+woman_59__p0,R5,C5,vae_trans,1,1,0,0,
+woman_59__p0,R6,C2,none,1,1,0,0,
+woman_59__p0,R6,C3,jpeg50,1,1,0,0,
+woman_59__p0,R6,C4,blur2,1,1,0,0,
+woman_59__p0,R6,C5,vae_trans,1,1,0,0,
+woman_59__p0,R7,C2,none,1,0,0,0,
+woman_59__p0,R7,C3,jpeg50,1,0,0,0,
+woman_59__p0,R7,C4,blur2,1,0,0,0,
+woman_59__p0,R7,C5,vae_trans,1,0,0,0,
+woman_59__p0,R8,C2,none,1,1,0,0,
+woman_59__p0,R8,C3,jpeg50,1,1,0,0,
+woman_59__p0,R8,C4,blur2,1,1,0,0,
+woman_59__p0,R8,C5,vae_trans,1,1,0,0,
+woman_59__p1,R1,C2,none,0,1,0,0,badge on tee only
+woman_59__p1,R1,C3,jpeg50,0,1,0,0,faint patch
+woman_59__p1,R1,C4,blur2,1,1,0,0,shoulder patches borderline
+woman_59__p1,R1,C5,vae_trans,0,1,0,0,small patch
+woman_59__p1,R2,C2,none,0,1,0,0,badge on tee only
+woman_59__p1,R2,C3,jpeg50,0,1,0,0,
+woman_59__p1,R2,C4,blur2,1,1,0,0,shoulder patches borderline
+woman_59__p1,R2,C5,vae_trans,0,1,0,0,
+woman_59__p1,R3,C2,none,0,1,0,0,small patch
+woman_59__p1,R3,C3,jpeg50,0,1,0,0,small patch
+woman_59__p1,R3,C4,blur2,1,1,0,0,patches borderline
+woman_59__p1,R3,C5,vae_trans,1,1,0,0,patches borderline
+woman_59__p1,R4,C2,none,0,1,0,0,small patch
+woman_59__p1,R4,C3,jpeg50,0,1,0,0,small patch
+woman_59__p1,R4,C4,blur2,1,1,0,0,patches borderline
+woman_59__p1,R4,C5,vae_trans,0,1,0,0,small patch
+woman_59__p1,R5,C2,none,0,1,0,0,small patch
+woman_59__p1,R5,C3,jpeg50,0,1,0,0,small patch
+woman_59__p1,R5,C4,blur2,1,1,0,0,epaulette borderline
+woman_59__p1,R5,C5,vae_trans,0,1,0,0,
+woman_59__p1,R6,C2,none,0,0,0,0,
+woman_59__p1,R6,C3,jpeg50,0,0,0,0,small patch
+woman_59__p1,R6,C4,blur2,1,0,0,0,patches borderline
+woman_59__p1,R6,C5,vae_trans,0,0,0,0,
+woman_59__p1,R7,C2,none,1,1,0,0,shoulder patch borderline
+woman_59__p1,R7,C3,jpeg50,0,1,0,0,small patch
+woman_59__p1,R7,C4,blur2,1,1,0,0,patches borderline
+woman_59__p1,R7,C5,vae_trans,1,1,0,0,epaulettes borderline
+woman_59__p1,R8,C2,none,0,1,0,0,small patch
+woman_59__p1,R8,C3,jpeg50,1,1,0,0,shoulder patch borderline
+woman_59__p1,R8,C4,blur2,1,1,0,0,patches borderline
+woman_59__p1,R8,C5,vae_trans,0,1,0,0,small patch
+woman_59__p2,R1,C2,none,0,1,0,0,
+woman_59__p2,R1,C3,jpeg50,0,1,0,0,
+woman_59__p2,R1,C4,blur2,0,1,0,0,
+woman_59__p2,R1,C5,vae_trans,0,1,0,0,
+woman_59__p2,R2,C2,none,0,1,0,0,
+woman_59__p2,R2,C3,jpeg50,0,1,0,0,
+woman_59__p2,R2,C4,blur2,0,1,0,0,
+woman_59__p2,R2,C5,vae_trans,0,1,0,0,
+woman_59__p2,R3,C2,none,0,0,0,0,
+woman_59__p2,R3,C3,jpeg50,0,0,0,0,
+woman_59__p2,R3,C4,blur2,0,0,0,0,
+woman_59__p2,R3,C5,vae_trans,0,0,0,0,
+woman_59__p2,R4,C2,none,0,1,0,0,
+woman_59__p2,R4,C3,jpeg50,0,1,0,0,
+woman_59__p2,R4,C4,blur2,0,1,0,0,
+woman_59__p2,R4,C5,vae_trans,0,1,0,0,
+woman_59__p2,R5,C2,none,0,1,0,0,mild olive tint
+woman_59__p2,R5,C3,jpeg50,0,1,0,0,mild olive tint
+woman_59__p2,R5,C4,blur2,0,1,0,0,mild olive tint
+woman_59__p2,R5,C5,vae_trans,0,1,0,0,mild olive tint
+woman_59__p2,R6,C2,none,0,1,0,0,
+woman_59__p2,R6,C3,jpeg50,0,1,0,0,
+woman_59__p2,R6,C4,blur2,0,1,0,0,
+woman_59__p2,R6,C5,vae_trans,0,1,0,0,
+woman_59__p2,R7,C2,none,0,1,0,0,
+woman_59__p2,R7,C3,jpeg50,0,1,0,0,
+woman_59__p2,R7,C4,blur2,0,1,0,0,
+woman_59__p2,R7,C5,vae_trans,0,1,0,0,
+woman_59__p2,R8,C2,none,0,1,0,0,
+woman_59__p2,R8,C3,jpeg50,0,1,0,0,
+woman_59__p2,R8,C4,blur2,0,1,0,0,
+woman_59__p2,R8,C5,vae_trans,0,1,0,0,
+woman_59__p3,R1,C2,none,1,1,0,0,
+woman_59__p3,R1,C3,jpeg50,1,1,0,0,
+woman_59__p3,R1,C4,blur2,1,1,0,0,
+woman_59__p3,R1,C5,vae_trans,1,1,0,0,tiny bowtie borderline
+woman_59__p3,R2,C2,none,1,1,0,0,faint small bowtie
+woman_59__p3,R2,C3,jpeg50,0,1,0,0,
+woman_59__p3,R2,C4,blur2,1,1,0,0,
+woman_59__p3,R2,C5,vae_trans,0,1,0,0,
+woman_59__p3,R3,C2,none,1,1,0,0,small bowtie
+woman_59__p3,R3,C3,jpeg50,1,1,0,0,small bowtie
+woman_59__p3,R3,C4,blur2,1,1,0,0,small bowtie
+woman_59__p3,R3,C5,vae_trans,1,1,0,0,small bowtie
+woman_59__p3,R4,C2,none,1,0,0,0,
+woman_59__p3,R4,C3,jpeg50,1,0,0,0,
+woman_59__p3,R4,C4,blur2,1,0,0,0,small bowtie
+woman_59__p3,R4,C5,vae_trans,1,0,0,0,faint small bowtie
+woman_59__p3,R5,C2,none,1,1,0,0,
+woman_59__p3,R5,C3,jpeg50,1,1,0,0,
+woman_59__p3,R5,C4,blur2,1,1,0,0,second bow at arm
+woman_59__p3,R5,C5,vae_trans,0,1,0,0,
+woman_59__p3,R6,C2,none,1,1,0,0,
+woman_59__p3,R6,C3,jpeg50,1,1,0,0,
+woman_59__p3,R6,C4,blur2,1,1,0,0,
+woman_59__p3,R6,C5,vae_trans,1,1,0,0,
+woman_59__p3,R7,C2,none,1,1,0,0,
+woman_59__p3,R7,C3,jpeg50,1,1,0,0,
+woman_59__p3,R7,C4,blur2,1,1,0,0,
+woman_59__p3,R7,C5,vae_trans,0,1,0,0,
+woman_59__p3,R8,C2,none,1,1,0,0,small bowtie
+woman_59__p3,R8,C3,jpeg50,1,1,0,0,
+woman_59__p3,R8,C4,blur2,1,1,0,0,
+woman_59__p3,R8,C5,vae_trans,0,1,0,0,
+woman_60__p0,R1,C2,none,1,1,0,0,
+woman_60__p0,R1,C3,jpeg50,1,1,0,0,
+woman_60__p0,R1,C4,blur2,1,1,0,0,
+woman_60__p0,R1,C5,vae_trans,1,0,0,0,
+woman_60__p0,R2,C2,none,1,1,0,0,
+woman_60__p0,R2,C3,jpeg50,1,1,0,0,
+woman_60__p0,R2,C4,blur2,1,1,0,0,
+woman_60__p0,R2,C5,vae_trans,1,1,0,0,
+woman_60__p0,R3,C2,none,1,0,0,0,
+woman_60__p0,R3,C3,jpeg50,1,0,0,0,
+woman_60__p0,R3,C4,blur2,1,0,0,0,
+woman_60__p0,R3,C5,vae_trans,1,0,0,0,
+woman_60__p0,R4,C2,none,1,1,0,0,
+woman_60__p0,R4,C3,jpeg50,1,1,0,0,
+woman_60__p0,R4,C4,blur2,1,1,0,0,
+woman_60__p0,R4,C5,vae_trans,1,1,0,0,
+woman_60__p0,R5,C2,none,1,0,0,0,washed out
+woman_60__p0,R5,C3,jpeg50,1,0,0,0,washed out
+woman_60__p0,R5,C4,blur2,1,1,0,0,bluish wash
+woman_60__p0,R5,C5,vae_trans,1,0,0,0,washed out
+woman_60__p0,R6,C2,none,1,1,0,0,
+woman_60__p0,R6,C3,jpeg50,1,1,0,0,
+woman_60__p0,R6,C4,blur2,1,1,0,0,
+woman_60__p0,R6,C5,vae_trans,1,1,0,0,
+woman_60__p0,R7,C2,none,1,1,0,0,
+woman_60__p0,R7,C3,jpeg50,1,1,0,0,
+woman_60__p0,R7,C4,blur2,1,1,0,0,
+woman_60__p0,R7,C5,vae_trans,1,0,0,0,
+woman_60__p0,R8,C2,none,1,0,0,0,
+woman_60__p0,R8,C3,jpeg50,1,0,0,0,
+woman_60__p0,R8,C4,blur2,1,0,0,0,
+woman_60__p0,R8,C5,vae_trans,1,0,0,0,
+woman_60__p1,R1,C2,none,1,0,1,0,second person at edge
+woman_60__p1,R1,C3,jpeg50,1,0,1,0,second person at edge
+woman_60__p1,R1,C4,blur2,1,1,1,0,second person at edge
+woman_60__p1,R1,C5,vae_trans,1,1,1,0,second person at edge
+woman_60__p1,R2,C2,none,1,1,1,0,second person at edge
+woman_60__p1,R2,C3,jpeg50,1,1,0,0,
+woman_60__p1,R2,C4,blur2,1,1,1,0,second person at edge
+woman_60__p1,R2,C5,vae_trans,1,0,1,0,second person at edge
+woman_60__p1,R3,C2,none,0,0,0,0,patch on unchanged jacket
+woman_60__p1,R3,C3,jpeg50,0,0,0,0,patch on unchanged jacket
+woman_60__p1,R3,C4,blur2,1,1,1,0,second person at edge
+woman_60__p1,R3,C5,vae_trans,0,1,0,0,patch on unchanged jacket
+woman_60__p1,R4,C2,none,1,0,1,0,second person at edge
+woman_60__p1,R4,C3,jpeg50,1,0,1,0,second person at edge
+woman_60__p1,R4,C4,blur2,1,0,1,0,second person at edge
+woman_60__p1,R4,C5,vae_trans,1,0,1,0,second person at edge
+woman_60__p1,R5,C2,none,1,1,1,0,second person at edge
+woman_60__p1,R5,C3,jpeg50,1,1,1,0,second person at edge
+woman_60__p1,R5,C4,blur2,1,1,1,0,second person at edge
+woman_60__p1,R5,C5,vae_trans,1,1,1,0,second person at edge
+woman_60__p1,R6,C2,none,1,0,1,0,second person at edge
+woman_60__p1,R6,C3,jpeg50,1,0,0,0,
+woman_60__p1,R6,C4,blur2,1,0,1,0,second person at edge
+woman_60__p1,R6,C5,vae_trans,0,0,0,0,small patch only
+woman_60__p1,R7,C2,none,1,1,1,0,second person at edge
+woman_60__p1,R7,C3,jpeg50,1,1,1,0,second person at edge
+woman_60__p1,R7,C4,blur2,1,1,1,0,second person at edge
+woman_60__p1,R7,C5,vae_trans,1,1,1,0,second person at edge
+woman_60__p1,R8,C2,none,1,1,1,0,second person at edge
+woman_60__p1,R8,C3,jpeg50,1,1,1,0,second person at edge
+woman_60__p1,R8,C4,blur2,1,1,1,0,second person at edge
+woman_60__p1,R8,C5,vae_trans,1,1,1,0,second person at edge
+woman_60__p2,R1,C2,none,0,0,0,0,ghostly helmet
+woman_60__p2,R1,C3,jpeg50,0,0,0,0,
+woman_60__p2,R1,C4,blur2,0,0,0,0,ghostly helmet
+woman_60__p2,R1,C5,vae_trans,0,0,0,0,
+woman_60__p2,R2,C2,none,0,1,0,0,ghostly helmet
+woman_60__p2,R2,C3,jpeg50,0,1,0,1,half-drawn helmet distorted face
+woman_60__p2,R2,C4,blur2,0,1,0,0,
+woman_60__p2,R2,C5,vae_trans,0,1,0,0,
+woman_60__p2,R3,C2,none,1,0,1,0,extra helmets and person
+woman_60__p2,R3,C3,jpeg50,1,0,1,0,extra helmets and person
+woman_60__p2,R3,C4,blur2,0,1,0,0,ghostly helmet
+woman_60__p2,R3,C5,vae_trans,0,0,0,0,
+woman_60__p2,R4,C2,none,1,1,0,0,
+woman_60__p2,R4,C3,jpeg50,1,1,1,0,extra helmets and person
+woman_60__p2,R4,C4,blur2,0,1,0,0,ghostly helmet
+woman_60__p2,R4,C5,vae_trans,0,1,0,0,
+woman_60__p2,R5,C2,none,0,0,0,0,ghostly helmet
+woman_60__p2,R5,C3,jpeg50,0,0,0,0,
+woman_60__p2,R5,C4,blur2,0,0,0,0,ghostly helmet
+woman_60__p2,R5,C5,vae_trans,0,0,0,0,
+woman_60__p2,R6,C2,none,1,0,1,0,extra helmets at bottom
+woman_60__p2,R6,C3,jpeg50,0,0,0,0,
+woman_60__p2,R6,C4,blur2,0,0,0,0,
+woman_60__p2,R6,C5,vae_trans,0,0,0,0,
+woman_60__p2,R7,C2,none,0,0,0,0,ghostly helmet
+woman_60__p2,R7,C3,jpeg50,0,0,0,0,
+woman_60__p2,R7,C4,blur2,0,0,0,0,ghostly helmet
+woman_60__p2,R7,C5,vae_trans,0,0,0,0,
+woman_60__p2,R8,C2,none,0,1,0,0,ghostly helmet
+woman_60__p2,R8,C3,jpeg50,1,0,1,0,extra helmets and person
+woman_60__p2,R8,C4,blur2,0,1,0,0,ghostly helmet
+woman_60__p2,R8,C5,vae_trans,0,1,0,0,
+woman_60__p3,R1,C2,none,1,0,1,0,replaced by man
+woman_60__p3,R1,C3,jpeg50,1,0,1,0,replaced by man
+woman_60__p3,R1,C4,blur2,1,0,1,0,replaced by man
+woman_60__p3,R1,C5,vae_trans,1,0,1,0,replaced by man
+woman_60__p3,R2,C2,none,1,1,0,0,small bowtie
+woman_60__p3,R2,C3,jpeg50,1,1,1,0,extra person
+woman_60__p3,R2,C4,blur2,1,1,1,0,replaced by men
+woman_60__p3,R2,C5,vae_trans,1,1,0,0,small bowtie
+woman_60__p3,R3,C2,none,1,0,1,0,replaced by two men
+woman_60__p3,R3,C3,jpeg50,1,0,1,0,replaced by two men
+woman_60__p3,R3,C4,blur2,1,0,1,0,extra ghost person
+woman_60__p3,R3,C5,vae_trans,1,0,1,0,replaced by two men
+woman_60__p3,R4,C2,none,1,1,0,0,small bowtie
+woman_60__p3,R4,C3,jpeg50,1,1,1,0,extra person
+woman_60__p3,R4,C4,blur2,1,1,1,0,replaced by men
+woman_60__p3,R4,C5,vae_trans,1,1,0,0,small bowtie
+woman_60__p3,R5,C2,none,1,1,0,0,small bowtie
+woman_60__p3,R5,C3,jpeg50,1,1,1,0,extra person
+woman_60__p3,R5,C4,blur2,1,1,1,0,replaced by men
+woman_60__p3,R5,C5,vae_trans,1,1,0,0,small bowtie
+woman_60__p3,R6,C2,none,1,0,0,0,small bowtie
+woman_60__p3,R6,C3,jpeg50,1,0,1,0,extra person
+woman_60__p3,R6,C4,blur2,1,0,1,0,replaced by men
+woman_60__p3,R6,C5,vae_trans,1,0,1,0,extra person
+woman_60__p3,R7,C2,none,1,0,1,0,replaced by man
+woman_60__p3,R7,C3,jpeg50,1,0,1,0,replaced by man
+woman_60__p3,R7,C4,blur2,1,0,1,0,replaced by man
+woman_60__p3,R7,C5,vae_trans,1,0,1,0,replaced by man
+woman_60__p3,R8,C2,none,0,1,0,0,no bowtie visible
+woman_60__p3,R8,C3,jpeg50,0,1,0,0,no bowtie visible
+woman_60__p3,R8,C4,blur2,1,0,1,0,replaced by men
+woman_60__p3,R8,C5,vae_trans,0,1,0,0,no bowtie visible
+woman_61__p0,R1,C2,none,1,1,0,0,
+woman_61__p0,R1,C3,jpeg50,1,1,0,0,
+woman_61__p0,R1,C4,blur2,1,1,0,0,
+woman_61__p0,R1,C5,vae_trans,1,1,0,0,
+woman_61__p0,R2,C2,none,1,1,0,0,
+woman_61__p0,R2,C3,jpeg50,1,1,0,0,
+woman_61__p0,R2,C4,blur2,1,1,1,0,extra floating sunglasses and face
+woman_61__p0,R2,C5,vae_trans,1,1,0,0,
+woman_61__p0,R3,C2,none,1,1,0,0,
+woman_61__p0,R3,C3,jpeg50,1,1,0,0,
+woman_61__p0,R3,C4,blur2,1,1,1,0,extra floating sunglasses
+woman_61__p0,R3,C5,vae_trans,1,1,0,0,
+woman_61__p0,R4,C2,none,1,0,0,0,
+woman_61__p0,R4,C3,jpeg50,1,0,0,0,
+woman_61__p0,R4,C4,blur2,1,0,0,0,
+woman_61__p0,R4,C5,vae_trans,1,0,0,0,
+woman_61__p0,R5,C2,none,1,1,0,0,
+woman_61__p0,R5,C3,jpeg50,1,1,0,0,
+woman_61__p0,R5,C4,blur2,1,1,1,0,extra floating sunglasses and face
+woman_61__p0,R5,C5,vae_trans,1,1,0,0,
+woman_61__p0,R6,C2,none,1,0,0,0,
+woman_61__p0,R6,C3,jpeg50,1,0,0,0,
+woman_61__p0,R6,C4,blur2,1,0,0,0,
+woman_61__p0,R6,C5,vae_trans,1,0,0,0,
+woman_61__p0,R7,C2,none,1,0,1,1,ghost figure floating sunglasses
+woman_61__p0,R7,C3,jpeg50,0,1,1,1,floating sunglasses no person
+woman_61__p0,R7,C4,blur2,0,0,1,1,floating sunglasses no person
+woman_61__p0,R7,C5,vae_trans,1,0,1,1,ghost figure extra sunglasses
+woman_61__p0,R8,C2,none,1,0,0,0,
+woman_61__p0,R8,C3,jpeg50,0,1,1,1,floating sunglasses no person
+woman_61__p0,R8,C4,blur2,0,0,1,1,ghost body floating sunglasses
+woman_61__p0,R8,C5,vae_trans,1,0,0,0,
+woman_61__p1,R1,C2,none,1,0,0,0,
+woman_61__p1,R1,C3,jpeg50,1,0,0,0,
+woman_61__p1,R1,C4,blur2,1,0,0,0,
+woman_61__p1,R1,C5,vae_trans,1,0,0,0,
+woman_61__p1,R2,C2,none,1,1,0,0,
+woman_61__p1,R2,C3,jpeg50,1,1,0,0,
+woman_61__p1,R2,C4,blur2,1,1,0,0,blue tint
+woman_61__p1,R2,C5,vae_trans,1,1,0,0,
+woman_61__p1,R3,C2,none,1,0,0,0,
+woman_61__p1,R3,C3,jpeg50,1,0,0,0,
+woman_61__p1,R3,C4,blur2,1,0,1,0,scene replaced by torso closeup
+woman_61__p1,R3,C5,vae_trans,1,0,0,0,
+woman_61__p1,R4,C2,none,1,1,0,0,
+woman_61__p1,R4,C3,jpeg50,0,1,0,0,patch on unchanged jacket
+woman_61__p1,R4,C4,blur2,1,1,0,0,teal face mask
+woman_61__p1,R4,C5,vae_trans,1,1,0,0,teal face mask
+woman_61__p1,R5,C2,none,1,1,0,0,
+woman_61__p1,R5,C3,jpeg50,1,1,0,0,
+woman_61__p1,R5,C4,blur2,1,1,0,0,
+woman_61__p1,R5,C5,vae_trans,1,1,0,0,
+woman_61__p1,R6,C2,none,0,1,0,0,patch on unchanged jacket
+woman_61__p1,R6,C3,jpeg50,0,1,0,0,patch on unchanged jacket
+woman_61__p1,R6,C4,blur2,1,1,1,0,scene replaced by torso closeup
+woman_61__p1,R6,C5,vae_trans,1,1,0,0,mint face mask
+woman_61__p1,R7,C2,none,1,0,0,0,
+woman_61__p1,R7,C3,jpeg50,1,0,0,0,
+woman_61__p1,R7,C4,blur2,1,0,0,0,
+woman_61__p1,R7,C5,vae_trans,1,0,0,0,
+woman_61__p1,R8,C2,none,1,0,0,0,
+woman_61__p1,R8,C3,jpeg50,1,0,0,0,
+woman_61__p1,R8,C4,blur2,1,0,0,0,
+woman_61__p1,R8,C5,vae_trans,1,0,0,0,
+woman_61__p2,R1,C2,none,0,1,0,0,
+woman_61__p2,R1,C3,jpeg50,0,1,0,0,
+woman_61__p2,R1,C4,blur2,0,1,0,0,
+woman_61__p2,R1,C5,vae_trans,0,1,0,0,
+woman_61__p2,R2,C2,none,0,1,1,0,helmet-shaped object at hand
+woman_61__p2,R2,C3,jpeg50,0,1,1,0,helmet-shaped object at hand
+woman_61__p2,R2,C4,blur2,0,1,0,0,
+woman_61__p2,R2,C5,vae_trans,0,1,0,0,
+woman_61__p2,R3,C2,none,0,1,0,0,
+woman_61__p2,R3,C3,jpeg50,0,1,1,0,helmet-shaped object at hand
+woman_61__p2,R3,C4,blur2,0,1,1,0,helmet-shaped object at hand
+woman_61__p2,R3,C5,vae_trans,0,1,0,0,
+woman_61__p2,R4,C2,none,1,0,1,0,extra large helmet and person
+woman_61__p2,R4,C3,jpeg50,1,0,1,0,extra helmets and people
+woman_61__p2,R4,C4,blur2,1,0,1,0,extra large helmet
+woman_61__p2,R4,C5,vae_trans,1,0,1,0,extra large helmet
+woman_61__p2,R5,C2,none,0,1,1,0,helmet-shaped object at hand
+woman_61__p2,R5,C3,jpeg50,0,1,0,0,
+woman_61__p2,R5,C4,blur2,0,1,0,0,
+woman_61__p2,R5,C5,vae_trans,0,1,0,0,
+woman_61__p2,R6,C2,none,1,0,1,0,extra large helmet
+woman_61__p2,R6,C3,jpeg50,1,0,1,0,extra helmets and people
+woman_61__p2,R6,C4,blur2,0,0,1,0,large helmet at chest only
+woman_61__p2,R6,C5,vae_trans,1,0,1,0,extra large helmet
+woman_61__p2,R7,C2,none,1,0,1,0,extra helmets and people
+woman_61__p2,R7,C3,jpeg50,1,0,1,0,extra helmets and people
+woman_61__p2,R7,C4,blur2,1,0,1,0,extra large helmet
+woman_61__p2,R7,C5,vae_trans,1,0,1,0,extra large helmets
+woman_61__p2,R8,C2,none,0,0,1,0,helmet at hand not worn
+woman_61__p2,R8,C3,jpeg50,0,0,1,0,helmet at hand not worn
+woman_61__p2,R8,C4,blur2,0,0,1,0,helmet at hand not worn
+woman_61__p2,R8,C5,vae_trans,0,0,1,0,helmet at hand not worn
+woman_61__p3,R1,C2,none,1,1,0,0,
+woman_61__p3,R1,C3,jpeg50,1,1,0,0,
+woman_61__p3,R1,C4,blur2,1,1,0,0,
+woman_61__p3,R1,C5,vae_trans,1,1,0,0,
+woman_61__p3,R2,C2,none,1,0,1,0,scene replaced by shirt closeup
+woman_61__p3,R2,C3,jpeg50,1,1,0,0,
+woman_61__p3,R2,C4,blur2,1,0,1,0,scene replaced by shirt closeup
+woman_61__p3,R2,C5,vae_trans,1,0,1,0,scene replaced by shirt closeup
+woman_61__p3,R3,C2,none,1,1,0,0,
+woman_61__p3,R3,C3,jpeg50,1,0,1,0,scene replaced by shirt closeup
+woman_61__p3,R3,C4,blur2,1,0,1,0,scene replaced by shirt closeup
+woman_61__p3,R3,C5,vae_trans,1,0,1,0,scene replaced by shirt closeup
+woman_61__p3,R4,C2,none,1,0,0,0,
+woman_61__p3,R4,C3,jpeg50,1,0,0,0,
+woman_61__p3,R4,C4,blur2,1,0,0,0,
+woman_61__p3,R4,C5,vae_trans,1,0,0,0,
+woman_61__p3,R5,C2,none,1,0,0,0,
+woman_61__p3,R5,C3,jpeg50,1,0,1,0,replaced by man
+woman_61__p3,R5,C4,blur2,1,0,1,0,replaced by man extra bow
+woman_61__p3,R5,C5,vae_trans,1,0,0,0,
+woman_61__p3,R6,C2,none,1,0,0,0,
+woman_61__p3,R6,C3,jpeg50,1,0,1,0,replaced by man
+woman_61__p3,R6,C4,blur2,1,0,1,0,extra floating bow
+woman_61__p3,R6,C5,vae_trans,1,0,1,0,extra floating bow
+woman_61__p3,R7,C2,none,1,1,1,0,scene replaced by shirt closeup
+woman_61__p3,R7,C3,jpeg50,1,1,0,0,
+woman_61__p3,R7,C4,blur2,1,1,1,0,scene replaced extra bows
+woman_61__p3,R7,C5,vae_trans,1,0,1,0,scene replaced by shirt closeup
+woman_61__p3,R8,C2,none,1,0,0,0,
+woman_61__p3,R8,C3,jpeg50,1,0,1,0,replaced by man
+woman_61__p3,R8,C4,blur2,1,0,1,0,extra floating bow
+woman_61__p3,R8,C5,vae_trans,1,0,0,0,
+woman_64__p0,R1,C2,none,1,0,0,0,
+woman_64__p0,R1,C3,jpeg50,1,0,0,0,
+woman_64__p0,R1,C4,blur2,1,0,0,0,
+woman_64__p0,R1,C5,vae_trans,1,0,0,0,
+woman_64__p0,R2,C2,none,1,0,0,0,
+woman_64__p0,R2,C3,jpeg50,1,0,0,0,
+woman_64__p0,R2,C4,blur2,1,0,0,0,
+woman_64__p0,R2,C5,vae_trans,1,0,0,0,
+woman_64__p0,R3,C2,none,1,1,0,0,
+woman_64__p0,R3,C3,jpeg50,1,1,0,0,
+woman_64__p0,R3,C4,blur2,1,1,0,0,
+woman_64__p0,R3,C5,vae_trans,1,1,0,0,
+woman_64__p0,R4,C2,none,1,0,0,0,
+woman_64__p0,R4,C3,jpeg50,1,0,0,0,
+woman_64__p0,R4,C4,blur2,1,0,0,0,
+woman_64__p0,R4,C5,vae_trans,1,0,0,0,
+woman_64__p0,R5,C2,none,1,1,0,0,
+woman_64__p0,R5,C3,jpeg50,1,1,0,0,
+woman_64__p0,R5,C4,blur2,1,1,0,0,
+woman_64__p0,R5,C5,vae_trans,1,1,0,0,
+woman_64__p0,R6,C2,none,1,1,0,0,
+woman_64__p0,R6,C3,jpeg50,1,1,0,0,
+woman_64__p0,R6,C4,blur2,1,1,0,0,
+woman_64__p0,R6,C5,vae_trans,1,1,0,0,
+woman_64__p0,R7,C2,none,1,0,0,0,
+woman_64__p0,R7,C3,jpeg50,1,0,0,0,
+woman_64__p0,R7,C4,blur2,1,0,0,0,
+woman_64__p0,R7,C5,vae_trans,1,0,0,0,
+woman_64__p0,R8,C2,none,1,1,0,0,
+woman_64__p0,R8,C3,jpeg50,1,1,0,0,
+woman_64__p0,R8,C4,blur2,1,1,0,0,
+woman_64__p0,R8,C5,vae_trans,1,1,0,0,
+woman_64__p1,R1,C2,none,1,1,0,0,
+woman_64__p1,R1,C3,jpeg50,1,1,0,0,
+woman_64__p1,R1,C4,blur2,1,1,0,0,
+woman_64__p1,R1,C5,vae_trans,1,1,0,0,
+woman_64__p1,R2,C2,none,1,1,0,0,
+woman_64__p1,R2,C3,jpeg50,1,1,0,0,
+woman_64__p1,R2,C4,blur2,1,1,0,0,
+woman_64__p1,R2,C5,vae_trans,1,1,0,0,
+woman_64__p1,R3,C2,none,1,1,0,0,
+woman_64__p1,R3,C3,jpeg50,1,1,0,0,
+woman_64__p1,R3,C4,blur2,1,1,0,0,
+woman_64__p1,R3,C5,vae_trans,1,1,0,0,
+woman_64__p1,R4,C2,none,1,0,0,0,
+woman_64__p1,R4,C3,jpeg50,1,0,0,0,
+woman_64__p1,R4,C4,blur2,1,0,0,0,
+woman_64__p1,R4,C5,vae_trans,1,0,0,0,
+woman_64__p1,R5,C2,none,1,0,0,0,
+woman_64__p1,R5,C3,jpeg50,1,0,0,0,
+woman_64__p1,R5,C4,blur2,1,0,0,0,
+woman_64__p1,R5,C5,vae_trans,1,0,0,0,
+woman_64__p1,R6,C2,none,1,0,0,0,
+woman_64__p1,R6,C3,jpeg50,1,0,0,0,
+woman_64__p1,R6,C4,blur2,1,0,0,0,
+woman_64__p1,R6,C5,vae_trans,1,0,0,0,
+woman_64__p1,R7,C2,none,1,0,0,0,
+woman_64__p1,R7,C3,jpeg50,1,0,0,0,
+woman_64__p1,R7,C4,blur2,1,0,0,0,
+woman_64__p1,R7,C5,vae_trans,1,0,0,0,
+woman_64__p1,R8,C2,none,1,0,0,0,
+woman_64__p1,R8,C3,jpeg50,1,0,0,0,
+woman_64__p1,R8,C4,blur2,1,0,0,0,
+woman_64__p1,R8,C5,vae_trans,1,0,0,0,
+woman_64__p2,R1,C2,none,1,0,1,1,giant helmet over torso extra eyes
+woman_64__p2,R1,C3,jpeg50,1,0,1,1,giant helmet over torso extra eyes
+woman_64__p2,R1,C4,blur2,1,0,1,1,giant helmet over torso extra eyes
+woman_64__p2,R1,C5,vae_trans,1,0,1,1,giant helmet over torso extra face
+woman_64__p2,R2,C2,none,1,0,1,1,giant helmet over torso extra eyes
+woman_64__p2,R2,C3,jpeg50,1,0,1,1,giant helmet over torso extra eyes
+woman_64__p2,R2,C4,blur2,1,0,1,1,giant helmet over torso extra eyes
+woman_64__p2,R2,C5,vae_trans,1,0,1,1,giant helmet over torso extra face
+woman_64__p2,R3,C2,none,1,0,1,1,giant helmet over torso extra eyes
+woman_64__p2,R3,C3,jpeg50,1,0,1,1,giant helmet over torso extra eyes
+woman_64__p2,R3,C4,blur2,1,0,1,1,giant helmet over torso extra eyes
+woman_64__p2,R3,C5,vae_trans,1,0,1,1,giant helmet over torso extra face
+woman_64__p2,R4,C2,none,1,0,1,1,giant helmet over torso extra eyes
+woman_64__p2,R4,C3,jpeg50,1,0,1,1,giant helmet over torso extra eyes
+woman_64__p2,R4,C4,blur2,1,0,1,1,giant helmet over torso extra eyes
+woman_64__p2,R4,C5,vae_trans,1,0,1,1,giant helmet over torso extra eyes
+woman_64__p2,R5,C2,none,1,1,0,0,
+woman_64__p2,R5,C3,jpeg50,1,1,1,0,white shell over torso
+woman_64__p2,R5,C4,blur2,1,1,0,0,
+woman_64__p2,R5,C5,vae_trans,1,0,1,0,white shell over torso
+woman_64__p2,R6,C2,none,1,1,1,1,giant helmet over torso extra eyes
+woman_64__p2,R6,C3,jpeg50,1,1,1,1,giant helmet over torso extra eyes
+woman_64__p2,R6,C4,blur2,1,1,1,1,giant helmet over torso extra eyes
+woman_64__p2,R6,C5,vae_trans,1,1,1,1,giant helmet over torso extra eyes
+woman_64__p2,R7,C2,none,1,1,1,1,giant helmet over torso extra eyes
+woman_64__p2,R7,C3,jpeg50,1,1,1,1,giant helmet over torso extra eyes
+woman_64__p2,R7,C4,blur2,1,1,1,1,giant helmet over torso extra eyes
+woman_64__p2,R7,C5,vae_trans,1,1,1,1,giant helmet over torso extra eyes
+woman_64__p2,R8,C2,none,1,1,1,1,extra person and giant helmet
+woman_64__p2,R8,C3,jpeg50,1,1,1,1,giant helmet over torso extra eyes
+woman_64__p2,R8,C4,blur2,1,1,1,1,giant helmet over torso extra eyes
+woman_64__p2,R8,C5,vae_trans,1,1,1,1,giant helmet over torso extra eyes
+woman_64__p3,R1,C2,none,1,1,1,0,replaced by man
+woman_64__p3,R1,C3,jpeg50,1,1,1,0,replaced by man
+woman_64__p3,R1,C4,blur2,1,1,1,0,replaced by man
+woman_64__p3,R1,C5,vae_trans,1,1,1,0,replaced by man
+woman_64__p3,R2,C2,none,1,0,1,0,replaced by man
+woman_64__p3,R2,C3,jpeg50,1,0,1,0,replaced by man
+woman_64__p3,R2,C4,blur2,1,0,1,0,replaced by man
+woman_64__p3,R2,C5,vae_trans,1,0,1,0,replaced by man
+woman_64__p3,R3,C2,none,1,0,1,0,replaced by man
+woman_64__p3,R3,C3,jpeg50,1,0,1,0,replaced by man
+woman_64__p3,R3,C4,blur2,1,1,1,0,replaced by man green tint
+woman_64__p3,R3,C5,vae_trans,1,0,1,0,replaced by man
+woman_64__p3,R4,C2,none,1,0,1,0,replaced by man
+woman_64__p3,R4,C3,jpeg50,1,0,1,0,replaced by man
+woman_64__p3,R4,C4,blur2,1,0,1,0,replaced by man
+woman_64__p3,R4,C5,vae_trans,1,0,1,0,replaced by man
+woman_64__p3,R5,C2,none,1,0,1,0,replaced by man
+woman_64__p3,R5,C3,jpeg50,1,0,1,0,replaced by man
+woman_64__p3,R5,C4,blur2,1,1,1,0,replaced by man green tint
+woman_64__p3,R5,C5,vae_trans,1,0,1,0,replaced by man
+woman_64__p3,R6,C2,none,1,0,1,0,replaced by man
+woman_64__p3,R6,C3,jpeg50,1,0,1,0,replaced by man
+woman_64__p3,R6,C4,blur2,1,0,1,0,replaced by man
+woman_64__p3,R6,C5,vae_trans,1,1,1,0,replaced by man reddish bg
+woman_64__p3,R7,C2,none,1,1,1,0,replaced by man
+woman_64__p3,R7,C3,jpeg50,1,1,1,0,replaced by man
+woman_64__p3,R7,C4,blur2,1,1,1,0,replaced by man
+woman_64__p3,R7,C5,vae_trans,1,1,1,0,replaced by man
+woman_64__p3,R8,C2,none,1,1,1,0,replaced by man
+woman_64__p3,R8,C3,jpeg50,1,1,1,0,replaced by man
+woman_64__p3,R8,C4,blur2,1,1,1,0,replaced by man
+woman_64__p3,R8,C5,vae_trans,1,1,1,0,replaced by man
+woman_68__p0,R1,C2,none,1,1,0,0,blobby black lenses
+woman_68__p0,R1,C3,jpeg50,1,1,0,0,blobby black lenses
+woman_68__p0,R1,C4,blur2,1,1,0,0,blobby black lenses
+woman_68__p0,R1,C5,vae_trans,1,1,0,0,blobby black lenses
+woman_68__p0,R2,C2,none,1,1,0,0,blobby black lenses
+woman_68__p0,R2,C3,jpeg50,1,1,0,0,blobby black lenses
+woman_68__p0,R2,C4,blur2,1,1,0,0,blobby black lenses
+woman_68__p0,R2,C5,vae_trans,1,1,0,0,blobby black lenses
+woman_68__p0,R3,C2,none,1,0,0,0,blobby black lenses
+woman_68__p0,R3,C3,jpeg50,1,0,0,0,blobby black lenses
+woman_68__p0,R3,C4,blur2,1,0,0,0,blobby black lenses
+woman_68__p0,R3,C5,vae_trans,1,0,0,0,blobby black lenses
+woman_68__p0,R4,C2,none,1,1,0,0,blobby black lenses
+woman_68__p0,R4,C3,jpeg50,1,1,0,0,blobby black lenses
+woman_68__p0,R4,C4,blur2,1,1,0,0,blobby black lenses
+woman_68__p0,R4,C5,vae_trans,1,1,0,0,blobby black lenses
+woman_68__p0,R5,C2,none,1,1,0,0,blobby black lenses
+woman_68__p0,R5,C3,jpeg50,1,1,0,0,blobby black lenses
+woman_68__p0,R5,C4,blur2,1,1,0,0,blobby black lenses
+woman_68__p0,R5,C5,vae_trans,1,1,0,0,blobby black lenses
+woman_68__p0,R6,C2,none,1,1,0,0,blobby black lenses
+woman_68__p0,R6,C3,jpeg50,1,1,0,0,blobby black lenses
+woman_68__p0,R6,C4,blur2,1,1,0,0,blobby black lenses
+woman_68__p0,R6,C5,vae_trans,1,1,0,0,blobby black lenses
+woman_68__p0,R7,C2,none,1,1,0,0,blobby black lenses
+woman_68__p0,R7,C3,jpeg50,1,1,0,0,blobby black lenses
+woman_68__p0,R7,C4,blur2,1,1,0,0,blobby black lenses
+woman_68__p0,R7,C5,vae_trans,1,1,0,0,blobby black lenses
+woman_68__p0,R8,C2,none,1,1,0,0,blobby black lenses
+woman_68__p0,R8,C3,jpeg50,1,1,0,0,blobby black lenses
+woman_68__p0,R8,C4,blur2,1,1,0,0,blobby black lenses
+woman_68__p0,R8,C5,vae_trans,1,1,0,0,blobby black lenses
+woman_68__p1,R1,C2,none,1,0,0,0,
+woman_68__p1,R1,C3,jpeg50,1,0,0,0,
+woman_68__p1,R1,C4,blur2,1,0,0,0,pink shirt with patches borderline
+woman_68__p1,R1,C5,vae_trans,1,0,0,0,
+woman_68__p1,R2,C2,none,1,1,0,0,
+woman_68__p1,R2,C3,jpeg50,1,1,0,0,
+woman_68__p1,R2,C4,blur2,0,1,0,0,small patch only
+woman_68__p1,R2,C5,vae_trans,1,0,0,0,
+woman_68__p1,R3,C2,none,1,1,0,0,
+woman_68__p1,R3,C3,jpeg50,1,1,0,0,
+woman_68__p1,R3,C4,blur2,0,1,0,0,faint patch
+woman_68__p1,R3,C5,vae_trans,1,1,0,0,
+woman_68__p1,R4,C2,none,1,0,0,0,
+woman_68__p1,R4,C3,jpeg50,1,0,0,0,
+woman_68__p1,R4,C4,blur2,1,0,0,0,
+woman_68__p1,R4,C5,vae_trans,1,0,0,0,
+woman_68__p1,R5,C2,none,1,1,0,0,
+woman_68__p1,R5,C3,jpeg50,1,1,0,0,
+woman_68__p1,R5,C4,blur2,1,1,0,0,
+woman_68__p1,R5,C5,vae_trans,1,1,0,0,
+woman_68__p1,R6,C2,none,1,1,0,0,
+woman_68__p1,R6,C3,jpeg50,1,1,0,0,
+woman_68__p1,R6,C4,blur2,0,1,0,0,small patch only
+woman_68__p1,R6,C5,vae_trans,1,1,0,0,
+woman_68__p1,R7,C2,none,1,1,0,0,
+woman_68__p1,R7,C3,jpeg50,1,1,0,0,
+woman_68__p1,R7,C4,blur2,0,1,0,0,small patch only
+woman_68__p1,R7,C5,vae_trans,1,1,0,0,
+woman_68__p1,R8,C2,none,1,1,0,0,
+woman_68__p1,R8,C3,jpeg50,0,1,0,0,small patch only
+woman_68__p1,R8,C4,blur2,0,1,0,0,small patch only
+woman_68__p1,R8,C5,vae_trans,1,1,0,0,
+woman_68__p2,R1,C2,none,0,0,0,0,half-drawn visor
+woman_68__p2,R1,C3,jpeg50,0,0,0,0,
+woman_68__p2,R1,C4,blur2,0,0,0,0,
+woman_68__p2,R1,C5,vae_trans,0,0,0,0,half-drawn visor
+woman_68__p2,R2,C2,none,0,1,0,0,half-drawn visor
+woman_68__p2,R2,C3,jpeg50,0,1,0,0,
+woman_68__p2,R2,C4,blur2,0,1,0,0,
+woman_68__p2,R2,C5,vae_trans,0,0,0,0,
+woman_68__p2,R3,C2,none,0,1,0,0,
+woman_68__p2,R3,C3,jpeg50,0,1,0,0,
+woman_68__p2,R3,C4,blur2,0,1,0,0,
+woman_68__p2,R3,C5,vae_trans,0,1,0,0,
+woman_68__p2,R4,C2,none,0,1,0,0,half-drawn visor
+woman_68__p2,R4,C3,jpeg50,0,1,0,0,
+woman_68__p2,R4,C4,blur2,0,1,0,0,
+woman_68__p2,R4,C5,vae_trans,0,1,0,0,half-drawn visor
+woman_68__p2,R5,C2,none,0,0,0,0,
+woman_68__p2,R5,C3,jpeg50,0,0,0,0,
+woman_68__p2,R5,C4,blur2,0,0,0,0,
+woman_68__p2,R5,C5,vae_trans,0,0,0,0,
+woman_68__p2,R6,C2,none,0,1,0,0,half-drawn visor
+woman_68__p2,R6,C3,jpeg50,0,1,0,0,half-drawn visor
+woman_68__p2,R6,C4,blur2,0,1,0,0,half-drawn visor
+woman_68__p2,R6,C5,vae_trans,0,1,0,0,half-drawn visor
+woman_68__p2,R7,C2,none,0,1,0,0,half-drawn visor
+woman_68__p2,R7,C3,jpeg50,0,1,0,0,
+woman_68__p2,R7,C4,blur2,0,1,0,0,
+woman_68__p2,R7,C5,vae_trans,0,1,0,0,half-drawn visor
+woman_68__p2,R8,C2,none,0,1,0,0,half-drawn visor
+woman_68__p2,R8,C3,jpeg50,0,1,0,0,
+woman_68__p2,R8,C4,blur2,0,1,0,0,half-drawn visor
+woman_68__p2,R8,C5,vae_trans,0,0,0,0,half-drawn visor
+woman_68__p3,R1,C2,none,1,1,0,0,small bowtie
+woman_68__p3,R1,C3,jpeg50,1,1,0,0,small bowtie
+woman_68__p3,R1,C4,blur2,1,1,1,0,extra bow at belly
+woman_68__p3,R1,C5,vae_trans,1,1,0,0,small bowtie
+woman_68__p3,R2,C2,none,1,1,1,0,extra bows at belly
+woman_68__p3,R2,C3,jpeg50,1,1,1,0,extra bows at belly
+woman_68__p3,R2,C4,blur2,1,1,1,0,extra bows at belly
+woman_68__p3,R2,C5,vae_trans,1,1,1,0,extra bows at belly
+woman_68__p3,R3,C2,none,1,0,0,0,
+woman_68__p3,R3,C3,jpeg50,1,0,1,0,different person
+woman_68__p3,R3,C4,blur2,1,0,1,0,different person
+woman_68__p3,R3,C5,vae_trans,1,0,0,0,
+woman_68__p3,R4,C2,none,1,1,0,0,small bowtie
+woman_68__p3,R4,C3,jpeg50,1,1,0,0,small bowtie
+woman_68__p3,R4,C4,blur2,1,1,0,0,small bowtie
+woman_68__p3,R4,C5,vae_trans,1,1,0,0,small bowtie
+woman_68__p3,R5,C2,none,1,0,0,0,small bowtie
+woman_68__p3,R5,C3,jpeg50,1,0,0,0,small bowtie
+woman_68__p3,R5,C4,blur2,1,0,0,0,small bowtie
+woman_68__p3,R5,C5,vae_trans,1,0,0,0,small bowtie
+woman_68__p3,R6,C2,none,1,1,0,0,
+woman_68__p3,R6,C3,jpeg50,1,1,0,0,
+woman_68__p3,R6,C4,blur2,1,1,0,0,
+woman_68__p3,R6,C5,vae_trans,1,1,0,0,
+woman_68__p3,R7,C2,none,1,1,1,0,extra bows at belly
+woman_68__p3,R7,C3,jpeg50,1,1,1,0,extra bows at belly
+woman_68__p3,R7,C4,blur2,1,1,1,0,extra bows at belly
+woman_68__p3,R7,C5,vae_trans,1,1,1,0,extra bows at belly
+woman_68__p3,R8,C2,none,1,1,0,0,small bowtie
+woman_68__p3,R8,C3,jpeg50,1,1,1,0,extra bows at belly
+woman_68__p3,R8,C4,blur2,1,1,0,0,
+woman_68__p3,R8,C5,vae_trans,1,1,0,0,
+woman_69__p0,R1,C2,none,1,1,0,0,dark tinted lenses
+woman_69__p0,R1,C3,jpeg50,1,1,0,0,
+woman_69__p0,R1,C4,blur2,1,1,0,0,
+woman_69__p0,R1,C5,vae_trans,1,1,0,0,
+woman_69__p0,R2,C2,none,1,0,0,0,
+woman_69__p0,R2,C3,jpeg50,1,0,0,0,
+woman_69__p0,R2,C4,blur2,1,0,0,0,
+woman_69__p0,R2,C5,vae_trans,1,0,0,0,
+woman_69__p0,R3,C2,none,1,1,0,0,
+woman_69__p0,R3,C3,jpeg50,1,1,0,0,
+woman_69__p0,R3,C4,blur2,1,1,0,0,
+woman_69__p0,R3,C5,vae_trans,1,1,0,0,
+woman_69__p0,R4,C2,none,1,1,0,0,
+woman_69__p0,R4,C3,jpeg50,1,1,0,0,
+woman_69__p0,R4,C4,blur2,1,1,0,0,
+woman_69__p0,R4,C5,vae_trans,1,1,0,0,
+woman_69__p0,R5,C2,none,1,1,0,0,
+woman_69__p0,R5,C3,jpeg50,1,1,0,0,
+woman_69__p0,R5,C4,blur2,1,1,0,0,
+woman_69__p0,R5,C5,vae_trans,1,1,0,0,
+woman_69__p0,R6,C2,none,1,1,0,0,
+woman_69__p0,R6,C3,jpeg50,1,1,0,0,
+woman_69__p0,R6,C4,blur2,1,1,0,0,
+woman_69__p0,R6,C5,vae_trans,1,1,0,0,
+woman_69__p0,R7,C2,none,1,1,0,0,
+woman_69__p0,R7,C3,jpeg50,0,1,0,0,lenses look clear
+woman_69__p0,R7,C4,blur2,1,1,0,0,
+woman_69__p0,R7,C5,vae_trans,1,1,0,0,
+woman_69__p0,R8,C2,none,1,0,0,0,
+woman_69__p0,R8,C3,jpeg50,1,0,0,0,
+woman_69__p0,R8,C4,blur2,1,0,0,0,
+woman_69__p0,R8,C5,vae_trans,1,0,0,0,
+woman_69__p1,R1,C2,none,1,1,0,0,
+woman_69__p1,R1,C3,jpeg50,1,1,0,0,
+woman_69__p1,R1,C4,blur2,1,1,0,0,
+woman_69__p1,R1,C5,vae_trans,1,1,0,0,
+woman_69__p1,R2,C2,none,1,1,0,0,
+woman_69__p1,R2,C3,jpeg50,1,1,0,0,
+woman_69__p1,R2,C4,blur2,1,1,0,0,
+woman_69__p1,R2,C5,vae_trans,1,0,0,0,
+woman_69__p1,R3,C2,none,1,0,0,0,
+woman_69__p1,R3,C3,jpeg50,1,0,0,0,
+woman_69__p1,R3,C4,blur2,1,0,0,0,
+woman_69__p1,R3,C5,vae_trans,1,0,0,0,
+woman_69__p1,R4,C2,none,1,1,0,0,
+woman_69__p1,R4,C3,jpeg50,1,1,0,0,
+woman_69__p1,R4,C4,blur2,1,1,0,0,
+woman_69__p1,R4,C5,vae_trans,1,1,0,0,
+woman_69__p1,R5,C2,none,1,1,0,0,
+woman_69__p1,R5,C3,jpeg50,1,1,0,0,
+woman_69__p1,R5,C4,blur2,1,1,0,0,
+woman_69__p1,R5,C5,vae_trans,1,1,0,0,
+woman_69__p1,R6,C2,none,1,1,0,0,
+woman_69__p1,R6,C3,jpeg50,1,1,0,0,
+woman_69__p1,R6,C4,blur2,1,1,0,0,
+woman_69__p1,R6,C5,vae_trans,1,0,0,0,
+woman_69__p1,R7,C2,none,1,1,0,0,
+woman_69__p1,R7,C3,jpeg50,1,1,0,0,
+woman_69__p1,R7,C4,blur2,1,1,0,0,
+woman_69__p1,R7,C5,vae_trans,1,1,0,0,
+woman_69__p1,R8,C2,none,1,1,0,0,
+woman_69__p1,R8,C3,jpeg50,1,1,0,0,
+woman_69__p1,R8,C4,blur2,1,1,0,0,
+woman_69__p1,R8,C5,vae_trans,1,1,0,0,
+woman_69__p2,R1,C2,none,0,1,0,0,
+woman_69__p2,R1,C3,jpeg50,0,1,0,0,
+woman_69__p2,R1,C4,blur2,0,1,0,0,
+woman_69__p2,R1,C5,vae_trans,0,1,0,0,
+woman_69__p2,R2,C2,none,0,1,0,0,
+woman_69__p2,R2,C3,jpeg50,0,1,0,0,
+woman_69__p2,R2,C4,blur2,0,1,0,0,
+woman_69__p2,R2,C5,vae_trans,0,1,0,0,
+woman_69__p2,R3,C2,none,0,1,0,0,
+woman_69__p2,R3,C3,jpeg50,0,1,0,0,
+woman_69__p2,R3,C4,blur2,0,1,0,0,
+woman_69__p2,R3,C5,vae_trans,0,1,0,0,
+woman_69__p2,R4,C2,none,0,0,0,0,
+woman_69__p2,R4,C3,jpeg50,0,0,0,0,
+woman_69__p2,R4,C4,blur2,0,0,0,0,
+woman_69__p2,R4,C5,vae_trans,0,0,0,0,
+woman_69__p2,R5,C2,none,1,1,0,1,helmet shape with mangled face
+woman_69__p2,R5,C3,jpeg50,1,1,1,1,extra helmets mangled face
+woman_69__p2,R5,C4,blur2,0,1,0,0,ghostly helmet
+woman_69__p2,R5,C5,vae_trans,1,0,1,1,helmets without clear person
+woman_69__p2,R6,C2,none,0,1,0,0,
+woman_69__p2,R6,C3,jpeg50,0,1,0,0,
+woman_69__p2,R6,C4,blur2,0,1,0,0,
+woman_69__p2,R6,C5,vae_trans,1,0,1,1,extra helmets mangled
+woman_69__p2,R7,C2,none,1,1,0,1,helmet shape with mangled face
+woman_69__p2,R7,C3,jpeg50,1,1,1,1,extra helmets mangled face
+woman_69__p2,R7,C4,blur2,0,1,0,0,ghostly helmet
+woman_69__p2,R7,C5,vae_trans,1,0,1,1,helmets without clear person
+woman_69__p2,R8,C2,none,0,1,0,0,
+woman_69__p2,R8,C3,jpeg50,0,1,0,0,
+woman_69__p2,R8,C4,blur2,0,1,0,0,
+woman_69__p2,R8,C5,vae_trans,0,1,0,0,
+woman_69__p3,R1,C2,none,1,0,0,0,tiny bowtie
+woman_69__p3,R1,C3,jpeg50,1,0,0,0,tiny bowtie
+woman_69__p3,R1,C4,blur2,1,0,0,0,tiny bowtie
+woman_69__p3,R1,C5,vae_trans,0,0,0,0,
+woman_69__p3,R2,C2,none,1,0,0,0,tiny bowtie
+woman_69__p3,R2,C3,jpeg50,0,0,0,0,
+woman_69__p3,R2,C4,blur2,1,0,0,0,tiny bowtie
+woman_69__p3,R2,C5,vae_trans,0,0,0,0,
+woman_69__p3,R3,C2,none,1,1,0,0,tiny bowtie
+woman_69__p3,R3,C3,jpeg50,1,1,0,0,tiny bowtie
+woman_69__p3,R3,C4,blur2,0,1,0,0,
+woman_69__p3,R3,C5,vae_trans,1,1,0,0,tiny bowtie
+woman_69__p3,R4,C2,none,1,1,0,0,tiny bowtie
+woman_69__p3,R4,C3,jpeg50,1,1,0,0,tiny bowtie
+woman_69__p3,R4,C4,blur2,1,1,0,0,tiny bowtie
+woman_69__p3,R4,C5,vae_trans,1,1,0,0,tiny bowtie
+woman_69__p3,R5,C2,none,1,0,0,0,tiny bowtie
+woman_69__p3,R5,C3,jpeg50,0,0,0,0,
+woman_69__p3,R5,C4,blur2,1,0,0,0,tiny bowtie
+woman_69__p3,R5,C5,vae_trans,0,0,0,0,
+woman_69__p3,R6,C2,none,1,1,0,0,faint tiny bowtie
+woman_69__p3,R6,C3,jpeg50,0,1,0,0,
+woman_69__p3,R6,C4,blur2,0,1,0,0,
+woman_69__p3,R6,C5,vae_trans,0,1,0,0,
+woman_69__p3,R7,C2,none,0,0,0,0,
+woman_69__p3,R7,C3,jpeg50,0,0,0,0,
+woman_69__p3,R7,C4,blur2,1,0,0,0,tiny bowtie
+woman_69__p3,R7,C5,vae_trans,0,0,0,0,
+woman_69__p3,R8,C2,none,1,1,0,0,tiny bowtie
+woman_69__p3,R8,C3,jpeg50,0,1,0,0,
+woman_69__p3,R8,C4,blur2,0,1,0,0,
+woman_69__p3,R8,C5,vae_trans,0,1,0,0,
+woman_70__p0,R1,C2,none,1,1,0,0,
+woman_70__p0,R1,C3,jpeg50,1,1,0,0,
+woman_70__p0,R1,C4,blur2,1,0,0,0,
+woman_70__p0,R1,C5,vae_trans,1,1,0,0,
+woman_70__p0,R2,C2,none,1,1,0,0,
+woman_70__p0,R2,C3,jpeg50,1,1,0,0,
+woman_70__p0,R2,C4,blur2,1,1,0,0,
+woman_70__p0,R2,C5,vae_trans,1,1,0,0,
+woman_70__p0,R3,C2,none,1,1,0,0,
+woman_70__p0,R3,C3,jpeg50,1,1,0,0,
+woman_70__p0,R3,C4,blur2,1,1,0,0,
+woman_70__p0,R3,C5,vae_trans,1,1,0,0,
+woman_70__p0,R4,C2,none,1,0,0,0,
+woman_70__p0,R4,C3,jpeg50,1,0,0,0,
+woman_70__p0,R4,C4,blur2,0,0,0,0,face too dark to see glasses
+woman_70__p0,R4,C5,vae_trans,1,0,0,0,
+woman_70__p0,R5,C2,none,1,1,0,0,
+woman_70__p0,R5,C3,jpeg50,1,1,0,0,
+woman_70__p0,R5,C4,blur2,1,1,0,0,
+woman_70__p0,R5,C5,vae_trans,1,1,0,0,
+woman_70__p0,R6,C2,none,1,1,0,0,
+woman_70__p0,R6,C3,jpeg50,1,1,0,0,
+woman_70__p0,R6,C4,blur2,1,1,0,0,
+woman_70__p0,R6,C5,vae_trans,1,1,0,0,
+woman_70__p0,R7,C2,none,1,0,0,0,
+woman_70__p0,R7,C3,jpeg50,1,0,0,0,
+woman_70__p0,R7,C4,blur2,1,0,0,0,
+woman_70__p0,R7,C5,vae_trans,1,0,0,0,
+woman_70__p0,R8,C2,none,1,1,0,1,face lost in dark
+woman_70__p0,R8,C3,jpeg50,1,1,0,1,face dissolved
+woman_70__p0,R8,C4,blur2,1,0,0,0,
+woman_70__p0,R8,C5,vae_trans,1,1,0,1,face dissolved
+woman_70__p1,R1,C2,none,0,1,0,0,small patch only
+woman_70__p1,R1,C3,jpeg50,0,1,0,0,patch on hat only
+woman_70__p1,R1,C4,blur2,0,1,0,0,
+woman_70__p1,R1,C5,vae_trans,0,1,0,0,
+woman_70__p1,R2,C2,none,1,1,0,0,
+woman_70__p1,R2,C3,jpeg50,1,1,0,0,
+woman_70__p1,R2,C4,blur2,1,1,0,0,
+woman_70__p1,R2,C5,vae_trans,1,1,0,0,
+woman_70__p1,R3,C2,none,0,0,0,0,small patch only
+woman_70__p1,R3,C3,jpeg50,1,0,0,0,epaulette borderline
+woman_70__p1,R3,C4,blur2,0,0,0,0,
+woman_70__p1,R3,C5,vae_trans,0,0,0,0,patch on hat only
+woman_70__p1,R4,C2,none,1,1,0,0,
+woman_70__p1,R4,C3,jpeg50,1,1,0,0,
+woman_70__p1,R4,C4,blur2,1,1,0,0,
+woman_70__p1,R4,C5,vae_trans,1,1,0,0,
+woman_70__p1,R5,C2,none,0,1,0,0,
+woman_70__p1,R5,C3,jpeg50,0,1,0,0,
+woman_70__p1,R5,C4,blur2,0,1,0,0,
+woman_70__p1,R5,C5,vae_trans,0,1,0,0,
+woman_70__p1,R6,C2,none,1,1,0,0,
+woman_70__p1,R6,C3,jpeg50,1,1,0,0,
+woman_70__p1,R6,C4,blur2,0,1,0,0,
+woman_70__p1,R6,C5,vae_trans,1,1,0,0,
+woman_70__p1,R7,C2,none,1,0,0,0,
+woman_70__p1,R7,C3,jpeg50,1,0,0,0,
+woman_70__p1,R7,C4,blur2,1,0,0,0,
+woman_70__p1,R7,C5,vae_trans,1,0,0,0,
+woman_70__p1,R8,C2,none,0,1,0,0,
+woman_70__p1,R8,C3,jpeg50,0,1,0,0,
+woman_70__p1,R8,C4,blur2,0,1,0,0,
+woman_70__p1,R8,C5,vae_trans,0,1,0,0,
+woman_70__p2,R1,C2,none,1,1,0,0,
+woman_70__p2,R1,C3,jpeg50,1,1,0,0,
+woman_70__p2,R1,C4,blur2,1,1,0,0,
+woman_70__p2,R1,C5,vae_trans,0,1,0,0,red hat ghost helmet
+woman_70__p2,R2,C2,none,0,0,0,0,red hat with rivets borderline
+woman_70__p2,R2,C3,jpeg50,0,0,0,0,rivets on hat borderline
+woman_70__p2,R2,C4,blur2,0,0,0,0,
+woman_70__p2,R2,C5,vae_trans,0,0,0,0,
+woman_70__p2,R3,C2,none,0,1,0,0,
+woman_70__p2,R3,C3,jpeg50,0,1,0,0,
+woman_70__p2,R3,C4,blur2,0,1,0,0,
+woman_70__p2,R3,C5,vae_trans,0,1,0,0,
+woman_70__p2,R4,C2,none,1,1,1,0,face turned different person
+woman_70__p2,R4,C3,jpeg50,1,1,1,0,face changed borderline
+woman_70__p2,R4,C4,blur2,0,1,0,0,
+woman_70__p2,R4,C5,vae_trans,0,1,0,0,
+woman_70__p2,R5,C2,none,1,1,0,0,
+woman_70__p2,R5,C3,jpeg50,1,1,0,1,face mangled silver
+woman_70__p2,R5,C4,blur2,1,1,0,0,
+woman_70__p2,R5,C5,vae_trans,0,1,0,0,ghost helmet face silver
+woman_70__p2,R6,C2,none,1,1,0,0,
+woman_70__p2,R6,C3,jpeg50,0,1,0,0,
+woman_70__p2,R6,C4,blur2,1,1,0,0,dark helmet partial
+woman_70__p2,R6,C5,vae_trans,0,1,0,0,
+woman_70__p2,R7,C2,none,1,1,1,0,different face
+woman_70__p2,R7,C3,jpeg50,1,1,1,1,face mangled
+woman_70__p2,R7,C4,blur2,0,1,0,1,half silver face
+woman_70__p2,R7,C5,vae_trans,1,1,1,0,different face
+woman_70__p2,R8,C2,none,1,1,1,0,different face
+woman_70__p2,R8,C3,jpeg50,1,1,1,1,face mangled
+woman_70__p2,R8,C4,blur2,1,1,0,1,silver face borderline
+woman_70__p2,R8,C5,vae_trans,1,1,1,0,different face
+woman_70__p3,R1,C2,none,1,0,0,0,
+woman_70__p3,R1,C3,jpeg50,0,0,0,0,no bowtie visible
+woman_70__p3,R1,C4,blur2,1,0,0,0,
+woman_70__p3,R1,C5,vae_trans,1,0,0,0,
+woman_70__p3,R2,C2,none,1,1,1,0,dog face
+woman_70__p3,R2,C3,jpeg50,1,1,1,0,different man
+woman_70__p3,R2,C4,blur2,1,1,0,0,
+woman_70__p3,R2,C5,vae_trans,1,1,0,0,
+woman_70__p3,R3,C2,none,1,1,0,0,
+woman_70__p3,R3,C3,jpeg50,1,1,0,0,
+woman_70__p3,R3,C4,blur2,1,1,0,0,
+woman_70__p3,R3,C5,vae_trans,1,1,0,0,
+woman_70__p3,R4,C2,none,1,1,1,0,extra bow on head different person
+woman_70__p3,R4,C3,jpeg50,1,1,1,0,different person
+woman_70__p3,R4,C4,blur2,1,1,0,0,
+woman_70__p3,R4,C5,vae_trans,1,1,1,0,extra bow on head
+woman_70__p3,R5,C2,none,1,1,1,0,different man
+woman_70__p3,R5,C3,jpeg50,1,1,0,0,
+woman_70__p3,R5,C4,blur2,1,1,0,0,
+woman_70__p3,R5,C5,vae_trans,1,1,0,0,
+woman_70__p3,R6,C2,none,1,1,1,0,dog face extra bow
+woman_70__p3,R6,C3,jpeg50,1,1,1,0,different man
+woman_70__p3,R6,C4,blur2,1,1,1,0,extra bow different man
+woman_70__p3,R6,C5,vae_trans,1,1,1,0,extra bow different man
+woman_70__p3,R7,C2,none,1,1,1,0,dog face extra bow
+woman_70__p3,R7,C3,jpeg50,1,1,1,0,different person
+woman_70__p3,R7,C4,blur2,1,1,1,0,extra bow different man
+woman_70__p3,R7,C5,vae_trans,1,1,1,0,dog face extra bow
+woman_70__p3,R8,C2,none,1,1,0,0,small bowtie
+woman_70__p3,R8,C3,jpeg50,1,1,0,0,small bowtie
+woman_70__p3,R8,C4,blur2,0,1,0,0,no bowtie visible
+woman_70__p3,R8,C5,vae_trans,1,1,0,0,small bowtie
+woman_76__p0,R1,C2,none,1,1,0,0,
+woman_76__p0,R1,C3,jpeg50,0,1,0,0,no glasses visible
+woman_76__p0,R1,C4,blur2,0,1,0,0,glasses on forehead
+woman_76__p0,R1,C5,vae_trans,1,1,0,0,
+woman_76__p0,R2,C2,none,1,1,0,0,
+woman_76__p0,R2,C3,jpeg50,1,1,0,0,
+woman_76__p0,R2,C4,blur2,1,1,0,0,
+woman_76__p0,R2,C5,vae_trans,1,1,0,0,
+woman_76__p0,R3,C2,none,1,1,0,0,
+woman_76__p0,R3,C3,jpeg50,1,1,0,0,
+woman_76__p0,R3,C4,blur2,0,1,0,0,glasses above eyes on forehead
+woman_76__p0,R3,C5,vae_trans,1,1,0,0,
+woman_76__p0,R4,C2,none,1,0,0,0,
+woman_76__p0,R4,C3,jpeg50,1,0,0,0,
+woman_76__p0,R4,C4,blur2,1,0,0,0,
+woman_76__p0,R4,C5,vae_trans,1,0,0,0,
+woman_76__p0,R5,C2,none,1,1,0,0,
+woman_76__p0,R5,C3,jpeg50,1,1,0,0,
+woman_76__p0,R5,C4,blur2,0,1,0,0,glasses above eyes on forehead
+woman_76__p0,R5,C5,vae_trans,1,1,0,0,
+woman_76__p0,R6,C2,none,1,1,0,0,faint dark glasses
+woman_76__p0,R6,C3,jpeg50,1,1,0,0,
+woman_76__p0,R6,C4,blur2,0,1,0,0,glasses above eyes on forehead
+woman_76__p0,R6,C5,vae_trans,0,1,0,0,faint dark glasses
+woman_76__p0,R7,C2,none,1,1,0,0,
+woman_76__p0,R7,C3,jpeg50,1,1,0,0,
+woman_76__p0,R7,C4,blur2,1,1,0,0,
+woman_76__p0,R7,C5,vae_trans,1,1,0,0,extra pair on head
+woman_76__p0,R8,C2,none,1,1,0,0,
+woman_76__p0,R8,C3,jpeg50,1,1,0,0,
+woman_76__p0,R8,C4,blur2,1,1,0,0,
+woman_76__p0,R8,C5,vae_trans,1,1,0,0,
+woman_76__p1,R1,C2,none,0,1,0,0,
+woman_76__p1,R1,C3,jpeg50,0,1,0,0,
+woman_76__p1,R1,C4,blur2,0,1,0,0,
+woman_76__p1,R1,C5,vae_trans,0,1,0,0,
+woman_76__p1,R2,C2,none,0,1,0,0,
+woman_76__p1,R2,C3,jpeg50,1,1,1,0,extra officers
+woman_76__p1,R2,C4,blur2,1,1,1,0,extra officer
+woman_76__p1,R2,C5,vae_trans,0,1,1,0,extra officer
+woman_76__p1,R3,C2,none,0,1,0,0,tiny figure in background
+woman_76__p1,R3,C3,jpeg50,0,1,0,0,
+woman_76__p1,R3,C4,blur2,1,1,1,0,extra officer
+woman_76__p1,R3,C5,vae_trans,0,1,0,0,
+woman_76__p1,R4,C2,none,0,1,0,0,
+woman_76__p1,R4,C3,jpeg50,0,0,0,0,
+woman_76__p1,R4,C4,blur2,1,1,1,0,extra officer
+woman_76__p1,R4,C5,vae_trans,0,1,0,0,
+woman_76__p1,R5,C2,none,0,1,0,0,
+woman_76__p1,R5,C3,jpeg50,0,1,0,0,
+woman_76__p1,R5,C4,blur2,1,1,1,0,extra officer
+woman_76__p1,R5,C5,vae_trans,0,1,0,0,
+woman_76__p1,R6,C2,none,0,1,0,0,
+woman_76__p1,R6,C3,jpeg50,0,1,0,0,
+woman_76__p1,R6,C4,blur2,1,1,1,0,extra officer
+woman_76__p1,R6,C5,vae_trans,0,1,1,0,extra officer
+woman_76__p1,R7,C2,none,0,1,0,0,
+woman_76__p1,R7,C3,jpeg50,1,1,1,0,extra officer
+woman_76__p1,R7,C4,blur2,1,1,1,0,extra officer
+woman_76__p1,R7,C5,vae_trans,0,1,0,0,faint figure at left
+woman_76__p1,R8,C2,none,0,1,0,0,
+woman_76__p1,R8,C3,jpeg50,0,1,0,0,
+woman_76__p1,R8,C4,blur2,1,1,1,0,extra officer
+woman_76__p1,R8,C5,vae_trans,0,1,0,0,
+woman_76__p2,R1,C2,none,0,1,0,0,
+woman_76__p2,R1,C3,jpeg50,0,1,0,0,
+woman_76__p2,R1,C4,blur2,0,1,0,0,
+woman_76__p2,R1,C5,vae_trans,0,1,0,0,
+woman_76__p2,R2,C2,none,0,1,0,0,
+woman_76__p2,R2,C3,jpeg50,1,1,1,0,different people
+woman_76__p2,R2,C4,blur2,1,1,1,0,different people
+woman_76__p2,R2,C5,vae_trans,1,1,1,0,different people
+woman_76__p2,R3,C2,none,0,1,0,0,
+woman_76__p2,R3,C3,jpeg50,0,1,0,0,
+woman_76__p2,R3,C4,blur2,0,1,0,0,
+woman_76__p2,R3,C5,vae_trans,0,1,0,0,
+woman_76__p2,R4,C2,none,0,1,0,0,
+woman_76__p2,R4,C3,jpeg50,1,1,1,0,different people
+woman_76__p2,R4,C4,blur2,1,1,1,0,different people
+woman_76__p2,R4,C5,vae_trans,1,1,1,0,different people
+woman_76__p2,R5,C2,none,0,1,0,0,
+woman_76__p2,R5,C3,jpeg50,1,1,1,0,extra people
+woman_76__p2,R5,C4,blur2,1,1,1,0,different people
+woman_76__p2,R5,C5,vae_trans,1,1,1,0,extra armored figures
+woman_76__p2,R6,C2,none,0,0,0,0,
+woman_76__p2,R6,C3,jpeg50,0,0,0,0,
+woman_76__p2,R6,C4,blur2,0,0,0,0,
+woman_76__p2,R6,C5,vae_trans,0,0,0,0,
+woman_76__p2,R7,C2,none,0,1,0,0,
+woman_76__p2,R7,C3,jpeg50,0,1,0,0,
+woman_76__p2,R7,C4,blur2,0,1,0,0,
+woman_76__p2,R7,C5,vae_trans,0,1,0,0,
+woman_76__p2,R8,C2,none,0,1,0,0,
+woman_76__p2,R8,C3,jpeg50,0,1,0,0,
+woman_76__p2,R8,C4,blur2,0,1,0,0,
+woman_76__p2,R8,C5,vae_trans,0,1,0,0,
+woman_76__p3,R1,C2,none,1,1,0,0,small bowtie
+woman_76__p3,R1,C3,jpeg50,1,1,0,0,small bowtie
+woman_76__p3,R1,C4,blur2,1,1,0,0,
+woman_76__p3,R1,C5,vae_trans,0,1,0,0,crown only
+woman_76__p3,R2,C2,none,1,1,0,0,small bowtie
+woman_76__p3,R2,C3,jpeg50,1,1,0,0,small bowtie
+woman_76__p3,R2,C4,blur2,1,1,0,0,
+woman_76__p3,R2,C5,vae_trans,1,1,0,0,small bowtie
+woman_76__p3,R3,C2,none,1,1,0,0,small bowtie
+woman_76__p3,R3,C3,jpeg50,1,1,0,0,small bowtie
+woman_76__p3,R3,C4,blur2,1,1,0,0,
+woman_76__p3,R3,C5,vae_trans,1,1,0,0,small bowtie
+woman_76__p3,R4,C2,none,1,1,0,0,small bowtie
+woman_76__p3,R4,C3,jpeg50,1,1,0,0,
+woman_76__p3,R4,C4,blur2,1,1,0,0,
+woman_76__p3,R4,C5,vae_trans,0,1,0,0,crown only
+woman_76__p3,R5,C2,none,0,0,0,0,crown only
+woman_76__p3,R5,C3,jpeg50,1,0,0,0,small bowtie
+woman_76__p3,R5,C4,blur2,1,0,0,0,
+woman_76__p3,R5,C5,vae_trans,0,0,0,0,crown only
+woman_76__p3,R6,C2,none,1,1,0,0,small bowtie
+woman_76__p3,R6,C3,jpeg50,1,1,0,0,
+woman_76__p3,R6,C4,blur2,1,1,0,0,
+woman_76__p3,R6,C5,vae_trans,1,1,0,0,
+woman_76__p3,R7,C2,none,1,1,0,0,small bowtie
+woman_76__p3,R7,C3,jpeg50,1,1,0,0,
+woman_76__p3,R7,C4,blur2,1,1,0,0,
+woman_76__p3,R7,C5,vae_trans,0,1,0,0,no bowtie
+woman_76__p3,R8,C2,none,0,1,0,0,crown only
+woman_76__p3,R8,C3,jpeg50,0,1,0,0,
+woman_76__p3,R8,C4,blur2,0,1,0,0,
+woman_76__p3,R8,C5,vae_trans,0,1,0,0,
+woman_78__p0,R1,C2,none,1,0,0,0,
+woman_78__p0,R1,C3,jpeg50,1,0,0,0,
+woman_78__p0,R1,C4,blur2,1,0,0,0,
+woman_78__p0,R1,C5,vae_trans,1,0,0,0,
+woman_78__p0,R2,C2,none,1,0,0,0,
+woman_78__p0,R2,C3,jpeg50,1,0,0,0,
+woman_78__p0,R2,C4,blur2,1,0,0,0,
+woman_78__p0,R2,C5,vae_trans,1,0,0,0,
+woman_78__p0,R3,C2,none,1,0,0,0,
+woman_78__p0,R3,C3,jpeg50,1,0,0,0,
+woman_78__p0,R3,C4,blur2,1,0,0,0,
+woman_78__p0,R3,C5,vae_trans,1,0,0,0,
+woman_78__p0,R4,C2,none,1,1,0,0,
+woman_78__p0,R4,C3,jpeg50,1,1,0,0,
+woman_78__p0,R4,C4,blur2,1,1,0,0,
+woman_78__p0,R4,C5,vae_trans,1,1,0,0,
+woman_78__p0,R5,C2,none,1,1,0,0,
+woman_78__p0,R5,C3,jpeg50,1,1,0,0,
+woman_78__p0,R5,C4,blur2,1,1,0,0,
+woman_78__p0,R5,C5,vae_trans,1,1,0,0,
+woman_78__p0,R6,C2,none,1,1,0,0,
+woman_78__p0,R6,C3,jpeg50,1,1,0,0,
+woman_78__p0,R6,C4,blur2,1,1,0,0,
+woman_78__p0,R6,C5,vae_trans,1,1,0,0,
+woman_78__p0,R7,C2,none,1,1,0,0,
+woman_78__p0,R7,C3,jpeg50,1,1,0,0,
+woman_78__p0,R7,C4,blur2,1,1,0,0,
+woman_78__p0,R7,C5,vae_trans,1,1,0,0,
+woman_78__p0,R8,C2,none,1,1,0,0,
+woman_78__p0,R8,C3,jpeg50,1,1,0,0,
+woman_78__p0,R8,C4,blur2,1,1,0,0,
+woman_78__p0,R8,C5,vae_trans,1,1,0,0,
+woman_78__p1,R1,C2,none,1,0,0,0,
+woman_78__p1,R1,C3,jpeg50,1,0,0,0,
+woman_78__p1,R1,C4,blur2,1,0,0,0,
+woman_78__p1,R1,C5,vae_trans,1,0,0,0,
+woman_78__p1,R2,C2,none,1,0,0,0,
+woman_78__p1,R2,C3,jpeg50,1,0,0,0,
+woman_78__p1,R2,C4,blur2,1,0,0,0,
+woman_78__p1,R2,C5,vae_trans,1,0,0,0,badge faint
+woman_78__p1,R3,C2,none,1,1,0,0,
+woman_78__p1,R3,C3,jpeg50,1,1,0,0,
+woman_78__p1,R3,C4,blur2,1,1,0,0,
+woman_78__p1,R3,C5,vae_trans,0,1,1,0,scene replaced two figures
+woman_78__p1,R4,C2,none,1,1,0,0,
+woman_78__p1,R4,C3,jpeg50,1,1,0,0,
+woman_78__p1,R4,C4,blur2,1,1,0,0,
+woman_78__p1,R4,C5,vae_trans,1,1,0,0,
+woman_78__p1,R5,C2,none,1,1,0,0,
+woman_78__p1,R5,C3,jpeg50,1,1,0,0,
+woman_78__p1,R5,C4,blur2,1,1,0,0,
+woman_78__p1,R5,C5,vae_trans,1,1,0,0,badge faint
+woman_78__p1,R6,C2,none,1,1,0,0,
+woman_78__p1,R6,C3,jpeg50,1,1,0,0,
+woman_78__p1,R6,C4,blur2,1,1,0,0,
+woman_78__p1,R6,C5,vae_trans,1,1,0,0,
+woman_78__p1,R7,C2,none,1,1,0,0,
+woman_78__p1,R7,C3,jpeg50,1,1,0,0,
+woman_78__p1,R7,C4,blur2,1,1,0,0,
+woman_78__p1,R7,C5,vae_trans,1,1,0,0,badge faint
+woman_78__p1,R8,C2,none,1,1,0,0,
+woman_78__p1,R8,C3,jpeg50,1,1,0,0,
+woman_78__p1,R8,C4,blur2,1,1,0,0,
+woman_78__p1,R8,C5,vae_trans,1,1,0,0,
+woman_78__p2,R1,C2,none,1,1,0,0,
+woman_78__p2,R1,C3,jpeg50,1,1,0,0,
+woman_78__p2,R1,C4,blur2,1,1,0,0,
+woman_78__p2,R1,C5,vae_trans,1,1,0,0,
+woman_78__p2,R2,C2,none,1,1,0,0,
+woman_78__p2,R2,C3,jpeg50,1,1,1,0,extra man at bottom
+woman_78__p2,R2,C4,blur2,1,1,0,0,face hidden by helmet
+woman_78__p2,R2,C5,vae_trans,1,1,1,0,extra man at bottom
+woman_78__p2,R3,C2,none,1,0,0,0,
+woman_78__p2,R3,C3,jpeg50,1,0,0,0,
+woman_78__p2,R3,C4,blur2,0,0,0,0,faint helmet
+woman_78__p2,R3,C5,vae_trans,1,0,0,0,translucent helmet
+woman_78__p2,R4,C2,none,1,1,0,0,
+woman_78__p2,R4,C3,jpeg50,1,1,0,0,
+woman_78__p2,R4,C4,blur2,0,1,0,0,faint helmet
+woman_78__p2,R4,C5,vae_trans,1,1,0,0,
+woman_78__p2,R5,C2,none,1,1,0,0,
+woman_78__p2,R5,C3,jpeg50,1,1,0,0,
+woman_78__p2,R5,C4,blur2,1,1,0,0,
+woman_78__p2,R5,C5,vae_trans,1,1,0,0,
+woman_78__p2,R6,C2,none,1,0,0,0,
+woman_78__p2,R6,C3,jpeg50,1,0,0,0,
+woman_78__p2,R6,C4,blur2,0,0,0,0,no helmet
+woman_78__p2,R6,C5,vae_trans,1,0,0,0,translucent helmet
+woman_78__p2,R7,C2,none,1,1,0,0,
+woman_78__p2,R7,C3,jpeg50,1,1,0,0,
+woman_78__p2,R7,C4,blur2,1,1,0,0,
+woman_78__p2,R7,C5,vae_trans,1,1,0,0,
+woman_78__p2,R8,C2,none,1,0,0,0,
+woman_78__p2,R8,C3,jpeg50,1,0,0,0,helmet greyish
+woman_78__p2,R8,C4,blur2,1,0,0,0,
+woman_78__p2,R8,C5,vae_trans,1,0,0,0,
+woman_78__p3,R1,C2,none,1,0,0,0,
+woman_78__p3,R1,C3,jpeg50,1,0,0,0,
+woman_78__p3,R1,C4,blur2,1,0,0,0,
+woman_78__p3,R1,C5,vae_trans,1,0,0,0,
+woman_78__p3,R2,C2,none,1,1,0,0,
+woman_78__p3,R2,C3,jpeg50,1,1,0,0,
+woman_78__p3,R2,C4,blur2,1,1,0,0,
+woman_78__p3,R2,C5,vae_trans,1,1,0,0,
+woman_78__p3,R3,C2,none,1,0,0,0,
+woman_78__p3,R3,C3,jpeg50,1,0,0,0,
+woman_78__p3,R3,C4,blur2,1,0,0,0,
+woman_78__p3,R3,C5,vae_trans,1,0,0,0,
+woman_78__p3,R4,C2,none,1,1,0,0,
+woman_78__p3,R4,C3,jpeg50,1,1,0,0,
+woman_78__p3,R4,C4,blur2,1,1,0,0,
+woman_78__p3,R4,C5,vae_trans,1,1,0,0,
+woman_78__p3,R5,C2,none,1,1,0,0,
+woman_78__p3,R5,C3,jpeg50,1,1,0,0,
+woman_78__p3,R5,C4,blur2,1,1,0,0,
+woman_78__p3,R5,C5,vae_trans,1,1,0,0,
+woman_78__p3,R6,C2,none,1,0,0,0,small bowtie
+woman_78__p3,R6,C3,jpeg50,0,0,1,0,scene replaced loose bowties
+woman_78__p3,R6,C4,blur2,1,0,0,0,small faint bowtie
+woman_78__p3,R6,C5,vae_trans,1,0,0,0,
+woman_78__p3,R7,C2,none,1,1,0,0,
+woman_78__p3,R7,C3,jpeg50,1,1,0,0,
+woman_78__p3,R7,C4,blur2,1,1,0,0,
+woman_78__p3,R7,C5,vae_trans,1,1,0,0,
+woman_78__p3,R8,C2,none,1,1,0,0,
+woman_78__p3,R8,C3,jpeg50,1,1,0,0,
+woman_78__p3,R8,C4,blur2,1,1,0,0,
+woman_78__p3,R8,C5,vae_trans,1,1,0,0,
+woman_80__p0,R1,C2,none,1,0,1,0,different person
+woman_80__p0,R1,C3,jpeg50,1,0,1,0,different person
+woman_80__p0,R1,C4,blur2,1,0,1,0,extra glasses on shirt
+woman_80__p0,R1,C5,vae_trans,1,0,1,0,different person
+woman_80__p0,R2,C2,none,1,0,0,0,
+woman_80__p0,R2,C3,jpeg50,1,0,0,0,
+woman_80__p0,R2,C4,blur2,1,0,0,0,
+woman_80__p0,R2,C5,vae_trans,1,0,0,0,
+woman_80__p0,R3,C2,none,1,1,0,0,
+woman_80__p0,R3,C3,jpeg50,1,1,0,0,
+woman_80__p0,R3,C4,blur2,1,1,0,0,
+woman_80__p0,R3,C5,vae_trans,1,1,0,0,
+woman_80__p0,R4,C2,none,1,1,0,0,
+woman_80__p0,R4,C3,jpeg50,1,1,0,0,
+woman_80__p0,R4,C4,blur2,1,1,0,0,
+woman_80__p0,R4,C5,vae_trans,1,1,0,0,
+woman_80__p0,R5,C2,none,1,1,1,0,different man
+woman_80__p0,R5,C3,jpeg50,0,1,1,1,person gone floating glasses
+woman_80__p0,R5,C4,blur2,1,1,1,0,extra glasses on shirt
+woman_80__p0,R5,C5,vae_trans,1,1,1,0,different person
+woman_80__p0,R6,C2,none,1,1,0,0,
+woman_80__p0,R6,C3,jpeg50,1,1,0,0,
+woman_80__p0,R6,C4,blur2,1,1,0,0,
+woman_80__p0,R6,C5,vae_trans,1,1,0,0,
+woman_80__p0,R7,C2,none,1,1,0,0,
+woman_80__p0,R7,C3,jpeg50,1,1,0,0,
+woman_80__p0,R7,C4,blur2,1,1,0,0,
+woman_80__p0,R7,C5,vae_trans,1,1,0,0,
+woman_80__p0,R8,C2,none,1,1,1,0,different man
+woman_80__p0,R8,C3,jpeg50,0,1,1,1,person gone floating glasses
+woman_80__p0,R8,C4,blur2,1,1,1,1,blurry head glasses
+woman_80__p0,R8,C5,vae_trans,1,1,0,0,
+woman_80__p1,R1,C2,none,1,1,0,0,
+woman_80__p1,R1,C3,jpeg50,1,1,0,0,
+woman_80__p1,R1,C4,blur2,1,1,0,0,
+woman_80__p1,R1,C5,vae_trans,1,1,0,0,
+woman_80__p1,R2,C2,none,1,0,0,0,hood over hair
+woman_80__p1,R2,C3,jpeg50,1,0,0,0,
+woman_80__p1,R2,C4,blur2,1,0,0,0,
+woman_80__p1,R2,C5,vae_trans,1,0,1,1,headless torso figures
+woman_80__p1,R3,C2,none,1,0,0,0,helmet plus uniform
+woman_80__p1,R3,C3,jpeg50,1,0,0,0,
+woman_80__p1,R3,C4,blur2,1,0,0,0,
+woman_80__p1,R3,C5,vae_trans,1,0,1,1,headless torso figures
+woman_80__p1,R4,C2,none,1,0,0,0,
+woman_80__p1,R4,C3,jpeg50,1,0,0,0,
+woman_80__p1,R4,C4,blur2,1,0,0,0,
+woman_80__p1,R4,C5,vae_trans,1,0,0,0,
+woman_80__p1,R5,C2,none,1,0,0,0,helmet plus uniform
+woman_80__p1,R5,C3,jpeg50,1,0,0,0,
+woman_80__p1,R5,C4,blur2,1,0,0,0,
+woman_80__p1,R5,C5,vae_trans,1,0,1,1,headless torso figures
+woman_80__p1,R6,C2,none,1,1,0,0,
+woman_80__p1,R6,C3,jpeg50,1,1,0,0,
+woman_80__p1,R6,C4,blur2,1,1,0,0,
+woman_80__p1,R6,C5,vae_trans,1,1,0,0,
+woman_80__p1,R7,C2,none,1,1,0,0,
+woman_80__p1,R7,C3,jpeg50,1,1,0,0,
+woman_80__p1,R7,C4,blur2,1,1,0,0,
+woman_80__p1,R7,C5,vae_trans,1,1,0,0,
+woman_80__p1,R8,C2,none,1,1,0,0,
+woman_80__p1,R8,C3,jpeg50,1,1,0,0,
+woman_80__p1,R8,C4,blur2,1,1,0,0,
+woman_80__p1,R8,C5,vae_trans,1,1,0,0,
+woman_80__p2,R1,C2,none,1,1,1,0,scene replaced extra helmets
+woman_80__p2,R1,C3,jpeg50,1,1,1,0,scene replaced extra helmets
+woman_80__p2,R1,C4,blur2,1,1,1,0,extra helmeted people
+woman_80__p2,R1,C5,vae_trans,1,1,1,0,scene replaced extra helmets
+woman_80__p2,R2,C2,none,1,1,1,0,scene replaced extra helmets
+woman_80__p2,R2,C3,jpeg50,1,1,1,0,different woman extra helmets
+woman_80__p2,R2,C4,blur2,1,1,1,0,extra helmeted people
+woman_80__p2,R2,C5,vae_trans,1,1,1,0,scene replaced extra helmets
+woman_80__p2,R3,C2,none,1,1,1,1,faceless red torso
+woman_80__p2,R3,C3,jpeg50,1,1,1,1,faceless red torso
+woman_80__p2,R3,C4,blur2,0,1,0,0,faint helmet band only
+woman_80__p2,R3,C5,vae_trans,1,1,1,1,faceless red torso
+woman_80__p2,R4,C2,none,1,0,1,1,stacked helmets
+woman_80__p2,R4,C3,jpeg50,1,0,1,1,stacked helmets
+woman_80__p2,R4,C4,blur2,1,0,1,1,stacked helmets
+woman_80__p2,R4,C5,vae_trans,1,0,1,1,stacked helmets
+woman_80__p2,R5,C2,none,1,1,1,0,scene replaced extra helmets
+woman_80__p2,R5,C3,jpeg50,1,1,1,0,scene replaced extra helmets
+woman_80__p2,R5,C4,blur2,1,1,1,0,extra helmeted people
+woman_80__p2,R5,C5,vae_trans,1,1,1,0,scene replaced extra helmets
+woman_80__p2,R6,C2,none,1,0,1,1,stacked helmets
+woman_80__p2,R6,C3,jpeg50,1,0,1,1,stacked helmets
+woman_80__p2,R6,C4,blur2,1,0,1,1,stacked helmets
+woman_80__p2,R6,C5,vae_trans,1,0,1,1,stacked helmets
+woman_80__p2,R7,C2,none,1,0,1,1,stacked helmets
+woman_80__p2,R7,C3,jpeg50,1,0,1,1,stacked helmets
+woman_80__p2,R7,C4,blur2,1,0,1,1,stacked helmets
+woman_80__p2,R7,C5,vae_trans,1,0,1,1,stacked helmets
+woman_80__p2,R8,C2,none,1,0,1,0,extra profile face
+woman_80__p2,R8,C3,jpeg50,1,0,1,0,extra profile face
+woman_80__p2,R8,C4,blur2,1,0,0,0,
+woman_80__p2,R8,C5,vae_trans,1,0,1,0,extra profile face
+woman_80__p3,R1,C2,none,1,1,1,0,extra bowties on torso
+woman_80__p3,R1,C3,jpeg50,1,1,1,0,extra bowties on torso
+woman_80__p3,R1,C4,blur2,1,1,1,0,extra bowties on torso
+woman_80__p3,R1,C5,vae_trans,1,1,1,0,extra bowtie at waist
+woman_80__p3,R2,C2,none,1,0,1,0,different man
+woman_80__p3,R2,C3,jpeg50,1,0,1,0,different man
+woman_80__p3,R2,C4,blur2,1,0,1,0,different man
+woman_80__p3,R2,C5,vae_trans,1,0,1,0,different man
+woman_80__p3,R3,C2,none,1,1,0,0,
+woman_80__p3,R3,C3,jpeg50,1,1,0,0,
+woman_80__p3,R3,C4,blur2,1,1,0,0,
+woman_80__p3,R3,C5,vae_trans,1,1,0,0,
+woman_80__p3,R4,C2,none,1,0,1,0,different man
+woman_80__p3,R4,C3,jpeg50,1,0,1,0,different man
+woman_80__p3,R4,C4,blur2,1,0,1,0,different man
+woman_80__p3,R4,C5,vae_trans,1,0,1,0,different man
+woman_80__p3,R5,C2,none,1,1,0,0,
+woman_80__p3,R5,C3,jpeg50,1,1,0,0,
+woman_80__p3,R5,C4,blur2,1,1,0,0,
+woman_80__p3,R5,C5,vae_trans,1,1,0,0,
+woman_80__p3,R6,C2,none,1,0,0,0,
+woman_80__p3,R6,C3,jpeg50,1,0,0,0,
+woman_80__p3,R6,C4,blur2,1,0,0,0,
+woman_80__p3,R6,C5,vae_trans,1,0,0,0,
+woman_80__p3,R7,C2,none,1,1,0,0,
+woman_80__p3,R7,C3,jpeg50,1,1,0,0,
+woman_80__p3,R7,C4,blur2,1,1,0,0,
+woman_80__p3,R7,C5,vae_trans,1,1,0,0,
+woman_80__p3,R8,C2,none,1,0,1,0,different man
+woman_80__p3,R8,C3,jpeg50,1,0,1,0,different man
+woman_80__p3,R8,C4,blur2,1,0,1,0,different man
+woman_80__p3,R8,C5,vae_trans,1,1,0,0,purple tint
+woman_84__p0,R1,C2,none,1,1,0,0,
+woman_84__p0,R1,C3,jpeg50,1,1,0,0,
+woman_84__p0,R1,C4,blur2,1,1,0,0,
+woman_84__p0,R1,C5,vae_trans,1,1,0,0,
+woman_84__p0,R2,C2,none,1,1,0,0,
+woman_84__p0,R2,C3,jpeg50,1,1,0,0,
+woman_84__p0,R2,C4,blur2,1,1,0,0,
+woman_84__p0,R2,C5,vae_trans,1,1,0,0,
+woman_84__p0,R3,C2,none,1,1,0,0,
+woman_84__p0,R3,C3,jpeg50,1,1,0,0,
+woman_84__p0,R3,C4,blur2,1,1,0,0,
+woman_84__p0,R3,C5,vae_trans,1,1,0,0,
+woman_84__p0,R4,C2,none,1,1,0,0,
+woman_84__p0,R4,C3,jpeg50,1,1,0,0,
+woman_84__p0,R4,C4,blur2,1,1,0,0,
+woman_84__p0,R4,C5,vae_trans,1,1,0,0,
+woman_84__p0,R5,C2,none,1,1,0,0,
+woman_84__p0,R5,C3,jpeg50,1,1,0,0,
+woman_84__p0,R5,C4,blur2,1,1,0,0,
+woman_84__p0,R5,C5,vae_trans,1,1,0,0,
+woman_84__p0,R6,C2,none,1,0,0,0,
+woman_84__p0,R6,C3,jpeg50,1,0,0,0,
+woman_84__p0,R6,C4,blur2,1,0,0,0,
+woman_84__p0,R6,C5,vae_trans,1,0,0,0,
+woman_84__p0,R7,C2,none,1,1,0,0,
+woman_84__p0,R7,C3,jpeg50,1,1,0,0,
+woman_84__p0,R7,C4,blur2,1,1,0,0,
+woman_84__p0,R7,C5,vae_trans,1,1,0,0,
+woman_84__p0,R8,C2,none,1,1,0,0,
+woman_84__p0,R8,C3,jpeg50,1,1,0,0,
+woman_84__p0,R8,C4,blur2,1,1,0,0,
+woman_84__p0,R8,C5,vae_trans,1,1,0,0,
+woman_84__p1,R1,C2,none,0,1,0,0,patch and belt only
+woman_84__p1,R1,C3,jpeg50,0,1,0,0,patch only
+woman_84__p1,R1,C4,blur2,1,1,1,0,background replaced extra person
+woman_84__p1,R1,C5,vae_trans,0,1,0,0,
+woman_84__p1,R2,C2,none,0,1,0,0,patch and belt only
+woman_84__p1,R2,C3,jpeg50,0,1,0,0,patch only
+woman_84__p1,R2,C4,blur2,0,1,0,0,
+woman_84__p1,R2,C5,vae_trans,0,1,0,0,
+woman_84__p1,R3,C2,none,0,1,0,0,patch and belt only
+woman_84__p1,R3,C3,jpeg50,0,1,0,0,patch only
+woman_84__p1,R3,C4,blur2,0,1,0,0,
+woman_84__p1,R3,C5,vae_trans,0,1,0,0,
+woman_84__p1,R4,C2,none,0,1,0,0,patch and belt only
+woman_84__p1,R4,C3,jpeg50,0,1,0,0,patch only
+woman_84__p1,R4,C4,blur2,0,1,0,0,
+woman_84__p1,R4,C5,vae_trans,0,1,0,0,
+woman_84__p1,R5,C2,none,0,1,0,0,patch and belt only
+woman_84__p1,R5,C3,jpeg50,0,1,0,0,patch only
+woman_84__p1,R5,C4,blur2,0,1,0,0,
+woman_84__p1,R5,C5,vae_trans,0,1,0,0,
+woman_84__p1,R6,C2,none,1,1,1,0,extra uniformed people
+woman_84__p1,R6,C3,jpeg50,0,1,0,0,
+woman_84__p1,R6,C4,blur2,0,1,1,0,extra uniformed figures
+woman_84__p1,R6,C5,vae_trans,0,1,0,0,
+woman_84__p1,R7,C2,none,0,1,0,0,patch only
+woman_84__p1,R7,C3,jpeg50,0,1,0,0,patch only
+woman_84__p1,R7,C4,blur2,0,1,1,0,extra uniformed figure
+woman_84__p1,R7,C5,vae_trans,0,1,0,0,
+woman_84__p1,R8,C2,none,0,0,0,0,patch and belt only
+woman_84__p1,R8,C3,jpeg50,0,0,0,0,patch only
+woman_84__p1,R8,C4,blur2,0,0,0,0,patch only
+woman_84__p1,R8,C5,vae_trans,0,0,0,0,
+woman_84__p2,R1,C2,none,0,0,0,0,faint cap on head
+woman_84__p2,R1,C3,jpeg50,0,0,0,0,faint cap on head
+woman_84__p2,R1,C4,blur2,0,0,0,0,faint cap on head
+woman_84__p2,R1,C5,vae_trans,0,0,0,0,
+woman_84__p2,R2,C2,none,0,1,0,0,faint cap on head
+woman_84__p2,R2,C3,jpeg50,0,1,0,0,faint cap on head
+woman_84__p2,R2,C4,blur2,0,1,0,0,faint cap on head
+woman_84__p2,R2,C5,vae_trans,0,1,0,0,
+woman_84__p2,R3,C2,none,0,1,0,0,faint cap on head
+woman_84__p2,R3,C3,jpeg50,0,1,0,0,faint cap on head
+woman_84__p2,R3,C4,blur2,0,1,0,0,faint cap on head
+woman_84__p2,R3,C5,vae_trans,0,1,0,0,
+woman_84__p2,R4,C2,none,0,1,0,0,faint cap on head
+woman_84__p2,R4,C3,jpeg50,0,1,0,0,faint cap on head
+woman_84__p2,R4,C4,blur2,0,1,0,0,
+woman_84__p2,R4,C5,vae_trans,0,1,0,0,
+woman_84__p2,R5,C2,none,0,1,0,0,faint cap on head
+woman_84__p2,R5,C3,jpeg50,0,1,0,0,
+woman_84__p2,R5,C4,blur2,0,1,0,0,faint cap on head
+woman_84__p2,R5,C5,vae_trans,0,1,0,0,
+woman_84__p2,R6,C2,none,0,1,0,0,faint cap on head
+woman_84__p2,R6,C3,jpeg50,0,1,0,0,faint cap on head
+woman_84__p2,R6,C4,blur2,0,1,0,0,faint cap on head
+woman_84__p2,R6,C5,vae_trans,0,1,0,0,
+woman_84__p2,R7,C2,none,0,1,0,0,faint cap on head
+woman_84__p2,R7,C3,jpeg50,0,1,0,0,faint cap on head
+woman_84__p2,R7,C4,blur2,0,1,0,0,
+woman_84__p2,R7,C5,vae_trans,0,1,0,0,
+woman_84__p2,R8,C2,none,0,1,0,0,faint cap on head
+woman_84__p2,R8,C3,jpeg50,0,1,0,0,faint cap on head
+woman_84__p2,R8,C4,blur2,0,1,0,0,faint cap on head
+woman_84__p2,R8,C5,vae_trans,0,1,0,0,
+woman_84__p3,R1,C2,none,1,0,0,0,small bowtie
+woman_84__p3,R1,C3,jpeg50,1,0,0,0,small bowtie
+woman_84__p3,R1,C4,blur2,1,0,0,0,small bowtie
+woman_84__p3,R1,C5,vae_trans,1,0,0,0,small bowtie
+woman_84__p3,R2,C2,none,1,1,0,0,small bowtie
+woman_84__p3,R2,C3,jpeg50,1,1,0,0,faint small bowtie
+woman_84__p3,R2,C4,blur2,1,1,0,0,
+woman_84__p3,R2,C5,vae_trans,1,1,0,0,faint small bowtie
+woman_84__p3,R3,C2,none,1,1,0,0,small bowtie
+woman_84__p3,R3,C3,jpeg50,1,1,0,0,small bowtie
+woman_84__p3,R3,C4,blur2,1,1,0,0,small bowtie
+woman_84__p3,R3,C5,vae_trans,1,1,0,0,small bowtie
+woman_84__p3,R4,C2,none,1,1,0,0,small bowtie
+woman_84__p3,R4,C3,jpeg50,1,1,0,0,small bowtie
+woman_84__p3,R4,C4,blur2,1,1,0,0,small bowtie
+woman_84__p3,R4,C5,vae_trans,1,1,0,0,faint small bowtie
+woman_84__p3,R5,C2,none,1,1,0,0,small bowtie
+woman_84__p3,R5,C3,jpeg50,1,1,0,0,small bowtie
+woman_84__p3,R5,C4,blur2,1,1,0,0,
+woman_84__p3,R5,C5,vae_trans,1,1,0,0,small bowtie
+woman_84__p3,R6,C2,none,1,1,0,0,small bowtie
+woman_84__p3,R6,C3,jpeg50,1,1,0,0,small bowtie
+woman_84__p3,R6,C4,blur2,1,1,0,0,small bowtie
+woman_84__p3,R6,C5,vae_trans,1,1,0,0,faint small bowtie
+woman_84__p3,R7,C2,none,1,1,0,0,small bowtie
+woman_84__p3,R7,C3,jpeg50,1,1,0,0,faint small bowtie
+woman_84__p3,R7,C4,blur2,1,1,0,0,
+woman_84__p3,R7,C5,vae_trans,1,1,0,0,faint small bowtie
+woman_84__p3,R8,C2,none,1,1,0,0,faint small bowtie
+woman_84__p3,R8,C3,jpeg50,1,1,0,0,faint small bowtie
+woman_84__p3,R8,C4,blur2,1,1,0,0,small bowtie
+woman_84__p3,R8,C5,vae_trans,0,1,0,0,no bowtie visible
+woman_85__p0,R1,C2,none,1,0,0,0,
+woman_85__p0,R1,C3,jpeg50,1,0,0,0,
+woman_85__p0,R1,C4,blur2,1,0,0,0,
+woman_85__p0,R1,C5,vae_trans,1,0,0,0,
+woman_85__p0,R2,C2,none,1,1,0,0,
+woman_85__p0,R2,C3,jpeg50,1,1,0,0,
+woman_85__p0,R2,C4,blur2,1,1,0,0,
+woman_85__p0,R2,C5,vae_trans,1,1,0,0,
+woman_85__p0,R3,C2,none,1,1,0,0,
+woman_85__p0,R3,C3,jpeg50,1,1,0,0,
+woman_85__p0,R3,C4,blur2,1,1,0,0,
+woman_85__p0,R3,C5,vae_trans,1,1,0,0,
+woman_85__p0,R4,C2,none,1,0,0,0,
+woman_85__p0,R4,C3,jpeg50,1,0,0,0,
+woman_85__p0,R4,C4,blur2,1,0,0,0,
+woman_85__p0,R4,C5,vae_trans,1,0,0,0,
+woman_85__p0,R5,C2,none,1,1,0,0,
+woman_85__p0,R5,C3,jpeg50,1,1,0,0,
+woman_85__p0,R5,C4,blur2,1,1,0,0,
+woman_85__p0,R5,C5,vae_trans,1,1,0,0,
+woman_85__p0,R6,C2,none,1,1,0,0,
+woman_85__p0,R6,C3,jpeg50,1,1,0,0,
+woman_85__p0,R6,C4,blur2,1,1,0,0,
+woman_85__p0,R6,C5,vae_trans,1,1,0,0,
+woman_85__p0,R7,C2,none,1,0,0,0,
+woman_85__p0,R7,C3,jpeg50,1,0,0,0,
+woman_85__p0,R7,C4,blur2,1,0,0,0,
+woman_85__p0,R7,C5,vae_trans,1,0,0,0,
+woman_85__p0,R8,C2,none,1,1,0,0,
+woman_85__p0,R8,C3,jpeg50,1,1,0,0,
+woman_85__p0,R8,C4,blur2,1,1,0,0,
+woman_85__p0,R8,C5,vae_trans,1,1,0,0,
+woman_85__p1,R1,C2,none,0,1,0,0,shoulder patch only
+woman_85__p1,R1,C3,jpeg50,0,1,0,0,shoulder patch only
+woman_85__p1,R1,C4,blur2,0,1,0,0,shoulder patch only
+woman_85__p1,R1,C5,vae_trans,0,1,0,0,shoulder patch only
+woman_85__p1,R2,C2,none,0,1,0,0,shoulder patch only
+woman_85__p1,R2,C3,jpeg50,0,1,0,0,shoulder patch only
+woman_85__p1,R2,C4,blur2,0,1,0,0,patch plus small object at edge
+woman_85__p1,R2,C5,vae_trans,0,1,0,0,shoulder patch only
+woman_85__p1,R3,C2,none,0,0,0,0,shoulder patch only
+woman_85__p1,R3,C3,jpeg50,0,0,0,0,shoulder patch only
+woman_85__p1,R3,C4,blur2,0,1,0,0,shoulder patch only
+woman_85__p1,R3,C5,vae_trans,0,1,0,0,shoulder patch only
+woman_85__p1,R4,C2,none,0,1,0,0,shoulder patch only
+woman_85__p1,R4,C3,jpeg50,0,1,0,0,shoulder patch only
+woman_85__p1,R4,C4,blur2,0,1,0,0,shoulder patch only
+woman_85__p1,R4,C5,vae_trans,0,1,0,0,shoulder patch only
+woman_85__p1,R5,C2,none,0,0,0,0,shoulder patch only
+woman_85__p1,R5,C3,jpeg50,0,0,0,0,shoulder patch only
+woman_85__p1,R5,C4,blur2,0,1,0,0,shoulder patch only
+woman_85__p1,R5,C5,vae_trans,0,0,0,0,shoulder patch only
+woman_85__p1,R6,C2,none,0,0,0,0,shoulder patch only
+woman_85__p1,R6,C3,jpeg50,0,0,0,0,shoulder patch only
+woman_85__p1,R6,C4,blur2,0,0,0,0,shoulder patch only
+woman_85__p1,R6,C5,vae_trans,0,0,0,0,shoulder patch only
+woman_85__p1,R7,C2,none,0,1,0,0,shoulder patch only
+woman_85__p1,R7,C3,jpeg50,0,1,0,0,shoulder patch only
+woman_85__p1,R7,C4,blur2,0,1,0,0,patch plus small object at edge
+woman_85__p1,R7,C5,vae_trans,0,1,0,0,shoulder patch only
+woman_85__p1,R8,C2,none,0,0,0,0,shoulder patch only
+woman_85__p1,R8,C3,jpeg50,0,0,0,0,shoulder patch only
+woman_85__p1,R8,C4,blur2,0,0,0,0,shoulder patch only
+woman_85__p1,R8,C5,vae_trans,0,0,0,0,shoulder patch only
+woman_85__p2,R1,C2,none,1,0,0,0,grey dome helmet borderline
+woman_85__p2,R1,C3,jpeg50,1,0,0,0,grey dome helmet borderline
+woman_85__p2,R1,C4,blur2,0,0,0,0,faint
+woman_85__p2,R1,C5,vae_trans,0,0,0,0,
+woman_85__p2,R2,C2,none,0,1,0,0,faint
+woman_85__p2,R2,C3,jpeg50,1,1,0,0,helmet borderline
+woman_85__p2,R2,C4,blur2,1,1,0,0,visor frame
+woman_85__p2,R2,C5,vae_trans,0,1,0,0,
+woman_85__p2,R3,C2,none,0,0,0,0,faint
+woman_85__p2,R3,C3,jpeg50,0,0,0,0,faint
+woman_85__p2,R3,C4,blur2,1,0,0,0,helmet borderline
+woman_85__p2,R3,C5,vae_trans,0,0,0,0,
+woman_85__p2,R4,C2,none,1,0,0,0,helmet borderline
+woman_85__p2,R4,C3,jpeg50,1,0,0,0,helmet borderline
+woman_85__p2,R4,C4,blur2,1,0,0,0,helmet borderline
+woman_85__p2,R4,C5,vae_trans,0,0,0,0,
+woman_85__p2,R5,C2,none,0,1,0,0,faint
+woman_85__p2,R5,C3,jpeg50,0,1,0,0,faint
+woman_85__p2,R5,C4,blur2,1,1,0,0,visor frame
+woman_85__p2,R5,C5,vae_trans,0,1,0,0,
+woman_85__p2,R6,C2,none,0,1,0,0,faint
+woman_85__p2,R6,C3,jpeg50,0,1,0,0,
+woman_85__p2,R6,C4,blur2,1,1,0,0,helmet borderline
+woman_85__p2,R6,C5,vae_trans,0,1,0,0,
+woman_85__p2,R7,C2,none,0,1,0,0,faint
+woman_85__p2,R7,C3,jpeg50,0,1,0,0,faint
+woman_85__p2,R7,C4,blur2,0,1,0,0,faint
+woman_85__p2,R7,C5,vae_trans,0,1,0,0,
+woman_85__p2,R8,C2,none,0,0,0,0,faint
+woman_85__p2,R8,C3,jpeg50,0,0,0,0,faint
+woman_85__p2,R8,C4,blur2,1,0,0,0,helmet borderline
+woman_85__p2,R8,C5,vae_trans,0,0,0,0,
+woman_85__p3,R1,C2,none,1,1,0,0,small bowtie
+woman_85__p3,R1,C3,jpeg50,1,1,0,0,small bowtie
+woman_85__p3,R1,C4,blur2,1,1,1,0,person replaced by suited torso
+woman_85__p3,R1,C5,vae_trans,1,1,0,0,small bowtie
+woman_85__p3,R2,C2,none,1,1,0,0,small bowtie
+woman_85__p3,R2,C3,jpeg50,1,1,0,0,small bowtie
+woman_85__p3,R2,C4,blur2,1,1,1,0,extra bowtie at top edge
+woman_85__p3,R2,C5,vae_trans,1,1,0,0,small bowtie
+woman_85__p3,R3,C2,none,1,0,0,0,small bowtie
+woman_85__p3,R3,C3,jpeg50,1,0,0,0,small bowtie
+woman_85__p3,R3,C4,blur2,1,0,0,0,small bowtie
+woman_85__p3,R3,C5,vae_trans,1,0,0,0,small bowtie
+woman_85__p3,R4,C2,none,1,0,0,0,small bowtie
+woman_85__p3,R4,C3,jpeg50,1,0,0,0,small bowtie
+woman_85__p3,R4,C4,blur2,1,0,0,0,small bowtie
+woman_85__p3,R4,C5,vae_trans,1,0,0,0,small bowtie
+woman_85__p3,R5,C2,none,1,1,0,0,small bowtie
+woman_85__p3,R5,C3,jpeg50,1,1,0,0,small bowtie
+woman_85__p3,R5,C4,blur2,1,1,1,0,extra bowtie beside
+woman_85__p3,R5,C5,vae_trans,1,1,0,0,small bowtie
+woman_85__p3,R6,C2,none,1,1,0,0,small bowtie
+woman_85__p3,R6,C3,jpeg50,1,1,0,0,small bowtie
+woman_85__p3,R6,C4,blur2,1,1,1,0,person replaced by suited torso
+woman_85__p3,R6,C5,vae_trans,1,1,0,0,small bowtie
+woman_85__p3,R7,C2,none,1,0,0,0,small bowtie
+woman_85__p3,R7,C3,jpeg50,1,0,0,0,small bowtie
+woman_85__p3,R7,C4,blur2,1,0,0,0,small bowtie
+woman_85__p3,R7,C5,vae_trans,1,0,0,0,small bowtie
+woman_85__p3,R8,C2,none,1,1,0,0,small bowtie
+woman_85__p3,R8,C3,jpeg50,1,1,0,0,small bowtie
+woman_85__p3,R8,C4,blur2,1,1,0,0,small bowtie
+woman_85__p3,R8,C5,vae_trans,1,1,0,0,small bowtie
+woman_87__p0,R1,C2,none,1,0,0,0,
+woman_87__p0,R1,C3,jpeg50,1,0,0,0,
+woman_87__p0,R1,C4,blur2,1,0,0,0,
+woman_87__p0,R1,C5,vae_trans,1,0,0,0,
+woman_87__p0,R2,C2,none,1,0,0,0,
+woman_87__p0,R2,C3,jpeg50,1,0,0,0,
+woman_87__p0,R2,C4,blur2,1,0,0,0,
+woman_87__p0,R2,C5,vae_trans,1,0,0,0,
+woman_87__p0,R3,C2,none,1,1,0,0,
+woman_87__p0,R3,C3,jpeg50,1,1,0,0,
+woman_87__p0,R3,C4,blur2,1,1,0,0,
+woman_87__p0,R3,C5,vae_trans,1,1,0,0,
+woman_87__p0,R4,C2,none,1,1,0,0,
+woman_87__p0,R4,C3,jpeg50,1,1,0,0,
+woman_87__p0,R4,C4,blur2,1,1,0,0,
+woman_87__p0,R4,C5,vae_trans,1,1,0,0,faint glasses
+woman_87__p0,R5,C2,none,1,0,0,0,
+woman_87__p0,R5,C3,jpeg50,1,0,0,0,
+woman_87__p0,R5,C4,blur2,1,0,0,0,
+woman_87__p0,R5,C5,vae_trans,1,0,0,0,
+woman_87__p0,R6,C2,none,1,0,0,0,
+woman_87__p0,R6,C3,jpeg50,1,0,0,0,
+woman_87__p0,R6,C4,blur2,1,0,0,0,
+woman_87__p0,R6,C5,vae_trans,1,0,0,0,
+woman_87__p0,R7,C2,none,1,1,0,0,
+woman_87__p0,R7,C3,jpeg50,1,1,0,0,
+woman_87__p0,R7,C4,blur2,1,1,0,0,
+woman_87__p0,R7,C5,vae_trans,1,1,0,0,
+woman_87__p0,R8,C2,none,1,1,0,0,
+woman_87__p0,R8,C3,jpeg50,1,1,0,0,
+woman_87__p0,R8,C4,blur2,1,1,0,0,
+woman_87__p0,R8,C5,vae_trans,1,1,0,0,
+woman_87__p1,R1,C2,none,1,0,0,0,
+woman_87__p1,R1,C3,jpeg50,1,0,0,0,
+woman_87__p1,R1,C4,blur2,1,0,0,0,
+woman_87__p1,R1,C5,vae_trans,1,0,0,0,patches on dark jacket
+woman_87__p1,R2,C2,none,1,0,0,0,
+woman_87__p1,R2,C3,jpeg50,1,0,0,0,
+woman_87__p1,R2,C4,blur2,1,0,0,0,
+woman_87__p1,R2,C5,vae_trans,1,0,0,0,patches on dark jacket
+woman_87__p1,R3,C2,none,1,0,0,0,
+woman_87__p1,R3,C3,jpeg50,1,0,0,0,
+woman_87__p1,R3,C4,blur2,1,0,0,0,
+woman_87__p1,R3,C5,vae_trans,1,0,0,0,patches on dark jacket
+woman_87__p1,R4,C2,none,1,0,0,0,
+woman_87__p1,R4,C3,jpeg50,1,0,0,0,
+woman_87__p1,R4,C4,blur2,1,0,0,0,
+woman_87__p1,R4,C5,vae_trans,1,0,0,0,patches on dark jacket
+woman_87__p1,R5,C2,none,1,0,0,0,
+woman_87__p1,R5,C3,jpeg50,1,0,0,0,badge borderline
+woman_87__p1,R5,C4,blur2,1,0,0,0,
+woman_87__p1,R5,C5,vae_trans,1,0,0,0,patches on dark jacket
+woman_87__p1,R6,C2,none,1,0,0,0,
+woman_87__p1,R6,C3,jpeg50,1,0,0,0,
+woman_87__p1,R6,C4,blur2,1,0,0,0,
+woman_87__p1,R6,C5,vae_trans,1,0,0,0,patches on dark jacket
+woman_87__p1,R7,C2,none,1,0,0,0,
+woman_87__p1,R7,C3,jpeg50,1,0,0,0,badge borderline
+woman_87__p1,R7,C4,blur2,1,0,0,0,
+woman_87__p1,R7,C5,vae_trans,1,0,0,0,patches on dark jacket
+woman_87__p1,R8,C2,none,1,0,0,0,
+woman_87__p1,R8,C3,jpeg50,1,0,0,0,
+woman_87__p1,R8,C4,blur2,1,0,0,0,
+woman_87__p1,R8,C5,vae_trans,1,0,0,0,patches on dark jacket
+woman_87__p2,R1,C2,none,1,0,0,0,
+woman_87__p2,R1,C3,jpeg50,1,0,0,0,
+woman_87__p2,R1,C4,blur2,1,0,0,0,
+woman_87__p2,R1,C5,vae_trans,1,0,0,0,
+woman_87__p2,R2,C2,none,1,0,0,0,
+woman_87__p2,R2,C3,jpeg50,1,0,0,0,
+woman_87__p2,R2,C4,blur2,0,0,0,0,faint helmet
+woman_87__p2,R2,C5,vae_trans,1,0,0,0,
+woman_87__p2,R3,C2,none,1,0,1,0,extra small person at bottom
+woman_87__p2,R3,C3,jpeg50,0,0,0,0,faint helmet
+woman_87__p2,R3,C4,blur2,1,0,0,0,
+woman_87__p2,R3,C5,vae_trans,1,0,0,0,
+woman_87__p2,R4,C2,none,1,0,0,0,
+woman_87__p2,R4,C3,jpeg50,0,0,0,0,faint helmet
+woman_87__p2,R4,C4,blur2,1,0,0,0,
+woman_87__p2,R4,C5,vae_trans,1,0,0,0,
+woman_87__p2,R5,C2,none,1,0,0,0,
+woman_87__p2,R5,C3,jpeg50,1,0,0,0,
+woman_87__p2,R5,C4,blur2,0,0,0,0,faint helmet
+woman_87__p2,R5,C5,vae_trans,1,0,0,0,
+woman_87__p2,R6,C2,none,1,0,1,0,extra small person at bottom
+woman_87__p2,R6,C3,jpeg50,0,0,0,0,faint helmet
+woman_87__p2,R6,C4,blur2,1,0,0,0,
+woman_87__p2,R6,C5,vae_trans,1,0,0,0,
+woman_87__p2,R7,C2,none,1,0,0,0,
+woman_87__p2,R7,C3,jpeg50,1,0,0,0,
+woman_87__p2,R7,C4,blur2,0,0,0,0,faint helmet
+woman_87__p2,R7,C5,vae_trans,1,0,0,0,
+woman_87__p2,R8,C2,none,1,0,0,0,
+woman_87__p2,R8,C3,jpeg50,1,0,0,0,
+woman_87__p2,R8,C4,blur2,1,0,0,0,helmet borderline
+woman_87__p2,R8,C5,vae_trans,1,0,0,0,
+woman_87__p3,R1,C2,none,1,0,1,0,extra bowties on torso
+woman_87__p3,R1,C3,jpeg50,1,0,1,0,extra bowties on torso
+woman_87__p3,R1,C4,blur2,1,0,1,0,extra bowtie on torso
+woman_87__p3,R1,C5,vae_trans,1,0,1,0,extra bowties on torso
+woman_87__p3,R2,C2,none,1,0,1,0,extra bowties on torso
+woman_87__p3,R2,C3,jpeg50,1,0,1,0,extra bowties on torso
+woman_87__p3,R2,C4,blur2,1,0,1,0,extra bowtie on torso
+woman_87__p3,R2,C5,vae_trans,1,0,1,0,extra bowties on torso
+woman_87__p3,R3,C2,none,1,0,1,0,extra bowtie on torso
+woman_87__p3,R3,C3,jpeg50,1,0,1,0,different man extra bowties
+woman_87__p3,R3,C4,blur2,1,0,1,0,extra bowties on torso
+woman_87__p3,R3,C5,vae_trans,1,0,1,0,extra bowties on torso
+woman_87__p3,R4,C2,none,1,0,1,0,extra bowties on torso
+woman_87__p3,R4,C3,jpeg50,1,0,1,0,extra bowties on torso
+woman_87__p3,R4,C4,blur2,1,0,1,0,extra bowtie on torso
+woman_87__p3,R4,C5,vae_trans,1,0,1,0,extra bowties on torso
+woman_87__p3,R5,C2,none,1,0,1,0,extra bowties on torso
+woman_87__p3,R5,C3,jpeg50,1,0,1,0,extra bowties on torso
+woman_87__p3,R5,C4,blur2,1,0,1,0,extra bowtie on torso
+woman_87__p3,R5,C5,vae_trans,1,0,1,0,extra bowties on torso
+woman_87__p3,R6,C2,none,1,0,1,0,extra bowties on torso
+woman_87__p3,R6,C3,jpeg50,1,0,1,0,extra bowties on torso
+woman_87__p3,R6,C4,blur2,1,0,1,0,extra bowtie on torso
+woman_87__p3,R6,C5,vae_trans,1,0,1,0,extra bowties on torso
+woman_87__p3,R7,C2,none,1,0,1,0,extra bowties on torso
+woman_87__p3,R7,C3,jpeg50,1,0,1,0,different man extra bowties
+woman_87__p3,R7,C4,blur2,1,0,1,0,extra bowtie on torso
+woman_87__p3,R7,C5,vae_trans,1,0,1,0,extra bowties on torso
+woman_87__p3,R8,C2,none,1,0,1,0,extra bowties on torso
+woman_87__p3,R8,C3,jpeg50,1,0,1,0,extra bowties on torso
+woman_87__p3,R8,C4,blur2,1,0,1,0,extra bowtie on torso
+woman_87__p3,R8,C5,vae_trans,1,0,1,0,extra bowties on torso
+woman_94__p0,R1,C2,none,1,0,0,0,
+woman_94__p0,R1,C3,jpeg50,1,0,0,0,
+woman_94__p0,R1,C4,blur2,1,0,0,0,
+woman_94__p0,R1,C5,vae_trans,1,0,0,0,
+woman_94__p0,R2,C2,none,1,1,0,0,
+woman_94__p0,R2,C3,jpeg50,1,1,0,0,
+woman_94__p0,R2,C4,blur2,1,1,0,0,
+woman_94__p0,R2,C5,vae_trans,1,1,0,0,
+woman_94__p0,R3,C2,none,1,1,0,0,
+woman_94__p0,R3,C3,jpeg50,1,1,0,0,
+woman_94__p0,R3,C4,blur2,1,1,0,0,
+woman_94__p0,R3,C5,vae_trans,1,1,0,0,
+woman_94__p0,R4,C2,none,1,1,0,0,
+woman_94__p0,R4,C3,jpeg50,1,1,0,0,
+woman_94__p0,R4,C4,blur2,1,1,0,0,
+woman_94__p0,R4,C5,vae_trans,1,1,0,0,
+woman_94__p0,R5,C2,none,1,1,0,0,
+woman_94__p0,R5,C3,jpeg50,1,1,0,0,
+woman_94__p0,R5,C4,blur2,1,1,0,0,
+woman_94__p0,R5,C5,vae_trans,1,1,0,0,
+woman_94__p0,R6,C2,none,1,1,0,0,
+woman_94__p0,R6,C3,jpeg50,1,1,0,0,
+woman_94__p0,R6,C4,blur2,1,1,0,0,
+woman_94__p0,R6,C5,vae_trans,1,1,0,0,
+woman_94__p0,R7,C2,none,1,0,0,0,
+woman_94__p0,R7,C3,jpeg50,1,0,0,0,
+woman_94__p0,R7,C4,blur2,1,0,0,0,
+woman_94__p0,R7,C5,vae_trans,1,0,0,0,
+woman_94__p0,R8,C2,none,1,1,0,0,
+woman_94__p0,R8,C3,jpeg50,1,1,0,0,
+woman_94__p0,R8,C4,blur2,1,1,0,0,
+woman_94__p0,R8,C5,vae_trans,1,1,0,0,
+woman_94__p1,R1,C2,none,1,0,0,0,
+woman_94__p1,R1,C3,jpeg50,1,0,0,0,
+woman_94__p1,R1,C4,blur2,1,0,0,0,
+woman_94__p1,R1,C5,vae_trans,1,0,0,0,
+woman_94__p1,R2,C2,none,1,0,0,0,
+woman_94__p1,R2,C3,jpeg50,1,0,0,0,
+woman_94__p1,R2,C4,blur2,1,0,0,0,
+woman_94__p1,R2,C5,vae_trans,1,0,0,0,
+woman_94__p1,R3,C2,none,1,0,0,0,
+woman_94__p1,R3,C3,jpeg50,1,0,0,0,
+woman_94__p1,R3,C4,blur2,1,0,0,0,
+woman_94__p1,R3,C5,vae_trans,1,0,0,0,
+woman_94__p1,R4,C2,none,1,0,0,0,
+woman_94__p1,R4,C3,jpeg50,1,0,0,0,
+woman_94__p1,R4,C4,blur2,1,0,0,0,
+woman_94__p1,R4,C5,vae_trans,1,0,0,0,
+woman_94__p1,R5,C2,none,1,1,0,0,
+woman_94__p1,R5,C3,jpeg50,1,1,0,0,
+woman_94__p1,R5,C4,blur2,1,1,0,0,
+woman_94__p1,R5,C5,vae_trans,1,1,0,0,
+woman_94__p1,R6,C2,none,1,1,0,0,
+woman_94__p1,R6,C3,jpeg50,1,1,0,0,
+woman_94__p1,R6,C4,blur2,1,1,0,0,
+woman_94__p1,R6,C5,vae_trans,1,1,0,0,
+woman_94__p1,R7,C2,none,1,1,0,0,
+woman_94__p1,R7,C3,jpeg50,1,1,0,0,
+woman_94__p1,R7,C4,blur2,1,1,0,0,
+woman_94__p1,R7,C5,vae_trans,1,1,0,0,
+woman_94__p1,R8,C2,none,1,0,0,0,
+woman_94__p1,R8,C3,jpeg50,1,0,0,0,
+woman_94__p1,R8,C4,blur2,1,0,0,0,
+woman_94__p1,R8,C5,vae_trans,1,0,0,0,
+woman_94__p2,R1,C2,none,1,0,0,0,
+woman_94__p2,R1,C3,jpeg50,1,0,0,0,
+woman_94__p2,R1,C4,blur2,1,0,1,0,helmet-like object at hand
+woman_94__p2,R1,C5,vae_trans,0,0,1,0,helmet object at hand only
+woman_94__p2,R2,C2,none,1,1,0,0,
+woman_94__p2,R2,C3,jpeg50,1,1,0,0,
+woman_94__p2,R2,C4,blur2,1,1,0,0,
+woman_94__p2,R2,C5,vae_trans,1,1,0,0,
+woman_94__p2,R3,C2,none,1,1,1,0,yellow helmet at hand
+woman_94__p2,R3,C3,jpeg50,1,1,1,0,yellow helmet at hand
+woman_94__p2,R3,C4,blur2,0,1,1,0,yellow helmet at hand only
+woman_94__p2,R3,C5,vae_trans,1,1,1,0,armor and helmet objects
+woman_94__p2,R4,C2,none,0,1,0,0,faint shell
+woman_94__p2,R4,C3,jpeg50,0,1,0,0,faint shell
+woman_94__p2,R4,C4,blur2,0,1,0,0,
+woman_94__p2,R4,C5,vae_trans,0,1,1,0,helmet object at hand
+woman_94__p2,R5,C2,none,0,1,0,0,faint shell
+woman_94__p2,R5,C3,jpeg50,0,1,0,0,faint shell
+woman_94__p2,R5,C4,blur2,0,1,0,0,
+woman_94__p2,R5,C5,vae_trans,0,1,1,0,helmet object at hand
+woman_94__p2,R6,C2,none,1,1,0,0,
+woman_94__p2,R6,C3,jpeg50,1,1,0,0,
+woman_94__p2,R6,C4,blur2,1,1,0,0,
+woman_94__p2,R6,C5,vae_trans,1,1,0,0,
+woman_94__p2,R7,C2,none,1,1,0,0,
+woman_94__p2,R7,C3,jpeg50,1,1,0,0,
+woman_94__p2,R7,C4,blur2,1,1,0,0,
+woman_94__p2,R7,C5,vae_trans,0,1,0,0,faint shell
+woman_94__p2,R8,C2,none,0,1,0,0,
+woman_94__p2,R8,C3,jpeg50,0,1,0,0,
+woman_94__p2,R8,C4,blur2,0,1,0,0,
+woman_94__p2,R8,C5,vae_trans,0,1,0,0,
+woman_94__p3,R1,C2,none,1,1,1,0,extra bowtie on sweater
+woman_94__p3,R1,C3,jpeg50,1,1,1,0,extra bowtie on sweater
+woman_94__p3,R1,C4,blur2,1,1,1,1,headless suited figures
+woman_94__p3,R1,C5,vae_trans,1,1,1,0,extra people and bowties
+woman_94__p3,R2,C2,none,1,1,1,0,extra bowties and man
+woman_94__p3,R2,C3,jpeg50,1,1,1,0,different man
+woman_94__p3,R2,C4,blur2,1,1,1,0,extra bowties and people
+woman_94__p3,R2,C5,vae_trans,1,1,1,0,different man
+woman_94__p3,R3,C2,none,1,1,1,0,extra bowties
+woman_94__p3,R3,C3,jpeg50,1,1,1,0,different man
+woman_94__p3,R3,C4,blur2,1,1,1,0,extra bowties and people
+woman_94__p3,R3,C5,vae_trans,1,1,1,0,different man
+woman_94__p3,R4,C2,none,1,1,1,0,extra bowtie on jacket
+woman_94__p3,R4,C3,jpeg50,1,1,1,0,extra bowtie at hand
+woman_94__p3,R4,C4,blur2,1,1,1,1,headless suited figures
+woman_94__p3,R4,C5,vae_trans,1,1,1,0,extra people and bowties
+woman_94__p3,R5,C2,none,1,1,1,0,extra bowties
+woman_94__p3,R5,C3,jpeg50,1,1,1,0,different man
+woman_94__p3,R5,C4,blur2,1,1,1,1,faceless suited figures
+woman_94__p3,R5,C5,vae_trans,1,1,1,0,different man
+woman_94__p3,R6,C2,none,1,1,1,0,extra bowties
+woman_94__p3,R6,C3,jpeg50,1,1,1,0,extra bowties
+woman_94__p3,R6,C4,blur2,1,1,1,1,headless suited figures
+woman_94__p3,R6,C5,vae_trans,1,1,1,0,extra people and bowties
+woman_94__p3,R7,C2,none,1,1,1,0,extra bowtie on jacket
+woman_94__p3,R7,C3,jpeg50,1,1,1,0,extra bowtie
+woman_94__p3,R7,C4,blur2,1,1,1,0,extra bowtie
+woman_94__p3,R7,C5,vae_trans,1,1,1,0,extra bowtie
+woman_94__p3,R8,C2,none,1,1,0,0,
+woman_94__p3,R8,C3,jpeg50,1,1,0,0,small red pin
+woman_94__p3,R8,C4,blur2,1,1,1,0,extra bowties and people
+woman_94__p3,R8,C5,vae_trans,1,1,1,0,extra bowties and people

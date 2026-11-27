@@ -26,8 +26,23 @@
   log：trial `logs/ablation_strength/all.log`（結束行 `[STRENGTH-ALL] … rc=`）、`logs/lane_color_abl_s_<1–6>.log`、
   `logs/ablation_strength/vae_<條件>.log`。完成後產物：`results/ablation_strength/{summary.csv,summary.txt,per_image.csv}`（遠端），
   拼圖 trial `artifacts_pexels/ablation_strength_sheets/`（120 張、8 列 R1–R8 打亂，`key.csv`、`cells.csv`）。
-  待辦：rc＝0 後把 summary 三檔與 `key.csv`（複製到 `results/ablation_strength/key.csv`）抓回 repo 提交；Sonnet 評審由 executor 執行。
-  rc≠0 時依 log 查原因，各子指令可單獨重跑（`vae <條件>`、`finish`）。
+  已完成（rc＝0）：讀數與 `key.csv` 在 `results/ablation_strength/`；Sonnet 評審與計分在 `docs/isr_pilot/ablation_strength/`（commit `64c7db69`）；
+  Full、B2_lpips0p85、B3_lpips0p55 三者都擋下的格子：`scripts/measure_ablation_strength_all_blocked.py` → `results/ablation_strength_all_blocked/`，
+  拼圖 trial `artifacts_pexels/ablation_strength_all_blocked/`。
+- 消融降強度擴充到 crosseditor100 全部 100 張（以 JPEG 50、blur σ2、VAE-Trans 合併的 ISR 對齊；30 張樣本上 Full 19.9％、
+  B2_lpips0p85 18.3％、B3_lpips0p55 23.5％）：條件 `color_baseline_huesat_lpips0p85_pexels`、`color_baseline_affine_lpips0p55_pexels`
+  （各補 70 張，30 張沿用；寫進同一條件目錄）與 `color_baseline_affine_lpips0p40_pexels`（100 張，從下方夾住 Full），共 240 次求解；
+  機制與協定同上一項，none 照跑。樣本 `results/ablation_strength_crosseditor100/images.txt`（crosseditor100 排序後 100 張）。
+  driver `scripts/run_ablation_strength_crosseditor100.sh`（遠端 basic-2 以 setsid 依序跑 queue → check → readout → vae → sheets → summary，
+  每段寫 `[STEP] <段> rc=`，失敗即 `[FATAL]` 停止；prep 已先行完成）。log：trial `logs/ablation_strength_crosseditor100/all.log`
+  （結束行 `[CROSSEDITOR100-ALL] … rc=0`）、`logs/lane_color_abl_x_<1–6>.log`、`logs/ablation_strength_crosseditor100/`（租約、CPU 美學）。
+  VAE-Trans：新增影像寫入 trial `artifacts_pexels/vae_trans_crosseditor100/<條件>/`；30 張樣本沿用 `artifacts_pexels/vae_trans/<條件>/`。
+  readout 段以 100 張重做佇列讀數，trial `results/<條件>/` 的 fidelity.csv、`additional/aesthetic.csv` 改為 100 張（30 張數值不變）。
+  完成後產物：拼圖 trial `artifacts_pexels/ablation_strength_crosseditor100_sheets/`（400 張 × 5 列 R1–R5：Undefended、Full、
+  B2_lpips0p85、B3_lpips0p55、B3_lpips0p40，`default_rng(20260812)` 逐張打亂；`key.csv`、`cells.csv`），讀數遠端
+  `results/ablation_strength_crosseditor100/{per_image.csv,summary.csv,summary.txt}`。
+  下一步：把讀數三檔與拼圖 `key.csv` 抓回 repo 提交；由 executor 以 Sonnet 評審 400 張拼圖並計分。失敗時依 all.log 的 FATAL 查原因，
+  各段可單獨重跑（`bash scripts/run_ablation_strength_crosseditor100.sh <段>`；vae 段不覆寫已存在的 `vae_trans_crosseditor100/<條件>/`）。
 - 多色調 ImmuLUT（論文 Fig. 4 方向，未納入論文；目標為防禦圖像真人會套用的相片濾鏡且未淨化即擋下）：搜尋已停止，無進行中的批次。
   結論：police suit 與血腥句（`give this person rotting zombie skin`）在所有參數化下沒有任何一格於未淨化時擋下，最佳為原衣物保留但多肩章、
   臂章；woman_111、woman_152、man_32、woman_59 在外觀自然的設定下結論相同。helmet 的未淨化擋下來自旋轉場對暗色（頭髮）的大位移，

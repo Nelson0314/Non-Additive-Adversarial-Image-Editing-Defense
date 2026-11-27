@@ -92,3 +92,12 @@
 - **supp 包已重做**：桌面 `supplementary.zip`（11,976,773 bytes）＝ `paper_supp.pdf`（`fd554671` 編譯，第 11–19 頁，9 頁）＋ `code/`（49 檔）。匿名 grep 只命中種子 20260812。打包目錄在 basic-1 `~/executor_tmp/supp_package/`。上傳 OpenReview 由使用者執行。
 - **Overleaf**：仍停在 `ba5a8de8`。上一輪核准後 Chrome 擴充功能連不上，未同步；待同步的檔為 `main.tex`、`7_llm_usage.tex`、`X_suppl.tex`，須使用者在 paper pane 核准。
 - pane 編號（11/27）：paper＝1、baseline＝2、executor＝3、color＝4。
+
+### 教授 11/27 要求與 100 張擴充（遠端自行執行中）
+
+教授：以三種淨化（JPEG 50、blur σ2、VAE-Trans）合併為主，確認同一批樣本、ISR 相近時 Full 的品質是否明顯且穩定較好；有就整理成一張圖，只是小的分數差就不加這段分析。
+
+- 30 張結果（`docs/isr_pilot/ablation_strength/`，`64c7db69`）：三種淨化合併的 ISR 為 Full 19.9％、B2 0.85 倍 18.3％、B3 0.55 倍 23.5％；對齊表在桌面 `ablation_strength_aligned_table.png`，三者都擋下的 14 格並排圖在桌面 `ablation_strength_all_blocked_page{1,2}.png`。
+- 擴充：crosseditor100 全部 100 張，條件 B2 `lpips0p85`、B3 `lpips0p55`（補 70 張）、B3 `lpips0p40`（新，100 張）。driver 在 basic-2（PID 1176688），log 為 color trial `logs/ablation_strength_crosseditor100/all.log`，結束行 `[CROSSEDITOR100-ALL] … rc=0`，失敗寫 `[FATAL]`。預估 11/28 15:00 完成。細節與產物路徑見 `color/STATUS.md`。
+- 完成後：(1) color 把讀數三檔與 key.csv 收進 repo；(2) executor 以 Sonnet 評審 `artifacts_pexels/ablation_strength_crosseditor100_sheets/` 的 400 張拼圖（5 列：Undefended、Full、B2 0.85、B3 0.55、B3 0.40），rubric 比照 `docs/isr_pilot/ablation_strength/rubric.md` 改為 5 列；(3) 計分以三種淨化合併為主，報 ISR、LAION／MUSIQ 成對差與逐張影像 Full 品質較高的比例，不下判定。
+- supp：桌面 `supplementary.zip` 與 `paper_supp.pdf`（`fd554671`）已檢查，使用者自行上傳 OpenReview。Overleaf 仍停在 `ba5a8de8`。

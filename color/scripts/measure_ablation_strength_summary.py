@@ -25,16 +25,26 @@ CONDS = [(f"color_baseline_{carrier}_lpips{r}_pexels", row, float(r.replace("p",
 METRICS = ["aes_laion", "aes_musiq_ava"]
 
 
-def by_image(path, cols):
+def by_image(path, cols, key, condition):
+    """只取 key 欄等於 condition 的列（aesthetic.csv 每張影像另有 condition＝original 的原圖列）；同一影像重複即失敗。"""
     if not path.is_file():
         raise SystemExit(f"缺 {path}")
-    return {r["image"]: {c: float(r[c]) for c in cols} for r in csv.DictReader(open(path, encoding="utf-8"))}
+    out = {}
+    for r in csv.DictReader(open(path, encoding="utf-8")):
+        if r[key] != condition:
+            continue
+        if r["image"] in out:
+            raise SystemExit(f"{path} 的 {condition} {r['image']} 重複")
+        out[r["image"]] = {c: float(r[c]) for c in cols}
+    if not out:
+        raise SystemExit(f"{path} 沒有 {key}＝{condition} 的列")
+    return out
 
 
 def main():
     images = (OUT / "images.txt").read_text(encoding="utf-8").split()
-    full_lpips = by_image(TRIAL / "results" / FULL / "fidelity.csv", ["lpips"])
-    full_aes = by_image(TRIAL / "results" / FULL / "per_image" / "aesthetic.csv", METRICS)
+    full_lpips = by_image(TRIAL / "results" / FULL / "fidelity.csv", ["lpips"], "arm", FULL)
+    full_aes = by_image(TRIAL / "results" / FULL / "per_image" / "aesthetic.csv", METRICS, "condition", FULL)
     rows, summary = [], []
     for img in images:
         if img not in full_lpips or img not in full_aes:
@@ -47,8 +57,8 @@ def main():
                     "full_laion_same_images": "", "full_musiq_same_images": "", "unreachable_images": ""})
     for cond, row, ratio in CONDS:
         res = TRIAL / "results" / cond
-        lp = by_image(res / "fidelity.csv", ["lpips"]) if (res / "fidelity.csv").is_file() else {}
-        aes = by_image(res / "additional" / "aesthetic.csv", METRICS) if lp else {}
+        lp = by_image(res / "fidelity.csv", ["lpips"], "arm", cond) if (res / "fidelity.csv").is_file() else {}
+        aes = by_image(res / "additional" / "aesthetic.csv", METRICS, "condition", cond) if lp else {}
         delivered, unreachable = [], []
         for img in images:
             target = ratio * full_lpips[img]["lpips"]

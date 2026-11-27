@@ -1,0 +1,8 @@
+condition,row,ratio,n_images,n_delivered,n_unreachable,defense_lpips,target_lpips,max_abs_gap_to_target,laion,musiq,full_laion_same_images,full_musiq_same_images,unreachable_images
+color3d_scale2p5_pexels,Full,1.0,30,30,0,0.3101,,,5.2657,5.2391,,,
+color_baseline_huesat_lpips0p85_pexels,B2,0.85,30,30,0,0.2664,0.2636,0.0144,5.1982,5.1527,5.2657,5.2391,
+color_baseline_huesat_lpips0p70_pexels,B2,0.7,30,30,0,0.2193,0.2171,0.0138,5.2431,5.2267,5.2657,5.2391,
+color_baseline_huesat_lpips0p55_pexels,B2,0.55,30,30,0,0.1725,0.1706,0.0122,5.2733,5.2809,5.2657,5.2391,
+color_baseline_affine_lpips0p85_pexels,B3,0.85,30,30,0,0.2636,0.2636,0.0085,5.2173,4.7932,5.2657,5.2391,
+color_baseline_affine_lpips0p70_pexels,B3,0.7,30,30,0,0.216,0.2171,0.0145,5.2607,4.7956,5.2657,5.2391,
+color_baseline_affine_lpips0p55_pexels,B3,0.55,30,30,0,0.1704,0.1706,0.0047,5.3013,4.8764,5.2657,5.2391,

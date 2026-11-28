@@ -41,7 +41,8 @@ pane 編號會變動，送訊前一律以 multi-agent 的 `list_panes` 依標題
 ## 4. 現況
 
 ### 4.1 同步狀態
-- repo 與 Overleaf 最後逐字一致於 `db914dcc`：同步前線上只有 `sec/X_suppl.tex` 與 `ba5a8de8` 不同，差異為 `\section{Ablation Study}` 前多 9 個空行（無文字），以 `ba5a8de8` 為基底三方合併收入 `db914dcc`；`main.tex`（supp 目錄設定）、`sec/7_llm_usage.tex`、`sec/X_suppl.tex` 以編輯器 transaction 套用，重新載入後雜湊一致；無新圖檔。線上編譯 18 頁、0 錯誤、0 警告。下次同步以 `db914dcc` 為三方合併基底。大型 ops 檔以頁面上暫建的 file input 經 `file_upload` 讀入，不手動轉貼。
+- repo 與 Overleaf 最後逐字一致於 `ced2d32d`：同步前線上 14 個文字檔皆等於 `db914dcc`；`sec/X_suppl.tex` 加入 supp 各節獨立的 hyperref 目標（目錄連結原本會跳到正文同號章節），以編輯器 transaction 套用，重新載入後雜湊一致。線上編譯 18 頁、0 錯誤、0 警告。下次同步以 `ced2d32d` 為三方合併基底。
+- `db914dcc` 同步時：同步前線上只有 `sec/X_suppl.tex` 與 `ba5a8de8` 不同，差異為 `\section{Ablation Study}` 前多 9 個空行（無文字），以 `ba5a8de8` 為基底三方合併收入 `db914dcc`；`main.tex`（supp 目錄設定）、`sec/7_llm_usage.tex`、`sec/X_suppl.tex` 以編輯器 transaction 套用，重新載入後雜湊一致；無新圖檔。線上編譯 18 頁、0 錯誤、0 警告。下次同步以 `db914dcc` 為三方合併基底。大型 ops 檔以頁面上暫建的 file input 經 `file_upload` 讀入，不手動轉貼。
 - `ba5a8de8` 同步時：同步前線上只有 `X_suppl.tex` 與 `7ec63889` 不同（羅婈修訂兩處，已以三方合併收入 `74988b9e`）；`X_suppl.tex` 以詞級修改套用；新上傳 `fig/inpaint_woman_118_snowy_street.pdf`，覆蓋 `ablation_appearance.pdf`、`inpaint_man_26_dog.pdf`、`inpaint_woman_14_hospital.pdf`、`inpaint_man_81_dog.pdf`。線上編譯 16 頁、0 錯誤。下次同步以 `ba5a8de8` 為三方合併基底。線上的 `fig/inpaint_woman_39_gym.pdf` 已不被引用，保留未刪。補充材料 PDF：basic-1 以 pdflatex 編譯整份（16 頁，Conclusion 在第 8 頁）後擷取第 11–16 頁，存為桌面 `paper_supp.pdf`（6 頁）。
 - `7ec63889` 同步時：同步前線上 14 個文字檔皆等於 `04ab6494`；`X_suppl.tex`（inpainting ISR 段與表 `tab:supp_inpaint_isr`、兩張質性圖）與 `7_llm_usage.tex`（ip2p 有人工複核、inpainting 無）以詞級修改套用；新上傳 `fig/inpaint_woman_39_gym.pdf`、`fig/inpaint_man_81_dog.pdf`。線上編譯 16 頁、0 錯誤（正文未改）。下次同步以 `7ec63889` 為三方合併基底。
 - `04ab6494` 同步時：同步前線上 14 個文字檔皆等於 `f0cd3cee`，`4_experiments.tex` 以詞級修改套用（消融段 LAION、MUSIQ 換成 306 張版），線上編譯 14 頁、0 錯誤。

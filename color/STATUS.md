@@ -41,8 +41,12 @@
   完成後產物：拼圖 trial `artifacts_pexels/ablation_strength_crosseditor100_sheets/`（400 張 × 5 列 R1–R5：Undefended、Full、
   B2_lpips0p85、B3_lpips0p55、B3_lpips0p40，`default_rng(20260812)` 逐張打亂；`key.csv`、`cells.csv`），讀數遠端
   `results/ablation_strength_crosseditor100/{per_image.csv,summary.csv,summary.txt}`。
-  下一步：把讀數三檔與拼圖 `key.csv` 抓回 repo 提交；由 executor 以 Sonnet 評審 400 張拼圖並計分。失敗時依 all.log 的 FATAL 查原因，
-  各段可單獨重跑（`bash scripts/run_ablation_strength_crosseditor100.sh <段>`；vae 段不覆寫已存在的 `vae_trans_crosseditor100/<條件>/`）。
+  現況：依使用者指示停止於 vae 段；求解、讀數、none／JPEG 50／blur 2 編輯已完成，VAE-Trans 部分完成，不重啟、不接續 vae、sheets、summary。
+  停止時 `vae_trans_crosseditor100/<條件>/` 的 VAE-Trans 編輯數：B3_lpips0p40 180／400、B2_lpips0p85 183／280、B3_lpips0p55 178／280；
+  已產出的檔案保留。5 列拼圖、`key.csv` 與 `results/ablation_strength_crosseditor100/` 的讀數三檔未產生。
+  vae 段第一次失敗的原因為 artifacts 路徑是相對路徑（`bl()` 先 cd 到 baseline），修正於 commit `0567f106`。
+  executor 以 70 張新拼圖加 30 張樣本的既有判定計算 JPEG 50＋blur 2 的 ISR：遠端 basic-2 `~/executor_tmp/score100/`（計分程式與輸入）、
+  `~/executor_tmp/sheets70/`（70 張的拼圖與 `key.csv`）。
 - 多色調 ImmuLUT（論文 Fig. 4 方向，未納入論文；目標為防禦圖像真人會套用的相片濾鏡且未淨化即擋下）：搜尋已停止，無進行中的批次。
   結論：police suit 與血腥句（`give this person rotting zombie skin`）在所有參數化下沒有任何一格於未淨化時擋下，最佳為原衣物保留但多肩章、
   臂章；woman_111、woman_152、man_32、woman_59 在外觀自然的設定下結論相同。helmet 的未淨化擋下來自旋轉場對暗色（頭髮）的大位移，

@@ -17,7 +17,7 @@ set -uo pipefail
 COLOR=$HOME/image-immunization/color
 cd "$COLOR" || exit 1
 T=trials/lut3d_defense_and_naturalness
-A=$T/artifacts_pexels
+A=$COLOR/$T/artifacts_pexels  # 絕對路徑：bl() 先 cd 到 baseline 再執行，相對路徑會解析到 baseline 底下
 B=$HOME/image-immunization/baseline
 IMAGES=$COLOR/results/ablation_strength_crosseditor100/images.txt
 JOBS_FILE=$T/jobs/ablation_strength_crosseditor100.txt

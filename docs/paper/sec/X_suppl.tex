@@ -11,6 +11,14 @@
 \addtocontents{toc}{\protect\setcounter{tocdepth}{2}}
 \begingroup\makeatletter\setcounter{tocdepth}{-1}\renewcommand{\contentsname}{Contents}\renewcommand{\l@section}[2]{\@dottedtocline{1}{0em}{1.6em}{\bfseries #1}{#2}}\renewcommand{\l@subsection}[2]{\@dottedtocline{2}{1.6em}{2.3em}{#1}{#2}}\footnotesize\tableofcontents\makeatother\endgroup
 
+
+
+
+
+
+
+
+
 \section{Ablation Study}
 \label{sec:supp_ablation}
 We evaluate the contributions of the components of \capg{} and compare its parameterization with simpler color mappings. \Cref{tab:ablation} reports the results, and \cref{fig:ablation_appearance} illustrates the immunized images of one portrait. All optimized variants share the solver of \capg{}: Adam for 1800 steps with the learning rate decayed from $3\times10^{-4}$ to $10^{-5}$, initial parameters drawn as $0.002\cdot\mathcal{N}(0, 1)$ around the identity mapping, and the objective of \capg{}, the distance between the posterior means of the InstructPix2Pix VAE encoder for the immunized and the original image. No distortion constraint enters the optimization of \capg{} and of the component variants (A1--A4), and all outputs are clipped to $[0, 1]$.
